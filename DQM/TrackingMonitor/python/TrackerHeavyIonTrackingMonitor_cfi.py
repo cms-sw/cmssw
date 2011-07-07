@@ -20,7 +20,7 @@ TrackerHeavyIonTrackMon.MeasurementState      = cms.string('ImpactPoint')
 TrackerHeavyIonTrackMon.doTrackerSpecific     = cms.bool(True)
 TrackerHeavyIonTrackMon.doAllPlots            = cms.bool(True)
 TrackerHeavyIonTrackMon.doBeamSpotPlots       = cms.bool(True)
-TrackerHeavyIonTrackMon.doSeedParameterHistos = cms.bool(True)
+TrackerHeavyIonTrackMon.doAllSeedParameterHistos = cms.bool(True)
 
 TrackerHeavyIonTrackMon.doLumiAnalysis        = cms.bool(True)                       
 

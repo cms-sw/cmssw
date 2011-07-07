@@ -22,7 +22,7 @@ TrackerCollisionTrackMon.MeasurementState      = cms.string('ImpactPoint')
 TrackerCollisionTrackMon.doTrackerSpecific     = cms.bool(True)
 TrackerCollisionTrackMon.doAllPlots            = cms.bool(True)
 TrackerCollisionTrackMon.doBeamSpotPlots       = cms.bool(True)
-TrackerCollisionTrackMon.doSeedParameterHistos = cms.bool(True)
+TrackerCollisionTrackMon.doAllSeedParameterHistos = cms.bool(True)
 
 TrackerCollisionTrackMon.doLumiAnalysis        = cms.bool(True)                       
 

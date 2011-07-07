@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/02/17 14:29:53 $
- *  $Revision: 1.23 $
+ *  $Date: 2011/05/22 17:38:15 $
+ *  $Revision: 1.24 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -164,8 +164,9 @@ void TrackingMonitor::beginJob(void)
 
     // book profile plots vs LS :  
     //---------------------------  
-     
-    if ( doProfilesVsLS_ ) {
+    doAllPlots=conf_.getParameter<bool>("doAllPlots"); //if this is true all available plots will be done    
+ 
+    if ( doProfilesVsLS_ || doAllPlots) {
       histname = "GoodTracksFractionVsLS_"+ CatagoryName;
       GoodTracksFractionVsLS = dqmStore_->bookProfile(histname,histname, LSBin,LSMin,LSMax,0,1.1,"");
       GoodTracksFractionVsLS->getTH1()->SetBit(TH1::kCanRebin);
@@ -183,29 +184,77 @@ void TrackingMonitor::beginJob(void)
 
     // book the Seed Property histograms
     // ---------------------------------------------------------------------------------//
-    if (conf_.getParameter<bool>("doSeedParameterHistos")) 
-    {
-        dqmStore_->setCurrentFolder(MEFolderName+"/TrackBuilding");
 
-        histname = "NumberOfSeeds_" + CatagoryName;
-        NumberOfSeeds = dqmStore_->book1D(histname, histname, TKNoSeedBin, TKNoSeedMin, TKNoSeedMax);
-        NumberOfSeeds->setAxisTitle("Number of Seeds per Event", 1);
-        NumberOfSeeds->setAxisTitle("Number of Events", 2);
+    dqmStore_->setCurrentFolder(MEFolderName+"/TrackBuilding");
 
-        histname = "NumberOfTrackCandidates_" + CatagoryName;
-        NumberOfTrackCandidates = dqmStore_->book1D(histname, histname, TCNoBin, TCNoMin, TCNoMax);
-        NumberOfTrackCandidates->setAxisTitle("Number of Track Candidates per Event", 1);
-        NumberOfTrackCandidates->setAxisTitle("Number of Event", 2);
-    
-        theTrackBuildingAnalyzer->beginJob(dqmStore_);
+    doAllSeedPlots=conf_.getParameter<bool>("doAllSeedParameterHistos");
+    doSeedNumberPlot=conf_.getParameter<bool>("doSeedNumberHisto");
+    doSeedVsClusterPlot=conf_.getParameter<bool>("doSeedVsClusterHisto");
+    if (doAllPlots) doAllSeedPlots=true;
+
+    runTrackBuildingAnalyzerForSeed=(doAllSeedPlots || conf_.getParameter<bool>("doSeedPTHisto") ||conf_.getParameter<bool>("doSeedETAHisto") || conf_.getParameter<bool>("doSeedPHIHisto") || conf_.getParameter<bool>("doSeedThetaHisto") || conf_.getParameter<bool>("doSeedQHisto") || conf_.getParameter<bool>("doSeedDxyHisto") || conf_.getParameter<bool>("doSeedDzHisto") || conf_.getParameter<bool>("doSeedNRecHitsHisto") || conf_.getParameter<bool>("doSeedNVsPhiProf")|| conf_.getParameter<bool>("doSeedNVsEtaProf"));
+
+    edm::InputTag seedProducer   = conf_.getParameter<edm::InputTag>("SeedProducer");
+
+    if (doAllSeedPlots || doSeedNumberPlot){
+      histname = "NumberOfSeeds_"+ seedProducer.label() + "_"+ CatagoryName;
+      NumberOfSeeds = dqmStore_->book1D(histname, histname, TKNoSeedBin, TKNoSeedMin, TKNoSeedMax);
+      NumberOfSeeds->setAxisTitle("Number of Seeds per Event", 1);
+      NumberOfSeeds->setAxisTitle("Number of Events", 2);
     }
+
+    if (doAllSeedPlots || doSeedVsClusterPlot){
+
+      ClusterLabels=  conf_.getParameter<std::vector<std::string> >("ClusterLabels");
+
+      std::vector<double> histoMin,histoMax;
+      std::vector<int> histoBin; //these vectors are for max min and nbins in histograms 
+
+      int    NClusPxBin  = conf_.getParameter<int>(   "NClusPxBin");
+      double NClusPxMin  = conf_.getParameter<double>("NClusPxMin");
+      double NClusPxMax = conf_.getParameter<double>("NClusPxMax");
+      
+      int    NClusStrBin = conf_.getParameter<int>(   "NClusStrBin");
+      double NClusStrMin = conf_.getParameter<double>("NClusStrMin");
+      double NClusStrMax = conf_.getParameter<double>("NClusStrMax");
+
+      setMaxMinBin(histoMin,histoMax,histoBin,NClusStrMin,NClusStrMax,NClusStrBin,NClusPxMin,NClusPxMax,NClusPxBin);
+     
+      for (uint i=0; i<ClusterLabels.size(); i++){
+	histname = "SeedsVsClusters_" + seedProducer.label() + "_Vs_" + ClusterLabels[i] + "_" + CatagoryName;
+	SeedsVsClusters.push_back(dynamic_cast<MonitorElement*>(dqmStore_->book2D(histname, histname, histoBin[i], histoMin[i], histoMax[i],
+										  TKNoSeedBin, TKNoSeedMin, TKNoSeedMax)));
+	SeedsVsClusters[i]->setAxisTitle("Number of Clusters", 1);
+	SeedsVsClusters[i]->setAxisTitle("Number of Seeds", 2);
+      }
+    }
+    
+
+    doTkCandPlots=conf_.getParameter<bool>("doTrackCandHistos");
+    if (doAllPlots) doTkCandPlots=true;
+
+    if (doTkCandPlots){
+
+      edm::InputTag tcProducer     = conf_.getParameter<edm::InputTag>("TCProducer");
+
+      histname = "NumberOfTrackCandidates_"+ tcProducer.label() + "_"+ CatagoryName;
+      NumberOfTrackCandidates = dqmStore_->book1D(histname, histname, TCNoBin, TCNoMin, TCNoMax);
+      NumberOfTrackCandidates->setAxisTitle("Number of Track Candidates per Event", 1);
+      NumberOfTrackCandidates->setAxisTitle("Number of Event", 2);
+    }
+
+   
+    theTrackBuildingAnalyzer->beginJob(dqmStore_);
+    
+
     if (doLumiAnalysis) {
       if (NumberOfTracks) NumberOfTracks->setLumiFlag();
       if (NumberOfGoodTracks) NumberOfGoodTracks->setLumiFlag();
       if (FractionOfGoodTracks) FractionOfGoodTracks->setLumiFlag();
       theTrackAnalyzer->setLumiFlag();    
     }
-    if (doTrackerSpecific_) {
+
+    if (doTrackerSpecific_ || doAllPlots) {
 
       int    NClusPxBin  = conf_.getParameter<int>(   "NClusPxBin");
       double NClusPxMin  = conf_.getParameter<double>("NClusPxMin");
@@ -254,6 +303,7 @@ void TrackingMonitor::beginJob(void)
 //---------------------------------------------------------------------------------//
 void TrackingMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 {
+ 
   // Initialize the GenericTriggerEventFlag
   if ( genTriggerEventFlag_->on() ) genTriggerEventFlag_->initRun( iRun, iSetup );
 }
@@ -261,6 +311,7 @@ void TrackingMonitor::beginRun(const edm::Run& iRun, const edm::EventSetup& iSet
 // - BeginLumi
 // ---------------------------------------------------------------------------------//
 void TrackingMonitor::beginLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup&  eSetup) {
+
   if (doLumiAnalysis) {
     dqmStore_->softReset(NumberOfTracks);
     dqmStore_->softReset(NumberOfGoodTracks);
@@ -342,7 +393,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	double frac = 0.;
 	if (totalNumPt1Tracks > 0) frac = static_cast<double>(totalNumHPPt1Tracks)/static_cast<double>(totalNumPt1Tracks);
 	FractionOfGoodTracks->Fill(frac);
-	if ( doProfilesVsLS_ )
+	if ( doProfilesVsLS_ || doAllPlots)
 	  GoodTracksFractionVsLS->Fill(static_cast<double>(iEvent.id().luminosityBlock()),frac);
 
         if( totalNumTracks > 0 )
@@ -358,38 +409,44 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	//  if the collection is empty, do not fill anything
 	// ---------------------------------------------------------------------------------//
 	
-	if (conf_.getParameter<bool>("doSeedParameterHistos")) 
-	  {
-	    
-	    // magnetic field
-	    edm::ESHandle<MagneticField> theMF;
-	    iSetup.get<IdealMagneticFieldRecord>().get(theMF);  
-	    
-	    // get the beam spot
-	    edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
-	    iEvent.getByLabel(bsSrc,recoBeamSpotHandle);
-	    const reco::BeamSpot& bs = *recoBeamSpotHandle;      
-	    
-	    // get the candidate collection
-	    edm::Handle<TrackCandidateCollection> theTCHandle;
-	    iEvent.getByLabel(tcProducer, theTCHandle ); 
-	    const TrackCandidateCollection& theTCCollection = *theTCHandle;
-	    
+	    	   	    
 	    // fill the TrackCandidate info
-	    if (theTCHandle.isValid())
+	    if (doTkCandPlots) 
 	      {
-		NumberOfTrackCandidates->Fill(theTCCollection.size());
-		iSetup.get<TransientRecHitRecord>().get(builderName,theTTRHBuilder);
-		for( TrackCandidateCollection::const_iterator cand = theTCCollection.begin(); cand != theTCCollection.end(); ++cand)
+	
+		// magnetic field
+		edm::ESHandle<MagneticField> theMF;
+		iSetup.get<IdealMagneticFieldRecord>().get(theMF);  
+		
+		// get the beam spot
+		edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+		iEvent.getByLabel(bsSrc,recoBeamSpotHandle);
+		const reco::BeamSpot& bs = *recoBeamSpotHandle;      
+		
+		// get the candidate collection
+		edm::Handle<TrackCandidateCollection> theTCHandle;
+		iEvent.getByLabel(tcProducer, theTCHandle ); 
+		const TrackCandidateCollection& theTCCollection = *theTCHandle;
+
+		if (theTCHandle.isValid())
 		  {
-		    theTrackBuildingAnalyzer->analyze(iEvent, iSetup, *cand, bs, theMF, theTTRHBuilder);
+		    NumberOfTrackCandidates->Fill(theTCCollection.size());
+		    iSetup.get<TransientRecHitRecord>().get(builderName,theTTRHBuilder);
+		    for( TrackCandidateCollection::const_iterator cand = theTCCollection.begin(); cand != theTCCollection.end(); ++cand)
+		      {
+			theTrackBuildingAnalyzer->analyze(iEvent, iSetup, *cand, bs, theMF, theTTRHBuilder);
+		      }
+		  }
+		else
+		  {
+		    edm::LogWarning("TrackingMonitor") << "No Track Candidates in the event.  Not filling associated histograms";
 		  }
 	      }
-	    else
-	      {
-		edm::LogWarning("TrackingMonitor") << "No Track Candidates in the event.  Not filling associated histograms";
-	      }
+	   
+	    //plots for trajectory seeds
 
+	    if (doAllSeedPlots || doSeedNumberPlot || doSeedVsClusterPlot || runTrackBuildingAnalyzerForSeed){
+	    
 	    // get the seed collection
 	    edm::Handle<edm::View<TrajectorySeed> > seedHandle;
 	    iEvent.getByLabel(seedProducer, seedHandle);
@@ -398,21 +455,46 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	    // fill the seed info
 	    if (seedHandle.isValid()) 
 	      {
-		NumberOfSeeds->Fill(seedCollection.size());
-		
-		iSetup.get<TransientRecHitRecord>().get(builderName,theTTRHBuilder);
-		for(size_t i=0; i < seedHandle->size(); ++i)
-		  {
-		    edm::RefToBase<TrajectorySeed> seed(seedHandle, i);
-		    theTrackBuildingAnalyzer->analyze(iEvent, iSetup, *seed, bs, theMF, theTTRHBuilder);
+		if(doAllSeedPlots || doSeedNumberPlot) NumberOfSeeds->Fill(seedCollection.size());
+
+		if(doAllSeedPlots || doSeedVsClusterPlot){
+
+		  std::vector<int> NClus;
+		  setNclus(iEvent,NClus);
+		  for (uint  i=0; i< ClusterLabels.size(); i++){
+		    SeedsVsClusters[i]->Fill(NClus[i],seedCollection.size());
 		  }
+		}
+
+		if (doAllSeedPlots || runTrackBuildingAnalyzerForSeed){
+
+		  //here duplication of mag field and be informations is needed to allow seed and track cand histos to be independent
+		  // magnetic field
+		  edm::ESHandle<MagneticField> theMF;
+		  iSetup.get<IdealMagneticFieldRecord>().get(theMF);  
+		  
+		  // get the beam spot
+		  edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+		  iEvent.getByLabel(bsSrc,recoBeamSpotHandle);
+		  const reco::BeamSpot& bs = *recoBeamSpotHandle;      
+		  
+		  iSetup.get<TransientRecHitRecord>().get(builderName,theTTRHBuilder);
+		  for(size_t i=0; i < seedHandle->size(); ++i)
+		    {
+		      edm::RefToBase<TrajectorySeed> seed(seedHandle, i);
+		      theTrackBuildingAnalyzer->analyze(iEvent, iSetup, *seed, bs, theMF, theTTRHBuilder);
+		    }
+		}
+		
 	      }
 	    else
 	      {
 		edm::LogWarning("TrackingMonitor") << "No Trajectory seeds in the event.  Not filling associated histograms";
 	      }
-	  }
-	if ( doTrackerSpecific_) 
+	    }
+
+
+	if (doTrackerSpecific_ || doAllPlots) 
           {
 	    edm::Handle< edmNew::DetSetVector<SiStripCluster> > strip_clusters;
 	    iEvent.getByLabel("siStripClusters", strip_clusters);
@@ -460,4 +542,50 @@ void TrackingMonitor::endJob(void)
     }
 }
 
+void TrackingMonitor::setMaxMinBin(std::vector<double> &arrayMin,  std::vector<double> &arrayMax, std::vector<int> &arrayBin, double smin, double smax, int sbin, double pmin, double pmax, int pbin) 
+{
+  arrayMin.resize(ClusterLabels.size());
+  arrayMax.resize(ClusterLabels.size());
+  arrayBin.resize(ClusterLabels.size());
+
+  for (uint i=0; i<ClusterLabels.size(); ++i){
+
+    if (ClusterLabels[i].compare("Pix")==0) {arrayMin[i]=pmin; arrayMax[i]=pmax; arrayBin[i]=pbin;}
+    else if(ClusterLabels[i].compare("Strip")==0){arrayMin[i]=smin; arrayMax[i]=smax; arrayBin[i]=sbin;}
+    else if(ClusterLabels[i].compare("Tot")==0){arrayMin[i]=smin; arrayMax[i]=smax+pmax; arrayBin[i]=sbin;}
+    else {edm::LogWarning("TrackingMonitor")  << "Cluster Label " << ClusterLabels[i] << " not defined, using strip parameters "; 
+      arrayMin[i]=smin; arrayMax[i]=smax; arrayBin[i]=sbin;}
+
+  }
+    
+}
+
+void TrackingMonitor::setNclus(const edm::Event& iEvent,std::vector<int> &arrayNclus) 
+{
+
+  int ncluster_pix=-1;
+  int ncluster_strip=-1;
+
+  edm::Handle< edmNew::DetSetVector<SiStripCluster> > strip_clusters;
+  iEvent.getByLabel("siStripClusters", strip_clusters);
+  edm::Handle< edmNew::DetSetVector<SiPixelCluster> > pixel_clusters;
+  iEvent.getByLabel("siPixelClusters", pixel_clusters);
+
+  if (strip_clusters.isValid() && pixel_clusters.isValid()) 
+    {
+                ncluster_pix   = (*pixel_clusters).dataSize(); 
+                ncluster_strip = (*strip_clusters).dataSize(); 
+    }
+
+  arrayNclus.resize(ClusterLabels.size());
+  for (uint i=0; i<ClusterLabels.size(); ++i){
+
+    if (ClusterLabels[i].compare("Pix")==0) arrayNclus[i]=ncluster_pix ;
+    else if(ClusterLabels[i].compare("Strip")==0) arrayNclus[i]=ncluster_strip;
+    else if(ClusterLabels[i].compare("Tot")==0)arrayNclus[i]=ncluster_pix+ncluster_strip;
+    else {edm::LogWarning("TrackingMonitor") << "Cluster Label " << ClusterLabels[i] << " not defined using stri parametrs ";
+      arrayNclus[i]=ncluster_strip ;}
+  }
+    
+}
 DEFINE_FWK_MODULE(TrackingMonitor);

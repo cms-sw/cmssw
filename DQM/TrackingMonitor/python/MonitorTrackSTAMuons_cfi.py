@@ -7,7 +7,8 @@ MonitorTrackSTAMuons = cms.EDAnalyzer("TrackingMonitor",
     SeedProducer  = cms.InputTag("combinedP5SeedsForCTF"),
     TCProducer    = cms.InputTag("ckfTrackCandidatesP5"),
     beamSpot      = cms.InputTag("offlineBeamSpot"),
-
+    ClusterLabels = cms.vstring('Tot'),
+                                      
     # output parameters
     OutputMEsInRootFile = cms.bool(False),
     AlgoName            = cms.string('sta'),
@@ -27,9 +28,26 @@ MonitorTrackSTAMuons = cms.EDAnalyzer("TrackingMonitor",
     doTrackerSpecific     = cms.bool(False),
     doAllPlots            = cms.bool(False),
     doBeamSpotPlots       = cms.bool(False),
-    doSeedParameterHistos = cms.bool(False), 
+    doAllSeedParameterHistos = cms.bool(False),
+    doTrackCandHistos     = cms.bool(False),
     doGoodTrackPlots      = cms.bool(False),
     doProfilesVsLS        = cms.bool(False),
+
+
+    #which seed plots to do
+    doSeedNumberHisto = cms.bool(False),
+    doSeedVsClusterHisto = cms.bool(False),
+    doSeedPTHisto = cms.bool(False),
+    doSeedETAHisto = cms.bool(False),
+    doSeedPHIHisto = cms.bool(False),
+    doSeedThetaHisto = cms.bool(False),
+    doSeedQHisto = cms.bool(False),
+    doSeedDxyHisto= cms.bool(False),
+    doSeedDzHisto= cms.bool(False),
+    doSeedNRecHitsHisto= cms.bool(False),
+    doSeedNVsPhiProf= cms.bool(False),
+    doSeedNVsEtaProf= cms.bool(False),
+
 
     # paramters of the Track
     # ============================================================ 

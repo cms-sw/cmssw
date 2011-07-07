@@ -5,6 +5,8 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     # input tags
     TrackProducer = cms.InputTag("generalTracks"),
     SeedProducer  = cms.InputTag("newSeedFromTriplets"),
+    ClusterLabels = cms.vstring('Tot'), # to decide which Seeds-Clusters correlation plots to have default is Total other options 'Strip', 'Pix'
+                          
     TCProducer    = cms.InputTag("newTrackCandidateMaker"),
     beamSpot      = cms.InputTag("offlineBeamSpot"),
     
@@ -21,15 +23,34 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     #		   'ImpactPoint'  --> evalutate at impact point 
     #		   'InnerSurface' --> evalutate at innermost measurement state 
     #		   'OuterSurface' --> evalutate at outermost measurement state 
+
     MeasurementState = cms.string('ImpactPoint'),
     
     # which plots to do
-    doTrackerSpecific     = cms.bool(True),
-    doAllPlots            = cms.bool(False),
-    doBeamSpotPlots       = cms.bool(True),
-    doSeedParameterHistos = cms.bool(True),
+    doTrackerSpecific     = cms.bool(False),
+    doAllPlots            = cms.bool(False),#this doALL plots seem unuseful
+    doBeamSpotPlots       = cms.bool(False),
+    doAllSeedParameterHistos = cms.bool(False),
+    doTrackCandHistos     = cms.bool(False),
     doGoodTrackPlots      = cms.bool(False),
-    doProfilesVsLS        = cms.bool(True),
+    doProfilesVsLS        = cms.bool(False),
+
+    #which seed plots to do
+    doSeedNumberHisto = cms.bool(False),
+    doSeedVsClusterHisto = cms.bool(False),
+    doSeedPTHisto = cms.bool(False),
+    doSeedETAHisto = cms.bool(False),
+    doSeedPHIHisto = cms.bool(False),
+    doSeedThetaHisto = cms.bool(False),
+    doSeedQHisto = cms.bool(False),
+    doSeedDxyHisto= cms.bool(False),
+    doSeedDzHisto= cms.bool(False),
+    doSeedNRecHitsHisto= cms.bool(False),
+    doSeedNVsPhiProf= cms.bool(False),
+    doSeedNVsEtaProf= cms.bool(False),
+                          
+
+
     
     # paramters of the Track
     # ============================================================ 
