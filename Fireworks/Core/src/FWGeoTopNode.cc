@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel, Alja Mrak Tadel  
 //         Created:  Thu Jun 23 01:24:51 CEST 2011
-// $Id: FWGeoTopNode.cc,v 1.9 2011/07/05 23:38:42 amraktad Exp $
+// $Id: FWGeoTopNode.cc,v 1.10 2011/07/06 21:02:06 amraktad Exp $
 //
 
 // system include files
@@ -68,12 +68,11 @@ void FWGeoTopNode::setupBuffMtx(TBuffer3D& buff, const TGeoHMatrix& mat)
 //______________________________________________________________________________
 void FWGeoTopNode::Paint(Option_t*)
 {
-   int topIdx = m_browser->getTableManager()->getTopGeoNodeIdx();
+   int topIdx = m_browser->getTopNodeIdx();
    FWGeometryTableManager::Entries_i sit = m_entries->begin(); 
 
    m_maxLevel = m_browser->getVisLevel() + m_browser->getTableManager()->getLevelOffset() -1;
    m_filterOff = m_browser->getFilter().empty();
-   m_modeVolume =  m_browser->getVolumeMode();
 
    TGeoHMatrix mtx;
    if (topIdx >= 0)

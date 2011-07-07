@@ -61,16 +61,17 @@ public:
 
    void printTable();
 
-   void cdSelected();
+   void cdNode(int);
    void cdTop();
    void cdUp();
-   void updatePath(int);
+   void setPath(int, std::string&);
 
    bool getVolumeMode()      const { return m_mode.value(); }
    std::string getFilter ()  const { return m_filter.value(); }
    int getAutoExpand()       const { return m_autoExpand.value(); }
-   int getMaxDaughters()     const { return m_maxDaughters.value(); }
    int getVisLevel()         const  {return m_visLevel.value(); }
+
+   int getTopNodeIdx() const { return m_topNodeIdx.value(); }
 
    TGeoManager*   geoManager() { return m_geoManager; }
    FWGeometryTableManager*  getTableManager() { return m_tableManager;} 
@@ -90,9 +91,8 @@ private:
    FWEnumParameter         m_mode;
    FWStringParameter       m_filter; 
    FWLongParameter         m_autoExpand;
-   FWLongParameter         m_visLevel;  
-   FWLongParameter         m_maxDaughters;
-   FWStringParameter       m_path;  
+   FWLongParameter         m_visLevel;   
+   FWLongParameter         m_topNodeIdx;   
 #endif
 
    FWGUIManager           *m_guiManager;
@@ -105,7 +105,7 @@ private:
    TGStatusBar            *m_statBar;
    TGCompositeFrame       *m_settersFrame;
 
-   int                     m_selectedIdx;
+   // int                     m_selectedIdx;
 
    TGeoManager            *m_geoManager;
    FWGeoTopNode           *m_eveTopNode;

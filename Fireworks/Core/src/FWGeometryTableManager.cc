@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.24 2011/07/06 18:48:11 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.25 2011/07/06 21:02:06 amraktad Exp $
 //
 
 //#define PERFTOOL_GEO_TABLE
@@ -119,8 +119,7 @@ FWGeometryTableManager::FWGeometryTableManager(FWGeometryBrowser* browser)
      m_browser(browser),
      m_filterOff(true),
      m_numVolumesMatched(-1),
-     m_levelOffset(0),
-     m_geoTopNodeIdx(-1)
+     m_levelOffset(0)
 { 
    m_colorBoxRenderer.m_width  =  50;
    m_colorBoxRenderer.m_height =  m_renderer.height();
@@ -355,7 +354,7 @@ void FWGeometryTableManager::assertNodeFilterCache(NodeInfo& data)
 void FWGeometryTableManager::recalculateVisibility()
 {
    m_row_to_index.clear();
-   int i = m_geoTopNodeIdx > 0 ? m_geoTopNodeIdx : 0;
+   int i = TMath::Max(0, m_browser->getTopNodeIdx());
    m_row_to_index.push_back(i);
 
    NodeInfo& data = m_entries[i];
@@ -508,6 +507,8 @@ void FWGeometryTableManager::loadGeometry()
    topNodeInfo.m_node   = m_browser->geoManager()->GetTopNode();
    topNodeInfo.m_level  = 0;
    topNodeInfo.m_parent = -1;
+   if (m_browser->getAutoExpand())
+      topNodeInfo.setBit(kExpanded);
 
    getNNodesTotal(topNodeInfo.m_node , nTotal);
    m_entries.resize(nTotal+1);
@@ -600,7 +601,6 @@ void FWGeometryTableManager::checkChildMatches(TGeoVolume* vol,  std::vector<TGe
 
 void FWGeometryTableManager::updateFilter()
 {
-
    std::string filterExp =  m_browser->getFilter();
    m_filterOff =  filterExp.empty();
    //   printf("update filter %s  OFF %d volumes size %d\n",filterExp.c_str(),  m_filterOff , (int)m_volumes.size());
@@ -622,7 +622,7 @@ void FWGeometryTableManager::updateFilter()
    }  
 
    std::vector<TGeoVolume*> pstack;
-   checkChildMatches(m_entries[TMath::Max(0,m_geoTopNodeIdx)].m_node->GetVolume(), pstack);
+   checkChildMatches(m_entries[TMath::Max(0,m_browser->getTopNodeIdx())].m_node->GetVolume(), pstack);
  
 
    for (Entries_i ni = m_entries.begin(); ni != m_entries.end(); ++ni)
@@ -659,7 +659,7 @@ void FWGeometryTableManager::getNodePath(int idx, std::string& path) const
 
 void  FWGeometryTableManager::checkExpandLevel()
 {
-   // check expabd state
+   // check expand state
    int ae = m_browser->getAutoExpand() +  m_levelOffset;
    for (Entries_i i = m_entries.begin(); i != m_entries.end(); ++i)
    {
@@ -675,13 +675,12 @@ void  FWGeometryTableManager::checkExpandLevel()
 
 void  FWGeometryTableManager::topGeoNodeChanged(int idx)
 {
-   m_geoTopNodeIdx = idx;
-
    // cached 
    if (idx >= 0)
       m_levelOffset = m_entries[idx].m_level;
    else
       m_levelOffset = 0;
+
 }
 
 void FWGeometryTableManager::printChildren(int idx) const

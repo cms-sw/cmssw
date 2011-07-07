@@ -33,7 +33,7 @@
 #include <google/profiler.h>
 #endif
 
-bool geodebug = 1;
+bool geodebug = 0;
 
 enum GeoMenuOptions {
    kSetTopNode,
@@ -46,12 +46,13 @@ enum GeoMenuOptions {
 
 FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager, FWColorManager *colorManager)
    : TGMainFrame(gClient->GetRoot(), 600, 500),
-     m_mode(this, "Mode:", 1l, 0l, 1l),
+     m_mode(this, "Mode:", 0l, 0l, 1l),
      m_filter(this,"Materials:",std::string()),
-     m_autoExpand(this,"AutoExpand:", 1l, 0l, 100l),
+     m_autoExpand(this,"ExpandList:", 1l, 0l, 100l),
      m_visLevel(this,"VisLevel:", 3l, 1l, 100l),
-     m_maxDaughters(this,"MaxChildren:", 4l, 0l, 1000l), // debug
-     m_path(this, "Path",std::string("/cms:World_1")),
+     // m_maxDaughters(this,"MaxChildren:", 4l, 0l, 1000l), // debug
+     //     m_path(this, "Path",std::string("")),
+     m_topNodeIdx(this, "TopNodeIndex", -1l, 0, 1e7),
      m_guiManager(guiManager),
      m_colorManager(colorManager),
      m_tableManager(0),
@@ -69,11 +70,11 @@ FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager, FWColorManager *c
    m_autoExpand.changed_.connect(boost::bind(&FWGeometryBrowser::autoExpandChanged, this));
    m_visLevel.changed_.connect(boost::bind(&FWGeometryBrowser::refreshTable3D,this));
 
-   m_mode.changed_.connect(boost::bind(&FWGeometryBrowser::refreshTable3D, this)); // ?? not implemented
+   m_mode.changed_.connect(boost::bind(&FWGeometryBrowser::refreshTable3D, this));
 
-   m_maxDaughters.changed_.connect(boost::bind(&FWGeometryBrowser::refreshTable3D, this)); // debug
+   // m_maxDaughters.changed_.connect(boost::bind(&FWGeometryBrowser::refreshTable3D, this)); // debug
 
-   m_filter.changed_.connect(boost::bind(&FWGeometryBrowser::updateFilter, this)); // ?? not implemented
+   m_filter.changed_.connect(boost::bind(&FWGeometryBrowser::updateFilter, this));
 
    TGHorizontalFrame* hp =  new TGHorizontalFrame(this);
    AddFrame(hp,new TGLayoutHints(kLHintsLeft, 4, 2, 2, 2));
@@ -97,7 +98,7 @@ FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager, FWColorManager *c
       rb->Connect("Clicked()","FWGeometryBrowser",this,"printTable()");
    }
    m_settersFrame = new TGHorizontalFrame(this);
-   this->AddFrame( m_settersFrame);
+   this->AddFrame( m_settersFrame, new TGLayoutHints(kLHintsExpandX,4,2,2,2));
    m_settersFrame->SetCleanup(kDeepCleanup);
 
 
@@ -151,7 +152,7 @@ FWGeometryBrowser::resetSetters()
    makeSetter(frame, &m_filter);
    makeSetter(frame, &m_autoExpand);
    makeSetter(frame, &m_visLevel);
-   if (geodebug) makeSetter(frame, &m_maxDaughters);
+   // if (geodebug) makeSetter(frame, &m_maxDaughters);
    m_settersFrame->MapSubwindows();
    Layout();
 }
@@ -182,8 +183,7 @@ FWGeometryBrowser::setFrom(const FWConfiguration& iFrom)
        it != itEnd;
        ++it) {
       
-      if (!geodebug && (&m_maxDaughters == (*it)))
-          continue;
+      // if (!geodebug && (&m_maxDaughters == (*it)))  continue;
           
       (*it)->setFrom(iFrom);
 
@@ -285,7 +285,7 @@ void FWGeometryBrowser::chosenItem(int x)
    {
       switch (x) {
          case kSetTopNode:
-            cdSelected();
+            cdNode(m_tableManager->m_selectedIdx);
             break;
 
          case kVisOff:
@@ -388,7 +388,8 @@ FWGeometryBrowser::readFile()
 
 #ifdef PERFTOOL_BROWSER  
       ProfilerStop();
-#endif
+#endif 
+
 
       m_eveTopNode = new FWGeoTopNode(this);
       const char* n = Form("%s level[%d] size[%d] \n",m_geoManager->GetCurrentNode()->GetName(), getVisLevel(), (int)m_tableManager->refEntries().size());                            
@@ -400,12 +401,11 @@ FWGeometryBrowser::readFile()
          TEveScene* s = ((TEveScene*)(*it));
          TString name = s->GetElementName();
          if (name.Contains("3D") && !name.Contains("Geo"))
-         {
             s->AddElement(m_eveTopNode);
-            // printf("Add top node to %s scene \n", s->GetName());
-         }
       }
-      refreshTable3D();
+
+      cdNode(m_topNodeIdx.value());
+      // refreshTable3D();
       MapRaised();
    }
    catch (std::runtime_error &e)
@@ -461,54 +461,41 @@ void FWGeometryBrowser::updateStatusBar(const char* txt) {
 //______________________________________________________________________________
 
 
-void FWGeometryBrowser::cdSelected()
+void FWGeometryBrowser::cdNode(int idx)
 {
    std::string p;
-   m_tableManager->getNodePath(m_tableManager->m_selectedIdx, p);
-   m_path.set(p);
-
-   updatePath(m_tableManager->m_selectedIdx);
+   m_tableManager->getNodePath(idx, p);
+   setPath(idx, p);
 }
 
 void FWGeometryBrowser::cdTop()
 {
-   m_path.set("/cms:World_1");
-   updatePath(-1); 
+   std::string path = "/" ;
+   path += m_tableManager->refEntries().at(0).name();
+   setPath(-1, path ); 
 }
 
 void FWGeometryBrowser::cdUp()
 {   
-
-   if ( m_tableManager->getTopGeoNodeIdx() != -1)
+   if ( getTopNodeIdx() != -1)
    {
-      size_t del = m_path.value().find_last_of('/');
-      std::string xxx = m_path.value().substr(0, del);
-
-
-      int pIdx   = m_tableManager->refEntries()[m_tableManager->getTopGeoNodeIdx()].m_parent;
+      int pIdx   = m_tableManager->refEntries()[getTopNodeIdx()].m_parent;
       std::string p;
       m_tableManager->getNodePath(pIdx, p);
-      m_path.set(p);
-
-      if (m_path.value().compare(xxx))
-      {
-         fwLog(fwlog::kError) << m_path.value() << "does not match " << xxx << std::endl;
-         return;
-      }
-      updatePath( pIdx);
+      setPath(pIdx, p);
    }
 }
 
-int ccnt = 0;
-void FWGeometryBrowser::updatePath(int parentIdx)
+void FWGeometryBrowser::setPath(int parentIdx, std::string& path)
 {
+   m_topNodeIdx.set(parentIdx);
 #ifdef PERFTOOL_BROWSER  
-   ProfilerStart(Form("cdPath%d.prof", ccnt++));
+   ProfilerStart(Form("cdPath%d.prof", parentIdx));
 #endif
 
-   m_geoManager->cd(m_path.value().c_str());
-   // TGeoNode* topNode = m_geoManager->GetCurrentNode();
-   // printf(" Set Path to [%s], curren node %s \n", m_path.value().c_str(), topNode->GetName());
+   m_geoManager->cd(path.c_str());
+   TGeoNode* topNode = m_geoManager->GetCurrentNode();
+   printf(" Set Path to [%s], curren node %s \n", path.c_str(), topNode->GetName());
 
    m_tableManager->topGeoNodeChanged(parentIdx);
    m_tableManager->checkExpandLevel();
@@ -519,7 +506,7 @@ void FWGeometryBrowser::updatePath(int parentIdx)
 #ifdef PERFTOOL_BROWSER  
    ProfilerStop();
 #endif  
-   std::string title =  m_path.value();
+   std::string title =  path;
    if (title.size() > 40)
    {
       title = title.substr(title.size() -41, 40);
@@ -547,6 +534,8 @@ void FWGeometryBrowser::updateFilter()
 
 void FWGeometryBrowser::autoExpandChanged()
 {
+  if (!m_geoManager) return;
+
    m_tableManager->checkExpandLevel();
    m_tableManager->redrawTable();
 }
@@ -555,11 +544,14 @@ void FWGeometryBrowser::autoExpandChanged()
 
 void FWGeometryBrowser::refreshTable3D()
 {
+   if (!m_geoManager) return;
+
    m_tableManager->redrawTable();
 
    if ( m_eveTopNode) {
       //      printf("refresh \n");
       m_eveTopNode->ElementChanged();
       gEve->FullRedraw3D(false, true);
-   }
+   } 
+   updateStatusBar();
 }
