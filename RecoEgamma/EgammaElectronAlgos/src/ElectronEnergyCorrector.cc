@@ -11,7 +11,7 @@
  * \author Ivica Puljak - FESB, Split
  * \author Stephanie Baffioni - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: ElectronEnergyCorrector.cc,v 1.10 2010/07/29 12:05:31 chamont Exp $
+ * \version $Id: ElectronEnergyCorrector.cc,v 1.11 2010/09/21 17:06:14 chamont Exp $
  *
  ****************************************************************************/
 
@@ -47,6 +47,21 @@ float endcapEnergyError( float E, int elClass )
   return energyError(E,parEE[elClass]) ;
  }
 
+void ElectronEnergyCorrector::setEcalEnergyError( reco::GsfElectron & electron )
+ {
+  double ecalEnergyError = 999. ;
+  double scEnergy = electron.superCluster()->energy() ;
+  int eleClass = electron.classification() ;
+  if (electron.isEB())
+   { ecalEnergyError =  scEnergy*barrelEnergyError(scEnergy,eleClass) ; }
+  else if (electron.isEE())
+   { ecalEnergyError =  scEnergy*endcapEnergyError(scEnergy,eleClass) ; }
+  else
+   { edm::LogWarning("ElectronEnergyCorrector::setEcalEnergyError")<<"nor barrel neither endcap electron !" ; }
+  ecalEnergyError *= (electron.ecalEnergy()/scEnergy) ;
+  electron.setEcalEnergyError(ecalEnergyError) ;
+ }
+
 void ElectronEnergyCorrector::correct
  ( reco::GsfElectron & electron, const reco::BeamSpot & bs, bool applyEtaCorrection )
  {
@@ -56,71 +71,41 @@ void ElectronEnergyCorrector::correct
 	  return ;
    }
 
-  double scEnergy = electron.superCluster()->energy() ;
   int elClass = electron.classification() ;
-  float newEnergy = scEnergy ;
-  float newEnergyError = electron.ecalEnergyError() ;
-
-  //===================
-  // irrelevant classification
-  //===================
-
   if ( (elClass <= reco::GsfElectron::UNKNOWN) ||
-	   (elClass>reco::GsfElectron::GAP) )
+	     (elClass>reco::GsfElectron::GAP) )
    {
 	  edm::LogWarning("ElectronMomentumCorrector::correct")<<"unexpected classification" ;
 	  return ;
    }
 
-  //===================
   // If not gap, f(eta) correction ;
-  //===================
+  if ( (!applyEtaCorrection) || (electron.isGap()) )
+   { return ; }
 
-  if ( applyEtaCorrection && (!electron.isGap()) )
+  double scEnergy = electron.superCluster()->energy() ;
+  float newEnergy = scEnergy ;
+  double scEta = EleRelPoint(electron.caloPosition(),bs.position()).eta() ;
+  if (electron.isEB()) // barrel
    {
-    double scEta = EleRelPoint(electron.caloPosition(),bs.position()).eta() ;
-    if (electron.isEB()) // barrel
-     {
-	  if ( (elClass==reco::GsfElectron::GOLDEN) ||
-	       (elClass==reco::GsfElectron::BIGBREM) )
-	   { newEnergy = scEnergy/fEtaBarrelGood(scEta) ; }
-	  else if (elClass==reco::GsfElectron::SHOWERING)
-	   { newEnergy = scEnergy/fEtaBarrelBad(scEta) ; }
-     }
-    else if (electron.isEE()) // endcap
-     {
-      double ePreshower = electron.superCluster()->preshowerEnergy() ;
-      if ( (elClass==reco::GsfElectron::GOLDEN) ||
-	       (elClass==reco::GsfElectron::BIGBREM) )
-       { newEnergy = (scEnergy-ePreshower)/fEtaEndcapGood(scEta)+ePreshower ; }
-	  else if (elClass==reco::GsfElectron::SHOWERING)
-	   { newEnergy = (scEnergy-ePreshower)/fEtaEndcapBad(scEta)+ePreshower ; }
-     }
-    else
-     { edm::LogWarning("ElectronEnergyCorrector::computeNewEnergy")<<"nor barrel neither endcap electron !" ; }
+    if ( (elClass==reco::GsfElectron::GOLDEN) ||
+         (elClass==reco::GsfElectron::BIGBREM) )
+     { newEnergy = scEnergy/fEtaBarrelGood(scEta) ; }
+    else if (elClass==reco::GsfElectron::SHOWERING)
+     { newEnergy = scEnergy/fEtaBarrelBad(scEta) ; }
    }
-
-  //===================
-  // energy error
-  //=====================
-
-  if (!ff_)
+  else if (electron.isEE()) // endcap
    {
-    if (electron.isEB())
-     { newEnergyError =  scEnergy * barrelEnergyError(scEnergy,elClass) ; }
-    else if (electron.isEE())
-     { newEnergyError =  scEnergy * endcapEnergyError(scEnergy,elClass) ; }
-    else
-     { edm::LogWarning("ElectronEnergyCorrector::computeNewEnergy")<<"nor barrel neither endcap electron !" ; }
+    double ePreshower = electron.superCluster()->preshowerEnergy() ;
+    if ( (elClass==reco::GsfElectron::GOLDEN) ||
+         (elClass==reco::GsfElectron::BIGBREM) )
+     { newEnergy = (scEnergy-ePreshower)/fEtaEndcapGood(scEta)+ePreshower ; }
+    else if (elClass==reco::GsfElectron::SHOWERING)
+     { newEnergy = (scEnergy-ePreshower)/fEtaEndcapBad(scEta)+ePreshower ; }
    }
   else
-   { newEnergyError = ff_->getValue(*(electron.superCluster()),0) ; }
-
-  //===================
-  // apply
-  //=====================
-
-  electron.correctEcalEnergy(newEnergy,newEnergyError) ;
+   { edm::LogWarning("ElectronEnergyCorrector::computeNewEnergy")<<"nor barrel neither endcap electron !" ; }
+  electron.setCorrectedEcalEnergy(newEnergy) ;
  }
 
 

@@ -7,6 +7,7 @@
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
 #include "RecoEgamma/EgammaTools/interface/ConversionFinder.h"
 
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 
 #include "DataFormats/ParticleFlowReco/interface/GsfPFRecTrackFwd.h"
@@ -1145,17 +1146,20 @@ void GsfElectronAlgo::createElectron()
        fbrem) ;
   ele->setP4(GsfElectron::P4_FROM_SUPER_CLUSTER,momentum,0,true) ;
 
-  // set corrections + classification
+  // classification and corrections
   ElectronClassification theClassifier;
   theClassifier.correct(*ele);
-  // energy corrections only for ecalDriven electrons
-  if (ele->core()->ecalDrivenSeed()) {
-    ElectronEnergyCorrector theEnCorrector(generalData_->superClusterErrorFunction);
-    theEnCorrector.correct(*ele, *eventData_->beamspot, generalData_->strategyCfg.applyEtaCorrection);
+  ElectronEnergyCorrector theEnCorrector ;
+  if (!generalData_->superClusterErrorFunction)
+   { theEnCorrector.setEcalEnergyError(*ele) ; }
+  else
+   { ele->setEcalEnergyError(generalData_->superClusterErrorFunction->getValue(*(ele->superCluster()),0)) ; }
+  if (ele->core()->ecalDrivenSeed())
+   {
+    theEnCorrector.correct(*ele,*eventData_->beamspot,generalData_->strategyCfg.applyEtaCorrection) ;
     ElectronMomentumCorrector theMomCorrector;
     theMomCorrector.correct(*ele,electronData_->vtxTSOS);
-  }
-
+   }
 
   // now isolation variables
   reco::GsfElectron::IsolationVariables dr03, dr04 ;
@@ -1321,4 +1325,5 @@ void GsfElectronAlgo::removeAmbiguousElectrons()
      { ++eitr ; ++ei ; }
    }
  }
+
 

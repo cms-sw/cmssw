@@ -2,7 +2,6 @@
 #ifndef ElectronEnergyCorrector_H
 #define ElectronEnergyCorrector_H
 
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
@@ -10,10 +9,11 @@ class ElectronEnergyCorrector
 {
  public:
 
-  ElectronEnergyCorrector( EcalClusterFunctionBaseClass * ff =0 )
-   : ff_(ff) {}
+  ElectronEnergyCorrector()
+   {}
 
-  void correct(reco::GsfElectron &, const reco::BeamSpot & bs, bool applyEtaCorrection = true);
+  void correct( reco::GsfElectron &, const reco::BeamSpot & bs, bool applyEtaCorrection = true ) ;
+  void setEcalEnergyError( reco::GsfElectron & ) ;
 
  private:
 
@@ -24,7 +24,7 @@ class ElectronEnergyCorrector
   double fEtaEndcapBad( double scEta ) const ;
   double fEtaEndcapGood( double scEta ) const ;
 
-  EcalClusterFunctionBaseClass * ff_ ;
+//  EcalClusterFunctionBaseClass * ff_ ;
 //  float newEnergy_ ;
 //  float newEnergyError_ ;
 
