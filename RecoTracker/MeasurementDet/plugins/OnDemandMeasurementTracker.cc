@@ -316,6 +316,8 @@ void OnDemandMeasurementTracker::assign(const TkStripMeasurementDet * csmdet,
 	  edmNew::DetSetVector<TkStripMeasurementDet::SiStripRegionalClusterRef>::const_iterator f=theStripClusterRefs->find(id);
 	  if (f!=theStripClusterRefs->end())
 	    smdet->setRegionalClustersToSkip(f->begin(),f->end());
+	  else
+	    smdet->unset();
 	}
 	//and you are done
 	return;}
