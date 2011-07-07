@@ -660,7 +660,8 @@ class GsfElectron : public RecoCandidate
      } ;
 
     // setters
-    void setCorrectedEcalEnergy( float newEnergy, float newEnergyError ) ;
+    void setEcalEnergyError( float energyError ) ;
+    void setCorrectedEcalEnergy( float newEnergy ) ;
     void setTrackMomentumError( float trackMomentumError ) ;
     void setP4( P4Kind kind, const LorentzVector & p4, float p4Error, bool setCandidate ) ;
     using RecoCandidate::setP4 ;
@@ -683,7 +684,10 @@ class GsfElectron : public RecoCandidate
     bool isEnergyScaleCorrected() const
      { return isEcalEnergyCorrected() ; }
     void correctEcalEnergy( float newEnergy, float newEnergyError )
-     { setCorrectedEcalEnergy(newEnergy,newEnergyError) ; }
+     {
+      setCorrectedEcalEnergy(newEnergy) ;
+      setEcalEnergyError(newEnergyError) ;
+     }
     void correctMomentum( const LorentzVector & p4, float trackMomentumError, float p4Error )
      { setTrackMomentumError(trackMomentumError) ; setP4(P4_COMBINATION,p4,p4Error,true) ; }
 

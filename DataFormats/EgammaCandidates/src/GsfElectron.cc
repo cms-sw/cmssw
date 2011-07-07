@@ -148,7 +148,10 @@ bool GsfElectron::ecalDriven() const
   return (ecalDrivenSeed()&&passingCutBasedPreselection()) ;
  }
 
-void GsfElectron::setCorrectedEcalEnergy( float newEnergy, float newEnergyError )
+void GsfElectron::setEcalEnergyError( float energyError )
+ { corrections_.ecalEnergyError = energyError ; }
+
+void GsfElectron::setCorrectedEcalEnergy( float newEnergy )
  {
   math::XYZTLorentzVectorD momentum = p4() ;
   momentum *= newEnergy/momentum.e() ;
@@ -158,8 +161,8 @@ void GsfElectron::setCorrectedEcalEnergy( float newEnergy, float newEnergyError 
   trackClusterMatching_.eSuperClusterOverP *= newEnergy/corrections_.ecalEnergy ;
   trackClusterMatching_.eSeedClusterOverP *= newEnergy/corrections_.ecalEnergy ;
   trackClusterMatching_.eEleClusterOverPout *= newEnergy/corrections_.ecalEnergy ;
+  corrections_.ecalEnergyError *= newEnergy/corrections_.ecalEnergy ;
   corrections_.ecalEnergy = newEnergy ;
-  corrections_.ecalEnergyError = newEnergyError ;
   corrections_.isEcalEnergyCorrected = true ;
  }
 
