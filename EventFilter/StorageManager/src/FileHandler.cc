@@ -1,4 +1,4 @@
-// $Id: FileHandler.cc,v 1.28 2011/06/01 13:49:02 mommsen Exp $
+// $Id: FileHandler.cc,v 1.29 2011/07/05 13:25:43 mommsen Exp $
 /// @file: FileHandler.cc
 
 #include <EventFilter/StorageManager/interface/Exception.h>
@@ -35,8 +35,7 @@ namespace stor {
   lastEntry_(firstEntry_),
   diskWritingParams_(dwParams),
   maxFileSize_(maxFileSize),
-  cmsver_(edm::getReleaseVersion()),
-  adler_(0)
+  cmsver_(edm::getReleaseVersion())
   {
     // stripp quotes if present
     if(cmsver_[0]=='"') cmsver_=cmsver_.substr(1,cmsver_.size()-2);
@@ -92,8 +91,8 @@ namespace stor {
       << " --APPNAME CMSSW"
       << " --TYPE streamer"               
       << " --DEBUGCLOSE "   << fileRecord_->whyClosed
-      << " --CHECKSUM "     << std::hex << adler_
-      << " --CHECKSUMIND "  << std::hex << 0
+      << " --CHECKSUM "     << std::hex << fileRecord_->adler32
+      << " --CHECKSUMIND 0"
       << "\n";
     
     dbFileHandler_->writeOld( lastEntry_, oss.str() );
@@ -302,13 +301,13 @@ namespace stor {
     }
     file.close();
     
-    uint32 adler = (b << 16) | a;
-    if (adler != adler_)
+    const uint32 adler = (b << 16) | a;
+    if (adler != fileRecord_->adler32)
     {
       std::ostringstream msg;
       msg << "Disk resident file " << fileName <<
         " has Adler32 checksum " << std::hex << adler <<
-        ", while the expected checkum is " << std::hex << adler_;
+        ", while the expected checkum is " << std::hex << fileRecord_->adler32;
       XCEPT_RAISE(stor::exception::DiskWriting, msg.str());
     }
   }

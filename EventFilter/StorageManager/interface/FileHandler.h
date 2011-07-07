@@ -1,4 +1,4 @@
-// $Id: FileHandler.h,v 1.18 2011/06/01 13:49:01 mommsen Exp $
+// $Id: FileHandler.h,v 1.19 2011/07/05 13:25:43 mommsen Exp $
 /// @file: FileHandler.h 
 
 #ifndef EventFilter_StorageManager_FileHandler_h
@@ -25,8 +25,8 @@ namespace stor {
    * Abstract representation of a physical file
    *
    * $Author: mommsen $
-   * $Revision: 1.18 $
-   * $Date: 2011/06/01 13:49:01 $
+   * $Revision: 1.19 $
+   * $Date: 2011/07/05 13:25:43 $
    */
 
   class FileHandler
@@ -97,17 +97,6 @@ namespace stor {
      * Write the I2OChain to the file
      */
     virtual void do_writeEvent(const I2OChain& event) = 0;
-
-    
-    ////////////////////////////
-    // File parameter setters //
-    ////////////////////////////
-
-    /**
-     * Set the adler checksum for the file
-     */
-    inline void setAdler(uint32_t s)
-    { adler_ = s; }
     
     
     //////////////////////
@@ -210,8 +199,6 @@ namespace stor {
     const std::string  logPath_;                    // log path
     const std::string  logFile_;                    // log file including path
     std::string  cmsver_;                           // CMSSW version string
-
-    uint32_t adler_;                                // adler32 checksum for streamer file
   };
   
 } // stor namespace

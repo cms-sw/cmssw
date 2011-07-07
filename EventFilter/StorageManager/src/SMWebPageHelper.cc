@@ -1,4 +1,4 @@
-// $Id: SMWebPageHelper.cc,v 1.2 2011/03/07 15:31:32 mommsen Exp $
+// $Id: SMWebPageHelper.cc,v 1.3 2011/04/14 12:52:48 mommsen Exp $
 /// @file: SMWebPageHelper.cc
 
 #ifdef __APPLE__
@@ -1012,7 +1012,7 @@ namespace stor
     fmc.getFileRecords(fileRecords);
     
     XHTMLMaker::AttrMap colspanAttr;
-    colspanAttr[ "colspan" ] = "5";
+    colspanAttr[ "colspan" ] = "6";
     
     XHTMLMaker::AttrMap tableLabelAttr = tableLabelAttr_;
     tableLabelAttr[ "align" ] = "center";
@@ -1041,6 +1041,8 @@ namespace stor
     maker.addText(tableDiv, "Size (Bytes)");
     tableDiv = maker.addNode("th", tableRow, tableValueWidthAttr);
     maker.addText(tableDiv, "Closing reason");
+    tableDiv = maker.addNode("th", tableRow, tableValueWidthAttr);
+    maker.addText(tableDiv, "Adler32");
     
     // File list
     if (fileRecords.empty())
@@ -1069,6 +1071,8 @@ namespace stor
       maker.addInt( tableDiv, (*it)->fileSize );
       tableDiv = maker.addNode("td", tableRow, tableLabelAttr);
       maker.addText(tableDiv, (*it)->closingReason());
+      tableDiv = maker.addNode("td", tableRow, tableLabelAttr);
+      maker.addHex(tableDiv, (*it)->adler32);
     }
   }
   

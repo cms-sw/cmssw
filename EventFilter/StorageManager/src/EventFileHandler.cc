@@ -1,4 +1,4 @@
-// $Id: EventFileHandler.cc,v 1.16 2011/03/07 15:31:32 mommsen Exp $
+// $Id: EventFileHandler.cc,v 1.17 2011/06/01 13:49:02 mommsen Exp $
 /// @file: EventFileHandler.cc
 
 #include <EventFilter/StorageManager/interface/EventFileHandler.h>
@@ -66,7 +66,7 @@ namespace stor {
       // if writer was reset, we already closed the stream but failed to move the file to the closed position
       writer_->stop();
       fileRecord_->fileSize += writer_->getStreamEOFSize();
-      setAdler(writer_->get_adler32());
+      fileRecord_->adler32 = writer_->get_adler32();
       writer_.reset(); // Destruct the writer to flush the file stream
     }
     moveFileToClosed(reason);
