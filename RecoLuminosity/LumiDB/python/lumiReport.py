@@ -854,7 +854,7 @@ def toCSVConfHlt(hltconfdata,filename,iresults=[],isverbose=False):
     r.writeRow(fieldnames)
     r.writeRows(result)
 
-def toScreenLSBeam(beamdata,iresults=[],dumpIntensity=False,minIntensity=0.1):
+def toScreenLSBeam(beamdata,iresults=[],dumpIntensity=False,isverbose=False):
     '''
     input: {run:[(lumilsnum(0),cmslsnum(1),beamstatus(2),beamenergy(3),beaminfolist(4)),..]}
     beaminfolist:[(bxidx,b1,b2)]
@@ -887,8 +887,7 @@ def toScreenLSBeam(beamdata,iresults=[],dumpIntensity=False,minIntensity=0.1):
                 bxidx=thisbxinfo[0]
                 b1=thisbxinfo[1]
                 b2=thisbxinfo[2]
-                if bxidx is not None and b1 is not None and b2 is not None and b1>minIntensity and b2>minIntensity:
-                    thisbxresultStr='('+','.join(['%d'%bxidx,'%.3e'%b1,'%.3e'%b2])+')'
+                thisbxresultStr=','.join(['%d'%bxidx,'%.3e'%b1,'%.3e'%b2])
                 allbxresult.append(thisbxresultStr)
             allbxresultStr=' '.join(allbxresult)
             result.append([str(run),str(lumilsnum)+':'+str(cmslsnum),beamstatus,'%.2f'%beamenergy,allbxresultStr])
@@ -925,14 +924,14 @@ def toCSVLSBeam(beamdata,filename,resultlines,dumpIntensity=False,isverbose=Fals
                 result.append([str(run),str(lumilsnum)+':'+str(cmslsnum),beamstatus,'%.2f'%beamenergy])
                 continue
             allbxinfo=lsdata[4]
+            #print 'allbxinfo ',allbxinfo
             allbxresult=[]
             for thisbxinfo in allbxinfo:
                 thisbxresultStr='(n/a,n/a,n/a)'
                 bxidx=thisbxinfo[0]
                 b1=thisbxinfo[1]
                 b2=thisbxinfo[2]
-                if bxidx is not None and b1 is not None and b2 is not None and b1>minIntensity and b2>minIntensity:
-                    thisbxresultStr='('+','.join(['%d'%bxidx,'%.3e'%b1,'%.3e'%b2])+')'
+                thisbxresultStr=','.join(['%d'%bxidx,'%.3e'%b1,'%.3e'%b2])
                 allbxresult.append(thisbxresultStr)
             allbxresultStr=' '.join(allbxresult)
             result.append([str(run),str(lumilsnum)+':'+str(cmslsnum),beamstatus,'%.2f'%beamenergy,allbxresultStr])

@@ -88,13 +88,19 @@ if __name__ == '__main__':
                         default=0.2,
                         required=False,
                         help='fluctuation in fraction allowed to nominal beam energy, default 0.2, to be used together with -beamenergy  (optional)')
+    parser.add_argument('-minintensity',dest='minintensity',
+                        type=float,action='store',
+                        default=0.1,
+                        required=False,
+                        help='filter on beam intensity , effective with --with-beamintensity (optional)')
     parser.add_argument('-begin',dest='begin',action='store',
                         default=None,
                         required=False,
                         help='min run start time, mm/dd/yy hh:mm:ss (optional)')
     parser.add_argument('-end',dest='end',action='store',
                         default=None,required=False,
-                        help='max run start time, mm/dd/yy hh:mm:ss (optional)')    
+                        help='max run start time, mm/dd/yy hh:mm:ss (optional)')
+    
 
     #
     #command configuration 
@@ -106,11 +112,13 @@ if __name__ == '__main__':
     #
     #switches
     #
+    parser.add_argument('--with-beamintensity',dest='withbeamintensity',action='store_true',
+                        help='dump beam intensity' )
     parser.add_argument('--verbose',dest='verbose',action='store_true',
                         help='verbose mode for printing' )
     parser.add_argument('--debug',dest='debug',action='store_true',
                         help='debug')
-   
+    
     options=parser.parse_args()
     if options.authpath:
         os.environ['CORAL_AUTH_PATH'] = options.authpath
@@ -125,7 +133,10 @@ if __name__ == '__main__':
             sname=None
         elif 1 in [c in sname for c in '*?[]']: #is a fnmatch pattern
             spattern=sname
-            sname=None            
+            sname=None
+    if  options.action == 'beambyls' and options.withbeamintensity and not options.outputfile:
+        print '[warning] --with-beamintensity must write data to a file, none specified using default "beamintensity.csv"'
+        options.outputfile='beamintensity.csv'
     if options.beammode=='stable':
         pbeammode    = 'STABLE BEAMS'
     if options.verbose:
@@ -218,11 +229,14 @@ if __name__ == '__main__':
             lumiReport.toCSVConfHlt(result,options.outputfile,iresults,options.verbose)
     if options.action == 'beambyls':
         session.transaction().start(True)
-        result=lumiCalcAPI.beamForRange(session.nominalSchema(),irunlsdict,withBeamIntensity=False)
+        dumpbeamintensity=False
+        if options.outputfile and options.verbose:
+            dumpbeamintensity=True
+        result=lumiCalcAPI.beamForRange(session.nominalSchema(),irunlsdict,withBeamIntensity=options.withbeamintensity,minIntensity=options.minintensity)
         session.transaction().commit()
         if not options.outputfile:
             lumiReport.toScreenLSBeam(result,iresults=iresults,dumpIntensity=False)
         else:
-            lumiReport.toCSVLSBeam(result,options.outputfile,resultlines=iresults,dumpIntensity=False,isverbose=options.verbose)
+            lumiReport.toCSVLSBeam(result,options.outputfile,resultlines=iresults,dumpIntensity=options.withbeamintensity,isverbose=options.verbose)
     del session
     del svc 

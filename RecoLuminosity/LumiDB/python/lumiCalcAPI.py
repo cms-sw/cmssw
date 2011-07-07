@@ -77,7 +77,7 @@ def trgbitsForRange(schema,runlist,datatag=None):
         result[run].extend([datasource,bitzeroname,bitnames])
     return result
 
-def beamForRange(schema,inputRange,withBeamIntensity=False):
+def beamForRange(schema,inputRange,withBeamIntensity=False,minIntensity=0.1):
     '''
     input:
            inputRange: {run:[cmsls]} (required)
@@ -93,22 +93,24 @@ def beamForRange(schema,inputRange,withBeamIntensity=False):
         if lumidataid is None:
             result[run]=None
             continue #run non exist
-        lumidata=dataDML.beamInfoById(schema,lumidataid,withBeamIntensity=withBeamIntensity)
+        lumidata=dataDML.beamInfoById(schema,lumidataid,withBeamIntensity=withBeamIntensity,minIntensity=minIntensity)
         #(runnum,[(lumilsnum(0),cmslsnum(1),beamstatus(2),beamenergy(3),beaminfolist(4)),..])
         result[run]=[]
-        if lumidata and lumidata[1]:
-            for perlsdata in sorted(lumidata[1]):
-                lumilsnum=perlsdata[0]
-                cmslsnum=perlsdata[1]
-                if lslist is not None and cmslsnum not in lslist:
-                    continue
-                beamstatus=perlsdata[2]
-                beamenergy=perlsdata[3]
-                beamintInfolist=None
-                beaminforesult=[]
-                if withBeamIntensity:
-                    beamintInfolist=perlsdata[4]
-                result[run].append((lumilsnum,cmslsnum,beamstatus,beamenergy,beaminforesult))        
+        perrundata=lumidata[1]
+        if not perrundata:
+            result[run]=[]
+            continue
+        for perlsdata in perrundata:
+            lumilsnum=perlsdata[0]
+            cmslsnum=perlsdata[1]
+            if lslist is not None and cmslsnum not in lslist:
+                continue
+            beamstatus=perlsdata[2]
+            beamenergy=perlsdata[3]
+            beamintInfolist=[]
+            if withBeamIntensity:
+                beamintInfolist=perlsdata[4]
+            result[run].append((lumilsnum,cmslsnum,beamstatus,beamenergy,beamintInfolist))        
     return result
 
 def hltForRange(schema,inputRange,hltpathname=None,hltpathpattern=None,withL1Pass=False,withHLTAccept=False, datatag=None):
