@@ -10,6 +10,7 @@
 #include "RecoJets/FFTJetAlgorithms/interface/EtaAndPtDependentPeakSelector.h"
 #include "RecoJets/FFTJetAlgorithms/interface/EtaDependentPileup.h"
 #include "RecoJets/FFTJetAlgorithms/interface/PileupGrid2d.h"
+#include "RecoJets/FFTJetAlgorithms/interface/JetAbsEta.h"
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -1000,10 +1001,10 @@ fftjet_PeakMagnitudeMapper2d_parser (const edm::ParameterSet& ps)
     const double maxMagnitude = ps.getParameter<double>("maxMagnitude");
     const unsigned nMagPoints = ps.getParameter<unsigned>("nMagPoints");
 
-    return (std::auto_ptr<fftjet::JetMagnitudeMapper2d <fftjet::Peak> >
+    return (std::auto_ptr<fftjet::JetMagnitudeMapper2d<fftjet::Peak> >
              (new fftjet::JetMagnitudeMapper2d<fftjet::Peak>(
                   *responseCurve,
-                  new fftjet::PeakAbsEta<fftjet::Peak> (),
+                  new fftjetcms::PeakAbsEta<fftjet::Peak>(),
                   true,minPredictor,maxPredictor,nPredPoints,
                   maxMagnitude,nMagPoints)));
 }
@@ -1012,7 +1013,6 @@ fftjet_PeakMagnitudeMapper2d_parser (const edm::ParameterSet& ps)
 std::auto_ptr<fftjet::JetMagnitudeMapper2d <fftjet::RecombinedJet<VectorLike> > >
 fftjet_JetMagnitudeMapper2d_parser (const edm::ParameterSet& ps)
 {
-    typedef fftjet::RecombinedJet<VectorLike> RecoFFTJet;
     std::auto_ptr<fftjet::LinearInterpolator2d> responseCurve =
         fftjet_LinearInterpolator2d_parser(
             ps.getParameter<edm::ParameterSet>("responseCurve"));
@@ -1023,11 +1023,12 @@ fftjet_JetMagnitudeMapper2d_parser (const edm::ParameterSet& ps)
     const double maxMagnitude = ps.getParameter<double>("maxMagnitude");
     const unsigned nMagPoints = ps.getParameter<unsigned>("nMagPoints");
 
-    return (std::auto_ptr<fftjet::JetMagnitudeMapper2d <RecoFFTJet> >
+    return (std::auto_ptr<fftjet::JetMagnitudeMapper2d<RecoFFTJet> >
             (new fftjet::JetMagnitudeMapper2d<RecoFFTJet>(
                  *responseCurve,
-                 new fftjet::JetAbsEta<RecoFFTJet> (),true,minPredictor,
-                 maxPredictor,nPredPoints,maxMagnitude,nMagPoints)));
+                 new fftjetcms::JetAbsEta<RecoFFTJet>(),
+                 true,minPredictor,maxPredictor,nPredPoints,
+                 maxMagnitude,nMagPoints)));
 }
 
 }
