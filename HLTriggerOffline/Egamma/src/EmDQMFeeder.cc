@@ -6,7 +6,7 @@
 //
 // Original Author:  Thomas Reis,40 4-B24,+41227671567,
 //         Created:  Tue Mar 15 12:24:11 CET 2011
-// $Id: EmDQMFeeder.cc,v 1.18 2011/06/15 07:07:56 treis Exp $
+// $Id: EmDQMFeeder.cc,v 1.19 2011/07/01 10:18:03 treis Exp $
 //
 //
 
@@ -120,6 +120,7 @@ EmDQMFeeder::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
             //--------------------	   
 	    edm::ParameterSet paramSet;
 
+	    paramSet.addParameter("pathIndex", hltConfig_.triggerIndex(pathName));
 	    paramSet.addParameter("@module_label", hltConfig_.removeVersion(pathName) + "_DQM");
 	    //paramSet.addParameter("@module_label", pathName + "_DQM");
 	    //paramSet.addParameter("triggerobject", iConfig.getParameter<edm::InputTag>("triggerobject"));
@@ -312,8 +313,8 @@ EmDQMFeeder::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 
 	    emDQMmodules.push_back(new EmDQM(paramSet));
 
-	    // emDQMmodules.back()->beginRun(iRun, iSetup);
 	    emDQMmodules.back()->beginJob();
+	    emDQMmodules.back()->beginRun(iRun, iSetup);
          } // loop over all paths of this analysis type
 
       } // loop over analysis types (single ele etc.)
@@ -335,8 +336,8 @@ EmDQMFeeder::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
 void 
 EmDQMFeeder::endRun(edm::Run const&iEvent, edm::EventSetup const&iSetup)
 {
-//  for (unsigned i = 0; i < emDQMmodules.size(); ++i)
-//     emDQMmodules[i]->endRun(iEvent, iSetup);
+  for (unsigned i = 0; i < emDQMmodules.size(); ++i)
+     emDQMmodules[i]->endRun(iEvent, iSetup);
 }
 
 // ------------ method called when starting to processes a luminosity block  ------------
