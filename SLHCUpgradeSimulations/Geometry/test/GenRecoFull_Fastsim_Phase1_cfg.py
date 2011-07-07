@@ -179,6 +179,18 @@ process.generator = cms.EDFilter("Pythia6GeneratorFilter",
         # This is a vector of ParameterSet names to be read, in this order
         parameterSets = cms.vstring('pythiaUESettings', 
             'processParameters')
+    ),
+    ExternalDecays = cms.PSet(
+        Tauola = cms.untracked.PSet(
+             UseTauolaPolarization = cms.bool(True),
+             InputCards = cms.PSet
+             (
+                pjak1 = cms.int32(0),
+                pjak2 = cms.int32(0),
+                mdtau = cms.int32(0)
+             )
+        ),
+        parameterSets = cms.vstring('Tauola')
     )
 )
 ################
