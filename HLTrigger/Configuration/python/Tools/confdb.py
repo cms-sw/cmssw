@@ -286,7 +286,7 @@ import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
 # from CMSSW_4_4_0_pre3: additional ESProducer in cfg files
-if cmsswVersion > "CMSSW_4_3":
+if cmsswVersion > "CMSSW_4_4":
     %(process)shltSiPixelQualityESProducer = cms.ESProducer("SiPixelQualityESProducer",
         ListOfRecordToMerge = cms.VPSet(
             cms.PSet( record = cms.string("SiPixelQualityFromDbRcd"),
