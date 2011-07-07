@@ -417,10 +417,14 @@ void JetPlusTrackCorrector::matchTracks( const JetTracks& jet_tracks,
     TrackRefs::const_iterator itrk = jet_tracks.vertex_.begin();
     TrackRefs::const_iterator jtrk = jet_tracks.vertex_.end();
 
+//    std::cout<<" Print theSumPtForBeta "<<theSumPtForBeta<<std::endl;
+
+    double theSumPtForBetaOld = theSumPtForBeta;
+
     for ( ; itrk != jtrk; ++itrk ) {
 
-      if ( useTrackQuality_ && (*itrk)->quality(trackQuality_) ) 
-           theSumPtForBeta += (**itrk).pt();           
+      if ( useTrackQuality_ && (*itrk)->quality(trackQuality_) && theSumPtForBetaOld<=0. ) 
+                                              theSumPtForBeta += (**itrk).pt();           
      
       if ( failTrackQuality(itrk) ) { continue; }
 
