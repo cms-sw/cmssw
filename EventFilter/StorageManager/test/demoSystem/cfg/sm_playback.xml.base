@@ -19,6 +19,7 @@
       <properties xmlns="urn:xdaq-application:FUEventProcessor" xsi:type="soapenc:Struct">
         <parameterSet xsi:type="xsd:string">file:../../cfg/FUPB_PROVIDER_CFG_FILE</parameterSet>
         <hasPrescaleService xsi:type="xsd:boolean">false</hasPrescaleService>
+        <isRunNumberSetter xsi:type="xsd:boolean">false</isRunNumberSetter>
       </properties>
     </xc:Application>
     <xc:Module>${CMSSW_BASE}/lib/${SCRAM_ARCH}/libEventFilterProcessor.so</xc:Module>
@@ -67,6 +68,8 @@
         <parameterSet xsi:type="xsd:string">file:../../cfg/FUPB_PASSTHRU_CFG_FILE</parameterSet>
         <runNumber xsi:type="xsd:unsignedInt">0</runNumber>
         <hasPrescaleService xsi:type="xsd:boolean">false</hasPrescaleService>
+        <nbSubProcesses xsi:type="xsd:unsignedInt">2</nbSubProcesses>
+        <autoRestartSlaves xsi:type="xsd:boolean">true</autoRestartSlaves>
       </properties>
     </xc:Application>
     <xc:Module>${CMSSW_BASE}/lib/${SCRAM_ARCH}/libEventFilterProcessor.so</xc:Module>
@@ -90,6 +93,7 @@
         <readyTimeDQM       xsi:type="xsd:integer">30</readyTimeDQM>
         <useCompressionDQM  xsi:type="xsd:boolean">true</useCompressionDQM>
         <compressionLevelDQM xsi:type="xsd:integer">1</compressionLevelDQM>
+        <checkAdler32       xsi:type="xsd:boolean">true</checkAdler32>
       </properties>
     </xc:Application>
     <xc:Module>${CMSSW_BASE}/lib/${SCRAM_ARCH}/libEventFilterStorageManager.so</xc:Module>
