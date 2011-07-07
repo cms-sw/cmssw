@@ -829,7 +829,7 @@ def toScreenConfHlt(hltconfdata,iresults=[],isverbose=False):
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace(x,25) )
 
 
-def toCSVConfHlt(hltconfdata,filename,iresults=None,isverbose=False):
+def toCSVConfHlt(hltconfdata,filename,iresults=[],isverbose=False):
     '''
     input:{runnumber,[(hltpath,l1seedexpr,l1bitname),...]}
     '''
@@ -854,7 +854,7 @@ def toCSVConfHlt(hltconfdata,filename,iresults=None,isverbose=False):
     r.writeRow(fieldnames)
     r.writeRows(result)
 
-def toScreenLSBeam(beamdata,iresults=None,dumpIntensity=False,minIntensity=0.1):
+def toScreenLSBeam(beamdata,iresults=[],dumpIntensity=False,minIntensity=0.1):
     '''
     input: {run:[(lumilsnum(0),cmslsnum(1),beamstatus(2),beamenergy(3),beaminfolist(4)),..]}
     beaminfolist:[(bxidx,b1,b2)]
@@ -863,6 +863,8 @@ def toScreenLSBeam(beamdata,iresults=None,dumpIntensity=False,minIntensity=0.1):
     if dumpIntensity:
         labels=[('Run','LS','beamstatus','egev','(bxidx,b1,b2)')]
     result=[]
+    for rline in iresults:
+        result.append(rline)
     for run in sorted(beamdata):
         perrundata=beamdata[run]
         if perrundata is None:            

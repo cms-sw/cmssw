@@ -223,6 +223,6 @@ if __name__ == '__main__':
         if not options.outputfile:
             lumiReport.toScreenLSBeam(result,iresults=iresults,dumpIntensity=False)
         else:
-            lumiReport.toCSVLSBeam(result,options.outputfile,iresults=iresults,dumpIntensity=False,isverbose=options.verbose)
+            lumiReport.toCSVLSBeam(result,options.outputfile,resultlines=iresults,dumpIntensity=False,isverbose=options.verbose)
     del session
     del svc 
