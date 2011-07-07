@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 from CondCore.DBCommon.CondDBCommon_cfi import *
 
-PoolDBESSource = cms.ESSource("PoolDBESSource",
+PoolDBESSourceSETNAME = cms.ESSource("PoolDBESSource",
                               CondDBCommon,
                               toGet = cms.VPSet(
     #
