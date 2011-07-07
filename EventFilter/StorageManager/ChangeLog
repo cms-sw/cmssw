@@ -1,3 +1,11 @@
+2011-07-07 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-04-00
+	* Move Adler32 checksum into FileRecord struct and display it on the hyperdaq page.
+	* Add option 'checkAdler32' to check Adler32 checksum of closed file to match
+	  to the one calculated on the fly (by default off).
+	* Resurrect the playback system for running over existing streamer files.
+
 2011-07-05 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V08-03-03
