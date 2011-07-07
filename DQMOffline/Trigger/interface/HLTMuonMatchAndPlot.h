@@ -11,8 +11,8 @@
  *  Documentation available on the CMS TWiki:
  *  https://twiki.cern.ch/twiki/bin/view/CMS/MuonHLTOfflinePerformance
  *
- *  $Date: 2011/04/29 22:00:26 $
- *  $Revision: 1.16 $
+ *  $Date: 2011/05/23 13:07:46 $
+ *  $Revision: 1.17 $
  *  
  *  \author  J. Slaunwhite, Jeff Klukas
  */
@@ -92,7 +92,9 @@ class HLTMuonMatchAndPlot {
   reco::MuonCollection selectedMuons(
     const reco::MuonCollection &,
     const reco::BeamSpot &,
-    const edm::ParameterSet &);
+    bool,    
+    const StringCutObjectSelector<reco::Muon> &,
+    double, double);
   trigger::TriggerObjectCollection selectedTriggerObjects(
     const trigger::TriggerObjectCollection &,
     const trigger::TriggerEvent &,
@@ -115,7 +117,17 @@ class HLTMuonMatchAndPlot {
   std::vector<std::string> moduleLabels_;
   DQMStore * dbe_;
   std::map<std::string, MonitorElement *> hists_;
-
+  
+  // Selectors
+  bool hasTargetRecoCuts;                                                                                                                                                                                                                                                    
+  bool hasProbeRecoCuts;
+    
+  StringCutObjectSelector<reco::Muon> targetMuonSelector_;
+  double targetZ0Cut_; 
+  double targetD0Cut_;
+  StringCutObjectSelector<reco::Muon> probeMuonSelector_;
+  double probeZ0Cut_; 
+  double probeD0Cut_;
 };
 
 #endif

@@ -218,14 +218,15 @@ PFRecHitProducerECAL::createRecHits(vector<reco::PFRecHit>& rechits,
       const EcalRecHit& erh = (*rhcHandle)[i];
       const DetId& detid = erh.detid();
       double energy = erh.energy();
-      uint32_t flag = erh.recoFlag();
+      //uint32_t flag = erh.recoFlag();
       double time = erh.time();
       EcalSubdetector esd=(EcalSubdetector)detid.subdetId();
       if (esd != 2) continue;
       if(energy < thresh_Endcap_ ) continue;
 
       // Check and skip the TT recovered rechits
-      if ( flag == EcalRecHit::kTowerRecovered ) { 
+      if ( erh.checkFlag(EcalRecHit::kTowerRecovered) ) {
+      // if ( flag == EcalRecHit::kTowerRecovered ) { 
 	// std::cout << "Rechit was recovered with energy " << energy << std::endl;
 	continue;
       }

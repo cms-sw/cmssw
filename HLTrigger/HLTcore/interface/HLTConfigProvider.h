@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2011/05/01 09:25:29 $
- *  $Revision: 1.38 $
+ *  $Date: 2011/05/28 13:30:42 $
+ *  $Revision: 1.41 $
  *
  *  \author Martin Grunewald
  *
@@ -53,7 +53,7 @@ class HLTConfigProvider {
 
   /// process name
   const std::string& processName() const {
-    return processName_;
+    return hltConfigData_->processName();
   }
   /// initialised?
   const bool inited() const {
@@ -248,10 +248,14 @@ class HLTConfigProvider {
     return hltConfigData_->prescaleTable();
   }
 
+  /// regexp processing
+  static const std::vector<std::string> matched(const std::vector<std::string>& inputs, const std::string& pattern);
+  static const std::string removeVersion(const std::string& trigger);
+  static const std::vector<std::string> restoreVersion(const std::vector<std::string>& inputs, const std::string& trigger);
 
  private:
 
-  void getDataFrom(const edm::ParameterSetID& iID, const std::string& iProcessName );
+  void getDataFrom(const edm::ParameterSetID& iID);
   void init(const edm::ProcessHistory& iHistory, const std::string& processName);
   void init(const std::string& processName);
   void clear();

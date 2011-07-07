@@ -12,6 +12,7 @@
  */
 
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
+#include "Geometry/CSCGeometry/interface/CSCLayer.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimMuon/CSCDigitizer/src/CSCCrossGap.h"
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
@@ -31,7 +32,7 @@ public:
 
    void setRandomEngine(CLHEP::HepRandomEngine & engine);
 
-   void simulate(const PSimHit&, 
+   void simulate(const PSimHit&, const CSCLayer * layer,
       std::vector<LocalPoint>& clusters, std::vector<int>& electrons );
 
    static const int N_GAMMA = 21;
@@ -49,7 +50,7 @@ private:
 
    void ionize( double energyTransferred, LocalPoint startHere) const;
 	
-   void writeSummary( int n_steps, double sum_steps, float dedx, float simHiteloss ) const;
+   void writeSummary( int n_steps, double sum_steps, float dedx ) const;
 
    const std::string me;       // class name
    double gasDensity;     // Density of CSC gas mix

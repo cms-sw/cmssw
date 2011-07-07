@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.17 2011/05/16 19:10:53 chrjones Exp $
+// $Id: DQMRootSource.cc,v 1.20 2011/07/06 20:49:06 chrjones Exp $
 //
 
 // system include files
@@ -337,8 +337,10 @@ class DQMRootSource : public edm::InputSource
       
       std::list<unsigned int> m_orderedIndices;
       unsigned int m_lastSeenRun;
+      bool m_justOpenedFileSoNeedToGenerateRunTransition;
       bool m_doNotReadRemainingPartsOfFileSinceFrameworkTerminating;
       std::set<MonitorElement*> m_lumiElements;
+      std::set<MonitorElement*> m_runElements;
       std::vector<edm::ProcessHistoryID> m_historyIDs;
       
       edm::JobReport::Token m_jrToken;
@@ -355,7 +357,10 @@ class DQMRootSource : public edm::InputSource
 void 
 DQMRootSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
-  desc.addUntracked<std::vector<std::string> >("fileNames");
+  desc.addUntracked<std::vector<std::string> >("fileNames")
+    ->setComment("Names of files to be processed.");
+  desc.addUntracked<std::string>("overrideCatalog",std::string())
+    ->setComment("An alternate file catalog to use instead of the standard site one.");
   descriptions.addDefault(desc);
 }
 //
@@ -364,12 +369,13 @@ DQMRootSource::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
 DQMRootSource::DQMRootSource(edm::ParameterSet const& iPSet, const edm::InputSourceDescription& iDesc):
 edm::InputSource(iPSet,iDesc),
 m_catalog(iPSet.getUntrackedParameter<std::vector<std::string> >("fileNames"), 
-          iPSet.getUntrackedParameter<std::string>("overrideCatalog", std::string())),
+          iPSet.getUntrackedParameter<std::string>("overrideCatalog")),
 m_nextItemType(edm::InputSource::IsFile),
 m_fileIndex(0),
 m_trees(kNIndicies,static_cast<TTree*>(0)),
 m_treeReaders(kNIndicies,boost::shared_ptr<TreeReaderBase>()),
 m_lastSeenRun(0),
+m_justOpenedFileSoNeedToGenerateRunTransition(false),
 m_doNotReadRemainingPartsOfFileSinceFrameworkTerminating(false)
 {
   if(m_fileIndex ==m_catalog.fileNames().size()) {
@@ -478,9 +484,22 @@ boost::shared_ptr<edm::RunPrincipal>
 DQMRootSource::readRun_(boost::shared_ptr<edm::RunPrincipal> rpCache) 
 {
   readNextItemType();
-  m_lastSeenRun = rpCache->id().run();
-  rpCache->addToProcessHistory();
+  unsigned int runID =rpCache->id().run();
   //std::cout <<"readRun_"<<std::endl;
+  
+  //NOTE: need to reset all run elements at this point
+  if(m_lastSeenRun != runID) {
+    for(std::set<MonitorElement*>::iterator it = m_runElements.begin(), itEnd = m_runElements.end();
+        it != itEnd;
+        ++it) {
+          (*it)->Reset();
+        
+    }
+  }
+
+  m_justOpenedFileSoNeedToGenerateRunTransition = false;
+  m_lastSeenRun = runID;
+  rpCache->addToProcessHistory();
   
   edm::Service<edm::JobReport> jr;
   jr->reportInputRunNumber(rpCache->id().run());
@@ -538,11 +557,13 @@ DQMRootSource::endLuminosityBlock(edm::LuminosityBlock& iLumi) {
 void 
 DQMRootSource::endRun(edm::Run& iRun){
   //std::cout <<"DQMRootSource::endRun"<<std::endl;
-  RunLumiToRange runLumiRange = m_runlumiToRange[*m_presentIndexItr];
-  //NOTE: it is possible to have an endRun when all we have stored is lumis
-  if(runLumiRange.m_lumi == 0 && 
-     runLumiRange.m_run == iRun.id().run()) {
-    readElements();
+  if(m_presentIndexItr != m_orderedIndices.end()) {
+    RunLumiToRange runLumiRange = m_runlumiToRange[*m_presentIndexItr];
+    //NOTE: it is possible to have an endRun when all we have stored is lumis
+    if(runLumiRange.m_lumi == 0 && 
+       runLumiRange.m_run == iRun.id().run()) {
+      readElements();
+    }
   }
   //NOTE: the framework will call endRun before closeFile in the case
   // where the frameworks is terminating
@@ -581,6 +602,8 @@ DQMRootSource::readElements() {
       MonitorElement* element = reader->read(index,*store,isLumi);
       if(isLumi) {
         m_lumiElements.insert(element);
+      } else {
+        m_runElements.insert(element);
       }
     }
     ++m_presentIndexItr;
@@ -652,10 +675,10 @@ DQMRootSource::readNextItemType()
   } while(shouldContinue);
   
   if(m_nextIndexItr != m_orderedIndices.end()) {
-    if(m_runlumiToRange[*m_nextIndexItr].m_lumi == 0 && m_lastSeenRun != m_runlumiToRange[*m_nextIndexItr].m_run) {
+    if(m_runlumiToRange[*m_nextIndexItr].m_lumi == 0 && (m_justOpenedFileSoNeedToGenerateRunTransition || m_lastSeenRun != m_runlumiToRange[*m_nextIndexItr].m_run) ) {
       m_nextItemType = edm::InputSource::IsRun;
     } else {
-      if(m_runlumiToRange[*m_nextIndexItr].m_run != m_lastSeenRun) {
+      if(m_runlumiToRange[*m_nextIndexItr].m_run != m_lastSeenRun || m_justOpenedFileSoNeedToGenerateRunTransition ) {
         //we have to create a dummy Run since we switched to a lumi in a new run
         m_nextItemType = edm::InputSource::IsRun;
       } else {
@@ -739,7 +762,7 @@ DQMRootSource::setupFile(unsigned int iIndex)
       phr->insertMapped( ph);
       //std::cout <<"inserted "<<ph.id()<<std::endl;
     }
-}
+  }
   
   //Setup the indices
   TTree* indicesTree = dynamic_cast<TTree*>(m_file->Get(kIndicesTree));
@@ -821,7 +844,8 @@ DQMRootSource::setupFile(unsigned int iIndex)
     }
   }
   //After a file open, the framework expects to see a new 'IsRun'
-  m_lastSeenRun = 0;
+  //m_lastSeenRun = 0;
+  m_justOpenedFileSoNeedToGenerateRunTransition=true;
 }
 
 //

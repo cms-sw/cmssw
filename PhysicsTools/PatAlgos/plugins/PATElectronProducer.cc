@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.46 2011/02/08 09:11:41 chamont Exp $
+// $Id: PATElectronProducer.cc,v 1.47 2011/03/31 09:52:39 namapane Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -224,10 +224,12 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     edm::Handle<reco::BeamSpot> beamSpotHandle;
     iEvent.getByLabel(beamLineSrc_, beamSpotHandle);
 
-
     // Get the primary vertex
     edm::Handle< std::vector<reco::Vertex> > pvHandle;
     iEvent.getByLabel( pvSrc_, pvHandle );
+
+    // This is needed by the IPTools methods from the tracking group
+    iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder);
 
     if ( ! usePV_ ) {
       if ( beamSpotHandle.isValid() ){
@@ -251,9 +253,6 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	edm::LogError("DataNotAvailable")
 	  << "No primary vertex available from EventSetup, not adding high level selection \n";
       }
-
-      // This is needed by the IPTools methods from the tracking group
-      iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", trackBuilder);
     }
   }
 

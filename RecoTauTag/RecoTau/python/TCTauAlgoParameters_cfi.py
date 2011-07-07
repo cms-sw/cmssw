@@ -1,7 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
 from TrackingTools.TrackAssociator.default_cfi import TrackAssociatorParameterBlock
-from RecoTauTag.RecoTau.PFRecoTauQualityCuts_cfi import PFTauQualityCuts
 
 tcTauAlgoParameters = cms.PSet(
     CaloRecoTauProducer = cms.InputTag("JPTCaloRecoTauProducer"),
@@ -18,13 +17,13 @@ tcTauAlgoParameters = cms.PSet(
     tkminPixelHitsn       = cms.int32(0),
     tkminTrackerHitsn     = cms.int32(5),
     TrackCollection       = cms.InputTag("generalTracks"),
-    PVProducer            = PFTauQualityCuts.primaryVertexSrc,
+    PVProducer            = cms.InputTag("offlinePrimaryVertices"),
     EBRecHitCollection    = cms.InputTag("ecalRecHit:EcalRecHitsEB"),
     EERecHitCollection    = cms.InputTag("ecalRecHit:EcalRecHitsEE"),
     HBHERecHitCollection  = cms.InputTag("hbhereco"),
     HORecHitCollection    = cms.InputTag("horeco"),
     HFRecHitCollection    = cms.InputTag("hfreco"),
     TrackAssociatorParameters = TrackAssociatorParameterBlock.TrackAssociatorParameters,
-    DropCaloJets          = cms.untracked.bool(False),
+    DropCaloJets          = cms.untracked.bool(False), 
     DropRejectedJets      = cms.untracked.bool(False)
 )

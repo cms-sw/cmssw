@@ -1,27 +1,27 @@
 #include <iostream>
 //
 
-#include "Validation/RecoEgamma/interface/ConversionPostprocessing.h"
+#include "Validation/RecoEgamma/plugins/ConversionPostprocessing.h"
 
-// 
+//
 
 /** \class ConversionPostprocessing
- **  
+ **
  **
  **  $Id: ConversionPostprocessing
- **  $Date: 2011/03/03 20:53:56 $ 
- **  author: 
- **   Nancy Marinelli, U. of Notre Dame, US  
- **   
- **     
+ **  $Date: 2011/05/20 13:55:42 $
+ **  author:
+ **   Nancy Marinelli, U. of Notre Dame, US
+ **
+ **
  ***/
 
 
 
 using namespace std;
 
- 
-ConversionPostprocessing::ConversionPostprocessing(const edm::ParameterSet& pset) 
+
+ConversionPostprocessing::ConversionPostprocessing(const edm::ParameterSet& pset)
 {
 
   dbe_ = 0;
@@ -57,7 +57,7 @@ ConversionPostprocessing::ConversionPostprocessing(const edm::ParameterSet& pset
   zMax = parameters_.getParameter<double>("zMax");
   zBin = parameters_.getParameter<int>("zBin");
 
- 
+
 
 }
 
@@ -117,7 +117,7 @@ void ConversionPostprocessing::runPostprocessing()
 
   histname = "convEffVsEtTwoTracks";
   convEffEtTwoTracks_ =  dbe_->book1D(histname,histname,etBin,etMin, etMax);
-  // 
+  //
   histname = "convEffVsEtaTwoTracksAndVtxProbGT0";
   convEffEtaTwoTracksAndVtxProbGT0_ =  dbe_->book1D(histname,histname,etaBin2,etaMin, etaMax);
   histname = "convEffVsEtaTwoTracksAndVtxProbGT0005";
@@ -157,7 +157,7 @@ void ConversionPostprocessing::runPostprocessing()
   dividePlots(dbe_->get(effPathName+"convFakeRateVsRTwoTracks"),dbe_->get(convPathName+"convRAss"),dbe_->get(convPathName+"convR"),"fakerate");
   dividePlots(dbe_->get(effPathName+"convFakeRateVsZTwoTracks"),dbe_->get(convPathName+"convZAss"),dbe_->get(convPathName+"convZ"),"fakerate");
   dividePlots(dbe_->get(effPathName+"convFakeRateVsEtTwoTracks"),dbe_->get(convPathName+"convPtAss"),dbe_->get(convPathName+"convPt"),"fakerate");
-  
+
 
 
   if(standAlone_) dbe_->save(outputFileName_);
@@ -168,7 +168,7 @@ void ConversionPostprocessing::runPostprocessing()
 void ConversionPostprocessing::endLuminosityBlock(const edm::LuminosityBlock& lumi, const edm::EventSetup& setup)
 {
 
- 
+
 }
 
 
@@ -182,7 +182,7 @@ void  ConversionPostprocessing::dividePlots(MonitorElement* dividend, MonitorEle
 	value = ((double) numerator->getBinContent(j))/((double) denominator->getBinContent(j));
       else if (type=="fakerate")
 	value = 1-((double) numerator->getBinContent(j))/((double) denominator->getBinContent(j));
-      else return; 
+      else return;
       err = sqrt( value*(1-value) / ((double) denominator->getBinContent(j)) );
       dividend->setBinContent(j, value);
       if ( err !=0 ) dividend->setBinError(j,err);

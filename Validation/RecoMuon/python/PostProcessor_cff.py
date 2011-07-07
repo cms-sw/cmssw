@@ -95,8 +95,8 @@ postProcessorRecoMuon = cms.EDAnalyzer("DQMGenericClient",
 
     resolution = cms.vstring("ErrP_vs_P      '#sigma(p) vs p'           ErrP_vs_P     ",
                              "ErrP_vs_Eta    '#sigma(p) vs #eta'        ErrP_vs_Eta   ",
-                             "ErrPt_vs_Pt    '#sigma(p) vs p_{T}'       ErrPt_vs_Pt   ",
-                             "ErrPt_vs_Eta   '#sigma(p) vs #eta'        ErrPt_vs_Eta  ",
+                             "ErrPt_vs_Pt    '#sigma(p_{T}) vs p_{T}'       ErrPt_vs_Pt   ",
+                             "ErrPt_vs_Eta   '#sigma(p_{T}) vs #eta'        ErrPt_vs_Eta  ",
                              "ErrEta_vs_Eta  '#sigma(#eta) vs #eta '    ErrEta_vs_Eta ",
                              "ErrQPt_vs_Pt   '#sigma(q/p_{T}) vs p_{T}' ErrQPt_vs_Pt  ",
                              "ErrQPt_vs_Eta  '#sigma(q/p_{T}) vs #eta'  ErrQPt_vs_Eta ",
@@ -128,6 +128,25 @@ postProcessorRecoMuon_TrkPF.subDirs = cms.untracked.vstring("Muons/RecoMuonV/Rec
 postProcessorRecoMuon_StaPF = postProcessorRecoMuon.clone()
 postProcessorRecoMuon_StaPF.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_StaPF")
 
+#do the same for FS
+postProcessorRecoMuon_GlbFS = postProcessorRecoMuon.clone()
+postProcessorRecoMuon_GlbFS.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_GlbFS")
+
+postProcessorRecoMuon_TrkFS = postProcessorRecoMuon.clone()
+postProcessorRecoMuon_TrkFS.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_TrkFS")
+
+postProcessorRecoMuon_StaFS = postProcessorRecoMuon.clone()
+postProcessorRecoMuon_StaFS.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_StaFS")
+
+postProcessorRecoMuon_GlbPFFS = postProcessorRecoMuon.clone()
+postProcessorRecoMuon_GlbPFFS.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_GlbPFFS")
+
+postProcessorRecoMuon_TrkPFFS = postProcessorRecoMuon.clone()
+postProcessorRecoMuon_TrkPFFS.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_TrkPFFS")
+
+postProcessorRecoMuon_StaPFFS = postProcessorRecoMuon.clone()
+postProcessorRecoMuon_StaPFFS.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_StaPFFS")
+
 
 #not sure about this one, which types are monitored
 postProcessorRecoMuonComp = cms.EDAnalyzer(
@@ -156,7 +175,35 @@ postProcessorRecoMuonCompPF = cms.EDAnalyzer(
     outputFileName = cms.untracked.string("")
 )
         
+#for FS
+
+postProcessorRecoMuonCompFS = cms.EDAnalyzer(
+    "DQMGenericClient",
+    subDirs = cms.untracked.vstring("Muons/RecoMuonV/"),
+    efficiency = cms.vstring(
+    "Eff_GlbSta_Eta 'Eff_{GLB,TK} vs #eta' RecoMuon_MuonAssoc_GlbFS/EffEta RecoMuon_MuonAssoc_StaFS/EffEta",
+    "Eff_GlbSta_P 'Eff_{GLB,TK} vs p' RecoMuon_MuonAssoc_GlbFS/EffP RecoMuon_MuonAssoc_StaFS/EffP",
+    "Eff_GlbSta_Phi 'Eff_{GLB,TK} vs #phi' RecoMuon_MuonAssoc_GlbFS/EffPhi RecoMuon_MuonAssoc_StaFS/EffPhi",
+    "Eff_GlbSta_Pt 'Eff_{GLB,TK} vs p_{T}' RecoMuon_MuonAssoc_GlbFS/EffPt RecoMuon_MuonAssoc_StaFS/EffPt",
+    ),
+    resolution = cms.vstring(""),
+    outputFileName = cms.untracked.string("")
+)
+
+postProcessorRecoMuonCompPFFS = cms.EDAnalyzer(
+    "DQMGenericClient",
+    subDirs = cms.untracked.vstring("Muons/RecoMuonV/"),
+    efficiency = cms.vstring(
+    "Eff_GlbSta_EtaPF 'Eff_{GLB,TK} vs #eta' RecoMuon_MuonAssoc_GlbPFFS/EffEta RecoMuon_MuonAssoc_StaPFFS/EffEta",
+    "Eff_GlbSta_PPF 'Eff_{GLB,TK} vs p' RecoMuon_MuonAssoc_GlbPFFS/EffP RecoMuon_MuonAssoc_StaPFFS/EffP",
+    "Eff_GlbSta_PhiPF 'Eff_{GLB,TK} vs #phi' RecoMuon_MuonAssoc_GlbPFFS/EffPhi RecoMuon_MuonAssoc_StaPFFS/EffPhi",
+    "Eff_GlbSta_PtPF 'Eff_{GLB,TK} vs p_{T}' RecoMuon_MuonAssoc_GlbPFFS/EffPt RecoMuon_MuonAssoc_StaPFFS/EffPt",
+    ),
+    resolution = cms.vstring(""),
+    outputFileName = cms.untracked.string("")
+)
+
 
 recoMuonPostProcessors = cms.Sequence(postProcessorMuonMultiTrack*postProcessorRecoMuon_Glb*postProcessorRecoMuon_Trk*postProcessorRecoMuon_Sta*postProcessorRecoMuon_GlbPF*postProcessorRecoMuon_TrkPF*postProcessorRecoMuon_StaPF*postProcessorMuonMultiTrackComp*postProcessorRecoMuonComp*postProcessorRecoMuonCompPF)
 
-recoMuonPostProcessorsFastSim = cms.Sequence(postProcessorMuonMultiTrack*postProcessorRecoMuon_Glb*postProcessorRecoMuon_Trk*postProcessorRecoMuon_Sta*postProcessorRecoMuon_GlbPF*postProcessorRecoMuon_TrkPF*postProcessorRecoMuon_StaPF*postProcessorMuonMultiTrackCompFS*postProcessorRecoMuonComp*postProcessorRecoMuonCompPF)
+recoMuonPostProcessorsFastSim = cms.Sequence(postProcessorMuonMultiTrack*postProcessorRecoMuon_GlbFS*postProcessorRecoMuon_TrkFS*postProcessorRecoMuon_StaFS*postProcessorRecoMuon_GlbPFFS*postProcessorRecoMuon_TrkPFFS*postProcessorRecoMuon_StaPFFS*postProcessorMuonMultiTrackCompFS*postProcessorRecoMuonCompFS*postProcessorRecoMuonCompPFFS)

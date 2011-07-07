@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/04/02 13:30:17 $
- *  $Revision: 1.71 $
+ *  $Date: 2010/12/04 00:52:21 $
+ *  $Revision: 1.69 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -153,11 +153,6 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
     theCleanedPFJetAnalyzer = new PFJetAnalyzer(parameters.getParameter<ParameterSet>("CleanedpfJetAnalysis"));
     theCleanedPFJetAnalyzer->setSource("PFJets");
   }
-
-  if(theDiJetSelectionFlag){
-    thePFDiJetAnalyzer  = new PFJetAnalyzer(parameters.getParameter<ParameterSet>("PFDijetAnalysis"));
-    thePFDiJetAnalyzer->setSource("PFDiJets");
-  }
   //Trigger selectoin
   edm::ParameterSet highptjetparms = parameters.getParameter<edm::ParameterSet>("highPtJetTrigger");
   edm::ParameterSet lowptjetparms  = parameters.getParameter<edm::ParameterSet>("lowPtJetTrigger" );
@@ -254,9 +249,8 @@ JetMETAnalyzer::~JetMETAnalyzer() {
   if(theJPTJetAnalyzerFlag)        delete theJPTJetAnalyzer;
   if(theJPTJetCleaningFlag)        delete theCleanedJPTJetAnalyzer;
 
-  if(thePFJetAnalyzerFlag)       delete thePFJetAnalyzer;
-  if(thePFJetCleaningFlag)       delete theCleanedPFJetAnalyzer;
-  if(theDiJetSelectionFlag)      delete thePFDiJetAnalyzer;
+  if(thePFJetAnalyzerFlag)         delete thePFJetAnalyzer;
+  if(thePFJetCleaningFlag)         delete theCleanedPFJetAnalyzer;
 
   delete _HighPtJetEventFlag;
   delete _LowPtJetEventFlag;
@@ -315,7 +309,6 @@ void JetMETAnalyzer::beginJob(void) {
 
   if(thePFJetAnalyzerFlag)  thePFJetAnalyzer->beginJob(dbe);
   if(thePFJetCleaningFlag)  theCleanedPFJetAnalyzer->beginJob(dbe);
-  if(theDiJetSelectionFlag) thePFDiJetAnalyzer->beginJob(dbe); 
 
   //
   //--- MET
@@ -356,11 +349,10 @@ void JetMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
       LogDebug("JetMETAnalyzer") << "HLTConfigProvider failed to initialize.";
     }
   }
-  
-  /*
+
   hltpathME = 0;
   if (_hlt_initialized) {
-    //if (hltConfig_.init(iRun,iSetup,processname_,changed)) {
+  //if (hltConfig_.init(iRun,iSetup,processname_,changed)) {
     if (hltConfig_.size()){
       dbe->setCurrentFolder("JetMET");
       hltpathME = dbe->book1D("hltpath", "hltpath", 300, 0., 300.);
@@ -370,8 +362,7 @@ void JetMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
       if (hltpathME) hltpathME->setBinLabel(j+1,hltConfig_.triggerName(j));
       // if (hltConfig_.triggerName(j)=="HLT_PhysicsDeclared") 
     }
-  }
-  */ 
+  }  
   //
   //--- Jet
 
@@ -439,7 +430,6 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	if(_doHLTPhysicsOn) bPhysicsDeclared = true;
       }
 
-    /*
     //sanity check
     if (_hlt_initialized && hltConfig_.size() && triggerResults->size()==hltConfig_.size()){
       //check the trigger results
@@ -449,7 +439,6 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	}
       }
     }
-    */
   }
   
   if (DEBUG)  std::cout << "trigger label " << theTriggerResultsLabel << std::endl;
@@ -514,19 +503,16 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       reco::VertexCollection vertexCollection = *(vertexHandle.product());
       int vertex_number     = vertexCollection.size();
       reco::VertexCollection::const_iterator v = vertexCollection.begin();
-      for ( ; v != vertexCollection.end(); ++v) {
-	double vertex_chi2    = v->normalizedChi2();
-	double vertex_ndof    = v->ndof();
-	bool   fakeVtx        = v->isFake();
-	double vertex_Z       = v->z();
-	
-	if (  !fakeVtx
-	      && vertex_number>=_nvtx_min
-	      && vertex_ndof   >_vtxndof_min
-	      && vertex_chi2   <_vtxchi2_max
-	      && fabs(vertex_Z)<_vtxz_max )
-	  bPrimaryVertex = true;
-      }
+      double vertex_chi2    = v->normalizedChi2();
+      double vertex_ndof    = v->ndof();
+      bool   fakeVtx        = v->isFake();
+      double vertex_Z       = v->z();
+      
+      if (  !fakeVtx
+	    && vertex_number>=_nvtx_min
+	    && vertex_ndof   >_vtxndof_min
+	    && vertex_chi2   <_vtxchi2_max
+	    && fabs(vertex_Z)<_vtxz_max ) bPrimaryVertex = true;
     }
   }
   // ==========================================================
@@ -738,9 +724,6 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       theCleanedPFJetAnalyzer->setJetLoPass(JetLoPass);
       LogTrace(metname)<<"[JetMETAnalyzer] Call to the Cleaned PFJet analyzer";
       theCleanedPFJetAnalyzer->analyze(iEvent, iSetup, *pfJets);
-      if(theDiJetSelectionFlag){
-	thePFDiJetAnalyzer->analyze(iEvent, iSetup, *pfJets);
-      }
     } // DCS
     }  
   } else {
@@ -842,12 +825,8 @@ void JetMETAnalyzer::endJob(void) {
     if(theIConeJetAnalyzerFlag) theCleanedPtICJetAnalyzer->endJob();
   }
 
-  if(theJPTJetAnalyzerFlag)   theJPTJetAnalyzer->endJob();
-  if(theJPTJetCleaningFlag)   theCleanedJPTJetAnalyzer->endJob();
-
-  if(thePFJetAnalyzerFlag)  thePFJetAnalyzer->endJob();
-  if(thePFJetCleaningFlag)  theCleanedPFJetAnalyzer->endJob();
-  if(theDiJetSelectionFlag) thePFDiJetAnalyzer->endJob();
+  if(theJPTJetAnalyzerFlag) theJPTJetAnalyzer->endJob();
+  if(theJPTJetCleaningFlag) theCleanedJPTJetAnalyzer->endJob();
 
   if(outputMEsInRootFile){
     dbe->save(outputFileName);

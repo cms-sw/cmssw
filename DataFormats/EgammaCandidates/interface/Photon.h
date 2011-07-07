@@ -7,7 +7,7 @@
  * stores isolation, shower shape and additional info
  * needed for identification
  * 
- * \version $Id: Photon.h,v 1.37 2011/02/20 23:11:10 nancy Exp $
+ * \version $Id: Photon.h,v 1.38 2011/02/25 22:13:38 dlange Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -54,7 +54,7 @@ namespace reco {
     bool isPFlowPhoton() const {return this->photonCore()->isPFlowPhoton();}
     bool isStandardPhoton() const {return this->photonCore()->isStandardPhoton();}
     /// Ref to SuperCluster
-    reco::SuperClusterRef superCluster() const {return this->photonCore()->superCluster();}
+    reco::SuperClusterRef superCluster() const;
     /// Ref to PFlow SuperCluster
     reco::SuperClusterRef pfSuperCluster() const {return this->photonCore()->pfSuperCluster();}
     /// vector of references to  Conversion's

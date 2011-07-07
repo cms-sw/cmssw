@@ -2,6 +2,7 @@
 #define ZDCSIMPLERECONSTRUCTOR_H 1
 
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "CondFormats/HcalObjects/interface/HcalLongRecoParams.h"
@@ -13,8 +14,8 @@
 
 
     /** \class HcalSimpleReconstructor	
-     $Date: 2011/02/23 22:51:18 $
-    $Revision: 1.2 $
+     $Date: 2010/01/21 14:37:40 $
+    $Revision: 1.1 $
     \author E. Garcia - CSU
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */

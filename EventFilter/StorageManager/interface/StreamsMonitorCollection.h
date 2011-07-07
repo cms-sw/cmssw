@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.h,v 1.12 2011/03/07 15:31:32 mommsen Exp $
+// $Id: StreamsMonitorCollection.h,v 1.15 2011/06/20 15:55:52 mommsen Exp $
 /// @file: StreamsMonitorCollection.h 
 
 #ifndef EventFilter_StorageManager_StreamsMonitorCollection_h
@@ -28,8 +28,8 @@ namespace stor {
    * A collection of MonitoredQuantities of output streams
    *
    * $Author: mommsen $
-   * $Revision: 1.12 $
-   * $Date: 2011/03/07 15:31:32 $
+   * $Revision: 1.15 $
+   * $Date: 2011/06/20 15:55:52 $
    */
   
   class StreamsMonitorCollection : public MonitorCollection
@@ -54,7 +54,7 @@ namespace stor {
 
       void incrementFileCount(const uint32_t lumiSection);
       void addSizeInBytes(double);
-      void reportLumiSectionInfo
+      bool reportLumiSectionInfo
       (
         const uint32_t& lumiSection,
         std::string& str
@@ -76,6 +76,25 @@ namespace stor {
     // Thus, we need a vector of them.
     typedef boost::shared_ptr<StreamRecord> StreamRecordPtr;
     typedef std::vector<StreamRecordPtr> StreamRecordList;
+
+
+    struct EndOfRunReport
+    {
+      EndOfRunReport() { reset(); }
+
+      void reset()
+      { latestLumiSectionWritten = eolsCount = lsCountWithFiles = 0; }
+
+      void updateLatestWrittenLumiSection(uint32_t ls)
+      {
+        if (ls > latestLumiSectionWritten) latestLumiSectionWritten = ls;
+      }
+
+      uint32_t latestLumiSectionWritten;
+      unsigned int eolsCount;
+      unsigned int lsCountWithFiles;
+    };
+    typedef boost::shared_ptr<EndOfRunReport> EndOfRunReportPtr;
 
 
     explicit StreamsMonitorCollection(const utils::Duration_t& updateInterval);
@@ -107,7 +126,7 @@ namespace stor {
       return allStreamsBandwidth_;
     }
 
-    void reportAllLumiSectionInfos(DbFileHandlerPtr);
+    void reportAllLumiSectionInfos(DbFileHandlerPtr, EndOfRunReportPtr);
 
 
   private:

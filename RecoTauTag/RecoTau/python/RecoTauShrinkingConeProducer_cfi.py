@@ -11,7 +11,8 @@ See PFT-08-001 for a description of the algorithm.
 
 _shrinkingConeRecoTausConfig = cms.PSet(
     name = cms.string("shrinkingCone"),
-    qualityCuts = PFTauQualityCuts,
+    primaryVertexSrc = cms.InputTag("offlinePrimaryVertices"),
+    qualityCuts = PFTauQualityCuts.signalQualityCuts,
     # If true, consider PFLeptons (e/mu) as charged hadrons.
     usePFLeptons = cms.bool(True),
     pfCandSrc = cms.InputTag("particleFlow"),

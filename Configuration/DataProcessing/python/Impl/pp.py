@@ -10,7 +10,7 @@ import os
 import sys
 
 from Configuration.DataProcessing.Scenario import Scenario
-from Configuration.DataProcessing.Utils import stepALCAPRODUCER
+from Configuration.DataProcessing.Utils import stepALCAPRODUCER,addMonitoring
 import FWCore.ParameterSet.Config as cms
 from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
 from Configuration.PyReleaseValidation.ConfigBuilder import Options
@@ -53,7 +53,7 @@ class pp(Scenario):
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
-        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',L1HwVal,DQM,ENDJOB'
+        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',L1HwVal,DQM'
         options.isMC = False
         options.isData = True
         options.beamspot = None
@@ -74,6 +74,7 @@ class pp(Scenario):
 
         #add the former top level patches here
         customisePrompt(process)
+        addMonitoring(process)
         
         return process
 
@@ -88,13 +89,14 @@ class pp(Scenario):
 
         skims = ['SiStripCalZeroBias',
                  'TkAlMinBias',
+                 'DtCalib',
                  'MuAlCalIsolatedMu',
                  'SiStripPCLHistos']
         step = stepALCAPRODUCER(skims)
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "pp"
-        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',L1HwVal,DQM,ENDJOB'
+        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',L1HwVal,DQM'
         options.isMC = False
         options.isData = True
         options.beamspot = None
@@ -115,7 +117,8 @@ class pp(Scenario):
 
         #add the former top level patches here
         customiseExpress(process)
-        
+        addMonitoring(process)
+                
         return process
 
 
@@ -196,14 +199,13 @@ class pp(Scenario):
         options.filein = []
  
         process = cms.Process("HARVESTING")
-        process.source = cms.Source("PoolSource")
+        process.source = cms.Source("DQMRootSource")
         configBuilder = ConfigBuilder(options, process = process)
         configBuilder.prepare()
 
         #
         # customise process for particular job
         #
-        process.source.processingMode = cms.untracked.string('RunsAndLumis')
         process.source.fileNames = cms.untracked(cms.vstring())
         process.maxEvents.input = -1
         process.dqmSaver.workflow = datasetName

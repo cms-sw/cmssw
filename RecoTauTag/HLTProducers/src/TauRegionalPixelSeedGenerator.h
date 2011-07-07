@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -43,14 +44,6 @@ class TauRegionalPixelSeedGenerator : public TrackingRegionProducer {
       m_deltaPhi     = regionPSet.getParameter<double>("deltaPhiRegion");
       m_jetSrc       = regionPSet.getParameter<edm::InputTag>("JetSrc");
       m_vertexSrc    = regionPSet.getParameter<edm::InputTag>("vertexSrc");
-      m_measurementTracker ="";
-      m_howToUseMeasurementTracker=0;
-      if (regionPSet.exists("measurementTrackerName")){
-	m_measurementTracker = regionPSet.getParameter<std::string>("measurementTrackerName");
-	if (regionPSet.exists("howToUseMeasurementTracker")){
-	  m_howToUseMeasurementTracker = regionPSet.getParameter<double>("howToUseMeasurementTracker");
-	}
-      }
     }
   
     virtual ~TauRegionalPixelSeedGenerator() {}
@@ -95,10 +88,7 @@ class TauRegionalPixelSeedGenerator : public TrackingRegionProducer {
                                                                                                deltaRho,
                                                                                                deltaZVertex,
                                                                                                m_deltaEta,
-                                                                                               m_deltaPhi,
-											       m_howToUseMeasurementTracker,
-											       true,
-											       m_measurementTracker);
+                                                                                               m_deltaPhi );
           result.push_back(etaphiRegion);
       }
 
@@ -115,8 +105,6 @@ class TauRegionalPixelSeedGenerator : public TrackingRegionProducer {
   float m_deltaPhi;
   edm::InputTag m_jetSrc;
   edm::InputTag m_vertexSrc;
-  std::string m_measurementTracker;
-  double m_howToUseMeasurementTracker;
 };
 
 #endif

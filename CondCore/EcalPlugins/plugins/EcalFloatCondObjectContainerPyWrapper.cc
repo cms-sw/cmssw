@@ -162,11 +162,66 @@ namespace cond {
   
   template<>
   std::string PayLoadInspector<EcalFloatCondObjectContainer>::summary() const {
+
     std::stringstream ss;
-    ss << "sizes="
-       << object().barrelItems().size() <<","
-       << object().endcapItems().size() <<";";
-    ss << std::endl;
+
+    const int kSides       = 2;
+    const int kBarlRings   = EBDetId::MAX_IETA;
+    const int kBarlWedges  = EBDetId::MAX_IPHI;
+    const int kEndcWedgesX = EEDetId::IX_MAX;
+    const int kEndcWedgesY = EEDetId::IY_MAX;
+
+    /// calculate mean and sigma 
+
+    float mean_x_EB=0;
+    float mean_xx_EB=0;
+    int num_x_EB=0;
+
+    float mean_x_EE=0;
+    float mean_xx_EE=0;
+    int num_x_EE=0;
+
+
+    for (int sign=0; sign<kSides; sign++) {
+
+       int thesign = sign==1 ? 1:-1;
+
+       for (int ieta=0; ieta<kBarlRings; ieta++) {
+         for (int iphi=0; iphi<kBarlWedges; iphi++) {
+	   EBDetId id((ieta+1)*thesign, iphi+1);
+	    float x= object()[id.rawId()];
+	    num_x_EB++;
+	    mean_x_EB=mean_x_EB+x;
+	    mean_xx_EB=mean_xx_EB+x*x;
+         }
+       }
+
+       for (int ix=0; ix<kEndcWedgesX; ix++) {
+	 for (int iy=0; iy<kEndcWedgesY; iy++) {
+	   if (! EEDetId::validDetId(ix+1,iy+1,thesign)) continue;
+	   EEDetId id(ix+1,iy+1,thesign);
+	    float x=object()[id.rawId()];
+	    num_x_EE++;
+	    mean_x_EE=mean_x_EE+x;
+	    mean_xx_EE=mean_xx_EE+x*x;
+
+	 }//iy
+       }//ix
+
+
+    }
+
+    mean_x_EB=mean_x_EB/num_x_EB;
+    mean_x_EE=mean_x_EE/num_x_EE;
+    mean_xx_EB=mean_xx_EB/num_x_EB;
+    mean_xx_EE=mean_xx_EE/num_x_EE;
+    float rms_EB=(mean_xx_EB-mean_x_EB*mean_x_EB);
+    float rms_EE=(mean_xx_EE-mean_x_EE*mean_x_EE);
+
+    ss << "ECAL BARREL Mean: "<< mean_x_EB <<" RMS: "<<  rms_EB << " Nchan: "<< num_x_EB<< std::endl
+       << "ECAL Endcap Mean: "<< mean_x_EE <<" RMS: "<<  rms_EE << " Nchan: "<< num_x_EE<< std::endl ;
+
+
     return ss.str();
   }
   

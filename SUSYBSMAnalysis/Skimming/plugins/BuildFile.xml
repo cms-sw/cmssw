@@ -19,8 +19,6 @@
   <use   name="RecoMuon/Records"/>
   <use   name="CondFormats/RecoMuonObjects"/>
   <use   name="MuonAnalysis/MomentumScaleCalibration"/>
-  <use   name="CMS.PhysicsTools/UtilAlgos"/>
-  <use   name="FWCore/ServiceRegistry"/>
   <use   name="boost_regex"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

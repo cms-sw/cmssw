@@ -21,6 +21,7 @@ class RunMerge:
         self.outputFile = "Merged.root"
         self.outputLFN = None
         self.inputFiles = []
+        self.dqmFormat = False
         
 
     def __call__(self):
@@ -33,7 +34,8 @@ class RunMerge:
                 self.inputFiles,
                 process_name = self.processName,
                 output_file = self.outputFile,
-                output_lfn = self.outputLFN)
+                output_lfn = self.outputLFN,
+                dqm_format = self.dqmFormat)
         except Exception, ex:
             msg = "Error creating process for Merge:\n"
             msg += str(ex)
@@ -49,7 +51,7 @@ class RunMerge:
 
 
 if __name__ == '__main__':
-    valid = ["input-files=", "output-file=", "output-lfn=" ]
+    valid = ["input-files=", "output-file=", "output-lfn=", "dqm_format" ]
              
     usage = """RunMerge.py <options>"""
     try:
@@ -71,6 +73,8 @@ if __name__ == '__main__':
             merger.outputFile = arg
         if opt == "--output-lfn" :
             merger.outputLFN = arg
+        if opt == "--dqm_format" :
+            merger.dqmFormat = True
         
 
     merger()

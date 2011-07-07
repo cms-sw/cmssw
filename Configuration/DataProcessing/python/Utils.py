@@ -23,3 +23,17 @@ def stepALCAPRODUCER(skims):
         step = step.rstrip('+')
     return step
 
+def addMonitoring(process):
+    """
+    _addMonitoring_
+    
+    Add the monitoring services to the process provided
+    in order to write out performance summaries to the framework job report
+    """
+    import FWCore.ParameterSet.Config as cms
+    
+    process.add_(cms.Service("SimpleMemoryCheck"))
+    process.add_(cms.Service("Timing"))
+    process.Timing.summaryOnly = cms.untracked(cms.bool(True))
+    
+    return process

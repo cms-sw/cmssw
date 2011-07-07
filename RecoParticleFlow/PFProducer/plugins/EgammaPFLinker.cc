@@ -38,7 +38,6 @@ EgammaPFLinker::~EgammaPFLinker() {;}
 void EgammaPFLinker::beginRun(edm::Run& run,const edm::EventSetup & es) {;}
 
 void EgammaPFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
-  electronCandidateMap_.clear();
   std::auto_ptr<reco::PFCandidateCollection>
     pfCandidates_p(new reco::PFCandidateCollection);
 
@@ -70,14 +69,12 @@ void EgammaPFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   for( unsigned i=0; i<ncand; ++i ) {
     edm::Ptr<reco::PFCandidate> candPtr(pfCandidates,i);
     reco::PFCandidate cand(candPtr);
-    
     // if not an electron or a photon with mva_nothing_gamma>0 
-    if(! (cand.particleId()==reco::PFCandidate::e) || ((cand.particleId()==reco::PFCandidate::gamma)&&(cand.mva_nothing_gamma()>0.))) {
+    if(!( (cand.particleId()==reco::PFCandidate::e) || ((cand.particleId()==reco::PFCandidate::gamma)&&(cand.mva_nothing_gamma()>0.)))) {
       pfCandidates_p->push_back(cand);
       // watch out
       continue;
     }
-
     // if it is an electron. Find the GsfElectron with the same GsfTrack
     if (cand.particleId()==reco::PFCandidate::e) {
       const reco::GsfTrackRef & gsfTrackRef(cand.gsfTrackRef());
@@ -124,9 +121,14 @@ void EgammaPFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) 
   // now make the valuemaps
   fillValueMap(gsfElectrons,pfCandidateRefProd,pfCandidates,pfMapGsfElectronFiller);  
   fillValueMap(photons,pfCandidateRefProd,pfCandidates,pfMapPhotonFiller);  
-  
+  pfMapGsfElectronFiller.fill();
+  pfMapPhotonFiller.fill();
   iEvent.put(pfMapGsfElectrons_p,nameOutputElectronsPF_);
   iEvent.put(pfMapPhotons_p,nameOutputPhotonsPF_);
+
+  // free a but of memory
+  electronCandidateMap_.clear();
+  photonCandidateMap_.clear();
 }
 
 
@@ -205,9 +207,9 @@ void EgammaPFLinker::fillValueMap(edm::Handle<reco::GsfElectronCollection>& elec
 }
 
 void EgammaPFLinker::fillValueMap(edm::Handle<reco::PhotonCollection>& photons,
-				     const edm::OrphanHandle<reco::PFCandidateCollection> & pfOrphanHandle,
-				     const edm::Handle<reco::PFCandidateCollection> & pfHandle,
-				     edm::ValueMap<reco::PFCandidatePtr>::Filler & filler) const {
+				  const edm::OrphanHandle<reco::PFCandidateCollection> & pfOrphanHandle,
+				  const edm::Handle<reco::PFCandidateCollection> & pfHandle,
+				  edm::ValueMap<reco::PFCandidatePtr>::Filler & filler) const {
   unsigned nPhotons=photons->size();
   std::vector<reco::PFCandidatePtr> values;
   for(unsigned iphot=0;iphot<nPhotons;++iphot) {

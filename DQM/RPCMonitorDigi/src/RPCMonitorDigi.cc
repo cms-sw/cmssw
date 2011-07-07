@@ -54,31 +54,38 @@ void RPCMonitorDigi::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
 
   //Book 
 
-  regionNoiseCollection = this->bookRegionME(noiseFolder_);
-  sectorRingNoiseCollection = this->bookSectorRingME(noiseFolder_);
-  wheelDiskNoiseCollection = this->bookWheelDiskME(noiseFolder_);
+  //regionNoiseCollection = this->bookRegionME(noiseFolder_);
+  //sectorRingNoiseCollection = this->bookSectorRingME(noiseFolder_);
+  //wheelDiskNoiseCollection = this->bookWheelDiskME(noiseFolder_);
   
+  this->bookRegionME(noiseFolder_, regionNoiseCollection);
+  this->bookSectorRingME(noiseFolder_, sectorRingNoiseCollection);
+  this->bookWheelDiskME(noiseFolder_, wheelDiskNoiseCollection);
+
+
+
   std::string currentFolder = subsystemFolder_ +"/"+noiseFolder_;
   dbe->setCurrentFolder(currentFolder);
   
   noiseRPCEvents_= dbe->get(currentFolder +"/RPCEvents");
   if(noiseRPCEvents_) dbe->removeElement(noiseRPCEvents_->getName());
   noiseRPCEvents_ = dbe->book1D("RPCEvents","RPCEvents", 1, 0.5, 1.5);
-
   
   
   if(useMuonDigis_ ){
-
-    regionMuonCollection = this->bookRegionME(muonFolder_);
-    sectorRingMuonCollection = this->bookSectorRingME(muonFolder_);
-    wheelDiskMuonCollection = this->bookWheelDiskME(muonFolder_);
-
+  //   regionMuonCollection = this->bookRegionME(muonFolder_);
+//     sectorRingMuonCollection = this->bookSectorRingME(muonFolder_);
+//     wheelDiskMuonCollection = this->bookWheelDiskME(muonFolder_);
+    this->bookRegionME(muonFolder_, regionMuonCollection);
+    this->bookSectorRingME(muonFolder_, sectorRingMuonCollection);
+    this->bookWheelDiskME(muonFolder_, wheelDiskMuonCollection);
+    
     currentFolder = subsystemFolder_ +"/"+muonFolder_;
     dbe->setCurrentFolder(currentFolder); 
    
     muonRPCEvents_= dbe->get(currentFolder +"/RPCEvents");
     if(muonRPCEvents_) dbe->removeElement(muonRPCEvents_->getName());
-    muonRPCEvents_ = dbe->book1D("RPCEvents","RPCEvents", 1, 0.5, 1.5);
+    muonRPCEvents_ =  dbe->book1D("RPCEvents", "RPCEvents", 1, 0.5, 1.5);
 
     NumberOfMuon_ = dbe->get(currentFolder+"/NumberOfMuons");
     if(NumberOfMuon_) dbe->removeElement(NumberOfMuon_->getName());
@@ -88,7 +95,6 @@ void RPCMonitorDigi::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
     NumberOfRecHitMuon_ = dbe->get(currentFolder+"/NumberOfRPCRecHitsMuons");
     if(NumberOfRecHitMuon_) dbe->removeElement(NumberOfRecHitMuon_->getName());
     NumberOfRecHitMuon_ = dbe->book1D("NumberOfRecHitMuons", "Number of RPC RecHits per Muon", 8, -0.5, 7.5);
-
   }
    
 
@@ -105,18 +111,18 @@ void RPCMonitorDigi::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
 	//booking all histograms
 	RPCGeomServ rpcsrv(rpcId);
 	std::string nameRoll = rpcsrv.name();
-	if(useMuonDigis_) meMuonCollection[(uint32_t)rpcId] = bookRollME(rpcId,iSetup,  muonFolder_);
-	meNoiseCollection[(uint32_t)rpcId] = bookRollME(rpcId,iSetup,  noiseFolder_);
+	if(useMuonDigis_) bookRollME(rpcId,iSetup, muonFolder_, meMuonCollection[(uint32_t)rpcId]);
+	bookRollME(rpcId,iSetup, noiseFolder_, meNoiseCollection[(uint32_t)rpcId]);
+
+// 	if(useMuonDigis_) meMuonCollection[(uint32_t)rpcId] = bookRollME(rpcId,iSetup,  muonFolder_);
+// 	meNoiseCollection[(uint32_t)rpcId] = bookRollME(rpcId,iSetup,  noiseFolder_);
       }
     }
   }//end loop on geometry to book all MEs
 
 
- //Clear flags and counters;
+  //Clear flags;
   dcs_ = true;
-  muonCounter_ = 0;
-  noiseCounter_ = 0;
-
 }
 
 void RPCMonitorDigi::endJob(void){
@@ -178,6 +184,7 @@ void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setu
 	  }
 	}
       }// end loop on mu rechits
+    
     }
 
     if( NumberOfMuon_)  NumberOfMuon_->Fill(numMuons);
@@ -234,13 +241,11 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
   std::map<std::string, MonitorElement*>   meSectorRing;  
 
   if(recHittype == muonFolder_ ) {
-    muonCounter_++;
     meRollCollection = meMuonCollection;
     meWheelDisk =  wheelDiskMuonCollection;
     meRegion =  regionMuonCollection;
     meSectorRing =  sectorRingMuonCollection;
   }else if(recHittype == noiseFolder_ ){
-    noiseCounter_++;
     meRollCollection =  meNoiseCollection;
     meWheelDisk =  wheelDiskNoiseCollection;
     meRegion =  regionNoiseCollection;
@@ -320,7 +325,6 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
       numDigi +=  clusterSize ;
       int firstStrip = recHit.firstClusterStrip();
       int lastStrip = clusterSize + firstStrip - 1;
-
           
       // ###################### Roll Level  #################################
       
@@ -354,15 +358,15 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
 	}
       }
 
-      os.str("");
-      os<<"BxDistribution_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber<<"_Sector_"<<sector;
-      if( meSectorRing[os.str()])  meSectorRing[os.str()]->Fill(bx);
+   //    os.str("");
+//       os<<"BxDistribution_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber<<"_Sector_"<<sector;
+//       if( meSectorRing[os.str()])  meSectorRing[os.str()]->Fill(bx);
 
       os.str("");
-      if(geoServ.segment() > 0 && geoServ.segment() < 13 ){ 
-	os<<"Occupancy_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber<<"_Ring_"<<ring<<"_CH01-CH12";
-      }else if (geoServ.segment() > 12 ){
-	os<<"Occupancy_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber<<"_Ring_"<<ring<<"_CH13-CH36";
+      if(geoServ.segment() > 0 && geoServ.segment() < 19 ){ 
+	os<<"Occupancy_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber<<"_Ring_"<<ring<<"_CH01-CH18";
+      }else if (geoServ.segment() > 18 ){
+	os<<"Occupancy_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber<<"_Ring_"<<ring<<"_CH19-CH36";
       }
      
       if( meSectorRing[os.str()]){ 
@@ -371,33 +375,34 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
 	}
       }
 
-      os.str("");
-      os<<"BxDistribution_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber<<"_Ring_"<<ring;
-      if( meSectorRing[os.str()])  meSectorRing[os.str()]->Fill(bx);
+     //  os.str("");
+//       os<<"BxDistribution_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber<<"_Ring_"<<ring;
+//       if( meSectorRing[os.str()])  meSectorRing[os.str()]->Fill(bx);
 
       
       // ###################### Wheel/Disk Level #########################‡‡‡
+      if(region ==0){
+	os.str("");
+	os<<"1DOccupancy_Wheel_"<<wheelOrDiskNumber;
+	if( meWheelDisk[os.str()]) meWheelDisk[os.str()]->Fill(sector, clusterSize);
+	
+	os.str("");
+	os<<"Occupancy_Roll_vs_Sector_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber;       
+	if (meWheelDisk[os.str()]) meWheelDisk[os.str()]->Fill(sector, nr, clusterSize);
 
-      os.str("");
-      os<<"1DOccupancy_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber;
-      std::string meId = os.str();
-      if( meWheelDisk[os.str()]) {
-	if (region == 0){
-	  meWheelDisk[os.str()]->Fill(sector, clusterSize);
-	}else{
-	  meWheelDisk[os.str()]->Fill(ring , clusterSize);
+      }else{
+	os.str("");
+	os<<"1DOccupancy_Ring_"<<ring;
+	if ((meWheelDisk[os.str()])){
+	  if (wheelOrDiskNumber > 0 ) meWheelDisk[os.str()]->Fill(wheelOrDiskNumber +3, clusterSize);
+	  else meWheelDisk[os.str()]->Fill(wheelOrDiskNumber + 4, clusterSize);
 	}
+
+	os.str("");
+	os<<"Occupancy_Ring_vs_Segment_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber;   
+	if (meWheelDisk[os.str()]) meWheelDisk[os.str()]->Fill( geoServ.segment(), (ring-1)*3-detId.roll()+1,clusterSize );
       }
 
-
-      os.str("");
-      os<<"Occupancy_Roll_vs_Sector_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber;       
-      if (meWheelDisk[os.str()]) meWheelDisk[os.str()]->Fill(sector, nr, clusterSize);
-      
-      os.str("");
-      os<<"Occupancy_Ring_vs_Segment_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber;   
-      if (meWheelDisk[os.str()]) meWheelDisk[os.str()]->Fill( geoServ.segment(), (ring-1)*3-detId.roll()+1,clusterSize );
-      
       os.str("");
       os<<"BxDistribution_"<<wheelOrDiskType<<"_"<<wheelOrDiskNumber;
       if(meWheelDisk[os.str()])  meWheelDisk[os.str()]->Fill(bx);
@@ -444,24 +449,20 @@ void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RP
     os<<"Multiplicity_"<<RPCMonitorDigi::regionNames_[region +1];
     if(meRegion[os.str()]) meRegion[os.str()]->Fill(numDigi);
 
+    os.str("");
+    if(region==0) {
+      os<<"Occupancy_for_Barrel";
+      if(meRegion[os.str()]) meRegion[os.str()]->Fill(sector, wheelOrDiskNumber, numDigi);
+    }else {
+      os<<"Occupancy_for_Endcap";
+      int xbin = wheelOrDiskNumber+3;
+      if (region==-1) xbin = wheelOrDiskNumber+4;
+      if(meRegion[os.str()]) meRegion[os.str()]->Fill(xbin,ring,numDigi);
+    }
 
     os.str("");
     os<<"Multiplicity_"<<nameRoll;
     if(meMap[os.str()]) meMap[os.str()]->Fill(numDigi);   
-
-
-    os.str("");
-    if(region==0){
-      os<<"Occupancy_for_Barrel";
-      if(meRegion[os.str()]) meRegion[os.str()]->Fill(sector, wheelOrDiskNumber, numDigi);
-    }else{
-      os<<"Occupancy_for_Endcap";
-      int xbin = wheelOrDiskNumber + 3;
-      if(region == -1) xbin = wheelOrDiskNumber + 4;
-      if(xbin > 6 && xbin < 1) xbin = 6;
-      if(meRegion[os.str()]) meRegion[os.str()]->Fill(xbin, ring, numDigi);
-
-    }
 
   }//end loop on rolls
 

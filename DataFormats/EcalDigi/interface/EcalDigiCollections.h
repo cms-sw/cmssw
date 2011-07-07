@@ -49,35 +49,6 @@ public:
   void swap(EEDigiCollection& other) {this->EcalDigiCollection::swap(other);}
 };
 
-class ESDigiCollection : public EcalDigiCollection 
-{
-   public:  
-      typedef edm::DataFrameContainer::size_type size_type;
-      typedef ESDataFrame Digi;
-      typedef Digi::key_type DetId;
-
-      static const size_type NSAMPLE = ESDataFrame::MAXSAMPLES ;
-      ESDigiCollection(size_type istride=NSAMPLE) : 
-	 EcalDigiCollection(istride, EcalPreshower){}
-      void swap(ESDigiCollection& other) {this->EcalDigiCollection::swap(other);}
-
-      void push_back( const Digi& digi ) 
-      {
-	 uint16_t esdata[NSAMPLE] ;
-	 for( unsigned int i ( 0 ) ; i != NSAMPLE; ++i )
-	 {
-	    static const int offset ( 65536 ) ; // for int16 to uint16
-	    const int16_t dshort ( digi[i].raw() ) ;
-	    const int     dint   ( (int) dshort + // add offset for uint16 conversion
-				   ( (int16_t) 0 > dshort ? 
-				     offset : (int) 0 ) ) ;
-	    esdata[i] = dint ;
-	 }
-	 EcalDigiCollection::push_back( digi.id()(), esdata ) ;
-      }
-};
-
-
 // Free swap functions
 inline
 void swap(EcalDigiCollection& lhs, EcalDigiCollection& rhs) {
@@ -94,11 +65,13 @@ void swap(EEDigiCollection& lhs, EEDigiCollection& rhs) {
   lhs.swap(rhs);
 }
 
-inline
-void swap(ESDigiCollection& lhs, ESDigiCollection& rhs) {
-  lhs.swap(rhs);
-}
+//typedef  EcalDigiCollection EBDigiCollection;
+//typedef  EcalDigiCollection EEDigiCollection;
 
+typedef edm::SortedCollection<ESDataFrame> ESDigiCollection;
+
+///Collection of ECAL trigger primitives. Note that there is also a compact
+///form of this collection, used in RECO data files: see EcalTrigPrimCompactColl.
 typedef edm::SortedCollection<EcalTriggerPrimitiveDigi> EcalTrigPrimDigiCollection;
 
 typedef edm::SortedCollection<EcalPseudoStripInputDigi> EcalPSInputDigiCollection;

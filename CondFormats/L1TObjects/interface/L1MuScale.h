@@ -6,8 +6,8 @@
 //                 
 //                  
 //                
-//   $Date: 2008/04/16 23:25:10 $
-//   $Revision: 1.6 $ 
+//   $Date: 2008/11/24 10:24:07 $
+//   $Revision: 1.7 $ 
 //
 //   Original Author :
 //   Hannes Sakulin      HEPHY / Vienna
@@ -98,7 +98,12 @@ class L1MuBinnedScale : public L1MuScale {
   /// takes ownership of the packing object and deletes it in its
   /// destructor
   ///
-      L1MuBinnedScale() {}
+  L1MuBinnedScale():
+    m_nbits( 0 ),
+    m_signedPacking( false ),
+    m_NBins( 0 ),
+    m_idxoffset( 0 )
+      {}
 
   /// NBins=number of bins, Scale[NBins+1]=bin edges, idx_offset=offeset to index (if stored as signed)
   ///
@@ -248,7 +253,9 @@ class L1MuSymmetricBinnedScale : public L1MuScale {
   /// destructor
   ///
 
-      L1MuSymmetricBinnedScale() {}
+  L1MuSymmetricBinnedScale() :
+    m_NBins( 0 )
+    {}
 
   /// NBins=number of bins (in one half of the scale), Scale[NBins+1]=bin edges
   ///

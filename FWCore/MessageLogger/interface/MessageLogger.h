@@ -111,6 +111,9 @@
 //		   capture any pointed-to strings in anticipation of key 
 //		   objects going away before a message is going to be issued.
 //
+// 24 fwyzard 7/6/11    Add support for discarding LogError-level messages
+//                      on a per-module basis (needed at HLT)
+//
 // =================================================
 
 // system include files
@@ -158,7 +161,8 @@ class LogError
 {
 public:
   explicit LogError( std::string const & id ) 
-    : ap( new MessageSender(ELerror,id) )
+    : ap ( (edm::MessageDrop::instance()->errorEnabled) ?       // Change log 24
+           new MessageSender(ELerror,id) : 0 )
   { }
   ~LogError();							// Change log 13
 
@@ -289,8 +293,9 @@ private:
 class LogProblem						// change log 4
 {
 public:
-  explicit LogProblem( std::string const & id ) 
-    : ap( new MessageSender(ELerror,id,true) )
+ explicit LogProblem ( std::string const & id )
+    : ap ( (edm::MessageDrop::instance()->errorEnabled) ?       // Change log 24
+           new MessageSender(ELerror,id,true) : 0 )
   { }
   ~LogProblem();						// Change log 13
 
@@ -315,7 +320,8 @@ class LogImportant						// change log 11
 {
 public:
   explicit LogImportant( std::string const & id ) 
-    : ap( new MessageSender(ELerror,id,true) )
+    : ap ( (edm::MessageDrop::instance()->errorEnabled) ?       // Change log 24
+           new MessageSender(ELerror,id,true) : 0 )
   { }
   ~LogImportant();						 // Change log 13
 

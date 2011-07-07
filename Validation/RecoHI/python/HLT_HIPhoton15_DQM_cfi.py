@@ -43,14 +43,16 @@ HLT_HIPhoton15_DQM = cms.EDAnalyzer("EmDQM",
             HLTCollectionLabels = cms.InputTag("hltHIL1sPhoton15","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.int32(-82),       
-            HLTCollectionHumanName = cms.untracked.string("Level 1")
+            HLTCollectionHumanName = cms.untracked.string("Level 1"),
+            ncandcut = cms.int32(1)
         ),
         cms.PSet(
             PlotBounds = cms.vdouble(0.0, 0.0),
             HLTCollectionLabels = cms.InputTag("hltHIPhoton15","","HLT"),
             IsoCollections = cms.VInputTag(cms.InputTag("none")),
             theHLTOutputTypes = cms.int32(81),
-            HLTCollectionHumanName = cms.untracked.string("Photon 15")
+            HLTCollectionHumanName = cms.untracked.string("Photon 15"),
+            ncandcut = cms.int32(1)
         )
     )
 )

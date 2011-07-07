@@ -290,10 +290,6 @@ expertSettings.add_option("--inputEventContent",
                           help="specify the input event content",
                           default=None,
                           dest="inputEventContent")
-expertSettings.add_option("--slhc",
-                          help="Specify the SLHC scenario version",
-                          default=None,
-                          dest="slhc")
 
 (options,args) = parser.parse_args() # by default the arg is sys.argv[1:]
 
@@ -368,15 +364,15 @@ if options.step in stepsAliases:
 options.step = options.step.replace("SIM_CHAIN","GEN,SIM,DIGI,L1,DIGI2RAW")
 
 # add on the end of job sequence...
-addEndJob = True
+addEndJob = False
 if ("FASTSIM" in options.step and not "VALIDATION" in options.step) or "HARVESTING" in options.step or "ALCAHARVEST" in options.step or "ALCAOUTPUT" in options.step or options.step == "": 
     addEndJob = False
 if ("SKIM" in options.step and not "RECO" in options.step):
     addEndJob = False
 if ("ENDJOB" in options.step):
     addEndJob = False
-if ('DQMROOT' in options.datatier):
-    addEndJob = False
+if (('DQM' in options.datatier or 'DQM' in options.eventcontent) and ('DQMEDM' in options.datatier)):
+    addEndJob = True
 if addEndJob:    
     options.step=options.step+',ENDJOB'
 

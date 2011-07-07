@@ -273,6 +273,7 @@ class SiPixelDigitizerAlgorithm  {
     float theTofUpperCut;             // Cut on the particle TOF
     float tanLorentzAnglePerTesla_FPix;   //FPix Lorentz angle tangent per Tesla
     float tanLorentzAnglePerTesla_BPix;   //BPix Lorentz angle tangent per Tesla
+    float lorentzAngle;    
 
     float FPix_p0;
     float FPix_p1;
@@ -379,7 +380,7 @@ class SiPixelDigitizerAlgorithm  {
        // access to the gain calibration payloads in the db. Only gets initialized if check_dead_pixels_ is set to true.
     SiPixelGainCalibrationOfflineSimService * theSiPixelGainCalibrationService_;    
     float missCalibrate(int col, int row, float amp) const;  
-    LocalVector DriftDirection(float LoAng);
+    LocalVector DriftDirection();
 
     void module_killing_conf(); // remove dead modules using the list in the configuration file PixelDigi_cfi.py
     void module_killing_DB();  // remove dead modules uisng the list in the DB

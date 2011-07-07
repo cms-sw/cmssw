@@ -23,9 +23,6 @@
 #include "TSystem.h"
 
 namespace edm {
-  namespace {
-    std::string const streamerInfo = std::string("StreamerInfo");
-  }
   RootInputFileSequence::RootInputFileSequence(
                 ParameterSet const& pset,
                 PoolSource const& input,
@@ -71,8 +68,8 @@ namespace edm {
     if(treeCacheSize_ != 0U && pSLC.isAvailable() && pSLC->sourceTTreeCacheSize()) {
       treeCacheSize_ = *(pSLC->sourceTTreeCacheSize());
     }
-      
-    if (inputType_ == InputType::Primary) {
+
+    if(inputType_ == InputType::Primary) {
       //NOTE: we do not want to stage in secondary files since we can be given a list of
       // thousands of files and prestaging all those files can cause a site to fail
       StorageFactory *factory = StorageFactory::get();
@@ -169,7 +166,7 @@ namespace edm {
     // Determine whether we have a fallback URL specified; if so, prepare it;
     // Only valid if it is non-empty and differs from the original filename.
     std::string fallbackName = fileIter_->fallbackFileName();
-    bool hasFallbackUrl = (!fallbackName.empty()) || (fallbackName == fileIter_->fileName());
+    bool hasFallbackUrl = !fallbackName.empty() && fallbackName != fileIter_->fileName();
 
     boost::shared_ptr<InputFile> filePtr;
     try {
@@ -179,15 +176,7 @@ namespace edm {
     }
     catch (cms::Exception const& e) {
       if(!skipBadFiles  && !hasFallbackUrl) {
-        if(e.explainSelf().find(streamerInfo) != std::string::npos) {
-          edm::Exception ex(edm::errors::FileReadError, "", e);
-          ex.addContext("Calling RootInputFileSequence::initFile()");
-          ex.clearMessage();
-          ex << "Input file " << fileIter_->fileName() << " could not be read properly.\n" <<
-            "Possibly the format is incompatible with the current release.\n";
-          throw ex;
-        }
-        edm::Exception ex(edm::errors::FileOpenError, "", e);
+        Exception ex(errors::FileOpenError, "", e);
         ex.addContext("Calling RootInputFileSequence::initFile()");
         ex.clearMessage();
         ex << "Input file " << fileIter_->fileName() << " was not found, could not be opened, or is corrupted.\n";
@@ -202,18 +191,11 @@ namespace edm {
       }
       catch (cms::Exception const& e) {
         if(!skipBadFiles) {
-          if(e.explainSelf().find(streamerInfo) != std::string::npos) {
-            edm::Exception ex(edm::errors::FileReadError, "", e);
-            ex.addContext("Calling RootInputFileSequence::initFile()");
-            ex.clearMessage();
-            ex << "Input file " << fileIter_->fileName() << " could not be read properly.\n" <<
-              "Possibly the format is incompatible with the current release.\n";
-            throw ex;
-          }
-          edm::Exception ex(edm::errors::FileOpenError, "", e);
+          Exception ex(errors::FileOpenError, "", e);
           ex.addContext("Calling RootInputFileSequence::initFile()");
           ex.clearMessage();
           ex << "Input file " << fileIter_->fileName() << " was not found, could not be opened, or is corrupted.\n";
+          ex << "Fallback Input file " << fallbackName << " also was not found, could not be opened, or is corrupted.\n";
           throw ex;
         }
       }

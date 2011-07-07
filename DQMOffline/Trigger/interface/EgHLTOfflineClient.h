@@ -89,13 +89,13 @@ class EgHLTOfflineClient : public edm::EDAnalyzer {
   virtual void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c);
 
   //at somepoint these all may migrate to a helper class
-  void createN1EffHists(const std::string& baseName,const std::string& region,const std::vector<std::string>& varNames);
-  void createSingleEffHists(const std::string& baseName,const std::string& region,const std::vector<std::string>& varNames);
+  void createN1EffHists(const std::string& filterName,const std::string& baseName,const std::string& region,const std::vector<std::string>& varNames);
+  void createSingleEffHists(const std::string& filterName,const std::string& baseName,const std::string& region,const std::vector<std::string>& varNames);
   void createLooseTightTrigEff(const std::vector<std::string>&  tightLooseTrigNames,const std::string& region,const std::vector<std::string>& vsVarNames,const std::string& objName);
   void createTrigTagProbeEffHists(const std::string& filterName,const std::string& region,const std::vector<std::string>& vsVarNames,const std::string& objName);
   
-  MonitorElement* makeEffMonElemFromPassAndAll(const std::string& name,const std::string& title,const MonitorElement* pass,const MonitorElement* all);
-  MonitorElement* makeEffMonElemFromPassAndFail(const std::string& name,const std::string& title,const MonitorElement* pass,const MonitorElement* fail);
+  MonitorElement* makeEffMonElemFromPassAndAll(const std::string& filterName,const std::string& name,const std::string& title,const MonitorElement* pass,const MonitorElement* all);
+  MonitorElement* makeEffMonElemFromPassAndFail(const std::string& filterName,const std::string& name,const std::string& title,const MonitorElement* pass,const MonitorElement* fail);
 
 private:
   void runClient_(); //master function which runs the client

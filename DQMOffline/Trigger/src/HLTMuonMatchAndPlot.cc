@@ -1,8 +1,8 @@
  /** \file DQMOffline/Trigger/HLTMuonMatchAndPlot.cc
  *
- *  $Author: dlange $
- *  $Date: 2011/05/21 01:32:31 $
- *  $Revision: 1.25 $
+ *  $Author: klukas $
+ *  $Date: 2011/05/23 13:07:46 $
+ *  $Revision: 1.26 $
  */
 
 
@@ -48,7 +48,15 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot(const ParameterSet & pset,
   targetParams_(pset.getParameterSet("targetParams")),
   probeParams_(pset.getParameterSet("probeParams")),
   hltPath_(hltPath),
-  moduleLabels_(moduleLabels)
+  moduleLabels_(moduleLabels),
+  hasTargetRecoCuts(targetParams_.exists("recoCuts")),
+  hasProbeRecoCuts(probeParams_.exists("recoCuts")),
+  targetMuonSelector_(targetParams_.getUntrackedParameter<string>("recoCuts", "")),
+  targetZ0Cut_(targetParams_.getUntrackedParameter<double>("z0Cut",0.)),
+  targetD0Cut_(targetParams_.getUntrackedParameter<double>("d0Cut",0.)),
+  probeMuonSelector_(probeParams_.getUntrackedParameter<string>("recoCuts", "")),
+  probeZ0Cut_(probeParams_.getUntrackedParameter<double>("z0Cut",0.)),                                                                                                                                                                                                        
+  probeD0Cut_(probeParams_.getUntrackedParameter<double>("d0Cut",0.))
 {
 
   // Create std::map<string, T> from ParameterSets. 
@@ -86,10 +94,7 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot(const ParameterSet & pset,
     cutMinPt_ = ceil(cutMinPt_ * plotCuts_["minPtFactor"]);
   }
   delete objArray;
-
 }
-
-
 
 void HLTMuonMatchAndPlot::beginRun(const edm::Run& iRun, 
                                    const edm::EventSetup& iSetup)
@@ -172,10 +177,8 @@ void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
   }
 
   // Select objects based on the configuration.
-  MuonCollection targetMuons = selectedMuons(* allMuons, * beamSpot,
-                                             targetParams_);
-  MuonCollection probeMuons = selectedMuons(* allMuons, * beamSpot,
-                                            probeParams_);
+  MuonCollection targetMuons = selectedMuons(* allMuons, * beamSpot, hasTargetRecoCuts, targetMuonSelector_, targetD0Cut_, targetZ0Cut_);
+  MuonCollection probeMuons = selectedMuons(* allMuons, * beamSpot, hasProbeRecoCuts, probeMuonSelector_, probeD0Cut_, probeZ0Cut_);
   TriggerObjectCollection allTriggerObjects = triggerSummary->getObjects();
   TriggerObjectCollection hltMuons = 
     selectedTriggerObjects(allTriggerObjects, * triggerSummary, targetParams_);
@@ -375,17 +378,13 @@ HLTMuonMatchAndPlot::matchByDeltaR(const vector<T1> & collection1,
 MuonCollection
 HLTMuonMatchAndPlot::selectedMuons(const MuonCollection & allMuons, 
                                    const BeamSpot & beamSpot,
-                                   const ParameterSet & pset) 
+                                   bool hasRecoCuts,
+                                   const StringCutObjectSelector<reco::Muon> &selector,
+                                   double d0Cut, double z0Cut)
 {
-
-  // If pset is empty, return an empty collection.
-  if (!pset.exists("recoCuts"))
+  // If there is no selector (recoCuts does not exists), return an empty collection. 
+  if (!hasRecoCuts)
     return MuonCollection();
-
-  StringCutObjectSelector<Muon> selector
-    (pset.getUntrackedParameter<string>("recoCuts"));
-  double z0Cut = pset.getUntrackedParameter<double>("z0Cut");
-  double d0Cut = pset.getUntrackedParameter<double>("d0Cut");
 
   MuonCollection reducedMuons(allMuons);
   MuonCollection::iterator iter = reducedMuons.begin();

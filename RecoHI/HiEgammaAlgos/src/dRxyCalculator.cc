@@ -6,7 +6,6 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/PatCandidates/interface/Photon.h"
 
 using namespace edm;
 using namespace reco;
@@ -18,13 +17,13 @@ dRxyCalculator::dRxyCalculator(const edm::Event &iEvent, const edm::EventSetup &
 
 } 
 
-double dRxyCalculator::getDRxy(const reco::Photon p, double x, double y)
+double dRxyCalculator::getDRxy(const reco::SuperClusterRef p, double x, double y)
 {
    using namespace edm;
    using namespace reco;
 
-   double eta1 = p.eta();
-   double phi1 = p.phi();
+   double eta1 = p->eta();
+   double phi1 = p->phi();
 
    std::vector<double> Rxy;
 

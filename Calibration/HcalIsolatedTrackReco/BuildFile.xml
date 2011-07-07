@@ -21,6 +21,7 @@
 <use   name="DataFormats/EcalRawData"/>
 <use   name="DataFormats/FEDRawData"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
+<use   name="MagneticField/VolumeBasedEngine"/>
 <use   name="rootmath"/>
 <flags   EDM_PLUGIN="1"/>
 <export>

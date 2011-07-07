@@ -10,6 +10,9 @@ namespace cond {
   namespace impl {
 
     struct IOVImpl {
+      explicit IOVImpl(cond::DbSession& dbs) : dbSession(dbs), m_token(""){
+      }
+
       IOVImpl(cond::DbSession& dbs,
 	      const std::string & token) : dbSession(dbs), m_token(token){
 	refresh();
@@ -54,10 +57,18 @@ namespace cond {
  
   IOVProxy::~IOVProxy() {}
 
+  IOVProxy::IOVProxy(cond::DbSession& dbSession)
+    :m_iov(new impl::IOVImpl(dbSession)), m_low(0), m_high(0){}
+
   IOVProxy::IOVProxy(cond::DbSession& dbSession,
                      const std::string & token)
     :m_iov(new impl::IOVImpl(dbSession,token)), m_low(0), m_high(size()){}
 
+  void IOVProxy::load( const std::string & token){
+    m_iov->m_token = token;
+    m_iov->refresh();
+    m_high = size();
+  }
 
   bool IOVProxy::refresh() {
     int oldsize = size();

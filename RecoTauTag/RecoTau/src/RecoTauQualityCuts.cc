@@ -1,25 +1,10 @@
 #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include <boost/bind.hpp>
 
 namespace reco { namespace tau {
-
-namespace {
-// Get the KF track if it exists.  Otherwise, see if it has a GSF track.
-const reco::TrackBaseRef getTrack(const PFCandidate& cand) {
-  if (cand.trackRef().isNonnull())
-    return reco::TrackBaseRef(cand.trackRef());
-  else if (cand.gsfTrackRef().isNonnull()) {
-    return reco::TrackBaseRef(cand.gsfTrackRef());
-  }
-  return reco::TrackBaseRef();
-}
-}
 
 // Quality cut implementations
 namespace qcuts {
@@ -34,13 +19,13 @@ bool etMin(const PFCandidate& cand, double cut) {
 
 bool trkPixelHits(const PFCandidate& cand, int cut) {
   // For some reason, the number of hits is signed
-  TrackBaseRef trk = getTrack(cand);
+  TrackRef trk = cand.trackRef();
   if (!trk) return false;
   return trk->hitPattern().numberOfValidPixelHits() >= cut;
 }
 
 bool trkTrackerHits(const PFCandidate& cand, int cut) {
-  TrackBaseRef trk = getTrack(cand);
+  TrackRef trk = cand.trackRef();
   if (!trk) return false;
   return trk->hitPattern().numberOfValidHits() >= cut;
 }
@@ -53,7 +38,7 @@ bool trkTransverseImpactParameter(const PFCandidate& cand,
         "RecoTauQualityCuts is invalid. - trkTransverseImpactParameter";
     return false;
   }
-  TrackBaseRef trk = getTrack(cand);
+  TrackRef trk = cand.trackRef();
   if (!trk) return false;
   return std::abs(trk->dxy((*pv)->position())) <= cut;
 }
@@ -66,29 +51,13 @@ bool trkLongitudinalImpactParameter(const PFCandidate& cand,
         "RecoTauQualityCuts is invalid. - trkLongitudinalImpactParameter";
     return false;
   }
-  TrackBaseRef trk = getTrack(cand);
+  TrackRef trk = cand.trackRef();
   if (!trk) return false;
-  double difference = std::abs(trk->dz((*pv)->position()));
-  //std::cout << "QCUTS LIP: track vz: " << trk->vz() <<
-    //" diff: " << difference << " cut: " << cut << std::endl;
-  return difference <= cut;
-}
-
-bool minTrackVertexWeight(const PFCandidate& cand, const reco::VertexRef* pv,
-    double cut) {
-  if (pv->isNull()) {
-    edm::LogError("QCutsNoPrimaryVertex") << "Primary vertex Ref in " <<
-        "RecoTauQualityCuts is invalid. - trkLongitudinalImpactParameter";
-    return false;
-  }
-  TrackBaseRef trk = getTrack(cand);
-  if (!trk) return false;
-  double weight = (*pv)->trackWeight(trk);
-  return weight >= cut;
+  return std::abs(trk->dz((*pv)->position())) <= cut;
 }
 
 bool trkChi2(const PFCandidate& cand, double cut) {
-  TrackBaseRef trk = getTrack(cand);
+  TrackRef trk = cand.trackRef();
   if (!trk) return false;
   return trk->normalizedChi2() <= cut;
 }
@@ -158,13 +127,6 @@ RecoTauQualityCuts::RecoTauQualityCuts(const edm::ParameterSet &qcuts) {
             qcuts::trkLongitudinalImpactParameter, _1, &pv_,
             qcuts.getParameter<double>("maxDeltaZ")));
 
-  // Require tracks to contribute a minimum weight to the associated vertex.
-  if (qcuts.exists("minTrackVertexWeight")) {
-    chargedHadronCuts.push_back(boost::bind(
-          qcuts::minTrackVertexWeight, _1, &pv_,
-          qcuts.getParameter<double>("minTrackVertexWeight")));
-  }
-
   // Build the QCuts for gammas
   if (qcuts.exists("minGammaEt"))
     gammaCuts.push_back(boost::bind(
@@ -187,25 +149,5 @@ RecoTauQualityCuts::RecoTauQualityCuts(const edm::ParameterSet &qcuts) {
   // Build a final level predicate that works on any PFCand
   predicate_ = boost::bind(qcuts::mapAndCutByType, _1, boost::cref(qcuts_));
 }
-
-std::pair<edm::ParameterSet, edm::ParameterSet> factorizePUQCuts(
-    const edm::ParameterSet& input) {
-
-  edm::ParameterSet puCuts;
-  edm::ParameterSet nonPUCuts;
-
-  std::vector<std::string> inputNames = input.getParameterNames();
-  BOOST_FOREACH(const std::string& cut, inputNames) {
-    if (cut == "minTrackVertexWeight" || cut == "maxDeltaZ") {
-      puCuts.copyFrom(input, cut);
-    } else {
-      nonPUCuts.copyFrom(input, cut);
-    }
-  }
-  return std::make_pair(puCuts, nonPUCuts);
-}
-
-
-
 
 }}  // end namespace reco::tau

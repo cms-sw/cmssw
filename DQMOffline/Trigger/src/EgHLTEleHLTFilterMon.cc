@@ -15,7 +15,7 @@ EleHLTFilterMon::EleHLTFilterMon(const std::string& filterName,TrigCodes::TrigBi
   filterName_(filterName),
   filterBit_(filterBit)
 {
-  bool doChargeSep = true;
+  bool doChargeSep = false;
   bool monHLTFailedEle = false;
   bool doFakeRate=false;
   bool doTagAndProbe=false;
@@ -55,8 +55,8 @@ EleHLTFilterMon::EleHLTFilterMon(const std::string& filterName,TrigCodes::TrigBi
 				  filterName_+"_gsfEle_effVsEt"+eleEffHists_[i]->name(),bins.et,&OffEle::et,masks);
     MonElemFuncs::initStdEffHists(eleEffHists_[i]->cutMonElems(),
 				  filterName_+"_gsfEle_effVsEta"+eleEffHists_[i]->name(),bins.eta,&OffEle::eta,masks); 
-    MonElemFuncs::initStdEffHists(eleEffHists_[i]->cutMonElems(),
-				  filterName_+"_gsfEle_effVsPhi"+eleEffHists_[i]->name(),bins.phi,&OffEle::phi,masks); 
+    /*  MonElemFuncs::initStdEffHists(eleEffHists_[i]->cutMonElems(),
+	filterName_+"_gsfEle_effVsPhi"+eleEffHists_[i]->name(),bins.phi,&OffEle::phi,masks); */
     // MonElemFuncs::initStdEffHists(eleEffHists_[i]->cutMonElems(),
     //			  filterName_+"_gsfEle_effVsCharge"+eleEffHists_[i]->name(),bins.charge,&OffEle::chargeF);
   }

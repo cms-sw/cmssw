@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.42 2010/12/11 21:52:31 vadler Exp $
+// $Id: Jet.cc,v 1.43 2011/04/12 20:34:49 rwolf Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -58,6 +58,23 @@ Jet::Jet(const edm::RefToBase<reco::Jet> & aJetRef) :
   isPFCandidateCached_(false)
 {
   tryImportSpecific(*aJetRef);
+}
+
+std::ostream& 
+reco::operator<<(std::ostream& out, const pat::Jet& obj) 
+{
+  if(!out) return out;
+  
+  out << "\tpat::Jet: ";
+  out << std::setiosflags(std::ios::right);
+  out << std::setiosflags(std::ios::fixed);
+  out << std::setprecision(3);
+  out << " E/pT/eta/phi " 
+      << obj.energy()<<"/"
+      << obj.pt()<<"/"
+      << obj.eta()<<"/"
+      << obj.phi();
+  return out; 
 }
 
 /// constructor helper that tries to import the specific info from the source jet

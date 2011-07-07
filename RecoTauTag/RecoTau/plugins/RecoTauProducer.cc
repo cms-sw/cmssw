@@ -76,19 +76,9 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset) {
     // Get plugin name
     const std::string& pluginType =
         builderPSet->getParameter<std::string>("plugin");
-    const std::string& pluginName =
-        builderPSet->getParameter<std::string>("name");
     // Build the plugin
-    try {
-      builders_.push_back(
-          RecoTauBuilderPluginFactory::get()->create(
-            pluginType, *builderPSet));
-    } catch (...) {
-      edm::LogError("RecoTauBuilderException")
-        << "Exception when building a RecoTauBuilder plugin of type: "
-        << pluginType << " name: " << pluginName << std::endl;
-      throw; // rethrow
-    }
+    builders_.push_back(
+        RecoTauBuilderPluginFactory::get()->create(pluginType, *builderPSet));
   }
 
   const VPSet& modfiers = pset.getParameter<VPSet>("modifiers");
@@ -97,19 +87,9 @@ RecoTauProducer::RecoTauProducer(const edm::ParameterSet& pset) {
     // Get plugin name
     const std::string& pluginType =
         modfierPSet->getParameter<std::string>("plugin");
-    const std::string& pluginName =
-        modfierPSet->getParameter<std::string>("name");
     // Build the plugin
-    try {
-      modifiers_.push_back(
-          RecoTauModifierPluginFactory::get()->create(
-            pluginType, *modfierPSet));
-    } catch (...) {
-      edm::LogError("RecoTauModifierException")
-        << "Exception when building a RecoTauModifier plugin of type: "
-        << pluginType << " name: " << pluginName << std::endl;
-      throw; // rethrow
-    }
+    modifiers_.push_back(
+        RecoTauModifierPluginFactory::get()->create(pluginType, *modfierPSet));
   }
 
   // Check if we want to apply a final output selection

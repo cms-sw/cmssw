@@ -23,8 +23,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2011/04/28 00:28:21 $
-  * $Revision: 1.50 $
+  * $Date: 2011/05/23 14:54:10 $
+  * $Revision: 1.51 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -87,6 +87,8 @@ class HcalDeadCellMonitor: public HcalBaseDQMonitor {
 
   // Problems vs. lumi block
   MonitorElement *ProblemsVsLB, *ProblemsVsLB_HB, *ProblemsVsLB_HE, *ProblemsVsLB_HO, *ProblemsVsLB_HF;
+  MonitorElement *RBX_loss_VS_LB;
+  MonitorElement *ProblemsInLastNLB_HBHEHF_alarm;
   MonitorElement *NumberOfNeverPresentDigis, *NumberOfNeverPresentDigisHB, *NumberOfNeverPresentDigisHE, *NumberOfNeverPresentDigisHO, *NumberOfNeverPresentDigisHF;
   MonitorElement *NumberOfRecentMissingDigis, *NumberOfRecentMissingDigisHB, *NumberOfRecentMissingDigisHE, *NumberOfRecentMissingDigisHO, *NumberOfRecentMissingDigisHF;
   MonitorElement *NumberOfRecentMissingRecHits, *NumberOfRecentMissingRecHitsHB, *NumberOfRecentMissingRecHitsHE, *NumberOfRecentMissingRecHitsHO, *NumberOfRecentMissingRecHitsHF;
@@ -103,6 +105,7 @@ class HcalDeadCellMonitor: public HcalBaseDQMonitor {
   
   int deadevt_; // running count of events processed since last dead cell check
   int is_RBX_loss_;
+  int alarmer_counter_;
   unsigned int NumBadHB, NumBadHE, NumBadHO, NumBadHF, NumBadHFLUMI, NumBadHO0, NumBadHO12;
   edm::InputTag digiLabel_;
   edm::InputTag hbheRechitLabel_, hoRechitLabel_, hfRechitLabel_;

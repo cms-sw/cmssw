@@ -1,5 +1,4 @@
 <use name="rivet"/>
-<use name="fastjet"/>
 <use name="hepmc"/>
 <use name="clhep"/>
 <use name="boost"/>

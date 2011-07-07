@@ -16,7 +16,6 @@ ElectronLikelihoodESSource::ElectronLikelihoodESSource (const edm::ParameterSet&
   m_eleIDSwitches.m_useSigmaEtaEta  = cfg.getParameter<bool> ("useSigmaEtaEta") ;
   m_eleIDSwitches.m_useSigmaPhiPhi  = cfg.getParameter<bool> ("useSigmaPhiPhi") ;
   m_eleIDSwitches.m_useFBrem        = cfg.getParameter<bool> ("useFBrem") ;
-  m_eleIDSwitches.m_useOneOverEMinusOneOverP = cfg.getParameter<bool> ("useOneOverEMinusOneOverP") ;
 
 }
 

@@ -3,6 +3,7 @@
 #include "CondCore/ORA/interface/Exception.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/ORA/interface/OId.h"
+#include "CondCore/MetaDataService/interface/MetaData.h"
 
 namespace {
 
@@ -18,20 +19,47 @@ namespace {
 
 namespace cond {
 
-  BasePayloadProxy::Stats BasePayloadProxy::gstats = {0,0,0};
+  BasePayloadProxy::Stats BasePayloadProxy::gstats = {0,0,0,0,0};
 
 
   BasePayloadProxy::BasePayloadProxy(cond::DbSession& session,
-                                     const std::string & token,
                                      bool errorPolicy) :
-    m_doThrow(errorPolicy), m_iov(session,token),m_session(session) {
+    m_doThrow(errorPolicy), m_iov(session),m_session(session) {
     ++gstats.nProxy;
-    BasePayloadProxy::Stats s = {0,0,0,ObjIds()};
+    BasePayloadProxy::Stats s = {0,0,0,0,0,ObjIds()};
+    stats = s;
+  }
+
+  BasePayloadProxy::BasePayloadProxy(cond::DbSession& session,
+                                     const std::string & iovToken,
+                                     bool errorPolicy) :
+    m_doThrow(errorPolicy), m_iov(session),m_session(session) {
+    m_session.transaction().start(true);
+    m_iov.load( iovToken );
+    m_session.transaction().commit();
+    ++gstats.nProxy;
+    BasePayloadProxy::Stats s = {0,0,0,0,0,ObjIds()};
     stats = s;
   }
 
 
   BasePayloadProxy::~BasePayloadProxy(){}
+
+  void BasePayloadProxy::loadIov( const std::string iovToken ){
+    m_session.transaction().start(true);
+    m_iov.load( iovToken );
+    m_session.transaction().commit();
+    invalidateCache();
+  }
+   
+  void BasePayloadProxy::loadTag( const std::string tag ){
+    m_session.transaction().start(true);
+    cond::MetaData metadata(m_session);
+    std::string iovToken = metadata.getToken(tag);
+    m_iov.load( iovToken );
+    m_session.transaction().commit();
+    invalidateCache();
+  }
 
   cond::ValidityInterval BasePayloadProxy::loadFor(cond::Time_t time) {
     m_element = *m_iov.find(time);
@@ -54,7 +82,9 @@ namespace cond {
       // check if (afterall) the payload is still the same...
       if (m_element.token()==token()) return;
       try {
+	m_session.transaction().start(true);
         ok = load( m_session ,m_element.token());
+	m_session.transaction().commit();
 	if (ok) m_token = m_element.token();
       }	catch( const ora::Exception& e) {
         if (m_doThrow) throw cond::Exception(std::string("Condition Payload loader: ")+ e.what());
@@ -65,8 +95,9 @@ namespace cond {
     if (!ok) {
       m_element.set(cond::invalidTime,cond::invalidTime,"");
       m_token.clear();
-      if (m_doThrow)
+      if (m_doThrow){
         throw cond::Exception("Condition Payload loader: invalid data");
+      }
     }
     if (ok) { 
       ++gstats.nLoad; ++stats.nLoad;
@@ -78,8 +109,9 @@ namespace cond {
 
   cond::ValidityInterval BasePayloadProxy::setIntervalFor(cond::Time_t time) {
     //FIXME: shall handle truncation...
-    if ( (!(time<m_element.till())) || time<m_element.since() )
+    if ( (!(time<m_element.till())) || time<m_element.since() ){
       m_element = *m_iov.find(time);
+    }
     return cond::ValidityInterval(m_element.since(),m_element.till());
   }
     
@@ -90,8 +122,14 @@ namespace cond {
 
 
   bool  BasePayloadProxy::refresh() {
+    ++gstats.nRefresh; ++stats.nRefresh;
+    m_session.transaction().start(true);
     bool anew = m_iov.refresh();
-    if (anew)  m_element = IOVElementProxy();
+    m_session.transaction().commit();
+    if (anew)  {
+      m_element = IOVElementProxy();
+      ++gstats.nArefresh; ++stats.nArefresh;
+    }
     return anew;
   }
 

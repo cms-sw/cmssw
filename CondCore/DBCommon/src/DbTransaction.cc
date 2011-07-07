@@ -30,7 +30,7 @@ int cond::DbTransaction::commit(){
   else{
     --m_clients;
     if(m_clients == 0){
-      m_dbTrans.commit();
+      m_dbTrans.commit();      
     }
   }
   return m_clients;
@@ -65,3 +65,4 @@ bool cond::DbTransaction::isReadOnly() const
 {
   return m_dbTrans.isActive( true );
 }
+

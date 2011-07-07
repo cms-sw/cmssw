@@ -1,6 +1,8 @@
 #include "RecoVertex/KinematicFitPrimitives/interface/KinematicParticle.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackFromFTSFactory.h"
+#include "RecoVertex/KinematicFitPrimitives/interface/KinematicConstraint.h"
 
+KinematicParticle::~KinematicParticle() { delete lConstraint;} 
 
 bool KinematicParticle::operator<(const KinematicParticle& other)const
 {

@@ -68,8 +68,6 @@
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
-#include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
-#include "DataFormats/MuonReco/interface/MuonTimeExtraMap.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 #include "DataFormats/RecoCandidate/interface/IsoDepositFwd.h" 
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h" 
@@ -114,10 +112,6 @@
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 
-#include "RecoMuon/MuonIdentification/interface/TimeMeasurementSequence.h"
-#include "RecoMuon/TrackingTools/interface/MuonSegmentMatcher.h"
-#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
-
 //Root Classes
 
 #include "TH1F.h"
@@ -147,8 +141,6 @@
 #include <cmath>
 #include <memory>
 #include <iomanip>
-
-class MuonServiceProxy;
 
 class BeamHaloAnalyzer: public edm::EDAnalyzer {
  public:
@@ -201,10 +193,6 @@ class BeamHaloAnalyzer: public edm::EDAnalyzer {
   ofstream* out;
   double DumpMET;
 
-  //Muon-Segment Matching
-  MuonServiceProxy* TheService;
-  MuonSegmentMatcher *TheMatcher;
-
   bool StandardDQM;
 
   // DAQ Tools
@@ -250,19 +238,11 @@ class BeamHaloAnalyzer: public edm::EDAnalyzer {
   MonitorElement* hCSCHaloData_NOutOfTimeTriggersMEMinus;
   MonitorElement* hCSCHaloData_NOutOfTimeTriggers;
   MonitorElement* hCSCHaloData_NOutOfTimeHits;
-  MonitorElement* hCSCHaloData_NTracksSmalldT;
-  MonitorElement* hCSCHaloData_NTracksSmallBeta;
-  MonitorElement* hCSCHaloData_NTracksSmallBetaAndSmalldT; 
-  MonitorElement* hCSCHaloData_NTracksSmalldTvsNHaloTracks; 
 
   MonitorElement* hCSCHaloData_InnerMostTrackHitXY;
   MonitorElement* hCSCHaloData_InnerMostTrackHitRPlusZ;
   MonitorElement* hCSCHaloData_InnerMostTrackHitRMinusZ;
   MonitorElement* hCSCHaloData_InnerMostTrackHitiPhi;
-
-  MonitorElement*hCSCHaloData_SegmentdT;
-  MonitorElement*hCSCHaloData_FreeInverseBeta;
-  MonitorElement*hCSCHaloData_FreeInverseBetaVsSegmentdT;
 
   MonitorElement* hGlobalHaloData_MExCorrection;
   MonitorElement* hGlobalHaloData_MEyCorrection;
