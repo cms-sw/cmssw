@@ -901,9 +901,10 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
       continue;}
     else{ //For non-EE, both CompactMode and !CompactMode
       bool CM = (htr.getExtHdr7() >> 14)&0x0001;
-      if (( CM && ( (HTRwdcount-NDAQ-NTP) != 12) )
+      int paddingsize = ((NDAQ+NTP)%2); //Extra padding to make HTRwdcount even
+      if (( CM && ( (HTRwdcount-NDAQ-NTP-paddingsize) != 12) )
 	  ||                                
-	  (!CM && ( (HTRwdcount-NDAQ-NTP) != 20) )  ) {	//incompatible Sizes declared. Skip it.
+	  (!CM && ( (HTRwdcount-NDAQ-NTP-paddingsize) != 20) )  ) {	//incompatible Sizes declared. Skip it.
 	++HalfHTRDataCorruptionIndicators_[fed3offset+2][spg3offset+1];
 	mapHTRproblem(dcc_,spigot);
 	continue;} }
