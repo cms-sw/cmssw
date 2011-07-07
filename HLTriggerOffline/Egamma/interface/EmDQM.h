@@ -19,6 +19,7 @@
 #include "HepMC/GenParticle.h"
 #include "CommonTools/Utils/interface/PtComparator.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 
 class EmDQM : public edm::EDAnalyzer{
 public:
@@ -33,6 +34,9 @@ public:
   void analyze(const edm::Event & event, const edm::EventSetup&);
   void beginJob();
   void endJob();
+
+  void beginRun(edm::Run const&, edm::EventSetup const&);
+  void endRun(edm::Run const&, edm::EventSetup const&);
 
 private:
 
@@ -50,8 +54,12 @@ private:
    */
   bool checkRecoParticlesRequirement(const edm::Event & event);
 
+  /// The instance of the HLTConfigProvider as a data member
+  HLTConfigProvider hltConf_;
+
   // Input from cfg file
   edm::InputTag triggerobjwithrefs;
+  unsigned int pathIndex;
   std::vector<edm::InputTag> theHLTCollectionLabels;  
   unsigned int numOfHLTCollectionLabels;  // Will be size of above vector
   bool useHumanReadableHistTitles;
