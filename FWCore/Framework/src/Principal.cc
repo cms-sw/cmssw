@@ -19,6 +19,52 @@
 //using boost::lambda::_1;
 
 namespace edm {
+  static
+  void
+  throwMultiFoundException(char const* where, int nFound, TypeID const& productType) {
+    throw Exception(errors::ProductNotFound)
+      << "Principal::" << where << ": Found " << nFound << " products rather than one which match all criteria\n"
+      << "Looking for type: " << productType << "\n";
+  }
+
+  static
+  void
+  throwGroupNotFoundException(char const* where, errors::ErrorCodes error, BranchID const& bid) {
+    throw Exception(error, "InvalidID")
+      << "Principal::" << where << ": no product with given branch id: "<< bid << "\n";
+  }
+
+  static
+  void
+  throwCorruptionException(char const* where, std::string const& branchName) {
+    throw Exception(errors::EventCorruption)
+       << "Principal::" << where <<": Product on branch " << branchName << " occurs twice in the same event.\n";
+  }
+
+  static
+  boost::shared_ptr<cms::Exception>
+  makeNotFoundException(char const* where, TypeID const& productType) {
+    boost::shared_ptr<cms::Exception> exception(new Exception(errors::ProductNotFound));
+    *exception << "Principal::" << where << ": Found zero products matching all criteria\nLooking for type: " << productType << "\n";
+    return exception;
+  }
+
+  static
+  boost::shared_ptr<cms::Exception>
+  makeNotFoundException(char const* where, TypeID const& productType, std::string const& label, std::string const& instance, std::string const& process) {
+    boost::shared_ptr<cms::Exception> exception(new Exception(errors::ProductNotFound));
+    *exception << "Principal::" << where << ": Found zero products matching all criteria\nLooking for type: " << productType << "\n"
+               << "Looking for module label: " << label << "\n" << "Looking for productInstanceName: " << instance << "\n"
+               << (process.empty() ? "" : "Looking for process: ") << process << "\n";
+    return exception;
+  }
+
+  static
+  void
+  throwNotFoundException(char const* where, TypeID const& productType, InputTag const& tag) {
+    boost::shared_ptr<cms::Exception> exception = makeNotFoundException(where, productType, tag.label(), tag.instance(), tag.process());
+    throw *exception;
+  }
 
   Principal::Principal(boost::shared_ptr<ProductRegistry const> reg,
                        ProcessConfiguration const& pc,
@@ -192,7 +238,7 @@ namespace edm {
     Group const* g = getExistingGroup(*group);
     if(g != 0) {
       ConstBranchDescription const& bd = group->branchDescription();
-      throw edm::Exception(edm::errors::InsertFailure, "AlreadyPresent")
+      throw Exception(errors::InsertFailure, "AlreadyPresent")
           << "addGroupOrThrow: Problem found while adding product, "
           << "product already exists for ("
           << bd.friendlyClassName() << ","
@@ -243,16 +289,11 @@ namespace edm {
                            result);
 
     if(nFound == 0) {
-      boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound));
-      *whyFailed
-        << "getBySelector: Found zero products matching all criteria\n"
-        << "Looking for type: " << productType << "\n";
+      boost::shared_ptr<cms::Exception> whyFailed = makeNotFoundException("getBySelector", productType);
       return BasicHandle(whyFailed);
     }
     if(nFound > 1) {
-      throw edm::Exception(edm::errors::ProductNotFound)
-        << "getBySelector: Found " << nFound << " products rather than one which match all criteria\n"
-        << "Looking for type: " << productType << "\n";
+      throwMultiFoundException("getBySelector", nFound, productType);
     }
     return result;
   }
@@ -274,13 +315,7 @@ namespace edm {
                                                  fillCount);
 
     if(result == 0) {
-      boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound));
-      *whyFailed
-        << "getByLabel: Found zero products matching all criteria\n"
-        << "Looking for type: " << productType << "\n"
-        << "Looking for module label: " << label << "\n"
-        << "Looking for productInstanceName: " << productInstanceName << "\n"
-        << (processName.empty() ? "" : "Looking for process: ") << processName << "\n";
+      boost::shared_ptr<cms::Exception> whyFailed = makeNotFoundException("getByLabel", productType, label, productInstanceName, processName);
       return BasicHandle(whyFailed);
     }
     return BasicHandle(*result);
@@ -312,16 +347,12 @@ namespace edm {
                            result);
 
     if(nFound == 0) {
-      boost::shared_ptr<cms::Exception> whyFailed(new edm::Exception(edm::errors::ProductNotFound));
-      *whyFailed
-        << "getByType: Found zero products matching all criteria\n"
-        << "Looking for type: " << productType << "\n";
+      boost::shared_ptr<cms::Exception> whyFailed = makeNotFoundException("getByType", productType);
       return BasicHandle(whyFailed);
     }
+
     if(nFound > 1) {
-      throw edm::Exception(edm::errors::ProductNotFound)
-        << "getByType: Found " << nFound << " products rather than one which match all criteria\n"
-        << "Looking for type: " << productType << "\n";
+      throwMultiFoundException("getByType", nFound, productType);
     }
     return result;
   }
@@ -531,12 +562,7 @@ namespace edm {
                          tag.cachedOffset(),
                          tag.fillCount());
     if(productData == 0) {
-      throw edm::Exception(edm::errors::ProductNotFound, "Principal::findProductByTag")
-        << "Found zero products matching all criteria\n"
-        << "Looking for type: " << typeID << "\n"
-        << "Looking for module label: " << tag.label() << "\n"
-        << "Looking for productInstanceName: " << tag.instance() << "\n"
-        << (tag.process().empty() ? "" : "Looking for process: ") << tag.process() << "\n";
+      throwNotFoundException("findProductByTag", typeID, tag);
     }
     return productData;
   }
@@ -545,10 +571,7 @@ namespace edm {
   Principal::getForOutput(BranchID const& bid, bool getProd) const {
     ConstGroupPtr const g = getGroup(bid, getProd, false);
     if(g == 0) {
-        throw edm::Exception(edm::errors::LogicError, "Principal::getForOutput\n")
-         << "No entry is present for this branch.\n"
-         << "The branch id is " << bid << "\n"
-         << "Contact a framework developer.\n";
+      throwGroupNotFoundException("getForOutput", errors::LogicError, bid);
     }
     if(!g->provenance() || (!g->product() && !g->productProvenancePtr())) {
       return OutputHandle();
@@ -560,8 +583,7 @@ namespace edm {
   Principal::getProvenance(BranchID const& bid) const {
     ConstGroupPtr const g = getGroup(bid, false, true);
     if(g == 0) {
-      throw edm::Exception(edm::errors::ProductNotFound, "InvalidID")
-        << "getProvenance: no product with given branch id: "<< bid << "\n";
+      throwGroupNotFoundException("getProvenance", errors::ProductNotFound, bid);
     }
 
     if(g->onDemand()) {
@@ -570,8 +592,7 @@ namespace edm {
     // We already tried to produce the unscheduled products above
     // If they still are not there, then throw
     if(g->onDemand()) {
-      throw edm::Exception(edm::errors::ProductNotFound)
-        << "getProvenance: no product with given BranchID: "<< bid <<"\n";
+      throwGroupNotFoundException("getProvenance(onDemand)", errors::ProductNotFound, bid);
     }
 
     return *g->provenance();
@@ -635,8 +656,7 @@ namespace edm {
     if(alreadyPresent) {
       g->checkType(prod);
       const_cast<WrapperOwningHolder&>(prod).reset();
-      throw edm::Exception(errors::EventCorruption)
-          << "Product on branch " << g->branchDescription().branchName() << " occurs twice in the same event.\n";
+      throwCorruptionException("checkUniquenessAndType", g->branchDescription().branchName());
     }
     // Checks that the real type of the product matches the branch.
     g->checkType(prod);
