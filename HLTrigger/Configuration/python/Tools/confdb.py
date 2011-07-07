@@ -285,6 +285,19 @@ if 'hltPreHLTMONOutputSmart' in %(dict)s:
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
+# from CMSSW_4_4_0_pre3: additional ESProducer in cfg files
+if cmsswVersion > "CMSSW_4_3":
+    %(process)shltSiPixelQualityESProducer = cms.ESProducer("SiPixelQualityESProducer",
+        ListOfRecordToMerge = cms.VPSet(
+            cms.PSet( record = cms.string("SiPixelQualityFromDbRcd"),
+                      tag    = cms.string("")
+                    ),
+            cms.PSet( record = cms.string("SiPixelDetVOffRcd"),
+                      tag    = cms.string("")
+                    )
+        )
+)
+
 # from CMSSW_4_3_0_pre6: additional ESProducer in cfg files
 if cmsswVersion > "CMSSW_4_3":
     %(process)shltESPStripLorentzAngleDep = cms.ESProducer("SiStripLorentzAngleDepESProducer",
