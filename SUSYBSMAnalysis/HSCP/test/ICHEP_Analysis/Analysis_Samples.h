@@ -44,8 +44,8 @@
 
 
 int                  RunningPeriods = 2;
-double               IntegratedLuminosity = 802.112979531; //715.041013013; //705.273820; //342.603275; //204.160928; //191.04;
-double               IntegratedLuminosityBeforeTriggerChange = 324.787493137; // Total luminosity taken before RPC L1 trigger change (went into effect on run 165970)
+double               IntegratedLuminosity = 976.204518023; //705.273820; //342.603275; //204.160928; //191.04;
+double               IntegratedLuminosityBeforeTriggerChange = 337.484034005; // Total luminosity taken before RPC L1 trigger change (went into effect on run 165970)
 float                Event_Weight = 1;
 int                  MaxEntry = -1;
 
@@ -152,12 +152,18 @@ void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName,
    std::string BaseDirectory = "dcap://cmsdca.fnal.gov:24125/pnfs/cms/WAX/11/store/user/farrell3/EDMFiles/";
 
    if(SampleName=="Data"){
-        inputFiles.push_back(BaseDirectory + "Data_RunA_160000_163250.root");
-        inputFiles.push_back(BaseDirectory + "Data_RunA_163251_163500.root");
-        inputFiles.push_back(BaseDirectory + "Data_RunA_165001_166033.root");                                                                                
-        inputFiles.push_back(BaseDirectory + "Data_RunA_166034_166500.root"); 
-        inputFiles.push_back(BaseDirectory + "Data_RunA_166501_166893.root");
-        inputFiles.push_back(BaseDirectory + "Data_RunA_166894_167151.root");
+     //inputFiles.push_back(BaseDirectory + "Data_RunA_160000_163250.root");
+     //inputFiles.push_back(BaseDirectory + "Data_RunA_163251_163500.root");
+     //inputFiles.push_back(BaseDirectory + "Data_RunA_163501_164000.root");
+     //inputFiles.push_back(BaseDirectory + "Data_RunA_165000_166033.root");
+     //inputFiles.push_back(BaseDirectory + "Data_RunA_166034_166893.root");
+
+     inputFiles.push_back(BaseDirectory + "Data_RunA_160404_163869.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_165001_166033.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_166034_166500.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_166501_166893.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_166894_167151.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_167153_167784.root");
 
 //   }else if(SampleName=="MC_MB"){
 //      inputFiles.push_back(BaseDirectory + "MC_MB.root");
