@@ -7,7 +7,7 @@
 #  execution:  mkesprod producername recordname datatype1 [ [datatype2] ...]  
 # 
 #  output:  producername/
-#                         Buildfile
+#                         BuildFile.xml
 #                         interface/
 #                         sr/producername.cc
 #                               producername_DONT_TOUCH.cc
@@ -26,7 +26,7 @@
 #  example:
 #  mkesprod MyProducer  MyRecord MyData
 #        --> write  MyProducer/
-#                               Buildfile
+#                               BuildFile.xml
 #                               interface/
 #                               src/MyProducer.cc
 #                               doc/
@@ -79,7 +79,7 @@ $skel_dir = &find_mkTemplate_dir($commandFullPath);
 $skeletons{"$skel_dir/ESProducer/esproducer.cc"} =
     "$name/src/" . $name . '.cc';
 $skeletons{"$skel_dir/ESProducer/BuildFile.temp"} =
-    "$name/BuildFile";
+    "$name/BuildFile.xml";
 
 if ( ! $do_list )
 {
@@ -183,7 +183,7 @@ mkesprod  h:
 mkesprod  h: execution:  mkesprod producername recordname datatype1 [ [datatype2] ...]  
 mkesprod  h:
 mkesprod  h: output:  producername/
-mkesprod  h:                       BuildFile
+mkesprod  h:                       BuildFile.xml
 mkesprod  h:                       interface/
 mkesprod  h:                       src/producername.cc
 mkesprod  h:                       doc/
@@ -202,7 +202,7 @@ mkesprod  h:
 mkesprod  h: example:
 mkesprod  h: mkesprod MyProducer MyRcd MyData 
 mkesprod  h:       --> write  MyProducer/
-mkesprod  h:                              BuildFile
+mkesprod  h:                              BuildFile.xml
 mkesprod  h:                              interface/
 mkesprod  h:                              src/MyProducer.cc
 mkesprod  h:                              doc/

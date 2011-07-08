@@ -8,6 +8,7 @@
 #include <map>
 
 #include "OnlineDB/EcalCondDB/interface/LMFUnique.h"
+#include "OnlineDB/EcalCondDB/interface/LMFColor.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 
 class LMFSeqDat : public LMFUnique {
@@ -22,7 +23,7 @@ class LMFSeqDat : public LMFUnique {
 
   // Methods for user data
   LMFSeqDat& setRunIOV(const RunIOV &iov);
-  LMFSeqDat&  setSequenceNumber(int n) { setInt("seq_num", n); return *this; }
+  LMFSeqDat& setSequenceNumber(int n) { setInt("seq_num", n); return *this; }
   LMFSeqDat& setSequenceStart(Tm start) { 
     setString("seq_start", start.str()); 
     return *this;
@@ -61,6 +62,7 @@ class LMFSeqDat : public LMFUnique {
 
   bool operator!=(const LMFSeqDat &m) const { return !(*this == m); }
   std::map<int, LMFSeqDat> fetchByRunIOV(RunIOV &iov);
+  std::map<int, LMFSeqDat> fetchByRunIOV(RunIOV &iov, const LMFColor &col);
   LMFSeqDat fetchByRunIOV(RunIOV &iov, int seq_num) {
     return fetchByRunIOV(iov)[seq_num];
   }
@@ -70,6 +72,8 @@ class LMFSeqDat : public LMFUnique {
   }
   LMFSeqDat fetchByRunNumber(int runno, Tm taken_at);
   LMFSeqDat fetchByRunNumber(int runno, std::string taken_at);
+  LMFSeqDat fetchLast();
+  RunIOV    fetchLastRun();
 
  private:
   RunIOV m_runIOV;
@@ -91,6 +95,9 @@ class LMFSeqDat : public LMFUnique {
 					 std::string method) 
     throw(std::runtime_error);
   std::map<int, LMFSeqDat> fetchByRunIOV(int par, std::string sql,
+					 std::string method) 
+    throw(std::runtime_error);
+  std::map<int, LMFSeqDat> fetchByRunIOV(std::string sql,
 					 std::string method) 
     throw(std::runtime_error);
 

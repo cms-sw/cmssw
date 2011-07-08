@@ -1,4 +1,4 @@
-// $Id: EventStreamConfigurationInfo.cc,v 1.10 2010/12/16 16:35:29 mommsen Exp $
+// $Id: EventStreamConfigurationInfo.cc,v 1.11.4.1 2011/03/07 11:33:05 mommsen Exp $
 /// @file: EventStreamConfigurationInfo.cc
 
 #include "EventFilter/StorageManager/interface/EventStreamConfigurationInfo.h"
@@ -9,19 +9,19 @@ using stor::EventStreamConfigurationInfo;
 
 bool EventStreamConfigurationInfo::operator<(const EventStreamConfigurationInfo& other) const
 {
-  if ( _outputModuleLabel != other.outputModuleLabel() )
-    return ( _outputModuleLabel < other.outputModuleLabel() );
-  if ( _triggerSelection != other.triggerSelection() )
-    return ( _triggerSelection < other.triggerSelection() );
-  if ( _eventSelection != other.eventSelection() )
-    return ( _eventSelection < other.eventSelection() );
-  if ( _streamLabel != other.streamLabel() )
-    return ( _streamLabel < other.streamLabel() );
-  if ( _streamId != other.streamId() )
-    return ( _streamId < other.streamId() );
-  if ( _maxFileSizeMB != other.maxFileSizeMB() )
-    return ( _maxFileSizeMB < other.maxFileSizeMB() );
-  return ( _fractionToDisk < other.fractionToDisk() );
+  if ( outputModuleLabel_ != other.outputModuleLabel() )
+    return ( outputModuleLabel_ < other.outputModuleLabel() );
+  if ( triggerSelection_ != other.triggerSelection() )
+    return ( triggerSelection_ < other.triggerSelection() );
+  if ( eventSelection_ != other.eventSelection() )
+    return ( eventSelection_ < other.eventSelection() );
+  if ( streamLabel_ != other.streamLabel() )
+    return ( streamLabel_ < other.streamLabel() );
+  if ( streamId_ != other.streamId() )
+    return ( streamId_ < other.streamId() );
+  if ( maxFileSizeMB_ != other.maxFileSizeMB() )
+    return ( maxFileSizeMB_ < other.maxFileSizeMB() );
+  return ( fractionToDisk_ < other.fractionToDisk() );
 }
 
 

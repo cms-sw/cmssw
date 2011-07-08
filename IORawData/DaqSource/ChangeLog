@@ -1,3 +1,18 @@
+2011-03-21  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-09-15
+	* xdata object back to xdaq application and use pointers here 
+
+2011-02-14  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-09-14
+	* more psindex fixes
+
+2011-02-03  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-09-10
+	* fix to psindex special handling
+
 2011-01-19  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V01-09-09

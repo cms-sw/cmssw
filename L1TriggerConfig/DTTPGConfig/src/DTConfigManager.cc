@@ -213,19 +213,6 @@ DTConfigSectColl* DTConfigManager::getDTConfigSectColl(DTSectCollId scid) const 
 
 }
 
-DTConfigPedestals* DTConfigManager::getDTConfigPedestals() const{
-  
-  return  const_cast<DTConfigPedestals*>(&my_pedestals);
-
-}
- 
-int DTConfigManager::getBXOffset() const {
-
-  int ST = static_cast<int>(getDTConfigBti(DTBtiId(1,1,1,1,1))->ST());
-  return (ST/2 + ST%2);
-
-}
-
 void DTConfigManager::setDTConfigBti(DTBtiId btiid,DTConfigBti conf){
 
   DTChamberId chambid = btiid.SLId().chamberId();
@@ -239,6 +226,15 @@ void DTConfigManager::setDTConfigTraco(DTTracoId tracoid,DTConfigTraco conf){
   my_tracomap[chambid][tracoid] = conf;
 
 }  
+
+int DTConfigManager::getBXOffset() const {
+
+  int ST = static_cast<int>(getDTConfigBti(DTBtiId(1,1,1,1,1))->ST());
+  int coarse = getDTConfigSectColl(DTSectCollId(1,1))->CoarseSync(1);
+  return (ST/2 + ST%2 + coarse); //CB check this function!
+
+}
+
 
 void DTConfigManager::dumpLUTParam(DTChamberId &chambid) const {
 

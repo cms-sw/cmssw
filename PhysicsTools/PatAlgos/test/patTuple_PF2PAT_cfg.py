@@ -3,13 +3,13 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 # the source is already defined in patTemplate_cfg.
 # overriding source and various other things
-#process.load("PhysicsTools.PFCandProducer.Sources.source_ZtoEles_DBS_312_cfi")
+#process.load("CommonTools.ParticleFlow.Sources.source_ZtoEles_DBS_312_cfi")
 #process.source = cms.Source("PoolSource", 
 #     fileNames = cms.untracked.vstring('file:myAOD.root')
 #)
 
 
-# process.load("PhysicsTools.PFCandProducer.Sources.source_ZtoMus_DBS_cfi")
+# process.load("CommonTools.ParticleFlow.Sources.source_ZtoMus_DBS_cfi")
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False))
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
@@ -34,7 +34,7 @@ usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo, runOnMC=True, postfix=postfix
 #usePF2PAT(process,runPF2PAT=True, jetAlgo=jetAlgo2, runOnMC=True, postfix=postfix2) 
 
 # to use tau-cleaned jet collection uncomment the following:
-#useTauCleanedPFJets(process, jetAlgo=jetAlgo, postfix=postfix)
+#getattr(process,"pfNoTau"+postfix).enable = True
 
 # to switch default tau to HPS tau uncomment the following:
 #adaptPFTaus(process,"hpsPFTau",postfix=postfix)
@@ -50,7 +50,7 @@ process.p = cms.Path(
 
 # Add PF2PAT output to the created file
 from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoCleaning
-#process.load("PhysicsTools.PFCandProducer.PF2PAT_EventContent_cff")
+#process.load("CommonTools.ParticleFlow.PF2PAT_EventContent_cff")
 #process.out.outputCommands =  cms.untracked.vstring('drop *')
 process.out.outputCommands = cms.untracked.vstring('drop *',
                                                    'keep recoPFCandidates_particleFlow_*_*',
@@ -58,14 +58,14 @@ process.out.outputCommands = cms.untracked.vstring('drop *',
 
 
 # top projections in PF2PAT:
+getattr(process,"pfNoPileUp"+postfix).enable = True 
+getattr(process,"pfNoMuon"+postfix).enable = True 
+getattr(process,"pfNoElectron"+postfix).enable = True 
+getattr(process,"pfNoTau"+postfix).enable = False 
+getattr(process,"pfNoJet"+postfix).enable = True
 
-process.pfNoPileUpPFlow.enable = True 
-process.pfNoMuonPFlow.enable = False 
-process.pfNoElectronPFlow.enable = True 
-process.pfNoTauPFlow.enable = True 
-process.pfNoJetPFlow.enable = True 
-
-process.pfNoMuon.verbose = True
+# verbose flags for the PF2PAT modules
+getattr(process,"pfNoMuon"+postfix).verbose = False
 
 ## ------------------------------------------------------
 #  In addition you usually want to change the following

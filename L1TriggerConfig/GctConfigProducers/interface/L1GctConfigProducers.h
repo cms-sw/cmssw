@@ -15,7 +15,7 @@
 //
 // Original Author:  Gregory Heath
 //         Created:  Thu Mar  1 15:10:47 CET 2007
-// $Id: L1GctConfigProducers.h,v 1.10 2010/02/10 01:33:25 jbrooke Exp $
+// $Id: L1GctConfigProducers.h,v 1.9 2009/04/01 15:15:32 heath Exp $
 //
 //
 
@@ -77,11 +77,6 @@ class L1GctConfigProducers : public edm::ESProducer {
 
   std::vector< std::vector<double> > m_jetCalibFunc;
   std::vector< std::vector<double> > m_tauCalibFunc;
-
-  unsigned m_metEtaMask;
-  unsigned m_tetEtaMask;
-  unsigned m_mhtEtaMask;
-  unsigned m_thtEtaMask;
 
 };
 

@@ -158,7 +158,6 @@ namespace {
   void Type1METAlgo_run(const reco::PFMETCollection& uncorMET, 
 			const JetCorrector& corrector,
 			const PFJetCollection& uncorJet,
-			const PFCandidateCollection& uncorUnclustered,
 			double jetPTthreshold,
 			double jetEMfracLimit, 
  		        double UscaleA,
@@ -178,14 +177,13 @@ namespace {
     const reco::PFMET* u = &(uncorMET.front());
 
     //Jet j = uncorJet->front(); std::cout << j.px() << std::endl;
-   double DeltaPx = 0.0;
-   double DeltaPy = 0.0;
-   double DeltaSumET = 0.0;
-
-   double UDeltaP = 0.0;
-   double UDeltaPx = 0.0;
-   double UDeltaPy = 0.0;
-   double USumET = 0;
+    double DeltaPx = 0.0;
+    double DeltaPy = 0.0;
+    double UDeltaP = 0.0;
+    double UDeltaPx = 0.0;
+    double UDeltaPy = 0.0;
+    double DeltaSumET = 0.0;
+    double USumET = u->sumEt();
     // ---------------- Calculate jet corrections, but only for those uncorrected jets
     // ---------------- which are above the given threshold.  This requires that the
     // ---------------- uncorrected jets be matched with the corrected jets.
@@ -193,30 +191,20 @@ namespace {
       //std::cout << "jetPTthreshold = " << jetPTthreshold << std::endl;
       //std::cout << "jet->pt() = " << jet->pt() << std::endl;
       //std::cout << "jet->pt()*corrector.correction(*jet) = " << jet->pt()*corrector.correction(*jet) << std::endl;
-      if( jet->pt()*corrector.correction(*jet) > jetPTthreshold && jet->photonEnergyFraction() < jetEMfracLimit ) {
+      if( jet->pt()*corrector.correction(*jet) > jetPTthreshold ) {
 	double corr = corrector.correction (*jet) - 1.; // correction itself
 	DeltaPx +=  jet->px() * corr;
 	DeltaPy +=  jet->py() * corr;
+	UDeltaPx +=  jet->px() ;
+	UDeltaPy +=  jet->py() ;
 	DeltaSumET += jet->et() * corr;
-        
+        USumET -=jet->et(); 
       }
-      if (jet->pt() * corrector.correction(*jet) < jetPTthreshold && jet->photonEnergyFraction() < jetEMfracLimit) {
-	UDeltaPx -= jet->px();
-	UDeltaPy -= jet->py();
-	USumET += jet->et();
-      }
-      
-    }
-    //if typeII correction should be added, calculate U using collections of unclustered PFCandidates handed in by user
-    if (useTypeII) {
-	for (PFCandidateCollection::const_iterator cand =
-				uncorUnclustered.begin(); cand != uncorUnclustered.end(); ++cand) {
-
-	UDeltaPx -= cand->px();
-	UDeltaPy -= cand->py();
-	USumET += cand->et();
-
-	}
+      //if( jet->pt() *corrector.correction(*jet)> jetPTthreshold ) {
+      //  UDeltaPx +=  jet->px() ;
+      //  UDeltaPy +=  jet->py() ;
+      //  USumET -=jet->et(); 
+      //}
     }
     if( hasMuonsCorr) {
        unsigned int nMuons = inputMuons.size();
@@ -243,19 +231,27 @@ namespace {
     delta.mex   =  - DeltaPx;    //correction to MET (from Jets) is negative,    
     delta.mey   =  - DeltaPy;    //since MET points in direction opposite of jets
     delta.sumet =  DeltaSumET; 
-    
+    //----------------- Fill holder with corrected MET (= uncorrected + delta) values
+    UDeltaPx += u->px();
+    UDeltaPy += u->py();
 
     //std::cout << "delta.mex = " << delta.mex << std::endl;
 
      UDeltaP = sqrt(UDeltaPx*UDeltaPx+UDeltaPy*UDeltaPy);
-     
+//  Ulla's Zee additive corection
+//     if(UDeltaP<2.) UDeltaP = 2.;
+//     double Uscale = 1.+(pow(UscaleA,2.)
+//                        +pow(UscaleB,2.)*log(UDeltaP)
+//                        +pow((UscaleC*log(UDeltaP)),2.) ) / UDeltaP;
 
 //  Ulla's Zee multiplicative correction 28May1
-//  UscaleA=1.4,UscaleB=0,UscaleC=0 - external parameters
+//  UscaleA=1.5,UscaleB=1.8,UscaleC=-0.06 - external parameters
     double Uscale = UscaleA+UscaleB*exp(UscaleC*UDeltaP);
-    if (UDeltaP == 0){
-	Uscale = 1;
-    }
+
+//  Dayong dijet multiplicative correction 28May10
+//  UscaleA=5.0,UscaleB=1.36,UscaleC=10.79 - external parameters
+//  double Uscale = UscaleA;
+//  if (UDeltaP>3.) Uscale = UscaleB + UscaleC/UDeltaP;
 
      if(useTypeII){
        delta.mex += (Uscale-1.)*UDeltaPx;
@@ -314,7 +310,7 @@ namespace {
       //std::cout << "jetPTthreshold = " << jetPTthreshold << std::endl;
       //std::cout << "jet->pt() = " << jet->pt() << std::endl;
       //std::cout << "jet->pt()*corrector.correction(*jet) = " << jet->pt()*corrector.correction(*jet) << std::endl;
-      if( jet->pt()*corrector.correction(*jet) > jetPTthreshold && jet->photonEnergyFraction() < jetEMfracLimit ) {
+      if( jet->pt()*corrector.correction(*jet) > jetPTthreshold ) {
 	double corr = corrector.correction (*jet) - 1.; // correction itself
 	DeltaPx +=  jet->px() * corr;
 	DeltaPy +=  jet->py() * corr;
@@ -425,7 +421,6 @@ void Type1METAlgo::run(const CaloMETCollection& uncorMET,
 void Type1METAlgo::run(const PFMETCollection& uncorMET, 
 		       const JetCorrector& corrector,
 		       const PFJetCollection& uncorJet,
-		       const PFCandidateCollection& uncorUnclustered,
 		       double jetPTthreshold,
 		       double jetEMfracLimit, 
 		       double UscaleA,
@@ -437,7 +432,7 @@ void Type1METAlgo::run(const PFMETCollection& uncorMET,
                        const edm::ValueMap<reco::MuonMETCorrectionData>& vm_muCorrData,
 		       METCollection* corMET) 
 {
-  return Type1METAlgo_run(uncorMET, corrector, uncorJet, uncorUnclustered, jetPTthreshold, jetEMfracLimit, UscaleA, UscaleB, UscaleC, useTypeII, hasMuonsCorr, inputMuons, vm_muCorrData, corMET);
+  return Type1METAlgo_run(uncorMET, corrector, uncorJet, jetPTthreshold, jetEMfracLimit, UscaleA, UscaleB, UscaleC, useTypeII, hasMuonsCorr, inputMuons, vm_muCorrData, corMET);
 }  
 
 

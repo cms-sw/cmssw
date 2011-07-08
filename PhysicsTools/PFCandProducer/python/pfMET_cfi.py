@@ -1,17 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-from RecoMET.METProducers.METSigParams_cfi import *
+# Clone pfMET producer from RecoMET  
+from RecoMET.METProducers.PFMET_cfi import *
 
-pfMET = cms.EDProducer("METProducer",
-                       
-                       METSignificance_params,
-                       src = cms.InputTag("particleFlow"),
-                       METType = cms.string('PFMET'),
-                       alias = cms.string('PFMET'),
-                       noHF = cms.bool(False),
-                       globalThreshold = cms.double(0.0),
-                       InputType = cms.string('PFCandidateCollection'),
-                       calculateSignificance = cms.bool(True),
-                       jets = cms.InputTag("ak5PFJets") # used for significance calculation
-                       )
+# Should the name be changed se it is similar to pfMet from reco ??
+pfMET = pfMet.clone(alias="pfMET")
 
+# Use PF2PAT cleaned jet collection (pfJets) for MET significance
+# instead of standard collection (ak5PFJets)?
+# It requires that MET is produced at the end.
+pfMET.jets = cms.InputTag("pfJets")
+
+print 'PF2PAT: Jet collection used for pfMET significance: ', pfMET.jets 

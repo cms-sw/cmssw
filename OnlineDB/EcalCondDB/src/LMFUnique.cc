@@ -4,6 +4,14 @@
 using namespace std;
 using namespace oracle::occi;
 
+LMFUnique::~LMFUnique() {
+}
+
+std::string LMFUnique::sequencePostfix(Tm t) {
+  std::string ts = t.str();
+  return ts.substr(2, 2);
+}
+
 LMFUnique& LMFUnique::setString(std::string key, std::string value) {
   // check if this key exists
   std::map<std::string, std::string>::const_iterator i = 
@@ -338,19 +346,24 @@ int LMFUnique::writeDB()
     this->checkConnection();
     
     // write new tag to the DB
+    std::string sql = "";
     try {
       Statement* stmt = m_conn->createStatement();
       
-      std::string sql = writeDBSql(stmt);
+      sql = writeDBSql(stmt);
       if (sql != "") {
 	if (m_debug) {
 	  cout << m_className + ": " + sql << endl;
 	}
 	stmt->executeUpdate();
       }
+      m_conn->commit();
       m_conn->terminateStatement(stmt);
     } catch (SQLException &e) {
-      throw(std::runtime_error(m_className + "::writeDB:  " + e.getMessage()));
+      debug();
+      dump();
+      throw(std::runtime_error(m_className + "::writeDB:  " + e.getMessage() +
+			       " while executing query " + sql));
     }
     // now get the id
     if (this->fetchID() == 0) {

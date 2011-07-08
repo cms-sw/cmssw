@@ -1,8 +1,8 @@
-// $Id: ErrorStreamSelector.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
+// $Id: ErrorStreamSelector.h,v 1.4.4.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: ErrorStreamSelector.h 
 
-#ifndef StorageManager_ErrorStreamSelector_h
-#define StorageManager_ErrorStreamSelector_h
+#ifndef EventFilter_StorageManager_ErrorStreamSelector_h
+#define EventFilter_StorageManager_ErrorStreamSelector_h
 
 #include <boost/shared_ptr.hpp>
 
@@ -16,8 +16,8 @@ namespace stor {
      ErrorStreamConfigurationInfo
 
      $Author: mommsen $
-     $Revision: 1.3 $
-     $Date: 2009/07/20 13:06:10 $
+     $Revision: 1.4.4.1 $
+     $Date: 2011/03/07 11:33:04 $
   */
 
   class ErrorStreamSelector
@@ -27,7 +27,7 @@ namespace stor {
 
     // Constructor:
     ErrorStreamSelector( const ErrorStreamConfigurationInfo& configInfo ):
-      _configInfo( configInfo )
+      configInfo_( configInfo )
     {}
 
     // Destructor:
@@ -37,21 +37,21 @@ namespace stor {
     bool acceptEvent( const I2OChain& );
 
     // Accessors:
-    const ErrorStreamConfigurationInfo& configInfo() const { return _configInfo; }
+    const ErrorStreamConfigurationInfo& configInfo() const { return configInfo_; }
 
     // Comparison:
     bool operator<(const ErrorStreamSelector& other) const
-    { return ( _configInfo < other.configInfo() ); }
+    { return ( configInfo_ < other.configInfo() ); }
 
   private:
 
-    ErrorStreamConfigurationInfo _configInfo;
+    ErrorStreamConfigurationInfo configInfo_;
 
   };
 
 } // namespace stor
 
-#endif // StorageManager_ErrorStreamSelector_h
+#endif // EventFilter_StorageManager_ErrorStreamSelector_h
 
 
 /// emacs configuration

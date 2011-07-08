@@ -1,4 +1,4 @@
-// $Id: XHTMLMaker.cc,v 1.9 2010/12/15 10:09:14 mommsen Exp $
+// $Id: XHTMLMaker.cc,v 1.10.4.1 2011/03/07 11:33:06 mommsen Exp $
 /// @file: XHTMLMaker.cc
 
 #include "EventFilter/StorageManager/interface/XHTMLMaker.h"
@@ -13,20 +13,21 @@
 
 using namespace std;
 using namespace xercesc;
+using namespace stor;
 
 namespace
 {
   // String to XMLCh: Note that the Xerces-C++ documentation says you
   // have to call XMLString::release(p) for every pointer p returned
   // from XMLString::transcode().
-  inline XMLCh* _xs( const std::string& str )
+  inline XMLCh* xs_( const std::string& str )
   {
     // std::string::data() is not required to return a null-terminated
     // byte array; c_str() is required to do so.
     return xercesc::XMLString::transcode(str.c_str());
   }
   
-  inline XMLCh* _xs(const char* str)
+  inline XMLCh* xs_(const char* str)
   {
     return xercesc::XMLString::transcode(str);
   }
@@ -35,36 +36,36 @@ namespace
 
 XHTMLMaker::XHTMLMaker()
 {
-  XMLCh* xls = _xs("ls");
+  XMLCh* xls = xs_("ls");
   DOMImplementation* imp =
     DOMImplementationRegistry::getDOMImplementation(xls);
 
-  XMLCh* xhtml_s =_xs("html") ;
-  XMLCh* p_id = _xs( "-//W3C//DTD XHTML 1.0 Strict//EN" );
-  XMLCh* s_id = _xs( "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" );
+  XMLCh* xhtml_s =xs_("html") ;
+  XMLCh* p_id = xs_( "-//W3C//DTD XHTML 1.0 Strict//EN" );
+  XMLCh* s_id = xs_( "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd" );
 
-  _typ = imp->createDocumentType( xhtml_s, p_id, s_id );
+  typ_ = imp->createDocumentType( xhtml_s, p_id, s_id );
 
-  XMLCh* ns_uri = _xs( "http://www.w3.org/1999/xhtml" );
+  XMLCh* ns_uri = xs_( "http://www.w3.org/1999/xhtml" );
 
-  _doc = imp->createDocument( ns_uri, xhtml_s, _typ );
+  doc_ = imp->createDocument( ns_uri, xhtml_s, typ_ );
 
 
-  if( !_doc )
+  if( !doc_ )
     {
       std::cerr << "Cannot create document" << std::endl;
       return;
     }
 
-  XMLCh* encoding = _xs("utf-8");
-  _doc->setEncoding(encoding);
-  //_doc->setStandalone( true );
-  XMLCh* version = _xs("1.0");
-  _doc->setVersion(version);
+  XMLCh* encoding = xs_("utf-8");
+  doc_->setEncoding(encoding);
+  //doc_->setStandalone( true );
+  XMLCh* version = xs_("1.0");
+  doc_->setVersion(version);
 
-  _page_started = false;
+  pageStarted_ = false;
 
-  _writer =
+  writer_ =
     ( (DOMImplementationLS*)imp )->createDOMWriter();
 
   XMLString::release(&xls);
@@ -75,7 +76,7 @@ XHTMLMaker::XHTMLMaker()
   XMLString::release(&encoding);
   XMLString::release(&version);
 
-  if( !_writer )
+  if( !writer_ )
     {
       std::cerr << "Cannot create DOM writer" << std::endl;
       return;
@@ -88,9 +89,9 @@ XHTMLMaker::XHTMLMaker()
 
 XHTMLMaker::~XHTMLMaker()
 {
-  delete _doc;
-  delete _writer;
-  delete _typ;
+  delete doc_;
+  delete writer_;
+  delete typ_;
 }
 
 ///////////////////////////////////////
@@ -100,37 +101,37 @@ XHTMLMaker::~XHTMLMaker()
 XHTMLMaker::Node* XHTMLMaker::start( const std::string& title )
 {
 
-  if( _page_started )
+  if( pageStarted_ )
     {
       std::cerr << "Page already started" << std::endl;
       return (Node*)0;
     }
 
-  _page_started = true;
+  pageStarted_ = true;
 
   // Root element:
-  Node* el_xhtml = _doc->getDocumentElement();
+  Node* el_xhtml = doc_->getDocumentElement();
 
   // Head:
-  XMLCh* h = _xs("head");
-  _head = _doc->createElement(h);
+  XMLCh* h = xs_("head");
+  head_ = doc_->createElement(h);
   XMLString::release(&h);
-  el_xhtml->appendChild( _head );
+  el_xhtml->appendChild( head_ );
 
 
   // Title:
-  XMLCh* xtitle = _xs("title");
-  Node* el_title = _doc->createElement(xtitle);
+  XMLCh* xtitle = xs_("title");
+  Node* el_title = doc_->createElement(xtitle);
   XMLString::release(&xtitle);
-  _head->appendChild( el_title );
-  xtitle = _xs(title);
-  DOMText* txt_title = _doc->createTextNode(xtitle);
+  head_->appendChild( el_title );
+  xtitle = xs_(title);
+  DOMText* txt_title = doc_->createTextNode(xtitle);
   XMLString::release(&xtitle);
   el_title->appendChild( txt_title );
 
   // Body:
-  XMLCh* xbody = _xs("body");
-  Node* el_body = _doc->createElement(xbody);
+  XMLCh* xbody = xs_("body");
+  Node* el_body = doc_->createElement(xbody);
   XMLString::release(&xbody);
   el_xhtml->appendChild( el_body );
 
@@ -146,16 +147,16 @@ XHTMLMaker::Node* XHTMLMaker::addNode( const std::string& name,
 				       XHTMLMaker::Node* parent,
 				       const AttrMap& attrs )
 {
-  XMLCh* xname = _xs(name);
-  Node* el = _doc->createElement(xname);
+  XMLCh* xname = xs_(name);
+  Node* el = doc_->createElement(xname);
   XMLString::release(&xname);
   parent->appendChild( el );
 
   for( AttrMap::const_iterator i = attrs.begin(); i != attrs.end();
 	 ++i )
     {
-      XMLCh* xfirst = _xs(i->first);
-      XMLCh* xsecond = _xs(i->second);
+      XMLCh* xfirst = xs_(i->first);
+      XMLCh* xsecond = xs_(i->second);
       el->setAttribute(xfirst, xsecond);
       XMLString::release(&xfirst);
       XMLString::release(&xsecond);
@@ -171,8 +172,8 @@ XHTMLMaker::Node* XHTMLMaker::addNode( const std::string& name,
 
 void XHTMLMaker::addText( Node* parent, const std::string& data )
 {
-  XMLCh* xdata = _xs(data);
-  DOMText* txt = _doc->createTextNode(xdata);
+  XMLCh* xdata = xs_(data);
+  DOMText* txt = doc_->createTextNode(xdata);
   XMLString::release(&xdata);
   parent->appendChild( txt );
 }
@@ -247,33 +248,41 @@ void XHTMLMaker::addDouble( Node* parent, const double& value, const unsigned in
     addText( parent, tmpString.str() );
 }
 
+//////////////////////////////
+//// Add a boolean value: ////
+//////////////////////////////
+void XHTMLMaker::addBool( Node* parent, const bool& value )
+{
+    addText( parent, value ? "True" : "False" );
+}
+
 /////////////////////////////////
 //// Set DOMWriter features: ////
 /////////////////////////////////
 
-void XHTMLMaker::_setWriterFeatures()
+void XHTMLMaker::setWriterFeatures_()
 {
 
-  //_writer->setNewLine( (const XMLCh*)( L"\n" ) );
+  //writer_->setNewLine( (const XMLCh*)( L"\n" ) );
 
-  if( _writer->canSetFeature( XMLUni::fgDOMWRTSplitCdataSections, true ) )
+  if( writer_->canSetFeature( XMLUni::fgDOMWRTSplitCdataSections, true ) )
     {
-      _writer->setFeature( XMLUni::fgDOMWRTSplitCdataSections, true );
+      writer_->setFeature( XMLUni::fgDOMWRTSplitCdataSections, true );
     }
 
-  if( _writer->canSetFeature( XMLUni::fgDOMWRTDiscardDefaultContent, true ) )
+  if( writer_->canSetFeature( XMLUni::fgDOMWRTDiscardDefaultContent, true ) )
     {
-      _writer->setFeature( XMLUni::fgDOMWRTDiscardDefaultContent, true );
+      writer_->setFeature( XMLUni::fgDOMWRTDiscardDefaultContent, true );
     }
 
-  if( _writer->canSetFeature( XMLUni::fgDOMWRTFormatPrettyPrint, true ) )
+  if( writer_->canSetFeature( XMLUni::fgDOMWRTFormatPrettyPrint, true ) )
     {
-      _writer->setFeature( XMLUni::fgDOMWRTFormatPrettyPrint, true );
+      writer_->setFeature( XMLUni::fgDOMWRTFormatPrettyPrint, true );
     }
 
-  if( _writer->canSetFeature( XMLUni::fgDOMWRTBOM, true ) )
+  if( writer_->canSetFeature( XMLUni::fgDOMWRTBOM, true ) )
     {
-      _writer->setFeature( XMLUni::fgDOMWRTBOM, true );
+      writer_->setFeature( XMLUni::fgDOMWRTBOM, true );
     }
 
 }
@@ -283,10 +292,10 @@ void XHTMLMaker::_setWriterFeatures()
 //////////////////////////////
 void XHTMLMaker::out()
 {
-  _setWriterFeatures();
+  setWriterFeatures_();
   XMLFormatTarget* ftar = new StdOutFormatTarget();
   fflush( stdout );
-  _writer->writeNode( ftar, *_doc );
+  writer_->writeNode( ftar, *doc_ );
   delete ftar;
 }
 
@@ -295,10 +304,10 @@ void XHTMLMaker::out()
 ////////////////////////////////////
 void XHTMLMaker::out( const std::string& filename )
 {
-  _setWriterFeatures();
-  XMLCh* xfilename = _xs(filename);
+  setWriterFeatures_();
+  XMLCh* xfilename = xs_(filename);
   XMLFormatTarget* ftar = new LocalFileFormatTarget(xfilename);
-  _writer->writeNode( ftar, *_doc );
+  writer_->writeNode( ftar, *doc_ );
   XMLString::release(&xfilename);
   delete ftar;
 }
@@ -318,9 +327,9 @@ void XHTMLMaker::out( std::string& dest )
 //////////////////////////////////////////////
 void XHTMLMaker::out( std::ostream& dest )
 {
-  _setWriterFeatures();
+  setWriterFeatures_();
   MemBufFormatTarget* ftar = new MemBufFormatTarget();
-  _writer->writeNode( ftar, *_doc );
+  writer_->writeNode( ftar, *doc_ );
   dest << ftar->getRawBuffer();
   delete ftar;
 }

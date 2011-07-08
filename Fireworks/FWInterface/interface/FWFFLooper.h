@@ -62,8 +62,8 @@ public:
    void          setupFieldForPropagator(TEveTrackPropagator* prop);
 
    virtual void checkPosition();
-   virtual void stopPlaying() {}
-   virtual void autoLoadNewEvent() {}
+   virtual void stopPlaying();
+   virtual void autoLoadNewEvent();
 
    void showPathsGUI(const TGWindow *p);
 
@@ -97,6 +97,9 @@ private:
    typedef std::map<std::string, edm::ParameterSet> ModuleChanges;
    ModuleChanges m_scheduledChanges;
    edm::EventID  m_nextEventId;
+   bool          m_autoReload;
+   bool          m_isFirstEvent;
+   bool          m_isLastEvent;
 };
 
 #endif

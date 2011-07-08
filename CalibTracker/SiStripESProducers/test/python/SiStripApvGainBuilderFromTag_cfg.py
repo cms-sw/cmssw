@@ -42,28 +42,17 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
     ),
     timetype = cms.untracked.string('runnumber'),
-    connect = cms.string('sqlite_file:dbfile_gainFromDataCorrected070.db'),
+    connect = cms.string('sqlite_file:dbfile.db'),
     toPut = cms.VPSet(cms.PSet(
         record = cms.string('SiStripApvGainRcd2'),
         tag = cms.string('SiStripApvGain_gaussian')
     ))
 )
 
-process.prod = cms.EDAnalyzer("SiStripApvGainBuilderFromTag",
+process.prod = cms.EDFilter("SiStripApvGainBuilderFromTag",
                             genMode = cms.string("gaussian"),
-                            applyTuning = cms.bool(True),
-### used if tuning is requested:
-                            # TIB
-                            correctTIB = cms.vdouble( 0.985,  1.,  1.,  1.),
-                            # TID                         
-                            correctTID = cms.vdouble( 0.957,  0.931,  0.971),
-                            # TOB                         
-                            correctTOB = cms.vdouble( 1.07,  1.08,  1.1,  1.07,  1.135,  1.135),
-                            # TEC
-                            correctTEC = cms.vdouble( 1.09,  1.075,  1.09,  1.06,  1.095,  1.06,  1.08),
-### used if gaussian genMode is requested:                           
                             MeanGain = cms.double(1.),
-                            SigmaGain = cms.double(0.07),
+                            SigmaGain = cms.double(0.1),
                             MinPositiveGain = cms.double(0.)
 )
 

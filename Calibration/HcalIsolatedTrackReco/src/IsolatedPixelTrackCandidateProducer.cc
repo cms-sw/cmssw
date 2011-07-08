@@ -267,19 +267,16 @@ void IsolatedPixelTrackCandidateProducer::produce(edm::Event& theEvent, const ed
 
 double IsolatedPixelTrackCandidateProducer::getDistInCM(double eta1, double phi1, double eta2, double phi2)
 {
-  double dR, Rec;
+  double Rec;
   double theta1=2*atan(exp(-eta1));
   double theta2=2*atan(exp(-eta2));
   if (fabs(eta1)<1.479) Rec=129; //radius of ECAL barrel
-  else Rec=tan(theta1)*317; //distance from IP to ECAL endcap
+  else if (fabs(eta1)>1.479&&fabs(eta1)<7.0) Rec=tan(theta1)*317; //distance from IP to ECAL endcap
+  else return 1000;
 
   //|vect| times tg of acos(scalar product)
   double angle=acos((sin(theta1)*sin(theta2)*(sin(phi1)*sin(phi2)+cos(phi1)*cos(phi2))+cos(theta1)*cos(theta2)));
-  if (angle<acos(-1)/2)
-    {
-      dR=fabs((Rec/sin(theta1))*tan(angle));
-      return dR;
-    }
+  if (angle<acos(-1)/2) return fabs((Rec/sin(theta1))*tan(angle));
   else return 1000;
 }
 
@@ -296,37 +293,48 @@ IsolatedPixelTrackCandidateProducer::GetEtaPhiAtEcal(const edm::EventSetup& iSet
 
   double bfVal=BField.mag();
 
-  double deltaPhi;
+  double deltaPhi=0;
   double etaEC = 100;
   double phiEC = 100;
-  double Rcurv = pT*33.3*100/(bfVal*10); //r(m)=pT(GeV)*33.3/B(kG)
+
+  double Rcurv = 9999999;
+  if (bfVal!=0) Rcurv=pT*33.3*100/(bfVal*10); //r(m)=pT(GeV)*33.3/B(kG)
+
   double ecDist = zEE_;  //distance to ECAL andcap from IP (cm), 317 - ecal (not preshower), preshower -300
   double ecRad  = rEB_;  //radius of ECAL barrel (cm)
   double theta=2*atan(exp(-etaIP));
-  double zNew;
+  double zNew=0;
   if (theta>0.5*acos(-1)) theta=acos(-1)-theta;
   if (fabs(etaIP)<ebEtaBoundary_)
     {
-      deltaPhi      =-charge*asin(0.5*ecRad/Rcurv);
-      double alpha1 = 2*asin(0.5*ecRad/Rcurv);
-      double z      = ecRad/tan(theta);
-      if (etaIP>0) zNew = z*(Rcurv*alpha1)/ecRad+vtxZ; //new z-coordinate of track
-      else         zNew =-z*(Rcurv*alpha1)/ecRad+vtxZ; //new z-coordinate of track
-      double zAbs=fabs(zNew);
-      if (zAbs<ecDist)
-        {
-          etaEC    = -log(tan(0.5*atan(ecRad/zAbs)));
-          deltaPhi = -charge*asin(0.5*ecRad/Rcurv);
-        }
-      if (zAbs>ecDist)
-        {
-          zAbs           = (fabs(etaIP)/etaIP)*ecDist;
-          double Zflight = fabs(zAbs-vtxZ);
-          double alpha   = (Zflight*ecRad)/(z*Rcurv);
-          double Rec     = 2*Rcurv*sin(alpha/2);
-          deltaPhi       =-charge*alpha/2;
-          etaEC          =-log(tan(0.5*atan(Rec/ecDist)));
-        }
+      if ((0.5*ecRad/Rcurv)>1)
+	{
+	  etaEC=10000;
+	  deltaPhi=0;
+	}
+      else
+	{
+	  deltaPhi      =-charge*asin(0.5*ecRad/Rcurv);
+	  double alpha1 = 2*asin(0.5*ecRad/Rcurv);
+	  double z      = ecRad/tan(theta);
+	  if (etaIP>0) zNew = z*(Rcurv*alpha1)/ecRad+vtxZ; //new z-coordinate of track
+	  else         zNew =-z*(Rcurv*alpha1)/ecRad+vtxZ; //new z-coordinate of track
+	  double zAbs=fabs(zNew);
+	  if (zAbs<ecDist)
+	    {
+	      etaEC    = -log(tan(0.5*atan(ecRad/zAbs)));
+	      deltaPhi = -charge*asin(0.5*ecRad/Rcurv);
+	    }
+	  if (zAbs>ecDist)
+	    {
+	      zAbs           = (fabs(etaIP)/etaIP)*ecDist;
+	      double Zflight = fabs(zAbs-vtxZ);
+	      double alpha   = (Zflight*ecRad)/(z*Rcurv);
+	      double Rec     = 2*Rcurv*sin(alpha/2);
+	      deltaPhi       =-charge*alpha/2;
+	      etaEC          =-log(tan(0.5*atan(Rec/ecDist)));
+	    }
+	}
     }
   else
     {

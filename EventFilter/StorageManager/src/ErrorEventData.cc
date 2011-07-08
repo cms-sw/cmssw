@@ -1,4 +1,4 @@
-// $Id: ErrorEventData.cc,v 1.5 2010/05/11 18:01:19 mommsen Exp $
+// $Id: ErrorEventData.cc,v 1.6.6.1 2011/03/07 11:33:05 mommsen Exp $
 /// @file: ErrorEventData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"
@@ -13,7 +13,7 @@ namespace stor
 
     ErrorEventMsgData::ErrorEventMsgData(toolbox::mem::Reference* pRef) :
       ChainData(I2O_SM_ERROR, Header::ERROR_EVENT),
-      _headerFieldsCached(false)
+      headerFieldsCached_(false)
     {
       addFirstFragment(pRef);
       parseI2OHeader();
@@ -31,8 +31,8 @@ namespace stor
         return 0;
       }
 
-      if (! _headerFieldsCached) {cacheHeaderFields();}
-      return _headerSize;
+      if (! headerFieldsCached_) {cacheHeaderFields();}
+      return headerSize_;
     }
 
     unsigned char* ErrorEventMsgData::do_headerLocation() const
@@ -42,8 +42,8 @@ namespace stor
         return 0;
       }
 
-      if (! _headerFieldsCached) {cacheHeaderFields();}
-      return _headerLocation;
+      if (! headerFieldsCached_) {cacheHeaderFields();}
+      return headerLocation_;
     }
 
     inline unsigned char*
@@ -74,7 +74,7 @@ namespace stor
           " does not match the run number " << runNumber << 
           " used to configure the StorageManager." <<
           " Enforce usage of configured run number.";
-        _runNumber = runNumber;
+        runNumber_ = runNumber;
         XCEPT_RAISE(stor::exception::RunNumberMismatch, errorMsg.str());
       }
     }
@@ -89,8 +89,8 @@ namespace stor
         XCEPT_RAISE(stor::exception::IncompleteEventMessage, msg.str());
       }
       
-      if (! _headerFieldsCached) {cacheHeaderFields();}
-      return _runNumber;
+      if (! headerFieldsCached_) {cacheHeaderFields();}
+      return runNumber_;
     }
 
     uint32_t ErrorEventMsgData::do_lumiSection() const
@@ -103,8 +103,8 @@ namespace stor
         XCEPT_RAISE(stor::exception::IncompleteEventMessage, msg.str());
       }
       
-      if (! _headerFieldsCached) {cacheHeaderFields();}
-      return _lumiSection;
+      if (! headerFieldsCached_) {cacheHeaderFields();}
+      return lumiSection_;
     }
 
     uint32_t ErrorEventMsgData::do_eventNumber() const
@@ -117,8 +117,8 @@ namespace stor
         XCEPT_RAISE(stor::exception::IncompleteEventMessage, msg.str());
       }
       
-      if (! _headerFieldsCached) {cacheHeaderFields();}
-      return _eventNumber;
+      if (! headerFieldsCached_) {cacheHeaderFields();}
+      return eventNumber_;
     }
 
     inline void ErrorEventMsgData::parseI2OHeader()
@@ -126,19 +126,19 @@ namespace stor
       if ( parsable() )
       {
         I2O_SM_DATA_MESSAGE_FRAME *smMsg =
-          (I2O_SM_DATA_MESSAGE_FRAME*) _ref->getDataLocation();
-        _fragKey.code_ = _messageCode;
-        _fragKey.run_ = smMsg->runID;
-        _fragKey.event_ = smMsg->eventID;
-        _fragKey.secondaryId_ = smMsg->outModID;
-        _fragKey.originatorPid_ = smMsg->fuProcID;
-        _fragKey.originatorGuid_ = smMsg->fuGUID;
-        _rbBufferId = smMsg->rbBufferID;
-        _hltLocalId = smMsg->hltLocalId;
-        _hltInstance = smMsg->hltInstance;
-        _hltTid = smMsg->hltTid;
-        _fuProcessId = smMsg->fuProcID;
-        _fuGuid = smMsg->fuGUID;
+          (I2O_SM_DATA_MESSAGE_FRAME*) ref_->getDataLocation();
+        fragKey_.code_ = messageCode_;
+        fragKey_.run_ = smMsg->runID;
+        fragKey_.event_ = smMsg->eventID;
+        fragKey_.secondaryId_ = smMsg->outModID;
+        fragKey_.originatorPid_ = smMsg->fuProcID;
+        fragKey_.originatorGuid_ = smMsg->fuGUID;
+        rbBufferId_ = smMsg->rbBufferID;
+        hltLocalId_ = smMsg->hltLocalId;
+        hltInstance_ = smMsg->hltInstance;
+        hltTid_ = smMsg->hltTid;
+        fuProcessId_ = smMsg->fuProcID;
+        fuGuid_ = smMsg->fuGUID;
       }
     }
 
@@ -149,7 +149,7 @@ namespace stor
       bool useFirstFrag = false;
 
       // if there is only one fragment, use it
-      if (_fragmentCount == 1)
+      if (fragmentCount_ == 1)
       {
         useFirstFrag = true;
       }
@@ -168,18 +168,18 @@ namespace stor
       }
       else
       {
-        copyFragmentsIntoBuffer(_headerCopy);
-        msgView.reset(new FRDEventMsgView(&_headerCopy[0]));
+        copyFragmentsIntoBuffer(headerCopy_);
+        msgView.reset(new FRDEventMsgView(&headerCopy_[0]));
       }
 
-      _headerSize = sizeof(FRDEventHeader_V2);
-      _headerLocation = msgView->startAddress();
+      headerSize_ = sizeof(FRDEventHeader_V2);
+      headerLocation_ = msgView->startAddress();
 
-      _runNumber = msgView->run();
-      _lumiSection = msgView->lumi();
-      _eventNumber = msgView->event();
+      runNumber_ = msgView->run();
+      lumiSection_ = msgView->lumi();
+      eventNumber_ = msgView->event();
 
-      _headerFieldsCached = true;
+      headerFieldsCached_ = true;
     }
 
   } // namespace detail

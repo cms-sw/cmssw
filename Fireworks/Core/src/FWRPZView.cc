@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.31 2010/11/26 20:24:48 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.41 2011/03/17 12:02:44 amraktad Exp $
 //
 
 // system include files
@@ -22,30 +22,42 @@
 #include "TEveElement.h"
 #include "TEveScene.h"
 #include "TEveProjections.h"
-#include "TEveProjectionManager.h"
 #include "TEveProjectionAxes.h"
+#include "TGLabel.h"
+#include "TEveProjectionManager.h"
+
+//!!! FIXME add get/sets for TEveCalo2D for CellIDs
+#define protected public  
 #include "TEveCalo.h"
+#undef protected
 
 // user include files
 #include "Fireworks/Core/interface/FWRPZView.h"
 #include "Fireworks/Core/interface/FWRPZViewGeometry.h"
+#include "Fireworks/Core/interface/FWBeamSpot.h"
 #include "Fireworks/Core/interface/Context.h"
+#include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/interface/FWViewContext.h"
 #include "Fireworks/Core/interface/FWViewContext.h"
 #include "Fireworks/Core/interface/FWViewEnergyScale.h"
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
 
 FWRPZViewGeometry* FWRPZView::s_geometryList = 0;
-
+const float FWRPZView::s_distortF = 0.001;
+const float FWRPZView::s_distortFInv = 1000;
 //
 // constructors and destructor
 //
 FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
-   FWEveView(iParent, id),
+   FWEveView(iParent, id, 7),
    m_calo(0),
+   m_shiftOrigin(this,"Shift origin to beam-spot", true),
+   m_fishEyeDistortion(this,"Distortion",0., 0., 100.),
+   m_fishEyeR(this,"FixedRadius",(double)fireworks::Context::caloR1(), 0.0, 150.0),
+
    m_caloDistortion(this,"Calo compression",1.0,0.01,10.),
    m_muonDistortion(this,"Muon compression",0.2,0.01,10.),
-   m_showProjectionAxes(this,"Show projection axes", false),
+   m_showProjectionAxes(this,"Show projection axis", false),
    m_compressMuon(this,"Compress detectors",false),
    m_showHF(0),
    m_showEndcaps(0)
@@ -56,15 +68,24 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
    m_projMgr = new TEveProjectionManager(projType);
    m_projMgr->IncDenyDestroy();
    m_projMgr->SetImportEmpty(kTRUE);
+
+   m_projMgr->GetProjection()->SetDistortion(m_fishEyeDistortion.value()*s_distortF);
+   m_projMgr->GetProjection()->SetFixR(m_fishEyeR.value());
+	 
+#ifdef TEVEPROJECTIONS_DISPLACE_ORIGIN_MODE
+   m_projMgr->GetProjection()->SetDisplaceOrigin( m_shiftOrigin.value());
+#endif
+
    if ( id == FWViewType::kRhoPhi || id == FWViewType::kRhoPhiPF) {
-      m_projMgr->GetProjection()->AddPreScaleEntry(0, 130, 1.0);
+      m_projMgr->GetProjection()->AddPreScaleEntry(0, fireworks::Context::caloR1(), 1.0);
       m_projMgr->GetProjection()->AddPreScaleEntry(0, 300, 0.2);
    } else {
-      m_projMgr->GetProjection()->AddPreScaleEntry(0, 130, 1.0);
+      m_projMgr->GetProjection()->AddPreScaleEntry(0, fireworks::Context::caloR1(), 1.0);
       m_projMgr->GetProjection()->AddPreScaleEntry(1, 310, 1.0);
       m_projMgr->GetProjection()->AddPreScaleEntry(0, 370, 0.2);
       m_projMgr->GetProjection()->AddPreScaleEntry(1, 580, 0.2);
    }
+ 
 
    // camera  
    viewerGL()->SetCurrentCamera(TGLViewer::kCameraOrthoXOY);
@@ -75,6 +96,7 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
 
    m_axes = new TEveProjectionAxes(m_projMgr);
    m_axes->SetRnrState(m_showProjectionAxes.value());
+   m_axes->SetLabelSize(0.015);
    m_showProjectionAxes.changed_.connect(boost::bind(&FWRPZView::showProjectionAxes,this));
    eventScene()->AddElement(m_axes);
 
@@ -85,8 +107,13 @@ FWRPZView::FWRPZView(TEveWindowSlot* iParent, FWViewType::EType id) :
       m_showHF->changed_.connect(  boost::bind(&FWRPZView::setEtaRng, this) );
    }
 
-   m_caloDistortion.changed_.connect(boost::bind(&FWRPZView::doDistortion,this));
-   m_muonDistortion.changed_.connect(boost::bind(&FWRPZView::doDistortion,this));
+   m_shiftOrigin.changed_.connect(boost::bind(&FWRPZView::doShiftOrigin,this));
+
+   m_fishEyeDistortion.changed_.connect(boost::bind(&FWRPZView::doFishEyeDistortion,this));
+   m_fishEyeR.changed_.connect(boost::bind(&FWRPZView::doFishEyeDistortion,this));
+
+   m_caloDistortion.changed_.connect(boost::bind(&FWRPZView::doPreScaleDistortion,this));
+   m_muonDistortion.changed_.connect(boost::bind(&FWRPZView::doPreScaleDistortion,this));
    m_compressMuon.changed_.connect(boost::bind(&FWRPZView::doCompression,this,_1));
 }
 
@@ -135,7 +162,62 @@ FWRPZView::setContext(const fireworks::Context& ctx)
 }
 
 void
-FWRPZView::doDistortion()
+FWRPZView::eventBegin()
+{  
+   if (context().getBeamSpot())
+   {
+      FWBeamSpot& b = *(context().getBeamSpot());
+      fwLog(fwlog::kDebug) << Form("%s::eventBegin Set projection center (%f, %f, %f) \n", typeName().c_str(), b.x0(), b.y0(), b.z0());
+
+      // projection center
+      TEveVector center(b.x0(),  b.y0(), b.z0());
+      m_projMgr->GetProjection()->SetCenter(center);
+
+      // camera move
+      TGLCamera& cam = viewerGL()->CurrentCamera();
+      cam.SetExternalCenter(true);
+      if (typeId() != FWViewType::kRhoZ)
+      {
+         double r = TMath::Sqrt( b.x0()*b.x0() +  b.y0()*b.y0());
+         cam.SetCenterVec(b.z0(), TMath::Sign(r, b.y0()), 0);
+      }
+      else
+      {
+         cam.SetCenterVec(b.x0(), b.y0(), b.z0());
+      }
+   }
+}
+
+void
+FWRPZView::doShiftOrigin()
+{ 
+#ifdef TEVEPROJECTIONS_DISPLACE_ORIGIN_MODE
+
+   TEveProjection* p = m_projMgr->GetProjection();
+   if (p->GetDisplaceOrigin() != m_shiftOrigin.value())
+   {
+      p->SetDisplaceOrigin( m_shiftOrigin.value());
+      m_projMgr->ProjectChildren();
+      gEve->Redraw3D();
+   }
+#endif
+}
+
+void
+FWRPZView::doFishEyeDistortion()
+{
+   TEveProjection* p = m_projMgr->GetProjection();
+    if (p->GetDistortion() != m_fishEyeDistortion.value()*s_distortFInv)
+   p->SetDistortion(m_fishEyeDistortion.value()*s_distortF);
+   if (p->GetFixR() != m_fishEyeR.value())
+      p->SetFixR(m_fishEyeR.value());
+
+   m_projMgr->ProjectChildren();
+   gEve->Redraw3D();
+}
+
+void
+FWRPZView::doPreScaleDistortion()
 {
    if ( typeId() == FWViewType::kRhoPhi || typeId() == FWViewType::kRhoPhiPF ) {
       m_projMgr->GetProjection()->ChangePreScaleEntry(0,1,m_caloDistortion.value());
@@ -178,7 +260,7 @@ FWRPZView::addTo(FWConfiguration& iTo) const
 {
    FWEveView::addTo(iTo);
    TGLOrthoCamera* camera = dynamic_cast<TGLOrthoCamera*>( &(viewerGL()->CurrentCamera()) );
-   addToOrthoCamera(camera, iTo);
+   if (camera) addToOrthoCamera(camera, iTo);
 }
 
 void
@@ -187,7 +269,14 @@ FWRPZView::setFrom(const FWConfiguration& iFrom)
    FWEveView::setFrom(iFrom);
    
    TGLOrthoCamera* camera = dynamic_cast<TGLOrthoCamera*>( &(viewerGL()->CurrentCamera()) );
-   setFromOrthoCamera(camera, iFrom);
+   if (camera) setFromOrthoCamera(camera, iFrom);
+
+   if (iFrom.version() < 7)
+   { 
+      const FWConfiguration* value = iFrom.valueForKey("Show projection axes");
+      if (value)
+         m_showProjectionAxes.set(value->value() == "1");
+   }
 }
 
 void
@@ -205,6 +294,38 @@ FWRPZView::setEtaRng()
    FWEveView::setupEnergyScale();
 }
 
+void
+FWRPZView::voteCaloMaxVal()
+{
+   if (! m_calo->GetData()->Empty())
+   {
+      m_calo->AssertCellIdCache();
+      Float_t sumEt, sumE;
+      TEveCaloData::CellData_t cellData;
+      typedef std::vector<TEveCaloData::vCellId_t*>           vBinCells_t;
+      typedef std::vector<TEveCaloData::vCellId_t*>::iterator vBinCells_i;
+
+      vBinCells_t   cellLists = m_calo->fCellLists;
+      for (vBinCells_i it = cellLists.begin(); it != cellLists.end(); it++)
+      {
+         TEveCaloData::vCellId_t* binCells = *it;
+         if (binCells) {
+            sumEt =  0; sumE = 0;
+            TEveCaloData::vCellId_i a = binCells->end();
+      
+            for (TEveCaloData::vCellId_i k = binCells->begin(); k != a; ++k)
+            { 
+               m_calo->GetData()->GetCellData((*k), cellData);
+               sumEt += cellData.Value(true);
+               sumE  += cellData.Value(false);
+            } 
+            // printf("vote sum %f %f \n", sumEt , sumE);
+            context().voteMaxEtAndEnergy(sumEt, sumE);
+         }
+      }
+   }
+}
+
 void FWRPZView::showProjectionAxes( )
 {   
    if ( m_showProjectionAxes.value() )
@@ -217,13 +338,28 @@ void FWRPZView::showProjectionAxes( )
 void 
 FWRPZView::populateController(ViewerParameterGUI& gui) const
 {
-   FWEveView::populateController(gui);
+   FWEveView::populateController(gui);   
+
+#ifdef TEVEPROJECTIONS_DISPLACE_ORIGIN_MODE
+   gui.requestTab("Projection").addParam(&m_shiftOrigin);
+#endif
+
+   gui.requestTab("Projection").addParam(&m_showProjectionAxes).separator();
+
+   TGCompositeFrame* f = gui.getTabContainer();
+
+   f->AddFrame(new TGLabel(f, "FishEye:"));
+   gui.addParam(&m_fishEyeDistortion).
+      addParam(&m_fishEyeR).
+      separator();
+
+   f->AddFrame(new TGLabel(f, "PreScales:"));
 
    gui.requestTab("Projection").
       addParam(&m_compressMuon).
       addParam(&m_muonDistortion).
-      addParam(&m_caloDistortion).
-      addParam(&m_showProjectionAxes);
+      addParam(&m_caloDistortion);
+
 
    if (typeId() == FWViewType::kRhoPhi || typeId() == FWViewType::kRhoPhiPF) 
    {
