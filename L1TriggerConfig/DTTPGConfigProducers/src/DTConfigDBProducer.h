@@ -69,6 +69,9 @@ class DTConfigDBProducer : public edm::ESProducer{
   //! Build Config Pedestals : 110204 SV for debugging purpose ONLY
   DTConfigPedestals buildTrivialPedestals();
 
+  //! 110629 SV function for CCB configuration check
+  int checkDTCCBConfig();
+
   std::string mapEntryName(const DTChamberId & chambid) const;
 
   // ----------member data ---------------------------
