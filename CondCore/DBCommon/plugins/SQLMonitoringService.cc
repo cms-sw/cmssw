@@ -1,6 +1,7 @@
 #include "SQLMonitoringService.h"
 #include "RelationalAccess/MonitoringException.h"
 #include "CoralBase/MessageStream.h"
+#include "CoralBase/TimeStamp.h"
 #include "CoralKernel/Context.h"
 #include "CoralKernel/IHandle.h"
 #include "CondCore/DBCommon/interface/CoralServiceMacros.h"
@@ -95,7 +96,7 @@ namespace cond
       Repository::iterator rit;
       
       if( ( rit = m_events.find( contextKey ) ) == m_events.end() )
-        throw coral::MonitoringException( "Monitoring for session " + contextKey + " not initialized...", "MonitoringService::record", this->name() );
+        throw coral::MonitoringException( "Monitoring for session " + contextKey + " not initialized...", "MonitoringService::record( const std::string& , coral::monitor::Source, coral::monitor::Type, const std::string& )", this->name() );
       
       bool                  active = (*rit).second.active;
       //coral::monitor::Level level  = (*rit).second.level;
@@ -111,7 +112,7 @@ namespace cond
     Repository::iterator rit;
 
     if( ( rit = m_events.find( contextKey ) ) == m_events.end() )
-      throw coral::MonitoringException( "Monitoring for session " + contextKey + " not initialized...", "MonitoringService::record", this->name() );
+      throw coral::MonitoringException( "Monitoring for session " + contextKey + " not initialized...", "MonitoringService::record( const std::string& , coral::monitor::Source, coral::monitor::Type, const std::string&, int )", this->name() );
     
     bool                  active = (*rit).second.active;
     //coral::monitor::Level level  = (*rit).second.level;
@@ -127,7 +128,7 @@ namespace cond
     Repository::iterator rit;
 
     if( ( rit = m_events.find( contextKey ) ) == m_events.end() )
-      throw coral::MonitoringException( "Monitoring for session " + contextKey + " not initialized...", "MonitoringService::record", this->name() );
+      throw coral::MonitoringException( "Monitoring for session " + contextKey + " not initialized...", "MonitoringService::record( const std::string& , coral::monitor::Source, coral::monitor::Type, const std::string&, long long  )", this->name() );
     
     bool                  active = (*rit).second.active;
     //coral::monitor::Level level  = (*rit).second.level;
@@ -143,7 +144,7 @@ namespace cond
       Repository::iterator rit;
 
       if( ( rit = m_events.find( contextKey ) ) == m_events.end() )
-        throw coral::MonitoringException( "Monitoring for session " + contextKey + " not initialized...", "MonitoringService::record", this->name() );
+        throw coral::MonitoringException( "Monitoring for session " + contextKey + " not initialized...", "MonitoringService::record( const std::string& , coral::monitor::Source, coral::monitor::Type, const std::string&, double )", this->name() );
 
       bool                  active = (*rit).second.active;
       //coral::monitor::Level level  = (*rit).second.level;
@@ -159,7 +160,7 @@ namespace cond
       Repository::iterator rit;
 
       if( ( rit = m_events.find( contextKey ) ) == m_events.end() )
-        throw coral::MonitoringException( "Monitoring for session " + contextKey + " not initialized...", "MonitoringService::record", this->name() );
+        throw coral::MonitoringException( "Monitoring for session " + contextKey + " not initialized...", "MonitoringService::record( const std::string& , coral::monitor::Source, coral::monitor::Type, const std::string&, const std::string& )", this->name() );
 
       bool                  active = (*rit).second.active;
       //coral::monitor::Level level  = (*rit).second.level;
@@ -219,24 +220,121 @@ namespace cond
 
   void SQLMonitoringService::reportOnEvent( EventStream::const_iterator& it, std::ostream& os ) const
   {
-    if(it->m_source == coral::monitor::Statement)
+    std::string source("");
+    switch( it->m_source ) {
+    case coral::monitor::Application:
+      source = "Application";
+      break;
+    case coral::monitor::Session:
+      source = "Session";
+      break;
+    case coral::monitor::Transaction:
+      source = "Transaction";
+      break;
+    case coral::monitor::Statement:
+      source = "Statement";
+      break;
+    default:
+      source = "";
+    };
+    
+    std::string type("");
+    switch( it->m_type ) {
+    case coral::monitor::Info:
+      type = "Info";
+      break;
+    case coral::monitor::Time:
+      type = "Time";
+      break;
+    case coral::monitor::Warning:
+      type = "Warning";
+      break;
+    case coral::monitor::Error:
+      type = "Error";
+      break;
+    case coral::monitor::Config:
+      type = "Config";
+      break;
+    default:
+      type = "";
+    };
+    
+    if(it->m_source == coral::monitor::Statement || it->m_source == coral::monitor::Transaction)
       {
-	os << (*it).m_description << ";"<< std::endl;
+	os << boost::posix_time::to_iso_extended_string((*it).m_time.time()) << ": " 
+	   << source << "; "
+	   << type << "; " 
+	   <<(*it).m_description << ";"<< std::endl;
       }
   }
   
 
   void SQLMonitoringService::reportOnEvent( EventStream::const_iterator& it,coral::MessageStream& os ) const
     {
-      if(it->m_source == coral::monitor::Statement)
+      std::string source("");
+      switch( it->m_source ) {
+      case coral::monitor::Application:
+	source = "Application";
+	break;
+      case coral::monitor::Session:
+	source = "Session";
+	break;
+      case coral::monitor::Transaction:
+	source = "Transaction";
+	break;
+      case coral::monitor::Statement:
+	source = "Statement";
+	break;
+      default:
+	source = "";
+      };
+      
+      std::string type("");
+      switch( it->m_type ) {
+      case coral::monitor::Info:
+	type = "Info";
+	break;
+      case coral::monitor::Time:
+	type = "Time";
+	break;
+      case coral::monitor::Warning:
+	type = "Warning";
+	break;
+      case coral::monitor::Error:
+	type = "Error";
+	break;
+      case coral::monitor::Config:
+	type = "Config";
+	break;
+      default:
+	type = "";
+      };
+      
+      if(it->m_source == coral::monitor::Statement || it->m_source == coral::monitor::Transaction)
 	{
-	  os << (*it).m_description <<coral::MessageStream::flush;
+	  os << boost::posix_time::to_iso_extended_string((*it).m_time.time()) << ": " 
+	     << source << "; "
+	     << type << "; " 
+	     << (*it).m_description <<coral::MessageStream::flush;
 	}
     }
 
   void SQLMonitoringService::reportForSession( Repository::const_iterator& it, std::ostream& os ) const
     {
+      os << "Session: " << (*it).first << std::endl;
+      std::string lvl;
+      switch( (*it).second.level ) {
+      case (coral::monitor::Off)     : lvl = "Off"; break;
+      case (coral::monitor::Minimal) : lvl = "Minimal"; break;
+      case (coral::monitor::Default) : lvl = "Default"; break;
+      case (coral::monitor::Debug)   : lvl = "Debug"; break;
+      case (coral::monitor::Trace)   : lvl = "Trace"; break;
+      default: lvl = "";
+      };
+      os << "Monitoring Level: " << lvl << std::endl;
+      
       const EventStream& evsref = (*it).second.stream;
+      os << " Recorded " << evsref.size() << " events" << std::endl;
       
       for( EventStream::const_iterator evit = evsref.begin(); evit != evsref.end(); ++evit )
       {
@@ -246,7 +344,20 @@ namespace cond
 
   void SQLMonitoringService::reportForSession( Repository::const_iterator& it, coral::MessageStream& os ) const
     {
+      os << "Session: " << (*it).first;
+      std::string lvl;
+      switch( (*it).second.level ) {
+      case (coral::monitor::Off)     : lvl = "Off"; break;
+      case (coral::monitor::Minimal) : lvl = "Minimal"; break;
+      case (coral::monitor::Default) : lvl = "Default"; break;
+      case (coral::monitor::Debug)   : lvl = "Debug"; break;
+      case (coral::monitor::Trace)   : lvl = "Trace"; break;
+      default: lvl = "";
+      };
+      os << " monitored at level: " << lvl;
+      
       const EventStream& evsref = (*it).second.stream;
+      os << lvl << " has recorded " << evsref.size() << " events" << coral::MessageStream::endmsg;
       
       for( EventStream::const_iterator evit = evsref.begin(); evit != evsref.end(); ++evit )
       {

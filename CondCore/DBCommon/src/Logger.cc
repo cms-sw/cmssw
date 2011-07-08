@@ -91,7 +91,12 @@ cond::Logger::createLogDBIfNonExist(){
 	  coral::AttributeSpecification::typeNameForType<std::string>() );
   description.insertColumn(std::string("EXECMESSAGE"),
 	  coral::AttributeSpecification::typeNameForType<std::string>() );
-  m_sessionHandle.nominalSchema().createTable( description ).privilegeManager().grantToPublic( coral::ITablePrivilegeManager::Select );
+  coral::ITable& table = m_sessionHandle.nominalSchema().createTable( description );
+  table.privilegeManager().grantToUser( DbSession::CONDITIONS_GENERAL_READER, coral::ITablePrivilegeManager::Select );
+  table.privilegeManager().grantToUser( DbSession::CONDITIONS_GENERAL_WRITER, coral::ITablePrivilegeManager::Select );
+  table.privilegeManager().grantToUser( DbSession::CONDITIONS_GENERAL_WRITER, coral::ITablePrivilegeManager::Update );
+  table.privilegeManager().grantToUser( DbSession::CONDITIONS_GENERAL_WRITER, coral::ITablePrivilegeManager::Insert );
+  table.privilegeManager().grantToUser( DbSession::CONDITIONS_GENERAL_WRITER, coral::ITablePrivilegeManager::Delete );
   m_logTableExists=true;
   trans.commit();
 }
@@ -308,7 +313,9 @@ cond::Logger::insertLogRecord(unsigned long long logId,
     rowData["EXECTIME"].data< std::string >() = utctime;
     rowData["DESTINATIONDB"].data< std::string >() = destDB;
     rowData["PAYLOADCLASS"].data< std::string >() = payloadClass;
-    rowData["PAYLOADTOKEN"].data< std::string >() = payloadToken;
+    std::string ptok = payloadToken;
+    if( payloadToken.empty() ) ptok = "NA";
+    rowData["PAYLOADTOKEN"].data< std::string >() = ptok;
     rowData["PROVENANCE"].data< std::string >() = userLogInfo.provenance;
     rowData["USERTEXT"].data< std::string >() = userLogInfo.usertext;
     rowData["IOVTAG"].data< std::string >() = iovtag;
