@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Jul  8 00:40:50 CEST 2011
-// $Id$
+// $Id: FWGeometryTableViewManager.h,v 1.1 2011/07/08 04:39:59 amraktad Exp $
 //
 
 class FWViewBase;
@@ -25,9 +25,8 @@ class TEveWindowSlot;
 
 #include "Fireworks/Core/interface/FWViewManagerBase.h"
 #include "Fireworks/Core/interface/FWGeometryTableView.h"
-#include "Fireworks/Core/interface/FWConfigurable.h"
 
-class FWGeometryTableViewManager : public FWViewManagerBase, public FWConfigurable
+class FWGeometryTableViewManager : public FWViewManagerBase
 {
 public:
    FWGeometryTableViewManager(FWGUIManager*);
@@ -36,11 +35,8 @@ public:
    // dummy functions of FWViewManagerBase
    virtual FWTypeToRepresentations supportedTypesAndRepresentations() const { return FWTypeToRepresentations();}
    virtual void newItem(const FWEventItem*) {}  
-   void addTo(FWConfiguration&) const {}
-   void setFrom(const FWConfiguration&) {} 
 
    FWViewBase *buildView (TEveWindowSlot *iParent, const std::string& type);
-
    virtual void colorsChanged();
 
 protected:
