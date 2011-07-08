@@ -16,13 +16,13 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManager.h,v 1.22 2011/07/07 00:06:32 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.23 2011/07/07 02:24:42 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
 #include <boost/tr1/unordered_map.hpp>
 
-#include "Fireworks/Core/interface/FWGeometryBrowser.h"
+#include "Fireworks/Core/interface/FWGeometryTableView.h"
 
 #include "Fireworks/TableWidget/interface/FWTableManagerBase.h"
 #include "Fireworks/TableWidget/interface/FWTextTreeCellRenderer.h"
@@ -33,13 +33,13 @@
 #include "TGeoVolume.h"
 
 class FWTableCellRendererBase;
-// class FWGeometryBrowser;
+// class FWGeometryTableView;
 class TGeoManager;
 class TGeoNode;
 
 class FWGeometryTableManager : public FWTableManagerBase
 {
-   friend class FWGeometryBrowser;
+   friend class FWGeometryTableView;
 
 public:
    enum   ECol { kName, kColor,  kVisSelf, kVisChild, kMaterial, kBBoxSize,  /*, kPosition*/kNumCol };
@@ -113,7 +113,7 @@ private:
    };
 
 public:
-   FWGeometryTableManager(FWGeometryBrowser*);
+   FWGeometryTableManager(FWGeometryTableView*);
    virtual ~FWGeometryTableManager();
 
    // virtual functions of FWTableManagerBase
@@ -195,7 +195,7 @@ private:
    int               m_selectedColumn;
    
    // geo stuff
-   FWGeometryBrowser*   m_browser;
+   FWGeometryTableView*   m_browser;
       
    mutable Volumes_t  m_volumes;
    Entries_v          m_entries;

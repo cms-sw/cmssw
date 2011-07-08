@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.237 2011/06/21 05:22:04 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.238 2011/06/22 23:07:27 amraktad Exp $
 
 
 //
@@ -49,7 +49,6 @@
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
 #include "Fireworks/Core/interface/FWJobMetadataManager.h"
 #include "Fireworks/Core/interface/FWInvMassDialog.h"
-#include "Fireworks/Core/interface/FWGeometryBrowser.h"
 
 #include "Fireworks/Core/interface/FWConfiguration.h"
 
@@ -108,7 +107,6 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
    m_viewPopup(0),
    m_commonPopup(0),
    m_invMassDialog(0),
-   m_geoBrowser(0),
    m_helpPopup(0),
    m_shortcutPopup(0),
    m_helpGLPopup(0),
@@ -146,9 +144,16 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
                                                 this);
       m_cmsShowMainFrame->SetWindowName("CmsShow");
       m_cmsShowMainFrame->SetCleanup(kDeepCleanup);
+    
+      /*
+        int mlist[FWViewType::kTypeSize] = {FWViewType::kRhoPhi, FWViewType::kRhoZ, FWViewType::k3D, FWViewType::kISpy, FWViewType::kLego, FWViewType::kLegoHF, FWViewType::kGlimpse, 
+        FWViewType::kTable, FWViewType::kTableL1, FWViewType::kTableHLT,
+        FWViewType::kGeometryTable,
+        FWViewType::kRhoPhiPF, FWViewType::kLegoPFECAL}; */
+
       for (int i = 0 ; i < FWViewType::kTypeSize; ++i)
       {
-         bool separator = (i == FWViewType::kGlimpse || i == FWViewType::kTableHLT);
+         bool separator = (i == FWViewType::kGlimpse || i == FWViewType::kTableHLT || i ==  FWViewType::kLegoPFECAL);
          CSGAction* action = m_cmsShowMainFrame->createNewViewerAction(FWViewType::idToName(i), separator);
          action->activated.connect(boost::bind(&FWGUIManager::newViewSlot, this, FWViewType::idToName(i)));
       }
@@ -156,8 +161,6 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
       m_detailViewManager  = new FWDetailViewManager(m_context->colorManager());
       m_contextMenuHandler = new FWModelContextMenuHandler(m_context->selectionManager(), m_detailViewManager, m_context->colorManager(), this);
 
-      m_geoBrowser = new FWGeometryBrowser(getGUIManager(),m_context->colorManager() );
-      m_cmsShowMainFrame->bindCSGActionKeys(m_geoBrowser);
 
       getAction(cmsshow::sExportImage)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImageOfMainView));
       getAction(cmsshow::sExportAllImages)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImagesOfAllViews));
@@ -172,7 +175,6 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
       getAction(cmsshow::sShowCommonInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showCommonPopup));
 
       getAction(cmsshow::sShowInvMassDialog)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showInvMassDialog));
-      getAction(cmsshow::sShowGeometryTable)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showGeometryBrowser));
 
       getAction(cmsshow::sShowAddCollection)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::addData));
       assert(getAction(cmsshow::sHelp) != 0);
@@ -709,14 +711,6 @@ FWGUIManager::showInvMassDialog()
 }
 
 void
-FWGUIManager::showGeometryBrowser()
-{
-   if ( m_geoBrowser->geoManager() == 0)
-       m_geoBrowser->browse();
-   m_geoBrowser->MapRaised();
-}
-
-void
 FWGUIManager::createHelpPopup ()
 {
    if (m_helpPopup == 0) {
@@ -1151,14 +1145,6 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       }
    }
    oTo.addKeyValue(kControllers,controllers,true);
-
-   //______________________________________________________________________________
-   // geometry 
-   FWConfiguration rootGeo;
-   {
-     m_geoBrowser->addTo(rootGeo);
-   }
-   oTo.addKeyValue("geo-browser",rootGeo,true);
 }
 
 //----------------------------------------------------------------
@@ -1283,10 +1269,7 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
    // disable fist docked view
    checkSubviewAreaIconState(0);
 
-  //______________________________________________________________________________
-  const FWConfiguration* rootGeo = iFrom.valueForKey("geo-browser");
-  if (rootGeo)     
-     m_geoBrowser->setFrom(*rootGeo);
+ 
 }
 
 void

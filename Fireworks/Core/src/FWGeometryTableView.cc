@@ -1,7 +1,7 @@
 #include <iostream>
 #include <boost/bind.hpp>
 
-#include "Fireworks/Core/interface/FWGeometryBrowser.h"
+#include "Fireworks/Core/interface/FWGeometryTableView.h"
 #include "Fireworks/Core/interface/FWGeoTopNode.h"
 #include "Fireworks/Core/interface/FWGeometryTableManager.h"
 #include "Fireworks/TableWidget/interface/FWTableWidget.h"
@@ -50,107 +50,128 @@ enum GeoMenuOptions {
    kTableDebug
 };
 
-FWGeometryBrowser::FWGeometryBrowser(FWGUIManager *guiManager, FWColorManager *colorManager)
-   : TGMainFrame(gClient->GetRoot(), 600, 500),
+FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager* colMng )
+   : FWViewBase(FWViewType::kGeometryTable),
      m_mode(this, "Mode:", 0l, 0l, 1l),
      m_filter(this,"Materials:",std::string()),
      m_autoExpand(this,"ExpandList:", 1l, 0l, 100l),
      m_visLevel(this,"VisLevel:", 3l, 1l, 100l),
-     // m_maxDaughters(this,"MaxChildren:", 4l, 0l, 1000l), // debug
-     //     m_path(this, "Path",std::string("")),
      m_topNodeIdx(this, "TopNodeIndex", -1l, 0, 1e7),
-     m_guiManager(guiManager),
-     m_colorManager(colorManager),
+     m_colorManager(colMng),
      m_tableManager(0),
      m_geometryFile(0),
-     m_settersFrame(0),
      m_geoManager(0),
      m_eveTopNode(0),
-     m_colorPopup(0)
+     m_colorPopup(0),
+     m_eveWindow(0),
+     m_frame(0)
 {
+   m_eveWindow = iParent->MakeFrame(0);
+   TGCompositeFrame* xf = m_eveWindow->GetGUICompositeFrame();
+
+   m_frame = new TGVerticalFrame(xf);
+   xf->AddFrame(m_frame, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
+
+
    m_mode.addEntry(0, "Node");
    m_mode.addEntry(1, "Volume");
    
    m_tableManager = new FWGeometryTableManager(this);
+   m_autoExpand.changed_.connect(boost::bind(&FWGeometryTableView::autoExpandChanged, this));
+   m_visLevel.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D,this));
+   m_mode.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D, this));
+   m_filter.changed_.connect(boost::bind(&FWGeometryTableView::updateFilter, this));
 
-   m_autoExpand.changed_.connect(boost::bind(&FWGeometryBrowser::autoExpandChanged, this));
-   m_visLevel.changed_.connect(boost::bind(&FWGeometryBrowser::refreshTable3D,this));
-
-   m_mode.changed_.connect(boost::bind(&FWGeometryBrowser::refreshTable3D, this));
-
-   // m_maxDaughters.changed_.connect(boost::bind(&FWGeometryBrowser::refreshTable3D, this)); // debug
-
-   m_filter.changed_.connect(boost::bind(&FWGeometryBrowser::updateFilter, this));
-
-   TGHorizontalFrame* hp =  new TGHorizontalFrame(this);
-   AddFrame(hp,new TGLayoutHints(kLHintsLeft, 4, 2, 2, 2));
- 
-   TGTextButton* fileOpen = new TGTextButton (hp, "Open Geometry File");
-   hp->AddFrame(fileOpen);
-   fileOpen->Connect("Clicked()","FWGeometryBrowser",this,"browse()");
-
+   // top row
    {
-      TGTextButton* rb = new TGTextButton (hp, "cdTop");
-      hp->AddFrame(rb);
-      rb->Connect("Clicked()","FWGeometryBrowser",this,"cdTop()");
-   } {
-      TGTextButton* rb = new TGTextButton (hp, "CdUp");
-      hp->AddFrame(rb);
-      rb->Connect("Clicked()","FWGeometryBrowser",this,"cdUp()");
+      TGHorizontalFrame* hp =  new TGHorizontalFrame(m_frame);
+      m_frame->AddFrame(hp,new TGLayoutHints(kLHintsLeft, 4, 2, 2, 2));
+ 
+      TGTextButton* fileOpen = new TGTextButton (hp, "Open Geometry File");
+      hp->AddFrame(fileOpen);
+      fileOpen->Connect("Clicked()","FWGeometryTableView",this,"browse()");
+
+      {
+         TGTextButton* rb = new TGTextButton (hp, "cdTop");
+         hp->AddFrame(rb);
+         rb->Connect("Clicked()","FWGeometryTableView",this,"cdTop()");
+      } {
+         TGTextButton* rb = new TGTextButton (hp, "CdUp");
+         hp->AddFrame(rb);
+         rb->Connect("Clicked()","FWGeometryTableView",this,"cdUp()");
+      }
+      if (0){
+         TGTextButton* rb = new TGTextButton (hp, "print");
+         hp->AddFrame(rb);
+         rb->Connect("Clicked()","FWGeometryTableView",this,"printTable()");
+      }
    }
-   if (0){
-      TGTextButton* rb = new TGTextButton (hp, "print");
-      hp->AddFrame(rb);
-      rb->Connect("Clicked()","FWGeometryBrowser",this,"printTable()");
-   }
-   m_settersFrame = new TGHorizontalFrame(this);
-   this->AddFrame( m_settersFrame, new TGLayoutHints(kLHintsExpandX,4,2,2,2));
+
+   m_settersFrame = new TGHorizontalFrame(m_frame);
+   m_frame->AddFrame( m_settersFrame, new TGLayoutHints(kLHintsExpandX,4,2,2,2));
    m_settersFrame->SetCleanup(kDeepCleanup);
 
-
-   m_tableWidget = new FWTableWidget(m_tableManager, this); 
-   AddFrame(m_tableWidget,new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,2,2,2,2));
+   m_tableWidget = new FWTableWidget(m_tableManager, m_frame); 
+   m_frame->AddFrame(m_tableWidget,new TGLayoutHints(kLHintsExpandX|kLHintsExpandY,2,2,0,0));
    m_tableWidget->SetBackgroundColor(0xffffff);
    m_tableWidget->SetLineSeparatorColor(0x000000);
    m_tableWidget->SetHeaderBackgroundColor(0xececec);
    m_tableWidget->Connect("cellClicked(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t)",
-                          "FWGeometryBrowser",this,
+                          "FWGeometryTableView",this,
                           "cellClicked(Int_t,Int_t,Int_t,Int_t,Int_t,Int_t)");
    m_tableWidget->disableGrowInWidth();
    resetSetters();
-   backgroundChanged();
 
-   m_statBar = new TGStatusBar(this, this->GetWidth(), 12);
-   m_statBar->SetText("No simulation geomtery loaded.");
-   AddFrame(m_statBar, new TGLayoutHints(kLHintsExpandX));
+   browse();
 
-   SetWindowName("Geometry Browser");
-   this->Connect("CloseWindow()","FWGeometryBrowser",this,"windowIsClosing()");
-   Layout();
-   MapSubwindows();
-
-
-   m_colorManager->colorsHaveChanged_.connect(boost::bind(&FWGeometryBrowser::backgroundChanged,this));
-
-   gVirtualX->SelectInput(GetId(), kKeyPressMask | kKeyReleaseMask | kExposureMask |
-                          kPointerMotionMask | kStructureNotifyMask | kFocusChangeMask |
-                          kEnterWindowMask | kLeaveWindowMask);
-   DontCallClose();
+   m_frame->MapSubwindows();
+   m_frame->Layout();
+   xf->Layout();
+   m_frame->MapWindow();
 }
 
-FWGeometryBrowser::~FWGeometryBrowser()
-{}
+FWGeometryTableView::~FWGeometryTableView()
+{
+  // take out composite frame and delete it directly (without the timeout)
+   TGCompositeFrame *frame = m_eveWindow->GetGUICompositeFrame();
+   frame->RemoveFrame( m_frame );
+   delete m_frame;
+
+   m_eveWindow->DestroyWindowAndSlot();
+   delete m_tableManager;
+}
+
+//==============================================================================
 
 void
-FWGeometryBrowser::resetSetters()
+FWGeometryTableView::addTo(FWConfiguration& iTo) const
+{
+   FWConfigurableParameterizable::addTo(iTo);
+}
+  
+void
+FWGeometryTableView::setFrom(const FWConfiguration& iFrom)
+{ 
+   for(const_iterator it =begin(), itEnd = end();
+       it != itEnd;
+       ++it) {
+      (*it)->setFrom(iFrom);
+
+   }     
+   resetSetters();
+   cdNode(m_topNodeIdx.value());
+}
+
+void
+FWGeometryTableView::resetSetters()
 {
    if (!m_settersFrame->GetList()->IsEmpty())
    {
       m_setters.clear();
       while(!m_settersFrame->GetList()->IsEmpty())
       {
-      TGFrameElement *el = (TGFrameElement*) m_settersFrame->GetList()->First();
-      m_settersFrame->RemoveFrame(el->fFrame);
+         TGFrameElement *el = (TGFrameElement*) m_settersFrame->GetList()->First();
+         m_settersFrame->RemoveFrame(el->fFrame);
       }
    }
    TGCompositeFrame* frame =  m_settersFrame;
@@ -158,48 +179,24 @@ FWGeometryBrowser::resetSetters()
    makeSetter(frame, &m_filter);
    makeSetter(frame, &m_autoExpand);
    makeSetter(frame, &m_visLevel);
-   // if (geodebug) makeSetter(frame, &m_maxDaughters);
    m_settersFrame->MapSubwindows();
-   Layout();
+   m_frame->Layout();
 }
 
 void
-FWGeometryBrowser::makeSetter(TGCompositeFrame* frame, FWParameterBase* param) 
+FWGeometryTableView::makeSetter(TGCompositeFrame* frame, FWParameterBase* param) 
 {
    boost::shared_ptr<FWParameterSetterBase> ptr( FWParameterSetterBase::makeSetterFor(param) );
    ptr->attach(param, this);
  
-   TGFrame* pframe = ptr->build(frame, false);
-   frame->AddFrame(pframe, new TGLayoutHints(kLHintsExpandX));
+   TGFrame* m_frame = ptr->build(frame, false);
+   frame->AddFrame(m_frame, new TGLayoutHints(kLHintsExpandX));
 
    m_setters.push_back(ptr);
 }
 //==============================================================================
-
-void
-FWGeometryBrowser::addTo(FWConfiguration& iTo) const
-{
-   FWConfigurableParameterizable::addTo(iTo);
-}
-  
-void
-FWGeometryBrowser::setFrom(const FWConfiguration& iFrom)
-{ 
-   for(const_iterator it =begin(), itEnd = end();
-       it != itEnd;
-       ++it) {
-      
-      // if (!geodebug && (&m_maxDaughters == (*it)))  continue;
-          
-      (*it)->setFrom(iFrom);
-
-   }  
-   resetSetters();
-}
-
-//==============================================================================
 void 
-FWGeometryBrowser::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t iKeyMod, Int_t x, Int_t y)
+FWGeometryTableView::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t iKeyMod, Int_t x, Int_t y)
 {
    m_tableManager->setSelection(iRow, iColumn, iButton);
    FWGeometryTableManager::NodeInfo& ni = m_tableManager->refSelected();
@@ -222,12 +219,11 @@ FWGeometryBrowser::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t i
          if (!m_colorPopup) {
             m_colorPopup = new FWColorPopup(gClient->GetDefaultRoot(), colors.front());
             m_colorPopup->InitContent("", colors);
-            m_colorPopup->Connect("ColorSelected(Color_t)","FWGeometryBrowser", const_cast<FWGeometryBrowser*>(this), "nodeColorChangeRequested(Color_t)");
+            m_colorPopup->Connect("ColorSelected(Color_t)","FWGeometryTableView", const_cast<FWGeometryTableView*>(this), "nodeColorChangeRequested(Color_t)");
          }
          m_colorPopup->SetName("Selected");
          m_colorPopup->ResetColors(colors, m_colorManager->backgroundColorIndex()==FWColorManager::kBlackIndex);
          m_colorPopup->PlacePopup(x, y, m_colorPopup->GetDefaultWidth(), m_colorPopup->GetDefaultHeight());
-       
          return;
       }
       else
@@ -278,13 +274,13 @@ FWGeometryBrowser::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t i
 
       m_modelPopup->PlaceMenu(x,y,true,true);
       m_modelPopup->Connect("Activated(Int_t)",
-                            "FWGeometryBrowser",
-                            const_cast<FWGeometryBrowser*>(this),
+                            "FWGeometryTableView",
+                            const_cast<FWGeometryTableView*>(this),
                             "chosenItem(Int_t)");
    }
 }
 
-void FWGeometryBrowser::chosenItem(int x)
+void FWGeometryTableView::chosenItem(int x)
 {
    FWGeometryTableManager::NodeInfo& ni = m_tableManager->refSelected();
    TGeoVolume* gv = ni.m_node->GetVolume();
@@ -356,7 +352,7 @@ void FWGeometryBrowser::chosenItem(int x)
    }
 }
 
-void FWGeometryBrowser::backgroundChanged()
+void FWGeometryTableView::setBackgroundColor()
 {
    bool backgroundIsWhite = m_colorManager->backgroundColorIndex()==FWColorManager::kWhiteIndex;
    if(backgroundIsWhite) {
@@ -367,11 +363,10 @@ void FWGeometryBrowser::backgroundChanged()
       m_tableWidget->SetLineSeparatorColor(0xffffff);
    }
    m_tableManager->setBackgroundToWhite(backgroundIsWhite);
-   fClient->NeedRedraw(m_tableWidget);
-   fClient->NeedRedraw(this);
+   gClient->NeedRedraw(m_tableWidget);
 }
 
-void FWGeometryBrowser::nodeColorChangeRequested(Color_t col)
+void FWGeometryTableView::nodeColorChangeRequested(Color_t col)
 {
    FWGeometryTableManager::NodeInfo& ni = m_tableManager->refSelected();
    ni.m_color = col;
@@ -379,31 +374,9 @@ void FWGeometryBrowser::nodeColorChangeRequested(Color_t col)
    refreshTable3D();
 }
 
-bool FWGeometryBrowser::HandleKey(Event_t *event)
-{
-   if (!fBindList) return kFALSE;
-
-   TIter next(fBindList);
-   TGMapKey *m;
-   TGFrame  *w = 0;
-
-   while ((m = (TGMapKey *) next())) {
-      if (m->fKeyCode == event->fCode) {
-         w = (TGFrame *) m->fWindow;
-         if (w->HandleKey(event)) return kTRUE;
-      }
-   }
-   return kFALSE;
-}
-
-void
-FWGeometryBrowser::windowIsClosing()
-{
-  UnmapWindow();
-}
 
 void 
-FWGeometryBrowser::readFile()
+FWGeometryTableView::readFile()
 {
    try {
       if ( ! m_geometryFile )
@@ -440,33 +413,33 @@ FWGeometryBrowser::readFile()
       }
 
       cdNode(m_topNodeIdx.value());
-      // refreshTable3D();
-      MapRaised();
+
    }
    catch (std::runtime_error &e)
    {
       fwLog(fwlog::kError) << "Failed to load simulation geomtery.\n";
-      updateStatusBar("Failed to load simulation geomtery from file");
    }
 }
 
 void
-FWGeometryBrowser::printTable()
+FWGeometryTableView::printTable()
 {
    // print all entries
    m_tableManager->printChildren(-1);
 }
 
 void
-FWGeometryBrowser::browse()
+FWGeometryTableView::browse()
 {
-   //std::cout<<"FWGeometryBrowser::browse()"<<std::endl;
+   //std::cout<<"FWGeometryTableView::browse()"<<std::endl;
 
    const char* defaultPath = Form("%s/cmsSimGeom-14.root",  gSystem->Getenv( "CMSSW_BASE" ));
    if( !gSystem->AccessPathName(defaultPath))
    {
       m_geometryFile = new TFile( defaultPath, "READ");
    }
+
+   /*
    else
    {  
       const char* kRootType[] = {"ROOT files","*.root", 0, 0};
@@ -480,37 +453,28 @@ FWGeometryBrowser::browse()
       m_geometryFile = new TFile(fi.fFilename, "READ");
    }
    m_guiManager->clearStatus();
+   */
    readFile();
 }
 
 //______________________________________________________________________________
 
-void FWGeometryBrowser::updateStatusBar(const char* txt) {
-   if (!txt) 
-      txt = m_tableManager->getStatusMessage().c_str();
 
-   m_statBar->SetText(txt, 0);
-   fClient->NeedRedraw(this);
-}
-
-//______________________________________________________________________________
-
-
-void FWGeometryBrowser::cdNode(int idx)
+void FWGeometryTableView::cdNode(int idx)
 {
    std::string p;
    m_tableManager->getNodePath(idx, p);
    setPath(idx, p);
 }
 
-void FWGeometryBrowser::cdTop()
+void FWGeometryTableView::cdTop()
 {
    std::string path = "/" ;
    path += m_tableManager->refEntries().at(0).name();
    setPath(-1, path ); 
 }
 
-void FWGeometryBrowser::cdUp()
+void FWGeometryTableView::cdUp()
 {   
    if ( getTopNodeIdx() != -1)
    {
@@ -521,7 +485,7 @@ void FWGeometryBrowser::cdUp()
    }
 }
 
-void FWGeometryBrowser::setPath(int parentIdx, std::string& path)
+void FWGeometryTableView::setPath(int parentIdx, std::string& path)
 {
    m_topNodeIdx.set(parentIdx);
 #ifdef PERFTOOL_BROWSER  
@@ -552,22 +516,18 @@ void FWGeometryBrowser::setPath(int parentIdx, std::string& path)
       }
       title = "..." + title;
    }
-   SetWindowName( Form("GeometryBrowser: %-10s",title.c_str())); 
-   updateStatusBar();
-
 }
 //______________________________________________________________________________
 
-void FWGeometryBrowser::updateFilter()
+void FWGeometryTableView::updateFilter()
 {
    m_tableManager->updateFilter();
    refreshTable3D();
-   updateStatusBar();
 }
 
 //______________________________________________________________________________
 
-void FWGeometryBrowser::autoExpandChanged()
+void FWGeometryTableView::autoExpandChanged()
 {
   if (!m_geoManager) return;
 
@@ -577,16 +537,14 @@ void FWGeometryBrowser::autoExpandChanged()
 
 //______________________________________________________________________________
 
-void FWGeometryBrowser::refreshTable3D()
+void FWGeometryTableView::refreshTable3D()
 {
    if (!m_geoManager) return;
 
    m_tableManager->redrawTable();
 
    if ( m_eveTopNode) {
-      //      printf("refresh \n");
       m_eveTopNode->ElementChanged();
       gEve->FullRedraw3D(false, true);
    } 
-   updateStatusBar();
 }

@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.26 2011/07/07 00:06:32 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.27 2011/07/07 02:24:42 amraktad Exp $
 //
 
 //#define PERFTOOL_GEO_TABLE
@@ -21,7 +21,7 @@
 #include <google/profiler.h>
 #endif
 #include "Fireworks/Core/interface/FWGeometryTableManager.h"
-#include "Fireworks/Core/interface/FWGeometryBrowser.h"
+#include "Fireworks/Core/interface/FWGeometryTableView.h"
 #include "Fireworks/Core/src/FWColorBoxIcon.h"
 #include "Fireworks/TableWidget/interface/GlobalContexts.h"
 #include "Fireworks/TableWidget/src/FWTabularWidget.h"
@@ -110,7 +110,7 @@ void FWGeometryTableManager::ColorBoxRenderer::draw(Drawable_t iID, int iX, int 
 //==============================================================================
 //==============================================================================
 
-FWGeometryTableManager::FWGeometryTableManager(FWGeometryBrowser* browser)
+FWGeometryTableManager::FWGeometryTableManager(FWGeometryTableView* browser)
 :    m_selectedRow(-1),
      m_selectedIdx(0),
      m_selectedColumn(-1),
@@ -479,7 +479,6 @@ void FWGeometryTableManager::loadGeometry()
 #endif
    
    // Prepare data for cell render.
-   m_browser->updateStatusBar("Set table content ...");
    
    // clear entries
    m_entries.clear();

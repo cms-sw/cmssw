@@ -1,12 +1,17 @@
-#ifndef Fireworks_Core_FWGeometryBrowser_h
-#define Fireworks_Core_FWGeometryBrowser_h
+#ifndef Fireworks_Core_FWGeometryTableView_h
+#define Fireworks_Core_FWGeometryTableView_h
 
 #ifndef __CINT__
 #include <boost/shared_ptr.hpp>
 #endif
+
+
+#include "Rtypes.h"
 #include "TGFrame.h"
+#include "Fireworks/Core/interface/FWViewBase.h"
 
 #ifndef __CINT__
+#include "Fireworks/Core/interface/FWViewBase.h"
 #include "Fireworks/Core/interface/FWConfigurableParameterizable.h"
 #include "Fireworks/Core/interface/FWStringParameter.h"
 #include "Fireworks/Core/interface/FWEnumParameter.h"
@@ -23,40 +28,38 @@ class TGTextEntry;
 class TGComboBox;
 class TGStatusBar;
 class TGeoManager;
+class TEveWindowSlot;
+class TEveWindowFrame;
 
-class FWGUIManager;
-class FWColorManager;
 class FWTableWidget;
 class FWGeometryTableManager;
 class FWConfiguration;
 class FWColorPopup;
+class FWColorManager;
 class FWGeoTopNode;
 
 class FWParameterBase;
 
 
-class FWGeometryBrowser : public TGMainFrame
+class FWGeometryTableView : public  FWViewBase 
 #ifndef __CINT__
-                        , public FWConfigurableParameterizable , public FWParameterSetterEditorBase
+                            ,public FWParameterSetterEditorBase
 #endif
 {
 
 public:
    enum EMode { kNode, kVolume };
 
-
-   FWGeometryBrowser(FWGUIManager*, FWColorManager*);
-   virtual ~FWGeometryBrowser();
+   FWGeometryTableView(TEveWindowSlot*, FWColorManager*);
+   virtual ~FWGeometryTableView();
   
    void cellClicked(Int_t iRow, Int_t iColumn, 
                     Int_t iButton, Int_t iKeyMod, 
                     Int_t iGlobalX, Int_t iGlobalY);
   
-   void windowIsClosing();
    void chosenItem(int);
    void browse();
    void readFile();
-   void updateStatusBar(const char* status = 0);
    void updateFilter();
 
    void printTable();
@@ -76,15 +79,17 @@ public:
    TGeoManager*   geoManager() { return m_geoManager; }
    FWGeometryTableManager*  getTableManager() { return m_tableManager;} 
    virtual void setFrom(const FWConfiguration&);
-   Bool_t HandleKey(Event_t *event);
+
    // ---------- const member functions --------------------- 
 
    virtual void addTo(FWConfiguration&) const;
+   virtual void   saveImageTo( const std::string& iName ) const {}
    void nodeColorChangeRequested(Color_t);
 
+   void setBackgroundColor();
 private:
-   FWGeometryBrowser(const FWGeometryBrowser&);
-   const FWGeometryBrowser& operator=(const FWGeometryBrowser&);
+   FWGeometryTableView(const FWGeometryTableView&);
+   const FWGeometryTableView& operator=(const FWGeometryTableView&);
 
 
 #ifndef __CINT__
@@ -95,36 +100,31 @@ private:
    FWLongParameter         m_topNodeIdx;   
 #endif
 
-   FWGUIManager           *m_guiManager;
    FWColorManager         *m_colorManager;
-
    FWTableWidget          *m_tableWidget;
    FWGeometryTableManager *m_tableManager;
 
    TFile                  *m_geometryFile;
-   TGStatusBar            *m_statBar;
    TGCompositeFrame       *m_settersFrame;
-
-   // int                     m_selectedIdx;
-
    TGeoManager            *m_geoManager;
    FWGeoTopNode           *m_eveTopNode;
 
    FWColorPopup           *m_colorPopup;
 
+   TEveWindowFrame*        m_eveWindow;
+   TGCompositeFrame*       m_frame;
 #ifndef __CINT__
    std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
 #endif
    void resetSetters();
    void makeSetter(TGCompositeFrame* frame, FWParameterBase* param);
+   
    void loadGeometry();
 
-   void backgroundChanged();
    void autoExpandChanged();
    void refreshTable3D();
 
-
-   ClassDef(FWGeometryBrowser, 0);
+   ClassDef(FWGeometryTableView, 0);
 };
 
 #endif

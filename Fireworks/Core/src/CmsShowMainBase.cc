@@ -19,6 +19,7 @@
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWTableViewManager.h"
 #include "Fireworks/Core/interface/FWTriggerTableViewManager.h"
+#include "Fireworks/Core/interface/FWGeometryTableViewManager.h"
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
 #include "Fireworks/Core/src/CmsShowTaskExecutor.h"
 #include "Fireworks/Core/src/FWColorSelect.h"
@@ -114,6 +115,10 @@ CmsShowMainBase::setupViewManagers()
    configurationManager()->add(std::string("L1TriggerTables"), triggerTableViewManager.get()); // AMT: added for backward compatibilty
    triggerTableViewManager->setContext(m_contextPtr);
    viewManager()->add(triggerTableViewManager);
+
+   boost::shared_ptr<FWGeometryTableViewManager> geoTableViewManager(new FWGeometryTableViewManager(guiManager()));
+   geoTableViewManager->setContext(m_contextPtr);
+   viewManager()->add(geoTableViewManager);
 
     
    // Unfortunately, due to the plugin mechanism, we need to delay
