@@ -10,6 +10,7 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 //#include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
@@ -368,13 +369,17 @@ class GsfElectron : public RecoCandidate
       float e1x5 ;               // energy inside 1x5 in etaxphi around the seed Xtal
       float e2x5Max ;            // energy inside 2x5 in etaxphi around the seed Xtal (max bwt the 2 possible sums)
       float e5x5 ;               // energy inside 5x5 in etaxphi around the seed Xtal
-      float hcalDepth1OverEcal ; // hcal over ecal seed cluster energy using first hcal depth (hcal is energy of towers within dR=015)
-      float hcalDepth2OverEcal ; // hcal over ecal seed cluster energy using 2nd hcal depth (hcal is energy of towers within dR=015)
+      float hcalDepth1OverEcal ; // hcal over ecal seed cluster energy using 1st hcal depth (using hcal towers within a cone)
+      float hcalDepth2OverEcal ; // hcal over ecal seed cluster energy using 2nd hcal depth (using hcal towers within a cone)
+      std::vector<CaloTowerDetId> hcalTowersBehindClusters ; //
+      float hcalDepth1OverEcalBc ; // hcal over ecal seed cluster energy using 1st hcal depth (using hcal towers behind clusters)
+      float hcalDepth2OverEcalBc ; // hcal over ecal seed cluster energy using 2nd hcal depth (using hcal towers behind clusters)
       ShowerShape()
        : sigmaEtaEta(std::numeric_limits<float>::infinity()),
 	     sigmaIetaIeta(std::numeric_limits<float>::infinity()),
 	     e1x5(0.), e2x5Max(0.), e5x5(0.),
-	     hcalDepth1OverEcal(0.), hcalDepth2OverEcal(0.)
+       hcalDepth1OverEcal(0.), hcalDepth2OverEcal(0.),
+       hcalDepth1OverEcalBc(0.), hcalDepth2OverEcalBc(0.)
        {}
      } ;
 
@@ -387,6 +392,10 @@ class GsfElectron : public RecoCandidate
     float hcalDepth1OverEcal() const { return showerShape_.hcalDepth1OverEcal ; }
     float hcalDepth2OverEcal() const { return showerShape_.hcalDepth2OverEcal ; }
     float hcalOverEcal() const { return hcalDepth1OverEcal() + hcalDepth2OverEcal() ; }
+    const std::vector<CaloTowerDetId> & hcalTowersBehindClusters() const { return showerShape_.hcalTowersBehindClusters ; }
+    float hcalDepth1OverEcalBc() const { return showerShape_.hcalDepth1OverEcalBc ; }
+    float hcalDepth2OverEcalBc() const { return showerShape_.hcalDepth2OverEcalBc ; }
+    float hcalOverEcalBc() const { return hcalDepth1OverEcalBc() + hcalDepth2OverEcalBc() ; }
     const ShowerShape & showerShape() const { return showerShape_ ; }
 
     // for backward compatibility
@@ -418,8 +427,12 @@ class GsfElectron : public RecoCandidate
       float ecalRecHitSumEt ;        // ecal iso deposit with electron footprint removed
       float hcalDepth1TowerSumEt ;   // hcal depht 1 iso deposit with electron footprint removed
       float hcalDepth2TowerSumEt ;   // hcal depht 2 iso deposit with electron footprint removed
+      float hcalDepth1TowerSumEtBc ; // hcal depht 1 iso deposit without towers behind clusters
+      float hcalDepth2TowerSumEtBc ; // hcal depht 2 iso deposit without towers behind clusters
       IsolationVariables()
-       : tkSumPt(0.), ecalRecHitSumEt(0.), hcalDepth1TowerSumEt(0.), hcalDepth2TowerSumEt(0.)
+       : tkSumPt(0.), ecalRecHitSumEt(0.),
+         hcalDepth1TowerSumEt(0.), hcalDepth2TowerSumEt(0.),
+         hcalDepth1TowerSumEtBc(0.), hcalDepth2TowerSumEtBc(0.)
        {}
      } ;
 
@@ -429,6 +442,9 @@ class GsfElectron : public RecoCandidate
     float dr03HcalDepth1TowerSumEt() const { return dr03_.hcalDepth1TowerSumEt ; }
     float dr03HcalDepth2TowerSumEt() const { return dr03_.hcalDepth2TowerSumEt ; }
     float dr03HcalTowerSumEt() const { return dr03HcalDepth1TowerSumEt()+dr03HcalDepth2TowerSumEt() ; }
+    float dr03HcalDepth1TowerSumEtBc() const { return dr03_.hcalDepth1TowerSumEtBc ; }
+    float dr03HcalDepth2TowerSumEtBc() const { return dr03_.hcalDepth2TowerSumEtBc ; }
+    float dr03HcalTowerSumEtBc() const { return dr03HcalDepth1TowerSumEtBc()+dr03HcalDepth2TowerSumEtBc() ; }
     const IsolationVariables & dr03IsolationVariables() const { return dr03_ ; }
 
     // 04 accessors
@@ -437,6 +453,9 @@ class GsfElectron : public RecoCandidate
     float dr04HcalDepth1TowerSumEt() const { return dr04_.hcalDepth1TowerSumEt ; }
     float dr04HcalDepth2TowerSumEt() const { return dr04_.hcalDepth2TowerSumEt ; }
     float dr04HcalTowerSumEt() const { return dr04HcalDepth1TowerSumEt()+dr04HcalDepth2TowerSumEt() ; }
+    float dr04HcalDepth1TowerSumEtBc() const { return dr04_.hcalDepth1TowerSumEtBc ; }
+    float dr04HcalDepth2TowerSumEtBc() const { return dr04_.hcalDepth2TowerSumEtBc ; }
+    float dr04HcalTowerSumEtBc() const { return dr04HcalDepth1TowerSumEtBc()+dr04HcalDepth2TowerSumEtBc() ; }
     const IsolationVariables & dr04IsolationVariables() const { return dr04_ ; }
 
     // setters ?!?
