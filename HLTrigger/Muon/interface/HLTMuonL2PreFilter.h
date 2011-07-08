@@ -44,8 +44,16 @@ class HLTMuonL2PreFilter : public HLTFilter {
     /// maxEta cut
     double maxEta_;
 
+    /// |eta| bins for minNstations cut 
+    /// (#bins must match #minNstations cuts and #minNhits cuts)
+    std::vector<double> absetaBins_;
+    unsigned int nAbsetaBins;
+
+    /// minimum number of muon stations used
+    std::vector<int> minNstations_;
+
     /// minimum number of valid muon hits
-    int minNhits_;
+    std::vector<int> minNhits_;
 
     /// cut on impact parameter wrt to the beam spot
     double maxDr_;

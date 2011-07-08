@@ -31,7 +31,9 @@ HLTMuonL2PreFilter::HLTMuonL2PreFilter(const edm::ParameterSet& iConfig):
   seedMapTag_( iConfig.getParameter<edm::InputTag >("SeedMapTag") ),
   minN_( iConfig.getParameter<int>("MinN") ),
   maxEta_( iConfig.getParameter<double>("MaxEta") ),
-  minNhits_( iConfig.getParameter<int>("MinNhits") ),
+  absetaBins_( iConfig.getParameter<std::vector<double> >("AbsEtaBins") ), 
+  minNstations_( iConfig.getParameter<std::vector<int> >("MinNstations") ),
+  minNhits_( iConfig.getParameter<std::vector<int> >("MinNhits") ),
   maxDr_( iConfig.getParameter<double>("MaxDr") ),
   maxDz_( iConfig.getParameter<double>("MaxDz") ),
   minPt_( iConfig.getParameter<double>("MinPt") ),
@@ -39,6 +41,12 @@ HLTMuonL2PreFilter::HLTMuonL2PreFilter(const edm::ParameterSet& iConfig):
   saveTags_( iConfig.getParameter<bool>("saveTags") )
 {
   using namespace std;
+
+  // check that number of eta bins matches number of nStation cuts
+  if( minNstations_.size()!=absetaBins_.size() || minNhits_.size()!=absetaBins_.size()) {
+    throw cms::Exception("Configuration") << "Number of MinNstations cuts or MinNhits cuts " 
+					  << "does not match number of eta bins." << endl;
+  }
 
   // dump parameters for debugging
   if(edm::isDebugEnabled()){
@@ -50,7 +58,16 @@ HLTMuonL2PreFilter::HLTMuonL2PreFilter(const edm::ParameterSet& iConfig):
     ss<<"    SeedMapTag = "<<seedMapTag_.encode()<<endl;
     ss<<"    MinN = "<<minN_<<endl;
     ss<<"    MaxEta = "<<maxEta_<<endl;
-    ss<<"    MinNhits = "<<minNhits_<<endl;
+    ss<<"    MinNstations = ";
+    for(unsigned int j=0; j<absetaBins_.size(); ++j) {
+      ss<<minNstations_[j]<<" (|eta|<"<<absetaBins_[j]<<"), ";
+    }
+    ss<<endl;
+    ss<<"    MinNhits = ";
+    for(unsigned int j=0; j<absetaBins_.size(); ++j) {
+      ss<<minNhits_[j]<<" (|eta|<"<<absetaBins_[j]<<"), ";
+    }
+    ss<<endl;
     ss<<"    MaxDr = "<<maxDr_<<endl;
     ss<<"    MaxDz = "<<maxDz_<<endl;
     ss<<"    MinPt = "<<minPt_<<endl;
@@ -77,7 +94,9 @@ HLTMuonL2PreFilter::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<edm::InputTag>("SeedMapTag",edm::InputTag("hltL2Muons"));
   desc.add<int>("MinN",1);
   desc.add<double>("MaxEta",2.5);
-  desc.add<int>("MinNhits",0);
+  desc.add<std::vector<double> >("AbsEtaBins", std::vector<double>(1, 9999.));
+  desc.add<std::vector<int> >("MinNstations", std::vector<int>(1, 1));
+  desc.add<std::vector<int> >("MinNhits", std::vector<int>(1, 0));
   desc.add<double>("MaxDr",9999.0);
   desc.add<double>("MaxDz",9999.0);
   desc.add<double>("MinPt",0.0);
@@ -121,6 +140,9 @@ bool HLTMuonL2PreFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   // get the L2 to L1 map object for this event
   HLTMuonL2ToL1Map mapL2ToL1(previousCandTag_, seedMapTag_, iEvent);
 
+  // number of eta bins for cut on number of stations
+  nAbsetaBins=absetaBins_.size();
+
   // look at all allMuons,  check cuts and add to filter object
   int n = 0;
   for(RecoChargedCandidateCollection::const_iterator cand=allMuons->begin(); cand!=allMuons->end(); cand++){
@@ -132,8 +154,20 @@ bool HLTMuonL2PreFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
     // eta cut
     if(fabs(mu->eta()) > maxEta_) continue;
 
-    // cut on number of hits
-    if(mu->numberOfValidHits() < minNhits_) continue;
+    // cut on number of stations
+    bool failNstations(false), failNhits(false);
+    for(unsigned int i=0; i<nAbsetaBins; ++i) {
+      if( fabs(mu->eta())<absetaBins_[i] ) {
+	if(mu->hitPattern().muonStationsWithAnyHits() < minNstations_[i]) {
+	  failNstations=true;
+	}
+	if(mu->numberOfValidHits() < minNhits_[i]) {
+	  failNhits=true;
+	}
+	break;
+      }
+    }
+    if(failNstations || failNhits) continue;
 
     //dr cut
     if(fabs(mu->dxy(beamSpot)) > maxDr_) continue;
@@ -166,6 +200,7 @@ bool HLTMuonL2PreFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
       <<'\t'<<"q*ptLx"<<'\t' //scientific is too wide
       <<'\t'<<"eta"
       <<'\t'<<"phi"
+      <<'\t'<<"nStations"
       <<'\t'<<"nHits"
       <<'\t'<<"dr"<<'\t' //scientific is too wide
       <<'\t'<<"dz"<<'\t' //scientific is too wide
@@ -182,6 +217,7 @@ bool HLTMuonL2PreFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
         <<'\t'<<scientific<<mu->charge()*mu->pt()*(1. + ((mu->parameter(0) != 0) ? nSigmaPt_*mu->error(0)/fabs(mu->parameter(0)) : 0.))
         <<'\t'<<fixed<<mu->eta()
         <<'\t'<<fixed<<mu->phi()
+        <<'\t'<<mu->hitPattern().muonStationsWithAnyHits()
         <<'\t'<<mu->numberOfValidHits()
         <<'\t'<<scientific<<mu->d0()
         <<'\t'<<scientific<<mu->dz()
