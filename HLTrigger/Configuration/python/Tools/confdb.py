@@ -512,7 +512,7 @@ if 'GlobalTag' in %%(dict)s:
 process.load( 'Configuration.StandardSequences.%s' )
 process.load( 'Configuration.StandardSequences.SimL1Emulator_cff' )
 import L1Trigger.Configuration.L1Trigger_custom
-process = L1Trigger.Configuration.L1Trigger_custom.customiseL1OnlyGtEmulatorFromRaw( process )
+process = L1Trigger.Configuration.L1Trigger_custom.customiseL1GtEmulatorFromRaw( process )
 process = L1Trigger.Configuration.L1Trigger_custom.customiseResetPrescalesAndMasks( process )
 
 # customize the HLT to use the emulated results
