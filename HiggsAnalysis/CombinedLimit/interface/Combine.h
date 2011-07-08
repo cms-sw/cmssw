@@ -38,7 +38,7 @@ private:
   boost::program_options::options_description statOptions_, ioOptions_, miscOptions_;
  
   // statistics-related variables
-  bool unbinned_, generateBinnedWorkaround_; 
+  bool unbinned_, generateBinnedWorkaround_, newGen_; 
   float rMin_, rMax_;
   std::string prior_;
   bool hintUsesStatOnly_;

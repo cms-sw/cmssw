@@ -59,6 +59,7 @@ bool HybridNew::saveHybridResult_  = false;
 bool HybridNew::readHybridResults_ = false; 
 bool  HybridNew::expectedFromGrid_ = false; 
 float HybridNew::quantileForExpectedFromGrid_ = 0.5; 
+bool  HybridNew::fullBToys_ = false; 
 bool  HybridNew::fullGrid_ = false; 
 std::string HybridNew::gridFile_ = "";
 bool HybridNew::importanceSamplingNull_ = false;
@@ -95,10 +96,10 @@ LimitAlgo("HybridNew specific options") {
         ("readHybridResults", "Read and merge results from file (requires 'toysFile' or 'grid')")
         ("grid",    boost::program_options::value<std::string>(&gridFile_),            "Use the specified file containing a grid of SamplingDistributions for the limit (implies readHybridResults).\n For --singlePoint or --signif use --toysFile=x.root --readHybridResult instead of this.")
         ("expectedFromGrid", boost::program_options::value<float>(&quantileForExpectedFromGrid_)->default_value(0.5), "Use the grid to compute the expected limit for this quantile")
-        ("importanceSamplingNull", boost::program_options::value<bool>(&importanceSamplingNull_)->default_value(importanceSamplingNull_),  
-                                   "Enable importance sampling for null hypothesis (background only)") 
-        ("importanceSamplingAlt",  boost::program_options::value<bool>(&importanceSamplingAlt_)->default_value(importanceSamplingAlt_),    
-                                   "Enable importance sampling for alternative hypothesis (signal plus background)") 
+        //("importanceSamplingNull", boost::program_options::value<bool>(&importanceSamplingNull_)->default_value(importanceSamplingNull_),  
+        //                           "Enable importance sampling for null hypothesis (background only)") 
+        //("importanceSamplingAlt",  boost::program_options::value<bool>(&importanceSamplingAlt_)->default_value(importanceSamplingAlt_),    
+        //                           "Enable importance sampling for alternative hypothesis (signal plus background)") 
         ("optimizeTestStatistics", boost::program_options::value<bool>(&optimizeTestStatistics_)->default_value(optimizeTestStatistics_), 
                                    "Use optimized test statistics if the likelihood is not extended (works for LEP and TEV test statistics).")
         ("optimizeProductPdf",     boost::program_options::value<bool>(&optimizeProductPdf_)->default_value(optimizeProductPdf_),      
@@ -109,6 +110,7 @@ LimitAlgo("HybridNew specific options") {
         ("frequentist", "Shortcut to switch to Frequentist mode (--generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1)")
         ("newToyMCSampler", boost::program_options::value<bool>(&newToyMCSampler_)->default_value(newToyMCSampler_), "Use new ToyMC sampler with support for mixed binned-unbinned generation")
         ("fullGrid", "Evaluate p-values at all grid points, without optimitations")
+        ("fullBToys", "Run as many B toys as S ones (default is to run 1/4 of b-only toys)")
     ;
 }
 
@@ -147,6 +149,7 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
     if (readHybridResults_ && !(vm.count("toysFile") || vm.count("grid")))     throw std::invalid_argument("HybridNew: must have 'toysFile' or 'grid' option to have 'readHybridResults'\n");
     mass_ = vm["mass"].as<float>();
     fullGrid_ = vm.count("fullGrid");
+    fullBToys_ = vm.count("fullBToys");
     validateOptions(); 
 }
 
@@ -691,14 +694,14 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
       hc->SetToys(nToys_, int(0.01*nToys_)+1);
   } else if (!CLs_) {
       // we need only S+B toys to compute CLs+b
-      hc->SetToys(int(0.01*nToys_)+1, nToys_);
+      hc->SetToys(fullBToys_ ? nToys_ : int(0.01*nToys_)+1, nToys_);
       //for two sigma bands need an equal number of B
       if (expectedFromGrid_ && (fabs(0.5-quantileForExpectedFromGrid_)>=0.4) ) {
         hc->SetToys(nToys_, nToys_);
       }      
   } else {
       // need both, but more S+B than B 
-      hc->SetToys(int(0.25*nToys_)+1, nToys_);
+      hc->SetToys(fullBToys_ ? nToys_ : int(0.25*nToys_), nToys_);
       //for two sigma bands need an equal number of B
       if (expectedFromGrid_ && (fabs(0.5-quantileForExpectedFromGrid_)>=0.4) ) {
         hc->SetToys(nToys_, nToys_);

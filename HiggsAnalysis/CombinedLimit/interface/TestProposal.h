@@ -3,6 +3,8 @@
 
 #include <Rtypes.h>
 
+struct RooRealVar;
+
 #include <RooArgSet.h>
 
 #include <RooStats/ProposalFunction.h>
@@ -11,7 +13,7 @@ class TestProposal : public RooStats::ProposalFunction {
 
    public:
       TestProposal() : RooStats::ProposalFunction() {}
-      TestProposal(double divisor) ;
+      TestProposal(double divisor, const RooRealVar *alwaysStepMe=0) ;
 
       // Populate xPrime with a new proposed point
       virtual void Propose(RooArgSet& xPrime, RooArgSet& x);
@@ -31,6 +33,7 @@ class TestProposal : public RooStats::ProposalFunction {
 
     private:
       double divisor_;
+      const RooRealVar * alwaysStepMe_;
 };
 
 #endif

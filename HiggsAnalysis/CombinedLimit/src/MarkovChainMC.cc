@@ -1,11 +1,13 @@
 #include "../interface/MarkovChainMC.h"
 #include <stdexcept> 
 #include <cmath> 
+#include "TKey.h"
 #include "RooRealVar.h"
 #include "RooArgSet.h"
 #include "RooUniform.h"
 #include "RooWorkspace.h"
 #include "RooFitResult.h"
+#include "RooRandom.h"
 #include "RooStats/MCMCCalculator.h"
 #include "RooStats/MCMCInterval.h"
 #include "RooStats/ModelConfig.h"
@@ -17,6 +19,7 @@
 #include "../interface/DebugProposal.h"
 #include "../interface/CloseCoutSentry.h"
 #include "../interface/RooFitGlobalKillSentry.h"
+#include "../interface/JacknifeQuantile.h"
 
 using namespace RooStats;
 
@@ -32,8 +35,12 @@ unsigned int MarkovChainMC::tries_ = 10;
 float MarkovChainMC::truncatedMeanFraction_ = 0.0;
 bool MarkovChainMC::adaptiveTruncation_ = true;
 float MarkovChainMC::hintSafetyFactor_ = 5.;
+bool MarkovChainMC::saveChain_ = false;
+bool MarkovChainMC::mergeChains_ = false;
+bool MarkovChainMC::readChains_ = false;
 float MarkovChainMC::proposalHelperWidthRangeDivisor_ = 5.;
 float MarkovChainMC::proposalHelperUniformFraction_ = 0.0;
+bool  MarkovChainMC::alwaysStepPoi_ = false;
 float MarkovChainMC::cropNSigmas_ = 0;
 int   MarkovChainMC::debugProposal_ = false;
 
@@ -55,6 +62,8 @@ MarkovChainMC::MarkovChainMC() :
         ("propHelperWidthRangeDivisor", 
                 boost::program_options::value<float>(&proposalHelperWidthRangeDivisor_)->default_value(proposalHelperWidthRangeDivisor_), 
                 "Sets the fractional size of the gaussians in the proposal")
+        ("alwaysStepPOI", boost::program_options::value<bool>(&alwaysStepPoi_)->default_value(alwaysStepPoi_),
+                            "When using 'ortho' proposal, always step also the parameter of interest")
         ("propHelperUniformFraction", 
                 boost::program_options::value<float>(&proposalHelperUniformFraction_)->default_value(proposalHelperUniformFraction_), 
                 "Add a fraction of uniform proposals to the algorithm")
@@ -70,6 +79,9 @@ MarkovChainMC::MarkovChainMC() :
         ("hintSafetyFactor",
                 boost::program_options::value<float>(&hintSafetyFactor_)->default_value(hintSafetyFactor_),
                 "set range of integration equal to this number of times the hinted limit")
+        ("saveChain", "Save MarkovChain to output file")
+        ("mergeChains", "Merge MarkovChains instead of averaging limits")
+        ("readChains", "Just read MarkovChains from toysFile instead of running MCMC directly")
     ;
 }
 
@@ -87,6 +99,13 @@ void MarkovChainMC::applyOptions(const boost::program_options::variables_map &vm
     runMinos_ = vm.count("runMinos");
     noReset_  = vm.count("noReset");
     updateHint_  = vm.count("updateHint");
+
+    mass_ = vm["mass"].as<float>();
+    saveChain_   = vm.count("saveChain");
+    mergeChains_ = vm.count("mergeChains");
+    readChains_  = vm.count("readChains");
+
+    if (mergeChains_ && !saveChain_ && !readChains_) chains_.SetOwner(true);
 }
 
 bool MarkovChainMC::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
@@ -99,25 +118,37 @@ bool MarkovChainMC::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::
   RooFitGlobalKillSentry silence(verbose > 0 ? RooFit::INFO : RooFit::WARNING);
 
   CloseCoutSentry coutSentry(verbose <= 0); // close standard output and error, so that we don't flood them with minuit messages
+
   double suma = 0; int num = 0;
   double savhint = (hint ? *hint : -1); const double *thehint = hint;
   std::vector<double> limits;
-  for (unsigned int i = 0; i < tries_; ++i) {
-      if (int nacc = runOnce(w,mc_s,mc_b,data,limit,limitErr,thehint)) {
-          suma += nacc;
-          if (verbose > 1) std::cout << "Limit from this run: " << limit << std::endl;
-          limits.push_back(limit);
-          if (updateHint_ && tries_ > 1 && limit > savhint) { 
-            if (verbose > 0) std::cout << "Updating hint from " << savhint << " to " << limit << std::endl;
-            savhint = limit; thehint = &savhint; 
+  if (readChains_)  {
+      readChains(*mc_s->GetParametersOfInterest(), limits);
+  } else {
+      for (unsigned int i = 0; i < tries_; ++i) {
+          if (int nacc = runOnce(w,mc_s,mc_b,data,limit,limitErr,thehint)) {
+              suma += nacc;
+              if (verbose > 1) std::cout << "Limit from this run: " << limit << std::endl;
+              limits.push_back(limit);
+              if (updateHint_ && tries_ > 1 && limit > savhint) { 
+                if (verbose > 0) std::cout << "Updating hint from " << savhint << " to " << limit << std::endl;
+                savhint = limit; thehint = &savhint; 
+              }
           }
       }
-  }
+  } 
   num = limits.size();
   if (num == 0) return false;
   // average acceptance
   suma  = suma / (num * double(iterations_));
   limitAndError(limit, limitErr, limits);
+  if (mergeChains_) {
+    std::cout << "Limit from averaging:    " << limit << " +/- " << limitErr << std::endl;
+    // copy constructors don't work, so we just have to leak memory :-(
+    RooStats::MarkovChain *merged = mergeChains();
+    limitFromChain(limit, limitErr, *mc_s->GetParametersOfInterest(), *merged);
+    std::cout << "Limit from merged chain: " << limit << " +/- " << limitErr << std::endl;
+  }
   coutSentry.clear();
 
   if (verbose >= 0) {
@@ -125,7 +156,7 @@ bool MarkovChainMC::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::
       RooRealVar *r = dynamic_cast<RooRealVar *>(mc_s->GetParametersOfInterest()->first());
       if (num > 1) {
           std::cout << "Limit: " << r->GetName() <<" < " << limit << " +/- " << limitErr << " @ " << cl * 100 << "% CL (" << num << " tries)" << std::endl;
-          if (verbose > 0) std::cout << "Average chain acceptance: " << suma << std::endl;
+          if (verbose > 0 && !readChains_) std::cout << "Average chain acceptance: " << suma << std::endl;
       } else {
           std::cout << "Limit: " << r->GetName() <<" < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
       }
@@ -197,7 +228,7 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
         pdfProp = ph.GetProposalFunction();
         break;
     case TestP:
-        ownedPdfProp.reset(new TestProposal(proposalHelperWidthRangeDivisor_));
+        ownedPdfProp.reset(new TestProposal(proposalHelperWidthRangeDivisor_, alwaysStepPoi_ ? r : NULL));
         pdfProp = ownedPdfProp.get();
         break;
   }
@@ -228,7 +259,16 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
   if (mcInt.get() == 0) return false;
   limit = mcInt->UpperLimit(*r);
 
-  return mcInt->GetChain()->Size();
+  if (saveChain_ || mergeChains_) {
+      // Copy-constructors don't work properly, so we just have to leak memory.
+      //RooStats::MarkovChain *chain = new RooStats::MarkovChain(*mcInt->GetChain());
+      RooStats::MarkovChain *chain = const_cast<RooStats::MarkovChain *>(mcInt.release()->GetChain());
+      if (mergeChains_) chains_.Add(chain);
+      if (saveChain_)  writeToysHere->WriteTObject(chain,  TString::Format("MarkovChain_mh%g_%u",mass_, RooRandom::integer(std::numeric_limits<UInt_t>::max() - 1)));
+      return chain->Size();
+  } else {
+    return mcInt->GetChain()->Size();
+  }
 }
 
 void MarkovChainMC::limitAndError(double &limit, double &limitErr, std::vector<double> &limits) const {
@@ -251,6 +291,16 @@ void MarkovChainMC::limitAndError(double &limit, double &limitErr, std::vector<d
       limit /= num;
       for (int k = start; k <= end; k++) limitErr += (limits[k]-limit)*(limits[k]-limit);
       limitErr = (num > 1 ? sqrt(limitErr/(num*(num-1))) : 0);
+      std::cout << "Result from truncated mean: " << limit << " +/- " << limitErr << std::endl;
+#if 0
+      QuantileCalculator qc(limits);
+      std::pair<double,double> qn = qc.quantileAndError(0.5, QuantileCalculator::Simple);
+      std::pair<double,double> qs = qc.quantileAndError(0.5, QuantileCalculator::Sectioning);
+      std::pair<double,double> qj = qc.quantileAndError(0.5, QuantileCalculator::Jacknife);
+      std::cout << "Median of limits (simple):     " << qn.first << " +/- " << qn.second << std::endl;
+      std::cout << "Median of limits (sectioning): " << qs.first << " +/- " << qs.second << std::endl;
+      std::cout << "Median of limits (jacknife):   " << qj.first << " +/- " << qj.second << std::endl;
+#endif
   } else {
       int noutl = floor(truncatedMeanFraction_ * num);
       if (noutl >= 1) { 
@@ -272,4 +322,72 @@ void MarkovChainMC::limitAndError(double &limit, double &limitErr, std::vector<d
       limitErr = (num > 1 ? sqrt(limitErr/(num*(num-1))) : 0);
   }
 }
+
+RooStats::MarkovChain *MarkovChainMC::mergeChains() const
+{
+    if (chains_.GetSize() == 0) throw std::runtime_error("No chains to merge");
+    if (verbose > 1) std::cout << "Will merge " << chains_.GetSize() << " chains." << std::endl;
+    TIter iter(&chains_);
+    RooStats::MarkovChain *merged = new RooStats::MarkovChain((RooStats::MarkovChain &)*iter.Next());
+    if (verbose > 1) std::cout << "Staring from the first chain, of " << merged->Size() << " entries" << std::endl;
+    for (RooStats::MarkovChain *other = (RooStats::MarkovChain *) iter.Next();
+         other != 0;
+         other = (RooStats::MarkovChain *) iter.Next()) {
+        if (verbose > 1) std::cout << "Then adding chain of " << other->Size() << " entries skipping the first " <<  burnInSteps_ << std::endl;
+        for (int i = burnInSteps_, n = other->Size(); i < n; ++i) {
+            const RooArgSet *point = other->Get(i);
+            double nllval = other->NLL();
+            double weight = other->Weight();
+            merged->Add(const_cast<RooArgSet&>(*point),nllval,weight);
+            if (verbose > 1 && (i % 500 == 0)) std::cout << "   added " << i << "/" << other->Size() << " entries." << std::endl;
+        }
+    }
+    return merged;
+}
+
+void MarkovChainMC::readChains(const RooArgSet &poi, std::vector<double> &limits)
+{
+    double mylim, myerr;
+    chains_.Clear();
+    chains_.SetOwner(false);
+    if (!readToysFromHere) throw std::logic_error("Cannot use readChains: option toysFile not specified, or input file empty");
+    TDirectory *toyDir = readToysFromHere->GetDirectory("toys");
+    if (!toyDir) throw std::logic_error("Cannot use readChains: empty toy dir in input file empty");
+    TString prefix = TString::Format("MarkovChain_mh%g_",mass_);
+    TIter next(toyDir->GetListOfKeys()); TKey *k;
+    while ((k = (TKey *) next()) != 0) {
+        if (TString(k->GetName()).Index(prefix) != 0) continue;
+        RooStats::MarkovChain *toy = dynamic_cast<RooStats::MarkovChain *>(toyDir->Get(k->GetName()));
+        if (toy == 0) continue;
+        limitFromChain(mylim, myerr, poi, *toy);
+        chains_.Add(toy);
+        limits.push_back(mylim);
+    }
+    if (verbose) { std::cout << "Read " << chains_.GetSize() << " Markov Chains from input file." << std::endl; }
+}
+
+void 
+MarkovChainMC::limitFromChain(double &limit, double &limitErr, const RooArgSet &poi, RooStats::MarkovChain &chain) 
+{
+    MCMCInterval interval("",poi,chain);
+    RooArgList axes(poi);
+    interval.SetConfidenceLevel(cl);
+    interval.SetIntervalType(MCMCInterval::kTailFraction);
+    interval.SetLeftSideTailFraction(0);
+    interval.SetNumBurnInSteps(burnInSteps_);
+    interval.SetAxes(axes);
+    limit = interval.UpperLimit((RooRealVar&)*poi.first());
+#if 0
+    std::cout << "Limit from chain (naive):    " << limit << std::endl;
+    QuantileCalculator qc(*chain.GetAsConstDataSet(), poi.first()->GetName(), burnInSteps_);
+    qc.randomizePoints();
+    std::pair<double,double> qn = qc.quantileAndError(0.95, QuantileCalculator::Simple);
+    std::pair<double,double> qs = qc.quantileAndError(0.95, QuantileCalculator::Sectioning);
+    std::pair<double,double> qj = qc.quantileAndError(0.95, QuantileCalculator::Jacknife);
+    std::cout << "Limit from chain (simple):     " << qn.first << " +/- " << qn.second << std::endl;
+    std::cout << "Limit from chain (sectioning): " << qs.first << " +/- " << qs.second << std::endl;
+    std::cout << "Limit from chain (jacknife):   " << qj.first << " +/- " << qj.second << std::endl;
+#endif
+}
+
 

@@ -9,6 +9,9 @@
  *
  */
 #include "../interface/LimitAlgo.h"
+#include <TList.h>
+class RooArgSet;
+namespace RooStats { class MarkovChain; }
 
 class MarkovChainMC : public LimitAlgo {
 public:
@@ -36,14 +39,30 @@ private:
   static bool adaptiveTruncation_;
   /// Safety factor for hint (integrate up to this number of times the hinted limit)
   static float hintSafetyFactor_;
+  /// Save Markov Chain in output file
+  static bool saveChain_;
+  /// Merge chains instead of averaging limits
+  static bool mergeChains_; 
+  /// Read chains from file instead of running them 
+  static bool readChains_;
+  /// Mass of the Higgs boson (goes into the name of the saved chains)
+  float mass_;
+
   static unsigned int numberOfBins_;
   static unsigned int proposalHelperCacheSize_;
+  static bool         alwaysStepPoi_;
   static float        proposalHelperWidthRangeDivisor_, proposalHelperUniformFraction_;
   static float        cropNSigmas_;
   static int          debugProposal_;
+
+  mutable TList chains_;
+
   // return number of items in chain, 0 for error
   int runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) const ;
 
+  RooStats::MarkovChain *mergeChains() const;
+  void readChains(const RooArgSet &poi, std::vector<double> &limits);
+  void limitFromChain(double &limit, double &limitErr, const RooArgSet &poi, RooStats::MarkovChain &chain) ;
   void limitAndError(double &limit, double &limitErr, std::vector<double> &limits) const ;
 };
 

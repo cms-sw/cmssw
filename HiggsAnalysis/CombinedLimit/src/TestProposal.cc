@@ -6,9 +6,10 @@
 #include <RooRandom.h>
 #include <RooStats/RooStatsUtils.h>
 
-TestProposal::TestProposal(double divisor) : 
+TestProposal::TestProposal(double divisor, const RooRealVar *alwaysStepMe) : 
     RooStats::ProposalFunction(),
-    divisor_(1./divisor)
+    divisor_(1./divisor),
+    alwaysStepMe_(alwaysStepMe)
 {
 }
      
@@ -21,7 +22,8 @@ void TestProposal::Propose(RooArgSet& xPrime, RooArgSet& x )
    RooRealVar* var;
    int n = xPrime.getSize(), j = floor(RooRandom::uniform()*n);
    for (int i = 0; (var = (RooRealVar*)it->Next()) != NULL; ++i) {
-      if (i == j) {
+      if (i == j || 
+          (alwaysStepMe_ != 0 && (alwaysStepMe_ == var || strcmp(alwaysStepMe_->GetName(), var->GetName()) == 0) ) ) {
         double val = var->getVal(), max = var->getMax(), min = var->getMin(), len = max - min;
         val += RooRandom::gaussian() * len * divisor_;
         while (val > max) val -= len;

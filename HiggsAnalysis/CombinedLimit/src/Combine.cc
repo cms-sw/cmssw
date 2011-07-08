@@ -51,6 +51,7 @@
 #include "../interface/utils.h"
 #include "../interface/CloseCoutSentry.h"
 #include "../interface/RooSimultaneousOpt.h"
+#include "../interface/ToyMCSamplerOpt.h"
 
 using namespace RooStats;
 using namespace RooFit;
@@ -100,6 +101,7 @@ Combine::Combine() :
       ("saveToys",   "Save results of toy MC in output file")
       ;
     miscOptions_.add_options()
+      ("newGenerator", po::value<bool>(&newGen_)->default_value(true), "Use new generator code for toys, fixes all issues with binned and mixed generation (equivalent of --newToyMC but affects the top-level toys from option '-t' instead of the ones within the HybridNew)")
       ("optimizeSimPdf", po::value<bool>(&optSimPdf_)->default_value(false), "Turn on special optimizations of RooSimultaneous")
       ("rebuildSimPdf", po::value<bool>(&rebuildSimPdf_)->default_value(false), "Rebuild simultaneous pdf from scratch to make sure constraints are correct (not needed in CMS workspaces)")
       ("compile", "Compile expressions instead of interpreting them")
@@ -422,6 +424,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   if (nToys > 0) {
     double expLimit = 0;
     unsigned int nLimits = 0;
+    toymcoptutils::SimPdfGenInfo newToyMC(*genPdf, *observables, !unbinned_); RooRealVar *weightVar_ = 0;
     w->loadSnapshot("clean");
     RooDataSet *systDs = 0;
     if (withSystematics && !toysNoSystematics_ && (readToysFromHere == 0)) {
@@ -455,7 +458,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
         if (expectSignal_) ((RooRealVar*)POI->first())->setVal(expectSignal_);
 	std::cout << "Generate toy " << iToy << "/" << nToys << std::endl;
 	if (isExtended) {
-          if (unbinned_) {
+          if (newGen_) {
+              absdata_toy = newToyMC.generate(weightVar_); // as simple as that
+          } else if (unbinned_) {
     	      absdata_toy = genPdf->generate(*observables,RooFit::Extended());
           } else if (generateBinnedWorkaround_) {
               std::auto_ptr<RooDataSet> unbinn(genPdf->generate(*observables,RooFit::Extended()));
@@ -489,6 +494,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       }
       delete absdata_toy;
     }
+    if (weightVar_) delete weightVar_;
     expLimit /= nLimits;
     double rms = 0;
     for (std::vector<double>::const_iterator itl = limitHistory.begin(); itl != limitHistory.end(); ++itl) {

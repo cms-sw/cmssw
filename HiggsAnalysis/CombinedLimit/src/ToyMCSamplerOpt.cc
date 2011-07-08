@@ -47,7 +47,7 @@ ToyMCSamplerOpt::~ToyMCSamplerOpt()
 }
 
 
-toymcoptutils::SinglePdfGenInfo::SinglePdfGenInfo(RooAbsPdf &pdf, RooArgSet& observables, bool preferBinned, const RooDataSet* protoData, int forceEvents) :
+toymcoptutils::SinglePdfGenInfo::SinglePdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData, int forceEvents) :
    mode_(preferBinned ? Binned : Unbinned),
    pdf_(&pdf),
    spec_(0) 
@@ -101,7 +101,7 @@ toymcoptutils::SinglePdfGenInfo::generate(const RooDataSet* protoData, int force
     return ret;
 }
 
-toymcoptutils::SimPdfGenInfo::SimPdfGenInfo(RooAbsPdf &pdf, RooArgSet& observables, bool preferBinned, const RooDataSet* protoData, int forceEvents) :
+toymcoptutils::SimPdfGenInfo::SimPdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData, int forceEvents) :
     cat_(0),
     observables_(observables)
 {

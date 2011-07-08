@@ -49,6 +49,7 @@ private:
   static std::string gridFile_;
   static bool expectedFromGrid_; 
   static float quantileForExpectedFromGrid_;
+  static bool fullBToys_; 
   static bool fullGrid_; 
   static unsigned int nCpu_, fork_;
   static bool importanceSamplingNull_, importanceSamplingAlt_;
