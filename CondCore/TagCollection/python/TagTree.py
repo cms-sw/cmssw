@@ -48,6 +48,9 @@ class tagTree(object):
             #description.createForeignKey('tagid_FK','tagid',self.__tagInventoryTableName,'tagid')
             self.__tagTreeTableHandle = schema.createTable( description )
             self.__tagTreeTableHandle.privilegeManager().grantToPublic( coral.privilege_Select )
+            self.__tagTreeTableHandle.privilegeManager().grantToPublic( coral.privilege_Select )
+            self.__tagTreeTableHandle.privilegeManager().grantToPublic( coral.privilege_Select )
+            self.__tagTreeTableHandle.privilegeManager().grantToPublic( coral.privilege_Select )
             #create also the associated id table
             generator=IdGenerator.IdGenerator(self.__session.nominalSchema())
             generator.createIDTable(self.__tagTreeIDs,True)
