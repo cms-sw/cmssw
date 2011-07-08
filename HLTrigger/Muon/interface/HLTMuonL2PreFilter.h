@@ -47,7 +47,6 @@ class HLTMuonL2PreFilter : public HLTFilter {
     /// |eta| bins for minNstations cut 
     /// (#bins must match #minNstations cuts and #minNhits cuts)
     std::vector<double> absetaBins_;
-    unsigned int nAbsetaBins;
 
     /// minimum number of muon stations used
     std::vector<int> minNstations_;

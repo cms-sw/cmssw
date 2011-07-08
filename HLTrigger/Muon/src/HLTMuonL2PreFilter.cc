@@ -141,7 +141,7 @@ bool HLTMuonL2PreFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   HLTMuonL2ToL1Map mapL2ToL1(previousCandTag_, seedMapTag_, iEvent);
 
   // number of eta bins for cut on number of stations
-  nAbsetaBins=absetaBins_.size();
+  const std::vector<double>::size_type nAbsetaBins = absetaBins_.size();
 
   // look at all allMuons,  check cuts and add to filter object
   int n = 0;
