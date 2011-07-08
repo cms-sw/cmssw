@@ -19,7 +19,7 @@ gtEvmDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtEvmUnpack_cfi.l1GtEvmUnpac
 
 from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import *
 
-from EventFilter.SiStripRawToDigi.SiStripRawToDigis_standard_cff import *
+from EventFilter.SiStripRawToDigi.SiStripDigis_cfi import *
 
 from SimCalorimetry.EcalTrigPrimProducers.ecalTriggerPrimitiveDigis_cff import *
 
@@ -46,15 +46,43 @@ castorDigis = EventFilter.CastorRawToDigi.CastorRawToDigi_cfi.castorDigis.clone(
 
 from EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi import *
 
-RawToDigi = cms.Sequence(csctfDigis+dttfDigis+gctDigis+gtDigis+gtEvmDigis+siPixelDigis+SiStripRawToDigis+ecalDigis+ecalPreshowerDigis+hcalDigis+muonCSCDigis+muonDTDigis+muonRPCDigis+castorDigis+scalersRawToDigi)
+RawToDigi = cms.Sequence(csctfDigis
+                         +dttfDigis
+                         +gctDigis
+                         +gtDigis
+                         +gtEvmDigis
+                         +siPixelDigis
+                         +siStripDigis
+                         +ecalDigis
+                         +ecalPreshowerDigis
+                         +hcalDigis
+                         +muonCSCDigis
+                         +muonDTDigis
+                         +muonRPCDigis
+                         +castorDigis
+                         +scalersRawToDigi)
 
+RawToDigi_noTk = cms.Sequence(csctfDigis
+                              +dttfDigis
+                              +gctDigis
+                              +gtDigis
+                              +gtEvmDigis
+                              +ecalDigis
+                              +ecalPreshowerDigis
+                              +hcalDigis
+                              +muonCSCDigis
+                              +muonDTDigis
+                              +muonRPCDigis
+                              +castorDigis
+                              +scalersRawToDigi)
+    
 scalersRawToDigi.scalersInputTag = 'rawDataCollector'
 csctfDigis.producer = 'rawDataCollector'
 dttfDigis.DTTF_FED_Source = 'rawDataCollector'
 gctDigis.inputLabel = 'rawDataCollector'
 gtDigis.DaqGtInputTag = 'rawDataCollector'
 siPixelDigis.InputLabel = 'rawDataCollector'
-ecalDigis.DoRegional = False
+#false by default anyways ecalDigis.DoRegional = False
 ecalDigis.InputLabel = 'rawDataCollector'
 ecalPreshowerDigis.sourceTag = 'rawDataCollector'
 hcalDigis.InputLabel = 'rawDataCollector'
