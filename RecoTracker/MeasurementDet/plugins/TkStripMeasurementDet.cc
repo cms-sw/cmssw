@@ -44,10 +44,10 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
   std::vector<TrajectoryMeasurement> result;
 
   if (isActive() == false) {
+    LogDebug("TkStripMeasurementDet")<<" found an inactive module "<<id_;
     result.push_back( TrajectoryMeasurement( stateOnThisDet, 
     		InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 
 		0.F));
-    //    LogDebug("TkStripMeasurementDet") << " DetID " << id_ << " inactive";
     return result;
   }
  
@@ -55,7 +55,7 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
   float uerr;
   //  if (theClusterRange.first == theClusterRange.second) { // empty
   if (empty  == true){
-    //LogDebug("TkStripMeasurementDet") << " DetID " << id_ << " empty ";
+    LogDebug("TkStripMeasurementDet") << " DetID " << id_ << " empty ";
     if (stateOnThisDet.hasError()){
     uerr= sqrt(theStripGDU->specificTopology().measurementError(stateOnThisDet.localPosition(),stateOnThisDet.localError().positionError()).uu());
      if (testStrips(utraj,uerr)) {
@@ -116,23 +116,24 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
     }
   }// end block with DetSet
   else{
+    LogDebug("TkStripMeasurementDet")<<" finding left/ right";
     result.reserve(size());
     uint rightCluster = beginClusterI_;
     for (; rightCluster!= endClusterI_;++rightCluster){
       SiStripRegionalClusterRef clusterref = edm::makeRefToLazyGetter(regionalHandle_,rightCluster);
       if (clusterref->barycenter() > utraj) break;
     }
-    
-    if ( rightCluster != beginClusterI_) {
-      // there are hits on the left of the utraj
-      uint leftCluster = rightCluster;
-      while ( --leftCluster >=  beginClusterI_) {
+
+    uint leftCluster = 1;
+    for (uint iReadBackWard=1; iReadBackWard<=(rightCluster-beginClusterI_) ; ++iReadBackWard){
+	leftCluster=rightCluster-iReadBackWard;
 	SiStripRegionalClusterRef clusterref = edm::makeRefToLazyGetter(regionalHandle_,leftCluster);
         if (isMasked(*clusterref)) continue;
 	if (accept(clusterref)){
 	RecHitContainer recHits = buildRecHits(clusterref,stateOnThisDet); 
 	bool isCompatible(false);
 	for(RecHitContainer::const_iterator recHit=recHits.begin();recHit!=recHits.end();++recHit){	  
+	  std::cout<<" a left RH"<<std::endl;
 	  std::pair<bool,double> diffEst = est.estimate(stateOnThisDet, **recHit);
 	  if ( diffEst.first ) {
 	    result.push_back( TrajectoryMeasurement( stateOnThisDet, *recHit, 
@@ -143,8 +144,8 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
 	if(!isCompatible) break; // exit loop on first incompatible hit
 	}
 	else LogDebug("TkStripMeasurementDet")<<"skipping this reg str from last iteration on"<<geomDet().geographicalId().rawId()<<" key: "<<clusterref.key();
-      }
     }
+    
     
     for ( ; rightCluster != endClusterI_; ++rightCluster) {
       SiStripRegionalClusterRef clusterref = edm::makeRefToLazyGetter(regionalHandle_,rightCluster);
