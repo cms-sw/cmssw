@@ -119,6 +119,11 @@ cond::IOVService::payloadClasses( const std::string& iovToken ){
   return iov.payloadClasses();
 }
 
+int cond::IOVService::iovSize( const std::string& iovtoken ){
+  cond::IOVSequence const & iov=iovSeq(iovtoken);
+  return iov.iovs().size();
+}
+
 void 
 cond::IOVService::deleteAll(bool withPayload){
   ora::Database& db = m_dbSess.storage();

@@ -25,6 +25,8 @@ namespace cond{
     
     std::set<std::string> payloadClasses( const std::string& iovtoken );
 
+    int iovSize( const std::string& iovtoken );
+
     cond::TimeType timeType( const std::string& iovToken );
     
     void deleteAll( bool withPayload=false );
