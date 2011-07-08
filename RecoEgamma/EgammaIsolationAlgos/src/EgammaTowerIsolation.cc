@@ -44,21 +44,29 @@ EgammaTowerIsolation::~EgammaTowerIsolation ()
 
 
 
-double EgammaTowerIsolation::getTowerEtSum(const reco::Candidate* photon) const  
+double EgammaTowerIsolation::getTowerEtSum(const reco::Candidate* photon, const std::vector<CaloTowerDetId> * detIdToExclude ) const
 {
-  return getTowerEtSum( photon->get<reco::SuperClusterRef>().get() );
+  return getTowerEtSum( photon->get<reco::SuperClusterRef>().get(), detIdToExclude );
 }
 
-double EgammaTowerIsolation::getTowerEtSum(const reco::SuperCluster* sc) const  
+double EgammaTowerIsolation::getTowerEtSum(const reco::SuperCluster* sc, const std::vector<CaloTowerDetId> * detIdToExclude ) const
 {
   math::XYZPoint theCaloPosition = sc->position();
   double candEta=sc->eta();
   double candPhi=sc->phi();
   double ptSum =0.;
 
-  //loop over tracks
+  //loop over towers
   for(CaloTowerCollection::const_iterator trItr = towercollection_->begin(); trItr != towercollection_->end(); ++trItr){
-    
+
+    // skip the towers to exclude
+    if ( detIdToExclude )
+     {
+      std::vector<CaloTowerDetId>::const_iterator itcheck=find(detIdToExclude->begin(),detIdToExclude->end(),trItr->id());
+      if (itcheck != detIdToExclude->end())
+	      continue;
+     }
+
     double this_pt=0;
     switch(depth_){
     case AllDepths: this_pt = trItr->hadEt();break;
@@ -67,9 +75,9 @@ double EgammaTowerIsolation::getTowerEtSum(const reco::SuperCluster* sc) const
     default: throw cms::Exception("Configuration Error") << "EgammaTowerIsolation: Depth " << depth_ << " not known. "; break;
     }
 
-    if ( this_pt < etLow_ ) 
-      continue ;  
-    
+    if ( this_pt < etLow_ )
+      continue ;
+
     double towerEta=trItr->eta();
     double towerPhi=trItr->phi();
     double twoPi= 2*M_PI;
@@ -80,35 +88,40 @@ double EgammaTowerIsolation::getTowerEtSum(const reco::SuperCluster* sc) const
     if(deltaPhi>M_PI) deltaPhi=twoPi-deltaPhi;
     double deltaEta = towerEta - candEta;
 
-      
     double dr = deltaEta*deltaEta + deltaPhi*deltaPhi;
     if( dr < extRadius_*extRadius_ &&
         dr >= intRadius_*intRadius_ )
-      {
-	ptSum += this_pt;
-      }
-    
-  }//end loop over tracks
+     { ptSum += this_pt ; }
 
-  return ptSum;
-}
+   }//end loop over tracks
+
+  return ptSum ;
+
+ }
 
 
-double EgammaTowerIsolation::getTowerESum(const reco::Candidate* photon) const  
+double EgammaTowerIsolation::getTowerESum(const reco::Candidate* photon, const std::vector<CaloTowerDetId> * detIdToExclude ) const
 {
-  return getTowerESum( photon->get<reco::SuperClusterRef>().get() );
+  return getTowerESum( photon->get<reco::SuperClusterRef>().get(), detIdToExclude );
 }
 
-double EgammaTowerIsolation::getTowerESum(const reco::SuperCluster* sc) const  
+double EgammaTowerIsolation::getTowerESum(const reco::SuperCluster* sc, const std::vector<CaloTowerDetId> * detIdToExclude ) const
 {
   math::XYZPoint theCaloPosition = sc->position();
   double candEta=sc->eta();
   double candPhi=sc->phi();
   double eSum =0.;
 
-  //loop over tracks
+  //loop over towers
   for(CaloTowerCollection::const_iterator trItr = towercollection_->begin(); trItr != towercollection_->end(); ++trItr){
-    
+
+    // skip the towers to exclude
+    if( detIdToExclude ) {
+      std::vector<CaloTowerDetId>::const_iterator itcheck=find(detIdToExclude->begin(),detIdToExclude->end(),trItr->id());
+      if (itcheck != detIdToExclude->end())
+	continue;
+    }
+
     double this_e=0;
     switch(depth_){
     case AllDepths: this_e = trItr->hadEnergy();break;
@@ -117,9 +130,9 @@ double EgammaTowerIsolation::getTowerESum(const reco::SuperCluster* sc) const
     default: throw cms::Exception("Configuration Error") << "EgammaTowerIsolation: Depth " << depth_ << " not known. "; break;
     }
 
-    if ( this_e*sin(trItr->p4().theta()) < etLow_ ) 
-      continue ;  
-    
+    if ( this_e*sin(trItr->p4().theta()) < etLow_ )
+      continue ;
+
     double towerEta=trItr->eta();
     double towerPhi=trItr->phi();
     double twoPi= 2*M_PI;
@@ -130,14 +143,14 @@ double EgammaTowerIsolation::getTowerESum(const reco::SuperCluster* sc) const
     if(deltaPhi>M_PI) deltaPhi=twoPi-deltaPhi;
     double deltaEta = towerEta - candEta;
 
-      
+
     double dr = deltaEta*deltaEta + deltaPhi*deltaPhi;
     if( dr < extRadius_*extRadius_ &&
         dr >= intRadius_*intRadius_ )
       {
 	eSum += this_e;
       }
-    
+
   }//end loop over tracks
 
   return eSum;

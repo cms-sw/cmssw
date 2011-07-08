@@ -15,6 +15,8 @@ class EgammaTowerIsolation ;
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/Common/interface/Handle.h"
 
+class EgammaHadTower;
+
 class ElectronHcalHelper
  {
   public:
@@ -40,13 +42,17 @@ class ElectronHcalHelper
     ElectronHcalHelper( const Configuration & ) ;
     void checkSetup( const edm::EventSetup & ) ;
     void readEvent( edm::Event & ) ;
-    double hcalESum( const reco::SuperCluster & ) ;
-    double hcalESumDepth1( const reco::SuperCluster & ) ;
-    double hcalESumDepth2( const reco::SuperCluster & ) ;
     ~ElectronHcalHelper() ;
 
+    double hcalESum( const reco::SuperCluster & , const std::vector<CaloTowerDetId> * excludeTowers = 0) ;
+    double hcalESumDepth1( const reco::SuperCluster &, const std::vector<CaloTowerDetId> * excludeTowers = 0) ;
+    double hcalESumDepth2( const reco::SuperCluster & ,const std::vector<CaloTowerDetId> * excludeTowers = 0 ) ;
     double hOverEConeSize() const { return cfg_.hOverEConeSize ; }
 
+    // Behind clusters
+    std::vector<CaloTowerDetId> hcalTowersBehindClusters( const reco::SuperCluster & sc ) ;
+    double hcalESumDepth1BehindClusters( const std::vector<CaloTowerDetId> & towers ) ;
+    double hcalESumDepth2BehindClusters( const std::vector<CaloTowerDetId> & towers ) ;
 
   private:
 
@@ -65,7 +71,7 @@ class ElectronHcalHelper
     edm::Handle<CaloTowerCollection> * towersH_ ;
     EgammaTowerIsolation * towerIso1_ ;
     EgammaTowerIsolation * towerIso2_ ;
-
+    EgammaHadTower * hadTower_;
  } ;
 
 #endif

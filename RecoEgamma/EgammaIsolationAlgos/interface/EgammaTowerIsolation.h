@@ -6,6 +6,7 @@
 // ----------------------------------------------------------------------------
 // OrigAuth:  Matthias Mozer
 // Institute: IIHE-VUB
+//  Adding feature to exclude towers used by H/E
 //=============================================================================
 //*****************************************************************************
 
@@ -19,7 +20,7 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-
+#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 
 
 class EgammaTowerIsolation {
@@ -39,10 +40,10 @@ class EgammaTowerIsolation {
     //methods
 
   int getNumberTracks(const reco::Candidate*) const ;
-  double getTowerEtSum (const reco::Candidate*) const ;
-  double getTowerESum (const reco::Candidate*) const ;
-  double getTowerEtSum(const reco::SuperCluster*) const;
-  double getTowerESum(const reco::SuperCluster*) const;
+  double getTowerEtSum (const reco::Candidate*, const std::vector<CaloTowerDetId> * detIdToExclude=0) const ;
+  double getTowerESum (const reco::Candidate*, const std::vector<CaloTowerDetId> * detIdToExclude=0 ) const ;
+  double getTowerEtSum(const reco::SuperCluster*, const std::vector<CaloTowerDetId> * detIdToExclude=0 ) const;
+  double getTowerESum(const reco::SuperCluster*, const std::vector<CaloTowerDetId> * detIdToExclude=0) const;
 
  private:
 
@@ -51,8 +52,7 @@ class EgammaTowerIsolation {
   double etLow_ ;
   signed int depth_;
 
-  const CaloTowerCollection *towercollection_ ;
-  
+  const CaloTowerCollection * towercollection_ ;
 };
 
 #endif
