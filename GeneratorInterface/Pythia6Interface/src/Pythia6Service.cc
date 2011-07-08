@@ -27,19 +27,19 @@
 // This will force the symbols below to be kept, even in the case pythia6
 // is an archive library.
 extern "C" void pyexec_(void);
-extern "C" void pyjoin_(void);
-extern "C" void py1ent_(void);
-extern "C" void pygive_(void);
-extern "C" void pycomp_(void);
 extern "C" void pyedit_(void);
 __attribute__((visibility("hidden"))) void dummy()
 {
+  using namespace gen;
+  int dummy = 0;
+  double dummy2 = 0;
+  char * dummy3 = 0;
   pyexec_();
   pystat_(0);
-  pyjoin_();
-  py1ent_();
-  pygive_();
-  pycomp_();
+  pyjoin_(dummy, &dummy);
+  py1ent_(dummy, dummy, dummy2, dummy2, dummy2);
+  pygive_(dummy3, dummy);
+  pycomp_(dummy);
   pylist_(0);
   pyevnt_();
   pyedit_();
