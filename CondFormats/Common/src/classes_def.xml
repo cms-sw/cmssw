@@ -4,7 +4,9 @@
    <field name="m_wrapper" persistency="loose_on_writing" />
    <field name="m_oid" persistency="loose_on_reading" />
  </class>
- <class name="cond::UpdateStamp"/>
+ <class name="cond::UpdateStamp">
+   <field name="m_scope" persistency="loose_on_reading" />
+ </class>
  <class name="ora::QueryableVector<cond::IOVElement>"/>
  <class name="ora::PVector<cond::IOVElement>"/>
  <class name="std::vector<cond::IOVElement>"/>
