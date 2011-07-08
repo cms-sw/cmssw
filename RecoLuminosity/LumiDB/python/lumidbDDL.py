@@ -8,11 +8,22 @@ from RecoLuminosity.LumiDB import nameDealer,dbUtil
 def createTables(schema):
     '''
     create new tables if not exist
-    revisions,revisions_id,luminorms,luminorms_entries,luminorms_entries_id,
+    revisions,revisions_id,luminorms,luminorms_entries,luminorms_entries_id,fillscheme
     '''
     try:
         created=[]
         db=dbUtil.dbUtil(schema)
+        if not schema.existsTable(nameDealer.fillschemeTableName()):
+            print 'creating fillscheme table'
+            fillschemeTab=coral.TableDescription()
+            fillschemeTab.setName( nameDealer.fillschemeTableName() )
+            fillschemeTab.insertColumn( 'FILLSCHEME_ID','unsigned long long' )
+            fillschemeTab.insertColumn( 'FILLSCHEMEPATTERN','string',128,False )
+            fillschemeTab.insertColumn( 'CORRECTIONFACTOR','float' )
+            fillschemeTab.setPrimaryKey( 'FILLSCHEME_ID' )
+            db.createTable(fillschemeTab,withIdTable=True)
+            created.append( nameDealer.fillschemeTableName() )
+            
         if not schema.existsTable(nameDealer.revisionTableName()):
             print 'creating revisions table'
             revisionsTab=coral.TableDescription()

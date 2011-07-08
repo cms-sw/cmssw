@@ -99,7 +99,7 @@ table 6: TRGHLTMAP (insert 1 row per hltpath-l1seed / populated from ConfDB+L1Se
 
 ======
 table 7: FILLSCHEME (insert 1 row per fillscheme)
-         fillscheme_id(uint64),        NOT NULL
+         fillscheme_id(uint64),        NOT NULL PK
          fillschemepattern(string),    NOT NULL
 	 correctionfactor(float),            NOT NULL
 
