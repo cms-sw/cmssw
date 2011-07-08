@@ -49,7 +49,6 @@ class AlignmentTwoBodyDecayTrackSelector
   //inv mass Cut
   double theMinMass;
   double theMaxMass;
-  double theMass;
   double theDaughterMass;
   unsigned int theCandNumber;
   //charge filter
