@@ -44,7 +44,7 @@ def main():
     # add the arguments
     parser.add_argument('-c',dest='connect',action='store',required=True,help='connect string to lumiDB')
     parser.add_argument('-P',dest='authpath',action='store',help='path to authentication file')
-    parser.add_argument('action',choices=['create','drop','describe','addindex','dropindex'],help='action on the schema')
+    parser.add_argument('action',choices=['create','createbranch','drop','describe','addindex','dropindex'],help='action on the schema')
     parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug mode')
     # parse arguments
@@ -59,6 +59,7 @@ def main():
     session=svc.connect(connectstring,accessMode=coral.access_Update)
     if args.action == 'create':
         createLumi(session)
+    if args.action == 'createbranch':
         createBranch(session,'TRUNK',None,'root')
         createBranch(session,'NORM','TRUNK','hold normalization factor')
         createBranch(session,'DATA','TRUNK','hold data')

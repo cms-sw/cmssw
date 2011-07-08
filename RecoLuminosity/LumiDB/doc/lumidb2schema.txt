@@ -2,10 +2,10 @@
 create table revisions(
      revision_id uint64 PK,
      branch_id uint64 not null, 
-     branch_name string,
-     name string, unique
-     comment string,
-     ctime   timestamp
+     branch_name string,  (56)
+     name string, unique  (56)
+     comment string,   (1024)
+     ctime   timestamp(6)
 )
 create table revisions_id(     #id helper table
      nextid uint64 PK
@@ -16,8 +16,8 @@ create index revisions_branch_id on revision(branchid)
 create table luminorms(
      data_id  uint64 PK
      entry_id    uint64 not null references luminorms_entries(entry_id),
-     entry_name  string,
-     amodetag string,
+     entry_name  string,  (56)
+     amodetag string,     (28)
      norm_1     float,
      egev_1     uint32,
      norm_2     float,
@@ -27,7 +27,7 @@ create table luminorms(
 create table luminorms_entries(   #versionable entity helper table
      entry_id uint64 PK,
      revision_id uint64 not null references revisions(revision_id),
-     entry_name    string
+     name    string  (56)
 )
 
 create table luminorms_id(          #id helper table
@@ -45,8 +45,8 @@ create table luminorms_rev(
 create table lumidata(             #versionable data table
      data_id uint64 PK,
      entry_id    uint64 not null references lumidata_entries(entry_id),
-     entry_name string,
-     source     string,
+     entry_name string,  (56)
+     source     string,  (128)
      runnum     uint32,
      nominalegev float
 )
@@ -58,7 +58,7 @@ create table lumidata_id(          #id helper table
 create table lumidata_entries(       #versionable entity table
      entry_id     uint64 not null   ,
      revision_id  uint64 not null references revision(revision_id),
-     name    string	  
+     name    string      (56)  
 )
 create table lumidata_rev(   
     data_id uint64 not null references lumidata(data_id),
@@ -75,25 +75,26 @@ create table lumidata_entries_id(
 4.
 create table cmsrunsummary(        #data table
      runnum uint32 PK,
-     hltkey string not null,
-     l1key  string,
-     fillnum uint32,
-     sequence    string,
+     hltkey string not null, (128)
+     l1key  string,          (128)
+     fillnum uint32,  
+     sequence    string,     (56)
      starttime   timestamp(6),
      stoptime    timestamp(6),   
      egev uint32,
-     amodetag string 
+     amodetag string      (28),
+     fillscheme string(128)
 )
 5. 
 create table lumisummaryv2(         #data table
      data_id  uint64 not null PK references lumidata(data_id),
      runnum      uint32,  (redundant)
-     cmslsnum    uint32,
+     cmslsnum    uint32,  
      lumilsnum   uint32,
      instlumi     float,
      instlumierror  float,
      instlumiquality  short,
-     beamstatus   string,
+     beamstatus   string,    (28)
      beamenergy float,
      cmsbxindexblob blob,
      beamintensityblob_1 blob,
@@ -114,10 +115,10 @@ create table lumisummaryv2(         #data table
 create table trgdata(                #verionable data table
      data_id uint64 PK,
      entry_id  uint64 not null references trgdata_entries(entry_id),
-     entry_name string,    
-     source string,
+     entry_name string, (56)    
+     source string,     (128)
      runnum   uint32,
-     bitzeroname string,
+     bitzeroname string, (56)
      bitnameclob clob
 )
 create table trgdata_rev(   
@@ -129,7 +130,7 @@ constraint trgdata_rev_uc unique(data_id,revision_id)
 create table trgdata_entries(       
      entry_id    uint64 not null	     ,
      revision_id uint64 not null references revisions(revision_id),
-     name    string	 
+     name    string  (56)	 
 )
 create table trgdata_id(             #id helper table
      nextid uint64 PK
@@ -153,16 +154,16 @@ create table lstrg(          #data table
 create table hltdata(                #vesionable data table
     data_id uint64 PK,	     
     entry_id    uint64 not null references hltdata_entries(entry_id),
-    entry_name string,
+    entry_name string, (56)
     runnum    uint32,
-    source    string,
-    npath    uint32,
+    source    string,  (128)
+    npath    uint32,  
     pathnameclob clob
 )
 create table hltdata_entries(       
      entry_id    uint64 PK,
      revision_id uint64 not null references revisions(revision_id) ,
-     name    string
+     name    string (56)
 )
 create table hltdata_id(         
      nextid uint64 PK
@@ -196,13 +197,13 @@ create table trghltmap(
 create table lumivalidation(      
    runnum uint32 not null,
    cmslsnum uint32 not null,
-   flag string,
-   comment string
+   flag string, (28)
+   comment string (1024)
 )
 12
 create table FILLSCHEME (
-   fillscheme_id(uint64),        NOT NULL
-   fillschemepattern(string),    NOT NULL
+   fillscheme_id(uint64),        PK
+   fillschemepattern(string),    NOT NULL (128)
    correctionfactor(float),      NOT NULL
 )
 
