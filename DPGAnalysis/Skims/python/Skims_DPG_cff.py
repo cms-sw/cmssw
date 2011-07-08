@@ -109,29 +109,29 @@ SKIMStreamRPC = cms.FilteredStream(
 
 #####################
 
-from DPGAnalysis.Skims.singleMuonSkim_cff import *
-from DPGAnalysis.Skims.singleElectronSkim_cff import *
-from DPGAnalysis.Skims.muonTagProbeFilters_cff import *
-from DPGAnalysis.Skims.electronTagProbeFilters_cff import *
-from DPGAnalysis.Skims.singlePhotonSkim_cff import *
-from DPGAnalysis.Skims.jetSkim_cff import *
-from DPGAnalysis.Skims.METSkim_cff import *
-from DPGAnalysis.Skims.singlePfTauSkim_cff import *
+#from DPGAnalysis.Skims.singleMuonSkim_cff import *
+#from DPGAnalysis.Skims.singleElectronSkim_cff import *
+#from DPGAnalysis.Skims.muonTagProbeFilters_cff import *
+#from DPGAnalysis.Skims.electronTagProbeFilters_cff import *
+#from DPGAnalysis.Skims.singlePhotonSkim_cff import *
+#from DPGAnalysis.Skims.jetSkim_cff import *
+#from DPGAnalysis.Skims.METSkim_cff import *
+#from DPGAnalysis.Skims.singlePfTauSkim_cff import *
 
-singleMuPt5SkimPath=cms.Path(singleMuPt5RecoQualitySeq)
-singleElectronPt5SkimPath=cms.Path(singleElectronPt5RecoQualitySeq)
-singlePhotonPt5SkimPath=cms.Path(singlePhotonPt5QualitySeq)
-muonJPsiMMSkimPath=cms.Path(muonJPsiMMRecoQualitySeq)
-jetSkimPath=cms.Path(jetRecoQualitySeq)
-singlePfTauPt15SkimPath=cms.Path(singlePfTauPt15QualitySeq)
-SKIMStreamTPG = cms.FilteredStream(
-    responsible = 'TPG',
-    name = 'TPG',
-    paths = (singleMuPt5SkimPath,singleElectronPt5SkimPath,singlePhotonPt5SkimPath,muonJPsiMMSkimPath,jetSkimPath,singlePfTauPt15SkimPath),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('USER')
-    )
+#singleMuPt5SkimPath=cms.Path(singleMuPt5RecoQualitySeq)
+#singleElectronPt5SkimPath=cms.Path(singleElectronPt5RecoQualitySeq)
+#singlePhotonPt5SkimPath=cms.Path(singlePhotonPt5QualitySeq)
+#muonJPsiMMSkimPath=cms.Path(muonJPsiMMRecoQualitySeq)
+#jetSkimPath=cms.Path(jetRecoQualitySeq)
+#singlePfTauPt15SkimPath=cms.Path(singlePfTauPt15QualitySeq)
+#SKIMStreamTPG = cms.FilteredStream(
+#    responsible = 'TPG',
+#    name = 'TPG',
+#    paths = (singleMuPt5SkimPath,singleElectronPt5SkimPath,singlePhotonPt5SkimPath,muonJPsiMMSkimPath,jetSkimPath,singlePfTauPt15SkimPath),
+#    content = skimContent.outputCommands,
+#    selectEvents = cms.untracked.PSet(),
+#    dataTier = cms.untracked.string('USER')
+#    )
     
 #####################
 
