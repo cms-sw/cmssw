@@ -133,7 +133,6 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
 	RecHitContainer recHits = buildRecHits(clusterref,stateOnThisDet); 
 	bool isCompatible(false);
 	for(RecHitContainer::const_iterator recHit=recHits.begin();recHit!=recHits.end();++recHit){	  
-	  std::cout<<" a left RH"<<std::endl;
 	  std::pair<bool,double> diffEst = est.estimate(stateOnThisDet, **recHit);
 	  if ( diffEst.first ) {
 	    result.push_back( TrajectoryMeasurement( stateOnThisDet, *recHit, 
