@@ -79,7 +79,7 @@ void Analysis_Step5()
 //   PredictionAndControlPlot(InputDir);
 
 
-   InputDir = "Results/dedxASmi/combined/Eta25/PtMin35/Type0/";   CutIndex = 4;//25;//24;//41
+   InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type0/";   CutIndex = 4;//25;//24;//41
 //   Make2DPlot_Core(InputDir,CutIndex);
 //   CutFlow(InputDir);
 //   SelectionPlot(InputDir, CutIndex);
@@ -90,24 +90,16 @@ void Analysis_Step5()
 // SignalMassPlot(InputDir,0);return;
 // GetSystematicOnPrediction(InputDir);
 
-   InputDir = "Results/dedxASmi/combined/Eta20/PtMin35/Type0/";   CutIndex = 4;//25;//24;//41
-   MassPrediction(InputDir, CutIndex, "Mass");
-
-   InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type0/";   CutIndex = 4;//25;//24;//41
-   MassPrediction(InputDir, CutIndex, "Mass");
-
-
-
    InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type2/";   CutIndex = 14;//²38;//83;// 82;//18;
 //   Make2DPlot_Core(InputDir,CutIndex);
 //   CutFlow(InputDir);
 //   SelectionPlot(InputDir, CutIndex);
-    MassPrediction(InputDir, CutIndex, "Mass");
+//    MassPrediction(InputDir, CutIndex, "Mass");
 //   MassPrediction(InputDir, CutIndex, "MassTOF");
 //   MassPrediction(InputDir, CutIndex, "MassComb");     
 //   PredictionAndControlPlot(InputDir, CutIndex);
 // SignalMassPlot(InputDir,0);return;
-// GetSystematicOnPrediction(InputDir);
+ GetSystematicOnPrediction(InputDir);
 
 
   InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type0/";   CutIndex = 28;/*65;*//*39;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
@@ -171,59 +163,51 @@ void GetSystematicOnPrediction(string InputPattern){
    double ArrT[6][20];
 
      std::vector<int> Index;   std::vector<int> Plot;
-     Index.push_back(82);      Plot.push_back(0);
-     Index.push_back(83);      Plot.push_back(0);
-     Index.push_back(84);      Plot.push_back(0);
-     Index.push_back(85);      Plot.push_back(0);
-     Index.push_back(86);      Plot.push_back(0);
-     Index.push_back(87);      Plot.push_back(0);
-     Index.push_back(88);      Plot.push_back(0);
+     Index.push_back(14);      Plot.push_back(0);
+     Index.push_back(15);      Plot.push_back(0);
+     Index.push_back(16);      Plot.push_back(0);
+     Index.push_back(17);      Plot.push_back(0);
+     Index.push_back(18);      Plot.push_back(0);
+     Index.push_back(19);      Plot.push_back(0);
+     Index.push_back(20);      Plot.push_back(0);
 
-     Index.push_back(82);      Plot.push_back(1);
-     Index.push_back(90);      Plot.push_back(1);
+     Index.push_back(14);      Plot.push_back(1);
+     Index.push_back(26);      Plot.push_back(1);
+     Index.push_back(38);      Plot.push_back(1);
+     Index.push_back(50);      Plot.push_back(1);
+     Index.push_back(62);      Plot.push_back(1);
+     Index.push_back(74);      Plot.push_back(1);
+     Index.push_back(86);      Plot.push_back(1);
      Index.push_back(98);      Plot.push_back(1);
-     Index.push_back(106);     Plot.push_back(1);
-     Index.push_back(114);     Plot.push_back(1);
-     Index.push_back(122);     Plot.push_back(1);
-     Index.push_back(130);     Plot.push_back(1);
-     Index.push_back(138);     Plot.push_back(1);
 
-     Index.push_back(82);      Plot.push_back(2);
-     Index.push_back(154);     Plot.push_back(2);
-     Index.push_back(226);     Plot.push_back(2);
-     Index.push_back(298);     Plot.push_back(2);
-     Index.push_back(370);     Plot.push_back(2);
-     Index.push_back(442);     Plot.push_back(2);
-     Index.push_back(514);     Plot.push_back(2);
-     Index.push_back(586);     Plot.push_back(2);
-     Index.push_back(658);     Plot.push_back(2);
-     Index.push_back(730);     Plot.push_back(2);
-     Index.push_back(802);     Plot.push_back(2);
+     Index.push_back(14);      Plot.push_back(2);
+     Index.push_back(194);     Plot.push_back(2);
+     Index.push_back(374);     Plot.push_back(2);
+     Index.push_back(554);     Plot.push_back(2);
+     Index.push_back(734);     Plot.push_back(2);
+     Index.push_back(914);     Plot.push_back(2);
+     Index.push_back(1094);    Plot.push_back(2);
+     Index.push_back(1274);    Plot.push_back(2);
 
-     Index.push_back(82 +9);     Plot.push_back(3);
-     Index.push_back(154+9);     Plot.push_back(3);
-     Index.push_back(226+9);     Plot.push_back(3);
-     Index.push_back(298+9);     Plot.push_back(3);
-     Index.push_back(370+9);     Plot.push_back(3);
-     Index.push_back(442+9);     Plot.push_back(3);
-     Index.push_back(514+9);     Plot.push_back(3);
-     Index.push_back(586+9);     Plot.push_back(3);
-     Index.push_back(658+9);     Plot.push_back(3);
-     Index.push_back(730+9);     Plot.push_back(3);
-     Index.push_back(802+9);     Plot.push_back(3);
+     Index.push_back(14+26);      Plot.push_back(3);
+     Index.push_back(194+26);     Plot.push_back(3);
+     Index.push_back(374+26);     Plot.push_back(3);
+     Index.push_back(554+26);     Plot.push_back(3);
+     Index.push_back(734+26);     Plot.push_back(3);
+     Index.push_back(914+26);     Plot.push_back(3);
+     Index.push_back(1094+26);    Plot.push_back(3);
+     Index.push_back(1274+26);    Plot.push_back(3);
 
-     Index.push_back(82 +32);     Plot.push_back(4);
-     Index.push_back(154+32);     Plot.push_back(4);
-     Index.push_back(226+32);     Plot.push_back(4);
-     Index.push_back(298+32);     Plot.push_back(4);
-     Index.push_back(370+32);     Plot.push_back(4);
-     Index.push_back(442+32);     Plot.push_back(4);
-     Index.push_back(514+32);     Plot.push_back(4);
-     Index.push_back(586+32);     Plot.push_back(4);
-     Index.push_back(658+32);     Plot.push_back(4);
-     Index.push_back(730+32);     Plot.push_back(4);
-     Index.push_back(802+32);     Plot.push_back(4);
+     Index.push_back(14+96);      Plot.push_back(4);
+     Index.push_back(194+96);     Plot.push_back(4);
+     Index.push_back(374+96);     Plot.push_back(4);
+     Index.push_back(554+96);     Plot.push_back(4);
+     Index.push_back(734+96);     Plot.push_back(4);
+     Index.push_back(914+96);     Plot.push_back(4);
+     Index.push_back(1094+96);    Plot.push_back(4);
+     Index.push_back(1274+96);    Plot.push_back(4);
 
+     //Not used
      Index.push_back(82 + 4);     Plot.push_back(5);
      Index.push_back(154+ 4);     Plot.push_back(5);
      Index.push_back(226+ 4);     Plot.push_back(5);
