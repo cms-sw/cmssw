@@ -162,7 +162,6 @@ hltCheckPrescaleModules -w hlt.py
 
 log "Preparing single-path configurations"
 for TRIGGER in $TRIGGERS; do
-  log "\t$TRIGGER"
   cat > "$TRIGGER".py << @EOF
 from hlt import *
 
