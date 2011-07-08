@@ -14,7 +14,7 @@ TRIGGERS=$(cat hlt.py | grep 'cms.Path' | sed -e's/process.\(\w\+\) = cms.Path.*
 
 # check if thw menu as a whole was run
 if ! [ -f "hlt.done" ]; then
-  err "ERROR: Execution of the full HLT men failed.\nPlease check the contents of 'hlt.log' for details."
+  err "ERROR: Execution of the full HLT menu failed.\nPlease check the contents of 'hlt.log' for details."
   exit 1
 fi
 
