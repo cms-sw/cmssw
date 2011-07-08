@@ -26,7 +26,7 @@
 // Collaborating Class Headers --
 //-------------------------------
 
-#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //----------------
 // Constructors --
@@ -39,12 +39,11 @@ DTConfigTSPhi::DTConfigTSPhi(const edm::ParameterSet& ps) {
 
 DTConfigTSPhi::DTConfigTSPhi(bool debugTS, unsigned short int tss_buffer[7][31], int ntss, unsigned short int tsm_buffer[9]) { 
 
-  if (ntss == 0) {
-    throw cms::Exception("DTTPG") << "DTConfigTSPhi::DTConfigTSPhi : ntss=" << ntss << std::endl
-				  << "configuration from CCB strings not possible " << std::endl
-				  << "if error occurs configuring from DB this is " << std::endl
-                                  << "likely to be a DTCCBConfigRcd issue" << std::endl;
-  }
+  m_ntss = 0;
+  m_ntsm = 0;
+
+  if (ntss == 0)
+    return;
 
   m_debug = debugTS;
 
@@ -91,6 +90,9 @@ DTConfigTSPhi::DTConfigTSPhi(bool debugTS, unsigned short int tss_buffer[7][31],
       tssmsk1  = memory_tss[4]&0x10 ? 132 : 312;
       tssmsk2  = memory_tss[4]&0x20 ? 132 : 312;
     }
+    
+    m_ntss++;
+
   }
 
   // TSM unpacking
@@ -132,6 +134,8 @@ DTConfigTSPhi::DTConfigTSPhi(bool debugTS, unsigned short int tss_buffer[7][31],
   bool carrytsmd = !((memory_tsmdu[0]&0x10)&&(memory_tsmdd[0]&0x10));
     
   unsigned short tsmhsp = carrytss && carrytsms && carrytsmd;
+
+  m_ntsm++;
 
   if (debug()) {
     std::cout << "TSS :" << std::dec << std::endl << "tstren= " ;
@@ -227,6 +231,9 @@ DTConfigTSPhi::~DTConfigTSPhi() {}
 void
 DTConfigTSPhi::setDefaults(const edm::ParameterSet& ps) {
 
+  m_ntss = 1; //dummy param used only in DB config
+  m_ntsm = 1; //dummy param used only in DB config
+
   // Debug flag 
   m_debug = ps.getUntrackedParameter<bool>("Debug");
   
@@ -235,7 +242,7 @@ DTConfigTSPhi::setDefaults(const edm::ParameterSet& ps) {
   if (checkMask(mymsk)) 
     m_tssmsk[0] = mymsk;
   else {
-    throw cms::Exception("DTTPG") << "DTConfigTSPhi::setDefaults : TSSMSK1 not in correct form: " << mymsk << std::endl;
+    edm::LogVerbatim("DTTPG") << "DTConfigTSPhi::setDefaults : TSSMSK1 not in correct form: " << mymsk << std::endl;
   }
   
   // Order of quaity bits in TSS for sort2
@@ -243,7 +250,7 @@ DTConfigTSPhi::setDefaults(const edm::ParameterSet& ps) {
   if (checkMask(mymsk)) 
     m_tssmsk[1] = mymsk;
   else {
-    throw cms::Exception("DTTPG") << "DTConfigTSPhi::setDefaults : TSSMSK2 not in correct form: " << mymsk << std::endl;
+    edm::LogVerbatim("DTTPG") << "DTConfigTSPhi::setDefaults : TSSMSK2 not in correct form: " << mymsk << std::endl;
   }
   
   // Htrig checking in TSS for sort1
@@ -278,7 +285,7 @@ DTConfigTSPhi::setDefaults(const edm::ParameterSet& ps) {
   if (mygs>=0 && mygs<3)
     m_tssgs1 = mygs;
   else {
-    throw cms::Exception("DTTPG") << "DTConfigTSPhi::setDefaults : TSSGS1 value is not correct: " << mygs << std::endl;
+    edm::LogVerbatim("DTTPG") << "DTConfigTSPhi::setDefaults : TSSGS1 value is not correct: " << mygs << std::endl;
   }
   
   // Ghost 2 supperssion option in TSS
@@ -286,7 +293,7 @@ DTConfigTSPhi::setDefaults(const edm::ParameterSet& ps) {
   if (mygs>=0 && mygs<5)
     m_tssgs2 = mygs;
   else {
-    throw cms::Exception("DTTPG") << "DTConfigTSPhi::setDefaults : TSSGS2 value is not correct: " << mygs << std::endl;
+    edm::LogVerbatim("DTTPG") << "DTConfigTSPhi::setDefaults : TSSGS2 value is not correct: " << mygs << std::endl;
   }
 
   // Correlated ghost 1 supperssion option in TSS
@@ -300,7 +307,7 @@ DTConfigTSPhi::setDefaults(const edm::ParameterSet& ps) {
   if (checkMask(mymsk)) 
     m_tsmmsk[0] = mymsk;
   else {
-    throw cms::Exception("DTTPG") << "DTConfigTSPhi::setDefaults : TSMMSK1 not in correct form: " << mymsk << std::endl;
+    edm::LogVerbatim("DTTPG") << "DTConfigTSPhi::setDefaults : TSMMSK1 not in correct form: " << mymsk << std::endl;
   }
 
   // Order of quaity bits in TSM for sort2
@@ -308,7 +315,7 @@ DTConfigTSPhi::setDefaults(const edm::ParameterSet& ps) {
   if (checkMask(mymsk)) 
     m_tsmmsk[1] = mymsk;
   else {
-    throw cms::Exception("DTTPG") << "DTConfigTSPhi::setDefaults : TSMMSK2 not in correct form: " << mymsk << std::endl;
+    edm::LogVerbatim("DTTPG") << "DTConfigTSPhi::setDefaults : TSMMSK2 not in correct form: " << mymsk << std::endl;
   }
   
   // Htrig checking in TSM for sort1
@@ -343,7 +350,7 @@ DTConfigTSPhi::setDefaults(const edm::ParameterSet& ps) {
   if (mygs>=0 && mygs<3)
     m_tsmgs1 = mygs;
   else {
-    throw cms::Exception("DTTPG") << "DTConfigTSPhi::setDefaults : TSMGS1 value is not correct: " << mygs << std::endl;
+    edm::LogVerbatim("DTTPG") << "DTConfigTSPhi::setDefaults : TSMGS1 value is not correct: " << mygs << std::endl;
   }
 
   // Ghost 2 supperssion option in TSM
@@ -351,7 +358,7 @@ DTConfigTSPhi::setDefaults(const edm::ParameterSet& ps) {
   if (mygs>=0 && mygs<5)
     m_tsmgs2 = mygs;
   else {
-    throw cms::Exception("DTTPG") << "DTConfigTSPhi::setDefaults : TSMGS2 value is not correct: " << mygs << std::endl;
+    edm::LogVerbatim("DTTPG") << "DTConfigTSPhi::setDefaults : TSMGS2 value is not correct: " << mygs << std::endl;
   }
 
   // Correlated ghost 1 supperssion option in TSM
@@ -365,14 +372,14 @@ DTConfigTSPhi::setDefaults(const edm::ParameterSet& ps) {
   if (myhsp>=0 && myhsp<3)
     m_tsmhsp = myhsp;
   else {
-    throw cms::Exception("DTTPG") << "DTConfigTSPhi::setDefaults : TSMHSP value is not correct: " << myhsp << std::endl;
+    edm::LogVerbatim("DTTPG") << "DTConfigTSPhi::setDefaults : TSMHSP value is not correct: " << myhsp << std::endl;
   }
 
   // Handling TSMS masking parameters
   m_tsmword.one();
   int word = ps.getParameter<int>("TSMWORD");
   if (word<0 || word>255){
-    throw cms::Exception("DTTPG") << "DTConfigTSPhi::setDefaults : TSMWORD value is not correct: " << word << std::endl;
+    edm::LogVerbatim("DTTPG") << "DTConfigTSPhi::setDefaults : TSMWORD value is not correct: " << word << std::endl;
   }
   for (int i=0;i<7;i++){
     short int bit = word%2;
@@ -455,25 +462,30 @@ DTConfigTSPhi::print() const {
   std::cout << "******************************************************************************" << std::endl;
 
 }
-
-void 
-DTConfigTSPhi::setTssMasking(unsigned short tssmsk, int i) {
-  if (checkMask(tssmsk)) 
-    m_tssmsk[i-1] = tssmsk;
-  else {
-    throw cms::Exception("DTTPG") << "DTConfigTSPhi::setTssMasking : TSSMSK" << i << " not in correct form: " << tssmsk << std::endl;
-  }
-}
-
-void 
-DTConfigTSPhi::setTsmMasking(unsigned short tsmmsk, int i) {
-  if (checkMask(tsmmsk)) 
-    m_tsmmsk[i-1] = tsmmsk;
-  else {
-    throw cms::Exception("DTTPG") << "DTConfigTSPhi::setTsmMasking : TSMMSK" << i << " not in correct form: " << tsmmsk << std::endl;
-  }
-}
   
+
+int 
+DTConfigTSPhi::nValidTSS() {
+
+  bool isMaskValid = checkMask(TssMasking(0)) && checkMask(TssMasking(1));
+  bool isGsValid = (TssGhost1Flag()>=0 && TssGhost1Flag()<3) && (TssGhost2Flag()>=0 &&  TssGhost2Flag()<5);
+  int nValidTSS = static_cast<int>(isMaskValid && isGsValid ? m_ntss : 0);   
+
+  return nValidTSS;
+}
+
+int 
+DTConfigTSPhi::nValidTSM() {
+
+  bool isMaskValid = checkMask( TsmMasking(0)) && checkMask(TsmMasking(1));
+  bool isGsValid = (TsmGhost1Flag()>=0 && TsmGhost1Flag()<3) && (TsmGhost2Flag()>=0 &&  TsmGhost2Flag()<5);
+  bool isCarryValid =  TsmGetCarryFlag()>=0 && TsmGetCarryFlag()<3;
+  int nValidTSM = static_cast<int>(isMaskValid && isGsValid && isCarryValid ? m_ntsm : 0); 
+  
+  return nValidTSM;
+
+}
+
 bool
 DTConfigTSPhi::checkMask(unsigned short msk){
   
