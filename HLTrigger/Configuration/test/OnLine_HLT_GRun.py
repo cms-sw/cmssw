@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V168 (CMSSW_4_2_0_HLT17)
+# /dev/CMSSW_4_2_0/GRun/V169 (CMSSW_4_2_0_HLT17)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V168')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V169')
 )
 
 process.streams = cms.PSet( 
@@ -5279,12 +5279,14 @@ process.hltPixelTracks = cms.EDProducer( "PixelTrackProducer",
         extraHitRPhitolerance = cms.double( 0.06 ),
         useMultScattering = cms.bool( True ),
         ComponentName = cms.string( "PixelTripletHLTGenerator" ),
-        extraHitRZtolerance = cms.double( 0.06 )
+        extraHitRZtolerance = cms.double( 0.06 ),
+        SeedComparitorPSet = cms.PSet(  ComponentName = cms.string( "none" ) )
       )
     ),
     FitterPSet = cms.PSet( 
       ComponentName = cms.string( "PixelFitterByHelixProjections" ),
-      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" )
+      TTRHBuilder = cms.string( "hltESPTTRHBuilderPixelOnly" ),
+      fixImpactParameter = cms.double( 0.0 )
     ),
     FilterPSet = cms.PSet( 
       chi2 = cms.double( 1000.0 ),
