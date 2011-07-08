@@ -8,9 +8,9 @@
 
 #include "Rtypes.h"
 #include "TGFrame.h"
-#include "Fireworks/Core/interface/FWViewBase.h"
 
 #ifndef __CINT__
+#include "Fireworks/Core/interface/FWViewBase.h"
 #include "Fireworks/Core/interface/FWViewBase.h"
 #include "Fireworks/Core/interface/FWConfigurableParameterizable.h"
 #include "Fireworks/Core/interface/FWStringParameter.h"
@@ -41,9 +41,10 @@ class FWGeoTopNode;
 class FWParameterBase;
 
 
-class FWGeometryTableView : public  FWViewBase 
+class FWGeometryTableView
 #ifndef __CINT__
-                            ,public FWParameterSetterEditorBase
+   : public  FWViewBase,
+     public FWParameterSetterEditorBase
 #endif
 {
 
