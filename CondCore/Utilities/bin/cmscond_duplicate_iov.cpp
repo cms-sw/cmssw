@@ -79,6 +79,7 @@ int cond::DuplicateIOVUtilities::execute(){
   // find tag
   cond::DbScopedTransaction transaction(destDb);
   transaction.start(false);
+  destDb.storage().lockContainer(  IOVNames::container() );
   cond::MetaData  metadata(destDb);
   iovtoken = metadata.getToken(sourceTag);
   if(iovtoken.empty()) 

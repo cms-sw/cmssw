@@ -82,6 +82,7 @@ int cond::LoadIOVUtilities::execute(){
   cond::DbScopedTransaction transaction(session);
   transaction.start(false);
 
+  session.storage().lockContainer(  IOVNames::container() );
   cond::IOVEditor editor(session);
   editor.create(parser.timetype,parser.lastTill);
   editor.bulkAppend(parser.values);
