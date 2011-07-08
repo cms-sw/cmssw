@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HIon/V165 (CMSSW_4_2_0_HLT15)
+# /dev/CMSSW_4_2_0/HIon/V166 (CMSSW_4_2_0_HLT17)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V165')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V166')
 )
 
 streams = cms.PSet( 
@@ -1319,7 +1319,7 @@ hltESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
   appendToDataLabel = cms.string( "" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
-  inactiveStripDetectorLabels = cms.VInputTag(  ),
+  inactiveStripDetectorLabels = cms.VInputTag( 'hltSiStripExcludedFEDListProducer' ),
   badStripCuts = cms.PSet( 
     TID = cms.PSet( 
       maxConsecutiveBad = cms.uint32( 9999 ),

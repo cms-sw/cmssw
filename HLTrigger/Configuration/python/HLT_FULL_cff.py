@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HLT/V610 (CMSSW_4_2_0_HLT15)
+# /dev/CMSSW_4_2_0/HLT/V612 (CMSSW_4_2_0_HLT17)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V610')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V612')
 )
 
 streams = cms.PSet( 
@@ -2907,7 +2907,7 @@ hltESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESProducer",
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
   appendToDataLabel = cms.string( "" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
-  inactiveStripDetectorLabels = cms.VInputTag(  ),
+  inactiveStripDetectorLabels = cms.VInputTag( 'hltSiStripExcludedFEDListProducer' ),
   badStripCuts = cms.PSet( 
     TID = cms.PSet( 
       maxConsecutiveBad = cms.uint32( 9999 ),
@@ -4684,6 +4684,9 @@ hltBLifetimeL25FilterSingleTop = cms.EDFilter( "HLTJetTag",
     MaxTag = cms.double( 99999.0 ),
     MinJets = cms.int32( 1 ),
     saveTags = cms.bool( False )
+)
+hltSiStripExcludedFEDListProducer = cms.EDProducer( "SiStripExcludedFEDListProducer",
+    ProductLabel = cms.InputTag( "rawDataCollector" )
 )
 hltSiStripRawToClustersFacility = cms.EDProducer( "SiStripRawToClusters",
     ProductLabel = cms.InputTag( "rawDataCollector" ),
@@ -7047,7 +7050,8 @@ hltIter1PFJetPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
         vertexSrc = cms.InputTag( "hltPixelVertices" ),
         JetSrc = cms.InputTag( "hltAntiKT5CaloJetsPFEt2" ),
         originZPos = cms.double( 0.0 ),
-        ptMin = cms.double( 0.5 )
+        ptMin = cms.double( 0.5 ),
+        searchOpt = cms.bool( True )
       )
     ),
     OrderedHitsFactoryPSet = cms.PSet( 
@@ -7215,7 +7219,8 @@ hltIter2PFJetPixelSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProducer
         vertexSrc = cms.InputTag( "hltPixelVertices" ),
         JetSrc = cms.InputTag( "hltAntiKT5CaloJetsPFEt5" ),
         originZPos = cms.double( 0.0 ),
-        ptMin = cms.double( 1.2 )
+        ptMin = cms.double( 1.2 ),
+        searchOpt = cms.bool( True )
       )
     ),
     OrderedHitsFactoryPSet = cms.PSet( 
@@ -7336,7 +7341,8 @@ hltIter3PFJetMixedSeedsA = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProduce
         vertexSrc = cms.InputTag( "hltPixelVertices" ),
         JetSrc = cms.InputTag( "hltAntiKT5CaloJetsPFEt5" ),
         originZPos = cms.double( 0.0 ),
-        ptMin = cms.double( 0.8 )
+        ptMin = cms.double( 0.8 ),
+        searchOpt = cms.bool( True )
       )
     ),
     OrderedHitsFactoryPSet = cms.PSet( 
@@ -7382,7 +7388,8 @@ hltIter3PFJetMixedSeedsB = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProduce
         vertexSrc = cms.InputTag( "hltPixelVertices" ),
         JetSrc = cms.InputTag( "hltAntiKT5CaloJetsPFEt5" ),
         originZPos = cms.double( 0.0 ),
-        ptMin = cms.double( 0.8 )
+        ptMin = cms.double( 0.8 ),
+        searchOpt = cms.bool( True )
       )
     ),
     OrderedHitsFactoryPSet = cms.PSet( 
@@ -7554,7 +7561,8 @@ hltIter4PFJetPixelLessSeeds = cms.EDProducer( "SeedGeneratorFromRegionHitsEDProd
         vertexSrc = cms.InputTag( "hltPixelVertices" ),
         JetSrc = cms.InputTag( "hltAntiKT5CaloJetsPFEt5" ),
         originZPos = cms.double( 0.0 ),
-        ptMin = cms.double( 0.8 )
+        ptMin = cms.double( 0.8 ),
+        searchOpt = cms.bool( True )
       )
     ),
     OrderedHitsFactoryPSet = cms.PSet( 
@@ -30513,7 +30521,7 @@ HLTRegionalRecoJetSequenceAK5Corrected = cms.Sequence( HLTRegionalTowerMakerForJ
 HLTDoLocalPixelSequence = cms.Sequence( hltSiPixelDigis + hltSiPixelClusters + hltSiPixelRecHits )
 HLTRecopixelvertexingSequence = cms.Sequence( hltPixelTracks + hltPixelVertices )
 HLTBTagIPSequenceL25SingleTop = cms.Sequence( HLTDoLocalPixelSequence + HLTRecopixelvertexingSequence + hltGetJetsfromBJet30Central + hltSelectorJetsSingleTop + hltBLifetimeL25JetsSingleTop + hltBLifetimeL25AssociatorSingleTop + hltBLifetimeL25TagInfosSingleTop + hltBLifetimeL25BJetTagsSingleTop )
-HLTDoLocalStripSequence = cms.Sequence( hltSiStripRawToClustersFacility + hltSiStripClusters )
+HLTDoLocalStripSequence = cms.Sequence( hltSiStripExcludedFEDListProducer + hltSiStripRawToClustersFacility + hltSiStripClusters )
 HLTBTagIPSequenceL3SingleTop = cms.Sequence( HLTDoLocalPixelSequence + HLTDoLocalStripSequence + hltBLifetimeRegionalPixelSeedGeneratorSingleTop + hltBLifetimeRegionalCkfTrackCandidatesSingleTop + hltBLifetimeRegionalCtfWithMaterialTracksSingleTop + hltBLifetimeL3AssociatorSingleTop + hltBLifetimeL3TagInfosSingleTop + hltBLifetimeL3BJetTagsSingleTop )
 HLTRecoMETSequence = cms.Sequence( HLTDoCaloSequence + hltMet )
 HLTBtagIPSequenceL25Hbb = cms.Sequence( HLTDoLocalPixelSequence + HLTRecopixelvertexingSequence + hltGetJetsfromBJetHbb + hltSelectorJetsHbb + hltBLifetimeL25JetsHbb + hltBLifetimeL25AssociatorHbb + hltBLifetimeL25TagInfosHbb + hltBLifetimeL25BJetTagsHbb )
