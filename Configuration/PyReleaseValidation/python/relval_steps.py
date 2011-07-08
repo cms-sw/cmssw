@@ -336,6 +336,7 @@ PU1={'--pileup':'E7TeV_FlatDist10_2011EarlyData_50ns_PoissonOOT'}
 step1['ZmumuJets_Pt_20_300PU1']=merge([gen('ZmumuJets_Pt_20_300_GEN_7TeV_cfg',K250by100),PU1])
 step1['TTbarPU2']=merge([step1['TTbar'],PU1])
 
+step1['TTbarFSPU']=merge([{'--pileup':'FlatDist10_2011EarlyData_50ns'},step1['TTbarFS']])
 ##########################
 
 
