@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+# Seeding for electrons (activities)
+from FastSimulation.EgammaElectronAlgos.pixelMatchElectronActivitySequenceForHLT_cff import *
 # Seeding for electrons (small windows)
 from FastSimulation.EgammaElectronAlgos.pixelMatchElectronL1IsoSequenceForHLT_cff import *
 from FastSimulation.EgammaElectronAlgos.pixelMatchElectronL1NonIsoSequenceForHLT_cff import *
