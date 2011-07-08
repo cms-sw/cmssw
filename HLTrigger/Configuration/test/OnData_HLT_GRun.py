@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V166 (CMSSW_4_2_0_HLT17)
+# /dev/CMSSW_4_2_0/GRun/V167 (CMSSW_4_2_0_HLT17)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V166')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V167')
 )
 
 process.streams = cms.PSet( 
@@ -1816,7 +1816,7 @@ process.hltIter4ESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESPro
   switchOffPixelsIfEmpty = cms.bool( True ),
   pixelClusterProducer = cms.string( "hltSiPixelClusters" ),
   skipClusters = cms.InputTag( "hltIter4ClustersRefRemoval" ),
-  stripClusterProducer = cms.string( "hltSiStripClusters" ),
+  stripClusterProducer = cms.string( "hltIter4SiStripClusters" ),
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
   appendToDataLabel = cms.string( "" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
@@ -1892,7 +1892,7 @@ process.hltIter3ESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESPro
   switchOffPixelsIfEmpty = cms.bool( True ),
   pixelClusterProducer = cms.string( "hltSiPixelClusters" ),
   skipClusters = cms.InputTag( "hltIter3ClustersRefRemoval" ),
-  stripClusterProducer = cms.string( "hltSiStripClusters" ),
+  stripClusterProducer = cms.string( "hltIter3SiStripClusters" ),
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
   appendToDataLabel = cms.string( "" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
@@ -2080,7 +2080,7 @@ process.hltIter2ESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESPro
   switchOffPixelsIfEmpty = cms.bool( True ),
   pixelClusterProducer = cms.string( "hltSiPixelClusters" ),
   skipClusters = cms.InputTag( "hltIter2ClustersRefRemoval" ),
-  stripClusterProducer = cms.string( "hltSiStripClusters" ),
+  stripClusterProducer = cms.string( "hltIter2SiStripClusters" ),
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
   appendToDataLabel = cms.string( "" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
@@ -2185,7 +2185,7 @@ process.hltIter1ESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESPro
   switchOffPixelsIfEmpty = cms.bool( True ),
   pixelClusterProducer = cms.string( "hltSiPixelClusters" ),
   skipClusters = cms.InputTag( "hltIter1ClustersRefRemoval" ),
-  stripClusterProducer = cms.string( "hltSiStripClusters" ),
+  stripClusterProducer = cms.string( "hltIter1SiStripClusters" ),
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
   appendToDataLabel = cms.string( "" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
