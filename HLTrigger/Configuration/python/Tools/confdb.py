@@ -509,7 +509,7 @@ if 'GlobalTag' in %%(dict)s:
       # FIXME this fragment implements the "gt" option - the others are missing
       self.data += """
 # customize the L1 emulator to run only the GT, and take the GCT and GMT from data
-process.load( 'Configuration.StandardSequences.RawToDigi_Data_cff' )
+process.load( 'Configuration.StandardSequences.%s' )
 process.load( 'Configuration.StandardSequences.SimL1Emulator_cff' )
 import L1Trigger.Configuration.L1Trigger_custom
 process = L1Trigger.Configuration.L1Trigger_custom.customiseL1OnlyGtEmulatorFromRaw( process )
@@ -519,7 +519,7 @@ process = L1Trigger.Configuration.L1Trigger_custom.customiseResetPrescalesAndMas
 import HLTrigger.Configuration.customizeHLTforL1Emulator
 process = HLTrigger.Configuration.customizeHLTforL1Emulator.switchToL1Emulator( process )
 process = HLTrigger.Configuration.customizeHLTforL1Emulator.switchToSimGtDigis( process )
-"""
+""" % ( self.config.data and 'RawToDigi_Data_cff' or 'RawToDigi_cff' )
 
 
   def overrideOutput(self):
