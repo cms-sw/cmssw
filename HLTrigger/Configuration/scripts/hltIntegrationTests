@@ -157,6 +157,9 @@ hltGetConfiguration "$MENU" --full --offline --data $INPUT --unprescale --proces
 # adapt the number of events
 sed -i -e "s/input = cms.untracked.int32( .* )/input = cms.untracked.int32( $SIZE )/" hlt.py
 
+# dump the menu name, and its release template
+log "HLT menu: $(head -n1 hlt.py | cut -c 3-)"
+
 # check the prescale modules
 hltCheckPrescaleModules -w hlt.py
 
