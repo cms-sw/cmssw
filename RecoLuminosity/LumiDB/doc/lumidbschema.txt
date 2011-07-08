@@ -97,39 +97,18 @@ table 6: TRGHLTMAP (insert 1 row per hltpath-l1seed / populated from ConfDB+L1Se
          hltpathname(string),   NOT NULL
          l1seed(string)         NOT NULL
 
-======== tables for global versioning and norm factors ======
-table 7: LUMIVERSION (insert 1 row per either of lumirawversion,norm or bxnorm change)
-         globalversion(string)         PK
-         lumirawversion(string)        NOT NULL        
-         norm(unsigned int)            NOT NULL
-         bxnorm(blob)                  NOT NULL
-         startrun(unsigned int)        (optional)
-         startdate(string)             (optional) 
+======
+table 7: FILLSCHEME (insert 1 row per fillscheme)
+         fillscheme_id(uint64),        NOT NULL
+         fillschemepattern(string),    NOT NULL
+	 correctionfactor(float),            NOT NULL
 
- ====== result tables not there======
-table 7: INTLUMI (insert 1 row per combinatorial of run+lumiversion)
-columns:  
-         runnum(uint32),
-         lumiversion(string),
-         deliveredlumi( float ), 
-         recordedlumi( float ) //total recordedlumi deadtimecorrected
-
-table 8: INTLUMIHLT (insert 1 row per combinatorial of run+lumiversion+hltpath)
-         runnum(uint32),
-         lumiversion(string),
-	 hltpath(string),
-         recordedlumi( float )
-
-====== bookkeeping tables ===== (to be added in a 2nd phase)
-table 9: LATEST_OFFICIAL_RUN (one entry represents the most recent official run fectched from the cms run info db, can be used to trigger new data pulling chain )
-         runnum(uint32),
-         hltkey(string)
-     
  ====== other helper id tables======
          lumisummary_id, NEXTID (uint64,PK)
          lumidetail_id, NEXTID (uint64,PK),
          hlt_id, NEXTID (uint64),
          trg_id, NEXTID (uint64)       
+         fillscheme_id, NEXTID (uint64)
  
 From LumiProducer, we query lumisummary,lumidetail,trg,hlt data in 100 LS(tunable parameter) batch into memory in one DB connection then close the connection. When a new LS is requested, we open a new DB connection asking for this LS+100 into memory.  
 

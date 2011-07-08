@@ -199,6 +199,12 @@ create table lumivalidation(
    flag string,
    comment string
 )
+12
+create table FILLSCHEME (
+   fillscheme_id(uint64),        NOT NULL
+   fillschemepattern(string),    NOT NULL
+   correctionfactor(float),      NOT NULL
+)
 
 new applications:
 
