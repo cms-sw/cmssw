@@ -120,6 +120,7 @@ while true; do
       shift 2
       ;;
     "--" )
+      # inserted by getopt to singal the end of options
       shift
       break
       ;;
@@ -154,6 +155,7 @@ log "Will run $(echo $TRIGGERS | wc -w) HLT paths over $SIZE events, with $JOBS 
 # create all dumps
 log "Extracting full menu dump"
 hltGetConfiguration "$MENU" --full --offline --data $INPUT --unprescale --process "TEST" $EXTRA > hlt.py
+
 # adapt the number of events
 sed -i -e "s/input = cms.untracked.int32( .* )/input = cms.untracked.int32( $SIZE )/" hlt.py
 
@@ -168,7 +170,18 @@ for TRIGGER in $TRIGGERS; do
   cat > "$TRIGGER".py << @EOF
 from hlt import *
 
-process.schedule = cms.Schedule( process.$TRIGGER )
+process.hltOutput = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "$TRIGGER.root" ),
+    fastCloning = cms.untracked.bool( False ),
+    outputCommands = cms.untracked.vstring(
+      'drop *',
+      'keep edmTriggerResults_*_*_*',
+    )
+)
+
+process.Output = cms.EndPath( process.hltOutput )
+
+process.schedule = cms.Schedule( process.$TRIGGER, process.Output )
 @EOF
 done
 
