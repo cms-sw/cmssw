@@ -39,7 +39,7 @@ def switchToCustomL1Digis(process, customGmt, customGct, customGt):
 
   # automatic replacements to use "simGtDigis" and "simGctDigis" instead of "hltGtDigis" or "hltGctDigis"
   for module in process.__dict__.itervalues():
-    if isinstance(module, cms._Parameterizable):
+    if isinstance(module, cms._Module):
       for parameter in module.__dict__.itervalues():
         if isinstance(parameter, cms.InputTag):
           if parameter.moduleLabel == 'hltGtDigis':
