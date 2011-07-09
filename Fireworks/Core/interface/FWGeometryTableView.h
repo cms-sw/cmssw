@@ -20,7 +20,7 @@
 #include "Fireworks/Core/interface/FWParameterSetterEditorBase.h"
 #endif
 
-class TFile;
+
 class TGTextButton;
 class TGeoNode;
 class TGeoVolume;
@@ -51,7 +51,7 @@ class FWGeometryTableView
 public:
    enum EMode { kNode, kVolume };
 
-   FWGeometryTableView(TEveWindowSlot*, FWColorManager*);
+   FWGeometryTableView(TEveWindowSlot*, FWColorManager*, TGeoManager*);
    virtual ~FWGeometryTableView();
   
    void cellClicked(Int_t iRow, Int_t iColumn, 
@@ -59,8 +59,8 @@ public:
                     Int_t iGlobalX, Int_t iGlobalY);
   
    void chosenItem(int);
-   void browse();
-   void readFile();
+   //   void populate3DView();
+   void selectView(int);
    void updateFilter();
 
    void printTable();
@@ -105,7 +105,6 @@ private:
    FWTableWidget          *m_tableWidget;
    FWGeometryTableManager *m_tableManager;
 
-   TFile                  *m_geometryFile;
    TGCompositeFrame       *m_settersFrame;
    TGeoManager            *m_geoManager;
    FWGeoTopNode           *m_eveTopNode;
@@ -114,12 +113,14 @@ private:
 
    TEveWindowFrame*        m_eveWindow;
    TGCompositeFrame*       m_frame;
+
+   TGComboBox*             m_viewBox;
 #ifndef __CINT__
    std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
 #endif
    void resetSetters();
    void makeSetter(TGCompositeFrame* frame, FWParameterBase* param);
-   
+   void updateViewers3DList();
    void loadGeometry();
 
    void autoExpandChanged();

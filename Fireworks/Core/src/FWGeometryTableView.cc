@@ -14,7 +14,6 @@
 
 #include "Fireworks/Core/interface/fwLog.h"
 
-#include "TFile.h"
 #include "TGFileDialog.h"
 #include "TGeoNode.h"
 #include "TGeoMatrix.h"
@@ -22,6 +21,7 @@
 #include "TGButton.h"
 #include "TGLabel.h"
 #include "TGMenu.h"
+#include "TGComboBox.h"
 #include "KeySymbols.h"
 
 // #define PERFTOOL_BROWSER
@@ -50,7 +50,7 @@ enum GeoMenuOptions {
    kTableDebug
 };
 
-FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager* colMng )
+FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager* colMng, TGeoManager* geoManager )
    : FWViewBase(FWViewType::kGeometryTable),
      m_mode(this, "Mode:", 0l, 0l, 1l),
      m_filter(this,"Materials:",std::string()),
@@ -59,12 +59,12 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager*
      m_topNodeIdx(this, "TopNodeIndex", -1l, 0, 1e7),
      m_colorManager(colMng),
      m_tableManager(0),
-     m_geometryFile(0),
-     m_geoManager(0),
+     m_geoManager(geoManager),
      m_eveTopNode(0),
      m_colorPopup(0),
      m_eveWindow(0),
-     m_frame(0)
+     m_frame(0),
+     m_viewBox(0)
 {
    m_eveWindow = iParent->MakeFrame(0);
    TGCompositeFrame* xf = m_eveWindow->GetGUICompositeFrame();
@@ -85,12 +85,11 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager*
    // top row
    {
       TGHorizontalFrame* hp =  new TGHorizontalFrame(m_frame);
-      m_frame->AddFrame(hp,new TGLayoutHints(kLHintsLeft, 4, 2, 2, 2));
  
-      TGTextButton* fileOpen = new TGTextButton (hp, "Open Geometry File");
-      hp->AddFrame(fileOpen);
-      fileOpen->Connect("Clicked()","FWGeometryTableView",this,"browse()");
-
+      if (0) { TGTextButton* fileOpen = new TGTextButton (hp, "Open Geometry File");
+         hp->AddFrame(fileOpen);
+         fileOpen->Connect("Clicked()","FWGeometryTableView",this,"browse()");
+      }
       {
          TGTextButton* rb = new TGTextButton (hp, "cdTop");
          hp->AddFrame(rb);
@@ -100,11 +99,15 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager*
          hp->AddFrame(rb);
          rb->Connect("Clicked()","FWGeometryTableView",this,"cdUp()");
       }
-      if (0){
-         TGTextButton* rb = new TGTextButton (hp, "print");
-         hp->AddFrame(rb);
-         rb->Connect("Clicked()","FWGeometryTableView",this,"printTable()");
+
+      {
+         // hp->AddFrame(new TGLabel(hp,"Scene3D"),new TGLayoutHints(kLHintsBottom, 4,2, 0, 2));
+         m_viewBox = new TGComboBox(hp);
+         updateViewers3DList();
+         hp->AddFrame( m_viewBox,new TGLayoutHints(kLHintsExpandY|kLHintsExpandX, 4, 2, 0, 0));
+         m_viewBox->Connect("Selected(Int_t)", "FWGeometryTableView", this, "selectView(Int_t)");
       }
+      m_frame->AddFrame(hp,new TGLayoutHints(kLHintsLeft|kLHintsExpandX, 4, 2, 2, 2));
    }
 
    m_settersFrame = new TGHorizontalFrame(m_frame);
@@ -122,7 +125,12 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager*
    m_tableWidget->disableGrowInWidth();
    resetSetters();
 
-   browse();
+   if (m_geoManager)
+   {
+      m_tableManager->loadGeometry();
+      cdTop();
+      //      populate3DView();
+   }
 
    m_frame->MapSubwindows();
    m_frame->Layout();
@@ -194,6 +202,47 @@ FWGeometryTableView::makeSetter(TGCompositeFrame* frame, FWParameterBase* param)
 
    m_setters.push_back(ptr);
 }
+
+//==============================================================================
+
+void
+FWGeometryTableView::updateViewers3DList()
+{
+   m_viewBox->RemoveAll();
+   TEveElementList* scenes = gEve->GetScenes();
+   int idx = 0;
+
+   for (TEveElement::List_i it = scenes->BeginChildren(); it != scenes->EndChildren(); ++it)
+   { 
+      TEveScene* s = ((TEveScene*)(*it));
+      TString name = s->GetElementName();
+      if (name.Contains("3D") && !name.Contains("Geo"))
+      {
+         m_viewBox->AddEntry(s->GetElementName(), idx);
+      }
+      ++idx;
+   }
+}
+
+void 
+FWGeometryTableView::selectView(int idx)
+{
+  
+   m_eveTopNode = new FWGeoTopNode(this);
+   const char* n = Form("%s level[%d] size[%d] \n",m_geoManager->GetCurrentNode()->GetName(), getVisLevel(), (int)m_tableManager->refEntries().size());                            
+   m_eveTopNode->SetElementName(n);
+
+ TEveElement::List_i it = gEve->GetScenes()->BeginChildren();
+  std::advance(it, idx);
+
+   TEveScene* s = ((TEveScene*)(*it));
+   TString name = s->GetElementName();
+   s->AddElement(m_eveTopNode);
+
+   m_eveTopNode->ElementChanged();
+   gEve->Redraw3D();
+}
+
 //==============================================================================
 void 
 FWGeometryTableView::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t iKeyMod, Int_t x, Int_t y)
@@ -374,87 +423,11 @@ void FWGeometryTableView::nodeColorChangeRequested(Color_t col)
    refreshTable3D();
 }
 
-
-void 
-FWGeometryTableView::readFile()
-{
-   try {
-      if ( ! m_geometryFile )
-         throw std::runtime_error("No root file.");
-  
-      m_geometryFile->ls();
-      
-      if ( !m_geometryFile->Get("cmsGeo;1"))
-         throw std::runtime_error("Can't find TGeoManager object in selected file.");
-
-      m_geoManager = (TGeoManager*) m_geometryFile->Get("cmsGeo;1");
-
-#ifdef PERFTOOL_BROWSER  
-      ProfilerStart("load.browser.prof");
-#endif  
-      m_tableManager->loadGeometry();
-
-#ifdef PERFTOOL_BROWSER  
-      ProfilerStop();
-#endif 
-
-
-      m_eveTopNode = new FWGeoTopNode(this);
-      const char* n = Form("%s level[%d] size[%d] \n",m_geoManager->GetCurrentNode()->GetName(), getVisLevel(), (int)m_tableManager->refEntries().size());                            
-      m_eveTopNode->SetElementName(n);
-
-      TEveElementList* scenes = gEve->GetScenes();
-      for (TEveElement::List_i it = scenes->BeginChildren(); it != scenes->EndChildren(); ++it)
-      {
-         TEveScene* s = ((TEveScene*)(*it));
-         TString name = s->GetElementName();
-         if (name.Contains("3D") && !name.Contains("Geo"))
-            s->AddElement(m_eveTopNode);
-      }
-
-      cdNode(m_topNodeIdx.value());
-
-   }
-   catch (std::runtime_error &e)
-   {
-      fwLog(fwlog::kError) << "Failed to load simulation geomtery.\n";
-   }
-}
-
 void
 FWGeometryTableView::printTable()
 {
    // print all entries
    m_tableManager->printChildren(-1);
-}
-
-void
-FWGeometryTableView::browse()
-{
-   //std::cout<<"FWGeometryTableView::browse()"<<std::endl;
-
-   const char* defaultPath = Form("%s/cmsSimGeom-14.root",  gSystem->Getenv( "CMSSW_BASE" ));
-   if( !gSystem->AccessPathName(defaultPath))
-   {
-      m_geometryFile = new TFile( defaultPath, "READ");
-   }
-
-   /*
-   else
-   {  
-      const char* kRootType[] = {"ROOT files","*.root", 0, 0};
-      TGFileInfo fi;
-      fi.fFileTypes = kRootType;
-
-      new TGFileDialog(gClient->GetDefaultRoot(), 
-                       (TGWindow*) m_guiManager->getMainFrame(), kFDOpen, &fi);
-
-      m_guiManager->updateStatus("loading geometry file...");
-      m_geometryFile = new TFile(fi.fFilename, "READ");
-   }
-   m_guiManager->clearStatus();
-   */
-   readFile();
 }
 
 //______________________________________________________________________________
