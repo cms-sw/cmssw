@@ -26,6 +26,7 @@ Usage:
   -n | --size  EVENTS       Run on EVENTS events (-1 for all, default is 100)
   -j | --jobs  JOBS         Run JOBS jobs in parallel (default is 4)
   -x | --extra OPTIONS      Pass OPTIONS directly to hltGetConfiguration
+       --mc                 Run over MC instead of data (the default)
   -h | --help               Print this help message and exit.
 
 
@@ -60,7 +61,7 @@ Exmples:
 "
 
 # parse command line argument and options
-OPTS=$(getopt -n "$NAME" -o "s:d:i:j:n:x:h" -l "setup:,dir:,input:,jobs:,size:,extra:,help" -- "$@")
+OPTS=$(getopt -n "$NAME" -o "s:d:i:j:n:x:h" -l "setup:,dir:,input:,jobs:,size:,mc,extra:,help" -- "$@")
 
 # invalid options
 if [ $? != 0 ]; then 
@@ -77,6 +78,7 @@ SIZE=100
 JOBS=4
 WORKDIR="hltintegration"
 EXTRA=""
+DATA="--data"
 
 # parse options
 while true; do
@@ -119,6 +121,9 @@ while true; do
       EXTRA="$EXTRA $2"
       shift 2
       ;;
+    "--mc" )
+      DATA="--mc"
+      shift 1
     "--" )
       # inserted by getopt to singal the end of options
       shift
@@ -154,7 +159,7 @@ log "Will run $(echo $TRIGGERS | wc -w) HLT paths over $SIZE events, with $JOBS 
 
 # create all dumps
 log "Extracting full menu dump"
-hltGetConfiguration "$MENU" --full --offline --data $INPUT --unprescale --process "TEST" $EXTRA > hlt.py
+hltGetConfiguration "$MENU" --full --offline $DATA $INPUT --unprescale --process "TEST" $EXTRA > hlt.py
 
 # adapt the number of events
 sed -i -e "s/input = cms.untracked.int32( .* )/input = cms.untracked.int32( $SIZE )/" hlt.py
