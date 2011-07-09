@@ -124,6 +124,7 @@ while true; do
     "--mc" )
       DATA="--mc"
       shift 1
+      ;;
     "--" )
       # inserted by getopt to singal the end of options
       shift
