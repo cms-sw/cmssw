@@ -160,7 +160,7 @@ log "Will run $(echo $TRIGGERS | wc -w) HLT paths over $SIZE events, with $JOBS 
 
 # create all dumps
 log "Extracting full menu dump"
-hltGetConfiguration "$MENU" --full --offline $DATA $INPUT --unprescale --process "TEST" $EXTRA > hlt.py
+hltGetConfiguration "$MENU" --full --offline $DATA $INPUT --unprescale --process "TEST$(date -u +'%Y%m%d%H%M%S')" $EXTRA > hlt.py
 
 # adapt the number of events
 sed -i -e "s/input = cms.untracked.int32( .* )/input = cms.untracked.int32( $SIZE )/" hlt.py
