@@ -933,6 +933,11 @@ class PickRelValInputFiles( ConfigToolBase ):
             if debug:
                 self.messageEmptyList()
             return filePaths
+        elif os.uname() == "Darwin":
+            print '%s INFO : Running on MacOSX without direct access to RelVal files.'%( self._label )
+            if debug:
+                self.messageEmptyList()
+            return filePaths
         elif len( domain ) == 1:
             print '%s INFO : Running on local host \'%s\' without direct access to RelVal files'%( self._label, domain[ 0 ] )
             if debug:
