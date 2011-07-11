@@ -47,7 +47,7 @@ for ich,fname in enumerate(args):
             for p in DC.exp[b].keys(): # so that we get only self.DC.processes contributing to this bin
                 r = str(errline[b][p]);
                 if type(errline[b][p]) == list: r = "%.3f/%.3f" % (errline[b][p][0], errline[b][p][1])
-                elif type != "lnN": r = "%.3f" % errline[b][p]
+                elif type in ("lnN",'gmM'): r = "%.3f" % errline[b][p]
                 if errline[b][p] == 0: r = "-"
                 if len(r) > cmax: cmax = len(r) # get max col length, as it's more tricky do do it later with a map
                 systeffect[bout][p] = r
