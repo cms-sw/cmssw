@@ -48,6 +48,13 @@ HLTMuonL2PreFilter::HLTMuonL2PreFilter(const edm::ParameterSet& iConfig):
 					  << "does not match number of eta bins." << endl;
   }
 
+  if(absetaBins_.size()>1) {
+    for(unsigned int i=0; i<absetaBins_.size()-1; ++i) {
+      if(absetaBins_[i+1]<=absetaBins_[i])
+	throw cms::Exception("Configuration") << "Absolute eta bins must be in increasing order." << endl;
+    }
+  }
+
   // dump parameters for debugging
   if(edm::isDebugEnabled()){
     ostringstream ss;
