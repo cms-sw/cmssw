@@ -212,8 +212,13 @@ fftjet_jet_maker = cms.EDProducer(
     #   PileupGridConfiguration, and pileupDensityCalc
     calculatePileup = cms.bool(False),
     #
-    # If the pile-up is estimated, do we want to subtract it as a 4-vector?
+    # If the pile-up is estimated, do we want to subtract it?
     subtractPileup = cms.bool(False),
+    #
+    # If the pile-up is both estimated and subtracted, do we want to use
+    # the 4-vector pile-up subtraction scheme? (The alternative is based
+    # on scaling the jet Pt).
+    subtractPileupAs4Vec = cms.bool(True),
     #
     # Source of the pile-up energy flow data
     pileupLabel = cms.InputTag("pileupestimator", "FFTJetPileupEstimatePF")

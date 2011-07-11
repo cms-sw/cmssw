@@ -68,7 +68,8 @@ public:
         RESOLUTION = 0xff,
         CONSTITUENTS_RESUMMED = 0x100,
         PILEUP_CALCULATED = 0x200,
-        PILEUP_SUBTRACTED = 0x400
+        PILEUP_SUBTRACTED_4VEC = 0x400,
+        PILEUP_SUBTRACTED_PT = 0x800
     };
 
     enum Resolution
@@ -250,6 +251,7 @@ private:
     // pile-up subtraction does not modify eta and phi moments.
     const bool calculatePileup;
     const bool subtractPileup;
+    const bool subtractPileupAs4Vec;
 
     // Label for the pile-up energy flow. Must be specified
     // if the pile-up is subtracted.
