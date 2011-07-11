@@ -7,6 +7,7 @@
 #include "../interface/RooSimultaneousOpt.h"
 #include "../interface/HZZ4LRooPdfs.h"
 #include "../interface/th1fmorph.h"
+#include "../interface/HZZ2L2QRooPdfs.h"
 
 #ifdef __CINT__
 #pragma link off all globals;
@@ -31,4 +32,8 @@
 #pragma link C++ class RooRelBW1+;
 #pragma link C++ class RooRelBWUF+;
 #pragma link C++ class RooRelBWUFParam+;
+#pragma link C++ class RooRelBW+;
+#pragma link C++ class RooDoubleCB+;
+#pragma link C++ class RooFermi+;
+
 #endif
