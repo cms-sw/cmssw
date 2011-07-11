@@ -15,8 +15,8 @@
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="CommonTools/UtilAlgos"/>
-<use   name="hepmc"/>
-<use   name="pythia6"/>
+<use   name="GeneratorInterface/Pythia6Interface"/>
+<use   name="GeneratorInterface/Core"/>
 <use   name="boost"/>
 <use   name="geant4core"/>
 <use   name="root"/>
