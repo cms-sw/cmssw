@@ -1,8 +1,8 @@
 <use name="FWCore/Framework"/>
 <use name="FWCore/ParameterSet"/>
 <use name="root"/>
-<use name="hepmc"/>
 <use name="SimDataFormats/GeneratorProducts"/> 
+<use name="GeneratorInterface/Core"/>
 <use name="CommonTools/UtilAlgos"/>
 
 <library file="HZZ4muAnalyzer.cc" name="HZZ4muExampleAnalyzer">
