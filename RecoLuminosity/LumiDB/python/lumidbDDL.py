@@ -117,6 +117,7 @@ def createTables(schema):
             cmsrunsummary.insertColumn('EGEV','unsigned int')
             cmsrunsummary.insertColumn('AMODETAG','string',28,False)
             cmsrunsummary.insertColumn('FILLSCHEME','string',128,False)
+            cmsrunsummary.insertColumn('NCOLLIDINGBUNCHES','usigned int')
             cmsrunsummary.setPrimaryKey('RUNNUM')
             db.createTable(cmsrunsummary,withIdTable=False)
             created.append(nameDealer.cmsrunsummaryTableName())

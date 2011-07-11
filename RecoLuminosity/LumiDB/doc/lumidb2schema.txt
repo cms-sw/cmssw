@@ -83,7 +83,8 @@ create table cmsrunsummary(        #data table
      stoptime    timestamp(6),   
      egev uint32,
      amodetag string      (28),
-     fillscheme string(128)
+     fillscheme string(128),
+     ncollidingbunches uint32
 )
 5. 
 create table lumisummaryv2(         #data table
