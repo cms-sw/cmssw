@@ -21,7 +21,26 @@ for r in [1,2]:
 process.check = cms.EDAnalyzer("MulticoreRunLumiEventChecker",
                                eventSequence = seq)
 
-process.e = cms.EndPath(process.check)
+readRunElements = list()
+for i in xrange(0,10):
+    readRunElements.append(cms.untracked.PSet(name=cms.untracked.string("Foo"+str(i)),
+                                          means = cms.untracked.vdouble([i+x for x in (0,1)]),
+                                          entries=cms.untracked.vdouble([x for x in (2,1)])
+                                          ))
+
+readLumiElements=list()
+for i in xrange(0,10):
+    readLumiElements.append(cms.untracked.PSet(name=cms.untracked.string("Foo"+str(i)),
+                                          #file3, which is run 2 has means shifted by 1
+                                          means = cms.untracked.vdouble([i+x/20 for x in xrange(0,30)]),
+                                          entries=cms.untracked.vdouble([1 for x in xrange(0,30)])
+                                          ))
+
+process.reader = cms.EDAnalyzer("DummyReadDQMStore",
+                               runElements = cms.untracked.VPSet(*readRunElements),
+                               lumiElements = cms.untracked.VPSet(*readLumiElements) )
+
+process.e = cms.EndPath(process.check+process.reader)
 
 process.add_(cms.Service("DQMStore"))
 #process.add_(cms.Service("Tracer"))
