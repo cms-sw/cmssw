@@ -82,7 +82,7 @@ step1['RunElectron2011A']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2011A-v
 step1['RunPhoton2011A']={'INPUT':InputInfo(dataSet='/Photon/Run2011A-v1/RAW',label='photon2011A',run=Run2011A,events=100000)}
 step1['RunJet2011A']={'INPUT':InputInfo(dataSet='/Jet/Run2011A-v1/RAW',label='jet2011A',run=Run2011A,events=100000)}
 
-step1['RunHI2010']={'INPUT':InputInfo(dataSet='/HIAllPhysics/HIRun2010-v1/RAW',label='hi201',run=150119,events=100000,location='STD')}
+step1['RunHI2010']={'INPUT':InputInfo(dataSet='/HIAllPhysics/HIRun2010-v1/RAW',label='hi201',run=152698,events=100000,location='STD')}
 
 #### Standard release validation samples ####
 
