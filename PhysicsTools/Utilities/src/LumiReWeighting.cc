@@ -43,8 +43,7 @@ LumiReWeighting::LumiReWeighting( std::string generatedFile,
 	generatedFile_ = boost::shared_ptr<TFile>( new TFile(generatedFileName_.c_str()) ); //MC distribution
 	dataFile_      = boost::shared_ptr<TFile>( new TFile(dataFileName_.c_str()) );      //Data distribution
 
-	weights_ = boost::shared_ptr<TH1F> (  (static_cast<TH1F*>(dataFile_->Get( DataHistName_.c_str() )->Clone() )) );
-	//	weights_ = boost::shared_ptr<TH1F> ( new TH1F( *(static_cast<TH1F*>(dataFile_->Get( DataHistName_.c_str() )->Clone() ))));
+	weights_ = boost::shared_ptr<TH1>(  (static_cast<TH1*>(dataFile_->Get( DataHistName_.c_str() )->Clone() )) );
 
 	// MC * data/MC = data, so the weights are data/MC:
 
