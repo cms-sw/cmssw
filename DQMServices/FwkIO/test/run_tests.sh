@@ -108,6 +108,10 @@ pushd ${LOCAL_TMP_DIR}
   echo ${checkFile} ------------------------------------------------------------
   python ${LOCAL_TEST_DIR}/${checkFile} || die "python ${checkFile}" $?
 
+  testConfig=read_merged_file1_file2_cfg.py
+  echo ${testConfig} ------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${testConfig} || die "cmsRun ${testConfig}" $?
+
   testConfig=merge_file1_file3_file2_cfg.py
   rm -f dqm_merged_file1_file3_file2.root
   echo ${testConfig} ------------------------------------------------------------
