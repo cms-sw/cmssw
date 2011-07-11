@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Apr 29 13:26:29 CDT 2011
-// $Id: DQMRootOutputModule.cc,v 1.9 2011/05/17 17:19:43 chrjones Exp $
+// $Id: DQMRootOutputModule.cc,v 1.10 2011/06/22 16:08:13 chrjones Exp $
 //
 
 // system include files
@@ -434,24 +434,6 @@ void DQMRootOutputModule::beginRun(edm::RunPrincipal const& iPrincipal) {
   } else {
     m_presentHistoryIndex = itFind - m_seenHistories.begin();
   }
-
-  edm::Service<DQMStore> dstore;
-  
-  std::vector<MonitorElement *> items(dstore->getAllContents(""));
-  for(std::vector<MonitorElement*>::iterator it = items.begin(), itEnd=items.end();
-      it!=itEnd;
-      ++it) {
-        //NOTE: the following logic comes from MEtoEDMConverter
-        switch((*it)->kind()) {
-          case MonitorElement::DQM_KIND_INT:
-          case MonitorElement::DQM_KIND_REAL:
-          case MonitorElement::DQM_KIND_STRING:
-            break;
-          default:
-            (*it)->Reset();
-      }
-  }
-  
 }
 
 void DQMRootOutputModule::startEndFile() {
