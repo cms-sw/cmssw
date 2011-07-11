@@ -43,41 +43,9 @@ class HLTProcess(object):
     "HLT_Mu5_Track5_Jpsi_v*",
     "HLT_Mu7_Track5_Jpsi_v*",
     "HLT_Mu7_Track7_Jpsi_v*",
-    "HLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT160_v*",
-    "HLT_Mu3_Ele8_CaloIdT_TrkIdVL_HT160_v*",
-    "HLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT150_v*",
-    "HLT_Mu3_Ele8_CaloIdT_TrkIdVL_HT150_v*",
-    "HLT_Mu5_DoubleEle8_CaloIdL_TrkIdVL_v*",
-    "HLT_Mu5_Ele8_CaloIdT_TrkIdVL_Ele8_CaloIdL_TrkIdVL_v*",
-    "HLT_DoubleMu5_Ele8_CaloIdL_TrkIdVL_v*",
-    "HLT_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v*",
-    "HLT_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*",
-    "HLT_Ele10_CaloIdL_TrkIdVL_CaloIsoVL_TrkIsoVL_R005_MR200_v*",
-    "HLT_Ele10_CaloIdL_TrkIdVL_CaloIsoVL_TrkIsoVL_R020_MR200_v*",
-    "HLT_Ele10_CaloIdL_TrkIdVL_CaloIsoVL_TrkIsoVL_R025_MR200_v*",
-    "HLT_Ele10_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_R020_MR200_v*",
-    "HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R005_MR200_v*",
-    "HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R020_MR200_v*",
-    "HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R025_MR200_v*",
-    "HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R029_MR200_v*",
-    "HLT_Ele17_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_Ele8_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_v*",
-    "HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*",
-    "HLT_Ele25_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v*",
+
     "HLT_HT250_DoubleDisplacedJet60_v*",
     "HLT_HT250_DoubleDisplacedJet60_PromptTrack_v*",
-    "HLT_HT200_DoubleLooseIsoPFTau10_Trk3_PFMHT35_v*",
-    "HLT_HT250_DoubleLooseIsoPFTau10_Trk3_PFMHT35_v*",
-    "HLT_HT300_DoubleLooseIsoPFTau10_Trk3_PFMHT40_v*",
-    "HLT_HT350_DoubleLooseIsoPFTau10_Trk3_PFMHT45_v*",
-    "HLT_HT250_DoubleIsoPFTau10_Trk3_PFMHT35_v*",
-    "HLT_HT300_DoubleIsoPFTau10_Trk3_PFMHT40_v*",
-    "HLT_HT350_DoubleIsoPFTau10_Trk3_PFMHT45_v*",
-    "HLT_HT200_Ele5_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_PFMHT35_v*",
-    "HLT_HT250_Ele5_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_PFMHT35_v*",
-    "HLT_HT300_Ele5_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_PFMHT40_v*",
-    "HLT_HT350_Ele5_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_PFMHT45_v*",
-    "HLT_HT300_Ele5_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_PFMHT40_v*",
-    "HLT_HT350_Ele5_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_PFMHT45_v*",
   )
 
   def __init__(self, configuration):
@@ -441,6 +409,8 @@ if cmsswVersion > "CMSSW_4_3":
       self._fix_parameter(                               type = 'InputTag', value = 'hltMuonCSCDigis',      replace = 'simMuonCSCDigis')
       self._fix_parameter(                               type = 'InputTag', value = 'hltMuonDTDigis',       replace = 'simMuonDTDigis')
       self._fix_parameter(                               type = 'InputTag', value = 'hltMuonRPCDigis',      replace = 'simMuonRPCDigis')
+      # TOBE REMOVED as soon the configuration in confDB gets fixed:
+      self._fix_parameter(                               type = 'InputTag', value = 'hltPFJetCtfWithMaterialTracks', replace = 'hltIter4Merged')
 
       # fix the definition of sequences and paths
       self.data = re.sub( r'hltMuonCSCDigis', r'cms.SequencePlaceholder( "simMuonCSCDigis" )',  self.data )
@@ -884,6 +854,12 @@ if 'GlobalTag' in %%(dict)s:
       self.options['modules'].append( "-hltCtfL1IsoWithMaterialTracks" )
       self.options['modules'].append( "-hltCkfL1NonIsoTrackCandidates" )
       self.options['modules'].append( "-hltCtfL1NonIsoWithMaterialTracks" )
+      self.options['modules'].append( "-hltCkf3HitL1IsoTrackCandidates" )
+      self.options['modules'].append( "-hltCtf3HitL1IsoWithMaterialTracks" )
+      self.options['modules'].append( "-hltCkf3HitL1NonIsoTrackCandidates" )
+      self.options['modules'].append( "-hltCtf3HitL1NonIsoWithMaterialTracks" )
+      self.options['modules'].append( "-hltCkf3HitActivityTrackCandidates" )
+      self.options['modules'].append( "-hltCtf3HitActivityWithMaterialTracks" )
       self.options['modules'].append( "-hltESRegionalEgammaRecHit" )
       self.options['modules'].append( "-hltEcalRegionalJetsFEDs" )
       self.options['modules'].append( "-hltEcalRegionalMuonsFEDs" )
@@ -950,6 +926,9 @@ if 'GlobalTag' in %%(dict)s:
 
       self.options['modules'].append( "-hltPixelTracksForMinBias" )
       self.options['modules'].append( "-hltPixelTracksForHighMult" )
+      self.options['modules'].append( "-hltIter4Merged" )
+      self.options['modules'].append( "-hltPFJetCtfWithMaterialTracks" )
+      self.options['modules'].append( "hltPixelMatchElectronsActivity" )
 
       self.options['modules'].append( "-hltMuonCSCDigis" )
       self.options['modules'].append( "-hltMuonDTDigis" )
@@ -977,6 +956,7 @@ if 'GlobalTag' in %%(dict)s:
       self.options['sequences'].append( "-HLTBeginSequenceBPTX" )
       self.options['sequences'].append( "-HLTBeginSequenceAntiBPTX" )
       self.options['sequences'].append( "-HLTHBHENoiseSequence" )
+      self.options['sequences'].append( "-HLTIterativeTracking" )
 
       # remove HLTAnalyzerEndpath from fastsim cff's
       if self.config.fragment:
