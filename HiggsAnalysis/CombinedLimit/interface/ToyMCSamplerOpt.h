@@ -22,12 +22,14 @@ namespace toymcoptutils {
             SimPdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData = NULL, int forceEvents = 0) ;
             ~SimPdfGenInfo() ;
             RooAbsData *generate(RooRealVar *&weightVar, const RooDataSet* protoData = NULL, int forceEvents = 0) ;
+            void setCopyData(bool copyData) { copyData_ = copyData; }
         private:
             RooAbsCategoryLValue            *cat_;
             RooArgSet                        observables_;
             std::vector<SinglePdfGenInfo *>  pdfs_; 
             RooArgSet                        ownedCrap_;
             std::map<std::string,RooAbsData*> datasetPieces_;
+            bool                              copyData_;
             //std::map<std::string,RooDataSet*> datasetPieces_;
 
     }; 

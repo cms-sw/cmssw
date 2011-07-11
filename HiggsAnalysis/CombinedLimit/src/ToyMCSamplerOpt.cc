@@ -1,6 +1,7 @@
 #include "../interface/ToyMCSamplerOpt.h"
 #include "../interface/utils.h"
 #include <memory>
+#include <stdexcept>
 #include <RooSimultaneous.h>
 #include <RooRealVar.h>
 #include <RooDataHist.h>
@@ -103,7 +104,8 @@ toymcoptutils::SinglePdfGenInfo::generate(const RooDataSet* protoData, int force
 
 toymcoptutils::SimPdfGenInfo::SimPdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData, int forceEvents) :
     cat_(0),
-    observables_(observables)
+    observables_(observables),
+    copyData_(true)
 {
     assert(forceEvents == 0 && "SimPdfGenInfo: forceEvents must be zero at least for now");
     RooSimultaneous *simPdf = dynamic_cast<RooSimultaneous *>(&pdf);
@@ -168,8 +170,22 @@ toymcoptutils::SimPdfGenInfo::generate(RooRealVar *&weightVar, const RooDataSet*
             } 
             //if (data->isWeighted()) needsWeights = true;
         }
-        ret = new RooDataSet("gen", "", observables_, RooFit::Index((RooCategory&)*cat_), RooFit::Link(datasetPieces_) /*, RooFit::OwnLinked()*/);
-        //ret = new RooDataSet("gen", "", observables_, RooFit::Index((RooCategory&)*cat_), RooFit::Import(datasetPieces_) /*, RooFit::OwnLinked()*/);
+        if (copyData_) {
+            std::map<std::string,RooDataSet*> otherMap;
+            for (std::map<std::string,RooAbsData*>::iterator it = datasetPieces_.begin(), ed = datasetPieces_.end(); it != ed; ++it) {
+                RooDataSet* rds = dynamic_cast<RooDataSet*>(it->second);
+                if (rds == 0) throw std::logic_error("Error, it should have been a RooDataSet");
+                otherMap[it->first] = rds;
+            }
+            if (weightVar) {
+                RooArgSet varsPlusWeight(observables_); varsPlusWeight.add(*weightVar);
+                ret = new RooDataSet("gen", "", varsPlusWeight, RooFit::Index((RooCategory&)*cat_), RooFit::Import(otherMap), RooFit::WeightVar(*weightVar));
+            } else {
+                ret = new RooDataSet("gen", "", observables_, RooFit::Index((RooCategory&)*cat_), RooFit::Import(otherMap));
+            }
+        } else {
+            ret = new RooDataSet("gen", "", observables_, RooFit::Index((RooCategory&)*cat_), RooFit::Link(datasetPieces_) /*, RooFit::OwnLinked()*/);
+        }
     } else ret = pdfs_[0]->generate(protoData, forceEvents);
     //std::cout << "Dataset generated from sim pdf (weighted? " << ret->isWeighted() << ")" << std::endl; utils::printRAD(ret);
     return ret;
@@ -315,6 +331,9 @@ ToyMCSamplerOpt::Generate(RooAbsPdf& pdf, RooArgSet& observables, const RooDataS
    if (events == 0) events = fNEvents;
    if (events != 0) return RooStats::ToyMCSampler::Generate(pdf, observables, protoData, forceEvents);
    toymcoptutils::SimPdfGenInfo *& info = genCache_[&pdf];
-   if (info == 0) info = new toymcoptutils::SimPdfGenInfo(pdf, observables, fGenerateBinned, protoData, forceEvents);
+   if (info == 0) { 
+       info = new toymcoptutils::SimPdfGenInfo(pdf, observables, fGenerateBinned, protoData, forceEvents);
+       info->setCopyData(false);
+   }
    return info->generate(weightVar_, protoData, forceEvents);
 }
