@@ -1,5 +1,5 @@
 //
-//     $Id: JetTranslatorBase.h,v 1.1 2011/05/26 09:46:53 mseidel Exp $
+//     $Id: JetTranslatorBase.h,v 1.2 2011/05/26 12:57:17 mseidel Exp $
 //
 
 /**
@@ -77,11 +77,17 @@ namespace hitfit{
            resolution for \f$b\f$ jets.
            
            @param jetCorrectionLevel The jet correction level.
+           
+           @param jes The jet energy scale.
+           
+           @param jesB The b-jet energy scale.
 
          */
         JetTranslatorBase(const std::string& udscFile,
                           const std::string& bFile,
-                          const std::string& jetCorrectionLevel);
+                          const std::string& jetCorrectionLevel,
+                          double jes,
+                          double jesB);
 
         /**
            @brief Destructor.
@@ -144,6 +150,16 @@ namespace hitfit{
            @brief The jet correction level.
          */
         std::string jetCorrectionLevel_;
+        
+        /**
+           @brief The jet energy scale.
+         */
+        double jes_;
+        
+        /**
+           @brief The b-jet energy scale.
+         */
+        double jesB_;
 
     };
 

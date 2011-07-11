@@ -30,15 +30,23 @@ hitFitTtSemiLepEvent = cms.EDProducer("TtSemiLepHitFitProducerMuon",
     
     # ------------------------------------------------
     # set mass values used in the constraints
-    # set mass to 0 for no constrain
+    # set mass to 0 for no constraint
     # ------------------------------------------------    
     mW   = cms.double(80.4),
     mTop = cms.double(0.),
     
-    ## specify jet correction level as, Uncorrected, L1Offset, L2Relative, L3Absolute, L4Emf,
-    ## L5Hadron, L6UE, L7Parton, a flavor specification will be added automatically, when
-    ## chosen    
+    # ------------------------------------------------
+    # specify jet correction level as, Uncorrected, L1Offset, L2Relative, L3Absolute, L4Emf,
+    # L5Hadron, L6UE, L7Parton, a flavor specification will be added automatically, when
+    # chosen
+    # ------------------------------------------------
     jetCorrectionLevel = cms.string("L3Absolute"),
+    
+    # ------------------------------------------------
+    # rescale jets
+    # ------------------------------------------------
+    jes  = cms.double(1.0),
+    jesB = cms.double(1.0),
 )
 
 

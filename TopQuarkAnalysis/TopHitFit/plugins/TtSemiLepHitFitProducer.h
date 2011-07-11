@@ -52,6 +52,10 @@ class TtSemiLepHitFitProducer : public edm::EDProducer {
   
   /// jet correction level
   std::string jetCorrectionLevel_;
+  
+  /// jet energy scale
+  double jes_;
+  double jesB_;
 
   struct FitResult {
     int Status;
@@ -100,6 +104,8 @@ TtSemiLepHitFitProducer<LeptonCollection>::TtSemiLepHitFitProducer(const edm::Pa
   mW_                      (cfg.getParameter<double>       ("mW"                  )),
   mTop_                    (cfg.getParameter<double>       ("mTop"                )),
   jetCorrectionLevel_      (cfg.getParameter<std::string>  ("jetCorrectionLevel"  )),
+  jes_                     (cfg.getParameter<double>       ("jes"                 )),
+  jesB_                    (cfg.getParameter<double>       ("jesB"                )),
   
   // The following five initializers read the config parameters for the
   // ASCII text files which contains the physics object resolutions.
@@ -120,7 +126,7 @@ TtSemiLepHitFitProducer<LeptonCollection>::TtSemiLepHitFitProducer(const edm::Pa
   // and HitFit objects using the ASCII text files which contains the resolutions.
   electronTranslator_(hitfitElectronResolution_.fullPath()),
   muonTranslator_    (hitfitMuonResolution_.fullPath()),
-  jetTranslator_     (hitfitUdscJetResolution_.fullPath(), hitfitBJetResolution_.fullPath(), jetCorrectionLevel_),
+  jetTranslator_     (hitfitUdscJetResolution_.fullPath(), hitfitBJetResolution_.fullPath(), jetCorrectionLevel_, jes_, jesB_),
   metTranslator_     (hitfitMETResolution_.fullPath())
 
 {
