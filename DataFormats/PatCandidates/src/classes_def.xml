@@ -22,7 +22,28 @@
   <!-- PAT Objects, and embedded data  -->
   <class name="pat::Electron" />
   <class name="pat::Muon" />
-  <class name="pat::Tau" />
+  <class name="pat::Tau" >
+        <field name="isolationTracksTransientRefVector_" transient="true"/>
+        <field name="isolationTracksTransientRefVectorFixed_" transient="true"/>
+        <field name="signalTracksTransientRefVector_" transient="true"/>
+        <field name="signalTracksTransientRefVectorFixed_" transient="true"/>
+        <field name="signalPFCandsTransientRefVector_" transient="true"/>
+        <field name="signalPFCandsRefVectorFixed_" transient="true"/>
+        <field name="signalPFChargedHadrCandsTransientRefVector_" transient="true"/>
+        <field name="signalPFChargedHadrCandsRefVectorFixed_" transient="true"/>
+        <field name="signalPFNeutralHadrCandsTransientRefVector_" transient="true"/>
+        <field name="signalPFNeutralHadrCandsRefVectorFixed_" transient="true"/>
+        <field name="signalPFGammaCandsTransientRefVector_" transient="true"/>
+        <field name="signalPFGammaCandsRefVectorFixed_" transient="true"/>
+        <field name="isolationPFCandsTransientRefVector_" transient="true"/>
+        <field name="isolationPFCandsRefVectorFixed_" transient="true"/>
+        <field name="isolationPFChargedHadrCandsTransientRefVector_" transient="true"/>
+        <field name="isolationPFChargedHadrCandsRefVectorFixed_" transient="true"/>
+        <field name="isolationPFNeutralHadrCandsTransientRefVector_" transient="true"/>
+        <field name="isolationPFNeutralHadrCandsRefVectorFixed_" transient="true"/>
+        <field name="isolationPFGammaCandsTransientRefVector_" transient="true"/>
+        <field name="isolationPFGammaCandsRefVectorFixed_" transient="true"/>
+     </class>
      <class name="pat::tau::TauPFSpecific" />
      <class name="std::vector<pat::tau::TauPFSpecific>" />
      <class name="pat::tau::TauCaloSpecific" />
