@@ -1,5 +1,4 @@
 <use   name="clhep"/>
-<use   name="hepmc"/>
 <use   name="boost"/>
 <use   name="GeneratorInterface/Core"/>
 <use   name="FWCore/Framework"/>
