@@ -42,6 +42,7 @@
 #include <algorithm>
 #include <limits>
 #include <cmath>
+//#include <fstream>
 
 using namespace std;
 
@@ -241,6 +242,24 @@ void FastjetJetProducer::produceTrackJets( edm::Event & iEvent, const edm::Event
 void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup const& iSetup)
 {
   // run algorithm
+  /*
+  fjInputs_.clear();
+  double px, py , pz, E;
+  string line;
+  std::ifstream fin("dump3.txt");
+  while (getline(fin, line)){
+    if (line == "#END") break;
+    if (line.substr(0,1) == "#") {continue;}
+    istringstream istr(line);
+    istr >> px >> py >> pz >> E;
+    // create a fastjet::PseudoJet with these components and put it onto
+    // back of the input_particles vector
+    fastjet::PseudoJet j(px,py,pz,E);
+    //if ( fabs(j.rap()) < inputEtaMax )
+    fjInputs_.push_back(fastjet::PseudoJet(px,py,pz,E)); 
+  }
+  fin.close();
+  */
   if ( !doAreaFastjet_ && !doRhoFastjet_) {
     fjClusterSeq_ = ClusterSequencePtr( new fastjet::ClusterSequence( fjInputs_, *fjJetDefinition_ ) );
   } else if (voronoiRfact_ <= 0) {
@@ -248,9 +267,15 @@ void FastjetJetProducer::runAlgorithm( edm::Event & iEvent, edm::EventSetup cons
   } else {
     fjClusterSeq_ = ClusterSequencePtr( new fastjet::ClusterSequenceVoronoiArea( fjInputs_, *fjJetDefinition_ , fastjet::VoronoiAreaSpec(voronoiRfact_) ) );
   }
-
+  /*
+    std::cout << "using " << fjInputs_.size() << " particles.\n";
+    std::cout.precision(16);//std::numeric_limits< double >::digits10);
+    std::cout << "dumping input px py pz E:\n";
+    for(std::vector<fastjet::PseudoJet>::const_iterator i = fjInputs_.begin() ; i != fjInputs_.end(); ++i) {
+    std::cout << i->px() << " " << i->py() << " " << i->pz() << " " << i->E() << '\n';
+    }
+  */
   fjJets_ = fastjet::sorted_by_pt(fjClusterSeq_->inclusive_jets(jetPtMin_));
-
 }
 
 

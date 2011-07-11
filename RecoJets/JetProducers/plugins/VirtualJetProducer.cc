@@ -32,6 +32,8 @@
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
+//#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
+
 #include "fastjet/SISConePlugin.hh"
 #include "fastjet/CMSIterativeConePlugin.hh"
 #include "fastjet/ATLASConePlugin.hh"
@@ -278,7 +280,7 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   }
 
   LogDebug("VirtualJetProducer") << "Entered produce\n";
-  //determine signal vertex
+  //determine signal vertex2
   vertex_=reco::Jet::Point(0,0,0);
   if (makeCaloJet(jetTypeE)&&doPVCorrection_) {
     LogDebug("VirtualJetProducer") << "Adding PV info\n";
@@ -326,12 +328,12 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   // Run algorithm. Will modify fjJets_ and allocate fjClusterSeq_. 
   // This will use fjInputs_
   runAlgorithm( iEvent, iSetup );
+
   if ( doPUOffsetCorr_ ) {
      subtractor_->setAlgorithm(fjClusterSeq_);
   }
 
   LogDebug("VirtualJetProducer") << "Ran algorithm\n";
-
   // For Pileup subtraction using offset correction:
   // Now we find jets and need to recalculate their energy,
   // mark towers participated in jet,
@@ -376,10 +378,17 @@ void VirtualJetProducer::inputTowers( )
       const CaloTower* tower=dynamic_cast<const CaloTower*>(input.get());
       math::PtEtaPhiMLorentzVector ct(tower->p4(vertex_));
       fjInputs_.push_back(fastjet::PseudoJet(ct.px(),ct.py(),ct.pz(),ct.energy()));
+      //std::cout << "tower:" << *tower << '\n';
     }
     else {
+      /*
+      if(makePFJet(jetTypeE)) {
+	reco::PFCandidate* pfc = (reco::PFCandidate*)input.get();
+	std::cout << "PF cand:" << *pfc << '\n';
+      }
+      */
       fjInputs_.push_back(fastjet::PseudoJet(input->px(),input->py(),input->pz(),
-                                            input->energy()));
+					     input->energy()));
     }
     fjInputs_.back().set_user_index(i - inBegin);
   }
@@ -470,9 +479,9 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
     // for unbiased background estimation.
     std::vector<fastjet::PseudoJet> fjexcluded_jets;
     fjexcluded_jets=fjJets_;
-  
+    
     if(fjexcluded_jets.size()>2) fjexcluded_jets.resize(nExclude_);
-
+    
     if(doFastJetNonUniform_){
       std::auto_ptr<std::vector<double> > rhos(new std::vector<double>);
       std::auto_ptr<std::vector<double> > sigmas(new std::vector<double>);
@@ -482,7 +491,7 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
       fastjet::ClusterSequenceAreaBase const* clusterSequenceWithArea =
         dynamic_cast<fastjet::ClusterSequenceAreaBase const *> ( &*fjClusterSeq_ );
 
-
+      
       for(int ie = 0; ie < nEta; ++ie){
         double eta = puCenters_[ie];
         double etamin=eta-puWidth_;
@@ -499,22 +508,33 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
       std::auto_ptr<double> rho(new double(0.0));
       std::auto_ptr<double> sigma(new double(0.0));
       double mean_area = 0;
-     
+      
       fastjet::ClusterSequenceAreaBase const* clusterSequenceWithArea =
         dynamic_cast<fastjet::ClusterSequenceAreaBase const *> ( &*fjClusterSeq_ );
+      /*
+	const double nemptyjets = clusterSequenceWithArea->n_empty_jets(*fjRangeDef_);
+	if(( nemptyjets  < -15 ) || ( nemptyjets > fjRangeDef_->area()+ 15)) {
+	edm::LogWarning("StrangeNEmtpyJets") << "n_empty_jets is : " << clusterSequenceWithArea->n_empty_jets(*fjRangeDef_) << " with range " << fjRangeDef_->description() << ".";
+	}
+      */
       clusterSequenceWithArea->get_median_rho_and_sigma(*fjRangeDef_,false,*rho,*sigma,mean_area);
+      if((*rho < 0)|| (isnan(*rho))) {
+	edm::LogError("BadRho") << "rho value is " << *rho << " area:" << mean_area << " and n_empty_jets: " << clusterSequenceWithArea->n_empty_jets(*fjRangeDef_) << " with range " << fjRangeDef_->description()
+				<<". Setting rho to rezo.";
+	*rho = 0;
+      }
       iEvent.put(rho,"rho");
       iEvent.put(sigma,"sigma");
     }
   } // doRhoFastjet_
-
+  
   // produce output jet collection
-
+  
   using namespace reco;
-
+  
   std::auto_ptr<std::vector<T> > jets(new std::vector<T>() );
   jets->reserve(fjJets_.size());
-
+  
 
   // Distance between jet centers -- for disk-based area calculation
   std::vector<std::vector<double> >   rij(fjJets_.size());
@@ -524,12 +544,6 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
     T jet;
     // get the fastjet jet
     const fastjet::PseudoJet& fjJet = fjJets_[ijet];
-    // get the constituents from fastjet
-    std::vector<fastjet::PseudoJet> fjConstituents =
-      sorted_by_pt(fjClusterSeq_->constituents(fjJet));
-    // convert them to CandidatePtr vector
-    std::vector<CandidatePtr> constituents =
-      getConstituents(fjConstituents);
 
     // calcuate the jet area
     double jetArea=0.0;
@@ -555,8 +569,16 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
       }
       jetArea  *= rParam_;
       jetArea  *= rParam_;
-    }
+    }  
+    jet.setJetArea (jetArea);
     
+    // get the constituents from fastjet
+    std::vector<fastjet::PseudoJet> fjConstituents =
+      sorted_by_pt(fjClusterSeq_->constituents(fjJet));
+    // convert them to CandidatePtr vector
+    std::vector<CandidatePtr> constituents =
+      getConstituents(fjConstituents);
+
     // write the specifics to the jet (simultaneously sets 4-vector, vertex).
     // These are overridden functions that will call the appropriate
     // specific allocator. 
@@ -568,8 +590,6 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
                   vertex_, 
                   constituents, iSetup);
     
-    jet.setJetArea (jetArea);
-
     if(doPUOffsetCorr_){
       jet.setPileup(subtractor_->getPileUpEnergy(ijet));
     }else{
