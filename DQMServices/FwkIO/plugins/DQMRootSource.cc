@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.20 2011/07/06 20:49:06 chrjones Exp $
+// $Id: DQMRootSource.cc,v 1.21 2011/07/07 16:46:53 chrjones Exp $
 //
 
 // system include files
@@ -483,23 +483,33 @@ DQMRootSource::readLuminosityBlockAuxiliary_()
 boost::shared_ptr<edm::RunPrincipal> 
 DQMRootSource::readRun_(boost::shared_ptr<edm::RunPrincipal> rpCache) 
 {
-  readNextItemType();
+  m_justOpenedFileSoNeedToGenerateRunTransition = false;
   unsigned int runID =rpCache->id().run();
+  unsigned int lastRunID = m_lastSeenRun;
+  m_lastSeenRun = runID;
+  readNextItemType();
   //std::cout <<"readRun_"<<std::endl;
   
   //NOTE: need to reset all run elements at this point
-  if(m_lastSeenRun != runID) {
+  if(lastRunID != runID) {
     for(std::set<MonitorElement*>::iterator it = m_runElements.begin(), itEnd = m_runElements.end();
         it != itEnd;
         ++it) {
-          (*it)->Reset();
-        
+          //std::cout <<"RESETTING "<<(*it)->getName()<<std::endl;
+          (*it)->Reset();        
     }
   }
 
-  m_justOpenedFileSoNeedToGenerateRunTransition = false;
-  m_lastSeenRun = runID;
   rpCache->addToProcessHistory();
+
+  if(m_presentIndexItr != m_orderedIndices.end()) {
+    RunLumiToRange runLumiRange = m_runlumiToRange[*m_presentIndexItr];
+    //NOTE: it is possible to have an Run when all we have stored is lumis
+    if(runLumiRange.m_lumi == 0 && 
+       runLumiRange.m_run == rpCache->id().run()) {
+      readElements();
+    }
+  }
   
   edm::Service<edm::JobReport> jr;
   jr->reportInputRunNumber(rpCache->id().run());
@@ -512,10 +522,17 @@ DQMRootSource::readLuminosityBlock_( boost::shared_ptr<edm::LuminosityBlockPrinc
   for(std::set<MonitorElement*>::iterator it = m_lumiElements.begin(), itEnd = m_lumiElements.end();
       it != itEnd;
       ++it) {
+        //std::cout <<"RESETTING "<<(*it)->getName()<<std::endl;      
       (*it)->Reset();
   }
   readNextItemType();
   //std::cout <<"readLuminosityBlock_"<<std::endl;
+  RunLumiToRange runLumiRange = m_runlumiToRange[*m_presentIndexItr];
+  if(runLumiRange.m_run == lbCache->id().run() &&
+     runLumiRange.m_lumi == lbCache->id().luminosityBlock()) {
+       readElements();
+  }
+  
   edm::Service<edm::JobReport> jr;
   jr->reportInputLumiSection(lbCache->id().run(),lbCache->id().luminosityBlock());
   
@@ -548,23 +565,10 @@ DQMRootSource::readFile_() {
 void 
 DQMRootSource::endLuminosityBlock(edm::LuminosityBlock& iLumi) {
   //std::cout <<"DQMRootSource::endLumi"<<std::endl;
-  RunLumiToRange runLumiRange = m_runlumiToRange[*m_presentIndexItr];
-  if(runLumiRange.m_run == iLumi.id().run() &&
-     runLumiRange.m_lumi == iLumi.id().luminosityBlock()) {
-       readElements();
-  }
 }
 void 
 DQMRootSource::endRun(edm::Run& iRun){
   //std::cout <<"DQMRootSource::endRun"<<std::endl;
-  if(m_presentIndexItr != m_orderedIndices.end()) {
-    RunLumiToRange runLumiRange = m_runlumiToRange[*m_presentIndexItr];
-    //NOTE: it is possible to have an endRun when all we have stored is lumis
-    if(runLumiRange.m_lumi == 0 && 
-       runLumiRange.m_run == iRun.id().run()) {
-      readElements();
-    }
-  }
   //NOTE: the framework will call endRun before closeFile in the case
   // where the frameworks is terminating
   m_doNotReadRemainingPartsOfFileSinceFrameworkTerminating=true;
@@ -601,8 +605,10 @@ DQMRootSource::readElements() {
       bool isLumi = runLumiRange.m_lumi !=0;
       MonitorElement* element = reader->read(index,*store,isLumi);
       if(isLumi) {
+        //std::cout <<"  lumi element "<< element->getName()<<" "<<index<<std::endl;
         m_lumiElements.insert(element);
       } else {
+        //std::cout <<"  run element "<< element->getName()<<" "<<index<<std::endl;
         m_runElements.insert(element);
       }
     }
@@ -647,7 +653,7 @@ DQMRootSource::readNextItemType()
     // since the first thing in the 'do while' loop is to advance the iterator which puts
     // us at the first entry in the file
     runLumiRange.m_run=0;
-  }
+  } 
   
   bool shouldContinue = false;
   do {
@@ -662,14 +668,13 @@ DQMRootSource::readNextItemType()
       break;
     }
     const RunLumiToRange nextRunLumiRange = m_runlumiToRange[*m_nextIndexItr];
-    //continue to the next item if that item is either
-    // 1) the same run or lumi as we just did or
-    // 2) it is the run for the lumis we just processed (since this is technically an 'endrun' and sources do not signal those)
+    //continue to the next item if that item is the same run or lumi as we just did
     if( (nextRunLumiRange.m_run == runLumiRange.m_run) && (
-         nextRunLumiRange.m_lumi == runLumiRange.m_lumi || nextRunLumiRange.m_lumi ==0) ) {
+         nextRunLumiRange.m_lumi == runLumiRange.m_lumi) ) {
          shouldContinue= true;
          runLumiRange = nextRunLumiRange;
          ++m_nextIndexItr;
+         //std::cout <<"  advancing " <<nextRunLumiRange.m_run<<" "<<nextRunLumiRange.m_lumi<<std::endl;
     } 
     
   } while(shouldContinue);
@@ -677,9 +682,11 @@ DQMRootSource::readNextItemType()
   if(m_nextIndexItr != m_orderedIndices.end()) {
     if(m_runlumiToRange[*m_nextIndexItr].m_lumi == 0 && (m_justOpenedFileSoNeedToGenerateRunTransition || m_lastSeenRun != m_runlumiToRange[*m_nextIndexItr].m_run) ) {
       m_nextItemType = edm::InputSource::IsRun;
+      //std::cout <<"  next is run"<<std::endl;
     } else {
       if(m_runlumiToRange[*m_nextIndexItr].m_run != m_lastSeenRun || m_justOpenedFileSoNeedToGenerateRunTransition ) {
         //we have to create a dummy Run since we switched to a lumi in a new run
+        //std::cout <<"  next is dummy run "<<m_justOpenedFileSoNeedToGenerateRunTransition<<std::endl;
         m_nextItemType = edm::InputSource::IsRun;
       } else {
         m_nextItemType = edm::InputSource::IsLumi;      
@@ -792,9 +799,9 @@ DQMRootSource::setupFile(unsigned int iIndex)
   typedef std::map<std::pair<unsigned int, unsigned int>, std::list<unsigned int>::iterator > RunLumiToLastEntryMap;
   RunLumiToLastEntryMap runLumiToLastEntryMap;
   
-  //Need to group all lumis for the same run together
-  typedef std::map<unsigned int, std::list<unsigned int>::iterator > RunToLastEntryMap;
-  RunToLastEntryMap runToLastEntryMap;
+  //Need to group all lumis for the same run together and move the run entry to the beginning
+  typedef std::map<unsigned int, std::pair<std::list<unsigned int>::iterator,std::list<unsigned int>::iterator> > RunToFirstLastEntryMap;
+  RunToFirstLastEntryMap runToFirstLastEntryMap;
   
   for(Long64_t index = 0; index != indicesTree->GetEntries();++index) {
     indicesTree->GetEntry(index);
@@ -809,26 +816,45 @@ DQMRootSource::setupFile(unsigned int iIndex)
 
       //does the run for this already exist?
       std::list<unsigned int>::iterator itLastOfRun = m_orderedIndices.end();
-      RunToLastEntryMap::iterator itRunLastEntryFind = runToLastEntryMap.find(temp.m_run);
-      if(itRunLastEntryFind != runToLastEntryMap.end()) {
-        itLastOfRun = itRunLastEntryFind->second;
-        //we want to insert after this one so must advanced the iterator
-        ++itLastOfRun;
-      }
+      RunToFirstLastEntryMap::iterator itRunFirstLastEntryFind = runToFirstLastEntryMap.find(temp.m_run);
+      bool needNewEntryInRunFirstLastEntryMap = true;
+      if(itRunFirstLastEntryFind != runToFirstLastEntryMap.end()) {
+        needNewEntryInRunFirstLastEntryMap=false;
+        if(temp.m_lumi!=0) {
+          //lumis go to the end
+          itLastOfRun = itRunFirstLastEntryFind->second.second;
+          //we want to insert after this one so must advanced the iterator
+          ++itLastOfRun;
+        } else {
+          //runs go at the beginning
+          itLastOfRun = itRunFirstLastEntryFind->second.first;
+        }
+      } 
       
       std::list<unsigned int>::iterator iter = m_orderedIndices.insert(itLastOfRun,index);
       runLumiToLastEntryMap[runLumi]=iter;
-      runToLastEntryMap[temp.m_run]=iter;
+      if(needNewEntryInRunFirstLastEntryMap) {
+        runToFirstLastEntryMap[temp.m_run]=std::make_pair(iter,iter);
+      } else {
+        if(temp.m_lumi!=0) {
+          //lumis go at end
+          runToFirstLastEntryMap[temp.m_run].second = iter;
+        } else {
+          //since we haven't yet seen this run/lumi combination it means we haven't yet seen
+          // a run so we can put this first
+          runToFirstLastEntryMap[temp.m_run].first = iter;
+        }
+      }
     } else {
       //We need to do a merge since the run/lumi already appeared. Put it after the existing entry
       //std::cout <<" found a second instance of "<<runLumi.first<<" "<<runLumi.second<<" at "<<index<<std::endl;
       std::list<unsigned int>::iterator itNext = itFind->second;
       ++itNext;
       std::list<unsigned int>::iterator iter = m_orderedIndices.insert(itNext,index);
-      RunToLastEntryMap::iterator itRunLastEntryFind = runToLastEntryMap.find(temp.m_run);
-      if(itRunLastEntryFind->second == itFind->second) {
+      RunToFirstLastEntryMap::iterator itRunFirstLastEntryFind = runToFirstLastEntryMap.find(temp.m_run);
+      if(itRunFirstLastEntryFind->second.second == itFind->second) {
         //if the previous one was the last in the run, we need to update to make this one the last
-        itRunLastEntryFind->second = iter;
+        itRunFirstLastEntryFind->second.second = iter;
       }
       itFind->second = iter;
     }
