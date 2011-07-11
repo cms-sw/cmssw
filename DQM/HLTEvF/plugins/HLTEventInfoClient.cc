@@ -209,7 +209,8 @@ void HLTEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 	
 	if( i == 1 && (j == 0) ) continue; // DoubleElectron
 	if( i == 3 && (j == 1 || j == 4) ) continue; // DoubleMu
-	if( i == 4 && (j == 3) ) continue; // Photon
+	if( i == 4 && (j > 1) ) continue; // Photon
+	if( i == 5 && (j > 4) ) continue; // Tau
 	if( i == 7 && (j == 7) ) continue; // HT
 	if( i == 8 && (j == 8) ) continue; // Jet
 	if( i == 9 && (j == 8 || j == 13 || j == 15) ) continue; // MET
