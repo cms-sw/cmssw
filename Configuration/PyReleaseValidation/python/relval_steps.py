@@ -370,25 +370,27 @@ dataReco={'--conditions':'auto:com10',
           '--data':'',
           '--magField':'AutoFromDBCurrent',
           '--customise':'Configuration/DataProcessing/RecoTLR.customisePPData',
-          '--inputCommands':'"keep *","drop *_*_*_RECO"',
           '--process':'reRECO',
+          '--scenario':'pp',
           }
 step2['RECOD']=merge([{'--scenario':'pp',},dataReco])
-step2['RECOVALSKIM']=merge([{'--scenario':'pp','--customise':'Configuration/DataProcessing/RecoTLR.customiseVALSKIM','-s':'RAW2DIGI,L1Reco,RECO,DQM'},step2['RECOD']])
-step2['RECOVALSKIMALCA']=merge([{'--scenario':'pp','--customise':'Configuration/DataProcessing/RecoTLR.customiseVALSKIM'},step2['RECOD']])
+step2['RECOSKIMALCA']=merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customiseVALSKIM',
+                              '--inputCommands':'"keep *","drop *_*_*_RECO"'
+                              },step2['RECOD']])
+step2['RECOSKIM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,DQM',
+                          },step2['RECOSKIMALCA']])
 
 step2['RECOHID']=merge([{'--scenario':'HeavyIons',
                          '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBiasHI+HcalCalMinBias,DQM',
                          '--customise':'Configuration/DataProcessing/RecoTLR.customiseCommonHI'},step2['RECOD']])
 
-step2['TIER0']=merge([{'--scenario':'pp',
-                       '--customise':'Configuration/DataProcessing/RecoTLR.customisePrompt',
+step2['TIER0']=merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customisePrompt',
                        '-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@AllForPrompt,L1HwVal,DQM,ENDJOB',
                        '--datatier':'RECO,AOD,ALCARECO,DQM',
                        '--eventcontent':'RECO,AOD,ALCARECO,DQM',
                        '--process':'RECO'
                        },dataReco])
-step2['TIER0'].pop('--inputCommands')
+#step2['TIER0'].pop('--inputCommands')
 step2['TIER0EXP']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@StreamExpress,L1HwVal,DQM,ENDJOB',
                           '--datatier':'ALCARECO,DQM',
                           '--eventcontent':'ALCARECO,DQM',
@@ -523,22 +525,33 @@ step4['SKIMCOSD']={'-s':'SKIM:all',
                  
 
 #### for special wfs ###
-step1['TTbar_REDIGI_RERECO']=merge([{'cfg':'TTbar_Tauola_7TeV_cfi',
-                                     '-s':'GEN,SIM,DIGI,L1,DIGI2RAW,HLT:GRun,RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu+DtCalib,VALIDATION,DQM',
-                                     '--datatier':'GEN-SIM-DIGI-RAW-HLTDEBUG-RECO,DQM',
-                                     '--eventcontent':'FEVTDEBUGHLT,DQM'},
-                                    K9by50,stCond,step1Defaults])
-step2['REDIGI2RECO']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:GRun,RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
-                             '--customise':'Configuration/StandardSequences/DigiToRecoNoPU.customise',
-                             '--filtername':'REDIGItoRECO',
-                             '--process':'REDIGI'},
-                            stCond,step3Defaults])
-step3['RECOFROMRECO']=merge([{'-s':'RECO,ALCA:MuAlCalIsolatedMu+DtCalib',
+#step1['TTbar_REDIGI_RERECO']=merge([{'cfg':'TTbar_Tauola_7TeV_cfi',
+#                                     '-s':'GEN,SIM,DIGI,L1,DIGI2RAW,HLT:GRun,RAW2DIGI,L1Reco,RECO,ALCA:MuAlCalIsolatedMu+DtCalib,VALIDATION,DQM',
+#                                     '--datatier':'GEN-SIM-DIGI-RAW-HLTDEBUG-RECO,DQM',
+#                                     '--eventcontent':'FEVTDEBUGHLT,DQM'},
+#                                    K9by50,stCond,step1Defaults])
+#step2['DIGI2RECO']=merge([{'-s':'DIGI,L1,DIGI2RAW,HLT:GRun,RAW2DIGI,L1Reco,RECO,VALIDATION,DQM',
+#                           '--filtername':'DIGItoRECO',
+#                           '--process':'RECO',
+#                           '--eventcontent':'RECOSIM,DQM',
+#                           '--datatier':'GEN-SIM-RECO,DQM',
+#                           'cfg':'step2'},
+#                            stCond,step3Defaults])
+step4['RECOFROMRECO']=merge([{'-s':'RECO',
                               '--filtername':'RECOfromRECO',
-                              '--datatier':'GEN-SIM-RECO',
-                              '--eventcontent':'RECOSIM'},
+                              '--process':'reRECO',
+                              '--datatier':'AODSIM',
+                              '--eventcontent':'AODSIM',
+                              'cfg':'step4'},
                              stCond,step3Defaults])
-
+step3['RECODFROMRAWRECO']=merge([{'-s':'RAW2DIGI:RawToDigi_noTk,L1Reco,RECO:reconstruction_noTracking',
+                                  '--filtername':'RECOfromRAWRECO',
+                                  '--process':'rereRECO',
+                                  '--datatier':'AOD',
+                                  '--eventcontent':'AOD',
+                                  '--secondfilein':'filelist:step1_dbsquery.log',
+                                  'cfg':'step3'},
+                                 step2['RECOD']])
 
 
 # to handle things easier in other places, make a list of all the steps:
