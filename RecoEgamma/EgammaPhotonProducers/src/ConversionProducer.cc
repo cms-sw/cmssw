@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Authors:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: ConversionProducer.cc,v 1.6 2011/03/04 20:13:20 bendavid Exp $
+// $Id: ConversionProducer.cc,v 1.7 2011/03/06 18:25:11 bendavid Exp $
 //
 //
 
@@ -648,15 +648,15 @@ bool ConversionProducer::matchingSC(const std::multimap<double, reco::CaloCluste
     const double delta_phi = reco::deltaPhi( aConv.refittedPairMomentum().phi(), sc->phi());
     double sceta = sc->eta();
     double conveta = etaTransformation(aConv.refittedPairMomentum().eta(), aConv.zOfPrimaryVertexFromTracks() );
-    const double delta_eta = conveta - sceta;
-    if ( fabs(delta_eta) < detaMin && fabs(delta_phi) < dphiMin ) {
+    const double delta_eta = fabs(conveta - sceta);
+    if ( fabs(delta_eta) < fabs(detaMin) && fabs(delta_phi) < fabs(dphiMin) ) {
       detaMin=  fabs(delta_eta);
       dphiMin=  fabs(delta_phi);
       match=sc;
     }
   }
   
-  if ( detaMin < dEtacutForSCmatching_ && dphiMin < dPhicutForSCmatching_ ) {
+  if ( fabs(detaMin) < dEtacutForSCmatching_ && fabs(dphiMin) < dPhicutForSCmatching_ ) {
     mSC.push_back(match);
     return true;
   } else 
