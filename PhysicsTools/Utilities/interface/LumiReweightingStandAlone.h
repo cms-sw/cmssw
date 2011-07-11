@@ -197,7 +197,7 @@ namespace reweight {
 
     double ShiftWeight( int ibin ) {
 
-      if(ibin<25 && ibin>0) { return Pweight_[ibin]; }
+      if(ibin<25 && ibin>=0) { return Pweight_[ibin]; }
       else { return 0;}
 
     };
@@ -206,7 +206,7 @@ namespace reweight {
 
       int ibin = int(pvnum);
 
-      if(ibin<25 && ibin>0) { return Pweight_[ibin]; }
+      if(ibin<25 && ibin>=0) { return Pweight_[ibin]; }
       else { return 0;}
 
     };

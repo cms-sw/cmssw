@@ -195,7 +195,7 @@ namespace reweight{
 
     double ShiftWeight( int ibin ) {
 
-      if(ibin<25 && ibin>0) { return Pweight_[ibin]; }
+      if(ibin<25 && ibin>=0) { return Pweight_[ibin]; }
       else { return 0;}
 
     };
@@ -204,7 +204,7 @@ namespace reweight{
 
       int ibin = int(pvnum);
 
-      if(ibin<25 && ibin>0) { return Pweight_[ibin]; }
+      if(ibin<25 && ibin>=0) { return Pweight_[ibin]; }
       else { return 0;}
 
     };
@@ -253,7 +253,7 @@ namespace edm {
     std::string DataHistName_;
     boost::shared_ptr<TFile>     generatedFile_;
     boost::shared_ptr<TFile>     dataFile_;
-    boost::shared_ptr<TH1F>      weights_;
+    boost::shared_ptr<TH1>      weights_;
 
     double WeightOOTPU_[25][25];
 
