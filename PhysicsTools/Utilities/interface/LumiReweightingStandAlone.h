@@ -235,7 +235,7 @@ namespace reweight {
 	  generatedFile_ = new TFile( generatedFileName_.c_str() ) ; //MC distribution
 	  dataFile_      = new TFile( dataFileName_.c_str() );       //Data distribution
 
-	  weights_ = new TH1F( *(static_cast<TH1F*>(dataFile_->Get( DataHistName_.c_str() )->Clone() ))) ;
+	  weights_ = new TH1( *(static_cast<TH1*>(dataFile_->Get( DataHistName_.c_str() )->Clone() ))) ;
 
 	  // MC * data/MC = data, so the weights are data/MC:
 
@@ -244,7 +244,7 @@ namespace reweight {
 	  weights_->Scale( 1.0/ weights_->Integral() );
 	  weights_->SetName("lumiWeights");
 
-	  TH1F* den = dynamic_cast<TH1F*>(generatedFile_->Get( GenHistName_.c_str() ));
+	  TH1* den = dynamic_cast<TH1*>(generatedFile_->Get( GenHistName_.c_str() ));
 
 	  den->Scale(1.0/ den->Integral());
 
@@ -282,7 +282,7 @@ namespace reweight {
 	Int_t NBins = MC_distr.size();
 
 	weights_ = new TH1F("luminumer","luminumer",NBins,-0.5, float(NBins)-0.5);
-	TH1F* den = new TH1F("lumidenom","lumidenom",NBins,-0.5, float(NBins)-0.5);
+	TH1* den = new TH1F("lumidenom","lumidenom",NBins,-0.5, float(NBins)-0.5);
 
 	for(int ibin = 1; ibin<NBins+1; ++ibin ) {
 	  weights_->SetBinContent(ibin, Lumi_distr[ibin-1]);
@@ -1161,7 +1161,7 @@ namespace reweight {
     std::string DataHistName_;
     TFile *generatedFile_;
     TFile *dataFile_;
-    TH1F  *weights_;
+    TH1  *weights_;
 
     double WeightOOTPU_[25][25];
 

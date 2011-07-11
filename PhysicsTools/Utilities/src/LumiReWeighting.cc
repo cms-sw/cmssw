@@ -43,7 +43,8 @@ LumiReWeighting::LumiReWeighting( std::string generatedFile,
 	generatedFile_ = boost::shared_ptr<TFile>( new TFile(generatedFileName_.c_str()) ); //MC distribution
 	dataFile_      = boost::shared_ptr<TFile>( new TFile(dataFileName_.c_str()) );      //Data distribution
 
-	weights_ = boost::shared_ptr<TH1F> ( new TH1F( *(static_cast<TH1F*>(dataFile_->Get( DataHistName_.c_str() )->Clone() ))));
+	weights_ = boost::shared_ptr<TH1F> (  (static_cast<TH1F*>(dataFile_->Get( DataHistName_.c_str() )->Clone() )) );
+	//	weights_ = boost::shared_ptr<TH1F> ( new TH1F( *(static_cast<TH1F*>(dataFile_->Get( DataHistName_.c_str() )->Clone() ))));
 
 	// MC * data/MC = data, so the weights are data/MC:
 
@@ -52,7 +53,7 @@ LumiReWeighting::LumiReWeighting( std::string generatedFile,
 	weights_->Scale( 1.0/ weights_->Integral() );
 	weights_->SetName("lumiWeights");
 
-	TH1F* den = dynamic_cast<TH1F*>(generatedFile_->Get( GenHistName_.c_str() ));
+	TH1* den = dynamic_cast<TH1*>(generatedFile_->Get( GenHistName_.c_str() ));
 
 	den->Scale(1.0/ den->Integral());
 
@@ -89,8 +90,8 @@ LumiReWeighting::LumiReWeighting( std::vector< float > MC_distr, std::vector< fl
 
   Int_t NBins = MC_distr.size();
 
-  weights_ = boost::shared_ptr<TH1F> ( new TH1F("luminumer","luminumer",NBins,-0.5, float(NBins)-0.5) );
-  TH1F* den = new TH1F("lumidenom","lumidenom",NBins,-0.5, float(NBins)-0.5) ;
+  weights_ = boost::shared_ptr<TH1> ( new TH1F("luminumer","luminumer",NBins,-0.5, float(NBins)-0.5) );
+  TH1* den = new TH1F("lumidenom","lumidenom",NBins,-0.5, float(NBins)-0.5) ;
 
   for(int ibin = 1; ibin<NBins+1; ++ibin ) {
     weights_->SetBinContent(ibin, Lumi_distr[ibin-1]);
