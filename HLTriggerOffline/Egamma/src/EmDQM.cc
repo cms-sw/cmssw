@@ -55,7 +55,7 @@ EmDQM::EmDQM(const edm::ParameterSet& pset)
   dbe->setCurrentFolder(dirname_);
 
   triggerobjwithrefs = pset.getParameter<edm::InputTag>("triggerobject");
-  pathIndex = pset.getParameter<unsigned int>("pathIndex");
+  pathIndex = pset.getUntrackedParameter<unsigned int>("pathIndex", 0);
   // parameters for generator study
   reqNum    = pset.getParameter<unsigned int>("reqNum");
   pdgGen    = pset.getParameter<int>("pdgGen");
@@ -563,7 +563,7 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
     sortedGenForFilter.erase(sortedGenForFilter.begin() + nCandCuts.at(n), sortedGenForFilter.end());
 
     // Fill only if this filter was run.
-    if (hltConf_.moduleIndex(pathIndex, theHLTCollectionLabels[n].label()) > hltResults->index(pathIndex)) break;
+    if (pathIndex != 0 && hltConf_.moduleIndex(pathIndex, theHLTCollectionLabels[n].label()) > hltResults->index(pathIndex)) break;
     // These numbers are from the Parameter Set, such as:
     //   theHLTOutputTypes = cms.uint32(100)
     switch(theHLTOutputTypes[n]) 
