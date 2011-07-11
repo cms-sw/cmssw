@@ -70,6 +70,7 @@
 #include "DataFormats/GeometrySurface/interface/BoundDisk.h"
 #include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
 #include "DataFormats/GeometrySurface/interface/SimpleDiskBounds.h"
+#include "DataFormats/Math/interface/deltaPhi.h"
 
 //
 #include "RecoEgamma/EgammaMCTools/interface/PhotonMCTruthFinder.h"
@@ -96,8 +97,8 @@
  **
  **
  **  $Id: TkConvValidator
- **  $Date: 2011/03/27 16:49:11 $
- **  $Revision: 1.14 $
+ **  $Date: 2011/05/20 13:55:42 $
+ **  $Revision: 1.1 $
  **  \author N.Marinelli - Univ. of Notre Dame
  **
  ***/
@@ -111,6 +112,9 @@ TkConvValidator::TkConvValidator( const edm::ParameterSet& pset )
     fName_     = pset.getUntrackedParameter<std::string>("Name");
     verbosity_ = pset.getUntrackedParameter<int>("Verbosity");
     parameters_ = pset;
+    
+    photonCollectionProducer_ = pset.getParameter<std::string>("phoProducer");
+    photonCollection_ = pset.getParameter<std::string>("photonCollection");
 
     conversionCollectionProducer_ = pset.getParameter<std::string>("convProducer");
     conversionCollection_ = pset.getParameter<std::string>("conversionCollection");
@@ -182,6 +186,11 @@ void  TkConvValidator::beginJob() {
   double dPhiTracksMin = parameters_.getParameter<double>("dPhiTracksMin");
   double dPhiTracksMax = parameters_.getParameter<double>("dPhiTracksMax");
   int dPhiTracksBin = parameters_.getParameter<int>("dPhiTracksBin");
+
+  double eoverpMin = parameters_.getParameter<double>("eoverpMin");
+  double eoverpMax = parameters_.getParameter<double>("eoverpMax");
+  int    eoverpBin = parameters_.getParameter<int>("eoverpBin");
+
 
   //  double dEtaTracksMin = parameters_.getParameter<double>("dEtaTracksMin");  // unused
   //  double dEtaTracksMax = parameters_.getParameter<double>("dEtaTracksMax"); // unused
@@ -330,19 +339,24 @@ void  TkConvValidator::beginJob() {
     h_nConv_[1][0] = dbe_->book1D(histname+"All_Ass","Number Of associated Conversions per isolated candidates per events: All Ecal  ",10,-0.5, 9.5);
 
     h_convEta_[0][0] = dbe_->book1D("convEta"," converted Photon  Eta ",etaBin,etaMin, etaMax) ;
+    h_convEtaMatchSC_[0][0] = dbe_->book1D("convEtaMatchSC"," converted Photon  Eta when SC is matched ",etaBin,etaMin, etaMax) ;
     h_convEta2_[0][0] = dbe_->book1D("convEta2"," converted Photon  Eta ",etaBin2,etaMin, etaMax) ;
     h_convPhi_[0][0] = dbe_->book1D("convPhi"," converted Photon  Phi ",phiBin,phiMin,phiMax) ;
     h_convR_[0][0]  =  dbe_->book1D("convR"," converted photon R",rBin,rMin, rMax);
     h_convZ_[0][0] =  dbe_->book1D("convZ"," converted photon Z",zBin,zMin, zMax);
     h_convPt_[0][0] = dbe_->book1D("convPt","  conversions Transverse Energy: all eta ", etBin,etMin, etMax);
 
-    h_convEta_[1][0] = dbe_->book1D("convEtaAss"," Matched converted Photon  Eta ",etaBin2,etaMin, etaMax) ;
+    h_convEta_[1][0] = dbe_->book1D("convEtaAss2"," Matched converted Photon  Eta ",etaBin2,etaMin, etaMax) ;
+    h_convEta_[1][1] = dbe_->book1D("convEtaAss"," Matched converted Photon  Eta ",etaBin,etaMin, etaMax) ;
+    h_convEtaMatchSC_[1][0] = dbe_->book1D("convEtaMatchSCAss"," converted Photon  Eta when SC is matched ",etaBin,etaMin, etaMax) ;
     h_convPhi_[1][0] = dbe_->book1D("convPhiAss"," Matched converted Photon  Phi ",phiBin,phiMin,phiMax) ;
     h_convR_[1][0]  =  dbe_->book1D("convRAss"," Matched converted photon R",rBin,rMin, rMax);
     h_convZ_[1][0] =  dbe_->book1D("convZAss"," Matched converted photon Z",zBin,zMin, zMax);
     h_convPt_[1][0] = dbe_->book1D("convPtAss","Matched conversions Transverse Energy: all eta ", etBin,etMin, etMax);
 
-    h_convEta_[2][0] = dbe_->book1D("convEtaFake"," Fake converted Photon  Eta ",etaBin2,etaMin, etaMax) ;
+    h_convEta_[2][0] = dbe_->book1D("convEtaFake2"," Fake converted Photon  Eta ",etaBin2,etaMin, etaMax) ;
+    h_convEta_[2][1] = dbe_->book1D("convEtaFake"," Fake converted Photon  Eta ",etaBin,etaMin, etaMax) ;
+    h_convEtaMatchSC_[2][0] = dbe_->book1D("convEtaMatchSCFake"," converted Photon  Eta when SC is matched ",etaBin,etaMin, etaMax) ;
     h_convPhi_[2][0] = dbe_->book1D("convPhiFake"," Fake converted Photon  Phi ",phiBin,phiMin,phiMax) ;
     h_convR_[2][0]  =  dbe_->book1D("convRFake"," Fake converted photon R",rBin,rMin, rMax);
     h_convZ_[2][0] =  dbe_->book1D("convZFake"," Fake converted photon Z",zBin,zMin, zMax);
@@ -351,6 +365,26 @@ void  TkConvValidator::beginJob() {
     h_convRplot_  =  dbe_->book1D("convRplot"," converted photon R",600, 0.,120.);
     h_convZplot_  =  dbe_->book1D("convZplot"," converted photon Z",320,-160.,160.);
 
+    histname = "convSCdPhi";
+    h_convSCdPhi_[0][0] =   dbe_->book1D(histname+"All","dPhi between SC and conversion",100, -0.1,0.1);
+    h_convSCdPhi_[0][1] =   dbe_->book1D(histname+"Barrel"," dPhi between SC and conversion: Barrel",100, -0.1,0.1);
+    h_convSCdPhi_[0][2] =   dbe_->book1D(histname+"Endcap"," dPhi between SC and conversion: Endcap",100, -0.1,0.1);
+    h_convSCdPhi_[1][0] =   dbe_->book1D(histname+"All_Ass","dPhi between SC and conversion",100, -0.1,0.1);
+    h_convSCdPhi_[1][1] =   dbe_->book1D(histname+"Barrel_Ass"," dPhi between SC and conversion: Barrel",100, -0.1,0.1);
+    h_convSCdPhi_[1][2] =   dbe_->book1D(histname+"Endcap_Ass"," dPhi between SC and conversion: Endcap",100, -0.1,0.1);
+    h_convSCdPhi_[2][0] =   dbe_->book1D(histname+"All_Fakes","dPhi between SC and conversion",100, -0.1,0.1);
+    h_convSCdPhi_[2][1] =   dbe_->book1D(histname+"Barrel_Fakes"," dPhi between SC and conversion: Barrel",100, -0.1,0.1);
+    h_convSCdPhi_[2][2] =   dbe_->book1D(histname+"Endcap_Fakes"," dPhi between SC and conversion: Endcap",100, -0.1,0.1);
+    histname = "convSCdEta";
+    h_convSCdEta_[0][0] =   dbe_->book1D(histname+"All"," dEta between SC and conversion",100, -0.1,0.1);
+    h_convSCdEta_[0][1] =   dbe_->book1D(histname+"Barrel"," dEta between SC and conversion: Barrel",100, -0.1,0.1);
+    h_convSCdEta_[0][2] =   dbe_->book1D(histname+"Endcap"," dEta between SC and conversion: Endcap",100, -0.1,0.1);
+    h_convSCdEta_[1][0] =   dbe_->book1D(histname+"All_Ass"," dEta between SC and conversion",100, -0.1,0.1);
+    h_convSCdEta_[1][1] =   dbe_->book1D(histname+"Barrel_Ass"," dEta between SC and conversion: Barrel",100, -0.1,0.1);
+    h_convSCdEta_[1][2] =   dbe_->book1D(histname+"Endcap_Ass"," dEta between SC and conversion: Endcap",100, -0.1,0.1);
+    h_convSCdEta_[2][0] =   dbe_->book1D(histname+"All_Fakes"," dEta between SC and conversion",100, -0.1,0.1);
+    h_convSCdEta_[2][1] =   dbe_->book1D(histname+"Barrel_Fakes"," dEta between SC and conversion: Barrel",100, -0.1,0.1);
+    h_convSCdEta_[2][2] =   dbe_->book1D(histname+"Endcap_Fakes"," dEta between SC and conversion: Endcap",100, -0.1,0.1);
 
     histname = "convPtRes";
     h_convPtRes_[0] = dbe_->book1D(histname+"All"," Conversion Pt rec/true : All ecal ", resBin,resMin, resMax);
@@ -474,6 +508,18 @@ void  TkConvValidator::beginJob() {
     p_convVtxdZVsR_ =  dbe_->bookProfile("pConvVtxdZVsR","Conversion vtx dZ vs R" ,rBin,rMin,rMax ,100, -20.,20., "");
     p2_convVtxdRVsRZ_ =  dbe_->bookProfile2D("p2ConvVtxdRVsRZ","Conversion vtx dR vs RZ" ,zBin,zMin, zMax,rBin,rMin,rMax,100, 0.,20.,"s");
     p2_convVtxdZVsRZ_ =  dbe_->bookProfile2D("p2ConvVtxdZVsRZ","Conversion vtx dZ vs RZ" ,zBin,zMin, zMax,rBin,rMin,rMax,100, 0.,20.,"s");
+
+
+    histname="EoverPtracks";
+    h_EoverPTracks_[0][0] = dbe_->book1D(histname+"All"," photons conversion E/p: all Ecal ",100, 0., 5.);
+    h_EoverPTracks_[0][1] = dbe_->book1D(histname+"Barrel"," photons conversion E/p: Barrel Ecal",100, 0., 5.);
+    h_EoverPTracks_[0][2] = dbe_->book1D(histname+"Endcap"," photons conversion E/p: Endcap Ecal ",100, 0., 5.);
+    h_EoverPTracks_[1][0] = dbe_->book1D(histname+"All_Ass"," photons conversion E/p: all Ecal ",100, 0., 5.);
+    h_EoverPTracks_[1][1] = dbe_->book1D(histname+"Barrel_Ass"," photons conversion E/p: Barrel Ecal",100, 0., 5.);
+    h_EoverPTracks_[1][2] = dbe_->book1D(histname+"Endcap_Ass"," photons conversion E/p: Endcap Ecal ",100, 0., 5.);
+    h_EoverPTracks_[2][0] = dbe_->book1D(histname+"All_Fakes"," photons conversion E/p: all Ecal ",100, 0., 5.);
+    h_EoverPTracks_[2][1] = dbe_->book1D(histname+"Barrel_Fakes"," photons conversion E/p: Barrel Ecal",100, 0., 5.);
+    h_EoverPTracks_[2][2] = dbe_->book1D(histname+"Endcap_Fakes"," photons conversion E/p: Endcap Ecal ",100, 0., 5.);
 
 
 
@@ -779,6 +825,16 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     return;
   }
 
+  ///// Get the recontructed  photons
+  Handle<reco::PhotonCollection> photonHandle;
+  e.getByLabel(photonCollectionProducer_, photonCollection_ , photonHandle);
+  const reco::PhotonCollection photonCollection = *(photonHandle.product());
+  if (!photonHandle.isValid()) {
+    edm::LogError("PhotonProducer") << "Error! Can't get the Photon collection "<< std::endl;
+    return;
+  }
+
+
   // offline  Primary vertex
   edm::Handle<reco::VertexCollection> vertexHandle;
   reco::VertexCollection vertexCollection;
@@ -949,6 +1005,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
      bool recomatch = false;
      float chi2Prob = 0.;
       //////////////////Measure reco efficiencies
+     // cout << " size of conversions " << convHandle->size() << endl;
      for (reco::ConversionCollection::const_iterator conv = convHandle->begin();conv!=convHandle->end();++conv) {
 
 	const reco::Conversion aConv = (*conv);
@@ -1144,6 +1201,27 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
     nRecConv_++;
 
+    // check matching with reco photon 
+    double Mindeltaeta = 999999;
+    double Mindeltaphi = 999999;
+    bool matchConvSC=false;
+    reco::PhotonCollection::const_iterator  iMatchingSC;
+    for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
+      reco::Photon aPho = reco::Photon(*iPho);
+      const double deltaphi= reco::deltaPhi( aConv.refittedPairMomentum().phi(), aPho.superCluster()->position().phi());
+      double ConvEta = etaTransformation(aConv.refittedPairMomentum().eta(),aConv.zOfPrimaryVertexFromTracks());
+      double deltaeta = abs( aPho.superCluster()->position().eta() -ConvEta);
+      if (abs(deltaeta)<abs(Mindeltaeta) && abs(deltaphi)<abs(Mindeltaphi)) {
+	Mindeltaphi=abs(deltaphi);
+	Mindeltaeta=abs(deltaeta);
+	iMatchingSC = iPho ;
+      }
+    }
+    if (abs(Mindeltaeta)<0.1 && abs(Mindeltaphi)<0.1) {
+      matchConvSC=true;
+    }
+  
+
     ///////////  Quantities per conversion
     int match =0;
     float invM=aConv.pairInvariantMass();
@@ -1169,6 +1247,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
     h_convEta_[match][0]->Fill( refittedMom.eta() );
     h_convEta2_[match][0]->Fill( refittedMom.eta() );
+
     h_convPhi_[match][0]->Fill( refittedMom.phi() );
     h_convR_[match][0]->Fill( sqrt(aConv.conversionVertex().position().perp2()) );
     h_convRplot_->Fill( sqrt(aConv.conversionVertex().position().perp2()) );
@@ -1189,11 +1268,13 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     h_nSharedHits_[match][0] ->Fill (aConv.nSharedHits());
 
 
-
-
-
-
-
+    if (  matchConvSC ) {
+      h_convEtaMatchSC_[match][0]->Fill( refittedMom.eta() );
+      h_EoverPTracks_[match][0] ->Fill (iMatchingSC->superCluster()->energy()/sqrt(refittedMom.mag2()));
+      h_convSCdPhi_[match][0]->Fill( iMatchingSC->superCluster()->position().phi() - refittedMom.phi() );
+      double ConvEta = etaTransformation(aConv.refittedPairMomentum().eta(),aConv.zOfPrimaryVertexFromTracks());
+      h_convSCdEta_[match][0]->Fill( iMatchingSC->superCluster()->position().eta() - ConvEta );
+    }
 
     h_distMinAppTracks_[match][0] ->Fill (aConv.distOfMinimumApproach());
     h_DPhiTracksAtVtx_[match][0]->Fill( dPhiTracksAtVtx);
@@ -1225,6 +1306,20 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       h_maxDlClosestHitToVtxSig_[match][1] ->Fill (maxDlClosestHitToVtxSig);
       h_nSharedHits_[match][1] ->Fill (aConv.nSharedHits());
 
+      /*
+      if ( aConv.caloCluster().size() ) { 
+	h_convSCdPhi_[match][1]->Fill( 	aConv.caloCluster()[0]->phi() - refittedMom.phi() );
+	double ConvEta = etaTransformation(aConv.refittedPairMomentum().eta(),aConv.zOfPrimaryVertexFromTracks());  
+	h_convSCdEta_[match][1]->Fill( aConv.caloCluster()[0]->eta() - ConvEta );
+      }
+      */
+
+      if (  matchConvSC ) {
+	h_EoverPTracks_[match][1] -> Fill(iMatchingSC->superCluster()->energy()/sqrt(refittedMom.mag2()));
+	h_convSCdPhi_[match][1]->Fill( iMatchingSC->superCluster()->position().phi() - refittedMom.phi() );
+	double ConvEta = etaTransformation(aConv.refittedPairMomentum().eta(),aConv.zOfPrimaryVertexFromTracks());
+	h_convSCdEta_[match][1]->Fill( iMatchingSC->superCluster()->position().eta() - ConvEta );
+      }
     }
 
 
@@ -1244,7 +1339,13 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       h_maxDlClosestHitToVtx_[match][2] ->Fill (maxDlClosestHitToVtx);
       h_maxDlClosestHitToVtxSig_[match][2] ->Fill (maxDlClosestHitToVtxSig);
       h_nSharedHits_[match][2] ->Fill (aConv.nSharedHits());
+      if (  matchConvSC ) {
+	h_EoverPTracks_[match][2] ->Fill (iMatchingSC->superCluster()->energy()/sqrt(refittedMom.mag2()));
+	h_convSCdPhi_[match][2]->Fill( iMatchingSC->superCluster()->position().phi() - refittedMom.phi() );
+	double ConvEta = etaTransformation(aConv.refittedPairMomentum().eta(),aConv.zOfPrimaryVertexFromTracks());
+	h_convSCdEta_[match][2]->Fill( iMatchingSC->superCluster()->position().eta() - ConvEta );
 
+      }
     }
 
     h_convVtxRvsZ_[0] ->Fill ( fabs (aConv.conversionVertex().position().z() ),  sqrt(aConv.conversionVertex().position().perp2())  ) ;
@@ -1472,6 +1573,8 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       //////// here reco is matched to sim or is fake
       if ( match == 1) nRecConvAss_++;
       h_convEta_[match][0]->Fill( refittedMom.eta() );
+      h_convEta_[match][1]->Fill( refittedMom.eta() );
+      if (matchConvSC) h_convEtaMatchSC_[match][0]->Fill( refittedMom.eta() );
       h_convPhi_[match][0]->Fill( refittedMom.phi() );
       h_convR_[match][0]->Fill( sqrt(aConv.conversionVertex().position().perp2()) );
       h_convZ_[match][0]->Fill( aConv.conversionVertex().position().z() );
@@ -1491,8 +1594,14 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       h_maxDlClosestHitToVtx_[match][0] ->Fill (maxDlClosestHitToVtx);
       h_maxDlClosestHitToVtxSig_[match][0] ->Fill (maxDlClosestHitToVtxSig);
       h_nSharedHits_[match][0] ->Fill (aConv.nSharedHits());
-
-
+      if (  matchConvSC ) {
+	//h_EoverPTracks_[match][0] ->Fill (aConv.EoverPrefittedTracks());
+	h_EoverPTracks_[match][0] ->Fill (iMatchingSC->superCluster()->energy()/sqrt(refittedMom.mag2()));
+	h_convSCdPhi_[match][0]->Fill( iMatchingSC->superCluster()->position().phi() - refittedMom.phi() );
+	double ConvEta = etaTransformation(aConv.refittedPairMomentum().eta(),aConv.zOfPrimaryVertexFromTracks());
+	h_convSCdEta_[match][0]->Fill( iMatchingSC->superCluster()->position().eta() - ConvEta );
+	
+      }
       if ( match==1) {
 	h2_photonPtRecVsPtSim_->Fill ( mcConvPt_, sqrt(refittedMom.perp2()) );
 	h_convPtRes_[0]->Fill (  sqrt(refittedMom.perp2())/mcConvPt_);
@@ -1514,7 +1623,14 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       h_maxDlClosestHitToVtx_[match][1] ->Fill (maxDlClosestHitToVtx);
       h_maxDlClosestHitToVtxSig_[match][1] ->Fill (maxDlClosestHitToVtxSig);
       h_nSharedHits_[match][1] ->Fill (aConv.nSharedHits());
+      if (  matchConvSC ) {
+	//	h_EoverPTracks_[match][1] ->Fill (aConv.EoverPrefittedTracks());
+	h_EoverPTracks_[match][1] ->Fill (iMatchingSC->superCluster()->energy()/sqrt(refittedMom.mag2()));
+	h_convSCdPhi_[match][1]->Fill( iMatchingSC->superCluster()->position().phi() - refittedMom.phi() );
+	double ConvEta = etaTransformation(aConv.refittedPairMomentum().eta(),aConv.zOfPrimaryVertexFromTracks());
+	h_convSCdEta_[match][1]->Fill( iMatchingSC->superCluster()->position().eta() - ConvEta );
 
+      }
       if ( match==1) h_convPtRes_[1]->Fill (  sqrt(refittedMom.perp2())/mcConvPt_);
     }
 
@@ -1535,7 +1651,13 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       h_maxDlClosestHitToVtx_[match][2] ->Fill (maxDlClosestHitToVtx);
       h_maxDlClosestHitToVtxSig_[match][2] ->Fill (maxDlClosestHitToVtxSig);
       h_nSharedHits_[match][2] ->Fill (aConv.nSharedHits());
-
+      if (  matchConvSC ) {
+	//	h_EoverPTracks_[match][2] ->Fill (aConv.EoverPrefittedTracks());
+	h_EoverPTracks_[match][2] ->Fill (iMatchingSC->superCluster()->energy()/sqrt(refittedMom.mag2()));
+	h_convSCdPhi_[match][2]->Fill( iMatchingSC->superCluster()->position().phi() - refittedMom.phi() );
+	double ConvEta = etaTransformation(aConv.refittedPairMomentum().eta(),aConv.zOfPrimaryVertexFromTracks());
+	h_convSCdEta_[match][2]->Fill( iMatchingSC->superCluster()->position().eta() - ConvEta );
+      }
       if ( match==1) h_convPtRes_[2]->Fill (  sqrt(refittedMom.perp2())/mcConvPt_);
     }
 

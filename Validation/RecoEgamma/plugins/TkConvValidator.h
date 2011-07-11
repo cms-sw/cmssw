@@ -38,8 +38,8 @@ class SimTrack;
  **  
  **
  **  $Id: TkConvValidator
- **  $Date: 2011/03/03 20:52:16 $ 
- **  $Revision: 1.6 $
+ **  $Date: 2011/05/20 13:55:42 $ 
+ **  $Revision: 1.1 $
  **  \author N.Marinelli - Univ. of Notre Dame
  **
  ***/
@@ -91,6 +91,9 @@ class TkConvValidator : public edm::EDAnalyzer
   std::string conversionCollectionProducer_;       
   std::string conversionCollection_;
   std::string conversionTrackProducer_;
+
+  std::string photonCollectionProducer_;       
+  std::string photonCollection_;
 
   std::string dqmpath_;
 
@@ -198,12 +201,18 @@ class TkConvValidator : public edm::EDAnalyzer
 
   /// info per conversion
   MonitorElement* h_nConv_[3][3];
+  MonitorElement* h_convEtaMatchSC_[3][3];
   MonitorElement* h_convEta_[3][3];
   MonitorElement* h_convEta2_[3][3];
   MonitorElement* h_convPhi_[3][3];
   MonitorElement* h_convR_[3][3];
   MonitorElement* h_convZ_[3][3];
   MonitorElement* h_convPt_[3][3];
+  MonitorElement* h_EoverPTracks_[3][3];
+
+  MonitorElement* h_convSCdEta_[3][3];
+  MonitorElement* h_convSCdPhi_[3][3];
+
 
   MonitorElement* h_convRplot_;
   MonitorElement* h_convZplot_;
