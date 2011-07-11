@@ -15,7 +15,13 @@ exoticaLongLivedPhotonHLT.HLTPaths = ['HLT_DoublePhoton33_v*']
 exoticaLongLivedPhotonHLT.andOr = cms.bool( True )
 exoticaLongLivedPhotonHLT.throw = cms.bool( False )
 
+exoticaLongLivedHLT = hlt.hltHighLevel.clone()
+exoticaLongLivedHLT.TriggerResultsTag = cms.InputTag( "TriggerResults", "", "HLT" )
+exoticaLongLivedHLT.HLTPaths = ['HLT_L2DoubleMu*_NoVertex_v*', 'HLT_DoublePhoton33_v*']
+exoticaLongLivedHLT.andOr = cms.bool( True )
+exoticaLongLivedHLT.throw = cms.bool( False )
 
 exoLongLivedMuSequence = cms.Sequence(exoticaLongLivedMuHLT)
 exoLongLivedPhotonSequence = cms.Sequence(exoticaLongLivedPhotonHLT)
-exoLongLivedSequence = cms.Sequence(exoticaLongLivedMuHLT * exoticaLongLivedPhotonHLT)
+#exoLongLivedSequence = cms.Sequence(exoticaLongLivedMuHLT * exoticaLongLivedPhotonHLT)
+exoLongLivedSequence = cms.Sequence(exoticaLongLivedHLT)
