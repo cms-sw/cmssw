@@ -161,7 +161,7 @@ class WorkFlowRunner(Thread):
                 inFile = '/store/relval/CMSSW_3_9_7/RelValPyquen_GammaJet_pt20_2760GeV/GEN-SIM-DIGI-RAW-HLTDEBUG/START39_V7HI-v1/0054/06B4F699-A50F-E011-AD62-0018F3D0962E.root'
                 fullcmd += ' --process HIMIX '
                 
-            if (not 'filein' in self.wf.cmdStep2) or inFile:
+            if (not '--filein' in self.wf.cmdStep2) or inFile:
                 fullcmd += ' --filein '+inFile+ ' '
                 
             fullcmd += ' > %s 2>&1; ' % ('step2_'+self.wf.nameId+'.log ',)
@@ -178,7 +178,7 @@ class WorkFlowRunner(Thread):
                     if 'HARVESTING' in fullcmd:
                         fullcmd += ' --filein file:step2_inDQM.root --fileout file:step3.root '
                     else:
-                        if not 'filein' in fullcmd:
+                        if not '--filein' in fullcmd:
                             fullcmd += ' --filein file:step2.root'
                         if not 'fileout' in fullcmd:
                             fullcmd += '--fileout file:step3.root '
@@ -195,7 +195,7 @@ class WorkFlowRunner(Thread):
                         if 'HARVESTING' in fullcmd:
                             fullcmd += ' --filein file:step3_inDQM.root --fileout file:step4.root '
                         else:
-                            if not 'filein' in fullcmd:
+                            if not '--filein' in fullcmd:
                                 fullcmd += ' --filein file:step3.root '
                             if not 'fileout' in fullcmd:
                                 fullcmd += '--fileout file:step.root '

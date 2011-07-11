@@ -132,7 +132,7 @@ class MatrixReader(object):
                     msg = "FATAL ERROR: found both cfg and input for workflow "+str(num)+' step '+stepName
                     raise MatrixException(msg)
 
-                if (not input) and (stepIndex!=0) and (not 'filein' in opts):
+                if (not input) and (stepIndex!=0) and (not '--filein' in opts):
                     if 'HARVESTING' in opts:
                         opts+=' --filein file:step%d_inDQM.root '%(stepIndex,)
                     else:
