@@ -2,10 +2,8 @@
 <use name="GeneratorInterface/Core"/>
 <use name="boost"/>
 <use name="clhep"/> 
-<use name="hepmc"/>
 <use name="herwig"/>
 <use name="jimmy"/>
-<use name="lhapdf"/>
 <use name="f77compiler"/>
 <export>
   <lib name="GeneratorInterfaceHerwig6Interface"/>
