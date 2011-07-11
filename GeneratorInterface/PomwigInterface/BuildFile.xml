@@ -4,11 +4,7 @@
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="boost"/>
 <use   name="clhep"/>
-<use   name="hepmc"/>
 <use   name="heppdt"/>
-<use   name="herwig"/>
-<use   name="lhapdf"/>
-<use   name="jimmy"/>
 <use   name="f77compiler"/>
 <export>
   <lib   name="1"/>
