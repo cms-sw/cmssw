@@ -226,6 +226,29 @@ class HLTProcess(object):
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
+# from CMSSW_4_4_0_pre5: updated configuration for the EcalSeverityLevelESProducer
+if cmsswVersion > "CMSSW_4_4":
+    %(process)secalSeverityLevel = cms.ESProducer("EcalSeverityLevelESProducer",
+        appendToDataLabel = cms.string(''),
+        dbstatusMask=cms.PSet(
+            kGood        = cms.vuint32(0),
+            kProblematic = cms.vuint32(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
+            kRecovered   = cms.vuint32(),
+            kTime        = cms.vuint32(),
+            kWeird       = cms.vuint32(),
+            kBad         = cms.vuint32(11, 12, 13, 14, 15, 16)
+        ),
+        flagMask = cms.PSet (
+            kGood        = cms.vstring('kGood'),
+            kProblematic = cms.vstring('kPoorReco','kPoorCalib'),
+            kRecovered   = cms.vstring('kLeadingEdgeRecovered','kTowerRecovered'),
+            kTime        = cms.vstring('kOutOfTime'),
+            kWeird       = cms.vstring('kWeird','kDiWeird'),
+            kBad         = cms.vstring('kFaultyHardware','kDead','kKilled')
+        ),
+        timeThresh = cms.double(2.0)
+    )
+
 # from CMSSW_4_3_0_pre6: ECAL severity flags migration
 if cmsswVersion > "CMSSW_4_3":
   import HLTrigger.Configuration.Tools.updateEcalSeverityFlags
