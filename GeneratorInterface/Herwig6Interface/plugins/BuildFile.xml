@@ -3,12 +3,8 @@
 <use name="FWCore/Utilities"/>
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="boost"/>
-<use name="hepmc"/>
 <use name="heppdt"/>
 <use name="clhep"/>
-<use name="herwig"/>
-<use name="jimmy"/>
-<use name="lhapdf"/>
 <library name="GeneratorInterfaceHerwig6Hadronizer" file="Herwig6Hadronizer.cc">
 	<use name="GeneratorInterface/Core"/>
 	<use name="GeneratorInterface/Herwig6Interface"/>
