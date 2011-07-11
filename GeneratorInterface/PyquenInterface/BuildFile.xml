@@ -4,8 +4,6 @@
 <use   name="GeneratorInterface/HiGenCommon"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="clhep"/>
-<use   name="hepmc"/>
-<use   name="pythia6"/>
 <use   name="f77compiler"/>
 <use   name="GeneratorInterface/Pythia6Interface"/>
 <use   name="GeneratorInterface/ExternalDecays"/>
