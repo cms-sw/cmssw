@@ -26,5 +26,5 @@ process.o = cms.EndPath(process.out)
 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 
-process.add_(cms.Service("DQMStore"))
+process.add_(cms.Service("DQMStore", forceResetOnBeginRun = cms.untracked.bool(True)))
 
