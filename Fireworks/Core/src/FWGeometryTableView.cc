@@ -73,7 +73,6 @@ public:
          FWPopupMenu* m_viewPopup = new FWPopupMenu(0);
 
          TEveElementList* views = gEve->GetViewers();
-         // TEveElementList* scenes = gEve->GetScenes();
          int idx = 0;
 
          for (TEveElement::List_i it = views->BeginChildren(); it != views->EndChildren(); ++it)
@@ -215,7 +214,7 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager*
 
 FWGeometryTableView::~FWGeometryTableView()
 {
-  // take out composite frame and delete it directly (without the timeout)
+  // take out composite frame and delete it directly (zwithout the timeout)
    TGCompositeFrame *frame = m_eveWindow->GetGUICompositeFrame();
    frame->RemoveFrame( m_frame );
    delete m_frame;
@@ -230,6 +229,19 @@ void
 FWGeometryTableView::addTo(FWConfiguration& iTo) const
 {
    FWConfigurableParameterizable::addTo(iTo);
+
+   FWConfiguration viewers(1);
+   if (m_eveTopNode)
+   { 
+      for (TEveElement::List_i it = m_eveTopNode->BeginParents(); it != m_eveTopNode->EndParents(); ++it )
+      {
+         FWConfiguration tempArea;
+         TEveScene* scene = dynamic_cast<TEveScene*>(*it);
+         std::string n = scene->GetElementName();
+         viewers.addKeyValue(n, tempArea);
+      }
+   }
+   iTo.addKeyValue("Viewers", viewers, true);
 }
   
 void
@@ -241,6 +253,34 @@ FWGeometryTableView::setFrom(const FWConfiguration& iFrom)
       (*it)->setFrom(iFrom);
 
    }     
+
+
+   // views
+   const FWConfiguration* controllers = iFrom.valueForKey("Viewers");
+   if (controllers) {
+      TEveElementList* scenes = gEve->GetScenes();
+      const FWConfiguration::KeyValues* keyVals = controllers->keyValues();
+      if(0!=keyVals) 
+      {
+         for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it!= keyVals->end(); ++it) {
+    
+            TString sname = it->first;
+            // printf("%d scene elements %s\n",  scenes->NumChildren(), sname.Data());
+            TEveElement* s = scenes->FindChild(sname);
+            if (s)
+            {
+                std::cout << sname.Data() << std::endl;   
+               if (!m_eveTopNode) {
+                  m_eveTopNode = new FWGeoTopNode(this);
+                  m_eveTopNode->IncDenyDestroy();
+                  m_viewBox->setElement(m_eveTopNode);
+               }
+               s->AddElement(m_eveTopNode);
+            }
+         }   
+      }
+   }
+
    resetSetters();
    cdNode(m_topNodeIdx.value());
 }
@@ -291,7 +331,6 @@ FWGeometryTableView::selectView(int idx)
    bool added = false;
    if (!m_eveTopNode) {
       m_eveTopNode = new FWGeoTopNode(this);
-      m_eveTopNode->SetElementName("FWGeoTopNode");
       m_eveTopNode->IncDenyDestroy();
       m_viewBox->setElement(m_eveTopNode);
    }
@@ -314,6 +353,8 @@ FWGeometryTableView::selectView(int idx)
    m_eveTopNode->ElementChanged();
    gEve->Redraw3D();
 }
+
+
 
 //==============================================================================
 void 
