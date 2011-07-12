@@ -43,6 +43,12 @@ typedef HLTSinglet<MET                   ,TriggerMET> HLT1MET      ;
 typedef HLTSinglet<RecoChargedCandidate,TriggerTrack> HLT1Track    ;
 typedef HLTSinglet<RecoEcalCandidate, TriggerCluster> HLT1Cluster  ;
 
+// filters for L1 candidates
+typedef HLTSinglet<l1extra::L1EmParticle,     TriggerMuon> HLTLevel1Muon;
+typedef HLTSinglet<l1extra::L1EtMissParticle,  TriggerMET> HLTLevel1MET;
+typedef HLTSinglet<l1extra::L1HFRings,                  0> HLTLevel1HF;
+typedef HLTSinglet<l1extra::L1JetParticle,     TriggerJet> HLTLevel1Jet;
+typedef HLTSinglet<l1extra::L1MuonParticle,   TriggerMuon> HLTLevel1Muon;
 
 #include "HLTrigger/HLTfilters/interface/HLTSmartSinglet.h"
 #include "HLTrigger/HLTfilters/src/HLTSmartSinglet.cc"
