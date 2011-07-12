@@ -3,10 +3,9 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("myprocess")
 process.load("CondCore.DBCommon.CondDBCommon_cfi")
 
-PoolDBESSource.connect = 'frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS'
-
 process.load ("Pool_NAME")
 process.load ("Btag_NAME")
+
 #
 # change inside the source
 #

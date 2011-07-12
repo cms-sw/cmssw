@@ -19,7 +19,7 @@ PoolDBESSource = cms.ESSource("PoolDBESSource",
     label = cms.untracked.string('BTagTEMPLATEwp_VERSION_offline')
     ),
 ))
-
+PoolDBESSource.connect = 'frontier://FrontierProd/CMS_COND_31X_PHYSICSTOOLS'
                               
                               
                               
