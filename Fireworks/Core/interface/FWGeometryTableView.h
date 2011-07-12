@@ -39,7 +39,7 @@ class FWColorManager;
 class FWGeoTopNode;
 
 class FWParameterBase;
-
+class FWViewCombo;
 
 class FWGeometryTableView
 #ifndef __CINT__
@@ -59,7 +59,6 @@ public:
                     Int_t iGlobalX, Int_t iGlobalY);
   
    void chosenItem(int);
-   //   void populate3DView();
    void selectView(int);
    void updateFilter();
 
@@ -114,13 +113,12 @@ private:
    TEveWindowFrame*        m_eveWindow;
    TGCompositeFrame*       m_frame;
 
-   TGComboBox*             m_viewBox;
+   FWViewCombo*             m_viewBox;
 #ifndef __CINT__
    std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
 #endif
    void resetSetters();
    void makeSetter(TGCompositeFrame* frame, FWParameterBase* param);
-   void updateViewers3DList();
    void loadGeometry();
 
    void autoExpandChanged();

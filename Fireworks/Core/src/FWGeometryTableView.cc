@@ -31,6 +31,7 @@
 #include "TEveGeoNode.h"
 #include "TGeoManager.h"
 #include "TEveScene.h"
+#include "TEveSceneInfo.h"
 #include "TEveViewer.h"
 #include "TGLViewer.h"
 #include "TGLCamera.h"
@@ -49,6 +50,84 @@ enum GeoMenuOptions {
    kCamera,
    kTableDebug
 };
+
+
+class FWViewCombo : public TGTextButton
+{
+private:
+   FWGeometryTableView* m_tableView;
+   TEveElement* m_el;
+
+public:
+   FWViewCombo(const TGWindow *p, FWGeometryTableView* t): 
+      TGTextButton(p, "Select Views", -1, TGButton::GetDefaultGC()(), TGTextButton::GetDefaultFontStruct(), kRaisedFrame | kDoubleBorder  ), m_tableView(t), m_el(0) {}
+   virtual ~FWViewCombo() {}
+   void setElement(TEveElement* x) {m_el = x;}
+
+   virtual Bool_t  HandleButton(Event_t* event) 
+   {
+      if (event->fType == kButtonPress)
+      {
+         bool map = false;
+
+         FWPopupMenu* m_viewPopup = new FWPopupMenu(0);
+
+         TEveElementList* views = gEve->GetViewers();
+         // TEveElementList* scenes = gEve->GetScenes();
+         int idx = 0;
+
+         for (TEveElement::List_i it = views->BeginChildren(); it != views->EndChildren(); ++it)
+         { 
+            TEveViewer* v = ((TEveViewer*)(*it));
+            if (strstr( v->GetElementName(), "3D") )
+            {     
+               bool added = false;          
+               m_viewPopup->AddEntry(v->GetElementName(), idx);
+               TEveSceneInfo* si = ( TEveSceneInfo*)v->FindChild(Form("SI - EventScene %s",v->GetElementName() ));
+               if (m_el) {
+                  for (TEveElement::List_i it = m_el->BeginParents(); it != m_el->EndParents(); ++it ){
+                     if (*it == si->GetScene()) {
+                        added = true;
+                        break;
+                     }
+                  }
+               }
+               map = true;
+               if (added)
+                  m_viewPopup->CheckEntry(idx);
+            }
+            ++idx;
+         }
+
+         if (map) {
+
+            Window_t wdummy;
+            Int_t ax,ay;
+            gVirtualX->TranslateCoordinates(GetId(),
+                                            gClient->GetDefaultRoot()->GetId(),
+                                            event->fX, event->fY, //0,0 in local coordinates
+                                            ax,ay, //coordinates of screen
+                                            wdummy);
+
+
+            m_viewPopup->PlaceMenu(ax, ay, true,true);
+            m_viewPopup->Connect("Activated(Int_t)",
+                                 "FWGeometryTableView",
+                                 const_cast<FWGeometryTableView*>(m_tableView),
+                                 "selectView(Int_t)");
+         }
+         else
+         {
+            fwLog(fwlog::kError) << "No 3D View added. \n";
+         }
+      }
+      return true;
+   }
+
+};
+
+//==============================================================================
+//==============================================================================
 
 FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager* colMng, TGeoManager* geoManager )
    : FWViewBase(FWViewType::kGeometryTable),
@@ -91,21 +170,18 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager*
          fileOpen->Connect("Clicked()","FWGeometryTableView",this,"browse()");
       }
       {
-         TGTextButton* rb = new TGTextButton (hp, "cdTop");
-         hp->AddFrame(rb);
+         TGTextButton* rb = new TGTextButton (hp, "CdTop");
+         hp->AddFrame(rb, new TGLayoutHints(kLHintsNormal, 2, 2, 0, 0) );
          rb->Connect("Clicked()","FWGeometryTableView",this,"cdTop()");
       } {
          TGTextButton* rb = new TGTextButton (hp, "CdUp");
-         hp->AddFrame(rb);
+         hp->AddFrame(rb, new TGLayoutHints(kLHintsNormal, 2, 2, 0, 0));
          rb->Connect("Clicked()","FWGeometryTableView",this,"cdUp()");
       }
 
       {
-         // hp->AddFrame(new TGLabel(hp,"Scene3D"),new TGLayoutHints(kLHintsBottom, 4,2, 0, 2));
-         m_viewBox = new TGComboBox(hp);
-         updateViewers3DList();
-         hp->AddFrame( m_viewBox,new TGLayoutHints(kLHintsExpandY|kLHintsExpandX, 4, 2, 0, 0));
-         m_viewBox->Connect("Selected(Int_t)", "FWGeometryTableView", this, "selectView(Int_t)");
+         m_viewBox = new FWViewCombo(hp, this);
+         hp->AddFrame( m_viewBox,new TGLayoutHints(kLHintsExpandY, 2, 2, 0, 0));
       }
       m_frame->AddFrame(hp,new TGLayoutHints(kLHintsLeft|kLHintsExpandX, 4, 2, 2, 2));
    }
@@ -129,7 +205,6 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager*
    {
       m_tableManager->loadGeometry();
       cdTop();
-      //      populate3DView();
    }
 
    m_frame->MapSubwindows();
@@ -205,39 +280,36 @@ FWGeometryTableView::makeSetter(TGCompositeFrame* frame, FWParameterBase* param)
 
 //==============================================================================
 
-void
-FWGeometryTableView::updateViewers3DList()
-{
-   m_viewBox->RemoveAll();
-   TEveElementList* scenes = gEve->GetScenes();
-   int idx = 0;
-
-   for (TEveElement::List_i it = scenes->BeginChildren(); it != scenes->EndChildren(); ++it)
-   { 
-      TEveScene* s = ((TEveScene*)(*it));
-      TString name = s->GetElementName();
-      if (name.Contains("3D") && !name.Contains("Geo"))
-      {
-         m_viewBox->AddEntry(s->GetElementName(), idx);
-      }
-      ++idx;
-   }
-}
-
 void 
 FWGeometryTableView::selectView(int idx)
 {
-  
-   m_eveTopNode = new FWGeoTopNode(this);
-   const char* n = Form("%s level[%d] size[%d] \n",m_geoManager->GetCurrentNode()->GetName(), getVisLevel(), (int)m_tableManager->refEntries().size());                            
-   m_eveTopNode->SetElementName(n);
+   TEveElement::List_i it = gEve->GetViewers()->BeginChildren();
+   std::advance(it, idx);
+   TEveViewer* v = (TEveViewer*)(*it);
+   TEveSceneInfo* si = (TEveSceneInfo*)v->FindChild(Form("SI - EventScene %s",v->GetElementName()));
 
- TEveElement::List_i it = gEve->GetScenes()->BeginChildren();
-  std::advance(it, idx);
+   bool added = false;
+   if (!m_eveTopNode) {
+      m_eveTopNode = new FWGeoTopNode(this);
+      m_eveTopNode->SetElementName("FWGeoTopNode");
+      m_eveTopNode->IncDenyDestroy();
+      m_viewBox->setElement(m_eveTopNode);
+   }
+   else
+   {
+      for (TEveElement::List_i it = m_eveTopNode->BeginParents(); it != m_eveTopNode->EndParents(); ++it ){
+         if (*it == si->GetScene()) {
+            added = true;
+            break;
+         }
+      }
+   }
+   printf("add node %s \n", si->GetElementName());
 
-   TEveScene* s = ((TEveScene*)(*it));
-   TString name = s->GetElementName();
-   s->AddElement(m_eveTopNode);
+   if (added)
+      si->GetScene()->RemoveElement(m_eveTopNode);
+   else
+      si->GetScene()->AddElement(m_eveTopNode);
 
    m_eveTopNode->ElementChanged();
    gEve->Redraw3D();
@@ -309,20 +381,20 @@ FWGeometryTableView::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t
    }
    else if (iColumn == FWGeometryTableManager::kName)
    {
-      FWPopupMenu* m_modelPopup = new FWPopupMenu();
-      m_modelPopup->AddEntry("Set As Top Node", kSetTopNode);
-      m_modelPopup->AddSeparator();
-      m_modelPopup->AddEntry("Rnr Off For All Children", kVisOff);
-      m_modelPopup->AddEntry("Rnr On For All Children", kVisOn);
-      m_modelPopup->AddSeparator();
-      m_modelPopup->AddEntry("Set Camera Center", kCamera);
-      m_modelPopup->AddSeparator();
-      m_modelPopup->AddEntry("InspectMaterial", kInspectMaterial);
-      m_modelPopup->AddEntry("InspectShape", kInspectShape);
-      //  m_modelPopup->AddEntry("Table Debug", kTableDebug);
+      FWPopupMenu* m_nodePopup = new FWPopupMenu();
+      m_nodePopup->AddEntry("Set As Top Node", kSetTopNode);
+      m_nodePopup->AddSeparator();
+      m_nodePopup->AddEntry("Rnr Off For All Children", kVisOff);
+      m_nodePopup->AddEntry("Rnr On For All Children", kVisOn);
+      m_nodePopup->AddSeparator();
+      m_nodePopup->AddEntry("Set Camera Center", kCamera);
+      m_nodePopup->AddSeparator();
+      m_nodePopup->AddEntry("InspectMaterial", kInspectMaterial);
+      m_nodePopup->AddEntry("InspectShape", kInspectShape);
+      //  m_nodePopup->AddEntry("Table Debug", kTableDebug);
 
-      m_modelPopup->PlaceMenu(x,y,true,true);
-      m_modelPopup->Connect("Activated(Int_t)",
+      m_nodePopup->PlaceMenu(x,y,true,true);
+      m_nodePopup->Connect("Activated(Int_t)",
                             "FWGeometryTableView",
                             const_cast<FWGeometryTableView*>(this),
                             "chosenItem(Int_t)");
