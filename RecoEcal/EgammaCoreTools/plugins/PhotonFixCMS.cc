@@ -21,7 +21,7 @@
 #include "Geometry/CaloGeometry/interface/TruncatedPyramid.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 
-#include "../interface/PhotonFixCMS.h"
+#include "PhotonFixCMS.h"
 
 PhotonFixCMS::PhotonFixCMS(const reco::Photon &p):
   pf(p.energy(),p.superCluster()->eta(),p.superCluster()->phi(),p.r9()) {
