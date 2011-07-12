@@ -33,12 +33,12 @@ std::string MaxLikelihoodFit::backgroundPdfNames_ = "*background*";
 
 
 MaxLikelihoodFit::MaxLikelihoodFit() :
-    LimitAlgo("Profile Likelihood specific options")
+    LimitAlgo("MaxLikelihoodFit specific options")
 {
     options_.add_options()
         ("minimizerAlgo",      boost::program_options::value<std::string>(&minimizerAlgo_)->default_value(minimizerAlgo_), "Choice of minimizer (Minuit vs Minuit2)")
         ("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(minimizerTolerance_),  "Tolerance for minimizer")
-        ("minimizerStragegy",  boost::program_options::value<int>(&minimizerStrategy_)->default_value(minimizerStrategy_),      "Stragegy for minimizer")
+        ("minimizerStrategy",  boost::program_options::value<int>(&minimizerStrategy_)->default_value(minimizerStrategy_),      "Stragegy for minimizer")
         ("preFitValue",        boost::program_options::value<float>(&preFitValue_)->default_value(preFitValue_),  "Value of signal strength for pre-fit plots")
         ("minos",              boost::program_options::value<std::string>(&minos_)->default_value(minos_), "Compute MINOS errors for: 'none', 'poi', 'all'")
         ("out",                boost::program_options::value<std::string>(&out_)->default_value(out_), "Directory to put output in")
