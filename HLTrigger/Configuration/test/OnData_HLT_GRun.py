@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V174 (CMSSW_4_2_0_HLT18)
+# /dev/CMSSW_4_2_0/GRun/V175 (CMSSW_4_2_0_HLT18)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V174')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V175')
 )
 
 process.streams = cms.PSet( 
@@ -144,15 +144,14 @@ process.datasets = cms.PSet(
     'HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v6',
     'HLT_Ele65_CaloIdVT_TrkIdT_v3',
     'HLT_HT2000_v2',
-    'HLT_HT550_v8',
     'HLT_Jet370_v6',
     'HLT_Jet800_v1',
     'HLT_MET200_v7',
     'HLT_MET400_v2',
     'HLT_Mu100_v4',
-    'HLT_Mu13_Mu8_v5',
     'HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_v2',
-    'HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v7',
+    'HLT_Mu17_Mu8_v5',
+    'HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v3',
     'HLT_Photon400_v1',
     'HLT_Photon75_CaloIdVL_IsoL_v7',
     'HLT_ZeroBias_v4' ),
@@ -3586,8 +3585,8 @@ process.MessageLogger = cms.Service( "MessageLogger",
       'hltPixelVertices3DbbPhi',
       'hltSiPixelDigis',
       'hltPixelTracksForHighMult',
-      'hltLightPFTracksForTaus',
       'hltSiPixelClusters',
+      'hltLightPFTracks',
       'hltPixelTracks',
       'hltOnlineBeamSpot',
       'hltL3MuonsOIHit',
@@ -3595,6 +3594,7 @@ process.MessageLogger = cms.Service( "MessageLogger",
       'hltHITPixelTracksHB',
       'hltL3MuonsIOHit' ),
     threshold = cms.untracked.string( "INFO" ),
+    suppressError = cms.untracked.vstring( 'hltL3MuonsIOHit' )
 )
 process.MicroStateService = cms.Service( "MicroStateService",
 )
@@ -31898,15 +31898,14 @@ process.hltOutputExpress = cms.OutputModule( "PoolOutputModule",
   'HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v6',
   'HLT_Ele65_CaloIdVT_TrkIdT_v3',
   'HLT_HT2000_v2',
-  'HLT_HT550_v8',
   'HLT_Jet370_v6',
   'HLT_Jet800_v1',
   'HLT_MET200_v7',
   'HLT_MET400_v2',
   'HLT_Mu100_v4',
-  'HLT_Mu13_Mu8_v5',
   'HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_v2',
-  'HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v7',
+  'HLT_Mu17_Mu8_v5',
+  'HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v3',
   'HLT_Photon400_v1',
   'HLT_Photon75_CaloIdVL_IsoL_v7',
   'HLT_ZeroBias_v4' ) ),

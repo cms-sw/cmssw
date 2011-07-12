@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V174 (CMSSW_4_2_0_HLT18)
+# /dev/CMSSW_4_2_0/HIon/V175 (CMSSW_4_2_0_HLT18)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V174')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V175')
 )
 
 process.streams = cms.PSet( 
@@ -2242,8 +2242,8 @@ process.MessageLogger = cms.Service( "MessageLogger",
       'hltPixelVertices3DbbPhi',
       'hltSiPixelDigis',
       'hltPixelTracksForHighMult',
-      'hltLightPFTracksForTaus',
       'hltSiPixelClusters',
+      'hltLightPFTracks',
       'hltPixelTracks',
       'hltOnlineBeamSpot',
       'hltL3MuonsOIHit',
@@ -2251,6 +2251,7 @@ process.MessageLogger = cms.Service( "MessageLogger",
       'hltHITPixelTracksHB',
       'hltL3MuonsIOHit' ),
     threshold = cms.untracked.string( "INFO" ),
+    suppressError = cms.untracked.vstring( 'hltL3MuonsIOHit' )
 )
 process.MicroStateService = cms.Service( "MicroStateService",
 )
