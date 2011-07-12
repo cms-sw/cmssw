@@ -7,8 +7,8 @@ hltGetConfiguration $HLT --process TEST --globaltag auto:startup   --full --offl
 hltGetConfiguration $HLT --process TEST                            --full --offline --data --unprescale > offline_data.py
 hltGetConfiguration $HLT --process TEST                            --full --online  --data --unprescale > online_data.py
 
-hltGetConfiguration $HLT --cff --offline --mc   > ../python/HLT_GRun_cff.py
-hltGetConfiguration $HLT --cff --offline --data > ../python/HLT_GRun_data_cff.py
+# hltGetConfiguration $HLT --cff --offline --mc   > ../python/HLT_GRun_cff.py
+# hltGetConfiguration $HLT --cff --offline --data > ../python/HLT_GRun_data_cff.py
 
 {
   TABLE=$(echo $HLT | cut -d: -f2)
