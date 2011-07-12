@@ -12245,7 +12245,7 @@ void OHltTree::initMuThresholdMap(){
 
   map_muThresholds[40.].push_back(0.);
   map_muThresholds[40.].push_back(16.);
-  map_muThresholds[40.].push_back(24.);
+  map_muThresholds[40.].push_back(40.);
 
   map_muThresholds[60.].push_back(0.);
   map_muThresholds[60.].push_back(16.);
