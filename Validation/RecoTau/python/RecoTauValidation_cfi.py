@@ -4,7 +4,7 @@ import copy
 import re
 import os
 
-from Validation.RecoTau.ValidationOptions_cfi import *
+#from Validation.RecoTau.ValidationOptions_cff import *
 
 
 """
@@ -149,6 +149,7 @@ RunTancValidation2 = RunTancValidation.clone()
 
 RunHPSValidation = copy.deepcopy(PFTausHighEfficiencyBothProngs)
 RunHPSValidation.ExtensionName = ""
+#RunHPSValidation.TauPtCut = cms.double(15.)
 RunHPSValidation.TauProducer   = cms.InputTag('hpsPFTauProducer')
 RunHPSValidation.discriminators = cms.VPSet(
    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByDecayModeFinding"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
@@ -167,6 +168,7 @@ RunHPSValidation2 = RunHPSValidation.clone()
 
 RunHPSTanc_HPSValidation = copy.deepcopy(PFTausHighEfficiencyBothProngs)
 RunHPSTanc_HPSValidation.ExtensionName = "_HPS"
+#RunHPSTanc_HPSValidation.TauPtCut      = cms.double(15.)
 RunHPSTanc_HPSValidation.TauProducer   = cms.InputTag('hpsTancTaus')
 RunHPSTanc_HPSValidation.discriminators = cms.VPSet(
    cms.PSet( discriminator = cms.string("hpsTancTausDiscriminationByDecayModeSelection"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),

@@ -1,10 +1,11 @@
+
 import FWCore.ParameterSet.Config as cms
 import copy
 
 from PhysicsTools.HepMCCandAlgos.genParticles_cfi import *
 from RecoJets.Configuration.RecoGenJets_cff import *
 from RecoJets.Configuration.GenJetParticles_cff import *
-from Validation.RecoTau.ValidationOptions_cfi import *
+#from Validation.RecoTau.ValidationOptions_cfi import *
 
 objectTypeSelectedTauValDenominator = copy.deepcopy(iterativeCone5GenJets)
 
