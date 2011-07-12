@@ -101,7 +101,11 @@ process.mergedtruth.simHitCollections.tracker = ['famosSimHitsTrackerHits']
 process.mergedtruth.simHitCollections.pixel = []
 process.mergedtruth.simHitCollections.muon = []
 process.mergedtruth.simHitLabel = 'famosSimHits'
-
+## make occupancies more similar to full simulation
+process.famosSimHits.ParticleFilter.etaMax = 3.0
+process.famosSimHits.ParticleFilter.pTMin = 0.05
+process.famosSimHits.TrackerSimHits.pTmin = 0.05
+process.famosSimHits.TrackerSimHits.firstLoop = False
 #############################################################
 process.Timing =  cms.Service("Timing")
 
@@ -125,7 +129,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     annotation = cms.untracked.string('SLHCUpgradeSimulations/Configuration/python/FourMuPt_1_50_cfi.py nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -173,12 +177,6 @@ process.famosPileUp.VertexGenerator = process.GaussVtxSmearingParameters
 #import FastSimulation.Event.GaussianVertexGenerator_cfi as GaussSmearing
 #process.famosPileUp.VertexGenerator = cms.PSet( GaussSmearing.myVertexGenerator )
 
-
-## make occupancies more similar to full simulation
-process.famosSimHits.ParticleFilter.etaMax = 3.0
-process.famosSimHits.ParticleFilter.pTMin = 0.05
-process.famosSimHits.TrackerSimHits.pTmin = 0.05
-process.famosSimHits.TrackerSimHits.firstLoop = False
 ####################
 process.load("Configuration.Generator.PythiaUESettings_cfi")
 process.generator = cms.EDFilter("Pythia6GeneratorFilter",
@@ -284,6 +282,8 @@ process.trackValidator.histoProducerAlgoBlock.cotThetaRes_nbin = cms.int32(120)
 process.trackValidator.histoProducerAlgoBlock.dxyRes_rangeMin = cms.double(-0.01)
 process.trackValidator.histoProducerAlgoBlock.dxyRes_rangeMax = cms.double(0.01)
 process.trackValidator.histoProducerAlgoBlock.dxyRes_nbin = cms.int32(100)
+process.trackValidator.tipTP = cms.double(3.5)
+process.trackValidator.ptMinTP = cms.double(0.9)
 
 process.slhcTracksValidation = cms.Sequence(process.cutsRecoTracksHp*
                                  process.cutsRecoTracksHpwbtagc*

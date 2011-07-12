@@ -3,7 +3,6 @@
 # Revision: 1.303.2.3 
 # Source: /cvs_server/repositories/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v 
 # with command line options: SLHCUpgradeSimulations/Configuration/python/FourMuPt_1_50_cfi.py -s GEN,FASTSIM,HLT:GRun --pileup=NoPileUp --geometry DB -n 10 --conditions auto:mc --eventcontent FEVTDEBUG --datatier GEN-SIM-DIGI-RECO --beamspot Gauss --no_exec --python_filename FASTSIM_4muons_cfg.py
-
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process('FASTSIMWDIGI')
@@ -13,16 +12,16 @@ process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
 process.load('FastSimulation.Configuration.EventContent_cff')
-process.load('FastSimulation.PileUpProducer.PileUpSimulator_NoPileUp_cff')
-#process.load('SLHCUpgradeSimulations.Geometry.mixLowLumPU_FastSim14TeV_cff')
+process.load('SLHCUpgradeSimulations.Geometry.mixLowLumPU_FastSim14TeV_cff')
 #process.load('FastSimulation.Configuration.Geometries_MC_cff')
 process.load('FastSimulation.Configuration.Geometries_cff')
-process.load('SLHCUpgradeSimulations.Geometry.Phase1_R39F16_cmsSimIdealGeometryXML_cff')
-process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-process.load('Configuration.StandardSequences.Generator_cff')
-process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('FastSimulation.Configuration.FamosSequences_cff')
+process.load('SLHCUpgradeSimulations.Geometry.Longbarrel_cmsSimIdealGeometryXML_cff')
+process.load('Configuration.StandardSequences.MagneticField_38T_cff')
+#process.load('Configuration.StandardSequences.Generator_cff')
+#process.load('GeneratorInterface.Core.genFilterSummary_cff')
 process.load('IOMC.EventVertexGenerators.VtxSmearedParameters_cfi')
+#process.load('FastSimulation.Configuration.HLT_GRun_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 # Include the RandomNumberGeneratorService definition
@@ -34,14 +33,16 @@ process.RandomNumberGeneratorService.simSiPixelDigis = cms.PSet(
       initialSeed = cms.untracked.uint32(1234567),
       engineName = cms.untracked.string('HepJamesRandom'))
 
-process.load('SLHCUpgradeSimulations.Geometry.Digi_Phase1_R39F16_cff')
+
+process.load('SLHCUpgradeSimulations.Geometry.Digi_Longbarrel_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 
-process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_R39F16_cff')
-process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_cff")
-process.load("SLHCUpgradeSimulations.Geometry.upgradeTracking_phase1_cff")
+process.load('SLHCUpgradeSimulations.Geometry.fakeConditions_Longbarrel_cff')
+process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_Longbarrel_cff")
+process.load("SLHCUpgradeSimulations.Geometry.upgradeTracking_longbarrel_cff")
+
 
 process.ctfWithMaterialTracks.TTRHBuilder = 'WithTrackAngle'
 process.PixelCPEGenericESProducer.UseErrorsFromTemplates = cms.bool(False)
@@ -90,15 +91,6 @@ process.thMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
 process.fourthMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
 process.fifthMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
 
-process.muons.TrackerKinkFinderParameters.TrackerRecHitBuilder = cms.string('WithTrackAngle')
-process.regionalCosmicTrackerSeeds.SeedMergerPSet = cms.PSet(
-        mergeTriplets = cms.bool(False),
-        ttrhBuilderLabel = cms.string( "PixelTTRHBuilderWithoutAngle" ),
-        addRemainingTriplets = cms.bool(False),
-        layerListName = cms.string( "PixelSeedMergerQuadruplets" )
-        )
-process.regionalCosmicTracks.TTRHBuilder = cms.string('WithTrackAngle')
-
 ## for fastsim we need these ################################
 process.TrackerGeometricDetESModule.fromDDD=cms.bool(True)
 process.TrackerDigiGeometryESModule.fromDDD=cms.bool(True)
@@ -109,11 +101,7 @@ process.mergedtruth.simHitCollections.tracker = ['famosSimHitsTrackerHits']
 process.mergedtruth.simHitCollections.pixel = []
 process.mergedtruth.simHitCollections.muon = []
 process.mergedtruth.simHitLabel = 'famosSimHits'
-## make occupancies more similar to full simulation
-process.famosSimHits.ParticleFilter.etaMax = 3.0
-process.famosSimHits.ParticleFilter.pTMin = 0.05
-process.famosSimHits.TrackerSimHits.pTmin = 0.05
-process.famosSimHits.TrackerSimHits.firstLoop = False
+
 #############################################################
 process.Timing =  cms.Service("Timing")
 
@@ -122,8 +110,9 @@ process.Timing =  cms.Service("Timing")
 ### if doing inefficiency at <PU>=50
 #process.simSiPixelDigis.AddPixelInefficiency = 20
 
+
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10)
+    input = cms.untracked.int32(1000)
 )
 
 # Input source
@@ -136,95 +125,117 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.3 $'),
     annotation = cms.untracked.string('SLHCUpgradeSimulations/Configuration/python/FourMuPt_1_50_cfi.py nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )
 
 # Output definition
+#process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
+#    splitLevel = cms.untracked.int32(0),
+#    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
+#    outputCommands = process.FEVTDEBUGEventContent.outputCommands,
+#    fileName = cms.untracked.string('FourMuPt_1_50_cfi_py_GEN_FASTSIM_HLT.root'),
+#    dataset = cms.untracked.PSet(
+#        filterName = cms.untracked.string(''),
+#        dataTier = cms.untracked.string('GEN-SIM-DIGI-RECO')
+#    ),
+#    SelectEvents = cms.untracked.PSet(
+#        SelectEvents = cms.vstring('generation_step')
+#    )
+#)
+# Output definition
 process.output = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     outputCommands = process.RECOSIMEventContent.outputCommands,
-    fileName = cms.untracked.string('file:reco.root'),
+    fileName = cms.untracked.string('file:valid_reco.root'),
     dataset = cms.untracked.PSet(
         dataTier = cms.untracked.string('GEN-SIM-RECO'),
         filterName = cms.untracked.string('')
     )
 )
+#I'm only interested in the validation stuff
+process.output.outputCommands = cms.untracked.vstring('drop *','keep *_MEtoEDMConverter_*_*')
+
+# Additional output definition
 
 # Other statements
 process.GlobalTag.globaltag = 'DESIGN42_V11::All'
 
 process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = True
+#process.simulation = cms.Sequence(process.simulationWithFamos)
+#process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)
 process.GaussVtxSmearingParameters.type = cms.string("Gaussian")
 process.famosSimHits.VertexGenerator = process.GaussVtxSmearingParameters
 process.famosPileUp.VertexGenerator = process.GaussVtxSmearingParameters
+# Replace std 10 TeV with 14 TeV pileup files and set the vertex smearing like signal
+#import FastSimulation.Event.GaussianVertexGenerator_cfi as GaussSmearing
+#process.famosPileUp.VertexGenerator = cms.PSet( GaussSmearing.myVertexGenerator )
 
+
+## make occupancies more similar to full simulation
+process.famosSimHits.ParticleFilter.etaMax = 3.0
+process.famosSimHits.ParticleFilter.pTMin = 0.05
+process.famosSimHits.TrackerSimHits.pTmin = 0.05
+process.famosSimHits.TrackerSimHits.firstLoop = False
 ####################
-process.load("Configuration.Generator.PythiaUESettings_cfi")
-process.generator = cms.EDFilter("Pythia6GeneratorFilter",
-    pythiaHepMCVerbosity = cms.untracked.bool(False),
-    maxEventsToPrint = cms.untracked.int32(0),
-    pythiaPylistVerbosity = cms.untracked.int32(0),
-    filterEfficiency = cms.untracked.double(1.0),
-    comEnergy = cms.double(14000.0),
-    PythiaParameters = cms.PSet(
-        process.pythiaUESettingsBlock,
-        processParameters = cms.vstring('MSEL      = 0     ! User defined processes', 
-            'MSUB(81)  = 1     ! qqbar to QQbar', 
-            'MSUB(82)  = 1     ! gg to QQbar', 
-            'MSTP(7)   = 6     ! flavour = top', 
-            'PMAS(6,1) = 175.  ! top quark mass'),
-        # This is a vector of ParameterSet names to be read, in this order
-        parameterSets = cms.vstring('pythiaUESettings', 
-            'processParameters')
-    ),
-    ExternalDecays = cms.PSet(
-        Tauola = cms.untracked.PSet(
-             UseTauolaPolarization = cms.bool(True),
-             InputCards = cms.PSet
-             (
-                pjak1 = cms.int32(0),
-                pjak2 = cms.int32(0),
-                mdtau = cms.int32(0)
-             )
-        ),
-        parameterSets = cms.vstring('Tauola')
-    )
-)
-################
-#process.generator = cms.EDProducer("FlatRandomPtGunProducer",
-#    PGunParameters = cms.PSet(
-#        MaxPt = cms.double(50.0),
-#        MinPt = cms.double(0.9),
-#        PartID = cms.vint32(-13, -13),
-#        MaxEta = cms.double(2.5),
-#        MaxPhi = cms.double(3.14159265359),
-#        MinEta = cms.double(-2.5),
-#        MinPhi = cms.double(-3.14159265359)
-#    ),
-#    Verbosity = cms.untracked.int32(0),
-#    psethack = cms.string('Four mu pt 1 to 50'),
-#    AddAntiParticle = cms.bool(True),
-#    firstRun = cms.untracked.uint32(1)
+#process.load("Configuration.Generator.PythiaUESettings_cfi")
+#process.generator = cms.EDFilter("Pythia6GeneratorFilter",
+#    pythiaHepMCVerbosity = cms.untracked.bool(False),
+#    maxEventsToPrint = cms.untracked.int32(0),
+#    pythiaPylistVerbosity = cms.untracked.int32(0),
+#    filterEfficiency = cms.untracked.double(1.0),
+#    comEnergy = cms.double(14000.0),
+#    PythiaParameters = cms.PSet(
+#        process.pythiaUESettingsBlock,
+#        processParameters = cms.vstring('MSEL      = 0     ! User defined processes', 
+#            'MSUB(81)  = 1     ! qqbar to QQbar', 
+#            'MSUB(82)  = 1     ! gg to QQbar', 
+#            'MSTP(7)   = 6     ! flavour = top', 
+#            'PMAS(6,1) = 175.  ! top quark mass'),
+#        # This is a vector of ParameterSet names to be read, in this order
+#        parameterSets = cms.vstring('pythiaUESettings', 
+#            'processParameters')
+#    )
 #)
+################
+process.generator = cms.EDProducer("FlatRandomPtGunProducer",
+    PGunParameters = cms.PSet(
+        MaxPt = cms.double(50.0),
+        MinPt = cms.double(0.9),
+        PartID = cms.vint32(-13, -13),
+        MaxEta = cms.double(2.5),
+        MaxPhi = cms.double(3.14159265359),
+        MinEta = cms.double(-2.5),
+        MinPhi = cms.double(-3.14159265359)
+    ),
+    Verbosity = cms.untracked.int32(0),
+    psethack = cms.string('Four mu pt 1 to 50'),
+    AddAntiParticle = cms.bool(True),
+    firstRun = cms.untracked.uint32(1)
+)
 
 ##########################################################
-## for MultiTrackValidator
 process.load("Validation.RecoTrack.cutsTPEffic_cfi")
 process.load("Validation.RecoTrack.cutsTPFake_cfi")
+## if mergedBremsstrahlung is False
+#process.cutsTPEffic.src = cms.InputTag("mergedtruth")
+#process.cutsTPFake.src = cms.InputTag("mergedtruth")
 
 process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
 process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
 process.TrackAssociatorByHits.ROUList = ['famosSimHitsTrackerHits']
-## Mark's alternate faster associator
+## cannot use the quick one for fastsim hits yet, need ROUList passed to
+## TrackerHitAssociator TODO: ask Mark to implement this
 #process.load('SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi')
 #process.quickTrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
 
 process.load('Configuration.StandardSequences.Validation_cff')
 #
-# for fastsim we need the following
+# also look at the option in
+# RecoTrack/python/TrackValidation_fastsim_cff.py
+# which we might need, especially the line
 process.trackValidator.stableOnlyTP = True
 process.trackValidator.histoProducerAlgoBlock.generalTpSelector.stableOnly = True
 process.trackValidator.histoProducerAlgoBlock.TpSelectorForEfficiencyVsEta.stableOnly = True
@@ -291,7 +302,7 @@ process.ReadLocalMeasurement = cms.EDAnalyzer("StdHitNtuplizer",
    trackProducer = cms.InputTag("generalTracks"),
    ### if using simple (non-iterative) or old (as in 1_8_4) tracking
    #trackProducer = cms.InputTag("ctfWithMaterialTracks"),
-   OutputFile = cms.string("stdgrechitP1_ntuple.root"),
+   OutputFile = cms.string("stdgrechitLB_ntuple.root"),
    ### for using track hit association
    associatePixel = cms.bool(True),
    associateStrip = cms.bool(False),
@@ -301,7 +312,7 @@ process.ReadLocalMeasurement = cms.EDAnalyzer("StdHitNtuplizer",
 process.ReadFastsimHits = cms.EDAnalyzer("FastsimHitNtuplizer",
    HitProducer = cms.InputTag("siTrackerGaussianSmearingRecHits","TrackerGSRecHits"),
    VerbosityLevel = cms.untracked.int32(1),
-   OutputFile = cms.string("fsgrechitP1_ntuple.root")
+   OutputFile = cms.string("fsgrechitLB_ntuple.root")
 )
 
 # Make the job crash in case of missing product
@@ -309,109 +320,39 @@ process.options = cms.untracked.PSet( Rethrow = cms.untracked.vstring('ProductNo
 
 process.anal = cms.EDAnalyzer("EventContentAnalyzer")
 
+
 ########################################
-## other subdetectors besides tracking uses fastsim
+# Path and EndPath definitions
+#process.generation_step = cms.Path(process.pgen_genonly)
+#process.reconstruction = cms.Path(process.reconstructionWithFamos)
+#process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
+#process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
 
-process.load('FastSimulation.CaloRecHitsProducer.CaloRecHits_cff')
-from FastSimulation.CaloRecHitsProducer.CaloRecHits_cff import *
-from RecoLocalCalo.HcalRecAlgos.hcalRecAlgoESProd_cfi import *
-# Calo Towers
-from RecoJets.Configuration.CaloTowersRec_cff import *
-
-process.load('RecoTracker.Configuration.RecoTracker_cff')
-# Calo RecHits producer (with no HCAL miscalibration by default)
-
-# Muon RecHit sequence
-from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
-csc2DRecHits.stripDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCStripDigi")
-csc2DRecHits.wireDigiTag = cms.InputTag("simMuonCSCDigis","MuonCSCWireDigi")
-rpcRecHits.rpcDigiLabel = 'simMuonRPCDigis'
-dt1DRecHits.dtDigiLabel = 'simMuonDTDigis'
-dt1DCosmicRecHits.dtDigiLabel = 'simMuonDTDigis'
-
-# Muon reconstruction sequence
-from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
-from RecoMuon.TrackingTools.MuonTrackLoader_cff import *
-KFSmootherForMuonTrackLoader.Propagator = 'SmartPropagatorAny'
-from RecoMuon.MuonSeedGenerator.standAloneMuonSeeds_cff import *
-from RecoMuon.StandAloneMuonProducer.standAloneMuons_cff import *
-from FastSimulation.Configuration.globalMuons_cff import *
-globalMuons.GLBTrajBuilderParameters.TrackTransformer.TrackerRecHitBuilder = 'WithoutRefit'
-globalMuons.GLBTrajBuilderParameters.TrackerRecHitBuilder = 'WithoutRefit'
-globalMuons.GLBTrajBuilderParameters.TransformerOutPropagator = cms.string('SmartPropagatorAny')
-globalMuons.GLBTrajBuilderParameters.MatcherOutPropagator = cms.string('SmartPropagator')
-
-from RecoMuon.GlobalMuonProducer.tevMuons_cfi import *
-GlobalMuonRefitter.TrackerRecHitBuilder = 'WithoutRefit'
-GlobalMuonRefitter.Propagator = 'SmartPropagatorAny'
-GlobalTrajectoryBuilderCommon.TrackerRecHitBuilder = 'WithoutRefit'
-tevMuons.RefitterParameters.TrackerRecHitBuilder = 'WithoutRefit'
-tevMuons.RefitterParameters.Propagator =  'SmartPropagatorAny'
-KFSmootherForRefitInsideOut.Propagator = 'SmartPropagatorAny'
-KFSmootherForRefitOutsideIn.Propagator = 'SmartPropagator'
-KFFitterForRefitInsideOut.Propagator = 'SmartPropagatorAny'
-KFFitterForRefitOutsideIn.Propagator = 'SmartPropagatorAny'
-
-
-#from RecoEgamma.EgammaElectronProducers.electronSequence_cff import *
-#from RecoEgamma.EgammaPhotonProducers.photonSequence_cff import *
-#from RecoEgamma.EgammaPhotonProducers.conversionSequence_cff import *
-#from RecoEgamma.EgammaPhotonProducers.conversionTrackSequence_cff import *
-#from RecoEgamma.EgammaPhotonProducers.allConversionSequence_cff import *
-#allConversions.src = 'gsfGeneralConversionTrackMerger'
-########################################
-
+# Schedule definition
+#process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step)
+#process.schedule.extend(process.HLTSchedule)
+#process.schedule.extend([process.reconstruction,process.FEVTDEBUGoutput_step])
+## filter all path with the production filter sequence
+#for path in process.paths:
+#	getattr(process,path)._seq = process.generator * getattr(process,path)._seq 
+#
 # Famos with tracks
 process.p0 = cms.Path(process.generator)
-process.generation_step = cms.Path(process.pgen_genonly)
-process.othergeneration_step = cms.Path(process.GeneInfo+process.genJetMET)
-process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
-
-#process.p1 = cms.Path(process.famosWithTrackerHits)
-process.p1 = cms.Path(process.famosWithTrackerAndCaloHits)
+process.p1 = cms.Path(process.famosWithTrackerHits)
 process.p2 = cms.Path(process.trDigi*process.trackingParticles)
 #process.p3 = cms.Path(process.trackerlocalreco)
 #process.p6 = cms.Path(process.oldTracking_wtriplets)
 process.reconstruction_step     = cms.Path(process.trackerlocalreco*
-                                           process.offlineBeamSpot+
-                                           process.recopixelvertexing*
-                                           process.ckftracks_wodEdXandSteps2345*process.trackExtrapolator*
-                                           process.particleFlowCluster*
-                                           process.ecalClusters*
-                                          process.caloTowersRec*
-                                           process.vertexreco*
-###                                           process.egammaGlobalReco*
-                                           process.electronGsfTracking*process.conversionTrackSequence*process.conversionTrackSequenceNoEcalSeeded*
-                                           process.allConversionSequence*
-                                           process.pfTrackingGlobalReco*
-                                           process.jetGlobalReco*
-                                           process.famosMuonSequence*
-                                           process.famosMuonIdAndIsolationSequence*
-###                                           process.highlevelreco
-                                           process.egammaHighLevelRecoPrePF*
-                                           process.particleFlowReco*
-                                           process.egammaHighLevelRecoPostPF*
-                                           process.jetHighLevelReco*
-                                           process.tautagging*
-###                                           process.metrecoPlusHCALNoise*
-                                           process.btagging*
-                                           process.recoPFMET*
-                                           process.PFTau*
-                                           process.regionalCosmicTracksSeq*
-###                                           process.muoncosmichighlevelreco*
-                                           process.reducedRecHits
-)
-
+                                                process.offlineBeamSpot+
+                                                process.recopixelvertexing*process.ckftracks_wodEdXandSteps2345)
 process.p7 = cms.Path(process.anal)
+#process.p8 = cms.Path(process.cutsTPEffic*process.cutsTPFake*process.multiTrackValidator)
 process.p8 = cms.Path(process.cutsTPEffic*process.cutsTPFake*process.slhcTracksValidation)
 process.p9 = cms.Path(process.ReadLocalMeasurement)
 
 process.endjob_step             = cms.Path(process.endOfProcess)
 process.out_step                = cms.EndPath(process.output)
 
-#process.schedule = cms.Schedule(process.generation_step,process.othergeneration_step,process.genfiltersummary_step,process.p1,process.p2,process.reconstruction_step,process.p8,process.p9,process.endjob_step,process.out_step)
-process.schedule = cms.Schedule(process.generation_step,process.othergeneration_step,process.genfiltersummary_step,process.p1,process.p2,process.reconstruction_step,process.endjob_step,process.out_step)
-# filter all path with the production filter sequence
-for path in process.paths:
-        getattr(process,path)._seq = process.generator * getattr(process,path)._seq
+process.schedule = cms.Schedule(process.p0,process.p1,process.p2,process.reconstruction_step,process.p8,process.p9,process.endjob_step,process.out_step)
+#process.schedule = cms.Schedule(process.p0,process.p1,process.p2,process.reconstruction_step,process.p8,process.endjob_step,process.out_step)
 
