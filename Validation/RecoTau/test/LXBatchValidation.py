@@ -4,7 +4,7 @@
 #  Author: Evan Friis evan.klose.friis@cern.ch
 import time
 import random
-from Validation.RecoTau.ValidationOptions_cfi import *
+from Validation.RecoTau.ValidationOptions_cff import *
 
 options.parseArguments()
 checkOptionsForBadInput()
