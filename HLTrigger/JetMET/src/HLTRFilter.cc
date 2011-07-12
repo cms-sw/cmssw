@@ -30,6 +30,7 @@ HLTRFilter::HLTRFilter(const edm::ParameterSet& iConfig) :
   inputMetTag_ (iConfig.getParameter<edm::InputTag>("inputMetTag")),
   min_R_       (iConfig.getParameter<double>       ("minR"   )),
   min_MR_      (iConfig.getParameter<double>       ("minMR"   )),
+  DoRPrime_    (iConfig.getParameter<bool>       ("doRPrime"   )),
   accept_NJ_    (iConfig.getParameter<bool>       ("acceptNJ"   ))
 
 {
@@ -55,6 +56,7 @@ HLTRFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.add<edm::InputTag>("inputMetTag",edm::InputTag("hltMet"));
   desc.add<double>("minR",0.3);
   desc.add<double>("minMR",100.0);
+  desc.add<bool>("doRPrime",false);
   desc.add<bool>("acceptNJ",true);
   descriptions.add("hltRFilter",desc);
 }
