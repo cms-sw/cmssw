@@ -2,22 +2,73 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/05/01 08:43:49 $
- *  $Revision: 1.9 $
+ *  $Date: 2011/05/01 14:41:36 $
+ *  $Revision: 1.10 $
  *
  *  \author Martin Grunewald
  *
  */
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "HLTrigger/HLTfilters/interface/HLTSinglet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-
 #include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/L1Trigger/interface/L1EmParticle.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticle.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticle.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "HLTrigger/HLTfilters/interface/HLTSinglet.h"
+
+
+// extract the candidate type
+template<typename T, int Tid>
+trigger::TriggerObjectType getObjectType(const T &) {
+  return static_cast<trigger::TriggerObjectType>(Tid);
+}
+
+// specialize for type l1extra::L1EmParticle
+template<int Tid>
+trigger::TriggerObjectType getObjectType(const l1extra::L1EmParticle & candidate) {
+  switch (candidate.type()) {
+    case l1extra::L1EmParticle::kIsolated:
+      return trigger::TriggerL1IsoEG;
+    case l1extra::L1EmParticle::kNonIsolated:
+      return trigger::TriggerL1NoIsoEG;
+    default:
+      return static_cast<trigger::TriggerObjectType>(Tid);
+  }
+}
+
+// specialize for type l1extra::L1EtMissParticle
+template<int Tid>
+trigger::TriggerObjectType getObjectType(const l1extra::L1EtMissParticle & candidate) {
+  switch (candidate.type()) {
+    case l1extra::L1EtMissParticle::kMET:
+      return trigger::TriggerL1ETM;
+    case l1extra::L1EtMissParticle::kMHT:
+      return trigger::TriggerL1HTM;
+    default:
+      return static_cast<trigger::TriggerObjectType>(Tid);
+  }
+}
+
+// specialize for type l1extra::L1JetParticle
+template<int Tid>
+trigger::TriggerObjectType getObjectType(const l1extra::L1JetParticle & candidate) {
+  switch (candidate.type()) {
+    case l1extra::L1JetParticle::kCentral:
+      return trigger::TriggerL1CenJet;
+    case l1extra::L1JetParticle::kForward:
+      return trigger::TriggerL1ForJet;
+    case l1extra::L1JetParticle::kTau:
+      return trigger::TriggerL1TauJet;
+    default:
+      return static_cast<trigger::TriggerObjectType>(Tid);
+  }
+}
+
 
 //
 // constructors and destructor
@@ -84,7 +135,7 @@ HLTSinglet<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  ( (max_Eta_ < 0.0) || (std::abs(i->eta()) <= max_Eta_) ) ) {
        n++;
        ref=TRef(objects,distance(objects->begin(),i));
-       filterobject->addObject(Tid,ref);
+       filterobject->addObject(getObjectType<T, Tid>(*i),ref);
      }
    }
 
@@ -96,3 +147,5 @@ HLTSinglet<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    return accept;
 }
+
+
