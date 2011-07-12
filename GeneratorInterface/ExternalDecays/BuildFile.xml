@@ -2,7 +2,7 @@
 <use   name="GeneratorInterface/Pythia6Interface"/>
 <use   name="heppdt"/>
 <use   name="SimGeneral/HepPDTRecord"/>
-<use   name="tauola"/>
+<use   name="tauolapp"/>
 <use   name="photos"/>
 <use   name="clhep"/>
 <use   name="evtgenlhc"/>
