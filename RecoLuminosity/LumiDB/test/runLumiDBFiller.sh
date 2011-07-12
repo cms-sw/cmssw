@@ -18,7 +18,7 @@ loaderconf="loader.cfg"
 cd /nfshome0/hcallumipro/LumiDBUtil/exec
 date > "$lumilogpath/tmp.log"
 sqlplus cms_runinfo_r@cms_orcon_prod/$1 < dumpfill.sql >> "$lumilogpath/tmp.log"
-lumiDBFiller.py -c $dbConnectionString -d $dropboxDir -P $lumiauthpath -L $lumilogpath -f $loaderconf --dryrun >> "$lumilogpath/tmp.log"
+lumiDBFiller.py -c $dbConnectionString -d $dropboxDir -P $lumiauthpath -L $lumilogpath -f $loaderconf >> "$lumilogpath/tmp.log"
 date >> "$lumilogpath/tmp.log"
 myDate=`date +"%y-%m-%d-%H"`
 mv "$lumilogpath/tmp.log" "$lumilogpath/lumiDBFiller-$myDate.log"
