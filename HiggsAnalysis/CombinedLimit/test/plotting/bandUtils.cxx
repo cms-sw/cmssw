@@ -221,11 +221,11 @@ void makeLine(TDirectory *bands, TString name, TString filename,  int doSyst, in
 void makeBands(TDirectory *bands, TString name, TString filename, int channel=0, bool quantiles=false) {
     TFile *in = TFile::Open(filename);
     if (in == 0) { std::cerr << "Filename " << filename << " missing" << std::endl; return; }
-    for (int s = 1; s <= 1; ++s) {
+    for (int s = 0; s <= 1; ++s) {
         makeBand(bands, name, in, s, channel, Mean);
         makeBand(bands, name, in, s, channel, Median);
         makeBand(bands, name, in, s, channel, Observed);
-        //makeBand(bands, name, in, s, channel, CountToys);
+        makeBand(bands, name, in, s, channel, CountToys);
     }
     if (quantiles) {
         double quants[5] = { 0.025, 0.16, 0.5, 0.84, 0.975 };
