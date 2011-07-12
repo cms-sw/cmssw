@@ -3,9 +3,8 @@
 #include <fstream>
 #include <iomanip>
 
-// if working outside of CMSSW ensure that the input file on line 1575 points to the file local position of the file RecoEcal/EgammaCoreTools/test/PhotonFix.dat
 // ensure that this include points to the appropriate location for PhotonFix.h
-#include "RecoEcal/EgammaCoreTools/plugins/PhotonFix.h"
+#include "PhotonFix.h"
 
 PhotonFix::PhotonFix(double e, double eta, double phi, double r9) :
   _e(e), _eta(eta), _phi(phi), _r9(r9) {
@@ -1574,7 +1573,7 @@ bool PhotonFix::initialiseParameters(const std::string &s) {
 // Get the geometry of cracks and gaps from file
 bool PhotonFix::initialiseGeometry(const std::string &s) {
 
- std::ifstream fin("PhotonFix.dat");
+ std::ifstream fin("../test/PhotonFix.dat");
  assert(fin);
 
  std::cout << "Reading in here" << std::endl;
