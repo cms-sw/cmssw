@@ -22,16 +22,20 @@
 #include "RecoLuminosity/LumiProducer/interface/Exception.h"
 #include "RecoLuminosity/LumiProducer/interface/DBConfig.h"
 #include "RecoLuminosity/LumiProducer/interface/ConstantDef.h"
-#include <iostream>
-#include <sstream>
 #include "RecoLuminosity/LumiProducer/interface/DataPipe.h"
 #include "RecoLuminosity/LumiProducer/interface/LumiNames.h"
 #include "RecoLuminosity/LumiProducer/interface/idDealer.h"
 #include "RecoLuminosity/LumiProducer/interface/Exception.h"
 #include "RecoLuminosity/LumiProducer/interface/DBConfig.h"
 #include "RecoLuminosity/LumiProducer/interface/ConstantDef.h"
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <vector>
 #include <string>
 #include <boost/regex.hpp>
+#include <boost/tokenizer.hpp>
+
 namespace lumi{
   class CMSRunSummary2DB : public DataPipe{
   public:
@@ -49,14 +53,43 @@ namespace lumi{
       std::string hltkey;
       std::string fillnumber; //convert to number when write into lumi
       std::string sequence;
+      std::string fillscheme;
+      int ncollidingbunches;      
       coral::TimeStamp startT;
       coral::TimeStamp stopT;
     };
     bool isCollisionRun(const lumi::CMSRunSummary2DB::cmsrunsum& rundata);
+    void parseFillCSV(const std::string& csvsource, cmsrunsum& result);
   };//cl CMSRunSummary2DB
   //
   //implementation
   //
+  void
+  CMSRunSummary2DB::parseFillCSV(const std::string& csvsource, lumi::CMSRunSummary2DB::cmsrunsum& result){
+    result.fillscheme=std::string("");
+    result.ncollidingbunches=0;
+    std::ifstream csvfile;
+    csvfile.open(csvsource.c_str());
+    if(!csvfile){
+      std::cout<<"[warning] unable to open file: "<<csvsource<<std::endl;
+      return;
+    }
+    typedef boost::tokenizer< boost::escaped_list_separator<char> > Tokenizer;
+    std::vector<std::string> record;
+    std::string line;
+    while(std::getline(csvfile,line)){
+      Tokenizer tok(line);
+      record.assign(tok.begin(),tok.end());
+      if(record.size()<3) continue;
+      std::string fillnum=record[0];
+      if(fillnum==result.fillnumber){
+	result.fillscheme=record[1];
+	std::string ncollidingbunchesStr=record[2];
+	result.ncollidingbunches=str2int(ncollidingbunchesStr);
+	break;
+      }
+    }
+  }
   CMSRunSummary2DB::CMSRunSummary2DB(const std::string& dest):DataPipe(dest){}
   bool CMSRunSummary2DB::isCollisionRun(const  lumi::CMSRunSummary2DB::cmsrunsum& rundata){
     bool hasFill=false;
@@ -96,7 +129,15 @@ namespace lumi{
     }
  
     //std::cout<<"m_source "<<m_source<<std::endl;
-    coral::ISessionProxy* runinfosession=svc->connect(m_source,coral::ReadOnly);
+    std::string::size_type cutpos=m_source.find(';');
+    std::string dbsource("");
+    std::string csvsource("");
+    if(cutpos!=std::string::npos){
+      dbsource=m_source.substr(0,cutpos);
+      csvsource=m_source.substr(cutpos+1);
+    }   
+    //std::cout<<"dbsource: "<<dbsource<<" , csvsource: "<<csvsource<<std::endl;
+    coral::ISessionProxy* runinfosession=svc->connect(dbsource,coral::ReadOnly);
     try{
       coral::ITypeConverter& tpc=runinfosession->typeConverter();
       tpc.setCppTypeForSqlType("unsigned int","NUMBER(38)");
@@ -287,7 +328,14 @@ namespace lumi{
     }
     runinfosession->transaction().commit();
     delete runinfosession;
-    std::cout<<"result for run "<<runnumber<<" : sequence : "<<result.sequence<<" : hltkey : "<<result.hltkey<<" : fillnumber : "<<result.fillnumber<<" : l1key : "<<result.l1key<<" : amodetag :"<<result.amodetag<<" : egev : "<<result.egev<<std::endl; 
+    
+    if(csvsource.size()!=0){
+      parseFillCSV(csvsource,result);
+    }else{
+      result.fillscheme=std::string("");
+      result.ncollidingbunches=0;
+    }
+    std::cout<<"result for run "<<runnumber<<" : sequence : "<<result.sequence<<" : hltkey : "<<result.hltkey<<" : fillnumber : "<<result.fillnumber<<" : l1key : "<<result.l1key<<" : amodetag :"<<result.amodetag<<" : egev : "<<result.egev<<" : fillscheme "<<result.fillscheme<<" : ncollidingbunches : "<<result.ncollidingbunches<<std::endl; 
 
     //std::cout<<"connecting to dest "<<m_dest<<std::endl; 
     coral::ISessionProxy* destsession=svc->connect(m_dest,coral::Update);
@@ -309,6 +357,8 @@ namespace lumi{
       runData["AMODETAG"].data<std::string>()=result.amodetag;
       runData["EGEV"].data<unsigned int>()=(unsigned int)result.egev;
       runData["L1KEY"].data<std::string>()=result.l1key;
+      runData["FILLSCHEME"].data<std::string>()=result.fillscheme;
+      runData["NCOLLIDINGBUNCHES"].data<unsigned int>()=result.ncollidingbunches;
       destruntable.dataEditor().insertRow(runData);
     }catch( const coral::Exception& er){
       std::cout<<"database problem "<<er.what()<<std::endl;
