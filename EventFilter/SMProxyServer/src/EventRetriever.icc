@@ -1,4 +1,4 @@
-// $Id: EventRetriever.icc,v 1.1.4.4 2011/03/23 14:21:31 mommsen Exp $
+// $Id: EventRetriever.icc,v 1.3 2011/03/24 17:26:25 mommsen Exp $
 /// @file: EventRetriever.icc
 
 #include "EventFilter/SMProxyServer/interface/EventMsg.h"
@@ -43,7 +43,8 @@ namespace smproxy
     this,
     &smproxy::EventRetriever<RegInfo,QueueCollectionPtr>::getConnectedSMCount,
     stateMachine,
-    &smproxy::StateMachine::moveToFailedState
+    &smproxy::StateMachine::moveToFailedState,
+    stateMachine->getStatisticsReporter()->alarmHandler()
   )
   {
     edm::ParameterSet pset = consumer->getPSet();

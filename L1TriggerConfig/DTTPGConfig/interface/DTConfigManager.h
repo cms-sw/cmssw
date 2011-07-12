@@ -111,7 +111,9 @@ class DTConfigManager {
   //! Use Bti acceptance parameters (LL,LH,CL,CH,RL,RH)
   inline bool useAcceptParam() const { return my_acceptparam; }
 
-
+  //! flag for CCB configuration validity
+  inline bool CCBConfigValidity() const { return my_CCBvalid; }
+ 
 
   //! Set DTConfigBti for desired chip
   void setDTConfigBti(DTBtiId,DTConfigBti);
@@ -146,8 +148,8 @@ class DTConfigManager {
   //! Set the use of Bti acceptance parameters (LL,LH,CL,CH,RL,RH)
   inline void setUseAcceptParam(bool acceptparam) { my_acceptparam = acceptparam; }
 
-
-
+  //! Set the flag for CCB configuration validity
+  inline void setCCBConfigValidity(bool CCBValid) { my_CCBvalid = CCBValid; }
 
   //! Dump luts string commands from configuration parameters
   void dumpLUTParam(DTChamberId &chambid) const; /* SV 091111 */ 
@@ -169,7 +171,7 @@ class DTConfigManager {
 
   bool my_lutfromdb;
   bool my_acceptparam;
-
+  bool my_CCBvalid;
 };
 
 #endif

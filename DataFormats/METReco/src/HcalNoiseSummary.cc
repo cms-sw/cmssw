@@ -21,7 +21,12 @@ HcalNoiseSummary::HcalNoiseSummary()
     maxhpdhits_(0), maxhpdhitsnoother_(0), maxrbxhits_(0),
     minhpdemf_(999999.), minrbxemf_(999999.),
     nproblemRBXs_(0),
-    nisolnoise_(0), isolnoisee_(0), isolnoiseet_(0)
+    nisolnoise_(0), isolnoisee_(0), isolnoiseet_(0),
+    nflatnoise_(0), flatnoisee_(0), flatnoiseet_(0),
+    nspikenoise_(0), spikenoisee_(0), spikenoiseet_(0),
+    ntrianglenoise_(0), trianglenoisee_(0), trianglenoiseet_(0),
+    nts4ts5noise_(0), ts4ts5noisee_(0), ts4ts5noiseet_(0),
+    hasBadRBXTS4TS5_(false)
 {
 }
 
@@ -203,6 +208,71 @@ float HcalNoiseSummary::isolatedNoiseSumE(void) const
 float HcalNoiseSummary::isolatedNoiseSumEt(void) const
 {
   return isolnoiseet_;
+}
+
+int HcalNoiseSummary::numFlatNoiseChannels(void) const
+{
+  return nflatnoise_;
+}
+
+float HcalNoiseSummary::flatNoiseSumE(void) const
+{
+  return flatnoisee_;
+}
+
+float HcalNoiseSummary::flatNoiseSumEt(void) const
+{
+  return flatnoiseet_;
+}
+
+int HcalNoiseSummary::numSpikeNoiseChannels(void) const
+{
+  return nspikenoise_;
+}
+
+float HcalNoiseSummary::spikeNoiseSumE(void) const
+{
+  return spikenoisee_;
+}
+
+float HcalNoiseSummary::spikeNoiseSumEt(void) const
+{
+  return spikenoiseet_;
+}
+
+int HcalNoiseSummary::numTriangleNoiseChannels(void) const
+{
+  return ntrianglenoise_;
+}
+
+float HcalNoiseSummary::triangleNoiseSumE(void) const
+{
+  return trianglenoisee_;
+}
+
+float HcalNoiseSummary::triangleNoiseSumEt(void) const
+{
+  return trianglenoiseet_;
+}
+
+int HcalNoiseSummary::numTS4TS5NoiseChannels(void) const
+{
+  return nts4ts5noise_;
+}
+
+float HcalNoiseSummary::TS4TS5NoiseSumE(void) const
+{
+  return ts4ts5noisee_;
+}
+
+float HcalNoiseSummary::TS4TS5NoiseSumEt(void) const
+{
+  return ts4ts5noiseet_;
+}
+
+bool HcalNoiseSummary::HasBadRBXTS4TS5(void) const
+{
+   return hasBadRBXTS4TS5_;
 }
 
 edm::RefVector<reco::CaloJetCollection> HcalNoiseSummary::problematicJets(void) const

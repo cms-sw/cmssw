@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.cc,v 1.14.4.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: StreamsMonitorCollection.cc,v 1.17 2011/04/18 15:18:57 mommsen Exp $
 /// @file: StreamsMonitorCollection.cc
 
 #include <string>
@@ -24,7 +24,7 @@ namespace stor {
   {}
   
   
-  const StreamsMonitorCollection::StreamRecordPtr
+  StreamsMonitorCollection::StreamRecordPtr
   StreamsMonitorCollection::getNewStreamRecord()
   {
     boost::mutex::scoped_lock sl(streamRecordsMutex_);
@@ -36,6 +36,33 @@ namespace stor {
     return streamRecord;
   }
   
+  
+  void StreamsMonitorCollection::getStreamRecords(StreamRecordList& list) const
+  {
+    boost::mutex::scoped_lock sl(streamRecordsMutex_);
+
+    list.clear();
+    list.reserve(streamRecords_.size());
+    
+    for (
+      StreamRecordList::const_iterator 
+        it = streamRecords_.begin(), itEnd = streamRecords_.end();
+      it != itEnd;
+      ++it
+    )
+    {
+      list.push_back(*it);
+    }
+  }
+  
+
+  bool StreamsMonitorCollection::streamRecordsExist() const
+  {
+    boost::mutex::scoped_lock sl(streamRecordsMutex_);
+
+    return ( ! streamRecords_.empty() );
+  }
+
   
   void StreamsMonitorCollection::StreamRecord::incrementFileCount
   (

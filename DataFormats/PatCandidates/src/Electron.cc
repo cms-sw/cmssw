@@ -1,5 +1,5 @@
 //
-// $Id: Electron.cc,v 1.23 2010/10/14 13:55:24 beaudett Exp $
+// $Id: Electron.cc,v 1.24 2011/02/08 09:10:10 chamont Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -22,6 +22,7 @@ Electron::Electron() :
     dB_(0.0),
     edB_(0.0)
 {
+  initImpactParameters();
 }
 
 
@@ -39,6 +40,7 @@ Electron::Electron(const reco::GsfElectron & anElectron) :
     dB_(0.0),
     edB_(0.0)
 {
+  initImpactParameters();
 }
 
 
@@ -55,6 +57,7 @@ Electron::Electron(const edm::RefToBase<reco::GsfElectron> & anElectronRef) :
     dB_(0.0),
     edB_(0.0)
 {
+  initImpactParameters();
 }
 
 /// constructor from Ptr to reco::GsfElectron
@@ -70,11 +73,22 @@ Electron::Electron(const edm::Ptr<reco::GsfElectron> & anElectronRef) :
     dB_(0.0),
     edB_(0.0)
 {
+  initImpactParameters();
 }
 
 
 /// destructor
 Electron::~Electron() {
+}
+
+
+// initialize impact parameter container vars
+void Electron::initImpactParameters() {
+  for (int i_ = 0; i_<5; ++i_){
+    ip_.push_back(0.0);
+    eip_.push_back(0.0);
+    cachedIP_.push_back(false);
+  }
 }
 
 
@@ -207,10 +221,19 @@ reco::CandidatePtr Electron::sourceCandidatePtr( size_type i ) const {
 
 /// dB gives the impact parameter wrt the beamline.
 /// If this is not cached it is not meaningful, since
-/// it relies on the distance to the beamline.
-double Electron::dB() const {
-  if ( cachedDB_ ) {
-    return dB_;
+/// it relies on the distance to the beamline. 
+double Electron::dB(IpType type_) const {
+  // preserve old functionality exactly
+  if (type_ == None){
+    if ( cachedDB_ ) {
+      return dB_;
+    } else {
+      return std::numeric_limits<double>::max();
+    }
+  }
+  // more IP types (new)
+  else if ( cachedIP_[type_] ) {
+    return ip_[type_];
   } else {
     return std::numeric_limits<double>::max();
   }
@@ -218,11 +241,33 @@ double Electron::dB() const {
 
 /// edB gives the uncertainty on the impact parameter wrt the beamline.
 /// If this is not cached it is not meaningful, since
-/// it relies on the distance to the beamline.
-double Electron::edB() const {
-  if ( cachedDB_ ) {
-    return edB_;
+/// it relies on the distance to the beamline. 
+double Electron::edB(IpType type_) const {
+  // preserve old functionality exactly
+  if (type_ == None) {
+    if ( cachedDB_ ) {
+      return edB_;
+    } else {
+      return std::numeric_limits<double>::max();
+    }
+  }
+  // more IP types (new)
+  else if ( cachedIP_[type_] ) {
+    return eip_[type_];
   } else {
     return std::numeric_limits<double>::max();
   }
+
 }
+
+void Electron::setDB(double dB, double edB, IpType type){
+  if (type == None) { // Preserve  old functionality exactly
+    dB_ = dB; edB_ = edB;
+    cachedDB_ = true;
+  } else {
+    ip_[type] = dB; 
+    eip_[type] = edB; 
+    cachedIP_[type] = true;
+  }
+}
+ 

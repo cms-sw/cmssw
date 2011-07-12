@@ -1,5 +1,5 @@
-#ifndef __PhysicsTools_PFCandProducer_interface_EventHypothesis__
-#define __PhysicsTools_PFCandProducer_interface_EventHypothesis__
+#ifndef __CommonTools_ParticleFlow_interface_EventHypothesis__
+#define __CommonTools_ParticleFlow_interface_EventHypothesis__
 
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"

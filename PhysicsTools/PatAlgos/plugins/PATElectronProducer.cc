@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.cc,v 1.45 2010/12/13 14:10:19 salerno Exp $
+// $Id: PATElectronProducer.cc,v 1.46 2011/02/08 09:11:41 chamont Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATElectronProducer.h"
@@ -216,9 +216,11 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
   // needs beamline
   reco::TrackBase::Point beamPoint(0,0,0);
   reco::Vertex primaryVertex;
+  reco::BeamSpot beamSpot;
+  bool beamSpotIsValid = false;
+  bool primaryVertexIsValid = false;
   if ( embedHighLevelSelection_ ) {
     // Get the beamspot
-    reco::BeamSpot beamSpot;
     edm::Handle<reco::BeamSpot> beamSpotHandle;
     iEvent.getByLabel(beamLineSrc_, beamSpotHandle);
 
@@ -230,6 +232,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     if ( ! usePV_ ) {
       if ( beamSpotHandle.isValid() ){
 	beamSpot = *beamSpotHandle;
+	beamSpotIsValid = true;
       } else{
 	edm::LogError("DataNotAvailable")
 	  << "No beam spot available from EventSetup, not adding high level selection \n";
@@ -243,6 +246,7 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
     } else {
       if ( pvHandle.isValid() ) {
 	primaryVertex = pvHandle->at(0);
+	primaryVertexIsValid = true;
       } else {
 	edm::LogError("DataNotAvailable")
 	  << "No primary vertex available from EventSetup, not adding high level selection \n";
@@ -312,11 +316,19 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	    // Make sure the collection it points to is there
 	    if ( track.isNonnull() && track.isAvailable() ) {
 
+	      reco::TransientTrack tt = trackBuilder->build(track);
+	      embedHighLevel( anElectron, 
+			      track,
+			      tt,
+			      primaryVertex,
+			      primaryVertexIsValid,
+			      beamSpot,
+			      beamSpotIsValid );
+
 	      if ( !usePV_ ) {
 		double corr_d0 = track->dxy( beamPoint );
 		anElectron.setDB( corr_d0, -1.0 );
 	      } else {
-		reco::TransientTrack tt = trackBuilder->build(track);
 		std::pair<bool,Measurement1D> result = IPTools::absoluteTransverseImpactParameter(tt, primaryVertex);
 		double d0_corr = result.second.value();
 		double d0_err = result.second.error();
@@ -410,11 +422,21 @@ void PATElectronProducer::produce(edm::Event & iEvent, const edm::EventSetup & i
 	// Make sure the collection it points to is there
 	if ( track.isNonnull() && track.isAvailable() ) {
 
+	  reco::TransientTrack tt = trackBuilder->build(track);
+	  embedHighLevel( anElectron, 
+			  track,
+			  tt,
+			  primaryVertex,
+			  primaryVertexIsValid,
+			  beamSpot,
+			  beamSpotIsValid );
+
+
 	  if ( !usePV_ ) {
 	    double corr_d0 = track->dxy( beamPoint );
 	    anElectron.setDB( corr_d0, -1.0 );
 	  } else {
-	    reco::TransientTrack tt = trackBuilder->build(track);
+	    
 	    std::pair<bool,Measurement1D> result = IPTools::absoluteTransverseImpactParameter(tt, primaryVertex);
 	    double d0_corr = result.second.value();
 	    double d0_err = result.second.error();
@@ -731,6 +753,70 @@ void PATElectronProducer::readIsolationLabels( const edm::ParameterSet & iConfig
 
 }
 
+
+// embed various impact parameters with errors
+// embed high level selection
+void PATElectronProducer::embedHighLevel( pat::Electron & anElectron, 
+					  reco::GsfTrackRef track,
+					  reco::TransientTrack & tt,
+					  reco::Vertex & primaryVertex,
+					  bool primaryVertexIsValid,
+					  reco::BeamSpot & beamspot,
+					  bool beamspotIsValid
+					  )
+{
+  // Correct to PV
+
+  // PV2D
+  std::pair<bool,Measurement1D> result =
+    IPTools::signedTransverseImpactParameter(tt,
+					     GlobalVector(track->px(),
+							  track->py(),
+							  track->pz()),
+					     primaryVertex); 
+  double d0_corr = result.second.value();
+  double d0_err = primaryVertexIsValid ? result.second.error() : -1.0;
+  anElectron.setDB( d0_corr, d0_err, pat::Electron::PV2D);
+
+
+  // PV3D
+  result =
+    IPTools::signedImpactParameter3D(tt,
+				     GlobalVector(track->px(),
+						  track->py(),
+						  track->pz()),
+				     primaryVertex);
+  d0_corr = result.second.value();
+  d0_err = primaryVertexIsValid ? result.second.error() : -1.0;
+  anElectron.setDB( d0_corr, d0_err, pat::Electron::PV3D);
+  
+
+  // Correct to beam spot
+  // make a fake vertex out of beam spot
+  reco::Vertex vBeamspot(beamspot.position(), beamspot.covariance3D());
+  
+  // BS2D
+  result =
+    IPTools::signedTransverseImpactParameter(tt,
+					     GlobalVector(track->px(),
+							  track->py(),
+							  track->pz()),
+					     vBeamspot);
+  d0_corr = result.second.value();
+  d0_err = beamspotIsValid ? result.second.error() : -1.0;
+  anElectron.setDB( d0_corr, d0_err, pat::Electron::BS2D);
+  
+  // BS3D
+  result =
+    IPTools::signedImpactParameter3D(tt,
+				     GlobalVector(track->px(),
+						  track->py(),
+						  track->pz()),
+				     vBeamspot);
+  d0_corr = result.second.value();
+  d0_err = beamspotIsValid ? result.second.error() : -1.0;
+  anElectron.setDB( d0_corr, d0_err, pat::Electron::BS3D);
+}
 
 #include "FWCore/Framework/interface/MakerMacros.h"
 

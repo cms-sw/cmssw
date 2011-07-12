@@ -1,4 +1,4 @@
-// $Id: DQMEventMonitorCollection.h,v 1.7.10.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: DQMEventMonitorCollection.h,v 1.8 2011/03/07 15:31:31 mommsen Exp $
 /// @file: DQMEventMonitorCollection.h 
 
 #ifndef EventFilter_StorageManager_DQMEventMonitorCollection_h
@@ -16,8 +16,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to fragments
    *
    * $Author: mommsen $
-   * $Revision: 1.7.10.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.8 $
+   * $Date: 2011/03/07 15:31:31 $
    */
   
   class DQMEventMonitorCollection : public MonitorCollection
@@ -38,6 +38,7 @@ namespace stor {
     MonitoredQuantity numberOfUpdates_;
     MonitoredQuantity numberOfWrittenTopLevelFolders_;
 
+    MonitoredQuantity numberOfCompleteUpdates_;
 
   public:
 
@@ -56,6 +57,8 @@ namespace stor {
       MonitoredQuantity::Stats numberOfTopLevelFoldersStats;  //number of top level folders
       MonitoredQuantity::Stats numberOfUpdatesStats;          //number of received updates per DQMKey
       MonitoredQuantity::Stats numberOfWrittenTopLevelFoldersStats; //number of top level folders written to disk
+
+      MonitoredQuantity::Stats numberOfCompleteUpdatesStats;  //number of complete updates
     };
 
     explicit DQMEventMonitorCollection(const utils::Duration_t& updateInterval);
@@ -123,6 +126,13 @@ namespace stor {
       return numberOfUpdates_;
     }
 
+    const MonitoredQuantity& getNumberOfCompleteUpdatesMQ() const {
+      return numberOfCompleteUpdates_;
+    }
+    MonitoredQuantity& getNumberOfCompleteUpdatesMQ() {
+      return numberOfCompleteUpdates_;
+    }
+
     const MonitoredQuantity& getNumberOfWrittenTopLevelFoldersMQ() const {
       return numberOfWrittenTopLevelFolders_;
     }
@@ -150,6 +160,7 @@ namespace stor {
     xdata::Double dqmFoldersPerEP_;
     xdata::UnsignedInteger32 processedDQMEvents_;
     xdata::UnsignedInteger32 droppedDQMEvents_;
+    xdata::Double completeDQMUpdates_;
   };
   
 } // namespace stor

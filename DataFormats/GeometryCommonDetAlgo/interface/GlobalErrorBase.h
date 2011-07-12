@@ -2,7 +2,7 @@
 #define GlobalErrorType_H
 
 #include "DataFormats/GeometryCommonDetAlgo/interface/DeepCopyPointer.h"
-#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 //
 // Exceptions
@@ -54,6 +54,19 @@ public:
     theCartesianError(2,2)=c33;
   }
   
+  /**
+   * Constructor from SymMatrix. The original matrix has to be a 3*3 matrix.
+   */
+  GlobalErrorBase(const AlgebraicSymMatrix & err) {
+    if (err.num_row() == 3)
+      theCartesianError = asSMatrix<3>(err);
+    else {
+      //throw DetLogicError("Not 3x3 Error Matrix: set pointer to 0");
+      throw cms::Exception("DetLogicError")<<"Not 3x3 Error Matrix: set pointer to 0\n";
+
+    }
+  }
+
    /**
    * Constructor from SymMatrix. The original matrix has to be a 3*3 matrix.
    */
@@ -86,13 +99,17 @@ public:
     return theCartesianError(2,2);
   }
   
+  /**
+   * Access method to the matrix,
+   * /return The SymMatrix
+   */
+  AlgebraicSymMatrix matrix() const {
+    return asHepMatrix(theCartesianError);
+  }
  /**
    * Access method to the matrix,
    * /return The SymMatrix
    */
-  const AlgebraicSymMatrix33 & matrix() const {
-    return theCartesianError;
-  }
   const AlgebraicSymMatrix33 & matrix_new() const {
     return theCartesianError;
   }

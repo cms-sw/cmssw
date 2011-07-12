@@ -8,7 +8,6 @@
   <use   name="DataFormats/Common"/>
   <use   name="DataFormats/SiPixelDigi"/>
   <use   name="DQMServices/Core"/>
-  <use   name="CondFormats/SiPixelObjects"/>
   <use   name="DQM/SiPixelCommon"/>
   <use   name="Geometry/Records"/>
   <use   name="Geometry/CommonDetUnit"/>

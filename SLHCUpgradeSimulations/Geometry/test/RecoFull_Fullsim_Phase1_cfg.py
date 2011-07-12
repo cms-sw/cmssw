@@ -11,11 +11,11 @@ process = cms.Process('RECO')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-#process.load('Configuration.StandardSequences.MixingNoPileUp_cff')
+#process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load("SLHCUpgradeSimulations.Geometry.mixLowLumPU_Phase1_R39F16_cff")
-process.load("SLHCUpgradeSimulations.Geometry.PhaseI_cmsSimIdealGeometryXML_R39F16_cff")
+process.load("SLHCUpgradeSimulations.Geometry.Phase1_R39F16_cmsSimIdealGeometryXML_cff")
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-process.load('SLHCUpgradeSimulations.Geometry.Digi_Phase1_cff')
+process.load('SLHCUpgradeSimulations.Geometry.Digi_Phase1_R39F16_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.DigiToRaw_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
@@ -26,7 +26,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.1 $'),
+    version = cms.untracked.string('$Revision: 1.9 $'),
     annotation = cms.untracked.string('step2 nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -39,22 +39,27 @@ process.options = cms.untracked.PSet(
 )
 # Input source
 process.source = cms.Source("PoolSource",
-#    fileNames = cms.untracked.vstring(
-#    '/store/relval/CMSSW_3_6_3_SLHC1/RelValFourMuons/GEN-SIM-RAW/DESIGN_36_V10-v1/0021/F8F01ED5-B1BC-DF11-AABF-0026189438BC.root',
-#    '/store/relval/CMSSW_3_6_3_SLHC1/RelValFourMuons/GEN-SIM-RAW/DESIGN_36_V10-v1/0021/38041CE5-60BC-DF11-85EC-002618943970.root'  )
     fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_3_6_3_SLHC1/RelValTTbar/GEN-SIM/DESIGN_36_V10_UpSimGeometry_special-v1/0031/F6363EDF-12CB-DF11-9206-0030486792F0.root')
-#    fileNames = cms.untracked.vstring(
-#    '/store/relval/CMSSW_3_6_3_SLHC1/RelValTTbar/GEN-SIM/DESIGN_36_V10_UpSimGeometry_special-v1/0031/B083C3B3-02CB-DF11-8196-00261894392B.root')
-#    fileNames = cms.untracked.vstring(
-#    '/store/relval/CMSSW_3_6_3_SLHC1_patch1/RelValTTbar/GEN-SIM/DESIGN_36_V10_PU_LowLumiPileUp_Gauss_special-v1/0666/F4E4B87D-D100-E011-A900-003048678FAE.root')
+       '/store/relval/CMSSW_4_2_3_SLHC2/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110603_special-v1/0000/FAE740C0-698F-E011-B68F-0030487A1884.root',
+       '/store/relval/CMSSW_4_2_3_SLHC2/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110603_special-v1/0000/F83F7254-D68E-E011-BDC1-0030487A1FEC.root',
+       '/store/relval/CMSSW_4_2_3_SLHC2/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110603_special-v1/0000/D8DF747F-D38E-E011-B1FB-0030487CAEAC.root',
+       '/store/relval/CMSSW_4_2_3_SLHC2/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110603_special-v1/0000/A4E7FE3A-D88E-E011-B82A-0030487CD716.root',
+       '/store/relval/CMSSW_4_2_3_SLHC2/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110603_special-v1/0000/A2EBE7A8-D48E-E011-B2BF-0030487CAEAC.root',
+       '/store/relval/CMSSW_4_2_3_SLHC2/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110603_special-v1/0000/76F3D653-D78E-E011-8E7C-0030487CD718.root',
+       '/store/relval/CMSSW_4_2_3_SLHC2/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110603_special-v1/0000/66486529-D98E-E011-8143-0030487CD6DA.root',
+       '/store/relval/CMSSW_4_2_3_SLHC2/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110603_special-v1/0000/54D8B486-D68E-E011-A2DE-0030487CD6DA.root',
+       '/store/relval/CMSSW_4_2_3_SLHC2/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110603_special-v1/0000/4E44DA77-D78E-E011-997B-003048F118D2.root',
+       '/store/relval/CMSSW_4_2_3_SLHC2/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110603_special-v1/0000/469D9959-D68E-E011-B661-00304879EDEA.root',
+       '/store/relval/CMSSW_4_2_3_SLHC2/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110603_special-v1/0000/30478A0F-D88E-E011-A588-0030487CD6D8.root',
+       '/store/relval/CMSSW_4_2_3_SLHC2/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110603_special-v1/0000/2854E6C9-D58E-E011-A5E5-0030487CD17C.root',
+       '/store/relval/CMSSW_4_2_3_SLHC2/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110603_special-v1/0000/12705C98-D18E-E011-9D2D-0030487C6A66.root' 
+    )
 )
-
 # Output definition
 process.output = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
-    #outputCommands = process.RECOSIMEventContent.outputCommands,
-    outputCommands = cms.untracked.vstring('keep *','drop *_mix_*_*'),
+    outputCommands = process.RECOSIMEventContent.outputCommands,
+    #outputCommands = cms.untracked.vstring('keep *','drop *_mix_*_*'),
     fileName = cms.untracked.string('file:reco.root'),
     dataset = cms.untracked.PSet(
         dataTier = cms.untracked.string('GEN-SIM-RECO'),
@@ -74,10 +79,10 @@ process.output = cms.OutputModule("PoolOutputModule",
 # Additional output definition
 
 # Other statements
-process.GlobalTag.globaltag = 'DESIGN_36_V10::All'
+process.GlobalTag.globaltag = 'DESIGN42_V11::All'
 
 ### PhaseI Geometry and modifications ###############################################
-#process.load("SLHCUpgradeSimulations.Geometry.PhaseI_cmsSimIdealGeometryXML_R39F16_cff")
+#process.load("SLHCUpgradeSimulations.Geometry.Phase1_R39F16_cmsSimIdealGeometryXML_cff")
 process.Timing =  cms.Service("Timing")
 ## no playback when doing digis
 #process.mix.playback = True
@@ -97,7 +102,6 @@ process.simSiPixelDigis.AddPixelInefficiency = 20
 ## TIB1,2 inefficiency at 99% (i.e. dead)
 #process.simSiStripDigis.Inefficiency = 40
 
-process.load("SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_cff")
 process.load("SLHCUpgradeSimulations.Geometry.fakeConditions_Phase1_R39F16_cff")
 process.load("SLHCUpgradeSimulations.Geometry.recoFromSimDigis_cff")
 process.load("SLHCUpgradeSimulations.Geometry.upgradeTracking_phase1_cff")
@@ -149,6 +153,23 @@ process.thMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
 process.fourthMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
 process.fifthMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
 
+process.muons.TrackerKinkFinderParameters.TrackerRecHitBuilder = cms.string('WithTrackAngle')
+# The SeedMergerPSet should be added to the following file for Phase 1
+# RecoTracker/SpecialSeedGenerators/python/CombinatorialSeedGeneratorForCosmicsRegionalReconstruction_cfi.py
+# but pixel layers are not used here for cosmic TODO: need Maria and Jan to do appropriate thing here
+process.regionalCosmicTrackerSeeds.SeedMergerPSet = cms.PSet(
+	mergeTriplets = cms.bool(False),
+	ttrhBuilderLabel = cms.string( "PixelTTRHBuilderWithoutAngle" ),
+	addRemainingTriplets = cms.bool(False),
+	layerListName = cms.string( "PixelSeedMergerQuadruplets" )
+	)
+process.regionalCosmicTracks.TTRHBuilder = cms.string('WithTrackAngle')
+
+
+## when using the SV producer fix from later CMSSW_4_2_1 tag
+process.secondaryVertexTagInfos.beamSpotTag = cms.InputTag('offlineBeamSpot')
+process.ghostTrackVertexTagInfos.beamSpotTag = cms.InputTag('offlineBeamSpot')
+
 process.ReadLocalMeasurement = cms.EDAnalyzer("StdHitNtuplizer",
    src = cms.InputTag("siPixelRecHits"),
    stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHit"),
@@ -174,6 +195,7 @@ process.anal = cms.EDAnalyzer("EventContentAnalyzer")
 process.load("IOMC.RandomEngine.IOMC_cff")
 
 ### back to standard job commands ##################################################
+process.DigiToRaw.remove(process.castorRawData)
 
 process.DigiToRaw.remove(process.siPixelRawData)
 process.RawToDigi.remove(process.siPixelDigis)

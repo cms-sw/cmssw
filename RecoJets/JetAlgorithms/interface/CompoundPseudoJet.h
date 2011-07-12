@@ -22,7 +22,7 @@
 //
 // Original Author:  Salvatore Rappoccio
 //         Created:  Wed Nov 28 15:31:57 CST 2007
-// $Id: CompoundPseudoJet.h,v 1.1 2008/10/31 19:00:22 srappocc Exp $
+// $Id: CompoundPseudoJet.h,v 1.1 2008/10/07 20:44:27 srappocc Exp $
 //
 //-------------------------------------------------------------------------------------
 
@@ -38,76 +38,52 @@
 class CompoundPseudoSubJet {
  public:
   CompoundPseudoSubJet() {}
-  CompoundPseudoSubJet(fastjet::PseudoJet const & subjet,
-		       std::vector<int> const & constituents ) :
+  CompoundPseudoSubJet( fastjet::PseudoJet const & subjet,
+		     std::vector<int> const & constituents ) :
     subjet_(subjet),
-    subjetArea_(0.0),
     constituents_(constituents.size() ) 
-  {
-    copy( constituents.begin(), constituents.end(), constituents_.begin() );
-  }
-  CompoundPseudoSubJet(fastjet::PseudoJet const & subjet,
-		       double subjetArea,
-		       std::vector<int> const & constituents ) :
-    subjet_(subjet),
-    subjetArea_(subjetArea),
-    constituents_(constituents.size() ) 
-  {
-    copy( constituents.begin(), constituents.end(), constituents_.begin() );
-  }
-  
+      {
+	copy( constituents.begin(), constituents.end(), constituents_.begin() );
+      }
+
   ~CompoundPseudoSubJet() {} 
-  
+
   fastjet::PseudoJet const & subjet()       const { return subjet_; }
-  double                     subjetArea()   const { return subjetArea_; }
   std::vector<int> const &   constituents() const { return constituents_; }
-  
-protected:
+
+ protected:
   fastjet::PseudoJet         subjet_;
-  double                     subjetArea_;
   std::vector<int>           constituents_;
 };
 
 class CompoundPseudoJet {
 
-public:
+ public:
   CompoundPseudoJet() {}
   CompoundPseudoJet(fastjet::PseudoJet const & hardJet,
-		    std::vector<CompoundPseudoSubJet> const & subjets )  :
+		 std::vector<CompoundPseudoSubJet> const & subjets )  :
     hardJet_(hardJet),
-    hardJetArea_(0.0),
     subjets_(subjets.size())
-  {
-    copy( subjets.begin(), subjets.end(),  subjets_.begin() );
-  }
-  CompoundPseudoJet(fastjet::PseudoJet const & hardJet,
-		    double hardJetArea,
-		    std::vector<CompoundPseudoSubJet> const & subjets )  :
-    hardJet_(hardJet),
-    hardJetArea_(hardJetArea),
-    subjets_(subjets.size())
-  {
-    copy( subjets.begin(), subjets.end(),  subjets_.begin() );
-  }
-  
+    {
+      copy( subjets.begin(), subjets.end(),  subjets_.begin() );
+    }
+
   ~CompoundPseudoJet() {}
-  
-  fastjet::PseudoJet const &              hardJet()     const {return hardJet_;}
-  double                                  hardJetArea() const {return hardJetArea_;}
-  std::vector<CompoundPseudoSubJet>const& subjets()     const {return subjets_; }
-  
-  
-protected:
-  fastjet::PseudoJet                hardJet_;
-  double                            hardJetArea_;
-  std::vector<CompoundPseudoSubJet> subjets_;
+
+  fastjet::PseudoJet const &              hardJet() const { return hardJet_; }
+  std::vector<CompoundPseudoSubJet> const &  subjets() const { return subjets_; }
+
+
+ protected:
+  fastjet::PseudoJet                    hardJet_;
+  std::vector<CompoundPseudoSubJet>    subjets_;
 };
 
 
 
 class GreaterByEtPseudoJet : 
   public std::binary_function<fastjet::PseudoJet const &, fastjet::PseudoJet const &, bool> {
-  
+
 public:
   bool operator()( fastjet::PseudoJet const & j1, fastjet::PseudoJet const & j2 ) {
     return j1.perp() > j2.perp();

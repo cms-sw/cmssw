@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2011/02/14 15:29:39 $
- *  $Revision: 1.47 $
+ *  $Date: 2011/03/21 12:26:39 $
+ *  $Revision: 1.48 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
@@ -198,7 +199,7 @@ namespace edm {
 	unsigned int nextLsFromSignal = (-1)*retval+1;
 // 	std::cout << getpid() << "::got end-of-lumi for " << (-1)*retval
 // 		  << " was " << luminosityBlockNumber_ << std::endl;
-	if(luminosityBlockNumber_ < nextLsFromSignal)
+	if(luminosityBlockNumber_ == (nextLsFromSignal-1) )
 	  {
 	    if(lsToBeRecovered_->value_){
 // 	      std::cout << getpid() << "eol::recover ls::for " << (-1)*retval << std::endl;
@@ -220,6 +221,11 @@ namespace edm {
 	      resetLuminosityBlockAuxiliary();
 	    }
 	  }
+	else if(nextLsFromSignal >(luminosityBlockNumber_+100) ) {
+	  edm::LogError("DaqSource") << "Got EOL event with value " << retval 
+				     << " nextLS would be " << nextLsFromSignal 
+				     << " while we expected " << luminosityBlockNumber_+1 << " - disregarding... "; 
+	}
 	//	else
 	//	  std::cout << getpid() << "::skipping end-of-lumi for " << (-1)*retval << std::endl;
       }

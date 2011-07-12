@@ -36,9 +36,6 @@
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibErrors.h"
 
-#include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
-#include "CondTools/Ecal/interface/EcalTimeOffsetXMLTranslator.h"
-
 
 typedef EcalCondHandler<EcalGainRatios,
 			EcalGainRatiosXMLTranslator> EcalGainRatiosHandler;
@@ -114,11 +111,6 @@ typedef EcalCondHandler<EcalTimeCalibErrors,
 typedef popcon::PopConAnalyzer<EcalTimeCalibErrorsHandler>
                                          EcalTimeCalibErrorsAnalyzer;
 
-typedef EcalCondHandler<EcalTimeOffsetConstant,
-			EcalTimeOffsetXMLTranslator> EcalTimeOffsetConstantHandler;
-typedef popcon::PopConAnalyzer<EcalTimeOffsetConstantHandler>  
-                                         EcalTimeOffsetConstantAnalyzer;
-
 //define this as a plug-in
 DEFINE_FWK_MODULE(EcalGainRatiosAnalyzer);
 DEFINE_FWK_MODULE(EcalADCToGeVConstantAnalyzer);
@@ -132,5 +124,4 @@ DEFINE_FWK_MODULE(EcalIntercalibErrorsAnalyzer);
 DEFINE_FWK_MODULE(EcalIntercalibConstantsMCAnalyzer);
 DEFINE_FWK_MODULE(EcalTimeCalibConstantsAnalyzer);
 DEFINE_FWK_MODULE(EcalTimeCalibErrorsAnalyzer);
-DEFINE_FWK_MODULE(EcalTimeOffsetConstantAnalyzer);
 

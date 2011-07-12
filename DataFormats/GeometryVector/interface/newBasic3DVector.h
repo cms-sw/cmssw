@@ -105,7 +105,7 @@ public:
   T mag() const  { return std::sqrt( mag2());}
 
   /// Squared magnitude of transverse component 
-  T perp2() const { return ::dotxy(v,v);}
+  T perp2() const { return x()*x() + y()*y();}
 
   /// Magnitude of transverse component 
   T perp() const { return std::sqrt( perp2());}
@@ -139,7 +139,9 @@ public:
    */
   Basic3DVector unit() const {
     T my_mag = mag2();
-    return (0!=my_mag) ? (*this)*(T(1)/std::sqrt(my_mag)) : *this;
+    if (my_mag==0) return *this;
+    my_mag = T(1)/std::sqrt(my_mag);
+    return *this * my_mag;
   }
 
   /** Operator += with a Basic3DVector of possibly different precision.

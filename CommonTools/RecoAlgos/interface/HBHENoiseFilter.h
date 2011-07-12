@@ -36,6 +36,7 @@ class HBHENoiseFilter : public edm::EDFilter {
       double maxRBXEMF_;
       int minNumIsolatedNoiseChannels_;
       double minIsolatedNoiseSumE_, minIsolatedNoiseSumEt_;
+      bool useTS4TS5_;
 };
 
 #endif

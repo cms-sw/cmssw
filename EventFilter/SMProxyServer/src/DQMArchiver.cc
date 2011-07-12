@@ -1,4 +1,4 @@
-// $Id: DQMArchiver.cc,v 1.1.4.2 2011/03/07 12:01:12 mommsen Exp $
+// $Id: DQMArchiver.cc,v 1.2 2011/03/07 15:41:54 mommsen Exp $
 /// @file: DQMArchiver.cc
 
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -9,7 +9,6 @@
 #include "EventFilter/StorageManager/interface/QueueID.h"
 #include "EventFilter/StorageManager/src/DQMHttpSource.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "IOPool/Streamer/interface/StreamDQMDeserializer.h"
 
 #include "TObject.h"
 

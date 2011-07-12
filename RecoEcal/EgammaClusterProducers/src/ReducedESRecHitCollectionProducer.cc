@@ -6,7 +6,6 @@
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
-#include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 #include "Geometry/CaloTopology/interface/EcalPreshowerTopology.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
@@ -77,10 +76,13 @@ void ReducedESRecHitCollectionProducer::produce(edm::Event & e, const edm::Event
 	//cout<<"BC : "<<nBC<<endl;
 
 	const GlobalPoint point((*ibc)->x(),(*ibc)->y(),(*ibc)->z());
+
+	ESDetId esId1 = geometry_p->getClosestCellInPlane(point, 1);
+	ESDetId esId2 = geometry_p->getClosestCellInPlane(point, 2);
 	
-	collectIds(point, 0);
-	collectIds(point, 1);
-	collectIds(point, -1);
+	collectIds(esId1, esId2, 0);
+	collectIds(esId1, esId2, 1);
+	collectIds(esId1, esId2, -1);
 
 	//nBC++;
       }
@@ -116,15 +118,10 @@ void ReducedESRecHitCollectionProducer::produce(edm::Event & e, const edm::Event
 
 }
 
-void ReducedESRecHitCollectionProducer::collectIds(const GlobalPoint & point,
-						   const int & row){
+void ReducedESRecHitCollectionProducer::collectIds(const ESDetId esDetId1, const ESDetId esDetId2, const int & row) {
+
   //cout<<row<<endl;
-
-  DetId esId1 = geometry_p->getClosestCellInPlane(point, 1);
-  DetId esId2 = geometry_p->getClosestCellInPlane(point, 2);
-  ESDetId esDetId1 = (esId1 == DetId(0)) ? ESDetId(0) : ESDetId(esId1);
-  ESDetId esDetId2 = (esId2 == DetId(0)) ? ESDetId(0) : ESDetId(esId2);  
-
+  
   map<DetId,const EcalRecHit*>::iterator it;
   map<DetId, int>::iterator itu;
   ESDetId next;
@@ -141,20 +138,22 @@ void ReducedESRecHitCollectionProducer::collectIds(const GlobalPoint & point,
   theESNav2.setHome(strip2);
 
   if (row == 1) {
-    strip1 = theESNav1.north();
-    strip2 = theESNav2.east();
+    if (strip1 != ESDetId(0)) strip1 = theESNav1.north();
+    if (strip2 != ESDetId(0)) strip2 = theESNav2.east();
   } else if (row == -1) {
-    strip1 = theESNav1.south();
-    strip2 = theESNav2.west();
+    if (strip1 != ESDetId(0)) strip1 = theESNav1.south();
+    if (strip2 != ESDetId(0)) strip2 = theESNav2.west();
   }
 
   // Plane 1 
   if (strip1 == ESDetId(0)) {
   } else {
     collectedIds_.insert(strip1);
+    //cout<<"center : "<<strip1<<endl;
     // east road 
     for (int i=0; i<15; ++i) {
       next = theESNav1.east();
+      //cout<<"east : "<<i<<" "<<next<<endl;
       if (next != ESDetId(0)) {
 	collectedIds_.insert(next);
       } else {
@@ -167,6 +166,7 @@ void ReducedESRecHitCollectionProducer::collectIds(const GlobalPoint & point,
     theESNav1.home();
     for (int i=0; i<15; ++i) {
       next = theESNav1.west();
+      //cout<<"west : "<<i<<" "<<next<<endl;
       if (next != ESDetId(0)) {
 	collectedIds_.insert(next);
       } else {
@@ -179,9 +179,11 @@ void ReducedESRecHitCollectionProducer::collectIds(const GlobalPoint & point,
   if (strip2 == ESDetId(0)) {
   } else {
     collectedIds_.insert(strip2);
+    //cout<<"center : "<<strip2<<endl;
     // north road 
     for (int i=0; i<15; ++i) {
       next = theESNav2.north();
+      //cout<<"north : "<<i<<" "<<next<<endl;
       if (next != ESDetId(0)) {
 	collectedIds_.insert(next);
       } else {
@@ -194,6 +196,7 @@ void ReducedESRecHitCollectionProducer::collectIds(const GlobalPoint & point,
     theESNav2.home();
     for (int i=0; i<15; ++i) {
       next = theESNav2.south();
+      //cout<<"south : "<<i<<" "<<next<<endl;
       if (next != ESDetId(0)) {
 	collectedIds_.insert(next);
       } else {

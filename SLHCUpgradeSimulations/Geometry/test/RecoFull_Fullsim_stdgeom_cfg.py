@@ -11,11 +11,11 @@ process = cms.Process('RECO')
 process.load('Configuration.StandardSequences.Services_cff')
 process.load('SimGeneral.HepPDTESSource.pythiapdt_cfi')
 process.load('FWCore.MessageService.MessageLogger_cfi')
-#process.load('Configuration.StandardSequences.MixingNoPileUp_cff')
+#process.load('SimGeneral.MixingModule.mixNoPU_cfi')
 process.load("SLHCUpgradeSimulations.Geometry.mixLowLumPU_stdgeom_cff")
 process.load('Configuration.StandardSequences.GeometryExtended_cff')
 process.load('Configuration.StandardSequences.MagneticField_38T_cff')
-process.load('Configuration.StandardSequences.Digi_cff')
+process.load('SLHCUpgradeSimulations.Geometry.Digi_stdgeom_cff')
 process.load('Configuration.StandardSequences.SimL1Emulator_cff')
 process.load('Configuration.StandardSequences.DigiToRaw_cff')
 process.load('Configuration.StandardSequences.RawToDigi_cff')
@@ -26,7 +26,7 @@ process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Configuration.EventContent.EventContent_cff')
 
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.2 $'),
+    version = cms.untracked.string('$Revision: 1.7 $'),
     annotation = cms.untracked.string('step2 nevts:100'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -40,7 +40,17 @@ process.options = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-       '/store/relval/CMSSW_3_6_3_patch2/RelValTTbar/GEN-SIM/DESIGN_36_V10_PU_special-v1/0106/5C1BF635-8C07-E011-9699-0026189437EC.root')
+       '/store/relval/CMSSW_4_2_3_patch3/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110612_special-v1/0092/EC13ED20-D495-E011-8A69-0018F3D095EA.root',
+       '/store/relval/CMSSW_4_2_3_patch3/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110612_special-v1/0092/C20264B7-BB95-E011-B18C-002618943896.root',
+       '/store/relval/CMSSW_4_2_3_patch3/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110612_special-v1/0092/BA09026E-D695-E011-BD3C-0026189438ED.root',
+       '/store/relval/CMSSW_4_2_3_patch3/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110612_special-v1/0092/B61ADEE7-D795-E011-8100-002618943978.root',
+       '/store/relval/CMSSW_4_2_3_patch3/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110612_special-v1/0092/AE9E93DE-B495-E011-9A93-002618943976.root',
+       '/store/relval/CMSSW_4_2_3_patch3/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110612_special-v1/0092/9C783696-4B96-E011-8F59-002618943838.root',
+       '/store/relval/CMSSW_4_2_3_patch3/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110612_special-v1/0092/5028FC25-D495-E011-92ED-001A92810AC0.root',
+       '/store/relval/CMSSW_4_2_3_patch3/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110612_special-v1/0092/4A610F3C-B995-E011-8D32-00261894391F.root',
+       '/store/relval/CMSSW_4_2_3_patch3/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110612_special-v1/0092/4208E388-DB95-E011-84A5-002618943826.root',
+       '/store/relval/CMSSW_4_2_3_patch3/RelValTTbar_Tauola/GEN-SIM/DESIGN42_V11_110612_special-v1/0092/04112E92-D595-E011-A090-001A928116CC.root'
+	)
 )
 
 # Output definition
@@ -67,7 +77,7 @@ process.output = cms.OutputModule("PoolOutputModule",
 # Additional output definition
 
 # Other statements
-process.GlobalTag.globaltag = 'DESIGN_36_V10::All'
+process.GlobalTag.globaltag = 'DESIGN42_V11::All'
 
 ### PhaseI Geometry and modifications ###############################################
 process.Timing =  cms.Service("Timing")
@@ -79,12 +89,6 @@ process.Timing =  cms.Service("Timing")
 process.mix.input.nbPileupEvents = cms.PSet(
   averageNumber = cms.double(50.0)
 )
-### for digis
-process.simSiPixelDigis.MissCalibrate = False
-process.simSiPixelDigis.LorentzAngle_DB = False
-process.simSiPixelDigis.killModules = False
-process.simSiPixelDigis.useDB = False
-process.simSiPixelDigis.DeadModules_DB = False
 ### if doing inefficiency at <PU>=50
 process.simSiPixelDigis.AddPixelInefficiency = 20
 ## also for strips TIB inefficiency if we want
@@ -143,6 +147,10 @@ process.thMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
 process.thMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
 process.fourthMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
 process.fifthMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
+
+## when using the SV producer fix from later CMSSW_4_2_1 tag
+process.secondaryVertexTagInfos.beamSpotTag = cms.InputTag('offlineBeamSpot')
+process.ghostTrackVertexTagInfos.beamSpotTag = cms.InputTag('offlineBeamSpot')
 
 process.ReadLocalMeasurement = cms.EDAnalyzer("StdHitNtuplizer",
    src = cms.InputTag("siPixelRecHits"),
