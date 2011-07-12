@@ -202,7 +202,7 @@ if options.batchNumber >= 0:
    options.writeEDMFile = options.writeEDMFile.replace(".root", "_%i.root" % options.batchNumber)
 outputFileNameBase += ".root"
 
-print "HPSTanc pt Cut set to: %i. If you want a different one change it in RecoTauValidation_cfi" % validation.RunHPSTanc_HPSValidation.LeadingTrackPtCut.value()
+print "HPSTanc pt Cut set to: %i. If you want a different one change it in RecoTauValidation_cfi" % validation.RunHPSTanc_HPSValidation.TauPtCut.value()
 
 if options.gridJob:
    outputFileName = 'TauVal_GridJob.root'
