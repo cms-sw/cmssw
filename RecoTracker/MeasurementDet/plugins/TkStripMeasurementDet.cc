@@ -118,14 +118,14 @@ fastMeasurements( const TrajectoryStateOnSurface& stateOnThisDet,
   else{
     LogDebug("TkStripMeasurementDet")<<" finding left/ right";
     result.reserve(size());
-    uint rightCluster = beginClusterI_;
+    unsigned int rightCluster = beginClusterI_;
     for (; rightCluster!= endClusterI_;++rightCluster){
       SiStripRegionalClusterRef clusterref = edm::makeRefToLazyGetter(regionalHandle_,rightCluster);
       if (clusterref->barycenter() > utraj) break;
     }
 
-    uint leftCluster = 1;
-    for (uint iReadBackWard=1; iReadBackWard<=(rightCluster-beginClusterI_) ; ++iReadBackWard){
+    unsigned int leftCluster = 1;
+    for (unsigned int iReadBackWard=1; iReadBackWard<=(rightCluster-beginClusterI_) ; ++iReadBackWard){
 	leftCluster=rightCluster-iReadBackWard;
 	SiStripRegionalClusterRef clusterref = edm::makeRefToLazyGetter(regionalHandle_,leftCluster);
         if (isMasked(*clusterref)) continue;
@@ -261,7 +261,7 @@ TkStripMeasurementDet::recHits( const TrajectoryStateOnSurface& ts) const
     }
   }else{
     result.reserve(size());
-    for (uint ci = beginClusterI_ ; ci!= endClusterI_;++ci){
+    for (unsigned int ci = beginClusterI_ ; ci!= endClusterI_;++ci){
       SiStripRegionalClusterRef clusterRef = edm::makeRefToLazyGetter(regionalHandle_,ci);
       if (isMasked(*clusterRef)) continue;
       if (accept(clusterRef))
@@ -304,7 +304,7 @@ TkStripMeasurementDet::simpleRecHits( const TrajectoryStateOnSurface& ts, std::v
     }
   }else{
     result.reserve(size());
-    for (uint ci = beginClusterI_ ; ci!= endClusterI_;++ci){
+    for (unsigned int ci = beginClusterI_ ; ci!= endClusterI_;++ci){
       SiStripRegionalClusterRef clusterRef = edm::makeRefToLazyGetter(regionalHandle_,ci);
       if (isMasked(*clusterRef)) continue;
       if (accept(clusterRef))

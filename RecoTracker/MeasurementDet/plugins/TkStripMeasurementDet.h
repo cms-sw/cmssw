@@ -167,8 +167,8 @@ private:
 
   // --- regional unpacking
   edm::Handle<edm::LazyGetter<SiStripCluster> > regionalHandle_;
-  uint beginClusterI_;
-  uint endClusterI_;
+  unsigned int beginClusterI_;
+  unsigned int endClusterI_;
 
   inline bool isMasked(const SiStripCluster &cluster) const {
       if ( bad128Strip_[cluster.firstStrip() >> 7] ) {
