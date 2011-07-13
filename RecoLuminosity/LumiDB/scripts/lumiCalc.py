@@ -2,12 +2,15 @@
 VERSION='2.00'
 import os,sys,time
 import coral
-#import optparse
-from RecoLuminosity.LumiDB import lumiTime,inputFilesetParser,csvSelectionParser, selectionParser,csvReporter,argparse,CommonUtil,lumiQueryAPI
-#import RecoLuminosity.LumiDB.lumiQueryAPI as LumiQueryAPI
-#from pprint import pprint
-
-def getPerLSData(dbsession,inputRange,lumiversion='0001'):
+from RecoLuminosity.LumiDB import lumiTime,lumiCorrections,inputFilesetParser,csvSelectionParser, selectionParser,csvReporter,argparse,CommonUtil,lumiQueryAPI
+def applyfinecorrection(avglumi,constfactor,afterglowfactor,nonlinearfactor):
+    instlumi=avglumi*afterglowfactor*constfactor
+    if nonlinearfactor!=0 and constfactor!=1.0:
+        rawlumiInub=float(avglumi)/float(6.37)
+        nonlinearTerm=1.0-rawlumiInub*nonlinearfactor
+        instlumi=instlumi*nonlinearTerm
+    return instlumi
+def getPerLSData(dbsession,inputRange,lumiversion='0001',withFineCorrection=False):
     result={}#{run:[[cmslsnum,orbittime,orbittimestamp,delivered,recorded]]}
     datacollector={}
     if isinstance(inputRange, str):
@@ -15,10 +18,14 @@ def getPerLSData(dbsession,inputRange,lumiversion='0001'):
     else:
         for run in inputRange.runs():
             datacollector[run]=[]
+    runs=datacollector.keys()
     try:
         dbsession.transaction().start(True)
         schema=dbsession.nominalSchema()
-        for run in datacollector.keys():
+        finecorrections={}
+        if withFineCorrection:
+            finecorrections=lumiCorrections.correctionsForRange(schema,runs)
+        for run in runs:
             runsummaryOut=[]  #[fillnum,sequence,hltkey,starttime,stoptime]
             lumisummaryOut=[] #[[cmslsnum,instlumi,numorbit,startorbit,beamstatus,beamenergy,cmsalive]]
             trgOut={} #{cmslsnum:[trgcount,deadtime,bitname,prescale]}
@@ -49,9 +56,13 @@ def getPerLSData(dbsession,inputRange,lumiversion='0001'):
         trg=perrundata[2]
         starttimestr=runsummaryOut[3]
         t=lumiTime.lumiTime()
+        if withFineCorrection:
+            (constfactor,afterglowfactor,nonlinearfactor)=finecorrections[run]
         for dataperls in lumisummary:
             cmslsnum=dataperls[0]
             instlumi=dataperls[1]
+            if withFineCorrection:
+                instlumi=applyfinecorrection(instlumi,constfactor,afterglowfactor,nonlinearfactor)
             numorbit=dataperls[2]
             dellumi=instlumi*float(numorbit)*3564.0*25.0e-09
             startorbit=dataperls[3]
@@ -114,6 +125,7 @@ if __name__ == '__main__':
     parser.add_argument('-hltpath',dest='hltpath',action='store',default='all',help='specific hltpath to calculate the recorded luminosity,optional')
     parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, optional. If path undefined, fallback to cern proxy&server')
     parser.add_argument('-xingMinLum', dest = 'xingMinLum', type=float, default=1e-3,required=False,help='Minimum luminosity considered for "lumibylsXing" action')
+    parser.add_argument('--with-correction',dest='withFineCorrection',action='store_true',help='with fine correction' )
     parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose mode for printing' )
     parser.add_argument('--nowarning',dest='nowarning',action='store_true',help='suppress bad for lumi warnings' )
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
@@ -194,7 +206,7 @@ if __name__ == '__main__':
 
                 # Lumi by lumisection
         if options.action == 'lumibylstime':
-            lsdata=getPerLSData(session,inputRange)#{run:[[ls,orbittime,orbittimestamp,delivered,recorded],[]]}
+            lsdata=getPerLSData(session,inputRange,withFineCorrection=options.withFineCorrection)#{run:[[ls,orbittime,orbittimestamp,delivered,recorded],[]]}
             runs=lsdata.keys()
             runs.sort()
             if not options.outputfile:

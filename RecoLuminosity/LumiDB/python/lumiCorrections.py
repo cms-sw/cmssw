@@ -1,32 +1,25 @@
 import os,coral,re
 from RecoLuminosity.LumiDB import nameDealer
 
-def constCorrectionByEnergy(schema,nominalenergy):
-    '''
-    1.075
-    '''
-    if nominalenergy*1.2>3500 and nominalenergy*0.8<3500:
-        return 1.075
-    else: 
-        return 1.0
-    
-def fillCorrectionsMap(schema):
+def correctionsForRange(schema,inputRange):
     '''
     select fillschemepattern,correctionfactor from fillscheme; 
        [(fillschemepattern,afterglow),...]
-    select distinct fillnum,fillscheme,ncollidingbunches from cmsrunsummary;
-       [(fillnum,fillscheme,ncollidingbunches),...]
-       
-    output: {fillnum:(afterglowfactor,nonlinearfactor)}
-    afterglowfactor= (default 1.0)
-    nonlinearfactor=0.076/nbx (default 0.0)
+    select fillnum,runnum,fillscheme,ncollidingbunches,egev from cmsrunsummary where amodetag='PROTPYHS' and egev>3000
+        {runnum: (fillnum,fillscheme,ncollidingbunches),...}
+    output:
+        {runnum:(constantfactor,afterglowfactor,nonlinearfactor)}
     '''
+    runs=[]
+    if isinstance(inputRange,str):
+        runs.append(int(inputRange))
+    else:
+        runs=inputRange
     result={}
     afterglows=[]
-    
-    qHandle=schema.newQuery()
-    r=nameDealer.cmsrunsummaryTableName()
     s=nameDealer.fillschemeTableName()
+    r=nameDealer.cmsrunsummaryTableName()
+    qHandle=schema.newQuery()
     try:
         qHandle.addToTableList(s)
         qResult=coral.AttributeList()
@@ -47,20 +40,33 @@ def fillCorrectionsMap(schema):
     qHandle=schema.newQuery()
     try:
         qHandle.addToTableList(r)
-        qHandle.addToOutputList('distinct FILLNUM', 'fillnum')
+        qHandle.addToOutputList('FILLNUM', 'fillnum')
+        qHandle.addToOutputList('RUNNUM', 'runnum')
         qHandle.addToOutputList('FILLSCHEME','fillscheme')
         qHandle.addToOutputList('NCOLLIDINGBUNCHES','ncollidingbunches')
         qResult=coral.AttributeList()
         qResult.extend('fillnum','unsigned int')
+        qResult.extend('runnum','unsigned int')
         qResult.extend('fillscheme','string')
         qResult.extend('ncollidingbunches','unsigned int')
+        qConditionStr='AMODETAG=:amodetag AND EGEV>=:egev'
+        qCondition=coral.AttributeList()
+        qCondition.extend('amodetag','string')
+        qCondition.extend('egev','unsigned int')
+        qCondition['amodetag'].setData('PROTPHYS')
+        qCondition['egev'].setData(3000)
         qHandle.defineOutput(qResult)
+        qHandle.setCondition(qConditionStr,qCondition)
         cursor=qHandle.execute()
         while cursor.next():
+            runnum=cursor.currentRow()['runnum'].data()
+            if runnum not in runs:
+                continue
+            fillnum=cursor.currentRow()['fillnum'].data()
+            constfactor=1.075
             afterglow=1.0
             nonlinear=0.076
             nonlinearPerBX=0.0
-            fillnum=cursor.currentRow()['fillnum'].data()
             ncollidingbunches=0
             if cursor.currentRow()['ncollidingbunches']:
                 ncollidingbunches=cursor.currentRow()['ncollidingbunches'].data()
@@ -71,13 +77,15 @@ def fillCorrectionsMap(schema):
                 afterglow=afterglowByFillscheme(fillscheme,afterglows)
             if ncollidingbunches and ncollidingbunches!=0:
                 nonlinearPerBX=float(1)/float(ncollidingbunches)
-            nonlinear=nonlinearPerBX*nonlinear
-            if fillnum and fillnum!=0:
-                result[fillnum]=(afterglow,nonlinear)
+            nonlinear=nonlinearPerBX*nonlinear           
+            result[runnum]=(constfactor,afterglow,nonlinear)
     except :
         del qHandle
         raise
     del qHandle
+    for run in runs:
+        if run not in result.keys():
+            result[run]=(1.0,1.0,0.0)
     return result
 
 def afterglowByFillscheme(fillscheme,afterglowPatterns):
@@ -88,12 +96,13 @@ def afterglowByFillscheme(fillscheme,afterglowPatterns):
 
 if __name__ == "__main__":
     import sessionManager
-    myconstr='oracle://cms_orcoff_prep/cms_lumi_dev_offline'
+    myconstr='oracle://cms_orcoff_prod/cms_lumi_prod'
     svc=sessionManager.sessionManager(myconstr,authpath='/afs/cern.ch/user/x/xiezhen',debugON=False)
     session=svc.openSession(isReadOnly=False,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
+    runrange=[163337,163387,163385,163664,163757,163269,1234,152611]
     schema=session.nominalSchema()
     session.transaction().start(True)
-    fillcmap=fillCorrectionsMap(schema)
+    result=correctionsForRange(schema,runrange)
     session.transaction().commit()
     del session
-    print len(fillcmap)
+    print result
