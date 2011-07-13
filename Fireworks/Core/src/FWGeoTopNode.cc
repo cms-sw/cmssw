@@ -8,18 +8,16 @@
 //
 // Original Author:  Matevz Tadel, Alja Mrak Tadel  
 //         Created:  Thu Jun 23 01:24:51 CEST 2011
-// $Id: FWGeoTopNode.cc,v 1.12 2011/07/07 02:24:42 amraktad Exp $
+// $Id: FWGeoTopNode.cc,v 1.13 2011/07/08 04:39:59 amraktad Exp $
 //
 
 // system include files
 
 // user include files
-#include "Fireworks/Core/interface/FWGeoTopNode.h"
-#include "Fireworks/Core/interface/FWGeometryTableView.h"
-#include "Fireworks/Core/interface/FWGeometryTableManager.h"
 
 #include "TEveTrans.h"
 #include "TEveManager.h"
+#include "TEveUtil.h"
 
 
 #include "TROOT.h"
@@ -37,6 +35,11 @@
 #include "TGeoManager.h"
 #include "TGeoMatrix.h"
 #include "TVirtualGeoPainter.h"
+
+#include "Fireworks/Core/interface/FWGeoTopNode.h"
+#include "Fireworks/Core/interface/FWGeometryTableView.h"
+#include "Fireworks/Core/interface/FWGeometryTableManager.h"
+#include "Fireworks/Core/interface/FWGeometryTableViewManager.h"
 
 FWGeoTopNode::FWGeoTopNode(FWGeometryTableView* t):
    m_browser(t),
@@ -68,6 +71,9 @@ void FWGeoTopNode::setupBuffMtx(TBuffer3D& buff, const TGeoHMatrix& mat)
 //______________________________________________________________________________
 void FWGeoTopNode::Paint(Option_t*)
 {
+   // workaround for global usage of gGeoManager in TGeoShape
+   TEveGeoManagerHolder gmgr( FWGeometryTableViewManager::getGeoMangeur());
+
    int topIdx = m_browser->getTopNodeIdx();
    FWGeometryTableManager::Entries_i sit = m_entries->begin(); 
 

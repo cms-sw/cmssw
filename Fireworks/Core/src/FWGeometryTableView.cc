@@ -29,7 +29,6 @@
 #include "TGeoBBox.h"
 #include "TEveManager.h"
 #include "TEveGeoNode.h"
-#include "TGeoManager.h"
 #include "TEveScene.h"
 #include "TEveSceneInfo.h"
 #include "TEveViewer.h"
@@ -579,8 +578,6 @@ void FWGeometryTableView::setPath(int parentIdx, std::string& path)
 #ifdef PERFTOOL_BROWSER  
    ProfilerStart(Form("cdPath%d.prof", parentIdx));
 #endif
-
-   //  m_geoManager->cd(path.c_str());
 
    m_tableManager->topGeoNodeChanged(parentIdx);
    m_tableManager->checkExpandLevel();

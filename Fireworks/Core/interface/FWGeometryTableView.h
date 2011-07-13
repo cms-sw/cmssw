@@ -75,8 +75,6 @@ public:
    int getVisLevel()         const  {return m_visLevel.value(); }
 
    int getTopNodeIdx() const { return m_topNodeIdx.value(); }
-
-   //  TGeoManager*   geoManager() { return m_geoManager; }
    FWGeometryTableManager*  getTableManager() { return m_tableManager;} 
    virtual void setFrom(const FWConfiguration&);
 
@@ -107,7 +105,6 @@ private:
    FWGeometryTableManager *m_tableManager;
 
    TGCompositeFrame       *m_settersFrame;
-   // TGeoManager            *m_geoManager;
    FWGeoTopNode           *m_eveTopNode;
 
    FWColorPopup           *m_colorPopup;
