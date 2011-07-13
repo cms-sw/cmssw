@@ -114,23 +114,7 @@ namespace edm {
       if (missingTypes().empty()) {
         return;
       }
-      std::ostringstream ostr;
-      for (StringSet::const_iterator it = missingTypes().begin(), itEnd = missingTypes().end();
-           it != itEnd; ++it) {
-        ostr << *it << "\n\n";
-      }
-      throw Exception(errors::DictionaryNotFound)
-        << "No REFLEX data dictionary found for the following classes:\n\n"
-        << ostr.str()
-        << "Most likely each dictionary was never generated,\n"
-        << "but it may be that it was generated in the wrong package.\n"
-        << "Please add (or move) the specification\n"
-        << "<class name=\"whatever\"/>\n"
-        << "to the appropriate classes_def.xml file.\n"
-        << "If the class is a template instance, you may need\n"
-        << "to define a dummy variable of this type in classes.h.\n"
-        << "Also, if this class has any transient members,\n"
-        << "you need to specify them in classes_def.xml.";
+      throwMissingDictionariesException();
     }
   }
 
@@ -868,6 +852,7 @@ namespace edm {
 
   void Schedule::beginJob() {
     for_all(all_workers_, boost::bind(&Worker::beginJob, _1));
+    loadMissingDictionaries();
   }
 
   void Schedule::preForkReleaseResources() {
