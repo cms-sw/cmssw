@@ -145,6 +145,7 @@ namespace edm {
       transient() = false;
       return;
     }
+    typeID() = TypeID(t.TypeInfo()); // unwrapped type.
     type() = Reflex::Type::ByName(wrappedName());
     if(type() == null) {
       splitLevel() = invalidSplitLevel;

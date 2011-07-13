@@ -155,7 +155,6 @@ namespace edm {
       Reflex::Type type_;
 
       // A TypeID object for the unwrapped object
-      // This is set if and only if produced_ is true.
       TypeID typeID_;
 
       // A pointer to a polymorphic object to obtain typed Wrapper.
