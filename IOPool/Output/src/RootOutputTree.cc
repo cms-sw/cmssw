@@ -290,6 +290,7 @@ namespace edm {
                  &pProd,
                  basketSize,
                  splitLevel);
+      assert(branch != 0);
       if(pProd != 0) {
         // Delete the product that ROOT has allocated.
         interface->deleteProduct(pProd);
