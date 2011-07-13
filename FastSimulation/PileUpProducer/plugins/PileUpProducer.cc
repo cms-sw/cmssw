@@ -240,7 +240,10 @@ void PileUpProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
   std::vector<int> numInteractionList;
   numInteractionList.push_back(PUevts);
   
-  PileupMixing_ = std::auto_ptr< PileupMixingContent >(new PileupMixingContent( bunchCrossingList,numInteractionList));
+  std::vector<float> trueNumInteractionList;
+  trueNumInteractionList.push_back(averageNumber_);
+  
+  PileupMixing_ = std::auto_ptr< PileupMixingContent >(new PileupMixingContent(bunchCrossingList,numInteractionList,trueNumInteractionList));
   iEvent.put(PileupMixing_);
 
   // Get N events from random files
