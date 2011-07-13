@@ -13,8 +13,8 @@ hltGetConfiguration $HLT                                              --cff  --o
 hltGetConfiguration $HLT                                              --cff  --offline --mc                                        > ../python/HLT_GRun_cff.py
 
 # standard 'cfg' dumps - in CVS
-hltGetConfiguration $HLT --process HLTGRun --globaltag auto:hltonline --full --offline --data --unprescale --l1 $L1T --l1-emulator > OnData_HLT_$NAME.py
-hltGetConfiguration $HLT --process HLTGRun --globaltag auto:startup   --full --offline --mc   --unprescale --l1 $L1T --l1-emulator > OnLine_HLT_$NAME.py 
+hltGetConfiguration $HLT --process HLTGRun --globaltag auto:hltonline --full --offline --data --unprescale --l1 $L1T --l1-emulator > OnData_HLT_GRun.py
+hltGetConfiguration $HLT --process HLTGRun --globaltag auto:startup   --full --offline --mc   --unprescale --l1 $L1T --l1-emulator > OnLine_HLT_GRun.py 
 
 {
   TABLE=$(echo $HLT | cut -d: -f2)
