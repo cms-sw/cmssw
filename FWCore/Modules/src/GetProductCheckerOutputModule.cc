@@ -88,7 +88,7 @@ namespace edm {
                throw cms::Exception("BranchIDMissMatch") << "While processing " << id << " request for BranchID " << branchID << " returned BranchID " << oh.desc()->branchID() << "\n";
             }
             
-            TypeID tid((*it)->branchDescription().type().TypeInfo());
+            TypeID const& tid((*it)->branchDescription().typeID());
             size_t temp = 0;
             int tempCount = -1;
             BasicHandle bh = p.getByLabel(tid,
