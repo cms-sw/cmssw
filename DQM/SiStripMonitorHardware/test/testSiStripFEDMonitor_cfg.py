@@ -85,7 +85,6 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = "GR_E_V14::All"
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 
-
 #process.load('DQM.SiStripMonitorHardware.siStripFEDMonitor_cfi')
 process.load('DQM.SiStripMonitorHardware.siStripFEDMonitor_P5_cff')
 #process.load('DQM.SiStripMonitorHardware.siStripFEDMonitor_Tier0_cff')

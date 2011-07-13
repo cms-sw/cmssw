@@ -357,7 +357,7 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 
   const std::string lBaseDir = dqm_->pwd();
 
-  dqm_->setCurrentFolder(lBaseDir+"/FEDLevel");
+  dqm_->setCurrentFolder(lBaseDir+"/FED");
 
   bookHistogram(nFEDErrors_,
 		"nFEDErrors",
@@ -380,7 +380,7 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 		"# FEDs with corrupt buffer");
 
 
-  dqm_->setCurrentFolder(lBaseDir+"/FEDLevel/VsFedId");
+  dqm_->setCurrentFolder(lBaseDir+"/FED/VsId");
 
   bookHistogram(dataMissing_,"DataMissing",
 		"Number of events where the data from a FED with cabled channels is missing",
@@ -427,7 +427,7 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
 
-  dqm_->setCurrentFolder(lBaseDir+"/FrontEndLevel");
+  dqm_->setCurrentFolder(lBaseDir+"/FE");
 
   bookHistogram(nFEDsWithFEOverflows_,
 		"nFEDsWithFEOverflows",
@@ -461,7 +461,7 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 		101,0,1.01,"n(majAddrFE)/n(totFE)");
 
 
-  dqm_->setCurrentFolder(lBaseDir+"/FrontEndLevel/APVe");
+  dqm_->setCurrentFolder(lBaseDir+"/FE/APVe");
 
   bookHistogram(feTimeDiffTIB_,"FETimeDiffTIB",
 		"(TimeLoc FE - TimeLoc APVe) for TIB/TID, when different",
@@ -495,7 +495,7 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 		"feMajAddress");
 
 
-  dqm_->setCurrentFolder(lBaseDir+"/FrontEndLevel/VsFedId");
+  dqm_->setCurrentFolder(lBaseDir+"/FE/VsId");
 
   bookHistogram(anyFEProblems_,"AnyFEProblems",
 		"Number of buffers with any FE unit problems",
@@ -523,7 +523,7 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
   
 
-  dqm_->setCurrentFolder(lBaseDir+"/FiberLevel");
+  dqm_->setCurrentFolder(lBaseDir+"/Fiber");
 
   bookHistogram(nBadChannelStatusBits_,
 		"nBadChannelStatusBits",
@@ -550,7 +550,7 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 		"Number of channels not connected per event",
 		"# unconnected channels");
 
-  dqm_->setCurrentFolder(lBaseDir+"/FiberLevel/VsFedId");
+  dqm_->setCurrentFolder(lBaseDir+"/Fiber/VsId");
 
   bookHistogram(badChannelStatusBits_,"BadChannelStatusBits",
 		"Number of buffers with one or more enabled channel with bad status bits",
@@ -562,7 +562,7 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 		siStripFedIdMax-siStripFedIdMin+1,
 		siStripFedIdMin-0.5,siStripFedIdMax+0.5,"FED-ID");
 
-  dqm_->setCurrentFolder(lBaseDir+"/APVLevel");
+  dqm_->setCurrentFolder(lBaseDir+"/APV");
 
   bookHistogram(medianAPV0_,"MedianAPV0",
 		"Median APV0",
@@ -588,7 +588,7 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 		"#APVs with APVAddressError");
 
 
-  dqm_->setCurrentFolder(lBaseDir+"/ErrorsVsTime");
+  dqm_->setCurrentFolder(lBaseDir+"/Trends");
 
   bookProfile(fedMaxEventSizevsTime_,
 	      "FedMaxEventSizevsTime",
@@ -618,7 +618,7 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 	      "Total # bad active channels"
 	      );
 
-  dqm_->setCurrentFolder(lBaseDir+"/ErrorsVsTime/FEDLevel");
+  dqm_->setCurrentFolder(lBaseDir+"/Trends/FED");
 
   bookProfile(nFEDErrorsvsTime_,
 	      "nFEDErrorsvsTime",
@@ -638,7 +638,7 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 	      "# FEDCorruptBuffer"
 	      );
 
-  dqm_->setCurrentFolder(lBaseDir+"/ErrorsVsTime/FrontEndLevel");
+  dqm_->setCurrentFolder(lBaseDir+"/Trends/FE");
 
   bookProfile(nFEDsWithFEProblemsvsTime_,
 	      "nFEDsWithFEProblemsvsTime",
@@ -649,7 +649,7 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 	      "# FEDsWithFEProblems"
 	      );
 
-  dqm_->setCurrentFolder(lBaseDir+"/ErrorsVsTime/FiberLevel");
+  dqm_->setCurrentFolder(lBaseDir+"/Trends/Fiber");
 
   bookProfile(nUnlockedvsTime_,
 	      "nUnlockedvsTime",
@@ -669,7 +669,7 @@ void FEDHistograms::bookTopLevelHistograms(DQMStore* dqm)
 	      "# channels out-of-sync"
 	      );
 
-  dqm_->setCurrentFolder(lBaseDir+"/ErrorsVsTime/APVLevel");
+  dqm_->setCurrentFolder(lBaseDir+"/Trends/APV");
 
   bookProfile(nAPVStatusBitvsTime_,
 	      "nAPVStatusBitvsTime",
