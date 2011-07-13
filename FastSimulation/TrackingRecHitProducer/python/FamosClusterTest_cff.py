@@ -8,36 +8,36 @@ from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
 from RecoTracker.IterativeTracking.FirstStep_cff import *
 newClusters.pixelClusters = cms.InputTag('siClusterTranslator')
 newClusters.stripClusters = cms.InputTag('siClusterTranslator')
-newStripRecHits.StripCPE = cms.string('FastStripCPE')
-newPixelRecHits.CPE = cms.string('FastPixelCPE')
+#newStripRecHits.StripCPE = cms.string('FastStripCPE')
+#newPixelRecHits.CPE = cms.string('FastPixelCPE')
 newMeasurementTracker.StripCPE = cms.string('FastStripCPE')
 newMeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
 
 #Second Step
 from RecoTracker.IterativeTracking.SecStep_cff import *
-secPixelRecHits.CPE = cms.string('FastPixelCPE')
-secStripRecHits.StripCPE = cms.string('FastStripCPE')
+#secPixelRecHits.CPE = cms.string('FastPixelCPE')
+#secStripRecHits.StripCPE = cms.string('FastStripCPE')
 secMeasurementTracker.StripCPE = cms.string('FastStripCPE')
 secMeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
 
 #Third Step
 from RecoTracker.IterativeTracking.ThStep_cff import *
-thPixelRecHits.CPE = cms.string('FastPixelCPE')
-thStripRecHits.StripCPE = cms.string('FastStripCPE')
+#thPixelRecHits.CPE = cms.string('FastPixelCPE')
+#thStripRecHits.StripCPE = cms.string('FastStripCPE')
 thMeasurementTracker.StripCPE = cms.string('FastStripCPE')
 thMeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
 
 #Fourth Step
 from RecoTracker.IterativeTracking.PixelLessStep_cff import *
-fourthPixelRecHits.CPE = cms.string('FastPixelCPE')
-fourthStripRecHits.StripCPE = cms.string('FastStripCPE')
+#fourthPixelRecHits.CPE = cms.string('FastPixelCPE')
+#fourthStripRecHits.StripCPE = cms.string('FastStripCPE')
 fourthMeasurementTracker.StripCPE = cms.string('FastStripCPE')
 fourthMeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
 
 #Fifth Step
 from RecoTracker.IterativeTracking.TobTecStep_cff import *
-fifthPixelRecHits.CPE = cms.string('FastPixelCPE')
-fifthStripRecHits.StripCPE = cms.string('FastStripCPE')
+#fifthPixelRecHits.CPE = cms.string('FastPixelCPE')
+#fifthStripRecHits.StripCPE = cms.string('FastStripCPE')
 fifthMeasurementTracker.StripCPE = cms.string('FastStripCPE')
 fifthMeasurementTracker.PixelCPE = cms.string('FastPixelCPE')
 
