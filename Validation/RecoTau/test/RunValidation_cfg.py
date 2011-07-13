@@ -3,7 +3,7 @@
 import shutil
 import sys
 
-from Validation.RecoTau.ValidationOptions_cfi import *
+from Validation.RecoTau.ValidationOptions_cff import *
 import Validation.RecoTau.RecoTauValidation_cff as validation
 
 process = cms.Process("TEST")
