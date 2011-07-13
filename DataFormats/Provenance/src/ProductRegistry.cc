@@ -224,6 +224,10 @@ namespace edm {
   }
 
   void ProductRegistry::initializeLookupTables() const {
+    StringSet savedMissingTypes;
+    savedMissingTypes.swap(missingTypes());
+    StringSet savedFoundTypes;
+    savedFoundTypes.swap(foundTypes());
     constProductList().clear();
     transients_.get().branchIDToIndex_.clear();
     ProductTransientIndex index = 0;
@@ -249,18 +253,35 @@ namespace edm {
 
       usedProcessNames.insert(pBD->processName());
 
-      Reflex::Type type(Reflex::Type::ByName(i->second.className()));
       //only do the following if the data is supposed to be available in the event
       if(i->second.present()) {
-        if(not bool(type)) {
+        Reflex::Type type(Reflex::Type::ByName(i->second.className()));
+        Reflex::Type wrappedType(Reflex::Type::ByName(wrappedClassName(i->second.className())));
+        if(!bool(type) || !bool(wrappedType)) {
 
-          LogWarning("Missing Dictionary") << "Could not find a Reflex dictionary for class '" << i->second.className()
+          LogWarning("Missing Dictionary") << "Could not find a Reflex dictionary for class '" << (bool(type) ? wrappedClassName(i->second.className()) : i->second.className())
           << "'.  This class was registered as one which is supposed to be held by an Event, LuminosityBlock, or Run but will not be available. "
           "Please check\n"
           " 1) was a Reflex dictionary created for the class,\n"
           " 2) if so was the package with the dictionary linked with all plugins that use that class,\n"
           " 3) the file is from an old release and this data type has been removed from the present release.";
           continue;
+        }
+        if(!i->second.transient()) {
+          missingTypes().clear();
+          foundTypes().clear();
+          checkDictionaries(i->second.className(), false);
+          if(!missingTypes().empty()) {
+            for(StringSet::const_iterator it = missingTypes().begin(), itEnd = missingTypes().end(); it != itEnd; ++it) {
+              LogWarning("Missing Dictionary") << "Could not find a Reflex dictionary for class '" << *it << ",\n which is a component of class " << i->second.className()
+              << "'.  This class was registered as one which is supposed to be held by an Event, LuminosityBlock, or Run but will not be available. "
+              "Please check\n"
+              " 1) was a Reflex dictionary created for the class,\n"
+              " 2) if so was the package with the dictionary linked with all plugins that use that class,\n"
+              " 3) the file is from an old release and this data type has been removed from the present release.";
+            }
+            continue;
+          }
         }
         fillLookup(type, index, pBD, tempProductLookupMap);
 
@@ -297,6 +318,8 @@ namespace edm {
     }
     productLookup().fillFrom(tempProductLookupMap);
     elementLookup().fillFrom(tempElementLookupMap);
+    savedMissingTypes.swap(missingTypes());
+    savedFoundTypes.swap(foundTypes());
   }
 
   ProductTransientIndex ProductRegistry::indexFrom(BranchID const& iID) const {
