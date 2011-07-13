@@ -87,6 +87,8 @@ public:
    void nodeColorChangeRequested(Color_t);
 
    void setBackgroundColor();
+   void populate3DViewsFromConfig();
+
 private:
    FWGeometryTableView(const FWGeometryTableView&);
    const FWGeometryTableView& operator=(const FWGeometryTableView&);
@@ -114,6 +116,10 @@ private:
    TGCompositeFrame*       m_frame;
 
    FWViewCombo*             m_viewBox;
+
+
+   const FWConfiguration*  m_viewersConfig;
+
 #ifndef __CINT__
    std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;
 #endif

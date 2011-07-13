@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.238 2011/06/22 23:07:27 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.239 2011/07/08 04:39:59 amraktad Exp $
 
 
 //
@@ -46,7 +46,7 @@
 #include "Fireworks/Core/interface/FWDetailViewManager.h"
 #include "Fireworks/Core/interface/FWViewBase.h"
 #include "Fireworks/Core/interface/FWViewType.h"
-#include "Fireworks/Core/interface/FWViewManagerManager.h"
+#include "Fireworks/Core/interface/FWGeometryTableView.h"
 #include "Fireworks/Core/interface/FWJobMetadataManager.h"
 #include "Fireworks/Core/interface/FWInvMassDialog.h"
 
@@ -756,7 +756,7 @@ FWGUIManager::showSelectedModelContextMenu(Int_t iGlobalX, Int_t iGlobalY, FWVie
    }
 }
 
- //
+//
 // const member functions
 //
 
@@ -1266,7 +1266,17 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
       }
    }
 
-   // disable fist docked view
+
+   for(ViewMap_i it = m_viewMap.begin(); it != m_viewMap.end(); ++it)
+   {
+      if (it->second->typeId() == FWViewType::kGeometryTable)
+      {
+         FWGeometryTableView* gv = ( FWGeometryTableView*)it->second;
+         gv->populate3DViewsFromConfig();
+      }
+   }
+
+   // disable first docked view
    checkSubviewAreaIconState(0);
 
  

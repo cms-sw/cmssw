@@ -141,7 +141,8 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager*
      m_colorPopup(0),
      m_eveWindow(0),
      m_frame(0),
-     m_viewBox(0)
+     m_viewBox(0),
+     m_viewersConfig(0)
 {
    m_eveWindow = iParent->MakeFrame(0);
    TGCompositeFrame* xf = m_eveWindow->GetGUICompositeFrame();
@@ -251,24 +252,29 @@ FWGeometryTableView::setFrom(const FWConfiguration& iFrom)
        ++it) {
       (*it)->setFrom(iFrom);
 
-   }     
+   }  
 
+   resetSetters();
+   cdNode(m_topNodeIdx.value());
+   m_viewersConfig = iFrom.valueForKey("Viewers");
+}
 
-   // views
-   const FWConfiguration* controllers = iFrom.valueForKey("Viewers");
-   if (controllers) {
+void
+FWGeometryTableView::populate3DViewsFromConfig()
+{
+   // post-config 
+   if (m_viewersConfig) {
       TEveElementList* scenes = gEve->GetScenes();
-      const FWConfiguration::KeyValues* keyVals = controllers->keyValues();
+      const FWConfiguration::KeyValues* keyVals = m_viewersConfig->keyValues();
       if(0!=keyVals) 
       {
          for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it!= keyVals->end(); ++it) {
     
             TString sname = it->first;
-            // printf("%d scene elements %s\n",  scenes->NumChildren(), sname.Data());
             TEveElement* s = scenes->FindChild(sname);
             if (s)
             {
-                std::cout << sname.Data() << std::endl;   
+               // std::cout << sname.Data() << std::endl;   
                if (!m_eveTopNode) {
                   m_eveTopNode = new FWGeoTopNode(this);
                   m_eveTopNode->IncDenyDestroy();
@@ -279,9 +285,6 @@ FWGeometryTableView::setFrom(const FWConfiguration& iFrom)
          }   
       }
    }
-
-   resetSetters();
-   cdNode(m_topNodeIdx.value());
 }
 
 void
