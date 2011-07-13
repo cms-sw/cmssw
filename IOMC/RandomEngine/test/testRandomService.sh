@@ -95,21 +95,21 @@ pushd ${LOCAL_TMP_DIR}
   then
     echo compare child0FirstEvent.txt
     diff child0FirstEvent.txt ${LOCAL_TEST_DIR}/unit_test_outputs/child0FirstEvent.txt || die "comparing child0FirstEvent.txt" $?
+    mv child0LastEvent.txt origChild0LastEvent.txt
   fi
   if [ -f child1FirstEvent.txt ]
   then
     echo compare child1FirstEvent.txt
     diff child1FirstEvent.txt ${LOCAL_TEST_DIR}/unit_test_outputs/child1FirstEvent.txt || die "comparing child1FirstEvent.txt" $?
+    mv child1LastEvent.txt origChild1LastEvent.txt
   fi
   if [ -f child2FirstEvent.txt ]
   then
     echo compare child2FirstEvent.txt
     diff child2FirstEvent.txt ${LOCAL_TEST_DIR}/unit_test_outputs/child2FirstEvent.txt || die "comparing child2FirstEvent.txt" $?
+    mv child2LastEvent.txt origChild2LastEvent.txt
   fi
 
-  mv child0LastEvent.txt origChild0LastEvent.txt
-  mv child1LastEvent.txt origChild1LastEvent.txt
-  mv child2LastEvent.txt origChild2LastEvent.txt
   rm -f testRandomServiceL1E1.txt
   rm -f testRandomServiceL1E2.txt
   rm -f origTestRandomServiceL1E3.txt

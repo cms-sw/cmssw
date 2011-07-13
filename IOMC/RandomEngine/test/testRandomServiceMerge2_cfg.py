@@ -7,7 +7,8 @@ process.source = cms.Source("PoolSource",
         'file:testMultiProcess_0.root',
         'file:testMultiProcess_1.root',
         'file:testMultiProcess_2.root'
-    )
+    ),
+    skipBadFiles = cms.untracked.bool(True)
 )
 
 process.out = cms.OutputModule("PoolOutputModule",
