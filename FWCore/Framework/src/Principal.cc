@@ -9,6 +9,8 @@
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/ReflexTools.h"
+#include "FWCore/Utilities/interface/WrappedClassName.h"
 
 #include <algorithm>
 #include <cstring>
@@ -64,6 +66,13 @@ namespace edm {
   throwNotFoundException(char const* where, TypeID const& productType, InputTag const& tag) {
     boost::shared_ptr<cms::Exception> exception = makeNotFoundException(where, productType, tag.label(), tag.instance(), tag.process());
     throw *exception;
+  }
+
+  static
+  void
+  throwMissingDictionaryException(TypeID const& productType) {
+    checkDictionaries(wrappedClassName(productType.className()), false);
+    throwMissingDictionariesException();
   }
 
   Principal::Principal(boost::shared_ptr<ProductRegistry const> reg,
@@ -392,11 +401,11 @@ namespace edm {
 
     typedef TransientProductLookupMap TypeLookup;
     // A class without a dictionary cannot be in an Event/Lumi/Run.
-    // First, we check if the class has a dictionary.  If it does not,
-    // we return immediately.
+    // First, we check if the class has a dictionary.  If it does not, we throw an exception.
+    // The missing dictionary might be for the class itself, the wrapped class, or a component of the class.
     std::pair<TypeLookup::const_iterator, TypeLookup::const_iterator> const range = typeLookup.equal_range(TypeInBranchType(typeID, branchType_));
     if(range.first == range.second) {
-      return 0;
+      throwMissingDictionaryException(typeID);
     }
 
     results.reserve(range.second - range.first);
@@ -434,11 +443,11 @@ namespace edm {
 
     typedef TransientProductLookupMap TypeLookup;
     // A class without a dictionary cannot be in an Event/Lumi/Run.
-    // First, we check if the class has a dictionary.  If it does not,
-    // we return immediately.
+    // First, we check if the class has a dictionary.  If it does not, we throw an exception.
+    // The missing dictionary might be for the class itself, the wrapped class, or a component of the class.
     std::pair<TypeLookup::const_iterator, TypeLookup::const_iterator> const range = typeLookup.equal_range(TypeInBranchType(typeID, branchType_));
     if(range.first == range.second) {
-      return 0;
+      throwMissingDictionaryException(typeID);
     }
 
     unsigned int processLevelFound = std::numeric_limits<unsigned int>::max();
@@ -499,6 +508,14 @@ namespace edm {
     if(range.first == range.second) {
       if(toBeCached) {
         cachedOffset = typeLookup.end() - typeLookup.begin();
+      }
+      // We check for a missing dictionary.  We do this only in this error leg.
+      // A class without a dictionary cannot be in an Event/Lumi/Run.
+      // We check if the class has a dictionary.  If it does not, we throw an exception.
+      // The missing dictionary might be for the class itself, the wrapped class, or a component of the class.
+      std::pair<TypeLookup::const_iterator, TypeLookup::const_iterator> const typeRange = typeLookup.equal_range(TypeInBranchType(typeID, branchType_));
+      if(typeRange.first == typeRange.second) {
+        throwMissingDictionaryException(typeID);
       }
       return 0;
     }
