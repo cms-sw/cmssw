@@ -44,7 +44,7 @@
 
 
 int                  RunningPeriods = 2;
-double               IntegratedLuminosity = 976.204518023; //705.273820; //342.603275; //204.160928; //191.04;
+double               IntegratedLuminosity = 1091.399638766; //976.204518023; //705.273820; //342.603275; //204.160928; //191.04;
 double               IntegratedLuminosityBeforeTriggerChange = 337.484034005; // Total luminosity taken before RPC L1 trigger change (went into effect on run 165970)
 float                Event_Weight = 1;
 int                  MaxEntry = -1;
@@ -67,13 +67,13 @@ class stSignal{
 void GetSignalDefinition(std::vector<stSignal>& signals){
 
 // signals.push_back(stSignal("Gluino", "Gluino200"    , "#tilde{g} 200"                 , 200,  1, 606.000000) ); //NLO
-   signals.push_back(stSignal("Gluino", "Gluino300"    , "#tilde{g} 300"                 , 300,  1,  57.200000) ); //NLO
-   signals.push_back(stSignal("Gluino", "Gluino400"    , "#tilde{g} 400"                 , 400,  1,   8.980000) ); //NLO
-   signals.push_back(stSignal("Gluino", "Gluino500"    , "#tilde{g} 500"                 , 500,  1,   1.870000) ); //NLO
-   signals.push_back(stSignal("Gluino", "Gluino600"    , "#tilde{g} 600"                 , 600,  1,   0.465000) ); //NLO
-   signals.push_back(stSignal("Gluino", "Gluino700"    , "#tilde{g} 700"                 , 700,  1,   0.130000) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino300"    , "#tilde{g} 300"                 , 300,  1,  57.200000) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino400"    , "#tilde{g} 400"                 , 400,  1,   8.980000) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino500"    , "#tilde{g} 500"                 , 500,  1,   1.870000) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino600"    , "#tilde{g} 600"                 , 600,  1,   0.465000) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino700"    , "#tilde{g} 700"                 , 700,  1,   0.130000) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino800"    , "#tilde{g} 800"                 , 800,  1,   0.039600) ); //NLO
-   signals.push_back(stSignal("Gluino", "Gluino900"    , "#tilde{g} 900"                 , 900,  1,   0.012800) ); //NLO
+      signals.push_back(stSignal("Gluino", "Gluino900"    , "#tilde{g} 900"                 , 900,  1,   0.012800) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino1000"   , "#tilde{g} 1000"                ,1000,  1,   0.004300) ); //NLO
 
    signals.push_back(stSignal("Gluino", "Gluino300N"   , "#tilde{g} 300 CS"              , 300,  1,  57.200000) ); //NLO
@@ -152,18 +152,13 @@ void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName,
    std::string BaseDirectory = "dcap://cmsdca.fnal.gov:24125/pnfs/cms/WAX/11/store/user/farrell3/EDMFiles/";
 
    if(SampleName=="Data"){
-     //inputFiles.push_back(BaseDirectory + "Data_RunA_160000_163250.root");
-     //inputFiles.push_back(BaseDirectory + "Data_RunA_163251_163500.root");
-     //inputFiles.push_back(BaseDirectory + "Data_RunA_163501_164000.root");
-     //inputFiles.push_back(BaseDirectory + "Data_RunA_165000_166033.root");
-     //inputFiles.push_back(BaseDirectory + "Data_RunA_166034_166893.root");
-
      inputFiles.push_back(BaseDirectory + "Data_RunA_160404_163869.root");
      inputFiles.push_back(BaseDirectory + "Data_RunA_165001_166033.root");
      inputFiles.push_back(BaseDirectory + "Data_RunA_166034_166500.root");
      inputFiles.push_back(BaseDirectory + "Data_RunA_166501_166893.root");
      inputFiles.push_back(BaseDirectory + "Data_RunA_166894_167151.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_167153_167784.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_167153_167913.root");
+
 
 //   }else if(SampleName=="MC_MB"){
 //      inputFiles.push_back(BaseDirectory + "MC_MB.root");

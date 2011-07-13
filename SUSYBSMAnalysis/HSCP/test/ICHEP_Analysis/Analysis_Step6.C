@@ -1,4 +1,3 @@
-
 #include <vector>
 
 #include "TROOT.h"
@@ -115,7 +114,7 @@ void GetSignalMeanHSCPPerEvent(string InputPattern, unsigned int CutIndex);
 double FindIntersection(TGraph* obs, TGraph* th, double Min, double Max, double Step, double ThUncertainty=0, bool debug=false);
 int ReadXSection(string InputFile, double* Mass, double* XSec, double* Low, double* High,  double* ErrLow, double* ErrHigh);
 TCutG* GetErrorBand(string name, int N, double* Mass, double* Low, double* High);
-void CheckSignalUncertainty(FILE* pFile, string InputPattern);
+void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern);
 
 //double PlotMinScale = 0.1;
 //double PlotMaxScale = 50000;
@@ -199,8 +198,12 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    fprintf(pFile, "\\begin{table}\n   \\centering\n      \\begin{tabular}{|l|cccccc|}\n      \\hline\n");
 
    fprintf(talkFile, "\\documentclass{article}\n");
+   fprintf(talkFile, "\\usepackage{rotating}\n");
    fprintf(talkFile, "\\begin{document}\n\n");
-   fprintf(talkFile, "\\begin{table}\n   \\centering\n      \\begin{tabular}{|l|cccccc|}\n      \\hline\n");
+   fprintf(talkFile, "\\begin{tiny}\n\n");
+   fprintf(talkFile, "\\begin{sidewaystable}\n   \\centering\n      \\begin{tabular}{|l|cccccccc|}\n      \\hline\n");
+   fprintf(talkFile,"Sample & Mass(GeV) & Pt(GeV) & $I_{as}$ & TOF & Mass Cut (GeV) & N pred & N observed & Eff \\\\\n");
+   fprintf(talkFile, "\\hline\n");
 
 //   TGraph* Tk_Obs_Gluino2C  = MakePlot(pFile,talkFile,TkPattern,syst,"Gluino  (2C)     ", 2, "Gluino300_2C" , "Gluino400_2C" , "Gluino500_2C" , "Gluino600_2C" , "Gluino700_2C", "Gluino800_2C", "Gluino900_2C", "Gluino1000_2C" );
 //   TGraph* Tk_Obs_GluinoF0  = MakePlot(pFile,talkFile,TkPattern,syst,"Gluino  (f=00\\%)", 2, "Gluino300_f0" , "Gluino400_f0" , "Gluino500_f0" , "Gluino600_f0" , "Gluino700_f0", "Gluino800_f0", "Gluino900_f0", "Gluino1000_f0" );
@@ -220,8 +223,10 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    fprintf(pFile,"      \\end{tabular}\n\\end{table}\n\n");
    fprintf(pFile, "\\begin{table}\n   \\centering\n      \\begin{tabular}{|l|cccccc|}\n      \\hline\n");
 
-   fprintf(talkFile,"      \\end{tabular}\n\\end{table}\n\n");
-   fprintf(talkFile, "\\begin{table}\n   \\centering\n      \\begin{tabular}{|l|cccccc|}\n      \\hline\n");
+   fprintf(talkFile,"      \\end{tabular}\n\\end{sidewaystable}\n\n");
+   fprintf(talkFile, "\\begin{sidewaystable}\n   \\centering\n      \\begin{tabular}{|l|cccccc|}\n      \\hline\n");
+   fprintf(talkFile,"Sample & Mass(GeV) & Pt(GeV) & $I_{as}$ & $#beta^{-1]$ & Mass Cut (GeV) & N pred & N observed & Eff \\\\\n");
+   fprintf(talkFile, "\\hline\n");
 
 //   TGraph* Mu_Obs_Gluino2C  = MakePlot(pFile,talkFile,MuPattern,syst,"Gluino  (2C)     ", 2, "Gluino300_2C" , "Gluino400_2C" , "Gluino500_2C" , "Gluino600_2C" , "Gluino700_2C", "Gluino800_2C", "Gluino900_2C", "Gluino1000_2C" );
 //   TGraph* Mu_Obs_GluinoF0  = MakePlot(pFile,talkFile,MuPattern,syst,"Gluino  (f=00\\%)", 2, "Gluino300_f0" , "Gluino400_f0" , "Gluino500_f0" , "Gluino600_f0" , "Gluino700_f0", "Gluino800_f0", "Gluino900_f0", "Gluino1000_f0" );
@@ -241,11 +246,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    fprintf(pFile,"      \\end{tabular}\n\\end{table}\n\n");
    fprintf(pFile,"\\end{document}\n\n");
 
-   fprintf(talkFile,"      \\end{tabular}\n\\end{table}\n\n");
+   fprintf(talkFile,"      \\end{tabular}\n\\end{sidewaystable}\n\n");
    fprintf(talkFile,"\\end{document}\n\n");
 
-   CheckSignalUncertainty(pFile,TkPattern);
-   CheckSignalUncertainty(pFile,MuPattern);
+   CheckSignalUncertainty(pFile,talkFile,TkPattern);
+   CheckSignalUncertainty(pFile,talkFile,MuPattern);
 
 
    TGraph* GMStauXSec = MakePlot(NULL,NULL,TkPattern,"","GMSB Stau        ", 0, "GMStau100"    , "GMStau126"    , "GMStau156"    , "GMStau200"    , "GMStau247"    , "GMStau308"    );
@@ -323,7 +328,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    //fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoF1 Z2\n",FindIntersection(Tk_Obs_GluinoZF1, GluinoXSec, 600,800, 1, 0.00));
    fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoF5 \n", FindIntersection(Tk_Obs_GluinoF5,  GluinoXSec, 300, 900, 1, 0.00));
 //   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoNF0\n", FindIntersection(Tk_Obs_GluinoNF0, GluinoXSec, 300, 900, 1, 0.00));
-   //fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoNF1\n", FindIntersection(Tk_Obs_GluinoNF1, GluinoXSec, 300, 900, 1, 0.00));
+   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoNF1\n", FindIntersection(Tk_Obs_GluinoNF1, GluinoXSec, 300, 900, 1, 0.00));
 //   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoNF5\n", FindIntersection(Tk_Obs_GluinoNF5, GluinoXSec, 300, 900, 1, 0.00));
 //   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for Stop2C   \n", FindIntersection(Tk_Obs_Stop2C   , StopXSec  , 130, 800, 1, 0.00));
    fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for Stop     \n", FindIntersection(Tk_Obs_Stop     , StopXSec  , 130, 800, 1, 0.00));
@@ -487,7 +492,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 }
 
 
-void CheckSignalUncertainty(FILE* pFile, string InputPattern){
+void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern){
+
+  bool IsTkOnly = (InputPattern.find("Type0",0)<std::string::npos);
 
    std::vector<string> Models;
    Models.push_back("Gluino300_f1");
@@ -537,18 +544,36 @@ void CheckSignalUncertainty(FILE* pFile, string InputPattern){
    Models.push_back("GMStau247");
    Models.push_back("GMStau308");
 
+   if(IsTkOnly){
+     fprintf(pFile, "%20s   Eff   --> PScale |  EstimScale | DiscrimScale || TotalUncertainty\n","Model");
+     fprintf(talkFile, "%20s   Eff   --> PScale |  EstimScale | DiscrimScale || TotalUncertainty\n","Model");
+   }
+   else {
+     fprintf(pFile, "%20s   Eff   --> PScale |  EstimScale | DiscrimScale | TOFScale || TotalUncertainty\n","Model");
+     fprintf(talkFile, "%20s   Eff   --> PScale |  EstimScale | DiscrimScale | TOFScale || TotalUncertainty\n","Model");
+   }
 
-   fprintf(pFile, "%20s   Eff   --> PScale |  EstimScale | DiscrimScale | TOFScale || TotalUncertainty\n","Model");
    for(unsigned int s=0;s<Models.size();s++){
         stAllInfo tmp(InputPattern+"/EXCLUSION" + "/"+Models[s]+".txt");
         double P = tmp.Eff - tmp.Eff_SYSTP;
         double I = tmp.Eff - tmp.Eff_SYSTI;
         double M = tmp.Eff - tmp.Eff_SYSTM;
         double T = tmp.Eff - tmp.Eff_SYSTT;
-        fprintf(pFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f || %7.3f\n",+Models[s].c_str(), tmp.Eff, P/tmp.Eff, M/tmp.Eff, I/tmp.Eff, T/tmp.Eff, sqrt(P*P + I*I + M*M + T*T)/tmp.Eff);
+        bool IsStau = (Models[s].find("Stau",0)<std::string::npos);
+        bool IsNeutral = (Models[s].find("N",0)<std::string::npos);
+
+	if(IsTkOnly) fprintf(pFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f || %7.3f\n",+Models[s].c_str(), tmp.Eff, P/tmp.Eff, M/tmp.Eff, I/tmp.Eff, sqrt(P*P + I*I + M*M + T*T)/tmp.Eff);        
+
+	else if(!IsNeutral) fprintf(pFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f || %7.3f\n",+Models[s].c_str(), tmp.Eff, P/tmp.Eff, M/tmp.Eff, I/tmp.Eff, T/tmp.Eff, sqrt(P*P + I*I + M*M + T*T)/tmp.Eff);
+
+	if(IsTkOnly && (IsStau || (int)tmp.Mass%200==0)) {
+	  cout << Models[s] << " " << tmp.Mass << endl;
+	  fprintf(talkFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  || %7.3f\n",+Models[s].c_str(), tmp.Eff, P/tmp.Eff, M/tmp.Eff, I/tmp.Eff, T/tmp.Eff, sqrt(P*P + I*I + M*M + T*T)/tmp.Eff);
+	}
+        if(!IsTkOnly && !IsNeutral) fprintf(talkFile, "%20s   %7.3f --> %7.3f  |  %7.3f  | %7.3f  | %7.3f || %7.3f\n",+Models[s].c_str(), tmp.Eff, P/tmp.Eff, M/tmp.Eff, I/tmp.Eff, T/tmp.Eff, sqrt(P*P + I*I + M*M + T*T)/tmp.Eff);
+
    }
 }
-
 
 
 
@@ -585,13 +610,20 @@ TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string syst, 
 
    if(XSectionType>0 && syst=="")for(unsigned int i=0;i<N;i++)printf("%-18s %5.0f --> Pt>%+6.1f & I>%+5.3f & TOF>%+4.3f & M>%3.0f--> NData=%2.0f  NPred=%6.1E+-%6.1E  NSign=%6.1E (Eff=%3.2f)\n",ModelName.c_str(),Infos[i].Mass,Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].WP_TOF,Infos[i].MassCut, Infos[i].NData, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NSign, Infos[i].Eff);
 
-
    if(XSectionType>0){
    for(unsigned int i=0;i<N;i++){
      if(Infos[i].WP_TOF==-1) fprintf(pFile,"%-20s & %4.0f & %6.0f & %5.3f & / & %4.0f & %6.3f $\\pm$ %6.3f & %2.0f & %4.3f & %6.1E & %6.1E & %6.1E \\\\\n", ModelName.c_str(), Infos[i].Mass,  Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].MassCut, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NData, Infos[i].Eff, Infos[i].XSec_Th,Infos[i].XSec_Exp, Infos[i].XSec_Obs);
-     else                    fprintf(pFile,"%-20s & %4.0f & %6.0f & %5.3f & %4.3f & %4.0f & %6.3f $\\pm$ %6.3f & %2.0f & %4.3f & %6.1E & %6.1E & %6.1E \\\\\n", ModelName.c_str(), Infos[i].Mass,  Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].WP_TOF,Infos[i].MassCut, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NData, Infos[i].Eff, Infos[i].XSec_Th,Infos[i].XSec_Exp, Infos[i].XSec_Obs);
+     else fprintf(pFile,"%-20s & %4.0f & %6.0f & %5.3f & %4.3f & %4.0f & %6.3f $\\pm$ %6.3f & %2.0f & %4.3f & %6.1E & %6.1E & %6.1E \\\\\n", ModelName.c_str(), Infos[i].Mass,  Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].WP_TOF,Infos[i].MassCut, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NData, Infos[i].Eff, Infos[i].XSec_Th,Infos[i].XSec_Exp, Infos[i].XSec_Obs);
+     bool IsNeutral = (ModelName.find("N",0)<std::string::npos);
+     if(Infos[i].WP_TOF==-1 && (ModelName=="GMSB Stau" || (int)Infos[i].Mass%200==0)) {
+       fprintf(talkFile,"%-20s & %4.0f & %6.0f & %5.3f & / & %4.0f & %6.3f $\\pm$ %6.3f & %2.0f & %4.3f \\\\\n", ModelName.c_str(), Infos[i].Mass,  Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].MassCut, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NData, Infos[i].Eff);
+       fprintf(talkFile, "\\hline\n");
+     }
+     if (Infos[i].WP_TOF!=-1 && !IsNeutral) {
+       fprintf(talkFile,"%-20s & %4.0f & %6.0f & %5.3f & %4.3f & %4.0f & %6.3f $\\pm$ %6.3f & %2.0f & %4.3f \\\\\n", ModelName.c_str(), Infos[i].Mass,  Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].WP_TOF,Infos[i].MassCut, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NData, Infos[i].Eff);
+       fprintf(talkFile, "\\hline\n");
+     }
    }}
-   
    
 
    TGraph* graph = NULL;
@@ -818,7 +850,9 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
      double ExpLimit = 99999999;
      double ObsLimit = 99999999;
      LimitResult CLMResults;
-     CLMResults = roostats_clm(IntegratedLuminosity, IntegratedLuminosity*0.06, Eff, Eff*0.10,NPred, NPred*RescaleError, 1);   ExpLimit=CLMResults.GetExpectedLimit();
+     int signalUncertainty=0.10;
+     if (signals[JobIdToIndex(signal)].Mass<450) signalUncertainty=0.15;
+     CLMResults = roostats_clm(IntegratedLuminosity, IntegratedLuminosity*0.06, Eff, Eff*signalUncertainty,NPred, NPred*RescaleError, 1);   ExpLimit=CLMResults.GetExpectedLimit();
      if(toReturn.XSec_Exp<=ExpLimit){fprintf(pFile  ,"\n"); printf("\n"); continue;}
      ObsLimit =  roostats_cl95(IntegratedLuminosity, IntegratedLuminosity*0.06, Eff, Eff*0.10,NPred, NPred*RescaleError              , NData, false, 1, "bayesian", "");
 

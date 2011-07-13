@@ -80,8 +80,8 @@ class stPlot{
 
    stPlot(string SignalName){
       int numberofbins=JetMetSD_triggers.size()+MuSD_triggers.size()+1;
-      Histo    = new TH1D((SignalName + "Abs").c_str(),(SignalName + "Abs").c_str(),numberofbins,0,numberofbins);
-      HistoInc = new TH1D((SignalName + "Inc").c_str(),(SignalName + "Inc").c_str(),numberofbins,0,numberofbins);
+      Histo    = new TH1D((SignalName + "Abs").c_str(),(SignalName + "Abs").c_str(),numberofbins,0,numberofbins); Histo->Sumw2();
+      HistoInc = new TH1D((SignalName + "Inc").c_str(),(SignalName + "Inc").c_str(),numberofbins,0,numberofbins); HistoInc->Sumw2();
 
       for(unsigned int i=0;i<MuSD_triggers.size();i++)    { Histo->GetXaxis()->SetBinLabel(i+1,MuSD_triggers[i].c_str());   }
       for(unsigned int i=0;i<JetMetSD_triggers.size();i++){ Histo->GetXaxis()->SetBinLabel(MuSD_triggers.size()+1+i,JetMetSD_triggers[i].c_str());   }
@@ -109,7 +109,7 @@ double FastestHSCP(const fwlite::ChainEvent& ev);
 bool IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& InputPath, double NewThreshold, int NObjectAboveThreshold, bool averageThreshold=false);
 void layout(vector<stPlot*>& plots, vector<string>& sigs, string name);
 int JobIdToIndex(string JobId);
-
+void SetWeight(const double& IntegratedLuminosityInPb=-1, const double& IntegratedLuminosityInPbBeforeTriggerChange=-1, const double& CrossSection=0, const double& MCEvents=0, int period=0);
 
  
 
@@ -136,8 +136,8 @@ void TriggerStudy()
    JetMetSD_triggers.push_back("HLT_PFMHT150_v2");
 //   JetMetSD_triggers.push_back("HLT_MET100_v1");
 
-   MuSD_triggers.push_back("HLT_Mu24_v1");
-   MuSD_triggers.push_back("HLT_DoubleMu7_v1");
+   MuSD_triggers.push_back("HLT_Mu30_v1");
+   //MuSD_triggers.push_back("HLT_DoubleMu7_v1");
 
    All_triggers.clear();
    for(unsigned int i=0;i<MuSD_triggers.size();i++)All_triggers.push_back(MuSD_triggers[i]);
@@ -225,19 +225,27 @@ void TriggerStudy()
 
 void TriggerStudy_Core(string SignalName, FILE* pFile, stPlot* plot)
 {
-   vector<string> fileNames;
-   GetInputFiles(fileNames,SignalName);
-   fwlite::ChainEvent ev(fileNames);
 
-   unsigned int Total       = 0;
-   unsigned int SDJetMET    = 0;
-   unsigned int SDMu        = 0;
-   unsigned int SDBoth      = 0;
-   unsigned int SDJetMETInc = 0;
-   unsigned int SDMuInc     = 0;
-   unsigned int TrJetMET    = 0;
-   unsigned int TrMu        = 0;
-   unsigned int TrBoth      = 0;
+  double Total       = 0;
+  double SDJetMET    = 0;
+  double SDMu        = 0;
+  double SDBoth      = 0;
+  double SDJetMETInc = 0;
+  double SDMuInc     = 0;
+  double TrJetMET    = 0;
+  double TrMu        = 0;
+  double TrBoth      = 0;
+
+  std::string HLTNames[2] = {"HLT", "RedoHLT"};
+
+  for (int period=0; period<RunningPeriods; period++) {
+
+    std::vector<string> fileNames;
+    GetInputFiles(fileNames, SignalName, period);
+    fwlite::ChainEvent ev(fileNames);
+
+   //Find weight of sample.  Only need relative weight between two running periods so signal cross section is not needed
+    SetWeight(IntegratedLuminosity,IntegratedLuminosityBeforeTriggerChange,1,(double)ev.size(), period);
 
    int MaxPrint = 0;
    printf("Progressing Bar              :0%%       20%%       40%%       60%%       80%%       100%%\n");
@@ -247,7 +255,7 @@ void TriggerStudy_Core(string SignalName, FILE* pFile, stPlot* plot)
       if(e%TreeStep==0){printf(".");fflush(stdout);}
       ev.to(e);
 
-      edm::TriggerResultsByName tr = ev.triggerResultsByName("HLT");
+      edm::TriggerResultsByName tr = ev.triggerResultsByName(HLTNames[period]);
       if(!tr.isValid())continue;
       //for(unsigned int i=0;i<tr.size();i++){
       //   printf("Path %3i %50s --> %1i\n",i, tr.triggerName(i).c_str(),tr.accept(i));
@@ -274,40 +282,47 @@ void TriggerStudy_Core(string SignalName, FILE* pFile, stPlot* plot)
       unsigned int TrIndex_Unknown     = tr.size();
 
       bool AlreadyAccepted = false;
-
       for(unsigned int i=0;i<All_triggers.size();i++){
          vector<string>::iterator whereMuSD     = find(MuSD_triggers    .begin(), MuSD_triggers    .end(),All_triggers[i].c_str() );
          vector<string>::iterator whereJetMetSD = find(JetMetSD_triggers.begin(), JetMetSD_triggers.end(),All_triggers[i].c_str() );
   
- 
          bool Accept = false;
-         bool Accept2 = false;
 
            if(All_triggers[i]=="HLT_PFMHT150_v2"){
                if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v2")){
                    if(e<MaxPrint)printf("HLT_PFMHT150_v2\n");
                    Accept = tr.accept(tr.triggerIndex("HLT_PFMHT150_v2"));
-                }else{
-                   if(e<MaxPrint)printf("HLT_PFMHT150_v1\n");
-                   Accept = tr.accept(tr.triggerIndex("HLT_PFMHT150_v1"));
+	       }else if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v1")){
+		 if(e<MaxPrint)printf("HLT_PFMHT150_v1\n");
+		 Accept = tr.accept(tr.triggerIndex("HLT_PFMHT150_v1"));
                 }
-		//Accept2 = Accept;
-                Accept2 = IncreasedTreshold(trEv, InputTag("hltPFMHT150Filter","","HLT"),160 , 1, false);
+	       else {
+		 printf("HSCPHLTFilter --> HLT_PFMHT150_v1  not found\n");
+		 for(unsigned int i=0;i<tr.size();i++){
+		   printf("Path %3i %50s --> %1i\n",i, tr.triggerName(i).c_str(),tr.accept(i));
+		 }fflush(stdout);
+		 exit(0);
+	       }
 
-            }else{
+	   }else if(TrIndex_Unknown != tr.triggerIndex(All_triggers[i].c_str())){
                Accept = tr.accept(All_triggers[i].c_str());
-	       Accept2 = Accept;
-            }
+	   }
+	   else {
+	     printf("HSCPHLTFilter --> HLT_PFMHT150_v1  not found\n");
+	     for(unsigned int i=0;i<tr.size();i++){
+	       printf("Path %3i %50s --> %1i\n",i, tr.triggerName(i).c_str(),tr.accept(i));
+	     }fflush(stdout);
+	     exit(0);
+	   }
 
-         if(Accept                    ){plot->Histo   ->Fill(All_triggers[i].c_str(),1);}       
-         if(Accept && !AlreadyAccepted){plot->HistoInc->Fill(All_triggers[i].c_str(),1);}
+	   if(Accept                    ){plot->Histo   ->Fill(All_triggers[i].c_str(),Event_Weight);}       
+         if(Accept && !AlreadyAccepted){plot->HistoInc->Fill(All_triggers[i].c_str(),Event_Weight);}
 
          if     (whereJetMetSD!=JetMetSD_triggers.end()){ JetMetSD |= Accept; if(!AlreadyAccepted)JetMetSDInc |= Accept;}
          else if(whereMuSD    !=MuSD_triggers.end())    { MuSD     |= Accept; if(!AlreadyAccepted)MuSDInc     |= Accept;}
 
-         if     (whereJetMetSD!=JetMetSD_triggers.end()){ JetMetTr |= Accept2; }
-         else if(whereMuSD    !=MuSD_triggers.end())    { MuTr     |= Accept2; }
-
+         if     (whereJetMetSD!=JetMetSD_triggers.end()){ JetMetTr |= Accept; }
+         else if(whereMuSD    !=MuSD_triggers.end())    { MuTr     |= Accept; }
 
          AlreadyAccepted |= Accept;
       }
@@ -315,39 +330,42 @@ void TriggerStudy_Core(string SignalName, FILE* pFile, stPlot* plot)
 
 //      JetMetTr = JetMetSD & ((rand()%100)<90);
 //      MuTr     = MuSD     & ((rand()%100)<90);  
+   
+      if(JetMetSD||MuSD) {
+	plot->Histo->Fill("Total",Event_Weight);
+	plot->HistoInc->Fill("Total",Event_Weight);
+      }
 
-      Total++;
-      if(JetMetSD)SDJetMET++;
-      if(MuSD)SDMu++;
-      if(JetMetSDInc)SDJetMETInc++;
-      if(MuSDInc)SDMuInc++;
-      if(JetMetSD||MuSD)SDBoth++;
-      if(JetMetTr)TrJetMET++;
-      if(MuTr)TrMu++;
-      if(JetMetTr||MuTr)TrBoth++;
+      Total+=Event_Weight;
+      if(JetMetSD)SDJetMET+=Event_Weight;
+      if(MuSD)SDMu+=Event_Weight;
+      if(JetMetSDInc)SDJetMETInc+=Event_Weight;
+      if(MuSDInc)SDMuInc+=Event_Weight;
+      if(JetMetSD||MuSD)SDBoth+=Event_Weight;
+      if(JetMetTr)TrJetMET+=Event_Weight;
+      if(MuTr)TrMu+=Event_Weight;
+      if(JetMetTr||MuTr)TrBoth+=Event_Weight;
 
       double Beta = 1.0;
       if(SignalName!="Data")Beta = FastestHSCP(ev);
-      plot->BetaCount->Fill(Beta);
-      if(MuSD||JetMetSD)plot->BetaTotal->Fill(Beta);
-      if(MuSD)plot->BetaMuon->Fill(Beta);
-      if(JetMetSD)plot->BetaJet->Fill(Beta);
+      plot->BetaCount->Fill(Beta, Event_Weight);
+      if(MuSD||JetMetSD)plot->BetaTotal->Fill(Beta, Event_Weight);
+      if(MuSD)plot->BetaMuon->Fill(Beta, Event_Weight);
+      if(JetMetSD)plot->BetaJet->Fill(Beta, Event_Weight);
 
    }printf("\n");
-
+  }
 //   fprintf(pFile,  "%15s --> JetMET = %5.2f%% (was %5.2f%%) Mu = %5.2f%% (was %5.2f%%) JetMET||Mu = %5.2f%% (%5.2f%%)\n",SignalName.c_str(), (100.0*TrJetMET)/Total, (100.0*SDJetMET)/Total, (100.0*TrMu)/Total, (100.0*SDMu)/Total, (100.0*TrBoth)/Total, (100.0*SDBoth)/Total);
 //   fprintf(stdout, "%15s --> JetMET = %5.2f%% (was %5.2f%%) Mu = %5.2f%% (was %5.2f%%) JetMET||Mu = %5.2f%% (%5.2f%%)\n",SignalName.c_str(), (100.0*TrJetMET)/Total, (100.0*SDJetMET)/Total, (100.0*TrMu)/Total, (100.0*SDMu)/Total, (100.0*TrBoth)/Total, (100.0*SDBoth)/Total);
 
 
-   fprintf(pFile,  "%15s --> MET = %5.2f%% (modified %5.2f%%) Mu = %5.2f%% (modified %5.2f%%) JetMET||Mu = %5.2f%% (%5.2f%%)\n",SignalName.c_str(), (100.0*SDJetMET)/Total, (100.0*TrJetMET)/Total, (100.0*SDMu)/Total, (100.0*TrMu)/Total, (100.0*SDBoth)/Total, (100.0*TrBoth)/Total);
-   fprintf(stdout, "%15s --> MET = %5.2f%% (modified %5.2f%%) Mu = %5.2f%% (modified %5.2f%%) JetMET||Mu = %5.2f%% (%5.2f%%)\n",SignalName.c_str(), (100.0*SDJetMET)/Total, (100.0*TrJetMET)/Total, (100.0*SDMu)/Total, (100.0*TrMu)/Total, (100.0*SDBoth)/Total, (100.0*TrBoth)/Total);
-
-
+   fprintf(pFile,  "%15s --> MET = %5.2f%% Mu = %5.2f%% JetMET||Mu = %5.2f%%\n",SignalName.c_str(), (100.0*SDJetMET)/Total, (100.0*SDMu)/Total, (100.0*SDBoth)/Total);
+   fprintf(stdout,  "%15s --> MET = %5.2f%% Mu = %5.2f%% JetMET||Mu = %5.2f%%\n",SignalName.c_str(), (100.0*SDJetMET)/Total, (100.0*SDMu)/Total, (100.0*SDBoth)/Total);
 
 //   printf("Total %i \n",Total);
 //   plot->Histo->Fill("JetMET Paths",SDJetMET);
 //   plot->Histo->Fill("Mu Paths",SDMu);
-   plot->Histo->Fill("Total",SDBoth);
+//   plot->Histo->Fill("Total",SDBoth);
    plot->Histo->SetStats(0)  ;
    plot->Histo->LabelsOption("v");
    plot->Histo->Scale(100./Total);
@@ -355,7 +373,7 @@ void TriggerStudy_Core(string SignalName, FILE* pFile, stPlot* plot)
 
 //   plot->HistoInc->Fill("JetMET Paths",SDJetMETInc);
 //   plot->HistoInc->Fill("Mu Paths",SDMuInc);
-   plot->HistoInc->Fill("Total",SDBoth);
+//   plot->HistoInc->Fill("Total",SDBoth);
    plot->HistoInc->SetStats(0)  ;
    plot->HistoInc->LabelsOption("v");
    plot->HistoInc->Scale(100./Total);
@@ -520,3 +538,13 @@ int JobIdToIndex(string JobId){
 }
 
 
+ void SetWeight(const double& IntegratedLuminosityInPb, const double& IntegratedLuminosityInPbBeforeTriggerChange, const double& CrossSection, const double& MCEvents, int period){
+   if(IntegratedLuminosityInPb>=IntegratedLuminosityInPbBeforeTriggerChange && IntegratedLuminosityInPb>0){
+     double NMCEvents = MCEvents;
+     if(MaxEntry>0)NMCEvents=std::min(MCEvents,(double)MaxEntry);
+     if (period==0) Event_Weight = (CrossSection * IntegratedLuminosityInPbBeforeTriggerChange) / NMCEvents;
+     else if (period==1)Event_Weight = (CrossSection * (IntegratedLuminosityInPb-IntegratedLuminosityInPbBeforeTriggerChange)) / NMCEvents;
+   }else{
+     Event_Weight=1;
+   }
+ }

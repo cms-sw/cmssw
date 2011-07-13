@@ -9,4 +9,5 @@ root -l -b << EOF
   gSystem->Load("libDataFormatsCommon.so");
   .x GetLuminosity.C+
 EOF
-lumiCalc.py -c frontier://LumiCalc/CMS_LUMI_PROD -i out.json overview -b stable > LUMI_TABLE
+#lumiCalc.py -c frontier://LumiCalc/CMS_LUMI_PROD -i out.json overview -b stable > LUMI_TABLE
+#lumiCalc.py -c frontier://LumiCalc/CMS_LUMI_PROD -i out_beforeRPCChange.json overview -b stable > LUMI_TABLE_BEFORE_RPC_CHANGE

@@ -17,14 +17,14 @@ std::string        TOF_Label       = "combined";
 std::string        TOFdt_Label     = "dt";
 std::string        TOFcsc_Label    = "csc";
 
-double             PtHistoUpperBound   = 2000;
+double             PtHistoUpperBound   = 1200;
 double             MassHistoUpperBound = 2000;
 int		   MassNBins           = 200;
 
 float              GlobalMaxV3D  =   2.00;
 float              GlobalMaxDZ   =   2.00;
 float              GlobalMaxDXY  =   2.00;//0.25;
-float              GlobalMaxChi2 =   10.0;
+float              GlobalMaxChi2 =   5.0;
 int                GlobalMinQual =   2;
 unsigned int       GlobalMinNOH  =   11;
 unsigned int       GlobalMinNOM  =   5;
