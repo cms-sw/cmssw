@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2011/02/14 08:01:29 $
- * $Revision: 1.73 $
+ * $Date: 2011/02/20 09:00:02 $
+ * $Revision: 1.74 $
  * \author G. Della Ricca
  *
 */
@@ -186,7 +186,7 @@ void EETimingTask::setup(void){
 
     sprintf(histo, "EETMT timing projection eta EE +");
     meTimeSummaryMapProjEta_[1] = dqmStore_->bookProfile(histo, histo, 20, 1.479, 3.0, 50, -50., 50., "s");
-    meTimeSummaryMapProjEta_[1]->setAxisTitle("phi", 1);
+    meTimeSummaryMapProjEta_[1]->setAxisTitle("eta", 1);
     meTimeSummaryMapProjEta_[1]->setAxisTitle("time (ns)", 2);
 
     sprintf(histo, "EETMT timing projection phi EE -");

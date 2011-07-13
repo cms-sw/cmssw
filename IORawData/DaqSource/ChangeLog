@@ -1,3 +1,23 @@
+2011-05-11  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-09-18
+	* added monitoring of EOL usage 
+	
+2011-03-21  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-09-17 (16 used by Bill)
+	* align for 4_3_X
+
+2011-04-27  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-09-15-01
+	* fix wrongly tagged file in test
+
+2011-04-27  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V01-09-15-00
+	* disregard EOL signals which are out of line from standard sequence
+	
 2011-03-21  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V01-09-15

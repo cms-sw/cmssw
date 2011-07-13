@@ -1,18 +1,31 @@
-//----------Author's Name: B.Fabbro DSM/IRFU/SPP CEA-Saclay
+//---------Author's Name: B.Fabbro DSM/IRFU/SPP CEA-Saclay
 //----------Copyright: Those valid for CEA sofware
-//----------Modified: 24/03/2011
-
+//----------Modified: 29/03/2010
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaWrite.h"
-
-//--------------------------------------
-//  TEcnaWrite.cc
-//  Class creation: 19 May 2005
-//  Documentation: see TEcnaWrite.h
-//--------------------------------------
 
 ClassImp(TEcnaWrite)
 //______________________________________________________________________________
 //
+// TEcnaWrite.
+//
+//------------------------------------------------------------------------
+//
+//        For more details on other classes of the CNA package:
+//
+//                 http://www.cern.ch/cms-fabbro/cna
+//
+//------------------------------------------------------------------------
+//
+
+//--------------------------- TEcnaWrite.cc -------------------------------
+//  
+//   Creation (first version): 19 May 2005
+//
+//   For questions or comments, please send e-mail to Bernard Fabbro:
+//             
+//   fabbro@hep.saclay.cea.fr 
+//
+//------------------------------------------------------------------------
 
   TEcnaWrite::~TEcnaWrite()
 {
@@ -39,60 +52,11 @@ TEcnaWrite::TEcnaWrite()
   Init();
 }
 
-TEcnaWrite::TEcnaWrite(TEcnaObject* pObjectManager, const TString SubDet)
-{
- // cout << "[Info Management] CLASS: TEcnaWrite.         CREATE OBJECT: this = " << this << endl;
-
-  Init();
-  Long_t i_this = (Long_t)this;
-  pObjectManager->RegisterPointer("TEcnaWrite", i_this);
-
-  //............................ fCnaParCout
-  fCnaParCout = 0;
-  Int_t iCnaParCout = pObjectManager->GetPointerValue("TEcnaParCout");
-  if( iCnaParCout == 0 )
-    {fCnaParCout = new TEcnaParCout(pObjectManager); /*fCnew++*/}
-  else
-    {fCnaParCout = (TEcnaParCout*)iCnaParCout;}
-
-  //............................ fCnaParPaths
-  fCnaParPaths = 0;
-  Int_t iCnaParPaths = pObjectManager->GetPointerValue("TEcnaParPaths");
-  if( iCnaParPaths == 0 )
-    {fCnaParPaths = new TEcnaParPaths(pObjectManager); /*fCnew++*/}
-  else
-    {fCnaParPaths = (TEcnaParPaths*)iCnaParPaths;}
-
-  //fCfgResultsRootFilePath    = fCnaParPaths->ResultsRootFilePath();
-  //fCfgHistoryRunListFilePath = fCnaParPaths->HistoryRunListFilePath();
-
-  fCnaParPaths->GetPathForResultsRootFiles();
-  fCnaParPaths->GetPathForResultsAsciiFiles();
-
-  //............................ fEcal  => to be changed in fParEcal
-  fEcal = 0;
-  Int_t iParEcal = pObjectManager->GetPointerValue("TEcnaParEcal");
-  if( iParEcal == 0 )
-    {fEcal = new TEcnaParEcal(pObjectManager, SubDet.Data()); /*fCnew++*/}
-  else
-    {fEcal = (TEcnaParEcal*)iParEcal;}
-
-  //............................ fEcalNumbering
-  fEcalNumbering = 0;
-  Int_t iEcalNumbering = pObjectManager->GetPointerValue("TEcnaNumbering");
-  if( iEcalNumbering == 0 )
-    {fEcalNumbering = new TEcnaNumbering(pObjectManager, SubDet.Data()); /*fCnew++*/}
-  else
-    {fEcalNumbering = (TEcnaNumbering*)iEcalNumbering;}
-
-  SetEcalSubDetector(SubDet.Data());
-}
-
 TEcnaWrite::TEcnaWrite(const TString SubDet,
-		       const TEcnaParPaths*  pCnaParPaths, 
-		       const TEcnaParCout*   pCnaParCout,
-		       const TEcnaParEcal*   pEcal,
-		       const TEcnaNumbering* pEcalNumbering)
+		     const TEcnaParPaths*    pCnaParPaths, 
+		     const TEcnaParCout*     pCnaParCout,
+		     const TEcnaParEcal* pEcal,
+		     const TEcnaNumbering*  pEcalNumbering)
 {
 
  // cout << "[Info Management] CLASS: TEcnaWrite.         CREATE OBJECT: this = " << this << endl;
@@ -105,10 +69,6 @@ TEcnaWrite::TEcnaWrite(const TString SubDet,
     {fCnaParPaths = new TEcnaParPaths();  /*fCnew++*/ ;}
   else
     {fCnaParPaths = (TEcnaParPaths*)pCnaParPaths;}
-
-  //................. Get paths from ECNA directory
-  fCnaParPaths->GetPathForResultsRootFiles();
-  fCnaParPaths->GetPathForResultsAsciiFiles();
 
   fCnaParCout  = 0;
   if( pCnaParCout == 0 )
@@ -127,6 +87,7 @@ TEcnaWrite::TEcnaWrite(const TString SubDet,
     {fEcalNumbering = new TEcnaNumbering(SubDet.Data(), fEcal);  /*fCnew++*/;}
   else
     {fEcalNumbering = (TEcnaNumbering*)pEcalNumbering;}
+
 
   SetEcalSubDetector(SubDet.Data(), fEcal, fEcalNumbering);
 }
@@ -198,80 +159,6 @@ void  TEcnaWrite::Init()
 //                   Methods
 //
 //===================================================================
-
-void TEcnaWrite::SetEcalSubDetector(const TString SubDet)
-{
- // Set Subdetector (EB or EE)
-
-  Int_t MaxCar = fgMaxCar;
-  fFlagSubDet.Resize(MaxCar);
-  fFlagSubDet = fEcal->GetEcalSubDetector();
-
-  //........................................................................
-  //
-  //             (for ASCII files writing methods only) ...
-  //
-  //                DEFINITION OF THE SECTOR SIZES
-  //       FOR THE CORRELATION AND COVARIANCE MATRICES DISPLAY
-  //
-  //            MUST BE A DIVISOR OF THE TOTAL NUMBER.
-  //            ======================================
-  //
-  //     Examples:
-  //      
-  //      (1)    25 channels => size = 25 or 5 (divisors of 25)
-  //
-  //             25 => matrix = 1 x 1 sector  of size (25 x 25)
-  //                          = (1 x 1) x (25 x 25) = 1 x 625 = 625 
-  //              5 => matrix = 5 x 5 sectors of size (5 x 5)
-  //                          = (5 x 5) x ( 5 x  5) = 25 x 25 = 625 
-  //
-  //      (2)    10 samples  => size = 10, 5 or 2 (divisors of 10)
-  //
-  //             10 => matrix = 1 X 1 sectors of size (10 x 10) 
-  //                          = (1 x 1) x (10 x 10) =  1 x 100 = 100
-  //              5 => matrix = 2 x 2 sectors of size (5 x 5) 
-  //                          = (2 x 2) x ( 5 x  5) =  4 x  25 = 100
-  //              2 => matrix = 5 x 5 sectors of size (2 x 2) 
-  //                          = (5 x 5) x ( 2 x  2) = 25 x  4  = 100
-  //
-  //........................................................................
-  fSectChanSizeX = fEcal->MaxCrysHocoInStin();
-  fSectChanSizeY = fEcal->MaxCrysVecoInStin();
-  fSectSampSizeX = fEcal->MaxSampADC(); 
-  fSectSampSizeY = fEcal->MaxSampADC();
-
-  //........................................................................
-  //
-  //                DEFINITION OF THE NUMBER OF VALUES BY LINE
-  //                for the Expectation Values, Variances and.
-  //                Event distributions by (channel,sample)
-  //
-  //               MUST BE A DIVISOR OF THE TOTAL NUMBER.
-  //               ======================================
-  //
-  //     Examples: 
-  //                1) For expectation values and variances:
-  //
-  //                25 channels => size = 5
-  //                => sample sector = 5 lines of 5 values
-  //                                 = 5 x 5 = 25 values 
-  //
-  //                10 samples  => size = 10
-  //                => channel sector = 1 lines of 10 values
-  //                                  = 1 x 10 = 10 values
-  //
-  //                2) For event distributions:
-  //
-  //                100 bins  => size = 10
-  //                => sample sector = 10 lines of 10 values
-  //                                 = 10 x 10 = 100 values
-  //
-  //........................................................................
-  fNbChanByLine = fEcal->MaxCrysHocoInStin();
-  fNbSampByLine = fEcal->MaxSampADC();  
-}//---------- (end of SetEcalSubDetector) ------------------
-
 
 void TEcnaWrite::SetEcalSubDetector(const TString SubDet,
 				   const TEcnaParEcal* pEcal,
@@ -361,7 +248,6 @@ void TEcnaWrite::SetEcalSubDetector(const TString SubDet,
   fNbSampByLine = fEcal->MaxSampADC();  
 }//---------- (end of SetEcalSubDetector) ------------------
 
-
 //-------------------------------------------------------------------------
 //
 //    Get methods for different run or file parameters
@@ -389,32 +275,17 @@ Int_t   TEcnaWrite::GetFirstReqEvtNumber(){return fFirstReqEvtNumber;}
 Int_t   TEcnaWrite::GetReqNbOfEvts()      {return fReqNbOfEvts;}
 Int_t   TEcnaWrite::GetStexNumber()       {return fStexNumber;}
 
-//----------------------------------------------------------------------------------------------
-//
-//    NumberOfEventsAnalysis(...) : Analyses the number of events found in data
-//                                  channel by channel OR sample by sample
-//                                  and output ERROR message if differences are detected
-//
-//              channel by channel: called by TEcnaRead object (3 arguments)
-//              sample  by sample : called by TEcnaRun  object (4 arguments)
-//
-//    This method must be a TEcnaWrite method since it can be called by objects
-//    of class TEcnaRead OR TEcnaRun
-//
-//----------------------------------------------------------------------------------------------
 //.............................................................................................
-Int_t TEcnaWrite::NumberOfEventsAnalysis(Int_t* ArrayNbOfEvts,
-					 const Int_t& MaxArray,  const Int_t& NbOfReqEvts)
+Int_t TEcnaWrite::NumberOfEvents(Int_t* ArrayNbOfEvts,
+				const Int_t& MaxArray,  const Int_t& NbOfReqEvts)
 {
   //  CHECK THE NUMBER OF FOUND EVENTS, return rNumberOfEvents (NumberOfEvents())
   //  (number used to compute the average values over the events)
-  //
-  //  3 arguments: called by TEcnaRead object
 
   Int_t rNumberOfEvents = 0;
-  Int_t PresentNumber   = 0;
-  Int_t DifferentValue  = 0;
-  Int_t EmptyChannel    = 0;
+  Int_t PresentNumber  = 0;
+  Int_t DifferentValue = 0;
+  Int_t EmptyChannel   = 0;
 
   //........................................................ i_SSoSE = StexStin or StinEcha
   for(Int_t i_SSoSE=0 ; i_SSoSE<MaxArray ; i_SSoSE++)
@@ -452,20 +323,20 @@ Int_t TEcnaWrite::NumberOfEventsAnalysis(Int_t* ArrayNbOfEvts,
     {
       if(fFlagPrint == fCodePrintAllComments)
 	{
-	  cout << "*TEcnaWrite::NumberOfEventsAnalysis()> *** WARNING *** " << EmptyChannel
+	  cout << "*TEcnaWrite::NumberOfEvents()> *** WARNING *** " << EmptyChannel
 	       << " empty channels found." << endl;
 	}
     }
 
   if( DifferentValue > 0 )
     {
-      cout << "!TEcnaWrite::NumberOfEventsAnalysis()> *************************** W A R N I N G ***********************" << endl
-	   << "                               NUMBER OF EVENTS NOT CONSTANT !" << endl
-	   << "  The number of events is not the same for some channels (empty channels not included)" << endl
-	   << "  Number of differences = " << DifferentValue << " (channels)" << endl
-	   << "  Result ROOT file: " << fRootFileName << endl	   
-	   << "  The maximum number (" << rNumberOfEvents << ") is considered as the number"
-	   << " of events for calculations of pedestals, noises and correlations." << endl
+      cout << "!TEcnaWrite::NumberOfEvents()> ******************************* W A R N I N G ***************************" << endl
+	   << "                                   NUMBER OF EVENTS NOT CONSTANT" << endl
+	   << "  The number of events is not the same for some channels and/or samples (empty channels not included)" << endl
+	   << "  Number of differences = " << DifferentValue << endl
+	   << "  Result ROOT file: " << fRootFileNameShort << endl	   
+	   << "  The maximum number (" << rNumberOfEvents << ") is considered as the number " << endl
+	   << "  of events for calculations of pedestals, noises and correlations." << endl
 	   << "  Some values of pedestals, noises and correlations may be wrong for channels" << endl
 	   << "  with number of events different from " << rNumberOfEvents << "." << endl
 	   << "  Please, check the histogram 'Numbers of events'." << endl
@@ -478,7 +349,7 @@ Int_t TEcnaWrite::NumberOfEventsAnalysis(Int_t* ArrayNbOfEvts,
 	{
 	  if( rNumberOfEvents < NbOfReqEvts )
 	    {
-	      cout << "*TEcnaWrite::NumberOfEventsAnalysis()> *** INFO *** Number of events found in data = "
+	      cout << "*TEcnaWrite::NumberOfEvents()> *** INFO *** Number of events found in data = "
 		   << rNumberOfEvents << ": less than number of requested events ( = " << NbOfReqEvts << ")" << endl;
 	    }
 	}
@@ -487,17 +358,15 @@ Int_t TEcnaWrite::NumberOfEventsAnalysis(Int_t* ArrayNbOfEvts,
 }
 
 //.............................................................................................
-Int_t TEcnaWrite::NumberOfEventsAnalysis(Int_t**      T2d_NbOfEvts,   const Int_t& MaxCrysEcnaInStex,
-					 const Int_t& MaxNbOfSamples, const Int_t& NbOfReqEvts)
+Int_t TEcnaWrite::NumberOfEvents(Int_t**      T2d_NbOfEvts,   const Int_t& MaxCrysEcnaInStex,
+				const Int_t& MaxNbOfSamples, const Int_t& NbOfReqEvts)
 {
   //  CHECK OF THE NUMBER OF FOUND EVENTS, return rNumberOfEvents (NumberOfEvents())
   //       (number used to compute the average values over the events)
-  //
-  //  4 arguments: called by TEcnaRun object
 
   Int_t rNumberOfEvents = 0;
-  Int_t PresentNumber   = 0;
-  Int_t DifferentValue  = 0;
+  Int_t PresentNumber  = 0;
+  Int_t DifferentValue = 0;
 
   for(Int_t i0StexEcha = 0 ; i0StexEcha < MaxCrysEcnaInStex ; i0StexEcha++)
     {
@@ -531,13 +400,13 @@ Int_t TEcnaWrite::NumberOfEventsAnalysis(Int_t**      T2d_NbOfEvts,   const Int_
 
   if( DifferentValue > 0 )
     {
-      cout << "!TEcnaWrite::NumberOfEventsAnalysis()> *************************** W A R N I N G ***********************" << endl
-	   << "                               NUMBER OF EVENTS NOT CONSTANT !" << endl
-	   << "  The number of events is not the same for some channels and samples (empty channels not included)" << endl
-	   << "  Number of differences = " << DifferentValue << " (samples)" << endl
-	   << "  Result ROOT file: " << fRootFileName << endl
-	   << "  The maximum number (" << rNumberOfEvents << ") is considered as the number"
-	   << " of events for calculations of pedestals, noises and correlations." << endl
+      cout << "!TEcnaWrite::NumberOfEvents()> ******************************* W A R N I N G ***************************" << endl
+	   << "                                   NUMBER OF EVENTS NOT CONSTANT" << endl
+	   << "  The number of events is not the same for some channels and/or samples (empty channels not included)" << endl
+	   << "  Number of differences = " << DifferentValue << endl
+	   << "  Result ROOT file: " << fRootFileNameShort << endl
+	   << "  The maximum number (" << rNumberOfEvents << ") is considered as the number " << endl
+	   << "  of events for calculations of pedestals, noises and correlations."
 	   << "  Some values of pedestals, noises and correlations may be wrong for channels" << endl
 	   << "  with number of events different from " << rNumberOfEvents << "." << endl
 	   << "  Please, check the histogram 'Numbers of events'." << endl
@@ -550,7 +419,7 @@ Int_t TEcnaWrite::NumberOfEventsAnalysis(Int_t**      T2d_NbOfEvts,   const Int_
 	{
 	  if( rNumberOfEvents < NbOfReqEvts )
 	    {
-	      cout << "*TEcnaWrite::NumberOfEventsAnalysis()> *** INFO *** Number of events found in data = "
+	      cout << "*TEcnaWrite::NumberOfEvents()> *** INFO *** Number of events found in data = "
 		   << rNumberOfEvents << ": less than number of requested events ( = " << NbOfReqEvts << ")" << endl;
 	    }
 	}
@@ -560,10 +429,11 @@ Int_t TEcnaWrite::NumberOfEventsAnalysis(Int_t**      T2d_NbOfEvts,   const Int_
 }//----- ( end of NumberOfEvents(...) ) ----------------
 
 void TEcnaWrite::RegisterFileParameters(const TString ArgAnaType,
-					const Int_t&  ArgNbOfSamples,       const Int_t& ArgRunNumber,
-					const Int_t&  ArgFirstReqEvtNumber, const Int_t& ArgLastReqEvtNumber,
-					const Int_t&  ArgReqNbOfEvts,       const Int_t& ArgStexNumber)
+				       const Int_t&  ArgNbOfSamples,       const Int_t& ArgRunNumber,
+				       const Int_t&  ArgFirstReqEvtNumber, const Int_t& ArgLastReqEvtNumber,
+				       const Int_t&  ArgReqNbOfEvts,       const Int_t& ArgStexNumber)
 {
+
   fAnaType           = ArgAnaType;
   fNbOfSamples       = ArgNbOfSamples;
   fRunNumber         = ArgRunNumber;
@@ -574,11 +444,11 @@ void TEcnaWrite::RegisterFileParameters(const TString ArgAnaType,
 }
 
 void TEcnaWrite::RegisterFileParameters(const TString ArgAnaType, 
-					const Int_t&  ArgNbOfSamples,       const Int_t&  ArgRunNumber,
-					const Int_t&  ArgFirstReqEvtNumber, const Int_t&  ArgLastReqEvtNumber,
-					const Int_t&  ArgReqNbOfEvts,       const Int_t&  ArgStexNumber,
-					const TString ArgStartDate,         const TString ArgStopDate,
-					const time_t  ArgStartTime,         const time_t  ArgStopTime)
+				       const Int_t&  ArgNbOfSamples,       const Int_t&  ArgRunNumber,
+				       const Int_t&  ArgFirstReqEvtNumber, const Int_t&  ArgLastReqEvtNumber,
+				       const Int_t&  ArgReqNbOfEvts,       const Int_t&  ArgStexNumber,
+				       const TString ArgStartDate,         const TString ArgStopDate,
+				       const time_t  ArgStartTime,         const time_t  ArgStopTime)
 {
   fAnaType           = ArgAnaType;
   fNbOfSamples       = ArgNbOfSamples;
@@ -689,7 +559,7 @@ void TEcnaWrite::fMakeResultsFileName(const Int_t&  i_code)
     }
 
   //===================================  A S C I I  ====================  (fMakeResultsFileName)
-  //fCnaParPaths->GetPathForResultsAsciiFiles();
+  
   if (i_code != fCodeRoot)
     {
       if (i_code == fCodeHeaderAscii)
@@ -849,10 +719,10 @@ void TEcnaWrite::fMakeResultsFileName(const Int_t&  i_code)
   
   if( i_code == fCodeAvTno)
     {
-      sprintf(f_in, "%s/%s_S1_%d_R%d_%d_%d_%d_%s%d_AverageTotalNoise_c%d",
+      sprintf(f_in, "%s/%s_S1_%d_R%d_%d_%d_%d_%s%d_AveragedTotalNoise_c%d",
 	      fCnaParPaths->ResultsAsciiFilePath().Data(), fAnaType.Data(), fNbOfSamples, fRunNumber,
 	      fFirstReqEvtNumber, fLastReqEvtNumber, fReqNbOfEvts, fStexName.Data(), fStexNumber, fStinEchaUser);
-      sprintf(f_in_short, "%s_S1_%d_R%d_%d_%d_%d_%s%d_AverageTotalNoise_c%d",
+      sprintf(f_in_short, "%s_S1_%d_R%d_%d_%d_%d_%s%d_AveragedTotalNoise_c%d",
 	      fAnaType.Data(), fNbOfSamples, fRunNumber,
 	      fFirstReqEvtNumber, fLastReqEvtNumber, fReqNbOfEvts, fStexName.Data(), fStexNumber, fStinEchaUser);
     }
@@ -879,30 +749,30 @@ void TEcnaWrite::fMakeResultsFileName(const Int_t&  i_code)
   
   if (i_code == fCodeAvPed)
     {
-      sprintf(f_in, "%s/%s_S1_%d_R%d_%d_%d_%d_%s%d_AveragePedestals",
+      sprintf(f_in, "%s/%s_S1_%d_R%d_%d_%d_%d_%s%d_AveragedPedestals",
 	      fCnaParPaths->ResultsAsciiFilePath().Data(), fAnaType.Data(), fNbOfSamples, fRunNumber,
 	      fFirstReqEvtNumber, fLastReqEvtNumber, fReqNbOfEvts, fStexName.Data(), fStexNumber);
-      sprintf(f_in_short, "%s_S1_%d_R%d_%d_%d_%d_%s%d_AveragePedestals",
+      sprintf(f_in_short, "%s_S1_%d_R%d_%d_%d_%d_%s%d_AveragedPedestals",
 	      fAnaType.Data(), fNbOfSamples, fRunNumber,
 	      fFirstReqEvtNumber, fLastReqEvtNumber, fReqNbOfEvts, fStexName.Data(), fStexNumber);
     }
   
   if (i_code == fCodeAvMeanCorss)
     {
-      sprintf(f_in, "%s/%s_S1_%d_R%d_%d_%d_%d_%s%d_AverageMeanCorss%d",
+      sprintf(f_in, "%s/%s_S1_%d_R%d_%d_%d_%d_%s%d_AveragedMeanCorss%d",
 	      fCnaParPaths->ResultsAsciiFilePath().Data(), fAnaType.Data(), fNbOfSamples, fRunNumber,
 	      fFirstReqEvtNumber, fLastReqEvtNumber, fReqNbOfEvts, fStexName.Data(), fStexNumber, fStinEchaUser);
-      sprintf(f_in_short, "%s_S1_%d_R%d_%d_%d_%d_%s%d_AverageMeanCorss%d",
+      sprintf(f_in_short, "%s_S1_%d_R%d_%d_%d_%d_%s%d_AveragedMeanCorss%d",
 	      fAnaType.Data(), fNbOfSamples, fRunNumber,
 	      fFirstReqEvtNumber, fLastReqEvtNumber, fReqNbOfEvts, fStexName.Data(), fStexNumber, fStinEchaUser);
     }
 
   if (i_code == fCodeAvSigCorss)
     {
-      sprintf(f_in, "%s/%s_S1_%d_R%d_%d_%d_%d_%s%d_AverageSigmaCorss%d",
+      sprintf(f_in, "%s/%s_S1_%d_R%d_%d_%d_%d_%s%d_AveragedSigmaCorss%d",
 	      fCnaParPaths->ResultsAsciiFilePath().Data(), fAnaType.Data(), fNbOfSamples, fRunNumber,
 	      fFirstReqEvtNumber, fLastReqEvtNumber, fReqNbOfEvts, fStexName.Data(), fStexNumber, fStinEchaUser);
-      sprintf(f_in_short, "%s_S1_%d_R%d_%d_%d_%d_%s%d_AverageSigmaCorss%d",
+      sprintf(f_in_short, "%s_S1_%d_R%d_%d_%d_%d_%s%d_AveragedSigmaCorss%d",
 	      fAnaType.Data(), fNbOfSamples, fRunNumber,
 	      fFirstReqEvtNumber, fLastReqEvtNumber, fReqNbOfEvts, fStexName.Data(), fStexNumber, fStinEchaUser);
     } 
@@ -1251,7 +1121,8 @@ void TEcnaWrite::WriteAsciiHisto(const TString HistoCode, const Int_t& HisSize,
       aSpecifd  = "   SC #   "; aSpecife  = "Sector";
     }
   
-  //.............................................................. WriteAsciiHisto
+  //........................................................ WriteAsciiHisto
+
   for (Int_t i0StexEcha=0; i0StexEcha<HisSize; i0StexEcha++)
     {
       Int_t n1StexStin   = 0;
@@ -1282,13 +1153,13 @@ void TEcnaWrite::WriteAsciiHisto(const TString HistoCode, const Int_t& HisSize,
 	{
 	  if( (fFlagSubDet == "EB" && i0StinEcha == 0) || (fFlagSubDet == "EE" && n1StinEcha == 1) )
 	    {
-	      if( HistoCode == "D_NOE_ChNb" ){aSpecif1 = "Number of"; aSpecif2 = "     events (requested)";}
+	      if( HistoCode == "D_NOE_ChNb" ){aSpecif1 = "Number of"; aSpecif2 = "     Events (requested)";}
 	      if( HistoCode == "D_Ped_ChNb" ){aSpecif1 = "Pedestals"; aSpecif2 = "             ";}
-	      if( HistoCode == "D_TNo_ChNb" ){aSpecif1 = "   Total "; aSpecif2 = "   noise     ";}
-	      if( HistoCode == "D_MCs_ChNb" ){aSpecif1 = "    Mean "; aSpecif2 = "   cor(s,s)  ";}
-	      if( HistoCode == "D_LFN_ChNb" ){aSpecif1 = "   Low Fq"; aSpecif2 = "   noise     ";}
-	      if( HistoCode == "D_HFN_ChNb" ){aSpecif1 = "  High Fq"; aSpecif2 = "   noise     ";}
-	      if( HistoCode == "D_SCs_ChNb" ){aSpecif1 = " Sigma of"; aSpecif2 = "   cor(s,s)  ";}
+	      if( HistoCode == "D_TNo_ChNb" ){aSpecif1 = "   Total "; aSpecif2 = "   Noise     ";}
+	      if( HistoCode == "D_MCs_ChNb" ){aSpecif1 = " Mean of "; aSpecif2 = "   Cor(s,s)  ";}
+	      if( HistoCode == "D_LFN_ChNb" ){aSpecif1 = "   Low Fq"; aSpecif2 = "   Noise     ";}
+	      if( HistoCode == "D_HFN_ChNb" ){aSpecif1 = "  High Fq"; aSpecif2 = "   Noise     ";}
+	      if( HistoCode == "D_SCs_ChNb" ){aSpecif1 = " Sigma of"; aSpecif2 = "   Cor(s,s)  ";}
 	      
 	      fFcout_f << endl;
 	  
@@ -1322,13 +1193,12 @@ void TEcnaWrite::WriteAsciiHisto(const TString HistoCode, const Int_t& HisSize,
 	    }
 	  if( fFlagSubDet == "EE" )
 	    {
-	      Int_t n1StinEcha_m = n1StinEcha-1;
 	      fFcout_f  << setw(7)  << n1DataSector
 			<< setw(8)  << n1StexStin
 			<< setw(11) << n1StinEcha   // (Xtal number for construction in SC)
 			<< setw(10) << n1SCinDS
-			<< setw(10) << fEcalNumbering->GetIXCrysInDee(fStexNumber, StexStinEcna, n1StinEcha_m)
-			<< setw(10) << fEcalNumbering->GetJYCrysInDee(fStexNumber, StexStinEcna, n1StinEcha_m);
+			<< setw(10) << fEcalNumbering->GetIXCrysInDee(fStexNumber, StexStinEcna, n1StinEcha-1)
+			<< setw(10) << fEcalNumbering->GetJYCrysInDee(fStexNumber, StexStinEcna, n1StinEcha-1);
 	    }
 
 	  if( HistoCode == "D_NOE_ChNb")
@@ -1607,8 +1477,7 @@ void  TEcnaWrite::fT2dWriteAscii(const Int_t&    i_code,
   if( fFlagSubDet == "EE")
     {
       n1StexStin = fStexStinUser;
-      Int_t fStinEchaUser_m = fStinEchaUser-1;
-      n1StinEcha = fEcalNumbering->Get1SCEchaFrom0DeeEcha(fStinEchaUser_m);
+      n1StinEcha = fEcalNumbering->Get1SCEchaFrom0DeeEcha(fStinEchaUser-1);
       
       TString sDeeDir = fEcalNumbering->GetDeeDirViewedFromIP(fStexNumber);
     }

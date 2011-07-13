@@ -19,7 +19,7 @@ namespace spr{
 
   // Basic cone energy cluster for hcal simhits and hcal rechits
   template <typename T>
-  double eCone_hcal(const CaloGeometry* geo, edm::Handle<T>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, int& nRecHits, double hbThr=-100, double heThr=-100, double hfThr=-100, double hoThr=-100, double tMin=-500, double tMax=500);
+  double eCone_hcal(const CaloGeometry* geo, edm::Handle<T>& hits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, int& nRecHits);
 
   // Cone energy cluster for hcal simhits and hcal rechits
   // that returns vector of rechit IDs and hottest cell info
@@ -35,7 +35,7 @@ namespace spr{
 
   // Basic cone energy clustering for Ecal
   template <typename T>
-  double eCone_ecal(const CaloGeometry* geo, edm::Handle<T>& barrelhits, edm::Handle<T>& endcaphits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, int& nRecHits, double ebThr=-100, double eeThr=-100, double tMin=-500, double tMax=500);
+  double eCone_ecal(const CaloGeometry* geo, edm::Handle<T>& barrelhits, edm::Handle<T>& endcaphits, const GlobalPoint& hpoint1, const GlobalPoint& point1, double dR, const GlobalVector& trackMom, int& nRecHits);
 
 }
 

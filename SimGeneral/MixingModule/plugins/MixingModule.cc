@@ -291,6 +291,8 @@ namespace edm
     for (unsigned int branch=0;branch<wantedBranches_.size();++branch) LogDebug("MixingModule")<<"Will keep branch "<<wantedBranches_[branch]<<" for mixing ";
   
     dropUnwantedBranches(wantedBranches_);
+
+    produces<PileupMixingContent>();
     
     produces<CrossingFramePlaybackInfoExtended>();
   }
@@ -363,11 +365,34 @@ namespace edm
 	  workers_[ii]->setSourceOffset(isource);	  
 	  if (doit_[isource])   {
 	    merge(bunchCrossing, (pileup_[isource])[bunchCrossing-minBunch_],ii,setup);
-	  }	
-	}
+	  }
+	}	
       }
     }
+
+    std::auto_ptr< PileupMixingContent > PileupMixing_;
     
+    std::vector<int> bunchCrossingList;
+    std::vector<int> numInteractionList;
+    
+    //Makin' a list:
+    for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
+      bunchCrossingList.push_back(bunchCrossing);
+      if(!doit_[0]) {
+        numInteractionList.push_back(0);
+      }
+      else {
+        numInteractionList.push_back(((pileup_[0])[bunchCrossing-minBunch_]).size());
+      }
+    }
+
+    
+    PileupMixing_ = std::auto_ptr< PileupMixingContent >(new PileupMixingContent( bunchCrossingList,
+										  numInteractionList));
+
+    e.put(PileupMixing_);
+
+
     // we have to do the ToF transformation for PSimHits once all pileup has been added
       for (unsigned int ii=0;ii<workers_.size();ii++) {
         //not apply setTof in Step2 mode because it was done in the Step1

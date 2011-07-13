@@ -5,7 +5,6 @@
 
 #include "DataFormats/METReco/interface/MET.h"
 #include "TVector.h"
-#include "TMatrix.h"
 
 using namespace std;
 using namespace reco;

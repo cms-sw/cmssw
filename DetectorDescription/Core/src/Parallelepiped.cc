@@ -1,6 +1,6 @@
 #include "DetectorDescription/Core/src/Parallelepiped.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
-
+#include <DataFormats/GeometryVector/interface/Pi.h>
 #include <ostream>
 #include <cmath>
 

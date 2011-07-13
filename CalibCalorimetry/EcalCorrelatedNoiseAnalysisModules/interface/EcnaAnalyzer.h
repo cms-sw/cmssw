@@ -16,9 +16,10 @@
 //
 // Original Author:  Bernard Fabbro
 //         Created:  Fri Jun  2 10:27:01 CEST 2006
-// $Id: EcnaAnalyzer.h,v 1.1 2010/04/09 08:57:35 fabbro Exp $
+// $Id: EcnaAnalyzer.h,v 1.2 2007/07/13 12:11:58 fabbro Exp $
 //
 //
+
 
 // system include files
 #include <memory>
@@ -31,7 +32,6 @@
 #include "Riostream.h"
 
 #include <sys/time.h>
-#include <signal.h>
 
 // ROOT include files
 #include "TObject.h"
@@ -67,58 +67,9 @@
 #include "DataFormats/EcalRawData/interface/EcalRawDataCollections.h"
 
 // user include files
-#include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaObject.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaRun.h"
-#include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParPaths.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParEcal.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaNumbering.h"
-
-///-----------------------------------------------------------
-///   EcnaAnalyzer.h
-///   Update: 16/02/2011
-///   Authors:   B.Fabbro (bernard.fabbro@cea.fr)
-///              DSM/IRFU/SPP CEA-Saclay
-///   Copyright: Those valid for CEA sofware
-///
-///   ECNA web page:
-///     http://cms-fabbro.web.cern.ch/cms-fabbro/
-///     cna_new/Correlated_Noise_Analysis/ECNA_cna_1.htm
-///-----------------------------------------------------------
-///
-///----------------------------------- Analysis name codes ------------------------------------------
-///   
-///      TString  AnalysisName: code for the analysis. According to this code,
-///                             the analyzer selects the event type 
-///                             (PEDESTAL_STD, PEDESTAL_GAP, LASER_STD, etc...)
-///                             and some other event characteristics
-///                             (example: the gain in pedestal runs:
-///                              AnalysisName = "Ped1" or "Ped6" or "Ped12")
-///                             The string AnalysisName is automatically
-///                             included in the name of the results files
-///
-///                  AnalysisName  RunType         Gain    DBLS (Dynamic BaseLine Substraction)
-///                  ..........................................
-///
-///                  AdcPed1       fPEDESTAL_STD      3    No
-///                  AdcPed6       fPEDESTAL_STD      2    No
-///                  AdcPed12      fPEDESTAL_STD      1    No
-///
-///                  AdcPeg12      fPEDESTAL_GAP      1    No
-///
-///                  AdcLaser      fLASER_STD         0    No
-///                  AdcPes12      fPEDSIM            0    No
-///
-///
-///                  AdcSPed1      fPEDESTAL_STD      3    Yes
-///                  AdcSPed6      fPEDESTAL_STD      2    Yes
-///                  AdcSPed12     fPEDESTAL_STD      1    Yes
-///
-///                  AdcSPeg12     fPEDESTAL_GAP      1    Yes
-///
-///                  AdcSLaser     fLASER_STD         0    Yes
-///                  AdcSPes12     fPEDSIM            0    Yes
-///
-///--------------------------------------------------------------------------------------------------
 
 //
 // class declaration
@@ -171,8 +122,7 @@ class EcnaAnalyzer : public edm::EDAnalyzer {
   Int_t   fCurrentEventNumber;
   Int_t   fNbOfSelectedEvents;
 
-  Int_t*   fBuildEventDistribBad;
-  Int_t*   fBuildEventDistribGood;
+  Int_t   fBadBuildCnaRun;
 
   TString  fCfgAnalyzerParametersFilePath;  // absolute path for the analyzer parameters files (/afs/etc...)
   TString  fCfgAnalyzerParametersFileName;  // name of the analyzer parameters file 
@@ -239,9 +189,6 @@ class EcnaAnalyzer : public edm::EDAnalyzer {
 
   Int_t* fMemoDateFirstEvent;
 
-  TEcnaObject* fMyEcnaEBObjectManager;
-  TEcnaObject* fMyEcnaEEObjectManager;
-
   TEcnaRun** fMyCnaEBSM;
   TEcnaRun** fMyCnaEEDee;
 
@@ -250,6 +197,8 @@ class EcnaAnalyzer : public edm::EDAnalyzer {
 
   TEcnaNumbering* fMyEENumbering; 
   TEcnaParEcal*   fMyEEEcal; 
+
+  TEcnaParPaths*  fCnaParPaths;
 
   //  Int_t** fT2d_LastEvt; // 2D array[channel][sample] max nb of evts read for a given (channel,sample) 
   //  Int_t*  fT1d_LastEvt;

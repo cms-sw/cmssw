@@ -7,19 +7,15 @@
 
 */
 
-namespace reco {
-  namespace castor {
-    class QieShape;
-  }
-}
+class QieShape;
 
 class CastorChannelCoder {
  public:
   CastorChannelCoder (const float fOffset [16], const float fSlope [16]); // [CapId][Range]
   /// ADC[0..127]+capid[0..3]->fC conversion
-  double charge (const reco::castor::QieShape& fShape, int fAdc, int fCapId) const;
+  double charge (const QieShape& fShape, int fAdc, int fCapId) const;
   /// fC + capid[0..3] -> ADC conversion
-  int adc (const reco::castor::QieShape& fShape, double fCharge, int fCapId) const;
+  int adc (const QieShape& fShape, double fCharge, int fCapId) const;
   int index (int fCapId, int Range) {return fCapId*4+Range;}
  private:
   double mOffset [4][4];

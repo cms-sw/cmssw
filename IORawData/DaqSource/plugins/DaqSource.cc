@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2011/02/14 15:29:39 $
- *  $Revision: 1.47 $
+ *  $Date: 2011/04/27 16:03:59 $
+ *  $Revision: 1.49 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -18,6 +18,7 @@
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
@@ -198,8 +199,9 @@ namespace edm {
 	unsigned int nextLsFromSignal = (-1)*retval+1;
 // 	std::cout << getpid() << "::got end-of-lumi for " << (-1)*retval
 // 		  << " was " << luminosityBlockNumber_ << std::endl;
-	if(luminosityBlockNumber_ < nextLsFromSignal)
+	if(luminosityBlockNumber_ == (nextLsFromSignal-1) )
 	  {
+	    lastLumiUsingEol_->value_ = nextLsFromSignal;
 	    if(lsToBeRecovered_->value_){
 // 	      std::cout << getpid() << "eol::recover ls::for " << (-1)*retval << std::endl;
 	      signalWaitingThreadAndBlock();
@@ -220,6 +222,11 @@ namespace edm {
 	      resetLuminosityBlockAuxiliary();
 	    }
 	  }
+	else if(nextLsFromSignal >(luminosityBlockNumber_+100) ) {
+	  edm::LogError("DaqSource") << "Got EOL event with value " << retval 
+				     << " nextLS would be " << nextLsFromSignal 
+				     << " while we expected " << luminosityBlockNumber_+1 << " - disregarding... "; 
+	}
 	//	else
 	//	  std::cout << getpid() << "::skipping end-of-lumi for " << (-1)*retval << std::endl;
       }
@@ -435,6 +442,7 @@ namespace edm {
     lumiSectionIndex_      = (xdata::UnsignedInteger32*)is_->find("lumiSectionIndex");
     prescaleSetIndex_      = (xdata::UnsignedInteger32*)is_->find("prescaleSetIndex");
     lastLumiPrescaleIndex_ = (xdata::UnsignedInteger32*)is_->find("lastLumiPrescaleIndex");
+    lastLumiUsingEol_ = (xdata::UnsignedInteger32*)is_->find("lastLumiUsingEol");
     lsTimedOut_            = (xdata::Boolean*)is_->find("lsTimedOut");
     lsToBeRecovered_       = (xdata::Boolean*)is_->find("lsToBeRecovered");
   }

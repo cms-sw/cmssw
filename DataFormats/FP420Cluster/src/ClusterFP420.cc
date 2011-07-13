@@ -16,11 +16,8 @@ using namespace std;
 //static float const_ps1s2[3] =  {0.050,.0139,0.0045};// pitch, sigma_1channelCluster, sigma_2channelsCluster - Narrow , mm
 //static float constW_ps1s2[3] = {0.400,.0920,0.0280};// pitch, sigma_1channelCluster, sigma_2channelsCluster - Wide , mm
 
-static float const_ps1s2[3] =  {0.100,.0266,0.0230};// pitch, sigma_1channelCluster, sigma_2channelsCluster - Narrow , mm
-static float constW_ps1s2[3] = {0.150,.0418,0.0264};// pitch, sigma_1channelCluster, sigma_2channelsCluster - Wide , mm
-
-//static float const_ps1s2[3] =  {0.050,.0135,0.0086};// pitch, sigma_1channelCluster, sigma_2channelsCluster - Narrow , mm
-//static float constW_ps1s2[3] = {0.400,.1149,0.0648};// pitch, sigma_1channelCluster, sigma_2channelsCluster - Wide , mm
+static float const_ps1s2[3] =  {0.050,.0135,0.0086};// pitch, sigma_1channelCluster, sigma_2channelsCluster - Narrow , mm
+static float constW_ps1s2[3] = {0.400,.1149,0.0648};// pitch, sigma_1channelCluster, sigma_2channelsCluster - Wide , mm
 
 // sense of xytype here is X or Y type planes. Now we are working with X only, i.e. xytype=2
 ClusterFP420::ClusterFP420( unsigned int detid, unsigned int xytype, const HDigiFP420Range& range, 

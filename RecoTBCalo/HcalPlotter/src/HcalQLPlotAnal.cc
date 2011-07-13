@@ -13,7 +13,7 @@
 //
 // Original Author:  Phillip R. Dudero
 //         Created:  Tue Jan 16 21:11:37 CST 2007
-// $Id: HcalQLPlotAnal.cc,v 1.5 2007/12/31 18:43:18 ratnik Exp $
+// $Id: HcalQLPlotAnal.cc,v 1.4 2007/05/22 18:50:30 dudero Exp $
 //
 //
 
@@ -79,7 +79,8 @@ HcalQLPlotAnal::HcalQLPlotAnal(const edm::ParameterSet& iConfig) :
   calibFC2GeV_(iConfig.getUntrackedParameter<double>("calibFC2GeV",0.2))
 {
   algo_ = new
-    HcalQLPlotAnalAlgos(iConfig.getParameter<edm::ParameterSet>("HistoParameters"));
+    HcalQLPlotAnalAlgos(iConfig.getUntrackedParameter<std::string>("outputFilename").c_str(),
+			iConfig.getParameter<edm::ParameterSet>("HistoParameters"));
 }
 
 

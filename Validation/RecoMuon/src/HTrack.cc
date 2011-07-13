@@ -290,7 +290,7 @@ void HTrack::computePull(FreeTrajectoryState &fts,
 			 HResolution* hReso){
 
   // x,y,z, px,py,pz
-  AlgebraicSymMatrix66 const & errors = fts.cartesianError().matrix();
+  AlgebraicSymMatrix errors = fts.cartesianError().matrix_old();
   
   double partialPterror = errors[3][3]*pow(fts.momentum().x(),2) + errors[4][4]*pow(fts.momentum().y(),2);
   
@@ -300,9 +300,9 @@ void HTrack::computePull(FreeTrajectoryState &fts,
   // sqrt( (px*spx)^2 + (py*spy)^2 + (pz*spz)^2 ) / p
   double perror = sqrt(partialPterror+errors[5][5]*pow(fts.momentum().z(),2))/fts.momentum().mag();
 
-  double phierror = sqrt(fts.curvilinearError().matrix()[2][2]);
+  double phierror = sqrt(fts.curvilinearError().matrix_old()[2][2]);
 
-  double etaerror = sqrt(fts.curvilinearError().matrix()[1][1])*abs(sin(fts.momentum().theta()));
+  double etaerror = sqrt(fts.curvilinearError().matrix_old()[1][1])*abs(sin(fts.momentum().theta()));
 
 
   hReso->Fill(simTrack.momentum().mag(),

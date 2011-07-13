@@ -2,8 +2,8 @@
  *  Class:DQMGenericClient 
  *
  *
- *  $Date: 2011/02/24 04:51:41 $
- *  $Revision: 1.25 $
+ *  $Date: 2011/03/30 20:31:17 $
+ *  $Revision: 1.26 $
  * 
  *  \author Junghwan Goh - SungKyunKwan University
  */
@@ -757,7 +757,10 @@ void DQMGenericClient::limitedFit(MonitorElement * srcME, MonitorElement * meanM
 //=================================
 
 void DQMGenericClient::findAllSubdirectories (std::string dir, std::set<std::string> * myList, TString pattern = "") {
-
+  if (!theDQM->dirExists(dir)) {
+    LogInfo("DQMGenericClient") << " DQMGenericClient::findAllSubdirectories ==> Missing folder " << dir << " !!!"; 
+    return;
+  }
   if (pattern != "") {
     if (pattern.Contains(nonPerlWildcard)) pattern.ReplaceAll("*",".*");
     TPRegexp regexp(pattern);
