@@ -11,6 +11,7 @@
 #include "HLTrigger/Egamma/interface/HLTElectronPixelMatchFilter.h"
 #include "HLTrigger/Egamma/interface/HLTElectronPFMTFilter.h"
 #include "HLTrigger/Egamma/interface/HLTPMMassFilter.h"
+#include "HLTrigger/Egamma/interface/HLTElectronMuonInvMassFilter.h"
 #include "HLTrigger/Egamma/interface/HLTPMDocaFilter.h"
 
 #include "HLTrigger/Egamma/interface/HLTEgammaL1MatchFilterRegional.h"
@@ -35,6 +36,7 @@ DEFINE_FWK_MODULE(HLTEgammaDoubleEtFilter);
 DEFINE_FWK_MODULE(HLTElectronPixelMatchFilter);
 DEFINE_FWK_MODULE(HLTElectronPFMTFilter);
 DEFINE_FWK_MODULE(HLTPMMassFilter);
+DEFINE_FWK_MODULE(HLTElectronMuonInvMassFilter);
 DEFINE_FWK_MODULE(HLTPMDocaFilter);
 
 DEFINE_FWK_MODULE(HLTEgammaL1MatchFilterRegional);
