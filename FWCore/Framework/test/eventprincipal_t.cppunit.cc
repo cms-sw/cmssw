@@ -85,7 +85,6 @@ private:
 
   boost::shared_ptr<edm::ProductRegistry>   pProductRegistry_;
   boost::shared_ptr<edm::EventPrincipal>    pEvent_;
-  std::vector<edm::ProductID> contained_products_;
 
   edm::EventID               eventID_;
 };
@@ -233,9 +232,7 @@ void test_ep::failgetbyIdTest() {
 }
 
 void test_ep::failgetbySelectorTest() {
-  // We don't put ProductIDs into the EventPrincipal,
-  // so that's a type sure not to match any product.
-  edm::ProductID dummy;
+  edmtest::IntProduct dummy;
   edm::TypeID tid(dummy);
 
   edm::ProcessNameSelector pnsel("PROD");
@@ -244,9 +241,7 @@ void test_ep::failgetbySelectorTest() {
 }
 
 void test_ep::failgetbyLabelTest() {
-  // We don't put ProductIDs into the EventPrincipal,
-  // so that's a type sure not to match any product.
-  edm::ProductID dummy;
+  edmtest::IntProduct dummy;
   edm::TypeID tid(dummy);
 
   std::string label("this does not exist");
@@ -258,9 +253,7 @@ void test_ep::failgetbyLabelTest() {
 }
 
 void test_ep::failgetManyTest() {
-  // We don't put ProductIDs into the EventPrincipal,
-  // so that's a type sure not to match any product.
-  edm::ProductID dummy;
+  edmtest::IntProduct dummy;
   edm::TypeID tid(dummy);
 
   edm::ProcessNameSelector sel("PROD");
@@ -270,16 +263,14 @@ void test_ep::failgetManyTest() {
 }
 
 void test_ep::failgetbyTypeTest() {
-  edm::ProductID dummy;
+  edmtest::IntProduct dummy;
   edm::TypeID tid(dummy);
   edm::BasicHandle h(pEvent_->getByType(tid));
   CPPUNIT_ASSERT(h.failedToGet());
 }
 
 void test_ep::failgetManybyTypeTest() {
-  // We don't put ProductIDs into the EventPrincipal,
-  // so that's a type sure not to match any product.
-  edm::ProductID dummy;
+  edmtest::IntProduct dummy;
   edm::TypeID tid(dummy);
   std::vector<edm::BasicHandle > handles;
 
