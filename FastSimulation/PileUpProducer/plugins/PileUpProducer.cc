@@ -46,6 +46,7 @@ PileUpProducer::PileUpProducer(edm::ParameterSet const & p) : hprob(0)
   // The pile-up event generation condition
   const edm::ParameterSet& pu = p.getParameter<edm::ParameterSet>("PileUpSimulator");
   usePoisson_ = pu.getParameter<bool>("usePoisson");
+  averageNumber_ = 0.;
   if (usePoisson_) {
     std::cout << " FastSimulation/PileUpProducer -> poissonian distribution" << std::endl;
     averageNumber_ = pu.getParameter<double>("averageNumber");
@@ -240,10 +241,10 @@ void PileUpProducer::produce(edm::Event & iEvent, const edm::EventSetup & es)
   std::vector<int> numInteractionList;
   numInteractionList.push_back(PUevts);
   
-  std::vector<float> trueNumInteractionList;
-  trueNumInteractionList.push_back(averageNumber_);
+  std::vector<float> trueInteractionList;
+  trueInteractionList.push_back((float)averageNumber_);
   
-  PileupMixing_ = std::auto_ptr< PileupMixingContent >(new PileupMixingContent(bunchCrossingList,numInteractionList,trueNumInteractionList));
+  PileupMixing_ = std::auto_ptr< PileupMixingContent >(new PileupMixingContent(bunchCrossingList,numInteractionList,trueInteractionList));
   iEvent.put(PileupMixing_);
 
   // Get N events from random files
