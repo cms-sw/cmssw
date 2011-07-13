@@ -1,5 +1,6 @@
 #include "FWCore/Utilities/interface/ReflexTools.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include "Api.h" // for G__ClassInfo
 #include "Reflex/Base.h"
@@ -120,13 +121,6 @@ namespace edm {
     void
     checkType(Type t, bool noComponents = false) {
 
-      // The only purpose of this cache is to stop infinite recursion.
-      // Reflex maintains its own internal cache.
-      static boost::thread_specific_ptr<StringSet> found_types;
-      if(0 == found_types.get()) {
-        found_types.reset(new StringSet);
-      }
-
       // ToType strips const, volatile, array, pointer, reference, etc.,
       // and also translates typedefs.
       // To be safe, we do this recursively until we either get a null type
@@ -137,26 +131,26 @@ namespace edm {
       std::string name = t.Name(SCOPED);
       boost::trim(name);
 
-      if(found_types->end() != found_types->find(name) || missingTypes().end() != missingTypes().find(name)) {
+      if(foundTypes().end() != foundTypes().find(name) || missingTypes().end() != missingTypes().find(name)) {
         // Already been processed. Prevents infinite loop.
         return;
       }
 
       if(name.empty() || t.IsFundamental() || t.IsEnum()) {
-        found_types->insert(name);
+        foundTypes().insert(name);
         return;
       }
 
       if(!bool(t)) {
         if(hasCintDictionary(name)) {
-          found_types->insert(name);
+          foundTypes().insert(name);
         } else {
           missingTypes().insert(name);
         }
         return;
       }
 
-      found_types->insert(name);
+      foundTypes().insert(name);
       if(noComponents) return;
 
       if(name.find("std::") == 0) {
@@ -195,6 +189,16 @@ namespace edm {
     return *missingTypes_.get();
   }
 
+  StringSet& foundTypes() {
+    // The only purpose of this cache is to stop infinite recursion.
+    // Reflex maintains its own internal cache.
+    static boost::thread_specific_ptr<StringSet> foundTypes_;
+    if(0 == foundTypes_.get()) {
+      foundTypes_.reset(new StringSet);
+    }
+    return *foundTypes_.get();
+  }
+
   void checkDictionaries(std::string const& name, bool noComponents) {
     Type null;
     Type t = Type::ByName(name);
@@ -203,6 +207,28 @@ namespace edm {
       return;
     }
     checkType(Type::ByName(name), noComponents);
+  }
+
+  void throwMissingDictionariesException() {
+    if(!missingTypes().empty()) {
+      std::ostringstream ostr;
+      for (StringSet::const_iterator it = missingTypes().begin(), itEnd = missingTypes().end();
+           it != itEnd; ++it) {
+        ostr << *it << "\n\n";
+      }
+      throw Exception(errors::DictionaryNotFound)
+        << "No REFLEX data dictionary found for the following classes:\n\n"
+        << ostr.str()
+        << "Most likely each dictionary was never generated,\n"
+        << "but it may be that it was generated in the wrong package.\n"
+        << "Please add (or move) the specification\n"
+        << "<class name=\"whatever\"/>\n"
+        << "to the appropriate classes_def.xml file.\n"
+        << "If the class is a template instance, you may need\n"
+        << "to define a dummy variable of this type in classes.h.\n"
+        << "Also, if this class has any transient members,\n"
+        << "you need to specify them in classes_def.xml.";
+    }
   }
 
   void public_base_classes(Type const& type,

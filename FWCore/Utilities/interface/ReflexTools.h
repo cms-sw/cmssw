@@ -54,7 +54,9 @@ namespace edm {
 		     Reflex::Type& value_type);
 
   void checkDictionaries(std::string const& name, bool noComponents = false);
+  void throwMissingDictionariesException();
   StringSet& missingTypes();
+  StringSet& foundTypes();
 
   void public_base_classes(Reflex::Type const& type,
                            std::vector<Reflex::Type>& baseTypes);
