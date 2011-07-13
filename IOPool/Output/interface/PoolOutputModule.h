@@ -107,7 +107,7 @@ namespace edm {
     virtual void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
     virtual bool isFileOpen() const;
     virtual void doOpenFile();
-
+    virtual void beginJob();
 
     virtual void startEndFile();
     virtual void writeFileFormatVersion();

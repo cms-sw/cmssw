@@ -13,7 +13,9 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/ReflexTools.h"
 #include "FWCore/Utilities/interface/TimeOfDay.h"
+#include "FWCore/Utilities/interface/WrappedClassName.h"
 
 #include "TTree.h"
 #include "TBranchElement.h"
@@ -85,10 +87,20 @@ namespace edm {
     pset.getUntrackedParameterSet("dataset");
   }
 
+  void PoolOutputModule::beginJob() {
+    for(int i = InEvent; i < NumBranchTypes; ++i) {
+      BranchType branchType = static_cast<BranchType>(i);
+      Selections const& keptVector = keptProducts()[branchType];
+      for(Selections::const_iterator it = keptVector.begin(), itEnd = keptVector.end(); it != itEnd; ++it) {
+        BranchDescription const& prod = **it;
+        checkDictionaries(wrappedClassName(prod.fullClassName()), false);
+      }
+    }
+  }
+
   std::string const& PoolOutputModule::currentFileName() const {
     return rootOutputFile_->fileName();
   }
-
 
   PoolOutputModule::AuxItem::AuxItem() :
         basketSize_(BranchDescription::invalidBasketSize) {}
@@ -140,7 +152,7 @@ namespace edm {
 
   void PoolOutputModule::fillSelectedItemList(BranchType branchType, TTree* theInputTree) {
 
-    Selections const& keptVector =    keptProducts()[branchType];
+    Selections const& keptVector = keptProducts()[branchType];
     OutputItemList&   outputItemList = selectedOutputItemList_[branchType];
     AuxItem&   auxItem = auxItems_[branchType];
 
