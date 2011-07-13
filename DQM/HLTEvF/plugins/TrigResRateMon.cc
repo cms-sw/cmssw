@@ -1,4 +1,4 @@
-// $Id: TrigResRateMon.cc,v 1.13 2011/06/22 20:06:04 slaunwhj Exp $
+// $Id: TrigResRateMon.cc,v 1.14 2011/06/30 08:54:05 slaunwhj Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "TString.h"
@@ -158,6 +158,16 @@ TrigResRateMon::TrigResRateMon(const edm::ParameterSet& iConfig): currentRun_(-9
   pathsIndividualHLTPathsPerLSFolder_ = iConfig.getUntrackedParameter ("individualPathsPerLSFolder",std::string("HLT/TrigResults/PathsSummary/HLT LS/Paths/"));
   pathsSummaryHLTPathsPerBXFolder_ = iConfig.getUntrackedParameter ("individualPathsPerBXFolder",std::string("HLT/TrigResults/PathsSummary/HLT BX/"));
 
+
+  // mask off some of the paths so that they don't appear in the plots
+
+  maskedPaths_ = iConfig.getParameter<std::vector<std::string > >("MaskedPaths");
+
+  referenceTrigInput_ = iConfig.getParameter<std::string> ("ReferenceTrigger");
+  foundReferenceTrigger_ = false;
+
+
+  
   fLumiFlag = true;
   ME_HLTAll_LS = NULL;
   ME_HLT_BX = NULL;
@@ -376,7 +386,7 @@ void TrigResRateMon::beginRun(const edm::Run& run, const edm::EventSetup& c)
     // JMS fill the counts per path
     bookCountsPerPath();
     clearLumiAverage();
-
+    findReferenceTriggerIndex();
     meAverageLumiPerLS = dbe->book1D("InstLumiVsLS", "Instantaneous Luminosity vs LumiSec;LS;#mub^{-1}*s^{-1}", nLS_, 0.5, nLS_+0.5);
     if (plotAll_){
 
@@ -646,6 +656,10 @@ void TrigResRateMon::beginRun(const edm::Run& run, const edm::EventSetup& c)
       tempDS.setPaths(datasetPaths);
       tempDS.countsPerPathME_Name = pathsSummaryFolder_ + "HLT_" + datasetNames[i] + "_Pass_Any";
       tempDS.xsecPerPathME_Name = pathsSummaryFolder_ + "HLT_" + datasetNames[i] + "_Xsec";
+      tempDS.rawCountsPerPathME_Name = pathsSummaryFolder_ + "HLT_" + datasetNames[i] + "_RawCounts";
+      tempDS.scaledXsecPerPathME_Name = pathsSummaryFolder_ + "HLT_" + datasetNames[i] + "_XsecScaled";
+      tempDS.setMaskedPaths(maskedPaths_);
+      if (jmsDebug) tempDS.printMaskedPaths();
       primaryDataSetInformation.push_back(tempDS);
     }
 
@@ -996,24 +1010,45 @@ void TrigResRateMon::setupHltMatrix(const std::string& label, vector<std::string
     dbe_->setCurrentFolder(pathsSummaryFolder_.c_str());
 
     h_name= "HLT_"+label+"_PassPass";
-    h_title = "HLT_"+label+"_PassPass (x=Pass, y=Pass)";
+    h_title = "HLT_"+label+"_PassPass (x=Pass, y=Pass);;; ";
     MonitorElement* ME = dbe_->book2D(h_name.c_str(), h_title.c_str(),
                            paths.size(), -0.5, paths.size()-0.5, paths.size(), -0.5, paths.size()-0.5);
 
     // This is counts per path per for a specific PD
+    // it will be corrected for prescales
     h_name= "HLT_"+label+"_Pass_Any";
-    h_title = "HLT_"+label+"_Pass (x=Pass, Any=Pass) normalized to HLT_Any Pass";
+    h_title = "HLT_"+label+"_Pass -- Prescale*Counts Per Path;Path;PS*Counts";
     MonitorElement* ME_Any = dbe_->book1D(h_name.c_str(), h_title.c_str(),
                            paths.size(), -0.5, paths.size()-0.5);
+
+    // This is RAW counts per path per for a specific PD
+    // it will be corrected for
+    h_name= "HLT_"+label+"_RawCounts";
+    h_title = "HLT_"+label+"_Pass (x=Pass, An) normalized to HLT_Any Pass;;Counts";
+    MonitorElement* ME_RawCounts = dbe_->book1D(h_name.c_str(), h_title.c_str(),
+                           paths.size(), -0.5, paths.size()-0.5);
+
 
     // Make a similar histogram that is xsec per path for a specific PD
     // this is actually a profile of the average xsec per path 
     h_name= "HLT_"+label+"_Xsec";
-    h_title = "HLT_"+label+"_Xsec -- Average Xsec per path";
+    h_title = "HLT_"+label+"_Xsec -- Profile shows Average Xsec per path;;#sigma (#mu b)";
 
     TProfile tempProfile(h_name.c_str(), h_title.c_str(),
                          paths.size(), -0.5, paths.size()-0.5);
     MonitorElement* ME_Xsec = dbe_->bookProfile(h_name.c_str(), &tempProfile);
+
+
+    // Make a similar histogram that is xsec per path for a specific PD
+    // this is actually a profile of the average xsec per path
+    // this histogram is scaled to the cross section of a reference path
+    h_name= "HLT_"+label+"_XsecScaled";
+    h_title = "HLT_"+label+"_Xsec -- Profile shows Average Xsec per path Scaled to Reference;;Ratio (#sigma/#sigma_{ref}";
+
+    TProfile tempProfileScaled(h_name.c_str(), h_title.c_str(),
+                         paths.size(), -0.5, paths.size()-0.5);
+    MonitorElement* ME_XsecScaled = dbe_->bookProfile(h_name.c_str(), &tempProfileScaled);
+
 
 
     dbe_->setCurrentFolder(pathsSummaryHLTCorrelationsFolder_.c_str());
@@ -1075,6 +1110,8 @@ void TrigResRateMon::setupHltMatrix(const std::string& label, vector<std::string
       ME_Normalized_Any->getTH1F()->GetXaxis()->SetBinLabel(i+1, (paths[i]).c_str());
       ME_Any->getTH1F()->GetXaxis()->SetBinLabel(i+1, (paths[i]).c_str());
       ME_Xsec->getTProfile()->GetXaxis()->SetBinLabel(i+1, (paths[i]).c_str());
+      ME_XsecScaled->getTProfile()->GetXaxis()->SetBinLabel(i+1, (paths[i]).c_str());
+      ME_RawCounts->getTH1F()->GetXaxis()->SetBinLabel(i+1, (paths[i]).c_str());
     }
     
 }
@@ -1376,8 +1413,19 @@ void TrigResRateMon::fillCountsPerPath(const edm::Event& iEvent, const edm::Even
   for (unsigned iName = 0; iName < hltConfig_.size(); iName++) {
     if ( triggerResults_ -> accept ( iName ) ){
       countsPerPath[iName]++;
-    }         
-  }
+      if ( (iName == referenceTrigIndex_) && (foundReferenceTrigger_) ) {
+        // the get the prescales, and increment the PS*counts
+        std::pair<int,int> psValueCombo =  hltConfig_.prescaleValues(iEvent, iSetup, referenceTrigName_);
+        // if ps OK, 
+        if ( (psValueCombo.first > 0) && (psValueCombo.second > 0) ){
+          referenceTrigCountsPS_ += psValueCombo.first * psValueCombo.second;
+        } else {
+          referenceTrigCountsPS_++;
+        }
+
+      }// end if this is reference
+    } // end if trig fired         
+  }// end loop over paths
 
   // loop over all pds
   for (std::vector<DatasetInfo>::iterator iDS = primaryDataSetInformation.begin();
@@ -1394,7 +1442,17 @@ void TrigResRateMon::fillCountsPerPath(const edm::Event& iEvent, const edm::Even
       // did you pass the trigger?
       if ( triggerResults_ -> accept ( trigIndex ) ){
 
+        // ok, you passed, increment the raw counts plot
+        MonitorElement * thisRawCountsPlot = dbe_->get(iDS->rawCountsPerPathME_Name);
+        if (thisRawCountsPlot){
+          iDS->fillRawCountsForPath(thisRawCountsPlot, *iPath);
+        } else {
+          if (jmsDebug) std::cout << "sorry but couldn't find this xsec plot"<< iDS->datasetName << std::endl;
+        }
         
+
+
+        // the get the prescales, and increment the PS*counts
         std::pair<int,int> psValueCombo =  hltConfig_.prescaleValues(iEvent, iSetup, *iPath);
 
         // if ps OK, 
@@ -1426,6 +1484,31 @@ void TrigResRateMon::bookCountsPerPath() {
   
 }
 
+
+void TrigResRateMon::findReferenceTriggerIndex() {
+
+  if (jmsDebug) std::cout << "Looking for reference trigger " << referenceTrigInput_ << std::endl;
+  for (unsigned iName = 0; iName < hltConfig_.size(); iName++) {
+    
+    std::string thisName = hltConfig_.triggerName(iName);
+    TString tempThisName(thisName.c_str());
+    if (tempThisName.Contains(referenceTrigInput_)){
+      referenceTrigName_ = thisName;
+      if (jmsDebug) std::cout << "Using Reference trigger " << referenceTrigName_ << std::endl;
+      referenceTrigIndex_ = iName;
+      foundReferenceTrigger_ = true;
+      referenceTrigCountsPS_ = 0;
+      break;
+    }// end if name contains substring
+  }  
+
+  if (!foundReferenceTrigger_) {
+    std::cout << "Sorry, we couldn't find a trigger like " << referenceTrigInput_ << std::endl;
+  }
+  
+}
+
+
 void TrigResRateMon::printCountsPerPathThisLumi() {
 
   std::cout << "===> COUNTS THIS LUMI <===" << std::endl;
@@ -1434,7 +1517,9 @@ void TrigResRateMon::printCountsPerPathThisLumi() {
     std::cout << hltConfig_.triggerName(iName)
               << "  =  " << countsPerPath[iName]
               << std::endl;        
-  }  
+  }
+
+  std::cout << "+++ Reference trigger " << referenceTrigName_ << " index " << referenceTrigIndex_ << " counts " << referenceTrigCountsPS_ << std::endl;
 
     // loop over all pds
   for (std::vector<DatasetInfo>::const_iterator iDS = primaryDataSetInformation.begin();
@@ -1457,6 +1542,8 @@ void TrigResRateMon::clearCountsPerPath() {
     
   }
 
+  referenceTrigCountsPS_ = 0 ;
+  
   for (std::vector<DatasetInfo>::iterator iDS = primaryDataSetInformation.begin();
        iDS != primaryDataSetInformation.end();
        iDS++) {
@@ -1483,16 +1570,29 @@ void TrigResRateMon::addLumiToAverage(double lumi) {
 }
 
 void TrigResRateMon::fillXsecPerDataset() {
+
+  // calculate the reference cross section
+
+  double refTrigXSec = referenceTrigCountsPS_ / ( averageInstLumi * LSsize_);
+
   
   for (std::vector<DatasetInfo>::iterator iDS = primaryDataSetInformation.begin();
        iDS != primaryDataSetInformation.end();
        iDS++) {
     MonitorElement * thisXsecPlot = dbe_->get(iDS->xsecPerPathME_Name);
+    MonitorElement * scaledXsecPlot = dbe_->get(iDS->scaledXsecPerPathME_Name);
     if (thisXsecPlot){
       iDS->fillXsecPlot(thisXsecPlot, averageInstLumi, LSsize_);
     } else {
       if (jmsDebug) std::cout << "sorry but couldn't find this xsec plot"<< iDS->datasetName << std::endl;
     }
+
+    if (scaledXsecPlot){
+      iDS->fillXsecPlot(scaledXsecPlot, averageInstLumi, LSsize_, refTrigXSec);
+    } else {
+      if (jmsDebug) std::cout << "sorry but couldn't find this scaled xsec plot"<< iDS->datasetName << std::endl;
+    }
+
   }
   
   
@@ -1627,6 +1727,7 @@ void TrigResRateMon::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, con
 
   normalizeHLTMatrix();
 
+  //if (jmsDebug) printCountsPerPathThisLumi();
   if (jmsDebug) printCountsPerPathThisLumi();
   if (jmsDebug) std::cout << "Average lumi is " << averageInstLumi << std::endl;
   fillXsecPerDataset();

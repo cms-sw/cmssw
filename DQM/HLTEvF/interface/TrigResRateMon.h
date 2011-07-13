@@ -16,7 +16,7 @@
 //        Vladimir Rekovic, July 2010
 //
 //
-// $Id: TrigResRateMon.h,v 1.3 2011/06/22 20:06:32 slaunwhj Exp $
+// $Id: TrigResRateMon.h,v 1.4 2011/06/30 08:54:05 slaunwhj Exp $
 //
 //
 
@@ -74,6 +74,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <set>
 
 namespace edm {
    class TriggerNames;
@@ -178,12 +179,26 @@ class TrigResRateMon : public edm::EDAnalyzer {
       std::vector<std::string> fGroupName;
 
 
-  // Keep track of rates and average lumi
+  // JMS Keep track of rates and average lumi
   std::vector<unsigned> countsPerPath;
   double averageInstLumi;
   MonitorElement * meAverageLumiPerLS;
-  
 
+  // JMS Mask off some paths so that they don't mess with your plots
+
+  std::vector< std::string > maskedPaths_; 
+
+  // JMS calcuate a reference cross section
+  // then scale
+  std::string referenceTrigInput_;
+  std::string referenceTrigName_;
+  unsigned referenceTrigIndex_;
+  bool foundReferenceTrigger_;
+  unsigned referenceTrigCountsPS_;
+  void findReferenceTriggerIndex();
+  //unsigned referenceTrigCounts_;
+  
+  
       unsigned int nLS_; 
       double LSsize_ ;
       double thresholdFactor_ ;
@@ -291,6 +306,7 @@ class TrigResRateMon : public edm::EDAnalyzer {
   public:
     std::string datasetName;
     std::vector<std::string> pathNames;
+    std::set<std::string> maskedPaths;
     // this tells you the name of the monitor element
     // that has the counts per path saved
     std::string countsPerPathME_Name;
@@ -298,6 +314,15 @@ class TrigResRateMon : public edm::EDAnalyzer {
     // name of monitor element that has xsec per path saved
     std::string xsecPerPathME_Name;
 
+    // name of monitor element that has xsec per path saved
+    std::string scaledXsecPerPathME_Name;
+
+
+    // this tells you the name of the ME that has
+    // raw counts (no prescale accounting)
+    // for each path
+
+    std::string rawCountsPerPathME_Name;
 
     // counts per path
 
@@ -353,6 +378,12 @@ class TrigResRateMon : public edm::EDAnalyzer {
       
     }// end clearCountsPerPath
 
+
+    void fillXsecPlot (MonitorElement * myXsecPlot, double currentInstLumi, double secondsPerLS, double referenceXSec) {
+      // this will put the reference cross section in the denominator
+      fillXsecPlot( myXsecPlot, currentInstLumi*referenceXSec, secondsPerLS);
+    }
+    
     void fillXsecPlot (MonitorElement * myXsecPlot, double currentInstLumi, double secondsPerLS) {
 
       
@@ -362,6 +393,12 @@ class TrigResRateMon : public edm::EDAnalyzer {
         std::string thisPathName = pathNames[iPath];
         unsigned thisPathCounts = countsPerPath[thisPathName];
 
+        // if this is a masked path, then skip it        
+        if (maskedPaths.find(thisPathName) != maskedPaths.end()) {
+          //std::cout << "Path " << thisPathName << " is masked, not filling it " << std::endl;
+          continue;
+        }
+
         double xsec = 1.0;
         if (currentInstLumi > 0) {
           xsec = thisPathCounts / (currentInstLumi*secondsPerLS);
@@ -370,13 +407,50 @@ class TrigResRateMon : public edm::EDAnalyzer {
         } else {
           xsec = thisPathCounts;
         }
-            
+
+        
         myXsecPlot->Fill(iPath, xsec);
         //std::cout << datasetName << "  " << thisPathName << " filled with xsec  " << xsec << std::endl;
         
       }
-    }
+    } // end fill Xsec plot
 
+    void fillRawCountsForPath (MonitorElement * myRawCountsPlot, std::string pathName) {
+      TH1F* tempRawCounts = myRawCountsPlot->getTH1F();
+      int binNumber = tempRawCounts->GetXaxis()->FindBin(pathName.c_str());
+      if (binNumber > 0) {
+        tempRawCounts->Fill(binNumber);
+      } else {
+        //std::cout << "Problem finding bin " << pathName << " in plot " << tempRawCounts->GetTitle() << std::endl;
+      }
+    }// end fill RawCountsForPath
+
+    void setMaskedPaths (std::vector<std::string> inputPaths) {
+      for (unsigned i=0; i < inputPaths.size(); i++) {
+        std::string maskSubString = inputPaths[i];
+        for (unsigned j=0; j < pathNames.size(); j++) {
+          // If a path in the DS contains a masked substring
+          // Then mask that path
+          //
+          std::string candidateForRemoval = pathNames[j];
+          TString pNameTS (candidateForRemoval);
+          if ( pNameTS.Contains(maskSubString)){
+            
+            maskedPaths.insert(candidateForRemoval);
+          } // end if path contains substring
+        }// end for each path in ds
+      }
+    }// end setMaskedPaths
+
+    void printMaskedPaths () {
+      std::cout << "========  Printing masked paths for " << datasetName  <<" ======== " << std::endl;
+      for ( std::set<std::string>::const_iterator iMask = maskedPaths.begin();
+            iMask != maskedPaths.end();
+            iMask++) {
+        std::cout << (*iMask) << std::endl; 
+      }
+      std::cout << "======DONE PRINTING=====" << std::endl;
+    }
     
   };
 
