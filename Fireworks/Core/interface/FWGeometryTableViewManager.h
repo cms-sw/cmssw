@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Jul  8 00:40:50 CEST 2011
-// $Id: FWGeometryTableViewManager.h,v 1.2 2011/07/08 23:09:15 amraktad Exp $
+// $Id: FWGeometryTableViewManager.h,v 1.3 2011/07/09 04:43:30 amraktad Exp $
 //
 
 class FWViewBase;
@@ -40,6 +40,9 @@ public:
    FWViewBase *buildView (TEveWindowSlot *iParent, const std::string& type);
    virtual void colorsChanged();
 
+   TList*  getListOfVolumes() const;
+   TGeoNode* getTopTGeoNode();
+
 protected:
    // dummy functions of FWViewManagerBase
    virtual void modelChangesComing() {}
@@ -52,8 +55,8 @@ private:
    const FWGeometryTableViewManager& operator=(const FWGeometryTableViewManager&); // stop default
    void beingDestroyed(const FWViewBase* iView);
 
-   TGeoManager* m_geoManager;
-   void loadGeometry();
+   static TGeoManager *s_geoManager;
+   void initGeoManager();
 };
 
 

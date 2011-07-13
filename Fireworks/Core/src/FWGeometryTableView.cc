@@ -128,7 +128,7 @@ public:
 //==============================================================================
 //==============================================================================
 
-FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager* colMng, TGeoManager* geoManager )
+FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager* colMng, TGeoNode* tn, TObjArray* volumes )
    : FWViewBase(FWViewType::kGeometryTable),
      m_mode(this, "Mode:", 0l, 0l, 1l),
      m_filter(this,"Materials:",std::string()),
@@ -137,7 +137,6 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager*
      m_topNodeIdx(this, "TopNodeIndex", -1l, 0, 1e7),
      m_colorManager(colMng),
      m_tableManager(0),
-     m_geoManager(geoManager),
      m_eveTopNode(0),
      m_colorPopup(0),
      m_eveWindow(0),
@@ -200,9 +199,9 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager*
    m_tableWidget->disableGrowInWidth();
    resetSetters();
 
-   if (m_geoManager)
+   if (tn)
    {
-      m_tableManager->loadGeometry();
+      m_tableManager->loadGeometry(tn, volumes);
       cdTop();
    }
 
@@ -578,9 +577,7 @@ void FWGeometryTableView::setPath(int parentIdx, std::string& path)
    ProfilerStart(Form("cdPath%d.prof", parentIdx));
 #endif
 
-   m_geoManager->cd(path.c_str());
-   // TGeoNode* topNode = m_geoManager->GetCurrentNode();
-   // printf(" Set Path to [%s], curren node %s \n", path.c_str(), topNode->GetName());
+   //  m_geoManager->cd(path.c_str());
 
    m_tableManager->topGeoNodeChanged(parentIdx);
    m_tableManager->checkExpandLevel();
@@ -615,8 +612,6 @@ void FWGeometryTableView::updateFilter()
 
 void FWGeometryTableView::autoExpandChanged()
 {
-  if (!m_geoManager) return;
-
    m_tableManager->checkExpandLevel();
    m_tableManager->redrawTable();
 }
@@ -625,8 +620,6 @@ void FWGeometryTableView::autoExpandChanged()
 
 void FWGeometryTableView::refreshTable3D()
 {
-   if (!m_geoManager) return;
-
    m_tableManager->redrawTable();
 
    if ( m_eveTopNode) {

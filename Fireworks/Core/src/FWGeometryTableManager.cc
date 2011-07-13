@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.27 2011/07/07 02:24:42 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.28 2011/07/08 04:39:59 amraktad Exp $
 //
 
 //#define PERFTOOL_GEO_TABLE
@@ -28,7 +28,6 @@
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "TMath.h"
-#include "TGeoManager.h"
 #include "TGeoVolume.h"
 #include "TGeoMatrix.h"
 #include "TGeoShape.h"
@@ -457,14 +456,16 @@ void FWGeometryTableManager::recalculateVisibilityVolumeRec(int pIdx)
 
 void FWGeometryTableManager::redrawTable() 
 {
+   if (m_entries.empty()) return;
+
    changeSelection(0, 0);
 
    recalculateVisibility();
 
-   if (m_filterOff)  
-      m_statusMessage = Form("level:%d  rows %d ",   getLevelOffset(), (int)m_row_to_index.size());
-   else
-      m_statusMessage = Form("level:%d  rows %d volumes %d (%.2f %%) selected ", getLevelOffset(), (int)m_row_to_index.size(), m_numVolumesMatched, 100.0* m_numVolumesMatched/m_volumes.size());
+   // if (m_filterOff)  
+   //   m_statusMessage = Form("level:%d  rows %d ",   getLevelOffset(), (int)m_row_to_index.size());
+   // else
+   //   m_statusMessage = Form("level:%d  rows %d volumes %d (%.2f %%) selected ", getLevelOffset(), (int)m_row_to_index.size(), m_numVolumesMatched, 100.0* m_numVolumesMatched/m_volumes.size());
 
    dataChanged();
    visualPropertiesChanged();
@@ -472,7 +473,7 @@ void FWGeometryTableManager::redrawTable()
 
 //==============================================================================
 
-void FWGeometryTableManager::loadGeometry()
+void FWGeometryTableManager::loadGeometry( TGeoNode* iGeoTopNode, TObjArray* iVolumes)
 {
 #ifdef PERFTOOL_GEO_TABLE  
    ProfilerStart("loadGeo");
@@ -487,9 +488,9 @@ void FWGeometryTableManager::loadGeometry()
    m_levelOffset = 0;
 
    // set volume table for filters
-   boost::unordered_map<TGeoVolume*, Match>  pipi(m_browser->geoManager()->GetListOfVolumes()->GetSize());
+   boost::unordered_map<TGeoVolume*, Match>  pipi(iVolumes->GetSize());
    m_volumes.swap(pipi);
-   TIter next( m_browser->geoManager()->GetListOfVolumes());
+   TIter next( iVolumes);
    TGeoVolume* v;
    while ((v = (TGeoVolume*) next()) != 0)
       m_volumes.insert(std::make_pair(v, Match()));
@@ -501,7 +502,7 @@ void FWGeometryTableManager::loadGeometry()
  
    int nTotal = 0;
    NodeInfo topNodeInfo;
-   topNodeInfo.m_node   = m_browser->geoManager()->GetTopNode();
+   topNodeInfo.m_node   = iGeoTopNode;
    topNodeInfo.m_level  = 0;
    topNodeInfo.m_parent = -1;
    if (m_browser->getAutoExpand())
@@ -602,7 +603,7 @@ void FWGeometryTableManager::updateFilter()
    m_filterOff =  filterExp.empty();
    //   printf("update filter %s  OFF %d volumes size %d\n",filterExp.c_str(),  m_filterOff , (int)m_volumes.size());
 
-   if (m_filterOff || !m_browser->geoManager()) return;
+   if (m_filterOff || !m_entries.empty()) return;
    
    // update volume-match entries
     m_numVolumesMatched = 0;

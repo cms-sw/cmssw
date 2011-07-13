@@ -51,7 +51,7 @@ class FWGeometryTableView
 public:
    enum EMode { kNode, kVolume };
 
-   FWGeometryTableView(TEveWindowSlot*, FWColorManager*, TGeoManager*);
+   FWGeometryTableView(TEveWindowSlot*, FWColorManager*, TGeoNode*, TObjArray*);
    virtual ~FWGeometryTableView();
   
    void cellClicked(Int_t iRow, Int_t iColumn, 
@@ -76,7 +76,7 @@ public:
 
    int getTopNodeIdx() const { return m_topNodeIdx.value(); }
 
-   TGeoManager*   geoManager() { return m_geoManager; }
+   //  TGeoManager*   geoManager() { return m_geoManager; }
    FWGeometryTableManager*  getTableManager() { return m_tableManager;} 
    virtual void setFrom(const FWConfiguration&);
 
@@ -105,7 +105,7 @@ private:
    FWGeometryTableManager *m_tableManager;
 
    TGCompositeFrame       *m_settersFrame;
-   TGeoManager            *m_geoManager;
+   // TGeoManager            *m_geoManager;
    FWGeoTopNode           *m_eveTopNode;
 
    FWColorPopup           *m_colorPopup;

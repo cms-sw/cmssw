@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManager.h,v 1.23 2011/07/07 02:24:42 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.24 2011/07/08 04:39:58 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
@@ -34,7 +34,7 @@
 
 class FWTableCellRendererBase;
 // class FWGeometryTableView;
-class TGeoManager;
+//class TGeoManager;
 class TGeoNode;
 
 class FWGeometryTableManager : public FWTableManagerBase
@@ -141,7 +141,7 @@ public:
    NodeInfo& refSelected();
    Entries_v& refEntries() {return m_entries;}
 
-   void loadGeometry();
+   void loadGeometry( TGeoNode* , TObjArray*);
    void setBackgroundToWhite(bool);
    void getNodePath(int, std::string&) const;
 
@@ -181,7 +181,7 @@ private:
    void checkExpandLevel();
    void topGeoNodeChanged(int);
 
-   const std::string& getStatusMessage() const { return m_statusMessage; }
+   //   const std::string& getStatusMessage() const { return m_statusMessage; }
    // ---------- member data --------------------------------
    
    
@@ -207,7 +207,7 @@ private:
    int m_levelOffset;
    //  int m_geoTopNodeIdx;
 
-   std::string m_statusMessage;
+   //   std::string m_statusMessage;
 };
 
 
