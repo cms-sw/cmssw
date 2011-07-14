@@ -140,20 +140,21 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
                               
                               DoDiMuonHistograms = cms.untracked.bool(True),
                               dimuonHistograms = cms.PSet(
-    MuonCollection = cms.InputTag("muons"),
-    etaBin = cms.int32(100),
-    etaBBin = cms.int32(100),
-    etaEBin = cms.int32(50),
-    etaOvlpBin = cms.int32(50),
-    
-    
-    etaBMin = cms.double(0.),
-    etaBMax = cms.double(1.1),
-    etaECMin = cms.double(0.9),
-    etaECMax = cms.double(2.4),
-    etaOvlpMin = cms.double(0.9),
-    etaOvlpMax = cms.double(1.1)
-    )
+                              MuonCollection = cms.InputTag("muons"),
+                              etaBin = cms.int32(400),
+                              etaBBin = cms.int32(400),
+                              etaEBin = cms.int32(200),
+                              
+                              etaBMin = cms.double(0.),
+                              etaBMax = cms.double(1.1),
+                              etaECMin = cms.double(0.9),
+                              etaECMax = cms.double(2.4),
+                              
+                              LowMassMin = cms.double(5.0),
+                              LowMassMax = cms.double(55.0),
+                              HighMassMin = cms.double(55.0),
+                              HighMassMax = cms.double(155.0)
+                              )
                               
                               )
 
