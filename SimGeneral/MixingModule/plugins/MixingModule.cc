@@ -64,6 +64,7 @@ namespace edm
             branchesActivate(TypeID(typeid(PCrossingFrame<SimTrack>)).friendlyClassName(),std::string(""),tag,label);
            
 	    LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
+	    //	    std::cout <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label << std::endl ;
 
 	    //---------------------------------
 	    // set an appropriate label for the CrossingFrame
@@ -92,6 +93,7 @@ namespace edm
             branchesActivate(TypeID(typeid(PCrossingFrame<SimVertex>)).friendlyClassName(),std::string(""),tag,label);
 
 	    LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag "<<tag.encode()<<", label will be "<<label;
+	    //	    std::cout <<"Will mix "<<object<<"s with InputTag "<<tag.encode()<<", label will be "<<label << std::endl ;
 	    
 	    //---------------------------------
 	    // set an appropriate label for the CrossingFrame
@@ -121,6 +123,7 @@ namespace edm
             branchesActivate(TypeID(typeid(PCrossingFrame<HepMCProduct>)).friendlyClassName(),std::string(""),tag,label);
 
 	    LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
+	    //	    std::cout <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label<<std::endl;
 	    
 	    //---------------------------------
 	    // set an appropriate label for the CrossingFrame
@@ -151,6 +154,7 @@ namespace edm
 	      branchesActivate(TypeID(typeid(PCrossingFrame<PCaloHit>)).friendlyClassName(),subdets[ii],tag,label);
 
 	      LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
+	      //	      std::cout <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label<<std::endl;
 	      
 	      //---------------------------------
 	      // set an appropriate label for the product CrossingFrame
@@ -184,6 +188,7 @@ namespace edm
               branchesActivate(TypeID(typeid(PCrossingFrame<PSimHit>)).friendlyClassName(),subdets[ii],tag,label);
 	   
 	      LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
+	      //	      std::cout <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label<<std::endl;
 	      
 	      
 	      //---------------------------------
@@ -227,6 +232,7 @@ namespace edm
 
 	    produces<CrossingFrame<SimTrack> >(label);
 	    LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
+	    //	    std::cout <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label<<std::endl;
 	    
 
           }else if (object=="SimVertex") {
@@ -239,6 +245,7 @@ namespace edm
 	    workersObjects_.push_back(new MixingWorker<SimVertex>(minBunch_,maxBunch_,bunchSpace_,std::string(""),label,labelCF,maxNbSources_,tag,tagCF,mixProdStep2_));  
 	    produces<CrossingFrame<SimVertex> >(label);
 	    LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag "<<tag.encode()<<", label will be "<<label;
+	    //	    std::cout <<"Will mix "<<object<<"s with InputTag "<<tag.encode()<<", label will be "<<label<<std::endl;
 	    
 	  }else if (object=="HepMCProduct") {
             InputTag tag;
@@ -250,6 +257,7 @@ namespace edm
             
 	    produces<CrossingFrame<HepMCProduct> >(label);
 	    LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
+	    //	    std::cout <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label<<std::endl;
 	    
 
           }else if (object=="PCaloHit") {
@@ -265,6 +273,7 @@ namespace edm
 
 	      produces<CrossingFrame<PCaloHit> > (label);
 	      LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
+	      //	      std::cout <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label<<std::endl;
 	      
 	    }
 
@@ -280,7 +289,8 @@ namespace edm
               workersObjects_.push_back(new MixingWorker<PSimHit>(minBunch_,maxBunch_,bunchSpace_,subdets[ii],label,labelCF,maxNbSources_,tag,tagCF,mixProdStep2_));  
 
               produces<CrossingFrame<PSimHit> > (label);
-              LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
+	      LogInfo("MixingModule") <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label;
+	      //	      std::cout <<"Will mix "<<object<<"s with InputTag= "<<tag.encode()<<", label will be "<<label<<std::endl;
 	    }
 	  }
 	  else LogWarning("MixingModule") <<"You have asked to mix an unknown type of object("<<object<<").\n If you want to include it in mixing, please contact the authors of the MixingModule!";
@@ -352,22 +362,71 @@ namespace edm
     }
   }
 
-  void MixingModule::doPileUp(edm::Event &e, const edm::EventSetup& setup)
-  { //     we first loop over workers
-    // in order not to keep all CrossingFrames in memory simultaneously
-    //	    
-    for (unsigned int ii=0;ii<workers_.size();ii++) {
-      // we have to loop over bunchcrossings first since added objects are all stored in one vector, 
-      // ordered by bunchcrossing
 
-      for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
-	workers_[ii]->setBcrOffset();
-	for (unsigned int isource=0;isource<maxNbSources_;++isource) {
-	  workers_[ii]->setSourceOffset(isource);	  
-	  if (doit_[isource])   {
-	    merge(bunchCrossing, (pileup_[isource])[bunchCrossing-minBunch_],ii,setup);
-	  }
-	}	
+  void MixingModule::pileAllWorkers(EventPrincipal const& eventPrincipal,
+				    //                                    int bunchCrossing, int& eventId,
+                                    int bunchCrossing, int eventId,
+                                    int& vertexOffset)
+  {
+    for (unsigned int ii=0;ii<workers_.size();ii++) {
+      LogDebug("MixingModule") <<" merging Event:  id " << eventPrincipal.id();
+      //      std::cout <<"PILEALLWORKERS merging Event:  id " << eventPrincipal.id() << std::endl;
+
+        workers_[ii]->addPileups(bunchCrossing,eventPrincipal,
+				 //                                 ++eventId,vertexoffset);
+                                 eventId,vertexoffset);
+    }
+  }
+
+
+  void MixingModule::doPileUp(edm::Event &e, const edm::EventSetup& setup)
+  {
+    // Don't allocate because PileUp will do it for us.
+    std::vector<edm::EventID> recordEventID;
+    edm::Handle<CrossingFramePlaybackInfoExtended>  playbackInfo_H;
+    if (playback_) {
+      bool got=e.get((*sel_), playbackInfo_H); 
+      if (!got) {
+        throw cms::Exception("MixingProductNotFound") << " No "
+          "CrossingFramePlaybackInfoExtended on the input file, but playback "
+          "option set!!!!! Please change the input file if you really want "
+          "playback!!!!!!"  << endl;    
+      }
+    }
+
+    for (int bunchIdx = minBunch_; bunchIdx <= maxBunch_; ++bunchIdx) {
+      for ( size_t setBcrIdx=0; setBcrIdx<workers_.size(); setBcrIdx++) {
+        workers_[setBcrIdx]->setBcrOffset();
+      }
+
+      for ( size_t readSrcIdx=0; readSrcIdx<maxNbSources_; readSrcIdx++ ) {
+        boost::shared_ptr<PileUp> source = inputSources_[readSrcIdx];
+        for ( size_t setSrcIdx=0; setSrcIdx<workers_.size(); setSrcIdx++) {
+          workers_[setSrcIdx]->setSourceOffset(readSrcIdx);
+        }
+        if (!source || !source->doPileUp()) continue;
+
+	//        int eventId = 0;
+	int vertexOffset = 0;
+
+        if (!playback_) {
+          inputSources_[readSrcIdx]->readPileUp(recordEventID,
+            boost::bind(&MixingModule::pileAllWorkers, boost::ref(*this), _1, bunchIdx,
+                        _2, vertexOffset),
+						TrueNumInteractions_[readSrcIdx], bunchIdx
+            );
+          playbackInfo_->setStartEventId(recordEventID, readSrcIdx, bunchIdx);
+        } else {
+	  int dummyId = 0 ;
+          const std::vector<edm::EventID>& playEventID =
+            playbackInfo_H->getStartEventId(readSrcIdx, bunchIdx);
+          inputSources_[readSrcIdx]->playPileUp(
+            playEventID,
+            boost::bind(&MixingModule::pileAllWorkers, boost::ref(*this), _1, bunchIdx,
+                        dummyId, vertexOffset),
+	    TrueNumInteractions_[readSrcIdx]
+            );
+        }
       }
     }
 
@@ -380,12 +439,12 @@ namespace edm
     //Makin' a list:
     for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
       bunchCrossingList.push_back(bunchCrossing);
-      if(!doit_[0]) {
+      if(!inputSources_[0] || !inputSources_[0]->doPileUp()) {
         numInteractionList.push_back(0);
         TrueInteractionList.push_back(0);
       }
       else {
-        numInteractionList.push_back(((pileup_[0])[bunchCrossing-minBunch_]).size());
+        numInteractionList.push_back(playbackInfo_->getStartEventId(0,bunchCrossing).size());
         TrueInteractionList.push_back((TrueNumInteractions_[0])[bunchCrossing-minBunch_]);	
       }
     }
@@ -408,16 +467,6 @@ namespace edm
       }
  }
 
-  void MixingModule::addPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr,unsigned int worker, const edm::EventSetup& setup) {    
-  // fill in pileup part of CrossingFrame
-    LogDebug("MixingModule") <<"\n===============> adding objects from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
-
-    workers_[worker]->addPileups(bcr,ep,eventNr,vertexoffset);
-  }
-  
-  void MixingModule::setEventStartInfo(const unsigned int s) {
-    playbackInfo_->setEventStartInfo(vectorEventIDs_,s); 
-  }
 
   void MixingModule::put(edm::Event &e, const edm::EventSetup& setup) {
 
@@ -426,17 +475,5 @@ namespace edm
       e.put(pOut);
     }
   }
-  
-  void MixingModule::getEventStartInfo(edm::Event & e, const unsigned int s) {
-    if (playback_) {
- 
-      edm::Handle<CrossingFramePlaybackInfoExtended>  playbackInfo_H;
-      bool got=e.get((*sel_), playbackInfo_H); 
-      if (got) {
-	playbackInfo_H->getEventStartInfo(vectorEventIDs_,s);
-      }else{
-        throw cms::Exception("MixingProductNotFound") << " No CrossingFramePlaybackInfoExtended on the input file, but playback option set!!!!! Please change the input file if you really want playback!!!!!!"  << endl;    
-      }
-    }
-  }
+
 }//edm

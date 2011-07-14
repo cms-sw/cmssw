@@ -13,13 +13,14 @@
 //
 // Original Author:  Emilia Lubenova Becheva
 //         Created:  Wed Apr 22 16:54:31 CEST 2009
-// $Id: SecSourceAnalyzer.cc,v 1.4 2010/07/03 18:46:18 ebecheva Exp $
+// $Id: SecSourceAnalyzer.cc,v 1.5 2011/07/05 00:38:58 mikeh Exp $
 //
 //
 
 
 // system include files
 #include <memory>
+#include <boost/bind.hpp>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -49,18 +50,19 @@
 namespace edm
 {
 SecSourceAnalyzer::SecSourceAnalyzer(const edm::ParameterSet& iConfig)
-:minBunch_(0),
- maxBunch_(0),
- tag_(InputTag())
+  :minBunch_(0),
+   maxBunch_(0),
+   tag_(InputTag())
 {
-   int minb = minBunch_;
-   int maxb = maxBunch_;
+//    int minb = minBunch_;
+//    int maxb = maxBunch_;
    int averageNumber = 1;
    std::string histoFileName = " ";
    TH1F * histoName = new TH1F("h","",10,0,10); 
    bool playback = false;
    
-   input_.reset(new edm::PileUp(iConfig.getParameter<edm::ParameterSet>("input"),minb,maxb,averageNumber,histoName,playback));
+   input_.reset(new edm::PileUp(iConfig.getParameter<edm::ParameterSet>("input"),
+                                averageNumber,histoName,playback));
       
    dataStep2_ = iConfig.getParameter<bool>("dataStep2");
    
@@ -84,53 +86,55 @@ SecSourceAnalyzer::~SecSourceAnalyzer()
 // member functions
 //
 
-// ------------ method called to for each event  ------------
+// ------------ method called for each event  ------------
 void
 SecSourceAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
-
    vectorEventIDs_.resize(maxBunch_-minBunch_+1);
-   
-   input_->readPileUp(pileup_[0],vectorEventIDs_,TrueNumInteractions_[0]);
-   
+
+   int nevt = 0 ;
+   for( int ibx = minBunch_ ; ibx <= maxBunch_ ; ++ibx )
+     {
+       if( ibx == 0 )
+	 {
+	   input_->readPileUp( vectorEventIDs_[ ibx-minBunch_ ],
+			       boost::bind(&SecSourceAnalyzer::getBranches, 
+					   this, _1),
+			       TrueNumInteractions_[ 0 ], ibx
+			       );
+	 }
+       else
+	 {
+	   input_->readPileUp( vectorEventIDs_[ ibx-minBunch_ ],
+			       boost::bind(&SecSourceAnalyzer::dummyFunction, 
+					   this, _1),
+			       TrueNumInteractions_[ 0 ], ibx
+			       );
+	 }
+
+       nevt += vectorEventIDs_[ ibx-minBunch_ ].size() ;
+     }
+
    std::cout << "-> The std::vector<EventPrincipalVector> of the secondary source 'input' has been filled with " 
-   	     << pileup_[0].size() << " element corresponding to " << maxBunch_-minBunch_+1 
+   	     << nevt << " element corresponding to " << maxBunch_-minBunch_+1 
 	     << " bunch." << std::endl;
-  
-   // Run for one source (input) and the bunch 0
-   Loop(pileup_[0][0]);
 }
 
-
-void SecSourceAnalyzer::Loop(const EventPrincipalVector& vec) {
-    //
-    // loop over events
-    //
-    std::cout <<"-> Loop over EventPrincipalVector wich size is "<< vec.size() << "." << std::endl;
-    
-    for (EventPrincipalVector::const_iterator it = vec.begin(); it != vec.end(); ++it) {
-      std::cout <<"-> Get the event:  id " << (*it)->id() << std::endl;
-
-      getBranches(&(**it));
-    }
-}
-
-
-void  SecSourceAnalyzer::getBranches(EventPrincipal *ep)
+void  SecSourceAnalyzer::getBranches(EventPrincipal const &ep)
   { 
+    std::cout <<"-> Get the event:  id " << ep.id() << std::endl;
     std::cout << "-> dataStep2_ = " << dataStep2_ << std::endl;
     tag_ = InputTag(label_);
     
     std::cout << "-> Will try to get the branch with the tag : " << tag_ << std::endl;    
-    std::cout << " and the EventPrincipal ep with a size = " << ep->size() << std::endl;
+    std::cout << " and the EventPrincipal ep with a size = " << ep.size() << std::endl;
     
     if (!dataStep2_){
         // Get the SimTrack collection
         
 	// default version changed to transmit vertexoffset
         boost::shared_ptr<Wrapper<std::vector<SimTrack> > const> shPtr =
-        getProductByTag<std::vector<SimTrack> >(*ep, tag_);
+        getProductByTag<std::vector<SimTrack> >(ep, tag_);
     
         if (shPtr) 
 		std::cout << "-> Could get SimTrack !" << std::endl;
@@ -144,7 +148,7 @@ void  SecSourceAnalyzer::getBranches(EventPrincipal *ep)
         // default version changed to transmit vertexoffset
 	tag_ = InputTag("CFwriter","g4SimHits");
         boost::shared_ptr<Wrapper<PCrossingFrame<SimTrack> > const> shPtr =
-        getProductByTag<PCrossingFrame<SimTrack> >(*ep, tag_);
+        getProductByTag<PCrossingFrame<SimTrack> >(ep, tag_);
         
 	if (shPtr) 
 		std::cout << "-> Could get PCrossingFrame<SimTrack> !" << std::endl;

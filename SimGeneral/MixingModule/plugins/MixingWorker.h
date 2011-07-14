@@ -37,11 +37,35 @@ namespace edm
     public:
 
       /** standard constructor*/
-      explicit MixingWorker() {;}
+      explicit MixingWorker() :
+        minBunch_(-5),
+        maxBunch_(3),
+        bunchSpace_(75),
+        subdet_(std::string(" ")),
+        label_(std::string(" ")),
+        labelCF_(std::string(" ")),
+        maxNbSources_(5),
+        mixProdStep2_(false)
+	  {
+	    tag_=InputTag();
+	    tagSignal_=InputTag();
+	  }
 
       /*Normal constructor*/ 
-      MixingWorker(int minBunch,int maxBunch, int bunchSpace,std::string subdet,std::string label, std::string labelCF,int maxNbSources, InputTag& tag, InputTag& tagCF, bool mixProdStep2):
-	MixingWorkerBase(minBunch,maxBunch,bunchSpace,subdet,label,labelCF,maxNbSources,tag,tagCF,mixProdStep2)
+      MixingWorker(int minBunch,int maxBunch, int bunchSpace,
+		   std::string subdet,std::string label,
+		   std::string labelCF,int maxNbSources, InputTag& tag,
+		   InputTag& tagCF, bool mixProdStep2):
+	MixingWorkerBase(),
+	minBunch_(minBunch),
+	maxBunch_(maxBunch),
+	bunchSpace_(bunchSpace),
+	subdet_(subdet),
+	label_(label),
+	labelCF_(labelCF),
+	maxNbSources_(maxNbSources),
+	tag_(tag),
+	tagSignal_(tagCF)
 	{
           mixProdStep2_ = mixProdStep2;
 	}
@@ -50,21 +74,6 @@ namespace edm
       virtual ~MixingWorker() {;}
 
     public:
-
-      void setTof();
-
-      virtual void put(edm::Event &e) {	
-        std::auto_ptr<CrossingFrame<T> > pOut(crFrame_);
-	if (!mixProdStep2_){
-	  e.put(pOut,label_);
-	  LogDebug("MixingModule") <<" CF was put for type "<<typeid(T).name()<<" with "<<label_;
-	}
-	else {
-	  e.put(pOut,labelCF_);
-	  LogDebug("MixingModule") <<" CF was put for type "<<typeid(T).name()<<" with "<<labelCF_;
-	}
-      }
-
 
       virtual bool checkSignal(const edm::Event &e){
           bool got;
@@ -91,10 +100,6 @@ namespace edm
           crFrame_=new CrossingFrame<T>(minBunch_,maxBunch_,bunchSpace_,subdet_,maxNbSources_);
       }
            
-      virtual void setBcrOffset() {crFrame_->setBcrOffset();}
-      virtual void setSourceOffset(const unsigned int s) {crFrame_->setSourceOffset(s);}
-
-
       virtual void addSignals(const edm::Event &e){
 	if (mixProdStep2_){	  
           edm::Handle<std::vector<T> >  result_t;
@@ -119,39 +124,69 @@ namespace edm
 	
       }
 
-      virtual void addPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr,int vertexoffset);
+      virtual void addPileups(const int bcr, const EventPrincipal &ep, unsigned int eventNr,int vertexoffset);
+
+      virtual void setBcrOffset() {crFrame_->setBcrOffset();}
+      virtual void setSourceOffset(const unsigned int s) {crFrame_->setSourceOffset(s);}
+
+      void setTof();
+
+      virtual void put(edm::Event &e) {	
+        std::auto_ptr<CrossingFrame<T> > pOut(crFrame_);
+	if (!mixProdStep2_){
+	  e.put(pOut,label_);
+	  LogDebug("MixingModule") <<" CF was put for type "<<typeid(T).name()<<" with "<<label_;
+	}
+	else {
+	  e.put(pOut,labelCF_);
+	  LogDebug("MixingModule") <<" CF was put for type "<<typeid(T).name()<<" with "<<labelCF_;
+	}
+      }
+
+
       // When using mixed secondary source 
       // Copy the data from the PCrossingFrame to the CrossingFrame
       virtual void copyPCrossingFrame(const PCrossingFrame<T> *PCF);
       
     private:
+      int const minBunch_;
+      int const maxBunch_;
+      int const bunchSpace_;
+      std::string const subdet_;
+      std::string const label_;
+      std::string const labelCF_;
+      unsigned int const maxNbSources_;
+      InputTag tag_;
+      InputTag tagSignal_;
+      bool mixProdStep2_;
+
       CrossingFrame<T> * crFrame_;
       PCrossingFrame<T> * secSourceCF_;
-
-      bool mixProdStep2_;
     };
 
 //=============== template specializations ====================================================================================
   template <class T>
-    void MixingWorker<T>::addPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr,int vertexoffset)
+    void MixingWorker<T>::addPileups(const int bcr, const EventPrincipal &ep, unsigned int eventNr,int vertexoffset)
     {
       if (!mixProdStep2_){
         // default version
         // valid for CaloHits 
         boost::shared_ptr<Wrapper<std::vector<T> > const> shPtr =
-	edm::getProductByTag<std::vector<T> >(*ep, tag_);
+	edm::getProductByTag<std::vector<T> >(ep, tag_);
 
         if (shPtr) {
 	  LogDebug("MixingModule") <<shPtr->product()->size()<<"  pileup objects  added, eventNr "<<eventNr;
+	  crFrame_->setPileupPtr(shPtr);
 	  crFrame_->addPileups(bcr,const_cast< std::vector<T> * >(shPtr->product()),eventNr);
         }
 	
       }
       else
       {
-        boost::shared_ptr<Wrapper<PCrossingFrame<T> > const> shPtr = getProductByTag<PCrossingFrame<T> >(*ep, tag_);
+        boost::shared_ptr<Wrapper<PCrossingFrame<T> > const> shPtr = getProductByTag<PCrossingFrame<T> >(ep, tag_);
      
         if (shPtr){     	      	
+          crFrame_->setPileupPtr(shPtr);
           secSourceCF_ = const_cast<PCrossingFrame<T> * >(shPtr->product());
 	  LogDebug("MixingModule") << "Add PCrossingFrame<T>  eventNr " << secSourceCF_->getEventID();
 
@@ -165,16 +200,16 @@ namespace edm
 
     
 template <>
-    void MixingWorker<PSimHit>::addPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr,int vertexoffset);
+    void MixingWorker<PSimHit>::addPileups(const int bcr, const EventPrincipal &ep, unsigned int eventNr,int vertexoffset);
 
 template <>
-    void MixingWorker<SimTrack>::addPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr,int vertexoffset);
+    void MixingWorker<SimTrack>::addPileups(const int bcr, const EventPrincipal &ep, unsigned int eventNr,int vertexoffset);
 
 template <>
-    void MixingWorker<SimVertex>::addPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr,int vertexoffset);
+    void MixingWorker<SimVertex>::addPileups(const int bcr, const EventPrincipal& ep, unsigned int eventNr,int vertexoffset);
 
 template <>
-    void MixingWorker<HepMCProduct>::addPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr,int vertexoffset);
+    void MixingWorker<HepMCProduct>::addPileups(const int bcr, const EventPrincipal &ep, unsigned int eventNr,int vertexoffset);
 
 template <class T>
     void MixingWorker<T>::setTof() {;}

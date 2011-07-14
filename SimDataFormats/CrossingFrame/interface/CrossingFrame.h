@@ -66,8 +66,10 @@ class CrossingFrame
 
   // we keep the shared pointer in the object that will be only destroyed at the end of the event (transient object!)
   // because of HepMCProduct, we need 2 versions...
-  void setPileupPtr(boost::shared_ptr<edm::Wrapper<std::vector<T> > const> shPtr) {shPtrPileups_=shPtr;}
-  void setPileupPtr(boost::shared_ptr<edm::Wrapper<T> const> shPtr) {shPtrPileups2_=shPtr;}
+/*   void setPileupPtr(boost::shared_ptr<edm::Wrapper<std::vector<T> > const> shPtr) {shPtrPileups_=shPtr;} */
+/*   void setPileupPtr(boost::shared_ptr<edm::Wrapper<T> const> shPtr) {shPtrPileups2_=shPtr;} */
+  void setPileupPtr(boost::shared_ptr<edm::Wrapper<std::vector<T> > const> shPtr) {shPtrPileups_.push_back( shPtr );}
+  void setPileupPtr(boost::shared_ptr<edm::Wrapper<T> const> shPtr) {shPtrPileups2_.push_back( shPtr );}
   // used in the Step2 to set the PCrossingFrame
   void setPileupPtr(boost::shared_ptr<edm::Wrapper<PCrossingFrame<T> > const> shPtr);
   
@@ -157,8 +159,10 @@ class CrossingFrame
 
   //pileup
   std::vector<const T *>  pileups_; 
-  boost::shared_ptr<edm::Wrapper<std::vector<T> > const> shPtrPileups_; 
-  boost::shared_ptr<edm::Wrapper<T> const> shPtrPileups2_;   // fore HepMCProduct
+  std::vector< boost::shared_ptr<edm::Wrapper<std::vector<T> > const> > shPtrPileups_; 
+  std::vector< boost::shared_ptr<edm::Wrapper<T> const> > shPtrPileups2_;   // fore HepMCProduct
+/*   boost::shared_ptr<edm::Wrapper<std::vector<T> > const> shPtrPileups_;  */
+/*   boost::shared_ptr<edm::Wrapper<T> const> shPtrPileups2_;   // fore HepMCProduct */
   boost::shared_ptr<edm::Wrapper<PCrossingFrame<T> > const> shPtrPileupsPCF_;
 //  boost::shared_ptr<edm::Wrapper<PCrossingFrame<edm::HepMCProduct> const> shPtrPileupsHepMCProductPCF_;
   
@@ -199,6 +203,9 @@ CrossingFrame<T>::swap(CrossingFrame<T>& other) {
   std::swap(maxNbSources_, other.maxNbSources_);
   signals_.swap(other.signals_);
   pileups_.swap(other.pileups_);
+  shPtrPileups_.swap(other.shPtrPileups_);
+  shPtrPileups2_.swap(other.shPtrPileups2_);
+  shPtrPileupsPCF_.swap(other.shPtrPileupsPCF_);
   pileupOffsetsBcr_.swap(other.pileupOffsetsBcr_);
   pileupOffsetsSource_.resize(maxNbSources_);
   for (unsigned int i=0;i<pileupOffsetsSource_.size();++i) { 

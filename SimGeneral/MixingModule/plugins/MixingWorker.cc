@@ -9,18 +9,18 @@
 
 namespace edm {
   template <>
-  void MixingWorker<PSimHit>::addPileups(const int bcr, EventPrincipal *ep,unsigned int eventNr,int vertexoffset)
+  void MixingWorker<PSimHit>::addPileups(const int bcr, const EventPrincipal &ep,unsigned int eventNr,int vertexoffset)
   {
     if (!mixProdStep2_){ 
       //    default version changed for high/low treatment
-      boost::shared_ptr<Wrapper<std::vector<PSimHit> > const> shPtr = getProductByTag<std::vector<PSimHit> >(*ep, tag_);
+      boost::shared_ptr<Wrapper<std::vector<PSimHit> > const> shPtr = getProductByTag<std::vector<PSimHit> >(ep, tag_);
         if (shPtr) {
 	  LogDebug("MixingModule") <<shPtr->product()->size()<<"  pileup objects  added, eventNr "<<eventNr;
           crFrame_->setPileupPtr(shPtr);
 	  crFrame_->addPileups(bcr,const_cast< std::vector<PSimHit> * > (shPtr->product()),eventNr);
         }
       } else{ // In case mixProdStep2_=true
-        boost::shared_ptr<Wrapper<PCrossingFrame<PSimHit> > const> shPtr = getProductByTag<PCrossingFrame<PSimHit> >(*ep, tag_);
+        boost::shared_ptr<Wrapper<PCrossingFrame<PSimHit> > const> shPtr = getProductByTag<PCrossingFrame<PSimHit> >(ep, tag_);
         if (shPtr) { 
           crFrame_->setPileupPtr(shPtr);
       	  secSourceCF_ = const_cast<PCrossingFrame<PSimHit> * >(shPtr->product());
@@ -34,26 +34,26 @@ namespace edm {
 
 
   template <>
-  void  MixingWorker<SimTrack>::addPileups(const int bcr, EventPrincipal *ep,unsigned int eventNr,int vertexoffset)
+  void  MixingWorker<SimTrack>::addPileups(const int bcr, const EventPrincipal &ep,unsigned int eventNr,int vertexoffset)
   { 
     if (!mixProdStep2_){ 
       // default version changed to transmit vertexoffset
-      boost::shared_ptr<Wrapper<std::vector<SimTrack> > const> shPtr = getProductByTag<std::vector<SimTrack> >(*ep, tag_);
+      boost::shared_ptr<Wrapper<std::vector<SimTrack> > const> shPtr = getProductByTag<std::vector<SimTrack> >(ep, tag_);
       
       if (shPtr) {
-        LogDebug("MixingModule") <<shPtr->product()->size()<<"  pileup objects  added, eventNr "<<eventNr;
+	LogDebug("MixingModule") <<shPtr->product()->size()<<"  pileup objects  added, eventNr "<<eventNr;
         crFrame_->setPileupPtr(shPtr);
         crFrame_->addPileups(bcr,const_cast< std::vector<SimTrack> * > (shPtr->product()),eventNr,vertexoffset);
       }
     }
     else
     { // In case mixProdStep2_=true	
-	boost::shared_ptr<Wrapper<PCrossingFrame<SimTrack> > const> shPtr = getProductByTag<PCrossingFrame<SimTrack> >(*ep, tag_);
+	boost::shared_ptr<Wrapper<PCrossingFrame<SimTrack> > const> shPtr = getProductByTag<PCrossingFrame<SimTrack> >(ep, tag_);
 
 	if (shPtr){
 	  crFrame_->setPileupPtr(shPtr);
 	  secSourceCF_ = const_cast<PCrossingFrame<SimTrack> * >(shPtr->product());
-          LogDebug("MixingModule") << "Add PCrossingFrame<SimTrack>,  eventNr " << secSourceCF_->getEventID();
+	  LogDebug("MixingModule") << "Add PCrossingFrame<SimTrack>,  eventNr " << secSourceCF_->getEventID();
 		
 	  // Get PCrossingFrame data members values from the mixed secondary sources file
 	  copyPCrossingFrame(secSourceCF_);
@@ -65,15 +65,15 @@ namespace edm {
 
 
   template <>
-  void MixingWorker<SimVertex>::addPileups(const int bcr, EventPrincipal * ep,unsigned int eventNr,int vertexoffset)
+  void MixingWorker<SimVertex>::addPileups(const int bcr, const EventPrincipal &ep,unsigned int eventNr,int vertexoffset)
   {
   
     if (!mixProdStep2_){ 
       // default version changed to take care of vertexoffset
-      boost::shared_ptr<Wrapper<std::vector<SimVertex> > const> shPtr = getProductByTag<std::vector<SimVertex> >(*ep, tag_);
+      boost::shared_ptr<Wrapper<std::vector<SimVertex> > const> shPtr = getProductByTag<std::vector<SimVertex> >(ep, tag_);
         
       if (shPtr) {
-        LogDebug("MixingModule") <<shPtr->product()->size()<<"  pileup objects  added, eventNr "<<eventNr;
+	LogDebug("MixingModule") <<shPtr->product()->size()<<"  pileup objects  added, eventNr "<<eventNr;
         vertexoffset+=shPtr->product()->size();
         crFrame_->setPileupPtr(shPtr);
         crFrame_->addPileups(bcr,const_cast< std::vector<SimVertex> * > (shPtr->product()),eventNr);
@@ -81,12 +81,12 @@ namespace edm {
     }
     else {
       
-      boost::shared_ptr<Wrapper<PCrossingFrame<SimVertex> > const> shPtr = getProductByTag<PCrossingFrame<SimVertex> >(*ep, tag_);
+      boost::shared_ptr<Wrapper<PCrossingFrame<SimVertex> > const> shPtr = getProductByTag<PCrossingFrame<SimVertex> >(ep, tag_);
       
       if (shPtr){
       	crFrame_->setPileupPtr(shPtr);      	
         secSourceCF_ = const_cast<PCrossingFrame<SimVertex> * >(shPtr->product());
-        LogDebug("MixingModule") << "Add PCrossingFrame<SimVertex>,  eventNr " << secSourceCF_->getEventID();    
+	LogDebug("MixingModule") << "Add PCrossingFrame<SimVertex>,  eventNr " << secSourceCF_->getEventID();    
 	
 	copyPCrossingFrame(secSourceCF_);      
       }
@@ -96,26 +96,26 @@ namespace edm {
   }
 
   template <>
-  void MixingWorker<HepMCProduct>::addPileups(const int bcr, EventPrincipal *ep,unsigned int eventNr,int vertexoffset)
+  void MixingWorker<HepMCProduct>::addPileups(const int bcr, const EventPrincipal& ep,unsigned int eventNr,int vertexoffset)
   {
     if (!mixProdStep2_){ 
       // default version
       // HepMCProduct does not come as a vector....
-      boost::shared_ptr<Wrapper<HepMCProduct> const> shPtr = getProductByTag<HepMCProduct>(*ep, tag_);
+      boost::shared_ptr<Wrapper<HepMCProduct> const> shPtr = getProductByTag<HepMCProduct>(ep, tag_);
         if (shPtr) {
-            LogDebug("MixingModule") <<"HepMC pileup objects  added, eventNr "<<eventNr;
+	  LogDebug("MixingModule") <<"HepMC pileup objects  added, eventNr "<<eventNr;
 	    crFrame_->setPileupPtr(shPtr);
             crFrame_->addPileups(bcr,const_cast<HepMCProduct*> (shPtr->product()),eventNr);
         }
     }
     else {
       // Mixproduction version: step2
-      boost::shared_ptr<Wrapper<PCrossingFrame<HepMCProduct> > const> shPtr = getProductByTag<PCrossingFrame<HepMCProduct> >(*ep, tag_);
+      boost::shared_ptr<Wrapper<PCrossingFrame<HepMCProduct> > const> shPtr = getProductByTag<PCrossingFrame<HepMCProduct> >(ep, tag_);
 
       if (shPtr){	
         crFrame_->setPileupPtr(shPtr);
         secSourceCF_ = const_cast<PCrossingFrame<HepMCProduct> * >(shPtr->product());
-        LogDebug("MixingModule") << "Add PCrossingFrame<HepMCProduct>,  eventNr " << secSourceCF_->getEventID();
+	LogDebug("MixingModule") << "Add PCrossingFrame<HepMCProduct>,  eventNr " << secSourceCF_->getEventID();
 	
 	copyPCrossingFrame(secSourceCF_);
       }

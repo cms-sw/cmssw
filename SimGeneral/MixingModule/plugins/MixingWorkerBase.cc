@@ -17,23 +17,8 @@
 namespace edm
 {
 
-  // Constructor 
-  //FIXME: subdet here?
-  MixingWorkerBase::MixingWorkerBase(int minBunch,int maxBunch,int bunchSpace,std::string &subdet, std::string &label,std::string &labelCF,unsigned int maxNbSources, InputTag &tag, InputTag &tagCF, bool mixProdStep2) :
-	  minBunch_(minBunch),
-	  maxBunch_(maxBunch),
-	  bunchSpace_(bunchSpace),
-	  subdet_(subdet),
-	  label_(label),
-	  labelCF_(labelCF),
-	  maxNbSources_(maxNbSources),
-	  tag_(tag),
-	  tagSignal_(tagCF)
-  {
-  }
-
-  // Virtual destructor needed.
-  MixingWorkerBase::~MixingWorkerBase() { 
-  }  
+  // Virtual destructor needed so MixingModule can delete the list
+  // of MixingWorkers without knowing their exact type.
+  MixingWorkerBase::~MixingWorkerBase() { }  
 
 }//edm

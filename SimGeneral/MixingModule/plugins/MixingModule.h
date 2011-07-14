@@ -60,10 +60,8 @@ namespace edm
       virtual void checkSignal(const edm::Event &e);
       virtual void addSignals(const edm::Event &e, const edm::EventSetup& es); 
       virtual void doPileUp(edm::Event &e, const edm::EventSetup& es);
-      virtual void addPileups(const int bcr, EventPrincipal*,unsigned int EventId,unsigned int worker, const edm::EventSetup& e);
-      virtual void setEventStartInfo(const unsigned int s); // set in CF-s
-      virtual void getEventStartInfo(edm::Event & e, const unsigned int s); // fill in in base class
-
+      //      void pileAllWorkers(EventPrincipal const& ep, int bcr, int& id, int& offset);
+      void pileAllWorkers(EventPrincipal const& ep, int bcr, int id, int& offset);
       std::string labelPlayback_;
       bool mixProdStep2_;
       bool mixProdStep1_;
