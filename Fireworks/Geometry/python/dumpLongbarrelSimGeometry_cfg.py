@@ -4,8 +4,6 @@ process = cms.Process("DUMP")
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load('SLHCUpgradeSimulations.Geometry.Longbarrel_cmsSimIdealGeometryXML_cff')
 ###process.load("SLHCUpgradeSimulations.Geometry.Phase1_cmsSimIdealGeometryXML_cff")
-process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'DESIGN42_V11::All'
 
 process.source = cms.Source("EmptySource")
 
