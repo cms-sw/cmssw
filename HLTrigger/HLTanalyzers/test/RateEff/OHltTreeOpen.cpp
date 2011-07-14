@@ -85,6 +85,29 @@ bool isAsymDoubleEleTrigger(TString triggerName, vector<double>& thresholdEle, v
   else return false;
 }
 
+bool isSingleEleX_HTXTrigger(TString triggerName, vector<double>& thresholds, vector<TString>& caloId, vector<TString>& caloIso, vector<TString>& trkId, vector<TString>& trkIso){
+	
+  TString patternEle = "(OpenHLT_Ele([0-9]+)_?(CaloId[VLT]+)?_?(CaloIso[VLT]+)?_?(TrkId[VLT]+)?_?(TrkIso[VLT]+)?_HT([0-9]+))$";
+
+  TPRegexp matchThresholdEle(patternEle);
+
+  if (matchThresholdEle.MatchB(triggerName))
+    {
+      TObjArray *subStrL   = TPRegexp(patternEle).MatchS(triggerName);
+      thresholds.push_back((((TObjString *)subStrL->At(2))->GetString()).Atof());//Ele
+      caloId.push_back(((TObjString *)subStrL->At(3))->GetString());
+      caloIso.push_back(((TObjString *)subStrL->At(4))->GetString());
+      trkId.push_back(((TObjString *)subStrL->At(5))->GetString());
+      trkIso.push_back(((TObjString *)subStrL->At(6))->GetString());
+      thresholds.push_back((((TObjString *)subStrL->At(7))->GetString()).Atof());//HT
+      delete subStrL;
+
+      return true;
+    }
+  else return false;
+}
+
+
 bool isSinglePhotonTrigger(TString triggerName, vector<double>& thresholdPhoton, vector<TString>& r9Id, vector<TString>& caloId,  vector<TString>& photonIso){
 	
   TString patternPhoton = "(OpenHLT_Photon([0-9]+)_?(R9Id)?_?(CaloId[VLT]+)?_?((Iso[VLT]+)?))$";
@@ -2035,6 +2058,7 @@ void OHltTree::CheckOpenHlt(
 	  }
       }
 
+
   /*DoubleEle*/
 
   else if (isAsymDoubleEleTrigger(triggerName, thresholdEle, caloId, caloIso, trkId, trkIso)){
@@ -2079,6 +2103,30 @@ void OHltTree::CheckOpenHlt(
 	      }
 	  }
       }
+
+
+  /*SingleEle cross triggers*/
+
+  else if (isSingleEleX_HTXTrigger(triggerName, thresholds, caloId, caloIso, trkId, trkIso)){
+    
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+	if (prescaleResponse(menu, cfg, rcounter, it))
+	  {
+	    if ((OpenHlt1ElectronPassed(thresholds[0], 
+				       map_EGammaCaloId[caloId[0]],
+				       map_EleCaloIso[caloIso[0]],
+				       map_EleTrkId[trkId[0]],
+				       map_EleTrkIso[trkIso[0]]
+				       ) >= 1)	&&
+		(OpenHltSumCorHTPassed(thresholds[1], 40.) == 1)
+		)
+	      
+		triggerBit[it] = true;
+	      }
+	  }
+      }
+
 
 
   /*SinglePhoton*/
