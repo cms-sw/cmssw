@@ -3,13 +3,7 @@ VERSION='2.00'
 import os,sys,time
 import coral
 from RecoLuminosity.LumiDB import lumiTime,lumiCorrections,inputFilesetParser,csvSelectionParser, selectionParser,csvReporter,argparse,CommonUtil,lumiQueryAPI
-def applyfinecorrection(avglumi,constfactor,afterglowfactor,nonlinearfactor):
-    instlumi=avglumi*afterglowfactor*constfactor
-    if nonlinearfactor!=0 and constfactor!=1.0:
-        rawlumiInub=float(avglumi)/float(6.37)
-        nonlinearTerm=1.0-rawlumiInub*nonlinearfactor
-        instlumi=instlumi*nonlinearTerm
-    return instlumi
+
 def getPerLSData(dbsession,inputRange,lumiversion='0001',withFineCorrection=False):
     result={}#{run:[[cmslsnum,orbittime,orbittimestamp,delivered,recorded]]}
     datacollector={}
@@ -62,7 +56,7 @@ def getPerLSData(dbsession,inputRange,lumiversion='0001',withFineCorrection=Fals
             cmslsnum=dataperls[0]
             instlumi=dataperls[1]
             if withFineCorrection:
-                instlumi=applyfinecorrection(instlumi,constfactor,afterglowfactor,nonlinearfactor)
+                instlumi=lumiCorrections.applyfinecorrection(instlumi,constfactor,afterglowfactor,nonlinearfactor)
             numorbit=dataperls[2]
             dellumi=instlumi*float(numorbit)*3564.0*25.0e-09
             startorbit=dataperls[3]
@@ -150,25 +144,36 @@ if __name__ == '__main__':
                                               'frontier://LumiCalc/CMS_LUMI_PROD',
                                                options.siteconfpath,parameters,options.debug)
     lumiXing = False
-    if options.action in ['lumibylsXing','delivered','recorded','overview','lumibyls','lumibylstime']:
-        if options.action == 'lumibylsXing':
-           #action = 'lumibyls'
-           parameters.lumiXing = True
-           # we can't have lumiXing mode if we're not writing to a CSV
-           # file
-           #if not options.outputfile:
-           #    raise RuntimeError, "You must specify an outputt file in 'lumibylsXing' mode"
+    if options.action in ['lumibylsXing','delivered','recorded','overview','lumibyls','lumibylstime']:      
         if options.runnumber:
             inputRange=str(options.runnumber)
         else:
             inputRange=inputFilesetParser.inputFilesetParser(options.inputfile)
         if not inputRange:
             print 'failed to parse the input file', options.inputfile
-            raise 
+            raise
+        finecorrections=None
+        runs=[] 
+        if isinstance(inputRange, str):
+            runs.append(int(inputRange))
+        else:
+            runs=inputRange.runs()
+            runs.sort()
+        if options.withFineCorrection:
+            schema=session.nominalSchema()
+            session.transaction().start(True)
+            finecorrections=lumiCorrections.correctionsForRange(schema,runs)
+            session.transaction().commit()
+        if options.action == 'lumibylsXing':
+           parameters.lumiXing = True
+           # we can't have lumiXing mode if we're not writing to a CSV
+           # file
+           #if not options.outputfile:
+           #    raise RuntimeError, "You must specify an outputt file in 'lumibylsXing' mode"
 
         # Delivered
         if options.action ==  'delivered':
-            lumidata=lumiQueryAPI.deliveredLumiForRange(session, parameters, inputRange)    
+            lumidata=lumiQueryAPI.deliveredLumiForRange(session, parameters, inputRange,finecorrections=finecorrections)    
             if not options.outputfile:
                 lumiQueryAPI.printDeliveredLumi (lumidata, '')
             else:
@@ -180,7 +185,7 @@ if __name__ == '__main__':
             hltpath = ''
             if options.hltpath:
                 hltpath = options.hltpath
-                lumidata =  lumiQueryAPI.recordedLumiForRange (session, parameters, inputRange)
+                lumidata =  lumiQueryAPI.recordedLumiForRange (session, parameters, inputRange,finecorrections=finecorrections)
             if not options.outputfile:
                 lumiQueryAPI.printRecordedLumi (lumidata, parameters.verbose, hltpath)
             else:
@@ -193,8 +198,8 @@ if __name__ == '__main__':
             hltpath=''
             if options.hltpath:
                 hltpath=options.hltpath
-            delivereddata=lumiQueryAPI.deliveredLumiForRange(session, parameters, inputRange)
-            recordeddata=lumiQueryAPI.recordedLumiForRange(session, parameters, inputRange)
+            delivereddata=lumiQueryAPI.deliveredLumiForRange(session, parameters, inputRange,finecorrections=finecorrections)
+            recordeddata=lumiQueryAPI.recordedLumiForRange(session, parameters, inputRange,finecorrections=finecorrections)
             if not options.outputfile:
                 lumiQueryAPI.printOverviewData (delivereddata, recordeddata, hltpath)
             else:
@@ -229,7 +234,7 @@ if __name__ == '__main__':
                         report.writeRow([run,perlsdata[0],perlsdata[1],perlsdata[2],perlsdata[3],perlsdata[4]])
                             
         if options.action=='lumibyls' or options.action=='lumibylsXing':
-            recordeddata=lumiQueryAPI.recordedLumiForRange(session, parameters, inputRange)
+            recordeddata=lumiQueryAPI.recordedLumiForRange(session, parameters, inputRange,finecorrections=finecorrections)
             # we got it, now we got to decide what to do with it
             if not options.outputfile:
                 lumiQueryAPI.printPerLSLumi (recordeddata, parameters.verbose)

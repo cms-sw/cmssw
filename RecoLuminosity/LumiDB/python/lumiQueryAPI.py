@@ -79,43 +79,37 @@ def lsBylsLumi (deadtable):
     return result
 
 
-def deliveredLumiForRange (dbsession, parameters,inputRange,withFineCorrection=False):
+def deliveredLumiForRange (dbsession, parameters,inputRange,finecorrections=None):
     '''Takes either single run as a string or dictionary of run ranges'''
     lumidata = []
     runs=[]
     if isinstance(inputRange, str):
         runs.append(int(inputRange))
     else:
-        runs.append(inputRange)
-    finecorrections=None
-    if withFineCorrection:
-        schema=dbsession.nominalSchema()
-        dbsession.transaction().start(True)
-        finecorrections=lumiCorrections.correctionsForRange(schema,runs)
-        dbsession.transaction().commit()
-        
+        runs=inputRange.runs()
     for r in sorted(runs):
         if parameters.verbose:
-                print "run", run
+            print "run", run
         c=None
-        if withFineCorrection:
+        if finecorrections:
             c=finecorrections[r]
-        lumidata.append( deliveredLumiForRun (dbsession, parameters,inputRange,corrections=c) )       
+        lumidata.append( deliveredLumiForRun (dbsession, parameters,r,finecorrections=c) )       
     return lumidata
 
-def recordedLumiForRange (dbsession, parameters, inputRange):
+def recordedLumiForRange (dbsession, parameters, inputRange,finecorrections=None):
     '''Takes either single run as a string or dictionary of run ranges'''
     lumidata = []
-    # is this a single string?
     if isinstance (inputRange, str):
-        lumiDataPiece = recordedLumiForRun (dbsession, parameters, inputRange)
+        if not finecorrections:
+            lumiDataPiece = recordedLumiForRun (dbsession, parameters,inputRange)
+        else:
+            lumiDataPiece = recordedLumiForRun (dbsession, parameters,inputRange,lslist=None,finecorrections=finecorrections[int(inputRange)])
         if parameters.lumiXing:
             # get the xing information for the run
             xingLumiDict = xingLuminosityForRun (dbsession, inputRange,
                                                  parameters)
             mergeXingLumi (lumiDataPiece, xingLumiDict)
         lumidata.append (lumiDataPiece)
-        
     else:
         # we want to collapse the lists so that every run is considered once.
         runLsDict = {}
@@ -130,8 +124,10 @@ def recordedLumiForRange (dbsession, parameters, inputRange):
                 print "run", run
             runLumiData = []
             for lslist in metaLsList:
-                runLumiData.append( recordedLumiForRun (dbsession, parameters,
-                                                        run, lslist) )
+                if finecorrections:
+                    runLumiData.append( recordedLumiForRun (dbsession, parameters,run,lslist=lslist,finecorrections=finecorrections[run]) )
+                else:
+                    runLumiData.append( recordedLumiForRun (dbsession, parameters,run,lslist=lslist) )
             if parameters.lumiXing:
                 # get the xing information once for the whole run
                 xingLumiDict = xingLuminosityForRun (dbsession, run,
@@ -146,9 +142,7 @@ def recordedLumiForRange (dbsession, parameters, inputRange):
                 lumidata.extend( runLumiData )
     return lumidata
 
-
-
-def deliveredLumiForRun (dbsession, parameters, runnum, corrections=None ):    
+def deliveredLumiForRun (dbsession, parameters, runnum, finecorrections=None ):    
     """
     select sum (INSTLUMI), count (INSTLUMI) from lumisummary where runnum = 124025 and lumiversion = '0001';
     select INSTLUMI,NUMORBIT  from lumisummary where runnum = 124025 and lumiversion = '0001'
@@ -187,8 +181,8 @@ def deliveredLumiForRun (dbsession, parameters, runnum, corrections=None ):
         while cursor.next():
             instlumi = cursor.currentRow()['instlumi'].data()
             norbits = cursor.currentRow()['norbits'].data()
-            if corrections is not None:
-                instlumi=lumiCorrections.applyfinecorrection(instlumi,corrections[0],corrections[1],corrections[2])
+            if finecorrections is not None:
+                instlumi=lumiCorrections.applyfinecorrection(instlumi,finecorrections[0],finecorrections[1],finecorrections[2])
             if instlumi is not None and norbits is not None:
                 lstime = lslengthsec(norbits, parameters.NBX)
                 delivered=delivered+instlumi*parameters.norm*lstime
@@ -206,7 +200,7 @@ def deliveredLumiForRun (dbsession, parameters, runnum, corrections=None ):
         dbsession.transaction().rollback()
         del dbsession
 
-def recordedLumiForRun (dbsession, parameters, runnum, lslist = None):
+def recordedLumiForRun (dbsession, parameters, runnum, lslist=None,finecorrections=None):
     """
     lslist = [] means take none in the db
     lslist = None means to take all in the db
@@ -268,8 +262,7 @@ def recordedLumiForRun (dbsession, parameters, runnum, lslist = None):
         hltprescCondition['runnumber'].setData (int (runnum))
         hltprescCondition['cmslsnum'].setData (1)
         hltprescCondition['inf'].setData (0)
-        hltprescQuery.setCondition ("RUNNUM = :runnumber and CMSLSNUM = :cmslsnum and PRESCALE != :inf",
-                                    hltprescCondition)
+        hltprescQuery.setCondition ("RUNNUM = :runnumber and CMSLSNUM = :cmslsnum and PRESCALE != :inf",hltprescCondition)
         cursor = hltprescQuery.execute()
         while cursor.next():
             hltpath = cursor.currentRow()['hltpath'].data()
@@ -320,6 +313,8 @@ def recordedLumiForRun (dbsession, parameters, runnum, lslist = None):
         while cursor.next():
             cmsls       = cursor.currentRow()["cmsls"].data()
             instlumi    = cursor.currentRow()["instlumi"].data()*parameters.norm
+            if finecorrections:
+                instlumi=lumiCorrections.applyfinecorrection(instlumi,finecorrections[0],finecorrections[1],finecorrections[2])
             norbits     = cursor.currentRow()["norbits"].data()
             trgcount    = cursor.currentRow()["trgcount"].data()
             trgbitname  = cursor.currentRow()["bitname"].data()
@@ -353,7 +348,6 @@ def recordedLumiForRun (dbsession, parameters, runnum, lslist = None):
                 lumidata[1][hpath].append (trgprescalemap[bitn])                
         #filter selected cmsls
         lumidata[2] = filterDeadtable (deadtable, lslist)
-        #print 'lslist ',lslist
         if not parameters.noWarnings:
             if len(lumidata[2])!=0:
                 for lumi, deaddata in lumidata[2].items():
