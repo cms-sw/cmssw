@@ -61,28 +61,22 @@ class DiMuonHistograms : public MuonAnalyzerBase {
   double etaBMax;
   double etaECMin;
   double etaECMax;
-  double etaOvlpMin;
-  double etaOvlpMax;
 
-  std::vector<MonitorElement*> GlbGlbMuon;
-  std::vector<MonitorElement*> GlbStaMuon;
-  std::vector<MonitorElement*> GlbTrkMuon;
-  std::vector<MonitorElement*> GlbGPTMuon;
+  //Defining the relevant invariant mass regions
+  double LowMassMin;
+  double LowMassMax;
+  double HighMassMin;
+  double HighMassMax;
   
-  //  std::vector<MonitorElement*> StaGlbMuon;
-  std::vector<MonitorElement*> StaStaMuon;
-  std::vector<MonitorElement*> StaTrkMuon;
-  std::vector<MonitorElement*> StaGPTMuon;
+  std::vector<MonitorElement*> GlbGlbMuon_LM;
+  std::vector<MonitorElement*> GlbGlbMuon_HM;
+  std::vector<MonitorElement*> StaTrkMuon_LM;
+  std::vector<MonitorElement*> StaTrkMuon_HM;
+  std::vector<MonitorElement*> TrkTrkMuon_LM;
+  std::vector<MonitorElement*> TrkTrkMuon_HM;
 
-  //  std::vector<MonitorElement*> TrkGlbMuon;
-  //  std::vector<MonitorElement*> TrkStaMuon;
-  std::vector<MonitorElement*> TrkTrkMuon;
-  std::vector<MonitorElement*> TrkGPTMuon;
-
-  //  std::vector<MonitorElement*> GPTGlbMuon;
-  //  std::vector<MonitorElement*> GPTStaMuon;
-  //  std::vector<MonitorElement*> GPTTrkMuon;
-  std::vector<MonitorElement*> GPTGPTMuon;
+  std::vector<MonitorElement*> TightTightMuon;
+  std::vector<MonitorElement*> SoftSoftMuon;
   
 };
 #endif 
