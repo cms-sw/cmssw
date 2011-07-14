@@ -47,7 +47,7 @@ namespace edm
 
       void putSiPixel(edm::Event &e) ;
       void addSiPixelSignals(const edm::Event &e); 
-      void addSiPixelPileups(const int bcr, edm::EventPrincipal*,unsigned int EventId);
+      void addSiPixelPileups(const int bcr, const edm::EventPrincipal*,unsigned int EventId);
 
 
     private:

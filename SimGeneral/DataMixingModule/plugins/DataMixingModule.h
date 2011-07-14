@@ -52,8 +52,14 @@ namespace edm
 
       virtual void beginJob() {}
 
-      virtual void setBcrOffset();
-      virtual void setSourceOffset(const unsigned int is);      
+      // copies, with EventSetup
+      virtual void checkSignal(const edm::Event &e) {}
+      virtual void createnewEDProduct() {}
+      virtual void addSignals(const edm::Event &e, const edm::EventSetup& ES); 
+      virtual void doPileUp(edm::Event &e,const edm::EventSetup& ES);
+      virtual void put(edm::Event &e,const edm::EventSetup& ES) ;
+
+      void pileWorker(const edm::EventPrincipal&, int bcr, int EventId,const edm::EventSetup& ES);
 
     private:
       // data specifiers
@@ -137,16 +143,7 @@ namespace edm
 
       DataMixingGeneralTrackWorker *GeneralTrackWorker_;
 
-      virtual void createnewEDProduct();
-      virtual void getSubdetectorNames();
-
-      // copies, with EventSetup
-      virtual void put(edm::Event &e,const edm::EventSetup& ES) ;
-      virtual void addSignals(const edm::Event &e, const edm::EventSetup& ES); 
-      virtual void doPileUp(edm::Event &e,const edm::EventSetup& ES);
-      virtual void addPileups(const int bcr, edm::EventPrincipal*, unsigned int EventId,unsigned int worker,const edm::EventSetup& ES);
-      virtual void checkSignal(const edm::Event &e);
-  
+      virtual void getSubdetectorNames();  
 
       // internally used information : subdetectors present in input
       std::vector<std::string> Subdetectors_;

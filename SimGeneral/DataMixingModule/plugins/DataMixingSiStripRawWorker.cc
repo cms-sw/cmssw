@@ -89,7 +89,7 @@ namespace edm
 
 
 
-  void DataMixingSiStripRawWorker::addSiStripPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr) {
+  void DataMixingSiStripRawWorker::addSiStripPileups(const int bcr, const EventPrincipal *ep, unsigned int eventNr) {
     
     LogDebug("DataMixingSiStripRawWorker") << "\n===============> adding pileups from event  "
 					   << ep->id() << " for bunchcrossing " << bcr;

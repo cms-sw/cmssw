@@ -80,7 +80,7 @@ namespace edm
 
 
 
-  void DataMixingGeneralTrackWorker::addGeneralTrackPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr) {
+  void DataMixingGeneralTrackWorker::addGeneralTrackPileups(const int bcr, const EventPrincipal *ep, unsigned int eventNr) {
     LogDebug("DataMixingGeneralTrackWorker") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
 
 

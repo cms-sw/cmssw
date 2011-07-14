@@ -91,7 +91,7 @@ namespace edm
 
 
 
-  void DataMixingSiStripWorker::addSiStripPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr) {
+  void DataMixingSiStripWorker::addSiStripPileups(const int bcr, const EventPrincipal *ep, unsigned int eventNr) {
     LogDebug("DataMixingSiStripWorker") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
 
     // fill in maps of hits; same code as addSignals, except now applied to the pileup events

@@ -48,7 +48,7 @@ namespace edm
 
       void putEM(edm::Event &e) ;
       void addEMSignals(const edm::Event &e); 
-      void addEMPileups(const int bcr, edm::EventPrincipal*,unsigned int EventId);
+      void addEMPileups(const int bcr, const edm::EventPrincipal*,unsigned int EventId);
 
 
     private:

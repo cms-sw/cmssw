@@ -50,7 +50,7 @@ namespace edm
 
       void putHcal(edm::Event &e,const edm::EventSetup& ES) ;
       void addHcalSignals(const edm::Event &e,const edm::EventSetup& ES); 
-      void addHcalPileups(const int bcr, edm::EventPrincipal*,unsigned int EventId,const edm::EventSetup& ES);
+      void addHcalPileups(const int bcr, const edm::EventPrincipal*,unsigned int EventId,const edm::EventSetup& ES);
 
 
     private:

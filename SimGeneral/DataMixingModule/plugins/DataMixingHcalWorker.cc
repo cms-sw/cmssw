@@ -200,7 +200,7 @@ namespace edm
     
   } // end of addEMSignals
 
-  void DataMixingHcalWorker::addHcalPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr) {
+  void DataMixingHcalWorker::addHcalPileups(const int bcr, const EventPrincipal *ep, unsigned int eventNr) {
   
     LogDebug("DataMixingHcalWorker") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
 

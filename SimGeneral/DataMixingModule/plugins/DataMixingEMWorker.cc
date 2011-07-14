@@ -175,7 +175,7 @@ namespace edm
     
   } // end of addEMSignals
 
-  void DataMixingEMWorker::addEMPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr) {
+  void DataMixingEMWorker::addEMPileups(const int bcr, const EventPrincipal *ep, unsigned int eventNr) {
   
     LogInfo("DataMixingEMWorker") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
 

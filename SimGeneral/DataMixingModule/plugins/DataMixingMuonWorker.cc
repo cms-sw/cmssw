@@ -223,7 +223,7 @@ namespace edm
     
   } // end of addMuonSignals
 
-  void DataMixingMuonWorker::addMuonPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr) {
+  void DataMixingMuonWorker::addMuonPileups(const int bcr, const EventPrincipal *ep, unsigned int eventNr) {
   
     LogDebug("DataMixingMuonWorker") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
 

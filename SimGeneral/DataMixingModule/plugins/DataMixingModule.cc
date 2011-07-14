@@ -6,6 +6,7 @@
 
 #include <map>
 #include <iostream>
+#include <boost/bind.hpp>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
@@ -261,8 +262,6 @@ namespace edm
   }       
 	       
 
-  void DataMixingModule::createnewEDProduct() {
-  }
  
 
   // Virtual destructor needed.
@@ -322,55 +321,62 @@ namespace edm
   } // end of addSignals
 
   
-  void DataMixingModule::checkSignal(const edm::Event &e){}
-
-  void DataMixingModule::addPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr, unsigned int worker, const edm::EventSetup& ES) {  
 
 
-    LogDebug("DataMixingModule") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
+  void DataMixingModule::pileWorker(const EventPrincipal &ep, int bcr, int eventNr, const edm::EventSetup& ES) {  
+
+
+    LogDebug("DataMixingModule") <<"\n===============> adding pileups from event  "<<ep.id()<<" for bunchcrossing "<<bcr;
 
     // fill in maps of hits; same code as addSignals, except now applied to the pileup events
 
     // Ecal
-    if(MergeEMDigis_) {    EMDigiWorker_->addEMPileups(bcr, ep, eventNr, ES);}
-    else {EMWorker_->addEMPileups(bcr, ep, eventNr); }
+    if(MergeEMDigis_) {    EMDigiWorker_->addEMPileups(bcr, &ep, eventNr, ES);}
+    else {EMWorker_->addEMPileups(bcr, &ep, eventNr); }
 
     // Hcal
     if(MergeHcalDigis_) {    
       if(MergeHcalDigisProd_) {    
-	HcalDigiWorkerProd_->addHcalPileups(bcr, ep, eventNr, ES);
+	HcalDigiWorkerProd_->addHcalPileups(bcr, &ep, eventNr, ES);
       }
       else{
-	HcalDigiWorker_->addHcalPileups(bcr, ep, eventNr, ES);}
+	HcalDigiWorker_->addHcalPileups(bcr, &ep, eventNr, ES);}
     }
-    else {HcalWorker_->addHcalPileups(bcr, ep, eventNr);}
+    else {HcalWorker_->addHcalPileups(bcr, &ep, eventNr);}
 
     // Muon
-    MuonWorker_->addMuonPileups(bcr, ep, eventNr);
+    MuonWorker_->addMuonPileups(bcr, &ep, eventNr);
 
     if(DoFastSim_){
-      GeneralTrackWorker_->addGeneralTrackPileups(bcr, ep, eventNr);
+      GeneralTrackWorker_->addGeneralTrackPileups(bcr, &ep, eventNr);
     }else{
       
       // SiStrips
-      if(useSiStripRawDigi_) SiStripRawWorker_->addSiStripPileups(bcr, ep, eventNr);
-      else SiStripWorker_->addSiStripPileups(bcr, ep, eventNr);
+      if(useSiStripRawDigi_) SiStripRawWorker_->addSiStripPileups(bcr, &ep, eventNr);
+      else SiStripWorker_->addSiStripPileups(bcr, &ep, eventNr);
       
       // SiPixels
-      SiPixelWorker_->addSiPixelPileups(bcr, ep, eventNr);
+      SiPixelWorker_->addSiPixelPileups(bcr, &ep, eventNr);
     }
   }
+
+
   
   void DataMixingModule::doPileUp(edm::Event &e, const edm::EventSetup& ES)
-  {//                                                                                       
-                                       
+  {
+    std::vector<edm::EventID> recordEventID;
     for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
-      setBcrOffset();
       for (unsigned int isource=0;isource<maxNbSources_;++isource) {
-        setSourceOffset(isource);
-        if (doit_[isource]) {
-          merge(bunchCrossing, (pileup_[isource])[bunchCrossing-minBunch_],1, ES);
-        }
+        boost::shared_ptr<PileUp> source = inputSources_[isource];
+        if (!source || !source->doPileUp()) continue;
+
+        inputSources_[isource]->readPileUp(
+                recordEventID,
+                boost::bind(&DataMixingModule::pileWorker, boost::ref(*this),
+                            _1, bunchCrossing, _2, boost::cref(ES)),
+		TrueNumInteractions_[ isource ],
+		bunchCrossing
+                );
       }
     }
   }
@@ -410,10 +416,5 @@ namespace edm
     }
   }
 
-  void DataMixingModule::setBcrOffset() {
-  }
-
-  void DataMixingModule::setSourceOffset(const unsigned int is) {
-  }
 
 } //edm

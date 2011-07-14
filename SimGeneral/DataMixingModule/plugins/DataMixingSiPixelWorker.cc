@@ -99,7 +99,7 @@ namespace edm
 
 
 
-  void DataMixingSiPixelWorker::addSiPixelPileups(const int bcr, EventPrincipal *ep, unsigned int eventNr) {
+  void DataMixingSiPixelWorker::addSiPixelPileups(const int bcr, const EventPrincipal *ep, unsigned int eventNr) {
   
     LogDebug("DataMixingSiPixelWorker") <<"\n===============> adding pileups from event  "<<ep->id()<<" for bunchcrossing "<<bcr;
 
