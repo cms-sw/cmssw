@@ -42,6 +42,7 @@ bool geodebug = 0;
 
 enum GeoMenuOptions {
    kSetTopNode,
+   kSetTopNodeCam,
    kVisOn,
    kVisOff,
    kInspectMaterial,
@@ -156,7 +157,7 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager*
    m_tableManager = new FWGeometryTableManager(this);
    m_autoExpand.changed_.connect(boost::bind(&FWGeometryTableView::autoExpandChanged, this));
    m_visLevel.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D,this));
-   m_mode.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D, this));
+
    m_filter.changed_.connect(boost::bind(&FWGeometryTableView::updateFilter, this));
 
    // top row
@@ -416,6 +417,7 @@ FWGeometryTableView::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t
    {
       FWPopupMenu* m_nodePopup = new FWPopupMenu();
       m_nodePopup->AddEntry("Set As Top Node", kSetTopNode);
+      m_nodePopup->AddEntry("Set As Top Node And Camera Center", kSetTopNodeCam);
       m_nodePopup->AddSeparator();
       m_nodePopup->AddEntry("Rnr Off For All Children", kVisOff);
       m_nodePopup->AddEntry("Rnr On For All Children", kVisOn);
@@ -439,14 +441,11 @@ void FWGeometryTableView::chosenItem(int x)
    FWGeometryTableManager::NodeInfo& ni = m_tableManager->refSelected();
    TGeoVolume* gv = ni.m_node->GetVolume();
    bool visible = true;
+   bool resetHome = false;
    if (gv)
    {
       switch (x) {
-         case kSetTopNode:
-            cdNode(m_tableManager->m_selectedIdx);
-            break;
-
-         case kVisOff:
+        case kVisOff:
             visible = false;
          case kVisOn: 
             if (getVolumeMode())
@@ -457,7 +456,6 @@ void FWGeometryTableView::chosenItem(int x)
             {
                for (int d = 0; d < ni.m_node->GetNdaughters(); ++d )
                {
-              
                   ni.m_node->GetDaughter(d)->SetVisibility(visible);
                   ni.m_node->GetDaughter(d)->VisibleDaughters(visible);
                }
@@ -465,13 +463,32 @@ void FWGeometryTableView::chosenItem(int x)
             refreshTable3D();
             break;
 
+         case kInspectMaterial:
+            gv->InspectMaterial();
+            break;
+         case kInspectShape:
+            gv->InspectShape();
+            break;
+         case kTableDebug:
+            // std::cout << "node name " << ni.name() << "parent " <<m_tableManager->refEntries()[ni.m_parent].name() <<  std::endl;
+            // printf("node expanded [%d] imported[%d] children[%d]\n", ni.m_expanded,m_tableManager->nodeImported(m_tableManager->m_selectedIdx) ,  ni.m_node->GetNdaughters());
+            m_tableManager->printChildren( m_tableManager->m_selectedIdx);
+            break;
+
+         case kSetTopNode:
+            cdNode(m_tableManager->m_selectedIdx);
+            break;
+
+         case kSetTopNodeCam:
+            cdNode(m_tableManager->m_selectedIdx);
+            resetHome = true;
          case kCamera:
          {
             TGeoHMatrix mtx;
-            m_tableManager->getNodeMatrix( m_tableManager->refSelected(), mtx);
+            m_tableManager->getNodeMatrix( ni, mtx);
 
             static double pnt[3];
-            TGeoBBox* bb = static_cast<TGeoBBox*>( m_tableManager->refSelected().m_node->GetVolume()->GetShape());
+            TGeoBBox* bb = static_cast<TGeoBBox*>( ni.m_node->GetVolume()->GetShape());
             const double* origin = bb->GetOrigin();
             mtx.LocalToMaster(origin, pnt);
 
@@ -488,20 +505,9 @@ void FWGeometryTableView::chosenItem(int x)
                   cam.SetCenterVec(pnt[0], pnt[1], pnt[2]);
                }
             }
-
+            if (resetHome) gEve->FullRedraw3D(true, true);
             break;
          }
-         case kInspectMaterial:
-            gv->InspectMaterial();
-            break;
-         case kInspectShape:
-            gv->InspectShape();
-            break;
-         case kTableDebug:
-            // std::cout << "node name " << ni.name() << "parent " <<m_tableManager->refEntries()[ni.m_parent].name() <<  std::endl;
-            // printf("node expanded [%d] imported[%d] children[%d]\n", ni.m_expanded,m_tableManager->nodeImported(m_tableManager->m_selectedIdx) ,  ni.m_node->GetNdaughters());
-            m_tableManager->printChildren( m_tableManager->m_selectedIdx);
-            break;
       }
    }
 }
@@ -572,24 +578,19 @@ void FWGeometryTableView::setPath(int parentIdx, std::string& path)
 
    m_tableManager->topGeoNodeChanged(parentIdx);
    m_tableManager->checkExpandLevel();
+
    refreshTable3D();
    // printf("END Set Path to [%s], curren node %s \n", m_path.value().c_str(), topNode->GetName()); 
 
+   m_tableManager->redrawTable();
+   if ( m_eveTopNode) {
+      m_eveTopNode->ElementChanged();
+      gEve->FullRedraw3D(false, true);
+   } 
 
 #ifdef PERFTOOL_BROWSER  
    ProfilerStop();
-#endif  
-   std::string title =  path;
-   if (title.size() > 40)
-   {
-      title = title.substr(title.size() -41, 40);
-      size_t del = title.find_first_of('/');
-      if (del > 0)
-      {
-         title = title.substr(del);
-      }
-      title = "..." + title;
-   }
+#endif 
 }
 //______________________________________________________________________________
 
