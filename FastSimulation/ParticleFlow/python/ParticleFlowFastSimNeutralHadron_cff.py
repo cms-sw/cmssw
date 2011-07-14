@@ -12,6 +12,7 @@ from RecoParticleFlow.PFProducer.pfPhotonTranslator_cff import *
 from RecoParticleFlow.PFTracking.trackerDrivenElectronSeeds_cff import *
 from RecoParticleFlow.PFTracking.mergedElectronSeeds_cfi import *
 from FastSimulation.ParticleFlow.FSparticleFlow_cfi import *
+from RecoParticleFlow.PFProducer.pfLinker_cff import *
 
 particleFlowSimParticle.sim = 'famosSimHits'
 
@@ -49,6 +50,8 @@ famosParticleFlowSequence = cms.Sequence(
     pfElectronTranslatorSequence+
     pfPhotonTranslatorSequence
 )
+
+particleFlowLinks = cms.Sequence(particleFlow)
 
 # PF Reco Jets and MET
 
