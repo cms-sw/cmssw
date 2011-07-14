@@ -42,6 +42,20 @@ class PileupMixingContent {
     }
   };
 
+  PileupMixingContent( std::vector<int>& bunchCrossing,
+		       std::vector<int>& n_interactions)
+ {
+
+    bunchCrossing_.reserve(bunchCrossing.size());
+    n_interactions_.reserve(bunchCrossing.size());
+
+    for(int inter=0; inter<(int)bunchCrossing.size(); ++inter) {
+        bunchCrossing_.push_back(bunchCrossing[inter]);
+	n_interactions_.push_back(n_interactions[inter]);
+	n_TrueInteractions_.push_back(-1.);
+    }
+  };
+
 
 
   ~PileupMixingContent(){
