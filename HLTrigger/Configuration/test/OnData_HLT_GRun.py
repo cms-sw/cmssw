@@ -1,11 +1,11 @@
-# /online/collisions/2011/2e33/v1.1/HLT/V2 (CMSSW_4_2_0_HLT18)
+# /online/collisions/2011/2e33/v1.1/HLT/V4 (CMSSW_4_2_0_HLT18)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2011/2e33/v1.1/HLT/V2')
+  tableName = cms.string('/online/collisions/2011/2e33/v1.1/HLT/V4')
 )
 
 process.streams = cms.PSet( 
@@ -3799,7 +3799,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 240, 200, 160, 120, 80, 55, 40 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Mu30_v7" ),
-        prescales = cms.vuint32( 120, 100, 80, 55, 40, 30, 20 )
+        prescales = cms.vuint32( 120, 100, 1, 1, 1, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_IsoMu12_v9" ),
         prescales = cms.vuint32( 150, 150, 150, 4200, 3000, 2100, 1500 )
@@ -3808,7 +3808,10 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 170, 140, 110, 75, 55, 40, 25 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_IsoMu17_v13" ),
-        prescales = cms.vuint32( 300, 250, 200, 140, 1, 1, 1 )
+        prescales = cms.vuint32( 300, 250, 200, 1, 1, 1, 1 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_IsoMu20_v8" ),
+        prescales = cms.vuint32( 50, 1, 1, 1, 1, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_DoubleMu3_v9" ),
         prescales = cms.vuint32( 780, 650, 520, 370, 260, 190, 130 )
