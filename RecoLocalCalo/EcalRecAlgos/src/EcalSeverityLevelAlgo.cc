@@ -3,7 +3,7 @@
    Implementation of class EcalSeverityLevelAlgo
 
    \author Stefano Argiro
-   \version $Id: EcalSeverityLevelAlgo.cc,v 1.42 2011/06/30 17:53:46 vlimant Exp $
+   \version $Id: EcalSeverityLevelAlgo.cc,v 1.43 2011/07/06 08:35:26 argiro Exp $
    \date 10 Jan 2011
 */
 
@@ -35,13 +35,13 @@ EcalSeverityLevelAlgo::EcalSeverityLevelAlgo(const edm::ParameterSet& p){
 
   // read configuration of severities
 
-  for (uint is=0;is!=severities.size();++is){
+  for (unsigned int is=0;is!=severities.size();++is){
 
     EcalSeverityLevel::SeverityLevel snum=
       (EcalSeverityLevel::SeverityLevel) StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severities[is]);
     flags=ps.getParameter<std::vector<std::string> >(severities[is]);
     uint32_t mask=0;
-    for (uint ifi=0;ifi!=flags.size();++ifi){
+    for (unsigned int ifi=0;ifi!=flags.size();++ifi){
       EcalRecHit::Flags f=
 	(EcalRecHit::Flags)StringToEnumValue<EcalRecHit::Flags>(flags[ifi]);
       //manipulate the mask
@@ -58,14 +58,14 @@ EcalSeverityLevelAlgo::EcalSeverityLevelAlgo(const edm::ParameterSet& p){
  
   dbstatusMask_.resize(dbseverities.size());
 
-  for (uint is=0;is!=dbseverities.size();++is){
+  for (unsigned int is=0;is!=dbseverities.size();++is){
 
     EcalSeverityLevel::SeverityLevel snum=
       (EcalSeverityLevel::SeverityLevel) StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severities[is]);
     
     dbflags=dbps.getParameter<std::vector<uint32_t> >(severities[is]);
     uint32_t mask=0;
-    for (uint ifi=0;ifi!=dbflags.size();++ifi){
+    for (unsigned int ifi=0;ifi!=dbflags.size();++ifi){
       int f= dbflags[ifi];
       
       //manipulate the mask
