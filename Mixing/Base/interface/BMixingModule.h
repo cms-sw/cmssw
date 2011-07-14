@@ -28,8 +28,6 @@
 namespace edm {
   class BMixingModule : public edm::EDProducer {
     public:
-      typedef PileUp::EventPrincipalVector EventPrincipalVector;
-
       /** standard constructor*/
       explicit BMixingModule(const edm::ParameterSet& ps);
 
@@ -42,14 +40,12 @@ namespace edm {
       // Should 'averageNumber' return 0 or 1 if there is no mixing? It is the average number of
       // *crossings*, including the hard scatter, or the average number of overlapping events?
       // We have guessed 'overlapping events'.
-      double averageNumber() const {return input_ ? input_->averageNumber() : 0.0;}
+      double averageNumber() const {return inputSources_[0] ? inputSources_[0]->averageNumber() : 0.0; }
       // Should 'poisson' return 0 or 1 if there is no mixing? See also averageNumber above.
-      //bool poisson() const {return input_.poisson();}
-      bool poisson() const {return input_ ? input_->poisson() : 0.0 ;}
+      bool poisson() const {return inputSources_[0] ? inputSources_[0]->poisson() : 0.0 ;}
 
       virtual void createnewEDProduct() {std::cout << "BMixingModule::createnewEDProduct must be overwritten!" << std::endl;}
       virtual void checkSignal(const edm::Event &e) {std::cout << "BMixingModule::checkSignal must be overwritten!" << std::endl;}
-      void merge(const int bcr, const EventPrincipalVector& vec,unsigned int worker, const edm::EventSetup& c);
       virtual void addSignals(const edm::Event &e,const edm::EventSetup& c) {;}
       virtual void addPileups(const int bcr, EventPrincipal *ep, unsigned int eventId,unsigned int worker, const edm::EventSetup& c) {;}
       virtual void setBcrOffset () {std::cout << "BMixingModule::setBcrOffset must be overwritten!" << std::endl;} //FIXME: LogWarning
@@ -70,25 +66,17 @@ namespace edm {
       bool const mixProdStep1_;	       	
       bool const mixProdStep2_;
       	
-      // playback info
       bool playback_;
-      std::vector<edm::EventID> eventIDs_;
-      std::vector<std::vector<edm::EventID> > vectorEventIDs_;
-      std::vector<int> fileSeqNrs_;
-      std::vector<unsigned int> nrEvents_;
       const static unsigned int maxNbSources_;
+      std::vector<std::string> sourceNames_;
       bool doit_[4];//FIXME
-      std::vector<EventPrincipalVector> pileup_[4];//FIXME
       std::vector< float > TrueNumInteractions_[4];
 
-  private:
-
-      boost::shared_ptr<PileUp> input_;
-      boost::shared_ptr<PileUp> cosmics_;
-      boost::shared_ptr<PileUp> beamHalo_p_;
-      boost::shared_ptr<PileUp> beamHalo_m_;
-
       unsigned int eventId_;
+
+      // input, cosmics, beamhalo_plus, beamhalo_minus
+      std::vector<boost::shared_ptr<PileUp> > inputSources_;
+
   };
 
 }//edm

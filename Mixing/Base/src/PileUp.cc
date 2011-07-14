@@ -9,20 +9,11 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
-#include "CLHEP/Random/RandPoissonQ.h"
-#include "CLHEP/Random/RandFlat.h"
-
-#include "TRandom.h"
-#include "TFile.h"
-#include "TH1F.h"
-
 #include <algorithm>
 
 namespace edm {
-  PileUp::PileUp(ParameterSet const& pset, int const minb, int const maxb, double averageNumber, TH1F * const histo, const bool playback) :
+  PileUp::PileUp(ParameterSet const& pset, double averageNumber, TH1F * const histo, const bool playback) :
     type_(pset.getParameter<std::string>("type")),
-    minBunch_(minb),
-    maxBunch_(maxb),
     averageNumber_(averageNumber),
     intAverage_(static_cast<int>(averageNumber)),
     histo_(histo),
@@ -33,6 +24,7 @@ namespace edm {
     none_(type_ == "none"),
     input_(VectorInputSourceFactory::get()->makeVectorInputSource(pset, InputSourceDescription()).release()),
     poissonDistribution_(0),
+    poissonDistr_OOT_(0),
     playback_(playback),
     sequential_(pset.getUntrackedParameter<bool>("sequential", false)),
     seed_(pset.getParameter<edm::ParameterSet>("nbPileupEvents").getUntrackedParameter<int>("seed",0))
@@ -102,117 +94,7 @@ namespace edm {
 
   PileUp::~PileUp() {
     delete poissonDistribution_;
-  }
-
-  void
-  PileUp::readPileUp(std::vector<EventPrincipalVector> & result,std::vector<std::vector<edm::EventID> > &ids, std::vector< float > &TrueNumInteractions ) {
-
-    // set up vector of event counts for each bunch crossing ahead of time, so that we can
-    // allow for an arbitrary distribution for out-of-time vs. in-time pileup
-
-    std::vector<int> nint;
-
-    // if we are managing the distribution of out-of-time pileup separately, select the distribution for bunch
-    // crossing zero first, save it for later.
-
-    int nzero_crossing = -1;
-    double Fnzero_crossing = -1;
-
-    if(manage_OOT_) {
-      if (none_){
-	nzero_crossing = 0;
-      }else if (poisson_){
-	nzero_crossing =  poissonDistribution_->fire() ;
-      }else if (fixed_){
-	nzero_crossing =  intAverage_ ;
-      }else if (histoDistribution_ || probFunctionDistribution_){
-	double d = histo_->GetRandom();
-	//n = (int) floor(d + 0.5);  // incorrect for bins with integer edges
-	Fnzero_crossing =  d;
-      }
-    }
-            
-    for (int i = minBunch_; i <= maxBunch_; ++i) {
-      
-      if (playback_){
-	nint.push_back( ids[i-minBunch_].size() );
-      //} else if (sequential_) {  // just read many sequentially... why specify?
-      // For now, the use case for sequential read reads only one event at a time.
-      // nint.push_back( 1 );
-	TrueNumInteractions.push_back( ids[i-minBunch_].size() );
-      } 
-      else if(manage_OOT_) {
-	if(i==0 && !poisson_OOT_) { 
-	  nint.push_back(nzero_crossing);
-	  TrueNumInteractions.push_back( nzero_crossing );
-	}
-	else{
-	  if(poisson_OOT_) {
-	    nint.push_back( poissonDistr_OOT_->fire(Fnzero_crossing) );
-	    TrueNumInteractions.push_back( Fnzero_crossing );
-	  }
-	  else {
-	    nint.push_back( intFixed_OOT_ );
-	    TrueNumInteractions.push_back( intFixed_OOT_ );
-	  }	  
-	}
-      } 
-      else {	
-	if (none_){
-	  nint.push_back(0);
-	  TrueNumInteractions.push_back( 0. );
-	}else if (poisson_){
-	  nint.push_back( poissonDistribution_->fire() );
-          TrueNumInteractions.push_back( averageNumber_ );
-	}else if (fixed_){
-	  nint.push_back( intAverage_ );
-          TrueNumInteractions.push_back( intAverage_ );
-	}else if (histoDistribution_ || probFunctionDistribution_){
-	  double d = histo_->GetRandom();
-	  //n = (int) floor(d + 0.5);  // incorrect for bins with integer edges
-	  nint.push_back( int(d) );
-          TrueNumInteractions.push_back( d );
-	}
-
-      }
-    }
-
-    int n=0;
-      
-    for (int i = minBunch_; i <= maxBunch_; ++i) {
-      EventPrincipalVector eventVector;
-
-      n = nint[i-minBunch_];
-
-      eventVector.reserve(n);
-      while (n > 0) {
-        EventPrincipalVector oneResult;
-        oneResult.reserve(n);
-	std::vector<edm::EventID> oneResultPlayback;
-	oneResultPlayback.reserve(n);
-	if (playback_)   {
-	  input_->readManySpecified(ids[i-minBunch_],oneResult);  // playback
-	} else if (sequential_) {
-	  unsigned int file;
-	  input_->readManySequential(n, oneResult, file);  // sequential
-	  for (int j=0;j<(int)oneResult.size();j++){
-	    oneResultPlayback.push_back(oneResult[j]->id());
-	  }
-	  ids[i-minBunch_] = oneResultPlayback;
-	} else  {
-	  unsigned int file;   //FIXME: need unsigned filenr?
-	  input_->readManyRandom(n, oneResult,file);     //no playback
-	  for (int j=0;j<(int)oneResult.size();j++){
-	    oneResultPlayback.push_back(oneResult[j]->id());
-	  }
-	  ids[i-minBunch_] = oneResultPlayback;
-	}
-        LogDebug("readPileup") << "READ: " << oneResult.size();
-        std::copy(oneResult.begin(), oneResult.end(), std::back_inserter(eventVector));
-	n -= oneResult.size();
-      }
-      result.push_back(eventVector);
-    }
+    delete poissonDistr_OOT_ ;
   }
 
 } //namespace edm

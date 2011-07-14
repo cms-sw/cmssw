@@ -53,8 +53,8 @@ namespace
 		!= namesAverage.end()) 
 	      {
 		averageNumber=psin_average.getParameter<double>("averageNumber");
-		pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>(sourceName),minb,maxb,averageNumber,h,playback));
-		edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with minBunch,maxBunch "<<minb<<" "<<maxb<<" and averageNumber "<<averageNumber;
+		pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>(sourceName),averageNumber,h,playback));
+		edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with averageNumber "<<averageNumber;
 	      }
 	    else if (find(namesAverage.begin(), namesAverage.end(), std::string("fileName"))
 		!= namesAverage.end() && find(namesAverage.begin(), namesAverage.end(), std::string("histoName"))
@@ -82,8 +82,8 @@ namespace
 		// Get the averageNumber from the histo 
 		averageNumber = h->GetMean();
 		
-		pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>(sourceName),minb,maxb,averageNumber,h,playback));
-		edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with minBunch,maxBunch "<<minb<<" "<<maxb<<" and averageNumber "<<averageNumber;
+		pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>(sourceName),averageNumber,h,playback));
+		edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with averageNumber "<<averageNumber;
 	      
 	      }
 	    else if (find(namesAverage.begin(), namesAverage.end(), std::string("probFunctionVariable"))
@@ -144,8 +144,8 @@ namespace
 		outfile->Close();
 		outfile->Delete();		
 		
-		pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>(sourceName),minb,maxb,averageNumber,hprob,playback));
-		edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with minBunch,maxBunch "<<minb<<" "<<maxb<<" and averageNumber "<<averageNumber;
+		pileup.reset(new edm::PileUp(ps.getParameter<edm::ParameterSet>(sourceName),averageNumber,hprob,playback));
+		edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with averageNumber "<<averageNumber;
 		
 	      } 
 	    //special for pileup input
@@ -155,7 +155,7 @@ namespace
 	       	     
 	      averageNumber=psin_average.getParameter<double>("Lumi")*psin_average.getParameter<double>("sigmaInel")*ps.getParameter<int>("bunchspace")/1000*3564./2808.;  //FIXME
 	      pileup.reset(new
-	      edm::PileUp(ps.getParameter<edm::ParameterSet>(sourceName),minb,maxb,averageNumber,h,playback));
+	      edm::PileUp(ps.getParameter<edm::ParameterSet>(sourceName),averageNumber,h,playback));
 	      edm::LogInfo("MixingModule") <<" Created source "<<sourceName<<" with minBunch,maxBunch "<<minb<<" "<<maxb;
 	      edm::LogInfo("MixingModule")<<" Luminosity configuration, average number used is "<<averageNumber;
 	    }
@@ -189,14 +189,17 @@ namespace edm {
       LogInfo("MixingModule") <<" ATTENTION:Mixing will be done in playback mode! \n"
                               <<" ATTENTION:Mixing Configuration must be the same as for the original mixing!";
     }
-    
-    input_=     maybeMakePileUp(pset,"input",minBunch_,maxBunch_,playback_);
-    cosmics_=   maybeMakePileUp(pset,"cosmics",minBunch_,maxBunch_,playback_);
-    beamHalo_p_=maybeMakePileUp(pset,"beamhalo_plus",minBunch_,maxBunch_,playback_);
-    beamHalo_m_=maybeMakePileUp(pset,"beamhalo_minus",minBunch_,maxBunch_,playback_);
 
-    //prepare playback info structures
-    vectorEventIDs_.resize(maxBunch_-minBunch_+1);
+    // Just for debugging print out.
+    sourceNames_.push_back("input");
+    sourceNames_.push_back("cosmics");
+    sourceNames_.push_back("beamhalo_plus");
+    sourceNames_.push_back("beamhalo_minus");
+
+    for (size_t makeIdx = 0; makeIdx < maxNbSources_; makeIdx++ ) {
+      inputSources_.push_back(maybeMakePileUp(pset,sourceNames_[makeIdx],
+                                              minBunch_,maxBunch_,playback_));
+    }
   }
 
   // Virtual destructor needed.
@@ -217,102 +220,22 @@ namespace edm {
       addSignals(e,setup);
     }
 
-    // Read the PileUp 
-    for (unsigned int is=0;is< maxNbSources_;++is) {
-      doit_[is]=false;
-      pileup_[is].clear();
-      TrueNumInteractions_[is].clear();
-    }
-    
-    if (input_)  {
-      if (playback_) {
-	getEventStartInfo(e,0);
-	input_->readPileUp(pileup_[0], vectorEventIDs_, TrueNumInteractions_[0]);
-      } else {
-	input_->readPileUp(pileup_[0], vectorEventIDs_, TrueNumInteractions_[0]); 
-        setEventStartInfo(0);
-      }
-      if (input_->doPileup()) {  
-	LogDebug("MixingModule") <<"\n\n==============================>Adding pileup to signal event "<<e.id(); 
-	doit_[0]=true;
-      } 
-    }
-    if (cosmics_) {
-      if (playback_) {
-	getEventStartInfo(e,1);
-	cosmics_->readPileUp(pileup_[1], vectorEventIDs_, TrueNumInteractions_[1]); 
-      } else {
-	cosmics_->readPileUp(pileup_[1], vectorEventIDs_, TrueNumInteractions_[1]); 
-	setEventStartInfo(1);
-      }
-      if (cosmics_->doPileup()) {  
-	LogDebug("MixingModule") <<"\n\n==============================>Adding cosmics to signal event "<<e.id(); 
-	doit_[1]=true;
-      } 
-    }
-
-    if (beamHalo_p_) {
-      if (playback_) {
-	getEventStartInfo(e,2);
-	beamHalo_p_->readPileUp(pileup_[2], vectorEventIDs_, TrueNumInteractions_[2]);
-      } else {
-	beamHalo_p_->readPileUp(pileup_[2], vectorEventIDs_, TrueNumInteractions_[2]);
-	setEventStartInfo(2);
-      }
-      if (beamHalo_p_->doPileup()) {  
-	LogDebug("MixingModule") <<"\n\n==============================>Adding beam halo+ to signal event "<<e.id();
-	doit_[2]=true;
-      } 
-    }
-
-    if (beamHalo_m_) {
-      if (playback_) {
-	getEventStartInfo(e,3);
-	beamHalo_m_->readPileUp(pileup_[3], vectorEventIDs_, TrueNumInteractions_[3]);
-      } else {
-	beamHalo_m_->readPileUp(pileup_[3], vectorEventIDs_, TrueNumInteractions_[3]);
-	setEventStartInfo(3);
-      }
-      if (beamHalo_m_->doPileup()) {  
-	LogDebug("MixingModule") <<"\n\n==============================>Adding beam halo- to signal event "<<e.id();
-	doit_[3]=true;
-      }
-    }
-
     doPileUp(e,setup);
 
     // Put output into event (here only playback info)
     put(e,setup);
   }
 
-  void BMixingModule::merge(const int bcr, const EventPrincipalVector& vec, unsigned int worker, const edm::EventSetup& setup) {
-    //
-    // main loop: loop over events and merge 
-    //    
-    eventId_=0;
-    LogDebug("MixingModule") <<"For bunchcrossing "<<bcr<<", "<<vec.size()<<" events will be merged";
-    vertexoffset=0;
-    int i=0;
-    for (EventPrincipalVector::const_iterator it = vec.begin(); it != vec.end(); ++it) {
-      LogDebug("MixingModule") <<" merging Event:  id " << (*it)->id();
-      
-      addPileups(bcr, &(**it), ++eventId_,worker,setup);
-      i = i + 1;
-    }// end main loop
-  }
-
   void BMixingModule::dropUnwantedBranches(std::vector<std::string> const& wantedBranches) {
-      if (input_) input_->dropUnwantedBranches(wantedBranches);
-      if (cosmics_) cosmics_->dropUnwantedBranches(wantedBranches);
-      if (beamHalo_p_) beamHalo_p_->dropUnwantedBranches(wantedBranches);
-      if (beamHalo_m_) beamHalo_m_->dropUnwantedBranches(wantedBranches);
+    for (size_t dropIdx=0; dropIdx<maxNbSources_; dropIdx++ ) {
+      if( inputSources_[dropIdx] ) inputSources_[dropIdx]->dropUnwantedBranches(wantedBranches);
+    }
   }
 
   void BMixingModule::endJob() {
-      if (input_) input_->endJob();
-      if (cosmics_) cosmics_->endJob();
-      if (beamHalo_p_) beamHalo_p_->endJob();
-      if (beamHalo_m_) beamHalo_m_->endJob();
+    for (size_t endIdx=0; endIdx<maxNbSources_; endIdx++ ) {
+      if( inputSources_[endIdx] ) inputSources_[endIdx]->endJob();
+    }
   }
 
 } //edm
