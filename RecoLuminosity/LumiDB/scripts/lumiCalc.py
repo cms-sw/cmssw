@@ -4,7 +4,7 @@ import os,sys,time
 import coral
 from RecoLuminosity.LumiDB import lumiTime,lumiCorrections,inputFilesetParser,csvSelectionParser, selectionParser,csvReporter,argparse,CommonUtil,lumiQueryAPI
 
-def getPerLSData(dbsession,inputRange,lumiversion='0001',withFineCorrection=False):
+def getPerLSData(dbsession,inputRange,lumiversion='0001',finecorrections=None):
     result={}#{run:[[cmslsnum,orbittime,orbittimestamp,delivered,recorded]]}
     datacollector={}
     if isinstance(inputRange, str):
@@ -16,9 +16,6 @@ def getPerLSData(dbsession,inputRange,lumiversion='0001',withFineCorrection=Fals
     try:
         dbsession.transaction().start(True)
         schema=dbsession.nominalSchema()
-        finecorrections={}
-        if withFineCorrection:
-            finecorrections=lumiCorrections.correctionsForRange(schema,runs)
         for run in runs:
             runsummaryOut=[]  #[fillnum,sequence,hltkey,starttime,stoptime]
             lumisummaryOut=[] #[[cmslsnum,instlumi,numorbit,startorbit,beamstatus,beamenergy,cmsalive]]
@@ -50,12 +47,11 @@ def getPerLSData(dbsession,inputRange,lumiversion='0001',withFineCorrection=Fals
         trg=perrundata[2]
         starttimestr=runsummaryOut[3]
         t=lumiTime.lumiTime()
-        if withFineCorrection:
-            (constfactor,afterglowfactor,nonlinearfactor)=finecorrections[run]
         for dataperls in lumisummary:
             cmslsnum=dataperls[0]
             instlumi=dataperls[1]
-            if withFineCorrection:
+            if finecorrections:
+                (constfactor,afterglowfactor,nonlinearfactor)=finecorrections[run]
                 instlumi=lumiCorrections.applyfinecorrection(instlumi,constfactor,afterglowfactor,nonlinearfactor)
             numorbit=dataperls[2]
             dellumi=instlumi*float(numorbit)*3564.0*25.0e-09
@@ -198,7 +194,7 @@ if __name__ == '__main__':
             hltpath=''
             if options.hltpath:
                 hltpath=options.hltpath
-            delivereddata=lumiQueryAPI.deliveredLumiForRange(session, parameters, inputRange,finecorrections=finecorrections)
+            delivereddata=lumiQueryAPI.deliveredLumiForRange(session, parameters,inputRange,finecorrections=finecorrections)
             recordeddata=lumiQueryAPI.recordedLumiForRange(session, parameters, inputRange,finecorrections=finecorrections)
             if not options.outputfile:
                 lumiQueryAPI.printOverviewData (delivereddata, recordeddata, hltpath)
@@ -211,7 +207,7 @@ if __name__ == '__main__':
 
                 # Lumi by lumisection
         if options.action == 'lumibylstime':
-            lsdata=getPerLSData(session,inputRange,withFineCorrection=options.withFineCorrection)#{run:[[ls,orbittime,orbittimestamp,delivered,recorded],[]]}
+            lsdata=getPerLSData(session,inputRange,finecorrections=finecorrections)#{run:[[ls,orbittime,orbittimestamp,delivered,recorded],[]]}
             runs=lsdata.keys()
             runs.sort()
             if not options.outputfile:
@@ -234,7 +230,7 @@ if __name__ == '__main__':
                         report.writeRow([run,perlsdata[0],perlsdata[1],perlsdata[2],perlsdata[3],perlsdata[4]])
                             
         if options.action=='lumibyls' or options.action=='lumibylsXing':
-            recordeddata=lumiQueryAPI.recordedLumiForRange(session, parameters, inputRange,finecorrections=finecorrections)
+            recordeddata=lumiQueryAPI.recordedLumiForRange(session, parameters,inputRange,finecorrections=finecorrections)
             # we got it, now we got to decide what to do with it
             if not options.outputfile:
                 lumiQueryAPI.printPerLSLumi (recordeddata, parameters.verbose)
