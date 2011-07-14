@@ -46,7 +46,7 @@ public:
    static
    const TGPicture* closedImage(bool isBlack = true)
    {
-      static const TGPicture* s_picture_white = gClient->GetPicture(coreIcondir()+"arrow-white-right.png");
+      static const TGPicture* s_picture_white = gClient->GetPicture(coreIcondir()+"arrow-white-right-blackbg.png");
       static const TGPicture* s_picture_black = gClient->GetPicture(coreIcondir()+"arrow-black-right.png");
 
       return isBlack ? s_picture_black : s_picture_white;
@@ -55,7 +55,7 @@ public:
    static
    const TGPicture* openedImage(bool isBlack = true)
    {
-      static const TGPicture* s_picture_white = gClient->GetPicture(coreIcondir()+"arrow-white-down.png");
+      static const TGPicture* s_picture_white = gClient->GetPicture(coreIcondir()+"arrow-white-down-blackbg.png");
       static const TGPicture* s_picture_black = gClient->GetPicture(coreIcondir()+"arrow-black-down.png");
 
       return isBlack ? s_picture_black : s_picture_white;
