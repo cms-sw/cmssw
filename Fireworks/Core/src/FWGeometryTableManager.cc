@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.29 2011/07/13 03:40:03 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.30 2011/07/14 03:59:17 amraktad Exp $
 //
 
 //#define PERFTOOL_GEO_TABLE
@@ -250,7 +250,7 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
 
       renderer->setIsParent((gn.GetNdaughters() > 0) && (m_filterOff || data.testBit(kChildMatches) ));
 
-      renderer->setIsOpen(data.testBit(FWGeometryTableManager::kExpanded));
+      renderer->setIsOpen( data.testBit(FWGeometryTableManager::kExpanded));
 
       int level = data.m_level - m_levelOffset;
 
@@ -356,7 +356,8 @@ void FWGeometryTableManager::recalculateVisibility()
    m_row_to_index.push_back(i);
 
    NodeInfo& data = m_entries[i];
-   if (m_filterOff && data.testBit(kExpanded) == false)
+   if ((m_filterOff && data.testBit(kExpanded) == false) ||
+       (m_filterOff == false && data.testBit(kChildMatches) == false) )
       return;
 
    if (!m_filterOff)
@@ -371,7 +372,7 @@ void FWGeometryTableManager::recalculateVisibility()
    else
       recalculateVisibilityNodeRec(i);
 
-   //   printf ("table size %d \n", (int)m_row_to_index.size());
+   //  printf (" FWGeometryTableManager::recalculateVisibility table size %d \n", (int)m_row_to_index.size());
 }
 
 
@@ -394,7 +395,7 @@ void FWGeometryTableManager::recalculateVisibilityNodeRec( int pIdx)
       {
          assertNodeFilterCache(data);
          if (data.testBitAny(kMatches | kChildMatches)) m_row_to_index.push_back(idx); 
-         if (data.testBit(kChildMatches)) recalculateVisibilityNodeRec(idx);
+         if (data.testBit(kChildMatches) && data.testBit(kExpanded) ) recalculateVisibilityNodeRec(idx);
       }
 
       FWGeometryTableManager::getNNodesTotal(parentNode->GetDaughter(n), dOff);
@@ -445,7 +446,7 @@ void FWGeometryTableManager::recalculateVisibilityVolumeRec(int pIdx)
          {
             assertNodeFilterCache(data);
             if (data.testBitAny(kMatches | kChildMatches)) m_row_to_index.push_back(idx); 
-            if (data.testBit(kChildMatches)) recalculateVisibilityNodeRec(idx);
+            if (data.testBit(kChildMatches) && data.testBit(kExpanded)) recalculateVisibilityNodeRec(idx);
          }
       }
       FWGeometryTableManager::getNNodesTotal(parentNode->GetDaughter(n), dOff);
