@@ -359,6 +359,7 @@ namespace edm
     for (unsigned int ii=0;ii<workers_.size();ii++) {
       // we have to loop over bunchcrossings first since added objects are all stored in one vector, 
       // ordered by bunchcrossing
+
       for (int bunchCrossing=minBunch_;bunchCrossing<=maxBunch_;++bunchCrossing) {
 	workers_[ii]->setBcrOffset();
 	for (unsigned int isource=0;isource<maxNbSources_;++isource) {
@@ -381,6 +382,7 @@ namespace edm
       bunchCrossingList.push_back(bunchCrossing);
       if(!doit_[0]) {
         numInteractionList.push_back(0);
+        TrueInteractionList.push_back(0);
       }
       else {
         numInteractionList.push_back(((pileup_[0])[bunchCrossing-minBunch_]).size());
