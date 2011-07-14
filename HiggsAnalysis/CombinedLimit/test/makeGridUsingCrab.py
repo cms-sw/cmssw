@@ -6,6 +6,7 @@ import ROOT
 parser = OptionParser(usage="usage: %prog [options] workspace min max \nrun with --help to get list of options")
 parser.add_option("-o", "--out",      dest="out",      default="TestGrid",  type="string", help="output file prefix")
 parser.add_option("--lsf",            dest="lsf",      default=False, action="store_true", help="Run on LSF instead of GRID (can be changed in .cfg file)")
+parser.add_option("--condor",         dest="condor",   default=False, action="store_true", help="Run on condor_g instead of GRID (can be changed in .cfg file)")
 parser.add_option("--glidein",        dest="glide",    default=False, action="store_true", help="Use glide-in scheduler instead of glite")
 parser.add_option("--server",         dest="server",   default=False, action="store_true", help="Use crab server")
 parser.add_option("-q", "--queue",    dest="queue",    default="8nh80",   type="string", help="LSF queue to use (can be changed in .cfg file)")
@@ -97,6 +98,7 @@ if not os.path.exists("combine"):
 
 sched = "glite"
 if options.lsf: sched = "lsf"
+if options.condor: sched = "condor"
 if options.glide: sched = "glidein"
 print "Creating crab cfg ",options.out+".cfg"
 cfg = open(options.out+".cfg", "w")
