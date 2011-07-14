@@ -68,7 +68,7 @@ void Analysis_Step5()
 
    string InputDir;				unsigned int CutIndex;
    std::vector<string> Legends;                 std::vector<string> Inputs;
-
+   int GluinoCutIndex;
 
 //   InputDir = "Results/dedxASmi/combined/Eta25/PtMin15/Type0/SplitMode0/WPPt20/WPI20/WPTOF00/";
 //   InputDir = "Results/dedxASmi/combined/Eta25/PtMin20/Type2/SplitMode0/WPPt05/WPI05/WPTOF05/";
@@ -92,28 +92,27 @@ void Analysis_Step5()
 
    InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type0/";   CutIndex = 4;//25;//24;//41
    MassPrediction(InputDir, CutIndex, "Mass");
-   // PredictionAndControlPlot(InputDir, CutIndex);
-   //GetSystematicOnPrediction(InputDir);
+   PredictionAndControlPlot(InputDir, CutIndex);
+   GetSystematicOnPrediction(InputDir);
 
-   InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type2/";   CutIndex = 38;//²38;//83;// 82;//18;
-   //MassPrediction(InputDir, CutIndex, "Mass");
-   //GetSystematicOnPrediction(InputDir);
-   //PredictionAndControlPlot(InputDir, CutIndex);
+   InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type2/";   CutIndex = 14;//²38;//83;// 82;//18;
+   MassPrediction(InputDir, CutIndex, "Mass");
+   GetSystematicOnPrediction(InputDir);
+   PredictionAndControlPlot(InputDir, CutIndex);
 
    //SelectionPlot(InputDir, CutIndex);
    //PredictionAndControlPlot(InputDir, CutIndex);
    //GetSystematicOnPrediction(InputDir);
 
 
-   //InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type0/";   CutIndex = 11;/*65;*//*39;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
-   //CutIndex=28;
-   //int GluinoCutIndex=11;   
-   //SelectionPlot(InputDir, CutIndex, GluinoCutIndex);   
+   InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type0/";   CutIndex = 11;/*65;*//*39;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
+   CutIndex=28;
+   GluinoCutIndex=11;   
+   SelectionPlot(InputDir, CutIndex, GluinoCutIndex);   
 
-   //InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type2/";   CutIndex = 225;/*211;*//*167;95;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
-   //GluinoCutIndex=650;
-   //SelectionPlot(InputDir, CutIndex, GluinoCutIndex);
-
+   InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type2/";   CutIndex = 225;/*211;*//*167;95;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
+   GluinoCutIndex=650;
+   SelectionPlot(InputDir, CutIndex, GluinoCutIndex);
 //   InputDir = "Results/dedxASmi/combined/Eta25/PtMin35/Type0/";   CutIndex = 64;   Make2DPlot_Core(InputDir,CutIndex);
 
 
@@ -1486,7 +1485,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    Signal->SetMarkerSize(1.5);
    Signal->SetLineColor(4);
    Signal->SetFillColor(38);
-   //Signal->Draw("same HIST");
+   Signal->Draw("same HIST");
    PredErr->Draw("same E5");
 
    Pred->SetMarkerStyle(22);
@@ -1513,8 +1512,8 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    PredLeg->SetFillStyle(PredErr->GetFillStyle());
    leg->AddEntry(Data, "Data"        ,"P");
    leg->AddEntry(PredLeg, "Data-based prediction"  ,"PF");
-   //if(IsTkOnly)leg->AddEntry(Signal, "MC - Gluino (M=600 GeV/c^{2})"        ,"F");
-   //else        leg->AddEntry(Signal, "MC - Stau (M=156 GeV/c^{2})"        ,"F");
+   if(IsTkOnly)leg->AddEntry(Signal, "MC - Gluino (M=600 GeV/c^{2})"        ,"F");
+   else        leg->AddEntry(Signal, "MC - Stau (M=156 GeV/c^{2})"        ,"F");
    leg->Draw();
 
    DrawPreliminary(IntegratedLuminosity);

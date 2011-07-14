@@ -54,69 +54,77 @@ class stSignal{
    public:
    std::string Type;
    std::string Name;
+   std::string FileName;
    std::string Legend;
    double Mass;
    double XSec;
    bool   MakePlot;
 
    stSignal(); 
-   stSignal(std::string Type_, std::string Name_, std::string Legend_, double Mass_, bool MakePlot_, double XSec_){Type=Type_; Name=Name_; Legend=Legend_; Mass=Mass_; MakePlot=MakePlot_; XSec=XSec_;}
+   stSignal(std::string Type_, std::string Name_, std::string FileName_, std::string Legend_, double Mass_, bool MakePlot_, double XSec_){Type=Type_; Name=Name_; FileName=FileName_; Legend=Legend_; Mass=Mass_; MakePlot=MakePlot_; XSec=XSec_;}
 };
 
 
 void GetSignalDefinition(std::vector<stSignal>& signals){
 
 // signals.push_back(stSignal("Gluino", "Gluino200"    , "#tilde{g} 200"                 , 200,  1, 606.000000) ); //NLO
-  signals.push_back(stSignal("Gluino", "Gluino300"    , "#tilde{g} 300"                 , 300,  1,  57.200000) ); //NLO
-  signals.push_back(stSignal("Gluino", "Gluino400"    , "#tilde{g} 400"                 , 400,  1,   8.980000) ); //NLO
-  signals.push_back(stSignal("Gluino", "Gluino500"    , "#tilde{g} 500"                 , 500,  1,   1.870000) ); //NLO
-  signals.push_back(stSignal("Gluino", "Gluino600"    , "#tilde{g} 600"                 , 600,  1,   0.465000) ); //NLO
-  signals.push_back(stSignal("Gluino", "Gluino700"    , "#tilde{g} 700"                 , 700,  1,   0.130000) ); //NLO
-   signals.push_back(stSignal("Gluino", "Gluino800"    , "#tilde{g} 800"                 , 800,  1,   0.039600) ); //NLO
-      signals.push_back(stSignal("Gluino", "Gluino900"    , "#tilde{g} 900"                 , 900,  1,   0.012800) ); //NLO
-   signals.push_back(stSignal("Gluino", "Gluino1000"   , "#tilde{g} 1000"                ,1000,  1,   0.004300) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino300", "Gluino300"    , "#tilde{g} 300"                 , 300,  1,  65.800000) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino400", "Gluino400"    , "#tilde{g} 400"                 , 400,  1,   11.20000) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino500", "Gluino500"    , "#tilde{g} 500"                 , 500,  1,   2.540000) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino600", "Gluino600"    , "#tilde{g} 600"                 , 600,  1,   0.693000) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino700", "Gluino700"    , "#tilde{g} 700"                 , 700,  1,   0.214000) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino800", "Gluino800"    , "#tilde{g} 800"                 , 800,  1,   0.072500) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino900", "Gluino900"    , "#tilde{g} 900"                 , 900,  1,   0.026200) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino1000", "Gluino1000"  , "#tilde{g} 1000"                ,1000,  1,   0.0098700) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino1100", "Gluino1100"  , "#tilde{g} 1100"                ,1100,  1,   0.0038600) ); //NLO 
+  //signals.push_back(stSignal("Gluino", "Gluino1200", "Gluino1200"   , "#tilde{g} 1200"                ,1200,  1,   0.004300) ); //NLO
 
-   signals.push_back(stSignal("Gluino", "Gluino300N"   , "#tilde{g} 300 CS"              , 300,  1,  57.200000) ); //NLO
-   signals.push_back(stSignal("Gluino", "Gluino400N"   , "#tilde{g} 400 CS"              , 400,  1,   8.980000) ); //NLO
-   signals.push_back(stSignal("Gluino", "Gluino500N"   , "#tilde{g} 500 CS"              , 500,  1,   1.870000) ); //NLO
-   signals.push_back(stSignal("Gluino", "Gluino600N"   , "#tilde{g} 600 CS"              , 600,  1,   0.465000) ); //NLO
-   signals.push_back(stSignal("Gluino", "Gluino700N"   , "#tilde{g} 700 CS"              , 700,  1,   0.130000) ); //NLO
-   signals.push_back(stSignal("Gluino", "Gluino800N"   , "#tilde{g} 800 CS"              , 800,  1,   0.039600) ); //NLO
-   signals.push_back(stSignal("Gluino", "Gluino900N"   , "#tilde{g} 900 CS"              , 900,  1,   0.012800) ); //NLO
-   signals.push_back(stSignal("Gluino", "Gluino1000N"  , "#tilde{g} 1000 CS"             ,1000,  1,   0.004300) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino300N", "Gluinoneutralonly300"   , "#tilde{g} 300 CS"              , 300,  1,  65.800000) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino400N", "Gluinoneutralonly400"   , "#tilde{g} 400 CS"              , 400,  1,   11.20000) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino500N", "Gluinoneutralonly500"   , "#tilde{g} 500 CS"              , 500,  1,   2.540000) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino600N", "Gluinoneutralonly600"   , "#tilde{g} 600 CS"              , 600,  1,   0.693000) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino700N", "Gluinoneutralonly700"   , "#tilde{g} 700 CS"              , 700,  1,   0.214000) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino800N", "Gluinoneutralonly800"   , "#tilde{g} 800 CS"              , 800,  1,   0.072500) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino900N", "Gluinoneutralonly900"   , "#tilde{g} 900 CS"              , 900,  1,   0.026200) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino1000N", "Gluinoneutralonly1000"  , "#tilde{g} 1000 CS"             ,1000,  1,   0.0098700) ); //NLO
+  signals.push_back(stSignal("Gluino", "Gluino1100N", "Gluinoneutralonly1100"  , "#tilde{g} 1100 CS"             ,1100,  1,   0.0038600) ); //NLO
+  //signals.push_back(stSignal("Gluino", "Gluino1200N", "Gluinoneutralonly1200.root"  , "#tilde{g} 1200 CS"             ,1200,  1,   ) ); //NLO
 
-   signals.push_back(stSignal("Gluino", "Gluino600Z"   , "#tilde{g} 600 Z2"              , 600,  1,   0.465000) ); //NLO
-   signals.push_back(stSignal("Gluino", "Gluino700Z"   , "#tilde{g} 700 Z2"              , 700,  1,   0.130000) ); //NLO
-   signals.push_back(stSignal("Gluino", "Gluino800Z"   , "#tilde{g} 800 Z2"              , 800,  1,   0.039600) ); //NLO
+   //signals.push_back(stSignal("Gluino", "Gluino600Z"   , "#tilde{g} 600 Z2"              , 600,  1,   0.465000) ); //NLO
+   //signals.push_back(stSignal("Gluino", "Gluino700Z"   , "#tilde{g} 700 Z2"              , 700,  1,   0.130000) ); //NLO
+   //signals.push_back(stSignal("Gluino", "Gluino800Z"   , "#tilde{g} 800 Z2"              , 800,  1,   0.039600) ); //NLO
 
-   signals.push_back(stSignal("Stop"  , "Stop130"      , "#tilde{t}_{1} 130"             , 130,  1, 120.000000) ); //NLO
-   signals.push_back(stSignal("Stop"  , "Stop200"      , "#tilde{t}_{1} 200"             , 200,  1,  13.000000) ); //NLO
-   signals.push_back(stSignal("Stop"  , "Stop300"      , "#tilde{t}_{1} 300"             , 300,  1,   1.310000) ); //NLO
-   signals.push_back(stSignal("Stop"  , "Stop400"      , "#tilde{t}_{1} 400"             , 400,  1,   0.218000) ); //NLO
-   signals.push_back(stSignal("Stop"  , "Stop500"      , "#tilde{t}_{1} 500"             , 500,  0,   0.047800) ); //NLO
-   signals.push_back(stSignal("Stop"  , "Stop600"      , "#tilde{t}_{1} 600"             , 600,  1,   0.012500) ); //NLO
-   signals.push_back(stSignal("Stop"  , "Stop700"      , "#tilde{t}_{1} 700"             , 700,  1,   0.003560) ); //NLO
-   signals.push_back(stSignal("Stop"  , "Stop800"      , "#tilde{t}_{1} 800"             , 800,  1,   0.001140) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop130", "stop_M-130"      , "#tilde{t}_{1} 130"             , 130,  1, 120.000000) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop200", "stop_M-200"      , "#tilde{t}_{1} 200"             , 200,  1,  13.000000) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop300", "stop_M-300"      , "#tilde{t}_{1} 300"             , 300,  1,   1.310000) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop400", "stop_M-400"      , "#tilde{t}_{1} 400"             , 400,  1,   0.218000) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop500", "stop_M-500"      , "#tilde{t}_{1} 500"             , 500,  0,   0.047800) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop600", "stop_M-600"      , "#tilde{t}_{1} 600"             , 600,  1,   0.012500) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop700", "stop_M-700"      , "#tilde{t}_{1} 700"             , 700,  1,   0.003560) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop800", "stop_M-800"      , "#tilde{t}_{1} 800"             , 800,  1,   0.001140) ); //NLO
 
-   signals.push_back(stSignal("Stop"  , "Stop130N"     , "#tilde{t}_{1} 130 CS"          , 130,  1, 120.000000) ); //NLO
-   signals.push_back(stSignal("Stop"  , "Stop200N"     , "#tilde{t}_{1} 200 CS"          , 200,  1,  13.000000) ); //NLO
-   signals.push_back(stSignal("Stop"  , "Stop300N"     , "#tilde{t}_{1} 300 CS"          , 300,  1,   1.310000) ); //NLO
-   signals.push_back(stSignal("Stop"  , "Stop400N"     , "#tilde{t}_{1} 400 CS"          , 400,  1,   0.218000) ); //NLO
-   signals.push_back(stSignal("Stop"  , "Stop500N"     , "#tilde{t}_{1} 500 CS"          , 500,  0,   0.047800) ); //NLO
-   signals.push_back(stSignal("Stop"  , "Stop600N"     , "#tilde{t}_{1} 600 CS"          , 600,  1,   0.012500) ); //NLO
-   signals.push_back(stSignal("Stop"  , "Stop700N"     , "#tilde{t}_{1} 700 CS"          , 700,  1,   0.003560) ); //NLO
-   signals.push_back(stSignal("Stop"  , "Stop800N"     , "#tilde{t}_{1} 800 CS"          , 800,  1,   0.001140) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop130N", "stoponlyneutral_M-130"      , "#tilde{t}_{1} 130 CS"          , 130,  1, 120.000000) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop200N", "stoponlyneutral_M-200"     , "#tilde{t}_{1} 200 CS"          , 200,  1,  13.000000) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop300N", "stoponlyneutral_M-300"     , "#tilde{t}_{1} 300 CS"          , 300,  1,   1.310000) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop400N", "stoponlyneutral_M-400"     , "#tilde{t}_{1} 400 CS"          , 400,  1,   0.218000) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop500N", "stoponlyneutral_M-500"     , "#tilde{t}_{1} 500 CS"          , 500,  0,   0.047800) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop600N", "stoponlyneutral_M-600"     , "#tilde{t}_{1} 600 CS"          , 600,  1,   0.012500) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop700N", "stoponlyneutral_M-700"     , "#tilde{t}_{1} 700 CS"          , 700,  1,   0.003560) ); //NLO
+  signals.push_back(stSignal("Stop"  , "Stop800N", "stoponlyneutral_M-800"     , "#tilde{t}_{1} 800 CS"          , 800,  1,   0.001140) ); //NLO
 
-   signals.push_back(stSignal("Stop"  , "Stop300Z"     , "#tilde{t}_{1} 300 Z2"          , 300,  1,   1.310000) ); //NLO
-   signals.push_back(stSignal("Stop"  , "Stop400Z"     , "#tilde{t}_{1} 400 Z2"          , 400,  1,   0.218000) ); //NLO
-   signals.push_back(stSignal("Stop"  , "Stop500Z"     , "#tilde{t}_{1} 500 Z2"          , 500,  0,   0.047800) ); //NLO
+  //signals.push_back(stSignal("Stop"  , "Stop300Z"     , "#tilde{t}_{1} 300 Z2"          , 300,  1,   1.310000) ); //NLO
+  //signals.push_back(stSignal("Stop"  , "Stop400Z"     , "#tilde{t}_{1} 400 Z2"          , 400,  1,   0.218000) ); //NLO
+  //signals.push_back(stSignal("Stop"  , "Stop500Z"     , "#tilde{t}_{1} 500 Z2"          , 500,  0,   0.047800) ); //NLO
 
-   signals.push_back(stSignal("Stau"  , "GMStau100"    , "GMSB #tilde{#tau}_{1} 100"     , 100,  1,   1.326000) ); //LO
-   signals.push_back(stSignal("Stau"  , "GMStau126"    , "GMSB #tilde{#tau}_{1} 126"     , 126,  1,   0.330000) ); //LO
-   signals.push_back(stSignal("Stau"  , "GMStau156"    , "GMSB #tilde{#tau}_{1} 156"     , 156,  0,   0.105000) ); //LO
-   signals.push_back(stSignal("Stau"  , "GMStau200"    , "GMSB #tilde{#tau}_{1} 200"     , 200,  1,   0.025000) ); //LO
-   signals.push_back(stSignal("Stau"  , "GMStau247"    , "GMSB #tilde{#tau}_{1} 247"     , 247,  0,   0.008000) ); //LO
-   signals.push_back(stSignal("Stau"  , "GMStau308"    , "GMSB #tilde{#tau}_{1} 308"     , 308,  1,   0.002000) ); //LO
+  signals.push_back(stSignal("Stau"  , "GMStau100", "stau_M-100"    , "GMSB #tilde{#tau}_{1} 100"     , 100,  1,   1.326000) ); //LO
+  signals.push_back(stSignal("Stau"  , "GMStau126", "stau_M-126"    , "GMSB #tilde{#tau}_{1} 126"     , 126,  1,   0.330000) ); //LO
+  signals.push_back(stSignal("Stau"  , "GMStau156", "stau_M-156"    , "GMSB #tilde{#tau}_{1} 156"     , 156,  0,   0.105000) ); //LO
+  signals.push_back(stSignal("Stau"  , "GMStau200", "stau_M-200"    , "GMSB #tilde{#tau}_{1} 200"     , 200,  1,   0.025000) ); //LO
+  signals.push_back(stSignal("Stau"  , "GMStau247", "stau_M-247"    , "GMSB #tilde{#tau}_{1} 247"     , 247,  0,   0.008000) ); //LO
+  signals.push_back(stSignal("Stau"  , "GMStau308", "stau_M-308"    , "GMSB #tilde{#tau}_{1} 308"     , 308,  1,   0.002000) ); //LO
+  signals.push_back(stSignal("Stau"  , "GMStau370", "stau_M-370"    , "GMSB #tilde{#tau}_{1} 370"     , 370,  1,   0.0007395) ); //LO
+  signals.push_back(stSignal("Stau"  , "GMStau432", "stau_M-432"    , "GMSB #tilde{#tau}_{1} 432"     , 432,  1,   0.0002824) ); //LO
+  signals.push_back(stSignal("Stau"  , "GMStau494", "stau_M-494"    , "GMSB #tilde{#tau}_{1} 494"     , 494,  1,   0.0001139) ); //LO
 /*   signals.push_back(stSignal("Stau"  , "PPStau100"    , "Pair #tilde{#tau}_{1} 100"     , 100,  1,   0.032000) ); //LO
    signals.push_back(stSignal("Stau"  , "PPStau126"    , "Pair #tilde{#tau}_{1} 126"     , 126,  0,   0.014000) ); //LO
    signals.push_back(stSignal("Stau"  , "PPStau156"    , "Pair #tilde{#tau}_{1} 156"     , 156,  0,   0.006000) ); //LO
@@ -149,7 +157,8 @@ void GetMCDefinition(std::vector<stMC>& MC){
 
 void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName, int period=0){
   //std::string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_06_28/";
-   std::string BaseDirectory = "dcap://cmsdca.fnal.gov:24125/pnfs/cms/WAX/11/store/user/farrell3/EDMFiles/";
+  //std::string BaseDirectory = "dcap://cmsdca.fnal.gov:24125/pnfs/cms/WAX/11/store/user/farrell3/EDMFiles/";
+   std::string BaseDirectory = "dcap://cmsdca.fnal.gov:24125/pnfs/cms/WAX/11/store/user/farrell3/HSCPEDM_13072011/";
 
    if(SampleName=="Data"){
      inputFiles.push_back(BaseDirectory + "Data_RunA_160404_163869.root");

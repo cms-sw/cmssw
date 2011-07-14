@@ -289,10 +289,8 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
    if(track->pt()<=CutPt || dedxSObj.dEdx()<=CutI)return;
    if(CutTOF>-1 && tof && tof->inverseBeta()<=CutTOF)return;
 
-
    double Mass = GetMass(track->p(),dedxMObj.dEdx());   
    if(Mass<CutMass)return;
-
 
    double dz  = track->dz (vertex.position());
    double dxy = track->dxy(vertex.position());
@@ -309,8 +307,8 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
    fprintf(pFile,"Candidate Type = %i --> Mass : %7.2f\n",hscp.type(),Mass);
    fprintf(pFile,"------------------------------------------ EVENT INFO ---------------------------------------------\n");
    fprintf(pFile,"Run=%i Lumi=%i Event=%i BX=%i  Orbit=%i Store=%i\n",ev.eventAuxiliary().run(),ev.eventAuxiliary().luminosityBlock(),ev.eventAuxiliary().event(),ev.eventAuxiliary().luminosityBlock(),ev.eventAuxiliary().orbitNumber(),ev.eventAuxiliary().storeNumber());
-      edm::TriggerResultsByName tr = ev.triggerResultsByName("Merge");
-   fprintf(pFile,"Trigger: SingleMu=%i  DoubleMu=%i  PFMHT=%i (CaloMET=%i)\n",(int)tr.accept(tr.triggerIndex("HscpPathSingleMu")), (int)tr.accept(tr.triggerIndex("HscpPathDoubleMu")), (int)tr.accept(tr.triggerIndex("HscpPathPFMet")), (int)tr.accept(tr.triggerIndex("HscpPathCaloMet")));
+   //edm::TriggerResultsByName tr = ev.triggerResultsByName("Merge");
+   //fprintf(pFile,"Trigger: SingleMu=%i  DoubleMu=%i  PFMHT=%i (CaloMET=%i)\n",(int)tr.accept(tr.triggerIndex("HscpPathSingleMu")), (int)tr.accept(tr.triggerIndex("HscpPathDoubleMu")), (int)tr.accept(tr.triggerIndex("HscpPathPFMet")), (int)tr.accept(tr.triggerIndex("HscpPathCaloMet")));
    fprintf(pFile,"------------------------------------------ INNER TRACKER ------------------------------------------\n");
    fprintf(pFile,"Quality = %i Chi2/NDF=%6.2f dz=+%6.2f dxy=%+6.2f V3D=%+6.2f charge:%+i\n",track->qualityMask(), track->chi2()/track->ndof(), dz, dxy, v3d, track->charge());
    fprintf(pFile,"P=%7.2f  Pt=%7.2f+-%6.2f (Cut=%6.2f) Eta=%+6.2f  Phi=%+6.2f  NOH=%2i\n",track->p(),track->pt(), track->ptError(), CutPt, track->eta(), track->phi(), track->found() );
@@ -359,6 +357,7 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
       fprintf(pFile,"ECAL: E=%6.2f E3x3=%6.2f E5x5=%6.2f\n"           ,hscp.caloInfoRef()->ecalCrossedEnergy,hscp.caloInfoRef()->ecal3by3dir, hscp.caloInfoRef()->ecal5by5dir);
       fprintf(pFile,"ECAL: time=%6.2f beta=%6.2f trkisodr=%6.2f\n"    ,hscp.caloInfoRef()->ecalTime  ,hscp.caloInfoRef()->ecalBeta   , hscp.caloInfoRef()->trkIsoDr);
    }
+
    fprintf(pFile,"------------------------------------------ ISOL INFO ----------------------------------------------\n");
    fwlite::Handle<HSCPIsolationValueMap> IsolationH05;
    IsolationH05.getByLabel(ev, "HSCPIsolation05");
