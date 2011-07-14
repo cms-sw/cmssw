@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.239 2011/07/08 04:39:59 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.240 2011/07/13 05:00:28 amraktad Exp $
 
 
 //
@@ -1030,12 +1030,33 @@ addAreaInfoTo(areaInfo& pInfo,
 void
 FWGUIManager::addTo(FWConfiguration& oTo) const
 {
-   Int_t cfgVersion=2;
+   {
+      TGFrameElement* fe = (TGFrameElement*) m_cmsShowMainFrame->GetList()->Last();
+      TGPack* pack = (TGPack*)(fe->fFrame);
+      TGFrameElementPack* fep = (TGFrameElementPack*)pack->GetList()->At(3);
+      printf("wight3 %f \n", fep->fWeight );
+   }
+
+   {
+      TGFrameElement* fe = (TGFrameElement*) m_cmsShowMainFrame->GetList()->Last();
+      TGPack* pack = (TGPack*)(fe->fFrame);
+      TGFrameElementPack* fep = (TGFrameElementPack*)pack->GetList()->At(1);
+      printf("wight %f \n", fep->fWeight );
+   }
+
+   Int_t cfgVersion=3;
 
    FWConfiguration mainWindow(cfgVersion);
    float leftWeight, rightWeight;
    addWindowInfoTo(m_cmsShowMainFrame, mainWindow);
    {
+      // write summary view weight
+      {
+         std::stringstream ss;
+         ss << m_cmsShowMainFrame->getSummaryViewWeight();
+         mainWindow.addKeyValue("summaryWeight",FWConfiguration(ss.str()));
+      }
+
       // write proportions of horizontal pack (can be standalone item outside main frame)
       if ( m_viewPrimPack->GetPack()->GetList()->GetSize() > 2)
       {
@@ -1179,9 +1200,14 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
    // set from view reading area info nd view info
    float_t leftWeight =1;
    float_t rightWeight=1;
-   if ( mw->version() == 2 ) {
+   if ( mw->version() >= 2 ) {
       leftWeight = atof(mw->valueForKey("leftWeight")->value().c_str());
       rightWeight = atof(mw->valueForKey("rightWeight")->value().c_str());
+   }
+
+   if ( mw->version() >= 3 ) {
+      float summaryWeight = atof(mw->valueForKey("summaryWeight")->value().c_str());
+      m_cmsShowMainFrame->setSummaryViewWeight(summaryWeight);       
    }
 
    TEveWindowSlot* primSlot = (leftWeight > 0) ? m_viewPrimPack->NewSlotWithWeight(leftWeight) : 0;

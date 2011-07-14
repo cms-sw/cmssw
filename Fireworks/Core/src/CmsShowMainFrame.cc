@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.115 2011/05/24 04:24:19 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.116 2011/07/08 04:39:59 amraktad Exp $
 
 #include "FWCore/Common/interface/EventBase.h"
 
@@ -56,6 +56,15 @@
 // static data member definitions
 //
 
+
+// AMT: temprary workaround until TGPack::ResizeExistingFrames() is public
+class FWPack : public TGPack
+{
+   friend class CmsShowMainFrame;
+public:
+   FWPack(const TGWindow* w) : TGPack(w, 100, 100) {}
+   virtual ~FWPack() {}
+};
 
 //
 // constructors and destructor
@@ -477,7 +486,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    
    //==============================================================================
 
-   TGPack *csArea = new TGPack(this, this->GetWidth(), this->GetHeight()-42);
+   FWPack *csArea = new FWPack(this);
    csArea->SetVertical(kFALSE);
 
    TGCompositeFrame *cf = m_manager->createList(csArea);
@@ -763,4 +772,33 @@ CmsShowMainFrame::bindCSGActionKeys(const TGMainFrame* f) const
       if ((*i)-> getKeycode())
          f->BindKey(this, (*i)->getKeycode(), (*i)->getModcode()); 
    }
+}
+
+void
+CmsShowMainFrame::setSummaryViewWeight(float x)
+{
+
+   TGFrameElement* fe = (TGFrameElement*) GetList()->Last();
+   FWPack* pack = (FWPack*)(fe->fFrame);
+
+   TGFrameElementPack* fep;
+   fep  = (TGFrameElementPack*)pack->GetList()->At(1);
+   fep->fWeight = x;
+
+   fep  = (TGFrameElementPack*)pack->GetList()->At(3);
+   fep->fWeight = 100 -x;
+
+   pack->ResizeExistingFrames();
+   pack->Layout();
+}
+
+float
+CmsShowMainFrame::getSummaryViewWeight() const
+{
+   TGFrameElement* fe = (TGFrameElement*)GetList()->Last();
+   TGPack* pack = (TGPack*)(fe->fFrame);
+
+   TGFrameElementPack* fep = (TGFrameElementPack*)pack->GetList()->At(1);
+   return fep->fWeight;
+      
 }
