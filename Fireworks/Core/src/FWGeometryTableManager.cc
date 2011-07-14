@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.30 2011/07/14 03:59:17 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.31 2011/07/14 22:53:47 amraktad Exp $
 //
 
 //#define PERFTOOL_GEO_TABLE
@@ -289,19 +289,26 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
          renderer->setData( gn.GetVolume()->GetMaterial()->GetName(),  isSelected);
          return renderer;
       }
-      /*
-        else if (iCol == kPosition )
-        { 
-        const Double_t* p = gn.GetMatrix()->GetTranslation();
-        renderer->setData(Form("[%.3f, %.3f, %.3f]", p[0], p[1], p[2]),  isSelected);
-        return renderer;
-        }*/
+      
+      else if (iCol == kPosition )
+      { 
+         TGeoHMatrix mtx;
+         m_tableManager->getNodeMatrix( data, mtx);
+         double pnt[3];
+         TGeoBBox* bb = static_cast<TGeoBBox*>( ni.m_node->GetVolume()->GetShape());
+         const double* origin = bb->GetOrigin();
+         mtx.LocalToMaster(origin, pnt);
+
+
+         renderer->setData(Form("[%.3f, %.3f, %.3f]", pnt[0], pnt[1], pnt[2]),  isSelected);
+         return renderer;
+      }
       else
       { 
          TGeoBBox* gs = static_cast<TGeoBBox*>( gn.GetVolume()->GetShape());
          renderer->setData( Form("%f", TMath::Sqrt(gs->GetDX()*gs->GetDX() + gs->GetDY()*gs->GetDY() +gs->GetDZ()*gs->GetDZ() )),  isSelected);
          return renderer;
-         }
+      }
 
    }
 }
@@ -742,12 +749,13 @@ void FWGeometryTableManager::getNodeMatrix(NodeInfo& data, TGeoHMatrix& mtx) con
    {
       pl[ m_entries.at(pIdx).m_level] = pIdx;
       pIdx = m_entries.at(pIdx).m_parent;
+      mtx.MultiplyLeft(m_entries.at(pIdx).m_node->GetMatrix());
    }
-
+   /*
    for (int i = 0; i < level; ++i ) {
       TGeoNode* node = m_entries.at(pl[i]).m_node;
       mtx.Multiply(node->GetMatrix());
-   }
+      }*/
    delete [] pl;
 
    mtx.Multiply(data.m_node->GetMatrix());
