@@ -3,8 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from FastSimulation.Configuration.mixFastSimObjects_cfi import *
 mix = cms.EDProducer("MixingModule",
     LabelPlayback = cms.string(''),
-    maxBunch = cms.int32(3),
-    minBunch = cms.int32(-5),
+    maxBunch = cms.int32(0),
+    minBunch = cms.int32(0),
     bunchspace = cms.int32(25),
     checktof = cms.bool(False),                   
     playback = cms.untracked.bool(False),
@@ -25,6 +25,9 @@ mix = cms.EDProducer("MixingModule",
         ),
         mixTracks = cms.PSet(
             mixSimTracks
+        ),
+        mixHepMC = cms.PSet(
+            mixHepMCProducts
         )
     )
 )
