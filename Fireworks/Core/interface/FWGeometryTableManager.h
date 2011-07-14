@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManager.h,v 1.24 2011/07/08 04:39:58 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.25 2011/07/13 03:40:03 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
@@ -46,16 +46,22 @@ public:
 
    enum Bits
    {
-      kExpanded        =  BIT(1),
-      kMatches         =  BIT(2),
-      kChildMatches    =  BIT(3),
-      kFilterCached    =  BIT(4)
+      kExpanded        =  BIT(0),
+      kMatches         =  BIT(1),
+      kChildMatches    =  BIT(2),
+      kFilterCached    =  BIT(3),
+
+      kVisNode         =  BIT(4),
+      kVisNodeChld     =  BIT(5)
+      //   kVisVol          =  BIT(6),
+      //   kVisVolChld      =  BIT(7),
+
    };
 
    struct NodeInfo
    {
       NodeInfo():m_node(0), m_parent(-1), m_color(0), m_level(-1), 
-                 m_flags(0)
+                 m_flags(kVisNode|kVisNodeChld)
       {}  
 
       TGeoNode*   m_node;
@@ -67,13 +73,12 @@ public:
       const char* name() const;
       const char* nameIndent() const;
 
-      bool isVisible(bool x) const { return x ?  m_node->GetVolume()->IsVisible() : m_node->IsVisible(); }
-      bool isVisDaughters(bool x) const  { return x ?  m_node->GetVolume()->IsVisDaughters() :  m_node->IsVisDaughters(); }
-
       void setBit(UChar_t f)    { m_flags  |= f;}
       void resetBit(UChar_t f)  { m_flags &= ~f; }
       bool testBit(UChar_t f) const  { return (m_flags & f) == f; }
       bool testBitAny(UChar_t f) const  { return (m_flags & f) != 0; }
+
+      void switchBit(UChar_t f) { testBit(f) ? resetBit(f) : setBit(f); }
    };
 
    struct Match

@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel, Alja Mrak Tadel  
 //         Created:  Thu Jun 23 01:24:51 CEST 2011
-// $Id: FWGeoTopNode.cc,v 1.13 2011/07/08 04:39:59 amraktad Exp $
+// $Id: FWGeoTopNode.cc,v 1.14 2011/07/13 20:53:06 amraktad Exp $
 //
 
 // system include files
@@ -71,6 +71,7 @@ void FWGeoTopNode::setupBuffMtx(TBuffer3D& buff, const TGeoHMatrix& mat)
 //______________________________________________________________________________
 void FWGeoTopNode::Paint(Option_t*)
 {
+
    // workaround for global usage of gGeoManager in TGeoShape
    TEveGeoManagerHolder gmgr( FWGeometryTableViewManager::getGeoMangeur());
 
@@ -84,10 +85,10 @@ void FWGeoTopNode::Paint(Option_t*)
    if (topIdx >= 0)
    {
       std::advance(sit, topIdx);
-       m_browser->getTableManager()->getNodeMatrix(*sit, mtx);
+      m_browser->getTableManager()->getNodeMatrix(*sit, mtx);
 
       // paint this node
-      if (sit->isVisible(m_browser->getVolumeMode()))
+      if (sit->testBit(FWGeometryTableManager::kVisNode))
       {
          bool draw = true;
          if ( m_filterOff == false) {
@@ -100,7 +101,7 @@ void FWGeoTopNode::Paint(Option_t*)
       }
    }
 
-   if (sit->isVisDaughters(m_browser->getVolumeMode()))
+   if (sit->testBit(FWGeometryTableManager::kVisNodeChld))
       paintChildNodesRecurse( sit, mtx);
 }
 
@@ -126,10 +127,10 @@ void FWGeoTopNode::paintChildNodesRecurse (FWGeometryTableManager::Entries_i pIt
   
       if (m_filterOff)
       {
-         if (it->isVisible(m_browser->getVolumeMode()))
+         if (it->testBit(FWGeometryTableManager::kVisNode))
             paintShape(*it, nm);
 
-         if (it->isVisDaughters(m_browser->getVolumeMode()) && it->m_level < m_maxLevel )
+         if (it->testBit(FWGeometryTableManager::kVisNodeChld) && it->m_level < m_maxLevel )
             paintChildNodesRecurse(it, nm);
 
       }
@@ -139,7 +140,7 @@ void FWGeoTopNode::paintChildNodesRecurse (FWGeometryTableManager::Entries_i pIt
          if (it->testBit(FWGeometryTableManager::kMatches) )
             paintShape(*it, nm);
 
-         if (it->testBit(FWGeometryTableManager::kChildMatches) )
+         if (it->testBit(FWGeometryTableManager::kChildMatches) && it->m_level < m_maxLevel )
             paintChildNodesRecurse(it, nm);
       }
 

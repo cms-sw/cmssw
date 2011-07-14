@@ -364,11 +364,8 @@ FWGeometryTableView::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t
    m_tableManager->setSelection(iRow, iColumn, iButton);
    FWGeometryTableManager::NodeInfo& ni = m_tableManager->refSelected();
 
-
-
    if (iButton == kButton1) 
    {
-
       if (iColumn == FWGeometryTableManager::kName)
       {
          m_tableManager->firstColumnClicked(iRow);
@@ -394,23 +391,17 @@ FWGeometryTableView::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t
          bool elementChanged = false;
          if (iColumn ==  FWGeometryTableManager::kVisSelf)
          {
-            if (getVolumeMode())
-               ni.m_node->GetVolume()->SetVisibility(!ni.isVisible(getVolumeMode()));   
-            else
-               ni.m_node->SetVisibility(!ni.isVisible(getVolumeMode()));    
+            ni.switchBit(FWGeometryTableManager::kVisNode);    
             elementChanged = true;
          }
          if (iColumn ==  FWGeometryTableManager::kVisChild)
-         {
-            if (getVolumeMode())
-               ni.m_node->GetVolume()->VisibleDaughters(!ni.isVisDaughters(getVolumeMode()));   
-            else
-               ni.m_node->VisibleDaughters(!ni.isVisDaughters(getVolumeMode()));  
+         { 
+            ni.switchBit(FWGeometryTableManager::kVisNodeChld); 
             elementChanged = true;
          }
 
 
-         if (elementChanged)
+         if (m_eveTopNode && elementChanged)
          {
             m_eveTopNode->ElementChanged();
             gEve->RegisterRedraw3D();
@@ -437,9 +428,9 @@ FWGeometryTableView::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t
 
       m_nodePopup->PlaceMenu(x,y,true,true);
       m_nodePopup->Connect("Activated(Int_t)",
-                            "FWGeometryTableView",
-                            const_cast<FWGeometryTableView*>(this),
-                            "chosenItem(Int_t)");
+                           "FWGeometryTableView",
+                           const_cast<FWGeometryTableView*>(this),
+                           "chosenItem(Int_t)");
    }
 }
 

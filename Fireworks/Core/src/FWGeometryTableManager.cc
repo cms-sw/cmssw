@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.28 2011/07/08 04:39:59 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.29 2011/07/13 03:40:03 amraktad Exp $
 //
 
 //#define PERFTOOL_GEO_TABLE
@@ -192,10 +192,11 @@ void FWGeometryTableManager::changeSelection(int iRow, int iColumn)
 {     
    if (iRow < 0) return; 
 
-
    m_selectedRow = iRow;
    m_selectedColumn = iColumn;
    if (m_row_to_index.size() > 0)   m_selectedIdx = m_row_to_index[iRow];
+
+   // printf("WGeometryTableManager::changeSelecti row %d index %d \n", m_selectedIdx,  m_selectedIdx );
    visualPropertiesChanged();
 }    
 
@@ -273,13 +274,13 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
       }
       else if (iCol == kVisSelf )
       {
-	 bool v = (m_filterOff) ? data.isVisible(m_browser->getVolumeMode()) : data.testBit(kMatches);
+	 bool v = (m_filterOff) ? data.testBit(kVisNode) : data.testBit(kMatches);
          renderer->setData( v ? "On" : "-",  isSelected);
          return renderer;
       }
       else if (iCol == kVisChild )
       {
-	 bool v = (m_filterOff) ? data.isVisDaughters(m_browser->getVolumeMode()) : data.testBit(kChildMatches);
+	 bool v = (m_filterOff) ?   data.testBit(kVisNodeChld): data.testBit(kChildMatches);
          renderer->setData( v ? "On" : "-",  isSelected);
          return renderer;
       }
@@ -603,7 +604,7 @@ void FWGeometryTableManager::updateFilter()
    m_filterOff =  filterExp.empty();
    //   printf("update filter %s  OFF %d volumes size %d\n",filterExp.c_str(),  m_filterOff , (int)m_volumes.size());
 
-   if (m_filterOff || !m_entries.empty()) return;
+   if (m_filterOff || m_entries.empty()) return;
    
    // update volume-match entries
     m_numVolumesMatched = 0;
