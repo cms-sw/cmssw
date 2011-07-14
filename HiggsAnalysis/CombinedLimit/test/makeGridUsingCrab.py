@@ -16,8 +16,10 @@ parser.add_option("-t", "--toys",     dest="t",        default=50,  type="int", 
 parser.add_option("-j", "--jobs",     dest="j",        default=10,  type="int",  help="Total number of jobs (can be changed in .cfg file)")
 parser.add_option("-I", "--interleave", dest="interl", default=1, type="int",    help="If >1, excute only 1/I of the points in each job")
 parser.add_option("-v", "--verbose",  dest="v",        default=0, type="int",    help="Verbosity")
+parser.add_option("-l", "--log",      dest="log",   default=False, action="store_true", help="Use log-scale grid")
 parser.add_option("-r", "--random",   dest="random",   default=False, action="store_true", help="Use random seeds for the jobs")
 parser.add_option("-P", "--priority", dest="prio",     default=False, action="store_true", help="Use PriorityUser role")
+parser.add_option("-s", "--smart",    dest="smart",     default=False, action="store_true", help="Run more toys at low edge of the band, to get better low range")
 #parser.add_option("--fork",           dest="fork",     default=1,   type="int",  help="Cores to use (leave to 1)") # no fork in batch jobs for now
 (options, args) = parser.parse_args()
 if len(args) != 3:
@@ -33,6 +35,11 @@ if workspace.endswith(".txt"):
     
 min, max = float(args[1]), float(args[2])
 dx = (max-min)/(options.points-1)
+points = [ min + dx*i for i in range(options.points) ]
+
+if options.log:
+    dx = log(max/min)/(options.points-1)
+    points = [ min * exp(dx*i) for i in range(options.points) ]
 
 print "Creating executable script ",options.out+".sh"
 script = open(options.out+".sh", "w")
@@ -64,13 +71,18 @@ fi
 
 echo "## Starting at $(date)"
 """)
-for i in range(options.points):
-    x = min + dx*i;
+for i,x in enumerate(points):
     seed = ("$((%d + $i))" % (i*10000)) if options.random == False else "-1"
     interleave = "(( ($i + %d) %% %d == 0 )) && " % (i, options.interl)
-    script.write("{cond} ./combine {wsp} -M HybridNew {opts} --fork {fork} -T {T} --clsAcc 0 -v {v} -n {out} --saveHybridResult --saveToys -s {seed} -i $n --singlePoint {x}\n".format(
+    toys = "$n"
+    if options.smart:
+        if i < 0.25 * options.points:
+            toys = "$(( 4 * $n ))";
+        elif i < 0.4 * options.points:
+            toys = "$(( 2 * $n ))";
+    script.write("{cond} ./combine {wsp} -M HybridNew {opts} --fork {fork} -T {T} --clsAcc 0 -v {v} -n {out} --saveHybridResult --saveToys -s {seed} -i {toys} --singlePoint {x}\n".format(
                 wsp=workspace, opts=options.options, fork=options.fork, T=options.T, seed=seed, out=options.out, x=x, v=options.v,
-                cond=interleave
+                cond=interleave, toys=toys
               ))
 
 script.write("\n");
