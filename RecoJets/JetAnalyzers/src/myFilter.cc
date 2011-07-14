@@ -173,7 +173,7 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
 
 
   double HFThreshold   = 4.0;
-  double HOThreshold   = 1.0;
+  //double HOThreshold   = 1.0;
 
 
   bool result         = false;
@@ -895,7 +895,7 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
 
   Handle<reco::CaloMETCollection> calometcoll;
   evt.getByLabel("met", calometcoll);
-  double caloMET;
+  double caloMET = 0;
   if (calometcoll.isValid()) {
     const CaloMETCollection *calometcol = calometcoll.product();
     const CaloMET *calomet;
@@ -906,7 +906,7 @@ myFilter::filter(edm::Event& evt, edm::EventSetup const& es) {
     //    if ((caloMET > 50.) && (evtType = 0)) filter_MET = true;
     if (caloMET > 40.) filter_MET = true;
   }
-  if ((fabs(OER) > 0.9) && (caloMET > 20.0)) filter_OERatio = true;
+  if ((std::abs(OER) > 0.9) && (caloMET > 20.0)) filter_OERatio = true;
   if (nRBX > 3) filter_NRBX = true;
 
   // *********************************************************

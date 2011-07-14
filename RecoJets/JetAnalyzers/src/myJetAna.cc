@@ -624,17 +624,17 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   double HBHEThreshold1 = 4.0;
   double HFThreshold1   = 4.0;
   double HOThreshold1   = 4.0;
-  double EBEEThreshold1 = 4.0;
+  //double EBEEThreshold1 = 4.0;
 
   double HBHEThreshold2 = 10.0;
   double HFThreshold2   = 10.0;
-  double HOThreshold2   = 10.0;
-  double EBEEThreshold2 = 10.0;
+  //double HOThreshold2   = 10.0;
+  //double EBEEThreshold2 = 10.0;
 
   double HBHEThreshold3 = 40.0;
   double HFThreshold3   = 40.0;
-  double HOThreshold3   = 40.0;
-  double EBEEThreshold3 = 40.0;
+  //double HOThreshold3   = 40.0;
+  //double EBEEThreshold3 = 40.0;
 
   float pt1;
 
@@ -937,7 +937,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 
   NTime->Fill(nTime);
 
-  double OER, OddEne, EvenEne;
+  double OER = 0, OddEne, EvenEne;
   int nOdd, nEven;
 
   for (int iphi=0; iphi<100; iphi++) {
@@ -2576,7 +2576,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 
     SumEt->Fill(caloSumET);
     MET->Fill(caloMET);
-    if (fabs(OER) > 0.8) OERMET->Fill(caloMET);
+    if (std::abs(OER) > 0.8) OERMET->Fill(caloMET);
 
     if (evtType == 0) MET_Tower->Fill(caloMET);
     if (evtType == 1) MET_RBX->Fill(caloMET);
@@ -2616,7 +2616,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
 
   //  std::cout << "Reconstructed "<< vC.size() << " vertices" << std::endl ;
   nVTX = vC.size();
-  double vertex_numTrks;
+  //double vertex_numTrks;
   for (reco::VertexCollection::const_iterator vertex=vC.begin(); vertex!=vC.end(); vertex++){
 
     h_Vx->Fill(vertex->x());

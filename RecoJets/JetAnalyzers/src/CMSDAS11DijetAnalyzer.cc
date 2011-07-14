@@ -81,9 +81,9 @@ void CMSDAS11DijetAnalyzer::analyze( const edm::Event& iEvent, const edm::EventS
   ////////////////////////////////////////////
   // Get event ID information
   ////////////////////////////////////////////
-  int nrun=iEvent.id().run();
-  int nlumi=iEvent.luminosityBlock();
-  int nevent=iEvent.id().event();
+  //int nrun=iEvent.id().run();
+  //int nlumi=iEvent.luminosityBlock();
+  //int nevent=iEvent.id().event();
 
   ////////////////////////////////////////////
   // Get Primary Vertex Information

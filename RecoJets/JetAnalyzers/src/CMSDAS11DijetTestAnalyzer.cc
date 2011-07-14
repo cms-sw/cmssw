@@ -84,9 +84,9 @@ void CMSDAS11DijetTestAnalyzer::analyze( const edm::Event& iEvent, const edm::Ev
   ////////////////////////////////////////////
   // Get event ID information
   ////////////////////////////////////////////
-  int nrun=iEvent.id().run();
-  int nlumi=iEvent.luminosityBlock();
-  int nevent=iEvent.id().event();
+  //int nrun=iEvent.id().run();
+  //int nlumi=iEvent.luminosityBlock();
+  //int nevent=iEvent.id().event();
 
   ////////////////////////////////////////////
   // Get Primary Vertex Information
@@ -125,7 +125,7 @@ void CMSDAS11DijetTestAnalyzer::analyze( const edm::Event& iEvent, const edm::Ev
 
   // magic to get the jet energy corrections
   const JetCorrector* corrector = JetCorrector::getJetCorrector(jetCorrections,iSetup);
-
+  corrector->vectorialCorrection();
   // collection of selected jets
   std::vector<reco::CaloJet> selectedJets;
 
