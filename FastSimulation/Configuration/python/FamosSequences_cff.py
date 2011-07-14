@@ -14,6 +14,7 @@ from FastSimulation.PileUpProducer.PileUpProducer_cff import *
 # PileupSummaryInfo
 from SimGeneral.PileupInformation.AddPileupSummary_cfi import *
 addPileupInfo.PileupMixingLabel = 'famosPileUp'
+addPileupInfo.simHitLabel = 'famosSimHits'
 
 # Famos SimHits producer
 from FastSimulation.EventProducer.FamosSimHits_cff import *
