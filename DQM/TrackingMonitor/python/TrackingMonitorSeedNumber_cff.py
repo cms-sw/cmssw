@@ -15,7 +15,7 @@ TrackMon.AlgoName      = cms.string('Seed')
 # out of the box
 # ---------------------------------------------------------------------------#
 
-# Step0 
+
 TrackMonStep0 = TrackMon.clone()
 TrackMonStep0.SeedProducer  = cms.InputTag("newSeedFromTriplets")
 TrackMonStep0.doSeedNumberHisto = cms.bool(True)

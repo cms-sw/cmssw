@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/05/22 17:38:15 $
- *  $Revision: 1.24 $
+ *  $Date: 2011/07/07 13:13:37 $
+ *  $Revision: 1.25 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -187,7 +187,7 @@ void TrackingMonitor::beginJob(void)
 
     dqmStore_->setCurrentFolder(MEFolderName+"/TrackBuilding");
 
-    doAllSeedPlots=conf_.getParameter<bool>("doAllSeedParameterHistos");
+    doAllSeedPlots=conf_.getParameter<bool>("doSeedParameterHistos");
     doSeedNumberPlot=conf_.getParameter<bool>("doSeedNumberHisto");
     doSeedVsClusterPlot=conf_.getParameter<bool>("doSeedVsClusterHisto");
     if (doAllPlots) doAllSeedPlots=true;

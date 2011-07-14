@@ -12,7 +12,7 @@ TrackerCosmicTrackMon.MeasurementState      = cms.string('default')
 
 TrackerCosmicTrackMon.doAllPlots            = cms.bool(True)
 TrackerCosmicTrackMon.doBeamSpotPlots       = cms.bool(False)
-TrackerCosmicTrackMon.doAllSeedParameterHistos = cms.bool(False)
+TrackerCosmicTrackMon.doSeedParameterHistos = cms.bool(False)
 
 TrackerCosmicTrackMon.Chi2Max               = cms.double(500.0)
 

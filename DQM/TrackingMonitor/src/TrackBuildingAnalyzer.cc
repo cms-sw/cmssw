@@ -96,7 +96,7 @@ void TrackBuildingAnalyzer::beginJob(DQMStore * dqmStore_)
     edm::InputTag tcProducer     = conf_.getParameter<edm::InputTag>("TCProducer");
 
     doAllPlots=conf_.getParameter<bool>("doAllPlots");
-    doAllSeedPlots=conf_.getParameter<bool>("doAllSeedParameterHistos");
+    doAllSeedPlots=conf_.getParameter<bool>("doSeedParameterHistos");
     doTCPlots=conf_.getParameter<bool>("doTrackCandHistos");
     doPT=conf_.getParameter<bool>("doSeedPTHisto");
     doETA=conf_.getParameter<bool>("doSeedETAHisto");

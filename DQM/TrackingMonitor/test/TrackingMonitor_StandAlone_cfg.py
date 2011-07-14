@@ -88,10 +88,10 @@ process.TrackMon.doTrackerSpecific 		= cms.bool(False)
 process.TrackMon.doAllPlots 			= cms.bool(False)
 process.TrackMon.doBeamSpotPlots 		= cms.bool(False)
 
-process.TrackMon.doAllSeedParameterHistos   = cms.bool(True)
+process.TrackMon.doSeedParameterHistos   = cms.bool(True)
 #process.TrackMon.doSeedNumberHisto          = cms.bool(True)
 #process.TrackMon.doSeedVsClusterHisto       = cms.bool(True)
-process.TrackMon.doTrackCandHistos          = cms.bool(False)
+process.TrackMon.doTrackCandHistos          = cms.bool(True)
 
 process.TrackMon.doSeedPTHisto          = cms.bool(False)
 

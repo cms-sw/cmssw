@@ -14,7 +14,7 @@ TrackMon.MeasurementState       = cms.string('ImpactPoint')
 TrackMon.doTrackerSpecific      = cms.bool(True)
 TrackMon.doAllPlots             = cms.bool(True)
 TrackMon.doBeamSpotPlots        = cms.bool(True)
-TrackMon.doAllSeedParameterHistos  = cms.bool(False)
+TrackMon.doSeedParameterHistos  = cms.bool(False)
 
 # out of the box
 # ---------------------------------------------------------------------------#
@@ -26,7 +26,7 @@ TrackMonGenTk.beamSpot              = cms.InputTag("offlineBeamSpot")
 TrackMonGenTk.FolderName            = cms.string('Tracking/GenTk/GlobalParameters')
 TrackMonGenTk.BSFolderName          = cms.string('Tracking/GenTk/BeamSpotParameters')
 TrackMonGenTk.AlgoName              = cms.string('GenTk')
-TrackMonGenTk.doAllSeedParameterHistos = cms.bool(False)
+TrackMonGenTk.doSeedParameterHistos = cms.bool(False)
 
 
 
@@ -39,7 +39,7 @@ TrackMonStep0.beamSpot      = cms.InputTag("offlineBeamSpot")
 TrackMonStep0.FolderName    = cms.string('Tracking/Step0/GlobalParameters')
 TrackMonStep0.BSFolderName  = cms.string('Tracking/Step0/BeamSpotParameters')
 TrackMonStep0.AlgoName      = cms.string('Step0')
-TrackMonStep0.doAllSeedParameterHistos = cms.bool(True)
+TrackMonStep0.doSeedParameterHistos = cms.bool(True)
 TrackMonStep0.doTrackCandHistos = cms.bool(True)
 
 # Step1 
@@ -51,7 +51,7 @@ TrackMonStep1.beamSpot      = cms.InputTag("offlineBeamSpot")
 TrackMonStep1.FolderName    = cms.string('Tracking/Step1/GlobalParameters')
 TrackMonStep1.BSFolderName  = cms.string('Tracking/Step1/BeamSpotParameters')
 TrackMonStep1.AlgoName      = cms.string('Step1')
-TrackMonStep1.doAllSeedParameterHistos = cms.bool(True)
+TrackMonStep1.doSeedParameterHistos = cms.bool(True)
 TrackMonStep1.doTrackCandHistos = cms.bool(True)
 
 # Step2 
@@ -63,7 +63,7 @@ TrackMonStep2.beamSpot      = cms.InputTag("offlineBeamSpot")
 TrackMonStep2.FolderName    = cms.string('Tracking/Step2/GlobalParameters')
 TrackMonStep2.BSFolderName  = cms.string('Tracking/Step2/BeamSpotParameters')
 TrackMonStep2.AlgoName      = cms.string('Step2')
-TrackMonStep2.doAllSeedParameterHistos = cms.bool(True)
+TrackMonStep2.doSeedParameterHistos = cms.bool(True)
 TrackMonStep2.doTrackCandHistos = cms.bool(True)
 
 # Step4 
@@ -75,7 +75,7 @@ TrackMonStep4.beamSpot      = cms.InputTag("offlineBeamSpot")
 TrackMonStep4.FolderName    = cms.string('Tracking/Step4/GlobalParameters')
 TrackMonStep4.BSFolderName  = cms.string('Tracking/Step4/BeamSpotParameters')
 TrackMonStep4.AlgoName      = cms.string('Step4')
-TrackMonStep4.doAllSeedParameterHistos = cms.bool(True)
+TrackMonStep4.doSeedParameterHistos = cms.bool(True)
 TrackMonStep4.doTrackCandHistos = cms.bool(True)
 
 # Step4 
@@ -87,7 +87,7 @@ TrackMonStep5.beamSpot      = cms.InputTag("offlineBeamSpot")
 TrackMonStep5.FolderName    = cms.string('Tracking/Step5/GlobalParameters')
 TrackMonStep5.BSFolderName  = cms.string('Tracking/Step5/BeamSpotParameters')
 TrackMonStep5.AlgoName      = cms.string('Step5')
-TrackMonStep5.doAllSeedParameterHistos = cms.bool(True)
+TrackMonStep5.doSeedParameterHistos = cms.bool(True)
 TrackMonStep5.doTrackCandHistos = cms.bool(True)
 
 # high Purity 
