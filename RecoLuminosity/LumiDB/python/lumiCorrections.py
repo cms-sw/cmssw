@@ -1,6 +1,12 @@
 import os,coral,re
 from RecoLuminosity.LumiDB import nameDealer
-
+def applyfinecorrection(avglumi,constfactor,afterglowfactor,nonlinearfactor):
+    instlumi=avglumi*afterglowfactor*constfactor
+    if nonlinearfactor!=0 and constfactor!=1.0:
+        rawlumiInub=float(avglumi)/float(6.37)
+        nonlinearTerm=1.0-rawlumiInub*nonlinearfactor
+        instlumi=instlumi*nonlinearTerm
+    return instlumi
 def correctionsForRange(schema,inputRange):
     '''
     select fillschemepattern,correctionfactor from fillscheme; 
@@ -60,6 +66,7 @@ def correctionsForRange(schema,inputRange):
         cursor=qHandle.execute()
         while cursor.next():
             runnum=cursor.currentRow()['runnum'].data()
+            #print 'runnum ',runnum 
             if runnum not in runs:
                 continue
             fillnum=cursor.currentRow()['fillnum'].data()

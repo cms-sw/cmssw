@@ -1,6 +1,6 @@
 import os
 import coral,datetime
-from RecoLuminosity.LumiDB import nameDealer,lumiTime,CommonUtil
+from RecoLuminosity.LumiDB import nameDealer,lumiTime,CommonUtil,lumiCorrections
 import array
 from RecoLuminosity.LumiDB import argparse, nameDealer, selectionParser, hltTrgSeedMapper, \
      connectstrParser, cacheconfigParser, tablePrinter, csvReporter, csvSelectionParser
@@ -79,21 +79,29 @@ def lsBylsLumi (deadtable):
     return result
 
 
-def deliveredLumiForRange (dbsession, parameters, inputRange):
+def deliveredLumiForRange (dbsession, parameters,inputRange,withFineCorrection=False):
     '''Takes either single run as a string or dictionary of run ranges'''
     lumidata = []
-    # is this a single string?
-    if isinstance (inputRange, str):
-        lumidata.append( deliveredLumiForRun (dbsession, parameters, inputRange) )
+    runs=[]
+    if isinstance(inputRange, str):
+        runs.append(int(inputRange))
     else:
-        # if not, it's one of these dictionary things
-        for run in sorted( inputRange.runs() ):
-            if parameters.verbose:
+        runs.append(inputRange)
+    finecorrections=None
+    if withFineCorrection:
+        schema=dbsession.nominalSchema()
+        dbsession.transaction().start(True)
+        finecorrections=lumiCorrections.correctionsForRange(schema,runs)
+        dbsession.transaction().commit()
+        
+    for r in sorted(runs):
+        if parameters.verbose:
                 print "run", run
-            lumidata.append( deliveredLumiForRun (dbsession, parameters, run) )
-    #print lumidata
+        c=None
+        if withFineCorrection:
+            c=finecorrections[r]
+        lumidata.append( deliveredLumiForRun (dbsession, parameters,inputRange,corrections=c) )       
     return lumidata
-
 
 def recordedLumiForRange (dbsession, parameters, inputRange):
     '''Takes either single run as a string or dictionary of run ranges'''
@@ -140,11 +148,14 @@ def recordedLumiForRange (dbsession, parameters, inputRange):
 
 
 
-def deliveredLumiForRun (dbsession, parameters, runnum):    
+def deliveredLumiForRun (dbsession, parameters, runnum, corrections=None ):    
     """
     select sum (INSTLUMI), count (INSTLUMI) from lumisummary where runnum = 124025 and lumiversion = '0001';
     select INSTLUMI,NUMORBIT  from lumisummary where runnum = 124025 and lumiversion = '0001'
-    query result unit E27cm^-2 (= 1 / mb)"""    
+    query result unit E27cm^-2 (= 1 / mb)
+
+    optional corrections=None/(constfactor,afterglowfactor,nonlinearfactor)
+    """    
     #if parameters.verbose:
     #    print 'deliveredLumiForRun : norm : ', parameters.norm, ' : run : ', runnum
     #output ['run', 'totalls', 'delivered', 'beammode']
@@ -155,8 +166,6 @@ def deliveredLumiForRun (dbsession, parameters, runnum):
         dbsession.transaction().start (True)
         schema = dbsession.nominalSchema()
         query = schema.tableHandle (nameDealer.lumisummaryTableName()).newQuery()
-        #query.addToOutputList ("sum (INSTLUMI)", "totallumi")
-        #query.addToOutputList ("count (INSTLUMI)", "totalls")
         query.addToOutputList("INSTLUMI",'instlumi')
         query.addToOutputList ("NUMORBIT", "norbits")
         queryBind = coral.AttributeList()
@@ -174,13 +183,12 @@ def deliveredLumiForRun (dbsession, parameters, runnum):
         result.extend ("norbits", "unsigned int")
         query.defineOutput (result)
         query.setCondition (conditionstring,queryBind)
-        #query.limitReturnedRows (1)
-        #query.groupBy ('NUMORBIT')
         cursor = query.execute()
         while cursor.next():
             instlumi = cursor.currentRow()['instlumi'].data()
             norbits = cursor.currentRow()['norbits'].data()
-
+            if corrections is not None:
+                instlumi=lumiCorrections.applyfinecorrection(instlumi,corrections[0],corrections[1],corrections[2])
             if instlumi is not None and norbits is not None:
                 lstime = lslengthsec(norbits, parameters.NBX)
                 delivered=delivered+instlumi*parameters.norm*lstime
