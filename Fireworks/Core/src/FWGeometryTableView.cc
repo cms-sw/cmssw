@@ -127,6 +127,7 @@ public:
 
 //==============================================================================
 //==============================================================================
+//==============================================================================
 
 FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager* colMng, TGeoNode* tn, TObjArray* volumes )
    : FWViewBase(FWViewType::kGeometryTable),
@@ -134,6 +135,7 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager*
      m_filter(this,"Materials:",std::string()),
      m_autoExpand(this,"ExpandList:", 1l, 0l, 100l),
      m_visLevel(this,"VisLevel:", 3l, 1l, 100l),
+     m_visLevelFilter(this,"IgnoreVisLevelOnFilter", false),
      m_topNodeIdx(this, "TopNodeIndex", -1l, 0, 1e7),
      m_colorManager(colMng),
      m_tableManager(0),
@@ -157,6 +159,7 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager*
    m_tableManager = new FWGeometryTableManager(this);
    m_autoExpand.changed_.connect(boost::bind(&FWGeometryTableView::autoExpandChanged, this));
    m_visLevel.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D,this));
+   m_visLevelFilter.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D,this));
 
    m_filter.changed_.connect(boost::bind(&FWGeometryTableView::updateFilter, this));
 
@@ -304,6 +307,7 @@ FWGeometryTableView::resetSetters()
    makeSetter(frame, &m_filter);
    makeSetter(frame, &m_autoExpand);
    makeSetter(frame, &m_visLevel);
+   makeSetter(frame, &m_visLevelFilter);
    m_settersFrame->MapSubwindows();
    m_frame->Layout();
 }
@@ -577,6 +581,7 @@ void FWGeometryTableView::setPath(int parentIdx, std::string& path)
 #endif
 
    m_tableManager->topGeoNodeChanged(parentIdx);
+   m_tableManager->updateFilter();
    m_tableManager->checkExpandLevel();
 
    refreshTable3D();

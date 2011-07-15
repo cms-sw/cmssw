@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.32 2011/07/14 23:33:27 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.33 2011/07/15 01:24:10 amraktad Exp $
 //
 
 //#define PERFTOOL_GEO_TABLE
@@ -336,13 +336,8 @@ void FWGeometryTableManager::firstColumnClicked(int row)
 
    int idx = rowToIndex()[row];
    // printf("click %s \n", m_entries[idx].name());
-   Entries_i it = m_entries.begin();
-   std::advance(it, idx);
-   NodeInfo& data = *it;
-   if (data.testBit(kExpanded))
-      data.resetBit(kExpanded);
-   else
-      data.setBit(kExpanded);
+
+   m_entries[idx].switchBit(kExpanded);
  
    recalculateVisibility();
    dataChanged();
@@ -378,23 +373,20 @@ void FWGeometryTableManager::recalculateVisibility()
    m_row_to_index.push_back(i);
 
    NodeInfo& data = m_entries[i];
+   if (!m_filterOff)
+      assertNodeFilterCache(data);
+
    if ((m_filterOff && data.testBit(kExpanded) == false) ||
        (m_filterOff == false && data.testBit(kChildMatches) == false) )
       return;
 
-   if (!m_filterOff)
-   {
-      assertNodeFilterCache(data);
-      if (!data.testBit(kChildMatches))
-         return;
-   }
    
    if (m_browser->getVolumeMode())
       recalculateVisibilityVolumeRec(i);
    else
       recalculateVisibilityNodeRec(i);
 
-   //  printf (" FWGeometryTableManager::recalculateVisibility table size %d \n", (int)m_row_to_index.size());
+   //  printf (" child [%d] FWGeometryTableManager::recalculateVisibility table size %d \n", (int)m_row_to_index.size());
 }
 
 
@@ -758,7 +750,7 @@ void FWGeometryTableManager::getNodeMatrix(const NodeInfo& data, TGeoHMatrix& mt
    // utility used by browser and FWGeoNode
 
    int pIdx  = data.m_parent;
-   int endl =  endl = (data.m_level -1);
+   int endl =  data.m_level -1;
    for (int l = 0 ; l < endl ; ++l)
    {
       pIdx = m_entries.at(pIdx).m_parent;

@@ -73,6 +73,7 @@ public:
    std::string getFilter ()  const { return m_filter.value(); }
    int getAutoExpand()       const { return m_autoExpand.value(); }
    int getVisLevel()         const  {return m_visLevel.value(); }
+   bool getIgnoreVisLevelWhenFilter() const  {return m_visLevelFilter.value(); }
 
    int getTopNodeIdx() const { return m_topNodeIdx.value(); }
    FWGeometryTableManager*  getTableManager() { return m_tableManager;} 
@@ -81,7 +82,7 @@ public:
    // ---------- const member functions --------------------- 
 
    virtual void addTo(FWConfiguration&) const;
-   virtual void   saveImageTo( const std::string& iName ) const {}
+   virtual void saveImageTo( const std::string& iName ) const {}
    void nodeColorChangeRequested(Color_t);
 
    void setBackgroundColor();
@@ -96,8 +97,9 @@ private:
    FWEnumParameter         m_mode;
    FWStringParameter       m_filter; 
    FWLongParameter         m_autoExpand;
-   FWLongParameter         m_visLevel;   
-   FWLongParameter         m_topNodeIdx;   
+   FWLongParameter         m_visLevel;
+   FWBoolParameter         m_visLevelFilter;      
+   FWLongParameter         m_topNodeIdx;  
 #endif
 
    FWColorManager         *m_colorManager;
@@ -112,7 +114,7 @@ private:
    TEveWindowFrame*        m_eveWindow;
    TGCompositeFrame*       m_frame;
 
-   FWViewCombo*             m_viewBox;
+   FWViewCombo*            m_viewBox;
 
 
    const FWConfiguration*  m_viewersConfig;

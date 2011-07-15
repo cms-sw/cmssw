@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel, Alja Mrak Tadel  
 //         Created:  Thu Jun 23 01:24:51 CEST 2011
-// $Id: FWGeoTopNode.cc,v 1.14 2011/07/13 20:53:06 amraktad Exp $
+// $Id: FWGeoTopNode.cc,v 1.15 2011/07/14 03:59:17 amraktad Exp $
 //
 
 // system include files
@@ -140,7 +140,7 @@ void FWGeoTopNode::paintChildNodesRecurse (FWGeometryTableManager::Entries_i pIt
          if (it->testBit(FWGeometryTableManager::kMatches) )
             paintShape(*it, nm);
 
-         if (it->testBit(FWGeometryTableManager::kChildMatches) && it->m_level < m_maxLevel )
+         if (it->testBit(FWGeometryTableManager::kChildMatches) && ( it->m_level < m_maxLevel || m_browser->getIgnoreVisLevelWhenFilter() ))
             paintChildNodesRecurse(it, nm);
       }
 
