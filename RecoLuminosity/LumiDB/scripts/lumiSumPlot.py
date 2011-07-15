@@ -42,13 +42,19 @@ def getLumiOrderByLS(dbsession,c,runList,selectionDict,hltpath='',beamstatus=Non
         #print 'runsummary ',runsummary
         lumitrginfo={}
         q=dbsession.nominalSchema().newQuery()
-        lumitrginfo=lumiQueryAPI.lumisummarytrgbitzeroByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation,finecorrections=finecorrections) #q2
+        if finecorrections and finecorrections[runnum]:
+            lumitrginfo=lumiQueryAPI.lumisummarytrgbitzeroByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation,finecorrections=finecorrections[runnum]) #q2
+        else:
+            lumitrginfo=lumiQueryAPI.lumisummarytrgbitzeroByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation) #q2
         del q
         #print 'lumitrginfo ',lumitrginfo
         if len(lumitrginfo)==0: #if no qualified cross lumi-trg found, try lumionly
             #result.append([runnum,runstarttimeStr,1,t.StrToDatetime(runstarttimeStr),0.0,0.0])
             q=dbsession.nominalSchema().newQuery()
-            lumiinfobyrun=lumiQueryAPI.lumisummaryByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation,finecorrections=finecorrections) #q3
+            if finecorrections and finecorrections[runnum]:
+                lumiinfobyrun=lumiQueryAPI.lumisummaryByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation,finecorrections=finecorrections[runnum]) #q3
+            else:
+                lumiinfobyrun=lumiQueryAPI.lumisummaryByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation)
             del q
             if len(lumiinfobyrun)!=0: #if lumionly has qualified data means trg has no data
                 print 'warning request run ',runnum,' has no trigger data, calculate delivered only'
