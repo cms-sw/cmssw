@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.36 2011/05/20 18:43:38 wmtan Exp $
+// $Id: CentralityProducer.cc,v 1.37 2011/07/15 15:45:52 yilmaz Exp $
 //
 //
 
@@ -205,7 +205,7 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     trackGeo_ = tGeo.product();
   }
   
-  if(!caloGeo_){
+  if(!caloGeo_ && produceEcalhits_){
     edm::ESHandle<CaloGeometry> cGeo;
     iSetup.get<CaloGeometryRecord>().get(cGeo);
     caloGeo_ = cGeo.product();
