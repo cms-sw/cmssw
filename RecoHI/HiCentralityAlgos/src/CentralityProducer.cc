@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz, Young Soo Park
 //         Created:  Wed Jun 11 15:31:41 CEST 2008
-// $Id: CentralityProducer.cc,v 1.35 2010/11/23 11:20:02 yilmaz Exp $
+// $Id: CentralityProducer.cc,v 1.36 2011/05/20 18:43:38 wmtan Exp $
 //
 //
 
@@ -199,7 +199,7 @@ CentralityProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
   using namespace reco;
 
-  if(!trackGeo_){
+  if(!trackGeo_ && producePixelhits_){
     edm::ESHandle<TrackerGeometry> tGeo;
     iSetup.get<TrackerDigiGeometryRecord>().get(tGeo);
     trackGeo_ = tGeo.product();
