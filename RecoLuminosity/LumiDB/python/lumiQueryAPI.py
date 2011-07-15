@@ -1079,7 +1079,7 @@ def runsummaryByrun(queryHandle,runnum):
     #    raise
     return result
 
-def lumisummaryByrun(queryHandle,runnum,lumiversion,beamstatus=None,beamenergy=None,beamenergyfluctuation=0.09):
+def lumisummaryByrun(queryHandle,runnum,lumiversion,beamstatus=None,beamenergy=None,beamenergyfluctuation=0.09,finecorrections=None):
     '''
     one can impose beamstatus, beamenergy selections at the SQL query level or process them later from the general result
     select cmslsnum,instlumi,numorbit,startorbit,beamstatus,beamenery from lumisummary where runnum=:runnum and lumiversion=:lumiversion order by startorbit;
@@ -1128,6 +1128,8 @@ def lumisummaryByrun(queryHandle,runnum,lumiversion,beamstatus=None,beamenergy=N
     while cursor.next():
         cmslsnum=cursor.currentRow()['cmslsnum'].data()
         instlumi=cursor.currentRow()['instlumi'].data()
+        if finecorrections:
+            instlumi=lumiCorrections.applyfinecorrection(instlumi,finecorrections[0],finecorrections[1],finecorrections[2])
         numorbit=cursor.currentRow()['numorbit'].data()
         startorbit=cursor.currentRow()['startorbit'].data()
         beamstatus=cursor.currentRow()['beamstatus'].data()
@@ -1136,15 +1138,15 @@ def lumisummaryByrun(queryHandle,runnum,lumiversion,beamstatus=None,beamenergy=N
         result.append([cmslsnum,instlumi,numorbit,startorbit,beamstatus,beamenergy,cmsalive])
     return result
 
-def lumisumByrun(queryHandle,runnum,lumiversion,beamstatus=None,beamenergy=None,beamenergyfluctuation=0.09):
+def lumisumByrun(queryHandle,runnum,lumiversion,beamstatus=None,beamenergy=None,beamenergyfluctuation=0.09,finecorrections=None):
     '''
     beamenergy unit : GeV
     beamenergyfluctuation : fraction allowed to fluctuate around beamenergy value
-    select sum(instlumi) from lumisummary where runnum=:runnum and lumiversion=:lumiversion
-    output: float totallumi
+    select instlumi from lumisummary where runnum=:runnum and lumiversion=:lumiversion
+    output: float sum(instlumi)
     Note: the output is the raw result, need to apply LS length in time(sec)
     '''
-    result=0.0
+    result=[]
     queryHandle.addToTableList(nameDealer.lumisummaryTableName())
     queryCondition=coral.AttributeList()
     queryCondition.extend('runnum','unsigned int')
@@ -1152,7 +1154,7 @@ def lumisumByrun(queryHandle,runnum,lumiversion,beamstatus=None,beamenergy=None,
     
     queryCondition['runnum'].setData(int(runnum))
     queryCondition['lumiversion'].setData(lumiversion)
-    queryHandle.addToOutputList('sum(INSTLUMI)','lumitotal')
+    queryHandle.addToOutputList('INSTLUMI','instlumi')
     conditionstring='RUNNUM=:runnum and LUMIVERSION=:lumiversion'
     if beamstatus and len(beamstatus)!=0:
         conditionstring=conditionstring+' and BEAMSTATUS=:beamstatus'
@@ -1168,12 +1170,19 @@ def lumisumByrun(queryHandle,runnum,lumiversion,beamstatus=None,beamenergy=None,
         queryCondition['maxBeamenergy'].setData(float(maxBeamenergy))
     queryHandle.setCondition(conditionstring,queryCondition)
     queryResult=coral.AttributeList()
-    queryResult.extend('lumitotal','float')
+    queryResult.extend('instlumi','float')
     queryHandle.defineOutput(queryResult)
     cursor=queryHandle.execute()
     while cursor.next():
-        result=cursor.currentRow()['lumitotal'].data()
-    return result
+        instlumi=cursor.currentRow()['instlumi'].data()
+        if instlumi:
+            if finecorrections:
+                instlumi=lumiCorrections.applyfinecorrection(instlumi,finecorrections[0],finecorrections[1],finecorrections[2])
+            result.append(instlumi)
+    if result:
+        return sum(result)
+    else:
+        return 0.0
 
 def trgbitzeroByrun(queryHandle,runnum):
     '''
@@ -1211,7 +1220,7 @@ def trgbitzeroByrun(queryHandle,runnum):
             result[cmslsnum]=[trgcount,deadtime,bitname,prescale]
     return result
 
-def lumisummarytrgbitzeroByrun(queryHandle,runnum,lumiversion,beamstatus=None,beamenergy=None,beamenergyfluctuation=0.09):
+def lumisummarytrgbitzeroByrun(queryHandle,runnum,lumiversion,beamstatus=None,beamenergy=None,beamenergyfluctuation=0.09,finecorrections=None):
     '''
     select l.cmslsnum,l.instlumi,l.numorbit,l.startorbit,l.beamstatus,l.beamenery,t.trgcount,t.deadtime,t.bitname,t.prescale from trg t,lumisummary l where t.bitnum=:bitnum and l.runnum=:runnum and l.lumiversion=:lumiversion and l.runnum=t.runnum and t.cmslsnum=l.cmslsnum; 
     Everything you ever need to know about bitzero and avg luminosity. Since we do not know if joint query is better of sperate, support both.
@@ -1269,6 +1278,8 @@ def lumisummarytrgbitzeroByrun(queryHandle,runnum,lumiversion,beamstatus=None,be
     while cursor.next():
         cmslsnum=cursor.currentRow()['cmslsnum'].data()
         instlumi=cursor.currentRow()['instlumi'].data()
+        if finecorrections:
+            instlumi=lumiCorrections.applyfinecorrection(instlumi,finecorrections[0],finecorrections[1],finecorrections[2])
         numorbit=cursor.currentRow()['numorbit'].data()
         startorbit=cursor.currentRow()['startorbit'].data()
         beamstatus=cursor.currentRow()['beamstatus'].data()

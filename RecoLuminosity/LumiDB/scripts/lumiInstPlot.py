@@ -2,7 +2,7 @@
 VERSION='1.00'
 import os,sys,datetime
 import coral
-from RecoLuminosity.LumiDB import lumiTime,argparse,nameDealer,selectionParser,hltTrgSeedMapper,connectstrParser,cacheconfigParser,matplotRender,lumiQueryAPI,inputFilesetParser,CommonUtil,csvReporter
+from RecoLuminosity.LumiDB import lumiTime,argparse,nameDealer,selectionParser,hltTrgSeedMapper,connectstrParser,cacheconfigParser,matplotRender,lumiQueryAPI,inputFilesetParser,CommonUtil,csvReporter,lumiCorrections
 from matplotlib.figure import Figure
 
 class constants(object):
@@ -14,7 +14,7 @@ class constants(object):
     def defaultfrontierConfigString(self):
         return """<frontier-connect><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier.cern.ch:3128"/><proxy url="http://cmst0frontier1.cern.ch:3128"/><proxy url="http://cmst0frontier2.cern.ch:3128"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier1.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier2.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier3.cern.ch:8000/FrontierInt"/><server url="http://cmsfrontier4.cern.ch:8000/FrontierInt"/></frontier-connect>"""
 
-def getInstLumiPerLS(dbsession,c,runList,selectionDict,beamstatus=None,beamenergy=None,beamenergyfluctuation=0.09):
+def getInstLumiPerLS(dbsession,c,runList,selectionDict,beamstatus=None,beamenergy=None,beamenergyfluctuation=0.09,finecorrections=None):
     '''
     input: runList[runnum], selectionDict{runnum:[ls]}
     output:[[runnumber,lsnumber,deliveredInst,recordedInst,norbit,startorbit,runstarttime,runstoptime]]
@@ -28,7 +28,7 @@ def getInstLumiPerLS(dbsession,c,runList,selectionDict,beamstatus=None,beamenerg
         for runnum,dupcount in dups:
             if dupcount==2:
                 selectedRunlist.append(runnum)
-                
+    finecorrections=None
     dbsession.transaction().start(True)
     for run in selectedRunlist:
         q=dbsession.nominalSchema().newQuery()
@@ -37,7 +37,7 @@ def getInstLumiPerLS(dbsession,c,runList,selectionDict,beamstatus=None,beamenerg
         runstarttime=runsummary[3]
         runstoptime=runsummary[4]
         q=dbsession.nominalSchema().newQuery()
-        lumiperrun=lumiQueryAPI.lumisummaryByrun(q,run,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation)
+        lumiperrun=lumiQueryAPI.lumisummaryByrun(q,run,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation,finecorrections=finecorrections)
         del q
         if len(lumiperrun)==0: #no result for this run
             result.append([run,1,0.0,0.0,0,0,runstarttime,runstoptime])
@@ -56,7 +56,7 @@ def getInstLumiPerLS(dbsession,c,runList,selectionDict,beamstatus=None,beamenerg
         print result
     return result              
 
-def getLumiPerRun(dbsession,c,run,beamstatus=None,beamenergy=None,beamenergyfluctuation=0.09):
+def getLumiPerRun(dbsession,c,run,beamstatus=None,beamenergy=None,beamenergyfluctuation=0.09,finecorrections=None):
     '''
     input: run
     output:{runnumber:[[lsnumber,deliveredInst,recordedInst,norbit,startorbit,runstarttime,runstoptime]]}
@@ -70,7 +70,7 @@ def getLumiPerRun(dbsession,c,run,beamstatus=None,beamenergy=None,beamenergyfluc
     runstoptime=runsummary[4]
     fillnum=runsummary[0]
     q=dbsession.nominalSchema().newQuery()
-    lumiperrun=lumiQueryAPI.lumisummaryByrun(q,run,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation)
+    lumiperrun=lumiQueryAPI.lumisummaryByrun(q,run,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation,finecorrections=finecorrections)
     del q
     q=dbsession.nominalSchema().newQuery()
     trgperrun=lumiQueryAPI.trgbitzeroByrun(q,run) # {cmslsnum:[trgcount,deadtime,bitname,prescale]}
@@ -122,6 +122,7 @@ def main():
     #graphical mode options
     parser.add_argument('--annotateboundary',dest='annotateboundary',action='store_true',help='annotate boundary run numbers')
     parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose mode, print result also to screen')
+    parser.add_argument('--with-correction',dest='withFileCorrection',action='store_true',help='with fine correction')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     # parse arguments
     args=parser.parse_args()
@@ -221,7 +222,12 @@ def main():
         exit
     #print 'runList ',runList
     #print 'runDict ', runDict
-    
+    finecorrections=None
+    if options.withFineCorrection:
+        schema=session.nominalSchema()
+        session.transaction().start(True)
+        finecorrections=lumiCorrections.correctionsForRange(schema,runList)
+        session.transaction().commit()      
         
     fig=Figure(figsize=(6,4.5),dpi=100)
     m=matplotRender.matplotRender(fig)
@@ -231,7 +237,7 @@ def main():
     
     if args.action == 'peakperday':
         l=lumiTime.lumiTime()
-        lumiperls=getInstLumiPerLS(session,c,runList,selectionDict)
+        lumiperls=getInstLumiPerLS(session,c,runList,selectionDict,finecorrections=finecorrections)
         if args.outputfile:
             reporter=csvReporter.csvReporter(ofilename)
             fieldnames=['day','run','lsnum','maxinstlumi']
@@ -268,7 +274,7 @@ def main():
         
     if args.action == 'run':
         runnumber=runList[0]
-        lumiperrun=getLumiPerRun(session,c,runnumber)#[[lsnumber,deliveredInst,recordedInst,norbit,startorbit,fillnum,runstarttime,runstoptime]]
+        lumiperrun=getLumiPerRun(session,c,runnumber,finecorrections=finecorrections)#[[lsnumber,deliveredInst,recordedInst,norbit,startorbit,fillnum,runstarttime,runstoptime]]
         #print 'lumiperrun ',lumiperrun
         xdata=[]#[runnumber,fillnum,norbit,stattime,stoptime,totalls,ncmsls]
         ydata={}#{label:[instlumi]}

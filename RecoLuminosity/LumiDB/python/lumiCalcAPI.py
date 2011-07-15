@@ -1,5 +1,5 @@
 import os,coral,datetime,fnmatch,time
-from RecoLuminosity.LumiDB import nameDealer,revisionDML,dataDML,lumiTime,CommonUtil,selectionParser,hltTrgSeedMapper
+from RecoLuminosity.LumiDB import nameDealer,revisionDML,dataDML,lumiTime,CommonUtil,selectionParser,hltTrgSeedMapper,lumiCorrections
 
 
 #internal functions
@@ -204,6 +204,7 @@ def trgForRange(schema,inputRange,trgbitname=None,trgbitnamepattern=None,withL1C
 
 def instLumiForRange(schema,inputRange,beamstatusfilter=None,withBXInfo=False,bxAlgo=None,xingMinLum=0.0,withBeamIntensity=False,datatag=None):
     '''
+    DIRECTLY FROM ROOT FIME NO CORRECTION AT ALL 
     lumi raw data. beofore normalization and time integral
     input:
            inputRange  {lumidataid:[cmsls]} (required)
@@ -287,7 +288,7 @@ def instLumiForRange(schema,inputRange,beamstatusfilter=None,withBXInfo=False,bx
         result[run]=lsresult
     return result
 
-def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo=None,xingMinLum=0.0,withBeamIntensity=False,norm=None,datatag=None):
+def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo=None,xingMinLum=0.0,withBeamIntensity=False,norm=None,datatag=None,finecorrections=None):
     '''
     Inst luminosity after calibration, not time integrated
     input:
@@ -334,7 +335,9 @@ def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,e
             timestamp=perlsdata[2]
             bs=perlsdata[3]
             beamenergy=perlsdata[4]
-            calibratedlumi=perlsdata[5]*normval             
+            calibratedlumi=perlsdata[5]*normval
+            if finecorrections and finecorrections[run]:
+                calibratedlumi=lumiCorrections.applyfinecorrection(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])           
             calibratedlumierr=perlsdata[6]*normval
             startorbit=perlsdata[7]
             numorbit=perlsdata[8]
@@ -352,7 +355,7 @@ def instCalibratedLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,e
             del perlsdata[:]
     return result
          
-def deliveredLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo=None,xingMinLum=0.0,withBeamIntensity=False,norm=None,datatag=None):
+def deliveredLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo=None,xingMinLum=0.0,withBeamIntensity=False,norm=None,datatag=None,finecorrections=None):
     '''
     delivered lumi (including calibration,time integral)
     input:
@@ -401,6 +404,8 @@ def deliveredLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=N
             bs=perlsdata[3]
             beamenergy=perlsdata[4]
             calibratedlumi=perlsdata[5]*normval
+            if finecorrections and finecorrections[run]:
+                calibratedlumi=lumiCorrections.applyfinecorrection(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])    
             calibratedlumierr=perlsdata[6]*normval
             numorbit=perlsdata[8]
             numbx=3564
@@ -420,7 +425,7 @@ def deliveredLumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=N
             del perlsdata[:]
     return result
                        
-def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo=None,xingMinLum=0.0,withBeamIntensity=False,norm=None,datatag=None):
+def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withBXInfo=False,bxAlgo=None,xingMinLum=0.0,withBeamIntensity=False,norm=None,datatag=None,finecorrections=None):
     '''
     delivered/recorded lumi
     input:
@@ -492,6 +497,8 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
             instlumi=perlsdata[1]
             instlumierror=perlsdata[2]
             calibratedlumi=instlumi*normval
+            if finecorrections and finecorrections[run]:
+                calibratedlumi=lumiCorrections.applyfinecorrection(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
             calibratedlumierror=instlumierror*normval
             bstatus=perlsdata[4]
             begev=perlsdata[5]
@@ -560,7 +567,7 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
         result[run]=perrunresult    
     return result
        
-def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None,amodetag=None,beamstatus=None,egev=None,withBXInfo=False,xingMinLum=0.0,bxAlgo=None,withBeamIntensity=False,norm=None,datatag=None):
+def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None,amodetag=None,beamstatus=None,egev=None,withBXInfo=False,xingMinLum=0.0,bxAlgo=None,withBeamIntensity=False,norm=None,datatag=None,finecorrections=None):
     '''
     input:
            inputRange  {run:[cmsls]} (required)
@@ -629,6 +636,8 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
             instlumi=perlsdata[1]
             instlumierror=perlsdata[2]
             calibratedlumi=instlumi*normval
+            if finecorrections and finecorrections[run]:
+                calibratedlumi=lumiCorrections.applyfinecorrection(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
             calibratedlumierror=instlumierror*normval
             bstatus=perlsdata[4]
             begev=perlsdata[5]
