@@ -77,12 +77,10 @@ EcalSelectiveReadoutProducer::~EcalSelectiveReadoutProducer()
 void
 EcalSelectiveReadoutProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 {
-  if(useCondDb_){
-    //getting selective readout configuration:
-    edm::ESHandle<EcalSRSettings> hSr;
-    eventSetup.get<EcalSRSettingsRcd>().get(hSr);
-    settings_ = hSr.product();
-  }
+  //getting selective readout configuration:
+  edm::ESHandle<EcalSRSettings> hSr;
+  eventSetup.get<EcalSRSettingsRcd>().get(hSr);
+  settings_ = hSr.product();
   
   //gets the trigger primitives:
   EcalTrigPrimDigiCollection emptyTPColl;

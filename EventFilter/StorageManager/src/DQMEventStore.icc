@@ -1,4 +1,4 @@
-// $Id: DQMEventStore.icc,v 1.1.4.6 2011/03/29 16:10:19 mommsen Exp $
+// $Id: DQMEventStore.icc,v 1.4 2011/04/04 12:03:30 mommsen Exp $
 /// @file: DQMEventStore.icc
 
 #include "TROOT.h"
@@ -29,7 +29,8 @@ namespace stor {
     ConnectionType* connectionType,
     size_t (ConnectionType::*getExpectedUpdatesCount)() const,
     StateMachineType* stateMachineType,
-    void (StateMachineType::*moveToFailedState)(xcept::Exception&)
+    void (StateMachineType::*moveToFailedState)(xcept::Exception&),
+    AlarmHandlerPtr alarmHandler
   ) :
   appDescriptor_(appDescriptor),
   dqmEventQueueCollection_(dqmEventQueueCollection),
@@ -38,6 +39,7 @@ namespace stor {
   getExpectedUpdatesCount_(getExpectedUpdatesCount),
   stateMachineType_(stateMachineType),
   moveToFailedState_(moveToFailedState),
+  alarmHandler_(alarmHandler),
   completedFolderThread_(0),
   processCompletedTopLevelFolders_(false)
   {
@@ -58,15 +60,9 @@ namespace stor {
   {
     boost::mutex::scoped_lock sl(storeMutex_);
 
+    stopProcessingCompletedTopLevelFolders();
     store_.clear();
-    processCompletedTopLevelFolders_ = false;
     tempEventArea_.clear();
-    if ( completedFolderThread_ )
-    {
-      TThread::Delete(completedFolderThread_);
-      delete completedFolderThread_;
-      completedFolderThread_ = 0;
-    }
   }
   
   template<class EventType, class ConnectionType, class StateMachineType>  
@@ -76,9 +72,10 @@ namespace stor {
   {
     boost::mutex::scoped_lock sl(storeMutex_);
 
-    processCompletedTopLevelFolders_ = false;
+    stopProcessingCompletedTopLevelFolders();
     while ( handleNextCompletedTopLevelFolder() ) {}
     store_.clear();
+    tempEventArea_.clear();
   }
   
   template<class EventType, class ConnectionType, class StateMachineType>  
@@ -89,11 +86,6 @@ namespace stor {
     clear();
     dqmParams_ = dqmParams;
     processCompletedTopLevelFolders_ = true;
-    if ( completedFolderThread_ )
-    {
-      TThread::Delete(completedFolderThread_);
-      delete completedFolderThread_;
-    }
     completedFolderThread_ =
       new TThread((void(*) (void *))
         &DQMEventStore<EventType,ConnectionType,StateMachineType>::
@@ -129,7 +121,8 @@ namespace stor {
       DQMTopLevelFolderPtr topLevelFolder( new DQMTopLevelFolder(
           newKey, dqmEvent.getDQMEventConsumerTags(),
           dqmParams_, dqmEventMonColl_, 
-          (connectionType_->*getExpectedUpdatesCount_)()
+          (connectionType_->*getExpectedUpdatesCount_)(),
+          alarmHandler_
         ));
       pos = store_.insert(pos, DQMTopLevelFolderMap::value_type(newKey, topLevelFolder));
     }
@@ -147,7 +140,7 @@ namespace stor {
     
     DQMTopLevelFolderPtr topLevelFolder( new DQMTopLevelFolder(
         newKey, dqmEvent.getDQMEventConsumerTags(),
-        dqmParams_, dqmEventMonColl_, 1));
+        dqmParams_, dqmEventMonColl_, 1, alarmHandler_));
     topLevelFolder->addDQMEvent(getDQMEventView(dqmEvent));
     
     store_.insert(DQMTopLevelFolderMap::value_type(newKey, topLevelFolder));
@@ -230,6 +223,20 @@ namespace stor {
     return true;
   }
 
+  template<class EventType, class ConnectionType, class StateMachineType>  
+  void
+  DQMEventStore<EventType,ConnectionType,StateMachineType>::
+  stopProcessingCompletedTopLevelFolders()
+  {
+    processCompletedTopLevelFolders_ = false;
+    if ( completedFolderThread_ )
+    {
+      completedFolderThread_->Join();
+      completedFolderThread_->CleanUp(); //deletes the thread object
+      completedFolderThread_ = 0;
+    }
+  }
+  
 } // namespace stor
 
 

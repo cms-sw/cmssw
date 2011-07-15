@@ -61,7 +61,7 @@ RefCountedKinematicTree FinalTreeBuilder::buildTree(const CachingVertex<6>& vtx,
  AlgebraicMatrix m_all = momentumPart(vtx,par);
 
 //position-position components part (3x3)
- // AlgebraicMatrix x_X = vtx.error().matrix();
+ AlgebraicMatrix x_X = vtx.error().matrix();
 
 //making new matrix itself
  cov.sub(1,1,m_all);

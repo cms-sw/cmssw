@@ -107,10 +107,10 @@ void EgHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
     offEvtHelper_.setupTriggers(hltConfig,hltFiltersUsed);
 
     //now book ME's
-    dbe_->setCurrentFolder(dirName_);
+    dbe_->setCurrentFolder(dirName_+"/Source_Histos");
     //each trigger path with generate object distributions and efficiencies (BUT not trigger efficiencies...)
-    for(size_t i=0;i<eleHLTFilterNames_.size();i++){/*dbe_->setCurrentFolder(dirName_+"/"+eleHLTFilterNames_[i]);*/  addEleTrigPath(eleHLTFilterNames_[i]);}//dbe_->setCurrentFolder(dirName_);
-    for(size_t i=0;i<phoHLTFilterNames_.size();i++){/*dbe_->setCurrentFolder(dirName_+"/"+phoHLTFilterNames_[i]);*/  addPhoTrigPath(phoHLTFilterNames_[i]);}
+    for(size_t i=0;i<eleHLTFilterNames_.size();i++){dbe_->setCurrentFolder(dirName_+"/Source_Histos/"+eleHLTFilterNames_[i]);  addEleTrigPath(eleHLTFilterNames_[i]);}//dbe_->setCurrentFolder(dirName_);
+    for(size_t i=0;i<phoHLTFilterNames_.size();i++){dbe_->setCurrentFolder(dirName_+"/Source_Histos/"+phoHLTFilterNames_[i]);  addPhoTrigPath(phoHLTFilterNames_[i]);}
     //dbe_->setCurrentFolder(dirName_);
     //efficiencies of one trigger path relative to another
     MonElemFuncs::initTightLooseTrigHists(eleMonElems_,eleTightLooseTrigNames_,binData_,"gsfEle");
@@ -120,7 +120,7 @@ void EgHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
    
     MonElemFuncs::initTightLooseTrigHists(phoMonElems_,phoTightLooseTrigNames_,binData_,"pho");
     //	new EgHLTDQMVarCut<OffPho>(cutMasks_.stdPho,&OffPho::cutCode)); 
-    MonElemFuncs::initTightLooseTrigHistsTrigCuts(phoMonElems_,phoTightLooseTrigNames_,binData_);
+    //MonElemFuncs::initTightLooseTrigHistsTrigCuts(phoMonElems_,phoTightLooseTrigNames_,binData_);
       
     //di-object triggers
     MonElemFuncs::initTightLooseTrigHists(eleMonElems_,diEleTightLooseTrigNames_,binData_,"gsfEle");
@@ -135,7 +135,10 @@ void EgHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
     //tag and probe trigger efficiencies
     //this is to do measure the trigger efficiency with respect to a fully selected offline electron
     //using a tag and probe technique (note: this will be different to the trigger efficiency normally calculated) 
-    MonElemFuncs::initTrigTagProbeHists(eleMonElems_,eleHLTFilterNames_,cutMasks_.trigTPEle,binData_);
+    for(size_t i=0;i<eleHLTFilterNames_.size();i++){
+      dbe_->setCurrentFolder(dirName_+"/Source_Histos/"+eleHLTFilterNames_[i]);
+      MonElemFuncs::initTrigTagProbeHist(eleMonElems_,eleHLTFilterNames_[i],cutMasks_.trigTPEle,binData_);
+    }
     
     //tag and probe not yet implimented for photons (attemping to see if it makes sense first)
     // MonElemFuncs::initTrigTagProbeHists(phoMonElems,phoHLTFilterNames_);

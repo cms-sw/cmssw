@@ -1,6 +1,5 @@
 #include "RecoTracker/SpecialSeedGenerators/interface/GenericTripletGenerator.h"
 #include "RecoTracker/TkSeedGenerator/interface/FastCircle.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
 typedef TransientTrackingRecHit::ConstRecHitPointer SeedingHit;
 
 

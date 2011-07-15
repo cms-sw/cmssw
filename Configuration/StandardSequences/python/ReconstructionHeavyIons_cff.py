@@ -37,8 +37,8 @@ hcalLocalRecoSequence.replace(hbheprereco,hbhereco)
 muonReco = cms.Sequence(trackerlocalreco+muonlocalreco+lumiProducer)
 localReco = cms.Sequence(offlineBeamSpot*muonReco*caloReco*castorreco)
 
-hbherecoMB = hbheprerecoMB.clone()
-hcalLocalRecoSequenceNZS.replace(hbheprerecoMB,hbherecoMB)
+#hbherecoMB = hbheprerecoMB.clone()
+#hcalLocalRecoSequenceNZS.replace(hbheprerecoMB,hbherecoMB)
 caloRecoNZS = cms.Sequence(caloReco+hcalLocalRecoSequenceNZS)
 localReco_HcalNZS = cms.Sequence(offlineBeamSpot*muonReco*caloRecoNZS)
 

@@ -5,8 +5,13 @@ def customise(process):
         inputCommands=cms.untracked.vstring('drop *')
         )
 
+    GeneratorInterfaceRAWNoGenParticles = process.GeneratorInterfaceRAW.outputCommands
+    for item in GeneratorInterfaceRAWNoGenParticles:
+      if 'genParticles' in item:
+        GeneratorInterfaceRAWNoGenParticles.remove(item) 
+
     REDIGIInputEventSkimming.inputCommands.extend(process.SimG4CoreRAW.outputCommands) 
-    REDIGIInputEventSkimming.inputCommands.extend(process.GeneratorInterfaceRAW.outputCommands) 
+    REDIGIInputEventSkimming.inputCommands.extend(GeneratorInterfaceRAWNoGenParticles) 
     REDIGIInputEventSkimming.inputCommands.extend(process.IOMCRAW.outputCommands) 
 
     process.source.inputCommands = REDIGIInputEventSkimming.inputCommands
@@ -25,7 +30,7 @@ def customise(process):
 
     # REDO the GenJets etc. in case labels have been changed
     process.load('Configuration/StandardSequences/Generator_cff')
-    process.fixGenInfo = cms.Path(process.genJetMET)
+    process.fixGenInfo = cms.Path(process.GeneInfo * process.genJetMET)
     process.schedule.append(process.fixGenInfo)
     
     return(process)

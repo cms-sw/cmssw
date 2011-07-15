@@ -1,4 +1,4 @@
-// $Id: EventFileHandler.cc,v 1.15.4.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: EventFileHandler.cc,v 1.16 2011/03/07 15:31:32 mommsen Exp $
 /// @file: EventFileHandler.cc
 
 #include <EventFilter/StorageManager/interface/EventFileHandler.h>
@@ -70,7 +70,6 @@ namespace stor {
       writer_.reset(); // Destruct the writer to flush the file stream
     }
     moveFileToClosed(reason);
-    writeToSummaryCatalog();
     updateDatabase();
   }
   

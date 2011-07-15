@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 16 14:11:32 CET 2010
-// $Id: FWEveView.h,v 1.28 2010/11/26 20:24:47 amraktad Exp $
+// $Id: FWEveView.h,v 1.29 2011/02/03 17:38:39 amraktad Exp $
 //
 
 
@@ -53,7 +53,7 @@ namespace fireworks
 class FWEveView : public FWViewBase
 {
 public:
-   FWEveView(TEveWindowSlot*, FWViewType::EType, unsigned int version = 6);
+   FWEveView(TEveWindowSlot*, FWViewType::EType, unsigned int version = 7);
    virtual ~FWEveView();
 
    virtual void setFrom(const FWConfiguration&);

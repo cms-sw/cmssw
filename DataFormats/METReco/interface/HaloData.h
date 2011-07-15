@@ -1,10 +1,5 @@
 #ifndef DATAFORMATS_METRECO_HALODATA_H
 #define DATAFORMATS_METRECO_HALODATA_H
-#include "TMath.h"
-#include <vector>
-#include "DataFormats/Common/interface/RefVector.h"
-#include "DataFormats/Common/interface/Ref.h"
-#include "DataFormats/Common/interface/RefProd.h"
 /*
   [class]:  HaloData
   [authors]: R. Remington, The University of Florida

@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:12:04 EDT 2006
-// $Id: SiStripElectronAlgo.cc,v 1.31 2010/09/21 17:06:14 chamont Exp $
+// $Id: SiStripElectronAlgo.cc,v 1.30 2008/10/31 15:54:10 nancy Exp $
 //
 
 // system include files
@@ -160,14 +160,13 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
       (electronSuccess  &&  positronSuccess  &&  redchi2_neg_ <= redchi2_pos_)) {
       
     // Initial uncertainty for tracking
-    AlgebraicSymMatrix55 errors;  // makes 5x5 matrix, indexed from (0,0) to (44)
-    errors(0,0) = 3.;      // uncertainty**2 in 1/momentum
-    errors(1,1) = 0.01;    // uncertainty**2 in lambda (lambda == pi/2 - polar angle theta)
-    errors(2,2) = 0.0001;  // uncertainty**2 in phi
-    errors(3,3) = 0.01;    // uncertainty**2 in x_transverse (where x is in cm)
-    errors(4,4) = 0.01;    // uncertainty**2 in y_transverse (where y is in cm)
+    AlgebraicSymMatrix errors(5,1);  // makes identity 5x5 matrix, indexed from (1,1) to (5,5)
+    errors(1,1) = 3.;      // uncertainty**2 in 1/momentum
+    errors(2,2) = 0.01;    // uncertainty**2 in lambda (lambda == pi/2 - polar angle theta)
+    errors(3,3) = 0.0001;  // uncertainty**2 in phi
+    errors(4,4) = 0.01;    // uncertainty**2 in x_transverse (where x is in cm)
+    errors(5,5) = 0.01;    // uncertainty**2 in y_transverse (where y is in cm)
 
-#ifdef EDM_ML_DEBUG 
     // JED Debugging possible double hit sort problem
     std::ostringstream debugstr6;
     debugstr6 << " HERE BEFORE SORT electron case " << " \n" ;
@@ -188,12 +187,11 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
     
     // JED call dump 
     debugstr6 << " Calling sort alongMomentum " << " \n"; 
-#endif   
- 
+    
     std::sort(outputHits_neg_.begin(), outputHits_neg_.end(),
     	      CompareHits(TrackingRecHitLessFromGlobalPosition(((TrackingGeometry*)(tracker_p_)), alongMomentum)));
     
-#ifdef EDM_ML_DEBUG 
+
     debugstr6 << " Done with sort " << " \n";
     
     debugstr6 << " HERE AFTER SORT electron case " << " \n";
@@ -211,7 +209,7 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
     // end of dump 
 
     LogDebug("")<< debugstr6.str();
-#endif
+
     
     //create an OwnVector needed by the classes which will be stored to the Event
     edm::OwnVector<TrackingRecHit> hits;
@@ -262,14 +260,13 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
       (electronSuccess  &&  positronSuccess  &&  redchi2_neg_ > redchi2_pos_)) {
       
     // Initial uncertainty for tracking
-    AlgebraicSymMatrix55 errors;  // same as abovr
-    errors(0,0) = 3.;      // uncertainty**2 in 1/momentum
-    errors(1,1) = 0.01;    // uncertainty**2 in lambda (lambda == pi/2 - polar angle theta)
-    errors(2,2) = 0.0001;  // uncertainty**2 in phi
-    errors(3,3) = 0.01;    // uncertainty**2 in x_transverse (where x is in cm)
-    errors(4,4) = 0.01;    // uncertainty**2 in y_transverse (where y is in cm)
+    AlgebraicSymMatrix errors(5,1);  // makes identity 5x5 matrix, indexed from (1,1) to (5,5)
+    errors(1,1) = 3.;      // uncertainty**2 in 1/momentum
+    errors(2,2) = 0.01;    // uncertainty**2 in lambda (lambda == pi/2 - polar angle theta)
+    errors(3,3) = 0.0001;  // uncertainty**2 in phi
+    errors(4,4) = 0.01;    // uncertainty**2 in x_transverse (where x is in cm)
+    errors(5,5) = 0.01;    // uncertainty**2 in y_transverse (where y is in cm)
 
-#ifdef EDM_ML_DEBUG 
     // JED Debugging possible double hit sort problem
     std::ostringstream debugstr7;
     debugstr7 << " HERE BEFORE SORT Positron case " << " \n";
@@ -287,12 +284,10 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
     // end of dump 
     
     debugstr7 << " Calling sort alongMomentum " << " \n"; 
-#endif
     
     std::sort(outputHits_pos_.begin(), outputHits_pos_.end(),
 	      CompareHits(TrackingRecHitLessFromGlobalPosition(((TrackingGeometry*)(tracker_p_)), alongMomentum)));
     
-#ifdef EDM_ML_DEBUG 
     debugstr7 << " Done with sort " << " \n";
     
     // JED Debugging possible double hit sort problem
@@ -310,7 +305,6 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
     }
     // end of dump 
     LogDebug("") << debugstr7.str();
-#endif
 
     //create an OwnVector needed by the classes which will be stored to the Event
     edm::OwnVector<TrackingRecHit> hits;
@@ -531,7 +525,6 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
   // skip endcap stereo for now
   //  LogDebug("") << " Getting endcap stereo hits " ;
   // coarseHitSelection(stereoHits,     true,   true);
-
   std::ostringstream debugstr1;
   debugstr1 << " Getting barrel rphi hits " << " \n" ;
 
@@ -826,7 +819,6 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
   LogDebug("") << " There are " << uselist.size() << " good stereo+rphi+zphi hits " ;
   //////////////////////
 
-#ifdef EDM_ML_DEBUG 
   std::ostringstream debugstr5;
   debugstr5 << " List of hits before uniqification " << " \n" ;
   for (unsigned int i = 0;  i < uselist.size();  i++) {
@@ -846,7 +838,6 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
   debugstr5 << " Counting number of unique detectors " << " \n" ;
 
   debugstr5 << " These are all the detectors with hits " << " \n";
-#endif
   // Loop over hits, and find the best hit for each SiDetUnit - keep only those
   // get a list of DetIds in uselist
   std::vector<uint32_t> detIdList ;
@@ -855,29 +846,23 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
     if (uselist[i]) {
       const SiStripRecHit2D* hit = hitlist[i];
       uint32_t detIDUsed = ((hit)->geographicalId()).rawId() ;
-#ifdef EDM_ML_DEBUG 
       debugstr5<< " DetId " << detIDUsed << "\n";
-#endif
       detIdList.push_back(detIDUsed) ;
     }
   }
-
-#ifdef EDM_ML_DEBUG 
   debugstr5 << " There are " << detIdList.size() << " hits on detectors \n";
-#endif
   // now sort and then uniq this list of detId
   std::sort(detIdList.begin(), detIdList.end());
   detIdList.erase(
 		  std::unique(detIdList.begin(), detIdList.end()), detIdList.end());
-#ifdef EDM_ML_DEBUG 
+
   debugstr5 << " There are " << detIdList.size() << " unique detectors \n";
-#endif
+
   //now we have a list of unique detectors used
 
 
-#ifdef EDM_ML_DEBUG 
+
   debugstr5 << " Looping over detectors to choose best hit " << " \n";
-#endif
   // Loop over detectors ID and hits to create list of hits on same DetId
   for (unsigned int idet = 0 ; idet < detIdList.size() ; idet++ ) {
     for (unsigned int i = 0;  i+1 < uselist.size();  i++) {
@@ -894,19 +879,15 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 	    if (uselist[j]) {
 	      const SiStripRecHit2D* hit2 = hitlist[j];
 	      if(detIdList[idet]== ((hit2)->geographicalId()).rawId()) {
-#ifdef EDM_ML_DEBUG 
 		debugstr5 << " Found 2 hits on same Si Detector " 
 			  << ((hit2)->geographicalId()).rawId() << "\n";
-#endif
 		// Get Chi2 of this hit relative to predicted hit
 		double r_hit2 = rlist[j];
 		double phi_hit2 = philist[j];
 		double w2_hit2 = w2list[j] ;
 		double phi_pred2 = (r_hit2-scr)*phiVsRSlope ; 
 		double chi2 = (phi_hit2-phi_pred2)*(phi_hit2-phi_pred2)*w2_hit2;
-#ifdef EDM_ML_DEBUG 
 		debugstr5 << " Chi1 " << chi1 << " Chi2 " << chi2 <<"\n";
-#endif
 		if( chi1< chi2 ){
 		  uselist[j] = 0;
 		}else{
@@ -932,7 +913,6 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
       const SiStripRecHit2D* hit = hitlist[i];
       double localchi2 = (philist[i]-(rlist[i]-scr)*phiVsRSlope)*(philist[i]-(rlist[i]-scr)*phiVsRSlope)*w2list[i] ;
       if(localchi2 > chi2HitMax ) {
-#ifdef EDM_ML_DEBUG 
 	debugstr5 << " Throwing out "
 		  <<" DetID " << ((hit)->geographicalId()).rawId()
 		  << " R " << rlist[i] 
@@ -941,13 +921,11 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 		  << " PhiPred " << (rlist[i]-scr)*phiVsRSlope  
 		  << " Chi2 " << (philist[i]-(rlist[i]-scr)*phiVsRSlope)*(philist[i]-(rlist[i]-scr)*phiVsRSlope)*w2list[i]
 		  << " \n" ;
-#endif
 	uselist[i]=0 ;
       }
     }
   }
 
-#ifdef EDM_ML_DEBUG 
   debugstr5 << " List of hits after uniqification " << " \n" ;
   for (unsigned int i = 0;  i < uselist.size();  i++) {
     if ( uselist[i] ) {
@@ -962,7 +940,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
     }
   }
   debugstr5 << " \n\n\n" ;
-#endif
+
 
   // need to check that there are more than 2 hits left here!
   unsigned int nHitsLeft =0;
@@ -972,15 +950,12 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
     }
   }
   if(nHitsLeft < nHitsLeftMinimum ) {
-#ifdef EDM_ML_DEBUG 
     debugstr5 << " Too few hits "<< nHitsLeft 
 	      << " left - return false " << " \n";
-#endif
     return false ;
   }
-#ifdef EDM_ML_DEBUG 
   LogDebug("") << debugstr5.str();
-#endif
+
   /////////////////////
   
   // Calculate a linear phi(r) fit and drop hits until the biggest contributor to chi^2 is less than maxNormResid_
@@ -1034,7 +1009,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
         rBarOld = rBar ;
         r2BarOld = r2Bar ;
         phirBarOld = phirBar ;  
-#ifdef EDM_ML_DEBUG 
+	
 	debugstr4 << " totalWeight " << totalWeight 
                   << " totalWeightRatio " << totalWeightRatio
                   << " localWeightRatio "<< localWeightRatio
@@ -1043,7 +1018,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
                   << " r2Bar " << r2Bar
                   << " phirBar " << phirBar 
                   << " \n ";
-#endif
+
 
       } // end of use hit loop
     } // end of hit loop to calculate a linear fit
@@ -1076,7 +1051,6 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
     if (biggest_normresid > maxNormResid_) {
       debugstr4 << "Dropping hit from fit due to Chi2 " << " \n" ;
       const SiStripRecHit2D* hit = hitlist[biggest_index];
-#ifdef EDM_ML_DEBUG 
       debugstr4 << " DetID " << ((hit)->geographicalId()).rawId()
 		<< " R " << rlist[biggest_index]
 		<< " Phi " << philist[biggest_index]
@@ -1085,14 +1059,13 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 		<< " Chi2 " << (philist[biggest_index]-(rlist[biggest_index]-scr)*phiVsRSlope)*(philist[biggest_index]-(rlist[biggest_index]-scr)*phiVsRSlope)*w2list[biggest_index] 
 		<< " normresid " <<  biggest_normresid
 		<< " \n\n";
-#endif
       uselist[biggest_index] = false;
     }
     else {
       done = true;
     }
   } // end loop over trial fits
-#ifdef EDM_ML_DEBUG 
+
   debugstr4 <<" Fit " 
             << " Intercept  " << intercept
             << " slope " << slope 
@@ -1100,7 +1073,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
             << " \n" ;
 
   LogDebug("") <<   debugstr4.str() ;
-#endif
+
 
   // Now we have intercept, slope, and chi2; uselist to tell us which hits are used, and hitlist for the hits
 

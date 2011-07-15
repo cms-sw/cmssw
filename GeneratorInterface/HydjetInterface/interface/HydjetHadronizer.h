@@ -1,7 +1,7 @@
 #ifndef HydjetHadronizer_h
 #define HydjetHadronizer_h
 
-// $Id: HydjetHadronizer.h,v 1.8 2010/12/14 22:47:47 yarba Exp $
+// $Id: HydjetHadronizer.h,v 1.7 2010/07/21 14:41:52 yilmaz Exp $
 
 /** \class HydjetHadronizer
 *
@@ -40,7 +40,6 @@ namespace gen
     bool hadronize();
     bool decay();
     bool residualDecay();
-    bool readSettings( int );
     bool initializeForExternalPartons();
     bool initializeForInternalPartons();
     bool declareStableParticles( const std::vector<int> );
