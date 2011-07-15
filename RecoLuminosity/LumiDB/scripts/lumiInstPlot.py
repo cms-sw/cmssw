@@ -28,7 +28,6 @@ def getInstLumiPerLS(dbsession,c,runList,selectionDict,beamstatus=None,beamenerg
         for runnum,dupcount in dups:
             if dupcount==2:
                 selectedRunlist.append(runnum)
-    finecorrections=None
     dbsession.transaction().start(True)
     for run in selectedRunlist:
         q=dbsession.nominalSchema().newQuery()
@@ -37,7 +36,10 @@ def getInstLumiPerLS(dbsession,c,runList,selectionDict,beamstatus=None,beamenerg
         runstarttime=runsummary[3]
         runstoptime=runsummary[4]
         q=dbsession.nominalSchema().newQuery()
-        lumiperrun=lumiQueryAPI.lumisummaryByrun(q,run,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation,finecorrections=finecorrections)
+        if finecorrections and finecorrections[run]:            
+            lumiperrun=lumiQueryAPI.lumisummaryByrun(q,run,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation,finecorrections=finecorrections[run])
+        else:
+            lumiperrun=lumiQueryAPI.lumisummaryByrun(q,run,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation)
         del q
         if len(lumiperrun)==0: #no result for this run
             result.append([run,1,0.0,0.0,0,0,runstarttime,runstoptime])
@@ -70,7 +72,10 @@ def getLumiPerRun(dbsession,c,run,beamstatus=None,beamenergy=None,beamenergyfluc
     runstoptime=runsummary[4]
     fillnum=runsummary[0]
     q=dbsession.nominalSchema().newQuery()
-    lumiperrun=lumiQueryAPI.lumisummaryByrun(q,run,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation,finecorrections=finecorrections)
+    if finecorrections and finecorrections[run]:      
+        lumiperrun=lumiQueryAPI.lumisummaryByrun(q,run,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation,finecorrections=finecorrections[run])
+    else:
+        lumiperrun=lumiQueryAPI.lumisummaryByrun(q,run,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation)
     del q
     q=dbsession.nominalSchema().newQuery()
     trgperrun=lumiQueryAPI.trgbitzeroByrun(q,run) # {cmslsnum:[trgcount,deadtime,bitname,prescale]}
@@ -122,7 +127,7 @@ def main():
     #graphical mode options
     parser.add_argument('--annotateboundary',dest='annotateboundary',action='store_true',help='annotate boundary run numbers')
     parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose mode, print result also to screen')
-    parser.add_argument('--with-correction',dest='withFileCorrection',action='store_true',help='with fine correction')
+    parser.add_argument('--with-correction',dest='withFineCorrection',action='store_true',help='with fine correction')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     # parse arguments
     args=parser.parse_args()
@@ -205,7 +210,7 @@ def main():
             maxTime=datetime.datetime.utcnow() #to now
         else:
             maxTime=t.StrToDatetime(args.end,timeformat)
-        print minTime,maxTime
+        #print minTime,maxTime
         qHandle=session.nominalSchema().newQuery()
         runDict=lumiQueryAPI.runsByTimerange(qHandle,minTime,maxTime)#xrawdata
         session.transaction().commit()
@@ -223,12 +228,11 @@ def main():
     #print 'runList ',runList
     #print 'runDict ', runDict
     finecorrections=None
-    if options.withFineCorrection:
+    if args.withFineCorrection:
         schema=session.nominalSchema()
         session.transaction().start(True)
         finecorrections=lumiCorrections.correctionsForRange(schema,runList)
         session.transaction().commit()      
-        
     fig=Figure(figsize=(6,4.5),dpi=100)
     m=matplotRender.matplotRender(fig)
 
