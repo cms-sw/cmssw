@@ -25,6 +25,17 @@
 
 #include "params.inc"
 
+extern "C" void jminit_();
+__attribute__((visibility("hidden"))) void dummy()
+{
+  int dummyInt = 0;
+  jminit_();
+  jimmin_();
+  jminit_();
+  hwmsct_(&dummyInt);
+  jmefin_();
+}
+
 using namespace gen;
 
 // implementation for the Fortran callbacks from Herwig
