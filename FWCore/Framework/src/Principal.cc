@@ -70,8 +70,8 @@ namespace edm {
 
   static
   void
-  throwMissingDictionaryException(TypeID const& productType) {
-    checkDictionaries(wrappedClassName(productType.className()), false);
+  throwMissingDictionaryException(TypeID const& productType, bool isElement) {
+    checkDictionaries(isElement ? productType.className() : wrappedClassName(productType.className()), false);
     throwMissingDictionariesException();
   }
 
@@ -405,7 +405,7 @@ namespace edm {
     // The missing dictionary might be for the class itself, the wrapped class, or a component of the class.
     std::pair<TypeLookup::const_iterator, TypeLookup::const_iterator> const range = typeLookup.equal_range(TypeInBranchType(typeID, branchType_));
     if(range.first == range.second) {
-      throwMissingDictionaryException(typeID);
+      throwMissingDictionaryException(typeID, &typeLookup == &preg_->elementLookup());
     }
 
     results.reserve(range.second - range.first);
@@ -447,7 +447,7 @@ namespace edm {
     // The missing dictionary might be for the class itself, the wrapped class, or a component of the class.
     std::pair<TypeLookup::const_iterator, TypeLookup::const_iterator> const range = typeLookup.equal_range(TypeInBranchType(typeID, branchType_));
     if(range.first == range.second) {
-      throwMissingDictionaryException(typeID);
+      throwMissingDictionaryException(typeID, &typeLookup == &preg_->elementLookup());
     }
 
     unsigned int processLevelFound = std::numeric_limits<unsigned int>::max();
@@ -515,7 +515,7 @@ namespace edm {
       // The missing dictionary might be for the class itself, the wrapped class, or a component of the class.
       std::pair<TypeLookup::const_iterator, TypeLookup::const_iterator> const typeRange = typeLookup.equal_range(TypeInBranchType(typeID, branchType_));
       if(typeRange.first == typeRange.second) {
-        throwMissingDictionaryException(typeID);
+        throwMissingDictionaryException(typeID, &typeLookup == &preg_->elementLookup());
       }
       return 0;
     }
