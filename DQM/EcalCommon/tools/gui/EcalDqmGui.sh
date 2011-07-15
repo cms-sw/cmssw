@@ -17,7 +17,7 @@ source ${VO_CMS_SW_DIR}/${SCRAM_ARCH}/cms/dqmgui/6.0.6-comp/etc/profile.d/env.sh
 
 rm -f gui/*/blacklist.txt
 
-visDQMControl $1 all from config/server-conf-ecal.py
+monControl $1 all from config/server-conf-ecal.py
 
 case "$1" in
     start)
