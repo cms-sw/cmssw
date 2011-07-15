@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.240 2011/07/13 05:00:28 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.241 2011/07/14 02:21:31 amraktad Exp $
 
 
 //
@@ -1034,14 +1034,12 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       TGFrameElement* fe = (TGFrameElement*) m_cmsShowMainFrame->GetList()->Last();
       TGPack* pack = (TGPack*)(fe->fFrame);
       TGFrameElementPack* fep = (TGFrameElementPack*)pack->GetList()->At(3);
-      printf("wight3 %f \n", fep->fWeight );
    }
 
    {
       TGFrameElement* fe = (TGFrameElement*) m_cmsShowMainFrame->GetList()->Last();
       TGPack* pack = (TGPack*)(fe->fFrame);
       TGFrameElementPack* fep = (TGFrameElementPack*)pack->GetList()->At(1);
-      printf("wight %f \n", fep->fWeight );
    }
 
    Int_t cfgVersion=3;
