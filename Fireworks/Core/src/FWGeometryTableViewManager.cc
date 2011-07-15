@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Jul  8 00:40:37 CEST 2011
-// $Id: FWGeometryTableViewManager.cc,v 1.2 2011/07/09 04:43:31 amraktad Exp $
+// $Id: FWGeometryTableViewManager.cc,v 1.3 2011/07/13 03:40:03 amraktad Exp $
 //
 
 #include <boost/bind.hpp>
@@ -26,8 +26,9 @@
 
 TGeoManager* FWGeometryTableViewManager::s_geoManager = 0;
 
-FWGeometryTableViewManager::FWGeometryTableViewManager(FWGUIManager* iGUIMgr):
-   FWViewManagerBase()
+FWGeometryTableViewManager::FWGeometryTableViewManager(FWGUIManager* iGUIMgr, std::string fileName):
+   FWViewManagerBase(),
+   m_fileName(fileName)
 {
    FWGUIManager::ViewBuildFunctor f;
    f=boost::bind(&FWGeometryTableViewManager::buildView, this, _1, _2);                
@@ -72,6 +73,9 @@ FWGeometryTableViewManager::colorsChanged()
       (*it)->setBackgroundColor();
 }
 
+
+
+
 void
 FWGeometryTableViewManager::initGeoManager()
 { 
@@ -80,10 +84,31 @@ FWGeometryTableViewManager::initGeoManager()
    gGeoManager = 0;
    
 
-   const char* defaultPath = Form("%s/cmsSimGeom-14.root",  gSystem->Getenv( "CMSSW_BASE" ));
-   if( !gSystem->AccessPathName(defaultPath))
+   TString filePath = m_fileName;
+
+   if (gSystem->AccessPathName(filePath.Data()))
    {
-      TFile* file = new TFile( defaultPath, "READ");
+      if( m_fileName[0] == '.' &&  m_fileName[1] == '/' )
+      {
+         filePath = Form("%s/%s", gSystem->Getenv( "PWD" ), &m_fileName.c_str()[1]);
+      }
+      else 
+      {
+         // look in PWD
+         // printf("look in PWD \n");
+         filePath = Form("%s/%s",  gSystem->Getenv( "PWD" ),m_fileName.c_str() );
+         // look in CMSSW_BASE
+         if(gSystem->AccessPathName(filePath.Data())) {
+            //  printf("look in CMSSW \n");
+            filePath = Form("%s/%s",  gSystem->Getenv( "CMSSW_BASE" ),m_fileName.c_str() );
+         }
+      }
+   }
+
+   //   printf("Sim geom file %s \n", filePath.Data());
+   if( !gSystem->AccessPathName(filePath.Data()))
+   {
+      TFile* file = new TFile( filePath.Data(), "READ");
       try {
          if ( ! file )
             throw std::runtime_error("No root file.");

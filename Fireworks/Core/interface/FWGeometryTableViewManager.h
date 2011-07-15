@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Jul  8 00:40:50 CEST 2011
-// $Id: FWGeometryTableViewManager.h,v 1.4 2011/07/13 03:40:03 amraktad Exp $
+// $Id: FWGeometryTableViewManager.h,v 1.5 2011/07/13 20:52:35 amraktad Exp $
 //
 
 class FWViewBase;
@@ -30,7 +30,7 @@ class TGeoManager;
 class FWGeometryTableViewManager : public FWViewManagerBase
 {
 public:
-   FWGeometryTableViewManager(FWGUIManager*);
+   FWGeometryTableViewManager(FWGUIManager*, std::string fileName);
    virtual ~FWGeometryTableViewManager();
 
    // dummy functions of FWViewManagerBase
@@ -58,6 +58,7 @@ private:
    void beingDestroyed(const FWViewBase* iView);
 
    static TGeoManager *s_geoManager;
+   std::string m_fileName;
    void initGeoManager();
 };
 

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.191 2011/06/03 23:30:50 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.192 2011/07/13 20:50:57 amraktad Exp $
 //
 
 // system include files
@@ -72,6 +72,8 @@ static const char* const kConfigFileOpt        = "config-file";
 static const char* const kConfigFileCommandOpt = "config-file,c";
 static const char* const kGeomFileOpt          = "geom-file";
 static const char* const kGeomFileCommandOpt   = "geom-file,g";
+static const char* const kSimGeomFileOpt       = "sim-geom-file";
+static const char* const kSimGeomFileCommandOpt= "sim-geom-file";
 static const char* const kNoConfigFileOpt      = "noconfig";
 static const char* const kNoConfigFileCommandOpt = "noconfig,n";
 static const char* const kPlayOpt              = "play";
@@ -167,7 +169,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       (kFreePaletteCommandOpt,                            "Allow free color selection (requires special configuration!)")
       (kAutoSaveAllViews, po::value<std::string>(),       "Auto-save all views with given prefix (run_event_lumi_view.png is appended)")
       (kZeroWinOffsets,                                   "Disable auto-detection of window position offsets.")
-      (kNoVersionCheck,                                     "No file version check.")
+      (kNoVersionCheck,                                   "No file version check.")
+      (kSimGeomFileCommandOpt,po::value<std::string>(),   "Set simulation geometry file to browse")
       (kHelpCommandOpt,                                   "Display help message");
    po::positional_options_description p;
    p.add(kInputFilesOpt, -1);
@@ -238,6 +241,11 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    }
    fwLog(fwlog::kInfo) << "Geom " << geometryFilename() << std::endl;
 
+   if (vm.count(kSimGeomFileOpt)) {
+      setSimGeometryFilename(vm[kSimGeomFileOpt].as<std::string>());
+   } else {
+      setSimGeometryFilename("cmsSimGeom-14.root");
+   }
    // Free-palette palette
    if (vm.count(kFreePaletteCommandOpt)) {
       FWColorPopup::EnableFreePalette();

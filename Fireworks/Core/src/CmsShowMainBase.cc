@@ -116,7 +116,7 @@ CmsShowMainBase::setupViewManagers()
    triggerTableViewManager->setContext(m_contextPtr);
    viewManager()->add(triggerTableViewManager);
 
-   boost::shared_ptr<FWGeometryTableViewManager> geoTableViewManager(new FWGeometryTableViewManager(guiManager()));
+   boost::shared_ptr<FWGeometryTableViewManager> geoTableViewManager(new FWGeometryTableViewManager(guiManager(),  m_simGeometryFilename));
    geoTableViewManager->setContext(m_contextPtr);
    viewManager()->add(geoTableViewManager);
 
