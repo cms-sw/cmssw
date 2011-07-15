@@ -15,6 +15,8 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
+#include "TROOT.h"
+
 #include <algorithm>
 #include <limits>
 #include <sstream>
@@ -268,6 +270,17 @@ namespace edm {
           continue;
         }
         if(!i->second.transient()) {
+          // Check for missing dictionaries for components.
+          missingTypes().clear();
+          foundTypes().clear();
+          checkDictionaries(i->second.className(), false);
+          if(!missingTypes().empty()) {
+            // The RootAutoLibraryLoader will not explicitly load dictionaries for component classes.
+            // So, we try to load them here.
+            for(StringSet::const_iterator it = missingTypes().begin(), itEnd = missingTypes().end(); it != itEnd; ++it) {
+              gROOT->GetClass(it->c_str(), kTRUE);
+            }
+          }
           missingTypes().clear();
           foundTypes().clear();
           checkDictionaries(i->second.className(), false);
