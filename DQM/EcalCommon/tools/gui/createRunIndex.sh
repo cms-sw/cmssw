@@ -5,10 +5,10 @@ ulimit -c 0
 cd ${HOME}/DQM/dqm-gui
 
 LD_LIBRARY_PATH=
-VO_CMS_SW_DIR=${PWD}/rpms
+VO_CMS_SW_DIR=${PWD}/sw
 SCRAM_ARCH=slc5_amd64_gcc434
 source ${VO_CMS_SW_DIR}/cmsset_default.sh
-source ${VO_CMS_SW_DIR}/${SCRAM_ARCH}/cms/dqmgui/5.4.0b/etc/profile.d/env.sh
+source ${VO_CMS_SW_DIR}/${SCRAM_ARCH}/cms/dqmgui/6.0.6-comp/etc/profile.d/env.sh
 
 if [ -e /tmp/createRunIndex.lock ]; then
   echo "Lock file is present, exit"
