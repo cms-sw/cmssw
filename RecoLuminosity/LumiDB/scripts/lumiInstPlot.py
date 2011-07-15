@@ -72,10 +72,7 @@ def getLumiPerRun(dbsession,c,run,beamstatus=None,beamenergy=None,beamenergyfluc
     runstoptime=runsummary[4]
     fillnum=runsummary[0]
     q=dbsession.nominalSchema().newQuery()
-    if finecorrections and finecorrections[run]:      
-        lumiperrun=lumiQueryAPI.lumisummaryByrun(q,run,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation,finecorrections=finecorrections[run])
-    else:
-        lumiperrun=lumiQueryAPI.lumisummaryByrun(q,run,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation)
+    lumiperrun=lumiQueryAPI.lumisummaryByrun(q,run,c.LUMIVERSION,beamstatus,beamenergy,beamenergyfluctuation,finecorrections=finecorrections)
     del q
     q=dbsession.nominalSchema().newQuery()
     trgperrun=lumiQueryAPI.trgbitzeroByrun(q,run) # {cmslsnum:[trgcount,deadtime,bitname,prescale]}
@@ -278,7 +275,10 @@ def main():
         
     if args.action == 'run':
         runnumber=runList[0]
-        lumiperrun=getLumiPerRun(session,c,runnumber,finecorrections=finecorrections)#[[lsnumber,deliveredInst,recordedInst,norbit,startorbit,fillnum,runstarttime,runstoptime]]
+        if finecorrections and finecorrections[runnumber]:
+            lumiperrun=getLumiPerRun(session,c,runnumber,finecorrections=finecorrections[runnumber])#[[lsnumber,deliveredInst,recordedInst,norbit,startorbit,fillnum,runstarttime,runstoptime]]
+        else:
+            lumiperrun=getLumiPerRun(session,c,runnumber)
         #print 'lumiperrun ',lumiperrun
         xdata=[]#[runnumber,fillnum,norbit,stattime,stoptime,totalls,ncmsls]
         ydata={}#{label:[instlumi]}
