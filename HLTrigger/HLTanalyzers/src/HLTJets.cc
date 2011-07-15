@@ -91,19 +91,11 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     ohpfTauLeadPionPt  =  new float[kMaxPFTau];
     ohpfTauTrkIso      =  new float[kMaxPFTau];
     ohpfTauGammaIso    =  new float[kMaxPFTau];
-
-    ohpfTauTightConeEta         =  new float[kMaxPFTau];
-    ohpfTauTightConePhi         =  new float[kMaxPFTau];
-    ohpfTauTightConePt          =  new float[kMaxPFTau];
-    ohpfTauTightConeJetPt       =  new float[kMaxPFTau];
-    ohpfTauTightConeLeadTrackPt =  new float[kMaxPFTau];
-    ohpfTauTightConeLeadPionPt  =  new float[kMaxPFTau];
-    ohpfTauTightConeTrkIso      =  new float[kMaxPFTau];
-    ohpfTauTightConeGammaIso    =  new float[kMaxPFTau];
     
     recopfTauEta 	 =  new float[kMaxPFTau];
     recopfTauPhi 	 =  new float[kMaxPFTau];
     recopfTauPt  	 =  new float[kMaxPFTau];
+    recopfTauJetPt	 =  new float[kMaxPFTau];
     recopfTauLeadTrackPt =  new float[kMaxPFTau];
     recopfTauLeadPionPt  =  new float[kMaxPFTau];
     recopfTauTrkIso	 =  new int[kMaxPFTau];
@@ -182,17 +174,6 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     HltTree->Branch("ohpfTauTrkIso",ohpfTauTrkIso,"ohpfTauTrkIso[NohpfTau]/F");
     HltTree->Branch("ohpfTauGammaIso",ohpfTauGammaIso,"ohpfTauGammaIso[NohpfTau]/F");
     HltTree->Branch("ohpfTauJetPt",ohpfTauJetPt,"ohpfTauJetPt[NohpfTau]/F");    
-
-    //ohpfTaus tight cone
-    HltTree->Branch("NohpfTauTightCone",&nohPFTauTightCone,"NohpfTauTightCone/I");
-    HltTree->Branch("ohpfTauTightConePt",ohpfTauTightConePt,"ohpfTauTightConePt[NohpfTauTightCone]/F");
-    HltTree->Branch("ohpfTauTightConeEta",ohpfTauTightConeEta,"ohpfTauEta[NohpfTauTightCone]/F");
-    HltTree->Branch("ohpfTauTightConePhi",ohpfTauTightConePhi,"ohpfTauPhi[NohpfTauTightCone]/F");
-    HltTree->Branch("ohpfTauTightConeLeadTrackPt",ohpfTauTightConeLeadTrackPt,"ohpfTauTightConeLeadTrackPt[NohpfTauTightCone]/F");
-    HltTree->Branch("ohpfTauTightConeLeadPionPt",ohpfTauTightConeLeadPionPt,"ohpfTauTightConeLeadPionPt[NohpfTauTightCone]/F");
-    HltTree->Branch("ohpfTauTightConeTrkIso",ohpfTauTightConeTrkIso,"ohpfTauTightConeTrkIso[NohpfTauTightCone]/F");
-    HltTree->Branch("ohpfTauTightConeGammaIso",ohpfTauTightConeGammaIso,"ohpfTauTightConeGammaIso[NohpfTauTightCone]/F");
-    HltTree->Branch("ohpfTauTightConeJetPt",ohpfTauTightConeJetPt,"ohpfTauTightConeJetPt[NohpfTauTightCone]/F");
    
    //Reco PFTaus
     nRecoPFTau = 0;
@@ -204,6 +185,7 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     HltTree->Branch("recopfTauLeadPionPt",recopfTauLeadPionPt,"recopfTauLeadPionPt[NRecoPFTau]/F");
     HltTree->Branch("recopfTauTrkIso",recopfTauTrkIso,"recopfTauTrkIso[NRecoPFTau]/I");
     HltTree->Branch("recopfTauGammaIso",recopfTauGammaIso,"recopfTauGammaIso[NRecoPFTau]/I");
+    HltTree->Branch("recopfTauJetPt",recopfTauJetPt,"recopfTauJetPt[NRecoPFTau]/F");   
     HltTree->Branch("recopfTauDiscrByTancOnePercent",recopfTauDiscrByTancOnePercent,"recopfTauDiscrByTancOnePercent[NRecoPFTau]/F");   
     HltTree->Branch("recopfTauDiscrByTancHalfPercent",recopfTauDiscrByTancHalfPercent,"recopfTauDiscrByTancHalfPercent[NRecoPFTau]/F");   
     HltTree->Branch("recopfTauDiscrByTancQuarterPercent",recopfTauDiscrByTancQuarterPercent,"recopfTauDiscrByTancQuarterPercent[NRecoPFTau]/F");   
@@ -242,7 +224,6 @@ void HLTJets::analyze(const edm::Handle<reco::CaloJetCollection>      & calojets
                       const edm::Handle<reco::METCollection>          & ht,
                       const edm::Handle<reco::HLTTauCollection>       & taujets,
                       const edm::Handle<reco::PFTauCollection>        & pfTaus,
-                      const edm::Handle<reco::PFTauCollection>        & pfTausTightCone,
                       const edm::Handle<reco::PFJetCollection>        & pfJets,
                       const edm::Handle<reco::PFTauCollection>        & recoPfTaus,  
 		      const edm::Handle<reco::PFTauDiscriminator>	      & theRecoPFTauDiscrByTanCOnePercent,
@@ -460,49 +441,6 @@ void HLTJets::analyze(const edm::Handle<reco::CaloJetCollection>      & calojets
         pfMHT = sqrt(pfMHTx*pfMHTx + pfMHTy*pfMHTy);
         
     }
-
-    if(pfTausTightCone.isValid()) {
-        //float minTrkPt = minPtCH;
-        //float minGammaPt = minPtGamma;
-        nohPFTauTightCone = pfTaus->size();
-        reco::PFTauCollection taus = *pfTausTightCone;
-        std::sort(taus.begin(),taus.end(),GetPFPtGreater());
-        typedef reco::PFTauCollection::const_iterator pftauit;
-        int ipftau=0;
-        float pfMHTx = 0;
-        float pfMHTy = 0;
-        for(pftauit i=taus.begin(); i!=taus.end(); i++){
-            //Ask for Eta,Phi and Et of the tau:
-            ohpfTauTightConeEta[ipftau] = i->eta();
-            ohpfTauTightConePhi[ipftau] = i->phi();
-            ohpfTauTightConePt[ipftau] = i->pt();
-            ohpfTauTightConeJetPt[ipftau] = i->pfTauTagInfoRef()->pfjetRef()->pt();
-
-            pfMHTx = pfMHTx + i->pfTauTagInfoRef()->pfjetRef()->px();
-            pfMHTy = pfMHTy + i->pfTauTagInfoRef()->pfjetRef()->py();
-
-            if( (i->leadPFNeutralCand()).isNonnull())
-                ohpfTauTightConeLeadPionPt[ipftau] = i->leadPFNeutralCand()->pt();
-            if((i->leadPFChargedHadrCand()).isNonnull())
-                ohpfTauTightConeLeadTrackPt[ipftau] = i->leadPFChargedHadrCand()->pt();
-            float maxPtTrkIso = 0;
-            for (unsigned int iTrk = 0; iTrk < i->isolationPFChargedHadrCands().size(); iTrk++)
-            {
-                if(i->isolationPFChargedHadrCands()[iTrk]->pt() > maxPtTrkIso) maxPtTrkIso = i->isolationPFChargedHadrCands()[iTrk]->pt();
-            }
-
-            ohpfTauTightConeTrkIso[ipftau] = maxPtTrkIso;
-            float maxPtGammaIso = 0;
-            for (unsigned int iGamma = 0; iGamma < i->isolationPFGammaCands().size(); iGamma++)
-            {
-                if(i->isolationPFGammaCands()[iGamma]->pt() > maxPtGammaIso) maxPtGammaIso = i->isolationPFGammaCands()[iGamma]->pt();
-            }
-            ohpfTauTightConeGammaIso[ipftau] = maxPtGammaIso;
-            ipftau++;
-        }
-////        pfMHT = sqrt(pfMHTx*pfMHTx + pfMHTy*pfMHTy);
-
-    }
     
     ////////////////Reco Particle Flow Taus ////////////////////////////////////
       
@@ -520,6 +458,7 @@ void HLTJets::analyze(const edm::Handle<reco::CaloJetCollection>      & calojets
             recopfTauEta[ipftau] = i->eta();
             recopfTauPhi[ipftau] = i->phi();
             recopfTauPt[ipftau]  = i->pt();
+	    recopfTauJetPt[ipftau] = i->jetRef()->pt();
 
             if( (i->leadPFNeutralCand()).isNonnull())
                 recopfTauLeadPionPt[ipftau] = i->leadPFNeutralCand()->pt();        

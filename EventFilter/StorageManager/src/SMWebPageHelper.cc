@@ -1,4 +1,4 @@
-// $Id: SMWebPageHelper.cc,v 1.1.4.2 2011/03/07 11:33:05 mommsen Exp $
+// $Id: SMWebPageHelper.cc,v 1.2 2011/03/07 15:31:32 mommsen Exp $
 /// @file: SMWebPageHelper.cc
 
 #ifdef __APPLE__
@@ -39,9 +39,9 @@ namespace stor
     xdaq::ApplicationDescriptor* appDesc,
     SharedResourcesPtr sharedResources
   ) :
-  WebPageHelper<SMWebPageHelper>(appDesc, "$Name: branch_3_10_x $", this, &stor::SMWebPageHelper::addDOMforHyperLinks),
+  WebPageHelper<SMWebPageHelper>(appDesc, "$Name:  $", this, &stor::SMWebPageHelper::addDOMforHyperLinks),
   sharedResources_(sharedResources),
-  consumerWebPageHelper_(appDesc, "$Name: branch_3_10_x $", this, &stor::SMWebPageHelper::addDOMforHyperLinks)
+  consumerWebPageHelper_(appDesc, "$Name:  $", this, &stor::SMWebPageHelper::addDOMforHyperLinks)
   {}
 
 
@@ -865,7 +865,7 @@ namespace stor
     tableDiv = maker.addNode("th", tableRow, tableValueWidthAttr);
     maker.addText(tableDiv, "max");
     
-    if (smc.getStreamRecordsMQ().empty())
+    if (! smc.streamRecordsExist())
     {
       tableRow = maker.addNode("tr", table, rowAttr_);
       tableDiv = maker.addNode("td", tableRow, colspanAttr);
@@ -929,8 +929,8 @@ namespace stor
     const MonitoredQuantity::DataSetType dataSet
   ) const
   {
-    StreamsMonitorCollection::StreamRecordList const& streamRecords =
-      smc.getStreamRecordsMQ();
+    StreamsMonitorCollection::StreamRecordList streamRecords;
+    smc.getStreamRecords(streamRecords);
     MonitoredQuantity::Stats allStreamsFileCountStats;
     smc.getAllStreamsFileCountMQ().getStats(allStreamsFileCountStats);
     MonitoredQuantity::Stats allStreamsVolumeStats;

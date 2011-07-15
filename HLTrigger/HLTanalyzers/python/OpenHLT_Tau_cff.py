@@ -1,7 +1,7 @@
 
 import FWCore.ParameterSet.Config as cms
 
-from HLTrigger.HLTanalyzers.HLT_FULL_cff import hltEcalRawToRecHitFacility,hltEcalRegionalJetsFEDs,hltEcalRegionalJetsRecHit,HLTDoLocalHcalSequence,hltTowerMakerForJets,hltCaloTowersTau1Regional,hltIconeTau1Regional,hltCaloTowersTau2Regional,hltIconeTau2Regional,hltCaloTowersTau3Regional,hltIconeTau3Regional,hltCaloTowersTau4Regional,hltIconeTau4Regional,hltCaloTowersCentral1Regional,hltIconeCentral1Regional,hltCaloTowersCentral2Regional,hltIconeCentral2Regional,hltCaloTowersCentral3Regional,hltIconeCentral3Regional,hltCaloTowersCentral4Regional,hltIconeCentral4Regional,HLTDoLocalStripSequence
+from HLTrigger.HLTanalyzers.HLT_FULL_cff import *
 
 hltTauL1SeedFilter = cms.EDFilter( "HLTLevel1GTSeed",
     L1TechTriggerSeeding = cms.bool( False ),
@@ -308,68 +308,4 @@ OpenHLTL25TauTrackIsolation = cms.Sequence( openhltL25TauJetTracksAssociator + o
 #HLTPFJetTriggerSequence = cms.Sequence( HLTRecopixelvertexingSequence + HLTTrackReconstructionForJets + HLTParticleFlowSequence + HLTPFJetsSequence )
 #HLTPFTauSequence = cms.Sequence( hltPFTauJetTracksAssociator + hltPFTauTagInfo + hltPFTaus)
 
-#Particle Flow
-hltPFTaus = cms.EDProducer( "PFRecoTauProducer",
- PFTauTagInfoProducer = cms.InputTag( "hltPFTauTagInfo" ),
- ElectronPreIDProducer = cms.InputTag( "elecpreid" ),
- PVProducer = cms.InputTag( "hltPixelVertices" ),
- Algorithm = cms.string( "ConeBased" ),
- smearedPVsigmaX = cms.double( 0.0015 ),
- smearedPVsigmaY = cms.double( 0.0015 ),
- smearedPVsigmaZ = cms.double( 0.0050 ),
- JetPtMin = cms.double( 0.0 ),
- LeadPFCand_minPt = cms.double( 0.0 ),
- TrackerSignalConeMetric = cms.string( "DR" ),
- TrackerSignalConeSizeFormula = cms.string( "0.2" ),
- TrackerSignalConeSize_min = cms.double( 0.0 ),
- TrackerSignalConeSize_max = cms.double( 0.3 ),
- ECALSignalConeMetric = cms.string( "DR" ),
- ECALSignalConeSizeFormula = cms.string( "0.2" ),
- ECALSignalConeSize_min = cms.double( 0.0 ),
- ECALSignalConeSize_max = cms.double( 0.6 ),
- HCALSignalConeMetric = cms.string( "0.2" ),
- HCALSignalConeSizeFormula = cms.string( "0.10" ),
- HCALSignalConeSize_min = cms.double( 0.0 ),
- HCALSignalConeSize_max = cms.double( 0.6 ),
- TrackerIsolConeMetric = cms.string( "DR" ),
- TrackerIsolConeSizeFormula = cms.string( "0.50" ),
- TrackerIsolConeSize_min = cms.double( 0.0 ),
- TrackerIsolConeSize_max = cms.double( 0.6 ),
- ECALIsolConeMetric = cms.string( "DR" ),
- ECALIsolConeSizeFormula = cms.string( "0.50" ),
- ECALIsolConeSize_min = cms.double( 0.0 ),
- ECALIsolConeSize_max = cms.double( 0.6 ),
- HCALIsolConeMetric = cms.string( "DR" ),
- HCALIsolConeSizeFormula = cms.string( "0.50" ),
- HCALIsolConeSize_min = cms.double( 0.0 ),
- HCALIsolConeSize_max = cms.double( 0.6 ),
- ChargedHadrCand_IsolAnnulus_minNhits = cms.uint32( 0 ),
- EcalStripSumE_deltaPhiOverQ_minValue = cms.double( -0.1 ),
- EcalStripSumE_deltaPhiOverQ_maxValue = cms.double( 0.5 ),
- EcalStripSumE_minClusEnergy = cms.double( 0.1 ),
- EcalStripSumE_deltaEta = cms.double( 0.03 ),
- ElecPreIDLeadTkMatch_maxDR = cms.double( 0.01 ),
- maximumForElectrionPreIDOutput = cms.double( -0.1 ),
- MatchingConeMetric = cms.string( "DR" ),
- MatchingConeSizeFormula = cms.string( "0.15" ),
- MatchingConeSize_min = cms.double( 0.0 ),
- MatchingConeSize_max = cms.double( 0.6 ),
- UseChargedHadrCandLeadChargedHadrCand_tksDZconstraint = cms.bool(True ),
- ChargedHadrCandLeadChargedHadrCand_tksmaxDZ = cms.double( 0.4 ),
- LeadTrack_minPt = cms.double( 0.0 ),
- TrackLeadTrack_maxDZ = cms.double( 0.4 ),
- UseTrackLeadTrackDZconstraint = cms.bool( True ),
- Track_IsolAnnulus_minNhits = cms.uint32( 3 ),
- AddEllipseGammas = cms.bool( False ),
- Rphi = cms.double( 2.0 ),
- MaxEtInEllipse = cms.double( 2.0 ),
- AreaMetric_recoElements_maxabsEta = cms.double( 2.5 ),
- DataType = cms.string( "AOD" )
-)
-
-hltPFTausTightCone = hltPFTaus.clone()
-hltPFTausTightCone.TrackerSignalConeSizeFormula = cms.string( "0.15" )
-hltPFTausTightCone.ECALSignalConeSizeFormula = cms.string( "0.15" )
-
-#HLTPFTauSequence+= hltPFTausTightCone
 
