@@ -17,6 +17,7 @@ HLTElectronMuonInvMassFilter::HLTElectronMuonInvMassFilter(const edm::ParameterS
   muonCandTag_            = iConfig.getParameter< edm::InputTag > ("muonPrevCandTag");
   lowerMassCut_           = iConfig.getParameter<double> ("lowerMassCut");
   upperMassCut_           = iConfig.getParameter<double> ("upperMassCut");
+  ncandcut_  = iConfig.getParameter<int> ("ncandcut");
   store_ = iConfig.getParameter<bool>("saveTags") ;
   relaxed_ = iConfig.getUntrackedParameter<bool> ("electronRelaxed",true) ;
   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("ElectronL1IsoCand"); 
@@ -41,17 +42,15 @@ HLTElectronMuonInvMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
   // The filter object
   using namespace trigger;
 
-  bool accept = false;
-
    double const MuMass = 0.106;
    double const MuMass2 = MuMass*MuMass;
 
 
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filteredElectrons (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filteredMuons (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if( store_ ){filteredElectrons->addCollectionTag(L1IsoCollTag_);}
-  if( store_ && relaxed_){filteredElectrons->addCollectionTag(L1NonIsoCollTag_);}
-  if( store_ ){filteredMuons->addCollectionTag(MuonCollTag_);}
+  std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filteredLeptons (new trigger::TriggerFilterObjectWithRefs(path(),module()));
+  if( store_ ){filteredLeptons->addCollectionTag(L1IsoCollTag_);}
+  if( store_ && relaxed_){filteredLeptons->addCollectionTag(L1NonIsoCollTag_);}
+  if( store_ ){filteredLeptons->addCollectionTag(MuonCollTag_);}
+
 
   edm::Handle<trigger::TriggerFilterObjectWithRefs> EleFromPrevFilter;
   iEvent.getByLabel (eleCandTag_,EleFromPrevFilter); 
@@ -69,21 +68,19 @@ HLTElectronMuonInvMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
   vector< Ref< ElectronCollection > > electrons;
   EleFromPrevFilter->getObjects(TriggerElectron, electrons);
   
+  vector<RecoChargedCandidateRef> l3muons;
+  MuonFromPrevFilter->getObjects(TriggerMuon,l3muons);
   
-   vector<RecoChargedCandidateRef> l3muons;
-   MuonFromPrevFilter->getObjects(TriggerMuon,l3muons);
-
-   for(unsigned int i=0; i<l3muons.size(); i++) {
-     TrackRef tk = l3muons[i]->get<TrackRef>();
-     //     TrackRef tk = l3muons[i].track();
-     double muonEnergy = sqrt(tk->momentum().Mag2()+MuMass2);
-     TLorentzVector pThisMuon(tk->px(), tk->py(), 
-			    tk->pz(), muonEnergy );
-     pMuon.push_back( pThisMuon );
-     muonCharge.push_back( tk->charge() );
-   }
-
-
+  for(unsigned int i=0; i<l3muons.size(); i++) {
+    TrackRef tk = l3muons[i]->get<TrackRef>();
+    //     TrackRef tk = l3muons[i].track();
+    double muonEnergy = sqrt(tk->momentum().Mag2()+MuMass2);
+    TLorentzVector pThisMuon(tk->px(), tk->py(), 
+			     tk->pz(), muonEnergy );
+    pMuon.push_back( pThisMuon );
+    muonCharge.push_back( tk->charge() );
+  }
+  
   for (unsigned int i=0; i<electrons.size(); i++) {
     refele = electrons[i];
     TLorentzVector pThisEle(refele->px(), refele->py(), 
@@ -91,8 +88,8 @@ HLTElectronMuonInvMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
     pElectron.push_back( pThisEle );
     eleCharge.push_back( refele->charge() );
   }
-
-
+  
+  int nEleMuPairs = 0;
   for(unsigned int i=0; i<electrons.size(); i++) {
     for(unsigned int j=0; j<l3muons.size(); j++) {
       TLorentzVector p1 = pElectron.at(i);
@@ -100,14 +97,16 @@ HLTElectronMuonInvMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
       TLorentzVector pTot = p1 + p2;
       double mass = pTot.M();
       if(mass>=lowerMassCut_ && mass<=upperMassCut_){
-	accept = true;
-	filteredElectrons->addObject(TriggerElectron, electrons[i]);
-	filteredMuons->addObject(TriggerMuon, l3muons[j]);
+	nEleMuPairs++;
+	filteredLeptons->addObject(TriggerElectron, electrons[i]);
+	filteredLeptons->addObject(TriggerMuon, l3muons[j]);
       }
     }
   }
-      
-  
+  // put filter object into the Event
+  iEvent.put(filteredLeptons);
+  // filter decision
+  bool accept(nEleMuPairs>=ncandcut_);
   return accept;
   
 }

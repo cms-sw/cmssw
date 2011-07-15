@@ -46,6 +46,7 @@ class HLTElectronMuonInvMassFilter : public HLTFilter {
 
       double lowerMassCut_;
       double upperMassCut_;
+      int ncandcut_;
       bool store_;
       bool relaxed_;
       edm::InputTag L1IsoCollTag_; 
