@@ -118,7 +118,10 @@ def getLumiInfoForRuns(dbsession,c,runList,selectionDict,hltpath='',beamstatus=N
                 result[runnum]=[0.0,0.0,0.0]
             continue
         q=dbsession.nominalSchema().newQuery()
-        totallumi=lumiQueryAPI.lumisumByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation,finecorrections=finecorrections) #q1
+        if finecorrections and finecorrections[runnum]:
+            totallumi=lumiQueryAPI.lumisumByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation,finecorrections=finecorrections[runnum]) #q1
+        else:
+            totallumi=lumiQueryAPI.lumisumByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation)
         del q
         if not totallumi:
             result[runnum]=[0.0,0.0,0.0]
@@ -128,11 +131,17 @@ def getLumiInfoForRuns(dbsession,c,runList,selectionDict,hltpath='',beamstatus=N
         hltinfo={}
         hlttrgmap={}
         q=dbsession.nominalSchema().newQuery()
-        lumitrginfo=lumiQueryAPI.lumisummarytrgbitzeroByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation,finecorrections=finecorrections) #q2
+        if finecorrections and finecorrections[runnum]:
+            lumitrginfo=lumiQueryAPI.lumisummarytrgbitzeroByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation,finecorrections=finecorrections[runnum]) #q2
+        else:
+            lumitrginfo=lumiQueryAPI.lumisummarytrgbitzeroByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation)
         del q
         if len(lumitrginfo)==0:
             q=dbsession.nominalSchema().newQuery()
-            lumiinfobyrun=lumiQueryAPI.lumisummaryByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation,finecorrections=finecorrections) #q3
+            if finecorrections and finecorrections[runnum]:
+                lumiinfobyrun=lumiQueryAPI.lumisummaryByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation,finecorrections=finecorrections[runnum]) #q3
+            else:
+                lumiinfobyrun=lumiQueryAPI.lumisummaryByrun(q,runnum,c.LUMIVERSION,beamstatus,beamenergy,beamfluctuation)
             del q
             if len(lumiinfobyrun)!=0:
                 print 'warning request run ',runnum,' has no trigger data, calculate delivered only'
@@ -215,7 +224,7 @@ def main():
     parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, default to $CMS_PATH/SITECONF/local/JobConfig, if path undefined, fallback to cern proxy&server')
     parser.add_argument('action',choices=['run','fill','time','perday'],help='x-axis data type of choice')
     #graphical mode options
-    parser.add_argument('--with-correction',dest='withFileCorrection',action='store_true',help='with fine correction')
+    parser.add_argument('--with-correction',dest='withFineCorrection',action='store_true',help='with fine correction')
     parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose mode, print result also to screen')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     # parse arguments
@@ -367,7 +376,7 @@ def main():
         print 'unsupported action ',args.action
         exit
     finecorrections=None
-    if options.withFineCorrection:
+    if args.withFineCorrection:
         schema=session.nominalSchema()
         session.transaction().start(True)
         finecorrections=lumiCorrections.correctionsForRange(schema,runList)
