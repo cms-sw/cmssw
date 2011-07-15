@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.31 2011/07/14 22:53:47 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.32 2011/07/14 23:33:27 amraktad Exp $
 //
 
 //#define PERFTOOL_GEO_TABLE
@@ -157,7 +157,9 @@ std::vector<std::string> FWGeometryTableManager::getTitles() const
    returnValue.push_back("RnrSelf");
    returnValue.push_back("RnrChildren");
    returnValue.push_back("Material");
-   // returnValue.push_back("Position");
+   returnValue.push_back("X");
+   returnValue.push_back("Y");
+   returnValue.push_back("Z");
    returnValue.push_back("Diagonal");
 
    return returnValue;
@@ -223,8 +225,19 @@ void  FWGeometryTableManager::setBackgroundToWhite(bool iToWhite )
    m_renderer.setBlackIcon(iToWhite);
 }
 
+//______________________________________________________________________________
+
 FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumber, int iCol) const
 {
+   struct Cache
+   {
+      TGeoHMatrix mtx;
+      double pos[3];
+      int row;
+
+   };
+
+   static Cache mxCache;
    if (static_cast<int>(m_row_to_index.size()) <= iSortedRowNumber)
    {
       m_renderer.setData(std::string("FWGeometryTableManager::cellRenderer() Error!"), false);
@@ -290,23 +303,25 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
          return renderer;
       }
       
-      else if (iCol == kPosition )
+      else if (iCol == kPosX || iCol == kPosY || iCol == kPosZ)
       { 
-         TGeoHMatrix mtx;
-         m_tableManager->getNodeMatrix( data, mtx);
-         double pnt[3];
-         TGeoBBox* bb = static_cast<TGeoBBox*>( ni.m_node->GetVolume()->GetShape());
-         const double* origin = bb->GetOrigin();
-         mtx.LocalToMaster(origin, pnt);
-
-
-         renderer->setData(Form("[%.3f, %.3f, %.3f]", pnt[0], pnt[1], pnt[2]),  isSelected);
+         if (mxCache.row != iSortedRowNumber) { 
+            mxCache.row = iSortedRowNumber;
+            mxCache.pos[0] = 0; mxCache.pos[1] = 0; mxCache.pos[2] = 0;
+            mxCache.mtx.Clear();
+            getNodeMatrix(data, mxCache.mtx);
+            TGeoBBox* bb = static_cast<TGeoBBox*>(data.m_node->GetVolume()->GetShape());
+            const double* origin = bb->GetOrigin();
+            mxCache.mtx.LocalToMaster(origin, mxCache.pos);
+         }
+         
+         renderer->setData(Form("%.3f", mxCache.pos[iCol - kPosX]),  isSelected);
          return renderer;
       }
       else
       { 
          TGeoBBox* gs = static_cast<TGeoBBox*>( gn.GetVolume()->GetShape());
-         renderer->setData( Form("%f", TMath::Sqrt(gs->GetDX()*gs->GetDX() + gs->GetDY()*gs->GetDY() +gs->GetDZ()*gs->GetDZ() )),  isSelected);
+         renderer->setData( Form("%.3f", TMath::Sqrt(gs->GetDX()*gs->GetDX() + gs->GetDY()*gs->GetDY() +gs->GetDZ()*gs->GetDZ() )),  isSelected);
          return renderer;
       }
 
@@ -738,25 +753,17 @@ void FWGeometryTableManager::setDaughterVolumesVisible(bool v)
 }
 
 //______________________________________________________________________________
-void FWGeometryTableManager::getNodeMatrix(NodeInfo& data, TGeoHMatrix& mtx) const
+void FWGeometryTableManager::getNodeMatrix(const NodeInfo& data, TGeoHMatrix& mtx) const
 {
    // utility used by browser and FWGeoNode
 
    int pIdx  = data.m_parent;
-   int level = data.m_level;
-   int* pl = new int[level];
-   while (pIdx != -1)
+   int endl =  endl = (data.m_level -1);
+   for (int l = 0 ; l < endl ; ++l)
    {
-      pl[ m_entries.at(pIdx).m_level] = pIdx;
       pIdx = m_entries.at(pIdx).m_parent;
       mtx.MultiplyLeft(m_entries.at(pIdx).m_node->GetMatrix());
    }
-   /*
-   for (int i = 0; i < level; ++i ) {
-      TGeoNode* node = m_entries.at(pl[i]).m_node;
-      mtx.Multiply(node->GetMatrix());
-      }*/
-   delete [] pl;
 
    mtx.Multiply(data.m_node->GetMatrix());
 }

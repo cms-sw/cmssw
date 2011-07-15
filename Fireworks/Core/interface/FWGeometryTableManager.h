@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManager.h,v 1.25 2011/07/13 03:40:03 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.26 2011/07/14 03:59:44 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
@@ -42,7 +42,7 @@ class FWGeometryTableManager : public FWTableManagerBase
    friend class FWGeometryTableView;
 
 public:
-   enum   ECol { kName, kColor,  kVisSelf, kVisChild, kMaterial, kBBoxSize,  /*, kPosition*/kNumCol };
+   enum   ECol { kName, kColor,  kVisSelf, kVisChild, kMaterial, kPosX, kPosY, kPosZ, kDiagonal, kNumCol };
 
    enum Bits
    {
@@ -156,7 +156,7 @@ public:
 
    void setDaughterVolumesVisible(bool);
 
-   void getNodeMatrix(NodeInfo& nodeInfo, TGeoHMatrix& mat) const;
+   void getNodeMatrix(const NodeInfo& nodeInfo, TGeoHMatrix& mat) const;
    static  void getNNodesTotal(TGeoNode* geoNode, int& off);
 
 
