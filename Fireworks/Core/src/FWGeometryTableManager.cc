@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.34 2011/07/15 02:03:34 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.35 2011/07/16 02:48:11 amraktad Exp $
 //
 
 //#define PERFTOOL_GEO_TABLE
@@ -343,6 +343,7 @@ void FWGeometryTableManager::firstColumnClicked(int row)
    dataChanged();
    visualPropertiesChanged();
 }
+
 //______________________________________________________________________________
 void FWGeometryTableManager::assertNodeFilterCache(NodeInfo& data)
 {
@@ -355,11 +356,16 @@ void FWGeometryTableManager::assertNodeFilterCache(NodeInfo& data)
          data.resetBit(kMatches);
 
       bool childMatches = m_volumes[data.m_node->GetVolume()].m_childMatches;
-      if (childMatches)
+      if (childMatches) {
          data.setBit(kChildMatches);
-      else
+         data.setBit(kExpanded);
+      }
+      else {
          data.resetBit(kChildMatches);
+         data.resetBit(kExpanded);
+      }
 
+      data.setBit(kFilterCached);
       //  printf("%s matches [%d] childMatches [%d] ................ %d %d \n", data.name(), data.testBit(kMatches), data.testBit(kChildMatches), matches , childMatches);
    }
 }
