@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.241 2011/07/14 02:21:31 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.242 2011/07/15 04:52:31 amraktad Exp $
 
 
 //
@@ -1030,18 +1030,6 @@ addAreaInfoTo(areaInfo& pInfo,
 void
 FWGUIManager::addTo(FWConfiguration& oTo) const
 {
-   {
-      TGFrameElement* fe = (TGFrameElement*) m_cmsShowMainFrame->GetList()->Last();
-      TGPack* pack = (TGPack*)(fe->fFrame);
-      TGFrameElementPack* fep = (TGFrameElementPack*)pack->GetList()->At(3);
-   }
-
-   {
-      TGFrameElement* fe = (TGFrameElement*) m_cmsShowMainFrame->GetList()->Last();
-      TGPack* pack = (TGPack*)(fe->fFrame);
-      TGFrameElementPack* fep = (TGFrameElementPack*)pack->GetList()->At(1);
-   }
-
    Int_t cfgVersion=3;
 
    FWConfiguration mainWindow(cfgVersion);
