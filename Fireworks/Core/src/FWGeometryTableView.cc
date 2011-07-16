@@ -217,7 +217,16 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager*
 
 FWGeometryTableView::~FWGeometryTableView()
 {
-  // take out composite frame and delete it directly (zwithout the timeout)
+   if (m_eveTopNode)
+   {
+      while ( m_eveTopNode->HasParents()) {
+         TEveElement* x =  *m_eveTopNode->BeginParents();
+        x->RemoveElement(m_eveTopNode);
+      }
+      m_eveTopNode->DecDenyDestroy();
+   }
+
+   // take out composite frame and delete it directly (zwithout the timeout)
    TGCompositeFrame *frame = m_eveWindow->GetGUICompositeFrame();
    frame->RemoveFrame( m_frame );
    delete m_frame;
