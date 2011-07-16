@@ -451,19 +451,8 @@ void FWGeometryTableView::chosenItem(int x)
       switch (x) {
         case kVisOff:
             visible = false;
-         case kVisOn: 
-            if (getVolumeMode())
-            {
-               m_tableManager->setDaughterVolumesVisible(visible);
-            }
-            else
-            {
-               for (int d = 0; d < ni.m_node->GetNdaughters(); ++d )
-               {
-                  ni.m_node->GetDaughter(d)->SetVisibility(visible);
-                  ni.m_node->GetDaughter(d)->VisibleDaughters(visible);
-               }
-            }
+        case kVisOn:
+            m_tableManager->setDaughtersSelfVisibility(visible);
             refreshTable3D();
             break;
 

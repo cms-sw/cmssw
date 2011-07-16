@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.33 2011/07/15 01:24:10 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.34 2011/07/15 02:03:34 amraktad Exp $
 //
 
 //#define PERFTOOL_GEO_TABLE
@@ -719,28 +719,27 @@ void FWGeometryTableManager::printChildren(int idx) const
       }*/
 }
 
-void FWGeometryTableManager::setDaughterVolumesVisible(bool v)
+void FWGeometryTableManager::setDaughtersSelfVisibility(bool v)
 {
-   int visPos = 0;
-   for( std::vector<int>::iterator i=m_row_to_index.begin(); i !=  m_row_to_index.end() ; ++i, ++visPos)
-      if (*i == m_selectedIdx) break;
-
-   int level = m_entries[m_selectedIdx].m_level + 1;
-
-   std::vector<int>::iterator sit = m_row_to_index.begin();
-   std::advance(sit, visPos + 1);
-
-   for( std::vector<int>::iterator i=sit; i !=  m_row_to_index.end() ; ++i)
+   int dOff = 0;
+   TGeoNode* parentNode = m_entries[m_selectedIdx].m_node;
+   int nD = parentNode->GetNdaughters();
+   for (int n = 0; n != nD; ++n)
    {
-      NodeInfo& data = m_entries[*i];
-      if (data.m_level < level)
-         return;
+      int idx = m_selectedIdx + 1 + n + dOff;
+      NodeInfo& data = m_entries[idx];
 
-      if (data.m_level == level) {
-         //  printf("daughter volume %s \n", data.m_node->GetVolume()->GetName() );
-         data.m_node->GetVolume()->SetVisibility(v);
-         data.m_node->GetVolume()->VisibleDaughters(v);
+      if (v) {
+         data.setBit(kVisNode);
+         data.setBit(kVisNodeChld);
       }
+      else
+      {
+         data.resetBit(kVisNode);
+         data.resetBit(kVisNodeChld);
+      }
+
+      FWGeometryTableManager::getNNodesTotal(parentNode->GetDaughter(n), dOff);
    }
 }
 
