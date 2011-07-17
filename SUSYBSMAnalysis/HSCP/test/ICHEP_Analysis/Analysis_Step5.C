@@ -92,13 +92,17 @@ void Analysis_Step5()
 
    InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type0/";   CutIndex = 4;//25;//24;//41
    MassPrediction(InputDir, CutIndex, "Mass");
-   PredictionAndControlPlot(InputDir, CutIndex);
-   GetSystematicOnPrediction(InputDir);
+//   PredictionAndControlPlot(InputDir, CutIndex);
+//   SelectionPlot(InputDir, CutIndex, 0);
+   return;
 
    InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type2/";   CutIndex = 14;//²38;//83;// 82;//18;
-   MassPrediction(InputDir, CutIndex, "Mass");
-   GetSystematicOnPrediction(InputDir);
-   PredictionAndControlPlot(InputDir, CutIndex);
+//   CutFlow(InputDir);
+//   SelectionPlot(InputDir, CutIndex, 0);return;
+
+//   MassPrediction(InputDir, CutIndex, "Mass");
+//   GetSystematicOnPrediction(InputDir);
+//   PredictionAndControlPlot(InputDir, CutIndex);
 
    //SelectionPlot(InputDir, CutIndex);
    //PredictionAndControlPlot(InputDir, CutIndex);
@@ -705,10 +709,11 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex, unsigned int Glui
 
    TFile* InputFile = new TFile(Input.c_str());
    TFile* InputFileData = new TFile((InputPattern + "Histos_Data.root").c_str());
+   TFile* InputFileMC   = new TFile((InputPattern + "Histos_MC.root").c_str());
  
    stPlots DataPlots, MCTrPlots, SignPlots[signals.size()];
    stPlots_InitFromFile(InputFile, DataPlots,"Data", InputFileData);
-   stPlots_InitFromFile(InputFile, MCTrPlots,"MCTr", InputFile);
+   stPlots_InitFromFile(InputFile, MCTrPlots,"MCTr", InputFileMC);
 
    for(unsigned int s=0;s<signals.size();s++){
       stPlots_InitFromFile(InputFile, SignPlots[s],signals[s].Name, InputFile);
@@ -726,9 +731,9 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex, unsigned int Glui
 //   stPlots_Draw(SignPlots[SID_GS126 ], SavePath + "/Selection_" +  signals[SID_GS126 ].Name, LegendTitle);
 
 //   stPlots_DrawComparison(SavePath + "/Selection_Comp_Data" , LegendTitle, CutIndex, &DataPlots);
-   stPlots_DrawComparison(SavePath + "/Selection_Comp_Gluino" , LegendTitle, GluinoCutIndex, &DataPlots, &SignPlots[0], &SignPlots[3], &SignPlots[5]);
-   stPlots_DrawComparison(SavePath + "/Selection_Comp_Stop"   , LegendTitle, CutIndex, &DataPlots, &SignPlots[24]);
-   stPlots_DrawComparison(SavePath + "/Selection_Comp_GMStau" , LegendTitle, CutIndex, &DataPlots, &SignPlots[38], &SignPlots[40], &SignPlots[42]);
+   stPlots_DrawComparison(SavePath + "/Selection_Comp_Gluino" , LegendTitle, GluinoCutIndex, &DataPlots, &MCTrPlots, &SignPlots[0], &SignPlots[3], &SignPlots[5]);
+//   stPlots_DrawComparison(SavePath + "/Selection_Comp_Stop"   , LegendTitle, CutIndex, &DataPlots, &SignPlots[24]);
+//   stPlots_DrawComparison(SavePath + "/Selection_Comp_GMStau" , LegendTitle, CutIndex, &DataPlots, &SignPlots[38], &SignPlots[40], &SignPlots[42]);
    return;
 
    stPlots_DrawComparison(SavePath + "/Selection_Comp_Gluino" , LegendTitle, CutIndex, &DataPlots, &SignPlots[SID_GL200 ], &SignPlots[SID_GL500 ], &SignPlots[SID_GL900 ]);
@@ -1394,6 +1399,9 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    TH1D* Gluino600   = ((TH2D*)GetObjectFromPath(InputFile, string("Gluino600/") + HistoSuffix   ))->ProjectionY("TmpG600Mass"    ,CutIndex+1,CutIndex+1,"o");
    TH1D* GMStau156   = ((TH2D*)GetObjectFromPath(InputFile, string("GMStau156/") + HistoSuffix   ))->ProjectionY("TmpS156Mass"    ,CutIndex+1,CutIndex+1,"o");
 
+   TFile* InputFile_MC = new TFile((InputPattern+"/Histos_MC.root").c_str());
+   TH1D* MC     = ((TH2D*)GetObjectFromPath(InputFile_MC, string("MCTr/") + HistoSuffix   ))->ProjectionY("TmpMCMass"    ,CutIndex+1,CutIndex+1,"o");
+
       double D,P,Perr;
       D = Data->Integral( Data->GetXaxis()->FindBin(0.0),  Data->GetXaxis()->FindBin(75.0));
       P = Pred->Integral( Pred->GetXaxis()->FindBin(0.0),  Pred->GetXaxis()->FindBin(75.0));
@@ -1409,8 +1417,6 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
       P = Pred->Integral( Pred->GetXaxis()->FindBin(330.0),  Pred->GetXaxis()->FindBin(2000.0));
       Perr = 0; for(int i=Pred->GetXaxis()->FindBin(330.0);i<Pred->GetXaxis()->FindBin(2000.0);i++){ Perr += pow(Pred->GetBinError(i),2); }  Perr = sqrt(Perr);
       printf("%3.0f<M<%3.0f --> D=%9.3f P = %9.3f +- %6.3f(stat) +- %6.3f(syst) (=%6.3f)\n", 330.0,2000.0, D, P, Perr, P*(2*RMS),sqrt(Perr*Perr + pow(P*(2*RMS),2)));
-
-
 
 
    for(double M=0;M<=1000;M+=200){
@@ -1446,6 +1452,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    TH1D* Signal = Gluino600;
    if(!IsTkOnly)Signal = GMStau156;
    Signal->Rebin(4);
+   MC->Rebin(4);
 
    double Max = 2.0 * std::max(std::max(Data->GetMaximum(), Pred->GetMaximum()), Signal->GetMaximum());
    double Min = 0.01;// 0.1 * std::min(0.01,Pred->GetMaximum());
@@ -1486,6 +1493,13 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    Signal->SetLineColor(4);
    Signal->SetFillColor(38);
    Signal->Draw("same HIST");
+
+   MC->Scale(H_P->GetBinContent(CutIndex+1)/MC->Integral());
+   MC->SetFillStyle(3002);
+   MC->SetLineColor(22);
+   MC->SetFillColor(11);
+   MC->SetMarkerStyle(0);
+   MC->Draw("same HIST E1");
    PredErr->Draw("same E5");
 
    Pred->SetMarkerStyle(22);
@@ -1503,6 +1517,8 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    Data->SetFillColor(0);
    Data->Draw("E1 same");
 
+
+
    leg = new TLegend(0.79,0.93,0.40,0.68);
    leg->SetHeader(LegendFromType(InputPattern).c_str());
    leg->SetFillColor(0);
@@ -1512,6 +1528,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    PredLeg->SetFillStyle(PredErr->GetFillStyle());
    leg->AddEntry(Data, "Data"        ,"P");
    leg->AddEntry(PredLeg, "Data-based prediction"  ,"PF");
+   leg->AddEntry(MC, "Simulation"  ,"LF");
    if(IsTkOnly)leg->AddEntry(Signal, "MC - Gluino (M=600 GeV/c^{2})"        ,"F");
    else        leg->AddEntry(Signal, "MC - Stau (M=156 GeV/c^{2})"        ,"F");
    leg->Draw();
@@ -1521,197 +1538,8 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    SaveCanvas(c1, outpath, string("Rescale_") + HistoSuffix);
    delete c1;
 
-/*
-  std::cout << "TESTA\n";
-
-
-   c1 = new TCanvas("c1","c1,",600,600);
-
-   sprintf(YAxisLegend,"Tracks / %2.0f GeV/c^{2}",Pred2->GetXaxis()->GetBinWidth(1));
-  std::cout << "TESTB\n";
-
-   TH1D* PredTOFErr = (TH1D*) PredTOF->Clone("RescTOFErr");
-   for(unsigned int i=0;i<(unsigned int)PredTOF->GetNbinsX();i++){
-      double error2 = pow(PredTOFErr->GetBinError(i),2);
-      error2 += pow(PredTOF->GetBinContent(i)*2*RMS,2);
-      PredTOFErr->SetBinError(i,sqrt(error2));       
-      if(PredTOFErr->GetBinContent(i)<Min && i>5){for(unsigned int j=i+1;j<(unsigned int)PredTOF->GetNbinsX();j++)PredTOFErr->SetBinContent(j,0);}
-   }
-  std::cout << "TESTC\n";
-
-   PredTOFErr->SetLineColor(9);
-   PredTOFErr->SetFillColor(9);
-   PredTOFErr->SetFillStyle(3001);
-   PredTOFErr->SetMarkerStyle(22);
-   PredTOFErr->SetMarkerColor(2);
-   PredTOFErr->SetMarkerSize(1.0);
-   PredTOFErr->GetXaxis()->SetNdivisions(505);
-   PredTOFErr->SetTitle("");
-   PredTOFErr->SetStats(kFALSE);
-   PredTOFErr->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
-   PredTOFErr->GetYaxis()->SetTitle(YAxisLegend);
-   PredTOFErr->GetYaxis()->SetTitleOffset(1.50);
-   PredTOFErr->SetMaximum(Max);
-   PredTOFErr->SetMinimum(Min);
-   PredTOFErr->SetAxisRange(0,1400,"X");
-   PredTOFErr->Draw("E5");
-
-  std::cout << "TESTD\n";
-
-
-   PredTOF->SetMarkerStyle(23);
-   PredTOF->SetMarkerColor(4);
-   PredTOF->SetMarkerSize(1.5);
-   PredTOF->SetLineColor(2);
-   PredTOF->SetFillColor(0);
-   PredTOF->Draw("same HIST P");
-
-  std::cout << "TESTE\n";
-
-
-   DataTOF1->SetMarkerStyle(20);
-   DataTOF1->SetMarkerColor(1);
-   DataTOF1->SetMarkerSize(1.5);
-   DataTOF1->SetLineColor(1);
-   DataTOF1->SetFillColor(0);
-   DataTOF1->Draw("E1 same");
-
-   leg = new TLegend(0.79,0.93,0.40,0.68);
-   leg->SetHeader(LegendFromType(InputPattern).c_str());
-   leg->SetFillColor(0);
-   leg->SetBorderSize(0);
-   TH1D* PredTOFLeg = (TH1D*) PredTOF->Clone("PredTOFLeg");
-   PredTOFLeg->SetFillColor(PredTOFErr->GetFillColor());
-   PredTOFLeg->SetFillStyle(PredTOFErr->GetFillStyle());
-   leg->AddEntry(PredTOFLeg, "Data-based prediction ATLAS (TOF)"  ,"PF");
-   leg->AddEntry(Data1, "Data (TOF)"        ,"P");
-   leg->Draw();
-
-   DrawPreliminary(IntegratedLuminosity);
-   c1->SetLogy(true);
-   SaveCanvas(c1, outpath, "Rescale_MassTOF");
-   delete c1;
-
-
-
-
-   c1 = new TCanvas("c1","c1,",600,600);
-
-   sprintf(YAxisLegend,"Tracks / %2.0f GeV/c^{2}",Pred2->GetXaxis()->GetBinWidth(1));
-  std::cout << "TESTB\n";
-
-   TH1D* PredCombErr = (TH1D*) PredComb->Clone("RescCombErr");
-   for(unsigned int i=0;i<(unsigned int)PredComb->GetNbinsX();i++){
-      double error2 = pow(PredCombErr->GetBinError(i),2);
-      error2 += pow(PredComb->GetBinContent(i)*2*RMS,2);
-      PredCombErr->SetBinError(i,sqrt(error2));       
-      if(PredCombErr->GetBinContent(i)<Min && i>5){for(unsigned int j=i+1;j<(unsigned int)PredComb->GetNbinsX();j++)PredCombErr->SetBinContent(j,0);}
-   }
-  std::cout << "TESTC\n";
-
-   PredCombErr->SetLineColor(9);
-   PredCombErr->SetFillColor(9);
-   PredCombErr->SetFillStyle(3001);
-   PredCombErr->SetMarkerStyle(22);
-   PredCombErr->SetMarkerColor(2);
-   PredCombErr->SetMarkerSize(1.0);
-   PredCombErr->GetXaxis()->SetNdivisions(505);
-   PredCombErr->SetTitle("");
-   PredCombErr->SetStats(kFALSE);
-   PredCombErr->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
-   PredCombErr->GetYaxis()->SetTitle(YAxisLegend);
-   PredCombErr->GetYaxis()->SetTitleOffset(1.50);
-   PredCombErr->SetMaximum(Max);
-   PredCombErr->SetMinimum(Min);
-   PredCombErr->SetAxisRange(0,1400,"X");
-   PredCombErr->Draw("E5");
-
-  std::cout << "TESTD\n";
-
-
-   PredComb->SetMarkerStyle(23);
-   PredComb->SetMarkerColor(4);
-   PredComb->SetMarkerSize(1.5);
-   PredComb->SetLineColor(2);
-   PredComb->SetFillColor(0);
-   PredComb->Draw("same HIST P");
-
-  std::cout << "TESTE\n";
-
-
-   DataComb->SetMarkerStyle(20);
-   DataComb->SetMarkerColor(1);
-   DataComb->SetMarkerSize(1.5);
-   DataComb->SetLineColor(1);
-   DataComb->SetFillColor(0);
-   DataComb->Draw("E1 same");
-
-   leg = new TLegend(0.79,0.93,0.40,0.68);
-   leg->SetHeader(LegendFromType(InputPattern).c_str());
-   leg->SetFillColor(0);
-   leg->SetBorderSize(0);
-   TH1D* PredCombLeg = (TH1D*) PredComb->Clone("PredCombLeg");
-   PredCombLeg->SetFillColor(PredCombErr->GetFillColor());
-   PredCombLeg->SetFillStyle(PredCombErr->GetFillStyle());
-   leg->AddEntry(PredCombLeg, "Data-based prediction ATLAS (Combined)"  ,"PF");
-   leg->AddEntry(Data1, "Data (TOF)"        ,"P");
-   leg->Draw();
-
-   DrawPreliminary(IntegratedLuminosity);
-   c1->SetLogy(true);
-   SaveCanvas(c1, outpath, "Rescale_MassComb");
-   delete c1;
-
-*/
 
 /*
-   for(unsigned int s=0;s<signals.size();s++){
-      if(!signals[s].MakePlot)continue;
-      TH1D* SIGN = (TH1D*)GetObjectFromPath(InputFile1, string("Mass_") + signals[s].Name);
-      SIGN->Rebin(10);
-
-      c1 = new TCanvas("c1","c1,",600,600);
-
-      double MaxSign = std::max(Max, SIGN->GetMaximum()*2);
-      Resc1Err->SetMaximum(MaxSign);
-      Resc1Err->SetMinimum(Min);
-      Resc1Err->Draw("E5");
-      SIGN->SetLineWidth(1);
-      SIGN->SetLineColor(38);
-      SIGN->SetFillColor(38);
-      SIGN->Draw("same HIST");
-      Resc1Err->Draw("same E5");
-      Resc1->Draw("same HIST P");
-      Data1->Draw("E1 same");
-
-
-      leg = new TLegend(0.79,0.93,0.40,0.68);
-      if(IsTrackerOnly){ 
-         leg->SetHeader("Tracker - Only");
-      }else{
-         leg->SetHeader("Tracker + Muon");
-      }
-      leg->SetFillColor(0);
-      leg->SetBorderSize(0);
-      leg->AddEntry(RescLeg, "Data-based prediction"  ,"PF");
-      leg->AddEntry(Data1, "Data"        ,"P");
-      leg->AddEntry(SIGN,  (string("MC - ") + signals[s].Legend).c_str()        ,"F");
-      leg->Draw();
-
-      DrawPreliminary(IntegratedLuminosity);
-      c1->SetLogy(true);
-      SaveCanvas(c1, outpath, string("Rescale_Mass_") + signals[s].Name);
-
-      delete c1;
-   }
-
-
-
-
-
-
-
-
   TH1D* Ratio1       = (TH1D*)Pred1->Clone("Ratio1");
   TH1D* Ratio2       = (TH1D*)Resc1->Clone("Ratio2");
   TH1D* Ratio3       = (TH1D*)Resc1->Clone("Ratio3");

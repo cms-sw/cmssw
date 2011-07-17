@@ -149,16 +149,29 @@ struct stMC{
 };
 
 void GetMCDefinition(std::vector<stMC>& MC){
-//   MC.push_back(stMC("MC_MB"   , 0.000754    , 30, -1 ));
-//   MC.push_back(stMC("MC_QCD30", 0.07708     , 80, -1 ));
-//   MC.push_back(stMC("MC_QCD80", 3.1700      , -1, -1 ));
+   MC.push_back(stMC("MC_QCD_30to50"     , 0.12, -1, -1 ));
+   MC.push_back(stMC("MC_QCD_50to80"     , 1.0377, -1, -1 ));
+   MC.push_back(stMC("MC_QCD_80to120"    , 8.40555612, -1, -1 ));
+   MC.push_back(stMC("MC_QCD_120to170"   , 53.28285, -1, -1 ));
+   MC.push_back(stMC("MC_QCD_170to300"   , 255.97366, -1, -1 ));
+   MC.push_back(stMC("MC_QCD_300to470"   , 5498.0076923, -1, -1 ));
+   MC.push_back(stMC("MC_QCD_470to600"   , 56838.8 , -1, -1 ));
+   MC.push_back(stMC("MC_QCD_600to800"   , 272159.9 , -1, -1 ));
+   MC.push_back(stMC("MC_QCD_800to1000"  , 2203200.000000, -1, -1 ));
+   MC.push_back(stMC("MC_QCD_1000to1400" , 6304885.542, -1, -1 ));
+   MC.push_back(stMC("MC_QCD_1400to1800" , 201486238.5321, -1, -1 ));
+   MC.push_back(stMC("MC_QCD_1800toInf"  , 818824022.3    , -1, -1 ));
+   MC.push_back(stMC("MC_DYToTauTau"     , 1563.489, -1, -1 ));
+   MC.push_back(stMC("MC_DYToMuMu"       , 1652.55769, -1, -1 ));
+   MC.push_back(stMC("MC_WToMuNu"        , 685.309, -1, -1 ));
+   MC.push_back(stMC("MC_WToTauNu"       , 696.29, -1, -1 ));
+   MC.push_back(stMC("MC_TTBar"          , 11591.76, -1, -1 ));
 }
 
-
 void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName, int period=0){
-  //std::string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_06_28/";
+  std::string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_07_14/";
   //std::string BaseDirectory = "dcap://cmsdca.fnal.gov:24125/pnfs/cms/WAX/11/store/user/farrell3/EDMFiles/";
-   std::string BaseDirectory = "dcap://cmsdca.fnal.gov:24125/pnfs/cms/WAX/11/store/user/farrell3/HSCPEDM_13072011/";
+  //std::string BaseDirectory = "dcap://cmsdca.fnal.gov:24125/pnfs/cms/WAX/11/store/user/farrell3/HSCPEDM_13072011/";
 
    if(SampleName=="Data"){
      inputFiles.push_back(BaseDirectory + "Data_RunA_160404_163869.root");
@@ -167,23 +180,11 @@ void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName,
      inputFiles.push_back(BaseDirectory + "Data_RunA_166501_166893.root");
      inputFiles.push_back(BaseDirectory + "Data_RunA_166894_167151.root");
      inputFiles.push_back(BaseDirectory + "Data_RunA_167153_167913.root");
-
-
-//   }else if(SampleName=="MC_MB"){
-//      inputFiles.push_back(BaseDirectory + "MC_MB.root");
-//   }else if(SampleName=="MC_PPMUX"){
-//      inputFiles.push_back(BaseDirectory + "MC_PPMUX.root");
-//   }else if(SampleName=="MC_QCD30"){
-//      inputFiles.push_back(BaseDirectory + "MC_QCD30.root");
-//   }else if(SampleName=="MC_QCD80"){
-//      if(rand()%2==0){
-//         inputFiles.push_back(BaseDirectory + "MC_QCD80.root");
-//      }else{
-//         inputFiles.push_back(BaseDirectory + "MC_QCD80_B.root");
-//      }
+   }else if(SampleName.find("MC_",0)<std::string::npos){
+     inputFiles.push_back(BaseDirectory + SampleName + ".root");
    }else{
      if (period==0) inputFiles.push_back(BaseDirectory + SampleName + ".root");
-     if (period==1) inputFiles.push_back(BaseDirectory + SampleName + "_RPCL1Extended.root");
+     if (period==1) inputFiles.push_back(BaseDirectory + SampleName + "BX1.root");
    }
 }
 
