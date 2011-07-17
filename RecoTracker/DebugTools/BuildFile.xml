@@ -1,15 +1,10 @@
 <use name="clhep"/>
 <use name="rootmath"/>
 <use name="boost"/>
-<use name="CommonTools/Utils"/>
-<use name="DQM/SiStripCommissioningClients"/>
-<use name="DQM/SiStripCommissioningSummary"/>
-<use name="DataFormats/BTauReco"/>
-<use name="DataFormats/HcalDetId"/>
-<use name="DataFormats/PatCandidates"/>
-<use name="DataFormats/SiStripCommon"/>
-<use name="DetectorDescription/Core"/>
-<use name="DetectorDescription/Parser"/>
+<use name="SimDataFormats/TrackingHit"/>
+<use name="Geometry/CommonDetUnit"/>
+<use name="TrackingTools/TrajectoryParametrization"/>
+<use name="TrackingTools/TrajectoryState"/>
 <export>
   <lib   name="1"/>
 </export>
