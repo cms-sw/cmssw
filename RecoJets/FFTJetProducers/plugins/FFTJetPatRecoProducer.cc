@@ -13,7 +13,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Tue Jun 15 12:45:45 CDT 2010
-// $Id: FFTJetPatRecoProducer.cc,v 1.2 2010/12/07 00:19:43 igv Exp $
+// $Id: FFTJetPatRecoProducer.cc,v 1.4 2011/07/05 06:28:02 igv Exp $
 //
 //
 
@@ -45,7 +45,7 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 // Energy flow object
-#include "RecoJets/FFTJetAlgorithms/interface/DiscretizedEnergyFlow.h"
+#include "DataFormats/JetReco/interface/DiscretizedEnergyFlow.h"
 
 // parameter parser header
 #include "RecoJets/FFTJetProducers/interface/FFTJetParameterParser.h"
@@ -172,7 +172,7 @@ FFTJetPatRecoProducer::FFTJetPatRecoProducer(const edm::ParameterSet& ps)
             produces<reco::PattRecoTree<double,reco::PattRecoPeak<double> > >(outputLabel);
     }
     if (storeDiscretizationGrid)
-        produces<DiscretizedEnergyFlow>(outputLabel);
+        produces<reco::DiscretizedEnergyFlow>(outputLabel);
 
     // Check if we want to write the grids into an external file
     const std::string externalGridFile(ps.getParameter<std::string>("externalGridFile"));
@@ -464,8 +464,8 @@ void FFTJetPatRecoProducer::produce(
     {
         const fftjet::Grid2d<Real>& g(*energyFlow);
 
-        std::auto_ptr<DiscretizedEnergyFlow> flow(
-            new DiscretizedEnergyFlow(
+        std::auto_ptr<reco::DiscretizedEnergyFlow> flow(
+            new reco::DiscretizedEnergyFlow(
                 g.data(), g.title(), g.etaMin(), g.etaMax(),
                 g.phiBin0Edge(), g.nEta(), g.nPhi()));
 

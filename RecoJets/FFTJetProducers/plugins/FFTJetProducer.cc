@@ -13,7 +13,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Sun Jun 20 14:32:36 CDT 2010
-// $Id: FFTJetProducer.cc,v 1.5 2011/06/29 02:45:33 igv Exp $
+// $Id: FFTJetProducer.cc,v 1.8 2011/07/11 19:45:59 igv Exp $
 //
 //
 
@@ -49,7 +49,7 @@
 
 #include "RecoJets/FFTJetAlgorithms/interface/clusteringTreeConverters.h"
 #include "RecoJets/FFTJetAlgorithms/interface/jetConverters.h"
-#include "RecoJets/FFTJetAlgorithms/interface/DiscretizedEnergyFlow.h"
+#include "DataFormats/JetReco/interface/DiscretizedEnergyFlow.h"
 
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
 
@@ -395,7 +395,7 @@ bool FFTJetProducer::loadEnergyFlow(
     const edm::Event& iEvent, const edm::InputTag& label,
     std::auto_ptr<fftjet::Grid2d<fftjetcms::Real> >& flow)
 {
-    edm::Handle<DiscretizedEnergyFlow> input;
+    edm::Handle<reco::DiscretizedEnergyFlow> input;
     iEvent.getByLabel(label, input);
 
     // Make sure that the grid is compatible with the stored one
