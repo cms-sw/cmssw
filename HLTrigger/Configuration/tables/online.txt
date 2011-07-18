@@ -50,6 +50,9 @@ HLT_QuadJet50_Jet40_Jet30_v*
 HLT_QuadJet60_v*
 HLT_QuadJet70_v*
 HLT_EightJet120_v*
+HLT_60Jet10_v*
+HLT_70Jet10_v*
+HLT_70Jet13_v*
 HLT_ExclDiJet60_HFOR_v*
 HLT_ExclDiJet60_HFAND_v*
 HLT_JetE30_NoBPTX_v*
