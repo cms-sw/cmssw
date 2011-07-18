@@ -7,5 +7,5 @@ MonitorTrackGLBMuons.AlgoName = 'glb'
 MonitorTrackGLBMuons.FolderName = 'Muons/globalMuons'
 MonitorTrackGLBMuons.doBeamSpotPlots = False
 MonitorTrackGLBMuons.BSFolderName = 'Muons/globalCosmicMuons/BeamSpotParameters'
-MonitorTrackGLBMuons.doAllSeedParameterHistos = False
+MonitorTrackGLBMuons.doSeedParameterHistos = False
 MonitorTrackGLBMuons.doProfilesVsLS = False

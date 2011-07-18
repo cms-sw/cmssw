@@ -8,7 +8,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackAnalyzer.h,v 1.8 2010/11/23 19:20:30 borrell Exp $
+// $Id: TrackAnalyzer.h,v 1.9 2010/12/16 09:30:58 verdier Exp $
 
 #include <memory>
 #include <fstream>
@@ -51,6 +51,11 @@ class TrackAnalyzer
         bool doAllPlots_;
         bool doBSPlots_;
 	bool doGoodTrackPlots_;
+	bool doDCAPlots_;
+	bool doGeneralPropertiesPlots_;
+	bool doMeasurementStatePlots_;
+	bool doHitPropertiesPlots_;
+
 
         MonitorElement* NumberOfRecHitsPerTrack;
         MonitorElement* NumberOfRecHitsFoundPerTrack;

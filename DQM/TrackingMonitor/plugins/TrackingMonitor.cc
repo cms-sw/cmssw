@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/07/07 13:13:37 $
- *  $Revision: 1.25 $
+ *  $Date: 2011/07/14 14:46:04 $
+ *  $Revision: 1.26 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -58,6 +58,9 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
     , doTrackerSpecific_( conf_.getParameter<bool>("doTrackerSpecific") )
     , doLumiAnalysis( conf_.getParameter<bool>("doLumiAnalysis"))
     , doProfilesVsLS_( conf_.getParameter<bool>("doProfilesVsLS"))
+    , doAllPlots( conf_.getParameter<bool>("doAllPlots"))
+    , doGeneralPropertiesPlots_( conf_.getParameter<bool>("doGeneralPropertiesPlots"))
+    , doHitPropertiesPlots_( conf_.getParameter<bool>("doHitPropertiesPlots"))
     , genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig))
 {
 }
@@ -135,36 +138,42 @@ void TrackingMonitor::beginJob(void)
 
     // book the General Property histograms
     // ---------------------------------------------------------------------------------//
-    dqmStore_->setCurrentFolder(MEFolderName+"/GeneralProperties");
 
-    histname = "NumberOfTracks_" + CatagoryName;
-    NumberOfTracks = dqmStore_->book1D(histname, histname, TKNoBin, TKNoMin, TKNoMax);
-    NumberOfTracks->setAxisTitle("Number of Tracks per Event", 1);
-    NumberOfTracks->setAxisTitle("Number of Events", 2);
+    if (doGeneralPropertiesPlots_ || doAllPlots){
+     
+      dqmStore_->setCurrentFolder(MEFolderName+"/GeneralProperties");
 
-    histname = "NumberOfMeanRecHitsPerTrack_" + CatagoryName;
-    NumberOfMeanRecHitsPerTrack = dqmStore_->book1D(histname, histname, MeanHitBin, MeanHitMin, MeanHitMax);
-    NumberOfMeanRecHitsPerTrack->setAxisTitle("Mean number of RecHits per Track", 1);
-    NumberOfMeanRecHitsPerTrack->setAxisTitle("Entries", 2);
+      histname = "NumberOfTracks_" + CatagoryName;
+      NumberOfTracks = dqmStore_->book1D(histname, histname, TKNoBin, TKNoMin, TKNoMax);
+      NumberOfTracks->setAxisTitle("Number of Tracks per Event", 1);
+      NumberOfTracks->setAxisTitle("Number of Events", 2);
+      
+      histname = "NumberOfMeanRecHitsPerTrack_" + CatagoryName;
+      NumberOfMeanRecHitsPerTrack = dqmStore_->book1D(histname, histname, MeanHitBin, MeanHitMin, MeanHitMax);
+      NumberOfMeanRecHitsPerTrack->setAxisTitle("Mean number of RecHits per Track", 1);
+      NumberOfMeanRecHitsPerTrack->setAxisTitle("Entries", 2);
+      
+      histname = "NumberOfMeanLayersPerTrack_" + CatagoryName;
+      NumberOfMeanLayersPerTrack = dqmStore_->book1D(histname, histname, MeanLayBin, MeanLayMin, MeanLayMax);
+      NumberOfMeanLayersPerTrack->setAxisTitle("Mean number of Layers per Track", 1);
+      NumberOfMeanLayersPerTrack->setAxisTitle("Entries", 2);
+      
+      histname = "NumberOfGoodTracks_" + CatagoryName;
+      NumberOfGoodTracks = dqmStore_->book1D(histname, histname, TKNoBin, TKNoMin, TKNoMax);
+      NumberOfGoodTracks->setAxisTitle("Number of Good Tracks per Event", 1);
+      NumberOfGoodTracks->setAxisTitle("Number of Events", 2);
+      
+      histname = "FractionOfGoodTracks_" + CatagoryName;
+      FractionOfGoodTracks = dqmStore_->book1D(histname, histname, 101, -0.005, 1.005);
+      FractionOfGoodTracks->setAxisTitle("Fraction of High Purity Tracks (Tracks with Pt>1GeV)", 1);
+      FractionOfGoodTracks->setAxisTitle("Entries", 2);
+      
+    }
 
-    histname = "NumberOfMeanLayersPerTrack_" + CatagoryName;
-    NumberOfMeanLayersPerTrack = dqmStore_->book1D(histname, histname, MeanLayBin, MeanLayMin, MeanLayMax);
-    NumberOfMeanLayersPerTrack->setAxisTitle("Mean number of Layers per Track", 1);
-    NumberOfMeanLayersPerTrack->setAxisTitle("Entries", 2);
-
-    histname = "NumberOfGoodTracks_" + CatagoryName;
-    NumberOfGoodTracks = dqmStore_->book1D(histname, histname, TKNoBin, TKNoMin, TKNoMax);
-    NumberOfGoodTracks->setAxisTitle("Number of Good Tracks per Event", 1);
-    NumberOfGoodTracks->setAxisTitle("Number of Events", 2);
-
-    histname = "FractionOfGoodTracks_" + CatagoryName;
-    FractionOfGoodTracks = dqmStore_->book1D(histname, histname, 101, -0.005, 1.005);
-    FractionOfGoodTracks->setAxisTitle("Fraction of High Purity Tracks (Tracks with Pt>1GeV)", 1);
-    FractionOfGoodTracks->setAxisTitle("Entries", 2);
 
     // book profile plots vs LS :  
     //---------------------------  
-    doAllPlots=conf_.getParameter<bool>("doAllPlots"); //if this is true all available plots will be done    
+   
  
     if ( doProfilesVsLS_ || doAllPlots) {
       histname = "GoodTracksFractionVsLS_"+ CatagoryName;
@@ -358,7 +367,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	      ++totalNumHPTracks;
 	      if ( track->pt() >= 1. ) {
 		++totalNumHPPt1Tracks;
-		if ( doProfilesVsLS_ )
+		if ( doProfilesVsLS_ || doAllPlots)
 		  GoodTracksNumberOfRecHitsPerTrackVsLS->Fill(static_cast<double>(iEvent.id().luminosityBlock()),track->recHitsSize());
 	      }
 	    }
@@ -387,24 +396,27 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
             theTrackAnalyzer->analyze(iEvent, iSetup, *track);
         }
 
-        NumberOfTracks->Fill(totalNumTracks);
-        NumberOfGoodTracks->Fill(totalNumHPPt1Tracks);
+	if (doGeneralPropertiesPlots_ || doAllPlots){
+	  NumberOfTracks->Fill(totalNumTracks);
+	  NumberOfGoodTracks->Fill(totalNumHPPt1Tracks);
+	}
 
-	double frac = 0.;
-	if (totalNumPt1Tracks > 0) frac = static_cast<double>(totalNumHPPt1Tracks)/static_cast<double>(totalNumPt1Tracks);
-	FractionOfGoodTracks->Fill(frac);
-	if ( doProfilesVsLS_ || doAllPlots)
-	  GoodTracksFractionVsLS->Fill(static_cast<double>(iEvent.id().luminosityBlock()),frac);
+	  double frac = 0.;
+	  if (totalNumPt1Tracks > 0) frac = static_cast<double>(totalNumHPPt1Tracks)/static_cast<double>(totalNumPt1Tracks);
+	  if (doGeneralPropertiesPlots_ || doAllPlots) FractionOfGoodTracks->Fill(frac);
+	  if ( doProfilesVsLS_ || doAllPlots)
+	    GoodTracksFractionVsLS->Fill(static_cast<double>(iEvent.id().luminosityBlock()),frac);
 
-        if( totalNumTracks > 0 )
-        {
-            double meanRecHits = static_cast<double>(totalRecHits) / static_cast<double>(totalNumTracks);
-            double meanLayers  = static_cast<double>(totalLayers)  / static_cast<double>(totalNumTracks);
-            NumberOfMeanRecHitsPerTrack->Fill(meanRecHits);
-            NumberOfMeanLayersPerTrack->Fill(meanLayers);
-        }
-
-
+	  if (doGeneralPropertiesPlots_ || doAllPlots){
+	    if( totalNumTracks > 0 )
+	      {
+		double meanRecHits = static_cast<double>(totalRecHits) / static_cast<double>(totalNumTracks);
+		double meanLayers  = static_cast<double>(totalLayers)  / static_cast<double>(totalNumTracks);
+		NumberOfMeanRecHitsPerTrack->Fill(meanRecHits);
+		NumberOfMeanLayersPerTrack->Fill(meanLayers);
+	      }
+	  }
+    
 	//  Analyse the Track Building variables 
 	//  if the collection is empty, do not fill anything
 	// ---------------------------------------------------------------------------------//
@@ -442,7 +454,7 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 		    edm::LogWarning("TrackingMonitor") << "No Track Candidates in the event.  Not filling associated histograms";
 		  }
 	      }
-	   
+    
 	    //plots for trajectory seeds
 
 	    if (doAllSeedPlots || doSeedNumberPlot || doSeedVsClusterPlot || runTrackBuildingAnalyzerForSeed){
@@ -520,6 +532,8 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
         return;
     }
 }
+
+
 void TrackingMonitor::endRun(const edm::Run&, const edm::EventSetup&) 
 {
   if (doLumiAnalysis) {

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/11/23 19:20:31 $
- *  $Revision: 1.15 $
+ *  $Date: 2010/12/16 09:31:34 $
+ *  $Revision: 1.16 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -26,6 +26,10 @@ TrackAnalyzer::TrackAnalyzer(const edm::ParameterSet& iConfig)
     , doAllPlots_( conf_.getParameter<bool>("doAllPlots") )
     , doBSPlots_ ( conf_.getParameter<bool>("doBeamSpotPlots") )
     , doGoodTrackPlots_ ( conf_.getParameter<bool>("doGoodTrackPlots") )
+    , doDCAPlots_ ( conf_.getParameter<bool>("doDCAPlots") )
+    , doGeneralPropertiesPlots_ ( conf_.getParameter<bool>("doGeneralPropertiesPlots") )
+    , doMeasurementStatePlots_( conf_.getParameter<bool>("doMeasurementStatePlots") )
+    , doHitPropertiesPlots_ ( conf_.getParameter<bool>("doHitPropertiesPlots") )
     , NumberOfRecHitsPerTrack(NULL)
     , NumberOfRecHitsFoundPerTrack(NULL)
     , NumberOfRecHitsLostPerTrack(NULL)
@@ -181,111 +185,124 @@ void TrackAnalyzer::beginJob(DQMStore * dqmStore_)
 
     // book the Hit Property histograms
     // ---------------------------------------------------------------------------------//
-    dqmStore_->setCurrentFolder(MEFolderName+"/HitProperties");
 
-    histname = "NumberOfRecHitsPerTrack_";
-    NumberOfRecHitsPerTrack = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, TKHitBin, TKHitMin, TKHitMax);
-    NumberOfRecHitsPerTrack->setAxisTitle("Number of RecHits of each Track");
-    NumberOfRecHitsPerTrack->setAxisTitle("Number of Tracks", 2);
+   
+    if ( doHitPropertiesPlots_ || doAllPlots_ ){
 
-    histname = "NumberOfRecHitsFoundPerTrack_";
-    NumberOfRecHitsFoundPerTrack = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, TKHitBin, TKHitMin, TKHitMax);
-    NumberOfRecHitsFoundPerTrack->setAxisTitle("Number of RecHits found for each Track");
-    NumberOfRecHitsFoundPerTrack->setAxisTitle("Number of Tracks", 2);
+      dqmStore_->setCurrentFolder(MEFolderName+"/HitProperties");
+      
+      histname = "NumberOfRecHitsPerTrack_";
+      NumberOfRecHitsPerTrack = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, TKHitBin, TKHitMin, TKHitMax);
+      NumberOfRecHitsPerTrack->setAxisTitle("Number of RecHits of each Track");
+      NumberOfRecHitsPerTrack->setAxisTitle("Number of Tracks", 2);
 
-    histname = "NumberOfRecHitsLostPerTrack_";
-    NumberOfRecHitsLostPerTrack = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, TKLostBin, TKLostMin, TKLostMax);
-    NumberOfRecHitsLostPerTrack->setAxisTitle("Number of RecHits lost for each Track");
-    NumberOfRecHitsLostPerTrack->setAxisTitle("Number of Tracks", 2);
+      histname = "NumberOfRecHitsFoundPerTrack_";
+      NumberOfRecHitsFoundPerTrack = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, TKHitBin, TKHitMin, TKHitMax);
+      NumberOfRecHitsFoundPerTrack->setAxisTitle("Number of RecHits found for each Track");
+      NumberOfRecHitsFoundPerTrack->setAxisTitle("Number of Tracks", 2);
 
-    histname = "NumberOfLayersPerTrack_";
-    NumberOfLayersPerTrack = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, TKLayBin, TKLayMin, TKLayMax);
-    NumberOfLayersPerTrack->setAxisTitle("Number of Layers of each Track", 1);
-    NumberOfLayersPerTrack->setAxisTitle("Number of Tracks", 2);
+      histname = "NumberOfRecHitsLostPerTrack_";
+      NumberOfRecHitsLostPerTrack = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, TKLostBin, TKLostMin, TKLostMax);
+      NumberOfRecHitsLostPerTrack->setAxisTitle("Number of RecHits lost for each Track");
+      NumberOfRecHitsLostPerTrack->setAxisTitle("Number of Tracks", 2);
+
+      histname = "NumberOfLayersPerTrack_";
+      NumberOfLayersPerTrack = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, TKLayBin, TKLayMin, TKLayMax);
+      NumberOfLayersPerTrack->setAxisTitle("Number of Layers of each Track", 1);
+      NumberOfLayersPerTrack->setAxisTitle("Number of Tracks", 2);
+      
+    }
+
 
     // book the General Property histograms
     // ---------------------------------------------------------------------------------//
-    dqmStore_->setCurrentFolder(MEFolderName+"/GeneralProperties");
 
-    histname = "Chi2_";
-    Chi2 = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, Chi2Bin, Chi2Min, Chi2Max);
-    Chi2->setAxisTitle("Track #chi^{2}"  ,1);
-    Chi2->setAxisTitle("Number of Tracks",2);
+    if (doGeneralPropertiesPlots_ || doAllPlots_){
 
-    histname = "Chi2Prob_";
-    Chi2Prob = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, Chi2ProbBin, Chi2ProbMin, Chi2ProbMax);
-    Chi2Prob->setAxisTitle("Track #chi^{2} probability",1);
-    Chi2Prob->setAxisTitle("Number of Tracks"        ,2);
+      dqmStore_->setCurrentFolder(MEFolderName+"/GeneralProperties");
 
-    histname = "Chi2oNDF_";
-    Chi2oNDF = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, Chi2NDFBin, Chi2NDFMin, Chi2NDFMax);
-    Chi2oNDF->setAxisTitle("Track #chi^{2}/ndf",1);
-    Chi2oNDF->setAxisTitle("Number of Tracks"  ,2);
+      histname = "Chi2_";
+      Chi2 = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, Chi2Bin, Chi2Min, Chi2Max);
+      Chi2->setAxisTitle("Track #chi^{2}"  ,1);
+      Chi2->setAxisTitle("Number of Tracks",2);
 
-    histname = "DistanceOfClosestApproach_";
-    DistanceOfClosestApproach = dqmStore_->book1D(histname+CatagoryName,histname+CatagoryName,DxyBin,DxyMin,DxyMax);
-    DistanceOfClosestApproach->setAxisTitle("Track d_{xy} wrt (0,0,0) (cm)",1);
-    DistanceOfClosestApproach->setAxisTitle("Number of Tracks",2);
-
-    histname = "DistanceOfClosestApproachVsPhi_";
-    DistanceOfClosestApproachVsPhi = dqmStore_->bookProfile(histname+CatagoryName,histname+CatagoryName, PhiBin, PhiMin, PhiMax, DxyMin,DxyMax,"");
-    DistanceOfClosestApproachVsPhi->getTH1()->SetBit(TH1::kCanRebin);
-    DistanceOfClosestApproachVsPhi->setAxisTitle("Track #phi",1);
-    DistanceOfClosestApproachVsPhi->setAxisTitle("Track d_{xy} wrt (0,0,0) (cm)",2);
-
-    histname = "xPointOfClosestApproach_";
-    xPointOfClosestApproach = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, VXBin, VXMin, VXMax);
-    xPointOfClosestApproach->setAxisTitle("x component of Track PCA to beam line (cm)",1);
-    xPointOfClosestApproach->setAxisTitle("Number of Tracks",2);
-
-    histname = "yPointOfClosestApproach_";
-    yPointOfClosestApproach = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, VYBin, VYMin, VYMax);
-    yPointOfClosestApproach->setAxisTitle("y component of Track PCA to beam line (cm)",1);
-    yPointOfClosestApproach->setAxisTitle("Number of Tracks",2);
-
-    histname = "zPointOfClosestApproach_";
-    zPointOfClosestApproach = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, VZBin, VZMin, VZMax);
-    zPointOfClosestApproach->setAxisTitle("z component of Track PCA to beam line (cm)",1);
-    zPointOfClosestApproach->setAxisTitle("Number of Tracks",2);
+      histname = "Chi2Prob_";
+      Chi2Prob = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, Chi2ProbBin, Chi2ProbMin, Chi2ProbMax);
+      Chi2Prob->setAxisTitle("Track #chi^{2} probability",1);
+      Chi2Prob->setAxisTitle("Number of Tracks"        ,2);
+      
+      histname = "Chi2oNDF_";
+      Chi2oNDF = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, Chi2NDFBin, Chi2NDFMin, Chi2NDFMax);
+      Chi2oNDF->setAxisTitle("Track #chi^{2}/ndf",1);
+      Chi2oNDF->setAxisTitle("Number of Tracks"  ,2);
+      
+      histname = "DistanceOfClosestApproach_";
+      DistanceOfClosestApproach = dqmStore_->book1D(histname+CatagoryName,histname+CatagoryName,DxyBin,DxyMin,DxyMax);
+      DistanceOfClosestApproach->setAxisTitle("Track d_{xy} wrt (0,0,0) (cm)",1);
+      DistanceOfClosestApproach->setAxisTitle("Number of Tracks",2);
+      
+      histname = "DistanceOfClosestApproachVsPhi_";
+      DistanceOfClosestApproachVsPhi = dqmStore_->bookProfile(histname+CatagoryName,histname+CatagoryName, PhiBin, PhiMin, PhiMax, DxyMin,DxyMax,"");
+      DistanceOfClosestApproachVsPhi->getTH1()->SetBit(TH1::kCanRebin);
+      DistanceOfClosestApproachVsPhi->setAxisTitle("Track #phi",1);
+      DistanceOfClosestApproachVsPhi->setAxisTitle("Track d_{xy} wrt (0,0,0) (cm)",2);
+      
+      histname = "xPointOfClosestApproach_";
+      xPointOfClosestApproach = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, VXBin, VXMin, VXMax);
+      xPointOfClosestApproach->setAxisTitle("x component of Track PCA to beam line (cm)",1);
+      xPointOfClosestApproach->setAxisTitle("Number of Tracks",2);
+      
+      histname = "yPointOfClosestApproach_";
+      yPointOfClosestApproach = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, VYBin, VYMin, VYMax);
+      yPointOfClosestApproach->setAxisTitle("y component of Track PCA to beam line (cm)",1);
+      yPointOfClosestApproach->setAxisTitle("Number of Tracks",2);
+      
+      histname = "zPointOfClosestApproach_";
+      zPointOfClosestApproach = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, VZBin, VZMin, VZMax);
+      zPointOfClosestApproach->setAxisTitle("z component of Track PCA to beam line (cm)",1);
+      zPointOfClosestApproach->setAxisTitle("Number of Tracks",2);
+      
+      // See DataFormats/TrackReco/interface/TrackBase.h for track algorithm enum definition
+      histname = "algorithm_";
+      algorithm = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, 32, 0., 32.);
+      algorithm->setAxisTitle("Tracking algorithm",1);
+      algorithm->setAxisTitle("Number of Tracks",2);
+      
+    }
     
-    // See DataFormats/TrackReco/interface/TrackBase.h for track algorithm enum definition
-    histname = "algorithm_";
-    algorithm = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, 32, 0., 32.);
-    algorithm->setAxisTitle("Tracking algorithm",1);
-    algorithm->setAxisTitle("Number of Tracks",2);
-
     // book the Beam Spot related histograms
     // ---------------------------------------------------------------------------------//
-    if(doBSPlots_)
-    {
+    
+    if(doBSPlots_ || doAllPlots_)
+      {
         dqmStore_->setCurrentFolder(MEBSFolderName);
-
+	
         histname = "DistanceOfClosestApproachToBS_";
         DistanceOfClosestApproachToBS = dqmStore_->book1D(histname+CatagoryName,histname+CatagoryName,DxyBin,DxyMin,DxyMax);
         DistanceOfClosestApproachToBS->setAxisTitle("Track d_{xy} wrt beam spot (cm)",1);
         DistanceOfClosestApproachToBS->setAxisTitle("Number of Tracks",2);
-
+	
         histname = "DistanceOfClosestApproachToBSVsPhi_";
         DistanceOfClosestApproachToBSVsPhi = dqmStore_->bookProfile(histname+CatagoryName,histname+CatagoryName, PhiBin, PhiMin, PhiMax, DxyBin, DxyMin, DxyMax,"");
         DistanceOfClosestApproachToBSVsPhi->getTH1()->SetBit(TH1::kCanRebin);
         DistanceOfClosestApproachToBSVsPhi->setAxisTitle("Track #phi",1);
         DistanceOfClosestApproachToBSVsPhi->setAxisTitle("Track d_{xy} wrt beam spot (cm)",2);
-
+	
         histname = "xPointOfClosestApproachVsZ0_";
         xPointOfClosestApproachVsZ0 = dqmStore_->bookProfile(histname+CatagoryName, histname+CatagoryName, Z0Bin, Z0Min, Z0Max, X0Bin, X0Min, X0Max,"");
         xPointOfClosestApproachVsZ0->setAxisTitle("d_{z} (cm)",1);
         xPointOfClosestApproachVsZ0->setAxisTitle("x component of Track PCA to beam line (cm)",2);
-
+	
         histname = "yPointOfClosestApproachVsZ0_";
         yPointOfClosestApproachVsZ0 = dqmStore_->bookProfile(histname+CatagoryName, histname+CatagoryName, Z0Bin, Z0Min, Z0Max, Y0Bin, Y0Min, Y0Max,"");
         yPointOfClosestApproachVsZ0->setAxisTitle("d_{z} (cm)",1);
         yPointOfClosestApproachVsZ0->setAxisTitle("y component of Track PCA to beam line (cm)",2);
-    }
-
+      }
+    
     // book the Profile plots for DCA related histograms
     // ---------------------------------------------------------------------------------//
-    if(doAllPlots_)
-    {
+    if(doDCAPlots_ || doAllPlots_)
+      {
         dqmStore_->setCurrentFolder(MEFolderName+"/GeneralProperties");
         histname = "DistanceOfClosestApproachVsTheta_";
         DistanceOfClosestApproachVsTheta = dqmStore_->bookProfile(histname+CatagoryName,histname+CatagoryName, ThetaBin, ThetaMin, ThetaMax, DxyMin,DxyMax,"");
@@ -300,40 +317,43 @@ void TrackAnalyzer::beginJob(DQMStore * dqmStore_)
 
     // book tracker specific related histograms
     // ---------------------------------------------------------------------------------//
-    if(doTrackerSpecific_) 
-    {
+    if(doTrackerSpecific_ || doAllPlots_) 
+      {
         doTrackerSpecificInitialization(dqmStore_);
-    }
-
+      }
+    
     // book state related histograms
     // ---------------------------------------------------------------------------------//
-    std::string StateName = conf_.getParameter<std::string>("MeasurementState");
+    if (doMeasurementStatePlots_ || doAllPlots_){
 
-    if (StateName == "All") 
-    {
-        bookHistosForState("OuterSurface", dqmStore_);
-        bookHistosForState("InnerSurface", dqmStore_);
-        bookHistosForState("ImpactPoint" , dqmStore_);
-    } 
-    else if 
-    (   
-        StateName != "OuterSurface" && 
-        StateName != "InnerSurface" && 
-        StateName != "ImpactPoint" &&
-        StateName != "default" 
-    ) 
-    {
-        bookHistosForState("default", dqmStore_);
+      std::string StateName = conf_.getParameter<std::string>("MeasurementState");
+      
+      if (StateName == "All") 
+	{
+	  bookHistosForState("OuterSurface", dqmStore_);
+	  bookHistosForState("InnerSurface", dqmStore_);
+	  bookHistosForState("ImpactPoint" , dqmStore_);
+	} 
+      else if 
+	(   
+	 StateName != "OuterSurface" && 
+	 StateName != "InnerSurface" && 
+	 StateName != "ImpactPoint" &&
+	 StateName != "default" 
+	 ) 
+	{
+	  bookHistosForState("default", dqmStore_);
+	}
+      else
+	{
+	  bookHistosForState(StateName, dqmStore_);
+	}
     }
-    else
-    {
-        bookHistosForState(StateName, dqmStore_);
-    }
-
+    
     // book histos for good tracks (HP + Pt>1GeV)
     // ---------------------------------------------------------------------------------//
 
-    if ( doGoodTrackPlots_ ) {
+    if ( doGoodTrackPlots_ || doAllPlots_ ) {
 
       dqmStore_->setCurrentFolder(MEFolderName+"/GeneralProperties");
 
@@ -348,9 +368,9 @@ void TrackAnalyzer::beginJob(DQMStore * dqmStore_)
       GoodTrackNumberOfRecHitsPerTrack = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, TKHitBin, TKHitMin, TKHitMax);
       GoodTrackNumberOfRecHitsPerTrack->setAxisTitle("Number of RecHits of each Good Track");
       GoodTrackNumberOfRecHitsPerTrack->setAxisTitle("Number of Tracks", 2);
-
+      
     }
-
+    
 }
 
 // -- Analyse
@@ -358,14 +378,18 @@ void TrackAnalyzer::beginJob(DQMStore * dqmStore_)
 void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Track& track)
 {
 
+  if ( doHitPropertiesPlots_ || doAllPlots_ ){
     // rec hits
     NumberOfRecHitsPerTrack->Fill(track.recHitsSize());
     NumberOfRecHitsFoundPerTrack->Fill(track.found());
     NumberOfRecHitsLostPerTrack->Fill(track.lost());
-
+    
     // layters
     NumberOfLayersPerTrack->Fill(track.hitPattern().trackerLayersWithMeasurement());
+  
+  }
 
+  if (doGeneralPropertiesPlots_ || doAllPlots_){
     // fitting
     Chi2->Fill(track.chi2());
     Chi2Prob->Fill(TMath::Prob(track.chi2(),(int)track.ndof()));
@@ -381,7 +405,9 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     // algorithm
     algorithm->Fill(static_cast<double>(track.algo()));
 
-    if(doBSPlots_)
+  }
+
+  if(doBSPlots_ || doAllPlots_)
     {
       edm::InputTag bsSrc = conf_.getParameter< edm::InputTag >("beamSpot");
 
@@ -395,43 +421,45 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
         yPointOfClosestApproachVsZ0->Fill(track.dz(),track.vy());
     }
 
-    if(doAllPlots_)
-    {
+    if(doDCAPlots_ || doAllPlots_)
+      {
         DistanceOfClosestApproachVsTheta->Fill(track.theta(), track.d0());
         DistanceOfClosestApproachVsEta->Fill(track.eta(), track.d0());
-    }  
+      }  
 
     //Tracker Specific Histograms
-    if(doTrackerSpecific_) 
-    {
+    if(doTrackerSpecific_ || doAllPlots_) 
+      {
         doTrackerSpecificFillHists(track);
-    }
+      }
 
-    std::string StateName = conf_.getParameter<std::string>("MeasurementState");
-    if (StateName == "All") 
-    {
-        fillHistosForState(iSetup, track, std::string("OuterSurface"));
-        fillHistosForState(iSetup, track, std::string("InnerSurface"));
-        fillHistosForState(iSetup, track, std::string("ImpactPoint"));
-    } 
-    else if 
-    (   
-        StateName != "OuterSurface" && 
-        StateName != "InnerSurface" && 
-        StateName != "ImpactPoint" &&
-        StateName != "default" 
-    ) 
-    {
-        fillHistosForState(iSetup, track, std::string("default"));
-    }
-    else
-    {
-        fillHistosForState(iSetup, track, StateName);
+    if (doMeasurementStatePlots_ || doAllPlots_){
+      std::string StateName = conf_.getParameter<std::string>("MeasurementState");
+      if (StateName == "All") 
+	{
+	  fillHistosForState(iSetup, track, std::string("OuterSurface"));
+	  fillHistosForState(iSetup, track, std::string("InnerSurface"));
+	  fillHistosForState(iSetup, track, std::string("ImpactPoint"));
+	} 
+      else if 
+	(   
+	 StateName != "OuterSurface" && 
+	 StateName != "InnerSurface" && 
+	 StateName != "ImpactPoint" &&
+	 StateName != "default" 
+	 ) 
+	{
+	  fillHistosForState(iSetup, track, std::string("default"));
+	}
+      else
+	{
+	  fillHistosForState(iSetup, track, StateName);
+	}
     }
 
     // Good Tracks plots
 
-    if ( doGoodTrackPlots_ ) {
+    if ( doGoodTrackPlots_ || doAllPlots_ ) {
       if ( track.quality(reco::TrackBase::highPurity) && track.pt() > 1. ) {
 	GoodTrackChi2oNDF->Fill(track.normalizedChi2());
 	GoodTrackNumberOfRecHitsPerTrack->Fill(track.recHitsSize());
@@ -596,7 +624,9 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore * dqmStore_)
 
     // general properties
     dqmStore_->setCurrentFolder(MEFolderName+"/GeneralProperties");
+
     histname = "TrackP_" + histTag;
+
     tkmes.TrackP = dqmStore_->book1D(histname, histname, TrackPBin, TrackPMin, TrackPMax);
     tkmes.TrackP->setAxisTitle("Track |p| (GeV/c)", 1);
     tkmes.TrackP->setAxisTitle("Number of Tracks",2);

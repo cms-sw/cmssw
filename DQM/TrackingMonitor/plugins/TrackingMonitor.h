@@ -10,7 +10,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackingMonitor.h,v 1.12 2011/05/22 17:38:15 borrell Exp $
+// $Id: TrackingMonitor.h,v 1.13 2011/07/07 13:13:37 fiori Exp $
 
 #include <memory>
 #include <fstream>
@@ -99,6 +99,9 @@ class TrackingMonitor : public edm::EDAnalyzer
 	bool doProfilesVsLS_;
 	bool doAllSeedPlots;
 	bool doAllPlots;
+	bool doDCAPlots_;
+	bool doGeneralPropertiesPlots_;
+	bool doHitPropertiesPlots_;
 	bool doTkCandPlots;
 	bool doSeedNumberPlot;
 	bool doSeedVsClusterPlot;

@@ -27,13 +27,17 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     MeasurementState = cms.string('ImpactPoint'),
     
     # which plots to do
-    doTrackerSpecific     = cms.bool(False),
-    doAllPlots            = cms.bool(False),#this doALL plots seem unuseful
-    doBeamSpotPlots       = cms.bool(False),
-    doSeedParameterHistos = cms.bool(False),
-    doTrackCandHistos     = cms.bool(False),
-    doGoodTrackPlots      = cms.bool(False),
-    doProfilesVsLS        = cms.bool(False),
+    doAllPlots                 = cms.bool(False),
+    doTrackerSpecific          = cms.bool(False),
+    doBeamSpotPlots            = cms.bool(False),
+    doSeedParameterHistos      = cms.bool(False),
+    doTrackCandHistos          = cms.bool(False),
+    doDCAPlots                 = cms.bool(False),
+    doGeneralPropertiesPlots   = cms.bool(False),
+    doHitPropertiesPlots       = cms.bool(False),              
+    doGoodTrackPlots           = cms.bool(False),
+    doMeasurementStatePlots    = cms.bool(False),
+    doProfilesVsLS             = cms.bool(False),
 
     #which seed plots to do
     doSeedNumberHisto = cms.bool(False),

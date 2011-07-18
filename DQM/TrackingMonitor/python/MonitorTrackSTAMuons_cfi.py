@@ -25,13 +25,17 @@ MonitorTrackSTAMuons = cms.EDAnalyzer("TrackingMonitor",
     MeasurementState = cms.string('default'),
 
     # which plots to do
-    doTrackerSpecific     = cms.bool(False),
-    doAllPlots            = cms.bool(False),
-    doBeamSpotPlots       = cms.bool(False),
-    doAllSeedParameterHistos = cms.bool(False),
-    doTrackCandHistos     = cms.bool(False),
-    doGoodTrackPlots      = cms.bool(False),
-    doProfilesVsLS        = cms.bool(False),
+    doTrackerSpecific          = cms.bool(False),
+    doAllPlots                 = cms.bool(False),
+    doBeamSpotPlots            = cms.bool(False),
+    doSeedParameterHistos      = cms.bool(False),
+    doTrackCandHistos          = cms.bool(False),
+    doDCAPlots                 = cms.bool(False),
+    doGeneralPropertiesPlots   = cms.bool(False),
+    doHitPropertiesPlots       = cms.bool(False),              
+    doGoodTrackPlots           = cms.bool(False),
+    doMeasurementStatePlots    = cms.bool(False),
+    doProfilesVsLS             = cms.bool(False),
 
 
     #which seed plots to do
