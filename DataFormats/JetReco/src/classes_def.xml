@@ -419,6 +419,9 @@
    <class name="edm::Association<reco::FFTJPTJetCollection>" />
    <class name="edm::Wrapper<edm::Association<reco::FFTJPTJetCollection> >" />
 
+   <class name="reco::DiscretizedEnergyFlow" />
+   <class name="edm::Wrapper<reco::DiscretizedEnergyFlow>" />
+
    <class name="reco::FFTJetPileupSummary" />
    <class name="edm::Wrapper<reco::FFTJetPileupSummary>" />
 </lcgdict>
