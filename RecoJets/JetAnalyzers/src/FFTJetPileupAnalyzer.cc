@@ -13,7 +13,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Thu Apr 21 15:52:11 CDT 2011
-// $Id: FFTJetPileupAnalyzer.cc,v 1.3 2011/06/29 03:13:18 igv Exp $
+// $Id: FFTJetPileupAnalyzer.cc,v 1.11 2011/07/05 07:51:28 igv Exp $
 //
 //
 
@@ -41,7 +41,7 @@
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
-#include "RecoJets/FFTJetAlgorithms/interface/DiscretizedEnergyFlow.h"
+#include "DataFormats/JetReco/interface/DiscretizedEnergyFlow.h"
 
 #define init_param(type, varname) varname (ps.getParameter< type >( #varname ))
 
@@ -327,7 +327,7 @@ void FFTJetPileupAnalyzer::analyze(const edm::Event& iEvent,
 
     if (collectGrids)
     {
-        edm::Handle<fftjetcms::DiscretizedEnergyFlow> input;
+        edm::Handle<reco::DiscretizedEnergyFlow> input;
         iEvent.getByLabel(gridLabel, input);
 
         // Make sure the input grid is reasonable
