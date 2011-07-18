@@ -242,15 +242,15 @@ void TriggerStudy()
 void TriggerStudy_Core(string SignalName, FILE* pFile, stPlot* plot)
 {
 
-   unsigned int Total       = 0;
-   unsigned int SDJetMET    = 0;
-   unsigned int SDMu        = 0;
-   unsigned int SDBoth      = 0;
-   unsigned int SDJetMETInc = 0;
-   unsigned int SDMuInc     = 0;
-   unsigned int TrJetMET    = 0;
-   unsigned int TrMu        = 0;
-   unsigned int TrBoth      = 0;
+   double Total       = 0;
+   double SDJetMET    = 0;
+   double SDMu        = 0;
+   double SDBoth      = 0;
+   double SDJetMETInc = 0;
+   double SDMuInc     = 0;
+   double TrJetMET    = 0;
+   double TrMu        = 0;
+   double TrBoth      = 0;
 
    int MaxPrint = 0;
    for (int period=0; period<RunningPeriods; period++) {
@@ -320,8 +320,8 @@ void TriggerStudy_Core(string SignalName, FILE* pFile, stPlot* plot)
 	       Accept2 = Accept;
             }
 
-         if(Accept                    ){plot->Histo   ->Fill(All_triggers[i].c_str(),1);}       
-         if(Accept && !AlreadyAccepted){plot->HistoInc->Fill(All_triggers[i].c_str(),1);}
+         if(Accept                    ){plot->Histo   ->Fill(All_triggers[i].c_str(),Event_Weight);}       
+         if(Accept && !AlreadyAccepted){plot->HistoInc->Fill(All_triggers[i].c_str(),Event_Weight);}
 
          if     (whereJetMetSD!=JetMetSD_triggers.end()){ JetMetSD |= Accept; if(!AlreadyAccepted)JetMetSDInc |= Accept;}
          else if(whereMuSD    !=MuSD_triggers.end())    { MuSD     |= Accept; if(!AlreadyAccepted)MuSDInc     |= Accept;}
@@ -336,29 +336,29 @@ void TriggerStudy_Core(string SignalName, FILE* pFile, stPlot* plot)
 
 
       if(JetMetSD||MuSD){
-         plot->Histo->Fill("Total",1);
-         plot->HistoInc->Fill("Total",1);
+         plot->Histo->Fill("Total",Event_Weight);
+         plot->HistoInc->Fill("Total",Event_Weight);
       }
 
 //      JetMetTr = JetMetSD & ((rand()%100)<90);
 //      MuTr     = MuSD     & ((rand()%100)<90);  
 
-      Total++;
-      if(JetMetSD)SDJetMET++;
-      if(MuSD)SDMu++;
-      if(JetMetSDInc)SDJetMETInc++;
-      if(MuSDInc)SDMuInc++;
-      if(JetMetSD||MuSD)SDBoth++;
-      if(JetMetTr)TrJetMET++;
-      if(MuTr)TrMu++;
-      if(JetMetTr||MuTr)TrBoth++;
+      Total+=Event_Weight;
+      if(JetMetSD)SDJetMET+=Event_Weight;
+      if(MuSD)SDMu+=Event_Weight;
+      if(JetMetSDInc)SDJetMETInc+=Event_Weight;
+      if(MuSDInc)SDMuInc+=Event_Weight;
+      if(JetMetSD||MuSD)SDBoth+=Event_Weight;
+      if(JetMetTr)TrJetMET+=Event_Weight;
+      if(MuTr)TrMu+=Event_Weight;
+      if(JetMetTr||MuTr)TrBoth+=Event_Weight;
 
       double Beta = 1.0;
       if(SignalName!="Data")Beta = FastestHSCP(ev);
-      plot->BetaCount->Fill(Beta);
-      if(MuSD||JetMetSD)plot->BetaTotal->Fill(Beta);
-      if(MuSD)plot->BetaMuon->Fill(Beta);
-      if(JetMetSD)plot->BetaJet->Fill(Beta);
+      plot->BetaCount->Fill(Beta,Event_Weight);
+      if(MuSD||JetMetSD)plot->BetaTotal->Fill(Beta,Event_Weight);
+      if(MuSD)plot->BetaMuon->Fill(Beta,Event_Weight);
+      if(JetMetSD)plot->BetaJet->Fill(Beta,Event_Weight);
 
    }printf("\n");
    }
