@@ -8,6 +8,14 @@
 
 #include "GeneratorInterface/Core/interface/FortranInstance.h"
 
+
+// make sure PDFSET is pulled in when linking against the
+// archive lhapdf library.
+extern "C" void pdfset_(void);
+__attribute__((visibility("hidden"))) void dummy()
+{
+  pdfset_();
+}
 // implementation for the Fortran callbacks from Pythia6/Herwig6
 
 void gen::upinit_()
