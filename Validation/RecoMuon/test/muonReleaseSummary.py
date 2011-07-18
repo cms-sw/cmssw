@@ -5,17 +5,19 @@ import sys
 import fileinput
 import string
 
-NewVersion='4_3_0_pre7'
-RefVersion='4_3_0_pre6'
+NewVersion='4_4_0_pre4'
+RefVersion='4_4_0_pre3'
 NewRelease='CMSSW_'+NewVersion
 RefRelease='CMSSW_'+RefVersion
 #NewRelease='Summer09'
 #RefRelease='Summer09_pre1'
 
-NewCondition='MC'
-RefCondition='MC'
-#NewCondition='STARTUP'
-#RefCondition='STARTUP'
+#NewCondition='MC'
+#RefCondition='MC'
+NewCondition='STARTUP'
+RefCondition='STARTUP'
+#NewCondition='PILEUP'
+#RefCondition='PILEUP'
 
 NewFastSim=False
 RefFastSim=False
@@ -25,7 +27,13 @@ if (NewCondition=='MC'):
     if (NewFastSim|RefFastSim):
         samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValTTbar']
 elif (NewCondition=='STARTUP'):
-    samples= ['RelValTTbar','RelValZMM','RelValJpsiMM']
+    samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValSingleMuPt1000','RelValTTbar','RelValZMM','RelValJpsiMM']
+#    samples= ['RelValTTbar','RelValZMM','RelValJpsiMM']
+    if (NewFastSim|RefFastSim):
+        samples= ['RelValSingleMuPt10','RelValSingleMuPt100','RelValTTbar']
+#        samples= ['RelValTTbar']
+elif (NewCondition=='PILEUP'):
+    samples= ['RelValTTbar']
     if (NewFastSim|RefFastSim):
         samples= ['RelValTTbar']
 
@@ -44,28 +52,25 @@ GetRefsFrom='GUI'
 
 #DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/dev/data/browse/Development/RelVal/CMSSW_4_2_x/'
 #DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_4_3_x/'
-DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_4_3_x/'
+DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_4_4_x/'
 #DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/dev/data/browse/Development/RelVal/CMSSW_4_2_x/'
 #DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_4_3_x/'
-DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_4_3_x/'
+DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_4_4_x/'
 CastorRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'
 if ((GetFilesFrom=='GUI')|(GetRefsFrom=='GUI')):
     print "*** Did you remind doing:"
-
-# USE THIS WITH wget
 #    print " > source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.csh"
-# USE THIS WITH curl
     print " > source /afs/cern.ch/project/gd/LCG-share/sl5/etc/profile.d/grid_env.csh"
     print " > voms-proxy-init"
 
 
 # These are only needed if you copy any root file from the DQM GUI:
-NewLabel='MC_43_V4'
-if (NewCondition=='STARTUP'):
-    NewLabel='START43_V4'
-RefLabel='MC_43_V3'
-if (RefCondition=='STARTUP'):
-    RefLabel='START43_V3'
+NewLabel='START44_V1'
+if (NewCondition=='MC'):
+    NewLabel='MC_44_V1'
+RefLabel='START43_V4'
+if (RefCondition=='MC'):
+    RefLabel='MC_43_V4'
 
 
 ValidateHLT=True
@@ -90,15 +95,24 @@ isFastSimOld = ''
 if (NewFastSim):
     isFastSimNew = 'FS'
     NewTag = NewTag+'_FSIM'
-    NewCondition=NewCondition+isFastSimNew
     NewLabel=NewLabel+'_FastSim'
     NewFormat='GEN-SIM-DIGI-RECO'    
 if (RefFastSim):
     isFastSimOld = 'FS'
     RefTag = RefTag+'_FSIM'
-    RefCondition=RefCondition+isFastSimOld
     RefLabel=RefLabel+'_FastSim'
     RefFormat='GEN-SIM-DIGI-RECO'
+
+if (NewCondition=='PILEUP'):
+    if (NewFastSim):
+        NewLabel=NewLabel+'_PU_156BxLumiPileUp'
+    else:
+        NewLabel=NewLabel+'_PU_XXX'  # There are no FullSim pileup relval produced yed
+if (RefCondition=='PILEUP'):
+    if (RefFastSim):
+        RefLabel=RefLabel+'_PU_156BxLumiPileUp'
+    else:
+        RefLabel=RefLabel+'_PU_XXX'  # There are no FullSim pileup relval produced yed
 
 NewLabel=NewLabel+'-v1'
 RefLabel=RefLabel+'-v1'
@@ -146,31 +160,33 @@ for sample in samples :
         if (os.path.isfile(NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root')==True):
             print "New file found at: "+NewRelease+'/'+NewTag+'/'+sample+'/val.'+sample+'.root'+' -> Use that one'
         elif (GetFilesFrom=='GUI'):
-            print "New file on the GUI: "+DqmGuiNewRepository+'DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root '
-#            os.system('wget --ca-directory $X509_CERT_DIR/ --certificate=$X509_USER_PROXY --private-key=$X509_USER_PROXY '+DqmGuiNewRepository+'DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root ')
-            os.system('/usr/bin/curl -O -L --capath $X509_CERT_DIR --key $X509_USER_PROXY --cert $X509_USER_PROXY '+DqmGuiNewRepository+'DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root ')
-            os.system('mv DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
-#            os.system('/usr/bin/curl -O -L --capath $X509_CERT_DIR --key $X509_USER_PROXY --cert $X509_USER_PROXY '+DqmGuiNewRepository+'DQM_V0002_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root ')
-#            os.system('mv DQM_V0002_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
+            newGuiFileName='DQM_V0001_R000000001__'+sample+'__'+NewRelease+'-'+NewLabel+'__'+NewFormat+'.root '
+            print "New file on the GUI: "+DqmGuiNewRepository+newGuiFileName
+#            os.system('wget --ca-directory $X509_CERT_DIR/ --certificate=$X509_USER_PROXY --private-key=$X509_USER_PROXY '+DqmGuiNewRepository+newGuiFileName)
+            os.system('/usr/bin/curl -O -L --capath $X509_CERT_DIR --key $X509_USER_PROXY --cert $X509_USER_PROXY '+DqmGuiNewRepository+newGuiFileName)
+            os.system('mv '+newGuiFileName+' '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
         elif (GetFilesFrom=='CASTOR'):
+            print '*** Getting new file from castor'
+            NewCondition=NewCondition+isFastSimNew
             os.system('rfcp '+CastorRepository+'/'+NewRelease+'_'+NewCondition+'_'+sample+'_val.'+sample+'.root '+NewRelease+'/'+NewTag+'/'+sample+'/'+'val.'+sample+'.root')
         elif ((GetFilesFrom=='WEB') & (os.path.isfile(newSampleOnWeb))) :
             print "New file found at: "+newSample+' -> Copy that one'
             os.system('cp '+newSampleOnWeb+' '+NewRelease+'/'+NewTag+'/'+sample)
         else:
             print '*** WARNING: no signal file was found'
-
         
         if (os.path.isfile(RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root')==True):
             print "Reference file found at: "+RefRelease+'/'+RefTag+'/'+sample+'/val.'+sample+'.root'+' -> Use that one'
         elif (GetRefsFrom=='GUI'):
-            print "Ref file on the GUI: "+DqmGuiRefRepository+'DQM_V0001_R000000001__'+sample+'__'+RefRelease+'-'+RefLabel+'__'+RefFormat+'.root '
+            refGuiFileName='DQM_V0001_R000000001__'+sample+'__'+RefRelease+'-'+RefLabel+'__'+RefFormat+'.root '
+            print "Ref file on the GUI: "+DqmGuiRefRepository+refGuiFileName
             print '*** Getting reference file from the DQM GUI server'
-#            os.system('wget --ca-directory $X509_CERT_DIR/ --certificate=$X509_USER_PROXY --private-key=$X509_USER_PROXY '+DqmGuiRefRepository+'DQM_V0001_R000000001__'+sample+'__'+RefRelease+'-'+RefLabel+'__'+RefFormat+'.root ')
-            os.system('/usr/bin/curl -O -L --capath $X509_CERT_DIR --key $X509_USER_PROXY --cert $X509_USER_PROXY '+DqmGuiRefRepository+'DQM_V0001_R000000001__'+sample+'__'+RefRelease+'-'+RefLabel+'__'+RefFormat+'.root ')
-            os.system('mv DQM_V0001_R000000001__'+sample+'__'+RefRelease+'-'+RefLabel+'__'+RefFormat+'.root '+RefRelease+'/'+RefTag+'/'+sample+'/'+'val.'+sample+'.root')
+#            os.system('wget --ca-directory $X509_CERT_DIR/ --certificate=$X509_USER_PROXY --private-key=$X509_USER_PROXY '+DqmGuiRefRepository+refGuiFileName)
+            os.system('/usr/bin/curl -O -L --capath $X509_CERT_DIR --key $X509_USER_PROXY --cert $X509_USER_PROXY '+DqmGuiRefRepository+refGuiFileName)
+            os.system('mv '+refGuiFileName+' '+RefRelease+'/'+RefTag+'/'+sample+'/'+'val.'+sample+'.root')
         elif (GetRefsFrom=='CASTOR'):
             print '*** Getting reference file from castor'
+            RefCondition=RefCondition+isFastSimOld
             print 'rfcp '+CastorRefRepository+'/'+RefRelease+'_'+RefCondition+'_'+sample+'_val.'+sample+'.root '+RefRelease+'/'+RefTag+'/'+sample+'/'+'val.'+sample+'.root'
             os.system('rfcp '+CastorRefRepository+'/'+RefRelease+'_'+RefCondition+'_'+sample+'_val.'+sample+'.root '+RefRelease+'/'+RefTag+'/'+sample+'/'+'val.'+sample+'.root')
         elif ((GetRefsFrom=='WEB') & (os.path.isfile(refSampleOnWeb))):
