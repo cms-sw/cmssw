@@ -85,8 +85,6 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 						iEvent);
   std::map<reco::MuonRef,reco::PFCandidatePtr> muonCandidateMap;
 
-
-
   unsigned ncand=(status)?pfCandidates->size():0;
 
   for( unsigned i=0; i<ncand; ++i) {
@@ -95,20 +93,18 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     
     bool isphoton   = cand.particleId() == reco::PFCandidate::gamma && cand.mva_nothing_gamma()>0.;
     bool iselectron = cand.particleId() == reco::PFCandidate::e;
-    bool ismuon     = cand.particleId() == reco::PFCandidate::mu && fillMuonRefs_;
+    // PFCandidates may have a valid MuonRef though they are not muons.
+    bool hasNonNullMuonRef  = cand.muonRef().isNonnull() && fillMuonRefs_;
 
     // if not an electron or a photon or a muon just fill the PFCandidate collection
-    if ( !(isphoton || iselectron || ismuon)){pfCandidates_p->push_back(cand); continue;}
-    
-    
-    if (ismuon && fillMuonRefs_) {
+    if ( !(isphoton || iselectron || hasNonNullMuonRef)){pfCandidates_p->push_back(cand); continue;}
+        
+    if(hasNonNullMuonRef) {     
       reco::MuonRef muRef = (*muonMap)[cand.muonRef()];
       cand.setMuonRef(muRef);
       muonCandidateMap[muRef] = candPtr;
     }
-     
-
-
+    
 
     // if it is an electron. Find the GsfElectron with the same GsfTrack
     if (iselectron) {
