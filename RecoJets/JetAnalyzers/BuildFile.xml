@@ -13,6 +13,7 @@
 <use   name="DataFormats/HcalDetId"/>
 <use   name="DataFormats/FEDRawData"/>
 <use   name="DataFormats/StdDictionaries"/>
+<use   name="DataFormats/WrappedStdDictionaries"/>
 <use   name="TBDataFormats/HcalTBObjects"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="JetMETCorrections/Objects"/>
