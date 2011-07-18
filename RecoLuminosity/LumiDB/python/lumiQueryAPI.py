@@ -99,15 +99,20 @@ def deliveredLumiForRange (dbsession, parameters,inputRange,finecorrections=None
 def recordedLumiForRange (dbsession, parameters, inputRange,finecorrections=None):
     '''Takes either single run as a string or dictionary of run ranges'''
     lumidata = []
-    if isinstance (inputRange, str):
-        if not finecorrections:
-            lumiDataPiece = recordedLumiForRun (dbsession, parameters,inputRange)
+    if isinstance(inputRange,str):
+        run=int(inputRange)
+        if finecorrections and finecorrections[run]:
+            lumiDataPiece = recordedLumiForRun (dbsession, parameters,inputRange,lslist=None,finecorrections=finecorrections[run])
         else:
-            lumiDataPiece = recordedLumiForRun (dbsession, parameters,inputRange,lslist=None,finecorrections=finecorrections[int(inputRange)])
-        if parameters.lumiXing:
+            lumiDataPiece = recordedLumiForRun(dbsession, parameters,run)
+        if parameters.lumiXing:            
             # get the xing information for the run
-            xingLumiDict = xingLuminosityForRun (dbsession, inputRange,
-                                                 parameters)
+            if  finecorrections and finecorrections[run]:
+                xingLumiDict = xingLuminosityForRun (dbsession, inputRange,
+                                                     parameters,finecorrections=finecorrections[run])
+            else:
+                xingLumiDict = xingLuminosityForRun (dbsession, inputRange,
+                                                     parameters)
             mergeXingLumi (lumiDataPiece, xingLumiDict)
         lumidata.append (lumiDataPiece)
     else:
@@ -124,16 +129,24 @@ def recordedLumiForRange (dbsession, parameters, inputRange,finecorrections=None
                 print "run", run
             runLumiData = []
             for lslist in metaLsList:
-                if finecorrections:
+                if finecorrections and finecorrections[run]:
                     runLumiData.append( recordedLumiForRun (dbsession, parameters,run,lslist=lslist,finecorrections=finecorrections[run]) )
+                    
                 else:
                     runLumiData.append( recordedLumiForRun (dbsession, parameters,run,lslist=lslist) )
             if parameters.lumiXing:
                 # get the xing information once for the whole run
-                xingLumiDict = xingLuminosityForRun (dbsession, run,
-                                                     parameters,
-                                                     maxLumiSection = \
-                                                     maxLumiSectionDict[run])
+                if finecorrections and finecorrections[run]:
+                    xingLumiDict = xingLuminosityForRun (dbsession, run,
+                                                         parameters,
+                                                         maxLumiSection = \
+                                                         maxLumiSectionDict[run],
+                                                         finecorrections=finecorrections[run])
+                else:
+                    xingLumiDict = xingLuminosityForRun (dbsession, run,
+                                                         parameters,
+                                                         maxLumiSection = \
+                                                         maxLumiSectionDict[run])
                 # merge it with every piece of lumi data for this run
                 for lumiDataPiece in runLumiData:
                     mergeXingLumi (lumiDataPiece, xingLumiDict)
@@ -759,7 +772,7 @@ def dumpOverview (delivered, recorded, hltpath = ''):
 
 
 def xingLuminosityForRun (dbsession, runnum, parameters, lumiXingDict = {},
-                          maxLumiSection = None):
+                          maxLumiSection = None, finecorrections=None):
     '''Given a run number and a minimum xing luminosity value,
     returns a dictionary (keyed by (run, lumi section)) where the
     value is a list of tuples of (xingID, xingLum).
@@ -768,7 +781,6 @@ def xingLuminosityForRun (dbsession, runnum, parameters, lumiXingDict = {},
 
     - If you want one dictionary for several runs, pass it in to
       "lumiXingDict"
-
 
     select 
     s.cmslsnum, d.bxlumivalue, d.bxlumierror, d.bxlumiquality, d.algoname from LUMIDETAIL d, LUMISUMMARY s where s.runnum = 133885 and d.algoname = 'OCC1' and s.lumisummary_id = d.lumisummary_id order by s.startorbit, s.cmslsnum
@@ -827,7 +839,11 @@ def xingLuminosityForRun (dbsession, runnum, parameters, lumiXingDict = {},
             numPrinted = 0
             xingLum = []
             for index, lum in enumerate (xingArray):
-                lum  *=  parameters.normFactor
+                mynorm=parameters.normFactor
+                if finecorrections:
+                    lum=lumiCorrections.applyfinecorrectionBX(lum,mynorm,finecorrections[0],finecorrections[1],finecorrections[2])
+                else:
+                    lum*=mynorm
                 if lum < parameters.xingMinLum:
                     continue
                 xingLum.append( (index, lum) )
@@ -1514,7 +1530,7 @@ def beamIntensityForRun(query,parameters,runnum):
         del bb2[:]
     return result
     
-def calibratedDetailForRunLimitresult(query,parameters,runnum,algoname='OCC1'):
+def calibratedDetailForRunLimitresult(query,parameters,runnum,algoname='OCC1',finecorrection=None):
     '''select 
     s.cmslsnum,d.bxlumivalue,d.bxlumierror,d.bxlumiquality,d.algoname from LUMIDETAIL d,LUMISUMMARY s where s.runnum=133885 and d.algoname='OCC1' and s.lumisummary_id=d.lumisummary_id order by s.startorbit,s.cmslsnum
     result={(startorbit,cmslsnum):[(index,lumivalue,lumierr),]}
@@ -1546,22 +1562,27 @@ def calibratedDetailForRunLimitresult(query,parameters,runnum,algoname='OCC1'):
         bxlumivalue=cursor.currentRow()['bxlumivalue'].data()
         bxlumierror=cursor.currentRow()['bxlumierror'].data()
         startorbit=cursor.currentRow()['startorbit'].data()
-        
         bxlumivalueArray=array.array('f')
         bxlumivalueArray.fromstring(bxlumivalue.readline())
         bxlumierrorArray=array.array('f')
         bxlumierrorArray.fromstring(bxlumierror.readline())
         xingLum=[]
-        #apply selection criteria
-        maxlumi=max(bxlumivalueArray)*parameters.normFactor
+        #apply selection criteria       
+        maxlumi=max(bxlumivalueArray)       
         for index,lum in enumerate(bxlumivalueArray):
-            lum *= parameters.normFactor
-            lumierror = bxlumierrorArray[index]*parameters.normFactor
+            lumierror = bxlumierrorArray[index]
             if lum<max(parameters.xingMinLum,maxlumi*0.2): 
                 continue
+            mynorm=parameters.normFactor
+            if finecorrection:
+                lum=lumiCorrections.applyfinecorrectionBX(lum,mynorm,finecorrection[0],finecorrection[1],finecorrection[2])
+                lumierror=lumiCorrections.applyfinecorrectionBX(lumierror,mynorm,finecorrection[0],finecorrection[1],finecorrection[2])
+            else:
+                lum*=mynorm
+                lumierror*=mynorm
             xingLum.append( (index,lum,lumierror) )
-            if len(xingLum)!=0:
-                result[(startorbit,cmslsnum)]=xingLum
+        if len(xingLum)!=0:
+            result[(startorbit,cmslsnum)]=xingLum
     return result
    
 def lumidetailByrunByAlgo(queryHandle,runnum,algoname='OCC1'):

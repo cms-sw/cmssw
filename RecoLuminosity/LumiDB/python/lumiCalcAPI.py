@@ -538,10 +538,14 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
                     #if cmslsnum==1:
                     #    print 'bxvalueArray ',bxvalueArray
                     for idx,bxval in enumerate(bxvalueArray):
-                        if bxval*perbunchnormval>xingMinLum:
+                        if finecorrections and finecorrections[run]:
+                            mybxval=lumiCorrection.applyfinecorrectionBX(bxval,perbunchnormval,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
+                        else:
+                            mybxval=bxval*perbunchnormval
+                        if mybxval>xingMinLum:
                             bxidxlist.append(idx)
-                            bxvaluelist.append(bxval*perbunchnormval)
-                            bxerrorlist.append(bxerrArray[idx]*perbunchnormval)
+                            bxvaluelist.append(mybxval)
+                            bxerrorlist.append(bxerrArray[idx]*perbunchnormval)#no correciton on errors
                     del bxvalueArray[:]
                     del bxerrArray[:]
                 bxdata=(bxidxlist,bxvaluelist,bxerrorlist)
