@@ -19,15 +19,11 @@
 
 class EgammaSCEnergyCorrectionAlgo {
 public:
-  // the Verbosity levels
-  enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 }; 
   
   // public member functions
   EgammaSCEnergyCorrectionAlgo(float noise, 
 			       reco::CaloCluster::AlgoId theAlgo,
-			       const edm::ParameterSet& pset, 
-			       VerbosityLevel verbosity = pERROR
-			       );
+			       const edm::ParameterSet& pset);
   ~EgammaSCEnergyCorrectionAlgo(){}
   
   // take a SuperCluster and return a corrected SuperCluster
@@ -40,12 +36,6 @@ public:
   // take a SuperCluster and return a crack-corrected SuperCluster
   reco::SuperCluster applyCrackCorrection(const reco::SuperCluster &cl,
 					  EcalClusterFunctionBaseClass* crackCorrectionFunction);
-
-  // function to set the verbosity level
-  void setVerbosity(VerbosityLevel verbosity)
-  {
-    verbosity_ = verbosity;
-  }
   
 private:
   
@@ -58,10 +48,7 @@ private:
   int nCrystalsGT2Sigma(reco::BasicCluster const & seed, EcalRecHitCollection const & rhc) const;
     
   float sigmaElectronicNoise_;
-    
-  //  the verbosity level
-  VerbosityLevel verbosity_;
-  
+      
   reco::CaloCluster::AlgoId theAlgo_;
   
 };

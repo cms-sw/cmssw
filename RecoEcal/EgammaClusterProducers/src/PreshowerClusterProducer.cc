@@ -71,13 +71,8 @@ PreshowerClusterProducer::PreshowerClusterProducer(const edm::ParameterSet& ps) 
     int preshSeededNst = ps.getParameter<int>("preshSeededNstrip");
   preshClustECut = ps.getParameter<double>("preshClusterEnergyCut");
 
-  // The debug level
-  std::string debugString = ps.getParameter<std::string>("debugLevel");
-  if      (debugString == "DEBUG")   debugL = PreshowerClusterAlgo::pDEBUG;
-  else if (debugString == "INFO")    debugL = PreshowerClusterAlgo::pINFO;
-  else                               debugL = PreshowerClusterAlgo::pERROR;
 
-  presh_algo = new PreshowerClusterAlgo(preshStripECut,preshClustECut,preshSeededNst,debugL);
+  presh_algo = new PreshowerClusterAlgo(preshStripECut,preshClustECut,preshSeededNst);
 
   nEvt_ = 0;  
 
@@ -118,17 +113,14 @@ void PreshowerClusterProducer::produce(edm::Event& evt, const edm::EventSetup& e
    // fetch the product (pSuperClusters)
    evt.getByLabel(endcapSClusterProducer_, pSuperClusters);   
    const reco::SuperClusterCollection* SClusts = pSuperClusters.product();
-   if ( debugL <= PreshowerClusterAlgo::pINFO ) std::cout <<"### Total # Endcap Superclusters: " << SClusts->size() << std::endl;
    
    // fetch the product (RecHits)
    evt.getByLabel( preshHitProducer_, pRecHits);
    // pointer to the object in the product
    const EcalRecHitCollection* rechits = pRecHits.product(); // EcalRecHitCollection hit_collection = *rhcHandle;
 
-LogTrace("EcalClusters") << "PreshowerClusterProducerInfo: ### Total # of preshower RecHits: "<< rechits->size();
-   if ( debugL == PreshowerClusterAlgo::pDEBUG ) std::cout << "PreshowerClusterProducerInfo: ### Total # of preshower RecHits: " 
-							   << rechits->size() << std::endl;
-
+   LogTrace("EcalClusters") << "PreshowerClusterProducerInfo: ### Total # of preshower RecHits: "<< rechits->size();
+   
   // make the map of rechits:
    std::map<DetId, EcalRecHit> rechits_map;
    EcalRecHitCollection::const_iterator it;
@@ -143,13 +135,10 @@ LogTrace("EcalClusters") << "PreshowerClusterProducerInfo: ### Total # of presho
    used_strips.clear();
    LogTrace("EcalClusters") << "PreshowerClusterProducerInfo: ### rechits_map of size " << rechits_map.size() <<" was created!";
    
-  if ( debugL <= PreshowerClusterAlgo::pINFO ) std::cout << "PreshowerClusterProducerInfo: ### rechits_map of size " 
-							 << rechits_map.size() <<" was created!" << std::endl;   
   
   reco::PreshowerClusterCollection clusters1, clusters2;   // output collection of corrected PCs
   reco::SuperClusterCollection new_SC; // output collection of corrected SCs
 
-  if ( debugL == PreshowerClusterAlgo::pDEBUG ) std::cout << " Making a cycle over Superclusters ..." << std::endl; 
   //make cycle over super clusters
   reco::SuperClusterCollection::const_iterator it_super;
   int isc = 0;
@@ -159,11 +148,9 @@ LogTrace("EcalClusters") << "PreshowerClusterProducerInfo: ### Total # of presho
        float deltaE=0;
        reco::CaloClusterPtrVector new_BC; 
        ++isc;
-LogTrace("EcalClusters")<< " superE = " << it_super->energy() << " superETA = " << it_super->eta() << " superPHI = " << it_super->phi() ;
-       if ( debugL <= PreshowerClusterAlgo::pINFO ) std::cout << " superE = " << it_super->energy() << " superETA = " << it_super->eta() << " superPHI = " << it_super->phi() << std::endl;
+       LogTrace("EcalClusters")<< " superE = " << it_super->energy() << " superETA = " << it_super->eta() << " superPHI = " << it_super->phi() ;
        
-       if ( debugL == PreshowerClusterAlgo::pINFO ) std::cout << " This SC contains " << it_super->clustersSize() << " BCs" << std::endl;
-
+       
        int nBC = 0;
        int condP1 = 1; // 0: dead channel; 1: active channel
        int condP2 = 1;
@@ -194,19 +181,6 @@ LogTrace("EcalClusters")<< " superE = " << it_super->energy() << " superETA = " 
 	       condP2 = 0;
 	   }
 	   
-	   if ( debugL <= PreshowerClusterAlgo::pINFO ) {
-	     if ( strip1 != ESDetId(0) && strip2 != ESDetId(0) ) {
-	//     LogTrace("EcalClusters") << " Intersected preshower strips are: ";
-	//     LogTrace("EcalClusters") << strip1 ;
-	//     LogTrace("EcalClusters") << strip2 ;
-	       std::cout << " Intersected preshower strips are: " << std::endl;
-	       std::cout << strip1 << std::endl;
-	       std::cout << strip2 << std::endl;
-	     } else if ( strip1 == ESDetId(0) )
-	       std::cout << " No intersected strip in plane 1 " << std::endl;
-	     else if ( strip2 == ESDetId(0) )
-	       std::cout << " No intersected strip in plane 2 " << std::endl;
-	   }        
 	   
 	   // Get a vector of ES clusters (found by the PreshSeeded algorithm) associated with a given EE basic cluster.           
 	   for (int i=0; i<preshNclust_; i++) {
@@ -230,15 +204,12 @@ LogTrace("EcalClusters")<< " superE = " << it_super->energy() << " superETA = " 
 	 nBC++;
        }  // end of cycle over BCs
        
-       LogTrace("EcalClusters") << " For SC #" << isc-1 << ", containing " << it_super->clustersSize() 
-							      << " basic clusters, PreshowerClusterAlgo made " 
-							      << clusters1.size() << " in X plane and " << clusters2.size() 
-							      << " in Y plane " << " preshower clusters " ;
-       
-       if ( debugL <= PreshowerClusterAlgo::pINFO ) std::cout << " For SC #" << isc-1 << ", containing " << it_super->clustersSize() 
-							      << " basic clusters, PreshowerClusterAlgo made " 
-							      << clusters1.size() << " in X plane and " << clusters2.size() 
-							      << " in Y plane " << " preshower clusters " << std::endl;
+       LogTrace("EcalClusters") << " For SC #" << isc-1 << ", containing " 
+			 << it_super->clustersSize() 			      
+			 << " basic clusters, PreshowerClusterAlgo made " 
+			 << clusters1.size() << " in X plane and " 
+			 << clusters2.size()       
+			 << " in Y plane " << " preshower clusters " ;
        
        // update energy of the SuperCluster    
        if(e1+e2 > 1.0e-10) {
@@ -256,7 +227,7 @@ LogTrace("EcalClusters")<< " superE = " << it_super->energy() << " superETA = " 
        float E = it_super->energy() + deltaE;
        
        LogTrace("EcalClusters") << " Creating corrected SC ";
-       if (debugL == PreshowerClusterAlgo::pDEBUG) std::cout << " Creating corrected SC " << std::endl;
+    
        reco::SuperCluster sc(E, it_super->position(), it_super->seed(), new_BC, deltaE);
        if (condP1 == 1 && condP2 == 1) sc.setPreshowerPlanesStatus(0);
        else if (condP1 == 1 && condP2 == 0) sc.setPreshowerPlanesStatus(1);
@@ -266,9 +237,7 @@ LogTrace("EcalClusters")<< " superE = " << it_super->energy() << " superETA = " 
        if (sc.energy()*sin(sc.position().theta())>etThresh_)
 	 new_SC.push_back(sc);
 	 LogTrace("EcalClusters") << " SuperClusters energies: new E = " << sc.energy() << " vs. old E =" << it_super->energy();
-       if (debugL <= PreshowerClusterAlgo::pINFO) std::cout << " SuperClusters energies: new E = " << sc.energy() 
-                                        << " vs. old E =" << it_super->energy() << std::endl;
-
+      
    } // end of cycle over SCs
 
    // copy the preshower clusters into collections and put in the Event:
@@ -278,13 +247,11 @@ LogTrace("EcalClusters")<< " superE = " << it_super->energy() << " superETA = " 
    evt.put( clusters_p1, preshClusterCollectionX_ );
    evt.put( clusters_p2, preshClusterCollectionY_ );
    LogTrace("EcalClusters") << "Preshower clusters added to the event" ;
-   if ( debugL <= PreshowerClusterAlgo::pINFO ) std::cout << "Preshower clusters added to the event" << std::endl;
 
    // put collection of corrected super clusters to the event
    superclusters_p->assign(new_SC.begin(), new_SC.end());
    evt.put(superclusters_p, assocSClusterCollection_);
    LogTrace("EcalClusters") << "Corrected SClusters added to the event" ;
-   if ( debugL <= PreshowerClusterAlgo::pINFO ) std::cout << "Corrected SClusters added to the event" << std::endl;
 
    if (topology_p)
      delete topology_p;

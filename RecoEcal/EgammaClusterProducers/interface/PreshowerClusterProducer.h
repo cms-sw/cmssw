@@ -68,7 +68,6 @@ class PreshowerClusterProducer : public edm::EDProducer {
    // The set of used DetID's
   //std::set<DetId> used_strips;
 
-  PreshowerClusterAlgo::DebugLevel debugL;  
 
 };
 #endif

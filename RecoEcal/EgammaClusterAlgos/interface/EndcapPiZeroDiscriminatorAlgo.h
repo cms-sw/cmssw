@@ -17,16 +17,14 @@ class EndcapPiZeroDiscriminatorAlgo {
 
  public:
 
-   enum DebugLevel_pi0 { pDEBUG = 0, pINFO = 1, pERROR = 2 };
-
    typedef std::map<DetId, EcalRecHit> RecHitsMap;
 
    EndcapPiZeroDiscriminatorAlgo() :
-   preshStripEnergyCut_(0.), preshSeededNstr_(5), debugLevel_(pINFO), pathToFiles_("")
+     preshStripEnergyCut_(0.), preshSeededNstr_(5), pathToFiles_("")
    {}
 
-   EndcapPiZeroDiscriminatorAlgo(double stripEnergyCut, int nStripCut, const std::string& path,
-                                 DebugLevel_pi0 debugLevel );
+   EndcapPiZeroDiscriminatorAlgo(double stripEnergyCut, int nStripCut, 
+				 const std::string& path);
 
    ~EndcapPiZeroDiscriminatorAlgo() {};
 

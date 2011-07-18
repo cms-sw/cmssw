@@ -1,9 +1,9 @@
 #ifndef RecoEcal_EgammaClusterProducers_PreshowerClusterShapeProducer_h
 #define RecoEcal_EgammaClusterProducers_PreshowerClusterShapeProducer_h
 
-// $Author: akyriaki $
-// $Id: PreshowerClusterShapeProducer.h,v 1.2 2007/12/07 09:35:52 akyriaki Exp $
-// $Date: 2007/12/07 09:35:52 $
+// $Author: dlevans $
+// $Id: PreshowerClusterShapeProducer.h,v 1.3 2008/03/27 18:08:44 dlevans Exp $
+// $Date: 2008/03/27 18:08:44 $
 
 #include <memory>
 
@@ -50,7 +50,6 @@ class PreshowerClusterShapeProducer : public edm::EDProducer {
   
   EndcapPiZeroDiscriminatorAlgo * presh_pi0_algo; // algorithm doing the real work
 
-  EndcapPiZeroDiscriminatorAlgo::DebugLevel_pi0 debugL_pi0;
 };
 #endif
 

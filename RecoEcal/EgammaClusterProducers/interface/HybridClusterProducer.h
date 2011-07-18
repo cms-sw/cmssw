@@ -28,7 +28,6 @@ class HybridClusterProducer : public edm::EDProducer
       virtual void produce(edm::Event&, const edm::EventSetup&);
 
    private:
-      int nMaxPrintout_; // max # of printouts
       int nEvt_;         // internal counter of events
  
       std::string basicclusterCollection_;
@@ -36,12 +35,11 @@ class HybridClusterProducer : public edm::EDProducer
       std::string hitproducer_;
       std::string hitcollection_;
 
-      HybridClusterAlgo::DebugLevel debugL;
 
       HybridClusterAlgo * hybrid_p; // clustering algorithm
       PositionCalc posCalculator_; // position calculation algorithm
 
-      bool counterExceeded() const { return ((nEvt_ > nMaxPrintout_) || (nMaxPrintout_ < 0));}
+
 };
 
 

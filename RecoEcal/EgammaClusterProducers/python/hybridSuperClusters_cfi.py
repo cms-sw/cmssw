@@ -21,7 +21,6 @@ cleanedHybridSuperClusters = cms.EDProducer("HybridClusterProducer",
     # phi road parameters
     step = cms.int32(17),
     eThreshB = cms.double(0.1),
-    debugLevel = cms.string('INFO'),
     dynamicEThresh = cms.bool(False),
     # domino thresholds
     ethresh = cms.double(0.1),

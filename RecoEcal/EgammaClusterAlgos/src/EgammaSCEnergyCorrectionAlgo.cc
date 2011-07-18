@@ -1,22 +1,20 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.44 2011/02/16 10:29:04 argiro Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.45 2011/02/17 22:47:03 argiro Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
 #include "RecoEcal/EgammaCoreTools/interface/SuperClusterShapeAlgo.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <string>
 #include <vector>
 
 EgammaSCEnergyCorrectionAlgo::EgammaSCEnergyCorrectionAlgo(float noise, 
 							   reco::CaloCluster::AlgoId theAlgo,
-							   const edm::ParameterSet& pset,
-							   EgammaSCEnergyCorrectionAlgo::VerbosityLevel verbosity
-							   )
+							   const edm::ParameterSet& pset)
 
 {
   sigmaElectronicNoise_ = noise;
-  verbosity_ = verbosity;  
 }
 
 
@@ -28,51 +26,43 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
 	
   // A little bit of trivial info to be sure all is well
 
-  if (verbosity_ <= pINFO)
+  
   {
-    std::cout << "   EgammaSCEnergyCorrectionAlgo::applyCorrection" << std::endl;
-    std::cout << "   SC has energy " << cl.energy() << std::endl;
-    std::cout << "   Will correct now.... " << std::endl;
+    LogTrace("EgammaSCEnergyCorrectionAlgo")<< "::applyCorrection" << std::endl;
+    LogTrace()<< "   SC has energy " << cl.energy() << std::endl;
+    LogTrace()<< "   Will correct now.... " << std::endl;
   }
 
   // Get the seed cluster  	
   reco::CaloClusterPtr seedC = cl.seed();
 
-  if (verbosity_ <= pINFO)
-  {
-    std::cout << "   Seed cluster energy... " << seedC->energy() << std::endl;
-  }
+  
+  LogTrace("EgammaSCEnergyCorrectionAlgo")<< "   Seed cluster energy... " << seedC->energy() << std::endl;
+  
 
 
   // Find the algorithm used to construct the basic clusters making up the supercluster	
-  if (verbosity_ <= pINFO) 
-  {
-    std::cout << "   The seed cluster used algo " << theAlgo;  
-  }
+  LogTrace("EgammaSCEnergyCorrectionAlgo")<< "   The seed cluster used algo " << theAlgo;  
+  
  
   // Find the detector region of the supercluster
   // where is the seed cluster?
   std::vector<std::pair<DetId, float> > seedHits = seedC->hitsAndFractions();  
   EcalSubdetector theBase = EcalSubdetector(seedHits.at(0).first.subdetId());
 
-  if (verbosity_ <= pINFO)
-  {
-    std::cout << "   seed cluster location == " << theBase << std::endl;
-  }
-
+  LogTrace("EgammaSCEnergyCorrectionAlgo")<< "   seed cluster location == " << theBase << std::endl;
+ 
   // Get number of crystals 2sigma above noise in seed basiccluster      
   int nCryGT2Sigma = nCrystalsGT2Sigma(*seedC,rhc);
-  if (verbosity_ <= pINFO)
-  {
-    std::cout << "   nCryGT2Sigma " << nCryGT2Sigma << std::endl;
-  }
+    
+  LogTrace("EgammaSCEnergyCorrectionAlgo")<< "   nCryGT2Sigma " << nCryGT2Sigma << std::endl;
+  
 
   // Supercluster enery - seed basiccluster energy
   float bremsEnergy = cl.energy() - seedC->energy();
-  if (verbosity_ <= pINFO)
-  {
-    std::cout << "   bremsEnergy " << bremsEnergy << std::endl;
-  }
+   
+  LogTrace("EgammaSCEnergyCorrectionAlgo")<< "   bremsEnergy " << bremsEnergy << std::endl;
+  
 
   //Create the pointer ot class SuperClusterShapeAlgo
   //which calculates phiWidth and etaWidth
@@ -106,11 +96,9 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
   } 
 
   // Create a new supercluster with the corrected energy 
-  if (verbosity_ <= pINFO)
-    {
-      std::cout << "   UNCORRECTED SC has energy... " << cl.energy() << std::endl;
-      std::cout << "   CORRECTED SC has energy... " << newEnergy << std::endl;
-    }
+
+  LogTrace("EgammaSCEnergyCorrectionAlgo")<< "   UNCORRECTED SC has energy... " << cl.energy() << std::endl;
+  LogTrace("EgammaSCEnergyCorrectionAlgo")<< "   CORRECTED SC has energy... " << newEnergy << std::endl;
 
   reco::SuperCluster corrCl =cl;
   
@@ -156,10 +144,9 @@ float EgammaSCEnergyCorrectionAlgo::fNCrystals(int nCry, reco::CaloCluster::Algo
   }
   
   else if((theBase == EcalEndcap) && (theAlgo == reco::CaloCluster::hybrid)) {
-    if (verbosity_ <= pERROR)
-      {
-	std::cout << "ERROR! HybridEFRYsc called" << std::endl;
-      } 
+     
+    LogTrace("EgammaSCEnergyCorrectionAlgo") << "ERROR! HybridEFRYsc called" << std::endl;
+      
     return 1.f;
   }
   
@@ -182,10 +169,8 @@ float EgammaSCEnergyCorrectionAlgo::fNCrystals(int nCry, reco::CaloCluster::Algo
   }
   
   else {
-    if (verbosity_ <= pINFO)
-      {
-        std::cout << "trying to correct unknown cluster!!!" << std::endl;
-      }
+    
+    LogTrace("EgammaSCEnergyCorrectionAlgo")<< "trying to correct unknown cluster!!!" << std::endl;
     return 1.f;
   }
   result = p0 + x*(p1 + x*(p2 + x*(p3 + x*p4)));
@@ -211,13 +196,11 @@ int EgammaSCEnergyCorrectionAlgo::nCrystalsGT2Sigma(reco::BasicCluster const & s
   
   std::vector<std::pair<DetId,float > > const & hits = seed.hitsAndFractions();
 
-  if (verbosity_ <= pINFO)
-  {
-    std::cout << "      EgammaSCEnergyCorrectionAlgo::nCrystalsGT2Sigma" << std::endl;
-    std::cout << "      Will calculate number of crystals above 2sigma noise" << std::endl;
-    std::cout << "      sigmaElectronicNoise = " << sigmaElectronicNoise_ << std::endl;
-    std::cout << "      There are " << hits.size() << " recHits" << std::endl;
-  }
+
+  LogTrace("EgammaSCEnergyCorrectionAlgo") << "      EgammaSCEnergyCorrectionAlgo::nCrystalsGT2Sigma" << std::endl;
+  LogTrace("EgammaSCEnergyCorrectionAlgo") << "      Will calculate number of crystals above 2sigma noise" << std::endl;
+  LogTrace("EgammaSCEnergyCorrectionAlgo") << "      sigmaElectronicNoise = " << sigmaElectronicNoise_ << std::endl;
+  LogTrace("EgammaSCEnergyCorrectionAlgo") << "      There are " << hits.size() << " recHits" << std::endl;
 
   int nCry = 0;
   std::vector<std::pair<DetId,float > >::const_iterator hit;
@@ -228,10 +211,8 @@ int EgammaSCEnergyCorrectionAlgo::nCrystalsGT2Sigma(reco::BasicCluster const & s
       if((*aHit).energy()>2.f*sigmaElectronicNoise_) nCry++;
     }
 
-  if (verbosity_ <= pINFO)
-  {
-    std::cout << "         " << nCry << " of these above 2sigma noise" << std::endl;  
-  }
+  LogTrace("EgammaSCEnergyCorrectionAlgo") << "         " << nCry << " of these above 2sigma noise" << std::endl;  
+
  
   return nCry;
 }

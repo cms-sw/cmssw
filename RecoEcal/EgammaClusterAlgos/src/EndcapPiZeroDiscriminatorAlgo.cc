@@ -10,9 +10,8 @@
 
 using namespace std;
 
-EndcapPiZeroDiscriminatorAlgo::EndcapPiZeroDiscriminatorAlgo(double stripEnergyCut, int nStripCut, const string& path,
-                                 DebugLevel_pi0 debugLevel = pINFO ) :
-   preshStripEnergyCut_(stripEnergyCut),  preshSeededNstr_(nStripCut), debugLevel_(debugLevel), pathToFiles_(path)
+EndcapPiZeroDiscriminatorAlgo::EndcapPiZeroDiscriminatorAlgo(double stripEnergyCut, int nStripCut, const string& path) :
+   preshStripEnergyCut_(stripEnergyCut),  preshSeededNstr_(nStripCut), pathToFiles_(path)
 {   
    
      // Read all Weight files
@@ -78,12 +77,8 @@ vector<float> EndcapPiZeroDiscriminatorAlgo::findPreshVector(ESDetId strip,  Rec
 
   int plane = strip.plane();
 
-LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: findPreshVectors: Preshower Seeded Algorithm - looking for clusters" << "n"<< "findPreshVectors: Preshower is intersected at strip " << strip.strip() << ", at plane " << plane ;
+  LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: findPreshVectors: Preshower Seeded Algorithm - looking for clusters" << "n"<< "findPreshVectors: Preshower is intersected at strip " << strip.strip() << ", at plane " << plane ;
 
-  if ( debugLevel_ <= pDEBUG ) {
-    cout << "EndcapPiZeroDiscriminatorAlgo: findPreshVectors: Preshower Seeded Algorithm - looking for clusters" << "n"
-              << "findPreshVectors: Preshower is intersected at strip " << strip.strip() << ", at plane " << plane << endl;
-  }
 
   if ( strip == ESDetId(0) ) { //works in case of no intersected strip found
     for(int i=0;i<11;i++) {
@@ -101,8 +96,7 @@ LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: findPreshVectors: Pr
   findPi0Road(strip, navigator, plane, road_2d);
   
   LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo:findPreshVectors: Total number of strips in the central road: " << road_2d.size() ;
-  if ( debugLevel_ <= pDEBUG ) cout << "EndcapPiZeroDiscriminatorAlgo:findPreshVectors: Total number of strips in the central road: " << road_2d.size() << endl;
-
+  
   // Find the energy of each strip
   RecHitsMap::iterator final_strip =  rechits_map->end();
   // very dangerous, added a protection on the rechits_map->size()
@@ -113,15 +107,15 @@ LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: findPreshVectors: Pr
   float E = 0;
   vector<ESDetId>::iterator itID;
   for (itID = road_2d.begin(); itID != road_2d.end(); itID++) {
-  LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: findPreshVectors: ID = " << *itID ;
-    if ( debugLevel_ == pDEBUG ) cout << "EndcapPiZeroDiscriminatorAlgo: findPreshVectors: ID = " << *itID << endl;
+    LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: findPreshVectors: ID = " << *itID ;
+  
     RecHitsMap::iterator strip_it = rechits_map->find(*itID);
     if(goodPi0Strip(strip_it,last_stripID)) { // continue if strip not found in rechit_map
       E = strip_it->second.energy();
     } else  E = 0;
     vout_stripE.push_back(E);
     LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: findPreshVectors: E = " << E ;
-    if ( debugLevel_ == pDEBUG ) cout << "EndcapPiZeroDiscriminatorAlgo: findPreshVectors: E = " << E <<  endl;
+    
   }
  
   // ***ML beg***
@@ -149,12 +143,7 @@ bool EndcapPiZeroDiscriminatorAlgo::goodPi0Strip(RecHitsMap::iterator candidate_
 {
   RecHitsMap::iterator candidate_tmp = candidate_it;
   candidate_tmp--;
-  if ( debugLevel_ == pDEBUG ) {
-    if (candidate_tmp->first == lastID )
-        cout << "EndcapPiZeroDiscriminatorAlgo: goodPi0Strip No such a strip in rechits_map " << endl;
-    if (candidate_it->second.energy() <= preshStripEnergyCut_)
-        cout << "EndcapPiZeroDiscriminatorAlgo: goodPi0Strip Strip energy " << candidate_it->second.energy() <<" is below threshold " << endl;
-  }
+
   if (candidate_tmp->first == lastID )
   LogTrace("EcalClusters") <<"EndcapPiZeroDiscriminatorAlgo: goodPi0Strip No such a strip in rechits_map " ;
   if (candidate_it->second.energy() <= preshStripEnergyCut_)
@@ -176,16 +165,16 @@ void EndcapPiZeroDiscriminatorAlgo::findPi0Road(ESDetId strip, EcalPreshowerNavi
   if ( strip == ESDetId(0) ) return;
    ESDetId next;
    theESNav.setHome(strip);
-LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: findPi0Road: starts from strip " << strip ;
-   if ( debugLevel_ <= pDEBUG ) cout << "EndcapPiZeroDiscriminatorAlgo: findPi0Road: starts from strip " << strip << endl;
+   LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: findPi0Road: starts from strip " << strip ;
+   
    if (plane == 1) {
      // east road
      int n_east= 0;
      LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: findPi0Road: Go to the East " ;
-     if ( debugLevel_ == pDEBUG ) cout << "EndcapPiZeroDiscriminatorAlgo: findPi0Road: Go to the East " <<  endl;
+   
      while ( ((next=theESNav.east()) != ESDetId(0) && next != strip) ) {
-     LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: findPi0Road: East: " << n_east << " current strip is " << next ;
-        if ( debugLevel_ == pDEBUG ) cout << "EndcapPiZeroDiscriminatorAlgo: findPi0Road: East: " << n_east << " current strip is " << next << endl;
+        LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: findPi0Road: East: " << n_east << " current strip is " << next ;
+        
         vout.push_back(next);
         ++n_east;
         if (n_east == preshSeededNstr_) break;
@@ -193,26 +182,26 @@ LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: findPi0Road: starts 
      // west road
      int n_west= 0;
      LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: findPi0Road: Go to the West " ;
-     if ( debugLevel_ == pDEBUG ) cout << "EndcapPiZeroDiscriminatorAlgo: findPi0Road: Go to the West " <<  endl;
+     
      theESNav.home();
      while ( ((next=theESNav.west()) != ESDetId(0) && next != strip )) {
-     LogTrace("EcalClusters") << "findPi0Road: West: " << n_west << " current strip is " << next ;
-        if ( debugLevel_ == pDEBUG ) cout << "findPi0Road: West: " << n_west << " current strip is " << next << endl;
+        LogTrace("EcalClusters") << "findPi0Road: West: " << n_west << " current strip is " << next ;
+        
         vout.push_back(next);
         ++n_west;
         if (n_west == preshSeededNstr_) break;
      }
      LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: findPi0Road: Total number of strips found in the road at 1-st plane is " << n_east+n_west ;
-     if ( debugLevel_ == pDEBUG ) cout << "EndcapPiZeroDiscriminatorAlgo: findPi0Road: Total number of strips found in the road at 1-st plane is " << n_east+n_west << endl;
+     
   }
   else if (plane == 2) {
     // north road
     int n_north= 0;
     LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: findPi0Road: Go to the North " ;
-    if ( debugLevel_ == pDEBUG ) cout << "EndcapPiZeroDiscriminatorAlgo: findPi0Road: Go to the North " <<  endl;
+    
     while ( ((next=theESNav.north()) != ESDetId(0) && next != strip) ) {
-    LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: findPi0Road: North: " << n_north << " current strip is " << next;
-       if ( debugLevel_ == pDEBUG ) cout << "EndcapPiZeroDiscriminatorAlgo: findPi0Road: North: " << n_north << " current strip is " << next << endl;
+       LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: findPi0Road: North: " << n_north << " current strip is " << next;
+       
        vout.push_back(next);
        ++n_north;
        if (n_north == preshSeededNstr_) break;
@@ -220,21 +209,21 @@ LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: findPi0Road: starts 
     // south road
     int n_south= 0;
     LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: findPi0Road: Go to the South " ;
-    if ( debugLevel_ == pDEBUG ) cout << "EndcapPiZeroDiscriminatorAlgo: findPi0Road: Go to the South " <<  endl;
+    
     theESNav.home();
     while ( ((next=theESNav.south()) != ESDetId(0) && next != strip) ) {
-    LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: findPi0Road: South: " << n_south << " current strip is " << next ;
-       if ( debugLevel_ == pDEBUG ) cout << "EndcapPiZeroDiscriminatorAlgo: findPi0Road: South: " << n_south << " current strip is " << next << endl;
+       LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: findPi0Road: South: " << n_south << " current strip is " << next ;
+       
        vout.push_back(next);
        ++n_south;
        if (n_south == preshSeededNstr_) break;
     }
     LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: findPi0Road: Total number of strips found in the road at 2-nd plane is " << n_south+n_north ;
-    if ( debugLevel_ == pDEBUG ) cout << "EndcapPiZeroDiscriminatorAlgo: findPi0Road: Total number of strips found in the road at 2-nd plane is " << n_south+n_north << endl;
+    
   }
   else {
-  LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: findPi0Road: Wrong plane number, null cluster will be returned! " ;
-    if ( debugLevel_ == pDEBUG ) cout << "EndcapPiZeroDiscriminatorAlgo: findPi0Road: Wrong plane number, null cluster will be returned! " << endl;
+    LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: findPi0Road: Wrong plane number, null cluster will be returned! " ;
+    
   } // end of if
 
   theESNav.home();
@@ -258,7 +247,7 @@ void EndcapPiZeroDiscriminatorAlgo::readWeightFile(const char *Weights_file){
 //*******************************************************
   weights = fopen(Weights_file, "r");
   LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: I opeded the Weights file  = " << Weights_file ;
-  if ( debugLevel_ <= pDEBUG ) cout << "EndcapPiZeroDiscriminatorAlgo: I opeded the Weights file  = " << Weights_file << endl;
+  
 
   while( !feof(weights) ){
 	fscanf(weights, "%s", line);
@@ -299,7 +288,7 @@ void EndcapPiZeroDiscriminatorAlgo::readWeightFile(const char *Weights_file){
 
 	    }
         }
-          else{cout << "EndcapPiZeroDiscriminatorAlgo: Not a Net file of Corrupted Net file " << endl;
+	else{edm::LogError("EEPi0Discrim")<< "EndcapPiZeroDiscriminatorAlgo: Not a Net file of Corrupted Net file " << endl;
         }
    }
    fclose(weights);
@@ -340,8 +329,8 @@ float EndcapPiZeroDiscriminatorAlgo::getNNoutput(int sel_wfile)
 	        OUT[o2] += O_Thresh_all[barrelstart*Nfiles_EE*EE_Outdim + o2 + sel_wfile*Outdim]; 
   }
   nnout = Activation_fun(OUT[0]);
-LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: getNNoutput :: -> NNout = " <<  nnout ;
-  if ( debugLevel_ <= pDEBUG ) cout << "EndcapPiZeroDiscriminatorAlgo: getNNoutput :: -> NNout = " <<  nnout << endl;
+  LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: getNNoutput :: -> NNout = " <<  nnout ;
+  
 
   delete I_SUM;
   delete OUT;
@@ -371,68 +360,42 @@ bool EndcapPiZeroDiscriminatorAlgo::calculateNNInputVariables(vector<float>& vph
    input_var = new float[EE_Indim];
 
    bool valid_NNinput = true;
-   
-   if ( debugLevel_ <= pDEBUG ) {
-     cout << "EndcapPiZeroDiscriminatorAlgo: Energies of the Preshower Strips in X plane = ( "; 
-     for(int i = 0; i<11;i++) {
-        cout << " " << vph1[i];
-     }
-     cout << ")" << endl;
-     cout << "EndcapPiZeroDiscriminatorAlgo: Energies of the Preshower Strips in Y plane = ( "; 
-     for(int i = 0; i<11;i++) {
-        cout << " " << vph2[i];
-     }
-     cout << ")" << endl;
-   }
-   
+
+   /*   
    for(int i = 0; i<11;i++) {
    LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: Energies of the Preshower Strips in X plane = " << vph1[i] ;
    }
    
    for(int i = 0; i<11;i++) {
    LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: Energies of the Preshower Strips in Y plane = " << vph2[i] ;
-  } 
-   
+   } 
+   */
+
    // check if all Preshower info is availabla - If NOT use remaning info
    for(int k = 0; k<11; k++) {
       if(vph1[k] < 0 ) {
       
       LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: Oops!!! Preshower Info for strip : " << k << " of X plane Do not exists" ;
-         if ( debugLevel_ <= pDEBUG ) { 
-	   cout  << "EndcapPiZeroDiscriminatorAlgo: Oops!!! Preshower Info for strip : " << k << " of X plane Do not exists" << endl; 
-	 }  
+     
          vph1[k] = 0.0;
       } 	 
       if(vph2[k] < 0 ) { 
-   LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: Oops!!! Preshower Info for strip : " << k << " of Y plane Do not exists" ;   
-        if ( debugLevel_ <= pDEBUG ) { 
-	  cout  << "EndcapPiZeroDiscriminatorAlgo: Oops!!! Preshower Info for strip : " << k << " of Y plane Do not exists" << endl;
-        }
+	LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: Oops!!! Preshower Info for strip : " << k << " of Y plane Do not exists" ;   
+        
         vph2[k] = 0.0;
       }
    }   
-   if ( debugLevel_ <= pDEBUG ) {
-     cout << "EndcapPiZeroDiscriminatorAlgo: After: Energies of the Preshower Strips in X plane = ( "; 
-     for(int i = 0; i<11;i++) {
-        cout << " " << vph1[i];
-     }
-     cout << ")" << endl;
-     cout << "EndcapPiZeroDiscriminatorAlgo: After: Energies of the Preshower Strips in Y plane = ( "; 
-     for(int i = 0; i<11;i++) {
-        cout << " " << vph2[i];
-     }
-     cout << ")" << endl;
-   }
-   
+
+   /*
    for(int i = 0; i<11;i++) {  
-LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: After: Energies of the Preshower Strips in X plane = " << vph1[i] ;
-}
+     LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: After: Energies of the Preshower Strips in X plane = " << vph1[i] ;
+   }
 
- for(int i = 0; i<11;i++) {
+   for(int i = 0; i<11;i++) {
  
-LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: After: Energies of the Preshower Strips in Y plane = " << vph2[i] ;
-
-}
+     LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: After: Energies of the Preshower Strips in Y plane = " << vph2[i] ;
+   }
+   */
 
 
 // FIRST : Produce the 22 NN variables related with the Preshower 
@@ -492,15 +455,10 @@ LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: After: Energies of t
    input_var[23] = pS9_max/ECAL_norm_factor;
    input_var[24] = pS25_max/ECAL_norm_factor;
 
-LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: S1/ECAL_norm_factor = " << input_var[22];
-LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: S9/ECAL_norm_factor = " << input_var[23];
-LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: S25/ECAL_norm_factor = " << input_var[24] ;
+   LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: S1/ECAL_norm_factor = " << input_var[22];
+   LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: S9/ECAL_norm_factor = " << input_var[23];
+   LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: S25/ECAL_norm_factor = " << input_var[24] ;
 
-   if ( debugLevel_ <= pDEBUG ) {
-     cout << "EndcapPiZeroDiscriminatorAlgo: S1/ECAL_norm_factor = " << input_var[22] << endl;
-     cout << "EndcapPiZeroDiscriminatorAlgo: S9/ECAL_norm_factor = " << input_var[23] << endl;
-     cout << "EndcapPiZeroDiscriminatorAlgo: S25/ECAL_norm_factor = " << input_var[24] << endl;
-   }
    for(int i=0;i<EE_Indim;i++){
      if(input_var[i] > 1.0e+00) {
        valid_NNinput = false;
@@ -510,8 +468,7 @@ LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: S25/ECAL_norm_factor
    
    LogTrace("EcalClusters") << " valid_NNinput = " << valid_NNinput ;
    
-   if ( debugLevel_ <= pDEBUG ) {
-     cout << " valid_NNinput = " << valid_NNinput << endl; }
+
    return valid_NNinput;
 }
 
@@ -607,15 +564,14 @@ float EndcapPiZeroDiscriminatorAlgo::GetNNOutput(float EE_Et)
     float nnout = -1;
 // Print the  NN input variables that are related to the Preshower + ECAL
 // ------------------------------------------------------------------------
-   LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo::GetNNoutput :nn_invar_presh = " ;
-     if ( debugLevel_ <= pDEBUG )cout << "EndcapPiZeroDiscriminatorAlgo::GetNNoutput :nn_invar_presh = " ;
+    LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo::GetNNoutput :nn_invar_presh = " ;
+    
      for(int k1=0;k1<Indim;k1++) {
      LogTrace("EcalClusters") << input_var[k1] << " " ;
-        if ( debugLevel_ <= pDEBUG )cout << input_var[k1] << " " ;
+    
      }
      LogTrace("EcalClusters") << " " ;
-     if ( debugLevel_ <= pDEBUG )cout << endl;
-
+    
      // select the appropriate Weigth file
      int sel_wfile;
      if(EE_Et<25.0)                     {sel_wfile = 0;}
@@ -624,17 +580,14 @@ float EndcapPiZeroDiscriminatorAlgo::GetNNOutput(float EE_Et)
      else if(EE_Et>=45.0 && EE_Et<55.0) {sel_wfile = 3;}
      else                               {sel_wfile = 4;} 
 
-LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: Et_SC = " << EE_Et << " and I select Weight file Number = " << sel_wfile ;
+     LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: Et_SC = " << EE_Et << " and I select Weight file Number = " << sel_wfile ;
 
-     if ( debugLevel_ <= pDEBUG ) {
-         cout << "EndcapPiZeroDiscriminatorAlgo: Et_SC = " << EE_Et << " and I select Weight file Number = " << sel_wfile << endl; 
-     }
-
+     
      nnout = getNNoutput(sel_wfile); // calculate the nnoutput for the given ECAL object
      
-    LogTrace("EcalClusters") <<  "EndcapPiZeroDiscriminatorAlgo: ===================> GetNNOutput : NNout = " << nnout ;
+     LogTrace("EcalClusters") <<  "EndcapPiZeroDiscriminatorAlgo: ===================> GetNNOutput : NNout = " << nnout ;
      
-     if ( debugLevel_ <= pDEBUG ) cout << "EndcapPiZeroDiscriminatorAlgo: ===================> GetNNOutput : NNout = " << nnout <<  endl;
+    
    return nnout;
 }
 
@@ -652,16 +605,14 @@ float EndcapPiZeroDiscriminatorAlgo::GetBarrelNNOutput(float EB_Et)
     float nnout = -1;
 // Print the  NN input variables that are related to the ECAL Barrel
 // ------------------------------------------------------------------------
-LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo::GetBarrelNNoutput :nn_invar_presh = " ;
+    LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo::GetBarrelNNoutput :nn_invar_presh = " ;
 
-     if ( debugLevel_ <= pDEBUG )cout << "EndcapPiZeroDiscriminatorAlgo::GetBarrelNNoutput :nn_invar_presh = " ;
-     for(int k1=0;k1<Indim;k1++) {
-     LogTrace("EcalClusters") << input_var[k1] << " " ;
-        if ( debugLevel_ <= pDEBUG )cout << input_var[k1] << " " ;
-     }
-          LogTrace("EcalClusters") << " " ;
-     if ( debugLevel_ <= pDEBUG )cout << endl;
-
+    for(int k1=0;k1<Indim;k1++) {
+      LogTrace("EcalClusters") << input_var[k1] << " " ;
+      
+    }
+     LogTrace("EcalClusters") << " " ;
+     
      // select the appropriate Weigth file
      int sel_wfile;
      if(EB_Et<25.0)                     {sel_wfile = 0;}
@@ -669,16 +620,12 @@ LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo::GetBarrelNNoutput :n
      else if(EB_Et>=35.0 && EB_Et<45.0) {sel_wfile = 2;}
      else if(EB_Et>=45.0 && EB_Et<55.0) {sel_wfile = 3;}
      else                               {sel_wfile = 4;}
-LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: E_SC = " << EB_Et << " and I select Weight file Number = " << sel_wfile ;
-     if ( debugLevel_ <= pDEBUG ) {
-         cout << "EndcapPiZeroDiscriminatorAlgo: E_SC = " << EB_Et << " and I select Weight file Number = " << sel_wfile << endl;
-     }
-
+     LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: E_SC = " << EB_Et << " and I select Weight file Number = " << sel_wfile ;
+    
      nnout = getNNoutput(sel_wfile); // calculate the nnoutput for the given ECAL object
      
      LogTrace("EcalClusters") << "EndcapPiZeroDiscriminatorAlgo: ===================> GetNNOutput : NNout = " << nnout ;
-     if ( debugLevel_ <= pDEBUG ) cout << "EndcapPiZeroDiscriminatorAlgo: ===================> GetNNOutput : NNout = " << nnout <<  endl;
-
+    
    return nnout;
 }
 

@@ -2,6 +2,7 @@
 #include "RecoCaloTools/Navigation/interface/EcalBarrelNavigator.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <map>
 #include <vector>
@@ -18,7 +19,6 @@ HybridClusterAlgo::HybridClusterAlgo(double eb_str,
 				     double ewing,
 				     std::vector<int> v_chstatus,
 				     const PositionCalc& posCalculator,
-				     DebugLevel debugLevel,
 				     bool dynamicEThres,
 				     double eThresA,
 				     double eThresB,
@@ -29,7 +29,7 @@ HybridClusterAlgo::HybridClusterAlgo(double eb_str,
   eb_st(eb_str), phiSteps_(step), 
   eThres_(ethres), eThresA_(eThresA), eThresB_(eThresB),
   Eseed(eseed),  Ewing(ewing), 
-  dynamicEThres_(dynamicEThres), debugLevel_(debugLevel),
+  dynamicEThres_(dynamicEThres),
   v_chstatus_(v_chstatus), v_severitylevel_(severityToExclude),
   //severityRecHitThreshold_(severityRecHitThreshold),
   //severitySpikeThreshold_(severitySpikeThreshold),
@@ -39,11 +39,7 @@ HybridClusterAlgo::HybridClusterAlgo(double eb_str,
 {
 
   dynamicPhiRoad_ = false;
-// LogTrace("EcalClusters") << "dynamicEThres: " << dynamicEThres_ << " : A,B " << eThresA_ << ", " << eThresB_;
-  if ( debugLevel_ == pDEBUG ) {
-    //std::cout << "dynamicEThres: " << dynamicEThres_ 
-    //          << " : A,B " << eThresA_ << ", " << eThresB_ << std::endl;
-  }
+  LogTrace("EcalClusters") << "dynamicEThres: " << dynamicEThres_ << " : A,B " << eThresA_ << ", " << eThresB_;
   
   //if (dynamicPhiRoad_) phiRoadAlgo_ = new BremRecoveryPhiRoadAlgo(bremRecoveryPset);
   posCalculator_ = posCalculator;
@@ -76,15 +72,9 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
   //Pass in a pointer to the collection.
   recHits_ = recColl;
   
-LogTrace("EcalClusters") << "Cleared vectors, starting clusterization..." ;
-LogTrace("EcalClusters") << " Purple monkey aardvark." ;
+  LogTrace("EcalClusters") << "Cleared vectors, starting clusterization..." ;
+  LogTrace("EcalClusters") << " Purple monkey aardvark." ;
   //
-  //  SCShape_ = new SuperClusterShapeAlgo(recHits_, geometry);
-  
-  if ( debugLevel_ == pDEBUG ) {
-    std::cout << "Cleared vectors, starting clusterization..." << std::endl;
-    std::cout << "Purple monkey aardvark." << std::endl;
-  }
   
   int nregions=0;
   if(regional) nregions=regions.size();
@@ -119,14 +109,13 @@ LogTrace("EcalClusters") << " Purple monkey aardvark." ;
 	//Must pass seed threshold
 	float ET = it->energy() * sin(position.theta());
 
-LogTrace("EcalClusters") << "Seed crystal: " ;
+	LogTrace("EcalClusters") << "Seed crystal: " ;
 
 	if (ET > eb_st) {
-	  if (debugLevel_==pDEBUG) std::cout << "Seed crystal: " << std::endl;
 	  // avoid seeding for anomalous channels (recoFlag based)
 	  uint32_t rhFlag = (*it).recoFlag();
-LogTrace("EcalClusters") << "rhFlag: " << rhFlag ;
-	  if (debugLevel_==pDEBUG) std::cout << "rhFlag: " << rhFlag << std::endl;
+	  LogTrace("EcalClusters") << "rhFlag: " << rhFlag ;
+	 ;
 	  std::vector<int>::const_iterator vit = std::find( v_chstatus_.begin(), v_chstatus_.end(), rhFlag );
 	  if ( vit != v_chstatus_.end() ){
 	    if (excludeFromCluster_)
@@ -136,11 +125,8 @@ LogTrace("EcalClusters") << "rhFlag: " << rhFlag ;
 
 	  int severityFlag =  sevLv->severityLevel( it->id(), *recHits_);
 	  std::vector<int>::const_iterator sit = std::find( v_severitylevel_.begin(), v_severitylevel_.end(), severityFlag);
-LogTrace("EcalClusters") << "found flag: " << severityFlag ;
-	  if (debugLevel_ == pDEBUG){
-	    std::cout << "found flag: " << severityFlag << std::endl;
-	  }
-	  
+	  LogTrace("EcalClusters") << "found flag: " << severityFlag ;
+	   
 	  
 	  if (sit!=v_severitylevel_.end()){ 
 	    if (excludeFromCluster_)
@@ -148,12 +134,9 @@ LogTrace("EcalClusters") << "found flag: " << severityFlag ;
 	    continue;
 	  }
 	  seeds.push_back(*it);
-	  if ( debugLevel_ == pDEBUG ){
-	    std::cout << "Seed ET: " << ET << std::endl;
-	    std::cout << "Seed E: " << it->energy() << std::endl;
-	  }
-LogTrace("EcalClusters") << "Seed ET: " << ET ;
-LogTrace("EcalClsuters") << "Seed E: " << it->energy() ;
+	 
+	  LogTrace("EcalClusters") << "Seed ET: " << ET ;
+	  LogTrace("EcalClsuters") << "Seed E: " << it->energy() ;
 	}
       }
     }
@@ -162,25 +145,17 @@ LogTrace("EcalClsuters") << "Seed E: " << it->energy() ;
   
   
   //Yay sorting.
-LogTrace("EcalClusters") << "Built vector of seeds, about to sort them..." ;
-  if ( debugLevel_ == pDEBUG )
-    std::cout << "Built vector of seeds, about to sort them...";
+  LogTrace("EcalClusters") << "Built vector of seeds, about to sort them..." ;
   
   //Needs three argument sort with seed comparison operator
   sort(seeds.begin(), seeds.end(), less_mag());
   
-LogTrace("EcalClusters") << "done" ;
-  if ( debugLevel_ == pDEBUG )
-    std::cout << "done" << std::endl;
+  LogTrace("EcalClusters") << "done" ;
   
   //Now to do the work.
-LogTrace("EcalClusters") << "About to call mainSearch...";
-  if ( debugLevel_ ==pDEBUG ) 
-    std::cout << "About to call mainSearch...";
+  LogTrace("EcalClusters") << "About to call mainSearch...";
   mainSearch(recColl,geometry);
-LogTrace("EcalClusters") << "done" ;
-  if ( debugLevel_ == pDEBUG ) 
-    std::cout << "done" << std::endl;
+  LogTrace("EcalClusters") << "done" ;
   
   //Hand the basicclusters back to the producer.  It has to 
   //put them in the event.  Then we can make superclusters.
@@ -195,21 +170,16 @@ LogTrace("EcalClusters") << "done" ;
   //Yay more sorting.
   sort(basicClusters.rbegin(), basicClusters.rend(), ClusterEtLess() );
   //Done!
-LogTrace("EcalClusters") << "returning to producer. ";
-  if ( debugLevel_ == pDEBUG )
-    std::cout << "returning to producer. " << std::endl;
+  LogTrace("EcalClusters") << "returning to producer. ";
+  
 }
 
 
 void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloSubdetectorGeometry*geometry)
 {
-LogTrace("EcalClusters") << "HybridClusterAlgo Algorithm - looking for clusters" ;
-LogTrace("EcalClusters") << "Found the following clusters:" ;
-	if ( debugLevel_ ==pDEBUG ) {
-		std::cout << "HybridClusterAlgo Algorithm - looking for clusters" << std::endl;
-		std::cout << "Found the following clusters:" << std::endl;
-	}
-
+  LogTrace("EcalClusters") << "HybridClusterAlgo Algorithm - looking for clusters" ;
+  LogTrace("EcalClusters") << "Found the following clusters:" ;
+	
 	// Loop over seeds:
 	std::vector<EcalRecHit>::iterator it;
 	int clustercounter=0;
@@ -225,13 +195,8 @@ LogTrace("EcalClusters") << "Found the following clusters:" ;
 		//If this seed is already used, then don't use it again.
 
 		// output some info on the hit:
-LogTrace("EcalClusters") << "*****************************************************" << "Seed of energy E = " << it->energy() << " @ " << EBDetId(itID) << "*****************************************************" ;
-		if ( debugLevel_ == pDEBUG ){
-			std::cout << "*****************************************************" << std::endl;
-			std::cout << "Seed of energy E = " << it->energy() << " @ " << EBDetId(itID) 
-				<< std::endl;
-			std::cout << "*****************************************************" << std::endl;
-		}
+		LogTrace("EcalClusters") << "*****************************************************" << "Seed of energy E = " << it->energy() << " @ " << EBDetId(itID) << "*****************************************************" ;
+		
 
 		//Make a navigator, and set it to the seed cell.
 		EcalBarrelNavigator navigator(itID, topo_);
@@ -255,12 +220,8 @@ LogTrace("EcalClusters") << "***************************************************
 		double e_init = makeDomino(navigator, initialdomino);
         if (e_init < Eseed) continue;
 
-LogTrace("EcalClusters") << "Made initial domino" ;
-		if ( debugLevel_ == pDEBUG )
-		{
-			std::cout << "Made initial domino" << std::endl;
-		}
-
+	LogTrace("EcalClusters") << "Made initial domino" ;
+	
 		//
 		// compute the phi road length
 		double phiSteps;
@@ -278,10 +239,6 @@ LogTrace("EcalClusters") << "Made initial domino" ;
 			if (centerD.null())
 				continue;
                         LogTrace("EcalClusters") << "Step ++" << i << " @ " << EBDetId(centerD) ;
-			if ( debugLevel_ == pDEBUG )
-			{
-				std::cout << "Step ++" << i << " @ " << EBDetId(centerD) << std::endl;
-			}
 			EcalBarrelNavigator dominoNav(centerD, topo_);
 
 			//Go get the new domino.
@@ -292,9 +249,7 @@ LogTrace("EcalClusters") << "Made initial domino" ;
 			dominoEnergyPhiPlus.push_back(etemp);
 			dominoCellsPhiPlus.push_back(dcells);
 		}
-LogTrace("EcalClusters") << "Got positive dominos" ;
-		if ( debugLevel_ == pDEBUG )
-			std::cout << "Got positive dominos" << std::endl;
+		LogTrace("EcalClusters") << "Got positive dominos" ;
 		//return to initial position
 		navigator.home();
 
@@ -305,11 +260,7 @@ LogTrace("EcalClusters") << "Got positive dominos" ;
 			if (centerD.null())
 				continue;
 
-LogTrace("EcalClusters") << "Step --" << i << " @ " << EBDetId(centerD) ;
-			if ( debugLevel_ == pDEBUG )
-			{
-				std::cout << "Step --" << i << " @ " << EBDetId(centerD) << std::endl;
-			}
+			LogTrace("EcalClusters") << "Step --" << i << " @ " << EBDetId(centerD) ;
 			EcalBarrelNavigator dominoNav(centerD, topo_);
 
 			//Go get the new domino.
@@ -320,11 +271,9 @@ LogTrace("EcalClusters") << "Step --" << i << " @ " << EBDetId(centerD) ;
 			dominoEnergyPhiMinus.push_back(etemp);
 			dominoCellsPhiMinus.push_back(dcells);
 		}
-
-LogTrace("EcalClusters") << "Got negative dominos: " ;
-		if ( debugLevel_ == pDEBUG )
-			std::cout << "Got negative dominos: " << std::endl;
-
+		
+		LogTrace("EcalClusters") << "Got negative dominos: " ;
+	
 		//Assemble this information:
 		for (int i=int(dominoEnergyPhiMinus.size())-1;i >= 0;--i){
 			dominoEnergy.push_back(dominoEnergyPhiMinus[i]);
@@ -338,17 +287,12 @@ LogTrace("EcalClusters") << "Got negative dominos: " ;
 		}
 
 		//Ok, now I have all I need in order to go ahead and make clusters.
-LogTrace("EcalClusters") << "Dumping domino energies: " ;
-		if ( debugLevel_ == pDEBUG ){
-			std::cout << "Dumping domino energies: " << std::endl;
-			for (int i=0;i<int(dominoEnergy.size());++i){
-				std::cout << "Domino: " << i << " E: " << dominoEnergy[i] << std::endl;
-			}
-		}
+		LogTrace("EcalClusters") << "Dumping domino energies: " ;
+		
 
-for (int i=0;i<int(dominoEnergy.size());++i){
-LogTrace("EcalClusters") << "Domino: " << i << " E: " << dominoEnergy[i] ;
-}
+		//for (int i=0;i<int(dominoEnergy.size());++i){
+		//       LogTrace("EcalClusters") << "Domino: " << i << " E: " << dominoEnergy[i] ;
+		//      }
 		//Identify the peaks in this set of dominos:
 		//Peak==a domino whose energy is greater than the two adjacent dominos.
 		//thus a peak in the local sense.
@@ -361,10 +305,8 @@ LogTrace("EcalClusters") << "Domino: " << i << " E: " << dominoEnergy[i] ;
 			}
 		}
 
-LogTrace("EcalClusters") << "Found: " << PeakIndex.size() << " peaks." ;
-		if ( debugLevel_ == pDEBUG )
-			std::cout << "Found: " << PeakIndex.size() << " peaks." << std::endl;
-
+		LogTrace("EcalClusters") << "Found: " << PeakIndex.size() << " peaks." ;
+	
 		//Order these peaks by energy:
 		for (int i=0;i<int(PeakIndex.size());++i){
 			for (int j=0;j<int(PeakIndex.size())-1;++j){
@@ -461,15 +403,10 @@ LogTrace("EcalClusters") << "Found: " << PeakIndex.size() << " peaks." ;
 					}
 				}  
 			}
-        LogTrace("EcalClusters") << "Adding a cluster with: " << nhits;
-        LogTrace("EcalClusters") << "total E: " << LumpEnergy[i];
-        LogTrace("EcalClusters") << "total dets: " << dets.size() ;
-			if ( debugLevel_ == pDEBUG ){
-				std::cout << "Adding a cluster with: " << nhits << std::endl;
-				std::cout << "total E: " << LumpEnergy[i] << std::endl;
-				std::cout << "total dets: " << dets.size() << std::endl;
-			}
-
+                        LogTrace("EcalClusters") << "Adding a cluster with: " << nhits;
+			LogTrace("EcalClusters") << "total E: " << LumpEnergy[i];
+			LogTrace("EcalClusters") << "total dets: " << dets.size() ;
+	
 			//Get Calorimeter position
 			Point pos = posCalculator_.Calculate_Location(dets,hits,geometry);
 
@@ -586,12 +523,9 @@ reco::SuperClusterCollection HybridClusterAlgo::makeSuperClusters(const reco::Ca
 		reco::SuperCluster suCl(ClusterE, math::XYZPoint(posX, posY, posZ), seed, thissc);
 		SCcoll.push_back(suCl);
 
-LogTrace("EcalClusters") << "Super cluster sum: " << ClusterE ;
-LogTrace("EcalClusters") << "Made supercluster with energy E: " << suCl.energy() ;
-		if ( debugLevel_ == pDEBUG ){
-			std::cout << "Super cluster sum: " << ClusterE << std::endl;
-			std::cout << "Made supercluster with energy E: " << suCl.energy() << std::endl;
-		}
+                LogTrace("EcalClusters") << "Super cluster sum: " << ClusterE ;
+                LogTrace("EcalClusters") << "Made supercluster with energy E: " << suCl.energy() ;
+		
 	}//end loop over map
 	sort(SCcoll.rbegin(), SCcoll.rend(), ClusterEtLess());
 	return SCcoll;
