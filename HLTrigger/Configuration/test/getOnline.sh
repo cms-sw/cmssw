@@ -1,6 +1,6 @@
 #! /bin/bash
 
-HLT='/online/collisions/2011/2e33/v1.1/HLT'
+HLT='/online/collisions/2011/2e33/v1.2/HLT'
 L1T='L1GtTriggerMenu_L1Menu_Collisions2011_v4_mc'
 
 # tests
