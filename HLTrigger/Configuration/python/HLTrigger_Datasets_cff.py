@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V178
+# /dev/CMSSW_4_2_0/GRun/V179
 
 import FWCore.ParameterSet.Config as cms
 
@@ -97,13 +97,12 @@ streamA_datasetElectronHad_selector.triggerConditions = cms.vstring('HLT_DoubleE
     'HLT_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_v1', 
     'HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3_Jet20_v2', 
     'HLT_Ele15_CaloIdVT_TrkIdT_Jet35_Jet25_Deta3_Jet20_v3', 
-    'HLT_Ele17_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3p5_Jet25_v3', 
+    'HLT_Ele20_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3_Jet20_v1', 
     'HLT_Ele22_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT20_v4', 
     'HLT_Ele22_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_v3', 
     'HLT_Ele22_CaloIdVT_TrkIdT_CentralJet30_CentralJet25_v3', 
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_BTagIP_v3', 
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_v3', 
-    'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralJet30_PFMHT25_v4', 
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralJet30_v3', 
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_QuadCentralJet30_v3', 
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralJet30_v3', 
@@ -112,6 +111,7 @@ streamA_datasetElectronHad_selector.triggerConditions = cms.vstring('HLT_DoubleE
     'HLT_Ele25_CaloIdVT_TrkIdT_DiCentralJet30_v6', 
     'HLT_Ele25_CaloIdVT_TrkIdT_QuadCentralJet30_v3', 
     'HLT_Ele25_CaloIdVT_TrkIdT_TriCentralJet30_v6', 
+    'HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT20_v1', 
     'HLT_Ele8_CaloIdT_TrkIdT_DiJet30_v4', 
     'HLT_Ele8_CaloIdT_TrkIdT_QuadJet30_v4', 
     'HLT_Ele8_CaloIdT_TrkIdT_TriJet30_v4', 
