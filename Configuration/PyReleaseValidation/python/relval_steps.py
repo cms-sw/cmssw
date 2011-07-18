@@ -508,20 +508,20 @@ step4['ALCASPLIT']={'-s':'ALCAOUTPUT:@AllForPrompt',
                     '--triggerResultsProcess':'RECO',
                     '--filein':'file:step2_inALCARECO.root'}
 
-step4['SKIMD']={'-s':'SKIM:all',
-                '--conditions':'auto:com10',
-                '--data':'',
-                '--scenario':'pp',
-                '--filein':'file:step2.root',
-                '--secondfilein':'filelist:step1_dbsquery.log'}
+#step4['SKIMD']={'-s':'SKIM:all',
+#                '--conditions':'auto:com10',
+#                '--data':'',
+#                '--scenario':'pp',
+#                '--filein':'file:step2.root',
+#                '--secondfilein':'filelist:step1_dbsquery.log'}
 
 
-step4['SKIMCOSD']={'-s':'SKIM:all',
-                   '--conditions':'auto:com10',
-                   '--data':'',
-                   '--scenario':'cosmics',
-                   '--filein':'file:step2.root',
-                   '--secondfilein':'filelist:step1_dbsquery.log'}
+#step4['SKIMCOSD']={'-s':'SKIM:all',
+#                   '--conditions':'auto:com10',
+#                   '--data':'',
+#                   '--scenario':'cosmics',
+#                   '--filein':'file:step2.root',
+#                   '--secondfilein':'filelist:step1_dbsquery.log'}
                  
 
 #### for special wfs ###
@@ -544,14 +544,14 @@ step4['RECOFROMRECO']=merge([{'-s':'RECO',
                               '--eventcontent':'AODSIM',
                               'cfg':'step4'},
                              stCond,step3Defaults])
-step3['RECODFROMRAWRECO']=merge([{'-s':'RAW2DIGI:RawToDigi_noTk,L1Reco,RECO:reconstruction_noTracking',
-                                  '--filtername':'RECOfromRAWRECO',
-                                  '--process':'rereRECO',
-                                  '--datatier':'AOD',
-                                  '--eventcontent':'AOD',
-                                  '--secondfilein':'filelist:step1_dbsquery.log',
-                                  'cfg':'step3'},
-                                 step2['RECOD']])
+#step3['RECODFROMRAWRECO']=merge([{'-s':'RAW2DIGI:RawToDigi_noTk,L1Reco,RECO:reconstruction_noTracking',
+#                                  '--filtername':'RECOfromRAWRECO',
+#                                  '--process':'rereRECO',
+#                                  '--datatier':'AOD',
+#                                  '--eventcontent':'AOD',
+#                                  '--secondfilein':'filelist:step1_dbsquery.log',
+#                                  'cfg':'step3'},
+#                                 step2['RECOD']])
 
 
 # to handle things easier in other places, make a list of all the steps:

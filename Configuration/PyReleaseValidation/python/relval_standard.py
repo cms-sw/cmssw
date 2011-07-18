@@ -31,13 +31,13 @@ workflows[4.15] = ['', ['RunPhoton2010B','RECOD']]
 workflows[4.16] = ['', ['RunJet2010B','RECOD']]
 
 
-workflows[4.17] = ['', ['RunMinBias2011A','RECOD','HARVESTD','SKIMD']]
+workflows[4.17] = ['', ['RunMinBias2011A','RECOD','HARVESTD']]#,'SKIMD']]
 workflows[4.18] = ['', ['RunMu2011A','RECOD']]
 workflows[4.19] = ['', ['RunElectron2011A','RECOD']]
 workflows[4.20] = ['', ['RunPhoton2011A','RECOD']]
 workflows[4.21] = ['', ['RunJet2011A','RECOD']]
 
-workflows[4.22] = ['', ['RunCosmics2011A','RECOCOSD','ALCACOSD','SKIMCOSD']]
+workflows[4.22] = ['', ['RunCosmics2011A','RECOCOSD','ALCACOSD']]#,'SKIMCOSD']]
 
 #workflows[4.23] = ['',[]
 #workflows[4.24] = ['',['WMuSkim2011A','RECOSKIM']]

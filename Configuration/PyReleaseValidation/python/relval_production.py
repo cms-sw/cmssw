@@ -12,7 +12,7 @@ workflows = {}
 ## data production test
 workflows[1000] = [ '',['RunMinBias2011A','TIER0','HARVESTD','ALCASPLIT']]
 #workflows[1001] = [ '',['RunMinBias2011A','TIER0EXP','ALCAPROMPT','ALCAHARVD']]
-workflows[1002]=['RRD',['RunMinBias2011A','RECOD','RECODFROMRAWRECO']]
+workflows[1002]=['RRD',['RunMinBias2011A','RECOD']]#,'RECODFROMRAWRECO']]
 
 ## MC production test
 #workflows[1100] = [ '',[]]
