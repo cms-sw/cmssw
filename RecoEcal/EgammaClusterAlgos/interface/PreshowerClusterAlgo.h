@@ -1,7 +1,7 @@
 #ifndef RecoEcal_EgammaClusterAlgos_PreshowerClusterAlgo_h
 #define RecoEcal_EgammaClusterAlgos_PreshowerClusterAlgo_h
 //
-// $Id: PreshowerClusterAlgo.h,v 1.11 2006/12/12 15:00:51 futyand Exp $
+// $Id: PreshowerClusterAlgo.h,v 1.12 2007/02/14 14:51:27 futyand Exp $
 //
 
 //#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -26,7 +26,6 @@ class PreshowerClusterAlgo {
 
  public:
 
-   enum DebugLevel { pDEBUG = 0, pINFO = 1, pERROR = 2 }; 
 
    typedef math::XYZPoint Point;
 
@@ -34,11 +33,11 @@ class PreshowerClusterAlgo {
    typedef std::set<DetId> HitsID;
 
    PreshowerClusterAlgo() : 
-   preshStripEnergyCut_(0.), preshClusterEnergyCut_(0.), preshSeededNstr_(15), debugLevel_(pINFO)
+   preshStripEnergyCut_(0.), preshClusterEnergyCut_(0.), preshSeededNstr_(15)
    {}
 
-   PreshowerClusterAlgo(double stripEnergyCut, double clusterEnergyCut, int nStripCut, DebugLevel debugLevel = pINFO) :
-   preshStripEnergyCut_(stripEnergyCut), preshClusterEnergyCut_(clusterEnergyCut), preshSeededNstr_(nStripCut), debugLevel_(debugLevel)
+   PreshowerClusterAlgo(double stripEnergyCut, double clusterEnergyCut, int nStripCut) :
+   preshStripEnergyCut_(stripEnergyCut), preshClusterEnergyCut_(clusterEnergyCut), preshSeededNstr_(nStripCut)
    {}
 
    ~PreshowerClusterAlgo() {};
@@ -58,7 +57,7 @@ class PreshowerClusterAlgo {
    double preshStripEnergyCut_;
    double preshClusterEnergyCut_;
    int preshSeededNstr_;
-   int debugLevel_;
+  
 
    std::vector<ESDetId> road_2d;
 
