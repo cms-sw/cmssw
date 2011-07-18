@@ -8,6 +8,7 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
 #include "FWCore/Framework/interface/Selector.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/ReflexTools.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
@@ -21,6 +22,15 @@
 //using boost::lambda::_1;
 
 namespace edm {
+  static
+  void
+  maybeThrowMissingDictionaryException(TypeID const& productType, bool isElement, std::vector<std::string> const& missingDictionaries) {
+    if(binary_search_all(missingDictionaries, productType.className())) {
+      checkDictionaries(isElement ? productType.className() : wrappedClassName(productType.className()), false);
+      throwMissingDictionariesException();
+    }
+  }
+
   static
   void
   throwMultiFoundException(char const* where, int nFound, TypeID const& productType) {
@@ -66,13 +76,6 @@ namespace edm {
   throwNotFoundException(char const* where, TypeID const& productType, InputTag const& tag) {
     boost::shared_ptr<cms::Exception> exception = makeNotFoundException(where, productType, tag.label(), tag.instance(), tag.process());
     throw *exception;
-  }
-
-  static
-  void
-  throwMissingDictionaryException(TypeID const& productType, bool isElement) {
-    checkDictionaries(isElement ? productType.className() : wrappedClassName(productType.className()), false);
-    throwMissingDictionariesException();
   }
 
   Principal::Principal(boost::shared_ptr<ProductRegistry const> reg,
@@ -405,7 +408,7 @@ namespace edm {
     // The missing dictionary might be for the class itself, the wrapped class, or a component of the class.
     std::pair<TypeLookup::const_iterator, TypeLookup::const_iterator> const range = typeLookup.equal_range(TypeInBranchType(typeID, branchType_));
     if(range.first == range.second) {
-      throwMissingDictionaryException(typeID, &typeLookup == &preg_->elementLookup());
+      maybeThrowMissingDictionaryException(typeID, &typeLookup == &preg_->elementLookup(), preg_->missingDictionaries());
     }
 
     results.reserve(range.second - range.first);
@@ -447,7 +450,7 @@ namespace edm {
     // The missing dictionary might be for the class itself, the wrapped class, or a component of the class.
     std::pair<TypeLookup::const_iterator, TypeLookup::const_iterator> const range = typeLookup.equal_range(TypeInBranchType(typeID, branchType_));
     if(range.first == range.second) {
-      throwMissingDictionaryException(typeID, &typeLookup == &preg_->elementLookup());
+      maybeThrowMissingDictionaryException(typeID, &typeLookup == &preg_->elementLookup(), preg_->missingDictionaries());
     }
 
     unsigned int processLevelFound = std::numeric_limits<unsigned int>::max();
@@ -515,7 +518,7 @@ namespace edm {
       // The missing dictionary might be for the class itself, the wrapped class, or a component of the class.
       std::pair<TypeLookup::const_iterator, TypeLookup::const_iterator> const typeRange = typeLookup.equal_range(TypeInBranchType(typeID, branchType_));
       if(typeRange.first == typeRange.second) {
-        throwMissingDictionaryException(typeID, &typeLookup == &preg_->elementLookup());
+        maybeThrowMissingDictionaryException(typeID, &typeLookup == &preg_->elementLookup(), preg_->missingDictionaries());
       }
       return 0;
     }

@@ -138,14 +138,20 @@ namespace edm {
       std::map<BranchID, ProductTransientIndex> branchIDToIndex_;
 
       BranchListIndex producedBranchListIndex_;
+
+      std::vector<std::string> missingDictionaries_;
     };
 
     bool productProduced(BranchType branchType) const {return transients_.get().productProduced_[branchType];}
     bool anyProductProduced() const {return transients_.get().anyProductProduced_;}
     BranchListIndex producedBranchListIndex() const {return transients_.get().producedBranchListIndex_;}
 
-    void setProducedBranchListIndex(BranchListIndex blix) const{
+    void setProducedBranchListIndex(BranchListIndex blix) const {
       transients_.get().producedBranchListIndex_ = blix;
+    }
+
+    std::vector<std::string>& missingDictionaries() const {
+      return transients_.get().missingDictionaries_;
     }
 
   private:

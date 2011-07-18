@@ -11,8 +11,9 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "FWCore/Utilities/interface/ReflexTools.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/ReflexTools.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
 
 #include "TROOT.h"
@@ -46,7 +47,8 @@ namespace edm {
       productLookup_(),
       elementLookup_(),
       branchIDToIndex_(),
-      producedBranchListIndex_(std::numeric_limits<BranchListIndex>::max()) {
+      producedBranchListIndex_(std::numeric_limits<BranchListIndex>::max()),
+      missingDictionaries_() {
     for(size_t i = 0; i < productProduced_.size(); ++i) productProduced_[i] = false;
   }
 
@@ -240,8 +242,8 @@ namespace edm {
     TempLookupMap tempProductLookupMap;
     TempLookupMap tempElementLookupMap;
 
-    typedef std::set<std::string> UsedProcessNames;
-    UsedProcessNames usedProcessNames;
+    StringSet usedProcessNames;
+    StringSet missingDicts;
     for(ProductList::const_iterator i = productList_.begin(), e = productList_.end(); i != e; ++i, ++index) {
       if(i->second.produced()) {
         setProductProduced(i->second.branchType());
@@ -260,7 +262,7 @@ namespace edm {
         Reflex::Type type(Reflex::Type::ByName(i->second.className()));
         Reflex::Type wrappedType(Reflex::Type::ByName(wrappedClassName(i->second.className())));
         if(!bool(type) || !bool(wrappedType)) {
-
+          missingDicts.insert(i->second.className());
           LogWarning("Missing Dictionary") << "Could not find a Reflex dictionary for class '" << (bool(type) ? wrappedClassName(i->second.className()) : i->second.className())
           << "'.  This class was registered as one which is supposed to be held by an Event, LuminosityBlock, or Run but will not be available. "
           "Please check\n"
@@ -285,7 +287,9 @@ namespace edm {
           foundTypes().clear();
           checkDictionaries(i->second.className(), false);
           if(!missingTypes().empty()) {
+            missingDicts.insert(i->second.className());
             for(StringSet::const_iterator it = missingTypes().begin(), itEnd = missingTypes().end(); it != itEnd; ++it) {
+              missingDicts.insert(*it);
               LogWarning("Missing Dictionary") << "Could not find a Reflex dictionary for class '" << *it << ",\n which is a component of class " << i->second.className()
               << "'.  This class was registered as one which is supposed to be held by an Event, LuminosityBlock, or Run but will not be available. "
               "Please check\n"
@@ -329,6 +333,8 @@ namespace edm {
         }
       }
     }
+    missingDictionaries().reserve(missingDicts.size());
+    copy_all(missingDicts, std::back_inserter(missingDictionaries()));
     productLookup().fillFrom(tempProductLookupMap);
     elementLookup().fillFrom(tempElementLookupMap);
     savedMissingTypes.swap(missingTypes());
