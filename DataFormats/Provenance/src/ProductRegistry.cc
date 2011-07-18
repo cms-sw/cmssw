@@ -271,35 +271,6 @@ namespace edm {
           " 3) the file is from an old release and this data type has been removed from the present release.";
           continue;
         }
-        if(!i->second.transient()) {
-          // Check for missing dictionaries for components.
-          missingTypes().clear();
-          foundTypes().clear();
-          checkDictionaries(i->second.className(), false);
-          if(!missingTypes().empty()) {
-            // The RootAutoLibraryLoader will not explicitly load dictionaries for component classes.
-            // So, we try to load them here.
-            for(StringSet::const_iterator it = missingTypes().begin(), itEnd = missingTypes().end(); it != itEnd; ++it) {
-              gROOT->GetClass(it->c_str(), kTRUE);
-            }
-          }
-          missingTypes().clear();
-          foundTypes().clear();
-          checkDictionaries(i->second.className(), false);
-          if(!missingTypes().empty()) {
-            missingDicts.insert(i->second.className());
-            for(StringSet::const_iterator it = missingTypes().begin(), itEnd = missingTypes().end(); it != itEnd; ++it) {
-              missingDicts.insert(*it);
-              LogWarning("Missing Dictionary") << "Could not find a Reflex dictionary for class '" << *it << ",\n which is a component of class " << i->second.className()
-              << "'.  This class was registered as one which is supposed to be held by an Event, LuminosityBlock, or Run but will not be available. "
-              "Please check\n"
-              " 1) was a Reflex dictionary created for the class,\n"
-              " 2) if so was the package with the dictionary linked with all plugins that use that class,\n"
-              " 3) the file is from an old release and this data type has been removed from the present release.";
-            }
-            continue;
-          }
-        }
         fillLookup(type, index, pBD, tempProductLookupMap);
 
         if(bool(type)) {
