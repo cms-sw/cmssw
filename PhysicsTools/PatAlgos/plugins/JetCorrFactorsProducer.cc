@@ -78,6 +78,13 @@ JetCorrFactorsProducer::JetCorrFactorsProducer(const edm::ParameterSet& cfg):
 	  << "additional optional parameter rho in the jetCorrFactors module. \n";
       }
     }
+    else{
+      edm::LogWarning message( "Parameter rho not used" );
+      message << "Module is configured to use the parameter rho, but but rho is only used \n"
+	      << "for L1FastJet corrections at the moment. The configuration of levels    \n"
+	      << "does not contain L1FastJet corrections though, so rho will not be used  \n"
+	      << "throughout this module. \n";
+    }
   }
   produces<JetCorrFactorsMap>();
 }
