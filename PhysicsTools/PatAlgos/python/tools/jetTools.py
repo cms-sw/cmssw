@@ -391,8 +391,7 @@ class AddJetCollection(ConfigToolBase):
 
             ## add clone of jetCorrFactors
             addClone('patJetCorrFactors', src = jetCollection)
-            getattr(process,newLabel('patJetCorrFactors')).payload = jetCorrLabel[0]
-            getattr(process,newLabel('patJetCorrFactors')).levels = jetCorrLabel[1]
+            switchJetCorrLevels(process, jetCorrLabel = jetCorrLabel, postfix=algoLabel+typeLabel)
             getattr(process, newLabel('patJets')).jetCorrFactorsSource = cms.VInputTag(  cms.InputTag(newLabel('patJetCorrFactors')) )
         
             ## switch type1MET corrections off for PFJets or JPTJets
@@ -430,9 +429,7 @@ class AddJetCollection(ConfigToolBase):
         else:
             ## switch jetCorrFactors off
             l1Jets.addJetCorrFactors = False
-        
-       
-       
+               
 addJetCollection=AddJetCollection()
 
 
@@ -605,8 +602,7 @@ class SwitchJetCollection(ConfigToolBase):
 
             ## switch JEC parameters to the new jet collection
             applyPostfix(process, "patJetCorrFactors", postfix).src = jetCollection
-            getattr( process, "patJetCorrFactors" + postfix).payload = jetCorrLabel[0]
-            getattr( process, "patJetCorrFactors" + postfix).levels = jetCorrLabel[1]
+            switchJetCorrLevels(process, jetCorrLabel = jetCorrLabel, postfix=postfix)
             getattr( process, "patJets" + postfix).jetCorrFactorsSource = cms.VInputTag( cms.InputTag("patJetCorrFactors" + postfix ) )  
 
             ## switch type1MET corrections off for PFJets or JPTJets
@@ -789,7 +785,7 @@ class SwitchJetCorrLevels(ConfigToolBase):
             if type(jetCorrLabel) != type(('AK5Calo',['L2Relative'])): 
                 raise ValueError, "In addJetCollection 'jetCorrLabel' must be 'None', or of type ('payload',['correction1', 'correction2'])"
 
-            jetCorrFactorsModule = applyPostfix(process, "patJetCorrFactors", postfix)
+            jetCorrFactorsModule = getattr(process, "patJetCorrFactors"+postfix)
             jetCorrFactorsModule.payload = jetCorrLabel[0]
             jetCorrFactorsModule.levels  = jetCorrLabel[1]
 
