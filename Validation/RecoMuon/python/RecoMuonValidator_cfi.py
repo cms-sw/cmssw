@@ -22,13 +22,13 @@ recoMuonValidator = cms.EDAnalyzer("RecoMuonValidator",
     #
     # Histogram dimensions     #
     #
-    nBinP = cms.untracked.uint32(25),
+    nBinP = cms.untracked.uint32(250),
     minP = cms.untracked.double(0.0),
-    maxP = cms.untracked.double(200.0),
+    maxP = cms.untracked.double(500.0),
 
-    nBinPt = cms.untracked.uint32(25),
+    nBinPt = cms.untracked.uint32(250),
     minPt = cms.untracked.double(0.0),
-    maxPt = cms.untracked.double(200.0),
+    maxPt = cms.untracked.double(500.0),
 
     doAbsEta = cms.untracked.bool(False),
 
@@ -47,30 +47,30 @@ recoMuonValidator = cms.EDAnalyzer("RecoMuonValidator",
     nBinPhi = cms.untracked.uint32(25),
 
     # Pull width     #
-    nBinPull = cms.untracked.uint32(25),
-    wPull = cms.untracked.double(10.0),
+    nBinPull = cms.untracked.uint32(50),
+    wPull = cms.untracked.double(5.0),
 
-    nBinErr = cms.untracked.uint32(25),
+    nBinErr = cms.untracked.uint32(100),
 
     # |p| resolution     #
-    minErrP = cms.untracked.double(-0.2),
-    maxErrP = cms.untracked.double(0.2),
+    minErrP = cms.untracked.double(-0.1),
+    maxErrP = cms.untracked.double(0.1),
 
     # pT resolution     #
-    minErrPt = cms.untracked.double(-0.2),
-    maxErrPt = cms.untracked.double(0.2),
+    minErrPt = cms.untracked.double(-0.1),
+    maxErrPt = cms.untracked.double(0.1),
 
     # q/pT resolution     #
-    minErrQPt = cms.untracked.double(-5.0),
-    maxErrQPt = cms.untracked.double(5.0),
+    minErrQPt = cms.untracked.double(-0.1),
+    maxErrQPt = cms.untracked.double(0.1),
 
     # Eta resolution     #
-    minErrEta = cms.untracked.double(-0.02),
-    maxErrEta = cms.untracked.double(0.02),
+    minErrEta = cms.untracked.double(-0.01),
+    maxErrEta = cms.untracked.double(0.01),
 
     # Phi resolution     #
-    minErrPhi = cms.untracked.double(-0.1),
-    maxErrPhi = cms.untracked.double(0.1),
+    minErrPhi = cms.untracked.double(-0.05),
+    maxErrPhi = cms.untracked.double(0.05),
 
     # Dxy resolution     #
     minErrDxy = cms.untracked.double(-0.1),
