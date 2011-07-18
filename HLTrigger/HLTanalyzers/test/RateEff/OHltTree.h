@@ -287,6 +287,8 @@ public:
    Int_t ohMuL2Iso[2000]; //[NohMuL2]
    Float_t ohMuL2Dr[2000]; //[NohMuL2]
    Float_t ohMuL2Dz[2000]; //[NohMuL2]
+   Int_t ohMuL2Nhits[2000]; //[NohMuL2]
+   Int_t ohMuL2Nstat[2000]; //[NohMuL2]
    Int_t NohMuL3;
    Float_t ohMuL3Pt[1000]; //[NohMuL3]
    Float_t ohMuL3Phi[1000]; //[NohMuL3]
@@ -5700,6 +5702,8 @@ public:
    TBranch *b_ohMuL2Iso; //!
    TBranch *b_ohMuL2Dr; //!
    TBranch *b_ohMuL2Dz; //!
+   TBranch *b_ohMuL2Nhits; //!
+   TBranch *b_ohMuL2Nstat; //!
    TBranch *b_NohMuL3; //!
    TBranch *b_ohMuL3Pt; //!
    TBranch *b_ohMuL3Phi; //!
@@ -11481,14 +11485,19 @@ public:
          double dr,
          int iso,
 	 double etal2 = 2.5,
-	 double etal3 = 2.5);
+	 double etal3 = 2.5,
+	 int minNHits = 0,
+	 int minNStats = 0);
 
    int OpenHlt1MuonPassed(
 			  std::vector<double>,
 			  double dr,
 			  int iso,
 			  double etal2 = 2.5,
-			  double etal3 = 2.5);
+			  double etal3 = 2.5,
+			  int minNHits = 0,
+			  int minNStats = 0
+			  );
 
    int OpenHlt2MuonPassed(
          double ptl1,
@@ -12505,6 +12514,8 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("ohMuL2Iso", ohMuL2Iso, &b_ohMuL2Iso);
    fChain->SetBranchAddress("ohMuL2Dr", ohMuL2Dr, &b_ohMuL2Dr);
    fChain->SetBranchAddress("ohMuL2Dz", ohMuL2Dz, &b_ohMuL2Dz);
+   fChain->SetBranchAddress("ohMuL2Nhits", ohMuL2Nhits, &b_ohMuL2Nhits);
+   fChain->SetBranchAddress("ohMuL2Nstat", ohMuL2Nstat, &b_ohMuL2Nstat);
    fChain->SetBranchAddress("NohMuL3", &NohMuL3, &b_NohMuL3);
    fChain->SetBranchAddress("ohMuL3Pt", ohMuL3Pt, &b_ohMuL3Pt);
    fChain->SetBranchAddress("ohMuL3Phi", ohMuL3Phi, &b_ohMuL3Phi);

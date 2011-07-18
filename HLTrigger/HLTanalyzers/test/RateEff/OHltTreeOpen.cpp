@@ -16630,7 +16630,9 @@ int OHltTree::OpenHlt1MuonPassed(
 				 double dr,
 				 int iso,
 				 double etal2,
-				 double etal3
+				 double etal3,
+				 int minNHits,
+				 int minNStats
 				 )
 {
   // This example implements the new (CMSSW_2_X) flat muon pT cuts.
@@ -16673,6 +16675,10 @@ int OHltTree::OpenHlt1MuonPassed(
 						
 		      if ( (fabs(ohMuL2Eta[j])<etal2))
 			{ // L2 eta cut
+			  ////add Nhits, Nstat
+			  if ((fabs(ohMuL2Eta[j])<0.9) || (fabs(ohMuL2Eta[j])>1.5 && fabs(ohMuL2Eta[j])<2.1) || ((ohMuL2Nhits[j]>= minNHits)&&(ohMuL2Nstat[j]>= minNStats)))
+			    {
+			    
 			  if (ohMuL2Pt[j] > ptl2)
 			    { // L2 pT cut
 			      if (ohMuL2Iso[j] >= iso)
@@ -16737,6 +16743,7 @@ int OHltTree::OpenHlt1MuonPassed(
 				      rcL1L2L3++;
 				    }
 				} // End L2 isolation cut 
+			    }//end Nhits, NStat cuts
 			    } // End L2 eta cut
 			} // End L2 pT cut
 		    } // End L3 isolation cut
@@ -16753,7 +16760,9 @@ int OHltTree::OpenHlt1MuonPassed(
 				 double dr,
 				 int iso,
 				 double etal2,
-				 double etal3
+				 double etal3,
+				 int minNHits,
+				 int minNStats 
 				 )
 {
   // This example implements the new (CMSSW_2_X) flat muon pT cuts.
@@ -16796,6 +16805,8 @@ int OHltTree::OpenHlt1MuonPassed(
 						
 		      if ( (fabs(ohMuL2Eta[j])<etal2))
 			{ // L2 eta cut
+			  if ((fabs(ohMuL2Eta[j])<0.9) || (fabs(ohMuL2Eta[j])>1.5 && fabs(ohMuL2Eta[j])<2.1) || ((ohMuL2Nhits[j]>= minNHits)&&(ohMuL2Nstat[j]>minNStats)))
+			    {
 			  if (ohMuL2Pt[j] >  muThresholds[1] )
 			    { // L2 pT cut
 			      if (ohMuL2Iso[j] >= iso)
@@ -16860,6 +16871,7 @@ int OHltTree::OpenHlt1MuonPassed(
 				      rcL1L2L3++;
 				    }
 				} // End L2 isolation cut 
+			    }//end NHits, NStat
 			    } // End L2 eta cut
 			} // End L2 pT cut
 		    } // End L3 isolation cut
