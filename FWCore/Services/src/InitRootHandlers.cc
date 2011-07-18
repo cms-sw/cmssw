@@ -100,7 +100,7 @@ namespace {
 
   // Intercept some messages and downgrade the severity
 
-      if ((el_message.find("dictionary") != std::string::npos) ||
+      if ((el_message.find("no dictionary for class") != std::string::npos) ||
           (el_message.find("already in TClassTable") != std::string::npos) ||
           (el_message.find("matrix not positive definite") != std::string::npos) ||
           (el_message.find("not a TStreamerInfo object") != std::string::npos) ||
