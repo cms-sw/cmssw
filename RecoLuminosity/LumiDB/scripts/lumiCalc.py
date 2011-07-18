@@ -166,7 +166,7 @@ if __name__ == '__main__':
            # file
            #if not options.outputfile:
            #    raise RuntimeError, "You must specify an outputt file in 'lumibylsXing' mode"
-
+           
         # Delivered
         if options.action ==  'delivered':
             lumidata=lumiQueryAPI.deliveredLumiForRange(session, parameters, inputRange,finecorrections=finecorrections)    

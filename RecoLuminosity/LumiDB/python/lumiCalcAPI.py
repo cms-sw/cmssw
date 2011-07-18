@@ -539,7 +539,7 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
                     #    print 'bxvalueArray ',bxvalueArray
                     for idx,bxval in enumerate(bxvalueArray):
                         if finecorrections and finecorrections[run]:
-                            mybxval=lumiCorrection.applyfinecorrectionBX(bxval,perbunchnormval,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
+                            mybxval=lumiCorrections.applyfinecorrectionBX(bxval,perbunchnormval,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
                         else:
                             mybxval=bxval*perbunchnormval
                         if mybxval>xingMinLum:
