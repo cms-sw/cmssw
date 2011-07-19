@@ -9,7 +9,7 @@ parser.add_option("--lsf",            dest="lsf",      default=False, action="st
 parser.add_option("--condor",         dest="condor",   default=False, action="store_true", help="Run on condor_g instead of GRID (can be changed in .cfg file)")
 parser.add_option("--glidein",        dest="glide",    default=False, action="store_true", help="Use glide-in scheduler instead of glite")
 parser.add_option("--server",         dest="server",   default=False, action="store_true", help="Use crab server")
-parser.add_option("-q", "--queue",    dest="queue",    default="8nh80",   type="string", help="LSF queue to use (can be changed in .cfg file)")
+parser.add_option("-q", "--queue",    dest="queue",    default="8nh",   type="string", help="LSF queue to use (can be changed in .cfg file)")
 parser.add_option("-O", "--options",  dest="options",  default="--freq",  type="string", help="options to use for combine")
 parser.add_option("-n", "--points",   dest="points",   default=10,  type="int",  help="Points to choose in the range (note: both endpoints are included)")
 parser.add_option("-T", "--toysH",    dest="T",        default=500, type="int",  help="Toys per point per iteration")
