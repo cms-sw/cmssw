@@ -122,7 +122,7 @@ void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern);
 //double PlotMinScale = 2;
 //double PlotMaxScale = 800;
 
-double PlotMinScale = 0.003;
+double PlotMinScale = 0.001;
 double PlotMaxScale = 60;
 
 
@@ -283,7 +283,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    TCutG* StopXSecErr = GetErrorBand("StopErr", ThStopN,ThStopMass,ThStopLow,ThStopHigh);
 
 
-   int ThStauN = 6 ; double ThStauMass [100]; double ThStauXSec [100];  double ThStauLow  [100];  double ThStauHigh [100];
+   int ThStauN = 9 ; double ThStauMass [100]; double ThStauXSec [100];  double ThStauLow  [100];  double ThStauHigh [100];
    ThStauMass[0] = 100; ThStauXSec[0] = 1.326000;  ThStauLow[0] = ThStauXSec[0]*0.85;  ThStauHigh[0] = ThStauXSec[0]*1.15;
    ThStauMass[1] = 126; ThStauXSec[1] = 0.330000;  ThStauLow[1] = ThStauXSec[1]*0.85;  ThStauHigh[1] = ThStauXSec[1]*1.15;
    ThStauMass[2] = 156; ThStauXSec[2] = 0.105000;  ThStauLow[2] = ThStauXSec[2]*0.85;  ThStauHigh[2] = ThStauXSec[2]*1.15;
@@ -419,8 +419,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    LEGMu->SetHeader("Tk + TOF");
    LEGMu->SetFillColor(0); 
    LEGMu->SetBorderSize(0);
-   LEGMu->AddEntry(Mu_Obs_GluinoF1 , "gluino; 10% #tilde{g}g"    ,"LP");
    LEGMu->AddEntry(Mu_Obs_GluinoF5 , "gluino; 50% #tilde{g}g"    ,"LP");
+   LEGMu->AddEntry(Mu_Obs_GluinoF1 , "gluino; 10% #tilde{g}g"    ,"LP");
 //   LEGMu->AddEntry(Mu_Obs_GluinoNF1, "gluino; 10% #tilde{g}g; ch. suppr.","LP");
    LEGMu->AddEntry(Mu_Obs_Stop     , "stop"            ,"LP");
 //   LEGMu->AddEntry(Mu_Obs_StopN    , "stop; ch. suppr.","LP");
@@ -479,8 +479,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    LEGTk->SetHeader("Tk + only");
    LEGTk->SetFillColor(0); 
    LEGTk->SetBorderSize(0);
-   LEGTk->AddEntry(Tk_Obs_GluinoF1 , "gluino; 10% #tilde{g}g"    ,"LP");
    LEGTk->AddEntry(Tk_Obs_GluinoF5 , "gluino; 50% #tilde{g}g"    ,"LP");
+   LEGTk->AddEntry(Tk_Obs_GluinoF1 , "gluino; 10% #tilde{g}g"    ,"LP");
    LEGTk->AddEntry(Tk_Obs_GluinoNF1, "gluino; 10% #tilde{g}g; ch. suppr.","LP");
    LEGTk->AddEntry(Tk_Obs_Stop     , "stop"            ,"LP");
    LEGTk->AddEntry(Tk_Obs_StopN    , "stop; ch. suppr.","LP");
