@@ -10,13 +10,10 @@
 
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
-#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/ReflexTools.h"
 #include "FWCore/Utilities/interface/WrappedClassName.h"
-
-#include "TROOT.h"
 
 #include <algorithm>
 #include <limits>
@@ -263,12 +260,6 @@ namespace edm {
         Reflex::Type wrappedType(Reflex::Type::ByName(wrappedClassName(i->second.className())));
         if(!bool(type) || !bool(wrappedType)) {
           missingDicts.insert(i->second.className());
-          LogWarning("Missing Dictionary") << "Could not find a Reflex dictionary for class '" << (bool(type) ? wrappedClassName(i->second.className()) : i->second.className())
-          << "'.  This class was registered as one which is supposed to be held by an Event, LuminosityBlock, or Run but will not be available. "
-          "Please check\n"
-          " 1) was a Reflex dictionary created for the class,\n"
-          " 2) if so was the package with the dictionary linked with all plugins that use that class,\n"
-          " 3) the file is from an old release and this data type has been removed from the present release.";
           continue;
         }
         fillLookup(type, index, pBD, tempProductLookupMap);
