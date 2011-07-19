@@ -9,7 +9,7 @@
 import os,os.path,sys,math,array,datetime,time,re
 import coral
 
-from RecoLuminosity.LumiDB import argparse,lumiTime,CommonUtil,lumiQueryAPI
+from RecoLuminosity.LumiDB import argparse,lumiTime,CommonUtil,lumiQueryAPI,lumiCorrections
 MINFILL=1800
 allfillname='allfills.txt'
 
@@ -95,7 +95,7 @@ def getFillFromFile(fillnum,inputdir):
         f.close()
     return runtimesInFill
 
-def getSpecificLumi(dbsession,parameters,fillnum,inputdir):
+def getSpecificLumi(dbsession,parameters,fillnum,inputdir,finecorrections=None):
     '''
     specific lumi in 1e-30 (ub-1s-1) unit
     lumidetail occlumi in 1e-27
@@ -137,7 +137,10 @@ def getSpecificLumi(dbsession,parameters,fillnum,inputdir):
         #    print 'run '+str(runnum)+' does not exist'
         #    continue
         q=dbsession.nominalSchema().newQuery()
-        occlumidata=lumiQueryAPI.calibratedDetailForRunLimitresult(q,parameters,runnum)#{(startorbit,cmslsnum):[(bxidx,lumivalue,lumierr)]} #values after cut
+        if finecorrections and finecorrections[runnum]:
+            occlumidata=lumiQueryAPI.calibratedDetailForRunLimitresult(q,parameters,runnum,finecorrection=finecorrections[runnum])#{(startorbit,cmslsnum):[(bxidx,lumivalue,lumierr)]} #values after cut
+        else:
+            occlumidata=lumiQueryAPI.calibratedDetailForRunLimitresult(q,parameters,runnum)
         del q
         #print occlumidata
         q=dbsession.nominalSchema().newQuery()
@@ -297,6 +300,7 @@ if __name__ == '__main__':
     parser.add_argument('-norm',dest='norm',action='store',required=False,help='norm',default=None)
     parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, optional. If path undefined, fallback to cern proxy&server')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
+    parser.add_argument('--with-correction',dest='withFineCorrection',action='store_true',required=False,help='with fine correction',default=None)
     parser.add_argument('--toscreen',dest='toscreen',action='store_true',help='dump to screen')
     options=parser.parse_args()
     if options.authpath:
@@ -314,7 +318,7 @@ if __name__ == '__main__':
     #reprocess anyway the last 1 fill in the dir
     #redo specific lumi for all marked fills
     ##
- 
+    finecorrections=None
     allfillsFromFile=[]
     fillstoprocess=[]
     session.transaction().start(True)
@@ -359,6 +363,9 @@ if __name__ == '__main__':
         q=session.nominalSchema().newQuery()
         runtimes[run]=lumiQueryAPI.runsummaryByrun(q,run)[3]
         del q
+    if options.withFineCorrection:
+         schema=session.nominalSchema()
+         finecorrections=lumiCorrections.correctionsForRange(schema,allruns)
     #write specificlumi to outputdir
     #update inputdir
     print 'fillstoprocess ',fillstoprocess
@@ -366,7 +373,8 @@ if __name__ == '__main__':
         filltofiles(allfillsFromDB,runsperfillFromDB,runtimes,options.inputdir)
     print '===== Start Processing Fills',fillstoprocess
     print '====='
+    
     for fillnum in fillstoprocess:
-        filldata=getSpecificLumi(session,parameters,fillnum,options.inputdir)
+        filldata=getSpecificLumi(session,parameters,fillnum,options.inputdir,finecorrections=finecorrections)
         specificlumiTofile(fillnum,filldata,options.outputdir)
     session.transaction().commit()
