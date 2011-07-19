@@ -562,7 +562,7 @@ void AlignableModifier::addAlignmentPositionErrorLocal( Alignable* alignable,
   am[2][0]=rt.zx(); am[2][1]=rt.zy(); am[2][2]=rt.zz();
   as=as.similarityT(am); //rotate error matrix
 
-  GlobalError ge( asSMatrix<3>(as) );
+  GlobalError ge( as );
   AlignmentPositionError ape( ge );
 
   alignable->addAlignmentPositionError( ape, true ); // propagate down to components

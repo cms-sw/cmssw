@@ -11,7 +11,7 @@ namespace edmtest
 int  UnitTestClient_B::nevent = 0;
 
 void
-  UnitTestClient_B::analyze( edm::Event      const & e
+  UnitTestClient_B::analyze( edm::Event      const & /*unused*/
                            , edm::EventSetup const & /*unused*/
                               )
 {

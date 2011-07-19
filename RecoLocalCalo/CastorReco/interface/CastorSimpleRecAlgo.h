@@ -29,10 +29,6 @@ public:
 
   CastorRecHit reconstruct(const CastorDataFrame& digi, const CastorCoder& coder, const CastorCalibrations& calibs) const;
 
-  void resetTimeSamples(int f,int t){
-    firstSample_=f;
-    samplesToAdd_=t;
-  }
 private:
   int firstSample_, samplesToAdd_;
   bool correctForTimeslew_;

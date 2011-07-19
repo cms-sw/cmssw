@@ -55,6 +55,6 @@ hltLevel1GTSeed = cms.EDFilter("HLTLevel1GTSeed",
     # InputTag for L1 muon collection
     L1MuonCollectionTag = cms.InputTag("l1extraParticles"),
     #
-    # saveTags for AOD book-keeping
-    saveTags = cms.untracked.bool(True)
+    # saveTagsfor AOD book-keeping
+    saveTags = cms.bool( True )
 )

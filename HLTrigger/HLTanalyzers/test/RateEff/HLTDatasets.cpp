@@ -498,7 +498,7 @@ void SampleDiagnostics::report(TString tablesPrefix, const Char_t* errata) const
   TString     pdfIt;
   pdfIt.Form("latex %s.tex ; latex %s.tex ; latex %s.tex ; dvipdf %s.dvi %s.pdf", tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data());
   //pdfIt       += TString::Format(" & (rm %s.aux %s.dvi %s.tex %s.log %s.toc)", tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data());
-  pdfIt       += TString::Format(" ; rm %s.aux %s.dvi %s.log %s.toc", tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data());
+  pdfIt       += TString::Format(" ; rm %s.aux %s.dvi %s.log %s.toc", tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data());
 	//RR commenting the latex compilation for now
 //   if (gSystem->Exec(pdfIt) == 0)   std::clog << "  +  " << tablesPrefix << ".pdf" << std::endl;
 //   else  std::clog << "  -  " << tablesPrefix << ".pdf  ---  FAILED to compile tex file!" << std::endl;
@@ -837,7 +837,7 @@ void HLTDatasets::report(const Char_t* luminosity, const Char_t* outputPrefix, c
   TString     pdfIt;
   pdfIt.Form("latex %s.tex ; latex %s.tex ; latex %s.tex ; dvipdf %s.dvi %s.pdf", tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data());
   //pdfIt       += TString::Format(" & (rm %s.aux %s.dvi %s.tex %s.log %s.toc)", tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data());
-  pdfIt       += TString::Format(" ; rm %s.aux %s.dvi %s.log %s.toc", tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data());
+  pdfIt       += TString::Format(" ; rm %s.aux %s.dvi %s.log %s.toc", tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data(), tablesPrefix.Data());
 	// RR commenting the latex xompilation for now
 //   if (gSystem->Exec(pdfIt) == 0)   std::clog << "  +  " << tablesPrefix << ".pdf" << std::endl;
 //   else  std::clog << "  -  " << tablesPrefix << ".pdf  ---  FAILED to compile tex file!" << std::endl;

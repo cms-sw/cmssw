@@ -5,4 +5,5 @@
 <use name="SimDataFormats/TrackingAnalysis"/>
 <use name="DataFormats/SiPixelDetId"/>
 <library file="*.cc" name="CmsHiValidationPlugins">
+   <flags EdmPlugin="1"/>
 </library>

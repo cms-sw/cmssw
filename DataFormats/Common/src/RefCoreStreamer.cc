@@ -2,7 +2,6 @@
 #include "DataFormats/Common/interface/RefCore.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "TROOT.h"
-#include "TStreamerInfo.h"
 #include <ostream>
 #include <cassert>
 #include <iostream>
@@ -69,8 +68,7 @@ namespace edm {
           << "RefCoreStreamer: transient Ref or Ptr cannot be made persistent.";
       }
 #if 1
-      Version_t version = 3;
-      R__b << version;
+      R__b << cl_->GetClassVersion();
 #else
       R__b.WriteVersion(cl_, kFALSE);
 #endif

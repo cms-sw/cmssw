@@ -39,7 +39,7 @@ HLTmmkFilter::HLTmmkFilter(const edm::ParameterSet& iConfig):thirdTrackMass_(iCo
                                                              minLxySignificance_(iConfig.getParameter<double>("MinLxySignificance")),
                                                              minCosinePointingAngle_(iConfig.getParameter<double>("MinCosinePointingAngle")),
                                                              fastAccept_(iConfig.getParameter<bool>("FastAccept")),
-							     saveTag_ (iConfig.getUntrackedParameter<bool> ("SaveTag",false)),
+							     saveTags_ (iConfig.getParameter<bool>("saveTags")),
 							     beamSpotTag_ (iConfig.getParameter<edm::InputTag> ("BeamSpotTag")){
 
   muCandLabel_   = iConfig.getParameter<edm::InputTag>("MuCand");
@@ -106,7 +106,7 @@ bool HLTmmkFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   Handle<RecoChargedCandidateCollection> trkcands;
   iEvent.getByLabel (trkCandLabel_,trkcands);
   
-  if(saveTag_){
+  if(saveTags_){
     filterobject->addCollectionTag(muCandLabel_);
     filterobject->addCollectionTag(trkCandLabel_);
   }

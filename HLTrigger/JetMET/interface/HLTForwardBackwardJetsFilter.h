@@ -25,7 +25,7 @@ class HLTForwardBackwardJetsFilter : public HLTFilter {
 
    private:
       edm::InputTag inputTag_; // input tag identifying jets
-      bool saveTag_;           // whether to save this tag
+      bool saveTags_;           // whether to save this tag
       double minPt_;
       double minEta_;
       double maxEta_;

@@ -18,30 +18,21 @@ PFJetToCaloProducer::~PFJetToCaloProducer(){ }
 
 void PFJetToCaloProducer::produce(edm::Event& iEvent, const edm::EventSetup& iES)
 {
-
   using namespace reco;
   using namespace edm;
   using namespace std;
+  
+  std::auto_ptr<reco::CaloJetCollection> selectedTaus(new CaloJetCollection);
+
+  edm::Handle<PFJetCollection> tauJets;
+  iEvent.getByLabel( tauSrc_, tauJets );
 
   CaloJet::Specific specific;
-  
-  CaloJetCollection * jetCollectionTmp = new CaloJetCollection;
-  edm::Handle<PFJetCollection> tauJets;
-    iEvent.getByLabel( tauSrc_, tauJets );
-    PFJetCollection::const_iterator i = tauJets->begin();
-    for(;i !=tauJets->end(); i++ ) {
-
-      //      cout <<"Jet Tracks"<<i->chargedHadronMultiplicity()<<std::endl;
-      CaloJet jet(i->p4(),i->vertex(),specific);
+  for (PFJetCollection::const_iterator i = tauJets->begin(); i != tauJets->end(); ++i ) {
+      CaloJet jet(i->p4(), i->vertex(), specific);
       jet.setPdgId(15);
-      jetCollectionTmp->push_back(jet);
-     }
-
-
-  
-  auto_ptr<reco::CaloJetCollection> selectedTaus(jetCollectionTmp);
+      selectedTaus->push_back(jet);
+  }
 
   iEvent.put(selectedTaus);
-
-
 }

@@ -16,7 +16,7 @@
  
 HLTPixelAsymmetryFilter::HLTPixelAsymmetryFilter(const edm::ParameterSet& config) :
   inputTag_     (config.getParameter<edm::InputTag>("inputTag")),
-  saveTag_      (config.getUntrackedParameter<bool>("saveTag", false)),
+  saveTags_      (config.getParameter<bool>("saveTags")),
   min_asym_ (config.getParameter<double>("MinAsym")),
   max_asym_ (config.getParameter<double>("MaxAsym")),
   clus_thresh_ (config.getParameter<double>("MinCharge")),
@@ -48,7 +48,7 @@ bool HLTPixelAsymmetryFilter::filter(edm::Event& event, const edm::EventSetup& i
 
   // The filter object
   std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTag_) filterobject->addCollectionTag(inputTag_);
+  if (saveTags_) filterobject->addCollectionTag(inputTag_);
 
   // get hold of products from Event
   edm::Handle<edmNew::DetSetVector<SiPixelCluster> > clusterColl;

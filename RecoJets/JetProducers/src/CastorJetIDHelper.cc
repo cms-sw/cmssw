@@ -2,7 +2,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/CastorReco/interface/CastorTower.h"
-#include "DataFormats/CastorReco/interface/CastorCell.h"
+#include "DataFormats/HcalRecHit/interface/CastorRecHit.h"
+#include "DataFormats/HcalDetId/interface/HcalCastorDetId.h"
 
 #include "TMath.h"
 #include <vector>
@@ -48,14 +49,18 @@ void reco::helper::CastorJetIDHelper::calculate( const edm::Event& event, const 
 			width_ += pow(phiangle(castorcand->phi() - jet.phi()),2)*castorcand->energy();
       			fhot_ += castorcand->fhot()*castorcand->energy();
 			
-			// loop over cells
-                        for (CastorCell_iterator it = castorcand->cellsBegin(); it != castorcand->cellsEnd(); it++) {
-                                CastorCellRef cell_p = *it;
-                                math::XYZPointD rcell = cell_p->position();
-                                double Ecell = cell_p->energy();
-                                zmean += Ecell*cell_p->z();
-                                z2mean += Ecell*cell_p->z()*cell_p->z();
-                        } // end loop over cells
+			// loop over rechits
+      			for (edm::RefVector<edm::SortedCollection<CastorRecHit> >::iterator it = castorcand->rechitsBegin(); it != castorcand->rechitsEnd(); it++) {
+	                         edm::Ref<edm::SortedCollection<CastorRecHit> > rechit_p = *it;	                        
+	                         double Erechit = rechit_p->energy();
+	                         HcalCastorDetId id = rechit_p->id();
+	                         int module = id.module();	                                
+                                 double zrechit = 0;	 
+                                 if (module < 3) zrechit = -14390 - 24.75 - 49.5*(module-1);	 
+                                 if (module > 2) zrechit = -14390 - 99 - 49.5 - 99*(module-3);	 
+                                 zmean += Erechit*zrechit;	 
+                                 z2mean += Erechit*zrechit*zrechit;
+      			} // end loop over rechits
 			
 			nTowers_++;
 		}

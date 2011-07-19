@@ -44,8 +44,15 @@ class HLTMuonL2PreFilter : public HLTFilter {
     /// maxEta cut
     double maxEta_;
 
+    /// |eta| bins for minNstations cut 
+    /// (#bins must match #minNstations cuts and #minNhits cuts)
+    std::vector<double> absetaBins_;
+
+    /// minimum number of muon stations used
+    std::vector<int> minNstations_;
+
     /// minimum number of valid muon hits
-    int minNhits_;
+    std::vector<int> minNhits_;
 
     /// cut on impact parameter wrt to the beam spot
     double maxDr_;
@@ -60,7 +67,7 @@ class HLTMuonL2PreFilter : public HLTFilter {
     double nSigmaPt_;
 
     /// should we save the input collection ?
-    bool saveTag_;
+    bool saveTags_;
 };
 
 #endif //HLTMuonL2PreFilter_h

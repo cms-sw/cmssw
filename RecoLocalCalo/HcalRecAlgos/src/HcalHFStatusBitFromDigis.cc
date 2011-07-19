@@ -10,9 +10,9 @@ HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis()
   // use simple values in default constructor
   minthreshold_=40; // minimum energy threshold (in GeV)
 
-  firstSample_=3; // these are the firstSample, samplesToAdd value of Igor's algorithm -- not necessarily the same as the reco first, toadd values (which are supplied individually for each hit)
-  samplesToAdd_=4;
-  expectedPeak_=4;
+  firstSample_=1; // these are the firstSample, samplesToAdd value of Igor's algorithm -- not necessarily the same as the reco first, toadd values (which are supplied individually for each hit)
+  samplesToAdd_=3;
+  expectedPeak_=2;
 
   // Based on Igor V's algorithm:
   //TS4/(TS3+TS4+TS5+TS6) > 0.93 - exp(-0.38275-0.012667*E)
@@ -55,48 +55,24 @@ HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis(const edm::ParameterSet& HFDi
 
 HcalHFStatusBitFromDigis::~HcalHFStatusBitFromDigis(){}
 
-void HcalHFStatusBitFromDigis::resetFlagTimeSamples(int firstSample, int samplesToAdd)
+void HcalHFStatusBitFromDigis::resetFlagTimeSamples(int firstSample, int samplesToAdd, int expectedPeak)
 {
   // This resets the time samples used in the HF flag.  These samples are not necessarily the same 
   // as the flags used by the energy reconstruction
   firstSample_  = firstSample;
   samplesToAdd_ = samplesToAdd;
+  expectedPeak_ = expectedPeak;
 } // void HcalHFStatusBitFromDigis
 
 void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf, 
 						 const HFDataFrame& digi,
 						 const HcalCoder& coder,
-						 const HcalCalibrations& calib,
-						 int recoFirstSample,  // read for each hit from database
-						 int recoSamplesToAdd) 
+						 const HcalCalibrations& calib)
 {
-  // Parameters used in reconstruction (not necessarily the same as the flagging 'firstSample' and 'samplesToAdd')
-  recoFirstSample_ = recoFirstSample;
-  recoSamplesToAdd_ = recoSamplesToAdd;
-
-  //This is an UGLY UGLY hack that should be removed once we 
-  // are reading flag parameters from a database.  It forces
-  // the samples used in the flag to be set based on the 
-  // sample used in energy reconstruction, so that 2010
-  // data flags can be properly reproduced -- Jeff, 27 Feb 2011
-  if (recoFirstSample_==4 && recoSamplesToAdd_==2)
-    {
-      firstSample_=3;
-      samplesToAdd_=3;
-    }
-  else if (recoFirstSample_==3 && recoSamplesToAdd_==4)
-    {
-      firstSample_=3;
-      samplesToAdd_=4;
-    }
-
-
-  // The following 3 values are computed using the default reconstruction window (for Shuichi's algorithm)
-  double maxInWindow=-10; // maximum value found in reco window
-  int maxCapid=-1;
-  int maxTS=-1;  // time slice where maximum is found
-
-  // The following 3 values are computed only in the window [firstSample_, firstSample_ + samplesToAdd_), which may not be the same as the default reco window  (for Igor's algorithm)
+  // The following 3 values are computed by Igor's algorithm 
+  //only in the window [firstSample_, firstSample_ + samplesToAdd_), 
+  //which may not be the same as the default reco window.
+  
   double totalCharge=0;
   double peakCharge=0;
   double RecomputedEnergy=0;
@@ -109,17 +85,7 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
     {
       int capid=digi.sample(i).capid();
       double value = tool[i]-calib.pedestal(capid);
-      // Find largest value within reconstruction window
-      if (i>=recoFirstSample_ && i <recoFirstSample_+recoSamplesToAdd_)
-	{
-	  // Find largest overall pulse within the full digi, or just the allowed window?
-	  if (value>maxInWindow) 
-	    {
-	      maxCapid=capid;
-	      maxInWindow=value;  
-	      maxTS=i;
-	    }
-	}
+
 
       // Sum all charge within flagging window, find charge in expected peak time slice
       if (i >=firstSample_ && i < firstSample_+samplesToAdd_)
@@ -130,15 +96,6 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
 	}
     } // for (int i=0;i<digi.size();++i)
   
-  // FLAG:  HcalCaloLabel::Fraction2TS
-  // Shuichi's Algorithm:  Compare size of peak in digi to charge in TS immediately before peak
-  int TSfrac_counter=1; 
-  // get pedestals for each capid -- add 4 to each capid, and then check mod 4.
-  // (This takes care of the case where max capid =0 , and capid-1 would then be negative)
-  if (maxTS>0 &&
-      tool[maxTS]!=calib.pedestal(maxCapid))
-    TSfrac_counter=int(50*((tool[maxTS-1]-calib.pedestal((maxCapid+3)%4))/(tool[maxTS]-calib.pedestal((maxCapid+4)%4)))+1); // 6-bit counter to hold peak ratio info
-  hf.setFlagField(TSfrac_counter, HcalCaloFlagLabels::Fraction2TS,6);
 
   // FLAG:  HcalCaloLabels::HFDigiTime
   // Igor's algorithm:  compare charge in peak to total charge in window
