@@ -68,6 +68,8 @@ HybridClusterProducer::HybridClusterProducer(const edm::ParameterSet& ps)
                                    ps.getParameter<int>("step"),
                                    ps.getParameter<double>("ethresh"),
                                    ps.getParameter<double>("eseed"),
+                                   ps.getParameter<double>("xi"),
+                                   ps.getParameter<bool>("useEtForXi"),
                                    ps.getParameter<double>("ewing"),
 				   flagsexcl,
                                    posCalculator_,

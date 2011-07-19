@@ -6,6 +6,10 @@ cleanedHybridSuperClusters = cms.EDProducer("HybridClusterProducer",
     eThreshA = cms.double(0.003),
     # seed thresold for dominos
     eseed = cms.double(0.35),
+    # coefficient to increase Eseed as a function of 5x5; 0 gives old behaviour   
+    xi = cms.double(0.00),
+    # increase Eseed as a function of et_5x5 (othwewise it's e_5x5)
+    useEtForXi = cms.bool(True),
     # output collections
     clustershapecollection = cms.string(''),
     shapeAssociation = cms.string('hybridShapeAssoc'),

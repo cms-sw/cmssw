@@ -48,6 +48,10 @@ class HybridClusterAlgo
   double et25(EcalBarrelNavigator &navigator,
                 const EcalRecHitCollection *hits,
                 const CaloSubdetectorGeometry *geometry);
+  // ratio Et/e
+  double e2Et(EcalBarrelNavigator &navigator,
+                const EcalRecHitCollection *hits,
+                const CaloSubdetectorGeometry *geometry);
 
 
   BremRecoveryPhiRoadAlgo *phiRoadAlgo_;
@@ -59,6 +63,12 @@ class HybridClusterAlgo
 
   //Threshold for becoming a sub-peak in the supercluster.
   double Eseed;
+
+  //Coefficient to increase Eseed as a function of 5x5  
+  double Xi;
+
+  //Increase Eseed as a function of et_5x5 (othwewise it's e_5x5)  
+  bool UseEtForXi;
 
   //Threshold for adding the additional two 'wing' cells to domino. 
   double Ewing;
@@ -117,6 +127,8 @@ class HybridClusterAlgo
 		    int step,
 		    double ethres,
 		    double eseed,
+		    double xi,
+		    bool useEtForXi,
                     double ewing,
 		    std::vector<int> v_chstatus,
                     const PositionCalc& posCalculator,

@@ -16,6 +16,8 @@ HybridClusterAlgo::HybridClusterAlgo(double eb_str,
 				     int step, 
 				     double ethres,
 				     double eseed,
+				     double xi,
+				     bool useEtForXi,
 				     double ewing,
 				     std::vector<int> v_chstatus,
 				     const PositionCalc& posCalculator,
@@ -28,7 +30,7 @@ HybridClusterAlgo::HybridClusterAlgo(double eb_str,
   
   eb_st(eb_str), phiSteps_(step), 
   eThres_(ethres), eThresA_(eThresA), eThresB_(eThresB),
-  Eseed(eseed),  Ewing(ewing), 
+  Eseed(eseed), Xi(xi), UseEtForXi(useEtForXi), Ewing(ewing), 
   dynamicEThres_(dynamicEThres),
   v_chstatus_(v_chstatus), v_severitylevel_(severityToExclude),
   //severityRecHitThreshold_(severityRecHitThreshold),
@@ -225,9 +227,9 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
 		//
 		// compute the phi road length
 		double phiSteps;
+		double et5x5 = et25(navigator, hits, geometry);
 		if (dynamicPhiRoad_ && e_init > 0)
 		{
-			double et5x5 = et25(navigator, hits, geometry);
 			phiSteps = phiRoadAlgo_->barrelPhiRoad(et5x5);
 			navigator.home();
 		} else phiSteps = phiSteps_;
@@ -296,13 +298,18 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
 		//Identify the peaks in this set of dominos:
 		//Peak==a domino whose energy is greater than the two adjacent dominos.
 		//thus a peak in the local sense.
+		double etToE(1.);
+		if(!UseEtForXi){
+		  etToE = 1./e2Et(navigator, hits, geometry);;
+		}
 		std::vector <int> PeakIndex;
 		for (int i=1;i<int(dominoEnergy.size())-1;++i){
 			if (dominoEnergy[i] > dominoEnergy[i-1]
 					&& dominoEnergy[i] >= dominoEnergy[i+1]
-					&& dominoEnergy[i] > Eseed){
-				PeakIndex.push_back(i);
-			}
+			    && dominoEnergy[i] > sqrt( Eseed*Eseed + Xi*Xi*et5x5*et5x5*etToE*etToE) )
+			  { // Eseed increases ~proportiaonally to et5x5
+			    PeakIndex.push_back(i);
+			  }
 		}
 
 		LogTrace("EcalClusters") << "Found: " << PeakIndex.size() << " peaks." ;
@@ -452,7 +459,7 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
 		}
 	}//Seed loop
 
-}
+}// end of mainSearch
 
 reco::SuperClusterCollection HybridClusterAlgo::makeSuperClusters(const reco::CaloClusterPtrVector& clustersCollection)
 {
@@ -651,6 +658,44 @@ double HybridClusterAlgo::et25(EcalBarrelNavigator &navigator,
 	Point pos = posCalculator_.Calculate_Location(dets, hits, geometry);
 	double et = energySum/cosh(pos.eta());
 	return et;
+
+}
+
+
+double HybridClusterAlgo::e2Et(EcalBarrelNavigator &navigator, 
+				const EcalRecHitCollection *hits, 
+				const CaloSubdetectorGeometry *geometry)
+{
+  
+  DetId thisDet;
+  std::vector< std::pair<DetId, float> > dets;
+  dets.clear();
+  EcalRecHitCollection::const_iterator hit;
+  double energySum = 0.0;
+  
+  for (int dx = -2; dx < 3; ++dx)
+    {
+      for (int dy = -2; dy < 3; ++ dy)
+	{
+	  //std::cout << "dx, dy " << dx << ", " << dy << std::endl;
+	  thisDet = navigator.offsetBy(dx, dy);
+	  navigator.home();
+	  
+	  if (thisDet != DetId(0))
+	    {
+	      hit = recHits_->find(thisDet);
+	      if (hit != recHits_->end()) 
+		{
+		  dets.push_back( std::pair<DetId, float>(thisDet, 1.) ); // by default hit energy fraction is set to 1
+		  energySum += hit->energy();
+		}
+	    }
+	}
+    }
+  
+  // compute coefficient to turn E into Et 
+  Point pos = posCalculator_.Calculate_Location(dets, hits, geometry);
+  return  1/cosh(pos.eta());
 
 }
 
