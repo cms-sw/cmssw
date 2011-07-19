@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.35 2011/07/16 02:48:11 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.36 2011/07/16 03:06:45 amraktad Exp $
 //
 
 //#define PERFTOOL_GEO_TABLE
@@ -651,9 +651,11 @@ void FWGeometryTableManager::updateFilter()
 }
 
 
-FWGeometryTableManager::NodeInfo& FWGeometryTableManager::refSelected()
+FWGeometryTableManager::Entries_i FWGeometryTableManager::refSelected()
 {
-   return  m_entries[m_selectedIdx];
+   Entries_i i = m_entries.begin();
+   std::advance(i,m_selectedIdx );
+   return  i; //m_entries[m_selectedIdx];
 }
 
 void FWGeometryTableManager::getNodePath(int idx, std::string& path) const
@@ -764,3 +766,31 @@ void FWGeometryTableManager::getNodeMatrix(const NodeInfo& data, TGeoHMatrix& mt
 
    mtx.Multiply(data.m_node->GetMatrix());
 }
+
+//______________________________________________________________________________
+
+void FWGeometryTableManager::printMaterials()
+{
+   std::map<TGeoMaterial*, std::string> mlist;
+   Entries_i it = m_entries.begin();
+   std::advance(it, m_selectedIdx );
+   int nLevel = it->m_level;
+   it++;
+   while (it->m_level > nLevel)
+   {
+      TGeoMaterial* m = it->m_node->GetVolume()->GetMaterial();
+      if (mlist.find(m) == mlist.end())
+      {
+         mlist[m] = m->GetName();
+      } 
+      it++;
+   }
+
+   printf("size %d \n", (int)mlist.size());
+   for(std::map<TGeoMaterial*, std::string>::iterator i = mlist.begin(); i != mlist.end(); ++i)
+   {
+      printf("material %s \n", i->second.c_str());
+   }
+
+}
+

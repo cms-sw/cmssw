@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManager.h,v 1.27 2011/07/15 01:24:10 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.28 2011/07/16 02:48:11 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
@@ -143,7 +143,7 @@ public:
    void printChildren(int) const;
    bool nodeImported(int idx) const;
    // geo stuff
-   NodeInfo& refSelected();
+   Entries_i refSelected();
    Entries_v& refEntries() {return m_entries;}
 
    void loadGeometry( TGeoNode* , TObjArray*);
@@ -185,6 +185,7 @@ private:
    void updateFilter();
    void checkExpandLevel();
    void topGeoNodeChanged(int);
+   void printMaterials();
 
    //   const std::string& getStatusMessage() const { return m_statusMessage; }
    // ---------- member data --------------------------------
