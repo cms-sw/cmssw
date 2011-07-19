@@ -12,7 +12,7 @@
 /*
   Does post-reco fixes to ECAL photon energy and estimates resolution.
   This can run outside of the usual CMS software framework but requires 
-  access to a file 'EcalGaps.dat' which must be in the same directory as 
+  access to a file 'PhotonFix.dat' which must be in the same directory as 
   that used to run.
 
   To run within CMSSW use PhotonFixCMS.h (which can access the geometry 
