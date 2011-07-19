@@ -4,16 +4,16 @@
 /** \class EcalRecHitWorkerRecover
   *  Algorithms to recover dead channels
   *
-  *  $Id: EcalRecHitWorkerRecover.h,v 1.7 2010/12/03 12:58:16 argiro Exp $
-  *  $Date: 2010/12/03 12:58:16 $
-  *  $Revision: 1.7 $
+  *  $Id: EcalRecHitWorkerRecover.h,v 1.8 2010/12/03 13:03:49 argiro Exp $
+  *  $Date: 2010/12/03 13:03:49 $
+  *  $Revision: 1.8 $
   */
 
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalRecHitWorkerBaseClass.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalRecHitSimpleAlgo.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
-
+#include <vector>
 
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 
@@ -42,12 +42,16 @@ class EcalRecHitWorkerRecover : public EcalRecHitWorkerBaseClass {
 		float estimateEnergy(int ieta, EcalRecHitCollection* hits, 
 				     std::set<DetId> sId, 
 				     std::vector<DetId> vId);
+		bool checkChannelStatus(const DetId& id,
+					const std::vector<int>& statusestoexclude);
 
                 edm::ESHandle<EcalLaserDbService> laser;
 
                 // isolated dead channels
-                edm::ESHandle<CaloTopology> caloTopology_;
-		edm::ESHandle<CaloGeometry> caloGeometry_;
+                edm::ESHandle<CaloTopology>      caloTopology_;
+		edm::ESHandle<CaloGeometry>      caloGeometry_;
+		edm::ESHandle<EcalChannelStatus> chStatus_;
+
                 double singleRecoveryThreshold_;
                 std::string singleRecoveryMethod_;
                 bool killDeadChannels_;
@@ -58,6 +62,10 @@ class EcalRecHitWorkerRecover : public EcalRecHitWorkerBaseClass {
                 bool recoverEEVFE_;
                 bool recoverEBFE_;
                 bool recoverEEFE_;
+		
+		// list of channel statuses for which recovery in EE should 
+                // not be attempted 
+		std::vector<int> dbStatusToBeExcludedEE_;
 
                 // dead FE
                 EcalTPGScale ecalScale_;
