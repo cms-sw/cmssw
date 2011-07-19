@@ -8,6 +8,3 @@
 <use   name="CalibFormats/HcalObjects"/>
 <use   name="RecoLocalCalo/HcalRecAlgos"/>
 <use   name="Geometry/CSCGeometry"/>
-<export>
-  <lib   name="1"/>
-</export>
