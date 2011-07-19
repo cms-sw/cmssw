@@ -7,10 +7,11 @@
  * stores isolation, shower shape and additional info
  * needed for identification
  * 
- * \version $Id: Photon.h,v 1.38 2011/02/25 22:13:38 dlange Exp $
+ * \version $Id: Photon.h,v 1.39 2011/06/14 09:17:26 eulisse Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
+#include "DataFormats/EgammaCandidates/interface/Conversion.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
 #include "DataFormats/EgammaCandidates/interface/PhotonCore.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
@@ -59,13 +60,19 @@ namespace reco {
     reco::SuperClusterRef pfSuperCluster() const {return this->photonCore()->pfSuperCluster();}
     /// vector of references to  Conversion's
     reco::ConversionRefVector conversions() const {return this->photonCore()->conversions() ;}  
+    enum ConversionProvenance {egamma=0, 
+			       pflow=1, 
+			       both=2};
+
+    /// vector of references to  one leg Conversion's
+    reco::ConversionRefVector conversionsOneLeg() const {return this->photonCore()->conversionsOneLeg() ;} 
     /// Bool flagging photons with a vector of refereces to conversions with size >0
-    bool hasConversionTracks() const { if (this->photonCore()->conversions().size() > 0)  return true; else return false;}
+    bool hasConversionTracks() const { if (this->photonCore()->conversions().size() > 0 || this->photonCore()->conversionsOneLeg().size() > 0)  return true; else return false;}
     /// reference to electron Pixel seed 
     reco::ElectronSeedRefVector electronPixelSeeds() const {return this->photonCore()->electronPixelSeeds();}
     /// Bool flagging photons having a non-zero size vector of Ref to electornPixel seeds
     bool hasPixelSeed() const { if ((this->photonCore()->electronPixelSeeds()).size() > 0 ) return true; else return false; }
-
+    int conversionTrackProvenance(const edm::RefToBase<reco::Track>& convTrack) const;
 
  
     /// position in ECAL: this is th SC position if r9<0.93. If r8>0.93 is position of seed BasicCluster taking shower depth for unconverted photon

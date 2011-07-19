@@ -10,7 +10,7 @@
  *
  * \author  N. Marinelli Univ. of Notre Dame
  * 
- * \version $Id: PhotonCore.h,v 1.4 2011/02/14 19:27:14 nancy Exp $
+ * \version $Id: PhotonCore.h,v 1.5 2011/02/20 23:11:17 nancy Exp $
  * $Log $
  */
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
@@ -53,6 +53,8 @@ namespace reco {
     void setPflowSuperCluster( const reco::SuperClusterRef & r ) { pfSuperCluster_ = r; }
     /// add  single ConversionRef to the vector of Refs
     void addConversion( const reco::ConversionRef & r ) { conversions_.push_back(r); }
+    /// add  single ConversionRef to the vector of Refs
+    void addOneLegConversion( const reco::ConversionRef & r ) { conversionsOneLeg_.push_back(r); }
     /// set electron pixel seed ref
     void addElectronPixelSeed( const reco::ElectronSeedRef & r ) { electronSeed_.push_back(r) ; }
     /// set the provenance
@@ -72,6 +74,9 @@ namespace reco {
 
     /// get vector of references to  Conversion's
     reco::ConversionRefVector conversions() const {return conversions_;} 
+    /// get vector of references to one leg Conversion's
+    reco::ConversionRefVector conversionsOneLeg() const {return conversionsOneLeg_;} 
+
     /// get reference to electron seed if existing
     reco::ElectronSeedRefVector electronPixelSeeds() const {return electronSeed_;}
     bool isPFlowPhoton() const {return isPFlowPhoton_;} 
@@ -83,6 +88,8 @@ namespace reco {
     reco::SuperClusterRef superCluster_;
     // vector of references to Conversions
     reco::ConversionRefVector  conversions_;
+    //vector of references for 1-leg
+    reco::ConversionRefVector  conversionsOneLeg_;
     // vector of references to ElectronPixelSeeds
     reco::ElectronSeedRefVector  electronSeed_;
     /// reference to a Particle flow SuperCluster
