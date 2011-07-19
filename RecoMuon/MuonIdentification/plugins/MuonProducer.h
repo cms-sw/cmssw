@@ -8,8 +8,8 @@
  * the entire event has been reconstructed. The collections produced here are meant to be used for the final analysis (or as PAT input).
  * The previous muon collection is meant to be transient.
  *
- *  $Date: 2011/06/17 15:03:12 $
- *  $Revision: 1.10 $
+ *  $Date: 2011/06/20 14:09:09 $
+ *  $Revision: 1.11 $
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>
  */
 
@@ -57,9 +57,12 @@ private:
     theAlias=alias;
   }
 
+  std::string labelOrInstance(const edm::InputTag &) const;
+
 private:
   bool debug_;
-
+  bool fastLabelling_;
+  
   edm::InputTag theMuonsCollectionLabel;
   edm::InputTag thePFCandLabel;
 

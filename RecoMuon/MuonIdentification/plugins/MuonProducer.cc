@@ -1,8 +1,8 @@
 /** \class MuonProducer
  *  See header file.
  *
- *  $Date: 2011/06/17 15:03:12 $
- *  $Revision: 1.11 $
+ *  $Date: 2011/06/20 14:09:09 $
+ *  $Revision: 1.12 $
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>
  */
 
@@ -50,6 +50,9 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet):debug_(pSet.getUntrack
 
   setAlias(pSet.getParameter<std::string>("@module_label"));
 
+  fastLabelling_ = pSet.getUntrackedParameter<bool>("FastLabelling",true);
+
+
   theMuonsCollectionLabel = pSet.getParameter<edm::InputTag>("InputMuons");
   thePFCandLabel = pSet.getParameter<edm::InputTag>("PFCandidates");
 
@@ -67,9 +70,9 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet):debug_(pSet.getUntrack
   
   //  if (fillIsolation_ && writeIsoDeposits_){
     theTrackDepositName = pSet.getParameter<edm::InputTag>("TrackIsoDeposits");
-    produces<reco::IsoDepositMap>(theTrackDepositName.label());
+    produces<reco::IsoDepositMap>(labelOrInstance(theTrackDepositName));
     theJetDepositName = pSet.getParameter<edm::InputTag>("JetIsoDeposits");
-    produces<reco::IsoDepositMap>(theJetDepositName.label());
+    produces<reco::IsoDepositMap>(labelOrInstance(theJetDepositName));
     theEcalDepositName = pSet.getParameter<edm::InputTag>("EcalIsoDeposits");
     produces<reco::IsoDepositMap>(theEcalDepositName.instance());
     theHcalDepositName = pSet.getParameter<edm::InputTag>("HcalIsoDeposits");
@@ -82,16 +85,16 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet):debug_(pSet.getUntrack
       theSelectorMapNames = pSet.getParameter<InputTags>("SelectorMaps");
       
       for(InputTags::const_iterator tag = theSelectorMapNames.begin(); tag != theSelectorMapNames.end(); ++tag)
-	produces<edm::ValueMap<bool> >(tag->label());
+	produces<edm::ValueMap<bool> >(labelOrInstance(*tag));
     }
 
     theShowerMapName = pSet.getParameter<edm::InputTag>("ShowerInfoMap");
-    produces<edm::ValueMap<reco::MuonShower> >(theShowerMapName.label());
+    produces<edm::ValueMap<reco::MuonShower> >(labelOrInstance(theShowerMapName));
 
     if(fillCosmicsIdMap_){
       theCosmicCompMapName = pSet.getParameter<edm::InputTag>("CosmicIdMap");
-      produces<edm::ValueMap<reco::MuonCosmicCompatibility> >(theCosmicCompMapName.label());
-      produces<edm::ValueMap<unsigned int> >(theCosmicCompMapName.label());
+      produces<edm::ValueMap<reco::MuonCosmicCompatibility> >(labelOrInstance(theCosmicCompMapName));
+      produces<edm::ValueMap<unsigned int> >(labelOrInstance(theCosmicCompMapName));
     }
 
     theMuToMuMapName = theMuonsCollectionLabel.label()+"2"+theAlias+"sMap";
@@ -202,8 +205,8 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
      fillMuonMap<reco::MuonTimeExtra>(event, muonHandle, dtTimeColl,"dt");
      fillMuonMap<reco::MuonTimeExtra>(event, muonHandle, cscTimeColl,"csc");
      
-     fillMuonMap<reco::IsoDeposit>(event, muonHandle, trackDepColl, theTrackDepositName.label());
-     fillMuonMap<reco::IsoDeposit>(event, muonHandle, jetDepColl,   theJetDepositName.label());
+     fillMuonMap<reco::IsoDeposit>(event, muonHandle, trackDepColl, labelOrInstance(theTrackDepositName));
+     fillMuonMap<reco::IsoDeposit>(event, muonHandle, jetDepColl,   labelOrInstance(theJetDepositName));
      fillMuonMap<reco::IsoDeposit>(event, muonHandle, ecalDepColl,  theEcalDepositName.instance());
      fillMuonMap<reco::IsoDeposit>(event, muonHandle, hcalDepColl,  theHcalDepositName.instance());
      fillMuonMap<reco::IsoDeposit>(event, muonHandle, hoDepColl,    theHoDepositName.instance());
@@ -213,15 +216,15 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
        unsigned int s = 0;
        for(InputTags::const_iterator tag = theSelectorMapNames.begin(); 
 	   tag != theSelectorMapNames.end(); ++tag, ++s){
-	 fillMuonMap<bool>(event, muonHandle, selectorMapResults[s], tag->label());
+	 fillMuonMap<bool>(event, muonHandle, selectorMapResults[s], labelOrInstance(*tag));
        }
      }
 
-     fillMuonMap<reco::MuonShower>(event, muonHandle, showerInfoColl, theShowerMapName.label());
+     fillMuonMap<reco::MuonShower>(event, muonHandle, showerInfoColl, labelOrInstance(theShowerMapName));
 
      if(fillCosmicsIdMap_){
-       fillMuonMap<unsigned int>(event, muonHandle, cosmicIdColl, theCosmicCompMapName.label());
-       fillMuonMap<reco::MuonCosmicCompatibility>(event, muonHandle, cosmicCompColl, theCosmicCompMapName.label());
+       fillMuonMap<unsigned int>(event, muonHandle, cosmicIdColl, labelOrInstance(theCosmicCompMapName));
+       fillMuonMap<reco::MuonCosmicCompatibility>(event, muonHandle, cosmicCompColl, labelOrInstance(theCosmicCompMapName));
      }
 
      fillMuonMap<reco::MuonRef>(event,inputMuonsOH, muonRefColl, theMuToMuMapName);
@@ -324,8 +327,8 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
    fillMuonMap<reco::MuonTimeExtra>(event, muonHandle, cscTimeColl,"csc");
 
 
-   fillMuonMap<reco::IsoDeposit>(event, muonHandle, trackDepColl, theTrackDepositName.label());
-   fillMuonMap<reco::IsoDeposit>(event, muonHandle, jetDepColl,   theJetDepositName.label());
+   fillMuonMap<reco::IsoDeposit>(event, muonHandle, trackDepColl, labelOrInstance(theTrackDepositName));
+   fillMuonMap<reco::IsoDeposit>(event, muonHandle, jetDepColl,   labelOrInstance(theJetDepositName));
    fillMuonMap<reco::IsoDeposit>(event, muonHandle, ecalDepColl,  theEcalDepositName.instance());
    fillMuonMap<reco::IsoDeposit>(event, muonHandle, hcalDepColl,  theHcalDepositName.instance());
    fillMuonMap<reco::IsoDeposit>(event, muonHandle, hoDepColl,    theHoDepositName.instance());
@@ -334,14 +337,14 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
      unsigned int s = 0;
      for(InputTags::const_iterator tag = theSelectorMapNames.begin(); 
 	 tag != theSelectorMapNames.end(); ++tag, ++s)
-       fillMuonMap<bool>(event, muonHandle, selectorMapResults[s], tag->label());
+       fillMuonMap<bool>(event, muonHandle, selectorMapResults[s], labelOrInstance(*tag));
    }
 
-   fillMuonMap<reco::MuonShower>(event, muonHandle, showerInfoColl, theShowerMapName.label());
+   fillMuonMap<reco::MuonShower>(event, muonHandle, showerInfoColl, labelOrInstance(theShowerMapName));
 
    if(fillCosmicsIdMap_){
-     fillMuonMap<unsigned int>(event, muonHandle, cosmicIdColl, theCosmicCompMapName.label());
-     fillMuonMap<reco::MuonCosmicCompatibility>(event, muonHandle, cosmicCompColl, theCosmicCompMapName.label());
+     fillMuonMap<unsigned int>(event, muonHandle, cosmicIdColl, labelOrInstance(theCosmicCompMapName));
+     fillMuonMap<reco::MuonCosmicCompatibility>(event, muonHandle, cosmicCompColl, labelOrInstance(theCosmicCompMapName));
    }
 
    fillMuonMap<reco::MuonRef>(event,inputMuonsOH, muonRefColl, theMuToMuMapName);
@@ -368,3 +371,8 @@ void MuonProducer::fillMuonMap(edm::Event& event,
 }
 
 
+std::string MuonProducer::labelOrInstance(const edm::InputTag &input) const{
+  if(fastLabelling_) return input.label();
+
+  return input.label() != theMuonsCollectionLabel.label() ? input.label() : input.instance();
+}
