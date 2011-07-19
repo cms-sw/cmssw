@@ -97,7 +97,8 @@ process.muontiming.TimingFillerParameters.DTTimingParameters.MatchParameters.DTr
 
 
 ########################################################################
-
+process.nEventsBefEDM   = cms.EDProducer("EventCountProducer")
+########################################################################
 
 
 process.OUT = cms.OutputModule("PoolOutputModule",
@@ -146,7 +147,7 @@ process.OUT = cms.OutputModule("PoolOutputModule",
 
 
 #LOOK AT SD PASSED PATH IN ORDER to avoid as much as possible duplicated events (make the merging of .root file faster)
-process.p1 = cms.Path(process.genParticles + process.exoticaHSCPSeq +  process.dt4DSegmentsMT * process.HSCParticleProducerSeq)
+process.p1 = cms.Path(process.nEventsBefEDM + process.genParticles + process.exoticaHSCPSeq + process.dt4DSegmentsMT * process.HSCParticleProducerSeq)
 process.endPath = cms.EndPath(process.OUT)
 
 
