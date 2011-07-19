@@ -65,13 +65,13 @@ PiZeroDiscriminatorProducer::PiZeroDiscriminatorProducer(const ParameterSet& ps)
 
   string debugString = ps.getParameter<string>("debugLevel");
 
-  if      (debugString == "DEBUG")   debugL_pi0 = EndcapPiZeroDiscriminatorAlgo::pDEBUG;
-  else if (debugString == "INFO")    debugL_pi0 = EndcapPiZeroDiscriminatorAlgo::pINFO;
-  else                               debugL_pi0 = EndcapPiZeroDiscriminatorAlgo::pERROR;
+  if      (debugString == "DEBUG")   debugL_pi0 = pDEBUG;
+  else if (debugString == "INFO")    debugL_pi0 = pINFO;
+  else                               debugL_pi0 = pERROR;
 
   string tmpPath = ps.getUntrackedParameter<string>("pathToWeightFiles","RecoEcal/EgammaClusterProducers/data/");
   
-  presh_pi0_algo = new EndcapPiZeroDiscriminatorAlgo(preshStripECut_, preshNst_, tmpPath.c_str(), debugL_pi0); 
+  presh_pi0_algo = new EndcapPiZeroDiscriminatorAlgo(preshStripECut_, preshNst_, tmpPath.c_str()); 
 
   produces< PhotonPi0DiscriminatorAssociationMap >(PhotonPi0DiscriminatorAssociationMap_);
 
@@ -90,7 +90,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
 
   ostringstream ostr; // use this stream for all messages in produce
 
-  if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG )
+  if ( debugL_pi0 <= pDEBUG )
        cout << "\n PiZeroDiscriminatorProducer: .......  Event " << evt.id() << " with Number = " <<  nEvt_+1
             << " is analyzing ....... " << endl << endl;
 
@@ -98,14 +98,14 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
   Handle<reco::PreshowerClusterShapeCollection> pPreshowerShapeClustersX;
   evt.getByLabel(preshClusterShapeProducer_, preshClusterShapeCollectionX_, pPreshowerShapeClustersX);
   const reco::PreshowerClusterShapeCollection *clustersX = pPreshowerShapeClustersX.product();
-  if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) {
+  if ( debugL_pi0 <= pDEBUG ) {
     cout << "\n PiZeroDiscriminatorProducer: pPreshowerShapeClustersX->size() = " << clustersX->size() << endl;
   } 
   // Get ES clusters in Y plane
   Handle<reco::PreshowerClusterShapeCollection> pPreshowerShapeClustersY;
   evt.getByLabel(preshClusterShapeProducer_, preshClusterShapeCollectionY_, pPreshowerShapeClustersY);
   const reco::PreshowerClusterShapeCollection *clustersY = pPreshowerShapeClustersY.product();
-  if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) { 
+  if ( debugL_pi0 <= pDEBUG ) { 
     cout << "\n PiZeroDiscriminatorProducer: pPreshowerShapeClustersY->size() = " << clustersY->size() << endl;
   }
   auto_ptr<PhotonPi0DiscriminatorAssociationMap> Pi0Assocs_p(new PhotonPi0DiscriminatorAssociationMap);
@@ -130,7 +130,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
   Handle<PhotonCollection> correctedPhotonHandle; 
   evt.getByLabel(photonCorrCollectionProducer_, correctedPhotonCollection_ , correctedPhotonHandle);
   const PhotonCollection corrPhoCollection = *(correctedPhotonHandle.product());
-  if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) {
+  if ( debugL_pi0 <= pDEBUG ) {
     cout << " PiZeroDiscriminatorProducer: Photon Collection size : " << corrPhoCollection.size() << endl;
   }
 
@@ -142,7 +142,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
       float Phot_phi  = iPho->phi();
       float Phot_R9   = iPho->r9();
       
-      if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) {
+      if ( debugL_pi0 <= pDEBUG ) {
          cout << " PiZeroDiscriminatorProducer: Photon index : " << iPho - corrPhoCollection.begin() 
                            << " with Energy = " <<  Phot_En
 			   << " Et = " << Phot_Et
@@ -157,7 +157,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
       float SC_eta  = it_super->eta();
       float SC_phi  = it_super->phi();
 
-      if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) {
+      if ( debugL_pi0 <= pDEBUG ) {
         cout << " PiZeroDiscriminatorProducer: superE = " << SC_En
 	          << " superEt = " << SC_Et 
                   << " superETA = " << SC_eta
@@ -174,7 +174,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
       float nnoutput = -1.;
       if(fabs(SC_eta) >= 1.65 && fabs(SC_eta) <= 2.5) {  //  Use Preshower region only
           const GlobalPoint pointSC(it_super->x(),it_super->y(),it_super->z()); // get the centroid of the SC
-          if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) cout << "SC centroind = " << pointSC << endl;
+          if ( debugL_pi0 <= pDEBUG ) cout << "SC centroind = " << pointSC << endl;
           double SC_seed_energy = it_super->seed()->energy();
 
           const CaloClusterPtr  seed = it_super->seed();
@@ -185,7 +185,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
           double SC_seed_Shape_E3x3 = EcalClusterTools::e3x3( *seed, eeRecHits, topology );
           double SC_seed_Shape_E5x5 = EcalClusterTools::e5x5( *seed, eeRecHits, topology );
 
-          if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) {
+          if ( debugL_pi0 <= pDEBUG ) {
             cout << "PiZeroDiscriminatorProducer: ( SeedBC_energy, E1, E3x3, E5x5) = " 
 	         <<  SC_seed_energy << " "
                  <<  SC_seed_Shape_E1 <<  " "
@@ -220,13 +220,13 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
           }
 
           if(vout_stripE1.size() == 0 || vout_stripE2.size() == 0 ) {
-            if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) 
+            if ( debugL_pi0 <= pDEBUG ) 
 	            cout  << " PiZeroDiscriminatorProducer: Attention!!!!!  Not Valid ES NN input Variables Return NNout = -1" << endl;
 	    Pi0Assocs_p->insert(Ref<PhotonCollection>(correctedPhotonHandle,iPho - corrPhoCollection.begin()), nnoutput);
             continue;
 	  }
 
-          if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) {
+          if ( debugL_pi0 <= pDEBUG ) {
             cout  << "PiZeroDiscriminatorProducer : vout_stripE1.size = " << vout_stripE1.size() 
 	          << " vout_stripE2.size = " << vout_stripE2.size() << endl;
             cout  << "PiZeroDiscriminatorProducer : ES_input_vector = " ;
@@ -243,7 +243,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
                                                  SC_seed_Shape_E1, SC_seed_Shape_E3x3, SC_seed_Shape_E5x5, EScorr_);
 
           if(!valid_NNinput) {
-            if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) 
+            if ( debugL_pi0 <= pDEBUG ) 
 	           cout  << " PiZeroDiscriminatorProducer: Attention!!!!!  Not Valid ES NN input Variables Return NNout = -1" << endl;
 	    Pi0Assocs_p->insert(Ref<PhotonCollection>(correctedPhotonHandle,iPho - corrPhoCollection.begin()), nnoutput);
 	    continue;
@@ -251,7 +251,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
 
           float* nn_input_var = presh_pi0_algo->get_input_vector();
 
-          if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) {
+          if ( debugL_pi0 <= pDEBUG ) {
             cout  << " PiZeroDiscriminatorProducer: NN_ESEndcap_input_vector+Et+Eta+Phi+R9 = " ;
             for(int k1=0;k1<25;k1++) {
               cout  << nn_input_var[k1] << " " ;
@@ -261,7 +261,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
 
           nnoutput = presh_pi0_algo->GetNNOutput(SC_Et);
 
-          if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) {
+          if ( debugL_pi0 <= pDEBUG ) {
                cout << " PiZeroDiscriminatorProducer: Event : " <<  evt.id()
 	            << " SC id = " << iPho - corrPhoCollection.begin()
 		    << " with Pt = " << SC_Et
@@ -320,7 +320,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
          double SC_seed_Shape_ycog = EcalClusterTools::e2x5Top( *seed, ebRecHits, topology ) - EcalClusterTools::e2x5Bottom( *seed, ebRecHits, topology );
 
 
-         if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) {
+         if ( debugL_pi0 <= pDEBUG ) {
             cout << "PiZeroDiscriminatorProduce: lazyTool  (E1,E3x3,E5x5,E2,cEE,cEP,cPP,E2x2,E3x2_E3x2r,Xcog,Ycog,E2x5Bottom,E2x5Top,Et,Eta,PhiR9) = ( " 
 	         <<   SC_seed_Shape_E1 << " "
                  <<   SC_seed_Shape_E3x3 << " "
@@ -353,7 +353,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
 
          float* nn_input_var = presh_pi0_algo->get_input_vector();
 
-  	 if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) {
+  	 if ( debugL_pi0 <= pDEBUG ) {
            cout  << " PiZeroDiscriminatorProducer : NN_barrel_nonESEndcap_variables+Et+Eta+Phi+R9 = " ;
            for(int k3=0;k3<12;k3++) {
              cout  << nn_input_var[k3] << " " ;
@@ -365,7 +365,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
          nnoutput = presh_pi0_algo->GetBarrelNNOutput(SC_et);
          
 
-         if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) {
+         if ( debugL_pi0 <= pDEBUG ) {
            cout << "PiZeroDiscriminatorProducer : Event : " <<  evt.id()
 	            << " SC id = " << iPho - corrPhoCollection.begin()
 		    << " with Pt = " << SC_Et
@@ -381,7 +381,7 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
   } // end of cycle over Photons
   
   evt.put(Pi0Assocs_p,PhotonPi0DiscriminatorAssociationMap_);
-  if ( debugL_pi0 <= EndcapPiZeroDiscriminatorAlgo::pDEBUG ) cout << "PiZeroDiscriminatorProducer: PhotonPi0DiscriminatorAssociationMap added to the event" << endl;
+  if ( debugL_pi0 <= pDEBUG ) cout << "PiZeroDiscriminatorProducer: PhotonPi0DiscriminatorAssociationMap added to the event" << endl;
 
   nEvt_++;
 

@@ -107,14 +107,8 @@ HLTEcalResonanceFilter::HLTEcalResonanceFilter(const edm::ParameterSet& iConfig)
     gamma_        = preshowerSelection.getParameter<double>("preshCalibGamma");
     mip_          = preshowerSelection.getParameter<double>("preshCalibMIP");
 
-    PreshowerClusterAlgo::DebugLevel debugL;  
-    // The debug level
-    std::string debugString = preshowerSelection.getParameter<std::string>("debugLevelES");
-    if      (debugString == "DEBUG")   debugL = PreshowerClusterAlgo::pDEBUG;
-    else if (debugString == "INFO")    debugL = PreshowerClusterAlgo::pINFO;
-    else                               debugL = PreshowerClusterAlgo::pERROR;
     // ES algo constructor:
-    presh_algo_ = new PreshowerClusterAlgo(preshStripECut,preshClustECut,preshSeededNst,debugL);
+    presh_algo_ = new PreshowerClusterAlgo(preshStripECut,preshClustECut,preshSeededNst);
 
     ESHits_ = preshowerSelection.getParameter< std::string > ("ESCollection");
     produces< ESRecHitCollection >(ESHits_);

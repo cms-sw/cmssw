@@ -241,11 +241,8 @@ HLTPi0RecHitsFilter::HLTPi0RecHitsFilter(const edm::ParameterSet& iConfig)
 
     // The debug level
     std::string debugString = iConfig.getParameter<std::string>("debugLevelES");
-    if      (debugString == "DEBUG")   debugL = PreshowerClusterAlgo::pDEBUG;
-    else if (debugString == "INFO")    debugL = PreshowerClusterAlgo::pINFO;
-    else                               debugL = PreshowerClusterAlgo::pERROR;
     // ES algo constructor:
-    presh_algo = new PreshowerClusterAlgo(preshStripECut,preshClustECut,preshSeededNst,debugL);
+    presh_algo = new PreshowerClusterAlgo(preshStripECut,preshClustECut,preshSeededNst);
 
     if(doSelForPi0Endcap_){
       pi0ESHits_ = iConfig.getParameter< std::string > ("pi0ESCollection");

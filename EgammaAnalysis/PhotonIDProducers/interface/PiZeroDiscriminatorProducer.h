@@ -1,9 +1,9 @@
 #ifndef RecoEcal_EgammaClusterProducers_PiZeroDiscriminatorProducer_h
 #define RecoEcal_EgammaClusterProducers_PiZeroDiscriminatorProducer_h
 
-// $Author: ferriff $
-// $Id: PiZeroDiscriminatorProducer.h,v 1.2 2008/06/17 10:44:25 ferriff Exp $
-// $Date: 2008/06/17 10:44:25 $
+// $Author: akyriaki $
+// $Id: PiZeroDiscriminatorProducer.h,v 1.3 2009/05/26 10:49:33 akyriaki Exp $
+// $Date: 2009/05/26 10:49:33 $
 
 #include <memory>
 
@@ -59,8 +59,8 @@ class PiZeroDiscriminatorProducer : public edm::EDProducer {
   double w0_; 
 
   EndcapPiZeroDiscriminatorAlgo * presh_pi0_algo; // algorithm doing the real work
-
-  EndcapPiZeroDiscriminatorAlgo::DebugLevel_pi0 debugL_pi0;
+  enum DebugLevel_pi0 { pDEBUG = 0, pINFO = 1, pERROR = 2 };
+  DebugLevel_pi0 debugL_pi0;
 };
 #endif
 

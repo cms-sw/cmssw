@@ -49,7 +49,6 @@ class EgammaHLTHybridClusterProducer : public edm::EDProducer
       double regionEtaMargin_;
       double regionPhiMargin_;
 
-      HybridClusterAlgo::DebugLevel debugL;
 
       HybridClusterAlgo * hybrid_p; // clustering algorithm
       PositionCalc posCalculator_; // position calculation algorithm

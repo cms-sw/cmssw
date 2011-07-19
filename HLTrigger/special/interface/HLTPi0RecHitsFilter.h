@@ -242,7 +242,6 @@ class HLTPi0RecHitsFilter : public HLTFilter {
       double mip_;
       double gamma_;
       PreshowerClusterAlgo * presh_algo; // algorithm doing the real work
-      PreshowerClusterAlgo::DebugLevel debugL;  
       // name out output ES cluster collections
       std::string preshClusterCollectionX_;  
       std::string preshClusterCollectionY_;  
