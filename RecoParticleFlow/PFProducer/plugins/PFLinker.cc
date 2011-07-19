@@ -101,13 +101,14 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       
       bool isphoton   = cand.particleId() == reco::PFCandidate::gamma && cand.mva_nothing_gamma()>0.;
       bool iselectron = cand.particleId() == reco::PFCandidate::e;
-      bool ismuon     = cand.particleId() == reco::PFCandidate::mu && fillMuonRefs_;
+      // PFCandidates may have a valid MuonRef though they are not muons.
+      bool hasNonNullMuonRef  = cand.muonRef().isNonnull() && fillMuonRefs_;
       
       // if not an electron or a photon or a muon just fill the PFCandidate collection
-      if ( !(isphoton || iselectron || ismuon)){pfCandidates_p->push_back(cand); continue;}
+      if ( !(isphoton || iselectron || hasNonNullMuonRef)){pfCandidates_p->push_back(cand); continue;}
       
       
-      if (ismuon && fillMuonRefs_) {
+      if (hasNonNullMuonRef) {
 	reco::MuonRef muRef = (*muonMap)[cand.muonRef()];
 	cand.setMuonRef(muRef);
 	muonCandidateMap[muRef] = candPtr;
