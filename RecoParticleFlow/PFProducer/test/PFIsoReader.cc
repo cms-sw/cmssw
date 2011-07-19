@@ -68,6 +68,8 @@ void PFIsoReader::analyze(const edm::Event & iEvent,const edm::EventSetup & c)
   edm::Handle<edm::ValueMap<reco::PFCandidatePtr> > electronValMapH;
   found = iEvent.getByLabel(inputTagValueMapElectrons_,electronValMapH);
   const edm::ValueMap<reco::PFCandidatePtr> & myElectronValMap(*electronValMapH);
+  
+  std::cout << " Read Electron Value Map " << myElectronValMap.size() << std::endl;
 
 //  edm::Handle<edm::ValueMap<reco::PFCandidatePtr> > photonValMapH;
 //  found = iEvent.getByLabel(inputTagValueMapPhotons_,photonValMapH);
@@ -116,19 +118,23 @@ void PFIsoReader::analyze(const edm::Event & iEvent,const edm::EventSetup & c)
   std::cout<<"Electron: "<<nele<<std::endl;
   for(unsigned iele=0; iele<nele;++iele) {
     reco::GsfElectronRef myElectronRef(gsfElectronH,iele);
-    //    const reco::PFCandidatePtr & pfElePtr(myElectronValMap[myElectronRef]);
+
+    if(myElectronRef->mva()<-1) continue;
+    //const reco::PFCandidatePtr & pfElePtr(myElectronValMap[myElectronRef]);
     const reco::PFCandidatePtr pfElePtr(myElectronValMap[myElectronRef]);
     printIsoDeposits(electronIsoDep,pfElePtr);
   }
 
-  // Electrons - from reco 
+  // Electrons - from PFCandidate
   nele=gsfElectronH->size();
-  std::cout<<"Electron: "<<nele<<std::endl;
-  for(unsigned iele=0; iele<nele;++iele) {
-    reco::GsfElectronRef myElectronRef(gsfElectronH,iele);
-    //    const reco::PFCandidatePtr & pfElePtr(myElectronValMap[myElectronRef]);
-    const reco::PFCandidatePtr & pfElePtr(myMergedValMap[myElectronRef]);
-    printIsoDeposits(electronIsoDep,pfElePtr);
+  std::cout<<"Candidates: "<<nele<<std::endl;
+  for(unsigned icand=0; icand<ncandidates;++icand) {
+    const reco::PFCandidate & cand((*pfCandidatesH)[icand]);
+    
+    if (!(abs(cand.pdgId())==11)) continue;
+
+    reco::PFCandidatePtr myPFCandidatePtr(pfCandidatesH,icand);
+    printIsoDeposits(electronIsoDep,myPFCandidatePtr);
   }
   
   

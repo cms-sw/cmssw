@@ -1,5 +1,3 @@
-# official example for PF2PAT
-
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ELECISO")
@@ -10,12 +8,11 @@ process.maxEvents = cms.untracked.PSet(
 )
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring(
-    '/store/relval/CMSSW_4_3_0_pre6/RelValH130GGgluonfusion/GEN-SIM-RECO/START43_V3-v1/0086/80467D34-378C-E011-A37C-0018F3D09658.root',
-    '/store/relval/CMSSW_4_3_0_pre6/RelValH130GGgluonfusion/GEN-SIM-RECO/START43_V3-v1/0086/50787FD7-AE8B-E011-AC2B-002618943880.root',
-    '/store/relval/CMSSW_4_3_0_pre6/RelValH130GGgluonfusion/GEN-SIM-RECO/START43_V3-v1/0082/362C873C-808B-E011-A576-0018F3D095EC.root',
-    '/store/relval/CMSSW_4_3_0_pre6/RelValH130GGgluonfusion/GEN-SIM-RECO/START43_V3-v1/0080/92A7BBA9-B78A-E011-B40A-002618FDA248.root'
-    )
+                            fileNames = cms.untracked.vstring(
+    '/store/relval/CMSSW_4_4_0_pre3/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START43_V4-v1/0000/0EE664B2-FFA3-E011-918F-002618943882.root',
+    '/store/relval/CMSSW_4_4_0_pre3/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START43_V4-v1/0000/644190E4-F0A3-E011-BED0-00304867C1BA.root',
+    '/store/relval/CMSSW_4_4_0_pre3/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START43_V4-v1/0000/9A80E178-18A4-E011-B1DD-002618FDA287.root',
+    '/store/relval/CMSSW_4_4_0_pre3/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START43_V4-v1/0005/F29B164E-43A6-E011-B2B1-00248C55CC7F.root'    )
 )
 
 
@@ -27,8 +24,9 @@ process.load("RecoParticleFlow.PFProducer.pfBasedElectronIso_cff")
 process.load("RecoParticleFlow.PFProducer.pfBasedPhotonIso_cff")
 process.load("RecoParticleFlow.PFProducer.pfLinker_cfi")
 process.pfLinker.ProducePFCandidates = cms.bool(False)
-process.pfLinker.PFCandidates = [cms.InputTag('pfSelectedPhotons'), cms.InputTag('pfSelectedElectrons')]
+process.pfLinker.PFCandidate = [cms.InputTag('pfSelectedPhotons'), cms.InputTag('pfSelectedElectrons')]
 process.pfLinker.FillMuonRefs = cms.bool(False)
+process.pfPileUpCandidates.bottomCollection = cms.InputTag('particleFlow')
 
 process.isoReader = cms.EDAnalyzer("PFIsoReader",
                                    PFCandidates = cms.InputTag('pfSelectedPhotons'),
@@ -77,14 +75,3 @@ process.outpath = cms.EndPath(
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.FwkReport.reportEvery = 10
 
-# the following are necessary for taus:
-
-#process.load("Configuration.StandardSequences.GeometryPilot2_cff")
-#process.load("Configuration.StandardSequences.MagneticField_cff")
-#process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-
-# do not forget to set the global tag according to the
-# release you are using and the sample you are reading (data or MC)
-# global tags can be found here:
-# https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions#Valid_Global_Tags_by_Release
-#process.GlobalTag.globaltag = cms.string('GR09_R_34X_V2::All')
