@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 pfLinker = cms.EDProducer("PFLinker",
-                          PFCandidate = cms.InputTag("particleFlow"),
+                          PFCandidate = cms.VInputTag(cms.InputTag("particleFlow")),
                           GsfElectrons = cms.InputTag("gsfElectrons"),
                           Photons = cms.InputTag("pfPhotonTranslator:pfphot"),
                           Muons = cms.InputTag("muons","muons1stStep2muonsMap"),
