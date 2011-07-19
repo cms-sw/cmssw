@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/05/14 11:43:02 $
- *  $Revision: 1.2 $
+ *  $Date: 2011/06/06 17:23:42 $
+ *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -19,6 +19,9 @@
 #include "CondFormats/DataRecord/interface/DTKeyedConfigListRcd.h"
 #include "CondCore/DBOutputService/interface/KeyedElement.h"
 #include "CondCore/IOVService/interface/KeyList.h"
+#include "CondCore/IOVService/interface/IOVProxy.h"
+#include "CondCore/DBCommon/interface/DbSession.h"
+#include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -127,7 +130,7 @@ int DTConfigPluginHandler::get( const DTKeyedConfigListRcd& keyRecord,
     kBrick = keyList->get<DTKeyedConfig>( 0 );
     if ( kBrick != 0 ) brickFound = ( kBrick->getId() == cfgId );
   }
-  catch ( std::exception e ) {
+  catch ( std::exception const & e ) {
   }
   if ( brickFound ) {
     counted_brick cBrick( 0, obj = new DTKeyedConfig( *kBrick ) );
