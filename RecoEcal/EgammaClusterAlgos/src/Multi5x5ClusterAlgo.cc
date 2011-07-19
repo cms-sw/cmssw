@@ -46,6 +46,10 @@ std::vector<reco::BasicCluster> Multi5x5ClusterAlgo::makeClusters(
       ecalPart_string = "Barrel";
     }
 
+LogTrace("EcalClusters") << "-------------------------------------------------------------";
+LogTrace("EcalClusters") << "Island algorithm invoked for ECAL" << ecalPart_string ;
+LogTrace("EcalClusters") << "Looking for seeds, energy threshold used = " << threshold << " GeV";
+
   if (verbosity < pINFO)
     {
       std::cout << "-------------------------------------------------------------" << std::endl;
@@ -90,6 +94,8 @@ std::vector<reco::BasicCluster> Multi5x5ClusterAlgo::makeClusters(
   
    sort(seeds.begin(), seeds.end(), EcalRecHitLess());
 
+LogTrace("EcalClusters") << "Total number of seeds found in event = " << seeds.size();
+
    if (verbosity < pINFO)
    {
       std::cout << "Total number of seeds found in event = " << seeds.size() << std::endl;
@@ -97,6 +103,8 @@ std::vector<reco::BasicCluster> Multi5x5ClusterAlgo::makeClusters(
 
    mainSearch(hits, geometry_p, topology_p, geometryES_p);
    sort(clusters_v.rbegin(), clusters_v.rend(), ClusterEtLess());
+
+LogTrace("EcalClusters") << "---------- end of main search. clusters have been sorted ----";
 
    if (verbosity < pINFO)
    {
@@ -116,6 +124,7 @@ void Multi5x5ClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
 				     )
 {
 
+LogTrace("EcalClusters") << "Building clusters............";
    if (verbosity < pINFO)
    {
       std::cout << "Building clusters............" << std::endl;
@@ -141,6 +150,10 @@ void Multi5x5ClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
       {
          if (it == seeds.begin())
 	 {
+LogTrace("EcalClusters") << "##############################################################" ;
+LogTrace("EcalClusters") << "DEBUG ALERT: Highest energy seed already belongs to a cluster!";
+LogTrace("EcalClusters") << "##############################################################";
+
 	    if (verbosity < pINFO)
             {
                std::cout << "##############################################################" << std::endl;
@@ -213,13 +226,20 @@ void Multi5x5ClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
    }
    //chi2 /= energy;
 
+LogTrace("EcalClusters") << "******** NEW CLUSTER ********";
+LogTrace("EcalClusters") << "No. of crystals = " << current_v.size();
+LogTrace("EcalClusters") << "     Energy     = " << energy ;
+LogTrace("EcalClusters") << "     Phi        = " << position.phi();
+LogTrace("EcalClusters") << "     Eta " << position.eta();
+LogTrace("EcalClusters") << "*****************************";  
+
    if (verbosity < pINFO)
    { 
       std::cout << "******** NEW CLUSTER ********" << std::endl;
       std::cout << "No. of crystals = " << current_v.size() << std::endl;
       std::cout << "     Energy     = " << energy << std::endl;
       std::cout << "     Phi        = " << position.phi() << std::endl;
-      std::cout << "     Eta        = " << position.eta() << std::endl;
+      std::cout << "     Eta " << position.eta() << std::endl;
       std::cout << "*****************************" << std::endl;
     }
 

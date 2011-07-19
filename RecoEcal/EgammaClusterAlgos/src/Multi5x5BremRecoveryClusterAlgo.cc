@@ -64,6 +64,10 @@ void Multi5x5BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::CaloClusterP
 		position_ *= energy;
 		usedSeedDetIds.push_back((*currentSeed)->seed());
 
+LogTrace("EcalClusters") << "*****************************";
+LogTrace("EcalClusters") << "******NEW SUPERCLUSTER*******";
+LogTrace("EcalClusters") << "Seed R = " << (*currentSeed)->position().Rho();
+
 		if (verbosity <= pINFO)
 		{
 			std::cout << "*****************************" << std::endl;
@@ -98,7 +102,7 @@ void Multi5x5BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::CaloClusterP
 
 				// remove cluster from vector of available clusters
 				usedSeedDetIds.push_back((*currentCluster)->seed());
-
+LogTrace("EcalClusters") << "Cluster R = " << (*currentCluster)->position().Rho();
 				if (verbosity <= pINFO) 
 					std::cout << "Cluster R = " << (*currentCluster)->position().Rho() << std::endl;
 			}
@@ -108,6 +112,7 @@ void Multi5x5BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::CaloClusterP
 
 		position_ /= energy;
 
+LogTrace("EcalClusters") <<"Final SuperCluster R = " << position_.Rho();
 		if (verbosity <= pINFO)
 			std::cout << "Final SuperCluster R = " << position_.Rho() << std::endl;
 
@@ -117,6 +122,12 @@ void Multi5x5BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::CaloClusterP
 				constituentClusters);
 
 		superclusters_v.push_back(newSuperCluster);
+LogTrace("EcalClusters") << "created a new supercluster of: ";
+LogTrace("EcalClusters") << "Energy = " << newSuperCluster.energy();
+LogTrace("EcalClusters") << "Position in (R, phi, theta) = ("
+                                << newSuperCluster.position().Rho() << ", "
+                                << newSuperCluster.position().phi() << ", "
+                                << newSuperCluster.position().theta() << ")" ;
 
 		if (verbosity <= pINFO)
 		{
