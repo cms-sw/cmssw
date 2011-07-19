@@ -1,4 +1,4 @@
-// $Id: Photon.cc,v 1.23 2011/03/08 17:54:09 chamont Exp $
+// $Id: Photon.cc,v 1.24 2011/06/14 09:17:27 eulisse Exp $
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
@@ -56,4 +56,33 @@ void Photon::setVertex(const Point & vertex) {
 
 reco::SuperClusterRef Photon::superCluster() const {
   return this->photonCore()->superCluster();
+}
+
+int Photon::conversionTrackProvenance(const edm::RefToBase<reco::Track>& convTrack) const{
+
+  const reco::ConversionRefVector & conv2leg = this->photonCore()->conversions();
+  const reco::ConversionRefVector & conv1leg = this->photonCore()->conversionsOneLeg();
+
+  int origin = -1;
+  bool isEg=false, isPf=false;
+
+  for (unsigned iConv=0; iConv<conv2leg.size(); iConv++){
+    std::vector<edm::RefToBase<reco::Track> > convtracks = conv2leg[iConv]->tracks();
+    for (unsigned itk=0; itk<convtracks.size(); itk++){
+      if (convTrack==convtracks[itk]) isEg=true;
+    }
+  }
+
+  for (unsigned iConv=0; iConv<conv1leg.size(); iConv++){
+    std::vector<edm::RefToBase<reco::Track> > convtracks = conv1leg[iConv]->tracks();
+    for (unsigned itk=0; itk<convtracks.size(); itk++){
+      if (convTrack==convtracks[itk]) isPf=true;
+    }
+  }
+
+  if (isEg) origin=egamma;
+  if (isPf) origin=pflow;
+  if (isEg && isPf) origin=both;
+
+  return origin;
 }
