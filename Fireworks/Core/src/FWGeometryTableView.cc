@@ -1,5 +1,6 @@
 #include <iostream>
 #include <boost/bind.hpp>
+#include <boost/regex.hpp>
 
 #include "Fireworks/Core/interface/FWGeometryTableView.h"
 #include "Fireworks/Core/interface/FWGeoTopNode.h"
@@ -11,6 +12,8 @@
 #include "Fireworks/Core/interface/FWColorManager.h"
 #include "Fireworks/Core/src/FWPopupMenu.cc"
 #include "Fireworks/Core/src/FWColorSelect.h"
+#include "Fireworks/Core/src/FWGUIValidatingTextEntry.h"
+#include "Fireworks/Core/src/FWValidatorBase.h"
 
 #include "Fireworks/Core/interface/fwLog.h"
 
@@ -51,6 +54,20 @@ enum GeoMenuOptions {
    kTableDebug
 };
 
+
+class FWMValidator : public FWValidatorBase {
+
+   FWGeometryTableView* m_tableView;
+public:
+   FWMValidator( FWGeometryTableView* t) { m_tableView = t;}
+   virtual ~FWMValidator() {}
+
+   // ---------- const member functions ---------------------
+   virtual void fillOptions(const char* iBegin, const char* iEnd, std::vector<std::pair<boost::shared_ptr<std::string>, std::string> >& oOptions) const {
+
+      m_tableView->fillListOfMaterials(iBegin, iEnd,  oOptions);
+   }
+};
 
 class FWViewCombo : public TGTextButton
 {
@@ -185,6 +202,14 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager*
          m_viewBox = new FWViewCombo(hp, this);
          hp->AddFrame( m_viewBox,new TGLayoutHints(kLHintsExpandY, 2, 2, 0, 0));
       }
+      {
+         FWGUIValidatingTextEntry*  m_text1 = new FWGUIValidatingTextEntry(hp, "Ma");
+         m_text1->SetHeight(20);// m_text1->SetWidth(100);
+         m_text1->setValidator(new FWMValidator(this));
+         hp->AddFrame(m_text1, new TGLayoutHints(kLHintsExpandX));
+         // FWMaterialCombo* m_mBox = new FWMaterialCombo(hp, this);
+         //hp->AddFrame( m_mBox,new TGLayoutHints(kLHintsExpandY, 2, 2, 0, 0));
+      }
       m_frame->AddFrame(hp,new TGLayoutHints(kLHintsLeft|kLHintsExpandX, 4, 2, 2, 2));
    }
 
@@ -313,7 +338,6 @@ FWGeometryTableView::resetSetters()
    }
    TGCompositeFrame* frame =  m_settersFrame;
    makeSetter(frame, &m_mode);
-   makeSetter(frame, &m_filter);
    makeSetter(frame, &m_autoExpand);
    makeSetter(frame, &m_visLevel);
    makeSetter(frame, &m_visLevelFilter);
@@ -331,6 +355,40 @@ FWGeometryTableView::makeSetter(TGCompositeFrame* frame, FWParameterBase* param)
    frame->AddFrame(m_frame, new TGLayoutHints(kLHintsExpandX));
 
    m_setters.push_back(ptr);
+}
+
+//==============================================================================
+
+void FWGeometryTableView::fillListOfMaterials(const char* iBegin, const char* iEnd, std::vector<std::pair<boost::shared_ptr<std::string>, std::string> >& oOptions)//(TGListBox* l)
+{
+   oOptions.clear();
+   std::map<TGeoMaterial*, std::string> mlist;
+   FWGeometryTableManager::Entries_i it = m_tableManager->refSelected();
+   int nLevel = it->m_level;
+   it++;
+
+   while (it->m_level > nLevel)
+   {
+      TGeoMaterial* m = it->m_node->GetVolume()->GetMaterial();
+      if (mlist.find(m) == mlist.end())
+      {
+         std::string mat = m->GetName();
+         mlist[m] = mat;
+      
+      } 
+      it++;
+   }
+
+   std::string part(iBegin,iEnd);
+   unsigned int part_size = part.size();
+
+   for(std::map<TGeoMaterial*, std::string>::iterator i = mlist.begin(); i != mlist.end(); ++i)
+   {
+      std::string mat = i->second;
+      if(part == mat.substr(0,part_size) ) {
+         oOptions.push_back(std::make_pair(boost::shared_ptr<std::string>(new std::string(mat + "----")), mat.substr(part_size, mat.size()-part_size)));
+      }
+   }
 }
 
 //==============================================================================
@@ -376,7 +434,7 @@ void
 FWGeometryTableView::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t iKeyMod, Int_t x, Int_t y)
 {
    m_tableManager->setSelection(iRow, iColumn, iButton);
-   FWGeometryTableManager::NodeInfo& ni = m_tableManager->refSelected();
+   FWGeometryTableManager::NodeInfo& ni = *m_tableManager->refSelected();
 
    if (iButton == kButton1) 
    {
@@ -439,7 +497,7 @@ FWGeometryTableView::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t
       m_nodePopup->AddSeparator();
       m_nodePopup->AddEntry("InspectMaterial", kInspectMaterial);
       m_nodePopup->AddEntry("InspectShape", kInspectShape);
-      //  m_nodePopup->AddEntry("Table Debug", kTableDebug);
+     m_nodePopup->AddEntry("Table Debug", kTableDebug);
 
       m_nodePopup->PlaceMenu(x,y,true,true);
       m_nodePopup->Connect("Activated(Int_t)",
@@ -451,7 +509,7 @@ FWGeometryTableView::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t
 
 void FWGeometryTableView::chosenItem(int x)
 {
-   FWGeometryTableManager::NodeInfo& ni = m_tableManager->refSelected();
+   FWGeometryTableManager::NodeInfo& ni = *m_tableManager->refSelected();
    TGeoVolume* gv = ni.m_node->GetVolume();
    bool visible = true;
    bool resetHome = false;
@@ -474,7 +532,9 @@ void FWGeometryTableView::chosenItem(int x)
          case kTableDebug:
             // std::cout << "node name " << ni.name() << "parent " <<m_tableManager->refEntries()[ni.m_parent].name() <<  std::endl;
             // printf("node expanded [%d] imported[%d] children[%d]\n", ni.m_expanded,m_tableManager->nodeImported(m_tableManager->m_selectedIdx) ,  ni.m_node->GetNdaughters());
-            m_tableManager->printChildren( m_tableManager->m_selectedIdx);
+            //            m_tableManager->printChildren(
+            // m_tableManager->m_selectedIdx);
+            m_tableManager->printMaterials();
             break;
 
          case kSetTopNode:
@@ -530,7 +590,7 @@ void FWGeometryTableView::setBackgroundColor()
 
 void FWGeometryTableView::nodeColorChangeRequested(Color_t col)
 {
-   FWGeometryTableManager::NodeInfo& ni = m_tableManager->refSelected();
+   FWGeometryTableManager::NodeInfo& ni = *m_tableManager->refSelected();
    ni.m_color = col;
    ni.m_node->GetVolume()->SetLineColor(col);
    refreshTable3D();
@@ -610,7 +670,6 @@ void FWGeometryTableView::autoExpandChanged()
    m_tableManager->checkExpandLevel();
    m_tableManager->redrawTable();
 }
-
 //______________________________________________________________________________
 
 void FWGeometryTableView::refreshTable3D()
