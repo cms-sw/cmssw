@@ -42,6 +42,8 @@ HybridClusterAlgo::HybridClusterAlgo(double eb_str,
 
   dynamicPhiRoad_ = false;
   LogTrace("EcalClusters") << "dynamicEThres: " << dynamicEThres_ << " : A,B " << eThresA_ << ", " << eThresB_;
+  LogTrace("EcalClusters") << "Eseed: " << Eseed << " , Xi: " << Xi << ", UseEtForXi: " << UseEtForXi;
+  std::cout << "Eseed: " << Eseed << " , Xi: " << Xi << ", UseEtForXi: " << UseEtForXi << std::endl;
   
   //if (dynamicPhiRoad_) phiRoadAlgo_ = new BremRecoveryPhiRoadAlgo(bremRecoveryPset);
   posCalculator_ = posCalculator;
@@ -300,7 +302,7 @@ void HybridClusterAlgo::mainSearch(const EcalRecHitCollection* hits, const CaloS
 		//thus a peak in the local sense.
 		double etToE(1.);
 		if(!UseEtForXi){
-		  etToE = 1./e2Et(navigator, hits, geometry);;
+		  etToE = 1./e2Et(navigator, hits, geometry);
 		}
 		std::vector <int> PeakIndex;
 		for (int i=1;i<int(dominoEnergy.size())-1;++i){
@@ -671,13 +673,11 @@ double HybridClusterAlgo::e2Et(EcalBarrelNavigator &navigator,
   std::vector< std::pair<DetId, float> > dets;
   dets.clear();
   EcalRecHitCollection::const_iterator hit;
-  double energySum = 0.0;
   
   for (int dx = -2; dx < 3; ++dx)
     {
       for (int dy = -2; dy < 3; ++ dy)
 	{
-	  //std::cout << "dx, dy " << dx << ", " << dy << std::endl;
 	  thisDet = navigator.offsetBy(dx, dy);
 	  navigator.home();
 	  
@@ -687,7 +687,6 @@ double HybridClusterAlgo::e2Et(EcalBarrelNavigator &navigator,
 	      if (hit != recHits_->end()) 
 		{
 		  dets.push_back( std::pair<DetId, float>(thisDet, 1.) ); // by default hit energy fraction is set to 1
-		  energySum += hit->energy();
 		}
 	    }
 	}
