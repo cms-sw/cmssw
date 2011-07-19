@@ -10,6 +10,7 @@
 #include "RecoEcal/EgammaCoreTools/interface/ClusterEtLess.h"
 
 #include "DataFormats/CaloRecHit/interface/CaloID.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // Return a vector of clusters from a collection of EcalRecHits:
 //
