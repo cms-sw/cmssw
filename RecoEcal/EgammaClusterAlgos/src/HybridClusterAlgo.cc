@@ -43,7 +43,6 @@ HybridClusterAlgo::HybridClusterAlgo(double eb_str,
   dynamicPhiRoad_ = false;
   LogTrace("EcalClusters") << "dynamicEThres: " << dynamicEThres_ << " : A,B " << eThresA_ << ", " << eThresB_;
   LogTrace("EcalClusters") << "Eseed: " << Eseed << " , Xi: " << Xi << ", UseEtForXi: " << UseEtForXi;
-  std::cout << "Eseed: " << Eseed << " , Xi: " << Xi << ", UseEtForXi: " << UseEtForXi << std::endl;
   
   //if (dynamicPhiRoad_) phiRoadAlgo_ = new BremRecoveryPhiRoadAlgo(bremRecoveryPset);
   posCalculator_ = posCalculator;
