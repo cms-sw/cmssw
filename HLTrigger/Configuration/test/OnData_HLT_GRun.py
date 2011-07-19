@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V181 (CMSSW_4_2_0_HLT18)
+# /dev/CMSSW_4_2_0/GRun/V182 (CMSSW_4_2_0_HLT18)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V181')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V182')
 )
 
 process.streams = cms.PSet( 
@@ -3867,10 +3867,10 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 1, 1, 1, 30, 20, 15, 10, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Photon20_CaloIdVL_IsoL_v6" ),
-        prescales = cms.vuint32( 8000, 6700, 5370, 3760, 2690, 1880, 1350, 1, 1 )
+        prescales = cms.vuint32( 135, 135, 5370, 3760, 2690, 1880, 1350, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Photon20_R9Id_Photon18_R9Id_v6" ),
-        prescales = cms.vuint32( 60, 50, 40, 30, 20, 15, 10, 1, 1 )
+        prescales = cms.vuint32( 1, 1, 40, 30, 20, 15, 10, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Photon20_CaloIdVT_IsoT_Ele8_CaloIdL_CaloIsoVL_v8" ),
         prescales = cms.vuint32( 45, 37, 30, 20, 15, 10, 7, 1, 1 )
@@ -3927,7 +3927,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 1740, 1740, 1740, 1740, 1740, 1740, 1740, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_L1SingleEG12_v3" ),
-        prescales = cms.vuint32( 13000, 11000, 8580, 6010, 4290, 3010, 2150, 1, 1 )
+        prescales = cms.vuint32( 220, 220, 8580, 6010, 4290, 3010, 2150, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Ele8_v7" ),
         prescales = cms.vuint32( 240, 240, 240, 240, 240, 240, 240, 1, 1 )
@@ -4077,13 +4077,13 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 12, 10, 8, 5, 4, 2, 2, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Ele15_CaloIdVT_TrkIdT_Jet35_Jet25_Deta3_Jet20_v3" ),
-        prescales = cms.vuint32( 25, 20, 15, 10, 7, 5, 3, 1, 1 )
+        prescales = cms.vuint32( 1, 1, 15, 10, 7, 5, 3, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Ele22_CaloIdVT_TrkIdT_CentralJet30_CentralJet25_v3" ),
-        prescales = cms.vuint32( 120, 100, 80, 55, 40, 30, 20, 1, 1 )
+        prescales = cms.vuint32( 2, 2, 80, 55, 40, 30, 20, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Ele22_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_v3" ),
-        prescales = cms.vuint32( 30, 25, 20, 15, 10, 7, 5, 1, 1 )
+        prescales = cms.vuint32( 1, 1, 20, 15, 10, 7, 5, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Photon30_CaloIdVT_CentralJet20_BTagIP_v1" ),
         prescales = cms.vuint32( 15, 13, 10, 7, 5, 3, 1, 1, 1 )
