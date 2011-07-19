@@ -51,12 +51,6 @@ LogTrace("EcalClusters") << "---------------------------------------------------
 LogTrace("EcalClusters") << "Island algorithm invoked for ECAL" << ecalPart_string ;
 LogTrace("EcalClusters") << "Looking for seeds, energy threshold used = " << threshold << " GeV";
 
-  if (verbosity < pINFO)
-    {
-      std::cout << "-------------------------------------------------------------" << std::endl;
-      std::cout << "Island algorithm invoked for ECAL" << ecalPart_string << std::endl;
-      std::cout << "Looking for seeds, energy threshold used = " << threshold << " GeV" <<std::endl;
-    }
 
   int nregions=0;
   if(regional) nregions=regions.size();
@@ -97,20 +91,12 @@ LogTrace("EcalClusters") << "Looking for seeds, energy threshold used = " << thr
 
 LogTrace("EcalClusters") << "Total number of seeds found in event = " << seeds.size();
 
-   if (verbosity < pINFO)
-   {
-      std::cout << "Total number of seeds found in event = " << seeds.size() << std::endl;
-   }
 
    mainSearch(hits, geometry_p, topology_p, geometryES_p);
    sort(clusters_v.rbegin(), clusters_v.rend(), ClusterEtLess());
 
 LogTrace("EcalClusters") << "---------- end of main search. clusters have been sorted ----";
 
-   if (verbosity < pINFO)
-   {
-      std::cout << "---------- end of main search. clusters have been sorted ----" << std::endl;
-   }
   
    return clusters_v;
  
@@ -126,10 +112,6 @@ void Multi5x5ClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
 {
 
 LogTrace("EcalClusters") << "Building clusters............";
-   if (verbosity < pINFO)
-   {
-      std::cout << "Building clusters............" << std::endl;
-   }
 
    // Loop over seeds:
    std::vector<EcalRecHit>::iterator it;
@@ -155,12 +137,6 @@ LogTrace("EcalClusters") << "###################################################
 LogTrace("EcalClusters") << "DEBUG ALERT: Highest energy seed already belongs to a cluster!";
 LogTrace("EcalClusters") << "##############################################################";
 
-	    if (verbosity < pINFO)
-            {
-               std::cout << "##############################################################" << std::endl;
-	       std::cout << "DEBUG ALERT: Highest energy seed already belongs to a cluster!" << std::endl;
-	       std::cout << "##############################################################" << std::endl;
-	    }
 	 }
 
 	  // seed crystal is used or is used and cannot seed a cluster
@@ -234,15 +210,6 @@ LogTrace("EcalClusters") << "     Phi        = " << position.phi();
 LogTrace("EcalClusters") << "     Eta " << position.eta();
 LogTrace("EcalClusters") << "*****************************";  
 
-   if (verbosity < pINFO)
-   { 
-      std::cout << "******** NEW CLUSTER ********" << std::endl;
-      std::cout << "No. of crystals = " << current_v.size() << std::endl;
-      std::cout << "     Energy     = " << energy << std::endl;
-      std::cout << "     Phi        = " << position.phi() << std::endl;
-      std::cout << "     Eta " << position.eta() << std::endl;
-      std::cout << "*****************************" << std::endl;
-    }
 
    // to be a valid cluster the cluster energy
    // must be at least the seed energy

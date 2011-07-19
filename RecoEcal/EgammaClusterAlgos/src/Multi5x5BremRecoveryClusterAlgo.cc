@@ -69,14 +69,6 @@ LogTrace("EcalClusters") << "*****************************";
 LogTrace("EcalClusters") << "******NEW SUPERCLUSTER*******";
 LogTrace("EcalClusters") << "Seed R = " << (*currentSeed)->position().Rho();
 
-		if (verbosity <= pINFO)
-		{
-			std::cout << "*****************************" << std::endl;
-			std::cout << "******NEW SUPERCLUSTER*******" << std::endl;
-			std::cout << "Seed R = " << (*currentSeed)->position().Rho() << std::endl;
-		}
-
-		// and add the matching clusters:
 		reco::CaloClusterPtrVector constituentClusters;
 		constituentClusters.push_back(*currentSeed);
 		reco::CaloCluster_iterator currentCluster = currentSeed + 1;
@@ -104,8 +96,6 @@ LogTrace("EcalClusters") << "Seed R = " << (*currentSeed)->position().Rho();
 				// remove cluster from vector of available clusters
 				usedSeedDetIds.push_back((*currentCluster)->seed());
 LogTrace("EcalClusters") << "Cluster R = " << (*currentCluster)->position().Rho();
-				if (verbosity <= pINFO) 
-					std::cout << "Cluster R = " << (*currentCluster)->position().Rho() << std::endl;
 			}
 			++currentCluster;
 
@@ -114,8 +104,6 @@ LogTrace("EcalClusters") << "Cluster R = " << (*currentCluster)->position().Rho(
 		position_ /= energy;
 
 LogTrace("EcalClusters") <<"Final SuperCluster R = " << position_.Rho();
-		if (verbosity <= pINFO)
-			std::cout << "Final SuperCluster R = " << position_.Rho() << std::endl;
 
 		reco::SuperCluster newSuperCluster(energy, 
 				math::XYZPoint(position_.X(), position_.Y(), position_.Z()), 
@@ -130,15 +118,6 @@ LogTrace("EcalClusters") << "Position in (R, phi, theta) = ("
                                 << newSuperCluster.position().phi() << ", "
                                 << newSuperCluster.position().theta() << ")" ;
 
-		if (verbosity <= pINFO)
-		{
-			std::cout << "created a new supercluster of: " << std::endl;
-			std::cout << "Energy = " << newSuperCluster.energy() << std::endl;
-			std::cout << "Position in (R, phi, theta) = (" 
-				<< newSuperCluster.position().Rho() << ", " 
-				<< newSuperCluster.position().phi() << ", "
-				<< newSuperCluster.position().theta() << ")" << std::endl;
-		}
 
 	}
 
