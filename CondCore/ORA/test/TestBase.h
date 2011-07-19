@@ -20,7 +20,7 @@ namespace ora {
     virtual void execute( const std::string& connectionString ) = 0;
 
     void run( const std::string& connectionString ){
-      std::string authpath("/afs/cern.ch/cms/DB/conddb");
+      std::string authpath("/afs/cern.ch/cms/DB/conddb/int9r");
       std::string pathenv(std::string("CORAL_AUTH_PATH=")+authpath);
       ::putenv(const_cast<char*>(pathenv.c_str()));
       try{
@@ -37,7 +37,7 @@ namespace ora {
     }
 
     void run(){
-      std::string connStr("oracle://cms_orcoff_prep/CMS_COND_UNIT_TESTS");
+      std::string connStr("oracle://cms_orcoff_int/CMS_COND_UNIT_TESTS");
       const char* envVar = ::getenv( "ORA_TEST_DB" );
       if( envVar ){
         connStr = std::string(envVar);
