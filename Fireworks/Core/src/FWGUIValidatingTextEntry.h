@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 18:13:29 EDT 2008
-// $Id: FWGUIValidatingTextEntry.h,v 1.6 2010/11/10 20:07:06 amraktad Exp $
+// $Id: FWGUIValidatingTextEntry.h,v 1.7 2010/11/11 19:45:50 amraktad Exp $
 //
 
 // system include files
@@ -48,6 +48,9 @@ public:
    void setValidator(FWValidatorBase*);
    void showOptions();
    void hideOptions();
+
+   TGListBox* getListBox() const { return m_list; }
+
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2);
 
    void keyPressedInPopup(TGFrame*, UInt_t keysym, UInt_t mask);
@@ -59,7 +62,7 @@ private:
 
    const FWGUIValidatingTextEntry& operator=(const FWGUIValidatingTextEntry&); // stop default
    void insertTextOption(const std::string&);
-
+public:
    // ---------- member data --------------------------------
    TGComboBoxPopup* m_popup;
    TGListBox* m_list;
