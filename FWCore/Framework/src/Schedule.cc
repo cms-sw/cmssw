@@ -16,7 +16,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
-#include "FWCore/PluginManager/interface/PluginCapabilities.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 #include "FWCore/Utilities/interface/ReflexTools.h"
@@ -88,33 +87,6 @@ namespace edm {
       Schedule::WorkerPtr ptr(new WorkerT<EDProducer>(producer, md, work_args));
       ptr->setActivityRegistry(areg);
       return ptr;
-    }
-
-    void loadMissingDictionaries() {
-      std::string const prefix("LCGReflex/");
-      while (!missingTypes().empty()) {
-        StringSet missing(missingTypes());
-        for (StringSet::const_iterator it = missing.begin(), itEnd = missing.end();
-           it != itEnd; ++it) {
-          try {
-            edmplugin::PluginCapabilities::get()->load(prefix + *it);
-          }
-          // We don't want to fail if we can't load a plug-in.
-          catch(...) {}
-        }
-        missingTypes().clear();
-        for (StringSet::const_iterator it = missing.begin(), itEnd = missing.end();
-           it != itEnd; ++it) {
-          checkDictionaries(*it);
-        }
-        if (missingTypes() == missing) {
-          break;
-        }
-      }
-      if (missingTypes().empty()) {
-        return;
-      }
-      throwMissingDictionariesException();
     }
   }
 

@@ -26,6 +26,7 @@ Test program for edm::Event.
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
@@ -33,8 +34,6 @@ Test program for edm::Event.
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "Utilities/Testing/interface/CppUnit_testdriver.icpp"
-
-#include "Cintex/Cintex.h"
 
 #include <cppunit/extensions/HelperMacros.h>
 
@@ -264,7 +263,7 @@ testEvent::~testEvent() {
 
 void testEvent::setUp() {
 
-  ROOT::Cintex::Cintex::Enable();
+  edm::RootAutoLibraryLoader::enable();
   // First build a fake process history, that says there
   // were previous processes named "EARLY" and "LATE".
   // This takes several lines of code but other than

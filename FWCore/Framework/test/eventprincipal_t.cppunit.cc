@@ -26,13 +26,12 @@ Test of the EventPrincipal class.
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/Selector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
-
-#include "Cintex/Cintex.h"
 
 #include <cppunit/extensions/HelperMacros.h>
 
@@ -145,7 +144,7 @@ test_ep::fake_single_process_branch(std::string const& tag,
 }
 
 void test_ep::setUp() {
-  ROOT::Cintex::Cintex::Enable();
+  edm::RootAutoLibraryLoader::enable();
   edm::BranchIDListHelper::clearRegistries();
 
   // Making a functional EventPrincipal is not trivial, so we do it

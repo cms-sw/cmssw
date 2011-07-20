@@ -55,6 +55,7 @@ namespace edm {
 
   void checkDictionaries(std::string const& name, bool noComponents = false);
   void throwMissingDictionariesException();
+  void loadMissingDictionaries();
   StringSet& missingTypes();
   StringSet& foundTypes();
 

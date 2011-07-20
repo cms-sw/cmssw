@@ -7,6 +7,8 @@
 #include "Reflex/Member.h"
 #include "Reflex/TypeTemplate.h"
 
+#include "TROOT.h"
+
 #include "boost/algorithm/string.hpp"
 #include "boost/thread/tss.hpp"
 
@@ -229,6 +231,32 @@ namespace edm {
         << "Also, if this class has any transient members,\n"
         << "you need to specify them in classes_def.xml.";
     }
+  }
+
+  void loadMissingDictionaries() {
+    while (!missingTypes().empty()) {
+      StringSet missing(missingTypes());
+      for (StringSet::const_iterator it = missing.begin(), itEnd = missing.end();
+         it != itEnd; ++it) {
+        try {
+          gROOT->GetClass(it->c_str(), kTRUE);
+        }
+        // We don't want to fail if we can't load a plug-in.
+        catch(...) {}
+      }
+      missingTypes().clear();
+      for (StringSet::const_iterator it = missing.begin(), itEnd = missing.end();
+         it != itEnd; ++it) {
+        checkDictionaries(*it);
+      }
+      if (missingTypes() == missing) {
+        break;
+      }
+    }
+    if (missingTypes().empty()) {
+      return;
+    }
+    throwMissingDictionariesException();
   }
 
   void public_base_classes(Type const& type,

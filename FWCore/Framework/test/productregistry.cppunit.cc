@@ -7,19 +7,22 @@
 */
 
 
-#include <iostream>
-#include "boost/shared_ptr.hpp"
-#include <cppunit/extensions/HelperMacros.h>
-#include "FWCore/Framework/interface/EventProcessor.h"
-#include "FWCore/Utilities/interface/Exception.h"
-
-#include "FWCore/Framework/src/SignallingProductRegistry.h"
-#include "FWCore/Framework/interface/ConstProductRegistry.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
+#include "FWCore/Framework/interface/ConstProductRegistry.h"
+#include "FWCore/Framework/interface/EventProcessor.h"
+#include "FWCore/Framework/src/SignallingProductRegistry.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
+#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
+#include <cppunit/extensions/HelperMacros.h>
+
+#include "boost/shared_ptr.hpp"
+
+#include <iostream>
 
 class testProductRegistry: public CppUnit::TestFixture {
 CPPUNIT_TEST_SUITE(testProductRegistry);
@@ -99,6 +102,7 @@ testProductRegistry::testProductRegistry() :
 
 
 void testProductRegistry::setUp() {
+  edm::RootAutoLibraryLoader::enable();
   edm::ParameterSet dummyProcessPset;
   dummyProcessPset.registerIt();
   boost::shared_ptr<edm::ProcessConfiguration> processConfiguration(

@@ -13,6 +13,7 @@ Test of the EventProcessor class.
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/PythonParameterSet/interface/PythonProcessDesc.h"
+#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 //I need to open a 'back door' in order to test the functionality
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #define private public
@@ -22,8 +23,6 @@ Test of the EventProcessor class.
 #include "FWCore/Utilities/interface/Presence.h"
 
 #include "cppunit/extensions/HelperMacros.h"
-
-#include "Cintex/Cintex.h"
 
 #include "boost/regex.hpp"
 
@@ -48,7 +47,7 @@ class testeventprocessor: public CppUnit::TestFixture {
  public:
 
   void setUp() {
-    ROOT::Cintex::Cintex::Enable();
+    edm::RootAutoLibraryLoader::enable();
     m_handler = std::auto_ptr<edm::AssertHandler>(new edm::AssertHandler());
     sleep_secs_ = 0;
   }

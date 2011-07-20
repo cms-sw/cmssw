@@ -1,23 +1,18 @@
 /*----------------------------------------------------------------------
 
-Test of the EventPrincipal class.
+Test of GenericHandle class.
 
 ----------------------------------------------------------------------*/
-#include "FWCore/Utilities/interface/GetPassID.h"
-#include "FWCore/Version/interface/GetReleaseVersion.h"
-#include "FWCore/Utilities/interface/GlobalIdentifier.h"
-#include "FWCore/Utilities/interface/TypeID.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
+#include "DataFormats/Provenance/interface/ModuleDescription.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Provenance/interface/WrapperInterfaceBase.h"
-#include "DataFormats/Common/interface/Wrapper.h"
-#include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/TestObjects/interface/ToyProducts.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -25,8 +20,12 @@ Test of the EventPrincipal class.
 #include "FWCore/Framework/interface/GenericHandle.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
-
-#include "Cintex/Cintex.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
+#include "FWCore/Utilities/interface/GetPassID.h"
+#include "FWCore/Utilities/interface/GlobalIdentifier.h"
+#include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include <cppunit/extensions/HelperMacros.h>
 
@@ -50,7 +49,7 @@ CPPUNIT_TEST(failWrongType);
 CPPUNIT_TEST_SUITE_END();
 public:
   void setUp(){
-    ROOT::Cintex::Cintex::Enable();
+    edm::RootAutoLibraryLoader::enable();
   }
   void tearDown(){}
   void failgetbyLabelTest();

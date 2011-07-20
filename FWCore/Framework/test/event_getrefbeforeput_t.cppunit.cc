@@ -3,21 +3,6 @@
 Test of the EventPrincipal class.
 
 ----------------------------------------------------------------------*/
-#include <cassert>
-#include <iostream>
-#include <memory>
-#include <stdexcept>
-#include <string>
-#include <typeinfo>
-
-#include "boost/shared_ptr.hpp"
-
-#include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/GetPassID.h"
-#include "FWCore/Version/interface/GetReleaseVersion.h"
-#include "FWCore/Utilities/interface/GlobalIdentifier.h"
-#include "FWCore/Utilities/interface/TypeID.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
@@ -32,15 +17,29 @@ Test of the EventPrincipal class.
 #include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/RunPrincipal.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/GetPassID.h"
+#include "FWCore/Utilities/interface/GlobalIdentifier.h"
+#include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Version/interface/GetReleaseVersion.h"
+
+#include <cppunit/extensions/HelperMacros.h>
+
+#include "boost/shared_ptr.hpp"
+
+#include <cassert>
+#include <iostream>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <typeinfo>
 
 //have to do this evil in order to access commit_ member function
 #define private public
 #include "FWCore/Framework/interface/Event.h"
 #undef private
-
-#include "Cintex/Cintex.h"
-
-#include <cppunit/extensions/HelperMacros.h>
 
 class testEventGetRefBeforePut: public CppUnit::TestFixture {
 CPPUNIT_TEST_SUITE(testEventGetRefBeforePut);
@@ -49,7 +48,7 @@ CPPUNIT_TEST(getRefTest);
 CPPUNIT_TEST_SUITE_END();
 public:
   void setUp(){
-    ROOT::Cintex::Cintex::Enable();
+    edm::RootAutoLibraryLoader::enable();
   }
   void tearDown(){}
   void failGetProductNotRegisteredTest();
