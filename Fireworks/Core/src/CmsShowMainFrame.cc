@@ -9,7 +9,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.116 2011/07/08 04:39:59 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.117 2011/07/14 02:21:31 amraktad Exp $
 
 #include "FWCore/Common/interface/EventBase.h"
 
@@ -177,7 +177,7 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    menuBar->AddPopup("Edit", editMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));
 
    showCommonInsp->createMenuEntry(editMenu);
-   showCommonInsp->createShortcut(kKey_A, "CTRL", GetId());
+   showCommonInsp->createShortcut(kKey_A, "CTRL+SHIFT", GetId());
    colorset->createMenuEntry(editMenu);
    colorset->createShortcut(kKey_B, "CTRL", GetId());
    editMenu->AddSeparator();
@@ -218,7 +218,6 @@ CmsShowMainFrame::CmsShowMainFrame(const TGWindow *p,UInt_t w,UInt_t h,FWGUIMana
    TGPopupMenu* windowMenu = new TGPopupMenu(gClient->GetRoot());
    menuBar->AddPopup("Window", windowMenu, new TGLayoutHints(kLHintsTop | kLHintsLeft, 0, 4, 2, 0));
 
-   showCommonInsp->createShortcut(kKey_A, "CTRL", GetId());
    showCommonInsp->createMenuEntry(windowMenu);
    showObjInsp->createMenuEntry(windowMenu);
    showEventDisplayInsp->createShortcut(kKey_I, "CTRL", GetId());
@@ -678,7 +677,8 @@ Bool_t CmsShowMainFrame::HandleKey(Event_t *event) {
               (event->fState == (UInt_t)(modcode | kKeyLockMask)) ||
               (event->fState == (UInt_t)(modcode | kKeyMod2Mask | kKeyLockMask)))) {
             (*it_act)->activated.emit();
-            return kTRUE;
+            //  return kTRUE;
+            return false;
          }
       }
    }
