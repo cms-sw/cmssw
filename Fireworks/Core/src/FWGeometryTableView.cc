@@ -267,6 +267,7 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager*
          m_filterValidator = new FWGeoMaterialValidator(m_tableManager);
          m_filterEntry->setValidator(m_filterValidator);
          hp->AddFrame(m_filterEntry, new TGLayoutHints(kLHintsExpandX,  1, 2, 1, 0));
+         m_filterEntry->setMaxListBoxHeight(150);
          m_filterEntry->getListBox()->Connect("Selected(int)", "FWGeometryTableView",  this, "updateFilter()");
          m_filterEntry->Connect("ReturnPressed()", "FWGeometryTableView",  this, "updateFilter()");
 
