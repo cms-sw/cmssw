@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.37 2011/07/19 04:54:45 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.38 2011/07/20 22:08:07 amraktad Exp $
 //
 
 //#define PERFTOOL_GEO_TABLE
@@ -160,7 +160,7 @@ std::vector<std::string> FWGeometryTableManager::getTitles() const
    returnValue.push_back("X");
    returnValue.push_back("Y");
    returnValue.push_back("Z");
-   returnValue.push_back("Diagonal");
+   //   returnValue.push_back("Diagonal");
 
    return returnValue;
 }

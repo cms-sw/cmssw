@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManager.h,v 1.28 2011/07/16 02:48:11 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.29 2011/07/19 04:54:45 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
@@ -42,7 +42,7 @@ class FWGeometryTableManager : public FWTableManagerBase
    friend class FWGeometryTableView;
 
 public:
-   enum   ECol { kName, kColor,  kVisSelf, kVisChild, kMaterial, kPosX, kPosY, kPosZ, kDiagonal, kNumCol };
+   enum   ECol { kName, kColor,  kVisSelf, kVisChild, kMaterial, kPosX, kPosY, kPosZ /*, kDiagonal*/, kNumCol };
 
    enum Bits
    {
