@@ -42,12 +42,6 @@
 
 EgammaHLTMulti5x5ClusterProducer::EgammaHLTMulti5x5ClusterProducer(const edm::ParameterSet& ps)
 {
-  // The verbosity level
-  std::string verbosityString = ps.getParameter<std::string>("VerbosityLevel");
-  if      (verbosityString == "DEBUG")   verbosity = Multi5x5ClusterAlgo::pDEBUG;
-  else if (verbosityString == "WARNING") verbosity = Multi5x5ClusterAlgo::pWARNING;
-  else if (verbosityString == "INFO")    verbosity = Multi5x5ClusterAlgo::pINFO;
-  else                                   verbosity = Multi5x5ClusterAlgo::pERROR;
 
   doBarrel_   = ps.getParameter<bool>("doBarrel");
   doEndcaps_   = ps.getParameter<bool>("doEndcaps");
@@ -92,7 +86,7 @@ EgammaHLTMulti5x5ClusterProducer::EgammaHLTMulti5x5ClusterProducer(const edm::Pa
   produces< reco::BasicClusterCollection >(endcapClusterCollection_);
   produces< reco::BasicClusterCollection >(barrelClusterCollection_);
 
-  Multi5x5_p = new Multi5x5ClusterAlgo(barrelSeedThreshold, endcapSeedThreshold, v_chstatus, posCalculator_,verbosity);
+  Multi5x5_p = new Multi5x5ClusterAlgo(barrelSeedThreshold, endcapSeedThreshold, v_chstatus, posCalculator_);
   
   /*
   shapeAlgo_ = ClusterShapeAlgo(providedParameters);//new

@@ -14,6 +14,10 @@ hltHybridSuperClusters = cms.EDProducer("EgammaHLTHybridClusterProducer",
     l1UpperThr = cms.double(999.0),
     l1LowerThr = cms.double(0.0),
     eseed = cms.double(0.35),
+    # coefficient to increase Eseed\ as a function of 5x5; 0 gives old behaviour   
+    xi = cms.double(0.00),
+    # increase Eseed as a function of et_5x5 (othwewise it's e_5x5)
+    useEtForXi = cms.bool(True),
     ethresh = cms.double(0.1),
     ewing = cms.double(1.0),
     step = cms.int32(10),
