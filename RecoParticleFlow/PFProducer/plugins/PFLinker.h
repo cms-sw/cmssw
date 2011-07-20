@@ -7,8 +7,8 @@
  *  Fills the GsfElectron, Photon and Muon Ref into the PFCandidate
  *  Produces the ValueMap between GsfElectronRef/Photon/Mupns with PFCandidateRef
  *
- *  $Date: 2011/06/10 08:39:47 $
- *  $Revision: 1.3 $
+ *  $Date: 2011/06/17 17:10:41 $
+ *  $Revision: 1.5 $
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>, F. Beaudette - CERN <Florian.Beaudette@cern.ch>
  */
 
@@ -56,7 +56,7 @@ class PFLinker : public edm::EDProducer {
  private:
  
   /// Input PFCandidates
-  edm::InputTag       inputTagPFCandidates_;
+  std::vector<edm::InputTag>       inputTagPFCandidates_;
 
   /// Input GsfElectrons
   edm::InputTag       inputTagGsfElectrons_;
