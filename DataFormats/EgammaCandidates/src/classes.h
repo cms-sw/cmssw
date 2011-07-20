@@ -1,5 +1,5 @@
 //
-// $Id: classes.h,v 1.37 2011/02/16 17:42:53 chamont Exp $
+// $Id: classes.h,v 1.38 2011/07/09 12:01:44 chamont Exp $
 //
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -98,8 +98,6 @@ namespace {
     edm::Ref<reco::GsfElectronCoreCollection> gecc_r;
     edm::RefProd<reco::GsfElectronCoreCollection> gecc_rp;
     edm::Wrapper<edm::RefVector<reco::GsfElectronCoreCollection> > gecc_rv;
-
-    std::vector<CaloTowerDetId> ctdi ;
 
     reco::GsfElectron::TrackClusterMatching getcm ;
     reco::GsfElectron::TrackExtrapolations gete ;

@@ -38,5 +38,7 @@ namespace {
 
     edm::PtrVector<CaloTower> ptrv;
     std::vector<edm::Ptr<CaloTower> > vp1;
+
+    std::vector<CaloTowerDetId> vctdi;
   };
 }
