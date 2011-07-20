@@ -9,7 +9,7 @@ hcalSimParameters = cms.PSet(
     # comes out to a 40% smearing of the single pe peak!
     #
     hf1 = cms.PSet(
-        readoutFrameSize = cms.int32(6),
+        readoutFrameSize = cms.int32(5),
         binOfMaximum = cms.int32(3),
         samplingFactor = cms.double(0.383),
         doPhotoStatistics = cms.bool(True),
@@ -19,7 +19,7 @@ hcalSimParameters = cms.PSet(
         timePhase = cms.double(9.0)        
     ),
     hf2 = cms.PSet(
-        readoutFrameSize = cms.int32(6),
+        readoutFrameSize = cms.int32(5),
         binOfMaximum = cms.int32(3),
         samplingFactor = cms.double(0.368),
         doPhotoStatistics = cms.bool(True),
