@@ -5,6 +5,7 @@ root outtree /tmp/chanon/benchmark_1.root
 //colin	mode 1
 
 //root file display.root
+
 root file ../../Configuration/test/display.root
 
 // Warning: no cleaning of the HF is done in fast sim, due to the absence of timing simulation and to an unreliable transverse shower shape simulation in the HF. 
