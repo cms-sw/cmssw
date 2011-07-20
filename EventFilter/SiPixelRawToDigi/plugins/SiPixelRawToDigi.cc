@@ -20,7 +20,7 @@
 #include "DataFormats/FEDRawData/interface/FEDRawData.h"
 
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-
+#include "DataFormats/DetId/interface/DetIdCollection.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
 #include "EventFilter/SiPixelRawToDigi/interface/PixelDataFormatter.h"
@@ -45,6 +45,9 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
   includeErrors = config_.getParameter<bool>("IncludeErrors");
   useQuality = config_.getParameter<bool>("UseQualityInfo");
   useCablingTree_ = config_.getUntrackedParameter<bool>("UseCablingTree",true);
+  if (config_.exists("ErrorList")) {
+    errorList = config_.getParameter<std::vector<int> > ("ErrorList");
+  }
 
   //start counters
   ndigis = 0;
@@ -52,7 +55,10 @@ SiPixelRawToDigi::SiPixelRawToDigi( const edm::ParameterSet& conf )
 
   // Products
   produces< edm::DetSetVector<PixelDigi> >();
-  if(includeErrors) produces< edm::DetSetVector<SiPixelRawDataError> >();
+  if(includeErrors){
+    produces< edm::DetSetVector<SiPixelRawDataError> >();
+    produces<DetIdCollection>();
+  }
 
   // Timing
   bool timing = config_.getUntrackedParameter<bool>("Timing",false);
@@ -119,6 +125,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 // create product (digis & errors)
   std::auto_ptr< edm::DetSetVector<PixelDigi> > collection( new edm::DetSetVector<PixelDigi> );
   std::auto_ptr< edm::DetSetVector<SiPixelRawDataError> > errorcollection( new edm::DetSetVector<SiPixelRawDataError> );
+  std::auto_ptr< DetIdCollection > error_detidcollection(new DetIdCollection());
 
   PixelDataFormatter formatter(cabling_);
   formatter.setErrorStatus(includeErrors);
@@ -159,6 +166,20 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 	} else {
 	  edm::DetSet<SiPixelRawDataError>& errorDetSet = errorcollection->find_or_insert(errordetid);
 	  errorDetSet.data = is->second;
+	  // Fill detid of the detectors where there is error AND the error number is listed
+	  // in the configurable error list in the job option cfi.
+	  // Code needs to be here, because there can be a set of errors for each 
+	  // entry in the for loop over PixelDataFormatter::Errors
+	  if(!errorList.empty()){
+	    DetId errorDetId(errordetid);
+	    edm::DetSet<SiPixelRawDataError>::const_iterator itPixelError=errorDetSet.begin();
+	    for(; itPixelError!=errorDetSet.end(); ++itPixelError){
+	      std::vector<int>::iterator it_find = find(errorList.begin(), errorList.end(), itPixelError->getType());
+	      if(it_find != errorList.end()){
+		error_detidcollection->push_back(errordetid);
+	      }
+	    }
+	  }
 	}
       }
     }
@@ -183,5 +204,8 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
 
   //send digis and errors back to framework 
   ev.put( collection );
-  if(includeErrors) ev.put( errorcollection );
+  if(includeErrors){
+    ev.put( errorcollection );
+    ev.put( error_detidcollection );
+  }
 }
