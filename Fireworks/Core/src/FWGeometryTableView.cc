@@ -390,16 +390,19 @@ FWGeometryTableView::populate3DViewsFromConfig()
 void
 FWGeometryTableView::resetSetters()
 {
+
    if (!m_settersFrame->GetList()->IsEmpty())
    {
       m_setters.clear();
-      while(!m_settersFrame->GetList()->IsEmpty())
-      {
-         TGFrameElement *el = (TGFrameElement*) m_settersFrame->GetList()->First();
-         m_settersFrame->RemoveFrame(el->fFrame);
-      }
+
+      TGFrameElement *el = (TGFrameElement*) m_settersFrame->GetList()->First();
+      TGHorizontalFrame* f = (TGHorizontalFrame*) el->fFrame;
+      m_settersFrame->RemoveFrame(f);
    }
-   TGCompositeFrame* frame =  m_settersFrame;
+
+   TGHorizontalFrame* frame =  new TGHorizontalFrame(m_settersFrame);
+   m_settersFrame->AddFrame(frame, new TGLayoutHints(kLHintsExpandX,4,2,2,2) );
+   m_settersFrame->SetCleanup(kDeepCleanup);
    makeSetter(frame, &m_mode);
    makeSetter(frame, &m_autoExpand);
    makeSetter(frame, &m_visLevel);
