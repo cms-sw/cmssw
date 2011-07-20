@@ -10,7 +10,7 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 //#include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
