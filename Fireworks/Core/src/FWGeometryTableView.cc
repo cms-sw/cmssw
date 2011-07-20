@@ -178,8 +178,6 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager*
    m_visLevel.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D,this));
    m_visLevelFilter.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D,this));
 
-   m_filter.changed_.connect(boost::bind(&FWGeometryTableView::updateFilter, this));
-
    // top row
    {
       TGHorizontalFrame* hp =  new TGHorizontalFrame(m_frame);
@@ -203,12 +201,12 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager*
          hp->AddFrame( m_viewBox,new TGLayoutHints(kLHintsExpandY, 2, 2, 0, 0));
       }
       {
-         FWGUIValidatingTextEntry*  m_text1 = new FWGUIValidatingTextEntry(hp, "Ma");
-         m_text1->SetHeight(20);// m_text1->SetWidth(100);
-         m_text1->setValidator(new FWMValidator(this));
-         hp->AddFrame(m_text1, new TGLayoutHints(kLHintsExpandX));
-         // FWMaterialCombo* m_mBox = new FWMaterialCombo(hp, this);
-         //hp->AddFrame( m_mBox,new TGLayoutHints(kLHintsExpandY, 2, 2, 0, 0));
+         m_filterEntry = new FWGUIValidatingTextEntry(hp);
+         m_filterEntry->SetHeight(20);
+         m_filterEntry->setValidator(new FWMValidator(this));
+         hp->AddFrame(m_filterEntry, new TGLayoutHints(kLHintsExpandX));
+         m_filterEntry->getListBox()->Connect("Selected(int)", "FWGeometryTableView",  this, "updateFilter()");
+         m_filterEntry->Connect("ReturnPressed()", "FWGeometryTableView",  this, "updateFilter()");
       }
       m_frame->AddFrame(hp,new TGLayoutHints(kLHintsLeft|kLHintsExpandX, 4, 2, 2, 2));
    }
@@ -290,7 +288,7 @@ FWGeometryTableView::setFrom(const FWConfiguration& iFrom)
       (*it)->setFrom(iFrom);
 
    }  
-
+   m_filterEntry->SetText(m_filter.value().c_str(), false);
    resetSetters();
    cdNode(m_topNodeIdx.value());
    m_viewersConfig = iFrom.valueForKey("Viewers");
@@ -358,35 +356,49 @@ FWGeometryTableView::makeSetter(TGCompositeFrame* frame, FWParameterBase* param)
 }
 
 //==============================================================================
-
+namespace {
+   struct Material
+   {
+      TGeoMaterial* g;
+      std::string n;
+      bool operator< (const Material& x) const { return n < x.n ;}
+      Material( TGeoMaterial* x) { g= x; n = x->GetName();}
+   };
+}
 void FWGeometryTableView::fillListOfMaterials(const char* iBegin, const char* iEnd, std::vector<std::pair<boost::shared_ptr<std::string>, std::string> >& oOptions)//(TGListBox* l)
 {
+
    oOptions.clear();
-   std::map<TGeoMaterial*, std::string> mlist;
-   FWGeometryTableManager::Entries_i it = m_tableManager->refSelected();
-   int nLevel = it->m_level;
-   it++;
-
-   while (it->m_level > nLevel)
-   {
-      TGeoMaterial* m = it->m_node->GetVolume()->GetMaterial();
-      if (mlist.find(m) == mlist.end())
-      {
-         std::string mat = m->GetName();
-         mlist[m] = mat;
-      
-      } 
-      it++;
-   }
-
    std::string part(iBegin,iEnd);
    unsigned int part_size = part.size();
 
-   for(std::map<TGeoMaterial*, std::string>::iterator i = mlist.begin(); i != mlist.end(); ++i)
+   std::vector<Material> mlist;
+   FWGeometryTableManager::Entries_i it = m_tableManager->refSelected();
+   int nLevel = it->m_level;
+   it++;
+   while (it->m_level > nLevel)
    {
-      std::string mat = i->second;
-      if(part == mat.substr(0,part_size) ) {
-         oOptions.push_back(std::make_pair(boost::shared_ptr<std::string>(new std::string(mat + "----")), mat.substr(part_size, mat.size()-part_size)));
+      TGeoMaterial* g = it->m_node->GetVolume()->GetMaterial();
+      bool duplicate = false;
+      for (std::vector<Material>::iterator j = mlist.begin(); j!=mlist.end(); ++j) {
+         if (j->g == g) {
+            duplicate = true;
+            break;
+         }
+      }
+      if (!duplicate)
+         mlist.push_back(g);
+
+      ++it;
+   }
+   std::sort(mlist.begin(), mlist.end());
+
+
+   for (std::vector<Material>::iterator i = mlist.begin(); i!=mlist.end(); ++i) {
+      if(part == (*i).n.substr(0,part_size) )
+      {
+         //  std::cout << i->n <<std::endl;
+         oOptions.push_back(std::make_pair(boost::shared_ptr<std::string>(new std::string((*i).n)), (*i).n.substr(part_size, (*i).n.size()-part_size)));
       }
    }
 }
@@ -659,8 +671,11 @@ void FWGeometryTableView::setPath(int parentIdx, std::string& path)
 
 void FWGeometryTableView::updateFilter()
 {
+   // std::cout << "=FWGeometryTableView::updateFilter()" << m_filterEntry->GetText() <<std::endl;
+   m_filter.set(m_filterEntry->GetText());
    m_tableManager->updateFilter();
    refreshTable3D();
+
 }
 
 //______________________________________________________________________________
