@@ -229,14 +229,15 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager*
    m_frame = new TGVerticalFrame(xf);
    xf->AddFrame(m_frame, new TGLayoutHints(kLHintsExpandX | kLHintsExpandY));
 
-
    m_mode.addEntry(0, "Node");
    m_mode.addEntry(1, "Volume");
    
    m_tableManager = new FWGeometryTableManager(this);
+   m_mode.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D,this));
    m_autoExpand.changed_.connect(boost::bind(&FWGeometryTableView::autoExpandChanged, this));
    m_visLevel.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D,this));
    m_visLevelFilter.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D,this));
+
 
    // top row
    {
