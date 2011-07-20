@@ -1,5 +1,5 @@
-#include "QGSPCMS_FTFP_BERT.hh"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
+#include "QGSPCMS_FTFP_BERT_EMLHCB.hh"
+#include "SimG4Core/PhysicsLists/interface/G4EmStandardPhysics_option1LHCB.hh"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -11,12 +11,14 @@
 #include "G4NeutronTrackingCut.hh"
 
 #include "G4DataQuestionaire.hh"
-#include "SimG4Core/PhysicsLists/interface/HadronPhysicsQGSPCMS_FTFP_BERT.h"
+#include "HadronPhysicsQGSP_FTFP_BERT.hh"
 
-QGSPCMS_FTFP_BERT::QGSPCMS_FTFP_BERT(G4LogicalVolumeToDDLogicalPartMap& map,
-				     const HepPDT::ParticleDataTable * table_,
-				     sim::FieldBuilder *fieldBuilder_, 
-				     const edm::ParameterSet & p) : PhysicsList(map, table_, fieldBuilder_, p) {
+#include <string>
+
+QGSPCMS_FTFP_BERT_EMLHCB::QGSPCMS_FTFP_BERT_EMLHCB(G4LogicalVolumeToDDLogicalPartMap& map,
+						   const HepPDT::ParticleDataTable * table_,
+						   sim::FieldBuilder *fieldBuilder_, 
+						   const edm::ParameterSet & p) : PhysicsList(map, table_, fieldBuilder_, p) {
 
   G4DataQuestionaire it(photon);
   
@@ -25,13 +27,13 @@ QGSPCMS_FTFP_BERT::QGSPCMS_FTFP_BERT(G4LogicalVolumeToDDLogicalPartMap& map,
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
   bool tracking= p.getParameter<bool>("TrackingCut");
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "QGSP_FTFP_BERT 3.3 with Flags for EM Physics "
+			      << "QGSP_FTFP_BERT_EMLHCB 3.3 with Flags for EM Physics "
 			      << emPhys << ", for Hadronic Physics "
 			      << hadPhys << " and tracking cut " << tracking;
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new CMSEmStandardPhysics("standard EM",ver));
+    RegisterPhysics( new G4EmStandardPhysics_option1LHCB(ver));
 
     // Synchroton Radiation & GN Physics
     RegisterPhysics( new G4EmExtraPhysics("extra EM"));
@@ -46,7 +48,8 @@ QGSPCMS_FTFP_BERT::QGSPCMS_FTFP_BERT(G4LogicalVolumeToDDLogicalPartMap& map,
 
     // Hadron Physics
     G4bool quasiElastic=true;
-    RegisterPhysics( new HadronPhysicsQGSPCMS_FTFP_BERT("hadron",quasiElastic));
+    // RegisterPhysics( new HadronPhysicsQGSPCMS_FTFP_BERT("hadron",quasiElastic)); 
+    RegisterPhysics( new HadronPhysicsQGSP_FTFP_BERT("hadron",quasiElastic));
   
     // Stopping Physics
     RegisterPhysics( new G4QStoppingPhysics("stopping"));

@@ -1,4 +1,4 @@
-#include "QGSPCMS_FTFP_BERT.hh"
+#include "QGSPCMS_BERT_CHIPS.hh"
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -11,12 +11,12 @@
 #include "G4NeutronTrackingCut.hh"
 
 #include "G4DataQuestionaire.hh"
-#include "SimG4Core/PhysicsLists/interface/HadronPhysicsQGSPCMS_FTFP_BERT.h"
+#include "HadronPhysicsQGSP_BERT_CHIPS.hh"
 
-QGSPCMS_FTFP_BERT::QGSPCMS_FTFP_BERT(G4LogicalVolumeToDDLogicalPartMap& map,
-				     const HepPDT::ParticleDataTable * table_,
-				     sim::FieldBuilder *fieldBuilder_, 
-				     const edm::ParameterSet & p) : PhysicsList(map, table_, fieldBuilder_, p) {
+QGSPCMS_BERT_CHIPS::QGSPCMS_BERT_CHIPS(G4LogicalVolumeToDDLogicalPartMap& map,
+				       const HepPDT::ParticleDataTable * table_,
+				       sim::FieldBuilder *fieldBuilder_, 
+				       const edm::ParameterSet & p) : PhysicsList(map, table_, fieldBuilder_, p) {
 
   G4DataQuestionaire it(photon);
   
@@ -25,7 +25,7 @@ QGSPCMS_FTFP_BERT::QGSPCMS_FTFP_BERT(G4LogicalVolumeToDDLogicalPartMap& map,
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
   bool tracking= p.getParameter<bool>("TrackingCut");
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "QGSP_FTFP_BERT 3.3 with Flags for EM Physics "
+			      << "QGSP_BERT_CHIPS 3.3 with Flags for EM Physics "
 			      << emPhys << ", for Hadronic Physics "
 			      << hadPhys << " and tracking cut " << tracking;
 
@@ -46,7 +46,7 @@ QGSPCMS_FTFP_BERT::QGSPCMS_FTFP_BERT(G4LogicalVolumeToDDLogicalPartMap& map,
 
     // Hadron Physics
     G4bool quasiElastic=true;
-    RegisterPhysics( new HadronPhysicsQGSPCMS_FTFP_BERT("hadron",quasiElastic));
+    RegisterPhysics( new HadronPhysicsQGSP_BERT_CHIPS("hadron",quasiElastic));
   
     // Stopping Physics
     RegisterPhysics( new G4QStoppingPhysics("stopping"));

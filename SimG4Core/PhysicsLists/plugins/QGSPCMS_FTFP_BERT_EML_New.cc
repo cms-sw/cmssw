@@ -1,5 +1,5 @@
-#include "QGSPCMS_FTFP_BERT.hh"
-#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics.h"
+#include "QGSPCMS_FTFP_BERT_EML_New.hh"
+#include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics92.h"
 #include "SimG4Core/PhysicsLists/interface/CMSMonopolePhysics.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -11,12 +11,14 @@
 #include "G4NeutronTrackingCut.hh"
 
 #include "G4DataQuestionaire.hh"
-#include "SimG4Core/PhysicsLists/interface/HadronPhysicsQGSPCMS_FTFP_BERT.h"
+#include "HadronPhysicsQGSP_FTFP_BERT.hh"
 
-QGSPCMS_FTFP_BERT::QGSPCMS_FTFP_BERT(G4LogicalVolumeToDDLogicalPartMap& map,
-				     const HepPDT::ParticleDataTable * table_,
-				     sim::FieldBuilder *fieldBuilder_, 
-				     const edm::ParameterSet & p) : PhysicsList(map, table_, fieldBuilder_, p) {
+#include <string>
+
+QGSPCMS_FTFP_BERT_EML_New::QGSPCMS_FTFP_BERT_EML_New(G4LogicalVolumeToDDLogicalPartMap& map,
+						     const HepPDT::ParticleDataTable * table_,
+						     sim::FieldBuilder *fieldBuilder_, 
+						     const edm::ParameterSet & p) : PhysicsList(map, table_, fieldBuilder_, p) {
 
   G4DataQuestionaire it(photon);
   
@@ -24,14 +26,16 @@ QGSPCMS_FTFP_BERT::QGSPCMS_FTFP_BERT(G4LogicalVolumeToDDLogicalPartMap& map,
   bool emPhys  = p.getUntrackedParameter<bool>("EMPhysics",true);
   bool hadPhys = p.getUntrackedParameter<bool>("HadPhysics",true);
   bool tracking= p.getParameter<bool>("TrackingCut");
+  std::string region = p.getParameter<std::string>("Region");
   edm::LogInfo("PhysicsList") << "You are using the simulation engine: "
-			      << "QGSP_FTFP_BERT 3.3 with Flags for EM Physics "
+			      << "QGSP_FTFP_BERT_EML_New 3.3 with Flags for EM Physics "
 			      << emPhys << ", for Hadronic Physics "
-			      << hadPhys << " and tracking cut " << tracking;
+			      << hadPhys << " and tracking cut " << tracking
+                              << " with special region " << region;
 
   if (emPhys) {
     // EM Physics
-    RegisterPhysics( new CMSEmStandardPhysics("standard EM",ver));
+    RegisterPhysics( new CMSEmStandardPhysics92("standard EM EML_New",ver,region));
 
     // Synchroton Radiation & GN Physics
     RegisterPhysics( new G4EmExtraPhysics("extra EM"));
@@ -46,7 +50,7 @@ QGSPCMS_FTFP_BERT::QGSPCMS_FTFP_BERT(G4LogicalVolumeToDDLogicalPartMap& map,
 
     // Hadron Physics
     G4bool quasiElastic=true;
-    RegisterPhysics( new HadronPhysicsQGSPCMS_FTFP_BERT("hadron",quasiElastic));
+    RegisterPhysics( new HadronPhysicsQGSP_FTFP_BERT("hadron",quasiElastic));
   
     // Stopping Physics
     RegisterPhysics( new G4QStoppingPhysics("stopping"));
