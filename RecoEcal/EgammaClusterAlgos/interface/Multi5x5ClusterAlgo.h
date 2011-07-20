@@ -29,13 +29,12 @@ class Multi5x5ClusterAlgo
 {
  public:
   
-  enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 }; 
 
   Multi5x5ClusterAlgo() {
   }
 
-  Multi5x5ClusterAlgo(double ebst, double ecst, std::vector<int> v_chstatus, const PositionCalc& posCalc, VerbosityLevel the_verbosity = pERROR) : 
-    ecalBarrelSeedThreshold(ebst), ecalEndcapSeedThreshold(ecst),  v_chstatus_(v_chstatus), verbosity(the_verbosity) {
+  Multi5x5ClusterAlgo(double ebst, double ecst, std::vector<int> v_chstatus, const PositionCalc& posCalc) : 
+    ecalBarrelSeedThreshold(ebst), ecalEndcapSeedThreshold(ecst),  v_chstatus_(v_chstatus) {
     posCalculator_ = posCalc;
     std::sort( v_chstatus_.begin(), v_chstatus_.end() );
   }
@@ -44,10 +43,6 @@ class Multi5x5ClusterAlgo
     {
     }
 
-  void setVerbosity(VerbosityLevel the_verbosity)
-    {
-      verbosity = the_verbosity;
-    }
 
   // this is the method that will start the clusterisation
   std::vector<reco::BasicCluster> makeClusters(const EcalRecHitCollection* hits,
@@ -93,9 +88,6 @@ class Multi5x5ClusterAlgo
 
   // recHit flag to be excluded from seeding
   std::vector<int> v_chstatus_;
-
-  // The verbosity level
-  VerbosityLevel verbosity;
 
   void mainSearch(const EcalRecHitCollection* hits,
                   const CaloSubdetectorGeometry *geometry_p,

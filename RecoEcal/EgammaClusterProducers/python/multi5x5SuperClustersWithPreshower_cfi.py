@@ -14,8 +14,6 @@ multi5x5SuperClustersWithPreshower = cms.EDProducer("PreshowerClusterProducer",
 
     endcapSClusterProducer = cms.InputTag("multi5x5SuperClusters","multi5x5EndcapSuperClusters"),
     preshNclust = cms.int32(4),
-    debugLevel = cms.string(''), ## switch to 'INFO' to get an extensive print-out
-
     preshClusterEnergyCut = cms.double(0.0),
     preshSeededNstrip = cms.int32(15)
 )

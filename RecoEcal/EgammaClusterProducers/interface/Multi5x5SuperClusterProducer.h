@@ -32,8 +32,6 @@ class Multi5x5SuperClusterProducer : public edm::EDProducer
       int nMaxPrintout_; // max # of printouts
       int nEvt_;         // internal counter of events
  
-      Multi5x5BremRecoveryClusterAlgo::VerbosityLevel verbosity;
-
       std::string endcapClusterCollection_;
       std::string barrelClusterCollection_;
 

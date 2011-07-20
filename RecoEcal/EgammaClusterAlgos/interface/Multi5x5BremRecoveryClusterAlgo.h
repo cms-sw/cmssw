@@ -25,7 +25,6 @@ class Multi5x5BremRecoveryClusterAlgo
 {
  public:
   
-  enum VerbosityLevel { pDEBUG = 0, pWARNING = 1, pINFO = 2, pERROR = 3 }; 
 
   Multi5x5BremRecoveryClusterAlgo(const edm::ParameterSet &bremRecoveryPset,
 			  double eb_sc_road_etasize = 0.06, // Search window in eta - Barrel
@@ -33,8 +32,7 @@ class Multi5x5BremRecoveryClusterAlgo
 			  double ec_sc_road_etasize = 0.14, // Search window in eta - Endcap
 			  double ec_sc_road_phisize = 0.40, // Search window in eta - Endcap
 			  bool dynamicPhiRoad = true,
-			  double theSeedTransverseEnergyThreshold = 0.40,
-			  VerbosityLevel the_verbosity = pERROR
+			  double theSeedTransverseEnergyThreshold = 0.40
 			  )
     {
       // e*_rdeta_ and e*_rdphi_ are half the total window 
@@ -48,7 +46,6 @@ class Multi5x5BremRecoveryClusterAlgo
       dynamicPhiRoad_ = dynamicPhiRoad;
       if (dynamicPhiRoad_) phiRoadAlgo_ = new BremRecoveryPhiRoadAlgo(bremRecoveryPset);
 
-      verbosity = the_verbosity;
     }
 
   // destructor
@@ -57,10 +54,6 @@ class Multi5x5BremRecoveryClusterAlgo
      if (dynamicPhiRoad_) delete phiRoadAlgo_;
   } 
 
-  void setVerbosity(VerbosityLevel the_verbosity)
-    {
-      verbosity = the_verbosity;
-    }
   
   // the method called from outside to do the SuperClustering - returns a vector of SCs:
   reco::SuperClusterCollection makeSuperClusters(reco::CaloClusterPtrVector & clusters);
@@ -77,8 +70,6 @@ class Multi5x5BremRecoveryClusterAlgo
 	     double etaRoad, double phiRoad);
   
   //
-
-  VerbosityLevel verbosity;
 
   double eb_rdeta_;
   double eb_rdphi_;

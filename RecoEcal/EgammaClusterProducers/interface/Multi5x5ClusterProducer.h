@@ -41,8 +41,6 @@ class Multi5x5ClusterProducer : public edm::EDProducer
       bool doBarrel_;
       bool doEndcap_;
 
-      Multi5x5ClusterAlgo::VerbosityLevel verbosity;
-
       std::string barrelHitProducer_;
       std::string endcapHitProducer_;
       std::string barrelHitCollection_;

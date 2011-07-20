@@ -47,9 +47,9 @@ std::vector<reco::BasicCluster> Multi5x5ClusterAlgo::makeClusters(
       ecalPart_string = "Barrel";
     }
 
-LogTrace("EcalClusters") << "-------------------------------------------------------------";
-LogTrace("EcalClusters") << "Island algorithm invoked for ECAL" << ecalPart_string ;
-LogTrace("EcalClusters") << "Looking for seeds, energy threshold used = " << threshold << " GeV";
+  LogTrace("EcalClusters") << "-------------------------------------------------------------";
+  LogTrace("EcalClusters") << "Island algorithm invoked for ECAL" << ecalPart_string ;
+  LogTrace("EcalClusters") << "Looking for seeds, energy threshold used = " << threshold << " GeV";
 
 
   int nregions=0;
@@ -89,13 +89,13 @@ LogTrace("EcalClusters") << "Looking for seeds, energy threshold used = " << thr
   
    sort(seeds.begin(), seeds.end(), EcalRecHitLess());
 
-LogTrace("EcalClusters") << "Total number of seeds found in event = " << seeds.size();
+   LogTrace("EcalClusters") << "Total number of seeds found in event = " << seeds.size();
 
 
    mainSearch(hits, geometry_p, topology_p, geometryES_p);
    sort(clusters_v.rbegin(), clusters_v.rend(), ClusterEtLess());
 
-LogTrace("EcalClusters") << "---------- end of main search. clusters have been sorted ----";
+   LogTrace("EcalClusters") << "---------- end of main search. clusters have been sorted ----";
 
   
    return clusters_v;
@@ -111,7 +111,7 @@ void Multi5x5ClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
 				     )
 {
 
-LogTrace("EcalClusters") << "Building clusters............";
+  LogTrace("EcalClusters") << "Building clusters............";
 
    // Loop over seeds:
    std::vector<EcalRecHit>::iterator it;
@@ -133,9 +133,9 @@ LogTrace("EcalClusters") << "Building clusters............";
       {
          if (it == seeds.begin())
 	 {
-LogTrace("EcalClusters") << "##############################################################" ;
-LogTrace("EcalClusters") << "DEBUG ALERT: Highest energy seed already belongs to a cluster!";
-LogTrace("EcalClusters") << "##############################################################";
+	   LogTrace("EcalClusters") << "##############################################################" ;
+	   LogTrace("EcalClusters") << "DEBUG ALERT: Highest energy seed already belongs to a cluster!";
+	   LogTrace("EcalClusters") << "##############################################################";
 
 	 }
 
@@ -203,12 +203,12 @@ void Multi5x5ClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
    }
    //chi2 /= energy;
 
-LogTrace("EcalClusters") << "******** NEW CLUSTER ********";
-LogTrace("EcalClusters") << "No. of crystals = " << current_v.size();
-LogTrace("EcalClusters") << "     Energy     = " << energy ;
-LogTrace("EcalClusters") << "     Phi        = " << position.phi();
-LogTrace("EcalClusters") << "     Eta " << position.eta();
-LogTrace("EcalClusters") << "*****************************";  
+   LogTrace("EcalClusters") << "******** NEW CLUSTER ********";
+   LogTrace("EcalClusters") << "No. of crystals = " << current_v.size();
+   LogTrace("EcalClusters") << "     Energy     = " << energy ;
+   LogTrace("EcalClusters") << "     Phi        = " << position.phi();
+   LogTrace("EcalClusters") << "     Eta " << position.eta();
+   LogTrace("EcalClusters") << "*****************************";  
 
 
    // to be a valid cluster the cluster energy

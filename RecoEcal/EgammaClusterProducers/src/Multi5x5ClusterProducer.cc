@@ -37,12 +37,6 @@
 
 Multi5x5ClusterProducer::Multi5x5ClusterProducer(const edm::ParameterSet& ps)
 {
-  // The verbosity level
-  std::string verbosityString = ps.getParameter<std::string>("VerbosityLevel");
-  if      (verbosityString == "DEBUG")   verbosity = Multi5x5ClusterAlgo::pDEBUG;
-  else if (verbosityString == "WARNING") verbosity = Multi5x5ClusterAlgo::pWARNING;
-  else if (verbosityString == "INFO")    verbosity = Multi5x5ClusterAlgo::pINFO;
-  else                                   verbosity = Multi5x5ClusterAlgo::pERROR;
 
   // Parameters to identify the hit collections
   barrelHitProducer_   = ps.getParameter<std::string>("barrelHitProducer");
@@ -77,7 +71,7 @@ Multi5x5ClusterProducer::Multi5x5ClusterProducer(const edm::ParameterSet& ps)
   produces< reco::BasicClusterCollection >(endcapClusterCollection_);
   produces< reco::BasicClusterCollection >(barrelClusterCollection_);
 
-  island_p = new Multi5x5ClusterAlgo(barrelSeedThreshold, endcapSeedThreshold,  v_chstatus, posCalculator_,verbosity);
+  island_p = new Multi5x5ClusterAlgo(barrelSeedThreshold, endcapSeedThreshold,  v_chstatus, posCalculator_);
 
   nEvt_ = 0;
 }
@@ -108,20 +102,13 @@ const EcalRecHitCollection * Multi5x5ClusterProducer::getCollection(edm::Event& 
                                                                   const std::string& hitCollection_)
 {
   edm::Handle<EcalRecHitCollection> rhcHandle;
-  try
+  evt.getByLabel(hitProducer_, hitCollection_, rhcHandle);
+  if (!(rhcHandle.isValid())) 
     {
-      evt.getByLabel(hitProducer_, hitCollection_, rhcHandle);
-      if (!(rhcHandle.isValid())) 
-	{
-	  std::cout << "could not get a handle on the EcalRecHitCollection!" << std::endl;
-	  return 0;
-	}
-    }
-  catch ( cms::Exception& ex ) 
-    {
-      edm::LogError("Multi5x5ClusterProducerError") << "Error! can't get the product " << hitCollection_.c_str() ;
+      edm::LogError("MissingProduct") << "could not get a handle on the EcalRecHitCollection! : "  ;;
       return 0;
     }
+
   return rhcHandle.product();
 }
 

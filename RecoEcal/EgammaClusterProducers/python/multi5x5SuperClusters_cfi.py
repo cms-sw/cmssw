@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 #
-# $Id: multi5x5SuperClusters_cfi.py,v 1.2 2008/05/30 15:43:17 rpw Exp $
+# $Id: multi5x5SuperClusters_cfi.py,v 1.3 2011/05/24 12:58:17 argiro Exp $
 #
 # Multi5x5 SuperCluster producer
 multi5x5SuperClustersCleaned = cms.EDProducer("Multi5x5SuperClusterProducer",
@@ -12,7 +12,6 @@ multi5x5SuperClustersCleaned = cms.EDProducer("Multi5x5SuperClusterProducer",
     endcapClusterProducer = cms.string('multi5x5BasicClustersCleaned'),
     barrelPhiSearchRoad = cms.double(0.8),
     endcapPhiSearchRoad = cms.double(0.6),
-    VerbosityLevel = cms.string('ERROR'),
     seedTransverseEnergyThreshold = cms.double(1.0),
     doBarrel = cms.bool(False),
     endcapSuperclusterCollection = cms.string('multi5x5EndcapSuperClusters'),

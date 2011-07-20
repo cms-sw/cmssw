@@ -23,12 +23,6 @@
 
 Multi5x5SuperClusterProducer::Multi5x5SuperClusterProducer(const edm::ParameterSet& ps)
 {
-  // The verbosity level
-  std::string verbosityString = ps.getParameter<std::string>("VerbosityLevel");
-  if      (verbosityString == "DEBUG")   verbosity = Multi5x5BremRecoveryClusterAlgo::pDEBUG;
-  else if (verbosityString == "WARNING") verbosity = Multi5x5BremRecoveryClusterAlgo::pWARNING;
-  else if (verbosityString == "INFO")    verbosity = Multi5x5BremRecoveryClusterAlgo::pINFO;
-  else                                   verbosity = Multi5x5BremRecoveryClusterAlgo::pERROR;
 
   endcapClusterProducer_ = ps.getParameter<std::string>("endcapClusterProducer");
   barrelClusterProducer_ = ps.getParameter<std::string>("barrelClusterProducer");
@@ -53,7 +47,7 @@ Multi5x5SuperClusterProducer::Multi5x5SuperClusterProducer(const edm::ParameterS
 
   bremAlgo_p = new Multi5x5BremRecoveryClusterAlgo(bremRecoveryPset, barrelEtaSearchRoad_, barrelPhiSearchRoad_, 
 					 endcapEtaSearchRoad_, endcapPhiSearchRoad_, 
-                                         dynamicPhiRoad, seedTransverseEnergyThreshold_, verbosity);
+                                         dynamicPhiRoad, seedTransverseEnergyThreshold_);
 
   produces< reco::SuperClusterCollection >(endcapSuperclusterCollection_);
   produces< reco::SuperClusterCollection >(barrelSuperclusterCollection_);

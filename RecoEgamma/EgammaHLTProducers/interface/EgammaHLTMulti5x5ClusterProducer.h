@@ -38,7 +38,6 @@ class EgammaHLTMulti5x5ClusterProducer : public edm::EDProducer
       int nMaxPrintout_; // max # of printouts
       int nEvt_;         // internal counter of events
 
-      Multi5x5ClusterAlgo::VerbosityLevel verbosity;
 
       bool doBarrel_;
       bool doEndcaps_;
