@@ -11,13 +11,15 @@ using namespace reco;
 
 BeamHaloSummary::BeamHaloSummary()
 {
-  for( unsigned int i = 0 ; i < 2 ; i++ )
+  for( unsigned int i = 0 ; i < 4 ; i++ )
     {
-      HcalHaloReport.push_back(0);
-      EcalHaloReport.push_back(0);
       CSCHaloReport.push_back(0);
-      GlobalHaloReport.push_back(0);
-
+      if( i < 2 )
+	{ 
+	  GlobalHaloReport.push_back(0);      
+	  HcalHaloReport.push_back(0);
+	  EcalHaloReport.push_back(0);
+	}
     }
 }
 
