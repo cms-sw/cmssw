@@ -41,6 +41,7 @@ class FWGeoTopNode;
 class FWParameterBase;
 class FWViewCombo;
 class FWGUIValidatingTextEntry;
+class FWGeoMaterialValidator;
 
 class FWGeometryTableView
 #ifndef __CINT__
@@ -88,10 +89,7 @@ public:
 
    void setBackgroundColor();
    void populate3DViewsFromConfig();
-#ifndef __CINT__ 
-   void fillListOfMaterials(const char* iBegin, const char* iEnd, std::vector<std::pair<boost::shared_ptr<std::string>, std::string> >& oOptions);
 
-#endif
 private:
    FWGeometryTableView(const FWGeometryTableView&);
    const FWGeometryTableView& operator=(const FWGeometryTableView&);
@@ -121,6 +119,7 @@ private:
    FWViewCombo*            m_viewBox;
 
    FWGUIValidatingTextEntry* m_filterEntry;
+   FWGeoMaterialValidator*   m_filterValidator;
 
    const FWConfiguration*  m_viewersConfig;
 

@@ -55,19 +55,76 @@ enum GeoMenuOptions {
 };
 
 
-class FWMValidator : public FWValidatorBase {
+class FWGeoMaterialValidator : public FWValidatorBase {
+   struct Material
+   {
+      TGeoMaterial* g;
+      std::string n;
+      bool operator< (const Material& x) const { return n < x.n ;}
+      Material( TGeoMaterial* x) { g= x; n = x->GetName();}
+   };
 
-   FWGeometryTableView* m_tableView;
+   FWGeometryTableManager* m_table;
+   mutable std::vector<Material> m_list;
+
 public:
-   FWMValidator( FWGeometryTableView* t) { m_tableView = t;}
-   virtual ~FWMValidator() {}
+   FWGeoMaterialValidator( FWGeometryTableManager* t) { m_table = t;}
+   virtual ~FWGeoMaterialValidator() {}
 
-   // ---------- const member functions ---------------------
-   virtual void fillOptions(const char* iBegin, const char* iEnd, std::vector<std::pair<boost::shared_ptr<std::string>, std::string> >& oOptions) const {
 
-      m_tableView->fillListOfMaterials(iBegin, iEnd,  oOptions);
+   virtual void fillOptions(const char* iBegin, const char* iEnd, std::vector<std::pair<boost::shared_ptr<std::string>, std::string> >& oOptions) const 
+   {
+      oOptions.clear();
+      std::string part(iBegin,iEnd);
+      unsigned int part_size = part.size();
+
+      m_list.clear();
+      FWGeometryTableManager::Entries_i it = m_table->refSelected();
+      int nLevel = it->m_level;
+      it++;
+      while (it->m_level > nLevel)
+      {
+         TGeoMaterial* g = it->m_node->GetVolume()->GetMaterial();
+         bool duplicate = false;
+         for (std::vector<Material>::iterator j = m_list.begin(); j!=m_list.end(); ++j) {
+            if (j->g == g) {
+               duplicate = true;
+               break;
+            }
+         }
+         if (!duplicate)
+            m_list.push_back(g);
+
+         ++it;
+      }
+      std::sort(m_list.begin(), m_list.end());
+
+
+      std::sort(m_list.begin(), m_list.end());
+      for (std::vector<Material>::iterator i = m_list.begin(); i!=m_list.end(); ++i) {
+         if(part == (*i).n.substr(0,part_size) )
+         {
+            //  std::cout << i->n <<std::endl;
+            oOptions.push_back(std::make_pair(boost::shared_ptr<std::string>(new std::string((*i).n)), (*i).n.substr(part_size, (*i).n.size()-part_size)));
+         }
+      }
+
+   }
+
+   bool isStringValid(std::string& exp) 
+   {
+      if (exp.empty()) return true;
+
+      for (std::vector<Material>::iterator i = m_list.begin(); i!=m_list.end(); ++i) {
+         if (exp == (*i).n) 
+            return true;
+    
+      }
+      return false;
    }
 };
+
+//______________________________________________________________________________
 
 class FWViewCombo : public TGTextButton
 {
@@ -145,6 +202,7 @@ public:
 //==============================================================================
 //==============================================================================
 //==============================================================================
+//==============================================================================
 
 FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager* colMng, TGeoNode* tn, TObjArray* volumes )
    : FWViewBase(FWViewType::kGeometryTable),
@@ -152,7 +210,7 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager*
      m_filter(this,"Materials:",std::string()),
      m_autoExpand(this,"ExpandList:", 1l, 0l, 100l),
      m_visLevel(this,"VisLevel:", 3l, 1l, 100l),
-     m_visLevelFilter(this,"IgnoreVisLevelOnFilter", false),
+     m_visLevelFilter(this,"IgnoreVisLevelOnFilter", true),
      m_topNodeIdx(this, "TopNodeIndex", -1l, 0, 1e7),
      m_colorManager(colMng),
      m_tableManager(0),
@@ -161,6 +219,8 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager*
      m_eveWindow(0),
      m_frame(0),
      m_viewBox(0),
+     m_filterEntry(0),
+     m_filterValidator(0),
      m_viewersConfig(0)
 {
    m_eveWindow = iParent->MakeFrame(0);
@@ -201,14 +261,18 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager*
          hp->AddFrame( m_viewBox,new TGLayoutHints(kLHintsExpandY, 2, 2, 0, 0));
       }
       {
+         hp->AddFrame(new TGLabel(hp, "Filter:"), new TGLayoutHints(kLHintsBottom, 10, 0, 0, 2));
          m_filterEntry = new FWGUIValidatingTextEntry(hp);
          m_filterEntry->SetHeight(20);
-         m_filterEntry->setValidator(new FWMValidator(this));
-         hp->AddFrame(m_filterEntry, new TGLayoutHints(kLHintsExpandX));
+         m_filterValidator = new FWGeoMaterialValidator(m_tableManager);
+         m_filterEntry->setValidator(m_filterValidator);
+         hp->AddFrame(m_filterEntry, new TGLayoutHints(kLHintsExpandX,  1, 2, 1, 0));
          m_filterEntry->getListBox()->Connect("Selected(int)", "FWGeometryTableView",  this, "updateFilter()");
          m_filterEntry->Connect("ReturnPressed()", "FWGeometryTableView",  this, "updateFilter()");
+
+         gVirtualX->GrabKey( m_filterEntry->GetId(),gVirtualX->KeysymToKeycode((int)kKey_A),  kKeyControlMask, true);
       }
-      m_frame->AddFrame(hp,new TGLayoutHints(kLHintsLeft|kLHintsExpandX, 4, 2, 2, 2));
+      m_frame->AddFrame(hp,new TGLayoutHints(kLHintsLeft|kLHintsExpandX, 4, 2, 2, 0));
    }
 
    m_settersFrame = new TGHorizontalFrame(m_frame);
@@ -355,53 +419,6 @@ FWGeometryTableView::makeSetter(TGCompositeFrame* frame, FWParameterBase* param)
    m_setters.push_back(ptr);
 }
 
-//==============================================================================
-namespace {
-   struct Material
-   {
-      TGeoMaterial* g;
-      std::string n;
-      bool operator< (const Material& x) const { return n < x.n ;}
-      Material( TGeoMaterial* x) { g= x; n = x->GetName();}
-   };
-}
-void FWGeometryTableView::fillListOfMaterials(const char* iBegin, const char* iEnd, std::vector<std::pair<boost::shared_ptr<std::string>, std::string> >& oOptions)//(TGListBox* l)
-{
-
-   oOptions.clear();
-   std::string part(iBegin,iEnd);
-   unsigned int part_size = part.size();
-
-   std::vector<Material> mlist;
-   FWGeometryTableManager::Entries_i it = m_tableManager->refSelected();
-   int nLevel = it->m_level;
-   it++;
-   while (it->m_level > nLevel)
-   {
-      TGeoMaterial* g = it->m_node->GetVolume()->GetMaterial();
-      bool duplicate = false;
-      for (std::vector<Material>::iterator j = mlist.begin(); j!=mlist.end(); ++j) {
-         if (j->g == g) {
-            duplicate = true;
-            break;
-         }
-      }
-      if (!duplicate)
-         mlist.push_back(g);
-
-      ++it;
-   }
-   std::sort(mlist.begin(), mlist.end());
-
-
-   for (std::vector<Material>::iterator i = mlist.begin(); i!=mlist.end(); ++i) {
-      if(part == (*i).n.substr(0,part_size) )
-      {
-         //  std::cout << i->n <<std::endl;
-         oOptions.push_back(std::make_pair(boost::shared_ptr<std::string>(new std::string((*i).n)), (*i).n.substr(part_size, (*i).n.size()-part_size)));
-      }
-   }
-}
 
 //==============================================================================
 
@@ -672,9 +689,20 @@ void FWGeometryTableView::setPath(int parentIdx, std::string& path)
 void FWGeometryTableView::updateFilter()
 {
    // std::cout << "=FWGeometryTableView::updateFilter()" << m_filterEntry->GetText() <<std::endl;
-   m_filter.set(m_filterEntry->GetText());
-   m_tableManager->updateFilter();
-   refreshTable3D();
+   std::string exp = m_filterEntry->GetText();
+
+
+   if ( m_filterValidator->isStringValid(exp)) 
+   {
+      m_filter.set(exp);
+      m_tableManager->updateFilter();
+      refreshTable3D();
+   }
+   else
+   {
+      fwLog(fwlog::kError) << "filter expression not valid." << std::endl;
+      return;
+   }
 
 }
 
