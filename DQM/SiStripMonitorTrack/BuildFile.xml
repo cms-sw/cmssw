@@ -13,6 +13,4 @@
 <use   name="RecoLocalTracker/SiStripClusterizer"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="CommonTools/TriggerUtils"/>
-<export>
-  <lib   name="1"/>
-</export>
+
