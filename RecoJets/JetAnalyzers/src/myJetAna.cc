@@ -614,7 +614,7 @@ void myJetAna::analyze( const edm::Event& evt, const edm::EventSetup& es ) {
   towerEtCut = 1.0;
   towerECut  = 1.0;
 
-  uint StableRun = 123732;
+  unsigned int StableRun = 123732;
 
   double HBHEThreshold = 2.0;
   double HFThreshold   = 2.0;
