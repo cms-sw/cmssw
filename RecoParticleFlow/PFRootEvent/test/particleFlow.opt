@@ -562,7 +562,7 @@ tau_benchmark cone_merge 0.0
 
 //PFJet benchmark options ---------------------------------------------------
 
-pfjet_benchmark	on/off	1
+pfjet_benchmark	on/off	0
 
 //debug yes/no
 pfjet_benchmark debug 0
