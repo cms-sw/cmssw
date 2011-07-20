@@ -1,6 +1,6 @@
 
-root outfile /tmp/chanon/benchmark_1.root
-root outtree /tmp/chanon/benchmark_1.root
+root outfile benchmark.root
+root outtree 0
 
 //colin	mode 1
 
