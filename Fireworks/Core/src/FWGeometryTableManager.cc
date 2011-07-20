@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.36 2011/07/16 03:06:45 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.37 2011/07/19 04:54:45 amraktad Exp $
 //
 
 //#define PERFTOOL_GEO_TABLE
@@ -244,6 +244,9 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
       return &m_renderer;
    }       
 
+   static char sval[12];
+   static std::string zero = "0.000";
+
    FWTextTreeCellRenderer* renderer = &m_renderer;
 
    int unsortedRow =  m_row_to_index[iSortedRowNumber];
@@ -314,14 +317,30 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
             const double* origin = bb->GetOrigin();
             mxCache.mtx.LocalToMaster(origin, mxCache.pos);
          }
-         
-         renderer->setData(Form("%.3f", mxCache.pos[iCol - kPosX]),  isSelected);
+         float val =  mxCache.pos[iCol - kPosX];
+         if (val < 0.001)  {
+            renderer->setData(zero, isSelected);
+         }
+         else {
+            snprintf(sval, sizeof(sval), "%.3f", val);
+            renderer->setData(sval, isSelected);
+
+         }
+
          return renderer;
       }
       else
       { 
          TGeoBBox* gs = static_cast<TGeoBBox*>( gn.GetVolume()->GetShape());
-         renderer->setData( Form("%.3f", TMath::Sqrt(gs->GetDX()*gs->GetDX() + gs->GetDY()*gs->GetDY() +gs->GetDZ()*gs->GetDZ() )),  isSelected);
+         float val = TMath::Sqrt(gs->GetDX()*gs->GetDX() + gs->GetDY()*gs->GetDY() +gs->GetDZ()*gs->GetDZ() );
+         //            renderer->setData( Form("%.3f", TMath::Sqrt(gs->GetDX()*gs->GetDX() + gs->GetDY()*gs->GetDY() +gs->GetDZ()*gs->GetDZ() )),  isSelected);
+         if (val < 0.001)  {
+            renderer->setData(zero, isSelected);
+         }
+         else {
+            snprintf(sval, sizeof(sval), "%.3f", val);
+            renderer->setData(sval, isSelected);
+         }
          return renderer;
       }
 
