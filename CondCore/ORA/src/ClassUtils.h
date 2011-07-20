@@ -78,7 +78,12 @@ namespace ora {
 
     bool isTypeQueryableVector( const Reflex::Type& typ);
 
+    bool isTypeOraVector( const Reflex::Type& typ);
+
+    bool isTypeNameOraVector( const std::string& typeName );
+
     bool isTypeObject( const Reflex::Type& typ);
+
 
   }
 

@@ -66,7 +66,7 @@ ora::IRelationalStreamer* ora::RelationalStreamerFactory::newStreamer( const Ref
     }
     newStreamer = new InlineCArrayStreamer( type, mapping, m_containerSchema );
   } else if ( mapping.elementType() == MappingElement::OraArray ) {
-    if ( ! ClassUtils::isTypePVector( type ) && ! ClassUtils::isTypeQueryableVector( type )) {
+    if ( ! ClassUtils::isTypeOraVector( type ) ) {
       throwException( "Mapped variable \"" + mapping.variableName() +" of type "+
                       mapping.variableType() +
                       "\", declared as OraArray, is associated to the non-array type \""+

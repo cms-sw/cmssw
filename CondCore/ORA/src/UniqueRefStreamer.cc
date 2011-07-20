@@ -173,11 +173,12 @@ ora::UniqueRefWriter::UniqueRefWriter( const Reflex::Type& objectType,
                                        ContainerSchema& contSchema ):
   m_objectType( objectType ),
   m_mappingElement( mapping ),
-  m_columnIndexes( {-1,-1} ),
   m_schema( contSchema ),
   m_dataElement( 0 ),
   m_relationalData( 0 ),
   m_operationBuffer( 0 ){
+  m_columnIndexes[0]=-1;  
+  m_columnIndexes[1]=-1;  
 }
 
 std::string ora::uniqueRefNullLabel(){
@@ -285,11 +286,12 @@ ora::UniqueRefReader::UniqueRefReader( const Reflex::Type& objectType,
                                        ContainerSchema& contSchema ):
   m_objectType( objectType ),
   m_mappingElement( mapping ),
-  m_columnIndexes( {-1,-1} ),
   m_schema( contSchema ),
   m_dataElement( 0 ),
   m_relationalData( 0 ),
   m_loaders(){
+  m_columnIndexes[0]=-1;  
+  m_columnIndexes[1]=-1;  
 }
       
 ora::UniqueRefReader::~UniqueRefReader(){

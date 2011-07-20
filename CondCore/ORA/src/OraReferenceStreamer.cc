@@ -16,12 +16,13 @@ ora::OraReferenceStreamerBase::OraReferenceStreamerBase( const Reflex::Type& obj
                                                          ContainerSchema& schema):
   m_objectType( objectType ),
   m_mapping( mapping ),
-  m_columnIndexes( {-1,-1} ),
   m_schema( schema ),
   m_dataElement( 0 ),
   m_dataElemOId0( 0 ),
   m_dataElemOId1( 0 ),
   m_relationalData( 0 ){
+  m_columnIndexes[0] = -1;
+  m_columnIndexes[1] = -1;
 }
 
 ora::OraReferenceStreamerBase::~OraReferenceStreamerBase(){

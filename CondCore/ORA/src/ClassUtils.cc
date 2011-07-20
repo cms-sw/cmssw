@@ -57,6 +57,8 @@ bool ora::ClassUtils::checkMappedType( const Reflex::Type& type,
     return (mappedTypeName=="std::basic_string<char>" || mappedTypeName=="basic_string<char>" || mappedTypeName=="std::string" || mappedTypeName=="string");
   } else if ( type.IsEnum() ){
     return mappedTypeName=="int";
+  } else if ( isTypeOraVector( type ) ){
+    return isTypeNameOraVector( mappedTypeName );
   } else {
     return type.Name(Reflex::SCOPED)==mappedTypeName;
   }
@@ -305,6 +307,22 @@ bool ora::ClassUtils::isTypeQueryableVector( const Reflex::Type& typ){
   return false;  
 }
 
+bool ora::ClassUtils::isTypeOraVector( const Reflex::Type& typ){
+  if( isTypePVector( typ ) || isTypeQueryableVector( typ ) ){
+    return true;
+  }
+  return false;
+}
+
+bool ora::ClassUtils::isTypeNameOraVector( const std::string& typeName ){
+  size_t idx = typeName.find('<');
+  if( idx != std::string::npos ){
+    std::string tname = typeName.substr( 0, idx );
+    return (tname == "ora::PVector" || tname == "ora::QueryableVector" || tname == "pool::PVector" );
+  }
+  return false;
+}
+
 bool ora::ClassUtils::isTypeObject( const Reflex::Type& typ){
   Reflex::Type resType = ClassUtils::resolvedType( typ );
   if( isTypePrimitive( resType ) ) {
@@ -315,8 +333,7 @@ bool ora::ClassUtils::isTypeObject( const Reflex::Type& typ){
     if( isTypeContainer( resType ) ) return false;
     if( isTypeOraPointer( resType ) ) return false;
     if( isTypeUniqueReference( resType ) ) return false;
-    if( isTypePVector( resType ) ) return false;
-    if( isTypeQueryableVector( resType ) ) return false;
+    if( isTypeOraVector( resType ) ) return false;
   }
   return true;
 }
