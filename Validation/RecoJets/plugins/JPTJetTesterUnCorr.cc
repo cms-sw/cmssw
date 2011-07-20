@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: JPTJetTesterUnCorr.cc,v 1.2 2011/04/21 12:31:27 kovitang Exp $
+// $Id: JPTJetTesterUnCorr.cc,v 1.3 2011/06/05 17:59:17 kovitang Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -112,8 +112,8 @@ JPTJetTesterUnCorr::JPTJetTesterUnCorr(const edm::ParameterSet& iConfig)
     //
     numberofevents    = dbe->book1D("numberofevents","numberofevents", 3, 0 , 2);
     //
-    mEta              = dbe->book1D("Eta", "Eta", 100, -5, 5); 
-    mEtaFineBin       = dbe->book1D("EtaFineBin_Pt10", "EtaFineBin_Pt10", 500, -5, 5); 
+    mEta              = dbe->book1D("Eta", "Eta", 120, -6, 6); 
+    mEtaFineBin       = dbe->book1D("EtaFineBin_Pt10", "EtaFineBin_Pt10", 600, -6, 6); 
     /*
     mEtaFineBin1p     = dbe->book1D("EtaFineBin1p_Pt10", "EtaFineBin1p_Pt10", 100, 0, 1.3); 
     mEtaFineBin2p     = dbe->book1D("EtaFineBin2p_Pt10", "EtaFineBin2p_Pt10", 100, 1.3, 3); 
@@ -141,7 +141,7 @@ JPTJetTesterUnCorr::JPTJetTesterUnCorr(const edm::ParameterSet& iConfig)
     //    mConstituents     = dbe->book1D("Constituents", "# of Constituents", 100, 0, 100); 
     //    mConstituents_80  = dbe->book1D("Constituents_80", "# of Constituents_80", 40, 0, 40); 
     //
-    mEtaFirst         = dbe->book1D("EtaFirst", "EtaFirst", 100, -5, 5); 
+    mEtaFirst         = dbe->book1D("EtaFirst", "EtaFirst", 120, -6, 6); 
     mPhiFirst         = dbe->book1D("PhiFirst", "PhiFirst", 70, -3.5, 3.5);      
     mPtFirst          = dbe->book1D("PtFirst", "PtFirst", 100, 0, 50); 
     mPtFirst_80       = dbe->book1D("PtFirst_80", "PtFirst_80", 100, 0, 140);
@@ -191,7 +191,7 @@ JPTJetTesterUnCorr::JPTJetTesterUnCorr(const edm::ParameterSet& iConfig)
     mN90              = dbe->book1D("N90", "N90", 50, 0, 50); 
     */
     //
-    mGenEta           = dbe->book1D("GenEta", "GenEta", 100, -5, 5);
+    mGenEta           = dbe->book1D("GenEta", "GenEta", 120, -6, 6);
     mGenPhi           = dbe->book1D("GenPhi", "GenPhi", 70, -3.5, 3.5);
     mGenPt            = dbe->book1D("GenPt", "GenPt", 100, 0, 150);
     mGenPt_80         = dbe->book1D("GenPt_80", "GenPt_80", 100, 0, 1500);
@@ -243,8 +243,8 @@ JPTJetTesterUnCorr::JPTJetTesterUnCorr(const edm::ParameterSet& iConfig)
     double log10PtMin = 0.5; //=3.1622766
     double log10PtMax = 3.75; //=5623.41325
     int log10PtBins = 26; 
-    double etaMin = -5.;
-    double etaMax = 5.;
+    double etaMin = -6.;
+    double etaMax = 6.;
     int etaBins = 50;
 
     //double linPtMin = 5;
@@ -315,7 +315,7 @@ JPTJetTesterUnCorr::JPTJetTesterUnCorr(const edm::ParameterSet& iConfig)
 				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
     mpTScaleE_d = dbe->bookProfile("pTScaleE_d", "pTScale_d_1.3<|eta|<3.0",
 				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-    mpTScaleF_d = dbe->bookProfile("pTScaleF_d", "pTScale_d_3.0<|eta|<5.0",
+    mpTScaleF_d = dbe->bookProfile("pTScaleF_d", "pTScale_d_3.0<|eta|<6.0",
 				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
     /*
     mpTScale_60_120_s    = dbe->bookProfile("pTScale_60_120_s", "pTScale_s_60<pT<120",
@@ -340,28 +340,28 @@ JPTJetTesterUnCorr::JPTJetTesterUnCorr(const edm::ParameterSet& iConfig)
 				   100, 0, 2);
     mpTScale1DE_60_120 = dbe->book1D("pTScale1DE_60_120", "pTScale_distribution_for_1.3<|eta|<3.0_60_120",
 				   50, 0, 2);
-    mpTScale1DF_60_120 = dbe->book1D("pTScale1DF_60_120", "pTScale_distribution_for_3.0<|eta|<5.0_60_120",
+    mpTScale1DF_60_120 = dbe->book1D("pTScale1DF_60_120", "pTScale_distribution_for_3.0<|eta|<6.0_60_120",
 				   50, 0, 2);
 
     mpTScale1DB_200_300 = dbe->book1D("pTScale1DB_200_300", "pTScale_distribution_for_0<|eta|<1.3_200_300",
 				   100, 0, 2);
     mpTScale1DE_200_300 = dbe->book1D("pTScale1DE_200_300", "pTScale_distribution_for_1.3<|eta|<3.0_200_300",
 				   50, 0, 2);
-    mpTScale1DF_200_300 = dbe->book1D("pTScale1DF_200_300", "pTScale_distribution_for_3.0<|eta|<5.0_200_300",
+    mpTScale1DF_200_300 = dbe->book1D("pTScale1DF_200_300", "pTScale_distribution_for_3.0<|eta|<6.0_200_300",
 				   50, 0, 2);
 
     mpTScale1DB_600_900 = dbe->book1D("pTScale1DB_600_900", "pTScale_distribution_for_0<|eta|<1.3_600_900",
 				   100, 0, 2);
     mpTScale1DE_600_900 = dbe->book1D("pTScale1DE_600_900", "pTScale_distribution_for_1.3<|eta|<3.0_600_900",
 				   50, 0, 2);
-    mpTScale1DF_600_900 = dbe->book1D("pTScale1DF_600_900", "pTScale_distribution_for_3.0<|eta|<5.0_600_900",
+    mpTScale1DF_600_900 = dbe->book1D("pTScale1DF_600_900", "pTScale_distribution_for_3.0<|eta|<6.0_600_900",
 				   50, 0, 2);
 
     mpTScale1DB_2700_3500 = dbe->book1D("pTScale1DB_2700_3500", "pTScale_distribution_for_0<|eta|<1.3_2700_3500",
 				   100, 0, 2);
     mpTScale1DE_2700_3500 = dbe->book1D("pTScale1DE_2700_3500", "pTScale_distribution_for_1.3<|eta|<3.0_2700_3500",
 				   50, 0, 2);
-    mpTScale1DF_2700_3500 = dbe->book1D("pTScale1DF_2700_3500", "pTScale_distribution_for_3.0<|eta|<5.0_2700_3500",
+    mpTScale1DF_2700_3500 = dbe->book1D("pTScale1DF_2700_3500", "pTScale_distribution_for_3.0<|eta|<6.0_2700_3500",
 				   50, 0, 2);
 	/*
     mpTScale1D_60_120    = dbe->book1D("pTScale1D_60_120", "pTScale_distribution_for_60<pT<120",
@@ -584,7 +584,6 @@ if (!mEvent.isRealData()){
   int nJetF = 0;
   int nJetC = 0;
   for (; jet != jptJets->end (); jet++, jetIndex++) {
-    if (mEta) mEta->Fill (jet->eta());
 
     if (jet->pt() > 10.) {
       if (fabs(jet->eta()) > 1.3) 
@@ -593,6 +592,7 @@ if (!mEvent.isRealData()){
 	nJetC++;	  
     }
     if (jet->pt() > 10.) {
+      if (mEta) mEta->Fill (jet->eta());
       if (mEtaFineBin) mEtaFineBin->Fill (jet->eta());
       //if (mEtaFineBin1p) mEtaFineBin1p->Fill (jet->eta());
       //if (mEtaFineBin2p) mEtaFineBin2p->Fill (jet->eta());
@@ -754,7 +754,7 @@ if (!mEvent.isRealData()){
 
       //std::cout << iGenJet <<". Genjet: pT = " << genJetPt << "GeV" << std::endl;  //  *****************************************************
 
-      if (fabs(genJet.eta()) > 5.) continue; // out of detector 
+      if (fabs(genJet.eta()) > 6.) continue; // out of detector 
       if (genJetPt < mMatchGenPtThreshold) continue; // no low momentum 
       //double logPtGen = log10 (genJetPt);
       //mAllGenJetsPt->Fill (logPtGen);
@@ -888,7 +888,7 @@ void JPTJetTesterUnCorr::fillMatchHists (const reco::GenJet& fGenJet, const reco
     
   }
 
-  if (fabs(fGenJet.eta())>3.0 && fabs(fGenJet.eta())<5.0) {
+  if (fabs(fGenJet.eta())>3.0 && fabs(fGenJet.eta())<6.0) {
 
     //mpTScaleF_s->Fill (log10(PtGen), PtJpt/PtGen);
     mpTScaleF_d->Fill (log10(PtGen), PtJpt/PtGen);
