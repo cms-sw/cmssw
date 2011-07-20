@@ -237,6 +237,10 @@ namespace edm {
         message << "events need to be sorted.\n";
         whyNotFastClonable &= ~(FileBlock::EventsToBeSorted);
       }
+      if((whyNotFastClonable & FileBlock::RunOrLumiNotContiguous) != 0) {
+        message << "a run or a lumi is not contiguous in the input file.\n";
+        whyNotFastClonable &= ~(FileBlock::RunOrLumiNotContiguous);
+      }
       if((whyNotFastClonable & FileBlock::EventsOrLumisSelectedByID) != 0) {
         message << "events or lumis were selected or skipped by ID.\n";
         whyNotFastClonable &= ~(FileBlock::EventsOrLumisSelectedByID);

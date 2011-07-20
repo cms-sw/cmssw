@@ -511,10 +511,9 @@ namespace edm {
     }
 
     // From here on, record all reasons we can't fast clone.
-    IndexIntoFile::SortOrder sortOrder = IndexIntoFile::numericalOrder;
-    if(noEventSort_) sortOrder = IndexIntoFile::firstAppearanceOrder;
+    IndexIntoFile::SortOrder sortOrder = (noEventSort_ ? IndexIntoFile::firstAppearanceOrder : IndexIntoFile::numericalOrder);
     if(!indexIntoFile_.iterationWillBeInEntryOrder(sortOrder)) {
-      whyNotFastClonable_ += FileBlock::EventsToBeSorted;
+      whyNotFastClonable_ += (noEventSort_ ? FileBlock::RunOrLumiNotContiguous : FileBlock::EventsToBeSorted);
     }
     if(skipAnyEvents_) {
       whyNotFastClonable_ += FileBlock::InitialEventsSkipped;
