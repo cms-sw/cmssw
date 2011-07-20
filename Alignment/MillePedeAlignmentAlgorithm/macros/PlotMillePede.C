@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2011/05/31 05:31:11 $
+// last change    : $Date: 2011/06/29 20:36:53 $
 // by             : $Author: flucke $
 
 #include "PlotMillePede.h"
@@ -1316,7 +1316,7 @@ void PlotMillePede::ScanSelection(const char *sel, const char *addColumns)
   //  this->GetMainTree()->Scan("Id:Pos:" + mpPar += Form(":HitsX:Sigma[%u]:Label", iPar), sel);
   TString scan("Id:Pos:" + mpPar += ":HitsX:Sigma:Label");
   if (addColumns) scan += addColumns;
-  this->GetMainTree()->Scan(scan, sel);
+  this->GetMainTree()->Scan(scan, realSel);
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
