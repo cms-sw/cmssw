@@ -61,7 +61,7 @@ public:
 
   /// Container of wire groups comprising the rechit
   //const ChannelContainer& wgroups() const { return theWireGroups; }
-  ChannelContainer wgroups() const { return theWgroupsLowBits; }
+  const ChannelContainer& wgroups() const { return theWgroupsLowBits; }
 
   /// The BX number
   ChannelContainer wgroupsBX() const { return theWgroupsHighBits; }
