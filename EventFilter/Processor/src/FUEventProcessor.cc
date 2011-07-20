@@ -25,6 +25,8 @@
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include "toolbox/BSem.h" 
+
 #include <boost/tokenizer.hpp>
 
 #include "xcept/tools.h"
@@ -45,7 +47,11 @@
 
 using namespace evf;
 using namespace cgicc;
-
+namespace toolbox {
+  namespace mem {
+    extern toolbox::BSem * _s_mutex_ptr_; 
+  }
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // construction/destruction
@@ -465,6 +471,9 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
       if(retval==0)
 	{
 	  myProcess_ = &subs_[i];
+	  // dirty hack: delete/recreate global binary semaphore for later use in child
+	  delete toolbox::mem::_s_mutex_ptr_;
+	  toolbox::mem::_s_mutex_ptr_ = new toolbox::BSem(toolbox::BSem::FULL,true);
 	  int retval = pthread_mutex_destroy(&stop_lock_);
 	  if(retval != 0) perror("error");
 	  retval = pthread_mutex_init(&stop_lock_,0);
@@ -1879,7 +1888,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.130 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.131 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());

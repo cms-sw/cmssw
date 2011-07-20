@@ -1,3 +1,9 @@
+2011-07-20 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-12
+	* hack away possibly taken lock coming from xdaq update or 
+	* refcounted pointers
+	
 2011-06-27 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V02-04-11
