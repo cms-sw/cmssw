@@ -16,7 +16,7 @@
 //        Vladimir Rekovic, July 2010
 //
 //
-// $Id: TrigResRateMon.h,v 1.4 2011/06/30 08:54:05 slaunwhj Exp $
+// $Id: TrigResRateMon.h,v 1.5 2011/07/13 18:32:50 slaunwhj Exp $
 //
 //
 
@@ -143,6 +143,9 @@ class TrigResRateMon : public edm::EDAnalyzer {
 
       // ----------member data --------------------------- 
       int nev_;
+      int nStream_;  //Robin
+      int nPass_;  //Robin
+      bool passAny;  //Robin 
       DQMStore * dbe_;
       bool fLumiFlag;
       bool fIsSetup;
@@ -184,6 +187,14 @@ class TrigResRateMon : public edm::EDAnalyzer {
   double averageInstLumi;
   MonitorElement * meAverageLumiPerLS;
 
+  //Robin---
+  MonitorElement * meCountsPassPerLS;
+  MonitorElement * meCountsStreamPerLS;
+  MonitorElement * meXsecStreamPerLS;
+  MonitorElement * meXsecPerLS;
+  MonitorElement * meXsec;
+  MonitorElement * meXsecPerIL;
+
   // JMS Mask off some paths so that they don't mess with your plots
 
   std::vector< std::string > maskedPaths_; 
@@ -195,6 +206,7 @@ class TrigResRateMon : public edm::EDAnalyzer {
   unsigned referenceTrigIndex_;
   bool foundReferenceTrigger_;
   unsigned referenceTrigCountsPS_;
+  unsigned testTrigCountsPS_; //Robin
   void findReferenceTriggerIndex();
   //unsigned referenceTrigCounts_;
   

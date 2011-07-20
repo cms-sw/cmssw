@@ -1,4 +1,4 @@
-// $Id: TrigResRateMon.cc,v 1.14 2011/06/30 08:54:05 slaunwhj Exp $
+// $Id: TrigResRateMon.cc,v 1.15 2011/07/13 18:32:50 slaunwhj Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "TString.h"
@@ -229,6 +229,8 @@ TrigResRateMon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   triggerResults_ = triggerResults;
   const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
 
+  //Robin---
+  if(triggerResults.isValid()) nStream_++;
 
   // Find which index is zero bias for this run
   
@@ -304,7 +306,7 @@ TrigResRateMon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   fillCountsPerPath(iEvent, iSetup);
 
-
+  if (passAny) nPass_ ++ ;
   
   return;
 
@@ -383,6 +385,17 @@ void TrigResRateMon::beginRun(const edm::Run& run, const edm::EventSetup& c)
 
     const unsigned int n(hltConfig_.size());
 
+    //-------Diagnostic plots--------
+    meCountsPassPerLS = dbe->book1D("CountsPassVsLS", "Counts vs LumiSec;LS;Passed Stream Counts", nLS_, 0.5, nLS_+0.5);
+    meCountsStreamPerLS = dbe->book1D("CountsStreamVsLS", "Counts vs LumiSec;LS;Stream Counts", nLS_, 0.5, nLS_+0.5);
+    meXsecStreamPerLS = dbe->book1D("XsecStreamVsLS", "Xsec vs LumiSec;LS;Stream Xsec", nLS_, 0.5, nLS_+0.5);
+
+    meXsecPerLS = dbe->book1D("XsecVsLS", "Xsec vs LumiSec;LS;Xsec", nLS_, 0.5, nLS_+0.5);
+    meXsec = dbe->book1D("Xsec", "histo for Xsec ", 20, 0.01, 0.06);
+    //    meXsecPerIL = dbe->book2D("XsecVsIL", "Xsec vs Inst Lumi;#mub^{-1}*s^{-1}; Xsec", 200, 700, 900, 100, 0.01, 0.1);
+    TProfile tempProfile("XsecVsIL", "Xsec vs Inst Lumi;#mub^{-1}*s^{-1}; Xsec", 40, 600, 3000);
+    meXsecPerIL = dbe_->bookProfile("XsecVsIL", &tempProfile);
+    
     // JMS fill the counts per path
     bookCountsPerPath();
     clearLumiAverage();
@@ -1413,6 +1426,9 @@ void TrigResRateMon::fillCountsPerPath(const edm::Event& iEvent, const edm::Even
   for (unsigned iName = 0; iName < hltConfig_.size(); iName++) {
     if ( triggerResults_ -> accept ( iName ) ){
       countsPerPath[iName]++;
+
+      passAny = true ;       //Robin
+
       if ( (iName == referenceTrigIndex_) && (foundReferenceTrigger_) ) {
         // the get the prescales, and increment the PS*counts
         std::pair<int,int> psValueCombo =  hltConfig_.prescaleValues(iEvent, iSetup, referenceTrigName_);
@@ -1424,6 +1440,22 @@ void TrigResRateMon::fillCountsPerPath(const edm::Event& iEvent, const edm::Even
         }
 
       }// end if this is reference
+    
+      //Robin
+      std::string thisName = hltConfig_.triggerName(iName);
+      TString checkName(thisName.c_str());
+      if (checkName.Contains("HLT_IsoMu15_v")){
+
+        std::pair<int,int> psValueCombo =  hltConfig_.prescaleValues(iEvent, iSetup, thisName);
+        // if ps OK, 
+        if ( (psValueCombo.first > 0) && (psValueCombo.second > 0) ){
+          testTrigCountsPS_ += psValueCombo.first * psValueCombo.second;
+        } else {
+          testTrigCountsPS_++;
+        }
+
+      }
+
     } // end if trig fired         
   }// end loop over paths
 
@@ -1543,6 +1575,7 @@ void TrigResRateMon::clearCountsPerPath() {
   }
 
   referenceTrigCountsPS_ = 0 ;
+  testTrigCountsPS_ = 0 ; //Robin
   
   for (std::vector<DatasetInfo>::iterator iDS = primaryDataSetInformation.begin();
        iDS != primaryDataSetInformation.end();
@@ -1711,6 +1744,8 @@ void TrigResRateMon::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, c
   
   clearCountsPerPath();
   clearLumiAverage();
+  nStream_ = 0 ;
+  nPass_ = 0 ;
 
 }
 
@@ -1731,6 +1766,42 @@ void TrigResRateMon::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, con
   if (jmsDebug) printCountsPerPathThisLumi();
   if (jmsDebug) std::cout << "Average lumi is " << averageInstLumi << std::endl;
   fillXsecPerDataset();
+
+  //-------Diagnostic plots--------
+  TH1F* tempXsecPerLS = meXsecPerLS->getTH1F();
+  double xsec = 1.0;
+   
+  //  std::cout << "counts for HLT_IsoMu15* is " << testTrigCountsPS_ << std::endl;
+  
+  if (averageInstLumi > 0) {
+    xsec = testTrigCountsPS_ / (averageInstLumi*LSsize_);
+  }    
+  //  std::cout << "LS is " << lumi << " ; xsec is "<< xsec << std::endl;
+  tempXsecPerLS->SetBinContent(lumi, xsec);
+  
+
+  TH1F* tempXsec = meXsec->getTH1F();
+  tempXsec->Fill(xsec);
+
+  TProfile* tempXsecPerIL = meXsecPerIL->getTProfile();
+  tempXsecPerIL->Fill(averageInstLumi,xsec);
+
+  //--------- stream counts and xsec
+  TH1F* tempCountsStreamPerLS = meCountsStreamPerLS->getTH1F();
+  //  std::cout << "number of stream counts is " << nStream_ << std::endl;
+  tempCountsStreamPerLS->SetBinContent(lumi, nStream_);
+
+  TH1F* tempXsecStreamPerLS = meXsecStreamPerLS->getTH1F();
+  double xsecStream = 1.0 ;
+  xsecStream = nStream_ / (averageInstLumi*LSsize_);
+  tempXsecStreamPerLS->SetBinContent(lumi, xsecStream);
+
+
+  TH1F* tempCountsPassPerLS = meCountsPassPerLS->getTH1F();
+  //  std::cout << "number of passed stream counts is " << nPass_ << std::endl;
+  tempCountsPassPerLS->SetBinContent(lumi, nPass_);
+
+  //-----------
 
   // keep track of what you thought the lumi was
   // assign an error of 6%
