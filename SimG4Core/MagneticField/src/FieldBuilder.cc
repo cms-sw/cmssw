@@ -156,7 +156,7 @@ void FieldBuilder::configureFieldManager(G4FieldManager * fM) {
   }
   if (fChordFinderMonopole == 0) {
     G4MonopoleEquation* fMonopoleEquation = new G4MonopoleEquation(theField.get());
-    G4MagIntegratorStepper* theStepper = new G4ClassicalRK4(fMonopoleEquation);
+    G4MagIntegratorStepper* theStepper = new G4ClassicalRK4(fMonopoleEquation,8);
     fChordFinderMonopole = new G4ChordFinder(theField.get(),minStep,theStepper);
     fChordFinderMonopole->SetDeltaChord(dChord);
   }
