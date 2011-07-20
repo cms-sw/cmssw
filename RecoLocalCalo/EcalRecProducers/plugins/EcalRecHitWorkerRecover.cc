@@ -19,7 +19,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//$Id$
+//$Id: EcalRecHitWorkerRecover.cc,v 1.26 2011/07/19 19:56:33 argiro Exp $
 
 EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet&ps) :
         EcalRecHitWorkerBaseClass(ps)
@@ -323,8 +323,15 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                             
 			    // we do not want recovery for channels with certain channel statuses SA 20110719
 			    if (checkChannelStatus(*it,dbStatusToBeExcludedEE_)) {
-			      insertRecHit( hit, result );
+			      hit.setFlag(EcalRecHit::kTowerRecovered); 
+			    } else {
+			      // the recovered energy can be bogus in cases
+			      // where dead SC overlap with a working TP 
+			      // They will have kDead and kTPSaturated
+			      hit.setFlag(EcalRecHit::kDead);
 			    }
+			    
+			    insertRecHit( hit, result );
 			    
 			  }// for
                         }// if 
