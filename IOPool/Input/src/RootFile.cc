@@ -374,7 +374,7 @@ namespace edm {
       }
       dropOnInput(*newReg, groupSelectorRules, dropDescendants, inputType);
       // freeze the product registry
-      newReg->setFrozen();
+      newReg->setFrozen(inputType != InputType::Primary);
       productRegistry_.reset(newReg.release());
     }
 
