@@ -988,15 +988,24 @@ void ElectronMcFakeValidator::analyze( const edm::Event & iEvent, const edm::Eve
       if (bestGsfElectron.isEE()) h1_ele_hcalTowerSumEt_dr04_depth1_endcaps->Fill(bestGsfElectron.dr04HcalDepth1TowerSumEt());
       h1_ele_hcalTowerSumEt_dr04_depth2->Fill(bestGsfElectron.dr04HcalDepth2TowerSumEt());
 
+
       // isolation : difference with iso deposits
-      h1_ele_dIso_tkSumPt_dr03->Fill(bestGsfElectron.dr03TkSumPt()-((*isoFromDepsTk03Handle)[bestGsfElectronRef])) ;
-      h1_ele_dIso_tkSumPt_dr04->Fill(bestGsfElectron.dr04TkSumPt()-((*isoFromDepsTk04Handle)[bestGsfElectronRef])) ;
-      h1_ele_dIso_ecalFullRecHitSumEt_dr03->Fill(bestGsfElectron.dr03EcalRecHitSumEt()-((*isoFromDepsEcalFull03Handle)[bestGsfElectronRef])) ;
+      if ( isoFromDepsTk03Handle.isValid() )
+	h1_ele_dIso_tkSumPt_dr03->Fill(bestGsfElectron.dr03TkSumPt()-((*isoFromDepsTk03Handle)[bestGsfElectronRef])) ;
+      if ( isoFromDepsTk04Handle.isValid() )
+	h1_ele_dIso_tkSumPt_dr04->Fill(bestGsfElectron.dr04TkSumPt()-((*isoFromDepsTk04Handle)[bestGsfElectronRef])) ;
+      if ( isoFromDepsEcalFull03Handle.isValid() )
+	h1_ele_dIso_ecalFullRecHitSumEt_dr03->Fill(bestGsfElectron.dr03EcalRecHitSumEt()-((*isoFromDepsEcalFull03Handle)[bestGsfElectronRef])) ;
+      if ( isoFromDepsEcalFull04Handle.isValid() )
       h1_ele_dIso_ecalFullRecHitSumEt_dr04->Fill(bestGsfElectron.dr04EcalRecHitSumEt()-((*isoFromDepsEcalFull04Handle)[bestGsfElectronRef])) ;
-      h1_ele_dIso_ecalReducedRecHitSumEt_dr03->Fill(bestGsfElectron.dr03EcalRecHitSumEt()-((*isoFromDepsEcalReduced03Handle)[bestGsfElectronRef])) ;
-      h1_ele_dIso_ecalReducedRecHitSumEt_dr04->Fill(bestGsfElectron.dr04EcalRecHitSumEt()-((*isoFromDepsEcalReduced04Handle)[bestGsfElectronRef])) ;
-      h1_ele_dIso_hcalTowerSumEt_dr03->Fill(bestGsfElectron.dr03HcalTowerSumEt()-((*isoFromDepsHcal03Handle)[bestGsfElectronRef])) ;
-      h1_ele_dIso_hcalTowerSumEt_dr04->Fill(bestGsfElectron.dr04HcalTowerSumEt()-((*isoFromDepsHcal04Handle)[bestGsfElectronRef])) ;
+      if ( isoFromDepsEcalReduced03Handle.isValid())
+	h1_ele_dIso_ecalReducedRecHitSumEt_dr03->Fill(bestGsfElectron.dr03EcalRecHitSumEt()-((*isoFromDepsEcalReduced03Handle)[bestGsfElectronRef])) ;
+      if ( isoFromDepsEcalReduced04Handle.isValid())
+	h1_ele_dIso_ecalReducedRecHitSumEt_dr04->Fill(bestGsfElectron.dr04EcalRecHitSumEt()-((*isoFromDepsEcalReduced04Handle)[bestGsfElectronRef])) ;
+      if ( isoFromDepsHcal03Handle.isValid())
+	h1_ele_dIso_hcalTowerSumEt_dr03->Fill(bestGsfElectron.dr03HcalTowerSumEt()-((*isoFromDepsHcal03Handle)[bestGsfElectronRef])) ;
+      if ( isoFromDepsHcal04Handle.isValid())
+	h1_ele_dIso_hcalTowerSumEt_dr04->Fill(bestGsfElectron.dr04HcalTowerSumEt()-((*isoFromDepsHcal04Handle)[bestGsfElectronRef])) ;
 
       // conversion rejection
       int flags = bestGsfElectron.convFlags() ;
