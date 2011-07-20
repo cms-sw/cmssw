@@ -6,7 +6,7 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     blocks = cms.InputTag("particleFlowBlock"),
 
     # reco::muons label and Post Muon cleaning
-    muons = cms.InputTag("muons1stStep"),
+    muons = cms.InputTag("muons"),
     postMuonCleaning = cms.bool(True),
 
     # Vertices label
@@ -28,7 +28,9 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     # Use Photon identification in PFAlgo (for now this has NO impact, algo is swicthed off hard-coded
     usePFPhotons = cms.bool(True),
     pf_convID_mvaWeightFile = cms.string('RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionFeb2311.txt'),    
-    pf_conv_mvaCut=cms.double(0.0), 
+    pf_conv_mvaCut=cms.double(0.0),
+    sumPtTrackIsoForPhoton=cms.double(2.0),
+    sumPtTrackIsoSlopeForPhoton=cms.double(0.001),
 
                               
     pf_electron_mvaCut = cms.double(-0.1),

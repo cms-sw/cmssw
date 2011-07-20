@@ -139,12 +139,17 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   string path_mvaWeightFileConvID;
   string mvaWeightFileConvID;
   double mvaConvCut=-99.;
+  double sumPtTrackIsoForPhoton = 99.;
+  double sumPtTrackIsoSlopeForPhoton = 99.;
   if(usePFPhotons_)
     {
       mvaWeightFileConvID =iConfig.getParameter<string>("pf_convID_mvaWeightFile");
       
       mvaConvCut = iConfig.getParameter<double>("pf_conv_mvaCut");
-      path_mvaWeightFileConvID = edm::FileInPath ( mvaWeightFileConvID.c_str() ).fullPath();      
+      path_mvaWeightFileConvID = edm::FileInPath ( mvaWeightFileConvID.c_str() ).fullPath();  
+
+      sumPtTrackIsoForPhoton = iConfig.getParameter<double>("sumPtTrackIsoForPhoton");
+      sumPtTrackIsoSlopeForPhoton = iConfig.getParameter<double>("sumPtTrackIsoSlopeForPhoton");
     }
   
 
@@ -220,7 +225,9 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   pfAlgo_->setPFPhotonParameters(usePFPhotons_,
 				 path_mvaWeightFileConvID,
 				 mvaConvCut,
-				 calibration);
+				 calibration,
+				 sumPtTrackIsoForPhoton,
+				 sumPtTrackIsoSlopeForPhoton);
 
 
   //Secondary tracks and displaced vertices parameters

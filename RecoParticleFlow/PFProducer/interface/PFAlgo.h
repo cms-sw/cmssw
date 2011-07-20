@@ -105,7 +105,10 @@ class PFAlgo {
   void setPFPhotonParameters(bool usePFPhoton,
 			     std::string mvaWeightFileConvID,
 			     double mvaConvCut,
-			     const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration);  
+			     const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
+			     double sumPtTrackIsoForPhoton,
+			     double sumPtTrackIsoSlopeForPhoton
+);  
 
   void setPostHFCleaningParameters(bool postHFCleaning,
 				   double minHFCleaningPt,
@@ -335,7 +338,6 @@ class PFAlgo {
   boost::shared_ptr<PFEnergyCalibrationHF>  thepfEnergyCalibrationHF_;
   boost::shared_ptr<PFSCEnergyCalibration> thePFSCEnergyCalibration_;
 
-  // std::vector<unsigned> hcalBlockUsed_;
   
   int                algo_;
   bool               debug_;

@@ -9,8 +9,11 @@ pfPhotonTranslator = cms.EDProducer("PFPhotonTranslator",
                                     PFBasicClusters = cms.string("pfphot"),
                                     PFPreshowerClusters = cms.string("pfphot"),
                                     PFSuperClusters = cms.string("pfphot"),
+                                    PFConversionCollection = cms.string("pfphot"),
                                     PFPhotonCores = cms.string("pfphot"),
                                     PFPhotons = cms.string("pfphot"),
+                                    EGPhotons = cms.string("photons"),
+                                  
                                     primaryVertexProducer = cms.string("offlinePrimaryVerticesWithBS"),
                                     isolationValues = cms.PSet(
                                       pfChargedHadrons = cms.InputTag('isoValPhotonWithCharged'),

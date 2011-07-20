@@ -8,7 +8,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
-
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/deltaR.h"
@@ -23,11 +23,16 @@ using namespace reco;
 PFPhotonAlgo::PFPhotonAlgo(std::string mvaweightfile,  
 			   double mvaConvCut, 
 			   const reco::Vertex& primary,
-			   const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration) : 
+			   const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
+                           double sumPtTrackIsoForPhoton,
+                           double sumPtTrackIsoSlopeForPhoton
+			   ) : 
   isvalid_(false), 
   verbosityLevel_(Silent), 
   MVACUT(mvaConvCut),
-  thePFEnergyCalibration_(thePFEnergyCalibration)
+  thePFEnergyCalibration_(thePFEnergyCalibration),
+  sumPtTrackIsoForPhoton_(sumPtTrackIsoForPhoton),
+  sumPtTrackIsoSlopeForPhoton_(sumPtTrackIsoSlopeForPhoton)
 {  
     primaryVertex_=primary;  
     //Book MVA  
@@ -46,7 +51,10 @@ PFPhotonAlgo::PFPhotonAlgo(std::string mvaweightfile,
 void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 			       std::vector<bool>& active,
 			       std::auto_ptr<PFCandidateCollection> &pfCandidates,
-			       std::vector<reco::PFCandidatePhotonExtra>& pfPhotonExtraCandidates){
+			       std::vector<reco::PFCandidatePhotonExtra>& pfPhotonExtraCandidates,
+			       std::vector<reco::PFCandidate> 
+			       &tempElectronCandidates
+){
   
   //std::cout<<" calling RunPFPhoton "<<std::endl;
   
@@ -67,11 +75,6 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
   std::vector<bool>::const_iterator                      actIter          = active.begin();
   PFBlock::LinkData                                      linkData         = blockRef->linkData();
   bool                                                   isActive         = true;
-
-
-  // Daniele example for mvaValues
-  // do the same for single leg trackRef and convRef
-  //  vector<float> mvaValues;
 
 
   if(elements.size() != active.size()) {
@@ -579,6 +582,107 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
       ps1TotEne     +=  ps1+addedps1;
       ps2TotEne     +=  ps2+addedps2;
     } // end of loop over all ECAL cluster within this SC
+    AddFromElectron_.clear();
+    float Elec_energy=0;
+    float Elec_rawEcal=0;
+    float Elec_totPs1=0;
+    float Elec_totPs2=0;
+    float ElectronX=0;
+    float ElectronY=0;
+    float ElectronZ=0;  
+    std::vector<double>AddedPS1(0);
+    std::vector<double>AddedPS2(0);
+    
+    EarlyConversion(    
+   	    tempElectronCandidates,
+    	    sc
+    	    );   
+    
+    if(AddFromElectron_.size()>0)
+      {	
+	//collect elements from early Conversions that are reconstructed as Electrons
+	
+	for(std::vector<unsigned int>::const_iterator it = 
+	      AddFromElectron_.begin();
+	    it != AddFromElectron_.end(); ++it)
+	  {
+	    
+	    if(elements[*it].type()== reco::PFBlockElement::ECAL)
+	      {
+	        //cout<<"Cluster ind "<<*it<<endl;
+		AddedPS1.clear();
+		AddedPS2.clear();
+		unsigned int index=*it;
+		reco::PFClusterRef clusterRef = 
+		elements[index].clusterRef();
+		//match to PS1 and PS2 to this cluster for calibration
+		Elec_rawEcal=Elec_rawEcal+
+		  elements[index].clusterRef()->energy();
+		std::multimap<double, unsigned int> PS1Elems;  
+		std::multimap<double, unsigned int> PS2Elems;  
+		
+		blockRef->associatedElements(index,  
+					     linkData,  
+					     PS1Elems,  					     reco::PFBlockElement::PS1,  
+					     reco::PFBlock::LINKTEST_ALL );  
+		blockRef->associatedElements( index,  
+					      linkData,  
+					      PS2Elems,  
+					      reco::PFBlockElement::PS2,  
+					      reco::PFBlock::LINKTEST_ALL );
+		
+		
+		for(std::multimap<double, unsigned int>::iterator iteps = 
+		      PS1Elems.begin();  
+		    iteps != PS1Elems.end(); ++iteps) 
+		  {  
+		    std::multimap<double, unsigned int> Clustcheck;  		    	    blockRef->associatedElements( iteps->second,  								   linkData,  
+															  Clustcheck,  
+															  reco::PFBlockElement::ECAL,  
+															  reco::PFBlock::LINKTEST_ALL );
+		    if(Clustcheck.begin()->second==index)
+		      {
+			AddedPS1.push_back(elements[iteps->second].clusterRef()->energy());
+			Elec_totPs1=Elec_totPs1+elements[iteps->second].clusterRef()->energy();
+		      }
+		  }
+		
+		for(std::multimap<double, unsigned int>::iterator iteps = 
+		      PS2Elems.begin();  
+		    iteps != PS2Elems.end(); ++iteps) 
+		  {  
+		    std::multimap<double, unsigned int> Clustcheck;  		    	    blockRef->associatedElements( iteps->second,  								   linkData,  
+															  Clustcheck,  
+															  reco::PFBlockElement::ECAL,  
+															  reco::PFBlock::LINKTEST_ALL );
+		    if(Clustcheck.begin()->second==index)
+		      {
+			AddedPS2.push_back(elements[iteps->second].clusterRef()->energy());
+			Elec_totPs2=Elec_totPs2+elements[iteps->second].clusterRef()->energy();
+		      }
+		  }
+		
+	      //energy calibration 
+		float EE=thePFEnergyCalibration_->
+		  energyEm(*clusterRef,AddedPS1,AddedPS2,false);
+		Elec_energy    += EE;
+		ElectronX      +=  EE * clusterRef->position().X();
+		ElectronY      +=  EE * clusterRef->position().Y();
+		ElectronZ      +=  EE * clusterRef->position().Z();
+	      
+	      }
+	  }
+	
+      }
+ 
+    //std::cout<<"Added Energy to Photon "<<Elec_energy<<" to "<<photonEnergy_<<std::endl;   
+      photonEnergy_ +=  Elec_energy;
+      RawEcalEne    +=  Elec_rawEcal;
+      photonX_      +=  ElectronX;
+      photonY_      +=  ElectronY;
+      photonZ_      +=  ElectronZ;	        
+      ps1TotEne     +=  Elec_totPs1;
+      ps2TotEne     +=  Elec_totPs2;
     
     // we've looped over all ECAL clusters, ready to generate PhotonCandidate
     if( ! (photonEnergy_ > 0.) ) continue;    // This SC is not a Photon Candidate
@@ -599,8 +703,17 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 					   photonEnergy_* photonDirection.Z(),
 					   photonEnergy_           );
 
-    if(sum_track_pt>(2+ 0.001* photonMomentum.pt()))
-      continue;//THIS SC is not a Photon it fails track Isolation
+    if(sum_track_pt>(sumPtTrackIsoForPhoton_ + sumPtTrackIsoSlopeForPhoton_ * photonMomentum.pt()))
+      {
+	//cout<<"Hit Continue "<<endl;
+	match_ind.clear(); //release the matched Electron candidates
+	continue;
+      }
+
+	//THIS SC is not a Photon it fails track Isolation
+    //if(sum_track_pt>(2+ 0.001* photonMomentum.pt()))
+    //continue;//THIS SC is not a Photon it fails track Isolation
+
     /*
     std::cout<<" Created Photon with energy = "<<photonEnergy_<<std::endl;
     std::cout<<"                         pT = "<<photonMomentum.pt()<<std::endl;
@@ -618,12 +731,27 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     photonCand.setHcalEnergy(0.,0.);
     photonCand.set_mva_nothing_gamma(1.);  
     photonCand.setSuperClusterRef(sc->superClusterRef());
+    math::XYZPoint v(primaryVertex_.x(), primaryVertex_.y(), primaryVertex_.z());
+    photonCand.setVertex( v  );
     if(hasConvTrack || hasSingleleg)photonCand.setFlag( reco::PFCandidate::GAMMA_TO_GAMMACONV, true);
-
+    int matches=match_ind.size();
+    int count=0;
+    for ( std::vector<reco::PFCandidate>::const_iterator ec=tempElectronCandidates.begin();   ec != tempElectronCandidates.end(); ++ec ){
+      for(int i=0; i<matches; i++)
+	{
+	  if(count==match_ind[i])photonCand.addDaughter(*ec);
+	  count++;
+	}
+    }
     //photonCand.setPositionAtECALEntrance(math::XYZPointF(photonMom_.position()));
     // set isvalid_ to TRUE since we've found at least one photon candidate
     isvalid_ = true;
     // push back the candidate into the collection ...
+    //Add Elements from Electron
+	for(std::vector<unsigned int>::const_iterator it = 
+	      AddFromElectron_.begin();
+	    it != AddFromElectron_.end(); ++it)photonCand.addElementInBlock(blockRef,*it);
+
 
     // ... and lock all elemts used
     for(std::vector<unsigned int>::const_iterator it = elemsToLock.begin();
@@ -676,7 +804,6 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
   return;
 
 }
-
 bool PFPhotonAlgo::EvaluateSingleLegMVA(const reco::PFBlockRef& blockref, const reco::Vertex& primaryvtx, unsigned int track_index)  
 {  
   bool convtkfound=false;  
@@ -726,4 +853,59 @@ bool PFPhotonAlgo::EvaluateSingleLegMVA(const reco::PFBlockRef& blockref, const 
   mvaValue = tmvaReader_->EvaluateMVA("BDT");  
   if(mvaValue > MVACUT)convtkfound=true;  
   return convtkfound;  
+}
+
+//Recover Early Conversions reconstructed as PFelectrons
+void PFPhotonAlgo::EarlyConversion(    
+				   //std::auto_ptr< reco::PFCandidateCollection > 
+				   //&pfElectronCandidates_,
+				   std::vector<reco::PFCandidate>& 
+				   tempElectronCandidates,
+				   const reco::PFBlockElementSuperCluster* sc
+				   ){
+  //step 1 check temp electrons for clusters that match Photon Supercluster:
+  // permElectronCandidates->clear();
+  int count=0;
+  for ( std::vector<reco::PFCandidate>::const_iterator ec=tempElectronCandidates.begin();   ec != tempElectronCandidates.end(); ++ec ) 
+    {
+      bool matched=false;
+      int mh=ec->gsfTrackRef()->trackerExpectedHitsInner().numberOfLostHits();
+      if(mh==0)continue;//Case where missing hits greater than zero
+      
+      reco::GsfTrackRef gsf=ec->gsfTrackRef();
+      //some hoopla to get Electron SC ref
+      
+      if(gsf->extra().isAvailable() && gsf->extra()->seedRef().isAvailable()) 
+	{
+	  reco::ElectronSeedRef seedRef=  gsf->extra()->seedRef().castTo<reco::ElectronSeedRef>();
+	  if(seedRef.isAvailable() && seedRef->isEcalDriven()) 
+	    {
+	      reco::SuperClusterRef ElecscRef = seedRef->caloCluster().castTo<reco::SuperClusterRef>();
+	      
+	      if(ElecscRef.isNonnull()){
+		//finally see if it matches:
+		reco::SuperClusterRef PhotscRef=sc->superClusterRef();
+		
+		if(PhotscRef==ElecscRef)
+		  {
+		    match_ind.push_back(count);
+		    matched=true; 
+		    //cout<<"Matched Electron with Index "<<count<<" This is the electron "<<*ec<<endl;
+		    //find that they have the same SC footprint start to collect Clusters and tracks and these will be passed to PFPhoton
+		    reco::PFCandidate::ElementsInBlocks eleInBlocks = ec->elementsInBlocks();
+		    for(unsigned i=0; i<eleInBlocks.size(); i++) 
+		      {
+			reco::PFBlockRef blockRef = eleInBlocks[i].first;
+			unsigned indexInBlock = eleInBlocks[i].second;	 
+			const edm::OwnVector< reco::PFBlockElement >&  elements=eleInBlocks[i].first->elements();
+			const reco::PFBlockElement& element = elements[indexInBlock];  		
+			
+			AddFromElectron_.push_back(indexInBlock);	       	
+		      }		    
+		  }		
+	      }
+	    }	  
+	}           
+      count++;
+    }
 }

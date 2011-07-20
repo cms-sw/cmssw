@@ -96,12 +96,14 @@ class PFPhotonTranslator : public edm::EDProducer
   void createSuperClusters(const reco::PFCandidateCollection &,
 			  reco::SuperClusterCollection &superClusters) const;
   
+  void createOneLegConversions(const edm::OrphanHandle<reco::SuperClusterCollection> & superClustersHandle, reco::ConversionCollection &oneLegConversions);
+
   //create photon cores
-  void createPhotonCores(const edm::OrphanHandle<reco::SuperClusterCollection> & superClustersHandle, reco::PhotonCoreCollection &photonCores) ;
+  void createPhotonCores(const edm::OrphanHandle<reco::SuperClusterCollection> & superClustersHandle, const edm::OrphanHandle<reco::ConversionCollection> & oneLegConversionHandle, reco::PhotonCoreCollection &photonCores) ;
 
   //create photons
-  void createPhotons(reco::VertexCollection &vertexCollection, const edm::OrphanHandle<reco::PhotonCoreCollection> & superClustersHandle, const CaloTopology* topology, const EcalRecHitCollection * barrelRecHits, const EcalRecHitCollection * endcapRecHits, const edm::Handle<CaloTowerCollection> & hcalTowersHandle, const IsolationValueMaps& isolationValues, reco::PhotonCollection &photons) ;
-
+  //void createPhotons(reco::VertexCollection &vertexCollection, const edm::OrphanHandle<reco::PhotonCoreCollection> & superClustersHandle, const CaloTopology* topology, const EcalRecHitCollection * barrelRecHits, const EcalRecHitCollection * endcapRecHits, const edm::Handle<CaloTowerCollection> & hcalTowersHandle, const IsolationValueMaps& isolationValues, reco::PhotonCollection &photons) ;
+  void createPhotons(reco::VertexCollection &vertexCollection, edm::Handle<reco::PhotonCollection> &egPhotons, const edm::OrphanHandle<reco::PhotonCoreCollection> & photonCoresHandle, const IsolationValueMaps& isolationValues, reco::PhotonCollection &photons) ;
 
   const reco::PFCandidate & correspondingDaughterCandidate(const reco::PFCandidate & cand, const reco::PFBlockElement & pfbe) const;
 
@@ -113,6 +115,7 @@ class PFPhotonTranslator : public edm::EDProducer
   std::string PFPhotonCoreCollection_;
   std::string PFPhotonCollection_;
   std::string PFConversionCollection_;
+  std::string EGPhotonCollection_;
   std::string  vertexProducer_;
   edm::InputTag barrelEcalHits_;
   edm::InputTag endcapEcalHits_;
@@ -137,9 +140,18 @@ class PFPhotonTranslator : public edm::EDProducer
   std::vector<reco::CandidatePtr> CandidatePtr_;
   // the e/g SC associated
   std::vector<reco::SuperClusterRef> egSCRef_;
-  //Vector of vector of Conversions Refs
+  // the e/g photon associated
+  std::vector<reco::PhotonRef> egPhotonRef_;
 
+  //Vector of vector of Conversions Refs
   std::vector<reco::ConversionRefVector > pfConv_;
+  std::vector< std::vector<reco::TrackRef> > pfSingleLegConv_;
+  std::vector< std::vector<float> > pfSingleLegConvMva_;
+  //std::vector<reco::TrackRef> * pfSingleLegConv_;
+
+  std::vector<int> conv1legPFCandidateIndex_;
+  std::vector<int> conv2legPFCandidateIndex_;
+
   edm::ESHandle<CaloTopology> theCaloTopo_;
   edm::ESHandle<CaloGeometry> theCaloGeom_;
 

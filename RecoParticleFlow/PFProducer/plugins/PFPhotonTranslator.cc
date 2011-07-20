@@ -3,6 +3,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoParticleFlow/PFProducer/plugins/PFPhotonTranslator.h"
+
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterWidthAlgo.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
@@ -23,20 +24,20 @@
 #include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
 
-#include "Geometry/Records/interface/CaloGeometryRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
-#include "Geometry/CaloTopology/interface/CaloTopology.h"
-#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
-#include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
-#include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h" 
-#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
+//#include "Geometry/Records/interface/CaloGeometryRecord.h"
+//#include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
+//#include "Geometry/CaloTopology/interface/CaloTopology.h"
+//#include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
+//#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+//#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+//#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
+//#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+//#include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
+//#include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
+//#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
+//#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
+//#include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h" 
+//#include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidatePhotonExtra.h"
 
 #include "DataFormats/Math/interface/Vector3D.h"
@@ -75,9 +76,11 @@ PFPhotonTranslator::PFPhotonTranslator(const edm::ParameterSet & iConfig) {
   PFBasicClusterCollection_ = iConfig.getParameter<std::string>("PFBasicClusters");
   PFPreshowerClusterCollection_ = iConfig.getParameter<std::string>("PFPreshowerClusters");
   PFSuperClusterCollection_ = iConfig.getParameter<std::string>("PFSuperClusters");
-
+  PFConversionCollection_ = iConfig.getParameter<std::string>("PFConversionCollection");
   PFPhotonCoreCollection_ = iConfig.getParameter<std::string>("PFPhotonCores");
   PFPhotonCollection_ = iConfig.getParameter<std::string>("PFPhotons");
+
+  EGPhotonCollection_ = iConfig.getParameter<std::string>("EGPhotons");
 
   vertexProducer_   = iConfig.getParameter<std::string>("primaryVertexProducer");
 
@@ -107,20 +110,26 @@ void PFPhotonTranslator::beginRun(edm::Run& run,const edm::EventSetup & es) {
 void PFPhotonTranslator::produce(edm::Event& iEvent,  
 				    const edm::EventSetup& iSetup) { 
 
+  //cout << "NEW EVENT"<<endl;
+
   std::auto_ptr<reco::BasicClusterCollection> 
     basicClusters_p(new reco::BasicClusterCollection);
 
   std::auto_ptr<reco::PreshowerClusterCollection>
     psClusters_p(new reco::PreshowerClusterCollection);
 
+  /*
   std::auto_ptr<reco::ConversionCollection>
     SingleLeg_p(new reco::ConversionCollection);
+  */
 
   reco::SuperClusterCollection outputSuperClusterCollection;
+  reco::ConversionCollection outputOneLegConversionCollection;
   reco::PhotonCoreCollection outputPhotonCoreCollection;
   reco::PhotonCollection outputPhotonCollection;
 
   outputSuperClusterCollection.clear();
+  outputOneLegConversionCollection.clear();
   outputPhotonCoreCollection.clear();
   outputPhotonCollection.clear();
 
@@ -129,6 +138,10 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
   bool status=fetchCandidateCollection(pfCandidates, 
 				       inputTagPFCandidates_, 
 				       iEvent );
+
+  edm::Handle<reco::PhotonCollection> egPhotons;
+  iEvent.getByLabel(EGPhotonCollection_, egPhotons);
+  
 
   Handle<reco::VertexCollection> vertexHandle;
 
@@ -149,8 +162,13 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
   preshowerClusterPtr_.clear();
   CandidatePtr_.clear();
   egSCRef_.clear();
-  pfConv_.clear();
+  egPhotonRef_.clear();
 
+  pfConv_.clear();
+  pfSingleLegConv_.clear();
+  pfSingleLegConvMva_.clear();
+  conv1legPFCandidateIndex_.clear();
+  conv2legPFCandidateIndex_.clear();
 
   // loop on the candidates 
   //CC@@
@@ -160,17 +178,59 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
   unsigned ncand=(status)?pfCandidates->size():0;
 
   unsigned iphot=0;
+  unsigned iconv1leg=0;
+  unsigned iconv2leg=0;
+
   for( unsigned i=0; i<ncand; ++i ) {
 
     const reco::PFCandidate& cand = (*pfCandidates)[i];    
-    if(cand.particleId()!=reco::PFCandidate::gamma) continue; 
+    if(cand.particleId()!=reco::PFCandidate::gamma) continue;
+    //cout << "cand.mva_nothing_gamma()="<<cand. mva_nothing_gamma()<<endl;
     if(cand. mva_nothing_gamma()>0.001)//Found PFPhoton with PFPhoton Extras saved
       {
+
+	//cout << "NEW PHOTON" << endl;
+
+	//std::cout << "nDoubleLegConv="<<cand.photonExtraRef()->conversionRef().size()<<std::endl;
+
+	if (cand.photonExtraRef()->conversionRef().size()>0){
+
+	  pfConv_.push_back(reco::ConversionRefVector());
+
+	  const reco::ConversionRefVector & doubleLegConvColl = cand.photonExtraRef()->conversionRef();
+	  for (unsigned int iconv=0; iconv<doubleLegConvColl.size(); iconv++){
+	    pfConv_[iconv2leg].push_back(doubleLegConvColl[iconv]);
+	  }
+
+	  conv2legPFCandidateIndex_.push_back(iconv2leg);
+	  iconv2leg++;
+	}
+	else conv2legPFCandidateIndex_.push_back(-1);
+
+	const std::vector<reco::TrackRef> & singleLegConvColl = cand.photonExtraRef()->singleLegConvTrackRef();
+	const std::vector<float>& singleLegConvCollMva = cand.photonExtraRef()->singleLegConvMva();
 	
-	//std::cout << "nconv="<<cand.photonExtraRef()->conversionRef().size()<<std::endl;
-	pfConv_.push_back(cand.photonExtraRef()->conversionRef());	
-	//
-	//cand.photonExtraRef()->singleLegConvTrackRef();	
+	//std::cout << "nSingleLegConv=" <<singleLegConvColl.size() << std::endl;
+
+	if (singleLegConvColl.size()>0){
+
+	  pfSingleLegConv_.push_back(std::vector<reco::TrackRef>());
+	  pfSingleLegConvMva_.push_back(std::vector<float>());
+
+          //cout << "nTracks="<< singleLegConvColl.size()<<endl;
+          for (unsigned int itk=0; itk<singleLegConvColl.size(); itk++){
+            //cout << "Track pt="<< singleLegConvColl[itk]->pt() <<endl;
+
+            pfSingleLegConv_[iconv1leg].push_back(singleLegConvColl[itk]);
+            pfSingleLegConvMva_[iconv1leg].push_back(singleLegConvCollMva[itk]);
+          }
+
+
+	  conv1legPFCandidateIndex_.push_back(iconv1leg);
+	
+	  iconv1leg++;
+	}
+	else conv1legPFCandidateIndex_.push_back(-1);
 	
       }
 
@@ -185,6 +245,16 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
     CandidatePtr_.push_back(ptrToPFPhoton);  
     egSCRef_.push_back(cand.superClusterRef());
     //std::cout << "PFPhoton cand " << iphot << std::endl;
+
+    int iegphot=0;
+    for (reco::PhotonCollection::const_iterator gamIter = egPhotons->begin(); gamIter != egPhotons->end(); ++gamIter){
+      if (cand.superClusterRef()==gamIter->superCluster()){
+	reco::PhotonRef PhotRef(reco::PhotonRef(egPhotons, iegphot));
+	egPhotonRef_.push_back(PhotRef);
+      }
+      iegphot++;
+    }
+
 
     //std::cout << "Cand elements in blocks : " << cand.elementsInBlocks().size() << std::endl;
 
@@ -258,8 +328,7 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
   std::auto_ptr<reco::SuperClusterCollection> superClusters_p(new reco::SuperClusterCollection(outputSuperClusterCollection));  
   const edm::OrphanHandle<reco::SuperClusterCollection> scRefProd = iEvent.put(superClusters_p,PFSuperClusterCollection_); 
 
-  const edm::OrphanHandle<reco::ConversionCollection> ConvRefProd = 
-    iEvent.put(SingleLeg_p,PFConversionCollection_);
+
   /*
   int ipho=0;
   for (reco::SuperClusterCollection::const_iterator gamIter = scRefProd->begin(); gamIter != scRefProd->end(); ++gamIter){
@@ -267,9 +336,33 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
     ipho++;
   }
   */
+
+
+  //1-leg conversions
+
+
+  if (status) createOneLegConversions(scRefProd, outputOneLegConversionCollection);
+
+
+  std::auto_ptr<reco::ConversionCollection> SingleLeg_p(new reco::ConversionCollection(outputOneLegConversionCollection));  
+  const edm::OrphanHandle<reco::ConversionCollection> ConvRefProd = iEvent.put(SingleLeg_p,PFConversionCollection_);
+  /*
+  int iconv = 0;
+  for (reco::ConversionCollection::const_iterator convIter = ConvRefProd->begin(); convIter != ConvRefProd->end(); ++convIter){
+
+    std::cout << "OneLegConv i="<<iconv<<" nTracks="<<convIter->nTracks()<<" EoverP="<<convIter->EoverP() <<std::endl;
+    std::vector<edm::RefToBase<reco::Track> > convtracks = convIter->tracks();
+    for (unsigned int itk=0; itk<convtracks.size(); itk++){
+      std::cout << "Track pt="<< convtracks[itk]->pt() << std::endl;
+    }  
+
+    iconv++;
+  }
+  */
+
   //create photon cores
   //if(status) createPhotonCores(pfCandidates, scRefProd, *photonCores_p);
-  if(status) createPhotonCores(scRefProd, outputPhotonCoreCollection);
+  if(status) createPhotonCores(scRefProd, ConvRefProd, outputPhotonCoreCollection);
   
   //std::cout << "nb photoncores in collection : "<<outputPhotonCoreCollection.size()<<std::endl;
 
@@ -285,7 +378,24 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
     std::cout << "PhotonCore i="<<ipho<<" energy="<<gamIter->pfSuperCluster()->energy()<<std::endl;
     //for (unsigned int i=0; i<)
 
-    std::cout << "PhotonCore i="<<ipho<<" nconv="<<gamIter->conversions().size()<<std::endl;
+    std::cout << "PhotonCore i="<<ipho<<" nconv2leg="<<gamIter->conversions().size()<<" nconv1leg="<<gamIter->conversionsOneLeg().size()<<std::endl;
+
+    const reco::ConversionRefVector & conv = gamIter->conversions();
+    for (unsigned int iconv=0; iconv<conv.size(); iconv++){
+      cout << "2-leg iconv="<<iconv<<endl;
+      cout << "2-leg nTracks="<<conv[iconv]->nTracks()<<endl;
+      cout << "2-leg EoverP="<<conv[iconv]->EoverP()<<endl;
+      cout << "2-leg ConvAlgorithm="<<conv[iconv]->algo()<<endl;
+    }
+
+    const reco::ConversionRefVector & convbis = gamIter->conversionsOneLeg();
+    for (unsigned int iconv=0; iconv<convbis.size(); iconv++){
+      cout << "1-leg iconv="<<iconv<<endl;
+      cout << "1-leg nTracks="<<convbis[iconv]->nTracks()<<endl;
+      cout << "1-leg EoverP="<<convbis[iconv]->EoverP()<<endl;
+      cout << "1-leg ConvAlgorithm="<<convbis[iconv]->algo()<<endl;
+    }
+
     ipho++;
   }
   */
@@ -300,6 +410,7 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
   }
   if (validVertex) vertexCollection = *(vertexHandle.product());
 
+  /*
   //load Ecal rechits
   bool validEcalRecHits=true;
   Handle<EcalRecHitCollection> barrelHitHandle;
@@ -330,19 +441,62 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
   // get Hcal towers collection 
   Handle<CaloTowerCollection> hcalTowersHandle;
   iEvent.getByLabel(hcalTowers_, hcalTowersHandle);
+  */
 
   //create photon collection
-  if(status) createPhotons(vertexCollection, pcRefProd, topology, &barrelRecHits, &endcapRecHits, hcalTowersHandle, isolationValues, outputPhotonCollection);
+  //if(status) createPhotons(vertexCollection, pcRefProd, topology, &barrelRecHits, &endcapRecHits, hcalTowersHandle, isolationValues, outputPhotonCollection);
+  if(status) createPhotons(vertexCollection, egPhotons, pcRefProd, isolationValues, outputPhotonCollection);
 
   // Put the photons in the event
   std::auto_ptr<reco::PhotonCollection> photons_p(new reco::PhotonCollection(outputPhotonCollection));  
   //std::cout << "photon collection put in auto_ptr"<<std::endl;
   const edm::OrphanHandle<reco::PhotonCollection> photonRefProd = iEvent.put(photons_p,PFPhotonCollection_); 
   //std::cout << "photons have been put in the event"<<std::endl;
+  
   /*
   ipho=0;
   for (reco::PhotonCollection::const_iterator gamIter = photonRefProd->begin(); gamIter != photonRefProd->end(); ++gamIter){
-    std::cout << "Photon i="<<ipho<<" energy="<<gamIter->pfSuperCluster()->energy()<<std::endl;
+    std::cout << "Photon i="<<ipho<<" pfEnergy="<<gamIter->pfSuperCluster()->energy()<<std::endl;
+    
+    const reco::ConversionRefVector & conv = gamIter->conversions();
+    cout << "conversions obtained : conv.size()="<< conv.size()<<endl;
+    for (unsigned int iconv=0; iconv<conv.size(); iconv++){
+      cout << "iconv="<<iconv<<endl;
+      cout << "nTracks="<<conv[iconv]->nTracks()<<endl;
+      cout << "EoverP="<<conv[iconv]->EoverP()<<endl;
+      
+      cout << "Vtx x="<<conv[iconv]->conversionVertex().x() << " y="<< conv[iconv]->conversionVertex().y()<<" z="<<conv[iconv]->conversionVertex().z()<< endl;
+      cout << "VtxError x=" << conv[iconv]->conversionVertex().xError() << endl;
+      
+      std::vector<edm::RefToBase<reco::Track> > convtracks = conv[iconv]->tracks();
+      //cout << "nTracks="<< convtracks.size()<<endl;
+      for (unsigned int itk=0; itk<convtracks.size(); itk++){
+	double convtrackpt = convtracks[itk]->pt();
+	const edm::RefToBase<reco::Track> & mytrack = convtracks[itk];
+	cout << "Track pt="<< convtrackpt <<endl;
+	cout << "Track origin="<<gamIter->conversionTrackOrigin(mytrack)<<endl;
+      }
+    }
+    
+    //1-leg
+    const reco::ConversionRefVector & convbis = gamIter->conversionsOneLeg();
+    cout << "conversions obtained : conv.size()="<< convbis.size()<<endl;
+    for (unsigned int iconv=0; iconv<convbis.size(); iconv++){
+      cout << "iconv="<<iconv<<endl;
+      cout << "nTracks="<<convbis[iconv]->nTracks()<<endl;
+      cout << "EoverP="<<convbis[iconv]->EoverP()<<endl;
+      
+      cout << "Vtx x="<<convbis[iconv]->conversionVertex().x() << " y="<< convbis[iconv]->conversionVertex().y()<<" z="<<convbis[iconv]->conversionVertex().z()<< endl;
+      cout << "VtxError x=" << convbis[iconv]->conversionVertex().xError() << endl;
+       
+      std::vector<edm::RefToBase<reco::Track> > convtracks = convbis[iconv]->tracks();
+      //cout << "nTracks="<< convtracks.size()<<endl;
+      for (unsigned int itk=0; itk<convtracks.size(); itk++){
+	double convtrackpt = convtracks[itk]->pt();
+	cout << "Track pt="<< convtrackpt <<endl;
+	cout << "Track origin="<<gamIter->conversionTrackOrigin((convtracks[itk]))<<endl;
+      }
+    }
     ipho++;
   }
   */
@@ -534,12 +688,71 @@ void PFPhotonTranslator::createSuperClusters(const reco::PFCandidateCollection &
     }
 }
 
-void PFPhotonTranslator::createPhotonCores(const edm::OrphanHandle<reco::SuperClusterCollection> & superClustersHandle, reco::PhotonCoreCollection &photonCores)
+void PFPhotonTranslator::createOneLegConversions(const edm::OrphanHandle<reco::SuperClusterCollection> & superClustersHandle, reco::ConversionCollection &oneLegConversions)
+{
+
+  //std::cout << "createOneLegConversions" << std::endl;
+
+    unsigned nphot=photPFCandidateIndex_.size();
+    for(unsigned iphot=0;iphot<nphot;++iphot)
+      {
+
+	//if (conv1legPFCandidateIndex_[iphot]==-1) cout << "No OneLegConversions to add"<<endl;
+	//else std::cout << "Phot "<<iphot<< " nOneLegConversions to add : "<<pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]].size()<<endl;
+
+
+	if (conv1legPFCandidateIndex_[iphot]>-1){
+
+	  for (unsigned iConv=0; iConv<pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]].size(); iConv++){
+
+	    reco::CaloClusterPtrVector scPtrVec;
+
+	    math::Error<3>::type error;
+	    const reco::Vertex  * convVtx = new reco::Vertex(pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]->innerPosition(), error);
+
+	    //cout << "Vtx x="<<convVtx->x() << " y="<< convVtx->y()<<" z="<<convVtx->z()<< endl;
+	    //cout << "VtxError x=" << convVtx->xError() << endl;
+
+	    std::vector<reco::TrackRef> OneLegConvVector;
+	    OneLegConvVector.push_back(pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]][iConv]);
+	
+	    reco::Conversion myOneLegConversion(scPtrVec, OneLegConvVector, *convVtx, reco::Conversion::pflow);
+	
+
+	    std::vector< float > OneLegMvaVector;
+	    OneLegMvaVector.push_back(pfSingleLegConvMva_[conv1legPFCandidateIndex_[iphot]][iConv]);
+	    myOneLegConversion.setOneLegMVA(OneLegMvaVector);
+	    
+	    /*
+	    std::cout << "One leg conversion created" << endl;
+	    std::vector<edm::RefToBase<reco::Track> > convtracks = myOneLegConversion.tracks();
+	    const std::vector<float> mvalist = myOneLegConversion.oneLegMVA();
+
+	    cout << "nTracks="<< convtracks.size()<<endl;
+	    for (unsigned int itk=0; itk<convtracks.size(); itk++){
+	      //double convtrackpt = convtracks[itk]->pt();
+	      std::cout << "Track pt="<< convtracks[itk]->pt() << std::endl;
+	      std::cout << "Track mva="<< mvalist[itk] << std::endl;
+	    }   
+	    */
+	    oneLegConversions.push_back(myOneLegConversion);
+	    
+	    //cout << "OneLegConv added"<<endl;
+	    
+	  }
+	}
+      }
+}
+
+
+void PFPhotonTranslator::createPhotonCores(const edm::OrphanHandle<reco::SuperClusterCollection> & superClustersHandle, const edm::OrphanHandle<reco::ConversionCollection> & oneLegConversionHandle, reco::PhotonCoreCollection &photonCores)
 {
   
   //std::cout << "createPhotonCores" << std::endl;
 
   unsigned nphot=photPFCandidateIndex_.size();
+
+  unsigned i1legtot = 0;
 
   for(unsigned iphot=0;iphot<nphot;++iphot)
     {
@@ -553,9 +766,69 @@ void PFPhotonTranslator::createPhotonCores(const edm::OrphanHandle<reco::SuperCl
       myPhotonCore.setStandardPhoton(false);
       myPhotonCore.setPflowSuperCluster(SCref);
       myPhotonCore.setSuperCluster(egSCRef_[iphot]);
-      const reco::ConversionRefVector & ConvToAdd(pfConv_[iphot]);
-      for(unsigned int iConv=0; iConv<ConvToAdd.size(); iConv++)
-	myPhotonCore.addConversion(ConvToAdd[iConv]);
+
+      reco::ElectronSeedRefVector pixelSeeds = egPhotonRef_[iphot]->electronPixelSeeds();
+      for (unsigned iseed=0; iseed<pixelSeeds.size(); iseed++){
+	myPhotonCore.addElectronPixelSeed(pixelSeeds[iseed]);
+      }
+
+      //cout << "PhotonCores : SC OK" << endl;
+
+      //cout << "conv1legPFCandidateIndex_[iphot]="<<conv1legPFCandidateIndex_[iphot]<<endl;
+      //cout << "conv2legPFCandidateIndex_[iphot]="<<conv2legPFCandidateIndex_[iphot]<<endl;
+
+      if (conv1legPFCandidateIndex_[iphot]>-1){
+	for (unsigned int iConv=0; iConv<pfSingleLegConv_[conv1legPFCandidateIndex_[iphot]].size(); iConv++){
+	  
+	  const reco::ConversionRef & OneLegRef(reco::ConversionRef(oneLegConversionHandle, i1legtot));
+	  myPhotonCore.addOneLegConversion(OneLegRef);
+	  
+	  //cout << "PhotonCores : 1-leg OK" << endl;
+	  /*
+	  cout << "Testing 1-leg :"<<endl;
+	  const reco::ConversionRefVector & conv = myPhotonCore.conversionsOneLeg();
+	  for (unsigned int iconv=0; iconv<conv.size(); iconv++){
+	    cout << "Testing 1-leg : iconv="<<iconv<<endl;
+	    cout << "Testing 1-leg : nTracks="<<conv[iconv]->nTracks()<<endl;
+	    cout << "Testing 1-leg : EoverP="<<conv[iconv]->EoverP()<<endl;
+	    std::vector<edm::RefToBase<reco::Track> > convtracks = conv[iconv]->tracks();
+	    for (unsigned int itk=0; itk<convtracks.size(); itk++){
+	      //double convtrackpt = convtracks[itk]->pt();
+	      std::cout << "Testing 1-leg : Track pt="<< convtracks[itk]->pt() << std::endl;
+	      // std::cout << "Track mva="<< mvalist[itk] << std::endl;
+	    }  
+	  }
+	  */
+
+	  i1legtot++;
+	}
+      }
+
+      if (conv2legPFCandidateIndex_[iphot]>-1){
+	for(unsigned int iConv=0; iConv<pfConv_[conv2legPFCandidateIndex_[iphot]].size(); iConv++) {
+
+	  const reco::ConversionRef & TwoLegRef(pfConv_[conv2legPFCandidateIndex_[iphot]][iConv]);
+	  myPhotonCore.addConversion(TwoLegRef);
+
+	}
+	//cout << "PhotonCores : 2-leg OK" << endl;
+
+	/*
+	cout << "Testing 2-leg :"<<endl;
+	const reco::ConversionRefVector & conv = myPhotonCore.conversions();
+	for (unsigned int iconv=0; iconv<conv.size(); iconv++){
+	  cout << "Testing 2-leg : iconv="<<iconv<<endl;
+	  cout << "Testing 2-leg : nTracks="<<conv[iconv]->nTracks()<<endl;
+	  cout << "Testing 2-leg : EoverP="<<conv[iconv]->EoverP()<<endl;
+	  std::vector<edm::RefToBase<reco::Track> > convtracks = conv[iconv]->tracks();
+	  for (unsigned int itk=0; itk<convtracks.size(); itk++){
+	    //double convtrackpt = convtracks[itk]->pt();
+	    std::cout << "Testing 2-leg : Track pt="<< convtracks[itk]->pt() << std::endl;
+	    // std::cout << "Track mva="<< mvalist[itk] << std::endl;
+	  }  
+	}
+	*/
+      }
 
       photonCores.push_back(myPhotonCore);
       
@@ -564,7 +837,8 @@ void PFPhotonTranslator::createPhotonCores(const edm::OrphanHandle<reco::SuperCl
   //std::cout << "end of createPhotonCores"<<std::endl;
 }
 
-void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection, const edm::OrphanHandle<reco::PhotonCoreCollection> & photonCoresHandle, const CaloTopology* topology, const EcalRecHitCollection* barrelRecHits, const EcalRecHitCollection* endcapRecHits, const edm::Handle<CaloTowerCollection> & hcalTowersHandle, const IsolationValueMaps& isolationValues, reco::PhotonCollection &photons)
+
+void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection, edm::Handle<reco::PhotonCollection> &egPhotons, const edm::OrphanHandle<reco::PhotonCoreCollection> & photonCoresHandle, const IsolationValueMaps& isolationValues, reco::PhotonCollection &photons) 
 {
 
   //cout << "createPhotons" << endl;
@@ -589,6 +863,53 @@ void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection,
 
       reco::Photon myPhoton(P4, PCref->pfSuperCluster()->position(), PCref, vtx);
       //cout << "photon created"<<endl;
+
+
+
+      reco::Photon::ShowerShape  showerShape;
+      reco::Photon::FiducialFlags fiducialFlags;
+      reco::Photon::IsolationVariables isolationVariables03;
+      reco::Photon::IsolationVariables isolationVariables04;
+
+      showerShape.e1x5= egPhotonRef_[iphot]->e1x5();
+      showerShape.e2x5= egPhotonRef_[iphot]->e2x5();
+      showerShape.e3x3= egPhotonRef_[iphot]->e3x3();
+      showerShape.e5x5= egPhotonRef_[iphot]->e5x5();
+      showerShape.maxEnergyXtal =  egPhotonRef_[iphot]->maxEnergyXtal();
+      showerShape.sigmaEtaEta =    egPhotonRef_[iphot]->sigmaEtaEta();
+      showerShape.sigmaIetaIeta =  egPhotonRef_[iphot]->sigmaIetaIeta();
+      showerShape.hcalDepth1OverEcal = egPhotonRef_[iphot]->hadronicDepth1OverEm();
+      showerShape.hcalDepth2OverEcal = egPhotonRef_[iphot]->hadronicDepth2OverEm();
+      myPhoton.setShowerShapeVariables ( showerShape ); 
+	  
+      fiducialFlags.isEB = egPhotonRef_[iphot]->isEB();
+      fiducialFlags.isEE = egPhotonRef_[iphot]->isEE();
+      fiducialFlags.isEBEtaGap = egPhotonRef_[iphot]->isEBEtaGap();
+      fiducialFlags.isEBPhiGap = egPhotonRef_[iphot]->isEBPhiGap();
+      fiducialFlags.isEERingGap = egPhotonRef_[iphot]->isEERingGap();
+      fiducialFlags.isEEDeeGap = egPhotonRef_[iphot]->isEEDeeGap();
+      fiducialFlags.isEBEEGap = egPhotonRef_[iphot]->isEBEEGap();
+      myPhoton.setFiducialVolumeFlags ( fiducialFlags );
+
+      isolationVariables03.ecalRecHitSumEt = egPhotonRef_[iphot]->ecalRecHitSumEtConeDR03();
+      isolationVariables03.hcalTowerSumEt = egPhotonRef_[iphot]->hcalTowerSumEtConeDR03();
+      isolationVariables03.hcalDepth1TowerSumEt = egPhotonRef_[iphot]->hcalDepth1TowerSumEtConeDR03();
+      isolationVariables03.hcalDepth2TowerSumEt = egPhotonRef_[iphot]->hcalDepth2TowerSumEtConeDR03();
+      isolationVariables03.trkSumPtSolidCone = egPhotonRef_[iphot]->trkSumPtSolidConeDR03();
+      isolationVariables03.trkSumPtHollowCone = egPhotonRef_[iphot]->trkSumPtHollowConeDR03();
+      isolationVariables03.nTrkSolidCone = egPhotonRef_[iphot]->nTrkSolidConeDR03();
+      isolationVariables03.nTrkHollowCone = egPhotonRef_[iphot]->nTrkHollowConeDR03();
+      isolationVariables04.ecalRecHitSumEt = egPhotonRef_[iphot]->ecalRecHitSumEtConeDR04();
+      isolationVariables04.hcalTowerSumEt = egPhotonRef_[iphot]->hcalTowerSumEtConeDR04();
+      isolationVariables04.hcalDepth1TowerSumEt = egPhotonRef_[iphot]->hcalDepth1TowerSumEtConeDR04();
+      isolationVariables04.hcalDepth2TowerSumEt = egPhotonRef_[iphot]->hcalDepth2TowerSumEtConeDR04();
+      isolationVariables04.trkSumPtSolidCone = egPhotonRef_[iphot]->trkSumPtSolidConeDR04();
+      isolationVariables04.trkSumPtHollowCone = egPhotonRef_[iphot]->trkSumPtHollowConeDR04();
+      isolationVariables04.nTrkSolidCone = egPhotonRef_[iphot]->nTrkSolidConeDR04();
+      isolationVariables04.nTrkHollowCone = egPhotonRef_[iphot]->nTrkHollowConeDR04();
+      myPhoton.setIsolationVariables(isolationVariables04, isolationVariables03);
+     
+	  
       
 
       reco::Photon::PflowIsolationVariables myPFIso;
@@ -599,7 +920,7 @@ void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection,
       
       //cout << "chargedHadronIso="<<myPhoton.chargedHadronIso()<<" photonIso="<<myPhoton.photonIso()<<" neutralHadronIso="<<myPhoton.neutralHadronIso()<<endl;
       
-
+      /*
       if (basicClusters_[iphot].size()>0){
       // Cluster shape variables
       //Algorithms from EcalClusterTools could be adapted to PF photons ? (not based on 5x5 BC)
@@ -651,6 +972,8 @@ void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection,
       myPhoton.setShowerShapeVariables ( showerShape ); 
       //cout << "shower shape variables filled"<<endl;
       }
+      */
+      
 
       photons.push_back(myPhoton);
 

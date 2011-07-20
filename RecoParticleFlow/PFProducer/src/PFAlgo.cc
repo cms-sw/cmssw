@@ -154,7 +154,10 @@ void
 PFAlgo::setPFPhotonParameters(bool usePFPhotons,  
 			      std::string mvaWeightFileConvID, 
 			      double mvaConvCut,
-			      const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration) {
+			      const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
+			      double sumPtTrackIsoForPhoton,
+			      double sumPtTrackIsoSlopeForPhoton)
+ {
 
   usePFPhotons_ = usePFPhotons;
 
@@ -190,7 +193,10 @@ PFAlgo::setPFPhotonParameters(bool usePFPhotons,
   pfpho_ = new PFPhotonAlgo(mvaWeightFileConvID, 
 			    mvaConvCut, 
 			    *pv,
-			    thePFEnergyCalibration);
+			    thePFEnergyCalibration,
+                            sumPtTrackIsoForPhoton,
+                            sumPtTrackIsoSlopeForPhoton
+);
   return;
 }
 
@@ -431,33 +437,30 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
   // //PFElectrons:
   // usePFElectrons_ external configurable parameter to set the usage of pf electron
+  std::vector<reco::PFCandidate> tempElectronCandidates;
+  tempElectronCandidates.clear();
   if (usePFElectrons_) {
     if (pfele_->isElectronValidCandidate(blockref,active)){
       // if there is at least a valid candidate is get the vector of pfcandidates
-      const std::vector<reco::PFCandidate> & PFElectCandidates_(pfele_->getElectronCandidates());
+      const std::vector<reco::PFCandidate> PFElectCandidates_(pfele_->getElectronCandidates());
+      for ( std::vector<reco::PFCandidate>::const_iterator ec=PFElectCandidates_.begin();   ec != PFElectCandidates_.end(); ++ec )tempElectronCandidates.push_back(*ec);
       
       // (***) We're filling the ElectronCandidates into the PFCandiate collection
       // ..... Once we let PFPhotonAlgo over-write electron-decision, we need to move this to
       // ..... after the PhotonAlgo has run (Fabian)
-      for ( std::vector<reco::PFCandidate>::const_iterator ec = PFElectCandidates_.begin();
-	    ec != PFElectCandidates_.end(); ++ec ) {
-	  pfCandidates_->push_back(*ec);
-	  // the pfalgo candidates vector is filled
-	}
-      // The vector active is automatically changed (it is passed by ref) in PFElectronAlgo
+    }    
+  // The vector active is automatically changed (it is passed by ref) in PFElectronAlgo
       // for all the electron candidate      
-    }
+    
     pfElectronCandidates_->insert(pfElectronCandidates_->end(), 
-                                  pfele_->getAllElectronCandidates().begin(), 
+				  pfele_->getAllElectronCandidates().begin(), 
                                   pfele_->getAllElectronCandidates().end()); 
 
-    
-    pfElectronExtra_.insert(pfElectronExtra_.end(),
+    pfElectronExtra_.insert(pfElectronExtra_.end(), 
 			    pfele_->getElectronExtra().begin(),
 			    pfele_->getElectronExtra().end());
-    }
-
-
+    
+  }
   if( /* --- */ usePFPhotons_ /* --- */ ) {    
     
     if(debug_)
@@ -467,7 +470,8 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 					active,                 // std::vector<bool> containing information about acitivity
 					pfPhotonCandidates_,    // pointer to candidate vector, to be filled by the routine
 					pfPhotonExtraCand,      // candidate extra vector, to be filled by the routine   
-					pfElectronCandidates_   // pointer to some auziliary UNTOUCHED FOR NOW
+					tempElectronCandidates
+					//pfElectronCandidates_   // pointer to some auziliary UNTOUCHED FOR NOW
 					) ) {
       if(debug_)
 	std::cout<< " In this PFBlock we found "<<pfPhotonCandidates_->size()<<" Photon Candidates."<<std::endl;
@@ -479,7 +483,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       unsigned int extracand =0;
       PFCandidateCollection::const_iterator cand = pfPhotonCandidates_->begin();      
       for( ; cand != pfPhotonCandidates_->end(); ++cand, ++extracand) {
-	pfCandidates_->push_back(*cand);    
+	pfCandidates_->push_back(*cand);
 	pfPhotonExtra_.push_back(pfPhotonExtraCand[extracand]);
       }
       
@@ -502,9 +506,12 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  }
       }
     }
-  
+  for ( std::vector<reco::PFCandidate>::const_iterator ec=tempElectronCandidates.begin();   ec != tempElectronCandidates.end(); ++ec ){
+    pfCandidates_->push_back(*ec);  
+} 
+ tempElectronCandidates.clear();
 
-  
+
   if(debug_) 
     cout<<endl<<"--------------- loop 1 ------------------"<<endl;
 
