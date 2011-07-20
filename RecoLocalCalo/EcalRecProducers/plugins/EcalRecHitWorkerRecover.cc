@@ -19,7 +19,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//$Id: EcalRecHitWorkerRecover.cc,v 1.26 2011/07/19 19:56:33 argiro Exp $
+//$Id: EcalRecHitWorkerRecover.cc,v 1.27 2011/07/20 10:44:31 argiro Exp $
 
 EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet&ps) :
         EcalRecHitWorkerBaseClass(ps)
@@ -317,8 +317,8 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
 			    
 			    float eta = geo_->getPosition(*it).eta(); //Convert back to E from Et for the recovered hits
 			    float pf = 1.0/cosh(eta);
-			    EcalRecHit hit( *it, totE / ((float)eeC.size()*pf), 0. , EcalRecHit::kTowerRecovered);
-			    hit.setFlag(EcalRecHit::kTowerRecovered);
+			    EcalRecHit hit( *it, totE / ((float)eeC.size()*pf), 0);
+			    
 			    if (atLeastOneTPSaturated) hit.setFlag(EcalRecHit::kTPSaturated );
                             
 			    // we do not want recovery for channels with certain channel statuses SA 20110719
