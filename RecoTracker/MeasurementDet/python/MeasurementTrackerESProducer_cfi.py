@@ -36,7 +36,7 @@ MeasurementTracker = cms.ESProducer("MeasurementTrackerESProducer",
     DebugPixelROCQualityDB    = cms.untracked.bool(False), ## dump out info om module status
 
     # One or more DetIdCollections of modules to mask on the fly for a given event
-    inactivePixelDetectorLabels = cms.VInputTag(),
+    inactivePixelDetectorLabels = cms.VInputTag(cms.InputTag('siPixelDigis')),
     inactiveStripDetectorLabels = cms.VInputTag(cms.InputTag('siStripDigis')),
     switchOffPixelsIfEmpty = cms.bool(True), # let's keep it like this, for cosmics                                    
 )
