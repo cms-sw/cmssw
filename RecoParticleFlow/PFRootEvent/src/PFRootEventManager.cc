@@ -1142,19 +1142,27 @@ void PFRootEventManager::readOptions(const char* file,
   bool usePFPhotons = true;   
   string mvaWeightFileConvID = "";
   double mvaConvCut=-1.;
+  double sumPtTrackIsoForPhoton=2.0;
+  double sumPtTrackIsoSlopeForPhoton=0.001;
   options_->GetOpt("particle_flow", "usePFPhotons", usePFPhotons);
   options_->GetOpt("particle_flow", "conv_mvaCut", mvaConvCut);
-  options_->GetOpt("particle_flow", "convID_mvaWeightFile", mvaWeightFileConvID);  
+  options_->GetOpt("particle_flow", "convID_mvaWeightFile", mvaWeightFileConvID); 
+  options_->GetOpt("particle_flow","sumPtTrackIsoForPhoton",sumPtTrackIsoForPhoton);
+  options_->GetOpt("particle_flow","sumPtTrackIsoSlopeForPhoton",sumPtTrackIsoSlopeForPhoton);
   // cout<<"use PFPhotons "<<usePFPhotons<<endl;
 
   if( usePFPhotons ) { 
     // PFPhoton options -----------------------------
     
     try { 
-      pfAlgo_.setPFPhotonParameters(usePFPhotons,
-				    mvaWeightFileConvID,
-				    mvaConvCut,
-				    calibration);
+      pfAlgo_.setPFPhotonParameters
+(usePFPhotons,
+ mvaWeightFileConvID,
+ mvaConvCut,
+ calibration,
+ sumPtTrackIsoForPhoton,
+ sumPtTrackIsoSlopeForPhoton
+);
     }
 
     catch( std::exception& err ) {

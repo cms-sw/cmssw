@@ -1,11 +1,15 @@
 
-root outfile benchmark.root
-root outtree 0
+root outfile /tmp/chanon/benchmark_1.root
+root outtree /tmp/chanon/benchmark_1.root
 
 //colin	mode 1
 
 //root file display.root
-root file /tmp/rpatel/display_1.root
+//root file /tmp/rpatel/display_1.root
+//root file rfio:/castor/cern.ch/user/b/benedet/CMSSW_430pre5/display_0.root
+//root file rfio:/castor/cern.ch/user/c/chanon/Pflow430pre6custom/display_QCD_ElecPhotSep_OneLeg_withGen_1.root
+//root file rfio:/castor/cern.ch/user/c/chanon/Pflow430pre6custom/display_QCD_ElecPhotSep_OneLeg_withGen_2.root
+root file rfio:/castor/cern.ch/user/c/chanon/Pflow430pre6custom/display_QCD_ElecPhotSep_OneLeg_withGen_3.root
 // Warning: no cleaning of the HF is done in fast sim, due to the absence of timing simulation and to an unreliable transverse shower shape simulation in the HF. 
 //          Thus you shall switch it off in PFRootEvent also by changing the thresholds to the following values: 
 //                                                             clustering thresh_Clean_HFEM            1E5 
@@ -407,6 +411,8 @@ particle_flow   usePFPhotons      1
 particle_flow   conv_mvaCut	  0.00
 // Daniele and Rishi: To be changed
 particle_flow   convID_mvaWeightFile   /afs/cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionFeb2311.txt
+particle_flow sumPtTrackIsoForPhoton   2.0
+particle_flow sumPtTrackIsoSlopeForPhoton   0.001
 
 
 // EG photons  Et cut; Track iso (cste;slope), Ecal iso (cste, slope), Hcal iso (cste, slope), H/E
@@ -559,7 +565,7 @@ tau_benchmark cone_merge 0.0
 
 //PFJet benchmark options ---------------------------------------------------
 
-pfjet_benchmark	on/off	0
+pfjet_benchmark	on/off	1
 
 //debug yes/no
 pfjet_benchmark debug 0
