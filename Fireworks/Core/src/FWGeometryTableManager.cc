@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.38 2011/07/20 22:08:07 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.39 2011/07/20 22:11:49 amraktad Exp $
 //
 
 //#define PERFTOOL_GEO_TABLE
@@ -290,14 +290,12 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
       }
       else if (iCol == kVisSelf )
       {
-	 bool v = (m_filterOff) ? data.testBit(kVisNode) : data.testBit(kMatches);
-         renderer->setData( v ? "On" : "-",  isSelected);
+         renderer->setData(data.testBit(kVisNode)   ? "On" : "-",  isSelected);
          return renderer;
       }
       else if (iCol == kVisChild )
       {
-	 bool v = (m_filterOff) ?   data.testBit(kVisNodeChld): data.testBit(kChildMatches);
-         renderer->setData( v ? "On" : "-",  isSelected);
+         renderer->setData(data.testBit(kVisNodeChld) ? "On" : "-",  isSelected);
          return renderer;
       }
       else if (iCol == kMaterial )
@@ -369,19 +367,25 @@ void FWGeometryTableManager::assertNodeFilterCache(NodeInfo& data)
    if (!data.testBit(kFilterCached))
    {
       bool matches = m_volumes[data.m_node->GetVolume()].m_matches;
-      if (matches)
+      if (matches) {
          data.setBit(kMatches);
-      else
+         data.setBit(kVisNode);
+      }
+      else {
          data.resetBit(kMatches);
+         data.resetBit(kVisNode);
+      }
 
       bool childMatches = m_volumes[data.m_node->GetVolume()].m_childMatches;
       if (childMatches) {
          data.setBit(kChildMatches);
          data.setBit(kExpanded);
+         data.setBit(kVisNodeChld);
       }
       else {
          data.resetBit(kChildMatches);
          data.resetBit(kExpanded);
+         data.resetBit(kVisNodeChld);
       }
 
       data.setBit(kFilterCached);
