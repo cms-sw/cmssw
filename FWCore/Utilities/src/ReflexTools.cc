@@ -26,6 +26,9 @@ using Reflex::Type_Iterator;
 
 namespace edm {
 
+  static StringSet foundTypes_;
+  static StringSet missingTypes_;
+
   Type get_final_type(Type t) {
     while(t.IsTypedef()) t = t.ToType();
     return t;
@@ -184,21 +187,13 @@ namespace edm {
   } // end unnamed namespace
 
   StringSet& missingTypes() {
-    static boost::thread_specific_ptr<StringSet> missingTypes_;
-    if(0 == missingTypes_.get()) {
-      missingTypes_.reset(new StringSet);
-    }
-    return *missingTypes_.get();
+    return missingTypes_;
   }
 
   StringSet& foundTypes() {
     // The only purpose of this cache is to stop infinite recursion.
     // Reflex maintains its own internal cache.
-    static boost::thread_specific_ptr<StringSet> foundTypes_;
-    if(0 == foundTypes_.get()) {
-      foundTypes_.reset(new StringSet);
-    }
-    return *foundTypes_.get();
+    return foundTypes_;
   }
 
   void checkDictionaries(std::string const& name, bool noComponents) {
