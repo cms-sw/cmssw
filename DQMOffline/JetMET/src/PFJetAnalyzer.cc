@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/03/11 15:14:04 $
- *  $Revision: 1.17 $
+ *  $Date: 2011/05/24 14:22:45 $
+ *  $Revision: 1.18 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -109,24 +109,24 @@ void PFJetAnalyzer::beginJob(DQMStore * dbe) {
   mPt                      = dbe->book1D("Pt",  "Pt", ptBin, ptMin, ptMax);
   mEta                     = dbe->book1D("Eta", "Eta", etaBin, etaMin, etaMax);
   mPhi                     = dbe->book1D("Phi", "Phi", phiBin, phiMin, phiMax);
-  mConstituents            = dbe->book1D("Constituents", "# of Constituents", 100, 0, 100);
+  mConstituents            = dbe->book1D("Constituents", "# of Constituents", 50, 0, 100);
   mHFrac                   = dbe->book1D("HFrac", "HFrac", 120, -0.1, 1.1);
   mEFrac                   = dbe->book1D("EFrac", "EFrac", 120, -0.1, 1.1);
   //
-  mE                       = dbe->book1D("E", "E", eBin, eMin, eMax);
-  mP                       = dbe->book1D("P", "P", pBin, pMin, pMax);
-  mMass                    = dbe->book1D("Mass", "Mass", 100, 0, 25);
+  //mE                       = dbe->book1D("E", "E", eBin, eMin, eMax);
+  //mP                       = dbe->book1D("P", "P", pBin, pMin, pMax);
+  //mMass                    = dbe->book1D("Mass", "Mass", 100, 0, 25);
   //
   mPhiVSEta                = dbe->book2D("PhiVSEta", "PhiVSEta", 50, etaMin, etaMax, 24, phiMin, phiMax);
   
   if(makedijetselection!=1) {
-    mPt_1                    = dbe->book1D("Pt1", "Pt1", 100, 0, 100);
-    mPt_2                    = dbe->book1D("Pt2", "Pt2", 100, 0, 300);
+    mPt_1                    = dbe->book1D("Pt1", "Pt1", 50, 0, 100);
+    mPt_2                    = dbe->book1D("Pt2", "Pt2", 60, 0, 300);  
     mPt_3                    = dbe->book1D("Pt3", "Pt3", 100, 0, 5000);
     
     // Low and high pt trigger paths
-    mPt_Lo                  = dbe->book1D("Pt_Lo", "Pt (Pass Low Pt Jet Trigger)", 100, 0, 100);
-    mEta_Lo                 = dbe->book1D("Eta_Lo", "Eta (Pass Low Pt Jet Trigger)", etaBin, etaMin, etaMax);
+    mPt_Lo                  = dbe->book1D("Pt_Lo", "Pt (Pass Low Pt Jet Trigger)", 20, 0, 100);
+    //mEta_Lo                 = dbe->book1D("Eta_Lo", "Eta (Pass Low Pt Jet Trigger)", etaBin, etaMin, etaMax);
     mPhi_Lo                 = dbe->book1D("Phi_Lo", "Phi (Pass Low Pt Jet Trigger)", phiBin, phiMin, phiMax);
     
     mPt_Hi                  = dbe->book1D("Pt_Hi", "Pt (Pass Hi Pt Jet Trigger)", 100, 0, 300);
@@ -151,38 +151,41 @@ void PFJetAnalyzer::beginJob(DQMStore * dbe) {
     mElFracVSeta_highPt= dbe->bookProfile("ElFracVSeta_highPt","ElFracVSeta_highPt",etaBin, etaMin, etaMax,0.,1.2);
     mMuFracVSeta_highPt= dbe->bookProfile("MuFracVSeta_highPt","MuFracVSeta_highPt",etaBin, etaMin, etaMax,0.,1.2);
     
-    mPt_Barrel_Lo            = dbe->book1D("Pt_Barrel_Lo", "Pt Barrel (Pass Low Pt Jet Trigger)", 100, 0, 100);
-    mPhi_Barrel_Lo           = dbe->book1D("Phi_Barrel_Lo", "Phi Barrel (Pass Low Pt Jet Trigger)", phiBin, phiMin, phiMax);
-    mConstituents_Barrel_Lo  = dbe->book1D("Constituents_Barrel_Lo", "Constituents Barrel (Pass Low Pt Jet Trigger)", 100, 0, 100);
-    mHFrac_Barrel_Lo         = dbe->book1D("HFrac_Barrel_Lo", "HFrac Barrel (Pass Low Pt Jet Trigger)", 100, 0, 1);
+    //mPt_Barrel_Lo            = dbe->book1D("Pt_Barrel_Lo", "Pt Barrel (Pass Low Pt Jet Trigger)", 20, 0, 100);
+    //mPhi_Barrel_Lo           = dbe->book1D("Phi_Barrel_Lo", "Phi Barrel (Pass Low Pt Jet Trigger)", phiBin, phiMin, phiMax);
+    mConstituents_Barrel     = dbe->book1D("Constituents_Barrel", "Constituents Barrel", 50, 0, 100);
+    mHFrac_Barrel            = dbe->book1D("HFrac_Barrel", "HFrac Barrel", 100, 0, 1);
+    mEFrac_Barrel            = dbe->book1D("EFrac_Barrel", "EFrac Barrel", 110, -0.05, 1.05);
     
-    mPt_EndCap_Lo            = dbe->book1D("Pt_EndCap_Lo", "Pt EndCap (Pass Low Pt Jet Trigger)", 100, 0, 100);
-    mPhi_EndCap_Lo           = dbe->book1D("Phi_EndCap_Lo", "Phi EndCap (Pass Low Pt Jet Trigger)", phiBin, phiMin, phiMax);
-    mConstituents_EndCap_Lo  = dbe->book1D("Constituents_EndCap_Lo", "Constituents EndCap (Pass Low Pt Jet Trigger)", 100, 0, 100);
-    mHFrac_EndCap_Lo         = dbe->book1D("HFrac_Endcap_Lo", "HFrac EndCap (Pass Low Pt Jet Trigger)", 100, 0, 1);
+    //mPt_EndCap_Lo            = dbe->book1D("Pt_EndCap_Lo", "Pt EndCap (Pass Low Pt Jet Trigger)", 20, 0, 100);
+    //mPhi_EndCap_Lo           = dbe->book1D("Phi_EndCap_Lo", "Phi EndCap (Pass Low Pt Jet Trigger)", phiBin, phiMin, phiMax);
+    mConstituents_EndCap     = dbe->book1D("Constituents_EndCap", "Constituents EndCap", 50, 0, 100);
+    mHFrac_EndCap            = dbe->book1D("HFrac_Endcap", "HFrac EndCap", 100, 0, 1);
+    mEFrac_EndCap            = dbe->book1D("EFrac_Endcap", "EFrac EndCap", 110, -0.05, 1.05);
     
-    mPt_Forward_Lo           = dbe->book1D("Pt_Forward_Lo", "Pt Forward (Pass Low Pt Jet Trigger)", 100, 0, 100);
-    mPhi_Forward_Lo          = dbe->book1D("Phi_Forward_Lo", "Phi Forward (Pass Low Pt Jet Trigger)", phiBin, phiMin, phiMax);
-    mConstituents_Forward_Lo = dbe->book1D("Constituents_Forward_Lo", "Constituents Forward (Pass Low Pt Jet Trigger)", 100, 0, 100);
-    mHFrac_Forward_Lo        = dbe->book1D("HFrac_Forward_Lo", "HFrac Forward (Pass Low Pt Jet Trigger)", 100, 0, 1);
+    //mPt_Forward_Lo           = dbe->book1D("Pt_Forward_Lo", "Pt Forward (Pass Low Pt Jet Trigger)", 20, 0, 100);
+    //mPhi_Forward_Lo          = dbe->book1D("Phi_Forward_Lo", "Phi Forward (Pass Low Pt Jet Trigger)", phiBin, phiMin, phiMax);
+    mConstituents_Forward    = dbe->book1D("Constituents_Forward", "Constituents Forward", 50, 0, 100);
+    mHFrac_Forward           = dbe->book1D("HFrac_Forward", "HFrac Forward", 100, 0, 1);
+    mEFrac_Forward           = dbe->book1D("EFrac_Forward", "EFrac Forward", 110, -0.05, 1.05);
     
-    mPt_Barrel_Hi            = dbe->book1D("Pt_Barrel_Hi", "Pt Barrel (Pass Hi Pt Jet Trigger)", 100, 0, 300);
+    mPt_Barrel_Hi            = dbe->book1D("Pt_Barrel_Hi", "Pt Barrel (Pass Hi Pt Jet Trigger)", 60, 0, 300);
     mPhi_Barrel_Hi           = dbe->book1D("Phi_Barrel_Hi", "Phi Barrel (Pass Hi Pt Jet Trigger)", phiBin, phiMin, phiMax);
-    mConstituents_Barrel_Hi  = dbe->book1D("Constituents_Barrel_Hi", "Constituents Barrel (Pass Hi Pt Jet Trigger)", 100, 0, 100);
-    mHFrac_Barrel_Hi         = dbe->book1D("HFrac_Barrel_Hi", "HFrac Barrel (Pass Hi Pt Jet Trigger)", 100, 0, 1);
+    //mConstituents_Barrel_Hi  = dbe->book1D("Constituents_Barrel_Hi", "Constituents Barrel (Pass Hi Pt Jet Trigger)", 50, 0, 100);
+    //mHFrac_Barrel_Hi         = dbe->book1D("HFrac_Barrel_Hi", "HFrac Barrel (Pass Hi Pt Jet Trigger)", 100, 0, 1);
     
-    mPt_EndCap_Hi            = dbe->book1D("Pt_EndCap_Hi", "Pt EndCap (Pass Hi Pt Jet Trigger)", 100, 0, 300);
+    mPt_EndCap_Hi            = dbe->book1D("Pt_EndCap_Hi", "Pt EndCap (Pass Hi Pt Jet Trigger)", 60, 0, 300);
     mPhi_EndCap_Hi           = dbe->book1D("Phi_EndCap_Hi", "Phi EndCap (Pass Hi Pt Jet Trigger)", phiBin, phiMin, phiMax);
-    mConstituents_EndCap_Hi  = dbe->book1D("Constituents_EndCap_Hi", "Constituents EndCap (Pass Hi Pt Jet Trigger)", 100, 0, 100);
-    mHFrac_EndCap_Hi         = dbe->book1D("HFrac_EndCap_Hi", "HFrac EndCap (Pass Hi Pt Jet Trigger)", 100, 0, 1);
+    //mConstituents_EndCap_Hi  = dbe->book1D("Constituents_EndCap_Hi", "Constituents EndCap (Pass Hi Pt Jet Trigger)", 50, 0, 100);
+    //mHFrac_EndCap_Hi         = dbe->book1D("HFrac_EndCap_Hi", "HFrac EndCap (Pass Hi Pt Jet Trigger)", 100, 0, 1);
 
-    mPt_Forward_Hi           = dbe->book1D("Pt_Forward_Hi", "Pt Forward (Pass Hi Pt Jet Trigger)", 100, 0, 300);
+    mPt_Forward_Hi           = dbe->book1D("Pt_Forward_Hi", "Pt Forward (Pass Hi Pt Jet Trigger)", 60, 0, 300);
     mPhi_Forward_Hi          = dbe->book1D("Phi_Forward_Hi", "Phi Forward (Pass Hi Pt Jet Trigger)", phiBin, phiMin, phiMax);
-    mConstituents_Forward_Hi = dbe->book1D("Constituents_Forward_Hi", "Constituents Forward (Pass Hi Pt Jet Trigger)", 100, 0, 100);
-    mHFrac_Forward_Hi        = dbe->book1D("HFrac_Forward_Hi", "HFrac Forward (Pass Hi Pt Jet Trigger)", 100, 0, 1);
+    //mConstituents_Forward_Hi = dbe->book1D("Constituents_Forward_Hi", "Constituents Forward (Pass Hi Pt Jet Trigger)", 50, 0, 100);
+    //mHFrac_Forward_Hi        = dbe->book1D("HFrac_Forward_Hi", "HFrac Forward (Pass Hi Pt Jet Trigger)", 100, 0, 1);
 
     mPhi_Barrel              = dbe->book1D("Phi_Barrel", "Phi_Barrel", phiBin, phiMin, phiMax);
-    mE_Barrel                = dbe->book1D("E_Barrel", "E_Barrel", eBin, eMin, eMax);
+    //mE_Barrel                = dbe->book1D("E_Barrel", "E_Barrel", eBin, eMin, eMax);
     mPt_Barrel               = dbe->book1D("Pt_Barrel", "Pt_Barrel", ptBin, ptMin, ptMax);
     // energy fractions
     mCHFrac_lowPt_Barrel     = dbe->book1D("CHFrac_lowPt_Barrel", "CHFrac_lowPt_Barrel", 120, -0.1, 1.1);
@@ -241,7 +244,7 @@ void PFJetAnalyzer::beginJob(DQMStore * dbe) {
     mHFEFracVSpT_Forward= dbe->bookProfile("HFEFracVSpT_Forward","HFEFracVSpT_Forward",ptBin, ptMin, ptMax,0.,1.2);
 
     mPhi_EndCap              = dbe->book1D("Phi_EndCap", "Phi_EndCap", phiBin, phiMin, phiMax);
-    mE_EndCap                = dbe->book1D("E_EndCap", "E_EndCap", eBin, eMin, eMax);
+    //mE_EndCap                = dbe->book1D("E_EndCap", "E_EndCap", eBin, eMin, eMax);
     mPt_EndCap               = dbe->book1D("Pt_EndCap", "Pt_EndCap", ptBin, ptMin, ptMax);
     //energy fractions
     mCHFrac_lowPt_EndCap     = dbe->book1D("CHFrac_lowPt_EndCap", "CHFrac_lowPt_EndCap", 120, -0.1, 1.1);
@@ -287,7 +290,7 @@ void PFJetAnalyzer::beginJob(DQMStore * dbe) {
     mMuMultiplicity_highPt_EndCap    = dbe->book1D("MuMultiplicity_highPt_EndCap", "MuMultiplicity_highPt_EndCap", 30,0,30);
 
     mPhi_Forward             = dbe->book1D("Phi_Forward", "Phi_Forward", phiBin, phiMin, phiMax);
-    mE_Forward               = dbe->book1D("E_Forward", "E_Forward", eBin, eMin, eMax);
+    //mE_Forward               = dbe->book1D("E_Forward", "E_Forward", eBin, eMin, eMax);
     mPt_Forward              = dbe->book1D("Pt_Forward", "Pt_Forward", ptBin, ptMin, ptMax);
     //energy fraction
     mHFEFrac_lowPt_Forward    = dbe->book1D("HFEFrac_lowPt_Forward", "HFEFrac_lowPt_Forward", 120, -0.1, 1.1);
@@ -319,7 +322,7 @@ void PFJetAnalyzer::beginJob(DQMStore * dbe) {
     // Leading Jet Parameters
     mEtaFirst                = dbe->book1D("EtaFirst", "EtaFirst", 100, -5, 5);
     mPhiFirst                = dbe->book1D("PhiFirst", "PhiFirst", 70, -3.5, 3.5);
-    mEFirst                  = dbe->book1D("EFirst", "EFirst", 100, 0, 1000);
+    //mEFirst                  = dbe->book1D("EFirst", "EFirst", 100, 0, 1000);
     mPtFirst                 = dbe->book1D("PtFirst", "PtFirst", 100, 0, 500);
     if(fillpfJIDPassFrac==1) {
       mLooseJIDPassFractionVSeta= dbe->bookProfile("LooseJIDPassFractionVSeta","LooseJIDPassFractionVSeta",etaBin, etaMin, etaMax,0.,1.2);
@@ -463,9 +466,9 @@ void PFJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	      if (mHFrac)        mHFrac->Fill (pfJets.at(0).chargedHadronEnergyFraction()+pfJets.at(0).neutralHadronEnergyFraction());
 	      if (mEFrac)        mEFrac->Fill (pfJets.at(0).chargedEmEnergyFraction() +pfJets.at(0).neutralEmEnergyFraction());
 	      
-	      if (mE) mE->Fill (pfJets.at(0).energy());
-	      if (mP) mP->Fill (pfJets.at(0).p());
-	      if (mMass) mMass->Fill (pfJets.at(0).mass());
+	      //if (mE) mE->Fill (pfJets.at(0).energy());
+	      //if (mP) mP->Fill (pfJets.at(0).p());
+	      //if (mMass) mMass->Fill (pfJets.at(0).mass());
             
 	      if (mChargedHadronEnergy)  mChargedHadronEnergy->Fill (pfJets.at(0).chargedHadronEnergy());
 	      if (mNeutralHadronEnergy)  mNeutralHadronEnergy->Fill (pfJets.at(0).neutralHadronEnergy());
@@ -488,9 +491,9 @@ void PFJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	      if (mHFrac)        mHFrac->Fill (pfJets.at(1).chargedHadronEnergyFraction()+pfJets.at(1).neutralHadronEnergyFraction());
 	      if (mEFrac)        mEFrac->Fill (pfJets.at(1).chargedEmEnergyFraction() +pfJets.at(1).neutralEmEnergyFraction());
 	      
-	      if (mE) mE->Fill (pfJets.at(1).energy());
-	      if (mP) mP->Fill (pfJets.at(1).p());
-	      if (mMass) mMass->Fill (pfJets.at(1).mass());
+	      //if (mE) mE->Fill (pfJets.at(1).energy());
+	      //if (mP) mP->Fill (pfJets.at(1).p());
+	      //if (mMass) mMass->Fill (pfJets.at(1).mass());
             
 	      if (mChargedHadronEnergy)  mChargedHadronEnergy->Fill (pfJets.at(1).chargedHadronEnergy());
 	      if (mNeutralHadronEnergy)  mNeutralHadronEnergy->Fill (pfJets.at(1).neutralHadronEnergy());
@@ -636,34 +639,28 @@ void PFJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	
 	  if (mEtaFirst) mEtaFirst->Fill (jet->eta());
 	  if (mPhiFirst) mPhiFirst->Fill (jet->phi());
-	  if (mEFirst)   mEFirst->Fill (jet->energy());
+	  //if (mEFirst)   mEFirst->Fill (jet->energy());
 	  if (mPtFirst)  mPtFirst->Fill (jet->pt());
 	}
       
-	// --- Passed the low pt jet trigger
+	// --- Passed the low pt jet trigger (no longer used)
 	if (_JetLoPass == 1) {
-	  if (fabs(jet->eta()) <= 1.3) {
+	/*  if (fabs(jet->eta()) <= 1.3) {
 	    if (mPt_Barrel_Lo)           mPt_Barrel_Lo->Fill(jet->pt());
 	    if (mEta_Lo)          mEta_Lo->Fill(jet->eta());
 	    if (mPhi_Barrel_Lo)          mPhi_Barrel_Lo->Fill(jet->phi());
-	    if (mConstituents_Barrel_Lo) mConstituents_Barrel_Lo->Fill(jet->nConstituents());	
-	    if (mHFrac_Barrel_Lo)        mHFrac_Barrel_Lo->Fill(jet->chargedHadronEnergyFraction()+jet->neutralHadronEnergyFraction() );	
 	  }
 	  if ( (fabs(jet->eta()) > 1.3) && (fabs(jet->eta()) <= 3) ) {
 	    if (mPt_EndCap_Lo)           mPt_EndCap_Lo->Fill(jet->pt());
 	    if (mEta_Lo)          mEta_Lo->Fill(jet->eta());
 	    if (mPhi_EndCap_Lo)          mPhi_EndCap_Lo->Fill(jet->phi());
-	    if (mConstituents_EndCap_Lo) mConstituents_EndCap_Lo->Fill(jet->nConstituents());	
-	    if (mHFrac_EndCap_Lo)        mHFrac_EndCap_Lo->Fill(jet->chargedHadronEnergyFraction()+jet->neutralHadronEnergyFraction());	
 	  }
 	  if (fabs(jet->eta()) > 3.0) {
 	    if (mPt_Forward_Lo)           mPt_Forward_Lo->Fill(jet->pt());
 	    if (mEta_Lo)          mEta_Lo->Fill(jet->eta());
 	    if (mPhi_Forward_Lo)          mPhi_Forward_Lo->Fill(jet->phi());
-	    if (mConstituents_Forward_Lo) mConstituents_Forward_Lo->Fill(jet->nConstituents());	
-	    if (mHFrac_Forward_Lo)        mHFrac_Forward_Lo->Fill(jet->chargedHadronEnergyFraction()+jet->neutralHadronEnergyFraction());	
-	  }
-	  if (mEta_Lo) mEta_Lo->Fill (jet->eta());
+	  }*/
+	  //if (mEta_Lo) mEta_Lo->Fill (jet->eta());
 	  if (mPhi_Lo) mPhi_Lo->Fill (jet->phi());
 	  if (mPt_Lo)  mPt_Lo->Fill (jet->pt());
 	}
@@ -671,28 +668,28 @@ void PFJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	// --- Passed the high pt jet trigger
 	if (_JetHiPass == 1) {
 	  if (fabs(jet->eta()) <= 1.3) {
-	    if (mPt_Barrel_Hi)           mPt_Barrel_Hi->Fill(jet->pt());
-	    if (mEta_Hi)          mEta_Hi->Fill(jet->eta());
+	    if (mPt_Barrel_Hi && jet->pt()>100.)           mPt_Barrel_Hi->Fill(jet->pt());
+	    if (mEta_Hi && jet->pt()>100.)          mEta_Hi->Fill(jet->eta());
 	    if (mPhi_Barrel_Hi)          mPhi_Barrel_Hi->Fill(jet->phi());
-	    if (mConstituents_Barrel_Hi) mConstituents_Barrel_Hi->Fill(jet->nConstituents());	
-	    if (mHFrac_Barrel_Hi)        mHFrac_Barrel_Hi->Fill(jet->chargedHadronEnergyFraction()+jet->neutralHadronEnergyFraction());	
+	    //if (mConstituents_Barrel_Hi) mConstituents_Barrel_Hi->Fill(jet->nConstituents());	
+	    //if (mHFrac_Barrel_Hi)        mHFrac_Barrel_Hi->Fill(jet->chargedHadronEnergyFraction()+jet->neutralHadronEnergyFraction());	
 	  }
 	  if ( (fabs(jet->eta()) > 1.3) && (fabs(jet->eta()) <= 3) ) {
-	    if (mPt_EndCap_Hi)           mPt_EndCap_Hi->Fill(jet->pt());
-	    if (mEta_Hi)          mEta_Hi->Fill(jet->eta());
+	    if (mPt_EndCap_Hi && jet->pt()>100.)           mPt_EndCap_Hi->Fill(jet->pt());
+	    if (mEta_Hi && jet->pt()>100.)          mEta_Hi->Fill(jet->eta());
 	    if (mPhi_EndCap_Hi)          mPhi_EndCap_Hi->Fill(jet->phi());
-	    if (mConstituents_EndCap_Hi) mConstituents_EndCap_Hi->Fill(jet->nConstituents());	
-	    if (mHFrac_EndCap_Hi)        mHFrac_EndCap_Hi->Fill(jet->chargedHadronEnergyFraction()+jet->neutralHadronEnergyFraction());	
+	    //if (mConstituents_EndCap_Hi) mConstituents_EndCap_Hi->Fill(jet->nConstituents());	
+	    //if (mHFrac_EndCap_Hi)        mHFrac_EndCap_Hi->Fill(jet->chargedHadronEnergyFraction()+jet->neutralHadronEnergyFraction());	
 	  }
 	  if (fabs(jet->eta()) > 3.0) {
-	    if (mPt_Forward_Hi)           mPt_Forward_Hi->Fill(jet->pt());
-	    if (mEta_Hi)          mEta_Hi->Fill(jet->eta());
+	    if (mPt_Forward_Hi && jet->pt()>100.)           mPt_Forward_Hi->Fill(jet->pt());
+	    if (mEta_Hi && jet->pt()>100.)          mEta_Hi->Fill(jet->eta());
 	    if (mPhi_Forward_Hi)          mPhi_Forward_Hi->Fill(jet->phi());
-	    if (mConstituents_Forward_Hi) mConstituents_Forward_Hi->Fill(jet->nConstituents());	
-	    if (mHFrac_Forward_Hi)        mHFrac_Forward_Hi->Fill(jet->chargedHadronEnergyFraction()+jet->neutralHadronEnergyFraction());	
+	    //if (mConstituents_Forward_Hi) mConstituents_Forward_Hi->Fill(jet->nConstituents());	
+	    //if (mHFrac_Forward_Hi)        mHFrac_Forward_Hi->Fill(jet->chargedHadronEnergyFraction()+jet->neutralHadronEnergyFraction());	
 	  }
 	
-	  if (mEta_Hi) mEta_Hi->Fill (jet->eta());
+	  if (mEta_Hi && jet->pt()>100.) mEta_Hi->Fill (jet->eta());
 	  if (mPhi_Hi) mPhi_Hi->Fill (jet->phi());
 	  if (mPt_Hi)  mPt_Hi->Fill (jet->pt());
 	}
@@ -734,7 +731,10 @@ void PFJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	if (fabs(jet->eta()) <= 1.3) {
 	  if (mPt_Barrel)   mPt_Barrel->Fill (jet->pt());
 	  if (mPhi_Barrel)  mPhi_Barrel->Fill (jet->phi());
-	  if (mE_Barrel)    mE_Barrel->Fill (jet->energy());
+	  //if (mE_Barrel)    mE_Barrel->Fill (jet->energy());
+    if (mConstituents_Barrel)    mConstituents_Barrel->Fill(jet->nConstituents());	
+    if (mHFrac_Barrel)           mHFrac_Barrel->Fill(jet->chargedHadronEnergyFraction() + jet->neutralHadronEnergyFraction() );
+    if (mEFrac_Barrel)           mEFrac->Fill (jet->chargedEmEnergyFraction() + jet->neutralEmEnergyFraction());	
 	  //fractions
 	  if (jet->pt()<=50.) {
 	    if (mCHFrac_lowPt_Barrel) mCHFrac_lowPt_Barrel->Fill(jet->chargedHadronEnergyFraction());
@@ -794,7 +794,10 @@ void PFJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	if ( (fabs(jet->eta()) > 1.3) && (fabs(jet->eta()) <= 3) ) {
 	  if (mPt_EndCap)   mPt_EndCap->Fill (jet->pt());
 	  if (mPhi_EndCap)  mPhi_EndCap->Fill (jet->phi());
-	  if (mE_EndCap)    mE_EndCap->Fill (jet->energy());
+	  //if (mE_EndCap)    mE_EndCap->Fill (jet->energy());
+    if (mConstituents_EndCap)    mConstituents_EndCap->Fill(jet->nConstituents());	
+    if (mHFrac_EndCap)           mHFrac_EndCap->Fill(jet->chargedHadronEnergyFraction() + jet->neutralHadronEnergyFraction());
+    if (mEFrac_EndCap)           mEFrac->Fill (jet->chargedEmEnergyFraction() + jet->neutralEmEnergyFraction());
 	  //fractions
 	  if (jet->pt()<=50.) {
 	    if (mCHFrac_lowPt_EndCap) mCHFrac_lowPt_EndCap->Fill(jet->chargedHadronEnergyFraction());
@@ -854,7 +857,10 @@ void PFJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	if (fabs(jet->eta()) > 3.0) {
 	  if (mPt_Forward)   mPt_Forward->Fill (jet->pt());
 	  if (mPhi_Forward)  mPhi_Forward->Fill (jet->phi());
-	  if (mE_Forward)    mE_Forward->Fill (jet->energy());
+	  //if (mE_Forward)    mE_Forward->Fill (jet->energy());
+    if (mConstituents_Forward)    mConstituents_Forward->Fill(jet->nConstituents());	
+    if (mHFrac_Forward)           mHFrac_Forward->Fill(jet->chargedHadronEnergyFraction() + jet->neutralHadronEnergyFraction());	
+    if (mEFrac_Forward)           mEFrac->Fill (jet->chargedEmEnergyFraction() + jet->neutralEmEnergyFraction());
 	  //fractions
 	  if (jet->pt()<=50.) {
 	    if(mHFEFrac_lowPt_Forward) mHFEFrac_lowPt_Forward->Fill(jet->HFEMEnergyFraction());
@@ -889,9 +895,9 @@ void PFJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  if(mHFHFracVSpT_Forward) mHFHFracVSpT_Forward->Fill(jet->pt(),jet->HFHadronEnergyFraction());
 	  if(mHFEFracVSpT_Forward) mHFEFracVSpT_Forward->Fill(jet->pt(),jet->HFEMEnergyFraction());
 	}
-	if (mE) mE->Fill (jet->energy());
-	if (mP) mP->Fill (jet->p());
-	if (mMass) mMass->Fill (jet->mass());
+	//if (mE) mE->Fill (jet->energy());
+	//if (mP) mP->Fill (jet->p());
+	//if (mMass) mMass->Fill (jet->mass());
             
 	if (mChargedHadronEnergy)  mChargedHadronEnergy->Fill (jet->chargedHadronEnergy());
 	if (mNeutralHadronEnergy)  mNeutralHadronEnergy->Fill (jet->neutralHadronEnergy());

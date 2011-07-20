@@ -6,8 +6,8 @@
  *
  *  DQM jetMET analysis monitoring
  *
- *  $Date: 2011/03/11 15:14:46 $
- *  $Revision: 1.24 $
+ *  $Date: 2011/05/24 14:21:27 $
+ *  $Revision: 1.25 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -71,6 +71,7 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
 
   /// Finish up a run
   void endRun(const edm::Run&,  const edm::EventSetup&);
+
 
  private:
   // ----------member data ---------------------------
@@ -156,18 +157,18 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
 
   // the jet analyzer
   JetAnalyzer       * theJetAnalyzer;
-  JetAnalyzer       * theAKJetAnalyzer;
-  JetAnalyzer       * theSCJetAnalyzer;
+  JetAnalyzer       * theAKJetAnalyzer;   
+  JetAnalyzer       * theSCJetAnalyzer;   
   JetAnalyzer       * theICJetAnalyzer;  
-  JetAnalyzer       * theCleanedAKJetAnalyzer;
+  JetAnalyzer       * theCleanedAKJetAnalyzer;    
   JetAnalyzer       * theCleanedSCJetAnalyzer;
   JetAnalyzer       * theCleanedICJetAnalyzer;
-  JetAnalyzer       * theDiJetAnalyzer;
+  JetAnalyzer       * theDiJetAnalyzer;  
 
-  JPTJetAnalyzer    * theJPTJetAnalyzer;
+  JPTJetAnalyzer    * theJPTJetAnalyzer;   
   JPTJetAnalyzer    * theCleanedJPTJetAnalyzer;
 
-  PFJetAnalyzer     * thePFJetAnalyzer; 
+  PFJetAnalyzer     * thePFJetAnalyzer;     
   PFJetAnalyzer     * theCleanedPFJetAnalyzer; 
   PFJetAnalyzer     * thePFDiJetAnalyzer;
 
@@ -180,8 +181,8 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
 
   CaloMETAnalyzer   * theCaloMETAnalyzer;
   CaloMETAnalyzer   * theCaloMETNoHFAnalyzer;
-  CaloMETAnalyzer   * theCaloMETHOAnalyzer;
-  CaloMETAnalyzer   * theCaloMETNoHFHOAnalyzer;
+  //CaloMETAnalyzer   * theCaloMETHOAnalyzer;
+  //CaloMETAnalyzer   * theCaloMETNoHFHOAnalyzer;
   CaloMETAnalyzer   * theMuCorrMETAnalyzer;
 
   METAnalyzer       * theTcMETAnalyzer;

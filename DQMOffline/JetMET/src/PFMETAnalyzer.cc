@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/04/11 13:55:05 $
- *  $Revision: 1.36 $
+ *  $Date: 2011/05/24 14:22:06 $
+ *  $Revision: 1.37 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -45,6 +45,14 @@ PFMETAnalyzer::PFMETAnalyzer(const edm::ParameterSet& pSet) {
   edm::ParameterSet lowmetparms    = parameters.getParameter<edm::ParameterSet>("lowMETTrigger"   );
   edm::ParameterSet eleparms       = parameters.getParameter<edm::ParameterSet>("eleTrigger"      );
   edm::ParameterSet muonparms      = parameters.getParameter<edm::ParameterSet>("muonTrigger"     );
+
+  _hlt_HighPtJet = highptjetparms.getParameter<std::string>("hltDBKey");
+  _hlt_LowPtJet  = lowptjetparms .getParameter<std::string>("hltDBKey");
+  _hlt_MinBias   = minbiasparms  .getParameter<std::string>("hltDBKey");
+  _hlt_HighMET   = highmetparms  .getParameter<std::string>("hltDBKey");
+  _hlt_LowMET    = lowmetparms   .getParameter<std::string>("hltDBKey");
+  _hlt_Ele       = eleparms      .getParameter<std::string>("hltDBKey");
+  _hlt_Muon      = muonparms     .getParameter<std::string>("hltDBKey");
 
   //genericTriggerEventFlag_( new GenericTriggerEventFlag( conf_ ) );
   _HighPtJetEventFlag = new GenericTriggerEventFlag( highptjetparms );
@@ -243,20 +251,20 @@ void PFMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fa
   if (_verbose) std::cout << "booMonitorElement " << DirName << std::endl;
   _dbe->setCurrentFolder(DirName);
  
-  meNevents              = _dbe->book1D("METTask_Nevents", "METTask_Nevents"   ,1,0,1);
-  mePfMEx                = _dbe->book1D("METTask_PfMEx",   "METTask_PfMEx"   ,500,-500,500);
+  //meNevents              = _dbe->book1D("METTask_Nevents", "METTask_Nevents"   ,1,0,1);
+  mePfMEx                = _dbe->book1D("METTask_PfMEx",   "METTask_PfMEx"   ,200,-500,500); 
   mePfMEx->setAxisTitle("MEx [GeV]",1);
-  mePfMEy                = _dbe->book1D("METTask_PfMEy",   "METTask_PfMEy"   ,500,-500,500);
+  mePfMEy                = _dbe->book1D("METTask_PfMEy",   "METTask_PfMEy"   ,200,-500,500); 
   mePfMEy->setAxisTitle("MEy [GeV]",1);
-  mePfEz                 = _dbe->book1D("METTask_PfEz",    "METTask_PfEz"    ,500,-500,500);
-  mePfEz->setAxisTitle("MEz [GeV]",1);
+  //mePfEz                 = _dbe->book1D("METTask_PfEz",    "METTask_PfEz"    ,500,-500,500);
+  //mePfEz->setAxisTitle("MEz [GeV]",1);
   mePfMETSig             = _dbe->book1D("METTask_PfMETSig","METTask_PfMETSig",51,0,51);
   mePfMETSig->setAxisTitle("METSig",1);
-  mePfMET                = _dbe->book1D("METTask_PfMET",   "METTask_PfMET"   ,500,0,1000);
+  mePfMET                = _dbe->book1D("METTask_PfMET",   "METTask_PfMET"   ,200,0,1000); 
   mePfMET->setAxisTitle("MET [GeV]",1);
-  mePfMETPhi             = _dbe->book1D("METTask_PfMETPhi","METTask_PfMETPhi",80,-TMath::Pi(),TMath::Pi());
+  mePfMETPhi             = _dbe->book1D("METTask_PfMETPhi","METTask_PfMETPhi",60,-TMath::Pi(),TMath::Pi());
   mePfMETPhi->setAxisTitle("METPhi [rad]",1);
-  mePfSumET              = _dbe->book1D("METTask_PfSumET", "METTask_PfSumET" ,500,0,2000);
+  mePfSumET              = _dbe->book1D("METTask_PfSumET", "METTask_PfSumET" ,400,0,2000); 
   mePfSumET->setAxisTitle("SumET [GeV]",1);
 
   mePfMET_logx           = _dbe->book1D("METTask_PfMET_logx",   "METTask_PfMET_logx"   ,40,-1.,7.);
@@ -275,12 +283,12 @@ void PFMETAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fa
   mePfMuonFraction       = _dbe->book1D("METTask_PfMuonFraction",      "METTask_PfMuonFraction"      ,50,0.,1.);
   mePfMuonFraction->setAxisTitle("Pf Muon Fraction",1);
 
-  mePfMETIonFeedbck      = _dbe->book1D("METTask_PfMETIonFeedbck", "METTask_PfMETIonFeedbck" ,500,0,1000);
-  mePfMETIonFeedbck->setAxisTitle("MET [GeV]",1);
-  mePfMETHPDNoise        = _dbe->book1D("METTask_PfMETHPDNoise",   "METTask_PfMETHPDNoise"   ,500,0,1000);
-  mePfMETHPDNoise->setAxisTitle("MET [GeV]",1);
-  mePfMETRBXNoise        = _dbe->book1D("METTask_PfMETRBXNoise",   "METTask_PfMETRBXNoise"   ,500,0,1000);
-  mePfMETRBXNoise->setAxisTitle("MET [GeV]",1);
+  //mePfMETIonFeedbck      = _dbe->book1D("METTask_PfMETIonFeedbck", "METTask_PfMETIonFeedbck" ,500,0,1000);
+  //mePfMETIonFeedbck->setAxisTitle("MET [GeV]",1);
+  //mePfMETHPDNoise        = _dbe->book1D("METTask_PfMETHPDNoise",   "METTask_PfMETHPDNoise"   ,500,0,1000);
+  //mePfMETHPDNoise->setAxisTitle("MET [GeV]",1);
+  //mePfMETRBXNoise        = _dbe->book1D("METTask_PfMETRBXNoise",   "METTask_PfMETRBXNoise"   ,500,0,1000);
+  //mePfMETRBXNoise->setAxisTitle("MET [GeV]",1);
 
   if (_allhist){
     if (bLumiSecPlot){
@@ -453,26 +461,26 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     if (_verbose) std::cout << _hlt_Muon      << " " << triggerNames.triggerIndex(_hlt_Muon)      << std::endl;
     if (_verbose) std::cout << _hlt_PhysDec   << " " << triggerNames.triggerIndex(_hlt_PhysDec)   << std::endl;
 
-    if ( _HighPtJetEventFlag->on() && _HighPtJetEventFlag->accept( iEvent, iSetup ) ) 
+    if ( _HighPtJetEventFlag->on() && _HighPtJetEventFlag->accept( iEvent, iSetup) )
       _trig_HighPtJet=1;
 
-    if ( _LowPtJetEventFlag->on() && _LowPtJetEventFlag->accept( iEvent, iSetup ) ) 
+    if ( _LowPtJetEventFlag->on() && _LowPtJetEventFlag->accept( iEvent, iSetup) )
       _trig_LowPtJet=1;
     
-    if ( _MinBiasEventFlag->on() && _MinBiasEventFlag->accept( iEvent, iSetup ) ) 
+    if ( _MinBiasEventFlag->on() && _MinBiasEventFlag->accept( iEvent, iSetup) )
       _trig_MinBias=1;
     
-    if ( _HighMETEventFlag->on() && _HighMETEventFlag->accept( iEvent, iSetup ) ) 
+    if ( _HighMETEventFlag->on() && _HighMETEventFlag->accept( iEvent, iSetup) )
       _trig_HighMET=1;
     
-    if ( _LowMETEventFlag->on() && _LowMETEventFlag->accept( iEvent, iSetup ) ) 
+    if ( _LowMETEventFlag->on() && _LowMETEventFlag->accept( iEvent, iSetup) )
       _trig_LowMET=1;
     
-    if ( _EleEventFlag->on() && _EleEventFlag->accept( iEvent, iSetup ) ) 
+    if ( _EleEventFlag->on() && _EleEventFlag->accept( iEvent, iSetup) )
       _trig_Ele=1;
     
-    if ( _MuonEventFlag->on() && _MuonEventFlag->accept( iEvent, iSetup ) ) 
-      _trig_Muon=1;
+    if ( _MuonEventFlag->on() && _MuonEventFlag->accept( iEvent, iSetup) )
+        _trig_Muon=1;
     
     if (triggerNames.triggerIndex(_hlt_PhysDec)   != triggerNames.size() &&
         triggerResults.accept(triggerNames.triggerIndex(_hlt_PhysDec)))   _trig_PhysDec=1;
@@ -799,6 +807,7 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
     } // DCS
   }
 }
+
   
 // ***********************************************************
 void PFMETAnalyzer::validateMET(const reco::PFMET& pfmet, 
@@ -904,7 +913,7 @@ void PFMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string Dir
   // Reconstructed MET Information
   double pfSumET  = pfmet.sumEt();
   double pfMETSig = pfmet.mEtSig();
-  double pfEz     = pfmet.e_longitudinal();
+  //double pfEz     = pfmet.e_longitudinal();
   double pfMET    = pfmet.pt();
   double pfMEx    = pfmet.px();
   double pfMEy    = pfmet.py();
@@ -934,24 +943,24 @@ void PFMETAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string Dir
     mePfMETPhi = _dbe->get(DirName+"/"+"METTask_PfMETPhi"); if (mePfMETPhi && mePfMETPhi->getRootObject()) mePfMETPhi->Fill(pfMETPhi);
     mePfSumET  = _dbe->get(DirName+"/"+"METTask_PfSumET");  if (mePfSumET  && mePfSumET->getRootObject())  mePfSumET->Fill(pfSumET);
     mePfMETSig = _dbe->get(DirName+"/"+"METTask_PfMETSig"); if (mePfMETSig && mePfMETSig->getRootObject()) mePfMETSig->Fill(pfMETSig);
-    mePfEz     = _dbe->get(DirName+"/"+"METTask_PfEz");     if (mePfEz     && mePfEz->getRootObject())     mePfEz->Fill(pfEz);
+    //mePfEz     = _dbe->get(DirName+"/"+"METTask_PfEz");     if (mePfEz     && mePfEz->getRootObject())     mePfEz->Fill(pfEz);
 
     mePfMET_logx    = _dbe->get(DirName+"/"+"METTask_PfMET_logx");    if (mePfMET_logx    && mePfMET_logx->getRootObject())    mePfMET_logx->Fill(log10(pfMET));
     mePfSumET_logx  = _dbe->get(DirName+"/"+"METTask_PfSumET_logx");  if (mePfSumET_logx  && mePfSumET_logx->getRootObject())  mePfSumET_logx->Fill(log10(pfSumET));
 
-    mePfMETIonFeedbck = _dbe->get(DirName+"/"+"METTask_PfMETIonFeedbck");  if (mePfMETIonFeedbck && mePfMETIonFeedbck->getRootObject()) mePfMETIonFeedbck->Fill(pfMET);
-    mePfMETHPDNoise   = _dbe->get(DirName+"/"+"METTask_PfMETHPDNoise");    if (mePfMETHPDNoise   && mePfMETHPDNoise->getRootObject())   mePfMETHPDNoise->Fill(pfMET);
-    mePfMETRBXNoise   = _dbe->get(DirName+"/"+"METTask_PfMETRBXNoise");    if (mePfMETRBXNoise   && mePfMETRBXNoise->getRootObject())   mePfMETRBXNoise->Fill(pfMET);
+    //mePfMETIonFeedbck = _dbe->get(DirName+"/"+"METTask_PfMETIonFeedbck");  if (mePfMETIonFeedbck && mePfMETIonFeedbck->getRootObject()) mePfMETIonFeedbck->Fill(pfMET);
+    //mePfMETHPDNoise   = _dbe->get(DirName+"/"+"METTask_PfMETHPDNoise");    if (mePfMETHPDNoise   && mePfMETHPDNoise->getRootObject())   mePfMETHPDNoise->Fill(pfMET);
+    //mePfMETRBXNoise   = _dbe->get(DirName+"/"+"METTask_PfMETRBXNoise");    if (mePfMETRBXNoise   && mePfMETRBXNoise->getRootObject())   mePfMETRBXNoise->Fill(pfMET);
     
-    mePfNeutralEMFraction = _dbe->get(DirName+"/"+"METTask_mePfNeutralEMFraction"); 
+    mePfNeutralEMFraction = _dbe->get(DirName+"/"+"METTask_PfNeutralEMFraction"); 
     if (mePfNeutralEMFraction   && mePfNeutralEMFraction->getRootObject()) mePfNeutralEMFraction->Fill(pfNeutralEMFraction);
-    mePfNeutralHadFraction = _dbe->get(DirName+"/"+"METTask_mePfNeutralHadFraction"); 
+    mePfNeutralHadFraction = _dbe->get(DirName+"/"+"METTask_PfNeutralHadFraction"); 
     if (mePfNeutralHadFraction   && mePfNeutralHadFraction->getRootObject()) mePfNeutralHadFraction->Fill(pfNeutralHadFraction);
-    mePfChargedEMFraction = _dbe->get(DirName+"/"+"METTask_mePfChargedEMFraction"); 
+    mePfChargedEMFraction = _dbe->get(DirName+"/"+"METTask_PfChargedEMFraction"); 
     if (mePfChargedEMFraction   && mePfChargedEMFraction->getRootObject()) mePfChargedEMFraction->Fill(pfChargedEMFraction);
-    mePfChargedHadFraction = _dbe->get(DirName+"/"+"METTask_mePfChargedHadFraction"); 
+    mePfChargedHadFraction = _dbe->get(DirName+"/"+"METTask_PfChargedHadFraction"); 
     if (mePfChargedHadFraction   && mePfChargedHadFraction->getRootObject()) mePfChargedHadFraction->Fill(pfChargedHadFraction);
-    mePfMuonFraction = _dbe->get(DirName+"/"+"METTask_mePfMuonFraction"); 
+    mePfMuonFraction = _dbe->get(DirName+"/"+"METTask_PfMuonFraction"); 
     if (mePfMuonFraction   && mePfMuonFraction->getRootObject()) mePfMuonFraction->Fill(pfMuonFraction);
     
     if (_allhist){

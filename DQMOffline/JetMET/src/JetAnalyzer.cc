@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/03/11 15:14:14 $
- *  $Revision: 1.23 $
+ *  $Date: 2011/05/24 14:22:45 $
+ *  $Revision: 1.24 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -25,8 +25,8 @@ JetAnalyzer::JetAnalyzer(const edm::ParameterSet& pSet) {
   _leadJetFlag = 0;
   _JetLoPass   = 0;
   _JetHiPass   = 0;
-  _ptThreshold = 5.;
-  _asymmetryThirdJetCut = 30.;
+  _ptThreshold = 20.;
+  _asymmetryThirdJetCut = 5.;
   _balanceThirdJetCut   = 0.2; 
   _n90HitsMin =0;
   _fHPDMax=1.;
@@ -48,7 +48,7 @@ JetAnalyzer::~JetAnalyzer() { }
 
 // ***********************************************************
 void JetAnalyzer::beginJob(DQMStore * dbe) {
-  
+    
   jetname = "jetAnalyzer";
   
   LogTrace(jetname)<<"[JetAnalyzer] Parameters initialization";
@@ -111,74 +111,78 @@ void JetAnalyzer::beginJob(DQMStore * dbe) {
   mPt                      = dbe->book1D("Pt",  "Pt", ptBin, ptMin, ptMax);
   mEta                     = dbe->book1D("Eta", "Eta", etaBin, etaMin, etaMax);
   mPhi                     = dbe->book1D("Phi", "Phi", phiBin, phiMin, phiMax);
-  mConstituents            = dbe->book1D("Constituents", "# of Constituents", 100, 0, 100);
+  mConstituents            = dbe->book1D("Constituents", "# of Constituents", 50, 0, 100);
   mHFrac                   = dbe->book1D("HFrac", "HFrac", 120, -0.1, 1.1);
   mEFrac                   = dbe->book1D("EFrac", "EFrac", 120, -0.1, 1.1);
   //
-  mE                       = dbe->book1D("E", "E", eBin, eMin, eMax);
-  mP                       = dbe->book1D("P", "P", pBin, pMin, pMax);
-  mMass                    = dbe->book1D("Mass", "Mass", 100, 0, 25);
+  //mE                       = dbe->book1D("E", "E", eBin, eMin, eMax);
+  //mP                       = dbe->book1D("P", "P", pBin, pMin, pMax);
+  //  mMass                    = dbe->book1D("Mass", "Mass", 100, 0, 25);
   //
   mPhiVSEta                     = dbe->book2D("PhiVSEta", "PhiVSEta", 50, etaMin, etaMax, 24, phiMin, phiMax);
   if(makedijetselection!=1){
-    mPt_1                    = dbe->book1D("Pt1", "Pt1", 100, 0, 100);
-    mPt_2                    = dbe->book1D("Pt2", "Pt2", 100, 0, 300);
+    mPt_1                    = dbe->book1D("Pt1", "Pt1", 20, 0, 100);   
+    mPt_2                    = dbe->book1D("Pt2", "Pt2", 60, 0, 300);   
     mPt_3                    = dbe->book1D("Pt3", "Pt3", 100, 0, 5000);
     // Low and high pt trigger paths
-    mPt_Lo                  = dbe->book1D("Pt_Lo", "Pt (Pass Low Pt Jet Trigger)", 100, 0, 100);
-    mEta_Lo                 = dbe->book1D("Eta_Lo", "Eta (Pass Low Pt Jet Trigger)", etaBin, etaMin, etaMax);
+    mPt_Lo                  = dbe->book1D("Pt_Lo", "Pt (Pass Low Pt Jet Trigger)", 20, 0, 100);   
+    //mEta_Lo                 = dbe->book1D("Eta_Lo", "Eta (Pass Low Pt Jet Trigger)", etaBin, etaMin, etaMax);
     mPhi_Lo                 = dbe->book1D("Phi_Lo", "Phi (Pass Low Pt Jet Trigger)", phiBin, phiMin, phiMax);
     
-    mPt_Hi                  = dbe->book1D("Pt_Hi", "Pt (Pass Hi Pt Jet Trigger)", 100, 0, 300);
+    mPt_Hi                  = dbe->book1D("Pt_Hi", "Pt (Pass Hi Pt Jet Trigger)", 60, 0, 300);   
     mEta_Hi                 = dbe->book1D("Eta_Hi", "Eta (Pass Hi Pt Jet Trigger)", etaBin, etaMin, etaMax);
     mPhi_Hi                 = dbe->book1D("Phi_Hi", "Phi (Pass Hi Pt Jet Trigger)", phiBin, phiMin, phiMax);
     mNJets                   = dbe->book1D("NJets", "Number of Jets", 100, 0, 100);
-    mPt_Barrel_Lo            = dbe->book1D("Pt_Barrel_Lo", "Pt Barrel (Pass Low Pt Jet Trigger)", 100, 0, 100);
-    mPhi_Barrel_Lo           = dbe->book1D("Phi_Barrel_Lo", "Phi Barrel (Pass Low Pt Jet Trigger)", phiBin, phiMin, phiMax);
-    mConstituents_Barrel_Lo  = dbe->book1D("Constituents_Barrel_Lo", "Constituents Barrel (Pass Low Pt Jet Trigger)", 100, 0, 100);
-    mHFrac_Barrel_Lo         = dbe->book1D("HFrac_Barrel_Lo", "HFrac Barrel (Pass Low Pt Jet Trigger)", 100, 0, 1);
+
+    //mPt_Barrel_Lo            = dbe->book1D("Pt_Barrel_Lo", "Pt Barrel (Pass Low Pt Jet Trigger)", 20, 0, 100);   
+    //mPhi_Barrel_Lo           = dbe->book1D("Phi_Barrel_Lo", "Phi Barrel (Pass Low Pt Jet Trigger)", phiBin, phiMin, phiMax);
+    mConstituents_Barrel     = dbe->book1D("Constituents_Barrel", "Constituents Barrel above", 50, 0, 100);
+    mHFrac_Barrel            = dbe->book1D("HFrac_Barrel", "HFrac Barrel", 100, 0, 1);
+    mEFrac_Barrel            = dbe->book1D("EFrac_Barrel", "EFrac Barrel", 110, -0.05, 1.05);
     
-    mPt_EndCap_Lo            = dbe->book1D("Pt_EndCap_Lo", "Pt EndCap (Pass Low Pt Jet Trigger)", 100, 0, 100);
-    mPhi_EndCap_Lo           = dbe->book1D("Phi_EndCap_Lo", "Phi EndCap (Pass Low Pt Jet Trigger)", phiBin, phiMin, phiMax);
-    mConstituents_EndCap_Lo  = dbe->book1D("Constituents_EndCap_Lo", "Constituents EndCap (Pass Low Pt Jet Trigger)", 100, 0, 100);
-    mHFrac_EndCap_Lo         = dbe->book1D("HFrac_Endcap_Lo", "HFrac EndCap (Pass Low Pt Jet Trigger)", 100, 0, 1);
+    //mPt_EndCap_Lo            = dbe->book1D("Pt_EndCap_Lo", "Pt EndCap (Pass Low Pt Jet Trigger)", 20, 0, 100);   
+    //mPhi_EndCap_Lo           = dbe->book1D("Phi_EndCap_Lo", "Phi EndCap (Pass Low Pt Jet Trigger)", phiBin, phiMin, phiMax);
+    mConstituents_EndCap     = dbe->book1D("Constituents_EndCap", "Constituents EndCap", 50, 0, 100);
+    mHFrac_EndCap            = dbe->book1D("HFrac_Endcap", "HFrac EndCap", 100, 0, 1);
+    mEFrac_EndCap            = dbe->book1D("EFrac_Endcap", "EFrac EndCap", 110, -0.05, 1.05);
     
-    mPt_Forward_Lo           = dbe->book1D("Pt_Forward_Lo", "Pt Forward (Pass Low Pt Jet Trigger)", 100, 0, 100);
-    mPhi_Forward_Lo          = dbe->book1D("Phi_Forward_Lo", "Phi Forward (Pass Low Pt Jet Trigger)", phiBin, phiMin, phiMax);
-    mConstituents_Forward_Lo = dbe->book1D("Constituents_Forward_Lo", "Constituents Forward (Pass Low Pt Jet Trigger)", 100, 0, 100);
-    mHFrac_Forward_Lo        = dbe->book1D("HFrac_Forward_Lo", "HFrac Forward (Pass Low Pt Jet Trigger)", 100, 0, 1);
+    //mPt_Forward_Lo           = dbe->book1D("Pt_Forward_Lo", "Pt Forward (Pass Low Pt Jet Trigger)", 20, 0, 100);  
+    //mPhi_Forward_Lo          = dbe->book1D("Phi_Forward_Lo", "Phi Forward (Pass Low Pt Jet Trigger)", phiBin, phiMin, phiMax);
+    mConstituents_Forward    = dbe->book1D("Constituents_Forward", "Constituents Forward", 50, 0, 100);
+    mHFrac_Forward           = dbe->book1D("HFrac_Forward", "HFrac Forward", 100, 0, 1);
+    mEFrac_Forward           = dbe->book1D("EFrac_Forward", "EFrac Forward", 110, -0.05, 1.05);
     
-    mPt_Barrel_Hi            = dbe->book1D("Pt_Barrel_Hi", "Pt Barrel (Pass Hi Pt Jet Trigger)", 100, 0, 300);
+    mPt_Barrel_Hi            = dbe->book1D("Pt_Barrel_Hi", "Pt Barrel (Pass Hi Pt Jet Trigger)", 60, 0, 300);   
     mPhi_Barrel_Hi           = dbe->book1D("Phi_Barrel_Hi", "Phi Barrel (Pass Hi Pt Jet Trigger)", phiBin, phiMin, phiMax);
-    mConstituents_Barrel_Hi  = dbe->book1D("Constituents_Barrel_Hi", "Constituents Barrel (Pass Hi Pt Jet Trigger)", 100, 0, 100);
-    mHFrac_Barrel_Hi         = dbe->book1D("HFrac_Barrel_Hi", "HFrac Barrel (Pass Hi Pt Jet Trigger)", 100, 0, 1);
+    //mConstituents_Barrel_Hi  = dbe->book1D("Constituents_Barrel_Hi", "Constituents Barrel (Pass Hi Pt Jet Trigger)", 50, 0, 100);
+    //mHFrac_Barrel_Hi         = dbe->book1D("HFrac_Barrel_Hi", "HFrac Barrel (Pass Hi Pt Jet Trigger)", 100, 0, 1);
     
-    mPt_EndCap_Hi            = dbe->book1D("Pt_EndCap_Hi", "Pt EndCap (Pass Hi Pt Jet Trigger)", 100, 0, 300);
+    mPt_EndCap_Hi            = dbe->book1D("Pt_EndCap_Hi", "Pt EndCap (Pass Hi Pt Jet Trigger)", 60, 0, 300);  
     mPhi_EndCap_Hi           = dbe->book1D("Phi_EndCap_Hi", "Phi EndCap (Pass Hi Pt Jet Trigger)", phiBin, phiMin, phiMax);
-    mConstituents_EndCap_Hi  = dbe->book1D("Constituents_EndCap_Hi", "Constituents EndCap (Pass Hi Pt Jet Trigger)", 100, 0, 100);
-    mHFrac_EndCap_Hi         = dbe->book1D("HFrac_EndCap_Hi", "HFrac EndCap (Pass Hi Pt Jet Trigger)", 100, 0, 1);
+    //mConstituents_EndCap_Hi  = dbe->book1D("Constituents_EndCap_Hi", "Constituents EndCap (Pass Hi Pt Jet Trigger)", 50, 0, 100);
+    //mHFrac_EndCap_Hi         = dbe->book1D("HFrac_EndCap_Hi", "HFrac EndCap (Pass Hi Pt Jet Trigger)", 100, 0, 1);
     
-    mPt_Forward_Hi           = dbe->book1D("Pt_Forward_Hi", "Pt Forward (Pass Hi Pt Jet Trigger)", 100, 0, 300);
+    mPt_Forward_Hi           = dbe->book1D("Pt_Forward_Hi", "Pt Forward (Pass Hi Pt Jet Trigger)", 60, 0, 300);  
     mPhi_Forward_Hi          = dbe->book1D("Phi_Forward_Hi", "Phi Forward (Pass Hi Pt Jet Trigger)", phiBin, phiMin, phiMax);
-    mConstituents_Forward_Hi = dbe->book1D("Constituents_Forward_Hi", "Constituents Forward (Pass Hi Pt Jet Trigger)", 100, 0, 100);
-    mHFrac_Forward_Hi        = dbe->book1D("HFrac_Forward_Hi", "HFrac Forward (Pass Hi Pt Jet Trigger)", 100, 0, 1);
+    //mConstituents_Forward_Hi = dbe->book1D("Constituents_Forward_Hi", "Constituents Forward (Pass Hi Pt Jet Trigger)", 50, 0, 100);
+    //mHFrac_Forward_Hi        = dbe->book1D("HFrac_Forward_Hi", "HFrac Forward (Pass Hi Pt Jet Trigger)", 100, 0, 1);
     
     mPhi_Barrel              = dbe->book1D("Phi_Barrel", "Phi_Barrel", phiBin, phiMin, phiMax);
-    mE_Barrel                = dbe->book1D("E_Barrel", "E_Barrel", eBin, eMin, eMax);
+    //mE_Barrel                = dbe->book1D("E_Barrel", "E_Barrel", eBin, eMin, eMax);
     mPt_Barrel               = dbe->book1D("Pt_Barrel", "Pt_Barrel", ptBin, ptMin, ptMax);
     
     mPhi_EndCap              = dbe->book1D("Phi_EndCap", "Phi_EndCap", phiBin, phiMin, phiMax);
-    mE_EndCap                = dbe->book1D("E_EndCap", "E_EndCap", eBin, eMin, 2*eMax);
+    //mE_EndCap                = dbe->book1D("E_EndCap", "E_EndCap", eBin, eMin, 2*eMax);
     mPt_EndCap               = dbe->book1D("Pt_EndCap", "Pt_EndCap", ptBin, ptMin, ptMax);
     
     mPhi_Forward             = dbe->book1D("Phi_Forward", "Phi_Forward", phiBin, phiMin, phiMax);
-    mE_Forward               = dbe->book1D("E_Forward", "E_Forward", eBin, eMin, 4*eMax);
+    //mE_Forward               = dbe->book1D("E_Forward", "E_Forward", eBin, eMin, 4*eMax);
     mPt_Forward              = dbe->book1D("Pt_Forward", "Pt_Forward", ptBin, ptMin, ptMax);
     
     // Leading Jet Parameters
     mEtaFirst                = dbe->book1D("EtaFirst", "EtaFirst", 100, -5, 5);
     mPhiFirst                = dbe->book1D("PhiFirst", "PhiFirst", 70, -3.5, 3.5);
-    mEFirst                  = dbe->book1D("EFirst", "EFirst", 100, 0, 1000);
+    //mEFirst                  = dbe->book1D("EFirst", "EFirst", 100, 0, 1000);
     mPtFirst                 = dbe->book1D("PtFirst", "PtFirst", 100, 0, 500);
     if(fillJIDPassFrac==1){//fillJIDPassFrac defines a collection of cleaned jets, for which we will want to fill the cleaning passing fraction
       mLooseJIDPassFractionVSeta      = dbe->bookProfile("LooseJIDPassFractionVSeta","LooseJIDPassFractionVSeta",etaBin, etaMin, etaMax,0.,1.2);
@@ -210,8 +214,8 @@ void JetAnalyzer::beginJob(DQMStore * dbe) {
   mfHPD                   = dbe->book1D("fHPD", "fHPD", 50, 0., 1.);
   mfRBX                   = dbe->book1D("fRBX", "fRBX", 50, 0., 1.);
 
-  msigmaEta                   = dbe->book1D("sigmaEta", "sigmaEta", 50, 0., 0.5);
-  msigmaPhi                   = dbe->book1D("sigmaPhi", "sigmaPhi", 50, 0., 0.5);
+  //  msigmaEta                   = dbe->book1D("sigmaEta", "sigmaEta", 50, 0., 1.);
+  //  msigmaPhi                   = dbe->book1D("sigmaPhi", "sigmaPhi", 50, 0., 0.5);
   
   if(makedijetselection==1) {
     mDijetAsymmetry                   = dbe->book1D("DijetAsymmetry", "DijetAsymmetry", 100, -1., 1.);
@@ -313,9 +317,9 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	      if (mConstituents) mConstituents->Fill ((caloJets.at(0)).nConstituents());
 	      if (mHFrac)        mHFrac->Fill ((caloJets.at(0)).energyFractionHadronic());
 	      if (mEFrac)        mEFrac->Fill ((caloJets.at(0)).emEnergyFraction());
-	      if (mE)    mE->Fill ((caloJets.at(0)).energy());
-	      if (mP)    mP->Fill ((caloJets.at(0)).p());
-	      if (mMass) mMass->Fill ((caloJets.at(0)).mass());
+	      //if (mE)    mE->Fill ((caloJets.at(0)).energy());
+	      //if (mP)    mP->Fill ((caloJets.at(0)).p());
+	      //if (mMass) mMass->Fill ((caloJets.at(0)).mass());
 	      if (mMaxEInEmTowers)  mMaxEInEmTowers->Fill ((caloJets.at(0)).maxEInEmTowers());
 	      if (mMaxEInHadTowers) mMaxEInHadTowers->Fill ((caloJets.at(0)).maxEInHadTowers());
 	      if (mN90Hits)         mN90Hits->Fill (jetID->n90Hits());
@@ -324,8 +328,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	      if (mfRBX)            mfRBX->Fill (jetID->fRBX());
 	      //sigmaeta and sigmaphi only used in the tight selection.
 	      //fill the histos for them AFTER the loose selection 
-	      if (msigmaEta)  msigmaEta->Fill(sqrt((caloJets.at(0)).etaetaMoment()));
-	      if (msigmaPhi)  msigmaPhi->Fill(sqrt((caloJets.at(0)).phiphiMoment()));
+	      //  if (msigmaEta)  msigmaEta->Fill(sqrt((caloJets.at(0)).etaetaMoment()));
+	      //  if (msigmaPhi)  msigmaPhi->Fill(sqrt((caloJets.at(0)).phiphiMoment()));
 	      //fill histos for second jet
 	      if (mPt)   mPt->Fill ((caloJets.at(1)).pt());
 	      if (mEta)  mEta->Fill ((caloJets.at(1)).eta());
@@ -334,15 +338,15 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	      if (mConstituents) mConstituents->Fill ((caloJets.at(1)).nConstituents());
 	      if (mHFrac)        mHFrac->Fill ((caloJets.at(1)).energyFractionHadronic());
 	      if (mEFrac)        mEFrac->Fill ((caloJets.at(1)).emEnergyFraction());
-	      if (mE)    mE->Fill ((caloJets.at(1)).energy());
-	      if (mP)    mP->Fill ((caloJets.at(1)).p());
-	      if (mMass) mMass->Fill ((caloJets.at(1)).mass());
+	      //if (mE)    mE->Fill ((caloJets.at(1)).energy());
+	      //if (mP)    mP->Fill ((caloJets.at(1)).p());
+	      //if (mMass) mMass->Fill ((caloJets.at(1)).mass());
 	      if (mMaxEInEmTowers)  mMaxEInEmTowers->Fill ((caloJets.at(1)).maxEInEmTowers());
 	      if (mMaxEInHadTowers) mMaxEInHadTowers->Fill ((caloJets.at(1)).maxEInHadTowers());
 	      //sigmaeta and sigmaphi only used in the tight selection.
 	      //fill the histos for them AFTER the loose selection 
-	      if (msigmaEta)  msigmaEta->Fill(sqrt((caloJets.at(1)).etaetaMoment()));
-	      if (msigmaPhi)  msigmaPhi->Fill(sqrt((caloJets.at(1)).phiphiMoment()));
+	      //  if (msigmaEta)  msigmaEta->Fill(sqrt((caloJets.at(1)).etaetaMoment()));
+	      //  if (msigmaPhi)  msigmaPhi->Fill(sqrt((caloJets.at(1)).phiphiMoment()));
 
 	    }
 	    //let's see how many of these jets passed the JetID cleaning
@@ -468,8 +472,8 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
       jetID->calculate(iEvent, *jet);
       //minimal (uncorrected!) pT cut
       if (jet->pt() > _ptThreshold) {
-	if (msigmaEta)  msigmaEta->Fill(sqrt(jet->etaetaMoment()));
-	if (msigmaPhi)  msigmaPhi->Fill(sqrt(jet->phiphiMoment()));
+	//  if (msigmaEta)  msigmaEta->Fill(sqrt(jet->etaetaMoment()));
+	//  if (msigmaPhi)  msigmaPhi->Fill(sqrt(jet->phiphiMoment()));
 	//cleaning to use for filling histograms
 	thisemfclean=true;
 	if(jetID->restrictedEMF()<_resEMFMin && fabs(jet->eta())<2.6) thisemfclean=false;
@@ -505,33 +509,27 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  if (_leadJetFlag == 1) { 
 	    if (mEtaFirst) mEtaFirst->Fill (jet->eta());
 	    if (mPhiFirst) mPhiFirst->Fill (jet->phi());
-	    if (mEFirst)   mEFirst->Fill (jet->energy());
+	    //if (mEFirst)   mEFirst->Fill (jet->energy());
 	    if (mPtFirst)  mPtFirst->Fill (jet->pt());
 	  }
 	  // --- Passed the low pt jet trigger
 	  if (_JetLoPass == 1) {
-	    if (fabs(jet->eta()) <= 1.3) {
+	  /*  if (fabs(jet->eta()) <= 1.3) {
 	      if (mPt_Barrel_Lo)           mPt_Barrel_Lo->Fill(jet->pt());
 	      if (mEta_Lo)          mEta_Lo->Fill(jet->eta());
 	      if (mPhi_Barrel_Lo)          mPhi_Barrel_Lo->Fill(jet->phi());
-	      if (mConstituents_Barrel_Lo) mConstituents_Barrel_Lo->Fill(jet->nConstituents());	
-	      if (mHFrac_Barrel_Lo)        mHFrac_Barrel_Lo->Fill(jet->energyFractionHadronic());	
 	    }
 	    if ( (fabs(jet->eta()) > 1.3) && (fabs(jet->eta()) <= 3) ) {
 	      if (mPt_EndCap_Lo)           mPt_EndCap_Lo->Fill(jet->pt());
 	      if (mEta_Lo)          mEta_Lo->Fill(jet->eta());
 	      if (mPhi_EndCap_Lo)          mPhi_EndCap_Lo->Fill(jet->phi());
-	      if (mConstituents_EndCap_Lo) mConstituents_EndCap_Lo->Fill(jet->nConstituents());	
-	      if (mHFrac_EndCap_Lo)        mHFrac_EndCap_Lo->Fill(jet->energyFractionHadronic());	
 	    }
 	    if (fabs(jet->eta()) > 3.0) {
 	      if (mPt_Forward_Lo)           mPt_Forward_Lo->Fill(jet->pt());
 	      if (mEta_Lo)          mEta_Lo->Fill(jet->eta());
 	      if (mPhi_Forward_Lo)          mPhi_Forward_Lo->Fill(jet->phi());
-	      if (mConstituents_Forward_Lo) mConstituents_Forward_Lo->Fill(jet->nConstituents());	
-	      if (mHFrac_Forward_Lo)        mHFrac_Forward_Lo->Fill(jet->energyFractionHadronic());	
-	    }
-	    if (mEta_Lo) mEta_Lo->Fill (jet->eta());
+	    } */
+	    //if (mEta_Lo) mEta_Lo->Fill (jet->eta());
 	    if (mPhi_Lo) mPhi_Lo->Fill (jet->phi());
 	    if (mPt_Lo)  mPt_Lo->Fill (jet->pt());
 	  }
@@ -539,28 +537,28 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  // --- Passed the high pt jet trigger
 	  if (_JetHiPass == 1) {
 	    if (fabs(jet->eta()) <= 1.3) {
-	      if (mPt_Barrel_Hi)           mPt_Barrel_Hi->Fill(jet->pt());
-	      if (mEta_Hi)          mEta_Hi->Fill(jet->eta());
+	      if (mPt_Barrel_Hi && jet->pt()>100.)           mPt_Barrel_Hi->Fill(jet->pt());
+	      if (mEta_Hi && jet->pt()>100.)          mEta_Hi->Fill(jet->eta());
 	      if (mPhi_Barrel_Hi)          mPhi_Barrel_Hi->Fill(jet->phi());
-	      if (mConstituents_Barrel_Hi) mConstituents_Barrel_Hi->Fill(jet->nConstituents());	
-	      if (mHFrac_Barrel_Hi)        mHFrac_Barrel_Hi->Fill(jet->energyFractionHadronic());	
+	      //if (mConstituents_Barrel_Hi) mConstituents_Barrel_Hi->Fill(jet->nConstituents());	
+	      //if (mHFrac_Barrel_Hi)        mHFrac_Barrel_Hi->Fill(jet->energyFractionHadronic());	
 	    }
 	    if ( (fabs(jet->eta()) > 1.3) && (fabs(jet->eta()) <= 3) ) {
-	      if (mPt_EndCap_Hi)           mPt_EndCap_Hi->Fill(jet->pt());
-	      if (mEta_Hi)          mEta_Hi->Fill(jet->eta());
+	      if (mPt_EndCap_Hi && jet->pt()>100.)           mPt_EndCap_Hi->Fill(jet->pt());
+	      if (mEta_Hi && jet->pt()>100.)          mEta_Hi->Fill(jet->eta());
 	      if (mPhi_EndCap_Hi)          mPhi_EndCap_Hi->Fill(jet->phi());
-	      if (mConstituents_EndCap_Hi) mConstituents_EndCap_Hi->Fill(jet->nConstituents());	
-	      if (mHFrac_EndCap_Hi)        mHFrac_EndCap_Hi->Fill(jet->energyFractionHadronic());	
+	      //if (mConstituents_EndCap_Hi) mConstituents_EndCap_Hi->Fill(jet->nConstituents());	
+	      //if (mHFrac_EndCap_Hi)        mHFrac_EndCap_Hi->Fill(jet->energyFractionHadronic());	
 	    }
 	    if (fabs(jet->eta()) > 3.0) {
-	      if (mPt_Forward_Hi)           mPt_Forward_Hi->Fill(jet->pt());
-	      if (mEta_Hi)          mEta_Hi->Fill(jet->eta());
+	      if (mPt_Forward_Hi && jet->pt()>100.)           mPt_Forward_Hi->Fill(jet->pt());
+	      if (mEta_Hi && jet->pt()>100.)          mEta_Hi->Fill(jet->eta());
 	      if (mPhi_Forward_Hi)          mPhi_Forward_Hi->Fill(jet->phi());
-	      if (mConstituents_Forward_Hi) mConstituents_Forward_Hi->Fill(jet->nConstituents());	
-	      if (mHFrac_Forward_Hi)        mHFrac_Forward_Hi->Fill(jet->energyFractionHadronic());	
+	      //if (mConstituents_Forward_Hi) mConstituents_Forward_Hi->Fill(jet->nConstituents());	
+	      //if (mHFrac_Forward_Hi)        mHFrac_Forward_Hi->Fill(jet->energyFractionHadronic());	
 	    }
 	    
-	    if (mEta_Hi) mEta_Hi->Fill (jet->eta());
+	    if (mEta_Hi && jet->pt()>100.) mEta_Hi->Fill (jet->eta());
 	    if (mPhi_Hi) mPhi_Hi->Fill (jet->phi());
 	    if (mPt_Hi)  mPt_Hi->Fill (jet->pt());
 	  }
@@ -581,22 +579,31 @@ void JetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	  if (fabs(jet->eta()) <= 1.3) {
 	    if (mPt_Barrel)   mPt_Barrel->Fill (jet->pt());
 	    if (mPhi_Barrel)  mPhi_Barrel->Fill (jet->phi());
-	    if (mE_Barrel)    mE_Barrel->Fill (jet->energy());
+	    //if (mE_Barrel)    mE_Barrel->Fill (jet->energy());
+      if (mConstituents_Barrel)    mConstituents_Barrel->Fill(jet->nConstituents());	
+      if (mHFrac_Barrel)           mHFrac_Barrel->Fill(jet->energyFractionHadronic());	
+      if (mEFrac_Barrel)           mEFrac_Barrel->Fill(jet->emEnergyFraction());	
 	  }
 	  if ( (fabs(jet->eta()) > 1.3) && (fabs(jet->eta()) <= 3) ) {
 	    if (mPt_EndCap)   mPt_EndCap->Fill (jet->pt());
 	    if (mPhi_EndCap)  mPhi_EndCap->Fill (jet->phi());
-	    if (mE_EndCap)    mE_EndCap->Fill (jet->energy());
+	    //if (mE_EndCap)    mE_EndCap->Fill (jet->energy());
+      if (mConstituents_EndCap)    mConstituents_EndCap->Fill(jet->nConstituents());	
+      if (mHFrac_EndCap)           mHFrac_EndCap->Fill(jet->energyFractionHadronic());
+      if (mEFrac_EndCap)           mEFrac_EndCap->Fill(jet->emEnergyFraction());	
 	  }
 	  if (fabs(jet->eta()) > 3.0) {
 	    if (mPt_Forward)   mPt_Forward->Fill (jet->pt());
 	    if (mPhi_Forward)  mPhi_Forward->Fill (jet->phi());
-	    if (mE_Forward)    mE_Forward->Fill (jet->energy());
+	    //if (mE_Forward)    mE_Forward->Fill (jet->energy());
+      if (mConstituents_Forward)    mConstituents_Forward->Fill(jet->nConstituents());	
+      if (mHFrac_Forward)           mHFrac_Forward->Fill(jet->energyFractionHadronic());
+      if (mEFrac_Forward)           mEFrac_Forward->Fill(jet->emEnergyFraction());	
 	  }
 	  
-	  if (mE)    mE->Fill (jet->energy());
-	  if (mP)    mP->Fill (jet->p());
-	  if (mMass) mMass->Fill (jet->mass());
+	  //if (mE)    mE->Fill (jet->energy());
+	  //if (mP)    mP->Fill (jet->p());
+	  // if (mMass) mMass->Fill (jet->mass());
 	  
 	  if (mMaxEInEmTowers)  mMaxEInEmTowers->Fill (jet->maxEInEmTowers());
 	  if (mMaxEInHadTowers) mMaxEInHadTowers->Fill (jet->maxEInHadTowers());

@@ -1,5 +1,4 @@
 import FWCore.ParameterSet.Config as cms
-
 jetDQMParameters = cms.PSet(
     eBin        = cms.int32(100),
     eMax        = cms.double(500.0),
@@ -17,11 +16,11 @@ jetDQMParameters = cms.PSet(
     phiMax      = cms.double(3.2),
     phiMin      = cms.double(-3.2),
 
-    ptBin       = cms.int32(100),
-    ptMax       = cms.double(200.0),
-    ptMin       = cms.double(0.0),
+    ptBin       = cms.int32(90),
+    ptMax       = cms.double(100.0),
+    ptMin       = cms.double(10.0),
 
-    ptThreshold = cms.double(3.),
+    ptThreshold = cms.double(20.),
     asymmetryThirdJetCut = cms.double(30),
     balanceThirdJetCut   = cms.double(0.2),
     n90HitsMin  = cms.int32(-1),

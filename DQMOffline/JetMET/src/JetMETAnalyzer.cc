@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/04/02 13:30:17 $
- *  $Revision: 1.71 $
+ *  $Date: 2011/05/24 14:21:27 $
+ *  $Revision: 1.72 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -173,8 +173,8 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   if(theCaloMETAnalyzerFlag){
     theCaloMETAnalyzer       = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETAnalysis"));
     theCaloMETNoHFAnalyzer   = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETNoHFAnalysis"));
-    theCaloMETHOAnalyzer     = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETHOAnalysis"));
-    theCaloMETNoHFHOAnalyzer = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETNoHFHOAnalysis"));
+    //theCaloMETHOAnalyzer     = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETHOAnalysis"));
+    //theCaloMETNoHFHOAnalyzer = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETNoHFHOAnalysis"));
   }
   if(theTcMETAnalyzerFlag){
     theTcMETAnalyzer = new METAnalyzer(parameters.getParameter<ParameterSet>("tcMETAnalysis"));
@@ -264,8 +264,8 @@ JetMETAnalyzer::~JetMETAnalyzer() {
   if(theCaloMETAnalyzerFlag){
     delete theCaloMETAnalyzer;
     delete theCaloMETNoHFAnalyzer;
-    delete theCaloMETHOAnalyzer;
-    delete theCaloMETNoHFHOAnalyzer;
+    //delete theCaloMETHOAnalyzer;
+    //delete theCaloMETNoHFHOAnalyzer;
   }
   if(theTcMETAnalyzerFlag)         delete theTcMETAnalyzer;
   if(theMuCorrMETAnalyzerFlag)     delete theMuCorrMETAnalyzer;
@@ -322,8 +322,8 @@ void JetMETAnalyzer::beginJob(void) {
   if(theCaloMETAnalyzerFlag){
     theCaloMETAnalyzer->beginJob(dbe);
     theCaloMETNoHFAnalyzer->beginJob(dbe);
-    theCaloMETHOAnalyzer->beginJob(dbe);
-    theCaloMETNoHFHOAnalyzer->beginJob(dbe);
+    //theCaloMETHOAnalyzer->beginJob(dbe);
+    //theCaloMETNoHFHOAnalyzer->beginJob(dbe);
   }
   if(theTcMETAnalyzerFlag) theTcMETAnalyzer->beginJob(dbe);
   if(theMuCorrMETAnalyzerFlag) theMuCorrMETAnalyzer->beginJob(dbe);
@@ -380,8 +380,8 @@ void JetMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
   if(theCaloMETAnalyzerFlag){
     theCaloMETAnalyzer->beginRun(iRun, iSetup);
     theCaloMETNoHFAnalyzer->beginRun(iRun, iSetup);
-    theCaloMETHOAnalyzer->beginRun(iRun, iSetup);
-    theCaloMETNoHFHOAnalyzer->beginRun(iRun, iSetup);
+    //theCaloMETHOAnalyzer->beginRun(iRun, iSetup);
+    //theCaloMETNoHFHOAnalyzer->beginRun(iRun, iSetup);
   }
   if(theTcMETAnalyzerFlag) theTcMETAnalyzer->beginRun(iRun, iSetup);
   if(theMuCorrMETAnalyzerFlag) theMuCorrMETAnalyzer->beginRun(iRun, iSetup);
@@ -401,8 +401,8 @@ void JetMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
   if(theCaloMETAnalyzerFlag){
     theCaloMETAnalyzer->endRun(iRun, iSetup, dbe);
     theCaloMETNoHFAnalyzer->endRun(iRun, iSetup, dbe);
-    theCaloMETHOAnalyzer->endRun(iRun, iSetup, dbe);
-    theCaloMETNoHFHOAnalyzer->endRun(iRun, iSetup, dbe);
+    //theCaloMETHOAnalyzer->endRun(iRun, iSetup, dbe);
+    //theCaloMETNoHFHOAnalyzer->endRun(iRun, iSetup, dbe);
   }
   if(theTcMETAnalyzerFlag)     theTcMETAnalyzer->endRun(iRun, iSetup, dbe);
   if(theMuCorrMETAnalyzerFlag) theMuCorrMETAnalyzer->endRun(iRun, iSetup, dbe);
@@ -457,11 +457,12 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   Int_t JetLoPass = 0;
   Int_t JetHiPass = 0;
 
-  if ( _HighPtJetEventFlag->on() && _HighPtJetEventFlag->accept( iEvent, iSetup ) ) 
+  if ( _HighPtJetEventFlag->on() && _HighPtJetEventFlag->accept( iEvent, iSetup) )
     JetHiPass=1;
   
-  if ( _LowPtJetEventFlag->on() && _LowPtJetEventFlag->accept( iEvent, iSetup ) ) 
+  if ( _LowPtJetEventFlag->on() && _LowPtJetEventFlag->accept( iEvent, iSetup) )
     JetLoPass=1;
+
   
   //if (triggerResults.isValid()) {
   //
@@ -754,8 +755,8 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
      
     theCaloMETAnalyzer->analyze(iEvent,       iSetup, *triggerResults);
     theCaloMETNoHFAnalyzer->analyze(iEvent,   iSetup, *triggerResults);
-    theCaloMETHOAnalyzer->analyze(iEvent,     iSetup, *triggerResults);
-    theCaloMETNoHFHOAnalyzer->analyze(iEvent, iSetup, *triggerResults);
+    //theCaloMETHOAnalyzer->analyze(iEvent,     iSetup, *triggerResults);
+    //theCaloMETNoHFHOAnalyzer->analyze(iEvent, iSetup, *triggerResults);
   }
 
   //
@@ -807,8 +808,8 @@ void JetMETAnalyzer::endJob(void) {
   if(theCaloMETAnalyzerFlag){
     theCaloMETAnalyzer->endJob();
     theCaloMETNoHFAnalyzer->endJob();
-    theCaloMETHOAnalyzer->endJob();
-    theCaloMETNoHFHOAnalyzer->endJob();
+    //theCaloMETHOAnalyzer->endJob();
+    //theCaloMETNoHFHOAnalyzer->endJob();
   }
   if(theTcMETAnalyzerFlag) theTcMETAnalyzer->endJob();
   if(theMuCorrMETAnalyzerFlag) theMuCorrMETAnalyzer->endJob();
@@ -854,4 +855,5 @@ void JetMETAnalyzer::endJob(void) {
   }
   
 }
+
 

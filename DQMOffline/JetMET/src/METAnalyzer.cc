@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/04/11 13:55:05 $
- *  $Revision: 1.40 $
+ *  $Date: 2011/05/24 14:22:06 $
+ *  $Revision: 1.41 $
  *  \author A.Apresyan - Caltech
  *          K.Hatakeyama - Baylor
  */
@@ -254,20 +254,20 @@ void METAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fals
   if (_verbose) std::cout << "bookMonitorElement " << DirName << std::endl;
   _dbe->setCurrentFolder(DirName);
  
-  hNevents            = _dbe->book1D("METTask_Nevents", "METTask_Nevents"   ,1,0,1);
-  hMEx                = _dbe->book1D("METTask_MEx",   "METTask_MEx"   ,500,-500,500);
+  //hNevents            = _dbe->book1D("METTask_Nevents", "METTask_Nevents"   ,1,0,1);
+  hMEx                = _dbe->book1D("METTask_MEx",   "METTask_MEx"   ,200,-500,500);
   hMEx->setAxisTitle("MEx [GeV]",1);
-  hMEy                = _dbe->book1D("METTask_MEy",   "METTask_MEy"   ,500,-500,500);
+  hMEy                = _dbe->book1D("METTask_MEy",   "METTask_MEy"   ,200,-500,500);
   hMEy->setAxisTitle("MEy [GeV]",1);
-  hEz                 = _dbe->book1D("METTask_Ez",    "METTask_Ez"    ,500,-500,500);
-  hEz->setAxisTitle("MEz [GeV]",1);
+  //hEz                 = _dbe->book1D("METTask_Ez",    "METTask_Ez"    ,500,-500,500);
+  //hEz->setAxisTitle("MEz [GeV]",1);
   hMETSig             = _dbe->book1D("METTask_METSig","METTask_METSig",51,0,51);
   hMETSig->setAxisTitle("CaloMETSig",1);
-  hMET                = _dbe->book1D("METTask_MET",   "METTask_MET"   ,500,0,1000);
+  hMET                = _dbe->book1D("METTask_MET",   "METTask_MET"   ,200,0,1000); 
   hMET->setAxisTitle("MET [GeV]",1);
-  hMETPhi             = _dbe->book1D("METTask_METPhi","METTask_METPhi",80,-TMath::Pi(),TMath::Pi());
+  hMETPhi             = _dbe->book1D("METTask_METPhi","METTask_METPhi",60,-TMath::Pi(),TMath::Pi()); 
   hMETPhi->setAxisTitle("METPhi [rad]",1);
-  hSumET              = _dbe->book1D("METTask_SumET", "METTask_SumET" ,500,0,2000);
+  hSumET              = _dbe->book1D("METTask_SumET", "METTask_SumET" ,400,0,2000); 
   hSumET->setAxisTitle("SumET [GeV]",1);
 
   hMET_logx           = _dbe->book1D("METTask_MET_logx",   "METTask_MET_logx"   ,40,-1.,7.);
@@ -275,12 +275,12 @@ void METAnalyzer::bookMonitorElement(std::string DirName, bool bLumiSecPlot=fals
   hSumET_logx         = _dbe->book1D("METTask_SumET_logx", "METTask_SumET_logx" ,40,-1.,7.);
   hSumET_logx->setAxisTitle("log(SumET) [GeV]",1);
 
-  hMETIonFeedbck      = _dbe->book1D("METTask_METIonFeedbck", "METTask_METIonFeedbck" ,500,0,1000);
-  hMETIonFeedbck->setAxisTitle("MET [GeV]",1);
-  hMETHPDNoise        = _dbe->book1D("METTask_METHPDNoise",   "METTask_METHPDNoise"   ,500,0,1000);
-  hMETHPDNoise->setAxisTitle("MET [GeV]",1);
-  hMETRBXNoise        = _dbe->book1D("METTask_METRBXNoise",   "METTask_METRBXNoise"   ,500,0,1000);
-  hMETRBXNoise->setAxisTitle("MET [GeV]",1);
+  //hMETIonFeedbck      = _dbe->book1D("METTask_METIonFeedbck", "METTask_METIonFeedbck" ,500,0,1000);
+  //hMETIonFeedbck->setAxisTitle("MET [GeV]",1);
+  //hMETHPDNoise        = _dbe->book1D("METTask_METHPDNoise",   "METTask_METHPDNoise"   ,500,0,1000);
+  //hMETHPDNoise->setAxisTitle("MET [GeV]",1);
+  //hMETRBXNoise        = _dbe->book1D("METTask_METRBXNoise",   "METTask_METRBXNoise"   ,500,0,1000);
+  //hMETRBXNoise->setAxisTitle("MET [GeV]",1);
 
   if (_allhist){
     if (bLumiSecPlot){
@@ -475,26 +475,26 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     //if (_verbose) std::cout << _hlt_Muon      << " " << triggerNames.triggerIndex(_hlt_Muon)      << std::endl;
     //if (_verbose) std::cout << _hlt_PhysDec   << " " << triggerNames.triggerIndex(_hlt_PhysDec)   << std::endl;
 
-    if ( _HighPtJetEventFlag->on() && _HighPtJetEventFlag->accept( iEvent, iSetup ) ) 
+    if ( _HighPtJetEventFlag->on() && _HighPtJetEventFlag->accept( iEvent, iSetup) )
       _trig_HighPtJet=1;
 
-    if ( _LowPtJetEventFlag->on() && _LowPtJetEventFlag->accept( iEvent, iSetup ) ) 
+    if ( _LowPtJetEventFlag->on() && _LowPtJetEventFlag->accept( iEvent, iSetup) )
       _trig_LowPtJet=1;
     
-    if ( _MinBiasEventFlag->on() && _MinBiasEventFlag->accept( iEvent, iSetup ) ) 
+    if ( _MinBiasEventFlag->on() && _MinBiasEventFlag->accept( iEvent, iSetup) )
       _trig_MinBias=1;
     
-    if ( _HighMETEventFlag->on() && _HighMETEventFlag->accept( iEvent, iSetup ) ) 
+    if ( _HighMETEventFlag->on() && _HighMETEventFlag->accept( iEvent, iSetup) )
       _trig_HighMET=1;
     
-    if ( _LowMETEventFlag->on() && _LowMETEventFlag->accept( iEvent, iSetup ) ) 
+    if ( _LowMETEventFlag->on() && _LowMETEventFlag->accept( iEvent, iSetup) )
       _trig_LowMET=1;
     
-    if ( _EleEventFlag->on() && _EleEventFlag->accept( iEvent, iSetup ) ) 
+    if ( _EleEventFlag->on() && _EleEventFlag->accept( iEvent, iSetup) )
       _trig_Ele=1;
     
-    if ( _MuonEventFlag->on() && _MuonEventFlag->accept( iEvent, iSetup ) ) 
-      _trig_Muon=1;
+    if ( _MuonEventFlag->on() && _MuonEventFlag->accept( iEvent, iSetup) )
+        _trig_Muon=1;
     
     if (triggerNames.triggerIndex(_hlt_PhysDec)   != triggerNames.size() &&
         triggerResults.accept(triggerNames.triggerIndex(_hlt_PhysDec)))   _trig_PhysDec=1;
@@ -839,6 +839,7 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   }
 }
 
+
 // ***********************************************************
 void METAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName, 
 			      const reco::MET& met)
@@ -895,7 +896,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 // Reconstructed MET Information
   double SumET  = met.sumEt();
   double METSig = met.mEtSig();
-  double Ez     = met.e_longitudinal();
+  //double Ez     = met.e_longitudinal();
   double MET    = met.pt();
   double MEx    = met.px();
   double MEy    = met.py();
@@ -918,13 +919,13 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
     hMETPhi = _dbe->get(DirName+"/"+"METTask_METPhi");  if (hMETPhi        && hMETPhi->getRootObject())  hMETPhi       ->Fill(METPhi);
     hSumET  = _dbe->get(DirName+"/"+"METTask_SumET");   if (hSumET         && hSumET->getRootObject())   hSumET        ->Fill(SumET);
     hMETSig = _dbe->get(DirName+"/"+"METTask_METSig");  if (hMETSig        && hMETSig->getRootObject())  hMETSig       ->Fill(METSig);
-    hEz     = _dbe->get(DirName+"/"+"METTask_Ez");      if (hEz            && hEz->getRootObject())      hEz           ->Fill(Ez);
+    //hEz     = _dbe->get(DirName+"/"+"METTask_Ez");      if (hEz            && hEz->getRootObject())      hEz           ->Fill(Ez);
 
     hMET_logx   = _dbe->get(DirName+"/"+"METTask_MET_logx");    if (hMET_logx      && hMET_logx->getRootObject())    hMET_logx->Fill(log10(MET));
     hSumET_logx = _dbe->get(DirName+"/"+"METTask_SumET_logx");  if (hSumET_logx    && hSumET_logx->getRootObject())  hSumET_logx->Fill(log10(SumET));
 
-    hMETIonFeedbck = _dbe->get(DirName+"/"+"METTask_METIonFeedbck");  if (hMETIonFeedbck && hMETIonFeedbck->getRootObject())  hMETIonFeedbck->Fill(MET);
-    hMETHPDNoise   = _dbe->get(DirName+"/"+"METTask_METHPDNoise");    if (hMETHPDNoise   && hMETHPDNoise->getRootObject())    hMETHPDNoise->Fill(MET);
+    //hMETIonFeedbck = _dbe->get(DirName+"/"+"METTask_METIonFeedbck");  if (hMETIonFeedbck && hMETIonFeedbck->getRootObject())  hMETIonFeedbck->Fill(MET);
+    //hMETHPDNoise   = _dbe->get(DirName+"/"+"METTask_METHPDNoise");    if (hMETHPDNoise   && hMETHPDNoise->getRootObject())    hMETHPDNoise->Fill(MET);
        
     if (_allhist){
       if (bLumiSecPlot){
@@ -938,32 +939,32 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
     
       if(track_h.isValid()) {
 	for( edm::View<reco::Track>::const_iterator trkit = track_h->begin(); trkit != track_h->end(); trkit++ ) {
-	  htrkPt    = _dbe->get(DirName+"/"+"METTask_trkPt");     if (htrkPt    && htrkPt->getRootObject())     htrkPt->Fill( trkit->pt() );
-	  htrkEta   = _dbe->get(DirName+"/"+"METTask_trkEta");    if (htrkEta   && htrkEta->getRootObject())    htrkEta->Fill( trkit->eta() );
-	  htrkNhits = _dbe->get(DirName+"/"+"METTask_trkNhits");  if (htrkNhits && htrkNhits->getRootObject())  htrkNhits->Fill( trkit->numberOfValidHits() );
-	  htrkChi2  = _dbe->get(DirName+"/"+"METTask_trkChi2");   if (htrkChi2  && htrkChi2->getRootObject())   htrkChi2->Fill( trkit->chi2() / trkit->ndof() );
+	  htrkPt    = _dbe->get(DirName+"/"+"METTask_trackPt");     if (htrkPt    && htrkPt->getRootObject())     htrkPt->Fill( trkit->pt() );
+	  htrkEta   = _dbe->get(DirName+"/"+"METTask_trackEta");    if (htrkEta   && htrkEta->getRootObject())    htrkEta->Fill( trkit->eta() );
+	  htrkNhits = _dbe->get(DirName+"/"+"METTask_trackNhits");  if (htrkNhits && htrkNhits->getRootObject())  htrkNhits->Fill( trkit->numberOfValidHits() );
+	  htrkChi2  = _dbe->get(DirName+"/"+"METTask_trackNormalizedChi2");   if (htrkChi2  && htrkChi2->getRootObject())   htrkChi2->Fill( trkit->chi2() / trkit->ndof() );
 	  double d0 = -1 * trkit->dxy( bspot );
-	  htrkD0    = _dbe->get(DirName+"/"+"METTask_trkD0");     if (htrkD0 && htrkD0->getRootObject())        htrkD0->Fill( d0 );
+	  htrkD0    = _dbe->get(DirName+"/"+"METTask_trackD0");     if (htrkD0 && htrkD0->getRootObject())        htrkD0->Fill( d0 );
 	}
       }
       
       if(electron_h.isValid()) {
 	for( edm::View<reco::GsfElectron>::const_iterator eleit = electron_h->begin(); eleit != electron_h->end(); eleit++ ) {
-	  helePt  = _dbe->get(DirName+"/"+"METTask_helePt");   if (helePt  && helePt->getRootObject())   helePt->Fill( eleit->p4().pt() );  
-	  heleEta = _dbe->get(DirName+"/"+"METTask_heleEta");  if (heleEta && heleEta->getRootObject())  heleEta->Fill( eleit->p4().eta() );
-	  heleHoE = _dbe->get(DirName+"/"+"METTask_heleHoE");  if (heleHoE && heleHoE->getRootObject())  heleHoE->Fill( eleit->hadronicOverEm() );
+	  helePt  = _dbe->get(DirName+"/"+"METTask_electronPt");   if (helePt  && helePt->getRootObject())   helePt->Fill( eleit->p4().pt() );  
+	  heleEta = _dbe->get(DirName+"/"+"METTask_electronEta");  if (heleEta && heleEta->getRootObject())  heleEta->Fill( eleit->p4().eta() );
+	  heleHoE = _dbe->get(DirName+"/"+"METTask_electronHoverE");  if (heleHoE && heleHoE->getRootObject())  heleHoE->Fill( eleit->hadronicOverEm() );
 	}
       }
       
       if(muon_h.isValid()) {
 	for( reco::MuonCollection::const_iterator muonit = muon_h->begin(); muonit != muon_h->end(); muonit++ ) {      
 	  const reco::TrackRef siTrack = muonit->innerTrack();      
-	  hmuPt    = _dbe->get(DirName+"/"+"METTask_muPt");     if (hmuPt    && hmuPt->getRootObject())  hmuPt   ->Fill( muonit->p4().pt() );
-	  hmuEta   = _dbe->get(DirName+"/"+"METTask_muEta");    if (hmuEta   && hmuEta->getRootObject())  hmuEta  ->Fill( muonit->p4().eta() );
-	  hmuNhits = _dbe->get(DirName+"/"+"METTask_muNhits");  if (hmuNhits && hmuNhits->getRootObject())  hmuNhits->Fill( siTrack.isNonnull() ? siTrack->numberOfValidHits() : -999 );
-	  hmuChi2  = _dbe->get(DirName+"/"+"METTask_muChi2");   if (hmuChi2  && hmuChi2->getRootObject())  hmuChi2 ->Fill( siTrack.isNonnull() ? siTrack->chi2()/siTrack->ndof() : -999 );
+	  hmuPt    = _dbe->get(DirName+"/"+"METTask_muonPt");     if (hmuPt    && hmuPt->getRootObject())  hmuPt   ->Fill( muonit->p4().pt() );
+	  hmuEta   = _dbe->get(DirName+"/"+"METTask_muonEta");    if (hmuEta   && hmuEta->getRootObject())  hmuEta  ->Fill( muonit->p4().eta() );
+	  hmuNhits = _dbe->get(DirName+"/"+"METTask_muonNhits");  if (hmuNhits && hmuNhits->getRootObject())  hmuNhits->Fill( siTrack.isNonnull() ? siTrack->numberOfValidHits() : -999 );
+	  hmuChi2  = _dbe->get(DirName+"/"+"METTask_muonNormalizedChi2");   if (hmuChi2  && hmuChi2->getRootObject())  hmuChi2 ->Fill( siTrack.isNonnull() ? siTrack->chi2()/siTrack->ndof() : -999 );
 	  double d0 = siTrack.isNonnull() ? -1 * siTrack->dxy( bspot) : -999;
-	  hmuD0    = _dbe->get(DirName+"/"+"METTask_muD0");     if (hmuD0    && hmuD0->getRootObject())  hmuD0->Fill( d0 );
+	  hmuD0    = _dbe->get(DirName+"/"+"METTask_muonD0");     if (hmuD0    && hmuD0->getRootObject())  hmuD0->Fill( d0 );
 	}
 	
 	const unsigned int nMuons = muon_h->size();      
@@ -972,7 +973,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 	  reco::MuonMETCorrectionData muCorrData = (*tcMet_ValueMap_Handle)[muref];
 	  hMExCorrection      = _dbe->get(DirName+"/"+"METTask_MExCorrection");       if (hMExCorrection      && hMExCorrection->getRootObject())       hMExCorrection-> Fill(muCorrData.corrY());
 	  hMEyCorrection      = _dbe->get(DirName+"/"+"METTask_MEyCorrection");       if (hMEyCorrection      && hMEyCorrection->getRootObject())       hMEyCorrection-> Fill(muCorrData.corrX());
-	  hMuonCorrectionFlag = _dbe->get(DirName+"/"+"METTask_MuonCorrectionFlag");  if (hMuonCorrectionFlag && hMuonCorrectionFlag->getRootObject())  hMuonCorrectionFlag-> Fill(muCorrData.type());
+	  hMuonCorrectionFlag = _dbe->get(DirName+"/"+"METTask_CorrectionFlag");  if (hMuonCorrectionFlag && hMuonCorrectionFlag->getRootObject())  hMuonCorrectionFlag-> Fill(muCorrData.type());
 	}
       }
     }

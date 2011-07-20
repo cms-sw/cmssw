@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for Calo Jets
  *
- *  $Date: 2010/10/15 13:49:54 $
- *  $Revision: 1.13 $
+ *  $Date: 2011/03/11 15:14:37 $
+ *  $Revision: 1.14 $
  *  \author F. Chlebana - Fermilab
  */
 
@@ -169,18 +169,21 @@ class JetAnalyzer : public JetAnalyzerBase {
   MonitorElement* mPt_Forward;
   MonitorElement* mPhi_Forward;
 
-  MonitorElement* mPt_Barrel_Lo;
-  MonitorElement* mPhi_Barrel_Lo;
-  MonitorElement* mConstituents_Barrel_Lo;
-  MonitorElement* mHFrac_Barrel_Lo;
-  MonitorElement* mPt_EndCap_Lo;
-  MonitorElement* mPhi_EndCap_Lo;
-  MonitorElement* mConstituents_EndCap_Lo;
-  MonitorElement* mHFrac_EndCap_Lo;
-  MonitorElement* mPt_Forward_Lo;
-  MonitorElement* mPhi_Forward_Lo;
-  MonitorElement* mConstituents_Forward_Lo;
-  MonitorElement* mHFrac_Forward_Lo;
+  //MonitorElement* mPt_Barrel_Lo;
+  //MonitorElement* mPhi_Barrel_Lo;
+  MonitorElement* mConstituents_Barrel;
+  MonitorElement* mHFrac_Barrel;
+  MonitorElement* mEFrac_Barrel;
+  //MonitorElement* mPt_EndCap_Lo;
+  //MonitorElement* mPhi_EndCap_Lo;
+  MonitorElement* mConstituents_EndCap;
+  MonitorElement* mHFrac_EndCap;
+  MonitorElement* mEFrac_EndCap;
+  //MonitorElement* mPt_Forward_Lo;
+  //MonitorElement* mPhi_Forward_Lo;
+  MonitorElement* mConstituents_Forward;
+  MonitorElement* mHFrac_Forward;
+  MonitorElement* mEFrac_Forward;
 
   MonitorElement* mPt_Barrel_Hi;
   MonitorElement* mPhi_Barrel_Hi;
@@ -197,20 +200,20 @@ class JetAnalyzer : public JetAnalyzerBase {
   // ---
 
 
-  MonitorElement* mE_Barrel;
-  MonitorElement* mE_EndCap;
-  MonitorElement* mE_Forward;
+  //MonitorElement* mE_Barrel;
+  //MonitorElement* mE_EndCap;
+  //MonitorElement* mE_Forward;
 
-  MonitorElement* mE;
-  MonitorElement* mP;
-  MonitorElement* mMass;
+  //MonitorElement* mE;
+  //MonitorElement* mP;
+  //  MonitorElement* mMass;
   MonitorElement* mNJets;
   MonitorElement* mDPhi;
 
   // Leading Jet Parameters
   MonitorElement* mEtaFirst;
   MonitorElement* mPhiFirst;
-  MonitorElement* mEFirst;
+  //MonitorElement* mEFirst;
   MonitorElement* mPtFirst;
 
 
@@ -230,15 +233,15 @@ class JetAnalyzer : public JetAnalyzerBase {
   MonitorElement* mfHPD;
   MonitorElement* mfRBX;
   MonitorElement* mresEMF;
-  MonitorElement* msigmaEta;
-  MonitorElement* msigmaPhi;
+  //  MonitorElement* msigmaEta;
+  //  MonitorElement* msigmaPhi;
   MonitorElement* mLooseJIDPassFractionVSeta;
   MonitorElement* mLooseJIDPassFractionVSpt;
   MonitorElement* mTightJIDPassFractionVSeta;
   MonitorElement* mTightJIDPassFractionVSpt;
 
   // Events passing the jet triggers
-  MonitorElement* mEta_Lo;
+  //MonitorElement* mEta_Lo;
   MonitorElement* mPhi_Lo;
   MonitorElement* mPt_Lo;
 

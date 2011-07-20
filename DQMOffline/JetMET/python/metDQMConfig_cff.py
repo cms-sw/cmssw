@@ -60,19 +60,19 @@ metDQMParameters = cms.PSet(
         errorReplyHlt  = cms.bool( False ),
     ),
     eleTrigger = cms.PSet(
-        andOr         = cms.bool( False ),
+        #andOr         = cms.bool( False ),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
         hltDBKey       = cms.string( 'jetmet_ele' ),
         hltPaths       = cms.vstring( 'HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v1','HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v2','HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v4','HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v3','HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v5','HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v6','HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v7','HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v8','HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v9' ), 
-        andOrHlt       = cms.bool( True ),
+        #andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ),
     muonTrigger = cms.PSet(
-        andOr         = cms.bool( False ),
+        #andOr         = cms.bool( False ),
         hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
         hltDBKey       = cms.string( 'jetmet_muon' ),
         hltPaths       = cms.vstring( 'HLT_IsoMu17_v1','HLT_IsoMu17_v2','HLT_IsoMu17_v3','HLT_IsoMu17_v4','HLT_IsoMu17_v5','HLT_IsoMu17_v6','HLT_IsoMu17_v7','HLT_IsoMu17_v8','HLT_IsoMu17_v9' ), 
-        andOrHlt       = cms.bool( True ),
+        #andOrHlt       = cms.bool( True ),
         errorReplyHlt  = cms.bool( False ),
     ),
 

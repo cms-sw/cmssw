@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for MET (Mu corrected/TcMET)
  *
- *  $Date: 2010/07/05 15:26:06 $
- *  $Revision: 1.20 $
+ *  $Date: 2010/09/22 19:40:34 $
+ *  $Revision: 1.21 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -214,6 +214,7 @@ class METAnalyzer : public METAnalyzerBase {
   DQMStore *_dbe;
 
   //trigger histos
+  // lines commented out have been removed to improve the bin usage of JetMET DQM
   MonitorElement* hTriggerName_HighPtJet;
   MonitorElement* hTriggerName_LowPtJet;
   MonitorElement* hTriggerName_MinBias;
@@ -226,10 +227,10 @@ class METAnalyzer : public METAnalyzerBase {
   MonitorElement* hMETRate;
 
   MonitorElement* hmetME;
-  MonitorElement* hNevents;
+  //MonitorElement* hNevents;
   MonitorElement* hMEx;
   MonitorElement* hMEy;
-  MonitorElement* hEz;
+  //MonitorElement* hEz;
   MonitorElement* hMETSig;
   MonitorElement* hMET;
   MonitorElement* hMETPhi;
@@ -238,9 +239,9 @@ class METAnalyzer : public METAnalyzerBase {
   MonitorElement* hMET_logx;
   MonitorElement* hSumET_logx;
 
-  MonitorElement* hMETIonFeedbck;
-  MonitorElement* hMETHPDNoise;
-  MonitorElement* hMETRBXNoise;
+  //MonitorElement* hMETIonFeedbck;
+  //MonitorElement* hMETHPDNoise;
+  //MonitorElement* hMETRBXNoise;
 
   MonitorElement* hMExLS;
   MonitorElement* hMEyLS;
