@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.242 2011/07/15 04:52:31 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.243 2011/07/16 02:51:48 amraktad Exp $
 
 
 //
@@ -142,7 +142,6 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
                                                 width,
                                                 height,
                                                 this);
-      m_cmsShowMainFrame->SetWindowName("CmsShow");
       m_cmsShowMainFrame->SetCleanup(kDeepCleanup);
     
       /*
