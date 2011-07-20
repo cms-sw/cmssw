@@ -5,11 +5,8 @@ root outtree /tmp/chanon/benchmark_1.root
 //colin	mode 1
 
 //root file display.root
-//root file /tmp/rpatel/display_1.root
-//root file rfio:/castor/cern.ch/user/b/benedet/CMSSW_430pre5/display_0.root
-//root file rfio:/castor/cern.ch/user/c/chanon/Pflow430pre6custom/display_QCD_ElecPhotSep_OneLeg_withGen_1.root
-//root file rfio:/castor/cern.ch/user/c/chanon/Pflow430pre6custom/display_QCD_ElecPhotSep_OneLeg_withGen_2.root
-root file rfio:/castor/cern.ch/user/c/chanon/Pflow430pre6custom/display_QCD_ElecPhotSep_OneLeg_withGen_3.root
+root file ../../Configuration/test/display.root
+
 // Warning: no cleaning of the HF is done in fast sim, due to the absence of timing simulation and to an unreliable transverse shower shape simulation in the HF. 
 //          Thus you shall switch it off in PFRootEvent also by changing the thresholds to the following values: 
 //                                                             clustering thresh_Clean_HFEM            1E5 
@@ -434,14 +431,14 @@ particle_flow	sumPtTrackIsoForEgammaSC_endcap   4.0
 particle_flow	nTrackIsoForEgammaSC              2
 particle_flow   coneTrackIsoForEgammaSC          0.3
 // Pre-selected electrons
-//particle_flow   egammaElectrons         ecalDrivenGsfElectrons::PROD   
-particle_flow   egammaElectrons         dummy
+particle_flow   egammaElectrons         electronsCiCLoose
+//particle_flow   egammaElectrons         dummy
 
 // PF Converted Bremsstrahlung recovery and EG supercluster
 particle_flow   useConvBremGsfTracks    0
 particle_flow   useConvBremPFRecTracks  1
 particle_flow	useEGammaSupercluster   1
-particle_flow	useEGammaElectrons      0
+particle_flow	useEGammaElectrons      1
 
 //PF Muon Momentum Assignment
 particle_flow   usePFMuonMomAssign      0
