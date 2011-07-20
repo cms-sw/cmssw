@@ -15,7 +15,7 @@ process.GlobalTag.globaltag = cms.string( autoCond[ 'startup' ] )
 
 #process.Timing =cms.Service("Timing")
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(1000)
 )
 
 process.source = cms.Source(
@@ -28,14 +28,18 @@ process.source = cms.Source(
 )
 
 from RecoParticleFlow.Configuration.reco_QCDForPF_cff import fileNames
-process.source.fileNames = fileNames
+process.source.fileNames = ['/store/relval/CMSSW_4_4_0_pre3/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START43_V4-v1/0000/0EE664B2-FFA3-E011-918F-002618943882.root',
+                            '/store/relval/CMSSW_4_4_0_pre3/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START43_V4-v1/0000/644190E4-F0A3-E011-BED0-00304867C1BA.root',
+                            '/store/relval/CMSSW_4_4_0_pre3/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START43_V4-v1/0000/9A80E178-18A4-E011-B1DD-002618FDA287.root',
+                            '/store/relval/CMSSW_4_4_0_pre3/RelValQCD_FlatPt_15_3000/GEN-SIM-RECO/START43_V4-v1/0005/F29B164E-43A6-E011-B2B1-00248C55CC7F.root']
+    
 
 process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 
 
 process.load("RecoParticleFlow.Configuration.ReDisplay_EventContent_NoTracking_cff")
 process.display = cms.OutputModule("PoolOutputModule",
-    process.DisplayEventContent,
+                                   process.DisplayEventContent,
     fileName = cms.untracked.string('display.root')
 )
 
@@ -44,6 +48,8 @@ process.display = cms.OutputModule("PoolOutputModule",
 #process.hbhereflag.hbheInput = 'hbhereco'
 #process.towerMakerPF.hbheInput = 'hbhereflag'
 #process.particleFlowRecHitHCAL.hcalRecHitsHBHE = cms.InputTag("hbhereflag")
+process.particleFlowTmp.muons = cms.InputTag('muons')
+process.particleFlow.FillMuonRefs = False 
 
 # Local re-reco: Produce tracker rechits, pf rechits and pf clusters
 process.localReReco = cms.Sequence(process.particleFlowCluster)
@@ -76,6 +82,8 @@ process.genReReco = cms.Sequence(process.generator+
 
 # The complete reprocessing
 process.p = cms.Path(process.localReReco+
+                     process.particleFlowTrackWithDisplacedVertex+
+                     process.gsfEcalDrivenElectronSequence+
                      process.pfReReco+
                      process.genReReco
                      )

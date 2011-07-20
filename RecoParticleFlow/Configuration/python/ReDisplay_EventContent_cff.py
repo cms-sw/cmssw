@@ -50,7 +50,9 @@ DisplayEventContent = cms.PSet(
         'keep recoPhotons_photons_*_REPROD',
         'keep recoPhotonCores_photonCore_*_REPROD',
         'keep recoPFCandidateElectronExtras_particleFlowTmp_*_REPROD',
-        'keep recoPFCandidatePhotonExtras_particleFlowTmp_*_REPROD'
+        'keep recoPFCandidatePhotonExtras_particleFlowTmp_*_REPROD',
+        'keep recoGsfElectrons_electronsCiCLoose_*_*',
+        'keep recoGsfElectronCores_ecalDrivenGsfElectronCores_*_*'                                           
    )
 )
 
