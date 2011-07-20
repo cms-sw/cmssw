@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 18:13:39 EDT 2008
-// $Id: FWGUIValidatingTextEntry.cc,v 1.7 2009/01/23 21:35:43 amraktad Exp $
+// $Id: FWGUIValidatingTextEntry.cc,v 1.8 2011/07/20 04:58:37 amraktad Exp $
 //
 
 // system include files
@@ -36,11 +36,14 @@
 //
 FWGUIValidatingTextEntry::FWGUIValidatingTextEntry(const TGWindow *parent, const char *text, Int_t id ) :
    TGTextEntry(parent,text,id),
-   m_validator(0)
+   m_popup(0),
+   m_list(0),
+   m_validator(0),
+   m_listHeight(100)
 {
    m_popup = new TGComboBoxPopup(fClient->GetDefaultRoot(), 100, 100, kVerticalFrame);
    m_list = new TGListBox(m_popup, 1 /*widget id*/, kChildFrame);
-   m_list->Resize(100,100);
+   m_list->Resize(100,m_listHeight);
    m_list->Associate(this);
    m_list->GetScrollBar()->GrabPointer(kFALSE);
    m_popup->AddFrame(m_list, new TGLayoutHints(kLHintsExpandX| kLHintsExpandY));
@@ -179,10 +182,10 @@ FWGUIValidatingTextEntry::showOptions() {
       {
          unsigned int h = m_list->GetNumberOfEntries()*
                           m_list->GetItemVsize();
-         if(h && (h<100)) {
+         if(h && (h<m_listHeight)) {
             m_list->Resize(m_list->GetWidth(),h);
          } else {
-            m_list->Resize(m_list->GetWidth(),100);
+            m_list->Resize(m_list->GetWidth(),m_listHeight);
          }
       }
       m_list->Select(0,kTRUE);
