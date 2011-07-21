@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.59 2011/06/24 22:14:40 temple Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.60 2011/07/21 15:29:58 temple Exp $
 //
 #include <vector>
 #include <string>
@@ -1479,7 +1479,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalFlagHFDigiTimeParams* f
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalFlagHFDigiTimeParams& fObject)
 {
   char buffer [1024];
-  sprintf (buffer, "# %15s %15s %15s %15s  %10s %10s %10s %10s %30s\n", "eta", "phi", "dep", "det", "FirstSample", "SamplesToAdd", "ExpectedPeak","MinEnergy","Coefficients");
+  sprintf (buffer, "# %15s %15s %15s %15s  %15s %15s %15s %15s %30s\n", "eta", "phi", "dep", "det", "FirstSample", "SamplesToAdd", "ExpectedPeak","MinEnergy","Coefficients");
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
@@ -1489,7 +1489,7 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalFlagHFDigiTimeP
     // Dump out channel (ieta,iphi,depth,subdet) info
     HcalDbASCIIIO::dumpId (fOutput, *channel);
     // Dump out values for channel
-    sprintf (buffer, " %10u %10u %10u %10f",
+    sprintf (buffer, " %15u %15u %15u %15f",
 	     fObject.getValues (*channel)->HFdigiflagFirstSample(), 
 	     fObject.getValues (*channel)->HFdigiflagSamplesToAdd(), 
 	     fObject.getValues (*channel)->HFdigiflagExpectedPeak(), 
