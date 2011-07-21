@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.58 2011/02/15 10:41:14 rofierzy Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.59 2011/06/24 22:14:40 temple Exp $
 //
 #include <vector>
 #include <string>
@@ -1448,6 +1448,7 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalDcsMap& fObject
 
 bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalFlagHFDigiTimeParams* fObject)
 {
+  
   if (!fObject) fObject = new HcalFlagHFDigiTimeParams();
   char buffer [1024];
   while (fInput.getline(buffer, 1024)) {
@@ -1461,16 +1462,6 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalFlagHFDigiTimeParams* f
     // expects (ieta, iphi, depth, subdet) as first four arguments
     DetId id = HcalDbASCIIIO::getId (items);
     std::vector<float> coef= splitStringToFloatByComma(items[8].c_str());
-
-    /*
-      HcalFlagHFDigiTimeParam constructor:
-    HcalFlagHFDigiTimeParam(unsigned long fId, 
-			    unsigned int fFirstSample, 
-			    unsigned int fSamplesToAdd, 
-			    unsigned int fExpectedPeak, 
-			    float        fminEThreshold, 
-			    std::vector<float> fcoef)
-    */
 
     HcalFlagHFDigiTimeParam* fCondObject = new HcalFlagHFDigiTimeParam(id, 
 								       atoi (items [4].c_str()), //firstSample
@@ -1488,7 +1479,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalFlagHFDigiTimeParams* f
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalFlagHFDigiTimeParams& fObject)
 {
   char buffer [1024];
-  sprintf (buffer, "# %15s %15s %15s %15s  %10s %10s %10s %10s %15s\n", "eta", "phi", "dep", "det", "FirstSample", "SamplesToAdd", "ExpectedPeak","MinEnergy","Coefficients");
+  sprintf (buffer, "# %15s %15s %15s %15s  %10s %10s %10s %10s %30s\n", "eta", "phi", "dep", "det", "FirstSample", "SamplesToAdd", "ExpectedPeak","MinEnergy","Coefficients");
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
