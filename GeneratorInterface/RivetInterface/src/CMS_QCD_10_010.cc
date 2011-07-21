@@ -25,23 +25,15 @@ namespace Rivet {
   class CMS_QCD_10_010 : public Analysis {
     public:
 
-      /// @name Constructors etc.
-      //@{
 
       /// Constructor
       CMS_QCD_10_010()
         : Analysis("CMS_QCD_10_010")
       {
-        setNeedsCrossSection(true);
+        setNeedsCrossSection(false);
       }
 
-      //@}
-
-
     public:
-
-      /// @name Analysis methods
-      //@{
 
       /// Book histograms and initialise projections before the run
       void init() {
@@ -86,13 +78,12 @@ namespace Rivet {
 
         FourMomentum _p_lead = jets[0].momentum();
         const double _philead = _p_lead.phi();
-        const double _etalead = _p_lead.eta();
         const double _pTlead  = _p_lead.perp();
 
         ParticleVector particles =
           applyProjection<ChargedFinalState>(event, "CFS").particlesByPt();
 
-        double _nTransverse(0.0), _ptSumTransverse(0.0), _pT, _nch_average ;
+        double _nTransverse(0.0), _ptSumTransverse(0.0), _pT, _nch_average = 0 ;
         //		int  _i = 0;
         foreach (const Particle& p, particles) {
 
@@ -105,13 +96,13 @@ namespace Rivet {
             _pT = p.momentum().perp();
 
             if ( (fuzzyEquals(sqrtS(), 7*TeV)) && (_pTlead > 20*GeV) )
-              _hist_dist_pT_7TeV_pT20 -> fill(_pT/GeV);
+              _hist_dist_pT_7TeV_pT20 -> fill(_pT/GeV, weight);
 
             if ( (fuzzyEquals(sqrtS(), 7*TeV)) && (_pTlead > 3*GeV) )
-              _hist_dist_pT_7TeV_pT3 -> fill(_pT/GeV);
+              _hist_dist_pT_7TeV_pT3 -> fill(_pT/GeV, weight);
 
             if ( (fuzzyEquals(sqrtS(), 900*GeV)) && (_pTlead > 3*GeV) )
-              _hist_dist_pT_09TeV_pT3 -> fill(_pT/GeV);
+              _hist_dist_pT_09TeV_pT3 -> fill(_pT/GeV, weight);
 
 
           }
@@ -121,27 +112,27 @@ namespace Rivet {
         if (fuzzyEquals(sqrtS(), 7*TeV)) 
         {
           _hist_profile_Nch_pT_7TeV -> fill
-            (_pTlead/GeV, _nTransverse / ((8 * PI/3)));
+            (_pTlead/GeV, _nTransverse / ((8 * PI/3)), weight);
 
           _hist_profile_SumpT_pT_7TeV -> fill
             (_pTlead/GeV , _ptSumTransverse / ((GeV * (8 * PI/3))) , weight);
           if(_pTlead > 3*GeV)
           {
-            _hist_dist_Nch_7TeV_pT3 -> fill(_nTransverse);
+            _hist_dist_Nch_7TeV_pT3 -> fill(_nTransverse, weight);
             _nch_average = _nch_average + _nTransverse;
             _nch_tot_7TeV_pT3 = _nch_tot_7TeV_pT3 + _nTransverse;
             // _i = _i + 1;
             _j += 1 ;
-            _hist_dist_Sum_7TeV_pT3 -> fill(_ptSumTransverse / GeV);
+            _hist_dist_Sum_7TeV_pT3 -> fill(_ptSumTransverse / GeV, weight);
           }
           if(_pTlead > 20*GeV)
           {
 
-            _hist_dist_Nch_7TeV_pT20 -> fill(_nTransverse);
+            _hist_dist_Nch_7TeV_pT20 -> fill(_nTransverse, weight);
             _nch_tot_7TeV_pT20 = _nch_tot_7TeV_pT20 + _nTransverse;
             _jj += 1 ;
 
-            _hist_dist_Sum_7TeV_pT20 -> fill(_ptSumTransverse / GeV);
+            _hist_dist_Sum_7TeV_pT20 -> fill(_ptSumTransverse / GeV, weight);
           } 
         }
         else if (fuzzyEquals(sqrtS() , 900*GeV))
@@ -152,11 +143,11 @@ namespace Rivet {
 
           if(_pTlead > 3*GeV)
           {
-            _hist_dist_Nch_09TeV_pT3 -> fill(_nTransverse);
+            _hist_dist_Nch_09TeV_pT3 -> fill(_nTransverse, weight);
             _nch_tot_09TeV_pT3 = _nch_tot_09TeV_pT3 + _nTransverse;
             _jjj += 1;  //counts how many events 
 
-            _hist_dist_Sum_09TeV_pT3 -> fill(_ptSumTransverse/GeV);
+            _hist_dist_Sum_09TeV_pT3 -> fill(_ptSumTransverse/GeV, weight);
           }
         }
       }
@@ -186,13 +177,9 @@ namespace Rivet {
 
       }
 
-      //@}
 
 
     private:
-
-      /// @name Histograms
-      //@{
 
       AIDA::IProfile1D * _hist_profile_Nch_pT_7TeV;
       AIDA::IProfile1D * _hist_profile_SumpT_pT_7TeV;
@@ -228,10 +215,11 @@ namespace Rivet {
 
 
   // This global object acts as a hook for the plugin system
-  AnalysisBuilder<CMS_QCD_10_010> plugin_CMS_QCD_10_010;
+   AnalysisBuilder<CMS_QCD_10_010> plugin_CMS_QCD_10_010;
 
 
 }
+
 
 
 
