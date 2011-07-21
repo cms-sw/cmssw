@@ -237,7 +237,7 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager*
    m_mode.addEntry(1, "Volume");
    
    m_tableManager = new FWGeometryTableManager(this);
-   m_mode.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D,this));
+   m_mode.changed_.connect(boost::bind(&FWGeometryTableView::modeChanged,this));
    m_autoExpand.changed_.connect(boost::bind(&FWGeometryTableView::autoExpandChanged, this));
    m_visLevel.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D,this));
    m_visLevelFilter.changed_.connect(boost::bind(&FWGeometryTableView::refreshTable3D,this));
@@ -751,6 +751,15 @@ void FWGeometryTableView::updateFilter(std::string& exp)
 }
 
 //______________________________________________________________________________
+void FWGeometryTableView::modeChanged()
+{
+   // reset filter when change mode
+   //   std::cout << "chage mode \n";
+   m_tableManager->updateFilter();
+   refreshTable3D();
+}
+
+//______________________________________________________________________________
 
 void FWGeometryTableView::autoExpandChanged()
 {
@@ -768,3 +777,4 @@ void FWGeometryTableView::refreshTable3D()
       gEve->FullRedraw3D(false, true);
    } 
 }
+

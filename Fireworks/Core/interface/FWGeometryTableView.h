@@ -133,6 +133,7 @@ private:
    void loadGeometry();
 
    void autoExpandChanged();
+   void modeChanged();
    void refreshTable3D();
 
    ClassDef(FWGeometryTableView, 0);
