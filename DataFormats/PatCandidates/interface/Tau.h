@@ -1,5 +1,5 @@
 //
-// $Id: Tau.h,v 1.28 2011/03/11 17:45:34 veelken Exp $
+// $Id: Tau.h,v 1.29 2011/06/08 20:40:18 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_h
@@ -17,7 +17,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Christophe Delaere, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Tau.h,v 1.28 2011/03/11 17:45:34 veelken Exp $
+  \version  $Id: Tau.h,v 1.29 2011/06/08 20:40:18 rwolf Exp $
 */
 
 
@@ -25,6 +25,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/PatCandidates/interface/Lepton.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 #include "DataFormats/Common/interface/BoolCache.h"
 
@@ -236,6 +237,7 @@ namespace pat {
 
       /// Methods copied from reco::Jet.
       /// (accessible from reco::CaloTau/reco::PFTau via reco::CaloTauTagInfo/reco::PFTauTagInfo)
+      const reco::Candidate::LorentzVector& p4Jet() const;
       float etaetaMoment() const;
       float phiphiMoment() const;
       float etaphiMoment() const;

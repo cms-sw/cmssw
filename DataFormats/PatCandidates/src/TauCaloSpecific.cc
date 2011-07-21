@@ -11,6 +11,7 @@ pat::tau::TauCaloSpecific::TauCaloSpecific(const reco::CaloTau &tau) :
     isolationECALhitsEtSum_(tau.isolationECALhitsEtSum()),
     maximumHCALhitEt_(tau.maximumHCALhitEt())
 {
+  p4Jet_ = tau.caloTauTagInfoRef()->calojetRef()->p4();
   reco::Jet::EtaPhiMoments etaPhiStatistics = tau.caloTauTagInfoRef()->calojetRef()->etaPhiStatistics();
   etaetaMoment_ = etaPhiStatistics.etaEtaMoment;
   phiphiMoment_ = etaPhiStatistics.phiPhiMoment;

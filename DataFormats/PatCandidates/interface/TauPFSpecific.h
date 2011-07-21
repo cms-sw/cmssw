@@ -1,5 +1,5 @@
 //
-// $Id: TauPFSpecific.h,v 1.4 2010/02/03 10:31:54 veelken Exp $
+// $Id: TauPFSpecific.h,v 1.5 2011/03/11 17:45:34 veelken Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_PFSpecific_h
@@ -10,10 +10,11 @@
   \brief    Structure to hold information specific to a PFTau inside a pat::Tau
 
   \author   Giovanni Petrucciani
-  \version  $Id: TauPFSpecific.h,v 1.4 2010/02/03 10:31:54 veelken Exp $
+  \version  $Id: TauPFSpecific.h,v 1.5 2011/03/11 17:45:34 veelken Exp $
 */
 
 #include "DataFormats/TauReco/interface/PFTau.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 namespace pat { namespace tau {
 
@@ -48,6 +49,7 @@ struct TauPFSpecific {
     float segComp_;
     bool muonDecision_;
 
+    reco::Candidate::LorentzVector p4Jet_;
     float etaetaMoment_;
     float phiphiMoment_;
     float etaphiMoment_;

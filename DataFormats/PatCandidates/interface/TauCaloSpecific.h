@@ -1,5 +1,5 @@
 //
-// $Id: TauCaloSpecific.h,v 1.1 2008/06/09 09:03:19 gpetrucc Exp $
+// $Id: TauCaloSpecific.h,v 1.2 2010/02/03 10:31:51 veelken Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_CaloSpecific_h
@@ -10,10 +10,11 @@
   \brief    Structure to hold information specific to a CaloTau inside a pat::Tau
 
   \author   Giovanni Petrucciani
-  \version  $Id: TauCaloSpecific.h,v 1.1 2008/06/09 09:03:19 gpetrucc Exp $
+  \version  $Id: TauCaloSpecific.h,v 1.2 2010/02/03 10:31:51 veelken Exp $
 */
 
 #include "DataFormats/TauReco/interface/CaloTau.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 namespace pat { namespace tau {
 
@@ -32,6 +33,7 @@ struct TauCaloSpecific {
     float isolationTracksPtSum_;
     float isolationECALhitsEtSum_;
     float maximumHCALhitEt_;
+    reco::Candidate::LorentzVector p4Jet_;
     float etaetaMoment_;
     float phiphiMoment_;
     float etaphiMoment_;

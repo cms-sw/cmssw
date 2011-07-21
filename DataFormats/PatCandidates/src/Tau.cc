@@ -1,5 +1,5 @@
 //
-// $Id: Tau.cc,v 1.17 2010/09/27 15:24:08 mbluj Exp $
+// $Id: Tau.cc,v 1.18 2011/06/08 20:40:19 rwolf Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Tau.h"
@@ -243,6 +243,13 @@ const pat::tau::TauPFSpecific & Tau::pfSpecific() const {
 const pat::tau::TauCaloSpecific & Tau::caloSpecific() const {
   if (!isCaloTau()) throw cms::Exception("Type Error") << "Requesting a CaloTau-specific information from a pat::Tau which wasn't made from a CaloTau.\n";
   return caloSpecific_[0]; 
+}
+
+const reco::Candidate::LorentzVector& Tau::p4Jet() const
+{
+  if ( isCaloTau() ) return caloSpecific().p4Jet_;
+  if ( isPFTau()   ) return pfSpecific().p4Jet_;
+  throw cms::Exception("Type Error") << "Requesting a CaloTau/PFTau-specific information from a pat::Tau which wasn't made from either a CaloTau or a PFTau.\n";
 }
 
 float Tau::etaetaMoment() const
