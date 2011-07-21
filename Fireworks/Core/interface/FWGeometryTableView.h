@@ -62,7 +62,9 @@ public:
   
    void chosenItem(int);
    void selectView(int);
-   void updateFilter();
+   void filterListCallback();
+   void filterTextEntryCallback();
+   void updateFilter(std::string&);
 
    void printTable();
 

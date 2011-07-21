@@ -56,18 +56,18 @@ enum GeoMenuOptions {
 
 
 class FWGeoMaterialValidator : public FWValidatorBase {
+public:
    struct Material
    {
       TGeoMaterial* g;
       std::string n;
       bool operator< (const Material& x) const { return n < x.n ;}
-      Material( TGeoMaterial* x) { g= x; n = x->GetName();}
+      Material( TGeoMaterial* x) {  g= x; n = x ? x->GetName() : "<show-all>";}
    };
 
    FWGeometryTableManager* m_table;
    mutable std::vector<Material> m_list;
 
-public:
    FWGeoMaterialValidator( FWGeometryTableManager* t) { m_table = t;}
    virtual ~FWGeoMaterialValidator() {}
 
@@ -79,6 +79,8 @@ public:
       unsigned int part_size = part.size();
 
       m_list.clear();
+      m_list.push_back(0);
+
       FWGeometryTableManager::Entries_i it = m_table->refSelected();
       int nLevel = it->m_level;
       it++;
@@ -97,11 +99,13 @@ public:
 
          ++it;
       }
-      std::sort(m_list.begin(), m_list.end());
+      std::vector<Material>::iterator startIt = m_list.begin();
+      startIt++;
+      std::sort(startIt, m_list.end());
 
-
-      std::sort(m_list.begin(), m_list.end());
-      for (std::vector<Material>::iterator i = m_list.begin(); i!=m_list.end(); ++i) {
+      std::string h = "";
+      oOptions.push_back(std::make_pair(boost::shared_ptr<std::string>(new std::string(m_list.begin()->n)), h));
+      for (std::vector<Material>::iterator i = startIt; i!=m_list.end(); ++i) {
          if(part == (*i).n.substr(0,part_size) )
          {
             //  std::cout << i->n <<std::endl;
@@ -269,8 +273,8 @@ FWGeometryTableView::FWGeometryTableView(TEveWindowSlot* iParent,FWColorManager*
          m_filterEntry->setValidator(m_filterValidator);
          hp->AddFrame(m_filterEntry, new TGLayoutHints(kLHintsExpandX,  1, 2, 1, 0));
          m_filterEntry->setMaxListBoxHeight(150);
-         m_filterEntry->getListBox()->Connect("Selected(int)", "FWGeometryTableView",  this, "updateFilter()");
-         m_filterEntry->Connect("ReturnPressed()", "FWGeometryTableView",  this, "updateFilter()");
+         m_filterEntry->getListBox()->Connect("Selected(int)", "FWGeometryTableView",  this, "filterListCallback()");
+         m_filterEntry->Connect("ReturnPressed()", "FWGeometryTableView",  this, "filterTextEntryCallback()");
 
          gVirtualX->GrabKey( m_filterEntry->GetId(),gVirtualX->KeysymToKeycode((int)kKey_A),  kKeyControlMask, true);
       }
@@ -553,7 +557,7 @@ void FWGeometryTableView::chosenItem(int x)
         case kVisOff:
             visible = false;
         case kVisOn:
-            m_tableManager->setDaughtersSelfVisibility(visible);
+           m_tableManager->setDaughtersSelfVisibility(visible);
             refreshTable3D();
             break;
 
@@ -690,24 +694,59 @@ void FWGeometryTableView::setPath(int parentIdx, std::string& path)
 #endif 
 }
 //______________________________________________________________________________
-
-void FWGeometryTableView::updateFilter()
+void FWGeometryTableView::filterTextEntryCallback()
 {
-   // std::cout << "=FWGeometryTableView::updateFilter()" << m_filterEntry->GetText() <<std::endl;
+   // std::cout << "text entry click ed \n" ;
    std::string exp = m_filterEntry->GetText();
-
-
    if ( m_filterValidator->isStringValid(exp)) 
    {
-      m_filter.set(exp);
-      m_tableManager->updateFilter();
-      refreshTable3D();
+      updateFilter(exp);
    }
    else
    {
       fwLog(fwlog::kError) << "filter expression not valid." << std::endl;
       return;
    }
+}
+
+void FWGeometryTableView::filterListCallback()
+{ 
+   //   std::cout << "list click ed \n" ;
+   TGListBox* list =   m_filterEntry->getListBox();
+   TList selected;
+   list->GetSelectedEntries(&selected);
+   if (selected.GetEntries() == 1)
+   {
+      const TGLBEntry* entry = dynamic_cast<TGLBEntry*> (selected.First());
+      updateFilter( m_filterValidator->m_list[ entry->EntryId()].n);
+   } 
+}
+
+
+
+void FWGeometryTableView::updateFilter(std::string& exp)
+{
+   // std::cout << "=FWGeometryTableView::updateFilter()" << m_filterEntry->GetText() <<std::endl;
+  
+   if (exp == m_filterValidator->m_list.begin()->n) 
+      exp.clear();
+
+   if (exp == m_filter.value()) return;
+
+   if (exp.empty())
+   {
+      // std::cout << "FITLER OFF \n";
+      for (FWGeometryTableManager::Entries_i i = m_tableManager->refEntries().begin(); i !=  m_tableManager->refEntries().end(); ++i)
+      {
+         m_tableManager->setVisibility(*i, true);
+         m_tableManager->setVisibilityChld(*i, true);
+      }
+      m_tableManager->checkExpandLevel();
+   }
+  
+   m_filter.set(exp);
+   m_tableManager->updateFilter();
+   refreshTable3D();
 
 }
 
