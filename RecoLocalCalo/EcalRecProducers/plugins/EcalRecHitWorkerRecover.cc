@@ -19,7 +19,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//$Id: EcalRecHitWorkerRecover.cc,v 1.27 2011/07/20 10:44:31 argiro Exp $
+//$Id: EcalRecHitWorkerRecover.cc,v 1.28 2011/07/20 12:47:07 argiro Exp $
 
 EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet&ps) :
         EcalRecHitWorkerBaseClass(ps)
@@ -63,6 +63,7 @@ void EcalRecHitWorkerRecover::set(const edm::EventSetup& es)
         es.get<IdealGeometryRecord>().get(ttMap_);
         recoveredDetIds_EB_.clear();
         recoveredDetIds_EE_.clear();
+	tpgscale_.setEventSetup(es);
 }
 
 
@@ -211,7 +212,10 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                                         int iy = (sc.iy()-1)*5 + dy;
                                         int iz = sc.zside();
                                         if(EEDetId::validDetId(ix, iy, iz)){
-                                                eeC.insert(EEDetId(ix, iy, iz));
+					  EEDetId id(ix, iy, iz);
+					  if (checkChannelStatus(id,dbStatusToBeExcludedEE_)){
+                                                eeC.insert(id);
+					  } // check status
                                         }
                                 }
                         }
@@ -243,6 +247,17 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                                         EcalTrigTowerDetId ttId = itTP->id();
 
 					std::vector<DetId> v = ttMap_->constituentsOf( *it );
+
+					// from the constituents, remove dead channels
+					std::vector<DetId>::iterator ttcons = v.begin();
+					while (ttcons != v.end()){
+					  if (!checkChannelStatus(*ttcons,dbStatusToBeExcludedEE_)){
+						ttcons=v.erase(ttcons);
+					  } else {
+					    ++ttcons;
+					  }
+					}// while 
+
                                         if ( itTP->compressedEt() == 0xFF ){ // In the case of a saturated trigger tower, a fraction
 					  atLeastOneTPSaturated = true; //of the saturated energy is put in: number of xtals in dead region/total xtals in TT *63.75
                                         	
@@ -314,23 +329,13 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
 			if ( !killDeadChannels_ || recoverEEFE_ ) { // if eeC is empty, i.e. there are no hits 
 			                                            // in the tower, nothing is returned. No negative values from noise.
 			  for ( std::set<DetId>::const_iterator it = eeC.begin(); it != eeC.end(); ++it ) {
-			    
+
 			    float eta = geo_->getPosition(*it).eta(); //Convert back to E from Et for the recovered hits
 			    float pf = 1.0/cosh(eta);
 			    EcalRecHit hit( *it, totE / ((float)eeC.size()*pf), 0);
 			    
-			    if (atLeastOneTPSaturated) hit.setFlag(EcalRecHit::kTPSaturated );
-                            
-			    // we do not want recovery for channels with certain channel statuses SA 20110719
-			    if (checkChannelStatus(*it,dbStatusToBeExcludedEE_)) {
-			      hit.setFlag(EcalRecHit::kTowerRecovered); 
-			    } else {
-			      // the recovered energy can be bogus in cases
-			      // where dead SC overlap with a working TP 
-			      // They will have kDead and kTPSaturated
-			      hit.setFlag(EcalRecHit::kDead);
-			    }
-			    
+			    if (atLeastOneTPSaturated) hit.setFlag(EcalRecHit::kTPSaturated );                            
+			    hit.setFlag(EcalRecHit::kTowerRecovered); 
 			    insertRecHit( hit, result );
 			    
 			  }// for
@@ -354,7 +359,13 @@ float EcalRecHitWorkerRecover::estimateEnergy(int ieta, EcalRecHitCollection* hi
 		}
 	}
 	
-	if (count==0) return 63.75*(ieta>26?2:1); //If there are no overlapping crystals return saturated value.
+	if (count==0) {                    // If there are no overlapping crystals return saturated value.
+
+	  double etsat = tpgscale_.getTPGInGeV(0xFF,*vId.begin()); // get saturation value for the first
+                                                                   // constituent, for the others it's the same 
+
+	  return etsat/cosh(ieta)*(ieta>26?2:1); // account for duplicated TT in EE for ieta>26
+	}
 	else return xtalE*((vId.size()/(float)count) - 1)*(ieta>26?2:1);
 	
 	
@@ -407,8 +418,8 @@ float EcalRecHitWorkerRecover::recCheckCalib(float eTT, int ieta){
 	 
 }
 
-// return false is the channel is in the list of statusestoexclude
-// true otherwise
+// return false is the channel has status  in the list of statusestoexclude
+// true otherwise (channel ok)
 bool EcalRecHitWorkerRecover::checkChannelStatus(const DetId& id, 
 						 const std::vector<int>& statusestoexclude){
   
@@ -436,7 +447,6 @@ bool EcalRecHitWorkerRecover::checkChannelStatus(const DetId& id,
 
   return true;
 }
-
 
 
 #include "FWCore/Framework/interface/MakerMacros.h"

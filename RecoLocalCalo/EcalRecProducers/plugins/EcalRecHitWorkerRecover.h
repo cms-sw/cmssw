@@ -4,9 +4,9 @@
 /** \class EcalRecHitWorkerRecover
   *  Algorithms to recover dead channels
   *
-  *  $Id: EcalRecHitWorkerRecover.h,v 1.8 2010/12/03 13:03:49 argiro Exp $
-  *  $Date: 2010/12/03 13:03:49 $
-  *  $Revision: 1.8 $
+  *  $Id: EcalRecHitWorkerRecover.h,v 1.9 2011/07/19 19:56:33 argiro Exp $
+  *  $Date: 2011/07/19 19:56:33 $
+  *  $Revision: 1.9 $
   */
 
 #include "RecoLocalCalo/EcalRecProducers/interface/EcalRecHitWorkerBaseClass.h"
@@ -25,6 +25,7 @@
 
 #include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
+#include "CalibCalorimetry/EcalTPGTools/interface/EcalTPGScale.h"
 
 class EcalRecHitWorkerRecover : public EcalRecHitWorkerBaseClass {
         public: 
@@ -51,6 +52,7 @@ class EcalRecHitWorkerRecover : public EcalRecHitWorkerBaseClass {
                 edm::ESHandle<CaloTopology>      caloTopology_;
 		edm::ESHandle<CaloGeometry>      caloGeometry_;
 		edm::ESHandle<EcalChannelStatus> chStatus_;
+		
 
                 double singleRecoveryThreshold_;
                 std::string singleRecoveryMethod_;
@@ -87,6 +89,8 @@ class EcalRecHitWorkerRecover : public EcalRecHitWorkerBaseClass {
 
                 std::set<DetId> recoveredDetIds_EB_;
                 std::set<DetId> recoveredDetIds_EE_;
+
+		EcalTPGScale tpgscale_;
 };
 
 #endif
