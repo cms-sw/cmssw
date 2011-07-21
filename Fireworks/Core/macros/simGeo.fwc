@@ -284,9 +284,6 @@
     <config name="VisLevel:" version="0">
       <string>3</string>
     </config>
-    <config name="IgnoreVisLevelOnFilter" version="0">
-      <string>0</string>
-    </config>
     <config name="TopNodeIndex" version="0">
       <string>-1</string>
     </config>
@@ -307,9 +304,6 @@
     </config>
     <config name="VisLevel:" version="0">
       <string>3</string>
-    </config>
-    <config name="IgnoreVisLevelOnFilter" version="0">
-      <string>0</string>
     </config>
     <config name="TopNodeIndex" version="0">
       <string>1831731</string>
