@@ -774,7 +774,7 @@ bool TrackerTrackHitFilter::checkStoN(const edm::EventSetup &iSetup, const DetId
 	}
 	
 	if(keepthishit){
-	  SiStripClusterInfo clusterInfo = SiStripClusterInfo( *cluster, iSetup); 
+	  SiStripClusterInfo clusterInfo = SiStripClusterInfo( *cluster, iSetup, id.rawId()); 
 	  if ( (subdetStoNlowcut_[subdet_cnt-1]>0) && (clusterInfo.signalOverNoise() < subdetStoNlowcut_[subdet_cnt-1])  ) keepthishit = false;	
 	  if ( (subdetStoNhighcut_[subdet_cnt-1]>0) && (clusterInfo.signalOverNoise() > subdetStoNhighcut_[subdet_cnt-1])  ) keepthishit = false;	
 	  //if(!keepthishit)std::cout<<"Hit rejected because of bad S/N: "<<clusterInfo.signalOverNoise()<<std::endl;
