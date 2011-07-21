@@ -8,6 +8,7 @@
 
   <class name="reco::Photon::FiducialFlags"/>
   <class name="reco::Photon::ShowerShape"/>
+  <class name="reco::Photon::MIPVariables"/>
   <class name="reco::Photon::IsolationVariables"/>
   <class name="reco::Photon::PflowIsolationVariables" />
  
@@ -74,6 +75,7 @@
   <class name="edm::RefVector<std::vector<reco::GsfElectronCore>,reco::GsfElectronCore,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfElectronCore>,reco::GsfElectronCore> >"/>
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::GsfElectronCore>,reco::GsfElectronCore,edm::refhelper::FindUsingAdvance<std::vector<reco::GsfElectronCore>,reco::GsfElectronCore> > >"/>
   
+  <class name="std::vector<CaloTowerDetId>"/>  
   <class name="reco::GsfElectron::TrackClusterMatching"/>
   <class name="reco::GsfElectron::TrackExtrapolations"/>
   <class name="reco::GsfElectron::ClosestCtfTrack"/>

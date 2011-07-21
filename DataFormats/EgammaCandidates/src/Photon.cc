@@ -1,4 +1,4 @@
-// $Id: Photon.cc,v 1.24 2011/06/14 09:17:27 eulisse Exp $
+// $Id: Photon.cc,v 1.25 2011/07/19 16:23:07 nancy Exp $
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
@@ -24,6 +24,7 @@ Photon::Photon( const Photon& rhs ) :
   isolationR04_ ( rhs.isolationR04_),
   isolationR03_ ( rhs.isolationR03_),
   showerShapeBlock_ ( rhs.showerShapeBlock_),
+  mipVariableBlock_ (rhs.mipVariableBlock_),
   pfIsolation_ ( rhs.pfIsolation_ )
  {}
 

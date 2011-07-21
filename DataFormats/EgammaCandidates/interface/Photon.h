@@ -7,7 +7,7 @@
  * stores isolation, shower shape and additional info
  * needed for identification
  * 
- * \version $Id: Photon.h,v 1.39 2011/06/14 09:17:26 eulisse Exp $
+ * \version $Id: Photon.h,v 1.40 2011/07/19 16:24:05 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -27,6 +27,7 @@ namespace reco {
     struct  FiducialFlags;
     struct  IsolationVariables;
     struct  ShowerShape;
+    struct  MIPVariables;  
     
     /// default constructor
     Photon() : RecoCandidate() { pixelSeed_=false; }
@@ -178,6 +179,45 @@ namespace reco {
     float r9 ()             const {return showerShapeBlock_.e3x3/this->superCluster()->rawEnergy();}  
 
 
+    //=======================================================
+    // MIP Variables
+    //=======================================================
+    
+    struct MIPVariables
+    {       
+      float mipChi2;
+      float mipTotEnergy;
+      float mipSlope;
+      float mipIntercept;
+      int   mipNhitCone;
+      bool  mipIsHalo;
+      
+      MIPVariables():
+	
+	mipChi2(0), 
+	mipTotEnergy(0), 
+	mipSlope(0), 
+	mipIntercept(0), 
+	mipNhitCone(0),
+	mipIsHalo(false)        
+      {}    
+      
+    } ;  
+    
+    ///  MIP variables
+    float mipChi2()         const {return mipVariableBlock_.mipChi2;}
+    float mipTotEnergy()    const {return mipVariableBlock_.mipTotEnergy;}
+    float mipSlope()        const {return mipVariableBlock_.mipSlope;}
+    float mipIntercept()    const {return mipVariableBlock_.mipIntercept;}
+    float mipNhitCone()     const {return mipVariableBlock_.mipNhitCone;}
+    bool  mipIsHalo()       const {return mipVariableBlock_.mipIsHalo;}
+    
+    
+    
+    ///set mip Variables
+    void setMIPVariables ( const MIPVariables& mipVar) {mipVariableBlock_= mipVar;} 
+    
+    
 
     //=======================================================
     // Isolation Variables
@@ -303,6 +343,7 @@ namespace reco {
     IsolationVariables isolationR04_;
     IsolationVariables isolationR03_;
     ShowerShape        showerShapeBlock_;
+    MIPVariables        mipVariableBlock_; 
     PflowIsolationVariables pfIsolation_;
  
 
