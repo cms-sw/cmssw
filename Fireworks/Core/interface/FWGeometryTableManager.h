@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:40 CET 2011
-// $Id: FWGeometryTableManager.h,v 1.29 2011/07/19 04:54:45 amraktad Exp $
+// $Id: FWGeometryTableManager.h,v 1.30 2011/07/20 22:11:49 amraktad Exp $
 //
 
 #include <sigc++/sigc++.h>
@@ -75,6 +75,8 @@ public:
 
       void setBit(UChar_t f)    { m_flags  |= f;}
       void resetBit(UChar_t f)  { m_flags &= ~f; }
+      void setBitVal(UChar_t f, bool x) { x ? setBit(f) : resetBit(f);}
+ 
       bool testBit(UChar_t f) const  { return (m_flags & f) == f; }
       bool testBitAny(UChar_t f) const  { return (m_flags & f) != 0; }
 
@@ -85,7 +87,6 @@ public:
    {
       bool m_matches;
       bool m_childMatches;
-      
       Match() : m_matches(false), m_childMatches(false) {}
    
       bool accepted() { return m_matches || m_childMatches; }
@@ -157,8 +158,14 @@ public:
    void setDaughtersSelfVisibility(bool);
 
    void getNodeMatrix(const NodeInfo& nodeInfo, TGeoHMatrix& mat) const;
-   static  void getNNodesTotal(TGeoNode* geoNode, int& off);
 
+   void setVisibility(NodeInfo& nodeInfo, bool );
+   void setVisibilityChld(NodeInfo& nodeInfo, bool);
+
+   bool getVisibilityChld(const NodeInfo& nodeInfo) const;
+   bool getVisibility (const NodeInfo& nodeInfo) const;
+
+   static  void getNNodesTotal(TGeoNode* geoNode, int& off);
 
 private:
    FWGeometryTableManager(const FWGeometryTableManager&); // stop default

@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel, Matevz Tadel
 //         Created:  Thu Jan 27 14:50:57 CET 2011
-// $Id: FWGeometryTableManager.cc,v 1.39 2011/07/20 22:11:49 amraktad Exp $
+// $Id: FWGeometryTableManager.cc,v 1.40 2011/07/20 23:18:59 amraktad Exp $
 //
 
 //#define PERFTOOL_GEO_TABLE
@@ -22,6 +22,7 @@
 #endif
 #include "Fireworks/Core/interface/FWGeometryTableManager.h"
 #include "Fireworks/Core/interface/FWGeometryTableView.h"
+#include "Fireworks/Core/interface/FWGeometryTableViewManager.h"
 #include "Fireworks/Core/src/FWColorBoxIcon.h"
 #include "Fireworks/TableWidget/interface/GlobalContexts.h"
 #include "Fireworks/TableWidget/src/FWTabularWidget.h"
@@ -33,6 +34,7 @@
 #include "TGeoShape.h"
 #include "TGeoBBox.h"
 #include "TGeoMatrix.h"
+#include "TEveUtil.h"
 
 #include "TGFrame.h"
 
@@ -290,12 +292,12 @@ FWTableCellRendererBase* FWGeometryTableManager::cellRenderer(int iSortedRowNumb
       }
       else if (iCol == kVisSelf )
       {
-         renderer->setData(data.testBit(kVisNode)   ? "On" : "-",  isSelected);
+         renderer->setData(getVisibility(data)  ? "On" : "-",  isSelected );
          return renderer;
       }
       else if (iCol == kVisChild )
       {
-         renderer->setData(data.testBit(kVisNodeChld) ? "On" : "-",  isSelected);
+         renderer->setData( getVisibilityChld(data) ? "On" : "-",  isSelected);
          return renderer;
       }
       else if (iCol == kMaterial )
@@ -367,26 +369,14 @@ void FWGeometryTableManager::assertNodeFilterCache(NodeInfo& data)
    if (!data.testBit(kFilterCached))
    {
       bool matches = m_volumes[data.m_node->GetVolume()].m_matches;
-      if (matches) {
-         data.setBit(kMatches);
-         data.setBit(kVisNode);
-      }
-      else {
-         data.resetBit(kMatches);
-         data.resetBit(kVisNode);
-      }
+      data.setBitVal(kMatches, matches);
+      setVisibility(data, matches);
 
       bool childMatches = m_volumes[data.m_node->GetVolume()].m_childMatches;
-      if (childMatches) {
-         data.setBit(kChildMatches);
-         data.setBit(kExpanded);
-         data.setBit(kVisNodeChld);
-      }
-      else {
-         data.resetBit(kChildMatches);
-         data.resetBit(kExpanded);
-         data.resetBit(kVisNodeChld);
-      }
+      data.setBitVal(kChildMatches, childMatches);
+      data.setBitVal(kExpanded, childMatches);
+      setVisibilityChld(data, childMatches);
+
 
       data.setBit(kFilterCached);
       //  printf("%s matches [%d] childMatches [%d] ................ %d %d \n", data.name(), data.testBit(kMatches), data.testBit(kChildMatches), matches , childMatches);
@@ -483,13 +473,13 @@ void FWGeometryTableManager::recalculateVisibilityVolumeRec(int pIdx)
          {
             //    std::cout << data.nameIndent() << std::endl;
             m_row_to_index.push_back(idx);
-            if (data.testBit(kExpanded)) recalculateVisibilityNodeRec(idx);
+            if (data.testBit(kExpanded)) recalculateVisibilityVolumeRec(idx);
          }
          else
          {
             assertNodeFilterCache(data);
             if (data.testBitAny(kMatches | kChildMatches)) m_row_to_index.push_back(idx); 
-            if (data.testBit(kChildMatches) && data.testBit(kExpanded)) recalculateVisibilityNodeRec(idx);
+            if (data.testBit(kChildMatches) && data.testBit(kExpanded)) recalculateVisibilityVolumeRec(idx);
          }
       }
       FWGeometryTableManager::getNNodesTotal(parentNode->GetDaughter(n), dOff);
@@ -760,15 +750,8 @@ void FWGeometryTableManager::setDaughtersSelfVisibility(bool v)
       int idx = m_selectedIdx + 1 + n + dOff;
       NodeInfo& data = m_entries[idx];
 
-      if (v) {
-         data.setBit(kVisNode);
-         data.setBit(kVisNodeChld);
-      }
-      else
-      {
-         data.resetBit(kVisNode);
-         data.resetBit(kVisNodeChld);
-      }
+      setVisibility(data, v);
+      setVisibilityChld(data, v);
 
       FWGeometryTableManager::getNNodesTotal(parentNode->GetDaughter(n), dOff);
    }
@@ -789,6 +772,60 @@ void FWGeometryTableManager::getNodeMatrix(const NodeInfo& data, TGeoHMatrix& mt
 
    mtx.Multiply(data.m_node->GetMatrix());
 }
+//==============================================================================
+
+void FWGeometryTableManager::setVisibility(NodeInfo& data, bool x)
+{
+   if (m_browser->getVolumeMode())
+   {
+      if (data.m_node->GetVolume()->IsVisible() != x)
+      {
+         TEveGeoManagerHolder gmgr( FWGeometryTableViewManager::getGeoMangeur());
+         data.m_node->GetVolume()->SetVisibility(x);
+      }
+   }
+   else
+   {
+      data.setBitVal(kVisNode, x);
+   }
+}
+
+void FWGeometryTableManager::setVisibilityChld(NodeInfo& data, bool x)
+{
+   if (m_browser->getVolumeMode())
+   {
+      if (data.m_node->GetVolume()->IsVisibleDaughters() != x)
+      {
+         TEveGeoManagerHolder gmgr( FWGeometryTableViewManager::getGeoMangeur());
+         data.m_node->GetVolume()->VisibleDaughters(x);
+      }
+   }
+   else
+   {
+      data.setBitVal(kVisNodeChld, x);
+   }
+}
+
+//______________________________________________________________________________
+
+bool  FWGeometryTableManager::getVisibility(const NodeInfo& data) const
+{
+   if (m_browser->getVolumeMode())
+      return data.m_node->GetVolume()->IsVisible();
+   else
+      return  data.testBit(kVisNode);
+   
+}
+
+bool  FWGeometryTableManager::getVisibilityChld(const NodeInfo& data) const
+{
+   if (m_browser->getVolumeMode())
+      return data.m_node->GetVolume()->IsVisibleDaughters();
+   else
+      return  data.testBit(kVisNodeChld);
+   
+}
+//==============================================================================
 
 //______________________________________________________________________________
 

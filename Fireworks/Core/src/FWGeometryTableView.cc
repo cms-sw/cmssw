@@ -497,12 +497,12 @@ FWGeometryTableView::cellClicked(Int_t iRow, Int_t iColumn, Int_t iButton, Int_t
          bool elementChanged = false;
          if (iColumn ==  FWGeometryTableManager::kVisSelf)
          {
-            ni.switchBit(FWGeometryTableManager::kVisNode);    
+            m_tableManager->setVisibility(ni, !m_tableManager->getVisibility(ni));
             elementChanged = true;
          }
          if (iColumn ==  FWGeometryTableManager::kVisChild)
          { 
-            ni.switchBit(FWGeometryTableManager::kVisNodeChld); 
+            m_tableManager->setVisibilityChld(ni, !m_tableManager->getVisibilityChld(ni));; 
             elementChanged = true;
          }
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  Matevz Tadel, Alja Mrak Tadel  
 //         Created:  Thu Jun 23 01:24:51 CEST 2011
-// $Id: FWGeoTopNode.cc,v 1.16 2011/07/15 02:03:34 amraktad Exp $
+// $Id: FWGeoTopNode.cc,v 1.17 2011/07/20 23:18:59 amraktad Exp $
 //
 
 // system include files
@@ -91,11 +91,11 @@ void FWGeoTopNode::Paint(Option_t*)
       if ( m_filterOff == false)
          m_browser->getTableManager()->assertNodeFilterCache(*sit);
 
-      if (sit->testBit(FWGeometryTableManager::kVisNode))
+      if ( m_browser->getTableManager()->getVisibility(*sit))
          paintShape(*sit, mtx);
    }
 
-   if (sit->testBit(FWGeometryTableManager::kVisNodeChld))
+   if ( m_browser->getTableManager()->getVisibilityChld(*sit))
       paintChildNodesRecurse( sit, mtx);
 }
 
@@ -121,20 +121,20 @@ void FWGeoTopNode::paintChildNodesRecurse (FWGeometryTableManager::Entries_i pIt
   
       if (m_filterOff)
       {
-         if (it->testBit(FWGeometryTableManager::kVisNode))
+         if ( m_browser->getTableManager()->getVisibility(*it))
             paintShape(*it, nm);
 
-         if (it->testBit(FWGeometryTableManager::kVisNodeChld) && it->m_level < m_maxLevel )
+         if  ( m_browser->getTableManager()->getVisibilityChld(*it) && it->m_level < m_maxLevel )
             paintChildNodesRecurse(it, nm);
 
       }
       else
       {
          m_browser->getTableManager()->assertNodeFilterCache(*it);
-         if (it->testBit(FWGeometryTableManager::kVisNode) )
+         if ( m_browser->getTableManager()->getVisibility(*it))
             paintShape(*it, nm);
 
-         if (it->testBit(FWGeometryTableManager::kVisNodeChld) && ( it->m_level < m_maxLevel || m_browser->getIgnoreVisLevelWhenFilter() ))
+         if ( m_browser->getTableManager()->getVisibilityChld(*it) && ( it->m_level < m_maxLevel || m_browser->getIgnoreVisLevelWhenFilter() ))
             paintChildNodesRecurse(it, nm);
       }
 
