@@ -13,7 +13,7 @@ Flag parameters stored are:
 
  *  HFdigiflagMinEthreshold -- minimum energy threshold needed before a rechit may be considered for flagging
  
- *  HFdigiflagCoefficients:  vector of floats that define cut contour.  Current contour is [0]-exp([1]+[2]*E), but I think we want this to be a vector, so that we can allow for [0]-exp([1]+[2]*E+[3]*E*E), or [0], etc.
+ *  HFdigiflagCoefficients:  vector of doubles that define cut contour.  Current contour is [0]-exp([1]+[2]*E), but I think we want this to be a vector, so that we can allow for [0]-exp([1]+[2]*E+[3]*E*E), or [0], etc.
 
 **/
 
@@ -36,8 +36,8 @@ class HcalFlagHFDigiTimeParam{
 			  unsigned int fFirstSample, 
 			  unsigned int fSamplesToAdd, 
 			  unsigned int fExpectedPeak, 
-			  float fminEThreshold, 
-			  std::vector<float> fcoef): 
+			  double fminEThreshold, 
+			  std::vector<double> fcoef): 
     mId(fId), 
     mHFdigiflagFirstSample(fFirstSample), 
     mHFdigiflagSamplesToAdd(fSamplesToAdd), 
@@ -53,16 +53,16 @@ class HcalFlagHFDigiTimeParam{
     uint32_t HFdigiflagFirstSample()   const  {return mHFdigiflagFirstSample;}
     uint32_t HFdigiflagSamplesToAdd()  const  {return mHFdigiflagSamplesToAdd;}
     uint32_t HFdigiflagExpectedPeak()  const  {return mHFdigiflagExpectedPeak;}
-    float    HFdigiflagMinEThreshold() const  {return mHFdigiflagMinEthreshold;}
-    std::vector<float> HFdigiflagCoefficients()  const {return mHFdigiflagCoefficients;}
+    double    HFdigiflagMinEThreshold() const  {return mHFdigiflagMinEthreshold;}
+    std::vector<double> HFdigiflagCoefficients()  const {return mHFdigiflagCoefficients;}
 
  private:
     uint32_t mId; // detector ID
     uint32_t mHFdigiflagFirstSample;         // first sample used in NTS calculation
     uint32_t mHFdigiflagSamplesToAdd;        // # of sampels to use in NTS calculation
     uint32_t mHFdigiflagExpectedPeak;        // expected peak position; used for calculating TS(peak)
-    float    mHFdigiflagMinEthreshold;       // minimum energy for flagged rechit
-    std::vector<float> mHFdigiflagCoefficients; // coefficients used to parameterize TS(peak)/NTS threshold:  [0]-exp([1]+[2]*E+....)
+    double    mHFdigiflagMinEthreshold;       // minimum energy for flagged rechit
+    std::vector<double> mHFdigiflagCoefficients; // coefficients used to parameterize TS(peak)/NTS threshold:  [0]-exp([1]+[2]*E+....)
 };
 
 #endif

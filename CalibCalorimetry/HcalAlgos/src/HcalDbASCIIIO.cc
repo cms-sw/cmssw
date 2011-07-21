@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.60 2011/07/21 15:29:58 temple Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.61 2011/07/21 15:32:54 temple Exp $
 //
 #include <vector>
 #include <string>
@@ -94,6 +94,26 @@ std::vector <unsigned int> splitStringToIntByComma (const std::string& fLine) {
 
 std::vector <float> splitStringToFloatByComma (const std::string& fLine) {
   std::vector <float> result;
+  int start = 0;
+  bool empty = true;
+  for (unsigned i = 0; i <= fLine.size (); i++) {
+    if (fLine [i] == ',' || i == fLine.size ()) {
+      if (!empty) {
+	std::string itemString (fLine, start, i-start);
+	result.push_back (atof (itemString.c_str()) );
+	empty = true;
+      }
+      start = i+1;
+    }
+    else {
+      if (empty) empty = false;
+    }
+  }
+  return result;
+}
+
+std::vector <double> splitStringToDoubleByComma (const std::string& fLine) {
+  std::vector <double> result;
   int start = 0;
   bool empty = true;
   for (unsigned i = 0; i <= fLine.size (); i++) {
@@ -1461,7 +1481,7 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalFlagHFDigiTimeParams* f
     }
     // expects (ieta, iphi, depth, subdet) as first four arguments
     DetId id = HcalDbASCIIIO::getId (items);
-    std::vector<float> coef= splitStringToFloatByComma(items[8].c_str());
+    std::vector<double> coef= splitStringToDoubleByComma(items[8].c_str());
 
     HcalFlagHFDigiTimeParam* fCondObject = new HcalFlagHFDigiTimeParam(id, 
 								       atoi (items [4].c_str()), //firstSample
@@ -1496,8 +1516,8 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalFlagHFDigiTimeP
 	     fObject.getValues (*channel)->HFdigiflagMinEThreshold() 
 	     );
 
-    std::vector<float> coef=fObject.getValues(*channel)->HFdigiflagCoefficients();
-    for (std::vector<float>::size_type x=0;x<coef.size();++x)
+    std::vector<double> coef=fObject.getValues(*channel)->HFdigiflagCoefficients();
+    for (std::vector<double>::size_type x=0;x<coef.size();++x)
       sprintf(buffer, "%f,",coef[x]); // comma-separated values
     sprintf(buffer,"\n");
     fOutput << buffer;

@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.25 2011/02/15 10:41:16 rofierzy Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.26 2011/06/24 22:15:53 temple Exp $
 //
 //
 
@@ -422,7 +422,7 @@ std::auto_ptr<HcalFlagHFDigiTimeParams> HcalHardcodeCalibrations::produceFlagHFD
   std::auto_ptr<HcalFlagHFDigiTimeParams> result (new HcalFlagHFDigiTimeParams ());
   std::vector <HcalGenericDetId> cells = allCells(h2mode_);
   
-  std::vector<float> coef;
+  std::vector<double> coef;
   coef.push_back(0.93);
   coef.push_back(-0.38275);
   coef.push_back(-0.012667);
