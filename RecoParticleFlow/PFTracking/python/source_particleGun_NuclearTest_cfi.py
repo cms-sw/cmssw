@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 source = cms.Source("EmptySource")
 
-from Configuration.Generator.PythiaUESettings_cfi import *
+from Configuration.Generator.PythiaUED6TSettings_cfi import *
 generator = cms.EDProducer("Pythia6PtGun",
     PGunParameters = cms.PSet(
        ParticleID = cms.vint32(211),
