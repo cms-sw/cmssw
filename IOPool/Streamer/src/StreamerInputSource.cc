@@ -329,6 +329,7 @@ namespace edm {
       setRunAuxiliary(runAuxiliary);
       readAndCacheRun();
       setRunPrematurelyRead();
+      resetLuminosityBlockAuxiliary();
     }
     if(!luminosityBlockAuxiliary() || luminosityBlockAuxiliary()->luminosityBlock() != eventView.lumi()) {
       LuminosityBlockAuxiliary* luminosityBlockAuxiliary =
