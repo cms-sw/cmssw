@@ -23,6 +23,18 @@ SiStripClusterInfo::SiStripClusterInfo(const SiStripCluster& cluster,
   es.get<SiStripQualityRcd>().get(qualityLabel,qualityHandle);
 }
 
+SiStripClusterInfo::SiStripClusterInfo(const SiStripCluster& cluster,
+                                       const edm::EventSetup& setup,
+				       const std::string & quality)
+  : cluster_ptr(&cluster),
+    es(setup),
+    qualityLabel(quality),
+    detId_(cluster.geographicalId()){
+  es.get<SiStripNoisesRcd>().get(noiseHandle);
+  es.get<SiStripGainRcd>().get(gainHandle);
+  es.get<SiStripQualityRcd>().get(qualityLabel,qualityHandle);
+}
+
 std::pair<uint16_t,uint16_t > SiStripClusterInfo::
 chargeLR() const { 
   std::vector<uint8_t>::const_iterator 
