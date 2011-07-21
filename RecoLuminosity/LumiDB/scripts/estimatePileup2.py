@@ -174,12 +174,15 @@ if __name__ == '__main__':
             try:
                 run,       cmslsnum = int  ( pieces[0] ), int  ( pieces[1] )
                 delivered, recorded = float( pieces[2] ), float( pieces[3] )
-                xingInstLumiArray = [( int(orbit), float(lum) ) \
-                                     for orbit, lum in zip( pieces[4::2],
-                                                            pieces[5::2] ) ]
+                xingIdx = [int(myidx) for myidx in  pieces[4::2] ]
+                xingVal = [float(myval) for myval in pieces[5::2] ]
+                
+                #xingInstLumiArray = [( int(orbit), float(lum) ) \
+                #                     for orbit, lum in zip( pieces[4::2],
+                #                                            pieces[5::2] ) ]
             except:
                 continue
-            runDict.setdefault(run,[]).append([cmslsnum,delivered,recorded,xingInstLumiArray])
+            runDict.setdefault(run,[]).append([cmslsnum,delivered,recorded,(xingIdx,xingVal)])
             #{run:[[cmslsnum,delivered,recorded,xingInstlumiArray]..]}
         events.close()
     else:
