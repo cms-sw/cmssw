@@ -32,7 +32,19 @@ class HcalFlagHFDigiTimeParam{
   }
   
   // Set parameters based on input
-  HcalFlagHFDigiTimeParam(unsigned long fId, unsigned int fFirstSample, unsigned int fSamplesToAdd, unsigned int fExpectedPeak, float fminEThreshold, std::vector<float> fcoef): mId(fId), mHFdigiflagFirstSample(fFirstSample), mHFdigiflagSamplesToAdd(fSamplesToAdd), mHFdigiflagExpectedPeak(fExpectedPeak), mHFdigiflagCoefficients(fcoef){}
+  HcalFlagHFDigiTimeParam(unsigned long fId, 
+			  unsigned int fFirstSample, 
+			  unsigned int fSamplesToAdd, 
+			  unsigned int fExpectedPeak, 
+			  float fminEThreshold, 
+			  std::vector<float> fcoef): 
+    mId(fId), 
+    mHFdigiflagFirstSample(fFirstSample), 
+    mHFdigiflagSamplesToAdd(fSamplesToAdd), 
+    mHFdigiflagExpectedPeak(fExpectedPeak), 
+    mHFdigiflagMinEthreshold(fminEThreshold),
+    mHFdigiflagCoefficients(fcoef)
+      {      }
     
     uint32_t rawId () const {return mId;}
   
