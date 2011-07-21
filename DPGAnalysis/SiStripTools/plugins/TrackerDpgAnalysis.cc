@@ -17,7 +17,7 @@
 // part of the code was inspired by http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/UserCode/YGao/LhcTrackAnalyzer/
 // part of the code was inspired by 
 // other inputs from Andrea Giammanco, Gaelle Boudoul, Andrea Venturi, Steven Lowette, Gavril Giurgiu
-// $Id: TrackerDpgAnalysis.cc,v 1.10 2011/04/05 13:20:25 delaer Exp $
+// $Id: TrackerDpgAnalysis.cc,v 1.11 2011/05/20 18:43:38 wmtan Exp $
 //
 //
 
@@ -840,7 +840,7 @@ TrackerDpgAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
      nclusters_ += DSViter->size();
      if(functionality_offtrackClusters_||functionality_ontrackClusters_) {
        for(edmNew::DetSet<SiStripCluster>::const_iterator iter=begin;iter!=end;++iter,++angleIt,++localCounter) {
-         SiStripClusterInfo* siStripClusterInfo = new SiStripClusterInfo(*iter,iSetup,std::string("")); //string = quality label
+         SiStripClusterInfo* siStripClusterInfo = new SiStripClusterInfo(*iter,iSetup,detid,std::string("")); //string = quality label
          // general quantities
          for(size_t i=0; i< trackLabel_.size(); ++i) {
            trackid_[i] = stripClusterOntrackIndices[i][localCounter];
