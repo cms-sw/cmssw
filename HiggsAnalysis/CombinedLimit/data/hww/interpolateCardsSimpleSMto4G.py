@@ -17,6 +17,7 @@ parser.add_option("--log",   dest="log",    action="store_true", default=False, 
 parser.add_option("--ddir",  dest="ddir", type="string", default=".", help="Path to the datacards")
 parser.add_option("--refmasses",  dest="refmasses", type="string",  default="hww.masses.txt", help="File containing the reference masses between which to interpolate (relative to --options.ddir)")
 parser.add_option("--postfix",    dest="postfix",   type="string",  default="",               help="Postfix to add to datacard name")
+parser.add_option("--extraThUncertainty",    dest="etu",   type="float",  default=0.0,               help="Add this amount linearly to gg->H cross section uncertainties")
 (options, args) = parser.parse_args()
 options.bin = True; options.stat = False
 if len(args) not in [1,3]:
@@ -74,7 +75,7 @@ else:
 print "Will interpolate %g from %d" % (mass, mass1)
 
 for X in [ 'hwwof_0j_shape',  'hwwof_1j_shape',  'hwwsf_0j_shape',  'hwwsf_1j_shape', 'hww_2j_cut']:
-    print "Considering datacard ",X
+    #print "Considering datacard ",X
     if "shape" in X:
         XS = X.replace("_shape","")
         os.system("cp %s/%d/%s.input.root  %s/%g/SM4_%s%s.input.root" % (options.ddir,mass1,XS,options.ddir,mass,XS,options.postfix))
@@ -90,6 +91,13 @@ for X in [ 'hwwof_0j_shape',  'hwwof_1j_shape',  'hwwsf_0j_shape',  'hwwsf_1j_sh
     signals = []; backgrounds = []; shapeLines = []; 
     paramSysts = {}; flatParamNuisances = {}
     for (name,nf,pdf,args,errline) in DC1.systs:
+        if options.etu != 0 and name in [ "QCDscale_ggH", "QCDscale_ggH1in", "QCDscale_ggH2in" ]:
+            for b in errline.iterkeys(): 
+                for p in errline[b].iterkeys():
+                    if errline[b][p] != 0 and errline[b][p] != 1:
+                        inflated = errline[b][p]+options.etu if errline[b][p] > 1 else errline[b][p]-options.etu
+                        #print "Inflating uncertainty from %s to %s" % (errline[b][p], inflated);
+                        errline[b][p] = inflated
         systlines[name] = [ pdf, args, errline, nf ]
     for b,p,sig in DC1.keyline:
         rate = DC1.exp[b][p]
