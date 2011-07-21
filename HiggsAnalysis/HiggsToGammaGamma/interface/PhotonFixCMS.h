@@ -39,7 +39,7 @@
 
 #include <iostream>
 #include <string>
-#include "PhotonFix.h"
+#include "../interface/PhotonFix.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 
 

@@ -4,7 +4,7 @@
 #include <iomanip>
 
 // ensure that this include points to the appropriate location for PhotonFix.h
-#include "PhotonFix.h"
+#include "../interface/PhotonFix.h"
 
 PhotonFix::PhotonFix(double e, double eta, double phi, double r9) :
   _e(e), _eta(eta), _phi(phi), _r9(r9) {
