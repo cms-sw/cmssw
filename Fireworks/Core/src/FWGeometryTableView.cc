@@ -741,6 +741,10 @@ void FWGeometryTableView::updateFilter(std::string& exp)
          m_tableManager->setVisibility(*i, true);
          m_tableManager->setVisibilityChld(*i, true);
       }
+
+      // NOTE: entry should be cleared automatically
+      m_filterEntry->Clear();
+
       m_tableManager->checkExpandLevel();
    }
   
