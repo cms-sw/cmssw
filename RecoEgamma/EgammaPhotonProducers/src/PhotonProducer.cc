@@ -42,7 +42,8 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   // R9 value to decide converted/unconverted
   minR9Barrel_        = conf_.getParameter<double>("minR9Barrel");
   minR9Endcap_        = conf_.getParameter<double>("minR9Endcap");
-  usePrimaryVertex_ = conf_.getParameter<bool>("usePrimaryVertex");
+  usePrimaryVertex_   = conf_.getParameter<bool>("usePrimaryVertex");
+  runMIPTagger_       = conf_.getParameter<bool>("runMIPTagger");
  
   edm::ParameterSet posCalcParameters = 
     config.getParameter<edm::ParameterSet>("posCalcParameters");
@@ -337,8 +338,9 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
 
   // fill MIP Vairables for Halo: Block for MIP are filled from PhotonMIPHaloTagger
    reco::Photon::MIPVariables mipVar ;
-   if(subdet==EcalBarrel)
+   if(subdet==EcalBarrel && runMIPTagger_ )
     {
+  
      thePhotonMIPHaloTagger_-> MIPcalculate( &newCandidate,evt,es,mipVar);
     newCandidate.setMIPVariables(mipVar);
     }

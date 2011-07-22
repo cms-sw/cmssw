@@ -6,7 +6,7 @@ from RecoEgamma.PhotonIdentification.mipVariable_cfi import *
 
 #
 # producer for photons
-# $Id: photons_cfi.py,v 1.36 2010/11/23 17:29:11 nancy Exp $
+# $Id: photons_cfi.py,v 1.37 2011/07/22 00:02:41 nancy Exp $
 #
 photons = cms.EDProducer("PhotonProducer",
     photonCoreProducer = cms.InputTag("photonCore"),
@@ -24,6 +24,7 @@ photons = cms.EDProducer("PhotonProducer",
     hbheModule = cms.string('hbhereco'),
     endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     hcalTowers = cms.InputTag("towerMaker"),
+    runMIPTagger = cms.bool(True),
     highEt  = cms.double(100.),                       
     minR9Barrel = cms.double(0.94),
     minR9Endcap = cms.double(0.95),                     
