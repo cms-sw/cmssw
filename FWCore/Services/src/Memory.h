@@ -7,7 +7,7 @@
 // 
 //
 // Original Author:  Jim Kowalkowski
-// $Id: Memory.h,v 1.8 2010/03/09 16:24:57 wdd Exp $
+// $Id: Memory.h,v 1.9 2011/04/13 20:45:17 chrjones Exp $
 //
 // Change Log
 //
@@ -22,6 +22,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "DataFormats/Provenance/interface/EventID.h"
+#include <cstdio>
 
 namespace edm {
   class EventID;
@@ -48,6 +49,22 @@ namespace edm {
       double rss;     // in MB (used to be in pages?)
     };
 
+    struct smapsInfo
+    {
+      smapsInfo():private_(),pss_() {}
+      smapsInfo(double private_sz, double pss_sz): private_(private_sz),pss_(pss_sz) {}
+      
+      bool operator==(const smapsInfo& p) const
+      { return private_==p.private_ && pss_==p.pss_; }
+      
+      bool operator>(const smapsInfo& p) const
+      { return private_>p.private_ || pss_>p.pss_; }
+      
+      double private_;   // in MB
+      double pss_;     // in MB
+    };
+
+    
     class SimpleMemoryCheck
     {
     public:
@@ -74,8 +91,10 @@ namespace edm {
 
       void postEndJob();
 
+      void postFork(unsigned int, unsigned int);
     private:
       procInfo fetch();
+      smapsInfo fetchSmaps();
       double pageSize() const { return pg_size_; }
       double averageGrowthRate(double current, double past, int count);
       void update();
@@ -84,12 +103,15 @@ namespace edm {
                 const std::string& mdlabel, const std::string& mdname) const;
       void updateAndPrint(const std::string& type,
                         const std::string& mdlabel, const std::string& mdname);
-
+      void openFiles();
+      
       procInfo a_;
       procInfo b_;
       procInfo max_;
       procInfo* current_;
       procInfo* previous_;
+      
+      smapsInfo currentSmaps_;
       
       char buf_[500];
       int fd_;
@@ -102,6 +124,12 @@ namespace edm {
       bool jobReportOutputOnly_;
       int count_;
 
+      //smaps
+      FILE* smapsFile_;
+      char* smapsLineBuffer_;
+      size_t smapsLineBufferLen_;
+
+      
       //Rates of growth
       double growthRateVsize_;
       double growthRateRss_;
@@ -113,9 +141,11 @@ namespace edm {
         double deltaVsize;
         double rss;
         double deltaRss;
+        double privateSize;
+        double pss;
         edm::EventID event;
         SignificantEvent() : count(0), vsize(0), deltaVsize(0), 
-        rss(0), deltaRss(0), event() {}
+        rss(0), deltaRss(0), privateSize(0), pss(0),event() {}
         void set (double deltaV, double deltaR, 
                   edm::EventID const & e, SimpleMemoryCheck *t)
         { count = t->count_;
@@ -123,6 +153,8 @@ namespace edm {
           deltaVsize = deltaV;
           rss = t->current_->rss;
           deltaRss = deltaR;
+          privateSize = t->currentSmaps_.private_;
+          pss = t->currentSmaps_.pss_;
           event = e;
         }
       }; // SignificantEvent
