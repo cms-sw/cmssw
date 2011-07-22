@@ -2,6 +2,7 @@
 <use   name="FWCore/PluginManager"/>
 <use   name="DataFormats/HcalRecHit"/>
 <use   name="DataFormats/EgammaReco"/>
+<use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="DataFormats/BeamSpot"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="RecoEgamma/EgammaIsolationAlgos"/>
