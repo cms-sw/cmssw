@@ -1,8 +1,8 @@
 /** \class PhotonMIPHaloTragger
  *  Determine and Set whether a haol or not
  *
- *  \author Sushil S. Chauhan, A. Nowack : (UCDavis) 
- *  
+ *  \author Sushil S. Chauhan, A. Nowack, M. Tripathi : (UCDavis) 
+ *  \author A. Askew (FSU)
  */
 
 #include "RecoEgamma/PhotonIdentification/interface/PhotonMIPHaloTagger.h"
@@ -125,8 +125,8 @@ void PhotonMIPHaloTagger::MIPcalculate(const reco::Photon* pho,
        mipId.mipIsHalo       = false;    
         }
 
-    //std::cout<<"MIP are set"<<ismipHalo_<<"    "<<nhitCone_<<std::endl; 
-
+  // std::cout<<"Setting: isHalo = "<<ismipHalo_<<"    nhitcone=  "<<nhitCone_<<std::endl; 
+  // std::cout<<"Setting: Chi2  = "<<mipFitResults_[0]<<"  eT= "<<mipFitResults_[1]<<" slope = "<<mipFitResults_[2]<<"  Intercept ="<<mipFitResults_[3]<<std::endl;
 }
 
 
@@ -145,13 +145,15 @@ std::vector<double> PhotonMIPHaloTagger::GetMipTrailFit(const reco::Photon* phot
                                            int  &NhitCone_,                
                                            bool &ismipHalo_)
 {
+  bool debug_= false;
 
- //std::cout<<" inside MipFitTrail "<<std::endl;
+ if(debug_)std::cout<<" inside MipFitTrail "<<std::endl;
   //getting them from cfi config
   double yrange        = inputRangeY;
   double xrange        = inputRangeX;
   double res_width     = inputResWidth;       //width of the residual distribution 
   double halo_disc_cut = inputHaloDiscCut;    //cut based on  Shower,Angle and MIP
+
 
   //initilize them here
   double m       = 0.;
@@ -161,9 +163,9 @@ std::vector<double> PhotonMIPHaloTagger::GetMipTrailFit(const reco::Photon* phot
 
 
  //first get the seed cell index
- double seedIEta=-999.;
- double seedIPhi=-999.;
- double seedE   =-999.; 
+  int seedIEta = -999;
+  int seedIPhi = -999;
+  double seedE = -999.; 
 
 
                //get seed propert.
@@ -175,15 +177,12 @@ std::vector<double> PhotonMIPHaloTagger::GetMipTrailFit(const reco::Photon* phot
                                 seedIPhi,
                                 seedE);
 
+     if(debug_)std::cout<<"Seed E ="<<seedE<<"  Seed ieta = "<<seedIEta<<"   Seed iphi ="<< seedIPhi<<std::endl;
+
  //to store results 
  std::vector<double> FitResults_;
  FitResults_.clear();
   
-
-  //get the Geometry
-  edm::ESHandle<CaloGeometry> geoHandle;
-  iSetup.get<CaloGeometryRecord>().get(geoHandle);
-  const CaloGeometry* caloGeom = geoHandle.product();        
 
   //create some vector and clear them
   std::vector<int> ieta_cell;
@@ -195,37 +194,35 @@ std::vector<double> PhotonMIPHaloTagger::GetMipTrailFit(const reco::Photon* phot
   energy_cell.clear();
 
 
-  int ietacell = -999;
-  int iphicell = -999;
+  int ietacell =    0;
+  int iphicell =    0;
   int kArray   =    0;
   
-  double energy_total=0.;
-  double delt_ieta=0.;
-  double delt_iphi=0.;
+  double energy_total = 0.;
+  int delt_ieta    =0;
+  int delt_iphi    =0;
 
 
- for (EcalRecHitCollection::const_iterator it = ecalhitsCollEB->begin();it!=ecalhitsCollEB->end();++it){
+ for(EcalRecHitCollection::const_iterator it = ecalhitsCollEB->begin();it!=ecalhitsCollEB->end();++it)
+    {
        EBDetId dit = it->detid();
 
-       const CaloCellGeometry *this_cell = caloGeom->getGeometry(it->id());
-       GlobalPoint position = this_cell->getPosition();
 
-
-        iphicell = position.phi();;
-        ietacell = position.eta();;
+        iphicell = dit.iphi();
+        ietacell = dit.ieta();
     
         if(ietacell < 0)ietacell++;
 
         //Exclude all cells within +/- 5 ieta of seed cell 
-        if(TMath::Abs(ietacell - seedIEta) >= 5)
+       if(TMath::Abs(ietacell - seedIEta) >= 5  &&  it->energy() > 0.)
         {
 
           delt_ieta = ietacell - seedIEta;
           delt_iphi = iphicell - seedIPhi;
 
           //Phi wrapping inclusion
-          if(delt_iphi > 180.){ delt_iphi = delt_iphi - 360.; }
-          if(delt_iphi < -180.){ delt_iphi = delt_iphi + 360.; }
+          if(delt_iphi > 180){ delt_iphi = delt_iphi - 360; }
+          if(delt_iphi < -180){ delt_iphi = delt_iphi + 360; }
 
           //Condition to be within the cones
           if( ( (delt_iphi >= (m*delt_ieta)) && (delt_iphi <= (-m*delt_ieta)) ) ||
@@ -250,18 +247,19 @@ std::vector<double> PhotonMIPHaloTagger::GetMipTrailFit(const reco::Photon* phot
       int Npoints         =  0; 
       int throwaway_index = -1;
       double chi2;
-      double eT;         
-      double hres       =99999.;
+      double eT          = 0.;         
+      double hres        = 99999.;
 
       //some tmp local variale
       double Roundness_ =999.;
       double Angle_     =999.;
       double halo_disc_ =0.;
 
-
       Npoints = kArray;
 
- //defined some variable for iterative fitting the mip trail line  
+     if(debug_)std::cout<<" starting npoing = "<<Npoints<<std::endl;
+
+     //defined some variable for iterative fitting the mip trail line  
         double  res    = 0.0;                            
         double  res_sq = 0.0;                            
         double  wt     = 0.0;                            
@@ -278,7 +276,8 @@ std::vector<double> PhotonMIPHaloTagger::GetMipTrailFit(const reco::Photon* phot
 
 
       //start Iterations
-     for(int it=0; it < 200 && hres >(5*res_width); it++){  //Max iter. is 200
+     for(int it=0; it < 200 && hres >(5.0*res_width); it++)
+    {  //Max iter. is 200
 
 
         //Throw away previous highest residual, if not first loop
@@ -329,7 +328,7 @@ std::vector<double> PhotonMIPHaloTagger::GetMipTrailFit(const reco::Photon* phot
 
             for(int j=0; j<Npoints; j++)
                {                
-                    res = iphi_cell[j] - a1 - b1*ieta_cell[j];
+                    res = 1.0*iphi_cell[j] - a1 - b1*ieta_cell[j];
                     res_sq = res*res;
 
                     if(TMath::Abs(res) > highest_res)
@@ -340,6 +339,7 @@ std::vector<double> PhotonMIPHaloTagger::GetMipTrailFit(const reco::Photon* phot
 
                     m_chi2 += res_sq;
                    etot_cell += energy_cell[j];
+
                }                
            
               
@@ -352,6 +352,7 @@ std::vector<double> PhotonMIPHaloTagger::GetMipTrailFit(const reco::Photon* phot
 
       }//for loop for iterations
 
+     if(debug_)std::cout<<"hres = "<<hres<<std::endl;
 
      //get roundness and angle for this photon candidate form EcalClusterTool
      std::vector<float> showershapes_barrel = EcalClusterTools::roundnessBarrelSuperClusters(*(photon->superCluster()), (*ecalhitsCollEB.product()));
@@ -359,6 +360,7 @@ std::vector<double> PhotonMIPHaloTagger::GetMipTrailFit(const reco::Photon* phot
      Roundness_ = showershapes_barrel[0];
      Angle_     = showershapes_barrel[1];
 
+   if(debug_)std::cout<<" eTot ="<<eT<<"     Rounness = "<<Roundness_<<"    Angle_  "<<Angle_ <<std::endl; 
 
      //get the halo disc variable
      halo_disc_ = 0.;
@@ -375,8 +377,9 @@ std::vector<double> PhotonMIPHaloTagger::GetMipTrailFit(const reco::Photon* phot
                                                                   // based on 2010 study
 
 
-   //std::cout<<"Endof MIP Trail"<<halo_disc_<<"   "<<NhitCone_ <<std::endl;
-
+     if(debug_)std::cout<<"Endof MIP Trail: halo_dic= "<<halo_disc_<<"   nhitcone ="<<NhitCone_<<"  isHalo= "<<ismipHalo_<<std::endl;
+     if(debug_)std::cout<<"Endof MIP Trail: Chi2  = "<<chi2<<"  eT= "<<eT<<" slope = "<<b1<<"  Intercept ="<<a1<<std::endl;
+  
     return FitResults_;
 
 }
@@ -390,20 +393,22 @@ void PhotonMIPHaloTagger::GetSeedHighestE(const reco::Photon* photon,
                                            const edm::Event& iEvent,
                                            const edm::EventSetup& iSetup,
                                            edm::Handle<EcalRecHitCollection> Brechit,
-                                           double &seedIeta,
-                                           double &seedIphi,
+                                           int &seedIeta,
+                                           int &seedIphi,
                                            double &seedEnergy)
 {
 
-    //std::cout<<"Inside GetSeed"<<std::endl;
+   bool debug_= false;
+
+       if(debug_)std::cout<<"Inside GetSeed"<<std::endl;
         //Get the Seed
         double SeedTime = -999.;
         double SeedE    = -999.;
         Int_t  crysIdx  = -1;
 
         //initilaze them here
-        seedIeta   = -999.;
-        seedIphi   = -999.;
+        seedIeta   = -999;
+        seedIphi   = -999;
         seedEnergy = -999.;
 
 
@@ -433,9 +438,12 @@ void PhotonMIPHaloTagger::GetSeedHighestE(const reco::Photon* photon,
              {SeedE = crysE;                     
               SeedTime    = thishit->time();
               seedIeta    = detId.ieta();
-              seedIphi    = correct_phi(detId.iphi());
+              seedIphi    = (detId.iphi());
               seedEnergy  = SeedE;
               crysIdx     = ncrys;
+
+             if(debug_)std::cout<<"Current max Seed = "<<SeedE<<"   seedIphi = "<<seedIphi<<"  ieta= "<<seedIeta<<std::endl;
+
              }
 
             ncrys++;
@@ -447,16 +455,10 @@ void PhotonMIPHaloTagger::GetSeedHighestE(const reco::Photon* photon,
 
 
    
-    //std::cout<<"End of  GetSeed"<<std::endl;
+    if(debug_)std::cout<<"End of  GetSeed"<<std::endl;
 
 } 
 
  
-
-double PhotonMIPHaloTagger::correct_phi(double phi)
-       {                        
-        return (phi >= 0 ? phi : (2*TMath::Pi() + phi));                                                                                                                         
-       }
-
 
 

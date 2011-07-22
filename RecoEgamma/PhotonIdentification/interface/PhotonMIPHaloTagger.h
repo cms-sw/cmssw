@@ -34,8 +34,8 @@ public:
                        const edm::Event& iEvent,
                        const edm::EventSetup& iSetup,
                        edm::Handle<EcalRecHitCollection> Brechit,
-                       double &seedIEta,
-                       double &seedIPhi,
+                       int &seedIEta,
+                       int &seedIPhi,
                        double &seedE);
 
 
@@ -52,7 +52,6 @@ public:
                                      bool & ismipHalo_ );
 
 
-double correct_phi(double phi);
  
 
 
