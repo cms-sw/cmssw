@@ -593,7 +593,7 @@ FBaseSimEvent::addParticles(const HepMC::GenEvent& myGenEvent) {
       
       int theTrack = testStable && p->end_vertex() ? 
 	// The particle is scheduled to decay
-	addSimTrack(&part,originVertex, nGenParts()-offset,0,p->end_vertex()) : // the 0 is for the event id (0 = hard scattering)
+	addSimTrack(&part,originVertex, nGenParts()-offset,p->end_vertex()) :
         // The particle is not scheduled to decay 
 	addSimTrack(&part,originVertex, nGenParts()-offset);
 
@@ -770,7 +770,7 @@ FBaseSimEvent::addParticles(const reco::GenParticleCollection& myGenParticles) {
 }
 
 int 
-FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig, int ievt, 
+FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig, 
 			   const HepMC::GenVertex* ev) { 
   
   // Check that the particle is in the Famos "acceptance"
@@ -805,18 +805,12 @@ FBaseSimEvent::addSimTrack(const RawParticle* p, int iv, int ig, int ievt,
     // No proper decay time is scheduled
     FSimTrack(p,iv,ig,trackId,this);
 
-  // Attach the vertex index for pile-up handling
-  EncodedEventId eventId(0,ievt); // bunch crossing number is always zero, because FastSim doesn't have out-of-time pileup
-  (*theSimTracks)[trackId].setEventId(eventId);
-  (*theSimTracks)[trackId].setVertexIndex((*theSimTracks)[trackId].vertIndex()+ievt);
-
-
   return trackId;
 
 }
 
 int
-FBaseSimEvent::addSimVertex(const XYZTLorentzVector& v, int im, FSimVertexType::VertexType type, int ievt) {
+FBaseSimEvent::addSimVertex(const XYZTLorentzVector& v, int im, FSimVertexType::VertexType type) {
   
   // Check that the vertex is in the Famos "acceptance"
   if ( !myFilter->accept(v) ) return -1;
@@ -836,10 +830,6 @@ FBaseSimEvent::addSimVertex(const XYZTLorentzVector& v, int im, FSimVertexType::
   (*theSimVertices)[vertexId] = FSimVertex(v,im,vertexId,this);
 
   (*theFSimVerticesType)[vertexId] = FSimVertexType(type);
-
-  // Attach the event id for pile-up handling
-  EncodedEventId eventId(0,ievt); // bunch crossing number is always zero, because FastSim doesn't have out-of-time pileup
-  (*theSimVertices)[vertexId].setEventId(eventId);
 
   return vertexId;
 

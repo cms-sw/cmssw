@@ -4,7 +4,6 @@
 // Data Formats
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/Math/interface/Point3D.h"
-#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
 // HepPDT Headers
 #include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
@@ -138,12 +137,11 @@ public:
 
   /// Add a new track to the Event and to the various lists
   int addSimTrack(const RawParticle* p, int iv, int ig=-1, 
-		  int ievt=0,const HepMC::GenVertex* ev=0);
+		  const HepMC::GenVertex* ev=0);
 
   /// Add a new vertex to the Event and to the various lists
   int addSimVertex(const XYZTLorentzVector& decayVertex, int im=-1,
-		   FSimVertexType::VertexType type = FSimVertexType::ANY,
-		   int ievt=0);
+		   FSimVertexType::VertexType type = FSimVertexType::ANY);
 
   const KineParticleFilter& filter() const { return *myFilter; } 
 
