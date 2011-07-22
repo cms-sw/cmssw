@@ -26,13 +26,21 @@
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
-
 #include "RecoEgamma/EgammaPhotonAlgos/interface/OutInConversionSeedFinder.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/InOutConversionSeedFinder.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/OutInConversionTrackFinder.h"
 #include "RecoEgamma/EgammaPhotonAlgos/interface/InOutConversionTrackFinder.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaRecHitIsolation.h"
+
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "CommonTools/Utils/interface/StringToEnumValue.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EBDetId.h"
+
 
 ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::ParameterSet& config) : 
   conf_(config), 
@@ -64,10 +72,28 @@ ConversionTrackCandidateProducer::ConversionTrackCandidateProducer(const edm::Pa
   OutInTrackSuperClusterAssociationCollection_ = conf_.getParameter<std::string>("outInTrackCandidateSCAssociationCollection");
   InOutTrackSuperClusterAssociationCollection_ = conf_.getParameter<std::string>("inOutTrackCandidateSCAssociationCollection");
 
-  hcalTowers_ = conf_.getParameter<edm::InputTag>("hcalTowers");
-  hOverEConeSize_   = conf_.getParameter<double>("hOverEConeSize");
-  maxHOverE_        = conf_.getParameter<double>("maxHOverE");
-  minSCEt_        = conf_.getParameter<double>("minSCEt");
+  barrelecalCollection_ = conf_.getParameter<edm::InputTag>("barrelEcalRecHitCollection");
+  endcapecalCollection_ = conf_.getParameter<edm::InputTag>("endcapEcalRecHitCollection");
+  
+  hcalTowers_        = conf_.getParameter<edm::InputTag>("hcalTowers");
+  hOverEConeSize_    = conf_.getParameter<double>("hOverEConeSize");
+  maxHOverE_         = conf_.getParameter<double>("maxHOverE");
+  minSCEt_           = conf_.getParameter<double>("minSCEt");
+  isoConeR_          = conf_.getParameter<double>("isoConeR");
+  isoInnerConeR_     = conf_.getParameter<double>("isoInnerConeR");
+  isoEtaSlice_       = conf_.getParameter<double>("isoEtaSlice");
+  isoEtMin_          = conf_.getParameter<double>("isoEtMin");
+  isoEMin_           = conf_.getParameter<double>("isoEMin");
+  vetoClusteredHits_ = conf_.getParameter<bool>("vetoClusteredHits");
+  useNumXtals_       = conf_.getParameter<bool>("useNumXstals");
+  severityLevelCut_  = conf_.getParameter<int>("severityLevelCut");
+  ecalIsoCut_offset_ = conf_.getParameter<double>("ecalIsoCut_offset");
+  ecalIsoCut_slope_  = conf_.getParameter<double>("ecalIsoCut_slope");
+
+  const std::vector<std::string> flagnames = 
+    conf_.getParameter<std::vector<std::string> >("recHitFlagsToBeExcluded");
+  
+  v_chstatus_= StringToEnumValue<EcalRecHit::Flags>(flagnames);
 
 
   // Register the product
@@ -89,6 +115,7 @@ void  ConversionTrackCandidateProducer::setEventSetup (const edm::EventSetup & t
   theInOutSeedFinder_->setEventSetup(theEventSetup);
   theOutInTrackFinder_->setEventSetup(theEventSetup);
   theInOutTrackFinder_->setEventSetup(theEventSetup);
+
 
 }
 
@@ -112,6 +139,7 @@ void  ConversionTrackCandidateProducer::beginRun (edm::Run& r , edm::EventSetup 
   
   // get the In Out Track Finder
   theInOutTrackFinder_ = new InOutConversionTrackFinder ( theEventSetup, conf_  );
+
 
 
 }
@@ -203,15 +231,39 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
   Handle<CaloTowerCollection> hcalTowersHandle;
   theEvent.getByLabel(hcalTowers_, hcalTowersHandle);
 
+  edm::Handle<EcalRecHitCollection> ecalhitsCollEB;
+  edm::Handle<EcalRecHitCollection> ecalhitsCollEE;
+
+  theEvent.getByLabel(endcapecalCollection_, ecalhitsCollEE);
+  theEvent.getByLabel(barrelecalCollection_, ecalhitsCollEB);
+
+
+  //Get the channel status from the db
+  edm::ESHandle<EcalChannelStatus> chStatus;
+  theEventSetup.get<EcalChannelStatusRcd>().get(chStatus);
+
+  edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
+  theEventSetup.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
+  const EcalSeverityLevelAlgo* sevLevel = sevlv.product();
+
+  std::auto_ptr<CaloRecHitMetaCollectionV> RecHitsEE(0); 
+  RecHitsEE = std::auto_ptr<CaloRecHitMetaCollectionV>(new EcalRecHitMetaCollection(ecalhitsCollEE.product()));
+ 
+  std::auto_ptr<CaloRecHitMetaCollectionV> RecHitsEB(0); 
+  RecHitsEB = std::auto_ptr<CaloRecHitMetaCollectionV>(new EcalRecHitMetaCollection(ecalhitsCollEB.product()));
+
 
   caloPtrVecOutIn_.clear();
   caloPtrVecInOut_.clear();
 
+  bool isBarrel=true;
   if ( validBarrelBCHandle && validBarrelSCHandle ) 
-    buildCollections(scBarrelHandle, bcBarrelHandle, hcalTowersHandle, *outInTrackCandidate_p,*inOutTrackCandidate_p,caloPtrVecOutIn_,caloPtrVecInOut_ );
-  if ( validEndcapBCHandle && validEndcapSCHandle ) 
-    buildCollections(scEndcapHandle, bcEndcapHandle, hcalTowersHandle, *outInTrackCandidate_p,*inOutTrackCandidate_p,caloPtrVecOutIn_,caloPtrVecInOut_ );
+    buildCollections(isBarrel, scBarrelHandle, bcBarrelHandle, ecalhitsCollEB, &(*RecHitsEB), sevLevel,  &(*chStatus), hcalTowersHandle, *outInTrackCandidate_p,*inOutTrackCandidate_p,caloPtrVecOutIn_,caloPtrVecInOut_ );
 
+  if ( validEndcapBCHandle && validEndcapSCHandle ) {
+    isBarrel=false;
+    buildCollections(isBarrel,scEndcapHandle, bcEndcapHandle, ecalhitsCollEE, &(*RecHitsEE),  sevLevel, &(*chStatus), hcalTowersHandle, *outInTrackCandidate_p,*inOutTrackCandidate_p,caloPtrVecOutIn_,caloPtrVecInOut_ );
+  }
 
 
 
@@ -253,13 +305,19 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
 }
 
 
-void ConversionTrackCandidateProducer::buildCollections( const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
-                                                         const edm::Handle<edm::View<reco::CaloCluster> > & bcHandle,
-							 const edm::Handle<CaloTowerCollection> & hcalTowersHandle,
-							 TrackCandidateCollection& outInTrackCandidates,
-							 TrackCandidateCollection& inOutTrackCandidates,
-							 std::vector<edm::Ptr<reco::CaloCluster> >& vecRecOI,
-							 std::vector<edm::Ptr<reco::CaloCluster> >& vecRecIO )
+void ConversionTrackCandidateProducer::buildCollections(bool isBarrel, 
+							const edm::Handle<edm::View<reco::CaloCluster> > & scHandle,
+							const edm::Handle<edm::View<reco::CaloCluster> > & bcHandle,
+							edm::Handle<EcalRecHitCollection> ecalRecHitHandle, 
+							CaloRecHitMetaCollectionV* ecalRecHits,
+							const EcalSeverityLevelAlgo* sevLevel,
+							edm::ESHandle<EcalChannelStatus>  chStatus,
+							//const EcalChannelStatus* chStatus,
+							const edm::Handle<CaloTowerCollection> & hcalTowersHandle,
+							TrackCandidateCollection& outInTrackCandidates,
+							TrackCandidateCollection& inOutTrackCandidates,
+							std::vector<edm::Ptr<reco::CaloCluster> >& vecRecOI,
+							std::vector<edm::Ptr<reco::CaloCluster> >& vecRecIO )
 
 {
 
@@ -270,17 +328,37 @@ void ConversionTrackCandidateProducer::buildCollections( const edm::Handle<edm::
   for (unsigned i = 0; i < scHandle->size(); ++i ) {
 
     reco::CaloClusterPtr aClus= scHandle->ptrAt(i);
-
+  
     // preselection based in Et and H/E cut. 
     if (aClus->energy()/cosh(aClus->eta()) <= minSCEt_) continue;
-    const reco::CaloCluster* pClus=&(*aClus);
+    const reco::CaloCluster*   pClus=&(*aClus);
     const reco::SuperCluster*  sc=dynamic_cast<const reco::SuperCluster*>(pClus);
+    double scEt = sc->energy()/cosh(sc->eta());  
     const CaloTowerCollection* hcalTowersColl = hcalTowersHandle.product();
     EgammaTowerIsolation towerIso(hOverEConeSize_,0.,0.,-1,hcalTowersColl) ;
     double HoE=towerIso.getTowerESum(sc)/sc->energy();
     if (HoE>=maxHOverE_)  continue;
-    ////
 
+    //// Apply also ecal isolation
+    EgammaRecHitIsolation ecalIso(isoConeR_,     
+				  isoInnerConeR_, 
+				  isoEtaSlice_,  
+				  isoEtMin_,    
+				  isoEMin_,    
+				  theCaloGeom_,
+				  &(*ecalRecHits),
+				  sevLevel,
+				  DetId::Ecal);
+
+    ecalIso.setVetoClustered(vetoClusteredHits_);
+    ecalIso.setUseNumCrystals(useNumXtals_);
+    if ( isBarrel ) ecalIso.doSpikeRemoval(ecalRecHitHandle.product(),chStatus.product(),severityLevelCut_);
+    ecalIso.doFlagChecks(v_chstatus_);
+    double ecalIsolation = ecalIso.getEtSum(sc);
+    if ( ecalIsolation >   ecalIsoCut_offset_ + ecalIsoCut_slope_*scEt ) continue;
+
+
+    // Now launch the seed finding
     theOutInSeedFinder_->setCandidate(pClus->energy(), GlobalPoint(pClus->position().x(),pClus->position().y(),pClus->position().z() ) );
     theOutInSeedFinder_->makeSeeds( bcHandle );
 
