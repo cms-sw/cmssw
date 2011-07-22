@@ -10,33 +10,33 @@ namespace cond {
     return __cxxabiv1::__cxa_demangle(t.name(), 0, 0, &status); 
   }
 
-  namespace {
-    std::string id(const std::type_info& t) {
-      const Reflex::Type type=Reflex::Type::ByTypeInfo(t);
-      std::string s;
-      if (type) {
-	Reflex::PropertyList pl = type.Properties();
-	if ( pl.HasProperty("ClassID") )  {
-	  s = pl.PropertyAsString("ClassID");
-	}
-	else  {
-	  char buff[20];
-	  genMD5(type.Name(Reflex::SCOPED),buff);
-          Guid* gd = reinterpret_cast<Guid*>(buff);
-	  s = gd->toString();
-	}
-      }
-      else {
-	// only for test
-	std::string name = className(t);
-	char buff[20];
-	genMD5(name,buff);
-        Guid* gd = reinterpret_cast<Guid*>(buff);
-	s = gd->toString();
-      }
-      return s;
-    }
-  }
+//   namespace {
+//     std::string id(const std::type_info& t) {
+//       const Reflex::Type type=Reflex::Type::ByTypeInfo(t);
+//       std::string s;
+//       if (type) {
+// 	Reflex::PropertyList pl = type.Properties();
+// 	if ( pl.HasProperty("ClassID") )  {
+// 	  s = pl.PropertyAsString("ClassID");
+// 	}
+// 	else  {
+// 	  char buff[20];
+// 	  genMD5(type.Name(Reflex::SCOPED),buff);
+//           Guid* gd = reinterpret_cast<Guid*>(buff);
+// 	  s = gd->toString();
+// 	}
+//       }
+//       else {
+// 	// only for test
+// 	std::string name = className(t);
+// 	char buff[20];
+// 	genMD5(name,buff);
+//         Guid* gd = reinterpret_cast<Guid*>(buff);
+// 	s = gd->toString();
+//       }
+//       return s;
+//     }
+//   }
 
 
   /**
@@ -55,8 +55,8 @@ namespace cond {
   **/  
 
   std::string ClassInfo::pluginName(std::string const & prefix) const {
-    //return prefix + "/" +className(tinfo);
-    return prefix + "/" +id(tinfo);
+    return prefix + "/" +className(tinfo);
+    //return prefix + "/" +id(tinfo);
   }
 
 }
