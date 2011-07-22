@@ -30,7 +30,8 @@ namespace {
       ;
 
     class_<Wrapper>("Object",init<>()) 
-      .def(init<cond::IOVElementProxy>())
+      .def(init<cond::CondDB>())
+      .def("load",&Wrapper::load)
       .def("dump",&Wrapper::dump)
       .def("dumpXML",&Wrapper::dumpXML)
       .def("plot",&Wrapper::plot)

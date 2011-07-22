@@ -2,8 +2,8 @@
 #define  PayLoadInspector_H
 #include "CondCore/ORA/interface/Object.h"
 #include "CondCore/IOVService/interface/IOVProxy.h"
-#include "CondCore/DBCommon/interface/DbTransaction.h"
-#include "CondCore/ORA/interface/PoolToken.h"
+#include "CondCore/DBCommon/interface/DbSession.h"
+#include "CondCore/Utilities/interface/CondPyInterface.h"
 #include "TFile.h"
 #include "Cintex/Cintex.h"
 #include <sstream>
@@ -74,7 +74,7 @@ namespace cond {
       m_object.destruct();
     }
     
-    PayLoadInspector(const cond::IOVElementProxy & elem): m_since(elem.since()), m_token(elem.token()) {
+    PayLoadInspector(cond::CondDB const & conddb): m_session(conddb.session()), m_since(cond::invalidTime), m_token("") {
       ROOT::Cintex::Cintex::Enable();
     } 
 
@@ -137,17 +137,20 @@ namespace cond {
       return m_object; 
     }
     
-    bool load( cond::DbSession & db ) {
+    bool load( cond::IOVElementProxy const& elem ) {
       bool ok = false;
-      m_object = db.getObject(m_token);
+      m_since = elem.since();
+      m_token = elem.token();
+      m_object = m_session.getObject(m_token);
       if(m_object.address()) ok = true;    
       return ok;
     }
     
   private:
-    ora::Object m_object;
+    cond::DbSession m_session;
     cond::Time_t m_since;
     std::string m_token;
+    ora::Object m_object;
   };
 
 }

@@ -169,7 +169,7 @@ namespace cond {
   }
 
   IOVElementProxy CondDB::payLoad(std::string const & token) const {
-    ///FIXME: must be IOVElementProxy(since, till, token, me)
+    ///FIXME: must be IOVElementProxy(since, till, token)
     return IOVElementProxy(0,0,token);
   }
 
@@ -191,10 +191,18 @@ namespace cond {
   void CondDB::startTransaction() const {
     me.transaction().start();
   }
+  void CondDB::startReadOnlyTransaction() const {
+    me.transaction().start(true);
+  }
   void CondDB::commitTransaction() const {
     me.transaction().commit();
   }
 
+  void CondDB::closeSession() const {
+    //FIXME: does the session disconnection fix the socket failure in FroNTier (bug #84265)?
+    me.close();
+  }
+  
   RDBMS::RDBMS() : connection(new DbConnection) {
     //topinit();
     connection->configure( cond::CmsDefaults );

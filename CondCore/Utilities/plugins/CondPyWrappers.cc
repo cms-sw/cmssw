@@ -18,47 +18,76 @@
 
 #include "CondCore/Utilities/interface/PayLoadInspector.h"
 
+#include <set>
+#include <vector>
+#include <string>
+#include <iostream>
 
 using namespace boost::python;
-
-#include<iostream>
 
 namespace {
 
   // decode token
-  std::string classID(std::string const & token) {
-    static std::string const clid("CLID=");
-    std::string::size_type s = token.find(clid) + clid.size();
-    std::string::size_type e = token.find(']',s);
-    return token.substr(s,e-s);
+//   std::string classID(std::string const & token) {
+//     static std::string const clid("CLID=");
+//     std::string::size_type s = token.find(clid) + clid.size();
+//     std::string::size_type e = token.find(']',s);
+//     return token.substr(s,e-s);
+//   }
+
+//   // find and return
+//   boost::shared_ptr<cond::ClassInfo> pyInfo(std::string const & token) {
+//     //    topinit();    
+//     static std::string const prefix = cond::idCategories::pythonIDCategory + "/";
+//     std::string pluginName = prefix + classID(token);
+//     std::cout << "############# pluginName: " << pluginName << std::endl;
+//     return boost::shared_ptr<cond::ClassInfo>(cond::ClassInfoFactory::get()->create(pluginName));
+//   }
+  
+//   std::string moduleNameByTag(cond::CondDB & db, std::string const & tag) {
+//     //topinit();    
+//     std::cout << "****************** tag: " << tag << std::endl;
+//     cond::IOVProxy iov = db.iov(tag);
+//     if (0==iov.size()) return std::string();
+    
+//     std::cout << "****************** resource: " << pyInfo(iov.begin()->token())->resource() << std::endl;
+//     return pyInfo(iov.begin()->token())->resource();
+//   }
+
+//   std::string moduleNameByToken(std::string const & token) {
+//     //topinit();   
+//     std::cout << "****************** token: " << token << std::endl;
+//     if (token.empty()) return std::string();
+//     std::cout << "****************** resource: " << pyInfo(token)->resource() << std::endl;
+//     return pyInfo(token)->resource();
+//   }
+  
+//   std::string moduleName(cond::CondDB & db, std::string const & ss) {
+//     //topinit();    
+//     //assume tags never start with '['
+//     /*if (ss[0]=='[')*/ return moduleNameByToken(ss);
+//     //return  moduleNameByTag(db,ss);
+//   }
+  
+  std::vector<std::string> payloadContainers(cond::IOVProxy & iov) {
+    //topinit();
+    std::vector<std::string> v_classes;
+    v_classes.insert(v_classes.end(),iov.payloadClasses().begin(),iov.payloadClasses().end());
+    return v_classes;
   }
 
-  // find and return
-  boost::shared_ptr<cond::ClassInfo> pyInfo(std::string const & token) {
-    //    topinit();    
-    static std::string const prefix = cond::idCategories::pythonIDCategory + "/";
-    std::string pluginName = prefix + classID(token);
-    return boost::shared_ptr<cond::ClassInfo>(cond::ClassInfoFactory::get()->create(pluginName));
-  }
-  
-  std::string moduleNameByTag(cond::CondDB & db, std::string const & tag) {
-    //topinit();    
+  std::vector<std::string> payloadModules(cond::CondDB & db, std::string const & tag) {
+    //topinit();
+    std::string const prefix = cond::idCategories::pythonIDCategory + "/";
     cond::IOVProxy iov = db.iov(tag);
-    if (0==iov.size()) return std::string();
-    return pyInfo(iov.begin()->token())->resource();
-  }
-
-  std::string moduleNameByToken(std::string const & token) {
-    //topinit();    
-    if (token.empty()) return std::string();
-    return pyInfo(token)->resource();
-  }
-  
-  std::string moduleName(cond::CondDB & db, std::string const & ss) {
-    //topinit();    
-    //assume tags never start with '['
-    if (ss[0]=='[') return moduleNameByToken(ss);
-    return  moduleNameByTag(db,ss);
+    std::vector<std::string> v_modules;
+    std::set<std::string>::const_iterator sBegin = iov.payloadClasses().begin();
+    std::set<std::string>::const_iterator sEnd = iov.payloadClasses().end();
+    for(std::set<std::string>::const_iterator s = sBegin; s != sEnd; ++s) {
+      boost::shared_ptr<cond::ClassInfo> cInfo(cond::ClassInfoFactory::get()->create(prefix + (*s)));
+      v_modules.push_back(cInfo->resource());
+    }
+    return v_modules;
   }
 
 
@@ -184,6 +213,7 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
     .def("comment", &cond::IOVProxy::comment)
     .def("revision",&cond::IOVProxy::revision)
     .def("timestamp",&cond::IOVProxy::timestamp)
+    .def("payloadClasses", payloadContainers)
     .add_property("elements", boost::python::range( &cond::IOVProxy::begin,  &cond::IOVProxy::end))
     ;
   
@@ -195,16 +225,19 @@ BOOST_PYTHON_MODULE(pluginCondDBPyInterface) {
     .def("iov", &cond::CondDB::iov)
     .def("iovWithLib", &cond::CondDB::iovWithLib)
     .def("payLoad", &cond::CondDB::payLoad)
-    .def("moduleName",moduleName)
+    .def("payloadModules",payloadModules)
     .def("lastLogEntry", &cond::CondDB::lastLogEntry)
     .def("lastLogEntryOK", &cond::CondDB::lastLogEntryOK)
     .def("startTransaction", &cond::CondDB::startTransaction)
+    .def("startReadOnlyTransaction", &cond::CondDB::startReadOnlyTransaction)
     .def("commitTransaction", &cond::CondDB::commitTransaction)
+    .def("closeSession", &cond::CondDB::closeSession)
     ;
   
 
   class_<cond::RDBMS>("RDBMS", init<>())
     .def(init<std::string>())
+    .def(init<std::string, bool>())
     .def(init<std::string, std::string>())
     .def("setLogger",&cond::RDBMS::setLogger)
     .def("getDB", &cond::RDBMS::getDB)

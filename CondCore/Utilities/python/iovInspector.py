@@ -59,15 +59,17 @@ class Iov :
        def __init__(self, db, tag, since=0, till=0, head=0, tail=0) :
            self.__db = db
            self.__tag = tag
+           self.__db.startReadOnlyTransaction()
            try : 
-               self.__modName = db.moduleName(tag)
-               exec('import '+self.__modName+' as Plug')
+               self.__modName = str(db.payloadModules(tag)[0])
+               Plug = __import__(self.__modName)
            except RuntimeError :
                self.__modName = 0
            self.__me = db.iov(tag)
            if (till) : self.__me.setRange(since,till)
            if (head) : self.__me.head(head)
            if (tail) : self.__me.tail(tail)
+           self.__db.commitTransaction()
 
        def list(self) :
            ret = []
@@ -77,52 +79,64 @@ class Iov :
     
        def payloadSummaries(self):
            ret = []
+           self.__db.startReadOnlyTransaction()
+           Plug = __import__(self.__modName)
+           payload = Plug.Object(self.__db)
            for elem in self.__me.elements:
               payloadtoken=elem.payloadToken()
-              exec('import '+self.__db.moduleName(payloadtoken)+' as Plug')
-              payload = Plug.Object(self.__db.payLoad(payloadtoken))
+              payload.load(elem)
               ret.append(payload.summary())
+           self.__db.commitTransaction()
            return ret
            
        def summaries(self) :
            if (self.__modName==0) : return ["no plugin for "  + self.__tag+" no summaries"]
-           exec('import '+self.__modName+' as Plug')
+           self.__db.startReadOnlyTransaction()
+           Plug = __import__(self.__modName)
            ret = []
+           p = Plug.Object(self.__db)
            for elem in self.__me.elements :
-               p = Plug.Object(elem)
+               p.load(elem)
                ret.append( (elem.payloadToken(), elem.since(), elem.till(), p.summary()))
+           self.__db.commitTransaction()
            return ret
            
        def trend(self, what) :
            if (self.__modName==0) : return ["no plugin for "  + self.__tag+" no trend"]
-           exec('import '+self.__modName+' as Plug')
+           self.__db.startReadOnlyTransaction()
+           Plug = __import__(self.__modName)
            ret = []
            w = setWhat(Plug.What(),what)
            ex = Plug.Extractor(w)
+           p = Plug.Object(self.__db)
            for elem in self.__me.elements :
-               p = Plug.Object(elem)
+               p.load(elem)
                p.extract(ex)
                v = [i for i in ex.values()]
                ret.append((elem.since(),elem.till(),v))
+           self.__db.commitTransaction()
            return ret
     
        def trendinrange(self, what, head, tail) :
            '''extract trend in the given range. the input parameters are in 64bit integer format. Users should pack the timestamp or lumiid before calling this method
            '''
            if (self.__modName==0) : return ["no plugin for "  + self.__tag+" no trend"]
-           exec('import '+self.__modName+' as Plug')
+           self.__db.startReadOnlyTransaction()
+           Plug = __import__(self.__modName)
            ret = []
            w = setWhat(Plug.What(),what)
            ex = Plug.Extractor(w)
 
+           p = Plug.Object(self.__db)
            for elem in self.__me.elements :
                   since = elem.since()
                   till = elem.till()
                   if (head < since < tail) or (since < head < till) or (since < tail < till):
-                         p = Plug.Object(elem)
+                         p.load(elem)
                          p.extract(ex)
                          v = [i for i in ex.values()]
                          ret.append((elem.since(),elem.till(),v))
+           self.__db.commitTransaction()
            return ret
     
        def timetype(self):
@@ -133,25 +147,32 @@ class Iov :
            return self.__me.revision()
        def timestamp(self):
            return  CondDB.unpackTime(self.__me.timestamp())
-       def payloadContainerName(self):
-           return self.__me.payloadContainerName()
+       def payloadClasses(self):
+           return list(self.__me.payloadClasses())
        def payLoad(self, since):
            listOfIovElem= [iovElem for iovElem in self.__me.elements if iovElem.since() == since]
            IOVElem = listOfIovElem[0]
-           exec('import '+self.__db.moduleName(IOVElem.payloadToken())+' as Plug')
-           payload = Plug.Object(IOVElem)
+           self.__db.startReadOnlyTransaction()
+           Plug = __import__(self.__modName)
+           payload = Plug.Object(self.__db)
+           payload.load(IOVElem)
+           self.__db.commitTransaction()
            #print payload
            return payload
               
               
     
 class PayLoad :
-    def __init__(self, db, token) :
+    def __init__(self, db, tag, elem) :
         self.__db = db
-        self.__token = token
-        exec('import '+db.moduleName(token)+' as Plug')
-
-        self.__me = Plug.Object(db.payLoad(token))
+        self.__tag = tag
+        self.__elem = elem
+        self.__db.startReadOnlyTransaction()
+        self.__modName = str(db.payloadModules(tag)[0])
+        Plug = __import__(self.__modName)
+        self.__me = Plug.Object(db)
+        self.__me.load(elem)
+        self.__db.commitTransaction()
 
     def __str__(self) :
         return self.__me.dump()

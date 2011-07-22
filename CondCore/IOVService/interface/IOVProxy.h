@@ -18,17 +18,18 @@ namespace cond {
   
   class IOVElementProxy {
   public:
-    IOVElementProxy() : m_since(cond::invalidTime), m_till(cond::invalidTime) {}
-    //explicit IOVElementProxy(cond::DbSession& dbSession) : 
-    //  m_since(cond::invalidTime), m_till(cond::invalidTime), m_dbSession( dbSession ){}
+    IOVElementProxy() : m_since(cond::invalidTime)
+		      , m_till(cond::invalidTime)
+		      , m_token("") {}
+    
     IOVElementProxy(cond::Time_t is,
                     cond::Time_t it,
                     std::string const& itoken):
-      m_since(is), m_till(it), m_token(itoken){}
+      m_since(is), m_till(it), m_token(itoken) {}
     
     void set(cond::Time_t is,
 	     cond::Time_t it,
-	     std::string const& itoken ) {
+	     std::string const& itoken) {
       m_since=is; m_till=it; m_token=itoken;
     }
     
@@ -37,13 +38,11 @@ namespace cond {
     cond::Time_t since() const {return m_since;}
     cond::Time_t till() const {return m_till;}
     std::string const & token() const {return m_token;}
-    //cond::DbSession& db() const { return m_dbSession; }
-
+ 
   private:
     cond::Time_t m_since;
     cond::Time_t m_till;
-    std::string  m_token;
-    //mutable cond::DbSession m_dbSession;
+    std::string m_token;
   };
   
   

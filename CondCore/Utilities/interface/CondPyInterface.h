@@ -58,9 +58,12 @@ namespace cond {
    cond::LogDBEntry lastLogEntryOK(std::string const & tag) const;
 
    void startTransaction() const;
+   void startReadOnlyTransaction() const;
    void commitTransaction() const;
-
-   DbSession& session() { return me;}
+   
+   void closeSession() const;
+   
+   DbSession& session() const { return me;}
 
  private:
    mutable DbSession me;
