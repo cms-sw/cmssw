@@ -112,9 +112,6 @@ process.fileSaver = cms.EDAnalyzer(\"METFileSaver\",
     OutputFile = cms.untracked.string('METTester_data_${i}.root')
 ) 
 process.p = cms.Path(process.fileSaver*
-                     process.calotoweroptmaker*
-                     process.analyzeRecHits*
-                     process.analyzecaloTowers*
                      process.analyzeGenMET*
                      process.analyzeGenMETFromGenJets*
                      process.analyzeHTMET*
