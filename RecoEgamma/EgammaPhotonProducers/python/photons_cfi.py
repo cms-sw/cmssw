@@ -1,14 +1,18 @@
 import FWCore.ParameterSet.Config as cms
 
 from RecoEgamma.PhotonIdentification.isolationCalculator_cfi import *
+from RecoEgamma.PhotonIdentification.mipVariable_cfi import *
+#    
+
 #
 # producer for photons
-# $Id: photons_cfi.py,v 1.35 2010/02/22 19:40:52 nancy Exp $
+# $Id: photons_cfi.py,v 1.36 2010/11/23 17:29:11 nancy Exp $
 #
 photons = cms.EDProducer("PhotonProducer",
     photonCoreProducer = cms.InputTag("photonCore"),
  #   photonCollection = cms.string(''),
     isolationSumsCalculatorSet = cms.PSet(isolationSumsCalculator),
+    mipVariableSet = cms.PSet(mipVariable), 
     usePrimaryVertex = cms.bool(True),
     primaryVertexProducer = cms.string('offlinePrimaryVerticesWithBS'),
     posCalc_t0_endcPresh = cms.double(3.6),
