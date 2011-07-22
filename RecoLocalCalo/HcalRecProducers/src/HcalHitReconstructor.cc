@@ -53,6 +53,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
   hfPET_                      = 0;
   saturationFlagSetter_       = 0;
   HFTimingTrustFlagSetter_    = 0;
+  digiTimeFromDB_             = false; // only need for HF
   
   if (setSaturationFlags_)
     {
@@ -128,6 +129,7 @@ HcalHitReconstructor::HcalHitReconstructor(edm::ParameterSet const& conf):
     produces<HORecHitCollection>();
   } else if (!strcasecmp(subd.c_str(),"HF")) {
     subdet_=HcalForward;
+    digiTimeFromDB_=conf.getParameter<bool>("digiTimeFromDB");
 
     if (setTimingTrustFlags_) {
       
@@ -208,12 +210,23 @@ void HcalHitReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
       es.get<HcalRecoParamsRcd>().get(p);
       paramTS = new HcalRecoParams(*p.product());
     }
+
+  if (digiTimeFromDB_==true)
+    {
+      edm::ESHandle<HcalFlagHFDigiTimeParams> p;
+      es.get<HcalFlagHFDigiTimeParamsRcd>().get(p);
+      HFDigiTimeParams = new HcalFlagHFDigiTimeParams(*p.product());
+    }
 }
 
 void HcalHitReconstructor::endRun(edm::Run&r, edm::EventSetup const & es){
   if (tsFromDB_==true)
     {
       if (paramTS) delete paramTS;
+    }
+  if (digiTimeFromDB_==true)
+    {
+      if (HFDigiTimeParams) delete HFDigiTimeParams;
     }
 }
 
@@ -467,29 +480,40 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	  reco_.initPulseCorr(toadd);
           toaddMem = toadd;
 	}
-
-	// Digi parameters depending on Reco ones from DB
+	
+	// Set HFDigiTime flag values from digiTimeFromDB_
+	if (digiTimeFromDB_==true && hfdigibit_!=0)
+	  {
+	    const HcalFlagHFDigiTimeParam* hfDTparam = HFDigiTimeParams->getValues(detcell.rawId());
+	    hfdigibit_->resetParamsFromDB(hfDTparam->HFdigiflagFirstSample(),
+					  hfDTparam->HFdigiflagSamplesToAdd(),
+					  hfDTparam->HFdigiflagExpectedPeak(),
+					  hfDTparam->HFdigiflagMinEThreshold(),
+					  hfDTparam->HFdigiflagCoefficients()
+					  );
+	  }
+	// Set aux parameters (and digi params, if not read from DB) based on reco params
 	if (first ==3 && toadd == 4)  { // 2010 data cfgs
 	  firstAuxTS_=3;
 	  // Provide firstSample, samplesToAdd, expected peak for digi flag
 	  // (This can be different from rechit value!)
-	  if (hfdigibit_!=0)
+	  if (digiTimeFromDB_==0 && hfdigibit_!=0)
 	    hfdigibit_->resetFlagTimeSamples(3,4,4);
 	} // 2010 data; firstSample = 3; samplesToAdd =4 
 	else if (first == 4 && toadd == 2)  // 2011 data cfgs, 10-TS digis
 	  {
 	    firstAuxTS_=3;
-	    if (hfdigibit_!=0)
+	    if (digiTimeFromDB_==0 && hfdigibit_!=0)
 	      hfdigibit_->resetFlagTimeSamples(3,3,4);
 	  } // 2010 data; firstSample = 4; samplesToAdd =2 
 	else if (first == 2 && toadd == 2)  // 2011 data cfgs; 6-TS digis
 	  {
 	    firstAuxTS_=1;
-	    if (hfdigibit_!=0)
+	    if (digiTimeFromDB_==0 && hfdigibit_!=0)
 	      hfdigibit_->resetFlagTimeSamples(1,3,2);
 	  } // 2010 data; firstSample = 2; samplesToAdd =2 
-	
 
+	
 	rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));
 
 	// Set auxiliary flag
@@ -617,6 +641,5 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
       e.put(rec);     
     }
   } 
-
   delete myqual;
 } // void HcalHitReconstructor::produce(...)

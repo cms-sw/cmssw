@@ -12,10 +12,13 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalHFStatusBitFromRecHits.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalHFStatusBitFromDigis.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+
 #include "CondFormats/HcalObjects/interface/HcalChannelQuality.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
 #include "CondFormats/HcalObjects/interface/HcalRecoParams.h"
 #include "CondFormats/HcalObjects/interface/HcalRecoParam.h" 
+#include "CondFormats/HcalObjects/interface/HcalFlagHFDigiTimeParams.h"
+
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHEStatusBitSetter.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalTimingCorrector.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HBHETimeProfileStatusBitSetter.h"
@@ -28,8 +31,8 @@
 
     /** \class HcalHitReconstructor
 	
-    $Date: 2011/05/17 09:18:48 $
-    $Revision: 1.16 $
+    $Date: 2011/05/20 18:43:39 $
+    $Revision: 1.17 $
     \author J. Temple & E. Yazgan
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */
@@ -72,11 +75,13 @@
       int firstSample_;
       int samplesToAdd_;
       bool tsFromDB_;
+      bool digiTimeFromDB_;
 
       // switch on/off leakage (to pre-sample) correction
       bool useLeakCorrection_;
       
       HcalRecoParams* paramTS;  // firstSample & sampleToAdd from DB  
+      HcalFlagHFDigiTimeParams* HFDigiTimeParams; // HF DigiTime parameters
     };
 
 #endif

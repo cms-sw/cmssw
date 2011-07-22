@@ -12,8 +12,8 @@
     
    This class sets status bit in the status words for the revised CaloRecHit objets according to informatino from the digi associated to the hit.
     
-   $Date: 2011/02/22 20:39:32 $
-   $Revision: 1.13 $
+   $Date: 2011/05/15 23:58:17 $
+   $Revision: 1.14 $
    \author J. Temple -- University of Maryland and E. Yazgan
 */
 
@@ -30,6 +30,7 @@ public:
   void hfSetFlagFromDigi(HFRecHit& hf, const HFDataFrame& digi,
 			 const HcalCoder& coder,
 			 const HcalCalibrations& calib);
+  void resetParamsFromDB(int firstSample, int samplesToAdd, int expectedPeak, double minthreshold, std::vector<double> coef);
   void resetFlagTimeSamples(int firstSample, int samplesToAdd, int expectedPeak);
 
 private:
@@ -47,10 +48,9 @@ private:
   int expectedPeak_;
   
   // Coefficients used to determine energy ratio threshold:
-  // E_peak/(Etotal) > coef0_-exp(coef1_+coef2_*Energy)
-  double coef0_;
-  double coef1_;
-  double coef2_;
+  // E_peak/(Etotal) > coef0_-exp(coef1_+coef2_*Energy+coef3_*E^2+...)
+  std::vector<double> coef_;
+
 
   // VARIABLES FOR SETTING HFInTimeWindow FLAG
   double HFlongwindowEthresh_;

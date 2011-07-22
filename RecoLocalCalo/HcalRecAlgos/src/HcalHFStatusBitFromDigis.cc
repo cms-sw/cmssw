@@ -16,10 +16,10 @@ HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis()
 
   // Based on Igor V's algorithm:
   //TS4/(TS3+TS4+TS5+TS6) > 0.93 - exp(-0.38275-0.012667*E)
-  coef0_= 0.93;
-  coef1_ = -0.38275;
-  coef2_ = -0.012667;
-  // Minimum energy of 10 GeV required
+  coef_.push_back(0.93);
+  coef_.push_back(-0.38275);
+  coef_.push_back(-0.012667);
+ // Minimum energy of 10 GeV required
   HFlongwindowEthresh_=40;
   HFlongwindowMinTime_.clear();
   HFlongwindowMinTime_.push_back(-10);
@@ -40,9 +40,7 @@ HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis(const edm::ParameterSet& HFDi
   samplesToAdd_       = HFDigiTimeParams.getParameter<int>("HFdigiflagSamplesToAdd");
   expectedPeak_       = HFDigiTimeParams.getParameter<int>("HFdigiflagExpectedPeak");
   minthreshold_       = HFDigiTimeParams.getParameter<double>("HFdigiflagMinEthreshold");
-  coef0_              = HFDigiTimeParams.getParameter<double>("HFdigiflagCoef0");
-  coef1_              = HFDigiTimeParams.getParameter<double>("HFdigiflagCoef1");
-  coef2_              = HFDigiTimeParams.getParameter<double>("HFdigiflagCoef2");
+  coef_              = HFDigiTimeParams.getParameter<std::vector<double> >("HFdigiflagCoef");
 
   // Specify parameters used in forming HFInTimeWindow flag
   HFlongwindowMinTime_    = HFTimeInWindowParams.getParameter<std::vector<double> >("hflongMinWindowTime");
@@ -54,6 +52,17 @@ HcalHFStatusBitFromDigis::HcalHFStatusBitFromDigis(const edm::ParameterSet& HFDi
 }
 
 HcalHFStatusBitFromDigis::~HcalHFStatusBitFromDigis(){}
+
+void HcalHFStatusBitFromDigis::resetParamsFromDB(int firstSample, int samplesToAdd, int expectedPeak, double minthreshold, std::vector<double> coef)
+{
+  // Resets values based on values in database.
+  firstSample_  = firstSample;
+  samplesToAdd_ = samplesToAdd;
+  expectedPeak_ = expectedPeak;
+  minthreshold_ = minthreshold;
+  coef_         = coef;
+}
+
 
 void HcalHFStatusBitFromDigis::resetFlagTimeSamples(int firstSample, int samplesToAdd, int expectedPeak)
 {
@@ -72,7 +81,7 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
   // The following 3 values are computed by Igor's algorithm 
   //only in the window [firstSample_, firstSample_ + samplesToAdd_), 
   //which may not be the same as the default reco window.
-  
+ 
   double totalCharge=0;
   double peakCharge=0;
   double RecomputedEnergy=0;
@@ -95,14 +104,25 @@ void HcalHFStatusBitFromDigis::hfSetFlagFromDigi(HFRecHit& hf,
 	  if (i==expectedPeak_) peakCharge=value;
 	}
     } // for (int i=0;i<digi.size();++i)
-  
 
   // FLAG:  HcalCaloLabels::HFDigiTime
   // Igor's algorithm:  compare charge in peak to total charge in window
   if (RecomputedEnergy>=minthreshold_)  // don't set noise flags for cells below a given threshold
     {
       // Calculate allowed minimum value of (TS4/TS3+4+5+6):
-      double cutoff=coef0_-exp(coef1_+coef2_*RecomputedEnergy);
+      double cutoff=0; // no arguments specified; no cutoff applied
+      if (coef_.size()>0)
+	cutoff=coef_[0];
+      // default cutoff takes the form:
+      // cutoff = coef_[0] - exp(coef_[1]+coef_[2]*E+coef_[3]*E^2+...)
+      double powRE=1;
+      double expo_arg=0;
+      for (uint zz=1;zz<coef_.size();++zz)
+	{
+	  expo_arg+=coef_[zz]*powRE;
+	  powRE*=RecomputedEnergy;
+	}
+      cutoff-=exp(expo_arg);
       
       if (peakCharge/totalCharge<cutoff)
 	hf.setFlagField(1,HcalCaloFlagLabels::HFDigiTime);
