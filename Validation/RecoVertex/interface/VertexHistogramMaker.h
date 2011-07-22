@@ -54,6 +54,7 @@ class VertexHistogramMaker {
   TProfile* m_hndofvsvtxz; 
   TProfile* m_hntracksvsvtxz; 
   TProfile* m_haveweightvsvtxz; 
+  TProfile* m_haveweightvsvtxzchk; 
   TH1F* m_hweights;
   TH1F* m_hvtxx;
   TH1F* m_hvtxy;

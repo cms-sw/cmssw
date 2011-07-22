@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Thu Dec 16 16:32:56 CEST 2010
-// $Id: MCvsRecoVerticesAnalyzer.cc,v 1.2 2011/03/01 22:36:58 venturia Exp $
+// $Id: MCvsRecoVerticesAnalyzer.cc,v 1.1 2011/03/08 17:11:26 venturia Exp $
 //
 //
 
@@ -78,6 +78,7 @@ private:
   edm::InputTag m_pvcollection;
   const bool m_useweight;
   edm::InputTag m_weight;
+  const bool m_useVisibleVertices;
   const edm::ParameterSet m_histoParameters;
 
   TH2F* m_hrecovsmcnvtx2d;
@@ -111,11 +112,12 @@ MCvsRecoVerticesAnalyzer::MCvsRecoVerticesAnalyzer(const edm::ParameterSet& iCon
   m_pvcollection(iConfig.getParameter<edm::InputTag>("pvCollection")),
   m_useweight(iConfig.getParameter<bool>("useWeight")),
   m_weight(iConfig.getParameter<edm::InputTag>("weightProduct")),
+  m_useVisibleVertices(iConfig.getParameter<bool>("useVisibleVertices")),
   m_histoParameters(iConfig.getUntrackedParameter<edm::ParameterSet>("histoParameters",edm::ParameterSet()))
 {
    //now do what ever initialization is needed
 
-
+  if(m_useVisibleVertices) edm::LogInfo("UseVisibleVertices") << "Only visible vertices will be used to compute Npileup";
 
   edm::Service<TFileService> tfserv;
 
@@ -191,8 +193,18 @@ MCvsRecoVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
     
   }
   
-  Handle<PileupSummaryInfo> pileupinfo;
-  iEvent.getByLabel(m_pileupcollection,pileupinfo);
+  Handle<std::vector<PileupSummaryInfo> > pileupinfos;
+  iEvent.getByLabel(m_pileupcollection,pileupinfos);
+
+  // look for the intime PileupSummaryInfo
+
+  std::vector<PileupSummaryInfo>::const_iterator pileupinfo;
+
+  for(pileupinfo = pileupinfos->begin(); pileupinfo != pileupinfos->end() ; ++pileupinfo) {
+
+    if(pileupinfo->getBunchCrossing()==0) break;
+
+  } 
   
   //
   
@@ -202,55 +214,67 @@ MCvsRecoVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
 
    //
 
-  m_hrecovsmcnvtx2d->Fill(pileupinfo->getPU_NumInteractions(),pvcoll->size(),weight);
-  m_hrecovsmcnvtxprof->Fill(pileupinfo->getPU_NumInteractions(),pvcoll->size(),weight);
+  if(pileupinfo->getBunchCrossing()!=0) {
 
-  if(m_useweight) m_hrecovsmcnvtxweightedprof->Fill(pileupinfo->getPU_NumInteractions(),pvcoll->size(),1.-weight);
-   
-  //
+    edm::LogError("NoInTimePileUpInfo") << "Cannot find the in-time pileup info " << pileupinfo->getBunchCrossing();
 
-  Handle< HepMCProduct > EvtHandle ;
-  iEvent.getByLabel(m_mctruthcollection, EvtHandle ) ;
-  
-  const HepMC::GenEvent* Evt = EvtHandle->GetEvent();
-  
-  // compute the difference between the main interaction vertex z position and the first vertex of the collection
-  
-  if(pvcoll->size() !=0) {
-    if(!(*pvcoll)[0].isFake()) {
-      // get the first vertex
-      if(Evt->vertices_begin() != Evt->vertices_end()) {
-	m_hdeltazfirst->Fill((*pvcoll)[0].z()-(*Evt->vertices_begin())->point3d().z()/10.,weight);
-	m_hdeltazfirstvsnpu->Fill(pileupinfo->getPU_NumInteractions(),(*pvcoll)[0].z()-(*Evt->vertices_begin())->point3d().z()/10.,weight);
+  }
+  else {
+
+    int npileup = pileupinfo->getPU_NumInteractions();
+
+    if(m_useVisibleVertices) npileup = pileupinfo->getPU_zpositions().size();
+
+    m_hrecovsmcnvtx2d->Fill(npileup,pvcoll->size(),weight);
+    m_hrecovsmcnvtxprof->Fill(npileup,pvcoll->size(),weight);
+
+    if(m_useweight) m_hrecovsmcnvtxweightedprof->Fill(npileup,pvcoll->size(),1.-weight);
+    
+    //
+    
+    Handle< HepMCProduct > EvtHandle ;
+    iEvent.getByLabel(m_mctruthcollection, EvtHandle ) ;
+    
+    const HepMC::GenEvent* Evt = EvtHandle->GetEvent();
+    
+    // compute the difference between the main interaction vertex z position and the first vertex of the collection
+    
+    if(pvcoll->size() !=0) {
+      if(!(*pvcoll)[0].isFake()) {
+	// get the first vertex
+	if(Evt->vertices_begin() != Evt->vertices_end()) {
+	  m_hdeltazfirst->Fill((*pvcoll)[0].z()-(*Evt->vertices_begin())->point3d().z()/10.,weight);
+	  m_hdeltazfirstvsnpu->Fill(npileup,(*pvcoll)[0].z()-(*Evt->vertices_begin())->point3d().z()/10.,weight);
+	}
       }
     }
-  }
-
-  // compute the difference between the main interaction vertex z position and the closest reco vertex  
-
-  double minabsdist = -1.;
-  double mindist = -999.;
-  int closestvtx = -1;
-
-  for(unsigned int ivtx = 0 ; ivtx < pvcoll->size() ; ++ivtx) {
-
-    if(closestvtx < 0 || minabsdist > std::abs((*pvcoll)[ivtx].z()-(*Evt->vertices_begin())->point3d().z()/10.)) {
-      mindist = (*pvcoll)[ivtx].z()-(*Evt->vertices_begin())->point3d().z()/10.;
-      closestvtx = ivtx;
-      minabsdist = std::abs(mindist);
+    
+    // compute the difference between the main interaction vertex z position and the closest reco vertex  
+    
+    double minabsdist = -1.;
+    double mindist = -999.;
+    int closestvtx = -1;
+    
+    for(unsigned int ivtx = 0 ; ivtx < pvcoll->size() ; ++ivtx) {
+      
+      if(closestvtx < 0 || minabsdist > std::abs((*pvcoll)[ivtx].z()-(*Evt->vertices_begin())->point3d().z()/10.)) {
+	mindist = (*pvcoll)[ivtx].z()-(*Evt->vertices_begin())->point3d().z()/10.;
+	closestvtx = ivtx;
+	minabsdist = std::abs(mindist);
+      }
+      
     }
-
+    if(closestvtx >= 0) {
+      m_hdeltazclose->Fill(mindist,weight);
+      m_hdeltazclosevsnpu->Fill(npileup,mindist,weight);
+      m_hclosestvtx->Fill(closestvtx,weight);
+      m_hclosestvtxvsnpu->Fill(npileup,closestvtx,weight);
+    }
+    
   }
-  if(closestvtx >= 0) {
-    m_hdeltazclose->Fill(mindist,weight);
-    m_hdeltazclosevsnpu->Fill(pileupinfo->getPU_NumInteractions(),mindist,weight);
-    m_hclosestvtx->Fill(closestvtx,weight);
-    m_hclosestvtxvsnpu->Fill(pileupinfo->getPU_NumInteractions(),closestvtx,weight);
-  }
-
 }
-
-void 
+  
+  void 
 MCvsRecoVerticesAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup&)
 {
 }

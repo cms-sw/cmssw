@@ -114,9 +114,9 @@ void BSvsPVHistogramMaker::book(const std::string dirname) {
 				       );
 
     if(_runHistoProfile) {
-      _hdeltaxvsorbrun = _rhm.makeTProfile("deltaxvsorbrun","(PV-BS) X position vs orbit number",1800,0.5,1800.*11223+0.5);
-      _hdeltayvsorbrun = _rhm.makeTProfile("deltayvsorbrun","(PV-BS) Y position vs orbit number",1800,0.5,1800.*11223+0.5);
-      _hdeltazvsorbrun = _rhm.makeTProfile("deltazvsorbrun","(PV-BS) Z position vs orbit number",1800,0.5,1800.*11223+0.5);
+      _hdeltaxvsorbrun = _rhm.makeTProfile("deltaxvsorbrun","(PV-BS) X position vs orbit number",1600,0.5,1600.*16384+0.5);
+      _hdeltayvsorbrun = _rhm.makeTProfile("deltayvsorbrun","(PV-BS) Y position vs orbit number",1600,0.5,1600.*16384+0.5);
+      _hdeltazvsorbrun = _rhm.makeTProfile("deltazvsorbrun","(PV-BS) Z position vs orbit number",1600,0.5,1600.*16384+0.5);
     }
     if(_runHistoBXProfile) {
       _hdeltaxvsbxrun = _rhm.makeTProfile("deltaxvsbxrun","(PV-BS) X position vs BX number",3564,-0.5,3563.5);

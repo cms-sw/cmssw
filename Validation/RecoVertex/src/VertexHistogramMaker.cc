@@ -91,6 +91,11 @@ void VertexHistogramMaker::book(const std::string dirname) {
 					 m_histoParameters.getUntrackedParameter<double>("zMax",20.));
   m_haveweightvsvtxz->GetXaxis()->SetTitle("Z [cm]");   m_haveweightvsvtxz->GetYaxis()->SetTitle("Average weight"); 
 
+  m_haveweightvsvtxzchk = currdir->make<TProfile>("aveweightvsvtxzchk","Average weight vs Vertex Z position (check)",200,
+						  m_histoParameters.getUntrackedParameter<double>("zMin",-20.),
+						  m_histoParameters.getUntrackedParameter<double>("zMax",20.));
+  m_haveweightvsvtxzchk->GetXaxis()->SetTitle("Z [cm]");   m_haveweightvsvtxzchk->GetYaxis()->SetTitle("Average weight"); 
+
   m_hweights = currdir->make<TH1F>("weights","Tracks weights",51,0.,1.02);
   m_hweights->GetXaxis()->SetTitle("weights");   m_hweights->GetYaxis()->SetTitle("Tracks"); 
 
@@ -136,9 +141,9 @@ void VertexHistogramMaker::book(const std::string dirname) {
 			      m_histoParameters.getUntrackedParameter<double>("zMax",20.));
     
     if(m_runHistoProfile) {
-      m_hvtxxvsorbrun = m_rhm.makeTProfile("vtxxvsorbrun","Vertex X position vs orbit number",1800,0.5,1800.*11223+0.5);
-      m_hvtxyvsorbrun = m_rhm.makeTProfile("vtxyvsorbrun","Vertex Y position vs orbit number",1800,0.5,1800.*11223+0.5);
-      m_hvtxzvsorbrun = m_rhm.makeTProfile("vtxzvsorbrun","Vertex Z position vs orbit number",1800,0.5,1800.*11223+0.5);
+      m_hvtxxvsorbrun = m_rhm.makeTProfile("vtxxvsorbrun","Vertex X position vs orbit number",1600,0.5,1600.*16384+0.5);
+      m_hvtxyvsorbrun = m_rhm.makeTProfile("vtxyvsorbrun","Vertex Y position vs orbit number",1600,0.5,1600.*16384+0.5);
+      m_hvtxzvsorbrun = m_rhm.makeTProfile("vtxzvsorbrun","Vertex Z position vs orbit number",1600,0.5,1600.*16384+0.5);
       m_hnvtxvsorbrun = m_rhm.makeTProfile("nvtxvsorbrun","Number of true vertices vs orbit number",100,0.5,100.*262144+0.5);
     }
     
@@ -274,6 +279,7 @@ void VertexHistogramMaker::fill(const unsigned int orbit, const int bx, const re
 	}
 
 	m_hweights->Fill(vtx->trackWeight(*trk),weight);
+	m_haveweightvsvtxzchk->Fill(vtx->z(),vtx->trackWeight(*trk),weight);
 
       }
 

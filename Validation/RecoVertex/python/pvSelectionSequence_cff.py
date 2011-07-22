@@ -21,3 +21,5 @@ goodVerticesDA100umV8 = goodVertices.clone(src = cms.InputTag("offlinePrimaryVer
 
 seqPVSelection = cms.Sequence(goodVertices + noFakeVertices + goodVerticesD0s5 + goodVerticesD0s51mm +
                               goodVerticesDA100um + goodVerticesDA100umV7 + goodVerticesDA100umV8  )
+seqSimplePVSelection = cms.Sequence(goodVertices + noFakeVertices)
+

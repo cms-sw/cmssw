@@ -38,10 +38,14 @@ class BeamSpotHistogramMaker {
   TH1F** _hbsxrun;
   TH1F** _hbsyrun;
   TH1F** _hbszrun;
+  TH1F** _hbssigmaxrun;
+  TH1F** _hbssigmayrun;
   TH1F** _hbssigmazrun;
   TProfile** _hbsxvsorbrun;
   TProfile** _hbsyvsorbrun;
   TProfile** _hbszvsorbrun;
+  TProfile** _hbssigmaxvsorbrun;
+  TProfile** _hbssigmayvsorbrun;
   TProfile** _hbssigmazvsorbrun;
 
 

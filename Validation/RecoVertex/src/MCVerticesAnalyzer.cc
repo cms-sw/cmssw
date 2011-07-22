@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Thu Dec 16 16:32:56 CEST 2010
-// $Id: MCVerticesAnalyzer.cc,v 1.1 2011/03/08 17:11:26 venturia Exp $
+// $Id: MCVerticesAnalyzer.cc,v 1.2 2011/03/08 19:12:39 venturia Exp $
 //
 //
 
@@ -162,27 +162,42 @@ MCVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    }
 
 
-   Handle<PileupSummaryInfo> pileupinfo;
-   iEvent.getByLabel(m_pileupcollection,pileupinfo);
+   Handle<std::vector<PileupSummaryInfo> >  pileupinfos;
+   iEvent.getByLabel(m_pileupcollection,pileupinfos);
 
    //
 
-   if(pileupinfo.isValid()) {
-     m_hnvtx->Fill(pileupinfo->getPU_NumInteractions(),weight);
-     if(m_useweight) {
-       m_hnvtxweight->Fill(pileupinfo->getPU_NumInteractions(),1.-weight);
-       m_hnvtxweightprof->Fill(pileupinfo->getPU_NumInteractions(),1.-weight);
+   if(pileupinfos.isValid()) {
+
+  // look for the intime PileupSummaryInfo
+
+     std::vector<PileupSummaryInfo>::const_iterator pileupinfo;
+     for(pileupinfo = pileupinfos->begin(); pileupinfo != pileupinfos->end() ; ++pileupinfo) {
+       if(pileupinfo->getBunchCrossing()==0) break;
+     } 
+ 
+     //
+
+     if(pileupinfo->getBunchCrossing()!=0) {
+       edm::LogError("NoInTimePileUpInfo") << "Cannot find the in-time pileup info " << pileupinfo->getBunchCrossing();
      }
-     
-     const std::vector<float>& zpositions = pileupinfo->getPU_zpositions();
-     
-     for(std::vector<float>::const_iterator zpos = zpositions.begin() ; zpos != zpositions.end() ; ++zpos) {
+     else {
+
+       m_hnvtx->Fill(pileupinfo->getPU_NumInteractions(),weight);
+       if(m_useweight) {
+	 m_hnvtxweight->Fill(pileupinfo->getPU_NumInteractions(),1.-weight);
+	 m_hnvtxweightprof->Fill(pileupinfo->getPU_NumInteractions(),1.-weight);
+       }
        
-       m_hpileupvtxz->Fill(*zpos,weight);
+       const std::vector<float>& zpositions = pileupinfo->getPU_zpositions();
        
+       for(std::vector<float>::const_iterator zpos = zpositions.begin() ; zpos != zpositions.end() ; ++zpos) {
+	 
+	 m_hpileupvtxz->Fill(*zpos,weight);
+	 
+       }
      }
    }
-   
    // main interaction part
 
    Handle< HepMCProduct > EvtHandle ;

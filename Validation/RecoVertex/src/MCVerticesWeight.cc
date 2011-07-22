@@ -106,46 +106,60 @@ MCVerticesWeight::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   bool selected = true;
   
+  double computed_weight(1);
 
-   Handle<PileupSummaryInfo> pileupinfo;
-   iEvent.getByLabel(m_pileupcollection,pileupinfo);
+  Handle<std::vector<PileupSummaryInfo> > pileupinfos;
+   iEvent.getByLabel(m_pileupcollection,pileupinfos);
 
+
+  // look for the intime PileupSummaryInfo
+
+   std::vector<PileupSummaryInfo>::const_iterator pileupinfo;
+   for(pileupinfo = pileupinfos->begin(); pileupinfo != pileupinfos->end() ; ++pileupinfo) {
+     if(pileupinfo->getBunchCrossing()==0) break;
+   } 
+   
    //
-
-   pileupinfo->getPU_NumInteractions();
-   
-   const std::vector<float>& zpositions = pileupinfo->getPU_zpositions();
-   
-   for(std::vector<float>::const_iterator zpos = zpositions.begin() ; zpos != zpositions.end() ; ++zpos) {
+   if(pileupinfo->getBunchCrossing()!=0) {
+     edm::LogError("NoInTimePileUpInfo") << "Cannot find the in-time pileup info " << pileupinfo->getBunchCrossing();
+   }
+   else {
+     
+     //     pileupinfo->getPU_NumInteractions();
+     
+     const std::vector<float>& zpositions = pileupinfo->getPU_zpositions();
+     
+     //     for(std::vector<float>::const_iterator zpos = zpositions.begin() ; zpos != zpositions.end() ; ++zpos) {
+       
+     //     }
+     
+     // main interaction part
+     
+     Handle< HepMCProduct > EvtHandle ;
+     iEvent.getByLabel(m_mctruthcollection, EvtHandle ) ;
+     
+     const HepMC::GenEvent* Evt = EvtHandle->GetEvent();
+     
+     // get the first vertex
+     
+     double zmain = 0.0;
+     if(Evt->vertices_begin() != Evt->vertices_end()) {
+       zmain = (*Evt->vertices_begin())->point3d().z()/10.;
+     }
+     
+     //
+    
+     
+     computed_weight = m_weighter.weight(zpositions,zmain);
      
    }
    
-   // main interaction part
-
-   Handle< HepMCProduct > EvtHandle ;
-   iEvent.getByLabel(m_mctruthcollection, EvtHandle ) ;
-
-   const HepMC::GenEvent* Evt = EvtHandle->GetEvent();
-
-   // get the first vertex
-
-   double zmain = 0.0;
-   if(Evt->vertices_begin() != Evt->vertices_end()) {
-     zmain = (*Evt->vertices_begin())->point3d().z()/10.;
-   }
-
-   //
-
-   double computed_weight(1);
-
-   computed_weight = m_weighter.weight(zpositions,zmain);
-
    std::auto_ptr<double> weight(new double(computed_weight));
-
+   
    iEvent.put(weight);
-
+   
    //
-
+   
   return selected;
 }
 

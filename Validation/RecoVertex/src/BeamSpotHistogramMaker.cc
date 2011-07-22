@@ -53,15 +53,27 @@ void BeamSpotHistogramMaker::book(const std::string dirname) {
 			    _histoParameters.getUntrackedParameter<double>("zMin",-1.),
 			    _histoParameters.getUntrackedParameter<double>("zMax",1.));
 
+  _hbssigmaxrun = _rhm.makeTH1F("bssigmaxrun","BeamSpot sigmaX",
+				_histoParameters.getUntrackedParameter<unsigned int>("nBinSigmaX",200),
+				_histoParameters.getUntrackedParameter<double>("sigmaXMin",0.),
+				_histoParameters.getUntrackedParameter<double>("sigmaXMax",0.025));
+
+  _hbssigmayrun = _rhm.makeTH1F("bssigmayrun","BeamSpot sigmaY",
+				_histoParameters.getUntrackedParameter<unsigned int>("nBinSigmaY",200),
+				_histoParameters.getUntrackedParameter<double>("sigmaYMin",0.),
+				_histoParameters.getUntrackedParameter<double>("sigmaYMax",0.025));
+
   _hbssigmazrun = _rhm.makeTH1F("bssigmazrun","BeamSpot sigmaZ",
 				_histoParameters.getUntrackedParameter<unsigned int>("nBinSigmaZ",200),
-				_histoParameters.getUntrackedParameter<double>("sigmaZMin",-1.),
-				_histoParameters.getUntrackedParameter<double>("sigmaZMax",1.));
+				_histoParameters.getUntrackedParameter<double>("sigmaZMin",0.),
+				_histoParameters.getUntrackedParameter<double>("sigmaZMax",15.));
 
-  _hbsxvsorbrun = _rhm.makeTProfile("bsxvsorbrun","BeamSpot X position vs orbit number",1800,0.5,1800.*11223+0.5);
-  _hbsyvsorbrun = _rhm.makeTProfile("bsyvsorbrun","BeamSpot Y position vs orbit number",1800,0.5,1800.*11223+0.5);
-  _hbszvsorbrun = _rhm.makeTProfile("bszvsorbrun","BeamSpot Z position vs orbit number",1800,0.5,1800.*11223+0.5);
-  _hbssigmazvsorbrun = _rhm.makeTProfile("bssigmazvsorbrun","BeamSpot sigmaZ vs orbit number",1800,0.5,1800.*11223+0.5);
+  _hbsxvsorbrun = _rhm.makeTProfile("bsxvsorbrun","BeamSpot X position vs orbit number",1600,0.5,1600.*16384+0.5);
+  _hbsyvsorbrun = _rhm.makeTProfile("bsyvsorbrun","BeamSpot Y position vs orbit number",1600,0.5,1600.*16384+0.5);
+  _hbszvsorbrun = _rhm.makeTProfile("bszvsorbrun","BeamSpot Z position vs orbit number",1600,0.5,1600.*16384+0.5);
+  _hbssigmaxvsorbrun = _rhm.makeTProfile("bssigmaxvsorbrun","BeamSpot sigmaX vs orbit number",1600,0.5,1600.*16384+0.5);
+  _hbssigmayvsorbrun = _rhm.makeTProfile("bssigmayvsorbrun","BeamSpot sigmaY vs orbit number",1600,0.5,1600.*16384+0.5);
+  _hbssigmazvsorbrun = _rhm.makeTProfile("bssigmazvsorbrun","BeamSpot sigmaZ vs orbit number",1600,0.5,1600.*16384+0.5);
 
 }
 
@@ -81,6 +93,8 @@ void BeamSpotHistogramMaker::beginRun(const unsigned int nrun) {
   (*_hbsxrun)->GetXaxis()->SetTitle("X [cm]");   (*_hbsxrun)->GetYaxis()->SetTitle("Events"); 
   (*_hbsyrun)->GetXaxis()->SetTitle("Y [cm]");   (*_hbsyrun)->GetYaxis()->SetTitle("Events"); 
   (*_hbszrun)->GetXaxis()->SetTitle("Z [cm]");   (*_hbszrun)->GetYaxis()->SetTitle("Events"); 
+  (*_hbssigmaxrun)->GetXaxis()->SetTitle("sigmaX [cm]");   (*_hbssigmaxrun)->GetYaxis()->SetTitle("Events"); 
+  (*_hbssigmayrun)->GetXaxis()->SetTitle("sigmaY [cm]");   (*_hbssigmayrun)->GetYaxis()->SetTitle("Events"); 
   (*_hbssigmazrun)->GetXaxis()->SetTitle("sigmaZ [cm]");   (*_hbssigmazrun)->GetYaxis()->SetTitle("Events"); 
 
   (*_hbsxvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*_hbsxvsorbrun)->GetYaxis()->SetTitle("X [cm]"); 
@@ -89,6 +103,10 @@ void BeamSpotHistogramMaker::beginRun(const unsigned int nrun) {
   (*_hbsyvsorbrun)->SetBit(TH1::kCanRebin);
   (*_hbszvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*_hbszvsorbrun)->GetYaxis()->SetTitle("Z [cm]"); 
   (*_hbszvsorbrun)->SetBit(TH1::kCanRebin);
+  (*_hbssigmaxvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*_hbssigmaxvsorbrun)->GetYaxis()->SetTitle("sigmaX [cm]"); 
+  (*_hbssigmaxvsorbrun)->SetBit(TH1::kCanRebin);
+  (*_hbssigmayvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*_hbssigmayvsorbrun)->GetYaxis()->SetTitle("sigmaY [cm]"); 
+  (*_hbssigmayvsorbrun)->SetBit(TH1::kCanRebin);
   (*_hbssigmazvsorbrun)->GetXaxis()->SetTitle("time [orbit#]");   (*_hbssigmazvsorbrun)->GetYaxis()->SetTitle("sigmaZ [cm]"); 
   (*_hbssigmazvsorbrun)->SetBit(TH1::kCanRebin);
 
@@ -106,7 +124,11 @@ void BeamSpotHistogramMaker::fill(const unsigned int orbit, const reco::BeamSpot
   if(_hbszrun && *_hbszrun )  (*_hbszrun)->Fill(bs.z0());
   if(_hbszvsorbrun && *_hbszvsorbrun )  (*_hbszvsorbrun)->Fill(orbit,bs.z0());
   
+  if(_hbssigmaxrun && *_hbssigmaxrun )  (*_hbssigmaxrun)->Fill(bs.BeamWidthX());
+  if(_hbssigmayrun && *_hbssigmayrun )  (*_hbssigmayrun)->Fill(bs.BeamWidthY());
   if(_hbssigmazrun && *_hbssigmazrun )  (*_hbssigmazrun)->Fill(bs.sigmaZ());
+  if(_hbssigmaxvsorbrun && *_hbssigmaxvsorbrun )  (*_hbssigmaxvsorbrun)->Fill(orbit,bs.BeamWidthX());
+  if(_hbssigmayvsorbrun && *_hbssigmayvsorbrun )  (*_hbssigmayvsorbrun)->Fill(orbit,bs.BeamWidthY());
   if(_hbssigmazvsorbrun && *_hbssigmazvsorbrun )  (*_hbssigmazvsorbrun)->Fill(orbit,bs.sigmaZ());
   
 }
