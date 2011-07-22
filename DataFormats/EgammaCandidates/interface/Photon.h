@@ -7,7 +7,7 @@
  * stores isolation, shower shape and additional info
  * needed for identification
  * 
- * \version $Id: Photon.h,v 1.40 2011/07/19 16:24:05 nancy Exp $
+ * \version $Id: Photon.h,v 1.41 2011/07/21 12:50:21 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -209,7 +209,7 @@ namespace reco {
     float mipTotEnergy()    const {return mipVariableBlock_.mipTotEnergy;}
     float mipSlope()        const {return mipVariableBlock_.mipSlope;}
     float mipIntercept()    const {return mipVariableBlock_.mipIntercept;}
-    float mipNhitCone()     const {return mipVariableBlock_.mipNhitCone;}
+    int mipNhitCone()     const {return mipVariableBlock_.mipNhitCone;}
     bool  mipIsHalo()       const {return mipVariableBlock_.mipIsHalo;}
     
     
