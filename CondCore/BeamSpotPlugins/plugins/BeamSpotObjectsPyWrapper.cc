@@ -1,6 +1,7 @@
 #include "CondFormats/BeamSpotObjects/interface/BeamSpotObjects.h"
 
 #include "CondCore/DBCommon/interface/DbConnection.h"
+#include "CondCore/DBCommon/interface/DbTransaction.h"
 #include "CondCore/Utilities/interface/PayLoadInspector.h"
 #include "CondCore/Utilities/interface/InspectorPythonWrapper.h"
 
