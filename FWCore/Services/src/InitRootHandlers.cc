@@ -107,6 +107,7 @@ namespace {
           (el_location.find("Fit") != std::string::npos) ||
           (el_location.find("TDecompChol::Solve") != std::string::npos) ||
           (el_location.find("THistPainter::PaintInit") != std::string::npos) ||
+          (el_location.find("TUnixSystem::SetDisplay") != std::string::npos) ||
           (el_location.find("TGClient::GetFontByName") != std::string::npos)) {
         el_severity = edm::ELseverityLevel::ELsev_info;
       }
