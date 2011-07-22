@@ -3,9 +3,9 @@
 /** \class PhotonProducer
  **  
  **
- **  $Id: PhotonProducer.h,v 1.36 2009/05/29 18:11:15 nancy Exp $ 
- **  $Date: 2009/05/29 18:11:15 $ 
- **  $Revision: 1.36 $
+ **  $Id: PhotonProducer.h,v 1.37 2010/02/22 19:38:18 nancy Exp $ 
+ **  $Date: 2010/02/22 19:38:18 $ 
+ **  $Revision: 1.37 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -30,6 +30,7 @@
 #include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
+#include "RecoEgamma/PhotonIdentification/interface/PhotonMIPHaloTagger.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
 #include "CondFormats/EcalObjects/interface/EcalFunctionParameters.h" 
@@ -98,6 +99,8 @@ class PhotonProducer : public edm::EDProducer {
   bool validPixelSeeds_;
   PhotonIsolationCalculator* thePhotonIsolationCalculator_;
 
+  //MIP
+  PhotonMIPHaloTagger* thePhotonMIPHaloTagger_;
 
   std::vector<double>  preselCutValuesBarrel_; 
   std::vector<double>  preselCutValuesEndcap_; 

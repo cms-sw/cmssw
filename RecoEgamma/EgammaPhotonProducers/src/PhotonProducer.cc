@@ -103,11 +103,20 @@ void  PhotonProducer::beginRun (edm::Run& r, edm::EventSetup const & theEventSet
     edm::ParameterSet isolationSumsCalculatorSet = conf_.getParameter<edm::ParameterSet>("isolationSumsCalculatorSet"); 
     thePhotonIsolationCalculator_->setup(isolationSumsCalculatorSet);
 
+
+   
+    thePhotonMIPHaloTagger_ = new PhotonMIPHaloTagger();
+    edm::ParameterSet mipVariableSet = conf_.getParameter<edm::ParameterSet>("mipVariableSet"); 
+    thePhotonMIPHaloTagger_->setup(mipVariableSet);
+
+
+
 }
 
 void  PhotonProducer::endRun (edm::Run& r, edm::EventSetup const & theEventSetup) {
 
   delete thePhotonIsolationCalculator_;
+  delete thePhotonMIPHaloTagger_;
 
 }
 
@@ -325,6 +334,16 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     showerShape.hcalDepth2OverEcal = HoE2;
     newCandidate.setShowerShapeVariables ( showerShape ); 
 
+
+  // fill MIP Vairables for Halo: Block for MIP are filled from PhotonMIPHaloTagger
+   reco::Photon::MIPVariables mipVar ;
+   if(subdet==EcalBarrel)
+    {
+     thePhotonMIPHaloTagger_-> MIPcalculate( &newCandidate,evt,es,mipVar);
+    newCandidate.setMIPVariables(mipVar);
+    }
+
+
     /// Pre-selection loose  isolation cuts
     bool isLooseEM=true;
     if ( newCandidate.pt() < highEt_) { 
@@ -338,6 +357,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
       if ( newCandidate.sigmaIetaIeta()                    > preselCutValues[10] )                                            isLooseEM=false;
     } 
     
+
     
     if ( isLooseEM)  
       outputPhotonCollection.push_back(newCandidate);
