@@ -24,7 +24,10 @@
   
   The string gives the reco version used. Valid strings are 
   "3_8", "3_11", "4_2" and "Nominal", where the latter gives no correction 
-  to the energy and a nominal resolution value.
+  to the energy and a nominal resolution value. There is also "4_2e" which 
+  provides corrections for electrons which are reconstructed as photons (to
+  aid with testing the performance of these corrections in data).
+
 
   Make objects using
     PhotonFixCMS a(p);

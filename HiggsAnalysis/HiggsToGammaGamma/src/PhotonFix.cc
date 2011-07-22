@@ -34,106 +34,106 @@ void PhotonFix::setup(){
 	double df(dPhi(_phi,_barrelCGap[i][j][1]));
 	double r2(de*de+df*df);
 	
-	  if(r2<r2Min) {
-	    r2Min=r2;
-	    if(i>=84) {
-	      _aC= de;
-	      _bC=-df;
-	    } else {
-	      _aC=-de;
-	      _bC= df;
-	    }
+	if(r2<r2Min) {
+	  r2Min=r2;
+	  if(i>=84) {
+	    _aC= de;
+	    _bC=-df;
+	  } else {
+	    _aC=-de;
+	    _bC= df;
 	  }
 	}
-      }
-      
-      r2Min=1.0e6;
-      for(unsigned i(0);i<33;i++) {
-	for(unsigned j(0);j<180;j++) {
-	  double de(_eta-_barrelSGap[i][j][0]);
-	  double df(dPhi(_phi,_barrelSGap[i][j][1]));
-	  double r2(de*de+df*df);
-	  
-	  if(r2<r2Min) {
-	    r2Min=r2;
-	    if(i>=16) {
-	      _aS= de;
-	      _bS=-df;
-	    } else {
-	      _aS=-de;
-	      _bS= df;
-	    }
-	  }
-	}
-      }
-      
-      r2Min=1.0e6;
-      for(unsigned i(0);i<7;i++) {
-	for(unsigned j(0);j<18;j++) {
-	  double de(_eta-_barrelMGap[i][j][0]);
-	  double df(dPhi(_phi,_barrelMGap[i][j][1]));
-	  double r2(de*de+df*df);
-	  
-	  if(r2<r2Min) {
-	    r2Min=r2;
-	    if(i>=3) {
-	      _aM= de;
-	      _bM=-df;
-	    } else {
-	      _aM=-de;
-	      _bM= df;
-	    }
-	  }
-	}
-      }
-
-    } else {
-      unsigned iz(_eta>=0.0?0:1);
-      double r[2]={xZ(),yZ()};
-
-      r2Min=1.0e6;
-      for(unsigned i(0);i<7080;i++) {
-        double dx(r[0]-_endcapCGap[iz][i][0]);
-        double dy(r[1]-_endcapCGap[iz][i][1]);
-        double r2(dx*dx+dy*dy);
-
-        if(r2<r2Min) {
-          r2Min=r2;
-          if(r[0]>0.0) _aC= dx;
-          else         _aC=-dx;
-          if(r[1]>0.0) _bC= dy;
-          else         _bC=-dy;
-        }
-      }
-
-      r2Min=1.0e6;
-      for(unsigned i(0);i<264;i++) {
-        double dx(r[0]-_endcapSGap[iz][i][0]);
-        double dy(r[1]-_endcapSGap[iz][i][1]);
-        double r2(dx*dx+dy*dy);
-
-        if(r2<r2Min) {
-          r2Min=r2;
-          if(r[0]>0.0) _aS= dx;
-          else         _aS=-dx;
-          if(r[1]>0.0) _bS= dy;
-          else         _bS=-dy;
-        }
-      }
-
-      r2Min=1.0e6;
-      for(unsigned i(0);i<1;i++) {
-        double dx(r[0]-_endcapMGap[iz][i][0]);
-        double dy(r[1]-_endcapMGap[iz][i][1]);
-        double r2(dx*dx+dy*dy);
-
-        if(r2<r2Min) {
-          r2Min=r2;
-          if(iz==0) {_aM= dx;_bM= dy;}
-	  else      {_aM=-dx;_bM=-dy;}
-        }
       }
     }
+      
+    r2Min=1.0e6;
+    for(unsigned i(0);i<33;i++) {
+      for(unsigned j(0);j<180;j++) {
+	double de(_eta-_barrelSGap[i][j][0]);
+	double df(dPhi(_phi,_barrelSGap[i][j][1]));
+	double r2(de*de+df*df);
+	  
+	if(r2<r2Min) {
+	  r2Min=r2;
+	  if(i>=16) {
+	    _aS= de;
+	    _bS=-df;
+	  } else {
+	    _aS=-de;
+	    _bS= df;
+	  }
+	}
+      }
+    }
+      
+    r2Min=1.0e6;
+    for(unsigned i(0);i<7;i++) {
+      for(unsigned j(0);j<18;j++) {
+	double de(_eta-_barrelMGap[i][j][0]);
+	double df(dPhi(_phi,_barrelMGap[i][j][1]));
+	double r2(de*de+df*df);
+	  
+	if(r2<r2Min) {
+	  r2Min=r2;
+	  if(i>=3) {
+	    _aM= de;
+	    _bM=-df;
+	  } else {
+	    _aM=-de;
+	    _bM= df;
+	  }
+	}
+      }
+    }
+
+  } else {
+    unsigned iz(_eta>=0.0?0:1);
+    double r[2]={xZ(),yZ()};
+
+    r2Min=1.0e6;
+    for(unsigned i(0);i<7080;i++) {
+      double dx(r[0]-_endcapCGap[iz][i][0]);
+      double dy(r[1]-_endcapCGap[iz][i][1]);
+      double r2(dx*dx+dy*dy);
+
+      if(r2<r2Min) {
+	r2Min=r2;
+	if(r[0]>0.0) _aC= dx;
+	else         _aC=-dx;
+	if(r[1]>0.0) _bC= dy;
+	else         _bC=-dy;
+      }
+    }
+
+    r2Min=1.0e6;
+    for(unsigned i(0);i<264;i++) {
+      double dx(r[0]-_endcapSGap[iz][i][0]);
+      double dy(r[1]-_endcapSGap[iz][i][1]);
+      double r2(dx*dx+dy*dy);
+
+      if(r2<r2Min) {
+	r2Min=r2;
+	if(r[0]>0.0) _aS= dx;
+	else         _aS=-dx;
+	if(r[1]>0.0) _bS= dy;
+	else         _bS=-dy;
+      }
+    }
+
+    r2Min=1.0e6;
+    for(unsigned i(0);i<1;i++) {
+      double dx(r[0]-_endcapMGap[iz][i][0]);
+      double dy(r[1]-_endcapMGap[iz][i][1]);
+      double r2(dx*dx+dy*dy);
+
+      if(r2<r2Min) {
+	r2Min=r2;
+	if(iz==0) {_aM= dx;_bM= dy;}
+	else      {_aM=-dx;_bM=-dy;}
+      }
+    }
+  }
 }
 
 double PhotonFix::fixedEnergy() const {
@@ -144,6 +144,15 @@ double PhotonFix::fixedEnergy() const {
   f+=_meanScale[_be][_hl][1]*_e;
   f+=_meanScale[_be][_hl][2]*_e/cosh(_eta);
   f+=_meanScale[_be][_hl][3]*cosh(_eta)/_e;
+  
+  // General eta or zeta dependence
+  if(_be==0) {
+    f+=_meanAT[_be][_hl][0]*_eta*_eta;
+    f+=expCorrection(_eta,_meanBT[_be][_hl]);
+  } else {
+    f+=_meanAT[_be][_hl][0]*xZ()*xZ();
+    f+=_meanBT[_be][_hl][0]*yZ()*yZ();
+  }
   
   // Eta or x crystal, submodule and module dependence
   f+=expCorrection(_aC,_meanAC[_be][_hl]);
@@ -172,8 +181,11 @@ double PhotonFix::sigmaEnergy() const {
   double sigma;
   if(_be==0) {
     sigma =_sigmaScale[_be][_hl][0]*_sigmaScale[_be][_hl][0];
+    //std::cout << "PhotonFix::sigmaEnergy 1 sigma = " << sigma << std::endl;
     sigma+=_sigmaScale[_be][_hl][1]*_sigmaScale[_be][_hl][1]*_e;
+    //std::cout << "PhotonFix::sigmaEnergy 2 sigma = " << sigma << std::endl;
     sigma+=_sigmaScale[_be][_hl][2]*_sigmaScale[_be][_hl][2]*_e*_e;
+    //std::cout << "PhotonFix::sigmaEnergy 3 sigma = " << sigma << std::endl;
   } else {
     sigma =_sigmaScale[_be][_hl][0]*_sigmaScale[_be][_hl][0]*cosh(_eta)*cosh(_eta);
     sigma+=_sigmaScale[_be][_hl][1]*_sigmaScale[_be][_hl][1]*_e;
@@ -186,7 +198,9 @@ double PhotonFix::sigmaEnergy() const {
   // General eta or zeta dependence
   if(_be==0) {
     f+=_sigmaAT[_be][_hl][0]*_eta*_eta;
+    //std::cout << "PhotonFix::sigmaEnergy 4 f = " << f << std::endl;
     f+=expCorrection(_eta,_sigmaBT[_be][_hl]);
+    //std::cout << "PhotonFix::sigmaEnergy 5 f = " << f << std::endl;
   } else {
     f+=_sigmaAT[_be][_hl][0]*xZ()*xZ();
     f+=_sigmaBT[_be][_hl][0]*yZ()*yZ();
@@ -194,20 +208,28 @@ double PhotonFix::sigmaEnergy() const {
   
   // Eta or x crystal, submodule and module dependence
   f+=expCorrection(_aC,_sigmaAC[_be][_hl]);
+  //std::cout << "PhotonFix::sigmaEnergy 6 f = " << f << std::endl;
   f+=expCorrection(_aS,_sigmaAS[_be][_hl]);
+  //std::cout << "PhotonFix::sigmaEnergy 7 f = " << f << std::endl;
   f+=expCorrection(_aM,_sigmaAM[_be][_hl]);
+  //std::cout << "PhotonFix::sigmaEnergy 8 f = " << f << std::endl;
   
   // Phi or y crystal, submodule and module dependence
   f+=expCorrection(_bC,_sigmaBC[_be][_hl]);
+  //std::cout << "PhotonFix::sigmaEnergy 9 f = " << f << std::endl;
   f+=expCorrection(_bS,_sigmaBS[_be][_hl]);
+  //std::cout << "PhotonFix::sigmaEnergy 10 f = " << f << std::endl;
   f+=expCorrection(_bM,_sigmaBM[_be][_hl]);
+  //std::cout << "PhotonFix::sigmaEnergy 11 f = " << f << std::endl;
   
   // R9 dependence
   if(_hl==0) {
     f+=_sigmaR9[_be][_hl][1]*(_r9-_sigmaR9[_be][_hl][0])*(_r9-_sigmaR9[_be][_hl][0])
       +_sigmaR9[_be][_hl][2]*(_r9-_sigmaR9[_be][_hl][0])*(_r9-_sigmaR9[_be][_hl][0])*(_r9-_sigmaR9[_be][_hl][0]);
+    //std::cout << "PhotonFix::sigmaEnergy 12 f = " << f << std::endl;
   } else {
     f+=_sigmaR9[_be][_hl][0]*_r9+_sigmaR9[_be][_hl][1]*_r9*_r9;
+    //std::cout << "PhotonFix::sigmaEnergy 13 f = " << f << std::endl;
   }
   
   return sigma*f;
@@ -335,48 +357,52 @@ void PhotonFix::print() const {
 void PhotonFix::setParameters(unsigned be, unsigned hl, const double *p) {
   for(unsigned i(0);i<4;i++) {
     _meanScale[be][hl][i] =p[i+ 0*4];
-    _meanAC[be][hl][i]    =p[i+ 1*4];
-    _meanAS[be][hl][i]    =p[i+ 2*4];
-    _meanAM[be][hl][i]    =p[i+ 3*4];
-    _meanBC[be][hl][i]    =p[i+ 4*4];
-    _meanBS[be][hl][i]    =p[i+ 5*4];
-    _meanBM[be][hl][i]    =p[i+ 6*4];
-    _meanR9[be][hl][i]    =p[i+ 7*4];
+    _meanAT[be][hl][i]    =p[i+ 1*4];
+    _meanAC[be][hl][i]    =p[i+ 2*4];
+    _meanAS[be][hl][i]    =p[i+ 3*4];
+    _meanAM[be][hl][i]    =p[i+ 4*4];
+    _meanBT[be][hl][i]    =p[i+ 5*4];
+    _meanBC[be][hl][i]    =p[i+ 6*4];
+    _meanBS[be][hl][i]    =p[i+ 7*4];
+    _meanBM[be][hl][i]    =p[i+ 8*4];
+    _meanR9[be][hl][i]    =p[i+ 9*4];
     
-    _sigmaScale[be][hl][i]=p[i+ 8*4];
-    _sigmaAT[be][hl][i]   =p[i+ 9*4];
-    _sigmaAC[be][hl][i]   =p[i+10*4];
-    _sigmaAS[be][hl][i]   =p[i+11*4];
-    _sigmaAM[be][hl][i]   =p[i+12*4];
-    _sigmaBT[be][hl][i]   =p[i+13*4];
-    _sigmaBC[be][hl][i]   =p[i+14*4];
-    _sigmaBS[be][hl][i]   =p[i+15*4];
-    _sigmaBM[be][hl][i]   =p[i+16*4];
-    _sigmaR9[be][hl][i]   =p[i+17*4];
+    _sigmaScale[be][hl][i]=p[i+10*4];
+    _sigmaAT[be][hl][i]   =p[i+11*4];
+    _sigmaAC[be][hl][i]   =p[i+12*4];
+    _sigmaAS[be][hl][i]   =p[i+13*4];
+    _sigmaAM[be][hl][i]   =p[i+14*4];
+    _sigmaBT[be][hl][i]   =p[i+15*4];
+    _sigmaBC[be][hl][i]   =p[i+16*4];
+    _sigmaBS[be][hl][i]   =p[i+17*4];
+    _sigmaBM[be][hl][i]   =p[i+18*4];
+    _sigmaR9[be][hl][i]   =p[i+19*4];
   }
 }
 
 void PhotonFix::getParameters(unsigned be, unsigned hl, double *p) {
   for(unsigned i(0);i<4;i++) {
     p[i+ 0*4]=_meanScale[be][hl][i];
-    p[i+ 1*4]=_meanAC[be][hl][i];
-    p[i+ 2*4]=_meanAS[be][hl][i];
-    p[i+ 3*4]=_meanAM[be][hl][i];
-    p[i+ 4*4]=_meanBC[be][hl][i];
-    p[i+ 5*4]=_meanBS[be][hl][i];
-    p[i+ 6*4]=_meanBM[be][hl][i];
-    p[i+ 7*4]=_meanR9[be][hl][i];
+    p[i+ 1*4]=_meanAT[be][hl][i];
+    p[i+ 2*4]=_meanAC[be][hl][i];
+    p[i+ 3*4]=_meanAS[be][hl][i];
+    p[i+ 4*4]=_meanAM[be][hl][i];
+    p[i+ 5*4]=_meanBT[be][hl][i];
+    p[i+ 6*4]=_meanBC[be][hl][i];
+    p[i+ 7*4]=_meanBS[be][hl][i];
+    p[i+ 8*4]=_meanBM[be][hl][i];
+    p[i+ 9*4]=_meanR9[be][hl][i];
     
-    p[i+ 8*4]=_sigmaScale[be][hl][i];
-    p[i+ 9*4]=_sigmaAT[be][hl][i];
-    p[i+10*4]=_sigmaAC[be][hl][i];
-    p[i+11*4]=_sigmaAS[be][hl][i];
-    p[i+12*4]=_sigmaAM[be][hl][i];
-    p[i+13*4]=_sigmaBT[be][hl][i];
-    p[i+14*4]=_sigmaBC[be][hl][i];
-    p[i+15*4]=_sigmaBS[be][hl][i];
-    p[i+16*4]=_sigmaBM[be][hl][i];
-    p[i+17*4]=_sigmaR9[be][hl][i];
+    p[i+10*4]=_sigmaScale[be][hl][i];
+    p[i+11*4]=_sigmaAT[be][hl][i];
+    p[i+12*4]=_sigmaAC[be][hl][i];
+    p[i+13*4]=_sigmaAS[be][hl][i];
+    p[i+14*4]=_sigmaAM[be][hl][i];
+    p[i+15*4]=_sigmaBT[be][hl][i];
+    p[i+16*4]=_sigmaBC[be][hl][i];
+    p[i+17*4]=_sigmaBS[be][hl][i];
+    p[i+18*4]=_sigmaBM[be][hl][i];
+    p[i+19*4]=_sigmaR9[be][hl][i];
   }
 }
 
@@ -387,6 +413,9 @@ void PhotonFix::dumpParameters(std::ostream &o) {
 	o << " _meanScale[" << be << "][" << hl << "][" << i << "]=" << _meanScale[be][hl][i] << ";" << std::endl;
       }
       for(unsigned i(0);i<4;i++) {
+	o << " _meanAT[" << be << "][" << hl << "][" << i << "]=" << _meanAT[be][hl][i] << ";" << std::endl;
+      }
+      for(unsigned i(0);i<4;i++) {
 	o << " _meanAC[" << be << "][" << hl << "][" << i << "]=" << _meanAC[be][hl][i] << ";" << std::endl;
       }
       for(unsigned i(0);i<4;i++) {
@@ -394,6 +423,9 @@ void PhotonFix::dumpParameters(std::ostream &o) {
       }
       for(unsigned i(0);i<4;i++) {
 	o << " _meanAM[" << be << "][" << hl << "][" << i << "]=" << _meanAM[be][hl][i] << ";" << std::endl;
+      }
+      for(unsigned i(0);i<4;i++) {
+	o << " _meanBT[" << be << "][" << hl << "][" << i << "]=" << _meanBT[be][hl][i] << ";" << std::endl;
       }
       for(unsigned i(0);i<4;i++) {
 	o << " _meanBC[" << be << "][" << hl << "][" << i << "]=" << _meanBC[be][hl][i] << ";" << std::endl;
@@ -455,6 +487,9 @@ void PhotonFix::printParameters(std::ostream &o) {
       o << "  Mean  scaling        ";
       for(unsigned i(0);i<4;i++) o << std::setw(14) << _meanScale[be][hl][i];
       o << std::endl;
+      o << "  Mean  " << (be==0?"Eta  ":"ZetaX") << " total    ";
+      for(unsigned i(0);i<4;i++) o << std::setw(14) << _meanAT[be][hl][i];
+      o << std::endl;
       o << "  Mean  " << (be==0?"Eta  ":"ZetaX") << " crystal  ";
       for(unsigned i(0);i<4;i++) o << std::setw(14) << _meanAC[be][hl][i];
       o << std::endl;
@@ -463,6 +498,9 @@ void PhotonFix::printParameters(std::ostream &o) {
       o << std::endl;
       o << "  Mean  " << (be==0?"Eta  ":"ZetaX") << " module   ";
       for(unsigned i(0);i<4;i++) o << std::setw(14) << _meanAM[be][hl][i];
+      o << std::endl;
+      o << "  Mean  " << (be==0?"Eta   zero     ":"ZetaY total    ");
+      for(unsigned i(0);i<4;i++) o << std::setw(14) << _meanBT[be][hl][i];
       o << std::endl;
       o << "  Mean  " << (be==0?"Phi  ":"ZetaY") << " crystal  ";
       for(unsigned i(0);i<4;i++) o << std::setw(14) << _meanBC[be][hl][i];
@@ -630,9 +668,11 @@ bool PhotonFix::initialiseParameters(const std::string &s) {
       for(unsigned hl(0);hl<2;hl++) {
 	for(unsigned i(0);i<4;i++) {
 	  _meanScale[be][hl][i]=0;
+	  _meanAT[be][hl][i]=0;
 	  _meanAC[be][hl][i]=0;
 	  _meanAS[be][hl][i]=0;
 	  _meanAM[be][hl][i]=0;
+	  _meanBT[be][hl][i]=0;
 	  _meanBC[be][hl][i]=0;
 	  _meanBS[be][hl][i]=0;
 	  _meanBM[be][hl][i]=0;
@@ -671,6 +711,10 @@ bool PhotonFix::initialiseParameters(const std::string &s) {
     _meanScale[0][0][1]=1.98102e-06;
     _meanScale[0][0][2]=1.43015e-05;
     _meanScale[0][0][3]=-0.0908525;
+    _meanAT[0][0][0]=0.0;
+    _meanAT[0][0][1]=0.0;
+    _meanAT[0][0][2]=0.0;
+    _meanAT[0][0][3]=0.0;
     _meanAC[0][0][0]=-0.00352041;
     _meanAC[0][0][1]=0.00982015;
     _meanAC[0][0][2]=434.32;
@@ -683,6 +727,10 @@ bool PhotonFix::initialiseParameters(const std::string &s) {
     _meanAM[0][0][1]=0.156322;
     _meanAM[0][0][2]=263.097;
     _meanAM[0][0][3]=222.294;
+    _meanBT[0][0][0]=0.0;
+    _meanBT[0][0][1]=0.0;
+    _meanBT[0][0][2]=0.0;
+    _meanBT[0][0][3]=0.0;
     _meanBC[0][0][0]=-0.00294295;
     _meanBC[0][0][1]=0.011533;
     _meanBC[0][0][2]=562.905;
@@ -745,6 +793,10 @@ bool PhotonFix::initialiseParameters(const std::string &s) {
     _meanScale[0][1][1]=1.20452e-05;
     _meanScale[0][1][2]=-1.04458e-05;
     _meanScale[0][1][3]=-0.542383;
+    _meanAT[0][1][0]=0.0;
+    _meanAT[0][1][1]=0.0;
+    _meanAT[0][1][2]=0.0;
+    _meanAT[0][1][3]=0.0;
     _meanAC[0][1][0]=-0.00320856;
     _meanAC[0][1][1]=0.0240109;
     _meanAC[0][1][2]=115.145;
@@ -757,6 +809,10 @@ bool PhotonFix::initialiseParameters(const std::string &s) {
     _meanAM[0][1][1]=0.208249;
     _meanAM[0][1][2]=297.049;
     _meanAM[0][1][3]=220.609;
+    _meanBT[0][1][0]=0.0;
+    _meanBT[0][1][1]=0.0;
+    _meanBT[0][1][2]=0.0;
+    _meanBT[0][1][3]=0.0;
     _meanBC[0][1][0]=-0.00420429;
     _meanBC[0][1][1]=0.00203991;
     _meanBC[0][1][2]=172.278;
@@ -819,6 +875,10 @@ bool PhotonFix::initialiseParameters(const std::string &s) {
     _meanScale[1][0][1]=4.37414e-06;
     _meanScale[1][0][2]=4.92078e-06;
     _meanScale[1][0][3]=-0.121609;
+    _meanAT[1][0][0]=0.0;
+    _meanAT[1][0][1]=0.0;
+    _meanAT[1][0][2]=0.0;
+    _meanAT[1][0][3]=0.0;
     _meanAC[1][0][0]=-0.000396058;
     _meanAC[1][0][1]=0.0144837;
     _meanAC[1][0][2]=1374.93;
@@ -831,6 +891,10 @@ bool PhotonFix::initialiseParameters(const std::string &s) {
     _meanAM[1][0][1]=0.0658628;
     _meanAM[1][0][2]=1928.49;
     _meanAM[1][0][3]=728.522;
+    _meanBT[1][0][0]=0.0;
+    _meanBT[1][0][1]=0.0;
+    _meanBT[1][0][2]=0.0;
+    _meanBT[1][0][3]=0.0;
     _meanBC[1][0][0]=-0.000452212;
     _meanBC[1][0][1]=0.0129968;
     _meanBC[1][0][2]=1056.08;
@@ -889,752 +953,1156 @@ bool PhotonFix::initialiseParameters(const std::string &s) {
     _sigmaR9[1][0][2]=-16283.8;
     _sigmaR9[1][0][3]=0;
     
- _meanScale[1][1][0]=0.324634;
- _meanScale[1][1][1]=9.48206e-05;
- _meanScale[1][1][2]=1.0e-12;
- _meanScale[1][1][3]=1.0e-12;
- _meanAC[1][1][0]=-0.00158311;
- _meanAC[1][1][1]=0.0106161;
- _meanAC[1][1][2]=338.964;
- _meanAC[1][1][3]=797.172;
- _meanAS[1][1][0]=-0.00960269;
- _meanAS[1][1][1]=-0.00496491;
- _meanAS[1][1][2]=934.472;
- _meanAS[1][1][3]=8.32667e-16;
- _meanAM[1][1][0]=-0.00219814;
- _meanAM[1][1][1]=0.653906;
- _meanAM[1][1][2]=0.0949848;
- _meanAM[1][1][3]=0.0977831;
- _meanBC[1][1][0]=-0.00423472;
- _meanBC[1][1][1]=0.0279695;
- _meanBC[1][1][2]=28073.7;
- _meanBC[1][1][3]=118612;
- _meanBS[1][1][0]=-0.0012476;
- _meanBS[1][1][1]=0.02744;
- _meanBS[1][1][2]=390.697;
- _meanBS[1][1][3]=727.861;
- _meanBM[1][1][0]=-1.36573e-05;
- _meanBM[1][1][1]=0.0667504;
- _meanBM[1][1][2]=-80154.4;
- _meanBM[1][1][3]=576.637;
- _meanR9[1][1][0]=0.113317;
- _meanR9[1][1][1]=0.0142669;
- _meanR9[1][1][2]=-0.125721;
- _meanR9[1][1][3]=0;
+    _meanScale[1][1][0]=0.324634;
+    _meanScale[1][1][1]=9.48206e-05;
+    _meanScale[1][1][2]=1.0e-12;
+    _meanScale[1][1][3]=1.0e-12;
+    _meanAT[1][1][0]=0.0;
+    _meanAT[1][1][1]=0.0;
+    _meanAT[1][1][2]=0.0;
+    _meanAT[1][1][3]=0.0;
+    _meanAC[1][1][0]=-0.00158311;
+    _meanAC[1][1][1]=0.0106161;
+    _meanAC[1][1][2]=338.964;
+    _meanAC[1][1][3]=797.172;
+    _meanAS[1][1][0]=-0.00960269;
+    _meanAS[1][1][1]=-0.00496491;
+    _meanAS[1][1][2]=934.472;
+    _meanAS[1][1][3]=8.32667e-16;
+    _meanAM[1][1][0]=-0.00219814;
+    _meanAM[1][1][1]=0.653906;
+    _meanAM[1][1][2]=0.0949848;
+    _meanAM[1][1][3]=0.0977831;
+    _meanBT[1][1][0]=0.0;
+    _meanBT[1][1][1]=0.0;
+    _meanBT[1][1][2]=0.0;
+    _meanBT[1][1][3]=0.0;
+    _meanBC[1][1][0]=-0.00423472;
+    _meanBC[1][1][1]=0.0279695;
+    _meanBC[1][1][2]=28073.7;
+    _meanBC[1][1][3]=118612;
+    _meanBS[1][1][0]=-0.0012476;
+    _meanBS[1][1][1]=0.02744;
+    _meanBS[1][1][2]=390.697;
+    _meanBS[1][1][3]=727.861;
+    _meanBM[1][1][0]=-1.36573e-05;
+    _meanBM[1][1][1]=0.0667504;
+    _meanBM[1][1][2]=-80154.4;
+    _meanBM[1][1][3]=576.637;
+    _meanR9[1][1][0]=0.113317;
+    _meanR9[1][1][1]=0.0142669;
+    _meanR9[1][1][2]=-0.125721;
+    _meanR9[1][1][3]=0;
 
- _sigmaScale[1][1][0]=0.471767;
- _sigmaScale[1][1][1]=0.211196;
- _sigmaScale[1][1][2]=0.0240124;
- _sigmaScale[1][1][3]=0;
- _sigmaAT[1][1][0]=0.404395;
- _sigmaAT[1][1][1]=0;
- _sigmaAT[1][1][2]=0;
- _sigmaAT[1][1][3]=0;
- _sigmaAC[1][1][0]=0.00173151;
- _sigmaAC[1][1][1]=-0.479291;
- _sigmaAC[1][1][2]=11583.5;
- _sigmaAC[1][1][3]=-7e+09;
- _sigmaAS[1][1][0]=0.000450387;
- _sigmaAS[1][1][1]=0.662978;
- _sigmaAS[1][1][2]=924.051;
- _sigmaAS[1][1][3]=448.417;
- _sigmaAM[1][1][0]=0.00335603;
- _sigmaAM[1][1][1]=0.648407;
- _sigmaAM[1][1][2]=134.672;
- _sigmaAM[1][1][3]=27.4139;
- _sigmaBT[1][1][0]=0.602402;
- _sigmaBT[1][1][1]=0;
- _sigmaBT[1][1][2]=0;
- _sigmaBT[1][1][3]=0;
- _sigmaBC[1][1][0]=-0.00256192;
- _sigmaBC[1][1][1]=2.01276;
- _sigmaBC[1][1][2]=114558;
- _sigmaBC[1][1][3]=2.15421e+06;
- _sigmaBS[1][1][0]=0.00151576;
- _sigmaBS[1][1][1]=0.359084;
- _sigmaBS[1][1][2]=329.414;
- _sigmaBS[1][1][3]=154.509;
- _sigmaBM[1][1][0]=-0.0452587;
- _sigmaBM[1][1][1]=1.26253;
- _sigmaBM[1][1][2]=1.9e+09;
- _sigmaBM[1][1][3]=1058.76;
- _sigmaR9[1][1][0]=4.59667;
- _sigmaR9[1][1][1]=-5.14404;
- _sigmaR9[1][1][2]=0;
- _sigmaR9[1][1][3]=0;
+    _sigmaScale[1][1][0]=0.471767;
+    _sigmaScale[1][1][1]=0.211196;
+    _sigmaScale[1][1][2]=0.0240124;
+    _sigmaScale[1][1][3]=0;
+    _sigmaAT[1][1][0]=0.404395;
+    _sigmaAT[1][1][1]=0;
+    _sigmaAT[1][1][2]=0;
+    _sigmaAT[1][1][3]=0;
+    _sigmaAC[1][1][0]=0.00173151;
+    _sigmaAC[1][1][1]=-0.479291;
+    _sigmaAC[1][1][2]=11583.5;
+    _sigmaAC[1][1][3]=-7e+09;
+    _sigmaAS[1][1][0]=0.000450387;
+    _sigmaAS[1][1][1]=0.662978;
+    _sigmaAS[1][1][2]=924.051;
+    _sigmaAS[1][1][3]=448.417;
+    _sigmaAM[1][1][0]=0.00335603;
+    _sigmaAM[1][1][1]=0.648407;
+    _sigmaAM[1][1][2]=134.672;
+    _sigmaAM[1][1][3]=27.4139;
+    _sigmaBT[1][1][0]=0.602402;
+    _sigmaBT[1][1][1]=0;
+    _sigmaBT[1][1][2]=0;
+    _sigmaBT[1][1][3]=0;
+    _sigmaBC[1][1][0]=-0.00256192;
+    _sigmaBC[1][1][1]=2.01276;
+    _sigmaBC[1][1][2]=114558;
+    _sigmaBC[1][1][3]=2.15421e+06;
+    _sigmaBS[1][1][0]=0.00151576;
+    _sigmaBS[1][1][1]=0.359084;
+    _sigmaBS[1][1][2]=329.414;
+    _sigmaBS[1][1][3]=154.509;
+    _sigmaBM[1][1][0]=-0.0452587;
+    _sigmaBM[1][1][1]=1.26253;
+    _sigmaBM[1][1][2]=1.9e+09;
+    _sigmaBM[1][1][3]=1058.76;
+    _sigmaR9[1][1][0]=4.59667;
+    _sigmaR9[1][1][1]=-5.14404;
+    _sigmaR9[1][1][2]=0;
+    _sigmaR9[1][1][3]=0;
 
-	_initialised=true;
-      }
+    _initialised=true;
+  }
 
-      if(s=="3_11") {
- _meanScale[0][0][0]=0.994363;
- _meanScale[0][0][1]=4.84904e-07;
- _meanScale[0][0][2]=1.54475e-05;
- _meanScale[0][0][3]=-0.103309;
- _meanAC[0][0][0]=-0.00360057;
- _meanAC[0][0][1]=0.00970858;
- _meanAC[0][0][2]=409.406;
- _meanAC[0][0][3]=527.952;
- _meanAS[0][0][0]=-1.1;
- _meanAS[0][0][1]=0.00135995;
- _meanAS[0][0][2]=295.712;
- _meanAS[0][0][3]=5.13202e+07;
- _meanAM[0][0][0]=-0.00129854;
- _meanAM[0][0][1]=0.151466;
- _meanAM[0][0][2]=261.828;
- _meanAM[0][0][3]=214.662;
- _meanBC[0][0][0]=-0.00286864;
- _meanBC[0][0][1]=0.0114118;
- _meanBC[0][0][2]=563.962;
- _meanBC[0][0][3]=412.922;
- _meanBS[0][0][0]=-0.00210996;
- _meanBS[0][0][1]=0.00327867;
- _meanBS[0][0][2]=23.617;
- _meanBS[0][0][3]=1018.45;
- _meanBM[0][0][0]=-0.002287;
- _meanBM[0][0][1]=0.0848984;
- _meanBM[0][0][2]=235.575;
- _meanBM[0][0][3]=260.773;
- _meanR9[0][0][0]=0.951724;
- _meanR9[0][0][1]=23.7181;
- _meanR9[0][0][2]=177.34;
- _meanR9[0][0][3]=0;
+  if(s=="3_11") {
+    _meanScale[0][0][0]=0.994363;
+    _meanScale[0][0][1]=4.84904e-07;
+    _meanScale[0][0][2]=1.54475e-05;
+    _meanScale[0][0][3]=-0.103309;
+    _meanAT[0][0][0]=0.0;
+    _meanAT[0][0][1]=0.0;
+    _meanAT[0][0][2]=0.0;
+    _meanAT[0][0][3]=0.0;
+    _meanAC[0][0][0]=-0.00360057;
+    _meanAC[0][0][1]=0.00970858;
+    _meanAC[0][0][2]=409.406;
+    _meanAC[0][0][3]=527.952;
+    _meanAS[0][0][0]=-1.1;
+    _meanAS[0][0][1]=0.00135995;
+    _meanAS[0][0][2]=295.712;
+    _meanAS[0][0][3]=5.13202e+07;
+    _meanAM[0][0][0]=-0.00129854;
+    _meanAM[0][0][1]=0.151466;
+    _meanAM[0][0][2]=261.828;
+    _meanAM[0][0][3]=214.662;
+    _meanBT[0][0][0]=0.0;
+    _meanBT[0][0][1]=0.0;
+    _meanBT[0][0][2]=0.0;
+    _meanBT[0][0][3]=0.0;
+    _meanBC[0][0][0]=-0.00286864;
+    _meanBC[0][0][1]=0.0114118;
+    _meanBC[0][0][2]=563.962;
+    _meanBC[0][0][3]=412.922;
+    _meanBS[0][0][0]=-0.00210996;
+    _meanBS[0][0][1]=0.00327867;
+    _meanBS[0][0][2]=23.617;
+    _meanBS[0][0][3]=1018.45;
+    _meanBM[0][0][0]=-0.002287;
+    _meanBM[0][0][1]=0.0848984;
+    _meanBM[0][0][2]=235.575;
+    _meanBM[0][0][3]=260.773;
+    _meanR9[0][0][0]=0.951724;
+    _meanR9[0][0][1]=23.7181;
+    _meanR9[0][0][2]=177.34;
+    _meanR9[0][0][3]=0;
 
- _sigmaScale[0][0][0]=0.187578;
- _sigmaScale[0][0][1]=-0.000901045;
- _sigmaScale[0][0][2]=0.00673186;
- _sigmaScale[0][0][3]=0;
- _sigmaAT[0][0][0]=0.183777;
- _sigmaAT[0][0][1]=0;
- _sigmaAT[0][0][2]=0;
- _sigmaAT[0][0][3]=0;
- _sigmaAC[0][0][0]=-0.00430202;
- _sigmaAC[0][0][1]=0.122501;
- _sigmaAC[0][0][2]=51.9772;
- _sigmaAC[0][0][3]=-3e+17;
- _sigmaAS[0][0][0]=0;
- _sigmaAS[0][0][1]=0;
- _sigmaAS[0][0][2]=0;
- _sigmaAS[0][0][3]=0;
- _sigmaAM[0][0][0]=0.00101883;
- _sigmaAM[0][0][1]=11.2009;
- _sigmaAM[0][0][2]=593.111;
- _sigmaAM[0][0][3]=345.433;
- _sigmaBT[0][0][0]=-6.02356e-05;
- _sigmaBT[0][0][1]=6.99896;
- _sigmaBT[0][0][2]=235.996;
- _sigmaBT[0][0][3]=196;
- _sigmaBC[0][0][0]=-0.00282254;
- _sigmaBC[0][0][1]=0.18764;
- _sigmaBC[0][0][2]=509.825;
- _sigmaBC[0][0][3]=1400.14;
- _sigmaBS[0][0][0]=0;
- _sigmaBS[0][0][1]=0;
- _sigmaBS[0][0][2]=0;
- _sigmaBS[0][0][3]=0;
- _sigmaBM[0][0][0]=-0.00252199;
- _sigmaBM[0][0][1]=39.1544;
- _sigmaBM[0][0][2]=612.481;
- _sigmaBM[0][0][3]=905.994;
- _sigmaR9[0][0][0]=0.95608;
- _sigmaR9[0][0][1]=2203.31;
- _sigmaR9[0][0][2]=-22454.2;
- _sigmaR9[0][0][3]=0;
+    _sigmaScale[0][0][0]=0.187578;
+    _sigmaScale[0][0][1]=-0.000901045;
+    _sigmaScale[0][0][2]=0.00673186;
+    _sigmaScale[0][0][3]=0;
+    _sigmaAT[0][0][0]=0.183777;
+    _sigmaAT[0][0][1]=0;
+    _sigmaAT[0][0][2]=0;
+    _sigmaAT[0][0][3]=0;
+    _sigmaAC[0][0][0]=-0.00430202;
+    _sigmaAC[0][0][1]=0.122501;
+    _sigmaAC[0][0][2]=51.9772;
+    _sigmaAC[0][0][3]=-3e+17;
+    _sigmaAS[0][0][0]=0;
+    _sigmaAS[0][0][1]=0;
+    _sigmaAS[0][0][2]=0;
+    _sigmaAS[0][0][3]=0;
+    _sigmaAM[0][0][0]=0.00101883;
+    _sigmaAM[0][0][1]=11.2009;
+    _sigmaAM[0][0][2]=593.111;
+    _sigmaAM[0][0][3]=345.433;
+    _sigmaBT[0][0][0]=-6.02356e-05;
+    _sigmaBT[0][0][1]=6.99896;
+    _sigmaBT[0][0][2]=235.996;
+    _sigmaBT[0][0][3]=196;
+    _sigmaBC[0][0][0]=-0.00282254;
+    _sigmaBC[0][0][1]=0.18764;
+    _sigmaBC[0][0][2]=509.825;
+    _sigmaBC[0][0][3]=1400.14;
+    _sigmaBS[0][0][0]=0;
+    _sigmaBS[0][0][1]=0;
+    _sigmaBS[0][0][2]=0;
+    _sigmaBS[0][0][3]=0;
+    _sigmaBM[0][0][0]=-0.00252199;
+    _sigmaBM[0][0][1]=39.1544;
+    _sigmaBM[0][0][2]=612.481;
+    _sigmaBM[0][0][3]=905.994;
+    _sigmaR9[0][0][0]=0.95608;
+    _sigmaR9[0][0][1]=2203.31;
+    _sigmaR9[0][0][2]=-22454.2;
+    _sigmaR9[0][0][3]=0;
 
- _meanScale[0][1][0]=0.889415;
- _meanScale[0][1][1]=1.21788e-05;
- _meanScale[0][1][2]=-4.3438e-06;
- _meanScale[0][1][3]=-0.629968;
- _meanAC[0][1][0]=-0.00313701;
- _meanAC[0][1][1]=0.0227998;
- _meanAC[0][1][2]=128.653;
- _meanAC[0][1][3]=234.333;
- _meanAS[0][1][0]=0.0346198;
- _meanAS[0][1][1]=-0.00261336;
- _meanAS[0][1][2]=177.983;
- _meanAS[0][1][3]=1.19839e+14;
- _meanAM[0][1][0]=-0.00100745;
- _meanAM[0][1][1]=0.264247;
- _meanAM[0][1][2]=337.255;
- _meanAM[0][1][3]=251.454;
- _meanBC[0][1][0]=-0.00397794;
- _meanBC[0][1][1]=0.00219079;
- _meanBC[0][1][2]=176.842;
- _meanBC[0][1][3]=450.29;
- _meanBS[0][1][0]=-2e+07;
- _meanBS[0][1][1]=0.0957598;
- _meanBS[0][1][2]=-8.88573e-27;
- _meanBS[0][1][3]=11442.2;
- _meanBM[0][1][0]=-0.00366315;
- _meanBM[0][1][1]=0.0622186;
- _meanBM[0][1][2]=94.5155;
- _meanBM[0][1][3]=126.404;
- _meanR9[0][1][0]=0.00636789;
- _meanR9[0][1][1]=0.000336062;
- _meanR9[0][1][2]=-0.0092699;
- _meanR9[0][1][3]=0;
+    _meanScale[0][1][0]=0.889415;
+    _meanScale[0][1][1]=1.21788e-05;
+    _meanScale[0][1][2]=-4.3438e-06;
+    _meanScale[0][1][3]=-0.629968;
+    _meanAT[0][1][0]=0.0;
+    _meanAT[0][1][1]=0.0;
+    _meanAT[0][1][2]=0.0;
+    _meanAT[0][1][3]=0.0;
+    _meanAC[0][1][0]=-0.00313701;
+    _meanAC[0][1][1]=0.0227998;
+    _meanAC[0][1][2]=128.653;
+    _meanAC[0][1][3]=234.333;
+    _meanAS[0][1][0]=0.0346198;
+    _meanAS[0][1][1]=-0.00261336;
+    _meanAS[0][1][2]=177.983;
+    _meanAS[0][1][3]=1.19839e+14;
+    _meanAM[0][1][0]=-0.00100745;
+    _meanAM[0][1][1]=0.264247;
+    _meanAM[0][1][2]=337.255;
+    _meanAM[0][1][3]=251.454;
+    _meanBT[0][1][0]=0.0;
+    _meanBT[0][1][1]=0.0;
+    _meanBT[0][1][2]=0.0;
+    _meanBT[0][1][3]=0.0;
+    _meanBC[0][1][0]=-0.00397794;
+    _meanBC[0][1][1]=0.00219079;
+    _meanBC[0][1][2]=176.842;
+    _meanBC[0][1][3]=450.29;
+    _meanBS[0][1][0]=-2e+07;
+    _meanBS[0][1][1]=0.0957598;
+    _meanBS[0][1][2]=-8.88573e-27;
+    _meanBS[0][1][3]=11442.2;
+    _meanBM[0][1][0]=-0.00366315;
+    _meanBM[0][1][1]=0.0622186;
+    _meanBM[0][1][2]=94.5155;
+    _meanBM[0][1][3]=126.404;
+    _meanR9[0][1][0]=0.00636789;
+    _meanR9[0][1][1]=0.000336062;
+    _meanR9[0][1][2]=-0.0092699;
+    _meanR9[0][1][3]=0;
 
- _sigmaScale[0][1][0]=0.685096;
- _sigmaScale[0][1][1]=0.129065;
- _sigmaScale[0][1][2]=-0.00212486;
- _sigmaScale[0][1][3]=0;
- _sigmaAT[0][1][0]=0.898865;
- _sigmaAT[0][1][1]=0;
- _sigmaAT[0][1][2]=0;
- _sigmaAT[0][1][3]=0;
- _sigmaAC[0][1][0]=-0.00492979;
- _sigmaAC[0][1][1]=-1.20123;
- _sigmaAC[0][1][2]=2.89231;
- _sigmaAC[0][1][3]=18.2059;
- _sigmaAS[0][1][0]=0;
- _sigmaAS[0][1][1]=0;
- _sigmaAS[0][1][2]=0;
- _sigmaAS[0][1][3]=0;
- _sigmaAM[0][1][0]=-0.000727825;
- _sigmaAM[0][1][1]=8.42395;
- _sigmaAM[0][1][2]=512.032;
- _sigmaAM[0][1][3]=415.962;
- _sigmaBT[0][1][0]=-0.0336364;
- _sigmaBT[0][1][1]=2.45182;
- _sigmaBT[0][1][2]=-0.284353;
- _sigmaBT[0][1][3]=-0.31679;
- _sigmaBC[0][1][0]=0.00510553;
- _sigmaBC[0][1][1]=-0.953869;
- _sigmaBC[0][1][2]=113872;
- _sigmaBC[0][1][3]=1.35966e+09;
- _sigmaBS[0][1][0]=0;
- _sigmaBS[0][1][1]=0;
- _sigmaBS[0][1][2]=0;
- _sigmaBS[0][1][3]=0;
- _sigmaBM[0][1][0]=-0.0034071;
- _sigmaBM[0][1][1]=4.19719;
- _sigmaBM[0][1][2]=128.952;
- _sigmaBM[0][1][3]=180.604;
- _sigmaR9[0][1][0]=-3.38988;
- _sigmaR9[0][1][1]=2.0714;
- _sigmaR9[0][1][2]=0;
- _sigmaR9[0][1][3]=0;
+    _sigmaScale[0][1][0]=0.685096;
+    _sigmaScale[0][1][1]=0.129065;
+    _sigmaScale[0][1][2]=-0.00212486;
+    _sigmaScale[0][1][3]=0;
+    _sigmaAT[0][1][0]=0.898865;
+    _sigmaAT[0][1][1]=0;
+    _sigmaAT[0][1][2]=0;
+    _sigmaAT[0][1][3]=0;
+    _sigmaAC[0][1][0]=-0.00492979;
+    _sigmaAC[0][1][1]=-1.20123;
+    _sigmaAC[0][1][2]=2.89231;
+    _sigmaAC[0][1][3]=18.2059;
+    _sigmaAS[0][1][0]=0;
+    _sigmaAS[0][1][1]=0;
+    _sigmaAS[0][1][2]=0;
+    _sigmaAS[0][1][3]=0;
+    _sigmaAM[0][1][0]=-0.000727825;
+    _sigmaAM[0][1][1]=8.42395;
+    _sigmaAM[0][1][2]=512.032;
+    _sigmaAM[0][1][3]=415.962;
+    _sigmaBT[0][1][0]=-0.0336364;
+    _sigmaBT[0][1][1]=2.45182;
+    _sigmaBT[0][1][2]=-0.284353;
+    _sigmaBT[0][1][3]=-0.31679;
+    _sigmaBC[0][1][0]=0.00510553;
+    _sigmaBC[0][1][1]=-0.953869;
+    _sigmaBC[0][1][2]=113872;
+    _sigmaBC[0][1][3]=1.35966e+09;
+    _sigmaBS[0][1][0]=0;
+    _sigmaBS[0][1][1]=0;
+    _sigmaBS[0][1][2]=0;
+    _sigmaBS[0][1][3]=0;
+    _sigmaBM[0][1][0]=-0.0034071;
+    _sigmaBM[0][1][1]=4.19719;
+    _sigmaBM[0][1][2]=128.952;
+    _sigmaBM[0][1][3]=180.604;
+    _sigmaR9[0][1][0]=-3.38988;
+    _sigmaR9[0][1][1]=2.0714;
+    _sigmaR9[0][1][2]=0;
+    _sigmaR9[0][1][3]=0;
 
- _meanScale[1][0][0]=1.0009;
- _meanScale[1][0][1]=-4.79805e-06;
- _meanScale[1][0][2]=3.34625e-05;
- _meanScale[1][0][3]=-0.194267;
- _meanAC[1][0][0]=-0.000177563;
- _meanAC[1][0][1]=0.0122839;
- _meanAC[1][0][2]=1798.92;
- _meanAC[1][0][3]=776.856;
- _meanAS[1][0][0]=-0.000533039;
- _meanAS[1][0][1]=0.0642604;
- _meanAS[1][0][2]=969.596;
- _meanAS[1][0][3]=1004.15;
- _meanAM[1][0][0]=0.000163185;
- _meanAM[1][0][1]=0.085936;
- _meanAM[1][0][2]=1593.17;
- _meanAM[1][0][3]=681.623;
- _meanBC[1][0][0]=-0.000518186;
- _meanBC[1][0][1]=0.0121868;
- _meanBC[1][0][2]=1112.53;
- _meanBC[1][0][3]=933.281;
- _meanBS[1][0][0]=-0.000750734;
- _meanBS[1][0][1]=0.03859;
- _meanBS[1][0][2]=547.579;
- _meanBS[1][0][3]=775.887;
- _meanBM[1][0][0]=-0.190395;
- _meanBM[1][0][1]=-0.00362647;
- _meanBM[1][0][2]=5.25687;
- _meanBM[1][0][3]=-2.8e+08;
- _meanR9[1][0][0]=0.972346;
- _meanR9[1][0][1]=53.9185;
- _meanR9[1][0][2]=1354.5;
- _meanR9[1][0][3]=0;
+    _meanScale[1][0][0]=1.0009;
+    _meanScale[1][0][1]=-4.79805e-06;
+    _meanScale[1][0][2]=3.34625e-05;
+    _meanScale[1][0][3]=-0.194267;
+    _meanAT[1][0][0]=0.0;
+    _meanAT[1][0][1]=0.0;
+    _meanAT[1][0][2]=0.0;
+    _meanAT[1][0][3]=0.0;
+    _meanAC[1][0][0]=-0.000177563;
+    _meanAC[1][0][1]=0.0122839;
+    _meanAC[1][0][2]=1798.92;
+    _meanAC[1][0][3]=776.856;
+    _meanAS[1][0][0]=-0.000533039;
+    _meanAS[1][0][1]=0.0642604;
+    _meanAS[1][0][2]=969.596;
+    _meanAS[1][0][3]=1004.15;
+    _meanAM[1][0][0]=0.000163185;
+    _meanAM[1][0][1]=0.085936;
+    _meanAM[1][0][2]=1593.17;
+    _meanAM[1][0][3]=681.623;
+    _meanBT[1][0][0]=0.0;
+    _meanBT[1][0][1]=0.0;
+    _meanBT[1][0][2]=0.0;
+    _meanBT[1][0][3]=0.0;
+    _meanBC[1][0][0]=-0.000518186;
+    _meanBC[1][0][1]=0.0121868;
+    _meanBC[1][0][2]=1112.53;
+    _meanBC[1][0][3]=933.281;
+    _meanBS[1][0][0]=-0.000750734;
+    _meanBS[1][0][1]=0.03859;
+    _meanBS[1][0][2]=547.579;
+    _meanBS[1][0][3]=775.887;
+    _meanBM[1][0][0]=-0.190395;
+    _meanBM[1][0][1]=-0.00362647;
+    _meanBM[1][0][2]=5.25687;
+    _meanBM[1][0][3]=-2.8e+08;
+    _meanR9[1][0][0]=0.972346;
+    _meanR9[1][0][1]=53.9185;
+    _meanR9[1][0][2]=1354.5;
+    _meanR9[1][0][3]=0;
 
- _sigmaScale[1][0][0]=0.348019;
- _sigmaScale[1][0][1]=-6.43731e-11;
- _sigmaScale[1][0][2]=0.0158647;
- _sigmaScale[1][0][3]=0;
- _sigmaAT[1][0][0]=0.215239;
- _sigmaAT[1][0][1]=0;
- _sigmaAT[1][0][2]=0;
- _sigmaAT[1][0][3]=0;
- _sigmaAC[1][0][0]=-0.00492298;
- _sigmaAC[1][0][1]=-3.40058;
- _sigmaAC[1][0][2]=17263.9;
- _sigmaAC[1][0][3]=2.6e+11;
- _sigmaAS[1][0][0]=-0.000237998;
- _sigmaAS[1][0][1]=3.0258;
- _sigmaAS[1][0][2]=1811.25;
- _sigmaAS[1][0][3]=1846.79;
- _sigmaAM[1][0][0]=0.0210134;
- _sigmaAM[1][0][1]=0.328359;
- _sigmaAM[1][0][2]=22.49;
- _sigmaAM[1][0][3]=14.5021;
- _sigmaBT[1][0][0]=-0.495072;
- _sigmaBT[1][0][1]=0;
- _sigmaBT[1][0][2]=0;
- _sigmaBT[1][0][3]=0;
- _sigmaBC[1][0][0]=-0.00265007;
- _sigmaBC[1][0][1]=0.970549;
- _sigmaBC[1][0][2]=-6.89119e+07;
- _sigmaBC[1][0][3]=180110;
- _sigmaBS[1][0][0]=0.00045833;
- _sigmaBS[1][0][1]=2.16342;
- _sigmaBS[1][0][2]=3582.4;
- _sigmaBS[1][0][3]=1100.36;
- _sigmaBM[1][0][0]=0.00188871;
- _sigmaBM[1][0][1]=1.66177;
- _sigmaBM[1][0][2]=3.2e+08;
- _sigmaBM[1][0][3]=2163.81;
- _sigmaR9[1][0][0]=-220.415;
- _sigmaR9[1][0][1]=5.19136e-08;
- _sigmaR9[1][0][2]=3.04028e-10;
- _sigmaR9[1][0][3]=0;
+    _sigmaScale[1][0][0]=0.348019;
+    _sigmaScale[1][0][1]=-6.43731e-11;
+    _sigmaScale[1][0][2]=0.0158647;
+    _sigmaScale[1][0][3]=0;
+    _sigmaAT[1][0][0]=0.215239;
+    _sigmaAT[1][0][1]=0;
+    _sigmaAT[1][0][2]=0;
+    _sigmaAT[1][0][3]=0;
+    _sigmaAC[1][0][0]=-0.00492298;
+    _sigmaAC[1][0][1]=-3.40058;
+    _sigmaAC[1][0][2]=17263.9;
+    _sigmaAC[1][0][3]=2.6e+11;
+    _sigmaAS[1][0][0]=-0.000237998;
+    _sigmaAS[1][0][1]=3.0258;
+    _sigmaAS[1][0][2]=1811.25;
+    _sigmaAS[1][0][3]=1846.79;
+    _sigmaAM[1][0][0]=0.0210134;
+    _sigmaAM[1][0][1]=0.328359;
+    _sigmaAM[1][0][2]=22.49;
+    _sigmaAM[1][0][3]=14.5021;
+    _sigmaBT[1][0][0]=-0.495072;
+    _sigmaBT[1][0][1]=0;
+    _sigmaBT[1][0][2]=0;
+    _sigmaBT[1][0][3]=0;
+    _sigmaBC[1][0][0]=-0.00265007;
+    _sigmaBC[1][0][1]=0.970549;
+    _sigmaBC[1][0][2]=-6.89119e+07;
+    _sigmaBC[1][0][3]=180110;
+    _sigmaBS[1][0][0]=0.00045833;
+    _sigmaBS[1][0][1]=2.16342;
+    _sigmaBS[1][0][2]=3582.4;
+    _sigmaBS[1][0][3]=1100.36;
+    _sigmaBM[1][0][0]=0.00188871;
+    _sigmaBM[1][0][1]=1.66177;
+    _sigmaBM[1][0][2]=3.2e+08;
+    _sigmaBM[1][0][3]=2163.81;
+    _sigmaR9[1][0][0]=-220.415;
+    _sigmaR9[1][0][1]=5.19136e-08;
+    _sigmaR9[1][0][2]=3.04028e-10;
+    _sigmaR9[1][0][3]=0;
 
- _meanScale[1][1][0]=0.338011;
- _meanScale[1][1][1]=9.47815e-05;
- _meanScale[1][1][2]=-0.000238735;
- _meanScale[1][1][3]=-0.846414;
- _meanAC[1][1][0]=-0.00125367;
- _meanAC[1][1][1]=0.013324;
- _meanAC[1][1][2]=203.988;
- _meanAC[1][1][3]=431.951;
- _meanAS[1][1][0]=0.000282607;
- _meanAS[1][1][1]=0.0307431;
- _meanAS[1][1][2]=343.509;
- _meanAS[1][1][3]=274.957;
- _meanAM[1][1][0]=0.0020258;
- _meanAM[1][1][1]=0.643913;
- _meanAM[1][1][2]=0.0693877;
- _meanAM[1][1][3]=0.0816029;
- _meanBC[1][1][0]=-0.00513833;
- _meanBC[1][1][1]=5.94424e+08;
- _meanBC[1][1][2]=-62814.9;
- _meanBC[1][1][3]=118612;
- _meanBS[1][1][0]=-0.00152129;
- _meanBS[1][1][1]=0.0234694;
- _meanBS[1][1][2]=186.483;
- _meanBS[1][1][3]=754.201;
- _meanBM[1][1][0]=-0.000404987;
- _meanBM[1][1][1]=0.156384;
- _meanBM[1][1][2]=-1.7e+08;
- _meanBM[1][1][3]=1793.83;
- _meanR9[1][1][0]=0.0645278;
- _meanR9[1][1][1]=0.161614;
- _meanR9[1][1][2]=-0.215822;
- _meanR9[1][1][3]=0;
+    _meanScale[1][1][0]=0.338011;
+    _meanScale[1][1][1]=9.47815e-05;
+    _meanScale[1][1][2]=-0.000238735;
+    _meanScale[1][1][3]=-0.846414;
+    _meanAT[1][1][0]=0.0;
+    _meanAT[1][1][1]=0.0;
+    _meanAT[1][1][2]=0.0;
+    _meanAT[1][1][3]=0.0;
+    _meanAC[1][1][0]=-0.00125367;
+    _meanAC[1][1][1]=0.013324;
+    _meanAC[1][1][2]=203.988;
+    _meanAC[1][1][3]=431.951;
+    _meanAS[1][1][0]=0.000282607;
+    _meanAS[1][1][1]=0.0307431;
+    _meanAS[1][1][2]=343.509;
+    _meanAS[1][1][3]=274.957;
+    _meanAM[1][1][0]=0.0020258;
+    _meanAM[1][1][1]=0.643913;
+    _meanAM[1][1][2]=0.0693877;
+    _meanAM[1][1][3]=0.0816029;
+    _meanBT[1][1][0]=0.0;
+    _meanBT[1][1][1]=0.0;
+    _meanBT[1][1][2]=0.0;
+    _meanBT[1][1][3]=0.0;
+    _meanBC[1][1][0]=-0.00513833;
+    _meanBC[1][1][1]=5.94424e+08;
+    _meanBC[1][1][2]=-62814.9;
+    _meanBC[1][1][3]=118612;
+    _meanBS[1][1][0]=-0.00152129;
+    _meanBS[1][1][1]=0.0234694;
+    _meanBS[1][1][2]=186.483;
+    _meanBS[1][1][3]=754.201;
+    _meanBM[1][1][0]=-0.000404987;
+    _meanBM[1][1][1]=0.156384;
+    _meanBM[1][1][2]=-1.7e+08;
+    _meanBM[1][1][3]=1793.83;
+    _meanR9[1][1][0]=0.0645278;
+    _meanR9[1][1][1]=0.161614;
+    _meanR9[1][1][2]=-0.215822;
+    _meanR9[1][1][3]=0;
 
- _sigmaScale[1][1][0]=1.07376;
- _sigmaScale[1][1][1]=7.47238e-13;
- _sigmaScale[1][1][2]=0.0289594;
- _sigmaScale[1][1][3]=0;
- _sigmaAT[1][1][0]=-0.520907;
- _sigmaAT[1][1][1]=0;
- _sigmaAT[1][1][2]=0;
- _sigmaAT[1][1][3]=0;
- _sigmaAC[1][1][0]=0.00165941;
- _sigmaAC[1][1][1]=-0.351422;
- _sigmaAC[1][1][2]=8968.94;
- _sigmaAC[1][1][3]=-7e+09;
- _sigmaAS[1][1][0]=0.000490279;
- _sigmaAS[1][1][1]=0.554531;
- _sigmaAS[1][1][2]=469.111;
- _sigmaAS[1][1][3]=457.541;
- _sigmaAM[1][1][0]=0.00102079;
- _sigmaAM[1][1][1]=0.628055;
- _sigmaAM[1][1][2]=53.9452;
- _sigmaAM[1][1][3]=72.911;
- _sigmaBT[1][1][0]=-0.461542;
- _sigmaBT[1][1][1]=0;
- _sigmaBT[1][1][2]=0;
- _sigmaBT[1][1][3]=0;
- _sigmaBC[1][1][0]=-0.00219303;
- _sigmaBC[1][1][1]=0.874327;
- _sigmaBC[1][1][2]=71353.2;
- _sigmaBC[1][1][3]=2.09924e+08;
- _sigmaBS[1][1][0]=0.00104021;
- _sigmaBS[1][1][1]=0.236098;
- _sigmaBS[1][1][2]=482.954;
- _sigmaBS[1][1][3]=191.984;
- _sigmaBM[1][1][0]=-0.000116086;
- _sigmaBM[1][1][1]=2.4438;
- _sigmaBM[1][1][2]=1.9e+09;
- _sigmaBM[1][1][3]=-700.271;
- _sigmaR9[1][1][0]=4.59374;
- _sigmaR9[1][1][1]=-5.06202;
- _sigmaR9[1][1][2]=0;
- _sigmaR9[1][1][3]=0;
+    _sigmaScale[1][1][0]=1.07376;
+    _sigmaScale[1][1][1]=7.47238e-13;
+    _sigmaScale[1][1][2]=0.0289594;
+    _sigmaScale[1][1][3]=0;
+    _sigmaAT[1][1][0]=-0.520907;
+    _sigmaAT[1][1][1]=0;
+    _sigmaAT[1][1][2]=0;
+    _sigmaAT[1][1][3]=0;
+    _sigmaAC[1][1][0]=0.00165941;
+    _sigmaAC[1][1][1]=-0.351422;
+    _sigmaAC[1][1][2]=8968.94;
+    _sigmaAC[1][1][3]=-7e+09;
+    _sigmaAS[1][1][0]=0.000490279;
+    _sigmaAS[1][1][1]=0.554531;
+    _sigmaAS[1][1][2]=469.111;
+    _sigmaAS[1][1][3]=457.541;
+    _sigmaAM[1][1][0]=0.00102079;
+    _sigmaAM[1][1][1]=0.628055;
+    _sigmaAM[1][1][2]=53.9452;
+    _sigmaAM[1][1][3]=72.911;
+    _sigmaBT[1][1][0]=-0.461542;
+    _sigmaBT[1][1][1]=0;
+    _sigmaBT[1][1][2]=0;
+    _sigmaBT[1][1][3]=0;
+    _sigmaBC[1][1][0]=-0.00219303;
+    _sigmaBC[1][1][1]=0.874327;
+    _sigmaBC[1][1][2]=71353.2;
+    _sigmaBC[1][1][3]=2.09924e+08;
+    _sigmaBS[1][1][0]=0.00104021;
+    _sigmaBS[1][1][1]=0.236098;
+    _sigmaBS[1][1][2]=482.954;
+    _sigmaBS[1][1][3]=191.984;
+    _sigmaBM[1][1][0]=-0.000116086;
+    _sigmaBM[1][1][1]=2.4438;
+    _sigmaBM[1][1][2]=1.9e+09;
+    _sigmaBM[1][1][3]=-700.271;
+    _sigmaR9[1][1][0]=4.59374;
+    _sigmaR9[1][1][1]=-5.06202;
+    _sigmaR9[1][1][2]=0;
+    _sigmaR9[1][1][3]=0;
 
-	_initialised=true;
-      }
+    _initialised=true;
+  }
 
-      if(s=="4_2") {
- _meanScale[0][0][0]=0.996799;
- _meanScale[0][0][1]=5.60811e-07;
- _meanScale[0][0][2]=1.75671e-05;
- _meanScale[0][0][3]=-0.0972943;
- _meanAC[0][0][0]=-0.00348412;
- _meanAC[0][0][1]=0.010197;
- _meanAC[0][0][2]=463.582;
- _meanAC[0][0][3]=520.443;
- _meanAS[0][0][0]=-1.1;
- _meanAS[0][0][1]=0.00135995;
- _meanAS[0][0][2]=295.712;
- _meanAS[0][0][3]=5.13202e+07;
- _meanAM[0][0][0]=-0.00120395;
- _meanAM[0][0][1]=0.1436;
- _meanAM[0][0][2]=262.307;
- _meanAM[0][0][3]=202.913;
- _meanBC[0][0][0]=-0.00274879;
- _meanBC[0][0][1]=0.0126012;
- _meanBC[0][0][2]=612.055;
- _meanBC[0][0][3]=397.039;
- _meanBS[0][0][0]=-0.00203352;
- _meanBS[0][0][1]=0.00374733;
- _meanBS[0][0][2]=48.7328;
- _meanBS[0][0][3]=1128;
- _meanBM[0][0][0]=-0.00183083;
- _meanBM[0][0][1]=0.0683669;
- _meanBM[0][0][2]=218.027;
- _meanBM[0][0][3]=210.899;
- _meanR9[0][0][0]=0.946449;
- _meanR9[0][0][1]=18.7205;
- _meanR9[0][0][2]=215.858;
- _meanR9[0][0][3]=0;
+  if(s=="4_2") {
+    _meanScale[0][0][0]=0.996757;
+    _meanScale[0][0][1]=-1.02729e-05;
+    _meanScale[0][0][2]=2.92397e-05;
+    _meanScale[0][0][3]=-0.0892806;
+    _meanAT[0][0][0]=0.000616189;
+    _meanAT[0][0][1]=0;
+    _meanAT[0][0][2]=0;
+    _meanAT[0][0][3]=0;
+    _meanAC[0][0][0]=-0.00343502;
+    _meanAC[0][0][1]=0.0102123;
+    _meanAC[0][0][2]=460.294;
+    _meanAC[0][0][3]=510.925;
+    _meanAS[0][0][0]=0;
+    _meanAS[0][0][1]=0;
+    _meanAS[0][0][2]=0;
+    _meanAS[0][0][3]=0;
+    _meanAM[0][0][0]=-0.0010363;
+    _meanAM[0][0][1]=0.147364;
+    _meanAM[0][0][2]=280.742;
+    _meanAM[0][0][3]=200.903;
+    _meanBT[0][0][0]=0;
+    _meanBT[0][0][1]=0.0290516;
+    _meanBT[0][0][2]=-113.185;
+    _meanBT[0][0][3]=-176099;
+    _meanBC[0][0][0]=-0.00262961;
+    _meanBC[0][0][1]=0.0134481;
+    _meanBC[0][0][2]=699.825;
+    _meanBC[0][0][3]=401.452;
+    _meanBS[0][0][0]=0;
+    _meanBS[0][0][1]=0;
+    _meanBS[0][0][2]=0;
+    _meanBS[0][0][3]=0;
+    _meanBM[0][0][0]=-0.00170238;
+    _meanBM[0][0][1]=0.0751873;
+    _meanBM[0][0][2]=232.9;
+    _meanBM[0][0][3]=225.712;
+    _meanR9[0][0][0]=0.946441;
+    _meanR9[0][0][1]=19.5162;
+    _meanR9[0][0][2]=173.503;
+    _meanR9[0][0][3]=0;
 
- _sigmaScale[0][0][0]=0.170521;
- _sigmaScale[0][0][1]=0.0219663;
- _sigmaScale[0][0][2]=0.00652237;
- _sigmaScale[0][0][3]=0;
- _sigmaAT[0][0][0]=0.169953;
- _sigmaAT[0][0][1]=0;
- _sigmaAT[0][0][2]=0;
- _sigmaAT[0][0][3]=0;
- _sigmaAC[0][0][0]=-0.00383749;
- _sigmaAC[0][0][1]=0.0873992;
- _sigmaAC[0][0][2]=48.3297;
- _sigmaAC[0][0][3]=-3e+17;
- _sigmaAS[0][0][0]=0;
- _sigmaAS[0][0][1]=0;
- _sigmaAS[0][0][2]=0;
- _sigmaAS[0][0][3]=0;
- _sigmaAM[0][0][0]=0.000929953;
- _sigmaAM[0][0][1]=10.4322;
- _sigmaAM[0][0][2]=599.042;
- _sigmaAM[0][0][3]=302.713;
- _sigmaBT[0][0][0]=-0.00237746;
- _sigmaBT[0][0][1]=2.84349;
- _sigmaBT[0][0][2]=125.522;
- _sigmaBT[0][0][3]=144.262;
- _sigmaBC[0][0][0]=-0.00170611;
- _sigmaBC[0][0][1]=0.260614;
- _sigmaBC[0][0][2]=985.412;
- _sigmaBC[0][0][3]=806.274;
- _sigmaBS[0][0][0]=0;
- _sigmaBS[0][0][1]=0;
- _sigmaBS[0][0][2]=0;
- _sigmaBS[0][0][3]=0;
- _sigmaBM[0][0][0]=-0.00252749;
- _sigmaBM[0][0][1]=50.861;
- _sigmaBM[0][0][2]=673.202;
- _sigmaBM[0][0][3]=1011.63;
- _sigmaR9[0][0][0]=0.953432;
- _sigmaR9[0][0][1]=1814.6;
- _sigmaR9[0][0][2]=25838.3;
- _sigmaR9[0][0][3]=0;
+    _sigmaScale[0][0][0]=0.196245;
+    _sigmaScale[0][0][1]=0.0191932;
+    _sigmaScale[0][0][2]=0.00660053;
+    _sigmaScale[0][0][3]=0;
+    _sigmaAT[0][0][0]=0.179417;
+    _sigmaAT[0][0][1]=0;
+    _sigmaAT[0][0][2]=0;
+    _sigmaAT[0][0][3]=0;
+    _sigmaAC[0][0][0]=-0.00383752;
+    _sigmaAC[0][0][1]=0.0881981;
+    _sigmaAC[0][0][2]=88.6384;
+    _sigmaAC[0][0][3]=-3e+17;
+    _sigmaAS[0][0][0]=0;
+    _sigmaAS[0][0][1]=0;
+    _sigmaAS[0][0][2]=0;
+    _sigmaAS[0][0][3]=0;
+    _sigmaAM[0][0][0]=0.000932441;
+    _sigmaAM[0][0][1]=10.1637;
+    _sigmaAM[0][0][2]=610.691;
+    _sigmaAM[0][0][3]=290.271;
+    _sigmaBT[0][0][0]=-0.00599323;
+    _sigmaBT[0][0][1]=1.71943;
+    _sigmaBT[0][0][2]=90.7352;
+    _sigmaBT[0][0][3]=164.449;
+    _sigmaBC[0][0][0]=-0.00167802;
+    _sigmaBC[0][0][1]=0.303306;
+    _sigmaBC[0][0][2]=1326.56;
+    _sigmaBC[0][0][3]=765.552;
+    _sigmaBS[0][0][0]=0;
+    _sigmaBS[0][0][1]=0;
+    _sigmaBS[0][0][2]=0;
+    _sigmaBS[0][0][3]=0;
+    _sigmaBM[0][0][0]=-0.00252598;
+    _sigmaBM[0][0][1]=52.0947;
+    _sigmaBM[0][0][2]=660.313;
+    _sigmaBM[0][0][3]=1052.64;
+    _sigmaR9[0][0][0]=0.952982;
+    _sigmaR9[0][0][1]=1961.39;
+    _sigmaR9[0][0][2]=22382.1;
+    _sigmaR9[0][0][3]=0;
 
- _meanScale[0][1][0]=0.888925;
- _meanScale[0][1][1]=-1.74431e-05;
- _meanScale[0][1][2]=2.96023e-05;
- _meanScale[0][1][3]=-0.651503;
- _meanAC[0][1][0]=-0.00322338;
- _meanAC[0][1][1]=0.0220617;
- _meanAC[0][1][2]=137.003;
- _meanAC[0][1][3]=237.095;
- _meanAS[0][1][0]=0.0331431;
- _meanAS[0][1][1]=-0.00594756;
- _meanAS[0][1][2]=2675.67;
- _meanAS[0][1][3]=1.4e+09;
- _meanAM[0][1][0]=-0.000636963;
- _meanAM[0][1][1]=0.15048;
- _meanAM[0][1][2]=395.704;
- _meanAM[0][1][3]=306.8;
- _meanBC[0][1][0]=-0.00357393;
- _meanBC[0][1][1]=0.00449012;
- _meanBC[0][1][2]=887.818;
- _meanBC[0][1][3]=855.377;
- _meanBS[0][1][0]=-297.287;
- _meanBS[0][1][1]=0.0956803;
- _meanBS[0][1][2]=-4.74338e-20;
- _meanBS[0][1][3]=11442.2;
- _meanBM[0][1][0]=-0.00320834;
- _meanBM[0][1][1]=0.043721;
- _meanBM[0][1][2]=132.981;
- _meanBM[0][1][3]=171.418;
- _meanR9[0][1][0]=0.0136009;
- _meanR9[0][1][1]=-0.0214006;
- _meanR9[0][1][2]=0.00866824;
- _meanR9[0][1][3]=0;
+    _meanScale[0][1][0]=0.88802;
+    _meanScale[0][1][1]=1.61e-05;
+    _meanScale[0][1][2]=-1.08e-05;
+    _meanScale[0][1][3]=-0.489;
+    _meanAT[0][1][0]=-0.00165;
+    _meanAT[0][1][1]=0;
+    _meanAT[0][1][2]=0;
+    _meanAT[0][1][3]=0;
+    _meanAC[0][1][0]=-0.003195;
+    _meanAC[0][1][1]=0.02012;
+    _meanAC[0][1][2]=151.6;
+    _meanAC[0][1][3]=255;
+    _meanAS[0][1][0]=0;
+    _meanAS[0][1][1]=0;
+    _meanAS[0][1][2]=0;
+    _meanAS[0][1][3]=0;
+    _meanAM[0][1][0]=-0.00055;
+    _meanAM[0][1][1]=0.1515;
+    _meanAM[0][1][2]=534;
+    _meanAM[0][1][3]=330;
+    _meanBT[0][1][0]=0;
+    _meanBT[0][1][1]=0.187;
+    _meanBT[0][1][2]=299.298;
+    _meanBT[0][1][3]=428.221;
+    _meanBC[0][1][0]=-0.00366;
+    _meanBC[0][1][1]=0.0038;
+    _meanBC[0][1][2]=760;
+    _meanBC[0][1][3]=760;
+    _meanBS[0][1][0]=0;
+    _meanBS[0][1][1]=0;
+    _meanBS[0][1][2]=0;
+    _meanBS[0][1][3]=0;
+    _meanBM[0][1][0]=-0.00316;
+    _meanBM[0][1][1]=0.0404;
+    _meanBM[0][1][2]=137;
+    _meanBM[0][1][3]=146;
+    _meanR9[0][1][0]=0.02573;
+    _meanR9[0][1][1]=-0.03722;
+    _meanR9[0][1][2]=0.0144;
+    _meanR9[0][1][3]=0;
 
- _sigmaScale[0][1][0]=0.445368;
- _sigmaScale[0][1][1]=0.0898336;
- _sigmaScale[0][1][2]=-0.00333875;
- _sigmaScale[0][1][3]=0;
- _sigmaAT[0][1][0]=1.25749;
- _sigmaAT[0][1][1]=0;
- _sigmaAT[0][1][2]=0;
- _sigmaAT[0][1][3]=0;
- _sigmaAC[0][1][0]=-0.00360692;
- _sigmaAC[0][1][1]=-1.04963;
- _sigmaAC[0][1][2]=10.3527;
- _sigmaAC[0][1][3]=29.0662;
- _sigmaAS[0][1][0]=0;
- _sigmaAS[0][1][1]=0;
- _sigmaAS[0][1][2]=0;
- _sigmaAS[0][1][3]=0;
- _sigmaAM[0][1][0]=-0.000973088;
- _sigmaAM[0][1][1]=12.859;
- _sigmaAM[0][1][2]=466.397;
- _sigmaAM[0][1][3]=464.686;
- _sigmaBT[0][1][0]=-0.0284288;
- _sigmaBT[0][1][1]=2.6772;
- _sigmaBT[0][1][2]=-0.414022;
- _sigmaBT[0][1][3]=-0.424373;
- _sigmaBC[0][1][0]=0.00567218;
- _sigmaBC[0][1][1]=-0.829286;
- _sigmaBC[0][1][2]=48132;
- _sigmaBC[0][1][3]=3.1211e+08;
- _sigmaBS[0][1][0]=0;
- _sigmaBS[0][1][1]=0;
- _sigmaBS[0][1][2]=0;
- _sigmaBS[0][1][3]=0;
- _sigmaBM[0][1][0]=-0.00270505;
- _sigmaBM[0][1][1]=6.07197;
- _sigmaBM[0][1][2]=149.784;
- _sigmaBM[0][1][3]=203.478;
- _sigmaR9[0][1][0]=-2.78021;
- _sigmaR9[0][1][1]=1.33952;
- _sigmaR9[0][1][2]=0;
- _sigmaR9[0][1][3]=0;
+    _sigmaScale[0][1][0]=0.66;
+    _sigmaScale[0][1][1]=0.07465;
+    _sigmaScale[0][1][2]=-0.00373;
+    _sigmaScale[0][1][3]=0;
+    _sigmaAT[0][1][0]=1.363;
+    _sigmaAT[0][1][1]=0;
+    _sigmaAT[0][1][2]=0;
+    _sigmaAT[0][1][3]=0;
+    _sigmaAC[0][1][0]=-0.00342;
+    _sigmaAC[0][1][1]=-1.667;
+    _sigmaAC[0][1][2]=6.6;
+    _sigmaAC[0][1][3]=14;
+    _sigmaAS[0][1][0]=0;
+    _sigmaAS[0][1][1]=0;
+    _sigmaAS[0][1][2]=0;
+    _sigmaAS[0][1][3]=0;
+    _sigmaAM[0][1][0]=-0.00094;
+    _sigmaAM[0][1][1]=12.0228;
+    _sigmaAM[0][1][2]=536;
+    _sigmaAM[0][1][3]=464;
+    _sigmaBT[0][1][0]=0.022;
+    _sigmaBT[0][1][1]=3.223;
+    _sigmaBT[0][1][2]=-0.361;
+    _sigmaBT[0][1][3]=-0.318;
+    _sigmaBC[0][1][0]=0.00567264;
+    _sigmaBC[0][1][1]=-1.184;
+    _sigmaBC[0][1][2]=76000;
+    _sigmaBC[0][1][3]=2.14748e+08;
+    _sigmaBS[0][1][0]=0;
+    _sigmaBS[0][1][1]=0;
+    _sigmaBS[0][1][2]=0;
+    _sigmaBS[0][1][3]=0;
+    _sigmaBM[0][1][0]=-0.00236;
+    _sigmaBM[0][1][1]=5.78;
+    _sigmaBM[0][1][2]=166;
+    _sigmaBM[0][1][3]=203.5;
+    _sigmaR9[0][1][0]=-2.94;
+    _sigmaR9[0][1][1]=1.53445;
+    _sigmaR9[0][1][2]=0;
+    _sigmaR9[0][1][3]=0;
 
- _meanScale[1][0][0]=0.99928;
- _meanScale[1][0][1]=-3.23928e-05;
- _meanScale[1][0][2]=0.000126742;
- _meanScale[1][0][3]=-0.103714;
- _meanAC[1][0][0]=-0.000283383;
- _meanAC[1][0][1]=0.0150483;
- _meanAC[1][0][2]=1379.81;
- _meanAC[1][0][3]=750.912;
- _meanAS[1][0][0]=-0.00053446;
- _meanAS[1][0][1]=0.0702291;
- _meanAS[1][0][2]=835.991;
- _meanAS[1][0][3]=1023.41;
- _meanAM[1][0][0]=2.63208e-05;
- _meanAM[1][0][1]=0.258572;
- _meanAM[1][0][2]=2428.89;
- _meanAM[1][0][3]=2073.45;
- _meanBC[1][0][0]=-0.000345234;
- _meanBC[1][0][1]=0.0149896;
- _meanBC[1][0][2]=1403.55;
- _meanBC[1][0][3]=847.164;
- _meanBS[1][0][0]=-0.000411942;
- _meanBS[1][0][1]=0.0543678;
- _meanBS[1][0][2]=889.136;
- _meanBS[1][0][3]=937.071;
- _meanBM[1][0][0]=-0.186801;
- _meanBM[1][0][1]=-0.00221346;
- _meanBM[1][0][2]=3.52258;
- _meanBM[1][0][3]=3.17997e+06;
- _meanR9[1][0][0]=0.964924;
- _meanR9[1][0][1]=31.8205;
- _meanR9[1][0][2]=459.004;
- _meanR9[1][0][3]=0;
+    _meanScale[1][0][0]=0.993921;
+    _meanScale[1][0][1]=-8.11417e-06;
+    _meanScale[1][0][2]=3.23086e-05;
+    _meanScale[1][0][3]=-0.0976369;
+    _meanAT[1][0][0]=0.0691979;
+    _meanAT[1][0][1]=0;
+    _meanAT[1][0][2]=0;
+    _meanAT[1][0][3]=0;
+    _meanAC[1][0][0]=-0.000310485;
+    _meanAC[1][0][1]=0.0169478;
+    _meanAC[1][0][2]=1301.97;
+    _meanAC[1][0][3]=796.53;
+    _meanAS[1][0][0]=-0.0005425;
+    _meanAS[1][0][1]=0.0676613;
+    _meanAS[1][0][2]=790.284;
+    _meanAS[1][0][3]=970;
+    _meanAM[1][0][0]=0.000134362;
+    _meanAM[1][0][1]=0.364822;
+    _meanAM[1][0][2]=3396.04;
+    _meanAM[1][0][3]=2407.2;
+    _meanBT[1][0][0]=0.0456649;
+    _meanBT[1][0][1]=0;
+    _meanBT[1][0][2]=0;
+    _meanBT[1][0][3]=0;
+    _meanBC[1][0][0]=-0.000356413;
+    _meanBC[1][0][1]=0.0167018;
+    _meanBC[1][0][2]=1394.52;
+    _meanBC[1][0][3]=823.035;
+    _meanBS[1][0][0]=-0.000484;
+    _meanBS[1][0][1]=0.0542618;
+    _meanBS[1][0][2]=798.07;
+    _meanBS[1][0][3]=1019.88;
+    _meanBM[1][0][0]=-0.175333;
+    _meanBM[1][0][1]=-0.00324513;
+    _meanBM[1][0][2]=2.87972;
+    _meanBM[1][0][3]=7.58712e+12;
+    _meanR9[1][0][0]=0.96393;
+    _meanR9[1][0][1]=29.6072;
+    _meanR9[1][0][2]=334.89;
+    _meanR9[1][0][3]=0;
 
- _sigmaScale[1][0][0]=0.344806;
- _sigmaScale[1][0][1]=6.93889e-18;
- _sigmaScale[1][0][2]=0.0154355;
- _sigmaScale[1][0][3]=0;
- _sigmaAT[1][0][0]=0.954147;
- _sigmaAT[1][0][1]=0;
- _sigmaAT[1][0][2]=0;
- _sigmaAT[1][0][3]=0;
- _sigmaAC[1][0][0]=48.1275;
- _sigmaAC[1][0][1]=1.50005e+08;
- _sigmaAC[1][0][2]=21231.6;
- _sigmaAC[1][0][3]=2.6e+11;
- _sigmaAS[1][0][0]=-0.000195931;
- _sigmaAS[1][0][1]=2.61977;
- _sigmaAS[1][0][2]=1321.33;
- _sigmaAS[1][0][3]=1267.31;
- _sigmaAM[1][0][0]=0.0277744;
- _sigmaAM[1][0][1]=0.316244;
- _sigmaAM[1][0][2]=21.1765;
- _sigmaAM[1][0][3]=13.0875;
- _sigmaBT[1][0][0]=-0.633404;
- _sigmaBT[1][0][1]=0;
- _sigmaBT[1][0][2]=0;
- _sigmaBT[1][0][3]=0;
- _sigmaBC[1][0][0]=-0.00320087;
- _sigmaBC[1][0][1]=8.94207;
- _sigmaBC[1][0][2]=7.49509e+12;
- _sigmaBC[1][0][3]=5.00279e+06;
- _sigmaBS[1][0][0]=0.000299388;
- _sigmaBS[1][0][1]=2.43008;
- _sigmaBS[1][0][2]=2885.75;
- _sigmaBS[1][0][3]=1072.72;
- _sigmaBM[1][0][0]=0.00154631;
- _sigmaBM[1][0][1]=23.6989;
- _sigmaBM[1][0][2]=1.2565e+07;
- _sigmaBM[1][0][3]=43957.4;
- _sigmaR9[1][0][0]=98.4538;
- _sigmaR9[1][0][1]=1.85379e-07;
- _sigmaR9[1][0][2]=-5.66067e-10;
- _sigmaR9[1][0][3]=0;
+    _sigmaScale[1][0][0]=0.337911;
+    _sigmaScale[1][0][1]=1.03419e-11;
+    _sigmaScale[1][0][2]=0.0153846;
+    _sigmaScale[1][0][3]=0;
+    _sigmaAT[1][0][0]=1.12;
+    _sigmaAT[1][0][1]=0;
+    _sigmaAT[1][0][2]=0;
+    _sigmaAT[1][0][3]=0;
+    _sigmaAC[1][0][0]=48.1275;
+    _sigmaAC[1][0][1]=1.50005e+08;
+    _sigmaAC[1][0][2]=21231.6;
+    _sigmaAC[1][0][3]=2.6e+11;
+    _sigmaAS[1][0][0]=-0.00036952;
+    _sigmaAS[1][0][1]=2.75194;
+    _sigmaAS[1][0][2]=1045.06;
+    _sigmaAS[1][0][3]=1420.87;
+    _sigmaAM[1][0][0]=0.05567;
+    _sigmaAM[1][0][1]=0.32;
+    _sigmaAM[1][0][2]=420;
+    _sigmaAM[1][0][3]=12.8233;
+    _sigmaBT[1][0][0]=-0.22312;
+    _sigmaBT[1][0][1]=0;
+    _sigmaBT[1][0][2]=0;
+    _sigmaBT[1][0][3]=0;
+    _sigmaBC[1][0][0]=-0.00320087;
+    _sigmaBC[1][0][1]=59.2836;
+    _sigmaBC[1][0][2]=7.49509e+12;
+    _sigmaBC[1][0][3]=1.32714e+07;
+    _sigmaBS[1][0][0]=0.000189384;
+    _sigmaBS[1][0][1]=2.89111;
+    _sigmaBS[1][0][2]=2468.02;
+    _sigmaBS[1][0][3]=1294.69;
+    _sigmaBM[1][0][0]=0.00154629;
+    _sigmaBM[1][0][1]=16.9762;
+    _sigmaBM[1][0][2]=1.05e+07;
+    _sigmaBM[1][0][3]=-9e+06;
+    _sigmaR9[1][0][0]=99.68;
+    _sigmaR9[1][0][1]=-9.37265e-08;
+    _sigmaR9[1][0][2]=6.91613e-09;
+    _sigmaR9[1][0][3]=0;
 
- _meanScale[1][1][0]=0.325367;
- _meanScale[1][1][1]=8.5347e-05;
- _meanScale[1][1][2]=-0.000187217;
- _meanScale[1][1][3]=-0.991423;
- _meanAC[1][1][0]=-0.00114884;
- _meanAC[1][1][1]=0.00816447;
- _meanAC[1][1][2]=314.939;
- _meanAC[1][1][3]=614.316;
- _meanAS[1][1][0]=-0.00877504;
- _meanAS[1][1][1]=-0.00376867;
- _meanAS[1][1][2]=1471.46;
- _meanAS[1][1][3]=3.88578e-16;
- _meanAM[1][1][0]=0.000631949;
- _meanAM[1][1][1]=0.645715;
- _meanAM[1][1][2]=0.0241907;
- _meanAM[1][1][3]=0.0376477;
- _meanBC[1][1][0]=-0.00501182;
- _meanBC[1][1][1]=-5303.12;
- _meanBC[1][1][2]=41522.7;
- _meanBC[1][1][3]=118612;
- _meanBS[1][1][0]=-0.00133119;
- _meanBS[1][1][1]=0.0239645;
- _meanBS[1][1][2]=308.148;
- _meanBS[1][1][3]=752.554;
- _meanBM[1][1][0]=-8.08678e-05;
- _meanBM[1][1][1]=0.0502046;
- _meanBM[1][1][2]=-7.5e+06;
- _meanBM[1][1][3]=870.829;
- _meanR9[1][1][0]=0.20763;
- _meanR9[1][1][1]=-0.0992461;
- _meanR9[1][1][2]=-0.114749;
- _meanR9[1][1][3]=0;
+    _meanScale[1][1][0]=0.340125;
+    _meanScale[1][1][1]=-5.02007e-05;
+    _meanScale[1][1][2]=0.000208216;
+    _meanScale[1][1][3]=-1.32063;
+    _meanAT[1][1][0]=-0.092494;
+    _meanAT[1][1][1]=0;
+    _meanAT[1][1][2]=0;
+    _meanAT[1][1][3]=0;
+    _meanAC[1][1][0]=-0.00131984;
+    _meanAC[1][1][1]=0.00950668;
+    _meanAC[1][1][2]=259.804;
+    _meanAC[1][1][3]=705.003;
+    _meanAS[1][1][0]=-0.00705787;
+    _meanAS[1][1][1]=-0.00581517;
+    _meanAS[1][1][2]=7.10951e+10;
+    _meanAS[1][1][3]=-68.7322;
+    _meanAM[1][1][0]=-0.00496966;
+    _meanAM[1][1][1]=0.655834;
+    _meanAM[1][1][2]=0.0491064;
+    _meanAM[1][1][3]=0.0632471;
+    _meanBT[1][1][0]=-0.158344;
+    _meanBT[1][1][1]=0;
+    _meanBT[1][1][2]=0;
+    _meanBT[1][1][3]=0;
+    _meanBC[1][1][0]=-0.00498431;
+    _meanBC[1][1][1]=-18315.4;
+    _meanBC[1][1][2]=50760;
+    _meanBC[1][1][3]=118612;
+    _meanBS[1][1][0]=-0.000620577;
+    _meanBS[1][1][1]=0.0247672;
+    _meanBS[1][1][2]=437.005;
+    _meanBS[1][1][3]=374.823;
+    _meanBM[1][1][0]=0.000431046;
+    _meanBM[1][1][1]=0.0224695;
+    _meanBM[1][1][2]=-1.06e+07;
+    _meanBM[1][1][3]=-135.039;
+    _meanR9[1][1][0]=0.151826;
+    _meanR9[1][1][1]=0.00348896;
+    _meanR9[1][1][2]=-0.161781;
+    _meanR9[1][1][3]=0;
 
- _sigmaScale[1][1][0]=1.05009;
- _sigmaScale[1][1][1]=1.38778e-17;
- _sigmaScale[1][1][2]=0.0256383;
- _sigmaScale[1][1][3]=0;
- _sigmaAT[1][1][0]=-0.668389;
- _sigmaAT[1][1][1]=0;
- _sigmaAT[1][1][2]=0;
- _sigmaAT[1][1][3]=0;
- _sigmaAC[1][1][0]=0.00168503;
- _sigmaAC[1][1][1]=-0.540635;
- _sigmaAC[1][1][2]=95975.1;
- _sigmaAC[1][1][3]=-7e+09;
- _sigmaAS[1][1][0]=8.02356e-05;
- _sigmaAS[1][1][1]=0.854919;
- _sigmaAS[1][1][2]=526.113;
- _sigmaAS[1][1][3]=666.797;
- _sigmaAM[1][1][0]=-0.00504173;
- _sigmaAM[1][1][1]=0.910018;
- _sigmaAM[1][1][2]=45.1636;
- _sigmaAM[1][1][3]=754.491;
- _sigmaBT[1][1][0]=-0.816975;
- _sigmaBT[1][1][1]=0;
- _sigmaBT[1][1][2]=0;
- _sigmaBT[1][1][3]=0;
- _sigmaBC[1][1][0]=-0.00208737;
- _sigmaBC[1][1][1]=3.20678;
- _sigmaBC[1][1][2]=214874;
- _sigmaBC[1][1][3]=-5.1e+09;
- _sigmaBS[1][1][0]=0.0017277;
- _sigmaBS[1][1][1]=0.290957;
- _sigmaBS[1][1][2]=535.114;
- _sigmaBS[1][1][3]=317.952;
- _sigmaBM[1][1][0]=-0.0454821;
- _sigmaBM[1][1][1]=4.776;
- _sigmaBM[1][1][2]=1.9e+09;
- _sigmaBM[1][1][3]=14413;
- _sigmaR9[1][1][0]=4.83148;
- _sigmaR9[1][1][1]=-5.29859;
- _sigmaR9[1][1][2]=0;
- _sigmaR9[1][1][3]=0;
+    _sigmaScale[1][1][0]=1.19993;
+    _sigmaScale[1][1][1]=1.38778e-17;
+    _sigmaScale[1][1][2]=0.0251314;
+    _sigmaScale[1][1][3]=0;
+    _sigmaAT[1][1][0]=-0.791929;
+    _sigmaAT[1][1][1]=0;
+    _sigmaAT[1][1][2]=0;
+    _sigmaAT[1][1][3]=0;
+    _sigmaAC[1][1][0]=0.0015505;
+    _sigmaAC[1][1][1]=-0.530085;
+    _sigmaAC[1][1][2]=33506.7;
+    _sigmaAC[1][1][3]=-7e+09;
+    _sigmaAS[1][1][0]=7.98682e-05;
+    _sigmaAS[1][1][1]=0.875124;
+    _sigmaAS[1][1][2]=483.102;
+    _sigmaAS[1][1][3]=1005.71;
+    _sigmaAM[1][1][0]=-0.00510653;
+    _sigmaAM[1][1][1]=1.05312;
+    _sigmaAM[1][1][2]=49.6466;
+    _sigmaAM[1][1][3]=7.11474e+12;
+    _sigmaBT[1][1][0]=-1.30079;
+    _sigmaBT[1][1][1]=0;
+    _sigmaBT[1][1][2]=0;
+    _sigmaBT[1][1][3]=0;
+    _sigmaBC[1][1][0]=-0.00202301;
+    _sigmaBC[1][1][1]=4.19368;
+    _sigmaBC[1][1][2]=-1.08161e+07;
+    _sigmaBC[1][1][3]=-6e+09;
+    _sigmaBS[1][1][0]=0.00182147;
+    _sigmaBS[1][1][1]=0.25995;
+    _sigmaBS[1][1][2]=881.576;
+    _sigmaBS[1][1][3]=304.891;
+    _sigmaBM[1][1][0]=-0.0454995;
+    _sigmaBM[1][1][1]=7.63845;
+    _sigmaBM[1][1][2]=1.9e+09;
+    _sigmaBM[1][1][3]=150001;
+    _sigmaR9[1][1][0]=5.69741;
+    _sigmaR9[1][1][1]=-6.23853;
+    _sigmaR9[1][1][2]=0;
+    _sigmaR9[1][1][3]=0;
 
-	_initialised=true;
-      }
+    _initialised=true;
+  }
 
-      assert(_initialised);
-      return true;
+  if(s=="4_2e") {
+    _meanScale[0][0][0]=1.02133;
+    _meanScale[0][0][1]=-0.000183073;
+    _meanScale[0][0][2]=0.000252052;
+    _meanScale[0][0][3]=0.300892;
+    _meanAT[0][0][0]=0.016876;
+    _meanAT[0][0][1]=0;
+    _meanAT[0][0][2]=0;
+    _meanAT[0][0][3]=0;
+    _meanAC[0][0][0]=-0.00327969;
+    _meanAC[0][0][1]=0.00932112;
+    _meanAC[0][0][2]=430.176;
+    _meanAC[0][0][3]=440.94;
+    _meanAS[0][0][0]=0;
+    _meanAS[0][0][1]=0;
+    _meanAS[0][0][2]=0;
+    _meanAS[0][0][3]=0;
+    _meanAM[0][0][0]=-0.000876726;
+    _meanAM[0][0][1]=0.128953;
+    _meanAM[0][0][2]=262.609;
+    _meanAM[0][0][3]=204.869;
+    _meanBT[0][0][0]=0;
+    _meanBT[0][0][1]=0;
+    _meanBT[0][0][2]=0;
+    _meanBT[0][0][3]=0;
+    _meanBC[0][0][0]=-0.00316342;
+    _meanBC[0][0][1]=0.00801235;
+    _meanBC[0][0][2]=552.944;
+    _meanBC[0][0][3]=507.239;
+    _meanBS[0][0][0]=0;
+    _meanBS[0][0][1]=0;
+    _meanBS[0][0][2]=0;
+    _meanBS[0][0][3]=0;
+    _meanBM[0][0][0]=-0.00171652;
+    _meanBM[0][0][1]=0.0746995;
+    _meanBM[0][0][2]=190.606;
+    _meanBM[0][0][3]=210.147;
+    _meanR9[0][0][0]=0.847311;
+    _meanR9[0][0][1]=-10.0049;
+    _meanR9[0][0][2]=67.613;
+    _meanR9[0][0][3]=0;
+
+    _sigmaScale[0][0][0]=0.345777;
+    _sigmaScale[0][0][1]=0.0375747;
+    _sigmaScale[0][0][2]=-0.00516299;
+    _sigmaScale[0][0][3]=0;
+    _sigmaAT[0][0][0]=0.994444;
+    _sigmaAT[0][0][1]=0;
+    _sigmaAT[0][0][2]=0;
+    _sigmaAT[0][0][3]=0;
+    _sigmaAC[0][0][0]=-0.00380373;
+    _sigmaAC[0][0][1]=-1.00415;
+    _sigmaAC[0][0][2]=110274;
+    _sigmaAC[0][0][3]=-3e+17;
+    _sigmaAS[0][0][0]=0;
+    _sigmaAS[0][0][1]=0;
+    _sigmaAS[0][0][2]=0;
+    _sigmaAS[0][0][3]=0;
+    _sigmaAM[0][0][0]=-0.000881147;
+    _sigmaAM[0][0][1]=8.76414;
+    _sigmaAM[0][0][2]=455.387;
+    _sigmaAM[0][0][3]=412.382;
+    _sigmaBT[0][0][0]=0.00578517;
+    _sigmaBT[0][0][1]=2.28008;
+    _sigmaBT[0][0][2]=-3.36e+07;
+    _sigmaBT[0][0][3]=-152.696;
+    _sigmaBC[0][0][0]=-0.00161997;
+    _sigmaBC[0][0][1]=50513.8;
+    _sigmaBC[0][0][2]=-1.26888e+07;
+    _sigmaBC[0][0][3]=3.75561e+07;
+    _sigmaBS[0][0][0]=0;
+    _sigmaBS[0][0][1]=0;
+    _sigmaBS[0][0][2]=0;
+    _sigmaBS[0][0][3]=0;
+    _sigmaBM[0][0][0]=-0.00168415;
+    _sigmaBM[0][0][1]=6.89324;
+    _sigmaBM[0][0][2]=272.169;
+    _sigmaBM[0][0][3]=315.424;
+    _sigmaR9[0][0][0]=0.952571;
+    _sigmaR9[0][0][1]=0;
+    _sigmaR9[0][0][2]=0;
+    _sigmaR9[0][0][3]=0;
+
+    _meanScale[0][1][0]=0.870259;
+    _meanScale[0][1][1]=0.000234598;
+    _meanScale[0][1][2]=-0.000262422;
+    _meanScale[0][1][3]=0.277914;
+    _meanAT[0][1][0]=1e-06;
+    _meanAT[0][1][1]=0;
+    _meanAT[0][1][2]=0;
+    _meanAT[0][1][3]=0;
+    _meanAC[0][1][0]=-0.00324258;
+    _meanAC[0][1][1]=0.0209948;
+    _meanAC[0][1][2]=167.983;
+    _meanAC[0][1][3]=305.464;
+    _meanAS[0][1][0]=0.0333341;
+    _meanAS[0][1][1]=-591.066;
+    _meanAS[0][1][2]=1.48079e+11;
+    _meanAS[0][1][3]=1.61987e+07;
+    _meanAM[0][1][0]=-0.000991417;
+    _meanAM[0][1][1]=0.121994;
+    _meanAM[0][1][2]=367.004;
+    _meanAM[0][1][3]=289.22;
+    _meanBT[0][1][0]=0;
+    _meanBT[0][1][1]=0.187;
+    _meanBT[0][1][2]=299.298;
+    _meanBT[0][1][3]=428.221;
+    _meanBC[0][1][0]=-0.00437016;
+    _meanBC[0][1][1]=0.00235015;
+    _meanBC[0][1][2]=759.85;
+    _meanBC[0][1][3]=-5018.79;
+    _meanBS[0][1][0]=-1.2e+08;
+    _meanBS[0][1][1]=0.0934286;
+    _meanBS[0][1][2]=-1.226e-16;
+    _meanBS[0][1][3]=11442.2;
+    _meanBM[0][1][0]=-0.000153536;
+    _meanBM[0][1][1]=0.0101487;
+    _meanBM[0][1][2]=60.0003;
+    _meanBM[0][1][3]=-4.4e+08;
+    _meanR9[0][1][0]=0.0853634;
+    _meanR9[0][1][1]=-0.263819;
+    _meanR9[0][1][2]=0.200892;
+    _meanR9[0][1][3]=0;
+
+    _sigmaScale[0][1][0]=0.705452;
+    _sigmaScale[0][1][1]=-0.0781086;
+    _sigmaScale[0][1][2]=0.0039561;
+    _sigmaScale[0][1][3]=0;
+    _sigmaAT[0][1][0]=1.46888;
+    _sigmaAT[0][1][1]=0;
+    _sigmaAT[0][1][2]=0;
+    _sigmaAT[0][1][3]=0;
+    _sigmaAC[0][1][0]=-0.00537924;
+    _sigmaAC[0][1][1]=-0.740685;
+    _sigmaAC[0][1][2]=1.59714;
+    _sigmaAC[0][1][3]=31.9922;
+    _sigmaAS[0][1][0]=0;
+    _sigmaAS[0][1][1]=0;
+    _sigmaAS[0][1][2]=0;
+    _sigmaAS[0][1][3]=0;
+    _sigmaAM[0][1][0]=0.000163134;
+    _sigmaAM[0][1][1]=7.30822;
+    _sigmaAM[0][1][2]=632.013;
+    _sigmaAM[0][1][3]=373.003;
+    _sigmaBT[0][1][0]=0.00253725;
+    _sigmaBT[0][1][1]=2.97332;
+    _sigmaBT[0][1][2]=-0.516548;
+    _sigmaBT[0][1][3]=-0.50994;
+    _sigmaBC[0][1][0]=0.00578715;
+    _sigmaBC[0][1][1]=-0.473225;
+    _sigmaBC[0][1][2]=8363.08;
+    _sigmaBC[0][1][3]=2.36808e+19;
+    _sigmaBS[0][1][0]=0;
+    _sigmaBS[0][1][1]=0;
+    _sigmaBS[0][1][2]=0;
+    _sigmaBS[0][1][3]=0;
+    _sigmaBM[0][1][0]=0.000184199;
+    _sigmaBM[0][1][1]=3.82105;
+    _sigmaBM[0][1][2]=93.4062;
+    _sigmaBM[0][1][3]=95.4072;
+    _sigmaR9[0][1][0]=1.20664;
+    _sigmaR9[0][1][1]=-3.43548;
+    _sigmaR9[0][1][2]=0;
+    _sigmaR9[0][1][3]=0;
+
+    _meanScale[1][0][0]=0.966787;
+    _meanScale[1][0][1]=4.77112e-05;
+    _meanScale[1][0][2]=-4.47768e-05;
+    _meanScale[1][0][3]=0.0854689;
+    _meanAT[1][0][0]=0.0691979;
+    _meanAT[1][0][1]=0;
+    _meanAT[1][0][2]=0;
+    _meanAT[1][0][3]=0;
+    _meanAC[1][0][0]=-0.000985244;
+    _meanAC[1][0][1]=0.0132327;
+    _meanAC[1][0][2]=530.13;
+    _meanAC[1][0][3]=1008.64;
+    _meanAS[1][0][0]=-0.000571197;
+    _meanAS[1][0][1]=0.0579624;
+    _meanAS[1][0][2]=687.722;
+    _meanAS[1][0][3]=836.21;
+    _meanAM[1][0][0]=0.00052402;
+    _meanAM[1][0][1]=0.402941;
+    _meanAM[1][0][2]=3615.29;
+    _meanAM[1][0][3]=1495.1;
+    _meanBT[1][0][0]=0.0456649;
+    _meanBT[1][0][1]=0;
+    _meanBT[1][0][2]=0;
+    _meanBT[1][0][3]=0;
+    _meanBC[1][0][0]=-0.000675969;
+    _meanBC[1][0][1]=0.0118283;
+    _meanBC[1][0][2]=1050.1;
+    _meanBC[1][0][3]=1329.8;
+    _meanBS[1][0][0]=-0.000254569;
+    _meanBS[1][0][1]=0.0576783;
+    _meanBS[1][0][2]=853.571;
+    _meanBS[1][0][3]=938.698;
+    _meanBM[1][0][0]=-0.186506;
+    _meanBM[1][0][1]=-0.00654349;
+    _meanBM[1][0][2]=1.09286;
+    _meanBM[1][0][3]=-5.8e+08;
+    _meanR9[1][0][0]=0.951164;
+    _meanR9[1][0][1]=-0.323083;
+    _meanR9[1][0][2]=506.054;
+    _meanR9[1][0][3]=0;
+
+    _sigmaScale[1][0][0]=0.443288;
+    _sigmaScale[1][0][1]=1.73472e-18;
+    _sigmaScale[1][0][2]=0.0134633;
+    _sigmaScale[1][0][3]=0;
+    _sigmaAT[1][0][0]=6.60294;
+    _sigmaAT[1][0][1]=0;
+    _sigmaAT[1][0][2]=0;
+    _sigmaAT[1][0][3]=0;
+    _sigmaAC[1][0][0]=48.1275;
+    _sigmaAC[1][0][1]=1.50005e+08;
+    _sigmaAC[1][0][2]=21231.6;
+    _sigmaAC[1][0][3]=2.6e+11;
+    _sigmaAS[1][0][0]=0.000112234;
+    _sigmaAS[1][0][1]=2.38201;
+    _sigmaAS[1][0][2]=1368.36;
+    _sigmaAS[1][0][3]=1014.58;
+    _sigmaAM[1][0][0]=0.0227945;
+    _sigmaAM[1][0][1]=1.35035;
+    _sigmaAM[1][0][2]=34.8078;
+    _sigmaAM[1][0][3]=41.2653;
+    _sigmaBT[1][0][0]=4.6512;
+    _sigmaBT[1][0][1]=0;
+    _sigmaBT[1][0][2]=0;
+    _sigmaBT[1][0][3]=0;
+    _sigmaBC[1][0][0]=-0.00385034;
+    _sigmaBC[1][0][1]=9860.11;
+    _sigmaBC[1][0][2]=7.49509e+12;
+    _sigmaBC[1][0][3]=5.55794e+07;
+    _sigmaBS[1][0][0]=0.000287389;
+    _sigmaBS[1][0][1]=2.22754;
+    _sigmaBS[1][0][2]=2066.43;
+    _sigmaBS[1][0][3]=926.247;
+    _sigmaBM[1][0][0]=0.00110983;
+    _sigmaBM[1][0][1]=4.70582;
+    _sigmaBM[1][0][2]=8.47552e+10;
+    _sigmaBM[1][0][3]=-4572.21;
+    _sigmaR9[1][0][0]=141.283;
+    _sigmaR9[1][0][1]=-6.07621e-07;
+    _sigmaR9[1][0][2]=1.40907e-08;
+    _sigmaR9[1][0][3]=0;
+
+    _meanScale[1][1][0]=0.290862;
+    _meanScale[1][1][1]=-5.93303e-05;
+    _meanScale[1][1][2]=0.000431058;
+    _meanScale[1][1][3]=0.350738;
+    _meanAT[1][1][0]=-0.092494;
+    _meanAT[1][1][1]=0;
+    _meanAT[1][1][2]=0;
+    _meanAT[1][1][3]=0;
+    _meanAC[1][1][0]=-0.00105099;
+    _meanAC[1][1][1]=0.0195863;
+    _meanAC[1][1][2]=162.87;
+    _meanAC[1][1][3]=259.479;
+    _meanAS[1][1][0]=-0.00820192;
+    _meanAS[1][1][1]=-0.00404515;
+    _meanAS[1][1][2]=-9e+12;
+    _meanAS[1][1][3]=-12.1537;
+    _meanAM[1][1][0]=0.00430129;
+    _meanAM[1][1][1]=0.647006;
+    _meanAM[1][1][2]=0.0524654;
+    _meanAM[1][1][3]=0.057336;
+    _meanBT[1][1][0]=-0.158344;
+    _meanBT[1][1][1]=0;
+    _meanBT[1][1][2]=0;
+    _meanBT[1][1][3]=0;
+    _meanBC[1][1][0]=-0.00661496;
+    _meanBC[1][1][1]=-0.0551321;
+    _meanBC[1][1][2]=1286.49;
+    _meanBC[1][1][3]=118612;
+    _meanBS[1][1][0]=-0.000517633;
+    _meanBS[1][1][1]=0.0294134;
+    _meanBS[1][1][2]=414.964;
+    _meanBS[1][1][3]=487.294;
+    _meanBM[1][1][0]=0.00298075;
+    _meanBM[1][1][1]=0.0146853;
+    _meanBM[1][1][2]=-7.17525e+06;
+    _meanBM[1][1][3]=41.9253;
+    _meanR9[1][1][0]=0.213804;
+    _meanR9[1][1][1]=-0.395466;
+    _meanR9[1][1][2]=0.202973;
+    _meanR9[1][1][3]=0;
+
+    _sigmaScale[1][1][0]=1.29656;
+    _sigmaScale[1][1][1]=9.61084e-11;
+    _sigmaScale[1][1][2]=0.0270649;
+    _sigmaScale[1][1][3]=0;
+    _sigmaAT[1][1][0]=-0.0115339;
+    _sigmaAT[1][1][1]=0;
+    _sigmaAT[1][1][2]=0;
+    _sigmaAT[1][1][3]=0;
+    _sigmaAC[1][1][0]=0.0013797;
+    _sigmaAC[1][1][1]=-0.445789;
+    _sigmaAC[1][1][2]=29539.8;
+    _sigmaAC[1][1][3]=-3.6e+08;
+    _sigmaAS[1][1][0]=0.000213606;
+    _sigmaAS[1][1][1]=0.547654;
+    _sigmaAS[1][1][2]=892.47;
+    _sigmaAS[1][1][3]=408.826;
+    _sigmaAM[1][1][0]=-0.00121353;
+    _sigmaAM[1][1][1]=1.10052;
+    _sigmaAM[1][1][2]=31.303;
+    _sigmaAM[1][1][3]=80.0479;
+    _sigmaBT[1][1][0]=0.470361;
+    _sigmaBT[1][1][1]=0;
+    _sigmaBT[1][1][2]=0;
+    _sigmaBT[1][1][3]=0;
+    _sigmaBC[1][1][0]=-0.00222463;
+    _sigmaBC[1][1][1]=18440.6;
+    _sigmaBC[1][1][2]=5.80805e+07;
+    _sigmaBC[1][1][3]=-4.43323e+17;
+    _sigmaBS[1][1][0]=0.00156455;
+    _sigmaBS[1][1][1]=0.337173;
+    _sigmaBS[1][1][2]=281.318;
+    _sigmaBS[1][1][3]=252.457;
+    _sigmaBM[1][1][0]=-0.0455886;
+    _sigmaBM[1][1][1]=1.47875;
+    _sigmaBM[1][1][2]=1.9e+09;
+    _sigmaBM[1][1][3]=1193.93;
+    _sigmaR9[1][1][0]=8.89993;
+    _sigmaR9[1][1][1]=-9.8386;
+    _sigmaR9[1][1][2]=0;
+    _sigmaR9[1][1][3]=0;
+
+    _initialised=true;
+  }
+
+  assert(_initialised);
+  return true;
 }
 
 // Get the geometry of cracks and gaps from file
 bool PhotonFix::initialiseGeometry(const std::string &s) {
 
- std::ifstream fin("../test/PhotonFix.dat");
- assert(fin);
+  std::ifstream fin("../test/PhotonFix.dat");
+  assert(fin);
 
- std::cout << "Reading in here" << std::endl;
- for(unsigned i(0);i<169;i++) {
-   for(unsigned j(0);j<360;j++) {
-     for(unsigned k(0);k<2;k++) {
-       fin >> _barrelCGap[i][j][k];
-     }
-   }
- }
+  std::cout << "Reading in here" << std::endl;
+  for(unsigned i(0);i<169;i++) {
+    for(unsigned j(0);j<360;j++) {
+      for(unsigned k(0);k<2;k++) {
+	fin >> _barrelCGap[i][j][k];
+      }
+    }
+  }
  
- for(unsigned i(0);i<33;i++) {
-   for(unsigned j(0);j<180;j++) {
-     for(unsigned k(0);k<2;k++) {
-       fin >> _barrelSGap[i][j][k];
-     }
-   }
- }
+  for(unsigned i(0);i<33;i++) {
+    for(unsigned j(0);j<180;j++) {
+      for(unsigned k(0);k<2;k++) {
+	fin >> _barrelSGap[i][j][k];
+      }
+    }
+  }
  
- for(unsigned i(0);i<7;i++) {
-   for(unsigned j(0);j<18;j++) {
-     for(unsigned k(0);k<2;k++) {
-       fin >> _barrelMGap[i][j][k];
-     }
-   }
- }
- for(unsigned i(0);i<100;i++) {
-   for(unsigned j(0);j<100;j++) {
-     unsigned k;
-     fin >> k;
-     _endcapCrystal[i][j]=(k==0);
-   }
- }
+  for(unsigned i(0);i<7;i++) {
+    for(unsigned j(0);j<18;j++) {
+      for(unsigned k(0);k<2;k++) {
+	fin >> _barrelMGap[i][j][k];
+      }
+    }
+  }
+  for(unsigned i(0);i<100;i++) {
+    for(unsigned j(0);j<100;j++) {
+      unsigned k;
+      fin >> k;
+      _endcapCrystal[i][j]=(k==0);
+    }
+  }
  
- for(unsigned i(0);i<2;i++) {
-   for(unsigned j(0);j<7080;j++) {
-     for(unsigned k(0);k<2;k++) {
-       fin >> _endcapCGap[i][j][k];
-     }
-   }
- }
+  for(unsigned i(0);i<2;i++) {
+    for(unsigned j(0);j<7080;j++) {
+      for(unsigned k(0);k<2;k++) {
+	fin >> _endcapCGap[i][j][k];
+      }
+    }
+  }
  
- for(unsigned i(0);i<2;i++) {
-   for(unsigned j(0);j<264;j++) {
-     for(unsigned k(0);k<2;k++) {
-       fin >> _endcapSGap[i][j][k];
-     }
-   }
- }
+  for(unsigned i(0);i<2;i++) {
+    for(unsigned j(0);j<264;j++) {
+      for(unsigned k(0);k<2;k++) {
+	fin >> _endcapSGap[i][j][k];
+      }
+    }
+  }
  
- for(unsigned i(0);i<2;i++) {
-   for(unsigned j(0);j<1;j++) {
-     for(unsigned k(0);k<2;k++) {
-       fin >> _endcapMGap[i][j][k];
-     }
-   }
- }
+  for(unsigned i(0);i<2;i++) {
+    for(unsigned j(0);j<1;j++) {
+      for(unsigned k(0);k<2;k++) {
+	fin >> _endcapMGap[i][j][k];
+      }
+    }
+  }
  
- assert(fin);
+  assert(fin);
  
- return true;
+  return true;
 }
 
 const double PhotonFix::_onePi(acos(-1.0));
@@ -1643,9 +2111,11 @@ const double PhotonFix::_twoPi(2.0*acos(-1.0));
 bool   PhotonFix::_initialised=false;
 
 double PhotonFix::_meanScale[2][2][4];
+double PhotonFix::_meanAT[2][2][4];
 double PhotonFix::_meanAC[2][2][4];
 double PhotonFix::_meanAS[2][2][4];
 double PhotonFix::_meanAM[2][2][4];
+double PhotonFix::_meanBT[2][2][4];
 double PhotonFix::_meanBC[2][2][4];
 double PhotonFix::_meanBS[2][2][4];
 double PhotonFix::_meanBM[2][2][4];
