@@ -219,7 +219,12 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
 	float r_0 = topol.originToIntersection();
 	
 //	resXTopol = (phiTrk-phiHit)*r_0;
-        resXTopol = (tan(phiTrk)-tan(phiHit))*r_0;
+//      resXTopol = (tan(phiTrk)-tan(phiHit))*r_0;
+        
+    LocalPoint LocalHitPosCor= topol.localPosition(MeasurementPoint(measHitPos.x(), measTrkPos.y()));                       
+       resXTopol = lPTrk.x() - LocalHitPosCor.x();  
+
+    
 	//resYTopol = measTrkPos.y()*localStripLengthTrk - measHitPos.y()*localStripLengthHit;
 	float cosPhiHit(cos(phiHit)), cosPhiTrk(cos(phiTrk)),
 	      sinPhiHit(sin(phiHit)), sinPhiTrk(sin(phiTrk));
@@ -243,7 +248,8 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
 	int yAxisOrientation=trapezoidalBound->yAxisOrientation(); 
 // for trapezoidal shape modules, scale with as function of local y coordinate 
 	float widthAtlocalY=width-(1-yAxisOrientation*2*lPTrk.y()/length)*(width-widthAtHalfLength); 
-	hitStruct.localXnorm = 2*hitStruct.localX/widthAtlocalY;  
+//	hitStruct.localXnorm = 2*hitStruct.localX/widthAtlocalY;  
+        hitStruct.localXnorm = 2*hitStruct.localX/width; 
 	hitStruct.localYnorm = 2*hitStruct.localY/length;
 
       } else {
