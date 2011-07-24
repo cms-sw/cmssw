@@ -33,6 +33,7 @@ enum BandType { Mean, Median, Quantile, Observed, Asimov, CountToys, MeanCPUTime
 double band_safety_crop = 0; 
 bool use_precomputed_quantiles = false; 
 bool zero_is_valid = false;
+bool lands_is_pvalue = false;
 enum ObsAvgMode { MeanObs, LogMeanObs, MedianObs };
 ObsAvgMode obs_avg_mode = MeanObs;
 TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType type, double width=0.68) {
@@ -49,7 +50,7 @@ TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType t
     if (t == 0) { std::cerr << "TFile " << file->GetName() << " does not contain the tree" << std::endl; return 0; }
     Double_t mass, limit, limitErr = 0; Float_t t_cpu, t_real; Int_t syst, iChannel, iToy, iMass; Float_t quant = -1;
     t->SetBranchAddress((isLandS ? "mH" : "mh"), &mass);
-    t->SetBranchAddress("limit", &limit);
+    t->SetBranchAddress((isLandS && lands_is_pvalue ? "pvalue" : "limit"), &limit);
     if (t->GetBranch("limitErr")) t->SetBranchAddress("limitErr", &limitErr);
     if (t->GetBranch("t_cpu") != 0) {
         t->SetBranchAddress("t_cpu", &t_cpu);
@@ -78,7 +79,7 @@ TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType t
         else if (type == Observed) { if (iToy !=  0) continue; }
         else if (iToy <= 0 && !use_precomputed_quantiles) continue;
         if (limit == 0 && !zero_is_valid) continue; 
-        iMass = int(mass);
+        iMass = int(mass*10);
         if (type == MeanCPUTime) { 
             if (limit < 0) continue; 
             limit = t_cpu; 
@@ -171,7 +172,7 @@ TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType t
                 break;
 
         }
-        tge->SetPoint(ip, it->first, x);
+        tge->SetPoint(ip, it->first*0.1, x);
         tge->SetPointError(ip, 0, 0, x-summer68, winter68-x);
     }
     return tge;
@@ -276,6 +277,7 @@ void cutBand(TDirectory *bands, TString inName, TString outName, int mMin, int m
 }
 
 void cutBands(TDirectory *bands, TString inName, TString outName, int mMin, int mMax) {
+    cutBand(bands, inName+"_obs",   outName+"_obs",    mMin, mMax);
     cutBand(bands, inName+"_mean",   outName+"_mean",    mMin, mMax);
     cutBand(bands, inName+"_median", outName+"_median",  mMin, mMax);
     cutBand(bands, inName+"_mean_95",   outName+"_mean_95",    mMin, mMax);
@@ -283,6 +285,7 @@ void cutBands(TDirectory *bands, TString inName, TString outName, int mMin, int 
     cutBand(bands, inName+"_asimov",    outName+"_asimov",     mMin, mMax);
     cutBand(bands, inName+"_ntoys",     outName+"_ntoys",      mMin, mMax);
 
+    cutBand(bands, inName+"_nosyst_obs",   outName+"_nosyst_obs",    mMin, mMax);
     cutBand(bands, inName+"_nosyst_mean",   outName+"_nosyst_mean",    mMin, mMax);
     cutBand(bands, inName+"_nosyst_median", outName+"_nosyst_median",  mMin, mMax);
     cutBand(bands, inName+"_nosyst_mean_95",   outName+"_nosyst_mean_95",    mMin, mMax);
@@ -364,6 +367,7 @@ void pasteBand(TDirectory *in, TString band1, TString band2, TString comb) {
     in->WriteTObject(bc, comb);
 }
 void pasteBands(TDirectory *in, TString band1, TString band2, TString comb) {
+    pasteBand(in, band1+"_obs",   band2+"_obs",   comb+"_obs");
     pasteBand(in, band1+"_mean",   band2+"_mean",   comb+"_mean");
     pasteBand(in, band1+"_median", band2+"_median", comb+"_median");
     pasteBand(in, band1+"_mean_95",   band2+"_mean_95",   comb+"_mean_95");
@@ -371,6 +375,7 @@ void pasteBands(TDirectory *in, TString band1, TString band2, TString comb) {
     pasteBand(in, band1+"_asimov",    band2+"_asimov",    comb+"_asimov");
     pasteBand(in, band1+"_ntoys",    band2+"_ntoys",    comb+"_ntoys");
 
+    pasteBand(in, band1+"_nosyst_obs",   band2+"_nosyst_obs",   comb+"_nosyst_obs");
     pasteBand(in, band1+"_nosyst_mean",   band2+"_nosyst_mean",   comb+"_nosyst_mean");
     pasteBand(in, band1+"_nosyst_median", band2+"_nosyst_median", comb+"_nosyst_median");
     pasteBand(in, band1+"_nosyst_mean_95",   band2+"_nosyst_mean_95",   comb+"_nosyst_mean_95");
