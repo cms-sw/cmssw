@@ -34,7 +34,7 @@ data:{
 
 ##run 163374
 runLumiblockList = ( 
-   (170354, 5, 304 ) # (runnr, minLumiBlock, maxLumiBlock)
+   (170354, 5, 289 ) # (runnr, minLumiBlock, maxLumiBlock)
   );
 
 
@@ -46,7 +46,7 @@ runLumiblockList = (
 ##########################################
 beam:{
  bunchCrossingTime = 50.0E-09; # Design: 25 ns Startup: 75 ns
- iLumi = 1E33;
+ iLumi = 5E33;
  maxFilledBunches = 3564;
  nFilledBunches = 800;
  cmsEnergy = 7.; # Collision energy in TeV
@@ -96,11 +96,11 @@ process:{
 ## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r170354__MultiJet_Run2011A-v1__20110719_0534/"];
 ## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r170354__MuEG_Run2011A-v1__20110719_0534/"];
 ## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r170354__MuHad_Run2011A-v1__20110719_0534/"];
-paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r170354__Photon_Run2011A-v1__20110719_0534/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r170354__Photon_Run2011A-v1__20110719_0534/"];
 ## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r170354__PhotonHad_Run2011A-v1__20110719_0534/"];
 ## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r170354__SingleElectron_Run2011A-v1__20110719_0534/"];
 ## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r170354__SingleMu_Run2011A-v1__20110719_0534/"];
-## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r170354__Tau_Run2011A-v1__20110719_0534/"];
+paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r170354__Tau_Run2011A-v1__20110719_0534/"];
 ## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r170354__TauPlusX_Run2011A-v1__20110719_0534/"];
 
 
@@ -402,50 +402,50 @@ menu:{
 ##    ("HLT_DoubleMu3_Mass4_HT150_v3", "L1_Mu0_HTT50", 1, 0.15),
 ##    ("HLT_DoubleMu3_HT200_v10", "L1_Mu0_HTT50", 1, 0.15),
 ############# dataset Photon ###############
-   ("HLT_Photon20_CaloIdVL_IsoL_v6", "L1_SingleEG12", 1, 0.15),
-   ("HLT_Photon20_R9Id_Photon18_R9Id_v6", "L1_SingleEG12", 1, 0.15),
-   ("HLT_Photon26_Photon18_v6", "L1_SingleEG15", 1, 0.15),
-   ("HLT_Photon26_IsoVL_Photon18_v7", "L1_SingleEG15", 1, 0.15),
-   ("HLT_Photon26_IsoVL_Photon18_IsoVL_v7", "L1_SingleEG15", 1, 0.15),
-   ("HLT_Photon26_CaloIdL_IsoVL_Photon18_v7", "L1_SingleEG15", 1, 0.15),
-   ("HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v6", "L1_SingleEG15", 1, 0.15),
-   ("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v7", "L1_SingleEG15", 1, 0.15),
-   ("HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v6", "L1_SingleEG15", 1, 0.15),
-   ("HLT_Photon26_R9Id_Photon18_R9Id_v3", "L1_SingleEG15", 1, 0.15),
-   ("HLT_Photon30_CaloIdVL_v6", "L1_SingleEG15", 1, 0.15),
-   ("HLT_Photon30_CaloIdVL_IsoL_v7", "L1_SingleEG15", 1, 0.15),
-   ("HLT_Photon36_IsoVL_Photon22_v4", "L1_SingleEG20", 1, 0.15),
-   ("HLT_Photon36_CaloIdVL_Photon22_CaloIdVL_v1", "L1_SingleEG20", 1, 0.15),
-   ("HLT_Photon36_CaloIdL_Photon22_CaloIdL_v5", "L1_SingleEG20", 1, 0.15),
-   ("HLT_Photon36_CaloIdL_IsoVL_Photon22_v4", "L1_SingleEG20", 1, 0.15),
-   ("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_v3", "L1_SingleEG20", 1, 0.15),
-   ("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v3", "L1_SingleEG20", 1, 0.15),
-   ("HLT_Photon36_CaloIdL_IsoVL_Photon22_R9Id_v2", "L1_SingleEG20", 1, 0.15),
-   ("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v3", "L1_SingleEG20", 1, 0.15),
-   ("HLT_Photon36_R9Id_Photon22_R9Id_v2", "L1_SingleEG20", 1, 0.15),
-   ("HLT_Photon40_CaloIdL_Photon28_CaloIdL_v3", "L1_SingleEG20", 1, 0.15),
-   ("HLT_Photon44_CaloIdL_Photon34_CaloIdL_v1", "L1_SingleEG20", 1, 0.15),
-   ("HLT_Photon48_CaloIdL_Photon38_CaloIdL_v1", "L1_SingleEG20", 1, 0.15),
-   ("HLT_Photon50_CaloIdVL_v3", "L1_SingleEG20", 1, 0.15),
-   ("HLT_Photon50_CaloIdVL_IsoL_v6", "L1_SingleEG20", 1, 0.15),
-   ("HLT_Photon75_CaloIdVL_v6", "L1_SingleEG20", 1, 0.15),
-   ("HLT_Photon75_CaloIdVL_IsoL_v7", "L1_SingleEG20", 1, 0.15),
-   ("HLT_Photon90_CaloIdVL_v3", "L1_SingleEG20", 1, 0.15),
-   ("HLT_Photon90_CaloIdVL_IsoL_v4", "L1_SingleEG20", 1, 0.15),
-   ("HLT_Photon135_v1", "L1_SingleEG20", 1, 0.15),
-   ("HLT_Photon225_NoHE_v1", "L1_SingleEG20", 1, 0.15),
-   ("HLT_Photon400_v1", "L1_SingleEG20", 1, 0.15),
-   ("HLT_Photon200_NoHE_v3", "L1_SingleEG20", 1, 0.15),
-   ("HLT_DoublePhoton33_HEVT_v3", "L1_SingleEG20", 1, 0.15),
-   ("HLT_DoublePhoton38_HEVT_v2", "L1_SingleEG20", 1, 0.15),
-   ("HLT_DoublePhoton60_v3", "L1_SingleEG20", 1, 0.15),
-   ("HLT_DoublePhoton80_v1", "L1_SingleEG20", 1, 0.15),
-   ("HLT_DoublePhoton5_IsoVL_CEP_v6", "L1_DoubleEG2_FwdVeto", 1, 0.15),
-   ("HLT_DoubleEle33_v4", "L1_SingleEG20", 1, 0.15),
-   ("HLT_DoubleEle33_CaloIdL_v4", "L1_SingleEG20", 1, 0.15),
-   ("HLT_DoubleEle45_CaloIdL_v3", "L1_SingleEG20", 1, 0.15),
-   ("HLT_DoublePhoton40_MR150_v5", "L1_SingleEG20", 1, 0.15),
-   ("HLT_DoublePhoton40_R014_MR150_v5", "L1_SingleEG20", 1, 0.15)#,
+##   ("HLT_Photon20_CaloIdVL_IsoL_v6", "L1_SingleEG12", 1, 0.15),
+##   ("HLT_Photon20_R9Id_Photon18_R9Id_v6", "L1_SingleEG12", 1, 0.15),
+##   ("HLT_Photon26_Photon18_v6", "L1_SingleEG15", 1, 0.15),
+##   ("HLT_Photon26_IsoVL_Photon18_v7", "L1_SingleEG15", 1, 0.15),
+##   ("HLT_Photon26_IsoVL_Photon18_IsoVL_v7", "L1_SingleEG15", 1, 0.15),
+##   ("HLT_Photon26_CaloIdL_IsoVL_Photon18_v7", "L1_SingleEG15", 1, 0.15),
+##   ("HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v6", "L1_SingleEG15", 1, 0.15),
+##   ("HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v7", "L1_SingleEG15", 1, 0.15),
+##   ("HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v6", "L1_SingleEG15", 1, 0.15),
+##   ("HLT_Photon26_R9Id_Photon18_R9Id_v3", "L1_SingleEG15", 1, 0.15),
+##   ("HLT_Photon30_CaloIdVL_v6", "L1_SingleEG15", 1, 0.15),
+##   ("HLT_Photon30_CaloIdVL_IsoL_v7", "L1_SingleEG15", 1, 0.15),
+##   ("HLT_Photon36_IsoVL_Photon22_v4", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_Photon36_CaloIdVL_Photon22_CaloIdVL_v1", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_Photon36_CaloIdL_Photon22_CaloIdL_v5", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_Photon36_CaloIdL_IsoVL_Photon22_v4", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_v3", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v3", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_Photon36_CaloIdL_IsoVL_Photon22_R9Id_v2", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v3", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_Photon36_R9Id_Photon22_R9Id_v2", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_Photon40_CaloIdL_Photon28_CaloIdL_v3", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_Photon44_CaloIdL_Photon34_CaloIdL_v1", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_Photon48_CaloIdL_Photon38_CaloIdL_v1", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_Photon50_CaloIdVL_v3", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_Photon50_CaloIdVL_IsoL_v6", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_Photon75_CaloIdVL_v6", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_Photon75_CaloIdVL_IsoL_v7", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_Photon90_CaloIdVL_v3", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_Photon90_CaloIdVL_IsoL_v4", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_Photon135_v1", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_Photon225_NoHE_v1", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_Photon400_v1", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_Photon200_NoHE_v3", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_DoublePhoton33_HEVT_v3", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_DoublePhoton38_HEVT_v2", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_DoublePhoton60_v3", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_DoublePhoton80_v1", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_DoublePhoton5_IsoVL_CEP_v6", "L1_DoubleEG2_FwdVeto", 1, 0.15),
+##   ("HLT_DoubleEle33_v4", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_DoubleEle33_CaloIdL_v4", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_DoubleEle45_CaloIdL_v3", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_DoublePhoton40_MR150_v5", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_DoublePhoton40_R014_MR150_v5", "L1_SingleEG20", 1, 0.15)#,
 ## ############# dataset PhotonHad ###############
 ##    ("HLT_Photon70_CaloIdL_HT350_v7", "L1_SingleEG20", 1, 0.15),
 ##    ("HLT_Photon70_CaloIdL_HT400_v2", "L1_SingleEG20", 1, 0.15),
@@ -471,55 +471,58 @@ menu:{
 ##    ("HLT_Ele65_CaloIdVT_TrkIdT_v3", "L1_SingleEG20", 1, 0.15),
 ##    ("HLT_Ele100_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_v2", "L1_SingleEG20", 1, 0.15),
 ## ############# dataset SingleMu ###############
-##    ("HLT_L1SingleMu10_v4", "L1_SingleMu10", 1, 0.15),
-##    ("HLT_L1SingleMu20_v4", "L1_SingleMu20", 1, 0.15),
-##    ("HLT_L2Mu10_v6", "L1_SingleMu10", 1, 0.15),
-##    ("HLT_L2Mu20_v6", "L1_SingleMu12", 1, 0.15),
-##    ("HLT_Mu3_v9", "L1_SingleMuOpen", 1, 0.15),
-##    ("HLT_Mu5_v9", "L1_SingleMu3", 1, 0.15),
-##    ("HLT_Mu8_v7", "L1_SingleMu3", 1, 0.15),
-##    ("HLT_Mu12_v7", "L1_SingleMu7", 1, 0.15),
-##    ("HLT_Mu15_v8", "L1_SingleMu10", 1, 0.15),
-##    ("HLT_Mu20_v7", "L1_SingleMu12", 1, 0.15),
-##    ("HLT_Mu24_v7", "L1_SingleMu12", 1, 0.15),
-##    ("HLT_Mu30_v7", "L1_SingleMu12", 1, 0.15),
-##    ("HLT_Mu40_v5", "L1_SingleMu16", 1, 0.15),
-##    ("HLT_Mu60_v2", "L1_SingleMu20", 1, 0.15),
-##    ("HLT_Mu100_v5", "L1_SingleMu16", 1, 0.15),
-##    ("HLT_IsoMu12_v9", "L1_SingleMu7", 1, 0.15),
-##    ("HLT_IsoMu15_v13", "L1_SingleMu10", 1, 0.15),
-##    ("HLT_IsoMu17_v13", "L1_SingleMu10", 1, 0.15),
-##    ("HLT_IsoMu20_v8", "L1_SingleMu12", 1, 0.15),
-##    ("HLT_IsoMu24_v8", "L1_SingleMu12", 1, 0.15),
-##    ("HLT_IsoMu30_v8", "L1_SingleMu12", 1, 0.15),
+##   ("HLT_L1SingleMu10_v4", "L1_SingleMu10", 1, 0.15),
+##   ("HLT_L1SingleMu20_v4", "L1_SingleMu20", 1, 0.15),
+##   ("HLT_L2Mu10_v6", "L1_SingleMu10", 1, 0.15),
+##   ("HLT_L2Mu20_v6", "L1_SingleMu12", 1, 0.15),
+##   ("HLT_Mu3_v9", "L1_SingleMuOpen", 1, 0.15),
+##   ("HLT_Mu5_v9", "L1_SingleMu3", 1, 0.15),
+##   ("HLT_Mu8_v7", "L1_SingleMu3", 1, 0.15),
+##   ("HLT_Mu12_v7", "L1_SingleMu7", 1, 0.15),
+##   ("HLT_Mu15_v8", "L1_SingleMu10", 1, 0.15),
+##   ("HLT_Mu20_v7", "L1_SingleMu12", 1, 0.15),
+##   ("HLT_Mu24_v7", "L1_SingleMu12", 1, 0.15),
+##   ("HLT_Mu30_v7", "L1_SingleMu12", 2, 0.15),
+##   ("HLT_Mu40_v5", "OpenL1_SingleMu14_Eta2p1", 1, 0.15),
+##   ("HLT_Mu60_v2", "OpenL1_SingleMu14_Eta2p1", 1, 0.15),
+##   ("HLT_Mu100_v5", "OpenL1_SingleMu14_Eta2p1", 1, 0.15),
+##   ("HLT_IsoMu12_v9", "L1_SingleMu7", 1, 0.15),
+##   ("HLT_IsoMu15_v13", "L1_SingleMu10", 1, 0.15),
+##   ("HLT_IsoMu17_v13", "L1_SingleMu10", 2, 0.15),
+##   ("HLT_IsoMu20_v8", "L1_SingleMu12", 2, 0.15),
+##   ("HLT_IsoMu24_v8", "L1_SingleMu12", 2, 0.15),
+##   ("HLT_IsoMu30_v8", "OpenL1_SingleMu14_Eta2p1", 1, 0.15),
+##   ("OpenHLT_IsoMu34", "OpenL1_SingleMu14_Eta2p1", 1, 0.15)
 ## ############# dataset Tau ###############
-##    ("HLT_IsoPFTau35_Trk20_v6", "L1_SingleJet52_Central", 1, 0.15),
-##    ("HLT_IsoPFTau35_Trk20_MET60_v6", "L1_Jet52_Central_ETM30", 1, 0.15),
-##    ("HLT_IsoPFTau35_Trk20_MET70_v2", "L1_Jet52_Central_ETM30", 1, 0.15),
-##    ("HLT_DoubleIsoPFTau45_Trk5_eta2p1_v2", "L1_DoubleTauJet40_Eta2p17 OR L1_DoubleJet52_Central", 1, 0.15),
-##    ("HLT_IsoPFTau40_IsoPFTau30_Trk5_eta2p1_v2", "L1_DoubleTauJet36_Eta2p17 OR L1_DoubleJet44_Central", 1, 0.15),
+   ("HLT_IsoPFTau35_Trk20_v6", "L1_SingleJet52_Central", 10, 0.15),
+   ("HLT_IsoPFTau35_Trk20_MET60_v6", "L1_Jet52_Central_ETM30", 30, 0.15),
+   ("HLT_IsoPFTau35_Trk20_MET70_v2", "L1_Jet52_Central_ETM30", 1, 0.15),
+   ("HLT_DoubleIsoPFTau45_Trk5_eta2p1_v2", "L1_DoubleTauJet40_Eta2p17 OR L1_DoubleJet52_Central", 1, 0.15),
+   ("HLT_IsoPFTau40_IsoPFTau30_Trk5_eta2p1_v2", "L1_DoubleTauJet36_Eta2p17 OR L1_DoubleJet44_Central", 40, 0.15)
 ## ############# dataset TauPlusX ###############
-##    ("HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v7", "L1_SingleEG12", 1, 0.15),
-##    ("HLT_HT300_DoubleIsoPFTau10_Trk3_PFMHT40_v7", "L1_HTT100", 1, 0.15),
-##    ("HLT_HT350_DoubleIsoPFTau10_Trk3_PFMHT45_v7", "L1_HTT100", 1, 0.15),
-##    ("HLT_Mu15_LooseIsoPFTau15_v8", "L1_SingleMu10", 1, 0.15),
-##    ("HLT_IsoMu15_LooseIsoPFTau15_v8", "L1_SingleMu10", 1, 0.15),
-##    ("HLT_IsoMu15_LooseIsoPFTau20_v6", "L1_SingleMu10", 1, 0.15),
-##    ("HLT_IsoMu15_TightIsoPFTau20_v6", "L1_SingleMu10", 1, 0.15),
-##    ("HLT_Ele15_CaloIdVT_TrkIdT_TightIsoPFTau20_v2", "L1_SingleEG12", 1, 0.15),
-##    ("HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TightIsoPFTau20_v2", "L1_SingleEG12", 1, 0.15),
-##    ("HLT_Ele18_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TightIsoPFTau20_v2", "L1_SingleEG15", 1, 0.15),
+##   ("HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v7", "L1_SingleEG12", 1, 0.15),
+##   ("HLT_HT300_DoubleIsoPFTau10_Trk3_PFMHT40_v7", "L1_HTT100", 1, 0.15),
+##   ("HLT_HT350_DoubleIsoPFTau10_Trk3_PFMHT45_v7", "L1_HTT100", 1, 0.15),
+##   ("HLT_Mu15_LooseIsoPFTau15_v8", "L1_SingleMu10", 1, 0.15),
+##   ("HLT_IsoMu15_LooseIsoPFTau15_v8", "L1_SingleMu10", 1, 0.15),
+##   ("HLT_IsoMu15_LooseIsoPFTau20_v6", "L1_SingleMu10", 1, 0.15),
+##   ("HLT_IsoMu15_TightIsoPFTau20_v6", "L1_SingleMu10", 1, 0.15),
+##   ("HLT_Ele15_CaloIdVT_TrkIdT_TightIsoPFTau20_v2", "L1_SingleEG12", 1, 0.15),
+##   ("HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TightIsoPFTau20_v2", "L1_SingleEG12", 1, 0.15),
+##   ("HLT_Ele18_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TightIsoPFTau20_v2", "L1_SingleEG15", 1, 0.15)
 # 
  );
 
  # For L1 prescale preloop to be used in HLT mode only
  L1triggers = ( 
 #
-  ("L1_SingleMu7", 1),
-  ("L1_SingleMu10", 1),
-  ("L1_SingleMu12", 1),
-  ("L1_SingleMu16", 1),
-  ("L1_SingleMu20", 1),
+  ("L1_SingleMu7", 100),
+  ("L1_SingleMu10", 80),
+  ("L1_SingleMu12", 60),
+  ("L1_SingleMu16", 20),
+  ("L1_SingleMu20", 20),
+  ("OpenL1_SingleMu14_Eta2p1", 1),
+  ("OpenL1_SingleMu16_Eta2p1", 1),
   ("L1_SingleJet20_Central_NotBptxOR_NotMuBeamHalo", 1),
   ("L1_EG15_ForJet16", 1),
   ("L1_SingleJet36_FwdVeto", 1),
@@ -534,7 +537,7 @@ menu:{
   ("L1_TripleJet28_Central", 1),
   ("L1_QuadJet20_Central", 1),
   ("L1_DoubleForJet32_EtaOpp", 1),
-  ("L1_SingleMuOpen", 1),
+  ("L1_SingleMuOpen", 7),
   ("L1_TripleEG5", 1),
   ("L1_SingleJet52_Central", 1),
   ("L1_HTT75", 1),
@@ -552,9 +555,9 @@ menu:{
   ("L1_SingleJet68", 1),
   ("L1_SingleJet92", 1),
   ("L1_SingleJet128", 1),
-  ("L1_SingleMu3", 1),
+  ("L1_SingleMu3", 14),
   ("L1_SingleIsoEG12", 1),
-  ("L1_SingleEG12", 1),
+  ("L1_SingleEG12", 100),
   ("L1_SingleEG15", 1),
   ("L1_SingleEG20", 1),
   ("L1_SingleEG30", 1),
