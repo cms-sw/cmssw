@@ -18,7 +18,6 @@
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::GsfTrack> >, edm::RefProd<std::vector<MomentumConstraint> > >"/>
   <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::GsfTrack> >, edm::RefProd<std::vector<VertexConstraint> > >"/>
 
-  <class name="edm::Ref<std::vector<Trajectory>, Trajectory, edm::refhelper::FindUsingAdvance<std::vector<Trajectory>, Trajectory> >"/>
   <class name="edm::helpers::KeyVal<edm::Ref<std::vector<Trajectory>, Trajectory, edm::refhelper::FindUsingAdvance<std::vector<Trajectory>, Trajectory> >, edm::Ref<std::vector<reco::GsfTrack>, reco::GsfTrack, edm::refhelper::FindUsingAdvance<std::vector<reco::GsfTrack>, reco::GsfTrack> > >" />
 
 </lcgdict>
