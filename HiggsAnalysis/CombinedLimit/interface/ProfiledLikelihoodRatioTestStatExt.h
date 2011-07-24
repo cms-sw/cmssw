@@ -30,9 +30,13 @@ class ProfiledLikelihoodRatioTestStatOpt : public RooStats::TestStatistic {
         RooArgSet snapNull_, snapAlt_; 
         RooArgSet nuisances_; 
         std::auto_ptr<RooArgSet> paramsNull_, paramsAlt_;
+        std::auto_ptr<RooAbsReal> nllNull_, nllAlt_;
         Int_t verbosity_;
 
-        double minNLL(RooAbsPdf &pdf, RooAbsData &data) ;
+        // create NLL. if returns true, it can be kept, if false it should be deleted at the end of Evaluate
+        bool createNLL(RooAbsPdf &pdf, RooAbsData &data, std::auto_ptr<RooAbsReal> &nll) ;
+
+        double minNLL(std::auto_ptr<RooAbsReal> &nll) ;
 }; // TestSimpleStatistics
 
 

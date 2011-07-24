@@ -49,24 +49,42 @@ Double_t ProfiledLikelihoodRatioTestStatOpt::Evaluate(RooAbsData& data, RooArgSe
         
     DBGV(DBG_TestStat_params, (std::cout << "Parameters of null pdf (pre fit)" << pdfNull_->GetName()))
     DBGV(DBG_TestStat_params, (paramsNull_->Print("V")))
-    double nullNLL = minNLL(*pdfNull_, data);
+
+    bool canKeepNullNLL = createNLL(*pdfNull_, data, nllNull_);
+    double nullNLL = minNLL(nllNull_);
+    if (!canKeepNullNLL) nllNull_.reset();
     
     *paramsAlt_ = nuisances_;
     *paramsAlt_ = snapAlt_;
         
     DBGV(DBG_TestStat_params, (std::cout << "Parameters of alt pdf " << pdfAlt_->GetName()))
     DBGV(DBG_TestStat_params, (paramsAlt_->Print("V")))
-    double altNLL = minNLL(*pdfAlt_, data);
+    bool canKeepAltNLL = createNLL(*pdfAlt_, data, nllAlt_);
+    double altNLL = minNLL(nllAlt_);
+    if (!canKeepAltNLL) nllAlt_.reset();
     
     DBG(DBG_TestStat_params, (printf("Pln: null = %+8.4f, alt = %+8.4f\n", nullNLL, altNLL)))
     return nullNLL-altNLL;
 }
 
-double ProfiledLikelihoodRatioTestStatOpt::minNLL(RooAbsPdf &pdf, RooAbsData &data) 
+bool ProfiledLikelihoodRatioTestStatOpt::createNLL(RooAbsPdf &pdf, RooAbsData &data, std::auto_ptr<RooAbsReal> &nll_) 
 {
+    if (typeid(pdf) == typeid(RooSimultaneousOpt)) {
+        if (nll_.get() == 0) nll_.reset(pdf.createNLL(data, RooFit::Constrain(nuisances_)));
+        else ((cacheutils::CachingSimNLL&)(*nll_)).setData(data);
+        return true;
+    } else {
+        nll_.reset(pdf.createNLL(data, RooFit::Constrain(nuisances_)));
+        return false;
+    }
+}
+
+
+double ProfiledLikelihoodRatioTestStatOpt::minNLL(std::auto_ptr<RooAbsReal> &nll_) 
+{
+#if defined(DBG_TestStat_NOFIT) && (DBG_TestStat_NOFIT > 0)
     if (verbosity_ > 0) std::cout << "Profiling likelihood for pdf " << pdf.GetName() << std::endl;
     std::auto_ptr<RooAbsReal> nll_(pdf.createNLL(data, RooFit::Constrain(nuisances_)));
-#if defined(DBG_TestStat_NOFIT) && (DBG_TestStat_NOFIT > 0)
     return nll_->getVal();
 #endif
     RooMinimizer minim(*nll_);
