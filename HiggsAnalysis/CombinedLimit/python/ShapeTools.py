@@ -138,10 +138,10 @@ class ShapeBuilder(ModelBuilder):
                             if not self.options.noCheckNorm: raise RuntimeError, "Mismatch in normalizations for bin %s, process %s: rate %f, shape %f" % (b,p,self.DC.exp[b][p],norm)
         if shapeTypes.count("TH1"):
             self.out.maxbins = max(shapeBins)
-            if self.options.verbose: stderr.write("Will use binning variable th1x with %d bins\n" % self.out.maxbins)
-            self.doVar("th1x[0,%d]" % self.out.maxbins); self.out.var("th1x").setBins(self.out.maxbins)
-            self.out.binVar = self.out.var("th1x")
-            shapeObs['th1x'] = self.out.binVar
+            if self.options.verbose: stderr.write("Will use binning variable CMS_th1x with %d bins\n" % self.out.maxbins)
+            self.doVar("CMS_th1x[0,%d]" % self.out.maxbins); self.out.var("CMS_th1x").setBins(self.out.maxbins)
+            self.out.binVar = self.out.var("CMS_th1x")
+            shapeObs['CMS_th1x'] = self.out.binVar
         if shapeTypes.count("TH1") == len(shapeTypes):
             self.out.mode    = "binned"
             self.out.binVars = ROOT.RooArgSet(self.out.binVar)
@@ -392,7 +392,7 @@ class ShapeBuilder(ModelBuilder):
         if not _cache.has_key(shape.GetName()+"Pdf"):
             if shape.ClassName().startswith("TH1"):
                 rdh = self.shape2Data(shape,channel,process)
-                rhp = self.doObj("%sPdf" % shape.GetName(), "HistPdf", "{th1x}, %s" % shape.GetName())
+                rhp = self.doObj("%sPdf" % shape.GetName(), "HistPdf", "{%s}, %s" % (self.out.binVar.GetName(), shape.GetName()))
                 _cache[shape.GetName()+"Pdf"] = rhp
             elif shape.InheritsFrom("RooAbsPdf"):
                 _cache[shape.GetName()+"Pdf"] = shape
