@@ -601,7 +601,7 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
   }
   
   // put the jets in the collection
-  iEvent.put(jets);
+  iEvent.put(jets,jetCollInstanceName_);
   
 
 }
