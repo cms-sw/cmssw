@@ -1,7 +1,7 @@
 #! /bin/bash
 
 HLT='/online/collisions/2011/2e33/v1.2/HLT'
-L1T='L1GtTriggerMenu_L1Menu_Collisions2011_v4_mc'
+L1T='L1GtTriggerMenu_L1Menu_Collisions2011_v5_mc'
 
 # tests
 hltGetConfiguration $HLT --process TEST                               --full --online  --data --unprescale --l1 $L1T --l1-emulator > online_data.py

@@ -63,7 +63,7 @@ function getConfigForOnline() {
   local CONFIG="$1"
   local NAME="$2"
 # local L1T="tag[,connect]" - record is hardwired as L1GtTriggerMenuRcd
-  local L1TPP="L1GtTriggerMenu_L1Menu_Collisions2011_v4_mc"
+  local L1TPP="L1GtTriggerMenu_L1Menu_Collisions2011_v5_mc"
   local L1THI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2010_v2_mc"
 
 
