@@ -87,6 +87,7 @@ namespace lumi{
     if(!m_authpath.empty()){
       dbconf.setAuthentication(m_authpath);
     }
+    
     /**retrieve hlt info with 3 queries from runinfo
        1. select distinct ( PATHID ) from HLT_SUPERVISOR_TRIGGERPATHS where runnumber=158878;
        2. retrieve hltpath map with n query from cms_hlt (n=number of pathids)
@@ -96,7 +97,16 @@ namespace lumi{
     **/
     
     //std::cout<<"m_source "<<m_source<<std::endl;
-    coral::ISessionProxy* srcsession=svc->connect(m_source, coral::ReadOnly);
+    //std::cout<<"m_source "<<m_source<<std::endl;
+    std::string::size_type cutpos=m_source.find(';');
+    std::string dbsource=m_source;
+    std::string csvsource("");
+    if(cutpos!=std::string::npos){
+      dbsource=m_source.substr(0,cutpos);
+      csvsource=m_source.substr(cutpos+1);
+    }
+    //std::cout<<"dbsource: "<<dbsource<<" , csvsource: "<<csvsource<<std::endl;
+    coral::ISessionProxy* srcsession=svc->connect(dbsource, coral::ReadOnly);
     coral::ITypeConverter& tpc=srcsession->typeConverter();
     tpc.setCppTypeForSqlType("unsigned int","NUMBER(11)");
     srcsession->transaction().start(true);
@@ -257,10 +267,10 @@ namespace lumi{
     //HltResult::iterator hltItEnd=hltresult.end();
     try{     
       std::cout<<"writing hlt data to old hlt table"<<std::endl;
-      writeHltData(destsession,runnumber,m_source,npath,hltresult.begin(),hltresult.end(),COMMITINTERVAL);
+      writeHltData(destsession,runnumber,dbsource,npath,hltresult.begin(),hltresult.end(),COMMITINTERVAL);
       std::cout<<"done"<<std::endl;
       std::cout<<"writing hlt data to new lshlt table"<<std::endl;
-      writeHltDataToSchema2(destsession,runnumber,m_source,npath,hltresult.begin(),hltresult.end(), hltpathmap,COMMITLSINTERVAL);
+      writeHltDataToSchema2(destsession,runnumber,dbsource,npath,hltresult.begin(),hltresult.end(), hltpathmap,COMMITLSINTERVAL);
       std::cout<<"done"<<std::endl;
       delete destsession;
       delete svc;
