@@ -4,6 +4,7 @@
 #include <memory>
 #include <RooAbsPdf.h>
 #include <RooAddPdf.h>
+#include <RooRealSumPdf.h>
 #include <RooProdPdf.h>
 #include <RooAbsData.h>
 #include <RooArgSet.h>
@@ -26,17 +27,17 @@ namespace cacheutils {
 // Part one: cache all values of a pdf
 class CachingPdf {
     public:
-        CachingPdf(RooAbsPdf *pdf, const RooArgSet *obs) ;
+        CachingPdf(RooAbsReal *pdf, const RooArgSet *obs) ;
         CachingPdf(const CachingPdf &other) ;
         ~CachingPdf() ;
         const std::vector<Double_t> & eval(const RooAbsData &data) ;
-        const RooAbsPdf *pdf() const { return pdf_; }
+        const RooAbsReal *pdf() const { return pdf_; }
         void  setDataDirty() { lastData_ = 0; }
     private:
         const RooArgSet *obs_;
-        RooAbsPdf *pdfOriginal_;
+        RooAbsReal *pdfOriginal_;
         RooArgSet  pdfPieces_;
-        RooAbsPdf *pdf_;
+        RooAbsReal *pdf_;
         ArgSetChecker checker_;
         const RooAbsData *lastData_;
         std::vector<Double_t> vals_;
@@ -45,8 +46,9 @@ class CachingPdf {
 
 class CachingAddNLL : public RooAbsReal {
     public:
-        CachingAddNLL(const char *name, const char *title, RooAddPdf *pdf, RooAbsData *data) ;
+        CachingAddNLL(const char *name, const char *title, RooAbsPdf *pdf, RooAbsData *data) ;
         CachingAddNLL(const CachingAddNLL &other, const char *name = 0) ;
+        virtual ~CachingAddNLL() ;
         virtual CachingAddNLL *clone(const char *name = 0) const ;
         virtual Double_t evaluate() const ;
         virtual Bool_t isDerived() const { return kTRUE; }
@@ -58,14 +60,16 @@ class CachingAddNLL : public RooAbsReal {
         const RooAbsPdf *pdf() const { return pdf_; }
     private:
         void setup_();
-        RooAddPdf *pdf_;
+        RooAbsPdf *pdf_;
         RooSetProxy params_;
         const RooAbsData *data_;
         std::vector<double>  weights_;
         double               sumWeights_;
         mutable std::vector<RooAbsReal*> coeffs_;
         mutable std::vector<CachingPdf>  pdfs_;
+        mutable std::vector<RooAbsReal*> integrals_;
         mutable std::vector<double> partialSum_;
+        mutable bool isRooRealSum_;
 };
 
 class CachingSimNLL  : public RooAbsReal {

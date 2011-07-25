@@ -5,6 +5,7 @@
 struct RooDataHist;
 struct RooAbsData;
 struct RooAbsPdf;
+struct RooAbsReal;
 struct RooAbsArg;
 struct RooArgSet;
 struct RooArgList;
@@ -22,6 +23,8 @@ namespace utils {
 
     // Clone a pdf and all it's branch nodes. on request, clone also leaf nodes (i.e. RooRealVars)
     RooAbsPdf *fullClonePdf(const RooAbsPdf *pdf, RooArgSet &holder, bool cloneLeafNodes=false) ;
+    // Clone a function and all it's branch nodes. on request, clone also leaf nodes (i.e. RooRealVars)
+    RooAbsReal *fullCloneFunc(const RooAbsReal *pdf, RooArgSet &holder, bool cloneLeafNodes=false) ;
 
     /// Create a pdf which depends only on observables, and collect the other constraint terms
     /// Will return 0 if it's all constraints, &pdf if it's all observables, or a new pdf if it's something mixed
@@ -33,6 +36,9 @@ namespace utils {
     void factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, RooArgList &obsTerms, RooArgList &constraints, bool debug=false);
     RooAbsPdf *makeNuisancePdf(RooStats::ModelConfig &model, const char *name="nuisancePdf") ;
     RooAbsPdf *makeNuisancePdf(RooAbsPdf &pdf, const RooArgSet &observables, const char *name="nuisancePdf") ;
+
+    /// factorize a RooAbsReal
+    void factorizeFunc(const RooArgSet &observables, RooAbsReal &pdf, RooArgList &obsTerms, RooArgList &otherTerms, bool debug=false);
 
     /// Note: doesn't recompose Simultaneous pdfs properly, for that use factorizePdf method
     RooAbsPdf *makeObsOnlyPdf(RooStats::ModelConfig &model, const char *name="obsPdf") ;

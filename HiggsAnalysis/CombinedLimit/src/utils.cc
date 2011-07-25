@@ -21,6 +21,7 @@
 #include <RooDataSet.h>
 #include <RooRealVar.h>
 #include <RooProdPdf.h>
+#include <RooProduct.h>
 #include <RooSimultaneous.h>
 #include <RooWorkspace.h>
 #include <RooPlot.h>
@@ -166,6 +167,28 @@ void utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, RooArgLis
         if (!constraints.contains(pdf)) constraints.add(pdf);
     }
 }
+void utils::factorizeFunc(const RooArgSet &observables, RooAbsReal &func, RooArgList &obsTerms, RooArgList &constraints, bool debug) {
+    RooAbsPdf *pdf = dynamic_cast<RooAbsPdf *>(&func);
+    if (pdf != 0) { 
+        factorizePdf(observables, *pdf, obsTerms, constraints, debug); 
+        return; 
+    }
+    const std::type_info & id = typeid(func);
+    if (id == typeid(RooProduct)) {
+        RooProduct *prod = dynamic_cast<RooProduct *>(&func);
+        RooArgSet components(prod->components());
+        std::cout << "Function " << func.GetName() << " is a RooProduct with " << components.getSize() << " components." << std::endl;
+        std::auto_ptr<TIterator> iter(components.createIterator());
+        for (RooAbsReal *funci = (RooAbsReal *) iter->Next(); funci != 0; funci = (RooAbsReal *) iter->Next()) {
+            std::cout << "  component " << funci->GetName() << " of type " << funci->ClassName() << std::endl;
+            factorizeFunc(observables, *funci, obsTerms, constraints);
+        }
+    } else if (func.dependsOn(observables)) {
+        if (!obsTerms.contains(func)) obsTerms.add(func);
+    } else {
+        if (!constraints.contains(func)) constraints.add(func);
+    }
+}
 
 RooAbsPdf *utils::makeNuisancePdf(RooStats::ModelConfig &model, const char *name) { 
     return utils::makeNuisancePdf(*model.GetPdf(), *model.GetObservables(), name);
@@ -191,6 +214,15 @@ RooAbsPdf *utils::fullClonePdf(const RooAbsPdf *pdf, RooArgSet &holder, bool clo
   // Find the top level FUNC in the snapshot list
   return (RooAbsPdf*) holder.find(pdf->GetName());
 }
+RooAbsReal *utils::fullCloneFunc(const RooAbsReal *pdf, RooArgSet &holder, bool cloneLeafNodes) {
+  // Clone all FUNC compents by copying all branch nodes
+  RooArgSet tmp("RealBranchNodeList") ;
+  pdf->branchNodeServerList(&tmp);
+  tmp.snapshot(holder, cloneLeafNodes); 
+  // Find the top level FUNC in the snapshot list
+  return (RooAbsReal*) holder.find(pdf->GetName());
+}
+
 
 void utils::getClients(const RooAbsCollection &values, const RooAbsCollection &allObjects, RooAbsCollection &clients) {
     std::auto_ptr<TIterator> iterAll(allObjects.createIterator());
