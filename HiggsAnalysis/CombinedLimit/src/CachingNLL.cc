@@ -157,19 +157,21 @@ cacheutils::CachingAddNLL::setup_()
                 RooArgList obsDep, obsInd;
                 obsInd.add(*coeff);
                 utils::factorizeFunc(*obs, *funci, obsDep, obsInd);
+                /*
                 std::cout << "Entry " << i << ": coef name " << (sumpdf->coefList().at(i) ? sumpdf->coefList().at(i)->GetName()   : "null") << 
                     "  type " << (sumpdf->coefList().at(i) ? sumpdf->coefList().at(i)->ClassName() :  "n/a") << std::endl;
                 std::cout << "       " <<     "; func name " << (sumpdf->funcList().at(i) ? sumpdf->funcList().at(i)->GetName()   : "null") << 
                     "  type " << (sumpdf->funcList().at(i) ? sumpdf->funcList().at(i)->ClassName() :  "n/a") << std::endl;
                 std::cout << "Terms depending on observables: " << std::endl; obsDep.Print("V");
                 std::cout << "Terms not depending on observables: " << std::endl; obsInd.Print("V");
+                */
                 if (obsInd.getSize() > 1) {
-                    coeff = new RooProduct(TString::Format("%s_x_%s_obsIndep", coeff->GetName(), funci->GetName()), RooArgSet(obsInd));
-                    addOwnedComponent(RooArgSet(*coeff));
+                    coeff = new RooProduct(TString::Format("%s_x_%s_obsIndep", coeff->GetName(), funci->GetName()), "", RooArgSet(obsInd));
+                    addOwnedComponents(RooArgSet(*coeff));
                 }
                 if (obsDep.getSize() > 1) {
-                    funci = new RooProduct(TString::Format("%s_obsDep", funci->GetName()), RooArgSet(obsInd));
-                    addOwnedComponent(RooArgSet(*funci));
+                    funci = new RooProduct(TString::Format("%s_obsDep", funci->GetName()), "", RooArgSet(obsInd));
+                    addOwnedComponents(RooArgSet(*funci));
                 } else if (obsDep.getSize() == 1) {
                     funci = (RooAbsReal *) obsDep.first();
                 } else throw std::logic_error("No part of pdf depends on observables?");
