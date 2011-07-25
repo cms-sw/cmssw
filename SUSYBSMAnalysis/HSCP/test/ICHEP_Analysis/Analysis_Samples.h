@@ -125,12 +125,13 @@ void GetSignalDefinition(std::vector<stSignal>& signals){
   signals.push_back(stSignal("Stau"  , "GMStau370", "stau_M-370"    , "GMSB #tilde{#tau}_{1} 370"     , 370,  1,   0.0007395) ); //LO
   signals.push_back(stSignal("Stau"  , "GMStau432", "stau_M-432"    , "GMSB #tilde{#tau}_{1} 432"     , 432,  1,   0.0002824) ); //LO
   signals.push_back(stSignal("Stau"  , "GMStau494", "stau_M-494"    , "GMSB #tilde{#tau}_{1} 494"     , 494,  1,   0.0001139) ); //LO
-/*   signals.push_back(stSignal("Stau"  , "PPStau100"    , "Pair #tilde{#tau}_{1} 100"     , 100,  1,   0.032000) ); //LO
-   signals.push_back(stSignal("Stau"  , "PPStau126"    , "Pair #tilde{#tau}_{1} 126"     , 126,  0,   0.014000) ); //LO
-   signals.push_back(stSignal("Stau"  , "PPStau156"    , "Pair #tilde{#tau}_{1} 156"     , 156,  0,   0.006000) ); //LO
-   signals.push_back(stSignal("Stau"  , "PPStau200"    , "Pair #tilde{#tau}_{1} 200"     , 200,  1,   0.002200) ); //LO
-   signals.push_back(stSignal("Stau"  , "PPStau247"    , "Pair #tilde{#tau}_{1} 247"     , 247,  0,   0.000900) ); //LO
-   signals.push_back(stSignal("Stau"  , "PPStau308"    , "Pair #tilde{#tau}_{1} 308"     , 308,  1,   0.000300) ); //LO
+
+  signals.push_back(stSignal("Stau"  , "PPStau100", "PPStau100", "Pair #tilde{#tau}_{1} 100"     , 100,  1,   0.0382) ); //NLO
+  signals.push_back(stSignal("Stau"  , "PPStau126", "PPStau126", "Pair #tilde{#tau}_{1} 126"     , 126,  0,   0.01620) ); //NLO
+  signals.push_back(stSignal("Stau"  , "PPStau156", "PPStau156", "Pair #tilde{#tau}_{1} 156"     , 156,  0,   0.00703) ); //NLO
+  signals.push_back(stSignal("Stau"  , "PPStau200", "PPStau200", "Pair #tilde{#tau}_{1} 200"     , 200,  1,   0.00247) ); //NLO
+  signals.push_back(stSignal("Stau"  , "PPStau247", "PPStau247", "Pair #tilde{#tau}_{1} 247"     , 247,  0,   0.00100) ); //NLO
+/*   signals.push_back(stSignal("Stau"  , "PPStau308"    , "Pair #tilde{#tau}_{1} 308"     , 308,  1,   0.000300) ); //LO
    signals.push_back(stSignal("Stau"  , "DCStau121"    , "DICHAMP #tilde{#tau}_{1} 121"  , 121,  1,   0.450000) ); //LO
    signals.push_back(stSignal("Stau"  , "DCStau182"    , "DICHAMP #tilde{#tau}_{1} 182"  , 182,  0,   0.083000) ); //LO
    signals.push_back(stSignal("Stau"  , "DCStau242"    , "DICHAMP #tilde{#tau}_{1} 242"  , 242,  0,   0.022800) ); //LO
@@ -169,9 +170,9 @@ void GetMCDefinition(std::vector<stMC>& MC){
 }
 
 void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName, int period=0){
-  std::string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_07_14/";
+   //std::string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_07_14/";
   //std::string BaseDirectory = "dcap://cmsdca.fnal.gov:24125/pnfs/cms/WAX/11/store/user/farrell3/EDMFiles/";
-  //std::string BaseDirectory = "dcap://cmsdca.fnal.gov:24125/pnfs/cms/WAX/11/store/user/farrell3/HSCPEDM_13072011/";
+  std::string BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/jchen/11_07_14_HSCP2011/";
 
    if(SampleName=="Data"){
      inputFiles.push_back(BaseDirectory + "Data_RunA_160404_163869.root");
