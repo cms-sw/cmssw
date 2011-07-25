@@ -28,8 +28,8 @@ run:{
 data:{ 
  # Enter the length of 1 lumi section and prescale factor of the dataset
  lumiSectionLength = 23.3;
- #lumiScaleFactor = 3.05; #run 170354, LS, to extrapolate to 3e33
- lumiScaleFactor = 5.09; #run 170354, LS, to extrapolate to 5e33
+ lumiScaleFactor = 3.05; #run 170354, LS, to extrapolate to 3e33
+ #lumiScaleFactor = 5.09; #run 170354, LS, to extrapolate to 5e33
  prescaleNormalization = 1; 
 
 ##run 163374
@@ -46,7 +46,7 @@ runLumiblockList = (
 ##########################################
 beam:{
  bunchCrossingTime = 50.0E-09; # Design: 25 ns Startup: 75 ns
- iLumi = 5E33;
+ iLumi = 3E33;
  maxFilledBunches = 3564;
  nFilledBunches = 800;
  cmsEnergy = 7.; # Collision energy in TeV
@@ -158,10 +158,10 @@ menu:{
 #    ("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v7", "L1_SingleEG12", 1, 0.15),
     ("HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC8_Mass30_v7", "L1_SingleEG12", 1, 0.15),
     ("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v6", "L1_DoubleEG_12_5", 1, 0.15),
-    ("HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass30_v5", "L1_DoubleEG_12_5", 3, 0.15),
+    ("HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass30_v5", "L1_DoubleEG_12_5", 2, 0.15),
 #    ("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v8", "L1_EG12_ForJet16", 1, 0.15),
     ("OpenHLT_Ele22_CaloIdL_CaloIsoVL_Ele15_HFT", "OpenL1_EG18_ForJet16", 1, 0.15),
-    ("HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_SC17_v5", "L1_SingleEG20", 3, 0.15),
+    ("HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_SC17_v5", "L1_SingleEG20", 2, 0.15),
     ("HLT_Ele8_CaloIdL_CaloIsoVL_Jet40_v7", "L1_SingleEG5", 1, 0.15),
     ("HLT_DoubleEle10_CaloIdL_TrkIdVL_Ele10_CaloIdT_TrkIdVL_v2", "L1_TripleEG5", 1, 0.15),
     ("HLT_TripleEle10_CaloIdL_TrkIdVL_v8", "L1_TripleEG5", 1, 0.15)
@@ -479,26 +479,26 @@ menu:{
 ##   ("HLT_Mu5_v9", "L1_SingleMu3", 1, 0.15),
 ##   ("HLT_Mu8_v7", "L1_SingleMu3", 1, 0.15),
 ##   ("HLT_Mu12_v7", "L1_SingleMu7", 1, 0.15),
-##   ("HLT_Mu15_v8", "L1_SingleMu10", 1, 0.15),
-##   ("HLT_Mu20_v7", "L1_SingleMu12", 1, 0.15),
-##   ("HLT_Mu24_v7", "L1_SingleMu12", 1, 0.15),
-##   ("HLT_Mu30_v7", "L1_SingleMu12", 2, 0.15),
+##   ("HLT_Mu15_v8", "L1_SingleMu10", 5, 0.15),
+##   ("HLT_Mu20_v7", "L1_SingleMu12", 5, 0.15),
+##   ("HLT_Mu24_v7", "L1_SingleMu12", 5, 0.15),
+##   ("HLT_Mu30_v7", "L1_SingleMu12", 120, 0.15),
 ##   ("HLT_Mu40_v5", "OpenL1_SingleMu14_Eta2p1", 1, 0.15),
 ##   ("HLT_Mu60_v2", "OpenL1_SingleMu14_Eta2p1", 1, 0.15),
 ##   ("HLT_Mu100_v5", "OpenL1_SingleMu14_Eta2p1", 1, 0.15),
-##   ("HLT_IsoMu12_v9", "L1_SingleMu7", 1, 0.15),
-##   ("HLT_IsoMu15_v13", "L1_SingleMu10", 1, 0.15),
-##   ("HLT_IsoMu17_v13", "L1_SingleMu10", 2, 0.15),
-##   ("HLT_IsoMu20_v8", "L1_SingleMu12", 2, 0.15),
-##   ("HLT_IsoMu24_v8", "L1_SingleMu12", 2, 0.15),
+##   ("HLT_IsoMu12_v9", "L1_SingleMu7", 5, 0.15),
+##   ("HLT_IsoMu15_v13", "L1_SingleMu10", 5, 0.15),
+##   ("HLT_IsoMu17_v13", "L1_SingleMu10", 300, 0.15),
+##   ("HLT_IsoMu20_v8", "L1_SingleMu12", 50, 0.15),
+##   ("HLT_IsoMu24_v8", "L1_SingleMu12", 1, 0.15),
 ##   ("HLT_IsoMu30_v8", "OpenL1_SingleMu14_Eta2p1", 1, 0.15),
 ##   ("OpenHLT_IsoMu34", "OpenL1_SingleMu14_Eta2p1", 1, 0.15)
-## ############# dataset Tau ###############
-##   ("HLT_IsoPFTau35_Trk20_v6", "L1_SingleJet52_Central", 10, 0.15),
-##   ("HLT_IsoPFTau35_Trk20_MET60_v6", "L1_Jet52_Central_ETM30", 30, 0.15),
+ ############# dataset Tau ###############
+##   ("HLT_IsoPFTau35_Trk20_v6", "L1_SingleJet52_Central", 1, 0.15),
+##   ("HLT_IsoPFTau35_Trk20_MET60_v6", "L1_Jet52_Central_ETM30", 1, 0.15),
 ##   ("HLT_IsoPFTau35_Trk20_MET70_v2", "L1_Jet52_Central_ETM30", 1, 0.15),
 ##   ("HLT_DoubleIsoPFTau45_Trk5_eta2p1_v2", "L1_DoubleTauJet40_Eta2p17 OR L1_DoubleJet52_Central", 1, 0.15),
-##   ("HLT_IsoPFTau40_IsoPFTau30_Trk5_eta2p1_v2", "L1_DoubleTauJet36_Eta2p17 OR L1_DoubleJet44_Central", 40, 0.15)
+##   ("HLT_IsoPFTau40_IsoPFTau30_Trk5_eta2p1_v2", "L1_DoubleTauJet36_Eta2p17 OR L1_DoubleJet44_Central", 20, 0.15)
 ## ############# dataset TauPlusX ###############
 ##   ("HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v7", "L1_SingleEG12", 1, 0.15),
 ##   ("HLT_HT300_DoubleIsoPFTau10_Trk3_PFMHT40_v7", "L1_HTT100", 1, 0.15),
@@ -516,11 +516,11 @@ menu:{
  # For L1 prescale preloop to be used in HLT mode only
  L1triggers = ( 
 #
-  ("L1_SingleMu7", 100),
-  ("L1_SingleMu10", 80),
-  ("L1_SingleMu12", 60),
-  ("L1_SingleMu16", 20),
-  ("L1_SingleMu20", 20),
+  ("L1_SingleMu7", 60),
+  ("L1_SingleMu10", 1),
+  ("L1_SingleMu12", 1),
+  ("L1_SingleMu16", 1),
+  ("L1_SingleMu20", 1),
   ("OpenL1_SingleMu14_Eta2p1", 1),
   ("OpenL1_SingleMu16_Eta2p1", 1),
   ("L1_SingleJet20_Central_NotBptxOR_NotMuBeamHalo", 1),
@@ -530,7 +530,7 @@ menu:{
   ("L1_MuOpen_EG12", 1),
   ("L1_BeamGas_Bsc", 1),
   ("L1_ETT220", 1),
-  ("L1_SingleEG5", 10),
+  ("L1_SingleEG5", 7),
   ("L1_EG5_HTT100", 1),
   ("L1_SingleJet16", 1),
   ("L1_Mu3_Jet20_Central", 1),
@@ -538,9 +538,9 @@ menu:{
   ("L1_TripleJet28_Central", 1),
   ("L1_QuadJet20_Central", 1),
   ("L1_DoubleForJet32_EtaOpp", 1),
-  ("L1_SingleMuOpen", 7),
+  ("L1_SingleMuOpen", 4),
   ("L1_TripleEG5", 1),
-  ("L1_SingleJet52_Central", 1),
+  ("L1_SingleJet52_Central", 6),
   ("L1_HTT75", 1),
   ("L1Tech_HCAL_HF_MM_or_PP_or_PM.v0", 1),
   ("L1_SingleJet52", 1),
@@ -556,9 +556,9 @@ menu:{
   ("L1_SingleJet68", 1),
   ("L1_SingleJet92", 1),
   ("L1_SingleJet128", 1),
-  ("L1_SingleMu3", 14),
+  ("L1_SingleMu3", 4),
   ("L1_SingleIsoEG12", 1),
-  ("L1_SingleEG12", 100),
+  ("L1_SingleEG12", 60),
   ("L1_SingleEG15", 1),
   ("L1_SingleEG20", 1),
   ("L1_SingleEG30", 1),
@@ -588,9 +588,9 @@ menu:{
   ("L1_DoubleMuOpen_EG5", 1),
   ("L1_DoubleEG5", 1),
   ("L1_DoubleEG10", 1),
+  ("L1_DoubleEG_12_5", 1),
   ("L1_DoubleEG3", 1),
   ("L1_DoubleEG8", 1),
-  ("L1_DoubleEG_12_5", 1),
   ("L1_DoubleIsoEG10", 1),
   ("L1_SingleEG12_Eta1p39", 1),
   ("L1_SingleIsoEG12_Eta2p17", 1),

@@ -5384,7 +5384,52 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
 }
 
 	
-	
+  //JH
+ else if (triggerName.CompareTo("OpenHLT_Ele22_CaloIdL_CaloIsoVL_Ele15_HFT") == 0) {
+   if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+     if (prescaleResponse(menu, cfg, rcounter, it)) {
+       // 17 GeV Electron
+       if (
+	   OpenHlt1ElectronSamHarperPassed(
+					   22., 0, // ET, L1isolation
+					   999., 999., // Track iso barrel, Track iso endcap
+					   999., 999., // Track/pT iso barrel, Track/pT iso endcap
+					   .2, .2, // H/ET iso barrel, H/ET iso endcap
+					   .2, .2, // E/ET iso barrel, E/ET iso endcap
+					   0.15, 0.1,  // H/E barrel, H/E endcap
+					   0.014, 0.035, // cluster shape barrel, cluster shape endcap
+					   999, 999,  // R9 barrel, R9 endcap
+					   999, 999,   // Deta barrel, Deta endcap
+					   999, 999    // Dphi barrel, Dphi endcap
+					   ) >=1
+	   ) {
+	 // HF e code
+	 float MinPt  = 15.0;
+	 float MaxEta = 5.0;
+	 float MinEta = -5.0;
+	 float e9e25Min = 0.92; // e9e25 > 0.92
+	 float e1e9Min = 0.6; // e1e9 > 0.6
+	 float Min2DCut = 0.2; // 2DCut > 0.2
+
+	 for(int i = 0; i < NohHFECALClus; i++){ // These arrays are kept in sync when creating openhlt.root
+	   if (
+                               ohHFEleClustere9e25[i] > e9e25Min &&
+                               ohHFEleClustere1e9[i]  > e1e9Min  &&
+                               ohHFEleCluster2Dcut[i] > Min2DCut &&
+                               ohHFEleEta[i] < MaxEta &&
+                               ohHFEleEta[i] > MinEta &&
+                               ohHFElePt[i]  > MinPt
+			       ) {
+	     triggerBit[it] = true; // Fired
+	   }
+	 }
+       }
+     }
+   }
+ }
+
+  //end JH	
+
   // 2011-05-11: promoted to v4. Removed R9 cut.
   else if (triggerName.CompareTo("OpenHLT_Ele17_CaloIdL_CaloIsoVL_v4") == 0)
     {
