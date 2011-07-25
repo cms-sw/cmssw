@@ -403,7 +403,7 @@ if (localDAQ == 1) :
   process.GlobalTag.globaltag = "GR10_H_V0::All"
 
 if (globalDAQ == 1) :
-  process.GlobalTag.globaltag = "GR_H_V17::All"
+  process.GlobalTag.globaltag = "GR_H_V22::All"
 
 if (liveECAL == 1) :
   process.GlobalTag.globaltag = "GR_H_V20::All"
