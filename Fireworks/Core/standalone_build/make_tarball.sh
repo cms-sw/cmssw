@@ -82,8 +82,10 @@ cp -f $CMSSW_BASE/lib/*/* ${tard}/lib/
 # plugins cache file
 echo "get $CMSSW_RELEASE_BASE/lib/*/.edmplugincache > ${tard}/lib/.edmplugincache"
 touch ${tard}/lib/.edmplugincache
-cat  $CMSSW_RELEASE_BASE/lib/*/.edmplugincache | grep -v Fireworks > ${tard}/lib/.edmplugincache
-cat  $CMSSW_BASE/lib/*/.edmplugincache >> ${tard}/lib/.edmplugincache
+cat  $CMSSW_RELEASE_BASE/lib/*/.edmplugincache | grep -v Fireworks > /tmp/.edmplugincache
+cat  $CMSSW_BASE/lib/*/.edmplugincache >> /tmp/.edmplugincache
+cat /tmp/.edmplugincache | sort -u >  ${tard}/lib/.edmplugincache
+
 
 #----------------------------------------------------------------
 echo "=========================================================="
@@ -103,7 +105,8 @@ cd  $tard
 ln -s  src/Fireworks/Core/macros/default.fwc .
 ln -s  src/Fireworks/Core/macros/ispy.fwc  .
 ln -s  src/Fireworks/Core/macros/pflow.fwc  .
-ln -s  src/Fireworks/Core/macros/hfLego.fwc  .
+ln -s  src/Fireworks/Core/macros/hfLego.fwc  
+ln -s  src/Fireworks/Core/macros/simGeo.fwc  .
 
 ln -s  src/Fireworks/Core/scripts/cmsShow .
 
@@ -122,6 +125,8 @@ cd ${tard}
 name=`perl -e '($ver, $a, $b, $c) = split('_', $ENV{CMSSW_VERSION}); print  "data", $a, $b, ".root"  '`
 $dwnCmd http://amraktad.web.cern.ch/amraktad/mail/scratch0/data/$name
 mv $name data.root
+$dwnCmd http://amraktad.web.cern.ch/amraktad/mail/scratch0/data/cmsSimGeom-14.root
+
 
 exit
 cd $origd
