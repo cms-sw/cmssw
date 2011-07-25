@@ -97,9 +97,11 @@ void testCachingSimNLL(RooSimultaneous *pdf, RooAbsData *data, int nattempts)
     for (int i = 0; i < nattempts; ++i) {
         RooRealVar *v = (RooRealVar *) params.at(i %  params.getSize());
         if (v->isConstant()) continue;
-        v->setVal(v->getVal() +  0.0);
+        double val = v->getVal();
+        v->randomize();
         timer.Start(); plain.push_back(nll->getVal()); plainTime += timer.RealTime();
         timer.Start(); alter.push_back(onll.getVal()); alterTime += timer.RealTime();
+        v->setVal(val);
     }
     for (int i = 0,  n = plain.size(); i < n; ++i) {
         printf("plain % 10.4f  alter % 10.4f   diff % 10.4f\n", plain[i], alter[i], alter[i]-plain[i]);
@@ -159,7 +161,7 @@ void testCachingSimTestStat(RooStats::ModelConfig &mc, RooAbsData *data, int nat
     mc.GetParametersOfInterest()->snapshot(snap);
     snap.setRealValue("r", 1);
     snap.Print("V");
-    ProfiledLikelihoodTestStatOpt testStat(*mc.GetObservables(), *pdf, mc.GetNuisanceParameters(),  snap, 0);
+    ProfiledLikelihoodTestStatOpt testStat(*mc.GetObservables(), *pdf, mc.GetNuisanceParameters(), snap, RooArgList(), RooArgList(), 0);
     std::cout << "value: " << testStat.Evaluate(*data, snap) << std::endl;
 }
 
@@ -237,8 +239,8 @@ void runExternal(const char *file, int n, const char *wsp, const char *datan, co
     //testChecker(*mc);  
     //testCachingPdf(*mc, data, n);  
     //testCachingAddNLL(*mc, data, n);  
-    //testCachingSimNLL(*mc, data, n);  
-    testCachingSimTestStat(*mc, data, n);  
+    testCachingSimNLL(*mc, data, n);  
+    //testCachingSimTestStat(*mc, data, n);  
 }
 
 void runPerf(const char *opt, const char *n, const char *file, const char *wsp, const char *datan, const char *mcn) {
