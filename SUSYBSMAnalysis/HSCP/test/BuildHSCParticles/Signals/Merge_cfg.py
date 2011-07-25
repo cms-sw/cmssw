@@ -69,6 +69,7 @@ process.Out = cms.OutputModule("PoolOutputModule",
          "keep *_dedx*_*_HSCPAnalysis",
          "keep *_muontiming_*_HSCPAnalysis",
          "keep triggerTriggerEvent_hltTriggerSummaryAOD_*_*",
+		 "keep PileupSummaryInfos_addPileupInfo_*_*"
     ),
     fileName = cms.untracked.string('XXX_OUTPUT_XXX.root'),
 )
