@@ -102,7 +102,7 @@ Combine::Combine() :
       ;
     miscOptions_.add_options()
       ("newGenerator", po::value<bool>(&newGen_)->default_value(true), "Use new generator code for toys, fixes all issues with binned and mixed generation (equivalent of --newToyMC but affects the top-level toys from option '-t' instead of the ones within the HybridNew)")
-      ("optimizeSimPdf", po::value<bool>(&optSimPdf_)->default_value(false), "Turn on special optimizations of RooSimultaneous")
+      ("optimizeSimPdf", po::value<bool>(&optSimPdf_)->default_value(true), "Turn on special optimizations of RooSimultaneous. On by default, you can turn it off if it doesn't work for your workspace.")
       ("rebuildSimPdf", po::value<bool>(&rebuildSimPdf_)->default_value(false), "Rebuild simultaneous pdf from scratch to make sure constraints are correct (not needed in CMS workspaces)")
       ("compile", "Compile expressions instead of interpreting them")
       ("tempDir", po::value<bool>(&makeTempDir_)->default_value(false), "Run the program from a temporary directory (automatically on for text datacards or if 'compile' is activated)")

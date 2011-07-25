@@ -67,7 +67,7 @@ bool HybridNew::importanceSamplingAlt_  = false;
 std::string HybridNew::algo_ = "logSecant";
 bool HybridNew::optimizeProductPdf_     = true;
 bool HybridNew::optimizeTestStatistics_ = true;
-bool HybridNew::newToyMCSampler_        = false;
+bool HybridNew::newToyMCSampler_        = true;
 std::string HybridNew::plot_;
 std::string HybridNew::minimizerAlgo_ = "Minuit2";
 float       HybridNew::minimizerTolerance_ = 1e-2;
@@ -108,7 +108,7 @@ LimitAlgo("HybridNew specific options") {
         ("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(minimizerTolerance_),  "Tolerance for minimizer used for profiling")
         ("plot",   boost::program_options::value<std::string>(&plot_), "Save a plot of the result (test statistics distributions or limit scan)")
         ("frequentist", "Shortcut to switch to Frequentist mode (--generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1)")
-        ("newToyMCSampler", boost::program_options::value<bool>(&newToyMCSampler_)->default_value(newToyMCSampler_), "Use new ToyMC sampler with support for mixed binned-unbinned generation")
+        ("newToyMCSampler", boost::program_options::value<bool>(&newToyMCSampler_)->default_value(newToyMCSampler_), "Use new ToyMC sampler with support for mixed binned-unbinned generation. On by default, you can turn it off if it doesn't work for your workspace.")
         ("fullGrid", "Evaluate p-values at all grid points, without optimitations")
         ("fullBToys", "Run as many B toys as S ones (default is to run 1/4 of b-only toys)")
     ;

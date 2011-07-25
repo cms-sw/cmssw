@@ -40,7 +40,7 @@ bool MarkovChainMC::mergeChains_ = false;
 bool MarkovChainMC::readChains_ = false;
 float MarkovChainMC::proposalHelperWidthRangeDivisor_ = 5.;
 float MarkovChainMC::proposalHelperUniformFraction_ = 0.0;
-bool  MarkovChainMC::alwaysStepPoi_ = false;
+bool  MarkovChainMC::alwaysStepPoi_ = true;
 float MarkovChainMC::cropNSigmas_ = 0;
 int   MarkovChainMC::debugProposal_ = false;
 
@@ -63,7 +63,7 @@ MarkovChainMC::MarkovChainMC() :
                 boost::program_options::value<float>(&proposalHelperWidthRangeDivisor_)->default_value(proposalHelperWidthRangeDivisor_), 
                 "Sets the fractional size of the gaussians in the proposal")
         ("alwaysStepPOI", boost::program_options::value<bool>(&alwaysStepPoi_)->default_value(alwaysStepPoi_),
-                            "When using 'ortho' proposal, always step also the parameter of interest")
+                            "When using 'ortho' proposal, always step also the parameter of interest. On by default, as it improves convergence, but you can turn it off (e.g. if you turn off --optimizeSimPdf)")
         ("propHelperUniformFraction", 
                 boost::program_options::value<float>(&proposalHelperUniformFraction_)->default_value(proposalHelperUniformFraction_), 
                 "Add a fraction of uniform proposals to the algorithm")
