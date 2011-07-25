@@ -127,15 +127,15 @@ namespace lumi{
     if(!m_authpath.empty()){
       dbconf.setAuthentication(m_authpath);
     }
- 
+    
     //std::cout<<"m_source "<<m_source<<std::endl;
     std::string::size_type cutpos=m_source.find(';');
-    std::string dbsource("");
+    std::string dbsource=m_source;
     std::string csvsource("");
     if(cutpos!=std::string::npos){
       dbsource=m_source.substr(0,cutpos);
       csvsource=m_source.substr(cutpos+1);
-    }   
+    }
     //std::cout<<"dbsource: "<<dbsource<<" , csvsource: "<<csvsource<<std::endl;
     coral::ISessionProxy* runinfosession=svc->connect(dbsource,coral::ReadOnly);
     try{
