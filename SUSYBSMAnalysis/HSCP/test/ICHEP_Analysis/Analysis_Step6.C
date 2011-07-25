@@ -224,7 +224,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    //TGraph* Tk_Obs_StopZ     = MakePlot(pFile,talkFile,TkPattern,syst,"Stop Z2"            , 2, "Stop300Z"     , "Stop400Z"     , "Stop500Z");
    TGraph* Tk_Obs_StopN     = MakePlot(pFile,talkFile,TkPattern,syst,"StopN"              , 2, "Stop130N"     , "Stop200N"     , "Stop300N"     , "Stop400N"     , "Stop500N"     , "Stop600N"   , "Stop700N"   , "Stop800N"                      );
    TGraph* Tk_Obs_GMStau    = MakePlot(pFile,talkFile,TkPattern,syst,"GMSB Stau"          , 2, "GMStau100"    , "GMStau126"    , "GMStau156"    , "GMStau200"    , "GMStau247"    , "GMStau308", "GMStau370", "GMStau432", "GMStau494"    );
-//   TGraph* Tk_Obs_PPStau    = MakePlot(pFile,talkFile,TkPattern,syst,"Pair Prod. Stau  ", 2, "PPStau100"    , "PPStau126"    , "PPStau156"    , "PPStau200"    , "PPStau247"    , "PPStau308"    );
+   TGraph* Tk_Obs_PPStau    = MakePlot(pFile,talkFile,TkPattern,syst,"Pair Prod. Stau  ", 2, "PPStau100"    , "PPStau126"    , "PPStau156"    , "PPStau200"    , "PPStau247");
 //   TGraph* Tk_Obs_DCStau    = MakePlot(pFile,talkFile,TkPattern,syst,"DiChamp    Stau  ", 2, "DCStau121"    , "DCStau182"    , "DCStau242"    , "DCStau302"                                      );
    fprintf(pFile,"      \\end{tabular}\n\\end{table}\n\n");
    fprintf(pFile, "\\begin{table}\n   \\centering\n      \\begin{tabular}{|l|cccccc|}\n      \\hline\n");
@@ -250,7 +250,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    //TGraph* Mu_Obs_StopZ     = MakePlot(pFile,talkFile,MuPattern,syst,"Stop Z2"            , 2, "Stop300Z"     , "Stop400Z"     , "Stop500Z");
    TGraph* Mu_Obs_StopN     = MakePlot(pFile,talkFile,MuPattern,syst,"StopN"              , 2, "Stop130N"     , "Stop200N"     , "Stop300N"     , "Stop400N"     , "Stop500N"     , "Stop600N"   , "Stop700N"   , "Stop800N"                      );
    TGraph* Mu_Obs_GMStau    = MakePlot(pFile,talkFile,MuPattern,syst,"GMSB Stau"          , 2, "GMStau100"    , "GMStau126"    , "GMStau156"    , "GMStau200"    , "GMStau247"    , "GMStau308", "GMStau370", "GMStau432", "GMStau494"    );
-//   TGraph* Mu_Obs_PPStau    = MakePlot(pFile,talkFile,MuPattern,syst,"Pair Prod. Stau  ", 2, "PPStau100"    , "PPStau126"    , "PPStau156"    , "PPStau200"    , "PPStau247"    , "PPStau308"    );
+   TGraph* Mu_Obs_PPStau    = MakePlot(pFile,talkFile,MuPattern,syst,"Pair Prod. Stau  ", 2, "PPStau100"    , "PPStau126"    , "PPStau156"    , "PPStau200"    , "PPStau247" );
 //   TGraph* Mu_Obs_DCStau    = MakePlot(pFile,talkFile,MuPattern,syst,"DiChamp    Stau  ", 2, "DCStau121"    , "DCStau182"    , "DCStau242"    , "DCStau302"                                      );
    fprintf(pFile,"      \\end{tabular}\n\\end{table}\n\n");
    fprintf(pFile,"\\end{document}\n\n");
@@ -263,7 +263,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 
 
    TGraph* GMStauXSec = MakePlot(NULL,NULL,TkPattern,"","GMSB Stau        ", 0, "GMStau100"    , "GMStau126"    , "GMStau156"    , "GMStau200"    , "GMStau247"    , "GMStau308", "GMStau370", "GMStau432", "GMStau494"    );
-//   TGraph* PPStauXSec = MakePlot(NULL,NULL,TkPattern,"","Pair Prod. Stau  ", 0, "PPStau100"    , "PPStau126"    , "PPStau156"    , "PPStau200"    , "PPStau247"    , "PPStau308"    );
+   TGraph* PPStauXSec = MakePlot(NULL,NULL,TkPattern,"","Pair Prod. Stau  ", 0, "PPStau100"    , "PPStau126"    , "PPStau156"    , "PPStau200"    , "PPStau247"    , "PPStau308");
 //   TGraph* DCStauXSec = MakePlot(NULL,NULL,TkPattern,"","DiChamp    Stau  ", 0, "DCStau121"    , "DCStau182"    , "DCStau242"    , "DCStau302"                                      );
 
    double ThGluinoMass [100]; double ThGluinoXSec [100];  double ThGluinoLow  [100]; double ThGluinoHigh [100]; double ThGluinoErrLow  [100];  double ThGluinoErrHigh [100];
@@ -294,6 +294,15 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    ThStauMass[7] = 432; ThStauXSec[7] = 0.0002824; ThStauLow[7] = ThStauXSec[7]*0.85;  ThStauHigh[7] = ThStauXSec[7]*1.15;
    ThStauMass[8] = 494; ThStauXSec[8] = 0.0001139; ThStauLow[8] = ThStauXSec[8]*0.85;  ThStauHigh[8] = ThStauXSec[8]*1.15;
    TCutG* StauXSecErr = GetErrorBand("StauErr", ThStauN,ThStauMass,ThStauLow,ThStauHigh);
+
+   int ThPPStauN = 6 ; double ThPPStauMass [100]; double ThPPStauXSec [100];  double ThPPStauLow  [100];  double ThPPStauHigh [100];
+   ThPPStauMass[0] = 100; ThPPStauXSec[0] = 0.038200;  ThPPStauLow[0] = ThPPStauXSec[0]*0.85;  ThPPStauHigh[0] = ThPPStauXSec[0]*1.15;
+   ThPPStauMass[1] = 126; ThPPStauXSec[1] = 0.016200;  ThPPStauLow[1] = ThPPStauXSec[1]*0.85;  ThPPStauHigh[1] = ThPPStauXSec[1]*1.15;
+   ThPPStauMass[2] = 156; ThPPStauXSec[2] = 0.007030;  ThPPStauLow[2] = ThPPStauXSec[2]*0.85;  ThPPStauHigh[2] = ThPPStauXSec[2]*1.15;
+   ThPPStauMass[3] = 200; ThPPStauXSec[3] = 0.002470;  ThPPStauLow[3] = ThPPStauXSec[3]*0.85;  ThPPStauHigh[3] = ThPPStauXSec[3]*1.15;
+   ThPPStauMass[4] = 247; ThPPStauXSec[4] = 0.001000;  ThPPStauLow[4] = ThPPStauXSec[4]*0.85;  ThPPStauHigh[4] = ThPPStauXSec[4]*1.15;
+   ThPPStauMass[5] = 308; ThPPStauXSec[5] = 0.000353;  ThPPStauLow[5] = ThPPStauXSec[5]*0.85;  ThPPStauHigh[5] = ThPPStauXSec[5]*1.15;
+   TCutG* PPStauXSecErr = GetErrorBand("PPStauErr", ThPPStauN,ThPPStauMass,ThPPStauLow,ThPPStauHigh);
 
 /*
    fprintf(pFile,"-----------------------\n0%% TK ONLY       \n-------------------------\n");
@@ -347,7 +356,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    //fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for Stop Z2  \n", FindIntersection(Tk_Obs_StopZ    , StopXSec  , 300, 500, 1, 0.00));
    fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for StopN    \n", FindIntersection(Tk_Obs_StopN    , StopXSec  , 130, 800, 1, 0.00));
    fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GMStau   \n", FindIntersection(Tk_Obs_GMStau   , GMStauXSec, 100, 494, 1, 0.0));
-//   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for PPStau   \n", FindIntersection(Tk_Obs_PPStau   , PPStauXSec, 100, 308, 1, 0.0));
+   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for PPStau   \n", FindIntersection(Tk_Obs_PPStau   , PPStauXSec, 100, 308, 1, 0.0));
+
 //   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for DCStau   \n", FindIntersection(Tk_Obs_DCStau   , DCStauXSec, 121, 302, 1, 0.0));
    
    fprintf(pFile,"-----------------------\n0%% TK TOF        \n-------------------------\n");
@@ -364,7 +374,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    //fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for Stop Z2  \n", FindIntersection(Mu_Obs_StopZ    , StopXSec  , 300, 500, 1, 0.00));
    fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for StopN    \n", FindIntersection(Mu_Obs_StopN    , StopXSec  , 130, 800, 1, 0.00));
    fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GMStau   \n", FindIntersection(Mu_Obs_GMStau   , GMStauXSec, 100, 494, 1, 0.0));
-//   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for PPStau   \n", FindIntersection(Mu_Obs_PPStau   , PPStauXSec, 100, 308, 1, 0.0));
+   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for PPStau   \n", FindIntersection(Mu_Obs_PPStau   , PPStauXSec, 100, 308, 1, 0.0));
 //   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for DCStau   \n", FindIntersection(Mu_Obs_DCStau   , DCStauXSec, 121, 302, 1, 0.0));
 
    fclose(pFile);
@@ -384,9 +394,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    Tk_Obs_Stop     ->SetLineColor(2);  Tk_Obs_Stop     ->SetMarkerColor(2);   Tk_Obs_Stop     ->SetLineWidth(2);   Tk_Obs_Stop     ->SetLineStyle(1);  Tk_Obs_Stop     ->SetMarkerStyle(21);
    Tk_Obs_StopN    ->SetLineColor(2);  Tk_Obs_StopN    ->SetMarkerColor(2);   Tk_Obs_StopN    ->SetLineWidth(2);   Tk_Obs_StopN    ->SetLineStyle(1);  Tk_Obs_StopN    ->SetMarkerStyle(25);
    GMStauXSec      ->SetLineColor(1);  GMStauXSec      ->SetMarkerColor(1);   GMStauXSec      ->SetLineWidth(1);   GMStauXSec      ->SetLineStyle(1);  GMStauXSec      ->SetMarkerStyle(1);
-   Mu_Obs_GMStau   ->SetLineColor(1);  Mu_Obs_GMStau   ->SetMarkerColor(1);   Mu_Obs_GMStau   ->SetLineWidth(2);   Mu_Obs_GMStau   ->SetLineStyle(1);  Mu_Obs_GMStau   ->SetMarkerStyle(20);
+   PPStauXSec      ->SetLineColor(6);  PPStauXSec      ->SetMarkerColor(6);   PPStauXSec      ->SetLineWidth(1);   PPStauXSec      ->SetLineStyle(4);  PPStauXSec      ->SetMarkerStyle(1);
+   Mu_Obs_GMStau   ->SetLineColor(1);  Mu_Obs_GMStau   ->SetMarkerColor(1);   Mu_Obs_GMStau   ->SetLineWidth(2);   Mu_Obs_GMStau   ->SetLineStyle(1);  Mu_Obs_GMStau   ->SetMarkerStyle(22);
+   Mu_Obs_PPStau   ->SetLineColor(6);  Mu_Obs_PPStau   ->SetMarkerColor(6);   Mu_Obs_PPStau   ->SetLineWidth(2);   Mu_Obs_PPStau   ->SetLineStyle(1);  Mu_Obs_PPStau   ->SetMarkerStyle(23);
    Tk_Obs_GMStau   ->SetLineColor(1);  Tk_Obs_GMStau   ->SetMarkerColor(1);   Tk_Obs_GMStau   ->SetLineWidth(2);   Tk_Obs_GMStau   ->SetLineStyle(1);  Tk_Obs_GMStau   ->SetMarkerStyle(20);
-
+   Tk_Obs_PPStau   ->SetLineColor(6);  Tk_Obs_PPStau   ->SetMarkerColor(6);   Tk_Obs_PPStau   ->SetLineWidth(2);   Tk_Obs_PPStau   ->SetLineStyle(1);  Tk_Obs_PPStau   ->SetMarkerStyle(20);
 
 
 
@@ -395,16 +407,19 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    MGMu->Add(GluinoXSec      ,"L");
    MGMu->Add(StopXSec        ,"L");
    MGMu->Add(GMStauXSec      ,"L");
+   MGMu->Add(PPStauXSec      ,"L");
    MGMu->Add(Mu_Obs_GluinoF1      ,"LP");
    MGMu->Add(Mu_Obs_GluinoF5      ,"LP");
 //   MGMu->Add(Mu_Obs_GluinoNF1     ,"LP");
    MGMu->Add(Mu_Obs_Stop          ,"LP");
 //   MGMu->Add(Mu_Obs_StopN         ,"LP");
    MGMu->Add(Mu_Obs_GMStau        ,"LP");
+   MGMu->Add(Mu_Obs_PPStau        ,"LP");
    MGMu->Draw("A");
    GluinoXSecErr->Draw("f");
    StopXSecErr  ->Draw("f");
    StauXSecErr  ->Draw("f");
+   PPStauXSecErr  ->Draw("f");
    MGMu->Draw("same");
    MGMu->SetTitle("");
    MGMu->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
@@ -424,6 +439,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 //   LEGMu->AddEntry(Mu_Obs_GluinoNF1, "gluino; 10% #tilde{g}g; ch. suppr.","LP");
    LEGMu->AddEntry(Mu_Obs_Stop     , "stop"            ,"LP");
 //   LEGMu->AddEntry(Mu_Obs_StopN    , "stop; ch. suppr.","LP");
+   LEGMu->AddEntry(Mu_Obs_PPStau   , "Pair Prod. stau"       ,"LP");
    LEGMu->AddEntry(Mu_Obs_GMStau   , "GMSB stau"       ,"LP");
    LEGMu->Draw();
 
@@ -437,9 +453,14 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    TGraph* StThLeg = (TGraph*) StopXSec->Clone("StopThLeg");
    StThLeg->SetFillColor(GluinoXSecErr->GetFillColor());
    LEGTh->AddEntry(StThLeg   ,"stop   (NLO+NLL)" ,"LF");
+
+   TGraph* PPStauThLeg = (TGraph*) PPStauXSec->Clone("PPStauThLeg");
+   PPStauThLeg->SetFillColor(GluinoXSecErr->GetFillColor());
+   LEGTh->AddEntry(PPStauThLeg   ,"Pair Prod. stau   (NLO)" ,"LF");
    TGraph* StauThLeg = (TGraph*) GMStauXSec->Clone("StauThLeg");
    StauThLeg->SetFillColor(GluinoXSecErr->GetFillColor());
    LEGTh->AddEntry(StauThLeg   ,"GMSB stau   (LO)" ,"LF");
+
    LEGTh->Draw();
 
 //   c1->SetGridx(true);
@@ -455,16 +476,19 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    MGTk->Add(GluinoXSec      ,"L");
    MGTk->Add(StopXSec        ,"L");
    MGTk->Add(GMStauXSec      ,"L");
+   MGTk->Add(PPStauXSec      ,"L");
    MGTk->Add(Tk_Obs_GluinoF1      ,"LP");
    MGTk->Add(Tk_Obs_GluinoF5      ,"LP");
    MGTk->Add(Tk_Obs_GluinoNF1     ,"LP");
    MGTk->Add(Tk_Obs_Stop          ,"LP");
    MGTk->Add(Tk_Obs_StopN         ,"LP");
    MGTk->Add(Tk_Obs_GMStau        ,"LP");
+   MGTk->Add(Tk_Obs_PPStau        ,"LP");
    MGTk->Draw("A");
    GluinoXSecErr->Draw("f");
    StopXSecErr  ->Draw("f");
    StauXSecErr  ->Draw("f");
+   PPStauXSecErr  ->Draw("f");
    MGTk->Draw("same");
    MGTk->SetTitle("");
    MGTk->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
@@ -484,6 +508,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    LEGTk->AddEntry(Tk_Obs_GluinoNF1, "gluino; 10% #tilde{g}g; ch. suppr.","LP");
    LEGTk->AddEntry(Tk_Obs_Stop     , "stop"            ,"LP");
    LEGTk->AddEntry(Tk_Obs_StopN    , "stop; ch. suppr.","LP");
+   LEGTk->AddEntry(Tk_Obs_PPStau   , "Pair Prod. stau"       ,"LP");
    LEGTk->AddEntry(Tk_Obs_GMStau   , "GMSB stau"       ,"LP");
    LEGTk->Draw();
 
@@ -982,10 +1007,10 @@ void GetSignalMeanHSCPPerEvent(string InputPattern, unsigned int CutIndex)
       TH1D*  NTracksPassingSelection_NC2 = (TH1D*)GetObjectFromPath(InputFile, signals[CurrentSampleIndex].Name + "_NC2" + "/TOF");
       TH1D*  NEventsPassingSelection_NC2 = (TH1D*)GetObjectFromPath(InputFile, signals[CurrentSampleIndex].Name + "_NC2" + "/HSCPE");
 
-      signalsMeanHSCPPerEvent    [4*s  ] = (float)std::min(1.0,NTracksPassingSelection    ->GetBinContent(CutIndex+1) / NEventsPassingSelection    ->GetBinContent(CutIndex+1));
-      signalsMeanHSCPPerEvent    [4*s+1] = (float)std::min(1.0,NTracksPassingSelection_NC0->GetBinContent(CutIndex+1) / NEventsPassingSelection_NC0->GetBinContent(CutIndex+1));
-      signalsMeanHSCPPerEvent    [4*s+2] = (float)std::min(1.0,NTracksPassingSelection_NC1->GetBinContent(CutIndex+1) / NEventsPassingSelection_NC1->GetBinContent(CutIndex+1));
-      signalsMeanHSCPPerEvent    [4*s+3] = (float)std::min(1.0,NTracksPassingSelection_NC2->GetBinContent(CutIndex+1) / NEventsPassingSelection_NC2->GetBinContent(CutIndex+1));
+      signalsMeanHSCPPerEvent    [4*s  ] = (float)std::max(1.0,NTracksPassingSelection    ->GetBinContent(CutIndex+1) / NEventsPassingSelection    ->GetBinContent(CutIndex+1));
+      signalsMeanHSCPPerEvent    [4*s+1] = (float)std::max(1.0,NTracksPassingSelection_NC0->GetBinContent(CutIndex+1) / NEventsPassingSelection_NC0->GetBinContent(CutIndex+1));
+      signalsMeanHSCPPerEvent    [4*s+2] = (float)std::max(1.0,NTracksPassingSelection_NC1->GetBinContent(CutIndex+1) / NEventsPassingSelection_NC1->GetBinContent(CutIndex+1));
+      signalsMeanHSCPPerEvent    [4*s+3] = (float)std::max(1.0,NTracksPassingSelection_NC2->GetBinContent(CutIndex+1) / NEventsPassingSelection_NC2->GetBinContent(CutIndex+1));
 
 //     signalsMeanHSCPPerEvent_SYSTA[4*Index+n] = (float)std::min(1.0f,weff_SYSTA);
 //     signalsMeanHSCPPerEvent_SYSTB[4*Index+n] = (float)std::min(1.0f,weff_SYSTB);
