@@ -55,6 +55,8 @@ protected:
   /// Report p-value instead of significance
   static bool reportPVal_;
 
+  static float signalForSignificance_;
+
   static std::string plot_;
 
   bool runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc, RooAbsData &data, double &limit, double &limitErr);

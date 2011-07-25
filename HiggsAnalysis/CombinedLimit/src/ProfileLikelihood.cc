@@ -29,6 +29,7 @@ int         ProfileLikelihood::maxOutliers_ = 3;
 bool        ProfileLikelihood::preFit_ = false;
 bool        ProfileLikelihood::useMinos_ = false;
 bool        ProfileLikelihood::reportPVal_ = false;
+float       ProfileLikelihood::signalForSignificance_ = 0;
 std::string ProfileLikelihood::plot_ = "";
 
 ProfileLikelihood::ProfileLikelihood() :
@@ -41,6 +42,7 @@ ProfileLikelihood::ProfileLikelihood() :
         ("maxTries",           boost::program_options::value<int>(&maxTries_)->default_value(maxTries_), "Stop trying after N attempts per point")
         ("maxRelDeviation",    boost::program_options::value<float>(&maxRelDeviation_)->default_value(maxOutlierFraction_), "Max absolute deviation of the results from the median")
         ("maxOutlierFraction", boost::program_options::value<float>(&maxOutlierFraction_)->default_value(maxOutlierFraction_), "Ignore up to this fraction of results if they're too far from the median")
+        ("signalForSignificance", boost::program_options::value<float>(&signalForSignificance_)->default_value(signalForSignificance_), "Signal strength used when computing significances (default is zero, just background)")
         ("maxOutliers",        boost::program_options::value<int>(&maxOutliers_)->default_value(maxOutliers_),      "Stop trying after finding N outliers")
         ("plot",   boost::program_options::value<std::string>(&plot_)->default_value(plot_), "Save a plot of the negative log of the profiled likelihood into the specified file")
         ("preFit", "Attept a fit before running the ProfileLikelihood calculator")
@@ -200,7 +202,7 @@ bool ProfileLikelihood::runSignificance(RooWorkspace *w, RooStats::ModelConfig *
 
   ProfileLikelihoodCalculator plcS(data, *mc_s, 1.0-cl);
   RooArgSet nullParamValues; 
-  r->setVal(0.0);
+  r->setVal(signalForSignificance_);
   nullParamValues.addClone(*r); 
   plcS.SetNullParameters(nullParamValues);
 
@@ -212,7 +214,7 @@ bool ProfileLikelihood::runSignificance(RooWorkspace *w, RooStats::ModelConfig *
   limit = result->Significance();
   if (limit == 0 && signbit(limit)) {
     //..... This is not an error, it just means we have a deficit of events.....
-    std::cerr << "The minimum of the likelihood is for r <= 0, so the significance is zero" << std::endl;
+    std::cerr << "The minimum of the likelihood is for r <= " << signalForSignificance_ << ", so the significance is zero" << std::endl;
     limit = 0;
   }
   if (reportPVal_) limit = 1.0 - result->CLb();
