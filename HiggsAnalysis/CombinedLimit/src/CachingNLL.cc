@@ -181,8 +181,11 @@ cacheutils::CachingAddNLL::setup_()
             integrals_.push_back(funci->createIntegral(*obs));
         }
     } else {
-        std::cerr << "ERROR: CachingAddNLL: Pdf " << pdf_->GetName() << " is a " << pdf_->ClassName() << " which is not supported." << std::endl;
-        throw std::invalid_argument("Pdf is neither a RooAddPdf nor a RooRealSumPdf");
+        std::string errmsg = "ERROR: CachingAddNLL: Pdf ";
+        errmsg += pdf_->GetName();
+        errmsg += " is neither a RooAddPdf nor a RooRealSumPdf, but a ";
+        errmsg += pdf_->ClassName();
+        throw std::invalid_argument(errmsg);
     }
 
     std::auto_ptr<RooArgSet> params(pdf_->getParameters(*data_));
