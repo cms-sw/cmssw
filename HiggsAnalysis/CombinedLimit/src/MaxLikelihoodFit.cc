@@ -26,7 +26,7 @@ float       MaxLikelihoodFit::minimizerTolerance_ = 1e-4;
 int         MaxLikelihoodFit::minimizerStrategy_  = 1;
 float       MaxLikelihoodFit::preFitValue_ = 1.0;
 std::string MaxLikelihoodFit::minos_       = "poi";
-std::string MaxLikelihoodFit::out_;
+std::string MaxLikelihoodFit::out_ = ".";
 bool        MaxLikelihoodFit::makePlots_ = false;
 std::string MaxLikelihoodFit::signalPdfNames_     = "*signal*";
 std::string MaxLikelihoodFit::backgroundPdfNames_ = "*background*";
