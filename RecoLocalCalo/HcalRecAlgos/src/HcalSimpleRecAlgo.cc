@@ -19,7 +19,9 @@ HcalSimpleRecAlgo::HcalSimpleRecAlgo() :
 
 void HcalSimpleRecAlgo::initPulseCorr(int toadd) {
   if (correctForPulse_) {    
-    pulseCorr_=std::auto_ptr<HcalPulseContainmentCorrection>(new HcalPulseContainmentCorrection(toadd,phaseNS_,MaximumFractionalError));
+    pulseCorr_=std::auto_ptr<HcalPulseContainmentManager>(
+      new HcalPulseContainmentManager(phaseNS_,MaximumFractionalError)
+    );
   }
 }
 
@@ -121,7 +123,7 @@ namespace HcalSimpleRecAlgoImpl {
 HBHERecHit HcalSimpleRecAlgo::reconstruct(const HBHEDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
   return HcalSimpleRecAlgoImpl::reco<HBHEDataFrame,HBHERecHit>(digi,coder,calibs,
 							       first,toadd,correctForTimeslew_,
-							       pulseCorr_.get(),
+							       pulseCorr_->get(digi.id(), toadd),
 							       HcalTimeSlew::Medium,
                                                                setForData_, setLeakCorrection_);
 }
@@ -130,7 +132,7 @@ HORecHit HcalSimpleRecAlgo::reconstruct(const HODataFrame& digi, int first, int 
   return HcalSimpleRecAlgoImpl::reco<HODataFrame,HORecHit>(digi,coder,calibs,
 							   first,toadd,
 							   correctForTimeslew_,
-							   pulseCorr_.get(),
+							   pulseCorr_->get(digi.id(), toadd),
 							   HcalTimeSlew::Slow,
                                                            setForData_, false);
 }
@@ -138,7 +140,7 @@ HORecHit HcalSimpleRecAlgo::reconstruct(const HODataFrame& digi, int first, int 
 HcalCalibRecHit HcalSimpleRecAlgo::reconstruct(const HcalCalibDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
   return HcalSimpleRecAlgoImpl::reco<HcalCalibDataFrame,HcalCalibRecHit>(digi,coder,calibs,
 									 first,toadd,correctForTimeslew_,
-									 pulseCorr_.get(),
+									 pulseCorr_->get(digi.id(), toadd),
 									 HcalTimeSlew::Fast,
                                                                          setForData_, false );
 }
