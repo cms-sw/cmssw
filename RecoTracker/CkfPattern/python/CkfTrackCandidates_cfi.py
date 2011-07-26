@@ -15,6 +15,7 @@ ckfTrackCandidates = cms.EDProducer("CkfTrackCandidateMaker",
 #    SeedProducer = cms.string('globalMixedSeeds'),
 #    SeedLabel = cms.string(''),
     maxNSeeds = cms.uint32(100000),
+    maxSeedsBeforeCleaning = cms.uint32(1000),
 # SeedProducer:SeedLabel descoped to src
     src = cms.InputTag('globalMixedSeeds'),                                  
     NavigationSchool = cms.string('SimpleNavigationSchool'),
