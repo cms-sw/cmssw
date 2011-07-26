@@ -130,8 +130,6 @@ protected:
 	
 private:
 	
-	std::string FileLoc;
-	
 	ClassDef(RooFourMuMassShapePdf2,1) // Your description goes here...                                                                                       
 };
 
@@ -156,8 +154,6 @@ protected:
 	
 private:
 	
-	std::string FileLoc;
-	
 	ClassDef(RooFourEMassShapePdf2,1) // Your description goes here...                                                                                        
 };
 
@@ -181,10 +177,7 @@ protected:
 	Double_t evaluate() const ;
 	//void readFile() const ;
 	
-private:
-	
-	std::string FileLoc;
-	
+private:	
 	
 	ClassDef(RooTwoETwoMuMassShapePdf2,1) // Your description goes here...                                                                                    
 };
@@ -303,8 +296,6 @@ protected:
 	
 private:
 	
-	std::string FileLoc;
-	
 	ClassDef(RooRelBWUF,1) // Your description goes here...                                                                                                    
 };
 
@@ -330,8 +321,6 @@ protected:
 	Double_t evaluate() const ;
 	
 private:
-	
-	std::string FileLoc;
 	
 	ClassDef(RooRelBWUFParam,1) // Your description goes here...                                                                                                    
 };
