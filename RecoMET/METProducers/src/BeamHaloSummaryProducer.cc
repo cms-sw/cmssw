@@ -66,7 +66,7 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
       (CSCData.NOutOfTimeHits() > 10 && CSCData.NFlatHaloSegments() > 2 ) ||
       CSCData.GetSegmentsInBothEndcaps() ||
       CSCData.NTracksSmalldT() )
-    TheBeamHaloSummary->GetCSCHaloReport()[2] = 1;
+    TheBeamHaloSummary->GetCSCHaloReport()[0] = 1;
 
   //CSCTight Id for 2011
   if( (CSCData.NumberOfHaloTriggers() && CSCData.NumberOfHaloTracks()) ||
