@@ -11,7 +11,9 @@ static double MaximumFractionalError = 0.0005; // 0.05% error allowed from this 
 HcalSimpleRecAlgo::HcalSimpleRecAlgo(bool correctForTimeslew, bool correctForPulse, float phaseNS) : 
   correctForTimeslew_(correctForTimeslew),
   correctForPulse_(correctForPulse),
-  phaseNS_(phaseNS), setForData_(false), setLeakCorrection_(false) { }
+  phaseNS_(phaseNS), setForData_(false), setLeakCorrection_(false) { 
+  initPulseCorr(0);
+}
   
 
 HcalSimpleRecAlgo::HcalSimpleRecAlgo() : 
