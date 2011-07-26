@@ -5,10 +5,8 @@ import sys
 import fileinput
 import string
 
-NewVersion='4_4_0_pre4'
-RefVersion='4_4_0_pre3'
-NewRelease='CMSSW_'+NewVersion
-RefRelease='CMSSW_'+RefVersion
+NewRelease='CMSSW_4_4_0_pre4'
+RefRelease='CMSSW_4_4_0_pre3'
 #NewRelease='Summer09'
 #RefRelease='Summer09_pre1'
 
@@ -57,12 +55,6 @@ DqmGuiNewRepository = 'https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal
 #DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/offline/data/browse/ROOT/RelVal/CMSSW_4_3_x/'
 DqmGuiRefRepository = 'https://cmsweb.cern.ch/dqm/relval/data/browse/ROOT/RelVal/CMSSW_4_4_x/'
 CastorRepository = '/castor/cern.ch/user/a/aperrott/ValidationRecoMuon'
-if ((GetFilesFrom=='GUI')|(GetRefsFrom=='GUI')):
-    print "*** Did you remind doing:"
-#    print " > source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.csh"
-    print " > source /afs/cern.ch/project/gd/LCG-share/sl5/etc/profile.d/grid_env.csh"
-    print " > voms-proxy-init"
-
 
 # These are only needed if you copy any root file from the DQM GUI:
 NewLabel='START44_V1'
@@ -71,6 +63,12 @@ if (NewCondition=='MC'):
 RefLabel='START43_V4'
 if (RefCondition=='MC'):
     RefLabel='MC_43_V4'
+
+if ((GetFilesFrom=='GUI')|(GetRefsFrom=='GUI')):
+    print "*** Did you remind doing:"
+#    print " > source /afs/cern.ch/cms/LCG/LCG-2/UI/cms_ui_env.csh"
+    print " > source /afs/cern.ch/project/gd/LCG-share/sl5/etc/profile.d/grid_env.csh"
+    print " > voms-proxy-init"
 
 
 ValidateHLT=True
