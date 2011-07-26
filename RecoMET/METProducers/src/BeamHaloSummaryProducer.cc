@@ -59,41 +59,34 @@ void BeamHaloSummaryProducer::produce(Event& iEvent, const EventSetup& iSetup)
   iEvent.getByLabel(IT_CSCHaloData, TheCSCHaloData);
 
   const CSCHaloData CSCData = (*TheCSCHaloData.product() );
-  // MLR
-  // TODO: edit the definitions of loose and tight
-  //Loose Id (any one of the three criteria)
-  if( CSCData.NumberOfHaloTriggers() || CSCData.NumberOfHaloTracks() || CSCData.NumberOfOutOfTimeTriggers() )
-    TheBeamHaloSummary->GetCSCHaloReport()[0] = 1;
 
-  //Tight Id (any two of the previous three criteria)
-  if( (CSCData.NumberOfHaloTriggers() && CSCData.NumberOfHaloTracks()) ||
-      (CSCData.NumberOfHaloTriggers() && CSCData.NumberOfOutOfTimeTriggers()) ||
-      (CSCData.NumberOfHaloTracks() && CSCData.NumberOfOutOfTimeTriggers() ) )
-    TheBeamHaloSummary->GetCSCHaloReport()[1] = 1;
-
-  // Ronny's proposed new loose and tight rules
-  // Loose Id (any one of the three criteria)
-  if( //CSCData.NumberOfHaloTriggers() ||
+  //CSCLoose Id for 2011 
+  if( CSCData.NumberOfHaloTriggers() ||
       CSCData.NumberOfHaloTracks()   ||
-      (CSCData.NOutOfTimeHits() > 4 && CSCData.NFlatHaloSegments() ) ||
-      (CSCData.NOutOfTimeTriggers() && CSCData.NFlatHaloSegments() ) ||
+      (CSCData.NOutOfTimeHits() > 10 && CSCData.NFlatHaloSegments() > 2 ) ||
       CSCData.GetSegmentsInBothEndcaps() ||
       CSCData.NTracksSmalldT() )
     TheBeamHaloSummary->GetCSCHaloReport()[2] = 1;
 
-  //Tight Id (any two of the previous three criteria)
+  //CSCTight Id for 2011
+  if( (CSCData.NumberOfHaloTriggers() && CSCData.NumberOfHaloTracks()) ||
+      (CSCData.NOutOfTimeHits() > 10 && CSCData.NumberOfHaloTriggers() ) ||
+      (CSCData.NOutOfTimeHits() > 10 && CSCData.NumberOfHaloTracks() ) ||
+      CSCData.GetSegmentsInBothEndcaps() ||
+      (CSCData.NTracksSmalldT() && CSCData.NumberOfHaloTracks() ) ||
+      (CSCData.NFlatHaloSegments() > 3 && (CSCData.NumberOfHaloTriggers() || CSCData.NumberOfHaloTracks()) ))
+    TheBeamHaloSummary->GetCSCHaloReport()[1] = 1;
+
+  //CSCLoose Id from 2010
+  if( CSCData.NumberOfHaloTriggers() || CSCData.NumberOfHaloTracks() || CSCData.NumberOfOutOfTimeTriggers() )
+    TheBeamHaloSummary->GetCSCHaloReport()[2] = 1;
+
+  //CSCTight Id from 2010
   if( (CSCData.NumberOfHaloTriggers() && CSCData.NumberOfHaloTracks()) ||
       (CSCData.NumberOfHaloTriggers() && CSCData.NumberOfOutOfTimeTriggers()) ||
-      (CSCData.NumberOfHaloTracks()   && CSCData.NumberOfOutOfTimeTriggers() ) ||
-      (CSCData.NOutOfTimeHits() > 4 && CSCData.NumberOfHaloTriggers() ) ||
-      (CSCData.NOutOfTimeHits() > 4 && CSCData.NumberOfHaloTracks() ) || 
-      CSCData.GetSegmentsInBothEndcaps() ||
-      CSCData.NTracksSmalldT() ||
-      (CSCData.NFlatHaloSegments() >=3 && ( CSCData.NumberOfHaloTriggers() ||
-					   CSCData.NOutOfTimeHits() > 4   ||
-					   CSCData.NumberOfHaloTracks()) ))
+      (CSCData.NumberOfHaloTracks() && CSCData.NumberOfOutOfTimeTriggers() ) )
     TheBeamHaloSummary->GetCSCHaloReport()[3] = 1;
-  // End MLR
+
 
   //Ecal Specific Halo Data
   Handle<EcalHaloData> TheEcalHaloData;
