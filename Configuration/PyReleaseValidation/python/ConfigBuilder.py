@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.332 $"
+__version__ = "$Revision: 1.333 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -1346,9 +1346,6 @@ class ConfigBuilder(object):
                     self.process.validation_step = cms.EndPath( getattr(self.process,valSeqName ) )
             self.schedule.append(self.process.validation_step)
 
-
-	    if not 'DIGI' in self.stepMap and not 'oot' in self._options.pileup.lower():
-                    self.executeAndRemember("process.mix.playback = True")
             return
 
 
@@ -1558,7 +1555,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.332 $"),
+                                            (version=cms.untracked.string("$Revision: 1.333 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
