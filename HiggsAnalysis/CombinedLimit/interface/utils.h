@@ -60,6 +60,8 @@ namespace utils {
 
     void copyAttributes(const RooAbsArg &from, RooAbsArg &to) ;
 
+    void guessChannelMode(RooSimultaneous &simPdf, RooAbsData &simData, bool verbose=false) ;
+
     /// set style for plots
     void tdrStyle() ;
     

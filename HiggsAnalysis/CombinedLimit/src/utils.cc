@@ -93,9 +93,13 @@ RooAbsPdf *utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, Roo
             if (newpdf != pdfi) { needNew = true; newOwned.add(*newpdf); }
             newFactors.add(*newpdf);
         }
-        if (!needNew) return prod;
+        if (!needNew) { copyAttributes(pdf, *prod); return prod; }
         else if (newFactors.getSize() == 0) return 0;
-        else if (newFactors.getSize() == 1) return (RooAbsPdf *) newFactors.first()->Clone(TString::Format("%s_obsOnly", pdf.GetName()));
+        else if (newFactors.getSize() == 1) {
+            RooAbsPdf *ret = (RooAbsPdf *) newFactors.first()->Clone(TString::Format("%s_obsOnly", pdf.GetName()));
+            copyAttributes(pdf, *ret);
+            return ret;
+        }
         RooProdPdf *ret = new RooProdPdf(TString::Format("%s_obsOnly", pdf.GetName()), "", newFactors);
         ret->addOwnedComponents(newOwned);
         copyAttributes(pdf, *ret);
@@ -353,6 +357,33 @@ void utils::copyAttributes(const RooAbsArg &from, RooAbsArg &to) {
         for (std::map<std::string,std::string>::const_iterator it = strattribs.begin(), ed = strattribs.end(); it != ed; ++it) to.setStringAttribute(it->first.c_str(), it->second.c_str());
     }
 }
+
+void utils::guessChannelMode(RooSimultaneous &simPdf, RooAbsData &simData, bool verbose) 
+{
+    RooAbsCategoryLValue &cat = const_cast<RooAbsCategoryLValue &>(simPdf.indexCat());
+    TList *split = simData.split(cat, kTRUE);
+    for (int i = 0, n = cat.numBins((const char *)0); i < n; ++i) {
+        cat.setBin(i);
+        RooAbsPdf *pdf = simPdf.getPdf(cat.getLabel());
+        if (pdf->getAttribute("forceGenBinned") || pdf->getAttribute("forceGenUnbinned")) {
+            if (verbose) std::cout << " - " << cat.getLabel() << " has generation mode already set" << std::endl;
+            continue;
+        }
+        RooAbsData *spl = (RooAbsData *) split->FindObject(cat.getLabel());
+        if (spl == 0) { 
+            if (verbose) std::cout << " - " << cat.getLabel() << " has no dataset, cannot guess" << std::endl; 
+            continue;
+        }
+        if (spl->numEntries() != spl->sumEntries()) {
+            if (verbose) std::cout << " - " << cat.getLabel() << " has " << spl->numEntries() << " num entries of sum " << spl->sumEntries() << ", mark as binned" << std::endl;
+            pdf->setAttribute("forceGenBinned");
+        } else {
+            if (verbose) std::cout << " - " << cat.getLabel() << " has " << spl->numEntries() << " num entries of sum " << spl->sumEntries() << ", mark as unbinned" << std::endl;
+            pdf->setAttribute("forceGenUnbinned");
+        }
+    }
+}
+
 std::vector<RooPlot *>
 utils::makePlots(const RooAbsPdf &pdf, const RooAbsData &data, const char *signalSel, const char *backgroundSel) {
     std::vector<RooPlot *> ret;

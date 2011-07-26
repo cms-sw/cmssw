@@ -106,6 +106,7 @@ Combine::Combine() :
       ("rebuildSimPdf", po::value<bool>(&rebuildSimPdf_)->default_value(false), "Rebuild simultaneous pdf from scratch to make sure constraints are correct (not needed in CMS workspaces)")
       ("compile", "Compile expressions instead of interpreting them")
       ("tempDir", po::value<bool>(&makeTempDir_)->default_value(false), "Run the program from a temporary directory (automatically on for text datacards or if 'compile' is activated)")
+      ("guessGenMode", "Guess if to generate binned or unbinned based on dataset");
       ; 
 }
 
@@ -118,6 +119,7 @@ void Combine::applyOptions(const boost::program_options::variables_map &vm) {
   unbinned_ = vm.count("unbinned");
   generateBinnedWorkaround_ = vm.count("generateBinnedWorkaround");
   if (unbinned_ && generateBinnedWorkaround_) throw std::logic_error("You can't set generateBinnedWorkaround and unbinned options at the same time");
+  guessGenMode_ = vm.count("guessGenMode");
   compiledExpr_ = vm.count("compile"); if (compiledExpr_) makeTempDir_ = true;
   doSignificance_ = vm.count("significance");
   hintUsesStatOnly_ = vm.count("hintStatOnly");
@@ -394,6 +396,10 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   bool isExtended = mc_bonly->GetPdf()->canBeExtended();
   RooAbsData *dobs = w->data(dataset.c_str());
   RooAbsPdf  *genPdf = mc_bonly->GetPdf();
+  if (guessGenMode_ && genPdf->InheritsFrom("RooSimultaneous") && (dobs != 0)) {
+      utils::guessChannelMode(dynamic_cast<RooSimultaneous&>(*mc->GetPdf()), *dobs, verbose);
+      utils::guessChannelMode(dynamic_cast<RooSimultaneous&>(*mc_bonly->GetPdf()), *dobs, 0);
+  }
   if (expectSignal_ > 0) { 
     genPdf = mc->GetPdf(); ((RooRealVar*)POI->first())->setVal(expectSignal_); 
   }
