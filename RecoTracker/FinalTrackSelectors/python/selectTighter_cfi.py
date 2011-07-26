@@ -29,7 +29,7 @@ selectTight = cms.EDProducer("AnalyticalTrackSelector",
     # Impact parameter absolute cuts.
     max_d0 = cms.double(100.),
     max_z0 = cms.double(100.),
-    nSigmaZ = cms.double(3.),
+    nSigmaZ = cms.double(4.),
 
     # Cuts on numbers of layers with hits/3D hits/lost hits. 
     minNumberLayers = cms.uint32(4),
