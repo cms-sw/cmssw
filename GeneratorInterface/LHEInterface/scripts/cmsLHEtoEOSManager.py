@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+__version__ = "$Revision$"
+
 import os
 import subprocess
 import time
@@ -102,7 +104,7 @@ if __name__ == '__main__':
     # print banner
 
     print ''
-    print 'cmsLHEtoEOSmanager v.'+$Revision$
+    print 'cmsLHEtoEOSmanager v. '+__version__[1:-1]
     print ''
     print 'Running on ',time.asctime(time.localtime(time.time()))
     print ''
