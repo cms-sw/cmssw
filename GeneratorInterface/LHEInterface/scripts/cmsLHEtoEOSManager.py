@@ -6,8 +6,8 @@ import time
 import re
 
 defaultEOSinitCommand = 'source /afs/cern.ch/cms/caf/eos.sh ; alias'
-defaultEOSBasePath = '/eos/cms/store/eos/user/fabiocos/store'
-defaultEOSLoadPath = '/store/eos/user/fabiocos/store'
+defaultEOSBasePath = '/eos/cms/store/lhe'
+defaultEOSLoadPath = '/store/lhe'
 defaultEOSlistCommand = 'eoscms ls'
 defaultEOSfulllistCommand = 'eoscms ls -l'
 defaultEOSmkdirCommand = 'eoscms mkdir'
@@ -102,7 +102,7 @@ if __name__ == '__main__':
     # print banner
 
     print ''
-#    print 'cmsLHEtoEOSmanager v.'+$Id$
+#    print 'cmsLHEtoEOSmanager v.'+$Id: cmsLHEtoEOSManager.py,v 1.1 2011/07/26 11:46:52 fabiocos Exp $
     print 'cmsLHEtoEOSmanager '
     print ''
     print 'Running on ',time.asctime(time.localtime(time.time()))
