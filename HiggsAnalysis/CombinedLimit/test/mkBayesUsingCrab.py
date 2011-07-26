@@ -6,6 +6,7 @@ import ROOT
 parser = OptionParser(usage="usage: %prog [options] workspace(s) \nrun with --help to get list of options")
 parser.add_option("-o", "--out",      dest="out",      default="TestGrid",  type="string", help="output file prefix")
 parser.add_option("--lsf",            dest="lsf",      default=False,   action="store_true", help="Run on LSF instead of GRID (can be changed in .cfg file)")
+parser.add_option("--condor",         dest="condor",   default=False, action="store_true", help="Run on condor_g instead of GRID (can be changed in .cfg file)")
 parser.add_option("-q", "--queue",    dest="queue",    default="8nh",   type="string", help="LSF queue to use (can be changed in .cfg file)")
 parser.add_option("-j", "--jobs",     dest="jobs",     default=10,      type="int",  help="Total number of jobs (can be changed in .cfg file)")
 parser.add_option("-i", "--iteration",  dest="iters",  default=50000,   type="int", help="Number of iterations per chain")
@@ -14,6 +15,7 @@ parser.add_option("-m", "--mass",     dest="mass",     default="120",   type="st
 parser.add_option("-O", "--options",  dest="options",  default="",      type="string", help="options to use for combine")
 parser.add_option("-v", "--verbose",  dest="v",        default=0,       type="int",    help="Verbosity")
 parser.add_option("-r", "--random",   dest="random",   default=False,   action="store_true", help="Use random seeds for the jobs")
+parser.add_option("-P", "--priority", dest="prio",     default=False, action="store_true", help="Use PriorityUser role")
 (options, args) = parser.parse_args()
 
 workspaces = args
@@ -72,6 +74,10 @@ if not os.path.exists("combine"):
     print "Creating a symlink to the combine binary"
     os.system("cp -s $(which combine) .")
 
+sched = "glite"
+if options.lsf: sched = "lsf"
+if options.condor: sched = "condor"
+
 print "Creating crab cfg ",options.out+".cfg"
 cfg = open(options.out+".cfg", "w")
 cfg.write("""
@@ -93,4 +99,12 @@ number_of_jobs = {jobs}
 script_exe = {out}.sh
 additional_input_files = combine,{wspall}
 return_data = 1
-""".format(wspall=(",".join(workspaces)), out=options.out, sched=("lsf" if options.lsf else "glite"), queue=options.queue, jobs=options.jobs, total=options.tries))
+""".format(wspall=(",".join(workspaces)), out=options.out, sched=sched, queue=options.queue, jobs=options.jobs, total=options.tries))
+
+if options.prio: cfg.write("""
+[GRID]
+rb               = CERN
+proxy_server     = myproxy.cern.ch
+role             = priorityuser
+retry_count      = 0
+""")
