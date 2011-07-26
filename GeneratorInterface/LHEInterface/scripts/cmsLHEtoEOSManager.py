@@ -102,8 +102,7 @@ if __name__ == '__main__':
     # print banner
 
     print ''
-#    print 'cmsLHEtoEOSmanager v.'+$Id: cmsLHEtoEOSManager.py,v 1.1 2011/07/26 11:46:52 fabiocos Exp $
-    print 'cmsLHEtoEOSmanager '
+    print 'cmsLHEtoEOSmanager v.'+$Revision$
     print ''
     print 'Running on ',time.asctime(time.localtime(time.time()))
     print ''
