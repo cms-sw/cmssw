@@ -23,6 +23,7 @@ const int ROC_bits  = 5;
 const int DCOL_bits = 5;
 const int PXID_bits = 8;
 const int ADC_bits  = 8;
+const int OMIT_ERR_bits = 1;
 
 const int CRC_shift = 2;
 const int ADC_shift  = 0;
@@ -30,6 +31,7 @@ const int PXID_shift = ADC_shift + ADC_bits;
 const int DCOL_shift = PXID_shift + PXID_bits;
 const int ROC_shift  = DCOL_shift + DCOL_bits;
 const int LINK_shift = ROC_shift + ROC_bits;
+const int OMIT_ERR_shift = 20;
 
 const uint32_t dummyDetId = 0xffffffff;
 
@@ -39,7 +41,7 @@ const ErrorChecker::Word32 LINK_mask = ~(~ErrorChecker::Word32(0) << LINK_bits);
 const ErrorChecker::Word32 ROC_mask  = ~(~ErrorChecker::Word32(0) << ROC_bits);
 const ErrorChecker::Word32 DCOL_mask = ~(~ErrorChecker::Word32(0) << DCOL_bits);
 const ErrorChecker::Word32 PXID_mask = ~(~ErrorChecker::Word32(0) << PXID_bits);
-
+const ErrorChecker::Word32 OMIT_ERR_mask = ~(~ErrorChecker::Word32(0) << OMIT_ERR_bits);
 
 ErrorChecker::ErrorChecker() {
 
@@ -134,6 +136,10 @@ bool ErrorChecker::checkROC(bool& errorsInEvent, int fedId, const SiPixelFrameCo
    case(29) : {
      LogDebug("")<<"  timeout on a channel (errorType=29)";
      errorsInEvent = true;
+     if ((errorWord >> OMIT_ERR_shift) & OMIT_ERR_mask) {
+       LogDebug("")<<"  ...first errorType=29 error, this gets masked out";
+       return false;
+     }
      break;
    }
    case(30) : {
