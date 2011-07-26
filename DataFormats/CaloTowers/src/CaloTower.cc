@@ -38,7 +38,6 @@ CaloTower::CaloTower(const CaloTowerDetId& id,
 
 math::PtEtaPhiMLorentzVector CaloTower::hadP4(double vtxZ) const {
 
-  math::PtEtaPhiMLorentzVector newP4(0,0,0,0);
 
   // note: for now we use the same position for HO as for the other detectors
 
@@ -51,25 +50,23 @@ math::PtEtaPhiMLorentzVector CaloTower::hadP4(double vtxZ) const {
     double newEta = asinh(ctgTheta);  
     double pf = 1.0/cosh(newEta);
 
-    newP4 = PolarLorentzVector(hcalTot * pf, newEta, hadPosition_.phi(), 0.0);   
+    return PolarLorentzVector(hcalTot * pf, newEta, hadPosition_.phi(), 0.0);   
   }
   
-  return newP4;
+  return math::PtEtaPhiMLorentzVector(0,0,0,0);
 }
 
 math::PtEtaPhiMLorentzVector CaloTower::emP4(double vtxZ) const {
-
-  math::PtEtaPhiMLorentzVector newP4(0,0,0,0);
 
   if (emE_>0) {
     double ctgTheta = (emPosition_.z() - vtxZ)/emPosition_.perp();
     double newEta = asinh(ctgTheta);  
     double pf = 1.0/cosh(newEta);
   
-    newP4 = math::PtEtaPhiMLorentzVector(emE_ * pf, newEta, emPosition_.phi(), 0.0);   
+    return math::PtEtaPhiMLorentzVector(emE_ * pf, newEta, emPosition_.phi(), 0.0);   
   }
   
-  return newP4;
+  return math::PtEtaPhiMLorentzVector(0,0,0,0);
 }
 
 
@@ -78,10 +75,6 @@ math::PtEtaPhiMLorentzVector CaloTower::emP4(double vtxZ) const {
 
 math::PtEtaPhiMLorentzVector CaloTower::hadP4(Point v) const {
 
-  math::PtEtaPhiMLorentzVector newP4(0,0,0,0);
-
-  GlobalPoint p(v.x(), v.y(), v.z());
-
   // note: for now we use the same position for HO as for the other detectors
 
   double hcalTot;
@@ -89,62 +82,48 @@ math::PtEtaPhiMLorentzVector CaloTower::hadP4(Point v) const {
   else hcalTot = hadE_;
 
   if (hcalTot>0) {
+    GlobalPoint p(v.x(), v.y(), v.z());
     math::XYZVector dir = math::XYZVector(hadPosition_ - p);
-    newP4 = math::PtEtaPhiMLorentzVector(hcalTot * sin(dir.theta()), dir.eta(), dir.phi(), 0.0);  
+    return math::PtEtaPhiMLorentzVector(hcalTot * sin(dir.theta()), dir.eta(), dir.phi(), 0.0);  
   }
 
-  return newP4;
+  return   math::PtEtaPhiMLorentzVector(0,0,0,0);
 }
 
 math::PtEtaPhiMLorentzVector CaloTower::emP4(Point v) const {
 
-  math::PtEtaPhiMLorentzVector newP4(0,0,0,0);
-
-  GlobalPoint p(v.x(), v.y(), v.z());
-
   if (emE_>0) {
+    GlobalPoint p(v.x(), v.y(), v.z());
     math::XYZVector dir = math::XYZVector(emPosition_ - p);
-    newP4 = math::PtEtaPhiMLorentzVector(emE_ * sin(dir.theta()), dir.eta(), dir.phi(), 0.0);   
+    return math::PtEtaPhiMLorentzVector(emE_ * sin(dir.theta()), dir.eta(), dir.phi(), 0.0);   
   }
   
-  return newP4;
+  return   math::PtEtaPhiMLorentzVector(0,0,0,0);
 }
 
 
 math::PtEtaPhiMLorentzVector CaloTower::p4(double vtxZ) const {
 
-  math::PtEtaPhiMLorentzVector newP4(0,0,0,0);
-
   if (abs(ieta())<=29) {
-    newP4 += emP4(vtxZ);
-    newP4 += hadP4(vtxZ);
+    return (emP4(vtxZ)+hadP4(vtxZ));
   }
-  else { // em and had energy in HF are defined in a special way
-    double ctgTheta = (emPosition_.z() - vtxZ)/emPosition_.perp(); // em and had positions in HF are forced to be the same
-    double newEta = asinh(ctgTheta);  
-    double pf = 1.0/cosh(newEta);
-    newP4 = math::PtEtaPhiMLorentzVector(p4().energy() * pf, newEta, emPosition_.phi(), 0.0);   
-  }
-
-  return newP4;
+  // em and had energy in HF are defined in a special way
+  double ctgTheta = (emPosition_.z() - vtxZ)/emPosition_.perp(); // em and had positions in HF are forced to be the same
+  double newEta = asinh(ctgTheta);  
+  double pf = 1.0/cosh(newEta);
+  return math::PtEtaPhiMLorentzVector(p4().energy() * pf, newEta, emPosition_.phi(), 0.0);   
 }
 
 
 math::PtEtaPhiMLorentzVector CaloTower::p4(Point v) const {
 
-  math::PtEtaPhiMLorentzVector newP4(0,0,0,0);
-
   if (abs(ieta())<=29) {
-    newP4 += emP4(v);
-    newP4 += hadP4(v);
+    return emP4(v)+hadP4(v);
   }
-  else { // em and had energy in HF are defined in a special way
-    GlobalPoint p(v.x(), v.y(), v.z());
-    math::XYZVector dir = math::XYZVector(emPosition_ - p); // em and had positions in HF are forced to be the same
-    newP4 = math::PtEtaPhiMLorentzVector(p4().energy() * sin(dir.theta()), dir.eta(), dir.phi(), 0.0);   
-  }
-
-  return newP4;
+  // em and had energy in HF are defined in a special way
+  GlobalPoint p(v.x(), v.y(), v.z());
+  math::XYZVector dir = math::XYZVector(emPosition_ - p); // em and had positions in HF are forced to be the same
+  return math::PtEtaPhiMLorentzVector(p4().energy() * sin(dir.theta()), dir.eta(), dir.phi(), 0.0);   
 }
 
 
@@ -152,15 +131,11 @@ math::PtEtaPhiMLorentzVector CaloTower::p4(Point v) const {
 
 math::PtEtaPhiMLorentzVector CaloTower::p4_HO(Point v) const {
 
-  math::PtEtaPhiMLorentzVector thisP4(0,0,0,0);
-
-  if (ietaAbs()>15 || outerE_<0) return thisP4;
+  if (ietaAbs()>15 || outerE_<0) return   math::PtEtaPhiMLorentzVector(0,0,0,0);
   
   GlobalPoint p(v.x(), v.y(), v.z());
   math::XYZVector dir = math::XYZVector(hadPosition_ - p);
-  thisP4 = math::PtEtaPhiMLorentzVector(outerE_ * sin(dir.theta()), dir.eta(), dir.phi(), 0.0);  
-
-  return thisP4; 
+  return math::PtEtaPhiMLorentzVector(outerE_ * sin(dir.theta()), dir.eta(), dir.phi(), 0.0);  
 }
 
 math::PtEtaPhiMLorentzVector CaloTower::p4_HO(double vtxZ) const {
@@ -170,17 +145,9 @@ math::PtEtaPhiMLorentzVector CaloTower::p4_HO(double vtxZ) const {
 
 math::PtEtaPhiMLorentzVector CaloTower::p4_HO() const {
 
-  math::PtEtaPhiMLorentzVector thisP4(0,0,0,0);
-
-  if (ietaAbs()>15 || outerE_<0) return thisP4;
-  thisP4 = math::PtEtaPhiMLorentzVector(outerE_ * sin(hadPosition_.theta()), hadPosition_.eta(), hadPosition_.phi(), 0.0);  
-
-  return thisP4;
+  if (ietaAbs()>15 || outerE_<0) return   math::PtEtaPhiMLorentzVector(0.0,0.0,0.0,0.0);
+  return math::PtEtaPhiMLorentzVector(outerE_ * sin(hadPosition_.theta()), hadPosition_.eta(), hadPosition_.phi(), 0.0);  
 }
-
-
-
-
 
 
 void CaloTower::addConstituents( const std::vector<DetId>& ids ) {
