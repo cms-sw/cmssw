@@ -16,6 +16,7 @@
  * - Header Size (4 bytes)
  * - Run Number (4 bytes)
  * - Event Number at Update (4 bytes)
+ * - Time stamp (8 bytes)
  * - Luminosity Section (4 bytes)
  * - Update Number (4 bytes)
  * - Compression Flag (4 bytes)   | size of data before compression

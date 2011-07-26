@@ -2,35 +2,35 @@
 
 Protocol Versions 1-4:
 code 1 | size 4 | run 4 | event 4 | lumi 4 | reserved 4 |
-l1_count 4| l1bits l1_count/8  | 
+l1_count 4| l1bits l1_count/8 | 
 hlt_count 4| hltbits hlt_count/4 |
 eventdatalength 4 | eventdata blob {variable} 
 
 Protocol Version 5:
 code 1 | size 4 | protocol version 1 |
 run 4 | event 4 | lumi 4 | origDataSize 4 | outModId 4 |
-l1_count 4| l1bits l1_count/8  | 
+l1_count 4| l1bits l1_count/8 | 
 hlt_count 4| hltbits hlt_count/4 |
 eventdatalength 4 | eventdata blob {variable} 
 
 Protocol Version 6:  // no change here, only INIT msg change
 code 1 | size 4 | protocol version 1 |
 run 4 | event 4 | lumi 4 | origDataSize 4 | outModId 4 |
-l1_count 4| l1bits l1_count/8  | 
+l1_count 4| l1bits l1_count/8 | 
 hlt_count 4| hltbits hlt_count/4 |
 eventdatalength 4 | eventdata blob {variable} 
 
 Protocol Version 7:  // no change here, only data blob changes
 code 1 | size 4 | protocol version 1 |
 run 4 | event 4 | lumi 4 | origDataSize 4 | outModId 4 |
-l1_count 4| l1bits l1_count/8  | 
+l1_count 4| l1bits l1_count/8 | 
 hlt_count 4| hltbits hlt_count/4 |
 eventdatalength 4 | eventdata blob {variable} 
 
 Protocol Version 8:  // add in checksum of data blob changes
 code 1 | size 4 | protocol version 1 |
 run 4 | event 4 | lumi 4 | origDataSize 4 | outModId 4 |
-l1_count 4| l1bits l1_count/8  | 
+l1_count 4| l1bits l1_count/8 | 
 hlt_count 4| hltbits hlt_count/4 |
 adler32_chksum 4 | host name length 1 | host name {Fixed size}
 eventdatalength 4 | eventdata blob {variable} 
@@ -39,7 +39,7 @@ Protocol Version 9:  // add dropped events counter
 code 1 | size 4 | protocol version 1 |
 run 4 | event 4 | lumi 4 | origDataSize 4 | outModId 4 |
 droppedEventsCount 4 |
-l1_count 4 | l1bits l1_count/8  | 
+l1_count 4 | l1bits l1_count/8 | 
 hlt_count 4 | hltbits hlt_count/4 |
 adler32_chksum 4 | host name length 1 | host name {Fixed size}
 eventdatalength 4 | eventdata blob {variable} 
