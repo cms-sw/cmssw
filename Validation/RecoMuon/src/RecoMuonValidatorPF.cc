@@ -316,16 +316,17 @@ struct RecoMuonValidatorPF::MuonME {
       hMisQEta_->Fill(simEta);
     }
 
-    const double recoP   = muonRef->p(); 
+    //    const double recoP   = muonRef->p(); 
     const double recoPt  = muonRef->pt();
     const double recoEta = muonRef->eta();
-    const double recoPhi = muonRef->phi();
+    //    const double recoPhi = muonRef->phi();
     const double recoQPt = recoQ/recoPt;
 
-    const double recoPFPt = sqrt(muonRef->pfP4().x()*muonRef->pfP4().x()+muonRef->pfP4().y()*muonRef->pfP4().y());
-    const double recoPFEta = 0.5*log((recoP+muonRef->pfP4().z())/(recoP-muonRef->pfP4().z())); 
+    const double recoPFP = muonRef->pfP4().P();
+    const double recoPFPt = muonRef->pfP4().Pt();
+    const double recoPFEta = muonRef->pfP4().Eta(); 
     const double recoPFPhi = muonRef->pfP4().Phi();
-    const double recoPFP = sqrt(muonRef->pfP4().x()*muonRef->pfP4().x()+muonRef->pfP4().y()*muonRef->pfP4().y()+muonRef->pfP4().z()*muonRef->pfP4().z());
+    const double recoQPFPt = recoQ/recoPFPt;
     
     //matching parameters
     double MatchPFRECOMomMagn = 0.00001;
@@ -333,7 +334,7 @@ struct RecoMuonValidatorPF::MuonME {
 
     if (muonRef->isPFMuon()) { //in principle it will be use for PF muons only...
        hErrPt_PF_->Fill((recoPt-recoPFPt)/recoPt);
-       hErrQPt_PF_->Fill((recoQPt-recoQ/recoPFPt)/recoQPt);
+       hErrQPt_PF_->Fill((recoQPt-recoQPFPt)/recoQPt);
        hdPt_vs_Eta_->Fill(fabs(recoPt-recoPFPt),recoEta);
        hdPt_vs_Pt_->Fill(fabs(recoPt-recoPFPt),recoPt);
 
@@ -343,7 +344,7 @@ struct RecoMuonValidatorPF::MuonME {
            if (muonRef->isGlobalMuon()) {
                   //split into categories by direction
                   //has direction of global track
-                  if (fabs((muonRef->pfP4().x()*muonRef->globalTrack()->px()+muonRef->pfP4().y()*muonRef->globalTrack()->py()+muonRef->pfP4().z()*muonRef->globalTrack()->pz())/muonRef->globalTrack()->p()/recoPFP - 1.) < MatchPFRECOMomDir) {
+                  if (fabs((muonRef->pfP4().Px()*muonRef->globalTrack()->px()+muonRef->pfP4().Py()*muonRef->globalTrack()->py()+muonRef->pfP4().Pz()*muonRef->globalTrack()->pz())/muonRef->globalTrack()->p()/recoPFP - 1.) < MatchPFRECOMomDir) {
                   //has momentum of global track
                      if (fabs(recoPFPt - muonRef->globalTrack()->pt()) < MatchPFRECOMomMagn) {
                          hPFMomPicked->Fill(1);
@@ -393,7 +394,7 @@ struct RecoMuonValidatorPF::MuonME {
                }//is global muon
                //is tracker not global muon
                else if (muonRef->isTrackerMuon()) {
-                   if (fabs((muonRef->pfP4().x()*muonRef->innerTrack()->px()+muonRef->pfP4().y()*muonRef->innerTrack()->py()+muonRef->pfP4().z()*muonRef->innerTrack()->pz())/muonRef->innerTrack()->p()/recoPFP- 1.) < MatchPFRECOMomDir) {
+                   if (fabs((muonRef->pfP4().Px()*muonRef->innerTrack()->px()+muonRef->pfP4().Py()*muonRef->innerTrack()->py()+muonRef->pfP4().Pz()*muonRef->innerTrack()->pz())/muonRef->innerTrack()->p()/recoPFP- 1.) < MatchPFRECOMomDir) {
                   //has momentum of inner track
                      if (fabs(recoPFPt - muonRef->innerTrack()->pt()) < MatchPFRECOMomMagn) {
                          hPFMomPicked->Fill(2);
@@ -418,7 +419,7 @@ struct RecoMuonValidatorPF::MuonME {
                 //and standalone? 
                 if (muonRef->isStandAloneMuon()) {
                  //has direction of outer track
-                   if (fabs((muonRef->pfP4().x()*muonRef->outerTrack()->px()+muonRef->pfP4().y()*muonRef->outerTrack()->py()+muonRef->pfP4().z()*muonRef->outerTrack()->pz())/muonRef->outerTrack()->p()/recoPFP - 1.) < MatchPFRECOMomDir) {
+                   if (fabs((muonRef->pfP4().Px()*muonRef->outerTrack()->px()+muonRef->pfP4().Py()*muonRef->outerTrack()->py()+muonRef->pfP4().Pz()*muonRef->outerTrack()->pz())/muonRef->outerTrack()->p()/recoPFP - 1.) < MatchPFRECOMomDir) {
                   //has momentum of inner track
                      if (fabs(recoPFPt - muonRef->outerTrack()->pt()) < MatchPFRECOMomMagn) {
                          hPFMomPicked->Fill(3);
@@ -443,7 +444,7 @@ struct RecoMuonValidatorPF::MuonME {
               }//end is tracker
               else if (muonRef->isStandAloneMuon()) {
                  //has direction of outer track
-                   if (fabs((muonRef->pfP4().x()*muonRef->outerTrack()->px()+muonRef->pfP4().y()*muonRef->outerTrack()->py()+muonRef->pfP4().z()*muonRef->outerTrack()->pz())/muonRef->outerTrack()->p()/recoPFP - 1.) < MatchPFRECOMomDir) {
+                   if (fabs((muonRef->pfP4().Px()*muonRef->outerTrack()->px()+muonRef->pfP4().Py()*muonRef->outerTrack()->py()+muonRef->pfP4().Pz()*muonRef->outerTrack()->pz())/muonRef->outerTrack()->p()/recoPFP - 1.) < MatchPFRECOMomDir) {
                   //has momentum of inner track
                      if (fabs(recoPFPt - muonRef->outerTrack()->pt()) < MatchPFRECOMomMagn) {
                          hPFMomPicked->Fill(3);
@@ -474,7 +475,7 @@ struct RecoMuonValidatorPF::MuonME {
     const double errPt  = (recoPFPt-simPt)/simPt;
     const double errEta = (recoPFEta-simEta)/simEta;
     const double errPhi = (recoPFPhi-simPhi)/simPhi;
-    const double errQPt = (recoQ/recoPFPt-simQPt)/simQPt;
+    const double errQPt = (recoQPFPt-simQPt)/simQPt;
 
     hP_  ->Fill(simP);
     hPt_ ->Fill(simPt );
@@ -547,7 +548,7 @@ struct RecoMuonValidatorPF::MuonME {
     hErrDz_ ->Fill(errDz );
 
     const double pullPt  = (recoPFPt-simPt)/recoRef->ptError();
-    const double pullQPt = (recoQ/recoPFPt-simQPt)/recoRef->qoverpError();
+    const double pullQPt = (recoQPFPt-simQPt)/recoRef->qoverpError();
     const double pullEta = (recoPFEta-simEta)/recoRef->etaError();
     const double pullPhi = (recoPFPhi-simPhi)/recoRef->phiError();
     const double pullDxy = (recoDxy-simDxy)/recoRef->dxyError();
@@ -870,11 +871,10 @@ void RecoMuonValidatorPF::analyze(const Event& event, const EventSetup& eventSet
   for(View<Muon>::const_iterator iMuon = muonColl.begin();
       iMuon != muonColl.end(); ++iMuon) {
 
-       //histograms for fractions
-      const double recoP   = sqrt(iMuon->pfP4().x()*iMuon->pfP4().x()+iMuon->pfP4().y()*iMuon->pfP4().y()+iMuon->pfP4().z()*iMuon->pfP4().z());
-      commonME_->hMuonAllP_->Fill(sqrt(iMuon->pfP4().x()*iMuon->pfP4().x()+iMuon->pfP4().y()*iMuon->pfP4().y()+iMuon->pfP4().z()*iMuon->pfP4().z()));
-      commonME_->hMuonAllPt_->Fill(sqrt(iMuon->pfP4().x()*iMuon->pfP4().x()+iMuon->pfP4().y()*iMuon->pfP4().y()));
-      commonME_->hMuonAllEta_->Fill( 0.5*log((recoP+iMuon->pfP4().z())/(recoP-iMuon->pfP4().z())));
+       //histograms for 
+      commonME_->hMuonAllP_->Fill(iMuon->pfP4().P());
+      commonME_->hMuonAllPt_->Fill(iMuon->pfP4().Pt());
+      commonME_->hMuonAllEta_->Fill(iMuon->pfP4().Eta());
       commonME_->hMuonAllPhi_->Fill(iMuon->pfP4().Phi());
 
      //everything else uses track
