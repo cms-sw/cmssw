@@ -97,9 +97,6 @@ tevMuonDytTrackVMuonAssocFS.label_tp_fake = 'mergedtruth:MergedTrackTruth'
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 from SimGeneral.TrackingAnalysis.trackingParticlesNoSimHits_cfi   import *
 
-#PF reco
-#from Validation.RecoMuon.recoMuonFromPFProducer_cfi import *
-
 #tracker
 from Validation.RecoMuon.muonValidation_cff import muonAssociatorByHitsESProducerNoSimHits_trk 
 
@@ -171,7 +168,6 @@ recoMuonVMuAssoc_glbPFFS.selection = 'isGlobalMuon & isPFMuon'
 
 
 # Muon validation sequence
-#muonValidationFastSim_seq = cms.Sequence(recoMuonFromPFProducer*(trkMuonTrackVTrackAssocFS
 muonValidationFastSim_seq = cms.Sequence(trkMuonTrackVTrackAssocFS
                                          +staMuonTrackVMuonAssocFS+staUpdMuonTrackVMuonAssocFS+glbMuonTrackVMuonAssocFS
                                          +tevMuonFirstTrackVMuonAssocFS+tevMuonPickyTrackVMuonAssocFS+tevMuonDytTrackVMuonAssocFS

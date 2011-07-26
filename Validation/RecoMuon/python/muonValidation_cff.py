@@ -186,9 +186,6 @@ from SimGeneral.TrackingAnalysis.trackingParticlesNoSimHits_cfi   import *
 from SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi import *
 from SimMuon.MCTruth.MuonAssociatorByHits_cfi import muonAssociatorByHitsCommonParameters
 
-#adding PFReco
-#from Validation.RecoMuon.recoMuonFromPFProducer_cfi import *
-
 #tracker
 muonAssociatorByHitsESProducerNoSimHits_trk = SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi.muonAssociatorByHitsESProducerNoSimHits.clone()
 muonAssociatorByHitsESProducerNoSimHits_trk.ComponentName = 'muonAssociatorByHits_NoSimHits_tracker'
@@ -280,7 +277,6 @@ muonValidationCosmic_seq = cms.Sequence(trkCosmicMuonTrackVTrackAssoc
                                  +staCosmicMuonTrackVMuonAssoc+glbCosmicMuonTrackVMuonAssoc)
 
 # The muon association and validation sequence
-#recoMixMuonAssociatorByHits_seq = cms.Sequence(recoMuonFromPFProducer+muonMix+trackingParticlesNoSimHits)
 
 recoMixMuonAssociatorByHits_seq = cms.Sequence(muonMix+trackingParticlesNoSimHits)
 
