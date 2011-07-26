@@ -23544,6 +23544,18 @@ HLTSchedule = cms.Schedule( *(HLT_Activity_Ecal_SC7_v7, HLT_L1SingleJet16_v4, HL
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
+# from CMSSW_4_4_0_pre6: updated configuration for the HybridClusterProducer's and EgammaHLTHybridClusterProducer's
+if cmsswVersion > "CMSSW_4_4":
+    if 'hltHybridSuperClustersActivity' in locals():
+        hltHybridSuperClustersActivity.xi               = cms.double( 0.0 )
+        hltHybridSuperClustersActivity.useEtForXi       = cms.bool( False )
+    if 'hltHybridSuperClustersL1Isolated' in locals():
+        hltHybridSuperClustersL1Isolated.xi             = cms.double( 0.0 )
+        hltHybridSuperClustersL1Isolated.useEtForXi     = cms.bool( False )
+    if 'hltHybridSuperClustersL1NonIsolated' in locals():
+        hltHybridSuperClustersL1NonIsolated.xi          = cms.double( 0.0 )
+        hltHybridSuperClustersL1NonIsolated.useEtForXi  = cms.bool( False )
+
 # from CMSSW_4_4_0_pre5: updated configuration for the EcalSeverityLevelESProducer
 if cmsswVersion > "CMSSW_4_4":
     ecalSeverityLevel = cms.ESProducer("EcalSeverityLevelESProducer",
