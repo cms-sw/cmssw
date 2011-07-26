@@ -4,41 +4,22 @@ import FWCore.ParameterSet.Config as cms
 # Very large impact parameter tracking using TOB + TEC ring 5 seeding #
 #######################################################################
 
-fifthClusters = cms.EDProducer("TrackClusterRemover",
+tobTecStepClusters = cms.EDProducer("TrackClusterRemover",
     clusterLessSolution = cms.bool(True),
-    oldClusterRemovalInfo = cms.InputTag("fourthClusters"),
-    trajectories = cms.InputTag("fourthWithMaterialTracks"),
-    overrideTrkQuals = cms.InputTag('pixellessSelector','pixellessStep'),                         
+    oldClusterRemovalInfo = cms.InputTag("pixelLessStepClusters"),
+    trajectories = cms.InputTag("pixelLessStepTracks"),
+    overrideTrkQuals = cms.InputTag('pixelLessStepSelector','pixelLessStep'),
     TrackQuality = cms.string('highPurity'),
     pixelClusters = cms.InputTag("siPixelClusters"),
     stripClusters = cms.InputTag("siStripClusters"),
     Common = cms.PSet(
         maxChi2 = cms.double(30.0)
     )
-
-# For debug purposes, you can run this iteration not eliminating any hits from previous ones by
-# instead using
-#    trajectories = cms.InputTag("zeroStepFilter"),
-#    pixelClusters = cms.InputTag("siPixelClusters"),
-#    stripClusters = cms.InputTag("siStripClusters"),
-#     Common = cms.PSet(
-#       maxChi2 = cms.double(0.0)
-#    )
 )
 
-# TRACKER HITS
-#import RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi
-#import RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
-#fifthPixelRecHits = RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi.siPixelRecHits.clone(
-#    src = 'fifthClusters'
-#    )
-#fifthStripRecHits = RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi.siStripMatchedRecHits.clone(
-#    ClusterProducer = 'fifthClusters'
-#    )
-
 # SEEDING LAYERS
-fifthlayerpairs = cms.ESProducer("SeedingLayersESProducer",
-    ComponentName = cms.string('fifthlayerPairs'),
+tobTecStepSeedLayers = cms.ESProducer("SeedingLayersESProducer",
+    ComponentName = cms.string('tobTecStepSeedLayers'),
 
     layerList = cms.vstring('TOB1+TOB2', 
         'TOB1+TEC1_pos', 'TOB1+TEC1_neg', 
@@ -51,13 +32,13 @@ fifthlayerpairs = cms.ESProducer("SeedingLayersESProducer",
 
     TOB = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        skipClusters = cms.InputTag('fifthClusters'),
+        skipClusters = cms.InputTag('tobTecStepClusters'),
         TTRHBuilder = cms.string('WithTrackAngle')
     ),
 
     TEC = cms.PSet(
         matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
-        skipClusters = cms.InputTag('fifthClusters'),
+        skipClusters = cms.InputTag('tobTecStepClusters'),
         #    untracked bool useSimpleRphiHitsCleaner = false
         useRingSlector = cms.bool(True),
         TTRHBuilder = cms.string('WithTrackAngle'),
@@ -67,20 +48,20 @@ fifthlayerpairs = cms.ESProducer("SeedingLayersESProducer",
 )
 # SEEDS
 import RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff
-fifthSeeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
-fifthSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'fifthlayerPairs'
-fifthSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
-fifthSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 30.0
-fifthSeeds.RegionFactoryPSet.RegionPSet.originRadius = 6.0
-fifthSeeds.ClusterCheckPSet.PixelClusterCollectionLabel = 'siPixelClusters'
-fifthSeeds.ClusterCheckPSet.ClusterCollectionLabel = 'siStripClusters'
+tobTecStepSeeds = RecoTracker.TkSeedGenerator.GlobalMixedSeeds_cff.globalMixedSeeds.clone()
+tobTecStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'tobTecStepSeedLayers'
+tobTecStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
+tobTecStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 30.0
+tobTecStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 6.0
+tobTecStepSeeds.ClusterCheckPSet.PixelClusterCollectionLabel = 'siPixelClusters'
+tobTecStepSeeds.ClusterCheckPSet.ClusterCollectionLabel = 'siStripClusters'
    
 
 # TRACKER DATA CONTROL
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
-fifthMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone(
-    ComponentName = 'fifthMeasurementTracker',
-    skipClusters = cms.InputTag('fifthClusters'),
+tobTecStepMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone(
+    ComponentName = 'tobTecStepMeasurementTracker',
+    skipClusters = cms.InputTag('tobTecStepClusters'),
     pixelClusterProducer = 'siPixelClusters',
     stripClusterProducer = 'siStripClusters'
     )
@@ -88,8 +69,8 @@ fifthMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProduce
 # QUALITY CUTS DURING TRACK BUILDING (for inwardss and outwards track building steps)
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
 
-fifthCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
-    ComponentName = 'fifthCkfTrajectoryFilter',
+tobTecStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
+    ComponentName = 'tobTecStepTrajectoryFilter',
     filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
     maxLostHits = 0,
     minimumNumberOfHits = 6,
@@ -98,8 +79,8 @@ fifthCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESP
     )
     )
 
-fifthCkfInOutTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
-    ComponentName = 'fifthCkfInOutTrajectoryFilter',
+tobTecStepInOutTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
+    ComponentName = 'tobTecStepInOutTrajectoryFilter',
     filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
     maxLostHits = 0,
     minimumNumberOfHits = 4,
@@ -110,12 +91,12 @@ fifthCkfInOutTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilt
 
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
-fifthCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
-    ComponentName = 'fifthCkfTrajectoryBuilder',
+tobTecStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
+    ComponentName = 'tobTecStepTrajectoryBuilder',
     MeasurementTrackerName = '',
-    clustersToSkip = cms.InputTag('fifthClusters'),
-    trajectoryFilterName = 'fifthCkfTrajectoryFilter',
-    inOutTrajectoryFilterName = 'fifthCkfInOutTrajectoryFilter',
+    clustersToSkip = cms.InputTag('tobTecStepClusters'),
+    trajectoryFilterName = 'tobTecStepTrajectoryFilter',
+    inOutTrajectoryFilterName = 'tobTecStepInOutTrajectoryFilter',
     useSameTrajFilter = False,
     minNrOfHitsForRebuild = 4,
     alwaysUseInvalidHits = False
@@ -124,9 +105,9 @@ fifthCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderES
 
 # MAKING OF TRACK CANDIDATES
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
-fifthTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
-    src = cms.InputTag('fifthSeeds'),
-    TrajectoryBuilder = 'fifthCkfTrajectoryBuilder',
+tobTecStepTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
+    src = cms.InputTag('tobTecStepSeeds'),
+    TrajectoryBuilder = 'tobTecStepTrajectoryBuilder',
     doSeedingRegionRebuilding = True,
     useHitsSplitting = True,
     cleanTrajectoryAfterInOut = True
@@ -134,41 +115,39 @@ fifthTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCan
 
 # TRACK FITTING AND SMOOTHING OPTIONS
 import TrackingTools.TrackFitters.RungeKuttaFitters_cff
-fifthFittingSmootherWithOutlierRejection = TrackingTools.TrackFitters.RungeKuttaFitters_cff.KFFittingSmootherWithOutliersRejectionAndRK.clone(
-    ComponentName = 'fifthFittingSmootherWithOutlierRejection',
+tobTecStepFitterSmoother = TrackingTools.TrackFitters.RungeKuttaFitters_cff.KFFittingSmootherWithOutliersRejectionAndRK.clone(
+    ComponentName = 'tobTecStepFitterSmoother',
     EstimateCut = 30,
     MinNumberOfHits = 8,
-    Fitter = cms.string('fifthRKFitter'),
-    Smoother = cms.string('fifthRKSmoother')
+    Fitter = cms.string('tobTecStepRKFitter'),
+    Smoother = cms.string('tobTecStepRKSmoother')
     )
 
 # Also necessary to specify minimum number of hits after final track fit
-fifthRKTrajectoryFitter = TrackingTools.TrackFitters.RungeKuttaFitters_cff.RKTrajectoryFitter.clone(
-    ComponentName = cms.string('fifthRKFitter'),
+tobTecStepRKTrajectoryFitter = TrackingTools.TrackFitters.RungeKuttaFitters_cff.RKTrajectoryFitter.clone(
+    ComponentName = cms.string('tobTecStepRKFitter'),
     minHits = 8
     )
-
-fifthRKTrajectorySmoother = TrackingTools.TrackFitters.RungeKuttaFitters_cff.RKTrajectorySmoother.clone(
-    ComponentName = cms.string('fifthRKSmoother'),
+tobTecStepRKTrajectorySmoother = TrackingTools.TrackFitters.RungeKuttaFitters_cff.RKTrajectorySmoother.clone(
+    ComponentName = cms.string('tobTecStepRKSmoother'),
     errorRescaling = 10.0,
     minHits = 8
     )
 
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducer_cfi
-fifthWithMaterialTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
-    src = 'fifthTrackCandidates',
-    AlgorithmName = cms.string('iter5'),
-    Fitter = 'fifthFittingSmootherWithOutlierRejection',
+tobTecStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+    src = 'tobTecStepTrackCandidates',
+    AlgorithmName = cms.string('iter6'),
+    Fitter = 'tobTecStepFitterSmoother',
     )
 
-
 import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
-tobtecSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
-    src='fifthWithMaterialTracks',
+tobTecStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
+    src='tobTecStepTracks',
     trackSelectors= cms.VPSet(
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
-            name = 'tobtecStepLoose',
+            name = 'tobTecStepLoose',
             chi2n_par = 0.4,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 5,
@@ -178,10 +157,10 @@ tobtecSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTra
             dz_par1 = ( 1.8, 4.0 ),
             d0_par2 = ( 2.0, 4.0 ),
             dz_par2 = ( 1.8, 4.0 )
-            ), #end of pset for thStepVtxLoose
+            ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
-            name = 'tobtecStepTight',
-            preFilterName = 'tobtecStepLoose',
+            name = 'tobTecStepTight',
+            preFilterName = 'tobTecStepLoose',
             chi2n_par = 0.3,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 5,
@@ -193,8 +172,8 @@ tobtecSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTra
             dz_par2 = ( 1.4, 4.0 )
             ),
         RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
-            name = 'tobtecStep',
-            preFilterName = 'tobtecStepTight',
+            name = 'tobTecStep',
+            preFilterName = 'tobTecStepTight',
             chi2n_par = 0.2,
             res_par = ( 0.003, 0.001 ),
             minNumberLayers = 5,
@@ -209,10 +188,9 @@ tobtecSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTra
     ) #end of clone
 
 
-
-fifthStep = cms.Sequence( fifthClusters*
-                          fifthSeeds*
-                          fifthTrackCandidates*
-                          fifthWithMaterialTracks*
-                          tobtecSelector)
+TobTecStep = cms.Sequence(tobTecStepClusters*
+                          tobTecStepSeeds*
+                          tobTecStepTrackCandidates*
+                          tobTecStepTracks*
+                          tobTecStepSelector)
 

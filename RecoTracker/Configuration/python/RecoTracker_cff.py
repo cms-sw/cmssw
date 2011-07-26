@@ -14,8 +14,9 @@ from RecoTracker.TrackProducer.RSFinalFitWithMaterial_cff import *
 ### for backward compatibility with electron reconstruction
 newCombinedSeeds = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCombinedSeeds.clone(
     seedCollections = cms.VInputTag(
-      cms.InputTag('newSeedFromTriplets'),
-      cms.InputTag('newSeedFromPairs'),
+      cms.InputTag('initialStepSeeds'),
+      cms.InputTag('lowPtTripletStepSeeds'),
+      cms.InputTag('pixelPairStepSeeds')
       )
     )
 import copy
