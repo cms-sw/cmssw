@@ -16,7 +16,7 @@
 //        Vladimir Rekovic, July 2010
 //
 //
-// $Id: TrigResRateMon.h,v 1.5 2011/07/13 18:32:50 slaunwhj Exp $
+// $Id: TrigResRateMon.h,v 1.6 2011/07/20 19:26:55 lwming Exp $
 //
 //
 
@@ -124,6 +124,8 @@ class TrigResRateMon : public edm::EDAnalyzer {
   void clearCountsPerPath();
   void fillXsecPerDataset();
 
+  void filltestHisto(const int& lumi); //Robin
+  void bookTestHisto(); //Robin
   // JMS lumi average
   void addLumiToAverage (double lumi);
   void clearLumiAverage ();
@@ -169,6 +171,7 @@ class TrigResRateMon : public edm::EDAnalyzer {
       std::vector<MonitorElement*> v_ME_HLTPassPass_Normalized;
       std::vector<MonitorElement*> v_ME_HLTPass_Normalized_Any;
 
+      std::string testPathsFolder_;  //Robin
       std::string pathsSummaryFolder_;
       std::string pathsSummaryStreamsFolder_;
       std::string pathsSummaryHLTCorrelationsFolder_;
@@ -183,7 +186,8 @@ class TrigResRateMon : public edm::EDAnalyzer {
 
 
   // JMS Keep track of rates and average lumi
-  std::vector<unsigned> countsPerPath;
+  std::vector<unsigned> rawCountsPerPath; //Robin
+  std::vector<unsigned> finalCountsPerPath;  //Robin
   double averageInstLumi;
   MonitorElement * meAverageLumiPerLS;
 
@@ -191,13 +195,19 @@ class TrigResRateMon : public edm::EDAnalyzer {
   MonitorElement * meCountsPassPerLS;
   MonitorElement * meCountsStreamPerLS;
   MonitorElement * meXsecStreamPerLS;
-  MonitorElement * meXsecPerLS;
-  MonitorElement * meXsec;
-  MonitorElement * meXsecPerIL;
+  //  MonitorElement * meXsecPerLS;
+  //  MonitorElement * meXsec;
+  //  MonitorElement * meXsecPerIL;
+
+  MonitorElement * meXsecPerTestPath;
+  std::vector<MonitorElement*> v_ME_XsecPerLS;
+  std::vector<MonitorElement*> v_ME_CountsPerLS;
+  std::vector<MonitorElement*> v_ME_Xsec;
 
   // JMS Mask off some paths so that they don't mess with your plots
 
   std::vector< std::string > maskedPaths_; 
+  std::vector< std::string > testPaths_; //Robin
 
   // JMS calcuate a reference cross section
   // then scale
@@ -206,7 +216,7 @@ class TrigResRateMon : public edm::EDAnalyzer {
   unsigned referenceTrigIndex_;
   bool foundReferenceTrigger_;
   unsigned referenceTrigCountsPS_;
-  unsigned testTrigCountsPS_; //Robin
+  //  unsigned testTrigCountsPS_; //Robin
   void findReferenceTriggerIndex();
   //unsigned referenceTrigCounts_;
   
@@ -319,6 +329,7 @@ class TrigResRateMon : public edm::EDAnalyzer {
     std::string datasetName;
     std::vector<std::string> pathNames;
     std::set<std::string> maskedPaths;
+    std::set<std::string> testPaths; //Robin
     // this tells you the name of the monitor element
     // that has the counts per path saved
     std::string countsPerPathME_Name;

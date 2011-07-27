@@ -1,4 +1,4 @@
-// $Id: TrigResRateMon.cc,v 1.15 2011/07/13 18:32:50 slaunwhj Exp $
+// $Id: TrigResRateMon.cc,v 1.16 2011/07/20 19:26:55 lwming Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "TString.h"
@@ -148,6 +148,7 @@ TrigResRateMon::TrigResRateMon(const edm::ParameterSet& iConfig): currentRun_(-9
 
   specialPaths_ = iConfig.getParameter<std::vector<std::string > >("SpecialPaths");
 
+  testPathsFolder_ = iConfig.getUntrackedParameter ("testPathsFolder",std::string("HLT/TrigResults/testPaths/"));
   pathsSummaryFolder_ = iConfig.getUntrackedParameter ("pathsSummaryFolder",std::string("HLT/TrigResults/PathsSummary/HLT Counts/"));
   pathsSummaryStreamsFolder_ = iConfig.getUntrackedParameter ("pathsSummaryFolder",std::string("HLT/TrigResults/PathsSummary/"));
   //pathsSummaryStreamsFolder_ = iConfig.getUntrackedParameter ("pathsSummaryFolder",std::string("HLT/TrigResults/PathsSummary/Streams/"));
@@ -166,7 +167,8 @@ TrigResRateMon::TrigResRateMon(const edm::ParameterSet& iConfig): currentRun_(-9
   referenceTrigInput_ = iConfig.getParameter<std::string> ("ReferenceTrigger");
   foundReferenceTrigger_ = false;
 
-
+  //Robin
+  testPaths_ = iConfig.getParameter<std::vector<std::string > >("testPaths");
   
   fLumiFlag = true;
   ME_HLTAll_LS = NULL;
@@ -213,24 +215,22 @@ TrigResRateMon::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   LogDebug("TrigResRateMon")<< " analyze...." ;
 
 
-
-
   edm::Handle<TriggerResults> triggerResults;
   iEvent.getByLabel(triggerResultsLabel_,triggerResults);
   if(!triggerResults.isValid()) {
     edm::InputTag triggerResultsLabelFU(triggerResultsLabel_.label(),triggerResultsLabel_.instance(), "FU");
-   iEvent.getByLabel(triggerResultsLabelFU,triggerResults);
-  if(!triggerResults.isValid()) {
-    edm::LogInfo("TrigResRateMon") << "TriggerResults not found, "
-      "skipping event"; 
-    return;
-   }
+    iEvent.getByLabel(triggerResultsLabelFU,triggerResults);
+    if(!triggerResults.isValid()) {
+      edm::LogInfo("TrigResRateMon") << "TriggerResults not found, "
+	"skipping event"; 
+      return;
+    }
   }
   triggerResults_ = triggerResults;
   const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
 
   //Robin---
-  if(triggerResults.isValid()) nStream_++;
+  nStream_++;
 
   // Find which index is zero bias for this run
   
@@ -385,17 +385,20 @@ void TrigResRateMon::beginRun(const edm::Run& run, const edm::EventSetup& c)
 
     const unsigned int n(hltConfig_.size());
 
-    //-------Diagnostic plots--------
+    //Robin-------Diagnostic plots--------
     meCountsPassPerLS = dbe->book1D("CountsPassVsLS", "Counts vs LumiSec;LS;Passed Stream Counts", nLS_, 0.5, nLS_+0.5);
     meCountsStreamPerLS = dbe->book1D("CountsStreamVsLS", "Counts vs LumiSec;LS;Stream Counts", nLS_, 0.5, nLS_+0.5);
     meXsecStreamPerLS = dbe->book1D("XsecStreamVsLS", "Xsec vs LumiSec;LS;Stream Xsec", nLS_, 0.5, nLS_+0.5);
 
-    meXsecPerLS = dbe->book1D("XsecVsLS", "Xsec vs LumiSec;LS;Xsec", nLS_, 0.5, nLS_+0.5);
-    meXsec = dbe->book1D("Xsec", "histo for Xsec ", 20, 0.01, 0.06);
-    //    meXsecPerIL = dbe->book2D("XsecVsIL", "Xsec vs Inst Lumi;#mub^{-1}*s^{-1}; Xsec", 200, 700, 900, 100, 0.01, 0.1);
-    TProfile tempProfile("XsecVsIL", "Xsec vs Inst Lumi;#mub^{-1}*s^{-1}; Xsec", 40, 600, 3000);
-    meXsecPerIL = dbe_->bookProfile("XsecVsIL", &tempProfile);
-    
+//     meXsecPerLS = dbe->book1D("XsecVsLS", "Xsec vs LumiSec;LS;Xsec", nLS_, 0.5, nLS_+0.5);
+//     meXsec = dbe->book1D("Xsec", "histo for Xsec ", 20, 0.01, 0.06);
+//     //    meXsecPerIL = dbe->book2D("XsecVsIL", "Xsec vs Inst Lumi;#mub^{-1}*s^{-1}; Xsec", 200, 700, 900, 100, 0.01, 0.1);
+//     TProfile tempProfile("XsecVsIL", "Xsec vs Inst Lumi;#mub^{-1}*s^{-1}; Xsec", 40, 600, 3000);
+//     meXsecPerIL = dbe_->bookProfile("XsecVsIL", &tempProfile);
+
+    bookTestHisto(); //Robin
+    dbe->setCurrentFolder(dirname_); //Robin
+
     // JMS fill the counts per path
     bookCountsPerPath();
     clearLumiAverage();
@@ -1413,6 +1416,8 @@ void TrigResRateMon::fillHltMatrix(const edm::TriggerNames & triggerNames, const
 
 }
 
+
+
 void TrigResRateMon::fillCountsPerPath(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
 
@@ -1425,9 +1430,21 @@ void TrigResRateMon::fillCountsPerPath(const edm::Event& iEvent, const edm::Even
   
   for (unsigned iName = 0; iName < hltConfig_.size(); iName++) {
     if ( triggerResults_ -> accept ( iName ) ){
-      countsPerPath[iName]++;
+      rawCountsPerPath[iName]++;
 
       passAny = true ;       //Robin
+
+      //---Robin
+      std::string thisName = hltConfig_.triggerName(iName);
+   
+      std::pair<int,int> psValueCombo =  hltConfig_.prescaleValues(iEvent, iSetup, thisName);
+      // if ps OK, 
+      if ( (psValueCombo.first > 0) && (psValueCombo.second > 0) ){
+	finalCountsPerPath[iName] += psValueCombo.first * psValueCombo.second;
+      } else {
+	finalCountsPerPath[iName]++;
+      }
+      //-----------
 
       if ( (iName == referenceTrigIndex_) && (foundReferenceTrigger_) ) {
         // the get the prescales, and increment the PS*counts
@@ -1442,19 +1459,19 @@ void TrigResRateMon::fillCountsPerPath(const edm::Event& iEvent, const edm::Even
       }// end if this is reference
     
       //Robin
-      std::string thisName = hltConfig_.triggerName(iName);
-      TString checkName(thisName.c_str());
-      if (checkName.Contains("HLT_IsoMu15_v")){
+      //     std::string thisName = hltConfig_.triggerName(iName);
+//       TString checkName(thisName.c_str());
+//       if (checkName.Contains("HLT_IsoMu24_v")){
 
-        std::pair<int,int> psValueCombo =  hltConfig_.prescaleValues(iEvent, iSetup, thisName);
-        // if ps OK, 
-        if ( (psValueCombo.first > 0) && (psValueCombo.second > 0) ){
-          testTrigCountsPS_ += psValueCombo.first * psValueCombo.second;
-        } else {
-          testTrigCountsPS_++;
-        }
+//         std::pair<int,int> psValueCombo =  hltConfig_.prescaleValues(iEvent, iSetup, thisName);
+//         // if ps OK, 
+//         if ( (psValueCombo.first > 0) && (psValueCombo.second > 0) ){
+//           testTrigCountsPS_ += psValueCombo.first * psValueCombo.second;
+//         } else {
+//           testTrigCountsPS_++;
+//         }
 
-      }
+//       }
 
     } // end if trig fired         
   }// end loop over paths
@@ -1509,7 +1526,8 @@ void TrigResRateMon::bookCountsPerPath() {
   
   for (unsigned iName = 0; iName < hltConfig_.size(); iName++) {
     
-    countsPerPath.push_back(0);
+    rawCountsPerPath.push_back(0);
+    finalCountsPerPath.push_back(0);  //Robin
     
   }  
 
@@ -1547,7 +1565,8 @@ void TrigResRateMon::printCountsPerPathThisLumi() {
   
   for (unsigned iName = 0; iName < hltConfig_.size() ; iName++) {
     std::cout << hltConfig_.triggerName(iName)
-              << "  =  " << countsPerPath[iName]
+              << "  =  " << rawCountsPerPath[iName]
+	      << "finalCounts  =  " << finalCountsPerPath[iName]  //Robin
               << std::endl;        
   }
 
@@ -1568,14 +1587,15 @@ void TrigResRateMon::printCountsPerPathThisLumi() {
 void TrigResRateMon::clearCountsPerPath() {
 
   
-  for (unsigned iName = 0; iName < hltConfig_.size() ; iName++) {
+//   for (unsigned iName = 0; iName < hltConfig_.size() ; iName++) {
     
-    countsPerPath[iName] = 0;
+//     rawCountsPerPath[iName] = 0;
+//     finalCountsPerPath[iName] = 0;  //Robin
     
-  }
+//   }
 
   referenceTrigCountsPS_ = 0 ;
-  testTrigCountsPS_ = 0 ; //Robin
+  //  testTrigCountsPS_ = 0 ; //Robin
   
   for (std::vector<DatasetInfo>::iterator iDS = primaryDataSetInformation.begin();
        iDS != primaryDataSetInformation.end();
@@ -1733,6 +1753,78 @@ void TrigResRateMon::setupHltLsPlots()
 
 }
 
+//Robin
+void TrigResRateMon::bookTestHisto()
+{
+ 
+  unsigned int npaths = testPaths_.size();
+
+  //pathsSummaryHLTPathsPerLSFolder_ = TString("HLT/TrigResults/PathsSummary/HLT LS/");
+  //dbe_->setCurrentFolder(pathsSummaryHLTPathsPerLSFolder_.c_str());
+  //dbe_->setCurrentFolder(pathsSummaryHLTPathsPerLSFolder_);
+  dbe_->setCurrentFolder(testPathsFolder_);
+
+  TProfile tempProfile("XsecVsTestPath", "Xsec vs Test Path;;Xsec #mub", npaths, 0.5, npaths+0.5);
+  meXsecPerTestPath = dbe_->bookProfile("XsecVsTestPath", &tempProfile);
+
+
+  for(unsigned int i = 0; i < npaths; i++){
+    const char* pname = testPaths_[i].c_str() ;
+    TString pathname = testPaths_[i].c_str() ;
+    meXsecPerTestPath->getTProfile()->GetXaxis()->SetBinLabel(i+1, pathname );
+    
+    /////
+    char name[200];
+    char title[200];
+
+    sprintf(name, "path_%s_XsecVsLS",  pname);
+    sprintf(title, "path_%s_XsecVsLS;LS;Xsec #mub", pname);
+
+    MonitorElement* tempME  = dbe_->book1D(name,title, nLS_, 0, nLS_ );
+
+    tempME->setAxisTitle("LS");
+
+    v_ME_XsecPerLS.push_back(tempME); 
+
+    char name2[200];
+    char title2[200];
+
+    sprintf(name2, "path_%s_countsVsLS",  pname);
+    sprintf(title2, "path_%s_countsVsLS;LS;Counts", pname);
+
+    MonitorElement* tempME2  = dbe_->book1D(name2, title2, nLS_, 0, nLS_ );
+
+    tempME2->setAxisTitle("LS");
+
+    v_ME_CountsPerLS.push_back(tempME2); 
+
+  }
+
+  MonitorElement* meXsec1 = dbe_->book1D("Xsec_HLT_IsoMu24", "HLT_IsoMu24 Xsec;Xsec #mub;number of LS", 10, 0.008, 0.014);
+  MonitorElement* meXsec2 = dbe_->book1D("Xsec_HLT_Ele65_CaloIdVT_TrkIdT", "HLT_Ele65_CaloIdVT_TrkIdT Xsec;Xsec #mub;number of LS", 10, 0.0014, 0.004);
+  MonitorElement* meXsec3 = dbe_->book1D("Xsec_HLT_MET200", "HLT_MET200 Xsec;Xsec #mub;number of LS", 10, 0.0, 0.0018);
+  MonitorElement* meXsec4 = dbe_->book1D("Xsec_HLT_Jet370", "HLT_Jet370 Xsec;Xsec #mub;number of LS", 10, 0.0006, 0.00094);
+  MonitorElement* meXsec5 = dbe_->book1D("Xsec_HLT_HT550", "HLT_HT550 Xsec;Xsec #mub;number of LS", 10, 0.0043, 0.0053);
+  MonitorElement* meXsec6 = dbe_->book1D("Xsec_HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL", "HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL Xsec;Xsec #mub;number of LS", 10, 0.0033, 0.0039);
+  MonitorElement* meXsec7 = dbe_->book1D("Xsec_HLT_IsoMu15_LooseIsoPFTau20", "HLT_IsoMu15_LooseIsoPFTau20 Xsec;Xsec #mub;number of LS", 10, 0.001, 0.004);
+  MonitorElement* meXsec8 = dbe_->book1D("Xsec_HLT_PFMHT150", "HLT_PFMHT150 Xsec;Xsec #mub;number of LS", 10, 0.0, 0.0025);
+  MonitorElement* meXsec9 = dbe_->book1D("Xsec_HLT_Photon135", "HLT_Photon135 Xsec;Xsec #mub;number of LS", 10, 0.001, 0.0044);
+  MonitorElement* meXsec10 = dbe_->book1D("Xsec_HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v", "HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v Xsec;Xsec #mub;number of LS", 10, 0.008, 0.014);
+
+  v_ME_Xsec.push_back(meXsec1); 
+  v_ME_Xsec.push_back(meXsec2); 
+  v_ME_Xsec.push_back(meXsec3); 
+  v_ME_Xsec.push_back(meXsec4); 
+  v_ME_Xsec.push_back(meXsec5); 
+  v_ME_Xsec.push_back(meXsec6); 
+  v_ME_Xsec.push_back(meXsec7); 
+  v_ME_Xsec.push_back(meXsec8); 
+  v_ME_Xsec.push_back(meXsec9); 
+  v_ME_Xsec.push_back(meXsec10); 
+
+
+
+}
 
 void TrigResRateMon::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c){   
 
@@ -1767,24 +1859,26 @@ void TrigResRateMon::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, con
   if (jmsDebug) std::cout << "Average lumi is " << averageInstLumi << std::endl;
   fillXsecPerDataset();
 
-  //-------Diagnostic plots--------
-  TH1F* tempXsecPerLS = meXsecPerLS->getTH1F();
-  double xsec = 1.0;
+  filltestHisto(lumi);  //Robin
+
+  //Robin-------Diagnostic plots--------
+//   TH1F* tempXsecPerLS = meXsecPerLS->getTH1F();
+//   double xsec = 1.0;
    
-  //  std::cout << "counts for HLT_IsoMu15* is " << testTrigCountsPS_ << std::endl;
+//   //  std::cout << "counts for HLT_IsoMu15* is " << testTrigCountsPS_ << std::endl;
   
-  if (averageInstLumi > 0) {
-    xsec = testTrigCountsPS_ / (averageInstLumi*LSsize_);
-  }    
-  //  std::cout << "LS is " << lumi << " ; xsec is "<< xsec << std::endl;
-  tempXsecPerLS->SetBinContent(lumi, xsec);
+//   if (averageInstLumi > 0) {
+//     xsec = testTrigCountsPS_ / (averageInstLumi*LSsize_);
+//   }    
+//   //  std::cout << "LS is " << lumi << " ; xsec is "<< xsec << std::endl;
+//   tempXsecPerLS->SetBinContent(lumi, xsec);
   
 
-  TH1F* tempXsec = meXsec->getTH1F();
-  tempXsec->Fill(xsec);
+//   TH1F* tempXsec = meXsec->getTH1F();
+//   tempXsec->Fill(xsec);
 
-  TProfile* tempXsecPerIL = meXsecPerIL->getTProfile();
-  tempXsecPerIL->Fill(averageInstLumi,xsec);
+//   TProfile* tempXsecPerIL = meXsecPerIL->getTProfile();
+//   tempXsecPerIL->Fill(averageInstLumi,xsec);
 
   //--------- stream counts and xsec
   TH1F* tempCountsStreamPerLS = meCountsStreamPerLS->getTH1F();
@@ -1811,6 +1905,64 @@ void TrigResRateMon::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, con
   
 
 }
+
+//Robin----
+void TrigResRateMon::filltestHisto(const int& lumi) {
+
+  if (lumi%3 == 0){
+  unsigned int npaths = testPaths_.size();
+  for(unsigned int i = 0; i < npaths; i++){
+    TString pathname = testPaths_[i].c_str() ;
+
+//   for ( std::vector<std::string>::const_iterator itest = testPaths_.begin();
+// 	itest != testPaths_.end();
+// 	itest++) {
+//     std::cout << (*itest) << std::endl; 
+//   }
+    int index = 0 ;
+    int rawCount = 0 ;
+    int finalCount = 0;
+    double xsec = 0 ;
+
+    for (unsigned iName = 0; iName < hltConfig_.size(); iName++) {
+      
+      std::string thisName = hltConfig_.triggerName(iName);
+      TString checkName(thisName.c_str());
+      if (checkName.Contains(pathname)){
+	index = iName ;
+	//	std::cout << "==>test path name is " << checkName << std::endl;
+	break ;
+      }
+    }
+    
+    rawCount = rawCountsPerPath[index];
+    finalCount = finalCountsPerPath[index];
+    xsec = finalCount/ (3*averageInstLumi*LSsize_);
+
+    MonitorElement* testME_XsecPerLS = v_ME_XsecPerLS[i];
+    MonitorElement* testME_rawCountsPerLS = v_ME_CountsPerLS[i];
+    MonitorElement* testME_Xsec = v_ME_Xsec[i];
+
+    testME_XsecPerLS->getTH1F()->SetBinContent(lumi, xsec); 
+    testME_rawCountsPerLS->getTH1F()->SetBinContent(lumi, rawCount);
+    testME_Xsec->getTH1F()->Fill(xsec);    
+    
+    TProfile tempProfile("XsecVsTestPath", "Xsec vs Test Path", npaths, 0.5, npaths+0.5);
+    meXsecPerTestPath->getTProfile()->Fill(i+1,xsec);    
+
+  }
+
+  for (unsigned iName = 0; iName < hltConfig_.size() ; iName++) {
+    
+    rawCountsPerPath[iName] = 0;
+    finalCountsPerPath[iName] = 0;  //Robin
+    
+  }
+
+
+}
+}
+//----------
 
 void TrigResRateMon::countHLTGroupBXHitsEndLumiBlock(const int& lumi)
 {
