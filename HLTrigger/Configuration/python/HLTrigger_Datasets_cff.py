@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V185
+# /dev/CMSSW_4_2_0/GRun/V186
 
 import FWCore.ParameterSet.Config as cms
 
@@ -129,8 +129,6 @@ streamA_datasetHT_selector.l1tResults = cms.InputTag('')
 streamA_datasetHT_selector.throw      = cms.bool(False)
 streamA_datasetHT_selector.triggerConditions = cms.vstring('HLT_DiJet130_PT130_v6', 
     'HLT_DiJet160_PT160_v6', 
-    'HLT_FatJetMass300_DR1p1_Deta2p0_CentralJet30_BTagIP_v2', 
-    'HLT_FatJetMass350_DR1p1_Deta2p0_CentralJet30_BTagIP_v2', 
     'HLT_FatJetMass750_DR1p1_Deta2p0_v1', 
     'HLT_FatJetMass850_DR1p1_Deta2p0_v1', 
     'HLT_HT150_v8', 

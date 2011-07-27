@@ -24,8 +24,8 @@ HLT_DiJetAve190_v*
 HLT_DiJetAve240_v*
 HLT_DiJetAve300_v*
 HLT_DiJetAve370_v*
-HLT_FatJetMass300_DR1p1_Deta2p0_CentralJet30_BTagIP_v*
-HLT_FatJetMass350_DR1p1_Deta2p0_CentralJet30_BTagIP_v*
+#HLT_FatJetMass300_DR1p1_Deta2p0_CentralJet30_BTagIP_v* #removed in "3e33" menu (see sr #122211)
+#HLT_FatJetMass350_DR1p1_Deta2p0_CentralJet30_BTagIP_v* #removed in "3e33" menu (see sr #122211)
 HLT_FatJetMass750_DR1p1_Deta2p0_v*
 HLT_FatJetMass850_DR1p1_Deta2p0_v*
 HLT_DoubleJet30_ForwardBackward_v*
