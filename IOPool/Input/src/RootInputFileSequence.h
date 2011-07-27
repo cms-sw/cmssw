@@ -43,7 +43,6 @@ namespace edm {
     explicit RootInputFileSequence(ParameterSet const& pset, PoolSource const& input, InputFileCatalog const& catalog, PrincipalCache& cache, InputType::InputType inputType);
     virtual ~RootInputFileSequence();
 
-    typedef VectorInputSource::EventPrincipalVector EventPrincipalVector;
     typedef boost::shared_ptr<RootFile> RootFileSharedPtr;
     EventPrincipal* readEvent(EventPrincipal& cache, boost::shared_ptr<LuminosityBlockPrincipal> lb);
     boost::shared_ptr<LuminosityBlockAuxiliary> readLuminosityBlockAuxiliary_();
@@ -63,10 +62,6 @@ namespace edm {
     EventPrincipal* readOneSequential();
     EventPrincipal* readOneSpecified(EventID const& id);
 
-    void readMany(int number, EventPrincipalVector& result);
-    void readManyRandom(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber);
-    void readManySequential(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber);
-    void readManySpecified(std::vector<EventID> const& events, EventPrincipalVector& result); 
     void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches);
     boost::shared_ptr<ProductRegistry const> fileProductRegistry() const;
     static void fillDescription(ParameterSetDescription & desc);

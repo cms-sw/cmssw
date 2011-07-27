@@ -10,26 +10,6 @@ namespace edm {
   VectorInputSource::~VectorInputSource() {}
 
   void
-  VectorInputSource::readMany(int number, EventPrincipalVector& result) {
-    this->readMany_(number, result);
-  }
-
-  void
-  VectorInputSource::readManyRandom(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) {
-    this->readManyRandom_(number, result, fileSeqNumber);
-  }
-
-  void
-  VectorInputSource::readManySequential(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) {
-    this->readManySequential_(number, result, fileSeqNumber);
-  }
-
-  void
-  VectorInputSource::readManySpecified(std::vector<EventID> const& events, EventPrincipalVector& result) {
-    this->readManySpecified_(events, result);
-  }
-
-  void
   VectorInputSource::dropUnwantedBranches(std::vector<std::string> const& wantedBranches) {
     this->dropUnwantedBranches_(wantedBranches);
   }

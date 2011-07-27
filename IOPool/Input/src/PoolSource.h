@@ -51,10 +51,6 @@ namespace edm {
     virtual EventPrincipal* readOneRandom();
     virtual EventPrincipal* readOneSequential();
     virtual EventPrincipal* readOneSpecified(EventID const& id);
-    virtual void readMany_(int number, EventPrincipalVector& result);
-    virtual void readManyRandom_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber);
-    virtual void readManySequential_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber);
-    virtual void readManySpecified_(std::vector<EventID> const& events, EventPrincipalVector& result);
     virtual void dropUnwantedBranches_(std::vector<std::string> const& wantedBranches);
     virtual void preForkReleaseResources();
     virtual void postForkReacquireResources(boost::shared_ptr<edm::multicore::MessageReceiverForSource>);

@@ -282,30 +282,6 @@ namespace edm {
   }
 
   void
-  PoolSource::readMany_(int number, EventPrincipalVector& result) {
-    assert (!secondaryFileSequence_);
-    primaryFileSequence_->readMany(number, result);
-  }
-
-  void
-  PoolSource::readManyRandom_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) {
-    assert (!secondaryFileSequence_);
-    primaryFileSequence_->readManyRandom(number, result, fileSeqNumber);
-  }
-
-  void
-  PoolSource::readManySequential_(int number, EventPrincipalVector& result, unsigned int& fileSeqNumber) {
-    assert (!secondaryFileSequence_);
-    primaryFileSequence_->readManySequential(number, result, fileSeqNumber);
-  }
-
-  void
-  PoolSource::readManySpecified_(std::vector<EventID> const& events, EventPrincipalVector& result) {
-    assert (!secondaryFileSequence_);
-    primaryFileSequence_->readManySpecified(events, result);
-  }
-
-  void
   PoolSource::dropUnwantedBranches_(std::vector<std::string> const& wantedBranches) {
     assert(!secondaryFileSequence_);
     primaryFileSequence_->dropUnwantedBranches_(wantedBranches);
