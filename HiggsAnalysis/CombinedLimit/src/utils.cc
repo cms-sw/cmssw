@@ -41,14 +41,14 @@ void utils::printRDH(RooAbsData *data) {
   delete iter;
   size_t nv = varnames.size(), nc = catnames.size();
   printf(" bin  ");
-  for (size_t j = 0; j < nv; ++j) { printf("%10.10s  ", varnames[j].c_str()); }
-  for (size_t j = 0; j < nc; ++j) { printf("%10.10s  ", catnames[j].c_str()); }
+  for (size_t j = 0; j < nv; ++j) { printf("%16.16s  ", varnames[j].c_str()); }
+  for (size_t j = 0; j < nc; ++j) { printf("%16.16s  ", catnames[j].c_str()); }
   printf("  weight\n");
   for (int i = 0, nb = data->numEntries(); i < nb; ++i) {
     const RooArgSet *bin = data->get(i);
     printf("%4d  ",i);
-    for (size_t j = 0; j < nv; ++j) { printf("%10g  ",    bin->getRealValue(varnames[j].c_str())); }
-    for (size_t j = 0; j < nc; ++j) { printf("%10.10s  ", bin->getCatLabel(catnames[j].c_str())); }
+    for (size_t j = 0; j < nv; ++j) { printf("%16g  ",    bin->getRealValue(varnames[j].c_str())); }
+    for (size_t j = 0; j < nc; ++j) { printf("%16.16s  ", bin->getCatLabel(catnames[j].c_str())); }
     printf("%8.3f\n", data->weight());
   }
 }
@@ -115,7 +115,7 @@ RooAbsPdf *utils::factorizePdf(const RooArgSet &observables, RooAbsPdf &pdf, Roo
             RooAbsPdf *pdfi = sim->getPdf(cat->getLabel());
             RooAbsPdf *newpdf = factorizePdf(observables, *pdfi, constraints);
             factorizedPdfs[ic] = newpdf;
-            if (newpdf == 0) { needNew = true; continue; }
+            if (newpdf == 0) { throw std::runtime_error(std::string("ERROR: channel ") + cat->getLabel() + " factorized to zero."); }
             if (newpdf != pdfi) { needNew = true; newOwned.add(*newpdf); }
         }
         RooSimultaneous *ret = sim;
@@ -181,10 +181,10 @@ void utils::factorizeFunc(const RooArgSet &observables, RooAbsReal &func, RooArg
     if (id == typeid(RooProduct)) {
         RooProduct *prod = dynamic_cast<RooProduct *>(&func);
         RooArgSet components(prod->components());
-        std::cout << "Function " << func.GetName() << " is a RooProduct with " << components.getSize() << " components." << std::endl;
+        //std::cout << "Function " << func.GetName() << " is a RooProduct with " << components.getSize() << " components." << std::endl;
         std::auto_ptr<TIterator> iter(components.createIterator());
         for (RooAbsReal *funci = (RooAbsReal *) iter->Next(); funci != 0; funci = (RooAbsReal *) iter->Next()) {
-            std::cout << "  component " << funci->GetName() << " of type " << funci->ClassName() << std::endl;
+            //std::cout << "  component " << funci->GetName() << " of type " << funci->ClassName() << std::endl;
             factorizeFunc(observables, *funci, obsTerms, constraints);
         }
     } else if (func.dependsOn(observables)) {
