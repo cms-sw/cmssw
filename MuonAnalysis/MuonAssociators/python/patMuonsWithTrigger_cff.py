@@ -83,7 +83,7 @@ muonTriggerMatchHLT = cms.EDProducer( "PATTriggerMatcherDRDPtLessByR",
     maxDPtRel = cms.double( 0.5 ),
     maxDeltaR = cms.double( 0.5 ),
     resolveAmbiguities    = cms.bool( True ),
-    resolveByMatchQuality = cms.bool( False )
+    resolveByMatchQuality = cms.bool( True )
 )
 
 ### == For HLT triggers which are just L1s, we need a different matcher
@@ -95,10 +95,10 @@ muonMatchL1 = muonHLTL1Match.clone(
 
 ### Single Mu L1
 muonMatchHLTL1 = muonMatchL1.clone(matchedCuts = cms.string('coll("hltL1extraParticles")'))
-muonMatchHLTL2 = muonTriggerMatchHLT.clone(matchedCuts = cms.string('coll("hltL2MuonCandidates")'), maxDeltaR = 1.2, maxDPtRel = 10.0) # L2 muons have poor resolution
-muonMatchHLTL3 = muonTriggerMatchHLT.clone(matchedCuts = cms.string('coll("hltL3MuonCandidates")'), maxDeltaR = 0.5, maxDPtRel = 10.0)
-muonMatchHLTCtfTrack = muonTriggerMatchHLT.clone(matchedCuts = cms.string('coll("hltMuTrackJpsiCtfTrackCands")'))
-muonMatchHLTTrackMu  = muonTriggerMatchHLT.clone(matchedCuts = cms.string('coll("hltMuTkMuJpsiTrackerMuonCands")'))
+muonMatchHLTL2 = muonTriggerMatchHLT.clone(matchedCuts = cms.string('coll("hltL2MuonCandidates")'), maxDeltaR = 0.3, maxDPtRel = 10.0)  #maxDeltaR Changed accordingly to Zoltan tuning. It was: 1.2
+muonMatchHLTL3 = muonTriggerMatchHLT.clone(matchedCuts = cms.string('coll("hltL3MuonCandidates")'), maxDeltaR = 0.1, maxDPtRel = 10.0)  #maxDeltaR Changed accordingly to Zoltan tuning. It was: 0.5
+muonMatchHLTCtfTrack = muonTriggerMatchHLT.clone(matchedCuts = cms.string('coll("hltMuTrackJpsiCtfTrackCands")'), maxDeltaR = 0.1, maxDPtRel = 10.0)  #maxDeltaR Changed accordingly to Zoltan tuning. 
+muonMatchHLTTrackMu  = muonTriggerMatchHLT.clone(matchedCuts = cms.string('coll("hltMuTkMuJpsiTrackerMuonCands")'), maxDeltaR = 0.1, maxDPtRel = 10.0) #maxDeltaR Changed accordingly to Zoltan tuning. 
 
 patTriggerMatchers1Mu = cms.Sequence(
       muonMatchHLTL1 +
@@ -194,11 +194,11 @@ def addDiMuonTriggers(process):
 def useL1MatchingWindowForSinglets(process):
     "Change the L1 trigger matching window to be suitable also for CSC single triggers"
     if hasattr(process, 'muonL1Info'):
-        process.muonL1Info.maxDeltaR     = 1.2
+        process.muonL1Info.maxDeltaR     = 0.3 #Changed accordingly to Zoltan tuning. It was: 1.2
         process.muonL1Info.maxDeltaEta   = 0.2
         process.muonL1Info.fallbackToME1 = True
     if hasattr(process, 'muonMatchHLTL1'):
-        process.muonMatchHLTL1.maxDeltaR     = 1.2
+        process.muonMatchHLTL1.maxDeltaR     = 0.3 #Changed accordingly to Zoltan tuning. It was: 1.2
         process.muonMatchHLTL1.maxDeltaEta   = 0.2
         process.muonMatchHLTL1.fallbackToME1 = True
 
