@@ -3002,7 +3002,7 @@ void OHltTree::CheckOpenHlt(
 	    {
 	      if (OpenHlt1MuonPassed(map_muThresholds[thresholds[0]], 2., 0)>=1)
 		{
-		  if (OpenHltRPassed(thresholds[1], thresholds[1], false, 7, 40.)>0)
+	     	  if (OpenHltRPassed(thresholds[1], thresholds[2], false, 7, 40.)>0)
 		    triggerBit[it] = true;
 		}
 	    }
@@ -10336,7 +10336,7 @@ else if (triggerName.CompareTo("OpenHLT_Ele32_WP70_PFMT50_v1")  == 0)
   else if (isHTX_MuX_pfMHTXTrigger(triggerName, thresholds)) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1){
       if (prescaleResponse(menu,cfg,rcounter,it)){
-	if(OpenHltpfMHT(thresholds[1]) && OpenHltSumCorHTPassed(thresholds[0])>0 && OpenHlt1MuonPassed(3.,3.,5.,2.,0)>0)
+	if(OpenHltpfMHT(thresholds[2]) && OpenHltSumCorHTPassed(thresholds[0])>0 && OpenHlt1MuonPassed(map_muThresholds[thresholds[1]],2.,0)>0)
 	  {
 	    triggerBit[it] = true;
 	  }
@@ -10348,7 +10348,7 @@ else if (triggerName.CompareTo("OpenHLT_Ele32_WP70_PFMT50_v1")  == 0)
   else if (isMuX_HTXTrigger(triggerName, thresholds)) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1){
       if (prescaleResponse(menu,cfg,rcounter,it)){
-	if( OpenHltSumCorHTPassed(thresholds[3])>0 && OpenHlt1MuonPassed(thresholds[0], thresholds[1], thresholds[2],2.,0)>0)
+	if( OpenHltSumCorHTPassed(thresholds[1])>0 && OpenHlt1MuonPassed(map_muThresholds[thresholds[0]],2.,0)>0)
 	  {
 	    triggerBit[it] = true;
 	  }
