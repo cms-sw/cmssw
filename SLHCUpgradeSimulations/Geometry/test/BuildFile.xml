@@ -9,6 +9,19 @@
     <use   name="SimTracker/TrackerHitAssociation"/>
     <use   name="RecoLocalTracker/SiPixelRecHits"/>
   </library>
+  <library   file="TPNtuplizer.cc" name="TPNtuplizer">
+    <flags   EDM_PLUGIN="1"/>
+    <use   name="FWCore/Framework"/>
+    <use   name="DataFormats/Common"/>
+    <use   name="DataFormats/TrackReco"/>
+    <use   name="DataFormats/StdDictionaries"/>
+    <use   name="FWCore/ParameterSet"/>
+    <use   name="SimTracker/TrackerHitAssociation"/>
+    <use   name="RecoLocalTracker/SiPixelRecHits"/>
+    <use   name="SimDataFormats/TrackingAnalysis"/>
+    <use   name="SimTracker/TrackAssociation"/>
+    <use   name="SimTracker/Records"/>
+  </library>
   <library   file="FastsimHitNtuplizer.cc" name="FastsimHitNtuplizerExample">
     <flags   EDM_PLUGIN="1"/>
     <use   name="FWCore/Framework"/>
