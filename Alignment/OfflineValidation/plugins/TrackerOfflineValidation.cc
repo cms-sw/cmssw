@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.48 2011/06/14 19:57:55 mussgill Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.50 2011/07/04 09:24:13 wanx Exp $
 //
 //
 
@@ -1122,20 +1122,21 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 	  if ( fabs(tgalpha)!=0 ){
 	    histStruct.LocalX->Fill(itH->localXnorm, tgalpha*tgalpha); 
 	    histStruct.LocalY->Fill(itH->localYnorm, tgalpha*tgalpha); 
-           if (this->isEndCap(detid.subdetId()) && !this->isPixel(detid.subdetId())) {
+/*           if (this->isEndCap(detid.subdetId()) && !this->isPixel(detid.subdetId())) {
              if((itH->resX)*(itH->resXprime)>0){
-            histStruct.ResXvsXProfile->Fill(itH->localXnorm, itH->resXprime/tgalpha, tgalpha*tgalpha);
-            histStruct.ResXvsYProfile->Fill(itH->localYnorm, itH->resXprime/tgalpha, tgalpha*tgalpha);
+            histStruct.ResXvsXProfile->Fill(itH->localXnorm, itH->resXatTrkY/tgalpha, tgalpha*tgalpha);
+            histStruct.ResXvsYProfile->Fill(itH->localYnorm, itH->resXatTrkY/tgalpha, tgalpha*tgalpha);
              } else {
-            histStruct.ResXvsXProfile->Fill(itH->localXnorm, (-1)*itH->resXprime/tgalpha, tgalpha*tgalpha);
-            histStruct.ResXvsYProfile->Fill(itH->localYnorm, (-1)*itH->resXprime/tgalpha, tgalpha*tgalpha);
+            histStruct.ResXvsXProfile->Fill(itH->localXnorm, (-1)*itH->resXatTrkY/tgalpha, tgalpha*tgalpha);
+            histStruct.ResXvsYProfile->Fill(itH->localYnorm, (-1)*itH->resXatTrkY/tgalpha, tgalpha*tgalpha);
                }
 
           }else {  
+*/
+	    histStruct.ResXvsXProfile->Fill(itH->localXnorm, itH->resXatTrkY/tgalpha, tgalpha*tgalpha); 
+	    histStruct.ResXvsYProfile->Fill(itH->localYnorm, itH->resXatTrkY/tgalpha, tgalpha*tgalpha); 
 
-	    histStruct.ResXvsXProfile->Fill(itH->localXnorm, itH->resX/tgalpha, tgalpha*tgalpha); 
-	    histStruct.ResXvsYProfile->Fill(itH->localYnorm, itH->resX/tgalpha, tgalpha*tgalpha); 
-          }
+//          }
 
 	  }
 	}
@@ -1163,7 +1164,7 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
 	  if ( moduleLevelProfiles_ && itH->inside ) {
 	    float tgbeta = tan(itH->localBeta);
 	    if ( fabs(tgbeta)!=0 ){
-           if (this->isEndCap(detid.subdetId()) && !this->isPixel(detid.subdetId())) {
+/*           if (this->isEndCap(detid.subdetId()) && !this->isPixel(detid.subdetId())) {
             
             if((itH->resY)*(itH->resYprime)>0){
             histStruct.ResYvsXProfile->Fill(itH->localXnorm, itH->resYprime/tgbeta, tgbeta*tgbeta);
@@ -1174,10 +1175,10 @@ TrackerOfflineValidation::analyze(const edm::Event& iEvent, const edm::EventSetu
                }
 
           }else {  
-
+*/
 	      histStruct.ResYvsXProfile->Fill(itH->localXnorm, itH->resY/tgbeta, tgbeta*tgbeta); 
 	      histStruct.ResYvsYProfile->Fill(itH->localYnorm, itH->resY/tgbeta, tgbeta*tgbeta); 
-              }
+//              }
 	    }
 	  }
 
