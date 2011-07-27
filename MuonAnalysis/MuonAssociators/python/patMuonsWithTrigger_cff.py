@@ -83,7 +83,7 @@ muonTriggerMatchHLT = cms.EDProducer( "PATTriggerMatcherDRDPtLessByR",
     maxDPtRel = cms.double( 0.5 ),
     maxDeltaR = cms.double( 0.5 ),
     resolveAmbiguities    = cms.bool( True ),
-    resolveByMatchQuality = cms.bool( True )
+    resolveByMatchQuality = cms.bool( True ) #change with respect to previous tag
 )
 
 ### == For HLT triggers which are just L1s, we need a different matcher
