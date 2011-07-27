@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V186 (CMSSW_4_2_0_HLT18)
+# /dev/CMSSW_4_2_0/HIon/V187 (CMSSW_4_2_0_HLT18)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V186')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V187')
 )
 
 process.streams = cms.PSet( 
@@ -5127,7 +5127,7 @@ process.hltPreHLTDQMResultsOutput = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltPreHLTDQMResultsOutputSmart = cms.EDFilter( "TriggerResultsFilter",
-    triggerConditions = cms.vstring( 'HLT_*' ),
+    triggerConditions = cms.vstring(  ),
     hltResults = cms.InputTag( "TriggerResults" ),
     l1tResults = cms.InputTag( "hltGtDigis" ),
     l1tIgnoreMask = cms.bool( False ),

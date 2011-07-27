@@ -149,8 +149,9 @@ HLT_DoubleMu3_v*
 HLT_DoubleMu6_v*
 HLT_DoubleMu7_v*
 HLT_DoubleMu45_v*
-HLT_DoubleMu4_Acoplanarity03_v*
+#HLT_DoubleMu4_Acoplanarity03_v* #removed in "3e33" menu (see sr #122044)
 HLT_DoubleMu5_Acoplanarity03_v*
+HLT_DoubleMu6_Acoplanarity03_v* #added in "3e33" menu (see sr #122044)
 HLT_Dimuon0_Jpsi_NoVertexing_v*
 HLT_Dimuon0_Jpsi_v*
 HLT_Dimuon0_Jpsi_Muon_v*
