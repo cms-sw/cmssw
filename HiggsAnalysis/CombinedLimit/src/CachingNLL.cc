@@ -386,13 +386,17 @@ void cacheutils::CachingSimNLL::splitWithWeights(const RooAbsData &data, const R
     RooArgSet obsplus(obs);
     RooRealVar weight("_weight_","",1);
     if (data.isWeighted()) obsplus.add(weight);
+    if (nb != int(datasets_.size())) throw std::logic_error("Number of categories changed"); // this can happen due to bugs in RooDataSet
     for (int ib = 0; ib < nb; ++ib) {
         if (datasets_[ib] == 0) datasets_[ib] = new RooDataSet("", "", obsplus, data.isWeighted() ? "_weight_" : (const char*)0);
         else datasets_[ib]->reset();
     }
+    //utils::printRDH((RooAbsData*)&data);
     for (int i = 0; i < ne; ++i) {
-        data.get(i); int ib = cat->getBin();
-        datasets_[ib]->add(obs, data.weight());
+        data.get(i); if (data.weight() == 0) continue;
+        int ib = cat->getBin();
+        //std::cout << "Event " << i << " of weight " << data.weight() << " is in bin " << ib << " label " << cat->getLabel() << std::endl;
+        if (data.weight() > 0) datasets_[ib]->add(obs, data.weight());
     }
 }
 
