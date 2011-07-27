@@ -19,8 +19,9 @@ Protocol Version 7: No change to protocol, only description blob (and event data
 code 1 | size 4 | protocol version 1 | pset 16 | run 4 | Init Header Size 4| Event Header Size 4| releaseTagLength 1 | ReleaseTag var| processNameLength 1 | processName var| outputModuleLabelLength 1 | outputModuleLabel var | outputModuleId 4 | HLT Trig count 4| HLT Trig Length 4 | HLT Trig names var | HLT Selection count 4| HLT Selection Length 4 | HLT Selection names var | L1 Trig Count 4| L1 TrigName len 4| L1 Trig Names var |desc legth 4 | description blob var
 
 Protocol Version 8: added data blob checksum and hostname
-code 1 | size 4 | protocol version 1 | pset 16 | run 4 | Init Header Size 4| Event Header Size 4| releaseTagLength 1 | ReleaseTag var| processNameLength 1 | processName var| outputModuleLabelLength 1 | outputModuleLabel var | outputModuleId 4 | HLT Trig count 4| HLT Trig Length 4 | HLT Trig names var | HLT Selection count 4| HLT Selection Length 4 | HLT Selection names var | L1 Trig Count 4| L1 TrigName len 4| L1 Trig Names var | adler32 chksum | host name length | host name |desc legth 4 | description blob var
+code 1 | size 4 | protocol version 1 | pset 16 | run 4 | Init Header Size 4| Event Header Size 4| releaseTagLength 1 | ReleaseTag var| processNameLength 1 | processName var| outputModuleLabelLength 1 | outputModuleLabel var | outputModuleId 4 | HLT Trig count 4| HLT Trig Length 4 | HLT Trig names var | HLT Selection count 4| HLT Selection Length 4 | HLT Selection names var | L1 Trig Count 4| L1 TrigName len 4| L1 Trig Names var | adler32 chksum 4| host name length 4| host name var|desc legth 4 | description blob var
 
+Protocol Version 9: identical to version 8, but incremented to keep in sync with event msg protocol version 
 */
 
 #ifndef IOPool_Streamer_InitMessage_h
@@ -31,7 +32,7 @@ code 1 | size 4 | protocol version 1 | pset 16 | run 4 | Init Header Size 4| Eve
 
 struct Version
 {
-  Version(uint32 proto, const uint8* pset):protocol_(proto)
+  Version(const uint8* pset):protocol_(9)
   { std::copy(pset,pset+sizeof(pset_id_),&pset_id_[0]); }
 
   uint8 protocol_; // version of the protocol

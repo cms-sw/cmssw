@@ -157,9 +157,6 @@ namespace edm {
     //  std::string hexy = r1.toString();
     //  std::cout << "HEX Representation of Process PSetID: " << hexy << std::endl;
 
-    //Setting protocol version V
-    Version v(8,(uint8*)toplevel.compactForm().c_str());
-
     Strings hltTriggerNames = getAllTriggerNames();
     hltsize_ = hltTriggerNames.size();
 
@@ -180,7 +177,8 @@ namespace edm {
 
     std::auto_ptr<InitMsgBuilder> init_message(
         new InitMsgBuilder(&serialize_databuffer.header_buf_[0], serialize_databuffer.header_buf_.size(),
-                           run, v, getReleaseVersion().c_str() , processName.c_str(),
+                           run, Version((uint8*)toplevel.compactForm().c_str()),
+                           getReleaseVersion().c_str() , processName.c_str(),
                            moduleLabel.c_str(), outputModuleId_,
                            hltTriggerNames, hltTriggerSelections_, l1_names,
                            (uint32)serialize_databuffer.adler32_chksum(), host_name_));

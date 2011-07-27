@@ -60,7 +60,7 @@ int main()
   std::string host_name = "mytestnode.cms";
 
   InitMsgBuilder init(&buf[0],buf.size(),12,
-                      Version(8,(const uint8*)psetid),(const char*)reltag,
+                      Version((const uint8*)psetid),(const char*)reltag,
 		      processName.c_str(),outputModuleLabel.c_str(), crc,
                       hlt_names,hlt_names,l1_names,
                       adler32_chksum, host_name.c_str());
@@ -84,8 +84,7 @@ int main()
 
   InitMsgBuilder init2(&buf2[0],buf2.size(),
                        view.run(),
-                       Version(view.protocolVersion(),
-                               (const uint8*)psetid2),
+                       Version((const uint8*)psetid2),
                        view.releaseTag().c_str(),
                        processName.c_str(),outputModuleLabel.c_str(), crc,
                        hlt2,hlt2,l12,
