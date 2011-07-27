@@ -24,6 +24,9 @@ jetMETAnalyzer.DoMuCorrMETAnalysis          = cms.untracked.bool(False)
 jetMETAnalyzer.DoPfMETAnalysis              = cms.untracked.bool(False)
 jetMETAnalyzer.DoHTMHTAnalysis              = cms.untracked.bool(False)
 
+# prevent jetIDHelper from calculating cell based variables which don't make sense w/ HI bkg subtraction 
+jetMETAnalyzer.jetAnalysis.JetIDParams.useRecHits = cms.bool(False)
+
 jetMETAnalyzer.caloMETAnalysis.allHist                = cms.bool(False)
 
 towerSchemeBAnalyzer.AllHist = cms.untracked.bool(False)
