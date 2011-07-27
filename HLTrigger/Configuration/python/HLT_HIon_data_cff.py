@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HIon/V184 (CMSSW_4_2_0_HLT18)
+# /dev/CMSSW_4_2_0/HIon/V185 (CMSSW_4_2_0_HLT18)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V184')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V185')
 )
 
 streams = cms.PSet( 
@@ -4555,6 +4555,29 @@ HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_DTCalibration_v1, HLT_Ecal
 # version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
+
+# from CMSSW_4_4_0_pre6: updated configuration for the HybridClusterProducer's and EgammaHLTHybridClusterProducer's
+if cmsswVersion > "CMSSW_4_4":
+    if 'hltHybridSuperClustersActivity' in locals():
+        hltHybridSuperClustersActivity.xi               = cms.double( 0.0 )
+        hltHybridSuperClustersActivity.useEtForXi       = cms.bool( False )
+    if 'hltHybridSuperClustersL1Isolated' in locals():
+        hltHybridSuperClustersL1Isolated.xi             = cms.double( 0.0 )
+        hltHybridSuperClustersL1Isolated.useEtForXi     = cms.bool( False )
+    if 'hltHybridSuperClustersL1NonIsolated' in locals():
+        hltHybridSuperClustersL1NonIsolated.xi          = cms.double( 0.0 )
+        hltHybridSuperClustersL1NonIsolated.useEtForXi  = cms.bool( False )
+
+# from CMSSW_4_4_0_pre5: updated configuration for the PFRecoTauDiscriminationByIsolation producers
+if cmsswVersion > "CMSSW_4_4":
+    if 'hltPFTauTightIsoIsolationDiscriminator' in locals():
+        hltPFTauTightIsoIsolationDiscriminator.qualityCuts.primaryVertexSrc = hltPFTauTightIsoIsolationDiscriminator.PVProducer
+        hltPFTauTightIsoIsolationDiscriminator.qualityCuts.pvFindingAlgo    = cms.string('highestPtInEvent')
+        delattr(hltPFTauTightIsoIsolationDiscriminator, 'PVProducer')
+    if 'hltPFTauLooseIsolationDiscriminator' in locals():
+        hltPFTauLooseIsolationDiscriminator.qualityCuts.primaryVertexSrc = hltPFTauLooseIsolationDiscriminator.PVProducer
+        hltPFTauLooseIsolationDiscriminator.qualityCuts.pvFindingAlgo    = cms.string('highestPtInEvent')
+        delattr(hltPFTauLooseIsolationDiscriminator, 'PVProducer')
 
 # from CMSSW_4_4_0_pre5: updated configuration for the EcalSeverityLevelESProducer
 if cmsswVersion > "CMSSW_4_4":

@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V184
+# /dev/CMSSW_4_2_0/GRun/V185
 
 import FWCore.ParameterSet.Config as cms
 
@@ -444,7 +444,6 @@ streamA_datasetSingleElectron_selector.triggerConditions = cms.vstring('HLT_Ele1
     'HLT_Ele32_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_v4', 
     'HLT_Ele32_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v6', 
     'HLT_Ele32_WP70_PFMT50_v3', 
-    'HLT_Ele52_CaloIdVT_TrkIdT_v4', 
     'HLT_Ele65_CaloIdVT_TrkIdT_v3')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetSingleMu_selector
