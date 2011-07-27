@@ -31,6 +31,8 @@ private:
   static unsigned int iterations_;
   /// Discard these points
   static unsigned int burnInSteps_;
+  /// Discard these fraction of points
+  static float burnInFraction_;
   /// compute the limit N times
   static unsigned int tries_;
   /// Ignore up to this fraction of results if they're too far from the median
@@ -64,6 +66,7 @@ private:
   void readChains(const RooArgSet &poi, std::vector<double> &limits);
   void limitFromChain(double &limit, double &limitErr, const RooArgSet &poi, RooStats::MarkovChain &chain) ;
   void limitAndError(double &limit, double &limitErr, std::vector<double> &limits) const ;
+  RooStats::MarkovChain *slimChain(const RooArgSet &poi, const RooStats::MarkovChain &chain) const;
 };
 
 #endif

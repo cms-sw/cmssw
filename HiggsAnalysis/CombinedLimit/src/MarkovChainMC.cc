@@ -31,6 +31,7 @@ bool MarkovChainMC::updateProposalParams_ = false;
 bool MarkovChainMC::updateHint_ = false;
 unsigned int MarkovChainMC::iterations_ = 10000;
 unsigned int MarkovChainMC::burnInSteps_ = 200;
+float MarkovChainMC::burnInFraction_ = 0.25;
 unsigned int MarkovChainMC::tries_ = 10;
 float MarkovChainMC::truncatedMeanFraction_ = 0.0;
 bool MarkovChainMC::adaptiveTruncation_ = true;
@@ -50,7 +51,8 @@ MarkovChainMC::MarkovChainMC() :
     options_.add_options()
         ("iteration,i", boost::program_options::value<unsigned int>(&iterations_)->default_value(iterations_), "Number of iterations")
         ("tries", boost::program_options::value<unsigned int>(&tries_)->default_value(tries_), "Number of times to run the MCMC on the same data")
-        ("burnInSteps,b", boost::program_options::value<unsigned int>(&burnInSteps_)->default_value(burnInSteps_), "Burn in steps")
+        ("burnInSteps,b", boost::program_options::value<unsigned int>(&burnInSteps_)->default_value(burnInSteps_), "Burn in steps (absolute number)")
+        ("burnInFraction", boost::program_options::value<float>(&burnInFraction_)->default_value(burnInFraction_), "Burn in steps (fraction of total accepted steps)")
         ("proposal", boost::program_options::value<std::string>(&proposalTypeName_)->default_value(proposalTypeName_), 
                               "Proposal function to use: 'fit', 'uniform', 'gaus', 'ortho' (also known as 'test')")
         ("runMinos",          "Run MINOS when fitting the data")
@@ -257,17 +259,20 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
       mcInt.reset(0);
   }
   if (mcInt.get() == 0) return false;
+  if (mcInt->GetChain()->Size() * burnInFraction_ > burnInSteps_) {
+    mcInt->SetNumBurnInSteps(mcInt->GetChain()->Size() * burnInFraction_);
+  }
   limit = mcInt->UpperLimit(*r);
 
   if (saveChain_ || mergeChains_) {
       // Copy-constructors don't work properly, so we just have to leak memory.
       //RooStats::MarkovChain *chain = new RooStats::MarkovChain(*mcInt->GetChain());
-      RooStats::MarkovChain *chain = const_cast<RooStats::MarkovChain *>(mcInt.release()->GetChain());
+      RooStats::MarkovChain *chain = slimChain(*mc_s->GetParametersOfInterest(), *mcInt->GetChain());
       if (mergeChains_) chains_.Add(chain);
       if (saveChain_)  writeToysHere->WriteTObject(chain,  TString::Format("MarkovChain_mh%g_%u",mass_, RooRandom::integer(std::numeric_limits<UInt_t>::max() - 1)));
       return chain->Size();
   } else {
-    return mcInt->GetChain()->Size();
+      return mcInt->GetChain()->Size();
   }
 }
 
@@ -390,4 +395,17 @@ MarkovChainMC::limitFromChain(double &limit, double &limitErr, const RooArgSet &
 #endif
 }
 
-
+RooStats::MarkovChain *
+MarkovChainMC::slimChain(const RooArgSet &poi, const RooStats::MarkovChain &chain) const 
+{
+    RooArgSet poilvalue(poi); // wtf they don't take a const & ??
+    RooStats::MarkovChain * ret = new RooStats::MarkovChain("","",poilvalue);
+    for (int i = 0, n = chain.Size(); i < n; ++i) {
+        RooArgSet entry(*chain.Get(i));
+        Double_t nll = chain.NLL();
+        Double_t weight = chain.Weight();
+        if (i) ret->AddFast(entry, nll, weight);
+        else   ret->Add(entry, nll, weight);
+    }    
+    return ret;
+}
