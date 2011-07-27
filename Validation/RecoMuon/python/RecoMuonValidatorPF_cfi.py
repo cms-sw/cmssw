@@ -40,11 +40,11 @@ recoMuonValidatorPF = cms.EDAnalyzer("RecoMuonValidatorPF",
     minEta = cms.untracked.double(-2.5),
     maxEta = cms.untracked.double(2.5),
 
-    nBinDxy = cms.untracked.uint32(300),
+    nBinDxy = cms.untracked.uint32(150),
     minDxy = cms.untracked.double(-1.5),
     maxDxy = cms.untracked.double(1.5),
 
-    nBinDz = cms.untracked.uint32(200),
+    nBinDz = cms.untracked.uint32(100),
     minDz = cms.untracked.double(-25.),
     maxDz = cms.untracked.double(25.),
 
