@@ -150,7 +150,7 @@ struct RecoMuonValidatorPF::MuonME {
     hSimDz_ = dqm->book1D("Dz", "Dz of simTracks" , hDim.nBinDz, hDim.minDz, hDim.maxDz);
 
     //track multiplicities
-    hNSim_  = dqm->book1D("NSim" , "Number of particles per event", hDim.nTrks,+1 -0.5, hDim.nTrks+0.5);
+    hNSim_  = dqm->book1D("NSim" , "Number of particles per event", hDim.nTrks+1, -0.5, hDim.nTrks+0.5);
     hNMuon_ = dqm->book1D("NMuon", "Number of muons per event"    , hDim.nTrks+1, -0.5, hDim.nTrks+0.5);
 
     // - Misc. variables
@@ -179,16 +179,16 @@ struct RecoMuonValidatorPF::MuonME {
     hErrPt_PF_  = dqm->book1D("ErrPt_PF" , "#Delta(p_{T})|_{PF}/p_{T}", hDim.nBinErr, hDim.minErrPt, hDim.maxErrPt );
     hErrQPt_PF_  = dqm->book1D("ErrQPt_PF" , "#Delta(q/p_{T})|_{PF}/(q/p_{T})", hDim.nBinErr, hDim.minErrQPt, hDim.maxErrQPt);
 
-    hPFMomPicked  = dqm->book1D("hPFMomPicked", "Momentum picked by PF",5,-0.5,4.4);
-    hPFDirectionPicked  = dqm->book1D("hPFDirectionPicked", "Direction picked by PF",5,-0.5,4.5);
+    hPFMomPicked  = dqm->book1D("hPFMomPicked", "Momentum picked by PF",4,0.5,4.5);
+    hPFDirectionPicked  = dqm->book1D("hPFDirectionPicked", "Direction picked by PF",4,0.5,4.5);
     hPFMomAssCorrectness  = dqm->book1D("hPFMomAssCorrectness", "Corrected momentum assignement PF/RECO",2,0.5,2.5);
 
-    hdPt_vs_Pt_  = dqm->book2D("dPt_vs_Pt", "#Delta(p_{T}) vs p_{T}", hDim.nBinPt, 0., 500, 100, 0., 5.);
+    hdPt_vs_Pt_  = dqm->book2D("dPt_vs_Pt", "#Delta(p_{T}) vs p_{T}", hDim.nBinPt, 0., 500., 100, 0., 5.);
     hdPt_vs_Eta_  = dqm->book2D("dPt_vs_Eta", "#Delta(p_{T}) vs #eta", hDim.nBinEta, hDim.minEta, hDim.maxEta, 100, 0., 5.);
     
-    hPt_vs_PFMomPicked  = dqm->book2D("hPt_vs_PFMomPicked", "Momentum picked by PF vs recoPt", hDim.nBinPt,0,500.,4,0.5,4.5);
-    hPt_vs_PFDirectionPicked  = dqm->book2D("hPt_vs_PFDirectionPicked", "Direction picked by PF vs recoPt",100,0,500.,4,0.5,4.5);
-    hPt_vs_PFMomAssCorrectness  = dqm->book2D("hPt_vs_PFMomAssCorrectness", "Corrected momentum assignement PF/RECO", hDim.nBinPt,0,500.,2,0.5,2.5);
+    hPt_vs_PFMomPicked  = dqm->book2D("hPt_vs_PFMomPicked", "Momentum picked by PF vs recoPt", hDim.nBinPt,0.,500.,4,0.5,4.5);
+    hPt_vs_PFDirectionPicked  = dqm->book2D("hPt_vs_PFDirectionPicked", "Direction picked by PF vs recoPt",100,0.,500.,4,0.5,4.5);
+    hPt_vs_PFMomAssCorrectness  = dqm->book2D("hPt_vs_PFMomAssCorrectness", "Corrected momentum assignement PF/RECO", hDim.nBinPt,0.,500.,2,0.5,2.5);
 
     // -- Resolutions vs Eta
     hErrP_vs_Eta_   = dqm->book2D("ErrP_vs_Eta", "#Delta(p)/p vs #eta",
@@ -247,7 +247,7 @@ struct RecoMuonValidatorPF::MuonME {
                                      hDim.nBinEta, hDim.minEta, hDim.maxEta, nLostHits+1, -0.5, nLostHits+0.5);
 
     const int nTrackerHits = 40;
-    hNTrackerHits_ = dqm->book1D("NTrackerHits", "Number of valid tracker hits", nTrackerHits+1, -0-5, nTrackerHits+0.5);
+    hNTrackerHits_ = dqm->book1D("NTrackerHits", "Number of valid tracker hits", nTrackerHits+1, -0.5, nTrackerHits+0.5);
     hNTrackerHits_vs_Pt_ = dqm->book2D("NTrackerHits_vs_Pt", "Number of valid traker hits vs p_{T}",
                                        hDim.nBinPt, hDim.minPt, hDim.maxPt, nTrackerHits/4, -0.5, nTrackerHits-0.5);
     hNTrackerHits_vs_Eta_ = dqm->book2D("NTrackerHits_vs_Eta", "Number of valid tracker hits vs #eta",
@@ -256,7 +256,7 @@ struct RecoMuonValidatorPF::MuonME {
     const int nMuonHits = 60;
     hNMuonHits_ = dqm->book1D("NMuonHits", "Number of valid muon hits", nMuonHits+1, -0.5, nMuonHits+0.5);
     hNMuonHits_vs_Pt_  = dqm->book2D("NMuonHits_vs_Pt", "Number of valid muon hits vs p_{T}",
-                                     hDim.nBinPt, hDim.minPt, hDim.maxPt, nMuonHits/4, -0.5, nMuonHits-0-5);
+                                     hDim.nBinPt, hDim.minPt, hDim.maxPt, nMuonHits/4, -0.5, nMuonHits-0.5);
     hNMuonHits_vs_Eta_ = dqm->book2D("NMuonHits_vs_Eta", "Number of valid muon hits vs #eta",
                                      hDim.nBinEta, hDim.minEta, hDim.maxEta, nMuonHits/4, -0.5, nMuonHits-0.5);
 
@@ -702,9 +702,9 @@ RecoMuonValidatorPF::RecoMuonValidatorPF(const ParameterSet& pset):
   commonME_->hStaToGlbDiffNMuonHits_ = theDQM->book1D("StaGlbDiffNMuonHits", "Difference of number of muon hits (staMuon - globalMuon)", 2*nHits+1, -nHits-0.5, nHits+0.5);
 
   commonME_->hTrkToGlbDiffNTrackerHitsEta_ = theDQM->book2D("TrkGlbDiffNTrackerHitsEta", "Difference of number of tracker hits (tkMuon - globalMuon)",   hDim.nBinEta, hDim.minEta, hDim.maxEta, 2*nHits+1, -nHits-0.5, nHits+0.5);
-  commonME_->hStaToGlbDiffNMuonHitsEta_ = theDQM->book2D("StaGlbDiffNMuonHitsEta", "Difference of number of muon hits (staMuon - globalMuon)",   hDim.nBinEta, hDim.minEta, hDim.maxEta, 2*nHits+1, -nHits, nHits);
+  commonME_->hStaToGlbDiffNMuonHitsEta_ = theDQM->book2D("StaGlbDiffNMuonHitsEta", "Difference of number of muon hits (staMuon - globalMuon)",   hDim.nBinEta, hDim.minEta, hDim.maxEta, 2*nHits+1, -nHits-0.5, nHits+0.5);
 
-  commonME_->hTrkToGlbDiffNTrackerHitsPt_ = theDQM->book2D("TrkGlbDiffNTrackerHitsPt", "Difference of number of tracker hits (tkMuon - globalMuon)",  hDim.nBinPt, hDim.minPt, hDim.maxPt, 2*nHits+1, -nHits, nHits);
+  commonME_->hTrkToGlbDiffNTrackerHitsPt_ = theDQM->book2D("TrkGlbDiffNTrackerHitsPt", "Difference of number of tracker hits (tkMuon - globalMuon)",  hDim.nBinPt, hDim.minPt, hDim.maxPt, 2*nHits+1, -nHits-0.5, nHits+0.5);
   commonME_->hStaToGlbDiffNMuonHitsPt_ = theDQM->book2D("StaGlbDiffNMuonHitsPt", "Difference of number of muon hits (staMuon - globalMuon)",  hDim.nBinPt, hDim.minPt, hDim.maxPt, 2*nHits+1, -nHits-0.5, nHits+0.5);
 
  // -global muon hit pattern
