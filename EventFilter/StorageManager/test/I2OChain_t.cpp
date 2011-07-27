@@ -1752,7 +1752,7 @@ testI2OChain::init_msg_header()
 
     InitMsgBuilder
       initBuilder(smMsg->dataPtr(), smMsg->dataSize, 100,
-                  Version(8,(const uint8*)psetid), (const char*) reltag,
+                  Version((const uint8*)psetid), (const char*) reltag,
                   processName.c_str(), outputModuleLabel.c_str(),
                   outputModuleId, hlt_names, hlt_selections, l1_names,
                   adler32_chksum, host_name);
@@ -2127,7 +2127,7 @@ testI2OChain::split_init_header()
 
     InitMsgBuilder
       initBuilder(&tmpBuffer[0], bufferSize, 100,
-                  Version(8,(const uint8*)psetid), (const char*) reltag,
+                  Version((const uint8*)psetid), (const char*) reltag,
                   processName.c_str(), outputModuleLabel.c_str(),
                   outputModuleId, hlt_names, hlt_selections, l1_names,
                   adler32_chksum, host_name);

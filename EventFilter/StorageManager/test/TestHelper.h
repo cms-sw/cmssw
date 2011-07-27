@@ -1,4 +1,4 @@
-// $Id: TestHelper.h,v 1.7 2010/08/06 20:24:33 wmtan Exp $
+// $Id: TestHelper.h,v 1.8 2011/02/17 16:06:07 mommsen Exp $
 
 #ifndef StorageManager_TestHelper_h
 #define StorageManager_TestHelper_h
@@ -112,7 +112,7 @@ namespace stor
           I2O_SM_PREAMBLE_MESSAGE_FRAME* initMsg =
             (I2O_SM_PREAMBLE_MESSAGE_FRAME*) smMsg;
           InitHeader* h = (InitHeader*)initMsg->dataPtr();
-          new (&h->version_) Version(8,(const uint8*)psetid);
+          new (&h->version_) Version((const uint8*)psetid);
           h->header_.code_ = Header::INIT;
           break;
         }
@@ -180,7 +180,7 @@ namespace stor
       smMsg->dataSize = bufferSize - sizeof(I2O_SM_PREAMBLE_MESSAGE_FRAME);
       char psetid[] = "1234567890123456";
       InitHeader* h = (InitHeader*)smMsg->dataPtr();
-      new (&h->version_) Version(8,(const uint8*)psetid);
+      new (&h->version_) Version((const uint8*)psetid);
       h->header_.code_ = Header::INIT;
       
       return temp;
@@ -241,7 +241,7 @@ namespace stor
 
       InitMsgBuilder
         initBuilder(smMsg->dataPtr(), smMsg->dataSize, 100,
-                    Version(8,(const uint8*)psetid), (const char*) reltag,
+                    Version((const uint8*)psetid), (const char*) reltag,
                     processName.c_str(), outputModuleLabel.c_str(),
                     outputModuleId, hlt_names, hlt_selections, l1_names,
                     adler32_chksum, host_name);
