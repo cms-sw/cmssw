@@ -1,3 +1,9 @@
+2011-07-27 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-04-01
+	* Adjust unit tests to changed interface of InitMsgBuilder of
+	  IOPool/Streamer V07-03-00.
+
 2011-07-07 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V08-04-00
