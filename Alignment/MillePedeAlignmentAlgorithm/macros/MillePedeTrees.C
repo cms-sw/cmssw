@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2011/02/11 10:49:02 $
+// last change    : $Date: 2011/06/29 20:36:10 $
 // by             : $Author: flucke $
 
 #include "TTree.h"
@@ -508,9 +508,8 @@ TString MillePedeTrees::DeformValue(UInt_t i, const TString &whichOne) const
 {
   //start,result,diff
   if (whichOne == "diff") {
-    ::Error("MillePedeTrees::DeformValue",
-	    "whichOne == diff not yet implemented!");
-    return "2";
+    return Parenth((PosT() += Form("DeformValues[%u]", i)) += Min()
+		   += MisPosT() += Form("DeformValues[%u]", i));
   } else {
     TString tree;
     if (whichOne == "result") tree = PosT();
@@ -529,9 +528,7 @@ TString MillePedeTrees::NumDeformValues(const TString &whichOne) const
 {
   //start,result,diff
   if (whichOne == "diff") {
-    ::Error("MillePedeTrees::NumDeformValues",
-	    "whichOne == diff not yet implemented!");
-    return "0";
+    return Fun("TMath::Min", (PosT() += "NumDeform,") += MisPosT() += "NumDeform");
   } else {
     TString tree;
     if (whichOne == "result") tree = PosT();
