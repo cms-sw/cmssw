@@ -60,6 +60,7 @@ MultiTrackValidator::MultiTrackValidator(const edm::ParameterSet& pset):MultiTra
 					pset.getParameter<int>("minHitTP"),
 					pset.getParameter<bool>("signalOnlyTP"),
 					pset.getParameter<bool>("chargedOnlyTP"),
+					pset.getParameter<bool>("stableOnlyTP"),
 					pset.getParameter<std::vector<int> >("pdgIdTP"));
 
   cosmictpSelector = CosmicTrackingParticleSelector(pset.getParameter<double>("ptMinTP"),
