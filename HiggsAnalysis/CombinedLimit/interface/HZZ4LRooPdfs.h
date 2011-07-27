@@ -130,7 +130,7 @@ protected:
 	
 private:
 	
-	ClassDef(RooFourMuMassShapePdf2,1) // Your description goes here...                                                                                       
+	ClassDef(RooFourMuMassShapePdf2,2) // Your description goes here...                                                                                       
 };
 
 
@@ -154,7 +154,7 @@ protected:
 	
 private:
 	
-	ClassDef(RooFourEMassShapePdf2,1) // Your description goes here...                                                                                        
+	ClassDef(RooFourEMassShapePdf2,2) // Your description goes here...                                                                                        
 };
 
 
@@ -179,7 +179,7 @@ protected:
 	
 private:	
 	
-	ClassDef(RooTwoETwoMuMassShapePdf2,1) // Your description goes here...                                                                                    
+	ClassDef(RooTwoETwoMuMassShapePdf2,2) // Your description goes here...                                                                                    
 };
 
 
@@ -296,7 +296,7 @@ protected:
 	
 private:
 	
-	ClassDef(RooRelBWUF,1) // Your description goes here...                                                                                                    
+	ClassDef(RooRelBWUF,2) // Your description goes here...                                                                                                    
 };
 
 //////////////////////////////////////////////
@@ -322,7 +322,7 @@ protected:
 	
 private:
 	
-	ClassDef(RooRelBWUFParam,1) // Your description goes here...                                                                                                    
+	ClassDef(RooRelBWUFParam,2) // Your description goes here...                                                                                                    
 };
 
 
