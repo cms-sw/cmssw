@@ -129,13 +129,15 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
 
     // now calculate residuals taking global orientation of modules and radial topology in TID/TEC into account
     float resXprime(999.F), resYprime(999.F);
+    float resXatTrkY(999.F);
     float resXprimeErr(999.F), resYprimeErr(999.F);
     
     if(hit->detUnit()){ // is it a single physical module?
       const GeomDetUnit& detUnit = *(hit->detUnit());
       float uOrientation(-999.F), vOrientation(-999.F);
       float resXTopol(999.F), resYTopol(999.F);
-      
+      float resXatTrkYTopol(999.F);       
+
       const Surface& surface = hit->detUnit()->surface();
       const BoundPlane& boundplane = hit->detUnit()->surface();
       const Bounds& bound = boundplane.bounds();
@@ -156,6 +158,7 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
 	uOrientation = deltaPhi(gUDirection.phi(),gPModule.phi()) >= 0. ? +1.F : -1.F;
 	vOrientation = gVDirection.z() - gPModule.z() >= 0 ? +1.F : -1.F;
 	resXTopol = res.x();
+	resXatTrkYTopol = res.x();
 	resYTopol = res.y();
 	resXprimeErr = resXErr;
 	resYprimeErr = resYErr;
@@ -172,6 +175,7 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
 	uOrientation = gUDirection.perp() - gPModule.perp() >= 0 ? +1.F : -1.F;
 	vOrientation = deltaPhi(gVDirection.phi(),gPModule.phi()) >= 0. ? +1.F : -1.F;
 	resXTopol = res.x();
+	resXatTrkYTopol = res.x();
 	resYTopol = res.y();
 	resXprimeErr = resXErr;
 	resYprimeErr = resYErr;
@@ -218,11 +222,11 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
 	float phiTrk = topol.stripAngle(measTrkPos.x());
 	float r_0 = topol.originToIntersection();
 	
-//	resXTopol = (phiTrk-phiHit)*r_0;
+	resXTopol = (phiTrk-phiHit)*r_0;
 //      resXTopol = (tan(phiTrk)-tan(phiHit))*r_0;
         
     LocalPoint LocalHitPosCor= topol.localPosition(MeasurementPoint(measHitPos.x(), measTrkPos.y()));                       
-       resXTopol = lPTrk.x() - LocalHitPosCor.x();  
+       resXatTrkYTopol = lPTrk.x() - LocalHitPosCor.x();  
 
     
 	//resYTopol = measTrkPos.y()*localStripLengthTrk - measHitPos.y()*localStripLengthHit;
@@ -259,6 +263,7 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
       }  
       
       resXprime = resXTopol*uOrientation;
+      resXatTrkY = resXatTrkYTopol;
       resYprime = resYTopol*vOrientation;
       
     } else { // not a detUnit, so must be a virtual 2D-Module
@@ -269,6 +274,7 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
     }
     
     hitStruct.resXprime = resXprime;
+    hitStruct.resXatTrkY = resXatTrkY;
     hitStruct.resYprime = resYprime;
     hitStruct.resXprimeErr = resXprimeErr;
     hitStruct.resYprimeErr = resYprimeErr;
