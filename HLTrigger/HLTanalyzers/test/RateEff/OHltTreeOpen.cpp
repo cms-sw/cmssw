@@ -10932,9 +10932,140 @@ else if (triggerName.CompareTo("OpenHLT_Ele32_WP70_PFMT50_v1")  == 0)
             }
         }
     }
+  else if (triggerName.CompareTo("OpenHLT_IsoMu15_MediumIsoPFTau20") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+        {
+          if (prescaleResponse(menu, cfg, rcounter, it))
+            {
+              if (OpenHlt1MuonPassed(10., 10., 15., 2., 1)>=1)
+                if (OpenHltPFTauPassedNoMuon(20., 1., 1., 999.)>=1)
+                  {
+                    triggerBit[it] = true;
+                  }
+            }
+        }
+    }
 
   /*Electron-Tau cross-triggers*/
+  else if (triggerName.CompareTo("OpenHLT_Ele18_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau20")
+           == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+        {
+          if (prescaleResponse(menu, cfg, rcounter, it))
+            {
+              if (OpenHlt1Ele1PFTauPassed(
+                                          18.,
+                                          0,
+                                          999.,
+                                          999.,
+                                          0.125,
+                                          0.075,
+                                          0.125,
+                                          0.075,
+                                          0.125,
+                                          0.075,
+                                          0.05,
+                                          0.05,
+                                          0.011,
+                                          0.031,
+                                          0.98,
+                                          1.,
+                                          0.008,
+                                          0.008,
+                                          0.07,
+                                          0.05,
+                                          20.,
+                                          2.5,
+                                          1.,
+                                          1.,
+                                          1000.,
+                                          0.) >= 1)
+	      triggerBit[it] = true;
+            }
+        }
+    }
+
+  else if (triggerName.CompareTo("OpenHLT_Ele18_CaloIdVT_TrkIdT_MediumIsoPFTau20")
+           == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+        {
+          if (prescaleResponse(menu, cfg, rcounter, it))
+            {
+              if (OpenHlt1Ele1PFTauPassed(
+                                          18.,
+                                          0,
+                                          999.,
+                                          999.,
+                                          999.,
+                                          999.,
+                                          999.,
+                                          999.,
+                                          999.,
+                                          999.,
+                                          0.05,
+                                          0.05,
+                                          0.011,
+                                          0.031,
+                                          0.98,
+                                          1.,
+                                          0.008,
+                                          0.008,
+                                          0.07,
+                                          0.05,
+                                          20.,
+                                          2.5,
+                                          1.,
+                                          1.,
+                                          1000.,
+                                          0.) >= 1)
+              triggerBit[it] = true;
+            }
+        }
+    }
 	
+  else if (triggerName.CompareTo("OpenHLT_Ele20_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau20")
+           == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+        {
+          if (prescaleResponse(menu, cfg, rcounter, it))
+            {
+              if (OpenHlt1Ele1PFTauPassed(
+                                          20.,
+                                          0,
+                                          999.,
+                                          999.,
+                                          0.125,
+                                          0.075,
+                                          0.125,
+                                          0.075,
+                                          0.125,
+                                          0.075,
+                                          0.05,
+                                          0.05,
+                                          0.011,
+                                          0.031,
+                                          0.98,
+                                          1.,
+                                          0.008,
+                                          0.008,
+                                          0.07,
+                                          0.05,
+                                          20.,
+                                          2.5,
+                                          1.,
+                                          1.,
+                                          1000.,
+                                          0.) >= 1)
+              triggerBit[it] = true;
+            }
+        }
+    }
+
+
   // 2011-03-29 promoted to v2 TODO check
   else if (triggerName.CompareTo("OpenHLT_Ele15_CaloIdVT_TrkIdT_LooseIsoPFTau15_v2")
 	   == 0)
