@@ -92,7 +92,7 @@ class CachingSimNLL  : public RooAbsReal {
         RooSetProxy        params_;
         RooArgSet piecesForCloning_;
         std::auto_ptr<RooSimultaneous>  factorizedPdf_;
-        std::auto_ptr<RooProdPdf>       constrainPdf_;
+        std::vector<RooAbsPdf *>        constrainPdfs_;
         std::vector<CachingAddNLL*>     pdfs_;
         std::auto_ptr<TList>            dataSets_;
         std::vector<RooDataSet *>       datasets_;

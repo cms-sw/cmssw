@@ -234,7 +234,8 @@ cacheutils::CachingAddNLL::evaluate() const
     ret = -ret;
     // std::cout << "AddNLL for " << pdf_->GetName() << ": " << ret << std::endl;
     // and add extended term: expected - observed*log(expected);
-    ret += isRooRealSum_ ?  pdf_->extendedTerm(sumWeights_, data_->get()) : (sumCoeff - UInt_t(sumWeights_) * log(sumCoeff));
+    double expectedEvents = (isRooRealSum_ ? pdf_->getNorm(data_->get()) : sumCoeff);
+    ret += expectedEvents - UInt_t(sumWeights_) * log(expectedEvents);
     // std::cout << "     plus extended term: " << ret << std::endl;
     return ret;
 }
@@ -308,8 +309,11 @@ cacheutils::CachingSimNLL::setup_()
     factorizedPdf_.reset(dynamic_cast<RooSimultaneous *>(utils::factorizePdf(*dataOriginal_->get(), *pdfclone, constraints)));
     
     RooSimultaneous *simpdf = factorizedPdf_.get();
+    constrainPdfs_.clear(); 
     if (constraints.getSize()) {
-        constrainPdf_.reset(new RooProdPdf(TString(pdfOriginal_->GetName())+"_constr", "", constraints));
+        for (int i = 0, n = constraints.getSize(); i < n; ++i) {
+            constrainPdfs_.push_back(dynamic_cast<RooAbsPdf*>(constraints.at(i)));
+        }
     } else {
         std::cerr << "PDF didn't factorize!" << std::endl;
         std::cout << "Parameters: " << std::endl;
@@ -353,7 +357,13 @@ cacheutils::CachingSimNLL::evaluate() const
         if (*it != 0) ret += (*it)->getVal();
     }
     //std::cout << "SimNLL for " << pdfOriginal_->GetName() << ": " << ret << std::endl;
-    if (constrainPdf_.get()) ret -= constrainPdf_->getLogVal(nuis_);
+    if (!constrainPdfs_.empty()) {
+        double constrProd = 1.0;
+        for (std::vector<RooAbsPdf *>::const_iterator it = constrainPdfs_.begin(), ed = constrainPdfs_.end(); it != ed; ++it) {
+            constrProd *= (*it)->getVal(nuis_);
+        }
+        ret -= log(constrProd);
+    }
     //std::cout << "    plus constrain terms: " << ret << std::endl;
     return ret;
 }
