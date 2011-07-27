@@ -98,13 +98,13 @@ struct RecoMuonValidatorPF::MuonME {
   MEP hErrP_vs_Eta_, hErrPt_vs_Eta_, hErrQPt_vs_Eta_;
   MEP hErrP_vs_P_, hErrPt_vs_Pt_, hErrQPt_vs_Pt_, hErrEta_vs_Eta_;
 
-//PF-RECO comparisons
+//PF-RECO event-by-event comparisons
   MEP hErrPt_PF_;
   MEP hErrQPt_PF_;
   MEP hdPt_vs_Eta_;
   MEP hdPt_vs_Pt_;
   MEP hPFMomPicked, hPFDirectionPicked, hPFMomAssCorrectness;
-  MEP hPFMomPicked_vs_Pt, hPFDirectionPicked_vs_Pt, hPFMomAssCorrectness_vs_Pt;
+  MEP hPt_vs_PFMomPicked, hPt_vs_PFDirectionPicked, hPt_vs_PFMomAssCorrectness;
 
 //hit pattern
   MEP hNSimHits_;
@@ -179,16 +179,16 @@ struct RecoMuonValidatorPF::MuonME {
     hErrPt_PF_  = dqm->book1D("ErrPt_PF" , "#Delta(p_{T})|_{PF}/p_{T}", hDim.nBinErr, hDim.minErrPt, hDim.maxErrPt );
     hErrQPt_PF_  = dqm->book1D("ErrQPt_PF" , "#Delta(q/p_{T})|_{PF}/(q/p_{T})", hDim.nBinErr, hDim.minErrQPt, hDim.maxErrQPt);
 
-    hPFMomPicked  = dqm->book1D("hPFMomPicked", "Momentum picked by PF vs recoPt",5,0,5);
-    hPFDirectionPicked  = dqm->book1D("hPFDirectionPicked", "Direction picked by PF vs recoPt",5,0,5);
-    hPFMomAssCorrectness  = dqm->book1D("hPFMomAssCorrectness", "Corrected momentum assignement PF/RECO",5,0,5);
+    hPFMomPicked  = dqm->book1D("hPFMomPicked", "Momentum picked by PF",4,0,4);
+    hPFDirectionPicked  = dqm->book1D("hPFDirectionPicked", "Direction picked by PF",4,0,4);
+    hPFMomAssCorrectness  = dqm->book1D("hPFMomAssCorrectness", "Corrected momentum assignement PF/RECO",3,0,3);
 
-    hdPt_vs_Pt_  = dqm->book2D("dPt_vs_Pt", "#Delta(p_{T}) vs p_{T}", 100, 0., 500., 100, 0., 5.);
-    hdPt_vs_Eta_  = dqm->book2D("dPt_vs_Eta", "#Delta(p_{T}) vs #eta", hDim.nBinEta, hDim.minEta, hDim.maxEta, 100, 0., 5.);
+    hdPt_vs_Pt_  = dqm->book2D("dPt_vs_Pt", "#Delta(p_{T}) vs p_{T}", 100, 0., 5., 100, 0., 500.);
+    hdPt_vs_Eta_  = dqm->book2D("dPt_vs_Eta", "#Delta(p_{T}) vs #eta", 100, 0., 5., hDim.nBinEta, hDim.minEta, hDim.maxEta);
     
-    hPFMomPicked_vs_Pt  = dqm->book2D("hPFMomPicked_vs_Pt", "Momentum picked by PF vs recoPt",100,0,500.,5,0,5);
-    hPFDirectionPicked_vs_Pt  = dqm->book2D("hPFDirectionPicked_vs_Pt", "Direction picked by PF vs recoPt",100,0,500.,5,0.,5);
-    hPFMomAssCorrectness_vs_Pt  = dqm->book2D("hPFMomAssCorrectness_vs_Pt", "Corrected momentum assignement PF/RECO",100,0,500.,5,0,5);
+    hPt_vs_PFMomPicked  = dqm->book2D("hPt_vs_PFMomPicked", "Momentum picked by PF vs recoPt",100,0,500.,4,0,4);
+    hPt_vs_PFDirectionPicked  = dqm->book2D("hPt_vs_PFDirectionPicked", "Direction picked by PF vs recoPt",100,0,500.,4,0,4);
+    hPt_vs_PFMomAssCorrectness  = dqm->book2D("hPt_vs_PFMomAssCorrectness", "Corrected momentum assignement PF/RECO",100,0,500.,3,0,3);
 
     // -- Resolutions vs Eta
     hErrP_vs_Eta_   = dqm->book2D("ErrP_vs_Eta", "#Delta(p)/p vs #eta",
@@ -333,140 +333,140 @@ struct RecoMuonValidatorPF::MuonME {
     double MatchPFRECOMomDir = 0.000000000000001;
 
     if (muonRef->isPFMuon()) { //in principle it will be use for PF muons only...
-       hErrPt_PF_->Fill((recoPt-recoPFPt)/recoPt);
-       hErrQPt_PF_->Fill((recoQPt-recoQPFPt)/recoQPt);
-       hdPt_vs_Eta_->Fill(recoEta,fabs(recoPt-recoPFPt));
-       hdPt_vs_Pt_->Fill(recoPt,fabs(recoPt-recoPFPt));
 
-       if (fabs(recoPFPt - recoPt) > MatchPFRECOMomMagn) {
+      hErrPt_PF_->Fill((recoPt-recoPFPt)/recoPt);
+      hErrQPt_PF_->Fill((recoQPt-recoQPFPt)/recoQPt);
+      hdPt_vs_Eta_->Fill(fabs(recoPt-recoPFPt),recoEta);
+      hdPt_vs_Pt_->Fill(fabs(recoPt-recoPFPt),recoPt);
 
-	 // global
-	 if (muonRef->isGlobalMuon()) {
-	   //split into categories by direction
-	   //has direction of global track
-	   if (fabs((muonRef->pfP4().Px()*muonRef->globalTrack()->px()+muonRef->pfP4().Py()*muonRef->globalTrack()->py()+muonRef->pfP4().Pz()*muonRef->globalTrack()->pz())/muonRef->globalTrack()->p()/recoPFP - 1.) < MatchPFRECOMomDir) {
+      if (fabs(recoPFPt - recoPt) > MatchPFRECOMomMagn) {
+
+	    // global
+	    if (muonRef->isGlobalMuon()) {
+	    //split into categories by direction
+	    //has direction of global track
+	    if (fabs((muonRef->pfP4().Px()*muonRef->globalTrack()->px()+muonRef->pfP4().Py()*muonRef->globalTrack()->py()+muonRef->pfP4().Pz()*muonRef->globalTrack()->pz())/muonRef->globalTrack()->p()/recoPFP - 1.) < MatchPFRECOMomDir) {
 	     //has momentum of global track
-	     if (fabs(recoPFPt - muonRef->globalTrack()->pt()) < MatchPFRECOMomMagn) {
-	       hPFMomPicked->Fill(1);
-	       hPFMomPicked_vs_Pt->Fill(recoPt,1);
-	       //corretness
-	       if (fabs(recoPFPt-simPt) < fabs(recoPt - simPt)) {
-		 hPFMomAssCorrectness->Fill(1);
-		 hPFMomAssCorrectness_vs_Pt->Fill(recoPt,1);
-	       } else  {
-		 //else: PF was wrong
-		 hPFMomAssCorrectness->Fill(2);
-		 hPFMomAssCorrectness_vs_Pt->Fill(recoPt,2);
-	       }
-	     } else {
-	       //just the direction
-	       hPFDirectionPicked->Fill(1);
-	       hPFMomPicked->Fill(4);
-	       hPFMomPicked_vs_Pt->Fill(recoPt,4);
-	     }
-	   }
-	   //has direction of inner track
-	   //must be also tracker muon
-	   if (muonRef->isTrackerMuon()) {
-	     if (fabs((muonRef->pfP4().x()*muonRef->innerTrack()->px()+muonRef->pfP4().y()*muonRef->innerTrack()->py()+muonRef->pfP4().z()*muonRef->innerTrack()->pz())/muonRef->innerTrack()->p()/recoPFP - 1.) < MatchPFRECOMomDir) {
+	      if (fabs(recoPFPt - muonRef->globalTrack()->pt()) < MatchPFRECOMomMagn) {
+	        hPFMomPicked->Fill(0.5);
+	        hPt_vs_PFMomPicked->Fill(recoPt,0.5);
+	        //correctness
+	        if (fabs(recoPFPt-simPt) < fabs(recoPt - simPt)) {
+		        hPFMomAssCorrectness->Fill(0.5);
+		        hPt_vs_PFMomAssCorrectness->Fill(recoPt,0.5);
+	        } else  {
+		         //else: PF was wrong
+		         hPFMomAssCorrectness->Fill(1.5);
+		         hPt_vs_PFMomAssCorrectness->Fill(recoPt,1.5);
+	        }
+	      } else {
+	         //just the direction
+	         hPFDirectionPicked->Fill(0.5);
+	         hPFMomPicked->Fill(3.5);
+	         hPt_vs_PFMomPicked->Fill(recoPt,3.5);
+	      }
+	    }
+	    //has direction of inner track
+	    //must be also tracker muon
+	    if (muonRef->isTrackerMuon()) {
+	      if (fabs((muonRef->pfP4().x()*muonRef->innerTrack()->px()+muonRef->pfP4().y()*muonRef->innerTrack()->py()+muonRef->pfP4().z()*muonRef->innerTrack()->pz())/muonRef->innerTrack()->p()/recoPFP - 1.) < MatchPFRECOMomDir) {
 	       //has momentum of inner track
-	       if (fabs(recoPFPt - muonRef->innerTrack()->pt()) < MatchPFRECOMomMagn) {
-		 hPFMomPicked->Fill(2);
-		 hPFMomPicked_vs_Pt->Fill(recoPt,2);
-		 //corretness
-		 if (fabs(recoPFPt-simPt) < fabs(recoPt - simPt)) {
-		   hPFMomAssCorrectness->Fill(1);
-		   hPFMomAssCorrectness_vs_Pt->Fill(recoPt,1);
-		 } else  {
-		   //else: PF was wrong
-		   hPFMomAssCorrectness->Fill(2);
-		   hPFMomAssCorrectness_vs_Pt->Fill(recoPt,2);
-		 }
-	       } else {
-		 //just the direction
-		 hPFDirectionPicked->Fill(2);
-		 hPFMomPicked->Fill(4);
-		 hPFMomPicked_vs_Pt->Fill(recoPt,4);
+	        if (fabs(recoPFPt - muonRef->innerTrack()->pt()) < MatchPFRECOMomMagn) {
+		        hPFMomPicked->Fill(1.5);
+		        hPt_vs_PFMomPicked->Fill(recoPt,1.5);
+		        //correctness
+		          if (fabs(recoPFPt-simPt) < fabs(recoPt - simPt)) {
+		            hPFMomAssCorrectness->Fill(0.5);
+		            hPt_vs_PFMomAssCorrectness->Fill(recoPt,0.5);
+		          } else  {
+		            //else: PF was wrong
+		            hPFMomAssCorrectness->Fill(1.5);
+		            hPt_vs_PFMomAssCorrectness->Fill(recoPt,1.5);
+		         }
+	        } else {
+		         //just the direction
+		         hPFDirectionPicked->Fill(1.5);
+		         hPFMomPicked->Fill(3.5);
+		         hPt_vs_PFMomPicked->Fill(recoPt,3.5);
 	       }
 	     }//has direction of inner track
-	   }
-	   //has direction outer track
+	   } //has direction outer track
 	 }//is global muon
 	 //is tracker not global muon
 	 else if (muonRef->isTrackerMuon()) {
 	   if (fabs((muonRef->pfP4().Px()*muonRef->innerTrack()->px()+muonRef->pfP4().Py()*muonRef->innerTrack()->py()+muonRef->pfP4().Pz()*muonRef->innerTrack()->pz())/muonRef->innerTrack()->p()/recoPFP- 1.) < MatchPFRECOMomDir) {
 	     //has momentum of inner track
 	     if (fabs(recoPFPt - muonRef->innerTrack()->pt()) < MatchPFRECOMomMagn) {
-	       hPFMomPicked->Fill(2);
-	       hPFMomPicked_vs_Pt->Fill(recoPt,2);
-	       //corretness
+	       hPFMomPicked->Fill(1.5);
+	       hPt_vs_PFMomPicked->Fill(recoPt,1.5);
+	       //correctness
 	       if (fabs(recoPFPt-simPt) < fabs(recoPt - simPt)) {
-		 hPFMomAssCorrectness->Fill(1);
-		 hPFMomAssCorrectness_vs_Pt->Fill(recoPt,1);
+		        hPFMomAssCorrectness->Fill(0.5);
+		        hPt_vs_PFMomAssCorrectness->Fill(recoPt,0.5);
 	       } else  {
-		 //else: PF was wrong      
-		 hPFMomAssCorrectness->Fill(2);
-		 hPFMomAssCorrectness_vs_Pt->Fill(recoPt,2);
+		        //else: PF was wrong      
+		        hPFMomAssCorrectness->Fill(1.5);
+		        hPt_vs_PFMomAssCorrectness->Fill(recoPt,1.5);
 	       }
 	     } else {
 	       //just the direction
-	       hPFDirectionPicked->Fill(2);
-	       hPFMomPicked->Fill(4);
-	       hPFMomPicked_vs_Pt->Fill(recoPt,4);
+	       hPFDirectionPicked->Fill(1.5);
+	       hPFMomPicked->Fill(3.5);
+	       hPt_vs_PFMomPicked->Fill(recoPt,3.5);
 	     }
 	   }//has direction of inner track
 	 }
-	 //and standalone? 
-	 if (muonRef->isStandAloneMuon()) {
-	   //has direction of outer track
-	   if (fabs((muonRef->pfP4().Px()*muonRef->outerTrack()->px()+muonRef->pfP4().Py()*muonRef->outerTrack()->py()+muonRef->pfP4().Pz()*muonRef->outerTrack()->pz())/muonRef->outerTrack()->p()/recoPFP - 1.) < MatchPFRECOMomDir) {
-	     //has momentum of inner track
-	     if (fabs(recoPFPt - muonRef->outerTrack()->pt()) < MatchPFRECOMomMagn) {
-	       hPFMomPicked->Fill(3);
-	       hPFMomPicked_vs_Pt->Fill(recoPt,3);
-	       //corretness
-	       if (fabs(recoPFPt-simPt) < fabs(recoPt - simPt)) {
-		 hPFMomAssCorrectness->Fill(1);
-		 hPFMomAssCorrectness_vs_Pt->Fill(recoPt,1);
-	       } else  {
-		 //else: PF was wrong
-		 hPFMomAssCorrectness->Fill(2);
-		 hPFMomAssCorrectness_vs_Pt->Fill(recoPt,2);
-	       }
-	     } else {
-	       //just the direction
-	       hPFDirectionPicked->Fill(3);
-	       hPFMomPicked->Fill(4);
-	       hPFMomPicked_vs_Pt->Fill(recoPt,4);
-	     }
-	   }//has direction of outer track
-	 }
-       }//end is tracker
-       else if (muonRef->isStandAloneMuon()) {
-	 //has direction of outer track
-	 if (fabs((muonRef->pfP4().Px()*muonRef->outerTrack()->px()+muonRef->pfP4().Py()*muonRef->outerTrack()->py()+muonRef->pfP4().Pz()*muonRef->outerTrack()->pz())/muonRef->outerTrack()->p()/recoPFP - 1.) < MatchPFRECOMomDir) {
-	   //has momentum of inner track
-	   if (fabs(recoPFPt - muonRef->outerTrack()->pt()) < MatchPFRECOMomMagn) {
-	     hPFMomPicked->Fill(3);
-	     hPFMomPicked_vs_Pt->Fill(recoPt,3);
-	     //corretness
-	     if (fabs(recoPFPt-simPt) < fabs(recoPt - simPt)) {
-	       hPFMomAssCorrectness->Fill(1);
-	       hPFMomAssCorrectness_vs_Pt->Fill(recoPt,1);
-	     } else  {
-	       //else: PF was wrong
-	       hPFMomAssCorrectness->Fill(2);
-	       hPFMomAssCorrectness_vs_Pt->Fill(recoPt,2);
-	     }
-	   } else {
-	     //just the direction
-	     hPFDirectionPicked->Fill(3);
-	     hPFMomPicked->Fill(4);
-	     hPFMomPicked_vs_Pt->Fill(recoPt,4);
-	   }
-	 }//has direction of outer track
-       } //end standalone
-    } //end different momentum assignment 
+	 //is also a standalone 
+	   if (muonRef->isStandAloneMuon()) {
+	     //has direction of outer track
+	     if (fabs((muonRef->pfP4().Px()*muonRef->outerTrack()->px()+muonRef->pfP4().Py()*muonRef->outerTrack()->py()+muonRef->pfP4().Pz()*muonRef->outerTrack()->pz())/muonRef->outerTrack()->p()/recoPFP - 1.) < MatchPFRECOMomDir) {
+	       //has momentum of inner track
+	       if (fabs(recoPFPt - muonRef->outerTrack()->pt()) < MatchPFRECOMomMagn) {
+	         hPFMomPicked->Fill(2.5);
+	         hPt_vs_PFMomPicked->Fill(recoPt,2.5);
+	         //correctness
+	         if (fabs(recoPFPt-simPt) < fabs(recoPt - simPt)) {
+		         hPFMomAssCorrectness->Fill(0.5);
+		         hPt_vs_PFMomAssCorrectness->Fill(recoPt,0.5);
+	         } else  {
+     		     //else: PF was wrong
+		         hPFMomAssCorrectness->Fill(1.5);
+		         hPt_vs_PFMomAssCorrectness->Fill(recoPt,1.5);
+	         }
+	       } else {
+	         //just the direction
+	         hPFDirectionPicked->Fill(2.5);
+	         hPFMomPicked->Fill(3.5);
+	         hPt_vs_PFMomPicked->Fill(recoPt,3.5);
+	        }
+	      }//has direction of outer track
+	    }
+    }//end is tracker
+      else if (muonRef->isStandAloneMuon()) {
+	        //has direction of outer track
+	        if (fabs((muonRef->pfP4().Px()*muonRef->outerTrack()->px()+muonRef->pfP4().Py()*muonRef->outerTrack()->py()+muonRef->pfP4().Pz()*muonRef->outerTrack()->pz())/muonRef->outerTrack()->p()/recoPFP - 1.) < MatchPFRECOMomDir) {
+	          //has momentum of inner track
+	          if (fabs(recoPFPt - muonRef->outerTrack()->pt()) < MatchPFRECOMomMagn) {
+	             hPFMomPicked->Fill(2.5);
+	             hPt_vs_PFMomPicked->Fill(recoPt,2.5);
+	             //correctness
+	             if (fabs(recoPFPt-simPt) < fabs(recoPt - simPt)) {
+	               hPFMomAssCorrectness->Fill(0.5);
+	               hPt_vs_PFMomAssCorrectness->Fill(recoPt,0.5);
+	             } else  {
+	               //else: PF was wrong
+	               hPFMomAssCorrectness->Fill(1.5);
+	               hPt_vs_PFMomAssCorrectness->Fill(recoPt,1.5);
+	             }
+	           } else {
+	             //just the direction
+	             hPFDirectionPicked->Fill(2.5);
+	             hPFMomPicked->Fill(3.5);
+	             hPt_vs_PFMomPicked->Fill(recoPt,3.5);
+	          }
+	        }//has direction of outer track
+        } //end standalone
+      } //end different momentum assignment 
     
     
     //pulls
