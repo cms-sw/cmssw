@@ -23556,6 +23556,17 @@ if cmsswVersion > "CMSSW_4_4":
         hltHybridSuperClustersL1NonIsolated.xi          = cms.double( 0.0 )
         hltHybridSuperClustersL1NonIsolated.useEtForXi  = cms.bool( False )
 
+# from CMSSW_4_4_0_pre5: updated configuration for the PFRecoTauDiscriminationByIsolation producers
+if cmsswVersion > "CMSSW_4_4":
+    if 'hltPFTauTightIsoIsolationDiscriminator' in locals():
+        hltPFTauTightIsoIsolationDiscriminator.qualityCuts.primaryVertexSrc = hltPFTauTightIsoIsolationDiscriminator.PVProducer
+        hltPFTauTightIsoIsolationDiscriminator.qualityCuts.pvFindingAlgo    = cms.string('highestPtInEvent')
+        delattr(hltPFTauTightIsoIsolationDiscriminator, 'PVProducer')
+    if 'hltPFTauLooseIsolationDiscriminator' in locals():
+        hltPFTauLooseIsolationDiscriminator.qualityCuts.primaryVertexSrc = hltPFTauLooseIsolationDiscriminator.PVProducer
+        hltPFTauLooseIsolationDiscriminator.qualityCuts.pvFindingAlgo    = cms.string('highestPtInEvent')
+        delattr(hltPFTauLooseIsolationDiscriminator, 'PVProducer')
+
 # from CMSSW_4_4_0_pre5: updated configuration for the EcalSeverityLevelESProducer
 if cmsswVersion > "CMSSW_4_4":
     ecalSeverityLevel = cms.ESProducer("EcalSeverityLevelESProducer",
