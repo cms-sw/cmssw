@@ -4,20 +4,19 @@ from RecoLuminosity.LumiDB import nameDealer
 def applyfinecorrectionBX(bxlumi,norm,constfactor,afterglowfactor,nonlinearfactor=0.076):
     if bxlumi<=0:
         return bxlumi
-    #print 'bxlumi before ',bxlumi
-    bxlumi=bxlumi*norm*constfactor*afterglowfactor
+    bxlumi=bxlumi*norm
     if constfactor!=1.0 and nonlinearfactor!=0:
         nonlinearTerm=1-nonlinearfactor*bxlumi
-        bxlumi=bxlumi*nonlinearTerm
+    bxlumi=bxlumi*nonlinearTerm*constfactor*afterglowfactor
     #print 'bxlumi,norm,const,after',bxlumi,norm,constfactor,afterglowfactor
     return bxlumi
 
 def applyfinecorrection(avglumi,constfactor,afterglowfactor,nonlinearfactor):
     instlumi=avglumi*afterglowfactor*constfactor
     if nonlinearfactor!=0 and constfactor!=1.0:
-        rawlumiInub=float(avglumi)/float(6.37)
-        nonlinearTerm=1.0-rawlumiInub*nonlinearfactor
+        nonlinearTerm=1.0-avglumi*nonlinearfactor#0.076/ncollidinbunches
         instlumi=instlumi*nonlinearTerm
+    #print 'avglumi,const,after,nonlinear,instlumi ',avglumi,constfactor,afterglowfactor,nonlinearfactor,instlumi
     return instlumi
 
 def correctionsForRange(schema,inputRange):
@@ -83,7 +82,7 @@ def correctionsForRange(schema,inputRange):
             if runnum not in runs:
                 continue
             fillnum=cursor.currentRow()['fillnum'].data()
-            constfactor=1.075
+            constfactor=1.141
             afterglow=1.0
             nonlinear=0.076
             nonlinearPerBX=0.0
