@@ -17,7 +17,7 @@
 // Original Author:  dkcira
 //         Created:  Thu Jan 26 23:49:46 CET 2006
 
-// $Id: SiStripFolderOrganizer.h,v 1.13 2009/08/28 19:06:41 dutta Exp $
+// $Id: SiStripFolderOrganizer.h,v 1.14 2010/05/06 06:55:40 dutta Exp $
 
 //
 #include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
@@ -78,10 +78,6 @@ class SiStripFolderOrganizer
 
    private:
       std::string TopFolderName;
-      std::string MechanicalFolderName;
-      std::string ReadoutFolderName;
-      std::string ControlFolderName;
-      std::string sep;
       DQMStore* dbe_;
 };
 #endif

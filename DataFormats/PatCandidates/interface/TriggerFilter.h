@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerFilter
 //
-// $Id: TriggerFilter.h,v 1.7 2010/12/16 18:39:17 vadler Exp $
+// $Id: TriggerFilter.h,v 1.8 2011/02/22 18:29:50 vadler Exp $
 //
 /**
   \class    pat::TriggerFilter TriggerFilter.h "DataFormats/PatCandidates/interface/TriggerFilter.h"
@@ -18,7 +18,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerFilter
 
   \author   Volker Adler
-  \version  $Id: TriggerFilter.h,v 1.7 2010/12/16 18:39:17 vadler Exp $
+  \version  $Id: TriggerFilter.h,v 1.8 2011/02/22 18:29:50 vadler Exp $
 */
 
 
@@ -51,6 +51,9 @@ namespace pat {
       std::vector< trigger::TriggerObjectType > triggerObjectTypes_;
       /// Indicator for filter status: -1: not run, 0: failed, 1: succeeded
       int status_;
+      /// Indicator for being an L3 filter
+      /// available starting from CMSSW_4_2_3
+      bool saveTags_;
 
     public:
 
@@ -59,9 +62,9 @@ namespace pat {
       /// Default constructor
       TriggerFilter();
       /// Constructor from std::string for filter label
-      TriggerFilter( const std::string & label, int status = -1 );
+      TriggerFilter( const std::string & label, int status = -1, bool saveTags = false );
       /// Constructor from edm::InputTag for filter label
-      TriggerFilter( const edm::InputTag & tag, int status = -1 );
+      TriggerFilter( const edm::InputTag & tag, int status = -1, bool saveTags = false );
 
       /// Destructor
       virtual ~TriggerFilter() {};
@@ -82,6 +85,8 @@ namespace pat {
       /// Set the filter status,
       /// only -1,0,1 accepted; returns 'false' (and does not modify the status) otherwise
       bool setStatus( int status );
+      /// Set the L3 status
+      void setSaveTags( bool saveTags ) { saveTags_ = saveTags; };
       /// Get the filter label
       std::string label() const { return label_; };
       /// Get the filter module type
@@ -95,6 +100,10 @@ namespace pat {
       std::vector< int > objectIds()          const { return triggerObjectTypes(); }; // for double backward compatibility
       /// Get the filter status
       int status() const { return status_; };
+      /// Get the L3 status
+      bool saveTags() const { return saveTags_; };
+      bool isL3() const { return saveTags(); };
+      bool isFiring() const { return ( saveTags() && status() == 1 ); };
       /// Checks, if a certain trigger object collection index is assigned
       bool hasObjectKey( unsigned objectKey ) const;
       /// Checks, if a certain trigger object type identifier is assigned

@@ -8,6 +8,8 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "DataFormats/HLTReco/interface/TriggerRefsCollections.h"
 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -26,12 +28,13 @@
 using namespace edm;
 using namespace reco;
 using namespace std; 
-
+using namespace trigger;
 //
 // constructors and destructor
 //
 HLTDisplacedmumuVtxProducer::HLTDisplacedmumuVtxProducer(const edm::ParameterSet& iConfig):	
 	src_ (iConfig.getParameter<edm::InputTag>("Src")),
+        previousCandTag_(iConfig.getParameter<edm::InputTag>("PreviousCandTag")),
 	maxEta_ (iConfig.getParameter<double>("MaxEta")),
 	minPt_ (iConfig.getParameter<double>("MinPt")),
 	minPtPair_ (iConfig.getParameter<double>("MinPtPair")),
@@ -84,21 +87,33 @@ void HLTDisplacedmumuVtxProducer::produce(edm::Event& iEvent, const edm::EventSe
 	
 	RecoChargedCandidateCollection::const_iterator cand1;
 	RecoChargedCandidateCollection::const_iterator cand2;
+	
+	// get the objects passing the previous filter
+	Handle<TriggerFilterObjectWithRefs> previousCands;
+	iEvent.getByLabel (previousCandTag_,previousCands);
+
+	vector<RecoChargedCandidateRef> vPrevCands;
+	previousCands->getObjects(TriggerMuon,vPrevCands);
+
 	for (cand1=mucands->begin(); cand1!=mucands->end(); cand1++) {
 	       TrackRef tk1 = cand1->get<TrackRef>();
-	      
 	       LogDebug("HLTDisplacedMumuFilter") << " 1st muon in loop: q*pt= " << tk1->charge()*tk1->pt() << ", eta= " << tk1->eta() << ", hits= " << tk1->numberOfValidHits();
-	      	
+	     
+	       //first check if this muon passed the previous filter
+	       if( ! checkPreviousCand( tk1, vPrevCands) ) continue;
+ 	
 	       // cuts
 	       if (fabs(tk1->eta())>maxEta_) continue;
 	       if (tk1->pt() < minPt_) continue;
 	      
 	       cand2 = cand1; cand2++;
 	       for (; cand2!=mucands->end(); cand2++) {
-	           	 TrackRef tk2 = cand2->get<TrackRef>();
+		         TrackRef tk2 = cand2->get<TrackRef>();
 		 
 			 // eta cut
 			 LogDebug("HLTMuonDimuonFilter") << " 2nd muon in loop: q*pt= " << tk2->charge()*tk2->pt() << ", eta= " << tk2->eta() << ", hits= " << tk2->numberOfValidHits() << ", d0= " << tk2->d0();
+			 //first check if this muon passed the previous filter
+			 if( ! checkPreviousCand( tk2, vPrevCands) ) continue;
 			 
 			 // cuts
 			 if (fabs(tk2->eta())>maxEta_) continue;
@@ -151,3 +166,15 @@ void HLTDisplacedmumuVtxProducer::produce(edm::Event& iEvent, const edm::EventSe
    	iEvent.put(vertexCollection);
 }
 
+
+
+bool HLTDisplacedmumuVtxProducer::checkPreviousCand(const TrackRef& trackref, vector<RecoChargedCandidateRef> & refVect){
+  bool ok=false;
+  for (unsigned int i=0; i<refVect.size(); i++) {
+    if ( refVect[i]->get<TrackRef>() == trackref ) {
+      ok=true;
+      break;
+    }
+  }
+  return ok;
+}

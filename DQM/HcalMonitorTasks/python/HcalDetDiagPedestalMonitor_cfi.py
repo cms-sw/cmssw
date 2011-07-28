@@ -20,6 +20,10 @@ hcalDetDiagPedestalMonitor=cms.EDAnalyzer("HcalDetDiagPedestalMonitor",
                                           rawDataLabel           = cms.untracked.InputTag("source"),
                                           # reference dataset path + filename
                                           PedestalReferenceData  = cms.untracked.string(""),
+                                          # processed dataset name (to create HTML only)
+                                          PedestalDatasetName   = cms.untracked.string(""),
+					  # html path (to create HTML from dataset only)	
+                                          htmlOutputPath         = cms.untracked.string(""),
                                           # Save output to different files on same file
                                           Overwrite              = cms.untracked.bool(True),
                                           # path to store datasets for current run

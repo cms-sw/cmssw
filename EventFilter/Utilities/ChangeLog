@@ -1,3 +1,31 @@
+2011-06-09  Emilio Meschi <emilio.meschi@cern.ch>
+	
+	* tag V00-19-15
+	* bug fixes in MsgBuf and change MicroState interface
+	
+2011-05-23  Emilio Meschi <emilio.meschi@cern.ch>
+	
+	* tag V00-19-14
+	* remove bin directory from tag 
+
+2011-05-19  Emilio Meschi <emilio.meschi@cern.ch>
+	
+	* tag V00-19-12
+	* speedup of MicroStateService
+	* increase max message size in message queues
+	* introduce FSTOP signal
+
+2011-05-13  Emilio Meschi <emilio.meschi@cern.ch>
+	
+	* tag V00-19-11
+	* changed max paths from 300 to 500 
+	and max endpaths from 20 to 30
+
+2011-05-11  Emilio Meschi <emilio.meschi@cern.ch>
+	
+	* tag V00-19-10
+	* added eols to process report struct
+
 2011-03-24  Emilio Meschi <emilio.meschi@cern.ch>
 	
 	* tag V00-19-09

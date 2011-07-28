@@ -16,23 +16,6 @@
 #include <time.h>
 #include <TMath.h>
 
-#include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaObject.h"
-
-///-----------------------------------------------------------
-///   TEcnaHeader.h
-///   Update: 16/02/2011
-///   Authors:   FX Gentit, B.Fabbro (bernard.fabbro@cea.fr)
-///              DSM/IRFU/SPP CEA-Saclay
-///   Copyright: Those valid for CEA sofware
-///
-///   ECNA web page:
-///     http://cms-fabbro.web.cern.ch/cms-fabbro/
-///     cna_new/Correlated_Noise_Analysis/ECNA_cna_1.htm
-///-----------------------------------------------------------
-///
-///   Header of ECNA result file (.root file)
-///
-  
 class TEcnaHeader : public TNamed {
 
 protected:
@@ -94,8 +77,7 @@ public:
 
   //------------------------------- methods
   TEcnaHeader();
-  TEcnaHeader(TEcnaObject*, const Text_t*, const Text_t*);
-  //TEcnaHeader(const Text_t*, const Text_t*);
+  TEcnaHeader(const Text_t*, const Text_t*);
   ~TEcnaHeader();
 
 //  void HeaderParameters(Text_t*, Text_t*, TString,      const Int_t&, 

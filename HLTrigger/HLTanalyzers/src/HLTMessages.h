@@ -4,6 +4,8 @@
 extern const char * kSubEventMap;
 extern const char * kRecjets;
 extern const char * kRecCorjets;
+extern const char * kHLTjets;
+extern const char * kHLTCorjets;
 extern const char * kGenjets;
 extern const char * kRecmet;
 extern const char * kGenmet;
@@ -32,6 +34,7 @@ extern const char * kMucands3;
 extern const char * kMunovtxcands2; 
 extern const char * kOniaPixelCands;
 extern const char * kOniaTrackCands;
+extern const char * kDimuvtxcands3;
 extern const char * kIsoMap2;
 extern const char * kIsoMap3;
 extern const char * kMulinks;
@@ -51,8 +54,8 @@ extern const char * kBTagJets;
 extern const char * kBTagCorrectedJets;
 extern const char * kBTagLifetimeBJetsL25;
 extern const char * kBTagLifetimeBJetsL3;
-extern const char * kBTagLifetimeBJetsL25Relaxed;
-extern const char * kBTagLifetimeBJetsL3Relaxed;
+extern const char * kBTagLifetimeBJetsL25SingleTrack;
+extern const char * kBTagLifetimeBJetsL3SingleTrack;
 extern const char * kBTagSoftmuonBJetsL25;
 extern const char * kBTagSoftmuonBJetsL3;
 extern const char * kBTagPerformanceBJetsL25;
@@ -83,6 +86,7 @@ extern const char * kIsoHoverEH;
 extern const char * kNonIsoHoverEH;
 extern const char * kHFECALClusters; 
 extern const char * kHFElectrons; 
+/*
 extern const char * kEErechits;
 extern const char * kEBrechits; 
 extern const char * kHBHErechits;  
@@ -94,6 +98,15 @@ extern const char * kIsoPixelTracksL3;
 extern const char * kIsoPixelTracksL2;
 extern const char * kIsoPixelTrackVertices;
 extern const char * kPixelTracksL3; 
-extern const char * kRecoVertices; 
+*/
+extern const char * kRecoVerticesHLT; 
+extern const char * kRecoVerticesOffline0;
+extern const char * kECALActivity;      
+extern const char * kECALActivityEcalIso;
+extern const char * kECALActivityHcalIso;
+extern const char * kECALActivityTrackIso;
+extern const char * kECALActivityR9; 
+extern const char * kECALActivityR9ID; 
+extern const char * kECALActivityHoverEH;
 
 #endif // HLTrigger_HLTanalyzers_HLTMessages_h

@@ -67,15 +67,19 @@ private:
   HLTMuon     muon_analysis_;
   HLTEgamma   elm_analysis_;
   HLTMCtruth  mct_analysis_;
+  /*
   HLTAlCa     alca_analysis_; 
   HLTTrack    track_analysis_;
+  */
   HLTInfo     hlt_analysis_;
-  RECOVertex  vrt_analysis_;
+  RECOVertex  vrt_analysisHLT_;
+  RECOVertex  vrt_analysisOffline0_;
 
   int firstLumi_, lastLumi_, towerThreshold_;
   double xSection_, filterEff_, treeWeight;
 
   edm::InputTag recjets_,reccorjets_,genjets_,recmet_,genmet_,ht_,recoPFJets_,calotowers_,hltresults_,genEventInfo_;
+  edm::InputTag hltjets_, hltcorjets_;
   edm::InputTag muon_;
   std::string l1extramc_, l1extramu_;
   edm::InputTag m_l1extramu;
@@ -92,7 +96,7 @@ private:
   edm::InputTag gctBitCounts_,gctRingSums_;
 
   edm::InputTag MuCandTag2_,MuIsolTag2_,MuNoVtxCandTag2_,MuCandTag3_,MuIsolTag3_;
-  edm::InputTag oniaPixelTag_,oniaTrackTag_;
+  edm::InputTag oniaPixelTag_,oniaTrackTag_,DiMuVtx_;
   edm::InputTag HLTTau_, PFTau_, PFTauTightCone_;
   edm::InputTag PFJets_;
   
@@ -112,8 +116,8 @@ private:
   edm::InputTag m_correctedBJets;
   edm::InputTag m_lifetimeBJetsL25;
   edm::InputTag m_lifetimeBJetsL3;
-  edm::InputTag m_softmuonBJetsL25;
-  edm::InputTag m_softmuonBJetsL3;
+  edm::InputTag m_lifetimeBJetsL25SingleTrack;
+  edm::InputTag m_lifetimeBJetsL3SingleTrack;
   edm::InputTag m_performanceBJetsL25;
   edm::InputTag m_performanceBJetsL3;
 
@@ -144,8 +148,17 @@ private:
   edm::InputTag NonIsoHoverEH_; 
   edm::InputTag HFECALClusters_; 
   edm::InputTag HFElectrons_; 
+  // add ECAL Activity
+  edm::InputTag ECALActivity_;
+  edm::InputTag ActivityEcalIso_;
+  edm::InputTag ActivityHcalIso_;
+  edm::InputTag ActivityTrackIso_;
+  edm::InputTag ActivityR9_;
+  edm::InputTag ActivityR9ID_;
+  edm::InputTag ActivityHoverEH_;
 
   // AlCa OpenHLT input collections  
+  /*
   edm::InputTag EERecHitTag_; 
   edm::InputTag EBRecHitTag_;  
   edm::InputTag pi0EERecHitTag_;  
@@ -156,12 +169,16 @@ private:
   edm::InputTag IsoPixelTrackTagL3_;
   edm::InputTag IsoPixelTrackTagL2_; 
   edm::InputTag IsoPixelTrackVerticesTag_;
+  */
 
   // Track OpenHLT input collections
+  /*
   edm::InputTag PixelTracksTagL3_; 
+  */
 
   // Reco vertex collection
-  edm::InputTag VertexTag_;
+  edm::InputTag VertexTagHLT_;
+  edm::InputTag VertexTagOffline0_;
 
   int errCnt;
   const int errMax(){return 100;}

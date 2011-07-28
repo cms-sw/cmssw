@@ -12,7 +12,7 @@ HLTMuonL1RegionalFilter::HLTMuonL1RegionalFilter(const edm::ParameterSet& iConfi
   candTag_( iConfig.getParameter<edm::InputTag>("CandTag") ),
   previousCandTag_( iConfig.getParameter<edm::InputTag>("PreviousCandTag") ),
   minN_( iConfig.getParameter<int>("MinN") ),
-  saveTag_( iConfig.getUntrackedParameter<bool>("SaveTag",false) ) 
+  saveTags_( iConfig.getParameter<bool>("saveTags") ) 
 {
   using namespace std;
   using namespace edm;
@@ -75,7 +75,7 @@ HLTMuonL1RegionalFilter::HLTMuonL1RegionalFilter(const edm::ParameterSet& iConfi
     }
     ss<<endl;
     ss<<"    MinN = "<<minN_<<endl;
-    ss<<"    SaveTag = "<<saveTag_;
+    ss<<"    saveTags= "<<saveTags_;
     LogDebug("HLTMuonL1RegionalFilter")<<ss.str();
   }
 
@@ -143,7 +143,7 @@ bool HLTMuonL1RegionalFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
     n++;
   }
 
-  if(saveTag_) filterproduct->addCollectionTag(candTag_);
+  if(saveTags_) filterproduct->addCollectionTag(candTag_);
 
   // filter decision
   const bool accept (n >= minN_);

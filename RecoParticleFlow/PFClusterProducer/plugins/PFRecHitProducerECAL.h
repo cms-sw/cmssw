@@ -122,7 +122,8 @@ class PFRecHitProducerECAL : public PFRecHitProducer {
 
   // ---- Perform timing cleaning
   bool timingCleaning_;
-  double threshCleaning_;
+  double threshCleaningEB_;
+  double threshCleaningEE_;
 
   // ---- Perform topological cleaning
   bool topologicalCleaning_;
