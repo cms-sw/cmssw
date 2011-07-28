@@ -2538,14 +2538,11 @@ void PFRootEventManager::clustering() {
     cout <<"start clustering"<<endl;
   }
   
+  vector<bool> mask;
   // ECAL clustering -------------------------------------------
 
-  vector<bool> mask;
   fillRecHitMask( mask, rechitsECAL_ );
-  clusterAlgoECAL_.setMask( mask );  
-
-  //   edm::OrphanHandle< reco::PFRecHitCollection > rechitsHandleECAL( &rechitsECAL_, edm::ProductID(10001) );
-  clusterAlgoECAL_.doClustering( rechitsECAL_ );
+  clusterAlgoECAL_.doClustering( rechitsECAL_, mask );
   clustersECAL_ = clusterAlgoECAL_.clusters();
 
   assert(clustersECAL_.get() );
@@ -2555,9 +2552,7 @@ void PFRootEventManager::clustering() {
   // HCAL clustering -------------------------------------------
 
   fillRecHitMask( mask, rechitsHCAL_ );
-  clusterAlgoHCAL_.setMask( mask );  
-  //   edm::OrphanHandle< reco::PFRecHitCollection > rechitsHandleHCAL( &rechitsHCAL_, edm::ProductID(10002) );
-  clusterAlgoHCAL_.doClustering( rechitsHCAL_ );
+  clusterAlgoHCAL_.doClustering( rechitsHCAL_, mask );
   clustersHCAL_ = clusterAlgoHCAL_.clusters();
 
   fillOutEventWithClusters( *clustersHCAL_ );
@@ -2565,22 +2560,18 @@ void PFRootEventManager::clustering() {
   // HF clustering -------------------------------------------
 
   fillRecHitMask( mask, rechitsHFEM_ );
-  clusterAlgoHFEM_.setMask( mask );  
-  clusterAlgoHFEM_.doClustering( rechitsHFEM_ );
+  clusterAlgoHFEM_.doClustering( rechitsHFEM_, mask );
   clustersHFEM_ = clusterAlgoHFEM_.clusters();
   
   fillRecHitMask( mask, rechitsHFHAD_ );
-  clusterAlgoHFHAD_.setMask( mask );  
-  clusterAlgoHFHAD_.doClustering( rechitsHFHAD_ );
+  clusterAlgoHFHAD_.doClustering( rechitsHFHAD_, mask );
   clustersHFHAD_ = clusterAlgoHFHAD_.clusters();
   
 
   // PS clustering -------------------------------------------
 
   fillRecHitMask( mask, rechitsPS_ );
-  clusterAlgoPS_.setMask( mask );  
-  //   edm::OrphanHandle< reco::PFRecHitCollection > rechitsHandlePS( &rechitsPS_, edm::ProductID(10003) );
-  clusterAlgoPS_.doClustering( rechitsPS_ );
+  clusterAlgoPS_.doClustering( rechitsPS_, mask );
   clustersPS_ = clusterAlgoPS_.clusters();
 
   fillOutEventWithClusters( *clustersPS_ );
@@ -4089,7 +4080,10 @@ PFRootEventManager::fillRecHitMask( vector<bool>& mask,
   const {
 
   TCutG* cutg = (TCutG*) gROOT->FindObject("CUTG");
-  if(!cutg) return;
+  if(!cutg) {
+    mask.resize( rechits.size(), true);
+    return;
+  }
 
   mask.clear();
   mask.reserve( rechits.size() );
