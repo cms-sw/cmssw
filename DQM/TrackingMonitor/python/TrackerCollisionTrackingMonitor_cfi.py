@@ -26,6 +26,10 @@ TrackerCollisionTrackMon.doSeedParameterHistos = cms.bool(True)
 
 TrackerCollisionTrackMon.doLumiAnalysis        = cms.bool(True)                       
 
+TrackerCollisionTrackMon.doSeedNumberHisto = cms.bool(True)
+TrackerCollisionTrackMon.doSeedETAHisto    = cms.bool(True)
+TrackerCollisionTrackMon.doSeedVsClusterHisto = cms.bool(True)
+
 # Number of Tracks per Event
 TrackerCollisionTrackMon.TkSizeBin             = cms.int32(200)
 TrackerCollisionTrackMon.TkSizeMax             = cms.double(999.5)                        
