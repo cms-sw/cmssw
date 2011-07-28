@@ -57,9 +57,11 @@ namespace jptJetAnalysis {
    public:
     StripSignalOverNoiseCalculator(const std::string& theQualityLabel = std::string(""));
     void update(const edm::EventSetup& eventSetup);
-    double signalOverNoise(const SiStripCluster& cluster) const;
-    double operator () (const SiStripCluster& cluster) const
-      { return signalOverNoise(cluster); }
+    double signalOverNoise(const SiStripCluster& cluster,
+			   const uint32_t& id) const;
+    double operator () (const SiStripCluster& cluster,
+			const uint32_t& id) const
+    { return signalOverNoise(cluster,id); }
    private:
     const std::string qualityLabel_;
     const SiStripQuality* quality_;
@@ -609,7 +611,7 @@ void JPTJetAnalyzer::fillSiStripHitSoNForSingleHit(const SiStripRecHit2D& hit)
     return;
   }
   //calculate signal to noise for cluster
-  const double sOverN = (*sOverNCalculator_)(*cluster);
+  const double sOverN = (*sOverNCalculator_)(*cluster,hit.geographicalId());
   //fill histogram
   fillHistogram(TrackSiStripHitStoNHisto_,sOverN);
 }
@@ -775,9 +777,11 @@ namespace jptJetAnalysis {
     }
   }
   
-  double StripSignalOverNoiseCalculator::signalOverNoise(const SiStripCluster& cluster) const
+  double StripSignalOverNoiseCalculator::signalOverNoise(const SiStripCluster& cluster,
+							 const uint32_t& detId) const
   {
-    const uint32_t detId = cluster.geographicalId();
+    //const uint32_t detId = cluster.geographicalId();
+    
     const uint16_t firstStrip = cluster.firstStrip();
     const SiStripQuality::Range& qualityRange = quality_->getRange(detId);
     const SiStripNoises::Range& noiseRange = noise_->getRange(detId);
