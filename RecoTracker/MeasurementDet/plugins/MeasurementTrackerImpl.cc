@@ -311,8 +311,15 @@ void MeasurementTrackerImpl::updatePixels( const edm::Event& event) const
     edm::Handle<DetIdCollection> detIds;
     for (std::vector<edm::InputTag>::const_iterator itt = theInactivePixelDetectorLabels.begin(), edt = theInactivePixelDetectorLabels.end(); 
             itt != edt; ++itt) {
-        event.getByLabel(*itt, detIds);
+      if (event.getByLabel(*itt, detIds)){
         rawInactiveDetIds.insert(rawInactiveDetIds.end(), detIds->begin(), detIds->end());
+      }else{
+	static bool iFailedAlready=false;
+	if (!iFailedAlready){
+	  edm::LogError("MissingProduct")<<"I fail to get the list of inactive pixel modules, because of 4.2/4.4 event content change.";
+	  iFailedAlready=true;
+	}
+      }
     }
     if (!rawInactiveDetIds.empty()) std::sort(rawInactiveDetIds.begin(), rawInactiveDetIds.end());
   }
