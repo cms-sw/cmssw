@@ -4,13 +4,16 @@
 /*
  * \file L1TMenuHelper.h
  *
- * $Date: 2011/04/14 13:03:11 $
- * $Revision: 1.2 $
+ * $Date: 2011/05/12 13:50:40 $
+ * $Revision: 1.3 $
  * \author J. Pela
  *
 */
 
 // system include files
+#include <iostream>
+#include <fstream>
+#include <vector>
 #include <memory>
 #include <unistd.h>
 
@@ -28,9 +31,7 @@
 
 #include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 
-#include <iostream>
-#include <fstream>
-#include <vector>
+#include "TString.h"
 
 // Simplified structure for single object conditions information
 struct SingleObjectCondition{
@@ -56,55 +57,20 @@ struct SingleObjectTrigger{
   unsigned int quality;   // Only aplicable to Muons
   unsigned int etaRange;  // Only aplicable to Muons
 
-  bool operator< (const SingleObjectTrigger &iSOT){
+  bool operator< (const SingleObjectTrigger &iSOT) const{
+     
+    if     (this->etaRange > iSOT.etaRange){return true;}
+    else if(this->etaRange < iSOT.etaRange){return false;}
 
-    // First we order by lowest prescale
-    if     (this->prescale <  iSOT.prescale){return true;}
-    else if(this->prescale == iSOT.prescale){
+    if     (this->prescale < iSOT.prescale){return true;}
+    else if(this->prescale > iSOT.prescale){return false;}
+    
+    if     (this->quality >  iSOT.quality){return true;}
+    else if(this->quality <  iSOT.quality){return false;}
+    
+    return this->threshold < iSOT.threshold;
 
-      // If L1GtObject == Mu we compare also with respect to conditions
-      if(this->object == Mu){
-
-        if     (this->quality >  iSOT.quality){return true;}
-        else if(this->quality <  iSOT.quality){return false;}
-        else if(this->quality == iSOT.quality){     
-
-          if     (this->etaRange >  iSOT.etaRange){return true;}
-          else if(this->etaRange <  iSOT.etaRange){return false;}
-          else if(this->etaRange == iSOT.etaRange){return this->threshold < iSOT.threshold;}
-
-        }
-      }else{return this->threshold < iSOT.threshold;}
-    }
-
-    return false;
-
-  };
-
-  friend bool operator< (const SingleObjectTrigger &iSOT1,const SingleObjectTrigger &iSOT2){
-
-    // First we order by lowest prescale
-    if     (iSOT1.prescale <  iSOT2.prescale){return true;}
-    else if(iSOT1.prescale == iSOT2.prescale){
-
-      // If L1GtObject == Mu we compare also with respect to conditions
-      if(iSOT1.object == Mu){
-
-        if     (iSOT1.quality >  iSOT2.quality){return true;}
-        else if(iSOT1.quality <  iSOT2.quality){return false;}
-        else if(iSOT1.quality == iSOT2.quality){     
-
-          if     (iSOT1.etaRange >  iSOT2.etaRange){return true;}
-          else if(iSOT1.etaRange <  iSOT2.etaRange){return false;}
-          else if(iSOT1.etaRange == iSOT2.etaRange){return iSOT1.threshold < iSOT2.threshold;}
-
-        }
-      }else{return iSOT1.threshold < iSOT2.threshold;}
-    }
-
-    return false;
-
-  };
+  }
 
 };
 
@@ -125,12 +91,33 @@ class L1TMenuHelper {
     std::string enumToStringL1GtConditionType    (L1GtConditionType     iConditionType);
     std::string enumToStringL1GtConditionCategory(L1GtConditionCategory iConditionCategory);
 
+    // Getters
+    int  getPrescaleByAlias(TString iCategory, TString iAlias);
+    uint getEtaRangeByAlias(TString iCategory, TString iAlias);    
+    uint getQualityAlias   (TString iCategory, TString iAlias);
+
   private:
+
+    edm::ESHandle<L1GtTriggerMenu>     menuRcd;
+    edm::ESHandle<L1GtPrescaleFactors> l1GtPfAlgo;
 
     L1GtUtils myUtils;
 
     const L1GtTriggerMenu*                m_l1GtMenu;
     const std::vector<std::vector<int> >* m_prescaleFactorsAlgoTrig;
+
+    // Vectors to hold significant information about single object triggers
+    std::vector<SingleObjectTrigger> m_vTrigMu;
+    std::vector<SingleObjectTrigger> m_vTrigEG ;  
+    std::vector<SingleObjectTrigger> m_vTrigIsoEG;
+    std::vector<SingleObjectTrigger> m_vTrigJet  ;
+    std::vector<SingleObjectTrigger> m_vTrigCenJet;
+    std::vector<SingleObjectTrigger> m_vTrigForJet;
+    std::vector<SingleObjectTrigger> m_vTrigTauJet;
+    std::vector<SingleObjectTrigger> m_vTrigETM;   
+    std::vector<SingleObjectTrigger> m_vTrigETT;   
+    std::vector<SingleObjectTrigger> m_vTrigHTT;   
+    std::vector<SingleObjectTrigger> m_vTrigHTM; 
 
 };
 

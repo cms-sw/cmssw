@@ -21,12 +21,12 @@ L1TOMDSHelper::~L1TOMDSHelper(){
 }
 
 //_____________________________________________________________________
-bool L1TOMDSHelper::connect(string iOracleDB,string iPathCondDB,string &error){
+bool L1TOMDSHelper::connect(string iOracleDB,string iPathCondDB,int &error){
 
   // Handeling inputs
   m_oracleDB   = iOracleDB;
   m_pathCondDB = iPathCondDB;
-  error        = "";
+  error        = NO_ERROR;
 
   // Initializing variables 
   bool SessionExists    = false;
@@ -52,9 +52,7 @@ bool L1TOMDSHelper::connect(string iOracleDB,string iPathCondDB,string &error){
 
   // Defining output and error message if needed
   if     (SessionExists && SessionOpen && ConnectionExists && ConnectionOpen){out = true;}
-  else if(!SessionExists || !ConnectionExists) {error = "WARNING: DB connection failed (Session or Connection do not exist)";}
-  else if(!SessionOpen)                        {error = "WARNING: DB connection failed (Session is not open)";}
-  else if(!ConnectionOpen)                     {error = "WARNING: DB connection failed (Conection is not open)";}
+  else if(!SessionExists || !ConnectionExists) {error = WARNING_DB_CONN_FAILED;}
 
   return out;
 
@@ -62,11 +60,11 @@ bool L1TOMDSHelper::connect(string iOracleDB,string iPathCondDB,string &error){
 
 
 //_____________________________________________________________________
-map<string,WbMTriggerXSecFit> L1TOMDSHelper::getWbMTriggerXsecFits(string iTable,std::string &error){
+map<string,WbMTriggerXSecFit> L1TOMDSHelper::getWbMTriggerXsecFits(string iTable,int &error){
   
   map<string,WbMTriggerXSecFit>       out;
   const l1t::OMDSReader::QueryResults qresults;
-  error = "";
+  error = NO_ERROR;
 
   // Parameters
   string qSchema = "CMS_WBM";
@@ -82,29 +80,28 @@ map<string,WbMTriggerXSecFit> L1TOMDSHelper::getWbMTriggerXsecFits(string iTable
 
   l1t::OMDSReader::QueryResults paramResults = m_omdsReader->basicQuery(qStrings,qSchema,iTable,"",qresults);
 
-  if(paramResults.queryFailed()){ 
-    edm::LogError("L1TOMDSHelper") << "OMDS query error: Query Failed";
-    error = "WARNING: OMDS query failed";
-  }
+  if(paramResults.queryFailed()){error = WARNING_DB_QUERY_FAILED;}
+  else{
 
   for(int i=0; i<paramResults.numberRows();++i){
     
-    WbMTriggerXSecFit tFit;
-    tFit.fitFunction = "[0]/x+[1]+[2]*x+[3]*x*x"; // Fitting function hardcoded for now
+      WbMTriggerXSecFit tFit;
+      tFit.fitFunction = "[0]/x+[1]+[2]*x+[3]*x*x"; // Fitting function hardcoded for now
 
-    string tBitName;
+      string tBitName;
 
-    paramResults.fillVariableFromRow("BIT" ,i,tFit.bitNumber);
-    paramResults.fillVariableFromRow("NAME",i,tBitName);
-    paramResults.fillVariableFromRow("PM1" ,i,tFit.pm1);
-    paramResults.fillVariableFromRow("P0"  ,i,tFit.p0);
-    paramResults.fillVariableFromRow("P1"  ,i,tFit.p1);
-    paramResults.fillVariableFromRow("P2"  ,i,tFit.p2);
+      paramResults.fillVariableFromRow("BIT" ,i,tFit.bitNumber);
+      paramResults.fillVariableFromRow("NAME",i,tBitName);
+      paramResults.fillVariableFromRow("PM1" ,i,tFit.pm1);
+      paramResults.fillVariableFromRow("P0"  ,i,tFit.p0);
+      paramResults.fillVariableFromRow("P1"  ,i,tFit.p1);
+      paramResults.fillVariableFromRow("P2"  ,i,tFit.p2);
 
-    tFit.bitName = tBitName;
+      tFit.bitName = tBitName;
 
-    out[tBitName] = tFit;
+      out[tBitName] = tFit;
 
+    }
   }
 
   return out;
@@ -112,20 +109,20 @@ map<string,WbMTriggerXSecFit> L1TOMDSHelper::getWbMTriggerXsecFits(string iTable
 }
 
 //_____________________________________________________________________
-map<string,WbMTriggerXSecFit> L1TOMDSHelper::getWbMAlgoXsecFits(std::string &error){
+map<string,WbMTriggerXSecFit> L1TOMDSHelper::getWbMAlgoXsecFits(int &error){
   return getWbMTriggerXsecFits("LEVEL1_ALGO_CROSS_SECTION",error);
 }
 
 //_____________________________________________________________________
-map<string,WbMTriggerXSecFit> L1TOMDSHelper::getWbMTechXsecFits(std::string &error){
+map<string,WbMTriggerXSecFit> L1TOMDSHelper::getWbMTechXsecFits(int &error){
   return getWbMTriggerXsecFits("LEVEL1_TECH_CROSS_SECTION",error);
 }
 
 //_____________________________________________________________________
-int L1TOMDSHelper::getNumberCollidingBunches(int lhcFillNumber,string &error){
+int L1TOMDSHelper::getNumberCollidingBunches(int lhcFillNumber,int &error){
 
   int nCollidingBunches = 0;
-  error                 = "";
+  error                 = NO_ERROR;
 
   // Parameters
   string rtlSchema = "CMS_RUNTIME_LOGGER";
@@ -141,15 +138,10 @@ int L1TOMDSHelper::getNumberCollidingBunches(int lhcFillNumber,string &error){
   l1t::OMDSReader::QueryResults qResults = m_omdsReader->basicQuery(qStrings,rtlSchema,table,atribute1,m_omdsReader->singleAttribute(lhcFillNumber));
 
   // Check query successful
-  if(qResults.queryFailed()){ 
-    edm::LogError( "L1TOMDSHelper" ) << "OMDS query error: Query Failed";
-    error = "WARNING: OMDS query failed\n";
-  }
+  if(qResults.queryFailed()){error = WARNING_DB_QUERY_FAILED;}
   else{
 
-    if(qResults.numberRows() != 3564){
-      error = "WARNING: Initial bunch luminosity was not correctly retrived from DB\n" ;
-    }
+    if(qResults.numberRows() != 3564){error = WARNING_DB_INCORRECT_NBUNCHES;}
     else{
 
       // Now we count the number of bunches with both beam 1 and 2 configured
@@ -170,10 +162,10 @@ int L1TOMDSHelper::getNumberCollidingBunches(int lhcFillNumber,string &error){
 }
 
 //_____________________________________________________________________
-BeamConfiguration L1TOMDSHelper::getBeamConfiguration(int lhcFillNumber,string &error){
+BeamConfiguration L1TOMDSHelper::getBeamConfiguration(int lhcFillNumber,int &error){
 
   BeamConfiguration bConfig;
-  error = "";
+  error = NO_ERROR;
 
   // Fields to retrive in the query
   string rtlSchema = "CMS_RUNTIME_LOGGER";
@@ -188,15 +180,10 @@ BeamConfiguration L1TOMDSHelper::getBeamConfiguration(int lhcFillNumber,string &
 
   l1t::OMDSReader::QueryResults qResults = m_omdsReader->basicQuery(qStrings,rtlSchema,table,atribute1,m_omdsReader->singleAttribute(lhcFillNumber));
 
-  if(qResults.queryFailed()){
-    edm::LogError( "L1TOMDSHelper" ) << "OMDS query error: Query Failed";
-    error = "WARNING: OMDS query failed\n";
-  }
+  if(qResults.queryFailed()){error = WARNING_DB_QUERY_FAILED;}
   else{
 
-    if(qResults.numberRows() != 3564){
-      error = "WARNING: Initial bunch luminosity was not correctly retrived from DB\n" ;
-    }
+    if(qResults.numberRows() != 3564){error = WARNING_DB_INCORRECT_NBUNCHES;}
     else{
 
       bConfig.m_valid = true;
@@ -224,10 +211,10 @@ BeamConfiguration L1TOMDSHelper::getBeamConfiguration(int lhcFillNumber,string &
 
 
 //_____________________________________________________________________
-vector<bool> L1TOMDSHelper::getBunchStructure(int lhcFillNumber,string &error){
+vector<bool> L1TOMDSHelper::getBunchStructure(int lhcFillNumber,int &error){
 
   vector<bool> BunchStructure;
-  error = "";
+  error = NO_ERROR;
 
   // Fields to retrive in the query
   string rtlSchema = "CMS_RUNTIME_LOGGER";
@@ -242,15 +229,10 @@ vector<bool> L1TOMDSHelper::getBunchStructure(int lhcFillNumber,string &error){
 
   l1t::OMDSReader::QueryResults qResults = m_omdsReader->basicQuery(qStrings,rtlSchema,table,atribute1,m_omdsReader->singleAttribute(lhcFillNumber));
 
-  if(qResults.queryFailed()){
-    edm::LogError( "L1TOMDSHelper" ) << "OMDS query error: Query Failed";
-    error = "WARNING: OMDS query failed\n";
-  }
+  if(qResults.queryFailed()){error = WARNING_DB_QUERY_FAILED;}
   else{
 
-    if(qResults.numberRows() != 3564){
-      error = "WARNING: Initial bunch luminosity was not correctly retrived from DB\n" ;
-    }
+    if(qResults.numberRows() != 3564){error = WARNING_DB_INCORRECT_NBUNCHES;}
     else{
 
       for(int i=0; i<qResults.numberRows();++i){    
@@ -272,10 +254,10 @@ vector<bool> L1TOMDSHelper::getBunchStructure(int lhcFillNumber,string &error){
 }
 
 //_____________________________________________________________________
-vector<float> L1TOMDSHelper::getInitBunchLumi(int lhcFillNumber,string &error){
+vector<float> L1TOMDSHelper::getInitBunchLumi(int lhcFillNumber,int &error){
 
   vector<float> InitBunchLumi;
-  error = "";
+  error = NO_ERROR;
 
   // Fields to retrive in the query
   string rtlSchema = "CMS_RUNTIME_LOGGER";
@@ -289,15 +271,10 @@ vector<float> L1TOMDSHelper::getInitBunchLumi(int lhcFillNumber,string &error){
 
   l1t::OMDSReader::QueryResults qResults = m_omdsReader->basicQuery(qStrings,rtlSchema,table,atribute1,m_omdsReader->singleAttribute(lhcFillNumber));
 
-  if(qResults.queryFailed()){
-    edm::LogError( "L1TOMDSHelper" ) << "OMDS query error: Query Failed";
-    error = "WARNING: OMDS query failed\n";
-  }
+  if(qResults.queryFailed()){error = WARNING_DB_QUERY_FAILED;}
   else{
 
-    if(qResults.numberRows() != 3564){
-      error = "WARNING: Initial bunch luminosity was not correctly retrived from DB\n" ;
-    }
+    if(qResults.numberRows() != 3564){error = WARNING_DB_INCORRECT_NBUNCHES;}
     else{
 
       for(int i=0; i<qResults.numberRows();++i){    
@@ -316,10 +293,10 @@ vector<float> L1TOMDSHelper::getInitBunchLumi(int lhcFillNumber,string &error){
 }
 
 //_____________________________________________________________________
-vector<double> L1TOMDSHelper::getRelativeBunchLumi(int lhcFillNumber,string &error){
+vector<double> L1TOMDSHelper::getRelativeBunchLumi(int lhcFillNumber,int &error){
 
   vector<double> RelativeBunchLumi;
-  error = "";
+  error = NO_ERROR;
 
   // Fields to retrive in the query
   string rtlSchema = "CMS_RUNTIME_LOGGER";
@@ -333,15 +310,10 @@ vector<double> L1TOMDSHelper::getRelativeBunchLumi(int lhcFillNumber,string &err
 
   l1t::OMDSReader::QueryResults qResults = m_omdsReader->basicQuery(qStrings,rtlSchema,table,atribute1,m_omdsReader->singleAttribute(lhcFillNumber));
 
-  if(qResults.queryFailed()){
-    edm::LogError( "L1TOMDSHelper" ) << "OMDS query error: Query Failed";
-    error = "WARNING: OMDS query failed\n";
-  }
+  if(qResults.queryFailed()){error = WARNING_DB_QUERY_FAILED;}
   else{
 
-    if(qResults.numberRows() != 3564){
-      error = "WARNING: Initial bunch luminosity was not correctly retrived from DB\n" ;
-    }
+    if(qResults.numberRows() != 3564){error = WARNING_DB_INCORRECT_NBUNCHES;}
     else{
 
       //-> Get the inicial bunch luminosity add calculate the total luminosity of the fill
@@ -366,5 +338,22 @@ vector<double> L1TOMDSHelper::getRelativeBunchLumi(int lhcFillNumber,string &err
   }
 
   return RelativeBunchLumi;
+
+}
+
+//_____________________________________________________________________
+string L1TOMDSHelper::enumToStringError(int iObject){
+
+  string out;
+
+  switch(iObject){
+    case NO_ERROR:                      out = "NO_ERROR";                      break;
+    case WARNING_DB_CONN_FAILED:        out = "WARNING_DB_CONN_FAILED";        break;
+    case WARNING_DB_QUERY_FAILED:       out = "WARNING_DB_QUERY_FAILED";       break;
+    case WARNING_DB_INCORRECT_NBUNCHES: out = "WARNING_DB_INCORRECT_NBUNCHES"; break;
+    default:                            out = "UNKNOWN";                       break;
+  };
+
+  return out;
 
 }

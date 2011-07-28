@@ -49,20 +49,32 @@ class L1TOMDSHelper {
 
   public:
 
+    enum Error{
+      NO_ERROR=0,
+      WARNING_DB_CONN_FAILED,
+      WARNING_DB_QUERY_FAILED,
+      WARNING_DB_INCORRECT_NBUNCHES
+    };
+
+  public:
+
     L1TOMDSHelper(); 
     ~L1TOMDSHelper(); // Destructor
 
-    bool                                    connect              (std::string iOracleDB,std::string iPathCondDB,std::string &error);
-    std::map<std::string,WbMTriggerXSecFit> getWbMTriggerXsecFits(std::string iTable,std::string &error);
-    std::map<std::string,WbMTriggerXSecFit> getWbMAlgoXsecFits(std::string &error);
-    std::map<std::string,WbMTriggerXSecFit> getWbMTechXsecFits(std::string &error);
-    int                                     getNumberCollidingBunches(int lhcFillNumber,std::string &error);
-    BeamConfiguration                       getBeamConfiguration     (int lhcFillNumber,std::string &error);
-    std::vector<bool>                       getBunchStructure        (int lhcFillNumber,std::string &error);
-    std::vector<float>                      getInitBunchLumi         (int lhcFillNumber,std::string &error);
-    std::vector<double>                     getRelativeBunchLumi     (int lhcFillNumber,std::string &error);
+    bool                                    connect              (std::string iOracleDB,std::string iPathCondDB,int &error);
+    std::map<std::string,WbMTriggerXSecFit> getWbMTriggerXsecFits(std::string iTable,int &error);
+    std::map<std::string,WbMTriggerXSecFit> getWbMAlgoXsecFits       (int &error);
+    std::map<std::string,WbMTriggerXSecFit> getWbMTechXsecFits       (int &error);
+    int                                     getNumberCollidingBunches(int lhcFillNumber,int &error);
+    BeamConfiguration                       getBeamConfiguration     (int lhcFillNumber,int &error);
+    std::vector<bool>                       getBunchStructure        (int lhcFillNumber,int &error);
+    std::vector<float>                      getInitBunchLumi         (int lhcFillNumber,int &error);
+    std::vector<double>                     getRelativeBunchLumi     (int lhcFillNumber,int &error);
+
+    std::string                             enumToStringError(int);
 
   private:
+
 
     std::string m_oracleDB;
     std::string m_pathCondDB;

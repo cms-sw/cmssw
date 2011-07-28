@@ -29,63 +29,75 @@ l1tSync = cms.EDAnalyzer("L1TSync",
       doGlobalAutoSelection = cms.bool(False),  # Do automatic/fixed algo selection for all monitored algos
 
       BPTX = cms.PSet(
-        monitor = cms.bool(True),
-        algo    = cms.string("L1_ZeroBias"),
+        monitor       = cms.bool(True),
+        algo          = cms.string("L1_ZeroBias"),
+        CertMinEvents = cms.int32(50),
       ),
       Mu = cms.PSet(
         monitor         = cms.bool(True),
         doAutoSelection = cms.bool(True),
         algo            = cms.string(""),
+        CertMinEvents   = cms.int32(50),
       ),
       EG = cms.PSet(
         monitor         = cms.bool(True),
         doAutoSelection = cms.bool(True),
         algo            = cms.string(""),
+        CertMinEvents   = cms.int32(50),
       ),
       IsoEG = cms.PSet( 
         monitor         = cms.bool(True),
         doAutoSelection = cms.bool(True),
         algo            = cms.string(""),
+        CertMinEvents   = cms.int32(50),
       ),
       Jet = cms.PSet(
         monitor         = cms.bool(True),
         doAutoSelection = cms.bool(True),
         algo            = cms.string(""),
+        CertMinEvents   = cms.int32(50),
       ),
       CenJet = cms.PSet(
         monitor         = cms.bool(False),
         doAutoSelection = cms.bool(True),
         algo            = cms.string(""),
+        CertMinEvents   = cms.int32(50),
       ),
       ForJet = cms.PSet(
         monitor         = cms.bool(False),
         doAutoSelection = cms.bool(True),
         algo            = cms.string(""),
+        CertMinEvents   = cms.int32(50),
       ),
       TauJet = cms.PSet(
         monitor         = cms.bool(True),
         doAutoSelection = cms.bool(True),
         algo            = cms.string(""),
+        CertMinEvents   = cms.int32(50),
       ),
       ETM = cms.PSet(
         monitor         = cms.bool(True),
         doAutoSelection = cms.bool(True),
         algo            = cms.string(""),
+        CertMinEvents   = cms.int32(50),
       ),
       ETT = cms.PSet(   
         monitor         = cms.bool(True),
         doAutoSelection = cms.bool(True),
         algo            = cms.string(""),
+        CertMinEvents   = cms.int32(50),
       ),
       HTT = cms.PSet(   
         monitor         = cms.bool(True),
         doAutoSelection = cms.bool(True),
         algo            = cms.string(""),
+        CertMinEvents   = cms.int32(50),
       ),
       HTM = cms.PSet(
         monitor         = cms.bool(True),   
         doAutoSelection = cms.bool(True),
         algo            = cms.string(""),
+        CertMinEvents   = cms.int32(50),
       ),
   ),
 )

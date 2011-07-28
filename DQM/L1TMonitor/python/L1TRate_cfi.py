@@ -4,11 +4,12 @@ from DQM.L1TMonitor.L1TRateParams_cff import RateParams
 
 l1tRate = cms.EDAnalyzer("L1TRate",
 
-  dqmStore               = cms.untracked.bool(True),
-  disableROOToutput      = cms.untracked.bool(True),
-  verbose                = cms.untracked.bool(False),
-  inputTagScalersResults = cms.InputTag("scalersRawToDigi","","DQM"),
-  inputTagL1GtDataDaq    = cms.InputTag("gtDigis"),
+  dqmStore                   = cms.untracked.bool(True),
+  disableROOToutput          = cms.untracked.bool(True),
+  verbose                    = cms.untracked.bool(False),
+  inputTagScalersResults     = cms.InputTag("scalersRawToDigi","","DQM"),
+  inputTagL1GtDataDaq        = cms.InputTag("gtDigis"),
+  useHFDeadTimeNormalization = cms.untracked.bool(False),
 
   # Index for the prescale set to be used 
   # as reference

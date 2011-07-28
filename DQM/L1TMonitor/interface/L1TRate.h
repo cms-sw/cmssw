@@ -4,8 +4,8 @@
 /*
  * \file L1TRate.h
  *
- * $Date: 2011/04/06 16:49:34 $
- * $Revision: 1.1 $
+ * $Date: 2011/05/12 13:50:40 $
+ * $Revision: 1.2 $
  * \author J. Pela
  *
 */
@@ -54,20 +54,20 @@ class L1TRate : public edm::EDAnalyzer {
     void beginRun(const edm::Run& run, const edm::EventSetup& iSetup);
     void endRun  (const edm::Run& run, const edm::EventSetup& iSetup);
 
+    virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
     virtual void endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
 
   private:
 
     // Methods
-    int getXSexFitsOMDS  (const edm::ParameterSet& ps); 
-    int getXSexFitsPython(const edm::ParameterSet& ps);
+    bool getXSexFitsOMDS  (const edm::ParameterSet& ps); 
+    bool getXSexFitsPython(const edm::ParameterSet& ps);
 
     edm::ParameterSet                      m_parameters;
 
     DQMStore*                              dbe;                      // The DQM Service Handle
 
     std::string                            m_outputFile;             // file name for ROOT ouput
-    //ofstream                             logFile_;                 //
 
     // bool
     bool                                   m_testEventScalLS;
@@ -84,7 +84,7 @@ class L1TRate : public edm::EDAnalyzer {
 
     // Vectors
     const std::vector< std::vector<int> >* m_listsPrescaleFactors;   // Collection os all sets of prescales
-   
+
     // Maps
     std::map<TString,int>                  m_algoBit;                // Map of bit associated with a L1 Algo alias
     std::map<std::string,bool>             m_inputCategories;        // Map of categories to monitor
@@ -93,6 +93,9 @@ class L1TRate : public edm::EDAnalyzer {
     std::map<TString,MonitorElement*>      m_xSecVsInstLumi;         // Monitor Elements for Algo XSec vs Instant Luminosity
     std::map<TString,TF1*>                 m_templateFunctions;      // For each trigger template f(InstLumi)=XSec
     std::map<TString,double>               m_bufferRate;
+
+    // MonitorElement
+    MonitorElement*                        m_ErrorMonitor;
 
     // Input tags
     edm::InputTag                          m_scalersSource;          // Where to get L1 Scalers

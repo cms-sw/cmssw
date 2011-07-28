@@ -2,8 +2,8 @@
 /*
  * \file L1TMenuHelper.cc
  *
- * $Date: 2011/04/14 13:03:11 $
- * $Revision: 1.2 $
+ * $Date: 2011/05/12 13:50:40 $
+ * $Revision: 1.3 $
  * \author J. Pela, P. Musella
  *
 */
@@ -41,9 +41,6 @@ using namespace std;
 //
 //-------------------------------------------------------------------------------------
 L1TMenuHelper::L1TMenuHelper(const edm::EventSetup& iSetup){
-
-  ESHandle<L1GtTriggerMenu>     menuRcd;
-  ESHandle<L1GtPrescaleFactors> l1GtPfAlgo;
 
   iSetup.get<L1GtTriggerMenuRcd>()            .get(menuRcd);
   iSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().get(l1GtPfAlgo);
@@ -83,17 +80,6 @@ map<string,string> L1TMenuHelper::getLUSOTrigger(map<string,bool> iCategories, i
   AlgorithmMap MyAlgos;
 
   map<string,SingleObjectCondition> myConditions;
-  vector<SingleObjectTrigger> vTrigMu;
-  vector<SingleObjectTrigger> vTrigEG ;  
-  vector<SingleObjectTrigger> vTrigIsoEG;
-  vector<SingleObjectTrigger> vTrigJet  ;
-  vector<SingleObjectTrigger> vTrigCenJet;
-  vector<SingleObjectTrigger> vTrigForJet;
-  vector<SingleObjectTrigger> vTrigTauJet;
-  vector<SingleObjectTrigger> vTrigETM;   
-  vector<SingleObjectTrigger> vTrigETT;   
-  vector<SingleObjectTrigger> vTrigHTT;   
-  vector<SingleObjectTrigger> vTrigHTM; 
 
   for(unsigned int a=0 ; a<vMuonConditions->size() ; a++){
     for(unsigned int b=0 ; b<(*vMuonConditions)[a].size() ; b++){
@@ -134,7 +120,7 @@ map<string,string> L1TMenuHelper::getLUSOTrigger(map<string,bool> iCategories, i
         tCondition.object            = CaloCondition->objectType()[0];
         tCondition.threshold         = (*CaloCondition->objectParameter())[0].etThreshold;
         tCondition.quality           = 0;
-        tCondition.etaRange          = 0;
+        tCondition.etaRange          = (*CaloCondition->objectParameter())[0].etaRange;
 
         myConditions[CaloCondition->condName()] = tCondition;
 
@@ -176,7 +162,7 @@ map<string,string> L1TMenuHelper::getLUSOTrigger(map<string,bool> iCategories, i
     bool         algoIsValid  = true;
     unsigned int maxThreshold = 0;
     int          tAlgoMask    = myUtils.triggerMask(iAlgo->first,error);
-    L1GtObject   tObject      = Mu;  // FIXME: Initial dummy value
+    L1GtObject   tObject      = Mu;  // Initial dummy value
     unsigned int tQuality     = 0;   // Only aplicable to Muons
     unsigned int tEtaRange    = 0;
 
@@ -204,11 +190,11 @@ map<string,string> L1TMenuHelper::getLUSOTrigger(map<string,bool> iCategories, i
 
         // Algorithm cannot be single algo if it requires 2 simultaneous conditions
         // FIXME: Should be improved to be sure one of the conditions is not technical (ex: BPTX)
-        if(pAlgo->algoRpnVector()[i].operation == 4){
+        if(pAlgo->algoRpnVector()[i].operation == L1GtLogicParser::OP_AND){
           algoIsValid = false;
           break;
         }
-        else if(pAlgo->algoRpnVector()[i].operation == 32){
+        else if(pAlgo->algoRpnVector()[i].operation == L1GtLogicParser::OP_OPERAND){
 
           string AlgoCondition                                     = pAlgo->algoRpnVector()[i].operand;
           map<string,SingleObjectCondition>::const_iterator ciCond = myConditions.find(AlgoCondition);
@@ -240,7 +226,7 @@ map<string,string> L1TMenuHelper::getLUSOTrigger(map<string,bool> iCategories, i
             else if((*ciCond).second.object == ETT)    {isETT     = true;}
             else if((*ciCond).second.object == HTT)    {isHTT     = true;}
             else if((*ciCond).second.object == HTM)    {isHTM     = true;}
-  
+            
           }
         }
       }
@@ -255,8 +241,7 @@ map<string,string> L1TMenuHelper::getLUSOTrigger(map<string,bool> iCategories, i
       tTrigger.threshold = maxThreshold;
       tTrigger.object    = tObject;
       tTrigger.quality   = tQuality;   // Only aplicable to Muons
-      tTrigger.etaRange  = tEtaRange;  // Only aplicable to Muons
-
+      tTrigger.etaRange  = tEtaRange;  // Only aplicable to EG and Muons 
 
       // Counting the number of different trigger conditions
       int nCond = 0;
@@ -273,17 +258,17 @@ map<string,string> L1TMenuHelper::getLUSOTrigger(map<string,bool> iCategories, i
 
       // If the trigger matched one of the pre-defined categories it is added to
       // the corresponding trigger vector
-      if     (nCond==1 && isMu     ==true)                                    {vTrigMu    .push_back(tTrigger);}
-      else if(nCond==2 && isNoIsoEG==true && isIsoEG ==true)                  {vTrigEG    .push_back(tTrigger);}
-      else if(nCond==1 && isIsoEG  ==true)                                    {vTrigIsoEG .push_back(tTrigger);}
-      else if(nCond==3 && isCenJet ==true && isForJet==true && isTauJet==true){vTrigJet   .push_back(tTrigger);}
-      else if(nCond==1 && isCenJet ==true)                                    {vTrigCenJet.push_back(tTrigger);}
-      else if(nCond==1 && isForJet ==true)                                    {vTrigForJet.push_back(tTrigger);}
-      else if(nCond==1 && isTauJet ==true)                                    {vTrigTauJet.push_back(tTrigger);}
-      else if(nCond==1 && isETT    ==true)                                    {vTrigETT   .push_back(tTrigger);}
-      else if(nCond==1 && isETM    ==true)                                    {vTrigETM   .push_back(tTrigger);}
-      else if(nCond==1 && isHTT    ==true)                                    {vTrigHTT   .push_back(tTrigger);}
-      else if(nCond==1 && isHTM    ==true)                                    {vTrigHTM   .push_back(tTrigger);}
+      if     (nCond==1 && isMu     ==true)                                    {m_vTrigMu    .push_back(tTrigger);}
+      else if(nCond==2 && isNoIsoEG==true && isIsoEG ==true)                  {m_vTrigEG    .push_back(tTrigger);}
+      else if(nCond==1 && isIsoEG  ==true)                                    {m_vTrigIsoEG .push_back(tTrigger);}
+      else if(nCond==3 && isCenJet ==true && isForJet==true && isTauJet==true){m_vTrigJet   .push_back(tTrigger);}
+      else if(nCond==1 && isCenJet ==true)                                    {m_vTrigCenJet.push_back(tTrigger);}
+      else if(nCond==1 && isForJet ==true)                                    {m_vTrigForJet.push_back(tTrigger);}
+      else if(nCond==1 && isTauJet ==true)                                    {m_vTrigTauJet.push_back(tTrigger);}
+      else if(nCond==1 && isETT    ==true)                                    {m_vTrigETT   .push_back(tTrigger);}
+      else if(nCond==1 && isETM    ==true)                                    {m_vTrigETM   .push_back(tTrigger);}
+      else if(nCond==1 && isHTT    ==true)                                    {m_vTrigHTT   .push_back(tTrigger);}
+      else if(nCond==1 && isHTM    ==true)                                    {m_vTrigHTM   .push_back(tTrigger);}
     }
 
   }
@@ -307,32 +292,18 @@ map<string,string> L1TMenuHelper::getLUSOTrigger(map<string,bool> iCategories, i
   string selTrigHTT    = "Undefined";
   string selTrigHTM    = "Undefined";
  
-  if(vTrigMu    .size() > 0){sort(vTrigMu    .begin(),vTrigMu    .end()); selTrigMu     = vTrigMu    [0].alias;}
-  if(vTrigEG    .size() > 0){sort(vTrigEG    .begin(),vTrigEG    .end()); selTrigEG     = vTrigEG    [0].alias;}
-  if(vTrigIsoEG .size() > 0){sort(vTrigIsoEG .begin(),vTrigIsoEG .end()); selTrigIsoEG  = vTrigIsoEG [0].alias;}
-  if(vTrigJet   .size() > 0){sort(vTrigJet   .begin(),vTrigJet   .end()); selTrigJet    = vTrigJet   [0].alias;}
-  if(vTrigCenJet.size() > 0){sort(vTrigCenJet.begin(),vTrigCenJet.end()); selTrigCenJet = vTrigCenJet[0].alias;}
-  if(vTrigForJet.size() > 0){sort(vTrigForJet.begin(),vTrigForJet.end()); selTrigForJet = vTrigForJet[0].alias;}
-  if(vTrigTauJet.size() > 0){sort(vTrigTauJet.begin(),vTrigTauJet.end()); selTrigTauJet = vTrigTauJet[0].alias;}
-  if(vTrigETT   .size() > 0){sort(vTrigETT   .begin(),vTrigETT   .end()); selTrigETT    = vTrigETT   [0].alias;}
-  if(vTrigETM   .size() > 0){sort(vTrigETM   .begin(),vTrigETM   .end()); selTrigETM    = vTrigETM   [0].alias;}
-  if(vTrigHTT   .size() > 0){sort(vTrigHTT   .begin(),vTrigHTT   .end()); selTrigHTT    = vTrigHTT   [0].alias;}
-  if(vTrigHTM   .size() > 0){sort(vTrigHTM   .begin(),vTrigHTM   .end()); selTrigHTM    = vTrigHTM   [0].alias;}
-/*
-  cout << "START:   Final Selection ------------------------" << endl;
-  if(iCategories["Mu"])    {cout << "Mu:"     << selTrigMu << endl;}
-  if(iCategories["EG"])    {cout << "EG:"     << selTrigEG << endl;}
-  if(iCategories["IsoEG"]) {cout << "IsoEG:"  << selTrigIsoEG << endl;}
-  if(iCategories["Jet"])   {cout << "Jet:"    << selTrigJet << endl;}
-  if(iCategories["CenJet"]){cout << "CenJet:" << selTrigCenJet << endl;}
-  if(iCategories["ForJet"]){cout << "ForJet:" << selTrigForJet << endl;}
-  if(iCategories["TauJet"]){cout << "TauJet:" << selTrigTauJet << endl;}
-  if(iCategories["ETT"])   {cout << "ETT:"    << selTrigETT << endl;}
-  if(iCategories["ETM"])   {cout << "ETM:"    << selTrigETM << endl;}
-  if(iCategories["HTT"])   {cout << "HTT:"    << selTrigHTT << endl;}
-  if(iCategories["HTM"])   {cout << "HTM:"    << selTrigHTM << endl;}
-  cout << "END:   Final Selection ------------------------" << endl;
-*/
+  if(m_vTrigMu    .size() > 0){sort(m_vTrigMu    .begin(),m_vTrigMu    .end()); selTrigMu     = m_vTrigMu    [0].alias;}
+  if(m_vTrigEG    .size() > 0){sort(m_vTrigEG    .begin(),m_vTrigEG    .end()); selTrigEG     = m_vTrigEG    [0].alias;}
+  if(m_vTrigIsoEG .size() > 0){sort(m_vTrigIsoEG .begin(),m_vTrigIsoEG .end()); selTrigIsoEG  = m_vTrigIsoEG [0].alias;}
+  if(m_vTrigJet   .size() > 0){sort(m_vTrigJet   .begin(),m_vTrigJet   .end()); selTrigJet    = m_vTrigJet   [0].alias;}
+  if(m_vTrigCenJet.size() > 0){sort(m_vTrigCenJet.begin(),m_vTrigCenJet.end()); selTrigCenJet = m_vTrigCenJet[0].alias;}
+  if(m_vTrigForJet.size() > 0){sort(m_vTrigForJet.begin(),m_vTrigForJet.end()); selTrigForJet = m_vTrigForJet[0].alias;}
+  if(m_vTrigTauJet.size() > 0){sort(m_vTrigTauJet.begin(),m_vTrigTauJet.end()); selTrigTauJet = m_vTrigTauJet[0].alias;}
+  if(m_vTrigETT   .size() > 0){sort(m_vTrigETT   .begin(),m_vTrigETT   .end()); selTrigETT    = m_vTrigETT   [0].alias;}
+  if(m_vTrigETM   .size() > 0){sort(m_vTrigETM   .begin(),m_vTrigETM   .end()); selTrigETM    = m_vTrigETM   [0].alias;}
+  if(m_vTrigHTT   .size() > 0){sort(m_vTrigHTT   .begin(),m_vTrigHTT   .end()); selTrigHTT    = m_vTrigHTT   [0].alias;}
+  if(m_vTrigHTM   .size() > 0){sort(m_vTrigHTM   .begin(),m_vTrigHTM   .end()); selTrigHTM    = m_vTrigHTM   [0].alias;}
+
   if(iCategories["Mu"])    {out["Mu"]     = selTrigMu;}
   if(iCategories["EG"])    {out["EG"]     = selTrigEG;}
   if(iCategories["IsoEG"]) {out["IsoEG"]  = selTrigIsoEG;}
@@ -436,10 +407,10 @@ string L1TMenuHelper::enumToStringL1GtConditionType(L1GtConditionType iCondition
 
 } 
 
-//-------------------------------------------------------------------------------------
+//__________________________________________________________________
 // Method: enumToStringL1GtConditionCategory
 //   * Converts L1GtConditionCategory (enum) to string
-//-------------------------------------------------------------------------------------
+//__________________________________________________________________
 string L1TMenuHelper::enumToStringL1GtConditionCategory(L1GtConditionCategory iConditionCategory){
 
   string out;
@@ -463,3 +434,101 @@ string L1TMenuHelper::enumToStringL1GtConditionCategory(L1GtConditionCategory iC
 
 }
 
+//__________________________________________________________________
+int L1TMenuHelper::getPrescaleByAlias(TString iCategory,TString iAlias){
+
+    int out = -1;
+
+    if(iCategory == "Mu"){ 
+      for(uint i=0 ; i<m_vTrigMu.size() ; i++){if(m_vTrigMu[i].alias==iAlias)        {return m_vTrigMu[i].prescale;}} 
+    }else if(iCategory == "EG"){ 
+      for(uint i=0 ; i<m_vTrigEG.size() ; i++){if(m_vTrigEG[i].alias==iAlias)        {return m_vTrigEG[i].prescale;}} 
+    }else if(iCategory == "IsoEG"){ 
+      for(uint i=0 ; i<m_vTrigIsoEG.size()  ; i++){if(m_vTrigIsoEG[i].alias==iAlias) {return m_vTrigIsoEG[i].prescale;}} 
+    }else if(iCategory == "Jet"){
+      for(uint i=0 ; i<m_vTrigJet.size()    ; i++){if(m_vTrigJet[i].alias==iAlias)   {return m_vTrigJet[i].prescale;}} 
+    }else if(iCategory == "CenJet"){ 
+      for(uint i=0 ; i<m_vTrigCenJet.size() ; i++){if(m_vTrigCenJet[i].alias==iAlias){return m_vTrigCenJet[i].prescale;}}
+    }else if(iCategory == "ForJet"){ 
+      for(uint i=0 ; i<m_vTrigForJet.size() ; i++){if(m_vTrigForJet[i].alias==iAlias){return m_vTrigForJet[i].prescale;}}
+    }else if(iCategory == "TauJet"){ 
+      for(uint i=0 ; i<m_vTrigTauJet.size() ; i++){if(m_vTrigTauJet[i].alias==iAlias){return m_vTrigTauJet[i].prescale;}}
+    }else if(iCategory == "ETT"){ 
+      for(uint i=0 ; i<m_vTrigETT.size()    ; i++){if(m_vTrigETT[i].alias==iAlias)   {return m_vTrigETT[i].prescale;}}
+    }else if(iCategory == "ETM"){ 
+      for(uint i=0 ; i<m_vTrigETM.size()    ; i++){if(m_vTrigETM[i].alias==iAlias)   {return m_vTrigETM[i].prescale;}}
+    }else if(iCategory == "HTT"){ 
+      for(uint i=0 ; i<m_vTrigHTT.size()    ; i++){if(m_vTrigHTT[i].alias==iAlias)   {return m_vTrigHTT[i].prescale;}}
+    }else if(iCategory == "HTM"){ 
+      for(uint i=0 ; i<m_vTrigHTM.size()    ; i++){if(m_vTrigHTM[i].alias==iAlias)   {return m_vTrigHTM[i].prescale;}}
+    }
+
+  return out;
+
+}
+
+//__________________________________________________________________
+uint L1TMenuHelper::getEtaRangeByAlias(TString iCategory,TString iAlias){
+
+    uint out = -1;
+
+    if(iCategory == "Mu"){ 
+      for(uint i=0 ; i<m_vTrigMu.size() ; i++){if(m_vTrigMu[i].alias==iAlias)        {return m_vTrigMu[i].etaRange;}} 
+    }else if(iCategory == "EG"){ 
+      for(uint i=0 ; i<m_vTrigEG.size() ; i++){if(m_vTrigEG[i].alias==iAlias)        {return m_vTrigEG[i].etaRange;}} 
+    }else if(iCategory == "IsoEG"){ 
+      for(uint i=0 ; i<m_vTrigIsoEG.size()  ; i++){if(m_vTrigIsoEG[i].alias==iAlias) {return m_vTrigIsoEG[i].etaRange;}} 
+    }else if(iCategory == "Jet"){
+      for(uint i=0 ; i<m_vTrigJet.size()    ; i++){if(m_vTrigJet[i].alias==iAlias)   {return m_vTrigJet[i].etaRange;}} 
+    }else if(iCategory == "CenJet"){ 
+      for(uint i=0 ; i<m_vTrigCenJet.size() ; i++){if(m_vTrigCenJet[i].alias==iAlias){return m_vTrigCenJet[i].etaRange;}} 
+    }else if(iCategory == "ForJet"){ 
+      for(uint i=0 ; i<m_vTrigForJet.size() ; i++){if(m_vTrigForJet[i].alias==iAlias){return m_vTrigForJet[i].etaRange;}} 
+    }else if(iCategory == "TauJet"){ 
+      for(uint i=0 ; i<m_vTrigTauJet.size() ; i++){if(m_vTrigTauJet[i].alias==iAlias){return m_vTrigTauJet[i].etaRange;}} 
+    }else if(iCategory == "ETT"){ 
+      for(uint i=0 ; i<m_vTrigETT.size()    ; i++){if(m_vTrigETT[i].alias==iAlias)   {return m_vTrigETT[i].etaRange;}} 
+    }else if(iCategory == "ETM"){ 
+      for(uint i=0 ; i<m_vTrigETM.size()    ; i++){if(m_vTrigETM[i].alias==iAlias)   {return m_vTrigETM[i].etaRange;}} 
+    }else if(iCategory == "HTT"){ 
+      for(uint i=0 ; i<m_vTrigHTT.size()    ; i++){if(m_vTrigHTT[i].alias==iAlias)   {return m_vTrigHTT[i].etaRange;}}  
+    }else if(iCategory == "HTM"){ 
+      for(uint i=0 ; i<m_vTrigHTM.size()    ; i++){if(m_vTrigHTM[i].alias==iAlias)   {return m_vTrigHTM[i].etaRange;}} 
+    }
+
+  return out;
+
+}
+
+//__________________________________________________________________
+uint L1TMenuHelper::getQualityAlias(TString iCategory,TString iAlias){
+
+    uint out = -1;
+
+    if(iCategory == "Mu"){ 
+      for(uint i=0 ; i<m_vTrigMu.size() ; i++){if(m_vTrigMu[i].alias==iAlias)        {return m_vTrigMu[i].quality;}} 
+    }else if(iCategory == "EG"){ 
+      for(uint i=0 ; i<m_vTrigEG.size() ; i++){if(m_vTrigEG[i].alias==iAlias)        {return m_vTrigEG[i].quality;}} 
+    }else if(iCategory == "IsoEG"){ 
+      for(uint i=0 ; i<m_vTrigIsoEG.size()  ; i++){if(m_vTrigIsoEG[i].alias==iAlias) {return m_vTrigIsoEG[i].quality;}} 
+    }else if(iCategory == "Jet"){
+      for(uint i=0 ; i<m_vTrigJet.size()    ; i++){if(m_vTrigJet[i].alias==iAlias)   {return m_vTrigJet[i].quality;}} 
+    }else if(iCategory == "CenJet"){ 
+      for(uint i=0 ; i<m_vTrigCenJet.size() ; i++){if(m_vTrigCenJet[i].alias==iAlias){return m_vTrigCenJet[i].quality;}} 
+    }else if(iCategory == "ForJet"){ 
+      for(uint i=0 ; i<m_vTrigForJet.size() ; i++){if(m_vTrigForJet[i].alias==iAlias){return m_vTrigForJet[i].quality;}} 
+    }else if(iCategory == "TauJet"){ 
+      for(uint i=0 ; i<m_vTrigTauJet.size() ; i++){if(m_vTrigTauJet[i].alias==iAlias){return m_vTrigTauJet[i].quality;}} 
+    }else if(iCategory == "ETT"){ 
+      for(uint i=0 ; i<m_vTrigETT.size()    ; i++){if(m_vTrigETT[i].alias==iAlias)   {return m_vTrigETT[i].quality;}} 
+    }else if(iCategory == "ETM"){ 
+      for(uint i=0 ; i<m_vTrigETM.size()    ; i++){if(m_vTrigETM[i].alias==iAlias)   {return m_vTrigETM[i].quality;}} 
+    }else if(iCategory == "HTT"){ 
+      for(uint i=0 ; i<m_vTrigHTT.size()    ; i++){if(m_vTrigHTT[i].alias==iAlias)   {return m_vTrigHTT[i].quality;}}  
+    }else if(iCategory == "HTM"){ 
+      for(uint i=0 ; i<m_vTrigHTM.size()    ; i++){if(m_vTrigHTM[i].alias==iAlias)   {return m_vTrigHTM[i].quality;}} 
+    }
+
+  return out;
+
+}
