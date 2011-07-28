@@ -13,7 +13,7 @@
 //
 // Original Author:  
 //         Created:  Sat Jul 10 10:32:40 BRT 2010
-// $Id$
+// $Id: UEDMultiLeptonFilter.cc,v 1.1 2011/07/27 07:46:00 fabiocos Exp $
 //
 //
 
@@ -144,20 +144,20 @@ Vetoed4eFilter(iConfig.getUntrackedParameter("Vetoed4eFilter",0))
 {
    //now do what ever initialization is needed
 
-   if(UseFilter==0){std::cout << "************ No Filter ************" << std::endl;
+   if(UseFilter==0){//std::cout << "************ No Filter ************" << std::endl;
    }else{
-     std::cout <<"Filters On" << std::endl;
+//     std::cout <<"Filters On" << std::endl;
      if(SSDiLepFilter+SSDiMuFilter+SSDiEFilter+SSDiEMuFilter>1){
-     std::cout << "Bad configuration: more than one non-vetoed filter is On" << std::endl;
-     std::cout << "You should use only one inclusive filter" << std::endl;
-     std::cout << "All events will pass: UseFilter=0"<< std::endl;
+//     std::cout << "Bad configuration: more than one non-vetoed filter is On" << std::endl;
+//     std::cout << "You should use only one inclusive filter" << std::endl;
+//     std::cout << "All events will pass: UseFilter=0"<< std::endl;
      UseFilter=0;
      }
     }
 
    if(UseFilter==1){ 
      if(SSDiLepFilter==1){
-       std::cout << "SSDiLepFilter: On " << std::endl;
+//       std::cout << "SSDiLepFilter: On " << std::endl;
        //To avoid multiple counting
        AllVetoedOff(true);
      }
@@ -167,21 +167,21 @@ Vetoed4eFilter(iConfig.getUntrackedParameter("Vetoed4eFilter",0))
        SSDiEVetoedFilter=1;
      }
      if(SSDiMuFilter==1){
-       std::cout <<"SSDiMuFilter: On" << std::endl;
+//       std::cout <<"SSDiMuFilter: On" << std::endl;
        AllVetoedOff(true);
        SSDiMuVetoedFilter=1;
        Vetoed3muFilter=1;
        Vetoed4muFilter=1;
      }
      if(SSDiEFilter==1){
-       std::cout <<"SSDiEFilter: On" << std::endl;
+//       std::cout <<"SSDiEFilter: On" << std::endl;
        AllVetoedOff(true);
        SSDiEVetoedFilter=1;
        Vetoed3eFilter=1;
        Vetoed4eFilter=1;
      }
      if(SSDiEMuFilter==1){
-       std::cout <<"SSDiEMuFilter: On" << std::endl;       
+//       std::cout <<"SSDiEMuFilter: On" << std::endl;       
        AllVetoedOff(true);
        SSDiEMuVetoedFilter=1;
        Vetoed2mu1eFilter=1;
@@ -224,7 +224,7 @@ Vetoed4eFilter(iConfig.getUntrackedParameter("Vetoed4eFilter",0))
 void 
 UEDMultiLeptonFilter::AllVetoedOff(bool inclusive_message){
 
-      if(inclusive_message)std::cout << "All Vetoed Filters Off" << std::endl;
+//      if(inclusive_message)std::cout << "All Vetoed Filters Off" << std::endl;
 
       SSDiMuVetoedFilter=0;
       SSDiEVetoedFilter=0;
@@ -247,6 +247,9 @@ UEDMultiLeptonFilter::~UEDMultiLeptonFilter()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
+
+/*
+
    std::cout << "nProcessed: " << nProcessed << std::endl;
    std::cout << "nFilteredEvents: " << nFilteredEvents << std::endl;
 
@@ -275,6 +278,8 @@ UEDMultiLeptonFilter::~UEDMultiLeptonFilter()
    std::cout << "nFour4e: " << nFour4e << std::endl;
    std::cout << "nFour2mu2e: " << nFour2mu2e << std::endl;
 
+*/
+
 }
 
 
@@ -291,7 +296,7 @@ UEDMultiLeptonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    std::map<std::string, int> accept; 
 
-   std::cout << "===================== New event ========================: " << nFilteredEvents  << std::endl;
+//   std::cout << "===================== New event ========================: " << nFilteredEvents  << std::endl;
 
    nProcessed++;
    if(UseFilter==0){
@@ -360,7 +365,7 @@ UEDMultiLeptonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
      if(leptonIDplus.size()>1 || leptonIDminus.size()>1){
-	std::cout << "SS dilepton" << std::endl;
+//	std::cout << "SS dilepton" << std::endl;
         //Check dimuon inclusive filter
         nSSdileptons++;
         if(SSDiLepFilter==1)return AcceptEvent();
@@ -405,7 +410,7 @@ UEDMultiLeptonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      }
 
      if(leptonIDplus.size()+leptonIDminus.size()==4){
-        std::cout << "Four lepton" << std::endl;
+//        std::cout << "Four lepton" << std::endl;
         nFourleptons++;
         int e=0;
         int mu=0;
@@ -426,7 +431,7 @@ UEDMultiLeptonFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
      }
      if(leptonIDplus.size()+leptonIDminus.size()==3){
-        std::cout << "Three lepton " << std::endl;
+//        std::cout << "Three lepton " << std::endl;
         nTrileptons++;
         int e=0;
         int mu=0;
@@ -501,14 +506,14 @@ UEDMultiLeptonFilter::nLeptons(std::vector<int> leptons_id, int& e,int& mu){
    if(abs(leptons_id.at(i))==13)mu++;
   }
 
-  std::cout <<"mu "<< mu << std::endl;
-  std::cout <<"e "<< e <<std::endl; 
+//  std::cout <<"mu "<< mu << std::endl;
+//  std::cout <<"e "<< e <<std::endl; 
 }
 
 bool
 UEDMultiLeptonFilter::AcceptEvent(){
      nFilteredEvents++;
-     std::cout << "Event accepted" << std::endl;
+//     std::cout << "Event accepted" << std::endl;
      return true;
 }
 //define this as a plug-in
