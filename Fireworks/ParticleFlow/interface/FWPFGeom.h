@@ -1,10 +1,10 @@
-#ifndef _FWPFUTILS_H_
-#define _FWPFUTILS_h_
+#ifndef _FWPFGEOM_H_
+#define _FWPFGEOM_H_
 
 // -*- C++ -*-
 //
 // Package:     ParticleFlow
-// Namespace:   FWPFUtils
+// Namespace:   FWPFGeom
 // 
 // Implementation:
 //     <Notes on implementation>
@@ -13,9 +13,9 @@
 //
 
 //-----------------------------------------------------------------------------
-// FWPFUtils
+// FWPFGeom
 //-----------------------------------------------------------------------------
-namespace FWPFUtils
+namespace FWPFGeom
 {
    // ECAL
    inline float   caloR1()    { return 129;     }  // Centres of front faces of the crystals in supermodules - Barrel
