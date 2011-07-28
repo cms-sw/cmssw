@@ -548,7 +548,7 @@ template <class T> void SiStripMonitorTrack::RecHitInfo(const T* tkrecHit, Local
     //Get SiStripCluster from SiStripRecHit
     if ( tkrecHit != NULL ){
       const SiStripCluster* SiStripCluster_ = &*(tkrecHit->cluster());
-      SiStripClusterInfo SiStripClusterInfo_(*SiStripCluster_,es);
+      SiStripClusterInfo SiStripClusterInfo_(*SiStripCluster_,es,detid);
             
       if ( clusterInfos(&SiStripClusterInfo_,detid,OnTrack, LV ) ) {
 	vPSiStripCluster.push_back(SiStripCluster_);
