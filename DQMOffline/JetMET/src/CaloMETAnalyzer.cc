@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/05/27 11:42:33 $
- *  $Revision: 1.58 $
+ *  $Date: 2011/07/20 13:58:38 $
+ *  $Revision: 1.59 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -229,7 +229,7 @@ void CaloMETAnalyzer::bookMESet(std::string DirName)
   if ( _MinBiasEventFlag->on() ) {
     bookMonitorElement(DirName+"/"+"MinBias",false);
     hTriggerName_MinBias = _dbe->bookString("triggerName_MinBias", _hlt_MinBias);
-    std::cout << "_MinBiasEventFlag is on, folder created\n";
+    if (_verbose) std::cout << "_MinBiasEventFlag is on, folder created\n";
   }
 
   if ( _HighMETEventFlag->on() ) {
@@ -245,13 +245,13 @@ void CaloMETAnalyzer::bookMESet(std::string DirName)
   if ( _EleEventFlag->on() ) {
     bookMonitorElement(DirName+"/"+"Ele",false);
     hTriggerName_Ele = _dbe->bookString("triggerName_Ele", _hlt_Ele);
-    std::cout << "_EleEventFlag is on, folder created\n";
+    if (_verbose) std::cout << "_EleEventFlag is on, folder created\n";
   }
 
   if ( _MuonEventFlag->on() ) {
     bookMonitorElement(DirName+"/"+"Muon",false);
     hTriggerName_Muon = _dbe->bookString("triggerName_Muon", _hlt_Muon);
-    std::cout << "_MuonEventFlag is on, folder created\n";
+    if (_verbose) std::cout << "_MuonEventFlag is on, folder created\n";
   }
 }  
 
