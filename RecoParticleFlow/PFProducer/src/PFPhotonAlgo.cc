@@ -897,8 +897,8 @@ void PFPhotonAlgo::EarlyConversion(
 		      {
 			reco::PFBlockRef blockRef = eleInBlocks[i].first;
 			unsigned indexInBlock = eleInBlocks[i].second;	 
-			const edm::OwnVector< reco::PFBlockElement >&  elements=eleInBlocks[i].first->elements();
-			const reco::PFBlockElement& element = elements[indexInBlock];  		
+			//const edm::OwnVector< reco::PFBlockElement >&  elements=eleInBlocks[i].first->elements();
+			//const reco::PFBlockElement& element = elements[indexInBlock];  		
 			
 			AddFromElectron_.push_back(indexInBlock);	       	
 		      }		    
