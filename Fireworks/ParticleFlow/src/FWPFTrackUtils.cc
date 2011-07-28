@@ -25,8 +25,8 @@ FWPFTrackSingleton::initPropagator()
    // Common propagator, helix stepper
    m_trackPropagator = new TEveTrackPropagator();
    m_trackPropagator->SetMagFieldObj( m_magField, false );
-   m_trackPropagator->SetMaxR( FWPFUtils::caloR3() );
-   m_trackPropagator->SetMaxZ( FWPFUtils::caloZ2() );
+   m_trackPropagator->SetMaxR( FWPFGeom::caloR3() );
+   m_trackPropagator->SetMaxZ( FWPFGeom::caloZ2() );
    m_trackPropagator->SetDelta( 0.01 );
    m_trackPropagator->SetProjTrackBreaking( TEveTrackPropagator::kPTB_UseLastPointPos );
    m_trackPropagator->SetRnrPTBMarkers( kTRUE );
@@ -37,8 +37,8 @@ FWPFTrackSingleton::initPropagator()
    m_trackerTrackPropagator->SetStepper( TEveTrackPropagator::kRungeKutta );
    m_trackerTrackPropagator->SetMagFieldObj( m_magField, false );
    m_trackerTrackPropagator->SetDelta( 0.01 );
-   m_trackerTrackPropagator->SetMaxR( FWPFUtils::caloR3() );
-   m_trackerTrackPropagator->SetMaxZ( FWPFUtils::caloZ2() );
+   m_trackerTrackPropagator->SetMaxR( FWPFGeom::caloR3() );
+   m_trackerTrackPropagator->SetMaxZ( FWPFGeom::caloZ2() );
    m_trackerTrackPropagator->SetProjTrackBreaking( TEveTrackPropagator::kPTB_UseLastPointPos );
    m_trackerTrackPropagator->SetRnrPTBMarkers( kTRUE );
    m_trackerTrackPropagator->IncDenyDestroy();
@@ -73,7 +73,7 @@ FWPFTrackUtils::getTrack( const reco::Track &iData )
 TEveStraightLineSet *
 FWPFTrackUtils::setupLegoTrack( const reco::Track &iData )
 {
-   using namespace FWPFUtils;
+   using namespace FWPFGeom;
 
    // Declarations
    int wraps[3] = { -1, -1, -1 };
@@ -270,7 +270,7 @@ FWPFTrackUtils::setupTrack( const reco::Track &iData )
 TEvePointSet *
 FWPFTrackUtils::getCollisionMarkers( const TEveTrack *trk )
 {
-   using namespace FWPFUtils;
+   using namespace FWPFGeom;
 
    bool ECAL = false;
    const Float_t *points = trk->GetP();
