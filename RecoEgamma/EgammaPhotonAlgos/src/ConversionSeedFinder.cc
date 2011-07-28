@@ -44,7 +44,7 @@ void ConversionSeedFinder::setEventSetup(const edm::EventSetup& es  )  {
 
 
   edm::ESHandle<MeasurementTracker> measurementTrackerHandle;
-  es.get<CkfComponentsRecord>().get(measurementTrackerHandle);
+  es.get<CkfComponentsRecord>().get(theMeasurementTrackerName_,measurementTrackerHandle);
   theMeasurementTracker_ = measurementTrackerHandle.product();
   
   edm::ESHandle<Propagator>  propagatorAlongMomHandle;

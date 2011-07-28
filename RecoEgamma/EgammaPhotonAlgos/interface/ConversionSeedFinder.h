@@ -3,9 +3,9 @@
 /** \class ConversionSeedFinder
  **  
  **
- **  $Id: ConversionSeedFinder.h,v 1.11 2008/11/19 16:47:44 nancy Exp $ 
- **  $Date: 2008/11/19 16:47:44 $ 
- **  $Revision: 1.11 $
+ **  $Id: ConversionSeedFinder.h,v 1.12 2010/12/11 09:48:47 innocent Exp $ 
+ **  $Date: 2010/12/11 09:48:47 $ 
+ **  $Revision: 1.12 $
  **  \author Nancy Marinelli, U. of Notre Dame, US
  **
  ***/
@@ -98,6 +98,7 @@ class ConversionSeedFinder {
   mutable GlobalPoint theSCPosition_;
     
 
+  std::string theMeasurementTrackerName_;
   const MeasurementTracker*     theMeasurementTracker_;
   const TrackingGeometry* theTrackerGeom_;
 
