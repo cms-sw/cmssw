@@ -961,21 +961,25 @@ bool isMuX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
 }
 
 
-bool isEleLX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
+bool isEleX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds,  vector<TString>& caloId, vector<TString>& caloIso, vector<TString>& trkId, vector<TString>& trkIso)
 {
 	
-  TString pattern = "(OpenHLT_Ele([0-9]+)_CaloIdL_TrkIdVL_CaloIsoVL_TrkIsoVL_R0([0-9]+)_MR([0-9]+){1})$";
+  TString pattern = "(OpenHLT_Ele([0-9]+)_?(CaloId[VLT]+)?_?(CaloIso[VLT]+)?_?(TrkId[VLT]+)?_?(TrkIso[VLT]+)?_R0([0-9]+)_MR([0-9]+){1})$";
   TPRegexp matchThreshold(pattern);
 	
   if (matchThreshold.MatchB(triggerName))
     {
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdEle = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      double thresholdR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
-      double thresholdMR = (((TObjString *)subStrL->At(4))->GetString()).Atof();
+      caloId.push_back(((TObjString *)subStrL->At(3))->GetString());
+      caloIso.push_back(((TObjString *)subStrL->At(4))->GetString());
+      trkId.push_back(((TObjString *)subStrL->At(5))->GetString());
+      trkIso.push_back(((TObjString *)subStrL->At(6))->GetString());
+      double thresholdR = (((TObjString *)subStrL->At(7))->GetString()).Atof();
+      double thresholdMR = (((TObjString *)subStrL->At(8))->GetString()).Atof();
+      thresholds.push_back(thresholdEle);
       thresholds.push_back(thresholdR/100.);
       thresholds.push_back(thresholdMR);
-      thresholds.push_back(thresholdEle);
       delete subStrL;
       return true;
     }
@@ -983,27 +987,6 @@ bool isEleLX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
     return false;
 }
 
-bool isEleTX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
-{
-	
-  TString pattern = "(OpenHLT_Ele([0-9]+)_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_R0([0-9]+)_MR([0-9]+){1})$";
-  TPRegexp matchThreshold(pattern);
-	
-  if (matchThreshold.MatchB(triggerName))
-    {
-      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
-      double thresholdEle = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      double thresholdR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
-      double thresholdMR = (((TObjString *)subStrL->At(4))->GetString()).Atof();
-      thresholds.push_back(thresholdR/100.);
-      thresholds.push_back(thresholdMR);
-      thresholds.push_back(thresholdEle);
-      delete subStrL;
-      return true;
-    }
-  else
-    return false;
-}
 
 bool isMuX_MR0XTrigger(TString triggerName, vector<double> &thresholds)
 {
@@ -3058,73 +3041,27 @@ void OHltTree::CheckOpenHlt(
 	}
     }
 	
-  else if (isEleLX_R0X_MRXTrigger(triggerName, thresholds))
+  else if (isEleX_R0X_MRXTrigger(triggerName, thresholds, caloId, caloIso, trkId, trkIso))
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	{
 	  if (prescaleResponse(menu, cfg, rcounter, it))
 	    {
-	      if ( (OpenHlt1ElectronSamHarperPassed(thresholds[2], 0, // ET, L1isolation 
-						    999.,
-						    999., // Track iso barrel, Track iso endcap 
-						    0.2,
-						    0.2, // Track/pT iso barrel, Track/pT iso endcap 
-						    0.2,
-						    0.2, // H/ET iso barrel, H/ET iso endcap 
-						    0.2,
-						    0.2, // E/ET iso barrel, E/ET iso endcap 
-						    0.15,
-						    0.10, // H/E barrel, H/E endcap 
-						    0.014,
-						    0.035, // cluster shape barrel, cluster shape endcap 
-						    999.,//0.98,
-						    999.,//1.0, // R9 barrel, R9 endcap 
-						    0.01,
-						    0.01, // Deta barrel, Deta endcap 
-						    0.15,
-						    0.10 // Dphi barrel, Dphi endcap 
-						    )>=1))
+	      if ( OpenHlt1ElectronPassed(thresholds[0], 
+				       map_EGammaCaloId[caloId[0]],
+				       map_EleCaloIso[caloIso[0]],
+				       map_EleTrkId[trkId[0]],
+				       map_EleTrkIso[trkIso[0]]
+				       ) >= 1)	
 		{
-		  if (OpenHltRPassed(thresholds[0], thresholds[1], false, 7, 40.)>0)
+		  if (OpenHltRPassed(thresholds[1], thresholds[2], false, 7, 40.)>0)
 		    triggerBit[it] = true;
 		}
 	    }
 	}
     }
-  else if (isEleTX_R0X_MRXTrigger(triggerName, thresholds))
-    {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-	{
-	  if (prescaleResponse(menu, cfg, rcounter, it))
-	    {
-	      if (OpenHlt1ElectronSamHarperPassed(thresholds[2], 0, // ET, L1isolation 
-						  999.,
-						  999., // Track iso barrel, Track iso endcap 
-						  0.2,
-						  0.2, // Track/pT iso barrel, Track/pT iso endcap 
-						  0.2,
-						  0.2, // H/ET iso barrel, H/ET iso endcap 
-						  0.2,
-						  0.2, // E/ET iso barrel, E/ET iso endcap 
-						  0.1,
-						  0.075, // H/E barrel, H/E endcap 
-						  0.011,
-						  0.031, // cluster shape barrel, cluster shape endcap 
-						  999.,//0.98,
-						  999.,//1.0, // R9 barrel, R9 endcap 
-						  0.008,
-						  0.008, // Deta barrel, Deta endcap 
-						  0.07,
-						  0.05 // Dphi barrel, Dphi endcap 
-						  )>=1)
-					
-		{
-		  if (OpenHltRPassed(thresholds[0], thresholds[1], false, 7, 40.)>0)
-		    triggerBit[it] = true;
-		}
-	    }
-	}
-    }
+
+
   else if (isEleLX_MR0XTrigger(triggerName, thresholds))
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
@@ -8354,6 +8291,215 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 
   ///VBF Paths
 	
+ //------ 3E33 ------//
+  
+  //Ele20 - TighterEleIdIsol - CaloJetCor pT 35 25 - Deta 3 + Third Jet 20
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele20_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3_Jet20") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second == 1)
+      {
+	if (prescaleResponse(menu, cfg, rcounter, it) )
+	  {
+	    int EtMaxIt = -1;
+	    std::vector<int> EleIts;
+	    if (OpenHlt1ElectronVbfEleIDPassed(20., 12., true, EtMaxIt, &EleIts)
+		>= 1)
+	      {
+		if (OpenHltCleanedTriJetPassed(
+					      35.,
+					      25.,
+                                              20.,
+					      -1.,
+					      true,
+					      "Calo",
+					      3.,
+					      0.,
+					      false,
+					      false,
+					      EleIts) >= 1)
+		  triggerBit[it] = true;
+	      }
+	  }
+      }
+  }
+
+  //Ele22 - TighterEleIdIsol - CaloJetCor pT 35 25 - Deta 3.5 + Third Jet 25 - backup
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele22_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3p5_Jet25") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second == 1)
+      {
+	if (prescaleResponse(menu, cfg, rcounter, it) )
+	  {
+	    int EtMaxIt = -1;
+	    std::vector<int> EleIts;
+	    if (OpenHlt1ElectronVbfEleIDPassed(22., 12., true, EtMaxIt, &EleIts)
+		>= 1)
+	      {
+		if (OpenHltCleanedTriJetPassed(
+					      35.,
+					      25.,
+                                              25.,
+					      -1.,
+					      true,
+					      "Calo",
+					      3.5,
+					      0.,
+					      false,
+					      false,
+					      EleIts) >= 1)
+		  triggerBit[it] = true;
+	      }
+	  }
+      }
+  }
+
+  //Ele20 - TighterEleId NO Isol - CaloJetCor pT 35 25 - Deta 3 + Third Jet 20 - background
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele20_CaloIdVT_TrkIdT_Jet35_Jet25_Deta3_Jet20") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second == 1)
+      {
+	if (prescaleResponse(menu, cfg, rcounter, it) )
+	  {
+	    int EtMaxIt = -1;
+	    std::vector<int> EleIts;
+            if (OpenHlt1ElectronVbfEleIDPassed(20., 12., false, EtMaxIt, &EleIts)
+		>= 1)
+	      {
+		if (OpenHltCleanedTriJetPassed(
+					      35.,
+					      25.,
+                                              20.,
+					      -1.,
+					      true,
+					      "Calo",
+					      3.,
+					      0.,
+					      false,
+					      false,
+					      EleIts) >= 1)
+		  triggerBit[it] = true;
+	      }
+	  }
+      }
+  }
+
+  ///ggH Paths
+  //------ 2E33 ------//
+
+  //Ele27 - TighterEleIdIsol - CaloJetCor pT 30 25 - pfMHT 20
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT20") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second == 1)
+      {
+	if (prescaleResponse(menu, cfg, rcounter, it) )
+	  {
+	    int EtMaxIt = -1;
+	    std::vector<int> EleIts;
+	    if (pfMHT > 20. &&
+		OpenHlt1ElectronVbfEleIDPassed(27., 12., true, EtMaxIt, &EleIts)
+		>= 1)
+	      {
+		if (OpenHltCleanedDiJetPassed(
+					      30.,
+					      25.,
+					      2.6,
+					      true,
+					      "Calo",
+					      0.,
+					      0.,
+					      false,
+					      false,
+					      EleIts) >= 1)
+		  triggerBit[it] = true;
+	      }
+	  }
+      }
+  }
+  
+  //Ele30 - TighterEleIdIsol - CaloJetCor pT 30 30 - pfMHT 25 - backup
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele30_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralJet30_PFMHT25") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second == 1)
+      {
+	if (prescaleResponse(menu, cfg, rcounter, it) )
+	  {
+	    int EtMaxIt = -1;
+	    std::vector<int> EleIts;
+	    if (pfMHT > 25. &&
+		OpenHlt1ElectronVbfEleIDPassed(30., 12., true, EtMaxIt, &EleIts)
+		>= 1)
+	      {
+		if (OpenHltCleanedDiJetPassed(
+					      30.,
+					      30.,
+					      2.6,
+					      true,
+					      "Calo",
+					      0.,
+					      0.,
+					      false,
+					      false,
+					      EleIts) >= 1)
+		  triggerBit[it] = true;
+	      }
+	  }
+      }
+  }
+   
+  //Ele27 - TighterEleIdIsol - CaloJetCor pT 30 25 - pfMHT turn on studies
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second == 1)
+      {
+	if (prescaleResponse(menu, cfg, rcounter, it) )
+	  {
+	    int EtMaxIt = -1;
+	    std::vector<int> EleIts;
+	    if (OpenHlt1ElectronVbfEleIDPassed(27., 12., true, EtMaxIt, &EleIts)
+		>= 1)
+	      {
+		if (OpenHltCleanedDiJetPassed(
+					      30.,
+					      25.,
+					      2.6,
+					      true,
+					      "Calo",
+					      0.,
+					      0.,
+					      false,
+					      false,
+					      EleIts) >= 1)
+		  triggerBit[it] = true;
+	      }
+	  }
+      }
+  }
+
+  //Ele27 - TighterEleId NO Isol - CaloJetCor pT 30 25 - background
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele27_CaloIdVT_TrkIdT_CentralJet30_CentralJet25") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second == 1)
+      {
+	if (prescaleResponse(menu, cfg, rcounter, it) )
+	  {
+	    int EtMaxIt = -1;
+	    std::vector<int> EleIts;
+	    if (OpenHlt1ElectronVbfEleIDPassed(27., 12., false, EtMaxIt, &EleIts)
+		>= 1)
+	      {
+		if (OpenHltCleanedDiJetPassed(
+					      30.,
+					      25.,
+					      2.6,
+					      true,
+					      "Calo",
+					      0.,
+					      0.,
+					      false,
+					      false,
+					      EleIts) >= 1)
+		  triggerBit[it] = true;
+	      }
+	  }
+      }
+  }
+  
+
+
+
   //Ele15 - TighterEleIdIsol - CaloJetCor pT 35 25 - Deta 2.
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta2") == 0) {
     if (map_L1BitOfStandardHLTPath.find(triggerName)->second == 1)
@@ -19481,6 +19627,157 @@ int OHltTree::OpenL1SetSingleJetBit(const float& thresh)
   return (rc );
 	
 }
+
+int OHltTree::OpenHltCleanedTriJetPassed(
+    float Et1,
+    float Et2,
+    float Et3,
+    float AbsEtaMax,
+    bool cor,
+    const std::string& algo,
+    float Deta,
+    float Mjj,
+    bool etaOpposite,
+    bool jetID,
+    std::vector<int> ohEleIts)
+{
+   // fill the jet collection
+  int NohMyJet = 0;
+  float ohMyJetEta[200];
+  float ohMyJetPhi[200];
+  float ohMyJetEt[200];
+  float ohMyJetE[200];
+  float ohMyJetEMF[200];
+  float ohMyJetN90[200];
+
+  if ( (cor == false) && (algo == "Calo"))
+  {
+    NohMyJet = NohJetCal;
+    for (int ohMyJetIt = 0; ohMyJetIt < NohMyJet; ++ohMyJetIt)
+    {
+      ohMyJetEta[ohMyJetIt] = ohJetCalEta[ohMyJetIt];
+      ohMyJetPhi[ohMyJetIt] = ohJetCalPhi[ohMyJetIt];
+      ohMyJetEt[ohMyJetIt] = ohJetCalE[ohMyJetIt] * sin(2.*atan(exp(-1.
+          *ohJetCalEta[ohMyJetIt])));
+      ohMyJetE[ohMyJetIt] = ohJetCalE[ohMyJetIt];
+      ohMyJetEMF[ohMyJetIt] = ohJetCalEMF[ohMyJetIt];
+      ohMyJetN90[ohMyJetIt] = ohJetCalN90[ohMyJetIt];
+    }
+  }
+
+  if ( (cor == true) && (algo == "Calo"))
+  {
+    NohMyJet = NohJetCorCal;
+    for (int ohMyJetIt = 0; ohMyJetIt < NohMyJet; ++ohMyJetIt)
+    {
+      ohMyJetEta[ohMyJetIt] = ohJetCorCalEta[ohMyJetIt];
+      ohMyJetPhi[ohMyJetIt] = ohJetCorCalPhi[ohMyJetIt];
+//          ohMyJetEt[ohMyJetIt] = ohJetCorCalE[ohMyJetIt] * sin(2.*atan(exp(-1.
+//                *ohJetCorCalEta[ohMyJetIt])));
+      ohMyJetEt[ohMyJetIt] = ohJetCorCalPt[ohMyJetIt];
+      ohMyJetE[ohMyJetIt] = ohJetCorCalE[ohMyJetIt];
+      ohMyJetEMF[ohMyJetIt] = ohJetCorCalEMF[ohMyJetIt];
+      ohMyJetN90[ohMyJetIt] = ohJetCorCalN90[ohMyJetIt];
+    }
+  }
+
+  if ( (cor == false) && (algo == "PF"))
+  {
+    NohMyJet = NohPFJet;
+    for (int ohMyJetIt = 0; ohMyJetIt < NohMyJet; ++ohMyJetIt)
+    {
+      ohMyJetEta[ohMyJetIt] = pfJetEta[ohMyJetIt];
+      ohMyJetPhi[ohMyJetIt] = pfJetPhi[ohMyJetIt];
+      ohMyJetEt[ohMyJetIt] = pfJetPt[ohMyJetIt];
+      ohMyJetEMF[ohMyJetIt] = -1.;
+      ohMyJetN90[ohMyJetIt] = -1.;
+    }
+  }
+
+   // clean the jet collection from electrons
+  int NohCleanedJet = 0;
+  float ohCleanedJetEta[200];
+  float ohCleanedJetPhi[200];
+  float ohCleanedJetEt[200];
+  float ohCleanedJetE[200];
+  float ohCleanedJetEMF[200];
+  float ohCleanedJetN90[200];
+
+  for (int ohMyJetIt = 0; ohMyJetIt < NohMyJet; ++ohMyJetIt)
+  {
+    bool isMatching = false;
+    for (unsigned int ohEleIt = 0; ohEleIt < ohEleIts.size(); ++ohEleIt)
+      if (deltaR(ohEleEta[ohEleIts.at(ohEleIt)], ohElePhi[ohEleIts.at(ohEleIt)], ohMyJetEta[ohMyJetIt], ohMyJetPhi[ohMyJetIt]) < 0.3)
+        isMatching = true;
+
+    if (isMatching == true)
+      continue;
+
+    ohCleanedJetEta[NohCleanedJet] = ohMyJetEta[ohMyJetIt];
+    ohCleanedJetPhi[NohCleanedJet] = ohMyJetPhi[ohMyJetIt];
+    ohCleanedJetEt[NohCleanedJet] = ohMyJetEt[ohMyJetIt];
+    ohCleanedJetE[NohCleanedJet] = ohMyJetE[ohMyJetIt];
+    ohCleanedJetEMF[NohCleanedJet] = ohMyJetEMF[ohMyJetIt];
+    ohCleanedJetN90[NohCleanedJet] = ohMyJetN90[ohMyJetIt];
+    ++NohCleanedJet;
+  }
+
+   // do the selection
+  int rc = 0;
+  if (NohCleanedJet < 2)
+    return rc;
+
+   // loop on jets
+  for (int i = 0; i < NohCleanedJet; ++i)
+  {
+    if ( (jetID == true) && (TMath::Abs(ohCleanedJetEta[i]) < 2.6)
+          && (ohCleanedJetEMF[i] < 0.01))
+      continue;
+    if ( (jetID == true) && (TMath::Abs(ohCleanedJetEta[i]) < 2.6)
+          && (ohCleanedJetN90[i] < 2))
+      continue;
+
+    for (int j = i+1; j < NohCleanedJet; j++)
+    {
+      if ( (jetID == true) && (TMath::Abs(ohCleanedJetEta[j]) < 2.6)
+            && (ohCleanedJetEMF[j] < 0.01))
+        continue;
+      if ( (jetID == true) && (TMath::Abs(ohCleanedJetEta[j]) < 2.6)
+            && (ohCleanedJetN90[j] < 2))
+        continue;
+
+      PtEtaPhiELorentzVector j1(
+          ohCleanedJetEt[i],
+      ohCleanedJetEta[i],
+      ohCleanedJetPhi[i],
+      ohCleanedJetE[i]);
+      PtEtaPhiELorentzVector j2(
+          ohCleanedJetEt[j],
+      ohCleanedJetEta[j],
+      ohCleanedJetPhi[j],
+      ohCleanedJetE[j]);
+
+      if ( (std::max(ohCleanedJetEt[i], ohCleanedJetEt[j]) > Et1)
+            && (std::min(ohCleanedJetEt[i], ohCleanedJetEt[j]) > Et2)
+            && (deltaEta(ohCleanedJetEta[i], ohCleanedJetEta[j]) > Deta)
+            && ((j1+j2).mass() > Mjj) 
+            && ( (etaOpposite == true && ohCleanedJetEta[i]*ohCleanedJetEta[j] < 0.) || (etaOpposite == false) )
+            && ( (AbsEtaMax > 0 && (TMath::Abs(ohCleanedJetEta[i]) < AbsEtaMax && TMath::Abs(ohCleanedJetEta[j]) < AbsEtaMax)) || AbsEtaMax < 0 ) ){
+        for (int k = 0; k < NohCleanedJet; k++)
+          
+          if ( k != i 
+               && k != j 
+               && ohCleanedJetEt[k] > Et3 
+               && ( (AbsEtaMax > 0 && (TMath::Abs(ohCleanedJetEta[k]) < AbsEtaMax && TMath::Abs(ohCleanedJetEta[k]) < AbsEtaMax)) || AbsEtaMax < 0 ) )
+            ++rc;
+      }
+    }
+  }
+
+  return rc;
+}
+
+
 
 int OHltTree::OpenHltCleanedDiJetPassed(
       float Et1,
