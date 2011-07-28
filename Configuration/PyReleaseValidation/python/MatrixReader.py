@@ -191,6 +191,9 @@ class MatrixReader(object):
             for key in ids:
                 num, name, stepCmds[0], stepCmds[1], stepCmds[2], stepCmds[3], inputInfo = self.step1WorkFlows[key]
                 wfName,stepNames= name.split('+',1)
+                stepNames=stepNames.replace('+RECODFROMRAWRECO','')
+                stepNames=stepNames.replace('+SKIMCOSD','')
+                stepNames=stepNames.replace('+SKIMD','')
                 otherSteps = None
                 if '+' in stepNames:
                     step1,otherSteps = stepNames.split('+',1)
@@ -220,6 +223,7 @@ class MatrixReader(object):
             
             for stepName in self.relvalModule.step2.keys():
                 cfg,input,cmd = self.makeCmd(self.relvalModule.step2[stepName])
+                if 'dbsquery.log' in cmd: continue
                 line = 'STEP2 ++ ' +stepName + ' @@@ cmsDriver.py step2 ' +cmd
                 print line
                 outFile.write(line+'\n')
@@ -227,6 +231,7 @@ class MatrixReader(object):
             outFile.write('\n'+'\n')
             for stepName in self.relvalModule.step3.keys():
                 cfg,input,cmd = self.makeCmd(self.relvalModule.step3[stepName])
+                if 'dbsquery.log' in cmd: continue
                 line ='STEP3 ++ ' +stepName + ' @@@ cmsDriver.py step3_RELVAL ' +cmd 
                 print line
                 outFile.write(line+'\n')
@@ -234,6 +239,7 @@ class MatrixReader(object):
             outFile.write('\n'+'\n')
             for stepName in self.relvalModule.step4.keys():
                 cfg,input,cmd = self.makeCmd(self.relvalModule.step4[stepName])
+                if 'dbsquery.log' in cmd: continue
                 line = 'STEP4 ++ ' +stepName + ' @@@ cmsDriver.py step4 ' +cmd
                 print line
                 outFile.write(line+'\n')
