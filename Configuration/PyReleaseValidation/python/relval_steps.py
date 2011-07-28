@@ -358,7 +358,7 @@ step2['DIGICOS']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--
 
 step2['DIGIPU1']=merge([step2['DIGI'],PU1])
 
-step2['DIGIHI']=merge([hiDefaults,step2Defaults])
+step2['DIGIHI']=merge([{'--inputEventContent':'RAWSIM'},hiDefaults,step2Defaults])
 
 #add this line when testing from an input file that is not strictly GEN-SIM
 #addForAll(step2,{'--process':'DIGI'})
