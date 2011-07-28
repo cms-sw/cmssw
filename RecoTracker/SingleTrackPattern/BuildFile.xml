@@ -12,6 +12,3 @@
 <use   name="TrackingTools/TrackFitters"/>
 <use   name="MagneticField/Records"/>
 <use   name="MagneticField/Engine"/>
-<export>
-  <lib   name="1"/>
-</export>
