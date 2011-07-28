@@ -577,7 +577,7 @@ void SiStripMonitorTrack::AllClusters(const edm::Event& ev, const edm::EventSetu
     edmNew::DetSet<SiStripCluster>::const_iterator ClusIter = DSViter->begin();
     for(; ClusIter!=DSViter->end(); ClusIter++) {
       if (std::find(vPSiStripCluster.begin(),vPSiStripCluster.end(),&*ClusIter) == vPSiStripCluster.end()){
-	SiStripClusterInfo SiStripClusterInfo_(*ClusIter,es);
+	SiStripClusterInfo SiStripClusterInfo_(*ClusIter,es,detid);
 	clusterInfos(&SiStripClusterInfo_,detid,OffTrack,LV);
       }
     }
