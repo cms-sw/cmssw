@@ -356,15 +356,11 @@ cacheutils::CachingSimNLL::evaluate() const
     for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it) {
         if (*it != 0) ret += (*it)->getVal();
     }
-    //std::cout << "SimNLL for " << pdfOriginal_->GetName() << ": " << ret << std::endl;
     if (!constrainPdfs_.empty()) {
-        double constrProd = 1.0;
-        for (std::vector<RooAbsPdf *>::const_iterator it = constrainPdfs_.begin(), ed = constrainPdfs_.end(); it != ed; ++it) {
-            constrProd *= (*it)->getVal(nuis_);
+        for (std::vector<RooAbsPdf *>::const_iterator it = constrainPdfs_.begin(), ed = constrainPdfs_.end(); it != ed; ++it) { 
+            ret -= (*it)->getLogVal(nuis_);
         }
-        ret -= log(constrProd);
     }
-    //std::cout << "    plus constrain terms: " << ret << std::endl;
     return ret;
 }
 
