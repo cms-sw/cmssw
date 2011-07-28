@@ -249,9 +249,9 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
 	width  = trapezoidalBound->width();
 	widthAtHalfLength = trapezoidalBound->widthAtHalfLength();
 
-	int yAxisOrientation=trapezoidalBound->yAxisOrientation(); 
+//	int yAxisOrientation=trapezoidalBound->yAxisOrientation(); 
 // for trapezoidal shape modules, scale with as function of local y coordinate 
-	float widthAtlocalY=width-(1-yAxisOrientation*2*lPTrk.y()/length)*(width-widthAtHalfLength); 
+//	float widthAtlocalY=width-(1-yAxisOrientation*2*lPTrk.y()/length)*(width-widthAtHalfLength); 
 //	hitStruct.localXnorm = 2*hitStruct.localX/widthAtlocalY;  
         hitStruct.localXnorm = 2*hitStruct.localX/width; 
 	hitStruct.localYnorm = 2*hitStruct.localY/length;
