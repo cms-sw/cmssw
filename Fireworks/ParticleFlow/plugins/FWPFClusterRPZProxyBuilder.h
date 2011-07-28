@@ -15,7 +15,7 @@
 // User include files
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
-#include "Fireworks/ParticleFlow/interface/FWPFUtils.h"
+#include "Fireworks/ParticleFlow/interface/FWPFGeom.h"
 #include "Fireworks/ParticleFlow/interface/FWPFClusterRPZUtils.h"
 
 //-----------------------------------------------------------------------------

@@ -171,14 +171,14 @@ FWPFBlockProxyBuilder::buildViewType( const reco::PFBlock &iData, unsigned int i
 
          case 4:  // ECAL
             if( e_builderType == ECAL )
-               setupClusterElement( elements[i], oItemHolder, vc, viewType, FWPFUtils::caloR1() );
+               setupClusterElement( elements[i], oItemHolder, vc, viewType, FWPFGeom::caloR1() );
          break;
 
          case 5:  // HCAL
             if( e_builderType == HCAL )
             {
                if( viewType == FWViewType::kRhoPhiPF )
-                  setupClusterElement( elements[i], oItemHolder, vc, viewType, FWPFUtils::caloR2() );
+                  setupClusterElement( elements[i], oItemHolder, vc, viewType, FWPFGeom::caloR2() );
                else  // RhoZ
                   setupClusterElement( elements[i], oItemHolder, vc, viewType, context().caloR1() );
             }

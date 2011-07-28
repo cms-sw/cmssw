@@ -85,9 +85,9 @@ FWPFEcalClusterRPZProxyBuilder::build( const reco::PFCluster &iData, unsigned in
    if( info.displayProperties().isVisible() )
    {
       if( layer < 0 )
-         sharedBuild( iData, iIndex, oItemHolder, vc, FWPFUtils::caloR1() );
+         sharedBuild( iData, iIndex, oItemHolder, vc, FWPFGeom::caloR1() );
       else
-         sharedBuild( iData, iIndex, oItemHolder, vc, FWPFUtils::caloR2() );
+         sharedBuild( iData, iIndex, oItemHolder, vc, FWPFGeom::caloR2() );
    }
 }
 
@@ -97,7 +97,7 @@ FWPFHcalClusterRPZProxyBuilder::build( const reco::PFCluster &iData, unsigned in
 {
    const FWEventItem::ModelInfo &info = item()->modelInfo( iIndex );
    if( info.displayProperties().isVisible() )
-      sharedBuild( iData, iIndex, oItemHolder, vc, FWPFUtils::caloR1() );
+      sharedBuild( iData, iIndex, oItemHolder, vc, FWPFGeom::caloR1() );
 }
 
 //______________________________________________________________________________
