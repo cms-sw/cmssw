@@ -35,6 +35,7 @@ HLTDisplacedmumuFilter::HLTDisplacedmumuFilter(const edm::ParameterSet& iConfig)
  
   fastAccept_ (iConfig.getParameter<bool>("FastAccept")),
   minLxySignificance_ (iConfig.getParameter<double>("MinLxySignificance")),
+  maxLxySignificance_ (iConfig.existsAs<double>("MaxLxySignificance") ? iConfig.getParameter<double>("MaxLxySignificance") : -1. ),
   maxNormalisedChi2_ (iConfig.getParameter<double>("MaxNormalisedChi2")), 
   minVtxProbability_ (iConfig.getParameter<double>("MinVtxProbability")),
   minCosinePointingAngle_ (iConfig.getParameter<double>("MinCosinePointingAngle")),
@@ -155,9 +156,8 @@ bool HLTDisplacedmumuFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
         
           // check thresholds
           if (cosAlpha < minCosinePointingAngle_) continue;
-       
-          if (lxy/lxyerr < minLxySignificance_) continue;
-        
+          if (minLxySignificance_ > 0. && lxy/lxyerr < minLxySignificance_) continue;
+	  if (maxLxySignificance_ > 0. && lxy/lxyerr > maxLxySignificance_) continue; 
 	  triggered = true;
  
 	  // now add the muons that passed to the filter object

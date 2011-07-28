@@ -16,6 +16,7 @@ class HLTDisplacedmumuFilter : public HLTFilter {
 
 		bool fastAccept_;
 		double minLxySignificance_;
+		double maxLxySignificance_;
 		double maxNormalisedChi2_;
 		double minVtxProbability_;
 		double minCosinePointingAngle_;
