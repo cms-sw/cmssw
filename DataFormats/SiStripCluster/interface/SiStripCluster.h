@@ -4,6 +4,7 @@
 //#include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
 #include <vector>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 class SiStripCluster  /*: public edm::DoNotSortUponInsertion*/ {
 public:
@@ -32,7 +33,10 @@ public:
    *  to be used for transformations to local and to global reference 
    *  frames etc.
    */
-  uint32_t geographicalId() const {return detId_;}
+  uint32_t geographicalId() const {
+    if (detId_==0) edm::LogError("Deprecation")<<"this method will give zero offline";
+    return detId_;
+  }
   void setId(uint32_t id) { detId_=id; }
 
   /** The amplitudes of the strips forming the cluster.
