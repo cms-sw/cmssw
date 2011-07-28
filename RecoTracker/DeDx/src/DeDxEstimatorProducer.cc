@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxEstimatorProducer.cc,v 1.30 2010/12/16 17:45:03 innocent Exp $
+// $Id: DeDxEstimatorProducer.cc,v 1.31 2011/05/06 06:51:52 querten Exp $
 //
 //
 
@@ -178,8 +178,8 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	   mono.angleCosine = cosine; 
 	   stereo.angleCosine = cosine;
 
-           mono.charge = getCharge((matchedHit->monoHit()->cluster()).get(),mono.NSaturating);
-           stereo.charge = getCharge((matchedHit->stereoHit()->cluster()).get(),stereo.NSaturating);
+	   mono.charge = getCharge((matchedHit->monoHit()->cluster()).get(),mono.NSaturating,matchedHit->monoHit()->geographicalId());
+           stereo.charge = getCharge((matchedHit->stereoHit()->cluster()).get(),stereo.NSaturating,matchedHit->stereoHit()->geographicalId());
 
 	   mono.detId= matchedHit->monoHit()->geographicalId();
 	   stereo.detId= matchedHit->stereoHit()->geographicalId();
@@ -193,7 +193,7 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 
            mono.trajectoryMeasurement = &(*it);
            mono.angleCosine = cosine;
-           mono.charge = getCharge((singleHit->cluster()).get(),mono.NSaturating);
+           mono.charge = getCharge((singleHit->cluster()).get(),mono.NSaturating,singleHit->geographicalId());
            mono.detId= singleHit->geographicalId();
 	   if(shapetest && !(DeDxTools::shapeSelection(((singleHit->cluster()).get())->amplitudes()))) continue;
            hits.push_back(mono);
@@ -203,7 +203,7 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
 	       
            mono.trajectoryMeasurement = &(*it);
            mono.angleCosine = cosine; 
-           mono.charge = getCharge((singleHit->cluster()).get(),mono.NSaturating);
+           mono.charge = getCharge((singleHit->cluster()).get(),mono.NSaturating,singleHit->geographicalId());
            mono.detId= singleHit->geographicalId();
 	   if(shapetest && !(DeDxTools::shapeSelection(((singleHit->cluster()).get())->amplitudes()))) continue;
            hits.push_back(mono); 
@@ -213,7 +213,7 @@ void DeDxEstimatorProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
                
            mono.trajectoryMeasurement = &(*it);
            mono.angleCosine = cosine; 
-           mono.charge = getCharge((single1DHit->cluster()).get(),mono.NSaturating);
+           mono.charge = getCharge((single1DHit->cluster()).get(),mono.NSaturating,single1DHit->geographicalId());
            mono.detId= single1DHit->geographicalId();
 	   if(shapetest && !(DeDxTools::shapeSelection(((single1DHit->cluster()).get())->amplitudes()))) continue;
            hits.push_back(mono); 
@@ -290,10 +290,11 @@ void DeDxEstimatorProducer::MakeCalibrationMap()
 }
 
 
-int DeDxEstimatorProducer::getCharge(const SiStripCluster*   Cluster, int& Saturating_Strips)
+int DeDxEstimatorProducer::getCharge(const SiStripCluster*   Cluster, int& Saturating_Strips,
+				     const uint32_t & DetId)
 {
    const vector<uint8_t>&  Ampls       = Cluster->amplitudes();
-   uint32_t                DetId       = Cluster->geographicalId();
+   //uint32_t                DetId       = Cluster->geographicalId();
 
 //   float G=1.0f;
 

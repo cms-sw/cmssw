@@ -42,7 +42,7 @@ private:
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
-  int    getCharge(const SiStripCluster*   Cluster, int& Saturating_Strips);
+  int    getCharge(const SiStripCluster*   Cluster, int& Saturating_Strips,const uint32_t &);
 //  int    getCharge(const SiStripRecHit2D* sistripsimplehit, int& Saturating_Strips);
   void   MakeCalibrationMap();
 

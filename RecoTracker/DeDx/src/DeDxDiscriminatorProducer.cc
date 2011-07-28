@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxDiscriminatorProducer.cc,v 1.19 2010/06/30 09:47:57 querten Exp $
+// $Id: DeDxDiscriminatorProducer.cc,v 1.20 2011/05/06 06:51:52 querten Exp $
 //
 //
 
@@ -268,30 +268,30 @@ void DeDxDiscriminatorProducer::produce(edm::Event& iEvent, const edm::EventSetu
          const SiStripRecHit2D*        sistripsimplehit    = dynamic_cast<const SiStripRecHit2D*>(hit);
          const SiStripMatchedRecHit2D* sistripmatchedhit   = dynamic_cast<const SiStripMatchedRecHit2D*>(hit);
          const SiStripRecHit1D*        sistripsimple1dhit  = dynamic_cast<const SiStripRecHit1D*>(hit);
-
+	 
 	 double Prob;
          if(sistripsimplehit){
-       		Prob = GetProbability((sistripsimplehit->cluster()).get(), trajState);	    
+       		Prob = GetProbability((sistripsimplehit->cluster()).get(), trajState,sistripsimplehit->geographicalId());	    
 	        if(shapetest && !(DeDxTools::shapeSelection(((sistripsimplehit->cluster()).get())->amplitudes()))) Prob=-1.0;
                 if(Prob>=0) vect_probs.push_back(Prob);             
             
-		if(ClusterSaturatingStrip((sistripsimplehit->cluster()).get())>0)NClusterSaturating++;
+		if(ClusterSaturatingStrip((sistripsimplehit->cluster()).get(),sistripsimplehit->geographicalId())>0)NClusterSaturating++;
 
          }else if(sistripmatchedhit){
-                Prob = GetProbability((sistripmatchedhit->monoHit()->cluster()).get(), trajState);
+	        Prob = GetProbability((sistripmatchedhit->monoHit()->cluster()).get(), trajState, sistripmatchedhit->monoHit()->geographicalId());
 	        if(shapetest && !(DeDxTools::shapeSelection(((sistripmatchedhit->monoHit()->cluster()).get())->amplitudes()))) Prob=-1.0;
                 if(Prob>=0) vect_probs.push_back(Prob);
            
-                Prob = GetProbability((sistripmatchedhit->stereoHit()->cluster()).get(), trajState);
+                Prob = GetProbability((sistripmatchedhit->stereoHit()->cluster()).get(), trajState,sistripmatchedhit->stereoHit()->geographicalId());
                 if(Prob>=0) vect_probs.push_back(Prob);
             
-	     if(ClusterSaturatingStrip((sistripmatchedhit->monoHit()->cluster()).get())  >0)NClusterSaturating++;
-             if(ClusterSaturatingStrip((sistripmatchedhit->stereoHit()->cluster()).get())>0)NClusterSaturating++;
+		if(ClusterSaturatingStrip((sistripmatchedhit->monoHit()->cluster()).get(),sistripmatchedhit->monoHit()->geographicalId())  >0)NClusterSaturating++;
+		if(ClusterSaturatingStrip((sistripmatchedhit->stereoHit()->cluster()).get(),sistripmatchedhit->stereoHit()->geographicalId())>0)NClusterSaturating++;
          }else if(sistripsimple1dhit){ 
-                Prob = GetProbability((sistripsimple1dhit->cluster()).get(), trajState);
+	        Prob = GetProbability((sistripsimple1dhit->cluster()).get(), trajState, sistripsimple1dhit->geographicalId());
 	        if(shapetest && !(DeDxTools::shapeSelection(((sistripsimple1dhit->cluster()).get())->amplitudes()))) Prob=-1.0;
                 if(Prob>=0) vect_probs.push_back(Prob);
-             if(ClusterSaturatingStrip((sistripsimple1dhit->cluster()).get())>0)NClusterSaturating++;
+		if(ClusterSaturatingStrip((sistripsimple1dhit->cluster()).get(),sistripsimple1dhit->geographicalId())>0)NClusterSaturating++;
          }else{
          }
       }
@@ -314,11 +314,12 @@ void DeDxDiscriminatorProducer::produce(edm::Event& iEvent, const edm::EventSetu
 }
 
 
-int DeDxDiscriminatorProducer::ClusterSaturatingStrip(const SiStripCluster*   cluster){
+int DeDxDiscriminatorProducer::ClusterSaturatingStrip(const SiStripCluster*   cluster,
+						      const uint32_t &               detId){
    const vector<uint8_t>&  ampls          = cluster->amplitudes();
 
    stModInfo* MOD                         = NULL;
-   if(useCalibration)MOD                  = MODsColl[cluster->geographicalId()];
+   if(useCalibration)MOD                  = MODsColl[detId];
 
    int SaturatingStrip = 0;
    for(unsigned int i=0;i<ampls.size();i++){
@@ -329,14 +330,15 @@ int DeDxDiscriminatorProducer::ClusterSaturatingStrip(const SiStripCluster*   cl
    return SaturatingStrip;
 }
 
-double DeDxDiscriminatorProducer::GetProbability(const SiStripCluster*   cluster, TrajectoryStateOnSurface trajState)
+double DeDxDiscriminatorProducer::GetProbability(const SiStripCluster*   cluster, TrajectoryStateOnSurface trajState,
+						 const uint32_t &               detId)
 {
    // Get All needed variables
    LocalVector             trackDirection = trajState.localDirection();
    double                  cosine         = trackDirection.z()/trackDirection.mag();
    const vector<uint8_t>&  ampls          = cluster->amplitudes();
-   uint32_t                detId          = cluster->geographicalId();
-//   int                     firstStrip     = cluster->firstStrip();
+   //   uint32_t                detId          = cluster->geographicalId();
+   //   int                     firstStrip     = cluster->firstStrip();
    stModInfo* MOD                         = MODsColl[detId];
 
 

@@ -57,9 +57,9 @@ private:
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
-  double GetProbability(const SiStripCluster*   cluster, TrajectoryStateOnSurface trajState);
+  double GetProbability(const SiStripCluster*   cluster, TrajectoryStateOnSurface trajState,const uint32_t &);
   double ComputeDiscriminator (std::vector<double>& vect_probs);
-  int    ClusterSaturatingStrip(const SiStripCluster*   cluster);
+  int    ClusterSaturatingStrip(const SiStripCluster*   cluster,const uint32_t &);
   void   MakeCalibrationMap();
 
 
