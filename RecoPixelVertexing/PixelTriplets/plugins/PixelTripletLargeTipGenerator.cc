@@ -254,9 +254,9 @@ void PixelTripletLargeTipGenerator::hitTriplets(
          }
          correction.correctRZRange(rangeRZ);
 
-         double err = nSigmaRZ * barrelLayer
+         double err = nSigmaRZ * (barrelLayer
 				? hit->errorGlobalZ()
-				: hit->errorGlobalR();
+				: hit->errorGlobalR());
          rangeRZ.first -= err, rangeRZ.second += err;
 
          if (!rangeRZ.inside(barrelLayer ? p3_z : p3_r))
