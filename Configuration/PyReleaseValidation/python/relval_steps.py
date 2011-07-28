@@ -125,6 +125,7 @@ step1['SingleMuPt10INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt10/CMSSW
 step1['SingleMuPt100INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt100/CMSSW_4_3_0_pre3-MC_43_V1-v2/GEN-SIM',location='STD')}
 step1['SingleMuPt1000INPUT']={'INPUT':InputInfo(dataSet='/RelValSingleMuPt1000/CMSSW_4_3_0_pre3-MC_43_V1-v2/GEN-SIM',location='STD')}
 step1['TTbarINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/CMSSW_4_3_0_pre3-MC_43_V1-v2/GEN-SIM',location='STD')}
+step1['OldTTbarINPUT']={'INPUT':InputInfo(dataSet='/RelValTTbar/CMSSW_4_2_6-START42_V12-v1/GEN-SIM-RECO',location='STD')}
 step1['ZEEINPUT']={'INPUT':InputInfo(dataSet='/RelValZEE/CMSSW_4_3_0_pre3-MC_43_V1-v2/GEN-SIM',location='STD')}
 step1['Wjet_Pt_80_120INPUT']={'INPUT':InputInfo(dataSet='/RelValWjet_Pt_80_120/CMSSW_4_3_0_pre3-MC_43_V1-v2/GEN-SIM',location='STD')}
 step1['Wjet_Pt_3000_3500INPUT']={'INPUT':InputInfo(dataSet='/RelValWjet_Pt_3000_3500/CMSSW_4_3_0_pre3-MC_43_V1-v2/GEN-SIM',location='STD')}
@@ -544,6 +545,7 @@ step4['RECOFROMRECO']=merge([{'-s':'RECO',
                               '--eventcontent':'AODSIM',
                               'cfg':'step4'},
                              stCond,step3Defaults])
+step2['RECOFROMRECO']=merge([{'cfg':'step2'},step4['RECOFROMRECO']])
 step3['RECODFROMRAWRECO']=merge([{'-s':'RAW2DIGI:RawToDigi_noTk,L1Reco,RECO:reconstruction_noTracking',
                                   '--filtername':'RECOfromRAWRECO',
                                   '--process':'rereRECO',
