@@ -545,7 +545,7 @@ step4['RECOFROMRECO']=merge([{'-s':'RECO',
                               '--eventcontent':'AODSIM',
                               'cfg':'step4'},
                              stCond,step3Defaults])
-step2['RECOFROMRECO']=merge([{'cfg':'step2'},step4['RECOFROMRECO']])
+step2['RECOFROMRECOSt2']=merge([{'cfg':'step2'},step4['RECOFROMRECO']])
 step3['RECODFROMRAWRECO']=merge([{'-s':'RAW2DIGI:RawToDigi_noTk,L1Reco,RECO:reconstruction_noTracking',
                                   '--filtername':'RECOfromRAWRECO',
                                   '--process':'rereRECO',

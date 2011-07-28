@@ -18,6 +18,6 @@ workflows[1002]=['RRD',['RunMinBias2011A','RECOD','RECODFROMRAWRECO']]
 #workflows[1100] = [ '',[]]
 
 workflows[1102]=['RR', ['TTbar','DIGI','RECO','RECOFROMRECO']]
-workflows[1103]=['RR', ['OldTTbarINPUT','RECOFROMRECO']]
+workflows[1103]=['RR', ['OldTTbarINPUT','RECOFROMRECOSt2']]
 
 
