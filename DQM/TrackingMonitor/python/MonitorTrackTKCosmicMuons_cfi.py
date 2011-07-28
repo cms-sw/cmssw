@@ -7,6 +7,6 @@ MonitorTrackTKCosmicMuons.AlgoName = 'ctf'
 MonitorTrackTKCosmicMuons.FolderName = 'Muons/TKTrack'
 MonitorTrackTKCosmicMuons.doBeamSpotPlots = False
 MonitorTrackTKCosmicMuons.BSFolderName = 'Muons/TKTrack/BeamSpotParameters'
-MonitorTrackTKCosmicMuons.doAllSeedParameterHistos = False
+MonitorTrackTKCosmicMuons.doSeedParameterHistos = False
 
 

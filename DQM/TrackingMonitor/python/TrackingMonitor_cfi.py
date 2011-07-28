@@ -320,8 +320,8 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     TCDzMin = cms.double(-400.0),                                                
 
     # NCluster Pixel
-    NClusPxBin = cms.int32(150),
-    NClusPxMax = cms.double(14999.5),                      
+    NClusPxBin = cms.int32(200),
+    NClusPxMax = cms.double(19999.5),                      
     NClusPxMin = cms.double(-0.5),
 
     # NCluster Strip
