@@ -50,8 +50,8 @@ variance() const {
 
 std::vector<float> SiStripClusterInfo::
 stripNoisesRescaledByGain() const { 
-  SiStripNoises::Range detNoiseRange = noiseHandle->getRange(cluster()->geographicalId());  
-  SiStripApvGain::Range detGainRange = gainHandle->getRange(cluster()->geographicalId());
+  SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detId_);
+  SiStripApvGain::Range detGainRange = gainHandle->getRange(detId_);
 
   std::vector<float> results;
   results.reserve(width());
