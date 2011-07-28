@@ -13,7 +13,7 @@
 //
 // Original Author:  Vieri Candelise
 //         Created:  Wed May 11 14:53:26 CEST 2011
-// $Id$
+// $Id: EcalZmassTask.cc,v 1.1 2011/07/25 14:34:56 vieri Exp $
 //
 //
 
@@ -180,44 +180,6 @@ EcalZmassTask::analyze (const edm::Event & iEvent,
   Handle < reco::GsfTrackCollection > gsftracks_h;
   iEvent.getByLabel ("electronGsfTracks", gsftracks_h);
 
-  // Find the highest and 2nd highest electron in the barrel/endcap that will be selected with WP80
-
-  float b_electron_et = -8.0;
-  float b_electron_eta = -8.0;
-  float b_electron_phi = -8.0;
-  float b_electron2_et = -9.0;
-  float b_electron2_eta = -9.0;
-  float b_electron2_phi = -9.0;
-  float b_ee_invMass = -9.0;
-  TLorentzVector b_e1, b_e2;
-
-  float e_electron_et = -8.0;
-  float e_electron_eta = -8.0;
-  float e_electron_phi = -8.0;
-  float e_electron2_et = -9.0;
-  float e_electron2_eta = -9.0;
-  float e_electron2_phi = -9.0;
-  float e_ee_invMass = -9.0;
-  TLorentzVector e_e1, e_e2;
-
-
-  float eb_electron_et = -8.0;
-  float eb_electron_eta = -8.0;
-  float eb_electron_phi = -8.0;
-  float eb_electron2_et = -9.0;
-  float eb_electron2_eta = -9.0;
-  float eb_electron2_phi = -9.0;
-  float eb_ee_invMass = -9.0;
-  TLorentzVector eb_e1, eb_e2;
-
-  float be_electron_et = -8.0;
-  float be_electron_eta = -8.0;
-  float be_electron_phi = -8.0;
-  float be_electron2_et = -9.0;
-  float be_electron2_eta = -9.0;
-  float be_electron2_phi = -9.0;
-  TLorentzVector be_e1, be_e2;
-
 /*
   // Find the highest and 2nd highest electron in the barrel/endcap that will be selected with WP95
 
@@ -267,14 +229,11 @@ EcalZmassTask::analyze (const edm::Event & iEvent,
   bool isIDEndcap;
   bool isConvertedEndcap;
 
-  bool isBarrelElectrons95;
-  bool isEndcapElectrons95;
-  bool isIsolatedBarrel95;
-  bool isIDBarrel95;
-  bool isConvertedBarrel95;
-  bool isIsolatedEndcap95;
-  bool isIDEndcap95;
-  bool isConvertedEndcap95;
+  int elIsAccepted=0;
+  int elIsAcceptedEB=0;
+  int elIsAcceptedEE=0;
+
+  std::vector<TLorentzVector> LV;
 
   for (reco::GsfElectronCollection::const_iterator recoElectron =
        electronCollection->begin ();
@@ -317,15 +276,6 @@ EcalZmassTask::analyze (const edm::Event & iEvent,
       isIDEndcap = false;
       isConvertedEndcap = false;
 
-      isBarrelElectrons95 = false;
-      isEndcapElectrons95 = false;
-      isIsolatedBarrel95 = false;
-      isIDBarrel95 = false;
-      isConvertedBarrel95 = false;
-      isIsolatedEndcap95 = false;
-      isIDEndcap95 = false;
-      isConvertedEndcap95 = false;
-
 
   /***** Barrel WP80 Cuts *****/
 
@@ -353,6 +303,13 @@ EcalZmassTask::analyze (const edm::Event & iEvent,
 	    }
 	}
 
+      	    if (isIsolatedBarrel && isIDBarrel && isConvertedBarrel) {
+		elIsAccepted++;
+	        elIsAcceptedEB++;
+       	        TLorentzVector b_e2(recoElectron->momentum ().x (),recoElectron->momentum ().y (),recoElectron->momentum ().z (), recoElectron->p ());
+     		LV.push_back(b_e2);
+	      }
+
   /***** Endcap WP80 Cuts *****/
 
       if (fabs (recoElectron->eta ()) >= 1.5660
@@ -379,393 +336,39 @@ EcalZmassTask::analyze (const edm::Event & iEvent,
 	      isConvertedEndcap = true;
 	    }
 	}
+	 if (isIsolatedEndcap && isIDEndcap && isConvertedEndcap) {
+		elIsAccepted++;
+	        elIsAcceptedEE++;
+	        TLorentzVector e_e2(recoElectron->momentum ().x (),recoElectron->momentum ().y (),recoElectron->momentum ().z (), recoElectron->p ());
+                LV.push_back(e_e2);
+    	    }
 
-  /***** Barrel WP95 Cuts *****/
-
-      if (fabs (recoElectron->eta ()) <= 1.4442)
-	{
-
-	  /* Isolation */
-	  if (IsoTrk < 0.15 && IsoEcal < 2.0 && IsoHcal < 0.12)
-	    {
-	      isIsolatedBarrel95 = true;
-	    }
-
-	  /* Identification */
-	  if (fabs (DeltaEtaTkClu) < 0.007 && fabs (DeltaPhiTkClu) < 0.8
-	      && sigmaIeIe < 0.01 && HE < 0.15)
-	    {
-	      isIDBarrel95 = true;
-	    }
-
-	  /* Conversion Rejection */
-	  if (NumberOfExpectedInnerHits <= 1.0)
-	    {
-	      isConvertedBarrel95 = true;
-	    }
-	}
-
-  /***** Endcap WP95 Cuts *****/
-
-      if (fabs (recoElectron->eta ()) >= 1.5660
-	  && fabs (recoElectron->eta ()) <= 2.5000)
-	{
-
-	  /* Isolation */
-	  if (IsoTrk < 0.08 && IsoEcal < 0.06 && IsoHcal < 0.05)
-	    {
-	      isIsolatedEndcap95 = true;
-	    }
-
-	  /* Identification */
-	  if (fabs (DeltaEtaTkClu) < 0.01 && fabs (DeltaPhiTkClu) < 0.7
-	      && sigmaIeIe < 0.031 && HE < 0.07)
-	    {
-	      isIDEndcap95 = true;
-	    }
-
-	  /* Conversion Rejection */
-	  if (NumberOfExpectedInnerHits <= 1.0)
-	    {
-	      isConvertedEndcap95 = true;
-	    }
-	}
-
-
-      // Search for two WP80 barrel electrons
-
-      if (isIsolatedBarrel && isConvertedBarrel && isIDBarrel)
-	{
-
-	  if (recoElectron->et () > b_electron_et)
-	    {
-	      b_electron2_et = b_electron_et;	// 2nd highest gets values from current highest
-	      b_electron2_eta = b_electron_eta;
-	      b_electron2_phi = b_electron_phi;
-	      b_electron_et = recoElectron->et ();	// 1st highest gets values from new highest
-	      b_electron_eta = recoElectron->eta ();
-	      b_electron_phi = recoElectron->phi ();
-	      b_e1 =
-		TLorentzVector (recoElectron->momentum ().x (),
-				recoElectron->momentum ().y (),
-				recoElectron->momentum ().z (),
-				recoElectron->p ());
-	    }
-	  else if (recoElectron->et () > b_electron2_et)
-	    {
-	      b_electron2_et = recoElectron->et ();
-	      b_electron2_eta = recoElectron->eta ();
-	      b_electron2_phi = recoElectron->phi ();
-	      b_e2 =
-		TLorentzVector (recoElectron->momentum ().x (),
-				recoElectron->momentum ().y (),
-				recoElectron->momentum ().z (),
-				recoElectron->p ());
-	    }
-	}
-
-      // Search for two WP80 endcap electrons
-
-      if (isIsolatedEndcap && isConvertedEndcap && isIDEndcap)
-	{
-	  if (recoElectron->et () > e_electron_et)
-	    {
-	      e_electron2_et = e_electron_et;	// 2nd highest gets values from current highest
-	      e_electron2_eta = e_electron_eta;
-	      e_electron2_phi = e_electron_phi;
-	      e_electron_et = recoElectron->et ();	// 1st highest gets values from new highest
-	      e_electron_eta = recoElectron->eta ();
-	      e_electron_phi = recoElectron->phi ();
-	      e_e1 =
-		TLorentzVector (recoElectron->momentum ().x (),
-				recoElectron->momentum ().y (),
-				recoElectron->momentum ().z (),
-				recoElectron->p ());
-	    }
-	  else if (recoElectron->et () > e_electron2_et)
-	    {
-	      e_electron2_et = recoElectron->et ();
-	      e_electron2_eta = recoElectron->eta ();
-	      e_electron2_phi = recoElectron->phi ();
-	      e_e2 =
-		TLorentzVector (recoElectron->momentum ().x (),
-				recoElectron->momentum ().y (),
-				recoElectron->momentum ().z (),
-				recoElectron->p ());
-	    }
-	}
-
-      // search for barrel/endcap electrons WP80: find the most energetic barrel one with a less energetic endcap 
-
-      if (isIsolatedBarrel && isConvertedBarrel && isIDBarrel)
-	{
-	  if (recoElectron->et () > eb_electron_et)
-	    {
-	      eb_electron2_et = eb_electron_et;	// 2nd highest gets values from current highest
-	      eb_electron2_eta = eb_electron_eta;
-	      eb_electron2_phi = eb_electron_phi;
-	      eb_electron_et = recoElectron->et ();	// 1st highest gets values from new highest
-	      eb_electron_eta = recoElectron->eta ();
-	      eb_electron_phi = recoElectron->phi ();
-	      eb_e1 =
-		TLorentzVector (recoElectron->momentum ().x (),
-				recoElectron->momentum ().y (),
-				recoElectron->momentum ().z (),
-				recoElectron->p ());
-	    }
-	}
-      else if (recoElectron->et () > eb_electron2_et)
-	{
-	  if (isIsolatedEndcap && isConvertedEndcap && isIDEndcap)
-	    {
-	      eb_electron2_et = recoElectron->et ();
-	      eb_electron2_eta = recoElectron->eta ();
-	      eb_electron2_phi = recoElectron->phi ();
-	      eb_e2 =
-		TLorentzVector (recoElectron->momentum ().x (),
-				recoElectron->momentum ().y (),
-				recoElectron->momentum ().z (),
-				recoElectron->p ());
-	    }
-	}
-
-      // search for endcap/barrel WP80: find the most energetic endcap one with a less energetic barrel 
-
-      if (isIsolatedEndcap && isConvertedEndcap && isIDEndcap)
-	{
-	  if (recoElectron->et () > eb_electron_et)
-	    {
-	      be_electron2_et = be_electron_et;	// 2nd highest gets values from current highest
-	      be_electron2_eta = be_electron_eta;
-	      be_electron2_phi = be_electron_phi;
-	      be_electron_et = recoElectron->et ();	// 1st highest gets values from new highest
-	      be_electron_eta = recoElectron->eta ();
-	      be_electron_phi = recoElectron->phi ();
-	      be_e1 =
-		TLorentzVector (recoElectron->momentum ().x (),
-				recoElectron->momentum ().y (),
-				recoElectron->momentum ().z (),
-				recoElectron->p ());
-	    }
-	}
-      else if (recoElectron->et () > be_electron2_et)
-	{
-	  if (isIsolatedBarrel && isConvertedBarrel && isIDBarrel)
-	    {
-	      be_electron2_et = recoElectron->et ();
-	      be_electron2_eta = recoElectron->eta ();
-	      be_electron2_phi = recoElectron->phi ();
-	      be_e2 =
-		TLorentzVector (recoElectron->momentum ().x (),
-				recoElectron->momentum ().y (),
-				recoElectron->momentum ().z (),
-				recoElectron->p ());
-	    }
-	}
-
-
-
-/*
-
-    // Search for two WP95 barrel electrons
-
-    if (isIsolatedBarrel95 && isConvertedBarrel95 && isIDBarrel95) {
-
-      if (recoElectron->et () > b_95_electron_et) {
-	b_95_electron2_et = b_95_electron_et;	// 2nd highest gets values from current highest
-	b_95_electron2_eta = b_95_electron_eta;
-	b_95_electron2_phi = b_95_electron_phi;
-	b_95_electron_et = recoElectron->et ();	// 1st highest gets values from new highest
-	b_95_electron_eta = recoElectron->eta ();
-	b_95_electron_phi = recoElectron->phi ();
-	b_95_e1 =
-	  TLorentzVector (recoElectron->momentum ().x (),
-			  recoElectron->momentum ().y (),
-			  recoElectron->momentum ().z (), recoElectron->p ());
-      }
-      else if (recoElectron->et () > b_95_electron2_et) {
-	b_95_electron2_et = recoElectron->et ();
-	b_95_electron2_eta = recoElectron->eta ();
-	b_95_electron2_phi = recoElectron->phi ();
-	b_95_e2 =
-	  TLorentzVector (recoElectron->momentum ().x (),
-			  recoElectron->momentum ().y (),
-			  recoElectron->momentum ().z (), recoElectron->p ());
-      }
-    }
-
-    // Search for two WP95 endcap electrons
-
-    if (isIsolatedEndcap95 && isConvertedEndcap95 && isIDEndcap95) {
-      if (recoElectron->et () > e_electron_et) {
-	e_95_electron2_et = e_95_electron_et;	// 2nd highest gets values from current highest
-	e_95_electron2_eta = e_95_electron_eta;
-	e_95_electron2_phi = e_95_electron_phi;
-	e_95_electron_et = recoElectron->et ();	// 1st highest gets values from new highest
-	e_95_electron_eta = recoElectron->eta ();
-	e_95_electron_phi = recoElectron->phi ();
-	e_95_e1 =
-	  TLorentzVector (recoElectron->momentum ().x (),
-			  recoElectron->momentum ().y (),
-			  recoElectron->momentum ().z (), recoElectron->p ());
-      }
-      else if (recoElectron->et () > e_95_electron2_et) {
-	e_95_electron2_et = recoElectron->et ();
-	e_95_electron2_eta = recoElectron->eta ();
-	e_95_electron2_phi = recoElectron->phi ();
-	e_95_e2 =
-	  TLorentzVector (recoElectron->momentum ().x (),
-			  recoElectron->momentum ().y (),
-			  recoElectron->momentum ().z (), recoElectron->p ());
-      }
-    }
-    
-    
-    // Search for barrel/endcap WP95 electrons; highest barrel and less energetic endcap
-
-    if (isIsolatedBarrel95 && isConvertedBarrel95 && isIDBarrel95) {
-      if (recoElectron->et () > eb_electron_et) {
-	eb_95_electron2_et = eb_95_electron_et;	// 2nd highest gets values from current highest
-	eb_95_electron2_eta = eb_95_electron_eta;
-	eb_95_electron2_phi = eb_95_electron_phi;
-	eb_95_electron_et = recoElectron->et ();	// 1st highest gets values from new highest
-	eb_95_electron_eta = recoElectron->eta ();
-	eb_95_electron_phi = recoElectron->phi ();
-	eb_95_e1 =
-	  TLorentzVector (recoElectron->momentum ().x (),
-			  recoElectron->momentum ().y (),
-			  recoElectron->momentum ().z (), recoElectron->p ());
-      }
-    }
-    else if (recoElectron->et () > eb_electron2_et) {
-      if (isIsolatedEndcap95 && isConvertedEndcap95 && isIDEndcap95) {
-	eb_95_electron2_et = recoElectron->et ();
-	eb_95_electron2_eta = recoElectron->eta ();
-	eb_95_electron2_phi = recoElectron->phi ();
-	eb_95_e2 =
-	  TLorentzVector (recoElectron->momentum ().x (),
-			  recoElectron->momentum ().y (),
-			  recoElectron->momentum ().z (), recoElectron->p ());
-      }
-    }
-    
-    // Search for endcap/barrel WP95 electrons; highest endcap one and less energetic barrel
-
-    if (isIsolatedBarrel95 && isConvertedBarrel95 && isIDBarrel95) {
-      if (recoElectron->et () > eb_electron_et) {
-	be_95_electron2_et = be_95_electron_et;	// 2nd highest gets values from current highest
-	be_95_electron2_eta = be_95_electron_eta;
-	be_95_electron2_phi = be_95_electron_phi;
-	be_95_electron_et = recoElectron->et ();	// 1st highest gets values from new highest
-	be_95_electron_eta = recoElectron->eta ();
-	be_95_electron_phi = recoElectron->phi ();
-	be_95_e1 =
-	  TLorentzVector (recoElectron->momentum ().x (),
-			  recoElectron->momentum ().y (),
-			  recoElectron->momentum ().z (), recoElectron->p ());
-      }
-    }
-    else if (recoElectron->et () > be_electron2_et) {
-      if (isIsolatedEndcap95 && isConvertedEndcap95 && isIDEndcap95) {
-	be_95_electron2_et = recoElectron->et ();
-	be_95_electron2_eta = recoElectron->eta ();
-	be_95_electron2_phi = recoElectron->phi ();
-	be_95_e2 =
-	  TLorentzVector (recoElectron->momentum ().x (),
-			  recoElectron->momentum ().y (),
-			  recoElectron->momentum ().z (), recoElectron->p ());
-      }
-    }*/
-    }
+  }
 
   // Calculate the Z invariant masses
 
-  if (e_electron2_et > 0.0)
-    {
-      TLorentzVector e_pair = e_e1 + e_e2;
-      e_ee_invMass = e_pair.M ();
-    }
-  if (b_electron2_et > 0.0)
-    {
-      TLorentzVector b_pair = b_e1 + b_e2;
-      b_ee_invMass = b_pair.M ();
-    }
-
-  if (eb_electron_et > be_electron_et)
-    {
-      TLorentzVector eb_pair = eb_e1 + eb_e2;
-      eb_ee_invMass = eb_pair.M ();
-    }
-  else
-    {
-      TLorentzVector eb_pair = be_e1 + be_e2;
-      eb_ee_invMass = eb_pair.M ();
-    }
-
-/*
-  if (e_95_electron2_et > 0.0) {
-    TLorentzVector e_95_pair = e_95_e1 + e_95_e2;
-    e_95_ee_invMass = e_95_pair.M ();
-  }
-  if (b_95_electron2_et > 0.0) {
-    TLorentzVector b_95_pair = b_95_e1 + b_95_e2;
-    b_95_ee_invMass = b_95_pair.M ();
-  }
-
-  if (eb_95_electron_et > be_95_electron_et) {
-    TLorentzVector eb_95_pair = eb_95_e1 + eb_95_e2;
-    eb_95_ee_invMass = eb_95_pair.M ();
-  } else {
-	 TLorentzVector eb_95_pair = be_95_e1 + be_95_e2;
-	 eb_95_ee_invMass = eb_95_pair.M ();
-  }
-  */
-
-
-  if (h_ee_invMass_EE != 0)
-    {
-      if (e_ee_invMass > 0.0)
-	{
-	  h_ee_invMass_EE->Fill (e_ee_invMass);
-	}
-    }
-
-  if (h_ee_invMass_BB != 0)
-    {
-      if (b_ee_invMass > 0.0)
-	{
-	  h_ee_invMass_BB->Fill (b_ee_invMass);
-	}
-    }
-
-  if (h_ee_invMass_EB != 0)
-    {
-      if (eb_ee_invMass > 0.0)
-	{
-	  h_ee_invMass_EB->Fill (eb_ee_invMass);
-	}
-    }
-/*
-  if (h_95_ee_invMass_EE != 0) {
-    if (e_95_ee_invMass > 0.0) {
-      h_95_ee_invMass_EE->Fill (e_95_ee_invMass);
-    }
-  }
-
-  if (h_95_ee_invMass_BB != 0) {
-    if (b_95_ee_invMass > 0.0) {
-      h_95_ee_invMass_BB->Fill (b_95_ee_invMass);
-    }
-  }
-
-  if (h_95_ee_invMass_EB != 0) {
-    if (eb_95_ee_invMass > 0.0) {
-      h_95_ee_invMass_EB->Fill (eb_95_ee_invMass);
-    }
-  }
-*/
-
-}				// end of reco electron loop
+	  if (elIsAccepted>1){
+	     double e_ee_invMass=0; 
+	     if (elIsAccepted>2) cout<<"WARNING: In this events we have more than two electrons accpeted!!!!!!!"<<endl;
+             if (LV.size()==2){
+		      TLorentzVector e_pair = LV[0] + LV[1];
+		      e_ee_invMass = e_pair.M ();
+	     }  
+		      
+             if (elIsAcceptedEB==2){
+	              h_ee_invMass_BB->Fill(e_ee_invMass);
+	       }
+             if (elIsAcceptedEE==2){
+		      h_ee_invMass_EE->Fill(e_ee_invMass);
+	       }
+             if (elIsAcceptedEB==1 && elIsAcceptedEE==1){
+	              h_ee_invMass_EB->Fill(e_ee_invMass);
+	       }
+		      
+            LV.clear();
+				  
+	 }
+}
 
 #ifdef THIS_IS_AN_EVENT_EXAMPLE
 Handle < ExampleData > pIn;
@@ -793,12 +396,6 @@ EcalZmassTask::beginJob ()
   h_ee_invMass_EE = 0;
   h_ee_invMass_BB = 0;
 
-  /*
-     h_95_ee_invMass_EB = 0;
-     h_95_ee_invMass_EE = 0;
-     h_95_ee_invMass_BB = 0;
-   */
-
 
   LogTrace (logTraceName) << "Parameters initialization";
   theDbe = Service < DQMStore > ().operator-> ();
@@ -818,18 +415,6 @@ EcalZmassTask::beginJob ()
 	theDbe->book1D ("Z peak - WP80 EB-EB",
 			"Z peak - WP80 EB-EB;InvMass (Gev)", 60, 60.0, 120.0);
 
-/*    h_95_ee_invMass_EB =
-      theDbe->book1D ("Z peak - WP95 EB-EE",
-		      "Z peak - WP95 EB-EE;InvMass (Gev)", 60, 60.0, 120.0);
-    h_95_ee_invMass_EE =
-      theDbe->book1D ("Z peak - WP95 EE-EE",
-		      "Z peak - WP95 EE-EE;InvMass (Gev)", 60, 60.0, 120.0);
-    h_95_ee_invMass_BB =
-      theDbe->book1D ("Z peak - WP95 EB-EB",
-		      "Z peak - WP95 EB-EB;InvMass (Gev)", 60, 60.0, 120.0);
-*/
-
-      //h_e1_et             = theDbe->book1D("h_e1_et",  "E_{T} of Leading Electron;E_{T} (GeV)"        , 20,  0.0 , 100.0); 
       //h_e1_et             = theDbe->book1D("h_e1_et",  "E_{T} of Leading Electron;E_{T} (GeV)"        , 20,  0.0 , 100.0);
       //h_e2_et             = theDbe->book1D("h_e2_et",  "E_{T} of Second Electron;E_{T} (GeV)"         , 20,  0.0 , 100.0);
       //h_e1_eta            = theDbe->book1D("h_e1_eta", "#eta of Leading Electron;#eta"                , 20, -4.0 , 4.0);
