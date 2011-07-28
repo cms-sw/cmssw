@@ -32,6 +32,7 @@ bool MarkovChainMC::updateHint_ = false;
 unsigned int MarkovChainMC::iterations_ = 10000;
 unsigned int MarkovChainMC::burnInSteps_ = 200;
 float MarkovChainMC::burnInFraction_ = 0.25;
+bool  MarkovChainMC::adaptiveBurnIn_ = false;
 unsigned int MarkovChainMC::tries_ = 10;
 float MarkovChainMC::truncatedMeanFraction_ = 0.0;
 bool MarkovChainMC::adaptiveTruncation_ = true;
@@ -53,6 +54,7 @@ MarkovChainMC::MarkovChainMC() :
         ("tries", boost::program_options::value<unsigned int>(&tries_)->default_value(tries_), "Number of times to run the MCMC on the same data")
         ("burnInSteps,b", boost::program_options::value<unsigned int>(&burnInSteps_)->default_value(burnInSteps_), "Burn in steps (absolute number)")
         ("burnInFraction", boost::program_options::value<float>(&burnInFraction_)->default_value(burnInFraction_), "Burn in steps (fraction of total accepted steps)")
+        ("adaptiveBurnIn", boost::program_options::value<bool>(&adaptiveBurnIn_)->default_value(adaptiveBurnIn_), "Adaptively determine burn in steps (experimental!).")
         ("proposal", boost::program_options::value<std::string>(&proposalTypeName_)->default_value(proposalTypeName_), 
                               "Proposal function to use: 'fit', 'uniform', 'gaus', 'ortho' (also known as 'test')")
         ("runMinos",          "Run MINOS when fitting the data")
@@ -121,6 +123,10 @@ bool MarkovChainMC::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::
 
   CloseCoutSentry coutSentry(verbose <= 0); // close standard output and error, so that we don't flood them with minuit messages
 
+  // Get degrees of freedom
+  modelNDF_ = mc_s->GetParametersOfInterest()->getSize(); 
+  if (withSystematics) modelNDF_ += mc_s->GetNuisanceParameters()->getSize();
+
   double suma = 0; int num = 0;
   double savhint = (hint ? *hint : -1); const double *thehint = hint;
   std::vector<double> limits;
@@ -147,8 +153,9 @@ bool MarkovChainMC::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::
   if (mergeChains_) {
     std::cout << "Limit from averaging:    " << limit << " +/- " << limitErr << std::endl;
     // copy constructors don't work, so we just have to leak memory :-(
-    RooStats::MarkovChain *merged = mergeChains();
-    limitFromChain(limit, limitErr, *mc_s->GetParametersOfInterest(), *merged);
+    RooStats::MarkovChain *merged = mergeChains(*mc_s->GetParametersOfInterest());
+    // set burn-in to zero, since steps have already been discarded when merging
+    limitFromChain(limit, limitErr, *mc_s->GetParametersOfInterest(), *merged, 0);
     std::cout << "Limit from merged chain: " << limit << " +/- " << limitErr << std::endl;
   }
   coutSentry.clear();
@@ -259,7 +266,9 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
       mcInt.reset(0);
   }
   if (mcInt.get() == 0) return false;
-  if (mcInt->GetChain()->Size() * burnInFraction_ > burnInSteps_) {
+  if (adaptiveBurnIn_) {
+    mcInt->SetNumBurnInSteps(guessBurnInSteps(*mcInt->GetChain()));
+  } else if (mcInt->GetChain()->Size() * burnInFraction_ > burnInSteps_) {
     mcInt->SetNumBurnInSteps(mcInt->GetChain()->Size() * burnInFraction_);
   }
   limit = mcInt->UpperLimit(*r);
@@ -328,22 +337,23 @@ void MarkovChainMC::limitAndError(double &limit, double &limitErr, std::vector<d
   }
 }
 
-RooStats::MarkovChain *MarkovChainMC::mergeChains() const
+RooStats::MarkovChain *MarkovChainMC::mergeChains(const RooArgSet &poi) const
 {
     if (chains_.GetSize() == 0) throw std::runtime_error("No chains to merge");
     if (verbose > 1) std::cout << "Will merge " << chains_.GetSize() << " chains." << std::endl;
+    RooArgSet pars(poi);
+    RooStats::MarkovChain *merged = new RooStats::MarkovChain("Merged","",pars);
     TIter iter(&chains_);
-    RooStats::MarkovChain *merged = new RooStats::MarkovChain((RooStats::MarkovChain &)*iter.Next());
-    if (verbose > 1) std::cout << "Staring from the first chain, of " << merged->Size() << " entries" << std::endl;
     for (RooStats::MarkovChain *other = (RooStats::MarkovChain *) iter.Next();
          other != 0;
          other = (RooStats::MarkovChain *) iter.Next()) {
-        if (verbose > 1) std::cout << "Then adding chain of " << other->Size() << " entries skipping the first " <<  burnInSteps_ << std::endl;
-        for (int i = burnInSteps_, n = other->Size(); i < n; ++i) {
-            const RooArgSet *point = other->Get(i);
+        int burninSteps = adaptiveBurnIn_ ? guessBurnInSteps(*other) : max<int>(burnInSteps_, other->Size() * burnInFraction_);
+        if (verbose > 1) std::cout << "Adding chain of " << other->Size() << " entries skipping the first " <<  burninSteps << std::endl;
+        for (int i = burninSteps, n = other->Size(); i < n; ++i) {
+            RooArgSet point(*other->Get(i));
             double nllval = other->NLL();
             double weight = other->Weight();
-            merged->Add(const_cast<RooArgSet&>(*point),nllval,weight);
+            merged->Add(point,nllval,weight);
             if (verbose > 1 && (i % 500 == 0)) std::cout << "   added " << i << "/" << other->Size() << " entries." << std::endl;
         }
     }
@@ -372,19 +382,27 @@ void MarkovChainMC::readChains(const RooArgSet &poi, std::vector<double> &limits
 }
 
 void 
-MarkovChainMC::limitFromChain(double &limit, double &limitErr, const RooArgSet &poi, RooStats::MarkovChain &chain) 
+MarkovChainMC::limitFromChain(double &limit, double &limitErr, const RooArgSet &poi, RooStats::MarkovChain &chain, int burnInSteps) 
 {
     MCMCInterval interval("",poi,chain);
     RooArgList axes(poi);
     interval.SetConfidenceLevel(cl);
     interval.SetIntervalType(MCMCInterval::kTailFraction);
     interval.SetLeftSideTailFraction(0);
-    interval.SetNumBurnInSteps(burnInSteps_);
+    if (burnInSteps < 0) {
+        if (adaptiveBurnIn_) burnInSteps = guessBurnInSteps(chain);
+        else burnInSteps = max<int>(burnInSteps_, chain.Size() * burnInFraction_);
+    }
+    interval.SetNumBurnInSteps(burnInSteps);
     interval.SetAxes(axes);
     limit = interval.UpperLimit((RooRealVar&)*poi.first());
+    if (mergeChains_) {
+        // must avoid that MCMCInterval deletes the chain
+        interval.SetChain(*(RooStats::MarkovChain *)0);
+    }
 #if 0
     std::cout << "Limit from chain (naive):    " << limit << std::endl;
-    QuantileCalculator qc(*chain.GetAsConstDataSet(), poi.first()->GetName(), burnInSteps_);
+    QuantileCalculator qc(*chain.GetAsConstDataSet(), poi.first()->GetName(), burnInSteps);
     qc.randomizePoints();
     std::pair<double,double> qn = qc.quantileAndError(0.95, QuantileCalculator::Simple);
     std::pair<double,double> qs = qc.quantileAndError(0.95, QuantileCalculator::Sectioning);
@@ -408,4 +426,29 @@ MarkovChainMC::slimChain(const RooArgSet &poi, const RooStats::MarkovChain &chai
         else   ret->Add(entry, nll, weight);
     }    
     return ret;
+}
+
+int 
+MarkovChainMC::guessBurnInSteps(const RooStats::MarkovChain &chain) const
+{
+    int n = chain.Size();
+    std::vector<double> nll(n);
+    for (int i = 0; i < n; ++i) {
+        nll[i] = chain.NLL(i);
+    }
+    // get minimum of nll
+    double minnll = nll[0];
+    for (int i = 0; i < n; ++i) { if (nll[i] < minnll) minnll = nll[i]; }
+    // subtract it from all
+    for (int i = 0; i < n; ++i) nll[i] -= minnll;
+    // the NLL looks like 0.5 * a chi2 with nparam degrees of freedom, plus an arbitrary constant
+    // so it should have a sigma of 0.5*sqrt(2*nparams)
+    // anything sensible should be between minimum and minimum + 10*sigma
+    double maxcut = 5*sqrt(2.0*modelNDF_); 
+    // now loop backwards until you find something that's outside
+    int start = 0;
+    for (start = n-1; start >= 0; --start) {
+       if (nll[start] > maxcut) break;
+    }
+    return start;
 }

@@ -2,9 +2,9 @@
 #define HiggsAnalysis_CombinedLimit_MarkovChainMC_h
 /** \class MarkovChainMC
  *
- * abstract interface for physics objects
+ * Interface to RooStats MCMC, with handing of multiple chains
  *
- * \author Luca Lista (INFN), from initial implementation by Giovanni Petrucciani (UCSD)
+ * \author Giovanni Petrucciani (UCSD) 
  *
  *
  */
@@ -33,6 +33,8 @@ private:
   static unsigned int burnInSteps_;
   /// Discard these fraction of points
   static float burnInFraction_;
+  /// Adaptive burn-in (experimental!)
+  static bool adaptiveBurnIn_;
   /// compute the limit N times
   static unsigned int tries_;
   /// Ignore up to this fraction of results if they're too far from the median
@@ -49,6 +51,8 @@ private:
   static bool readChains_;
   /// Mass of the Higgs boson (goes into the name of the saved chains)
   float mass_;
+  /// Number of degrees of freedom of the problem, approximately
+  int   modelNDF_;
 
   static unsigned int numberOfBins_;
   static unsigned int proposalHelperCacheSize_;
@@ -62,11 +66,12 @@ private:
   // return number of items in chain, 0 for error
   int runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) const ;
 
-  RooStats::MarkovChain *mergeChains() const;
+  RooStats::MarkovChain *mergeChains(const RooArgSet &poi) const;
   void readChains(const RooArgSet &poi, std::vector<double> &limits);
-  void limitFromChain(double &limit, double &limitErr, const RooArgSet &poi, RooStats::MarkovChain &chain) ;
+  void limitFromChain(double &limit, double &limitErr, const RooArgSet &poi, RooStats::MarkovChain &chain, int burnInSteps=-1 /* -1 = use default */) ;
   void limitAndError(double &limit, double &limitErr, std::vector<double> &limits) const ;
   RooStats::MarkovChain *slimChain(const RooArgSet &poi, const RooStats::MarkovChain &chain) const;
+  int  guessBurnInSteps(const RooStats::MarkovChain &chain) const;
 };
 
 #endif
