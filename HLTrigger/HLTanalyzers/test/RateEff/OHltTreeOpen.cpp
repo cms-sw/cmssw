@@ -8107,7 +8107,7 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 		  } // ET cut
 		}//loop over jets
 				
-	      if (njets >=2 && njetsht >= 1 && rc >= 1)
+	      if (njets >=2 && njetsht >= 1 && rc >= 2)
 		{
 		  triggerBit[it] = true;
 		}
@@ -8150,7 +8150,7 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 		  } // ET cut
 		}//loop over jets
 				
-	      if (njets >=2 && njetsht >= 1 && rc >= 1)
+	      if (njets >=2 && njetsht >= 1 && rc >= 2)
 		{
 		  triggerBit[it] = true;
 		}
@@ -8193,7 +8193,7 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 		  } // ET cut
 		}//loop over jets
 				
-	      if (njets >=2 && njetsht >= 1 && rc >= 1)
+	      if (njets >=2 && njetsht >= 1 && rc >= 2)
 		{
 		  triggerBit[it] = true;
 		}
@@ -8236,7 +8236,7 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 		  } // ET cut
 		}//loop over jets
 				
-	      if (njets >=2 && njetsht >= 1 && rc >= 1)
+	      if (njets >=2 && njetsht >= 1 && rc >= 2)
 		{
 		  triggerBit[it] = true;
 		}
