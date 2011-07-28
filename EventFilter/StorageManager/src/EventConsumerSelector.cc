@@ -1,4 +1,4 @@
-// $Id: EventConsumerSelector.cc,v 1.11 2010/12/17 18:21:05 mommsen Exp $
+// $Id: EventConsumerSelector.cc,v 1.12.4.1 2011/03/07 11:33:05 mommsen Exp $
 /// @file: EventConsumerSelector.cc
 
 #include <vector>
@@ -15,30 +15,30 @@ using namespace stor;
 void EventConsumerSelector::initialize( const InitMsgView& imv )
 {
 
-  if( _initialized ) return;
+  if( initialized_ ) return;
 
-  if( _registrationInfo.outputModuleLabel() != imv.outputModuleLabel() ) return; 
+  if( registrationInfo_->outputModuleLabel() != imv.outputModuleLabel() ) return; 
 
-  _outputModuleId = imv.outputModuleId();
+  outputModuleId_ = imv.outputModuleId();
 
   edm::ParameterSet pset;
-  pset.addParameter<std::string>( "TriggerSelector", _registrationInfo.triggerSelection() );
-  pset.addParameter<Strings>( "SelectEvents", _registrationInfo.eventSelection() );
+  pset.addParameter<std::string>( "TriggerSelector", registrationInfo_->triggerSelection() );
+  pset.addParameter<Strings>( "SelectEvents", registrationInfo_->eventSelection() );
 
   Strings tnames;
   imv.hltTriggerNames( tnames );
 
   std::ostringstream errorMsg;
   errorMsg << "Cannot initialize edm::EventSelector for consumer" <<
-    _registrationInfo.consumerName() << " running on " << _registrationInfo.remoteHost() <<
-    " requesting output module ID" << _outputModuleId <<
-    " with label " << _registrationInfo.outputModuleLabel() <<
+    registrationInfo_->consumerName() << " running on " << registrationInfo_->remoteHost() <<
+    " requesting output module ID" << outputModuleId_ <<
+    " with label " << registrationInfo_->outputModuleLabel() <<
     " and HLT trigger names";
   boost::lambda::placeholder1_type arg1;
   std::for_each(tnames.begin(), tnames.end(), errorMsg << boost::lambda::constant(" ") << arg1);
   try
   {
-    _eventSelector.reset( new TriggerSelector( pset, tnames ) );
+    eventSelector_.reset( new TriggerSelector( pset, tnames ) );
   }
   catch ( edm::Exception& e )
   {
@@ -59,26 +59,25 @@ void EventConsumerSelector::initialize( const InitMsgView& imv )
     XCEPT_RAISE(stor::exception::InvalidEventSelection, errorMsg.str());
   }
 
-  _acceptedEvents = 0;
-  _initialized = true;
+  acceptedEvents_ = 0;
+  initialized_ = true;
 
 }
 
 bool EventConsumerSelector::acceptEvent( const I2OChain& ioc )
 {
 
-  if( !_initialized ) return false;
-  if( _stale ) return false;
+  if( !initialized_ ) return false;
 
-  if( ioc.outputModuleId() != _outputModuleId ) return false;
+  if( ioc.outputModuleId() != outputModuleId_ ) return false;
 
   std::vector<unsigned char> hlt_out;
   ioc.hltTriggerBits( hlt_out );
 
-  if ( _eventSelector->wantAll()
-    || _eventSelector->acceptEvent( &hlt_out[0], ioc.hltTriggerCount() ) )
+  if ( eventSelector_->wantAll()
+    || eventSelector_->acceptEvent( &hlt_out[0], ioc.hltTriggerCount() ) )
   {
-    if ( (++_acceptedEvents % _registrationInfo.prescale()) == 0 ) return true;
+    if ( (++acceptedEvents_ % registrationInfo_->prescale()) == 0 ) return true;
   }
   return false;
 }
@@ -87,7 +86,7 @@ bool EventConsumerSelector::operator<(const EventConsumerSelector& other) const
 {
   if ( queueId() != other.queueId() )
     return ( queueId() < other.queueId() );
-  return ( _registrationInfo < other._registrationInfo );
+  return ( *(registrationInfo_) < *(other.registrationInfo_) );
 }
 
 

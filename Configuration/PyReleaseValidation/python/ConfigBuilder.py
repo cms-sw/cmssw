@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.282 $"
+__version__ = "$Revision: 1.284.2.3 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -43,6 +43,7 @@ defaultOptions.inlineObjets =''
 defaultOptions.hideGen=False
 defaultOptions.beamspot='Realistic7TeVCollision'
 defaultOptions.outputDefinition =''
+defaultOptions.inputCommands = None
 
 # some helper routines
 def dumpPython(process,name):
@@ -167,12 +168,26 @@ class ConfigBuilder(object):
            elif self._options.filetype == "LHE":
                self.process.source=cms.Source("LHESource", fileNames = cms.untracked.vstring(self._options.filein))
            elif self._options.filetype == "MCDB":
-               self.process.source=cms.Source("MCDBSource", articleID = cms.uint32(int(self._options.filein)), supportedProtocols = cms.untracked.vstring("rfio"))
-
+		   #self.process.source=cms.Source("MCDBSource", articleID = cms.uint32(int(self._options.filein)), supportedProtocols = cms.untracked.vstring("rfio"))
+		   #list the article directory automatically
+		   args=self._options.filein.split(':')
+		   article=args[0]
+		   location='/castor/cern.ch/sft/mcdb/storage/'
+		   import os
+		   if len(args)>2:
+			   location=args[2]
+		   textOfFiles=os.popen('nsls '+location+article)
+		   listOfFiles=[]
+		   for line in textOfFiles:
+			   if 'lhe' in line.rstrip().split("."):
+				   listOfFiles.append('rfio:'+location+article+'/'+line.rstrip())
+		   self.process.source=cms.Source("LHESource", fileNames = cms.untracked.vstring(listOfFiles))
+		   if len(args)>1:
+			   self.process.source.skipEvents = cms.untracked.uint32(int(args[1]))
            if 'HARVESTING' in self.stepMap.keys() or 'ALCAHARVEST' in self.stepMap.keys():
                self.process.source.processingMode = cms.untracked.string("RunsAndLumis")
 
-           if self._options.dbsquery!='':
+	if self._options.dbsquery!='':
                self.process.source=cms.Source("PoolSource", fileNames = cms.untracked.vstring(),secondaryFileNames = cms.untracked.vstring())
                import os
                print "the query is",self._options.dbsquery
@@ -188,6 +203,10 @@ class ConfigBuilder(object):
                if self.process.source.secondaryFileNames.__len__()!=0:
                        print "found parent files:",self.process.source.secondaryFileNames.value()
 
+	if self._options.inputCommands:
+		self.process.source.inputCommands = cms.untracked.vstring()
+		for command in self._options.inputCommands.split(','):
+			self.process.source.inputCommands.append(command)
 
         if 'GEN' in self.stepMap.keys() or (not self._options.filein and hasattr(self._options, "evt_type")):
             if self.process.source is None:
@@ -304,6 +323,7 @@ class ConfigBuilder(object):
             return "\n"
 
         for i,(streamType,tier) in enumerate(zip(streamTypes,tiers)):
+		if streamType=='': continue
                 theEventContent = getattr(self.process, streamType+"EventContent")
                 if i==0:
                         theFileName=self._options.outfile_name
@@ -621,6 +641,7 @@ class ConfigBuilder(object):
         if self._options.scenario=='cosmics':
             self.DIGIDefaultCFF="Configuration/StandardSequences/DigiCosmics_cff"
             self.RECODefaultCFF="Configuration/StandardSequences/ReconstructionCosmics_cff"
+	    self.SKIMDefaultCFF="Configuration/StandardSequences/SkimsCosmics_cff"
             self.EVTCONTDefaultCFF="Configuration/EventContent/EventContentCosmics_cff"
             self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineCosmics_cff"
             if self._options.isMC==True:
@@ -831,6 +852,9 @@ class ConfigBuilder(object):
 		__import__(loadFragment)
 	except:
 		loadFailure=True
+		if self.process.source and self.process.source.type_()=='EmptySource':
+			raise Exception("Neither gen fragment of input files provided: this is an inconsistent GEN step configuration")
+		
 	if not loadFailure:
 		generatorModule=sys.modules[loadFragment]
 		genModules=generatorModule.__dict__
@@ -1328,7 +1352,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.282 $"),
+                                            (version=cms.untracked.string("$Revision: 1.284.2.3 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )

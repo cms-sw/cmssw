@@ -21,33 +21,6 @@
 
 // #define DBG_TSB
 
-namespace {
-  struct StatCount {
-    long long totGroup;
-    long long totSeg;
-    long long totLockHits;
-    void zero() {
-      totGroup=totSeg=totLockHits=0;
-    }
-    void incr(long long g, long long s, long long l) {
-      totGroup+=g;
-      totSeg+=s;
-      totLockHits+=l;
-     }
-    void print() const {
-      std::cout << "TrajectorySegmentBuilder stat\nGroup/Seg/Lock "
-		<< totGroup<<'/'<<totSeg<<'/'<<totLockHits
-		<< std::endl;
-    }
-    StatCount() { zero();}
-    ~StatCount() { print();}
-  };
-
-  StatCount statCount;
-
-}
-
-
 using namespace std;
 
 TrajectorySegmentBuilder::TempTrajectoryContainer
@@ -73,8 +46,6 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
   theDbgFlg = false;
 #endif
 
-
-#ifdef DBG_TSB
   if ( theDbgFlg ) {
     int ntot(1);
     for (vector<TMG>::const_iterator ig=measGroups.begin();
@@ -104,8 +75,9 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
       }
       cout << endl;
     }  
-  
+  }
 
+#ifdef DBG_TSB
 //   if ( measGroups.size()>4 ) {
     cout << typeid(theLayer).name() << endl;
     cout << startingState.localError().matrix() << endl;
@@ -122,7 +94,6 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
 //       }
 //     }
 //   }
-  }
 #endif
 
   TempTrajectoryContainer candidates = 
@@ -136,14 +107,7 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
   //
 
   updateWithInvalidHit(startingTrajectory,measGroups,candidates);
-
   if (theDbgFlg) cout << "TSB: " << candidates.size() << " candidates after invalid hit" << endl;
-
-  statCount.incr(measGroups.size(), candidates.size(), theLockedHits.size());
-
-
-  theLockedHits.clear();
-
   return candidates;
 }
 
@@ -156,7 +120,6 @@ void TrajectorySegmentBuilder::updateTrajectory (TempTrajectory& traj,
   if ( hit->isValid()) {
     traj.push( TM( predictedState, theUpdator.update( predictedState, *hit),
 		   hit, tm.estimate(), tm.layer()));
-
 //     TrajectoryMeasurement tm(traj.lastMeasurement());
 //     if ( tm.updatedState().isValid() ) {
 //       if ( !hit.det().surface().bounds().inside(tm.updatedState().localPosition(),
@@ -277,32 +240,35 @@ TrajectorySegmentBuilder::updateCandidatesWithBestHit (TempTrajectory& traj,
 						       const vector<TM>& measurements,
 						       TempTrajectoryContainer& candidates)
 {
-  vector<TM>::const_iterator ibest = measurements.begin();
-  // get first
-  while(ibest!=measurements.end() && !ibest->recHit()->isValid()) ++ibest;
-  if ( ibest!=measurements.end() ) {
-    // find real best;
-    for ( vector<TM>::const_iterator im=ibest+1;
-	  im!=measurements.end(); ++im ) {
-      if ( im->recHit()->isValid() &&
-	   im->estimate()<ibest->estimate()
-	   )
-	ibest = im;
+  vector<TM>::const_iterator ibest = measurements.end();
+  bool bestIsValid = false;
+  for ( vector<TM>::const_iterator im=measurements.begin();
+	im!=measurements.end(); ++im ) {
+    if ( im->recHit()->isValid() ) {
+        if (!bestIsValid || (ibest==measurements.end()) || (im->estimate()<ibest->estimate()) )  {
+            ibest = im;
+            bestIsValid = true;
+        }
     } 
-
-
+//     else if (!bestIsValid && (im->recHit()->getType() != TrackingRecHit::missing)) {
+//         if (ibest==measurements.end()) ibest = im;
+//     }
+  }
+  if ( ibest!=measurements.end() ) {
     if ( theLockHits )  lockMeasurement(*ibest);
     candidates.push_back(traj);
     updateTrajectory(candidates.back(),*ibest);
-
-    if ( theDbgFlg )
-      cout << "TSB: found best measurement at " 
-	   << ibest->recHit()->globalPosition().perp() << " "
-	   << ibest->recHit()->globalPosition().phi() << " "
-	   << ibest->recHit()->globalPosition().z() << endl;
-    
+    if ( theDbgFlg ) {
+      if (bestIsValid) {
+          cout << "TSB: found best measurement at " 
+               << ibest->recHit()->globalPosition().perp() << " "
+               << ibest->recHit()->globalPosition().phi() << " "
+               << ibest->recHit()->globalPosition().z() << endl;
+      } else {
+	cout << "TSB: found best measurement at invalid hit on det " << ibest->recHit()->geographicalId().rawId() << endl;
+      }
+    }
   }
-
   //
   // keep old trajectorTempy
   //
@@ -314,6 +280,7 @@ TrajectorySegmentBuilder::redoMeasurements (const TempTrajectory& traj,
 					    const DetGroup& detGroup) const
 {
   vector<TM> result;
+  vector<TM> tmpResult;
   //
   // loop over all dets
   //
@@ -331,13 +298,11 @@ TrajectorySegmentBuilder::redoMeasurements (const TempTrajectory& traj,
 						 traj.lastMeasurement().updatedState(),
 						 theGeomPropagator,theEstimator);
     
-    if (theDbgFlg && !compat.first) cout << " 0";
-
-    if(!compat.first) continue;
-    const MeasurementDet* mdet = theMeasurementTracker->idToDet(idet->det()->geographicalId());
-    vector<TM> tmp
-      = mdet->fastMeasurements( compat.second, idet->trajectoryState(), theGeomPropagator, theEstimator);
-    
+    vector<TM> tmp; 
+    if(compat.first){
+      const MeasurementDet* mdet = theMeasurementTracker->idToDet(idet->det()->geographicalId());
+      tmp = mdet->fastMeasurements( compat.second, idet->trajectoryState(), theGeomPropagator, theEstimator);
+    }
 
     //perhaps could be enough just:
     //vector<TM> tmp = mdet->fastMeasurements( idet->trajectoryState(),
@@ -345,20 +310,23 @@ TrajectorySegmentBuilder::redoMeasurements (const TempTrajectory& traj,
     //        				     theGeomPropagator, theEstimator);
     // ==================================================
 
+    if ( tmp.empty() )  continue;
     //
     // only collect valid RecHits
     //
+    vector<TM>::iterator end = (tmp.back().recHit()->getType() != TrackingRecHit::missing ? tmp.end() : tmp.end()-1);
     if (theDbgFlg) cout << " " << tmp.size();
-
-    for(vector<TM>::iterator tmpIt=tmp.begin(); tmpIt!=tmp.end(); ++tmpIt){
-      if ( tmpIt->recHit()->isValid() ) {
-	tmpIt->setLayer(&theLayer); // set layer in TM, because the Det cannot do it
-	result.push_back(*tmpIt);
-      }
-    }
+    tmpResult.insert(tmpResult.end(),tmp.begin(),end);
   }
   if (theDbgFlg) cout << endl;
-
+  //
+  // set layer in TM, because the Det cannot do it
+  //
+  for(vector<TM>::const_iterator tmpIt=tmpResult.begin();tmpIt!=tmpResult.end();++tmpIt){
+    if ( tmpIt->recHit()->isValid() )
+      result.push_back(  TrajectoryMeasurement(tmpIt->predictedState(),tmpIt->recHit(),tmpIt->estimate(),&theLayer)  );
+  }
+  
   return result;
 }
 

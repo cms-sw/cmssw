@@ -46,7 +46,7 @@ void DCUCCSDat::prepareWrite()
 			"m2_vinj, m1_vcc, m2_vcc, m1_dcutemp, m2_dcutemp, "
 			"ccstemplow, ccstemphigh) "
 			"VALUES (:iov_id, :logic_id, "
-			":m1_vdd1, :m2_vdd1, :m2_vdd1, :m2_vdd2, :m1_vinj, "
+			":m1_vdd1, :m2_vdd1, :m1_vdd2, :m2_vdd2, :m1_vinj, "
 			":m2_vinj, :m1_vcc, :m2_vcc, :m1_dcutemp, "
 			":m2_dcutemp, :ccstemplow, :ccstemphigh)");
   } catch (SQLException &e) {
@@ -79,8 +79,8 @@ void DCUCCSDat::writeDB(const EcalLogicID* ecid, const DCUCCSDat* item,
     m_writeStmt->setInt(2, logicID);
 
     m_writeStmt->setFloat( 3, item->getM1VDD1() );
-    m_writeStmt->setFloat( 4, item->getM1VDD2() );
-    m_writeStmt->setFloat( 5, item->getM2VDD1() );
+    m_writeStmt->setFloat( 4, item->getM2VDD1() );
+    m_writeStmt->setFloat( 5, item->getM1VDD2() );
     m_writeStmt->setFloat( 6, item->getM2VDD2() );
     m_writeStmt->setFloat( 7, item->getM1Vinj() );
     m_writeStmt->setFloat( 8, item->getM2Vinj() );

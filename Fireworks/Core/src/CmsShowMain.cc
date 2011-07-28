@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.183 2010/11/01 19:04:33 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.187 2011/02/22 16:22:33 amraktad Exp $
 //
 
 // system include files
@@ -34,7 +34,6 @@
 #include "Fireworks/Core/interface/FWEveViewManager.h"
 
 #include "Fireworks/Core/interface/FWTableViewManager.h"
-#include "Fireworks/Core/interface/FWL1TriggerTableViewManager.h"
 #include "Fireworks/Core/interface/FWTriggerTableViewManager.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
 #include "Fireworks/Core/interface/FWViewManagerManager.h"
@@ -138,198 +137,190 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
 
    eiManager()->setContext(m_context.get());
 
-   try {
-      std::string descString(argv[0]);
-      descString += " [options] <data file>\nAllowed options";
+   
+   std::string descString(argv[0]);
+   descString += " [options] <data file>\nAllowed options";
 
-      namespace po = boost::program_options;
-      po::options_description desc(descString);
-      desc.add_options()
-         (kInputFilesCommandOpt, po::value< std::vector<std::string> >(),   "Input root files")
-         (kConfigFileCommandOpt, po::value<std::string>(),   "Include configuration file")
-         (kGeomFileCommandOpt,   po::value<std::string>(),   "Include geometry file")
-         (kNoConfigFileCommandOpt,                           "Don't load any configuration file")
-         (kPlayCommandOpt, po::value<float>(),               "Start in play mode with given interval between events in seconds")
-         (kPortCommandOpt, po::value<unsigned int>(),        "Listen to port for new data files to open")
-         (kEveCommandOpt,                                    "Show Eve browser to help debug problems")
-         (kLoopCommandOpt,                                   "Loop events in play mode")
-         (kPlainRootCommandOpt,                              "Plain ROOT without event display")
-         (kRootInteractiveCommandOpt,                        "Enable root interactive prompt")
-         (kDebugCommandOpt,                                  "Start the display from a debugger and produce a crash report")
-         (kEnableFPE,                                        "Enable detection of floating-point exceptions")
-         (kLogLevelCommandOpt, po::value<unsigned int>(),    "Set log level starting from 0 to 4 : kDebug, kInfo, kWarning, kError")
-         (kAdvancedRenderCommandOpt,                         "Use advance options to improve rendering quality       (anti-alias etc)")
-         (kSoftCommandOpt,                                   "Try to force software rendering to avoid problems with bad hardware drivers")
-         (kChainCommandOpt, po::value<unsigned int>(),       "Chain up to a given number of recently open files. Default is 1 - no chain")
-         (kLiveCommandOpt,                                   "Enforce playback mode if a user is not using display")
-         (kFieldCommandOpt, po::value<double>(),             "Set magnetic field value explicitly. Default is auto-field estimation")
-         (kFreePaletteCommandOpt,                            "Allow free color selection (requires special configuration!)")
-         (kAutoSaveAllViews, po::value<std::string>(),       "Auto-save all views with given prefix (run_event_lumi_view.png is appended)")
-         (kZeroWinOffsets,                                   "Disable auto-detection of window position offsets.")
-         (kHelpCommandOpt,                                   "Display help message");
-      po::positional_options_description p;
-      p.add(kInputFilesOpt, -1);
+   namespace po = boost::program_options;
+   po::options_description desc(descString);
+   desc.add_options()
+      (kInputFilesCommandOpt, po::value< std::vector<std::string> >(),   "Input root files")
+      (kConfigFileCommandOpt, po::value<std::string>(),   "Include configuration file")
+      (kGeomFileCommandOpt,   po::value<std::string>(),   "Include geometry file")
+      (kNoConfigFileCommandOpt,                           "Don't load any configuration file")
+      (kPlayCommandOpt, po::value<float>(),               "Start in play mode with given interval between events in seconds")
+      (kPortCommandOpt, po::value<unsigned int>(),        "Listen to port for new data files to open")
+      (kEveCommandOpt,                                    "Show Eve browser to help debug problems")
+      (kLoopCommandOpt,                                   "Loop events in play mode")
+      (kPlainRootCommandOpt,                              "Plain ROOT without event display")
+      (kRootInteractiveCommandOpt,                        "Enable root interactive prompt")
+      (kDebugCommandOpt,                                  "Start the display from a debugger and produce a crash report")
+      (kEnableFPE,                                        "Enable detection of floating-point exceptions")
+      (kLogLevelCommandOpt, po::value<unsigned int>(),    "Set log level starting from 0 to 4 : kDebug, kInfo, kWarning, kError")
+      (kAdvancedRenderCommandOpt,                         "Use advance options to improve rendering quality       (anti-alias etc)")
+      (kSoftCommandOpt,                                   "Try to force software rendering to avoid problems with bad hardware drivers")
+      (kChainCommandOpt, po::value<unsigned int>(),       "Chain up to a given number of recently open files. Default is 1 - no chain")
+      (kLiveCommandOpt,                                   "Enforce playback mode if a user is not using display")
+      (kFieldCommandOpt, po::value<double>(),             "Set magnetic field value explicitly. Default is auto-field estimation")
+      (kFreePaletteCommandOpt,                            "Allow free color selection (requires special configuration!)")
+      (kAutoSaveAllViews, po::value<std::string>(),       "Auto-save all views with given prefix (run_event_lumi_view.png is appended)")
+      (kZeroWinOffsets,                                   "Disable auto-detection of window position offsets.")
+      (kHelpCommandOpt,                                   "Display help message");
+   po::positional_options_description p;
+   p.add(kInputFilesOpt, -1);
 
-      int newArgc = argc;
-      char **newArgv = argv;
-      po::variables_map vm;
-      //po::store(po::parse_command_line(newArgc, newArgv, desc), vm);
-      //po::notify(vm);
-      po::store(po::command_line_parser(newArgc, newArgv).
-                options(desc).positional(p).run(), vm);
-      po::notify(vm);
-      if(vm.count(kHelpOpt)) {
-         std::cout << desc <<std::endl;
-         exit(0);
-      }
+   int newArgc = argc;
+   char **newArgv = argv;
+   po::variables_map vm;
+   //po::store(po::parse_command_line(newArgc, newArgv, desc), vm);
+   //po::notify(vm);
+   po::store(po::command_line_parser(newArgc, newArgv).
+             options(desc).positional(p).run(), vm);
+   po::notify(vm);
+   if(vm.count(kHelpOpt)) {
+      std::cout << desc <<std::endl;
+      exit(0);
+   }
       
-      if(vm.count(kLogLevelOpt)) {
-         fwlog::LogLevel level = (fwlog::LogLevel)(vm[kLogLevelOpt].as<unsigned int>());
-         fwlog::setPresentLogLevel(level);
-      }
-
-      if(vm.count(kPlainRootCommandOpt)) {
-         fwLog(fwlog::kInfo) << "Plain ROOT prompt requested" << std::endl;
-         return;
-      }
-
-      const char* cmspath = gSystem->Getenv("CMSSW_BASE");
-      if(0 == cmspath) {
-         throw std::runtime_error("CMSSW_BASE environment variable not set");
-      }
-
-      // input file
-      if (vm.count(kInputFilesOpt)) {
-         m_inputFiles = vm[kInputFilesOpt].as< std::vector<std::string> >();
-      }
-
-      if (!m_inputFiles.size())
-         fwLog(fwlog::kInfo) << "No data file given." << std::endl;
-      else if (m_inputFiles.size() == 1)
-         fwLog(fwlog::kInfo) << "Input " << m_inputFiles.front() << std::endl;
-      else
-         fwLog(fwlog::kInfo) << m_inputFiles.size() << " input files; first: " << m_inputFiles.front() << ", last: " << m_inputFiles.back() << std::endl;
-
-      // configuration file
-      if (vm.count(kConfigFileOpt)) {
-         setConfigFilename(vm[kConfigFileOpt].as<std::string>());
-         if (access(configFilename(), R_OK) == -1)
-         {
-            fwLog(fwlog::kError) << "Specified configuration file does not exist. Quitting.\n";
-            exit(1);
-         }
-      } else {
-         if (vm.count(kNoConfigFileOpt)) {
-            fwLog(fwlog::kInfo) << "No configuration is loaded, show everything.\n";
-            setConfigFilename("");
-         } else
-            setConfigFilename("default.fwc");
-      }
-      fwLog(fwlog::kInfo) << "Config "  <<  configFilename() << std::endl;
-
-      // geometry
-      if (vm.count(kGeomFileOpt)) {
-         setGeometryFilename(vm[kGeomFileOpt].as<std::string>());
-      } else {
-         fwLog(fwlog::kInfo) << "No geom file name.  Choosing default.\n";
-         setGeometryFilename("cmsGeom10.root");
-      }
-      fwLog(fwlog::kInfo) << "Geom " << geometryFilename() << std::endl;
-
-      // Free-palette palette
-      if (vm.count(kFreePaletteCommandOpt)) {
-         FWColorPopup::EnableFreePalette();
-         fwLog(fwlog::kInfo) << "Palette restriction removed on user request!\n";
-      }
-      bool eveMode = vm.count(kEveOpt);
-
-      //Delay creating guiManager and enabling autoloading until here so that if we have a 'help' request we don't
-      // open any graphics or build dictionaries
-      AutoLibraryLoader::enable();
-
-      TEveManager::Create(kFALSE, "FIV");
-
-      setup(m_navigator.get(), m_context.get(), m_metadataManager.get());
-
-      if (vm.count(kZeroWinOffsets))
-      {
-         guiManager()->resetWMOffsets();
-         fwLog(fwlog::kInfo) << "Window offsets reset on user request!\n";
-      }
-
-      if ( vm.count(kAdvancedRenderOpt) ) 
-      {
-         TEveLine::SetDefaultSmooth(kTRUE);
-      }
-
-      //figure out where to find macros
-      //tell ROOT where to find our macros
-      CmsShowTaskExecutor::TaskFunctor f;
-      // first check if port is not occupied
-      if (vm.count(kPortCommandOpt)) { 	 
-         f=boost::bind(&CmsShowMain::setupSocket, this, vm[kPortCommandOpt].as<unsigned int>()); 	 
-         startupTasks()->addTask(f); 	 
-      }
-    
-      f=boost::bind(&CmsShowMainBase::loadGeometry,this);
-      startupTasks()->addTask(f);
-      f=boost::bind(&CmsShowMainBase::setupViewManagers,this);
-      startupTasks()->addTask(f);
-      f=boost::bind(&CmsShowMainBase::setupConfiguration,this);
-      startupTasks()->addTask(f);
-      f=boost::bind(&CmsShowMain::setupDataHandling,this);
-      startupTasks()->addTask(f);
-
-      if (vm.count(kLoopOpt))
-         setPlayLoop();
-
-      if (eveMode) {
-         f = boost::bind(&CmsShowMainBase::setupDebugSupport,this);
-         startupTasks()->addTask(f);
-      }
-      if(vm.count(kChainCommandOpt)) {
-         f = boost::bind(&CmsShowNavigator::setMaxNumberOfFilesToChain, m_navigator.get(), vm[kChainCommandOpt].as<unsigned int>());
-         startupTasks()->addTask(f);
-      }
-      if (vm.count(kPlayOpt)) {
-         f = boost::bind(&CmsShowMainBase::setupAutoLoad, this, vm[kPlayOpt].as<float>());
-         startupTasks()->addTask(f);
-      }
-
-      if(vm.count(kLiveCommandOpt))
-      {
-         f = boost::bind(&CmsShowMain::setLiveMode, this);
-         startupTasks()->addTask(f);
-      }
-      
-      if(vm.count(kFieldCommandOpt)) 
-      {
-         m_context->getField()->setSource(FWMagField::kUser);
-         m_context->getField()->setUserField(vm[kFieldCommandOpt].as<double>());
-      }
-      if(vm.count(kAutoSaveAllViews)) {
-         std::string fmt = vm[kAutoSaveAllViews].as<std::string>();
-         fmt += "%d_%d_%d_%s.png";
-         setAutoSaveAllViewsFormat(fmt);
-      }
-      if(vm.count(kEnableFPE)) {
-         gSystem->SetFPEMask();
-      }
-
-      if (vm.count(kPortCommandOpt)) { 	 
-         f=boost::bind(&CmsShowMain::connectSocket, this); 	 
-         startupTasks()->addTask(f); 	 
-      }
-
-      startupTasks()->startDoingTasks();
-
-    
-   } catch(std::exception& iException) {
-      std::cerr <<"CmsShowMain caught exception "<<iException.what()<<std::endl;
-      throw;
+   if(vm.count(kLogLevelOpt)) {
+      fwlog::LogLevel level = (fwlog::LogLevel)(vm[kLogLevelOpt].as<unsigned int>());
+      fwlog::setPresentLogLevel(level);
    }
 
-  
+   if(vm.count(kPlainRootCommandOpt)) {
+      fwLog(fwlog::kInfo) << "Plain ROOT prompt requested" << std::endl;
+      return;
+   }
+
+   const char* cmspath = gSystem->Getenv("CMSSW_BASE");
+   if(0 == cmspath) {
+      throw std::runtime_error("CMSSW_BASE environment variable not set");
+   }
+
+   // input file
+   if (vm.count(kInputFilesOpt)) {
+      m_inputFiles = vm[kInputFilesOpt].as< std::vector<std::string> >();
+   }
+
+   if (!m_inputFiles.size())
+      fwLog(fwlog::kInfo) << "No data file given." << std::endl;
+   else if (m_inputFiles.size() == 1)
+      fwLog(fwlog::kInfo) << "Input " << m_inputFiles.front() << std::endl;
+   else
+      fwLog(fwlog::kInfo) << m_inputFiles.size() << " input files; first: " << m_inputFiles.front() << ", last: " << m_inputFiles.back() << std::endl;
+
+   // configuration file
+   if (vm.count(kConfigFileOpt)) {
+      setConfigFilename(vm[kConfigFileOpt].as<std::string>());
+      if (access(configFilename(), R_OK) == -1)
+      {
+         fwLog(fwlog::kError) << "Specified configuration file does not exist. Quitting.\n";
+         exit(1);
+      }
+   } else {
+      if (vm.count(kNoConfigFileOpt)) {
+         fwLog(fwlog::kInfo) << "No configuration is loaded, show everything.\n";
+         setConfigFilename("");
+      } else
+         setConfigFilename("default.fwc");
+   }
+   fwLog(fwlog::kInfo) << "Config "  <<  configFilename() << std::endl;
+
+   // geometry
+   if (vm.count(kGeomFileOpt)) {
+      setGeometryFilename(vm[kGeomFileOpt].as<std::string>());
+   } else {
+      fwLog(fwlog::kInfo) << "No geom file name.  Choosing default.\n";
+      setGeometryFilename("cmsGeom10.root");
+   }
+   fwLog(fwlog::kInfo) << "Geom " << geometryFilename() << std::endl;
+
+   // Free-palette palette
+   if (vm.count(kFreePaletteCommandOpt)) {
+      FWColorPopup::EnableFreePalette();
+      fwLog(fwlog::kInfo) << "Palette restriction removed on user request!\n";
+   }
+   bool eveMode = vm.count(kEveOpt);
+
+   //Delay creating guiManager and enabling autoloading until here so that if we have a 'help' request we don't
+   // open any graphics or build dictionaries
+   AutoLibraryLoader::enable();
+
+   TEveManager::Create(kFALSE, "FIV");
+
+   setup(m_navigator.get(), m_context.get(), m_metadataManager.get());
+
+   if (vm.count(kZeroWinOffsets))
+   {
+      guiManager()->resetWMOffsets();
+      fwLog(fwlog::kInfo) << "Window offsets reset on user request!\n";
+   }
+
+   if ( vm.count(kAdvancedRenderOpt) ) 
+   {
+      TEveLine::SetDefaultSmooth(kTRUE);
+   }
+
+   //figure out where to find macros
+   //tell ROOT where to find our macros
+   CmsShowTaskExecutor::TaskFunctor f;
+   // first check if port is not occupied
+   if (vm.count(kPortCommandOpt)) { 	 
+      f=boost::bind(&CmsShowMain::setupSocket, this, vm[kPortCommandOpt].as<unsigned int>()); 	 
+      startupTasks()->addTask(f); 	 
+   }
+    
+   f=boost::bind(&CmsShowMainBase::loadGeometry,this);
+   startupTasks()->addTask(f);
+   f=boost::bind(&CmsShowMainBase::setupViewManagers,this);
+   startupTasks()->addTask(f);
+   f=boost::bind(&CmsShowMainBase::setupConfiguration,this);
+   startupTasks()->addTask(f);
+   f=boost::bind(&CmsShowMain::setupDataHandling,this);
+   startupTasks()->addTask(f);
+
+   if (vm.count(kLoopOpt))
+      setPlayLoop();
+
+   if (eveMode) {
+      f = boost::bind(&CmsShowMainBase::setupDebugSupport,this);
+      startupTasks()->addTask(f);
+   }
+   if(vm.count(kChainCommandOpt)) {
+      f = boost::bind(&CmsShowNavigator::setMaxNumberOfFilesToChain, m_navigator.get(), vm[kChainCommandOpt].as<unsigned int>());
+      startupTasks()->addTask(f);
+   }
+   if (vm.count(kPlayOpt)) {
+      f = boost::bind(&CmsShowMainBase::setupAutoLoad, this, vm[kPlayOpt].as<float>());
+      startupTasks()->addTask(f);
+   }
+
+   if(vm.count(kLiveCommandOpt))
+   {
+      f = boost::bind(&CmsShowMain::setLiveMode, this);
+      startupTasks()->addTask(f);
+   }
+      
+   if(vm.count(kFieldCommandOpt)) 
+   {
+      m_context->getField()->setSource(FWMagField::kUser);
+      m_context->getField()->setUserField(vm[kFieldCommandOpt].as<double>());
+   }
+   if(vm.count(kAutoSaveAllViews)) {
+      std::string fmt = vm[kAutoSaveAllViews].as<std::string>();
+      fmt += "%d_%d_%d_%s.png";
+      setAutoSaveAllViewsFormat(fmt);
+   }
+   if(vm.count(kEnableFPE)) {
+      gSystem->SetFPEMask();
+   }
+
+   if (vm.count(kPortCommandOpt)) { 	 
+      f=boost::bind(&CmsShowMain::connectSocket, this); 	 
+      startupTasks()->addTask(f); 	 
+   }
+
+   startupTasks()->startDoingTasks();
 }
 
 //
@@ -405,13 +396,16 @@ CmsShowMain::fileChangedSlot(const TFile *file)
 {
    m_openFile = file;
    if (file)
-      guiManager()->titleChanged(m_openFile->GetName());
+      guiManager()->titleChanged(m_navigator->frameTitle());
+
    m_metadataManager->update(new FWLiteJobMetadataUpdateRequest(getCurrentEvent(), m_openFile));
 }
 
 void
-CmsShowMain::eventChangedSlot()
+CmsShowMain::eventChangedImp()
 {
+   CmsShowMainBase::eventChangedImp();
+   guiManager()->titleChanged(m_navigator->frameTitle());
    m_metadataManager->update(new FWLiteJobMetadataUpdateRequest(getCurrentEvent(), m_openFile));
 }
 
@@ -451,7 +445,7 @@ void CmsShowMain::appendData()
    /* this is how things used to be done:
       fi.fIniDir = ".";
       this is bad because the destructor calls delete[] on fIniDir.
-    */
+   */
    fi.fIniDir = new char[128];
    strncpy(fi.fIniDir,  ".", 127);
    guiManager()->updateStatus("waiting for data file ...");
@@ -462,6 +456,7 @@ void CmsShowMain::appendData()
       m_loadedAnyInputFile = true;
       checkPosition();
       draw();
+      guiManager()->titleChanged(m_navigator->frameTitle());
    }
    guiManager()->clearStatus();
 }
@@ -568,12 +563,9 @@ CmsShowMain::setupDataHandling()
 {
    guiManager()->updateStatus("Setting up data handling...");
 
-   // Event / file change actions which require different response for different
-   // implementations. 
-   m_navigator->newEvent_.connect(boost::bind(&CmsShowMain::eventChangedSlot, this));
-   m_navigator->fileChanged_.connect(boost::bind(&CmsShowMain::fileChangedSlot, this, _1));
 
    // navigator filtering  ->
+   m_navigator->fileChanged_.connect(boost::bind(&CmsShowMain::fileChangedSlot, this, _1));
    m_navigator->editFiltersExternally_.connect(boost::bind(&FWGUIManager::updateEventFilterEnable, guiManager(), _1));
    m_navigator->filterStateChanged_.connect(boost::bind(&CmsShowMain::navigatorChangedFilterState, this, _1));
    m_navigator->postFiltering_.connect(boost::bind(&CmsShowMain::postFiltering, this));

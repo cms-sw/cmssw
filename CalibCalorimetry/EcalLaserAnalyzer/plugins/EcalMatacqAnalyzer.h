@@ -6,13 +6,10 @@
 class TFile;
 class TTree;
 class TMTQ;
-class TF1;
-class TH1;
 
 #define N_samples 2560
 #define N_channels 1
 #define NSIDES     2     // Number of sides
-#define NCOL       2     // Number of sides
 
 class EcalMatacqAnalyzer: public edm::EDAnalyzer{  
 
@@ -76,7 +73,6 @@ class EcalMatacqAnalyzer: public edm::EDAnalyzer{
 
   // Count Laser Events
   int laserEvents;
-  int matacqEvents;
   bool isThereMatacq;
 
   //Declaration of leaves types
@@ -87,17 +83,14 @@ class EcalMatacqAnalyzer: public edm::EDAnalyzer{
   int  maxsamp; 
   int  nsamples; 
   double tt;
-  // vector<int> vernier;
 
   TFile *sampFile;
   TTree *tree;
 
-  
   TMTQ *MTQ[nColor][nSide];
   TTree *meanTree[nColor];
 
   std::vector<int> colors;
-  std::vector<int> sides;
 
   TFile *outFile;
   int status;

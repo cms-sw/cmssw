@@ -104,7 +104,7 @@ void BeamHaloNavigationSchool::establishInverseRelations() {
   for ( vector<DetLayer*>::iterator i = lc.begin(); i != lc.end(); i++) {
     SimpleNavigableLayer* navigableLayer =
       dynamic_cast<SimpleNavigableLayer*>((**i).navigableLayer());
-    if (!navigableLayer) {edm::LogError("BeamHaloNavigationSchool")<<"a detlayer does not have a navigable layer, which is normal in beam halo navigation.";}
+    if (!navigableLayer) {edm::LogInfo("BeamHaloNavigationSchool")<<"a detlayer does not have a navigable layer, which is normal in beam halo navigation.";}
     if (navigableLayer){navigableLayer->setInwardLinks( reachedBarrelLayersMap[*i],reachedForwardLayersMap[*i], TkLayerLess(outsideIn, (*i)) );}
   }
 

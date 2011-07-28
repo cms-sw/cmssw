@@ -1,8 +1,8 @@
-// $Id: DiskWriter.h,v 1.11 2010/05/11 17:58:01 mommsen Exp $
+// $Id: DiskWriter.h,v 1.12.4.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: DiskWriter.h 
 
-#ifndef StorageManager_DiskWriter_h
-#define StorageManager_DiskWriter_h
+#ifndef EventFilter_StorageManager_DiskWriter_h
+#define EventFilter_StorageManager_DiskWriter_h
 
 #include "boost/date_time/posix_time/posix_time_types.hpp"
 #include "boost/shared_ptr.hpp"
@@ -34,8 +34,8 @@ namespace stor {
    * to the appropriate stream file(s) on disk. 
    *
    * $Author: mommsen $
-   * $Revision: 1.11 $
-   * $Date: 2010/05/11 17:58:01 $
+   * $Revision: 1.12.4.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
   
   class DiskWriter : public toolbox::lang::Class
@@ -91,7 +91,7 @@ namespace stor {
     /**
      * Close all timed-out files
      */    
-    void closeTimedOutFiles(const utils::time_point_t);
+    void closeTimedOutFiles(const utils::TimePoint_t);
 
     /**
      * Configures the event streams to be written to disk
@@ -140,27 +140,27 @@ namespace stor {
     void writeEndOfRunMarker() const;
 
 
-    xdaq::Application* _app;
-    SharedResourcesPtr _sharedResources;
-    DiskWritingParams _dwParams;
-    const DbFileHandlerPtr _dbFileHandler;
+    xdaq::Application* app_;
+    SharedResourcesPtr sharedResources_;
+    DiskWritingParams dwParams_;
+    const DbFileHandlerPtr dbFileHandler_;
 
-    unsigned int _runNumber;
-    boost::posix_time::time_duration _timeout; // Timeout on stream queue
-    utils::time_point_t _lastFileTimeoutCheckTime; // Last time we checked for time-out files
+    unsigned int runNumber_;
+    boost::posix_time::time_duration timeout_; // Timeout on stream queue
+    utils::TimePoint_t lastFileTimeoutCheckTime_; // Last time we checked for time-out files
 
     typedef boost::shared_ptr<StreamHandler> StreamHandlerPtr;
     typedef std::vector<StreamHandlerPtr> StreamHandlers;
-    StreamHandlers _streamHandlers;
+    StreamHandlers streamHandlers_;
 
-    bool _actionIsActive;
-    toolbox::task::WorkLoop* _writingWL;      
+    bool actionIsActive_;
+    toolbox::task::WorkLoop* writingWL_;      
 
   };
   
 } // namespace stor
 
-#endif // StorageManager_DiskWriter_h 
+#endif // EventFilter_StorageManager_DiskWriter_h 
 
 
 /// emacs configuration

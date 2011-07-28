@@ -45,8 +45,8 @@ bool popcon::EcalPedestalsHandler::checkPedestal( EcalPedestals::Item* item ){
   // true means all is standard and OK
   bool result=true;
   if(item->rms_x12 >3 || item->rms_x12<=0) result=false; 
-  if(item->rms_x6 >3 || item->rms_x6<=0) result=false; 
-  if(item->rms_x1 >3 || item->rms_x1<=0) result=false; 
+  if(item->rms_x6 >2 || item->rms_x6<=0) result=false; 
+  if(item->rms_x1 >1 || item->rms_x1<=0) result=false; 
   if(item->mean_x12>300 || item->mean_x12<=100) result=false; 
   if(item->mean_x1>300 || item->mean_x1<=100) result=false; 
   if(item->mean_x6>300 || item->mean_x6<=100) result=false; 
@@ -176,7 +176,8 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
 	monverdef.setMonitoringVersion("test01");
 	
 	MonRunTag mon_tag;
-	mon_tag.setGeneralTag("CMSSW");
+	//	mon_tag.setGeneralTag("CMSSW");
+ 	mon_tag.setGeneralTag("CMSSW-offline-private");
 	mon_tag.setMonVersionDef(monverdef);
 	MonRunList mon_list;
 	mon_list.setMonRunTag(mon_tag);
@@ -193,12 +194,14 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
 	mon_list=econn->fetchMonRunList(my_runtag, mon_tag,min_run,max_run );
       
 	std::vector<MonRunIOV> mon_run_vec=  mon_list.getRuns();
-	size_t mon_runs=mon_run_vec.size();
+	int mon_runs = mon_run_vec.size();
 	std::cout <<"number of Mon runs is : "<< mon_runs<< std::endl;
 
-	if(mon_runs>0){
+	if(mon_runs > 0){
+	  int krmax = std::min(mon_runs, 30);
+	  for(int kr = 0; kr < krmax; kr++){
+	    std::cout << "-kr------:  "<<kr<<std::endl;
 
-	  for(size_t kr=0; kr<mon_runs; kr++){
 
 	    unsigned int irun=static_cast<unsigned int>(mon_run_vec[kr].getRunIOV().getRunNumber());
 	  
@@ -213,6 +216,7 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
 	      std::map<EcalLogicID, MonPedestalsDat> dataset_mon;
 	      econn->fetchDataSet(&dataset_mon, &mon_run_vec[kr]);
 	      std::cout <<"OMDS record for run "<<irun  <<" is made of "<< dataset_mon.size() << std::endl;
+ 	      int nEB = 0, nEE = 0, nEBbad = 0, nEEbad =0;
 	      typedef std::map<EcalLogicID, MonPedestalsDat>::const_iterator CImon;
 	      EcalLogicID ecid_xt;
 	      MonPedestalsDat  rd_ped;
@@ -235,20 +239,29 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
 		item.mean_x12 =rd_ped.getPedMeanG12();
 		item.rms_x12  =rd_ped.getPedRMSG12();
 		
+		if(ecid_xt.getName()=="EB_crystal_number") {
+		  nEB++;
+		  if(!checkPedestal(&item) ) nEBbad++;
+		}
+		else {
+		  nEE++;
+		  if(!checkPedestal(&item) ) nEEbad++;
+		}
 
 		// here we check and count how many bad channels we have 
 
 		if(!checkPedestal(&item) ){
 		  nbad++;
-		  if(nbad<50) std::cout <<"BAD LIST: channel " << sm_num << "/" << xt_num << "/"<< yt_num 
+		  if(nbad < 10) std::cout <<"BAD LIST: channel " << sm_num << "/" << xt_num << "/"<< yt_num 
 				   <<  "ped/rms "<<item.mean_x12<< "/"<< item.rms_x12 << std::endl;
 		}
 	      }
 	    
 	      // ok or bad? 
-	      // a bad run is for more than 10% bad channels 
+	      // a bad run is for more than 5% bad channels 
 
-	      if(nbad<(dataset_mon.size()*0.1)){
+	      //	      if(nbad<(dataset_mon.size()*0.1)){
+ 	      if(nbad<(dataset_mon.size()*0.05) && (nEB > 10200 || nEE > 2460)) {
 
 		for (CImon p = dataset_mon.begin(); p != dataset_mon.end(); p++) {
 		  ecid_xt = p->first;
@@ -407,12 +420,17 @@ void popcon::EcalPedestalsHandler::getNewObjectsP5()
 
 		ss << "Run=" << irun << "_WAS_GOOD_"<<std::endl; 
 		m_userTextLog = ss.str()+";";
-		
 	      
 	      
 		} else {
-		  
-		  std::cout<< "Run was BAD !!!! not sent to the DB number of bad channels="<<nbad << std::endl;
+		  std::cout << "Run " << irun << " was BAD !!!! not sent to the DB";
+		  if(nbad >= (dataset_mon.size()*0.05))
+		    std::cout << " number of bad channels = " << nbad;
+		  if(nEB <= 10200)
+		    std::cout << " number of EB channels = " << nEB;
+		  if(nEE <= 2440)
+		    std::cout << " number of EE channels = " << nEE;
+ 		  std::cout << std::endl;
 		  ss << "Run=" << irun << "_WAS_BAD_"<<std::endl; 
 		  m_userTextLog = ss.str()+";";
 		}

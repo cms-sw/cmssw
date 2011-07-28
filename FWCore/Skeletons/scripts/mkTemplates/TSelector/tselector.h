@@ -44,5 +44,7 @@ private:
     
   tselname(tselname const&);
   tselname operator=(tselname const&);
+  
+  ClassDef(tselname,2)
 };
 #endif

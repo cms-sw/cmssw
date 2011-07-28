@@ -1,8 +1,8 @@
-// $Id: EventStreamSelector.h,v 1.6 2009/12/01 13:58:08 mommsen Exp $
+// $Id: EventStreamSelector.h,v 1.7.4.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: EventStreamSelector.h 
 
-#ifndef StorageManager_EventStreamSelector_h
-#define StorageManager_EventStreamSelector_h
+#ifndef EventFilter_StorageManager_EventStreamSelector_h
+#define EventFilter_StorageManager_EventStreamSelector_h
 
 #include <boost/shared_ptr.hpp>
 
@@ -18,8 +18,8 @@ namespace stor {
      EventStreamConfigurationInfo
 
      $Author: mommsen $
-     $Revision: 1.6 $
-     $Date: 2009/12/01 13:58:08 $
+     $Revision: 1.7.4.1 $
+     $Date: 2011/03/07 11:33:04 $
   */
 
   class EventStreamSelector
@@ -40,27 +40,27 @@ namespace stor {
     bool acceptEvent( const I2OChain& );
 
     // Accessors:
-    unsigned int outputModuleId() const { return _outputModuleId; }
-    const EventStreamConfigurationInfo& configInfo() const { return _configInfo; }
-    bool isInitialized() const { return _initialized; }
+    unsigned int outputModuleId() const { return outputModuleId_; }
+    const EventStreamConfigurationInfo& configInfo() const { return configInfo_; }
+    bool isInitialized() const { return initialized_; }
 
     // Comparison:
     bool operator<(const EventStreamSelector& other) const
-    { return ( _configInfo < other.configInfo() ); }
+    { return ( configInfo_ < other.configInfo() ); }
 
   private:
 
-    bool _initialized;
-    unsigned int _outputModuleId;
-    const EventStreamConfigurationInfo _configInfo;
+    bool initialized_;
+    unsigned int outputModuleId_;
+    const EventStreamConfigurationInfo configInfo_;
 
-    boost::shared_ptr<TriggerSelector> _eventSelector;
+    TriggerSelectorPtr eventSelector_;
 
   };
 
 } // namespace stor
 
-#endif // StorageManager_EventStreamSelector_h
+#endif // EventFilter_StorageManager_EventStreamSelector_h
 
 
 /// emacs configuration

@@ -54,10 +54,10 @@ hcalSimParameters = cms.PSet(
         photoelectronsToAnalog = cms.vdouble([0.3305]*16),
         simHitToPhotoelectrons = cms.double(2000.0),
         samplingFactors = cms.vdouble(
-            125.44, 125.54, 125.32, 125.13, 124.46,
-            125.01, 125.22, 125.48, 124.45, 125.90,
-            125.83, 127.01, 126.82, 129.73, 131.83,
-            143.52),            
+            118.98, 118.60, 118.97, 118.76, 119.13,
+            118.74, 117.80, 118.14, 116.87, 117.87,
+            117.46, 116.79, 117.15, 117.29, 118.41,
+            134.86),
         syncPhase = cms.bool(True),
         timePhase = cms.double(5.0),
         timeSmearing = cms.bool(True),
@@ -71,9 +71,9 @@ hcalSimParameters = cms.PSet(
         photoelectronsToAnalog = cms.vdouble([0.3305]*14),
         simHitToPhotoelectrons = cms.double(2000.0),
         samplingFactors = cms.vdouble(
-            210.55, 197.93, 186.12, 189.64, 189.63,
-            190.28, 189.61, 189.60, 190.12, 191.22,
-            190.90, 193.06, 188.42, 188.42),
+            197.84, 184.67, 170.60, 172.06, 173.08,
+            171.92, 173.00, 173.22, 173.72, 174.21,
+            173.91, 175.88, 171.65, 171.65),
         syncPhase = cms.bool(True),
         timePhase = cms.double(5.0),
         timeSmearing = cms.bool(True)

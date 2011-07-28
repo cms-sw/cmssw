@@ -1,4 +1,4 @@
-// $Id: EventMsgData.cc,v 1.6 2010/05/12 12:22:06 mommsen Exp $
+// $Id: EventMsgData.cc,v 1.7.4.1 2011/02/28 17:56:06 mommsen Exp $
 /// @file: EventMsgData.cc
 
 #include "EventFilter/StorageManager/src/ChainData.h"
@@ -15,7 +15,7 @@ namespace stor
 
     EventMsgData::EventMsgData(toolbox::mem::Reference* pRef) :
       ChainData(I2O_SM_DATA, Header::EVENT),
-      _headerFieldsCached(false)
+      headerFieldsCached_(false)
     {
       addFirstFragment(pRef);
       parseI2OHeader();
@@ -33,8 +33,8 @@ namespace stor
         return 0;
       }
 
-      if (! _headerFieldsCached) {cacheHeaderFields();}
-      return _headerSize;
+      if (! headerFieldsCached_) {cacheHeaderFields();}
+      return headerSize_;
     }
 
     unsigned char* EventMsgData::do_headerLocation() const
@@ -44,8 +44,8 @@ namespace stor
         return 0;
       }
 
-      if (! _headerFieldsCached) {cacheHeaderFields();}
-      return _headerLocation;
+      if (! headerFieldsCached_) {cacheHeaderFields();}
+      return headerLocation_;
     }
 
     inline unsigned char*
@@ -73,8 +73,8 @@ namespace stor
         XCEPT_RAISE(stor::exception::IncompleteEventMessage, msg.str());
       }
 
-      if (! _headerFieldsCached) {cacheHeaderFields();}
-      return _outputModuleId;
+      if (! headerFieldsCached_) {cacheHeaderFields();}
+      return outputModuleId_;
     }
 
     uint32_t EventMsgData::do_hltTriggerCount() const
@@ -87,8 +87,8 @@ namespace stor
         XCEPT_RAISE(stor::exception::IncompleteEventMessage, msg.str());
       }
 
-      if (! _headerFieldsCached) {cacheHeaderFields();}
-      return _hltTriggerCount;
+      if (! headerFieldsCached_) {cacheHeaderFields();}
+      return hltTriggerCount_;
     }
 
     void
@@ -102,8 +102,8 @@ namespace stor
         XCEPT_RAISE(stor::exception::IncompleteEventMessage, msg.str());
       }
 
-      if (! _headerFieldsCached) {cacheHeaderFields();}
-      bitList = _hltTriggerBits;
+      if (! headerFieldsCached_) {cacheHeaderFields();}
+      bitList = hltTriggerBits_;
     }
 
     void 
@@ -132,8 +132,8 @@ namespace stor
         XCEPT_RAISE(stor::exception::IncompleteEventMessage, msg.str());
       }
 
-      if (! _headerFieldsCached) {cacheHeaderFields();}
-      return _runNumber;
+      if (! headerFieldsCached_) {cacheHeaderFields();}
+      return runNumber_;
     }
 
     uint32_t EventMsgData::do_lumiSection() const
@@ -146,8 +146,8 @@ namespace stor
         XCEPT_RAISE(stor::exception::IncompleteEventMessage, msg.str());
       }
 
-      if (! _headerFieldsCached) {cacheHeaderFields();}
-      return _lumiSection;
+      if (! headerFieldsCached_) {cacheHeaderFields();}
+      return lumiSection_;
     }
 
     uint32_t EventMsgData::do_eventNumber() const
@@ -160,8 +160,8 @@ namespace stor
         XCEPT_RAISE(stor::exception::IncompleteEventMessage, msg.str());
       }
 
-      if (! _headerFieldsCached) {cacheHeaderFields();}
-      return _eventNumber;
+      if (! headerFieldsCached_) {cacheHeaderFields();}
+      return eventNumber_;
     }
 
     uint32_t EventMsgData::do_adler32Checksum() const
@@ -174,8 +174,8 @@ namespace stor
         XCEPT_RAISE(stor::exception::IncompleteEventMessage, msg.str());
       }
 
-      if (! _headerFieldsCached) {cacheHeaderFields();}
-      return _adler32;
+      if (! headerFieldsCached_) {cacheHeaderFields();}
+      return adler32_;
     }
 
     inline void EventMsgData::parseI2OHeader()
@@ -183,19 +183,19 @@ namespace stor
       if ( parsable() )
       {
         I2O_SM_DATA_MESSAGE_FRAME *smMsg =
-          (I2O_SM_DATA_MESSAGE_FRAME*) _ref->getDataLocation();
-        _fragKey.code_ = _messageCode;
-        _fragKey.run_ = smMsg->runID;
-        _fragKey.event_ = smMsg->eventID;
-        _fragKey.secondaryId_ = smMsg->outModID;
-        _fragKey.originatorPid_ = smMsg->fuProcID;
-        _fragKey.originatorGuid_ = smMsg->fuGUID;
-        _rbBufferId = smMsg->rbBufferID;
-        _hltLocalId = smMsg->hltLocalId;
-        _hltInstance = smMsg->hltInstance;
-        _hltTid = smMsg->hltTid;
-        _fuProcessId = smMsg->fuProcID;
-        _fuGuid = smMsg->fuGUID;
+          (I2O_SM_DATA_MESSAGE_FRAME*) ref_->getDataLocation();
+        fragKey_.code_ = messageCode_;
+        fragKey_.run_ = smMsg->runID;
+        fragKey_.event_ = smMsg->eventID;
+        fragKey_.secondaryId_ = smMsg->outModID;
+        fragKey_.originatorPid_ = smMsg->fuProcID;
+        fragKey_.originatorGuid_ = smMsg->fuGUID;
+        rbBufferId_ = smMsg->rbBufferID;
+        hltLocalId_ = smMsg->hltLocalId;
+        hltInstance_ = smMsg->hltInstance;
+        hltTid_ = smMsg->hltTid;
+        fuProcessId_ = smMsg->fuProcID;
+        fuGuid_ = smMsg->fuGUID;
       }
     }
 
@@ -206,7 +206,7 @@ namespace stor
       bool useFirstFrag = false;
 
       // if there is only one fragment, use it
-      if (_fragmentCount == 1)
+      if (fragmentCount_ == 1)
       {
         useFirstFrag = true;
       }
@@ -230,38 +230,38 @@ namespace stor
       }
       else
       {
-        copyFragmentsIntoBuffer(_headerCopy);
-        msgView.reset(new EventMsgView(&_headerCopy[0]));
+        copyFragmentsIntoBuffer(headerCopy_);
+        msgView.reset(new EventMsgView(&headerCopy_[0]));
       }
 
-      _headerSize = msgView->headerSize();
-      _headerLocation = msgView->startAddress();
-      _outputModuleId = msgView->outModId();
-      _hltTriggerCount = msgView->hltCount();
-      if (_hltTriggerCount > 0)
+      headerSize_ = msgView->headerSize();
+      headerLocation_ = msgView->startAddress();
+      outputModuleId_ = msgView->outModId();
+      hltTriggerCount_ = msgView->hltCount();
+      if (hltTriggerCount_ > 0)
         {
-          _hltTriggerBits.resize(1 + (_hltTriggerCount-1)/4);
+          hltTriggerBits_.resize(1 + (hltTriggerCount_-1)/4);
         }
-      msgView->hltTriggerBits(&_hltTriggerBits[0]);
+      msgView->hltTriggerBits(&hltTriggerBits_[0]);
 
-      _runNumber = msgView->run();
-      _lumiSection = msgView->lumi();
-      _eventNumber = msgView->event();
-      _adler32 = msgView->adler32_chksum();
+      runNumber_ = msgView->run();
+      lumiSection_ = msgView->lumi();
+      eventNumber_ = msgView->event();
+      adler32_ = msgView->adler32_chksum();
 
-      _headerFieldsCached = true;
+      headerFieldsCached_ = true;
 
       #ifdef STOR_DEBUG_WRONG_ADLER
       double r = rand()/static_cast<double>(RAND_MAX);
       if (r < 0.01)
       {
         std::cout << "Simulating corrupt Adler calculation" << std::endl;
-        _headerSize += 3;
+        headerSize_ += 3;
       }
       else if (r < 0.02)
       {
         std::cout << "Simulating corrupt Adler entry" << std::endl;
-        _adler32 += r*10000;
+        adler32_ += r*10000;
       }
       #endif // STOR_DEBUG_WRONG_ADLER
     }

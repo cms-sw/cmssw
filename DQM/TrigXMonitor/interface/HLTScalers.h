@@ -1,12 +1,21 @@
 // -*-c++-*-
 // 
 //
-// $Id: HLTScalers.h,v 1.16 2010/02/24 17:43:47 wittich Exp $
+// $Id: HLTScalers.h,v 1.19 2011/03/29 09:46:03 rekovic Exp $
 // Class to collect HLT scaler information 
 // for Trigger Cross Section Monitor
 // [wittich 11/07] 
 
 // $Log: HLTScalers.h,v $
+// Revision 1.19  2011/03/29 09:46:03  rekovic
+// clean vector pairPDPaths in beginRun and tidy up
+//
+// Revision 1.18  2011/03/24 18:25:45  rekovic
+// Add single 1D plot of streamA content
+//
+// Revision 1.17  2010/03/17 20:54:51  wittich
+// add scalers that I manually reset on beginLumi
+//
 // Revision 1.16  2010/02/24 17:43:47  wittich
 // - keep trying to get path names if it doesn't work first time
 // - move the Bx histograms out of raw to the toplevel directory.
@@ -56,6 +65,8 @@
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
 
 class HLTScalers: public edm::EDAnalyzer
 {
@@ -92,23 +103,27 @@ public:
 
 
 private:
+
+  HLTConfigProvider hltConfig_;
+  std::string folderName_; // dqm folder name
+  std::string processname_;
+  std::vector <std::pair<std::string, std::vector<std::string> > > pairPDPaths_;
+  edm::InputTag trigResultsSource_;
+
   DQMStore * dbe_;
+  MonitorElement *scalersPD_;
   MonitorElement *scalers_;
   MonitorElement *scalersN_;
   MonitorElement *scalersException_;
   MonitorElement *hltCorrelations_;
   MonitorElement *detailedScalers_;
-  std::string folderName_; // dqm folder name
   MonitorElement *nProc_;
   MonitorElement *nLumiBlock_;
-  
   MonitorElement *hltBx_, *hltBxVsPath_;
   MonitorElement *hltOverallScaler_;
   MonitorElement *hltOverallScalerN_;
   MonitorElement *diagnostic_;
 
-  //std::vector<MonitorElement*> hltPathNames_;
-  edm::InputTag trigResultsSource_;
   bool resetMe_, sentPaths_, monitorDaemon_; 
 
   int nev_; // Number of events processed

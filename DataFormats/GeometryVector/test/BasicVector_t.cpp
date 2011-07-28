@@ -1,5 +1,4 @@
 #include "DataFormats/GeometryVector/interface/Basic3DVector.h"
-#include "DataFormats/GeometryVector/interface/Basic2DVector.h"
 
 #include<vector>
 
@@ -27,33 +26,17 @@ void multiSum(Basic3DVectorD&res, float s,  Basic3DVectorD const & a, Basic3DVec
 
 
 
-template<typename T, typename U>
-typename PreciseFloatType<T,U>::Type dotV(  Basic3DVector<T> const & a,  Basic3DVector<U> const & b) {
+
+float dotV(  Basic3DVectorF const & a,  Basic3DVectorF const & b) {
   return a*b;
 }
 
-template<typename T>
-T norm(Basic3DVector<T> const & a) {
+
+float norm(Basic3DVectorF const & a) {
   return std::sqrt(a*a);
 }
 
-template<typename T>
-T normV(Basic3DVector<T> const & a) {
-  return a.mag();
-}
-
-template<typename T, typename U>
-typename PreciseFloatType<T,U>::Type dotV(  Basic2DVector<T> const & a,  Basic2DVector<U> const & b) {
-  return a*b;
-}
-
-template<typename T>
-T norm(Basic2DVector<T> const & a) {
-  return std::sqrt(a*a);
-}
-
-template<typename T>
-T normV(Basic2DVector<T> const & a) {
+float normV(Basic3DVectorF const & a) {
   return a.mag();
 }
 
@@ -66,74 +49,20 @@ int main() {
   std::cout << "sse vector enabled in cmssw" << std::endl;
 #endif
 
-  std::cout << sizeof(Basic2DVectorF) << std::endl;
-  std::cout << sizeof(Basic2DVectorD) << std::endl;
   std::cout << sizeof(Basic3DVectorF) << std::endl;
   std::cout << sizeof(Basic3DVectorD) << std::endl;
 
   Basic3DVectorF  x(2.0f,4.0f,5.0f);
   Basic3DVectorF  y(-3.0f,2.0f,-5.0f);
-  Basic3DVectorD  xd(2.0,4.0,5.0);
-  Basic3DVectorD  yd = y;
 
-  Basic2DVectorF  x2(2.0f,4.0f);
-  Basic2DVectorF  y2 = y.xy();
-  Basic2DVectorD  xd2(2.0,4.0);
-  Basic2DVectorD  yd2 = yd.xy();
-
-  {
-    std::cout << dotV(x,y) << std::endl; 
-    std::cout << normV(x) << std::endl; 
-    std::cout << norm(x) << std::endl; 
-    
-    std::cout << dotV(x,yd) << std::endl; 
-    std::cout << dotV(xd,y) << std::endl; 
-    std::cout << dotV(xd,yd) << std::endl; 
-    std::cout << normV(xd) << std::endl; 
-    std::cout << norm(xd) << std::endl; 
-    
-    
-    Basic3DVectorF  z = x.cross(y);
-    std::cout << z << std::endl;
-    std::cout << -z << std::endl;
-    Basic3DVectorD  zd = x.cross(yd);
-    std::cout << zd << std::endl;
-    std::cout << -zd << std::endl;
-    std::cout << xd.cross(y)<< std::endl;
-    std::cout << xd.cross(yd)<< std::endl;
-    
-    auto s = x+xd - 3.1*z;
-    std::cout << s << std::endl;
-  }
-
- {
-    std::cout << dotV(x2,y2) << std::endl; 
-    std::cout << normV(x2) << std::endl; 
-    std::cout << norm(x2) << std::endl; 
-    
-    std::cout << dotV(x2,yd2) << std::endl; 
-    std::cout << dotV(xd2,y2) << std::endl; 
-    std::cout << dotV(xd2,yd2) << std::endl; 
-    std::cout << normV(xd2) << std::endl; 
-    std::cout << norm(xd2) << std::endl; 
-    
-    
-    Basic2DVectorF  z2(x2); z2-=y2;
-    std::cout << z2 << std::endl;
-    std::cout << -z2 << std::endl;
-    Basic2DVectorD zd2 = x2-yd2;
-    std::cout << zd2 << std::endl;
-    std::cout << -zd2 << std::endl;
-    std::cout << x2.cross(y2) << std::endl;
-    std::cout << x2.cross(yd2) << std::endl;
-    std::cout << xd2.cross(y2)<< std::endl;
-    std::cout << xd2.cross(yd2)<< std::endl;
-    
-    auto s2 = x2+xd2 - 3.1*z2;
-    std::cout << s2 << std::endl;
-  }
+  std::cout << dotV(x,y) << std::endl; 
+  std::cout << normV(x) << std::endl; 
+  std::cout << norm(x) << std::endl; 
 
 
+  Basic3DVectorF  z = x.cross(y);
+  std::cout << z << std::endl;
+  std::cout << -z << std::endl;
 
   {
     std::cout << "f" << std::endl;

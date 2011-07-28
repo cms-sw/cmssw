@@ -1,12 +1,10 @@
 <use   name="root"/>
 <use   name="boost"/>
 <use   name="rootcintex"/>
-<use   name="DataFormats/FWLite"/>
-<use   name="DataFormats/Luminosity"/>
-<use   name="DataFormats/PatCandidates"/>
 <use   name="FWCore/FWLite"/>
-<use   name="FWCore/Framework"/>
+<use   name="DataFormats/FWLite"/>
 <use   name="FWCore/PythonParameterSet"/>
+<use   name="DataFormats/PatCandidates"/>
 <use   name="CommonTools/Utils"/>
 <use   name="PhysicsTools/FWLite"/>
 <use   name="PhysicsTools/Utilities"/>
@@ -16,11 +14,7 @@
 <environment>
   <bin   file="PatBasicFWLiteAnalyzer.cc"></bin>
   <bin   file="PatBasicFWLiteJetAnalyzer.cc"></bin>
-  <bin   file="PatBasicFWLiteAnalyzer_PyConfig.cc"></bin>
-  <bin   file="PatBasicFWLiteAnalyzer_Selector.cc"></bin>
-  <bin   file="PatBasicFWLiteAnalyzer_Selector_Fast.cc"></bin>
   <bin   file="PatBasicFWLiteJetAnalyzer_Selector.cc"></bin>
   <bin   file="PatBasicFWLiteJetUnitTest.cc"></bin>
-  <bin   file="WrappedFWLiteMuonAnalyzer.cc"></bin>
   <bin   file="PatCleaningExercise.cc"></bin>
 </environment>

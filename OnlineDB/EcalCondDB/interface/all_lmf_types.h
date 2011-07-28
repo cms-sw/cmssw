@@ -22,5 +22,6 @@
 #include "OnlineDB/EcalCondDB/interface/LMFUnique.h"
 #include "OnlineDB/EcalCondDB/interface/LMFTestPulseConfigDat.h"
 #include "OnlineDB/EcalCondDB/interface/LMFLaserConfigDat.h"
+#include "OnlineDB/EcalCondDB/interface/LMFClsDat.h"
 
 #endif

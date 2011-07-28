@@ -9,7 +9,7 @@
 #include "HLTrigger/HLTanalyzers/interface/RECOVertex.h"
 #include "HLTMessages.h"
 
-static const size_t kMaxVrt = 10; 
+static const size_t kMaxVrt = 50; 
 
 RECOVertex::RECOVertex() {
 

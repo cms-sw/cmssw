@@ -8,9 +8,10 @@
 */
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.25 2010/04/22 16:26:22 dutta Exp $
+// $Id: SiStripMonitorDigi.h,v 1.26 2010/05/06 08:23:14 dutta Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -31,6 +32,8 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   virtual void endJob() ;
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   virtual void endRun(const edm::Run&, const edm::EventSetup&);
+  virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+  virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
 
   struct ModMEs{
 	
@@ -66,6 +69,11 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
     MonitorElement* SubDetDigiApvTH2;
   };
 
+  struct DigiFailureMEs{
+    MonitorElement* SubDetTotDigiProfLS;
+    MonitorElement* SubDetDigiFailures;
+  };
+
  private:
   void createMEs(const edm::EventSetup& es);
   void ResetModuleMEs(uint32_t idet);
@@ -98,7 +106,8 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   std::map<std::string, LayerMEs> LayerMEsMap;
   std::map<std::string, SubDetMEs> SubDetMEsMap;
   std::map<std::string, std::string> SubDetPhasePartMap;
-       
+  DigiFailureMEs digiFailureMEs;
+      
   TString name;
   SiStripFolderOrganizer folder_organizer;
   std::map<std::pair<std::string,int32_t>,bool> DetectedLayers;
@@ -128,15 +137,22 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   bool moduleswitchadccooleston;
   bool moduleswitchdigiadcson;
   bool moduleswitchstripoccupancyon;
+
   bool subdetswitchtotdigiprofon;
   bool subdetswitchapvcycleprofon;
   bool subdetswitchapvcycleth2on;
+
+  bool subdetswitchtotdigiproflson;
+  bool subdetswitchtotdigifailureon;
+
+  int xLumiProf;
 
   bool Mod_On_;
 
   bool digitkhistomapon;
   bool createTrendMEs;
 
+  std::string topDir;
   edm::InputTag historyProducer_;  
   edm::InputTag apvPhaseProducer_;
 

@@ -18,6 +18,10 @@
 #include "TVector3.h"
 #include "TLorentzVector.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h"
+
 #include<vector>
 
 //
@@ -43,6 +47,17 @@ HLTRHemisphere::HLTRHemisphere(const edm::ParameterSet& iConfig) :
 
 HLTRHemisphere::~HLTRHemisphere()
 {
+}
+
+void
+HLTRHemisphere::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("inputTag",edm::InputTag("hltMCJetCorJetIcone5HF07"));
+  desc.add<double>("minJetPt",30.0);
+  desc.add<double>("maxEta",3.0);
+  desc.add<int>("maxNJ",7);
+  desc.add<bool>("acceptNJ",true);
+  descriptions.add("hltRHemisphere",desc);
 }
 
 //

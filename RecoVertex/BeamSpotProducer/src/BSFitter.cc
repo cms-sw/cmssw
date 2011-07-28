@@ -7,7 +7,7 @@
  author: Francisco Yumiceva, Fermilab (yumiceva@fnal.gov)
 
 
- version $Id: BSFitter.cc,v 1.22 2010/10/13 14:47:48 eulisse Exp $
+ version $Id: BSFitter.cc,v 1.23 2010/11/15 14:35:48 rovere Exp $
 
 ________________________________________________________________**/
 
@@ -594,10 +594,21 @@ reco::BeamSpot BSFitter::Fit_d0phi() {
 	matrix(3,3) = fgaus->GetParError(2) * fgaus->GetParError(2);
     
 	ftmp = x_result;
-	
-	return reco::BeamSpot( reco::BeamSpot::Point(x_result(0,0),
-                                                 x_result(1,0),
-                                                 fpar[0]),
+
+	// x0 and y0 are *not* x,y at z=0, but actually at z=0
+        // to correct for this, we need to translate them to z=z0
+        // using the measured slopes
+	//
+	double x0tmp = x_result(0,0);
+	double y0tmp = x_result(1,0);
+
+	x0tmp += x_result(2,0)*fpar[0];
+	y0tmp += x_result(3,0)*fpar[0];
+
+
+	return reco::BeamSpot( reco::BeamSpot::Point(x0tmp,
+						     y0tmp,
+						     fpar[0]),
                            fpar[1],
 			       x_result(2,0),
 			       x_result(3,0),

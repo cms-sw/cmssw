@@ -14,8 +14,7 @@ OutALCARECOEcalCalElectron_noDrop = cms.PSet(
         'keep  *_alCaIsolatedElectrons_*_*', 
         'keep recoCaloMETs_met_*_*',
         'keep edmTriggerResults_TriggerResults__*', 
-        'keep edmHepMCProduct_*_*_*',                                   
-        'keep *_MEtoEDMConverter_*_*')
+        'keep edmHepMCProduct_*_*_*')
 )
 
 

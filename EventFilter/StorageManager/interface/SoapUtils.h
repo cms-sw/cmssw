@@ -1,8 +1,8 @@
-// $Id: SoapUtils.h,v 1.2 2009/07/09 08:52:16 mommsen Exp $
+// $Id: SoapUtils.h,v 1.3.18.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: SoapUtils.h 
 
-#ifndef StorageManager_SoapUtils_h
-#define StorageManager_SoapUtils_h
+#ifndef EventFilter_StorageManager_SoapUtils_h
+#define EventFilter_StorageManager_SoapUtils_h
 
 #include "xdaq/Application.h"
 #include "xoap/MessageReference.h"
@@ -17,8 +17,8 @@ namespace stor {
      * Collection of utility functions for handling SOAP messages
      *
      * $Author: mommsen $
-     * $Revision: 1.2 $
-     * $Date: 2009/07/09 08:52:16 $
+     * $Revision: 1.3.18.1 $
+     * $Date: 2011/03/07 11:33:04 $
      */
 
     /**
@@ -43,7 +43,7 @@ namespace stor {
   
 } // namespace stor
 
-#endif // StorageManager_SoapUtils_h 
+#endif // EventFilter_StorageManager_SoapUtils_h 
 
 
 /// emacs configuration

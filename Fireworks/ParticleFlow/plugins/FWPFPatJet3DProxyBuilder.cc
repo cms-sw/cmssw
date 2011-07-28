@@ -1,16 +1,10 @@
 #include "FWPFPatJet3DProxyBuilder.h"
 
- /***************************************************\
-(         CONSTRUCTORS/DESTRUCTOR                     )
- \***************************************************/
-
+//______________________________________________________________________________
 template<class T> FWPFPatJet3DProxyBuilder<T>::FWPFPatJet3DProxyBuilder(){}
 template<class T> FWPFPatJet3DProxyBuilder<T>::~FWPFPatJet3DProxyBuilder(){}
-
- /**************************************************\
-(               MEMBER FUNCTIONS                     )
- \**************************************************/
-
+ 
+//______________________________________________________________________________
 template<class T> void
 FWPFPatJet3DProxyBuilder<T>::build(const T& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*)
 {
@@ -39,6 +33,10 @@ FWPFPatJet3DProxyBuilder<T>::build(const T& iData, unsigned int iIndex, TEveElem
 
 }
 
+/* Classes have been created because 'concrete' types (i.e. reco::PFJet and not T) are required to register
+a proxy builder. Each class must first register it's methods so that REGISTER_FWPROXYBUILDER macro knows
+about them */
+//_____________________________PF_______________________________________________
 class FWPFJet3DProxyBuilder : public FWPFPatJet3DProxyBuilder<reco::PFJet> {
 public:
    FWPFJet3DProxyBuilder(){}
@@ -47,9 +45,7 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 };
 
-/* Classes have been created because 'concrete' types (i.e. reco::PFJet and not T) are required to register
-a proxy builder. Each class must first register it's methods so that REGISTER_FWPROXYBUILDER macro knows
-about them */
+//_____________________________PAT______________________________________________
 class FWPatJet3DProxyBuilder : public FWPFPatJet3DProxyBuilder<pat::Jet> {
 public:
    FWPatJet3DProxyBuilder(){}
@@ -58,8 +54,10 @@ public:
    REGISTER_PROXYBUILDER_METHODS();   // Register methods ready for macro
 };
 
+//______________________________________________________________________________
 template class FWPFPatJet3DProxyBuilder<reco::PFJet>;
 template class FWPFPatJet3DProxyBuilder<pat::Jet>;
 
+//______________________________________________________________________________
 REGISTER_FWPROXYBUILDER(FWPFJet3DProxyBuilder, reco::PFJet, "PF Jet", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );
 REGISTER_FWPROXYBUILDER(FWPatJet3DProxyBuilder, pat::Jet, "PF PatJet", FWViewType::kAll3DBits | FWViewType::kAllRPZBits );

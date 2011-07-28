@@ -1,4 +1,4 @@
-// $Id: DQMEventProcessorResources.h,v 1.3 2009/07/20 13:06:10 mommsen Exp $
+// $Id: DQMEventProcessorResources.h,v 1.4.4.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: DQMEventProcessorResources.h 
 
 
@@ -18,8 +18,8 @@ namespace stor
    * and need to be accessed from multiple threads.
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/20 13:06:10 $
+   * $Revision: 1.4.4.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
 
   class DQMEventProcessorResources
@@ -87,21 +87,23 @@ namespace stor
 
   private:
 
-    bool _requestsPending;
-    bool _requestsInProgress;
-    Requests _pendingRequests;
+    bool requestsPending_;
+    bool requestsInProgress_;
+    Requests pendingRequests_;
 
-    DQMProcessingParams _requestedDQMProcessingParams;
-    boost::posix_time::time_duration _requestedTimeout;
+    DQMProcessingParams requestedDQMProcessingParams_;
+    boost::posix_time::time_duration requestedTimeout_;
 
-    boost::condition _requestsCondition;
+    boost::condition requestsCondition_;
 
-    mutable boost::mutex _requestsMutex;
+    mutable boost::mutex requestsMutex_;
   };
 
-}
+  typedef boost::shared_ptr<DQMEventProcessorResources> DQMEventProcessorResourcesPtr;
 
-#endif
+} // namespace stor
+
+#endif // EventFilter_StorageManager_DQMEventProcessorResources_h
 
 /// emacs configuration
 /// Local Variables: -

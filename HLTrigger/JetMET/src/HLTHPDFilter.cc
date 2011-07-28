@@ -1,6 +1,6 @@
 /* \class HLTHPDFilter
  *
- * $Id: HLTHPDFilter.cc,v 1.3 2008/06/25 00:36:06 fedor Exp $
+ * $Id: HLTHPDFilter.cc,v 1.4 2010/01/12 06:28:35 hegner Exp $
  *
  * Fedor Ratnikov (UMd) May 19, 2008
  */
@@ -27,6 +27,9 @@
 #include "TH1F.h"
 #include "TH2F.h"
 
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 namespace {
   enum Partition {HBM=0, HBP=1, HEM=2, HEP=3}; 
@@ -84,6 +87,18 @@ HLTHPDFilter::HLTHPDFilter(const edm::ParameterSet& iConfig)
 }
 
 HLTHPDFilter::~HLTHPDFilter(){}
+
+void
+HLTHPDFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("inputTag",edm::InputTag("hltHbhereco"));
+  desc.add<double>("energy",-99.0);
+  desc.add<double>("hpdSpikeEnergy",10.0);
+  desc.add<double>("hpdSpikeIsolationEnergy",1.0);
+  desc.add<double>("rbxSpikeEnergy",50.0);
+  desc.add<double>("rbxSpikeUnbalance",0.2);
+  descriptions.add("hltHPDFilter",desc);
+}
 
 bool HLTHPDFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {

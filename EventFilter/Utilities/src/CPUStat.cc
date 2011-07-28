@@ -12,11 +12,15 @@ CPUStat::CPUStat(unsigned int nstates, std::string iDieUrl) : iDieUrl_(iDieUrl)
   for(int i = 0; i < nstates_; i++)
     mstat_[i]=0;	
 }
-
+CPUStat::~CPUStat()
+{
+  delete poster_;
+  delete mstat_;
+}
 
 void CPUStat::sendStat(unsigned int lsid)
 {
-  poster_->postBinary((char *)mstat_,(nstates_+1)*sizeof(int),lsid,"/postChoke");
+  poster_->postBinary((unsigned char *)mstat_,(nstates_+1)*sizeof(int),lsid,"/postChoke");
 }
 
 void CPUStat::sendLegenda(const std::vector<std::string> &mapmod)

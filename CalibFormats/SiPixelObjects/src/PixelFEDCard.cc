@@ -34,203 +34,163 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat):PixelConfigBase(" 
   /**
     EXTENSION_TABLE_NAME: FED_CONFIGURATION (VIEW: CONF_KEY_FED_CONFIGURATION_V)
     
-    Name                       Null?	Type		   POS variable
-    ------------------------ -------- ---------------------------------------------------------------
+    Name                                        Null?    Type               POS variable
+    ----------------------------------------- -------- ---------------------------------------------------------------
 
-    BUSYWHENBEHIND      	       NUMBER(38)
-    FEATUREREGISTER     	       VARCHAR2(200)
-    FIFO2LIMIT	        	       VARCHAR2(200)
-    TIMEOUTOROOSLIMIT   	       NUMBER(38)
-    LASTDACOFF	        	       NUMBER(38)
-    SIMHITSPERROC       	       NUMBER(38)
-    BUSYHOLDMIN         	       NUMBER(38)
-    SPARE1	        	       NUMBER(38)
-    SPARE2	        	       NUMBER(38)
-    SPARE3	        	       NUMBER(38)
-    SPARE4	        	       NUMBER(38)
-    SPARE5	        	       NUMBER(38)
-    SPARE6	        	       NUMBER(38)
-    SPARE7	        	       NUMBER(38)
-    SPARE8	        	       NUMBER(38)
-    SPARE9	        	       NUMBER(38)
-    SPARE10                            NUMBER(38)
-    CONFIG_KEY  	      NOT NULL VARCHAR2(80)
-    KEY_TYPE		      NOT NULL VARCHAR2(80)
-    KEY_ALIAS_ID	   
-    KEY_ALIAS		      NOT NULL VARCHAR2(80)
-    VERSION		               VARCHAR2(40)
-    KIND_OF_COND	      NOT NULL VARCHAR2(40)
-    CRATE_LABEL 	               VARCHAR2(200)
-    CRATE_NUMBER	               NUMBER(38)	     
-    SLOT_NUMBER 	               NUMBER(38)
-    VME_ADDRS_HEX	      NOT NULL VARCHAR2(200)         FEDBASE_0
-    PIXEL_FED		      NOT NULL NUMBER(38)	     fedNumber
-    CHANNEL_ID  	      NOT NULL NUMBER(38)
-    NUM_ROCS		      NOT NULL NUMBER(38)	     NRocs[1-36]    index taken from CHANNEL_ID 
-    CHAN_OFFST_DAC	      NOT NULL NUMBER(38)	     offs_dac[1-36] index taken from CHANNEL_ID 
-    CHAN_DELAY  	      NOT NULL NUMBER(38)	     DelayCh[1-36]  index taken from CHANNEL_ID 
-    CHAN_BHIGH  	      NOT NULL NUMBER(38)	     BlackHi[1-36]  index taken from CHANNEL_ID 
-    CHAN_BLOW		      NOT NULL NUMBER(38)	     BlackLo[1-36]  index taken from CHANNEL_ID 
-    CHAN_UB		      NOT NULL NUMBER(38)	     Ublack[1-36]   index taken from CHANNEL_ID 
-    OPT1_CAP		      NOT NULL NUMBER(38)	     opt_cap[0] 				
-    OPT2_CAP		      NOT NULL NUMBER(38)	     opt_cap[1] 				
-    OPT3_CAP		      NOT NULL NUMBER(38)	     opt_cap[2] 				
-    OPT1_INP		      NOT NULL NUMBER(38)	     opt_inadj[0]				
-    OPT2_INP		      NOT NULL NUMBER(38)	     opt_inadj[1]				
-    OPT3_INP		      NOT NULL NUMBER(38)	     opt_inadj[2]				
-    OPT1_OUT		      NOT NULL NUMBER(38)	     opt_ouadj[0]			       
-    OPT2_OUT		      NOT NULL NUMBER(38)	     opt_ouadj[1]			       
-    OPT3_OUT		      NOT NULL NUMBER(38)	     opt_ouadj[2]			       
-    NORTH_CLKPHB	      NOT NULL NUMBER(38)	     clkphs1_9  				
-    NORTHCENTER_CLKPHB        NOT NULL NUMBER(38)	     clkphs10_18				
-    SOUTHCENTER_CLKPHB        NOT NULL NUMBER(38)	     clkphs19_27				
-    SOUTH_CLKPHB	      NOT NULL NUMBER(38)	     clkphs28_36				
-    NORTH_CTRL  	      NOT NULL NUMBER(38)	     Ncntrl					
-    NORTHCENTER_CTRL	      NOT NULL NUMBER(38)	     NCcntrl					
-    SOUTHCENTER_CTRL	      NOT NULL NUMBER(38)	     SCcntrl					
-    SOUTH_CTRL  	      NOT NULL NUMBER(38)	     Scntrl					
-    REG0_TTCRX_FDLA	                                     FineDes1Del
-    REG1_TTCRX_FDLA	      NOT NULL NUMBER(38)	     FineDes2Del				
-    REG2_TTCRX_CDLA	      NOT NULL NUMBER(38)	     CoarseDel  				
-    REG3_TTCRX_CLKD2	      NOT NULL NUMBER(38)	     ClkDes2					
-    CENTER_CTRL 	      NOT NULL NUMBER(38)	     Ccntrl					
-    CENTER_MODE 	      NOT NULL NUMBER(38)	     modeRegister				
-    B1_ADCGN		      NOT NULL NUMBER(38)	     Nadcg					
-    B2_ADCGN		      NOT NULL NUMBER(38)	     NCadcg					
-    B3_ADCGN		      NOT NULL NUMBER(38)	     SCadcg					
-    B4_ADCGN		      NOT NULL NUMBER(38)	     Sadcg					
-    NORTH_BADJ  	      NOT NULL NUMBER(38)	     Nbaseln					
-    NORTHCENTER_BADJ	      NOT NULL NUMBER(38)	     NCbaseln					
-    SOUTHCENTER_BADJ	      NOT NULL NUMBER(38)	     SCbaseln					
-    SOUTH_BADJ  	      NOT NULL NUMBER(38)	     Sbaseln					
-    NORTH_TBMMASK	      NOT NULL NUMBER(38)	     N_TBMmask  				
-    NORTHCENTER_TBMMASK       NOT NULL NUMBER(38)	     NC_TBMmask 				
-    SOUTHCENTER_TBMMASK       NOT NULL NUMBER(38)	     SC_TBMmask 				
-    SOUTH_TBMMASK	      NOT NULL NUMBER(38)	     S_TBMmask  				
-    NORTH_PWORD 	      NOT NULL NUMBER(38)	     N_Pword					
-    NORTHCENTER_PWORD	      NOT NULL NUMBER(38)	     NC_Pword					
-    SOUTH_PWORD 	      NOT NULL NUMBER(38)	     S_Pword					
-    SOUTHCENTER_PWORD	      NOT NULL NUMBER(38)	     SC_Pword					
-    SPECDAC		      NOT NULL NUMBER(38)	     SpecialDac 				
-    OOS_LVL		      NOT NULL NUMBER(38)	     Ooslvl					
-    ERR_LVL		      NOT NULL NUMBER(38)	     Errlvl					
-    NORTH_FIFO1_BZ_LVL        NOT NULL NUMBER(38)	     Nfifo1Bzlvl				
-    NORTHCENTER_FIFO1_BZ_LVL  NOT NULL NUMBER(38)	     NCfifo1Bzlvl				
-    SOUTHCENTER_FIFO1_BZ_LVL  NOT NULL NUMBER(38)	     SCfifo1Bzlvl				
-    SOUTH_FIFO1_BZ_LVL        NOT NULL NUMBER(38)	     Sfifo1Bzlvl				
-    FIFO3_WRN_LVL		       NUMBER(38)	     fifo3Wrnlvl
-    FED_MASTER_DELAY		       NUMBER(38)	     FedTTCDelay
-    NO_HITLIMIT 		       NUMBER(38)	     N_hitlimit 
-    NC_HITLIMIT 		       NUMBER(38)	     NC_hitlimit
-    SC_HITLIMIT 		       NUMBER(38)	     SC_hitlimit
-    SO_HITLIMIT 		       NUMBER(38)	     S_hitlimit 
-    NO_TESTREG  		       NUMBER(38)	     N_testreg  
-    NC_TESTREG  		       NUMBER(38)	     NC_testreg 
-    SC_TESTREG  		       NUMBER(38)	     SC_testreg 
-    SO_TESTREG  		       NUMBER(38)	     S_testreg  
-    TRIGGERHOLDOFF 
-				 
-*/	 
-  colNames.push_back("BUSYWHENBEHIND"          ); 
-  colNames.push_back("FEATUREREGISTER"         ); 
-  colNames.push_back("FIFO2LIMIT"              ); 
-  colNames.push_back("TIMEOUTOROOSLIMIT"       ); 
-  colNames.push_back("LASTDACOFF"              ); 
-  colNames.push_back("SIMHITSPERROC"           ); 
-  colNames.push_back("BUSYHOLDMIN"             ); 
-  colNames.push_back("SPARE1"	               ); 
-  colNames.push_back("SPARE2"	               ); 
-  colNames.push_back("SPARE3"	               ); 
-  colNames.push_back("SPARE4"	               ); 
-  colNames.push_back("SPARE5"	               ); 
-  colNames.push_back("SPARE6"	               ); 
-  colNames.push_back("SPARE7"	               ); 
-  colNames.push_back("SPARE8"	               ); 
-  colNames.push_back("SPARE9"	               ); 
-  colNames.push_back("SPARE10"	               ); 
-  colNames.push_back("CONFIG_KEY" 	       ); 
-  colNames.push_back("KEY_TYPE"   	       ); 
-  colNames.push_back("KEY_ALIAS_ID"            ); 
-  colNames.push_back("KEY_ALIAS"  	       ); 
-  colNames.push_back("VERSION"    	       ); 
-  colNames.push_back("KIND_OF_COND"	       ); 
-  colNames.push_back("CRATE_LABEL"	       ); 
-  colNames.push_back("CRATE_NUMBER"	       ); 
-  colNames.push_back("SLOT_NUMBER"	       ); 
-  colNames.push_back("VME_ADDRS_HEX"	       ); 
-  colNames.push_back("PIXEL_FED"  	       ); 
-  colNames.push_back("CHANNEL_ID" 	       ); 
-  colNames.push_back("NUM_ROCS"   	       ); 
-  colNames.push_back("CHAN_OFFST_DAC"	       ); 
-  colNames.push_back("CHAN_DELAY" 	       ); 
-  colNames.push_back("CHAN_BHIGH" 	       ); 
-  colNames.push_back("CHAN_BLOW"  	       ); 
-  colNames.push_back("CHAN_UB"    	       ); 
-  colNames.push_back("OPT1_CAP"   	       ); 
-  colNames.push_back("OPT2_CAP"   	       ); 
-  colNames.push_back("OPT3_CAP"   	       ); 
-  colNames.push_back("OPT1_INP"   	       ); 
-  colNames.push_back("OPT2_INP"   	       ); 
-  colNames.push_back("OPT3_INP"   	       ); 
-  colNames.push_back("OPT1_OUT"   	       ); 
-  colNames.push_back("OPT2_OUT"   	       ); 
-  colNames.push_back("OPT3_OUT"   	       ); 
-  colNames.push_back("NORTH_CLKPHB"	       ); 
-  colNames.push_back("NORTHCENTER_CLKPHB"      ); 
-  colNames.push_back("SOUTHCENTER_CLKPHB"      ); 
-  colNames.push_back("SOUTH_CLKPHB"	       ); 
-  colNames.push_back("NORTH_CTRL"	       ); 
-  colNames.push_back("NORTHCENTER_CTRL"        ); 
-  colNames.push_back("SOUTHCENTER_CTRL"        ); 
-  colNames.push_back("SOUTH_CTRL"	       ); 
-  colNames.push_back("REG0_TTCRX_FDLA"         ); 
-  colNames.push_back("REG1_TTCRX_FDLA"         ); 
-  colNames.push_back("REG2_TTCRX_CDLA"         ); 
-  colNames.push_back("REG3_TTCRX_CLKD2"        ); 
-  colNames.push_back("CENTER_CTRL"	       ); 
-  colNames.push_back("CENTER_MODE"	       ); 
-  colNames.push_back("B1_ADCGN"   	       ); 
-  colNames.push_back("B2_ADCGN"   	       ); 
-  colNames.push_back("B3_ADCGN"   	       ); 
-  colNames.push_back("B4_ADCGN"   	       ); 
-  colNames.push_back("NORTH_BADJ" 	       ); 
-  colNames.push_back("NORTHCENTER_BADJ"        ); 
-  colNames.push_back("SOUTHCENTER_BADJ"        ); 
-  colNames.push_back("SOUTH_BADJ"	       ); 
-  colNames.push_back("NORTH_TBMMASK"	       ); 
-  colNames.push_back("NORTHCENTER_TBMMASK"     ); 
-  colNames.push_back("SOUTHCENTER_TBMMASK"     ); 
-  colNames.push_back("SOUTH_TBMMASK"	       ); 
-  colNames.push_back("NORTH_PWORD"	       ); 
-  colNames.push_back("NORTHCENTER_PWORD"       ); 
-  colNames.push_back("SOUTH_PWORD"	       ); 
-  colNames.push_back("SOUTHCENTER_PWORD"       ); 
-  colNames.push_back("SPECDAC"    	       ); 
-  colNames.push_back("OOS_LVL"    	       ); 
-  colNames.push_back("ERR_LVL"    	       ); 
-  colNames.push_back("NORTH_FIFO1_BZ_LVL"      ); 
-  colNames.push_back("NORTHCENTER_FIFO1_BZ_LVL"); 
-  colNames.push_back("SOUTHCENTER_FIFO1_BZ_LVL"); 
-  colNames.push_back("SOUTH_FIFO1_BZ_LVL"      ); 
-  colNames.push_back("FIFO3_WRN_LVL"	       ); 
-  colNames.push_back("FED_MASTER_DELAY"        ); 
-  colNames.push_back("NO_HITLIMIT"	       ); 
-  colNames.push_back("NC_HITLIMIT"	       ); 
-  colNames.push_back("SC_HITLIMIT"	       ); 
-  colNames.push_back("SO_HITLIMIT"	       ); 
-  colNames.push_back("NO_TESTREG"	       ); 
-  colNames.push_back("NC_TESTREG"	       ); 
-  colNames.push_back("SC_TESTREG"	       ); 
-  colNames.push_back("SO_TESTREG"	       ); 
-  colNames.push_back("TRIGGERHOLDOFF"	       );    
-						   
-  for(unsigned int c = 0 ; c < ins.size() ; c++)   
-    {						   
+    CONFIG_KEY  			      NOT NULL VARCHAR2(80)
+    KEY_TYPE				      NOT NULL VARCHAR2(80)
+    KEY_ALIAS				      NOT NULL VARCHAR2(80)
+    VERSION					       VARCHAR2(40)
+    KIND_OF_COND			      NOT NULL VARCHAR2(40)
+    CRATE_LABEL 				       VARCHAR2(200)
+    CRATE_NUMBER				       NUMBER(38)	     
+    SLOT_NUMBER 				       NUMBER(38)
+    VME_ADDRS_HEX			      NOT NULL VARCHAR2(200)
+    PIXEL_FED				      NOT NULL NUMBER(38)	     fedNumber
+    CHANNEL_ID  			      NOT NULL NUMBER(38)
+    NUM_ROCS				      NOT NULL NUMBER(38)	     NRocs[1-36]    index taken from CHANNEL_ID 
+    CHAN_OFFST_DAC			      NOT NULL NUMBER(38)	     offs_dac[1-36] index taken from CHANNEL_ID 
+    CHAN_DELAY  			      NOT NULL NUMBER(38)	     DelayCh[1-36]  index taken from CHANNEL_ID 
+    CHAN_BHIGH  			      NOT NULL NUMBER(38)	     BlackHi[1-36]  index taken from CHANNEL_ID 
+    CHAN_BLOW				      NOT NULL NUMBER(38)	     BlackLo[1-36]  index taken from CHANNEL_ID 
+    CHAN_UB				      NOT NULL NUMBER(38)	     Ublack[1-36]   index taken from CHANNEL_ID 
+    OPT1_CAP				      NOT NULL NUMBER(38)	     opt_cap[0] 				
+    OPT2_CAP				      NOT NULL NUMBER(38)	     opt_cap[1] 				
+    OPT3_CAP				      NOT NULL NUMBER(38)	     opt_cap[2] 				
+    OPT1_INP				      NOT NULL NUMBER(38)	     opt_inadj[0]				
+    OPT2_INP				      NOT NULL NUMBER(38)	     opt_inadj[1]				
+    OPT3_INP				      NOT NULL NUMBER(38)	     opt_inadj[2]				
+    OPT1_OUT				      NOT NULL NUMBER(38)	     opt_ouadj[0]			       
+    OPT2_OUT				      NOT NULL NUMBER(38)	     opt_ouadj[1]			       
+    OPT3_OUT				      NOT NULL NUMBER(38)	     opt_ouadj[2]			       
+    NORTH_CLKPHB			      NOT NULL NUMBER(38)	     clkphs1_9  				
+    NORTHCENTER_CLKPHB  		      NOT NULL NUMBER(38)	     clkphs10_18				
+    SOUTHCENTER_CLKPHB  		      NOT NULL NUMBER(38)	     clkphs19_27				
+    SOUTH_CLKPHB			      NOT NULL NUMBER(38)	     clkphs28_36				
+    NORTH_CTRL  			      NOT NULL NUMBER(38)	     Ncntrl					
+    NORTHCENTER_CTRL			      NOT NULL NUMBER(38)	     NCcntrl					
+    SOUTHCENTER_CTRL			      NOT NULL NUMBER(38)	     SCcntrl					
+    SOUTH_CTRL  			      NOT NULL NUMBER(38)	     Scntrl					
+    REG1_TTCRX_FDLA			      NOT NULL NUMBER(38)	     FineDes2Del				
+    REG2_TTCRX_CDLA			      NOT NULL NUMBER(38)	     CoarseDel  				
+    REG3_TTCRX_CLKD2			      NOT NULL NUMBER(38)	     ClkDes2					
+    CENTER_CTRL 			      NOT NULL NUMBER(38)	     Ccntrl					
+    CENTER_MODE 			      NOT NULL NUMBER(38)	     modeRegister				
+    B1_ADCGN				      NOT NULL NUMBER(38)	     Nadcg					
+    B2_ADCGN				      NOT NULL NUMBER(38)	     NCadcg					
+    B3_ADCGN				      NOT NULL NUMBER(38)	     SCadcg					
+    B4_ADCGN				      NOT NULL NUMBER(38)	     Sadcg					
+    NORTH_BADJ  			      NOT NULL NUMBER(38)	     Nbaseln					
+    NORTHCENTER_BADJ			      NOT NULL NUMBER(38)	     NCbaseln					
+    SOUTHCENTER_BADJ			      NOT NULL NUMBER(38)	     SCbaseln					
+    SOUTH_BADJ  			      NOT NULL NUMBER(38)	     Sbaseln					
+    NORTH_TBMMASK			      NOT NULL NUMBER(38)	     N_TBMmask  				
+    NORTHCENTER_TBMMASK 		      NOT NULL NUMBER(38)	     NC_TBMmask 				
+    SOUTHCENTER_TBMMASK 		      NOT NULL NUMBER(38)	     SC_TBMmask 				
+    SOUTH_TBMMASK			      NOT NULL NUMBER(38)	     S_TBMmask  				
+    NORTH_PWORD 			      NOT NULL NUMBER(38)	     N_Pword					
+    NORTHCENTER_PWORD			      NOT NULL NUMBER(38)	     NC_Pword					
+    SOUTH_PWORD 			      NOT NULL NUMBER(38)	     S_Pword					
+    SOUTHCENTER_PWORD			      NOT NULL NUMBER(38)	     SC_Pword					
+    SPECDAC				      NOT NULL NUMBER(38)	     SpecialDac 				
+    OOS_LVL				      NOT NULL NUMBER(38)	     Ooslvl					
+    ERR_LVL				      NOT NULL NUMBER(38)	     Errlvl					
+    NORTH_FIFO1_BZ_LVL  		      NOT NULL NUMBER(38)	     Nfifo1Bzlvl				
+    NORTHCENTER_FIFO1_BZ_LVL		      NOT NULL NUMBER(38)	     NCfifo1Bzlvl				
+    SOUTHCENTER_FIFO1_BZ_LVL		      NOT NULL NUMBER(38)	     SCfifo1Bzlvl				
+    SOUTH_FIFO1_BZ_LVL  		      NOT NULL NUMBER(38)	     Sfifo1Bzlvl				
+    FIFO3_WRN_LVL				       NUMBER(38)            fifo3Wrnlvl
+    FED_MASTER_DELAY				       NUMBER(38)            FedTTCDelay
+    NO_HITLIMIT 			               NUMBER(38)	     N_hitlimit 
+    NC_HITLIMIT 			               NUMBER(38)	     NC_hitlimit
+    SC_HITLIMIT 			               NUMBER(38)	     SC_hitlimit
+    SO_HITLIMIT 			               NUMBER(38)	     S_hitlimit 
+    NO_TESTREG				               NUMBER(38)	     N_testreg  
+    NC_TESTREG				               NUMBER(38)	     NC_testreg 
+    SC_TESTREG				               NUMBER(38)	     SC_testreg 
+    SO_TESTREG				               NUMBER(38)	     S_testreg  
+  */
+  colNames.push_back("CONFIG_KEY" 	       );
+  colNames.push_back("KEY_TYPE"   	       );
+  colNames.push_back("KEY_ALIAS"  	       );
+  colNames.push_back("VERSION"    	       );
+  colNames.push_back("KIND_OF_COND"	       );
+  colNames.push_back("CRATE_LABEL"	       );
+  colNames.push_back("CRATE_NUMBER"	       );
+  colNames.push_back("SLOT_NUMBER"	       );
+  colNames.push_back("VME_ADDRS_HEX"	       );
+  colNames.push_back("PIXEL_FED"  	       );
+  colNames.push_back("CHANNEL_ID" 	       );
+  colNames.push_back("NUM_ROCS"   	       );
+  colNames.push_back("CHAN_OFFST_DAC"	       );
+  colNames.push_back("CHAN_DELAY" 	       );
+  colNames.push_back("CHAN_BHIGH" 	       );
+  colNames.push_back("CHAN_BLOW"  	       );
+  colNames.push_back("CHAN_UB"    	       );
+  colNames.push_back("OPT1_CAP"   	       );
+  colNames.push_back("OPT2_CAP"   	       );
+  colNames.push_back("OPT3_CAP"   	       );
+  colNames.push_back("OPT1_INP"   	       );
+  colNames.push_back("OPT2_INP"   	       );
+  colNames.push_back("OPT3_INP"   	       );
+  colNames.push_back("OPT1_OUT"   	       );
+  colNames.push_back("OPT2_OUT"   	       );
+  colNames.push_back("OPT3_OUT"   	       );
+  colNames.push_back("NORTH_CLKPHB"	       );
+  colNames.push_back("NORTHCENTER_CLKPHB"      );
+  colNames.push_back("SOUTHCENTER_CLKPHB"      );
+  colNames.push_back("SOUTH_CLKPHB"	       );
+  colNames.push_back("NORTH_CTRL"	       );
+  colNames.push_back("NORTHCENTER_CTRL"        );
+  colNames.push_back("SOUTHCENTER_CTRL"        );
+  colNames.push_back("SOUTH_CTRL"	       );
+  colNames.push_back("REG0_TTCRX_FDLA"         );
+  colNames.push_back("REG1_TTCRX_FDLA"         );
+  colNames.push_back("REG2_TTCRX_CDLA"         );
+  colNames.push_back("REG3_TTCRX_CLKD2"        );
+  colNames.push_back("CENTER_CTRL"	       );
+  colNames.push_back("CENTER_MODE"	       );
+  colNames.push_back("B1_ADCGN"   	       );
+  colNames.push_back("B2_ADCGN"   	       );
+  colNames.push_back("B3_ADCGN"   	       );
+  colNames.push_back("B4_ADCGN"   	       );
+  colNames.push_back("NORTH_BADJ" 	       );
+  colNames.push_back("NORTHCENTER_BADJ"        );
+  colNames.push_back("SOUTHCENTER_BADJ"        );
+  colNames.push_back("SOUTH_BADJ"	       );
+  colNames.push_back("NORTH_TBMMASK"	       );
+  colNames.push_back("NORTHCENTER_TBMMASK"     );
+  colNames.push_back("SOUTHCENTER_TBMMASK"     );
+  colNames.push_back("SOUTH_TBMMASK"	       );
+  colNames.push_back("NORTH_PWORD"	       );
+  colNames.push_back("NORTHCENTER_PWORD"       );
+  colNames.push_back("SOUTH_PWORD"	       );
+  colNames.push_back("SOUTHCENTER_PWORD"       );
+  colNames.push_back("SPECDAC"    	       );
+  colNames.push_back("OOS_LVL"    	       );
+  colNames.push_back("ERR_LVL"    	       );
+  colNames.push_back("NORTH_FIFO1_BZ_LVL"      );
+  colNames.push_back("NORTHCENTER_FIFO1_BZ_LVL");
+  colNames.push_back("SOUTHCENTER_FIFO1_BZ_LVL");
+  colNames.push_back("SOUTH_FIFO1_BZ_LVL"      );
+  colNames.push_back("FIFO3_WRN_LVL"	       );
+  colNames.push_back("FED_MASTER_DELAY"        );
+  colNames.push_back("NO_HITLIMIT"	       );
+  colNames.push_back("NC_HITLIMIT"	       );
+  colNames.push_back("SC_HITLIMIT"	       );
+  colNames.push_back("SO_HITLIMIT"	       );
+  colNames.push_back("NO_TESTREG"	       );
+  colNames.push_back("NC_TESTREG"	       );
+  colNames.push_back("SC_TESTREG"	       );
+  colNames.push_back("SO_TESTREG"	       );
+
+  for(unsigned int c = 0 ; c < ins.size() ; c++)
+    {
       for(unsigned int n=0; n<colNames.size(); n++)
-        {					   
-          if(tableMat[0][c] == colNames[n]){	   
-            colM[colNames[n]] = c;		   
-            break;				   
+        {
+          if(tableMat[0][c] == colNames[n]){
+            colM[colNames[n]] = c;
+            break;
           }
         }
     }//end for
@@ -238,7 +198,7 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat):PixelConfigBase(" 
     {
       if(colM.find(colNames[n]) == colM.end())
         {
-          std::cerr << __LINE__ << "]\t[PixelFEDCard::PixelFEDCard]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
+          std::cerr << "[PixelTBMSettings::PixelTBMSettings()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
           assert(0);
         }
     }
@@ -268,106 +228,87 @@ PixelFEDCard::PixelFEDCard(vector<vector<string> > &tableMat):PixelConfigBase(" 
       first = false ;
       //VME base address 
       //Fed Base Address
-      sscanf(                  tableMat[1][colM["VME_ADDRS_HEX"]           ].c_str(),"%lx",&FEDBASE_0);
+      sscanf(tableMat[1][colM["VME_ADDRS_HEX"]].c_str(),"%lx",&FEDBASE_0);
       //      sscanf(tableMat[1][colM["PIXEL_FED"]].c_str(), "PxlFED_%ld",&fedNumber);
-      fedNumber         = atoi(tableMat[1][colM["PIXEL_FED"]         	   ].c_str()) ;
-      //Settable optical input parameters (one for each 12-receiver) 	   	    
-      opt_cap[0]   	= atoi(tableMat[1][colM["OPT1_CAP"]	     	   ].c_str()) ;
-      opt_cap[1]   	= atoi(tableMat[1][colM["OPT2_CAP"]	     	   ].c_str()) ;
-      opt_cap[2]   	= atoi(tableMat[1][colM["OPT3_CAP"]	     	   ].c_str()) ;
-      opt_inadj[0] 	= atoi(tableMat[1][colM["OPT1_INP"]	     	   ].c_str()) ;
-      opt_inadj[1] 	= atoi(tableMat[1][colM["OPT2_INP"]	     	   ].c_str()) ;
-      opt_inadj[2] 	= atoi(tableMat[1][colM["OPT3_INP"]	     	   ].c_str()) ;
-      opt_ouadj[0] 	= atoi(tableMat[1][colM["OPT1_OUT"]	     	   ].c_str()) ;
-      opt_ouadj[1] 	= atoi(tableMat[1][colM["OPT2_OUT"]	     	   ].c_str()) ;
-      opt_ouadj[2] 	= atoi(tableMat[1][colM["OPT3_OUT"]	     	   ].c_str()) ;
+      fedNumber    = atoi(tableMat[1][colM["PIXEL_FED"]].c_str()		) ;
+      //Settable optical input parameters (one for each 12-receiver)		
+      opt_cap[0]   = atoi(tableMat[1][colM["OPT1_CAP"]].c_str() 	  	) ;
+      opt_cap[1]   = atoi(tableMat[1][colM["OPT2_CAP"]].c_str() 	  	) ;
+      opt_cap[2]   = atoi(tableMat[1][colM["OPT3_CAP"]].c_str() 	  	) ;
+      opt_inadj[0] = atoi(tableMat[1][colM["OPT1_INP"]].c_str() 	  	) ;
+      opt_inadj[1] = atoi(tableMat[1][colM["OPT2_INP"]].c_str() 	  	) ;
+      opt_inadj[2] = atoi(tableMat[1][colM["OPT3_INP"]].c_str() 	  	) ;
+      opt_ouadj[0] = atoi(tableMat[1][colM["OPT1_OUT"]].c_str() 	  	) ;
+      opt_ouadj[1] = atoi(tableMat[1][colM["OPT2_OUT"]].c_str() 	  	) ;
+      opt_ouadj[2] = atoi(tableMat[1][colM["OPT3_OUT"]].c_str() 	  	) ;
 
-      //clock phases, use bits 0-8, select the clock edged		   	     
-      clkphs1_9    	= atoi(tableMat[1][colM["NORTH_CLKPHB"]      	   ].c_str()) ; // TO BE VERIFIED
-      clkphs10_18  	= atoi(tableMat[1][colM["NORTHCENTER_CLKPHB"]	   ].c_str()) ; // TO BE VERIFIED
-      clkphs19_27  	= atoi(tableMat[1][colM["SOUTHCENTER_CLKPHB"]	   ].c_str()) ; // TO BE VERIFIED
-      clkphs28_36  	= atoi(tableMat[1][colM["SOUTH_CLKPHB"]      	   ].c_str()) ; // TO BE VERIFIED
+      //clock phases, use bits 0-8, select the clock edged			
+      clkphs1_9    = atoi(tableMat[1][colM["NORTH_CLKPHB"]].c_str()	  	) ; // TO BE VERIFIED
+      clkphs10_18  = atoi(tableMat[1][colM["NORTHCENTER_CLKPHB"]].c_str() 	) ; // TO BE VERIFIED
+      clkphs19_27  = atoi(tableMat[1][colM["SOUTHCENTER_CLKPHB"]].c_str() 	) ; // TO BE VERIFIED
+      clkphs28_36  = atoi(tableMat[1][colM["SOUTH_CLKPHB"]].c_str()	  	) ; // TO BE VERIFIED
 
-      // Control register and delays for the TTCrx			   	    
-      FineDes1Del  	= atoi(tableMat[1][colM["REG0_TTCRX_FDLA"]   	   ].c_str()) ;
-      FineDes2Del  	= atoi(tableMat[1][colM["REG1_TTCRX_FDLA"]   	   ].c_str()) ;
-      CoarseDel    	= atoi(tableMat[1][colM["REG2_TTCRX_CDLA"]   	   ].c_str()) ;
-      ClkDes2      	= atoi(tableMat[1][colM["REG3_TTCRX_CLKD2"]  	   ].c_str()) ;
+      // Control register and delays for the TTCrx				
+      CoarseDel    = atoi(tableMat[1][colM["REG2_TTCRX_CDLA"]].c_str()    	) ;
+      ClkDes2      = atoi(tableMat[1][colM["REG3_TTCRX_CLKD2"]].c_str()   	) ;
+      FineDes2Del  = atoi(tableMat[1][colM["REG1_TTCRX_FDLA"]].c_str()    	) ;
+      FineDes1Del  = atoi(tableMat[1][colM["REG0_TTCRX_FDLA"]].c_str()    	) ;
 
-      Ccntrl       	= atoi(tableMat[1][colM["CENTER_CTRL"]	     	   ].c_str()) ;
-      modeRegister 	= atoi(tableMat[1][colM["CENTER_MODE"]	     	   ].c_str()) ;
+      Ccntrl       = atoi(tableMat[1][colM["CENTER_CTRL"]].c_str()  	  	) ;
+      modeRegister = atoi(tableMat[1][colM["CENTER_MODE"]].c_str()  	  	) ;
 
       //data Regs adjustable fifo Almost Full levels
-      Nfifo1Bzlvl  	= atoi(tableMat[1][colM["NORTH_FIFO1_BZ_LVL"]      ].c_str()) ;
-      NCfifo1Bzlvl 	= atoi(tableMat[1][colM["NORTHCENTER_FIFO1_BZ_LVL"]].c_str()) ;
-      SCfifo1Bzlvl 	= atoi(tableMat[1][colM["SOUTHCENTER_FIFO1_BZ_LVL"]].c_str()) ;
-      Sfifo1Bzlvl  	= atoi(tableMat[1][colM["SOUTH_FIFO1_BZ_LVL"]      ].c_str()) ;
+      Nfifo1Bzlvl  = atoi(tableMat[1][colM["NORTH_FIFO1_BZ_LVL"]].c_str()	) ;
+      NCfifo1Bzlvl = atoi(tableMat[1][colM["NORTHCENTER_FIFO1_BZ_LVL"]].c_str() ) ;
+      SCfifo1Bzlvl = atoi(tableMat[1][colM["SOUTHCENTER_FIFO1_BZ_LVL"]].c_str() ) ;
+      Sfifo1Bzlvl  = atoi(tableMat[1][colM["SOUTH_FIFO1_BZ_LVL"]].c_str()	) ;
 
       //Bits (1st 8) used to mask TBM trailer bits
-      N_TBMmask    	= atoi(tableMat[1][colM["NORTH_TBMMASK"]      	   ].c_str()) ;
-      NC_TBMmask   	= atoi(tableMat[1][colM["NORTHCENTER_TBMMASK"]	   ].c_str()) ;
-      SC_TBMmask   	= atoi(tableMat[1][colM["SOUTHCENTER_TBMMASK"]	   ].c_str()) ;
-      S_TBMmask    	= atoi(tableMat[1][colM["SOUTH_TBMMASK"]      	   ].c_str()) ;
+      N_TBMmask    = atoi(tableMat[1][colM["NORTH_TBMMASK"]].c_str()	     	) ;
+      NC_TBMmask   = atoi(tableMat[1][colM["NORTHCENTER_TBMMASK"]].c_str()   	) ;
+      SC_TBMmask   = atoi(tableMat[1][colM["SOUTHCENTER_TBMMASK"]].c_str()   	) ;
+      S_TBMmask    = atoi(tableMat[1][colM["SOUTH_TBMMASK"]].c_str()	     	) ;
       
       //Bits (1st 8) used to set the Private Word in the gap and filler words
-      N_Pword      	= atoi(tableMat[1][colM["NORTH_PWORD"]      	   ].c_str()) ;
-      NC_Pword     	= atoi(tableMat[1][colM["NORTHCENTER_PWORD"]	   ].c_str()) ;
-      SC_Pword     	= atoi(tableMat[1][colM["SOUTHCENTER_PWORD"]	   ].c_str()) ;
-      S_Pword      	= atoi(tableMat[1][colM["SOUTH_PWORD"]      	   ].c_str()) ;
+      N_Pword      = atoi(tableMat[1][colM["NORTH_PWORD"]].c_str()	     	) ;
+      NC_Pword     = atoi(tableMat[1][colM["NORTHCENTER_PWORD"]].c_str()     	) ;
+      SC_Pword     = atoi(tableMat[1][colM["SOUTHCENTER_PWORD"]].c_str()     	) ;
+      S_Pword      = atoi(tableMat[1][colM["SOUTH_PWORD"]].c_str()	     	) ;
       
-      Nbaseln      	= atoi(tableMat[1][colM["NORTH_BADJ"]       	   ].c_str()) ;
-      NCbaseln     	= atoi(tableMat[1][colM["NORTHCENTER_BADJ"] 	   ].c_str()) ;
-      SCbaseln     	= atoi(tableMat[1][colM["SOUTHCENTER_BADJ"] 	   ].c_str()) ;
-      Sbaseln      	= atoi(tableMat[1][colM["SOUTH_BADJ"]       	   ].c_str()) ;
+      Nbaseln      = atoi(tableMat[1][colM["NORTH_BADJ"]].c_str()	     	) ;
+      NCbaseln     = atoi(tableMat[1][colM["NORTHCENTER_BADJ"]].c_str()      	) ;
+      SCbaseln     = atoi(tableMat[1][colM["SOUTHCENTER_BADJ"]].c_str()      	) ;
+      Sbaseln      = atoi(tableMat[1][colM["SOUTH_BADJ"]].c_str()	     	) ;
 
-      Ncntrl       	= atoi(tableMat[1][colM["NORTH_CTRL"]       	   ].c_str()) ;
-      NCcntrl      	= atoi(tableMat[1][colM["NORTHCENTER_CTRL"] 	   ].c_str()) ;
-      SCcntrl      	= atoi(tableMat[1][colM["SOUTHCENTER_CTRL"] 	   ].c_str()) ;
-      Scntrl       	= atoi(tableMat[1][colM["SOUTH_CTRL"]       	   ].c_str()) ;
+      Ncntrl       = atoi(tableMat[1][colM["NORTH_CTRL"]].c_str()	     	) ;
+      NCcntrl      = atoi(tableMat[1][colM["NORTHCENTER_CTRL"]].c_str()      	) ;
+      SCcntrl      = atoi(tableMat[1][colM["SOUTHCENTER_CTRL"]].c_str()      	) ;
+      Scntrl       = atoi(tableMat[1][colM["SOUTH_CTRL"]].c_str()	     	) ;
       
 
        //These bit sets the special dac mode for random triggers 
-      SpecialDac        = atoi(tableMat[1][colM["SPECDAC"]          	   ].c_str()) ;
+      SpecialDac   = atoi(tableMat[1][colM["SPECDAC"]].c_str()                  ) ;
 
       //These bits set the number of Out of consecutive out of sync events until a TTs OOs 
-      Ooslvl            = atoi(tableMat[1][colM["OOS_LVL"]          	   ].c_str()) ;
+      Ooslvl       = atoi(tableMat[1][colM["OOS_LVL"]].c_str()                  ) ;
       //These bits set the number of Empty events until a TTs Error 
-      Errlvl            = atoi(tableMat[1][colM["ERR_LVL"]          	   ].c_str()) ;
+      Errlvl       = atoi(tableMat[1][colM["ERR_LVL"]].c_str()                  ) ;
 
       //Control Regs for setting ADC 1Vpp and 2Vpp
-      Nadcg  	   	= atoi(tableMat[1][colM["B1_ADCGN"]	    	   ].c_str()) ;
-      NCadcg 	   	= atoi(tableMat[1][colM["B2_ADCGN"]	    	   ].c_str()) ;
-      SCadcg 	   	= atoi(tableMat[1][colM["B3_ADCGN"]	    	   ].c_str()) ;
-      Sadcg  	   	= atoi(tableMat[1][colM["B4_ADCGN"]	    	   ].c_str()) ;
-      fifo3Wrnlvl  	= atoi(tableMat[1][colM["FIFO3_WRN_LVL"]    	   ].c_str()) ;
-      FedTTCDelay  	= atoi(tableMat[1][colM["FED_MASTER_DELAY"] 	   ].c_str()) ;
-      N_hitlimit   	= atoi(tableMat[1][colM["NO_HITLIMIT"]	    	   ].c_str()) ;
-      NC_hitlimit  	= atoi(tableMat[1][colM["NC_HITLIMIT"]	    	   ].c_str()) ;
-      SC_hitlimit  	= atoi(tableMat[1][colM["SC_HITLIMIT"]	    	   ].c_str()) ;
-      S_hitlimit   	= atoi(tableMat[1][colM["SO_HITLIMIT"]	    	   ].c_str()) ;
-      N_testreg    	= atoi(tableMat[1][colM["NO_TESTREG"]	    	   ].c_str()) ;
-      NC_testreg   	= atoi(tableMat[1][colM["NC_TESTREG"]	    	   ].c_str()) ;
-      SC_testreg   	= atoi(tableMat[1][colM["SC_TESTREG"]	    	   ].c_str()) ;
-      S_testreg    	= atoi(tableMat[1][colM["SO_TESTREG"]	    	   ].c_str()) ;
-      BusyHoldMin       = atoi(tableMat[1][colM["BUSYHOLDMIN"]      	   ].c_str()) ;
-      BusyWhenBehind    = atoi(tableMat[1][colM["BUSYWHENBEHIND"]   	   ].c_str()) ;
-      FeatureRegister   = atoi(tableMat[1][colM["FEATUREREGISTER"]  	   ].c_str()) ;
-      FIFO2Limit        = atoi(tableMat[1][colM["FIFO2LIMIT"]       	   ].c_str()) ;
-      LastDacOff        = atoi(tableMat[1][colM["LASTDACOFF"]       	   ].c_str()) ;
-      SimHitsPerRoc     = atoi(tableMat[1][colM["SIMHITSPERROC"]    	   ].c_str()) ;
-      TimeoutOROOSLimit = atoi(tableMat[1][colM["TIMEOUTOROOSLIMIT"]	   ].c_str()) ;
-      TriggerHoldoff    = atoi(tableMat[1][colM["TRIGGERHOLDOFF"]	   ].c_str()) ;
-
-      SPARE1 		= atoi(tableMat[1][colM["SPARE1"]		   ].c_str()) ;
-      SPARE2 		= atoi(tableMat[1][colM["SPARE2"]		   ].c_str()) ;
-      SPARE3 		= atoi(tableMat[1][colM["SPARE3"]		   ].c_str()) ;
-      SPARE4 		= atoi(tableMat[1][colM["SPARE4"]		   ].c_str()) ;
-      SPARE5 		= atoi(tableMat[1][colM["SPARE5"]		   ].c_str()) ;
-      SPARE6 		= atoi(tableMat[1][colM["SPARE6"]		   ].c_str()) ;
-      SPARE7 		= atoi(tableMat[1][colM["SPARE7"]		   ].c_str()) ;
-      SPARE8 		= atoi(tableMat[1][colM["SPARE8"]		   ].c_str()) ;
-      SPARE9 		= atoi(tableMat[1][colM["SPARE9"]		   ].c_str()) ;
-      SPARE10		= atoi(tableMat[1][colM["SPARE10"]		   ].c_str()) ;
+      Nadcg  	   = atoi(tableMat[1][colM["B1_ADCGN"]].c_str() 		) ;
+      NCadcg 	   = atoi(tableMat[1][colM["B2_ADCGN"]].c_str() 		) ;
+      SCadcg 	   = atoi(tableMat[1][colM["B3_ADCGN"]].c_str() 		) ;
+      Sadcg  	   = atoi(tableMat[1][colM["B4_ADCGN"]].c_str() 		) ;
+      fifo3Wrnlvl  = atoi(tableMat[1][colM["FIFO3_WRN_LVL"]].c_str()		) ;
+      FedTTCDelay  = atoi(tableMat[1][colM["FED_MASTER_DELAY"]].c_str() 	) ;
+      N_hitlimit   = atoi(tableMat[1][colM["NO_HITLIMIT"]].c_str()	        ) ;
+      NC_hitlimit  = atoi(tableMat[1][colM["NC_HITLIMIT"]].c_str()	        ) ;
+      SC_hitlimit  = atoi(tableMat[1][colM["SC_HITLIMIT"]].c_str()	        ) ;
+      S_hitlimit   = atoi(tableMat[1][colM["SO_HITLIMIT"]].c_str()	        ) ;
+      N_testreg    = atoi(tableMat[1][colM["NO_TESTREG"]].c_str()	        ) ;
+      NC_testreg   = atoi(tableMat[1][colM["NC_TESTREG"]].c_str()	        ) ;
+      SC_testreg   = atoi(tableMat[1][colM["SC_TESTREG"]].c_str()	        ) ;
+      S_testreg    = atoi(tableMat[1][colM["SO_TESTREG"]].c_str()	        ) ;
 
     } // end of 'first' condition
   for(int r = 1 ; r < size[0] ; r++)    //Goes to every row of the FIRST Matrix (MUST BE 36, one for each FED channel)
@@ -1034,67 +975,47 @@ void PixelFEDCard::clear(void)
   
   for(int i=0;i<36;i++) {
     for(int j=0;j<26;j++) {
-      ROC_L0[i][j]  = 0;
-      ROC_L1[i][j]  = 0;
-      ROC_L2[i][j]  = 0;
-      ROC_L3[i][j]  = 0;
-      ROC_L4[i][j]  = 0;
+      ROC_L0[i][j] = 0;
+      ROC_L1[i][j] = 0;
+      ROC_L2[i][j] = 0;
+      ROC_L3[i][j] = 0;
+      ROC_L4[i][j] = 0;
     }
   }
-  Ncntrl            = 0; 
-  NCcntrl           = 0; 
-  SCcntrl           = 0; 
-  Scntrl            = 0; 
-  CoarseDel         = 0;
-  ClkDes2           = 0;
-  FineDes2Del       = 0;
-  FineDes1Del       = 0;
-  Ccntrl            = 0;
-  modeRegister      = 0;
-  Nadcg             = 0;
-  NCadcg            = 0;
-  SCadcg            = 0;
-  Sadcg             = 0;
-  Nbaseln           = 0;
-  NCbaseln          = 0;
-  SCbaseln          = 0;
-  Sbaseln           = 0;
-  N_TBMmask         = 0;
-  NC_TBMmask        = 0;
-  SC_TBMmask        = 0;
-  S_TBMmask         = 0;
-  N_Pword           = 0;
-  NC_Pword          = 0;
-  SC_Pword          = 0;
-  S_Pword           = 0;
-  SpecialDac        = 0;
-  Ooslvl            = 0;
-  Errlvl            = 0;
-  Nfifo1Bzlvl       = 0;
-  NCfifo1Bzlvl      = 0;
-  SCfifo1Bzlvl      = 0;
-  Sfifo1Bzlvl       = 0;
-  fifo3Wrnlvl       = 0;
-  
-  BusyHoldMin	    = 0;
-  BusyWhenBehind    = 0;
-  FeatureRegister   = 0;
-  FIFO2Limit	    = 0;
-  LastDacOff	    = 0;
-  SimHitsPerRoc     = 0;
-  TimeoutOROOSLimit = 0;
-  TriggerHoldoff    = 0;
-
-  SPARE1	    = 0;
-  SPARE2	    = 0;
-  SPARE3	    = 0;
-  SPARE4	    = 0;
-  SPARE5	    = 0;
-  SPARE6	    = 0;
-  SPARE7	    = 0;
-  SPARE8	    = 0;
-  SPARE9	    = 0;
-  SPARE10	    = 0;
+  Ncntrl       = 0;  
+  NCcntrl      = 0;  
+  SCcntrl      = 0;  
+  Scntrl       = 0;  
+  CoarseDel    = 0;
+  ClkDes2      = 0;
+  FineDes2Del  = 0;
+  FineDes1Del  = 0;
+  Ccntrl       = 0;
+  modeRegister = 0;
+  Nadcg        = 0;
+  NCadcg       = 0;
+  SCadcg       = 0;
+  Sadcg        = 0;
+  Nbaseln      = 0;
+  NCbaseln     = 0;
+  SCbaseln     = 0;
+  Sbaseln      = 0;
+  N_TBMmask    = 0;
+  NC_TBMmask   = 0;
+  SC_TBMmask   = 0;
+  S_TBMmask    = 0;
+  N_Pword      = 0;
+  NC_Pword     = 0;
+  SC_Pword     = 0;
+  S_Pword      = 0;
+  SpecialDac   = 0;
+  Ooslvl       = 0;
+  Errlvl       = 0;
+  Nfifo1Bzlvl  = 0;
+  NCfifo1Bzlvl = 0;
+  SCfifo1Bzlvl = 0;
+  Sfifo1Bzlvl  = 0;
+  fifo3Wrnlvl  = 0;
 }
 //==================================================================================
 
@@ -1488,8 +1409,7 @@ void PixelFEDCard::writeXMLHeader(pos::PixelConfigKey key, int version, std::str
   *out << "  </PART>"                                                                             	  << std::endl ;
 }
 //=============================================================================================
-void PixelFEDCard::writeXML( std::ofstream *out) const 
-{
+void PixelFEDCard::writeXML( std::ofstream *out) const {
   std::string mthn = "[PixelFEDCard::writeXML()]\t\t\t    " ;
 
   *out << "  <DATA>"                                                                              	  << std::endl ;
@@ -1564,24 +1484,7 @@ void PixelFEDCard::writeXML( std::ofstream *out) const
   *out << "   <NC_TESTREG>0</NC_TESTREG>"		  						  << std::endl ;
   *out << "   <SC_TESTREG>0</SC_TESTREG>"		  						  << std::endl ;
   *out << "   <SO_TESTREG>0</SO_TESTREG>"		  						  << std::endl ;
-  *out << "   <BUSYWHENBEHIND>4</BUSYWHENBEHIND>"		  					  << std::endl ;
-  *out << "   <FEATUREREGISTER>0X1234</FEATUREREGISTER>"		  				  << std::endl ;
-  *out << "   <FIFO2LIMIT>0X1C00</FIFO2LIMIT>"		  						  << std::endl ;
-  *out << "   <TIMEOUTOROOSLIMIT>0</TIMEOUTOROOSLIMIT>"		  					  << std::endl ;
-  *out << "   <LASTDACOFF>0</LASTDACOFF>"		  						  << std::endl ;
-  *out << "   <SIMHITSPERROC>0</SIMHITSPERROC>"		  						  << std::endl ;
-  *out << "   <BUSYHOLDMIN>0</BUSYHOLDMIN>"		  						  << std::endl ;
-  *out << "   <SPARE1>0</SPARE1>"		  						  	  << std::endl ;
-  *out << "   <SPARE2>0</SPARE2>"		  						  	  << std::endl ;
-  *out << "   <SPARE3>0</SPARE3>"		  						  	  << std::endl ;
-  *out << "   <SPARE4>0</SPARE4>"		  						  	  << std::endl ;
-  *out << "   <SPARE5>0</SPARE5>"		  						  	  << std::endl ;
-  *out << "   <SPARE6>0</SPARE6>"		  						  	  << std::endl ;
-  *out << "   <SPARE7>0</SPARE7>"		  						  	  << std::endl ;
-  *out << "   <SPARE8>0</SPARE8>"		  						  	  << std::endl ;
-  *out << "   <SPARE9>0</SPARE9>"		  						  	  << std::endl ;
-  *out << "   <SPARE10>0</SPARE10>"		  						  	  << std::endl ;
-  *out << " "												  << std::endl ;
+  *out << " "                                                                                     	  << std::endl ;
   *out << "  </DATA>"                                                                             	  << std::endl ;
   *out << " "                                                                                     	  << std::endl ;
 }
@@ -1666,24 +1569,7 @@ void PixelFEDCard::writeXML( std::ofstream *fedstream,
       *fedstream << "   <NC_TESTREG>"               << NC_testreg 	   << "</NC_TESTREG>"	            << std::endl ;
       *fedstream << "   <SC_TESTREG>"               << SC_testreg 	   << "</SC_TESTREG>"	            << std::endl ;
       *fedstream << "   <SO_TESTREG>"               << S_testreg 	   << "</SO_TESTREG>"	            << std::endl ;
-      *fedstream << "	<BUSYWHENBEHIND>"           << BusyWhenBehind	   << "</BUSYWHENBEHIND>"	    << std::endl ;
-      *fedstream << "	<BUSYHOLDMIN>"              << BusyHoldMin	   << "</BUSYHOLDMIN>"  	    << std::endl ;
-      *fedstream << "	<FEATUREREGISTER>"          << FeatureRegister	   << "</FEATUREREGISTER>"	    << std::endl ;
-      *fedstream << "	<FIFO2LIMIT>"               << FIFO2Limit	   << "</FIFO2LIMIT>"		    << std::endl ;
-      *fedstream << "	<LASTDACOFF>"               << LastDacOff	   << "</LASTDACOFF>"		    << std::endl ;
-      *fedstream << "	<SIMHITSPERROC>"	    << SimHitsPerRoc	   << "</SIMHITSPERROC>"	    << std::endl ;
-      *fedstream << "	<TIMEOUTOROOSLIMIT>"        << TimeoutOROOSLimit   << "</TIMEOUTOROOSLIMIT>"	    << std::endl ;
-      *fedstream << "	<TRIGGERHOLDOFF>"           << TriggerHoldoff	   << "</TRIGGERHOLDOFF>"           << std::endl ;
-      *fedstream << "	<SPARE1>"  	            << SPARE1	 	   << "</SPARE1>"		    << std::endl ;
-      *fedstream << "	<SPARE2>"  	            << SPARE2	 	   << "</SPARE2>"		    << std::endl ;
-      *fedstream << "	<SPARE3>"  	            << SPARE3	 	   << "</SPARE3>"		    << std::endl ;
-      *fedstream << "	<SPARE4>"  	            << SPARE4	 	   << "</SPARE4>"		    << std::endl ;
-      *fedstream << "	<SPARE5>"  	            << SPARE5	 	   << "</SPARE5>"		    << std::endl ;
-      *fedstream << "	<SPARE6>"  	            << SPARE6	 	   << "</SPARE6>"		    << std::endl ;
-      *fedstream << "	<SPARE7>"  	            << SPARE7	 	   << "</SPARE7>"		    << std::endl ;
-      *fedstream << "	<SPARE8>"  	            << SPARE8	 	   << "</SPARE8>"		    << std::endl ;
-      *fedstream << "	<SPARE9>"  	            << SPARE9	 	   << "</SPARE9>"		    << std::endl ;
-      *fedstream << "	<SPARE10>" 	            << SPARE10   	   << "</SPARE10>"	            << std::endl ;
+
       *fedstream << " "                                             	   				    << std::endl ;
       *fedstream << "  </DATA>"                                     	   				    << std::endl ;
       *fedstream << " "                                             	   				    << std::endl ;
@@ -1874,23 +1760,6 @@ void PixelFEDCard::writeXML(pos::PixelConfigKey key, int version, std::string pa
   out << "   <NC_TESTREG>0</NC_TESTREG>"							 << std::endl ;
   out << "   <SC_TESTREG>0</SC_TESTREG>"							 << std::endl ;
   out << "   <SO_TESTREG>0</SO_TESTREG>"							 << std::endl ;
-  out << "   <BUSYWHENBEHIND>4</BUSYWHENBEHIND>"						 << std::endl ;
-  out << "   <FEATUREREGISTER>0X1234</FEATUREREGISTER>" 					 << std::endl ;
-  out << "   <FIFO2LIMIT>0X1C00</FIFO2LIMIT>"							 << std::endl ;
-  out << "   <TIMEOUTOROOSLIMIT>0</TIMEOUTOROOSLIMIT>"  					 << std::endl ;
-  out << "   <LASTDACOFF>0</LASTDACOFF>"							 << std::endl ;
-  out << "   <SIMHITSPERROC>0</SIMHITSPERROC>"  						 << std::endl ;
-  out << "   <BUSYHOLDMIN>0</BUSYHOLDMIN>"							 << std::endl ;
-  out << "   <SPARE1>0</SPARE1>"								 << std::endl ;
-  out << "   <SPARE2>0</SPARE2>"								 << std::endl ;
-  out << "   <SPARE3>0</SPARE3>"								 << std::endl ;
-  out << "   <SPARE4>0</SPARE4>"								 << std::endl ;
-  out << "   <SPARE5>0</SPARE5>"								 << std::endl ;
-  out << "   <SPARE6>0</SPARE6>"								 << std::endl ;
-  out << "   <SPARE7>0</SPARE7>"								 << std::endl ;
-  out << "   <SPARE8>0</SPARE8>"								 << std::endl ;
-  out << "   <SPARE9>0</SPARE9>"								 << std::endl ;
-  out << "   <SPARE10>0</SPARE10>"								 << std::endl ;
   out << "  </DATA>"                                                                             << std::endl ;
 /*                                                                                              
   out<< "  <DATA>                                                                               
