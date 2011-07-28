@@ -222,7 +222,7 @@ void PatTauAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es)
 //
 // TO-DO: fill histogram
 //         hTauDiscrAgainstElectrons_
-//        with the value of the discriminatorAgainstElectrons
+//        with the value of the discriminatorAgainstElectronsLoose
 //
 // NOTE:
 //  1.) please have a look at
@@ -230,12 +230,12 @@ void PatTauAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es)
 //      to find the method for accessing the tau id. information
 //  
 //  2.) please have a look at
-//       http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/PhysicsTools/PatAlgos/python/tools/tauTools.py?revision=1.18&view=markup
-//      and convince yourself that the string "againstElectron" needs to be passed as argument 
+//       http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/PhysicsTools/PatAlgos/python/tools/tauTools.py?revision=1.43&view=markup
+//      and convince yourself that the string "againstElectronLoose" needs to be passed as argument 
 //      of the pat::Tau::tauID method
 //
 //  hTauDiscrAgainstElectrons_->Fill...
-    hTauDiscrAgainstMuons_->Fill(patTau->tauID("againstMuon"));
+    hTauDiscrAgainstMuons_->Fill(patTau->tauID("againstMuonLoose"));
 
 //... for Energy, Pt, Eta, Phi of tau-jets passing the discriminatorByIsolation selection
     if ( discrByIso > 0.5 ) {
