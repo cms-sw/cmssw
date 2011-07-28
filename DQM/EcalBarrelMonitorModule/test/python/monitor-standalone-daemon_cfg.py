@@ -12,6 +12,8 @@ process.ecalUncalibHit = RecoLocalCalo.EcalRecProducers.ecalFixedAlphaBetaFitUnc
 
 process.load("RecoLocalCalo.EcalRecProducers.ecalRecHit_cfi")
 
+process.load("RecoLocalCalo.EcalRecAlgos.EcalSeverityLevelESProducer_cfi")
+
 process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
 
 process.load("Geometry.CaloEventSetup.CaloTopology_cfi")

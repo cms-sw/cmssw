@@ -1,4 +1,4 @@
-// $Id: StatisticsReporter.cc,v 1.1.4.2 2011/03/07 12:01:12 mommsen Exp $
+// $Id: StatisticsReporter.cc,v 1.2 2011/03/07 15:41:55 mommsen Exp $
 /// @file: StatisticsReporter.cc
 
 #include <sstream>
@@ -27,7 +27,7 @@ namespace smproxy {
   app_(app),
   alarmHandler_(new stor::AlarmHandler(app)),
   monitoringSleepSec_(qcp.monitoringSleepSec_),
-  dataRetrieverMonCollection_(monitoringSleepSec_),
+  dataRetrieverMonCollection_(monitoringSleepSec_, alarmHandler_),
   dqmEventMonCollection_(monitoringSleepSec_*5),
   eventConsumerMonCollection_(monitoringSleepSec_),
   dqmConsumerMonCollection_(monitoringSleepSec_),

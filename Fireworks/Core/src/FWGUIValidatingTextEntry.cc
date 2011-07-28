@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 18:13:39 EDT 2008
-// $Id: FWGUIValidatingTextEntry.cc,v 1.6 2008/12/04 20:38:26 chrjones Exp $
+// $Id: FWGUIValidatingTextEntry.cc,v 1.8 2011/07/20 04:58:37 amraktad Exp $
 //
 
 // system include files
@@ -36,11 +36,14 @@
 //
 FWGUIValidatingTextEntry::FWGUIValidatingTextEntry(const TGWindow *parent, const char *text, Int_t id ) :
    TGTextEntry(parent,text,id),
-   m_validator(0)
+   m_popup(0),
+   m_list(0),
+   m_validator(0),
+   m_listHeight(100)
 {
    m_popup = new TGComboBoxPopup(fClient->GetDefaultRoot(), 100, 100, kVerticalFrame);
    m_list = new TGListBox(m_popup, 1 /*widget id*/, kChildFrame);
-   m_list->Resize(100,100);
+   m_list->Resize(100,m_listHeight);
    m_list->Associate(this);
    m_list->GetScrollBar()->GrabPointer(kFALSE);
    m_popup->AddFrame(m_list, new TGLayoutHints(kLHintsExpandX| kLHintsExpandY));
@@ -110,7 +113,7 @@ FWGUIValidatingTextEntry::ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2)
 }
 
 void
-FWGUIValidatingTextEntry::keyPressedInPopup(TGFrame*, UInt_t keysym, UInt_t mask)
+FWGUIValidatingTextEntry::keyPressedInPopup(TGFrame* f, UInt_t keysym, UInt_t mask)
 {
    switch(keysym) {
       case kKey_Tab:
@@ -122,12 +125,16 @@ FWGUIValidatingTextEntry::keyPressedInPopup(TGFrame*, UInt_t keysym, UInt_t mask
          RequestFocus();
          //NOTE: If chosen from the keyboard, m_list->GetSelected() does not work, however
          // m_list->GetSelectedEntries does work
-         TList selected;
-         m_list->GetSelectedEntries(&selected);
-         assert(selected.GetEntries() == 1);
-         const TGLBEntry* entry = dynamic_cast<TGLBEntry*> (selected.First());
-         assert(0!=entry);
-         insertTextOption(m_options[entry->EntryId()].second);
+
+         //AMT NOTE: TGListEntry does not select entry on key return event, it has to be selected here.
+         //          Code stolen from TGComboBox::KeyPressed
+
+         const TGLBEntry* entry = dynamic_cast<TGLBEntry*> (f);
+         if (entry)
+         {
+            insertTextOption(m_options[entry->EntryId()].second);
+            m_list->Selected(entry->EntryId());
+         }
          hideOptions();
          break;
    }
@@ -175,10 +182,10 @@ FWGUIValidatingTextEntry::showOptions() {
       {
          unsigned int h = m_list->GetNumberOfEntries()*
                           m_list->GetItemVsize();
-         if(h && (h<100)) {
+         if(h && (h<m_listHeight)) {
             m_list->Resize(m_list->GetWidth(),h);
          } else {
-            m_list->Resize(m_list->GetWidth(),100);
+            m_list->Resize(m_list->GetWidth(),m_listHeight);
          }
       }
       m_list->Select(0,kTRUE);
@@ -210,7 +217,6 @@ FWGUIValidatingTextEntry::insertTextOption(const std::string& iOption)
    long pos = GetCursorPosition();
    InsertText(iOption.c_str(), pos);
    SetCursorPosition(pos + iOption.size());
-
 }
 
 //

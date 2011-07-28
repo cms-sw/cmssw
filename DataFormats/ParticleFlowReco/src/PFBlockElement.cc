@@ -3,6 +3,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementGsfTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementBrem.h"     
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
 
 
 using namespace reco;
@@ -65,6 +66,14 @@ std::ostream& reco::operator<<( std::ostream& out,
           dynamic_cast<const reco::PFBlockElementBrem &>( element );
         em.Dump(out);
 	out<<" from brem;";
+	break;
+      }
+    case PFBlockElement::SC:
+      {
+	const reco::PFBlockElementSuperCluster& sc =
+          dynamic_cast<const reco::PFBlockElementSuperCluster &>( element );
+        sc.Dump(out);
+	out<<" from SuperCluster;";
 	break;
       }
     default:

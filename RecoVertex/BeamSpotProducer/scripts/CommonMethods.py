@@ -629,7 +629,6 @@ def createWeightedPayloads(fileName,listbeam=[],weighted=True):
     if weighted:
         maxNlumis = 999999999
     for ii in range(0,len(listbeam)):
-	
         ibeam = listbeam[ii]
         inextbeam = BeamSpot()
         iNNbeam = BeamSpot()
@@ -640,6 +639,7 @@ def createWeightedPayloads(fileName,listbeam=[],weighted=True):
             tmpbeam.Type = 2
         docheck = False
         docreate = False
+	#print "Currently testing ii="+str(ii)+" Lumi1: "+str(ibeam.IOVfirst)
 	    
         # check last iov
         if ii < len(listbeam) - 1: 
@@ -694,6 +694,8 @@ def createWeightedPayloads(fileName,listbeam=[],weighted=True):
             adelta2widthx = (0.,1.e9)
             adelta1widthy = delta(ibeam.beamWidthY, ibeam.beamWidthYerr, inextbeam.beamWidthY, inextbeam.beamWidthYerr)
             adelta2widthy = (0.,1.e9)
+            adelta1z0 = delta(ibeam.Z, ibeam.Zerr, inextbeam.Z, inextbeam.Zerr)
+            adelta1sigmaZ = delta(ibeam.sigmaZ, ibeam.sigmaZerr, inextbeam.sigmaZ, inextbeam.sigmaZerr)
             
             if iNNbeam.Type != -1:
                 adelta2 = delta(inextbeam.X, inextbeam.Xerr, iNNbeam.X, iNNbeam.Xerr)
@@ -726,14 +728,11 @@ def createWeightedPayloads(fileName,listbeam=[],weighted=True):
                 elif deltaY==True and adelta1[0]*adelta2[0]<=0 and adelta2[0] != 0 and math.fabs(adelta1[0]/adelta2[0]) > 0.33 and math.fabs(adelta1[0]/adelta2[0]) < 3:
                     deltaY = False
             # check movements in Z                                                    
-            adelta = delta(ibeam.Z, ibeam.Zerr, inextbeam.Z, inextbeam.Zerr)
-
             
             limit = float(ibeam.sigmaZ)/2.
-            deltaZ = deltaSig(adelta) > 3.5 and adelta[0] >= limit
- 
-            adelta = delta(ibeam.sigmaZ, ibeam.sigmaZerr, inextbeam.sigmaZ, inextbeam.sigmaZerr)
-            deltasigmaZ = deltaSig(adelta) > 5.0
+            deltaZ = deltaSig(adelta1z0) > 3.5 and math.fabs(adelta1z0[0]) >= limit
+            
+            deltasigmaZ = deltaSig(adelta1sigmaZ) > 5.0
 
             # check dxdz
             adelta = delta(ibeam.dxdz, ibeam.dxdzerr, inextbeam.dxdz, inextbeam.dxdzerr)

@@ -3,6 +3,7 @@
 
 #include "RecoMuon/TrackerSeedGenerator/interface/TrackerSeedGenerator.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Provenance/interface/RunID.h"
 
 class SeedGeneratorFromRegionHits;
 class TrackingRegion;
@@ -20,6 +21,8 @@ private:
       const edm::Event &ev, const edm::EventSetup &es, const TrackingRegion& region);
 
 private:
+  void init();
+  edm::RunNumber_t theLastRun;
   edm::ParameterSet theConfig;
   SeedGeneratorFromRegionHits * theGenerator; 
 };
