@@ -24,7 +24,7 @@ SiPixelRecHitSource.saveFile = False
 # Pixel Track Monitoring
 from DQM.SiPixelMonitorTrack.SiPixelMonitorTrack_cfi import *
 SiPixelTrackResidualSource.saveFile = False
-SiPixelTrackResidualSource.TrackCandidateProducer = cms.string('newTrackCandidateMaker')
+SiPixelTrackResidualSource.TrackCandidateProducer = cms.string('initialStepTrackCandidates')
 SiPixelTrackResidualSource.trajectoryInput = cms.InputTag('generalTracks')
 from DQM.SiPixelMonitorTrack.SiPixelMonitorTrack_Cosmics_cfi import *
 SiPixelTrackResidualSource_Cosmics.saveFile = False
