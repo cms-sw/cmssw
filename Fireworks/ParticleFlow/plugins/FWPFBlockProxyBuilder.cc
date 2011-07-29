@@ -30,7 +30,7 @@ FWPFBlockProxyBuilder::scaleProduct( TEveElementList *parent, FWViewType::EType 
             {
                if( strcmp( (*j)->GetElementName(), "BlockCluster" ) == 0 )
                {
-                  FWPFLegoCandidate *cluster = dynamic_cast<FWPFLegoCandidate*>( *j );
+                  FWLegoCandidate *cluster = dynamic_cast<FWLegoCandidate*>( *j );
                   cluster->updateScale( vc, context() );
                }
             }
@@ -124,7 +124,7 @@ FWPFBlockProxyBuilder::setupClusterElement( const reco::PFBlockElement &blockEle
 
    if( viewType == FWViewType::kLego || viewType == FWViewType::kLegoPFECAL )
    {
-      FWPFLegoCandidate *legoCluster = new FWPFLegoCandidate( vc, FWProxyBuilderBase::context(), energy, et, pt, eta, phi );
+      FWLegoCandidate *legoCluster = new FWLegoCandidate( vc, FWProxyBuilderBase::context(), energy, et, pt, eta, phi );
       legoCluster->SetMarkerColor( FWProxyBuilderBase::item()->defaultDisplayProperties().color() );
       legoCluster->SetElementName( "BlockCluster" );
       setupAddElement( legoCluster, &oItemHolder );
