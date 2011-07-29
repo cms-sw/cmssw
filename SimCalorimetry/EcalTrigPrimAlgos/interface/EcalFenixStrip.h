@@ -76,6 +76,8 @@ class EcalFenixStrip {
   const EcalTPGCrystalStatus *ecaltpgBadX_;
   const EcalTPGStripStatus *ecaltpgStripStatus_;
 
+  bool identif_;
+
  public:
 
   void setPointers(  const EcalTPGPedestals * ecaltpPed,
@@ -120,6 +122,9 @@ class EcalFenixStrip {
     
   EcalFenixStripFgvbEE *getFGVB()      const { return fgvbEE_;}
 
+  void setbadStripMissing(bool flag) { identif_ = flag; } 
+  bool getbadStripMissing() const {return identif_;}
+
   // ========================= implementations ==============================================================
   void process(const edm::EventSetup &setup, std::vector<EBDataFrame> &samples, int nrXtals,std::vector<int> &out){
 
@@ -131,7 +136,10 @@ class EcalFenixStrip {
     }
     const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(samples[0].id());
     uint32_t stripid=elId.rawId() & 0xfffffff8;   //from Pascal
-    process_part1(samples,nrXtals,stripid,ecaltpPed_,ecaltpLin_,ecaltpgWeightMap_,ecaltpgWeightGroup_,ecaltpgBadX_);//templated part
+    
+    identif_ = getFGVB()->getMissedStripFlag();
+    
+    process_part1(identif_,samples,nrXtals,stripid,ecaltpPed_,ecaltpLin_,ecaltpgWeightMap_,ecaltpgWeightGroup_,ecaltpgBadX_);//templated part
     process_part2_barrel(stripid,ecaltpgSlidW_,ecaltpgFgStripEE_);//part different for barrel/endcap
     out=format_out_;
   }
@@ -145,14 +153,17 @@ class EcalFenixStrip {
    }
    const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(samples[0].id());
    uint32_t stripid=elId.rawId() & 0xfffffff8;   //from Pascal
-   process_part1(samples,nrXtals,stripid,ecaltpPed_,ecaltpLin_,ecaltpgWeightMap_,ecaltpgWeightGroup_,ecaltpgBadX_); //templated part
+   
+   identif_ = getFGVB()->getMissedStripFlag();
+   
+   process_part1(identif_,samples,nrXtals,stripid,ecaltpPed_,ecaltpLin_,ecaltpgWeightMap_,ecaltpgWeightGroup_,ecaltpgBadX_); //templated part
    process_part2_endcap(stripid,ecaltpgSlidW_,ecaltpgFgStripEE_,ecaltpgStripStatus_);
    out=format_out_; //FIXME: timing
    return;
  }
 
  template <class T> 
- void  process_part1(std::vector<T> & df,int nrXtals, uint32_t stripid, const EcalTPGPedestals * ecaltpPed, const
+ void  process_part1(int identif, std::vector<T> & df,int nrXtals, uint32_t stripid, const EcalTPGPedestals * ecaltpPed, const
  EcalTPGLinearizationConst *ecaltpLin,const EcalTPGWeightIdMap * ecaltpgWeightMap,const EcalTPGWeightGroup * ecaltpgWeightGroup, const EcalTPGCrystalStatus * ecaltpBadX)
    {
   
@@ -189,7 +200,7 @@ class EcalFenixStrip {
       }
  
       // Now call the sFGVB - this is common between EB and EE!
-      getFGVB()->setParameters(stripid,ecaltpgFgStripEE_);
+      getFGVB()->setParameters(identif, stripid,ecaltpgFgStripEE_);
       getFGVB()->process(lin_out_,fgvb_out_temp_);
 
       if(debug_)
