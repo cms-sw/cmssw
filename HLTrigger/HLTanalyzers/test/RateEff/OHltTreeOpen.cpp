@@ -15232,24 +15232,6 @@ vector<int> OHltTree::VecOpenHlt1PhotonPassed(
 	
   vector<int> rc;
 
-
-  //
-  cout<<"VecOpenHlt1PhotonPassed = "<<endl;
-  cout<<"Et = "<<Et<<endl;
-  cout<<"photonIso[HisoBR] = "<<photonIso["HisoBR"]<<endl;
-  cout<<"photonIso[HisoEC] = "<<photonIso["HisoEC"]<<endl;
-  cout<<"photonIso[Eiso] = "<<photonIso["Eiso"]<<endl;
-  cout<<"photonIso[Tiso] = "<<photonIso["Tiso"]<<endl;
-  cout<<"caloId[hoverebarrel] = "<<caloId["hoverebarrel"]<<endl;
-  cout<<"caloId[hovereendcap] = "<<caloId["hovereendcap"]<<endl;
-  cout<<"caloId[clusshapebarrel] = "<<caloId["clusshapebarrel"]<<endl;
-  cout<<"caloId[clusshapeendcap] = "<<caloId["clusshapeendcap"]<<endl;
-  cout<<"r9Id[HoverEEB] = "<<r9Id["HoverEEB"]<<endl;
-  cout<<"r9Id[HoverEEC] = "<<r9Id["HoverEEC"]<<endl;
-//   cout<<" = "<<<<endl;
-
-  //
-
   // Loop over all oh electrons
   for (int i=0; i<NohPhot; i++)
     {
@@ -15328,26 +15310,9 @@ vector<int>  OHltTree::VecOpenHlt1EcalActivPassed(
 	
   vector<int> rc;
 
-  //
-  cout<<"VecOpenHlt1EcalActivPassed = "<<endl;
-  cout<<"Et = "<<Et<<endl;
-  cout<<"photonIso[HisoBR] = "<<photonIso["HisoBR"]<<endl;
-  cout<<"photonIso[HisoEC] = "<<photonIso["HisoEC"]<<endl;
-  cout<<"photonIso[Eiso] = "<<photonIso["Eiso"]<<endl;
-  cout<<"photonIso[Tiso] = "<<photonIso["Tiso"]<<endl;
-  cout<<"caloId[hoverebarrel] = "<<caloId["hoverebarrel"]<<endl;
-  cout<<"caloId[hovereendcap] = "<<caloId["hovereendcap"]<<endl;
-  cout<<"caloId[clusshapebarrel] = "<<caloId["clusshapebarrel"]<<endl;
-  cout<<"caloId[clusshapeendcap] = "<<caloId["clusshapeendcap"]<<endl;
-  cout<<"r9Id[HoverEEB] = "<<r9Id["HoverEEB"]<<endl;
-  cout<<"r9Id[HoverEEC] = "<<r9Id["HoverEEC"]<<endl;
-//   cout<<" = "<<<<endl;
-
   // Loop over all oh electrons
-  cout<<"NohEcalActiv = "<<NohEcalActiv<<endl;
   for (int i=0; i<NohEcalActiv; i++)
     {
-      cout<<"ici0 = "<<endl;
       float ohEcalActivE = ohEcalActivEt[i] / (sin(2*atan(exp(-1.0*ohEcalActivEta[i]))));
       float ohEcalActivHoverE = ohEcalActivHforHoverE[i]/ohEcalActivE;
       int isbarrel = 0;
@@ -15364,43 +15329,34 @@ vector<int>  OHltTree::VecOpenHlt1EcalActivPassed(
 		
       if (ohEcalActivEt[i] > Et)
 	{
-	  cout<<"ici1 = "<<endl;
 	  if (TMath::Abs(ohEcalActivEta[i]) < endcapeta)
 	    {
-	      cout<<"ici2 = "<<endl;
 	      if (ohEcalActivL1iso[i] >= L1iso)
 		{ // L1iso is 0 or 1 
 		  //if (ohEcalActivL1Dupl[i] == false ){
 		     // remove double-counted L1 SCs 
-		  cout<<"ici3 = "<<endl;
 		      if ( (isbarrel && (quadraticHcalIsol < photonIso["HisoBR"]))
 
 			   || (isendcap && (quadraticHcalIsol < photonIso["HisoEC"] )))
 			{
-			  cout<<"ici4 = "<<endl;
 			  if ( (isbarrel && (quadraticEcalIsol <  photonIso["Eiso"]))
 			       || (isendcap && (quadraticEcalIsol
 						< photonIso["Eiso"])))
 			    {
-			      cout<<"ici5 = "<<endl;
 			      if ( ((isbarrel) && (ohEcalActivHoverE < caloId["hoverebarrel"]))
 				   || ((isendcap) && (ohEcalActivHoverE < caloId["hovereendcap"])))
 				{
-				  cout<<"ici6 = "<<endl;
 				  if (((isbarrel) && (quadraticTrackIsol < photonIso["Tiso"]))
 				      || ((isendcap) && (quadraticTrackIsol
 							 < photonIso["Tiso"] )))
 				    {
-				      cout<<"ici7 = "<<endl;
 				      if ( (isbarrel && ohEcalActivClusShap[i]
 					    < caloId["clusshapebarrel"]) || (isendcap
 								   && ohEcalActivClusShap[i] < caloId["clusshapeendcap"]))
 					{
-					  cout<<"ici8 = "<<endl;
 					  if ( (isbarrel && ohEcalActivR9[i] < r9Id["HoverEEB"])
 					       || (isendcap && ohEcalActivR9[i] < r9Id["HoverEEC"]))
 					    {
-					      cout<<"ici9 = "<<endl;
 					      rc.push_back(i);
 					    }
 					}
