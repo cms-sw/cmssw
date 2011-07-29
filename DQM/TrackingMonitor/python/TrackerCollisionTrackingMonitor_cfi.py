@@ -8,8 +8,8 @@ TrackerCollisionTrackMon = DQM.TrackingMonitor.TrackingMonitor_cfi.TrackMon.clon
 TrackerCollisionTrackMon.doGoodTrackPlots      = cms.bool(True)
 
 TrackerCollisionTrackMon.TrackProducer         = cms.InputTag("generalTracks")
-TrackerCollisionTrackMon.SeedProducer          = cms.InputTag("newSeedFromTriplets")
-TrackerCollisionTrackMon.TCProducer            = cms.InputTag("newTrackCandidateMaker")
+TrackerCollisionTrackMon.SeedProducer          = cms.InputTag("initialStepSeeds")
+TrackerCollisionTrackMon.TCProducer            = cms.InputTag("initialStepTrackCandidates")
 TrackerCollisionTrackMon.beamSpot              = cms.InputTag("offlineBeamSpot")
 
 TrackerCollisionTrackMon.AlgoName              = cms.string('GenTk')

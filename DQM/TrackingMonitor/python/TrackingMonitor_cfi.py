@@ -4,10 +4,9 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     
     # input tags
     TrackProducer = cms.InputTag("generalTracks"),
-    SeedProducer  = cms.InputTag("newSeedFromTriplets"),
+    SeedProducer  = cms.InputTag("initialStepSeeds"),
+    TCProducer    = cms.InputTag("initialStepTrackCandidates"),
     ClusterLabels = cms.vstring('Tot'), # to decide which Seeds-Clusters correlation plots to have default is Total other options 'Strip', 'Pix'
-                          
-    TCProducer    = cms.InputTag("newTrackCandidateMaker"),
     beamSpot      = cms.InputTag("offlineBeamSpot"),
     
     # output parameters
