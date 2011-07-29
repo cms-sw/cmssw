@@ -75,7 +75,6 @@ int cond::AlignSplitIOV::execute()
   std::string sourceTag(destTag);
   if (hasOptionValue("sourceTag"))
     sourceTag = getOptionValue<std::string>("sourceTag");
-
   bool verbose = hasOptionValue("verbose");
   
   cond::Time_t since = std::numeric_limits<cond::Time_t>::min();
@@ -86,28 +85,27 @@ int cond::AlignSplitIOV::execute()
 
   std::string destiovtoken;
 
-  cond::DbSession sourcedb = openDbSession("sourceConnect", true);
+  cond::DbSession sourcedb = openDbSession("sourceConnect", false);
   cond::DbSession destdb = openDbSession("destConnect");
 
-  sourcedb.transaction().start(true);
+  sourcedb.transaction().start(false);
   cond::MetaData sourceMetadata(sourcedb);
   sourceiovtoken = sourceMetadata.getToken(sourceTag);
   if (sourceiovtoken.empty()) 
     throw std::runtime_error(std::string("tag ") + sourceTag + std::string(" not found"));
-  
+
   if (verbose)
     std::cout << "source iov token: " << sourceiovtoken << std::endl;
 
   cond::IOVService iovmanager(sourcedb);
   sourceiovtype = iovmanager.timeType(sourceiovtoken);
-
   if (verbose)
     std::cout << "source iov type " << sourceiovtype << std::endl;
 
   since = std::max(since, cond::timeTypeSpecs[sourceiovtype].beginValue);
   till  = std::min(till,  cond::timeTypeSpecs[sourceiovtype].endValue);
   
-  cond::IOVProxy iov(sourcedb, sourceiovtoken, true, false);
+  cond::IOVProxy iov(sourcedb, sourceiovtoken);
   unsigned int counter = 0;
   for (cond::IOVProxy::const_iterator ioviterator = iov.begin();
        ioviterator != iov.end();
@@ -125,10 +123,10 @@ int cond::AlignSplitIOV::execute()
 
     cond::DbScopedTransaction transaction(destdb);
     transaction.start(false);
-    std::string payloadContainerName = iov.payloadContainerName();
+    std::string payloadContainerName = sourcedb.classNameForItem(ioviterator->token());
     std::string objToken;
     if (payloadContainerName=="Alignments")
-      objToken = processPayloadContainer<Alignments>(sourcedb, destdb,
+      objToken = processPayloadContainer<Alignments>(sourcedb, destdb, 
 						     ioviterator->token(), payloadContainerName);
     else if (payloadContainerName=="AlignmentErrors")
       objToken = processPayloadContainer<AlignmentErrors>(sourcedb, destdb,
@@ -159,14 +157,15 @@ int cond::AlignSplitIOV::execute()
   
   return 0;
 }
-  
+
 template<class T>
 std::string cond::AlignSplitIOV::processPayloadContainer(cond::DbSession &sourcedb,
 							 cond::DbSession &destdb, 
 							 const std::string &token,
 							 const std::string &containerName)
 {
-  boost::shared_ptr<T> object = sourcedb.getTypedObject<T>(token);  
+  boost::shared_ptr<T> object = sourcedb.getTypedObject<T>(token);
+  destdb.createDatabase();
   return destdb.storeObject(object.get(), containerName);
 }
 
