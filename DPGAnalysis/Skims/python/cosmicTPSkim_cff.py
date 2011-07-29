@@ -18,7 +18,7 @@ rsWithMaterialTracksP5TkCntFilter = cms.EDFilter("TrackCountFilter",
                                                  )
 
 cosmicMuonsBarrelOnlyTkFilter = cms.EDFilter("HLTMuonPointingFilter",
-                                             SALabel = cms.string("cosmicMuonsBarrelOnly"),
+                                             SALabel = cms.string("cosmicMuons"),
                                              PropagatorName = cms.string("SteppingHelixPropagatorAny"),
                                              radius = cms.double(90.0),
                                              maxZ = cms.double(130.0)
@@ -27,8 +27,8 @@ cosmicMuonsBarrelOnlyTkFilter = cms.EDFilter("HLTMuonPointingFilter",
 cosmicMuonsEndCapsOnlyTkFilter       = cosmicMuonsBarrelOnlyTkFilter.clone(SALabel = cms.string("cosmicMuonsEndCapsOnly"))
 cosmicMuonsTkFilter                  = cosmicMuonsBarrelOnlyTkFilter.clone(SALabel = cms.string("cosmicMuons"))
 cosmicMuons1LegTkFilter              = cosmicMuonsBarrelOnlyTkFilter.clone(SALabel = cms.string("cosmicMuons1Leg"))
-globalCosmicMuonsBarrelOnlyTkFilter  = cosmicMuonsBarrelOnlyTkFilter.clone(SALabel = cms.string("globalCosmicMuonsBarrelOnly"))
-globalCosmicMuonsEndCapsOnlyTkFilter = cosmicMuonsBarrelOnlyTkFilter.clone(SALabel = cms.string("globalCosmicMuonsEndCapsOnly"))
+globalCosmicMuonsBarrelOnlyTkFilter  = cosmicMuonsBarrelOnlyTkFilter.clone(SALabel = cms.string("globalCosmicMuons"))
+globalCosmicMuonsEndCapsOnlyTkFilter = cosmicMuonsBarrelOnlyTkFilter.clone(SALabel = cms.string("globalCosmicMuons"))
 globalCosmicMuonsTkFilter            = cosmicMuonsBarrelOnlyTkFilter.clone(SALabel = cms.string("globalCosmicMuons"))
 globalCosmicMuons1LegTkFilter        = cosmicMuonsBarrelOnlyTkFilter.clone(SALabel = cms.string("globalCosmicMuons1Leg"))
 
