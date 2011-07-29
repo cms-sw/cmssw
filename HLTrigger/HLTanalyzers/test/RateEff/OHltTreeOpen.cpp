@@ -2162,50 +2162,122 @@ void OHltTree::CheckOpenHlt(
 	  }
       }
 
-
-  else if (isDoublePhotonTrigger(triggerName, thresholdPhoton, r9Id, caloId, photonIso)){
-    
-    if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-      {
-	if (prescaleResponse(menu, cfg, rcounter, it))
-	  {
-	    if (OpenHlt1PhotonPassed(thresholdPhoton[0],
-				     map_PhotonR9ID[r9Id[0]],
-				     map_EGammaCaloId[caloId[0]],
-				     map_PhotonIso[photonIso[0]]
-				     ) >= 2)	
-	      
-		triggerBit[it] = true;
-	      }
-	  }
-      }
-
  /*DoublePhoton*/
 
-  else if (isAsymDoublePhotonTrigger(triggerName, thresholdPhoton, r9Id, caloId, photonIso)){
+//   else if (isDoublePhotonTrigger(triggerName, thresholdPhoton, r9Id, caloId, photonIso)){
+    
+//     if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+//       {
+// 	if (prescaleResponse(menu, cfg, rcounter, it))
+// 	  {
+// 	    if (OpenHlt1PhotonPassed(thresholdPhoton[0],
+// 				     map_PhotonR9ID[r9Id[0]],
+// 				     map_EGammaCaloId[caloId[0]],
+// 				     map_PhotonIso[photonIso[0]]
+// 				     ) >= 2)	
+	      
+// 		triggerBit[it] = true;
+// 	      }
+// 	  }
+//       }
+
+
+//  version with EcalActiv , i.e. with no L1 seed
+
+ else if (isDoublePhotonTrigger(triggerName, thresholdPhoton, r9Id, caloId, photonIso)){
+   
+   if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+     {
+       std::vector<int> firstVector =  VecOpenHlt1PhotonPassed(thresholdPhoton[0],
+				     map_PhotonR9ID[r9Id[0]],
+				     map_EGammaCaloId[caloId[0]],
+				     map_PhotonIso[photonIso[0]]);
+	      
+	    if (firstVector.size()>=1){
+	      std::vector<int> secondVector = VecOpenHlt1EcalActivPassed(thresholdPhoton[0],
+				     map_PhotonR9ID[r9Id[0]],
+				     map_EGammaCaloId[caloId[0]],
+				     map_PhotonIso[photonIso[0]]);
+
+	      if (secondVector.size()>=1){
+		for (unsigned int i=0; i<firstVector.size(); i++)
+		  {
+		    for (unsigned int j=0; j<secondVector.size() ; j++)
+		      {
+			if(abs(ohEcalActivEt[firstVector[i]] - ohPhotEt[secondVector[j]]) > 0.00001) 
+			triggerBit[it] = true;
+		      }
+		  }
+	      }
+	    }
+     }
+ }
+
+ /*DoublePhoton Asym*/
+
+//   else if (isAsymDoublePhotonTrigger(triggerName, thresholdPhoton, r9Id, caloId, photonIso)){
+    
+//     if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+//       {
+// 	if (prescaleResponse(menu, cfg, rcounter, it))
+// 	  {
+// 	     if ((OpenHlt1PhotonPassed(thresholdPhoton[1],
+// 				     map_PhotonR9ID[r9Id[1]],
+// 				     map_EGammaCaloId[caloId[1]],
+// 				     map_PhotonIso[photonIso[1]]
+// 				     ) >= 2) 	&&
+	      
+// 		(OpenHlt1PhotonPassed(thresholdPhoton[0],
+// 				     map_PhotonR9ID[r9Id[0]],
+// 				     map_EGammaCaloId[caloId[0]],
+// 				     map_PhotonIso[photonIso[0]]
+// 				      ) >= 1)
+// 		 )
+
+// 		triggerBit[it] = true;
+// 	      }
+// 	  }
+//       }
+
+
+//  version with EcalActiv , i.e. with no L1 seed
+
+ else if (isAsymDoublePhotonTrigger(triggerName, thresholdPhoton, r9Id, caloId, photonIso)){
     
     if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
 	if (prescaleResponse(menu, cfg, rcounter, it))
 	  {
-	     if ((OpenHlt1PhotonPassed(thresholdPhoton[1],
-				     map_PhotonR9ID[r9Id[1]],
-				     map_EGammaCaloId[caloId[1]],
-				     map_PhotonIso[photonIso[1]]
-				     ) >= 2) 	&&
-	      
-		(OpenHlt1PhotonPassed(thresholdPhoton[0],
+
+
+	    std::vector<int> firstVector =  VecOpenHlt1PhotonPassed(thresholdPhoton[0],
 				     map_PhotonR9ID[r9Id[0]],
 				     map_EGammaCaloId[caloId[0]],
-				     map_PhotonIso[photonIso[0]]
-				      ) >= 1)
-		 )
+				     map_PhotonIso[photonIso[0]]);
+	      
+	    if (firstVector.size()>=1){
+	      std::vector<int> secondVector = VecOpenHlt1EcalActivPassed(thresholdPhoton[1],
+				     map_PhotonR9ID[r9Id[1]],
+				     map_EGammaCaloId[caloId[1]],
+				     map_PhotonIso[photonIso[1]]);
 
-		triggerBit[it] = true;
+	      if (secondVector.size()>=1){
+		for (unsigned int i=0; i<firstVector.size(); i++)
+		  {
+		    for (unsigned int j=0; j<secondVector.size() ; j++)
+		      {
+			if(abs(ohEcalActivEt[firstVector[i]] - ohPhotEt[secondVector[j]] > 0.00001))
+			triggerBit[it] = true;
+		      }
+		  }
 	      }
+	    }
+
+
+
 	  }
       }
-
+  }
 
   /* Single Jet */
   else if (triggerName.CompareTo("OpenHLT_L1SingleCenJet") == 0)
@@ -15146,6 +15218,204 @@ int OHltTree::OpenHlt1PhotonPassed(
 }
 
 
+//Lucie / Arnaud 
+vector<int> OHltTree::VecOpenHlt1PhotonPassed(
+				   float Et,
+				   std::map< TString, float> r9Id,
+				   std::map< TString, float> caloId,
+				   std::map< TString, float> photonIso
+				   )
+{
+  float barreleta = 1.479;
+  float endcapeta = 2.65;
+  int L1iso = 0;
+	
+  vector<int> rc;
+
+
+  //
+  cout<<"VecOpenHlt1PhotonPassed = "<<endl;
+  cout<<"Et = "<<Et<<endl;
+  cout<<"photonIso[HisoBR] = "<<photonIso["HisoBR"]<<endl;
+  cout<<"photonIso[HisoEC] = "<<photonIso["HisoEC"]<<endl;
+  cout<<"photonIso[Eiso] = "<<photonIso["Eiso"]<<endl;
+  cout<<"photonIso[Tiso] = "<<photonIso["Tiso"]<<endl;
+  cout<<"caloId[hoverebarrel] = "<<caloId["hoverebarrel"]<<endl;
+  cout<<"caloId[hovereendcap] = "<<caloId["hovereendcap"]<<endl;
+  cout<<"caloId[clusshapebarrel] = "<<caloId["clusshapebarrel"]<<endl;
+  cout<<"caloId[clusshapeendcap] = "<<caloId["clusshapeendcap"]<<endl;
+  cout<<"r9Id[HoverEEB] = "<<r9Id["HoverEEB"]<<endl;
+  cout<<"r9Id[HoverEEC] = "<<r9Id["HoverEEC"]<<endl;
+//   cout<<" = "<<<<endl;
+
+  //
+
+  // Loop over all oh electrons
+  for (int i=0; i<NohPhot; i++)
+    {
+      float ohPhotE = ohPhotEt[i] / (sin(2*atan(exp(-1.0*ohPhotEta[i]))));
+      float ohPhotHoverE = ohPhotHforHoverE[i]/ohPhotE;
+      int isbarrel = 0;
+      int isendcap = 0;
+      if (TMath::Abs(ohPhotEta[i]) < barreleta)
+	isbarrel = 1;
+      if (barreleta < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i])
+	  < endcapeta)
+	isendcap = 1;
+		
+      float quadraticEcalIsol = ohPhotEiso[i] - (0.012 * ohPhotEt[i]);
+      float quadraticHcalIsol = ohPhotHiso[i] - (0.005 * ohPhotEt[i]);
+      float quadraticTrackIsol = ohPhotTiso[i] - (0.002 * ohPhotEt[i]);
+		
+      if (ohPhotEt[i] > Et)
+	{
+	  if (TMath::Abs(ohPhotEta[i]) < endcapeta)
+	    {
+	      if (ohPhotL1iso[i] >= L1iso)
+		{ // L1iso is 0 or 1 
+		  if (ohPhotL1Dupl[i] == false)
+		    { // remove double-counted L1 SCs 
+		      if ( (isbarrel && (quadraticHcalIsol < photonIso["HisoBR"]))
+			   || (isendcap && (quadraticHcalIsol < photonIso["HisoEC"] )))
+			{
+			  if ( (isbarrel && (quadraticEcalIsol <  photonIso["Eiso"]))
+			       || (isendcap && (quadraticEcalIsol
+						< photonIso["Eiso"])))
+			    {
+			      if ( ((isbarrel) && (ohPhotHoverE < caloId["hoverebarrel"]))
+				   || ((isendcap) && (ohPhotHoverE < caloId["hovereendcap"])))
+				{
+				  if (((isbarrel) && (quadraticTrackIsol < photonIso["Tiso"]))
+				      || ((isendcap) && (quadraticTrackIsol
+							 < photonIso["Tiso"] )))
+				    {
+				      if ( (isbarrel && ohPhotClusShap[i]
+					    < caloId["clusshapebarrel"]) || (isendcap
+								   && ohPhotClusShap[i] < caloId["clusshapeendcap"]))
+					{
+					  if ( (isbarrel && ohPhotR9[i] < r9Id["HoverEEB"])
+					       || (isendcap && ohPhotR9[i] < r9Id["HoverEEC"]))
+					    {
+					      rc.push_back(i);
+					    }
+					}
+				    }
+				}
+			    }
+			}
+		    }
+		}
+	    }
+	}
+    }
+	
+  return rc;
+}
+
+
+
+//Arnaud ohEcalActiv
+vector<int>  OHltTree::VecOpenHlt1EcalActivPassed(
+				   float Et,
+				   std::map< TString, float> r9Id,
+				   std::map< TString, float> caloId,
+				   std::map< TString, float> photonIso
+				   )
+{
+  float barreleta = 1.479;
+  float endcapeta = 2.65;
+  int L1iso = 0;
+	
+  vector<int> rc;
+
+  //
+  cout<<"VecOpenHlt1EcalActivPassed = "<<endl;
+  cout<<"Et = "<<Et<<endl;
+  cout<<"photonIso[HisoBR] = "<<photonIso["HisoBR"]<<endl;
+  cout<<"photonIso[HisoEC] = "<<photonIso["HisoEC"]<<endl;
+  cout<<"photonIso[Eiso] = "<<photonIso["Eiso"]<<endl;
+  cout<<"photonIso[Tiso] = "<<photonIso["Tiso"]<<endl;
+  cout<<"caloId[hoverebarrel] = "<<caloId["hoverebarrel"]<<endl;
+  cout<<"caloId[hovereendcap] = "<<caloId["hovereendcap"]<<endl;
+  cout<<"caloId[clusshapebarrel] = "<<caloId["clusshapebarrel"]<<endl;
+  cout<<"caloId[clusshapeendcap] = "<<caloId["clusshapeendcap"]<<endl;
+  cout<<"r9Id[HoverEEB] = "<<r9Id["HoverEEB"]<<endl;
+  cout<<"r9Id[HoverEEC] = "<<r9Id["HoverEEC"]<<endl;
+//   cout<<" = "<<<<endl;
+
+  // Loop over all oh electrons
+  cout<<"NohEcalActiv = "<<NohEcalActiv<<endl;
+  for (int i=0; i<NohEcalActiv; i++)
+    {
+      cout<<"ici0 = "<<endl;
+      float ohEcalActivE = ohEcalActivEt[i] / (sin(2*atan(exp(-1.0*ohEcalActivEta[i]))));
+      float ohEcalActivHoverE = ohEcalActivHforHoverE[i]/ohEcalActivE;
+      int isbarrel = 0;
+      int isendcap = 0;
+      if (TMath::Abs(ohEcalActivEta[i]) < barreleta)
+	isbarrel = 1;
+      if (barreleta < TMath::Abs(ohEcalActivEta[i]) && TMath::Abs(ohEcalActivEta[i])
+	  < endcapeta)
+	isendcap = 1;
+		
+      float quadraticEcalIsol = ohEcalActivEiso[i] - (0.012 * ohEcalActivEt[i]);
+      float quadraticHcalIsol = ohEcalActivHiso[i] - (0.005 * ohEcalActivEt[i]);
+      float quadraticTrackIsol = ohEcalActivTiso[i] - (0.002 * ohEcalActivEt[i]);
+		
+      if (ohEcalActivEt[i] > Et)
+	{
+	  cout<<"ici1 = "<<endl;
+	  if (TMath::Abs(ohEcalActivEta[i]) < endcapeta)
+	    {
+	      cout<<"ici2 = "<<endl;
+	      if (ohEcalActivL1iso[i] >= L1iso)
+		{ // L1iso is 0 or 1 
+		  //if (ohEcalActivL1Dupl[i] == false ){
+		     // remove double-counted L1 SCs 
+		  cout<<"ici3 = "<<endl;
+		      if ( (isbarrel && (quadraticHcalIsol < photonIso["HisoBR"]))
+
+			   || (isendcap && (quadraticHcalIsol < photonIso["HisoEC"] )))
+			{
+			  cout<<"ici4 = "<<endl;
+			  if ( (isbarrel && (quadraticEcalIsol <  photonIso["Eiso"]))
+			       || (isendcap && (quadraticEcalIsol
+						< photonIso["Eiso"])))
+			    {
+			      cout<<"ici5 = "<<endl;
+			      if ( ((isbarrel) && (ohEcalActivHoverE < caloId["hoverebarrel"]))
+				   || ((isendcap) && (ohEcalActivHoverE < caloId["hovereendcap"])))
+				{
+				  cout<<"ici6 = "<<endl;
+				  if (((isbarrel) && (quadraticTrackIsol < photonIso["Tiso"]))
+				      || ((isendcap) && (quadraticTrackIsol
+							 < photonIso["Tiso"] )))
+				    {
+				      cout<<"ici7 = "<<endl;
+				      if ( (isbarrel && ohEcalActivClusShap[i]
+					    < caloId["clusshapebarrel"]) || (isendcap
+								   && ohEcalActivClusShap[i] < caloId["clusshapeendcap"]))
+					{
+					  cout<<"ici8 = "<<endl;
+					  if ( (isbarrel && ohEcalActivR9[i] < r9Id["HoverEEB"])
+					       || (isendcap && ohEcalActivR9[i] < r9Id["HoverEEC"]))
+					    {
+					      cout<<"ici9 = "<<endl;
+					      rc.push_back(i);
+					    }
+					}
+				    }
+				}
+			    }
+			}
+		      //}
+		}
+	    }
+	}
+    }
+	
+  return rc;
+}
 
 vector<int> OHltTree::VectorOpenHlt1PhotonSamHarperPassed(
 							  float Et,
