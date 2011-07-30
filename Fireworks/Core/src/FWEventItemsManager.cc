@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.40 2010/10/27 16:27:23 amraktad Exp $
+// $Id: FWEventItemsManager.cc,v 1.41 2011/07/13 20:49:28 amraktad Exp $
 //
 
 // system include files
@@ -24,6 +24,7 @@
 #include "Fireworks/Core/interface/FWConfiguration.h"
 #include "Fireworks/Core/interface/FWDisplayProperties.h"
 #include "Fireworks/Core/interface/FWItemAccessorFactory.h"
+#include "Fireworks/Core/interface/FWProxyBuilderConfiguration.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
 //
@@ -80,7 +81,7 @@ FWEventItemsManager::~FWEventItemsManager()
 // member functions
 //
 const FWEventItem*
-FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem)
+FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem, const FWConfiguration* pbc)
 {
    FWPhysicsObjectDesc temp(iItem);
    
@@ -92,7 +93,7 @@ FWEventItemsManager::add(const FWPhysicsObjectDesc& iItem)
    }
    
    m_items.push_back(new FWEventItem(m_context,m_items.size(),m_accessorFactory->accessorFor(temp.type()),
-                                     temp) );
+                                     temp, pbc));
    newItem_(m_items.back());
    m_items.back()->goingToBeDestroyed_.connect(boost::bind(&FWEventItemsManager::removeItem,this,_1));
    if(m_event) {
@@ -188,6 +189,11 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
          os << static_cast<int>((*it)->defaultDisplayProperties().transparency());
          conf.addKeyValue(kTransparency, FWConfiguration(os.str()));
       }
+
+      FWConfiguration pbTmp;
+      (*it)->proxyBuilderConfig()->addTo(pbTmp);
+      conf.addKeyValue("PBConfig",pbTmp, true);
+
       iTo.addKeyValue((*it)->name(), conf, true);
    }
 }
@@ -265,7 +271,10 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
                                processName,
                                filterExpression,
                                layer);
-      add(desc);
+
+      const FWConfiguration* proxyConfig = new FWConfiguration(*conf.valueForKey("PBConfig"));
+
+      add(desc, proxyConfig );
    }
 }
 

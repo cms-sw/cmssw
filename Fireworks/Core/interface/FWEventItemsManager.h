@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 13:27:29 EST 2008
-// $Id: FWEventItemsManager.h,v 1.17 2010/07/21 17:03:25 matevz Exp $
+// $Id: FWEventItemsManager.h,v 1.18 2010/09/07 15:46:46 yana Exp $
 //
 
 // system include files
@@ -40,6 +40,7 @@ class FWPhysicsObjectDesc;
 class FWModelChangeManager;
 class FWSelectionManager;
 class FWItemAccessorFactory;
+class FWProxyBuilderConfiguration;
 
 class FWEventItemsManager : public FWConfigurable
 {
@@ -64,7 +65,7 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-   const FWEventItem* add(const FWPhysicsObjectDesc& iItem);
+   const FWEventItem* add(const FWPhysicsObjectDesc& iItem,  const FWConfiguration* pbConf = 0);
    void clearItems();
 
    void newEvent(const edm::EventBase* iEvent);
