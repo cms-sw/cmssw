@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.53 2010/09/07 15:46:46 yana Exp $
+// $Id: FWEventItem.cc,v 1.54 2011/05/20 17:17:27 wmtan Exp $
 //
 
 // system include files
@@ -27,6 +27,7 @@
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWItemAccessorBase.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
+#include "Fireworks/Core/interface/FWProxyBuilderConfiguration.h"
 #include "Fireworks/Core/src/FWGenericHandle.h"
 #include "Fireworks/Core/interface/FWGeometry.h"
 #include "Fireworks/Core/interface/fwLog.h"
@@ -64,7 +65,7 @@ int FWEventItem::maxLayerValue()
 FWEventItem::FWEventItem(fireworks::Context* iContext,
                          unsigned int iId,
                          boost::shared_ptr<FWItemAccessorBase> iAccessor,
-                         const FWPhysicsObjectDesc& iDesc) :
+                         const FWPhysicsObjectDesc& iDesc,  const FWConfiguration* pbc) :
    m_context(iContext),
    m_id(iId),
    m_name(iDesc.name()),
@@ -81,7 +82,8 @@ FWEventItem::FWEventItem(fireworks::Context* iContext,
                             defaultMemberFunctionNames()),
    m_filter(iDesc.filterExpression(),""),
    m_printedErrorThisEvent(false),
-   m_isSelected(false)
+   m_isSelected(false),
+   m_proxyBuilderConfig(new FWProxyBuilderConfiguration(pbc))
 {
    //assert(m_type->GetTypeInfo());
    //ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*(m_type->GetTypeInfo())));
@@ -322,7 +324,7 @@ FWEventItem::moveToFront()
    assert(0!=m_context->eventItemsManager());
    int largest = layer();
    for(FWEventItemsManager::const_iterator it = m_context->eventItemsManager()->begin(),
-                                           itEnd = m_context->eventItemsManager()->end();
+          itEnd = m_context->eventItemsManager()->end();
        it != itEnd;
        ++it) {
       if ((*it) && (*it != this) && (*it)->layer() > largest) {
@@ -372,6 +374,16 @@ FWEventItem::moveToLayer(int layer)
    m_itemInfos.clear();
    m_accessor->reset();
    handleChange();
+}
+
+void
+FWEventItem::proxyConfigChanged()
+{
+   m_itemInfos.clear();
+   m_accessor->reset();
+   if (m_context->eventItemsManager())
+      handleChange();
+
 }
 
 void 

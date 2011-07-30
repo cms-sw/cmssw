@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.44 2010/08/18 10:30:09 amraktad Exp $
+// $Id: FWEventItem.h,v 1.45 2010/09/07 15:46:46 yana Exp $
 //
 
 // system include files
@@ -44,6 +44,8 @@ class FWSelectionManager;
 class FWGeometry;
 class TVirtualCollectionProxy;
 class FWItemAccessorBase;
+class FWProxyBuilderConfiguration;
+class FWConfiguration;
 
 namespace edm {
    class EventBase;
@@ -54,7 +56,6 @@ namespace fireworks {
 
 class FWEventItem
 {
-
 public:
    struct ModelInfo {
       FWDisplayProperties m_displayProperties;
@@ -75,7 +76,7 @@ public:
    FWEventItem(fireworks::Context* iContext,
                unsigned int iItemId,
                boost::shared_ptr<FWItemAccessorBase> iAccessor,
-               const FWPhysicsObjectDesc& iDesc);
+               const FWPhysicsObjectDesc& iDesc,  const FWConfiguration* pbConf = 0);
    //virtual ~FWEventItem();
 
    // ---------- const member functions ---------------------
@@ -162,6 +163,7 @@ public:
    void setEvent(const edm::EventBase* iEvent);
 
    const FWGeometry* getGeom() const;
+   FWProxyBuilderConfiguration* proxyBuilderConfig() const { return m_proxyBuilderConfig; }
 
    void setLabels(const std::string& iModule,
                   const std::string& iProductInstance,
@@ -181,6 +183,8 @@ public:
    void moveToFront();
    void moveToBack();
    void moveToLayer(int layer);
+
+   void proxyConfigChanged();
 
    void unselect(int iIndex) const;
    void select(int iIndex) const;
@@ -242,6 +246,9 @@ private:
    mutable std::string m_errorMessage;
    
    bool m_isSelected;
+
+
+   FWProxyBuilderConfiguration*  m_proxyBuilderConfig;
 };
 
 
