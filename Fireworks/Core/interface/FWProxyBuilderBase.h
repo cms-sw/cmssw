@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones, Matevz Tadel, Alja Mrak-Tadel
 //         Created:  Thu Mar 18 14:12:12 CET 2010
-// $Id: FWProxyBuilderBase.h,v 1.15 2010/10/20 20:09:23 amraktad Exp $
+// $Id: FWProxyBuilderBase.h,v 1.16 2010/10/22 14:34:45 amraktad Exp $
 //
 
 // system include files
@@ -77,7 +77,7 @@ public:
    /// as opposed to showing the object as a whole
    static bool representsSubPart();
    // ---------- member functions ---------------------------
-   void setItem(const FWEventItem* iItem);
+   virtual void setItem(const FWEventItem* iItem);
    void setHaveWindow(bool iFlag);
    void build();
 
