@@ -16,7 +16,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:42 EDT 2008
-// $Id: CmsShowEDI.h,v 1.18 2010/11/10 20:07:06 amraktad Exp $
+// $Id: CmsShowEDI.h,v 1.19 2010/11/11 19:45:49 amraktad Exp $
 //
 
 // system include files
@@ -83,7 +83,6 @@ public:
    void moveToBack();
    void moveToFront();
    void moveToLayer(Long_t);
-
    void show(FWDataCategories);
 
    ClassDef(CmsShowEDI, 0);
@@ -93,6 +92,8 @@ private:
 
    const CmsShowEDI& operator=(const CmsShowEDI&);    // stop default
 
+   void clearPBFrame();
+   //   void addBut();
    // ---------- member data --------------------------------
    FWSelectionManager* m_selectionManager;
    TGTab* m_tabs;
@@ -124,6 +125,8 @@ private:
    TGTextView* m_selectError;
    FWExpressionValidator* m_validator;
    FWColorManager* m_colorManager;
+
+   TGCompositeFrame* m_settersFrame;
 };
 
 

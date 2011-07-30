@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.42 2010/12/06 16:11:38 amraktad Exp $
+// $Id: CmsShowEDI.cc,v 1.43 2010/12/08 10:45:20 amraktad Exp $
 //
 
 // system include files
@@ -39,6 +39,7 @@
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWDisplayProperties.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FWProxyBuilderConfiguration.h"
 #include "Fireworks/Core/src/FWColorSelect.h"
 #include "Fireworks/Core/interface/FWModelChangeSignal.h"
 #include "Fireworks/Core/interface/FWModelExpressionSelector.h"
@@ -61,10 +62,11 @@
 // constructors and destructor
 //
 CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager* selMgr, FWColorManager* colorMgr) :
-   TGTransientFrame(gClient->GetDefaultRoot(),p, w, h),
+   TGTransientFrame(gClient->GetDefaultRoot(), p, w, h),
    m_item(0),
    m_validator( new FWExpressionValidator),
-   m_colorManager(colorMgr)
+   m_colorManager(colorMgr),
+   m_settersFrame(0)
 {
    m_selectionManager = selMgr;
    SetCleanup(kDeepCleanup);
@@ -76,63 +78,63 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
    FWDialogBuilder builder(vf);
 
    builder.indent(0)
-          .addLabel(" ", 14, 2, &m_objectLabel)
-          .vSpacer()
-          .tabs(&m_tabs)
-          .beginTab("Graphics")
-            .indent(3)
-            .addLabel("Color", 8)
-            .addColorPicker(colorMgr, &m_colorSelectWidget).expand(false)
-            .addHSeparator()
-            .addLabel("Opacity", 8)
-            .addHSlider(150, &m_opacitySlider)
-            .addHSeparator()
-            .addCheckbox("Visible", &m_isVisibleButton)
-            .addHSeparator()
-            .addLabel("Drawing order", 8)
-            .addTextButton("To back", &m_backButton).floatLeft().expand(false)
-            .addNumberEntry(0.0, 4, TGNumberFormat::kNESInteger,
-                            FWEventItem::minLayerValue(), 
-                            FWEventItem::maxLayerValue(), 
-                            &m_layerEntry).expand(false).floatLeft()
-            .addTextButton("To front", &m_frontButton).expand(false)
-            .vSpacer()
-          .endTab()
-          .beginTab("Filter")
-            .indent(3)
-            .addLabel("Expression", 8)
-            .addValidatingTextEntry(0, &m_filterExpressionEntry).floatLeft()
-            .addTextButton("Filter", &m_filterButton).expand(false)
-            .addTextView("", &m_filterError)
-            .vSpacer()
-          .endTab()
-          .beginTab("Select")
-            .indent(3)
-            .addLabel("Expression", 8)
-            .addValidatingTextEntry(0, &m_selectExpressionEntry)
-            .addTextButton("Select", &m_selectButton).floatLeft().expand(false)
-            .addTextButton("Select all", &m_selectAllButton).expand(false)
-            .addTextView("", &m_selectError)
-            .vSpacer()
-          .endTab()
-          .beginTab("Data")
-            .indent(3)
-            .addLabel("Name:", 8)
-            .addTextEntry("None", &m_nameEntry)
-            .addLabel("Labels:", 8)
-            .addLabel("Type:", 8)
-            .addTextEntry("None", &m_typeEntry)
-            .addLabel("Module:", 8)
-            .addTextEntry("None", &m_moduleEntry)
-            .addLabel("Instance:", 8)
-            .addTextEntry("None", &m_instanceEntry)
-            .addLabel("Process:", 8)
-            .addTextEntry("None", &m_processEntry)
-            .addHSeparator()
-            .addTextButton("Remove collection", &m_removeButton).expand(false)
-            .vSpacer()
-         .endTab()
-       .untabs();
+      .addLabel(" ", 14, 2, &m_objectLabel)
+      .vSpacer()
+      .tabs(&m_tabs)
+      .beginTab("Graphics")
+      .indent(3)
+      .addLabel("Color", 8)
+      .addColorPicker(colorMgr, &m_colorSelectWidget).expand(false)
+      .addHSeparator()
+      .addLabel("Opacity", 8)
+      .addHSlider(150, &m_opacitySlider)
+      .addHSeparator()
+      .addCheckbox("Visible", &m_isVisibleButton)
+      .addHSeparator()
+      .addLabel("Drawing order", 8)
+      .addTextButton("To back", &m_backButton).floatLeft().expand(false)
+      .addNumberEntry(0.0, 4, TGNumberFormat::kNESInteger,
+                      FWEventItem::minLayerValue(), 
+                      FWEventItem::maxLayerValue(), 
+                      &m_layerEntry).expand(false).floatLeft()
+      .addTextButton("To front", &m_frontButton).expand(false)
+      .vSpacer()
+      .endTab()
+      .beginTab("Filter")
+      .indent(3)
+      .addLabel("Expression", 8)
+      .addValidatingTextEntry(0, &m_filterExpressionEntry).floatLeft()
+      .addTextButton("Filter", &m_filterButton).expand(false)
+      .addTextView("", &m_filterError)
+      .vSpacer()
+      .endTab()
+      .beginTab("Select")
+      .indent(3)
+      .addLabel("Expression", 8)
+      .addValidatingTextEntry(0, &m_selectExpressionEntry)
+      .addTextButton("Select", &m_selectButton).floatLeft().expand(false)
+      .addTextButton("Select all", &m_selectAllButton).expand(false)
+      .addTextView("", &m_selectError)
+      .vSpacer()
+      .endTab()
+      .beginTab("Data")
+      .indent(3)
+      .addLabel("Name:", 8)
+      .addTextEntry("None", &m_nameEntry)
+      .addLabel("Labels:", 8)
+      .addLabel("Type:", 8)
+      .addTextEntry("None", &m_typeEntry)
+      .addLabel("Module:", 8)
+      .addTextEntry("None", &m_moduleEntry)
+      .addLabel("Instance:", 8)
+      .addTextEntry("None", &m_instanceEntry)
+      .addLabel("Process:", 8)
+      .addTextEntry("None", &m_processEntry)
+      .addHSeparator()
+      .addTextButton("Remove collection", &m_removeButton).expand(false)
+      .vSpacer()
+      .endTab()
+      .untabs();
 
    m_filterError->SetForegroundColor(gVirtualX->GetPixel(kRed));
    m_filterError->SetBackgroundColor(TGFrame::GetDefaultFrameBackground());
@@ -157,6 +159,13 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
    m_frontButton->Connect("Clicked()","CmsShowEDI",this,"moveToFront()");
    m_backButton->Connect("Clicked()","CmsShowEDI",this,"moveToBack()");
    m_layerEntry->Connect("ValueSet(Long_t)","CmsShowEDI",this,"moveToLayer(Long_t)");
+   
+
+   TGCompositeFrame* cf = m_tabs->GetTabContainer(0);
+   m_settersFrame = new TGHorizontalFrame(cf);
+   m_settersFrame->SetCleanup(kDeepCleanup);
+   // m_settersFrame->SetBackgroundColor(0xff00ff);
+   cf->AddFrame(m_settersFrame, new TGLayoutHints(kLHintsExpandX |kLHintsExpandY ));
 
    SetWindowName("Collection Controller");
    MapSubwindows();
@@ -207,6 +216,20 @@ CmsShowEDI::~CmsShowEDI()
 //
 // member functions
 //
+
+void CmsShowEDI::clearPBFrame()
+{
+   if (!m_settersFrame->GetList()->IsEmpty())
+   {
+      // printf("remove FRAME \n");
+      TGFrameElement *el = (TGFrameElement*) m_settersFrame->GetList()->First();
+      TGFrame* f = el->fFrame;
+      f->UnmapWindow();
+      m_settersFrame->RemoveFrame(f);
+      f->DestroyWindow();
+   }
+}
+
 void
 CmsShowEDI::fillEDIFrame() {
    FWEventItem* iItem =0;
@@ -253,12 +276,18 @@ CmsShowEDI::fillEDIFrame() {
          m_modelChangedConn = m_item->changed_.connect(boost::bind(&CmsShowEDI::updateFilter, this));
          //    m_selectionChangedConn = m_selectionManager->selectionChanged_.connect(boost::bind(&CmsShowEDI::updateSelection, this));
          m_destroyedConn = m_item->goingToBeDestroyed_.connect(boost::bind(&CmsShowEDI::disconnectAll, this));
-      } else if(multipleCollections) {
+                       
+         clearPBFrame();
+         m_item->proxyBuilderConfig()->populateFrame(m_settersFrame);
+         //if (m_item->purpose() == "Candidates")
+         //  addBut();
+      }
+      else if(multipleCollections) {
          std::ostringstream s;
          s<<m_selectionManager->selectedItems().size()<<" Collections Selected";
          m_objectLabel->SetText(s.str().c_str());
       }
-   
+
       Resize(GetDefaultSize());
       Layout();
    }
@@ -330,6 +359,7 @@ CmsShowEDI::updateFilter() {
 void
 CmsShowEDI::disconnectAll() {
    m_objectLabel->SetText("No Collection Selected");
+   clearPBFrame();
    if(0 != m_item) {
       m_displayChangedConn.disconnect();
       m_modelChangedConn.disconnect();
