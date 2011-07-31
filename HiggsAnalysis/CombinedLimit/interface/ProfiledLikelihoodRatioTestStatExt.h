@@ -64,7 +64,7 @@ class ProfiledLikelihoodTestStatOpt : public RooStats::TestStatistic {
 
         // create NLL. if returns true, it can be kept, if false it should be deleted at the end of Evaluate
         bool createNLL(RooAbsPdf &pdf, RooAbsData &data) ;
-        double minNLL() ;
+        double minNLL(bool isDenominator) ;
 }; // TestSimpleStatistics
 
 

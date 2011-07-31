@@ -89,7 +89,7 @@ double ProfiledLikelihoodRatioTestStatOpt::minNLL(std::auto_ptr<RooAbsReal> &nll
 #endif
     RooMinimizer minim(*nll_);
     minim.setStrategy(0);
-    minim.setPrintLevel(verbosity_-1);
+    minim.setPrintLevel(verbosity_-2);
     minim.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
     if (verbosity_ > 1) {
         std::auto_ptr<RooFitResult> res(minim.save());
@@ -113,6 +113,7 @@ ProfiledLikelihoodTestStatOpt::ProfiledLikelihoodTestStatOpt(
     gobs_(gobs),
     verbosity_(verbosity)
 {
+    std::cout << "Created for " << pdf.GetName() << "." << std::endl;
     params.snapshot(snap_,false);
     ((RooRealVar*)snap_.find(params.first()->GetName()))->setConstant(false);
     poi_.add(snap_);
@@ -122,15 +123,15 @@ ProfiledLikelihoodTestStatOpt::ProfiledLikelihoodTestStatOpt(
     DBG(DBG_PLTestStat_ctor, (std::cout << "All params: " << std::endl))  DBG(DBG_PLTestStat_ctor, (params_->Print("V")))
     DBG(DBG_PLTestStat_ctor, (std::cout << "Snapshot: " << std::endl))    DBG(DBG_PLTestStat_ctor, (snap_.Print("V")))
     DBG(DBG_PLTestStat_ctor, (std::cout << "POI: " << std::endl))         DBG(DBG_PLTestStat_ctor, (poi_.Print("V")))
-    
 }
 
 
 Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*nullPOI*/)
 {
+    std::cout << "Being evaluated on " << data.GetName() << std::endl;
+
     // Take snapshot of initial state, to restore it at the end 
     RooArgSet initialState; params_->snapshot(initialState);
-
 
     DBG(DBG_PLTestStat_pars, std::cout << "Being evaluated on " << data.GetName() << ": params before snapshot are " << std::endl)
     DBG(DBG_PLTestStat_pars, params_->Print("V"))
@@ -150,35 +151,78 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
     // Initialize signal strength
     RooRealVar *rIn = (RooRealVar *) poi_.first();
     RooRealVar *r   = (RooRealVar *) params_->find(rIn->GetName());
-    // We no longer set the constraint exactly at max, because it creates issues with "nearly zero" numbers
-    r->setMin(0); if (rIn->getVal() == 0) r->removeMax(); else r->setMax(rIn->getVal()); //*2+1); 
+    bool canKeepNLL = createNLL(*pdf_, data);
+
+    double initialR = rIn->getVal();
+
+#if 1
+    // Perform unconstrained minimization (denominator)
+    r->setMin(0); if (initialR == 0) r->removeMax(); else r->setMax(1.1*initialR); 
+    r->setVal(initialR == 0 ? 0.5 : 0.5*initialR); //best guess
     r->setConstant(false);
     DBG(DBG_PLTestStat_pars, (std::cout << "r In: ")) DBG(DBG_PLTestStat_pars, (rIn->Print(""))) DBG(DBG_PLTestStat_pars, std::cout << std::endl)
     DBG(DBG_PLTestStat_pars, std::cout << "r before the fit: ") DBG(DBG_PLTestStat_pars, r->Print("")) DBG(DBG_PLTestStat_pars, std::cout << std::endl)
 
-    bool canKeepNLL = createNLL(*pdf_, data);
+    double nullNLL = minNLL(true);
+    double bestFitR = r->getVal();
 
-    // Perform unconstrained minimization (denominator)
-    double nullNLL = minNLL();
-    //double bestFitR = r->getVal();
     DBG(DBG_PLTestStat_pars, (std::cout << "r after the fit: ")) DBG(DBG_PLTestStat_pars, (r->Print(""))) DBG(DBG_PLTestStat_pars, std::cout << std::endl)
-
-    // Perform unconstrained minimization (numerator)
-    r->setVal(rIn->getVal()); 
-    r->setConstant(true);
-    double thisNLL = minNLL();
-
-    // This is the Official Implementation(TM) of the constraint
-    //if (bestFitR > rIn->getVal()) return 0;
-
     DBG(DBG_PLTestStat_pars, std::cout << "Was evaluated on " << data.GetName() << ": params before snapshot are " << std::endl)
     DBG(DBG_PLTestStat_pars, params_->Print("V"))
+
+    // Prepare for constrained minimization (numerator)
+    r->setVal(initialR); 
+    r->setConstant(true);
+    double thisNLL = nullNLL;
+    if (initialR == 0 || bestFitR < initialR) { 
+        // must do constrained fit
+        thisNLL = minNLL(false);
+        if (thisNLL - nullNLL < -0.02) { 
+            printf("  --> constrained fit is better... will repeat unconstrained fit\n");
+            r->setConstant(false);
+            nullNLL = minNLL(true);
+            bestFitR = r->getVal();
+            if (bestFitR > initialR) {
+                printf("   after re-fit, signal %7.4f > %7.4f, test statistics will be zero.\n", bestFitR, initialR);
+                thisNLL = nullNLL;
+            }
+        }
+    } else {
+        printf("   signal fit %7.4f > %7.4f: don't need to compute numerator\n", bestFitR, initialR);
+    }
+#else
+    // Preform first constrained minimization (numerator)
+    r->setVal(initialR); 
+    r->setConstant(true);
+
+    double thisNLL = minNLL(false);
+
+    // Then perform unconstrained minimization (denominator)
+    r->setMin(0); if (initialR == 0) r->removeMax(); else r->setMax(1.1*initialR); 
+    r->setVal(initialR == 0 ? 0.5 : 0.5*initialR); //best guess
+    r->setConstant(false);
+    DBG(DBG_PLTestStat_pars, (std::cout << "r In: ")) DBG(DBG_PLTestStat_pars, (rIn->Print(""))) DBG(DBG_PLTestStat_pars, std::cout << std::endl)
+    DBG(DBG_PLTestStat_pars, std::cout << "r before the fit: ") DBG(DBG_PLTestStat_pars, r->Print("")) DBG(DBG_PLTestStat_pars, std::cout << std::endl)
+
+    double nullNLL = minNLL(true);
+    double bestFitR = r->getVal();
+
+    DBG(DBG_PLTestStat_pars, (std::cout << "r after the fit: ")) DBG(DBG_PLTestStat_pars, (r->Print(""))) DBG(DBG_PLTestStat_pars, std::cout << std::endl)
+    DBG(DBG_PLTestStat_pars, std::cout << "Was evaluated on " << data.GetName() << ": params before snapshot are " << std::endl)
+    DBG(DBG_PLTestStat_pars, params_->Print("V"))
+
+    if (initialR != 0 && bestFitR > initialR) { 
+        printf("   fit, signal %7.4f > %7.4f, test statistics will be zero.\n", bestFitR, initialR);
+        thisNLL = nullNLL;
+    }
+#endif
 
     //Restore initial state, to avoid issues with ToyMCSampler
     *params_ = initialState;
 
     if (!canKeepNLL) nll_.reset();
 
+    printf("\nNLLs:  num % 10.4f, den % 10.4f (signal %7.4f), test stat % 10.4f\n", thisNLL, nullNLL, bestFitR, thisNLL-nullNLL);
     //return std::min(thisNLL-nullNLL, 0.);
     return thisNLL-nullNLL;
 }
@@ -194,16 +238,50 @@ bool ProfiledLikelihoodTestStatOpt::createNLL(RooAbsPdf &pdf, RooAbsData &data)
         return false;
     }
 }
-double ProfiledLikelihoodTestStatOpt::minNLL() 
+double ProfiledLikelihoodTestStatOpt::minNLL(bool isDenominator) 
 {
     RooMinimizer minim(*nll_);
+    double initialNll = nll_->getVal();
     minim.setStrategy(0);
-    minim.setPrintLevel(verbosity_-1);    
-    minim.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
-    if (verbosity_ > 1) {
-        minim.hesse();
+    minim.setPrintLevel(verbosity_-2);  
+    for (int tries = 0, maxtries = 4; tries <= maxtries; ++tries) {
+        int status = minim.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
+        if (verbosity_ > 1) minim.hesse();
         std::auto_ptr<RooFitResult> res(minim.save());
-        res->Print("V");
+        if (verbosity_ > 1) res->Print("V");
+        if (status == 0 && nll_->getVal() > initialNll + 0.02) {
+            printf("\n  --> false minimum, status %d, cov. quality %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->covQual(), res->edm(), initialNll, nll_->getVal(), initialNll - nll_->getVal());
+            if (tries == 0) {
+                printf("    ----> Doing a re-scan and re-trying\n");
+                minim.minimize("Minuit2","Scan");
+            } else if (tries == 1) {
+                printf("    ----> Re-doing a re-scan and re-trying with strategy = 1\n");
+                minim.minimize("Minuit2","Scan");
+                minim.setStrategy(1);
+            } else if (tries == 2) {
+                printf("    ----> Re-doing a re-scan, a simplex and then re-trying for a last time\n");
+                minim.minimize("Minuit2","Scan");
+                minim.minimize("Minuit2","Simplex");
+            } else {
+                printf("    ----> No idea, will return initial estimate\n");
+                return initialNll;
+            }
+        } else if (status == 0) {  
+            printf("\n  --> sucess: status %d, cov. quality %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->covQual(), res->edm(), initialNll, nll_->getVal(), initialNll - nll_->getVal());
+            break;
+        } else if (tries != maxtries) {
+            printf("\n  --> partial fail: status %d, cov. quality %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->covQual(), res->edm(), initialNll, nll_->getVal(), initialNll - nll_->getVal());
+            if (tries > 1) {
+                printf("    ----> Doing a re-scan first\n");
+                minim.minimize("Minuit2","Scan");
+            }
+            if (tries > 2) {
+                printf("    ----> trying with strategy = 1\n");
+                minim.setStrategy(1);
+            }
+        } else {
+            printf("\n  --> final fail: status %d, cov. quality %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->covQual(), res->edm(), initialNll, nll_->getVal(), initialNll - nll_->getVal());
+        }
     }
     return nll_->getVal();
 }

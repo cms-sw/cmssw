@@ -181,6 +181,10 @@ void HybridNew::validateOptions() {
         if (testStat_ == "LHC")     std::cout << ">>> using the Profile Likelihood test statistics modified for upper limits (Q_LHC)" << std::endl;
         if (testStat_ == "Profile") std::cout << ">>> using the Profile Likelihood test statistics not modified for upper limits (Q_Profile)" << std::endl;
     }
+    if (readHybridResults_ || workingMode_ == MakeTestStatistics || workingMode_ == MakeSignificanceTestStatistics) {
+        // If not generating toys, don't need to fit nuisance parameters
+        fitNuisances_ = false;
+    }
 }
 
 bool HybridNew::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
@@ -554,7 +558,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
     timer.Start();
     {
         CloseCoutSentry sentry(verbose < 3);
-        fitZero.reset(mc_s->GetPdf()->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(0), RooFit::Hesse(0), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
+        fitZero.reset(mc_s->GetPdf()->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Hesse(0), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
     }
     if (verbose > 1) { std::cout << "Zero signal fit" << std::endl; fitZero->Print("V"); }
     if (verbose > 1) { std::cout << "Fitting of the background hypothesis done in " << timer.RealTime() << " s" << std::endl; }
@@ -562,10 +566,10 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
     timer.Start();
     {
        CloseCoutSentry sentry(verbose < 3);
-       fitMu.reset(mc_s->GetPdf()->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(0), RooFit::Hesse(0), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
+       fitMu.reset(mc_s->GetPdf()->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Hesse(0), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
     }
-    if (verbose > 1) { std::cout << "Reference signal fit (r = " << rVal << ")" << std::endl; fitMu->Print("V"); }
-    if (verbose > 1) { std::cout << "Fitting of the signal-plus-background hypothesis done in " << timer.RealTime() << " s" << std::endl; }
+    if (verbose > 0) { std::cout << "Reference signal fit (r = " << rVal << ")" << std::endl; fitMu->Print("V"); }
+    if (verbose > 0) { std::cout << "Fitting of the signal-plus-background hypothesis done in " << timer.RealTime() << " s" << std::endl; }
   } else { fitNuisances_ = false; }
 
   // since ModelConfig cannot allow re-setting sets, we have to re-make everything 
@@ -645,7 +649,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   } else if (testStat_ == "TEV") {
       if (optimizeTestStatistics_) {
           setup.qvar.reset(new ProfiledLikelihoodRatioTestStatOpt(*mc_s->GetObservables(), *mc_s->GetPdf(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(), poiZero, poi));
-          ((ProfiledLikelihoodRatioTestStatOpt&)*setup.qvar).setPrintLevel(verbose-1);
+          ((ProfiledLikelihoodRatioTestStatOpt&)*setup.qvar).setPrintLevel(verbose);
       } else {   
           setup.qvar.reset(new RatioOfProfiledLikelihoodsTestStat(*mc_s->GetPdf(), *mc_s->GetPdf(), setup.modelConfig.GetSnapshot()));
           ((RatioOfProfiledLikelihoodsTestStat&)*setup.qvar).SetSubtractMLE(false);
@@ -655,7 +659,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
     if (testStat_ == "LHC") {
        ((ProfileLikelihoodTestStat&)*setup.qvar).SetOneSided(true);
         if (optimizeTestStatistics_) {
-            setup.qvar.reset(new ProfiledLikelihoodTestStatOpt(*mc_s->GetObservables(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(),  *setup.modelConfig.GetSnapshot(),gobsParams,gobs, verbose-1));
+            setup.qvar.reset(new ProfiledLikelihoodTestStatOpt(*mc_s->GetObservables(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(),  *setup.modelConfig.GetSnapshot(),gobsParams,gobs, verbose));
         }
     }
   }
@@ -975,6 +979,13 @@ RooStats::HypoTestResult * HybridNew::readToysFromFile(double rValue) {
             "\tCLb      = " << ret->CLb()      << " +/- " << ret->CLbError()      << "\n" <<
             "\tCLsplusb = " << ret->CLsplusb() << " +/- " << ret->CLsplusbError() << "\n" <<
             std::endl;
+        if (!plot_.empty() && workingMode_ != MakeLimit) {
+            HypoTestPlot plot(*ret, 30);
+            TCanvas *c1 = new TCanvas("c1","c1");
+            plot.Draw();
+            c1->Print(plot_.c_str());
+            delete c1;
+        }
     }
     return ret.release();
 }
@@ -1076,23 +1087,23 @@ std::pair<double,double> HybridNew::updateGridPoint(RooWorkspace *w, RooStats::M
     typedef std::pair<double,double> CLs_t;
     bool isProfile = (testStat_ == "LHC" || testStat_ == "Profile");
     if (point->first == 0 && CLs_) return std::pair<double,double>(1,0);
+    RooArgSet  poi(*mc_s->GetParametersOfInterest());
+    RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
     if (expectedFromGrid_) {
         std::vector<Double_t> btoys = point->second->GetNullDistribution()->GetSamplingDistribution();
         std::sort(btoys.begin(), btoys.end());
         Double_t testStat = btoys[std::min<int>(floor((1.-quantileForExpectedFromGrid_) * btoys.size()+0.5), btoys.size())];
         point->second->SetTestStatisticData(testStat + (isProfile ? -EPS : EPS));
     } else {
-        RooArgSet  poi(*mc_s->GetParametersOfInterest());
-        RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
         Setup setup;
         std::auto_ptr<RooStats::HybridCalculator> hc = create(w, mc_s, mc_b, data, point->first, setup);
         RooArgSet nullPOI(*setup.modelConfig_bonly.GetSnapshot());
-        if (isProfile) nullPOI.setRealValue(r->GetName(), rValue_);
+        if (isProfile) nullPOI.setRealValue(r->GetName(), point->first);
         double testStat = setup.qvar->Evaluate(data, nullPOI);
         point->second->SetTestStatisticData(testStat + (isProfile ? -EPS : EPS));
     }
     if (verbose > 1) {
-        std::cout << "At r = " << rValue_ << ":\n" << 
+        std::cout << "At " << r->GetName() << " = " << point->first << ":\n" << 
             "\tCLs      = " << point->second->CLs()      << " +/- " << point->second->CLsError()      << "\n" <<
             "\tCLb      = " << point->second->CLb()      << " +/- " << point->second->CLbError()      << "\n" <<
             "\tCLsplusb = " << point->second->CLsplusb() << " +/- " << point->second->CLsplusbError() << "\n" <<
