@@ -235,6 +235,10 @@ cacheutils::CachingAddNLL::evaluate() const
     // std::cout << "AddNLL for " << pdf_->GetName() << ": " << ret << std::endl;
     // and add extended term: expected - observed*log(expected);
     double expectedEvents = (isRooRealSum_ ? pdf_->getNorm(data_->get()) : sumCoeff);
+    if (expectedEvents < 0) {
+        logEvalError("Expected number of events is negative");
+        expectedEvents = 1e-6;
+    }
     ret += expectedEvents - UInt_t(sumWeights_) * log(expectedEvents);
     // std::cout << "     plus extended term: " << ret << std::endl;
     return ret;
@@ -330,19 +334,19 @@ cacheutils::CachingSimNLL::setup_()
     //dataSets_.reset(dataOriginal_->split(pdfOriginal_->indexCat(), true));
     datasets_.resize(pdfs_.size(), 0);
     splitWithWeights(*dataOriginal_, simpdf->indexCat(), true);
-    std::cout << "Pdf " << simpdf->GetName() <<" is a SimPdf over category " << catClone->GetName() << ", with " << pdfs_.size() << " bins" << std::endl;
+    //std::cout << "Pdf " << simpdf->GetName() <<" is a SimPdf over category " << catClone->GetName() << ", with " << pdfs_.size() << " bins" << std::endl;
     for (int ib = 0, nb = pdfs_.size(); ib < nb; ++ib) {
         catClone->setBin(ib);
         RooAbsPdf *pdf = simpdf->getPdf(catClone->getLabel());
         if (pdf != 0) {
             RooAbsData *data = (RooAbsData *) datasets_[ib]; //dataSets_->FindObject(catClone->getLabel());
             //RooAbsData *data = (RooAbsData *) dataSets_->FindObject(catClone->getLabel());
-            std::cout << "   bin " << ib << " (label " << catClone->getLabel() << ") has pdf " << pdf->GetName() << " of type " << pdf->ClassName() << " and " << (data ? data->numEntries() : -1) << " dataset entries" << std::endl;
+            //std::cout << "   bin " << ib << " (label " << catClone->getLabel() << ") has pdf " << pdf->GetName() << " of type " << pdf->ClassName() << " and " << (data ? data->numEntries() : -1) << " dataset entries" << std::endl;
             if (data == 0) { throw std::logic_error("Error: no data"); }
             pdfs_[ib] = new CachingAddNLL(catClone->getLabel(), "", pdf, data);
         } else { 
             pdfs_[ib] = 0; 
-            std::cout << "   bin " << ib << " (label " << catClone->getLabel() << ") has no pdf" << std::endl;
+            //std::cout << "   bin " << ib << " (label " << catClone->getLabel() << ") has no pdf" << std::endl;
         }
     }   
 
@@ -354,13 +358,21 @@ cacheutils::CachingSimNLL::evaluate() const
 {
     double ret = 0;
     for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it) {
-        if (*it != 0) ret += (*it)->getVal();
+        if (*it != 0) {
+            double nllval = (*it)->getVal();
+            // what sanity check could I put here?
+            ret += nllval;
+        }
     }
     if (!constrainPdfs_.empty()) {
         for (std::vector<RooAbsPdf *>::const_iterator it = constrainPdfs_.begin(), ed = constrainPdfs_.end(); it != ed; ++it) { 
-            ret -= (*it)->getLogVal(nuis_);
+            double pdfval = (*it)->getVal(nuis_);
+            ret -= (pdfval > 1e-7 ? log(pdfval) : log(1e-7)-pdfval);
         }
     }
+    static unsigned long _trace_ = 0; _trace_++;
+    if (_trace_ % 10 == 0) { putchar('.'); fflush(stdout); }
+    //if (_trace_ % 250 == 0) { printf("               NLL % 10.4f after %10lu evals.\n", ret, _trace_); fflush(stdout); }
     return ret;
 }
 
