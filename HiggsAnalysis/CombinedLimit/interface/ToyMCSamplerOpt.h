@@ -24,6 +24,7 @@ namespace toymcoptutils {
             RooAbsData *generate(RooRealVar *&weightVar, const RooDataSet* protoData = NULL, int forceEvents = 0) ;
             void setCopyData(bool copyData) { copyData_ = copyData; }
         private:
+            RooAbsPdf                       *pdf_; 
             RooAbsCategoryLValue            *cat_;
             RooArgSet                        observables_;
             std::vector<SinglePdfGenInfo *>  pdfs_; 

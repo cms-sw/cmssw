@@ -103,6 +103,7 @@ toymcoptutils::SinglePdfGenInfo::generate(const RooDataSet* protoData, int force
 }
 
 toymcoptutils::SimPdfGenInfo::SimPdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData, int forceEvents) :
+    pdf_(&pdf),
     cat_(0),
     observables_(observables),
     copyData_(true)
@@ -146,6 +147,7 @@ RooAbsData *
 toymcoptutils::SimPdfGenInfo::generate(RooRealVar *&weightVar, const RooDataSet* protoData, int forceEvents) 
 {
     RooAbsData *ret = 0;
+    TString retName =  TString::Format("%sData", pdf_->GetName());
     if (cat_ != 0) {
         //bool needsWeights = false;
         for (int i = 0, n = cat_->numBins((const char *)0); i < n; ++i) {
@@ -179,12 +181,12 @@ toymcoptutils::SimPdfGenInfo::generate(RooRealVar *&weightVar, const RooDataSet*
             }
             if (weightVar) {
                 RooArgSet varsPlusWeight(observables_); varsPlusWeight.add(*weightVar);
-                ret = new RooDataSet("gen", "", varsPlusWeight, RooFit::Index((RooCategory&)*cat_), RooFit::Import(otherMap), RooFit::WeightVar(*weightVar));
+                ret = new RooDataSet(retName, "", varsPlusWeight, RooFit::Index((RooCategory&)*cat_), RooFit::Import(otherMap), RooFit::WeightVar(*weightVar));
             } else {
-                ret = new RooDataSet("gen", "", observables_, RooFit::Index((RooCategory&)*cat_), RooFit::Import(otherMap));
+                ret = new RooDataSet(retName, "", observables_, RooFit::Index((RooCategory&)*cat_), RooFit::Import(otherMap));
             }
         } else {
-            ret = new RooDataSet("gen", "", observables_, RooFit::Index((RooCategory&)*cat_), RooFit::Link(datasetPieces_) /*, RooFit::OwnLinked()*/);
+            ret = new RooDataSet(retName, "", observables_, RooFit::Index((RooCategory&)*cat_), RooFit::Link(datasetPieces_) /*, RooFit::OwnLinked()*/);
         }
     } else ret = pdfs_[0]->generate(protoData, forceEvents);
     //std::cout << "Dataset generated from sim pdf (weighted? " << ret->isWeighted() << ")" << std::endl; utils::printRAD(ret);
