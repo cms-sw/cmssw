@@ -153,18 +153,17 @@ cacheutils::CachingAddNLL::setup_()
         for (int i = 0; i < npdf; ++i) {
             RooAbsReal * coeff = dynamic_cast<RooAbsReal*>(sumpdf->coefList().at(i));
             RooAbsReal * funci = dynamic_cast<RooAbsReal*>(sumpdf->funcList().at(i));
-            if (typeid(*funci) == typeid(RooProduct)) {
+            /// Temporarily switch this off, it doesn't work. Don't know why, however.
+            if (0 && typeid(*funci) == typeid(RooProduct)) {
                 RooArgList obsDep, obsInd;
                 obsInd.add(*coeff);
                 utils::factorizeFunc(*obs, *funci, obsDep, obsInd);
-                /*
-                std::cout << "Entry " << i << ": coef name " << (sumpdf->coefList().at(i) ? sumpdf->coefList().at(i)->GetName()   : "null") << 
-                    "  type " << (sumpdf->coefList().at(i) ? sumpdf->coefList().at(i)->ClassName() :  "n/a") << std::endl;
-                std::cout << "       " <<     "; func name " << (sumpdf->funcList().at(i) ? sumpdf->funcList().at(i)->GetName()   : "null") << 
-                    "  type " << (sumpdf->funcList().at(i) ? sumpdf->funcList().at(i)->ClassName() :  "n/a") << std::endl;
+                std::cout << "Entry " << i << ": coef name " << (coeff ? coeff->GetName()   : "null") << 
+                                              "  type " << (coeff ? coeff->ClassName() :  "n/a") << std::endl;
+                std::cout << "       " <<     "; func name " << (funci ? funci->GetName()   : "null") << 
+                                              "  type " << (funci ? funci->ClassName() :  "n/a") << std::endl;
                 std::cout << "Terms depending on observables: " << std::endl; obsDep.Print("V");
                 std::cout << "Terms not depending on observables: " << std::endl; obsInd.Print("V");
-                */
                 if (obsInd.getSize() > 1) {
                     coeff = new RooProduct(TString::Format("%s_x_%s_obsIndep", coeff->GetName(), funci->GetName()), "", RooArgSet(obsInd));
                     addOwnedComponents(RooArgSet(*coeff));
@@ -315,8 +314,10 @@ cacheutils::CachingSimNLL::setup_()
     RooSimultaneous *simpdf = factorizedPdf_.get();
     constrainPdfs_.clear(); 
     if (constraints.getSize()) {
+        //constrainPdfs_.push_back(new RooProdPdf("constraints","constraints", constraints));
         for (int i = 0, n = constraints.getSize(); i < n; ++i) {
             constrainPdfs_.push_back(dynamic_cast<RooAbsPdf*>(constraints.at(i)));
+            //std::cout << "Constraint pdf: " << constraints.at(i)->GetName() << std::endl;
         }
     } else {
         std::cerr << "PDF didn't factorize!" << std::endl;
@@ -367,6 +368,7 @@ cacheutils::CachingSimNLL::evaluate() const
     if (!constrainPdfs_.empty()) {
         for (std::vector<RooAbsPdf *>::const_iterator it = constrainPdfs_.begin(), ed = constrainPdfs_.end(); it != ed; ++it) { 
             double pdfval = (*it)->getVal(nuis_);
+            if (pdfval == 0) logEvalError((std::string("Constraint pdf ")+(*it)->GetName()+" evaluated to zero").c_str());
             ret -= (pdfval > 1e-7 ? log(pdfval) : log(1e-7)-pdfval);
         }
     }
