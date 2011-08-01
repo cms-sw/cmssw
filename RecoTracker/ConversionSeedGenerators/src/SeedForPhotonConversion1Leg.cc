@@ -111,7 +111,7 @@ initialError(
 			 );
   
  
-  AlgebraicSymMatrix C(5,1);
+  AlgebraicSymMatrix55 C = ROOT::Math::SMatrixIdentity();
 
 // FIXME: minC00. Prevent apriori uncertainty in 1/P from being too small, 
 // to avoid instabilities.
