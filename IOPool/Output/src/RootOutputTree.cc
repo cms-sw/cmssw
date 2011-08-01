@@ -195,11 +195,11 @@ namespace edm {
         }
         else {
           throw edm::Exception(errors::FatalRootError)
-            << "invalid TTreeCloner\n";
+            << "invalid TTreeCloner (" << cloner.GetWarning() << ")\n"; 
         }
 #else
         throw edm::Exception(errors::FatalRootError)
-          << "invalid TTreeCloner\n";
+          << "invalid TTreeCloner (" << cloner.GetWarning() << ")\n"; 
 #endif
       }
       tree_->SetEntries(tree_->GetEntries() + in->GetEntries());
