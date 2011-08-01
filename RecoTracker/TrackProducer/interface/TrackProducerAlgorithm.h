@@ -4,8 +4,8 @@
 /** \class TrackProducerAlgorithm
  *  This class calls the Final Fit and builds the Tracks then produced by the TrackProducer or by the TrackRefitter
  *
- *  $Date: 2009/09/09 13:14:30 $
- *  $Revision: 1.23 $
+ *  $Date: 2009/12/07 17:24:31 $
+ *  $Revision: 1.24 $
  *  \author cerati
  */
 
@@ -93,6 +93,17 @@ public:
 		     const TransientTrackingRecHitBuilder*,
 		     const reco::BeamSpot&,
 		     AlgoProductCollection &);
+
+  /// Run the Final Fit taking TrackParamConstraintAssociation as input (Refitter with complete track parameters constraint)
+  ///   currently hit sorting is disabled - will work (only) with standard tracks
+  void runWithTrackParameters(const TrackingGeometry *, 
+			      const MagneticField *, 
+			      const TrackParamConstraintAssociationCollection&,
+			      const TrajectoryFitter *,
+			      const Propagator *,
+			      const TransientTrackingRecHitBuilder*,
+			      const reco::BeamSpot&,
+			      AlgoProductCollection &);
 
   /// Construct Tracks to be put in the event
   bool buildTrack(const TrajectoryFitter *,

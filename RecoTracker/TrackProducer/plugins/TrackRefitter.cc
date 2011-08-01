@@ -25,9 +25,10 @@ TrackRefitter::TrackRefitter(const edm::ParameterSet& iConfig):
   if (constraint_str == "") constraint_ = none;
   else if (constraint_str == "momentum") constraint_ = momentum;
   else if (constraint_str == "vertex") constraint_ = vertex;
+  else if (constraint_str == "trackParameters") constraint_ = trackParameters;
   else {
-    edm::LogError("TrackRefitter")<<"constraint: "<<constraint_str<<" not understood. Set it to 'momentum', 'vertex' or leave it empty";    
-    throw cms::Exception("TrackRefitter") << "unknown type of contraint! Set it to 'momentum', 'vertex' or leave it empty";    
+    edm::LogError("TrackRefitter")<<"constraint: "<<constraint_str<<" not understood. Set it to 'momentum', 'vertex', 'trackParameters' or leave it empty";
+    throw cms::Exception("TrackRefitter") << "unknown type of contraint! Set it to 'momentum', 'vertex', 'trackParameters' or leave it empty";    
   }
 
   //register your products
@@ -41,7 +42,7 @@ TrackRefitter::TrackRefitter(const edm::ParameterSet& iConfig):
 
 void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
 {
-  edm::LogInfo("TrackRefitter") << "Analyzing event number: " << theEvent.id() << "\n";
+  LogDebug("TrackRefitter") << "Analyzing event number: " << theEvent.id() << "\n";
   //
   // create empty output collections
   //
@@ -92,13 +93,15 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
       theEvent.getByLabel(bsSrc_,recoBeamSpotHandle);
       bs = *recoBeamSpotHandle;      
       if (theTCollectionWithConstraint.failedToGet()){
-	edm::LogError("TrackRefitter")<<"could not get TrackMomConstraintAssociationCollection product."; break;}
+	//edm::LogError("TrackRefitter")<<"could not get TrackMomConstraintAssociationCollection product.";
+	break;}
       LogDebug("TrackRefitter") << "run the algorithm" << "\n";
       try {
 	theAlgo.runWithMomentum(theG.product(), theMF.product(), *theTCollectionWithConstraint, 
 				theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);
       }catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithTrack." << "\n" << e << "\n"; throw; }
-      break;}
+      break;
+    }
   case  vertex :
     {
       edm::Handle<TrackVtxConstraintAssociationCollection> theTCollectionWithConstraint;
@@ -112,6 +115,22 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
       try {
       theAlgo.runWithVertex(theG.product(), theMF.product(), *theTCollectionWithConstraint, 
 			    theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);      
+      }catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithTrack." << "\n" << e << "\n"; throw; }
+    }
+  case trackParameters :
+    {
+      edm::Handle<TrackParamConstraintAssociationCollection> theTCollectionWithConstraint;
+      theEvent.getByLabel(trkconstrcoll_,theTCollectionWithConstraint);
+      edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
+      theEvent.getByLabel(bsSrc_,recoBeamSpotHandle);
+      bs = *recoBeamSpotHandle;      
+      if (theTCollectionWithConstraint.failedToGet()){
+	//edm::LogError("TrackRefitter")<<"could not get TrackParamConstraintAssociationCollection product.";
+	break;}
+      LogDebug("TrackRefitter") << "run the algorithm" << "\n";
+      try {
+      theAlgo.runWithTrackParameters(theG.product(), theMF.product(), *theTCollectionWithConstraint, 
+				     theFitter.product(), thePropagator.product(), theBuilder.product(), bs, algoResults);      
       }catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithTrack." << "\n" << e << "\n"; throw; }
     }
     //default... there cannot be any other possibility due to the check in the ctor

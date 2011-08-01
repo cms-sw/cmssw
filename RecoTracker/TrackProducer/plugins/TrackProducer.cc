@@ -38,7 +38,7 @@ TrackProducer::TrackProducer(const edm::ParameterSet& iConfig):
 
 void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
 {
-  edm::LogInfo("TrackProducer") << "Analyzing event number: " << theEvent.id() << "\n";
+  LogDebug("TrackProducer") << "Analyzing event number: " << theEvent.id() << "\n";
   //
   // create empty output collections
   //
@@ -84,7 +84,7 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
 
 std::vector<reco::TransientTrack> TrackProducer::getTransient(edm::Event& theEvent, const edm::EventSetup& setup)
 {
-  edm::LogInfo("TrackProducer") << "Analyzing event number: " << theEvent.id() << "\n";
+  LogDebug("TrackProducer") << "Analyzing event number: " << theEvent.id() << "\n";
   //
   // create empty output collections
   //

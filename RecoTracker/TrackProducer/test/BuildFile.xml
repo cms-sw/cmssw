@@ -29,6 +29,16 @@
 <library   file="VertexConstraintProducer.cc" name="VertexConstraintProducer">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="TwoBodyDecayConstraintProducer.cc" name="TwoBodyDecayConstraintProducer">
+  <use   name="Alignment/TwoBodyDecay"/>
+  <use   name="Alignment/ReferenceTrajectories"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="TwoBodyDecayMomConstraintProducer.cc" name="TwoBodyDecayMomConstraintProducer">
+  <use   name="Alignment/TwoBodyDecay"/>
+  <use   name="Alignment/ReferenceTrajectories"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>
 <library   file="GsfVertexConstraintProducer.cc" name="GsfVertexConstraintProducer">
   <use   name="TrackingTools/GsfTracking"/>
   <flags   EDM_PLUGIN="1"/>

@@ -23,6 +23,7 @@
 #include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 #include "Utilities/General/interface/CMSexception.h"
 
+#include "RecoTracker/TransientTrackingRecHit/interface/TRecHit5DParamConstraint.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TRecHit2DPosConstraint.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TRecHit1DMomConstraint.h"
 #include "TrackingTools/MaterialEffects/interface/PropagatorWithMaterial.h"
@@ -42,7 +43,7 @@ TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
 			   		    const reco::BeamSpot& bs,
 					    AlgoProductCollection& algoResults)
 {
-  edm::LogInfo("TrackProducer") << "Number of TrackCandidates: " << theTCCollection.size() << "\n";
+  LogDebug("TrackProducer") << "Number of TrackCandidates: " << theTCCollection.size() << "\n";
 
   int cont = 0;
   for (TrackCandidateCollection::const_iterator i=theTCCollection.begin(); i!=theTCCollection.end();i++)
@@ -79,7 +80,7 @@ TrackProducerAlgorithm<T>::runWithCandidate(const TrackingGeometry * theG,
       LogDebug("TrackProducer") << "buildTrack result: " << ok << "\n";
       if(ok) cont++;
     }
-  edm::LogInfo("TrackProducer") << "Number of Tracks found: " << cont << "\n";
+  LogDebug("TrackProducer") << "Number of Tracks found: " << cont << "\n";
 }
 
 template <class T> void
@@ -92,7 +93,7 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
 			   		const reco::BeamSpot& bs,
 					AlgoProductCollection& algoResults)
 {
-  edm::LogInfo("TrackProducer") << "Number of input Tracks: " << theTCollection.size() << "\n";
+  LogDebug("TrackProducer") << "Number of input Tracks: " << theTCollection.size() << "\n";
   
   int cont = 0;
   for (typename TrackCollection::const_iterator i=theTCollection.begin(); i!=theTCollection.end();i++)
@@ -182,7 +183,7 @@ TrackProducerAlgorithm<T>::runWithTrack(const TrackingGeometry * theG,
         throw;
       }
     }
-  edm::LogInfo("TrackProducer") << "Number of Tracks found: " << cont << "\n";
+  LogDebug("TrackProducer") << "Number of Tracks found: " << cont << "\n";
   
 }
 
@@ -196,7 +197,7 @@ TrackProducerAlgorithm<T>::runWithMomentum(const TrackingGeometry * theG,
 			   		   const reco::BeamSpot& bs,
 					   AlgoProductCollection& algoResults){
   
-  edm::LogInfo("TrackProducer") << "Number of input Tracks: " << theTCollectionWithConstraint.size() << "\n";
+  LogDebug("TrackProducer") << "Number of input Tracks: " << theTCollectionWithConstraint.size() << "\n";
   
   int cont = 0;
   for (TrackMomConstraintAssociationCollection::const_iterator i=theTCollectionWithConstraint.begin(); i!=theTCollectionWithConstraint.end();i++) {
@@ -246,9 +247,63 @@ TrackProducerAlgorithm<T>::runWithMomentum(const TrackingGeometry * theG,
         throw;
       }
     }
-  edm::LogInfo("TrackProducer") << "Number of Tracks found: " << cont << "\n";
+  LogDebug("TrackProducer") << "Number of Tracks found: " << cont << "\n";
   
 }
+
+
+template <class T> void
+TrackProducerAlgorithm<T>::runWithTrackParameters(const TrackingGeometry * theG,
+						  const MagneticField * theMF,
+						  const TrackParamConstraintAssociationCollection& theTCollectionWithConstraint,
+						  const TrajectoryFitter * theFitter,
+						  const Propagator * thePropagator,
+						  const TransientTrackingRecHitBuilder* builder,
+						  const reco::BeamSpot& bs,
+						  AlgoProductCollection& algoResults)
+{
+  LogDebug("TrackProducer") << "Number of input Tracks: " << theTCollectionWithConstraint.size() << "\n";
+
+  int cont = 0;
+
+  for ( typename TrackParamConstraintAssociationCollection::const_iterator i=theTCollectionWithConstraint.begin(); 
+	i!=theTCollectionWithConstraint.end();i++) {
+      try{
+	const T * theT = i->key.get();
+
+	LogDebug("TrackProducer") << "Running Refitter with Track Parameter Constraint. TSOS = " << *(i->val);
+
+	TransientTrackingRecHit::RecHitPointer constraintHit = TRecHit5DParamConstraint::build( *(i->val) );
+
+	// WARNING: here we assume that the hits are correcly sorted according to seedDir
+	TransientTrackingRecHit::RecHitContainer hits;       
+	hits.push_back( constraintHit );
+	for (trackingRecHit_iterator j=theT->recHitsBegin(); j!=theT->recHitsEnd(); ++j){
+	  hits.push_back(builder->build(&**j ));
+	}
+
+	float ndof=0;
+	PropagationDirection seedDir = theT->seedDirection();
+
+	// the best guess for the initial state for refitting is obviously the constraint tsos itself
+	TrajectoryStateOnSurface theInitialStateForRefitting = *(i->val);
+
+	// the seed has dummy state and hits.What matters for the fitting is the seedDirection;
+	const TrajectorySeed seed = TrajectorySeed(PTrajectoryStateOnDet(),
+						   TrajectorySeed::recHitContainer(), seedDir);
+
+	//=====  the hits are in the same order as they were in the track::extra.        
+	bool ok = buildTrack(theFitter,thePropagator,algoResults, hits, theInitialStateForRefitting,
+			     seed, ndof, bs, theT->seedRef(),theT->qualityMask());
+	if(ok) cont++;
+      } catch ( CMSexception & e){
+	edm::LogError("TrackProducer") << "Genexception1: " << e.explainSelf() <<"\n";      
+        throw;
+      }
+    }
+  LogDebug("TrackProducer") << "Number of Tracks found: " << cont << "\n";
+}
+
 
 template <class T> void
 TrackProducerAlgorithm<T>::runWithVertex(const TrackingGeometry * theG,
@@ -260,7 +315,7 @@ TrackProducerAlgorithm<T>::runWithVertex(const TrackingGeometry * theG,
 			   		 const reco::BeamSpot& bs,
 					 AlgoProductCollection& algoResults){
 
-  edm::LogInfo("TrackProducer") << "Number of input Tracks: " << theTCollectionWithConstraint.size() << "\n";
+  LogDebug("TrackProducer") << "Number of input Tracks: " << theTCollectionWithConstraint.size() << "\n";
   
 //   PropagatorWithMaterial myPropagator(anyDirection,0.105,theMF);
   AnalyticalPropagator myPropagator(theMF,anyDirection);  // no material surface inside 1st hit
@@ -346,7 +401,7 @@ TrackProducerAlgorithm<T>::runWithVertex(const TrackingGeometry * theG,
         throw;
       }
     }
-  edm::LogInfo("TrackProducer") << "Number of Tracks found: " << cont << "\n";
+  LogDebug("TrackProducer") << "Number of Tracks found: " << cont << "\n";
 
 }
 
