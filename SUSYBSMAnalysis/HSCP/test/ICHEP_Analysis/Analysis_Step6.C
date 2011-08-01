@@ -45,6 +45,7 @@ struct stAllInfo{
    double Eff_SYSTI;
    double Eff_SYSTM;
    double Eff_SYSTT;
+   double Significance;
    double Index;
    double WP_Pt;
    double WP_I;
@@ -72,6 +73,7 @@ struct stAllInfo{
       fscanf(pFile,"Eff_SystI : %lf\n",&Eff_SYSTI);
       fscanf(pFile,"Eff_SystM : %lf\n",&Eff_SYSTM);
       fscanf(pFile,"Eff_SystT : %lf\n",&Eff_SYSTT);
+      fscanf(pFile,"Signif    : %lf\n",&Significance);
       fscanf(pFile,"XSec_Th   : %lf\n",&XSec_Th);
       fscanf(pFile,"XSec_Exp  : %lf\n",&XSec_Exp);
       fscanf(pFile,"XSec_Obs  : %lf\n",&XSec_Obs);
@@ -115,6 +117,7 @@ double FindIntersection(TGraph* obs, TGraph* th, double Min, double Max, double 
 int ReadXSection(string InputFile, double* Mass, double* XSec, double* Low, double* High,  double* ErrLow, double* ErrHigh);
 TCutG* GetErrorBand(string name, int N, double* Mass, double* Low, double* High);
 void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern);
+double getSignificance(double NData, double NPred, double signalUncertainty, double backgroundError, double luminosityError, string outpath);
 
 //double PlotMinScale = 0.1;
 //double PlotMaxScale = 50000;
@@ -208,7 +211,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    fprintf(talkFile, "\\begin{document}\n\n");
    fprintf(talkFile, "\\begin{tiny}\n\n");
    fprintf(talkFile, "\\begin{sidewaystable}\n   \\centering\n      \\begin{tabular}{|l|cccccccc|}\n      \\hline\n");
-   fprintf(talkFile,"Sample & Mass(GeV) & Pt(GeV) & $I_{as}$ & TOF & Mass Cut (GeV) & N pred & N observed & Eff \\\\\n");
+   fprintf(talkFile,"Sample & Mass(GeV) & Pt(GeV) & $I_{as}$ & TOF & Mass Cut (GeV) & N pred & N observed & Eff & Signif \\\\\n");
    fprintf(talkFile, "\\hline\n");
 
 //   TGraph* Tk_Obs_Gluino2C  = MakePlot(pFile,talkFile,TkPattern,syst,"Gluino  (2C)     ", 2, "Gluino300_2C" , "Gluino400_2C" , "Gluino500_2C" , "Gluino600_2C" , "Gluino700_2C", "Gluino800_2C", "Gluino900_2C", "Gluino1000_2C" );
@@ -640,19 +643,19 @@ TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string syst, 
    }
 */
 
-   if(XSectionType>0 && syst=="")for(unsigned int i=0;i<N;i++)printf("%-18s %5.0f --> Pt>%+6.1f & I>%+5.3f & TOF>%+4.3f & M>%3.0f--> NData=%2.0f  NPred=%6.1E+-%6.1E  NSign=%6.1E (Eff=%3.2f)\n",ModelName.c_str(),Infos[i].Mass,Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].WP_TOF,Infos[i].MassCut, Infos[i].NData, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NSign, Infos[i].Eff);
+   if(XSectionType>0 && syst=="")for(unsigned int i=0;i<N;i++)printf("%-18s %5.0f --> Pt>%+6.1f & I>%+5.3f & TOF>%+4.3f & M>%3.0f--> NData=%2.0f  NPred=%6.1E+-%6.1E  NSign=%6.1E (Eff=%3.2f) Local Significance %3.2f\n",ModelName.c_str(),Infos[i].Mass,Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].WP_TOF,Infos[i].MassCut, Infos[i].NData, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NSign, Infos[i].Eff, Infos[i].Significance);
 
    if(XSectionType>0){
    for(unsigned int i=0;i<N;i++){
-     if(Infos[i].WP_TOF==-1) fprintf(pFile,"%-20s & %4.0f & %6.0f & %5.3f & / & %4.0f & %6.3f $\\pm$ %6.3f & %2.0f & %4.3f & %6.1E & %6.1E & %6.1E \\\\\n", ModelName.c_str(), Infos[i].Mass,  Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].MassCut, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NData, Infos[i].Eff, Infos[i].XSec_Th,Infos[i].XSec_Exp, Infos[i].XSec_Obs);
-     else fprintf(pFile,"%-20s & %4.0f & %6.0f & %5.3f & %4.3f & %4.0f & %6.3f $\\pm$ %6.3f & %2.0f & %4.3f & %6.1E & %6.1E & %6.1E \\\\\n", ModelName.c_str(), Infos[i].Mass,  Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].WP_TOF,Infos[i].MassCut, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NData, Infos[i].Eff, Infos[i].XSec_Th,Infos[i].XSec_Exp, Infos[i].XSec_Obs);
+     if(Infos[i].WP_TOF==-1) fprintf(pFile,"%-20s & %4.0f & %6.0f & %5.3f & / & %4.0f & %6.3f $\\pm$ %6.3f & %2.0f & %4.3f & %6.1E & %6.1E & %6.1E & %3.2f \\\\\n", ModelName.c_str(), Infos[i].Mass,  Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].MassCut, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NData, Infos[i].Eff, Infos[i].XSec_Th,Infos[i].XSec_Exp, Infos[i].XSec_Obs, Infos[i].Significance);
+     else fprintf(pFile,"%-20s & %4.0f & %6.0f & %5.3f & %4.3f & %4.0f & %6.3f $\\pm$ %6.3f & %2.0f & %4.3f & %6.1E & %6.1E & %6.1E & %3.2f \\\\\n", ModelName.c_str(), Infos[i].Mass,  Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].WP_TOF,Infos[i].MassCut, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NData, Infos[i].Eff, Infos[i].XSec_Th,Infos[i].XSec_Exp, Infos[i].XSec_Obs, Infos[i].Significance);
      bool IsNeutral = (ModelName.find("N",0)<std::string::npos);
      if(Infos[i].WP_TOF==-1 && (ModelName=="GMSB Stau" || (int)Infos[i].Mass%200==0)) {
-       fprintf(talkFile,"%-20s & %4.0f & %6.0f & %5.3f & / & %4.0f & %6.3f $\\pm$ %6.3f & %2.0f & %4.3f \\\\\n", ModelName.c_str(), Infos[i].Mass,  Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].MassCut, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NData, Infos[i].Eff);
+       fprintf(talkFile,"%-20s & %4.0f & %6.0f & %5.3f & / & %4.0f & %6.3f $\\pm$ %6.3f & %2.0f & %4.3f & %3.2 \\\\\n", ModelName.c_str(), Infos[i].Mass,  Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].MassCut, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NData, Infos[i].Eff, Infos[i].Significance);
        fprintf(talkFile, "\\hline\n");
      }
      if (Infos[i].WP_TOF!=-1 && !IsNeutral) {
-       fprintf(talkFile,"%-20s & %4.0f & %6.0f & %5.3f & %4.3f & %4.0f & %6.3f $\\pm$ %6.3f & %2.0f & %4.3f \\\\\n", ModelName.c_str(), Infos[i].Mass,  Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].WP_TOF,Infos[i].MassCut, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NData, Infos[i].Eff);
+       fprintf(talkFile,"%-20s & %4.0f & %6.0f & %5.3f & %4.3f & %4.0f & %6.3f $\\pm$ %6.3f & %2.0f & %4.3f %3.2f \\\\\n", ModelName.c_str(), Infos[i].Mass,  Infos[i].WP_Pt,Infos[i].WP_I,Infos[i].WP_TOF,Infos[i].MassCut, Infos[i].NPred, Infos[i].NPredErr, Infos[i].NData, Infos[i].Eff, Infos[i].Significance);
        fprintf(talkFile, "\\hline\n");
      }
    }}
@@ -880,15 +883,19 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
 
      double ExpLimit = 99999999;
      double ObsLimit = 99999999;
+     double Significance = -1;     
      LimitResult CLMResults;
-     int signalUncertainty=0.10;
+     double signalUncertainty=0.10;
      if (signals[JobIdToIndex(signal)].Mass<450) signalUncertainty=0.15;
+
      CLMResults = roostats_clm(IntegratedLuminosity, IntegratedLuminosity*0.06, Eff, Eff*signalUncertainty,NPred, NPred*RescaleError, 1);   ExpLimit=CLMResults.GetExpectedLimit();
      if(toReturn.XSec_Exp<=ExpLimit){fprintf(pFile  ,"\n"); printf("\n"); continue;}
-     ObsLimit =  roostats_cl95(IntegratedLuminosity, IntegratedLuminosity*0.06, Eff, Eff*0.10,NPred, NPred*RescaleError              , NData, false, 1, "bayesian", "");
+     ObsLimit =  roostats_cl95(IntegratedLuminosity, IntegratedLuminosity*0.06, Eff, Eff*signalUncertainty,NPred, NPred*RescaleError              , NData, false, 1, "bayesian", "");
 
-     fprintf(pFile ," --> %+7.2E expected (%+7.4E observed) --> Current Best Limit\n",ExpLimit, ObsLimit);
-     fprintf(stdout," --> %+7.2E expected (%+7.4E observed) --> Current Best Limit\n",ExpLimit, ObsLimit);
+     Significance = getSignificance(NData, NPred, signalUncertainty, RescaleError, 0.06, outpath+"/"+modelName);
+
+     fprintf(pFile ," --> %+7.2E expected (%+7.4E observed) --> Current Best Limit  Significance of %3.2f\n",ExpLimit, ObsLimit,Significance);
+     fprintf(stdout," --> %+7.2E expected (%+7.4E observed) --> Current Best Limit  Significance of %3.2f\n",ExpLimit, ObsLimit,Significance);
  
      toReturn.Mass      = signals[JobIdToIndex(signal)].Mass;
      toReturn.MassMean  = Mean;
@@ -902,6 +909,7 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
      toReturn.XSec_Err  = signals[JobIdToIndex(signal)].XSec * 0.15;
      toReturn.XSec_Exp  = ExpLimit;
      toReturn.XSec_Obs  = ObsLimit; 
+     toReturn.Significance = Significance;
      toReturn.Eff       = Eff;
      toReturn.Eff_SYSTP = EffP;
      toReturn.Eff_SYSTI = EffI;
@@ -928,6 +936,7 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
      fprintf(pFile2,"Eff_SystI : %f\n",toReturn.Eff_SYSTI);
      fprintf(pFile2,"Eff_SystM : %f\n",toReturn.Eff_SYSTM);
      fprintf(pFile2,"Eff_SystT : %f\n",toReturn.Eff_SYSTT);
+     fprintf(pFile2,"Signif    : %f\n",toReturn.Significance);
      fprintf(pFile2,"XSec_Th   : %f\n",toReturn.XSec_Th);
      fprintf(pFile2,"XSec_Exp  : %f\n",toReturn.XSec_Exp);
      fprintf(pFile2,"XSec_Obs  : %f\n",toReturn.XSec_Obs);
@@ -936,7 +945,7 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
      fprintf(pFile2,"NPredErr  : %+6.2E\n",toReturn.NPredErr);
      fprintf(pFile2,"NSign     : %+6.2E\n",toReturn.NSign);
      fclose(pFile2);
-   }
+   }   
    fclose(pFile);   
 
   FILE* pFile2 = fopen((outpath+"/"+modelName+".txt").c_str(),"w");
@@ -954,6 +963,7 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
   fprintf(pFile2,"Eff_SystI : %f\n",toReturn.Eff_SYSTI);
   fprintf(pFile2,"Eff_SystM : %f\n",toReturn.Eff_SYSTM);
   fprintf(pFile2,"Eff_SystT : %f\n",toReturn.Eff_SYSTT);
+  fprintf(pFile2,"Signif    : %f\n",toReturn.Significance);
   fprintf(pFile2,"XSec_Th   : %f\n",toReturn.XSec_Th);
   fprintf(pFile2,"XSec_Exp  : %f\n",toReturn.XSec_Exp);
   fprintf(pFile2,"XSec_Obs  : %f\n",toReturn.XSec_Obs);
@@ -1101,3 +1111,45 @@ TCutG* GetErrorBand(string name, int N, double* Mass, double* Low, double* High)
    return cutg;
 }
 
+double getSignificance(double NData, double NPred, double signalUncertainty, double backgroundError, double luminosityError, string outpath)
+{
+  FILE* dataCard = fopen((outpath + "_temp_1.txt").c_str(),"w");
+
+  fprintf(dataCard, "imax 1  number of channels\n");
+  fprintf(dataCard, "jmax 1  number of backgrounds\n");
+  fprintf(dataCard, "kmax 3  number of nuisance parameters (sources of systematical uncertainties)\n");
+  fprintf(dataCard, "bin 1\n");
+  fprintf(dataCard, "observation %f\n", NData);
+  fprintf(dataCard, "bin              1     1\n");
+  fprintf(dataCard, "process         signal   bckgd\n");
+  fprintf(dataCard, "process          0     1\n");
+  fprintf(dataCard, "rate             2    %f\n", NPred);
+  fprintf(dataCard, "lumi    lnN    %f    -    lumi affects signal\n",1+luminosityError);
+  fprintf(dataCard, "eff     lnN    %f    -   signal efficiency\n", 1+signalUncertainty);
+  fprintf(dataCard, "backg lnN      -   %f  total background\n", 1+backgroundError);
+  fclose(dataCard);
+
+  system(("combine -M ProfileLikelihood --significance " + outpath + "_temp_1.txt > " + outpath + "_temp_2.txt").c_str());
+
+  ifstream infile;
+  infile.open ((outpath + "_temp_2.txt").c_str());
+  bool loop=true;
+  double significance=-1;
+
+  if (infile.is_open())
+    {
+      while ( infile.good() && loop)
+	{
+          string word;
+          infile >> word;
+          if (word=="Significance:") loop=false;
+        }
+      if (infile.good()) infile >> significance;
+      infile.close();
+    }
+
+  system(("rm " + outpath + "_temp_1.txt").c_str());
+  system(("rm " + outpath + "_temp_2.txt").c_str());                                                                                                                                                       
+
+  return significance;
+}
