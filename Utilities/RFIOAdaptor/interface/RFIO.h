@@ -1,4 +1,3 @@
-#ifndef __APPLE__
 #ifndef RFIO_ADAPTOR_RFIO_H
 # define RFIO_ADAPTOR_RFIO_H
 
@@ -10,6 +9,9 @@
 # define RFIO_READOPT 1
 # define serrno (*C__serrno())
 # define rfio_errno (*C__rfio_errno())
+#ifdef __APPLE__
+typedef off_t off64_t;
+#endif
 
 extern "C"
 {
@@ -48,4 +50,3 @@ extern "C"
 }
 
 #endif // RFIO_ADAPTOR_RFIO_H
-#endif // ! __APPLE__

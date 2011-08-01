@@ -1,4 +1,3 @@
-#ifndef __APPLE__
 #ifndef RFIO_ADAPTOR_RFIO_PLUGIN_FACTORY_H
 # define RFIO_ADAPTOR_RFIO_PLUGIN_FACTORY_H
 
@@ -8,4 +7,3 @@ struct RFIODummyFile {};
 typedef edmplugin::PluginFactory<RFIODummyFile*(void)> RFIOPluginFactory;
 
 #endif // RFIO_ADAPTOR_RFIO_PLUGIN_FACTORY_H
-#endif // ! __APPLE__

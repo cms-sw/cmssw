@@ -1,4 +1,3 @@
-#ifndef __APPLE__
 #define __STDC_LIMIT_MACROS 1
 #include "Utilities/RFIOAdaptor/interface/RFIOFile.h"
 #include "Utilities/RFIOAdaptor/interface/RFIO.h"
@@ -458,6 +457,3 @@ RFIOFile::prefetch (const IOPosBuffer *what, IOSize n)
 
   return true;
 }
-#else
-int dummy;
-#endif // __APPLE__

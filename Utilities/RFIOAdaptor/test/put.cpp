@@ -1,4 +1,3 @@
-#ifndef __APPLE__
 #include "Utilities/RFIOAdaptor/interface/RFIOFile.h"
 #include "Utilities/StorageFactory/interface/File.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -42,7 +41,3 @@ int main (int, char **)
 
   return EXIT_SUCCESS;
 }
-#else // __APPLE__
-int main(int, char **)
-{}
-#endif 

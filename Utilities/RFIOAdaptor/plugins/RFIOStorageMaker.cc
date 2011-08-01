@@ -1,4 +1,3 @@
-#ifndef __APPLE__
 #include "Utilities/StorageFactory/interface/StorageMaker.h"
 #include "Utilities/StorageFactory/interface/StorageFactory.h"
 #include "Utilities/StorageFactory/interface/StorageMakerFactory.h"
@@ -188,4 +187,3 @@ public:
 };
 
 DEFINE_EDM_PLUGIN (StorageMakerFactory, RFIOStorageMaker, "rfio");
-#endif
