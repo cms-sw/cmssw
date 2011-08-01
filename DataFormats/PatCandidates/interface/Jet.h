@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.53 2010/12/11 21:52:31 vadler Exp $
+// $Id: Jet.h,v 1.54 2011/06/08 20:40:18 rwolf Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette, Giovanni Petrucciani, Roger Wolf, Christian Autermann
-  \version  $Id: Jet.h,v 1.53 2010/12/11 21:52:31 vadler Exp $
+  \version  $Id: Jet.h,v 1.54 2011/06/08 20:40:18 rwolf Exp $
 */
 
 
@@ -231,7 +231,7 @@ namespace pat {
 	if (specificCalo_.empty()) throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a CaloJet.\n";
 	return specificCalo_[0];
       }
-      /// retrieve the pf specific part of the jet
+      /// retrieve the jpt specific part of the jet
       const JPTSpecific& jptSpecific() const {
 	if (specificJPT_.empty()) throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a JPTJet.\n";
 	return specificJPT_[0];
@@ -240,6 +240,21 @@ namespace pat {
       const PFSpecific& pfSpecific() const {
 	if (specificPF_.empty()) throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a PFJet.\n";
 	return specificPF_[0];
+      }
+      /// set the calo specific part of the jet
+      void setCaloSpecific(CaloSpecific newCaloSpecific) {
+	if (specificCalo_.empty()) throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a CaloJet.\n";
+	specificCalo_[0] = newCaloSpecific;
+      }
+      /// set the jpt specific part of the jet
+      void setJPTSpecific(JPTSpecific newJPTSpecific) {
+	if (specificJPT_.empty()) throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a JPTJet.\n";
+	specificJPT_[0] = newJPTSpecific;
+      }
+      /// set the pf specific part of the jet
+      void setPFSpecific(PFSpecific newPFSpecific) {
+	if (specificPF_.empty()) throw cms::Exception("Type Mismatch") << "This PAT jet was not made from a PFJet.\n";
+	specificPF_[0] = newPFSpecific;
       }
 
       // ---- Calo Jet specific information ----
@@ -323,33 +338,35 @@ namespace pat {
       float neutralHadronEnergy() const;
 
       /// chargedHadronEnergyFraction (relative to uncorrected jet energy)
-      float chargedHadronEnergyFraction() const {return chargedHadronEnergy()/(jecFactor(0) * energy());}
+      float chargedHadronEnergyFraction() const {return chargedHadronEnergy()/(jecFactor(0)*energy());}
       /// neutralHadronEnergyFraction (relative to uncorrected jet energy)
-      float neutralHadronEnergyFraction() const {return neutralHadronEnergy()/(jecFactor(0) * energy());}
+      float neutralHadronEnergyFraction() const {return neutralHadronEnergy()/(jecFactor(0)*energy());}
       /// chargedEmEnergyFraction (relative to uncorrected jet energy)
-      float chargedEmEnergyFraction()     const {return chargedEmEnergy()/(jecFactor(0) * energy());}
+      float chargedEmEnergyFraction()     const {return chargedEmEnergy()/(jecFactor(0)*energy());}
       /// neutralEmEnergyFraction (relative to uncorrected jet energy)
-      float neutralEmEnergyFraction()     const {return neutralEmEnergy()/(jecFactor(0) * energy());}
+      float neutralEmEnergyFraction()     const {return neutralEmEnergy()/(jecFactor(0)*energy());}
 
       // ---- PF Jet specific information ----
       /// photonEnergy
       float photonEnergy () const {return pfSpecific().mPhotonEnergy;}
       /// photonEnergyFraction (relative to corrected jet energy)
-      float photonEnergyFraction () const {return photonEnergy () / energy ();}
+      float photonEnergyFraction () const {return photonEnergy()/(jecFactor(0)*energy());}
       /// electronEnergy
       float electronEnergy () const {return pfSpecific().mElectronEnergy;}
+      /// electronEnergyFraction (relative to corrected jet energy)
+      float electronEnergyFraction () const {return electronEnergy()/(jecFactor(0)*energy());}
       /// muonEnergy
       float muonEnergy () const {return pfSpecific().mMuonEnergy;}
       /// muonEnergyFraction (relative to corrected jet energy)
-      float muonEnergyFraction () const {return muonEnergy () / energy ();}
+      float muonEnergyFraction () const {return muonEnergy()/(jecFactor(0)*energy());}
       /// HFHadronEnergy
       float HFHadronEnergy () const {return pfSpecific().mHFHadronEnergy;}
       /// HFHadronEnergyFraction (relative to corrected jet energy)
-      float HFHadronEnergyFraction () const {return HFHadronEnergy () / energy ();}
+      float HFHadronEnergyFraction () const {return HFHadronEnergy()/(jecFactor(0)*energy());}
       /// HFEMEnergy
       float HFEMEnergy () const {return pfSpecific().mHFEMEnergy;}
       /// HFEMEnergyFraction (relative to corrected jet energy)
-      float HFEMEnergyFraction () const {return HFEMEnergy () / energy ();}
+      float HFEMEnergyFraction () const {return HFEMEnergy()/(jecFactor(0)*energy());}
 
       /// chargedHadronMultiplicity
       int chargedHadronMultiplicity () const {return pfSpecific().mChargedHadronMultiplicity;}
@@ -368,7 +385,7 @@ namespace pat {
       /// chargedMuEnergy
       float chargedMuEnergy () const {return pfSpecific().mChargedMuEnergy;}
       /// chargedMuEnergyFraction
-      float chargedMuEnergyFraction () const {return chargedMuEnergy () / energy ();}
+      float chargedMuEnergyFraction () const {return chargedMuEnergy()/(jecFactor(0)*energy());}
 
       /// neutralMultiplicity
       int neutralMultiplicity () const {return pfSpecific().mNeutralMultiplicity;}
