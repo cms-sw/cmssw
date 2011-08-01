@@ -9,6 +9,3 @@
 <use   name="Geometry/CaloGeometry"/>
 <use   name="CondFormats/EcalObjects"/>
 <use   name="boost"/>
-<export>
-  <lib   name="1"/>
-</export>
