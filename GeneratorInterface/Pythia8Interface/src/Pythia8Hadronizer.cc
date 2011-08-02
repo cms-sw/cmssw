@@ -475,6 +475,11 @@ void Pythia8Hadronizer::finalizeEvent()
   if (event()->alphaQCD() <= 0)
     event()->set_alphaQCD( pythia->info.alphaS() );
 
+  HepMC::GenCrossSection xsec;
+  xsec.set_cross_section( pythia->info.sigmaGen() * 1e9,
+                          pythia->info.sigmaErr() * 1e9);
+  event()->set_cross_section(xsec);
+
   // Putting pdf info into the HepMC record
   // There is the overloaded pythia8 HepMCInterface method fill_next_event
   // that does this, but CMSSW GeneratorInterface does not fill HepMC
