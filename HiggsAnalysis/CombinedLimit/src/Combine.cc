@@ -396,6 +396,8 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   bool isExtended = mc_bonly->GetPdf()->canBeExtended();
   RooAbsData *dobs = w->data(dataset.c_str());
   RooAbsPdf  *genPdf = mc_bonly->GetPdf();
+  toymcoptutils::SimPdfGenInfo newToyMC(*genPdf, *observables, !unbinned_); RooRealVar *weightVar_ = 0;
+
   if (guessGenMode_ && genPdf->InheritsFrom("RooSimultaneous") && (dobs != 0)) {
       utils::guessChannelMode(dynamic_cast<RooSimultaneous&>(*mc->GetPdf()), *dobs, verbose);
       utils::guessChannelMode(dynamic_cast<RooSimultaneous&>(*mc_bonly->GetPdf()), *dobs, 0);
@@ -406,12 +408,14 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   if (nToys <= 0) { // observed or asimov
     iToy = nToys;
     if (iToy == -1) {	
-        if (isExtended) {
-          if (unbinned_) {
-              throw std::invalid_argument("Asimov datasets can only be generated binned");
-          } else {
-              dobs = genPdf->generateBinned(*observables,RooFit::Extended(),RooFit::Asimov());
-          }
+        if (newGen_) {
+            dobs = newToyMC.generateAsimov(weightVar_); // as simple as that
+        } else if (isExtended) {
+            if (unbinned_) {
+                throw std::invalid_argument("Asimov datasets can only be generated binned");
+            } else {
+                dobs = genPdf->generateBinned(*observables,RooFit::Extended(),RooFit::Asimov());
+            }
 	} else {
 	  dobs = genPdf->generate(*observables,1,RooFit::Asimov());
 	}
@@ -420,7 +424,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       return;
     }
     std::cout << "Computing limit starting from " << (iToy == 0 ? "observation" : "expected outcome") << std::endl;
-    if (verbose > (isExtended ? 1 : 0)) utils::printRAD(dobs);
+    if (verbose > (isExtended ? 2 : 1)) utils::printRAD(dobs);
     if (mklimit(w,mc,mc_bonly,*dobs,limit,limitErr)) tree->Fill();
   }
   
@@ -430,7 +434,6 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
   if (nToys > 0) {
     double expLimit = 0;
     unsigned int nLimits = 0;
-    toymcoptutils::SimPdfGenInfo newToyMC(*genPdf, *observables, !unbinned_); RooRealVar *weightVar_ = 0;
     w->loadSnapshot("clean");
     RooDataSet *systDs = 0;
     if (withSystematics && !toysNoSystematics_ && (readToysFromHere == 0)) {

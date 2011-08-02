@@ -2,6 +2,7 @@
 #include "../interface/utils.h"
 #include <memory>
 #include <stdexcept>
+#include <TH1.h>
 #include <RooSimultaneous.h>
 #include <RooRealVar.h>
 #include <RooDataHist.h>
@@ -60,11 +61,8 @@ toymcoptutils::SinglePdfGenInfo::SinglePdfGenInfo(RooAbsPdf &pdf, const RooArgSe
    RooArgSet *obs = pdf.getObservables(observables);
    observables_.add(*obs);
    delete obs;
-#if ROOT_VERSION_CODE > ROOT_VERSION(5,29,99)
-    #error no
-   if (mode_ == Unbinned) spec_ = protoData ? pdf.prepareMultiGen(observables_, RooFit::Extended(), RooFit::ProtoData(*protoData, true, true)) 
-                                            : pdf.prepareMultiGen(observables_, RooFit::Extended());
-#endif
+   //if (mode_ == Unbinned) spec_ = protoData ? pdf.prepareMultiGen(observables_, RooFit::Extended(), RooFit::ProtoData(*protoData, true, true)) 
+   //                                         : pdf.prepareMultiGen(observables_, RooFit::Extended());
 }
 
 toymcoptutils::SinglePdfGenInfo::~SinglePdfGenInfo()
@@ -79,27 +77,39 @@ toymcoptutils::SinglePdfGenInfo::generate(const RooDataSet* protoData, int force
     assert(forceEvents == 0 && "SinglePdfGenInfo: forceEvents must be zero at least for now");
     RooAbsData *ret = 0;
     if (mode_ == Unbinned) {
-#if ROOT_VERSION_CODE > ROOT_VERSION(5,29,99)
-        #error no
-        ret = pdf_->generate(*spec_);
-#else
+        //ret = pdf_->generate(*spec_);
         ret = pdf_->generate(observables_, RooFit::Extended());
-#endif
     } else {
-#if ROOT_VERSION_CODE > ROOT_VERSION(5,29,99)
-        #error no
-        ret = protoData ? pdf_->generateBinned(observables_, RooFit::Extended(), RooFit::ProtoData(*protoData, true, true))
-                        : pdf_->generateBinned(observables_, RooFit::Extended());
-#else
+        //ret = protoData ? pdf_->generateBinned(observables_, RooFit::Extended(), RooFit::ProtoData(*protoData, true, true))
+        //                : pdf_->generateBinned(observables_, RooFit::Extended());
         // generateBinnedWorkaround
         RooDataSet *data =  pdf_->generate(observables_, RooFit::Extended());
         ret = new RooDataHist(data->GetName(), "", *data->get(), *data);
         delete data;
-#endif
     }
     //std::cout << "Dataset generated from " << pdf_->GetName() << " (weighted? " << ret->isWeighted() << ")" << std::endl;
     //utils::printRAD(ret);
     return ret;
+}
+
+RooDataSet *  
+toymcoptutils::SinglePdfGenInfo::generateAsimov(RooRealVar *&weightVar) 
+{
+    if (observables_.getSize() > 1) throw std::invalid_argument(std::string("ERROR in SinglePdfGenInfo::generateAsimov for ") + pdf_->GetName() + ", more than 1 observable");
+    RooRealVar &x = (RooRealVar&)*observables_.first();
+    if (weightVar == 0) weightVar = new RooRealVar("_weight_","",1.0);
+    TH1 *hist = pdf_->createHistogram("htemp", x);
+    double expectedEvents = pdf_->expectedEvents(observables_);
+    hist->Scale(expectedEvents/ hist->Integral()); 
+    RooArgSet obsPlusW(x, weightVar);
+    RooDataSet *data = new RooDataSet(TString::Format("%sData", pdf_->GetName()), "", obsPlusW, weightVar->GetName());
+    for (int i = 1, n = hist->GetNbinsX(); i <= n; ++i) {
+        x.setVal(hist->GetXaxis()->GetBinCenter(i));
+        data->add(observables_, hist->GetBinContent(i));
+    }
+    std::cout << "Asimov dataset generated from " << pdf_->GetName() << " (sumw? " << data->sumEntries() << ", expected events " << expectedEvents << ")" << std::endl;
+    utils::printRDH(data);
+    return data;
 }
 
 toymcoptutils::SimPdfGenInfo::SimPdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData, int forceEvents) :
@@ -192,6 +202,38 @@ toymcoptutils::SimPdfGenInfo::generate(RooRealVar *&weightVar, const RooDataSet*
     //std::cout << "Dataset generated from sim pdf (weighted? " << ret->isWeighted() << ")" << std::endl; utils::printRAD(ret);
     return ret;
 }
+
+RooAbsData *  
+toymcoptutils::SimPdfGenInfo::generateAsimov(RooRealVar *&weightVar) 
+{
+    RooAbsData *ret = 0;
+    TString retName =  TString::Format("%sData", pdf_->GetName());
+    if (cat_ != 0) {
+        //bool needsWeights = false;
+        for (int i = 0, n = cat_->numBins((const char *)0); i < n; ++i) {
+            if (pdfs_[i] == 0) continue;
+            cat_->setBin(i);
+            RooAbsData *&data =  datasetPieces_[cat_->getLabel()]; delete data;
+            data = pdfs_[i]->generateAsimov(weightVar); 
+        }
+        if (copyData_) {
+            std::map<std::string,RooDataSet*> otherMap;
+            for (std::map<std::string,RooAbsData*>::iterator it = datasetPieces_.begin(), ed = datasetPieces_.end(); it != ed; ++it) {
+                RooDataSet* rds = dynamic_cast<RooDataSet*>(it->second);
+                if (rds == 0) throw std::logic_error("Error, it should have been a RooDataSet");
+                otherMap[it->first] = rds;
+            }
+            RooArgSet varsPlusWeight(observables_); varsPlusWeight.add(*weightVar);
+            ret = new RooDataSet(retName, "", varsPlusWeight, RooFit::Index((RooCategory&)*cat_), RooFit::Import(otherMap), RooFit::WeightVar(*weightVar));
+        } else {
+            ret = new RooDataSet(retName, "", observables_, RooFit::Index((RooCategory&)*cat_), RooFit::Link(datasetPieces_) /*, RooFit::OwnLinked()*/);
+        }
+    } else ret = pdfs_[0]->generateAsimov(weightVar);
+    std::cout << "Asimov dataset generated from sim pdf " << pdf_->GetName() << " (sumw? " << ret->sumEntries() << ")" << std::endl; 
+    utils::printRAD(ret);
+    return ret;
+}
+
 
 void
 ToyMCSamplerOpt::SetPdf(RooAbsPdf& pdf) 

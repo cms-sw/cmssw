@@ -10,6 +10,7 @@ namespace toymcoptutils {
             SinglePdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData = NULL, int forceEvents = 0) ;
             ~SinglePdfGenInfo() ;
             RooAbsData *generate(const RooDataSet* protoData = NULL, int forceEvents = 0) ;
+            RooDataSet *generateAsimov(RooRealVar *&weightVar) ;
             const RooAbsPdf * pdf() const { return pdf_; }
         private:
             Mode mode_;
@@ -22,6 +23,7 @@ namespace toymcoptutils {
             SimPdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData = NULL, int forceEvents = 0) ;
             ~SimPdfGenInfo() ;
             RooAbsData *generate(RooRealVar *&weightVar, const RooDataSet* protoData = NULL, int forceEvents = 0) ;
+            RooAbsData *generateAsimov(RooRealVar *&weightVar) ;
             void setCopyData(bool copyData) { copyData_ = copyData; }
         private:
             RooAbsPdf                       *pdf_; 
