@@ -17,7 +17,8 @@ regionalSeedsForL3Isolation.RegionFactoryPSet.RegionPSet = cms.PSet(
     vertexSrc = cms.string(''),
     originRadius = cms.double(0.2),
     vertexZConstrained = cms.bool(False),
-    ptMin = cms.double(1.0)
+    ptMin = cms.double(1.0),
+    measurementTrackerName = cms.string("")
 )
 regionalCandidatesForL3Isolation.src = cms.InputTag('regionalSeedsForL3Isolation')
 regionalTracksForL3Isolation.src = 'regionalCandidatesForL3Isolation'
