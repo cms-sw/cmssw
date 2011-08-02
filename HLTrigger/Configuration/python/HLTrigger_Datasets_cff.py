@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V188
+# /dev/CMSSW_4_2_0/GRun/V189
 
 import FWCore.ParameterSet.Config as cms
 
@@ -255,7 +255,10 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetMinimumBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMinimumBias_selector.l1tResults = cms.InputTag('')
 streamA_datasetMinimumBias_selector.throw      = cms.bool(False)
-streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_JetE30_NoBPTX3BX_NoHalo_v8', 
+streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_60Jet10_v1', 
+    'HLT_70Jet10_v1', 
+    'HLT_70Jet13_v1', 
+    'HLT_JetE30_NoBPTX3BX_NoHalo_v8', 
     'HLT_JetE30_NoBPTX_NoHalo_v8', 
     'HLT_JetE30_NoBPTX_v6', 
     'HLT_JetE50_NoBPTX3BX_NoHalo_v3', 
@@ -342,10 +345,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetMultiJet_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMultiJet_selector.l1tResults = cms.InputTag('')
 streamA_datasetMultiJet_selector.throw      = cms.bool(False)
-streamA_datasetMultiJet_selector.triggerConditions = cms.vstring('HLT_60Jet10_v1', 
-    'HLT_70Jet10_v1', 
-    'HLT_70Jet13_v1', 
-    'HLT_CentralJet46_CentralJet38_DiBTagIP3D_v2', 
+streamA_datasetMultiJet_selector.triggerConditions = cms.vstring('HLT_CentralJet46_CentralJet38_DiBTagIP3D_v2', 
     'HLT_CentralJet60_CentralJet53_DiBTagIP3D_v1', 
     'HLT_DoubleJet30_ForwardBackward_v7', 
     'HLT_DoubleJet60_ForwardBackward_v7', 
@@ -369,7 +369,6 @@ streamA_datasetPhoton_selector.hltResults = cms.InputTag('TriggerResults', '', '
 streamA_datasetPhoton_selector.l1tResults = cms.InputTag('')
 streamA_datasetPhoton_selector.throw      = cms.bool(False)
 streamA_datasetPhoton_selector.triggerConditions = cms.vstring('HLT_DoubleEle33_CaloIdL_v4', 
-    'HLT_DoubleEle33_v4', 
     'HLT_DoubleEle45_CaloIdL_v3', 
     'HLT_DoublePhoton33_HEVT_v3', 
     'HLT_DoublePhoton38_HEVT_v2', 
@@ -383,27 +382,22 @@ streamA_datasetPhoton_selector.triggerConditions = cms.vstring('HLT_DoubleEle33_
     'HLT_Photon20_CaloIdVL_IsoL_v6', 
     'HLT_Photon20_R9Id_Photon18_R9Id_v6', 
     'HLT_Photon225_NoHE_v1', 
-    'HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v7', 
-    'HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v6', 
-    'HLT_Photon26_CaloIdL_IsoVL_Photon18_v7', 
-    'HLT_Photon26_IsoVL_Photon18_IsoVL_v7', 
-    'HLT_Photon26_IsoVL_Photon18_v7', 
+    'HLT_Photon26_CaloIdXL_IsoXL_Photon18_CaloIdXL_IsoXL_v1', 
+    'HLT_Photon26_CaloIdXL_IsoXL_Photon18_R9Id_v1', 
+    'HLT_Photon26_CaloIdXL_IsoXL_Photon18_v1', 
     'HLT_Photon26_Photon18_v6', 
-    'HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v6', 
+    'HLT_Photon26_R9Id_Photon18_CaloIdXL_IsoXL_v1', 
     'HLT_Photon26_R9Id_Photon18_R9Id_v3', 
     'HLT_Photon30_CaloIdVL_IsoL_v7', 
     'HLT_Photon30_CaloIdVL_v6', 
     'HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v3', 
-    'HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_v3', 
     'HLT_Photon36_CaloIdL_IsoVL_Photon22_R9Id_v2', 
     'HLT_Photon36_CaloIdL_IsoVL_Photon22_v4', 
-    'HLT_Photon36_CaloIdL_Photon22_CaloIdL_v5', 
     'HLT_Photon36_CaloIdVL_Photon22_CaloIdVL_v1', 
-    'HLT_Photon36_IsoVL_Photon22_v4', 
+    'HLT_Photon36_Photon22_v1', 
     'HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v3', 
     'HLT_Photon36_R9Id_Photon22_R9Id_v2', 
     'HLT_Photon400_v1', 
-    'HLT_Photon40_CaloIdL_Photon28_CaloIdL_v3', 
     'HLT_Photon44_CaloIdL_Photon34_CaloIdL_v1', 
     'HLT_Photon48_CaloIdL_Photon38_CaloIdL_v1', 
     'HLT_Photon50_CaloIdVL_IsoL_v6', 

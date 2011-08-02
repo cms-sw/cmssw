@@ -177,25 +177,30 @@ HLT_Photon20_CaloIdVL_IsoL_v*
 HLT_Photon20_R9Id_Photon18_R9Id_v*
 HLT_Photon20_CaloIdVT_IsoT_Ele8_CaloIdL_CaloIsoVL_v*
 HLT_Photon26_Photon18_v*
-HLT_Photon26_IsoVL_Photon18_v*
-HLT_Photon26_IsoVL_Photon18_IsoVL_v*
-HLT_Photon26_CaloIdL_IsoVL_Photon18_v*
-HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v*
-HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v*
-HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v*
+#HLT_Photon26_IsoVL_Photon18_v* #removed in "3e33" menu (see sr #122063)
+#HLT_Photon26_IsoVL_Photon18_IsoVL_v* #removed in "3e33" menu (see sr #122063)
+HLT_Photon26_CaloIdXL_IsoXL_Photon18_v* #added in "3e33" menu (see sr #122063)
+#HLT_Photon26_CaloIdL_IsoVL_Photon18_v* #removed in "3e33" menu (see sr #122063)
+HLT_Photon26_CaloIdXL_IsoXL_Photon18_R9Id_v* #added in "3e33" menu (see sr #122063)
+#HLT_Photon26_CaloIdL_IsoVL_Photon18_R9Id_v* #removed in "3e33" menu (see sr #122063)
+HLT_Photon26_CaloIdXL_IsoXL_Photon18_CaloIdXL_IsoXL_v* #added in "3e33" menu (see sr #122063)
+#HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL_v* #removed in "3e33" menu (see sr #122063)
+HLT_Photon26_R9Id_Photon18_CaloIdXL_IsoXL_v* #added in "3e33" menu (see sr #122063)
+#HLT_Photon26_R9Id_Photon18_CaloIdL_IsoVL_v* #removed in "3e33" menu (see sr #122063)
 HLT_Photon26_R9Id_Photon18_R9Id_v*
 HLT_Photon30_CaloIdVL_v*
 HLT_Photon30_CaloIdVL_IsoL_v*
-HLT_Photon36_IsoVL_Photon22_v*
+HLT_Photon36_Photon22_v* #added in "3e33" menu (see sr #122063)
+#HLT_Photon36_IsoVL_Photon22_v* #removed in "3e33" menu (see sr #122063)
 HLT_Photon36_CaloIdVL_Photon22_CaloIdVL_v*
-HLT_Photon36_CaloIdL_Photon22_CaloIdL_v*
-HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_v*
+#HLT_Photon36_CaloIdL_Photon22_CaloIdL_v* #removed in "3e33" menu (see sr #122063)
+#HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_v* #removed in "3e33" menu (see sr #122063)
 HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v*
 HLT_Photon36_CaloIdL_IsoVL_Photon22_R9Id_v*
 HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v*
 HLT_Photon36_R9Id_Photon22_R9Id_v*
 HLT_Photon36_CaloIdL_IsoVL_Photon22_v*
-HLT_Photon40_CaloIdL_Photon28_CaloIdL_v*
+#HLT_Photon40_CaloIdL_Photon28_CaloIdL_v* #removed in "3e33" menu (see sr #122063)
 HLT_Photon44_CaloIdL_Photon34_CaloIdL_v*
 HLT_Photon48_CaloIdL_Photon38_CaloIdL_v*
 HLT_Photon50_CaloIdVL_v*
@@ -241,7 +246,7 @@ HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_SC17_v*
 HLT_Ele65_CaloIdVT_TrkIdT_v*
 HLT_Ele100_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_v*
 HLT_DoubleEle8_CaloIdT_TrkIdVL_v*
-HLT_DoubleEle33_v*
+#HLT_DoubleEle33_v* #removed in "3e33" menu (see sr #122063)
 HLT_DoubleEle33_CaloIdL_v*
 HLT_DoubleEle45_CaloIdL_v*
 HLT_IsoPFTau35_Trk20_v*
