@@ -235,7 +235,8 @@ HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC8_Mass30_v*
 HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*
 HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass30_v*
 #HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v*  # removed in "3e33" menu (see sr #122040)
-HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFT_v*
+HLT_Ele22_CaloIdL_CaloIsoVL_Ele15_HFT_v* #added in "3e33" menu (see sr #122367)
+#HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFT_v* #removed in "3e33" menu (see sr #122367)
 HLT_Ele25_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v*
 HLT_Ele27_WP80_PFMT50_v*
 HLT_Ele32_WP70_PFMT50_v*
