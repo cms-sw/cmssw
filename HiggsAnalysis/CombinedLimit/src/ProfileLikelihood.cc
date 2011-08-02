@@ -10,16 +10,18 @@
 #include "RooStats/LikelihoodInterval.h"
 #include "RooStats/LikelihoodIntervalPlot.h"
 #include "RooStats/HypoTestResult.h"
+#include "RooStats/RooStatsUtils.h"
 #include "../interface/Combine.h"
 #include "../interface/CloseCoutSentry.h"
 #include "../interface/utils.h"
+#include "../interface/ProfiledLikelihoodRatioTestStatExt.h"
 
 
 #include <Math/MinimizerOptions.h>
 
 using namespace RooStats;
 
-std::string ProfileLikelihood::minimizerAlgo_ = "Minuit2,minimize";
+std::string ProfileLikelihood::minimizerAlgo_ = "Minuit2";
 float       ProfileLikelihood::minimizerTolerance_ = 1e-2;
 int         ProfileLikelihood::tries_ = 1;
 int         ProfileLikelihood::maxTries_ = 1;
@@ -28,6 +30,7 @@ float       ProfileLikelihood::maxOutlierFraction_ = 0.25;
 int         ProfileLikelihood::maxOutliers_ = 3;
 bool        ProfileLikelihood::preFit_ = false;
 bool        ProfileLikelihood::useMinos_ = false;
+bool        ProfileLikelihood::bruteForce_ = false;
 bool        ProfileLikelihood::reportPVal_ = false;
 float       ProfileLikelihood::signalForSignificance_ = 0;
 std::string ProfileLikelihood::plot_ = "";
@@ -47,6 +50,7 @@ ProfileLikelihood::ProfileLikelihood() :
         ("plot",   boost::program_options::value<std::string>(&plot_)->default_value(plot_), "Save a plot of the negative log of the profiled likelihood into the specified file")
         ("preFit", "Attept a fit before running the ProfileLikelihood calculator")
         ("useMinos", "Compute PL limit using Minos directly, bypassing the ProfileLikelihoodCalculator")
+        ("bruteForce", "Compute PL limit by brute force, bypassing the ProfileLikelihoodCalculator and Minos")
         ("pvalue", "Report p-value instead of significance (when running with --significance)")
     ;
 }
@@ -54,6 +58,7 @@ ProfileLikelihood::ProfileLikelihood() :
 void ProfileLikelihood::applyOptions(const boost::program_options::variables_map &vm) 
 {
     useMinos_ = vm.count("useMinos");
+    bruteForce_ = vm.count("bruteForce");
     reportPVal_ = vm.count("pvalue");
 }
 
@@ -164,9 +169,18 @@ bool ProfileLikelihood::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
 
   while (!success) {
     ProfileLikelihoodCalculator plcB(data, *mc_s, 1.0-cl);
-    std::auto_ptr<LikelihoodInterval> plInterval(plcB.GetInterval());
-    if (plInterval.get() == 0) break;
-    limit = (!useMinos_) ? plInterval->UpperLimit(*r) : upperLimitWithMinos(*mc_s->GetPdf(), data, *r, minimizerTolerance_, cl) ; 
+    std::auto_ptr<LikelihoodInterval> plInterval;
+    if (bruteForce_) {
+        std::pair<double,double> le = upperLimitBruteForce(*mc_s->GetPdf(), data, *r, mc_s->GetNuisanceParameters(), 1e-3*minimizerTolerance_, cl); 
+        limit = le.first; 
+        limitErr = le.second;
+    } else if (useMinos_) {
+        limit = upperLimitWithMinos(*mc_s->GetPdf(), data, *r, minimizerTolerance_, cl); 
+    } else {
+        plInterval.reset(plcB.GetInterval());
+        if (plInterval.get() == 0) break;
+        limit = plInterval->UpperLimit(*r);
+    }
     if (limit >= 0.75*r->getMax()) { 
       std::cout << "Limit " << r->GetName() << " < " << limit << "; " << r->GetName() << " max < " << r->getMax() << std::endl;
       if (r->getMax()/rMax > 20) break;
@@ -190,7 +204,11 @@ bool ProfileLikelihood::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, R
   if (verbose >= 0) {
       if (success) {
         std::cout << "\n -- Profile Likelihood -- " << "\n";
-        std::cout << "Limit: " << r->GetName() << " < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
+        if (limitErr) { 
+            std::cout << "Limit: " << r->GetName() << " < " << limit << " +/- " << limitErr << " @ " << cl * 100 << "% CL" << std::endl;
+        } else {
+            std::cout << "Limit: " << r->GetName() << " < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
+        }
       }
   }
   return success;
@@ -207,22 +225,31 @@ bool ProfileLikelihood::runSignificance(RooWorkspace *w, RooStats::ModelConfig *
   plcS.SetNullParameters(nullParamValues);
 
   CloseCoutSentry coutSentry(verbose <= 1); // close standard output and error, so that we don't flood them with minuit messages
-  std::auto_ptr<HypoTestResult> result(plcS.GetHypoTest());
-  if (result.get() == 0) return false;
-  coutSentry.clear();
 
-  limit = result->Significance();
-  if (limit == 0 && signbit(limit)) {
-    //..... This is not an error, it just means we have a deficit of events.....
-    std::cerr << "The minimum of the likelihood is for r <= " << signalForSignificance_ << ", so the significance is zero" << std::endl;
-    limit = 0;
+  if (useMinos_) {
+      ProfiledLikelihoodTestStatOpt testStat(*mc_s->GetObservables(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(), 
+                                                   nullParamValues, RooArgList(), RooArgList(), verbose-1);
+      Double_t q0 = testStat.Evaluate(data, nullParamValues);
+      limit = q0 > 0 ? sqrt(2*q0) : 0;
+  } else {
+      std::auto_ptr<HypoTestResult> result(plcS.GetHypoTest());
+      if (result.get() == 0) return false;
+      limit = result->Significance();
   }
-  if (reportPVal_) limit = 1.0 - result->CLb();
+  coutSentry.clear();
+  if (limit == 0 && signbit(limit)) {
+      //..... This is not an error, it just means we have a deficit of events.....
+      std::cerr << "The minimum of the likelihood is for r <= " << signalForSignificance_ << ", so the significance is zero" << std::endl;
+      limit = 0;
+  }
+  if (reportPVal_) limit = RooStats::SignificanceToPValue(limit);
 
   std::cout << "\n -- Profile Likelihood -- " << "\n";
   std::cout << (reportPVal_ ? "p-value of background: " : "Significance: ") << limit << std::endl;
-  if (verbose > 0) std::cout << "       (CLb = " << result->CLb() << ")" << std::endl;
-  if (verbose > 0 && reportPVal_) std::cout << "       (Significance = " << result->Significance() << ")" << std::endl;
+  if (verbose > 0) {
+        if (reportPVal_) std::cout << "       (Significance = " << RooStats::PValueToSignificance(limit) << ")" << std::endl;
+        else             std::cout << "       (p-value = " << RooStats::SignificanceToPValue(limit) << ")" << std::endl;
+  }
   return true;
 }
 
@@ -235,9 +262,88 @@ double ProfileLikelihood::upperLimitWithMinos(RooAbsPdf &pdf, RooAbsData &data, 
     minim.setStrategy(0);
     minim.setPrintLevel(verbose-1);
     minim.setErrorLevel(0.5*TMath::ChisquareQuantile(cl,1));
-    minim.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
-    minim.minos(RooArgSet(poi));
+    if (maxTries_ == 1) {
+        nllutils::robustMinimize(*nll, minim, verbose-1);
+    } else {
+        int mstatus = minim.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
+        if (mstatus == -1) return poi.getMin();
+    }
+    int mnstatus = minim.minos(RooArgSet(poi));
+    if (mnstatus == -1 && maxTries_ > 1) return poi.getMin();
     std::auto_ptr<RooFitResult> res(minim.save());
     if (verbose > 1) res->Print("V");
     return poi.getVal() + poi.getAsymErrorHi();
+}
+
+std::pair<double,double> ProfileLikelihood::upperLimitBruteForce(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &poi, const RooArgSet *nuisances, double tolerance, double cl) const {
+    poi.setConstant(false);
+    std::auto_ptr<RooAbsReal> nll(pdf.createNLL(data, RooFit::Constrain(*nuisances)));
+    RooMinimizer minim0(*nll);
+    minim0.setStrategy(0);
+    minim0.setPrintLevel(-1);
+    nllutils::robustMinimize(*nll, minim0, verbose-2);
+    poi.setConstant(true);
+    RooMinimizer minim(*nll);
+    minim.setPrintLevel(-1);
+    if (!nllutils::robustMinimize(*nll, minim, verbose-2)) {
+        std::cerr << "Initial minimization failed. Aborting." << std::endl;
+        return std::pair<double,double>(0, -1);
+    }
+    std::auto_ptr<RooFitResult> start(minim.save());
+    double minnll = nll->getVal();
+    double rval = poi.getVal() + 3*poi.getError(), rlow = poi.getVal(), rhigh = poi.getMax();
+    if (rval >= rhigh) rval = 0.5*(rlow + rhigh);
+    double target = minnll + 0.5*TMath::ChisquareQuantile(cl,1);
+    //minim.setPrintLevel(verbose-2);
+    bool fail = false;
+    do {
+        poi.setVal(rval);
+        minim.setStrategy(0);
+        bool success = nllutils::robustMinimize(*nll, minim, verbose-2);
+        if (success == false) {
+            std::cerr << "Minimization failed at " << poi.getVal() <<". exiting the bisection loop" << std::endl;
+            fail = true; 
+            break;
+        }
+        double nllthis = nll->getVal();
+        if (verbose > 1) std::cout << "  at " << poi.GetName() << " = " << rval << ", delta(NLL) = " << (nllthis - minnll) << std::endl;
+        if (fabs(nllthis - target) < tolerance) {
+            return std::pair<double,double>(rval, (rhigh - rlow)*0.5);
+        } else if (nllthis < target) {
+            rlow = rval;
+            rval = 0.5*(rval + rhigh); 
+        } else {
+            rhigh = rval;
+            rval = 0.5*(rval + rlow); 
+        }
+    } while (rhigh - rlow > tolerance);
+    if (fail) {
+        // try do do it in small steps instead
+        std::auto_ptr<RooArgSet> pars(nll->getParameters((const RooArgSet *)0));
+        double dx = 0.05*poi.getError();
+        *pars = start->floatParsFinal();
+        rval = poi.getVal() + dx;
+        do {
+            poi.setVal(rval);
+            minim.setStrategy(0);
+            bool success = nllutils::robustMinimize(*nll, minim, verbose-2);
+            if (success == false) {
+                std::cerr << "Minimization failed at " << poi.getVal() <<". exiting the stepping loop" << std::endl;
+                return std::pair<double,double>(poi.getVal(), (rhigh - rlow)*0.5);
+            }
+            double nllthis = nll->getVal();
+            if (verbose > 1) std::cout << "  at " << poi.GetName() << " = " << rval << ", delta(NLL) = " << (nllthis - minnll) << std::endl;
+            if (fabs(nllthis - target) < tolerance) {
+                return std::pair<double,double>(rval, dx);
+            } else if (nllthis < target) {
+                rval += dx;
+            } else {
+                dx *= 0.5;
+                rval -= dx;
+            }
+        } while (rval < poi.getMax());
+        return std::pair<double,double>(poi.getMax(), 0);
+    } else {
+        return std::pair<double,double>(poi.getVal(), (rhigh - rlow)*0.5);
+    }
 }

@@ -10,7 +10,7 @@
  */
 #include "../interface/LimitAlgo.h"
 
-class RooAbsPdf; class RooRealVar; class RooAbsData;
+class RooAbsPdf; class RooRealVar; class RooAbsData; class RooArgSet;
 
 class ProfileLikelihood : public LimitAlgo {
 public:
@@ -36,7 +36,7 @@ protected:
   static std::string minimizerAlgo_;
   static float       minimizerTolerance_;
 
-  static bool useMinos_;
+  static bool useMinos_, bruteForce_;
 
   // ----- options for handling cases where the likelihood fit misbihaves ------
   /// compute the limit N times
@@ -63,6 +63,7 @@ protected:
   bool runLimit(RooWorkspace *w, RooStats::ModelConfig *mc, RooAbsData &data, double &limit, double &limitErr);
 
   double upperLimitWithMinos(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &poi, double tolerance, double cl) const ;
+  std::pair<double,double> upperLimitBruteForce(RooAbsPdf &pdf, RooAbsData &data, RooRealVar &poi, const RooArgSet *nuisances, double tolerance, double cl) const ;
 };
 
 #endif

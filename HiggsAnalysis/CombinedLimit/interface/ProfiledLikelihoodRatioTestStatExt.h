@@ -2,6 +2,8 @@
 #define HiggsAnalysis_CombinedLimit_ProfiledLikelihoodRatioTestStatExt_h
 
 #include <memory>
+
+class RooMinimizer;
 #include <RooAbsPdf.h>
 #include <RooAbsData.h>
 #include <RooArgSet.h>
@@ -9,6 +11,10 @@
 #include "../interface/RooSimultaneousOpt.h"
 #include "../interface/CachingNLL.h"
 
+namespace nllutils {
+    bool robustMinimize(RooAbsReal &nll, RooMinimizer &minimizer, int verbosity=0);
+    bool randomWalk(RooAbsReal &nll, RooMinimizer &minimizer, const RooArgSet &parameters, int steps, double initialStepSize) ;
+}
 
 class ProfiledLikelihoodRatioTestStatOpt : public RooStats::TestStatistic {
     public:
@@ -64,7 +70,7 @@ class ProfiledLikelihoodTestStatOpt : public RooStats::TestStatistic {
 
         // create NLL. if returns true, it can be kept, if false it should be deleted at the end of Evaluate
         bool createNLL(RooAbsPdf &pdf, RooAbsData &data) ;
-        double minNLL(bool isDenominator) ;
+        double minNLL() ;
 }; // TestSimpleStatistics
 
 
