@@ -4,7 +4,7 @@ l1tSync = cms.EDAnalyzer("L1TSync",
 
   dqmStore                = cms.untracked.bool(True),
   disableROOToutput       = cms.untracked.bool(True),
-  verbose                 = cms.untracked.bool(True),
+  verbose                 = cms.untracked.bool(False),
   inputTagScalersResults  = cms.InputTag("scalersRawToDigi","","DQM"),
   inputTagL1GtDataDaq     = cms.InputTag("gtDigis"),
   inputTagtEvmSource      = cms.InputTag("gtEvmDigis","","DQM"),
