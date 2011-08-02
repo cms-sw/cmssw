@@ -4,8 +4,8 @@
 /** \class DTnoiseDBValidation
  *  Plot the noise from the DB comparaison
  *
- *  $Date: 2010/01/07 16:31:59 $
- *  $Revision: 1.2 $
+ *  $Date: 2011/05/05 13:36:31 $
+ *  $Revision: 1.3 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -19,14 +19,12 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
-#include "DataFormats/MuonDetId/interface/DTLayerId.h"
-#include "DataFormats/MuonDetId/interface/DTWireId.h"
-#include "Geometry/DTGeometry/interface/DTGeometry.h"
-
 #include <string>
-#include <fstream>
 #include <vector>
+#include <map>
 
+class DTGeometry;
+class DTChamberId;
 class DTStatusFlag;
 class TFile;
 
@@ -47,33 +45,35 @@ public:
 protected:
 
 private:
+  void bookHisto(const DTChamberId&);
 
-  DQMStore* dbe;
-  edm::ParameterSet parameters;
-  // Switch for verbosity
-  std::string metname;
+  DQMStore* dbe_;
   // The DB label
-  std::string labelDBRef;
-  std::string labelDB;
-  // The file which will contain the difference plot
-  std::string outputFileName;
+  std::string labelDBRef_;
+  std::string labelDB_;
+  std::string diffTestName_,wheelTestName_,stationTestName_,
+              sectorTestName_,layerTestName_;
+
+  bool outputMEsInRootFile_; 
+  std::string outputFileName_;
 
   // The DTGeometry
-  edm::ESHandle<DTGeometry> dtGeom;
+  edm::ESHandle<DTGeometry> dtGeom_;
 
   // The noise map
-  const DTStatusFlag *noiseMap;
-  const DTStatusFlag *noiseRefMap;
+  const DTStatusFlag *noiseMap_;
+  const DTStatusFlag *noiseRefMap_;
  
   //the total number of noisy cell
-  int noisyCells_Ref;
-  int noisyCells_toTest;
+  int noisyCellsRef_;
+  int noisyCellsValid_;
   // the histos
-  MonitorElement * diffHisto;
-  MonitorElement * wheelHisto;
-  MonitorElement * stationHisto;
-  MonitorElement * sectorHisto;
-  MonitorElement * layerHisto;
+  MonitorElement * diffHisto_;
+  MonitorElement * wheelHisto_;
+  MonitorElement * stationHisto_;
+  MonitorElement * sectorHisto_;
+  MonitorElement * layerHisto_;
+  std::map<DTChamberId, MonitorElement*> noiseHistoMap_;
 
 };
 #endif

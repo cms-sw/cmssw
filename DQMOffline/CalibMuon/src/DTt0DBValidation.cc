@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/02/16 15:57:24 $
- *  $Revision: 1.6 $
+ *  $Date: 2009/03/10 10:25:42 $
+ *  $Revision: 1.7 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -37,16 +37,13 @@
 using namespace edm;
 using namespace std;
 
-
-
-
 DTt0DBValidation::DTt0DBValidation(const ParameterSet& pset) {
 
   cout << "[DTt0DBValidation] Constructor called!" << endl;
 
   // Get the DQM needed services
   dbe = edm::Service<DQMStore>().operator->();
-  dbe->setCurrentFolder("DT/DTDBValidation");
+  dbe->setCurrentFolder("DT/DtCalib/InterChannelSynchDBValidation");
 
   // Get dataBase label
   labelDBRef = pset.getUntrackedParameter<string>("labelDBRef");
@@ -61,7 +58,7 @@ DTt0DBValidation::~DTt0DBValidation(){}
 
 void DTt0DBValidation::beginRun(const edm::Run& run, const EventSetup& setup) {
 
-  metname = "t0dbValidation";
+  metname = "InterChannelSynchDBValidation";
   LogTrace(metname)<<"[DTt0DBValidation] Parameters initialization";
  
   outputFileName = parameters.getUntrackedParameter<std::string>("OutputFileName");
