@@ -1,8 +1,8 @@
 /*
  * \file L1TSync.cc
  *
- * $Date: 2011/05/30 14:07:08 $
- * $Revision: 1.6 $
+ * $Date: 2011/07/28 16:03:54 $
+ * $Revision: 1.7 $
  * \author J. Pela, P. Musella
  *
  */
@@ -327,16 +327,24 @@ void L1TSync::beginLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup 
   if(m_currentLS !=0 && m_currentLS+1 != lumiBlock.id().luminosityBlock()){
 
     if (m_verbose){
-      cout << "[L1TSync] None consecutive: doFactionInSync() - LAST=" 
+      cout << "[L1TSync] None consecutive: doFractionInSync() - LAST=" 
            << m_currentLS << " CURRENT=" << lumiBlock.id().luminosityBlock() << endl;
     }
 
-    doFactionInSync(true);    
+    doFractionInSync(true,false);    
 
   }
     
   // Updating current LS number
   m_currentLS = lumiBlock.id().luminosityBlock();
+
+  // If this is the fist valid LS update first LS for certification 
+  for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
+
+    string theTriggerAlias = (*i).second;
+    if(m_certFirstLS[theTriggerAlias]==0){m_certFirstLS[theTriggerAlias] = m_currentLS;}
+
+  }
 
   // A LS will be valid if:
   //   * BeamMode == STABLE for all events monitored
@@ -357,27 +365,19 @@ void L1TSync::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup co
     cout << "[L1TSync] m_beamConfig.isValid(): " << m_beamConfig.isValid() << endl;
   }  
 
+  for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
+
+    // Update last LS for certification      
+    string theTriggerAlias = (*i).second;
+    m_certLastLS[theTriggerAlias] = m_currentLS;
+
+  }
+
   // If this LS is valid (i.e. all events recorded with stable beams)
   if(m_currentLSValid && m_beamConfig.isValid()){
 
-    for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
-
-      string theCategory     = (*i).first;
-      string theTriggerAlias = (*i).second;
-
-      if(theTriggerAlias != "Undefined" && theTriggerAlias != "Undefined (Wrong Name)"){
-    
-        // If this is the fist valid LS update first LS for certification
-        if(m_certFirstLS[theTriggerAlias]==0){m_certFirstLS[theTriggerAlias] = m_currentLS;}
-    
-        // Update last LS for certification      
-        m_certLastLS[theTriggerAlias] = m_currentLS;
-      }
-    }
-
-    if(m_verbose){cout << "[L1TSync] Regular call: doFactionInSync()" << endl;}
-
-    doFactionInSync();
+    if(m_verbose){cout << "[L1TSync] Regular call: doFractionInSync()" << endl;}
+    doFractionInSync(false,false);
     
   }
   // If this LS is not valid it can be in the following context:
@@ -385,20 +385,36 @@ void L1TSync::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup co
   //  * Beam just got unstable or dumped (we may have a complete block of data do certify)  
   else{
     
+    //-> First we close all blocks from certFirstLS[] to m_currentLS-1
     for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
 
       string theTriggerAlias = (*i).second;
       
-      if(m_certLastLS [theTriggerAlias] !=0){
-	m_certLastLS [theTriggerAlias] = m_certFirstLS[theTriggerAlias] -1;
+      int fLs = m_certFirstLS[theTriggerAlias];
+      int lLS = m_certLastLS [theTriggerAlias];
+
+      // If this is a single LS block we do nothing (in this step)
+      if(fLs == lLS){
+        m_certFirstLS[theTriggerAlias] = 0;
+        m_certLastLS [theTriggerAlias] = 0;
       }
+      // If block is multi LS then we remove the current LS 
+      else{
+        m_certLastLS [theTriggerAlias] = m_currentLS-1;
+      }
+
     }
-  
-    // Now we force certification which should:
-    // * In case no stable beams yet, reset LS blocks
-    // * In case beams become not stable, certify until last LS
-    if(m_verbose){cout << "[L1TSync] Error call: doFactionInSync()" << endl;}
-    doFactionInSync(true);    
+    doFractionInSync(true,false);
+
+    //-> Second we mark this single LS bad for all triggers
+    for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
+      string theTriggerAlias = (*i).second;
+      m_certFirstLS[theTriggerAlias] = m_currentLS;
+      m_certLastLS [theTriggerAlias] = m_currentLS;
+    }
+    doFractionInSync(true,true);
+
+    if(m_verbose){cout << "[L1TSync] Error call: doFractionInSync()" << endl;}  
 
   }
 
@@ -411,7 +427,7 @@ void L1TSync::endRun(const edm::Run& run, const edm::EventSetup& iSetup){
   
   // When the run end for closing of the LS certification blocks and evaluation
   // of synchronization for that block
-  doFactionInSync(true);    
+  doFractionInSync(true,false);    
 
 }
 
@@ -423,6 +439,8 @@ void L1TSync::analyze(const Event & iEvent, const EventSetup & eventSetup){
   // We only start analyzing if current LS is still valid
   if(m_currentLSValid){
   
+    if(m_verbose){cout << "[L1TSync] -> m_currentLSValid=" << m_currentLSValid << endl;}
+    
     // Retriving information from GT
     edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtEvmReadoutRecord;
     iEvent.getByLabel(m_l1GtEvmSource, gtEvmReadoutRecord);
@@ -430,7 +448,7 @@ void L1TSync::analyze(const Event & iEvent, const EventSetup & eventSetup){
     // Determining beam mode and fill number
     if(gtEvmReadoutRecord.isValid()){
 
-      const L1GtfeExtWord& gtfeEvmWord = gtEvmReadoutRecord ->gtfeWord();
+      const L1GtfeExtWord& gtfeEvmWord = gtEvmReadoutRecord->gtfeWord();
       unsigned int lhcBeamMode         = gtfeEvmWord.beamMode();          // Updating beam mode
 
       if(m_lhcFill == 0){
@@ -445,6 +463,8 @@ void L1TSync::analyze(const Event & iEvent, const EventSetup & eventSetup){
       eCount++;
       m_ErrorMonitor->getTH1()->SetBinContent(ERROR_UNABLE_RETRIVE_PRODUCT,eCount);
     }
+  }else{
+    if(m_verbose){cout << "[L1TSync] -> m_currentLSValid=" << m_currentLSValid << endl;}
   }
 
   //------------------------------------------------------------------------------
@@ -573,13 +593,15 @@ void L1TSync::getBeamConfOMDS(){
 }
 
 //_____________________________________________________________________
-// Method: doFactionInSync
+// Method: doFractionInSync
 // Description: Produce plot with the fraction of in sync trigger for
 //              LS blocks with enough statistics.
 // Variable: iForce - Forces closing of all blocks and calculation of 
 //                    the respective fractions
+// Variable: iBad   - (Only works with iForce=true) Forces the current 
+//                    all current blocks to be marked as bad 
 //_____________________________________________________________________
-void L1TSync::doFactionInSync(bool iForce){
+void L1TSync::doFractionInSync(bool iForce,bool iBad){
   
   for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
 
@@ -592,50 +614,61 @@ void L1TSync::doFactionInSync(bool iForce){
     
     // Checking validity of the trigger alias and of the LS block
     bool triggerAlias_isValid = theTriggerAlias != "Undefined" && theTriggerAlias != "Undefined (Wrong Name)";
-    bool lsBlock_isValid      = fLS <= lLS && fLS != 0 && lLS != 0; 
-    
-    if(triggerAlias_isValid && lsBlock_isValid){
+    bool lsBlock_exists       = !(fLS == 0 && lLS == 0);
+    bool lsBlock_isValid      = fLS <= lLS && fLS > 0 && lLS > 0; 
 
-      // Getting events with 0 bx difference between BPTX and Algo for current LS
-      double CountSync = 0;
-      double CountAll  = 0;
-  
-      // Adding all entries for current LS block
-      for(uint ls=fLS ; ls<=lLS ; ls++){
+    if(triggerAlias_isValid && lsBlock_exists && lsBlock_isValid){
 
-        CountSync += m_algoVsBunchStructure[theTriggerAlias]->getBinContent(ls+1,3);
-        for(int a=1 ; a<6 ; a++){
-          CountAll  += m_algoVsBunchStructure[theTriggerAlias]->getBinContent(ls+1,a);
-        }
-      }
-      
-      if(m_verbose){cout << "Alias = " << theTriggerAlias << " InitLS=" << fLS << " EndLS=" <<  lLS << " Events=" << CountAll ;} 
-    
-      if(iForce ||
-         CountAll >= m_parameters.getParameter<ParameterSet>("Categories")
-                                 .getParameter<ParameterSet>(theCategory)
-                                 .getParameter<int>("CertMinEvents")){
-
-        if(m_verbose){cout << " <--------------- Enough Statistics: ";}
-
-        // Finding correct bins in the histogram for this block
-        int binInit = m_algoCertification[theTriggerAlias]->getTH1()->FindBin(m_certFirstLS[theTriggerAlias]);
-        int binEnd  = m_algoCertification[theTriggerAlias]->getTH1()->FindBin(m_certLastLS [theTriggerAlias]);
-        
-        // Calculating fraction of in time 
-        double fraction = 0;
-        if(CountAll >0){fraction = CountSync/CountAll;}
-        
-        for(int ls=binInit ; ls<=binEnd ; ls++){
-          m_algoCertification[theTriggerAlias]->setBinContent(ls,fraction);
-        }
-
+      // If we are forced to close blocks and mark them bad
+      if(iForce && iBad){
+        certifyLSBlock(theTriggerAlias,fLS,lLS,-1);
         m_certFirstLS[theTriggerAlias] = 0;
         m_certLastLS [theTriggerAlias] = 0;
       }
 
-      if(m_verbose){cout << endl;}
+      // If we are not forced to mark bad, we check if we have enough statistics
+      else{
 
+        // Getting events with 0 bx difference between BPTX and Algo for current LS
+        double CountSync = 0;
+        double CountAll  = 0;
+  
+        // Adding all entries for current LS block
+        for(uint ls=fLS ; ls<=lLS ; ls++){
+
+          CountSync += m_algoVsBunchStructure[theTriggerAlias]->getBinContent(ls+1,3);
+          for(int a=1 ; a<6 ; a++){
+            CountAll  += m_algoVsBunchStructure[theTriggerAlias]->getBinContent(ls+1,a);
+          }
+        }
+
+        if(m_verbose){
+          cout << "Alias = " << theTriggerAlias 
+               << " InitLS=" << fLS 
+               << " EndLS=" <<  lLS 
+               << " Events=" << CountAll ;
+        } 
+
+        if(iForce ||
+           CountAll >= m_parameters.getParameter<ParameterSet>("Categories")
+                                   .getParameter<ParameterSet>(theCategory)
+                                   .getParameter<int>("CertMinEvents")){
+
+          if(m_verbose){cout << " <--------------- Enough Statistics: ";}
+
+        
+          // Calculating fraction of in time 
+          double fraction = 0;
+          if(CountAll >0){fraction = CountSync/CountAll;}
+        
+          certifyLSBlock(theTriggerAlias,fLS,lLS,fraction);
+          m_certFirstLS[theTriggerAlias] = 0;
+          m_certLastLS [theTriggerAlias] = 0;
+        }
+
+        if(m_verbose){cout << endl;}
+
+      }
     }
 
     // A problem was found. We report it and set a not physical vale (-1) to the certification plot
@@ -646,20 +679,43 @@ void L1TSync::doFactionInSync(bool iForce){
         int eCount = m_ErrorMonitor->getTH1()->GetBinContent(ERROR_TRIGGERALIAS_NOTVALID);
         eCount++;
         m_ErrorMonitor->getTH1()->SetBinContent(ERROR_TRIGGERALIAS_NOTVALID,eCount);
+        certifyLSBlock(theTriggerAlias,fLS,lLS,-1);
+        m_certFirstLS[theTriggerAlias] = 0;
+        m_certLastLS [theTriggerAlias] = 0;
       }
 
       // If LS Block is not valid report it to m_ErrorMonitor
-      if(!lsBlock_isValid){
+      if(lsBlock_exists && !lsBlock_isValid){
         int eCount = m_ErrorMonitor->getTH1()->GetBinContent(ERROR_LSBLOCK_NOTVALID);
         eCount++;
         m_ErrorMonitor->getTH1()->SetBinContent(ERROR_LSBLOCK_NOTVALID,eCount);
+        certifyLSBlock(theTriggerAlias,fLS,lLS,-1);
+        m_certFirstLS[theTriggerAlias] = 0;
+        m_certLastLS [theTriggerAlias] = 0;
       }
 
-      // If the trigger it not found of block is not valid we fill this LS with -1 (error)
-      int ibin = m_algoCertification[theTriggerAlias]->getTH1()->FindBin(m_currentLS);
-      m_algoCertification[theTriggerAlias]->setBinContent(ibin,-1);
-
     }
+  }
+
+}
+
+
+//_____________________________________________________________________
+// Method: certifyLSBlock
+// Description: Fill the trigger certification plot by blocks
+// Variable: iTrigger - Which trigger to certify
+// Variable: iInitLs  - Blocks initial LS
+// Variable: iEndLs   - Blocks end LS
+// Variable: iValue   - Value to be used to fill
+//_____________________________________________________________________
+void L1TSync::certifyLSBlock(string iTrigger, int iInitLs, int iEndLs ,float iValue){
+  
+  // Finding correct bins in the histogram for this block
+  int binInit = m_algoCertification[iTrigger]->getTH1()->FindBin(iInitLs);
+  int binEnd  = m_algoCertification[iTrigger]->getTH1()->FindBin(iEndLs);
+
+  for(int ls=binInit ; ls<=binEnd ; ls++){
+    m_algoCertification[iTrigger]->setBinContent(ls,iValue);
   }
 
 }

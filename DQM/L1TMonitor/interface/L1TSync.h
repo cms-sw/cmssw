@@ -4,8 +4,8 @@
 /*
  * \file L1TSync.h
  *
- * $Date: 2011/05/30 14:12:07 $
- * $Revision: 1.6 $
+ * $Date: 2011/07/28 16:03:54 $
+ * $Revision: 1.7 $
  * \author J. Pela
  *
 */
@@ -93,6 +93,14 @@ class L1TSync : public edm::EDAnalyzer {
     virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
     virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
 
+
+  // Private Methods
+  private:
+
+    void getBeamConfOMDS();
+    void doFractionInSync(bool iForce=false, bool iBad=false);
+    void certifyLSBlock  (std::string iTrigger, int iInitLs, int iEndLs ,float iValue);
+
   // Variables
   private:
 
@@ -136,11 +144,6 @@ class L1TSync : public edm::EDAnalyzer {
     edm::InputTag                          m_l1GtEvmSource;
     edm::InputTag                          m_l1GtDataDaqInputTag;
 
-  // Methods
-  private:
-
-    void getBeamConfOMDS();
-    void doFactionInSync(bool iForce=false);
 };
 
 #endif
