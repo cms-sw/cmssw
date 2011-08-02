@@ -7,6 +7,7 @@ from optparse import OptionParser
 argv.append( '-b-' )
 import ROOT
 ROOT.gROOT.SetBatch(True)
+ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
 argv.remove( '-b-' )
 
 parser = OptionParser(usage="usage: %prog [options] in.root  \nrun with --help to get list of options")
