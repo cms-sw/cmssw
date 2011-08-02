@@ -118,9 +118,10 @@ loopOnTracks(){
   //--- Get Tracks
   myEvent->getByLabel(_conf.getParameter<edm::InputTag>("TrackRefitter"),trackCollectionH);
 
-  if(trackCollectionH.isValid()==0)
+  if(trackCollectionH.isValid()==0){
+    edm::LogError("MissingInput")<<" could not find track collecion:"<<_conf.getParameter<edm::InputTag>("TrackRefitter");
     return;
-
+  }
   size_t idx=0, sel=0;
   _countSeedTracks=0;
 
