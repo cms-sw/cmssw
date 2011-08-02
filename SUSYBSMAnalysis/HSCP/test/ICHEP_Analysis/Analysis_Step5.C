@@ -94,13 +94,12 @@ void Analysis_Step5()
    MassPrediction(InputDir, CutIndex, "Mass");
 //   PredictionAndControlPlot(InputDir, CutIndex);
 //   SelectionPlot(InputDir, CutIndex, 0);
-   return;
 
    InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type2/";   CutIndex = 14;//²38;//83;// 82;//18;
 //   CutFlow(InputDir);
 //   SelectionPlot(InputDir, CutIndex, 0);return;
 
-//   MassPrediction(InputDir, CutIndex, "Mass");
+   MassPrediction(InputDir, CutIndex, "Mass");
 //   GetSystematicOnPrediction(InputDir);
 //   PredictionAndControlPlot(InputDir, CutIndex);
 
