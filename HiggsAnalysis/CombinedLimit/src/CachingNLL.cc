@@ -12,7 +12,7 @@ cacheutils::ArgSetChecker::ArgSetChecker(const RooAbsCollection *set)
                     a != 0; 
                     a  = dynamic_cast<RooAbsArg *>(iter->Next())) {
         RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-        if (rrv && !rrv->isConstant()) { 
+        if (rrv) { // && !rrv->isConstant()) { 
             vars_.push_back(rrv);
             vals_.push_back(rrv->getVal());
         }
@@ -191,7 +191,8 @@ cacheutils::CachingAddNLL::setup_()
     std::auto_ptr<TIterator> iter(params->createIterator());
     for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
         RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-        if (rrv != 0 && !rrv->isConstant()) params_.add(*rrv);
+        //if (rrv != 0 && !rrv->isConstant()) params_.add(*rrv);
+        if (rrv != 0) params_.add(*rrv);
     }
 }
 
