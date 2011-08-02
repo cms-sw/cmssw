@@ -2,7 +2,9 @@
 
   <class name="edm::Wrapper<std::map <int,std::pair<double,double> > >"/> 
 
-  <class name="reco::IsolatedPixelTrackCandidate"/>
+  <class name="reco::IsolatedPixelTrackCandidate" ClassVersion="10">
+   <version ClassVersion="10" checksum="3865088611"/>
+  </class>
   <class name="reco::IsolatedPixelTrackCandidateCollection"/>
   <class name="reco::IsolatedPixelTrackCandidateRef"/>
   <class name="reco::IsolatedPixelTrackCandidateRefVector"/>
@@ -12,7 +14,9 @@
   <class name="edm::Ref<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate> >"/>
   <class name="std::vector<edm::Ref<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::IsolatedPixelTrackCandidate>,reco::IsolatedPixelTrackCandidate> > >"/>
 
-  <class name="reco::EcalIsolatedParticleCandidate"/>
+  <class name="reco::EcalIsolatedParticleCandidate" ClassVersion="10">
+   <version ClassVersion="10" checksum="4174683084"/>
+  </class>
   <class name="reco::EcalIsolatedParticleCandidateCollection"/>
   <class name="reco::EcalIsolatedParticleCandidateRef"/>
   <class name="reco::EcalIsolatedParticleCandidateRefVector"/>

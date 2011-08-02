@@ -1,6 +1,7 @@
 <lcgdict>
 
-  <class name="ParticleBase">
+  <class name="ParticleBase" ClassVersion="10">
+   <version ClassVersion="10" checksum="994626610"/>
     <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t> >" />
     <field name="p4Polar_" transient="true" />
     <field name="p4Cartesian_" transient="true" />
@@ -8,7 +9,9 @@
   <class name="std::vector<ParticleBase>" />
   <class name="edm::Wrapper<std::vector<ParticleBase> >" />
 
-  <class name="TrackingVertex" />
+  <class name="TrackingVertex"  ClassVersion="10">
+   <version ClassVersion="10" checksum="378811908"/>
+  </class>
   <class name="std::vector<TrackingVertex>" />
   <class name="std::vector<TrackingVertex>::iterator" />
   <class name="std::vector<TrackingVertex>::const_iterator" />
@@ -17,7 +20,9 @@
   <class pattern="edm::RefVector<std::vector<TrackingVertex>,*>" />
   <class name="edm::RefProd<std::vector<TrackingVertex> >" />
 
-  <class name="TrackingParticle"/>
+  <class name="TrackingParticle" ClassVersion="10">
+   <version ClassVersion="10" checksum="2835241548"/>
+  </class>
   <class name="std::vector<TrackingParticle>" />
   <class name="edm::Wrapper<std::vector<TrackingParticle> >" />
   <class pattern="edm::Ref<std::vector<TrackingParticle>,*>" />

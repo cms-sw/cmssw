@@ -1,6 +1,10 @@
 <lcgdict>
-   <class name="PixelDigi"/>
-   <class name="PixelDigiCollection"/>
+   <class name="PixelDigi" ClassVersion="10">
+    <version ClassVersion="10" checksum="3516592386"/>
+   </class>
+   <class name="PixelDigiCollection" ClassVersion="10">
+    <version ClassVersion="10" checksum="544759626"/>
+   </class>
    <class name="edm::DetSet<PixelDigi>"/>
    <class name="std::vector<PixelDigi>"/>
    <class name="edm::DetSetVector<PixelDigi>"/>
@@ -13,9 +17,13 @@
    <class name="edmNew::DetSetVector<PixelDigi>"/>
    <class name="edm::Wrapper< edmNew::DetSetVector<PixelDigi> >"/>
 
-   <class name="SiPixelCalibDigi::datacontainer"/>
+   <class name="SiPixelCalibDigi::datacontainer" ClassVersion="10">
+    <version ClassVersion="10" checksum="3289693280"/>
+   </class>
    <class name="std::vector<SiPixelCalibDigi::datacontainer>"/>
-   <class name="SiPixelCalibDigi"/>
+   <class name="SiPixelCalibDigi" ClassVersion="10">
+    <version ClassVersion="10" checksum="3382452939"/>
+   </class>
    <class name="std::vector<SiPixelCalibDigi>"/>
    <class name="edm::DetSet<SiPixelCalibDigi>"/>
    <class name="edm::DetSetVector<SiPixelCalibDigi>"/>
@@ -27,7 +35,9 @@
    <class name="edmNew::DetSetVector<SiPixelCalibDigi>"/>
    <class name="edm::Wrapper< edmNew::DetSetVector<SiPixelCalibDigi> >"/>
 
-   <class name="SiPixelCalibDigiError"/>
+   <class name="SiPixelCalibDigiError" ClassVersion="10">
+    <version ClassVersion="10" checksum="1495440127"/>
+   </class>
    <class name="edm::DetSet<SiPixelCalibDigiError>"/>
    <class name="std::vector<SiPixelCalibDigiError>"/>
    <class name="edm::DetSetVector<SiPixelCalibDigiError>"/>

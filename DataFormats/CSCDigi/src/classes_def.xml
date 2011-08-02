@@ -1,18 +1,46 @@
 <lcgdict>
-   <class name="CSCWireDigi"/>
-   <class name="CSCRPCDigi"/>
-   <class name="CSCStripDigi"/>
-   <class name="CSCComparatorDigi"/>
-   <class name="CSCCorrelatedLCTDigi"/>
-   <class name="CSCCLCTDigi"/>
-   <class name="CSCALCTDigi"/>
-   <class name="CSCCFEBStatusDigi"/>
-   <class name="CSCTMBStatusDigi"/>
-   <class name="CSCDMBStatusDigi"/>
-   <class name="CSCDCCFormatStatusDigi"/>
-   <class name="CSCDDUStatusDigi"/>
-   <class name="CSCDCCStatusDigi"/>
-   <class name="CSCALCTStatusDigi"/>
+   <class name="CSCWireDigi" ClassVersion="10">
+    <version ClassVersion="10" checksum="2850817593"/>
+   </class>
+   <class name="CSCRPCDigi" ClassVersion="10">
+    <version ClassVersion="10" checksum="133698288"/>
+   </class>
+   <class name="CSCStripDigi" ClassVersion="10">
+    <version ClassVersion="10" checksum="432407273"/>
+   </class>
+   <class name="CSCComparatorDigi" ClassVersion="10">
+    <version ClassVersion="10" checksum="656608282"/>
+   </class>
+   <class name="CSCCorrelatedLCTDigi" ClassVersion="10">
+    <version ClassVersion="10" checksum="1301481852"/>
+   </class>
+   <class name="CSCCLCTDigi" ClassVersion="10">
+    <version ClassVersion="10" checksum="3910057547"/>
+   </class>
+   <class name="CSCALCTDigi" ClassVersion="10">
+    <version ClassVersion="10" checksum="817473300"/>
+   </class>
+   <class name="CSCCFEBStatusDigi" ClassVersion="10">
+    <version ClassVersion="10" checksum="3752412263"/>
+   </class>
+   <class name="CSCTMBStatusDigi" ClassVersion="10">
+    <version ClassVersion="10" checksum="192211156"/>
+   </class>
+   <class name="CSCDMBStatusDigi" ClassVersion="10">
+    <version ClassVersion="10" checksum="2414593123"/>
+   </class>
+   <class name="CSCDCCFormatStatusDigi" ClassVersion="10">
+    <version ClassVersion="10" checksum="734521968"/>
+   </class>
+   <class name="CSCDDUStatusDigi" ClassVersion="10">
+    <version ClassVersion="10" checksum="3231645748"/>
+   </class>
+   <class name="CSCDCCStatusDigi" ClassVersion="10">
+    <version ClassVersion="10" checksum="1612132636"/>
+   </class>
+   <class name="CSCALCTStatusDigi" ClassVersion="10">
+    <version ClassVersion="10" checksum="3333415454"/>
+   </class>
 
    <class name="std::vector<CSCWireDigi>"/>
    <class name="std::vector<CSCRPCDigi>"/>

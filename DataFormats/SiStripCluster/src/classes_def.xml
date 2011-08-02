@@ -1,8 +1,12 @@
 <lcgdict>
 
- <class name="SiStripCluster"/>
+ <class name="SiStripCluster" ClassVersion="10">
+  <version ClassVersion="10" checksum="3791198690"/>
+ </class>
  <class name="std::vector<SiStripCluster>"/>
- <class name="SiStripClusterCollection"/>
+ <class name="SiStripClusterCollection" ClassVersion="10">
+  <version ClassVersion="10" checksum="2259034478"/>
+ </class>
  <class name="edm::Wrapper<SiStripClusterCollection>" id="C4D8A21B-7FB4-C5CC-EC4C-3DF86655814C"/>
 
  <class name="edm::DetSet<SiStripCluster>"/>

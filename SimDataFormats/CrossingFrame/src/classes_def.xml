@@ -1,8 +1,12 @@
 <lcgdict>
   <!-- persistent="false" qualifier for non-wrappers is deprecated. Will be removed when no longer needed.-->
   <class name="CrossingFrame<PSimHit>" persistent="false"/>
-  <class name="CrossingFramePlaybackInfo"/>
-  <class name="CrossingFramePlaybackInfoExtended"/>
+  <class name="CrossingFramePlaybackInfo" ClassVersion="10">
+   <version ClassVersion="10" checksum="3999342403"/>
+  </class>
+  <class name="CrossingFramePlaybackInfoExtended" ClassVersion="10">
+   <version ClassVersion="10" checksum="3172490198"/>
+  </class>
   <class name="CrossingFrame<PCaloHit>" persistent="false"/>
   <class name="CrossingFrame<SimTrack>" persistent="false"/>
   <class name="CrossingFrame<SimVertex>" persistent="false"/>

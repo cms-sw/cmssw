@@ -1,13 +1,31 @@
 <lcgdict>
-  <class name="L1AcceptBunchCrossing"/>
-  <class name="L1TriggerScalers"/>
-  <class name="L1TriggerRates"/>
-  <class name="Level1TriggerScalers"/>
-  <class name="Level1TriggerRates"/>
-  <class name="LumiScalers"/>
-  <class name="DcsStatus"/>
-  <class name="BeamSpotOnline"/>
-  <class name="TimeSpec"/>
+  <class name="L1AcceptBunchCrossing" ClassVersion="10">
+   <version ClassVersion="10" checksum="2158810149"/>
+  </class>
+  <class name="L1TriggerScalers" ClassVersion="10">
+   <version ClassVersion="10" checksum="2108701177"/>
+  </class>
+  <class name="L1TriggerRates" ClassVersion="10">
+   <version ClassVersion="10" checksum="1983467977"/>
+  </class>
+  <class name="Level1TriggerScalers" ClassVersion="10">
+   <version ClassVersion="10" checksum="733799432"/>
+  </class>
+  <class name="Level1TriggerRates" ClassVersion="10">
+   <version ClassVersion="10" checksum="1930374175"/>
+  </class>
+  <class name="LumiScalers" ClassVersion="10">
+   <version ClassVersion="10" checksum="3039085412"/>
+  </class>
+  <class name="DcsStatus" ClassVersion="10">
+   <version ClassVersion="10" checksum="1373867021"/>
+  </class>
+  <class name="BeamSpotOnline" ClassVersion="10">
+   <version ClassVersion="10" checksum="3395641892"/>
+  </class>
+  <class name="TimeSpec" ClassVersion="10">
+   <version ClassVersion="10" checksum="3936062714"/>
+  </class>
   <class name="std::vector<L1AcceptBunchCrossing>"/>
   <class name="std::vector<L1TriggerScalers>"/>
   <class name="std::vector<L1TriggerRates>"/>

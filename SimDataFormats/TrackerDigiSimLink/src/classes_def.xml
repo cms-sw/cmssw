@@ -1,6 +1,8 @@
 <lcgdict>
 
-  <class name="PixelDigiSimLink"/>
+  <class name="PixelDigiSimLink" ClassVersion="10">
+   <version ClassVersion="10" checksum="408436386"/>
+  </class>
  <class name="edm::DetSet<PixelDigiSimLink>"/>
  <class name="std::vector<PixelDigiSimLink>"/>
  <class name="edm::DetSetVector<PixelDigiSimLink>"/>
@@ -10,7 +12,9 @@
  <class name="edm::Wrapper< edm::DetSetVector<PixelDigiSimLink> >" splitLevel="0" />
 
 
- <class name="StripDigiSimLink"/>
+ <class name="StripDigiSimLink" ClassVersion="10">
+  <version ClassVersion="10" checksum="2019711893"/>
+ </class>
  <class name="edm::DetSet<StripDigiSimLink>"/>
  <class name="std::vector<StripDigiSimLink>"/>
  <class name="edm::DetSetVector<StripDigiSimLink>"/>

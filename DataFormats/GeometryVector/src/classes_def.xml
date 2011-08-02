@@ -1,9 +1,19 @@
 <lcgdict>
-  <class name="GlobalTag"/>
-  <class name="LocalTag"/>
-  <class name="MeasurementTag"/>
-  <class name="PointTag"/>
-  <class name="VectorTag"/>
+  <class name="GlobalTag" ClassVersion="10">
+   <version ClassVersion="10" checksum="818683"/>
+  </class>
+  <class name="LocalTag" ClassVersion="10">
+   <version ClassVersion="10" checksum="283111"/>
+  </class>
+  <class name="MeasurementTag" ClassVersion="10">
+   <version ClassVersion="10" checksum="203801254"/>
+  </class>
+  <class name="PointTag" ClassVersion="10">
+   <version ClassVersion="10" checksum="294586"/>
+  </class>
+  <class name="VectorTag" ClassVersion="10">
+   <version ClassVersion="10" checksum="898711"/>
+  </class>
   <class name="Geom::Phi<float>"/>
   <class name="Geom::Theta<float>"/>
   <class name="Geom::Phi<double>"/>

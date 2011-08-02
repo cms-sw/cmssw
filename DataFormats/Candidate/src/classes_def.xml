@@ -1,29 +1,57 @@
 <lcgdict>
 <selection>
-  <class name="reco::Particle">
+  <class name="reco::Particle" ClassVersion="10">
+   <version ClassVersion="10" checksum="572275660"/>
     <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t> >" />
     <field name="p4Polar_" transient="true" />
     <field name="p4Cartesian_" transient="true" />
   </class>
-  <class name="reco::Candidate">
+  <class name="reco::Candidate" ClassVersion="10">
+   <version ClassVersion="10" checksum="783896264"/>
     <field name="mothers_" transient="true"/>
   </class>
-  <class name="reco::LeafCandidate" />
+  <class name="reco::LeafCandidate"  ClassVersion="10">
+   <version ClassVersion="10" checksum="2733056179"/>
+  </class>
     <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t> >" />
     <field name="p4Polar_" transient="true" />
     <field name="p4Cartesian_" transient="true" />
-  <class name="reco::CompositeCandidate"/>
-  <class name="reco::VertexCompositeCandidate"/>
-  <class name="reco::CompositeRefCandidate" />
-  <class name="reco::CompositePtrCandidate" />
-  <class name="reco::CompositeRefBaseCandidate" />
-  <class name="reco::ShallowCloneCandidate" />
-  <class name="reco::ShallowClonePtrCandidate" />
-  <class name="reco::NamedCompositeCandidate"/>
-  <class name="reco::candidate::iterator" />
-  <class name="reco::candidate::const_iterator" />
-  <class name="reco::candidate::const_iterator_imp" />
-  <class name="reco::candidate::iterator_imp" />
+  <class name="reco::CompositeCandidate" ClassVersion="10">
+   <version ClassVersion="10" checksum="2953566340"/>
+  </class>
+  <class name="reco::VertexCompositeCandidate" ClassVersion="10">
+   <version ClassVersion="10" checksum="4177206274"/>
+  </class>
+  <class name="reco::CompositeRefCandidate"  ClassVersion="10">
+   <version ClassVersion="10" checksum="502055765"/>
+  </class>
+  <class name="reco::CompositePtrCandidate"  ClassVersion="10">
+   <version ClassVersion="10" checksum="240358262"/>
+  </class>
+  <class name="reco::CompositeRefBaseCandidate"  ClassVersion="10">
+   <version ClassVersion="10" checksum="382235387"/>
+  </class>
+  <class name="reco::ShallowCloneCandidate"  ClassVersion="10">
+   <version ClassVersion="10" checksum="4127213986"/>
+  </class>
+  <class name="reco::ShallowClonePtrCandidate"  ClassVersion="10">
+   <version ClassVersion="10" checksum="2575892329"/>
+  </class>
+  <class name="reco::NamedCompositeCandidate" ClassVersion="10">
+   <version ClassVersion="10" checksum="604924170"/>
+  </class>
+  <class name="reco::candidate::iterator"  ClassVersion="10">
+   <version ClassVersion="10" checksum="547616838"/>
+  </class>
+  <class name="reco::candidate::const_iterator"  ClassVersion="10">
+   <version ClassVersion="10" checksum="473157534"/>
+  </class>
+  <class name="reco::candidate::const_iterator_imp"  ClassVersion="10">
+   <version ClassVersion="10" checksum="3984591915"/>
+  </class>
+  <class name="reco::candidate::iterator_imp"  ClassVersion="10">
+   <version ClassVersion="10" checksum="3317687219"/>
+  </class>
 
   <class name="reco::CandidateRef" />
   <class name="reco::CandidatePtr" />

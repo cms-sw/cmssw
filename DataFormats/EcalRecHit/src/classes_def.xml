@@ -1,5 +1,7 @@
 <lcgdict>
-  <class name="EcalUncalibratedRecHit"/>
+  <class name="EcalUncalibratedRecHit" ClassVersion="10">
+   <version ClassVersion="10" checksum="2325626302"/>
+  </class>
   <class name="std::vector<EcalUncalibratedRecHit>"/>
   <class name="edm::SortedCollection<EcalUncalibratedRecHit,edm::StrictWeakOrdering<EcalUncalibratedRecHit> >"/>
   <class name="edm::Wrapper<edm::SortedCollection<EcalUncalibratedRecHit,edm::StrictWeakOrdering<EcalUncalibratedRecHit> > >" splitLevel="0"/>
@@ -7,7 +9,9 @@
   <class name="edm::RefVector<edm::SortedCollection<EcalUncalibratedRecHit,edm::StrictWeakOrdering<EcalUncalibratedRecHit> >,EcalUncalibratedRecHit,edm::refhelper::FindUsingAdvance<edm::SortedCollection<EcalUncalibratedRecHit,edm::StrictWeakOrdering<EcalUncalibratedRecHit> >,EcalUncalibratedRecHit> >"/>
   <class name="edm::RefProd<edm::SortedCollection<EcalUncalibratedRecHit,edm::StrictWeakOrdering<EcalUncalibratedRecHit> > >"/>
 
-  <class name="EcalRecHit"/>
+  <class name="EcalRecHit" ClassVersion="10">
+   <version ClassVersion="10" checksum="283504841"/>
+  </class>
   <class name="std::vector<EcalRecHit>"/>
   <class name="edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> >"/>
   <class name="edm::Wrapper<edm::SortedCollection<EcalRecHit,edm::StrictWeakOrdering<EcalRecHit> > >" splitLevel="0"/>

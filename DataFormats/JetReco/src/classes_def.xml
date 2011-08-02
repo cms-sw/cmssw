@@ -1,9 +1,17 @@
 <lcgdict>
-  <class name="reco::Jet"/>
-  <class name="reco::Jet::EtaPhiMoments"/>
+  <class name="reco::Jet" ClassVersion="10">
+   <version ClassVersion="10" checksum="1996172778"/>
+  </class>
+  <class name="reco::Jet::EtaPhiMoments" ClassVersion="10">
+   <version ClassVersion="10" checksum="1092387980"/>
+  </class>
 
-  <class name="reco::CaloJet"/>
-  <class name="reco::CaloJet::Specific"/>
+  <class name="reco::CaloJet" ClassVersion="10">
+   <version ClassVersion="10" checksum="715843310"/>
+  </class>
+  <class name="reco::CaloJet::Specific" ClassVersion="10">
+   <version ClassVersion="10" checksum="2617452651"/>
+  </class>
   <class name="std::vector<reco::CaloJet>"/>
   <class name="edm::RefProd<std::vector<reco::CaloJet> >"/>
   <class name="edm::RefVector<std::vector<reco::CaloJet>,reco::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> >"/>
@@ -27,8 +35,12 @@
   <class name="std::vector<reco::CaloJetRefVector>"/>
   <class name="edm::Wrapper<std::vector<reco::CaloJetRefVector> >"/>
 
-  <class name="reco::JPTJet"/>
-  <class name="reco::JPTJet::Specific"/>
+  <class name="reco::JPTJet" ClassVersion="10">
+   <version ClassVersion="10" checksum="456342263"/>
+  </class>
+  <class name="reco::JPTJet::Specific" ClassVersion="10">
+   <version ClassVersion="10" checksum="3095396018"/>
+  </class>
   <class name="std::vector<reco::JPTJet>"/>
   <class name="edm::RefProd<std::vector<reco::JPTJet> >"/>
   <class name="edm::RefVector<std::vector<reco::JPTJet>,reco::JPTJet,edm::refhelper::FindUsingAdvance<std::vector<reco::JPTJet>,reco::JPTJet> >"/>
@@ -42,8 +54,12 @@
   </class>
   <class name="edm::helpers::KeyVal<edm::RefProd<reco::JPTJetCollection>,edm::RefProd<std::vector<reco::Track> > >"/>
 
-  <class name="reco::PFJet"/>
-  <class name="reco::PFJet::Specific"/>
+  <class name="reco::PFJet" ClassVersion="10">
+   <version ClassVersion="10" checksum="3657319332"/>
+  </class>
+  <class name="reco::PFJet::Specific" ClassVersion="10">
+   <version ClassVersion="10" checksum="3345092571"/>
+  </class>
   <class name="std::vector<reco::PFJet>"/>
   <class name="edm::RefVector<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >"/>
   <class name="edm::Ref<std::vector<reco::PFJet>,reco::PFJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFJet>,reco::PFJet> >"/>
@@ -59,8 +75,12 @@
   <class name="reco::PFJetFwdPtrVector"/>
   <class name="edm::Wrapper<reco::PFJetFwdPtrVector>"/>
 
-  <class name="reco::GenJet"/>
-  <class name="reco::GenJet::Specific"/>
+  <class name="reco::GenJet" ClassVersion="10">
+   <version ClassVersion="10" checksum="1136403928"/>
+  </class>
+  <class name="reco::GenJet::Specific" ClassVersion="10">
+   <version ClassVersion="10" checksum="3126154868"/>
+  </class>
   <class name="std::vector<reco::GenJet>"/>
   <class name="edm::RefVector<std::vector<reco::GenJet>,reco::GenJet,edm::refhelper::FindUsingAdvance<std::vector<reco::GenJet>,reco::GenJet> >"/>
   <class name="edm::Ref<std::vector<reco::GenJet>,reco::GenJet,edm::refhelper::FindUsingAdvance<std::vector<reco::GenJet>,reco::GenJet> >"/>
@@ -76,7 +96,9 @@
   <class name="reco::GenJetFwdPtrVector"/>
   <class name="edm::Wrapper<reco::GenJetFwdPtrVector>"/>
 
-  <class name="reco::BasicJet"/>
+  <class name="reco::BasicJet" ClassVersion="10">
+   <version ClassVersion="10" checksum="2049228932"/>
+  </class>
   <class name="std::vector<reco::BasicJet>"/>
   <class name="edm::RefVector<std::vector<reco::BasicJet>,reco::BasicJet,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicJet>,reco::BasicJet> >"/>
   <class name="edm::Ref<std::vector<reco::BasicJet>,reco::BasicJet,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicJet>,reco::BasicJet> >"/>
@@ -94,7 +116,9 @@
   <class name="edm::reftobase::Holder<reco::Jet, reco::BasicJetRef>" />
   <class name="edm::reftobase::RefHolder<reco::BasicJetRef>" />
 
-  <class name="reco::TrackJet"/>
+  <class name="reco::TrackJet" ClassVersion="10">
+   <version ClassVersion="10" checksum="3049495721"/>
+  </class>
   <class name="std::vector<reco::TrackJet>"/>
   <class name="edm::RefVector<std::vector<reco::TrackJet>,reco::TrackJet,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackJet>,reco::TrackJet> >"/>
   <class name="edm::Ref<std::vector<reco::TrackJet>,reco::TrackJet,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackJet>,reco::TrackJet> >"/>
@@ -111,7 +135,9 @@
   <class name="edm::Wrapper<reco::TrackJetFwdPtrVector>"/>
 
 
-  <class name="reco::PFClusterJet"/>
+  <class name="reco::PFClusterJet" ClassVersion="10">
+   <version ClassVersion="10" checksum="3410834730"/>
+  </class>
   <class name="std::vector<reco::PFClusterJet>"/>
   <class name="edm::RefVector<std::vector<reco::PFClusterJet>,reco::PFClusterJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFClusterJet>,reco::PFClusterJet> >"/>
   <class name="edm::Ref<std::vector<reco::PFClusterJet>,reco::PFClusterJet,edm::refhelper::FindUsingAdvance<std::vector<reco::PFClusterJet>,reco::PFClusterJet> >"/>
@@ -162,7 +188,9 @@
   <function name="reco::JetTracksAssociation::hasJet"/>
 
   <class name="edm::Wrapper<reco::JetExtendedAssociation::Container>" />
-  <class name="reco::JetExtendedAssociation::JetExtendedData"/>
+  <class name="reco::JetExtendedAssociation::JetExtendedData" ClassVersion="10">
+   <version ClassVersion="10" checksum="2863467760"/>
+  </class>
   <class name="reco::JetExtendedAssociation::Values"/>
   <class name="reco::JetExtendedAssociation::value_type"/>
   <class name="reco::JetExtendedAssociation::transient_vector_type"/>
@@ -201,7 +229,9 @@
   <class name="edm::reftobase::Holder<reco::Jet, reco::JPTJetRef>" />
   <class name="edm::reftobase::RefHolder<reco::JPTJetRef>" />
 
-  <class name="reco::JetID" />
+  <class name="reco::JetID"  ClassVersion="10">
+   <version ClassVersion="10" checksum="3012457232"/>
+  </class>
   <class name="std::vector<reco::JetID>" />
   <class name="edm::RefVector<std::vector<reco::JetID>,reco::JetID,edm::refhelper::FindUsingAdvance<std::vector<reco::JetID>,reco::JetID> >"/>
   <class name="edm::Ref<std::vector<reco::JetID>,reco::JetID,edm::refhelper::FindUsingAdvance<std::vector<reco::JetID>,reco::JetID> >"/>
@@ -210,7 +240,9 @@
   <class name="edm::ValueMap<reco::JetID>" />
   <class name="edm::Wrapper< edm::ValueMap<reco::JetID> >" />
   
-  <class name="reco::CastorJetID" />
+  <class name="reco::CastorJetID"  ClassVersion="10">
+   <version ClassVersion="10" checksum="3017993717"/>
+  </class>
   <class name="std::vector<reco::CastorJetID>" />
   <class name="edm::RefVector<std::vector<reco::CastorJetID>,reco::CastorJetID,edm::refhelper::FindUsingAdvance<std::vector<reco::CastorJetID>,reco::CastorJetID> >"/>
   <class name="edm::Ref<std::vector<reco::CastorJetID>,reco::CastorJetID,edm::refhelper::FindUsingAdvance<std::vector<reco::CastorJetID>,reco::CastorJetID> >"/>
@@ -258,7 +290,9 @@
   <class name="std::vector<reco::PFJet::Specific>"   />
   <class name="std::vector<reco::JPTJet::Specific>" />
 
-  <class name="reco::TrackExtrapolation" />
+  <class name="reco::TrackExtrapolation"  ClassVersion="10">
+   <version ClassVersion="10" checksum="4193842732"/>
+  </class>
   <class name="std::vector<reco::TrackExtrapolation>" />
   <class name="edm::Ref<std::vector<reco::TrackExtrapolation>,reco::TrackExtrapolation,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtrapolation>,reco::TrackExtrapolation>  >" />
   <class name="edm::RefVector<std::vector<reco::TrackExtrapolation>,reco::TrackExtrapolation,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtrapolation>,reco::TrackExtrapolation>   >" />
@@ -284,7 +318,9 @@
    <class name="edm::Wrapper<reco::PattRecoTree<float,reco::PattRecoPeak<float> > >" />
    <class name="edm::Wrapper<reco::PattRecoTree<double,reco::PattRecoPeak<double> > >" />
 
-   <class name="reco::FFTJetProducerSummary" />
+   <class name="reco::FFTJetProducerSummary"  ClassVersion="10">
+    <version ClassVersion="10" checksum="603545432"/>
+   </class>
    <class name="edm::Wrapper<reco::FFTJetProducerSummary>" />
 
    <class name="reco::FFTGenJet" />
@@ -419,9 +455,13 @@
    <class name="edm::Association<reco::FFTJPTJetCollection>" />
    <class name="edm::Wrapper<edm::Association<reco::FFTJPTJetCollection> >" />
 
-   <class name="reco::DiscretizedEnergyFlow" />
+   <class name="reco::DiscretizedEnergyFlow"  ClassVersion="10">
+    <version ClassVersion="10" checksum="2507131342"/>
+   </class>
    <class name="edm::Wrapper<reco::DiscretizedEnergyFlow>" />
 
-   <class name="reco::FFTJetPileupSummary" />
+   <class name="reco::FFTJetPileupSummary"  ClassVersion="10">
+    <version ClassVersion="10" checksum="987073443"/>
+   </class>
    <class name="edm::Wrapper<reco::FFTJetPileupSummary>" />
 </lcgdict>

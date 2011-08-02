@@ -1,5 +1,7 @@
 <lcgdict>
-  <class name="TrajectorySeed"/>
+  <class name="TrajectorySeed" ClassVersion="10">
+   <version ClassVersion="10" checksum="611162820"/>
+  </class>
   <class name="edm::RefToBase<TrajectorySeed>"/>
   <class name="edm::reftobase::BaseHolder<TrajectorySeed>"/>
   <class name="edm::reftobase::IndirectHolder<TrajectorySeed>"/>

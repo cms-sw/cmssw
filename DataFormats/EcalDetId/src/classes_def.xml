@@ -1,12 +1,28 @@
 <lcgdict>
-  <class name="EBDetId"/>
-  <class name="EEDetId"/>
-  <class name="ESDetId"/>
-  <class name="EcalTrigTowerDetId"/>
-  <class name="EcalScDetId"/>
-  <class name="EcalPnDiodeDetId"/>
-  <class name="EcalElectronicsId"/>
-  <class name="EcalTriggerElectronicsId"/>
+  <class name="EBDetId" ClassVersion="10">
+   <version ClassVersion="10" checksum="18462289"/>
+  </class>
+  <class name="EEDetId" ClassVersion="10">
+   <version ClassVersion="10" checksum="18639436"/>
+  </class>
+  <class name="ESDetId" ClassVersion="10">
+   <version ClassVersion="10" checksum="19466122"/>
+  </class>
+  <class name="EcalTrigTowerDetId" ClassVersion="10">
+   <version ClassVersion="10" checksum="3395783268"/>
+  </class>
+  <class name="EcalScDetId" ClassVersion="10">
+   <version ClassVersion="10" checksum="1698524437"/>
+  </class>
+  <class name="EcalPnDiodeDetId" ClassVersion="10">
+   <version ClassVersion="10" checksum="461847292"/>
+  </class>
+  <class name="EcalElectronicsId" ClassVersion="10">
+   <version ClassVersion="10" checksum="3118976079"/>
+  </class>
+  <class name="EcalTriggerElectronicsId" ClassVersion="10">
+   <version ClassVersion="10" checksum="3310361981"/>
+  </class>
   <class name="std::vector<EBDetId>"/>
   <class name="std::vector<EEDetId>"/>
   <class name="std::vector<EcalTrigTowerDetId>"/>

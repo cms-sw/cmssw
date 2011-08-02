@@ -1,5 +1,6 @@
 <lcgdict>
-  <class name="reco::Vertex" >
+  <class name="reco::Vertex"  ClassVersion="10">
+   <version ClassVersion="10" checksum="414871454"/>
   </class>
   <class name="std::vector<reco::Vertex>" />
   <class name="edm::Wrapper<std::vector<reco::Vertex> >" />
@@ -7,7 +8,9 @@
   <class name="edm::RefProd<std::vector<reco::Vertex> >" />
   <class name="edm::RefVector<std::vector<reco::Vertex>, reco::Vertex, edm::refhelper::FindUsingAdvance<std::vector<reco::Vertex>, reco::Vertex> >" />
 
-  <class name="reco::NuclearInteraction" />
+  <class name="reco::NuclearInteraction"  ClassVersion="10">
+   <version ClassVersion="10" checksum="4040521424"/>
+  </class>
   <class name="std::vector<reco::NuclearInteraction>" />
   <class name="edm::Wrapper<std::vector<reco::NuclearInteraction> >" />
   <class name="edm::Ref<std::vector<reco::NuclearInteraction>, reco::NuclearInteraction, edm::refhelper::FindUsingAdvance<std::vector<reco::NuclearInteraction>, reco::NuclearInteraction> >" />

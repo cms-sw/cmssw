@@ -1,6 +1,8 @@
 <lcgdict>
 <selection>
-  <class name="CSCRecHit2D"/>
+  <class name="CSCRecHit2D" ClassVersion="10">
+   <version ClassVersion="10" checksum="2273322213"/>
+  </class>
   <class name="std::vector<CSCRecHit2D>"/>
   <class name="std::vector<CSCRecHit2D*>"/>
   <class name="std::map<CSCDetId,std::pair<unsigned int,unsigned int> >"/>
@@ -11,7 +13,9 @@
 
   <class name="std::vector<CSCSegment>"/>
   <class name="std::vector<CSCSegment*>"/>
-  <class name="CSCSegment"/>
+  <class name="CSCSegment" ClassVersion="10">
+   <version ClassVersion="10" checksum="3002485899"/>
+  </class>
   <class name="edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >"/>
   <class name="edm::RangeMap<CSCDetId,edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >,edm::ClonePolicy<CSCSegment> >"/>
   <class name="edm::Wrapper<edm::RangeMap<CSCDetId,edm::OwnVector<CSCSegment,edm::ClonePolicy<CSCSegment> >,edm::ClonePolicy<CSCSegment> > >"/>

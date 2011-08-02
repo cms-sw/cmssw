@@ -1,7 +1,11 @@
 <lcgdict>
   <selection>
-  <class name="reco::RecoCandidate" />
-  <class name="reco::RecoChargedCandidate" />
+  <class name="reco::RecoCandidate"  ClassVersion="10">
+   <version ClassVersion="10" checksum="1183963017"/>
+  </class>
+  <class name="reco::RecoChargedCandidate"  ClassVersion="10">
+   <version ClassVersion="10" checksum="2818554415"/>
+  </class>
   <class name="reco::RecoChargedRefCandidateBase">
     <field name="p4Polar_" transient="true"/>
     <field name="p4Cartesian_" transient="true"/>
@@ -14,13 +18,25 @@
     <field name="cachePolarFixed_" transient="true"/>
     <field name="cacheCartesianFixed_" transient="true"/>
   </class>
-  <class name="reco::RecoChargedRefCandidate" />
-  <class name="reco::RecoPFClusterRefCandidate" />
-  <class name="reco::RecoEcalCandidate" />
-  <class name="reco::RecoCaloTowerCandidate"/> 
-  <class name="reco::CaloRecHitCandidate"/> 
+  <class name="reco::RecoChargedRefCandidate"  ClassVersion="10">
+   <version ClassVersion="10" checksum="2155624976"/>
+  </class>
+  <class name="reco::RecoPFClusterRefCandidate"  ClassVersion="10">
+   <version ClassVersion="10" checksum="3428152128"/>
+  </class>
+  <class name="reco::RecoEcalCandidate"  ClassVersion="10">
+   <version ClassVersion="10" checksum="3531165310"/>
+  </class>
+  <class name="reco::RecoCaloTowerCandidate" ClassVersion="10">
+   <version ClassVersion="10" checksum="4182970126"/>
+  </class>
+  <class name="reco::CaloRecHitCandidate" ClassVersion="10">
+   <version ClassVersion="10" checksum="1441861764"/>
+  </class>
 
-  <class name="reco::FitQuality" />
+  <class name="reco::FitQuality"  ClassVersion="10">
+   <version ClassVersion="10" checksum="1584619238"/>
+  </class>
   <class name="std::vector<reco::FitQuality>" />
   <class name="reco::FitResultCollection">
     <field name="transientVector_" transient="true"/>
@@ -110,8 +126,11 @@
   <class name="edm::reftobase::RefVectorHolder<reco::RecoPFClusterRefCandidateRefVector>" />
 
 
-  <class name="reco::IsoDeposit"/>
-  <class name="reco::IsoDeposit::const_iterator">
+  <class name="reco::IsoDeposit" ClassVersion="10">
+   <version ClassVersion="10" checksum="2477314412"/>
+  </class>
+  <class name="reco::IsoDeposit::const_iterator" ClassVersion="10">
+   <version ClassVersion="10" checksum="3505639118"/>
       <field name="parent_" transient="true" />
       <field name="it_" transient="true" />
       <field name="cache_" transient="true" />
@@ -120,9 +139,15 @@
   <class name="std::vector<reco::IsoDeposit>"/>
   <class name="std::vector<reco::IsoDeposit>::const_iterator"/>
 
-  <class name="reco::isodeposit::Direction"/>
-  <class name="reco::isodeposit::Direction::Distance"/>
-  <class name="reco::IsoDeposit::Veto"/>
+  <class name="reco::isodeposit::Direction" ClassVersion="10">
+   <version ClassVersion="10" checksum="2412209684"/>
+  </class>
+  <class name="reco::isodeposit::Direction::Distance" ClassVersion="10">
+   <version ClassVersion="10" checksum="2603689691"/>
+  </class>
+  <class name="reco::IsoDeposit::Veto" ClassVersion="10">
+   <version ClassVersion="10" checksum="4098085496"/>
+  </class>
   <class name="std::multimap<reco::isodeposit::Direction::Distance,float>"/>
 
   <class name="reco::IsoDepositMap"/>

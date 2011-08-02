@@ -1,6 +1,8 @@
 <lcgdict>
 
- <class name="SiStripDigi"/>
+ <class name="SiStripDigi" ClassVersion="10">
+  <version ClassVersion="10" checksum="2432564049"/>
+ </class>
  <class name="edm::DetSet<SiStripDigi>"/>
  <class name="std::vector<SiStripDigi>"/>
  <class name="edm::DetSetVector<SiStripDigi>"/>
@@ -12,7 +14,9 @@
  <class name="edmNew::DetSetVector<SiStripDigi>" />
  <class name="edm::Wrapper<edmNew::DetSetVector<SiStripDigi> >" />
 
- <class name="SiStripRawDigi"/>
+ <class name="SiStripRawDigi" ClassVersion="10">
+  <version ClassVersion="10" checksum="1489666272"/>
+ </class>
  <class name="std::vector<SiStripRawDigi>"/>
  <class name="edm::DetSet<SiStripRawDigi>"/>
  <class name="edm::DetSetVector<SiStripRawDigi>"/>
@@ -24,7 +28,9 @@
  <class name="edmNew::DetSetVector<SiStripRawDigi>" />
  <class name="edm::Wrapper<edmNew::DetSetVector<SiStripRawDigi> >" />
 
- <class name="SiStripProcessedRawDigi"/>
+ <class name="SiStripProcessedRawDigi" ClassVersion="10">
+  <version ClassVersion="10" checksum="1849443551"/>
+ </class>
  <class name="std::vector<SiStripProcessedRawDigi>"/>
  <class name="edm::DetSet<SiStripProcessedRawDigi>"/>
  <class name="edm::DetSetVector<SiStripProcessedRawDigi>"/>

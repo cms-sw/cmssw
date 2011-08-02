@@ -1,13 +1,21 @@
 <lcgdict>
-  <class name="reco::HitPattern"/>
-  <class name="reco::TrackResiduals"/>
-  <class name="reco::TrackBase">
+  <class name="reco::HitPattern" ClassVersion="10">
+   <version ClassVersion="10" checksum="1621684703"/>
+  </class>
+  <class name="reco::TrackResiduals" ClassVersion="10">
+   <version ClassVersion="10" checksum="2022291691"/>
+  </class>
+  <class name="reco::TrackBase" ClassVersion="10">
+   <version ClassVersion="10" checksum="161533057"/>
     <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t> >" /> 
     <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t> >" /> 
   </class>
-  <class name="reco::TrackExtraBase"/>
+  <class name="reco::TrackExtraBase" ClassVersion="10">
+   <version ClassVersion="10" checksum="3548207838"/>
+  </class>
 
-  <class name="reco::TrackExtra">
+  <class name="reco::TrackExtra" ClassVersion="10">
+   <version ClassVersion="10" checksum="1361533418"/>
     <field name="outerPosition_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t> >" /> 
     <field name="outerMomentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t> >" /> 
     <field name="innerPosition_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t> >" /> 
@@ -19,7 +27,9 @@
   <class name="edm::Ref<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
   <class name="edm::RefVector<std::vector<reco::TrackExtra>,reco::TrackExtra,edm::refhelper::FindUsingAdvance<std::vector<reco::TrackExtra>,reco::TrackExtra> >"/>
 
-  <class name="reco::Track"/>
+  <class name="reco::Track" ClassVersion="10">
+   <version ClassVersion="10" checksum="1190637787"/>
+  </class>
   <class name="std::vector<reco::Track>"/>
   <class name="edm::Wrapper<std::vector<reco::Track> >"/>
   <class name="edm::RefProd<std::vector<reco::Track> >"/>
@@ -64,7 +74,9 @@
   </class>
 
 
-      <class name="reco::DeDxHit" />
+      <class name="reco::DeDxHit"  ClassVersion="10">
+       <version ClassVersion="10" checksum="2553084991"/>
+      </class>
       <class name="reco::DeDxHitCollection" />
 
   <class pattern="edm::AssociationVector<*>">
@@ -73,7 +85,9 @@
   </class>
 
      <!--   <class name="reco::DeDxDataCollection"/> -->
-     <class name="reco::DeDxData"/>
+     <class name="reco::DeDxData" ClassVersion="10">
+      <version ClassVersion="10" checksum="204721063"/>
+     </class>
      <class name="reco::DeDxDataCollection"/>
      <class name="reco::DeDxDataValueMap"/>
       

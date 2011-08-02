@@ -1,10 +1,20 @@
 <lcgdict>
 <selection>
-  <class name="TrackingRecHit"/>
-  <class name="RecHit1D"/>
-  <class name="InvalidTrackingRecHit"/>
-  <class name="RecHit2DLocalPos"/>
-  <class name="RecSegment"/>
+  <class name="TrackingRecHit" ClassVersion="10">
+   <version ClassVersion="10" checksum="1481465852"/>
+  </class>
+  <class name="RecHit1D" ClassVersion="10">
+   <version ClassVersion="10" checksum="2579934268"/>
+  </class>
+  <class name="InvalidTrackingRecHit" ClassVersion="10">
+   <version ClassVersion="10" checksum="3356557851"/>
+  </class>
+  <class name="RecHit2DLocalPos" ClassVersion="10">
+   <version ClassVersion="10" checksum="1168669560"/>
+  </class>
+  <class name="RecSegment" ClassVersion="10">
+   <version ClassVersion="10" checksum="1295706057"/>
+  </class>
   <class name="std::vector<TrackingRecHit*>"/>
   <class name="edm::OwnVector<TrackingRecHit, edm::ClonePolicy<TrackingRecHit> >"/>
   <class name="edm::Ref<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit,edm::refhelper::FindUsingAdvance<edm::OwnVector<TrackingRecHit,edm::ClonePolicy<TrackingRecHit> >,TrackingRecHit> >"/>

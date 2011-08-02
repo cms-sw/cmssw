@@ -1,11 +1,25 @@
 <lcgdict>
-   <class name="HBHERecHit"/>
-   <class name="HORecHit"/>
-   <class name="HFRecHit"/>
-   <class name="ZDCRecHit"/>
-   <class name="CastorRecHit"/>
-   <class name="HcalCalibRecHit"/>
-   <class name="HcalSourcePositionData"/>
+   <class name="HBHERecHit" ClassVersion="10">
+    <version ClassVersion="10" checksum="3145355338"/>
+   </class>
+   <class name="HORecHit" ClassVersion="10">
+    <version ClassVersion="10" checksum="1697427050"/>
+   </class>
+   <class name="HFRecHit" ClassVersion="10">
+    <version ClassVersion="10" checksum="1310006561"/>
+   </class>
+   <class name="ZDCRecHit" ClassVersion="10">
+    <version ClassVersion="10" checksum="1172411388"/>
+   </class>
+   <class name="CastorRecHit" ClassVersion="10">
+    <version ClassVersion="10" checksum="1837446209"/>
+   </class>
+   <class name="HcalCalibRecHit" ClassVersion="10">
+    <version ClassVersion="10" checksum="1085028533"/>
+   </class>
+   <class name="HcalSourcePositionData" ClassVersion="10">
+    <version ClassVersion="10" checksum="741265236"/>
+   </class>
    <class name="std::vector<HBHERecHit>"/>
    <class name="std::vector<HORecHit>"/>
    <class name="std::vector<HFRecHit>"/>

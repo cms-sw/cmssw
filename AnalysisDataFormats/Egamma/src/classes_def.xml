@@ -1,5 +1,7 @@
 <lcgdict>
-   <class name="reco::ElectronID"/>
+   <class name="reco::ElectronID" ClassVersion="10">
+    <version ClassVersion="10" checksum="3416557521"/>
+   </class>
    <class name="std::vector<reco::ElectronID>"/>
    <class name="edm::Wrapper<std::vector<reco::ElectronID> >"/>
    <class name="edm::Ref<std::vector<reco::ElectronID>, reco::ElectronID, edm::refhelper::FindUsingAdvance<std::vector<reco::ElectronID>, reco::ElectronID> >" />

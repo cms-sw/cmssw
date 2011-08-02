@@ -1,8 +1,16 @@
 <lcgdict>
-  <class name="SiPixelCluster"/>
-  <class name="SiPixelCluster::Pixel"/>
-  <class name="SiPixelCluster::Shift"/>
-  <class name="SiPixelCluster::PixelPos"/>
+  <class name="SiPixelCluster" ClassVersion="10">
+   <version ClassVersion="10" checksum="2468063768"/>
+  </class>
+  <class name="SiPixelCluster::Pixel" ClassVersion="10">
+   <version ClassVersion="10" checksum="387573196"/>
+  </class>
+  <class name="SiPixelCluster::Shift" ClassVersion="10">
+   <version ClassVersion="10" checksum="4096847861"/>
+  </class>
+  <class name="SiPixelCluster::PixelPos" ClassVersion="10">
+   <version ClassVersion="10" checksum="3521104094"/>
+  </class>
   <class name="std::vector<SiPixelCluster>"/>
   <class name="edm::DetSet<SiPixelCluster>"/>
   <class name="std::vector<edm::DetSet<SiPixelCluster> >"/>
