@@ -2,13 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
 generalTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
-    TrackProducers = ('initialStepTracks',
-                      'lowPtTripletStepTracks',
-                      'pixelPairStepTracks',
-                      'detachedTripletStepTracks',
-                      'mixedTripletStepTracks',
-                      'pixelLessStepTracks',
-                      'tobTecStepTracks'),
+    TrackProducers = (cms.InputTag('initialStepTracks'),
+                      cms.InputTag('lowPtTripletStepTracks'),
+                      cms.InputTag('pixelPairStepTracks'),
+                      cms.InputTag('detachedTripletStepTracks'),
+                      cms.InputTag('mixedTripletStepTracks'),
+                      cms.InputTag('pixelLessStepTracks'),
+                      cms.InputTag('tobTecStepTracks')),
     hasSelector=cms.vint32(1,1,1,1,1,1,1),
     selectedTrackQuals = cms.VInputTag(cms.InputTag("initialStepSelector","initialStep"),
                                        cms.InputTag("lowPtTripletStepSelector","lowPtTripletStep"),
