@@ -194,6 +194,19 @@ class HLTProcess(object):
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
+# from CMSSW_4_4_0_pre8: update HF configuration for V00-09-18 RecoLocalCalo/HcalRecProducers
+if cmsswVersion > "CMSSW_4_4":
+    if 'hltHfreco' in %(dict)s:
+        %(process)shltHfreco.digiTimeFromDB = cms.bool( False )
+        %(process)shltHfreco.digistat.HFdigiflagCoef = cms.vdouble(
+            %(process)shltHfreco.digistat.HFdigiflagCoef0.value(),
+            %(process)shltHfreco.digistat.HFdigiflagCoef1.value(),
+            %(process)shltHfreco.digistat.HFdigiflagCoef2.value()
+        )
+        del %(process)shltHfreco.digistat.HFdigiflagCoef0
+        del %(process)shltHfreco.digistat.HFdigiflagCoef1
+        del %(process)shltHfreco.digistat.HFdigiflagCoef2
+
 # from CMSSW_4_4_0_pre6: updated configuration for the HybridClusterProducer's and EgammaHLTHybridClusterProducer's
 if cmsswVersion > "CMSSW_4_4":
     if 'hltHybridSuperClustersActivity' in %(dict)s:
@@ -211,11 +224,11 @@ if cmsswVersion > "CMSSW_4_4":
     if 'hltPFTauTightIsoIsolationDiscriminator' in %(dict)s:
         %(process)shltPFTauTightIsoIsolationDiscriminator.qualityCuts.primaryVertexSrc = %(process)shltPFTauTightIsoIsolationDiscriminator.PVProducer
         %(process)shltPFTauTightIsoIsolationDiscriminator.qualityCuts.pvFindingAlgo    = cms.string('highestPtInEvent')
-        delattr(%(process)shltPFTauTightIsoIsolationDiscriminator, 'PVProducer')
+        del %(process)shltPFTauTightIsoIsolationDiscriminator.PVProducer
     if 'hltPFTauLooseIsolationDiscriminator' in %(dict)s:
         %(process)shltPFTauLooseIsolationDiscriminator.qualityCuts.primaryVertexSrc = %(process)shltPFTauLooseIsolationDiscriminator.PVProducer
         %(process)shltPFTauLooseIsolationDiscriminator.qualityCuts.pvFindingAlgo    = cms.string('highestPtInEvent')
-        delattr(%(process)shltPFTauLooseIsolationDiscriminator, 'PVProducer')
+        del %(process)shltPFTauLooseIsolationDiscriminator.PVProducer
 
 # from CMSSW_4_4_0_pre5: updated configuration for the EcalSeverityLevelESProducer
 if cmsswVersion > "CMSSW_4_4":
@@ -231,11 +244,11 @@ if cmsswVersion > "CMSSW_4_4":
         ),
         flagMask = cms.PSet (
             kGood        = cms.vstring('kGood'),
-            kProblematic = cms.vstring('kPoorReco','kPoorCalib'),
-            kRecovered   = cms.vstring('kLeadingEdgeRecovered','kTowerRecovered'),
+            kProblematic = cms.vstring('kPoorReco', 'kPoorCalib', 'kNoisy', 'kSaturated'),
+            kRecovered   = cms.vstring('kLeadingEdgeRecovered', 'kTowerRecovered'),
             kTime        = cms.vstring('kOutOfTime'),
-            kWeird       = cms.vstring('kWeird','kDiWeird'),
-            kBad         = cms.vstring('kFaultyHardware','kDead','kKilled')
+            kWeird       = cms.vstring('kWeird', 'kDiWeird'),
+            kBad         = cms.vstring('kFaultyHardware', 'kDead', 'kKilled')
         ),
         timeThresh = cms.double(2.0)
     )
@@ -299,6 +312,19 @@ if 'hltPreHLTMONOutputSmart' in %(dict)s:
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
+# from CMSSW_4_4_0_pre8: update HF configuration for V00-09-18 RecoLocalCalo/HcalRecProducers
+if cmsswVersion > "CMSSW_4_4":
+    if 'hltHfreco' in %(dict)s:
+        %(process)shltHfreco.digiTimeFromDB = cms.bool( False )
+        %(process)shltHfreco.digistat.HFdigiflagCoef = cms.vdouble(
+            %(process)shltHfreco.digistat.HFdigiflagCoef0.value(),
+            %(process)shltHfreco.digistat.HFdigiflagCoef1.value(),
+            %(process)shltHfreco.digistat.HFdigiflagCoef2.value()
+        )
+        del %(process)shltHfreco.digistat.HFdigiflagCoef0
+        del %(process)shltHfreco.digistat.HFdigiflagCoef1
+        del %(process)shltHfreco.digistat.HFdigiflagCoef2
+
 # from CMSSW_4_4_0_pre6: updated configuration for the HybridClusterProducer's and EgammaHLTHybridClusterProducer's
 if cmsswVersion > "CMSSW_4_4":
     if 'hltHybridSuperClustersActivity' in %(dict)s:
@@ -316,11 +342,11 @@ if cmsswVersion > "CMSSW_4_4":
     if 'hltPFTauTightIsoIsolationDiscriminator' in %(dict)s:
         %(process)shltPFTauTightIsoIsolationDiscriminator.qualityCuts.primaryVertexSrc = %(process)shltPFTauTightIsoIsolationDiscriminator.PVProducer
         %(process)shltPFTauTightIsoIsolationDiscriminator.qualityCuts.pvFindingAlgo    = cms.string('highestPtInEvent')
-        delattr(%(process)shltPFTauTightIsoIsolationDiscriminator, 'PVProducer')
+        del %(process)shltPFTauTightIsoIsolationDiscriminator.PVProducer
     if 'hltPFTauLooseIsolationDiscriminator' in %(dict)s:
         %(process)shltPFTauLooseIsolationDiscriminator.qualityCuts.primaryVertexSrc = %(process)shltPFTauLooseIsolationDiscriminator.PVProducer
         %(process)shltPFTauLooseIsolationDiscriminator.qualityCuts.pvFindingAlgo    = cms.string('highestPtInEvent')
-        delattr(%(process)shltPFTauLooseIsolationDiscriminator, 'PVProducer')
+        del %(process)shltPFTauLooseIsolationDiscriminator.PVProducer
 
 # from CMSSW_4_4_0_pre5: updated configuration for the EcalSeverityLevelESProducer
 if cmsswVersion > "CMSSW_4_4":
@@ -336,11 +362,11 @@ if cmsswVersion > "CMSSW_4_4":
         ),
         flagMask = cms.PSet (
             kGood        = cms.vstring('kGood'),
-            kProblematic = cms.vstring('kPoorReco','kPoorCalib'),
-            kRecovered   = cms.vstring('kLeadingEdgeRecovered','kTowerRecovered'),
+            kProblematic = cms.vstring('kPoorReco', 'kPoorCalib', 'kNoisy', 'kSaturated'),
+            kRecovered   = cms.vstring('kLeadingEdgeRecovered', 'kTowerRecovered'),
             kTime        = cms.vstring('kOutOfTime'),
-            kWeird       = cms.vstring('kWeird','kDiWeird'),
-            kBad         = cms.vstring('kFaultyHardware','kDead','kKilled')
+            kWeird       = cms.vstring('kWeird', 'kDiWeird'),
+            kBad         = cms.vstring('kFaultyHardware', 'kDead', 'kKilled')
         ),
         timeThresh = cms.double(2.0)
     )
