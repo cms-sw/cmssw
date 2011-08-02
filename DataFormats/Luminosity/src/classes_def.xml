@@ -21,4 +21,3 @@
   <class name="std::vector<LumiSummary::L1>"/>
   <class name="std::vector<LumiSummary::HLT>"/>
 </lcgdict>
-
