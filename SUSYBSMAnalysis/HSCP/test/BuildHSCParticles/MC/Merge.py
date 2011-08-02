@@ -6,11 +6,15 @@ import os
 import sys
 import LaunchOnCondor
 
-Jobs = ["DCStau121","DCStau182","DCStau242","DCStau302","Gluino200","Gluino200N","Gluino300","Gluino300N","Gluino400","Gluino400N","Gluino500","Gluino500N","Gluino600","Gluino600N","Gluino700","Gluino700N", "Gluino800","Gluino800N", "Gluino900","Gluino900N", "Gluino1000","Gluino1000N","PPStau100","PPStau126","PPStau156","PPStau200","PPStau247","PPStau308","Stop130","Stop130N","Stop200","Stop200N","Stop300","Stop300N","Stop400","Stop400N", "Stop500","Stop500N", "Stop600","Stop600N", "Stop700","Stop700N", "Stop800","Stop800N","GMStau100","GMStau126","GMStau156","GMStau200","GMStau247","GMStau308"]
+
+
+
+
+Jobs = ["DYToMuMu","DYToTauTau","QCD_Pt-1000to1400","QCD_Pt-120to170","QCD_Pt-1400to1800","QCD_Pt-15to30","QCD_Pt-170to300","QCD_Pt-1800","QCD_Pt-300to470","QCD_Pt-30to50","QCD_Pt-470to600","QCD_Pt-50to80","QCD_Pt-600to800","QCD_Pt-800to1000","QCD_Pt-80to120","TTJets","WJetsToLNu","WToMuNu","WToTauNu","ZJetToMuMu_Pt-0to15","ZJetToMuMu_Pt-120to170","ZJetToMuMu_Pt-15to20","ZJetToMuMu_Pt-170to230","ZJetToMuMu_Pt-20to30","ZJetToMuMu_Pt-230to300","ZJetToMuMu_Pt-300","ZJetToMuMu_Pt-30to50","ZJetToMuMu_Pt-50to80","ZJetToMuMu_Pt-80to120", "WW", "WZ", "ZZ"]
 
 FarmDirectory = "MERGE"
 for JobName in Jobs:
-	LaunchOnCondor.ListToFile(LaunchOnCondor.GetListOfFiles('"file:','/storage/data/cms/store/user/quertenmont/11_05_05_HSCP2011/FWLite_Sign/'+ JobName + '/HSCP_*.root','",'), FarmDirectory + "InputFile.txt") 
-	LaunchOnCondor.SendCMSJobs(FarmDirectory, JobName, "Merge_cfg.py", FarmDirectory + "InputFile.txt", 1, [])
+	LaunchOnCondor.ListToFile(LaunchOnCondor.GetListOfFiles('"file:','/storage/data/cms/store/user/quertenmont/11_07_31_HSCP2011/FWLite_MC/'+ JobName + '/HSCP_*.root','",'), FarmDirectory + "InputFile.txt") 
+	LaunchOnCondor.SendCMSJobs(FarmDirectory, "MC_" + JobName, "Merge_cfg.py", FarmDirectory + "InputFile.txt", 1, [])
 
 os.system("rm " +  FarmDirectory + "InputFile.txt")
