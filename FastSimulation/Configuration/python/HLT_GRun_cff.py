@@ -23544,6 +23544,19 @@ HLTSchedule = cms.Schedule( *(HLT_Activity_Ecal_SC7_v7, HLT_L1SingleJet16_v4, HL
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
+# from CMSSW_4_4_0_pre8: update HF configuration for V00-09-18 RecoLocalCalo/HcalRecProducers
+if cmsswVersion > "CMSSW_4_4":
+    if 'hltHfreco' in locals():
+        hltHfreco.digiTimeFromDB = cms.bool( False )
+        hltHfreco.digistat.HFdigiflagCoef = cms.vdouble(
+            hltHfreco.digistat.HFdigiflagCoef0.value(),
+            hltHfreco.digistat.HFdigiflagCoef1.value(),
+            hltHfreco.digistat.HFdigiflagCoef2.value()
+        )
+        del hltHfreco.digistat.HFdigiflagCoef0
+        del hltHfreco.digistat.HFdigiflagCoef1
+        del hltHfreco.digistat.HFdigiflagCoef2
+
 # from CMSSW_4_4_0_pre6: updated configuration for the HybridClusterProducer's and EgammaHLTHybridClusterProducer's
 if cmsswVersion > "CMSSW_4_4":
     if 'hltHybridSuperClustersActivity' in locals():
@@ -23561,11 +23574,11 @@ if cmsswVersion > "CMSSW_4_4":
     if 'hltPFTauTightIsoIsolationDiscriminator' in locals():
         hltPFTauTightIsoIsolationDiscriminator.qualityCuts.primaryVertexSrc = hltPFTauTightIsoIsolationDiscriminator.PVProducer
         hltPFTauTightIsoIsolationDiscriminator.qualityCuts.pvFindingAlgo    = cms.string('highestPtInEvent')
-        delattr(hltPFTauTightIsoIsolationDiscriminator, 'PVProducer')
+        del hltPFTauTightIsoIsolationDiscriminator.PVProducer
     if 'hltPFTauLooseIsolationDiscriminator' in locals():
         hltPFTauLooseIsolationDiscriminator.qualityCuts.primaryVertexSrc = hltPFTauLooseIsolationDiscriminator.PVProducer
         hltPFTauLooseIsolationDiscriminator.qualityCuts.pvFindingAlgo    = cms.string('highestPtInEvent')
-        delattr(hltPFTauLooseIsolationDiscriminator, 'PVProducer')
+        del hltPFTauLooseIsolationDiscriminator.PVProducer
 
 # from CMSSW_4_4_0_pre5: updated configuration for the EcalSeverityLevelESProducer
 if cmsswVersion > "CMSSW_4_4":
@@ -23581,11 +23594,11 @@ if cmsswVersion > "CMSSW_4_4":
         ),
         flagMask = cms.PSet (
             kGood        = cms.vstring('kGood'),
-            kProblematic = cms.vstring('kPoorReco','kPoorCalib'),
-            kRecovered   = cms.vstring('kLeadingEdgeRecovered','kTowerRecovered'),
+            kProblematic = cms.vstring('kPoorReco', 'kPoorCalib', 'kNoisy', 'kSaturated'),
+            kRecovered   = cms.vstring('kLeadingEdgeRecovered', 'kTowerRecovered'),
             kTime        = cms.vstring('kOutOfTime'),
-            kWeird       = cms.vstring('kWeird','kDiWeird'),
-            kBad         = cms.vstring('kFaultyHardware','kDead','kKilled')
+            kWeird       = cms.vstring('kWeird', 'kDiWeird'),
+            kBad         = cms.vstring('kFaultyHardware', 'kDead', 'kKilled')
         ),
         timeThresh = cms.double(2.0)
     )
