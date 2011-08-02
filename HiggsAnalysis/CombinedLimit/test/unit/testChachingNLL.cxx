@@ -84,13 +84,13 @@ void testCachingAddNLL(RooAddPdf *pdf, RooAbsData *data)
     }
 }
 
-void testCachingSimNLL(RooSimultaneous *pdf, RooAbsData *data, int nattempts) 
+void testCachingSimNLL(RooSimultaneous *pdf, RooAbsData *data, RooArgSet *constraints, int nattempts) 
 {
-    RooAbsReal *nll = pdf->createNLL(*data);
+    RooAbsReal *nll = pdf->createNLL(*data, RooFit::Constrain(*constraints));
     RooArgList params(*pdf->getParameters(*data));
     TStopwatch timer;
     double plainTime = 0, alterTime = 0;
-    cacheutils::CachingSimNLL onll(pdf, data);
+    cacheutils::CachingSimNLL onll(pdf, data, constraints);
     std::vector<double> plain, alter; 
     timer.Start(); plain.push_back(nll->getVal()); plainTime += timer.RealTime();
     timer.Start(); alter.push_back(onll.getVal()); alterTime += timer.RealTime();
@@ -122,18 +122,18 @@ RooFitResult *fitNLL(RooAbsReal &nll) {
     return minim.save();
 }
 
-void testCachingSimFit(RooSimultaneous *pdf, RooAbsData *data, int nattempts) 
+void testCachingSimFit(RooSimultaneous *pdf, RooAbsData *data, RooArgSet *constraints, int nattempts) 
 {
     RooArgSet *allParams = pdf->getParameters(*data);
     RooArgSet savParams; allParams->snapshot(savParams);
     double plainTime = 0, alterTime = 0;
     TStopwatch timer;
     RooFitResult *plainFit, *alterFit;
-    cacheutils::CachingSimNLL onll(pdf, data);
+    cacheutils::CachingSimNLL onll(pdf, data, constraints);
     for (int i = 0; i < nattempts; ++i) {
         *allParams = savParams;
         timer.Start();
-        RooAbsReal *nll = pdf->createNLL(*data);
+        RooAbsReal *nll = pdf->createNLL(*data, RooFit::Constrain(*constraints));
         plainFit = fitNLL<0>(*nll);
         delete nll;
         plainTime += timer.RealTime();
@@ -198,14 +198,15 @@ void testCachingAddNLL(RooStats::ModelConfig &mc, RooAbsData *data, int tries=0)
 }
 
 void testCachingSimNLL(RooStats::ModelConfig &mc, RooAbsData *data, int tries=0) {
+    RooArgSet nuis(*mc.GetNuisanceParameters());
     RooArgList allPdfs(mc.GetWS()->allPdfs());
     const RooArgSet  *obs = data->get();
     for (int i = 0; i < allPdfs.getSize(); ++i) {
         RooAbsPdf *pdf = (RooAbsPdf *) allPdfs.at(i);
         if (pdf->dependsOn(*obs) && pdf->InheritsFrom("RooSimultaneous")) {
             std::cout << "Will use pdf " << pdf->GetName() << " (" << pdf->ClassName() << ")" << std::endl;
-            if (tries > 0) testCachingSimNLL((RooSimultaneous*)pdf, data, tries);
-            else testCachingSimFit((RooSimultaneous*)pdf, data, 1-tries);
+            if (tries > 0) testCachingSimNLL((RooSimultaneous*)pdf, data, &nuis, tries);
+            else testCachingSimFit((RooSimultaneous*)pdf, data, &nuis, 1-tries);
             //if (tries-- == 0) break;
         } else {
             //std::cout << "Will NOT use pdf " << pdf->GetName() << " (" << pdf->ClassName() << ")" << std::endl;
@@ -214,7 +215,6 @@ void testCachingSimNLL(RooStats::ModelConfig &mc, RooAbsData *data, int tries=0)
 }
 /*
     RooArgSet obs(*mc.GetObservables()), poi(*mc.GetParametersOfInterest());
-    const RooArgSet *nuis = mc.GetNuisanceParameters();
     RooArgSet nuisSet; if (nuis) nuisSet.add(*nuis);
     ((RooRealVar *)poi.first())->setConstant(true);
     OptimizedSimNLL nll(obs, nuisSet, mc.GetPdf());
