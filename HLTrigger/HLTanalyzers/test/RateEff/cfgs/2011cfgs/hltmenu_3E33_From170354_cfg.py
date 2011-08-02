@@ -13,7 +13,7 @@ run:{
     nPrintStatusEvery = 10000; # print out status every n events processed
     menuTag  = "HLT_Menu";
     alcaCondition = "startup";
-    versionTag  = "20110721_DS_DoubleElectron"; 
+    versionTag  = "20110721_DS_MuHad"; 
     isRealData = true;
     doPrintAll = true;
     doDeterministicPrescale =true;
@@ -29,8 +29,9 @@ data:{
  # Enter the length of 1 lumi section and prescale factor of the dataset
  lumiSectionLength = 23.3;
  lumiScaleFactor = 3.05; #run 170354, LS, to extrapolate to 3e33
- #lumiScaleFactor = 5.09; #run 170354, LS, to extrapolate to 5e33
- prescaleNormalization = 1; 
+# lumiScaleFactor = 5.09; #run 170354, LS, to extrapolate to 5e33
+# prescaleNormalization = 260; 
+ prescaleNormalization = 1;
 
 ##run 163374
 runLumiblockList = ( 
@@ -85,7 +86,7 @@ process:{
 ## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r170354__BTag_Run2011A-v1__20110719_0534/"];
 ## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r170354__Commissioning_Run2011A-v1__20110719_0534/"];
 ## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r170354__Cosmics_Run2011A-v1__20110719_0534/"];
-paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r170354__DoubleElectron_Run2011A-v1__20110719_0534/"];
+## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r170354__DoubleElectron_Run2011A-v1__20110719_0534/"];
 ## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r170354__DoubleMu_Run2011A-v1__20110719_0534/"];
 ## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r170354__ElectronHad_Run2011A-v1__20110719_0534/"];
 ## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r170354__HT_Run2011A-v1__20110719_0534/"];
@@ -95,7 +96,7 @@ paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r170354__Double
 ## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r170354__MuOnia_Run2011A-v1__20110719_0534/"];
 ## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r170354__MultiJet_Run2011A-v1__20110719_0534/"];
 ## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r170354__MuEG_Run2011A-v1__20110719_0534/"];
-## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r170354__MuHad_Run2011A-v1__20110719_0534/"];
+ paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r170354__MuHad_Run2011A-v1__20110719_0534/"];
 ## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r170354__Photon_Run2011A-v1__20110719_0534/"];
 ## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r170354__PhotonHad_Run2011A-v1__20110719_0534/"];
 ## paths = ["rfio:/castor/cern.ch/user/l/lucieg/OpenHLT/Commish2011/r170354__SingleElectron_Run2011A-v1__20110719_0534/"];
@@ -118,7 +119,7 @@ menu:{
  isL1Menu = false; # Default is false: is HLT Menu
  doL1preloop = true; 
 
-# preFilterByBits = "HLT_Photon50_CaloIdVL_v3";
+## preFilterByBits = "HLT_Mu15_v8";
 
   # (TriggerName, Prescale, EventSize)
  triggers = (
@@ -127,7 +128,7 @@ menu:{
 ##    ("HLT_BTagMu_DiJet20_Mu5_v9", "L1_Mu3_Jet16_Central", 1, 0.15),
 ##    ("HLT_BTagMu_DiJet40_Mu5_v9", "L1_Mu3_Jet20_Central", 1, 0.15),
 ##    ("HLT_BTagMu_DiJet70_Mu5_v9", "L1_Mu3_Jet28_Central", 1, 0.15),
-##    ("HLT_BTagMu_DiJet110_Mu5_v9", "L1_Mu3_Jet28_Central", 1, 0.15),
+##    ("HLT_BTagMu_DiJet110_Mu5_v9", "L1_Mu3_Jet28_Central", 2, 0.15)
 ## ############# dataset Commissioning ###############
 ##    ("HLT_Activity_Ecal_SC7_v7", "L1_ZeroBias_Ext", 1, 0.15),
 ##    ("HLT_L1SingleJet16_v4", "L1_SingleJet16", 1, 0.15),
@@ -149,71 +150,73 @@ menu:{
 ##    ("HLT_L1TrackerCosmics_v4", "L1Tech_RPC_TTU_pointing_Cosmics.v0", 1, 0.15),
 ##    ("HLT_RegionalCosmicTracking_v6", "L1Tech_RPC_TTU_pointing_Cosmics.v0 AND L1_SingleMuOpen", 1, 0.15),
 ## ############# dataset DoubleElectron ###############
-    ("HLT_Photon20_CaloIdVT_IsoT_Ele8_CaloIdL_CaloIsoVL_v7", "L1_DoubleEG_12_5", 7, 0.15),
-    ("HLT_Ele8_v7", "L1_SingleEG5", 1, 0.15),
-    ("HLT_Ele8_CaloIdL_CaloIsoVL_v7", "L1_SingleEG5", 1, 0.15),
-    ("HLT_Ele8_CaloIdL_TrkIdVL_v7", "L1_SingleEG5", 1, 0.15),
-    ("HLT_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v5", "L1_SingleEG5", 1, 0.15),
-    ("HLT_Ele17_CaloIdL_CaloIsoVL_v7", "L1_SingleEG12", 1, 0.15),
-#    ("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v7", "L1_SingleEG12", 1, 0.15),
-    ("HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC8_Mass30_v7", "L1_SingleEG12", 1, 0.15),
-    ("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v6", "L1_DoubleEG_12_5", 1, 0.15),
-    ("HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass30_v5", "L1_DoubleEG_12_5", 2, 0.15),
-#    ("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v8", "L1_EG12_ForJet16", 1, 0.15),
-    ("OpenHLT_Ele22_CaloIdL_CaloIsoVL_Ele15_HFT", "OpenL1_EG18_ForJet16", 1, 0.15),
-    ("HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_SC17_v5", "L1_SingleEG20", 2, 0.15),
-    ("HLT_Ele8_CaloIdL_CaloIsoVL_Jet40_v7", "L1_SingleEG5", 1, 0.15),
-    ("HLT_DoubleEle10_CaloIdL_TrkIdVL_Ele10_CaloIdT_TrkIdVL_v2", "L1_TripleEG5", 1, 0.15),
-    ("HLT_TripleEle10_CaloIdL_TrkIdVL_v8", "L1_TripleEG5", 1, 0.15)
+##    ("HLT_Photon20_CaloIdVT_IsoT_Ele8_CaloIdL_CaloIsoVL_v7", "L1_DoubleEG_12_5", 7, 0.15),
+##    ("HLT_Ele8_v7", "L1_SingleEG5", 1, 0.15),
+##    ("HLT_Ele8_CaloIdL_CaloIsoVL_v7", "L1_SingleEG5", 1, 0.15),
+##    ("HLT_Ele8_CaloIdL_TrkIdVL_v7", "L1_SingleEG5", 1, 0.15),
+##    ("HLT_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v5", "L1_SingleEG5", 1, 0.15),
+##    ("HLT_Ele17_CaloIdL_CaloIsoVL_v7", "L1_SingleEG12", 1, 0.15),
+###    ("HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v7", "L1_SingleEG12", 1, 0.15),
+##    ("HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC8_Mass30_v7", "L1_SingleEG12", 1, 0.15),
+##    ("HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v6", "L1_DoubleEG_12_5", 1, 0.15),
+##    ("HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass30_v5", "L1_DoubleEG_12_5", 2, 0.15),
+###    ("HLT_Ele17_CaloIdL_CaloIsoVL_Ele15_HFL_v8", "L1_EG12_ForJet16", 1, 0.15),
+##    ("OpenHLT_Ele22_CaloIdL_CaloIsoVL_Ele15_HFT", "OpenL1_EG18_ForJet16", 1, 0.15),
+##    ("HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_SC17_v5", "L1_SingleEG20", 2, 0.15),
+##    ("HLT_Ele8_CaloIdL_CaloIsoVL_Jet40_v7", "L1_SingleEG5", 1, 0.15),
+##    ("HLT_DoubleEle10_CaloIdL_TrkIdVL_Ele10_CaloIdT_TrkIdVL_v2", "L1_TripleEG5", 1, 0.15),
+##    ("HLT_TripleEle10_CaloIdL_TrkIdVL_v8", "L1_TripleEG5", 1, 0.15)
 ## ############# dataset DoubleMu ###############
-##    ("HLT_L1DoubleMu0_v4", "L1_DoubleMu0", 1, 0.15),
-##    ("HLT_L2DoubleMu0_v7", "L1_DoubleMu0", 1, 0.15),
-##    ("HLT_L2DoubleMu23_NoVertex_v7", "L1_DoubleMu3", 1, 0.15),
-##    ("HLT_L2DoubleMu30_NoVertex_v3", "L1_DoubleMu3", 1, 0.15),
-##    ("HLT_DoubleMu3_v9", "L1_DoubleMu0", 1, 0.15),
-##    ("HLT_DoubleMu6_v7", "L1_DoubleMu3", 1, 0.15),
-##    ("HLT_DoubleMu7_v7", "L1_DoubleMu3", 1, 0.15),
-##    ("HLT_DoubleMu45_v5", "L1_DoubleMu3", 1, 0.15),
-##    ("HLT_DoubleMu4_Acoplanarity03_v8", "L1_DoubleMu3", 1, 0.15),
-##    ("HLT_DoubleMu5_Acoplanarity03_v5", "L1_DoubleMu3", 1, 0.15),
-##    ("HLT_Mu13_Mu8_v6", "L1_DoubleMu3", 1, 0.15),
-##    ("HLT_Mu17_Mu8_v6", "L1_DoubleMu3", 1, 0.15),
-##    ("HLT_TripleMu5_v8", "L1_DoubleMu3", 1, 0.15),
-##    ("HLT_DoubleMu5_IsoMu5_v7", "L1_DoubleMu3", 1, 0.15),
-##    ("HLT_Mu8_Jet40_v9", "L1_Mu3_Jet20_Central", 1, 0.15),
+##   ("HLT_L1DoubleMu0_v4", "L1_DoubleMu0", 5., 0.15),
+##   ("HLT_L2DoubleMu0_v7", "L1_DoubleMu0", 5., 0.15),
+##   ("HLT_L2DoubleMu23_NoVertex_v7", "L1_DoubleMu3", 15., 0.15),
+##   ("HLT_L2DoubleMu30_NoVertex_v3", "L1_DoubleMu3", 8., 0.15),
+##   ("HLT_DoubleMu3_v9", "L1_DoubleMu0", 3.5, 0.15),
+##   ("HLT_DoubleMu6_v7", "L1_DoubleMu3", 3.5, 0.15),
+##   ("HLT_DoubleMu7_v7", "L1_DoubleMu3", 3.5, 0.15),
+##   ("HLT_DoubleMu45_v5", "L1_DoubleMu3", 1., 0.15),
+##   ("HLT_DoubleMu5_Acoplanarity03_v5", "L1_DoubleMu3p5", 80., 0.15),
+##   ("OpenHLT_DoubleMu6_Acoplanarity03", "L1_DoubleMu3p5", 1., 0.15),
+##   ("HLT_Mu13_Mu8_v6", "L1_DoubleMu3p5", 1., 0.15),
+##   ("HLT_Mu17_Mu8_v6", "L1_DoubleMu3p5", 1., 0.15),
+##   ("HLT_TripleMu5_v8", "L1_TripleMu0", 1., 0.15),
+##   ("HLT_DoubleMu5_IsoMu5_v7", "L1_TripleMu0", 1., 0.15),
+##   ("OpenHLT_DiMuon6_LowMass", "L1_DoubleMu3", 1., 0.15),
+##   ("HLT_Mu8_Jet40_v9", "L1_Mu3_Jet20_Central", 3., 0.15)#,
 ## ############# dataset ElectronHad ###############
-##    ("HLT_HT200_DoubleEle5_CaloIdVL_MassJPsi_v2", "L1_HTT100", 1, 0.15),
-##    ("HLT_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_v1", "L1_SingleEG12", 1, 0.15),
-##    ("HLT_DoubleEle8_CaloIdT_TrkIdVL_v2", "L1_DoubleEG5", 1, 0.15),
-##    ("HLT_HT300_Ele5_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_PFMHT40_v5", "L1_HTT100", 1, 0.15),
-##    ("HLT_HT350_Ele5_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_PFMHT45_v5", "L1_HTT100", 1, 0.15),
-##    ("HLT_Ele8_CaloIdT_TrkIdT_DiJet30_v4", "L1_EG5_DoubleJet20_Central", 1, 0.15),
-##    ("HLT_Ele8_CaloIdT_TrkIdT_TriJet30_v4", "L1_EG5_DoubleJet20_Central", 1, 0.15),
-##    ("HLT_Ele8_CaloIdT_TrkIdT_QuadJet30_v4", "L1_EG5_DoubleJet20_Central", 1, 0.15),
-##    ("HLT_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT250_v7", "L1_EG5_HTT100", 1, 0.15),
-##    ("HLT_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT250_PFMHT25_v3", "L1_EG5_HTT100", 1, 0.15),
-##    ("HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R005_MR200_v4", "L1_DoubleJet44_Central", 1, 0.15),
-##    ("HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R025_MR200_v4", "L1_DoubleJet44_Central", 1, 0.15),
-##    ("HLT_Ele10_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R029_MR200_v2", "L1_DoubleJet44_Central", 1, 0.15),
-##    ("HLT_Ele25_CaloIdVT_TrkIdT_CentralJet30_v7", "L1_SingleEG12", 1, 0.15),
-##    ("HLT_Ele25_CaloIdVT_TrkIdT_DiCentralJet30_v6", "L1_SingleEG12", 1, 0.15),
-##    ("HLT_Ele25_CaloIdVT_TrkIdT_TriCentralJet30_v6", "L1_SingleEG12", 1, 0.15),
-##    ("HLT_Ele25_CaloIdVT_TrkIdT_QuadCentralJet30_v3", "L1_SingleEG12", 1, 0.15),
-##    ("HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_v3", "L1_SingleEG12", 1, 0.15),
-##    ("HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralJet30_v3", "L1_SingleEG12", 1, 0.15),
-##    ("HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralJet30_v3", "L1_SingleEG12", 1, 0.15),
-##    ("HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_QuadCentralJet30_v3", "L1_SingleEG12", 1, 0.15),
-##    ("HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_BTagIP_v3", "L1_SingleEG12", 1, 0.15),
-##    ("HLT_Ele25_CaloIdVT_TrkIdT_CentralJet30_BTagIP_v7", "L1_SingleEG12", 1, 0.15),
-##    ("HLT_Ele15_CaloIdVT_TrkIdT_Jet35_Jet25_Deta3_Jet20_v3", "L1_SingleEG12", 1, 0.15),
-##    ("HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3_Jet20_v2", "L1_SingleEG12", 1, 0.15),
-##    ("HLT_Ele17_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3p5_Jet25_v3", "L1_SingleEG12", 1, 0.15),
-##    ("HLT_Ele22_CaloIdVT_TrkIdT_CentralJet30_CentralJet25_v3", "L1_SingleEG12", 1, 0.15),
-##    ("HLT_Ele22_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_v3", "L1_SingleEG12", 1, 0.15),
-##    ("HLT_Ele22_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT20_v4", "L1_SingleEG12", 1, 0.15),
-##    ("HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralJet30_PFMHT25_v4", "L1_SingleEG12", 1, 0.15),
-##    ("HLT_DoubleEle8_CaloIdT_TrkIdVL_HT150_v5", "L1_DoubleEG5_HTT50", 1, 0.15),
-##    ("HLT_DoubleEle8_CaloIdT_TrkIdVL_Mass4_HT150_v2", "L1_DoubleEG5_HTT50", 1, 0.15),
+##   ("HLT_HT200_DoubleEle5_CaloIdVL_MassJPsi_v2", "L1_HTT100", 4, 0.15),#
+##   ("HLT_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_v1", "L1_SingleEG12", 1, 0.15),#
+##   ("HLT_DoubleEle8_CaloIdT_TrkIdVL_v2", "L1_DoubleEG5", 2, 0.15),
+##   ("HLT_HT300_Ele5_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_PFMHT40_v5", "L1_HTT100", 1, 0.15),#
+##   ("HLT_HT350_Ele5_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_PFMHT45_v5", "L1_HTT100", 1, 0.15),#
+##   ("HLT_Ele8_CaloIdT_TrkIdT_DiJet30_v4", "L1_EG5_DoubleJet20_Central", 2, 0.15),#seed ?
+##   ("HLT_Ele8_CaloIdT_TrkIdT_TriJet30_v4", "L1_EG5_DoubleJet20_Central", 1, 0.15),#
+##   ("HLT_Ele8_CaloIdT_TrkIdT_QuadJet30_v4", "L1_EG5_DoubleJet20_Central", 1, 0.15),#
+##   ("HLT_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT250_PFMHT25_v3", "L1_EG5_HTT100", 1, 0.15),#
+##   ("OpenHLT_Ele30_CaloIdT_TrkIdT_HT350", "L1_EG5_HTT100", 1, 0.15),#anywhere to be found except on the twiki  ?
+##   ("OpenHLT_Ele60_CaloIdT_TrkIdT_HT400", "L1_EG5_HTT100", 1, 0.15),#
+##   ("OpenHLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R005_MR200", "L1_DoubleJet44_Central", 50, 0.15),
+##   ("OpenHLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R025_MR200", "L1_DoubleJet44_Central", 1, 0.15),
+##   ("OpenHLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R029_MR200", "L1_DoubleJet44_Central", 1, 0.15),
+##   ("HLT_Ele25_CaloIdVT_TrkIdT_CentralJet30_v7", "L1_SingleEG20", 4, 0.15),#
+##   ("HLT_Ele25_CaloIdVT_TrkIdT_DiCentralJet30_v6", "L1_SingleEG20", 8, 0.15),#
+##   ("HLT_Ele25_CaloIdVT_TrkIdT_TriCentralJet30_v6", "L1_SingleEG20", 2, 0.15),#
+##   ("HLT_Ele25_CaloIdVT_TrkIdT_QuadCentralJet30_v3", "L1_SingleEG20", 1, 0.15),#
+##   ("HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_v3", "L1_SingleEG20", 4, 0.15),#
+##   ("HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralJet30_v3", "L1_SingleEG20",3, 0.15),#
+##   ("HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TriCentralJet30_v3", "L1_SingleEG20", 1, 0.15),#
+##   ("HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_QuadCentralJet30_v3", "L1_SingleEG20", 1, 0.15),#
+##   ("HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_BTagIP_v3", "L1_SingleEG20", 1, 0.15),##
+##   ("HLT_Ele25_CaloIdVT_TrkIdT_CentralJet30_BTagIP_v7", "L1_SingleEG20", 5, 0.15),##backup, 0.5
+##   ("OpenHLT_Ele20_CaloIdVT_TrkIdT_Jet35_Jet25_Deta3_Jet20", "L1_SingleEG15", 10, 0.15),#
+##   ("OpenHLT_Ele20_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3_Jet20", "L1_SingleEG15", 1, 0.15),#
+##   ("OpenHLT_Ele22_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3p5_Jet25", "L1_SingleEG15", 1, 0.15),#
+##   ("OpenHLT_Ele27_CaloIdVT_TrkIdT_CentralJet30_CentralJet25", "L1_SingleEG15", 20, 0.15),#
+##   ("OpenHLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25", "L1_SingleEG15", 15, 0.15),#
+##   ("OpenHLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT20", "L1_SingleEG15", 1, 0.15),#
+##   ("OpenHLT_Ele30_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralJet30_PFMHT25", "L1_SingleEG15", 1, 0.15),
+##   ("HLT_DoubleEle8_CaloIdT_TrkIdVL_HT150_v5", "L1_DoubleEG5_HTT50", 1, 0.15),#
+##   ("HLT_DoubleEle8_CaloIdT_TrkIdVL_Mass4_HT150_v2", "L1_DoubleEG5_HTT50", 1, 0.15)#,
 ## ############# dataset HT ###############
 ##    ("HLT_FatJetMass300_DR1p1_Deta2p0_CentralJet30_BTagIP_v2", "L1_HTT75", 1, 0.15),
 ##    ("HLT_FatJetMass350_DR1p1_Deta2p0_CentralJet30_BTagIP_v2", "L1_HTT75", 1, 0.15),
@@ -339,68 +342,69 @@ menu:{
 ##    ("HLT_Mu5_Track2_Jpsi_v8", "L1_SingleMu3", 1, 0.15),
 ##    ("HLT_Mu7_Track7_Jpsi_v9", "L1_SingleMu7", 1, 0.15),
 ## ############# dataset MultiJet ###############
-##    ("HLT_DoubleJet30_ForwardBackward_v7", "L1_DoubleForJet32_EtaOpp", 1, 0.15),
-##    ("HLT_DoubleJet60_ForwardBackward_v7", "L1_DoubleForJet32_EtaOpp", 1, 0.15),
-##    ("HLT_DoubleJet70_ForwardBackward_v7", "L1_DoubleForJet32_EtaOpp", 1, 0.15),
-##    ("HLT_DoubleJet80_ForwardBackward_v7", "L1_DoubleForJet44_EtaOpp", 1, 0.15),
-##    ("HLT_CentralJet46_CentralJet38_DiBTagIP3D_v2", "L1_DoubleJet36_Central", 1, 0.15),
-##    ("HLT_CentralJet60_CentralJet53_DiBTagIP3D_v1", "L1_DoubleJet44_Central", 1, 0.15),
-##    ("HLT_QuadJet40_v7", "L1_QuadJet20_Central", 1, 0.15),
-##    ("HLT_QuadJet40_IsoPFTau40_v11", "L1_QuadJet20_Central", 1, 0.15),
-##    ("HLT_QuadJet45_IsoPFTau45_v6", "L1_QuadJet20_Central", 1, 0.15),
-##    ("HLT_QuadJet50_Jet40_Jet30_v3", "L1_QuadJet20_Central", 1, 0.15),
-##    ("HLT_QuadJet60_v6", "L1_QuadJet20_Central", 1, 0.15),
-##    ("HLT_QuadJet70_v6", "L1_QuadJet20_Central", 1, 0.15),
-##    ("HLT_EightJet120_v1", "L1_QuadJet20_Central", 1, 0.15),
-##    ("HLT_ExclDiJet60_HFOR_v6", "L1_SingleJet36", 1, 0.15),
-##    ("HLT_ExclDiJet60_HFAND_v6", "L1_SingleJet36_FwdVeto", 1, 0.15),
-##    ("HLT_L1ETM30_v4", "L1_ETM30", 1, 0.15),
-##    ("HLT_L1DoubleJet36Central_v4", "L1_DoubleJet36_Central", 1, 0.15),
-##    ("HLT_L1MultiJet_v4", "L1_HTT50 OR L1_TripleJet28_Central OR L1_QuadJet20_Central", 1, 0.15),
+ ##   ("HLT_DoubleJet30_ForwardBackward_v7", "L1_DoubleForJet32_EtaOpp", 1, 0.15),
+ ##   ("HLT_DoubleJet60_ForwardBackward_v7", "L1_DoubleForJet32_EtaOpp", 1, 0.15),
+ ##   ("HLT_DoubleJet70_ForwardBackward_v7", "L1_DoubleForJet32_EtaOpp", 1, 0.15),
+ ##   ("HLT_DoubleJet80_ForwardBackward_v7", "L1_DoubleForJet44_EtaOpp", 1, 0.15),
+ ##   ("HLT_CentralJet46_CentralJet38_DiBTagIP3D_v2", "L1_DoubleJet36_Central", 1, 0.15),
+ ##   ("HLT_CentralJet60_CentralJet53_DiBTagIP3D_v1", "L1_DoubleJet44_Central", 1, 0.15),
+ ##   ("HLT_QuadJet40_v7", "L1_QuadJet20_Central", 1, 0.15),
+ ##   ("HLT_QuadJet40_IsoPFTau40_v11", "L1_QuadJet20_Central", 1, 0.15),
+ ##   ("HLT_QuadJet45_IsoPFTau45_v6", "L1_QuadJet20_Central", 1, 0.15),
+ ##   ("HLT_QuadJet50_Jet40_Jet30_v3", "L1_QuadJet20_Central", 1, 0.15),
+ ##   ("HLT_QuadJet60_v6", "L1_QuadJet20_Central", 1, 0.15),
+ ##   ("HLT_QuadJet70_v6", "L1_QuadJet20_Central", 1, 0.15),
+ ##   ("HLT_EightJet120_v1", "L1_QuadJet20_Central", 1, 0.15),
+ ##   ("HLT_ExclDiJet60_HFOR_v6", "L1_SingleJet36", 1, 0.15),
+ ##   ("HLT_ExclDiJet60_HFAND_v6", "L1_SingleJet36_FwdVeto", 1, 0.15),
+ ##   ("HLT_L1ETM30_v4", "L1_ETM30", 1, 0.15),
+ ##   ("HLT_L1DoubleJet36Central_v4", "L1_DoubleJet36_Central", 1, 0.15),
+ ##   ("HLT_L1MultiJet_v4", "L1_HTT50 OR L1_TripleJet28_Central OR L1_QuadJet20_Central", 1, 0.15),
 ## ############# dataset MuEG ###############
-##    ("HLT_Mu3_Ele8_CaloIdT_CaloIsoVL_v2", "L1_Mu3_EG5", 1, 0.15),
-##    ("HLT_Mu5_DoubleEle8_CaloIdT_TrkIdVL_v3", "L1_MuOpen_DoubleEG5", 1, 0.15),
-##    ("HLT_Mu5_Ele8_CaloIdT_TrkIdVL_Ele8_CaloIdL_TrkIdVL_v3", "L1_MuOpen_DoubleEG5", 1, 0.15),
-##    ("HLT_Mu8_Ele17_CaloIdL_v8", "L1_MuOpen_EG12", 1, 0.15),
-##    ("HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_v3", "L1_MuOpen_EG12", 1, 0.15),
-##    ("HLT_Mu8_Photon20_CaloIdVT_IsoT_v8", "L1_MuOpen_EG12", 1, 0.15),
-##    ("HLT_Mu15_Photon20_CaloIdL_v9", "L1_MuOpen_EG12", 1, 0.15),
-##    ("HLT_Mu15_DoublePhoton15_CaloIdL_v9", "L1_Mu7_EG5", 1, 0.15),
-##    ("HLT_Mu17_Ele8_CaloIdL_v8", "L1_Mu7_EG5", 1, 0.15),
-##    ("HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_v3", "L1_Mu7_EG5", 1, 0.15),
-##    ("HLT_DoubleMu5_Ele8_CaloIdL_TrkIdVL_v9", "L1_DoubleMuOpen_EG5", 1, 0.15),
-##    ("HLT_DoubleMu5_Ele8_CaloIdT_TrkIdVL_v3", "L1_DoubleMuOpen_EG5", 1, 0.15),
+##   ("HLT_Mu3_Ele8_CaloIdT_CaloIsoVL_v2", "L1_Mu3_EG5", 9, 0.15),
+##   ("HLT_Mu5_DoubleEle8_CaloIdT_TrkIdVL_v3", "L1_MuOpen_DoubleEG5", 1, 0.15),
+##   ("HLT_Mu5_Ele8_CaloIdT_TrkIdVL_Ele8_CaloIdL_TrkIdVL_v3", "L1_MuOpen_DoubleEG5", 1, 0.15),
+##   ("HLT_Mu8_Ele17_CaloIdL_v8", "L1_MuOpen_EG12", 10, 0.15),#users ?
+##   ("HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_v3", "L1_MuOpen_EG12", 1, 0.15),
+##   ("HLT_Mu8_Photon20_CaloIdVT_IsoT_v8", "L1_MuOpen_EG12", 2, 0.15),#?
+##   ("HLT_Mu15_Photon20_CaloIdL_v9", "L1_MuOpen_EG12", 2, 0.15),#?
+##   ("HLT_Mu15_DoublePhoton15_CaloIdL_v9", "L1_Mu7_EG5", 1, 0.15),#?
+##   ("HLT_Mu17_Ele8_CaloIdL_v8", "L1_Mu7_EG5", 0, 0.15),#?
+##   ("HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_v3", "L1_Mu7_EG5", 1, 0.15),
+##   ("HLT_DoubleMu5_Ele8_CaloIdL_TrkIdVL_v9", "L1_DoubleMuOpen_EG5", 1, 0.15),
+##   ("HLT_DoubleMu5_Ele8_CaloIdT_TrkIdVL_v3", "L1_DoubleMuOpen_EG5", 1, 0.15)#,
 ## ############# dataset MuHad ###############
-##    ("HLT_Mu3_Ele8_CaloIdT_TrkIdVL_HT150_v6", "L1_Mu0_HTT50", 1, 0.15),
-##    ("HLT_Mu8_R005_MR200_v7", "L1_DoubleJet44_Central", 1, 0.15),
-##    ("HLT_Mu8_R025_MR200_v7", "L1_DoubleJet44_Central", 1, 0.15),
-##    ("HLT_Mu8_R029_MR200_v3", "L1_DoubleJet44_Central", 1, 0.15),
-##    ("HLT_HT250_Mu15_PFMHT20_v7", "L1_HTT100", 1, 0.15),
-##    ("HLT_HT250_Mu15_PFMHT40_v3", "L1_HTT100", 1, 0.15),
-##    ("HLT_HT300_Mu5_PFMHT40_v7", "L1_HTT100", 1, 0.15),
-##    ("HLT_HT350_Mu5_PFMHT45_v7", "L1_HTT100", 1, 0.15),
-##    ("HLT_Mu3_DiJet30_v6", "L1_Mu3_Jet20_Central", 1, 0.15),
-##    ("HLT_Mu3_TriJet30_v6", "L1_Mu3_Jet20_Central", 1, 0.15),
-##    ("HLT_Mu3_QuadJet30_v6", "L1_Mu3_Jet20_Central", 1, 0.15),
-##    ("HLT_Mu17_CentralJet30_v10", "L1_SingleMu10", 1, 0.15),
-##    ("HLT_Mu17_DiCentralJet30_v10", "L1_SingleMu10", 1, 0.15),
-##    ("HLT_Mu17_TriCentralJet30_v10", "L1_SingleMu10", 1, 0.15),
-##    ("HLT_Mu17_QuadCentralJet30_v5", "L1_SingleMu10", 1, 0.15),
-##    ("HLT_Mu12_DiCentralJet30_BTagIP3D_v5", "L1_SingleMu10", 1, 0.15),
-##    ("HLT_Mu12_DiCentralJet20_BTagIP3D1stTrack_v2", "L1_SingleMu10", 1, 0.15),
-##    ("HLT_Mu12_DiCentralJet20_DiBTagIP3D1stTrack_v3", "L1_SingleMu10", 1, 0.15),
-##    ("HLT_Mu17_CentralJet30_BTagIP_v9", "L1_SingleMu10", 1, 0.15),
-##    ("HLT_Mu30_HT200_v3", "L1_Mu0_HTT50", 1, 0.15),
-##    ("HLT_Mu40_HT200_v3", "L1_Mu0_HTT50", 1, 0.15),
-##    ("HLT_IsoMu17_CentralJet30_v5", "L1_SingleMu10", 1, 0.15),
-##    ("HLT_IsoMu17_DiCentralJet30_v5", "L1_SingleMu10", 1, 0.15),
-##    ("HLT_IsoMu17_TriCentralJet30_v5", "L1_SingleMu10", 1, 0.15),
-##    ("HLT_IsoMu17_QuadCentralJet30_v5", "L1_SingleMu10", 1, 0.15),
-##    ("HLT_IsoMu17_CentralJet30_BTagIP_v9", "L1_SingleMu10", 1, 0.15),
-##    ("HLT_IsoMu20_DiCentralJet34_v2", "L1_SingleMu10", 1, 0.15),
-##    ("HLT_DoubleMu3_HT150_v7", "L1_Mu0_HTT50", 1, 0.15),
-##    ("HLT_DoubleMu3_Mass4_HT150_v3", "L1_Mu0_HTT50", 1, 0.15),
-##    ("HLT_DoubleMu3_HT200_v10", "L1_Mu0_HTT50", 1, 0.15),
+   ("OpenHLT_Mu5_Ele8_CaloIdT_TrkIdVL_HT150", "L1_Mu0_HTT50", 1, 0.15), 
+   ("OpenHLT_Mu5_Ele8_CaloIdT_TrkIdVL_Mass4_HT150", "L1_Mu0_HTT50", 1, 0.15), 
+   ("OpenHLT_Mu10_R005_MR200", "L1_DoubleJet44_Central", 60, 0.15), 
+   ("OpenHLT_Mu10_R025_MR200", "L1_DoubleJet44_Central", 1, 0.15), 
+   ("OpenHLT_Mu10_R029_MR200", "L1_DoubleJet44_Central", 1, 0.15),#L1_DoubleJet44_Central 
+   ("HLT_HT250_Mu15_PFMHT40_v3", "L1_HTT100", 1, 0.15), 
+   ("OpenHLT_HT300_Mu15_PFMHT40", "L1_HTT100", 1, 0.15), 
+   ("HLT_HT300_Mu5_PFMHT40_v7", "L1_HTT100", 1, 0.15), 
+   ("HLT_HT350_Mu5_PFMHT45_v7", "L1_HTT100", 1, 0.15), 
+   ("HLT_Mu3_DiJet30_v6", "L1_Mu3_Jet20_Central", 8, 0.15), 
+   ("HLT_Mu3_TriJet30_v6", "L1_Mu3_Jet20_Central", 7, 0.15), 
+   ("HLT_Mu3_QuadJet30_v6", "L1_Mu3_Jet20_Central", 6, 0.15), 
+   ("HLT_Mu17_CentralJet30_v10", "L1_SingleMu10", 5, 0.15), 
+   ("HLT_Mu17_DiCentralJet30_v10", "L1_SingleMu10", 6, 0.15), 
+   ("HLT_Mu17_TriCentralJet30_v10", "L1_SingleMu10", 5, 0.15), 
+   ("HLT_Mu17_QuadCentralJet30_v5", "L1_SingleMu10", 10, 0.15), 
+   ("HLT_Mu12_DiCentralJet30_BTagIP3D_v5", "L1_SingleMu10", 50, 0.15), 
+   ("HLT_Mu12_DiCentralJet20_BTagIP3D1stTrack_v2", "L1_SingleMu10", 150, 0.15), 
+   ("HLT_Mu12_DiCentralJet20_DiBTagIP3D1stTrack_v3", "L1_SingleMu10", 1, 0.15), 
+   ("HLT_Mu17_CentralJet30_BTagIP_v9", "L1_SingleMu10", 5, 0.15), 
+   ("HLT_Mu40_HT200_v3", "L1_Mu0_HTT50", 1, 0.15), 
+   ("OpenHLT_Mu60_HT200", "L1_Mu0_HTT50", 1, 0.15), 
+   ("HLT_IsoMu17_CentralJet30_v5", "L1_SingleMu10", 3, 0.15), 
+   ("HLT_IsoMu17_DiCentralJet30_v5", "L1_SingleMu10", 1, 0.15), 
+   ("HLT_IsoMu17_TriCentralJet30_v5", "L1_SingleMu10", 1, 0.15), 
+   ("HLT_IsoMu17_QuadCentralJet30_v5", "L1_SingleMu10", 1, 0.15), 
+   ("HLT_IsoMu17_CentralJet30_BTagIP_v9", "L1_SingleMu10", 1, 0.15), 
+   ("HLT_IsoMu20_DiCentralJet34_v2", "L1_SingleMu10", 1, 0.15), 
+   ("OpenHLT_DoubleMu5_HT150", "L1_Mu0_HTT50", 1, 0.15), 
+   ("OpenHLT_DoubleMu5_Mass4_HT150", "L1_Mu0_HTT50", 1, 0.15)#, 
+
 ############# dataset Photon ###############
 ##   ("HLT_Photon20_CaloIdVL_IsoL_v6", "L1_SingleEG12", 1, 0.15),
 ##   ("HLT_Photon20_R9Id_Photon18_R9Id_v6", "L1_SingleEG12", 1, 0.15),
@@ -447,20 +451,20 @@ menu:{
 ##   ("HLT_DoublePhoton40_MR150_v5", "L1_SingleEG20", 1, 0.15),
 ##   ("HLT_DoublePhoton40_R014_MR150_v5", "L1_SingleEG20", 1, 0.15)#,
 ## ############# dataset PhotonHad ###############
-##    ("HLT_Photon70_CaloIdL_HT350_v7", "L1_SingleEG20", 1, 0.15),
-##    ("HLT_Photon70_CaloIdL_HT400_v2", "L1_SingleEG20", 1, 0.15),
-##    ("HLT_Photon70_CaloIdL_MHT70_v7", "L1_SingleEG20", 1, 0.15),
-##    ("HLT_Photon70_CaloIdL_MHT90_v2", "L1_SingleEG20", 1, 0.15),
-##    ("HLT_Photon40_CaloIdL_R005_MR150_v4", "L1_SingleEG20", 1, 0.15),
-##    ("HLT_Photon40_CaloIdL_R014_MR500_v2", "L1_SingleEG20", 1, 0.15),
-##    ("HLT_Photon40_CaloIdL_R017_MR500_v2", "L1_SingleEG20", 1, 0.15),
-##    ("HLT_Photon40_CaloIdL_R020_MR350_v2", "L1_SingleEG20", 1, 0.15),
-##    ("HLT_Photon40_CaloIdL_R023_MR350_v2", "L1_SingleEG20", 1, 0.15),
-##    ("HLT_Photon40_CaloIdL_R025_MR250_v2", "L1_SingleEG20", 1, 0.15),
-##    ("HLT_Photon40_CaloIdL_R029_MR250_v2", "L1_SingleEG20", 1, 0.15),
-##    ("HLT_Photon40_CaloIdL_R038_MR200_v2", "L1_SingleEG20", 1, 0.15),
-##    ("HLT_Photon40_CaloIdL_R042_MR200_v2", "L1_SingleEG20", 1, 0.15),
-##    ("HLT_Photon30_CaloIdVT_CentralJet20_BTagIP_v1", "L1_SingleEG15", 1, 0.15),
+##   ("HLT_Photon70_CaloIdL_HT400_v2", "L1_SingleEG20", 1, 0.15),
+##   ("OpenHLT_Photon70_CaloIdL_HT500", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_Photon70_CaloIdL_MHT90_v2", "L1_SingleEG20", 1, 0.15),
+##   ("OpenHLT_Photon70_CaloIdL_MHT110", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_Photon40_CaloIdL_R005_MR150_v4", "L1_SingleEG20", 3, 0.15),
+##   ("HLT_Photon40_CaloIdL_R042_MR200_v2", "L1_SingleEG20", 1, 0.15),
+##   ("OpenHLT_Photon55_CaloIdL_R042_MR200", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_Photon40_CaloIdL_R029_MR250_v2", "L1_SingleEG20", 1, 0.15),
+##   ("OpenHLT_Photon55_CaloIdL_R029_MR250", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_Photon40_CaloIdL_R023_MR350_v2", "L1_SingleEG20", 1, 0.15),
+##   ("OpenHLT_Photon55_CaloIdL_R023_MR350", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_Photon40_CaloIdL_R017_MR500_v2", "L1_SingleEG20", 1, 0.15),
+##   ("OpenHLT_Photon55_CaloIdL_R017_MR500", "L1_SingleEG20", 1, 0.15),
+##   ("HLT_Photon30_CaloIdVT_CentralJet20_BTagIP_v1", "L1_SingleEG15", 10, 0.15)#,
 ## ############# dataset SingleElectron ###############
 ##    ("HLT_Ele25_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v3", "L1_SingleEG12", 1, 0.15),
 ##    ("HLT_Ele27_WP80_PFMT50_v3", "L1_SingleEG15", 1, 0.15),
@@ -471,10 +475,10 @@ menu:{
 ##    ("HLT_Ele65_CaloIdVT_TrkIdT_v3", "L1_SingleEG20", 1, 0.15),
 ##    ("HLT_Ele100_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_v2", "L1_SingleEG20", 1, 0.15),
 ## ############# dataset SingleMu ###############
-##   ("HLT_L1SingleMu10_v4", "L1_SingleMu10", 1, 0.15),
-##   ("HLT_L1SingleMu20_v4", "L1_SingleMu20", 1, 0.15),
-##   ("HLT_L2Mu10_v6", "L1_SingleMu10", 1, 0.15),
-##   ("HLT_L2Mu20_v6", "L1_SingleMu12", 1, 0.15),
+##   ("HLT_L1SingleMu10_v4", "L1_SingleMu10", 4, 0.15),
+##   ("HLT_L1SingleMu20_v4", "L1_SingleMu20", 4, 0.15),
+##   ("HLT_L2Mu10_v6", "L1_SingleMu10", 4, 0.15),
+##   ("HLT_L2Mu20_v6", "L1_SingleMu12", 4, 0.15),
 ##   ("HLT_Mu3_v9", "L1_SingleMuOpen", 1, 0.15),
 ##   ("HLT_Mu5_v9", "L1_SingleMu3", 1, 0.15),
 ##   ("HLT_Mu8_v7", "L1_SingleMu3", 1, 0.15),
@@ -499,17 +503,18 @@ menu:{
 ##   ("HLT_IsoPFTau35_Trk20_MET70_v2", "L1_Jet52_Central_ETM30", 1, 0.15),
 ##   ("HLT_DoubleIsoPFTau45_Trk5_eta2p1_v2", "L1_DoubleTauJet40_Eta2p17 OR L1_DoubleJet52_Central", 1, 0.15),
 ##   ("HLT_IsoPFTau40_IsoPFTau30_Trk5_eta2p1_v2", "L1_DoubleTauJet36_Eta2p17 OR L1_DoubleJet44_Central", 20, 0.15)
-## ############# dataset TauPlusX ###############
-##   ("HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v7", "L1_SingleEG12", 1, 0.15),
-##   ("HLT_HT300_DoubleIsoPFTau10_Trk3_PFMHT40_v7", "L1_HTT100", 1, 0.15),
-##   ("HLT_HT350_DoubleIsoPFTau10_Trk3_PFMHT45_v7", "L1_HTT100", 1, 0.15),
-##   ("HLT_Mu15_LooseIsoPFTau15_v8", "L1_SingleMu10", 1, 0.15),
+ ############# dataset TauPlusX ###############
+##   ("OpenHLT_Ele18_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau20", "L1_SingleEG15", 1, 0.15),
+##   ("OpenHLT_Ele18_CaloIdVT_TrkIdT_MediumIsoPFTau20", "L1_SingleEG15", 90, 0.15),
+##   ("OpenHLT_Ele20_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau20", "L1_SingleEG18 OR L1_SingleEG20", 1, 0.15),
 ##   ("HLT_IsoMu15_LooseIsoPFTau15_v8", "L1_SingleMu10", 1, 0.15),
-##   ("HLT_IsoMu15_LooseIsoPFTau20_v6", "L1_SingleMu10", 1, 0.15),
-##   ("HLT_IsoMu15_TightIsoPFTau20_v6", "L1_SingleMu10", 1, 0.15),
-##   ("HLT_Ele15_CaloIdVT_TrkIdT_TightIsoPFTau20_v2", "L1_SingleEG12", 1, 0.15),
-##   ("HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TightIsoPFTau20_v2", "L1_SingleEG12", 1, 0.15),
-##   ("HLT_Ele18_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TightIsoPFTau20_v2", "L1_SingleEG15", 1, 0.15)
+##   ("HLT_IsoMu15_LooseIsoPFTau20_v6", "OpenL1_SingleMu14_Eta2p1", 1, 0.15),
+##   ("OpenHLT_IsoMu15_MediumIsoPFTau20", "OpenL1_SingleMu14_Eta2p1", 1, 0.15),
+##   ("HLT_IsoMu15_TightIsoPFTau20_v6", "OpenL1_SingleMu14_Eta2p1", 1, 0.15),
+##BIASED   ("OpenHLT_Mu15_LooseIsoPFTau20", "L1_SingleMu10", 70, 0.15),
+##BIASED   ("OpenHLT_IsoMu15", "OpenL1_SingleMu14_Eta2p1", 100, 0.15),
+##   ("HLT_HT300_DoubleIsoPFTau10_Trk3_PFMHT40_v7", "L1_HTT100", 1, 0.15),
+##   ("HLT_HT350_DoubleIsoPFTau10_Trk3_PFMHT45_v7", "L1_HTT100", 1, 0.15)
 # 
  );
 
