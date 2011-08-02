@@ -257,6 +257,39 @@ int findBin(TGraphAsymmErrors *g, double x) {
     return -1;
 }
 
+void significanceToPVal(TDirectory *bands, TString inName, TString outName) {
+    TGraphAsymmErrors *b1 = (TGraphAsymmErrors *) bands->Get(inName);
+    if (b1 == 0 || b1->GetN() == 0) return;
+    int n = b1->GetN();
+    TGraphAsymmErrors *b2 = new TGraphAsymmErrors(n);
+    for (int i = 0; i < n; ++i) {
+        double x = b1->GetX()[i], s = b1->GetY()[i];
+        double slo = s + b1->GetErrorYlow(i), shi = s + b1->GetErrorYhigh(i);
+        double pval = ROOT::Math::normal_cdf_c(s);
+        double phi  = ROOT::Math::normal_cdf_c(slo);
+        double plo  = ROOT::Math::normal_cdf_c(shi);
+        b2->SetPoint(i, x, pval);
+        b2->SetPointError(i, b1->GetErrorXlow(i), b1->GetErrorXhigh(i), pval - plo, phi - pval);
+    }
+    b2->SetName(outName);
+    bands->WriteTObject(b2, outName);
+}
+
+void significanceToPVals(TDirectory *bands, TString inName, TString outName) {
+    significanceToPVal(bands, inName+"_obs",   outName+"_obs");
+    significanceToPVal(bands, inName+"_mean",   outName+"_mean");
+    significanceToPVal(bands, inName+"_median", outName+"_median");
+    significanceToPVal(bands, inName+"_mean_95",   outName+"_mean_95");
+    significanceToPVal(bands, inName+"_median_95", outName+"_median_95");
+    significanceToPVal(bands, inName+"_asimov",    outName+"_asimov");
+
+    significanceToPVal(bands, inName+"_nosyst_obs",   outName+"_nosyst_obs");
+    significanceToPVal(bands, inName+"_nosyst_mean",   outName+"_nosyst_mean");
+    significanceToPVal(bands, inName+"_nosyst_median", outName+"_nosyst_median");
+    significanceToPVal(bands, inName+"_nosyst_mean_95",   outName+"_nosyst_mean_95");
+    significanceToPVal(bands, inName+"_nosyst_asimov",    outName+"_nosyst_asimov");
+    significanceToPVal(bands, inName+"_nosyst_ntoys",     outName+"_nosyst_ntoys");
+}
 
 void cutBand(TDirectory *bands, TString inName, TString outName, int mMin, int mMax) {
     TGraphAsymmErrors *b1 = (TGraphAsymmErrors *) bands->Get(inName);
@@ -428,7 +461,7 @@ void printLine(TDirectory *bands, TString who, FILE *fout, TString header="value
     fprintf(fout, "%4s \t %7s\n", "mass",  header.Data());
     fprintf(fout,  "%5s\t %7s\n", "-----", "-----");
     for (int i = 0, n = mean->GetN(); i < n; ++i) {
-        fprintf(fout, "%4d \t %7.3f\n",  int(mean->GetX()[i]), mean->GetY()[i]);  
+        fprintf(fout, who.Contains("pval") ? "%4d \t %7.5f\n" : "%4d \t %7.3f\n",  int(mean->GetX()[i]), mean->GetY()[i]);  
     }
 }
 void printLine(TDirectory *bands, TString who, TString fileName, TString header="value") {
@@ -445,7 +478,7 @@ void printLineErr(TDirectory *bands, TString who, FILE *fout, TString header="va
     fprintf(fout, "%4s \t %7s +/- %6s\n", "mass",  header.Data()," error");
     fprintf(fout,  "%5s\t %7s-----%6s-\n", "-----", " ------","------");
     for (int i = 0, n = mean->GetN(); i < n; ++i) {
-        fprintf(fout, "%4d \t %7.3f +/- %6.3f\n",  
+        fprintf(fout, who.Contains("pval") ? "%4d \t %7.5f +/- %7.5f\n" : "%4d \t %7.3f +/- %6.3f\n",  
             int(mean->GetX()[i]), 
             mean->GetY()[i], 
             TMath::Max(mean->GetErrorYlow(i),mean->GetErrorYhigh(i)));  
@@ -470,7 +503,7 @@ void printBand(TDirectory *bands, TString who, FILE *fout, bool mean=true) {
     fprintf(fout,  "%5s\t %7s  %7s  %7s  %7s  %7s  %7s\n", "-----","-----",  "-----", "-----", "-----", "-----", "-----");
     for (int i = 0, n = mean68->GetN(); i < n; ++i) {
         int j = (obs ? findBin(obs, mean68->GetX()[i]) : -1);
-        fprintf(fout, "%4d \t %7.3f  %7.3f  %7.3f  %7.3f  %7.3f  %7.3f\n", 
+        fprintf(fout, who.Contains("pval") ? "%4d \t %7.5f  %7.5f  %7.5f  %7.5f  %7.5f  %7.5f\n" : "%4d \t %7.3f  %7.3f  %7.3f  %7.3f  %7.3f  %7.3f\n" , 
             int(mean68->GetX()[i]),  
             j == -1 ? NAN : obs->GetY()[j],
             mean68->GetY()[i]-mean95->GetErrorYlow(i), 
