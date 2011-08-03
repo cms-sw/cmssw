@@ -181,16 +181,21 @@ bool MaxLikelihoodFit::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
   if (res_s) {
       RooRealVar *rf = dynamic_cast<RooRealVar*>(res_s->floatParsFinal().find(r->GetName()));
       double bestFitVal = rf->getVal();
-      limit = bestFitVal + rf->getAsymErrorLo(); limitErr = 0;
+      double maxError = std::max<double>(std::max<double>(-rf->getAsymErrorLo(), rf->getAsymErrorHi()), rf->getError());
+      bool hasLoErr = fabs(rf->getAsymErrorLo()) > 0.001*maxError;
+      bool hasHiErr  = fabs(rf->getAsymErrorHi()) > 0.001*maxError;
+      double loErr = (hasLoErr ? -rf->getAsymErrorLo() : +bestFitVal - rf->getMin());
+      double hiErr = (hasHiErr ? +rf->getAsymErrorHi() : -bestFitVal + rf->getMax());
+      limit = bestFitVal - loErr; limitErr = 0;
       Combine::commitPoint(/*expected=*/true, /*quantile=*/0.16);
-      limit = bestFitVal + rf->getAsymErrorHi();  limitErr = 0;
+      limit = bestFitVal + hiErr; limitErr = 0;
       Combine::commitPoint(/*expected=*/true, /*quantile=*/0.84);
       limit = bestFitVal;  limitErr = 0;
       Combine::commitPoint(/*expected=*/true, /*quantile=*/0.5);
       limit = bestFitVal;
       limitErr = rf->getError();
       std::cout << "\n --- MaxLikelihoodFit ---" << std::endl;
-      std::cout << "Best fit " << r->GetName() << ": " << rf->getVal() << "  "<<  rf->getAsymErrorLo() << "/+" << rf->getAsymErrorHi() << "  (68% CL)" << std::endl;
+      std::cout << "Best fit " << r->GetName() << ": " << rf->getVal() << "  "<<  -loErr << "/+" << +hiErr << "  (68% CL)" << std::endl;
   } else {
       std::cout << "\n --- MaxLikelihoodFit ---" << std::endl;
       std::cout << "Fit failed."  << std::endl;

@@ -179,6 +179,7 @@ TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType t
 }
 
 void theBand() {}
+bool do_bands_95 = true;
 void makeBand(TDirectory *bands, TString name, TFile *file, int doSyst, int whichChannel, BandType type) {
     TString suffix = "";
     switch (type) {
@@ -194,12 +195,14 @@ void makeBand(TDirectory *bands, TString name, TFile *file, int doSyst, int whic
     if (!doSyst && (type != AdHoc)) suffix = "_nosyst"+suffix;
     if (type == Median || type == Mean) {
         TGraph *band68 = theBand(file, doSyst, whichChannel, type, 0.68);
-        TGraph *band95 = theBand(file, doSyst, whichChannel, type, 0.95);
+        TGraph *band95 = do_bands_95 ? theBand(file, doSyst, whichChannel, type, 0.95) : 0; 
         if (band68 != 0 && band68->GetN() > 0) {
             band68->SetName(name+suffix);
             bands->WriteTObject(band68, name+suffix);
-            band95->SetName(name+suffix+"_95");
-            bands->WriteTObject(band95, name+suffix+"_95");
+            if (do_bands_95) {
+                band95->SetName(name+suffix+"_95");
+                bands->WriteTObject(band95, name+suffix+"_95");
+            }
         } else {
             std::cout << "Band " << name+suffix << " missing" << std::endl;
         }
@@ -219,10 +222,12 @@ void makeLine(TDirectory *bands, TString name, TString filename,  int doSyst, in
     makeBand(bands, name, in, doSyst, whichChannel, AdHoc);
     in->Close();
 }
+
+bool do_bands_nosyst = true;
 void makeBands(TDirectory *bands, TString name, TString filename, int channel=0, bool quantiles=false) {
     TFile *in = TFile::Open(filename);
     if (in == 0) { std::cerr << "Filename " << filename << " missing" << std::endl; return; }
-    for (int s = 0; s <= 1; ++s) {
+    for (int s = do_bands_nosyst ? 0 : 1; s <= 1; ++s) {
         makeBand(bands, name, in, s, channel, Mean);
         makeBand(bands, name, in, s, channel, Median);
         makeBand(bands, name, in, s, channel, Observed);
@@ -491,6 +496,27 @@ void printLineErr(TDirectory *bands, TString who, TString fileName, TString head
     printLineErr(bands,who,fout,header);
     fclose(fout);
 }
+
+void printLineAErr(TDirectory *bands, TString who, FILE *fout, TString header="value") {
+    TGraphAsymmErrors *mean = (TGraphAsymmErrors*) bands->Get(who);
+    if (mean == 0) { std::cerr << "MISSING " << who << std::endl; return; }
+    fprintf(fout, "%4s \t %7s  -%6s   +%6s\n",  "mass",  header.Data(),"error"," error");
+    fprintf(fout,  "%5s\t %7s------%6s----%6s-\n", "-----", " ------","------","------");
+    for (int i = 0, n = mean->GetN(); i < n; ++i) {
+        fprintf(fout, who.Contains("pval") ? "%4d \t %7.5f  -%7.5f / +%7.5f\n" : "%4d \t %7.3f  -%6.3f / +%6.3f\n",  
+            int(mean->GetX()[i]), 
+            mean->GetY()[i], 
+            mean->GetErrorYlow(i),mean->GetErrorYhigh(i));  
+    }
+}
+void printLineAErr(TDirectory *bands, TString who, TString fileName, TString header="value") {
+    TGraph *mean = (TGraph*) bands->Get(who);
+    if (mean == 0) { std::cerr << "MISSING " << who << std::endl; return; }
+    FILE *fout = fopen(fileName.Data(), "w");
+    printLineAErr(bands,who,fout,header);
+    fclose(fout);
+}
+
 
 
 void printBand(TDirectory *bands, TString who, FILE *fout, bool mean=true) {
