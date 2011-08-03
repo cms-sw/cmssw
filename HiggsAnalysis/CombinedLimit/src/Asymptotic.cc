@@ -41,6 +41,7 @@ void Asymptotic::applyOptions(const boost::program_options::variables_map &vm) {
     if (vm.count("expected") && !vm["expected"].defaulted()) {
         if (quantileForExpected_ <= 0 || quantileForExpected_ >= 1.0) throw std::invalid_argument("Asymptotic: the quantile for the expected limit must be between 0 and 1");
         expected_ = true;
+        g_quantileExpected_ = quantileForExpected_;
     } else {
         expected_ = false;
     }
