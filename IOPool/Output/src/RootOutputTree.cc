@@ -119,7 +119,7 @@ namespace edm {
 
     if(inputTree == 0) return false;
 
-    // Do the sub-branches match in the input and output.  Extra sub-branches in the input are OK for fast cloning, but not in the output.
+    // Do the sub-branches match in the input and output. Extra sub-branches in the input are OK for fast cloning, but not in the output.
     for(std::vector<TBranch*>::const_iterator it = readBranches_.begin(), itEnd = readBranches_.end(); it != itEnd; ++it) {
       TBranchElement* outputBranch = dynamic_cast<TBranchElement*>(*it);
       if(outputBranch != 0) {
@@ -128,7 +128,7 @@ namespace edm {
           // We have a matching top level branch. Do the recursive check on subbranches.
           if(!checkMatchingBranches(inputBranch, outputBranch)) {
             LogInfo("FastCloning")
-              << "Fast Cloning disabled because a data member has been added to  split branch: " << inputBranch->GetName() << "\n.";
+              << "Fast Cloning disabled because a data member has been added to split branch: " << inputBranch->GetName() << "\n.";
           }
         }
       }
@@ -138,7 +138,7 @@ namespace edm {
 
   bool RootOutputTree::checkEntriesInReadBranches(Long64_t expectedNumberOfEntries) const {
     for(std::vector<TBranch*>::const_iterator it = readBranches_.begin(), itEnd = readBranches_.end(); it != itEnd; ++it) {
-      if ((*it)->GetEntries() != expectedNumberOfEntries) {
+      if((*it)->GetEntries() != expectedNumberOfEntries) {
         return false;
       }
     }
@@ -150,11 +150,11 @@ namespace edm {
     if(in->GetEntries() != 0) {
       TObjArray* branches = tree_->GetListOfBranches();
       // If any products were produced (not just event products), the EventAuxiliary will be modified.
-      // In that case,  don't fast copy auxiliary branches. Remove them, and add back after fast copying.
+      // In that case, don't fast copy auxiliary branches. Remove them, and add back after fast copying.
       std::map<Int_t, TBranch *> auxIndexes;
-      bool mustRemoveSomeAuxs  =false;
-      if (!fastCloneAuxBranches_) {
-        for (std::vector<TBranch *>::const_iterator it = auxBranches_.begin(), itEnd = auxBranches_.end();
+      bool mustRemoveSomeAuxs = false;
+      if(!fastCloneAuxBranches_) {
+        for(std::vector<TBranch *>::const_iterator it = auxBranches_.begin(), itEnd = auxBranches_.end();
              it != itEnd; ++it) {
           int auxIndex = branches->IndexOf(*it);
           assert (auxIndex >= 0);
@@ -163,56 +163,45 @@ namespace edm {
         }
         mustRemoveSomeAuxs = true;
       }
-      
+
       //Deal with any aux branches which can never be cloned
-      for (std::vector<TBranch *>::const_iterator it = unclonedAuxBranches_.begin(), 
+      for(std::vector<TBranch *>::const_iterator it = unclonedAuxBranches_.begin(),
            itEnd = unclonedAuxBranches_.end();
            it != itEnd; ++it) {
         int auxIndex = branches->IndexOf(*it);
         assert (auxIndex >= 0);
         auxIndexes.insert(std::make_pair(auxIndex, *it));
         branches->RemoveAt(auxIndex);
-        mustRemoveSomeAuxs=true;
+        mustRemoveSomeAuxs = true;
       }
 
       if(mustRemoveSomeAuxs) {
-        branches->Compress();        
+        branches->Compress();
       }
 
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
       TTreeCloner cloner(in, tree_, option.c_str(), TTreeCloner::kNoWarnings|TTreeCloner::kIgnoreMissingTopLevel);
-#else
-      TTreeCloner cloner(in, tree_, option.c_str());
-#endif
 
       if(!cloner.IsValid()) {
-
-#if ROOT_VERSION_CODE >= ROOT_VERSION(5,26,0)
         // Let's check why
-        static const char* okerror  = "One of the export branch";
-        if (strncmp(cloner.GetWarning(), okerror, strlen(okerror)) == 0) {
+        static const char* okerror = "One of the export branch";
+        if(strncmp(cloner.GetWarning(), okerror, strlen(okerror)) == 0) {
           // That's fine we will handle it;
-        }
-        else {
+        } else {
           throw edm::Exception(errors::FatalRootError)
-            << "invalid TTreeCloner (" << cloner.GetWarning() << ")\n"; 
+            << "invalid TTreeCloner (" << cloner.GetWarning() << ")\n";
         }
-#else
-        throw edm::Exception(errors::FatalRootError)
-          << "invalid TTreeCloner (" << cloner.GetWarning() << ")\n"; 
-#endif
       }
       tree_->SetEntries(tree_->GetEntries() + in->GetEntries());
       Service<RootHandlers> rootHandler;
       rootHandler->enableErrorHandlerWithoutWarnings();
       cloner.Exec();
       rootHandler->enableErrorHandler();
-      if (mustRemoveSomeAuxs) {
-        for (std::map<Int_t, TBranch *>::const_iterator it = auxIndexes.begin(), itEnd = auxIndexes.end();
+      if(mustRemoveSomeAuxs) {
+        for(std::map<Int_t, TBranch *>::const_iterator it = auxIndexes.begin(), itEnd = auxIndexes.end();
              it != itEnd; ++it) {
           // Add the auxiliary branches back after fast copying the rest of the tree.
           Int_t last = branches->GetLast();
-          if (last >= 0) {
+          if(last >= 0) {
             branches->AddAtAndExpand(branches->At(last), last+1);
             for(Int_t ind = last-1; ind >= it->first; --ind) {
               branches->AddAt(branches->At(ind), ind+1);
@@ -265,8 +254,8 @@ namespace edm {
 
   void
   RootOutputTree::fillTree() const {
-    if (currentlyFastCloning_) {
-      if (!fastCloneAuxBranches_)fillTTree(auxBranches_);
+    if(currentlyFastCloning_) {
+      if(!fastCloneAuxBranches_)fillTTree(auxBranches_);
       fillTTree(unclonedAuxBranches_);
       fillTTree(producedBranches_);
       fillTTree(unclonedReadBranches_);
