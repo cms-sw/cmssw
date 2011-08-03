@@ -125,7 +125,7 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   
   //1D
   std::vector<MonitorElement*> h_tracks, h_fakes, h_hits, h_charge;
-  std::vector<MonitorElement*> h_effic,  h_fakerate, h_fakerateSig, h_recoeta, h_assoceta, h_assoc2eta, h_assoc2etaSig, h_simuleta;
+  std::vector<MonitorElement*> h_effic,  h_fakerate, h_recoeta, h_assoceta, h_assoc2eta, h_simuleta;
   std::vector<MonitorElement*> h_efficPt, h_fakeratePt, h_recopT, h_assocpT, h_assoc2pT, h_simulpT;
   std::vector<MonitorElement*> h_effic_vs_hit, h_fake_vs_hit, h_recohit, h_assochit, h_assoc2hit, h_simulhit;
   std::vector<MonitorElement*> h_effic_vs_phi, h_fake_vs_phi, h_recophi, h_assocphi, h_assoc2phi, h_simulphi;
@@ -133,7 +133,7 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   std::vector<MonitorElement*> h_effic_vs_dz, h_fake_vs_dz, h_recodz, h_assocdz, h_assoc2dz, h_simuldz;
   std::vector<MonitorElement*> h_effic_vs_vertpos, h_effic_vs_zpos, h_assocvertpos, h_simulvertpos, h_assoczpos, h_simulzpos;
   std::vector<MonitorElement*> h_pt, h_eta, h_pullTheta,h_pullPhi,h_pullDxy,h_pullDz,h_pullQoverp;
-  std::vector<MonitorElement*> h_effic_vertcount_entire,  h_fakerate_vertcount_entire,  h_fakerate_vertcount_entire_signal, h_reco_vertcount_entire, h_assoc_vertcount_entire, h_assoc2_vertcount_entire, h_simul_vertcount_entire;
+  std::vector<MonitorElement*> h_effic_vertcount_entire,  h_fakerate_vertcount_entire, h_reco_vertcount_entire, h_assoc_vertcount_entire, h_assoc2_vertcount_entire, h_simul_vertcount_entire;
   std::vector<MonitorElement*> h_effic_vertcount_barrel,  h_fakerate_vertcount_barrel, h_reco_vertcount_barrel, h_assoc_vertcount_barrel, h_assoc2_vertcount_barrel, h_simul_vertcount_barrel;
   std::vector<MonitorElement*> h_effic_vertcount_fwdpos,  h_fakerate_vertcount_fwdpos, h_reco_vertcount_fwdpos, h_assoc_vertcount_fwdpos, h_assoc2_vertcount_fwdpos, h_simul_vertcount_fwdpos;
   std::vector<MonitorElement*> h_effic_vertcount_fwdneg,  h_fakerate_vertcount_fwdneg, h_reco_vertcount_fwdneg, h_assoc_vertcount_fwdneg, h_assoc2_vertcount_fwdneg, h_simul_vertcount_fwdneg;
@@ -142,13 +142,20 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   std::vector<MonitorElement*> h_effic_vertz_fwdpos,  h_assoc_vertz_fwdpos, h_simul_vertz_fwdpos;
   std::vector<MonitorElement*> h_effic_vertz_fwdneg,  h_assoc_vertz_fwdneg, h_simul_vertz_fwdneg;
   std::vector<MonitorElement*> h_algo;
-  std::vector<MonitorElement*> h_fakerate_ootpu_eta_entire, h_fakerate_ootpu_vertcount_entire, h_reco_ootpu_entire, h_assoc2_itpu_vertcount_entire, h_assoc2_itpu_vertcount_entire_signal;
-  std::vector<MonitorElement*> h_fakerate_ootpu_barrel, h_reco_ootpu_barrel, h_assoc2_ootpu_barrel, h_assoc2_ootpu_eta_entire, h_assoc2_ootpu_vertcount_entire;
-  std::vector<MonitorElement*> h_fakerate_ootpu_fwdpos, h_reco_ootpu_fwdpos, h_assoc2_ootpu_fwdpos, h_reco_ootpu_eta_entire, h_reco_ootpu_vertcount_entire; 
+  std::vector<MonitorElement*> h_fakerate_ootpu_entire, h_reco_ootpu_entire, h_assoc2_ootpu_entire;
+  std::vector<MonitorElement*> h_fakerate_ootpu_barrel, h_reco_ootpu_barrel, h_assoc2_ootpu_barrel;
+  std::vector<MonitorElement*> h_fakerate_ootpu_fwdpos, h_reco_ootpu_fwdpos, h_assoc2_ootpu_fwdpos; 
   std::vector<MonitorElement*> h_fakerate_ootpu_fwdneg, h_reco_ootpu_fwdneg, h_assoc2_ootpu_fwdneg;
-  std::vector<MonitorElement*> h_fakerate_itpu_eta_entire, h_fakerate_itpu_eta_entire_signal;
-  std::vector<MonitorElement*> h_fakerate_itpu_vertcount_entire, h_fakerate_itpu_vertcount_entire_signal, h_assoc2_itpu_eta_entire, h_assoc2_itpu_eta_entire_signal;
-    
+  std::vector<MonitorElement*> h_fomt_eta, h_fomt_sig_eta, h_fomt_vertcount, h_fomt_sig_vertcount;
+  std::vector<MonitorElement*> h_fomt_itpu_eta, h_fomt_sig_itpu_eta, h_fomt_itpu_vertcount, h_fomt_sig_itpu_vertcount;
+  std::vector<MonitorElement*> h_fomt_ootpu_eta, h_fomt_ootpu_vertcount;
+  std::vector<MonitorElement*> h_assoc2_itpu_eta, h_assoc2_itpu_sig_eta, h_assoc2eta_sig;
+  std::vector<MonitorElement*> h_assoc2_itpu_vertcount, h_assoc2_itpu_sig_vertcount;
+  std::vector<MonitorElement*> h_assoc2_ootpu_eta, h_assoc2_ootpu_vertcount;
+  std::vector<MonitorElement*> h_reco_ootpu_eta, h_reco_ootpu_vertcount;
+  std::vector<MonitorElement*> h_effic_PU_eta, h_effic_PU_vertcount, h_effic_PU_zpos;
+  std::vector<MonitorElement*> h_con_eta, h_con_vertcount, h_con_zpos;
+
 
   // dE/dx
   // in the future these might become an array
@@ -207,10 +214,14 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   std::vector< std::vector<int> > totSIM_vertz_fwdpos,totASS_vertz_fwdpos;
   std::vector< std::vector<int> > totSIM_vertz_fwdneg,totASS_vertz_fwdneg;
   std::vector< std::vector<int> > totREC_algo;
-  std::vector< std::vector<int> > totRECeta_ootpu_eta_entire, totREC_ootpu_vertcount_entire, totASS2_ootpu_vertcount_entire, totASS2_ootpu_eta_entire;
-  std::vector< std::vector<int> > totREC_ootpu_barrel, totASS2_ootpu_barrel, totASS2_itpu_eta_entire, totASS2_itpu_eta_entire_signal;
-  std::vector< std::vector<int> > totREC_ootpu_fwdpos, totASS2_ootpu_fwdpos, totASS2_itpu_vertcount_entire, totASS2_itpu_vertcount_entire_signal;
+  std::vector< std::vector<int> > totREC_ootpu_entire, totASS2_ootpu_entire; 
+  std::vector< std::vector<int> > totREC_ootpu_barrel, totASS2_ootpu_barrel;
+  std::vector< std::vector<int> > totREC_ootpu_fwdpos, totASS2_ootpu_fwdpos;
   std::vector< std::vector<int> > totREC_ootpu_fwdneg, totASS2_ootpu_fwdneg;
+  std::vector< std::vector<int> > totREC_ootpu_eta_entire, totASS2_ootpu_eta_entire;
+  std::vector< std::vector<int> > totASS2_itpu_eta_entire, totASS2_itpu_eta_entire_signal, totASS2_itpu_vertcount_entire, totASS2_itpu_vertcount_entire_signal;
+  std::vector< std::vector<int> > totFOMT_eta, totFOMT_vertcount;
+  std::vector< std::vector<int> > totCONeta, totCONvertcount, totCONzpos;
   
 
 
