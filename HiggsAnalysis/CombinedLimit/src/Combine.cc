@@ -67,6 +67,7 @@ int  verbose = 1;
 bool withSystematics = 1;
 bool doSignificance_ = 0;
 float cl = 0.95;
+TTree *Combine::tree_ = 0;
 
 
 Combine::Combine() :
@@ -392,6 +393,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     outputFile->WriteTObject(w,workspaceName_.c_str());
   }
 
+  tree_ = tree;
 
   bool isExtended = mc_bonly->GetPdf()->canBeExtended();
   RooAbsData *dobs = w->data(dataset.c_str());
@@ -530,3 +532,9 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
 }
 
+void Combine::commitPoint(bool expected, float quantile) {
+    Float_t saveQuantile =  g_quantileExpected_;
+    g_quantileExpected_ = expected ? quantile : -1.0;
+    tree_->Fill();
+    g_quantileExpected_ = saveQuantile;
+}

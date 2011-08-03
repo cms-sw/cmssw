@@ -177,7 +177,24 @@ bool MaxLikelihoodFit::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
       c1->SetLeftMargin(0.16);  c1->SetBottomMargin(0.13);
       fitOut->WriteTObject(corr, "covariance_fit_s");
   }
-
+    
+  if (res_s) {
+      RooRealVar *rf = dynamic_cast<RooRealVar*>(res_s->floatParsFinal().find(r->GetName()));
+      double bestFitVal = rf->getVal();
+      limit = bestFitVal + rf->getAsymErrorLo(); limitErr = 0;
+      Combine::commitPoint(/*expected=*/true, /*quantile=*/0.16);
+      limit = bestFitVal + rf->getAsymErrorHi();  limitErr = 0;
+      Combine::commitPoint(/*expected=*/true, /*quantile=*/0.84);
+      limit = bestFitVal;  limitErr = 0;
+      Combine::commitPoint(/*expected=*/true, /*quantile=*/0.5);
+      limit = bestFitVal;
+      limitErr = rf->getError();
+      std::cout << "\n --- MaxLikelihoodFit ---" << std::endl;
+      std::cout << "Best fit " << r->GetName() << ": " << rf->getVal() << "  "<<  rf->getAsymErrorLo() << "/+" << rf->getAsymErrorHi() << "  (68% CL)" << std::endl;
+  } else {
+      std::cout << "\n --- MaxLikelihoodFit ---" << std::endl;
+      std::cout << "Fit failed."  << std::endl;
+  }
   fitOut.release()->Close();
   return res_s != 0;
 }

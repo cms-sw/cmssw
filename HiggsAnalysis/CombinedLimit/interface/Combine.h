@@ -32,6 +32,8 @@ public:
   
   void run(TString hlfFile, const std::string &dataset, double &limit, double &limitErr, int &iToy, TTree *tree, int nToys);
   
+  static void commitPoint(bool expected = false, float quantile = 0.5);
+
 private:
   bool mklimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr) ;
   
@@ -59,6 +61,8 @@ private:
   bool makeTempDir_;
   bool rebuildSimPdf_;
   bool optSimPdf_;
+
+  static TTree *tree_;
 };
 
 #endif
