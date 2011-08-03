@@ -98,7 +98,7 @@ toymcoptutils::SinglePdfGenInfo::generateAsimov(RooRealVar *&weightVar)
     if (observables_.getSize() > 1) throw std::invalid_argument(std::string("ERROR in SinglePdfGenInfo::generateAsimov for ") + pdf_->GetName() + ", more than 1 observable");
     RooRealVar &x = (RooRealVar&)*observables_.first();
     if (weightVar == 0) weightVar = new RooRealVar("_weight_","",1.0);
-    TH1 *hist = pdf_->createHistogram("htemp", x);
+    std::auto_ptr<TH1> hist(pdf_->createHistogram("htemp", x));
     double expectedEvents = pdf_->expectedEvents(observables_);
     hist->Scale(expectedEvents/ hist->Integral()); 
     RooArgSet obsPlusW(x, weightVar);
@@ -107,8 +107,8 @@ toymcoptutils::SinglePdfGenInfo::generateAsimov(RooRealVar *&weightVar)
         x.setVal(hist->GetXaxis()->GetBinCenter(i));
         data->add(observables_, hist->GetBinContent(i));
     }
-    std::cout << "Asimov dataset generated from " << pdf_->GetName() << " (sumw? " << data->sumEntries() << ", expected events " << expectedEvents << ")" << std::endl;
-    utils::printRDH(data);
+    //std::cout << "Asimov dataset generated from " << pdf_->GetName() << " (sumw? " << data->sumEntries() << ", expected events " << expectedEvents << ")" << std::endl;
+    //utils::printRDH(data);
     return data;
 }
 
@@ -229,8 +229,8 @@ toymcoptutils::SimPdfGenInfo::generateAsimov(RooRealVar *&weightVar)
             ret = new RooDataSet(retName, "", observables_, RooFit::Index((RooCategory&)*cat_), RooFit::Link(datasetPieces_) /*, RooFit::OwnLinked()*/);
         }
     } else ret = pdfs_[0]->generateAsimov(weightVar);
-    std::cout << "Asimov dataset generated from sim pdf " << pdf_->GetName() << " (sumw? " << ret->sumEntries() << ")" << std::endl; 
-    utils::printRAD(ret);
+    //std::cout << "Asimov dataset generated from sim pdf " << pdf_->GetName() << " (sumw? " << ret->sumEntries() << ")" << std::endl; 
+    //utils::printRAD(ret);
     return ret;
 }
 
