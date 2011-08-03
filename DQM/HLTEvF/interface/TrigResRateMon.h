@@ -16,7 +16,7 @@
 //        Vladimir Rekovic, July 2010
 //
 //
-// $Id: TrigResRateMon.h,v 1.6 2011/07/20 19:26:55 lwming Exp $
+// $Id: TrigResRateMon.h,v 1.7 2011/07/27 17:34:21 lwming Exp $
 //
 //
 
@@ -189,6 +189,7 @@ class TrigResRateMon : public edm::EDAnalyzer {
   std::vector<unsigned> rawCountsPerPath; //Robin
   std::vector<unsigned> finalCountsPerPath;  //Robin
   double averageInstLumi;
+  double averageInstLumi3LS;
   MonitorElement * meAverageLumiPerLS;
 
   //Robin---
@@ -423,6 +424,7 @@ class TrigResRateMon : public edm::EDAnalyzer {
         }
 
         double xsec = 1.0;
+	// what should we fill when averageLumi == 0 ???
         if (currentInstLumi > 0) {
           xsec = thisPathCounts / (currentInstLumi*secondsPerLS);
         } else if ( secondsPerLS > 0) {
@@ -431,8 +433,8 @@ class TrigResRateMon : public edm::EDAnalyzer {
           xsec = thisPathCounts;
         }
 
-        
-        myXsecPlot->Fill(iPath, xsec);
+        //Robin ???
+	if (currentInstLumi > 0)  myXsecPlot->Fill(iPath, xsec);
         //std::cout << datasetName << "  " << thisPathName << " filled with xsec  " << xsec << std::endl;
         
       }
