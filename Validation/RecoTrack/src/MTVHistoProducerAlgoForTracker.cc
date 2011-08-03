@@ -100,14 +100,15 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   ParameterSet TpSelectorForEfficiencyVsPtPSet = pset.getParameter<ParameterSet>("TpSelectorForEfficiencyVsPt");
   ParameterSet TpSelectorForEfficiencyVsVTXRPSet = pset.getParameter<ParameterSet>("TpSelectorForEfficiencyVsVTXR");
   ParameterSet TpSelectorForEfficiencyVsVTXZPSet = pset.getParameter<ParameterSet>("TpSelectorForEfficiencyVsVTXZ");
+
   
   using namespace reco::modules;
-  generalTpSelector             = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(generalTpSelectorPSet));
-  TpSelectorForEfficiencyVsEta  = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsEtaPSet));
-  TpSelectorForEfficiencyVsPhi  = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsPhiPSet));
-  TpSelectorForEfficiencyVsPt   = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsPtPSet));
-  TpSelectorForEfficiencyVsVTXR = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsVTXRPSet));
-  TpSelectorForEfficiencyVsVTXZ = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsVTXZPSet));
+  generalTpSelector               = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(generalTpSelectorPSet));
+  TpSelectorForEfficiencyVsEta    = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsEtaPSet));
+  TpSelectorForEfficiencyVsPhi    = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsPhiPSet));
+  TpSelectorForEfficiencyVsPt     = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsPtPSet));
+  TpSelectorForEfficiencyVsVTXR   = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsVTXRPSet));
+  TpSelectorForEfficiencyVsVTXZ   = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsVTXZPSet));
 
   // fix for the LogScale by Ryan
   if(useLogPt){
@@ -168,15 +169,16 @@ void MTVHistoProducerAlgoForTracker::setUpVectors(){
   }   
   etaintervals.push_back(etaintervalsv);
   totSIMeta.push_back(totSIMveta);
+  totCONeta.push_back(totASSveta);
   totASSeta.push_back(totASSveta);
   totASS2eta.push_back(totASS2veta);
   totASS2etaSig.push_back(totASS2vetaSig);
   totRECeta.push_back(totRECveta);
+  totFOMT_eta.push_back(totASSveta);
     
   totASS2_itpu_eta_entire.push_back(totASS2veta);
   totASS2_itpu_eta_entire_signal.push_back(totASS2vetaSig);
   totASS2_ootpu_eta_entire.push_back(totASS2veta);
-  totRECeta_ootpu_eta_entire.push_back(totASS2veta);
 
   for (size_t i = 0; i < 15; i++) {
     totRECv_algo.push_back(0);
@@ -283,6 +285,7 @@ void MTVHistoProducerAlgoForTracker::setUpVectors(){
   }
   zposintervals.push_back(zposintervalsv);
   totSIM_zpos.push_back(totSIMv_zpos);
+  totCONzpos.push_back(totSIMv_zpos);
   totASS_zpos.push_back(totASSv_zpos);
   totSIM_vertz_entire.push_back(totSIMv_zpos);
   totASS_vertz_entire.push_back(totASSv_zpos);
@@ -305,6 +308,7 @@ void MTVHistoProducerAlgoForTracker::setUpVectors(){
   }   
   vertcountintervals.push_back(vertcountintervalsv);
   totSIM_vertcount_entire.push_back(totSIMv_vertcount);
+  totCONvertcount.push_back(totSIMv_vertcount);
   totASS_vertcount_entire.push_back(totASSv_vertcount);
   totASS2_vertcount_entire.push_back(totASS2v_vertcount);
   totASS2_vertcount_entire_signal.push_back(totASS2v_vertcount);
@@ -321,12 +325,13 @@ void MTVHistoProducerAlgoForTracker::setUpVectors(){
   totASS_vertcount_fwdneg.push_back(totASSv_vertcount);
   totASS2_vertcount_fwdneg.push_back(totASS2v_vertcount);
   totREC_vertcount_fwdneg.push_back(totRECv_vertcount);
+  totFOMT_vertcount.push_back(totASSv_vertcount);
     
   totASS2_itpu_vertcount_entire.push_back(totASS2v_vertcount);
   totASS2_itpu_vertcount_entire_signal.push_back(totASS2v_vertcount);
 
-  totASS2_ootpu_vertcount_entire.push_back(totASS2v_vertcount);
-  totREC_ootpu_vertcount_entire.push_back(totRECv_vertcount);
+  totASS2_ootpu_entire.push_back(totASS2v_vertcount);
+  totREC_ootpu_entire.push_back(totRECv_vertcount);
   totASS2_ootpu_barrel.push_back(totASS2v_vertcount);
   totREC_ootpu_barrel.push_back(totRECv_vertcount);
   totASS2_ootpu_fwdpos.push_back(totASS2v_vertcount);
@@ -357,11 +362,11 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(){
 
   h_algo.push_back( dbe_->book1D("h_algo","Tracks by algo",15,0.0,15.0) );
 
-  /// this are needed to calculate efficiency during tha harvesting for the automated validation
+  /// these are needed to calculate efficiency during the harvesting for the automated validation
   h_recoeta.push_back( dbe_->book1D("num_reco_eta","N of reco track vs eta",nintEta,minEta,maxEta) );
   h_assoceta.push_back( dbe_->book1D("num_assoc(simToReco)_eta","N of associated tracks (simToReco) vs eta",nintEta,minEta,maxEta) );
   h_assoc2eta.push_back( dbe_->book1D("num_assoc(recoToSim)_eta","N of associated (recoToSim) tracks vs eta",nintEta,minEta,maxEta) );
-  h_assoc2etaSig.push_back( dbe_->book1D("num_assoc(recoToSim)_eta_Signal","N of associated (recoToSigSim) tracks vs eta",nintEta,minEta,maxEta) );
+  h_assoc2eta_sig.push_back( dbe_->book1D("num_assoc(recoToSim)_eta_Signal","N of associated (recoToSigSim) tracks vs eta",nintEta,minEta,maxEta) );
   h_simuleta.push_back( dbe_->book1D("num_simul_eta","N of simulated tracks vs eta",nintEta,minEta,maxEta) );
   h_recopT.push_back( dbe_->book1D("num_reco_pT","N of reco track vs pT",nintPt,minPt,maxPt) );
   h_assocpT.push_back( dbe_->book1D("num_assoc(simToReco)_pT","N of associated tracks (simToReco) vs pT",nintPt,minPt,maxPt) );
@@ -431,16 +436,16 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(){
   h_assoc_vertz_fwdneg.push_back( dbe_->book1D("num_assoc(simToReco)_vertz_fwdneg","N of associated tracks (simToReco) in endcap(-) vs N of pileup vertices",nintZpos,minZpos,maxZpos) );
   h_simul_vertz_fwdneg.push_back( dbe_->book1D("num_simul_vertz_fwdneg","N of simulated tracks in endcap(-) vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
 
-  h_assoc2_itpu_eta_entire.push_back( dbe_->book1D("num_assoc(recoToSim)_itpu_eta_entire","N of associated tracks (simToReco) from in time pileup vs eta",nintEta,minEta,maxEta) );
-  h_assoc2_itpu_eta_entire_signal.push_back( dbe_->book1D("num_assoc(recoToSim)_itpu_eta_entire_signal","N of associated tracks (simToReco) from in time pileup vs eta",nintEta,minEta,maxEta) );
-  h_assoc2_itpu_vertcount_entire.push_back( dbe_->book1D("num_assoc(recoToSim)_itpu_vertcount_entire","N of associated tracks (simToReco) from in time pileup vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_assoc2_itpu_vertcount_entire_signal.push_back( dbe_->book1D("num_assoc(recoToSim)_itpu_vertcount_entire_signal","N of associated tracks (simToReco) from in time pileup vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_assoc2_itpu_eta.push_back( dbe_->book1D("num_assoc(recoToSim)_itpu_eta_entire","N of associated tracks (simToReco) from in time pileup vs eta",nintEta,minEta,maxEta) );
+  h_assoc2_itpu_sig_eta.push_back( dbe_->book1D("num_assoc(recoToSim)_itpu_eta_entire_signal","N of associated tracks (simToReco) from in time pileup vs eta",nintEta,minEta,maxEta) );
+  h_assoc2_itpu_vertcount.push_back( dbe_->book1D("num_assoc(recoToSim)_itpu_vertcount_entire","N of associated tracks (simToReco) from in time pileup vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_assoc2_itpu_sig_vertcount.push_back( dbe_->book1D("num_assoc(recoToSim)_itpu_vertcount_entire_signal","N of associated tracks (simToReco) from in time pileup vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
 
-  h_reco_ootpu_eta_entire.push_back( dbe_->book1D("num_reco_ootpu_eta_entire","N of reco tracks vs eta",nintEta,minEta,maxEta) );
-  h_reco_ootpu_vertcount_entire.push_back( dbe_->book1D("num_reco_ootpu_vertcount_entire","N of reco tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_reco_ootpu_eta.push_back( dbe_->book1D("num_reco_ootpu_eta_entire","N of reco tracks vs eta",nintEta,minEta,maxEta) );
+  h_reco_ootpu_vertcount.push_back( dbe_->book1D("num_reco_ootpu_vertcount_entire","N of reco tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
 
-  h_assoc2_ootpu_eta_entire.push_back( dbe_->book1D("num_assoc(recoToSim)_ootpu_eta_entire","N of associated tracks (simToReco) from out of time pileup vs eta",nintEta,minEta,maxEta) );
-  h_assoc2_ootpu_vertcount_entire.push_back( dbe_->book1D("num_assoc(recoToSim)_ootpu_vertcount_entire","N of associated tracks (simToReco) from out of time pileup vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_assoc2_ootpu_entire.push_back( dbe_->book1D("num_assoc(recoToSim)_ootpu_eta_entire","N of associated tracks (simToReco) from out of time pileup vs eta",nintEta,minEta,maxEta) );
+  h_assoc2_ootpu_vertcount.push_back( dbe_->book1D("num_assoc(recoToSim)_ootpu_vertcount_entire","N of associated tracks (simToReco) from out of time pileup vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
 
   h_reco_ootpu_entire.push_back( dbe_->book1D("num_reco_ootpu_entire","N of reco tracks vs z of primary interaction vertex",nintVertcount,minVertcount,maxVertcount) );
   h_assoc2_ootpu_barrel.push_back( dbe_->book1D("num_assoc(recoToSim)_ootpu_barrel","N of associated tracks (simToReco) from out of time pileup in barrel vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
@@ -582,6 +587,11 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistos(){
   h_dedx_sat1.push_back( dbe_->book1D("h_dedx_sat1","dE/dx number of measurements with saturation",nintHit,minHit,maxHit) ); 
   h_dedx_sat2.push_back( dbe_->book1D("h_dedx_sat2","dE/dx number of measurements with saturation",nintHit,minHit,maxHit) ); 
 
+  // PU special stuff
+  h_con_eta.push_back( dbe_->book1D("num_con_eta","N of PU tracks vs eta",nintEta,minEta,maxEta) );
+  h_con_vertcount.push_back( dbe_->book1D("num_con_vertcount","N of PU tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_con_zpos.push_back( dbe_->book1D("num_con_zpos","N of PU tracks vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
+
 
   if(useLogPt){
     BinLogX(dzres_vs_pt.back()->getTH2F());
@@ -615,29 +625,34 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistosForStandaloneRunning(){
   h_effic_vertz_fwdneg.push_back( dbe_->book1D("effic_vertz_fwdneg","efficiency in endcap(-) vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
 
   h_fakerate.push_back( dbe_->book1D("fakerate","fake rate vs #eta",nintEta,minEta,maxEta) );
-  h_fakerateSig.push_back( dbe_->book1D("fakerate_signal","fake rate vs #eta",nintEta,minEta,maxEta) );
   h_fakeratePt.push_back( dbe_->book1D("fakeratePt","fake rate vs pT",nintPt,minPt,maxPt) );
   h_fake_vs_hit.push_back( dbe_->book1D("fakerate_vs_hit","fake rate vs hit",nintHit,minHit,maxHit) );
   h_fake_vs_phi.push_back( dbe_->book1D("fakerate_vs_phi","fake vs phi",nintPhi,minPhi,maxPhi) );
   h_fake_vs_dxy.push_back( dbe_->book1D("fakerate_vs_dxy","fake rate vs dxy",nintDxy,minDxy,maxDxy) );
   h_fake_vs_dz.push_back( dbe_->book1D("fakerate_vs_dz","fake vs dz",nintDz,minDz,maxDz) );
   h_fakerate_vertcount_entire.push_back( dbe_->book1D("fakerate_vertcount_entire","fake rate vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_fakerate_vertcount_entire_signal.push_back( dbe_->book1D("fakerate_vertcount_entire_signal","fake rate vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
   h_fakerate_vertcount_barrel.push_back( dbe_->book1D("fakerate_vertcount_barrel","fake rate in barrel vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
   h_fakerate_vertcount_fwdpos.push_back( dbe_->book1D("fakerate_vertcount_fwdpos","fake rate in endcap(+) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
   h_fakerate_vertcount_fwdneg.push_back( dbe_->book1D("fakerate_vertcount_fwdneg","fake rate in endcap(-) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-
-  h_fakerate_itpu_eta_entire.push_back( dbe_->book1D("fakerate_itpu_eta_entire","In time pileup fake rate vs eta",nintEta,minEta,maxEta) );
-  h_fakerate_itpu_eta_entire_signal.push_back( dbe_->book1D("fakerate_itpu_eta_entire_signal","In time pileup fake rate vs eta",nintEta,minEta,maxEta) );
-  h_fakerate_itpu_vertcount_entire.push_back( dbe_->book1D("fakerate_itpu_vertcount_entire","In time pileup fake rate vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_fakerate_itpu_vertcount_entire_signal.push_back( dbe_->book1D("fakerate_itpu_vertcount_entire_signal","In time pileup fake rate vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-
-  h_fakerate_ootpu_eta_entire.push_back( dbe_->book1D("fakerate_ootpu_eta_entire","Out of time pileup fake rate vs eta",nintEta,minEta,maxEta) );
-  h_fakerate_ootpu_vertcount_entire.push_back( dbe_->book1D("fakerate_ootpu_vertcount_entire","Out of time pileup fake rate vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-
+  h_fakerate_ootpu_entire.push_back( dbe_->book1D("fakerate_ootpu_eta_entire","Out of time pileup fake rate vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
   h_fakerate_ootpu_barrel.push_back( dbe_->book1D("fakerate_ootpu_barrel","Out of time pileup fake rate in barrel vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
   h_fakerate_ootpu_fwdpos.push_back( dbe_->book1D("fakerate_ootpu_fwdpos","Out of time pileup fake rate in endcap(+) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
   h_fakerate_ootpu_fwdneg.push_back( dbe_->book1D("fakerate_ootpu_fwdneg","Out of time pileup fake rate in endcap(-) vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+
+  h_fomt_eta.push_back( dbe_->book1D("fomt","fraction of misreconstructed tracks vs #eta",nintEta,minEta,maxEta) );
+  h_fomt_sig_eta.push_back( dbe_->book1D("fomt_signal","fraction of misreconstructed tracks vs #eta",nintEta,minEta,maxEta) );
+  h_fomt_vertcount.push_back( dbe_->book1D("fomt_vertcount","fraction of misreconstructed tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_fomt_sig_vertcount.push_back( dbe_->book1D("fomt_vertcount_signal","fraction of misreconstructed tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_fomt_ootpu_eta.push_back( dbe_->book1D("fomt_ootpu_eta","Out of time pileup fraction of misreconstructed tracks vs #eta",nintEta,minEta,maxEta) );
+  h_fomt_ootpu_vertcount.push_back( dbe_->book1D("fomt_ootpu_vertcount","Out of time pileup fraction of misreconstructed tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_fomt_itpu_eta.push_back( dbe_->book1D("fomt_itpu_eta","In time pileup fraction of misreconstructed tracks vs eta",nintEta,minEta,maxEta) );
+  h_fomt_sig_itpu_eta.push_back( dbe_->book1D("fomt_itpu_eta_signal","In time pileup fraction of misreconstructed tracks vs eta",nintEta,minEta,maxEta) );
+  h_fomt_itpu_vertcount.push_back( dbe_->book1D("fomt_itpu_vertcount","In time pileup fraction of misreconstructed tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_fomt_sig_itpu_vertcount.push_back( dbe_->book1D("fomt_itpu_vertcount_signal","In time pileup fraction of misreconstructed tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+
+  h_effic_PU_eta.push_back( dbe_->book1D("effic_PU_eta","PU efficiency vs #eta",nintEta,minEta,maxEta) );
+  h_effic_PU_vertcount.push_back( dbe_->book1D("effic_PU_vertcount","PU efficiency s N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
+  h_effic_PU_zpos.push_back( dbe_->book1D("effic_PU_zpos","PU efficiency vs z of primary interaction vertex",nintZpos,minZpos,maxZpos) );
 
   h_chi2meanhitsh.push_back( dbe_->bookProfile("chi2mean_vs_nhits","mean #chi^{2} vs nhits",25,0,25,100,0,10) );
   h_chi2meanh.push_back( dbe_->bookProfile("chi2mean","mean #chi^{2} vs #eta",nintEta,minEta,maxEta, 200, 0, 20) );
@@ -876,6 +891,32 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
     } // END for (unsigned int f=0; f<zposintervals[count].size()-1; f++){
   }
 
+  //Special investigations for PU
+  if(!((*TpSelectorForEfficiencyVsEta)(tp))){
+
+   //efficPU vs eta
+    for (unsigned int f=0; f<etaintervals[count].size()-1; f++){
+      if (getEta(momentumTP.eta())>etaintervals[count][f]&&
+	  getEta(momentumTP.eta())<etaintervals[count][f+1]) {
+	totCONeta[count][f]++;
+      }
+    } // END for (unsigned int f=0; f<etaintervals[w].size()-1; f++){
+
+    //efficPU vs num pileup vertices
+    for (unsigned int f=0; f<vertcountintervals[count].size()-1; f++){
+      if (numVertices == vertcountintervals[count][f]) {
+	totCONvertcount[count][f]++;
+      }
+    } // END for (unsigned int f=0; f<vertcountintervals[count].size()-1; f++){
+  
+    for (unsigned int f=0; f<zposintervals[count].size()-1; f++){
+      if (vertexTP.z()>zposintervals[count][f]&&vertexTP.z()<zposintervals[count][f+1]) {
+	totCONzpos[count][f]++;
+      }
+    } // END for (unsigned int f=0; f<zposintervals[count].size()-1; f++){
+
+  }
+
 }
 
 // dE/dx
@@ -922,7 +963,6 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
     if (getEta(track.momentum().eta())>etaintervals[count][f]&&
 	getEta(track.momentum().eta())<etaintervals[count][f+1]) {
       totRECeta[count][f]++;
-      totRECeta_ootpu_eta_entire[count][f]++;
       if (isMatched) {
 	totASS2eta[count][f]++;
         if (tpbunchcrossing==0) totASS2_itpu_eta_entire[count][f]++;
@@ -983,11 +1023,11 @@ void MTVHistoProducerAlgoForTracker::fill_generic_recoTrack_histos(int count,
   for (unsigned int f=0; f<vertcountintervals[count].size()-1; f++){
     if (numVertices ==  vertcountintervals[count][f]) {
       totREC_vertcount_entire[count][f]++;
-      totREC_ootpu_vertcount_entire[count][f]++;
+      totREC_ootpu_entire[count][f]++;
       if (isMatched) {
         totASS2_vertcount_entire[count][f]++;
         if (tpbunchcrossing==0) totASS2_itpu_vertcount_entire[count][f]++;
-        if (tpbunchcrossing!=0) totASS2_ootpu_vertcount_entire[count][f]++;
+        if (tpbunchcrossing!=0) totASS2_ootpu_entire[count][f]++;
       }
       if (isSigMatched) {
         totASS2_vertcount_entire_signal[count][f]++;
@@ -1316,15 +1356,14 @@ void MTVHistoProducerAlgoForTracker::finalHistoFits(int counter){
   fsyt_thetapPhi.getFittedSigmaWithError(h_thetapullphi[counter]);
   fsyt_thetapPhi.getFittedMeanWithError(h_thetapullphimean[counter]);
   
-  //effic&fake
-  for (unsigned int ite = 0;ite<totASS2eta[counter].size();ite++) totASS2eta[counter][ite]-=totASS2etaSig[counter][ite];
-  for (unsigned int ite = 0;ite<totASS2_vertcount_entire[counter].size();ite++) totASS2_vertcount_entire[counter][ite]-=totASS2_vertcount_entire_signal[counter][ite];
+  //effic&fake;
+  for (unsigned int ite = 0;ite<totASSeta[counter].size();ite++) totFOMT_eta[counter][ite]=totASS2eta[counter][ite]-totASS2etaSig[counter][ite];
+  for (unsigned int ite = 0;ite<totASS2_vertcount_entire[counter].size();ite++) totFOMT_vertcount[counter][ite]=totASS2_vertcount_entire[counter][ite]-totASS2_vertcount_entire_signal[counter][ite];
   for (unsigned int ite = 0;ite<totASS2_itpu_eta_entire[counter].size();ite++) totASS2_itpu_eta_entire[counter][ite]-=totASS2_itpu_eta_entire_signal[counter][ite];
   for (unsigned int ite = 0;ite<totASS2_itpu_vertcount_entire[counter].size();ite++) totASS2_itpu_vertcount_entire[counter][ite]-=totASS2_itpu_vertcount_entire_signal[counter][ite];
 
   fillPlotFromVectors(h_effic[counter],totASSeta[counter],totSIMeta[counter],"effic");
-  fillPlotFromVectors(h_fakerate[counter],totASS2eta[counter],totRECeta[counter],"effic");
-  fillPlotFromVectors(h_fakerateSig[counter],totASS2etaSig[counter],totRECeta[counter],"fakerate");
+  fillPlotFromVectors(h_fakerate[counter],totASS2eta[counter],totRECeta[counter],"fakerate");
   fillPlotFromVectors(h_efficPt[counter],totASSpT[counter],totSIMpT[counter],"effic");
   fillPlotFromVectors(h_fakeratePt[counter],totASS2pT[counter],totRECpT[counter],"fakerate");
   fillPlotFromVectors(h_effic_vs_hit[counter],totASS_hit[counter],totSIM_hit[counter],"effic");
@@ -1335,39 +1374,39 @@ void MTVHistoProducerAlgoForTracker::finalHistoFits(int counter){
   fillPlotFromVectors(h_fake_vs_dxy[counter],totASS2_dxy[counter],totREC_dxy[counter],"fakerate");
   fillPlotFromVectors(h_effic_vs_dz[counter],totASS_dz[counter],totSIM_dz[counter],"effic");
   fillPlotFromVectors(h_fake_vs_dz[counter],totASS2_dz[counter],totREC_dz[counter],"fakerate");
-
   fillPlotFromVectors(h_effic_vs_vertpos[counter],totASS_vertpos[counter],totSIM_vertpos[counter],"effic");
   fillPlotFromVectors(h_effic_vs_zpos[counter],totASS_zpos[counter],totSIM_zpos[counter],"effic");
   fillPlotFromVectors(h_effic_vertcount_entire[counter],totASS_vertcount_entire[counter],totSIM_vertcount_entire[counter],"effic");
   fillPlotFromVectors(h_effic_vertcount_barrel[counter],totASS_vertcount_barrel[counter],totSIM_vertcount_barrel[counter],"effic");
   fillPlotFromVectors(h_effic_vertcount_fwdpos[counter],totASS_vertcount_fwdpos[counter],totSIM_vertcount_fwdpos[counter],"effic");
   fillPlotFromVectors(h_effic_vertcount_fwdneg[counter],totASS_vertcount_fwdneg[counter],totSIM_vertcount_fwdneg[counter],"effic");
-
-  fillPlotFromVectors(h_fakerate_vertcount_entire_signal[counter],totASS2_vertcount_entire_signal[counter],totREC_vertcount_entire[counter],"fakerate");
-  fillPlotFromVectors(h_fakerate_vertcount_entire[counter],totASS2_vertcount_entire[counter],totREC_vertcount_entire[counter],"effic");
+  fillPlotFromVectors(h_fakerate_vertcount_entire[counter],totASS2_vertcount_entire[counter],totREC_vertcount_entire[counter],"fakerate");
   fillPlotFromVectors(h_fakerate_vertcount_barrel[counter],totASS2_vertcount_barrel[counter],totREC_vertcount_barrel[counter],"fakerate");
   fillPlotFromVectors(h_fakerate_vertcount_fwdpos[counter],totASS2_vertcount_fwdpos[counter],totREC_vertcount_fwdpos[counter],"fakerate");
   fillPlotFromVectors(h_fakerate_vertcount_fwdneg[counter],totASS2_vertcount_fwdneg[counter],totREC_vertcount_fwdneg[counter],"fakerate");
-
   fillPlotFromVectors(h_effic_vertz_entire[counter],totASS_vertz_entire[counter],totSIM_vertz_entire[counter],"effic");
   fillPlotFromVectors(h_effic_vertz_barrel[counter],totASS_vertz_barrel[counter],totSIM_vertz_barrel[counter],"effic");
   fillPlotFromVectors(h_effic_vertz_fwdpos[counter],totASS_vertz_fwdpos[counter],totSIM_vertz_fwdpos[counter],"effic");
   fillPlotFromVectors(h_effic_vertz_fwdneg[counter],totASS_vertz_fwdneg[counter],totSIM_vertz_fwdneg[counter],"effic");
-
-  fillPlotFromVectors(h_fakerate_itpu_eta_entire[counter],totASS2_itpu_eta_entire[counter],totRECeta[counter],"effic");
-  fillPlotFromVectors(h_fakerate_itpu_eta_entire_signal[counter],totASS2_itpu_eta_entire_signal[counter],totRECeta[counter],"fakerate");
-  fillPlotFromVectors(h_fakerate_itpu_vertcount_entire[counter],totASS2_itpu_vertcount_entire[counter],totREC_ootpu_vertcount_entire[counter],"effic");
-  fillPlotFromVectors(h_fakerate_itpu_vertcount_entire_signal[counter],totASS2_itpu_vertcount_entire_signal[counter],totREC_ootpu_vertcount_entire[counter],"fakerate");
-
-  fillPlotFromVectors(h_fakerate_ootpu_eta_entire[counter],totASS2_ootpu_eta_entire[counter],totRECeta_ootpu_eta_entire[counter],"effic");
-  fillPlotFromVectors(h_fakerate_ootpu_vertcount_entire[counter],totASS2_ootpu_vertcount_entire[counter],totREC_ootpu_vertcount_entire[counter],"effic");
-
+  fillPlotFromVectors(h_fakerate_ootpu_entire[counter],totASS2_ootpu_entire[counter],totREC_ootpu_entire[counter],"effic");
   fillPlotFromVectors(h_fakerate_ootpu_barrel[counter],totASS2_ootpu_barrel[counter],totREC_ootpu_barrel[counter],"effic");
   fillPlotFromVectors(h_fakerate_ootpu_fwdpos[counter],totASS2_ootpu_fwdpos[counter],totREC_ootpu_fwdpos[counter],"effic");
   fillPlotFromVectors(h_fakerate_ootpu_fwdneg[counter],totASS2_ootpu_fwdneg[counter],totREC_ootpu_fwdneg[counter],"effic");
 
-}
+  fillPlotFromVectors(h_fomt_eta[counter],totFOMT_eta[counter],totASS2etaSig[counter],"effic");
+  fillPlotFromVectors(h_fomt_vertcount[counter],totFOMT_vertcount[counter],totASS2_vertcount_entire_signal[counter],"effic");
+  fillPlotFromVectors(h_fomt_sig_eta[counter],totASS2etaSig[counter],totRECeta[counter],"fakerate");
+  fillPlotFromVectors(h_fomt_sig_vertcount[counter],totASS2_vertcount_entire_signal[counter],totREC_vertcount_entire[counter],"fakerate");
+  fillPlotFromVectors(h_fomt_itpu_eta[counter],totASS2_itpu_eta_entire[counter],totRECeta[counter],"effic");
+  fillPlotFromVectors(h_fomt_itpu_vertcount[counter],totASS2_itpu_vertcount_entire[counter],totREC_vertcount_entire[counter],"effic");
+  fillPlotFromVectors(h_fomt_ootpu_eta[counter],totASS2_ootpu_eta_entire[counter],totRECeta[counter],"effic");
+  fillPlotFromVectors(h_fomt_ootpu_vertcount[counter],totASS2_ootpu_entire[counter],totREC_ootpu_entire[counter],"effic");
 
+  fillPlotFromVectors(h_effic_PU_eta[counter],totASSeta[counter],totCONeta[counter],"effic");
+  fillPlotFromVectors(h_effic_PU_vertcount[counter],totASS_vertcount_entire[counter],totCONvertcount[counter],"effic");
+  fillPlotFromVectors(h_effic_PU_zpos[counter],totASS_zpos[counter],totCONzpos[counter],"effic");
+
+}
 
 void MTVHistoProducerAlgoForTracker::fillProfileHistosFromVectors(int counter){
   //chi2 and #hit vs eta: get mean from 2D histos
@@ -1406,7 +1445,6 @@ void MTVHistoProducerAlgoForTracker::fillHistosFromVectors(int counter){
   fillPlotFromVector(h_simuleta[counter],totSIMeta[counter]);
   fillPlotFromVector(h_assoceta[counter],totASSeta[counter]);
   fillPlotFromVector(h_assoc2eta[counter],totASS2eta[counter]);
-  fillPlotFromVector(h_assoc2etaSig[counter],totASS2etaSig[counter]);
   
   fillPlotFromVector(h_recopT[counter],totRECpT[counter]);
   fillPlotFromVector(h_simulpT[counter],totSIMpT[counter]);
@@ -1471,15 +1509,8 @@ void MTVHistoProducerAlgoForTracker::fillHistosFromVectors(int counter){
   fillPlotFromVector(h_simul_vertz_fwdneg[counter],totSIM_vertz_fwdneg[counter]);
   fillPlotFromVector(h_assoc_vertz_fwdneg[counter],totASS_vertz_fwdneg[counter]);
   
-  fillPlotFromVector(h_reco_ootpu_vertcount_entire[counter],totREC_ootpu_vertcount_entire[counter]);
-  fillPlotFromVector(h_reco_ootpu_eta_entire[counter],totRECeta_ootpu_eta_entire[counter]);
-  fillPlotFromVector(h_assoc2_ootpu_vertcount_entire[counter],totASS2_ootpu_vertcount_entire[counter]);
-  fillPlotFromVector(h_assoc2_ootpu_eta_entire[counter],totASS2_ootpu_eta_entire[counter]);
-
-  fillPlotFromVector(h_assoc2_itpu_vertcount_entire[counter],totASS2_itpu_vertcount_entire[counter]);
-  fillPlotFromVector(h_assoc2_itpu_vertcount_entire_signal[counter],totASS2_itpu_vertcount_entire_signal[counter]);
-  fillPlotFromVector(h_assoc2_itpu_eta_entire[counter],totASS2_itpu_eta_entire[counter]);
-  fillPlotFromVector(h_assoc2_itpu_eta_entire_signal[counter],totASS2_itpu_eta_entire_signal[counter]);
+  fillPlotFromVector(h_reco_ootpu_entire[counter],totREC_ootpu_entire[counter]);
+  fillPlotFromVector(h_assoc2_ootpu_entire[counter],totASS2_ootpu_entire[counter]);
   
   fillPlotFromVector(h_reco_ootpu_barrel[counter],totREC_ootpu_barrel[counter]);
   fillPlotFromVector(h_assoc2_ootpu_barrel[counter],totASS2_ootpu_barrel[counter]);
@@ -1489,5 +1520,9 @@ void MTVHistoProducerAlgoForTracker::fillHistosFromVectors(int counter){
   
   fillPlotFromVector(h_reco_ootpu_fwdneg[counter],totREC_ootpu_fwdneg[counter]);
   fillPlotFromVector(h_assoc2_ootpu_fwdneg[counter],totASS2_ootpu_fwdneg[counter]);
+
+  fillPlotFromVector(h_con_eta[counter],totCONeta[counter]);
+  fillPlotFromVector(h_con_vertcount[counter],totCONvertcount[counter]);
+  fillPlotFromVector(h_con_zpos[counter],totCONzpos[counter]);
   
 }
