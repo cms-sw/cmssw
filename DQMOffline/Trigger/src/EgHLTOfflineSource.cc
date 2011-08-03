@@ -109,13 +109,12 @@ void EgHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
     //now book ME's
     dbe_->setCurrentFolder(dirName_+"/Source_Histos");
     //each trigger path with generate object distributions and efficiencies (BUT not trigger efficiencies...)
-    for(size_t i=0;i<eleHLTFilterNames_.size();i++){dbe_->setCurrentFolder(dirName_+"/Source_Histos/"+eleHLTFilterNames_[i]);  addEleTrigPath(eleHLTFilterNames_[i]);}//dbe_->setCurrentFolder(dirName_);
+    for(size_t i=0;i<eleHLTFilterNames_.size();i++){dbe_->setCurrentFolder(dirName_+"/Source_Histos/"+eleHLTFilterNames_[i]);  addEleTrigPath(eleHLTFilterNames_[i]);}
     for(size_t i=0;i<phoHLTFilterNames_.size();i++){dbe_->setCurrentFolder(dirName_+"/Source_Histos/"+phoHLTFilterNames_[i]);  addPhoTrigPath(phoHLTFilterNames_[i]);}
-    //dbe_->setCurrentFolder(dirName_);
     //efficiencies of one trigger path relative to another
     MonElemFuncs::initTightLooseTrigHists(eleMonElems_,eleTightLooseTrigNames_,binData_,"gsfEle");
-    ///	new EgHLTDQMVarCut<OffEle>(cutMasks_.stdEle,&OffEle::cutCode)); 
-    MonElemFuncs::initTightLooseTrigHistsTrigCuts(eleMonElems_,eleTightLooseTrigNames_,binData_);
+    //new EgHLTDQMVarCut<OffEle>(cutMasks_.stdEle,&OffEle::cutCode)); 
+    //MonElemFuncs::initTightLooseTrigHistsTrigCuts(eleMonElems_,eleTightLooseTrigNames_,binData_);
       
    
     MonElemFuncs::initTightLooseTrigHists(phoMonElems_,phoTightLooseTrigNames_,binData_,"pho");
@@ -139,12 +138,16 @@ void EgHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
       dbe_->setCurrentFolder(dirName_+"/Source_Histos/"+eleHLTFilterNames_[i]);
       MonElemFuncs::initTrigTagProbeHist(eleMonElems_,eleHLTFilterNames_[i],cutMasks_.trigTPEle,binData_);
     }
-    
+    for(size_t i=0;i<phoHLTFilterNames_.size();i++){
+      dbe_->setCurrentFolder(dirName_+"/Source_Histos/"+phoHLTFilterNames_[i]);
+      MonElemFuncs::initTrigTagProbeHist(phoMonElems_,phoHLTFilterNames_[i],cutMasks_.trigTPPho,binData_);
+    }
     //tag and probe not yet implimented for photons (attemping to see if it makes sense first)
     // MonElemFuncs::initTrigTagProbeHists(phoMonElems,phoHLTFilterNames_);
 
     isSetup_=true;
     
+    dbe_->setCurrentFolder(dirName_);
   }
 }
 
@@ -265,8 +268,10 @@ void EgHLTOfflineSource::filterTriggers(const HLTConfigProvider& hltConfig)
 {
   
   std::vector<std::string> activeFilters;
+  std::vector<std::string> activeEleFilters;
+  std::vector<std::string> activePhoFilters;
   
-  trigTools::getActiveFilters(hltConfig,activeFilters);
+  trigTools::getActiveFilters(hltConfig,activeFilters,activeEleFilters,activePhoFilters);
   
   //---Morse test----------
   //std::vector<std::string> activeFilters30;
@@ -274,9 +279,9 @@ void EgHLTOfflineSource::filterTriggers(const HLTConfigProvider& hltConfig)
   //trigTools::filterInactiveTriggers30(activeFilters30);
   //---------------------
   trigTools::filterInactiveTriggers(eleHLTFilterNames_,activeFilters);
-  trigTools::filterInactiveTriggers(phoHLTFilterNames_,activeFilters);
-  trigTools::filterInactiveTightLooseTriggers(eleTightLooseTrigNames_,activeFilters);
-  trigTools::filterInactiveTightLooseTriggers(diEleTightLooseTrigNames_,activeFilters);
-  trigTools::filterInactiveTightLooseTriggers(phoTightLooseTrigNames_,activeFilters);
-  trigTools::filterInactiveTightLooseTriggers(diPhoTightLooseTrigNames_,activeFilters);				    
+  trigTools::filterInactiveTriggers(phoHLTFilterNames_,activePhoFilters);
+  trigTools::filterInactiveTightLooseTriggers(eleTightLooseTrigNames_,activeEleFilters);
+  trigTools::filterInactiveTightLooseTriggers(diEleTightLooseTrigNames_,activeEleFilters);
+  trigTools::filterInactiveTightLooseTriggers(phoTightLooseTrigNames_,activePhoFilters);
+  trigTools::filterInactiveTightLooseTriggers(diPhoTightLooseTrigNames_,activePhoFilters);	
 }

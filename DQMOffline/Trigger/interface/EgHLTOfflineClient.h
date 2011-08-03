@@ -93,9 +93,11 @@ class EgHLTOfflineClient : public edm::EDAnalyzer {
   void createSingleEffHists(const std::string& filterName,const std::string& baseName,const std::string& region,const std::vector<std::string>& varNames);
   void createLooseTightTrigEff(const std::vector<std::string>&  tightLooseTrigNames,const std::string& region,const std::vector<std::string>& vsVarNames,const std::string& objName);
   void createTrigTagProbeEffHists(const std::string& filterName,const std::string& region,const std::vector<std::string>& vsVarNames,const std::string& objName);
+  void createTrigTagProbeEffHistsNewAlgo(const std::string& filterName,const std::string& region,const std::vector<std::string>& vsVarNames,const std::string& objName);
   
   MonitorElement* makeEffMonElemFromPassAndAll(const std::string& filterName,const std::string& name,const std::string& title,const MonitorElement* pass,const MonitorElement* all);
   MonitorElement* makeEffMonElemFromPassAndFail(const std::string& filterName,const std::string& name,const std::string& title,const MonitorElement* pass,const MonitorElement* fail);
+  MonitorElement* makeEffMonElemFromPassAndFailAndTagTag(const std::string& filter,const std::string& name,const std::string& title,const MonitorElement* pass,const MonitorElement* fail, const MonitorElement* tagtag);
 
 private:
   void runClient_(); //master function which runs the client

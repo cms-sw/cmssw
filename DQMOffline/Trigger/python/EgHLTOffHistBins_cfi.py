@@ -4,7 +4,7 @@ egHLTOffDQMBinData = cms.PSet (
     err = cms.PSet(nr=cms.int32(101),min=cms.double(-0.5),max=cms.double(100.5)),
     #---Morse----------
     #et = cms.PSet(nr=cms.int32(11),min=cms.double(-5.),max=cms.double(105.)),
-    et = cms.PSet(nr=cms.int32(40),min=cms.double(-5.),max=cms.double(105.)),
+    et = cms.PSet(nr=cms.int32(80),min=cms.double(-5.),max=cms.double(155.)),
     #--------------
     etHigh = cms.PSet(nr=cms.int32(30),min=cms.double(25),max=cms.double(2025)),
     eta =cms.PSet(nr=cms.int32(30),min=cms.double(-3.),max=cms.double(3.)),
