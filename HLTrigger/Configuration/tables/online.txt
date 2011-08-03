@@ -135,7 +135,7 @@ HLT_Mu15_v*
 HLT_Mu20_v*
 HLT_Mu24_v*
 HLT_Mu24_eta2p1_v*                                                                              #   added in "3e33" menu (sr #122516) 
-#HLT_Mu30_v*                                                                                    # removed in "3e33" menu (sr #122516)
+HLT_Mu30_v*
 HLT_Mu30_eta2p1_v*                                                                              #   added in "3e33" menu (sr #122516) 
 HLT_Mu40_v*
 HLT_Mu40_eta2p1_v*                                                                              #   added in "3e33" menu (sr #122516) 
@@ -148,6 +148,7 @@ HLT_IsoMu15_v*
 HLT_IsoMu17_v*
 HLT_IsoMu20_v*
 HLT_IsoMu24_v*
+HLT_IsoMu24_eta2p1_v*
 #HLT_IsoMu30_v*                                                                                 # removed in "3e33" menu (sr #122516)
 HLT_IsoMu34_eta2p1_v*                                                                           #   added in "3e33" menu (sr #122516) 
 HLT_L2DoubleMu23_NoVertex_v*
