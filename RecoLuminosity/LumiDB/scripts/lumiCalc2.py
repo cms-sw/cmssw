@@ -161,8 +161,8 @@ if __name__ == '__main__':
     #
     #switches
     #
-    parser.add_argument('--with-correction',dest='withFineCorrection',action='store_true',
-                        help='with fine correction' )
+    parser.add_argument('--without-correction',dest='withoutFineCorrection',action='store_true',
+                        help='without fine correction on calibration' )
     parser.add_argument('--verbose',dest='verbose',action='store_true',
                         help='verbose mode for printing' )
     parser.add_argument('--nowarning',dest='nowarning',action='store_true',
@@ -245,13 +245,13 @@ if __name__ == '__main__':
                 print '\t%d : all'%run
 
     finecorrections=None
-    if options.withFineCorrection:
+    if not options.withoutFineCorrection:
         rruns=irunlsdict.keys()
         schema=session.nominalSchema()
         session.transaction().start(True)
         finecorrections=lumiCorrections.correctionsForRange(schema,rruns)
         session.transaction().commit()
-            
+        
     if options.action == 'delivered':
         session.transaction().start(True)
         result=lumiCalcAPI.deliveredLumiForRange(session.nominalSchema(),irunlsdict,amodetag=options.amodetag,egev=options.beamenergy,beamstatus=pbeammode,norm=normfactor,finecorrections=finecorrections)

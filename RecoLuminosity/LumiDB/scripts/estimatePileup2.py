@@ -111,8 +111,8 @@ if __name__ == '__main__':
                             help = 'specific hltpath to calculate the recorded luminosity, default to all')
     inputGroup.add_option  ('--csvInput', dest = 'csvInput', type='string', default='',
                             help = 'Use CSV file from lumiCalc2.py instead of lumiDB')
-    inputGroup.add_option  ('--with-correction', dest = 'withFineCorrection', action='store_true',
-                            help = 'apply fine correction on calibration')
+    inputGroup.add_option  ('--without-correction', dest = 'withoutFineCorrection', action='store_true',
+                            help = 'not apply fine correction on calibration')
     pileupGroup.add_option('--algoname',dest='algoname',default='OCC1',
                             help = 'lumi algorithm , default %default')
     pileupGroup.add_option ('--xingMinLum', dest = 'xingMinLum', type='float', default = 1.0e-3,
@@ -188,7 +188,7 @@ if __name__ == '__main__':
     else:
         session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
         finecorrections=None
-        if options.withFineCorrection:
+        if not options.withoutFineCorrection:
             rruns=irunlsdict.keys()
             schema=session.nominalSchema()
             session.transaction().start(True)
