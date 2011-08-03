@@ -23,20 +23,22 @@ public:
 
   virtual bool run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
   virtual bool runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint);
-  virtual bool runLimitExpected(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) ;
+  std::vector<std::pair<float,float> > runLimitExpected(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) ;
 
   virtual const std::string& name() const { static std::string name_ = "Asymptotic"; return name_; }
 private:
   static double rAbsAccuracy_, rRelAccuracy_;
-  static bool expected_; 
+  static bool expected_, qtilde_; 
   static float quantileForExpected_;
   static std::string minimizerAlgo_;
   static float       minimizerTolerance_;
+  static int         minimizerStrategy_;
 
   mutable std::auto_ptr<RooArgSet>  params_;
   mutable std::auto_ptr<RooAbsReal> nllD_, nllA_; 
   mutable std::auto_ptr<RooFitResult> fitFreeD_, fitFreeA_;
   mutable std::auto_ptr<RooFitResult> fitFixD_, fitFixA_;
+  mutable RooArgSet snapGlobalObsData, snapGlobalObsAsimov;
 
   RooAbsData *asimovDataset(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data);
   double getCLs(RooRealVar &r, double rVal);
