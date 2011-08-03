@@ -10,5 +10,10 @@ struct BSFitData {
   float xyzErr[3];        //< x, y, z error
   float xyzwidth[3];      //< xy, xz, yz correlations
   float xyzwidthErr[3]; 
+  float dxdz;
+  float dydz;
+  float dxdzErr;
+  float dydzErr;
+
 };
 #endif
