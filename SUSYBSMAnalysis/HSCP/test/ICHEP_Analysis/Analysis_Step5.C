@@ -91,15 +91,14 @@ void Analysis_Step5()
 // GetSystematicOnPrediction(InputDir);
 
    InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type0/";   CutIndex = 4;//25;//24;//41
-   MassPrediction(InputDir, CutIndex, "Mass");
+//   MassPrediction(InputDir, CutIndex, "Mass");
 //   PredictionAndControlPlot(InputDir, CutIndex);
-//   SelectionPlot(InputDir, CutIndex, 0);
-
-   InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type2/";   CutIndex = 14;//²38;//83;// 82;//18;
 //   CutFlow(InputDir);
-//   SelectionPlot(InputDir, CutIndex, 0);return;
-
+//   SelectionPlot(InputDir, CutIndex, 0);
+   InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type2/";   CutIndex = 14;//²38;//83;// 82;//18;
    MassPrediction(InputDir, CutIndex, "Mass");
+   CutFlow(InputDir);
+   SelectionPlot(InputDir, CutIndex, 0);return;
 //   GetSystematicOnPrediction(InputDir);
 //   PredictionAndControlPlot(InputDir, CutIndex);
 
@@ -632,17 +631,19 @@ void CutFlow(string InputPattern){
 
    TFile* InputFile = new TFile(Input.c_str());
    TFile* InputFileData = new TFile((InputPattern + "Histos_Data.root").c_str());
+   TFile* InputFileMC   = new TFile((InputPattern + "Histos_MC.root").c_str());
+   if(!InputFileMC)std::cout << "FileProblem\n";
 
    stPlots DataPlots, MCTrPlots, SignPlots[signals.size()];
    stPlots_InitFromFile(InputFile, DataPlots,"Data", InputFileData);
-   stPlots_InitFromFile(InputFile, MCTrPlots,"MCTr", InputFile);
+   stPlots_InitFromFile(InputFile, MCTrPlots,"MCTr", InputFileMC);
    for(unsigned int s=0;s<signals.size();s++){
       stPlots_InitFromFile(InputFile, SignPlots[s],signals[s].Name, InputFile);
    }
 
-   TH1D*  HCuts_Pt       = (TH1D*)GetObjectFromPath(InputFile, "HCuts_Pt");
-   TH1D*  HCuts_I        = (TH1D*)GetObjectFromPath(InputFile, "HCuts_I");
-   TH1D*  HCuts_TOF      = (TH1D*)GetObjectFromPath(InputFile, "HCuts_TOF");
+   TH1D*  HCuts_Pt       = (TH1D*)GetObjectFromPath(InputFileData, "HCuts_Pt");
+   TH1D*  HCuts_I        = (TH1D*)GetObjectFromPath(InputFileData, "HCuts_I");
+   TH1D*  HCuts_TOF      = (TH1D*)GetObjectFromPath(InputFileData, "HCuts_TOF");
 
    for(int CutIndex=0;CutIndex<HCuts_Pt->GetNbinsX();CutIndex++){
       char Buffer[1024]; sprintf(Buffer,"%s/CutFlow_%03i_Pt%03.0f_I%05.3f_TOF%04.3f.txt",SavePath.c_str(),CutIndex,HCuts_Pt->GetBinContent(CutIndex+1),HCuts_I->GetBinContent(CutIndex+1),HCuts_TOF->GetBinContent(CutIndex+1));
@@ -770,9 +771,9 @@ void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex){
    TH2D* Pred_P                = (TH2D*)GetObjectFromPath(InputFile, "Pred_P");
    TH2D* Pred_I                = (TH2D*)GetObjectFromPath(InputFile, "Pred_I");
    TH2D* Pred_TOF              = (TH2D*)GetObjectFromPath(InputFile, "Pred_TOF");
-   TH2D* Data_I                = (TH2D*)GetObjectFromPath(InputFile, "DataD_I");   
-   TH2D* Data_P                = (TH2D*)GetObjectFromPath(InputFile, "DataD_P");   
-   TH2D* Data_TOF              = (TH2D*)GetObjectFromPath(InputFile, "DataD_TOF"); 
+   TH2D* Data_I                = (TH2D*)GetObjectFromPath(InputFile, "RegionD_I");   
+   TH2D* Data_P                = (TH2D*)GetObjectFromPath(InputFile, "RegionD_P");   
+   TH2D* Data_TOF              = (TH2D*)GetObjectFromPath(InputFile, "RegionD_TOF"); 
 
    TH1D*  H_A            = (TH1D*)GetObjectFromPath(InputFile, "H_A");
    TH1D*  H_B            = (TH1D*)GetObjectFromPath(InputFile, "H_B");
@@ -1400,6 +1401,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
 
    TFile* InputFile_MC = new TFile((InputPattern+"/Histos_MC.root").c_str());
    TH1D* MC     = ((TH2D*)GetObjectFromPath(InputFile_MC, string("MCTr/") + HistoSuffix   ))->ProjectionY("TmpMCMass"    ,CutIndex+1,CutIndex+1,"o");
+   TH1D* MCPred = ((TH2D*)GetObjectFromPath(InputFile_MC, string("Pred_") + HistoSuffix   ))->ProjectionY("TmpMCPred"    ,CutIndex+1,CutIndex+1,"o");
 
       double D,P,Perr;
       D = Data->Integral( Data->GetXaxis()->FindBin(0.0),  Data->GetXaxis()->FindBin(75.0));
@@ -1452,6 +1454,10 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    if(!IsTkOnly)Signal = GMStau156;
    Signal->Rebin(4);
    MC->Rebin(4);
+   MCPred->Rebin(4);
+
+   MCPred->Scale(H_P->GetBinContent(CutIndex+1)/MC->Integral());
+   MC    ->Scale(H_P->GetBinContent(CutIndex+1)/MC->Integral());
 
    double Max = 2.0 * std::max(std::max(Data->GetMaximum(), Pred->GetMaximum()), Signal->GetMaximum());
    double Min = 0.01;// 0.1 * std::min(0.01,Pred->GetMaximum());
@@ -1463,11 +1469,15 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    sprintf(YAxisLegend,"Tracks / %2.0f GeV/c^{2}",Data->GetXaxis()->GetBinWidth(1));
 
    TH1D* PredErr = (TH1D*) Pred->Clone("PredErr");
+   TH1D* MCPredErr = (TH1D*) MCPred->Clone("MCPredErr");
    for(unsigned int i=0;i<(unsigned int)Pred->GetNbinsX();i++){
       double error = sqrt(pow(PredErr->GetBinError(i),2) + pow(PredErr->GetBinContent(i)*2*RMS,2));
-//      double error = sqrt(PredErr->GetBinError(i) + pow(PredErr->GetBinContent(i)*2*RMS,2));
       PredErr->SetBinError(i,error);       
       if(PredErr->GetBinContent(i)<Min && i>5){for(unsigned int j=i+1;j<(unsigned int)PredErr->GetNbinsX();j++)PredErr->SetBinContent(j,0);}
+
+      error = sqrt(pow(MCPredErr->GetBinError(i),2) + pow(MCPredErr->GetBinContent(i)*2*RMS,2));
+      MCPredErr->SetBinError(i,error);
+      if(MCPredErr->GetBinContent(i)<Min && i>5){for(unsigned int j=i+1;j<(unsigned int)MCPredErr->GetNbinsX();j++)MCPredErr->SetBinContent(j,0);}
    }
    PredErr->SetLineColor(8);
    PredErr->SetFillColor(8);
@@ -1493,7 +1503,21 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    Signal->SetFillColor(38);
    Signal->Draw("same HIST");
 
-   MC->Scale(H_P->GetBinContent(CutIndex+1)/MC->Integral());
+   MCPredErr->SetLineColor(5);
+   MCPredErr->SetFillColor(5);
+   MCPredErr->SetFillStyle(3017);
+   MCPredErr->SetMarkerStyle(23);
+   MCPredErr->SetMarkerColor(5);
+   MCPredErr->SetMarkerSize(1.0);
+   MCPredErr->Draw("same E5");
+
+   MCPred->SetMarkerStyle(23);
+   MCPred->SetMarkerColor(5);
+   MCPred->SetMarkerSize(1.5);
+   MCPred->SetLineColor(5);
+   MCPred->SetFillColor(0);
+   MCPred->Draw("same HIST P");
+
    MC->SetFillStyle(3002);
    MC->SetLineColor(22);
    MC->SetFillColor(11);
@@ -1528,6 +1552,10 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    leg->AddEntry(Data, "Data"        ,"P");
    leg->AddEntry(PredLeg, "Data-based prediction"  ,"PF");
    leg->AddEntry(MC, "Simulation"  ,"LF");
+   TH1D* MCPredLeg = (TH1D*) MCPred->Clone("RescMCLeg");
+   MCPredLeg->SetFillColor(MCPredErr->GetFillColor());
+   MCPredLeg->SetFillStyle(MCPredErr->GetFillStyle());
+   leg->AddEntry(MCPredLeg, "Data-based prediction (MC)"  ,"PF");
    if(IsTkOnly)leg->AddEntry(Signal, "MC - Gluino (M=600 GeV/c^{2})"        ,"F");
    else        leg->AddEntry(Signal, "MC - Stau (M=156 GeV/c^{2})"        ,"F");
    leg->Draw();
@@ -1536,59 +1564,6 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    c1->SetLogy(true);
    SaveCanvas(c1, outpath, string("Rescale_") + HistoSuffix);
    delete c1;
-
-
-/*
-  TH1D* Ratio1       = (TH1D*)Pred1->Clone("Ratio1");
-  TH1D* Ratio2       = (TH1D*)Resc1->Clone("Ratio2");
-  TH1D* Ratio3       = (TH1D*)Resc1->Clone("Ratio3");
-  TH1D* DataWithStat = (TH1D*)Data1->Clone("DataWithStat");
-  Ratio1->Divide(DataWithStat);
-  Ratio2->Divide(DataWithStat);
-  Ratio3->Divide(MCTr1);
-
-   c1 = new TCanvas("c1","c1,",600,600);
-   Ratio2->SetAxisRange(0,1400,"X");
-   Ratio2->SetAxisRange(0,2,"Y");
-   Ratio2->SetTitle("");
-   Ratio2->SetStats(kFALSE);
-   Ratio2->GetXaxis()->SetTitle("m (GeV/c^{2})");
-   Ratio2->GetYaxis()->SetTitle("Ratio");
-   Ratio2->GetYaxis()->SetTitleOffset(1.50);
-   Ratio2->SetMarkerStyle(21);
-   Ratio2->SetMarkerColor(4);
-   Ratio2->SetMarkerSize(1);
-   Ratio2->SetLineColor(4);
-   Ratio2->SetFillColor(0);
-   Ratio2->Draw("E1");
-  
-   TBox* b = new TBox(0,1.0-2*RMS,1410,1.0+2*RMS);
-   b->SetFillStyle(3003);
-   b->SetFillColor(8);
-   b->Draw("same");
-
-   TLine* l = new TLine(0,1.0,1410,1.0);
-   l->Draw("same");
-
-   Ratio2->Draw("same E1");
-
-   leg = new TLegend(0.79,0.93,0.40,0.75);
-   if(IsTrackerOnly){ 
-      leg->SetHeader("Tracker - Only");
-   }else{
-      leg->SetHeader("Tracker + Muon");
-   }
-   leg->SetFillColor(0);
-   leg->SetBorderSize(0);
-   leg->AddEntry(Ratio2, "Rescaled Prediction / Data"     ,"P");
-   leg->Draw();
-
-
-   DrawPreliminary(IntegratedLuminosity);  
-   SaveCanvas(c1, outpath, "Rescale_Ratio");
-   delete c1;
-
-*/
    InputFile->Close();
 }
 
