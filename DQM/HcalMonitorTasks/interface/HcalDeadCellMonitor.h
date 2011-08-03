@@ -7,6 +7,7 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalLogicalMapGenerator.h"
 #include "CondFormats/HcalObjects/interface/HcalLogicalMap.h"
 #include "DataFormats/Scalers/interface/DcsStatus.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 
 // Channel status DB stuff
 
@@ -24,8 +25,8 @@
 
 /** \class HcalDeadCellMonitor
   *
-  * $Date: 2011/06/30 11:52:29 $
-  * $Revision: 1.54 $
+  * $Date: 2011/05/23 14:54:10 $
+  * $Revision: 1.51 $
   * \author J. Temple - Univ. of Maryland
   */
 
@@ -96,6 +97,7 @@ class HcalDeadCellMonitor: public HcalBaseDQMonitor {
   MonitorElement *NumberOfNeverPresentRecHits, *NumberOfNeverPresentRecHitsHB, *NumberOfNeverPresentRecHitsHE, *NumberOfNeverPresentRecHitsHO, *NumberOfNeverPresentRecHitsHF;
 
   MonitorElement *Nevents;
+  int beamMode_;
 
   MonitorElement *HBDeadVsEvent, *HEDeadVsEvent, *HODeadVsEvent, *HFDeadVsEvent;
   bool present_digi[85][72][4]; // tests that a good digi was present at least once

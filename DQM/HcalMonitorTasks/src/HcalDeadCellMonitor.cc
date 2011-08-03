@@ -402,6 +402,7 @@ void HcalDeadCellMonitor::reset()
   zeroCounters();
   deadevt_=0;
   is_RBX_loss_ = 0;
+  beamMode_ = 0 ;
   alarmer_counter_ = 0;
   hbhedcsON = true; hfdcsON = true;
   ProblemsVsLB->Reset(); ProblemsVsLB_HB->Reset(); ProblemsVsLB_HE->Reset(); ProblemsVsLB_HO->Reset(); ProblemsVsLB_HF->Reset(); ProblemsVsLB_HBHEHF->Reset();
@@ -561,7 +562,7 @@ void HcalDeadCellMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg
   zeroCounters();
   deadevt_=0;
   is_RBX_loss_=0;
-
+  beamMode_ = 0;
   return;
 } //endLuminosityBlock()
 
@@ -594,6 +595,8 @@ void HcalDeadCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
   edm::Handle<HBHERecHitCollection> hbhe_rechit;
   edm::Handle<HORecHitCollection> ho_rechit;
   edm::Handle<HFRecHitCollection> hf_rechit;
+
+  edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtEvm_handle;
  
   /////////////////////////////////////////////////////////////////
   // check if detectors whether they were ON
@@ -652,6 +655,13 @@ void HcalDeadCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
       edm::LogWarning("HcalDeadCellMonitor")<< hoRechitLabel_<<" ho_rechit not available";
       return;
     }
+  if (!(e.getByLabel("gtEvmDigis", gtEvm_handle)))
+    {
+      edm::LogWarning("HcalDeadCellMonitor")<< "gtEvmDigis"<<" gtEvmDigis not available";
+      return;
+    }
+  L1GtfeExtWord gtfeEvmExtWord = gtEvm_handle.product()->gtfeWord();
+
   if (debug_>1) std::cout <<"\t<HcalDeadCellMonitor::analyze>  Processing good event! event # = "<<ievt_<<std::endl;
   // Good event found; increment counter (via base class analyze method)
   // This also runs the allowed calibration /lumi in order tests again;  remove?
@@ -681,9 +691,16 @@ void HcalDeadCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
 	}
       
       // RBX loss detected
-      for (unsigned int i=0;i<156;++i)
+      for (unsigned int i=0;i<132;++i)
 	if(occupancy_RBX[i] == 0) 
 	  {
+	    is_RBX_loss_ = 1;
+	    rbxlost[i] = 1;
+	  }
+
+      for (unsigned int i=132;i<156;++i)
+	if(occupancy_RBX[i] == 0 && gtfeEvmExtWord.beamMode() == 11) // only in stable beam mode (11), otherwise 
+	  {                                                          // this check is too sensitive in HF
 	    is_RBX_loss_ = 1;
 	    rbxlost[i] = 1;
 	  }
@@ -981,7 +998,7 @@ void HcalDeadCellMonitor::fillNevents_recentdigis()
 		    HcalDetId TempID((HcalSubdetector)subdet, ieta, iphi, (int)depth+1);
 		    
 		    int index = logicalMap_->getHcalFrontEndId(TempID).rbxIndex();
-		    if(subdet==HcalForward) continue;
+		    // if(subdet==HcalForward) continue;
 		    
 		    if(occupancy_RBX[index]==0)
 		      {
@@ -1096,7 +1113,7 @@ void HcalDeadCellMonitor::fillNevents_recentrechits()
 		    HcalDetId TempID((HcalSubdetector)subdet, ieta, iphi, (int)depth+1);
 		    
 		    int index = logicalMap_->getHcalFrontEndId(TempID).rbxIndex();
-		    if(subdet==HcalForward) continue;
+		    // if(subdet==HcalForward) continue;
 		    
 		    if(occupancy_RBX[index]==0)
 		      {
