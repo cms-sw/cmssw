@@ -472,9 +472,11 @@ def toScreenTotEffective(lumidata,resultlines,scalefactor,isverbose):
         else:
             selectedlsStr = CommonUtil.splitlistToRangeString(selectedcmsls)
         for name in sorted(totefflumiDict):
+            lname=pathmap[name]
+            if lname=='n/a':
+                continue
             (efflumival,efflumiunit)=CommonUtil.guessUnit(totefflumiDict[name])
             (totrecval,totrecunit)=CommonUtil.guessUnit(totrecorded)
-            lname=pathmap[name]
             hprescs=list(set(hprescdict[hltpathname]))
             lprescs=list(set(lprescdict[lname]))
             hprescStr='('+','.join(['%d'%(x) for x in hprescs])+')'
