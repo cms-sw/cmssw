@@ -170,30 +170,18 @@ class HLTProcess(object):
     return self.data % self.labels
 
 
-  # customize the configuration according to the options
-  def customize(self):
-
-    if self.config.fragment:
-      # if running on MC, adapt the configuration accordingly
-      self.fixForMC()
-
-      # if requested, adapt the configuration for FastSim
-      self.fixForFastSim()
-
-      # if requested, remove the HLT prescales
-      self.fixPrescales()
-
-      # if requested, override all ED/HLTfilters to always pass ("open" mode)
-      self.instrumentOpenMode()
-
-      # if requested, instrument the self with the modules and EndPath needed for timing studies
-      self.instrumentTiming()
-
-      self.data += """
+  # add release-specific customizations
+  def releaseSpecificCustomize(self):
+    # version specific customizations
+    self.data += """
 # version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
+"""
 
+    # from CMSSW_4_4_0_pre8: update HF configuration for V00-09-18 RecoLocalCalo/HcalRecProducers
+    if not self.config.fastsim:
+      self.data += """
 # from CMSSW_4_4_0_pre8: update HF configuration for V00-09-18 RecoLocalCalo/HcalRecProducers
 if cmsswVersion > "CMSSW_4_4":
     if 'hltHfreco' in %(dict)s:
@@ -206,7 +194,10 @@ if cmsswVersion > "CMSSW_4_4":
         del %(process)shltHfreco.digistat.HFdigiflagCoef0
         del %(process)shltHfreco.digistat.HFdigiflagCoef1
         del %(process)shltHfreco.digistat.HFdigiflagCoef2
+"""
 
+    # from CMSSW_4_4_0_pre6: updated configuration for the HybridClusterProducer's and EgammaHLTHybridClusterProducer's
+    self.data += """
 # from CMSSW_4_4_0_pre6: updated configuration for the HybridClusterProducer's and EgammaHLTHybridClusterProducer's
 if cmsswVersion > "CMSSW_4_4":
     if 'hltHybridSuperClustersActivity' in %(dict)s:
@@ -218,7 +209,10 @@ if cmsswVersion > "CMSSW_4_4":
     if 'hltHybridSuperClustersL1NonIsolated' in %(dict)s:
         %(process)shltHybridSuperClustersL1NonIsolated.xi          = cms.double( 0.0 )
         %(process)shltHybridSuperClustersL1NonIsolated.useEtForXi  = cms.bool( False )
+"""
 
+    # from CMSSW_4_4_0_pre5: updated configuration for the PFRecoTauDiscriminationByIsolation producers
+    self.data += """
 # from CMSSW_4_4_0_pre5: updated configuration for the PFRecoTauDiscriminationByIsolation producers
 if cmsswVersion > "CMSSW_4_4":
     if 'hltPFTauTightIsoIsolationDiscriminator' in %(dict)s:
@@ -229,7 +223,10 @@ if cmsswVersion > "CMSSW_4_4":
         %(process)shltPFTauLooseIsolationDiscriminator.qualityCuts.primaryVertexSrc = %(process)shltPFTauLooseIsolationDiscriminator.PVProducer
         %(process)shltPFTauLooseIsolationDiscriminator.qualityCuts.pvFindingAlgo    = cms.string('highestPtInEvent')
         del %(process)shltPFTauLooseIsolationDiscriminator.PVProducer
+"""
 
+    # from CMSSW_4_4_0_pre5: updated configuration for the EcalSeverityLevelESProducer
+    self.data += """
 # from CMSSW_4_4_0_pre5: updated configuration for the EcalSeverityLevelESProducer
 if cmsswVersion > "CMSSW_4_4":
     %(process)secalSeverityLevel = cms.ESProducer("EcalSeverityLevelESProducer",
@@ -252,12 +249,76 @@ if cmsswVersion > "CMSSW_4_4":
         ),
         timeThresh = cms.double(2.0)
     )
+"""
 
+    # from CMSSW_4_4_0_pre3: additional ESProducer in cfg files
+    if not self.config.fragment:
+      self.data += """
+# from CMSSW_4_4_0_pre3: additional ESProducer in cfg files
+if cmsswVersion > "CMSSW_4_4":
+    %(process)shltSiPixelQualityESProducer = cms.ESProducer("SiPixelQualityESProducer",
+        ListOfRecordToMerge = cms.VPSet(
+            cms.PSet( record = cms.string("SiPixelQualityFromDbRcd"),
+                      tag    = cms.string("")
+                    ),
+            cms.PSet( record = cms.string("SiPixelDetVOffRcd"),
+                      tag    = cms.string("")
+                    )
+        )
+    )
+"""
+
+    # from CMSSW_4_3_0_pre6: additional ESProducer in cfg files
+    if not self.config.fragment:
+      self.data += """
+# from CMSSW_4_3_0_pre6: additional ESProducer in cfg files
+if cmsswVersion > "CMSSW_4_3":
+    %(process)shltESPStripLorentzAngleDep = cms.ESProducer("SiStripLorentzAngleDepESProducer",
+        LatencyRecord = cms.PSet(
+            record = cms.string('SiStripLatencyRcd'),
+            label = cms.untracked.string('')
+        ),
+        LorentzAngleDeconvMode = cms.PSet(
+            record = cms.string('SiStripLorentzAngleRcd'),
+            label = cms.untracked.string('deconvolution')
+        ),
+        LorentzAnglePeakMode = cms.PSet(
+            record = cms.string('SiStripLorentzAngleRcd'),
+            label = cms.untracked.string('peak')
+        )
+    )
+"""
+
+    # from CMSSW_4_3_0_pre6: ECAL severity flags migration
+    self.data += """
 # from CMSSW_4_3_0_pre6: ECAL severity flags migration
 if cmsswVersion > "CMSSW_4_3":
   import HLTrigger.Configuration.Tools.updateEcalSeverityFlags
   HLTrigger.Configuration.Tools.updateEcalSeverityFlags.update( %(dict)s )
 """
+
+
+  # customize the configuration according to the options
+  def customize(self):
+
+    if self.config.fragment:
+      # if running on MC, adapt the configuration accordingly
+      self.fixForMC()
+
+      # if requested, adapt the configuration for FastSim
+      self.fixForFastSim()
+
+      # if requested, remove the HLT prescales
+      self.fixPrescales()
+
+      # if requested, override all ED/HLTfilters to always pass ("open" mode)
+      self.instrumentOpenMode()
+
+      # if requested, instrument the self with the modules and EndPath needed for timing studies
+      self.instrumentTiming()
+
+      # add version-specific customisations
+      self.releaseSpecificCustomize()
 
     else:
       # if running on MC, adapt the configuration accordingly
@@ -307,105 +368,9 @@ if 'hltPreHLTMONOutputSmart' in %(dict)s:
       # if requested, instrument the self with the modules and EndPath needed for timing studies
       self.instrumentTiming()
 
-      self.data += """
-# version specific customizations
-import os
-cmsswVersion = os.environ['CMSSW_VERSION']
+      # add version-specific customisations
+      self.releaseSpecificCustomize()
 
-# from CMSSW_4_4_0_pre8: update HF configuration for V00-09-18 RecoLocalCalo/HcalRecProducers
-if cmsswVersion > "CMSSW_4_4":
-    if 'hltHfreco' in %(dict)s:
-        %(process)shltHfreco.digiTimeFromDB = cms.bool( False )
-        %(process)shltHfreco.digistat.HFdigiflagCoef = cms.vdouble(
-            %(process)shltHfreco.digistat.HFdigiflagCoef0.value(),
-            %(process)shltHfreco.digistat.HFdigiflagCoef1.value(),
-            %(process)shltHfreco.digistat.HFdigiflagCoef2.value()
-        )
-        del %(process)shltHfreco.digistat.HFdigiflagCoef0
-        del %(process)shltHfreco.digistat.HFdigiflagCoef1
-        del %(process)shltHfreco.digistat.HFdigiflagCoef2
-
-# from CMSSW_4_4_0_pre6: updated configuration for the HybridClusterProducer's and EgammaHLTHybridClusterProducer's
-if cmsswVersion > "CMSSW_4_4":
-    if 'hltHybridSuperClustersActivity' in %(dict)s:
-        %(process)shltHybridSuperClustersActivity.xi               = cms.double( 0.0 )
-        %(process)shltHybridSuperClustersActivity.useEtForXi       = cms.bool( False )
-    if 'hltHybridSuperClustersL1Isolated' in %(dict)s:
-        %(process)shltHybridSuperClustersL1Isolated.xi             = cms.double( 0.0 )
-        %(process)shltHybridSuperClustersL1Isolated.useEtForXi     = cms.bool( False )
-    if 'hltHybridSuperClustersL1NonIsolated' in %(dict)s:
-        %(process)shltHybridSuperClustersL1NonIsolated.xi          = cms.double( 0.0 )
-        %(process)shltHybridSuperClustersL1NonIsolated.useEtForXi  = cms.bool( False )
-
-# from CMSSW_4_4_0_pre5: updated configuration for the PFRecoTauDiscriminationByIsolation producers
-if cmsswVersion > "CMSSW_4_4":
-    if 'hltPFTauTightIsoIsolationDiscriminator' in %(dict)s:
-        %(process)shltPFTauTightIsoIsolationDiscriminator.qualityCuts.primaryVertexSrc = %(process)shltPFTauTightIsoIsolationDiscriminator.PVProducer
-        %(process)shltPFTauTightIsoIsolationDiscriminator.qualityCuts.pvFindingAlgo    = cms.string('highestPtInEvent')
-        del %(process)shltPFTauTightIsoIsolationDiscriminator.PVProducer
-    if 'hltPFTauLooseIsolationDiscriminator' in %(dict)s:
-        %(process)shltPFTauLooseIsolationDiscriminator.qualityCuts.primaryVertexSrc = %(process)shltPFTauLooseIsolationDiscriminator.PVProducer
-        %(process)shltPFTauLooseIsolationDiscriminator.qualityCuts.pvFindingAlgo    = cms.string('highestPtInEvent')
-        del %(process)shltPFTauLooseIsolationDiscriminator.PVProducer
-
-# from CMSSW_4_4_0_pre5: updated configuration for the EcalSeverityLevelESProducer
-if cmsswVersion > "CMSSW_4_4":
-    %(process)secalSeverityLevel = cms.ESProducer("EcalSeverityLevelESProducer",
-        appendToDataLabel = cms.string(''),
-        dbstatusMask=cms.PSet(
-            kGood        = cms.vuint32(0),
-            kProblematic = cms.vuint32(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
-            kRecovered   = cms.vuint32(),
-            kTime        = cms.vuint32(),
-            kWeird       = cms.vuint32(),
-            kBad         = cms.vuint32(11, 12, 13, 14, 15, 16)
-        ),
-        flagMask = cms.PSet (
-            kGood        = cms.vstring('kGood'),
-            kProblematic = cms.vstring('kPoorReco', 'kPoorCalib', 'kNoisy', 'kSaturated'),
-            kRecovered   = cms.vstring('kLeadingEdgeRecovered', 'kTowerRecovered'),
-            kTime        = cms.vstring('kOutOfTime'),
-            kWeird       = cms.vstring('kWeird', 'kDiWeird'),
-            kBad         = cms.vstring('kFaultyHardware', 'kDead', 'kKilled')
-        ),
-        timeThresh = cms.double(2.0)
-    )
-
-# from CMSSW_4_4_0_pre3: additional ESProducer in cfg files
-if cmsswVersion > "CMSSW_4_4":
-    %(process)shltSiPixelQualityESProducer = cms.ESProducer("SiPixelQualityESProducer",
-        ListOfRecordToMerge = cms.VPSet(
-            cms.PSet( record = cms.string("SiPixelQualityFromDbRcd"),
-                      tag    = cms.string("")
-                    ),
-            cms.PSet( record = cms.string("SiPixelDetVOffRcd"),
-                      tag    = cms.string("")
-                    )
-        )
-    )
-
-# from CMSSW_4_3_0_pre6: additional ESProducer in cfg files
-if cmsswVersion > "CMSSW_4_3":
-    %(process)shltESPStripLorentzAngleDep = cms.ESProducer("SiStripLorentzAngleDepESProducer",
-        LatencyRecord = cms.PSet(
-            record = cms.string('SiStripLatencyRcd'),
-            label = cms.untracked.string('')
-        ),
-        LorentzAngleDeconvMode = cms.PSet(
-            record = cms.string('SiStripLorentzAngleRcd'),
-            label = cms.untracked.string('deconvolution')
-        ),
-        LorentzAnglePeakMode = cms.PSet(
-            record = cms.string('SiStripLorentzAngleRcd'),
-            label = cms.untracked.string('peak')
-        )
-    )
-
-# from CMSSW_4_3_0_pre6: ECAL severity flags migration
-if cmsswVersion > "CMSSW_4_3":
-  import HLTrigger.Configuration.Tools.updateEcalSeverityFlags
-  HLTrigger.Configuration.Tools.updateEcalSeverityFlags.update( %(dict)s )
-"""
 
 #    # load 4.2.x JECs
 #    self.loadAdditionalConditions('load 4.2.x JECs',
