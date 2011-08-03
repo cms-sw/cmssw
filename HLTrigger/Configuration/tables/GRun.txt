@@ -272,6 +272,7 @@ HLT_BTagMu_DiJet70_Mu5_v*
 HLT_BTagMu_DiJet110_Mu5_v*
 HLT_Mu3_Ele8_CaloIdT_TrkIdVL_HT150_v*
 HLT_Mu3_Ele8_CaloIdT_CaloIsoVL_v*
+HLT_Mu5_Ele8_CaloIdT_TrkIdVL_Mass4_HT150_v*
 HLT_Mu8_R005_MR200_v*
 HLT_Mu8_R025_MR200_v*
 HLT_Mu8_R029_MR200_v*
