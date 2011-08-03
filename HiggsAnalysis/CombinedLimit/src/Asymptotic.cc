@@ -192,7 +192,8 @@ bool Asymptotic::runLimitExpected(RooWorkspace *w, RooStats::ModelConfig *mc_s, 
     limit = sigma*(ROOT::Math::normal_quantile(1 - alpha * quantileForExpected_, 1.0) + N);
     limitErr = 0;
     std::cout << "\n -- Asymptotic -- " << "\n";
-    std::cout << "Asymptotic expected limit for " << quantileForExpected_ << ": " << r->GetName() << " < " << limit << " @ " << cl * 100 << "% CL" << std::endl;
+    std::cout << "Computed " << quantileForExpected_ << " quantile of expected limits." << std::endl;
+    std::cout << "Limit: " << r->GetName() << " < " << limit << " +/- " << limitErr << " @ " << cl << "% CL" << std::endl;
     return true;
 }
 
