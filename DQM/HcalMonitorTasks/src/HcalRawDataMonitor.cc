@@ -1189,13 +1189,14 @@ void HcalRawDataMonitor::unpack(const FEDRawData& raw){
 // End LumiBlock
 void HcalRawDataMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 					    const edm::EventSetup& c){
+  
+  ProblemsVsLB_HB->Fill(lumiSeg.luminosityBlock(), levt_>0 ? NumBadHB/levt_ : NumBadHB );
+  ProblemsVsLB_HE->Fill(lumiSeg.luminosityBlock(), levt_>0 ? NumBadHE/levt_ : NumBadHE );
+  ProblemsVsLB_HO->Fill(lumiSeg.luminosityBlock(), levt_>0 ? NumBadHO/levt_ : NumBadHO );
+  ProblemsVsLB_HF->Fill(lumiSeg.luminosityBlock(), levt_>0 ? NumBadHF/levt_ : NumBadHF );
+  ProblemsVsLB_HBHEHF->Fill(lumiSeg.luminosityBlock(), levt_>0 ? (NumBadHB+NumBadHE+NumBadHF)/levt_ : (NumBadHB+NumBadHE+NumBadHF));
+  ProblemsVsLB->Fill(lumiSeg.luminosityBlock(), levt_>0 ? (NumBadHB+NumBadHE+NumBadHO+NumBadHF)/levt_ : (NumBadHB+NumBadHE+NumBadHO+NumBadHF) );
 
-  ProblemsVsLB_HB->Fill(lumiSeg.luminosityBlock(),NumBadHB);
-  ProblemsVsLB_HE->Fill(lumiSeg.luminosityBlock(),NumBadHE);
-  ProblemsVsLB_HO->Fill(lumiSeg.luminosityBlock(),NumBadHO);
-  ProblemsVsLB_HF->Fill(lumiSeg.luminosityBlock(),NumBadHF);
-  ProblemsVsLB_HBHEHF->Fill(lumiSeg.luminosityBlock(),NumBadHB+NumBadHE+NumBadHF);
-  ProblemsVsLB->Fill(lumiSeg.luminosityBlock(),NumBadHB+NumBadHE+NumBadHO+NumBadHF);
   // Reset current LS histogram, if it exists
   if (ProblemsCurrentLB)
     ProblemsCurrentLB->Reset();
@@ -1213,7 +1214,6 @@ void HcalRawDataMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
 
     }
 
- 
 
 
   UpdateMEs();
