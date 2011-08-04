@@ -96,6 +96,7 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
   //private data members       
   TrackingParticleSelector* generalTpSelector;
   TrackingParticleSelector* TpSelectorForEfficiencyVsEta;
+  TrackingParticleSelector* TpSelectorForEfficiencyVsCon;
   TrackingParticleSelector* TpSelectorForEfficiencyVsPhi;
   TrackingParticleSelector* TpSelectorForEfficiencyVsPt;
   TrackingParticleSelector* TpSelectorForEfficiencyVsVTXR;
