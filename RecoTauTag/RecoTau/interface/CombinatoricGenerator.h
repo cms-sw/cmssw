@@ -124,10 +124,10 @@ template <typename T>
     /// Build the next cominatoric subset after the current one
     Combinatoric<T> next() const
     {
-      std::cout << "building next: " << std::endl;
-      std::cout << "current " << std::endl;
-      std::copy(combo_.begin(), combo_.end(), std::ostream_iterator<int>(std::cout, " "));
-      std::cout << std::endl;
+      //std::cout << "building next: " << std::endl;
+      //std::cout << "current " << std::endl;
+      //std::copy(combo_.begin(), combo_.end(), std::ostream_iterator<int>(std::cout, " "));
+      //std::cout << std::endl;
 
       indices_collection newCombo(combo_);
 
@@ -154,12 +154,10 @@ template <typename T>
         }
       }
 
-      std::cout << "after update " << std::endl;
-      std::copy(newCombo.begin(), newCombo.end(), std::ostream_iterator<int>(std::cout, " "));
-      std::cout << std::endl;
+      //std::cout << "after update " << std::endl;
+      //std::copy(newCombo.begin(), newCombo.end(), std::ostream_iterator<int>(std::cout, " "));
+      //std::cout << std::endl;
 
-      // Everything after pos needs to be updated.  i.e. 159 -> 167
-      index_type next_pos_value = (*pos)+1;
       // forward_pos points to the element *after* pos
       indices_collection::iterator forward_pos = pos.base();
       // Only do the updates if we have not reached all the way to the beginning!
@@ -167,15 +165,18 @@ template <typename T>
       // with all values at nElements to flag that we are at the end
       bool done = true;
       if (forward_pos != newCombo.begin()) {
+        // Everything after pos needs to be updated.  i.e. 159 -> 167
+        index_type next_pos_value = (*pos)+1;
+        //std::cout << "next pos: " << next_pos_value << std::endl;
         done = false;
         for (; forward_pos != newCombo.end(); ++forward_pos, ++next_pos_value) {
           *forward_pos = next_pos_value;
         }
       }
 
-      std::cout << "final " << std::endl;
-      std::copy(newCombo.begin(), newCombo.end(), std::ostream_iterator<int>(std::cout, " "));
-      std::cout << std::endl;
+      //std::cout << "final " << std::endl;
+      //std::copy(newCombo.begin(), newCombo.end(), std::ostream_iterator<int>(std::cout, " "));
+      //std::cout << std::endl;
 
       //return std::auto_ptr<Combinatoric<T> >(new Combinatoric<T>(begin_, indices_, newCombo));
       return Combinatoric<T>(begin_, indices_, newCombo, done);
