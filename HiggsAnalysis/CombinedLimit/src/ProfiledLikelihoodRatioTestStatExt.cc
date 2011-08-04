@@ -231,7 +231,7 @@ bool nllutils::robustMinimize(RooAbsReal &nll, RooMinimizer &minim, int verbosit
     for (int tries = 0, maxtries = 4; tries <= maxtries; ++tries) {
         int status = minim.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
         std::auto_ptr<RooFitResult> res(minim.save());
-        if (res->edm() < 1e-3*ROOT::Math::MinimizerOptions::DefaultTolerance()) status = 0;
+        if (tries > 0 && res->edm() < 0.05*ROOT::Math::MinimizerOptions::DefaultTolerance()) status = 0;
         //if (verbosity > 1) res->Print("V");
         if (status == 0 && nll.getVal() > initialNll + 0.02) {
             printf("\n  --> false minimum, status %d, cov. quality %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->covQual(), res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal());

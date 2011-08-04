@@ -23,6 +23,7 @@ double Asymptotic::rAbsAccuracy_ = 0.0005;
 double Asymptotic::rRelAccuracy_ = 0.005;
 std::string Asymptotic::what_ = "both"; 
 bool  Asymptotic::qtilde_ = true; 
+bool  Asymptotic::loose_ = false; 
 float Asymptotic::quantileForExpected_ = 0.5; 
 std::string Asymptotic::minimizerAlgo_ = "Minuit2";
 float       Asymptotic::minimizerTolerance_ = 1e-3;
@@ -38,12 +39,14 @@ LimitAlgo("Asymptotic specific options") {
         ("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(minimizerTolerance_),  "Tolerance for minimizer used for profiling")
         ("minimizerStrategy",  boost::program_options::value<int>(&minimizerStrategy_)->default_value(minimizerStrategy_),      "Stragegy for minimizer")
         ("qtilde", boost::program_options::value<bool>(&qtilde_)->default_value(qtilde_),  "Allow only non-negative signal strengths (default is true).")
+        ("loose", "Don't complain on fit failures")
     ;
 }
 
 void Asymptotic::applyOptions(const boost::program_options::variables_map &vm) {
     if (what_ != "observed" && what_ != "expected" && what_ != "both") 
         throw std::invalid_argument("Asymptotic: option 'run' can only be 'observed', 'expected' or 'both' (the default)");
+    loose_ = vm.count("loose");
 }
 
 void Asymptotic::applyDefaultOptions() { 
@@ -123,7 +126,7 @@ bool Asymptotic::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats
   double rMin = std::max<double>(0, r->getVal()), rMax = rMin + 3 * ((RooRealVar*)fitFreeD_->floatParsFinal().find(r->GetName()))->getError();
   for (int tries = 0; tries < 5; ++tries) {
     double cls = getCLs(*r, rMax);
-    if (cls == -999) { std::cerr << "Minimization failed in an unrecoverable way" << std::endl; return false; }
+    if (cls == -999) { std::cerr << "Minimization failed in an unrecoverable way" << std::endl; break; }
     if (cls < clsTarget) break;
     rMax *= 2;
   }
@@ -154,7 +157,7 @@ double Asymptotic::getCLs(RooRealVar &r, double rVal) {
   *params_ = snapGlobalObsData;
   r.setVal(rVal);
   r.setConstant(true);
-  if (!nllutils::robustMinimize(*nllD_, minimD, verbose-1)) return -999;
+  if (!nllutils::robustMinimize(*nllD_, minimD, verbose-1) && !loose_) return -999;
   fitFixD_.reset(minimD.save());
   if (verbose >= 2) fitFixD_->Print("V");
   double qmu = 2*(nllD_->getVal() - fitFreeD_->minNll()); if (qmu < 0) qmu = 0;
@@ -163,7 +166,7 @@ double Asymptotic::getCLs(RooRealVar &r, double rVal) {
   *params_ = snapGlobalObsAsimov;
   r.setVal(rVal);
   r.setConstant(true);
-  if (!nllutils::robustMinimize(*nllA_, minimA, verbose-1)) return -999;
+  if (!nllutils::robustMinimize(*nllA_, minimA, verbose-1) && !loose_) return -999;
   fitFixA_.reset(minimA.save());
   if (verbose >= 2) fitFixA_->Print("V");
   double qA  = 2*(nllA_->getVal() - fitFreeA_->minNll()); if (qA < 0) qA = 0;

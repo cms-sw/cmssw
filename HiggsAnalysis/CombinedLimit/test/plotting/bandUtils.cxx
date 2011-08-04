@@ -519,7 +519,7 @@ void printLineAErr(TDirectory *bands, TString who, TString fileName, TString hea
 
 
 
-void printBand(TDirectory *bands, TString who, FILE *fout, bool mean=true) {
+void printBand(TDirectory *bands, TString who, FILE *fout, bool mean=false) {
     TGraphAsymmErrors *obs    = (TGraphAsymmErrors*) bands->Get(who+"_obs");
     TGraphAsymmErrors *mean68 = (TGraphAsymmErrors*) bands->Get(who+(mean?"_mean":"_median"));
     TGraphAsymmErrors *mean95 = (TGraphAsymmErrors*) bands->Get(who+(mean?"_mean":"_median")+"_95");

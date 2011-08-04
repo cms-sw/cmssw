@@ -227,7 +227,7 @@ cacheutils::CachingAddNLL::evaluate() const
     // then get the final nll
     double ret = 0;
     for ( its = bgs, itw = bgw ; its != eds ; ++its, ++itw ) {
-        if (*itw != 0 && *its == 0) std::cerr << "WARNING: underflow to zero" << std::endl;
+        if (*itw != 0 && *its == 0) { std::cerr << "WARNING: underflow to zero" << std::endl; logEvalError("Number of events is negative"); }
         if (*itw) ret += (*itw) * (*its == 0 ? -9e9 : log( ((*its) / sumCoeff) ));
     }
     // then flip sign
