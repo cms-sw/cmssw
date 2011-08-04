@@ -124,10 +124,10 @@ template <typename T>
     /// Build the next cominatoric subset after the current one
     Combinatoric<T> next() const
     {
-      //std::cout << "building next: " << std::endl;
-      //std::cout << "current " << std::endl;
-      //std::copy(combo_.begin(), combo_.end(), std::ostream_iterator<int>(std::cout, " "));
-      //std::cout << std::endl;
+      std::cout << "building next: " << std::endl;
+      std::cout << "current " << std::endl;
+      std::copy(combo_.begin(), combo_.end(), std::ostream_iterator<int>(std::cout, " "));
+      std::cout << std::endl;
 
       indices_collection newCombo(combo_);
 
@@ -154,9 +154,9 @@ template <typename T>
         }
       }
 
-      //std::cout << "after update " << std::endl;
-      //std::copy(newCombo.begin(), newCombo.end(), std::ostream_iterator<int>(std::cout, " "));
-      //std::cout << std::endl;
+      std::cout << "after update " << std::endl;
+      std::copy(newCombo.begin(), newCombo.end(), std::ostream_iterator<int>(std::cout, " "));
+      std::cout << std::endl;
 
       // Everything after pos needs to be updated.  i.e. 159 -> 167
       index_type next_pos_value = (*pos)+1;
@@ -173,9 +173,9 @@ template <typename T>
         }
       }
 
-      //std::cout << "final " << std::endl;
-      //std::copy(newCombo.begin(), newCombo.end(), std::ostream_iterator<int>(std::cout, " "));
-      //std::cout << std::endl;
+      std::cout << "final " << std::endl;
+      std::copy(newCombo.begin(), newCombo.end(), std::ostream_iterator<int>(std::cout, " "));
+      std::cout << std::endl;
 
       //return std::auto_ptr<Combinatoric<T> >(new Combinatoric<T>(begin_, indices_, newCombo));
       return Combinatoric<T>(begin_, indices_, newCombo, done);
