@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V197
+# /dev/CMSSW_4_2_0/GRun/V199
 
 import FWCore.ParameterSet.Config as cms
 
@@ -95,12 +95,7 @@ streamA_datasetElectronHad_selector.triggerConditions = cms.vstring('HLT_DoubleE
     'HLT_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT250_PFMHT25_v3', 
     'HLT_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT250_PFMHT40_v1', 
     'HLT_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_v1', 
-    'HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3_Jet20_v2', 
-    'HLT_Ele15_CaloIdVT_TrkIdT_Jet35_Jet25_Deta3_Jet20_v3', 
     'HLT_Ele20_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3_Jet20_v1', 
-    'HLT_Ele22_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT20_v4', 
-    'HLT_Ele22_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_v3', 
-    'HLT_Ele22_CaloIdVT_TrkIdT_CentralJet30_CentralJet25_v3', 
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_BTagIP_v4', 
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_v4', 
     'HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralJet30_v4', 
@@ -112,6 +107,12 @@ streamA_datasetElectronHad_selector.triggerConditions = cms.vstring('HLT_DoubleE
     'HLT_Ele25_CaloIdVT_TrkIdT_QuadCentralJet30_v4', 
     'HLT_Ele25_CaloIdVT_TrkIdT_TriCentralJet30_v7', 
     'HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT20_v1', 
+    'HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_v1', 
+    'HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3_Jet20_v1', 
+    'HLT_Ele27_CaloIdVT_TrkIdT_CentralJet30_CentralJet25_v1', 
+    'HLT_Ele27_CaloIdVT_TrkIdT_Jet35_Jet25_Deta3_Jet20_v1', 
+    'HLT_Ele30_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralJet30_PFMHT25_v1', 
+    'HLT_Ele30_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3p5_Jet25_v1', 
     'HLT_Ele8_CaloIdT_TrkIdT_DiJet30_v4', 
     'HLT_Ele8_CaloIdT_TrkIdT_QuadJet30_v4', 
     'HLT_Ele8_CaloIdT_TrkIdT_TriJet30_v4', 
@@ -337,14 +338,18 @@ streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Dimuon0_Jpsi
     'HLT_Dimuon0_Upsilon_Muon_v6', 
     'HLT_Dimuon0_Upsilon_v5', 
     'HLT_Dimuon10_Jpsi_Barrel_v5', 
-    'HLT_Dimuon4_Bs_Barrel_v7', 
-    'HLT_Dimuon5_Upsilon_Barrel_v5', 
-    'HLT_Dimuon6_Bs_v6', 
+    'HLT_Dimuon11_PsiPrime_v1', 
+    'HLT_Dimuon13_Jpsi_Barrel_v1', 
     'HLT_Dimuon6_LowMass_v1', 
-    'HLT_Dimuon7_Jpsi_X_Barrel_v5', 
-    'HLT_Dimuon7_PsiPrime_v5', 
-    'HLT_DoubleMu3p5_Jpsi_Displaced_v2', 
-    'HLT_DoubleMu4_LowMass_Displaced_v2', 
+    'HLT_Dimuon7_Upsilon_Barrel_v1', 
+    'HLT_Dimuon9_PsiPrime_v1', 
+    'HLT_Dimuon9_Upsilon_Barrel_v1', 
+    'HLT_DoubleMu4_Dimuon4_Bs_Barrel_v1', 
+    'HLT_DoubleMu4_Dimuon6_Bs_v1', 
+    'HLT_DoubleMu4_Jpsi_Displaced_v1', 
+    'HLT_DoubleMu4p5_LowMass_Displaced_v1', 
+    'HLT_DoubleMu5_Jpsi_Displaced_v1', 
+    'HLT_DoubleMu5_LowMass_Displaced_v1', 
     'HLT_Mu5_L2Mu2_Jpsi_v8', 
     'HLT_Mu5_Track2_Jpsi_v8', 
     'HLT_Mu7_Track7_Jpsi_v9')
@@ -353,8 +358,10 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetMultiJet_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMultiJet_selector.l1tResults = cms.InputTag('')
 streamA_datasetMultiJet_selector.throw      = cms.bool(False)
-streamA_datasetMultiJet_selector.triggerConditions = cms.vstring('HLT_CentralJet46_CentralJet38_DiBTagIP3D_v2', 
+streamA_datasetMultiJet_selector.triggerConditions = cms.vstring('HLT_CentralJet46_CentralJet38_CentralJet20_DiBTagIP3D_v1', 
+    'HLT_CentralJet46_CentralJet38_DiBTagIP3D_v2', 
     'HLT_CentralJet60_CentralJet53_DiBTagIP3D_v1', 
+    'HLT_DiCentralJet36_BTagIP3DLoose_v1', 
     'HLT_DoubleJet30_ForwardBackward_v7', 
     'HLT_DoubleJet60_ForwardBackward_v7', 
     'HLT_DoubleJet70_ForwardBackward_v7', 

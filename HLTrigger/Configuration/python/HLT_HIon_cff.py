@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HIon/V197 (CMSSW_4_2_0_HLT20)
+# /dev/CMSSW_4_2_0/HIon/V199 (CMSSW_4_2_0_HLT20)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V197')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V199')
 )
 
 streams = cms.PSet( 
@@ -2095,7 +2095,7 @@ hltPixelTracksForHITrackTrigger = cms.EDProducer( "PixelTrackProducer",
       GeneratorPSet = cms.PSet( 
         useBending = cms.bool( True ),
         useFixedPreFiltering = cms.bool( False ),
-        maxElement = cms.uint32( 10000 ),
+        maxElement = cms.uint32( 12000 ),
         phiPreFiltering = cms.double( 0.3 ),
         extraHitRPhitolerance = cms.double( 0.06 ),
         useMultScattering = cms.bool( True ),
@@ -4556,42 +4556,6 @@ HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_DTCalibration_v1, HLT_Ecal
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
-# from CMSSW_4_4_0_pre8: update HF configuration for V00-09-18 RecoLocalCalo/HcalRecProducers
-if cmsswVersion > "CMSSW_4_4":
-    if 'hltHfreco' in locals():
-        hltHfreco.digiTimeFromDB = cms.bool( False )
-        hltHfreco.digistat.HFdigiflagCoef = cms.vdouble(
-            hltHfreco.digistat.HFdigiflagCoef0.value(),
-            hltHfreco.digistat.HFdigiflagCoef1.value(),
-            hltHfreco.digistat.HFdigiflagCoef2.value()
-        )
-        del hltHfreco.digistat.HFdigiflagCoef0
-        del hltHfreco.digistat.HFdigiflagCoef1
-        del hltHfreco.digistat.HFdigiflagCoef2
-
-# from CMSSW_4_4_0_pre6: updated configuration for the HybridClusterProducer's and EgammaHLTHybridClusterProducer's
-if cmsswVersion > "CMSSW_4_4":
-    if 'hltHybridSuperClustersActivity' in locals():
-        hltHybridSuperClustersActivity.xi               = cms.double( 0.0 )
-        hltHybridSuperClustersActivity.useEtForXi       = cms.bool( False )
-    if 'hltHybridSuperClustersL1Isolated' in locals():
-        hltHybridSuperClustersL1Isolated.xi             = cms.double( 0.0 )
-        hltHybridSuperClustersL1Isolated.useEtForXi     = cms.bool( False )
-    if 'hltHybridSuperClustersL1NonIsolated' in locals():
-        hltHybridSuperClustersL1NonIsolated.xi          = cms.double( 0.0 )
-        hltHybridSuperClustersL1NonIsolated.useEtForXi  = cms.bool( False )
-
-# from CMSSW_4_4_0_pre5: updated configuration for the PFRecoTauDiscriminationByIsolation producers
-if cmsswVersion > "CMSSW_4_4":
-    if 'hltPFTauTightIsoIsolationDiscriminator' in locals():
-        hltPFTauTightIsoIsolationDiscriminator.qualityCuts.primaryVertexSrc = hltPFTauTightIsoIsolationDiscriminator.PVProducer
-        hltPFTauTightIsoIsolationDiscriminator.qualityCuts.pvFindingAlgo    = cms.string('highestPtInEvent')
-        del hltPFTauTightIsoIsolationDiscriminator.PVProducer
-    if 'hltPFTauLooseIsolationDiscriminator' in locals():
-        hltPFTauLooseIsolationDiscriminator.qualityCuts.primaryVertexSrc = hltPFTauLooseIsolationDiscriminator.PVProducer
-        hltPFTauLooseIsolationDiscriminator.qualityCuts.pvFindingAlgo    = cms.string('highestPtInEvent')
-        del hltPFTauLooseIsolationDiscriminator.PVProducer
-
 # from CMSSW_4_4_0_pre5: updated configuration for the EcalSeverityLevelESProducer
 if cmsswVersion > "CMSSW_4_4":
     ecalSeverityLevel = cms.ESProducer("EcalSeverityLevelESProducer",
@@ -4606,11 +4570,11 @@ if cmsswVersion > "CMSSW_4_4":
         ),
         flagMask = cms.PSet (
             kGood        = cms.vstring('kGood'),
-            kProblematic = cms.vstring('kPoorReco', 'kPoorCalib', 'kNoisy', 'kSaturated'),
-            kRecovered   = cms.vstring('kLeadingEdgeRecovered', 'kTowerRecovered'),
+            kProblematic = cms.vstring('kPoorReco','kPoorCalib'),
+            kRecovered   = cms.vstring('kLeadingEdgeRecovered','kTowerRecovered'),
             kTime        = cms.vstring('kOutOfTime'),
-            kWeird       = cms.vstring('kWeird', 'kDiWeird'),
-            kBad         = cms.vstring('kFaultyHardware', 'kDead', 'kKilled')
+            kWeird       = cms.vstring('kWeird','kDiWeird'),
+            kBad         = cms.vstring('kFaultyHardware','kDead','kKilled')
         ),
         timeThresh = cms.double(2.0)
     )
