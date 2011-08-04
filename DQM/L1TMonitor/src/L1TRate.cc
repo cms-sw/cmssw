@@ -1,8 +1,8 @@
 /*
  * \file L1TRate.cc
  *
- * $Date: 2011/05/23 12:35:06 $
- * $Revision: 1.6 $
+ * $Date: 2011/07/28 16:03:54 $
+ * $Revision: 1.7 $
  * \author J. Pela, P. Musella
  *
  */
@@ -165,6 +165,9 @@ void L1TRate::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
   m_processedLS = new bool[m_maxNbins];
   for(int i=0 ; i<m_maxNbins ; i++){m_processedLS[i]=false;}
 
+  double minInstantLuminosity = m_parameters.getParameter<double>("minInstantLuminosity");
+  double maxInstantLuminosity = m_parameters.getParameter<double>("maxInstantLuminosity");
+
   // Initializing DQM Monitor Elements
   for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
 
@@ -218,8 +221,14 @@ void L1TRate::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
 
     }
 
+
+
     dbe->setCurrentFolder("L1T/L1TRate/TriggerCrossSections");
-    m_xSecVsInstLumi[tTrigger] = dbe->bookProfile(tCategory,"Cross Sec. vs Inst. Lumi Algo: "+tTrigger+tErrorMessage,m_maxNbins,100,2000,0,500); 
+    m_xSecVsInstLumi[tTrigger] = dbe->bookProfile(tCategory,
+                                                  "Cross Sec. vs Inst. Lumi Algo: "+tTrigger+tErrorMessage,
+                                                  m_maxNbins,
+                                                  minInstantLuminosity,
+                                                  maxInstantLuminosity,0,500); 
     m_xSecVsInstLumi[tTrigger] ->setAxisTitle("Instantaneous Luminosity [10^{30}cm^{-2}s^{-1}]" ,1);
     m_xSecVsInstLumi[tTrigger] ->setAxisTitle("Algorithm #sigma [#mu b]" ,2);
     m_xSecVsInstLumi[tTrigger] ->getTProfile()->GetListOfFunctions()->Add(tTestFunction);
@@ -423,6 +432,9 @@ bool L1TRate::getXSexFitsOMDS(const edm::ParameterSet& ps){
     m_ErrorMonitor->Fill(eName);
   }  
 
+  double minInstantLuminosity = m_parameters.getParameter<double>("minInstantLuminosity");
+  double maxInstantLuminosity = m_parameters.getParameter<double>("maxInstantLuminosity");
+
   // Getting rate fit parameters for all input triggers
   for(map<string,string>::const_iterator a=m_selectedTriggers.begin() ; a!=m_selectedTriggers.end() ; a++){
 
@@ -440,11 +452,11 @@ bool L1TRate::getXSexFitsOMDS(const edm::ParameterSet& ps){
         tParameters.push_back(tWbMParameters.p0);
         tParameters.push_back(tWbMParameters.p1);
         tParameters.push_back(tWbMParameters.p2);
-        
+	
         // Retriving and populating the m_templateFunctions array
         m_templateFunctions[tTrigger] = new TF1("FitParametrization_"+tWbMParameters.bitName,
                                                 tWbMParameters.fitFunction,
-                                                0,double(m_maxNbins)-0.5);
+                                                minInstantLuminosity,maxInstantLuminosity);
         m_templateFunctions[tTrigger] ->SetParameters(&tParameters[0]);
         m_templateFunctions[tTrigger] ->SetLineWidth(1);
         m_templateFunctions[tTrigger] ->SetLineColor(kRed);
@@ -474,6 +486,9 @@ bool L1TRate::getXSexFitsPython(const edm::ParameterSet& ps){
   // Getting fit parameters
   std::vector<edm::ParameterSet>  m_fitParameters = ps.getParameter< vector<ParameterSet> >("fitParameters");
 
+  double minInstantLuminosity = m_parameters.getParameter<double>("minInstantLuminosity");
+  double maxInstantLuminosity = m_parameters.getParameter<double>("maxInstantLuminosity");
+  
   // Getting rate fit parameters for all input triggers
   for(map<string,string>::const_iterator a=m_selectedTriggers.begin() ; a!=m_selectedTriggers.end() ; a++){
 
@@ -493,7 +508,8 @@ bool L1TRate::getXSexFitsPython(const edm::ParameterSet& ps){
           vector<double> tParameters        = m_fitParameters[b].getParameter< vector<double> >("Parameters");
 	  
           // Retriving and populating the m_templateFunctions array
-          m_templateFunctions[tTrigger] = new TF1("FitParametrization_"+tAlgoName,tTemplateFunction,0,double(m_maxNbins)-0.5);
+          m_templateFunctions[tTrigger] = new TF1("FitParametrization_"+tAlgoName,tTemplateFunction,
+                                                  minInstantLuminosity,maxInstantLuminosity);
           m_templateFunctions[tTrigger] ->SetParameters(&tParameters[0]);
           m_templateFunctions[tTrigger] ->SetLineWidth(1);
           m_templateFunctions[tTrigger] ->SetLineColor(kRed);

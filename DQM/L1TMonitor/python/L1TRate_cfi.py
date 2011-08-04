@@ -4,15 +4,18 @@ from DQM.L1TMonitor.L1TRateParams_cff import RateParams
 
 l1tRate = cms.EDAnalyzer("L1TRate",
 
+  verbose                    = cms.untracked.bool(False),
   dqmStore                   = cms.untracked.bool(True),
   disableROOToutput          = cms.untracked.bool(True),
-  verbose                    = cms.untracked.bool(False),
   inputTagScalersResults     = cms.InputTag("scalersRawToDigi","","DQM"),
   inputTagL1GtDataDaq        = cms.InputTag("gtDigis"),
   useHFDeadTimeNormalization = cms.untracked.bool(False),
-
-  # Index for the prescale set to be used 
-  # as reference
+  
+  # Plot Parameters
+  minInstantLuminosity = cms.double (100),
+  maxInstantLuminosity = cms.double(5000),
+  
+  # Index for the prescale set to be used as reference
   refPrescaleSet = cms.int32(0), 
 
   # Test if scalLS==eventLS-1  
