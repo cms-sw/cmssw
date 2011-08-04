@@ -3,6 +3,7 @@
 
 
 struct stPlots {
+   bool        SelPlot;
    std::string Name;
    TDirectory* Directory;
    TTree*      Tree;
@@ -92,11 +93,12 @@ struct stPlots {
    TH1F*  BS_Im;           TH2F*  AS_Im;
    TH1F*  BS_TOF;          TH2F*  AS_TOF;
 
-   TH2F*  BS_EtaIs;        TH3F*  AS_EtaIs;
-   TH2F*  BS_EtaIm;        TH3F*  AS_EtaIm;
-   TH2F*  BS_EtaP;	   TH3F*  AS_EtaP;
-   TH2F*  BS_EtaPt;	   TH3F*  AS_EtaPt;
-  TH2F*  BS_EtaTOF;         TH3F*  AS_EtaTOF;
+   TH2F*  BS_EtaIs;        //TH3F*  AS_EtaIs;
+   TH2F*  BS_EtaIm;        //TH3F*  AS_EtaIm;
+   TH2F*  BS_EtaP;	   //TH3F*  AS_EtaP;
+   TH2F*  BS_EtaPt;	   //TH3F*  AS_EtaPt;
+   TH2F*  BS_EtaTOF;       //TH3F*  AS_EtaTOF;
+
    TH2F*  BS_PIs;	   TH3F*  AS_PIs;
    TH2F*  BS_PIm;          TH3F*  AS_PIm;
    TH2F*  BS_PtIs;         TH3F*  AS_PtIs;
@@ -107,6 +109,7 @@ struct stPlots {
 
 void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned int NCuts, bool SkipSelectionPlot=false)
 {
+   st.SelPlot = !SkipSelectionPlot;
    st.Name = BaseName;
    st.NCuts = NCuts;
 
@@ -215,11 +218,11 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    Name = "BS_TOFIs"; st.BS_TOFIs = new TH2F(Name.c_str(), Name.c_str(),                   50, 1, 5, 50, 0, dEdxS_UpLim);
    Name = "BS_TOFIm"; st.BS_TOFIm = new TH2F(Name.c_str(), Name.c_str(),                   50, 1, 5, 50, 0, dEdxM_UpLim);
 
-   Name = "AS_EtaIs"; st.AS_EtaIs = new TH3F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50,-3, 3, 50, 0, dEdxS_UpLim);
-   Name = "AS_EtaIm"; st.AS_EtaIm = new TH3F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50,-3, 3, 50, 0, dEdxM_UpLim);
-   Name = "AS_EtaP" ; st.AS_EtaP  = new TH3F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50,-3, 3, 50, 0, PtHistoUpperBound);
-   Name = "AS_EtaPt"; st.AS_EtaPt = new TH3F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50,-3, 3, 50, 0, PtHistoUpperBound);
-   Name = "AS_EtaTOF"; st.AS_EtaTOF = new TH3F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50,-3, 3, 50, 0, 3);
+//   Name = "AS_EtaIs"; st.AS_EtaIs = new TH3F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50,-3, 3, 50, 0, dEdxS_UpLim);
+//   Name = "AS_EtaIm"; st.AS_EtaIm = new TH3F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50,-3, 3, 50, 0, dEdxM_UpLim);
+//   Name = "AS_EtaP" ; st.AS_EtaP  = new TH3F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50,-3, 3, 50, 0, PtHistoUpperBound);
+//   Name = "AS_EtaPt"; st.AS_EtaPt = new TH3F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50,-3, 3, 50, 0, PtHistoUpperBound);
+//   Name = "AS_EtaTOF"; st.AS_EtaTOF = new TH3F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50,-3, 3, 50, 0, 3);
    Name = "AS_PIs"  ; st.AS_PIs   = new TH3F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50, 0, PtHistoUpperBound, 50, 0, dEdxS_UpLim);
    Name = "AS_PIm"  ; st.AS_PIm   = new TH3F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50, 0, PtHistoUpperBound, 50, 0, dEdxM_UpLim);
    Name = "AS_PtIs" ; st.AS_PtIs  = new TH3F(Name.c_str(), Name.c_str(), NCuts, 0,  NCuts, 50, 0, PtHistoUpperBound, 50, 0, dEdxS_UpLim);
@@ -329,15 +332,15 @@ void stPlots_InitFromFile(TFile* HistoFile, stPlots& st, std::string BaseName, T
    st.BS_TOF    = (TH1F*)GetObjectFromPath(InputFile,  BaseName + "/BS_TOF");
    st.AS_TOF    = (TH2F*)GetObjectFromPath(InputFile,  BaseName + "/AS_TOF");
    st.BS_EtaIs  = (TH2F*)GetObjectFromPath(InputFile,  BaseName + "/BS_EtaIs");
-   st.AS_EtaIs  = (TH3F*)GetObjectFromPath(InputFile,  BaseName + "/AS_EtaIs");
+   //st.AS_EtaIs  = (TH3F*)GetObjectFromPath(InputFile,  BaseName + "/AS_EtaIs");
    st.BS_EtaIm  = (TH2F*)GetObjectFromPath(InputFile,  BaseName + "/BS_EtaIm");
-   st.AS_EtaIm  = (TH3F*)GetObjectFromPath(InputFile,  BaseName + "/AS_EtaIm");
+   //st.AS_EtaIm  = (TH3F*)GetObjectFromPath(InputFile,  BaseName + "/AS_EtaIm");
    st.BS_EtaP   = (TH2F*)GetObjectFromPath(InputFile,  BaseName + "/BS_EtaP");
-   st.AS_EtaP   = (TH3F*)GetObjectFromPath(InputFile,  BaseName + "/AS_EtaP");
+   //st.AS_EtaP   = (TH3F*)GetObjectFromPath(InputFile,  BaseName + "/AS_EtaP");
    st.BS_EtaPt  = (TH2F*)GetObjectFromPath(InputFile,  BaseName + "/BS_EtaPt");
-   st.AS_EtaPt  = (TH3F*)GetObjectFromPath(InputFile,  BaseName + "/AS_EtaPt");
+   //st.AS_EtaPt  = (TH3F*)GetObjectFromPath(InputFile,  BaseName + "/AS_EtaPt");
    st.BS_EtaTOF  = (TH2F*)GetObjectFromPath(InputFile,  BaseName + "/BS_EtaTOF");
-   st.AS_EtaTOF  = (TH3F*)GetObjectFromPath(InputFile,  BaseName + "/AS_EtaTOF");
+   //st.AS_EtaTOF  = (TH3F*)GetObjectFromPath(InputFile,  BaseName + "/AS_EtaTOF");
    st.BS_PIs    = (TH2F*)GetObjectFromPath(InputFile,  BaseName + "/BS_PIs");
    st.AS_PIs    = (TH3F*)GetObjectFromPath(InputFile,  BaseName + "/AS_PIs");
    st.BS_PIm    = (TH2F*)GetObjectFromPath(InputFile,  BaseName + "/BS_PIm");
@@ -424,15 +427,15 @@ void stPlots_Draw(stPlots& st, std::string SavePath, std::string LegendTitle, un
    SaveCanvas(c1,SavePath,"EtaIs_BS", true);
    delete c1;
 
-   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   st.AS_EtaIs->GetXaxis()->SetRange(CutIndex+1,CutIndex+1);   
-   Histos[0] = (TH1*)st.AS_EtaIs->Project3D("zy"); legend.push_back("After Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", dEdxS_Legend.c_str(), 0,0, 0,0, false);
-   c1->SetLogz(true);
-   DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,std::string("EtaIs_AS")+CutIndexStr, true);
-   delete Histos[0];
-   delete c1;
+//   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+//   st.AS_EtaIs->GetXaxis()->SetRange(CutIndex+1,CutIndex+1);   
+//   Histos[0] = (TH1*)st.AS_EtaIs->Project3D("zy"); legend.push_back("After Cut");
+//   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", dEdxS_Legend.c_str(), 0,0, 0,0, false);
+//   c1->SetLogz(true);
+//   DrawPreliminary(IntegratedLuminosity);
+//   SaveCanvas(c1,SavePath,std::string("EtaIs_AS")+CutIndexStr, true);
+//   delete Histos[0];
+//   delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.BS_EtaIm;                 legend.push_back("Before Cut");
@@ -442,15 +445,15 @@ void stPlots_Draw(stPlots& st, std::string SavePath, std::string LegendTitle, un
    SaveCanvas(c1,SavePath,"EtaIm_BS", true);
    delete c1;
 
-   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   st.AS_EtaIm->GetXaxis()->SetRange(CutIndex+1,CutIndex+1);
-   Histos[0] = (TH1*)st.AS_EtaIm->Project3D("zy");legend.push_back("After Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", dEdxM_Legend.c_str(), 0,0, 0,0, false);
-   c1->SetLogz(true);
-   DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,std::string("EtaIm_AS")+CutIndexStr, true);
-   delete Histos[0];
-   delete c1;
+//   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+//   st.AS_EtaIm->GetXaxis()->SetRange(CutIndex+1,CutIndex+1);
+//   Histos[0] = (TH1*)st.AS_EtaIm->Project3D("zy");legend.push_back("After Cut");
+//   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", dEdxM_Legend.c_str(), 0,0, 0,0, false);
+//   c1->SetLogz(true);
+//   DrawPreliminary(IntegratedLuminosity);
+//   SaveCanvas(c1,SavePath,std::string("EtaIm_AS")+CutIndexStr, true);
+//   delete Histos[0];
+//   delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.BS_EtaP;                  legend.push_back("Before Cut");
@@ -460,15 +463,15 @@ void stPlots_Draw(stPlots& st, std::string SavePath, std::string LegendTitle, un
    SaveCanvas(c1,SavePath,"EtaP_BS", true);
    delete c1;
 
-   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   st.AS_EtaP->GetXaxis()->SetRange(CutIndex+1,CutIndex+1);
-   Histos[0] = (TH1*)st.AS_EtaP->Project3D("zy"); legend.push_back("After Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", "p (GeV/c)", 0,0, 0,0, false);
-   c1->SetLogz(true);
-   DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,std::string("EtaP_AS")+CutIndexStr, true);
-   delete Histos[0];
-   delete c1;
+//   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+//   st.AS_EtaP->GetXaxis()->SetRange(CutIndex+1,CutIndex+1);
+//   Histos[0] = (TH1*)st.AS_EtaP->Project3D("zy"); legend.push_back("After Cut");
+//   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", "p (GeV/c)", 0,0, 0,0, false);
+//   c1->SetLogz(true);
+//   DrawPreliminary(IntegratedLuminosity);
+//   SaveCanvas(c1,SavePath,std::string("EtaP_AS")+CutIndexStr, true);
+//   delete Histos[0];
+//   delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.BS_EtaPt;                 legend.push_back("Before Cut");
@@ -478,15 +481,15 @@ void stPlots_Draw(stPlots& st, std::string SavePath, std::string LegendTitle, un
    SaveCanvas(c1,SavePath,"EtaPt_BS", true);
    delete c1;
 
-   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   st.AS_EtaPt->GetXaxis()->SetRange(CutIndex+1,CutIndex+1);
-   Histos[0] = (TH1*)st.AS_EtaPt->Project3D("zy");legend.push_back("After Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", "p_{T} (GeV/c)", 0,0, 0,0, false);
-   c1->SetLogz(true);
-   DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,std::string("EtaPt_AS")+CutIndexStr, true);
-   delete Histos[0];
-   delete c1;
+//   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+//   st.AS_EtaPt->GetXaxis()->SetRange(CutIndex+1,CutIndex+1);
+//   Histos[0] = (TH1*)st.AS_EtaPt->Project3D("zy");legend.push_back("After Cut");
+//   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", "p_{T} (GeV/c)", 0,0, 0,0, false);
+//   c1->SetLogz(true);
+//   DrawPreliminary(IntegratedLuminosity);
+//   SaveCanvas(c1,SavePath,std::string("EtaPt_AS")+CutIndexStr, true);
+//   delete Histos[0];
+//   delete c1;
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
    Histos[0] = (TH1*)st.BS_EtaTOF;                 legend.push_back("Before Cut");
@@ -496,15 +499,15 @@ void stPlots_Draw(stPlots& st, std::string SavePath, std::string LegendTitle, un
    SaveCanvas(c1,SavePath,"EtaTOF_BS", true);
    delete c1;
 
-   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
-   st.AS_EtaTOF->GetXaxis()->SetRange(CutIndex+1,CutIndex+1);
-   Histos[0] = (TH1*)st.AS_EtaTOF->Project3D("zy");legend.push_back("After Cut");
-   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", "1/#beta", 0,0, 0,0, false);
-   c1->SetLogz(true);
-   DrawPreliminary(IntegratedLuminosity);
-   SaveCanvas(c1,SavePath,std::string("EtaTOF_AS")+CutIndexStr, true);
-   delete Histos[0];
-   delete c1;
+//   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+//   st.AS_EtaTOF->GetXaxis()->SetRange(CutIndex+1,CutIndex+1);
+//   Histos[0] = (TH1*)st.AS_EtaTOF->Project3D("zy");legend.push_back("After Cut");
+//   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "#eta", "1/#beta", 0,0, 0,0, false);
+//   c1->SetLogz(true);
+//   DrawPreliminary(IntegratedLuminosity);
+//   SaveCanvas(c1,SavePath,std::string("EtaTOF_AS")+CutIndexStr, true);
+//   delete Histos[0];
+//   delete c1;
 
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
