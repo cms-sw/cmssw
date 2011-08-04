@@ -21,7 +21,7 @@ using namespace RooStats;
 
 double Asymptotic::rAbsAccuracy_ = 0.0005;
 double Asymptotic::rRelAccuracy_ = 0.005;
-bool  Asymptotic::expected_ = true; 
+std::string Asymptotic::what_ = "both"; 
 bool  Asymptotic::qtilde_ = true; 
 float Asymptotic::quantileForExpected_ = 0.5; 
 std::string Asymptotic::minimizerAlgo_ = "Minuit2";
@@ -33,7 +33,7 @@ LimitAlgo("Asymptotic specific options") {
     options_.add_options()
         ("rAbsAcc", boost::program_options::value<double>(&rAbsAccuracy_)->default_value(rAbsAccuracy_), "Absolute accuracy on r to reach to terminate the scan")
         ("rRelAcc", boost::program_options::value<double>(&rRelAccuracy_)->default_value(rRelAccuracy_), "Relative accuracy on r to reach to terminate the scan")
-        ("expected", boost::program_options::value<bool>(&expected_)->default_value(expected_), "Compute also the expected limit and bands from asymptotics")
+        ("run", boost::program_options::value<std::string>(&what_)->default_value(what_), "What to run: both (default), observed, expected.")
         ("minimizerAlgo",      boost::program_options::value<std::string>(&minimizerAlgo_)->default_value(minimizerAlgo_), "Choice of minimizer used for profiling (Minuit vs Minuit2)")
         ("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(minimizerTolerance_),  "Tolerance for minimizer used for profiling")
         ("minimizerStrategy",  boost::program_options::value<int>(&minimizerStrategy_)->default_value(minimizerStrategy_),      "Stragegy for minimizer")
@@ -42,23 +42,28 @@ LimitAlgo("Asymptotic specific options") {
 }
 
 void Asymptotic::applyOptions(const boost::program_options::variables_map &vm) {
+    if (what_ != "observed" && what_ != "expected" && what_ != "both") 
+        throw std::invalid_argument("Asymptotic: option 'run' can only be 'observed', 'expected' or 'both' (the default)");
 }
 
 void Asymptotic::applyDefaultOptions() { 
+    what_ = "observed";
 }
 
 bool Asymptotic::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
     RooFitGlobalKillSentry silence(verbose <= 1 ? RooFit::WARNING : RooFit::DEBUG);
     ProfileLikelihood::MinimizerSentry minimizerConfig(minimizerAlgo_, minimizerTolerance_);
+    if (verbose > 0) std::cout << "Will use minimizer " << minimizerAlgo_ << " with strategy " << minimizerStrategy_ << " and tolerance " << minimizerTolerance_ << std::endl;
+
+    bool ret = false;
     std::vector<std::pair<float,float> > expected;
-    if (expected_) expected = runLimitExpected(w, mc_s, mc_b, data, limit, limitErr, hint);
+    if (what_ != "observed") expected = runLimitExpected(w, mc_s, mc_b, data, limit, limitErr, hint);
+    if (what_ != "expected") ret = runLimit(w, mc_s, mc_b, data, limit, limitErr, hint);
 
-    bool ret = runLimit(w, mc_s, mc_b, data, limit, limitErr, hint);
-
-    if (ret && verbose >= 0) {
+    if (verbose >= 0) {
         const char *rname = mc_s->GetParametersOfInterest()->first()->GetName();
         std::cout << "\n -- Asymptotic -- " << "\n";
-        printf("Observed Limit: %s < %6.4f\n", rname, limit);
+        if (ret && what_ != "expected") printf("Observed Limit: %s < %6.4f\n", rname, limit);
         for (std::vector<std::pair<float,float> >::const_iterator it = expected.begin(), ed = expected.end(); it != ed; ++it) {
             printf("Expected %4.1f%%: %s < %6.4f\n", it->first*100, rname, it->second);
         }
@@ -118,12 +123,14 @@ bool Asymptotic::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats
   double rMin = std::max<double>(0, r->getVal()), rMax = rMin + 3 * ((RooRealVar*)fitFreeD_->floatParsFinal().find(r->GetName()))->getError();
   for (int tries = 0; tries < 5; ++tries) {
     double cls = getCLs(*r, rMax);
+    if (cls == -999) { std::cerr << "Minimization failed in an unrecoverable way" << std::endl; return false; }
     if (cls < clsTarget) break;
     rMax *= 2;
   }
   do {
     limit = 0.5*(rMin + rMax); limitErr = 0.5*(rMax - rMin);
     double cls = getCLs(*r, limit);
+    if (cls == -999) { std::cerr << "Minimization failed in an unrecoverable way" << std::endl; break; }
     if (cls > clsTarget) {
         rMin = limit;
     } else {
@@ -147,7 +154,7 @@ double Asymptotic::getCLs(RooRealVar &r, double rVal) {
   *params_ = snapGlobalObsData;
   r.setVal(rVal);
   r.setConstant(true);
-  nllutils::robustMinimize(*nllD_, minimD, verbose-1);
+  if (!nllutils::robustMinimize(*nllD_, minimD, verbose-1)) return -999;
   fitFixD_.reset(minimD.save());
   if (verbose >= 2) fitFixD_->Print("V");
   double qmu = 2*(nllD_->getVal() - fitFreeD_->minNll()); if (qmu < 0) qmu = 0;
@@ -156,7 +163,7 @@ double Asymptotic::getCLs(RooRealVar &r, double rVal) {
   *params_ = snapGlobalObsAsimov;
   r.setVal(rVal);
   r.setConstant(true);
-  nllutils::robustMinimize(*nllA_, minimA, verbose-1);
+  if (!nllutils::robustMinimize(*nllA_, minimA, verbose-1)) return -999;
   fitFixA_.reset(minimA.save());
   if (verbose >= 2) fitFixA_->Print("V");
   double qA  = 2*(nllA_->getVal() - fitFreeA_->minNll()); if (qA < 0) qA = 0;
@@ -209,8 +216,24 @@ std::vector<std::pair<float,float> > Asymptotic::runLimitExpected(RooWorkspace *
     minim.setErrorLevel(0.5*pow(ROOT::Math::normal_quantile(1-0.5*(1-cl),1.0), 2)); // the 0.5 is because qmu is -2*NLL
                         // eventually if cl = 0.95 this is the usual 1.92!
     nllutils::robustMinimize(*nll, minim, verbose-1);
-    minim.minos(RooArgSet(*r));
+    int minosStat = -1;
+    for (int tries = 0; tries < 3; ++tries) {
+        minosStat = minim.minos(RooArgSet(*r));
+        if (minosStat != -1) break;
+        minim.setStrategy(2);
+        if (tries == 1) { 
+            if (minimizerAlgo_.find("Minuit2") != std::string::npos) {
+                minim.minimize("Minuit","minimize");
+            } else {
+                minim.minimize("Minuit2","minmize");
+            }
+        }
+    }
     sentry.clear();
+    if (minosStat == -1) {
+        std::cerr << "Minos did not converge. No expected limit available" << std::endl;
+        return std::vector<std::pair<float,float> >(); 
+    }
     
     // 3) get ingredients for equation 37
     double median = r->getAsymErrorHi();

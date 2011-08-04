@@ -28,7 +28,8 @@ public:
   virtual const std::string& name() const { static std::string name_ = "Asymptotic"; return name_; }
 private:
   static double rAbsAccuracy_, rRelAccuracy_;
-  static bool expected_, qtilde_; 
+  static std::string what_;
+  static bool qtilde_; 
   static float quantileForExpected_;
   static std::string minimizerAlgo_;
   static float       minimizerTolerance_;
