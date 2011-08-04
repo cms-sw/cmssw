@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.63 2011/06/08 15:41:13 bellan Exp $
+// $Id: MuonIdProducer.cc,v 1.64 2011/08/03 22:44:34 slava77 Exp $
 //
 //
 
@@ -287,7 +287,7 @@ reco::Muon MuonIdProducer::makeMuon( const reco::MuonTrackLinks& links )
    aMuon.setGlobalTrack( links.globalTrack() );
 
    if(fillGlobalTrackRefits_){
-     if (fillGlobalTrackRefits_.isValid() && !tpfmsCollectionHandle_.failedToGet()) {
+     if (tpfmsCollectionHandle_.isValid() && !tpfmsCollectionHandle_.failedToGet()) {
        reco::TrackToTrackMap::const_iterator it = tpfmsCollectionHandle_->find(links.globalTrack());
        if (it != tpfmsCollectionHandle_->end()) aMuon.setMuonTrack(reco::Muon::TPFMS, (it->val));
      }
