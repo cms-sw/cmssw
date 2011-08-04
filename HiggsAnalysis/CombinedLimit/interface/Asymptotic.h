@@ -30,8 +30,7 @@ private:
   static double rAbsAccuracy_, rRelAccuracy_;
   static std::string what_;
   static bool qtilde_; 
-  static bool loose_; 
-  static float quantileForExpected_;
+  static bool picky_; 
   static std::string minimizerAlgo_;
   static float       minimizerTolerance_;
   static int         minimizerStrategy_;
