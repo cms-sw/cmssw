@@ -37,7 +37,7 @@ VComboRemainder getAllCombinations(G& generator) {
 
 class testCombGenerator : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testCombGenerator);
- CPPUNIT_TEST(testEmptyCollection);
+  CPPUNIT_TEST(testEmptyCollection);
   CPPUNIT_TEST(testLessThanDesiredCollection);
   CPPUNIT_TEST(testNormalBehavior);
   CPPUNIT_TEST_SUITE_END();
