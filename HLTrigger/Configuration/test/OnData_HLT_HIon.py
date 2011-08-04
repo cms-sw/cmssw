@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V199 (CMSSW_4_2_0_HLT20)
+# /dev/CMSSW_4_2_0/HIon/V200 (CMSSW_4_2_0_HLT20)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V199')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V200')
 )
 
 process.streams = cms.PSet( 
@@ -5871,6 +5871,42 @@ if 'MessageLogger' in process.__dict__:
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
+# from CMSSW_4_4_0_pre8: update HF configuration for V00-09-18 RecoLocalCalo/HcalRecProducers
+if cmsswVersion > "CMSSW_4_4":
+    if 'hltHfreco' in process.__dict__:
+        process.hltHfreco.digiTimeFromDB = cms.bool( False )
+        process.hltHfreco.digistat.HFdigiflagCoef = cms.vdouble(
+            process.hltHfreco.digistat.HFdigiflagCoef0.value(),
+            process.hltHfreco.digistat.HFdigiflagCoef1.value(),
+            process.hltHfreco.digistat.HFdigiflagCoef2.value()
+        )
+        del process.hltHfreco.digistat.HFdigiflagCoef0
+        del process.hltHfreco.digistat.HFdigiflagCoef1
+        del process.hltHfreco.digistat.HFdigiflagCoef2
+
+# from CMSSW_4_4_0_pre6: updated configuration for the HybridClusterProducer's and EgammaHLTHybridClusterProducer's
+if cmsswVersion > "CMSSW_4_4":
+    if 'hltHybridSuperClustersActivity' in process.__dict__:
+        process.hltHybridSuperClustersActivity.xi               = cms.double( 0.0 )
+        process.hltHybridSuperClustersActivity.useEtForXi       = cms.bool( False )
+    if 'hltHybridSuperClustersL1Isolated' in process.__dict__:
+        process.hltHybridSuperClustersL1Isolated.xi             = cms.double( 0.0 )
+        process.hltHybridSuperClustersL1Isolated.useEtForXi     = cms.bool( False )
+    if 'hltHybridSuperClustersL1NonIsolated' in process.__dict__:
+        process.hltHybridSuperClustersL1NonIsolated.xi          = cms.double( 0.0 )
+        process.hltHybridSuperClustersL1NonIsolated.useEtForXi  = cms.bool( False )
+
+# from CMSSW_4_4_0_pre5: updated configuration for the PFRecoTauDiscriminationByIsolation producers
+if cmsswVersion > "CMSSW_4_4":
+    if 'hltPFTauTightIsoIsolationDiscriminator' in process.__dict__:
+        process.hltPFTauTightIsoIsolationDiscriminator.qualityCuts.primaryVertexSrc = process.hltPFTauTightIsoIsolationDiscriminator.PVProducer
+        process.hltPFTauTightIsoIsolationDiscriminator.qualityCuts.pvFindingAlgo    = cms.string('highestPtInEvent')
+        del process.hltPFTauTightIsoIsolationDiscriminator.PVProducer
+    if 'hltPFTauLooseIsolationDiscriminator' in process.__dict__:
+        process.hltPFTauLooseIsolationDiscriminator.qualityCuts.primaryVertexSrc = process.hltPFTauLooseIsolationDiscriminator.PVProducer
+        process.hltPFTauLooseIsolationDiscriminator.qualityCuts.pvFindingAlgo    = cms.string('highestPtInEvent')
+        del process.hltPFTauLooseIsolationDiscriminator.PVProducer
+
 # from CMSSW_4_4_0_pre5: updated configuration for the EcalSeverityLevelESProducer
 if cmsswVersion > "CMSSW_4_4":
     process.ecalSeverityLevel = cms.ESProducer("EcalSeverityLevelESProducer",
@@ -5885,11 +5921,11 @@ if cmsswVersion > "CMSSW_4_4":
         ),
         flagMask = cms.PSet (
             kGood        = cms.vstring('kGood'),
-            kProblematic = cms.vstring('kPoorReco','kPoorCalib'),
-            kRecovered   = cms.vstring('kLeadingEdgeRecovered','kTowerRecovered'),
+            kProblematic = cms.vstring('kPoorReco', 'kPoorCalib', 'kNoisy', 'kSaturated'),
+            kRecovered   = cms.vstring('kLeadingEdgeRecovered', 'kTowerRecovered'),
             kTime        = cms.vstring('kOutOfTime'),
-            kWeird       = cms.vstring('kWeird','kDiWeird'),
-            kBad         = cms.vstring('kFaultyHardware','kDead','kKilled')
+            kWeird       = cms.vstring('kWeird', 'kDiWeird'),
+            kBad         = cms.vstring('kFaultyHardware', 'kDead', 'kKilled')
         ),
         timeThresh = cms.double(2.0)
     )
