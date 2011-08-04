@@ -38,7 +38,7 @@ VComboRemainder getAllCombinations(G& generator) {
 class testCombGenerator : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testCombGenerator);
   CPPUNIT_TEST(testEmptyCollection);
-  //CPPUNIT_TEST(testLessThanDesiredCollection);
+  CPPUNIT_TEST(testLessThanDesiredCollection);
   CPPUNIT_TEST(testNormalBehavior);
   CPPUNIT_TEST_SUITE_END();
 
@@ -99,7 +99,8 @@ class testCombGenerator : public CppUnit::TestFixture {
 
        Generator tripletGen(toCombize.begin(), toCombize.end(), 3);
        VComboRemainder tripletResults = getAllCombinations(tripletGen);
-       CPPUNIT_ASSERT(tripletResults.size() == 1);
+       // Can't make any combos - 2 choose 3 doesn't make sense.
+       CPPUNIT_ASSERT(tripletResults.size() == 0);
      }
 
      void testEmptyCollection() {
