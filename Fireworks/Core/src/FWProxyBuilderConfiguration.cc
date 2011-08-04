@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jul 27 00:58:43 CEST 2011
-// $Id$
+// $Id: FWProxyBuilderConfiguration.cc,v 1.1 2011/07/30 04:45:25 amraktad Exp $
 //
 
 // system include files
@@ -25,9 +25,9 @@
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWItemChangeSignal.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
-#include "Fireworks/Core/src/FWParameterBase.h"
-#include "Fireworks/Core/src/FWGenericParameter.h"
-#include "Fireworks/Core/src/FWEnumParameter.h"
+#include "Fireworks/Core/interface/FWParameterBase.h"
+#include "Fireworks/Core/interface/FWGenericParameter.h"
+#include "Fireworks/Core/interface/FWEnumParameter.h"
 
 FWProxyBuilderConfiguration::FWProxyBuilderConfiguration(const FWConfiguration* c):
    m_txtConfig(c)
