@@ -101,10 +101,14 @@ MTVHistoProducerAlgoForTracker::MTVHistoProducerAlgoForTracker(const edm::Parame
   ParameterSet TpSelectorForEfficiencyVsVTXRPSet = pset.getParameter<ParameterSet>("TpSelectorForEfficiencyVsVTXR");
   ParameterSet TpSelectorForEfficiencyVsVTXZPSet = pset.getParameter<ParameterSet>("TpSelectorForEfficiencyVsVTXZ");
 
+  ParameterSet TpSelectorForEfficiencyVsConPSet = TpSelectorForEfficiencyVsEtaPSet;
+  Entry name("signalOnly",false,true);
+  TpSelectorForEfficiencyVsConPSet.insert(true,"signalOnly",name);
   
   using namespace reco::modules;
   generalTpSelector               = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(generalTpSelectorPSet));
   TpSelectorForEfficiencyVsEta    = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsEtaPSet));
+  TpSelectorForEfficiencyVsCon    = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsConPSet));
   TpSelectorForEfficiencyVsPhi    = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsPhiPSet));
   TpSelectorForEfficiencyVsPt     = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsPtPSet));
   TpSelectorForEfficiencyVsVTXR   = new TrackingParticleSelector(ParameterAdapter<TrackingParticleSelector>::make(TpSelectorForEfficiencyVsVTXRPSet));
@@ -646,9 +650,7 @@ void MTVHistoProducerAlgoForTracker::bookRecoHistosForStandaloneRunning(){
   h_fomt_ootpu_eta.push_back( dbe_->book1D("fomt_ootpu_eta","Out of time pileup fraction of misreconstructed tracks vs #eta",nintEta,minEta,maxEta) );
   h_fomt_ootpu_vertcount.push_back( dbe_->book1D("fomt_ootpu_vertcount","Out of time pileup fraction of misreconstructed tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
   h_fomt_itpu_eta.push_back( dbe_->book1D("fomt_itpu_eta","In time pileup fraction of misreconstructed tracks vs eta",nintEta,minEta,maxEta) );
-  h_fomt_sig_itpu_eta.push_back( dbe_->book1D("fomt_itpu_eta_signal","In time pileup fraction of misreconstructed tracks vs eta",nintEta,minEta,maxEta) );
   h_fomt_itpu_vertcount.push_back( dbe_->book1D("fomt_itpu_vertcount","In time pileup fraction of misreconstructed tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
-  h_fomt_sig_itpu_vertcount.push_back( dbe_->book1D("fomt_itpu_vertcount_signal","In time pileup fraction of misreconstructed tracks vs N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
 
   h_effic_PU_eta.push_back( dbe_->book1D("effic_PU_eta","PU efficiency vs #eta",nintEta,minEta,maxEta) );
   h_effic_PU_vertcount.push_back( dbe_->book1D("effic_PU_vertcount","PU efficiency s N of pileup vertices",nintVertcount,minVertcount,maxVertcount) );
@@ -891,8 +893,8 @@ void MTVHistoProducerAlgoForTracker::fill_recoAssociated_simTrack_histos(int cou
     } // END for (unsigned int f=0; f<zposintervals[count].size()-1; f++){
   }
 
-  //Special investigations for PU
-  if(!((*TpSelectorForEfficiencyVsEta)(tp))){
+  //Special investigations for PU  
+  if(((*TpSelectorForEfficiencyVsCon)(tp)) && (!((*TpSelectorForEfficiencyVsEta)(tp)))){
 
    //efficPU vs eta
     for (unsigned int f=0; f<etaintervals[count].size()-1; f++){
@@ -1358,7 +1360,8 @@ void MTVHistoProducerAlgoForTracker::finalHistoFits(int counter){
   
   //effic&fake;
   for (unsigned int ite = 0;ite<totASSeta[counter].size();ite++) totFOMT_eta[counter][ite]=totASS2eta[counter][ite]-totASS2etaSig[counter][ite];
-  for (unsigned int ite = 0;ite<totASS2_vertcount_entire[counter].size();ite++) totFOMT_vertcount[counter][ite]=totASS2_vertcount_entire[counter][ite]-totASS2_vertcount_entire_signal[counter][ite];
+  for (unsigned int ite = 0;ite<totASS2_vertcount_entire[counter].size();ite++)  
+    totFOMT_vertcount[counter][ite]=totASS2_vertcount_entire[counter][ite]-totASS2_vertcount_entire_signal[counter][ite];
   for (unsigned int ite = 0;ite<totASS2_itpu_eta_entire[counter].size();ite++) totASS2_itpu_eta_entire[counter][ite]-=totASS2_itpu_eta_entire_signal[counter][ite];
   for (unsigned int ite = 0;ite<totASS2_itpu_vertcount_entire[counter].size();ite++) totASS2_itpu_vertcount_entire[counter][ite]-=totASS2_itpu_vertcount_entire_signal[counter][ite];
 
@@ -1393,8 +1396,8 @@ void MTVHistoProducerAlgoForTracker::finalHistoFits(int counter){
   fillPlotFromVectors(h_fakerate_ootpu_fwdpos[counter],totASS2_ootpu_fwdpos[counter],totREC_ootpu_fwdpos[counter],"effic");
   fillPlotFromVectors(h_fakerate_ootpu_fwdneg[counter],totASS2_ootpu_fwdneg[counter],totREC_ootpu_fwdneg[counter],"effic");
 
-  fillPlotFromVectors(h_fomt_eta[counter],totFOMT_eta[counter],totASS2etaSig[counter],"effic");
-  fillPlotFromVectors(h_fomt_vertcount[counter],totFOMT_vertcount[counter],totASS2_vertcount_entire_signal[counter],"effic");
+  fillPlotFromVectors(h_fomt_eta[counter],totASS2etaSig[counter],totFOMT_eta[counter],"effic");
+  fillPlotFromVectors(h_fomt_vertcount[counter],totASS2_vertcount_entire_signal[counter],totFOMT_vertcount[counter],"effic");
   fillPlotFromVectors(h_fomt_sig_eta[counter],totASS2etaSig[counter],totRECeta[counter],"fakerate");
   fillPlotFromVectors(h_fomt_sig_vertcount[counter],totASS2_vertcount_entire_signal[counter],totREC_vertcount_entire[counter],"fakerate");
   fillPlotFromVectors(h_fomt_itpu_eta[counter],totASS2_itpu_eta_entire[counter],totRECeta[counter],"effic");
