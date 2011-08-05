@@ -33,7 +33,7 @@ using namespace std;
 
 /////////////////////////// FUNCTION DECLARATION /////////////////////////////
 
-void CutFlow(string InputPattern);
+void CutFlow(string InputPattern, unsigned int CutIndex=0);
 void SelectionPlot (string InputPattern, unsigned int CutIndex, unsigned int GluinoCutIndex);
 void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuffix="Mass");
 void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex);
@@ -90,22 +90,22 @@ void Analysis_Step5()
 // SignalMassPlot(InputDir,0);return;
 // GetSystematicOnPrediction(InputDir);
 
-   InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type0/";   CutIndex = 4;//25;//24;//41
-//   MassPrediction(InputDir, CutIndex, "Mass");
-//   PredictionAndControlPlot(InputDir, CutIndex);
-//   CutFlow(InputDir);
-//   SelectionPlot(InputDir, CutIndex, 0);
-   InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type2/";   CutIndex = 14;//²38;//83;// 82;//18;
+   InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type0/";   CutIndex = 4;
    MassPrediction(InputDir, CutIndex, "Mass");
-   CutFlow(InputDir);
-   SelectionPlot(InputDir, CutIndex, 0);return;
+//   PredictionAndControlPlot(InputDir, CutIndex);
+//  CutFlow(InputDir);
+//   SelectionPlot(InputDir, CutIndex, 0);
+   InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type2/";   CutIndex = 16;
+   MassPrediction(InputDir, CutIndex, "Mass");
+//   CutFlow(InputDir);
+//   SelectionPlot(InputDir, CutIndex, 0);return;
 //   GetSystematicOnPrediction(InputDir);
 //   PredictionAndControlPlot(InputDir, CutIndex);
 
    //SelectionPlot(InputDir, CutIndex);
    //PredictionAndControlPlot(InputDir, CutIndex);
    //GetSystematicOnPrediction(InputDir);
-
+return;
 
    InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type0/";   CutIndex = 11;/*65;*//*39;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
    CutIndex=28;
@@ -624,7 +624,7 @@ void GetSystematicOnPrediction(string InputPattern){
 }
 
 
-void CutFlow(string InputPattern){
+void CutFlow(string InputPattern, unsigned int CutIndex){
    string Input     = InputPattern + "Histos.root";
    string SavePath  = InputPattern + "/CutFlow/";
    MakeDirectories(SavePath);
@@ -634,34 +634,31 @@ void CutFlow(string InputPattern){
    TFile* InputFileMC   = new TFile((InputPattern + "Histos_MC.root").c_str());
    if(!InputFileMC)std::cout << "FileProblem\n";
 
-   stPlots DataPlots, MCTrPlots, SignPlots[signals.size()];
-   stPlots_InitFromFile(InputFile, DataPlots,"Data", InputFileData);
-   stPlots_InitFromFile(InputFile, MCTrPlots,"MCTr", InputFileMC);
-   for(unsigned int s=0;s<signals.size();s++){
-      stPlots_InitFromFile(InputFile, SignPlots[s],signals[s].Name, InputFile);
-   }
-
    TH1D*  HCuts_Pt       = (TH1D*)GetObjectFromPath(InputFileData, "HCuts_Pt");
    TH1D*  HCuts_I        = (TH1D*)GetObjectFromPath(InputFileData, "HCuts_I");
    TH1D*  HCuts_TOF      = (TH1D*)GetObjectFromPath(InputFileData, "HCuts_TOF");
 
-   for(int CutIndex=0;CutIndex<HCuts_Pt->GetNbinsX();CutIndex++){
-      char Buffer[1024]; sprintf(Buffer,"%s/CutFlow_%03i_Pt%03.0f_I%05.3f_TOF%04.3f.txt",SavePath.c_str(),CutIndex,HCuts_Pt->GetBinContent(CutIndex+1),HCuts_I->GetBinContent(CutIndex+1),HCuts_TOF->GetBinContent(CutIndex+1));
-      FILE* pFile = fopen(Buffer,"w");
-      stPlots_Dump(DataPlots, pFile, CutIndex);
-      stPlots_Dump(MCTrPlots, pFile, CutIndex);
-      for(unsigned int s=0;s<signals.size();s++){
-         if(!signals[s].MakePlot)continue;
-         stPlots_Dump(SignPlots[s], pFile, CutIndex);
-      }
-      fclose(pFile);
-   }
+    char Buffer[1024]; sprintf(Buffer,"%s/CutFlow_%03i_Pt%03.0f_I%05.3f_TOF%04.3f.txt",SavePath.c_str(),CutIndex,HCuts_Pt->GetBinContent(CutIndex+1),HCuts_I->GetBinContent(CutIndex+1),HCuts_TOF->GetBinContent(CutIndex+1));
+    FILE* pFile = fopen(Buffer,"w");
+    stPlots DataPlots;
+    stPlots_InitFromFile(InputFile, DataPlots,"Data", InputFileData);
+    stPlots_Dump(DataPlots, pFile, CutIndex);
+    stPlots_Clear(DataPlots);
 
-   stPlots_Clear(DataPlots);
-   stPlots_Clear(MCTrPlots);
-   for(unsigned int s=0;s<signals.size();s++){
-      stPlots_Clear(SignPlots[s]);
-   }
+    stPlots MCTrPlots;
+    stPlots_InitFromFile(InputFile, MCTrPlots,"MCTr", InputFileMC);
+    stPlots_Dump(MCTrPlots, pFile, CutIndex);
+    stPlots_Clear(MCTrPlots);
+    
+    for(unsigned int s=0;s<signals.size();s++){
+       if(!signals[s].MakePlot)continue;
+       stPlots SignPlots;
+       stPlots_InitFromFile(InputFile, SignPlots,signals[s].Name, InputFile);
+//       stPlots_Dump(SignPlots, pFile, CutIndex);       
+       stPlots_Clear(SignPlots);
+    }
+     
+    fclose(pFile);
 }
 
 void SignalMassPlot(string InputPattern, unsigned int CutIndex){
@@ -1403,38 +1400,6 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    TH1D* MC     = ((TH2D*)GetObjectFromPath(InputFile_MC, string("MCTr/") + HistoSuffix   ))->ProjectionY("TmpMCMass"    ,CutIndex+1,CutIndex+1,"o");
    TH1D* MCPred = ((TH2D*)GetObjectFromPath(InputFile_MC, string("Pred_") + HistoSuffix   ))->ProjectionY("TmpMCPred"    ,CutIndex+1,CutIndex+1,"o");
 
-      double D,P,Perr;
-      D = Data->Integral( Data->GetXaxis()->FindBin(0.0),  Data->GetXaxis()->FindBin(75.0));
-      P = Pred->Integral( Pred->GetXaxis()->FindBin(0.0),  Pred->GetXaxis()->FindBin(75.0));
-      Perr = 0; for(int i=Pred->GetXaxis()->FindBin(0.0);i<Pred->GetXaxis()->FindBin(75.0);i++){ Perr += pow(Pred->GetBinError(i),2); }  Perr = sqrt(Perr);
-      printf("%3.0f<M<%3.0f --> D=%9.3f P = %9.3f +- %6.3f(stat) +- %6.3f(syst) (=%6.3f)\n", 0.0,75.0, D, P, Perr, P*(2*RMS),sqrt(Perr*Perr + pow(P*(2*RMS),2)));
-
-      D = Data->Integral( Data->GetXaxis()->FindBin(140.0),  Data->GetXaxis()->FindBin(2000.0));
-      P = Pred->Integral( Pred->GetXaxis()->FindBin(140.0),  Pred->GetXaxis()->FindBin(2000.0));
-      Perr = 0; for(int i=Pred->GetXaxis()->FindBin(140.0);i<Pred->GetXaxis()->FindBin(2000.0);i++){ Perr += pow(Pred->GetBinError(i),2); }  Perr = sqrt(Perr);
-      printf("%3.0f<M<%3.0f --> D=%9.3f P = %9.3f +- %6.3f(stat) +- %6.3f(syst) (=%6.3f)\n", 140.0,2000.0, D, P, Perr, P*(2*RMS),sqrt(Perr*Perr + pow(P*(2*RMS),2)));
-
-      D = Data->Integral( Data->GetXaxis()->FindBin(330.0),  Data->GetXaxis()->FindBin(2000.0));
-      P = Pred->Integral( Pred->GetXaxis()->FindBin(330.0),  Pred->GetXaxis()->FindBin(2000.0));
-      Perr = 0; for(int i=Pred->GetXaxis()->FindBin(330.0);i<Pred->GetXaxis()->FindBin(2000.0);i++){ Perr += pow(Pred->GetBinError(i),2); }  Perr = sqrt(Perr);
-      printf("%3.0f<M<%3.0f --> D=%9.3f P = %9.3f +- %6.3f(stat) +- %6.3f(syst) (=%6.3f)\n", 330.0,2000.0, D, P, Perr, P*(2*RMS),sqrt(Perr*Perr + pow(P*(2*RMS),2)));
-
-
-   for(double M=0;M<=1000;M+=200){
-      double D,P,Perr;
-      D = Data->Integral( Data->GetXaxis()->FindBin(M),  Data->GetXaxis()->FindBin(2000.0));  
-      P = Pred->Integral( Pred->GetXaxis()->FindBin(M),  Pred->GetXaxis()->FindBin(2000.0));
-      Perr = 0; for(int i=Pred->GetXaxis()->FindBin(M);i<Pred->GetXaxis()->FindBin(2000.0);i++){ Perr += pow(Pred->GetBinError(i),2); }  Perr = sqrt(Perr);
-      printf("%3.0f<M<2000 --> D=%9.3f P = %9.3f +- %6.3f(stat) +- %6.3f(syst) (=%6.3f)\n", M, D, P, Perr, P*(2*RMS),sqrt(Perr*Perr + pow(P*(2*RMS),2)));
-   }
-//   for(int i=Pred->GetXaxis()->FindBin(0.0);i<Pred->GetXaxis()->FindBin(2000.0);i++){printf("MassBin=%6.2f  --> BinEntry=%6.2E +- %6.2E\n",Pred->GetXaxis()->GetBinCenter(i), Pred->GetBinContent(i), Pred->GetBinError(i));}
-
-
-      printf("FullSpectrum --> D=%9.3f P = %9.3f +- %6.3f(stat) +- %6.3f(syst) (=%6.3f)\n", Data->Integral(), Pred->Integral(), 0.0, 0.0, 0.0 );
-      printf("UnderFlow = %6.2f OverFlow = %6.2f\n", Pred->GetBinContent(0), Pred->GetBinContent(Pred->GetNbinsX()+1) );
-
-
-
    TH1D*  H_A            = (TH1D*)GetObjectFromPath(InputFile_Data, "H_A");
    TH1D*  H_B            = (TH1D*)GetObjectFromPath(InputFile_Data, "H_B");
    TH1D*  H_C            = (TH1D*)GetObjectFromPath(InputFile_Data, "H_C");
@@ -1448,6 +1413,24 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    printf("PREDICTED EVENTS = %6.2E+-%6.2E\n",H_P->GetBinContent(CutIndex+1), H_P->GetBinError(CutIndex+1));
 
 
+   MCPred->Scale(H_P->GetBinContent(CutIndex+1)/MC->Integral());
+   MC    ->Scale(H_P->GetBinContent(CutIndex+1)/MC->Integral());
+
+   for(double M=0;M<=1000;M+=200){
+      double D,P,Perr;
+      D = Data->Integral( Data->GetXaxis()->FindBin(M),  Data->GetXaxis()->FindBin(2000.0));
+      P = Pred->Integral( Pred->GetXaxis()->FindBin(M),  Pred->GetXaxis()->FindBin(2000.0));
+      Perr = 0; for(int i=Pred->GetXaxis()->FindBin(M);i<Pred->GetXaxis()->FindBin(2000.0);i++){ Perr += pow(Pred->GetBinError(i),2); }  Perr = sqrt(Perr);
+      double MD,MDerr, MP,MPerr;
+      MD = MC->Integral( MC->GetXaxis()->FindBin(M),  MC->GetXaxis()->FindBin(2000.0));
+      MP = MCPred->Integral( MCPred->GetXaxis()->FindBin(M),  MCPred->GetXaxis()->FindBin(2000.0));
+      MDerr = 0; for(int i=MC->GetXaxis()->FindBin(M);i<MC->GetXaxis()->FindBin(2000.0);i++){ MDerr += pow(MC->GetBinError(i),2); }  MDerr = sqrt(MDerr);
+      MPerr = 0; for(int i=MCPred->GetXaxis()->FindBin(M);i<MCPred->GetXaxis()->FindBin(2000.0);i++){ MPerr += pow(MCPred->GetBinError(i),2); }  MPerr = sqrt(MPerr);
+      printf("%4.0f<M<2000 --> Obs=%9.3f Data-Pred = %9.3f +- %8.3f(syst+stat)  MC=%9.3f+-%8.3f   MC-Pred = %8.3f +- %9.3f (syst+stat)\n", M, D, P, sqrt(Perr*Perr + pow(P*(2*RMS),2)), MD, MDerr, MP, sqrt(MPerr*MPerr + pow(MP*(2*RMS),2)) );
+   }
+   printf("FullSpectrum --> D=%9.3f P = %9.3f +- %6.3f(stat) +- %6.3f(syst) (=%6.3f)\n", Data->Integral(), Pred->Integral(), 0.0, 0.0, 0.0 );
+   printf("UnderFlow = %6.2f OverFlow = %6.2f\n", Pred->GetBinContent(0), Pred->GetBinContent(Pred->GetNbinsX()+1) );
+
    Pred->Rebin(4);
    Data->Rebin(4);
    TH1D* Signal = Gluino600;
@@ -1456,8 +1439,6 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    MC->Rebin(4);
    MCPred->Rebin(4);
 
-   MCPred->Scale(H_P->GetBinContent(CutIndex+1)/MC->Integral());
-   MC    ->Scale(H_P->GetBinContent(CutIndex+1)/MC->Integral());
 
    double Max = 2.0 * std::max(std::max(Data->GetMaximum(), Pred->GetMaximum()), Signal->GetMaximum());
    double Min = 0.01;// 0.1 * std::min(0.01,Pred->GetMaximum());
@@ -1539,8 +1520,6 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    Data->SetLineColor(1);
    Data->SetFillColor(0);
    Data->Draw("E1 same");
-
-
 
    leg = new TLegend(0.79,0.93,0.40,0.68);
    leg->SetHeader(LegendFromType(InputPattern).c_str());
