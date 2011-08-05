@@ -20,7 +20,6 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
