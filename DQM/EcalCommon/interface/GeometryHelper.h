@@ -5,14 +5,12 @@
   \file GeomHelperFunctions.h
   \brief Ecal Monitor Utility functions
   \author Yutaro Iiyama
-  \version $Revision: 1.0 $
-  \date $Date: 2011/08/05 02:37:00 $
+  \version $Revision: 1.1 $
+  \date $Date: 2011/08/05 10:34:43 $
 */
 
 #include <string>
 #include <map>
-
-#include "TClass.h"
 
 class DQMStore;
 class MonitorElement;
@@ -38,7 +36,6 @@ namespace ecaldqm {
   };
 
   struct MeInfo {
-    TClass *isa;
     ObjectType otype;
     BinningType btype;
     int ism;
@@ -47,7 +44,7 @@ namespace ecaldqm {
   class MeInfoMap {
 
   public:
-    static void set(MonitorElement *me, TClass *cl, ObjectType otype, BinningType btype, int ism);
+    static void set(MonitorElement *me, ObjectType otype, BinningType btype, int ism);
     static const MeInfo *get(MonitorElement *me);
 
   private:
@@ -60,6 +57,34 @@ namespace ecaldqm {
   void fillME(MonitorElement *me, const EEDetId &id, double wz = 1., double wprof = 1.);
   void fillME(MonitorElement *me, const EcalScDetId &id, double wz = 1., double wprof = 1.);
   void fillME(MonitorElement *me, const EcalTrigTowerDetId &id, double wz = 1., double wprof = 1.);
+
+  int getBinME(MonitorElement *me, const EEDetId &id);
+  int getBinME(MonitorElement *me, const EcalScDetId &id);
+  int getBinME(MonitorElement *me, const EcalTrigTowerDetId &id);
+
+  double getBinContentME(MonitorElement *me, const EEDetId &id);
+  double getBinContentME(MonitorElement *me, const EcalScDetId &id);
+  double getBinContentME(MonitorElement *me, const EcalTrigTowerDetId &id);
+
+  double getBinErrorME(MonitorElement *me, const EEDetId &id);
+  double getBinErrorME(MonitorElement *me, const EcalScDetId &id);
+  double getBinErrorME(MonitorElement *me, const EcalTrigTowerDetId &id);
+
+  double getBinEntriesME(MonitorElement *me, const EEDetId &id);
+  double getBinEntriesME(MonitorElement *me, const EcalScDetId &id);
+  double getBinEntriesME(MonitorElement *me, const EcalTrigTowerDetId &id);
+
+  void setBinContentME(MonitorElement *me, const EEDetId &id, double content);
+  void setBinContentME(MonitorElement *me, const EcalScDetId &id, double content);
+  void setBinContentME(MonitorElement *me, const EcalTrigTowerDetId &id, double content);
+
+  void setBinErrorME(MonitorElement *me, const EEDetId &id, double error);
+  void setBinErrorME(MonitorElement *me, const EcalScDetId &id, double error);
+  void setBinErrorME(MonitorElement *me, const EcalTrigTowerDetId &id, double error);
+
+  void setBinEntriesME(MonitorElement *me, const EEDetId &id, double entries);
+  void setBinEntriesME(MonitorElement *me, const EcalScDetId &id, double entries);
+  void setBinEntriesME(MonitorElement *me, const EcalTrigTowerDetId &id, double entries);
 
 }
 
