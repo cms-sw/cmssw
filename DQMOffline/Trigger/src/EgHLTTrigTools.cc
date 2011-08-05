@@ -123,10 +123,11 @@ void trigTools::getActiveFilters(const HLTConfigProvider& hltConfig,std::vector<
 	  for(size_t filter=0;filter<filters.size();filter++){
 	    if(filters[filter].find("Filter")==filters[filter].size()-6
 	       || filters[filter].find("Filter")==filters[filter].size()-14){//keep only modules that end in "Filter" or "FilterUnseeded"
+	      //std::cout<<"  Module Name: "<<filters[filter]<<" filter#: "<<int(filter)<<"/"<<filters.size()<<" ncandcut: "<<trigTools::getMinNrObjsRequiredByFilter(filters[filter])<<std::endl;
 	      if(//keep only the last filter and the last one with ncandcut==1 (for di-object triggers)
-		 (filter<filters.size()-1  && trigTools::getMinNrObjsRequiredByFilter(filters[filter])==1 && trigTools::getMinNrObjsRequiredByFilter(filters[++filter])==2)  
-		 || filter==filters.size()-1
-		 ){
+		 (filter<filters.size()-1  && trigTools::getMinNrObjsRequiredByFilter(filters[filter])==1 && trigTools::getMinNrObjsRequiredByFilter(filters[filter+1])==2)  
+		 || (filter<filters.size()-1  && trigTools::getMinNrObjsRequiredByFilter(filters[filter])==1 && trigTools::getMinNrObjsRequiredByFilter(filters[filter+1])==1 && filters[filter+1].find("Mass")!=filters[filter+1].npos)  
+		 || filter==filters.size()-1 ){
 		activeFilters.push_back(filters[filter]); //saves all modules with saveTags=true
 		if(pathName.find("Photon")!=pathName.npos){
 		  activePhoFilters.push_back(filters[filter]);
@@ -134,8 +135,8 @@ void trigTools::getActiveFilters(const HLTConfigProvider& hltConfig,std::vector<
 		if(pathName.find("Ele")!=pathName.npos){
 		  activeEleFilters.push_back(filters[filter]);
 		}
+		//std::cout<<"  Module Name: "<<filters[filter]<<" filter#: "<<int(filter)<<"/"<<filters.size()<<" ncandcut: "<<trigTools::getMinNrObjsRequiredByFilter(filters[filter])<<std::endl;
 	      }
-	      //std::cout<<"  Module Name: "<<filters[filter]<<" ncandcut: "<<trigTools::getMinNrObjsRequiredByFilter(filters[filter])<<std::endl;
 	    }
 	  }
 	  //std::cout<<filters[filters.size()-2]<<std::endl;
@@ -145,6 +146,8 @@ void trigTools::getActiveFilters(const HLTConfigProvider& hltConfig,std::vector<
     }//end hlt path check
   }//end path loop over
   std::sort(activeFilters.begin(),activeFilters.end());
+  std::sort(activeEleFilters.begin(),activeEleFilters.end());
+  std::sort(activePhoFilters.begin(),activePhoFilters.end());
 }
 //----------------------------
 

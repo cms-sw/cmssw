@@ -170,7 +170,7 @@ void EgHLTOfflineSource::analyze(const edm::Event& iEvent,const edm::EventSetup&
  
 
 
-  const double weight=1.; //we have the ability to weight but its disabled for now
+  const double weight=1.; //we have the ability to weight but its disabled for now - maybe use this for prescales?
   nrEventsProcessed_++;
   nrEventsProcessedMonElem_->Fill(nrEventsProcessed_);
   int errCode = offEvtHelper_.makeOffEvt(iEvent,iSetup,offEvt_);
@@ -273,11 +273,6 @@ void EgHLTOfflineSource::filterTriggers(const HLTConfigProvider& hltConfig)
   
   trigTools::getActiveFilters(hltConfig,activeFilters,activeEleFilters,activePhoFilters);
   
-  //---Morse test----------
-  //std::vector<std::string> activeFilters30;
-  //trigTools::getPhoton30(hltConfig,activeFilters30);
-  //trigTools::filterInactiveTriggers30(activeFilters30);
-  //---------------------
   trigTools::filterInactiveTriggers(eleHLTFilterNames_,activeFilters);
   trigTools::filterInactiveTriggers(phoHLTFilterNames_,activePhoFilters);
   trigTools::filterInactiveTightLooseTriggers(eleTightLooseTrigNames_,activeEleFilters);

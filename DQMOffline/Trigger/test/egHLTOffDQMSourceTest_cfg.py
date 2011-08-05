@@ -33,6 +33,7 @@ process.MessageLogger.cerr.FwkReport = cms.untracked.PSet(
     limit = cms.untracked.int32(10000000)
 )
 
+#process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True))
 
 #process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
 #    HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
@@ -65,7 +66,7 @@ process.source.fileNames=[
 
 process.maxEvents = cms.untracked.PSet(
   
-    input = cms.untracked.int32(101)
+    input = cms.untracked.int32(100)
 )
 
 
@@ -79,7 +80,7 @@ process.FEVT = cms.OutputModule("PoolOutputModule",
     process.FEVTEventContent,
     dataset = cms.untracked.PSet(dataTier = cms.untracked.string('RECO')),
  #   fileName = cms.untracked.string('/data/ndpc3/c/dmorse/HLTDQMrootFiles/May18/SourceTest_420_2.root')
-    fileName = cms.untracked.string('DQMOfflineSourceTRASH.root')
+    fileName = cms.untracked.string('Run2011A_SingleElectronRuns165364-166462NoEtcut_RECO.root')
 )
 process.FEVT.outputCommands = cms.untracked.vstring('drop *','keep *_MEtoEDMConverter_*_DQMTest')
 
