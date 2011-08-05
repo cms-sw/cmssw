@@ -83,10 +83,15 @@ RecoTauPiZeroStripPlugin2::RecoTauPiZeroStripPlugin2(const edm::ParameterSet& ps
     vertexAssociator_(pset.getParameter<edm::ParameterSet>("qualityCuts")),
     qcuts_(0)
 {
+  //std::cout << "<RecoTauPiZeroStripPlugin2::RecoTauPiZeroStripPlugin2>:" << std::endl;
+
   minGammaEtStripSeed_ = pset.getParameter<double>("minGammaEtStripSeed");
+  //std::cout << " minGammaEtStripSeed = " << minGammaEtStripSeed_ << std::endl;
   minGammaEtStripAdd_ = pset.getParameter<double>("minGammaEtStripAdd");
+  //std::cout << " minGammaEtStripAdd = " << minGammaEtStripAdd_ << std::endl;
 
   minStripEt_ = pset.getParameter<double>("minStripEt");
+  //std::cout << " minStripEt = " << minStripEt_ << std::endl;
   
   edm::ParameterSet qcuts_pset = pset.getParameterSet("qualityCuts").getParameterSet("signalQualityCuts");
   qcuts_pset.addParameter("minGammaEt", std::min(minGammaEtStripSeed_, minGammaEtStripAdd_));
@@ -126,6 +131,7 @@ void RecoTauPiZeroStripPlugin2::addCandsToStrip(RecoTauPiZero& strip, PFCandPtrs
       reco::PFCandidatePtr cand = cands[candId];
       if ( fabs(strip.eta() - cand->eta()) < etaAssociationDistance_ && // check if cand is within eta-phi window centered on strip 
 	   fabs(strip.phi() - cand->phi()) < phiAssociationDistance_ ) {
+	//std::cout << "--> candId = " << candId << " has been added." << std::endl;
 	strip.addDaughter(cand);
 	if ( updateStripAfterEachDaughter_ ) p4Builder_.set(strip);
 	isCandAdded = true;
@@ -154,10 +160,20 @@ RecoTauPiZeroStripPlugin2::return_type RecoTauPiZeroStripPlugin2::operator()(con
   // Convert to stl::list to allow fast deletions
   PFCandPtrs seedCands;
   PFCandPtrs addCands;
+  //int idx = 0;
   for ( PFCandPtrs::iterator cand = candsVector.begin();
 	cand != candsVector.end(); ++cand ) {
-    if      ( (*cand)->et() > minGammaEtStripSeed_ ) seedCands.push_back(*cand);
-    else if ( (*cand)->et() > minGammaEtStripAdd_  ) addCands.push_back(*cand);
+    //std::cout << "PFGamma (" << idx << "): Et = " << (*cand)->et() << "," 
+    //	        << " eta = " << (*cand)->eta() << ", phi = " << (*cand)->phi(); 
+    if ( (*cand)->et() > minGammaEtStripSeed_ ) {
+      //std::cout << " --> assigning seedCandId = " << seedCands.size();
+      seedCands.push_back(*cand);
+    } else if ( (*cand)->et() > minGammaEtStripAdd_  ) {
+      //std::cout << " --> assigning addCandId = " << addCands.size();
+      addCands.push_back(*cand);
+    }
+    //std::cout << std::endl;
+    //++idx;
   }
 
   std::vector<bool> seedCandFlags(seedCands.size()); // true/false: seedCand is already/not yet included in strip
@@ -168,10 +184,13 @@ RecoTauPiZeroStripPlugin2::return_type RecoTauPiZeroStripPlugin2::operator()(con
 
   size_t idxSeed = 0;
   while ( idxSeed < seedCands.size() ) {
+    //std::cout << "idxSeed = " << idxSeed << std::endl;
+
     seedCandIdsCurrentStrip.clear();
     addCandIdsCurrentStrip.clear();
 
     std::auto_ptr<RecoTauPiZero> strip(new RecoTauPiZero(*seedCands[idxSeed], RecoTauPiZero::kStrips));
+    strip->addDaughter(seedCands[idxSeed]);
     seedCandIdsCurrentStrip.insert(idxSeed);
 
     bool isCandAdded;
@@ -179,7 +198,9 @@ RecoTauPiZeroStripPlugin2::return_type RecoTauPiZeroStripPlugin2::operator()(con
     do {
       isCandAdded = false;
 
+      //std::cout << " adding seedCands to strip..." << std::endl;
       addCandsToStrip(*strip, seedCands, seedCandFlags, seedCandIdsCurrentStrip, isCandAdded);
+      //std::cout << " adding addCands to strip..." << std::endl;
       addCandsToStrip(*strip, addCands,  addCandFlags,  addCandIdsCurrentStrip, isCandAdded);
 
       if ( !updateStripAfterEachDaughter_ ) p4Builder_.set(*strip);
@@ -188,6 +209,10 @@ RecoTauPiZeroStripPlugin2::return_type RecoTauPiZeroStripPlugin2::operator()(con
     } while ( isCandAdded && (stripBuildIteration < maxStripBuildIterations_ || maxStripBuildIterations_ == -1) );
 
     if ( strip->et() > minStripEt_ ) { // strip passed Et cuts, add it to the event
+      //std::cout << "Strip: Et = " << strip->et() << "," 
+      //	  << " eta = " << strip->eta() << ", phi = " << strip->phi() 
+      //	  << " --> building it !!" << std::endl;
+
       // Update the vertex
       if ( strip->daughterPtr(0).isNonnull() ) strip->setVertex(strip->daughterPtr(0)->vertex());
       output.push_back(strip);
@@ -196,7 +221,9 @@ RecoTauPiZeroStripPlugin2::return_type RecoTauPiZeroStripPlugin2::operator()(con
       markCandsInStrip(seedCandFlags, seedCandIdsCurrentStrip);
       markCandsInStrip(addCandFlags,  addCandIdsCurrentStrip);
     } else { // strip failed Et cuts, just skip it
-
+      //std::cout << "Strip: Et = " << strip->et() << "," 
+      //	  << " eta = " << strip->eta() << ", phi = " << strip->phi() 
+      //	  << " --> discarding it !!" << std::endl;
     }
 
     ++idxSeed;
