@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Authors:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: ConversionProducer.cc,v 1.7 2011/03/06 18:25:11 bendavid Exp $
+// $Id: ConversionProducer.cc,v 1.8 2011/07/11 14:37:12 nancy Exp $
 //
 //
 
@@ -98,34 +98,30 @@ ConversionProducer::ConversionProducer(const edm::ParameterSet& iConfig):
   
   halfWayEta_ = iConfig.getParameter<double>("HalfwayEta");//open angle to search track matches with BC
 
-  if (allowD0_)
-    d0Cut_ = iConfig.getParameter<double>("d0");
+  d0Cut_ = iConfig.getParameter<double>("d0");
     
   usePvtx_ = iConfig.getParameter<bool>("UsePvtx");//if use primary vertices
 
-  if (usePvtx_){
-    vertexProducer_   = iConfig.getParameter<std::string>("primaryVertexProducer");
-  }
+  vertexProducer_   = iConfig.getParameter<std::string>("primaryVertexProducer");
+  
 
-  if (allowTrackBC_) {
-    //Track-cluster matching eta and phi cuts
-    dEtaTkBC_ = iConfig.getParameter<double>("dEtaTrackBC");//TODO research on cut endcap/barrel
-    dPhiTkBC_ = iConfig.getParameter<double>("dPhiTrackBC");
+  //Track-cluster matching eta and phi cuts
+  dEtaTkBC_ = iConfig.getParameter<double>("dEtaTrackBC");//TODO research on cut endcap/barrel
+  dPhiTkBC_ = iConfig.getParameter<double>("dPhiTrackBC");
+  
+  bcBarrelCollection_     = iConfig.getParameter<edm::InputTag>("bcBarrelCollection");
+  bcEndcapCollection_     = iConfig.getParameter<edm::InputTag>("bcEndcapCollection");
+  
+  scBarrelProducer_       = iConfig.getParameter<edm::InputTag>("scBarrelProducer");
+  scEndcapProducer_       = iConfig.getParameter<edm::InputTag>("scEndcapProducer");
+  
+  energyBC_               = iConfig.getParameter<double>("EnergyBC");//BC energy threshold
+  energyTotalBC_          = iConfig.getParameter<double>("EnergyTotalBC");//BC energy threshold
+  minSCEt_                = iConfig.getParameter<double>("minSCEt");//super cluster energy threshold
+  dEtacutForSCmatching_     = iConfig.getParameter<double>("dEtacutForSCmatching");// dEta between conversion momentum direction and SC position
+  dPhicutForSCmatching_     = iConfig.getParameter<double>("dPhicutForSCmatching");// dPhi between conversion momentum direction and SC position
 
-    bcBarrelCollection_     = iConfig.getParameter<edm::InputTag>("bcBarrelCollection");
-    bcEndcapCollection_     = iConfig.getParameter<edm::InputTag>("bcEndcapCollection");
-
-    scBarrelProducer_       = iConfig.getParameter<edm::InputTag>("scBarrelProducer");
-    scEndcapProducer_       = iConfig.getParameter<edm::InputTag>("scEndcapProducer");
-
-    energyBC_               = iConfig.getParameter<double>("EnergyBC");//BC energy threshold
-    energyTotalBC_          = iConfig.getParameter<double>("EnergyTotalBC");//BC energy threshold
-    minSCEt_                = iConfig.getParameter<double>("minSCEt");//super cluster energy threshold
-    dEtacutForSCmatching_     = iConfig.getParameter<double>("dEtacutForSCmatching");// dEta between conversion momentum direction and SC position
-    dPhicutForSCmatching_     = iConfig.getParameter<double>("dPhicutForSCmatching");// dPhi between conversion momentum direction and SC position
-
-  }
-
+  
    
 
   //Track cuts on left right track: at least one leg reaches ECAL
@@ -137,14 +133,11 @@ ConversionProducer::ConversionProducer(const edm::ParameterSet& iConfig):
   minHitsRight_ = iConfig.getParameter<int>("MinHitsRight");
 
   //Track Open angle cut on delta cot(theta) and delta phi
-  if (allowDeltaCot_)
-    deltaCotTheta_ = iConfig.getParameter<double>("DeltaCotTheta");
-  if (allowDeltaPhi_)
-    deltaPhi_ = iConfig.getParameter<double>("DeltaPhi");
-  if (allowMinApproach_){
-    minApproachLow_ = iConfig.getParameter<double>("MinApproachLow");
-    minApproachHigh_ = iConfig.getParameter<double>("MinApproachHigh");
-  }
+  deltaCotTheta_ = iConfig.getParameter<double>("DeltaCotTheta");
+  deltaPhi_ = iConfig.getParameter<double>("DeltaPhi");
+  minApproachLow_ = iConfig.getParameter<double>("MinApproachLow");
+  minApproachHigh_ = iConfig.getParameter<double>("MinApproachHigh");
+  
 
   // if allow single track collection, by default False
   allowSingleLeg_ = iConfig.getParameter<bool>("AllowSingleLeg");
@@ -193,32 +186,6 @@ ConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<reco::ConversionTrackCollection> trackCollectionHandle;
   iEvent.getByLabel(src_,trackCollectionHandle);    
     
-  // Get the Super Cluster collection in the Barrel
-  bool validBarrelSCHandle=true;
-  edm::Handle<edm::View<reco::CaloCluster> > scBarrelHandle;
-  iEvent.getByLabel(scBarrelProducer_,scBarrelHandle);
-  if (!scBarrelHandle.isValid()) {
-    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<scBarrelProducer_.label();
-    validBarrelSCHandle=false;
-  }
-    
-  // Get the Super Cluster collection in the Endcap
-  bool validEndcapSCHandle=true;
-  edm::Handle<edm::View<reco::CaloCluster> > scEndcapHandle;
-  iEvent.getByLabel(scEndcapProducer_,scEndcapHandle);
-  if (!scEndcapHandle.isValid()) {
-    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<scEndcapProducer_.label();
-    validEndcapSCHandle=false;
-  }
-    
-    
-  edm::Handle<edm::View<reco::CaloCluster> > bcBarrelHandle;
-  edm::Handle<edm::View<reco::CaloCluster> > bcEndcapHandle;//TODO check cluster type if BasicCluster or PFCluster
-  if (allowTrackBC_){
-    iEvent.getByLabel( bcBarrelCollection_, bcBarrelHandle);
-    iEvent.getByLabel( bcEndcapCollection_, bcEndcapHandle);
-  }
-    
   edm::Handle<reco::VertexCollection> vertexHandle;
   reco::VertexCollection vertexCollection;
   if (usePvtx_){
@@ -246,30 +213,13 @@ ConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
     
     
-  //2.0 build Super and Basic cluster geometry map to search in eta bounds for clusters
+  // build Super and Basic cluster geometry map to search in eta bounds for clusters
   std::multimap<double, reco::CaloClusterPtr> basicClusterPtrs;
   std::multimap<double, reco::CaloClusterPtr> superClusterPtrs;
-  edm::Handle<edm::View<reco::CaloCluster> > bcHandle = bcBarrelHandle;
-  edm::Handle<edm::View<reco::CaloCluster> > scHandle = scBarrelHandle;
-    
-  if (allowTrackBC_){
-    for (unsigned jj = 0; jj < 2; ++jj ){
-      for (unsigned ii = 0; ii < bcHandle->size(); ++ii ) {
-        if (bcHandle->ptrAt(ii)->energy()>energyBC_)
-          basicClusterPtrs.insert(std::make_pair(bcHandle->ptrAt(ii)->position().eta(), bcHandle->ptrAt(ii)));
-      }
-      bcHandle = bcEndcapHandle;
-    }
-    for (unsigned jj = 0; jj < 2; ++jj ){
-      for (unsigned ii = 0; ii < scHandle->size(); ++ii ) {
-        if (scHandle->ptrAt(ii)->energy()>minSCEt_)
-          superClusterPtrs.insert(std::make_pair(scHandle->ptrAt(ii)->position().eta(), scHandle->ptrAt(ii)));
-      }
-      scHandle = scEndcapHandle;
-    }
+
+  if(allowTrackBC_)
+    buildSuperAndBasicClusterGeoMap(iEvent,basicClusterPtrs,superClusterPtrs);
       
-  }
-    
   buildCollection( iEvent, iSetup, *trackCollectionHandle.product(),  superClusterPtrs, basicClusterPtrs, the_pvtx, outputConvPhotonCollection);//allow empty basicClusterPtrs
     
   outputConvPhotonCollection_p->assign(outputConvPhotonCollection.begin(), outputConvPhotonCollection.end());
@@ -278,6 +228,56 @@ ConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 
+void ConversionProducer::buildSuperAndBasicClusterGeoMap(const edm::Event& iEvent,  
+							 std::multimap<double, reco::CaloClusterPtr>& basicClusterPtrs,
+							 std::multimap<double, reco::CaloClusterPtr>& superClusterPtrs){
+
+  // Get the Super Cluster collection in the Barrel
+  edm::Handle<edm::View<reco::CaloCluster> > scBarrelHandle;
+  iEvent.getByLabel(scBarrelProducer_,scBarrelHandle);
+  if (!scBarrelHandle.isValid()) {
+    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<scBarrelProducer_;
+  }
+    
+  // Get the Super Cluster collection in the Endcap
+  edm::Handle<edm::View<reco::CaloCluster> > scEndcapHandle;
+  iEvent.getByLabel(scEndcapProducer_,scEndcapHandle);
+  if (!scEndcapHandle.isValid()) {
+    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<scEndcapProducer_;
+  }
+    
+    
+  edm::Handle<edm::View<reco::CaloCluster> > bcBarrelHandle;
+  edm::Handle<edm::View<reco::CaloCluster> > bcEndcapHandle;//TODO check cluster type if BasicCluster or PFCluster
+
+  iEvent.getByLabel( bcBarrelCollection_, bcBarrelHandle);
+  if (!bcBarrelHandle.isValid()) {
+    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<bcBarrelCollection_;
+  }
+
+  iEvent.getByLabel( bcEndcapCollection_, bcEndcapHandle);
+  if (! bcEndcapHandle.isValid()) {
+    edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<bcEndcapCollection_;
+  }
+
+  edm::Handle<edm::View<reco::CaloCluster> > bcHandle = bcBarrelHandle;
+  edm::Handle<edm::View<reco::CaloCluster> > scHandle = scBarrelHandle;
+    
+  for (unsigned jj = 0; jj < 2; ++jj ){
+    for (unsigned ii = 0; ii < bcHandle->size(); ++ii ) {
+      if (bcHandle->ptrAt(ii)->energy()>energyBC_)
+	basicClusterPtrs.insert(std::make_pair(bcHandle->ptrAt(ii)->position().eta(), bcHandle->ptrAt(ii)));
+      }
+    bcHandle = bcEndcapHandle;
+  }
+  for (unsigned jj = 0; jj < 2; ++jj ){
+    for (unsigned ii = 0; ii < scHandle->size(); ++ii ) {
+      if (scHandle->ptrAt(ii)->energy()>minSCEt_)
+	superClusterPtrs.insert(std::make_pair(scHandle->ptrAt(ii)->position().eta(), scHandle->ptrAt(ii)));
+    }
+    scHandle = scEndcapHandle;
+  } 
+}
 
 
 void ConversionProducer::buildCollection(edm::Event& iEvent, const edm::EventSetup& iSetup,

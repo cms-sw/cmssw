@@ -4,8 +4,8 @@
  **
  **
  **  $Id:
- **  $Date: 2011/03/04 20:13:20 $
- **  $Revision: 1.3 $
+ **  $Date: 2011/03/06 18:25:11 $
+ **  $Revision: 1.4 $
  **  \authors H. Liu, UC of Riverside US, N. Marinelli Univ of Notre Dame
  **
  ***/
@@ -75,6 +75,11 @@ class ConversionProducer : public edm::EDProducer {
    private:
 
       virtual void produce(edm::Event&, const edm::EventSetup&);
+
+      void buildSuperAndBasicClusterGeoMap(const edm::Event&,  
+					   std::multimap<double, reco::CaloClusterPtr>& basicClusterPtrs,
+					   std::multimap<double, reco::CaloClusterPtr>& superClusterPtrs);
+
 
       // ----------member data ---------------------------
       std::string algoName_;
