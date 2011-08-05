@@ -1,13 +1,6 @@
 #include "RecoTracker/ConversionSeedGenerators/interface/PhotonConversionTrajectorySeedProducerFromSingleLegAlgo.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-/*
-To Do:
-
-assign the parameters to some data member to avoid search at every event
-
- */
-
 //#define debugTSPFSLA
 
 inline double sqr(double a){return a*a;}
@@ -80,7 +73,7 @@ analyze(const edm::Event & event, const edm::EventSetup &setup){
 
   event.getByLabel(_primaryVtxInputTag, vertexHandle);
   if (!vertexHandle.isValid() || vertexHandle->empty()){
-      edm::LogError("PhotonConversionFinderFromTracks") << "Error! Can't get the product primary Vertex Collection "<< _conf.getParameter<edm::InputTag>("primaryVerticesTag") <<  "\n";
+      edm::LogError("PhotonConversionFinderFromTracks") << "Error! Can't get the product primary Vertex Collection "<< _primaryVtxInputTag <<  "\n";
       return;
   }
 
@@ -147,8 +140,8 @@ loopOnTracks(){
   }
 #ifdef debugTSPFSLA 
   edm::LogInfo("debugTrajSeedFromSingleLeg") << ss.str();
-#endif
   edm::LogInfo("debugTrajSeedFromSingleLeg") << "Inspected " << sel << " tracks over " << idx << " tracks. \t # tracks providing at least one seed " << _countSeedTracks ;
+#endif
 }
 
 bool PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::
