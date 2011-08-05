@@ -75,7 +75,7 @@ analyze(const edm::Event & event, const edm::EventSetup &setup){
   setup.get<IdealMagneticFieldRecord>().get(handleMagField);
   magField = handleMagField.product();
 
-  Manipulator.setMagnField(magField);
+  _IdealHelixParameters.setMagnField(magField);
 
 
   event.getByLabel(_primaryVtxInputTag, vertexHandle);
@@ -247,14 +247,14 @@ rejectTrack(const reco::Track& track){
   if(recoBeamSpotHandle.isValid()) {
     beamSpot =  math::XYZVector(recoBeamSpotHandle->position());
 
-    Manipulator.setData(&track,beamSpot);   
-    if(Manipulator.GetTangentPoint().r()==0){
-      //this case means a null results on the Manipulator side
+    _IdealHelixParameters.setData(&track,beamSpot);   
+    if(_IdealHelixParameters.GetTangentPoint().r()==0){
+      //this case means a null results on the _IdealHelixParameters side
       return true;
       }
       
     float rMin=2.; //cm
-    if(Manipulator.GetTangentPoint().rho()<rMin){
+    if(_IdealHelixParameters.GetTangentPoint().rho()<rMin){
       //this case means a track that has the tangent point nearby the primary vertex
       // if the track is primary, this number tends to be the primary vertex itself
       //Rejecting all the potential photon conversions having a "vertex" inside the beampipe
@@ -304,15 +304,15 @@ rejectTrack(const reco::Track& track){
 bool PhotonConversionTrajectorySeedProducerFromSingleLegAlgo::
 inspectTrack(const reco::Track* track, const TrackingRegion & region, math::XYZPoint& primaryVertexPoint){
 
-  Manipulator.setData(track,primaryVertexPoint);   
+  _IdealHelixParameters.setData(track,primaryVertexPoint);   
     
-  if(Manipulator.GetTangentPoint().r()==0){
-    //this case means a null results on the Manipulator side
+  if(_IdealHelixParameters.GetTangentPoint().r()==0){
+    //this case means a null results on the _IdealHelixParameters side
     return false;
   }
 
   float rMin=3.; //cm
-  if(Manipulator.GetTangentPoint().rho()<rMin){
+  if(_IdealHelixParameters.GetTangentPoint().rho()<rMin){
     //this case means a track that has the tangent point nearby the primary vertex
     // if the track is primary, this number tends to be the primary vertex itself
     //Rejecting all the potential photon conversions having a "vertex" inside the beampipe
@@ -325,15 +325,15 @@ inspectTrack(const reco::Track* track, const TrackingRegion & region, math::XYZP
   float originZBound  = 3.;
 
   GlobalPoint originPos;
-  originPos = GlobalPoint(Manipulator.GetTangentPoint().x(),
-			  Manipulator.GetTangentPoint().y(),
-			  Manipulator.GetTangentPoint().z()
+  originPos = GlobalPoint(_IdealHelixParameters.GetTangentPoint().x(),
+			  _IdealHelixParameters.GetTangentPoint().y(),
+			  _IdealHelixParameters.GetTangentPoint().z()
 			  );
   float cotTheta;
-  if( std::abs(Manipulator.GetMomentumAtTangentPoint().rho()) > 1.e-4f ){
-    cotTheta=Manipulator.GetMomentumAtTangentPoint().z()/Manipulator.GetMomentumAtTangentPoint().rho();
+  if( std::abs(_IdealHelixParameters.GetMomentumAtTangentPoint().rho()) > 1.e-4f ){
+    cotTheta=_IdealHelixParameters.GetMomentumAtTangentPoint().z()/_IdealHelixParameters.GetMomentumAtTangentPoint().rho();
   }else{
-    if(Manipulator.GetMomentumAtTangentPoint().z()>0)
+    if(_IdealHelixParameters.GetMomentumAtTangentPoint().z()>0)
       cotTheta=99999.f; 
     else
       cotTheta=-99999.f; 
