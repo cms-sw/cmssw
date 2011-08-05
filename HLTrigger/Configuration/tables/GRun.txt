@@ -150,6 +150,7 @@ HLT_Mu60_eta2p1_v*                                                              
 HLT_Mu100_eta2p1_v*                                                                             #   added in "3e33" menu (sr #122516) 
 HLT_IsoMu12_v*
 HLT_IsoMu15_v*
+HLT_IsoMu15_L1s14_v*                                                                            #   added in "3e33" menu (sr #122405)
 HLT_IsoMu17_v*
 HLT_IsoMu20_v*
 HLT_IsoMu24_v*
@@ -273,11 +274,14 @@ HLT_DoubleEle8_CaloIdT_TrkIdVL_v*
 #HLT_DoubleEle33_v*                                                                             # removed in "3e33" menu (sr #122063)
 HLT_DoubleEle33_CaloIdL_v*
 HLT_DoubleEle45_CaloIdL_v*
-#HLT_IsoPFTau35_Trk20_v*
-#HLT_IsoPFTau35_Trk20_MET60_v*
-#HLT_IsoPFTau35_Trk20_MET70_v*
+#HLT_IsoPFTau35_Trk20_v*                                                                        # removed in "3e33" menu (sr #122405)
+#HLT_IsoPFTau35_Trk20_MET60_v*                                                                  # removed in "3e33" menu (sr #122405)
+#HLT_IsoPFTau35_Trk20_MET70_v*                                                                  # removed in "3e33" menu (sr #122405)
+HLT_MediumIsoPFTau35_Trk20_v*                                                                   #   added in "3e33" menu (sr #122405)
+HLT_MediumIsoPFTau35_Trk20_MET60_v*                                                             #   added in "3e33" menu (sr #122405)
+HLT_MediumIsoPFTau35_Trk20_MET70_v*                                                             #   added in "3e33" menu (sr #122405)
 HLT_IsoPFTau40_IsoPFTau30_Trk5_eta2p1_v*
-HLT_DoubleIsoPFTau45_Trk5_eta2p1_v*
+HLT_DoubleIsoPFTau45_Trk5_eta2p1_v*                                                             
 HLT_HT300_DoubleIsoPFTau10_Trk3_PFMHT40_v*
 HLT_HT350_DoubleIsoPFTau10_Trk3_PFMHT45_v*
 HLT_BTagMu_DiJet20_Mu5_v*
@@ -330,6 +334,7 @@ HLT_Mu40_HT200_v*
 HLT_Mu60_HT200_v*
 HLT_IsoMu15_LooseIsoPFTau15_v*
 HLT_IsoMu15_LooseIsoPFTau20_v*
+HLT_IsoMu15_MediumIsoPFTau20_v*                                                                 #   added in "3e33" menu (sr #122405)
 HLT_IsoMu15_TightIsoPFTau20_v*
 HLT_IsoMu17_CentralJet30_v*
 HLT_IsoMu17_DiCentralJet30_v*
@@ -380,6 +385,9 @@ HLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R029_MR200_v*
 HLT_Ele15_CaloIdVT_TrkIdT_TightIsoPFTau20_v*
 HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TightIsoPFTau20_v*
 HLT_Ele18_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TightIsoPFTau20_v*
+HLT_Ele18_CaloIdVT_TrkIdT_MediumIsoPFTau20_v*                                                   #   added in "3e33" menu (sr #122405) 
+HLT_Ele18_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau20_v*                                  #   added in "3e33" menu (sr #122405)
+HLT_Ele20_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau20_v*                                  #   added in "3e33" menu (sr #122405)
 HLT_Ele25_CaloIdVT_TrkIdT_CentralJet30_v*
 HLT_Ele25_CaloIdVT_TrkIdT_DiCentralJet30_v*
 HLT_Ele25_CaloIdVT_TrkIdT_TriCentralJet30_v*
