@@ -2,8 +2,8 @@
   \file UtilFunctions.cc
   \brief Ecal Monitor Utility functions
   \author Dongwook Jang
-  \version $Revision: 1.2 $
-  \date $Date: 2010/08/06 12:28:07 $
+  \version $Revision: 1.1 $
+  \date $Date: 2011/05/25 02:37:00 $
 */
 
 #include "DQM/EcalCommon/interface/UtilFunctions.h"
@@ -12,6 +12,7 @@
 
 #include "TH1F.h"
 #include "TProfile.h"
+#include "TH2.h"
 #include "TClass.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
@@ -55,33 +56,53 @@ namespace ecaldqm {
 
 
 
-  // shift bins in TProfile to the right
+  // shift bins in histograms to the right
 
-  void shift2Right(TProfile* p, int bins){
+  void shift2Right(TH1* h, int bins){
 
     // bins : how many bins need to be shifted
 
     if(bins <= 0) return;
 
-    if(!p->GetSumw2()) p->Sumw2();
-    int nBins = p->GetXaxis()->GetNbins();
+    if(!h->GetSumw2()) h->Sumw2();
+    int nBins = h->GetXaxis()->GetNbins();
 
-    // by shifting n bin to the right, the number of entries are
-    // reduced by the number in n bins including the overflow bin.
-    double nentries = p->GetEntries();
-    for(int i=0; i<bins; i++) nentries -= p->GetBinEntries(i);
-    p->SetEntries(nentries);
-  
     // the last bin goes to overflow
     // each bin moves to the right
 
-    TArrayD* sumw2 = p->GetSumw2();
+    if( h->IsA() == TClass::GetClass("TProfile") ){
 
-    for(int i=nBins+1; i>bins; i--) {
-      // GetBinContent return binContent/binEntries
-      p->SetBinContent(i, p->GetBinContent(i-bins)*p->GetBinEntries(i-bins));
-      p->SetBinEntries(i,p->GetBinEntries(i-bins));
-      sumw2->SetAt(sumw2->GetAt(i-bins),i);
+      TProfile *p = dynamic_cast<TProfile *>(h);
+
+      // by shifting n bin to the right, the number of entries are
+      // reduced by the number in n bins including the overflow bin.
+      double nentries = p->GetEntries();
+      for(int i=0; i<bins; i++) nentries -= p->GetBinEntries(i);
+      p->SetEntries(nentries);
+
+      TArrayD* sumw2 = p->GetSumw2();
+
+      for(int i=nBins+1; i>bins; i--) {
+	// GetBinContent return binContent/binEntries
+	p->SetBinContent(i, p->GetBinContent(i-bins)*p->GetBinEntries(i-bins));
+	p->SetBinEntries(i,p->GetBinEntries(i-bins));
+	sumw2->SetAt(sumw2->GetAt(i-bins),i);
+      }
+
+    }else if( h->InheritsFrom("TH2") ){
+
+      TH2 *h2 = dynamic_cast<TH2 *>(h);
+      int nBinsY = h2->GetYaxis()->GetNbins();
+
+      double nentries = h2->GetEntries();
+      for(int i=0 ; i<bins ; i++)
+	for(int j=0 ; j<=nBinsY+1 ; j++) nentries -= h2->GetBinContent(i,j);
+
+      for(int i=nBins+1; i>bins; i--) 
+	for(int j=0 ; j<=nBinsY+1 ; j++)
+	  h2->SetBinContent(i, j, h2->GetBinContent(i-bins,j));
+
+      h2->SetEntries(nentries);
     }
     
   }
@@ -89,29 +110,49 @@ namespace ecaldqm {
 
   // shift bins in TProfile to the left
 
-  void shift2Left(TProfile* p, int bins){
+  void shift2Left(TH1* h, int bins){
 
     if(bins <= 0) return;
 
-    if(!p->GetSumw2()) p->Sumw2();
-    int nBins = p->GetXaxis()->GetNbins();
+    if(!h->GetSumw2()) h->Sumw2();
+    int nBins = h->GetXaxis()->GetNbins();
 
-    // by shifting n bin to the left, the number of entries are
-    // reduced by the number in n bins including the underflow bin.
-    double nentries = p->GetEntries();
-    for(int i=0; i<bins; i++) nentries -= p->GetBinEntries(i);
-    p->SetEntries(nentries);
-  
     // the first bin goes to underflow
     // each bin moves to the right
 
-    TArrayD* sumw2 = p->GetSumw2();
+    if( h->IsA() == TClass::GetClass("TProfile") ){
 
-    for(int i=0; i<=nBins+1-bins; i++) {
-      // GetBinContent return binContent/binEntries
-      p->SetBinContent(i, p->GetBinContent(i+bins)*p->GetBinEntries(i+bins));
-      p->SetBinEntries(i,p->GetBinEntries(i+bins));
-      sumw2->SetAt(sumw2->GetAt(i+bins),i);
+      TProfile *p = dynamic_cast<TProfile *>(h);
+
+      // by shifting n bin to the left, the number of entries are
+      // reduced by the number in n bins including the underflow bin.
+      double nentries = p->GetEntries();
+      for(int i=0; i<bins; i++) nentries -= p->GetBinEntries(i);
+      p->SetEntries(nentries);
+
+      TArrayD* sumw2 = p->GetSumw2();
+
+      for(int i=0; i<=nBins+1-bins; i++) {
+	// GetBinContent return binContent/binEntries
+	p->SetBinContent(i, p->GetBinContent(i+bins)*p->GetBinEntries(i+bins));
+	p->SetBinEntries(i,p->GetBinEntries(i+bins));
+	sumw2->SetAt(sumw2->GetAt(i+bins),i);
+      }
+
+    }else if( h->InheritsFrom("TH2") ){
+
+      TH2 *h2 = dynamic_cast<TH2 *>(h);
+      int nBinsY = h2->GetYaxis()->GetNbins();
+
+      double nentries = h2->GetEntries();
+      for(int i=0 ; i<=bins ; i++)
+	for(int j=0 ; j<=nBinsY+1 ; j++) nentries -= h2->GetBinContent(i,j);
+
+      for(int i=0; i<=nBins+1-bins; i++)
+	for(int j=0 ; j<=nBinsY+1 ; j++)
+	  h2->SetBinContent(i, h2->GetBinContent(i+bins));
+
+      h2->SetEntries(nentries);
     }
 
   }

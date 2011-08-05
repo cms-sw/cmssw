@@ -5,8 +5,8 @@
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.36 $
-  \date $Date: 2010/09/28 12:23:35 $
+  \version $Revision: 1.37 $
+  \date $Date: 2010/09/28 13:00:28 $
 */
 
 #include <string>
@@ -110,9 +110,14 @@ class Numbers {
 
   static int ix0EE( const int ism );
 
+  // returns ix0 in negative-number scheme for EE- instead of 101-ix
+  static int ix0EEm( const int ism );
+
   static int iy0EE( const int ism );
 
   static bool validEE( const int ism, const int ix, const int iy );
+
+  static const EcalElectronicsMapping* getElectronicsMapping() throw( std::runtime_error );
 
 private:
 
