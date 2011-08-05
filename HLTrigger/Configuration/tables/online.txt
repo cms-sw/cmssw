@@ -251,7 +251,7 @@ HLT_Ele8_v*
 HLT_Ele8_CaloIdL_CaloIsoVL_v*
 HLT_Ele8_CaloIdL_TrkIdVL_v*
 HLT_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v*
-HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v*
+#HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v*                                                  # removed in "3e33" menu (sr #122405)
 HLT_Ele17_CaloIdL_CaloIsoVL_v*
 #HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v*                                          # removed in "3e33" menu (sr #122040)
 HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_SC8_Mass30_v*
@@ -382,9 +382,9 @@ HLT_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT250_PFMHT40_v*
 HLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R005_MR200_v*
 HLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R025_MR200_v*
 HLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R029_MR200_v*
-HLT_Ele15_CaloIdVT_TrkIdT_TightIsoPFTau20_v*
-HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TightIsoPFTau20_v*
-HLT_Ele18_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TightIsoPFTau20_v*
+#HLT_Ele15_CaloIdVT_TrkIdT_TightIsoPFTau20_v*                                                   # removed in "3e33" menu (sr #122405)
+#HLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TightIsoPFTau20_v*                                  # removed in "3e33" menu (sr #122405)
+#HLT_Ele18_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_TightIsoPFTau20_v*                                  # removed in "3e33" menu (sr #122405)
 HLT_Ele18_CaloIdVT_TrkIdT_MediumIsoPFTau20_v*                                                   #   added in "3e33" menu (sr #122405) 
 HLT_Ele18_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau20_v*                                  #   added in "3e33" menu (sr #122405)
 HLT_Ele20_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau20_v*                                  #   added in "3e33" menu (sr #122405)
