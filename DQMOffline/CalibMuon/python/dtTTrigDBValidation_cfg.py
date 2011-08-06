@@ -25,7 +25,7 @@ process.MessageLogger = cms.Service("MessageLogger",
         tTrigdbValidation = cms.untracked.PSet( limit = cms.untracked.int32(10000000) ),
         threshold = cms.untracked.string('DEBUG'),
     ),
-    categories = cms.untracked.vstring('tTrigdbValidation'),
+    categories = cms.untracked.vstring('TTrigDBValidation'),
     destinations = cms.untracked.vstring('cerr')
 )
 
@@ -75,8 +75,7 @@ process.dtTTrigAnalyzer = cms.EDAnalyzer("DTtTrigDBValidation",
     labelDBRef = cms.string('ttrigRef'),
     labelDB = cms.string('ttrigToValidate'),
     tTrigTestName = cms.string('tTrigDifferenceInRange'),
-    #OutputMEsInRootFile = cms.untracked.bool(True),
-    #OutputFileName = cms.untracked.string('tTrigDBValidation_DT_tTrig_cosmics_2009_v3_prompt.root')
+    #OutputFileName = cms.string('tTrigDBValidation_DT_tTrig_cosmics_2009_v3_prompt.root')
 )
 
 process.qTester = cms.EDAnalyzer("QualityTester",

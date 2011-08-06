@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/05/05 13:36:31 $
- *  $Revision: 1.5 $
+ *  $Date: 2011/08/02 14:23:50 $
+ *  $Revision: 1.6 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -41,7 +41,7 @@ using namespace std;
 
 DTnoiseDBValidation::DTnoiseDBValidation(const ParameterSet& pset) {
 
-  LogVerbatim("NoiseDbValidation") << "[DTnoiseDBValidation] Constructor called!";
+  LogVerbatim("NoiseDBValidation") << "[DTnoiseDBValidation] Constructor called!";
 
   // Get the DQM needed services
   dbe_ = edm::Service<DQMStore>().operator->();
@@ -88,7 +88,7 @@ void DTnoiseDBValidation::beginRun(const edm::Run& run, const EventSetup& setup)
   // Get the geometry
   setup.get<MuonGeometryRecord>().get(dtGeom_);
 
-  LogVerbatim("noiseDbValidation")<<"[DTnoiseDBValidation] Parameters initialization";
+  LogVerbatim("NoiseDBValidation")<<"[DTnoiseDBValidation] Parameters initialization";
  
   noisyCellsRef_ = 0;
   noisyCellsValid_ = 0;
@@ -144,7 +144,7 @@ void DTnoiseDBValidation::beginRun(const edm::Run& run, const EventSetup& setup)
 		    (*noise).first.slId,
 		    (*noise).first.layerId,
 		    (*noise).first.cellId);
-    LogVerbatim("NoiseDbValidation") << "Ref. noisy wire: " << wireId;
+    LogVerbatim("NoiseDBValidation") << "Ref. noisy wire: " << wireId;
     ++noisyCellsRef_;
   }
 
@@ -157,7 +157,7 @@ void DTnoiseDBValidation::beginRun(const edm::Run& run, const EventSetup& setup)
 		    (*noise).first.slId,
 		    (*noise).first.layerId,
 		    (*noise).first.cellId);
-    LogVerbatim("NoiseDbValidation") << "Valid. noisy wire: " <<  wireId;
+    LogVerbatim("NoiseDBValidation") << "Valid. noisy wire: " <<  wireId;
     ++noisyCellsValid_;
 
     whMap[(*noise).first.wheelId]++;
@@ -217,7 +217,7 @@ void DTnoiseDBValidation::endRun(edm::Run const& run, edm::EventSetup const& set
       vector<dqm::me_util::Channel> badChannels = theDiffQReport->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
-	LogWarning("NoiseDbValidation") << " Bad partial difference of noisy channels! Contents : " << (*channel).getContents();
+	LogWarning("NoiseDBValidation") << " Bad partial difference of noisy channels! Contents : " << (*channel).getContents();
       }
   }
   //testCriterionName = parameters.getUntrackedParameter<string>("wheelTestName","noiseWheelOccInRange");
@@ -227,7 +227,7 @@ void DTnoiseDBValidation::endRun(edm::Run const& run, edm::EventSetup const& set
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
 	int wheel = (*channel).getBin()-3;
-	LogWarning("NoiseDbValidation") << " Bad percentual occupancy for wheel : " << wheel << "  Contents : " << (*channel).getContents();
+	LogWarning("NoiseDBValidation") << " Bad percentual occupancy for wheel : " << wheel << "  Contents : " << (*channel).getContents();
       }
   }
   //testCriterionName = parameters.getUntrackedParameter<string>("stationTestName","noiseStationOccInRange");
@@ -236,7 +236,7 @@ void DTnoiseDBValidation::endRun(edm::Run const& run, edm::EventSetup const& set
       vector<dqm::me_util::Channel> badChannels = theDiffQReport3->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
-	LogWarning("NoiseDbValidation") << " Bad percentual occupancy for station : " << (*channel).getBin() << "  Contents : " << (*channel).getContents();
+	LogWarning("NoiseDBValidation") << " Bad percentual occupancy for station : " << (*channel).getBin() << "  Contents : " << (*channel).getContents();
       }
   }
   //testCriterionName = parameters.getUntrackedParameter<string>("sectorTestName","noiseSectorOccInRange");
@@ -245,7 +245,7 @@ void DTnoiseDBValidation::endRun(edm::Run const& run, edm::EventSetup const& set
       vector<dqm::me_util::Channel> badChannels = theDiffQReport4->getBadChannels();
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
-	LogWarning("NoiseDbValidation") << " Bad percentual occupancy for sector : " << (*channel).getBin() << "  Contents : " << (*channel).getContents();
+	LogWarning("NoiseDBValidation") << " Bad percentual occupancy for sector : " << (*channel).getBin() << "  Contents : " << (*channel).getContents();
       }
   }
   //testCriterionName = parameters.getUntrackedParameter<string>("layerTestName","noiseLayerOccInRange");
@@ -255,11 +255,11 @@ void DTnoiseDBValidation::endRun(edm::Run const& run, edm::EventSetup const& set
       for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
 	   channel != badChannels.end(); channel++) {
 	if((*channel).getBin()==1)
-	  LogWarning("NoiseDbValidation") << " Bad percentual occupancy for the first 10 wires! Contents : " << (*channel).getContents();
+	  LogWarning("NoiseDBValidation") << " Bad percentual occupancy for the first 10 wires! Contents : " << (*channel).getContents();
 	if((*channel).getBin()==2)
-	  LogWarning("NoiseDbValidation") << " Bad percentual occupancy for the middle wires! Contents : " << (*channel).getContents();
+	  LogWarning("NoiseDBValidation") << " Bad percentual occupancy for the middle wires! Contents : " << (*channel).getContents();
 	if((*channel).getBin()==3)
-	  LogWarning("NoiseDbValidation") << " Bad percentual occupancy for the last 10 wires! Contents : "<<(*channel).getContents();
+	  LogWarning("NoiseDBValidation") << " Bad percentual occupancy for the last 10 wires! Contents : "<<(*channel).getContents();
       }
   }
 

@@ -39,29 +39,29 @@ public:
 private:
 
   // Switch for verbosity
-  std::string metname;
+  std::string metname_;
   // The DB label
-  std::string labelDBRef;
-  std::string labelDB;
+  std::string labelDBRef_;
+  std::string labelDB_;
 
-  int lowerLimit;
-  int higherLimit;
+  int lowerLimit_;
+  int higherLimit_;
 
   // The file which will contain the difference plots
-  bool outputMEsInRootFile;
-  std::string outputFileName;
+  bool outputMEsInRootFile_;
+  std::string outputFileName_;
 
-  DQMStore* dbe;
+  DQMStore* dbe_;
   // The DTGeometry
-  edm::ESHandle<DTGeometry> dtGeom;
+  edm::ESHandle<DTGeometry> dtGeom_;
 
   // Map of the tTrig and sigma by super-layer
-  std::map<DTSuperLayerId, std::pair<float,float> > tTrigRefMap;
-  std::map<DTSuperLayerId, std::pair<float,float> > tTrigMap;
+  std::map<DTSuperLayerId, std::pair<float,float> > tTrigRefMap_;
+  std::map<DTSuperLayerId, std::pair<float,float> > tTrigMap_;
 
   // Map of the tTrig difference histos by (wheel,sector)
-  std::map<std::pair<int,int>, MonitorElement* > tTrigDiffHistos;
-  std::map<int, MonitorElement* > tTrigDiffWheel;
+  std::map<std::pair<int,int>, MonitorElement* > tTrigDiffHistos_;
+  std::map<int, MonitorElement* > tTrigDiffWheel_;
 
   void bookHistos(int,int);
   void bookHistos(int wheel);
