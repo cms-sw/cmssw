@@ -4,8 +4,8 @@
 /** \class DTt0DBValidation
  *  Plot the t0 from the DB
  *
- *  $Date: 2009/02/16 14:04:02 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/03/10 10:25:51 $
+ *  $Revision: 1.4 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -41,41 +41,42 @@ public:
   /// Operations
   //Read the DTGeometry and the t0 DB
   void beginRun(const edm::Run& run, const edm::EventSetup& setup);
+  void endRun(edm::Run const&, edm::EventSetup const&);
+  void endJob(); 
   void analyze(const edm::Event& event, const edm::EventSetup& setup) {}
-  //Do the real work
-  void endJob();
+
+private:
   void bookHistos(DTLayerId lId, int firstWire, int lastWire);
   void bookHistos(int wheel);
 
-protected:
-
-private:
-
-  DQMStore* dbe;
-  edm::ParameterSet parameters;
+  DQMStore* dbe_;
   // Switch for verbosity
-  std::string metname;
+  std::string metname_;
   // The DB label
-  std::string labelDBRef;
-  std::string labelDB;
+  std::string labelDBRef_;
+  std::string labelDB_;
+
   // The file which will contain the difference plot
-  std::string outputFileName;
+  bool outputMEsInRootFile_;
+  std::string outputFileName_;
+
+  std::string t0TestName_;
 
   // The DTGeometry
-  edm::ESHandle<DTGeometry> dtGeom;
+  edm::ESHandle<DTGeometry> dtGeom_;
 
   // The t0 map
-  const DTT0 *tZeroMap;
-  const DTT0 *tZeroRefMap;
+  const DTT0 *tZeroMap_;
+  const DTT0 *tZeroRefMap_;
  
   // Map of the t0 and sigma per wire
-  std::map<DTWireId, std::vector<float> > t0RefMap;
-  std::map<DTWireId, std::vector<float> > t0Map;
+  std::map<DTWireId, std::vector<float> > t0RefMap_;
+  std::map<DTWireId, std::vector<float> > t0Map_;
 
   // Map of the t0 difference histos per layer
-  std::map<DTLayerId, MonitorElement* > t0DiffHistos;
+  std::map<DTLayerId, MonitorElement* > t0DiffHistos_;
 
-  // summary histos
-  std::map<int, MonitorElement* > wheelSummary;
+  // Summary histos
+  std::map<int, MonitorElement* > wheelSummary_;
 };
 #endif
