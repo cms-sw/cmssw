@@ -53,7 +53,7 @@
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::SuperCluster>,reco::SuperCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::SuperCluster>,reco::SuperCluster> > >"/>
 
   <class name="reco::ClusterShape" ClassVersion="10">
-   <version ClassVersion="10" checksum="2977556974"/>
+   <version ClassVersion="10" checksum="599273728"/>
     <field name="covEtaEta_" iotype="Double32_t"/>
     <field name="covEtaPhi_" iotype="Double32_t"/>
     <field name="covPhiPhi_" iotype="Double32_t"/>
@@ -83,7 +83,7 @@
   <class name="edm::Wrapper<edm::RefVector<std::vector<reco::ClusterShape>,reco::ClusterShape,edm::refhelper::FindUsingAdvance<std::vector<reco::ClusterShape>,reco::ClusterShape> > >"/>
 
   <class name="reco::HFEMClusterShape" ClassVersion="10">
-   <version ClassVersion="10" checksum="1841315109"/>
+   <version ClassVersion="10" checksum="2291599006"/>
   </class>
   <class name="std::vector<reco::HFEMClusterShape>"/>
   <class name="edm::Wrapper<std::vector<reco::HFEMClusterShape> >"/>
