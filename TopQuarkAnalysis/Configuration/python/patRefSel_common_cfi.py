@@ -27,6 +27,9 @@ electronIDSources = cms.PSet(
 , eidTightMC          = cms.InputTag( 'eidTightMC' )
 , eidSuperTightMC     = cms.InputTag( 'eidSuperTightMC' )
 , eidHyperTight1MC    = cms.InputTag( 'eidHyperTight1MC' )
+, eidHyperTight2MC    = cms.InputTag( 'eidHyperTight2MC' )
+, eidHyperTight3MC    = cms.InputTag( 'eidHyperTight3MC' )
+, eidHyperTight4MC    = cms.InputTag( 'eidHyperTight4MC' )
 )
 
 ### Selection filters

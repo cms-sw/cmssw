@@ -1,7 +1,5 @@
 #
 # This file contains the Top PAG reference selection for mu + jets analysis.
-# as defined in
-# https://twiki.cern.ch/twiki/bin/viewauth/CMS/TopLeptonPlusJetsRefSel_mu#Selection_Version_SelV4_valid_fr
 #
 
 ### Muon configuration
@@ -22,6 +20,9 @@ jecSetBase = jetAlgo
 ### ------------------------- Reference selection -------------------------- ###
 
 
+# PF2PAT settings
+from TopQuarkAnalysis.Configuration.patRefSel_PF2PAT import *
+
 ### Trigger selection
 
 # HLT selection
@@ -39,45 +40,48 @@ triggerSelectionMC   = triggerSelection_Summer11
 
 ### Muon selection
 
+# PF2PAT top projection settings
+pfMuonIsoConeR = 0.4 # for mu+jets, default: 0.3
+
 # Minimal selection for veto muons, also basis for signal muons
-muonCutBase  =     'isGlobalMuon'                                               # general reconstruction property
-muonCutBase += ' && pt > 10.'                                                   # transverse momentum
-muonCutBase += ' && abs(eta) < 2.5'                                             # pseudo-rapisity range
+muonCutBase  =     'isGlobalMuon'                                                # general reconstruction property
+muonCutBase += ' && pt > 10.'                                                    # transverse momentum
+muonCutBase += ' && abs(eta) < 2.5'                                              # pseudo-rapisity range
 # standard muon
 muonCut  =  muonCutBase
-muonCut += ' && (trackIso+caloIso)/pt < 0.2'                                    # relative isolation
+muonCut += ' && (trackIso+caloIso)/pt < 0.2'                                     # relative isolation
 # PF muon
 muonCutPF  =  muonCutBase
-muonCutPF += ' && (chargedHadronIso+neutralHadronIso+photonIso)/pt < 0.2'       # relative isolation
+muonCutPF += ' && (chargedHadronIso+neutralHadronIso+photonIso)/pt < 0.2'        # relative isolation
 
 # Signal muon selection on top of 'muonCut'
-looseMuonCutBase  =     'isTrackerMuon'                                         # general reconstruction property
-looseMuonCutBase += ' && pt > 20.'                                              # transverse momentum
-looseMuonCutBase += ' && abs(eta) < 2.1'                                        # pseudo-rapisity range
-looseMuonCutBase += ' && globalTrack.normalizedChi2 < 10.'                      # muon ID: 'isGlobalMuonPromptTight'
-looseMuonCutBase += ' && globalTrack.hitPattern.numberOfValidMuonHits > 0'      # muon ID: 'isGlobalMuonPromptTight'
-looseMuonCutBase += ' && abs(dB) < 0.02'                                        # 2-dim impact parameter with respect to beam spot (s. "PAT muon configuration" above)
-looseMuonCutBase += ' && innerTrack.numberOfValidHits > 10'                     # tracker reconstruction
-looseMuonCutBase += ' && innerTrack.hitPattern.pixelLayersWithMeasurement >= 1' # tracker reconstruction
-looseMuonCutBase += ' && numberOfMatches > 1'                                   # muon chamber reconstruction
-#looseMuonCut += ' && ()'                                                        # DeltaZ between muon vertex and PV < 1.
+looseMuonCutBase  =     'isTrackerMuon'                                          # general reconstruction property
+looseMuonCutBase += ' && pt > 20.'                                               # transverse momentum
+looseMuonCutBase += ' && abs(eta) < 2.1'                                         # pseudo-rapisity range
+looseMuonCutBase += ' && globalTrack.normalizedChi2 < 10.'                       # muon ID: 'isGlobalMuonPromptTight'
+looseMuonCutBase += ' && globalTrack.hitPattern.numberOfValidMuonHits > 0'       # muon ID: 'isGlobalMuonPromptTight'
+looseMuonCutBase += ' && abs(dB) < 0.02'                                         # 2-dim impact parameter with respect to beam spot (s. "PAT muon configuration" above)
+looseMuonCutBase += ' && innerTrack.numberOfValidHits > 10'                      # tracker reconstruction
+looseMuonCutBase += ' && innerTrack.hitPattern.pixelLayersWithMeasurement >= 1'  # tracker reconstruction
+looseMuonCutBase += ' && numberOfMatches > 1'                                    # muon chamber reconstruction
+#looseMuonCut += ' && ...'                                                        # DeltaZ between muon vertex and PV < 1. not accessible via configuration yet
 # standard muon
 looseMuonCut  = looseMuonCutBase
-looseMuonCut += ' && (trackIso+caloIso)/pt < 0.1'                               # relative isolation
+looseMuonCut += ' && (trackIso+caloIso)/pt < 0.1'                                # relative isolation
 # PF muon
 looseMuonCutPF = looseMuonCutBase
-looseMuonCutPF += ' && (chargedHadronIso+neutralHadronIso+photonIso)/pt < 0.1'  # relative isolation
+looseMuonCutPF += ' && (chargedHadronIso+neutralHadronIso+photonIso)/pt < 0.125' # relative isolation
 # Signal muon distance from signal jet
-muonJetsDR = 0.3                                                                # minimal DeltaR of signal muons from any signal jet
+muonJetsDR = 0.3                                                                 # minimal DeltaR of signal muons from any signal jet
 
 # Tightened signal muon selection on top of 'looseMuonCut'
 tightMuonCutBase  =     ''
 # standard muon
 tightMuonCut  = tightMuonCutBase
-tightMuonCut += '(trackIso+caloIso)/pt < 0.05'                                  # relative isolation
+tightMuonCut += '(trackIso+caloIso)/pt < 0.05'                                   # relative isolation
 # PF muon
 tightMuonCutPF  = tightMuonCutBase
-tightMuonCutPF += '(chargedHadronIso+neutralHadronIso+photonIso)/pt < 0.05'     # relative isolation
+tightMuonCutPF += '(chargedHadronIso+neutralHadronIso+photonIso)/pt < 0.125'     # relative isolation
 
 ### Jet selection
 
@@ -103,14 +107,14 @@ jetMuonsDRPF = 0.1
 ### Electron selection
 
 # Veto electron selection
-electronCutBase  =     'et > 15.'                                                    # transverse energy
-electronCutBase += ' && abs(eta) < 2.5'                                              # pseudo-rapisity range
+electronCutBase  =     'et > 15.'                                                  # transverse energy
+electronCutBase += ' && abs(eta) < 2.5'                                            # pseudo-rapisity range
 # standard electron
 electronCut  = electronCutBase
-electronCut += ' && (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/et < 0.2'   # relative isolation
+electronCut += ' && (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/et < 0.2' # relative isolation
 # PF electron
 electronCutPF  = electronCutBase
-electronCutPF += ' && (chargedHadronIso+neutralHadronIso+photonIso)/et < 0.2' # relative isolation
+electronCutPF += ' && (chargedHadronIso+neutralHadronIso+photonIso)/et < 0.2'      # relative isolation
 
 ### ------------------------------------------------------------------------ ###
 
