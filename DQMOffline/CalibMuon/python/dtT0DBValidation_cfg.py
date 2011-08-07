@@ -21,7 +21,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('dtT0Analyzer'),
     cerr = cms.untracked.PSet(
         default = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
-        t0dbValidation = cms.untracked.PSet( limit = cms.untracked.int32(10000000) ),
+        InterChannelSynchDBValidation = cms.untracked.PSet( limit = cms.untracked.int32(10000000) ),
         threshold = cms.untracked.string('DEBUG'),
         DEBUG = cms.untracked.PSet( limit = cms.untracked.int32(0) )
     ),
@@ -70,8 +70,8 @@ process.tzeroRef = cms.ESSource("PoolDBESSource",
 
 process.dtT0Analyzer = cms.EDAnalyzer("DTt0DBValidation",
     labelDBRef = cms.string('tzeroRef'),
-    labelDB = cms.string('tzeroToValidate')
-    t0TestName = cms.string('t0DifferenceInRange')
+    labelDB = cms.string('tzeroToValidate'),
+    t0TestName = cms.string('t0DifferenceInRange'),
     #OutputFileName = cms.untracked.string('t0DBValidation_DT_t0_cosmic2009_V01_express.root')
 )
 
