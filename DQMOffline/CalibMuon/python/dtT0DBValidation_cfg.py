@@ -69,9 +69,9 @@ process.tzeroRef = cms.ESSource("PoolDBESSource",
 )
 
 process.dtT0Analyzer = cms.EDAnalyzer("DTt0DBValidation",
-    labelDBRef = cms.untracked.string('tzeroRef'),
-    labelDB = cms.untracked.string('tzeroToValidate')
-    t0TestName = cms.untracked.string('t0DifferenceInRange')
+    labelDBRef = cms.string('tzeroRef'),
+    labelDB = cms.string('tzeroToValidate')
+    t0TestName = cms.string('t0DifferenceInRange')
     #OutputFileName = cms.untracked.string('t0DBValidation_DT_t0_cosmic2009_V01_express.root')
 )
 

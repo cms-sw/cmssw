@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/08/02 14:23:50 $
- *  $Revision: 1.8 $
+ *  $Date: 2011/08/06 13:37:52 $
+ *  $Revision: 1.9 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -47,8 +47,8 @@ DTt0DBValidation::DTt0DBValidation(const ParameterSet& pset) {
   dbe_->setCurrentFolder("DT/DtCalib/InterChannelSynchDBValidation");
 
   // Get dataBase label
-  labelDBRef_ = pset.getUntrackedParameter<string>("labelDBRef");
-  labelDB_ = pset.getUntrackedParameter<string>("labelDB");
+  labelDBRef_ = pset.getParameter<string>("labelDBRef");
+  labelDB_ = pset.getParameter<string>("labelDB");
 
   t0TestName_ = "t0DifferenceInRange";
   if( pset.exists("t0TestName") ) t0TestName_ = pset.getParameter<string>("t0TestName");
