@@ -179,7 +179,7 @@ void DTtTrigDBValidation::bookHistos(int wheel, int sector) {
 
   string lHistoName = "_W" + str_wheel.str() + "_Sec" + str_sector.str();
 
-  dbe_->setCurrentFolder("DT/tTrigValidation/Wheel" + str_wheel.str());
+  dbe_->setCurrentFolder("DT/DtCalib/TTrigDBValidation/Wheel" + str_wheel.str());
 
   // Create the monitor elements
   MonitorElement * hDifference;
@@ -207,7 +207,7 @@ void DTtTrigDBValidation::bookHistos(int wheel) {
 
   stringstream wh; wh << wheel;
 
-  dbe_->setCurrentFolder("DT/tTrigValidation/Wheel" + wh.str());
+  dbe_->setCurrentFolder("DT/DtCalib/TTrigDBValidation/Wheel" + wh.str());
   tTrigDiffWheel_[wheel] = dbe_->book2D("htTrigDifference_W"+wh.str(), "W"+wh.str()+": summary of tTrig differences",11,1,12,14,1,15);
   tTrigDiffWheel_[wheel]->setBinLabel(1,"MB1_SL1",1);
   tTrigDiffWheel_[wheel]->setBinLabel(2,"MB1_SL2",1);

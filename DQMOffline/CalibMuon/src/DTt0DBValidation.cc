@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/08/06 13:37:52 $
- *  $Revision: 1.9 $
+ *  $Date: 2011/08/07 12:07:57 $
+ *  $Revision: 1.10 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -210,7 +210,7 @@ void DTt0DBValidation::bookHistos(DTLayerId lId, int firstWire, int lastWire) {
     "_SL" + superLayer.str()+
     "_L" + layer.str();
   
-  dbe_->setCurrentFolder("DT/t0Validation/Wheel" + wheel.str() +
+  dbe_->setCurrentFolder("DT/DtCalib/InterChannelSynchDBValidation/Wheel" + wheel.str() +
 			   "/Station" + station.str() +
 			   "/Sector" + sector.str() +
 			   "/SuperLayer" +superLayer.str());
@@ -223,7 +223,7 @@ void DTt0DBValidation::bookHistos(DTLayerId lId, int firstWire, int lastWire) {
 
 // Book the summary histos
 void DTt0DBValidation::bookHistos(int wheel) {
-  dbe_->setCurrentFolder("DT/t0Validation/Summary");
+  dbe_->setCurrentFolder("DT/DtCalib/InterChannelSynchDBValidation/Summary");
   stringstream wh; wh << wheel;
     wheelSummary_[wheel]= dbe_->book2D("summaryWrongT0_W"+wh.str(), "W"+wh.str()+": summary of wrong t0 differences",44,1,45,14,1,15);
     wheelSummary_[wheel]->setBinLabel(1,"M1L1",1);
