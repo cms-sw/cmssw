@@ -1,130 +1,54 @@
 import FWCore.ParameterSet.Config as cms
-import copy
 from Validation.RecoTau.RecoTauValidation_cfi import *
 
 from PhysicsTools.JetMCAlgos.TauGenJets_cfi import tauGenJets
 from PhysicsTools.HepMCCandAlgos.genParticles_cfi import *
-#from Validation.RecoTau.ValidationOptions_cfi import *
 
 # require generated tau to decay hadronically
-objectTypeSelectedTauValDenominator = cms.EDFilter("TauGenJetDecayModeSelector",
+objectTypeSelectedTauValDenominatorZTT = cms.EDFilter("TauGenJetDecayModeSelector",
      src = cms.InputTag("tauGenJets"),
      select = cms.vstring('oneProng0Pi0', 'oneProng1Pi0', 'oneProng2Pi0', 'oneProngOther',
                           'threeProng0Pi0', 'threeProng1Pi0', 'threeProngOther', 'rare'),
      filter = cms.bool(False)
 )
 
-#Here is where we call the value maps we want to use for efficiency
-#WeightProducerTypes are : "shrinkingCone"
-#WeightValueMapTypes are : "DiJetHighPt","DiJetSecondPt","MuEnrichedQCD","ZTT","WJets"
-#WeightDiscriTypes   are : "ByCharge","ByNumTracks","ByLeadPionPt","ByChargeAndTracks","ByIsolation","AgainstElectron","AgainstMuon",
-#                          "ByStandardChain","ByStandardChainNoElectron","ByStandardChainNoMuon"
-#                          "ByTaNCChainTenth","ByTaNCChainQuarter","ByTaNCChainHalf","ByTaNCChainOne"
-#                          "ByTaNCfrTenth","ByTaNCfrQuarter","ByTaNCfrHalf","ByTaNCfrOne",
-#                          "ByTaNCChainTenthNoElectron","ByTaNCChainQuarterNoElectron","ByTaNCChainHalfNoElectron","ByTaNCChainOneNoElectron",
-#                          "ByTaNCChainTenthNoMuon","ByTaNCChainQuarterNoMuon","ByTaNCChainHalfNoMuon","ByTaNCChainOneNoMuon",
+#clones the kinematic selection
+kinematicSelectedTauValDenominatorZTT = kinematicSelectedTauValDenominator.clone( src = cms.InputTag("objectTypeSelectedTauValDenominatorZTT") )
 
-ProducerTypeList = cms.vstring("shrinkingCone")
+#labels TauValNumeratorAndDenominator modules in the sequence to match kinematicSelectedTauValDenominatorZTT and adds ZTT to the extention name
+zttLabeler = lambda module : SetValidationAttributes(module, 'ZTT', 'kinematicSelectedTauValDenominatorZTT')
+zttModifier = ApplyFunctionToSequence(zttLabeler)
+proc.TauValNumeratorAndDenominator.visit(zttModifier)
 
-ValueMapTypeList = cms.vstring("ZTT")
+#clones the whole sequence and related modules adding a ZTT to the end of the name, can even set the correct dependencies, but not needed here
+import PhysicsTools.PatAlgos.tools.helpers as configtools
+procAttributes = dir(proc)
+configtools.cloneProcessingSnippet( proc, proc.TauValNumeratorAndDenominator, 'ZTT')
+newProcAttributes = filter( lambda x: (x not in procAttributes) and (x.find('ZTT') != -1), dir(proc) )
 
-DiscriTypeList =  cms.vstring("ByCharge",
-                              "ByNumTracks",
-                              "ByLeadPionPt",
-                              "ByLeadTrackPt",
-                              "ByChargeAndTracks",
-                              "ByIsolation",
-                              "AgainstElectron",
-                              "AgainstMuon",
-                              "ByStandardChain",
-                              "ByStandardChainNoElectron",
-                              "ByStandardChainNoMuon")
+#spawns a local variable with the same name as the proc attribute, needed for future process.load
+for newAttr in newProcAttributes:
+    locals()[newAttr] = getattr(proc,newAttr)
 
-EmptyList = cms.vstring()
-                                                                          
-from Validation.RecoTau.RecoTauValidation_cfi import *
+#clones the TauEfficiencies module
+TauEfficienciesZTT = TauEfficiencies.clone( plots = Utils.SetPlotSequence(TauValNumeratorAndDenominatorZTT) )
 
-
-PFTausBothProngsWithFakeRates = copy.deepcopy(PFTausBothProngs)
-PFTausBothProngsWithFakeRates.WeightValueMapSource = EmptyList
-PFTausBothProngsWithFakeRates.WeightProducerType = EmptyList
-PFTausBothProngsWithFakeRates.WeightValueMapType = EmptyList
-PFTausBothProngsWithFakeRates.WeightDiscriType   = EmptyList
-PFTausBothProngsWithFakeRates.EventType = cms.string("%s" % options.eventType)
-
-CaloTausBothProngsWithFakeRates = copy.deepcopy(CaloTausBothProngs)
-CaloTausBothProngsWithFakeRates.WeightValueMapSource = EmptyList
-CaloTausBothProngsWithFakeRates.WeightProducerType = EmptyList
-CaloTausBothProngsWithFakeRates.WeightValueMapType = EmptyList
-CaloTausBothProngsWithFakeRates.WeightDiscriType   = EmptyList
-CaloTausBothProngsWithFakeRates.EventType = cms.string("%s" % options.eventType)
-
-
-PFTausHighEfficiencyBothProngsWithFakeRates = copy.deepcopy(PFTausHighEfficiencyBothProngs)
-PFTausHighEfficiencyBothProngsWithFakeRates.WeightProducerType = ProducerTypeList
-PFTausHighEfficiencyBothProngsWithFakeRates.WeightValueMapType = ValueMapTypeList
-PFTausHighEfficiencyBothProngsWithFakeRates.WeightDiscriType   = DiscriTypeList
-PFTausHighEfficiencyBothProngsWithFakeRates.EventType = cms.string("%s" % options.eventType)
-
-
-PFTausHighEfficiencyLeadingPionBothProngsWithFakeRates = copy.deepcopy(PFTausHighEfficiencyLeadingPionBothProngs)
-PFTausHighEfficiencyLeadingPionBothProngsWithFakeRates.WeightProducerType = ProducerTypeList
-PFTausHighEfficiencyLeadingPionBothProngsWithFakeRates.WeightValueMapType = ValueMapTypeList
-PFTausHighEfficiencyLeadingPionBothProngsWithFakeRates.WeightDiscriType   = DiscriTypeList
-PFTausHighEfficiencyLeadingPionBothProngsWithFakeRates.EventType = cms.string("%s" % options.eventType)
-
-
-RunTancValidationWithFakeRates = copy.deepcopy(RunTancValidation)
-RunTancValidationWithFakeRates.WeightProducerType = EmptyList
-RunTancValidationWithFakeRates.WeightValueMapType = EmptyList
-RunTancValidationWithFakeRates.WeightDiscriType   = EmptyList
-RunTancValidationWithFakeRates.EventType = cms.string("%s" % options.eventType)
-
-
-
-PFTausHighEfficiencyBothProngsWithEfficiencies = copy.deepcopy(PFTausHighEfficiencyBothProngs)
-PFTausHighEfficiencyBothProngsWithEfficiencies.WeightProducerType = cms.PSet(PType1 = cms.string("shrinkingCone")
-                                                                          )
-PFTausHighEfficiencyBothProngsWithEfficiencies.WeightValueMapType = cms.PSet(VMType1 = cms.string("ZTT"),
-                                                                          )
-PFTausHighEfficiencyBothProngsWithEfficiencies.WeightDiscriType   = cms.PSet(DType1 = cms.string("ByCharge"),
-                                                                             DType2 = cms.string("ByNumTracks"),
-                                                                             DType3 = cms.string("ByLeadPionPt"),
-                                                                             DType4 = cms.string("ByLeadTrackPt"),
-                                                                             DType5 = cms.string("ByChargeAndTracks"),
-                                                                             DType6 = cms.string("ByIsolation"),
-                                                                             DType7 = cms.string("AgainstElectron"),
-                                                                             DType8 = cms.string("AgainstMuon"),
-                                                                             DType9 = cms.string("ByStandardChain"),
-                                                                             DType10 = cms.string("ByStandardChainNoElectron"),
-                                                                             DType11 = cms.string("ByStandardChainNoMuon")
-                                                                             )
-PFTausHighEfficiencyBothProngsWithEfficiencies.EventType = cms.string("%s" % options.eventType)
-
-
-
-
-TauValNumeratorAndDenominatorWithEfficiencies = cms.Sequence(
-      PFTausBothProngsWithEfficiencies +
-      CaloTausBothProngsWithEfficiencies +
-      PFTausHighEfficiencyBothProngsWithEfficiencies +
-      PFTausHighEfficiencyLeadingPionBothProngsWithEfficiencies +
-      RunTancValidationWithEfficiencies
-      )
-
-produceDenominator = cms.Sequence(
+#Define some useful sequences
+produceDenominatorZTT = cms.Sequence(
       tauGenJets
-      +objectTypeSelectedTauValDenominator
-      +kinematicSelectedTauValDenominator
+      +objectTypeSelectedTauValDenominatorZTT
+      +kinematicSelectedTauValDenominatorZTT
       )
 
-runTauValidationBatchMode = cms.Sequence(
-      produceDenominator
-      +TauValNumeratorAndDenominatorWithEfficiencies
+runTauValidationBatchModeZTT = cms.Sequence(
+      TauValNumeratorAndDenominatorZTT
       )
 
-runTauValidation = cms.Sequence(
-      runTauValidationBatchMode
-      +TauEfficiencies
+runTauValidationZTT = cms.Sequence(
+      runTauValidationBatchModeZTT
+      +TauEfficienciesZTT
       )
 
+#Needed by RunValidation_cfg
+validationBatch = cms.Path(produceDenominatorZTT*runTauValidationBatchModeZTT)
+validationStd   = cms.Path(produceDenominatorZTT*runTauValidationZTT)
