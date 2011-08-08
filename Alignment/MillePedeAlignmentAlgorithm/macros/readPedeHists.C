@@ -7,7 +7,7 @@
 //
 // Author     : Gero Flucke
 // Date       : July 2007
-// Last update: $Date: 2007/08/28 18:44:00 $ by $Author: flucke $
+// Last update: $Date: 2009/01/20 20:22:27 $ by $Author: flucke $
 //
 //
 // Usage:
@@ -215,7 +215,7 @@ void ReadPedeHists::readNumVersTypeTitle(std::ifstream &file, Int_t &num,
 
   title.ReadLine(file); // Title is a full line without key after the type!
   Ssiz_t len = title.Length();
-  while (len != kNPOS && len > 0 && title[--len] == ' ');
+  while (len != kNPOS && len > 0 && title[--len] == ' ') {} // empty loop
   title.Resize(len+1); // remove trailing space
   title += Form(" (version %d)", version);
 }
@@ -298,6 +298,11 @@ TH1 *ReadPedeHists::readNextHist(std::ifstream &file)
   }
 
   // now create histogram
+  if (nBinsUpLow[1] == nBinsUpLow[2]) { // causes ROOT drawing errors
+    nBinsUpLow[2] = nBinsUpLow[1] + 1.;
+    ::Error(method, "Hist %d (version %d): same upper and lower edge (%f), set upper %f.",
+	    num, version, nBinsUpLow[1], nBinsUpLow[2]);
+  }
   TH1 *h = new TH1F(Form("hist%d_version%d", num, version), title,
 		    binContent.size(), nBinsUpLow[1], nBinsUpLow[2]);
   h->SetBinContent(0, underInOver[0]);
