@@ -7,8 +7,7 @@ import math
 import Validation.RecoTau.RecoTauValidation_cfi as validation
 from optparse import OptionParser
 
-__author__  = "Mauro Verzetti"
-__version__ = "$Revision: 1.0 $"
+__author__  = "Mauro Verzetti (mauro.verzetti@cern.ch)"
 __doc__ = """Script to plot the content of a Validation .root file and compare it to a different file:\n\n
 Usage: MultipleCompare.py -T testFile [options] [search strings that you want to apply '*' is supported as special character]"""
 
