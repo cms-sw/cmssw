@@ -3,8 +3,8 @@
 <use name="FWCore/ServiceRegistry"/>
 <use name="FWCore/Utilities"/>
 <use name="GeneratorInterface/LHEInterface"/>
+<use name="GeneratorInterface/Core"/>
 <use name="boost"/>
-<use name="hepmc"/>
 <library name="GeneratorInterfaceLHEProducer" file="LHEProducer.cc LHEFilter.cc">
 	<use name="FWCore/Framework"/>
 	<use name="SimDataFormats/GeneratorProducts"/>

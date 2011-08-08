@@ -1,8 +1,8 @@
-// $Id: FRDFileHandler.h,v 1.11 2010/09/09 08:01:16 mommsen Exp $
+// $Id: FRDFileHandler.h,v 1.12.4.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: FRDFileHandler.h 
 
-#ifndef StorageManager_FRDFileHandler_h
-#define StorageManager_FRDFileHandler_h
+#ifndef EventFilter_StorageManager_FRDFileHandler_h
+#define EventFilter_StorageManager_FRDFileHandler_h
 
 #include "EventFilter/StorageManager/interface/FileHandler.h"
 #include "IOPool/Streamer/interface/FRDEventFileWriter.h"
@@ -21,8 +21,8 @@ namespace stor {
    * FED Raw Data (FRD) format.
    *
    * $Author: mommsen $
-   * $Revision: 1.11 $
-   * $Date: 2010/09/09 08:01:16 $
+   * $Revision: 1.12.4.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
   
   class FRDFileHandler : public FileHandler
@@ -49,12 +49,12 @@ namespace stor {
      */
     virtual void do_writeEvent(const I2OChain&);
 
-    boost::scoped_ptr<FRDEventFileWriter> _writer; // writes FED Raw Data file
+    boost::scoped_ptr<FRDEventFileWriter> writer_; // writes FED Raw Data file
   };
   
 } // stor namespace
 
-#endif // StorageManager_FRDFileHandler_h
+#endif // EventFilter_StorageManager_FRDFileHandler_h
 
 
 /// emacs configuration

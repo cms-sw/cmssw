@@ -105,7 +105,6 @@ class Process(object):
         self.__dict__['_Process__producers'] = {}
         self.__dict__['_Process__source'] = None
         self.__dict__['_Process__looper'] = None
-        self.__dict__['_Process__subProcess'] = None
         self.__dict__['_Process__schedule'] = None
         self.__dict__['_Process__analyzers'] = {}
         self.__dict__['_Process__outputmodules'] = {}
@@ -180,12 +179,6 @@ class Process(object):
     def setLooper_(self,lpr):
         self._placeLooper('looper',lpr)
     looper = property(looper_,setLooper_,doc='the main looper or None if not set')
-    def subProcess_(self):
-        """returns the sub-process which has been added to the Process or None if none have been added"""
-        return self.__subProcess
-    def setSubProcess_(self,lpr):
-        self._placeSubProcess('subProcess',lpr)
-    subProcess = property(subProcess_,setSubProcess_,doc='the SubProcess or None if not set')
     def analyzers_(self):
         """returns a dict of the analyzers which have been added to the Process"""
         return DictTypes.FixedKeysDict(self.__analyzers)
@@ -412,11 +405,6 @@ class Process(object):
             raise ValueError("The label '"+name+"' can not be used for a Looper.  Only 'looper' is allowed.")
         self.__dict__['_Process__looper'] = mod
         self.__dict__[mod.type_()] = mod
-    def _placeSubProcess(self,name,mod):
-        if name != 'subProcess':
-            raise ValueError("The label '"+name+"' can not be used for a SubProcess.  Only 'subProcess' is allowed.")
-        self.__dict__['_Process__subProcess'] = mod
-        self.__dict__[mod.type_()] = mod
     def _placeService(self,typeName,mod):
         self._place(typeName, mod, self.__services)
         self.__dict__[typeName]=mod
@@ -436,7 +424,7 @@ class Process(object):
             if name.startswith('_'):
                 continue
             item = getattr(other,name)
-            if name == "source" or name == "looper" or name == "subProcess":
+            if name == "source" or name == "looper":
                 self.__setattr__(name,item)
             elif isinstance(item,_ModuleSequenceType):
                 seqs[name]=item
@@ -492,9 +480,6 @@ class Process(object):
             config += options.indentation()+"source = "+self.source_().dumpConfig(options)
         if self.looper_():
             config += options.indentation()+"looper = "+self.looper_().dumpConfig(options)
-        if self.subProcess_():
-            config += options.indentation()+"subProcess = "+self.subProcess_().dumpConfig(options)
-
         config+=self._dumpConfigNamedList(self.producers_().iteritems(),
                                   'module',
                                   options)
@@ -609,8 +594,6 @@ class Process(object):
             result += "process.source = "+self.source_().dumpPython(options)
         if self.looper_():
             result += "process.looper = "+self.looper_().dumpPython()
-        if self.subProcess_():
-            result += self.subProcess_().dumpPython(options)
         result+=self._dumpPythonList(self.producers_(), options)
         result+=self._dumpPythonList(self.filters_() , options)
         result+=self._dumpPythonList(self.analyzers_(), options)
@@ -646,14 +629,14 @@ class Process(object):
     def _insertInto(self, parameterSet, itemDict):
         for name,value in itemDict.iteritems():
             value.insertInto(parameterSet, name)
-    def _insertOneInto(self, parameterSet, label, item, tracked):
+    def _insertOneInto(self, parameterSet, label, item):
         vitems = []
         if not item == None:
             newlabel = item.nameInProcessDesc_(label)
             vitems = [newlabel]
             item.insertInto(parameterSet, newlabel)
-        parameterSet.addVString(tracked, label, vitems)
-    def _insertManyInto(self, parameterSet, label, itemDict, tracked):
+        parameterSet.addVString(True, label, vitems)
+    def _insertManyInto(self, parameterSet, label, itemDict):
         l = []
         for name,value in itemDict.iteritems():
           newLabel = value.nameInProcessDesc_(name)
@@ -661,7 +644,7 @@ class Process(object):
           value.insertInto(parameterSet, name)
         # alphabetical order is easier to compare with old language
         l.sort()
-        parameterSet.addVString(tracked, label, l)
+        parameterSet.addVString(True, label, l)
     def _insertServices(self, processDesc, itemDict):
         for name,value in itemDict.iteritems():
            value.insertInto(processDesc)
@@ -745,13 +728,12 @@ class Process(object):
         all_modules.update(self.outputModules_())
         self._insertInto(processPSet, self.psets_())
         self._insertInto(processPSet, self.vpsets_())
-        self._insertManyInto(processPSet, "@all_modules", all_modules, True)
-        self._insertOneInto(processPSet,  "@all_sources", self.source_(), True)
-        self._insertOneInto(processPSet,  "@all_loopers", self.looper_(), True)
-        self._insertOneInto(processPSet,  "@all_subprocesses", self.subProcess_(), False)
-        self._insertManyInto(processPSet, "@all_esmodules", self.es_producers_(), True)
-        self._insertManyInto(processPSet, "@all_essources", self.es_sources_(), True)
-        self._insertManyInto(processPSet, "@all_esprefers", self.es_prefers_(), True)
+        self._insertManyInto(processPSet, "@all_modules", all_modules)
+        self._insertOneInto(processPSet,  "@all_sources", self.source_())
+        self._insertOneInto(processPSet,  "@all_loopers",   self.looper_())
+        self._insertManyInto(processPSet, "@all_esmodules", self.es_producers_())
+        self._insertManyInto(processPSet, "@all_essources", self.es_sources_())
+        self._insertManyInto(processPSet, "@all_esprefers", self.es_prefers_())
         self._insertPaths(processDesc, processPSet)
         self._insertServices(processDesc, self.services_())
         return processDesc
@@ -844,126 +826,9 @@ class FilteredStream(dict):
     def __getattr__(self,attr):
         return self[attr]
 
-class SubProcess(_ConfigureComponent,_Unlabelable):
-   """Allows embedding another process within a parent process. This allows one to 
-   chain processes together directly in one cmsRun job rather than having to run
-   separate jobs which are connected via a temporary file.
-   """
-   def __init__(self,process, selectEvents = untracked.vstring()):
-      """
-      """
-      if not isinstance(process, Process):
-         raise ValueError("the 'process' argument must be of type cms.Process")
-      if not isinstance(selectEvents,vstring):
-         raise ValueError("the 'selectEvents' argument must be of type cms.untracked.vstring")
-      self.__process = process
-      self.__selectEvents = selectEvents
-   def dumpPython(self,options):
-      out = "parentProcess"+str(hash(self))+" = process\n"
-      out += self.__process.dumpPython()
-      out += "childProcess = process\n"
-      out += "process = parentProcess"+str(hash(self))+"\n"
-      out += "process.subProcess = cms.SubProcess( process = childProcess, selectEvents = "+self.__selectEvents.dumpPython(options) +")\n"
-      return out
-   def type_(self):
-      return 'subProcess'
-   def nameInProcessDesc_(self,label):
-      return '@sub_process'
-   def _place(self,label,process):
-      process._placeSubProcess('subProcess',self)
-   def insertInto(self,parameterSet, newlabel):
-      class ProcessDescAdaptor(object):
-        def __init__(self,pset):
-            self.__pset = pset
-        def addService(self,*l,**d):
-            None
-        def newPSet(self):
-            return self.__pset.newPSet()
-      class ServiceInjectorAdaptor(object):
-        
-        def __init__(self,pset,label):
-            self.__pset = pset
-            self.__label = label
-        def addService(self,pset):
-            self.__pset.addPSet(False,self.__label,pset)
-        def newPSet(self):
-            return self.__pset.newPSet()
-      topPSet = parameterSet.newPSet()
-      self.__process.fillProcessDesc(ProcessDescAdaptor(topPSet),topPSet)
-      subProcessPSet = parameterSet.newPSet()
-      self.__selectEvents.insertInto(subProcessPSet,"selectEvents")
-      subProcessPSet.addPSet(False,"process",topPSet)
-      #handle services differently
-      services = parameterSet.newPSet()
-      for n in self.__process.services_():
-         getattr(self.__process,n).insertInto(ServiceInjectorAdaptor(services,n))
-      subProcessPSet.addPSet(False,"services",services)
-      parameterSet.addPSet(False,self.nameInProcessDesc_("subProcess"), subProcessPSet)
 
 if __name__=="__main__":
     import unittest
-    class TestMakePSet(object):
-        """Has same interface as the C++ object which creates PSets
-        """
-        def __init__(self):
-            self.values = dict()
-        def __insertValue(self,tracked,label,value):
-            self.values[label]=(tracked,value)
-        def addInt32(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addVInt32(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addUInt32(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addVUInt32(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addInt64(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addVInt64(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addUInt64(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addVUInt64(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addDouble(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addVDouble(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addBool(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addString(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addVString(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addInputTag(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addVInputTag(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addESInputTag(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addVESInputTag(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addEventID(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addVEventID(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addLuminosityBlockID(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addLuminosityBlockID(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addEventRange(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addVEventRange(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addPSet(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addVPSet(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def addFileInPath(self,tracked,label,value):
-            self.__insertValue(tracked,label,value)
-        def newPSet(self):
-            return TestMakePSet()
-        
     class TestModuleCommand(unittest.TestCase):
         def setUp(self):
             """Nothing to do """
@@ -1370,42 +1235,6 @@ process.prefer("juicer",
             m2 = m.clone(p = PSet(i = int32(5)), j = int32(8))
             m2.p.i = 6
             m2.j = 8
-        def testSubProcess(self):
-            process = Process("Parent")
-            subProcess = Process("Child")
-            subProcess.a = EDProducer("A")
-            subProcess.p = Path(subProcess.a)
-            subProcess.add_(Service("Foo"))
-            process.add_( SubProcess(subProcess) )
-            d = process.dumpPython()
-            equalD ="""import FWCore.ParameterSet.Config as cms
 
-process = cms.Process("Parent")
-
-parentProcess = process
-import FWCore.ParameterSet.Config as cms
-
-process = cms.Process("Child")
-
-process.a = cms.EDProducer("A")
-
-
-process.p = cms.Path(process.a)
-
-
-process.Foo = cms.Service("Foo")
-
-
-childProcess = process
-process = parentProcess
-process.subProcess = cms.SubProcess( process = childProcess, selectEvents = cms.untracked.vstring())
-"""
-            equalD = equalD.replace("parentProcess","parentProcess"+str(hash(process.subProcess)))
-            self.assertEqual(d,equalD)
-            p = TestMakePSet()
-            process.subProcess.insertInto(p,"dummy")
-            self.assertEqual((True,['a']),p.values["@sub_process"][1].values["process"][1].values['@all_modules'])
-            self.assertEqual((True,['p']),p.values["@sub_process"][1].values["process"][1].values['@paths'])
-            self.assertEqual({'@service_type':(True,'Foo')}, p.values["@sub_process"][1].values["services"][1].values['Foo'][1].values)
 
     unittest.main()

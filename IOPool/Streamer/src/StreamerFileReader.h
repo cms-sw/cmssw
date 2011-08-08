@@ -9,16 +9,16 @@
 #include <string>
 #include <vector>
 
-class InitMsgView;
 class EventMsgView;
+class InitMsgView;
 
 namespace edm {
-  class InputSourceDescription;
-  class ParameterSet;
+  class ConfigurationDescriptions;
   class EventPrincipal;
   class EventSkipperByID;
+  struct InputSourceDescription;
+  class ParameterSet;
   class StreamerInputFile;
-  class ConfigurationDescriptions;
   class StreamerFileReader : public StreamerInputSource {
   public:
     StreamerFileReader(ParameterSet const& pset, InputSourceDescription const& desc);
@@ -36,7 +36,6 @@ namespace edm {
     boost::shared_ptr<EventSkipperByID> eventSkipperByID_;
     int numberOfEventsToSkip_;
   };
-
 } //end-of-namespace-def
 
 #endif

@@ -8,7 +8,6 @@
 
 #include "RecoJets/JetProducers/plugins/VirtualJetProducer.h"
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
-#include "RecoJets/JetProducers/interface/BackgroundEstimator.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -39,7 +38,6 @@
 #include <algorithm>
 #include <limits>
 #include <cmath>
-
 
 using namespace std;
 
@@ -114,11 +112,14 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
   , doAreaFastjet_ (iConfig.getParameter<bool>         ("doAreaFastjet"))
   , doRhoFastjet_  (iConfig.getParameter<bool>         ("doRhoFastjet"))
   , doPUOffsetCorr_(iConfig.getParameter<bool>         ("doPUOffsetCorr"))
-  , puWidth_(0)
-  , nExclude_(0)
+  , maxBadEcalCells_        (iConfig.getParameter<unsigned>("maxBadEcalCells"))
+  , maxRecoveredEcalCells_  (iConfig.getParameter<unsigned>("maxRecoveredEcalCells"))
+  , maxProblematicEcalCells_(iConfig.getParameter<unsigned>("maxProblematicEcalCells"))
+  , maxBadHcalCells_        (iConfig.getParameter<unsigned>("maxBadHcalCells"))
+  , maxRecoveredHcalCells_  (iConfig.getParameter<unsigned>("maxRecoveredHcalCells"))
+  , maxProblematicHcalCells_(iConfig.getParameter<unsigned>("maxProblematicHcalCells"))
   , jetCollInstanceName_ ("")
 {
-  anomalousTowerDef_ = std::auto_ptr<AnomalousTower>(new AnomalousTower(iConfig));
 
   //
   // additional parameters to think about:
@@ -213,7 +214,6 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
   if(doFastJetNonUniform_){
     puCenters_ = iConfig.getParameter<std::vector<double> >("puCenters");
     puWidth_ = iConfig.getParameter<double>("puWidth");
-    nExclude_ = iConfig.getParameter<unsigned int>("nExclude");
   }
   produces<std::vector<double> >("rhos");
   produces<std::vector<double> >("sigmas");
@@ -297,7 +297,6 @@ void VirtualJetProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetu
   // put the initial towers collection to the jet,   
   // and subtract from initial towers in jet recalculated mean and sigma of towers 
   if ( doPUOffsetCorr_ ) {
-    LogDebug("VirtualJetProducer") << "Do PUOffsetCorr\n";
     vector<fastjet::PseudoJet> orphanInput;
     subtractor_->calculateOrphanInput(orphanInput);
     subtractor_->calculatePedestal(orphanInput);
@@ -349,11 +348,18 @@ void VirtualJetProducer::inputTowers( )
 //______________________________________________________________________________
 bool VirtualJetProducer::isAnomalousTower(reco::CandidatePtr input)
 {
-  if (!makeCaloJet(jetTypeE)) 
-      return false;
-  else
-      return (*anomalousTowerDef_)(*input);
+  if (!makeCaloJet(jetTypeE)) return false;
+  const CaloTower* tower=dynamic_cast<const CaloTower*>(input.get());
+  if (0==tower) return false;
+  if (tower->numBadEcalCells()        >maxBadEcalCells_        ||
+      tower->numRecoveredEcalCells()  >maxRecoveredEcalCells_  ||
+      tower->numProblematicEcalCells()>maxProblematicEcalCells_||
+      tower->numBadHcalCells()        >maxBadHcalCells_        ||
+      tower->numRecoveredHcalCells()  >maxRecoveredHcalCells_  ||
+      tower->numProblematicHcalCells()>maxProblematicHcalCells_) return true;
+  return false;
 }
+
 
 //------------------------------------------------------------------------------
 // This is pure virtual. 
@@ -419,13 +425,6 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
 
   std::auto_ptr<std::vector<T> > jets(new std::vector<T>() );
   jets->reserve(fjJets_.size());
-
-  // declare jet collection without the two jets, 
-  // for unbiased background estimation.
-  std::vector<fastjet::PseudoJet> fjexcluded_jets;
-  fjexcluded_jets=fjJets_;
-
-  if(fjexcluded_jets.size()>2) fjexcluded_jets.resize(nExclude_);
       
   for (unsigned int ijet=0;ijet<fjJets_.size();++ijet) {
     // allocate this jet
@@ -461,11 +460,11 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
     jet.setJetArea (jetArea);
 
     if(doPUOffsetCorr_){
-      jet.setPileup(subtractor_->getPileUpEnergy(ijet));
-    }else{
-      jet.setPileup (0.0);
+       jet.setPileup(subtractor_->getPileUpEnergy(ijet));
+   }else{
+       jet.setPileup (0.0);
     }
-    
+
     // add to the list
     jets->push_back(jet);	
   }
@@ -485,13 +484,14 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
 
       for(int ie = 0; ie < nEta; ++ie){
 	double eta = puCenters_[ie];
+	double rho = 0;
+	double sigma = 0;
 	double etamin=eta-puWidth_;
 	double etamax=eta+puWidth_;
 	fastjet::RangeDefinition range_rho(etamin,etamax);
-	fastjet::BackgroundEstimator bkgestim(*clusterSequenceWithArea,range_rho);
-	bkgestim.set_excluded_jets(fjexcluded_jets);
-	rhos->push_back(bkgestim.rho());
-	sigmas->push_back(bkgestim.sigma());
+	clusterSequenceWithArea->get_median_rho_and_sigma(range_rho, true, rho, sigma);
+	rhos->push_back(rho);
+	sigmas->push_back(sigma);
       }
       iEvent.put(rhos,"rhos");
       iEvent.put(sigmas,"sigmas");
@@ -499,7 +499,7 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
       std::auto_ptr<double> rho(new double(0.0));
       std::auto_ptr<double> sigma(new double(0.0));
       double mean_area = 0;
-     
+      
       fastjet::ClusterSequenceArea const * clusterSequenceWithArea =
 	dynamic_cast<fastjet::ClusterSequenceArea const *> ( &*fjClusterSeq_ );
       clusterSequenceWithArea->get_median_rho_and_sigma(*fjRangeDef_,false,*rho,*sigma,mean_area);

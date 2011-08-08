@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Sep 30 14:57:12 EDT 2008
-// $Id: Context.cc,v 1.31 2010/10/29 18:23:25 amraktad Exp $
+// $Id: Context.cc,v 1.34 2011/03/07 20:57:03 amraktad Exp $
 //
 
 // system include files
@@ -22,6 +22,7 @@
 
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWMagField.h"
+#include "Fireworks/Core/interface/FWBeamSpot.h"
 #include "Fireworks/Core/interface/CmsShowCommon.h"
 
 using namespace fireworks;
@@ -33,6 +34,7 @@ using namespace fireworks;
 // static data member definitions
 //
 
+#include <boost/bind.hpp>
 const float Context::s_caloTransEta = 1.479; 
 const float Context::s_caloTransAngle = 2*atan(exp(-s_caloTransEta));
 
@@ -73,15 +75,17 @@ Context::Context(FWModelChangeManager* iCM,
   m_trackerPropagator(0),
   m_muonPropagator(0),
   m_magField(0),
+  m_beamSpot(0),
   m_commonPrefs(0),
   m_maxEt(1.f),
   m_maxEnergy(1.f),
   m_caloData(0),
   m_caloDataHF(0)
 {
-  if (iColorM)
-    m_commonPrefs = new CmsShowCommon(iColorM);
+   if (iColorM) // unit test
+     m_commonPrefs = new CmsShowCommon(this);
 }
+
 
 Context::~Context()
 {
@@ -92,6 +96,8 @@ void
 Context::initEveElements()
 {
    m_magField = new FWMagField();
+   m_beamSpot = new FWBeamSpot();
+   
 
    float propagatorOffR = 5;
    float propagatorOffZ = propagatorOffR*caloZ1(false)/caloR1(false);
@@ -102,8 +108,8 @@ Context::initEveElements()
    m_propagator->SetMaxR(caloR2()-propagatorOffR);
    m_propagator->SetMaxZ(caloZ2()-propagatorOffZ);
    m_propagator->SetDelta(0.01);
-   m_propagator->SetProjTrackBreaking(TEveTrackPropagator::kPTB_UseLastPointPos);
-   m_propagator->SetRnrPTBMarkers(kTRUE);
+   m_propagator->SetProjTrackBreaking(m_commonPrefs->getProjTrackBreaking());
+   m_propagator->SetRnrPTBMarkers(m_commonPrefs->getRnrPTBMarkers());
    m_propagator->IncDenyDestroy();
    // tracker propagator
    m_trackerPropagator = new TEveTrackPropagator();
@@ -112,8 +118,8 @@ Context::initEveElements()
    m_trackerPropagator->SetDelta(0.01);
    m_trackerPropagator->SetMaxR(caloR1()-propagatorOffR);
    m_trackerPropagator->SetMaxZ(caloZ2()-propagatorOffZ);
-   m_trackerPropagator->SetProjTrackBreaking(TEveTrackPropagator::kPTB_UseLastPointPos);
-   m_trackerPropagator->SetRnrPTBMarkers(kTRUE);
+   m_trackerPropagator->SetProjTrackBreaking(m_commonPrefs->getProjTrackBreaking());
+   m_trackerPropagator->SetRnrPTBMarkers(m_commonPrefs->getRnrPTBMarkers());
    m_trackerPropagator->IncDenyDestroy();
    // muon propagator
    m_muonPropagator = new TEveTrackPropagator();
@@ -122,8 +128,8 @@ Context::initEveElements()
    m_muonPropagator->SetDelta(0.05);
    m_muonPropagator->SetMaxR(850.f);
    m_muonPropagator->SetMaxZ(1100.f);
-   m_muonPropagator->SetProjTrackBreaking(TEveTrackPropagator::kPTB_UseLastPointPos);
-   m_muonPropagator->SetRnrPTBMarkers(kTRUE);
+   m_muonPropagator->SetProjTrackBreaking(m_commonPrefs->getProjTrackBreaking());
+   m_muonPropagator->SetRnrPTBMarkers(m_commonPrefs->getRnrPTBMarkers());
    m_muonPropagator->IncDenyDestroy();
 
    // general calo data

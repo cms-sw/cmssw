@@ -51,6 +51,11 @@ void FastCircle::createCircleParameters() {
   n[1] = -(x[0]*(y[2] - z[2]) + y[0]*(z[2] - x[2]) + z[0]*(x[2] - y[2]));
   n[2] =   x[0]*(y[1] - z[1]) + y[0]*(z[1] - x[1]) + z[0]*(x[1] - y[1]);
 
+  double mag2 = n[0]*n[0]+n[1]*n[1]+n[2]*n[2];
+  if (mag2 < 1.e-20) {
+    theValid = false;
+    return;
+  }
   n.Unit(); // reduce n to a unit vector
   double  c = -(n[0]*x[0] + n[1]*x[1] + n[2]*x[2]);
   //  c = -(n[0]*y[0] + n[1]*y[1] + n[2]*y[2]);

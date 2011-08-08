@@ -11,7 +11,7 @@
 //
 // Original Author:  Traczyk Piotr
 //         Created:  Thu Oct 11 15:01:28 CEST 2007
-// $Id: CSCTimingExtractor.cc,v 1.5 2010/12/15 11:07:40 ptraczyk Exp $
+// $Id: CSCTimingExtractor.cc,v 1.4 2010/07/01 08:48:10 ptraczyk Exp $
 //
 //
 
@@ -201,7 +201,7 @@ CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackR
       diff=(1.+dsegm.at(i)/dstnc.at(i)*30.)-invbeta;
       diff=diff*diff*hitWeight.at(i);
       invbetaerr+=diff;
-      if (diff>chimax) { 
+      if (diff/totalWeight>chimax) { 
 	tmmax=tms.begin()+i;
 	chimax=diff;
       }

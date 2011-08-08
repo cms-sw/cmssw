@@ -10,7 +10,6 @@
 <use   name="RecoVertex/KalmanVertexFit"/>
 <use   name="PhysicsTools/UtilAlgos"/>
 <use   name="SimTracker/TrackAssociation"/>
-<use   name="SimMuon/MCTruth"/>
 <use   name="SimTracker/Records"/>
 <use   name="CLHEP"/>
 <use   name="root"/>

@@ -16,7 +16,7 @@
 //
 // Original Author:  matevz
 //         Created:  Fri Apr 30 15:17:29 CEST 2010
-// $Id: FWEnumParameterSetter.h,v 1.1 2010/04/30 15:29:44 matevz Exp $
+// $Id: FWEnumParameterSetter.h,v 1.2.8.1 2011/02/11 19:42:15 amraktad Exp $
 //
 
 // system include files
@@ -42,7 +42,7 @@ public:
 
    // ---------- member functions ---------------------------
 
-   virtual TGFrame* build(TGFrame* iParent);
+   virtual TGFrame* build(TGFrame* iParent, bool labelBack = true);
 
    virtual void setEnabled(bool);
 

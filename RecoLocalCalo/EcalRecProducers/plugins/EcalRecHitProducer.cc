@@ -1,14 +1,14 @@
 /** \class EcalRecHitProducer
  *   produce ECAL rechits from uncalibrated rechits
  *
- *  $Id: EcalRecHitProducer.cc,v 1.13 2010/09/29 15:31:27 ferriff Exp $
- *  $Date: 2010/09/29 15:31:27 $
- *  $Revision: 1.13 $
+ *  $Id: EcalRecHitProducer.cc,v 1.12 2010/02/25 00:32:26 wmtan Exp $
+ *  $Date: 2010/02/25 00:32:26 $
+ *  $Revision: 1.12 $
  *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
  *
  **/
 #include "RecoLocalCalo/EcalRecProducers/plugins/EcalRecHitProducer.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalCleaningAlgo.h"
+
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
@@ -57,17 +57,12 @@ EcalRecHitProducer::EcalRecHitProducer(const edm::ParameterSet& ps)
         // to recover problematic channels
         componentType = ps.getParameter<std::string>("algoRecover");
         workerRecover_ = EcalRecHitWorkerFactory::get()->create(componentType, ps);
-
-	edm::ParameterSet cleaningPs = 
-	  ps.getParameter<edm::ParameterSet>("cleaningConfig");
-	cleaningAlgo_ = new EcalCleaningAlgo(cleaningPs);
 }
 
 EcalRecHitProducer::~EcalRecHitProducer()
 {
         delete worker_;
         delete workerRecover_;
-	delete cleaningAlgo_;
 }
 
 void
@@ -262,20 +257,6 @@ EcalRecHitProducer::produce(edm::Event& evt, const edm::EventSetup& es)
                         }
                 }
         }
-
-
-	// cleaning of anomalous signals, aka spikes
-	EcalRecHitCollection::iterator rh;
-	for (rh=ebRecHits->begin(); rh!=ebRecHits->end(); ++rh){
-	  EcalRecHit::Flags state=cleaningAlgo_->checkTopology(rh->id(),*ebRecHits);
-	  if (state!=EcalRecHit::kGood) rh->setFlag(state);
-
-	}
-	
-	for (rh=eeRecHits->begin(); rh!=eeRecHits->end(); ++rh){
-	  EcalRecHit::Flags state=cleaningAlgo_->checkTopology(rh->id(),*eeRecHits);
-	  if (state!=EcalRecHit::kGood) rh->setFlag(state);
-	}
 
         // put the collection of recunstructed hits in the event   
         LogInfo("EcalRecHitInfo") << "total # EB calibrated rechits: " << ebRecHits->size();

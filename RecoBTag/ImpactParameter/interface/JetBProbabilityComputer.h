@@ -61,8 +61,7 @@ class JetBProbabilityComputer : public JetTagComputer
            float p=fabs(*it);
            if( m_deltaR < 0 || ROOT::Math::VectorUtil::DeltaR((*tkip.jet()).p4().Vect(), (*tracks[i]).momentum()) < m_deltaR)
              {
-               //if(m_trackSign>0 || *it >0 ) probabilities.push_back(p); //Use all tracks for positive tagger and only negative for negative tagger
-               if(m_trackSign>0 || *it <0 ) probabilities.push_back(p); //Use all tracks for positive tagger and only negative for negative tagger
+               if(m_trackSign>0 || *it >0 ) probabilities.push_back(p); //Use all tracks for positive tagger and only negative for negative tagger
 
                if(m_trackSign>0 && *it >=0){probabilitiesB.push_back(*it);} //Use only positive tracks for positive tagger
                if(m_trackSign<0 && *it <=0){probabilitiesB.push_back(- *it);} //Use only negative tracks for negative tagger 

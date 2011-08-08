@@ -25,10 +25,7 @@ samples.num   = [1,
 
 #which triggers for which sample
 
-paths.Wenu = [
-              'HLT_Ele17_SW_TighterEleIdIsol_L1RDQM',
-
-              'HLT_Ele10_LW_L1RDQM',
+paths.Wenu = ['HLT_Ele10_LW_L1RDQM',
               'HLT_Ele15_SW_L1RDQM',
               'HLT_Ele10_LW_EleId_L1RDQM'
               ]

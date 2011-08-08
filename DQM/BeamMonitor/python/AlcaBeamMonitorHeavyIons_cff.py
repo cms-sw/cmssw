@@ -8,4 +8,6 @@ AlcaBeamMonitor.BeamFitter.TrackCollection = 'hiSelectedTracks'
 AlcaBeamMonitor.BeamFitter.TrackQuality    = ['highPurity']
 AlcaBeamMonitor.PVFitter.VertexCollection  = 'hiSelectedVertex'
 
-alcaBeamMonitor = cms.Sequence( AlcaBeamMonitor )
+import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
+scalerBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
+alcaBeamMonitor = cms.Sequence( scalerBeamSpot*AlcaBeamMonitor )

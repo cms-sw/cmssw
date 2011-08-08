@@ -52,6 +52,7 @@ for fucount in $(seq $SMDEV_FU_PROCESS_COUNT) ; do
 done
 
 cd $STMGR_DIR/log/storageManager
+#valgrind --leak-check=full --track-origins=yes --suppressions=$ROOTSYS/etc/valgrind-root.supp \
 xdaq.exe -h STMGR_DEV_SM_HOST -p STMGR_DEV_SM_PORT -c $STMGR_CONFIG > SM${TIMESTAMP}.log 2>&1 &
 echo "Started SM xdaq.exe..."
 

@@ -143,26 +143,8 @@ PFPileUp::chargedHadronVertex( const Handle<VertexCollection>& vertices, const P
   assert( !iVertex );
 
   // no vertex found with this track. 
-  // as a secondary solution, associate the closest vertex in z
-
-  double dzmin = 10000;
-  double ztrack = pfcand.vertex().z();
-  bool foundVertex = false;
-  index = 0;
-  for(IV iv=vertices->begin(); iv!=vertices->end(); ++iv, ++index) {
-
-    double dz = fabs(ztrack - iv->z());
-    if(dz<dzmin) {
-      dzmin = dz; 
-      iVertex = index;
-      foundVertex = true;
-    }
-  }
-
-  if( foundVertex ) 
-    return VertexRef( vertices, iVertex);  
-  else 
-    return VertexRef();
+  // keep this track
+  return VertexRef();
 }
 
 

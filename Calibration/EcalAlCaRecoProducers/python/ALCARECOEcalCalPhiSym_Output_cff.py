@@ -12,8 +12,7 @@ OutALCARECOEcalCalPhiSym_noDrop = cms.PSet(
     outputCommands = cms.untracked.vstring(
         'keep *_ecalPhiSymCorrected_phiSymEcalRecHitsEB_*', 
         'keep *_ecalPhiSymCorrected_phiSymEcalRecHitsEE_*',
-        'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
-        'keep *_MEtoEDMConverter_*_*')
+        'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*')
 )
 
 

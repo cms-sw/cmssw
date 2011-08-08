@@ -4,8 +4,8 @@
  *     Steering routine for L1 trigger simulation in a muon barrel station
  *
  *
- *   $Date: 2009/11/12 14:33:26 $
- *   $Revision: 1.13 $
+ *   $Date: 2009/11/02 14:18:30 $
+ *   $Revision: 1.12 $
  *
  *   \author C.Grandi
  */
@@ -44,7 +44,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
+class DTTTrigBaseSync;
 class InputTag;
 
 //              ---------------------
@@ -248,13 +248,16 @@ class DTTrig {
     TUcontainer _cache;       		// Trigger units
     SCcontainer _cache1;      		// Sector Collector units
     const DTConfigManager *_conf_manager;    // Configuration Manager class pointer 
+    DTTTrigBaseSync *_digi_sync;
     edm::InputTag _digitag;
     bool _debug;                        // Debug flag
+    bool _usesyncdb;
     bool _inputexist;
 
     unsigned long long _configid;
     unsigned long long _geomid;
-
+    unsigned long long _t0id;
+    unsigned long long _ttrigid;
 };
 
 #endif

@@ -1,8 +1,8 @@
-// $Id: FRDStreamHandler.h,v 1.5 2010/02/08 11:58:14 mommsen Exp $
+// $Id: FRDStreamHandler.h,v 1.6.10.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: FRDStreamHandler.h 
 
-#ifndef StorageManager_FRDStreamHandler_h
-#define StorageManager_FRDStreamHandler_h
+#ifndef EventFilter_StorageManager_FRDStreamHandler_h
+#define EventFilter_StorageManager_FRDStreamHandler_h
 
 #include "EventFilter/StorageManager/interface/SharedResources.h"
 #include "EventFilter/StorageManager/interface/StreamHandler.h"
@@ -18,8 +18,8 @@ namespace stor {
    * Handle one FED Raw Data (error) event stream written to disk.
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2010/02/08 11:58:14 $
+   * $Revision: 1.6.10.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
   
   class FRDStreamHandler : public StreamHandler
@@ -40,7 +40,7 @@ namespace stor {
      * Return the stream label
      */
     virtual std::string streamLabel() const
-    { return _streamConfig.streamLabel(); }
+    { return streamConfig_.streamLabel(); }
 
     /**
      * Return the fraction-to-disk parameter
@@ -59,16 +59,16 @@ namespace stor {
      * Return the maximum file size for the stream in MB
      */
     virtual int getStreamMaxFileSize() const
-    { return _streamConfig.maxFileSizeMB(); }
+    { return streamConfig_.maxFileSizeMB(); }
 
 
-    ErrorStreamConfigurationInfo _streamConfig;
+    ErrorStreamConfigurationInfo streamConfig_;
     
   };
   
 } // namespace stor
 
-#endif // StorageManager_FRDStreamHandler_h 
+#endif // EventFilter_StorageManager_FRDStreamHandler_h 
 
 
 /// emacs configuration

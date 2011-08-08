@@ -44,7 +44,6 @@ public:
   typedef int LMMid;
   typedef int PNid;
   enum PN { iPNA=0, iPNB };
-  enum PNNORM { iPNNORM=0, iPNANORM, iPNBNORM };
   static std::pair<ME::DCCid,ME::PNid> pn( ME::LMRid ilmr, 
 					   ME::LMMid ilmmod, 
 					   ME::PN    ipn );
@@ -98,76 +97,28 @@ public:
 	 iLmfTestPulseConfig,  
 	 iLmfTestPulsePrim,   
 	 iLmfTestPulsePnPrim,
-	 iLmfNLSRun,  
-	 iLmfNLS,   
-	 iLmfNLSRef,   
 	 iSizeLmf   }; 
 
   // Laser primitive variables (table LmfLaserPrim)
-
-  enum { iAPD_FLAG, iAPD_MEAN, iAPD_RMS, iAPD_M3, iAPD_NEVT, 
-	 iAPD_OVER_PNA_MEAN, iAPD_OVER_PNA_RMS, iAPD_OVER_PNA_M3, iAPD_OVER_PNA_NEVT, 
-	 iAPD_OVER_PNB_MEAN, iAPD_OVER_PNB_RMS, iAPD_OVER_PNB_M3, iAPD_OVER_PNB_NEVT,
-	 iAPD_OVER_PN_MEAN, iAPD_OVER_PN_RMS, iAPD_OVER_PN_M3, iAPD_OVER_PN_NEVT, 
-	 iAPD_OVER_PNACOR_MEAN, iAPD_OVER_PNACOR_RMS, iAPD_OVER_PNACOR_M3, iAPD_OVER_PNACOR_NEVT, 
-	 iAPD_OVER_PNBCOR_MEAN, iAPD_OVER_PNBCOR_RMS, iAPD_OVER_PNBCOR_M3, iAPD_OVER_PNBCOR_NEVT,
-	 iAPD_OVER_PNCOR_MEAN, iAPD_OVER_PNCOR_RMS, iAPD_OVER_PNCOR_M3, iAPD_OVER_PNCOR_NEVT,	
-	 iAPD_OVER_APDA_MEAN, iAPD_OVER_APDA_RMS, iAPD_OVER_APDA_M3, iAPD_OVER_APDA_NEVT, // JM
-	 iAPD_OVER_APDB_MEAN, iAPD_OVER_APDB_RMS, iAPD_OVER_APDB_M3, iAPD_OVER_APDB_NEVT, // JM
-	 iAPDABFIT_OVER_PNACOR_MEAN, iAPDABFIT_OVER_PNACOR_RMS, iAPDABFIT_OVER_PNACOR_M3, iAPDABFIT_OVER_PNACOR_NEVT, 
-	 iAPDABFIT_OVER_PNBCOR_MEAN, iAPDABFIT_OVER_PNBCOR_RMS, iAPDABFIT_OVER_PNBCOR_M3, iAPDABFIT_OVER_PNBCOR_NEVT,
-	 iAPDABFIT_OVER_PNCOR_MEAN, iAPDABFIT_OVER_PNCOR_RMS, iAPDABFIT_OVER_PNCOR_M3, iAPDABFIT_OVER_PNCOR_NEVT,
-	 iAPDABFIX_OVER_PNACOR_MEAN, iAPDABFIX_OVER_PNACOR_RMS, iAPDABFIX_OVER_PNACOR_M3, iAPDABFIX_OVER_PNACOR_NEVT, 
-	 iAPDABFIX_OVER_PNBCOR_MEAN, iAPDABFIX_OVER_PNBCOR_RMS, iAPDABFIX_OVER_PNBCOR_M3, iAPDABFIX_OVER_PNBCOR_NEVT,
-	 iAPDABFIX_OVER_PNCOR_MEAN, iAPDABFIX_OVER_PNCOR_RMS, iAPDABFIX_OVER_PNCOR_M3, iAPDABFIX_OVER_PNCOR_NEVT,
+  enum { iAPD_FLAG, iAPD_MEAN, iAPD_RMS, iAPD_M3, 
+	 iAPD_OVER_PNA_MEAN, iAPD_OVER_PNA_RMS, iAPD_OVER_PNA_M3,
+	 iAPD_OVER_PNB_MEAN, iAPD_OVER_PNB_RMS, iAPD_OVER_PNB_M3,
+	 iAPD_OVER_PN_MEAN, iAPD_OVER_PN_RMS, iAPD_OVER_PN_M3,
 	 iAPD_SHAPE_COR, iAPD_ALPHA, iAPD_BETA,
 	 iAPD_TIME_MEAN, iAPD_TIME_RMS, iAPD_TIME_M3, iAPD_TIME_NEVT,
 	 iSizeAPD };
   static TString APDPrimVar[ iSizeAPD ];
 
-
-  // Intermediate Laser primitive variables (table LmfLaserPrimCorr)
-
-  enum { iMID_MEAN, iMID_RMS, iMID_NEVT, 
-	 iMIDA_MEAN, iMIDA_RMS, iMIDA_NEVT, 
-	 iMIDB_MEAN, iMIDB_RMS, iMIDB_NEVT,
-	 iAPD_OVER_PNTMPCOR_MEAN, iAPD_OVER_PNTMPCOR_RMS, iAPD_OVER_PNTMPCOR_NEVT, 
-	 iAPD_OVER_PNATMPCOR_MEAN, iAPD_OVER_PNATMPCOR_RMS, iAPD_OVER_PNATMPCOR_NEVT, 
-	 iAPD_OVER_PNBTMPCOR_MEAN, iAPD_OVER_PNBTMPCOR_RMS, iAPD_OVER_PNBTMPCOR_NEVT,
-	 iSizeMID }; // JM
-  
-  static TString MIDPrimVar[ iSizeMID ];
-  
-
-  // Corrected Laser primitive variables (table LmfNLS)
-
-  enum { iNLS_MEAN, iNLS_RMS, iNLS_NEVT, iNLS_NORM, iNLS_NMEAN, iNLS_ENORM, iNLS_FLAG,
-		iCLS_MEAN, iCLS_RMS, iCLS_NEVT, iCLS_NORM, iCLS_NMEAN, iCLS_ENORM, iCLS_FLAG,
-		iSizeNLS };
-
-
-  static TString NLSVar[ iSizeNLS ]; // JM
-
-
-  // Variable for CLS files
-  
-  //enum { iRefRun, iRefLB, iRefStartLow,
-  //	 iRefStartHigh, iSizeNLSRef }; // JM
-
-  // static TString CLSRefVar[ iSizeNLSRef ]; // JM
-
-
-
   // PN primitive variables (table LmfLaserPnPrim)
-  enum { iPN_FLAG, iPN_MEAN, iPN_RMS, iPN_M3, iPN_NEVT, // JM 
-	 iPNA_OVER_PNB_MEAN, iPNA_OVER_PNB_RMS, iPNA_OVER_PNB_M3,iPN_SHAPE_COR,
+  enum { iPN_FLAG, iPN_MEAN, iPN_RMS, iPN_M3, 
+	 iPNA_OVER_PNB_MEAN, iPNA_OVER_PNB_RMS, iPNA_OVER_PNB_M3,
 	 iSizePN };
   static TString PNPrimVar[ iSizePN ];
   
   // MATAQ Primitive variables (table iLmfLaserPulse)
   enum { iMTQ_FIT_METHOD, 
 	 iMTQ_AMPL, iMTQ_TIME, iMTQ_RISE, 
-	 iMTQ_FWHM, iMTQ_FW10, iMTQ_FW05, iMTQ_SLIDING,   
+	 iMTQ_FWHM, iMTQ_FW20, iMTQ_FW80, iMTQ_SLIDING,   
 	 iSizeMTQ };
   static TString MTQPrimVar[ iSizeMTQ ];
   
@@ -196,10 +147,8 @@ public:
   // get file names
   static TString path();               // MusEcal main working directory
   static TString primPath(  int lmr );   // where the primitives are
-  static TString nlsPath(  int lmr );   // where the corrected values are
   static TString lmdataPath(  int lmr ); // where the LM data are
   static TString rootFileName( ME::Header header, ME::Settings settings );
-  static TString rootNLSFileName( ME::Header header, ME::Settings settings );
   static TString runListName( int lmr, int type, int color );
 
   virtual ~ME() {}

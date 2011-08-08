@@ -7,9 +7,9 @@ patEventContentNoCleaning = [
     'keep *_selectedPatTaus*_*_*',
     'keep *_selectedPatJets*_*_*',
     'drop *_selectedPatJets_pfCandidates_*', ## drop for default patJets which are CaloJets
-    'drop *_*PF_caloTowers_*',    
+    'drop *_*PF_caloTowers_*',
     'drop *_*JPT_pfCandidates_*',
-    'drop *_*Calo_pfCandidates_*',    
+    'drop *_*Calo_pfCandidates_*',
     'keep *_patMETs*_*_*',
     'keep *_selectedPatPFParticles*_*_*',
     'keep *_selectedPatTrackCands*_*_*'
@@ -18,10 +18,10 @@ patEventContentNoCleaning = [
 patEventContent = [
     'keep *_selectedPatJets*_*_*',           ## keep refactorized pat jet elements
     'drop patJets_selectedPatJets*_*_*',     ## drop the actual selected pat jets, they're redundant
-    'drop *_selectedPatJets_pfCandidates_*', ## drop for default patJets which are CaloJets    
+    'drop *_selectedPatJets_pfCandidates_*', ## drop for default patJets which are CaloJets
     'drop *_*PF_caloTowers_*',               ## drop collections not needed for the corresponding jet types
     'drop *_*JPT_pfCandidates_*',            ## drop collections not needed for the corresponding jet types
-    'drop *_*Calo_pfCandidates_*',           ## drop collections not needed for the corresponding jet types    
+    'drop *_*Calo_pfCandidates_*',           ## drop collections not needed for the corresponding jet types
     'keep *_cleanPatPhotons*_*_*',
     'keep *_cleanPatElectrons*_*_*',
     'keep *_cleanPatMuons*_*_*',
@@ -45,11 +45,15 @@ patExtraAodEventContent = [
     'keep *_offlinePrimaryVertices*_*_*',
     # TRIGGER
     'keep edmTriggerResults_TriggerResults*_*_*',
-    'keep *_hltTriggerSummaryAOD_*_*'
+    'keep *_hltTriggerSummaryAOD_*_*',
+    'keep L1GlobalTriggerReadoutRecord_gtDigis_*_*',
+    # COND
+    'keep edmConditionsIn*Block_conditionsInEdm_*_*'
 ]
 
 patTriggerEventContent = [
     'keep patTriggerAlgorithms_patTrigger_*_*',
+    'keep patTriggerConditions_patTrigger_*_*',
     'keep patTriggerObjects_patTrigger_*_*',
     'keep patTriggerFilters_patTrigger_*_*',
     'keep patTriggerPaths_patTrigger_*_*',

@@ -41,6 +41,7 @@ class L1OffsetCorrector : public JetCorrector
   private:
     //----- member data ---------------------------------------
     std::string mVertexCollName;
+    int mMinVtxNdof;
     FactorizedJetCorrector* mCorrector;
 
 };

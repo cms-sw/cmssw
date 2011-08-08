@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.99 2010/11/10 11:42:00 matevz Exp $
+// $Id: CmsShowNavigator.cc,v 1.107 2011/03/04 21:11:41 amraktad Exp $
 //
 
 #include "DataFormats/FWLite/interface/Event.h"
@@ -33,7 +33,9 @@
 #include "Fireworks/Core/interface/FWTEventList.h"
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/FWGUIEventSelector.h"
+#include "Fireworks/Core/interface/FWJobMetadataManager.h"
 #include "Fireworks/Core/interface/FWConfiguration.h"
+#include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/fwLog.h"
 
 //
@@ -54,6 +56,8 @@ CmsShowNavigator::CmsShowNavigator(const CmsShowMain &main):
    m_main(main),
    m_guiFilter(0)
 {
+   m_guiFilter = new FWGUIEventFilter(this);
+   filterStateChanged_.connect(boost::bind(&FWGUIEventFilter::updateFilterStateLabel, m_guiFilter, _1));
 }
 
 CmsShowNavigator::~CmsShowNavigator()
@@ -146,7 +150,7 @@ CmsShowNavigator::appendFile(const std::string& fileName, bool checkFileQueueSiz
             --toErase;
          }
 
-         if (m_files.size() >= m_maxNumberOfFilesToChain)
+         if (m_files.size() > m_maxNumberOfFilesToChain)
             fwLog(fwlog::kWarning) << "  " <<  m_files.size() << " chained files more than maxNumberOfFilesToChain \n" <<  m_maxNumberOfFilesToChain << std::endl;
       }
 
@@ -421,16 +425,14 @@ CmsShowNavigator::toggleFilterEnable()
    if (m_filterState == kOff)
    {
       m_filterState = kOn;
-      if (m_guiFilter)
-         m_guiFilter->m_filterDisableAction->enable();
+      m_guiFilter->setupDisableFilteringButton(true);
 
       updateFileFilters();
    }
    else
    {
       m_filterState = kOff;
-      if (m_guiFilter)
-         m_guiFilter->m_filterDisableAction->disable();
+      m_guiFilter->setupDisableFilteringButton(false);
    }
 
    filterStateChanged_.emit(m_filterState);
@@ -464,19 +466,20 @@ CmsShowNavigator::updateFileFilters()
    }
    updateSelectorsInfo();
    m_filesNeedUpdate = false;
-
-   // go to nearest file
-   if (!(*m_currentFile)->isEventSelected(m_currentEvent))
-   {
-      if (!nextSelectedEvent())
-         nextSelectedEvent();
-   }
-
+ 
    int nSelected = getNSelectedEvents();
    if (nSelected)
    {
+      // go to the nearest selected event/file
+      if (!(*m_currentFile)->isEventSelected(m_currentEvent))
+      {
+         if (!nextSelectedEvent())
+            previousSelectedEvent();
+      }
+
       if (m_filterState == kWithdrawn)
          resumeFilter();
+
       postFiltering_.emit();
    }
    else
@@ -562,8 +565,7 @@ CmsShowNavigator::applyFiltersFromGUI()
    {
       m_filesNeedUpdate = true;
       m_filterState = kOn;
-      m_guiFilter->m_filterDisableAction->enable();
-      filterStateChanged_.emit(m_filterState);
+      m_guiFilter->setupDisableFilteringButton(true);
    }
 
    // compare changes and then call updateFileFilters
@@ -619,8 +621,10 @@ CmsShowNavigator::applyFiltersFromGUI()
 
    if ( m_filesNeedUpdate )
       updateFileFilters();
-}
 
+   filterStateChanged_.emit(m_filterState);
+
+}
 //______________________________________________________________________________
 // helpers for gui state
 
@@ -725,7 +729,8 @@ CmsShowNavigator::getNSelectedEvents()
    int sum = 0;
    for (FileQueue_i file = m_files.begin(); file != m_files.end(); ++file)
    {
-      sum += (*file)->globalSelection()->GetN();
+      if ((*file)->globalSelection())
+         sum += (*file)->globalSelection()->GetN();
    }
    return sum;
 }
@@ -783,15 +788,6 @@ CmsShowNavigator::editFiltersExternally()
 void
 CmsShowNavigator::showEventFilterGUI(const TGWindow* p)
 {
-   if (m_guiFilter == 0)
-   {
-      m_guiFilter = new FWGUIEventFilter(p);
-      m_guiFilter->m_applyAction->activated.connect(sigc::mem_fun(this, &CmsShowNavigator::applyFiltersFromGUI));
-      m_guiFilter->m_filterDisableAction->activated.connect(sigc::mem_fun(this, &CmsShowNavigator::toggleFilterEnable));
-      m_guiFilter->m_finishEditAction->activated.connect(sigc::mem_fun(this, &CmsShowNavigator::editFiltersExternally));
-      filterStateChanged_.connect(boost::bind(&FWGUIEventFilter::updateFilterStateLabel, m_guiFilter, _1));
-   }
-
    if (m_guiFilter->IsMapped())
    {
       m_guiFilter->CloseWindow();
@@ -812,51 +808,75 @@ CmsShowNavigator::setFrom(const FWConfiguration& iFrom)
 
    EFilterState oldFilterState =  m_filterState;
 
-   int numberOfFilters(0);
-   {
-      const FWConfiguration* value = iFrom.valueForKey( "EventFilter_total" );
-      if (!value) return;
-      std::istringstream s(value->value());
-      s>>numberOfFilters;
-   }
-
-   
+  
    m_selectors.clear();
 
+   // selectors   
+   const FWConfiguration* sConf = iFrom.valueForKey("EventFilters");
+
+   if (sConf)
+   {
+      const FWConfiguration::KeyValues* keyVals = sConf->keyValues();
+      if (keyVals) {
+         for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it!= keyVals->end(); ++it)
+         {
+            const FWConfiguration& conf = (*it).second;
+            FWEventSelector* selector = new FWEventSelector();
+            selector->m_expression   = conf.valueForKey("expression")->value();
+            selector->m_description  = conf.valueForKey("comment")->value();
+            selector->m_enabled      = atoi(conf.valueForKey("enabled")->value().c_str());
+            if (conf.valueForKey("triggerProcess"))
+               selector->m_triggerProcess = conf.valueForKey("triggerProcess")->value();
+            m_selectors.push_back(selector);
+         }
+      }
+   }
+   else
+   {
+      int numberOfFilters = 0;
+      const FWConfiguration* value = iFrom.valueForKey( "EventFilter_total" );
+      std::istringstream s(value->value());
+      s>>numberOfFilters;
+
+      for(int i=0; i<numberOfFilters; ++i)
+      {
+         FWEventSelector* selector = new FWEventSelector();
+         {
+            const FWConfiguration* value = iFrom.valueForKey( Form("EventFilter%d_enabled",i));
+            assert(value);
+            std::istringstream s(value->value());
+            s>>selector->m_enabled;
+         }
+         selector->m_expression  = iFrom.valueForKey( Form("EventFilter%d_selection",i))->value();
+         selector->m_description = iFrom.valueForKey( Form("EventFilter%d_comment",i) )->value();
+
+         
+         if (strstr(selector->m_expression.c_str(), "HLT"))
+            selector->m_triggerProcess = "HLT";
+         
+         m_selectors.push_back(selector);
+      }
+   }
+
+   // filter mode
+   {
+      const FWConfiguration* value = iFrom.valueForKey( "EventFilter_mode" );
+      if (value)
+      {
+         std::istringstream s(value->value());
+         s>> m_filterMode;
+      }
+   }
+   
+   // filter on
    {
       const FWConfiguration* value = iFrom.valueForKey( "EventFilter_enabled" );
-      assert(value);
       std::istringstream s(value->value());
       int x;
       s>> x;
       m_filterState = x ? kOn : kOff;
    }
-
-   for(int i=0; i<numberOfFilters; ++i) {
-      FWEventSelector* selector = new FWEventSelector();
-      {
-         const FWConfiguration* value =
-            iFrom.valueForKey( Form("EventFilter%d_enabled",i) );
-         assert(value);
-         std::istringstream s(value->value());
-         s>>selector->m_enabled;
-      }
-      {
-         const FWConfiguration* value =
-            iFrom.valueForKey( Form("EventFilter%d_selection",i) );
-         assert(value);
-         std::istringstream s(value->value());
-         s>>selector->m_expression;
-      }
-      {
-         const FWConfiguration* value =
-            iFrom.valueForKey( Form("EventFilter%d_comment",i) );
-         assert(value);
-         std::istringstream s(value->value());
-         s>>selector->m_description;
-      }
-      m_selectors.push_back(selector);
-   }
+   
 
    // redesplay new filters in event filter dialog if already mapped
    if (m_guiFilter)
@@ -882,32 +902,76 @@ CmsShowNavigator::setFrom(const FWConfiguration& iFrom)
       else
          postFiltering_.emit();
    }
-   
    // update CmsShowMainFrame checkBoxIcon and button text
    if (oldFilterState != m_filterState)
       filterStateChanged_.emit(m_filterState);
-   
-   
 }
 
 void
 CmsShowNavigator::addTo(FWConfiguration& iTo) const
 {
-   int numberOfFilters(0);
-   for (std::list<FWEventSelector*>::const_iterator sel = m_selectors.begin();
-        sel != m_selectors.end(); ++sel) {
-      iTo.addKeyValue(Form("EventFilter%d_enabled",numberOfFilters),
-                      FWConfiguration(Form("%d",(*sel)->m_enabled)));
-      iTo.addKeyValue(Form("EventFilter%d_selection",numberOfFilters),
-                      FWConfiguration((*sel)->m_expression));
-      iTo.addKeyValue(Form("EventFilter%d_comment",numberOfFilters),
-                      FWConfiguration((*sel)->m_description));
-      ++numberOfFilters;
+   // selectors
+   FWConfiguration tmp;
+   int cnt = 0;
+   for (std::list<FWEventSelector*>::const_iterator sel = m_selectors.begin(); sel != m_selectors.end(); ++sel) 
+   {
+      FWConfiguration filter;
+
+      filter.addKeyValue("expression",FWConfiguration((*sel)->m_expression));
+      filter.addKeyValue("enabled", FWConfiguration((*sel)->m_enabled ? "1" : "0"));
+      filter.addKeyValue("comment", FWConfiguration((*sel)->m_description));
+  
+      if (!(*sel)->m_triggerProcess.empty())
+         filter.addKeyValue("triggerProcess",FWConfiguration((*sel)->m_triggerProcess));
+
+      tmp.addKeyValue(Form("------Filter[%d]------", cnt), filter,true);
+      ++cnt;
    }
-   iTo.addKeyValue("EventFilter_total",FWConfiguration(Form("%d",numberOfFilters)));
-   iTo.addKeyValue("EventFilter_enabled",FWConfiguration(Form("%d", m_filterState == kOn ? 1 : 0)));
+
+   iTo.addKeyValue("EventFilters", tmp,true);
+
+   // mode
+   {
+      std::stringstream s;
+      s<< m_filterMode;
+      iTo.addKeyValue("EventFilter_mode", s.str());
+   }
+
+   // enabled
+   iTo.addKeyValue("EventFilter_enabled",FWConfiguration( m_filterState == kOn ? "1" : "0"));
+}
+
+std::vector<std::string>& 
+CmsShowNavigator::getProcessList() const
+{
+  return  m_main.context()->metadataManager()->processNamesInJob();
 }
 
 const edm::EventBase* 
 CmsShowNavigator::getCurrentEvent() const
-{ return m_currentFile.isSet() ? (*m_currentFile)->event() : 0; }
+{
+   return m_currentFile.isSet() ? (*m_currentFile)->event() : 0; 
+}
+
+const char*
+CmsShowNavigator::frameTitle()
+{
+   if (m_files.empty()) return "";
+
+   int nf = 0;
+   for (FileQueue_t::const_iterator i = m_files.begin(); i!= m_files.end(); i++)
+   {
+
+      if ( i == m_currentFile) break;
+      nf++;
+   }
+
+   TString name = (*m_currentFile)->file()->GetName();
+   int l = name.Last('/');
+   if (l != kNPOS)
+      name.Remove(0, l+1);
+
+   return Form("%s [%d/%d], event [%d/%d]", name.Data(),
+               nf+1,  (int) m_files.size(),
+               m_currentEvent+1, (*m_currentFile)->lastEvent()+1);
+}

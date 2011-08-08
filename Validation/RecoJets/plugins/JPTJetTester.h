@@ -4,7 +4,7 @@
 // Producer for validation histograms for JPTJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: JPTJetTester.h,v 1.1 2010/03/20 14:28:07 hatake Exp $
+// $Id: JPTJetTester.h,v 1.17 2009/12/18 20:45:13 wmtan Exp $
 
 #include <string>
 
@@ -67,9 +67,9 @@ private:
   MonitorElement* mMass;
   MonitorElement* mMass_80;
   MonitorElement* mMass_3000;
-  //  MonitorElement* mConstituents;
-  //  MonitorElement* mConstituents_80;
-  //  MonitorElement* mConstituents_3000;
+  MonitorElement* mConstituents;
+  MonitorElement* mConstituents_80;
+  MonitorElement* mConstituents_3000;
   MonitorElement* mHadTiming;
   MonitorElement* mEmTiming;
 

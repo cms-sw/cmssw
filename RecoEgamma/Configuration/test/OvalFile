@@ -1,5 +1,5 @@
-<var name="MY_GLOBAL_TAG" value="MC_39Y_V5">
-<var name="MY_CMSSW_RELEASE" value="CMSSW_3_10_0_pre5">
+<var name="MY_GLOBAL_TAG" value="MC_36Y_V10">
+<var name="MY_CMSSW_RELEASE" value="CMSSW_3_6_1_patch4">
 <var name="MY_OUTPUT_CASTOR_DIR" value="/castor/cern.ch/cms/store/caf/user/chamont/MyRelVals/${MY_CMSSW_RELEASE}">
 
 <diffline expr="(Begin processing the \S* record)">
@@ -51,7 +51,7 @@ SingleElectronPt35 and QcdPt80-120 with 10 events.
 <environment name="SingleElectronPt35">
 
   <environment name="SingleElectronPt35Raw">
-    <executable name="cmsDriver.py" args="SingleElectronPt35.cfi GEN,SIM,DIGI,L1,DIGI2RAW,HLT -n 3 --eventcontent FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=SingleElectronPt35Raw.py --fileout=SingleElectronPt35Raw.root">
+    <executable name="cmsDriver.py" args="SingleElectronPt35.cfi GEN,SIM,DIGI,L1,DIGI2RAW -n 3 --eventcontent FEVTDEBUGHLT --conditions FrontierConditions_GlobalTag,${MY_GLOBAL_TAG}::All --python_filename=SingleElectronPt35Raw.py --fileout=SingleElectronPt35Raw.root">
   </environment>
   
   <environment name="SingleElectronPt35Reco">
