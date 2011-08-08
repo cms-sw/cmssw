@@ -49,11 +49,12 @@ namespace edm {
 
     ProcessHistoryID& processHistoryID() {return processHistoryID_;}
 
+    void readProvenance() const;
+
     void reset();
   private:
     typedef std::set<ProductProvenance> eiSet;
 
-    void readProvenance() const;
     virtual void readProvenance_() const {}
     virtual void reset_() {}
     
