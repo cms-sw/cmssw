@@ -1,6 +1,6 @@
 // -------------------------------------------------------------------------
 // File and Version Information:
-// 	$Id: DcxTrackCandidatesToTracks.cc,v 1.8 2007/03/07 22:04:03 gutsche Exp $
+// 	$Id: DcxTrackCandidatesToTracks.cc,v 1.7 2007/01/15 22:16:28 gutsche Exp $
 //
 // Description:
 //	Class Implementation for |DcxTrackCandidatesToTracks|
@@ -97,7 +97,7 @@ DcxTrackCandidatesToTracks::DcxTrackCandidatesToTracks(std::vector<DcxHit*> &lis
 						 << " " << real_fit.Z0() << " " << real_fit.Tanl() ;
 
 
-		      AlgebraicVector5 paraVector;
+		      AlgebraicVector paraVector(5);
 		      paraVector[0] = real_fit.Omega();
 		      paraVector[1] = half_pi - atan(real_fit.Tanl());
 		      paraVector[2] = real_fit.Phi0();

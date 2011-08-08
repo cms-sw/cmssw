@@ -157,7 +157,7 @@ const bool L1GtMuonCondition::evaluateCondition() const {
     objectsInComb.reserve(nObjInCond);
 
     // clear the m_combinationsInCond vector
-    (combinationsInCond()).clear();
+    (*m_combinationsInCond).clear();
 
     do {
 
@@ -350,7 +350,7 @@ const bool L1GtMuonCondition::evaluateCondition() const {
 
         condResult = true;
         passLoops++;
-        (combinationsInCond()).push_back(objectsInComb);
+        (*m_combinationsInCond).push_back(objectsInComb);
 
     } while (std::next_permutation(index.begin(), index.end()) );
 

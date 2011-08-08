@@ -1,10 +1,12 @@
-// $Id: DataRetrieverMonitorCollection.h,v 1.1.4.2 2011/03/07 12:01:12 mommsen Exp $
+// $Id: DataRetrieverMonitorCollection.h,v 1.2 2011/03/07 15:41:54 mommsen Exp $
 /// @file: DataRetrieverMonitorCollection.h 
 
 #ifndef EventFilter_SMProxyServer_DataRetrieverMonitorCollection_h
 #define EventFilter_SMProxyServer_DataRetrieverMonitorCollection_h
 
+#include "EventFilter/SMProxyServer/interface/Configuration.h"
 #include "EventFilter/SMProxyServer/interface/ConnectionID.h"
+#include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/DQMEventConsumerRegistrationInfo.h"
 #include "EventFilter/StorageManager/interface/EventConsumerRegistrationInfo.h"
 #include "EventFilter/StorageManager/interface/MonitorCollection.h"
@@ -26,8 +28,8 @@ namespace smproxy {
    * A collection of MonitoredQuantities related to data retrieval
    *
    * $Author: mommsen $
-   * $Revision: 1.1.4.2 $
-   * $Date: 2011/03/07 12:01:12 $
+   * $Revision: 1.2 $
+   * $Date: 2011/03/07 15:41:54 $
    */
   
   class DataRetrieverMonitorCollection : public stor::MonitorCollection
@@ -35,35 +37,45 @@ namespace smproxy {
   public:
 
     enum ConnectionStatus { CONNECTED, CONNECTION_FAILED, DISCONNECTED, UNKNOWN };
+
+    struct EventStats
+    {
+      stor::MonitoredQuantity::Stats sizeStats; //kB
+      stor::MonitoredQuantity::Stats corruptedEventsStats;
+    };
     
     struct SummaryStats
     {
       size_t registeredSMs;
       size_t activeSMs;
-      stor::MonitoredQuantity::Stats sizeStats;         //kB
+      EventStats totals;
 
-      typedef std::pair<stor::RegPtr, stor::MonitoredQuantity::Stats> EventTypeStats;
+      typedef std::pair<stor::RegPtr, EventStats> EventTypeStats;
       typedef std::vector<EventTypeStats> EventTypeStatList;
       EventTypeStatList eventTypeStats;
     };
 
-    typedef std::map<std::string, stor::MonitoredQuantity::Stats> ConnectionStats;
+    typedef std::map<std::string, EventStats> ConnectionStats;
 
-    struct EventTypeStats
+    struct EventTypePerConnectionStats
     {
       stor::RegPtr regPtr;
       ConnectionStatus connectionStatus;
-      stor::MonitoredQuantity::Stats sizeStats;         //kB
+      EventStats eventStats;
 
-      bool operator<(const EventTypeStats&) const;
+      bool operator<(const EventTypePerConnectionStats&) const;
     };
-    typedef std::vector<EventTypeStats> EventTypeStatList;
+    typedef std::vector<EventTypePerConnectionStats> EventTypePerConnectionStatList;
     
     
-    explicit DataRetrieverMonitorCollection(const stor::utils::Duration_t& updateInterval);
+    DataRetrieverMonitorCollection
+    (
+      const stor::utils::Duration_t& updateInterval,
+      stor::AlarmHandlerPtr
+    );
     
     /**
-     * Add a new  server connection.
+     * Add a new server connection.
      * Returns an unique connection ID.
      */
     ConnectionID addNewConnection(const stor::RegPtr);
@@ -75,16 +87,22 @@ namespace smproxy {
 
     /**
      * Put the event type statistics for the given consumer ID into
-     * the passed EventTypeStats. Return false if the connection ID is not found.
+     * the passed EventTypePerConnectionStats. Return false if the connection ID is not found.
      */
-    bool getEventTypeStatsForConnection(const ConnectionID&, EventTypeStats&);
+    bool getEventTypeStatsForConnection(const ConnectionID&, EventTypePerConnectionStats&);
 
     /**
      * Add a retrieved  sample in Bytes from the given connection.
      * Returns false if the ConnectionID is unknown.
      */
     bool addRetrievedSample(const ConnectionID&, const unsigned int& size);
-    
+
+    /**
+     * Increment number of corrupted events received from the given connection.
+     * Returns false if the ConnectionID is unknown.
+     */
+    bool receivedCorruptedEvent(const ConnectionID&);
+
     /**
      * Write the data retrieval summary statistics into the given struct.
      */
@@ -98,18 +116,32 @@ namespace smproxy {
     /**
      * Write the data retrieval statistics for each event type request into the given struct.
      */
-    void getStatsByEventTypes(EventTypeStatList&) const;
-    
+    void getStatsByEventTypesPerConnection(EventTypePerConnectionStatList&) const;
+
+    /**
+     * Configure the alarm settings
+     */
+    void configureAlarms(AlarmParams const&);
 
   private:
     
-    stor::MonitoredQuantity totalSize_;
+    struct EventMQ
+    {
+      stor::MonitoredQuantity size_;       //kB
+      stor::MonitoredQuantity corruptedEvents_;
+
+      EventMQ(const stor::utils::Duration_t& updateInterval);
+      void getStats(EventStats&) const;
+      void calculateStatistics();
+      void reset();
+    };
+    typedef boost::shared_ptr<EventMQ> EventMQPtr;
 
     struct DataRetrieverMQ
     {
       stor::RegPtr regPtr_;
       ConnectionStatus connectionStatus_;
-      stor::MonitoredQuantity size_;       //kB
+      EventMQPtr eventMQ_;
 
       DataRetrieverMQ
       (
@@ -123,16 +155,23 @@ namespace smproxy {
     DataRetrieverMonitorCollection& operator=(DataRetrieverMonitorCollection const&);
 
     const stor::utils::Duration_t updateInterval_;
+    stor::AlarmHandlerPtr alarmHandler_;
+
+    AlarmParams alarmParams_;
+    EventMQ totals_;
+
     typedef boost::shared_ptr<DataRetrieverMQ> DataRetrieverMQPtr;
     typedef std::map<ConnectionID, DataRetrieverMQPtr> RetrieverMqMap;
     RetrieverMqMap retrieverMqMap_;
 
-    typedef std::map<std::string, stor::MonitoredQuantityPtr> ConnectionMqMap;
+    typedef std::map<std::string, EventMQPtr> ConnectionMqMap;
     ConnectionMqMap connectionMqMap_;
 
     mutable boost::mutex statsMutex_;
     ConnectionID nextConnectionId_;
 
+    void sendAlarms();
+    void checkForCorruptedEvents();
     virtual void do_calculateStatistics();
     virtual void do_reset();
     // virtual void do_appendInfoSpaceItems(InfoSpaceItems&);
@@ -147,6 +186,7 @@ namespace smproxy {
 
       bool insert(const stor::RegPtr);
       bool addSample(const stor::RegPtr, const double& sizeKB);
+      bool receivedCorruptedEvent(const stor::RegPtr);
       void getStats(SummaryStats::EventTypeStatList&) const;
       void calculateStatistics();
       void clear();
@@ -157,13 +197,15 @@ namespace smproxy {
       bool insert(const stor::DQMEventConsRegPtr);
       bool addSample(const stor::EventConsRegPtr, const double& sizeKB);
       bool addSample(const stor::DQMEventConsRegPtr, const double& sizeKB);
+      bool receivedCorruptedEvent(const stor::EventConsRegPtr);
+      bool receivedCorruptedEvent(const stor::DQMEventConsRegPtr);
       
-      typedef std::map<stor::EventConsRegPtr, stor::MonitoredQuantityPtr,
+      typedef std::map<stor::EventConsRegPtr, EventMQPtr,
                        stor::utils::ptrComp<stor::EventConsumerRegistrationInfo>
                        > EventMap;
       EventMap eventMap_;
       
-      typedef std::map<stor::DQMEventConsRegPtr, stor::MonitoredQuantityPtr,
+      typedef std::map<stor::DQMEventConsRegPtr, EventMQPtr,
                      stor::utils::ptrComp<stor::DQMEventConsumerRegistrationInfo>
                      > DQMEventMap;
       DQMEventMap dqmEventMap_;

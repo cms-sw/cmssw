@@ -9,7 +9,7 @@ userDataMuons = cms.EDProducer(
     alpha = cms.double("0.75"),
     beta = cms.double("-0.75"),
     beamSpot = cms.InputTag("offlineBeamSpot"),
-    primaryVertices = cms.InputTag("offlinePrimaryVertices"),
+    primaryVertices = cms.InputTag("offlinePrimaryVerticesWithBS"),
     ptThreshold = cms.double("1.5"),
     etEcalThreshold = cms.double("0.2"),
     etHcalThreshold = cms.double("0.5"),
@@ -17,7 +17,7 @@ userDataMuons = cms.EDProducer(
     dRTrk = cms.double("0.3"),
     dREcal = cms.double("0.25"),
     dRHcal = cms.double("0.25"),
-    hltPath = cms.string("HLT_Mu11")
+    hltPath = cms.string("HLT_Mu9")
     )
 
 userDataTracks = cms.EDProducer(
@@ -34,7 +34,7 @@ userDataTracks = cms.EDProducer(
     dRTrk = cms.double("0.3"),
     dREcal = cms.double("0.25"),
     dRHcal = cms.double("0.25"),
-    primaryVertices = cms.InputTag("offlinePrimaryVertices"),
+    primaryVertices = cms.InputTag("offlinePrimaryVerticesWithBS"),
     )
 
 userDataDimuons= cms.EDProducer(
@@ -45,8 +45,8 @@ userDataDimuons= cms.EDProducer(
     alpha = cms.double("0.75"),
     beta = cms.double("-0.75"),
     beamSpot = cms.InputTag("offlineBeamSpot"),
-    primaryVertices = cms.InputTag("offlinePrimaryVertices"),
-    hltPath = cms.string("HLT_Mu11")
+    primaryVertices = cms.InputTag("offlinePrimaryVerticesWithBS"),
+    hltPath = cms.string("HLT_Mu9")
     )
 
 userDataDimuonsOneTrack= cms.EDProducer(
@@ -57,8 +57,8 @@ userDataDimuonsOneTrack= cms.EDProducer(
     alpha = cms.double("0.75"),
     beta = cms.double("-0.75"),
     beamSpot = cms.InputTag("offlineBeamSpot"),
-    primaryVertices = cms.InputTag("offlinePrimaryVertices"),
-    hltPath = cms.string("HLT_Mu11")
+    primaryVertices = cms.InputTag("offlinePrimaryVerticesWithBS"),
+    hltPath = cms.string("HLT_Mu9")
     )
 
 

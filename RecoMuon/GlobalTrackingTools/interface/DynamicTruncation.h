@@ -9,8 +9,8 @@
  *  compatibility degree between the extrapolated track
  *  state and the reconstructed segment in the muon chambers
  *
- *  $Date: 2010/06/27 17:32:56 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/06/14 11:01:30 $
+ *  $Revision: 1.1 $
  *
  *  Authors :
  *  D. Pagano & G. Bruno - UCL Louvain
@@ -54,15 +54,14 @@ class DynamicTruncation {
 
   ~DynamicTruncation();
 
-  // Set thresholds for DYT
-  void setThr(const std::vector<int>&);
+  // Just one thr for DT and one for CSC
+  void setThr(int, int);
   
   // Return the vector with the tracker plus the selected muon hits
   TransientTrackingRecHit::ConstRecHitContainer filter(const Trajectory&);
  
  private:
 
-  void                 setThrs(float);
   void                 compatibleDets(TrajectoryStateOnSurface&, std::map<int, std::vector<DetId> >&);
   void                 filteringAlgo(std::map<int, std::vector<DetId> >&);
   double               getBest(std::vector<CSCSegment>&, TrajectoryStateOnSurface&, CSCSegment&); 
@@ -70,15 +69,12 @@ class DynamicTruncation {
   void                 update(TrajectoryStateOnSurface&, ConstRecHitPointer);
   void                 updateWithDThits(ConstRecHitContainer&);
   void                 updateWithCSChits(ConstRecHitContainer&);
-  ConstRecHitContainer returnGlobal(const Trajectory&);
   ConstRecHitContainer sort(ConstRecHitContainer&);
   
   ConstRecHitContainer result;
   
   int DTThr;
   int CSCThr;
-
-  std::vector<int> DYTthrs;
 
   edm::ESHandle<Propagator> propagator;
   edm::ESHandle<Propagator> propagatorCompatibleDet;

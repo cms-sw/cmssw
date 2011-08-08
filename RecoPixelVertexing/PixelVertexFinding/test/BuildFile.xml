@@ -12,12 +12,8 @@
 <use   name="RecoTracker/TkTrackingRegions"/>
 <use   name="RecoPixelVertexing/PixelTriplets"/>
 <use   name="RecoPixelVertexing/PixelTrackFitting"/>
-<use   name="RecoPixelVertexing/PixelVertexFinding"/>
 <use   name="MagneticField/Records"/>
 <use   name="MagneticField/Engine"/>
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="RecoVertex/KalmanVertexFit"/>
 <use   name="SimDataFormats/Track"/>
-<library   file="PixelVertexTest.cc" name="PixelVertexTest">
-  <flags   EDM_PLUGIN="1"/>
-</library>

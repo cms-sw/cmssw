@@ -1,6 +1,6 @@
 /** \file CSCSegment.cc
  *
- *  $Date: 2010/11/23 13:07:25 $
+ *  $Date: 2010/09/09 10:09:21 $
  *  \author Matteo Sani
  */
 
@@ -142,43 +142,6 @@ bool CSCSegment::sharesRecHits(const CSCSegment  & anotherSegment) const {
   else{
     return false;
   }
-}
-//
-
-float CSCSegment::time() const {
-  float averageTime=0;
-  std::vector<float> wireTimes;
-  for (std::vector<CSCRecHit2D>::const_iterator itRH = theCSCRecHits.begin();
-       itRH != theCSCRecHits.end(); ++itRH) {
-    const  CSCRecHit2D *recHit = &(*itRH);
-    averageTime+=recHit->tpeak();
-    averageTime+=recHit->wireTime();
-    wireTimes.push_back(recHit->wireTime());
-  }
-  averageTime=averageTime/(2*theCSCRecHits.size());
-
-  //The wire times have a long tail that has to be pruned.  The strip times (tpeak) are fine
-  bool modified=true;
-  while(modified) {
-    modified=false;
-    double maxDiff=-1;
-    std::vector<float>::iterator maxHit;
-    for (std::vector<float>::iterator itWT=wireTimes.begin();
-	 itWT!=wireTimes.end(); ++itWT) {
-      float diff=fabs(*itWT-averageTime);
-      if (diff>maxDiff) {
-	maxDiff=diff;
-	maxHit=itWT;
-      }
-    }
-    if (maxDiff>26) {
-      int N=theCSCRecHits.size()+wireTimes.size();
-      averageTime=(averageTime*N-(*maxHit))/(N-1);
-      wireTimes.erase(maxHit);
-      modified=true;
-    }
-  }
-  return averageTime;
 }
 
 //

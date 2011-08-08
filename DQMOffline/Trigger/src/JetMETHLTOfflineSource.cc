@@ -1562,220 +1562,220 @@ void JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup
 	  title     = labelname+"_recObjN;Reco multiplicity()"+trigPath;
 	  N = dbe->book1D(histoname.c_str(),title.c_str(),Nbins_,Nmin_,Nmax_);
 	  TH1 *h = N->getTH1();
-	  h->Sumw2();    
+
 
 	  histoname = labelname+"_recObjPt";
 	  title = labelname+"_recObjPt; Reco Pt[GeV/c]"+trigPath;
 	  Pt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = Pt->getTH1();
-	  h->Sumw2();
+
  
 	  histoname = labelname+"_recObjPtBarrel";
 	  title = labelname+"_recObjPtBarrel;Reco Pt[GeV/c]"+trigPath;
 	  PtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = PtBarrel->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_recObjPtEndcap";
 	  title = labelname+"_recObjPtEndcap;Reco Pt[GeV/c]"+trigPath;
 	  PtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = PtEndcap->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_recObjPtForward";
 	  title = labelname+"_recObjPtForward;Reco Pt[GeV/c]"+trigPath;
 	  PtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = PtForward->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_recObjEta";
 	  title = labelname+"_recObjEta;Reco #eta"+trigPath;
 	  Eta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
 	  h = Eta->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_recObjPhi";
 	  title = labelname+"_recObjPhi;Reco #Phi"+trigPath;
 	  Phi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	  h = Phi->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_recObjEtaPhi";
 	  title = labelname+"_recObjEtaPhi;Reco #eta;Reco #Phi"+trigPath;
 	  EtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
 	  h = EtaPhi->getTH1();
-	  h->Sumw2();
+
 
   
 	  histoname = labelname+"_l1ObjN";         
 	  title     = labelname+"_l1ObjN;L1 multiplicity"+trigPath;
 	  N_L1 = dbe->book1D(histoname.c_str(),title.c_str(),Nbins_,Nmin_,Nmax_);
 	  h = N_L1->getTH1();                                              
-	  h->Sumw2();                                               
+
 
 	  histoname = labelname+"_l1ObjPt";
 	  title = labelname+"_l1ObjPt;L1 Pt[GeV/c]"+trigPath;
 	  Pt_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = Pt_L1->getTH1();                                                            
-	  h->Sumw2();                                                             
+
                                                                             
 	  histoname = labelname+"_l1ObjPtBarrel";                                    
 	  title = labelname+"_l1ObjPtBarrel;L1 Pt[GeV/c]"+trigPath;                              
 	  PtBarrel_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = PtBarrel_L1->getTH1();                                                            
-	  h->Sumw2();                                                             
+
 
 	  histoname = labelname+"_l1ObjPtEndcap";
 	  title = labelname+"_l1ObjPtEndcap;L1 Pt[GeV/c]"+trigPath;
 	  PtEndcap_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = PtEndcap_L1->getTH1();                                                            
-	  h->Sumw2();                                                             
+
 
 	  histoname = labelname+"_l1ObjPtForward";
 	  title = labelname+"_l1ObjPtForward;L1 Pt[GeV/c]"+trigPath;
 	  PtForward_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = PtForward_L1->getTH1();                                                            
-	  h->Sumw2();                                                             
+
 
 	  histoname = labelname+"_l1ObjEta";
 	  title = labelname+"_l1ObjEta;L1 #eta"+trigPath;
 	  Eta_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
 	  h = Eta_L1->getTH1();                                                               
-	  h->Sumw2();                                                                
+
 
 	  histoname = labelname+"_l1ObjPhi";
 	  title = labelname+"_l1ObjPhi;L1 #Phi"+trigPath;
 	  Phi_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	  h = Phi_L1->getTH1();                                                               
-	  h->Sumw2();                                                                
+
 
 	  histoname = labelname+"_l1ObjEtaPhi";
 	  title = labelname+"_l1ObjEtaPhi;L1 #eta;L1 #Phi"+trigPath;
 	  EtaPhi_L1 =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
 	  h = EtaPhi_L1->getTH1();                                                                                        
-	  h->Sumw2();                                
+
 
 	  histoname = labelname+"_hltObjN";         
 	  title     = labelname+"_hltObjN;HLT multiplicity"+trigPath;
 	  N_HLT = dbe->book1D(histoname.c_str(),title.c_str(),Nbins_,Nmin_,Nmax_);
 	  h = N_HLT->getTH1();                                              
-	  h->Sumw2();                                               
+
 
 	  histoname = labelname+"_hltObjPt";
 	  title = labelname+"_hltObjPt;HLT Pt[GeV/c]"+trigPath;
 	  Pt_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = Pt_HLT->getTH1();                                                            
-	  h->Sumw2();                                                             
+
                                                                             
 	  histoname = labelname+"_hltObjPtBarrel";                                    
 	  title = labelname+"_hltObjPtBarrel;HLT Pt[GeV/c]"+trigPath;                              
 	  PtBarrel_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = PtBarrel_HLT->getTH1();                                                            
-	  h->Sumw2();                                                             
+
 
 	  histoname = labelname+"_hltObjPtEndcap";
 	  title = labelname+"_hltObjPtEndcap;HLT Pt[GeV/c]"+trigPath;
 	  PtEndcap_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = PtEndcap_HLT->getTH1();                                                            
-	  h->Sumw2();                                                             
+
 
 	  histoname = labelname+"_hltObjPtForward";
 	  title = labelname+"_hltObjPtForward;HLT Pt[GeV/c]"+trigPath;
 	  PtForward_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = PtForward_HLT->getTH1();                                                            
-	  h->Sumw2();                                                             
+
 
 	  histoname = labelname+"_hltObjEta";
 	  title = labelname+"_hltObjEta;HLT #eta"+trigPath;
 	  Eta_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
 	  h = Eta_HLT->getTH1();                                                               
-	  h->Sumw2();                                                                
+
 
 	  histoname = labelname+"_hltObjPhi";
 	  title = labelname+"_hltObjPhi;HLT #Phi"+trigPath;
 	  Phi_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	  h = Phi_HLT->getTH1();                                                               
-	  h->Sumw2();                                                                
+
 
 	  histoname = labelname+"_hltObjEtaPhi";
 	  title = labelname+"_hltObjEtaPhi;HLT #eta;HLT #Phi"+trigPath;
 	  EtaPhi_HLT =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
 	  h = EtaPhi_HLT->getTH1();                                                                                        
-	  h->Sumw2();                                
+
 
 	  histoname = labelname+"_l1HLTPtResolution";
 	  title = labelname+"_l1HLTPtResolution;(Pt(L1)-Pt(HLT))/Pt(L1)"+trigPath;
 	  PtResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
 	  h = PtResolution_L1HLT->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_l1HLTEtaResolution";
 	  title = labelname+"_l1HLTEtaResolution;(#eta(L1)-#eta(HLT))/#eta(L1)"+trigPath;
 	  EtaResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
 	  h = EtaResolution_L1HLT->getTH1();
-	  h->Sumw2(); 
+
 
 	  histoname = labelname+"_l1HLTPhiResolution";
 	  title = labelname+"_l1HLTPhiResolution;(#Phi(L1)-#Phi(HLT))/#Phi(L1)"+trigPath;
 	  PhiResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
 	  h = PhiResolution_L1HLT->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_l1HLTPtCorrelation";
 	  title = labelname+"_l1HLTPtCorrelation;Pt(L1)[GeV/c];Pt(HLT)[GeV/c]"+trigPath;
 	  PtCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Ptbins_,PtMin_,PtMax_);
 	  h = PtCorrelation_L1HLT->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_l1HLTEtaCorrelation";
 	  title = labelname+"_l1HLTEtaCorrelation;#eta(L1);#eta(HLT)"+trigPath;
 	  EtaCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Etabins_,EtaMin_,EtaMax_);
 	  h = EtaCorrelation_L1HLT->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_l1HLTPhiCorrelation";
 	  title = labelname+"_l1HLTPhiCorrelation;#Phi(L1);#Phi(HLT)"+trigPath;
 	  PhiCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_);
 	  h = PhiCorrelation_L1HLT->getTH1();
-	  h->Sumw2();
+
 
   
 	  histoname = labelname+"_hltRecObjPtResolution";
 	  title = labelname+"_hltRecObjPtResolution;(Pt(HLT)-Pt(Reco))/Pt(HLT)"+trigPath;
 	  PtResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
 	  h = PtResolution_HLTRecObj->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_hltRecObjEtaResolution";
 	  title = labelname+"_hltRecObjEtaResolution;(#eta(HLT)-#eta(Reco))/#eta(HLT)"+trigPath;
 	  EtaResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
 	  h = EtaResolution_HLTRecObj->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_hltRecObjPhiResolution";
 	  title = labelname+"_hltRecObjPhiResolution;(#Phi(HLT)-#Phi(Reco))/#Phi(HLT)"+trigPath;
 	  PhiResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
 	  h = PhiResolution_HLTRecObj->getTH1();
-	  h->Sumw2();
+
 
 
 	  histoname = labelname+"_hltRecObjPtCorrelation";
 	  title = labelname+"_hltRecObjPtCorrelation;Pt(HLT)[GeV/c];Pt(Reco)[GeV/c]"+trigPath;
 	  PtCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Ptbins_,PtMin_,PtMax_);
 	  h = PtCorrelation_HLTRecObj->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_hltRecObjEtaCorrelation";
 	  title = labelname+"_hltRecObjEtaCorrelation;#eta(HLT);#eta(Reco)"+trigPath;
 	  EtaCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Etabins_,EtaMin_,EtaMax_);
 	  h = EtaCorrelation_HLTRecObj->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_hltRecObjPhiCorrelation";
 	  title = labelname+"_hltRecObjPhiCorrelation;#Phi(HLT);#Phi(Reco)"+trigPath;
 	  PhiCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_);
 	  h = PhiCorrelation_HLTRecObj->getTH1();
-	  h->Sumw2();
+
 
 	  if((v->getTriggerType().compare("DiJet_Trigger") == 0))
 	  {
@@ -1783,37 +1783,37 @@ void JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup
 	    title     = labelname+"_RecObjAveragePt;Reco Average Pt[GeV/c]"+trigPath;
 	    jetAveragePt = dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	    h = jetAveragePt->getTH1();
-	    h->Sumw2();
+
 
 	    histoname = labelname+"_RecObjAverageEta";
 	    title     = labelname+"_RecObjAverageEta;Reco Average #eta"+trigPath;
 	    jetAverageEta = dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
 	    h = jetAverageEta->getTH1();
-	    h->Sumw2();
+
 
 	    histoname = labelname+"_RecObjPhiDifference";
 	    title     = labelname+"_RecObjPhiDifference;Reco #Delta#Phi"+trigPath;
 	    jetPhiDifference = dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	    h = jetPhiDifference->getTH1();
-	    h->Sumw2();
+
 
 	    histoname = labelname+"_hltObjAveragePt";
 	    title     = labelname+"_hltObjAveragePt;HLT Average Pt[GeV/c]"+trigPath;
 	    hltAveragePt = dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	    h = hltAveragePt->getTH1();
-	    h->Sumw2();
+
 
 	    histoname = labelname+"_hltObjAverageEta";
 	    title     = labelname+"_hltObjAverageEta;HLT Average #eta"+trigPath;
 	    hltAverageEta = dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
 	    h = hltAverageEta->getTH1();
-	    h->Sumw2();
+
 
 	    histoname = labelname+"_hltObjPhiDifference";
 	    title     = labelname+"_hltObjPhiDifference;Reco #Delta#Phi"+trigPath;
 	    hltPhiDifference = dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	    h = hltPhiDifference->getTH1();
-	    h->Sumw2();
+
 
 	  }
 
@@ -1826,55 +1826,55 @@ void JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup
 	  title = labelname+"_recObjPt;Reco Pt[GeV/c]"+trigPath;
 	  Pt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  TH1 *h = Pt->getTH1();
-	  h->Sumw2();
+
  
 
 	  histoname = labelname+"_recObjPhi";
 	  title = labelname+"_recObjPhi;Reco #Phi"+trigPath;
 	  Phi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	  h = Phi->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_l1ObjPt";
 	  title = labelname+"_l1ObjPt;L1 Pt[GeV/c]"+trigPath;
 	  Pt_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = Pt_L1->getTH1();                                                            
-	  h->Sumw2();                                                             
+
                                                                             
 
 	  histoname = labelname+"_l1ObjPhi";
 	  title = labelname+"_l1ObjPhi;L1 #Phi"+trigPath;
 	  Phi_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	  h = Phi_L1->getTH1();                                                               
-	  h->Sumw2();                                                                
+
 
 
 	  histoname = labelname+"_hltObjPt";
 	  title = labelname+"_hltObjPt;HLT Pt[GeV/c]"+trigPath;
 	  Pt_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = Pt_HLT->getTH1();                                                            
-	  h->Sumw2();                                                             
+
                                                                             
 
 	  histoname = labelname+"_hltObjPhi";
 	  title = labelname+"_hltObjPhi;HLT #Phi"+trigPath;
 	  Phi_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	  h = Phi_HLT->getTH1();                                                               
-	  h->Sumw2();                                                                
+
 
 
 	  histoname = labelname+"_l1HLTPtResolution";
 	  title = labelname+"_l1HLTPtResolution;(Pt(L1)-Pt(HLT))/Pt(L1)"+trigPath;
 	  PtResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
 	  h = PtResolution_L1HLT->getTH1();
-	  h->Sumw2();
+
 
 
 	  histoname = labelname+"_l1HLTPhiResolution";
 	  title = labelname+"_l1HLTPhiResolution;(#Phi(L1)-#Phi(HLT))/#Phi(L1)"+trigPath;
 	  PhiResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
 	  h = PhiResolution_L1HLT->getTH1();
-	  h->Sumw2();
+
 
 
 
@@ -1882,28 +1882,28 @@ void JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup
 	  title = labelname+"_l1HLTPtCorrelation;Pt(L1)[GeV/c];Pt(HLT)[GeV/c]"+trigPath;
 	  PtCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Ptbins_,PtMin_,PtMax_);
 	  h = PtCorrelation_L1HLT->getTH1();
-	  h->Sumw2();
+
 
 
 	  histoname = labelname+"_l1HLTPhiCorrelation";
 	  title = labelname+"_l1HLTPhiCorrelation;#Phi(L1);#Phi(HLT)"+trigPath;
 	  PhiCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_);
 	  h = PhiCorrelation_L1HLT->getTH1();
-	  h->Sumw2();
+
 
 
 	  histoname = labelname+"_hltRecObjPtResolution";
 	  title = labelname+"_hltRecObjPtResolution;(Pt(HLT)-Pt(Reco))/Pt(HLT)"+trigPath;
 	  PtResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
 	  h = PtResolution_HLTRecObj->getTH1();
-	  h->Sumw2();
+
 
 
 	  histoname = labelname+"_hltRecObjPhiResolution";
 	  title = labelname+"_hltRecObjPhiResolution;(#Phi(HLT)-#Phi(Reco))/#Phi(HLT)"+trigPath;
 	  PhiResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
 	  h = PhiResolution_HLTRecObj->getTH1();
-	  h->Sumw2();
+
 
 
 
@@ -1911,14 +1911,14 @@ void JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup
 	  title = labelname+"_hltRecObjPtCorrelation;Pt(HLT)[GeV/c];Pt(Reco)[GeV/c]"+trigPath;
 	  PtCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Ptbins_,PtMin_,PtMax_);
 	  h = PtCorrelation_HLTRecObj->getTH1();
-	  h->Sumw2();
+
 
 
 	  histoname = labelname+"_hltRecObjPhiCorrelation";
 	  title = labelname+"_hltRecObjPhiCorrelation;#Phi(HLT);#Phi(Reco)"+trigPath;
 	  PhiCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_);
 	  h = PhiCorrelation_HLTRecObj->getTH1();
-	  h->Sumw2();
+
    
 
 	}// histos for MET Triggers 
@@ -2027,220 +2027,220 @@ void JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup
 	  title     = labelname+"_recObjN;Reco multiplicity()"+trigPath;
 	  N = dbe->book1D(histoname.c_str(),title.c_str(),Nbins_,Nmin_,Nmax_);
 	  TH1 *h = N->getTH1();
-	  h->Sumw2();    
+
 
 	  histoname = labelname+"_recObjPt";
 	  title = labelname+"_recObjPt; Reco Pt[GeV/c]"+trigPath;
 	  Pt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = Pt->getTH1();
-	  h->Sumw2();
+
  
 	  histoname = labelname+"_recObjPtBarrel";
 	  title = labelname+"_recObjPtBarrel;Reco Pt[GeV/c]"+trigPath;
 	  PtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = PtBarrel->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_recObjPtEndcap";
 	  title = labelname+"_recObjPtEndcap;Reco Pt[GeV/c]"+trigPath;
 	  PtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = PtEndcap->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_recObjPtForward";
 	  title = labelname+"_recObjPtForward;Reco Pt[GeV/c]"+trigPath;
 	  PtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = PtForward->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_recObjEta";
 	  title = labelname+"_recObjEta;Reco #eta"+trigPath;
 	  Eta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
 	  h = Eta->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_recObjPhi";
 	  title = labelname+"_recObjPhi;Reco #Phi"+trigPath;
 	  Phi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	  h = Phi->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_recObjEtaPhi";
 	  title = labelname+"_recObjEtaPhi;Reco #eta;Reco #Phi"+trigPath;
 	  EtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
 	  h = EtaPhi->getTH1();
-	  h->Sumw2();
+
 
   
 	  histoname = labelname+"_l1ObjN";         
 	  title     = labelname+"_l1ObjN;L1 multiplicity"+trigPath;
 	  N_L1 = dbe->book1D(histoname.c_str(),title.c_str(),Nbins_,Nmin_,Nmax_);
 	  h = N_L1->getTH1();                                              
-	  h->Sumw2();                                               
+
 
 	  histoname = labelname+"_l1ObjPt";
 	  title = labelname+"_l1ObjPt;L1 Pt[GeV/c]"+trigPath;
 	  Pt_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = Pt_L1->getTH1();                                                            
-	  h->Sumw2();                                                             
+
                                                                             
 	  histoname = labelname+"_l1ObjPtBarrel";                                    
 	  title = labelname+"_l1ObjPtBarrel;L1 Pt[GeV/c]"+trigPath;                              
 	  PtBarrel_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = PtBarrel_L1->getTH1();                                                            
-	  h->Sumw2();                                                             
+
 
 	  histoname = labelname+"_l1ObjPtEndcap";
 	  title = labelname+"_l1ObjPtEndcap;L1 Pt[GeV/c]"+trigPath;
 	  PtEndcap_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = PtEndcap_L1->getTH1();                                                            
-	  h->Sumw2();                                                             
+
 
 	  histoname = labelname+"_l1ObjPtForward";
 	  title = labelname+"_l1ObjPtForward;L1 Pt[GeV/c]"+trigPath;
 	  PtForward_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = PtForward_L1->getTH1();                                                            
-	  h->Sumw2();                                                             
+
 
 	  histoname = labelname+"_l1ObjEta";
 	  title = labelname+"_l1ObjEta;L1 #eta"+trigPath;
 	  Eta_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
 	  h = Eta_L1->getTH1();                                                               
-	  h->Sumw2();                                                                
+
 
 	  histoname = labelname+"_l1ObjPhi";
 	  title = labelname+"_l1ObjPhi;L1 #Phi"+trigPath;
 	  Phi_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	  h = Phi_L1->getTH1();                                                               
-	  h->Sumw2();                                                                
+
 
 	  histoname = labelname+"_l1ObjEtaPhi";
 	  title = labelname+"_l1ObjEtaPhi;L1 #eta;L1 #Phi"+trigPath;
 	  EtaPhi_L1 =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
 	  h = EtaPhi_L1->getTH1();                                                                                        
-	  h->Sumw2();                                
+
 
 	  histoname = labelname+"_hltObjN";         
 	  title     = labelname+"_hltObjN;HLT multiplicity"+trigPath;
 	  N_HLT = dbe->book1D(histoname.c_str(),title.c_str(),Nbins_,Nmin_,Nmax_);
 	  h = N_HLT->getTH1();                                              
-	  h->Sumw2();                                               
+
 
 	  histoname = labelname+"_hltObjPt";
 	  title = labelname+"_hltObjPt;HLT Pt[GeV/c]"+trigPath;
 	  Pt_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = Pt_HLT->getTH1();                                                            
-	  h->Sumw2();                                                             
+
                                                                             
 	  histoname = labelname+"_hltObjPtBarrel";                                    
 	  title = labelname+"_hltObjPtBarrel;HLT Pt[GeV/c]"+trigPath;                              
 	  PtBarrel_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = PtBarrel_HLT->getTH1();                                                            
-	  h->Sumw2();                                                             
+
 
 	  histoname = labelname+"_hltObjPtEndcap";
 	  title = labelname+"_hltObjPtEndcap;HLT Pt[GeV/c]"+trigPath;
 	  PtEndcap_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = PtEndcap_HLT->getTH1();                                                            
-	  h->Sumw2();                                                             
+
 
 	  histoname = labelname+"_hltObjPtForward";
 	  title = labelname+"_hltObjPtForward;HLT Pt[GeV/c]"+trigPath;
 	  PtForward_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = PtForward_HLT->getTH1();                                                            
-	  h->Sumw2();                                                             
+
 
 	  histoname = labelname+"_hltObjEta";
 	  title = labelname+"_hltObjEta;HLT #eta"+trigPath;
 	  Eta_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
 	  h = Eta_HLT->getTH1();                                                               
-	  h->Sumw2();                                                                
+
 
 	  histoname = labelname+"_hltObjPhi";
 	  title = labelname+"_hltObjPhi;HLT #Phi"+trigPath;
 	  Phi_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	  h = Phi_HLT->getTH1();                                                               
-	  h->Sumw2();                                                                
+
 
 	  histoname = labelname+"_hltObjEtaPhi";
 	  title = labelname+"_hltObjEtaPhi;HLT #eta;HLT #Phi"+trigPath;
 	  EtaPhi_HLT =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
 	  h = EtaPhi_HLT->getTH1();                                                                                        
-	  h->Sumw2();                                
+
 
 	  histoname = labelname+"_l1HLTPtResolution";
 	  title = labelname+"_l1HLTPtResolution;(Pt(L1)-Pt(HLT))/Pt(L1)"+trigPath;
 	  PtResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
 	  h = PtResolution_L1HLT->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_l1HLTEtaResolution";
 	  title = labelname+"_l1HLTEtaResolution;(#eta(L1)-#eta(HLT))/#eta(L1)"+trigPath;
 	  EtaResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
 	  h = EtaResolution_L1HLT->getTH1();
-	  h->Sumw2(); 
+
 
 	  histoname = labelname+"_l1HLTPhiResolution";
 	  title = labelname+"_l1HLTPhiResolution;(#Phi(L1)-#Phi(HLT))/#Phi(L1)"+trigPath;
 	  PhiResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
 	  h = PhiResolution_L1HLT->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_l1HLTPtCorrelation";
 	  title = labelname+"_l1HLTPtCorrelation;Pt(L1)[GeV/c];Pt(HLT)[GeV/c]"+trigPath;
 	  PtCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Ptbins_,PtMin_,PtMax_);
 	  h = PtCorrelation_L1HLT->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_l1HLTEtaCorrelation";
 	  title = labelname+"_l1HLTEtaCorrelation;#eta(L1);#eta(HLT)"+trigPath;
 	  EtaCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Etabins_,EtaMin_,EtaMax_);
 	  h = EtaCorrelation_L1HLT->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_l1HLTPhiCorrelation";
 	  title = labelname+"_l1HLTPhiCorrelation;#Phi(L1);#Phi(HLT)"+trigPath;
 	  PhiCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_);
 	  h = PhiCorrelation_L1HLT->getTH1();
-	  h->Sumw2();
+
 
   
 	  histoname = labelname+"_hltRecObjPtResolution";
 	  title = labelname+"_hltRecObjPtResolution;(Pt(HLT)-Pt(Reco))/Pt(HLT)"+trigPath;
 	  PtResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
 	  h = PtResolution_HLTRecObj->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_hltRecObjEtaResolution";
 	  title = labelname+"_hltRecObjEtaResolution;(#eta(HLT)-#eta(Reco))/#eta(HLT)"+trigPath;
 	  EtaResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
 	  h = EtaResolution_HLTRecObj->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_hltRecObjPhiResolution";
 	  title = labelname+"_hltRecObjPhiResolution;(#Phi(HLT)-#Phi(Reco))/#Phi(HLT)"+trigPath;
 	  PhiResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
 	  h = PhiResolution_HLTRecObj->getTH1();
-	  h->Sumw2();
+
 
 
 	  histoname = labelname+"_hltRecObjPtCorrelation";
 	  title = labelname+"_hltRecObjPtCorrelation;Pt(HLT)[GeV/c];Pt(Reco)[GeV/c]"+trigPath;
 	  PtCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Ptbins_,PtMin_,PtMax_);
 	  h = PtCorrelation_HLTRecObj->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_hltRecObjEtaCorrelation";
 	  title = labelname+"_hltRecObjEtaCorrelation;#eta(HLT);#eta(Reco)"+trigPath;
 	  EtaCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Etabins_,EtaMin_,EtaMax_);
 	  h = EtaCorrelation_HLTRecObj->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_hltRecObjPhiCorrelation";
 	  title = labelname+"_hltRecObjPhiCorrelation;#Phi(HLT);#Phi(Reco)"+trigPath;
 	  PhiCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_);
 	  h = PhiCorrelation_HLTRecObj->getTH1();
-	  h->Sumw2();
+
 
 	  if((v->getTriggerType().compare("DiJet_Trigger") == 0))
 	  {
@@ -2248,37 +2248,37 @@ void JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup
 	    title     = labelname+"_RecObjAveragePt;Reco Average Pt[GeV/c]"+trigPath;
 	    jetAveragePt = dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	    h = jetAveragePt->getTH1();
-	    h->Sumw2();
+
 
 	    histoname = labelname+"_RecObjAverageEta";
 	    title     = labelname+"_RecObjAverageEta;Reco Average #eta"+trigPath;
 	    jetAverageEta = dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
 	    h = jetAverageEta->getTH1();
-	    h->Sumw2();
+
 
 	    histoname = labelname+"_RecObjPhiDifference";
 	    title     = labelname+"_RecObjPhiDifference;Reco #Delta#Phi"+trigPath;
 	    jetPhiDifference = dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	    h = jetPhiDifference->getTH1();
-	    h->Sumw2();
+
 
 	    histoname = labelname+"_hltObjAveragePt";
 	    title     = labelname+"_hltObjAveragePt;HLT Average Pt[GeV/c]"+trigPath;
 	    hltAveragePt = dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	    h = hltAveragePt->getTH1();
-	    h->Sumw2();
+
 
 	    histoname = labelname+"_hltObjAverageEta";
 	    title     = labelname+"_hltObjAverageEta;HLT Average #eta"+trigPath;
 	    hltAverageEta = dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
 	    h = hltAverageEta->getTH1();
-	    h->Sumw2();
+
 
 	    histoname = labelname+"_hltObjPhiDifference";
 	    title     = labelname+"_hltObjPhiDifference;Reco #Delta#Phi"+trigPath;
 	    hltPhiDifference = dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	    h = hltPhiDifference->getTH1();
-	    h->Sumw2();
+
 
 	  }
 
@@ -2291,55 +2291,55 @@ void JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup
 	  title = labelname+"_recObjPt;Reco Pt[GeV/c]"+trigPath;
 	  Pt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  TH1 *h = Pt->getTH1();
-	  h->Sumw2();
+
  
 
 	  histoname = labelname+"_recObjPhi";
 	  title = labelname+"_recObjPhi;Reco #Phi"+trigPath;
 	  Phi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	  h = Phi->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_l1ObjPt";
 	  title = labelname+"_l1ObjPt;L1 Pt[GeV/c]"+trigPath;
 	  Pt_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = Pt_L1->getTH1();                                                            
-	  h->Sumw2();                                                             
+
                                                                             
 
 	  histoname = labelname+"_l1ObjPhi";
 	  title = labelname+"_l1ObjPhi;L1 #Phi"+trigPath;
 	  Phi_L1 =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	  h = Phi_L1->getTH1();                                                               
-	  h->Sumw2();                                                                
+
 
 
 	  histoname = labelname+"_hltObjPt";
 	  title = labelname+"_hltObjPt;HLT Pt[GeV/c]"+trigPath;
 	  Pt_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = Pt_HLT->getTH1();                                                            
-	  h->Sumw2();                                                             
+
                                                                             
 
 	  histoname = labelname+"_hltObjPhi";
 	  title = labelname+"_hltObjPhi;HLT #Phi"+trigPath;
 	  Phi_HLT =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	  h = Phi_HLT->getTH1();                                                               
-	  h->Sumw2();                                                                
+
 
 
 	  histoname = labelname+"_l1HLTPtResolution";
 	  title = labelname+"_l1HLTPtResolution;(Pt(L1)-Pt(HLT))/Pt(L1)"+trigPath;
 	  PtResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
 	  h = PtResolution_L1HLT->getTH1();
-	  h->Sumw2();
+
 
 
 	  histoname = labelname+"_l1HLTPhiResolution";
 	  title = labelname+"_l1HLTPhiResolution;(#Phi(L1)-#Phi(HLT))/#Phi(L1)"+trigPath;
 	  PhiResolution_L1HLT = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
 	  h = PhiResolution_L1HLT->getTH1();
-	  h->Sumw2();
+
 
 
 
@@ -2347,28 +2347,28 @@ void JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup
 	  title = labelname+"_l1HLTPtCorrelation;Pt(L1)[GeV/c];Pt(HLT)[GeV/c]"+trigPath;
 	  PtCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Ptbins_,PtMin_,PtMax_);
 	  h = PtCorrelation_L1HLT->getTH1();
-	  h->Sumw2();
+
 
 
 	  histoname = labelname+"_l1HLTPhiCorrelation";
 	  title = labelname+"_l1HLTPhiCorrelation;#Phi(L1);#Phi(HLT)"+trigPath;
 	  PhiCorrelation_L1HLT = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_);
 	  h = PhiCorrelation_L1HLT->getTH1();
-	  h->Sumw2();
+
 
 
 	  histoname = labelname+"_hltRecObjPtResolution";
 	  title = labelname+"_hltRecObjPtResolution;(Pt(HLT)-Pt(Reco))/Pt(HLT)"+trigPath;
 	  PtResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
 	  h = PtResolution_HLTRecObj->getTH1();
-	  h->Sumw2();
+
 
 
 	  histoname = labelname+"_hltRecObjPhiResolution";
 	  title = labelname+"_hltRecObjPhiResolution;(#Phi(HLT)-#Phi(Reco))/#Phi(HLT)"+trigPath;
 	  PhiResolution_HLTRecObj = dbe->book1D(histoname.c_str(),title.c_str(),Resbins_,ResMin_,ResMax_);
 	  h = PhiResolution_HLTRecObj->getTH1();
-	  h->Sumw2();
+
 
 
 
@@ -2376,14 +2376,14 @@ void JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup
 	  title = labelname+"_hltRecObjPtCorrelation;Pt(HLT)[GeV/c];Pt(Reco)[GeV/c]"+trigPath;
 	  PtCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Ptbins_,PtMin_,PtMax_);
 	  h = PtCorrelation_HLTRecObj->getTH1();
-	  h->Sumw2();
+
 
 
 	  histoname = labelname+"_hltRecObjPhiCorrelation";
 	  title = labelname+"_hltRecObjPhiCorrelation;#Phi(HLT);#Phi(Reco)"+trigPath;
 	  PhiCorrelation_HLTRecObj = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Phibins_,PhiMin_,PhiMax_);
 	  h = PhiCorrelation_HLTRecObj->getTH1();
-	  h->Sumw2();
+
    
 
 	}// histos for MET Triggers 
@@ -2430,85 +2430,85 @@ void JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup
 	  title     = labelname+"NumeratorPt;Calo Pt[GeV/c]";
 	  MonitorElement * NumeratorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  TH1 * h = NumeratorPt->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_NumeratorPtBarrel";
 	  title     = labelname+"NumeratorPtBarrel;Calo Pt[GeV/c] ";
 	  MonitorElement * NumeratorPtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = NumeratorPtBarrel->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_NumeratorPtEndcap";
 	  title     = labelname+"NumeratorPtEndcap;Calo Pt[GeV/c]";
 	  MonitorElement * NumeratorPtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = NumeratorPtEndcap->getTH1();
-	  h->Sumw2(); 
+
 
 	  histoname = labelname+"_NumeratorPtForward";
 	  title     = labelname+"NumeratorPtForward;Calo Pt[GeV/c]";
 	  MonitorElement * NumeratorPtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = NumeratorPtForward->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_NumeratorEta";
 	  title     = labelname+"NumeratorEta;Calo #eta ";
 	  MonitorElement * NumeratorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
 	  h = NumeratorEta->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_NumeratorPhi";
 	  title     = labelname+"NumeratorPhi;Calo #Phi";
 	  MonitorElement * NumeratorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	  h = NumeratorPhi->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_NumeratorEtaPhi";
 	  title     = labelname+"NumeratorEtaPhi;Calo #eta;Calo #Phi";
 	  MonitorElement * NumeratorEtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
 	  h = NumeratorEtaPhi->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_DenominatorPt";
 	  title     = labelname+"DenominatorPt;Calo Pt[GeV/c]";
 	  MonitorElement * DenominatorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = DenominatorPt->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_DenominatorPtBarrel";
 	  title     = labelname+"DenominatorPtBarrel;Calo Pt[GeV/c]";
 	  MonitorElement * DenominatorPtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = DenominatorPtBarrel->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_DenominatorPtEndcap";
 	  title     = labelname+"DenominatorPtEndcap;Calo Pt[GeV/c]";
 	  MonitorElement * DenominatorPtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = DenominatorPtEndcap->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_DenominatorPtForward";
 	  title     = labelname+"DenominatorPtForward;Calo Pt[GeV/c] ";
 	  MonitorElement * DenominatorPtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = DenominatorPtForward->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_DenominatorEta";
 	  title     = labelname+"DenominatorEta;Calo #eta ";
 	  MonitorElement * DenominatorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
 	  h = DenominatorEta->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_DenominatorPhi";
 	  title     = labelname+"DenominatorPhi;Calo #Phi";
 	  MonitorElement * DenominatorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	  h = DenominatorPhi->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_DenominatorEtaPhi";
 	  title     = labelname+"DenominatorEtaPhi;Calo #eta; Calo #Phi";
 	  MonitorElement * DenominatorEtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
 	  h = DenominatorEtaPhi->getTH1();
-	  h->Sumw2();
+
 
 
 	  v->setEffHistos(  NumeratorPt,  NumeratorPtBarrel, NumeratorPtEndcap, NumeratorPtForward, NumeratorEta, NumeratorPhi, NumeratorEtaPhi,
@@ -2522,25 +2522,25 @@ void JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup
 	  title     = labelname+"NumeratorAvrgPt;Calo Pt[GeV/c]";
 	  MonitorElement * NumeratorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  TH1 * h = NumeratorPt->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_NumeratorAvrgEta";
 	  title     = labelname+"NumeratorAvrgEta;Calo #eta";
 	  MonitorElement * NumeratorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
 	  h = NumeratorEta->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_DenominatorAvrgPt";
 	  title     = labelname+"DenominatorAvrgPt;Calo Pt[GeV/c] ";
 	  MonitorElement * DenominatorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = DenominatorPt->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_DenominatorAvrgEta";
 	  title     = labelname+"DenominatorAvrgEta;Calo #eta";
 	  MonitorElement * DenominatorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
 	  h = DenominatorEta->getTH1();
-	  h->Sumw2();
+
 
 	  v->setEffHistos(  NumeratorPt,  dummy, dummy, dummy, NumeratorEta, dummy, dummy,
 			    DenominatorPt,  dummy, dummy, dummy, DenominatorEta, dummy, dummy);
@@ -2554,28 +2554,28 @@ void JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup
 	  title     = labelname+"NumeratorPt;Calo Pt[GeV/c]";
 	  MonitorElement * NumeratorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  TH1 * h = NumeratorPt->getTH1();
-	  h->Sumw2();
+
 
 
 	  histoname = labelname+"_NumeratorPhi";
 	  title     = labelname+"NumeratorPhi;Calo #Phi";
 	  MonitorElement * NumeratorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	  h = NumeratorPhi->getTH1();
-	  h->Sumw2();
+
 
 
 	  histoname = labelname+"_DenominatorPt";
 	  title     = labelname+"DenominatorPt;Calo Pt[GeV/c]";
 	  MonitorElement * DenominatorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = DenominatorPt->getTH1();
-	  h->Sumw2();
+
 
    
 	  histoname = labelname+"_DenominatorPhi";
 	  title     = labelname+"DenominatorPhi;Calo #Phi";
 	  MonitorElement * DenominatorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	  h = DenominatorPhi->getTH1();
-	  h->Sumw2();
+
    
 
 	  v->setEffHistos(  NumeratorPt,  dummy, dummy, dummy, dummy, NumeratorPhi, dummy,
@@ -2602,85 +2602,85 @@ void JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup
 	  title     = labelname+"NumeratorPt;Pt[GeV/c]";
 	  MonitorElement * NumeratorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  TH1 * h = NumeratorPt->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_NumeratorPtBarrel";
 	  title     = labelname+"NumeratorPtBarrel;Calo Pt[GeV/c]";
 	  MonitorElement * NumeratorPtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = NumeratorPtBarrel->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_NumeratorPtEndcap";
 	  title     = labelname+"NumeratorPtEndcap;Calo Pt[GeV/c]";
 	  MonitorElement * NumeratorPtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = NumeratorPtEndcap->getTH1();
-	  h->Sumw2(); 
+
 
 	  histoname = labelname+"_NumeratorPtForward";
 	  title     = labelname+"NumeratorPtForward;Calo Pt[GeV/c]";
 	  MonitorElement * NumeratorPtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = NumeratorPtForward->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_NumeratorEta";
 	  title     = labelname+"NumeratorEta;Calo #eta ";
 	  MonitorElement * NumeratorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
 	  h = NumeratorEta->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_NumeratorPhi";
 	  title     = labelname+"NumeratorPhi;Calo #Phi";
 	  MonitorElement * NumeratorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	  h = NumeratorPhi->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_NumeratorEtaPhi";
 	  title     = labelname+"NumeratorEtaPhi;Calo #eta;Calo #Phi";
 	  MonitorElement * NumeratorEtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
 	  h = NumeratorEtaPhi->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_DenominatorPt";
 	  title     = labelname+"DenominatorPt;Calo Pt[GeV/c]";
 	  MonitorElement * DenominatorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = DenominatorPt->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_DenominatorPtBarrel";
 	  title     = labelname+"DenominatorPtBarrel;Calo Pt[GeV/c]";
 	  MonitorElement * DenominatorPtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = DenominatorPtBarrel->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_DenominatorPtEndcap";
 	  title     = labelname+"DenominatorPtEndcap;Calo Pt[GeV/c]";
 	  MonitorElement * DenominatorPtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = DenominatorPtEndcap->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_DenominatorPtForward";
 	  title     = labelname+"DenominatorPtForward;Calo Pt[GeV/c] ";
 	  MonitorElement * DenominatorPtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = DenominatorPtForward->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_DenominatorEta";
 	  title     = labelname+"DenominatorEta;Calo #eta";
 	  MonitorElement * DenominatorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
 	  h = DenominatorEta->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_DenominatorPhi";
 	  title     = labelname+"DenominatorPhi;Calo #Phi";
 	  MonitorElement * DenominatorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	  h = DenominatorPhi->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_DenominatorEtaPhi";
 	  title     = labelname+"DenominatorEtaPhi;Calo #eta (IC5);Calo #Phi ";
 	  MonitorElement * DenominatorEtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
 	  h = DenominatorEtaPhi->getTH1();
-	  h->Sumw2();
+
 
 
 	  v->setEffHistos(  NumeratorPt,  NumeratorPtBarrel, NumeratorPtEndcap, NumeratorPtForward, NumeratorEta, NumeratorPhi, NumeratorEtaPhi,
@@ -2693,25 +2693,25 @@ void JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup
 	  title     = labelname+"NumeratorAvrgPt;Calo Pt[GeV/c] ";
 	  MonitorElement * NumeratorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  TH1 * h = NumeratorPt->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_NumeratorAvrgEta";
 	  title     = labelname+"NumeratorAvrgEta;Calo #eta";
 	  MonitorElement * NumeratorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
 	  h = NumeratorEta->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_DenominatorAvrgPt";
 	  title     = labelname+"DenominatorAvrgPt;Calo Pt[GeV/c]";
 	  MonitorElement * DenominatorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = DenominatorPt->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_DenominatorAvrgEta";
 	  title     = labelname+"DenominatorAvrgEta;Calo #eta ";
 	  MonitorElement * DenominatorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
 	  h = DenominatorEta->getTH1();
-	  h->Sumw2();
+
 
 	  v->setEffHistos(  NumeratorPt,  dummy, dummy, dummy, NumeratorEta, dummy, dummy,
 			    DenominatorPt,  dummy, dummy, dummy, DenominatorEta, dummy, dummy);
@@ -2724,28 +2724,28 @@ void JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup
 	  title     = labelname+"NumeratorPt;Calo Pt[GeV/c]";
 	  MonitorElement * NumeratorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  TH1 * h = NumeratorPt->getTH1();
-	  h->Sumw2();
+
 
 
 	  histoname = labelname+"_NumeratorPhi";
 	  title     = labelname+"NumeratorPhi;Calo #Phi";
 	  MonitorElement * NumeratorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	  h = NumeratorPhi->getTH1();
-	  h->Sumw2();
+
 
 
 	  histoname = labelname+"_DenominatorPt";
 	  title     = labelname+"DenominatorPt;Calo Pt[GeV/c]";
 	  MonitorElement * DenominatorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = DenominatorPt->getTH1();
-	  h->Sumw2();
+
 
    
 	  histoname = labelname+"_DenominatorPhi";
 	  title     = labelname+"DenominatorPhi;Calo #Phi";
 	  MonitorElement * DenominatorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	  h = DenominatorPhi->getTH1();
-	  h->Sumw2();
+
    
 
 	  v->setEffHistos(  NumeratorPt,  dummy, dummy, dummy, dummy, NumeratorPhi, dummy,
@@ -2770,85 +2770,85 @@ void JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup
 	  title     = labelname+"NumeratorPt;Calo Pt[GeV/c] ";
 	  MonitorElement * NumeratorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  TH1 * h = NumeratorPt->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_NumeratorPtBarrel";
 	  title     = labelname+"NumeratorPtBarrel;Calo Pt[GeV/c]";
 	  MonitorElement * NumeratorPtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = NumeratorPtBarrel->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_NumeratorPtEndcap";
 	  title     = labelname+"NumeratorPtEndcap; Calo Pt[GeV/c] ";
 	  MonitorElement * NumeratorPtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = NumeratorPtEndcap->getTH1();
-	  h->Sumw2(); 
+
 
 	  histoname = labelname+"_NumeratorPtForward";
 	  title     = labelname+"NumeratorPtForward;Calo Pt[GeV/c]";
 	  MonitorElement * NumeratorPtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = NumeratorPtForward->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_NumeratorEta";
 	  title     = labelname+"NumeratorEta;Calo #eta ";
 	  MonitorElement * NumeratorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
 	  h = NumeratorEta->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_NumeratorPhi";
 	  title     = labelname+"NumeratorPhi;Calo #Phi";
 	  MonitorElement * NumeratorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	  h = NumeratorPhi->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_NumeratorEtaPhi";
 	  title     = labelname+"NumeratorEtaPhi;Calo #eta;Calo #Phi ";
 	  MonitorElement * NumeratorEtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
 	  h = NumeratorEtaPhi->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_DenominatorPt";
 	  title     = labelname+"DenominatorPt;Calo Pt[GeV/c]";
 	  MonitorElement * DenominatorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = DenominatorPt->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_DenominatorPtBarrel";
 	  title     = labelname+"DenominatorPtBarrel;Calo Pt[GeV/c]";
 	  MonitorElement * DenominatorPtBarrel =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = DenominatorPtBarrel->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_DenominatorPtEndcap";
 	  title     = labelname+"DenominatorPtEndcap;Calo Pt[GeV/c]";
 	  MonitorElement * DenominatorPtEndcap =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = DenominatorPtEndcap->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_DenominatorPtForward";
 	  title     = labelname+"DenominatorPtForward;Calo Pt[GeV/c]";
 	  MonitorElement * DenominatorPtForward =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = DenominatorPtForward->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_DenominatorEta";
 	  title     = labelname+"DenominatorEta;Calo #eta ";
 	  MonitorElement * DenominatorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
 	  h = DenominatorEta->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_DenominatorPhi";
 	  title     = labelname+"DenominatorPhi;Calo #Phi";
 	  MonitorElement * DenominatorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	  h = DenominatorPhi->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_DenominatorEtaPhi";
 	  title     = labelname+"DenominatorEtaPhi;Calo #eta ;Calo #Phi ";
 	  MonitorElement * DenominatorEtaPhi =  dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Phibins_,PhiMin_,PhiMax_);
 	  h = DenominatorEtaPhi->getTH1();
-	  h->Sumw2();
+
 
 
 	  v->setEffHistos(  NumeratorPt,  NumeratorPtBarrel, NumeratorPtEndcap, NumeratorPtForward, NumeratorEta, NumeratorPhi, NumeratorEtaPhi,
@@ -2863,25 +2863,25 @@ void JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup
 	  title     = labelname+"NumeratorAvrgPt;Calo Pt[GeV/c] ";
 	  MonitorElement * NumeratorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  TH1 * h = NumeratorPt->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_NumeratorAvrgEta";
 	  title     = labelname+"NumeratorAvrgEta;Calo #eta ";
 	  MonitorElement * NumeratorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
 	  h = NumeratorEta->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_DenominatorAvrgPt";
 	  title     = labelname+"DenominatorAvrgPt;Calo Pt[GeV/c] ";
 	  MonitorElement * DenominatorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = DenominatorPt->getTH1();
-	  h->Sumw2();
+
 
 	  histoname = labelname+"_DenominatorAvrgEta";
 	  title     = labelname+"DenominatorAvrgEta;Calo #eta ";
 	  MonitorElement * DenominatorEta =  dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
 	  h = DenominatorEta->getTH1();
-	  h->Sumw2();
+
 
 	  v->setEffHistos(  NumeratorPt,  dummy, dummy, dummy, NumeratorEta, dummy, dummy,
 			    DenominatorPt,  dummy, dummy, dummy, DenominatorEta, dummy, dummy);
@@ -2895,28 +2895,28 @@ void JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup
 	  title     = labelname+"NumeratorPt;Calo Pt[GeV/c]";
 	  MonitorElement * NumeratorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  TH1 * h = NumeratorPt->getTH1();
-	  h->Sumw2();
+
 
 
 	  histoname = labelname+"_NumeratorPhi";
 	  title     = labelname+"NumeratorPhi;Calo #Phi";
 	  MonitorElement * NumeratorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	  h = NumeratorPhi->getTH1();
-	  h->Sumw2();
+
 
 
 	  histoname = labelname+"_DenominatorPt";
 	  title     = labelname+"DenominatorPt;Calo Pt[GeV/c]";
 	  MonitorElement * DenominatorPt =  dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	  h = DenominatorPt->getTH1();
-	  h->Sumw2();
+
 
    
 	  histoname = labelname+"_DenominatorPhi";
 	  title     = labelname+"DenominatorPhi;Calo #Phi";
 	  MonitorElement * DenominatorPhi =  dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	  h = DenominatorPhi->getTH1();
-	  h->Sumw2();
+
    
 
 
@@ -2976,19 +2976,19 @@ void JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup
 	title     = labelname+"Leading jet pT;Pt[GeV/c]";
 	MonitorElement * JetPt = dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	TH1 * h = JetPt->getTH1();
-	h->Sumw2();
+
 
 	histoname = labelname+"_JetEtaVsPt";
 	title     = labelname+"Leading jet #eta vs pT;#eta;Pt[GeV/c]";
 	MonitorElement * JetEtaVsPt = dbe->book2D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_,Ptbins_,PtMin_,PtMax_);
 	h = JetEtaVsPt->getTH1();
-	h->Sumw2();
+
 
 	histoname = labelname+"_JetPhiVsPt";
 	title     = labelname+"Leading jet #Phi vs pT;#Phi;Pt[GeV/c]";
 	MonitorElement * JetPhiVsPt = dbe->book2D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_,Ptbins_,PtMin_,PtMax_);
 	h = JetPhiVsPt->getTH1();
-	h->Sumw2();
+
 
    
    
@@ -3001,44 +3001,44 @@ void JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup
 	title     = labelname+"Jet Size;multiplicity";
 	MonitorElement * JetSize = dbe->book1D(histoname.c_str(),title.c_str(),Nbins_,Nmin_,Nmax_);
 	TH1 * h = JetSize->getTH1();
-	h->Sumw2();
+
 
 
 	histoname = labelname+"_AvergPt";
 	title     = labelname+"Average Pt;Pt[GeV/c]";
 	MonitorElement * Pt12 = dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	h = Pt12->getTH1();
-	h->Sumw2(); 
+
 
 	histoname = labelname+"_AvergEta";
 	title     = labelname+"Average Eta;#eta";
 	MonitorElement * Eta12 = dbe->book1D(histoname.c_str(),title.c_str(),Etabins_,EtaMin_,EtaMax_);
 	h = Eta12->getTH1();
-	h->Sumw2();
+
 
 	histoname = labelname+"_PhiDifference";
 	title     = labelname+"#Delta#Phi;#Delta#Phi";
 	MonitorElement * Phi12 = dbe->book1D(histoname.c_str(),title.c_str(),Phibins_,PhiMin_,PhiMax_);
 	h = Phi12->getTH1();
-	h->Sumw2(); 
+
 
 	histoname = labelname+"_Pt3Jet";
 	title     = labelname+"Pt of 3rd Jet;Pt[GeV/c]";
 	MonitorElement * Pt3 = dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
 	h = Pt3->getTH1();
-	h->Sumw2();
+
 
 	histoname = labelname+"_Pt12VsPt3Jet";
 	title     = labelname+"Pt of 3rd Jet vs Average Pt of leading jets;Avergage Pt[GeV/c]; Pt of 3rd Jet [GeV/c]";
 	MonitorElement * Pt12Pt3 = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Ptbins_,PtMin_,PtMax_);
 	h = Pt12Pt3->getTH1();
-	h->Sumw2();
+
 
 	histoname = labelname+"_Pt12VsPhi12";
 	title     = labelname+"Average Pt of leading jets vs #Delta#Phi between leading jets;Avergage Pt[GeV/c]; #Delta#Phi";
 	MonitorElement * Pt12Phi12 = dbe->book2D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_,Phibins_,PhiMin_,PhiMax_);
 	h = Pt12Phi12->getTH1();
-	h->Sumw2();
+
 
 	v->setDgnsHistos( TriggerSummary, JetSize, dummy, dummy, dummy, Pt12, Eta12, Phi12, Pt3, Pt12Pt3, Pt12Phi12);
 
@@ -3049,8 +3049,8 @@ void JetMETHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup
 	histoname = labelname+"_MET";
 	title     = labelname+"MET;Pt[GeV/c]";
 	MonitorElement * MET = dbe->book1D(histoname.c_str(),title.c_str(),Ptbins_,PtMin_,PtMax_);
-	TH1 * h = MET->getTH1();
-	h->Sumw2();
+	//	TH1 * h = MET->getTH1();
+
 	v->setDgnsHistos(TriggerSummary, dummy, MET, dummy, dummy, dummy, dummy, dummy,dummy,dummy,dummy);
       } // MET trigger  
 

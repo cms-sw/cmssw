@@ -10,11 +10,11 @@ process.maxEvents = cms.untracked.PSet(
 process.ErrorsPropagationAnalyzerModule = cms.EDAnalyzer(
     "ErrorsPropagationAnalyzer",
 
-    InputFileName = cms.string("/home/castello/7TeV/CMSSW_3_8_5_patch3/src/Tree/Fall10/Tree_MCFall2010_INNtk_CRAFTRealistic_wGEN.root"),
+    InputFileName = cms.string("/home/demattia/MuScleFit/Data/Zmumu/Zmumu.root"),
     MaxEvents = cms.int32(-1),
 
     # Function parameters
-    ResolFitType = cms.int32(20),
+    ResolFitType = cms.int32(12),
 
 
     # double ptPart = parval[2]*1./pt + pt/(pt+parval[3]) + pt*parval[9] + pt*pt*parval[10];
@@ -29,15 +29,63 @@ process.ErrorsPropagationAnalyzerModule = cms.EDAnalyzer(
     # }
 
 
-    Parameters = cms.vdouble(),
-    Errors = cms.vdouble(),
-    ErrorFactors = cms.vint32(),
+    Parameters = cms.vdouble(
+    1.66,
+    0.021,
+    0.,
+    0.,
+    0.,
+    0.0058,
+    0.,
+    0.03,
+    1.8,
+    0.,
+    0.,
+    0.,
+    0.,
+    0.,
+    0.
+    ),
+    Errors = cms.vdouble(
+    0.09,
+    0.002,
+    0.,
+    0.,
+    0.,
+    0.0009,
+    0.,
+    0.03,
+    0.3,
+    0.,
+    0.,
+    0.,
+    0.,
+    0.,
+    0.
+    ),
+    ErrorFactors = cms.vint32(
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1,
+    1
+    ),
 
     OutputFileName = cms.string("test.root"),
 
     PtBins = cms.int32(50),
     PtMin = cms.double(0.),
-    PtMax = cms.double(100.),
+    PtMax = cms.double(60.),
     
     EtaBins = cms.int32(100),
     EtaMin = cms.double(-3.),

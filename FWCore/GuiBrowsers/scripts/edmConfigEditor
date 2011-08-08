@@ -37,6 +37,8 @@ try:
 except Exception,e:
     raise ImportError("Could not import PyQt4 : "+str(e))
 
+qt_plugins_path=os.path.abspath(os.path.expandvars("$CMSSW_RELEASE_BASE/../../../external/qt/4.6.3-cms/plugins"))
+QCoreApplication.addLibraryPath(qt_plugins_path)
 qt_plugins_path=os.path.abspath(os.path.expandvars("$CMSSW_RELEASE_BASE/../../../external/qt/4.5.0-cms2/plugins"))
 QCoreApplication.addLibraryPath(qt_plugins_path)
 qt_plugins_path=os.path.abspath(os.path.expandvars("$CMSSW_RELEASE_BASE/../../../external/qt/4.5.2-cms2/plugins"))

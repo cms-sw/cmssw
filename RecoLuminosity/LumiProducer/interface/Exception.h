@@ -22,13 +22,5 @@ namespace lumi{
 			 const std::string& moduleName);
     virtual ~nonCollisionException() throw(){}
   };
-
-  class invalidDataException : public lumi::Exception{
-  public:
-    invalidDataException(const std::string& message,
-			 const std::string& methodname,
-			 const std::string& moduleName);
-    virtual ~invalidDataException() throw(){}
-  };
 }//ns lumi
 #endif

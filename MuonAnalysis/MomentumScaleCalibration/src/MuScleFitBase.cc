@@ -29,7 +29,6 @@ void MuScleFitBase::fillHistoMap(TFile* outputFile, unsigned int iLoop) {
 
   mapHisto_["hRecBestMu"]      = new HParticle ("hRecBestMu", minMass, maxMass, maxPt);
   mapHisto_["hRecBestMuVSEta"] = new HPartVSEta ("hRecBestMuVSEta", minMass, maxMass, maxPt);
-  //mapHisto_["hRecBestMuVSPhi"] = new HPartVSPhi ("hRecBestMuVSPhi"); 
   //mapHisto_["hRecBestMu_Acc"]  = new HParticle ("hRecBestMu_Acc", minMass, maxMass);
   mapHisto_["hDeltaRecBestMu"] = new HDelta ("hDeltaRecBestMu");
 

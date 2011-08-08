@@ -32,18 +32,22 @@ class RPCMonitorDigi : public edm::EDAnalyzer {
         void beginRun(const edm::Run& r, const edm::EventSetup& c);
 
 	/// Booking of MonitoringElement for one RPCDetId (= roll)
-	std::map<std::string, MonitorElement*> bookRollME(RPCDetId& , const edm::EventSetup&, std::string );		
-	
+	//	std::map<std::string, MonitorElement*> bookRollME(RPCDetId& , const edm::EventSetup&, std::string );		
+	void bookRollME(RPCDetId& , const edm::EventSetup&, const std::string &, std::map<std::string, MonitorElement*> &);
+
 	/// Booking of MonitoringElement at Sector/Ring level
-	std::map<std::string, MonitorElement*> bookSectorRingME(std::string);
+	//	std::map<std::string, MonitorElement*> bookSectorRingME(std::string);
+	void bookSectorRingME(const std::string&, std::map<std::string, MonitorElement*> &);
 
 	/// Booking of MonitoringElemnt at Wheel/Disk level
-	std::map<std::string, MonitorElement*> bookWheelDiskME(std::string );
+	//	std::map<std::string, MonitorElement*> bookWheelDiskME(std::string );
+	void bookWheelDiskME(const std::string &, std::map<std::string, MonitorElement*> &);
+
+
 
 	/// Booking of MonitoringElemnt at region (Barrel/Endcap) level
-	std::map<std::string, MonitorElement*> bookRegionME(std::string );
-
-      
+	//	std::map<std::string, MonitorElement*> bookRegionME(std::string );
+      void bookRegionME(const std::string &, std::map<std::string, MonitorElement*> &);
 
    private:
 
@@ -64,7 +68,7 @@ class RPCMonitorDigi : public edm::EDAnalyzer {
 	DQMStore * dbe;
 	bool dcs_;
 	float muPtCut_, muEtaCut_;
-
+	bool useRollInfo_;
  	MonitorElement * noiseRPCEvents_ ;
 	MonitorElement * muonRPCEvents_ ;
 
@@ -72,14 +76,14 @@ class RPCMonitorDigi : public edm::EDAnalyzer {
 	MonitorElement * NumberOfMuon_;
 
 	int numberOfDisks_, numberOfInnerRings_;
-	int muonCounter_, noiseCounter_;
+	//	int muonCounter_, noiseCounter_;
 
-	std::map< uint32_t, std::map<std::string, MonitorElement*> >   meMuonCollection;
+	std::map< std::string, std::map<std::string, MonitorElement*> >   meMuonCollection;
 	std::map<std::string, MonitorElement*>  wheelDiskMuonCollection;
 	std::map<std::string, MonitorElement*>  regionMuonCollection;
 	std::map<std::string, MonitorElement*> sectorRingMuonCollection;
 	
-	std::map<uint32_t, std::map<std::string, MonitorElement*> > meNoiseCollection;
+	std::map<std::string, std::map<std::string, MonitorElement*> > meNoiseCollection;
 	std::map<std::string, MonitorElement*> wheelDiskNoiseCollection;
 	std::map<std::string, MonitorElement*>  regionNoiseCollection;
 	std::map<std::string, MonitorElement*> sectorRingNoiseCollection;

@@ -1,7 +1,7 @@
 #ifndef _TRACKER_CARTESIANTRAJECTORYERROR_H_
 #define _TRACKER_CARTESIANTRAJECTORYERROR_H_
 
-#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/GlobalError.h"
 
 /** Class containing (6x6) error matrix of a track in the global, Cartesian frame.
@@ -19,13 +19,24 @@ public:
 
   /** Constructing class from error matrix.
    */
+
   CartesianTrajectoryError(const AlgebraicSymMatrix66& aCovarianceMatrix) :
     theCovarianceMatrix(aCovarianceMatrix) { }
 
+  /** Constructing class from error matrix.
+   */
+
+  CartesianTrajectoryError(const AlgebraicSymMatrix& aCovarianceMatrix) :
+    theCovarianceMatrix(asSMatrix<6>(aCovarianceMatrix)) {}
 // access
 
   /** Returning error matrix.
    */
+  const AlgebraicSymMatrix matrix_old() const {
+    return asHepMatrix(theCovarianceMatrix);
+  }
+
+
   const AlgebraicSymMatrix66 &matrix() const {
     return theCovarianceMatrix;
   }

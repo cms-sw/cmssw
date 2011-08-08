@@ -17,8 +17,13 @@ hcalDetDiagLaserMonitor=cms.EDAnalyzer("HcalDetDiagLaserMonitor",
                                    
                                    # Input collections
                                    digiLabel              = cms.untracked.InputTag("hcalDigis"),
+                                   calibDigiLabel         = cms.untracked.InputTag("hcalDigis"),
                                    # reference dataset path + filename
                                    LaserReferenceData     = cms.untracked.string(""),
+                                   # processed dataset name (to create HTML only)
+                                   LaserDatasetName       = cms.untracked.string(""),
+                                   # html path (to create HTML from dataset only)
+                                   htmlOutputPath         = cms.untracked.string(""),
                                    # Save output to different files on same file
                                    Overwrite              = cms.untracked.bool(True),
                                    # path to store datasets for current run
@@ -27,7 +32,5 @@ hcalDetDiagLaserMonitor=cms.EDAnalyzer("HcalDetDiagLaserMonitor",
                                    XmlFilePath            = cms.untracked.string(""),
 			           # thresholds
                                    LaserTimingThreshold   = cms.untracked.double(0.2),
-                                   LaserEnergyThreshold   = cms.untracked.double(0.1),
-                                   RawDataLabel           = cms.untracked.InputTag("source"),
-                                       
+                                   LaserEnergyThreshold   = cms.untracked.double(0.1)
                                    )
