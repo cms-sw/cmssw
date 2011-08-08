@@ -7,7 +7,7 @@
 // Package:    CommonTools/TriggerUtils
 // Class:      GenericTriggerEventFlag
 //
-// $Id: GenericTriggerEventFlag.h,v 1.2 2010/06/23 22:55:51 vadler Exp $
+// $Id: GenericTriggerEventFlag.h,v 1.3 2010/07/19 14:43:33 vadler Exp $
 //
 /**
   \class    GenericTriggerEventFlag GenericTriggerEventFlag.h "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
@@ -16,7 +16,7 @@
    [...]
 
   \author   Volker Adler
-  \version  $Id: GenericTriggerEventFlag.h,v 1.2 2010/06/23 22:55:51 vadler Exp $
+  \version  $Id: GenericTriggerEventFlag.h,v 1.3 2010/07/19 14:43:33 vadler Exp $
 */
 
 
@@ -72,6 +72,7 @@ class GenericTriggerEventFlag {
     bool onHlt_;
     // Member constants
     const std::string configError_;
+    const std::string emptyKeyError_;
 
   public:
 
@@ -106,8 +107,17 @@ class GenericTriggerEventFlag {
     bool acceptHltLogicalExpression( const edm::Handle< edm::TriggerResults > & hltTriggerResults, std::string hltLogicalExpression ) const;
 
     // Algos
-    std::vector< std::string > expressionsFromDB( const std::string & key, const edm::EventSetup & setup );
     bool negate( std::string & word ) const;
+
+  public:
+
+    // Methods for expert analysis
+
+    std::string gtDBKey()  { return gtDBKey_ ; } // can be empty
+    std::string l1DBKey()  { return l1DBKey_ ; } // can be empty
+    std::string hltDBKey() { return hltDBKey_; } // can be empty
+
+    std::vector< std::string > expressionsFromDB( const std::string & key, const edm::EventSetup & setup );
 
 };
 
