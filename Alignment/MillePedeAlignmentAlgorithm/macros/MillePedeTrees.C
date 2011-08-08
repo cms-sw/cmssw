@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2011/06/29 20:36:10 $
+// last change    : $Date: 2011/07/27 12:48:35 $
 // by             : $Author: flucke $
 
 #include "TTree.h"
@@ -25,9 +25,8 @@
 
 MillePedeTrees::MillePedeTrees(const char *fileName, Int_t iter, const char *treeNameAdd)
   : fTree(NULL), fOrgPos("AlignablesOrgPos_0"),
-    fMisPos("AlignablesAbsPos_0"), fMisRelPos("AlignablesRelPos_0"),
-    fMisPar("AlignmentParameters_0"), 
-    fPos(Form("AlignablesAbsPos_%d", iter)), fRelPos(Form("AlignablesRelPos_%d", iter)),
+    fMisPos("AlignablesAbsPos_0"), fMisPar("AlignmentParameters_0"), 
+    fPos(Form("AlignablesAbsPos_%d", iter)),
     fPar(Form("AlignmentParameters_%d", iter)), fMp(Form("MillePedeUser_%d", iter)),
     fUseSignedR(false), fBowsParameters(false)
 {
@@ -46,8 +45,7 @@ TTree* MillePedeTrees::CreateTree(const char *fileName, const TString &treeNameA
   TFile *file = TFile::Open(fileName);
   if (!file) return NULL;
 
-  TString *allTreeNames[] = {&fOrgPos, &fPos, &fMisPos, &fMisRelPos, &fMisPar, &fRelPos,
-                             &fPar, &fMp};
+  TString *allTreeNames[] = {&fOrgPos, &fPos, &fMisPos, &fMisPar, &fPar, &fMp};
   const unsigned int nTree = sizeof(allTreeNames) / sizeof(allTreeNames[0]);
 
   unsigned int iTree = 0;

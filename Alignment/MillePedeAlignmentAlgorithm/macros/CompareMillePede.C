@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2011/02/11 10:46:31 $
+// last change    : $Date: 2011/06/29 20:36:10 $
 // by             : $Author: flucke $
 
 #include "CompareMillePede.h"
@@ -16,9 +16,9 @@ const unsigned int CompareMillePede::kNpar = MillePedeTrees::kNpar; // number of
 
 //_________________________________________________________________________________________________
 CompareMillePede::CompareMillePede(const char *fileName1, const char *fileName2,
-                                   Int_t iter1, Int_t iter2, Int_t hieraLevel) :
-  fPlotMp1(new PlotMillePede(fileName1, iter1, hieraLevel, "first")),
-  fPlotMp2(new PlotMillePede(fileName2, iter2, hieraLevel, "second")),
+                                   Int_t iov1, Int_t iov2, Int_t hieraLevel) :
+  fPlotMp1(new PlotMillePede(fileName1, iov1, hieraLevel, "first")),
+  fPlotMp2(new PlotMillePede(fileName2, iov2, hieraLevel, "second")),
   fHistManager(new GFHistManager)
 {
   fHistManager->SetLegendX1Y1X2Y2(0.14, 0.7, 0.45, 0.9);

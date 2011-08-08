@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2011/07/20 09:59:21 $
+// last change    : $Date: 2011/08/08 16:47:33 $
 // by             : $Author: flucke $
 
 #include "PlotMillePede.h"
@@ -22,15 +22,15 @@
 #include "GFUtils/GFHistManager.h"
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-PlotMillePede::PlotMillePede(const char *fileName, Int_t iter, Int_t hieraLevel, bool useDiff)
-  : MillePedeTrees(fileName, iter), fHistManager(new GFHistManager), fHieraLevel(hieraLevel),
+PlotMillePede::PlotMillePede(const char *fileName, Int_t iov, Int_t hieraLevel, bool useDiff)
+  : MillePedeTrees(fileName, iov), fHistManager(new GFHistManager), fHieraLevel(hieraLevel),
     fUseDiff(useDiff), fSubDetIds(), fAlignableTypeId(-1), fMaxDev(500.)
 {
   fHistManager->SetLegendX1Y1X2Y2(0.14, 0.7, 0.45, 0.9);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////
-PlotMillePede::PlotMillePede(const char *fileName, Int_t iter, Int_t hieraLevel, const char *treeNameAdd)
-  : MillePedeTrees(fileName, iter, treeNameAdd),
+PlotMillePede::PlotMillePede(const char *fileName, Int_t iov, Int_t hieraLevel, const char *treeNameAdd)
+  : MillePedeTrees(fileName, iov, treeNameAdd),
     fHistManager(new GFHistManager), fHieraLevel(hieraLevel),
     fUseDiff(false), fSubDetIds(), fAlignableTypeId(-1), fMaxDev(500.)
 {
@@ -407,7 +407,6 @@ void PlotMillePede::DrawSurfaceDeformations(const TString &whichOne,
   if (whichOne.Contains("result", TString::kIgnoreCase)) whichOnes.Add(new TObjString("result"));
   if (whichOne.Contains("start",  TString::kIgnoreCase)) whichOnes.Add(new TObjString("start"));
   if (whichOne.Contains("diff",   TString::kIgnoreCase)) whichOnes.Add(new TObjString("diff"));
-  //  whichOnes.Print();
 
   for (Int_t wi = 0; wi < whichOnes.GetEntriesFast(); ++wi) {
     for (unsigned int i = 0; i < maxNumPars; ++i) {
@@ -1654,7 +1653,7 @@ void PlotMillePede::DrawCheck()
 
   fHistManager->Clear();
 
-  const TString allTreeNames[] = {OrgPosT(), MisPosT(), MisRelPosT(), RelPosT(), PosT(),
+  const TString allTreeNames[] = {OrgPosT(), MisPosT(), PosT(),
                                   MisParT(), ParT(), MpT()};
 
   const unsigned int nTree = sizeof(allTreeNames) / sizeof(allTreeNames[0]);

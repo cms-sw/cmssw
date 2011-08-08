@@ -1,7 +1,7 @@
 #ifndef PLOTMILLEPEDE_H
 #define PLOTMILLEPEDE_H
 // Original Author: Gero Flucke
-// last change    : $Date: 2011/06/29 20:36:53 $
+// last change    : $Date: 2011/08/08 16:47:33 $
 // by             : $Author: flucke $
 //
 // PlotMillePede is a class to interprete the content of the ROOT
@@ -26,7 +26,7 @@
 //
 // By calling new p.Draw..(..) commands, usually previously drawn canvases are
 // deleted. But most methods provide either a boolean flag 'addPlots' or
-// understand the option 'add'. If the flag is true or the optione string
+// understand the option 'add'. If the flag is true or the option string
 // contains 'add', canvases from previous Draw-commands are kept (in fact they
 // are re-drawn).
 //
@@ -82,6 +82,27 @@
 //  Selects quantity 'xyzrPhiNhit' between 'min' and 'max' where
 //  'xyzrPhiNhit' can be any of x, y, z, r, phi, Nhit.
 //  Also cleared by 'ClearAdditionalSel()'.
+//
+// 5) Selecting predefined detector layers
+// bool SetDetLayerCuts(unsigned int detLayer, bool silent = false);
+//   This makes use of SetSubDetId(..) and AddAdditionalSel(..)
+//   to select detector layers (or rings), e.g. TIB L1 stereo or TID R3.
+//   Note this changes the internal state of cuts defined by previous calls
+//   to these two methods! Therefore a warning is printed if such cuts are
+//   set before. If this silent == true, this warning is suppressed.
+//   Returns false if 'detLayer' not supported.
+//
+// 
+// IOV handling
+// ============
+// In case of IOV dependent alignment, results are stored for each IOV.
+// The second argument of the constructor decides which IOV is used.
+// The default is 1 that is also valid in case there is no IOV dependence. 
+//
+// Note that the hit statistics is (unfortunately) counted without
+// taking care of IOV boundaries, i.e. whatever IOV is chosen, the number of
+// hits per alignable is always the same, i.e. the sum of all IOVs.
+ 
 
 #include "MillePedeTrees.h"
 #include <TArrayI.h>
@@ -91,9 +112,9 @@ class GFHistManager;
 class PlotMillePede : public MillePedeTrees
 {
  public:
-  explicit PlotMillePede(const char *fileName, Int_t iter = 2, Int_t hieraLevel = 0,
+  explicit PlotMillePede(const char *fileName, Int_t iov = 1, Int_t hieraLevel = 0,
 			 bool useDiff = false);// iter=1/2: singlerun/merged; heiraLev: -1 ignore, 0 lowest level, etc.; useDiff = true only for before2007_02_26
-  PlotMillePede(const char *fileName, Int_t iter, Int_t hieraLevel, const char *treeNameAdd);
+  PlotMillePede(const char *fileName, Int_t iov, Int_t hieraLevel, const char *treeNameAdd);
   virtual ~PlotMillePede();
 
   void SetTitle(const char *title) {fTitle = title;}

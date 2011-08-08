@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2010/10/26 21:34:25 $
+// last change    : $Date: 2011/06/29 20:36:10 $
 // by             : $Author: flucke $
 #ifndef COMPAREMILLEPEDE_H
 #define COMPAREMILLEPEDE_H
@@ -11,7 +11,7 @@ class CompareMillePede
 
 {
  public:
-  CompareMillePede(const char *fileName1, const char *fileName2, Int_t iter1 = 2, Int_t iter2 = 2,
+  CompareMillePede(const char *fileName1, const char *fileName2, Int_t iov1 = 1, Int_t iov2 = 1,
 		   Int_t hieraLevel = 0);// iter=1/2: singlerun/merged; heiraLev: -1 ignore, 0 lowest level, etc.
   virtual ~CompareMillePede();
 
