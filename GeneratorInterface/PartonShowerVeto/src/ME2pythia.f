@@ -1383,7 +1383,7 @@ C
       MINJ=MAXNJ
       MAXJ=0
       NREAD=0
-      
+      NUP=0  
       DO WHILE(.true.)
 C	  write(LNHOUT,*)'Launching MGEVNT'
         CALL MGEVNT()
