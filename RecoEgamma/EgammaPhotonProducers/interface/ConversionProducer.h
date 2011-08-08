@@ -4,8 +4,8 @@
  **
  **
  **  $Id:
- **  $Date: 2011/03/06 18:25:11 $
- **  $Revision: 1.4 $
+ **  $Date: 2011/08/05 20:13:56 $
+ **  $Revision: 1.5 $
  **  \authors H. Liu, UC of Riverside US, N. Marinelli Univ of Notre Dame
  **
  ***/
@@ -105,6 +105,8 @@ class ConversionProducer : public edm::EDProducer {
 
       const TransientTrackBuilder *thettbuilder_;
 
+      double deltaEta_;
+      
       double halfWayEta_, halfWayPhi_;//halfway open angle to search in basic clusters
       unsigned int  maxNumOfTrackInPU_;
       double  maxTrackZ_;
@@ -132,7 +134,7 @@ class ConversionProducer : public edm::EDProducer {
 
 
       void buildCollection( edm::Event& iEvent, const edm::EventSetup& iSetup,
-			    const reco::ConversionTrackCollection& allTracks,
+			    const std::multimap<float, edm::Ptr<reco::ConversionTrack> >& allTracks,
 	      const std::multimap<double, reco::CaloClusterPtr>& superClusterPtrs,
 	      const std::multimap<double, reco::CaloClusterPtr>& basicClusterPtrs,
 	      const reco::Vertex& the_pvtx,

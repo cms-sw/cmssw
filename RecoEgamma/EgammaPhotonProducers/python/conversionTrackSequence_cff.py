@@ -36,6 +36,7 @@ outInConversionTrackProducer = RecoEgamma.EgammaPhotonProducers.conversionTrackP
 #producer from gsf tracks, set only mergedarbitrated flag (default behaviour)
 gsfConversionTrackProducer = RecoEgamma.EgammaPhotonProducers.conversionTrackProducer_cfi.conversionTrackProducer.clone(
     TrackProducer = cms.string('electronGsfTracks'),
+    filterOnConvTrackHyp = cms.bool(False),
 )
 
 conversionTrackProducers = cms.Sequence(generalConversionTrackProducer*inOutConversionTrackProducer*outInConversionTrackProducer*gsfConversionTrackProducer)

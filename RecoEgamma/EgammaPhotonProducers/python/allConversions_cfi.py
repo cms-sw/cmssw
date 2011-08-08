@@ -13,7 +13,9 @@ allConversions = cms.EDProducer('ConversionProducer',
 
     primaryVertexProducer = cms.string('offlinePrimaryVerticesWithBS'),
 
-    HalfwayEta = cms.double(.1),# Track pairing search range on Eta
+    deltaEta = cms.double(0.4), #track pair search range in eta (applied even in case of preselection bypass)
+
+    HalfwayEta = cms.double(.1),# Track-bc matching search range on Eta
     maxNumOfTrackInPU =  cms.int32(999999),
     maxTrackRho =  cms.double(120.),
     maxTrackZ =  cms.double(300.),                                    
