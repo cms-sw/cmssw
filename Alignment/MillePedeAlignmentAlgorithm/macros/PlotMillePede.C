@@ -1,5 +1,5 @@
 // Original Author: Gero Flucke
-// last change    : $Date: 2011/06/29 20:36:53 $
+// last change    : $Date: 2011/07/20 09:59:21 $
 // by             : $Author: flucke $
 
 #include "PlotMillePede.h"
@@ -400,6 +400,7 @@ void PlotMillePede::DrawSurfaceDeformations(const TString &whichOne,
   const TString titleAdd = this->TitleAdd();
 
   TString parSel(Valid(0) += AndL() += Fixed(0, false)); // HACK: if u1 determination is fine
+  if (TString(option).Contains("all", TString::kIgnoreCase)) parSel = "";
   this->AddBasicSelection(parSel);
 
   TObjArray whichOnes;
@@ -1309,7 +1310,9 @@ void PlotMillePede::ScanSelection(const char *sel, const char *addColumns)
   } else {
     this->AddBasicSelection(realSel);
     const TString titleAdd(this->TitleAdd());
-    if (titleAdd.Length()) std::cout << titleAdd << std::endl;
+    if (titleAdd.Length()) {
+      std::cout << "Active selection: " << titleAdd << std::endl;
+    }
   }
 
   const TString mpPar(MpT() += Par());// += this->ToMumMuRad(iPar));
