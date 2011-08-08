@@ -1396,8 +1396,8 @@ void MTVHistoProducerAlgoForTracker::finalHistoFits(int counter){
   fillPlotFromVectors(h_fakerate_ootpu_fwdpos[counter],totASS2_ootpu_fwdpos[counter],totREC_ootpu_fwdpos[counter],"effic");
   fillPlotFromVectors(h_fakerate_ootpu_fwdneg[counter],totASS2_ootpu_fwdneg[counter],totREC_ootpu_fwdneg[counter],"effic");
 
-  fillPlotFromVectors(h_fomt_eta[counter],totASS2etaSig[counter],totFOMT_eta[counter],"effic");
-  fillPlotFromVectors(h_fomt_vertcount[counter],totASS2_vertcount_entire_signal[counter],totFOMT_vertcount[counter],"effic");
+  fillPlotFromVectors(h_fomt_eta[counter],totFOMT_eta[counter],totASS2etaSig[counter],"effic");
+  fillPlotFromVectors(h_fomt_vertcount[counter],totFOMT_vertcount[counter],totASS2_vertcount_entire_signal[counter],"effic");
   fillPlotFromVectors(h_fomt_sig_eta[counter],totASS2etaSig[counter],totRECeta[counter],"fakerate");
   fillPlotFromVectors(h_fomt_sig_vertcount[counter],totASS2_vertcount_entire_signal[counter],totREC_vertcount_entire[counter],"fakerate");
   fillPlotFromVectors(h_fomt_itpu_eta[counter],totASS2_itpu_eta_entire[counter],totRECeta[counter],"effic");
