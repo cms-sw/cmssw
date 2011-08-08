@@ -51,6 +51,7 @@ private:
   static float quantileForExpectedFromGrid_;
   static bool fullBToys_; 
   static bool fullGrid_; 
+  static bool noUpdateGrid_; 
   static unsigned int nCpu_, fork_;
   static bool importanceSamplingNull_, importanceSamplingAlt_;
   static std::string algo_;

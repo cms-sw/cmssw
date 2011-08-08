@@ -24,6 +24,7 @@ double Asymptotic::rRelAccuracy_ = 0.005;
 std::string Asymptotic::what_ = "both"; 
 bool  Asymptotic::qtilde_ = true; 
 bool  Asymptotic::picky_ = false; 
+bool  Asymptotic::noMinos_ = false; 
 std::string Asymptotic::minimizerAlgo_ = "Minuit2";
 float       Asymptotic::minimizerTolerance_ = 0.1;
 int         Asymptotic::minimizerStrategy_  = 0;
@@ -38,7 +39,8 @@ LimitAlgo("Asymptotic specific options") {
         ("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(minimizerTolerance_),  "Tolerance for minimizer used for profiling")
         ("minimizerStrategy",  boost::program_options::value<int>(&minimizerStrategy_)->default_value(minimizerStrategy_),      "Stragegy for minimizer")
         ("qtilde", boost::program_options::value<bool>(&qtilde_)->default_value(qtilde_),  "Allow only non-negative signal strengths (default is true).")
-        ("loose", "Abort on fit failures")
+        ("picky", "Abort on fit failures")
+        ("noMinos", "Don't use minos to determine the sigma for the expected limits")
     ;
 }
 
@@ -46,6 +48,7 @@ void Asymptotic::applyOptions(const boost::program_options::variables_map &vm) {
     if (what_ != "observed" && what_ != "expected" && what_ != "both") 
         throw std::invalid_argument("Asymptotic: option 'run' can only be 'observed', 'expected' or 'both' (the default)");
     picky_ = vm.count("picky");
+    noMinos_ = vm.count("noMinos");
 }
 
 void Asymptotic::applyDefaultOptions() { 
@@ -55,7 +58,8 @@ void Asymptotic::applyDefaultOptions() {
 bool Asymptotic::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) {
     RooFitGlobalKillSentry silence(verbose <= 1 ? RooFit::WARNING : RooFit::DEBUG);
     ProfileLikelihood::MinimizerSentry minimizerConfig(minimizerAlgo_, minimizerTolerance_);
-    if (verbose > 0) std::cout << "Will use minimizer " << minimizerAlgo_ << " with strategy " << minimizerStrategy_ << " and tolerance " << minimizerTolerance_ << std::endl;
+    if (verbose > 0) std::cout << "Will compute " << what_ << " limit(s) using minimizer " << minimizerAlgo_ 
+                        << " with strategy " << minimizerStrategy_ << " and tolerance " << minimizerTolerance_ << std::endl;
 
     bool ret = false;
     std::vector<std::pair<float,float> > expected;
@@ -208,30 +212,56 @@ std::vector<std::pair<float,float> > Asymptotic::runLimitExpected(RooWorkspace *
     *params_ = snapGlobalObsAsimov;
 
     // 3) solve for q_mu
-    CloseCoutSentry sentry(verbose < 3);
     r->setConstant(false);
     
     std::auto_ptr<RooAbsReal> nll(mc_s->GetPdf()->createNLL(*asimov, RooFit::Constrain(*mc_s->GetNuisanceParameters())));
     RooMinimizer minim(*nll);
-    minim.setStrategy(0);
+    minim.setStrategy(minimizerStrategy_);
     minim.setPrintLevel(-1);
     minim.setErrorLevel(0.5*pow(ROOT::Math::normal_quantile(1-0.5*(1-cl),1.0), 2)); // the 0.5 is because qmu is -2*NLL
                         // eventually if cl = 0.95 this is the usual 1.92!
+    CloseCoutSentry sentry(verbose < 2);
     nllutils::robustMinimize(*nll, minim, verbose-1);
+    sentry.clear();
     int minosStat = -1;
-    for (int tries = 0; tries < 3; ++tries) {
-        minosStat = minim.minos(RooArgSet(*r));
-        if (minosStat != -1) break;
-        minim.setStrategy(2);
-        if (tries == 1) { 
-            if (minimizerAlgo_.find("Minuit2") != std::string::npos) {
-                minim.minimize("Minuit","minimize");
-            } else {
-                minim.minimize("Minuit2","minmize");
+    if (!noMinos_) {
+        CloseCoutSentry sentry2(verbose < 2);
+        for (int tries = 0; tries < 3; ++tries) {
+            minosStat = minim.minos(RooArgSet(*r));
+            if (minosStat != -1) break;
+            minim.setStrategy(2);
+            if (tries == 1) { 
+                if (minimizerAlgo_.find("Minuit2") != std::string::npos) {
+                    minim.minimize("Minuit","minimize");
+                } else {
+                    minim.minimize("Minuit2","minmize");
+                }
             }
         }
+    } else {
+        double nll0 = nll->getVal();
+        double threshold = nll->getVal() + 0.5*pow(ROOT::Math::normal_quantile(1-0.5*(1-cl),1.0), 2);
+        double rMin = 0, rMax = r->getMax();
+        double rCross = 0.5*(rMin+rMax), rErr = 0.5*(rMax-rMin);
+        r->setVal(rCross); r->setConstant(true);
+        RooMinimizer minim2(*nll);
+        minim2.setStrategy(minimizerStrategy_);
+        minim2.setPrintLevel(-1);
+        while (rErr < std::max(rRelAccuracy_*rCross, rAbsAccuracy_)) {
+            bool ok = true;
+            { 
+                CloseCoutSentry sentry2(verbose < 2);
+                ok = nllutils::robustMinimize(*nll, minim2, verbose-1);
+            }
+            if (!ok && picky_) break; else minosStat = 0;
+            double here = nll->getVal();
+            if (verbose > 1) printf("At %s = %f:\tdelta(nll) = %.5f\n", r->GetName(), rCross, here-nll0);
+            if (fabs(here - threshold) < 0.05*minimizerTolerance_) break;
+            if (here < threshold) rMin = rCross; else rMax = rCross;
+            rCross = 0.5*(rMin+rMax); rErr = 0.5*(rMax-rMin);
+        } 
+        r->setAsymError(0,rCross);
     }
-    sentry.clear();
     if (minosStat == -1) {
         std::cerr << "Minos did not converge. No expected limit available" << std::endl;
         return std::vector<std::pair<float,float> >(); 

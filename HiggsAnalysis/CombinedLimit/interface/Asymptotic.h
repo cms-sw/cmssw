@@ -31,6 +31,7 @@ private:
   static std::string what_;
   static bool qtilde_; 
   static bool picky_; 
+  static bool noMinos_; 
   static std::string minimizerAlgo_;
   static float       minimizerTolerance_;
   static int         minimizerStrategy_;

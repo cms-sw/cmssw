@@ -66,10 +66,10 @@ private:
   // return number of items in chain, 0 for error
   int runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) const ;
 
-  RooStats::MarkovChain *mergeChains(const RooArgSet &poi) const;
+  RooStats::MarkovChain *mergeChains(const RooArgSet &poi, const std::vector<double> &limits) const;
   void readChains(const RooArgSet &poi, std::vector<double> &limits);
   void limitFromChain(double &limit, double &limitErr, const RooArgSet &poi, RooStats::MarkovChain &chain, int burnInSteps=-1 /* -1 = use default */) ;
-  void limitAndError(double &limit, double &limitErr, std::vector<double> &limits) const ;
+  void limitAndError(double &limit, double &limitErr, const std::vector<double> &limits) const ;
   RooStats::MarkovChain *slimChain(const RooArgSet &poi, const RooStats::MarkovChain &chain) const;
   int  guessBurnInSteps(const RooStats::MarkovChain &chain) const;
 };

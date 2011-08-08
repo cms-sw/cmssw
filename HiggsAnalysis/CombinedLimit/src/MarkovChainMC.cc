@@ -153,7 +153,7 @@ bool MarkovChainMC::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::
   if (mergeChains_) {
     std::cout << "Limit from averaging:    " << limit << " +/- " << limitErr << std::endl;
     // copy constructors don't work, so we just have to leak memory :-(
-    RooStats::MarkovChain *merged = mergeChains(*mc_s->GetParametersOfInterest());
+    RooStats::MarkovChain *merged = mergeChains(*mc_s->GetParametersOfInterest(), limits);
     // set burn-in to zero, since steps have already been discarded when merging
     limitFromChain(limit, limitErr, *mc_s->GetParametersOfInterest(), *merged, 0);
     std::cout << "Limit from merged chain: " << limit << " +/- " << limitErr << std::endl;
@@ -285,7 +285,8 @@ int MarkovChainMC::runOnce(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
   }
 }
 
-void MarkovChainMC::limitAndError(double &limit, double &limitErr, std::vector<double> &limits) const {
+void MarkovChainMC::limitAndError(double &limit, double &limitErr, const std::vector<double> &limitsIn) const {
+  std::vector<double> limits(limitsIn);
   int num = limits.size();
   // possibly remove outliers before computing mean
   if (adaptiveTruncation_ && num >= 10) {
@@ -337,24 +338,34 @@ void MarkovChainMC::limitAndError(double &limit, double &limitErr, std::vector<d
   }
 }
 
-RooStats::MarkovChain *MarkovChainMC::mergeChains(const RooArgSet &poi) const
+RooStats::MarkovChain *MarkovChainMC::mergeChains(const RooArgSet &poi, const std::vector<double> &limits) const
 {
+    std::vector<double> limitsSorted(limits); std::sort(limitsSorted.begin(), limitsSorted.end());
+    double lmin = limitsSorted.front(), lmax = limitsSorted.back();
+    if (limitsSorted.size() > 5) {
+        int n = limitsSorted.size();
+        double lmedian = limitsSorted[n/2];
+        lmin = lmedian - 2*(+lmedian - limitsSorted[1*n/4]);
+        lmax = lmedian + 2*(-lmedian + limitsSorted[3*n/4]);
+    }
     if (chains_.GetSize() == 0) throw std::runtime_error("No chains to merge");
     if (verbose > 1) std::cout << "Will merge " << chains_.GetSize() << " chains." << std::endl;
     RooArgSet pars(poi);
     RooStats::MarkovChain *merged = new RooStats::MarkovChain("Merged","",pars);
     TIter iter(&chains_);
+    int index = 0;
     for (RooStats::MarkovChain *other = (RooStats::MarkovChain *) iter.Next();
          other != 0;
-         other = (RooStats::MarkovChain *) iter.Next()) {
+         other = (RooStats::MarkovChain *) iter.Next(), ++index) {
+        if (limits[index] < lmin || limits[index] > lmax) continue;
         int burninSteps = adaptiveBurnIn_ ? guessBurnInSteps(*other) : max<int>(burnInSteps_, other->Size() * burnInFraction_);
-        if (verbose > 1) std::cout << "Adding chain of " << other->Size() << " entries skipping the first " <<  burninSteps << std::endl;
+        if (verbose > 1) std::cout << "Adding chain of " << other->Size() << " (individual limit " << limits[index] << ") << entries skipping the first " <<  burninSteps << std::endl;
         for (int i = burninSteps, n = other->Size(); i < n; ++i) {
             RooArgSet point(*other->Get(i));
             double nllval = other->NLL();
             double weight = other->Weight();
             merged->Add(point,nllval,weight);
-            if (verbose > 1 && (i % 500 == 0)) std::cout << "   added " << i << "/" << other->Size() << " entries." << std::endl;
+            if (verbose > 2 && (i % 500 == 0)) std::cout << "   added " << i << "/" << other->Size() << " entries." << std::endl;
         }
     }
     return merged;

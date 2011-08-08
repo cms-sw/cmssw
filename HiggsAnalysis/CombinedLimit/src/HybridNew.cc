@@ -61,6 +61,7 @@ bool  HybridNew::expectedFromGrid_ = false;
 float HybridNew::quantileForExpectedFromGrid_ = 0.5; 
 bool  HybridNew::fullBToys_ = false; 
 bool  HybridNew::fullGrid_ = false; 
+bool  HybridNew::noUpdateGrid_ = false; 
 std::string HybridNew::gridFile_ = "";
 bool HybridNew::importanceSamplingNull_ = false;
 bool HybridNew::importanceSamplingAlt_  = false;
@@ -110,6 +111,7 @@ LimitAlgo("HybridNew specific options") {
         ("frequentist", "Shortcut to switch to Frequentist mode (--generateNuisances=0 --generateExternalMeasurements=1 --fitNuisances=1)")
         ("newToyMCSampler", boost::program_options::value<bool>(&newToyMCSampler_)->default_value(newToyMCSampler_), "Use new ToyMC sampler with support for mixed binned-unbinned generation. On by default, you can turn it off if it doesn't work for your workspace.")
         ("fullGrid", "Evaluate p-values at all grid points, without optimitations")
+        ("noUpdateGrid", "Do not update test statistics at grid points")
         ("fullBToys", "Run as many B toys as S ones (default is to run 1/4 of b-only toys)")
     ;
 }
@@ -150,6 +152,7 @@ void HybridNew::applyOptions(const boost::program_options::variables_map &vm) {
     mass_ = vm["mass"].as<float>();
     fullGrid_ = vm.count("fullGrid");
     fullBToys_ = vm.count("fullBToys");
+    noUpdateGrid_ = vm.count("noUpdateGrid");
     validateOptions(); 
 }
 
@@ -272,8 +275,11 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
             if (!toyDir) throw std::logic_error("Cannot use readHypoTestResult: empty toy dir in input file empty");
             readGrid(toyDir);
         }
-        updateGridData(w, mc_s, mc_b, data, !fullGrid_, clsTarget);
+        if (grid_.size() <= 1) throw std::logic_error("The grid must contain at least 2 points."); 
+        if (noUpdateGrid_) std::cout << "Will use the test statistics that had already been computed" << std::endl;
+        else updateGridData(w, mc_s, mc_b, data, !fullGrid_, clsTarget);
       } else readAllToysFromFile(); 
+      if (grid_.size() <= 1) throw std::logic_error("The grid must contain at least 2 points."); 
 
       useGrid();
 
@@ -1019,6 +1025,13 @@ void HybridNew::readGrid(TDirectory *toyDir) {
         if (merge == 0) merge = new RooStats::HypoTestResult(*toy);
         else merge->Append(toy);
         merge->ResetBit(1);
+    }
+    if (verbose > 1) {
+        std::cout << "GRID, as is." << std::endl;
+        typedef std::map<double, RooStats::HypoTestResult *>::iterator point;
+        for (point it = grid_.begin(), ed = grid_.end(); it != ed; ++it) {
+            std::cout << "  - " << it->first << "  (CLs = " << it->second->CLs() << " +/- " << it->second->CLsError() << std::endl;
+        }
     }
 }
 void HybridNew::updateGridData(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, bool smart, double clsTarget_) {
