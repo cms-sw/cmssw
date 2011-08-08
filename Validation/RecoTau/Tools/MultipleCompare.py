@@ -1,9 +1,17 @@
+#! /usr/bin/env python
+
 import FWCore.ParameterSet.Config as cms
 import sys
 import os
 import math
-from ROOT import *
 import Validation.RecoTau.RecoTauValidation_cfi as validation
+from optparse import OptionParser
+
+__author__  = "Mauro Verzetti"
+__version__ = "$Revision: 1.0 $"
+__doc__ = """Script to plot the content of a Validation .root file and compare it to a different file:\n\n
+Usage: MultipleCompare.py -T testFile [options] [search strings that you want to apply '*' is supported as special character]"""
+
 
 def GetContent(dir):
     tempList = dir.GetListOfKeys()
@@ -47,6 +55,23 @@ def Divide(hNum,hDen):
                 ret.SetBinError(binI,(numVal/denVal)*math.sqrt(math.pow(numErr/numVal,2) + math.pow(denErr/denVal,2) ) )
     return ret
 
+parser = OptionParser(description=__doc__)
+parser.add_option('--TestFile','-T',metavar='testFile', type=str,help='Sets the test file',dest='test',default = '')
+parser.add_option('--RefFile','-R',metavar='refFile', type=str,help='Sets the reference file',dest='ref',default = '')
+parser.add_option('--output','-o',metavar='outputFile', type=str,help='Sets the output file',dest='out',default = 'MultipleCompare.png')
+parser.add_option('--logScale',action="store_true", dest="logScale", default=False, help="Sets the log scale in the plot")
+parser.add_option('--fakeRate','-f',action="store_true", dest="fakeRate", default=False, help="Sets the fake rate options and put the correct label (implies --logScale)")
+parser.add_option('--testLabel','-t',metavar='testLabel', type=str,help='Sets the label to put in the plots for test file',dest='testLabel',default = None)
+parser.add_option('--refLabel','-r',metavar='refLabel', type=str,help='Sets the label to put in the plots for ref file',dest='refLabel',default = None)
+parser.add_option('--maxLog',metavar='number', type=float,help='Sets the maximum of the scale in log scale (requires --logScale or -f to work)',dest='maxLog',default = 3)
+parser.add_option('--minDiv',metavar='number', type=float,help='Sets the minimum of the scale in the ratio pad',dest='minDiv',default = 0.001)
+parser.add_option('--maxDiv',metavar='number', type=float,help='Sets the maximum of the scale in the ratio pad',dest='maxDiv',default = 2)
+parser.add_option('--logDiv',action="store_true", dest="logDiv", default=False, help="Sets the log scale in the plot")
+#parser.add_option('--search,-s',metavar='searchStrings', type=str,help='Sets the label to put in the plots for ref file',dest='testLabel',default = None) No idea on how to tell python to use all the strings before a new option, thus moving this from option to argument (but may be empty)
+
+(options,toPlot) = parser.parse_args()
+
+from ROOT import *
 gROOT.SetStyle('Plain')
 gROOT.SetBatch()
 gStyle.SetPalette(1)
@@ -56,49 +81,14 @@ gStyle.SetPadGridY(True)
 gStyle.SetOptTitle(0)
 gStyle.SetPadTopMargin(0.1)
 
-test = ''
-ref = ''
-ylabel = ''
-testLabel = ''
-refLabel = None
-toPlot = []
-maxLog = 3
-minDiv = 0.001
-maxDiv = 2
-logDiv = False
-for option in sys.argv:
-    if(option.find('maxLog=') != -1):
-        maxLog= float(option[option.find('=')+1:])
-    elif(option.find('minDiv=') != -1):
-        minDiv= float(option[option.find('=')+1:])
-    elif(option.find('maxDiv=') != -1):
-        maxDiv= float(option[option.find('=')+1:])
-    elif(option.find('logDiv=') != -1):
-        logDiv= option[option.find('=')+1:] == 'True'
-    elif option.find('testLabel=') != -1:
-        testLabel = option[option.find('=')+1:]
-    elif option.find('refLabel=') != -1:
-        refLabel = option[option.find('=')+1:]
-    elif option.find('test=') != -1:
-        test = option[option.find('=')+1:]
-    elif option.find('ref=') != -1:
-        ref = option[option.find('=')+1:]
-    elif option.find('label=') != -1:
-        ylabel = option[option.find('=')+1:]
-    else:
-        toPlot.append(option)
 
-testFile = TFile(test)
+testFile = TFile(options.test)
 refFile = None
-if ref != '':
-    refFile = TFile(ref)
+if options.ref != None:
+    refFile = TFile(options.ref)
 
-if ylabel != 'Efficiency' and ylabel != 'Fake rate' and ylabel != 'Significance':
-    print 'Please specify in the label arg: "Efficiency" or "Fake rate" or "Significance". Exiting...'
-    sys.exit()
+ylabel =  'Fake rate' if options.fakeRate else 'Efficiency'
 
-
-#Takes the position of all plots that were produced
 #Takes the position of all plots that were produced
 plotList = []
 MapDirStructure( testFile,'',plotList)
@@ -113,10 +103,10 @@ print histoList
 legend = TLegend(0.6,0.83,0.6+0.39,0.83+0.17)
 legend.SetFillColor(0)
 header = ''
-if testLabel != '':
-    header += 'Dots: '+testLabel
-if refLabel != '':
-    header += ' Line: '+refLabel
+if options.testLabel != None:
+    header += 'Dots: '+options.testLabel
+if options.refLabel != None:
+    header += ' Line: '+options.refLabel
 legend.SetHeader(header)
 canvas = TCanvas('MultiPlot','MultiPlot',validation.standardDrawingStuff.canvasSizeX.value(),832)
 effPad = TPad('effPad','effPad',0,0.25,1.,1.,0,0)
@@ -145,9 +135,11 @@ for histoPath,color in zip(histoList,colors):
     if first:
         first = False
         testH.GetYaxis().SetRangeUser(0.0,1.6)
+        if options.logScale:
+            effPad.SetLogy()
         testH.Draw('ex0')
         if ylabel=='Fake rate':
-            testH.GetYaxis().SetRangeUser(0.001,maxLog)
+            testH.GetYaxis().SetRangeUser(0.001,options.maxLog)
             effPad.SetLogy()
             effPad.Update()
     else:
@@ -156,7 +148,6 @@ for histoPath,color in zip(histoList,colors):
         continue
     refH = refFile.Get(histoPath)
     if type(refH) != TH1F:
-        print 'Ref plot not found! It will not be plotted!'
         continue
     refH.SetLineColor(color)
     refH.SetLineWidth(1)
@@ -167,9 +158,6 @@ for histoPath,color in zip(histoList,colors):
     divHistos.append(Divide(testH,refH))
 
 firstD = True
-if ylabel == 'significance':
-    diffPad = TCanvas('Efficiency','Efficiency',validation.standardDrawingStuff.canvasSizeX.value(),validation.standardDrawingStuff.canvasSizeY.value())
-
 if refFile != None:
     for histo,color in zip(divHistos,colors):
         diffPad.cd()
@@ -182,24 +170,17 @@ if refFile != None:
         histo.GetXaxis().SetLabelSize(0.)
         histo.GetXaxis().SetTitleSize(0.)
         if firstD:
-            histo.GetYaxis().SetRangeUser(minDiv,maxDiv)
-            if ylabel == 'significance':
-                histo.GetYaxis().SetTitle('Signal eff. / Background eff.')
-            if logDiv:
+            histo.GetYaxis().SetRangeUser(options.minDiv,options.maxDiv)
+            if options.logDiv:
                 diffPad.SetLogy()
             histo.Draw('ex0')
             firstD = False
         else:
             histo.Draw('same ex0')
             diffPad.Update()
-    if ylabel == 'significance':
-        diffPad.cd()
-        legend.Draw()
-        diffPad.Print('MultipleCompare.png')
-    else:
-        effPad.cd()
-        legend.Draw()
-        canvas.Print('MultipleCompare.png')
+    effPad.cd()
+    legend.Draw()
+    canvas.Print(options.out)
 
 
 
