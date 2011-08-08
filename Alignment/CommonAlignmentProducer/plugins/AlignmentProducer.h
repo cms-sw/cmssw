@@ -7,8 +7,8 @@
 /// Description : calls alignment algorithms
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.22 $
-///  last update: $Date: 2011/03/02 20:10:29 $
+///  Revision   : $Revision: 1.23 $
+///  last update: $Date: 2011/05/23 21:01:48 $
 ///  by         : $Author: mussgill $
 
 #include <vector>
@@ -125,7 +125,7 @@ class AlignmentProducer : public edm::ESProducerLooper
 
   // write alignments and alignment errors for all sub detectors and
   // the given run number
-  void writeForRunRange(cond::Time_t time = cond::timeTypeSpecs[cond::runnumber].beginValue);
+  void writeForRunRange(cond::Time_t time);
 
   /// Write alignment and/or errors to DB for record names
   /// (removes *globalCoordinates before writing if non-null...).
@@ -133,12 +133,12 @@ class AlignmentProducer : public edm::ESProducerLooper
   void writeDB(Alignments *alignments, const std::string &alignRcd,
 	       AlignmentErrors *alignmentErrors, const std::string &errRcd,
 	       const AlignTransform *globalCoordinates,
-	       cond::Time_t time = cond::timeTypeSpecs[cond::runnumber].beginValue) const;
+	       cond::Time_t time) const;
   /// Write surface deformations (bows & kinks) to DB for given record name
   /// Takes over ownership of alignmentsurfaceDeformations.
   void writeDB(AlignmentSurfaceDeformations *alignmentSurfaceDeformations,
 	       const std::string &surfaceDeformationRcd,
-	       cond::Time_t time = cond::timeTypeSpecs[cond::runnumber].beginValue) const;
+	       cond::Time_t time) const;
 
   /// Add survey info to an alignable
   void addSurveyInfo_(Alignable*);

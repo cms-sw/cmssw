@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.52 $
-///  last update: $Date: 2011/05/23 21:01:48 $
+///  Revision   : $Revision: 1.53 $
+///  last update: $Date: 2011/06/28 19:01:36 $
 ///  by         : $Author: mussgill $
 
 #include "AlignmentProducer.h"
@@ -297,23 +297,21 @@ void AlignmentProducer::endOfJob()
   } else {
     
     // Save alignments to database
-    if (saveToDB_ || saveApeToDB_) {
+    if (saveToDB_ || saveApeToDB_ || saveDeformationsToDB_) {
       
       // Expand run ranges and make them unique
-      edm::VParameterSet RunRangeSelectionVPSet = theParameterSet.getParameter<edm::VParameterSet>( "RunRangeSelection" );
-      RunRanges uniqueRunRanges = makeNonOverlappingRunRanges(RunRangeSelectionVPSet);
-      if (uniqueRunRanges.size()>1) {
-	for (std::vector<RunRange>::const_iterator iRunRange = uniqueRunRanges.begin();
-	     iRunRange != uniqueRunRanges.end();
-	     ++iRunRange) {
-	  theAlignmentAlgo->setParametersForRunRange(*iRunRange);
-	  this->writeForRunRange((*iRunRange).first);
-	}
-      } else {
-	RunRange runrange(cond::timeTypeSpecs[cond::runnumber].beginValue,
-			  cond::timeTypeSpecs[cond::runnumber].endValue);
-	theAlignmentAlgo->setParametersForRunRange(runrange);
-	this->writeForRunRange();
+      edm::VParameterSet runRangeSelectionVPSet(theParameterSet.getParameter<edm::VParameterSet>("RunRangeSelection"));
+      RunRanges uniqueRunRanges(this->makeNonOverlappingRunRanges(runRangeSelectionVPSet));
+      if (uniqueRunRanges.empty()) { // create dummy IOV
+        const RunRange runRange(cond::timeTypeSpecs[cond::runnumber].beginValue,
+                                cond::timeTypeSpecs[cond::runnumber].endValue);
+        uniqueRunRanges.push_back(runRange);
+      }
+      for (RunRanges::const_iterator iRunRange = uniqueRunRanges.begin();
+           iRunRange != uniqueRunRanges.end();
+           ++iRunRange) {
+        theAlignmentAlgo->setParametersForRunRange(*iRunRange);
+        this->writeForRunRange((*iRunRange).first);
       }
     }
   }
