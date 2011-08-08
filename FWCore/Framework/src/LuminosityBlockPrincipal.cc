@@ -54,6 +54,9 @@ namespace edm {
 
   void
   LuminosityBlockPrincipal::readImmediate() const {
+    if(branchMapperPtr()) {
+      branchMapperPtr()->readProvenance();
+    }
     for(Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
       Group const& g = **i;
       if(!g.branchDescription().produced()) {
@@ -62,7 +65,6 @@ namespace edm {
         }
       }
     }
-    branchMapperPtr()->setDelayedRead(false);
   }
 
   void
