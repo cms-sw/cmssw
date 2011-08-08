@@ -105,11 +105,11 @@ useNoTau      = True # before MET top projection
 # muons
 #pfMuonSelectionCut = ''
 #pfMuonIsoConeR   = 0.4
-#pfMuonCombIsoCut = 0.25
+#pfMuonCombIsoCut = 0.2
 # electrons
 #pfElectronSelectionCut  = ''
 #pfElectronIsoConeR   = 0.3
-#pfElectronCombIsoCut = 0.25
+#pfElectronCombIsoCut = 0.2
 
 ### JEC levels
 
@@ -140,7 +140,6 @@ inputFiles = [ '/store/data/Run2011A/MuHad/AOD/PromptReco-v4/000/165/129/42DDEE9
 
 # maximum number of events
 maxInputEvents = -1 # reduce for testing
-maxInputEvents = 1000
 
 ### Conditions
 
@@ -321,11 +320,11 @@ if runPF2PAT:
   applyPostfix( process, 'pfElectronsFromVertex'    , postfix ).vertices = cms.InputTag( pfVertices )
   applyPostfix( process, 'pfElectronsFromVertex'    , postfix ).d0Cut    = pfD0Cut
   applyPostfix( process, 'pfElectronsFromVertex'    , postfix ).dzCut    = pfDzCut
-  applyPostfix( process, 'pfSelectedElectronsPF'    , postfix ).cut = pfElectronSelectionCut
+  applyPostfix( process, 'pfSelectedElectrons'      , postfix ).cut = pfElectronSelectionCut
   applyPostfix( process, 'isoValElectronWithCharged', postfix ).deposits.deltaR = pfElectronIsoConeR
   applyPostfix( process, 'isoValElectronWithNeutral', postfix ).deposits.deltaR = pfElectronIsoConeR
   applyPostfix( process, 'isoValElectronWithPhotons', postfix ).deposits.deltaR = pfElectronIsoConeR
-  applyPostfix( process, 'pfIsolatedElectronsPF'    , postfix ).combinedIsolationCut = pfElectronCombIsoCut
+  applyPostfix( process, 'pfIsolatedElectrons'      , postfix ).combinedIsolationCut = pfElectronCombIsoCut
 
 # remove MC matching, object cleaning, objects etc.
 if runStandardPAT:
