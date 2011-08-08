@@ -7,8 +7,8 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.32 $
-///  $Date: 2011/02/16 13:11:57 $
+///  $Revision: 1.33 $
+///  $Date: 2011/05/23 21:12:36 $
 ///  (last update by $Author: mussgill $)
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
@@ -94,6 +94,13 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   int addMeasurementData(const EventInfo &eventInfo, 
 			 const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
 			 unsigned int iHit, AlignmentParameters *&params);
+
+  /// Increase hit counting of MillePedeVariables behind each parVec[i]
+  /// (and also for parameters higher in hierarchy),
+  /// assuming 'parVec' and 'validHitVecY' to be parallel.
+  /// Returns number of valid y-hits.
+  unsigned int addHitCount(const std::vector<AlignmentParameters*> &parVec,
+			   const std::vector<bool> &validHitVecY) const;
 
   /// adds data from reference trajectory from a specific Hit
   void addRefTrackData2D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
@@ -193,10 +200,11 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
   unsigned int              theMinNumHits;
   double                    theMaximalCor2D; /// maximal correlation allowed for 2D hit in TID/TEC.
                                              /// If larger, the 2D measurement gets diagonalized!!!
+  int                       theLastWrittenIov; // keeping track for output trees...
   std::vector<float>        theFloatBufferX;
   std::vector<float>        theFloatBufferY;
   std::vector<int>          theIntBuffer;
-  bool						theDoSurveyPixelBarrel;
+  bool                      theDoSurveyPixelBarrel;
 };
 
 #endif
