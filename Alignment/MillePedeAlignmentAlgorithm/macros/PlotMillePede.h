@@ -105,9 +105,13 @@ class PlotMillePede : public MillePedeTrees
   void DrawParam(bool addPlots = false, const TString &sel = ""); // default: not fixed params
   void DrawPedeParam(Option_t *option = "", unsigned int nNonRigidParam = 12);//"add": add plots, "vs": p_i vs p_j; params beyond rigid body 
   void DrawPedeParamVsLocation(Option_t *option = "", unsigned int nNonRigidParam = 12);//"add" to add plots; params beyond rigid body 
-  //void DrawTwoSurfaceDeltas(Option_t *option = "");
   void DrawSurfaceDeformations(const TString &whichOne = "result start",
 			       Option_t *option = "", unsigned int maxNumPars = 12);//"start result diff"; "add" to add plots, "all" to erase selection to be valid
+  void DrawSurfaceDeformationsLayer(Option_t *option = "", const unsigned int firstDetLayer = 22,
+				    const unsigned int lastDetLayer = 33,
+				    const TString &whichOne = "result",
+				    unsigned int maxNumPars = 12);//"add", "verbose", "nolimit", "spread"; which det layers; "start", "result", "diff" 
+
 
 
   void DrawOrigParam(bool addPlots = false, const TString &sel = ""); //this->AnyFreePar()
@@ -147,6 +151,11 @@ class PlotMillePede : public MillePedeTrees
 
   const TString GetAdditionalSel () const { return fAdditionalSel;}
   void ClearAdditionalSel () { fAdditionalSel = ""; fAdditionalSelTitle = "";}
+ 
+  bool SetDetLayerCuts(unsigned int detLayer, bool silent = false); // e.g. TIB L1 stereo (false if 'detLayer' not supported); if silent, no warnings
+  TString DetLayerLabel(unsigned int detLayer) const; // e.g. 'TIB L1S'
+
+
   void AddBasicSelection(TString &sel) const;
 
   TString FinalMisAlignment(UInt_t iPar) const;

@@ -432,6 +432,318 @@ void PlotMillePede::DrawSurfaceDeformations(const TString &whichOne,
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+void PlotMillePede::DrawSurfaceDeformationsLayer(Option_t *option, const unsigned int firstDetLayer,
+						 const unsigned int lastDetLayer,
+						 const TString &whichOne, unsigned int maxNumPars)
+{
+  const TString opt(option);
+  const Int_t firstLayer = this->PrepareAdd(opt.Contains("add", TString::kIgnoreCase));
+  const bool noLimit = opt.Contains("nolimit", TString::kIgnoreCase);
+  const bool spread = opt.Contains("spread", TString::kIgnoreCase);
+  const bool verbose = opt.Contains("verbose", TString::kIgnoreCase);
+
+  this->SetDetLayerCuts(0, false); // just to generate warnings if needed!
+  // loop on deformation parameters
+  unsigned int iParUsed = 0;
+  for (unsigned int iPar = 0; iPar < maxNumPars; ++iPar) {
+    // create a hist to store the averages per layer
+    const unsigned int numDetLayers = lastDetLayer - firstDetLayer + 1;
+    TH1 *layerHist = new TH1F(this->Unique("hSurfAll" + whichOne += iPar),
+			      "Average deformations " + NameSurfDef(iPar)
+			      += ";;<" + (NameSurfDef(iPar) += ">") += UnitSurfDef(iPar),
+			      numDetLayers, 0, numDetLayers);
+    TH1 *layerHistWithSpread = 
+      (spread ? static_cast<TH1*>(layerHist->Clone(Form("%s_spread", layerHist->GetName()))) : 0);
+    if (spread) layerHistWithSpread->SetTitle(Form("%s (err is spread)", layerHist->GetTitle()));
+
+    TH1 *layerHistRms = new TH1F(this->Unique("hSurfAllRms" + whichOne += iPar),
+			      "RMS of deformations " + NameSurfDef(iPar)
+			      += ";;RMS(" + (NameSurfDef(iPar) += ")") += UnitSurfDef(iPar),
+			      numDetLayers, 0, numDetLayers);
+
+
+    // loop on layers (i.e. subdet layers/rings)
+    unsigned int iDetLayerUsed = 0;
+    for (unsigned int iDetLayer = firstDetLayer; iDetLayer <= lastDetLayer; ++iDetLayer) {
+      if (!this->SetDetLayerCuts(iDetLayer, true)) continue; // layer cuts implemented?
+      TString sel; //(Valid(0) += AndL() += Fixed(0, false)); // HACK: if u1 determination is fine
+      this->AddBasicSelection(sel); // append the cuts set
+      // histo name with or without predefined limits:
+      const TString hName(this->Unique(Form("hSurf%s%u_%u", whichOne.Data(), iPar, iDetLayer))
+			  += (noLimit ? "" : Form("(101,-%f,%f)", fMaxDev, fMaxDev)));
+      // cut away values identical to zero:
+      TH1 *h = this->CreateHist(DeformValue(iPar, whichOne) += this->ToMumMuRadSurfDef(iPar),
+				(sel + AndL()) += Parenth(DeformValue(iPar, whichOne) += "!= 0."),
+				hName);
+
+      if (!h || 0. == h->GetEntries()) continue; // did something survive cuts?
+      ++iDetLayerUsed;
+      layerHist->GetXaxis()->SetBinLabel(iDetLayerUsed, this->DetLayerLabel(iDetLayer));
+      layerHist->SetBinContent(iDetLayerUsed, h->GetMean());
+      layerHist->SetBinError(iDetLayerUsed, h->GetMeanError()); //GetRMS());
+      layerHistRms->GetXaxis()->SetBinLabel(iDetLayerUsed, this->DetLayerLabel(iDetLayer));
+      layerHistRms->SetBinContent(iDetLayerUsed, h->GetRMS());
+      if (spread) layerHistWithSpread->SetBinContent(iDetLayerUsed, h->GetMean());
+      if (spread) layerHistWithSpread->SetBinError(iDetLayerUsed, h->GetRMS());
+      if (verbose) {
+	h->SetTitle(("SurfaceDeformation " + whichOne) += " "
+		    + NameSurfDef(iPar) += this->TitleAdd() + ";"
+		    + NameSurfDef(iPar) += UnitSurfDef(iPar));
+	fHistManager->AddHist(h, firstLayer + 2 + iDetLayer);
+      } else delete h;
+    }
+    layerHist->LabelsDeflate(); // adjust to avoid empty bins
+    if (spread) layerHistWithSpread->LabelsDeflate(); // dito
+    layerHistRms->LabelsDeflate();        // dito
+    if (layerHist->GetEntries()) {
+      fHistManager->AddHistSame(layerHist, firstLayer, iParUsed,
+				(spread ? "error: #sigma(mean)" : ""));
+      if (spread) fHistManager->AddHistSame(layerHistWithSpread, firstLayer, iParUsed,
+					    "error: RMS");
+      fHistManager->AddHist(layerHistRms, firstLayer + 1);
+
+      ++iParUsed;
+    } else {
+      delete layerHist; // v^{delta} usually is empty...
+      delete layerHistRms;
+    }
+  }
+
+  fHistManager->Draw();
+  // now remove cuts implicitely set by SetDetLayerCuts(..):
+  this->SetSubDetId(-1);
+  this->ClearAdditionalSel();
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+bool PlotMillePede::SetDetLayerCuts(unsigned int detLayer, bool silent)
+{
+  if (!silent) {
+    // warn if setting subdet/r/z below overwrites any general settings
+    if (fAdditionalSelTitle.Length()) {
+      ::Warning("PlotMillePede::SetDetLayerCuts",
+		"Clearing selection '%s'!", fAdditionalSelTitle.Data());
+    }
+    if (fSubDetIds.GetSize()) {
+      ::Warning("PlotMillePede::SetDetLayerCuts", "Possibly changing subdet selection!");
+    }
+  }
+  this->ClearAdditionalSel();
+
+  switch (detLayer) {
+  case 0:
+    this->SetSubDetId(1);
+    this->AddAdditionalSel("r", 0., 5.5);
+    return true;
+  case 1:
+    this->SetSubDetId(1);
+    this->AddAdditionalSel("r", 5.5, 8.5);
+    return true;
+  case 2:
+    this->SetSubDetId(1);
+    this->AddAdditionalSel("r", 8.5, 12.);
+    return true;
+    // FPIX not implemented
+  case 3:
+  case 4:
+    this->SetSubDetId(2);
+    return false;
+    break;
+
+  case 5:
+    this->SetSubDetId(3);
+    this->AddAdditionalSel("r", 20., 30.);
+    this->AddAdditionalSel("StripRphi");
+    return true;
+  case 6:
+    this->SetSubDetId(3);
+    this->AddAdditionalSel("r", 20., 30.);
+    this->AddAdditionalSel("StripStereo");
+    return true;
+  case 7:
+    this->SetSubDetId(3);
+    this->AddAdditionalSel("r", 30., 38.);
+    this->AddAdditionalSel("StripRphi");
+    return true;
+  case 8:
+    this->SetSubDetId(3);
+    this->AddAdditionalSel("r", 30., 38.);
+    this->AddAdditionalSel("StripStereo");
+    return true;
+  case 9:
+    this->SetSubDetId(3);
+    this->AddAdditionalSel("r", 38., 46.);
+    return true;
+  case 10:
+    this->SetSubDetId(3);
+    this->AddAdditionalSel("r", 46., 55.);
+    return true;
+
+  case 11:
+    this->SetSubDetId(4);
+    this->AddAdditionalSel("r", 20., 33.);
+    this->AddAdditionalSel("StripRphi");
+    return true;
+  case 12:
+    this->SetSubDetId(4);
+    this->AddAdditionalSel("r", 20., 33.);
+    this->AddAdditionalSel("StripStereo");
+    return true;
+  case 13:
+    this->SetSubDetId(4);
+    this->AddAdditionalSel("r", 33., 41.);
+    this->AddAdditionalSel("StripRphi");
+    return true;
+  case 14: //"TID R2 S";
+    this->SetSubDetId(4);
+    this->AddAdditionalSel("r", 33., 41.);
+    this->AddAdditionalSel("StripStereo");
+    return true;
+  case 15: //"TID R3";
+    this->SetSubDetId(4);
+    this->AddAdditionalSel("r", 41., 50.);
+    return true;
+
+    // TID followed by TEC and not TOB to be able to call
+    // DrawSurfaceDeformationsLayer("", n1, n2) for layers with single
+    // (n1=0 and n2=21) and double (n1=22 and n2=33) sensor modules separately
+  case 16:  // TEC R1 #phi
+    this->SetSubDetId(6);
+    this->AddAdditionalSel("r", 20., 33.);
+    this->AddAdditionalSel("StripRphi");
+    return true;
+  case 17: // TEC R1 S
+    this->SetSubDetId(6);
+    this->AddAdditionalSel("r", 20., 33.);
+    this->AddAdditionalSel("StripStereo");
+    return true;
+  case 18: // TEC R2 #phi
+    this->SetSubDetId(6);
+    this->AddAdditionalSel("r", 33., 41.);
+    this->AddAdditionalSel("StripRphi");
+    return true;
+  case 19: //"TEC R2 S";
+    this->SetSubDetId(6);
+    this->AddAdditionalSel("r", 33., 41.);
+    this->AddAdditionalSel("StripStereo");
+    return true;
+  case 20: //"TEC R3";
+    this->SetSubDetId(6);
+    this->AddAdditionalSel("r", 41., 50.);
+    return true;
+  case 21: //"TEC R4";
+    this->SetSubDetId(6);
+    this->AddAdditionalSel("r", 50., 60.);
+    return true;
+  case 22: //"TEC R5 R";
+    this->SetSubDetId(6);
+    this->AddAdditionalSel("r", 60., 75.);
+    this->AddAdditionalSel("StripRphi");
+    return true;
+  case 23: //"TEC R5 S";
+    this->SetSubDetId(6);
+    this->AddAdditionalSel("r", 60., 75.);
+    this->AddAdditionalSel("StripStereo");
+    return true;
+  case 24: //"TEC R6";
+    this->SetSubDetId(6);
+    this->AddAdditionalSel("r", 75., 90.);
+    return true;
+  case 25: //"TEC R7";
+    this->SetSubDetId(6);
+    this->AddAdditionalSel("r", 90., 120.);
+    return true;
+
+  case 26: // TOB L1 R
+    this->SetSubDetId(5);
+    this->AddAdditionalSel("r", 50., 65.);
+    this->AddAdditionalSel("StripRphi");
+    return true;
+  case 27: // TOB L1 S
+    this->SetSubDetId(5);
+    this->AddAdditionalSel("r", 50., 65.);
+    this->AddAdditionalSel("StripStereo");
+    return true;
+  case 28: // TOB L2 R
+    this->SetSubDetId(5);
+    this->AddAdditionalSel("r", 65., 73.);
+    this->AddAdditionalSel("StripRphi");
+    return true;
+  case 29: // TOB L2 S
+    this->SetSubDetId(5);
+    this->AddAdditionalSel("r", 65., 73.);
+    this->AddAdditionalSel("StripStereo");
+    return true;
+  case 30: // TOB L3
+    this->SetSubDetId(5);
+    this->AddAdditionalSel("r", 73., 82.5);
+    return true;
+  case 31: // TOB L4
+    this->SetSubDetId(5);
+    this->AddAdditionalSel("r", 82.5, 92.);
+    return true;
+  case 32:// TOB L5
+    this->SetSubDetId(5);
+    this->AddAdditionalSel("r", 92., 102.);
+    return true;
+  case 33:// TOB L6
+    this->SetSubDetId(5);
+    this->AddAdditionalSel("r", 102., 120.);
+    return true;
+  }
+
+  return false;
+}
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+TString PlotMillePede::DetLayerLabel(unsigned int detLayer) const
+{
+  switch (detLayer) {
+  case 0: return "BPIX L1";
+  case 1: return "BPIX L2";
+  case 2: return "BPIX L3";
+    //   case 3: return "FPIX";
+    //   case 4: return "FPIX";
+    
+  case 5: return "TIB L1R";
+  case 6: return "TIB L1S";
+  case 7: return "TIB L2R";
+  case 8: return "TIB L2S";
+  case 9: return "TIB L3";
+  case 10: return "TIB L4";
+
+  case 11: return "TID R1R";
+  case 12: return "TID R1S";
+  case 13: return "TID R2R";
+  case 14: return "TID R2S";
+  case 15: return "TID R3";
+
+  case 16: return "TEC R1R";
+  case 17: return "TEC R1S";
+  case 18: return "TEC R2R";
+  case 19: return "TEC R2S";
+  case 20: return "TEC R3";
+  case 21: return "TEC R4";
+  case 22: return "TEC R5R";
+  case 23: return "TEC R5S";
+  case 24: return "TEC R6";
+  case 25: return "TEC R7";
+
+  case 26: return "TOB L1R";
+  case 27: return "TOB L1S";
+  case 28: return "TOB L2R";
+  case 29: return "TOB L2S";
+  case 30: return "TOB L3";
+  case 31: return "TOB L4";
+  case 32: return "TOB L5";
+  case 33: return "TOB L6";
+  }
+
+  return Form("unknown DetLayer %u", detLayer);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
 void PlotMillePede::DrawOrigParam(bool addPlots, const TString &sel)
 {
   // all alignables, even fixed...
