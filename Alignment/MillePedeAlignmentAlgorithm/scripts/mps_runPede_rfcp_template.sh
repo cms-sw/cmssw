@@ -118,6 +118,11 @@ gzip -f millepede.*s
 # in case of diagonalisation zip this:
 gzip -f millepede.eve
 
+#list IOVs
+cmscond_list_iov -c sqlite_file:alignments_MP.db -t Alignments
+#split the IOVs
+aligncond_split_iov -s sqlite_file:alignments_MP.db -i Alignments -d sqlite_file:alignments_split_MP.db -t Alignments
+
 echo "\nDirectory content after running cmsRun, zipping log file and merging histogram files:"
 ls -lh
 # Copy everything you need to MPS directory of your job
