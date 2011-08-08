@@ -3,12 +3,13 @@
 // GFHistManager
 //   Author:      Gero Flucke
 //   Date:        Feb. 10th, 2002
-//   last update: $Date: 2010/08/12 09:26:31 $  
+//   last update: $Date: 2011/08/08 17:05:22 $  
 //   by:          $Author: flucke $
 //
 
-// #include <iostream>
+#include <string.h>
 
+// #include <iostream>
 // #include <vector>
 // RooT header:
 #include <TROOT.h>
@@ -274,7 +275,9 @@ void GFHistManager::DrawReally(Int_t layer)
 	    firstHist->SetMaximum((fLogY[layer] ? 1.1 : 1.05) * max);
 	  }
 	  const Double_t min = this->MinOfHists(histsOfPad);
-	  if(min < 0.) firstHist->SetMinimum(min * 1.05);
+	  if(!(gStyle->GetHistMinimumZero() && min > 0.)) {
+	    firstHist->SetMinimum(min * 1.05);
+	  }
 	}
 	if(fLogY[layer] 
 	   && (firstHist->GetMinimum() > 0. 
@@ -282,9 +285,10 @@ void GFHistManager::DrawReally(Int_t layer)
 		  && firstHist->GetMinimumStored() == -1111.)))gPad->SetLogy();
 	// draw other objects:
 	this->DrawObjects(layer, histNo);
+	// make hist style differ
+	if(fDrawDiffStyle) GFHistManager::MakeDifferentStyle(histsOfPad);
 	// draw legends on top of all
 	if(fLegendArrays && layer <= fLegendArrays->GetLast() && fLegendArrays->At(layer)){
-	  if(fDrawDiffStyle) GFHistManager::MakeDifferentStyle(histsOfPad);
 	  this->DrawLegend(layer, histNo);
 	}
 	gPad->Modified();
@@ -532,7 +536,7 @@ TLegendEntry* GFHistManager::AddHistSame(TH1* hist, Int_t layer, Int_t histNum,
   TLegendEntry* result = NULL;
   if(histsArray) {
     histsArray->Add(hist); 
-    if(legendTitle){
+    if(legendTitle && strlen(legendTitle)){
       TObjArray* legends = this->MakeLegends(layer);
       TLegend* legend = NULL;
       if(legends->GetLast() >= histNum
@@ -1323,6 +1327,8 @@ void GFHistManager::MakeDifferentStyle(GFHistArray* hists)
   //                                                           (... kYellow dito)
   // also set line style, set marker color to line color
 
+  if (!hists || hists->GetEntriesFast() < 2) return; // nothing to do
+
   Color_t color = 0;
   for(Int_t i = 0; i < hists->GetEntriesFast(); ++i){
 //     Color_t color = i+1;
@@ -1333,7 +1339,7 @@ void GFHistManager::MakeDifferentStyle(GFHistArray* hists)
     if(color == 5) ++color; // and kYellow 
     if(color > 7 ) {
       ::Error("GFHistManager::MakeDifferentStyle", "Out of colors");
-      break;
+      color = 0;//      break;
     }
     hists->At(i)->SetLineColor(color);
     hists->At(i)->SetMarkerColor(color);
@@ -1378,13 +1384,34 @@ Double_t GFHistManager::MaxOfHists(const TObjArray* hists) const
 }
 
 //________________________________________________________
+Double_t GFHistManager::MinOfHist(const TH1* h) const
+{
+  // Take bin with min content, subtract error and returns (no *1.05 applied!),
+  // but cares that - together with an error bar - another bin might be lower...
+  // If the hists option contains nothing about errors: error is NOT subtracted!
+
+  TString option = h->GetOption();
+  option.ToLower();
+  option.ReplaceAll("same", 0);
+  
+  const Int_t minBin = h->GetMinimumBin();
+  Double_t result = h->GetBinContent(minBin);
+  if(option.Contains('e') || (h->GetSumw2N() && !option.Contains("hist"))){
+    for(Int_t bin = 1; bin <= h->GetNbinsX(); ++bin){ //FIXME: for 2/3D: loop over y/z!
+      result = TMath::Min(result, (h->GetBinContent(bin) - h->GetBinError(bin))); 
+    }
+  }
+  return result;
+}
+
+//________________________________________________________
 Double_t GFHistManager::MinOfHists(const TObjArray* hists) const
 {
   Double_t result = DBL_MAX;
   TIter nextHist(hists);
   while(TObject* hist = nextHist()){
     if(hist->InheritsFrom(TH1::Class())){
-      result = TMath::Min(result, static_cast<TH1*>(hist)->GetMinimum());
+      result = TMath::Min(result, this->MinOfHist(static_cast<TH1*>(hist)));
     } else {
       this->Warning("MinOfHists", "Entry in input array is not a histogram!");
     }

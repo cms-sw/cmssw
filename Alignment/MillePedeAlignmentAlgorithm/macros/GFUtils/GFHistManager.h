@@ -104,6 +104,7 @@ public:
   virtual Int_t GetNumHistsY(Int_t layer) const;
   virtual Double_t MaxOfHist(const TH1* h) const;
   virtual Double_t MaxOfHists(const TObjArray* hists) const;
+  virtual Double_t MinOfHist(const TH1* h) const;
   virtual Double_t MinOfHists(const TObjArray* hists) const;
   virtual TVirtualPad* GetPad(Int_t layer, Int_t histNum);
   virtual TCanvas* GetCanvas(Int_t layer, Int_t number = 0);// after draw!!
