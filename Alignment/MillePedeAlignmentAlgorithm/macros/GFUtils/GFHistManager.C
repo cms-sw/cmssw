@@ -3,7 +3,7 @@
 // GFHistManager
 //   Author:      Gero Flucke
 //   Date:        Feb. 10th, 2002
-//   last update: $Date: 2010/08/12 09:17:10 $  
+//   last update: $Date: 2010/08/12 09:26:31 $  
 //   by:          $Author: flucke $
 //
 
@@ -168,7 +168,10 @@ void GFHistManager::Clear(Bool_t deleteHists)
 
   TIter iterCanArrays(fCanArrays);
   while(TObjArray* arr = static_cast<TObjArray*>(iterCanArrays.Next())){
-    arr->Delete(); // delete canvases
+    // A simple 'arr->Delete();' causes a crash if the user has closed a canvas
+    // via the GUI - so delete only those that are known to gROOT:
+    TIter cans(arr);
+    while (TObject *c = cans.Next()) delete gROOT->GetListOfCanvases()->FindObject(c);
   }
   fCanArrays->Delete(); // delete arrays of canvases
   delete fCanArrays;
