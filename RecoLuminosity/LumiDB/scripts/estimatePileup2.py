@@ -30,7 +30,7 @@ def fillPileupHistogram (bxlumiinfo,pileupHistName,maxPileupBin,
                      hist.GetBinWidth(maxBin) + 0.25 )
     else:
         histname = '%s_%s' % (pileupHistName, runNumber)
-        hist = ROOT.TH1F (histname, histname, maxPileupBin + 1,
+        hist = ROOT.TH1D (histname, histname, maxPileupBin + 1,
                           -0.5,maxPileupBin + 0.5)
         upper = maxPileupBin
     p=pileupParameters()
@@ -86,7 +86,7 @@ if __name__ == '__main__':
     amodetagChoices = [ "PROTPHYS","IONPHYS" ]
     xingAlgoChoices =[ "OCC1","OCC2","ET"]
     parser = optparse.OptionParser ("Usage: %prog [--options] output.root",
-                                    description = "Script to estimate pileup distribution using xing instantaneous luminosity information and minimum bias cross section.  Output is TH1F stored in root file")
+                                    description = "Script to estimate pileup distribution using xing instantaneous luminosity information and minimum bias cross section.  Output is TH1D stored in root file")
     dbGroup     = optparse.OptionGroup (parser, "Database Options")
     inputGroup  = optparse.OptionGroup (parser, "Input Options")
     pileupGroup = optparse.OptionGroup (parser, "Pileup Options")
@@ -226,7 +226,7 @@ if __name__ == '__main__':
     #print 'runDict ',runDict
     
     import ROOT 
-    pileupHist = ROOT.TH1F (options.pileupHistName,options.pileupHistName,
+    pileupHist = ROOT.TH1D (options.pileupHistName,options.pileupHistName,
                       options.maxPileupBin + 1,
                       -0.5, options.maxPileupBin + 0.5)
     histList = []
