@@ -188,12 +188,6 @@ if __name__ == '__main__':
     else:
         session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
         finecorrections=None
-        if not options.withoutFineCorrection:
-            rruns=irunlsdict.keys()
-            schema=session.nominalSchema()
-            session.transaction().start(True)
-            finecorrections=lumiCorrections.correctionsForRange(schema,rruns)
-            session.transaction().commit()
         if options.runnumber:
             inputRange = {int(options.runnumber):None}
         else:
@@ -204,10 +198,16 @@ if __name__ == '__main__':
             else:
                 f = open (options.inputfile, 'r')
                 inputfilecontent = f.read()
-                inputRange =  selectionParser.selectionParser (inputfilecontent)
+                inputRange =  selectionParser.selectionParser (inputfilecontent).runsandls()
         if not inputRange:
             print 'failed to parse the input file', options.inputfile
             raise
+        if not options.withoutFineCorrection:
+            rruns=inputRange.keys()
+            schema=session.nominalSchema()
+            session.transaction().start(True)
+            finecorrections=lumiCorrections.correctionsForRange(schema,rruns)
+            session.transaction().commit()
         session.transaction().start(True)
         schema=session.nominalSchema()
         lumiData=lumiCalcAPI.lumiForRange(schema,inputRange,beamstatus=options.beamstatus,withBXInfo=True,bxAlgo=options.algoname,xingMinLum=options.xingMinLum,withBeamIntensity=False,datatag=None,finecorrections=finecorrections)
