@@ -6,9 +6,9 @@
  * 
  * \author David Lange
  *
- * \version $Revision: 1.1.2.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: MultiTrackSelector.h,v 1.1.2.1 2011/06/18 09:13:46 gpetrucc Exp $
+ * $Id: MultiTrackSelector.h,v 1.2 2011/06/18 15:11:49 gpetrucc Exp $
  *
  */
 
@@ -39,14 +39,15 @@ namespace reco { namespace modules {
         private:
         public:
             /// constructor 
+	    explicit MultiTrackSelector() { }
             explicit MultiTrackSelector( const edm::ParameterSet & cfg ) ;
             /// destructor
             virtual ~MultiTrackSelector() ;
 
-        private:
+        protected:
             typedef math::XYZPoint Point;
             /// process one event
-            void produce( edm::Event& evt, const edm::EventSetup& es ) ;
+            virtual void produce( edm::Event& evt, const edm::EventSetup& es ) ;
             /// return class, or -1 if rejected
             bool select (unsigned tsNum,
 			 const reco::BeamSpot &vertexBeamSpot, 
