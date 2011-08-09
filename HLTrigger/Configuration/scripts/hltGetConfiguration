@@ -101,9 +101,9 @@ group.add_argument('--output',
                     dest    = 'output',
                     action  = 'store',
                     metavar = 'OUTPUT',
-                    choices = [ 'all', 'minimal', 'none' ], 
+                    choices = [ 'all', 'minimal', 'none', 'full' ], 
                     default = 'all',
-                    help    = 'Use\n- "all" to output all output modules (default),\n- "minimal" to only output the TriggerResults,\n- "none" to remove all output modules' )
+                    help    = 'Use\n- "all" to output all output modules (default),\n- "minimal" to only output the TriggerResults,\n- "none" to remove all output modules,\n- "full" to output a single root file with "keep *" event content.' )
 group.add_argument('--no-output',
                     dest    = 'output',
                     action  = 'store_const',

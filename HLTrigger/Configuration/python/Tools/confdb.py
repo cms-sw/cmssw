@@ -583,6 +583,18 @@ process = HLTrigger.Configuration.customizeHLTforL1Emulator.switchToSimGtDigis( 
       self.data
     )
 
+    if not self.config.fragment and self.config.output == 'full':
+      # add a single "keep *" output
+      self.data += """
+# add a single "keep *" output
+%(process)shltOutputFULL = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputFULL.root" ),
+    fastCloning = cms.untracked.bool( False ),
+    outputCommands = cms.untracked.vstring( 'keep *' )
+)
+%(process)sFULLOutput = cms.EndPath( %(process)shltOutputFULL )
+"""
+
 
   # override the process name and adapt the relevant filters
   def overrideProcessName(self):
@@ -745,11 +757,13 @@ if 'GlobalTag' in %%(dict)s:
       # dump only the requested paths, plus the eventual output endpaths
       paths = []
 
-    if self.config.fragment or self.config.output == 'none':
-      # drop all output endpaths
+    if self.config.fragment or self.config.output in ('none', 'full'):
+      # 'full' removes all outputs (same as 'none') and then adds a single "keep *" output (see the overrideOutput method)
       if self.config.paths:
-        pass    # paths are removed by default
+        # paths are removed by default
+        pass    
       else:
+        # drop all output endpaths
         paths.append( "-*Output" )
     elif self.config.output == 'minimal':
       # drop all output endpaths but HLTDQMResultsOutput
