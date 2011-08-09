@@ -9,7 +9,7 @@ kt6PFJetsChs = kt6PFJets.clone(
 , src           = cms.InputTag( 'pfNoElectron' )
 , doAreaFastjet = cms.bool( True )
 , doRhoFastjet  = cms.bool( True )
-, voronoiRfact  = cms.double( 0.9 )
+, voronoiRfact  = cms.double( -0.9 )
 )
 
 ### Producers
