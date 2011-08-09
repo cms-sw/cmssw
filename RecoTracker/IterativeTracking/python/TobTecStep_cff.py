@@ -53,17 +53,13 @@ tobTecStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'tobTecStepSeedLayers'
 tobTecStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
 tobTecStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 30.0
 tobTecStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 6.0
-tobTecStepSeeds.ClusterCheckPSet.PixelClusterCollectionLabel = 'siPixelClusters'
-tobTecStepSeeds.ClusterCheckPSet.ClusterCollectionLabel = 'siStripClusters'
    
 
 # TRACKER DATA CONTROL
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
 tobTecStepMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone(
     ComponentName = 'tobTecStepMeasurementTracker',
-    skipClusters = cms.InputTag('tobTecStepClusters'),
-    pixelClusterProducer = 'siPixelClusters',
-    stripClusterProducer = 'siStripClusters'
+    skipClusters = cms.InputTag('tobTecStepClusters')
     )
 
 # QUALITY CUTS DURING TRACK BUILDING (for inwardss and outwards track building steps)
@@ -89,6 +85,13 @@ tobTecStepInOutTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFi
     )
     )
 
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
+tobTecStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
+    ComponentName = cms.string('tobTecStepChi2Est'),
+    nSigma = cms.double(3.0),
+    MaxChi2 = cms.double(16.0)
+)
+
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
 tobTecStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
@@ -99,7 +102,9 @@ tobTecStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder
     inOutTrajectoryFilterName = 'tobTecStepInOutTrajectoryFilter',
     useSameTrajFilter = False,
     minNrOfHitsForRebuild = 4,
-    alwaysUseInvalidHits = False
+    alwaysUseInvalidHits = False,
+    maxCand = 2,
+    estimator = cms.string('tobTecStepChi2Est')
     #startSeedHitsInRebuild = True
     )
 

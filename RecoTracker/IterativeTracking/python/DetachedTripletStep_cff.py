@@ -24,9 +24,7 @@ import RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi
 detachedTripletStepSeedLayers = RecoTracker.TkSeedingLayers.PixelLayerTriplets_cfi.pixellayertriplets.clone(
     ComponentName = 'detachedTripletStepSeedLayers'
     )
-detachedTripletStepSeedLayers.BPix.HitProducer = 'siPixelRecHits'
 detachedTripletStepSeedLayers.BPix.skipClusters = cms.InputTag('detachedTripletStepClusters')
-detachedTripletStepSeedLayers.FPix.HitProducer = 'siPixelRecHits'
 detachedTripletStepSeedLayers.FPix.skipClusters = cms.InputTag('detachedTripletStepClusters')
 
 # SEEDS
@@ -43,8 +41,6 @@ detachedTripletStepSeeds = RecoTracker.TkSeedGenerator.GlobalSeedsFromTriplets_c
     )
     )
 detachedTripletStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'detachedTripletStepSeedLayers'
-detachedTripletStepSeeds.ClusterCheckPSet.PixelClusterCollectionLabel = 'siPixelClusters'
-detachedTripletStepSeeds.ClusterCheckPSet.ClusterCollectionLabel = 'siStripClusters'
 
 
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
@@ -54,9 +50,7 @@ detachedTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
 detachedTripletStepMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone(
     ComponentName = 'detachedTripletStepMeasurementTracker',
-    skipClusters = cms.InputTag('detachedTripletStepClusters'),
-    pixelClusterProducer = 'siPixelClusters',
-    stripClusterProducer = 'siStripClusters'
+    skipClusters = cms.InputTag('detachedTripletStepClusters')
     )
 
 # QUALITY CUTS DURING TRACK BUILDING
@@ -70,13 +64,22 @@ detachedTripletStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.Trajecto
     )
     )
 
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
+detachedTripletStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
+    ComponentName = cms.string('detachedTripletStepChi2Est'),
+    nSigma = cms.double(3.0),
+    MaxChi2 = cms.double(16.0)
+)
+
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
 detachedTripletStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
     ComponentName = 'detachedTripletStepTrajectoryBuilder',
     MeasurementTrackerName = '',
     trajectoryFilterName = 'detachedTripletStepTrajectoryFilter',
-    clustersToSkip = cms.InputTag('detachedTripletStepClusters')
+    clustersToSkip = cms.InputTag('detachedTripletStepClusters'),
+    maxCand = 2,
+    estimator = cms.string('detachedTripletStepChi2Est')
     )
 
 # MAKING OF TRACK CANDIDATES

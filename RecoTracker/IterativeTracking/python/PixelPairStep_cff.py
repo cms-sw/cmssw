@@ -49,16 +49,12 @@ pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
 pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 0.01
 pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.fixedError = 0.03
 pixelPairStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = cms.string('pixelPairStepSeedLayers')
-pixelPairStepSeeds.ClusterCheckPSet.PixelClusterCollectionLabel = 'siPixelClusters'
-pixelPairStepSeeds.ClusterCheckPSet.ClusterCollectionLabel = 'siStripClusters'
 
 
 # TRACKER DATA CONTROL
 import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
 pixelPairStepMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone(
     ComponentName = 'pixelPairStepMeasurementTracker',
-    pixelClusterProducer = 'siPixelClusters',
-    stripClusterProducer = 'siStripClusters',
     skipClusters = cms.InputTag('pixelPairStepClusters')
     )
 
@@ -72,13 +68,22 @@ pixelPairStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilt
     )
     )
 
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi
+pixelPairStepChi2Est = TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi.Chi2MeasurementEstimator.clone(
+    ComponentName = cms.string('pixelPairStepChi2Est'),
+    nSigma = cms.double(3.0),
+    MaxChi2 = cms.double(9.0)
+)
+
 # TRACK BUILDING
 import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
 pixelPairStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
     ComponentName = 'pixelPairStepTrajectoryBuilder',
     MeasurementTrackerName = '',
     trajectoryFilterName = 'pixelPairStepTrajectoryFilter',
-    clustersToSkip = cms.InputTag('pixelPairStepClusters')
+    clustersToSkip = cms.InputTag('pixelPairStepClusters'),
+    maxCand = 2,
+    estimator = cms.string('pixelPairStepChi2Est')
     )
 
 # MAKING OF TRACK CANDIDATES
