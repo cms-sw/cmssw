@@ -48,7 +48,6 @@
 <class pattern="std::pair<unsigned int,*>"/>
 -->
 
-<<<<<<< classes_def.xml
 <class pattern="std::vector<std::vector<cmsUpgrades::Ref_PixelDigi_>>"/>
 <!-- Cluster -->
 <class pattern="cmsUpgrades::L1TkCluster*"/>
@@ -73,113 +72,6 @@
 <!-- End Tracking Trigger -->
 
 
-<!-- Begin Barrel DT -->
-<class name="DTTrigData" />
-
-<class name="DTBtiTrigData" />
-<class name="DTBtiTrigger" />
-<class name="edm::Wrapper<DTBtiTrigger>" />
-<class name="std::vector<DTBtiTrigger>" />
-<class name="edm::Wrapper<std::vector<DTBtiTrigger>>" />
-
-<class name="DTChambPhSegm" />
-<class name="DTTSPhiTrigger" />
-<class name="edm::Wrapper<DTTSPhiTrigger>" />
-<class name="std::vector<DTTSPhiTrigger>" />
-<class name="edm::Wrapper<std::vector<DTTSPhiTrigger>>" />
-
-<class name="DTTracoTrigData" />
-
-<class name="DTStubMatchPt" />
-<class name="edm::Wrapper<DTStubMatchPt>" />
-<class name="std::vector<DTStubMatchPt>" />
-<class name="edm::Wrapper<std::vector<DTStubMatchPt>>" />
-<class name="DTStubMatchPtVariety" />
-<class name="DTStubMatchPtAlgorithms" />
-
-<class name="DTStubMatch" />
-<class name="edm::Wrapper<DTStubMatch>" />
-<class name="std::vector<DTStubMatch*>" />
-<class name="edm::Wrapper<std::vector<DTStubMatch*>>" />
-
-<class name="DTStubMatchesCollection"/>
-<class name="edm::Wrapper<DTStubMatchesCollection>" />
-<class name="TrackerStub" />
-<class name="lt_stub" />
-<class name="edm::Wrapper<TrackerStub>" />
-<class name="edm::Wrapper<lt_stub>" />
-<class name="std::vector<TrackerStub*>" />
-<class name="edm::Wrapper<std::vector<TrackerStub*>>" />
-=======
-	<class pattern="std::vector<std::vector<cmsUpgrades::Ref_PixelDigi_> >"/>
-
-        <class pattern="cmsUpgrades::Cluster*"/>        
-	<class pattern="edm::Wrapper<cmsUpgrades::Cluster*>"/>
-
-        <class pattern="std::vector<cmsUpgrades::Cluster*>"/> 
-        <class pattern="edm::Wrapper<std::vector<cmsUpgrades::Cluster*> >"/> 
-
-        <class pattern="std::pair<cmsUpgrades::StackedTrackerDetId,int>"/>
-        <class pattern="edm::Wrapper<std::pair<cmsUpgrades::StackedTrackerDetId,int> >"/>
-
-	<class pattern="std::map<std::pair<cmsUpgrades::StackedTrackerDetId,int>,*>"/>
-	<class pattern="edm::Wrapper<std::map<std::pair<cmsUpgrades::StackedTrackerDetId,int>,*> >"/>
-	<class pattern="std::pair<unsigned int,*>"/>
-<!-- ========================================================================== -->
-
-
-<!-- ============= -->
-<!--   Barrel DT   -->
-<!-- ============= -->
-
-  <class name="DTTrigData" />
-
-  <class name="DTBtiTrigData" />
-  <class name="DTBtiTrigger" />
-  <class name="edm::Wrapper<DTBtiTrigger>" />
-  <class name="std::vector<DTBtiTrigger>" />
-  <class name="edm::Wrapper<std::vector<DTBtiTrigger> >" />
-
-  <class name="DTChambPhSegm" />
-  <class name="DTTSPhiTrigger" />
-  <class name="edm::Wrapper<DTTSPhiTrigger>" />
-  <class name="std::vector<DTTSPhiTrigger>" />
-  <class name="edm::Wrapper<std::vector<DTTSPhiTrigger> >" />
-
-  <class name="DTTracoTrigData" />
-
-  <class name="DTStubMatchPt" />
-  <class name="edm::Wrapper<DTStubMatchPt>" />
-  <class name="std::vector<DTStubMatchPt>" />
-  <class name="edm::Wrapper<std::vector<DTStubMatchPt> >" />
-  <class name="DTStubMatchPtVariety" />
-  <class name="DTStubMatchPtAlgorithms" />
-
-  <class name="DTStubMatch" />
-  <class name="edm::Wrapper<DTStubMatch>" />
-  <class name="std::vector<DTStubMatch*>" />
-  <class name="edm::Wrapper<std::vector<DTStubMatch*> >" />
-
-  <class name="DTStubMatchesCollection"/>
-  <class name="edm::Wrapper<DTStubMatchesCollection>" />
-  <class name="TrackerStub" />
-  <class name="lt_stub" />
-  <class name="edm::Wrapper<TrackerStub>" />
-  <class name="edm::Wrapper<lt_stub>" />
-  <class name="std::vector<TrackerStub*>" />
-  <class name="edm::Wrapper<std::vector<TrackerStub*> >" />
->>>>>>> 1.10
-<!--
-<class name="std::set<TrackerStub*, lt_stub>" />
-<class name="edm::Wrapper<std::set<TrackerStub*, lt_stub>>" />
--->
-<class name="DTSeededTracklet" />
-<class name="edm::Wrapper<DTSeededTracklet>" />
-<class name="std::vector<DTSeededTracklet*>" />
-<class name="edm::Wrapper<std::vector<DTSeededTracklet*>>" />
-<class name="DTSeededTrackletsCollection"/>
-<class name="edm::Wrapper<DTSeededTrackletsCollection>" />
-<!-- End Barrel DT -->
 
 
 </lcgdict>
