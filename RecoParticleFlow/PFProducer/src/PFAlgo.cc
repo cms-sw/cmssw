@@ -835,9 +835,9 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
       if ( rejectTracks_Step45_ && ecalElems.empty() && 
 	   trackMomentum > 30. && Dpt > 0.5 && 
-	   ( trackRef->algo() == TrackBase::iter3 || 
-	     trackRef->algo() == TrackBase::iter4 || 
-	     trackRef->algo() == TrackBase::iter5 ) ) {
+	   ( trackRef->algo() == TrackBase::iter4 || 
+	     trackRef->algo() == TrackBase::iter5 || 
+	     trackRef->algo() == TrackBase::iter6 ) ) {
 
 	//
 	double dptRel = Dpt/trackRef->pt()*100;
@@ -1564,12 +1564,13 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       case TrackBase::iter1:
       case TrackBase::iter2:
       case TrackBase::iter3:
+      case TrackBase::iter4:
 	blowError = 1.;
 	break;
-      case TrackBase::iter4:
+      case TrackBase::iter5:
 	blowError = factors45_[0];
 	break;
-      case TrackBase::iter5:
+      case TrackBase::iter6:
 	blowError = factors45_[1];
 	break;
       default:
@@ -1981,9 +1982,10 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	case TrackBase::iter1:
 	case TrackBase::iter2:
 	case TrackBase::iter3:
-	  break;
 	case TrackBase::iter4:
+	  break;
 	case TrackBase::iter5:
+	case TrackBase::iter6:
 	  active[iTrack] = false;	
 	  totalChargedMomentum -= trackref->p();
 	  
