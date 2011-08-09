@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.243 2011/07/16 02:51:48 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.244 2011/07/20 05:36:16 amraktad Exp $
 
 
 //
@@ -866,7 +866,7 @@ FWGUIManager::exportImagesOfAllViews()
          if (name.find(ext) == name.npos)
             name += ext;
          // now add format trailing before the extension
-         name.insert(name.rfind('.'), "-%d_%d_%d_%s");
+         name.insert(name.rfind('.'), "-%u_%u_%u_%s");
          exportAllViews(name);
       }
    }

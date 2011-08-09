@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.192 2011/07/13 20:50:57 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.193 2011/07/15 04:46:59 amraktad Exp $
 //
 
 // system include files
@@ -319,7 +319,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    }
    if(vm.count(kAutoSaveAllViews)) {
       std::string fmt = vm[kAutoSaveAllViews].as<std::string>();
-      fmt += "%d_%d_%d_%s.png";
+      fmt += "%u_%u_%u_%s.png";
       setAutoSaveAllViewsFormat(fmt);
    }
    if(vm.count(kNoVersionCheck)) {
