@@ -301,7 +301,7 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
       double rec_NeutralEnergy = rec_NeutralHadEnergy + rec_NeutralEmEnergy;
       double rec_ChargedMultiplicity = pfj.chargedMultiplicity();
       std::vector <PFCandidatePtr> constituents = pfj.getPFConstituents ();
-      std::vector <unsigned int> chMult(7, static_cast<unsigned int>(0)); 
+      std::vector <unsigned int> chMult(8, static_cast<unsigned int>(0)); 
       for (unsigned ic = 0; ic < constituents.size (); ++ic) {
 	if ( constituents[ic]->particleId() > 3 ) continue;
 	reco::TrackRef trackRef = constituents[ic]->trackRef();
@@ -332,9 +332,12 @@ void PFJetBenchmark::process(const reco::PFJetCollection& pfJets, const reco::Ge
 	case TrackBase::iter5:
 	  iter = 5;
 	  break;
-	default:
+	case TrackBase::iter6:
 	  iter = 6;
-	  std::cout << "Warning in entry " << entry_ << " : iter = 6... " << std::endl;
+	  break;
+	default:
+	  iter = 7;
+	  std::cout << "Warning in entry " << entry_ << " : iter = 7... " << std::endl;
 	  break;
 	}
 	++(chMult[iter]);
