@@ -47,7 +47,7 @@ namespace edm
       static volatile int ans[4];
 
 // Still some problem on x86_64, so only i386 for now    
-#if defined(__x86_64__) && !defined(__APPLE__)
+#if defined(__x86_64__)
 
       __asm__ __volatile__ ("pushq %%rdx;\
  pushq %%rcx;				 \
@@ -67,7 +67,7 @@ namespace edm
                             : "a"(op)
 			    );
 
-#elif defined(__i386__) && !defined(__APPLE__)
+#elif defined(__i386__)
 
 
       __asm__ __volatile__ ("pushl %%edx;\
