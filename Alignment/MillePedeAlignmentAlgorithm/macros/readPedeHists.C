@@ -368,7 +368,7 @@ std::pair<TGraph*, Option_t*> ReadPedeHists::readNextGraph(std::ifstream &file)
   //              4   symbols with (x,y) and dx, dy
   //              5   same as 5
   if (type < 1 || type > 5) {
-    ::Error(method, "Unknown xy-data type %d, so skip graph.");
+    ::Error(method, "Unknown xy-data type %d, so skip graph.", type);
     proceedTo(file, "end of xy-data");
   }
 
