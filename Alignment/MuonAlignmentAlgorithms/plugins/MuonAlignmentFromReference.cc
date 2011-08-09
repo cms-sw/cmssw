@@ -75,8 +75,6 @@ private:
   std::vector<std::string> m_reference;
   double m_minTrackPt;
   double m_maxTrackPt;
-  double m_minTrackP;
-  double m_maxTrackP;
   int m_minTrackerHits;
   double m_maxTrackerRedChi2;
   bool m_allowTIDTEC;
@@ -106,7 +104,6 @@ private:
   long m_counter_events;
   long m_counter_tracks;
   long m_counter_trackpt;
-  long m_counter_trackp;
   long m_counter_trackerhits;
   long m_counter_trackerchi2;
   long m_counter_trackertidtec;
@@ -131,8 +128,6 @@ MuonAlignmentFromReference::MuonAlignmentFromReference(const edm::ParameterSet &
   , m_reference(iConfig.getParameter<std::vector<std::string> >("reference"))
   , m_minTrackPt(iConfig.getParameter<double>("minTrackPt"))
   , m_maxTrackPt(iConfig.getParameter<double>("maxTrackPt"))
-  , m_minTrackP(iConfig.getParameter<double>("minTrackP"))
-  , m_maxTrackP(iConfig.getParameter<double>("maxTrackP"))
   , m_minTrackerHits(iConfig.getParameter<int>("minTrackerHits"))
   , m_maxTrackerRedChi2(iConfig.getParameter<double>("maxTrackerRedChi2"))
   , m_allowTIDTEC(iConfig.getParameter<bool>("allowTIDTEC"))
@@ -163,7 +158,6 @@ MuonAlignmentFromReference::MuonAlignmentFromReference(const edm::ParameterSet &
   m_counter_events = 0;
   m_counter_tracks = 0;
   m_counter_trackpt = 0;
-  m_counter_trackp = 0;
   m_counter_trackerhits = 0;
   m_counter_trackerchi2 = 0;
   m_counter_trackertidtec = 0;
@@ -492,9 +486,6 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const EventI
     if (m_minTrackPt < track->pt()  &&  track->pt() < m_maxTrackPt) {
        m_counter_trackpt++;
 
-    if (m_minTrackP < track->p()  &&  track->p() < m_maxTrackP) {
-       m_counter_trackp++;
-
       char charge = (track->charge() > 0 ? 1 : -1);
       // double qoverpt = track->charge() / track->pt();
       // double qoverpz = track->charge() / track->pz();
@@ -607,7 +598,6 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const EventI
 
 	       } // end loop over chamberIds
 	    }}} // end if refit is okay
-    } // end if track p is within range
     } // end if track pT is within range
   } // end loop over tracks
 }
@@ -618,24 +608,23 @@ void MuonAlignmentFromReference::terminate() {
 	    << "COUNT{ events: " << m_counter_events << " }" << std::endl
 	    << "COUNT{   tracks: " << m_counter_tracks << " }" << std::endl
 	    << "COUNT{     trackpt: " << m_counter_trackpt << " }" << std::endl
-	    << "COUNT{       trackp: " << m_counter_trackp << " }" << std::endl
-	    << "COUNT{         trackerhits: " << m_counter_trackerhits << " }" << std::endl
-	    << "COUNT{           trackerchi2: " << m_counter_trackerchi2 << " }" << std::endl
-	    << "COUNT{             trackertidtec: " << m_counter_trackertidtec << " }" << std::endl
-	    << "COUNT{               station123: " << m_counter_station123 << " }" << std::endl
-	    << "COUNT{                 station123valid: " << m_counter_station123valid << " }" << std::endl
-	    << "COUNT{                   station123dt13hits: " << m_counter_station123dt13hits << " }" << std::endl
-	    << "COUNT{                     station123dt2hits: " << m_counter_station123dt2hits << " }" << std::endl
-	    << "COUNT{                       station123aligning: " << m_counter_station123aligning << " }" << std::endl
-	    << "COUNT{                         resslopey: " << m_counter_resslopey << " }" << std::endl
-	    << "COUNT{               station4: " << m_counter_station4 << " }" << std::endl
-	    << "COUNT{                 station4valid: " << m_counter_station4valid << " }" << std::endl
-	    << "COUNT{                   station4hits: " << m_counter_station4hits << " }" << std::endl
-	    << "COUNT{                     station4aligning: " << m_counter_station4aligning << " }" << std::endl
-	    << "COUNT{               csc: " << m_counter_csc << " }" << std::endl
-	    << "COUNT{                 cscvalid: " << m_counter_cscvalid << " }" << std::endl
-	    << "COUNT{                   cschits: " << m_counter_cschits << " }" << std::endl
-	    << "COUNT{                     cscaligning: " << m_counter_cscaligning << " }" << std::endl
+	    << "COUNT{       trackerhits: " << m_counter_trackerhits << " }" << std::endl
+	    << "COUNT{         trackerchi2: " << m_counter_trackerchi2 << " }" << std::endl
+	    << "COUNT{           trackertidtec: " << m_counter_trackertidtec << " }" << std::endl
+	    << "COUNT{             station123: " << m_counter_station123 << " }" << std::endl
+	    << "COUNT{               station123valid: " << m_counter_station123valid << " }" << std::endl
+	    << "COUNT{                 station123dt13hits: " << m_counter_station123dt13hits << " }" << std::endl
+	    << "COUNT{                   station123dt2hits: " << m_counter_station123dt2hits << " }" << std::endl
+	    << "COUNT{                     station123aligning: " << m_counter_station123aligning << " }" << std::endl
+            << "COUNT{                       resslopey: " << m_counter_resslopey << " }" << std::endl
+	    << "COUNT{             station4: " << m_counter_station4 << " }" << std::endl
+	    << "COUNT{               station4valid: " << m_counter_station4valid << " }" << std::endl
+	    << "COUNT{                 station4hits: " << m_counter_station4hits << " }" << std::endl
+	    << "COUNT{                   station4aligning: " << m_counter_station4aligning << " }" << std::endl
+	    << "COUNT{             csc: " << m_counter_csc << " }" << std::endl
+	    << "COUNT{               cscvalid: " << m_counter_cscvalid << " }" << std::endl
+	    << "COUNT{                 cschits: " << m_counter_cschits << " }" << std::endl
+	    << "COUNT{                   cscaligning: " << m_counter_cscaligning << " }" << std::endl
 	    << "That's all!" << std::endl;
 
   // collect temporary files

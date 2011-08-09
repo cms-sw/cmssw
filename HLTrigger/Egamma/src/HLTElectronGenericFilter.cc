@@ -1,6 +1,6 @@
 /** \class HLTElectronGenericFilter
  *
- * $Id: HLTElectronGenericFilter.cc,v 1.1 2009/01/28 15:06:02 covarell Exp $
+ * $Id: HLTElectronGenericFilter.cc,v 1.2 2009/09/16 09:23:20 covarell Exp $
  *
  *  \author Roberto Covarelli (CERN)
  *
@@ -42,7 +42,7 @@ HLTElectronGenericFilter::HLTElectronGenericFilter(const edm::ParameterSet& iCon
   ncandcut_  = iConfig.getParameter<int> ("ncandcut");
   doIsolated_ = iConfig.getParameter<bool> ("doIsolated");
 
-  store_ = iConfig.getUntrackedParameter<bool> ("SaveTag",false) ;
+  store_ = iConfig.getParameter<bool>("saveTags") ;
   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
 

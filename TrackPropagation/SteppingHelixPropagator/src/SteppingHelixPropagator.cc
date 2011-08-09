@@ -5,15 +5,15 @@
  *  to MC and (eventually) data. 
  *  Implementation file contents follow.
  *
- *  $Date: 2010/10/03 17:23:11 $
- *  $Revision: 1.74 $
+ *  $Date: 2011/02/12 17:55:25 $
+ *  $Revision: 1.75 $
  *  \author Vyacheslav Krutelyov (slava77)
  */
 
 //
 // Original Author:  Vyacheslav Krutelyov
 //         Created:  Fri Mar  3 16:01:24 CST 2006
-// $Id: SteppingHelixPropagator.cc,v 1.74 2010/10/03 17:23:11 elmer Exp $
+// $Id: SteppingHelixPropagator.cc,v 1.75 2011/02/12 17:55:25 slava77 Exp $
 //
 //
 
@@ -667,6 +667,7 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
   GlobalPoint gPointNorZ(svCurrent.r3.x(), svCurrent.r3.y(), svCurrent.r3.z());
 
   float gpmag = gPointNegZ.mag2();
+  float pmag2 = p3.mag2();
   if (gpmag > 1e20f ) {
     LogTrace(metname)<<"Initial point is too far";
     svCurrent.isValid_ = false;
@@ -674,6 +675,13 @@ void SteppingHelixPropagator::loadState(SteppingHelixPropagator::StateInfo& svCu
   }
   if (! (gpmag == gpmag) ) {
     LogTrace(metname)<<"Initial point is a nan";
+    edm::LogWarning("SteppingHelixPropagatorNAN")<<"Initial point is a nan";
+    svCurrent.isValid_ = false;
+    return;
+  }
+  if (! (pmag2 == pmag2) ) {
+    LogTrace(metname)<<"Initial momentum is a nan";
+    edm::LogWarning("SteppingHelixPropagatorNAN")<<"Initial momentum is a nan";
     svCurrent.isValid_ = false;
     return;
   }

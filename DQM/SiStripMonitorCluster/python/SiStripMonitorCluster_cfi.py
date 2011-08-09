@@ -4,7 +4,8 @@ import FWCore.ParameterSet.Config as cms
 SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
     # by default do not write out any file with histograms
     # can overwrite this in .cfg file with: replace SiStripMonitorCluster.OutputMEsInRootFile = true
-    ClusterProducer = cms.InputTag('siStripClusters'),
+    ClusterProducerStrip = cms.InputTag('siStripClusters'),
+    ClusterProducerPix = cms.InputTag('siPixelClusters'),
     OutputMEsInRootFile = cms.bool(False),
     OutputFileName = cms.string('SiStripMonitorCluster.root'),
                                      
@@ -142,7 +143,7 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
         xmax           = cms.double(299.5),
         subdetswitchon = cms.bool(False)
     ),
-
+                                       
     TProfClustersApvCycle = cms.PSet(
         Nbins = cms.int32(70),
         xmin = cms.double(-0.5),
@@ -193,7 +194,46 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
         ymax   = cms.double(800.5),
         globalswitchon = cms.bool(True)
         ),
-                                                                              
+
+    TH2CStripVsCpixel = cms.PSet(
+        Nbinsx = cms.int32(150),
+        xmin   = cms.double(-0.5),
+        xmax   = cms.double(74999.5),
+        Nbinsy = cms.int32(50),
+        ymin   = cms.double(-0.5),
+        ymax   = cms.double(14999.5),
+        globalswitchon = cms.bool(True)
+        ),
+                                       
+    MultiplicityRegions = cms.PSet(
+        k0 = cms.double(0.13),  # k from linear fit of the diagonal
+        q0 = cms.double(300),   # +/- variation of y axis intercept
+        dk0 = cms.double(40),   #+/- variation of k0 (in %) to contain the diagonal zone
+        MaxClus = cms.double(20000), #Divide Region 2 and Region 3
+        MinPix = cms.double(50)  # minimum number of Pix clusters to flag events with zero Si clusters
+        ),
+                                       
+    TH1MultiplicityRegions = cms.PSet(
+        Nbinx          = cms.int32(5),
+        xmin           = cms.double(0.5),
+        xmax           = cms.double(5.5),
+        globalswitchon = cms.bool(True)
+        ),                                 
+
+    TH1StripNoise2ApvCycle = cms.PSet(
+        Nbinsx = cms.int32(70),
+        xmin   = cms.double(-0.5),
+        xmax   = cms.double(69.5),
+        globalswitchon = cms.bool(True)
+        )
+                                       ,
+    TH1StripNoise3ApvCycle = cms.PSet(
+        Nbinsx = cms.int32(70),
+        xmin   = cms.double(-0.5),
+        xmax   = cms.double(69.5),
+        globalswitchon = cms.bool(True)
+        ),
+                                       
     Mod_On = cms.bool(True),
 
     HistoryProducer = cms.InputTag("consecutiveHEs"),

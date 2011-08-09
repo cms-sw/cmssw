@@ -33,7 +33,6 @@ namespace gen
     bool hadronize();
     bool decay();
     bool residualDecay();
-    bool readSettings( int ) { return true; }
     bool initializeForExternalPartons();
     bool initializeForInternalPartons();
     bool declareStableParticles( const std::vector<int> );

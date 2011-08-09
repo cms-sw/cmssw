@@ -46,7 +46,5 @@ namespace CastorDbASCIIIO {
   bool dumpObject (std::ostream& fOutput, const CastorElectronicsMap& fObject);
   bool getObject (std::istream& fInput, CastorChannelQuality* fObject);
   bool dumpObject (std::ostream& fOutput, const CastorChannelQuality& fObject);
-  DetId getId (const std::vector <std::string> & items);
-  void dumpId (std::ostream& fOutput, DetId id);
 } 
 #endif

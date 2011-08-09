@@ -9,6 +9,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include <iostream>
@@ -31,13 +32,12 @@ class ReducedESRecHitCollectionProducer : public edm::EDProducer {
   virtual ~ReducedESRecHitCollectionProducer();
   void beginRun (edm::Run &, const edm::EventSetup&);
   void produce(edm::Event & e, const edm::EventSetup& c);
-  void collectIds(const GlobalPoint & point, const int & row=0);
+  void collectIds(const ESDetId strip1, const ESDetId strip2, const int & row=0);
   
  private :
 
   const EcalPreshowerGeometry *geometry_p;
   CaloSubdetectorTopology *topology_p;
-
 
   double scEtThresh_;
 

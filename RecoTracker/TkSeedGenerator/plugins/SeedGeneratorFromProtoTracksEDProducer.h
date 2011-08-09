@@ -15,6 +15,12 @@ public:
   virtual void produce(edm::Event& ev, const edm::EventSetup& es);
 private:
   edm::ParameterSet theConfig;
-  edm::InputTag theInputCollectionTag;  
+  edm::InputTag theInputCollectionTag;
+  edm::InputTag theInputVertexCollectionTag;
+  double originHalfLength;
+  double originRadius;
+  bool useProtoTrackKinematics;
+  bool useEventsWithNoVertex;
+  std::string builderName;
 };
 #endif

@@ -19,21 +19,20 @@
 #include "FWCore/PluginManager/interface/ProblemTracker.h"
 #include "FWCore/Utilities/interface/Presence.h"
 #include "FWCore/PluginManager/interface/PresenceFactory.h"
-#include "FWCore/PythonParameterSet/interface/MakeParameterSets.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 // -----------------------------------------------
 
-std::string indirectWarn( int num )
+std::string indirectWarn( int /*num*/ )
 {
 //  std::cout << "  Returning the string Emit Warning level message " << num << std::endl; 
     return std::string("\t\tEmit Warning level message "); 
 }
 
 
-std::string indirectInfo( int num )
+std::string indirectInfo( int /*num*/ )
 {
 //  std::cout << "  Returning the string Emit Info level message " << num << std::endl; 
     return std::string("\t\tEmit Info level message "); 
@@ -58,7 +57,7 @@ void DoMyStuff( )
   }
 }  
 
-int main(int argc, char* argv[]) {
+int main(int, char* argv[]) {
 
   std::string const kProgramName = argv[0];
 

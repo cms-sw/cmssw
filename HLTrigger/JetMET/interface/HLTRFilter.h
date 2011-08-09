@@ -25,7 +25,7 @@ class HLTRFilter : public HLTFilter {
    private:
       edm::InputTag inputTag_; // input tag identifying product
       edm::InputTag inputMetTag_; // input tag identifying MET product
-      bool saveTag_;           // whether to save this tag
+      bool saveTags_;           // whether to save this tag
       double min_R_;           // minimum R vaule
       double min_MR_;          // minimum MR vaule
       bool DoRPrime_;          // Do the R' instead of R

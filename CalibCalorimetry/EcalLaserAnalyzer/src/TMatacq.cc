@@ -1,7 +1,7 @@
 /* 
  *  \class TMatacq
  *
- *  $Date: 2010/04/12 14:17:13 $
+ *  $Date: 2009/06/02 12:55:21 $
  *  \author: Patrice Verrecchia - CEA/Saclay
  */
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TMatacq.h>
@@ -9,8 +9,6 @@
 #include <iostream>
 #include <math.h>
 #include "TVectorD.h"
-#include "TF1.h"
-#include "TH1D.h"
 
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TMarkov.h>
 
@@ -52,15 +50,6 @@ TMatacq::TMatacq(int Ntot, int Nsamp1, int Nsamp2, int cut, int Nbef, int Naft, 
        status[k+nevlasers]=0;
 
   nevmtq0=0; nevmtq1=0;
-  
-  // Define TF1 and TH1 for doFit2
-  
-  double max=double(NSAMP);
-  double min=0.0;
-  flandau = new TF1("flandau","landau",min,max);
-  
-  htmp = new TH1D("htmp","htmp",NSAMP, min, max);
-
 }
 
 // Destructor
@@ -68,7 +57,7 @@ TMatacq::~TMatacq()
 { 
 }
 
-int TMatacq::rawPulseAnalysis(int Nsamp, double *adc)  // GHM
+int TMatacq::rawPulseAnalysis(Int_t Nsamp, Double_t *adc)  // GHM
 {
   using namespace std;
 
@@ -76,8 +65,7 @@ int TMatacq::rawPulseAnalysis(int Nsamp, double *adc)  // GHM
 
   int k,ithr;
   double dsum=0.,dsum2=0.;
-  double dtest=0., dtest2=0.;
-
+  
   //  std::cout << "calling init" << std::endl;
   init();
   //  std::cout << ".......done" << std::endl;
@@ -86,69 +74,43 @@ int TMatacq::rawPulseAnalysis(int Nsamp, double *adc)  // GHM
       printf("found different number of samples fNsamples=%d Nsamp=%d\n",fNsamples,Nsamp);
       return 100;
   }
-  ped_cyc=new double[20];
 
-  // Compute cyclic pedestals on first 200 samples :
-
-  for(int i=0; i<20; i++)ped_cyc[i]=0.;
-  for(int i=100; i<300; i++)ped_cyc[i%20]+=adc[i];
-  for(int i=0; i<20; i++)ped_cyc[i]/=10.;
-
-  
-  // Remove cyclic pedestal:
-  for(int i=0; i<fNsamples; i++){ 
-    fadc[i]=adc[i]-ped_cyc[i%20];
-    if(i<presample){ 
-      dsum+= ped_cyc[i%20];
-      dsum2+= ped_cyc[i%20]*ped_cyc[i%20];
-      dtest+=fadc[i];
-      dtest2+=fadc[i]*fadc[i]; 
-    }
-    if(fabs(fadc[i])>fabs(laser_qmax))
-      {
-        laser_qmax=fadc[i];
-        laser_imax=i;
-      }
-    
+  for(k=0;k<presample;k++) {
+       dsum+= adc[k];
+       dsum2+= adc[k]*adc[k];
   }
-  
-  //bl=dsum/((double) presample);
-  //double ss= (dsum2/((double) presample)-bl*bl);
-  //if(ss<0.) ss=0.;
-  //sigbl=sqrt(ss);
-
-  bl=dtest/((double) presample);
-  double ss= (dtest2/((double) presample)-bl*bl);
+  bl=dsum/((double) presample);
+  double ss= (dsum2/((double) presample)-bl*bl);
+  if(ss<0.) ss=0.;
   sigbl=sqrt(ss);
-
   for(ithr=0,k=presample;k<endsample;k++) {
-    if(fadc[k] > nsigcut*sigbl && ithr == 0) {
-      ithr=1; firstsample=k;
-    }
+	if(adc[k] > (bl+nsigcut*sigbl) && ithr == 0) {
+            ithr=1; firstsample=k;
+	}
   }
-  
+
   if(ithr == 0) return 101;
-  
+
   for(ithr=0,k=firstsample;k<Nsamp;k++) {
-    if(fadc[k] < nsigcut*sigbl && ithr == 0) {
-      ithr=1; lastsample=k;
-    }
+       if(adc[k] < (bl+nsigcut*sigbl) && ithr == 0) {
+             ithr=1; lastsample=k;
+       }
   }
   if(ithr == 0) lastsample= Nsamp;
 
   if(lastsample > firstsample+NMAXSAMP) lastsample= firstsample+NMAXSAMP;
 
   val_max=0.; samplemax=0;
-  for (int is=firstsample;is<lastsample;is++) {
-    bong[is-firstsample]= fadc[is] ;
-    if(bong[is-firstsample] > val_max) {
-      val_max= bong[is-firstsample]; samplemax=is;
-    }
+  for (Int_t is=firstsample;is<lastsample;is++) {
+       bong[is-firstsample]= adc[is] - bl;
+       if(bong[is-firstsample] > val_max) {
+	   val_max= bong[is-firstsample]; samplemax=is;
+       }
   }
   if(samplemax == 0) return 103;
   if(samplemax > lastsample) return 104;
   if(samplemax < firstsample) return 105;
-  
+
   
   int endslide=samplemax -nslide;
   int beginslide=nslide;
@@ -156,11 +118,11 @@ int TMatacq::rawPulseAnalysis(int Nsamp, double *adc)  // GHM
   slidingmean=0.0;
   
   for(int i=beginslide;i<endslide;i++) {
-    slidingmean+= fadc[i];
+    slidingmean+= adc[i];
     islidingmean+=1;
   }
   if( islidingmean!=0) slidingmean/=double(islidingmean);
-  
+
   return 0;
 }
 int TMatacq::findPeak()
@@ -366,93 +328,6 @@ int TMatacq::doFit()
   return 0;
 }
 
-int TMatacq::doFit2()
-{
-  ampl=0.; timeatmax=0.; 
-
-  // Landau Fit
-  //=============
-  htmp->Reset();
-
-  for(int i=0; i<fNsamples;i++) htmp->SetBinContent(i+1,fadc[i]);
-
-  flandau->SetParameter(0,laser_qmax*5.);
-  flandau->SetParameter(1,(double)laser_imax);
-  flandau->SetParameter(2,10.);
-  laser_tmax=(double) laser_imax;
-  double fit_window=15.;
-  
-  // cout<<"CHECK INIT VAL: "<< laser_qmax<<" "<<laser_imax<< endl;
-  htmp->Fit(flandau,"Q0","",laser_tmax-fit_window,laser_tmax+fit_window);
-  laser_tmax=flandau->GetMaximumX();
-  laser_qmax=flandau->GetMaximum();
-  //cout<<"CHECK AFTER 1 FIT: "<< laser_qmax<<" "<<laser_tmax<< endl;
-  htmp->Fit(flandau,"Q0","",laser_tmax-fit_window,laser_tmax+fit_window);
-  laser_tmax=flandau->GetMaximumX();
-  laser_qmax=flandau->GetMaximum();
-  //cout<<"CHECK AFTER 2 FITS: "<< laser_qmax<<" "<<laser_tmax<< endl;
-  htmp->Fit(flandau,"Q0","",laser_tmax-fit_window,laser_tmax+fit_window);
-  laser_tmax=flandau->GetMaximumX();
-  laser_qmax=flandau->GetMaximum();
-  //cout<<"CHECK AFTER 3 FITS: "<< laser_qmax<<" "<<laser_tmax<< endl;
-  
-  double landau_tmax=laser_tmax;
-  double landau_qmax=laser_qmax;
-  
-  // Compute w80, w20 and w50 :
-  //=========================
-  
-  int nbin=fNsamples;
-  int imin50=0;
-  int imin80=0;
-  int imin20=0;
-  int imax50=0;
-  int imax80=0;
-  int imax20=0;
-
-  for(int i=0;i<nbin;i++)
-    {
-      if(fabs(fadc[i])>fabs(landau_qmax)*0.50 && imin50==0) imin50=i;
-      if(fabs(fadc[i])>fabs(landau_qmax)*level3 && imin80==0) imin80=i;
-      if(fabs(fadc[i])>fabs(landau_qmax)*level2 && imin20==0) imin20=i;
-      if(fabs(fadc[i])<fabs(landau_qmax)*0.50 && imin50!=0 && imax50==0) imax50=i;
-      if(fabs(fadc[i])<fabs(landau_qmax)*level3 && imin80!=0 && imax80==0) imax80=i;
-      if(fabs(fadc[i])<fabs(landau_qmax)*level2 && imin20!=0 && imax20==0) imax20=i;
-    }
-  
-  double f20=0., f80=0., f50=0.;
-  if(imin20>0)f20=(double)imin20-(fadc[imin20]-level2*landau_qmax)/
-		(fadc[imin20]-fadc[imin20-1]);
-  if(imin80>0)f80=(double)imin80-(fadc[imin80]-level3*landau_qmax)/
-		(fadc[imin80]-fadc[imin80-1]);
-  if(imin50>0)f50=(double)imin50-(fadc[imin50]-0.50*landau_qmax)/
-		(fadc[imin50]-fadc[imin50-1]);
-  
-  double g20=(double)nbin, g80=(double)nbin, g50=(double)nbin;
-  if(imax20<nbin)g20=(double)imax20-(fadc[imax20]-level2*landau_qmax)/
-		   (fadc[imax20]-fadc[imax20-1]);
-  if(imax80<nbin)g80=(double)imax80-(fadc[imax80]-level3*landau_qmax)/
-		   (fadc[imax80]-fadc[imax80-1]);
-  if(imax50<nbin)g50=(double)imax50-(fadc[imax50]-0.50*landau_qmax)/
-		   (fadc[imax50]-fadc[imax50-1]);
-
-
-
-  ampl=landau_qmax;
-  timeatmax=landau_tmax;
-  if(fabs(ampl)<50.)
-    {
-      //printf("Laser amplitude too low, skip event\n");
-      return(-1);
-    }
-  
-  width20=g20-f20;
-  width50=g50-f50;
-  width80=g80-f80;
-
-  return 0;
-}
-
 int TMatacq::compute_trise()
 {
   int error;
@@ -483,13 +358,13 @@ double TMatacq::interpolate(double amplx)
   int kmax= (int) pkval - firstsample;
 
   int bin_low=0;
-  for(int k=0;k<kmax;k++)
+  for(Int_t k=0;k<kmax;k++)
       if(0. < bong[k] && bong[k] < amplx) {
           bin_low=k;
       }
   if(bin_low == 0) return -301.;
   int bin_high=0;
-  for(int k=kmax;k>=0;k--)
+  for(Int_t k=kmax;k>=0;k--)
       if(bong[k] > amplx) {
           bin_high=k;
       }
@@ -507,7 +382,7 @@ double TMatacq::interpolate(double amplx)
   return T;
 }
 
-void TMatacq::enterdata(int anevt)
+void TMatacq::enterdata(Int_t anevt)
 {
   if(anevt < 2*nevlasers) {
       if(anevt < nevlasers) {
@@ -600,7 +475,7 @@ int TMatacq::countBadPulses(int gRunNumber)
   if(fmatacq == NULL) printf("Error while opening file : %s\n",filename);
 
   int nevbad=0;
-  for(int i=0;i<nevmtq0+nevmtq1;i++) {
+  for(Int_t i=0;i<nevmtq0+nevmtq1;i++) {
        if(comp_trise[i] < meantrise - 3.*sigtrise) {
 	   nevbad++;
 	   fprintf(fmatacq,"%d \n",status[i]);
@@ -680,4 +555,3 @@ void TMatacq::printitermatacqData(int gRunNumber, int color, int timestart)
      int iret=fclose(fmatacq);
      printf(" Closing file : %d\n",iret);
 }
-

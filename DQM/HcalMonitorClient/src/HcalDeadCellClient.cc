@@ -11,8 +11,8 @@
 /*
  * \file HcalDeadCellClient.cc
  * 
- * $Date: 2011/03/21 23:02:03 $
- * $Revision: 1.73 $
+ * $Date: 2011/03/23 03:25:54 $
+ * $Revision: 1.74 $
  * \author J. Temple
  * \brief Dead Cell Client class
  */
@@ -48,6 +48,7 @@ HcalDeadCellClient::HcalDeadCellClient(std::string myname, const edm::ParameterS
 						ps.getUntrackedParameter<int>("minevents",1000));
 
   excludeHOring2_backup_=ps.getUntrackedParameter<bool>("excludeHOring2_backup",false);  // this is used only if excludeHOring2 value from Dead Cell task can't be read
+  Online_                = ps.getUntrackedParameter<bool>("online",false);
 
   ProblemCellsByDepth=0;
   ProblemCells=0;

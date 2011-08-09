@@ -38,7 +38,7 @@ private:
 
   // ----------member data ---------------------------
   edm::InputTag inputTag_;    // input tag identifying product
-  bool          saveTag_;     // whether to save this tag
+  bool          saveTags_;     // whether to save this tag
   double        min_Pt_;      // pt threshold in GeV 
   double        max_Eta_;     // eta range (symmetric)
   unsigned int  min_N_;       // number of objects passing cuts required
@@ -50,7 +50,7 @@ private:
 //
 HLTCaloTowerFilter::HLTCaloTowerFilter(const edm::ParameterSet& config) :
   inputTag_ (config.getParameter<edm::InputTag>("inputTag")),
-  saveTag_  (config.getUntrackedParameter<bool>("saveTag", false)),
+  saveTags_  (config.getParameter<bool>("saveTags")),
   min_Pt_   (config.getParameter<double>       ("MinPt"   )),
   max_Eta_  (config.getParameter<double>       ("MaxEta"  )),
   min_N_    (config.getParameter<unsigned int> ("MinN"    ))
@@ -84,7 +84,7 @@ HLTCaloTowerFilter::filter(edm::Event& event, const edm::EventSetup& setup) {
 
   // The filter object
   std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTag_) filterobject->addCollectionTag(inputTag_);
+  if (saveTags_) filterobject->addCollectionTag(inputTag_);
 
   // get hold of collection of objects
   Handle<CaloTowerCollection> caloTowers;

@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/02/11 20:55:24 $
- *  $Revision: 1.6 $
+ *  $Date: 2011/05/01 08:43:49 $
+ *  $Revision: 1.10 $
  *
  *  \author Jim Brooke
  *
@@ -32,7 +32,7 @@
 //
 HLT1CaloJetEnergy::HLT1CaloJetEnergy(const edm::ParameterSet& iConfig) :
   inputTag_ (iConfig.getParameter<edm::InputTag>("inputTag")),
-  saveTag_  (iConfig.getUntrackedParameter<bool>("saveTag")),
+  saveTags_  (iConfig.getParameter<bool>("saveTags")),
   min_E_    (iConfig.getParameter<double>       ("MinE"   )),
   max_Eta_  (iConfig.getParameter<double>       ("MaxEta"   )),
   min_N_    (iConfig.getParameter<int>          ("MinN"   ))
@@ -55,7 +55,7 @@ void
 HLT1CaloJetEnergy::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltStoppedHSCPIterativeCone5CaloJets"));
-  desc.addUntracked<bool>("saveTag",false);
+  desc.add<bool>("saveTags",false);
   desc.add<double>("MinE",20.0);
   desc.add<double>("MaxEta",3.0);
   desc.add<int>("MinN",1);
@@ -82,7 +82,7 @@ HLT1CaloJetEnergy::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // The filter object
    auto_ptr<TriggerFilterObjectWithRefs>
      filterobject (new TriggerFilterObjectWithRefs(path(),module()));
-   if (saveTag_) filterobject->addCollectionTag(inputTag_);
+   if (saveTags_) filterobject->addCollectionTag(inputTag_);
    // Ref to Candidate object to be recorded in filter object
    Ref<CaloJetCollection> ref;
 

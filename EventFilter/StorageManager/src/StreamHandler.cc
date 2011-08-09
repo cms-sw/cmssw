@@ -1,4 +1,4 @@
-// $Id: StreamHandler.cc,v 1.20.4.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: StreamHandler.cc,v 1.21 2011/03/07 15:31:32 mommsen Exp $
 /// @file: StreamHandler.cc
 
 #include <sstream>
@@ -75,18 +75,11 @@ namespace stor {
   }
   
   
-  void StreamHandler::closeFilesForLumiSection
+  bool StreamHandler::closeFilesForLumiSection
   (
     const uint32_t& lumiSection,
     std::string& str
   )
-  {
-    streamRecord_->reportLumiSectionInfo(lumiSection, str);
-    closeFilesForLumiSection(lumiSection);
-  }
-  
-  
-  void StreamHandler::closeFilesForLumiSection(const uint32_t lumiSection)
   {
     fileHandlers_.erase(
       std::remove_if(fileHandlers_.begin(),
@@ -94,6 +87,8 @@ namespace stor {
         boost::bind(&FileHandler::isFromLumiSection,
           _1, lumiSection)),
       fileHandlers_.end());
+    
+    return streamRecord_->reportLumiSectionInfo(lumiSection, str);
   }
   
   

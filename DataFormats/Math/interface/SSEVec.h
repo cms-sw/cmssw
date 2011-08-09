@@ -4,9 +4,7 @@
 #if defined(__GNUC__) && (__GNUC__ == 4) && (__GNUC_MINOR__ > 4)
 #include <x86intrin.h>
 #define CMS_USE_SSE
-#ifdef __AVX__
-#define CMS_USE_AVX
-#endif
+
 #else
 
 #ifdef __SSE2__
@@ -25,22 +23,6 @@
 #endif
 
 #include<cmath>
-
-// needed fro gcc < 4.6
-namespace mathSSE {
-  struct ZeroUpper {
-    ZeroUpper() {
-#ifdef __AVX__
-    _mm256_zeroupper();
-#endif
-    }
-   ~ZeroUpper() {
-#ifdef __AVX__
-    _mm256_zeroupper();
-#endif
-    }
-  };
-}
 
 namespace mathSSE {
   template<typename T> inline T sqrt(T t) { return std::sqrt(t);}
@@ -85,9 +67,7 @@ namespace mathSSE {
 namespace mathSSE {
 #ifdef  CMS_USE_SSE
   //dot
-  inline __m128 
-  __attribute__((always_inline)) __attribute__ ((pure))
-  _mm_dot_ps(__m128 v1, __m128 v2) {
+  inline __m128 _mm_dot_ps(__m128 v1, __m128 v2) {
 #ifdef __SSE4_1__
     return _mm_dp_ps(v1, v2, 0xff);
 #else
@@ -106,72 +86,26 @@ namespace mathSSE {
   
 
   // cross (just 3x3) 
-  inline __m128 
-  __attribute__((always_inline)) __attribute__ ((pure))
-  _mm_cross_ps(__m128 v1, __m128 v2) {
-    // same order is  _MM_SHUFFLE(3,2,1,0)
-    //                                               x2, z1,z1
+  inline __m128 _mm_cross_ps(__m128 v1, __m128 v2) {
     __m128 v3 = _mm_shuffle_ps(v2, v1, _MM_SHUFFLE(3, 0, 2, 2));
-    //                                               y1, x2,y2
     __m128 v4 = _mm_shuffle_ps(v1, v2, _MM_SHUFFLE(3, 1, 0, 1));
     
     __m128 v5 = _mm_mul_ps(v3, v4);
     
-    //                                         x1, z2,z2
     v3 = _mm_shuffle_ps(v1, v2, _MM_SHUFFLE(3, 0, 2, 2));
-    //                                        y2, x1,y1
     v4 = _mm_shuffle_ps(v2, v1, _MM_SHUFFLE(3, 1, 0, 1));
     
     v3 = _mm_mul_ps(v3, v4);
     const  __m128 neg = _mm_set_ps(0.0f,0.0f,-0.0f,0.0f);
     return _mm_xor_ps(_mm_sub_ps(v5, v3), neg);
   }
+
+
 #endif // CMS_USE_SSE
-
-#ifdef  CMS_USE_AVX
-  inline __m256d  
-  __attribute__((always_inline)) __attribute__ ((pure))
-  _mm256_dot_pd(__m256d v1, __m256d v2) {
-    __m256d mul = _mm256_mul_pd(v1, v2);
-    mul = _mm256_hadd_pd(mul,mul);
-    __m256d tmp = _mm256_permute2f128_pd(mul,mul,1);
-    return _mm256_add_pd(mul,tmp);
-  }
-
-  inline __m256d  
-  __attribute__((always_inline)) __attribute__ ((pure))
-  _mm256_cross_pd(__m256d v1, __m256d v2) {
-    
-    __m256d v3 = _mm256_permute2f128_pd(v2, v1, (2<<4)+1);
-    v3 = _mm256_permute_pd(v3,0);
-    
-    __m256d v4 = _mm256_permute2f128_pd(v1, v2, (2<<4));
-    v4 = _mm256_permute_pd(v4,5);
-    
-    __m256d v5 = _mm256_mul_pd(v3, v4);
-    
-    v3 = _mm256_permute2f128_pd(v1, v2, (2<<4)+1);
-    v3 = _mm256_permute_pd(v3,0);
-    
-    v4 = _mm256_permute2f128_pd(v2, v1, (2<<4));
-    v4 = _mm256_permute_pd(v4,5);
-    
-    v3 = _mm256_mul_pd(v3, v4);
-    const  __m256d neg = _mm256_set_pd(0.0,0.0,-0.0,0.0);
-    return _mm256_xor_pd(_mm256_sub_pd(v5, v3), neg);
- 
-  }
-
-#endif //  CMS_USE_AVX
-
 
 
   template<typename T>
   struct OldVec { T  theX; T  theY; T  theZ; T  theW;}  __attribute__ ((aligned (16)));
-#ifdef  CMS_USE_AVX
-  template<>
-  struct OldVec<double> { double  theX; double  theY; double  theZ; double  theW;}  __attribute__ ((aligned (32)));
-#endif
   
   template<typename T> union Vec4;
 
@@ -269,19 +203,6 @@ namespace mathSSE {
     }
   };
   
-#ifdef  CMS_USE_AVX
-  template<>
-  union Mask4<double> {
-    __m256d vec;
-    unsigned long long __attribute__ ((aligned(32))) mask[4];
-    Mask4() {
-      vec = _mm256_setzero_pd();
-     }
-    Mask4(unsigned long long m1, unsigned long long m2, unsigned long long m3, unsigned long long m4) {
-      mask[0]=m1;  mask[1]=m2;  mask[2]=m3;  mask[3]=m4; 
-    }
-  };
-#else
   template<>
   union Mask4<double> {
     __m128d vec[2];
@@ -294,7 +215,7 @@ namespace mathSSE {
       mask[0]=m1;  mask[1]=m2;  mask[2]=m3;  mask[3]=m4; 
     }
   };
-#endif
+
 
   template<>
   union Mask2<double> {
@@ -432,14 +353,6 @@ namespace mathSSE {
   };
  
 
-
-
-#ifdef  CMS_USE_AVX
-}// namespace mathSSE
-#include "AVXVec.h"
-
-namespace mathSSE {
-#else
   template<>
   union Vec4<double> {
     __m128d vec[2];
@@ -530,7 +443,6 @@ namespace mathSSE {
     __m128 v2 = _mm_cvtpd_ps(ivec.vec[1]);
     vec = _mm_shuffle_ps(vec, v2, _MM_SHUFFLE(1, 0, 1, 0));
   }
-#endif  // CMS_USE_AVX
 
 
 #endif // CMS_USE_SSE
@@ -551,12 +463,24 @@ namespace mathSSE {
   template<typename T>
   inline As3D<T> as3D(Vec4<T> const &v ) { return v;}
 
-} // namespace mathSSE
+}
 
 #ifdef CMS_USE_SSE
 
 
 //float op
+
+inline float dot(mathSSE::Vec4F a, mathSSE::Vec4F b) {
+  using  mathSSE::_mm_dot_ps;
+  float s;
+  _mm_store_ss(&s,_mm_dot_ps(a.vec,b.vec));
+  return s;
+}
+
+inline mathSSE::Vec4F cross(mathSSE::Vec4F a, mathSSE::Vec4F b) {
+  using  mathSSE::_mm_cross_ps;
+  return _mm_cross_ps(a.vec,b.vec);
+}
 
 
 inline bool operator==(mathSSE::Vec4F a, mathSSE::Vec4F b) {
@@ -621,34 +545,6 @@ inline mathSSE::Vec4F operator*(mathSSE::Vec4F b,float a) {
   return  _mm_mul_ps(_mm_set1_ps(a),b.vec);
 }
 
-
-inline float dot(mathSSE::Vec4F a, mathSSE::Vec4F b) {
-  using  mathSSE::_mm_dot_ps;
-  float s;
-  _mm_store_ss(&s,_mm_dot_ps(a.vec,b.vec));
-  return s;
-}
-
-inline mathSSE::Vec4F cross(mathSSE::Vec4F a, mathSSE::Vec4F b) {
-  using  mathSSE::_mm_cross_ps;
-  return _mm_cross_ps(a.vec,b.vec);
-}
-
-
-inline float dotxy(mathSSE::Vec4F a, mathSSE::Vec4F b) {
-  mathSSE::Vec4F mul = a*b;
-#ifdef __SSE3__
-   mul = hadd(mul,mul);
-#else
-   __m128 swp = _mm_shuffle_ps(mul.vec, mul.vec, _MM_SHUFFLE(2, 3, 0, 1));
-   mul.vec = _mm_add_ps(mul.vec, swp);
-#endif
-  float s;
-  _mm_store_ss(&s,mul.vec);
-  return s;
-}
-
-
 //
 // float op 2d (use the 4d one...)
 //
@@ -699,13 +595,8 @@ inline float cross(mathSSE::Vec2F a, mathSSE::Vec2F b) {
 ///
 // double op 2d
 //
-
 inline  mathSSE::Vec2D::Vec2(Vec4D v4) {
-#ifdef  CMS_USE_AVX
-  vec = _mm256_castpd256_pd128(v4.vec);
-#else
   vec = v4.vec[0];
-#endif
 }
 
 inline  mathSSE::Vec2D::Vec2(Vec2F ivec) {
@@ -731,11 +622,6 @@ inline mathSSE::Vec2D andnot(mathSSE::Vec2D a, mathSSE::Vec2D b) {
   return  _mm_andnot_pd(a.vec,b.vec);
 }
 
-#ifdef __SSE3__
-inline mathSSE::Vec2D hadd(mathSSE::Vec2D a, mathSSE::Vec2D b) {
-  return _mm_hadd_pd(a.vec,b.vec);
-}
-#endif
 
 inline mathSSE::Vec2D operator+(mathSSE::Vec2D a, mathSSE::Vec2D b) {
   return  _mm_add_pd(a.vec,b.vec);
@@ -765,11 +651,7 @@ inline double dot(mathSSE::Vec2D a, mathSSE::Vec2D b)  __attribute__((always_inl
 
 inline double dot(mathSSE::Vec2D a, mathSSE::Vec2D b){
   __m128d res = _mm_mul_pd ( a.vec, b.vec);
-#ifdef __SSE3__
-    res = _mm_hadd_pd(res,res);
-#else
   res = _mm_add_sd (  _mm_shuffle_pd ( res , res, 1 ), res );
-#endif
   double s;
   _mm_store_sd(&s,res);
   return s;
@@ -787,17 +669,7 @@ inline double cross(mathSSE::Vec2D a, mathSSE::Vec2D b) {
 }
 
 
-#ifndef  CMS_USE_AVX
 // double op 3d
-
-
-#ifdef __SSE3__
-// consistent with AVX...
-inline mathSSE::Vec4D hadd(mathSSE::Vec4D a, mathSSE::Vec4D b) {
-  return  mathSSE::Vec4D(hadd(a.vec[0],b.vec[0]),hadd(a.vec[1],b.vec[1]) );
-}
-#endif
-
 
 inline bool operator==(mathSSE::Vec4D a, mathSSE::Vec4D b) {
   return 
@@ -884,27 +756,15 @@ inline mathSSE::Vec4D cross(mathSSE::Vec4D a, mathSSE::Vec4D b) {
 }
 
 
-inline double  
-__attribute__((always_inline)) __attribute__ ((pure)) 
-dotxy(mathSSE::Vec4D a, mathSSE::Vec4D b) {
-  return dot(a.xy(),b.xy());
-}
-
-#endif   // CMS_USE_AVX
-
 
 // sqrt
 namespace mathSSE {
   template<> inline Vec4F sqrt(Vec4F v) { return _mm_sqrt_ps(v.vec);}
   template<> inline Vec2F sqrt(Vec2F v) { return sqrt(Vec4F(v));}
   template<> inline Vec2D sqrt(Vec2D v) { return _mm_sqrt_pd(v.vec);}
-#ifdef  CMS_USE_AVX
-  template<> inline Vec4D sqrt(Vec4D v) { return _mm256_sqrt_pd(v.vec);}
-#else
   template<> inline Vec4D sqrt(Vec4D v) { 
     return Vec4D(_mm_sqrt_pd(v.vec[0]),_mm_sqrt_pd(v.vec[1]));
   }
-#endif
 }
 
 // chephes func

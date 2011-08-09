@@ -128,7 +128,7 @@ void SiStripUtility::getDetectorStatusColor(int status, int& rval, int&gval, int
     return;
   }
   // DCS Error
-  if (((status >> 3) & 0x1) > 0) {
+  if (((status >> 4) & 0x1) > 0) {
     rval = 200; gval = 20; bval = 255; 
     return;
   } 

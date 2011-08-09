@@ -9,6 +9,6 @@ root -l -b << EOF
   gSystem->Load("libDataFormatsVertexReco.so");
   gSystem->Load("libDataFormatsCommon.so");
   gSystem->Load("libDataFormatsHepMCCandidate.so");
-  .x DumpInfo.C++("Results/dedxASmi/combined/Eta25/PtMin20/Type0/",211);
+  .x DumpInfo.C++("Results/dedxASmi/combined/Eta25/PtMin25/Type0/",268);
 EOF
 

@@ -2,7 +2,7 @@
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
- * $Id: HLTElectronOneOEMinusOneOPFilterRegional.cc,v 1.8 2009/02/09 16:27:18 covarell Exp $
+ * $Id: HLTElectronOneOEMinusOneOPFilterRegional.cc,v 1.9 2011/01/19 16:48:23 sharper Exp $
  *
  */
 
@@ -35,7 +35,7 @@ HLTElectronOneOEMinusOneOPFilterRegional::HLTElectronOneOEMinusOneOPFilterRegion
    ncandcut_  = iConfig.getParameter<int> ("ncandcut");
    doIsolated_  = iConfig.getParameter<bool> ("doIsolated");
 
-   store_ = iConfig.getUntrackedParameter<bool> ("SaveTag",false) ;
+   store_ = iConfig.getParameter<bool>("saveTags") ;
    // L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
    // L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
 
