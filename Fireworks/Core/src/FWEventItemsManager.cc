@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.41 2011/07/13 20:49:28 amraktad Exp $
+// $Id: FWEventItemsManager.cc,v 1.42 2011/07/30 04:54:28 amraktad Exp $
 //
 
 // system include files
@@ -271,8 +271,8 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
                                processName,
                                filterExpression,
                                layer);
-
-      const FWConfiguration* proxyConfig = new FWConfiguration(*conf.valueForKey("PBConfig"));
+      
+      const FWConfiguration* proxyConfig = conf.valueForKey("PBConfig") ? new FWConfiguration(*conf.valueForKey("PBConfig")) : 0;
 
       add(desc, proxyConfig );
    }
