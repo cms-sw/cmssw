@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.4 $"
+__version__ = "$Revision: 1.5 $"
 
 import os
 import subprocess
@@ -8,8 +8,9 @@ import time
 import re
 
 defaultEOSinitCommand = 'source /afs/cern.ch/cms/caf/eos.sh ; alias'
-defaultEOSBasePath = '/eos/cms/store/lhe'
+defaultEOSRootPath = '/eos/cms/'
 defaultEOSLoadPath = '/store/lhe'
+defaultEOSBasePath = defaultEOSRootPath+defaultEOSLoadPath
 defaultEOSlistCommand = 'eoscms ls'
 defaultEOSfulllistCommand = 'eoscms ls -l'
 defaultEOSmkdirCommand = 'eoscms mkdir'
@@ -42,7 +43,7 @@ def lastArticle():
     return max(artList)
 
 
-def fileUpload(uploadPath,lheList):
+def fileUpload(uploadPath,lheList, reallyDoIt):
 
     inUploadScript = ''
 
@@ -50,23 +51,30 @@ def fileUpload(uploadPath,lheList):
         # Check the file existence
         newFileName = uploadPath+'/'+str(f)
         addFile = True
-        if os.path.exists(newFileName):
+        additionalOption = ''  
+        print newFileName
+        theCommand = EOSCommandPath+defaultEOSfulllistCommand+' '+defaultEOSRootPath+newFileName+' &> /dev/null' 
+        exeFullList = subprocess.Popen(["/bin/sh","-c",theCommand])
+        result = exeFullList.wait()
+        if result == 0:
             addFile = False
             print 'File '+newFileName+' already exists: do you want to overwrite? [y/n]'
             reply = raw_input()
             if reply == 'y' or reply == 'Y':
                 addFile = True
+                additionalOption = ' -f '
                 print ''
                 print 'Overwriting file '+newFileName+'\n'
         # add the file
         if addFile:
-            inUploadScript += defaultEOScpCommand+' '+str(f)+' '+uploadPath+'\n'
+            inUploadScript += defaultEOScpCommand+additionalOption+' '+str(f)+' '+uploadPath+'\n'
 
 # launch the upload shell script        
 
     print '\n Launching upload script \n'+inUploadScript+'\n at '+time.asctime(time.localtime(time.time()))+' ...\n'
-    exeRealUpload = subprocess.Popen(["/bin/sh","-c",inUploadScript])
-    exeRealUpload.communicate()
+    if reallyDoIt:  
+      exeRealUpload = subprocess.Popen(["/bin/sh","-c",inUploadScript])
+      exeRealUpload.communicate()
     print '\n Upload ended at '+time.asctime(time.localtime(time.time()))
 
 #################################################################################################    
@@ -97,7 +105,13 @@ if __name__ == '__main__':
     parser.add_option('-l', '--list', 
                       help='List the files in article <Id>' ,
                       default=0,
-                      dest='artIdLi')                      
+                      dest='artIdLi')                     
+    
+    parser.add_option('-d', '--dry-run',
+                      help='dry run, it does nothing, but you can see what it would do',
+                      action='store_true',
+                      default=False,
+                      dest='dryRun')
 
     (options,args) = parser.parse_args()
 
@@ -109,6 +123,8 @@ if __name__ == '__main__':
     print 'Running on ',time.asctime(time.localtime(time.time()))
     print ''
     
+    reallyDoIt = not options.dryRun
+
     # Now some fault control..If an error is found we raise an exception
     if not options.newId and options.artIdUp==0 and options.artIdLi==0:
         raise Exception('Please specify the action to be taken, either "-n", "-u" or "-l"!')
@@ -153,8 +169,9 @@ if __name__ == '__main__':
         print 'Creating new article with identifier '+str(newArt)+' ...\n'
         uploadPath = defaultEOSBasePath+'/'+str(newArt)
         theCommand = EOSCommandPath+defaultEOSmkdirCommand+' '+uploadPath
-        exeUpload = subprocess.Popen(["/bin/sh","-c",theCommand])
-        exeUpload.communicate()
+        if reallyDoIt:
+          exeUpload = subprocess.Popen(["/bin/sh","-c",theCommand])
+          exeUpload.communicate()
         uploadPath = defaultEOSLoadPath+'/'+str(newArt)
 
 # update article
@@ -176,11 +193,14 @@ if __name__ == '__main__':
 
 
     if newArt > 0:
-        fileUpload(uploadPath,theList)
+        fileUpload(uploadPath,theList, reallyDoIt)
         listPath = defaultEOSBasePath+'/'+str(newArt)
         print ''
         print 'Listing the '+str(newArt)+' article content after upload:'
         theCommand = EOSCommandPath+defaultEOSfulllistCommand+' '+listPath
-        exeFullList = subprocess.Popen(["/bin/sh","-c",theCommand])
-        exeFullList.communicate()
+        if reallyDoIt:
+          exeFullList = subprocess.Popen(["/bin/sh","-c",theCommand])
+          exeFullList.communicate()
+        else:
+          print 'Dry run, nothing was done'
         
