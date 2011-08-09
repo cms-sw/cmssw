@@ -316,11 +316,11 @@ if runPF2PAT:
   applyPostfix( process, 'pfElectronsFromVertex'    , postfix ).vertices = cms.InputTag( pfVertices )
   applyPostfix( process, 'pfElectronsFromVertex'    , postfix ).d0Cut    = pfD0Cut
   applyPostfix( process, 'pfElectronsFromVertex'    , postfix ).dzCut    = pfDzCut
-  applyPostfix( process, 'pfSelectedElectronsPF'    , postfix ).cut = pfElectronSelectionCut
-  applyPostfix( process, 'isoValElectronWithCharged', postfix ).deposits.deltaR = pfElectronIsoConeR
-  applyPostfix( process, 'isoValElectronWithNeutral', postfix ).deposits.deltaR = pfElectronIsoConeR
-  applyPostfix( process, 'isoValElectronWithPhotons', postfix ).deposits.deltaR = pfElectronIsoConeR
-  applyPostfix( process, 'pfIsolatedElectronsPF'    , postfix ).combinedIsolationCut = pfElectronCombIsoCut
+  applyPostfix( process, 'pfSelectedElectrons'      , postfix ).cut = pfElectronSelectionCut
+  applyPostfix( process, 'isoValElectronWithCharged', postfix ).deposits[0].deltaR = pfElectronIsoConeR
+  applyPostfix( process, 'isoValElectronWithNeutral', postfix ).deposits[0].deltaR = pfElectronIsoConeR
+  applyPostfix( process, 'isoValElectronWithPhotons', postfix ).deposits[0].deltaR = pfElectronIsoConeR
+  applyPostfix( process, 'pfIsolatedElectrons'      , postfix ).combinedIsolationCut = pfElectronCombIsoCut
 
 # remove MC matching, object cleaning, photons and taus
 if useStandardPAT:
@@ -391,12 +391,11 @@ if useStandardPAT:
   process.step3b_3 = step3b_3.clone()
   process.step3b   = cms.Sequence( process.step3b_1 * process.step3b_2 * process.step3b_3 )
 
-  if useL1FastJet:
-    process.kt6PFJets = kt6PFJets.clone( doRhoFastjet = True )
-    process.patDefaultSequence.replace( process.patJetCorrFactors
-                                      , process.kt6PFJets * process.patJetCorrFactors
-                                      )
-    process.out.outputCommands.append( 'keep double_*_*_' + process.name_() )
+  process.kt6PFJets = kt6PFJets.clone( doRhoFastjet = True )
+  process.patDefaultSequence.replace( process.patJetCorrFactors
+                                    , process.kt6PFJets * process.patJetCorrFactors
+                                    )
+  process.out.outputCommands.append( 'keep double_*_*_' + process.name_() )
 
   process.goodPatJets       = goodPatJets.clone()
   process.goodPatJetsMedium = process.goodPatJets.clone()
@@ -422,22 +421,23 @@ if runPF2PAT:
   ### Jets
 
   applyPostfix( process, 'patJetCorrFactors', postfix ).primaryVertices = cms.InputTag( 'goodOfflinePrimaryVertices' )
-  if useL1FastJet:
-    if usePFnoPU:
-      kt6PFJetsPFChs = kt6PFJetsChs.clone( src = cms.InputTag( 'pfNoElectron' + postfix ) )
-      setattr( process, 'kt6PFJetsChs' + postfix, kt6PFJetsPFChs )
-      getattr( process, 'patPF2PATSequence' + postfix).replace( getattr( process, 'patJetCorrFactors' + postfix )
-                                                              , getattr( process, 'kt6PFJetsChs' + postfix ) * getattr( process, 'patJetCorrFactors' + postfix )
-                                                              )
+  if usePFnoPU:
+    kt6PFJetsPFChs = kt6PFJetsChs.clone( src = cms.InputTag( 'pfNoElectron' + postfix ) )
+    setattr( process, 'kt6PFJetsChs' + postfix, kt6PFJetsPFChs )
+    getattr( process, 'patPF2PATSequence' + postfix).replace( getattr( process, 'patJetCorrFactors' + postfix )
+                                                            , getattr( process, 'kt6PFJetsChs' + postfix ) * getattr( process, 'patJetCorrFactors' + postfix )
+                                                            )
+    if useL1FastJet:
       applyPostfix( process, 'patJetCorrFactors', postfix ).rho = cms.InputTag( 'kt6PFJetsChs' + postfix, 'rho' )
-    else:
-      kt6PFJetsPF = kt6PFJets.clone( doRhoFastjet = True )
-      setattr( process, 'kt6PFJets' + postfix, kt6PFJetsPF )
-      getattr( process, 'patPF2PATSequence' + postfix).replace( getattr( process, 'patJetCorrFactors' + postfix )
-                                                              , getattr( process, 'kt6PFJets' + postfix ) * getattr( process, 'patJetCorrFactors' + postfix )
-                                                              )
+  else:
+    kt6PFJetsPF = kt6PFJets.clone( doRhoFastjet = True )
+    setattr( process, 'kt6PFJets' + postfix, kt6PFJetsPF )
+    getattr( process, 'patPF2PATSequence' + postfix).replace( getattr( process, 'patJetCorrFactors' + postfix )
+                                                            , getattr( process, 'kt6PFJets' + postfix ) * getattr( process, 'patJetCorrFactors' + postfix )
+                                                            )
+    if useL1FastJet:
       applyPostfix( process, 'patJetCorrFactors', postfix ).rho = cms.InputTag( 'kt6PFJets' + postfix, 'rho' )
-    process.out.outputCommands.append( 'keep double_*' + postfix + '*_*_' + process.name_() )
+  process.out.outputCommands.append( 'keep double_*' + postfix + '*_*_' + process.name_() )
 
   goodPatJetsPF = goodPatJets.clone( src = cms.InputTag( 'selectedPatJets' + postfix ) )
   setattr( process, 'goodPatJets' + postfix, goodPatJetsPF )
