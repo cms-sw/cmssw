@@ -51,7 +51,10 @@ def fillPileupHistogram (bxlumiinfo,pileupHistName,maxPileupBin,
             livetime=0
         for idx,bxvalue in enumerate(bxvaluelist):
             xingIntLumi=bxvalue * p.lumiSectionLen * livetime
-            mean = bxvalue * p.minBiasXsec * p.rotationTime
+            if options.minBiasXsec:
+                mean = bxvalue * options.minBiasXsec * p.rotationTime
+            else:
+                mean = bxvalue * p.minBiasXsec * p.rotationTime
             if mean > 100:
                 if runNumber:
                     print "mean number of pileup events > 100 for run %d, lum %d : m %f l %f" % \
