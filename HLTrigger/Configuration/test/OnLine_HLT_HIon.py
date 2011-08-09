@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V202 (CMSSW_4_2_0_HLT20)
+# /dev/CMSSW_4_2_0/HIon/V203 (CMSSW_4_2_0_HLT20)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V202')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V203')
 )
 
 process.streams = cms.PSet( 
@@ -2271,9 +2271,6 @@ process.PrescaleService = cms.Service( "PrescaleService",
       'Cosmics',
       'Cosmics + High Random' ),
     prescaleTable = cms.VPSet( 
-      cms.PSet(  pathName = cms.string( "HLT_LogMonitor_v1" ),
-        prescales = cms.vuint32( 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
-      ),
       cms.PSet(  pathName = cms.string( "HLT_HIZeroBias" ),
         prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 )
       ),
