@@ -1,97 +1,96 @@
-// Modified by Emmanuele
+/// ////////////////////////////////////////
+/// Stacked Tracker Simulations          ///
+/// Written by:                          ///
+/// Unknown                              ///
+///                                      ///
+/// Changed by:                          ///
+/// Emmanuele Salvati                    ///
+/// Cornell                              ///
+/// 2010, June                           ///
+///                                      ///
+/// Removed TrackTriggerHits             ///
+/// Fixed some issues about Clusters     ///
+/// ////////////////////////////////////////
+
+
+/** Begin Tracking Trigger **/
 
 #include "DataFormats/Common/interface/Wrapper.h"
-
-/* ========================================================================================= */
-/* ================================== TRACKING TRIGGER INCLUDES =================================== */
-/* ========================================================================================= */
-
 #include "SimDataFormats/SLHC/interface/StackedTrackerTypes.h"
 
 namespace {
   namespace {
 
-    cmsUpgrades::Ref_PSimHit_ PSH_;
-    cmsUpgrades::Ref_PixelDigi_	PD_;
+    cmsUpgrades::Ref_PSimHit_    PSH_;
+    cmsUpgrades::Ref_PixelDigi_  PD_;
 
-/* ========================================================================== */
-//SimHit type
-    cmsUpgrades::LocalStub_PSimHit_ LS_PSH_;
-    cmsUpgrades::LocalStub_PSimHit_Collection LS_PSH_C;
-    edm::Wrapper<cmsUpgrades::LocalStub_PSimHit_Collection> LS_PSH_CW;
+    /// SimHit type
+    cmsUpgrades::L1TkStub_PSimHit_                         S_PSH_;
+    cmsUpgrades::L1TkStub_PSimHit_Collection               S_PSH_C;
+    edm::Wrapper<cmsUpgrades::L1TkStub_PSimHit_Collection> S_PSH_CW;
 
-    cmsUpgrades::GlobalStub_PSimHit_ GS_PSH_;
-    cmsUpgrades::GlobalStub_PSimHit_Collection GS_PSH_C;
-    edm::Wrapper<cmsUpgrades::GlobalStub_PSimHit_Collection> GS_PSH_CW;
+    cmsUpgrades::L1TkTracklet_PSimHit_                         T_PSH_;
+    cmsUpgrades::L1TkTracklet_PSimHit_Collection               T_PSH_C;
+    edm::Wrapper<cmsUpgrades::L1TkTracklet_PSimHit_Collection> T_PSH_CW;
 
-    cmsUpgrades::Tracklet_PSimHit_ T_PSH_;
-    cmsUpgrades::Tracklet_PSimHit_Collection T_PSH_C;
-    edm::Wrapper<cmsUpgrades::Tracklet_PSimHit_Collection> T_PSH_CW;
-
-    cmsUpgrades::L1Track_PSimHit_ L1T_PSH_;
-    cmsUpgrades::L1Track_PSimHit_Collection L1T_PSH_C;
+    cmsUpgrades::L1Track_PSimHit_                         L1T_PSH_;
+    cmsUpgrades::L1Track_PSimHit_Collection               L1T_PSH_C;
     edm::Wrapper<cmsUpgrades::L1Track_PSimHit_Collection> L1T_PSH_CW;
 
+    /// PixelDigi type
+    cmsUpgrades::L1TkStub_PixelDigi_                         S_PD_;
+    cmsUpgrades::L1TkStub_PixelDigi_Collection               S_PD_C;
+    edm::Wrapper<cmsUpgrades::L1TkStub_PixelDigi_Collection> S_PD_CW;
 
-/* ========================================================================== */
-//PixelDigi type
-    cmsUpgrades::LocalStub_PixelDigi_ LS_PD_;
-    cmsUpgrades::LocalStub_PixelDigi_Collection	LS_PD_C;
-    edm::Wrapper<cmsUpgrades::LocalStub_PixelDigi_Collection> LS_PD_CW;
+    cmsUpgrades::L1TkTracklet_PixelDigi_                         T_PD_;
+    cmsUpgrades::L1TkTracklet_PixelDigi_Collection               T_PD_C;
+    edm::Wrapper<cmsUpgrades::L1TkTracklet_PixelDigi_Collection> T_PD_CW;
 
-    cmsUpgrades::GlobalStub_PixelDigi_ GS_PD_;
-    cmsUpgrades::GlobalStub_PixelDigi_Collection GS_PD_C;
-    edm::Wrapper<cmsUpgrades::GlobalStub_PixelDigi_Collection> GS_PD_CW;
-
-    cmsUpgrades::Tracklet_PixelDigi_ T_PD_;
-    cmsUpgrades::Tracklet_PixelDigi_Collection T_PD_C;
-    edm::Wrapper<cmsUpgrades::Tracklet_PixelDigi_Collection> T_PD_CW;
-
-    cmsUpgrades::L1Track_PixelDigi_ L1T_PD_;
-    cmsUpgrades::L1Track_PixelDigi_Collection L1T_PD_C;
+    cmsUpgrades::L1Track_PixelDigi_                         L1T_PD_;
+    cmsUpgrades::L1Track_PixelDigi_Collection               L1T_PD_C;
     edm::Wrapper<cmsUpgrades::L1Track_PixelDigi_Collection> L1T_PD_CW;
 
+
+/// WARNING NP** This has to be crosschecked after new class
+/// of Clusters has been setup
 /* ========================================================================== */      
 //Cluster types
     std::vector< std::vector< cmsUpgrades::Ref_PixelDigi_ > > STV_PD;
 
-
     std::pair<cmsUpgrades::StackedTrackerDetId,int> STP_STDI_I; // why ???
 
     // Emmanuele's modification 
-    cmsUpgrades::Cluster_PSimHit CL_PSH_; 
-    cmsUpgrades::Cluster_PixelDigi CL_PD_; 
-    //    
-    cmsUpgrades::Cluster_PSimHit_Map CL_PSH_M;
-    edm::Wrapper<cmsUpgrades::Cluster_PSimHit_Map> CL_PSH_MW;
-    cmsUpgrades::Cluster_PixelDigi_Map CL_PD_M;
-    edm::Wrapper<cmsUpgrades::Cluster_PixelDigi_Map> CL_PD_MW;
-    
-    std::pair<unsigned int, cmsUpgrades::Cluster_PSimHit > P_INT_PSHC;
-    std::pair<unsigned int, cmsUpgrades::Cluster_PixelDigi > P_INT_PDC;
+    cmsUpgrades::L1TkCluster_PSimHit_                         CL_PSH_;
+    cmsUpgrades::L1TkCluster_PSimHit_Map                      CL_PSH_M;
+    edm::Wrapper<cmsUpgrades::L1TkCluster_PSimHit_Map>        CL_PSH_MW;
+    cmsUpgrades::L1TkCluster_PSimHit_Collection               CL_PSH_C;
+    edm::Wrapper<cmsUpgrades::L1TkCluster_PSimHit_Collection> CL_PSH_CW;
+    cmsUpgrades::L1TkCluster_PSimHit_Pointer                  CL_PSH_P;
+    edm::Wrapper<cmsUpgrades::L1TkCluster_PSimHit_Pointer>    CL_PSH_PW;
 
-    //edm::Ptr< cmsUpgrades::GlobalStub_PSimHit_ > PTR_GS_PSH;
-    //edm::Ptr< cmsUpgrades::GlobalStub_PixelDigi_ > PTR_GS_PD;
-    //edm::Ptr< cmsUpgrades::GlobalStub_TTHit_ > PTR_GS_TTH;
+    cmsUpgrades::L1TkCluster_PixelDigi_                         CL_PD_; 
+    cmsUpgrades::L1TkCluster_PixelDigi_Map                      CL_PD_M;
+    edm::Wrapper<cmsUpgrades::L1TkCluster_PixelDigi_Map>        CL_PD_MW;
+    cmsUpgrades::L1TkCluster_PixelDigi_Collection               CL_PD_C;
+    edm::Wrapper<cmsUpgrades::L1TkCluster_PixelDigi_Collection> CL_PD_CW;
+    cmsUpgrades::L1TkCluster_PixelDigi_Pointer                  CL_PD_P;
+    edm::Wrapper<cmsUpgrades::L1TkCluster_PixelDigi_Pointer>    CL_PD_PW;
 
-    std::pair<unsigned int , edm::Ptr< cmsUpgrades::GlobalStub_PSimHit_ > > P_INT_PTRGS_PSH; 
-    std::pair<unsigned int , edm::Ptr< cmsUpgrades::GlobalStub_PixelDigi_ > > P_INT_PTRGS_PD; 
-    
+    std::pair<unsigned int, cmsUpgrades::L1TkCluster_PSimHit_ >   P_INT_PSHC;
+    std::pair<unsigned int, cmsUpgrades::L1TkCluster_PixelDigi_ > P_INT_PDC;
 
+    std::pair<unsigned int , edm::Ptr< cmsUpgrades::L1TkStub_PSimHit_ > >   P_INT_PTRS_PSH; 
+    std::pair<unsigned int , edm::Ptr< cmsUpgrades::L1TkStub_PixelDigi_ > > P_INT_PTRS_PD; 
 
-    /* std::pair<unsigned int , edm::Ptr< cmsUpgrades::GlobalStub_TTHit_ > > P_INT_PTRGS_TTH; */
   }
 }
 
+/** End Tracking Trigger **/
 
 
-/*****************************************************************************/
-/*                                                                           */
-/*                 Barrel DT                                                 */
-/*                                                                           */
-/*****************************************************************************/
-/***************  Barrel DT includes  ****************************************/
- 
+/** Begin Barrel DT **/
+
+/// WARNING NP** This has to be crosschecked
 #include "DataFormats/Common/interface/Wrapper.h"
 
 #include <vector>
@@ -112,9 +111,6 @@ namespace {
 #include "SimDataFormats/SLHC/interface/DTTrackerStub.h"
 #include "SimDataFormats/SLHC/interface/DTStubMatchesCollection.h"
 #include "SimDataFormats/SLHC/interface/DTSeededTracklet.h"
-
-
-/***************  End Barrel DT includes  *************************************/ 
 
 namespace {
   namespace {
@@ -153,10 +149,7 @@ namespace {
   }
 }
 
+/** End Barrel DT **/
 
-/***************  End Barrel DT  **********************************************/ 
 
-/* ========================================================================================= */
-/* ========================================================================================= */
-/* ========================================================================================= */
 

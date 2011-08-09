@@ -51,8 +51,13 @@ static size_t const RTSdataSize(16);
 class DTStubMatch: public DTStubMatchPtAlgorithms 
 {
 
+<<<<<<< DTStubMatch.h
+  // 6.5.2010 PLZ : to use Stacked Tracker PTFlag 
+  // WARNING NP** typedef GlobalStub<Ref_PixelDigi_>  GlobalStubRefType;
+=======
   // 6.5.2010 PLZ : to use Stacked Tracker PTFlag 
   typedef GlobalStub<Ref_PixelDigi_>  GlobalStubRefType;
+>>>>>>> 1.3
 
  public:
   
