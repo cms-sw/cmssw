@@ -22,7 +22,7 @@ def fillPileupHistogram (deadTable, parameters,
                      hist.GetBinWidth(maxBin) + 0.25 )
     else:
         histname = '%s_%s' % (parameters.pileupHistName, runNumber)
-        hist = ROOT.TH1F (histname, histname, parameters.maxPileupBin + 1,
+        hist = ROOT.TH1D (histname, histname, parameters.maxPileupBin + 1,
                           -0.5, parameters.maxPileupBin + 0.5)
         upper  = parameters.maxPileupBin
     for lumiSection, deadArray in sorted (deadTable.iteritems()):
@@ -101,7 +101,7 @@ if __name__ == '__main__':
     parameters = LumiQueryAPI.ParametersObject()
     beamModeChoices = ["","stable", "quiet", "either"]
     parser = optparse.OptionParser ("Usage: %prog [--options] output.root",
-                                    description = "Script to estimate pileup distribution using xing instantaneous luminosity information and minimum bias cross section.  Output is TH1F stored in root file")
+                                    description = "Script to estimate pileup distribution using xing instantaneous luminosity information and minimum bias cross section.  Output is TH1D stored in root file")
     dbGroup     = optparse.OptionGroup (parser, "Database Options")
     inputGroup  = optparse.OptionGroup (parser, "Input Options")
     pileupGroup = optparse.OptionGroup (parser, "Pileup Options")
@@ -180,7 +180,7 @@ if __name__ == '__main__':
     ## Let's start the fun
     if not options.inputfile and not options.runnumber and not options.csvInput:
         raise "must specify either a run (-r), an input run selection file (-i), or an input CSV file (--csvInput)"
-    pileupHist = ROOT.TH1F (parameters.pileupHistName, parameters.pileupHistName,
+    pileupHist = ROOT.TH1D(parameters.pileupHistName, parameters.pileupHistName,
                       parameters.maxPileupBin + 1,
                       -0.5, parameters.maxPileupBin + 0.5)
     histList = []
