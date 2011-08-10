@@ -1,5 +1,3 @@
-
-
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.tools.coreTools import *
@@ -328,7 +326,7 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='AK5', postfix =
     # changing the jet collection in PF2PAT:
     from CommonTools.ParticleFlow.Tools.jetTools import jetAlgo
     inputCollection = getattr(process,"pfJets"+postfix).src
-    setattr(process, "pfJets"+postfix, jetAlgo( algo ) ) # problem for cfgBrowser
+    setattr(process,"pfJets"+postfix,jetAlgo(algo)) # problem for cfgBrowser
     getattr(process,"pfJets"+postfix).src = inputCollection
     inputJetCorrLabel=jetCorrections
     switchJetCollection(process,
@@ -348,17 +346,18 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='AK5', postfix =
     for corr in inputJetCorrLabel[1]:
         if corr == 'L1FastJet':
             applyPostfix(process, "patJetCorrFactors", postfix).useRho = True
+            applyPostfix(process, "kt6PFJets", postfix).src = input
     applyPostfix(process, "patJets", postfix).embedCaloTowers   = False
-    applyPostfix(process, "patJets", postfix).embedPFCandidates   = True
+    applyPostfix(process, "patJets", postfix).embedPFCandidates = True
 
 #-- Remove MC dependence ------------------------------------------------------
-def removeMCMatchingPF2PAT( process, postfix="" ):
+def removeMCMatchingPF2PAT( process, postfix="", outputModules=['out'] ):
     from PhysicsTools.PatAlgos.tools.coreTools import removeMCMatching
-    removeIfInSequence(process,  "genForPF2PATSequence",  "patDefaultSequence", postfix)
-    removeMCMatching(process, ['All'],postfix)
+    removeIfInSequence(process, "genForPF2PATSequence", "patDefaultSequence", postfix)
+    removeMCMatching(process, names=['All'], postfix=postfix, outputModules=outputModules)
 
 
-def usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix = "", jetCorrections=('AK5PFchs', ['L1FastJet','L2Relative','L3Absolute']) ):
+def usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix="", jetCorrections=('AK5PFchs', ['L1FastJet','L2Relative','L3Absolute']), outputModules=['out']):
     # PLEASE DO NOT CLOBBER THIS FUNCTION WITH CODE SPECIFIC TO A GIVEN PHYSICS OBJECT.
     # CREATE ADDITIONAL FUNCTIONS IF NEEDED.
 
@@ -384,7 +383,7 @@ def usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix = ""
         #    if not sequence.label() is None: process.__delattr__(sequence.label())
         #del process.patDefaultSequence
 
-    removeCleaning(process, postfix=postfix)
+    removeCleaning(process, postfix=postfix, outputModules=outputModules)
 
     # -------- OBJECTS ------------
     # Muons
@@ -400,8 +399,8 @@ def usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix = ""
     # Photons
     print "Temporarily switching off photons completely"
 
-    removeSpecificPATObjects(process,['Photons'],False,postfix)
-    removeIfInSequence(process,  "patPhotonIsolation",  "patDefaultSequence", postfix)
+    removeSpecificPATObjects(process,names=['Photons'],outputModules=outputModules,postfix=postfix)
+    removeIfInSequence(process,"patPhotonIsolation","patDefaultSequence",postfix)
 
     # Jets
     if runOnMC :
@@ -439,6 +438,6 @@ def usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix = ""
             process.genForPF2PATSequence+applyPostfix(process,"patCandidates",postfix)
             )
     else:
-        removeMCMatchingPF2PAT( process, postfix )
+        removeMCMatchingPF2PAT(process,postfix=postfix,outputModules=outputModules)
 
     print "Done: PF2PAT interfaced to PAT, postfix=", postfix
