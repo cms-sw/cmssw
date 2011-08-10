@@ -59,7 +59,7 @@ class RunOnData(ConfigToolBase):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'names',['All'], "collection name; supported are 'Photons', 'Electrons','Muons', 'Taus', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'", allowedValues=['Photons', 'Electrons','Muons', 'Taus', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'])
         self.addParameter(self._defaultParameters,'postfix',"", "postfix of default sequence")
-        self.addParameter(self._defaultParameters,'outputInProcess',True, "indicate whether there is an output module specified for the process (default is True)  ")
+        self.addParameter(self._defaultParameters,'outputModules',['out'], "names of all output modules specified to be adapted (default is 'out')")
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
 
@@ -67,27 +67,32 @@ class RunOnData(ConfigToolBase):
         return self._defaultParameters
 
     def __call__(self,process,
-                 names     = None,
-                 postfix   = None,
-                 outputInProcess     = None) :
+                 names           = None,
+                 postfix         = None,
+                 outputInProcess = None,
+                 outputModules   = None) :
+        ## stop processing if 'outputInProcess' exists and show the new alternative
+        if  not outputInProcess is None:
+            depricatedOptionOutputInProcess(self)
         if  names is None:
             names=self._defaultParameters['names'].value
-        if postfix  is None:
+        if  postfix  is None:
             postfix=self._defaultParameters['postfix'].value
-        if  outputInProcess is None:
-            outputInProcess=self._defaultParameters['outputInProcess'].value
+        if  outputModules is None:
+            outputModules=self._defaultParameters['outputModules'].value
         self.setParameter('names',names)
         self.setParameter('postfix',postfix)
-        self.setParameter('outputInProcess',outputInProcess)        
+        self.setParameter('outputModules',outputModules)        
         self.apply(process) 
         
     def toolCode(self, process):        
         names=self._parameters['names'].value
         postfix=self._parameters['postfix'].value
-        outputInProcess=self._parameters['outputInProcess'].value
+        outputModules=self._parameters['outputModules'].value
         
-        removeMCMatching(process, names, postfix, outputInProcess)
-        process.patJetCorrFactors.levels = ['L2Relative', 'L3Absolute', 'L2L3Residual', 'L5Flavor', 'L7Parton']
+        removeMCMatching(process, names=names, postfix=postfix, outputModules=outputModules)
+        if 'L3Absolute' in getattr(process,'patJetCorrFactors'+postfix).levels:
+            getattr(process,'patJetCorrFactors'+postfix).levels.insert(getattr(process,'patJetCorrFactors'+postfix).levels.index('L3Absolute')+1, 'L2L3Residual')
 
 runOnData=RunOnData()
 
@@ -103,7 +108,7 @@ class RemoveMCMatching(ConfigToolBase):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'names',['All'], "collection name; supported are 'Photons', 'Electrons','Muons', 'Taus', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'", allowedValues=['Photons', 'Electrons','Muons', 'Taus', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'])
         self.addParameter(self._defaultParameters,'postfix',"", "postfix of default sequence")
-        self.addParameter(self._defaultParameters,'outputInProcess',True, "indicate whether there is an output module specified for the process (default is True)  ")
+        self.addParameter(self._defaultParameters,'outputModules',['out'], "names of all output modules specified to be adapted (default is 'out')")
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
 
@@ -111,24 +116,28 @@ class RemoveMCMatching(ConfigToolBase):
         return self._defaultParameters
 
     def __call__(self,process,
-                 names     = None,
-                 postfix   = None,
-                 outputInProcess     = None) :
+                 names           = None,
+                 postfix         = None,
+                 outputInProcess = None,
+                 outputModules   = None) :
+        ## stop processing if 'outputInProcess' exists and show the new alternative
+        if  not outputInProcess is None:
+            depricatedOptionOutputInProcess(self)
         if  names is None:
             names=self._defaultParameters['names'].value
         if postfix  is None:
             postfix=self._defaultParameters['postfix'].value
-        if  outputInProcess is None:
-            outputInProcess=self._defaultParameters['outputInProcess'].value            
+        if  outputModules is None:
+            outputModules=self._defaultParameters['outputModules'].value            
         self.setParameter('names',names)
         self.setParameter('postfix',postfix)
-        self.setParameter('outputInProcess',outputInProcess)        
+        self.setParameter('outputModules',outputModules)
         self.apply(process) 
         
     def toolCode(self, process):        
         names=self._parameters['names'].value
         postfix=self._parameters['postfix'].value
-        outputInProcess=self._parameters['outputInProcess'].value
+        outputModules=self._parameters['outputModules'].value
         
         print "************** MC dependence removal ************"
         for obj in range(len(names)):    
@@ -175,8 +184,11 @@ class RemoveMCMatching(ConfigToolBase):
                 jetProducer.getJetMCFlavour     = False
                 jetProducer.JetPartonMapSource  = ''
                 ## adjust output
-                if outputInProcess:                
-                    process.out.outputCommands.append("drop *_selectedPatJets*_genJets_*")
+                for outMod in outputModules:
+                    if hasattr(process,outMod):
+                        getattr(process,outMod).outputCommands.append("drop *_selectedPatJets*_genJets_*")
+                    else:
+                        raise KeyError, "process has no module named", outMod
                 
             if( names[obj] == 'METs'      or names[obj] == 'All' ):
                 ## remove mc extra configs for jets
@@ -211,7 +223,7 @@ class RemoveAllPATObjectsBut(ConfigToolBase):
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'names',self._defaultValue, "list of collection names; supported are 'Photons', 'Electrons', 'Muons', 'Taus', 'Jets', 'METs'", Type=list, allowedValues=['Photons', 'Electrons', 'Muons', 'Taus', 'Jets', 'METs'])
-        self.addParameter(self._defaultParameters,'outputInProcess',True, "indicate whether there is an output module specified for the process (default is True)  ")
+        self.addParameter(self._defaultParameters,'outputModules',['out'], "names of all output modules specified to be adapted (default is 'out')")
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
 
@@ -219,24 +231,28 @@ class RemoveAllPATObjectsBut(ConfigToolBase):
         return self._defaultParameters
 
     def __call__(self,process,
-                 names               = None,
-                 outputInProcess     = None) :
+                 names           = None,
+                 outputInProcess = None,
+                 outputModules   = None) :
+        ## stop processing if 'outputInProcess' exists and show the new alternative
+        if  not outputInProcess is None:
+            depricatedOptionOutputInProcess(self)
         if  names is None:
             names=self._defaultParameters['names'].value
-        if  outputInProcess is None:
-            outputInProcess=self._defaultParameters['outputInProcess'].value
+        if  outputModules is None:
+            outputModules=self._defaultParameters['outputModules'].value
         self.setParameter('names',names)
-        self.setParameter('outputInProcess',outputInProcess)
+        self.setParameter('outputModules',outputModules)
         self.apply(process) 
         
     def toolCode(self, process):        
         names=self._parameters['names'].value
-        outputInProcess=self._parameters['outputInProcess'].value
+        outputModules=self._parameters['outputModules'].value
 
         removeTheseObjectCollections = ['Photons', 'Electrons', 'Muons', 'Taus', 'Jets', 'METs']
         for obj in range(len(names)):
             removeTheseObjectCollections.remove(names[obj])
-        removeSpecificPATObjects(process, removeTheseObjectCollections, outputInProcess)
+        removeSpecificPATObjects(process, removeTheseObjectCollections, outputModules)
        
 removeAllPATObjectsBut=RemoveAllPATObjectsBut()
 
@@ -250,7 +266,7 @@ class RemoveSpecificPATObjects(ConfigToolBase):
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'names',self._defaultValue, "list of collection names; supported are 'Photons', 'Electrons', 'Muons', 'Taus', 'Jets', 'METs'", Type=list, allowedValues=['Photons', 'Electrons', 'Muons', 'Taus', 'Jets', 'METs'])
-        self.addParameter(self._defaultParameters,'outputInProcess',True,"indicate whether there is an output module specified for the process (default is True)" )
+        self.addParameter(self._defaultParameters,'outputModules',['out'], "names of all output modules specified to be adapted (default is 'out')")
         self.addParameter(self._defaultParameters,'postfix',"", "postfix of default sequence")
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
@@ -259,23 +275,27 @@ class RemoveSpecificPATObjects(ConfigToolBase):
         return self._defaultParameters
 
     def __call__(self,process,
-                 names               = None,
-                 outputInProcess     = None,
-                 postfix             = None) :
+                 names           = None,
+                 outputInProcess = None,
+                 postfix         = None,
+                 outputModules   = None) :
+        ## stop processing if 'outputInProcess' exists and show the new alternative
+        if  not outputInProcess is None:
+            depricatedOptionOutputInProcess(self)
         if  names is None:
             names=self._defaultParameters['names'].value
-        if  outputInProcess is None:
-            outputInProcess=self._defaultParameters['outputInProcess'].value
+        if  outputModules is None:
+            outputModules=self._defaultParameters['outputModules'].value
         if postfix  is None:
             postfix=self._defaultParameters['postfix'].value
         self.setParameter('names',names)
-        self.setParameter('outputInProcess',outputInProcess)
+        self.setParameter('outputModules',outputModules)
         self.setParameter('postfix',postfix)
         self.apply(process) 
 
     def toolCode(self, process):
         names=self._parameters['names'].value
-        outputInProcess=self._parameters['outputInProcess'].value
+        outputModules=self._parameters['outputModules'].value
         postfix=self._parameters['postfix'].value
 
         ## remove pre object production steps from the default sequence
@@ -364,15 +384,14 @@ class RemoveSpecificPATObjects(ConfigToolBase):
                             cms.InputTag('cleanPat'+names[obj]+postfix) )
         ## remove cleaning for the moment; in principle only the removed object
         ## could be taken out of the checkOverlaps PSet
-        if ( outputInProcess ):
+        if len(outputModules) > 0:
             print "---------------------------------------------------------------------"
             print "INFO   : some objects have been removed from the sequence. Switching "
             print "         off PAT cross collection cleaning, as it might be of limited"
             print "         sense now. If you still want to keep object collection cross"
             print "         cleaning within PAT you need to run and configure it by hand"
-            removeCleaning(process)
+            removeCleaning(process,outputModules=outputModules,postfix=postfix)
     
-               
 removeSpecificPATObjects=RemoveSpecificPATObjects()
 
 
@@ -384,7 +403,7 @@ class RemoveCleaning(ConfigToolBase):
     _defaultParameters=dicttypes.SortedKeysDict()
     def __init__(self):
         ConfigToolBase.__init__(self)
-        self.addParameter(self._defaultParameters,'outputInProcess',True,"indicate whether there is an output module specified for the process (default is True)" )
+        self.addParameter(self._defaultParameters,'outputModules',['out'], "names of all output modules specified to be adapted (default is 'out')")
         self.addParameter(self._defaultParameters,'postfix',"", "postfix of default sequence")
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
@@ -394,19 +413,23 @@ class RemoveCleaning(ConfigToolBase):
 
     def __call__(self,process,
                  outputInProcess = None,
-                 postfix         = None) :
-        if  outputInProcess is None:
-            outputInProcess=self._defaultParameters['outputInProcess'].value
+                 postfix         = None,
+                 outputModules   = None) :
+        ## stop processing if 'outputInProcess' exists and show the new alternative
+        if  not outputInProcess is None:
+            depricatedOptionOutputInProcess(self)
+        if  outputModules is None:
+            outputModules=self._defaultParameters['outputModules'].value
         if postfix  is None:
             postfix=self._defaultParameters['postfix'].value
 
-        self.setParameter('outputInProcess',outputInProcess)
+        self.setParameter('outputModules',outputModules)
         self.setParameter('postfix',postfix)
 
         self.apply(process) 
         
     def toolCode(self, process):        
-        outputInProcess=self._parameters['outputInProcess'].value
+        outputModules=self._parameters['outputModules'].value
         postfix=self._parameters['postfix'].value
 
         ## adapt single object counters
@@ -421,15 +444,18 @@ class RemoveCleaning(ConfigToolBase):
         getattr(process, "patDefaultSequence"+postfix).remove(
             applyPostfix(process,"cleanPatCandidates",postfix)
             )
-        if ( outputInProcess ):
+        if len(outputModules) > 0:
             print "---------------------------------------------------------------------"
             print "INFO   : cleaning has been removed. Switch output from clean PAT     "
             print "         candidates to selected PAT candidates."
-            ## add selected layer1 objects to the pat output
+            ## add selected pat objects to the pat output
             from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoCleaning
-            process.out.outputCommands = patEventContentNoCleaning
+            for outMod in outputModules:
+                if hasattr(process,outMod):
+                    getattr(process,outMod).outputCommands.append("drop *_selectedPatJets*_genJets_*")
+                else:
+                    raise KeyError, "process has no module named", outMod
 
-           
 removeCleaning=RemoveCleaning()
 
 
@@ -441,7 +467,7 @@ class AddCleaning(ConfigToolBase):
     _defaultParameters=dicttypes.SortedKeysDict()
     def __init__(self):
         ConfigToolBase.__init__(self)
-        self.addParameter(self._defaultParameters,'outputInProcess',True, "")
+        self.addParameter(self._defaultParameters,'outputModules',['out'], "names of all output modules specified to be adapted (default is 'out')")
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
 
@@ -449,15 +475,19 @@ class AddCleaning(ConfigToolBase):
         return self._defaultParameters
 
     def __call__(self,process,
-                 outputInProcess     = None):
-        if  outputInProcess is None:
-            outputInProcess=self._defaultParameters['outputInProcess'].value
+                 outputInProcess = None,
+                 outputModules   = None):
+        ## stop processing if 'outputInProcess' exists and show the new alternative
+        if  not outputInProcess is None:
+            depricatedOptionOutputInProcess(self)
+        if  outputModules is None:
+            outputModules=self._defaultParameters['outputModules'].value
         
-        self.setParameter('outputInProcess',outputInProcess)
+        self.setParameter('outputModules',outputModules)
         self.apply(process) 
         
     def toolCode(self, process):        
-        outputInProcess=self._parameters['outputInProcess'].value
+        outputModules=self._parameters['outputModules'].value
 
         ## adapt single object counters
         process.patDefaultSequence.replace(process.countPatCandidates, process.cleanPatCandidates * process.countPatCandidates)
@@ -468,12 +498,27 @@ class AddCleaning(ConfigToolBase):
         countLept.electronSource = countLept.electronSource.value().replace('selectedPat','cleanPat')
         countLept.muonSource = countLept.muonSource.value().replace('selectedPat','cleanPat')
         countLept.tauSource = countLept.tauSource.value().replace('selectedPat','cleanPat')
-        if ( outputInProcess ):
+        if len(outputModules) > 0:
             print "---------------------------------------------------------------------"
             print "INFO   : cleaning has been added. Switch output from selected PAT    "
             print "         candidates to clean PAT candidates."
             ## add clean layer1 objects to the pat output
             from PhysicsTools.PatAlgos.patEventContent_cff import patEventContent
-            process.out.outputCommands = patEventContent               
-       
+            for outMod in outputModules:
+                if hasattr(process,outMod):
+                    getattr(process,outMod).outputCommands.append("drop *_selectedPatJets*_genJets_*")
+                else:
+                    raise KeyError, "process has no module named", outMod
+
 addCleaning=AddCleaning()
+
+def depricatedOptionOutputInProcess(obj):
+    print "-------------------------------------------------------"
+    print " Error: the option 'outputInProcess' is not supported"
+    print "        anymore by:"
+    print "                   ", obj._label
+    print "        please use 'outputModules' now and specify the"
+    print "        names of all needed OutModules in there"
+    print "        (default: ['out'])"
+    print "-------------------------------------------------------"
+    raise KeyError, "unsupported option 'outputInProcess' used in '"+obj._label+"'"
