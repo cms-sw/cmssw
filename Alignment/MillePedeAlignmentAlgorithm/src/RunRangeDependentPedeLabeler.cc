@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.1 $
- *  $Date: 2011/02/16 13:12:41 $
+ *  $Revision: 1.2 $
+ *  $Date: 2011/02/18 17:08:13 $
  *  (last update by $Author: mussgill $)
  */
 
@@ -159,16 +159,18 @@ unsigned int RunRangeDependentPedeLabeler::parameterLabel(Alignable *alignable, 
 	for (RunRangeVector::const_iterator iRunRange = runRanges.begin();
 	     iRunRange != runRanges.end();
 	     ++iRunRange) {
-	  if (iRunRange->first<=eventInfo.eventId_.run() && iRunRange->second>=eventInfo.eventId_.run()) {
+	  if (eventInfo.eventId_.run() >= iRunRange->first &&
+	      eventInfo.eventId_.run() <= iRunRange->second) {
 	    return position->second + offset * theParamInstanceOffset + parNum;
 	  }
  	  offset++;
  	}
 	const DetId detId(alignable->id());
 	edm::LogError("LogicError")
-	  << "@SUB=RunRangeDependentPedeLabeler::alignableLabel" << "Alignable "
+	  << "@SUB=RunRangeDependentPedeLabeler::parameterLabel" << "Instance for Alignable "
 	  << typeid(*alignable).name() << " not in map, det/subdet/alignableStructureType = "
-	  << detId.det() << "/" << detId.subdetId() << "/" << alignable->alignableObjectId();
+	  << detId.det() << "/" << detId.subdetId() << "/" << alignable->alignableObjectId()
+	  << " for run " << eventInfo.eventId_.run();
 	return 0;
       } else {
 	return position->second + parNum;
@@ -181,7 +183,7 @@ unsigned int RunRangeDependentPedeLabeler::parameterLabel(Alignable *alignable, 
     const DetId detId(alignable->id());
     //throw cms::Exception("LogicError") 
     edm::LogError("LogicError")
-      << "@SUB=RunRangeDependentPedeLabeler::alignableLabel" << "Alignable "
+      << "@SUB=RunRangeDependentPedeLabeler::parameterLabel" << "Alignable "
       << typeid(*alignable).name() << " not in map, det/subdet/alignableStructureType = "
       << detId.det() << "/" << detId.subdetId() << "/" << alignable->alignableObjectId();
     return 0;
@@ -341,6 +343,8 @@ unsigned int RunRangeDependentPedeLabeler::buildRunRangeDependencyMap(AlignableT
 								      AlignableExtras *aliExtras,
 								      const edm::ParameterSet &config)
 {
+  static bool oldRunRangeSelectionWarning = false;
+
   theAlignableToRunRangeRangeMap.clear();
 
   AlignmentParameterSelector selector(aliTracker, aliMuon, aliExtras);
@@ -353,7 +357,7 @@ unsigned int RunRangeDependentPedeLabeler::buildRunRangeDependencyMap(AlignableT
   for (std::vector<edm::ParameterSet>::const_iterator iter = RunRangeSelectionVPSet.begin();
        iter != RunRangeSelectionVPSet.end();
        ++iter) {
-
+    
     const std::vector<std::string> tempRunRanges = (*iter).getParameter<std::vector<std::string> >("RunRanges");
     if (tempRunRanges.size()==0) {
       throw cms::Exception("BadConfig") << "@SUB=RunRangeDependentPedeLabeler::buildRunRangeDependencyMap\n"
@@ -362,20 +366,42 @@ unsigned int RunRangeDependentPedeLabeler::buildRunRangeDependencyMap(AlignableT
 
     RunRangeVector RunRanges;
     cond::Time_t first;
-    cond::Time_t last;
-    for (unsigned int iRunRange=0;iRunRange<tempRunRanges.size();++iRunRange) {
-      std::vector<std::string> tokens = edm::tokenize(tempRunRanges[iRunRange], ":");
-      long int temp;
+    long int temp;
+    for (std::vector<std::string>::const_iterator iRunRange = tempRunRanges.begin();
+	 iRunRange != tempRunRanges.end();
+	 ++iRunRange) {
+      if ((*iRunRange).find(':')==std::string::npos) {
+	
+	first = cond::timeTypeSpecs[cond::runnumber].beginValue;
+	temp = strtol((*iRunRange).c_str(), 0, 0);
+	if (temp!=-1) first = temp;
+	
+      } else {
+	
+	if (!oldRunRangeSelectionWarning) {
+	  edm::LogWarning("BadConfig") << "@SUB=RunRangeDependentPedeLabeler::buildRunRangeDependencyMap"
+				       << "Config file contains old format for 'RunRangeSelection'. Only the start run\n"
+				       << "number is used internally. The number of the last run is ignored and can be\n"
+				       << "safely removed from the config file.\n";
+	  oldRunRangeSelectionWarning = true;
+	}
+
+	std::vector<std::string> tokens = edm::tokenize(*iRunRange, ":");
+	first = cond::timeTypeSpecs[cond::runnumber].beginValue;
+	temp = strtol(tokens[0].c_str(), 0, 0);
+	if (temp!=-1) first = temp;
+	
+      }
       
-      first = cond::timeTypeSpecs[cond::runnumber].beginValue;
-      temp = strtol(tokens[0].c_str(), 0, 0);
-      if (temp!=-1) first = temp;
-
-      last = cond::timeTypeSpecs[cond::runnumber].endValue;
-      temp = strtol(tokens[1].c_str(), 0, 0);
-      if (temp!=-1) last = temp;
-
-      RunRanges.push_back(std::pair<cond::Time_t,cond::Time_t>(first, last));
+      RunRanges.push_back(std::pair<cond::Time_t,cond::Time_t>(first, cond::timeTypeSpecs[cond::runnumber].endValue));
+    }
+    
+    for (unsigned int i = 0;i<RunRanges.size()-1;++i) {
+      RunRanges[i].second = RunRanges[i+1].first - 1;
+      if (RunRanges[i].first > RunRanges[i].second) {
+	throw cms::Exception("BadConfig") << "@SUB=RunRangeDependentPedeLabeler::buildRunRangeDependencyMap\n"
+					  << "Inconsistency in 'RunRangeSelection' parameter set.";
+      }
     }
     
     const std::vector<std::string> selStrings = (*iter).getParameter<std::vector<std::string> >("selector");
