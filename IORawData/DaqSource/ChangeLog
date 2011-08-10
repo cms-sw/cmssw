@@ -1,3 +1,8 @@
+2011-08-10  David Dagenhart <wdd@fnal.gov>
+
+	* tag V01-09-21
+	* adapt to small change in framework interface
+
 2011-05-11  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V01-09-18
