@@ -758,11 +758,11 @@ class SwitchJetCorrLevels(ConfigToolBase):
         return self._defaultParameters
 
     def __call__(self,process,
-                 jetCorrLabel       = None,
-                 postfix            = None) :
-        if jetCorrLabel  is None:
+                 jetCorrLabel = None,
+                 postfix      = None) :
+        if jetCorrLabel is None:
             jetCorrLabel=self._defaultParameters['jetCorrLabel'].value
-        if postfix  is None:
+        if postfix is None:
             postfix=self._defaultParameters['postfix'].value
 
         self.setParameter('jetCorrLabel',jetCorrLabel)
@@ -795,7 +795,7 @@ class SwitchJetCorrLevels(ConfigToolBase):
                 if x == 'L1Offset':
                     if not error:
                         jetCorrFactorsModule.useNPV = True
-                        primaryVertices = 'offlinePrimaryVertices'
+                        jetCorrFactorsModule.primaryVertices = 'offlinePrimaryVertices'
                         ## we set this to True now as a L1 correction type should appear only once
                         ## otherwise levels is miss configured
                         error = True
@@ -807,12 +807,33 @@ class SwitchJetCorrLevels(ConfigToolBase):
                 if x == 'L1FastJet':
                     if not error:
                         ## re-run jet algo to compute rho and jetArea for the L1Fastjet corrections
-                        process.load("RecoJets.JetProducers.kt4PFJets_cfi")
-                        process.kt6PFJets = process.kt4PFJets.clone(doAreaFastjet=True, doRhoFastjet=True, rParam=0.6)
-                        process.patDefaultSequence.replace(jetCorrFactorsModule, process.kt6PFJets*jetCorrFactorsModule)
+                        jetType=''
+                        ## find out which jetType is used (PF or Calo)
+                        if jetCorrLabel[0].count('PF') > 0:
+                            ## only add module if it is not already part of the process
+                            ## ATTENTION: this assumes that new jet collection are always added after existing ones !!!
+                            if not hasattr(process,'kt6PFJets'+postfix):
+                                from RecoJets.JetProducers.kt4PFJets_cfi import kt4PFJets
+                                setattr(process,'kt6PFJets'+postfix, kt4PFJets.clone(doAreaFastjet=True, doRhoFastjet=True, rParam=0.6))
+                            jetType='PF'
+                        elif jetCorrLabel[0].count('Calo') > 0:
+                            ## only add module if it is not already part of the process
+                            ## ATTENTION: this assumes that new jet collection are always added after existing ones !!!
+                            if not hasattr(process,'kt6CaloJets'+postfix):
+                                from RecoJets.JetProducers.kt4CaloJets_cfi import kt4CaloJets
+                                setattr(process,'kt6CaloJets'+postfix, kt4CaloJets.clone(doAreaFastjet=True, doRhoFastjet=True, rParam=0.6))
+                            jetType='Calo'
+                        else:
+                            raise TypeError, "L1FastJet corrections are currently only supported for PF and Calo jets in PAT"
+                        ## check if a modified patDefaultSequence exists and add kt6Jets there (needed for example for usePF2PAT)
+                        if hasattr(process,'patDefaultSequence'+postfix):
+                            getattr(process,'patDefaultSequence'+postfix).replace(jetCorrFactorsModule, getattr(process,'kt6'+jetType+'Jets'+postfix)*jetCorrFactorsModule)
+                        ## if no modified patDefaultSequence exists add kt6Jets to ordinary sequence (needed for example for addJetCollection)
+                        else:
+                            getattr(process,'patDefaultSequence').replace(jetCorrFactorsModule, getattr(process,'kt6'+jetType+'Jets'+postfix)*jetCorrFactorsModule)
                         ## configure module
                         jetCorrFactorsModule.useRho = True
-                        jetCorrFactorsModule.rho = cms.InputTag('kt6PFJets', 'rho')
+                        jetCorrFactorsModule.rho = cms.InputTag('kt6'+jetType+'Jets'+postfix, 'rho')
                         ## we set this to True now as a L1 correction type should appear only once
                         ## otherwise levels is miss configured
                         error = True
