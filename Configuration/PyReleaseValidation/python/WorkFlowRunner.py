@@ -3,6 +3,7 @@ from threading import Thread
 
 from Configuration.PyReleaseValidation import WorkFlow
 import os,time
+from subprocess import Popen 
 
 class WorkFlowRunner(Thread):
     def __init__(self, wf):
@@ -30,7 +31,8 @@ class WorkFlowRunner(Thread):
         
         ret = 0
         if not dryRun:
-            ret = os.system(cmd)
+            p = Popen(cmd, shell=True)
+            ret = os.waitpid(p.pid, 0)[1]
             if ret != 0:
                 print "ERROR executing ",cmd,'ret=', ret
 
