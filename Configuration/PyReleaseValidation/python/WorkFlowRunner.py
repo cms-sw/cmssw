@@ -182,6 +182,9 @@ class WorkFlowRunner(Thread):
                             fullcmd += ' --filein file:step2.root'
                         if not 'fileout' in fullcmd:
                             fullcmd += '--fileout file:step3.root '
+                if ( '40.0' in str(self.wf.numId) or '41.0' in str(self.wf.numId) ) :
+                    fullcmd += '--hltProcess=HIMIX'
+                    
                 fullcmd += ' > %s 2>&1; ' % ('step3_'+self.wf.nameId+'.log ',)
                 # print fullcmd
                 retStep3 = self.doCmd(fullcmd)
