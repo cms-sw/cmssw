@@ -24,17 +24,22 @@ void MTVHistoProducerAlgo::fillPlotFromVectors(MonitorElement* h,
   double value,err;
   for (unsigned int j=0; j<numerator.size(); j++){
     if (denominator[j]!=0){
-      if (type=="effic")
-	value = ((double) numerator[j])/((double) denominator[j]);
-      else if (type=="fakerate")
-	value = 1-((double) numerator[j])/((double) denominator[j]);
-      else return;
-      err = sqrt( value*(1-value)/(double) denominator[j] );
+      if (type=="effic"){
+	value = ((double) numerator[j])*1./((double) denominator[j]);
+        err = sqrt( value*(1-value)/(double) denominator[j] );
+      } else if (type=="fakerate"){
+	value = 1-((double) numerator[j])*1./((double) denominator[j]);
+        err = sqrt( value*(1-value)/(double) denominator[j] );
+      } else if (type=="pileup"){
+	value = ((double) numerator[j])*1./((double) denominator[j]);
+        err = sqrt( value*(1+value)/(double) denominator[j] );
+      } else return;
       h->setBinContent(j+1, value);
-      h->setBinError(j+1,err);
+      h->setBinError(j+1, err);
     }
     else {
-      h->setBinContent(j+1, 0);
+      h->setBinContent(j+1, 0.);
+      h->setBinError(j+1, 0.);
     }
   }
 }
