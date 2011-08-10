@@ -77,6 +77,7 @@ process.dtT0Analyzer = cms.EDAnalyzer("DTt0DBValidation",
 
 process.qTester = cms.EDAnalyzer("QualityTester",
     prescaleFactor = cms.untracked.int32(1),
+    reportThreshold = cms.untracked.string('black'),
     qtList = cms.untracked.FileInPath('DQMOffline/CalibMuon/data/QualityTests.xml')
 )
 
@@ -84,6 +85,9 @@ process.DQMStore.referenceFileName = ''
 process.dqmSaver.convention = 'Offline'
 process.dqmSaver.workflow = config.workflowName
 process.DQMStore.collateHistograms = False
-
-process.p = cms.Path(process.dtT0Analyzer*process.qTester*process.dqmSaver)
 process.DQM.collectorHost = ''
+
+#process.p = cms.Path(process.dtT0Analyzer*process.qTester*process.dqmSaver)
+process.p = cms.Path(process.qTester*
+                     process.dtT0Analyzer*
+                     process.dqmSaver)

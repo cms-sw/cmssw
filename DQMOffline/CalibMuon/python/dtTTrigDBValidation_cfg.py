@@ -22,7 +22,7 @@ process.MessageLogger = cms.Service("MessageLogger",
     cerr = cms.untracked.PSet(
         default = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
         DEBUG = cms.untracked.PSet( limit = cms.untracked.int32(0) ),
-        tTrigdbValidation = cms.untracked.PSet( limit = cms.untracked.int32(10000000) ),
+        TTrigDBValidation = cms.untracked.PSet( limit = cms.untracked.int32(10000000) ),
         threshold = cms.untracked.string('DEBUG'),
     ),
     categories = cms.untracked.vstring('TTrigDBValidation'),
@@ -47,7 +47,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.ttrigDB = cms.ESSource("PoolDBESSource",
+process.ttrigRef = cms.ESSource("PoolDBESSource",
     DBParameters = cms.PSet(
         messageLevel = cms.untracked.int32(0),
         authenticationPath = cms.untracked.string('/afs/cern.ch/cms/DB/conddb')
@@ -80,13 +80,16 @@ process.dtTTrigAnalyzer = cms.EDAnalyzer("DTtTrigDBValidation",
 
 process.qTester = cms.EDAnalyzer("QualityTester",
     prescaleFactor = cms.untracked.int32(1),
+    reportThreshold = cms.untracked.string('black'),
     qtList = cms.untracked.FileInPath('DQMOffline/CalibMuon/data/QualityTests.xml')
 )
 
 process.DQMStore.referenceFileName = ''
 process.dqmSaver.convention = 'Offline'
 process.dqmSaver.workflow = config.workflowName
+process.dqmSaver.dirName = config.outputdir
 process.DQMStore.collateHistograms = False
+process.DQM.collectorHost = ''
 """
 process.DQMStore.referenceFileName = ''
 process.DQMStore.collateHistograms = True
@@ -97,5 +100,7 @@ process.dqmSaver.saveAtJobEnd = True
 process.dqmSaver.forceRunNumber = runNumber
 """
 
-process.p = cms.Path(process.dtTTrigAnalyzer*process.qTester*process.dqmSaver)
-process.DQM.collectorHost = ''
+#process.p = cms.Path(process.dtTTrigAnalyzer*process.qTester*process.dqmSaver)
+process.p = cms.Path(process.qTester*
+                     process.dtTTrigAnalyzer*
+                     process.dqmSaver)

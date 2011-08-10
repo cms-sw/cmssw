@@ -77,6 +77,7 @@ process.dtNoiseAnalyzer = cms.EDAnalyzer("DTnoiseDBValidation",
 
 process.qTester = cms.EDAnalyzer("QualityTester",
     prescaleFactor = cms.untracked.int32(1),
+    reportThreshold = cms.untracked.string('black'),
     qtList = cms.untracked.FileInPath('DQMOffline/CalibMuon/data/QualityTests.xml')
 )
 
@@ -85,7 +86,10 @@ process.dqmSaver.convention = 'Offline'
 process.dqmSaver.workflow = config.workflowName
 process.dqmSaver.dirName = config.outputdir 
 process.DQMStore.collateHistograms = False
-
-process.p = cms.Path(process.dtNoiseAnalyzer*process.qTester*process.dqmSaver)
 process.DQM.collectorHost = ''
+
+#process.p = cms.Path(process.dtNoiseAnalyzer*process.qTester*process.dqmSaver)
+process.p = cms.Path(process.qTester*
+                     process.dtNoiseAnalyzer*
+                     process.dqmSaver)
 

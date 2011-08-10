@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/08/07 12:07:57 $
- *  $Revision: 1.10 $
+ *  $Date: 2011/08/07 12:24:02 $
+ *  $Revision: 1.11 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -29,10 +29,10 @@
 #include "CondFormats/DTObjects/interface/DTT0.h"
 #include "CondFormats/DataRecord/interface/DTT0Rcd.h"
 
-#include <stdio.h>
-#include <sstream>
-#include <math.h>
 #include "TFile.h"
+
+#include <sstream>
+#include <iomanip>
 
 using namespace edm;
 using namespace std;
@@ -164,24 +164,30 @@ void DTt0DBValidation::endRun(edm::Run const& run, edm::EventSetup const& setup)
   for(map<DTLayerId, MonitorElement*>::const_iterator hDiff = t0DiffHistos_.begin();
       hDiff != t0DiffHistos_.end();
       hDiff++) {
-    const QReport * theDiffQReport = (*hDiff).second->getQReport(testCriterionName);
-    if(theDiffQReport) {
-      vector<dqm::me_util::Channel> badChannels = theDiffQReport->getBadChannels();
-      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	                                           channel != badChannels.end(); channel++) {
-	LogWarning(metname_) << "layer: " << (*hDiff).first << " Bad mean channels: " 
-                                         << (*channel).getBin() << "  Contents : "
-                                         << (*channel).getContents();
 
-	int xBin = ((*hDiff).first.station()-1)*12+(*hDiff).first.layer()+4*((*hDiff).first.superlayer()-1);
-	if( (*hDiff).first.station()==4 && (*hDiff).first.superlayer()==3 )
+     const QReport * theDiffQReport = (*hDiff).second->getQReport(testCriterionName);
+     if(theDiffQReport) {
+        int xBin = ((*hDiff).first.station()-1)*12+(*hDiff).first.layer()+4*((*hDiff).first.superlayer()-1);
+        if( (*hDiff).first.station()==4 && (*hDiff).first.superlayer()==3 )
            xBin = ((*hDiff).first.station()-1)*12+(*hDiff).first.layer()+4*((*hDiff).first.superlayer()-2);
-	
-        wheelSummary_[(*hDiff).first.wheel()]->Fill(xBin,(*hDiff).first.sector());
-      }
-      LogWarning(metname_) << "-------- layer: " << (*hDiff).first << "  " << theDiffQReport->getMessage()
-                                                << " ------- " << theDiffQReport->getStatus(); 
-    }
+
+        int qReportStatus = theDiffQReport->getStatus()/100;
+        wheelSummary_[(*hDiff).first.wheel()]->setBinContent(xBin,(*hDiff).first.sector(),qReportStatus);
+ 
+        LogVerbatim(metname_) << "-------- layer: " << (*hDiff).first << "  " << theDiffQReport->getMessage()
+                              << " ------- " << theDiffQReport->getStatus()
+                              << " ------- " << setprecision(3) << theDiffQReport->getQTresult();
+        vector<dqm::me_util::Channel> badChannels = theDiffQReport->getBadChannels();
+        for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
+	                                           channel != badChannels.end(); channel++) {
+           LogVerbatim(metname_) << "layer: " << (*hDiff).first << " Bad channel: " 
+                                             << (*channel).getBin() << "  Contents : "
+                                             << (*channel).getContents();
+
+           //wheelSummary_[(*hDiff).first.wheel()]->Fill(xBin,(*hDiff).first.sector());
+        }
+     }
+      
   }
 
 }
@@ -216,16 +222,16 @@ void DTt0DBValidation::bookHistos(DTLayerId lId, int firstWire, int lastWire) {
 			   "/SuperLayer" +superLayer.str());
   // Create the monitor elements
   MonitorElement * hDifference;
-  hDifference = dbe_->book1D("hDifference"+lHistoName, "difference between the two t0 values",lastWire-firstWire+1, firstWire-0.5, lastWire+0.5);
+  hDifference = dbe_->book1D("T0Difference"+lHistoName, "difference between the two t0 values",lastWire-firstWire+1, firstWire-0.5, lastWire+0.5);
   
   t0DiffHistos_[lId] = hDifference;
 }
 
 // Book the summary histos
 void DTt0DBValidation::bookHistos(int wheel) {
-  dbe_->setCurrentFolder("DT/DtCalib/InterChannelSynchDBValidation/Summary");
+  dbe_->setCurrentFolder("DT/DtCalib/InterChannelSynchDBValidation");
   stringstream wh; wh << wheel;
-    wheelSummary_[wheel]= dbe_->book2D("summaryWrongT0_W"+wh.str(), "W"+wh.str()+": summary of wrong t0 differences",44,1,45,14,1,15);
+    wheelSummary_[wheel]= dbe_->book2D("SummaryWrongT0_W"+wh.str(), "W"+wh.str()+": summary of wrong t0 differences",44,1,45,14,1,15);
     wheelSummary_[wheel]->setBinLabel(1,"M1L1",1);
     wheelSummary_[wheel]->setBinLabel(2,"M1L2",1);
     wheelSummary_[wheel]->setBinLabel(3,"M1L3",1);
