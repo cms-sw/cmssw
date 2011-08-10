@@ -16,11 +16,14 @@ def listDirSortedByTime(dir):
     # Build up a dictionary of timestamps
     content = {}
     for item in os.listdir(dir):
-        content[item] = os.path.getmtime(item)
+        content[item] = os.path.getmtime(dir+"/"+item)
     # Sort keys, based on time stamps
     items = content.keys()
     items.sort(lambda x,y: cmp(content[x],content[y]))
     # Report objects in order
+    for i in range(0,len(items)):
+        items[i] = dir+"/"+item
+        # print "items[",i,"] = ", items[i]
     return items
 
 
@@ -33,14 +36,24 @@ outputFile.write("    label: 'High Voltage ON',\n")
 outputFile.write("    data: [")
 
 # dirList = os.listdir("./")
-dirList = listDirSortedByTime('./')
+first = True
+for subDir in os.listdir("./"):
+    if os.path.isdir(subDir):
+        if subDir.startswith("2"):
+            if first == True:
+                # print "First in", subDir
+                dirList = listDirSortedByTime(subDir)
+                first = False
+            else:
+                # print "Second in", subDir
+                dirList.extend(listDirSortedByTime(subDir))
 
 # print dirList
 
 fileList = []
 
 for inputFileName in dirList:
-    if inputFileName.startswith("DetVOffReaderSummary") and inputFileName.endswith(".log"):
+    if inputFileName.find("DetVOffReaderSummary") != -1 and inputFileName.endswith(".log"):
         firstDateString = inputFileName.split("_TO_")[0].split("_FROM_")[1]
         dateArray = firstDateString.replace("__", "_").split("_")
         firstTimeValue = calendar.timegm(time.strptime(dateArray[0]+" "+dateArray[1]+" "+dateArray[2]+" "+dateArray[3]+":"+dateArray[4]+":"+dateArray[5]+" "+dateArray[6]))
@@ -67,6 +80,7 @@ for fileBlock in sorted(fileList, key=lambda fileTuple: fileTuple[0]):
     counter = 0
     checkLine = False
     for line in inputFile:
+        # print "line", line
         if "TIB" in line:
             checkLine = True
         if "Summary" in line and checkLine:
