@@ -486,7 +486,7 @@ step4['ALCAHARVD']={'-s':'ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi',
 
 step4['RECOHISt4']=step3['RECOHI']
 
-step2['ALCANZS']=merge([{'-s':'ALCA:HcalCalMinBias','cfg':'step2'},step4Defaults])
+step3['ALCANZS']=merge([{'-s':'ALCA:HcalCalMinBias','cfg':'step3','--mc':''},step4Defaults])
 step2['HARVGEN']={'-s':'HARVESTING:genHarvesting',
                   '--harvesting':'AtJobEnd',
                   '--conditions':'auto:startup',
