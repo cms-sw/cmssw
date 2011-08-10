@@ -4,9 +4,9 @@ HLT_L1SingleJet16_v*
 HLT_L1SingleJet36_v*
 HLT_Jet30_v*
 HLT_Jet60_v*
-HLT_Jet80_v*
+#HLT_Jet80_v*                                                                                   # removed in "3e33" menu (sr #122738)
 HLT_Jet110_v*
-HLT_Jet150_v*
+#HLT_Jet150_v*                                                                                  # removed in "3e33" menu (sr #122738)
 HLT_Jet190_v*
 HLT_Jet240_v*
 HLT_Jet240_CentralJet30_BTagIP_v*
@@ -17,9 +17,9 @@ HLT_Jet370_NoJetID_v*
 HLT_Jet800_v*
 HLT_DiJetAve30_v*
 HLT_DiJetAve60_v*
-HLT_DiJetAve80_v*
+#HLT_DiJetAve80_v*                                                                              # removed in "3e33" menu (sr #122738)
 HLT_DiJetAve110_v*
-HLT_DiJetAve150_v*
+#HLT_DiJetAve150_v*                                                                             # removed in "3e33" menu (sr #122738)
 HLT_DiJetAve190_v*
 HLT_DiJetAve240_v*
 HLT_DiJetAve300_v*
