@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.54 2011/05/20 17:17:27 wmtan Exp $
+// $Id: FWEventItem.cc,v 1.55 2011/07/30 04:48:44 amraktad Exp $
 //
 
 // system include files
@@ -83,7 +83,7 @@ FWEventItem::FWEventItem(fireworks::Context* iContext,
    m_filter(iDesc.filterExpression(),""),
    m_printedErrorThisEvent(false),
    m_isSelected(false),
-   m_proxyBuilderConfig(new FWProxyBuilderConfiguration(pbc))
+   m_proxyBuilderConfig(0)
 {
    //assert(m_type->GetTypeInfo());
    //ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*(m_type->GetTypeInfo())));
@@ -103,6 +103,7 @@ FWEventItem::FWEventItem(fireworks::Context* iContext,
       m_itemInfos.reserve(1);
    }
    m_filter.setClassName(modelType()->GetName());
+   m_proxyBuilderConfig = new FWProxyBuilderConfiguration(pbc, this);
 }
 // FWEventItem::FWEventItem(const FWEventItem& rhs)
 // {
