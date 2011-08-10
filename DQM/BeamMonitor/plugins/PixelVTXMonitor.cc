@@ -2,8 +2,8 @@
  * \file PixelVTXMonitor.cc
  * \author S. Dutta
  * Last Update:
- * $Date: 2011/07/18 15:52:06 $
- * $Revision: 1.0 $
+ * $Date: 2011/08/10 05:14:06 $
+ * $Revision: 1.1 $
  * $Author: dutta $
  *
  * Description: Pixel Vertex Monitoring for different HLT paths
@@ -84,7 +84,7 @@ void PixelVTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& i
   edm::Handle<reco::VertexCollection> pixelVertices;
   iEvent.getByLabel(pixelVertexInputTag_,pixelVertices);
   if (!pixelVertices.isValid()) return;
-
+  std::cout << " for runs: " << iEvent.id().run() << std::endl;
   int nVtx = 0;
   for (reco::VertexCollection::const_iterator ivtx = pixelVertices->begin(); 
 	 ivtx != pixelVertices->end(); ++ivtx) {
