@@ -29,12 +29,13 @@ class SiStripZeroSuppression : public edm::EDProducer
   void storeBaselinePoints(uint32_t, std::vector< std::map< uint16_t, int16_t> >&);
   void StandardZeroSuppression(edm::Event&);
   void CollectionMergedZeroSuppression(edm::Event&);
-  
+  void MergeCollectionsZeroSuppression(edm::Event&);
+
   std::vector<edm::InputTag> inputTags;
   typedef std::vector<edm::InputTag>::const_iterator tag_iterator_t;
   std::vector< edm::DetSet<SiStripProcessedRawDigi> > output_apvcm; 
   std::vector< edm::DetSet<SiStripProcessedRawDigi> > output_baseline;
-  std::vector< edm::DetSet<SiStripDigi> > output_baseline_points;
+  std::vector< edm::DetSet<SiStripProcessedRawDigi> > output_baseline_points;
   std::auto_ptr<SiStripRawProcessingAlgorithms> algorithms;
   
   
