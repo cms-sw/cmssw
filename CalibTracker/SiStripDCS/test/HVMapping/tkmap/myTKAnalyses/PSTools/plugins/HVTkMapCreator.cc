@@ -58,7 +58,7 @@ class HVTkMapCreator : public edm::EDAnalyzer {
 
       // ----------member data ---------------------------
 
-  const std::string _hvfile;
+  //const std::string _hvfile;
   const std::string _hvreassfile;
 
 };
@@ -75,7 +75,7 @@ class HVTkMapCreator : public edm::EDAnalyzer {
 // constructors and destructor
 //
 HVTkMapCreator::HVTkMapCreator(const edm::ParameterSet& iConfig):
-  _hvfile(iConfig.getParameter<std::string>("hvChannelFile")),
+  //_hvfile(iConfig.getParameter<std::string>("hvChannelFile")),
   _hvreassfile(iConfig.getParameter<std::string>("hvReassChannelFile"))
 
 {

@@ -27,7 +27,10 @@ process.TkDetMap = cms.Service("TkDetMap")
 process.load("DQMServices.Core.DQMStore_cfg")
 process.SiStripDetInfoFileReader = cms.Service("SiStripDetInfoFileReader")
 
-process.load("myTKAnalyses.PSTools.hvtkmapcreator_cfi")
+#process.load("myTKAnalyses.PSTools.hvtkmapcreator_cfi")
+process.hvtkmapcreator = cms.EDAnalyzer('HVTkMapCreator',
+                                        hvReassChannelFile = cms.string(sys.argv[2])
+                                        )
 
-process.hvtkmapcreator.hvReassChannelFile = cms.string(sys.argv[2])
+#process.hvtkmapcreator.hvReassChannelFile = cms.string(sys.argv[2])
 process.p0 = cms.Path(process.hvtkmapcreator)
