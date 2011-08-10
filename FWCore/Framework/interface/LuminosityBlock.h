@@ -94,6 +94,8 @@ namespace edm {
     void
     getAllProvenance(std::vector<Provenance const*>& provenances) const;
 
+    ProcessHistoryID const& processHistoryID() const;
+
     ProcessHistory const&
     processHistory() const;
 

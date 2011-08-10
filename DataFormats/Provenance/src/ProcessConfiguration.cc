@@ -5,6 +5,7 @@
 #include <ostream>
 #include <cassert>
 #include <sstream>
+#include <cctype>
 
 /*----------------------------------------------------------------------
 
@@ -68,6 +69,21 @@ namespace edm {
   ProcessConfiguration::setParameterSetID(ParameterSetID const& pSetID) {
     assert(parameterSetID_ == ParameterSetID());
     parameterSetID_ = pSetID;
+  }
+
+  void
+  ProcessConfiguration::reduce() {
+    // Skip to the part of the release version just after
+    // the first two numbers and erase the rest of it.
+    std::string::iterator iter = releaseVersion_.begin();
+    std::string::iterator iEnd = releaseVersion_.end();
+    while(iter != iEnd && isdigit(*iter) == 0) ++iter;
+    while(iter != iEnd && isdigit(*iter) != 0) ++iter;
+    while(iter != iEnd && isdigit(*iter) == 0) ++iter;
+    while(iter != iEnd && isdigit(*iter) != 0) ++iter;
+    if (iter == iEnd) return;
+    pcid() = ProcessConfigurationID();
+    releaseVersion_.erase(iter,iEnd);
   }
 
   bool operator<(ProcessConfiguration const& a, ProcessConfiguration const& b) {

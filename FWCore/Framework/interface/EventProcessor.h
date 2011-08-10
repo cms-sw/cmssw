@@ -22,6 +22,7 @@ configured in the user's main() function, and is set running.
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 
 #include "boost/shared_ptr.hpp"
+#include "boost/scoped_ptr.hpp"
 #include "boost/thread/condition.hpp"
 #include "boost/utility.hpp"
 
@@ -40,6 +41,7 @@ namespace edm {
 
   class ActionTable;
   class EDLooperBase;
+  class HistoryAppender;
   class ProcessDesc;
   class SubProcess;
   namespace eventsetup {
@@ -286,8 +288,8 @@ namespace edm {
     virtual void beginLumi(ProcessHistoryID const& phid, int run, int lumi);
     virtual void endLumi(ProcessHistoryID const& phid, int run, int lumi);
 
-    virtual statemachine::Run readAndCacheRun();
-    virtual int readAndCacheLumi();
+    virtual statemachine::Run readAndCacheRun(bool merge);
+    virtual int readAndCacheLumi(bool merge);
     virtual void writeRun(statemachine::Run const& run);
     virtual void deleteRunFromCache(statemachine::Run const& run);
     virtual void writeLumi(ProcessHistoryID const& phid, int run, int lumi);
@@ -351,6 +353,7 @@ namespace edm {
     boost::shared_ptr<ProcessConfiguration>       processConfiguration_;
     std::auto_ptr<Schedule>                       schedule_;
     std::auto_ptr<SubProcess>                     subProcess_;
+    boost::scoped_ptr<HistoryAppender>            historyAppender_;
 
     volatile event_processor::State               state_;
     boost::shared_ptr<boost::thread>              event_loop_;

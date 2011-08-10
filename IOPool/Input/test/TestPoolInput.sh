@@ -63,4 +63,12 @@ do
   cmsRun ${LOCAL_TEST_DIR}/$script "$file" || die "Failed to read old complex file $file" $?
 done
 
+cmsRun ${LOCAL_TEST_DIR}/test_merge_two_files.py ${CMSSW_BASE}/src/IOPool/Input/testdata/complex_old_format_CMSSW_4_2_7.root ${CMSSW_BASE}/src/IOPool/Input/testdata/complex_old_format_CMSSW_4_2_8.root || die 'Failure using test_merge_two_files.py' $?
+
+cmsRun ${LOCAL_TEST_DIR}/test_reduced_ProcessHistory_cfg.py merged_files.root || die 'Failure using test_reduced_ProcessHistory_cfg.py' $?
+
+cmsRun ${LOCAL_TEST_DIR}/test_reduced_ProcessHistory_dup_cfg.py merged_files.root || die 'Failure using test_reduced_ProcessHistory_dup_cfg.py' $?
+
+cmsRun ${LOCAL_TEST_DIR}/test_reduced_ProcessHistory_end_cfg.py merged_files.root || die 'Failure using test_reduced_ProcessHistory_end_cfg.py' $?
+
 popd

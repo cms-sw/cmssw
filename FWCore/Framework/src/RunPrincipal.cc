@@ -11,8 +11,9 @@ namespace edm {
   RunPrincipal::RunPrincipal(
     boost::shared_ptr<RunAuxiliary> aux,
     boost::shared_ptr<ProductRegistry const> reg,
-    ProcessConfiguration const& pc) :
-      Base(reg, pc, InRun),
+    ProcessConfiguration const& pc,
+    HistoryAppender* historyAppender) :
+    Base(reg, pc, InRun, historyAppender),
       aux_(aux) {
   }
 
@@ -20,13 +21,9 @@ namespace edm {
   RunPrincipal::fillRunPrincipal(
     boost::shared_ptr<BranchMapper> mapper,
     DelayedReader* reader) {
-    if(productRegistry().anyProductProduced()) {
-      checkProcessHistory();
-    }
+
     fillPrincipal(aux_->processHistoryID(), mapper, reader);
-    if(productRegistry().anyProductProduced()) {
-      addToProcessHistory();
-    }
+
     branchMapperPtr()->processHistoryID() = processHistoryID();
     for (const_iterator i = this->begin(), iEnd = this->end(); i != iEnd; ++i) {
       (*i)->setProvenance(branchMapperPtr());
@@ -78,35 +75,5 @@ namespace edm {
     if(edp.isValid()) {
       putOrMerge(edp, &g);
     }
-  }
-
-  void
-  RunPrincipal::checkProcessHistory() const {
-    ProcessHistory ph;
-    ProcessHistoryRegistry::instance()->getMapped(aux_->processHistoryID(), ph);
-    std::string const& processName = processConfiguration().processName();
-    for (ProcessHistory::const_iterator it = ph.begin(), itEnd = ph.end(); it != itEnd; ++it) {
-      if(processName == it->processName()) {
-        throw edm::Exception(errors::Configuration, "Duplicate Process")
-          << "The process name " << processName << " was previously used on these products.\n"
-          << "Please modify the configuration file to use a distinct process name.\n";
-      }
-    }
-  }
-
-  void
-  RunPrincipal::addToProcessHistory() {
-    ProcessHistory& ph = processHistoryUpdate();
-    ph.push_back(processConfiguration());
-    //OPTIMIZATION NOTE:  As of 0_9_0_pre3
-    // For very simple Sources (e.g. EmptySource) this routine takes up nearly 50% of the time per event.
-    // 96% of the time for this routine is being spent in computing the
-    // ProcessHistory id which happens because we are reconstructing the ProcessHistory for each event.
-    // (The process ID is first computed in the call to 'insertMapped(..)' below.)
-    // It would probably be better to move the ProcessHistory construction out to somewhere
-    // which persists for longer than one Event
-
-    ProcessHistoryRegistry::instance()->insertMapped(ph);
-    setProcessHistory(*this);
   }
 }

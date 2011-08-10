@@ -97,6 +97,10 @@ namespace edm {
     return value_ >= 18;
   }
 
+  bool
+  FileFormatVersion::useReducedProcessHistoryID() const {
+    return value_ >= 19;
+  }
   
   std::ostream&
   operator<< (std::ostream& os, FileFormatVersion const& ff) {

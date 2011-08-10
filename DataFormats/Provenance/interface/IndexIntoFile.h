@@ -74,6 +74,11 @@ once in this separate vector. Everywhere else it is needed
 it stored as an index into this vector because the
 ProcessHistoryID itself is large and it would take more
 memory to store them repeatedly in the other vectors.
+Note that the ProcessHistoryID's referenced in this
+class are always the "reduced" ProcessHistoryID's,
+not the ProcessHistoryID of the full ProcessHistory.
+You cannot use them to directly access the ProcessHistory
+from the ProcessHistoryRegistry.
 
 runOrLumiEntries_ is a std::vector<RunOrLumiEntry>.
 This vector holds one element per entry in the run
@@ -318,6 +323,7 @@ namespace edm {
         bool isRun() const {return lumi() == invalidLumi;}
 
         void setOrderPHIDRun(EntryNumber_t v) {orderPHIDRun_ = v;}
+        void setOrderPHIDRunLumi(EntryNumber_t v) {orderPHIDRunLumi_ = v;}
         void setProcessHistoryIDIndex(int v) {processHistoryIDIndex_ = v;}
 
         bool operator<(RunOrLumiEntry const& right) const {
@@ -506,6 +512,8 @@ namespace edm {
         virtual EntryNumber_t entry() const = 0;
         virtual LuminosityBlockNumber_t peekAheadAtLumi() const = 0;
         virtual EntryNumber_t peekAheadAtEventEntry() const = 0;
+        EntryNumber_t firstEventEntryThisRun();
+        EntryNumber_t firstEventEntryThisLumi();
         virtual bool skipLumiInRun() = 0;
 
         void advanceToNextRun();
@@ -662,8 +670,16 @@ namespace edm {
         LuminosityBlockNumber_t peekAheadAtLumi() const { return impl_->peekAheadAtLumi(); }
 
         /// Same as entry() except when the the current type is kRun or kLumi.
-        /// In that case instead of always returning 0 (invalid), it will return the event entry that will be processed next
+        /// In that case instead of always returning -1 (invalid), it will return
+        /// the event entry that will be processed next and which is in the current
+        /// run and lumi. If there is none it still returns -1 (invalid).
         EntryNumber_t peekAheadAtEventEntry() const { return impl_->peekAheadAtEventEntry(); }
+
+        /// Returns the TTree entry of the first event which would be processed in the
+        /// current run/lumi if all the events in the run/lumi were processed in the
+        /// current processing order. If there are none it returns -1 (invalid).
+        EntryNumber_t firstEventEntryThisRun() const { return impl_->firstEventEntryThisRun(); }
+        EntryNumber_t firstEventEntryThisLumi() const { return impl_->firstEventEntryThisLumi(); }
 
         // This is intentionally not implemented.
         // It would be difficult to implement for the no sort mode,
@@ -985,6 +1001,11 @@ namespace edm {
       /// with releases before 3_8_0 which do not contain an IndexIntoFile.
       std::vector<ProcessHistoryID>& setProcessHistoryIDs() {return processHistoryIDs_;}
 
+      /// Used for backward compatibility to convert objects created with releases
+      /// that used the full ProcessHistoryID in IndexIntoFile to use the reduced
+      /// ProcessHistoryID.
+      void reduceProcessHistoryIDs();
+
       //*****************************************************************************
       //*****************************************************************************
 
@@ -1019,7 +1040,7 @@ namespace edm {
 
       mutable Transient<Transients> transients_;
 
-      std::vector<ProcessHistoryID> processHistoryIDs_;
+      std::vector<ProcessHistoryID> processHistoryIDs_; // of reduced process histories
       std::vector<RunOrLumiEntry> runOrLumiEntries_;
   };
 

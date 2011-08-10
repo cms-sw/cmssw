@@ -101,6 +101,8 @@ namespace edm {
     //bool
     //getProcessParameterSet(std::string const& processName, std::vector<ParameterSet>& ps) const;
 
+    ProcessHistoryID const& processHistoryID() const;
+
     ProcessHistory const&
     processHistory() const;
 

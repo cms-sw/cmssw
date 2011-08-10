@@ -93,6 +93,11 @@ namespace edm {
     putProducts().clear();
   }
 
+  ProcessHistoryID const&
+  Run::processHistoryID() const {
+    return runPrincipal().processHistoryID();
+  }
+
   ProcessHistory const&
   Run::processHistory() const {
     return provRecorder_.processHistory();

@@ -19,8 +19,9 @@
 namespace edm {
   EventPrincipal::EventPrincipal(
         boost::shared_ptr<ProductRegistry const> reg,
-        ProcessConfiguration const& pc) :
-          Base(reg, pc, InEvent),
+        ProcessConfiguration const& pc,
+        HistoryAppender* historyAppender) :
+    Base(reg, pc, InEvent, historyAppender),
           aux_(),
           luminosityBlockPrincipal_(),
           unscheduledHandler_(),
@@ -54,10 +55,7 @@ namespace edm {
     if(eventSelectionIDs) {
       eventSelectionIDs_ = eventSelectionIDs;
     }
-    if(luminosityBlockPrincipal_) {
-      setProcessHistory(*luminosityBlockPrincipal_);
-      aux_.setProcessHistoryID(processHistoryID());
-    }
+    aux_.setProcessHistoryID(processHistoryID());
 
     branchMapperPtr()->processHistoryID() = processHistoryID();
     if(branchListIndexes) {
@@ -83,6 +81,11 @@ namespace edm {
     for(const_iterator it = this->begin(), itEnd = this->end(); it != itEnd; ++it) {
       (*it)->setProvenance(branchMapperPtr(), branchIDToProductID((*it)->branchDescription().branchID()));
     }
+  }
+
+  void
+  EventPrincipal::setLuminosityBlockPrincipal(boost::shared_ptr<LuminosityBlockPrincipal> const& lbp) {
+    luminosityBlockPrincipal_ = lbp;
   }
 
   RunPrincipal const&

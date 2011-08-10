@@ -2,64 +2,41 @@
 #define FWCore_Framework_PrincipalCache_h
 
 /*
-Designed to save RunPrincipal's and LuminosityBlockPrincipal's
-in memory.  Manages merging of products in those principals
-when there is more than one principal from the same run
-or luminosity block.
+Contains a shared pointer to the RunPrincipal,
+LuminosityBlockPrincipal, and EventPrincipal.
+Manages merging of run and luminosity block
+principals when there is more than one principal
+from the same run or luminosity block and having
+the same reduced ProcessHistoryID.
 
-Also contains a non-owning pointer the EventPrincipal, which is reused each event.
+The EventPrincipal is reused each event and is created
+by the EventProcessor or SubProcess which contains
+an object of this type as a data member.
+
+The RunPrincipal and LuminosityBlockPrincipal is
+created by the InputSource each time a different
+run or luminosity block is encountered.
+
+Performs checks that process history IDs or runs and
+lumis, run numbers, and luminosity numbers are consistent.
 
 Original Author: W. David Dagenhart
 */
 
-#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+#include "DataFormats/Provenance/interface/RunID.h"
+#include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 
 #include "boost/shared_ptr.hpp"
 
-#include <map>
-
 namespace edm {
 
-  class RunKey {
-  public:
-    int processHistoryIDIndex() const { return processHistoryIDIndex_; }
-    int run() const { return run_; }
-
-    RunKey(int index, int run) : processHistoryIDIndex_(index), run_(run) { }
-
-    bool operator<(RunKey const& right) const {
-      if (processHistoryIDIndex_ == right.processHistoryIDIndex_) {
-        return run_ < right.run_;
-      }
-      return processHistoryIDIndex_ < right.processHistoryIDIndex_;
-    }
-
-  private:
-    int processHistoryIDIndex_;
-    int run_;
-  };
-
-  class LumiKey {
-  public:
-    int processHistoryIDIndex() const { return processHistoryIDIndex_; }
-    int run() const { return run_; }
-    int lumi() const { return lumi_; }
-
-    LumiKey(int index, int run, int lumi) : processHistoryIDIndex_(index), run_(run), lumi_(lumi) { }
-
-    bool operator<(const LumiKey& right) const {
-      if (processHistoryIDIndex_ == right.processHistoryIDIndex_) {
-        if (run_ == right.run_) return lumi_ < right.lumi_;
-        return run_ < right.run_;
-      }
-      return processHistoryIDIndex_ < right.processHistoryIDIndex_;
-    }
-
-  private:
-    int processHistoryIDIndex_;
-    int run_;
-    int lumi_;
-  };
+  class RunPrincipal;
+  class LuminosityBlockPrincipal;
+  class EventPrincipal;
+  class RunAuxiliary;
+  class LuminosityBlockAuxiliary;
+  class ProductRegistry;
 
   class PrincipalCache {
   public:
@@ -67,46 +44,27 @@ namespace edm {
     PrincipalCache();
     ~PrincipalCache();
 
-    RunPrincipal& runPrincipal(ProcessHistoryID const& phid, int run);
-    RunPrincipal const& runPrincipal(ProcessHistoryID const& phid, int run) const;
-    boost::shared_ptr<RunPrincipal> runPrincipalPtr(ProcessHistoryID const& phid, int run);
+    RunPrincipal& runPrincipal(ProcessHistoryID const& phid, RunNumber_t run) const;
+    boost::shared_ptr<RunPrincipal> const& runPrincipalPtr(ProcessHistoryID const& phid, RunNumber_t run) const;
+    RunPrincipal& runPrincipal() const;
+    boost::shared_ptr<RunPrincipal> const& runPrincipalPtr() const;
 
-    // Current run (most recently read and inserted run)
-    RunPrincipal& runPrincipal();
-    RunPrincipal const& runPrincipal() const;
-    boost::shared_ptr<RunPrincipal> runPrincipalPtr();
+    LuminosityBlockPrincipal& lumiPrincipal(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) const;
+    boost::shared_ptr<LuminosityBlockPrincipal> const& lumiPrincipalPtr(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi) const;
+    LuminosityBlockPrincipal& lumiPrincipal() const;
+    boost::shared_ptr<LuminosityBlockPrincipal> const& lumiPrincipalPtr() const;
 
-    LuminosityBlockPrincipal& lumiPrincipal(ProcessHistoryID const& phid, int run, int lumi);
-    LuminosityBlockPrincipal const& lumiPrincipal(ProcessHistoryID const& phid, int run, int lumi) const;
-    boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipalPtr(ProcessHistoryID const& phid, int run, int lumi);
+    EventPrincipal& eventPrincipal() const { return *eventPrincipal_; }
 
-    // Current luminosity block (most recently read and inserted luminosity block)
-    LuminosityBlockPrincipal& lumiPrincipal();
-    LuminosityBlockPrincipal const& lumiPrincipal() const;
-    boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipalPtr();
+    void merge(boost::shared_ptr<RunAuxiliary> aux, boost::shared_ptr<ProductRegistry const> reg);
+    void merge(boost::shared_ptr<LuminosityBlockAuxiliary> aux, boost::shared_ptr<ProductRegistry const> reg);
 
-    // Event
-    EventPrincipal& eventPrincipal() {return *eventPrincipal_;}
-    EventPrincipal const& eventPrincipal() const {return *eventPrincipal_;}
+    void insert(boost::shared_ptr<RunPrincipal> rp);
+    void insert(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
+    void insert(boost::shared_ptr<EventPrincipal> ep) { eventPrincipal_ = ep; }
 
-    bool merge(boost::shared_ptr<RunAuxiliary> aux, boost::shared_ptr<ProductRegistry const> reg);
-    bool merge(boost::shared_ptr<LuminosityBlockAuxiliary> aux, boost::shared_ptr<ProductRegistry const> reg);
-
-    bool insert(boost::shared_ptr<RunPrincipal> rp);
-    bool insert(boost::shared_ptr<LuminosityBlockPrincipal> lbp);
-    void insert(boost::shared_ptr<EventPrincipal> ep) {eventPrincipal_ = ep;}
-
-    bool noMoreRuns();
-    bool noMoreLumis();
-
-    RunPrincipal const& lowestRun() const;
-    LuminosityBlockPrincipal const& lowestLumi() const;
-
-    void deleteLowestRun();
-    void deleteLowestLumi();
-
-    void deleteRun(ProcessHistoryID const& phid, int run);
-    void deleteLumi(ProcessHistoryID const& phid, int run, int lumi);
+    void deleteRun(ProcessHistoryID const& phid, RunNumber_t run);
+    void deleteLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
 
     void adjustEventToNewProductRegistry(boost::shared_ptr<ProductRegistry const> reg);
 
@@ -114,20 +72,26 @@ namespace edm {
 
   private:
 
-    std::vector<ProcessHistoryID> processHistoryIDs_;
-    std::map<ProcessHistoryID, int> processHistoryIDsMap_;
+    void throwRunMissing() const;
+    void throwLumiMissing() const;
 
-    typedef std::map<RunKey, boost::shared_ptr<RunPrincipal> >::iterator RunIterator;
-    typedef std::map<RunKey, boost::shared_ptr<RunPrincipal> >::const_iterator ConstRunIterator;
-    typedef std::map<LumiKey, boost::shared_ptr<LuminosityBlockPrincipal> >::iterator LumiIterator;
-    typedef std::map<LumiKey, boost::shared_ptr<LuminosityBlockPrincipal> >::const_iterator ConstLumiIterator;
-
-    std::map<RunKey, boost::shared_ptr<RunPrincipal> > runPrincipals_;
-    std::map<LumiKey, boost::shared_ptr<LuminosityBlockPrincipal> > lumiPrincipals_;
-
+    // These are explicitly cleared when finished with the run,
+    // lumi, or event
+    boost::shared_ptr<RunPrincipal> runPrincipal_;
+    boost::shared_ptr<LuminosityBlockPrincipal> lumiPrincipal_;
     boost::shared_ptr<EventPrincipal> eventPrincipal_;
-    boost::shared_ptr<RunPrincipal> currentRunPrincipal_;
-    boost::shared_ptr<LuminosityBlockPrincipal> currentLumiPrincipal_;
+
+    // These are intentionally not cleared so that when inserting
+    // the next principal the conversion from full ProcessHistoryID_
+    // to reduced ProcessHistoryID_ is still in memory and does
+    // not need to be recalculated if the ID does not change. I
+    // expect that very often these ID's will not change from one
+    // principal to the next and a good amount of CPU can be saved
+    // by not recalculating.
+    ProcessHistoryID inputProcessHistoryID_;
+    ProcessHistoryID reducedInputProcessHistoryID_;
+    RunNumber_t run_;
+    LuminosityBlockNumber_t lumi_;
   };
 }
 

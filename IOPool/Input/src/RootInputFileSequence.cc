@@ -321,14 +321,12 @@ namespace edm {
 
   boost::shared_ptr<RunAuxiliary>
   RootInputFileSequence::readRunAuxiliary_() {
-    boost::shared_ptr<RunAuxiliary> aux = rootFile_->readRunAuxiliary_();
-    return aux;
+    return rootFile_->readRunAuxiliary_();
   }
 
   boost::shared_ptr<LuminosityBlockAuxiliary>
   RootInputFileSequence::readLuminosityBlockAuxiliary_() {
-    boost::shared_ptr<LuminosityBlockAuxiliary> aux = rootFile_->readLuminosityBlockAuxiliary_();
-    return aux;
+    return rootFile_->readLuminosityBlockAuxiliary_();
   }
 
   boost::shared_ptr<RunPrincipal>

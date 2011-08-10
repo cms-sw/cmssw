@@ -16,7 +16,6 @@ namespace edm {
   void
   LuminosityBlockAuxiliary::mergeAuxiliary(LuminosityBlockAuxiliary const& newAux) {
     assert(id_ == newAux.id_);
-    assert(processHistoryID_ == newAux.processHistoryID_);
     if (beginTime_ == Timestamp::invalidTimestamp() ||
         newAux.beginTime() == Timestamp::invalidTimestamp()) {
       beginTime_ = Timestamp::invalidTimestamp();
@@ -32,6 +31,5 @@ namespace edm {
     else if (newAux.endTime() > endTime_) {
       endTime_ = newAux.endTime();
     }
-
   }
 }

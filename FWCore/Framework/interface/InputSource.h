@@ -58,6 +58,7 @@ Some examples of InputSource subclasses may be:
 namespace edm {
   class ActivityRegistry;
   class ConfigurationDescriptions;
+  class HistoryAppender;
   class ParameterSet;
   class ParameterSetDescription;
   namespace multicore {
@@ -111,13 +112,13 @@ namespace edm {
     boost::shared_ptr<RunAuxiliary> readRunAuxiliary() {return readRunAuxiliary_();}
 
     /// Read next run
-    void readAndCacheRun();
+    void readAndCacheRun(bool merge, HistoryAppender& historyAppender);
 
     /// Mark run as read
     int markRun();
 
     /// Read next luminosity block
-    void readAndCacheLumi();
+    void readAndCacheLumi(bool merge, HistoryAppender& historyAppender);
 
     /// Mark lumi as read
     int markLumi();
@@ -220,8 +221,10 @@ namespace edm {
     /// Accessor for the current time, as seen by the input source
     Timestamp const& timestamp() const {return time_;}
 
-    /// Accessor for the input process history ID of the current run
-    ProcessHistoryID const&  processHistoryID() const;
+    /// Accessor for the reduced process history ID of the current run.
+    /// This is the ID of the input process history which does not include
+    /// the current process.
+    ProcessHistoryID const&  reducedProcessHistoryID() const;
 
     /// Accessor for current run number
     RunNumber_t run() const;
@@ -318,9 +321,6 @@ namespace edm {
     boost::shared_ptr<LuminosityBlockPrincipal> const luminosityBlockPrincipal() const;
     boost::shared_ptr<RunPrincipal> const runPrincipal() const;
 
-    void setRunPrematurelyRead() {runPrematurelyRead_ = true;}
-    void setLumiPrematurelyRead() {lumiPrematurelyRead_ = true;}
-
     ///Called by inheriting classes when running multicore when the receiver has told them to
     /// skip some events.
     void decreaseRemainingEventsBy(int iSkipped);
@@ -378,8 +378,6 @@ namespace edm {
     mutable ItemType state_;
     mutable boost::shared_ptr<RunAuxiliary> runAuxiliary_;
     mutable boost::shared_ptr<LuminosityBlockAuxiliary>  lumiAuxiliary_;
-    bool runPrematurelyRead_;
-    bool lumiPrematurelyRead_;
     std::string statusFileName_;
   };
 }

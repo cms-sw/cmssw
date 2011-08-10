@@ -72,7 +72,7 @@ namespace edm {
     int storeNumber() const {return storeNumber_;}
 
   private:
-    // Process history ID of the containing run.
+    // Process history ID of the full process history (not the reduced process history)
     ProcessHistoryID processHistoryID_;
     // Event ID
     EventID id_;

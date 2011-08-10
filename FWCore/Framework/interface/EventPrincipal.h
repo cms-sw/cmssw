@@ -31,6 +31,7 @@ namespace edm {
   class BranchMapper;
   class DelayedReader;
   class EventID;
+  class HistoryAppender;
   class LuminosityBlockPrincipal;
   class RunPrincipal;
   class UnscheduledHandler;
@@ -45,7 +46,8 @@ namespace edm {
     static int const invalidStoreNumber = EventAuxiliary::invalidStoreNumber;
     EventPrincipal(
         boost::shared_ptr<ProductRegistry const> reg,
-        ProcessConfiguration const& pc);
+        ProcessConfiguration const& pc,
+        HistoryAppender* historyAppender = 0);
     ~EventPrincipal() {}
 
     void fillEventPrincipal(EventAuxiliary const& aux,
@@ -64,6 +66,12 @@ namespace edm {
     LuminosityBlockPrincipal& luminosityBlockPrincipal() {
       return *luminosityBlockPrincipal_;
     }
+
+    bool luminosityBlockPrincipalPtrValid() {
+      return (luminosityBlockPrincipal_) ? true : false;
+    }
+
+    void setLuminosityBlockPrincipal(boost::shared_ptr<LuminosityBlockPrincipal> const& lbp);
 
     EventID const& id() const {
       return aux().id();

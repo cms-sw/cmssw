@@ -173,6 +173,7 @@ namespace edm {
     IndexIntoFile::IndexIntoFileItr indexIntoFileIter_;
     std::vector<EventProcessHistoryID> eventProcessHistoryIDs_;  // backward compatibility
     std::vector<EventProcessHistoryID>::const_iterator eventProcessHistoryIter_; // backward compatibility
+    boost::shared_ptr<RunAuxiliary> savedRunAuxiliary_; // backward compatibility
     bool skipAnyEvents_;
     bool noEventSort_;
     int whyNotFastClonable_;
@@ -189,13 +190,13 @@ namespace edm {
     InputSource::ProcessingMode processingMode_;
     int forcedRunOffset_;
     std::map<std::string, std::string> newBranchToOldBranch_;
-    TTree* eventHistoryTree_;
+    TTree* eventHistoryTree_;			// backward compatibility
     boost::shared_ptr<EventSelectionIDVector> eventSelectionIDs_;
     boost::shared_ptr<BranchListIndexes> branchListIndexes_;
-    boost::scoped_ptr<History> history_;
+    boost::scoped_ptr<History> history_; // backward compatibility
     boost::shared_ptr<BranchChildren> branchChildren_;
     boost::shared_ptr<DuplicateChecker> duplicateChecker_;
-    boost::scoped_ptr<ProvenanceAdaptor> provenanceAdaptor_;
+    boost::scoped_ptr<ProvenanceAdaptor> provenanceAdaptor_; // backward comatibility
     mutable boost::scoped_ptr<EventPrincipal> secondaryEventPrincipal_;
     mutable boost::shared_ptr<BranchMapper> eventBranchMapper_;
     std::vector<ParentageID> parentageIDLookup_;

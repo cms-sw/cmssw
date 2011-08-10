@@ -32,6 +32,8 @@ namespace edm {
 
     void setParameterSetID(ParameterSetID const& pSetID);
 
+    void reduce();
+
     struct Transients {
       Transients() : pcid_(), isCurrentProcess_(false) {}
       ProcessConfigurationID pcid_;

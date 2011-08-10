@@ -15,6 +15,7 @@
 #include "FWCore/Framework/interface/EventSetupProvider.h"
 #include "FWCore/Framework/interface/EventSetupRecord.h"
 #include "FWCore/Framework/interface/FileBlock.h"
+#include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/InputSourceDescription.h"
 #include "FWCore/Framework/interface/IOVSyncValue.h"
 #include "FWCore/Framework/interface/LooperFactory.h"
@@ -375,6 +376,7 @@ namespace edm {
     processConfiguration_(),
     schedule_(),
     subProcess_(),
+    historyAppender_(new HistoryAppender),
     state_(sInit),
     event_loop_(),
     state_lock_(),
@@ -426,6 +428,7 @@ namespace edm {
     processConfiguration_(),
     schedule_(),
     subProcess_(),
+    historyAppender_(new HistoryAppender),
     state_(sInit),
     event_loop_(),
     state_lock_(),
@@ -477,6 +480,7 @@ namespace edm {
     processConfiguration_(),
     schedule_(),
     subProcess_(),
+    historyAppender_(new HistoryAppender),
     state_(sInit),
     event_loop_(),
     state_lock_(),
@@ -524,6 +528,7 @@ namespace edm {
     processConfiguration_(),
     schedule_(),
     subProcess_(),
+    historyAppender_(new HistoryAppender),
     state_(sInit),
     event_loop_(),
     state_lock_(),
@@ -1460,7 +1465,7 @@ namespace edm {
   EventProcessor::runCommon(bool onlineStateTransitions, int numberOfEventsToProcess) {
 
     // Reusable event principal
-    boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_, *processConfiguration_));
+    boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_, *processConfiguration_, historyAppender_.get()));
     principalCache_.insert(ep);
 
     beginJob(); //make sure this was called
@@ -1558,7 +1563,7 @@ namespace edm {
             machine_->process_event(statemachine::File());
           }
           else if(itemType == InputSource::IsRun) {
-            machine_->process_event(statemachine::Run(input_->processHistoryID(), input_->run()));
+            machine_->process_event(statemachine::Run(input_->reducedProcessHistoryID(), input_->run()));
           }
           else if(itemType == InputSource::IsLumi) {
             machine_->process_event(statemachine::Lumi(input_->luminosityBlock()));
@@ -1891,14 +1896,14 @@ namespace edm {
     }
   }
 
-  statemachine::Run EventProcessor::readAndCacheRun() {
-    input_->readAndCacheRun();
+  statemachine::Run EventProcessor::readAndCacheRun(bool merge) {
+    input_->readAndCacheRun(merge, *historyAppender_);
     input_->markRun();
-    return statemachine::Run(input_->processHistoryID(), input_->run());
+    return statemachine::Run(input_->reducedProcessHistoryID(), input_->run());
   }
 
-  int EventProcessor::readAndCacheLumi() {
-    input_->readAndCacheLumi();
+  int EventProcessor::readAndCacheLumi(bool merge) {
+    input_->readAndCacheLumi(merge, *historyAppender_);
     input_->markLumi();
     return input_->luminosityBlock();
   }
@@ -1911,6 +1916,7 @@ namespace edm {
 
   void EventProcessor::deleteRunFromCache(statemachine::Run const& run) {
     principalCache_.deleteRun(run.processHistoryID(), run.runNumber());
+    if(hasSubProcess()) subProcess_->deleteRunFromCache(run.processHistoryID(), run.runNumber());
     FDEBUG(1) << "\tdeleteRunFromCache " << run.runNumber() << "\n";
   }
 
@@ -1922,6 +1928,7 @@ namespace edm {
 
   void EventProcessor::deleteLumiFromCache(ProcessHistoryID const& phid, int run, int lumi) {
     principalCache_.deleteLumi(phid, run, lumi);
+    if(hasSubProcess()) subProcess_->deleteLumiFromCache(phid, run, lumi);
     FDEBUG(1) << "\tdeleteLumiFromCache " << run << "/" << lumi << "\n";
   }
 

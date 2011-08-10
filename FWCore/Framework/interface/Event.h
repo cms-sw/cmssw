@@ -77,7 +77,7 @@ namespace edm {
 
     EventSelectionIDVector const& eventSelectionIDs() const;
 
-    virtual ProcessHistoryID const& processHistoryID() const;
+    ProcessHistoryID const& processHistoryID() const;
 
     ///Put a new product.
     template<typename PROD>
@@ -165,7 +165,7 @@ namespace edm {
     bool
     getProcessParameterSet(std::string const& processName, ParameterSet& ps) const;
 
-    ProcessHistory const&
+    virtual ProcessHistory const&
     processHistory() const;
 
     size_t size() const;

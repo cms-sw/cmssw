@@ -42,6 +42,14 @@ namespace edm {
     return false;				    
   }
 
+  void
+  ProcessHistory::reduce() {
+    phid() = ProcessHistoryID();
+    for (iterator i = data_.begin(), e = data_.end(); i != e; ++i) {
+      i->reduce();
+    }
+  }
+
   bool
   isAncestor(ProcessHistory const& a, ProcessHistory const& b) {
     if (a.size() >= b.size()) return false;

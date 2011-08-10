@@ -54,7 +54,9 @@ namespace edm {
     void mergeAuxiliary(LuminosityBlockAuxiliary const& newAux);
 
   private:
-    // Process history ID of the containing run
+    // This is the ID of the full process history (not the reduced process history).
+    // In cases where LuminosityBlock's are merged, the ID of the first process history encountered
+    // is stored here.
     ProcessHistoryID processHistoryID_;
     // LuminosityBlock ID
     LuminosityBlockID id_;

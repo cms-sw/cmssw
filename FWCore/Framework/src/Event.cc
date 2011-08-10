@@ -15,7 +15,7 @@ namespace edm {
   Event::Event(EventPrincipal& ep, ModuleDescription const& md) :
       provRecorder_(ep, md),
       aux_(ep.aux()),
-      luminosityBlock_(new LuminosityBlock(ep.luminosityBlockPrincipal(), md)),
+      luminosityBlock_(ep.luminosityBlockPrincipalPtrValid() ? new LuminosityBlock(ep.luminosityBlockPrincipal(), md) : 0),
       gotBranchIDs_(),
       gotViews_() {
   }

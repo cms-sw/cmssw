@@ -58,6 +58,11 @@ namespace edm {
     putProducts().clear();
   }
 
+  ProcessHistoryID const&
+  LuminosityBlock::processHistoryID() const {
+    return luminosityBlockPrincipal().processHistoryID();
+  }
+
   ProcessHistory const&
   LuminosityBlock::processHistory() const {
     return provRecorder_.processHistory();

@@ -41,6 +41,7 @@ namespace edm {
   RawInputSource::readEvent_() {
     assert(eventCached_);
     eventCached_ = false;
+    eventPrincipalCache()->setLuminosityBlockPrincipal(luminosityBlockPrincipal());
     return eventPrincipalCache();
   }
 
@@ -49,18 +50,14 @@ namespace edm {
     if(!runAuxiliary()) {
       newRun_ = newLumi_ = true;
       setRunAuxiliary(new RunAuxiliary(run, tstamp, Timestamp::invalidTimestamp()));
-      readAndCacheRun();
-      setRunPrematurelyRead();
     }
     if(!luminosityBlockAuxiliary()) {
       setLuminosityBlockAuxiliary(new LuminosityBlockAuxiliary(run, lumi, tstamp, Timestamp::invalidTimestamp()));
       newLumi_ = true;
-      readAndCacheLumi();
-      setLumiPrematurelyRead();
     }
     EventSourceSentry sentry(*this);
     EventAuxiliary aux(EventID(run, lumi, event), processGUID(), tstamp, true, EventAuxiliary::PhysicsTrigger);
-    eventPrincipalCache()->fillEventPrincipal(aux, luminosityBlockPrincipal());
+    eventPrincipalCache()->fillEventPrincipal(aux, boost::shared_ptr<LuminosityBlockPrincipal>());
     eventCached_ = true;
     std::auto_ptr<Event> e(new Event(*eventPrincipalCache(), moduleDescription()));
     return e;

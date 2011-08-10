@@ -23,8 +23,11 @@ is the DataBlock.
 #include <vector>
 
 namespace edm {
+
+  class HistoryAppender;
   class RunPrincipal;
   class UnscheduledHandler;
+
   class LuminosityBlockPrincipal : public Principal {
   public:
     typedef LuminosityBlockAuxiliary Auxiliary;
@@ -33,7 +36,8 @@ namespace edm {
         boost::shared_ptr<LuminosityBlockAuxiliary> aux,
         boost::shared_ptr<ProductRegistry const> reg,
         ProcessConfiguration const& pc,
-        boost::shared_ptr<RunPrincipal> rp);
+        boost::shared_ptr<RunPrincipal> rp,
+        HistoryAppender* historyAppender = 0);
 
     ~LuminosityBlockPrincipal() {}
 

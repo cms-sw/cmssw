@@ -13,9 +13,11 @@
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
 #include "DataFormats/Provenance/interface/EventEntryInfo.h"
+#include "DataFormats/Provenance/interface/FullHistoryToReducedHistoryMap.h"
 #include "DataFormats/Provenance/interface/ParameterSetBlob.h"
 #include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/StoredProductProvenance.h"
@@ -134,6 +136,7 @@ namespace edm {
       indexIntoFileIter_(indexIntoFileBegin_),
       eventProcessHistoryIDs_(),
       eventProcessHistoryIter_(eventProcessHistoryIDs_.begin()),
+      savedRunAuxiliary_(),
       skipAnyEvents_(skipAnyEvents),
       noEventSort_(noEventSort),
       whyNotFastClonable_(0),
@@ -772,6 +775,7 @@ namespace edm {
     RunNumber_t prevRun = 0;
     LuminosityBlockNumber_t prevLumi = 0;
     ProcessHistoryID prevPhid;
+    bool iFirst = true;
 
     indexIntoFile_.unsortedEventNumbers().clear(); // should already be empty, just being careful
     indexIntoFile_.unsortedEventNumbers().reserve(eventTree_.entries());
@@ -788,16 +792,19 @@ namespace edm {
       // are not actually used in this function, but could be needed elsewhere.
       indexIntoFile_.unsortedEventNumbers().push_back(eventAux().event());
 
-      if(prevPhid != eventAux().processHistoryID() || prevRun != eventAux().run()) {
+      ProcessHistoryID reducedPHID = ProcessHistoryRegistry::instance()->extra().reduceProcessHistoryID(eventAux().processHistoryID());
+
+      if(iFirst || prevPhid != reducedPHID || prevRun != eventAux().run()) {
+        iFirst = false;
         newRun = newLumi = true;
       } else if(prevLumi != eventAux().luminosityBlock()) {
         newLumi = true;
       }
-      prevPhid = eventAux().processHistoryID();
+      prevPhid = reducedPHID;
       prevRun = eventAux().run();
       prevLumi = eventAux().luminosityBlock();
       if(newLumi) {
-        lumis.push_back(LumiItem(eventAux().processHistoryID(),
+        lumis.push_back(LumiItem(reducedPHID,
           eventAux().run(), eventAux().luminosityBlock(), eventTree_.entryNumber())); // (insert 1)
         runLumiSet.insert(LuminosityBlockID(eventAux().run(), eventAux().luminosityBlock())); // (insert 2)
       } else {
@@ -807,11 +814,11 @@ namespace edm {
       }
       if(newRun) {
         // Insert run in list if it is not already there.
-        RunItem item(eventAux().processHistoryID(), eventAux().run());
+        RunItem item(reducedPHID, eventAux().run());
         if(runItemSet.insert(item).second) { // (check 3, insert 3)
           runs.push_back(item); // (insert 5)
           runSet.insert(eventAux().run()); // (insert 4)
-          phidMap.insert(std::make_pair(eventAux().run(), eventAux().processHistoryID()));
+          phidMap.insert(std::make_pair(eventAux().run(), reducedPHID));
         }
       }
     }
@@ -831,13 +838,16 @@ namespace edm {
     if(runTree_.isValid()) {
       while(runTree_.next()) {
         // Note: adjacent duplicates will be skipped without an explicit check.
+
         boost::shared_ptr<RunAuxiliary> runAux = fillRunAuxiliary();
+        ProcessHistoryID reducedPHID = ProcessHistoryRegistry::instance()->extra().reduceProcessHistoryID(runAux->processHistoryID());
+
         if(runSet.insert(runAux->run()).second) { // (check 4, insert 4)
-          // This run was not assciated with any events or lumis.
-          emptyRuns.push_back(RunItem(runAux->processHistoryID(), runAux->run())); // (insert 12)
+          // This run was not associated with any events.
+          emptyRuns.push_back(RunItem(reducedPHID, runAux->run())); // (insert 12)
         }
         runMap.insert(std::make_pair(runAux->run(), runTree_.entryNumber())); // (insert 11)
-        phidMap.insert(std::make_pair(runAux->run(), runAux->processHistoryID()));
+        phidMap.insert(std::make_pair(runAux->run(), reducedPHID));
       }
       // now clean up.
       runTree_.setEntryNumber(-1);
@@ -972,6 +982,9 @@ namespace edm {
     if(fileFormatVersion().hasIndexIntoFile()) {
       if(runTree().entries() > 0) {
         assert(!indexIntoFile_.empty());
+      }
+      if(!fileFormatVersion().useReducedProcessHistoryID()) {
+        indexIntoFile_.reduceProcessHistoryIDs();
       }
     }
     else {
@@ -1257,6 +1270,12 @@ namespace edm {
     assert(eventAux().run() == indexIntoFileIter_.run() + forcedRunOffset_);
     assert(eventAux().luminosityBlock() == indexIntoFileIter_.lumi());
 
+    // If this next assert shows up in performance profiling or significantly
+    // affects memory, then these two lines should be deleted. The IndexIntoFile
+    // should guarantee that it never fails.
+    ProcessHistoryID const& reducedPHID = ProcessHistoryRegistry::instance()->extra().reduceProcessHistoryID(eventAux().processHistoryID());
+    assert(reducedPHID == indexIntoFile_.processHistoryID(indexIntoFileIter_.processHistoryIDIndex()));
+
     ++indexIntoFileIter_;
     return ep;
   }
@@ -1306,15 +1325,20 @@ namespace edm {
   RootFile::readRunAuxiliary_() {
     assert(indexIntoFileIter_ != indexIntoFileEnd_);
     assert(indexIntoFileIter_.getEntryType() == IndexIntoFile::kRun);
+
     // Begin code for backward compatibility before the existence of run trees.
     if(!runTree_.isValid()) {
+
       // prior to the support of run trees.
       // RunAuxiliary did not contain a valid timestamp.  Take it from the next event.
-      if(eventTree_.next()) {
-        fillThisEventAuxiliary();
-        // back up, so event will not be skipped.
-        eventTree_.previous();
-      }
+      IndexIntoFile::EntryNumber_t eventEntry = indexIntoFileIter_.firstEventEntryThisRun();
+      assert(eventEntry != IndexIntoFile::invalidEntry);
+      RootTree::EntryNumber savedEntry = eventTree_.entryNumber();
+      eventTree_.setEntryNumber(eventEntry);
+      assert(eventTree_.current());
+      fillThisEventAuxiliary();
+      eventTree_.setEntryNumber(savedEntry);
+
       RunID run = RunID(indexIntoFileIter_.run());
       overrideRunNumber(run);
       return boost::shared_ptr<RunAuxiliary>(new RunAuxiliary(run.run(), eventAux().time(), Timestamp::invalidTimestamp()));
@@ -1325,21 +1349,45 @@ namespace edm {
     assert(runAuxiliary->run() == indexIntoFileIter_.run());
     overrideRunNumber(runAuxiliary->id());
     filePtr_->reportInputRunNumber(runAuxiliary->run());
+
+    // If RunAuxiliary did not contain a valid begin timestamp, invalidate any end timestamp.
     if(runAuxiliary->beginTime() == Timestamp::invalidTimestamp()) {
-      // RunAuxiliary did not contain a valid timestamp.  Take it from the next event.
-      if(eventTree_.next()) {
-        fillThisEventAuxiliary();
-        // back up, so event will not be skipped.
-        eventTree_.previous();
-      }
-      runAuxiliary->setBeginTime(eventAux().time());
       runAuxiliary->setEndTime(Timestamp::invalidTimestamp());
     }
-    ProcessHistoryID phid = indexIntoFile_.processHistoryID(indexIntoFileIter_.processHistoryIDIndex());
-    if(fileFormatVersion().processHistorySameWithinRun()) {
-      assert(runAuxiliary->processHistoryID() == phid);
-    } else {
-      runAuxiliary->setProcessHistoryID(phid);
+
+    // If RunAuxiliary did not contain a valid timestamp, or if this an old format file from
+    // when the Run's ProcessHistory included only processes where products were added to the Run itself,
+    // we attempt to read the first event in the run to get appropriate info.  
+    if(runAuxiliary->beginTime() == Timestamp::invalidTimestamp() ||
+       !fileFormatVersion().processHistorySameWithinRun()) {
+
+      IndexIntoFile::EntryNumber_t eventEntry = indexIntoFileIter_.firstEventEntryThisRun();
+      // If we have a valid event, use its information.
+      if(eventEntry != IndexIntoFile::invalidEntry) {
+        RootTree::EntryNumber savedEntry = eventTree_.entryNumber();
+        eventTree_.setEntryNumber(eventEntry);
+        assert(eventTree_.current());
+        fillThisEventAuxiliary();
+
+        // RunAuxiliary did not contain a valid timestamp.  Take it from the next event in this run if there is one.
+        if(runAuxiliary->beginTime() == Timestamp::invalidTimestamp()) {
+          runAuxiliary->setBeginTime(eventAux().time());
+        }
+
+        // For backwards compatibility when the Run's ProcessHistory included only processes where products were added to the
+        // Run, and then the Run and Event auxiliaries could be different.  Use the event ProcessHistoryID if there is one. It should
+        // almost always be correct by the current definition (processes included if any products are added. This makes the run, lumi,
+        // and event ProcessHistory's always be the same if no file merging occurs).
+        if(!fileFormatVersion().processHistorySameWithinRun()) {
+          fillHistory();
+          runAuxiliary->setProcessHistoryID(eventAux().processHistoryID());
+          savedRunAuxiliary_ = runAuxiliary;
+        }
+        eventTree_.setEntryNumber(savedEntry);
+      } else {
+        // No valid event, just use what is there, because it is the best we can do.
+        savedRunAuxiliary_ = runAuxiliary;
+      }
     }
     return runAuxiliary;
   }
@@ -1367,11 +1415,13 @@ namespace edm {
     assert(indexIntoFileIter_.getEntryType() == IndexIntoFile::kLumi);
     // Begin code for backward compatibility before the existence of lumi trees.
     if(!lumiTree_.isValid()) {
-      if(eventTree_.next()) {
-        fillThisEventAuxiliary();
-        // back up, so event will not be skipped.
-        eventTree_.previous();
-      }
+      IndexIntoFile::EntryNumber_t eventEntry = indexIntoFileIter_.firstEventEntryThisLumi();
+      assert(eventEntry != IndexIntoFile::invalidEntry);
+      RootTree::EntryNumber savedEntry = eventTree_.entryNumber();
+      eventTree_.setEntryNumber(eventEntry);
+      assert(eventTree_.current());
+      fillThisEventAuxiliary();
+      eventTree_.setEntryNumber(savedEntry);
 
       LuminosityBlockID lumi = LuminosityBlockID(indexIntoFileIter_.run(), indexIntoFileIter_.lumi());
       overrideRunNumber(lumi);
@@ -1386,21 +1436,20 @@ namespace edm {
     filePtr_->reportInputLumiSection(lumiAuxiliary->run(), lumiAuxiliary->luminosityBlock());
 
     if(lumiAuxiliary->beginTime() == Timestamp::invalidTimestamp()) {
-      // LuminosityBlockAuxiliary did not contain a timestamp. Take it from the next event.
-      if(eventTree_.next()) {
+      IndexIntoFile::EntryNumber_t eventEntry = indexIntoFileIter_.firstEventEntryThisLumi();
+      if(eventEntry != IndexIntoFile::invalidEntry) {
+        RootTree::EntryNumber savedEntry = eventTree_.entryNumber();
+        eventTree_.setEntryNumber(eventEntry);
+        assert(eventTree_.current());
         fillThisEventAuxiliary();
-        // back up, so event will not be skipped.
-        eventTree_.previous();
+        eventTree_.setEntryNumber(savedEntry);
+
+        lumiAuxiliary->setBeginTime(eventAux().time());
       }
-      lumiAuxiliary->setBeginTime(eventAux().time());
       lumiAuxiliary->setEndTime(Timestamp::invalidTimestamp());
     }
-    if(fileFormatVersion().processHistorySameWithinRun()) {
-      ProcessHistoryID phid = indexIntoFile_.processHistoryID(indexIntoFileIter_.processHistoryIDIndex());
-      assert(lumiAuxiliary->processHistoryID() == phid);
-    } else {
-      ProcessHistoryID phid = indexIntoFile_.processHistoryID(indexIntoFileIter_.processHistoryIDIndex());
-      lumiAuxiliary->setProcessHistoryID(phid);
+    if(!fileFormatVersion().processHistorySameWithinRun() && savedRunAuxiliary_) {
+      lumiAuxiliary->setProcessHistoryID(savedRunAuxiliary_->processHistoryID());
     }
     return lumiAuxiliary;
   }
@@ -1706,7 +1755,7 @@ namespace edm {
     ReducedProvenanceBranchMapperWithReader* me = const_cast<ReducedProvenanceBranchMapperWithReader*>(this);
     me->rootTree_->fillBranchEntry(me->provBranch_, me->pProvVector_);
     setRefCoreStreamer(true);
-    for (StoredProductProvenanceVector::const_iterator it = provVector_.begin(), itEnd = provVector_.end();
+    for(StoredProductProvenanceVector::const_iterator it = provVector_.begin(), itEnd = provVector_.end();
          it != itEnd; ++it) {
       me->insert(ProductProvenance(BranchID(it->branchID_), parentageIDLookup_[it->parentageIDIndex_]));
     }

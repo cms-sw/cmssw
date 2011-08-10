@@ -51,8 +51,8 @@ namespace edm {
     virtual void beginLumi(ProcessHistoryID const& phid, int run, int lumi);
     virtual void endLumi(ProcessHistoryID const& phid, int run, int lumi);
 
-    virtual statemachine::Run readAndCacheRun();
-    virtual int readAndCacheLumi();
+    virtual statemachine::Run readAndCacheRun(bool merge);
+    virtual int readAndCacheLumi(bool merge);
     virtual void writeRun(statemachine::Run const& run);
     virtual void deleteRunFromCache(statemachine::Run const& run);
     virtual void writeLumi(ProcessHistoryID const& phid, int run, int lumi);

@@ -10,6 +10,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/Wrapper.h"
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/TestObjects/interface/Thing.h"
 #include "DataFormats/TestObjects/interface/ThingWithIsEqual.h"
 #include "DataFormats/TestObjects/interface/ThingWithMerge.h"
@@ -84,6 +85,8 @@ namespace edmtest {
 
     std::vector<std::string> expectedParents_;
 
+    std::vector<std::string> expectedProcessHistoryInRuns_;
+
     std::vector<int> expectedDroppedEvent_;
     std::vector<int> expectedDroppedEvent1_;
 
@@ -110,6 +113,7 @@ namespace edmtest {
     unsigned int index7_;
     unsigned int parentIndex_;
     unsigned int droppedIndex1_;
+    unsigned int processHistoryIndex_;
 
     edm::Handle<edmtest::Thing> h_thing;
     edm::Handle<edmtest::ThingWithMerge> h_thingWithMerge;
@@ -132,6 +136,7 @@ namespace edmtest {
     expectedEndLumiNew_(ps.getUntrackedParameter<std::vector<int> >("expectedEndLumiNew", default_)),
 
     expectedParents_(ps.getUntrackedParameter<std::vector<std::string> >("expectedParents", defaultvstring_)),
+    expectedProcessHistoryInRuns_(ps.getUntrackedParameter<std::vector<std::string> >("expectedProcessHistoryInRuns", defaultvstring_)),
 
     expectedDroppedEvent_(ps.getUntrackedParameter<std::vector<int> >("expectedDroppedEvent", default_)),
     expectedDroppedEvent1_(ps.getUntrackedParameter<std::vector<int> >("expectedDroppedEvent1", default_)),
@@ -158,7 +163,8 @@ namespace edmtest {
     index6_(0),
     index7_(0),
     parentIndex_(0),
-    droppedIndex1_(0) {
+    droppedIndex1_(0),
+    processHistoryIndex_(0) {
 
     std::auto_ptr<edmtest::Thing> ap_thing(new edmtest::Thing);
     edm::Wrapper<edmtest::Thing> w_thing(ap_thing);
@@ -184,6 +190,9 @@ namespace edmtest {
   // -----------------------------------------------------------------
 
   void TestMergeResults::analyze(edm::Event const& e,edm::EventSetup const&) {
+
+    assert(e.processHistory().id() == e.processHistoryID());
+
     if(verbose_) edm::LogInfo("TestMergeResults") << "analyze";
 
     edm::Run const& run = e.getRun();
@@ -295,6 +304,17 @@ namespace edmtest {
 
   void TestMergeResults::endRun(edm::Run const& run, edm::EventSetup const&) {
 
+    assert(run.processHistory().id() == run.processHistoryID());
+
+    edm::ProcessHistory const& ph = run.processHistory();
+    for (edm::ProcessHistory::const_iterator iter = ph.begin(), iEnd = ph.end();
+         iter != iEnd; ++iter) {
+      if (processHistoryIndex_ < expectedProcessHistoryInRuns_.size()) {
+        assert(expectedProcessHistoryInRuns_[processHistoryIndex_] == iter->processName());
+        ++processHistoryIndex_;
+      }
+    }
+
     index0_ += 3;
     index4_ += 3;
     index1_ += 3;
@@ -354,6 +374,8 @@ namespace edmtest {
   }
 
   void TestMergeResults::endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const&) {
+
+    assert(lumi.processHistory().id() == lumi.processHistoryID());
 
     index2_ += 3;
     index6_ += 3;

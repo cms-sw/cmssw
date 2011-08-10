@@ -12,8 +12,9 @@ namespace edm {
       boost::shared_ptr<LuminosityBlockAuxiliary> aux,
       boost::shared_ptr<ProductRegistry const> reg,
       ProcessConfiguration const& pc,
-      boost::shared_ptr<RunPrincipal> rp) :
-        Base(reg, pc, InLumi),
+      boost::shared_ptr<RunPrincipal> rp,
+      HistoryAppender* historyAppender) :
+    Base(reg, pc, InLumi, historyAppender),
         runPrincipal_(rp),
         aux_(aux) {
   }
@@ -24,9 +25,7 @@ namespace edm {
       DelayedReader* reader) {
 
     fillPrincipal(aux_->processHistoryID(), mapper, reader);
-    if(runPrincipal_) {
-      setProcessHistory(*runPrincipal_);
-    }
+
     branchMapperPtr()->processHistoryID() = processHistoryID();
     for(const_iterator i = this->begin(), iEnd = this->end(); i != iEnd; ++i) {
       (*i)->setProvenance(branchMapperPtr());

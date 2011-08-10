@@ -22,7 +22,10 @@ is the DataBlock.
 #include "FWCore/Framework/interface/Principal.h"
 
 namespace edm {
+
+  class HistoryAppender;
   class UnscheduledHandler;
+
   class RunPrincipal : public Principal {
   public:
     typedef RunAuxiliary Auxiliary;
@@ -31,7 +34,8 @@ namespace edm {
     RunPrincipal(
         boost::shared_ptr<RunAuxiliary> aux,
         boost::shared_ptr<ProductRegistry const> reg,
-        ProcessConfiguration const& pc);
+        ProcessConfiguration const& pc,
+        HistoryAppender* historyAppender = 0);
     ~RunPrincipal() {}
 
     void fillRunPrincipal(
@@ -65,11 +69,6 @@ namespace edm {
     void mergeAuxiliary(RunAuxiliary const& aux) {
       return aux_->mergeAuxiliary(aux);
     }
-
-    // ----- Mark this RunPrincipal as having been updated in the current Process.
-    void addToProcessHistory();
-
-    void checkProcessHistory() const;
 
     void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler>) {}
 

@@ -33,7 +33,6 @@ pointer to a Group, when queried.
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "boost/iterator/filter_iterator.hpp"
-#include "boost/scoped_ptr.hpp"
 #include "boost/shared_ptr.hpp"
 
 #include <map>
@@ -43,6 +42,9 @@ pointer to a Group, when queried.
 #include <vector>
 
 namespace edm {
+
+   class HistoryAppender;
+
    struct FilledGroupPtr {
       bool operator()(boost::shared_ptr<Group> const& iObj) { return bool(iObj);}
    };
@@ -61,7 +63,8 @@ namespace edm {
 
     Principal(boost::shared_ptr<ProductRegistry const> reg,
               ProcessConfiguration const& pc,
-              BranchType bt);
+              BranchType bt,
+              HistoryAppender* historyAppender);
 
     virtual ~Principal();
 
@@ -154,9 +157,6 @@ namespace edm {
     ProductData const* findGroupByTag(TypeID const& typeID, InputTag const& tag) const;
 
   protected:
-    ProcessHistory& processHistoryUpdate() {
-      return *processHistoryPtr_;
-    }
 
     // ----- Add a new Group
     // *this takes ownership of the Group, which in turn owns its
@@ -183,8 +183,6 @@ namespace edm {
     void putOrMerge(WrapperOwningHolder const& prod, Group const* group) const;
 
     void putOrMerge(WrapperOwningHolder const& prod, ProductProvenance& prov, Group* group);
-
-    void setProcessHistory(Principal const& principal);
 
   private:
     virtual WrapperHolder getIt(ProductID const&) const;
@@ -215,7 +213,7 @@ namespace edm {
     // defaults to no-op unless overridden in derived class.
     virtual void resolveProduct_(Group const&, bool /*fillOnDemand*/) const {}
 
-    boost::scoped_ptr<ProcessHistory> processHistoryPtr_;
+    ProcessHistory const* processHistoryPtr_;
 
     ProcessHistoryID processHistoryID_;
 
@@ -240,6 +238,13 @@ namespace edm {
     mutable std::set<void const*> productPtrs_;
 
     BranchType branchType_;
+
+    // In use cases where the new process should not be appended to
+    // input ProcessHistory, the following pointer should be null.
+    // The Principal does not own this object.
+    HistoryAppender* historyAppender_;
+
+    static ProcessHistory emptyProcessHistory_;
   };
 
   template <typename PROD>

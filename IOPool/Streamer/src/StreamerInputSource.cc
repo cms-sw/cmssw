@@ -146,6 +146,7 @@ namespace edm {
     assert(!newLumi_);
     assert(eventCached_);
     eventCached_ = false;
+    eventPrincipalCache()->setLuminosityBlockPrincipal(luminosityBlockPrincipal());
     return eventPrincipalCache();
   }
 
@@ -327,8 +328,6 @@ namespace edm {
       RunAuxiliary* runAuxiliary = new RunAuxiliary(sd->aux().run(), sd->aux().time(), Timestamp::invalidTimestamp());
       runAuxiliary->setProcessHistoryID(sd->processHistory().id());
       setRunAuxiliary(runAuxiliary);
-      readAndCacheRun();
-      setRunPrematurelyRead();
       resetLuminosityBlockAuxiliary();
     }
     if(!luminosityBlockAuxiliary() || luminosityBlockAuxiliary()->luminosityBlock() != eventView.lumi()) {
@@ -337,13 +336,11 @@ namespace edm {
       luminosityBlockAuxiliary->setProcessHistoryID(sd->processHistory().id());
       setLuminosityBlockAuxiliary(luminosityBlockAuxiliary);
       newLumi_ = true;
-      readAndCacheLumi();
-      setLumiPrematurelyRead();
     }
 
     boost::shared_ptr<EventSelectionIDVector> ids(new EventSelectionIDVector(sd->eventSelectionIDs()));
     boost::shared_ptr<BranchListIndexes> indexes(new BranchListIndexes(sd->branchListIndexes()));
-    eventPrincipalCache()->fillEventPrincipal(sd->aux(), luminosityBlockPrincipal(), ids, indexes);
+    eventPrincipalCache()->fillEventPrincipal(sd->aux(), boost::shared_ptr<LuminosityBlockPrincipal>(), ids, indexes);
     productGetter_.setEventPrincipal(eventPrincipalCache());
     eventCached_ = true;
 

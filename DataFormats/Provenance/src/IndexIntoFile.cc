@@ -1,4 +1,6 @@
 #include "DataFormats/Provenance/interface/IndexIntoFile.h"
+#include "DataFormats/Provenance/interface/FullHistoryToReducedHistoryMap.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
@@ -287,6 +289,78 @@ namespace edm {
   void
   IndexIntoFile::doneFileInitialization() const {
     std::vector<EventNumber_t>().swap(unsortedEventNumbers());
+  }
+
+  void
+  IndexIntoFile::reduceProcessHistoryIDs() {
+
+    FullHistoryToReducedHistoryMap & phidConverter(ProcessHistoryRegistry::instance()->extra());
+
+    std::vector<ProcessHistoryID> reducedPHIDs;
+
+    std::map<ProcessHistoryID, int> reducedPHIDToIndex;
+    std::pair<ProcessHistoryID, int> mapEntry(ProcessHistoryID(), 0);
+    std::pair<std::map<ProcessHistoryID, int>::iterator, bool> insertResult;
+
+    std::vector<int> phidIndexConverter;
+    for (std::vector<ProcessHistoryID>::const_iterator phid = processHistoryIDs_.begin(),
+	 iEnd = processHistoryIDs_.end();
+         phid != iEnd; ++phid) {
+
+      ProcessHistoryID const& reducedPHID = phidConverter.reduceProcessHistoryID(*phid);
+      mapEntry.first = reducedPHID;
+      insertResult = reducedPHIDToIndex.insert(mapEntry);
+
+      if (insertResult.second) {
+        insertResult.first->second = reducedPHIDs.size();
+        reducedPHIDs.push_back(reducedPHID);
+      }
+      phidIndexConverter.push_back(insertResult.first->second);
+    }
+    processHistoryIDs_.swap(reducedPHIDs);
+
+    // If the size of the vector of IDs does not change
+    // then their indexes and the ordering of the Runs and
+    // and Lumis does not change, so we are done.
+    if (processHistoryIDs_.size() == reducedPHIDs.size()) {
+      return;
+    }
+
+    std::map<IndexIntoFile::IndexRunKey, int> runOrderMap;
+    std::pair<std::map<IndexIntoFile::IndexRunKey, int>::iterator, bool> runInsertResult;
+
+    std::map<IndexIntoFile::IndexRunLumiKey, int> lumiOrderMap;
+    std::pair<std::map<IndexIntoFile::IndexRunLumiKey, int>::iterator, bool> lumiInsertResult;
+
+    // loop over all the RunOrLumiEntry's
+    for (std::vector<RunOrLumiEntry>::iterator i = runOrLumiEntries_.begin(),
+	 iterEnd = runOrLumiEntries_.end();
+         i != iterEnd; ++i) {
+
+      // Convert the process history index so it points into the new vector of reduced IDs
+      i->setProcessHistoryIDIndex(phidIndexConverter.at(i->processHistoryIDIndex()));
+
+      // Convert the phid-run order
+      IndexIntoFile::IndexRunKey runKey(i->processHistoryIDIndex(), i->run());
+      runInsertResult = runOrderMap.insert(std::pair<IndexIntoFile::IndexRunKey, int>(runKey,0));
+      if (runInsertResult.second) {
+        runInsertResult.first->second = i->orderPHIDRun();
+      } else {     
+        i->setOrderPHIDRun(runInsertResult.first->second);
+      }
+
+      // Convert the phid-run-lumi order for the lumi entries
+      if (i->lumi() != 0) {
+        IndexIntoFile::IndexRunLumiKey lumiKey(i->processHistoryIDIndex(), i->run(), i->lumi());
+        lumiInsertResult = lumiOrderMap.insert(std::pair<IndexIntoFile::IndexRunLumiKey, int>(lumiKey,0));
+        if (lumiInsertResult.second) {
+          lumiInsertResult.first->second = i->orderPHIDRunLumi();
+        } else {     
+          i->setOrderPHIDRunLumi(lumiInsertResult.first->second);
+        }
+      }
+    }
+    std::stable_sort(runOrLumiEntries_.begin(), runOrLumiEntries_.end());
   }
 
   void
@@ -1151,6 +1225,62 @@ namespace edm {
     indexToRun_ = newRun;
     type_ = kRun;
     return true;
+  }
+
+  IndexIntoFile::EntryNumber_t IndexIntoFile::IndexIntoFileItrImpl::firstEventEntryThisRun() {
+    if (indexToLumi() == invalidIndex) return invalidEntry;
+
+    int saveIndexToLumi = indexToLumi();
+    int saveIndexToEventRange = indexToEventRange();
+    long long saveIndexToEvent = indexToEvent();
+    long long saveNEvents = nEvents();
+
+    initializeRun();
+
+    IndexIntoFile::EntryNumber_t returnValue = invalidEntry;
+
+    do {
+      if (indexToEvent() < nEvents()) {
+        returnValue = peekAheadAtEventEntry();
+        break;
+      }
+    } while (skipLumiInRun());
+
+    setIndexToLumi(saveIndexToLumi);
+    setIndexToEventRange(saveIndexToEventRange);
+    setIndexToEvent(saveIndexToEvent);
+    setNEvents(saveNEvents);
+
+    return returnValue;
+  }
+
+  IndexIntoFile::EntryNumber_t IndexIntoFile::IndexIntoFileItrImpl::firstEventEntryThisLumi() {
+    if (indexToLumi() == invalidIndex) return invalidEntry;
+
+    int saveIndexToLumi = indexToLumi();
+    int saveIndexToEventRange = indexToEventRange();
+    long long saveIndexToEvent = indexToEvent();
+    long long saveNEvents = nEvents();
+
+    for (int i = 1; indexToLumi() - i > 0; ++i) {
+      if (getRunOrLumiEntryType(indexToLumi_ - i) == kRun) break;
+      if (!isSameLumi(indexToLumi(), indexToLumi() - i)) break;
+      indexToLumi_ = indexToLumi_ - i;
+    }
+    initializeLumi();
+
+    IndexIntoFile::EntryNumber_t returnValue = invalidEntry;
+
+    if (indexToEvent() < nEvents()) {
+      returnValue = peekAheadAtEventEntry();
+    }
+
+    setIndexToLumi(saveIndexToLumi);
+    setIndexToEventRange(saveIndexToEventRange);
+    setIndexToEvent(saveIndexToEvent);
+    setNEvents(saveNEvents);
+
+    return returnValue;
   }
 
   void IndexIntoFile::IndexIntoFileItrImpl::advanceToNextRun() {

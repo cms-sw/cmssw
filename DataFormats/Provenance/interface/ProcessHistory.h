@@ -69,6 +69,8 @@ namespace edm {
       phid() = ProcessHistoryID();
     }
 
+    void reduce();
+
     struct Transients {
       Transients() : phid_() {}
       ProcessHistoryID phid_;

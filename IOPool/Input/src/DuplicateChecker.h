@@ -53,6 +53,8 @@ namespace edm {
         disabled_;
     }
 
+    // Note that all references to the ProcessHistoryID in this class are to
+    // the "reduced" process history, including the index argument to this function.
     bool isDuplicateAndCheckActive(int index,
                                    RunNumber_t run,
                                    LuminosityBlockNumber_t lumi,

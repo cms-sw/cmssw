@@ -17,9 +17,7 @@ namespace edm {
   RunAuxiliary::mergeAuxiliary(RunAuxiliary const& newAux) {
 
     assert(id_ == newAux.id_);
-    assert(processHistoryID_ == newAux.processHistoryID_);
     mergeNewTimestampsIntoThis_(newAux);
-
   }
 
   void
