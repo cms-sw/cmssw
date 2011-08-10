@@ -342,11 +342,12 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='AK5', postfix =
 			postfix = postfix
                         )
     # check whether L1FastJet is in the list of correction levels or not
-    applyPostfix(process, "patJetCorrFactors", postfix).useRho  = False    
+    applyPostfix(process, "patJetCorrFactors", postfix).useRho = False    
     for corr in inputJetCorrLabel[1]:
         if corr == 'L1FastJet':
             applyPostfix(process, "patJetCorrFactors", postfix).useRho = True
-            applyPostfix(process, "kt6PFJets", postfix).src = input
+            applyPostfix(process, "pfJets", postfix).doAreaFastjet = True
+            applyPostfix(process, "kt6PFJets", postfix).src = inputCollection
     applyPostfix(process, "patJets", postfix).embedCaloTowers   = False
     applyPostfix(process, "patJets", postfix).embedPFCandidates = True
 
