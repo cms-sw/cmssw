@@ -243,8 +243,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       edm::LogVerbatim("TrackValidator") << "\n# of TrackingParticles: " << tPCeff.size() << "\n";
       int ats(0);  	  //This counter counts the number of simTracks that are "associated" to recoTracks
       int st(0);    	  //This counter counts the number of simulated tracks passing the MTV selection (i.e. tpSelector(tp) )
-      unsigned help(0);   //This counter counts the number of simTracks surviving the bunchcrossing cut 
-      unsigned help2(0);  //This counter counts the number of simTracks that are "associated" to recoTracks surviving the bunchcrossing cut
+      unsigned sts(0);   //This counter counts the number of simTracks surviving the bunchcrossing cut 
+      unsigned asts(0);  //This counter counts the number of simTracks that are "associated" to recoTracks surviving the bunchcrossing cut
       for (TrackingParticleCollection::size_type i=0; i<tPCeff.size(); i++){ //loop over TPs collection for tracking efficiency
 	TrackingParticleRef tpr(TPCollectionHeff, i);
 	TrackingParticle* tp=const_cast<TrackingParticle*>(tpr.get());
@@ -331,8 +331,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 
 	if (fabs(dxySim)>0.01 && fabs(dxySim)<0.2 && tp->eventId().bunchCrossing() == 0){   
           histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,*tp,momentumTP,vertexTP,dxySim,dzSim,nSimHits,matchedTrackPointer,puinfo.getPU_NumInteractions(), vtx_z_PU);
-          help++;
-          if (matchedTrackPointer) help2++;
+          sts++;
+          if (matchedTrackPointer) asts++;
         }
 
 
@@ -352,6 +352,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 					 << label[www].instance()
 					 << ": " << trackCollection->size() << "\n";
 
+      int sat(0); //This counter counts the number of recoTracks that are associated to SimTracks from Signal only
       int at(0); //This counter counts the number of recoTracks that are associated to SimTracks
       int rT(0); //This counter counts the number of recoTracks in general
 
@@ -379,23 +380,33 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       //end dE/dx
 
       for(View<Track>::size_type i=0; i<trackCollection->size(); ++i){
+
 	RefToBase<Track> track(trackCollection, i);
 	rT++;
 	
 	bool isSigSimMatched(false);
 	bool isSimMatched(false);
         int tpbx = 0;
+	int nSimHits = 0;
+	double sharedFraction = 0.;
 	std::vector<std::pair<TrackingParticleRef, double> > tp;
 	if(recSimColl.find(track) != recSimColl.end()){
 	  tp = recSimColl[track];
 	  if (tp.size()!=0) {
-	    tpbx = tp[0].first->eventId().bunchCrossing();
+	    std::vector<PSimHit> simhits=tp[0].first->trackPSimHit(DetId::Tracker);
+            nSimHits = simhits.end()-simhits.begin();
+            sharedFraction = tp[0].second;
 	    isSimMatched = true;
+	    tpbx = tp[0].first->eventId().bunchCrossing();
+	    at++;
 	    for (unsigned int tp_ite=0;tp_ite<tp.size();++tp_ite){ 
               TrackingParticle trackpart = *(tp[tp_ite].first);
-	      if ((trackpart.eventId().event() == 0) && (trackpart.eventId().bunchCrossing() == 0)) isSigSimMatched = true;
+	      if ((trackpart.eventId().event() == 0) && (trackpart.eventId().bunchCrossing() == 0)){
+	      	isSigSimMatched = true;
+		sat++;
+		break;
+	      }
             }
-	    at++;
 	    edm::LogVerbatim("TrackValidator") << "reco::Track #" << rT << " with pt=" << track->pt() 
 					       << " associated with quality:" << tp.begin()->second <<"\n";
 	  }
@@ -405,7 +416,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	}
 	
 
-	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track,bs.position(),isSimMatched,isSigSimMatched, puinfo.getPU_NumInteractions(), tpbx);
+	histoProducerAlgo_->fill_generic_recoTrack_histos(w,*track,bs.position(),isSimMatched,isSigSimMatched, puinfo.getPU_NumInteractions(), tpbx, nSimHits, sharedFraction);
 
 	// dE/dx
 	//	reco::TrackRef track2  = reco::TrackRef( trackCollection, i );
@@ -459,10 +470,7 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	
       } // End of for(View<Track>::size_type i=0; i<trackCollection->size(); ++i){
 
-      //TO BE FIXED
-      //if (at!=0) h_tracks[w]->Fill(at);
-      //h_fakes[w]->Fill(rT-at);
-      //nrec_vs_nsim[w]->Fill(rT,st);
+      histoProducerAlgo_->fill_trackBased_histos(w,at,rT,st);
 
       edm::LogVerbatim("TrackValidator") << "Total Simulated: " << st << "\n"
 					 << "Total Associated (simToReco): " << ats << "\n"
@@ -473,8 +481,6 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
       w++;
     } // End of  for (unsigned int www=0;www<label.size();www++){
   } //END of for (unsigned int ww=0;ww<associators.size();ww++){
-
-//   printf("\n\n-**--**--**--**--**--**--**--**--**--**--**--**--**--**--**--**--**--**--**--**--**--**--**--**-\n\n");
 
 }
 

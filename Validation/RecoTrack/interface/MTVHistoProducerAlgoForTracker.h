@@ -49,14 +49,21 @@ class MTVHistoProducerAlgoForTracker: public MTVHistoProducerAlgo {
 				     math::XYZPoint bsPosition,
 				     bool isMatched,
 				     bool isSigMatched,
-                     int numVertices,
-                     int tpbunchcrossing);
+                      		     int numVertices,
+	                     	     int tpbunchcrossing,
+				     int nSimHits,
+				     double sharedFraction);
 
   void fill_dedx_recoTrack_histos(int count, edm::RefToBase<reco::Track>& trackref, std::vector< edm::ValueMap<reco::DeDxData> > v_dEdx);
   //  void fill_dedx_recoTrack_histos(reco::TrackRef trackref, std::vector< edm::ValueMap<reco::DeDxData> > v_dEdx);
 
   void fill_simAssociated_recoTrack_histos(int count,
 					   const reco::Track& track);
+
+  void fill_trackBased_histos(int count, 
+		 	      int assTracks, 
+			      int numRecoTracks,
+			      int numSimTracks);
 
 
   void fill_ResoAndPull_recoTrack_histos(int count,

@@ -51,13 +51,20 @@ class MTVHistoProducerAlgo{
 				     	     bool isMatched,
 				     	     bool isSigMatched,
                          	             int numVertices, 
-                         		     int tpbunchcrossing)=0;
+                         		     int tpbunchcrossing,
+				             int nSimHits,
+   					     double sharedFraction)=0;
 
   virtual void fill_dedx_recoTrack_histos(int count, edm::RefToBase<reco::Track>& trackref, std::vector< edm::ValueMap<reco::DeDxData> > v_dEdx)=0;
   //  virtual void fill_dedx_recoTrack_histos(reco::TrackRef trackref, std::vector< edm::ValueMap<reco::DeDxData> > v_dEdx)=0;
 
   virtual void fill_simAssociated_recoTrack_histos(int count,
 						   const reco::Track& track)=0;
+
+  virtual void fill_trackBased_histos(int count, 
+		 	      	      int assTracks, 
+			      	      int numRecoTracks,
+			      	      int numSimTracks)=0;
 
   virtual void fill_ResoAndPull_recoTrack_histos(int count,
 						 ParticleBase::Vector momentumTP,
