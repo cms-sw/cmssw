@@ -7,6 +7,7 @@ const char * kRecjets                     = "uncorrected reconstructed jets";
 const char * kRecCorjets                  = "corrected reconstructed jets";
 const char * kGenjets                     = "generator jets";
 const char * kRecmet                      = "reconstructed MET";
+const char * kPFMet                       = "reconstructed PF MET";
 const char * kGenmet                      = "generator MET";
 const char * kCaloTowers                  = "calo towers";
 const char * kHt                          = "HT object";
@@ -96,11 +97,13 @@ const char * kHOrechits                   = "HCAL HO RecHits";
 const char * kHFrechits                   = "HCAL HF RecHits"; 
 const char * kpi0EErechits                = "ECAL pi0 Endcap RecHits"; 
 const char * kpi0EBrechits                = "ECAL pi0 Barrel RecHits";  
+*/
 const char * kIsoPixelTracksL3            = "L3 Iso Pixel Tracks"; 
 const char * kIsoPixelTracksL2            = "L2 Iso Pixel Tracks";
 const char * kIsoPixelTrackVertices       = "Pixel Vertices";
 const char * kPixelTracksL3               = "L3 Pixel Tracks"; 
-*/
+const char * kPixelFEDSize                = "Pixel FED size";
+ 
 const char * kRecoVerticesHLT             = "Reconstructed vertices, HLT"; 
 const char * kRecoVerticesOffline0        = "Reconstructed vertices, Offline0";
 const char * kECALActivity                = "ECAL Actvity clust";

@@ -21,7 +21,7 @@
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 
 typedef std::vector<std::string> MyStrings;
 
@@ -42,6 +42,7 @@ public:
                const edm::Handle<reco::IsolatedPixelTrackCandidateCollection> & IsoPixelTrackL2,  
 	       const edm::Handle<reco::VertexCollection> & pixelVertices,
                const edm::Handle<reco::RecoChargedCandidateCollection> & PixelTracksL3,
+	       const edm::Handle<FEDRawDataCollection> hfedraw,
 	       TTree* tree);
 
   
@@ -54,6 +55,7 @@ private:
     //minBiasPixel
   float *pixeltracksL3pt, *pixeltracksL3eta, *pixeltracksL3phi, *pixeltracksL3vz;
   int npixeltracksL3;
+  int pixelfedsize;
 
   // input variables
   bool _Monte,_Debug;

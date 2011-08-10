@@ -8,6 +8,7 @@ extern const char * kHLTjets;
 extern const char * kHLTCorjets;
 extern const char * kGenjets;
 extern const char * kRecmet;
+extern const char * kPFMet;
 extern const char * kGenmet;
 extern const char * kCaloTowers;
 extern const char * kHt;
@@ -94,11 +95,13 @@ extern const char * kHOrechits;
 extern const char * kHFrechits;  
 extern const char * kpi0EErechits; 
 extern const char * kpi0EBrechits;  
+*/
 extern const char * kIsoPixelTracksL3; 
 extern const char * kIsoPixelTracksL2;
 extern const char * kIsoPixelTrackVertices;
 extern const char * kPixelTracksL3; 
-*/
+extern const char * kPixelFEDSize;
+
 extern const char * kRecoVerticesHLT; 
 extern const char * kRecoVerticesOffline0;
 extern const char * kECALActivity;      

@@ -98,7 +98,8 @@ void RECOVertex::analyze(edm::Handle<reco::VertexCollection> recoVertexs, TTree*
     NVrtx= size;
 
     int nVertexCand=0;
-    if (_Debug)  std::cout << "Found " << vertexs->size() << " vertices" << std::endl;  
+    //    if (_Debug)  std::cout << "Found " << vertexs->size() << " vertices" << std::endl;  
+    std::cout << "Found " << vertexs->size() << " vertices" << std::endl;
     for (vertex_i = vertexs->begin(); vertex_i != vertexs->end(); vertex_i++){
       if (nVertexCand>=NVrtx) break;
       VertexCand_x[nVertexCand] = vertex_i->x();

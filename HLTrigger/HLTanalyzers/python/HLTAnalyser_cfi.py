@@ -36,6 +36,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     recjets                         = cms.InputTag("ak5CaloJets"),
     reccorjets                      = cms.InputTag("ak5CaloCorJets"),
     recmet                          = cms.InputTag("hltMet"),
+    pfmet                           = cms.InputTag("pfMet"),
     ht                              = cms.InputTag("hltJet40Ht"),
     recoPFJets                      = cms.InputTag("ak5PFJets"),
     calotowers                      = cms.InputTag("hltTowerMakerForAll"),
@@ -132,7 +133,8 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
 
     ### Track settings
     PixelTracksL3               = cms.InputTag("hltPixelCandsForMinBias"),                         
-
+    PixelFEDSize                = cms.InputTag("rawDataCollector"),
+                             
     ### Calo tower settings
     caloTowerThreshold          = cms.double( 2.0 ),
 

@@ -19,6 +19,9 @@
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 
+#include "DataFormats/METReco/interface/PFMETCollection.h"  
+#include "DataFormats/METReco/interface/PFMET.h"   
+
 #include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/GenMETCollection.h"
 #include "DataFormats/METReco/interface/METCollection.h"
@@ -91,6 +94,7 @@ public:
 		 const edm::Handle<reco::PFTauDiscriminator>     & theRecoPFTauDiscrAgainstMuon,
 		 const edm::Handle<reco::PFJetCollection>        & recoPFJets,                
 		 const edm::Handle<CaloTowerCollection>          & caloTowers,	      
+		 const edm::Handle<reco::PFMETCollection>        & pfmets,  
                  double thresholdForSavingTowers,
                  double                minPtCH,
                  double                minPtGamma,
@@ -110,6 +114,8 @@ private:
     float mcalmet,mcalphi,mcalsum;
     float htcalet,htcalphi,htcalsum;
     float mgenmet,mgenphi,mgensum;
+
+    float pfmet,pfsumet,pfmetphi; 
 
     int njetgen,ntowcal;
     int nhjetcal,nhcorjetcal;

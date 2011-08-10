@@ -36,6 +36,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     reccorjets_       = conf.getParameter<edm::InputTag> ("reccorjets");
     genjets_          = conf.getParameter<edm::InputTag> ("genjets");
     recmet_           = conf.getParameter<edm::InputTag> ("recmet");
+    recoPFMet_        = conf.getParameter<edm::InputTag> ("pfmet"); 
     genmet_           = conf.getParameter<edm::InputTag> ("genmet");
     ht_               = conf.getParameter<edm::InputTag> ("ht");
     recoPFJets_       = conf.getParameter<edm::InputTag> ("recoPFJets"); 
@@ -163,11 +164,10 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     IsoPixelTrackVerticesTag_       = conf.getParameter<edm::InputTag> ("IsoPixelTrackVertices");
    */
  
-    // Track OpenHLT input collections
-   /*
-     PixelTracksTagL3_         = conf.getParameter<edm::InputTag> ("PixelTracksL3"); 
-   */
-
+   // Track OpenHLT input collections
+   PixelTracksTagL3_         = conf.getParameter<edm::InputTag> ("PixelTracksL3"); 
+   PixelFEDSizeTag_          = conf.getParameter<edm::InputTag> ("PixelFEDSize");
+  
     // Reco Vertex collection
     VertexTagHLT_                = conf.getParameter<edm::InputTag> ("PrimaryVertices");  
     VertexTagOffline0_           = conf.getParameter<edm::InputTag> ("OfflinePrimaryVertices0");
@@ -199,9 +199,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     bjet_analysis_.setup(conf, HltTree);
     elm_analysis_.setup(conf, HltTree);
     muon_analysis_.setup(conf, HltTree);
-    /*
     track_analysis_.setup(conf, HltTree);
-    */
     mct_analysis_.setup(conf, HltTree);
     hlt_analysis_.setup(conf, HltTree);
     vrt_analysisHLT_.setup(conf, HltTree, "HLT");
@@ -235,6 +233,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     edm::Handle<reco::GenJetCollection>               genjets;
     edm::Handle<CaloTowerCollection>                  caloTowers;
     edm::Handle<reco::CaloMETCollection>              recmet;
+    edm::Handle<reco::PFMETCollection>                recoPFMet;
     edm::Handle<reco::GenMETCollection>               genmet;
     edm::Handle<reco::METCollection>                  ht;
     edm::Handle<reco::PFJetCollection>                recoPFJets; 
@@ -332,11 +331,13 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     edm::Handle<HBHERecHitCollection>           hbherechits;   
     edm::Handle<HORecHitCollection>             horechits;   
     edm::Handle<HFRecHitCollection>             hfrechits;   
+    */
+
     edm::Handle<reco::IsolatedPixelTrackCandidateCollection> isopixeltracksL3; 
     edm::Handle<reco::IsolatedPixelTrackCandidateCollection> isopixeltracksL2;	
     edm::Handle<reco::VertexCollection>         isopixeltrackPixVertices;
     edm::Handle<reco::RecoChargedCandidateCollection> pixeltracksL3; 
-    */
+    edm::Handle<FEDRawDataCollection> pixelfedsize;
     
     // Reco vertex collection
     edm::Handle<reco::VertexCollection> recoVertexsHLT;
@@ -385,6 +386,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     getCollection( iEvent, missing, reccorjets,      reccorjets_,        kRecCorjets );
     getCollection( iEvent, missing, genjets,         genjets_,           kGenjets );
     getCollection( iEvent, missing, recmet,          recmet_,            kRecmet );
+    getCollection( iEvent, missing, recoPFMet,       recoPFMet_,         kPFMet );
     getCollection( iEvent, missing, genmet,          genmet_,            kGenmet );
     getCollection( iEvent, missing, caloTowers,      calotowers_,        kCaloTowers );
     getCollection( iEvent, missing, ht,              ht_,                kHt );
@@ -492,11 +494,13 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     getCollection( iEvent, missing, hbherechits,              HBHERecHitTag_,             kHBHErechits );   
     getCollection( iEvent, missing, horechits,                HORecHitTag_,               kHOrechits );   
     getCollection( iEvent, missing, hfrechits,                HFRecHitTag_,               kHFrechits );   
+    */
     getCollection( iEvent, missing, isopixeltracksL3,         IsoPixelTrackTagL3_,        kIsoPixelTracksL3 ); 
     getCollection( iEvent, missing, isopixeltracksL2,         IsoPixelTrackTagL2_,        kIsoPixelTracksL2 );
-    getCollection( iEvent, missing, isopixeltrackPixVertices, IsoPixelTrackVerticesTag_,   kIsoPixelTrackVertices );
+    getCollection( iEvent, missing, isopixeltrackPixVertices, IsoPixelTrackVerticesTag_,  kIsoPixelTrackVertices );
     getCollection( iEvent, missing, pixeltracksL3,            PixelTracksTagL3_,          kPixelTracksL3 ); 
-    */
+    getCollection( iEvent, missing, pixelfedsize,             PixelFEDSizeTag_,           kPixelFEDSize );
+
     getCollection( iEvent, missing, recoVertexsHLT,           VertexTagHLT_,              kRecoVerticesHLT ); 
     getCollection( iEvent, missing, recoVertexsOffline0,      VertexTagOffline0_,         kRecoVerticesOffline0 );
     
@@ -540,6 +544,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
 			  theRecoPFTauDiscrAgainstElec,
                           recoPFJets, 
                           caloTowers,
+			  recoPFMet,
                           towerThreshold_,
                           _MinPtGammas,
                           _MinPtChargedHadrons,
@@ -612,15 +617,13 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
                           simTracks,
                           simVertices,
                           HltTree);
-    
-    /*
     track_analysis_.analyze( 
                             isopixeltracksL3, 
                             isopixeltracksL2,
                             isopixeltrackPixVertices,			  
                             pixeltracksL3, 
+			    pixelfedsize,
                             HltTree); 
-    */
 
     hlt_analysis_.analyze(
                           hltresults,
@@ -638,7 +641,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
                           iSetup,
                           iEvent,
                           HltTree);
-    
+
     bjet_analysis_.analyze(
                            hRawBJets, 
                            hCorrectedBJets,
@@ -649,7 +652,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
                            hPerformanceBJetsL25,
                            hPerformanceBJetsL3,
                            HltTree);
-    
+
     vrt_analysisHLT_.analyze(
                           recoVertexsHLT,
 			  HltTree);

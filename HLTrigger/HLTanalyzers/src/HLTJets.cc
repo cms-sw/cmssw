@@ -258,6 +258,10 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     HltTree->Branch("recoHTCal",&htcalet,"recoHTCal/F");
     HltTree->Branch("recoHTCalPhi",&htcalphi,"recoHTCalPhi/F");
     HltTree->Branch("recoHTCalSum",&htcalsum,"recoHTCalSum/F");
+    HltTree->Branch("recoMetPF", &pfmet, "recoMetPF/F");
+    HltTree->Branch("recoMetPFSum", &pfsumet, "recoMetPFSum/F");
+    HltTree->Branch("recoMetPFPhi", &pfmetphi, "recoMetPFPhi/F");
+
     //for(int ieta=0;ieta<NETA;ieta++){std::cout << " ieta " << ieta << " eta min " << CaloTowerEtaBoundries[ieta] <<std::endl;}
     
     
@@ -363,6 +367,7 @@ void HLTJets::analyze(edm::Event const& iEvent,
 		      const edm::Handle<reco::PFTauDiscriminator>	      & theRecoPFTauDiscrAgainstMuon,
                       const edm::Handle<reco::PFJetCollection>        & recoPFJets,
 		      const edm::Handle<CaloTowerCollection>          & caloTowers,
+		      const edm::Handle<reco::PFMETCollection>        & pfmets, 
                       double thresholdForSavingTowers, 
                       double		    minPtCH,
                       double		   minPtGamma,
@@ -506,6 +511,15 @@ void HLTJets::analyze(edm::Event const& iEvent,
             mcalphi = i->phi();
             mcalsum = i->sumEt();
         }
+    }
+
+    if (pfmets.isValid()) {
+      typedef reco::PFMETCollection::const_iterator pfmetiter;
+      for( pfmetiter i=pfmets->begin(); i!=pfmets->end(); i++) {
+	pfmet = i->pt();
+	pfsumet = i->sumEt();
+	pfmetphi = i->phi();
+      }
     }
     
     if (ht.isValid()) {

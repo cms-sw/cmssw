@@ -8389,6 +8389,47 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 	}
     }
 
+ else if (triggerName.CompareTo("OpenHLT_DiCentralJet46_BTagIP3DLoose") == 0) 
+   { 
+     if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) 
+       { 
+	 if (prescaleResponse(menu, cfg, rcounter, it)) 
+	   { 
+	     int rc = 0; 
+	     int njets = 0; 
+               
+	     for (int j = 0; j < NohBJetL2Corrected ; j++){ 
+	       if (ohBJetL2CorrectedEt[j] > 46. && fabs(ohBJetL2CorrectedEta[j]) < 2.6) // ET and eta cuts 
+		 { 
+		   njets ++; 
+		 } 
+	     } 
+ 
+	     int max = (NohBJetL2Corrected > 4) ? 4 : NohBJetL2Corrected; 
+	     for (int j = 0; j < max; j++) 
+	       {//loop over jets 
+                   
+		 if (ohBJetL2CorrectedEt[j] > 20.) {// ET cut on L2.5 jets 
+                     
+		   if (ohBJetIPL25Tag[j] > 0.) 
+		     { // Level 2.5 b tag   
+		       if (ohBJetIPL3Tag[j] > 3.0) 
+			 { // Level 3 b tag   
+			   rc++; 
+			 } 
+		     } 
+		 } // ET cut 
+	       }//loop over jets 
+                                 
+	     if (njets >=2 && rc >= 1) 
+	       { 
+		 triggerBit[it] = true; 
+	       } 
+	   } 
+       } 
+   } 
+
+
   /**********************************************/
 	
   // Single Top Triggers : Muon channel
