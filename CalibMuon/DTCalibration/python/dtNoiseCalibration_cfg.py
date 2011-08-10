@@ -19,8 +19,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
-# if read from RAW
-#process.load("EventFilter.DTRawToDigi.dtunpacker_cfi")
+process.load("CalibMuon.DTCalibration.dt_offlineAnalysis_common_cff")
 
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",
     DBParameters = cms.PSet(),

@@ -9,6 +9,8 @@ import copy
 from HLTrigger.HLTfilters.hltHighLevel_cfi import *
 hltL1SingleMuOpen = copy.deepcopy(hltHighLevel)
 hltL1SingleMuOpen.HLTPaths = ['HLT_L1SingleMuOpen_AntiBPTX_v*']
+hltDtCalibTest = copy.deepcopy(hltHighLevel)
+hltDtCalibTest.HLTPaths = ['HLT_Mu40_v*', 'HLT_IsoMu*', 'HLT_Mu13_Mu8_v*', 'HLT_Mu17_Mu8_v*']
 
 from HLTrigger.HLTfilters.hltLevel1GTSeed_cfi import *
 l1tech = hltLevel1GTSeed.clone()
@@ -96,6 +98,7 @@ offlineSelectionCosmicsPt5 = cms.Sequence(hltL1SingleMuOpen + goodCosmicTracksPt
 
 offlineSelection = cms.Sequence(scrapingEvtFilter + primaryVertexFilter + muonSelectionPt15)
 offlineSelectionALCARECO = cms.Sequence(muonSelectionPt15)
+offlineSelectionALCARECODtCalibTest = cms.Sequence(hltDtCalibTest + muonSelectionPt15)
 offlineSelectionCosmics = cms.Sequence(hltL1SingleMuOpen)
 
 dtCalibOfflineSelectionPt15 = cms.Sequence(offlineSelectionPt15)
@@ -106,4 +109,5 @@ dtCalibOfflineSelectionCosmicsPt5 = cms.Sequence(offlineSelectionCosmicsPt5)
 
 dtCalibOfflineSelection = cms.Sequence(offlineSelection)
 dtCalibOfflineSelectionALCARECO = cms.Sequence(offlineSelectionALCARECO)
+dtCalibOfflineSelectionALCARECODtCalibTest = cms.Sequence(offlineSelectionALCARECODtCalibTest)
 dtCalibOfflineSelectionCosmics = cms.Sequence(offlineSelectionCosmics)
