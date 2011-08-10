@@ -75,7 +75,7 @@
 </LINK>
 
 
-<LINK name="DT/DtCalib/TTrigDBValidation/*TTrigDifference*">
+<LINK name="DT/DtCalib/TTrigDBValidation/Wheel*/TTrigDifference*">
 	<TestName activate="true">tTrigDifferenceInRange</TestName>
 </LINK>
 
