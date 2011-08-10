@@ -7,12 +7,15 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
+#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
+#include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
 #include "CalibTracker/Records/interface/SiStripQualityRcd.h"
 #include "DataFormats/Common/interface/DetSet.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/SiStripDigi/interface/SiStripProcessedRawDigi.h"
 
 #include <vector>
@@ -39,7 +42,8 @@ class SiStripAPVRestorer {
   void     LoadMeanCMMap(edm::Event&);
   RawDigiMap& GetBaselineMap(){return BaselineMap_;}
   std::vector< DigiMap >& GetSmoothedPoints(){return SmoothedMaps_;}
-  
+  void GetAPVFlags(std::vector<bool>&);
+
  protected:
 
   SiStripAPVRestorer(const edm::ParameterSet& conf);
@@ -58,8 +62,10 @@ class SiStripAPVRestorer {
   
   void BaselineFollower(DigiMap&, std::vector<int16_t>&, float);
   bool FlatRegionsFinder(std::vector<int16_t>&, DigiMap&, float , uint16_t);
-  
-  void CreateCMMap(const edm::DetSetVector<SiStripProcessedRawDigi>& );
+  void BaselineCleaner(std::vector<int16_t>&, DigiMap&, uint16_t );
+
+  void CreateCMMapRealPed(const edm::DetSetVector<SiStripRawDigi>& );
+  void CreateCMMapCMstored(const edm::DetSetVector<SiStripProcessedRawDigi>& );
  
   float pairMedian( std::vector<std::pair<float,float> >&); 
   
@@ -69,8 +75,12 @@ class SiStripAPVRestorer {
   edm::ESHandle<SiStripNoises> noiseHandle;
   uint32_t noise_cache_id;
   
+  edm::ESHandle<SiStripPedestals> pedestalHandle;
+  uint32_t pedestal_cache_id;
+  
   std::vector<std::string> apvFlags_;
   std::vector<float> median_;
+  std::vector<bool> badAPVs_;
   std::vector< DigiMap > SmoothedMaps_;
   RawDigiMap BaselineMap_;
   
@@ -104,6 +114,7 @@ class SiStripAPVRestorer {
   uint32_t distortionThreshold_;       // (max-min) of flat regions to trigger baseline follower
   double   CutToAvoidSignal_;	       // for iterative median implementation internal to APV restorer
   uint32_t nSaturatedStrip_;           // for BaselineAndSaturation inspect
+  bool ApplyBaselineCleaner_;
     
 };
 
