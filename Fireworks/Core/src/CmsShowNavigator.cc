@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.108 2011/03/09 12:14:27 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.109 2011/06/03 23:30:50 amraktad Exp $
 //
 
 #include "DataFormats/FWLite/interface/Event.h"
@@ -214,9 +214,13 @@ CmsShowNavigator::goTo(FileQueue_i fi, int event)
       gSystem->GetCpuInfo(&cpuInfo, 0);
       gSystem->GetMemInfo(&memInfo);
       gSystem->GetProcInfo(&procInfo);
+
+      time_t curtime;
+      time(&curtime);
       
+      fwLog(fwlog::kDebug) << "Current Time: "  << ctime(&curtime);
       fwLog(fwlog::kDebug) << "memInfo.fMemUsed \t"  << memInfo.fMemUsed << std::endl;
-      fwLog(fwlog::kDebug) << "memInfo.fSwapUsed\t" << memInfo.fSwapUsed<< std::endl; 
+      fwLog(fwlog::kDebug) << "memInfo.fSwapUsed\t" << memInfo.fSwapUsed << std::endl; 
       fwLog(fwlog::kDebug) << "procInfo.fMemResident\t" << procInfo.fMemResident << std::endl;
       fwLog(fwlog::kDebug) << "procInfo.fMemVirtual\t" << procInfo.fMemVirtual << std::endl;
       fwLog(fwlog::kDebug) << "cpuInfo.fLoad1m \t" << cpuInfo.fLoad1m << std::endl;
