@@ -55,13 +55,6 @@ tobTecStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 30.0
 tobTecStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 6.0
    
 
-# TRACKER DATA CONTROL
-import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
-tobTecStepMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone(
-    ComponentName = 'tobTecStepMeasurementTracker',
-    skipClusters = cms.InputTag('tobTecStepClusters')
-    )
-
 # QUALITY CUTS DURING TRACK BUILDING (for inwardss and outwards track building steps)
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
 
