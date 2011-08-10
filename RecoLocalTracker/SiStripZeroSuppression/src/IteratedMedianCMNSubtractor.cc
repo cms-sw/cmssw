@@ -193,7 +193,7 @@ subtract_(const uint32_t& detId,std::vector<T>& digis){
     {
       if ( !qualityHandle->IsStripBad(detQualityRange,istrip) )
       {
-        std::pair<float,float> pin((float)digis[istrip], (float)noiseHandle->getNoise(istrip,detNoiseRange));
+        std::pair<float,float> pin((float)digis[istrip], (float)noiseHandle->getNoiseFast(istrip,detNoiseRange));
         subset[subsetSize]= pin;
 	ok[subsetSize++]=true;
       }
