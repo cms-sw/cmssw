@@ -1,3 +1,4 @@
+#include <vector>
 // Commands executed in a GLOBAL scope, e.g. created hitograms aren't erased...
 void plot_HB(TString inputfile="simevent_HB.root",
 	     TString outputfile="HB_histo.root",
@@ -240,12 +241,20 @@ void plot_HB(TString inputfile="simevent_HB.root",
     branchJets  ->GetEntry(i);
 
     // -- Leading Jet
-    int nJetHits =  infoJets.njethit();
+    const int nJetHits =  infoJets.njethit();
 
     //    cout << "Ev. " << i <<  "  " << "  nJetHits " << nJetHits <<  endl;
 
-    std::vector<float> rJetHits(nJetHits);
+    //    std::vector<float>  rJetHits(nJetHits);
+    std::vector<float>  rJetHits(nJetHits);
+
+    //    cout << "pass 1" << endl;
+
     rJetHits = infoJets.jethitr();
+
+    //    cout << "pass 2" << endl;
+
+
     std::vector<float> tJetHits(nJetHits);
     tJetHits = infoJets.jethitt(); 
     std::vector<float> eJetHits(nJetHits);
