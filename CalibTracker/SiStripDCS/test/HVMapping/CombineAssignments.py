@@ -4,17 +4,26 @@
 #Purpose: This script is for combining HV map assignment dictionaries created by the 'MakeAssignments' script. The assignments can either be combined constructively where it must only be assigned positively (including weak assignments such as 'HV1 with..') in one dictionary to take a positive assignment in the combined dictionary. Or destructively where assignments must be consistant in both dictionaries for a positive assignment in the combined. The default is constructive.
 
 from optparse import OptionParser
-from HVMapToolsClasses import HVAnalysis
-import pickle, os
+import pickle, os, sys
+
+sys.path.append('Classes/')
+
 
 #intialize command line interface
 parser = OptionParser()
+parser = OptionParser(usage='''Usage: ./CombineAssignments.py [options] [Assignment Dictionaries]
+Examples:
+./CombineAssignments.py YourAssignmentDictionary1.pkl YourAssignmentDictionary2.pkl ...
+   No options selected in this example'''
+)                      
 parser.add_option('-d', action = 'store_false', default = True, dest = 'constructive', help = 'Tells the combination process to be done destructively in which an assignment must be consistant between both input dictionaries to be positively assigned in the combined dictionary, the default is constructive assignments')
 parser.add_option('-n', default = "Combined", dest = 'name', help = "Sets the name of the pickle file to which the combined assignments dictionary will be dumped, defaults to 'Combined'")
 parser.add_option('-p', default = 'Output' , dest = 'path', help = "Sets path that you want to save the resulting combined dictionary pickle file and flipped detIDs list to under 'Output/', defaults to 'Output/'")
 
+
 (Commands, args) = parser.parse_args()
 
+from HVMapToolsClasses import HVAnalysis
 Analysis = HVAnalysis('printer',{},[],False)
 
 #Make sure the user passed arguments

@@ -4,12 +4,18 @@
 #Purpose: Script reads in a list of .pkl files from sys.argv and combines them to intialize an HVMapNoise object and saves pickles of HV assignment dictionaries for diff ration on and off. Makes plots of diff and ratios. Quick and dirty for testing purposes.
 #TO DO: Add boolean trips to script to filter out methods not chosen by user 
 
-import pickle, os
-from HVMapToolsClasses import HVMapNoise, HVAnalysis
+import pickle, os, sys
+
+sys.path.append('Classes/')
+
 from optparse import OptionParser
 
 #intialize and fill command line interface
-parser = OptionParser()
+parser = OptionParser(usage = '''Usage: ./MakeAssignments.py [Options] [Option Arguments] [NoiseDictionaries]
+Example:
+        ./MakeAssignments.py -d .5 PedestalRuns/*
+           Can use bash wild card expansions or individual file names''')
+
 parser.add_option('-p', dest ='name', default = 'Results',  help = "The name of the directory in 'Output/<dataset>' to which results will be saved, the directory name defaults to 'Results'" )
 parser.add_option('-D',action = 'store', type = 'float', dest = 'StrictDiffCut', help = "Tells the strict difference method to be done and the sets the cut level passed by the user")
 parser.add_option('-d', action = 'store', type = 'float', dest = 'RelaxDiffCut', help = "Tells the relax difference method to be done to augment the strict difference method and sets the cut level to that passed by the user")
@@ -17,6 +23,8 @@ parser.add_option('-x', action = 'store', type = 'float', nargs = 2, dest = 'Rat
 parser.add_option('-o', action = 'store', type = 'float', nargs = 2, dest = 'RatioOnCuts', help = "Tells the on ratio method to be done and sets the cuts to that passed by the user (ON/HV1 first), takes two arguments will raise an error if two are not givene")
 parser.add_option('-f', action = 'store', type = 'float', dest = 'OnOffCut',  help = "Tells the Off - On diff method to be done for further classification of undetermined modules and sets the cut to that passed by user")
 (Commands, args) = parser.parse_args()
+
+from HVMapToolsClasses import HVMapNoise, HVAnalysis
 
 #Make list of methods to be done for intialization of HVAnalysis
 AnaList = []

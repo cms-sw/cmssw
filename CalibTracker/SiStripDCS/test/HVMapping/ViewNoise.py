@@ -3,15 +3,25 @@
 # Date: 7/24/2011
 # Purpose: This script allows the user to veiw the APV noise module for passed modules and noise dictionaries by default or optionally for given assignment from an assignment dictionary
 
-from HVMapToolsClasses import HVMapNoise
+
 from optparse import OptionParser
-import pickle
+import pickle,sys
+
+sys.path.append('Classes/')
 
 #Initialize Command line interface
-parser = OptionParser()
+parser = OptionParser(usage ='''Usage: ./ViewNoise.py [Options] [detID or Option arguments]
+Examples:
+    ./ViewNoise.py 402666126 402666126 ...
+
+    ./ViewNoise.py -a AssignmentDictionary.pkl 'HV1'
+        can display noise of all assignments of a certain type with in a dictionary''')
+
 parser.add_option('-a',action = 'store', nargs = 2, dest = 'assign', help = "Veiw APV noise details by assignment in a given assignment dictionary. Takes two ordered arguments: 1) the directory of the assignment 2) the assignment. Only one word assignments supported, however if 'HV1' is passed it will print all assignments containing the sub string 'HV1'")
 
 (Commands, args) = parser.parse_args()
+
+from HVMapToolsClasses import HVMapNoise
 
 if len(args) == 0:
     print "Waring: no pedestal noise information passed"

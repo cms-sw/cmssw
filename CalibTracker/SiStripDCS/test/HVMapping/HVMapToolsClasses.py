@@ -552,6 +552,18 @@ class HVAnalysis:
 
     #End Intializer------------------------------------
 
+    def PadWithMasked(self, assigned):
+        """HVAnalysis.PadWithMasked(dict assigned) Compares keys of assignments to a reference and updates the detIDs missing relative to reference as masked"""
+
+        file = open('data/StripDetIDAlias.pkl','rb')
+        AliasDict = pickle.load(file)
+        file.close()
+
+        full = [str(detID) for detID in AliasDict.keys()]
+
+        for detid in full:
+            if detid not in assigned.keys():
+                assigned.update({detid:'Masked'})
 
     def DiffMethod(self,cut = 0):
         """HVAnalysis.DiffMethod(float cut) makes HV assignments based on the noise difference sign of APVs in  self.Diff{} and the cut. Returns a dictionary of assignments"""
@@ -597,6 +609,8 @@ class HVAnalysis:
                 assigned.update({detid:'HV1'})
             elif flag1 == 0:
                 assigned.update({detid:'HV2'})
+
+        self.PadWithMasked(assigned)
         return assigned
 
     
@@ -630,17 +644,7 @@ class HVAnalysis:
             
 
                                     
-        #import list of all tracker detIDs so unmapped detIDs can be filled in
-        #FIXME:
-        #Link to the package ../../data/StripDetIDAlias.pkl
-        #Absolute path is CalibTracker/SiStripDCS/data/StripDetIDAlias.pkl
-        StripDetIDAliasFile=open("data/StripDetIDAlias.pkl","rb")
-        StripDetIDAliasDict=pickle.load(StripDetIDAliasFile)
-        AllDetIDs=[str(detid) for detid in StripDetIDAliasDict.keys()]
-
-        for detid in AllDetIDs:
-            if detid not in assigned.keys():
-                assigned.update({detid:'Masked'})
+        self.PadWithMasked(assigned)
 
         return assigned
 
@@ -666,6 +670,7 @@ class HVAnalysis:
             else:
                 assigned.update({detID : 'No-HV'})
 
+        self.PadWithMasked(assigned)
         return assigned
 
 
@@ -747,21 +752,7 @@ class HVAnalysis:
                 print detid,"double analyzed"
             
 
-        #import list of all tracker detIDs so unmapped detIDs can be filled in
-        fullmap=open('data/FullMap.txt','r')
-        full=[]
-        for line in fullmap:
-            try:
-                detid=line.split()[0]
-            except:
-                pass
-            if detid not in full:
-                full.append(str(detid))
-        fullmap.close()
-
-        for detid in full:
-            if detid not in assigned.keys():
-                assigned.update({detid:'Masked'})
+        self.PadWithMasked(assigned)
 
         return assigned
     

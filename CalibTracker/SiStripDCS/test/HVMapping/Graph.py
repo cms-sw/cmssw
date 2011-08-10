@@ -3,12 +3,25 @@
 # Purpose: This script will make noise histograms, or histograms of various noise differences and ratios for the pedestal run info supplied by the user. Optionally an assignment dictionary can be read in to draw additional colored histos on top of the noise (or diff ect.) histo to see where assignments end up.
 #TO DO: Implement legend, and double check for logic errors derived from copy pasting.
 
-from HVMapToolsClasses import HVMapNoise, HVAnalysis
+
 from optparse import OptionParser
 import pickle, os, sys
+sys.path.append('Classes/')
 
 #Intialize command line interface
-parser = OptionParser()
+parser = OptionParser(usage ='''Usage: ./Graph.py [Options] [PickledNoise]
+Examples:
+   ./Graph.py 2011-TECM-ON-PEAK-000001.root 2011-TECP-ON-PEAK-000002.root
+       Can plot raw noise for individually specified files
+   ./Graph.py PedestalRuns/*
+       Can do many files at once using bash wildcard expansions
+   ./Graph.py -d PedestalRuns/*
+       Some options will tell the script to make plots of noise ratios or difference
+   ./Graph.py -a AssignmentDictionary.pkl 2011-TECM-ON-PEAK-000001.root 2011-TECP-ON-PEAK-000002.root
+       can augment graphs (noise, diff, ect.) with colors indicating assignments''')
+   
+
+
 parser.add_option('-b', '--batch', action = 'store_true', dest = 'batch', help = 'Will run pyroot in batch mode with out graphics')
 parser.add_option('-L', '--noiselim', type = 'float', nargs = 2, default = (0,20), dest = 'noiselim', help = "Sets  x limits on the noise histo to that passed by the user, takes two arguments with the min first, defaults to (0, 20)")
 parser.add_option('-p', default = '', dest = 'path', help = "set the name of the sub-directory that the resulting histogram will be saved to in 'Ouput/<dataset>/Histos/'")
@@ -31,7 +44,8 @@ parser.add_option('-c', dest = 'catagories', help = "Opens the Undetermined Cata
 
 if Commands.batch:
     sys.argv.append('-b')
-
+    
+from HVMapToolsClasses import HVMapNoise, HVAnalysis
 from ROOT import TH1F, TCanvas, TAttLine, TLegend
 
 #Intialize and fill noise class

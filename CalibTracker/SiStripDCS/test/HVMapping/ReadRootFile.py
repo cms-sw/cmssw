@@ -6,16 +6,18 @@
 
 
 import os,time,sys
+
+sys.path.append('Classes/')
+
 from optparse import OptionParser
 
 #intialize command line interface
-parser = OptionParser(usage='''Usage: ./ReadRootFile.py [options]
-Examples:
-./ReadRootFile.py YourPedestalRunsDirectory/* -b
-   Wildcard is accepted to read all files in a absolute path directory
-./ReadRootFile.py YourFirstRootFile YourSecondRootFile YourThirdRootfile
-   Individual rootfiles can be used as arguments
-''')
+parser = OptionParser(usage='''Usage: ./ReadRootFile.py [options] [PickledNoise]
+ Examples:
+ ./ReadRootFile.py YourPedestalRunsDirectory/* -b
+    Wildcard is accepted to read all files in a absolute path directory
+ ./ReadRootFile.py YourFirstRootFile YourSecondRootFile YourThirdRootfile
+    Individual rootfiles can be used as arguments''')
 
 parser.add_option('-b',action = 'store_true', default = False, dest = 'batch', help = 'Runs pyroot in batch mode so that no graphics will be desplayed on screen')
 parser.add_option('-c', action = 'store_true', default = False ,dest = 'comp', help = 'Tells script to compensate for differences in noise due to DAQ mode by multiplying raw noise by 1.7 if the data was taken in PEAK mode')
