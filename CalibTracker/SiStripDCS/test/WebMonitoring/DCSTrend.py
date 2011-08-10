@@ -22,7 +22,7 @@ def listDirSortedByTime(dir):
     items.sort(lambda x,y: cmp(content[x],content[y]))
     # Report objects in order
     for i in range(0,len(items)):
-        items[i] = dir+"/"+item
+        items[i] = dir+"/"+items[i]
         # print "items[",i,"] = ", items[i]
     return items
 
@@ -58,11 +58,13 @@ for inputFileName in dirList:
         dateArray = firstDateString.replace("__", "_").split("_")
         firstTimeValue = calendar.timegm(time.strptime(dateArray[0]+" "+dateArray[1]+" "+dateArray[2]+" "+dateArray[3]+":"+dateArray[4]+":"+dateArray[5]+" "+dateArray[6]))
         firstTimeValue = firstTimeValue*1000
+        # print "start = ", firstDateString, " ", firstTimeValue
         
         dateString = inputFileName.split("_TO_")[1].split(".")[0]
         dateArray = dateString.replace("__", "_").split("_")
         lastTimeValue = calendar.timegm(time.strptime(dateArray[0]+" "+dateArray[1]+" "+dateArray[2]+" "+dateArray[3]+":"+dateArray[4]+":"+dateArray[5]+" "+dateArray[6]))
         lastTimeValue = lastTimeValue*1000
+        # print "end = ", dateString, " ", lastTimeValue
         
         fileList.append((firstTimeValue, lastTimeValue, inputFileName))
 
