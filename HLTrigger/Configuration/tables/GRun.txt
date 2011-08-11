@@ -150,7 +150,6 @@ HLT_Mu60_eta2p1_v*                                                              
 HLT_Mu100_eta2p1_v*                                                                             #   added in "3e33" menu (sr #122516) 
 #HLT_IsoMu12_v*                                                                                 # removed in "3e33" menu (sr #122712)
 HLT_IsoMu15_v*
-HLT_IsoMu15_L1s14_v*                                                                            #   added in "3e33" menu (sr #122405)
 HLT_IsoMu15_eta2p1_v*                                                                           #   added in "3e33" menu (sr #122729)
 HLT_IsoMu17_v*
 HLT_IsoMu20_v*
@@ -319,31 +318,41 @@ HLT_Mu8_Photon20_CaloIdVT_IsoT_v*
 HLT_Mu8_Jet40_v*
 HLT_Mu15_Photon20_CaloIdL_v*
 HLT_Mu15_DoublePhoton15_CaloIdL_v*
-HLT_Mu15_LooseIsoPFTau15_v*
-HLT_Mu17_CentralJet30_v*
-HLT_Mu17_DiCentralJet30_v*
-HLT_Mu17_TriCentralJet30_v*
-HLT_Mu17_QuadCentralJet30_v*
+#HLT_Mu17_CentralJet30_v*                                                                       # removed in "3e33" menu (sr #122787)
+#HLT_Mu17_CentralJet30_BTagIP_v*                                                                # removed in "3e33" menu (sr #122787)
+#HLT_Mu17_DiCentralJet30_v*                                                                     # removed in "3e33" menu (sr #122787)
+#HLT_Mu17_TriCentralJet30_v*                                                                    # removed in "3e33" menu (sr #122787)
+#HLT_Mu17_QuadCentralJet30_v*                                                                   # removed in "3e33" menu (sr #122787)
+HLT_Mu17_eta2p1_CentralJet30_v*                                                                 #   added in "3e33" menu (sr #122787)
+HLT_Mu17_eta2p1_CentralJet30_BTagIP_v*                                                          #   added in "3e33" menu (sr #122787)
+HLT_Mu17_eta2p1_DiCentralJet30_v*                                                               #   added in "3e33" menu (sr #122787)
+HLT_Mu17_eta2p1_TriCentralJet30_v*                                                              #   added in "3e33" menu (sr #122787)
+HLT_Mu17_eta2p1_QuadCentralJet30_v*                                                             #   added in "3e33" menu (sr #122787)
 HLT_Mu17_Ele8_CaloIdL_v*
 HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_v*
 HLT_Mu12_DiCentralJet30_BTagIP3D_v*
 HLT_Mu12_DiCentralJet20_BTagIP3D1stTrack_v*
 HLT_Mu12_DiCentralJet20_DiBTagIP3D1stTrack_v*
-HLT_Mu17_CentralJet30_BTagIP_v*
 #HLT_Mu30_HT200_v*                                                                              # removed in "3e33" menu (sr #122069)
 HLT_Mu40_HT200_v*
 HLT_Mu60_HT200_v*
+HLT_Mu15_LooseIsoPFTau15_v*
 HLT_IsoMu15_LooseIsoPFTau15_v*
 #HLT_IsoMu15_LooseIsoPFTau20_v*                                                                 # removed in "3e33" menu (sr #122729)
 #HLT_IsoMu15_TightIsoPFTau20_v*                                                                 # removed in "3e33" menu (sr #122729)
 HLT_IsoMu15_eta2p1_LooseIsoPFTau20_v*                                                           #   added in "3e33" menu (sr #122729)
 HLT_IsoMu15_eta2p1_MediumIsoPFTau20_v*                                                          #   added in "3e33" menu (sr #122729)
 HLT_IsoMu15_eta2p1_TightIsoPFTau20_v*                                                           #   added in "3e33" menu (sr #122729)
-HLT_IsoMu17_CentralJet30_v*
-HLT_IsoMu17_DiCentralJet30_v*
-HLT_IsoMu17_TriCentralJet30_v*
-HLT_IsoMu17_QuadCentralJet30_v*
-HLT_IsoMu17_CentralJet30_BTagIP_v*
+#HLT_IsoMu17_CentralJet30_v*                                                                    # removed in "3e33" menu (sr #122787)
+#HLT_IsoMu17_CentralJet30_BTagIP_v*                                                             # removed in "3e33" menu (sr #122787)
+#HLT_IsoMu17_DiCentralJet30_v*                                                                  # removed in "3e33" menu (sr #122787)
+#HLT_IsoMu17_TriCentralJet30_v*                                                                 # removed in "3e33" menu (sr #122787)
+#HLT_IsoMu17_QuadCentralJet30_v*                                                                # removed in "3e33" menu (sr #122787)
+HLT_IsoMu17_eta2p1_CentralJet30_v*                                                              #   added in "3e33" menu (sr #122787)
+HLT_IsoMu17_eta2p1_CentralJet30_BTagIP_v*                                                       #   added in "3e33" menu (sr #122787)
+HLT_IsoMu17_eta2p1_DiCentralJet30_v*                                                            #   added in "3e33" menu (sr #122787)
+HLT_IsoMu17_eta2p1_TriCentralJet30_v*                                                           #   added in "3e33" menu (sr #122787)
+HLT_IsoMu17_eta2p1_QuadCentralJet30_v*                                                          #   added in "3e33" menu (sr #122787)
 HLT_IsoMu20_DiCentralJet34_v*
 #HLT_DoubleMu3_HT150_v*                                                                         # removed in "3e33" menu (sr #122069)
 #HLT_DoubleMu3_Mass4_HT150_v*                                                                   # removed in "3e33" menu (sr #122069)
