@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HIon/V203 (CMSSW_4_2_0_HLT20)
+# /dev/CMSSW_4_2_0/HIon/V209 (CMSSW_4_2_0_HLT21)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V203')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V209')
 )
 
 streams = cms.PSet( 
@@ -2095,7 +2095,7 @@ hltPixelTracksForHITrackTrigger = cms.EDProducer( "PixelTrackProducer",
       GeneratorPSet = cms.PSet( 
         useBending = cms.bool( True ),
         useFixedPreFiltering = cms.bool( False ),
-        maxElement = cms.uint32( 12000 ),
+        maxElement = cms.uint32( 100000 ),
         phiPreFiltering = cms.double( 0.3 ),
         extraHitRPhitolerance = cms.double( 0.06 ),
         useMultScattering = cms.bool( True ),
