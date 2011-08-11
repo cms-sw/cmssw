@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V209 (CMSSW_4_2_0_HLT21)
+# /dev/CMSSW_4_2_0/GRun/V210 (CMSSW_4_2_0_HLT21)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V209')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V210')
 )
 
 process.streams = cms.PSet( 
@@ -350,7 +350,6 @@ process.datasets = cms.PSet(
     'HLT_QuadJet40_v7',
     'HLT_QuadJet45_IsoPFTau45_v7',
     'HLT_QuadJet50_Jet40_Jet30_v3',
-    'HLT_QuadJet60_v6',
     'HLT_QuadJet70_v6' ),
   OfflineMonitor = ( cms.vstring( 'AlCa_EcalEta_v9',
     'AlCa_EcalPhiSym_v7',
@@ -719,7 +718,6 @@ process.datasets = cms.PSet(
     'HLT_QuadJet40_v7',
     'HLT_QuadJet45_IsoPFTau45_v7',
     'HLT_QuadJet50_Jet40_Jet30_v3',
-    'HLT_QuadJet60_v6',
     'HLT_QuadJet70_v6',
     'HLT_R014_MR150_v7',
     'HLT_R020_MR150_v7',
@@ -1104,7 +1102,6 @@ process.datasets = cms.PSet(
     'HLT_QuadJet40_v7',
     'HLT_QuadJet45_IsoPFTau45_v7',
     'HLT_QuadJet50_Jet40_Jet30_v3',
-    'HLT_QuadJet60_v6',
     'HLT_QuadJet70_v6',
     'HLT_R014_MR150_v7',
     'HLT_R020_MR150_v7',
@@ -1487,7 +1484,6 @@ process.datasets = cms.PSet(
     'HLT_QuadJet40_v7',
     'HLT_QuadJet45_IsoPFTau45_v7',
     'HLT_QuadJet50_Jet40_Jet30_v3',
-    'HLT_QuadJet60_v6',
     'HLT_QuadJet70_v6',
     'HLT_R014_MR150_v7',
     'HLT_R020_MR150_v7',
@@ -3728,9 +3724,6 @@ process.PrescaleService = cms.Service( "PrescaleService",
       cms.PSet(  pathName = cms.string( "HLT_QuadJet50_Jet40_Jet30_v3" ),
         prescales = cms.vuint32( 100, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
       ),
-      cms.PSet(  pathName = cms.string( "HLT_QuadJet60_v6" ),
-        prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 )
-      ),
       cms.PSet(  pathName = cms.string( "HLT_60Jet10_v1" ),
         prescales = cms.vuint32( 0, 0, 0, 0, 10, 1, 1, 1, 1, 1, 1 )
       ),
@@ -4128,7 +4121,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 30, 25, 20, 15, 10, 9, 6, 4, 3, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Mu17_Ele8_CaloIdL_v9" ),
-        prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )
+        prescales = cms.vuint32( 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Mu12_eta2p1_DiCentralJet30_BTagIP3D_v1" ),
         prescales = cms.vuint32( 80, 65, 50, 40, 30, 20, 15, 10, 8, 1, 1 )
@@ -4137,7 +4130,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 250, 200, 150, 150, 100, 70, 50, 35, 25, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_IsoMu15_LooseIsoPFTau15_v9" ),
-        prescales = cms.vuint32( 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1 )
+        prescales = cms.vuint32( 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_IsoMu17_eta2p1_CentralJet30_v1" ),
         prescales = cms.vuint32( 45, 35, 27, 20, 20, 10, 9, 6, 4, 1, 1 )
@@ -9388,17 +9381,6 @@ process.hltQuadJet50Central = cms.EDFilter( "HLT1CaloJet",
     saveTags = cms.bool( True ),
     MinPt = cms.double( 50.0 ),
     MaxEta = cms.double( 3.0 ),
-    MinN = cms.int32( 4 )
-)
-process.hltPreQuadJet60 = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    offset = cms.uint32( 0 )
-)
-process.hltQuadJet60 = cms.EDFilter( "HLT1CaloJet",
-    inputTag = cms.InputTag( "hltCaloJetCorrected" ),
-    saveTags = cms.bool( True ),
-    MinPt = cms.double( 60.0 ),
-    MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 4 )
 )
 process.hltPreQuadJet70 = cms.EDFilter( "HLTPrescaler",
@@ -31337,7 +31319,6 @@ process.hltPreDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_QuadJet40_IsoPFTau40_v12',
       'HLT_QuadJet45_IsoPFTau45_v7',
       'HLT_QuadJet50_Jet40_Jet30_v3',
-      'HLT_QuadJet60_v6',
       'HLT_QuadJet70_v6',
       'HLT_EightJet120_v1',
       'HLT_60Jet10_v1',
@@ -31546,8 +31527,8 @@ process.hltPreDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_HT300_DoubleIsoPFTau10_Trk3_PFMHT40_v8',
       'HLT_HT350_DoubleIsoPFTau10_Trk3_PFMHT45_v8',
       'HLT_BTagMu_DiJet20_Mu5_v10',
-      'HLT_BTagMu_DiJet40_Mu5_v10')+cms.vstring( 'HLT_BTagMu_DiJet70_Mu5_v10',
-      'HLT_BTagMu_DiJet110_Mu5_v10',
+      'HLT_BTagMu_DiJet40_Mu5_v10',
+      'HLT_BTagMu_DiJet70_Mu5_v10')+cms.vstring( 'HLT_BTagMu_DiJet110_Mu5_v10',
       'HLT_Mu10_R005_MR200_v1',
       'HLT_Mu10_R025_MR200_v1',
       'HLT_Mu10_R029_MR200_v1',
@@ -31767,7 +31748,6 @@ process.hltPreHLTDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_QuadJet40_IsoPFTau40_v12',
       'HLT_QuadJet45_IsoPFTau45_v7',
       'HLT_QuadJet50_Jet40_Jet30_v3',
-      'HLT_QuadJet60_v6',
       'HLT_QuadJet70_v6',
       'HLT_EightJet120_v1',
       'HLT_60Jet10_v1',
@@ -31976,8 +31956,8 @@ process.hltPreHLTDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_HT300_DoubleIsoPFTau10_Trk3_PFMHT40_v8',
       'HLT_HT350_DoubleIsoPFTau10_Trk3_PFMHT45_v8',
       'HLT_BTagMu_DiJet20_Mu5_v10',
-      'HLT_BTagMu_DiJet40_Mu5_v10')+cms.vstring( 'HLT_BTagMu_DiJet70_Mu5_v10',
-      'HLT_BTagMu_DiJet110_Mu5_v10',
+      'HLT_BTagMu_DiJet40_Mu5_v10',
+      'HLT_BTagMu_DiJet70_Mu5_v10')+cms.vstring( 'HLT_BTagMu_DiJet110_Mu5_v10',
       'HLT_Mu10_R005_MR200_v1',
       'HLT_Mu10_R025_MR200_v1',
       'HLT_Mu10_R029_MR200_v1',
@@ -32177,7 +32157,6 @@ process.hltPreHLTMONOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_QuadJet40_IsoPFTau40_v12',
       'HLT_QuadJet45_IsoPFTau45_v7',
       'HLT_QuadJet50_Jet40_Jet30_v3',
-      'HLT_QuadJet60_v6',
       'HLT_QuadJet70_v6',
       'HLT_EightJet120_v1',
       'HLT_60Jet10_v1',
@@ -32386,8 +32365,8 @@ process.hltPreHLTMONOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_HT300_DoubleIsoPFTau10_Trk3_PFMHT40_v8',
       'HLT_HT350_DoubleIsoPFTau10_Trk3_PFMHT45_v8',
       'HLT_BTagMu_DiJet20_Mu5_v10',
-      'HLT_BTagMu_DiJet40_Mu5_v10')+cms.vstring( 'HLT_BTagMu_DiJet70_Mu5_v10',
-      'HLT_BTagMu_DiJet110_Mu5_v10',
+      'HLT_BTagMu_DiJet40_Mu5_v10',
+      'HLT_BTagMu_DiJet70_Mu5_v10')+cms.vstring( 'HLT_BTagMu_DiJet110_Mu5_v10',
       'HLT_Mu10_R005_MR200_v1',
       'HLT_Mu10_R025_MR200_v1',
       'HLT_Mu10_R029_MR200_v1',
@@ -32901,7 +32880,6 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_QuadJet40_v7',
   'HLT_QuadJet45_IsoPFTau45_v7',
   'HLT_QuadJet50_Jet40_Jet30_v3',
-  'HLT_QuadJet60_v6',
   'HLT_QuadJet70_v6',
   'HLT_R014_MR150_v7',
   'HLT_R020_MR150_v7',
@@ -33327,7 +33305,6 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_QuadJet40_v7',
   'HLT_QuadJet45_IsoPFTau45_v7',
   'HLT_QuadJet50_Jet40_Jet30_v3',
-  'HLT_QuadJet60_v6',
   'HLT_QuadJet70_v6',
   'HLT_R014_MR150_v7',
   'HLT_R020_MR150_v7',
@@ -33763,7 +33740,6 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_QuadJet40_v7',
   'HLT_QuadJet45_IsoPFTau45_v7',
   'HLT_QuadJet50_Jet40_Jet30_v3',
-  'HLT_QuadJet60_v6',
   'HLT_QuadJet70_v6',
   'HLT_R014_MR150_v7',
   'HLT_R020_MR150_v7',
@@ -34296,7 +34272,6 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_QuadJet40_v7',
   'HLT_QuadJet45_IsoPFTau45_v7',
   'HLT_QuadJet50_Jet40_Jet30_v3',
-  'HLT_QuadJet60_v6',
   'HLT_QuadJet70_v6',
   'HLT_R014_MR150_v7',
   'HLT_R020_MR150_v7',
@@ -34712,7 +34687,6 @@ process.HLT_QuadJet40_v7 = cms.Path( process.HLTBeginSequence + process.hltL1sL1
 process.HLT_QuadJet40_IsoPFTau40_v12 = cms.Path( process.HLTBeginSequence + process.hltL1sL1QuadJet20Central + process.hltPreQuadJet40IsoPFTau40 + process.HLTRecoJetSequenceAK5Corrected + process.hltQuadJet40IsoPFTau40 + process.HLTRecoJetSequencePrePF + process.HLTPFJetTriggerSequenceForTaus + process.HLTPFTauTightIsoSequence + process.hltPFTau5Track + process.hltPFTauTightIsoTrackPt5Discriminator + process.hltSelectedPFTausTightIsoTrackPt5 + process.hltConvPFTausTightIsoTrackPt5 + process.hltPFTau5Track5 + process.hltSelectedPFTausTightIsoTrackPt5Isolation + process.hltConvPFTausTightIsoTrackPt5Isolation + process.hltFilterPFTauTrack5TightIsoL1QuadJet20Central + process.hltFilterPFTauTrack5TightIsoL1QuadJet20CentralPFTau40 + process.HLTEndSequence )
 process.HLT_QuadJet45_IsoPFTau45_v7 = cms.Path( process.HLTBeginSequence + process.hltL1sL1QuadJet20Central + process.hltPreQuadJet45IsoPFTau45 + process.HLTRecoJetSequenceAK5Corrected + process.hltQuadJet45IsoPFTau45 + process.HLTRecoJetSequencePrePF + process.HLTPFJetTriggerSequenceForTaus + process.HLTPFTauTightIsoSequence + process.hltPFTau5Track + process.hltPFTauTightIsoTrackPt5Discriminator + process.hltSelectedPFTausTightIsoTrackPt5 + process.hltConvPFTausTightIsoTrackPt5 + process.hltPFTau5Track5 + process.hltSelectedPFTausTightIsoTrackPt5Isolation + process.hltConvPFTausTightIsoTrackPt5Isolation + process.hltFilterPFTauTrack5TightIsoL1QuadJet20Central + process.hltFilterPFTauTrack5TightIsoL1QuadJet20CentralPFTau45 + process.HLTEndSequence )
 process.HLT_QuadJet50_Jet40_Jet30_v3 = cms.Path( process.HLTBeginSequence + process.hltL1sL1QuadJet20Central + process.hltPreQuadJet50Jet40Jet30 + process.HLTRecoJetSequenceAK5Corrected + process.hltExaJet30Central + process.hltPentaJet40Central + process.hltQuadJet50Central + process.HLTEndSequence )
-process.HLT_QuadJet60_v6 = cms.Path( process.HLTBeginSequence + process.hltL1sL1QuadJet20Central + process.hltPreQuadJet60 + process.HLTRecoJetSequenceAK5Corrected + process.hltQuadJet60 + process.HLTEndSequence )
 process.HLT_QuadJet70_v6 = cms.Path( process.HLTBeginSequence + process.hltL1sL1QuadJet20Central + process.hltPreQuadJet70 + process.HLTRecoJetSequenceAK5Corrected + process.hltQuadJet70 + process.HLTEndSequence )
 process.HLT_EightJet120_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1QuadJet20Central + process.hltPreEightJet120 + process.HLTRecoJetSequenceAK5Corrected + process.hltEightJet120 + process.HLTEndSequence )
 process.HLT_60Jet10_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleForJet32EtaOpp + process.hltPre60Jet10 + process.HLTRecoJetSequenceAK5Corrected + process.hlt60JetpT10 + process.HLTEndSequence )
