@@ -50,7 +50,6 @@ HLT_QuadJet40_v*
 HLT_QuadJet40_IsoPFTau40_v*
 HLT_QuadJet45_IsoPFTau45_v*
 HLT_QuadJet50_Jet40_Jet30_v*
-HLT_QuadJet60_v*
 HLT_QuadJet70_v*
 HLT_EightJet120_v*
 HLT_60Jet10_v*
