@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jul 27 00:58:35 CEST 2011
-// $Id: FWProxyBuilderConfiguration.h,v 1.1 2011/07/30 04:45:25 amraktad Exp $
+// $Id: FWProxyBuilderConfiguration.h,v 1.2 2011/08/10 23:40:21 amraktad Exp $
 //
 
 #include <string>
@@ -56,7 +56,7 @@ public:
    };
 
    FWProxyBuilderConfiguration(const FWConfiguration* c, const FWEventItem* item);
-   virtual ~FWProxyBuilderConfiguration() {}
+   virtual ~FWProxyBuilderConfiguration();
 
    FWParameterBase*  getVarParameter(const std::string& name, FWViewType::EType type = FWViewType::kTypeSize);
 

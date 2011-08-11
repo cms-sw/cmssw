@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jul 27 00:58:43 CEST 2011
-// $Id: FWProxyBuilderConfiguration.cc,v 1.3 2011/08/10 23:40:21 amraktad Exp $
+// $Id: FWProxyBuilderConfiguration.cc,v 1.4 2011/08/11 03:38:19 amraktad Exp $
 //
 
 // system include files
@@ -36,6 +36,12 @@ FWProxyBuilderConfiguration::FWProxyBuilderConfiguration(const FWConfiguration* 
    m_item(item),
    m_styleParameters(0)
 {
+}
+
+FWProxyBuilderConfiguration::~FWProxyBuilderConfiguration()
+{
+   delete m_txtConfig;
+   delete m_styleParameters;
 }
 
 //==============================================================================
