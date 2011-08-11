@@ -563,7 +563,7 @@ if 'GlobalTag' in %%(dict)s:
       emulator = {
         'RawToDigi': '',
         'CustomL1T': '',
-        'CustomHLT': ''.
+        'CustomHLT': ''
       }
 
       if self.config.data:
