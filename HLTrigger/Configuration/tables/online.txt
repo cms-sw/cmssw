@@ -330,9 +330,12 @@ HLT_Mu17_eta2p1_TriCentralJet30_v*                                              
 HLT_Mu17_eta2p1_QuadCentralJet30_v*                                                             #   added in "3e33" menu (sr #122787)
 HLT_Mu17_Ele8_CaloIdL_v*
 HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_v*
-HLT_Mu12_DiCentralJet30_BTagIP3D_v*
-HLT_Mu12_DiCentralJet20_BTagIP3D1stTrack_v*
-HLT_Mu12_DiCentralJet20_DiBTagIP3D1stTrack_v*
+#HLT_Mu12_DiCentralJet30_BTagIP3D_v*                                                            # removed in "3e33" menu (sr #122787)
+#HLT_Mu12_DiCentralJet20_BTagIP3D1stTrack_v*                                                    # removed in "3e33" menu (sr #122787)
+#HLT_Mu12_DiCentralJet20_DiBTagIP3D1stTrack_v*                                                  # removed in "3e33" menu (sr #122787)
+HLT_Mu12_eta2p1_DiCentralJet30_BTagIP3D_v*                                                      #   added in "3e33" menu (sr #122787)
+HLT_Mu12_eta2p1_DiCentralJet20_BTagIP3D1stTrack_v*                                              #   added in "3e33" menu (sr #122787)
+HLT_Mu12_eta2p1_DiCentralJet20_DiBTagIP3D1stTrack_v*                                            #   added in "3e33" menu (sr #122787)
 #HLT_Mu30_HT200_v*                                                                              # removed in "3e33" menu (sr #122069)
 HLT_Mu40_HT200_v*
 HLT_Mu60_HT200_v*
