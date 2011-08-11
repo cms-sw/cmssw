@@ -1,6 +1,6 @@
 <lcgdict>
- <class name="SiPixelRawDataError" ClassVersion="10">
-  <version ClassVersion="10" checksum="3771674238"/>
+ <!-- SiPixelRawDataError cannot have a ClassVersion because it contains platform dependent typedefs -->
+ <class name="SiPixelRawDataError">
    <field name="errorMessage_" transient="true"/>
  </class>
  <class name="std::vector<SiPixelRawDataError>"/>
