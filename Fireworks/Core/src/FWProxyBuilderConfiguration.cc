@@ -8,14 +8,16 @@
 //
 // Original Author:  
 //         Created:  Wed Jul 27 00:58:43 CEST 2011
-// $Id: FWProxyBuilderConfiguration.cc,v 1.2 2011/08/04 09:55:39 yana Exp $
+// $Id: FWProxyBuilderConfiguration.cc,v 1.3 2011/08/10 23:40:21 amraktad Exp $
 //
 
 // system include files
 
 // user include files
 #include <iostream>
+#include <stdexcept>
 #include <boost/bind.hpp>
+
 #include "TGFrame.h"
 
 #include "Fireworks/Core/interface/FWProxyBuilderConfiguration.h"
@@ -77,15 +79,20 @@ FWParameterBase* FWProxyBuilderConfiguration::getVarParameter(const std::string&
          return *i;
    }
 
-   // std::cout << "FWProxyBuilderConfiguration::getVarParameter(). No parameter with name " << name << std::endl;
- 
-   const FWConfiguration* varConfig = m_txtConfig ? m_txtConfig->valueForKey("Var") : 0;
+   //   std::cout << "FWProxyBuilderConfiguration::getVarParameter(). No parameter with name " << name << std::endl;
+   const FWConfiguration* varConfig = m_txtConfig &&  m_txtConfig->keyValues() ? m_txtConfig->valueForKey("Var") : 0;
 
-   // AMT:: the following could be templated
-
+   // AMT:: the following should be templated
    if (m_item->purpose() == "Candidates")
    {
-      FWBoolParameter*  mode = new FWBoolParameter(this, "Mode", false);
+      FWBoolParameter*  mode = new FWBoolParameter(this, name, false);
+      if (varConfig) mode->setFrom(*varConfig);
+      mode->changed_.connect(boost::bind(&FWEventItem::proxyConfigChanged, (FWEventItem*)m_item));
+      return mode;
+   }
+   if (m_item->purpose() == "Vertices")
+   {
+      FWBoolParameter*  mode = new FWBoolParameter(this, name, false);
       if (varConfig) mode->setFrom(*varConfig);
       mode->changed_.connect(boost::bind(&FWEventItem::proxyConfigChanged, (FWEventItem*)m_item));
       return mode;
