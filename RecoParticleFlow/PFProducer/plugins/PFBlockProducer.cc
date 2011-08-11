@@ -104,9 +104,19 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
 
   std::vector<double> DPtovPtCut 
      = iConfig.getParameter<std::vector<double> >("pf_DPtoverPt_Cut");   
+  if (DPtovPtCut.size()!=5)
+    {
+      edm::LogError("MisConfiguration")<<" vector pf_DPtoverPt_Cut has to be of size 5";
+      throw;
+    }
 
   std::vector<unsigned> NHitCut 
      = iConfig.getParameter<std::vector<unsigned> >("pf_NHit_Cut");   
+  if (NHitCut.size()!=5)
+    {
+      edm::LogError("MisConfiguration")<<" vector pf_NHit_Cut has to be of size 5";
+      throw;
+    }
 
   bool useIterTracking
     = iConfig.getParameter<bool>("useIterTracking");
