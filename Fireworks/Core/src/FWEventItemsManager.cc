@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Fri Jan  4 10:38:18 EST 2008
-// $Id: FWEventItemsManager.cc,v 1.42 2011/07/30 04:54:28 amraktad Exp $
+// $Id: FWEventItemsManager.cc,v 1.43 2011/08/09 03:28:16 amraktad Exp $
 //
 
 // system include files
@@ -163,7 +163,7 @@ FWEventItemsManager::addTo(FWConfiguration& iTo) const
        ++it)
    {
       if(!*it) continue;
-      FWConfiguration conf(5);
+      FWConfiguration conf(6);
       ROOT::Reflex::Type dataType( ROOT::Reflex::Type::ByTypeInfo(*((*it)->type()->GetTypeInfo())));
       assert(dataType != ROOT::Reflex::Type() );
 
@@ -261,7 +261,22 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
       std::string purpose(name);
       if (conf.version() > 1)
          purpose = (*keyValues)[8].second.value();
-      
+
+      FWConfiguration* proxyConfig = (FWConfiguration*) conf.valueForKey("PBConfig") ? new FWConfiguration(*conf.valueForKey("PBConfig")) : 0;
+
+      // beckward compatibilty for obsolete proxy builders
+      if (conf.version() < 6)
+      {
+         assert(proxyConfig == 0);
+         if (purpose == "VerticesWithTracks")
+         {
+            purpose = "Vertices";
+            proxyConfig = new FWConfiguration();
+            FWConfiguration vTmp; vTmp.addKeyValue("Draw Tracks", FWConfiguration("1"));
+            proxyConfig->addKeyValue("Var", vTmp,true);
+         }
+      }
+
       FWPhysicsObjectDesc desc(name,
                                TClass::GetClass(type.c_str()),
                                purpose,
@@ -272,8 +287,6 @@ FWEventItemsManager::setFrom(const FWConfiguration& iFrom)
                                filterExpression,
                                layer);
       
-      const FWConfiguration* proxyConfig = conf.valueForKey("PBConfig") ? new FWConfiguration(*conf.valueForKey("PBConfig")) : 0;
-
       add(desc, proxyConfig );
    }
 }
