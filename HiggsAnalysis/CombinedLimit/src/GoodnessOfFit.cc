@@ -125,6 +125,7 @@ bool GoodnessOfFit::runSaturatedModel(RooWorkspace *w, RooStats::ModelConfig *mc
 
   double nll_nominal   = result_nominal->minNll();
   double nll_saturated = result_saturated->minNll();
+  if (fabs(nll_nominal) > 1e10 || fabs(nll_saturated) > 1e10) return false;
   limit = 2*(nll_nominal-nll_saturated);
 
   std::cout << "\n --- GoodnessOfFit --- " << std::endl;
