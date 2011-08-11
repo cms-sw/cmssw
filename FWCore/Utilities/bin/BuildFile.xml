@@ -1,3 +1,6 @@
 <bin   name="edmToFriendlyClassName" file="edmToFriendlyClassName.cc">
   <use   name="FWCore/Utilities"/>
 </bin>
+<bin   name="cms_adler32" file="adler32.c">
+  <use   name="zlib"/>
+</bin>
