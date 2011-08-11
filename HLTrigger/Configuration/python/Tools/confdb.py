@@ -435,6 +435,7 @@ if 'hltPreHLTMONOutputSmart' in %(dict)s:
       self.data = re.compile( r'^datasets.*\n(.*\n)*?^\)\s*\n', re.MULTILINE ).sub( '', self.data )
 
       # fix the definition of module
+      # FIXME: this should be updated to take into accout the --l1-emulator option
       self._fix_parameter(                               type = 'InputTag', value = 'hltL1extraParticles',  replace = 'l1extraParticles')
       self._fix_parameter(name = 'GMTReadoutCollection', type = 'InputTag', value = 'hltGtDigis',           replace = 'gmtDigis')
       self._fix_parameter(                               type = 'InputTag', value = 'hltGtDigis',           replace = 'gtDigis')
@@ -559,20 +560,48 @@ if 'GlobalTag' in %%(dict)s:
     # if requested, run (part of) the L1 emulator
     if self.config.emulator:
       # FIXME this fragment used "process" explicitly
-      # FIXME this fragment implements the "gt" option - the others are missing
+      emulator = {
+        'RawToDigi': '',
+        'CustomL1T': '',
+        'CustomHLT': ''.
+      }
+
+      if self.config.data:
+        emulator['RawToDigi'] = 'RawToDigi_Data_cff'
+      else:
+        emulator['RawToDigi'] = 'RawToDigi_cff'
+
+      if self.config.emulator == 'gt':
+        emulator['CustomL1T'] = 'customiseL1GtEmulatorFromRaw'
+        emulator['CustomHLT'] = 'switchToSimGtDigis'
+      elif self.config.emulator == 'gct,gt':
+        emulator['CustomL1T'] = 'customiseL1CaloAndGtEmulatorsFromRaw'
+        emulator['CustomHLT'] = 'switchToSimGctGtDigis'
+      elif self.config.emulator == 'gmt,gt':
+        # XXX currently unsupported
+        emulator['CustomL1T'] = 'customiseL1MuonAndGtEmulatorsFromRaw'
+        emulator['CustomHLT'] = 'switchToSimGmtGtDigis'
+      elif self.config.emulator in ('gmt,gct,gt', 'gct,gmt,gt', 'all'):
+        emulator['CustomL1T'] = 'customiseL1EmulatorFromRaw'
+        emulator['CustomHLT'] = 'switchToSimGmtGctGtDigis'
+      else:
+        # unsupported argument, default to running the whole emulator
+        emulator['CustomL1T'] = 'customiseL1EmulatorFromRaw'
+        emulator['CustomHLT'] = 'switchToSimGmtGctGtDigis'
+
       self.data += """
 # customize the L1 emulator to run only the GT, and take the GCT and GMT from data
-process.load( 'Configuration.StandardSequences.%s' )
+process.load( 'Configuration.StandardSequences.%(RawToDigi)s' )
 process.load( 'Configuration.StandardSequences.SimL1Emulator_cff' )
 import L1Trigger.Configuration.L1Trigger_custom
-process = L1Trigger.Configuration.L1Trigger_custom.customiseL1GtEmulatorFromRaw( process )
+process = L1Trigger.Configuration.L1Trigger_custom.%(CustomL1T)s( process )
 process = L1Trigger.Configuration.L1Trigger_custom.customiseResetPrescalesAndMasks( process )
 
 # customize the HLT to use the emulated results
 import HLTrigger.Configuration.customizeHLTforL1Emulator
 process = HLTrigger.Configuration.customizeHLTforL1Emulator.switchToL1Emulator( process )
-process = HLTrigger.Configuration.customizeHLTforL1Emulator.switchToSimGtDigis( process )
-""" % ( self.config.data and 'RawToDigi_Data_cff' or 'RawToDigi_cff' )
+process = HLTrigger.Configuration.customizeHLTforL1Emulator.%(CustomHLT)s( process )
+""" % emulator
 
 
   def overrideOutput(self):
