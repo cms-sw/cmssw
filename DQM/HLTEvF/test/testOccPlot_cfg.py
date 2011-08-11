@@ -12,7 +12,8 @@ process.load("DQM.HLTEvF.OccupancyPlotter_cfi")
 
 
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:/data/ndpc0/b/slaunwhj/rawData/June/0091D91D-D19B-E011-BDCE-001D09F2512C.root')
+    #fileNames = cms.untracked.vstring('file:/data/ndpc0/b/slaunwhj/rawData/June/0091D91D-D19B-E011-BDCE-001D09F2512C.root')
+                            fileNames = cms.untracked.vstring('file:/data/ndpc0/c/abrinke1/RAW/170354/SingleMu/08B0697A-B7B0-E011-B0DE-003048D375AA.root')
     #fileNames = cms.untracked.vstring('file:/data/ndpc0/b/slaunwhj/ONLINE/CMSSW_4_2_4_hltpatch1/src/UserCode/slaunwhj/hltTest/outputHLTDQMResults.root')
     #fileNames = cms.untracked.vstring('file:/data/ndpc0/b/slaunwhj/ONLINE/CMSSW_4_2_4_hltpatch1/src/HLTrigger/Configuration/test/outputHLTDQMResults_nAll_newContents.root')
     #fileNames = cms.untracked.vstring('file:/data/ndpc0/b/slaunwhj/ONLINE/CMSSW_4_2_4_hltpatch1/src/HLTrigger/Configuration/test/outputHLTDQMResults_nAll_cosmics_newContents.root')
