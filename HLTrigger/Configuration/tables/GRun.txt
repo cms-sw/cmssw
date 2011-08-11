@@ -448,7 +448,7 @@ HLT_L1Tech_HBHEHO_totalOR_v*
 HLT_L1Tech_HCAL_HF_single_channel_v*
 HLT_ZeroBias_v*
 HLT_Physics_v*
-HLT_Physics_NanoDST_v*
+DST_Physics_v*
 HLT_DTCalibration_v*
 HLT_EcalCalibration_v*
 HLT_HcalCalibration_v*
