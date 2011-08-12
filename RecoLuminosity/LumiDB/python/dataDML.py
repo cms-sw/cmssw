@@ -9,6 +9,86 @@ import array
 #==============================
 # SELECT
 #==============================
+def fillrunMap(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=None,l1keyPattern=None,hltkeyPattern=None,amodetag=None):
+    '''
+    select fillnum,runnum,starttime from cmsrunsummary [where fillnum=:fillnum and runnum>=runmin and runnum<=runmax and amodetag=:amodetag ]
+    output: {fill:[runnum,...]}
+    '''
+    result={}
+    timelesslist=[]
+    qHandle=schema.newQuery()
+    r=nameDealer.cmsrunsummaryTableName()
+    lute=lumiTime.lumiTime()
+    try:
+        qHandle.addToTableList(r)
+        qConditionPieces=[]
+        qConditionStr=''
+        qCondition=coral.AttributeList()        
+        if fillnum:
+            qConditionPieces.append('FILLNUM=:fillnum')
+            qCondition.extend('fillnum','unsigned int')
+            qCondition['fillnum'].setData(int(fillnum))
+        if runmin:
+            qConditionPieces.append('RUNNUM>=:runmin')
+            qCondition.extend('runmin','unsigned int')
+            qCondition['runmin'].setData(runmin)
+        if runmax:
+            qConditionPieces.append('RUNNUM<=:runmax')
+            qCondition.extend('runmax','unsigned int')
+            qCondition['runmax'].setData(runmax)
+        if amodetag:
+            qConditionPieces.append('AMODETAG=:amodetag')
+            qCondition.extend('amodetag','string')
+            qCondition['amodetag'].setData(amodetag)
+        if l1keyPattern:
+            qConditionPieces.append('regexp_like(L1KEY,:l1keypattern)')
+            qCondition.extend('l1keypattern','string')
+            qCondition['l1keypattern'].setData(l1keyPattern)
+        if hltkeyPattern:
+            qConditionPieces.append('regexp_like(HLTKEY,:hltkeypattern)')
+            qCondition.extend('hltkeypattern','string')
+            qCondition['hltkeypattern'].setData(hltkeyPattern)
+        if len(qConditionPieces)!=0:
+            qConditionStr=(' AND ').join(qConditionPieces)        
+        qResult=coral.AttributeList()
+        qResult.extend('fillnum','unsigned int')
+        qResult.extend('runnum','unsigned int')
+        qResult.extend('starttime','string')
+        qHandle.defineOutput(qResult)
+        if len(qConditionStr) !=0:
+            qHandle.setCondition(qConditionStr,qCondition)
+        qHandle.addToOutputList('FILLNUM','fillnum')    
+        qHandle.addToOutputList('RUNNUM','runnum')
+        qHandle.addToOutputList('TO_CHAR('+r+'.STARTTIME,\'MM/DD/YY HH24:MI:SS\')','starttime')
+        cursor=qHandle.execute()        
+        while cursor.next():
+            currentfill=cursor.currentRow()['fillnum'].data()
+            starttimeStr=cursor.currentRow()['starttime'].data()
+            runnum=cursor.currentRow()['runnum'].data()
+            runTime=lute.StrToDatetime(starttimeStr,customfm='%m/%d/%y %H:%M:%S')
+            minTime=None
+            maxTime=None
+            if startT and stopT:
+                minTime=lute.StrToDatetime(startT,customfm='%m/%d/%y %H:%M:%S')
+                maxTime=lute.StrToDatetime(stopT,customfm='%m/%d/%y %H:%M:%S')                
+                if runTime>=minTime and runTime<=maxTime:
+                    result.setdefault(currentfill,[]).append(runnum)
+            elif startT is not None:
+                minTime=lute.StrToDatetime(startT,customfm='%m/%d/%y %H:%M:%S')
+                if runTime>=minTime:
+                    result.setdefault(currentfill,[]).append(runnum)
+            elif stopT is not None:
+                maxTime=lute.StrToDatetime(stopT,customfm='%m/%d/%y %H:%M:%S')
+                if runTime<=maxTime:
+                    result.setdefault(currentfill,[]).append(runnum)
+            else:                
+                result.setdefault(currentfill,[]).append(runnum)
+    except :
+        del qHandle
+        raise
+    del qHandle
+    return result
+    
 def runList(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=None,l1keyPattern=None,hltkeyPattern=None,amodetag=None,nominalEnergy=None,energyFlut=0.2,requiretrg=True,requirehlt=True):
     '''
     select runnum,starttime from cmsrunsummary r,lumidata l,trgdata t,hltdata h where r.runnum=l.runnum and l.runnum=t.runnum and t.runnum=h.runnum and r.fillnum=:fillnum and r.runnum>:runmin and r.runnum<:runmax and r.amodetag=:amodetag and regexp_like(r.l1key,:l1keypattern) and regexp_like(hltkey,:hltkeypattern) and l.nominalEnergy>=:nominalEnergy*(1-energyFlut) and l.nominalEnergy<=:nominalEnergy*(1+energyFlut)
@@ -44,22 +124,6 @@ def runList(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=None,l
             qConditionStr+=' and '+r+'.runnum<=:runmax'
             qCondition.extend('runmax','unsigned int')
             qCondition['runmax'].setData(runmax)
-        #if startT:
-        #    timeformat='%m/%d/%y %H:%M:%S'
-        #    qConditionStr+=' and '+r+'.starttime>=:startT'
-        #    qCondition.extend('startT','time stamp')
-        #    t=lumiTime.lumiTime()
-        #    start=t.StrToDatetime(startT,customfm=timeformat)
-        #    startCoralTimestamp=coral.TimeStamp(start.year,start.month,start.day,start.hour,start.minute,start.second,0)
-        #    qCondition['startT'].setData(startCoralTimestamp)            
-        #if stopT:
-        #    timeformat='%m/%d/%y %H:%M:%S'
-        #    qConditionStr+=' and '+r+'.stoptime<=:stopT'            
-        #    qCondition.extend('stopT','time stamp')
-        #    t=lumiTime.lumiTime()
-        #    stop=t.StrToDatetime(stopT,customfm=timeformat)
-        #    stopCoralTimestamp=coral.TimeStamp(stop.year,stop.month,stop.day,stop.hour,stop.minute,stop.second,0)
-        #    qCondition['stopT'].setData(stopCoralTimestamp)
         if amodetag:
             qConditionStr+=' and '+r+'.amodetag=:amodetag'
             qCondition.extend('amodetag','string')
@@ -892,8 +956,11 @@ def guessLumiDataIdByRun(schema,runnum):
         del qHandle
         raise 
     del qHandle
-    result=max(lumiids)
-    return result
+    if not lumiids:
+        return None
+    else:
+        result=max(lumiids)
+        return result
 
 def guessTrgDataIdByRun(schema,runnum):
     result=None

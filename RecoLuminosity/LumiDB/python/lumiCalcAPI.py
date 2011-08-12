@@ -26,7 +26,16 @@ def _decidenormForRun(schema,run):
     normresult=dataDML.luminormById(schema,normdataid)
     return normresult[2]
 #public functions
+def fillrunMap(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=None,l1keyPattern=None,hltkeyPattern=None,amodetag=None):
+    '''
+    output: {fill:[runnum,...]}
+    '''
+    return dataDML.fillrunMap(schema,fillnum=fillnum,runmin=runmin,runmax=runmax,startT=startT,stopT=stopT,l1keyPattern=l1keyPattern,hltkeyPattern=hltkeyPattern,amodetag=amodetag)
+             
 def runList(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=None,l1keyPattern=None,hltkeyPattern=None,amodetag=None,nominalEnergy=None,energyFlut=0.2,requiretrg=True,requirehlt=True):
+    '''
+    output: [runnumber,...]
+    '''
     return dataDML.runList(schema,fillnum,runmin,runmax,startT,stopT,l1keyPattern,hltkeyPattern,amodetag,nominalEnergy,energyFlut,requiretrg,requirehlt)
 
 def lslengthsec(numorbit, numbx):
@@ -207,7 +216,7 @@ def instLumiForRange(schema,inputRange,beamstatusfilter=None,withBXInfo=False,bx
     DIRECTLY FROM ROOT FIME NO CORRECTION AT ALL 
     lumi raw data. beofore normalization and time integral
     input:
-           inputRange  {lumidataid:[cmsls]} (required)
+           inputRange  {run:[cmsls]} (required)
            beamstatus: LS filter on beamstatus (optional)
            withBXInfo: get per bunch info (optional)
            bxAlgo: algoname for bx values (optional) ['OCC1','OCC2','ET']
@@ -248,6 +257,7 @@ def instLumiForRange(schema,inputRange,beamstatusfilter=None,withBXInfo=False,bx
             instlumierr=perlsdata[2]
             beamstatus=perlsdata[4]
             beamenergy=perlsdata[5]
+            bxidxlist=[]
             bxvaluelist=[]
             bxerrorlist=[]
             bxdata=None
