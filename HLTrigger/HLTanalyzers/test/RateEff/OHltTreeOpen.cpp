@@ -8607,15 +8607,15 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 	
  //------ 3E33 ------//
   
-  //Ele20 - TighterEleIdIsol - CaloJetCor pT 35 25 - Deta 3 + Third Jet 20
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele20_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3_Jet20") == 0) {
+  //Ele27 - TighterEleIdIsol - CaloJetCor pT 35 25 - Deta 3 + Third Jet 20
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3_Jet20") == 0) {
     if (map_L1BitOfStandardHLTPath.find(triggerName)->second == 1)
       {
 	if (prescaleResponse(menu, cfg, rcounter, it) )
 	  {
 	    int EtMaxIt = -1;
 	    std::vector<int> EleIts;
-	    if (OpenHlt1ElectronVbfEleIDPassed(20., 12., true, EtMaxIt, &EleIts)
+	    if (OpenHlt1ElectronVbfEleIDPassed(27., 20., true, EtMaxIt, &EleIts)
 		>= 1)
 	      {
 		if (OpenHltCleanedTriJetPassed(
@@ -8636,15 +8636,15 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
       }
   }
 
-  //Ele22 - TighterEleIdIsol - CaloJetCor pT 35 25 - Deta 3.5 + Third Jet 25 - backup
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele22_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3p5_Jet25") == 0) {
+  //Ele30 - TighterEleIdIsol - CaloJetCor pT 35 25 - Deta 3.5 + Third Jet 25 - backup
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele30_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3p5_Jet25") == 0) {
     if (map_L1BitOfStandardHLTPath.find(triggerName)->second == 1)
       {
 	if (prescaleResponse(menu, cfg, rcounter, it) )
 	  {
 	    int EtMaxIt = -1;
 	    std::vector<int> EleIts;
-	    if (OpenHlt1ElectronVbfEleIDPassed(22., 12., true, EtMaxIt, &EleIts)
+	    if (OpenHlt1ElectronVbfEleIDPassed(30., 20., true, EtMaxIt, &EleIts)
 		>= 1)
 	      {
 		if (OpenHltCleanedTriJetPassed(
@@ -8665,15 +8665,15 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
       }
   }
 
-  //Ele20 - TighterEleId NO Isol - CaloJetCor pT 35 25 - Deta 3 + Third Jet 20 - background
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele20_CaloIdVT_TrkIdT_Jet35_Jet25_Deta3_Jet20") == 0) {
+  //Ele27 - TighterEleId NO Isol - CaloJetCor pT 35 25 - Deta 3 + Third Jet 20 - background
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele27_CaloIdVT_TrkIdT_Jet35_Jet25_Deta3_Jet20") == 0) {
     if (map_L1BitOfStandardHLTPath.find(triggerName)->second == 1)
       {
 	if (prescaleResponse(menu, cfg, rcounter, it) )
 	  {
 	    int EtMaxIt = -1;
 	    std::vector<int> EleIts;
-            if (OpenHlt1ElectronVbfEleIDPassed(20., 12., false, EtMaxIt, &EleIts)
+            if (OpenHlt1ElectronVbfEleIDPassed(27., 20., false, EtMaxIt, &EleIts)
 		>= 1)
 	      {
 		if (OpenHltCleanedTriJetPassed(
@@ -8706,7 +8706,7 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 	    int EtMaxIt = -1;
 	    std::vector<int> EleIts;
 	    if (pfMHT > 20. &&
-		OpenHlt1ElectronVbfEleIDPassed(27., 12., true, EtMaxIt, &EleIts)
+		OpenHlt1ElectronVbfEleIDPassed(27., 20., true, EtMaxIt, &EleIts)
 		>= 1)
 	      {
 		if (OpenHltCleanedDiJetPassed(
@@ -8735,7 +8735,7 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 	    int EtMaxIt = -1;
 	    std::vector<int> EleIts;
 	    if (pfMHT > 25. &&
-		OpenHlt1ElectronVbfEleIDPassed(30., 12., true, EtMaxIt, &EleIts)
+		OpenHlt1ElectronVbfEleIDPassed(30., 20., true, EtMaxIt, &EleIts)
 		>= 1)
 	      {
 		if (OpenHltCleanedDiJetPassed(
@@ -8763,7 +8763,7 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 	  {
 	    int EtMaxIt = -1;
 	    std::vector<int> EleIts;
-	    if (OpenHlt1ElectronVbfEleIDPassed(27., 12., true, EtMaxIt, &EleIts)
+	    if (OpenHlt1ElectronVbfEleIDPassed(27., 20., true, EtMaxIt, &EleIts)
 		>= 1)
 	      {
 		if (OpenHltCleanedDiJetPassed(
@@ -8791,7 +8791,7 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 	  {
 	    int EtMaxIt = -1;
 	    std::vector<int> EleIts;
-	    if (OpenHlt1ElectronVbfEleIDPassed(27., 12., false, EtMaxIt, &EleIts)
+	    if (OpenHlt1ElectronVbfEleIDPassed(27., 20., false, EtMaxIt, &EleIts)
 		>= 1)
 	      {
 		if (OpenHltCleanedDiJetPassed(
@@ -21052,8 +21052,3 @@ int OHltTree::OpenHlt3MuonOSMassVtxPassed(
     }
   return rc;
 }
-
-
-
-
-
