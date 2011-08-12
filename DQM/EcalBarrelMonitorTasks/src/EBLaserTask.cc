@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2010/07/30 05:40:22 $
- * $Revision: 1.131 $
+ * $Date: 2011/08/12 15:57:13 $
+ * $Revision: 1.132.4.1 $
  * \author G. Della Ricca
  *
 */
@@ -89,6 +89,11 @@ EBLaserTask::EBLaserTask(const edm::ParameterSet& ps){
     mePnAmplMapG16L4_[i] = 0;
     mePnPedMapG16L4_[i] = 0;
   }
+
+  meAmplSummaryMapL1_ = 0;
+  meAmplSummaryMapL2_ = 0;
+  meAmplSummaryMapL3_ = 0;
+  meAmplSummaryMapL4_ = 0;
 
 }
 
@@ -183,6 +188,11 @@ void EBLaserTask::reset(void) {
     }
   }
 
+  if( meAmplSummaryMapL1_ ) meAmplSummaryMapL1_->Reset();
+  if( meAmplSummaryMapL2_ ) meAmplSummaryMapL2_->Reset();
+  if( meAmplSummaryMapL3_ ) meAmplSummaryMapL3_->Reset();
+  if( meAmplSummaryMapL4_ ) meAmplSummaryMapL4_->Reset();
+
 }
 
 void EBLaserTask::setup(void){
@@ -190,6 +200,7 @@ void EBLaserTask::setup(void){
   init_ = true;
 
   char histo[200];
+  std::string name;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EBLaserTask");
@@ -221,6 +232,11 @@ void EBLaserTask::setup(void){
         dqmStore_->tag(meAmplPNMapL1_[i], i+1);
       }
 
+      name = "EBLT amplitude map L1";
+      meAmplSummaryMapL1_ = dqmStore_->bookProfile2D(name, name, 72, 0., 360., 34, -85., 85., 0., 4096.);
+      meAmplSummaryMapL1_->setAxisTitle("jphi", 1);
+      meAmplSummaryMapL1_->setAxisTitle("jeta", 2);
+
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
@@ -249,6 +265,11 @@ void EBLaserTask::setup(void){
         meAmplPNMapL2_[i]->setAxisTitle("iphi", 2);
         dqmStore_->tag(meAmplPNMapL2_[i], i+1);
       }
+
+      name = "EBLT amplitude map L2";
+      meAmplSummaryMapL2_ = dqmStore_->bookProfile2D(name, name, 72, 0., 360., 34, -85., 85., 0., 4096.);
+      meAmplSummaryMapL2_->setAxisTitle("jphi", 1);
+      meAmplSummaryMapL2_->setAxisTitle("jeta", 2);
 
     }
 
@@ -279,6 +300,11 @@ void EBLaserTask::setup(void){
         dqmStore_->tag(meAmplPNMapL3_[i], i+1);
       }
 
+      name = "EBLT amplitude map L3";
+      meAmplSummaryMapL3_ = dqmStore_->bookProfile2D(name, name, 72, 0., 360., 34, -85., 85., 0., 4096.);
+      meAmplSummaryMapL3_->setAxisTitle("jphi", 1);
+      meAmplSummaryMapL3_->setAxisTitle("jeta", 2);
+
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
@@ -307,6 +333,11 @@ void EBLaserTask::setup(void){
         meAmplPNMapL4_[i]->setAxisTitle("iphi", 2);
         dqmStore_->tag(meAmplPNMapL4_[i], i+1);
       }
+
+      name = "EBLT amplitude map L4";
+      meAmplSummaryMapL4_ = dqmStore_->bookProfile2D(name, name, 72, 0., 360., 34, -85., 85., 0., 4096.);
+      meAmplSummaryMapL4_->setAxisTitle("jphi", 1);
+      meAmplSummaryMapL4_->setAxisTitle("jeta", 2);
 
     }
 
@@ -469,6 +500,8 @@ void EBLaserTask::cleanup(void){
         if ( meAmplPNMapL1_[i] ) dqmStore_->removeElement( meAmplPNMapL1_[i]->getName() );
         meAmplPNMapL1_[i] = 0;
       }
+      if( meAmplSummaryMapL1_ ) dqmStore_->removeElement( meAmplSummaryMapL1_->getName() );
+      meAmplSummaryMapL1_ = 0;
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
@@ -483,6 +516,8 @@ void EBLaserTask::cleanup(void){
         if ( meAmplPNMapL2_[i] ) dqmStore_->removeElement( meAmplPNMapL2_[i]->getName() );
         meAmplPNMapL2_[i] = 0;
       }
+      if( meAmplSummaryMapL2_ ) dqmStore_->removeElement( meAmplSummaryMapL2_->getName() );
+      meAmplSummaryMapL2_ = 0;
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
@@ -497,6 +532,8 @@ void EBLaserTask::cleanup(void){
         if ( meAmplPNMapL3_[i] ) dqmStore_->removeElement( meAmplPNMapL3_[i]->getName() );
         meAmplPNMapL3_[i] = 0;
       }
+      if( meAmplSummaryMapL3_ ) dqmStore_->removeElement( meAmplSummaryMapL3_->getName() );
+      meAmplSummaryMapL3_ = 0;
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
@@ -511,6 +548,8 @@ void EBLaserTask::cleanup(void){
         if ( meAmplPNMapL4_[i] ) dqmStore_->removeElement( meAmplPNMapL4_[i]->getName() );
         meAmplPNMapL4_[i] = 0;
       }
+      if( meAmplSummaryMapL4_ ) dqmStore_->removeElement( meAmplSummaryMapL4_->getName() );
+      meAmplSummaryMapL4_ = 0;
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
@@ -837,6 +876,7 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       MonitorElement* meAmplMap = 0;
       MonitorElement* meTimeMap = 0;
       MonitorElement* meAmplPNMap = 0;
+      MonitorElement* meAmplSummaryMap = 0;
 
       if ( rtHalf[ism-1] == 0 || rtHalf[ism-1] == 1 ) {
 
@@ -844,21 +884,25 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
           meAmplMap = meAmplMapL1_[ism-1];
           meTimeMap = meTimeMapL1_[ism-1];
           meAmplPNMap = meAmplPNMapL1_[ism-1];
+	  meAmplSummaryMap = meAmplSummaryMapL1_;
         }
         if ( waveLength[ism-1] == 1 ) {
           meAmplMap = meAmplMapL2_[ism-1];
           meTimeMap = meTimeMapL2_[ism-1];
           meAmplPNMap = meAmplPNMapL2_[ism-1];
+	  meAmplSummaryMap = meAmplSummaryMapL2_;
         }
         if ( waveLength[ism-1] == 2 ) {
           meAmplMap = meAmplMapL3_[ism-1];
           meTimeMap = meTimeMapL3_[ism-1];
           meAmplPNMap = meAmplPNMapL3_[ism-1];
+	  meAmplSummaryMap = meAmplSummaryMapL3_;
         }
         if ( waveLength[ism-1] == 3 ) {
           meAmplMap = meAmplMapL4_[ism-1];
           meTimeMap = meTimeMapL4_[ism-1];
           meAmplPNMap = meAmplPNMapL4_[ism-1];
+	  meAmplSummaryMap = meAmplSummaryMapL4_;
         }
 
       } else {
@@ -897,6 +941,11 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
 
       if ( meAmplPNMap ) meAmplPNMap->Fill(xie, xip, wval);
+
+      float xjp = id.iphi() - 0.5;
+      float xje = id.ieta() - 0.5 * id.zside();
+
+      if( meAmplSummaryMap ) meAmplSummaryMap->Fill(xjp, xje, xval);
 
     }
 

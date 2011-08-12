@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2010/08/08 08:46:09 $
- * $Revision: 1.73 $
+ * $Date: 2011/08/12 15:57:34 $
+ * $Revision: 1.74.4.1 $
  * \author G. Della Ricca
  *
 */
@@ -88,6 +88,13 @@ EELaserTask::EELaserTask(const edm::ParameterSet& ps){
     mePnPedMapG01L4_[i] = 0;
     mePnAmplMapG16L4_[i] = 0;
     mePnPedMapG16L4_[i] = 0;
+  }
+
+  for(int i=0; i<2; i++){
+    meAmplSummaryMapL1_[i] = 0;
+    meAmplSummaryMapL2_[i] = 0;
+    meAmplSummaryMapL3_[i] = 0;
+    meAmplSummaryMapL4_[i] = 0;
   }
 
 }
@@ -185,6 +192,13 @@ void EELaserTask::reset(void) {
 
   }
 
+  for(int i=0; i<2; i++){
+    if( meAmplSummaryMapL1_[i] ) meAmplSummaryMapL1_[i]->Reset();
+    if( meAmplSummaryMapL2_[i] ) meAmplSummaryMapL2_[i]->Reset();
+    if( meAmplSummaryMapL3_[i] ) meAmplSummaryMapL3_[i]->Reset();
+    if( meAmplSummaryMapL4_[i] ) meAmplSummaryMapL4_[i]->Reset();
+  }
+
 }
 
 void EELaserTask::setup(void){
@@ -192,6 +206,7 @@ void EELaserTask::setup(void){
   init_ = true;
 
   char histo[200];
+  std::string name;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EELaserTask");
@@ -226,6 +241,16 @@ void EELaserTask::setup(void){
         dqmStore_->tag(meAmplPNMapL1_[i], i+1);
       }
 
+      name = "EELT amplitude map L1 EE -";
+      meAmplSummaryMapL1_[0] = dqmStore_->bookProfile2D(name, name, 20, 0., 100., 20, 0., 100., 0., 4096.);
+      meAmplSummaryMapL1_[0]->setAxisTitle("ix", 1);
+      meAmplSummaryMapL1_[0]->setAxisTitle("iy", 2);
+
+      name = "EELT amplitude map L1 EE +";
+      meAmplSummaryMapL1_[1] = dqmStore_->bookProfile2D(name, name, 20, 0., 100., 20, 0., 100., 0., 4096.);
+      meAmplSummaryMapL1_[1]->setAxisTitle("ix", 1);
+      meAmplSummaryMapL1_[1]->setAxisTitle("iy", 2);
+
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
@@ -257,6 +282,16 @@ void EELaserTask::setup(void){
         meAmplPNMapL2_[i]->setAxisTitle("iy", 2);
         dqmStore_->tag(meAmplPNMapL2_[i], i+1);
       }
+
+      name = "EELT amplitude map L2 EE -";
+      meAmplSummaryMapL2_[0] = dqmStore_->bookProfile2D(name, name, 20, 0., 100., 20, 0., 100., 0., 4096.);
+      meAmplSummaryMapL2_[0]->setAxisTitle("ix", 1);
+      meAmplSummaryMapL2_[0]->setAxisTitle("iy", 2);
+
+      name = "EELT amplitude map L2 EE +";
+      meAmplSummaryMapL2_[1] = dqmStore_->bookProfile2D(name, name, 20, 0., 100., 20, 0., 100., 0., 4096.);
+      meAmplSummaryMapL2_[1]->setAxisTitle("ix", 1);
+      meAmplSummaryMapL2_[1]->setAxisTitle("iy", 2);
 
     }
 
@@ -291,6 +326,16 @@ void EELaserTask::setup(void){
         dqmStore_->tag(meAmplPNMapL3_[i], i+1);
       }
 
+      name = "EELT amplitude map L3 EE -";
+      meAmplSummaryMapL3_[0] = dqmStore_->bookProfile2D(name, name, 20, 0., 100., 20, 0., 100., 0., 4096.);
+      meAmplSummaryMapL3_[0]->setAxisTitle("ix", 1);
+      meAmplSummaryMapL3_[0]->setAxisTitle("iy", 2);
+
+      name = "EELT amplitude map L3 EE +";
+      meAmplSummaryMapL3_[1] = dqmStore_->bookProfile2D(name, name, 20, 0., 100., 20, 0., 100., 0., 4096.);
+      meAmplSummaryMapL3_[1]->setAxisTitle("ix", 1);
+      meAmplSummaryMapL3_[1]->setAxisTitle("iy", 2);
+
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
@@ -322,6 +367,16 @@ void EELaserTask::setup(void){
         meAmplPNMapL4_[i]->setAxisTitle("iy", 2);
         dqmStore_->tag(meAmplPNMapL4_[i], i+1);
       }
+
+      name = "EELT amplitude map L4 EE -";
+      meAmplSummaryMapL4_[0] = dqmStore_->bookProfile2D(name, name, 20, 0., 100., 20, 0., 100., 0., 4096.);
+      meAmplSummaryMapL4_[0]->setAxisTitle("ix", 1);
+      meAmplSummaryMapL4_[0]->setAxisTitle("iy", 2);
+
+      name = "EELT amplitude map L4 EE +";
+      meAmplSummaryMapL4_[1] = dqmStore_->bookProfile2D(name, name, 20, 0., 100., 20, 0., 100., 0., 4096.);
+      meAmplSummaryMapL4_[1]->setAxisTitle("ix", 1);
+      meAmplSummaryMapL4_[1]->setAxisTitle("iy", 2);
 
     }
 
@@ -486,6 +541,8 @@ void EELaserTask::cleanup(void){
         meAmplPNMapL1_[i] = 0;
       }
 
+      for(int i=0; i<2; i++)
+	if( meAmplSummaryMapL1_[i] ) dqmStore_->removeElement( meAmplSummaryMapL1_[i]->getName() );
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
@@ -501,6 +558,9 @@ void EELaserTask::cleanup(void){
         if ( meAmplPNMapL2_[i] ) dqmStore_->removeElement( meAmplPNMapL2_[i]->getName() );
         meAmplPNMapL2_[i] = 0;
       }
+
+      for(int i=0; i<2; i++)
+	if( meAmplSummaryMapL2_[i] ) dqmStore_->removeElement( meAmplSummaryMapL2_[i]->getName() );
 
     }
 
@@ -518,6 +578,9 @@ void EELaserTask::cleanup(void){
         meAmplPNMapL3_[i] = 0;
       }
 
+      for(int i=0; i<2; i++)
+	if( meAmplSummaryMapL3_[i] ) dqmStore_->removeElement( meAmplSummaryMapL3_[i]->getName() );
+
     }
 
     if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
@@ -533,6 +596,9 @@ void EELaserTask::cleanup(void){
         if ( meAmplPNMapL4_[i] ) dqmStore_->removeElement( meAmplPNMapL4_[i]->getName() );
         meAmplPNMapL4_[i] = 0;
       }
+
+      for(int i=0; i<2; i++)
+	if( meAmplSummaryMapL4_[i] ) dqmStore_->removeElement( meAmplSummaryMapL4_[i]->getName() );
 
     }
 
@@ -867,10 +933,16 @@ void EELaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
       int ix = id.ix();
       int iy = id.iy();
+      int iz;
 
       int ism = Numbers::iSM( id );
 
-      if ( ism >= 1 && ism <= 9 ) ix = 101 - ix;
+      if ( ism >= 1 && ism <= 9 ){
+	ix = 101 - ix;
+	iz = 0;
+      }else{
+	iz = 1;
+      }
 
       float xix = ix - 0.5;
       float xiy = iy - 0.5;
@@ -883,6 +955,7 @@ void EELaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       MonitorElement* meAmplMap = 0;
       MonitorElement* meTimeMap = 0;
       MonitorElement* meAmplPNMap = 0;
+      MonitorElement* meAmplSummaryMap = 0;
 
       if ( rtHalf[ism-1] == 0 || rtHalf[ism-1] == 1 ) {
 
@@ -890,21 +963,25 @@ void EELaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
           meAmplMap = meAmplMapL1_[ism-1];
           meTimeMap = meTimeMapL1_[ism-1];
           meAmplPNMap = meAmplPNMapL1_[ism-1];
+	  meAmplSummaryMap = meAmplSummaryMapL1_[iz];
         }
         if ( waveLength[ism-1] == 1 ) {
           meAmplMap = meAmplMapL2_[ism-1];
           meTimeMap = meTimeMapL2_[ism-1];
           meAmplPNMap = meAmplPNMapL2_[ism-1];
+	  meAmplSummaryMap = meAmplSummaryMapL2_[iz];
         }
         if ( waveLength[ism-1] == 2 ) {
           meAmplMap = meAmplMapL3_[ism-1];
           meTimeMap = meTimeMapL3_[ism-1];
           meAmplPNMap = meAmplPNMapL3_[ism-1];
+	  meAmplSummaryMap = meAmplSummaryMapL3_[iz];
         }
         if ( waveLength[ism-1] == 3 ) {
           meAmplMap = meAmplMapL4_[ism-1];
           meTimeMap = meTimeMapL4_[ism-1];
           meAmplPNMap = meAmplPNMapL4_[ism-1];
+	  meAmplSummaryMap = meAmplSummaryMapL4_[iz];
         }
 
       } else {
@@ -938,6 +1015,8 @@ void EELaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       }
 
       if ( meAmplPNMap ) meAmplPNMap->Fill(xix, xiy, wval);
+
+      if( meAmplSummaryMap ) meAmplSummaryMap->Fill(xix, xiy, xval);
 
     }
 
