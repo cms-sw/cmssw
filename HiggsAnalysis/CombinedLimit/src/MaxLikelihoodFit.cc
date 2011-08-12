@@ -4,6 +4,10 @@
 #include "RooRandom.h"
 #include "RooDataSet.h"
 #include "RooFitResult.h"
+#include "RooSimultaneous.h"
+#include "RooAddPdf.h"
+#include "RooProdPdf.h"
+#include "RooConstVar.h"
 #include "RooPlot.h"
 #include "TCanvas.h"
 #include "TStyle.h"
@@ -30,6 +34,7 @@ std::string MaxLikelihoodFit::out_ = ".";
 bool        MaxLikelihoodFit::makePlots_ = false;
 std::string MaxLikelihoodFit::signalPdfNames_     = "*signal*";
 std::string MaxLikelihoodFit::backgroundPdfNames_ = "*background*";
+bool        MaxLikelihoodFit::saveNormalizations_ = false;
 
 
 MaxLikelihoodFit::MaxLikelihoodFit() :
@@ -45,6 +50,7 @@ MaxLikelihoodFit::MaxLikelihoodFit() :
         ("plots",              "Make plots")
         ("signalPdfNames",     boost::program_options::value<std::string>(&signalPdfNames_)->default_value(signalPdfNames_), "Names of signal pdfs in plots (separated by ,)")
         ("backgroundPdfNames", boost::program_options::value<std::string>(&backgroundPdfNames_)->default_value(backgroundPdfNames_), "Names of background pdfs in plots (separated by ',')")
+        ("saveNormalizations",  "Save post-fit normalizations of all components of the pdfs")
     ;
 }
 
@@ -52,6 +58,7 @@ void MaxLikelihoodFit::applyOptions(const boost::program_options::variables_map 
 {
     makePlots_ = vm.count("plots");
     name_ = vm["name"].defaulted() ?  std::string() : vm["name"].as<std::string>();
+    saveNormalizations_  = vm.count("saveNormalizations");
 }
 
 bool MaxLikelihoodFit::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double &limit, double &limitErr, const double *hint) { 
@@ -127,6 +134,13 @@ bool MaxLikelihoodFit::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
           }
       }
 
+      if (saveNormalizations_) {
+          RooArgSet *norms = new RooArgSet();
+          norms->setName("norm_fit_b");
+          getNormalizations(mc_s->GetPdf(), *mc_s->GetObservables(), *norms);
+          fitOut->WriteTObject(norms, "norm_fit_b");
+      }
+
       TH2 *corr = res_b->correlationHist();
       c1->SetLeftMargin(0.25);  c1->SetBottomMargin(0.25);
       corr->SetTitle("Correlation matrix of fit parameters");
@@ -165,6 +179,12 @@ bool MaxLikelihoodFit::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
           }
       }
 
+      if (saveNormalizations_) {
+          RooArgSet *norms = new RooArgSet();
+          norms->setName("norm_fit_s");
+          getNormalizations(mc_s->GetPdf(), *mc_s->GetObservables(), *norms);
+          fitOut->WriteTObject(norms, "norm_fit_s");
+      }
 
       TH2 *corr = res_s->correlationHist();
       c1->SetLeftMargin(0.25);  c1->SetBottomMargin(0.25);
@@ -204,4 +224,33 @@ bool MaxLikelihoodFit::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
   return res_s != 0;
 }
 
-
+void MaxLikelihoodFit::getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, RooArgSet &out) {
+    RooSimultaneous *sim = dynamic_cast<RooSimultaneous *>(pdf);
+    if (sim != 0) {
+        RooAbsCategoryLValue &cat = const_cast<RooAbsCategoryLValue &>(sim->indexCat());
+        for (int i = 0, n = cat.numBins((const char *)0); i < n; ++i) {
+            cat.setBin(i);
+            RooAbsPdf *pdfi = sim->getPdf(cat.getLabel());
+            if (pdfi) getNormalizations(pdfi, obs, out);
+        }        
+        return;
+    }
+    RooProdPdf *prod = dynamic_cast<RooProdPdf *>(pdf);
+    if (prod != 0) {
+        RooArgList list(prod->pdfList());
+        for (int i = 0, n = list.getSize(); i < n; ++i) {
+            RooAbsPdf *pdfi = (RooAbsPdf *) list.at(i);
+            if (pdfi->dependsOn(obs)) getNormalizations(pdfi, obs, out);
+        }
+        return;
+    }
+    RooAddPdf *add = dynamic_cast<RooAddPdf *>(pdf);
+    if (add != 0) {
+        RooArgList list(add->coefList());
+        for (int i = 0, n = list.getSize(); i < n; ++i) {
+            RooAbsReal *coeff = (RooAbsReal *) list.at(i);
+            out.addOwned(*(new RooConstVar(coeff->GetName(), "", coeff->getVal())));
+        }
+        return;
+    }
+}

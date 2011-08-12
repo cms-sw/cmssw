@@ -34,6 +34,9 @@ protected:
   static std::string out_; 
   static bool        makePlots_;
   static std::string signalPdfNames_, backgroundPdfNames_;
+  static bool        saveNormalizations_;
+
+  void getNormalizations(RooAbsPdf *pdf, const RooArgSet &obs, RooArgSet &out);
 };
 
 

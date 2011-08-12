@@ -8,7 +8,7 @@
 #include <TFile.h>
 #include <TGraphAsymmErrors.h>
 #include <Math/ProbFunc.h>
-
+#include <Math/QuantFuncMathCore.h>
 
 // Maritz-Jarrett, JASA vol. 73 (1978)
 // http://www.itl.nist.gov/div898/software/dataplot/refman2/auxillar/quantse.htm
@@ -29,7 +29,7 @@ double quantErr(size_t n, double *vals, double q) {
     return sqrt(c2 - c1*c1);
 }
 
-enum BandType { Mean, Median, Quantile, Observed, Asimov, CountToys, MeanCPUTime, AdHoc };
+enum BandType { Mean, Median, Quantile, Observed, Asimov, CountToys, MeanCPUTime, AdHoc, ObsQuantile };
 double band_safety_crop = 0; 
 bool use_precomputed_quantiles = false; 
 bool zero_is_valid = false;
@@ -70,16 +70,18 @@ TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType t
 
     std::map<int,std::vector<double> >  dataset;
     std::map<int,std::vector<double> >  errors;
+    std::map<int,double>                obsValues;
     for (size_t i = 0, n = t->GetEntries(); i < n; ++i) {
         t->GetEntry(i);
+        iMass = int(mass*10);
         //printf("%6d mh=%.1f  limit=%8.3f +/- %8.3f toy=%5d quant=% .3f\n", i, mass, limit, limitErr, iToy, quant);
         if (syst != doSyst)           continue;
         if (iChannel != whichChannel) continue;
         if      (type == Asimov)   { if (iToy != -1) continue; }
         else if (type == Observed) { if (iToy !=  0) continue; }
+        else if (type == ObsQuantile && iToy == 0) { obsValues[iMass] = limit; continue; }
         else if (iToy <= 0 && !use_precomputed_quantiles) continue;
         if (limit == 0 && !zero_is_valid) continue; 
-        iMass = int(mass*10);
         if (type == MeanCPUTime) { 
             if (limit < 0) continue; 
             limit = t_cpu; 
@@ -170,8 +172,20 @@ TGraphAsymmErrors *theBand(TFile *file, int doSyst, int whichChannel, BandType t
                 summer68 = x - quantErr(nd, &data[0], width);
                 winter68 = x + (x-summer68);
                 break;
-
-        }
+            case ObsQuantile:
+                {   
+                    if (obsValues.find(it->first) == obsValues.end()) continue;
+                    int pass = 0, fail = 0;
+                    for (int i = 0; i < nd && data[i] <= obsValues[it->first]; ++i) {
+                        fail++;
+                    }
+                    pass = nd - fail; x = double(pass)/nd;
+                    double alpha = (1.0 - .68540158589942957)/2;
+                    summer68 = (pass == 0) ? 0.0 : ROOT::Math::beta_quantile(   alpha, pass,   fail+1 );
+                    winter68 = (fail == 0) ? 1.0 : ROOT::Math::beta_quantile( 1-alpha, pass+1, fail   );
+                    break;
+                }
+        } // end switch
         tge->SetPoint(ip, it->first*0.1, x);
         tge->SetPointError(ip, 0, 0, x-summer68, winter68-x);
     }
@@ -191,6 +205,7 @@ void makeBand(TDirectory *bands, TString name, TFile *file, int doSyst, int whic
         case MeanCPUTime: suffix = "_cputime"; break;
         case AdHoc:       suffix = ""; break;
         case Quantile:    suffix = ""; break;
+        case ObsQuantile:    suffix = "_qobs"; break;
     }
     if (!doSyst && (type != AdHoc)) suffix = "_nosyst"+suffix;
     if (type == Median || type == Mean) {
@@ -215,6 +230,11 @@ void makeBand(TDirectory *bands, TString name, TFile *file, int doSyst, int whic
             std::cout << "Band " << name+suffix << " missing" << std::endl;
         }
     }
+}
+void makeBand(TDirectory *bands, TString name, TString filename, int doSyst, int whichChannel, BandType type) {
+    TFile *in = TFile::Open(filename);
+    if (in == 0) { std::cerr << "Filename " << filename << " missing" << std::endl; return; }
+    makeBand(bands, name, in, doSyst, whichChannel, type);
 }
 void makeLine(TDirectory *bands, TString name, TString filename,  int doSyst, int whichChannel) {
     TFile *in = TFile::Open(filename);
