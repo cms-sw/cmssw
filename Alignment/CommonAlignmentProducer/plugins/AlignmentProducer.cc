@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.53 $
-///  last update: $Date: 2011/06/28 19:01:36 $
-///  by         : $Author: mussgill $
+///  Revision   : $Revision: 1.54 $
+///  last update: $Date: 2011/08/08 21:30:50 $
+///  by         : $Author: flucke $
 
 #include "AlignmentProducer.h"
 #include "FWCore/Framework/interface/LooperFactory.h" 
@@ -846,16 +846,17 @@ void AlignmentProducer::writeDB(AlignmentSurfaceDeformations *alignmentSurfaceDe
 AlignmentProducer::RunRanges
 AlignmentProducer::makeNonOverlappingRunRanges(const edm::VParameterSet& RunRangeSelectionVPSet)
 {
+  static bool oldRunRangeSelectionWarning = false;
+
   const RunNumber beginValue = cond::timeTypeSpecs[cond::runnumber].beginValue;
   const RunNumber endValue = cond::timeTypeSpecs[cond::runnumber].endValue;
-      
+  
   RunRanges uniqueRunRanges;
-  std::map<RunNumber,RunNumber> uniqueFirstRunNumbers;
-  std::map<RunNumber,RunNumber> uniqueLastRunNumbers;
-  if (RunRangeSelectionVPSet.size()==0) {
-    uniqueFirstRunNumbers[beginValue] = beginValue;
-    uniqueLastRunNumbers[endValue] = endValue;
-  } else {
+  if (!RunRangeSelectionVPSet.empty()) {
+
+    std::map<RunNumber,RunNumber> uniqueFirstRunNumbers;
+    std::map<RunNumber,RunNumber> uniqueLastRunNumbers;
+    
     for (std::vector<edm::ParameterSet>::const_iterator ipset = RunRangeSelectionVPSet.begin();
 	 ipset != RunRangeSelectionVPSet.end();
 	 ++ipset) {
@@ -863,35 +864,60 @@ AlignmentProducer::makeNonOverlappingRunRanges(const edm::VParameterSet& RunRang
       for (std::vector<std::string>::const_iterator irange = RunRangeStrings.begin();
 	   irange != RunRangeStrings.end();
 	   ++irange) {
-	std::vector<std::string> tokens = edm::tokenize(*irange, ":");
-	long int temp;
 	
-	RunNumber first = beginValue;
-	temp = strtol(tokens[0].c_str(), 0, 0);
-	if (temp!=-1) first = temp;
-	uniqueFirstRunNumbers[first] = first;
-	
-	RunNumber last = endValue;
-	temp = strtol(tokens[1].c_str(), 0, 0);
-	if (temp!=-1) last = temp;
-	uniqueLastRunNumbers[last] = last;
+	if ((*irange).find(':')==std::string::npos) {
+	  
+	  RunNumber first = beginValue;
+	  long int temp = strtol((*irange).c_str(), 0, 0);
+	  if (temp!=-1) first = temp;
+	  uniqueFirstRunNumbers[first] = first;
+	  
+	} else {
+	  
+	  if (!oldRunRangeSelectionWarning) {
+	    edm::LogWarning("BadConfig") << "@SUB=AlignmentProducer::makeNonOverlappingRunRanges"
+					 << "Config file contains old format for 'RunRangeSelection'. Only the start run\n"
+					 << "number is used internally. The number of the last run is ignored and can be\n"
+					 << "safely removed from the config file.\n";
+	    oldRunRangeSelectionWarning = true;
+	  }
+	  
+	  std::vector<std::string> tokens = edm::tokenize(*irange, ":");
+	  long int temp;
+	  RunNumber first = beginValue;
+	  temp = strtol(tokens[0].c_str(), 0, 0);
+	  if (temp!=-1) first = temp;
+	  uniqueFirstRunNumbers[first] = first;
+	}
       }
     }
+
+    std::map<RunNumber,RunNumber>::iterator iFirst = uniqueFirstRunNumbers.begin();
+    ++iFirst;
+    while (iFirst!=uniqueFirstRunNumbers.end()) {
+      uniqueLastRunNumbers[(*iFirst).first] = (*iFirst).first - 1;
+      ++iFirst;
+    }
+    uniqueLastRunNumbers[endValue] = endValue;
+    
+    for (std::map<RunNumber,RunNumber>::iterator iFirst = uniqueFirstRunNumbers.begin();
+	 iFirst!=uniqueFirstRunNumbers.end();
+	 ++iFirst) {
+      for (std::map<RunNumber,RunNumber>::iterator iLast = uniqueLastRunNumbers.begin();
+	   iLast!=uniqueLastRunNumbers.end();
+	   ++iLast) {
+	if ((*iLast).first>(*iFirst).first) {
+	  uniqueRunRanges.push_back(std::pair<RunNumber,RunNumber>((*iFirst).first, (*iLast).first));
+	  break;
+	}
+      }
+    }
+  } else {
+        
+    uniqueRunRanges.push_back(std::pair<RunNumber,RunNumber>(beginValue, endValue));
+    
   }
   
-  for (std::map<RunNumber,RunNumber>::iterator iFirst = uniqueFirstRunNumbers.begin();
-       iFirst!=uniqueFirstRunNumbers.end();
-       ++iFirst) {
-    for (std::map<RunNumber,RunNumber>::iterator iLast = uniqueLastRunNumbers.begin();
-	 iLast!=uniqueLastRunNumbers.end();
-	 ++iLast) {
-      if ((*iLast).first>(*iFirst).first) {
-	uniqueRunRanges.push_back(std::pair<RunNumber,RunNumber>((*iFirst).first, (*iLast).first));
-	break;
-      }
-    }
-  }
- 
   return uniqueRunRanges;
 }
 

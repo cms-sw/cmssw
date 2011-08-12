@@ -55,7 +55,7 @@ looper = cms.Looper("AlignmentProducer",
                     # VPSet that allows splitting of alignment parameters into various
                     # run ranges. The default is a run range independent alignment
                     RunRangeSelection = cms.VPSet(
-                      #cms.PSet(RunRanges = cms.vstring('-1:140400','140401:143487','143488:-1')
+                      #cms.PSet(RunRanges = cms.vstring('-1','140401','143488')
                       #         selector = cms.vstring('TrackerTPBHalfBarrel,001000',
                       #                                'TrackerTPEHalfDisk,111000')
                       #)
