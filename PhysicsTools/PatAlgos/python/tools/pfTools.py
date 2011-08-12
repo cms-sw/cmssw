@@ -291,23 +291,18 @@ def switchToPFMET(process,input=cms.InputTag('pfMET'), type1=False, postfix=""):
         oldMETSource = applyPostfix(process, "patMETs",postfix).metSource
         applyPostfix(process, "patMETs",postfix).metSource = input
         applyPostfix(process, "patMETs",postfix).addMuonCorrections = False
-        getattr(process, "patDefaultSequence"+postfix).remove(
-        applyPostfix(process, "patMETCorrections",postfix)
-        )
+        getattr(process, "patDefaultSequence"+postfix).remove(applyPostfix(process, "patMETCorrections",postfix))
     else:
         # type1 corrected MET
-        # name of coreccted MET hardcoded in PAT and meaningless
-        print 'Apply type1 corrections for MET'
-        applyPostfix(process, "metJESCorAK5CaloJet",postfix).inputUncorMetLabel = input.getModuleLabel()
-        applyPostfix(process, "metJESCorAK5CaloJet",postfix).metType = 'PFMET'
-        applyPostfix(process, "metJESCorAK5CaloJet",postfix).jetPTthreshold = 1.0
-        applyPostfix(process, "patMETs",postfix).metSource = "metJESCorAK5CaloJet"+postfix
-        applyPostfix(process, "patMETs",postfix).addMuonCorrections = False
-        getattr(process, "patDefaultSequence"+postfix).remove(
-            applyPostfix(process, "metJESCorAK5CaloJetMuons",postfix)
-            )
+        # name of corrected MET hardcoded in PAT and meaningless
+        print 'Apply TypeI corrections for MET'
+        getattr(process, "patDefaultSequence"+postfix).remove(applyPostfix(process, "patMETCorrections",postfix))
+        jecLabel = getattr(process,'patJetCorrFactors'+postfix).payload.pythonValue().replace("'","")
+        getattr(process,jecLabel+'CorMet'+postfix).inputUncorMetLabel = input.getModuleLabel()
+        getattr(process,'patMETs'+postfix).metSource = jecLabel+'CorMet'+postfix
+        getattr(process,'patMETs'+postfix).addMuonCorrections = False
 
-def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='AK5', postfix = "", jetCorrections=('AK5PFchs', ['L1FastJet','L2Relative', 'L3Absolute']) ):
+def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='AK5', postfix = "", jetCorrections=('AK5PFchs', ['L1FastJet','L2Relative', 'L3Absolute']), type1=False ):
 
     print "Switching to PFJets,  ", algo
     print "************************ "
@@ -335,8 +330,7 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='AK5', postfix =
                         doJTA=True,
                         doBTagging=True,
                         jetCorrLabel=inputJetCorrLabel,
-                        #doType1MET=False,
-                        doType1MET=True,
+                        doType1MET=type1,
                         genJetCollection = genJetCollection,
                         doJetID = True,
 			postfix = postfix
@@ -348,6 +342,24 @@ def switchToPFJets(process, input=cms.InputTag('pfNoTau'), algo='AK5', postfix =
             applyPostfix(process, "patJetCorrFactors", postfix).useRho = True
             applyPostfix(process, "pfJets", postfix).doAreaFastjet = True
             applyPostfix(process, "kt6PFJets", postfix).src = inputCollection
+            # do correct treatment for TypeI MET corrections
+            if type1:
+                for mod in getattr(process,'patPF2PATSequence'+postfix).moduleNames():
+                    if mod.startswith("kt6"):
+                        prefix = mod.replace(postfix,'')
+                        prefix = prefix.replace('kt6PFJets','')
+                        prefix = prefix.replace('kt6CaloJets','')
+                        prefix = getattr(process,'patJetCorrFactors'+prefix+postfix).payload.pythonValue().replace("'","")
+                        for essource in process.es_sources_().keys():
+                            if essource == prefix+'L1FastJet':
+                                setattr(process,essource+postfix,getattr(process,essource).clone(srcRho=cms.InputTag(mod,'rho')))
+                                setattr(process,prefix+'CombinedCorrector'+postfix,getattr(process,prefix+'CombinedCorrector').clone())
+                                getattr(process,prefix+'CorMet'+postfix).corrector = prefix+'CombinedCorrector'+postfix
+                                for cor in getattr(process,prefix+'CombinedCorrector'+postfix).correctors:
+                                    if cor == essource:
+                                        idx = getattr(process,prefix+'CombinedCorrector'+postfix).correctors.index(essource);
+                                        getattr(process,prefix+'CombinedCorrector'+postfix).correctors[idx] = essource+postfix
+                                        
     applyPostfix(process, "patJets", postfix).embedCaloTowers   = False
     applyPostfix(process, "patJets", postfix).embedPFCandidates = True
 
@@ -358,7 +370,7 @@ def removeMCMatchingPF2PAT( process, postfix="", outputModules=['out'] ):
     removeMCMatching(process, names=['All'], postfix=postfix, outputModules=outputModules)
 
 
-def usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix="", jetCorrections=('AK5PFchs', ['L1FastJet','L2Relative','L3Absolute']), outputModules=['out']):
+def usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix="", jetCorrections=('AK5PFchs', ['L1FastJet','L2Relative','L3Absolute']), typeIMetCorrections=False, outputModules=['out']):
     # PLEASE DO NOT CLOBBER THIS FUNCTION WITH CODE SPECIFIC TO A GIVEN PHYSICS OBJECT.
     # CREATE ADDITIONAL FUNCTIONS IF NEEDED.
 
@@ -406,7 +418,7 @@ def usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix="", 
     # Jets
     if runOnMC :
         switchToPFJets( process, cms.InputTag('pfNoTau'+postfix), jetAlgo, postfix=postfix,
-                        jetCorrections=jetCorrections )
+                        jetCorrections=jetCorrections, type1=typeIMetCorrections )
         applyPostfix(process,"patDefaultSequence",postfix).replace(
             applyPostfix(process,"patJetGenJetMatch",postfix),
             getattr(process,"genForPF2PATSequence") *
@@ -419,7 +431,7 @@ def usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix="", 
             print 'If this is okay with you, disregard this message.'
             print '#################################################'
         switchToPFJets( process, cms.InputTag('pfNoTau'+postfix), jetAlgo, postfix=postfix,
-                        jetCorrections=jetCorrections )
+                        jetCorrections=jetCorrections, type1=typeIMetCorrections )
 
     # Taus
     adaptPFTaus( process, tauType='shrinkingConePFTau', postfix=postfix )
@@ -427,7 +439,7 @@ def usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix="", 
     #adaptPFTaus( process, tauType='hpsPFTau', postfix=postfix )
 
     # MET
-    switchToPFMET(process, cms.InputTag('pfMET'+postfix), postfix=postfix)
+    switchToPFMET(process, cms.InputTag('pfMET'+postfix), type1=typeIMetCorrections, postfix=postfix)
 
     # Unmasked PFCandidates
     addPFCandidates(process,cms.InputTag('pfNoJet'+postfix),patLabel='PFParticles'+postfix,cut="",postfix=postfix)
