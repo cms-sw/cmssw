@@ -84,12 +84,13 @@ std::vector<RPCObImon::I_Item> RPCFw::createIMON(long long since, long long till
       int id = static_cast<int>(idoub);
       float val = row["IMON"].data<float>();
       coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
-      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
-      Itemp.dpid = id;
+      unsigned int unixtime = this->CTtoUT(ts);
+
+     //  int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+//       int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Itemp.detid = id;
       Itemp.value = val;
-      Itemp.day = ndate;
-      Itemp.time = ntime;
+      Itemp.unixtime = unixtime;
       imonarray.push_back(Itemp);
       ++nRows;
     }
@@ -108,12 +109,11 @@ std::vector<RPCObImon::I_Item> RPCFw::createIMON(long long since, long long till
       float val = row["IMON"].data<float>();
       coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
       if (isMajor(ts, tlast)) tlast = ts;
-      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
-      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
-      Itemp.dpid = id;
+    //   int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+//       int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Itemp.detid = id;
       Itemp.value = val;
-      Itemp.day = ndate;
-      Itemp.time = ntime;
+      Itemp.unixtime = this->CTtoUT(ts);
       imonarray.push_back(Itemp);
       ++nRows;
     }
@@ -166,13 +166,14 @@ std::vector<RPCObVmon::V_Item> RPCFw::createVMON(long long since, long long till
       int id = static_cast<int>(idoub);
       float val = row["VMON"].data<float>();
       coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
+      unsigned int unixtime = this->CTtoUT(ts);
+ 
       if (isMajor(ts, tlast)) tlast = ts;
-      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
-      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
-      Vtemp.dpid = id;
+     //  int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+//       int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Vtemp.detid = id;
       Vtemp.value = val;
-      Vtemp.day = ndate;
-      Vtemp.time = ntime;
+      Vtemp.unixtime = unixtime;
       vmonarray.push_back(Vtemp);
       ++nRows;
     }
@@ -191,12 +192,11 @@ std::vector<RPCObVmon::V_Item> RPCFw::createVMON(long long since, long long till
       float val = row["VMON"].data<float>();
       coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
       if (isMajor(ts, tlast)) tlast = ts;
-      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
-      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
-      Vtemp.dpid = id;
+      // int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+//       int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Vtemp.detid = id;
       Vtemp.value = val;
-      Vtemp.day = ndate;
-      Vtemp.time = ntime;
+      Vtemp.unixtime = this->CTtoUT(ts);
       vmonarray.push_back(Vtemp);
       ++nRows;
     }
@@ -248,12 +248,13 @@ std::vector<RPCObStatus::S_Item> RPCFw::createSTATUS(long long since, long long 
       int id = static_cast<int>(idoub);
       float val = row["STATUS"].data<float>();
       coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
-      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
-      Stemp.dpid = id;
+      unsigned int unixtime = this->CTtoUT(ts);
+     
+     //  int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+//       int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Stemp.detid = id;
       Stemp.value = val;
-      Stemp.day = ndate;
-      Stemp.time = ntime;
+      Stemp.unixtime = unixtime;
       statusarray.push_back(Stemp);
       ++nRows;
     } 
@@ -271,12 +272,11 @@ std::vector<RPCObStatus::S_Item> RPCFw::createSTATUS(long long since, long long 
       int id = static_cast<int>(idoub);
       float val = row["STATUS"].data<float>();
       coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
-      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
-      Stemp.dpid = id;
+     //  int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+//       int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      Stemp.detid = id;
       Stemp.value = val;
-      Stemp.day = ndate;
-      Stemp.time = ntime;
+      Stemp.unixtime = this->CTtoUT(ts);
       statusarray.push_back(Stemp);
       ++nRows;
     }
@@ -487,13 +487,13 @@ std::vector<RPCObTemp::T_Item> RPCFw::createT(long long since, long long till)
       int id = static_cast<int>(idoub);
       float val = row["TEMPERATURE"].data<float>();
       coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
-      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+      unsigned int unixtime = this->CTtoUT(ts);
+      // int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+//       int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
       
-      Ttemp.dpid = id;
+      Ttemp.detid = id;
       Ttemp.value = val;
-      Ttemp.day = ndate;
-      Ttemp.time = ntime;
+      Ttemp.unixtime = unixtime;
       temparray.push_back(Ttemp);
       
       ++nRows;
@@ -512,13 +512,12 @@ std::vector<RPCObTemp::T_Item> RPCFw::createT(long long since, long long till)
       int id = static_cast<int>(idoub);
       float val = row["TEMPERATURE"].data<float>();
       coral::TimeStamp ts =  row["TSTAMP"].data<coral::TimeStamp>();
-      int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
-      int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
+    //   int ndate = (ts.day() * 10000) + (ts.month() * 100) + (ts.year()-2000);
+//       int ntime = (ts.hour() * 10000) + (ts.minute() * 100) + ts.second();
       
-      Ttemp.dpid = id;
+      Ttemp.detid = id;
       Ttemp.value = val;
-      Ttemp.day = ndate;
-      Ttemp.time = ntime;
+      Ttemp.unixtime = this->CTtoUT(ts);
       temparray.push_back(Ttemp);
       
       ++nRows;
@@ -1636,6 +1635,18 @@ unsigned long long RPCFw::TtoUT(coral::TimeStamp time)
   if (time.month() == 12) utime = utime - 7*86400;
   
   return utime;
+}
+
+unsigned int RPCFw::CTtoUT(const coral::TimeStamp& time) 
+{
+  tm gmt;
+  gmt.tm_sec=time.second();
+  gmt.tm_min=time.minute();
+  gmt.tm_hour=time.hour();
+  gmt.tm_mday=time.day();
+  gmt.tm_mon=time.month()-1;
+  gmt.tm_year=time.year()-1900;
+  return mktime(&gmt);
 }
 
 

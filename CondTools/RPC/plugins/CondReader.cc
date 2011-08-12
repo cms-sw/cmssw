@@ -63,8 +63,8 @@ void CondReader::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup)
   std::cout << "************************************" << std::endl;
   for(icond = mycond.begin(); icond < mycond.end(); ++icond){
 
-    if (icond->day >= ndateS && icond->time >= ntimeS && icond->day <= ndateT && icond->time <= ntimeT)
-      std::cout<<"dpid = " << icond->dpid << " - value = " << icond->value << " - day = " << icond->day << " - time = " << icond->time << std::endl;
+    if (icond->unixtime >= since && icond->unixtime <= till)
+      std::cout<<"detid = " << icond->detid << " - value = " << icond->value << " - unixtime = " << icond->unixtime << std::endl;
   }
   
 }

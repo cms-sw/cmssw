@@ -57,11 +57,11 @@ RPCRunIOV::getImon() {
 
   std::vector<RPCObImon::I_Item>::iterator first;
   first = mycond.begin();
-  min_I = this->toUNIX(first->day, first->time);
+  min_I = first->unixtime;
   max_I = min_I;
   unsigned long long value;
   for(icond = mycond.begin(); icond < mycond.end(); ++icond){
-    value = this->toUNIX(icond->day, icond->time);
+    value = icond->unixtime;
     if (value < min_I) min_I = value;
     if (value > max_I) max_I = value;
   }
@@ -98,11 +98,11 @@ RPCRunIOV::getVmon() {
 
   std::vector<RPCObVmon::V_Item>::iterator first;
   first = mycond.begin();
-  min_V = this->toUNIX(first->day, first->time);
+  min_V = first->unixtime;
   max_V = min_I;
   unsigned long long value;
   for(icond = mycond.begin(); icond < mycond.end(); ++icond){
-    value = this->toUNIX(icond->day, icond->time);
+    value = icond->unixtime;
     if (value < min_V) min_V = value;
     if (value > max_V) max_V = value;
   }
@@ -139,11 +139,11 @@ RPCRunIOV::getTemp() {
   
   std::vector<RPCObTemp::T_Item>::iterator first;
   first = mycond.begin();
-  min_T = this->toUNIX(first->day, first->time);
+  min_T = first->unixtime;
   max_T = min_T;
   unsigned long long value;
   for(icond = mycond.begin(); icond < mycond.end(); ++icond){
-    value = this->toUNIX(icond->day, icond->time);
+    value = icond->unixtime;
     if (value < min_T) min_T = value;
     if (value > max_T) max_T = value;
   }
@@ -223,29 +223,6 @@ RPCRunIOV::DAQtoUNIX(unsigned long long *time)
 }
 
 
-unsigned long long 
-RPCRunIOV::toUNIX(int date, int time)
-{
-  int yea_ = (int)date/100; 
-  int yea = 2000 + (date - yea_*100);
-  int mon_ = (int)yea_/100;
-  int mon = yea_ - mon_*100;
-  int day = (int)yea_/100;
-  int sec_ = (int)time/100;
-  int sec = time - sec_*100;
-  int min_ = (int)sec_/100;
-  int min = sec_ - min_*100;
-  int hou = (int)sec_/100;
-  int nan = 0;
-  coral::TimeStamp TS;  
-  TS = coral::TimeStamp(yea, mon, day, hou, min, sec, nan);
-  RPCFw conv ("","","");
-  unsigned long long UT = conv.TtoUT(TS);
-  return UT;
-}
-
-
-
 
 
 // this methos filters data
@@ -258,19 +235,8 @@ RPCRunIOV::filterIMON(std::vector<RPCObImon::I_Item> imon, unsigned long long si
   std::cout << std::endl << "=============================================" << std::endl << std::endl;
   std::vector<RPCObImon::I_Item>::iterator it;
   RPCFw conv ("","","");
-  int n = 0;
   for ( it=imon.begin(); it < imon.end(); it++ ) {
-    n++;
-    int day = (int)it->day/10000;
-    int mon = (int)(it->day - day*10000)/100;
-    int yea = (int)(it->day - day*10000 - mon*100)+2000;
-    int hou = (int)it->time/10000;
-    int min = (int)(it->time - hou*10000)/100;
-    int sec = (int)(it->time - hou*10000 - min*100);
-    int nan = 0;
-    coral::TimeStamp timeD = coral::TimeStamp(yea, mon, day, hou, min, sec, nan);
-    unsigned long long timeU = conv.TtoUT(timeD);
-    if (timeU < till && timeU > since) filtImon.push_back(*it);
+    if (it->unixtime < till && it->unixtime > since) filtImon.push_back(*it);
   }
   return filtImon;
 }

@@ -40,7 +40,7 @@ public:
 
   coral::TimeStamp UTtoT(long long utime);
   unsigned long long TtoUT(coral::TimeStamp time);
-
+  unsigned int CTtoUT(const coral::TimeStamp& time);
   coral::TimeStamp tMIN;
   coral::TimeStamp tMAX;
   unsigned long long N_IOV;
@@ -54,6 +54,7 @@ public:
   std::vector<RPCObFebmap::Feb_Item> createFEB(long long since, long long till);	
   std::vector<RPCObUXC::Item> createUXC(long long since, long long till);
   std::vector<RPCObGasMix::Item> createMix(long long since, long long till);
+  
   bool isMajor(coral::TimeStamp fir, coral::TimeStamp sec);
   
 private:

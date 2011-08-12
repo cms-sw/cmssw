@@ -5,10 +5,7 @@
  */
 
 #include "CondTools/RPC/interface/RPCStatusSH.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
+#include<sstream>
 #include<iostream>
 
 popcon::RpcDataS::RpcDataS(const edm::ParameterSet& pset) :
@@ -16,8 +13,9 @@ popcon::RpcDataS::RpcDataS(const edm::ParameterSet& pset) :
   host(pset.getUntrackedParameter<std::string>("host", "source db host")),
   user(pset.getUntrackedParameter<std::string>("user", "source username")),
   passw(pset.getUntrackedParameter<std::string>("passw", "source password")),
-  m_since(pset.getUntrackedParameter<unsigned long long>("since",5)),
-  m_till(pset.getUntrackedParameter<unsigned long long>("till",0)){
+  m_first(pset.getUntrackedParameter<bool>("first",false)),
+  m_since(pset.getUntrackedParameter<unsigned long long>("since",1)),
+  m_range(pset.getUntrackedParameter<unsigned long long>("range",72000)){
 }
 
 popcon::RpcDataS::~RpcDataS()
@@ -36,54 +34,58 @@ void popcon::RpcDataS::getNewObjects() {
 	    << logDBEntry().usertext << "last record with the correct tag has been written in the db: "
 	    << logDBEntry().destinationDB << std::endl; 
   
-  //   snc = tagInfo().lastInterval.first;
+  // Get from the logDBEntry the till unix time query and the number of values stored
+  std::stringstream is;
+  std::string a = logDBEntry().usertext;
+  unsigned int l = a.find('>');
+  unsigned int preTill;
+  
+  if (l < a.size()){
+    is <<a.substr(l+3,a.npos);
+    std::string b1,b2; 
+    unsigned int nVals;
+    is >>b1>>nVals>>b2>>preTill;
+    std::cout <<" Unix Time of the Prev Till "<<preTill<<std::endl;
+  }else{
+    std::cout <<" No infos from usertext in logDB"<<std::endl;
+  }
+
+  if (!m_first) {
+    m_since = preTill;
+  }
+  unsigned int m_till = m_since + m_range;
+  
   std::cout << std::endl << "=============================================" << std::endl;
   std::cout << std::endl << "==================  STATUS  =================" << std::endl;
   std::cout << std::endl << "=============================================" << std::endl << std::endl;
-  snc = m_since;
-  std::cout << ">> Range mode [" << snc << ", " << m_till << "]" << std::endl;
+  std::cout << ">> Range mode [" << m_since << ", " << m_till << "]" << std::endl;
   std::cout << std::endl << "=============================================" << std::endl << std::endl;
   
-
-   RPCFw caen ( host, user, passw );
-   std::vector<RPCObStatus::S_Item> Scheck;
+  RPCFw caen ( host, user, passw );
+  std::vector<RPCObStatus::S_Item> Scheck;
+  
+  Scheck = caen.createSTATUS(m_since, m_till);
+  Sdata = new RPCObStatus();
+  RPCObStatus::S_Item Sfill;
+  std::vector<RPCObStatus::S_Item>::iterator Sit;
+  for(Sit = Scheck.begin(); Sit != Scheck.end(); Sit++){
+    Sfill = *(Sit);
+    Sdata->ObStatus_rpc.push_back(Sfill);
+  }
+  std::cout << " >> Final object size: " << Sdata->ObStatus_rpc.size() << std::endl;
    
+  if (Sdata->ObStatus_rpc.size() == 0) {
+    std::cout << "NO DATA TO BE STORED" << std::endl;
+  }
 
-   Scheck = caen.createSTATUS(snc, m_till);
-   Sdata = new RPCObStatus();
-   RPCObStatus::S_Item Sfill;
-   std::vector<RPCObStatus::S_Item>::iterator Sit;
-   for(Sit = Scheck.begin(); Sit != Scheck.end(); Sit++)
-     {
-      Sfill = *(Sit);
-      Sdata->ObStatus_rpc.push_back(Sfill);
-     }
-   std::cout << " >> Final object size: " << Sdata->ObStatus_rpc.size() << std::endl;
+  edm::TimeValue_t daqtime=0LL;
+  daqtime=m_since;
+  daqtime=(daqtime<<32);
    
-   if (Sdata->ObStatus_rpc.size() > 0) {
-     niov = snc;
-   } else {
-     niov = snc;
-     std::cout << "NO DATA TO BE STORED" << std::endl;
-   }
-
-
-   ::timeval tv;
-   tv.tv_sec = niov;
-   tv.tv_usec = 0;
-   edm::Timestamp tmstamp((unsigned long long)tv.tv_sec*1000000+(unsigned long long)tv.tv_usec);
-   std::cout << "UNIX time = " << tmstamp.value() << std::endl;
-
-   edm::TimeValue_t daqtime=0LL;
-   daqtime=tv.tv_sec;
-   daqtime=(daqtime<<32)+tv.tv_usec;
-   edm::Timestamp daqstamp(daqtime);
-   edm::TimeValue_t dtime = daqstamp.value();
-   std::cout<<"DAQ time = " << dtime <<std::endl;
-   
-   niov = dtime;
-   
-   std::cout << "===> New IOV: since is = " << niov << std::endl;
-   m_to_transfer.push_back(std::make_pair((RPCObStatus*)Sdata,niov));
+  std::cout << "===> New IOV: since is = " << daqtime << std::endl;
+  m_to_transfer.push_back(std::make_pair((RPCObStatus*)Sdata,daqtime));
+  std::stringstream os;
+  os<<"\n-->> NumberOfValue "<<Sdata->ObStatus_rpc.size()<<" until "<<m_till;
+  m_userTextLog=os.str();
 }
 
