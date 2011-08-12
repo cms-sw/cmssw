@@ -1,8 +1,8 @@
 /*
  * Payload definition(s): Chamber Gas Flow In and Out (RPCObGas)
  *
- *  $Date: 2009/11/16 12:53:47 $
- *  $Revision: 1.3 $
+ *  $Date: 2009/11/16 13:00:18 $
+ *  $Revision: 1.2 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -13,11 +13,10 @@
 class RPCObGas {
     public:
       struct Item {
-        int dpid;
+        int detid;
         float flowin;
         float flowout;
-        int day;
-        int time;
+	unsigned int unixtime ;
       };
     RPCObGas(){}
     virtual ~RPCObGas(){}

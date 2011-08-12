@@ -1,8 +1,8 @@
 /*
  * Payload definition(s): Current (RPCObImon), High Voltage (RPCObVmon), Chamber Status (RPCObStatus) 
  *
- *  $Date: 2009/11/16 12:53:47 $
- *  $Revision: 1.3 $
+ *  $Date: 2011/08/12 16:57:19 $
+ *  $Revision: 1.4 $
  *  \author D. Pagano - Dip. Fis. Nucl. e Teo. & INFN Pavia
  */
 
@@ -47,6 +47,7 @@ class RPCObStatus {
 };
 
 class RPCObTemp {
+<<<<<<< RPCObCond.h
  public:
   struct T_Item {
     int detid;
@@ -57,6 +58,19 @@ class RPCObTemp {
   virtual ~RPCObTemp(){}
   std::vector<T_Item> ObTemp_rpc;
 };
+
+=======
+ public:
+  struct T_Item {
+    int detid;
+    float value;
+    unsigned int unixtime ;
+  };
+  RPCObTemp(){}
+  virtual ~RPCObTemp(){}
+  std::vector<T_Item> ObTemp_rpc;
+};
+>>>>>>> 1.4
 
 #endif
 
