@@ -90,9 +90,19 @@ class RunOnData(ConfigToolBase):
         postfix=self._parameters['postfix'].value
         outputModules=self._parameters['outputModules'].value
         
+        print '******************* RunOnData *******************'
         removeMCMatching(process, names=names, postfix=postfix, outputModules=outputModules)
-        if 'L3Absolute' in getattr(process,'patJetCorrFactors'+postfix).levels:
-            getattr(process,'patJetCorrFactors'+postfix).levels.insert(getattr(process,'patJetCorrFactors'+postfix).levels.index('L3Absolute')+1, 'L2L3Residual')
+        for mod in getattr(process,'patDefaultSequence'+postfix).moduleNames():
+            if mod.startswith('patJetCorrFactors'):
+                prefix = getattr(process, mod).payload.pythonValue().replace("'","")
+                if 'L3Absolute' in getattr(process,mod).levels:
+                    getattr(process,mod).levels.insert(getattr(process,mod).levels.index('L3Absolute')+1, 'L2L3Residual') 
+                    print 'adding L2L3Residual JEC for:', getattr(process,mod).label_()
+                if hasattr(process, prefix+'CombinedCorrector'+postfix):
+                    if prefix+'L3Absolute' in getattr(process,prefix+'CombinedCorrector'+postfix).correctors:
+                        idx = getattr(process,prefix+'CombinedCorrector'+postfix).correctors.index(prefix+'L3Absolute')+1
+                        getattr(process,prefix+'CombinedCorrector'+postfix).correctors.insert(idx, prefix+'L2L3Residual')
+                        print 'adding L2L3Residual for TypeI MET correction:', getattr(process,prefix+'CombinedCorrector'+postfix).label_()
 
 runOnData=RunOnData()
 
@@ -154,35 +164,36 @@ class RemoveMCMatching(ConfigToolBase):
                 print "removing MC dependencies for taus"
                 _removeMCMatchingForPATObject(process, 'tauMatch', 'patTaus', postfix)
                 ## remove mc extra modules for taus
-                getattr(process,"patDefaultSequence"+postfix).remove(
-                    applyPostfix(process, "tauGenJets", postfix))
-                getattr(process,"patDefaultSequence"+postfix).remove(
-                    applyPostfix(process, "tauGenJetsSelectorAllHadrons", postfix))
-                getattr(process,"patDefaultSequence"+postfix).remove(
-                    applyPostfix(process, "tauGenJetMatch", postfix))
+                for mod in ['tauGenJets','tauGenJetsSelectorAllHadrons','tauGenJetMatch']:
+                    if hasattr(process,mod+postfix):
+                        getattr(process,'patDefaultSequence'+postfix).remove(getattr(process,mod+postfix))
                 ## remove mc extra configs for taus
-                tauProducer = getattr(process, 'patTaus'+postfix)
-                tauProducer.addGenJetMatch      = False
-                tauProducer.embedGenJetMatch    = False
-                tauProducer.genJetMatch         = ''         
+                tauProducer = getattr(process,'patTaus'+postfix)
+                tauProducer.addGenJetMatch   = False
+                tauProducer.embedGenJetMatch = False
+                tauProducer.genJetMatch      = ''         
             if( names[obj] == 'Jets'      or names[obj] == 'All' ):
                 print "removing MC dependencies for jets"
-                ## remove mc extra modules for jets
-                getattr(process,"patDefaultSequence"+postfix).remove(
-                    applyPostfix(process, "patJetPartonMatch", postfix))
-                getattr(process,"patDefaultSequence"+postfix).remove(
-                    applyPostfix(process, "patJetGenJetMatch", postfix))
-                getattr(process,"patDefaultSequence"+postfix).remove(
-                    applyPostfix(process, "patJetFlavourId", postfix))
-                ## remove mc extra configs for jets
-                jetProducer = getattr(process, jetCollectionString()+postfix)
-                jetProducer.addGenPartonMatch   = False
-                jetProducer.embedGenPartonMatch = False
-                jetProducer.genPartonMatch      = ''
-                jetProducer.addGenJetMatch      = False
-                jetProducer.genJetMatch         = ''
-                jetProducer.getJetMCFlavour     = False
-                jetProducer.JetPartonMapSource  = ''
+                ## there may be multiple jet collection, therefore all jet collections
+                ## in patDefaultSequence+postfix are threated here
+                jetPostfixes = []
+                for mod in getattr(process,'patDefaultSequence'+postfix).moduleNames():
+                    if mod.startswith('patJets'):
+                        jetPostfixes.append(getattr(process, mod).label_().replace("patJets",""))
+                for pfix in jetPostfixes:
+                    ## remove mc extra modules for jets
+                    for mod in ['patJetPartonMatch','patJetGenJetMatch','patJetFlavourId','patJetPartons','patJetPartonAssociation','patJetFlavourAssociation']:
+                        if hasattr(process,mod+pfix):
+                            getattr(process,'patDefaultSequence'+postfix).remove(getattr(process,mod+pfix))
+                    ## remove mc extra configs for jets
+                    jetProducer = getattr(process, jetCollectionString()+pfix)
+                    jetProducer.addGenPartonMatch   = False
+                    jetProducer.embedGenPartonMatch = False
+                    jetProducer.genPartonMatch      = ''
+                    jetProducer.addGenJetMatch      = False
+                    jetProducer.genJetMatch         = ''
+                    jetProducer.getJetMCFlavour     = False
+                    jetProducer.JetPartonMapSource  = ''
                 ## adjust output
                 for outMod in outputModules:
                     if hasattr(process,outMod):
@@ -441,9 +452,10 @@ class RemoveCleaning(ConfigToolBase):
         countLept.electronSource = countLept.electronSource.value().replace('cleanPat','selectedPat')
         countLept.muonSource = countLept.muonSource.value().replace('cleanPat','selectedPat')
         countLept.tauSource = countLept.tauSource.value().replace('cleanPat','selectedPat')
-        getattr(process, "patDefaultSequence"+postfix).remove(
-            applyPostfix(process,"cleanPatCandidates",postfix)
-            )
+        for m in getattr(process, "cleanPatCandidates").moduleNames():
+            getattr(process, "patDefaultSequence"+postfix).remove(
+                applyPostfix(process,m,postfix)
+                )
         if len(outputModules) > 0:
             print "---------------------------------------------------------------------"
             print "INFO   : cleaning has been removed. Switch output from clean PAT     "
@@ -452,7 +464,7 @@ class RemoveCleaning(ConfigToolBase):
             from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoCleaning
             for outMod in outputModules:
                 if hasattr(process,outMod):
-                    getattr(process,outMod).outputCommands.append("drop *_selectedPatJets*_genJets_*")
+                    getattr(process,outMod).outputCommands = patEventContentNoCleaning
                 else:
                     raise KeyError, "process has no module named", outMod
 
@@ -506,7 +518,7 @@ class AddCleaning(ConfigToolBase):
             from PhysicsTools.PatAlgos.patEventContent_cff import patEventContent
             for outMod in outputModules:
                 if hasattr(process,outMod):
-                    getattr(process,outMod).outputCommands.append("drop *_selectedPatJets*_genJets_*")
+                    getattr(process,outMod).outputCommands = patEventContent
                 else:
                     raise KeyError, "process has no module named", outMod
 
