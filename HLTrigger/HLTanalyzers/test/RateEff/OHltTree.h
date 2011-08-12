@@ -13345,7 +13345,6 @@ public:
    int OpenHltRPassed(
          float Rmin,
          float MRmin,
-         bool MRP,
          int NJmax,
          float jetPt);
    
