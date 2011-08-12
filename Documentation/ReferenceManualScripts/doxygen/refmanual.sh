@@ -89,6 +89,10 @@ echo "####################################"
 	cp $SCRIPTS/indexPage/index.php $CMSSW_xyz/doc/html
 	rm $SCRIPTS/indexPage/index.php
 	echo "5.1. Copying index pages: Done!"
+
+	echo "5.2. Copying ReferenceManual.html page: Started!"
+	cp $SCRIPTS/other/ReferenceManual.html $CMSSW_xyz/doc/html
+	echo "5.2. Copying ReferenceManual.html page: Done!"
 	
 echo "####################################"
 
