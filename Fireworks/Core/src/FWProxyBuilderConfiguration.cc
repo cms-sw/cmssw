@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jul 27 00:58:43 CEST 2011
-// $Id: FWProxyBuilderConfiguration.cc,v 1.4 2011/08/11 03:38:19 amraktad Exp $
+// $Id: FWProxyBuilderConfiguration.cc,v 1.5 2011/08/11 03:53:10 amraktad Exp $
 //
 
 // system include files
@@ -79,6 +79,7 @@ FWProxyBuilderConfiguration::getPointSize()
 
 FWParameterBase* FWProxyBuilderConfiguration::getVarParameter(const std::string& name, FWViewType::EType type)
 {
+   // std::cout << "WProxyBuilderConfiguration::getVarParamete "<< name << " ptr  " << m_item <<std::endl;
    for (FWConfigurableParameterizable::const_iterator i = begin(); i != end(); ++i)
    {
       if ((*i)->name() == name)
@@ -102,6 +103,23 @@ FWParameterBase* FWProxyBuilderConfiguration::getVarParameter(const std::string&
       if (varConfig) mode->setFrom(*varConfig);
       mode->changed_.connect(boost::bind(&FWEventItem::proxyConfigChanged, (FWEventItem*)m_item));
       return mode;
+   }
+   if (m_item->purpose() == "Jets")
+   {
+      if (name == "Draw Labels")
+      {
+         FWBoolParameter*  mode = new FWBoolParameter(this, name, false);
+         if (varConfig) mode->setFrom(*varConfig);
+         mode->changed_.connect(boost::bind(&FWEventItem::proxyConfigChanged, (FWEventItem*)m_item));
+         return mode;
+      }
+      else
+      {
+         FWDoubleParameter*  mode = new FWDoubleParameter(this, name, 1.2,1.0,3.0);
+         if (varConfig) mode->setFrom(*varConfig);
+         mode->changed_.connect(boost::bind(&FWEventItem::proxyConfigChanged, (FWEventItem*)m_item));
+         return mode;
+      }
    }
    else {
       throw std::runtime_error("Invalid parameter request.");
@@ -157,10 +175,10 @@ FWProxyBuilderConfiguration::makeSetter(TGCompositeFrame* frame, FWParameterBase
 void
 FWProxyBuilderConfiguration::populateFrame(TGCompositeFrame* settersFrame)
 {
-   // std::cout << "populate \n";
+   //  std::cout << "populate \n";
 
-   TGHorizontalFrame* frame =  new TGHorizontalFrame(settersFrame);
-   settersFrame->AddFrame(frame, new TGLayoutHints(kLHintsExpandX) );
+   TGCompositeFrame* frame =  new TGVerticalFrame(settersFrame);
+   settersFrame->AddFrame(frame, new TGLayoutHints(kLHintsExpandX) );//|kLHintsExpandY
   
    for(const_iterator it =begin(); it != end(); ++it)
       makeSetter(frame, *it);
