@@ -24,6 +24,7 @@
 #include "Fireworks/Core/interface/FWInvMassDialog.h"
 
 #include "Fireworks/Core/interface/FWGeometryTableView.h"
+#include "Fireworks/Core/interface/FWTextProjected.h"
 
 #ifdef __CINT__
 #pragma link off all globals;
@@ -60,6 +61,12 @@
 #pragma link C++ class FWGUIEventFilter;
 #pragma link C++ class CmsShowCommonPopup;
 #pragma link C++ class CmsShowViewPopup;
+#pragma link C++ class FWInvMassDialog;
+
+#pragma link C++ class FWEveText;
+#pragma link C++ class FWEveTextProjected;
+#pragma link C++ class FWEveTextGL;
+
 #pragma link C++ class FWInvMassDialog;
 
 #pragma link C++ class FWGeometryTableView;
