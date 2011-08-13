@@ -8,12 +8,16 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.28 2010/11/11 20:25:27 amraktad Exp $
+// $Id: FWJetProxyBuilder.cc,v 1.29 2010/11/26 20:24:46 amraktad Exp $
 //
 
 #include "TEveJetCone.h"
 #include "TEveScalableStraightLineSet.h"
 
+#include "Fireworks/Core/interface/FWTextProjected.h"
+#include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FWProxyBuilderConfiguration.h"
+#include "Fireworks/Core/interface/FWParameters.h"
 // user include files
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
 #include "Fireworks/Core/interface/FWEventItem.h"
@@ -24,6 +28,17 @@
 #include "Fireworks/Calo/interface/scaleMarker.h"
 
 #include "DataFormats/JetReco/interface/Jet.h"
+
+namespace fireworks {
+
+struct jetScaleMarker : public  scaleMarker {
+   jetScaleMarker(TEveScalableStraightLineSet* ls, float et, float e, const FWViewContext* vc):
+      scaleMarker(ls, et, e, vc) , m_text(0) {}
+   
+   FWEveText* m_text;
+};
+}
+
 
 class FWJetProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Jet>
 {
@@ -47,14 +62,19 @@ protected:
    virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc);
 
 private:
+   typedef std::vector<fireworks::jetScaleMarker> Lines_t;  
+
    FWJetProxyBuilder( const FWJetProxyBuilder& ); // stop default
    const FWJetProxyBuilder& operator=( const FWJetProxyBuilder& ); // stop default
 
    TEveElementList* requestCommon();
+   void setTextPos(fireworks::jetScaleMarker& s, const FWViewContext* vc, FWViewType::EType);
+
    TEveElementList* m_common;
 
-   std::vector<fireworks::scaleMarker> m_lines;
+   std::vector<fireworks::jetScaleMarker> m_lines;
 };
+
 
 //______________________________________________________________________________
 FWJetProxyBuilder::FWJetProxyBuilder():
@@ -99,20 +119,30 @@ FWJetProxyBuilder::buildViewType(const reco::Jet& iData, unsigned int iIndex, TE
    setupAddElement( *coneIt, &oItemHolder );
    (*coneIt)->SetMainTransparency(TMath::Min(100, 80 + dp.transparency() / 5)); 
 
+
    // scale markers in projected views
    if (FWViewType::isProjected(type))
    {
-      TEveScalableStraightLineSet* marker =new TEveScalableStraightLineSet("jet lineset");
+      m_lines.push_back(fireworks::jetScaleMarker(new TEveScalableStraightLineSet("jetline"), iData.et(), iData.energy(), vc));
+      fireworks::jetScaleMarker& markers =  m_lines.back();
+
       float size = 1.f; // values are saved in scale
       double theta = iData.theta();
       double phi = iData.phi();
+
+
+      FWBoolParameter* dlp = (FWBoolParameter*)item()->proxyBuilderConfig()->getVarParameter("Draw Labels");
+      if (dlp->value())
+      {
+         markers.m_text = new FWEveText(Form("%.1f", vc->getEnergyScale()->getPlotEt() ?  iData.et() : iData.energy()));
+         markers.m_text->SetMainColor( item()->defaultDisplayProperties().color());
+      }
 
       if ( type == FWViewType::kRhoZ )
       {  
          static const float_t offr = 4;
          float r_ecal = context().caloR1() + offr;
          float z_ecal = context().caloZ1() + offr/tan(context().caloTransAngle());
-
          double r(0);
          if ( theta < context().caloTransAngle() || M_PI-theta < context().caloTransAngle())
          {
@@ -124,36 +154,45 @@ FWJetProxyBuilder::buildViewType(const reco::Jet& iData, unsigned int iIndex, TE
             r = r_ecal/sin(theta);
          }
 
-         marker->SetScaleCenter( 0., (phi>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta) );
-         marker->AddLine( 0., (phi>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta),
-                          0., (phi>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
+         markers.m_ls->SetScaleCenter( 0., (phi>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta) );
+         markers.m_ls->AddLine( 0., (phi>0 ? r*fabs(sin(theta)) : -r*fabs(sin(theta))), r*cos(theta),
+                                0., (phi>0 ? (r+size)*fabs(sin(theta)) : -(r+size)*fabs(sin(theta))), (r+size)*cos(theta) );
       }
       else
       {
          float ecalR = context().caloR1() + 4;
-         marker->SetScaleCenter(ecalR*cos(phi), ecalR*sin(phi), 0);
-         marker->AddLine(ecalR*cos(phi), ecalR*sin(phi), 0, (ecalR+size)*cos(phi), (ecalR+size)*sin(phi), 0);
+         markers.m_ls->SetScaleCenter(ecalR*cos(phi), ecalR*sin(phi), 0);
+         markers.m_ls->AddLine(ecalR*cos(phi), ecalR*sin(phi), 0, (ecalR+size)*cos(phi), (ecalR+size)*sin(phi), 0);
       }
 
-      marker->SetLineWidth(4);  
-
-      marker->SetLineColor(dp.color());
-
+      markers.m_ls->SetLineWidth(4);  
+      markers.m_ls->SetLineColor(dp.color());
       FWViewEnergyScale* caloScale = vc->getEnergyScale();    
-      marker->SetScale(caloScale->getScaleFactor3D()*(caloScale->getPlotEt() ?  iData.et() : iData.energy()));
-      setupAddElement( marker, &oItemHolder );
-      m_lines.push_back(fireworks::scaleMarker(marker, iData.et(), iData.energy(), vc));
+      markers.m_ls->SetScale(caloScale->getScaleFactor3D()*(caloScale->getPlotEt() ?  iData.et() : iData.energy()));
+      setTextPos(markers, vc, type);
 
-      context().voteMaxEtAndEnergy(iData.et(), iData.energy());
+      markers.m_ls->SetMarkerColor(markers.m_ls->GetMainColor());
+      setupAddElement( markers.m_ls, &oItemHolder );
+      if (markers.m_text)  setupAddElement( markers.m_text, &oItemHolder , false);
+
    }
+   context().voteMaxEtAndEnergy(iData.et(), iData.energy());
+
 }
 
 void
 FWJetProxyBuilder::localModelChanges(const FWModelId& iId, TEveElement* iCompound,
-                                           FWViewType::EType viewType, const FWViewContext* vc)
+                                     FWViewType::EType viewType, const FWViewContext* vc)
 {
    increaseComponentTransparency(iId.index(), iCompound, "TEveJetCone", 80);
+
+   for (Lines_t::iterator i = m_lines.begin(); i!= m_lines.end(); ++ i)
+   {
+      TEveStraightLineSetProjected* projLineSet = (TEveStraightLineSetProjected*)(*(*i).m_ls->BeginProjecteds());
+      if (projLineSet) projLineSet->UpdateProjection();
+   }
 }
+
 
 void
 FWJetProxyBuilder::cleanLocal()
@@ -165,15 +204,47 @@ FWJetProxyBuilder::cleanLocal()
 void
 FWJetProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType type, const FWViewContext* vc)
 { 
-   typedef std::vector<fireworks::scaleMarker> Lines_t;  
    for (Lines_t::iterator i = m_lines.begin(); i!= m_lines.end(); ++ i)
    {
       if (vc == (*i).m_vc)
       { 
          float value = vc->getEnergyScale()->getPlotEt() ? (*i).m_et : (*i).m_energy;      
          (*i).m_ls->SetScale(vc->getEnergyScale()->getScaleFactor3D() *value);
-         TEveProjected* proj = *(*i).m_ls->BeginProjecteds();
-         proj->UpdateProjection();
+
+         setTextPos(*i, vc, type);
+
+         TEveStraightLineSetProjected* projLineSet = (TEveStraightLineSetProjected*)(*(*i).m_ls->BeginProjecteds());
+         projLineSet->UpdateProjection();
+      }
+   }
+}
+
+
+void FWJetProxyBuilder::setTextPos(fireworks::jetScaleMarker& s, const FWViewContext* vc, FWViewType::EType type)
+{  
+   TEveChunkManager::iterator li( s.m_ls->GetLinePlex() );
+   li.next();
+   TEveStraightLineSet::Line_t &l = * ( TEveStraightLineSet::Line_t* ) li();
+   TEveVector v(l.fV2[0] - l.fV1[0], l.fV2[1] - l.fV1[1],  l.fV2[2] - l.fV1[2] );
+   v.Normalize();
+
+
+   FWDoubleParameter* lop = (FWDoubleParameter*)item()->proxyBuilderConfig()->getVarParameter("Label Offset");
+   float value = vc->getEnergyScale()->getPlotEt() ? s.m_et : s.m_energy;
+   double trs = (lop->value() -1)* 130 * value/context().getMaxEnergyInEvent(vc->getEnergyScale()->getPlotEt());
+   v *= trs;
+
+   float x = l.fV1[0] + v[0];
+   float y = l.fV1[1] + v[1];
+   float z = l.fV1[2] + v[2];
+
+   if (s.m_text )
+   {
+      s.m_text->m_offset =  value/context().getMaxEnergyInEvent(vc->getEnergyScale()->getPlotEt());
+      s.m_text->RefMainTrans().SetPos(x, y, z);
+      if ((s.m_text)->BeginProjecteds() != (s.m_text)->EndProjecteds()) {
+         FWEveTextProjected* textProjected = (FWEveTextProjected*)(*(s.m_text)->BeginProjecteds());
+         textProjected->UpdateProjection();
       }
    }
 }
