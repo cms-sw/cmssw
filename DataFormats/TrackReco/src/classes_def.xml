@@ -115,4 +115,10 @@
      <!-- ValueMap<reco::Track> -->
      <class name="edm::ValueMap<reco::TrackRefVector>" />
      <class name="edm::Wrapper<edm::ValueMap<reco::TrackRefVector> >" />
+
+
+     <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Track> >,edm::RefProd<std::vector<TrajectorySeed> > >"/>
+     <class name="edm::AssociationMap<edm::OneToMany<std::vector<reco::Track>,std::vector<TrajectorySeed>,unsigned int> >">
+       <field name="transientMap_" transient="true"/>
+     </class>
   </lcgdict>
