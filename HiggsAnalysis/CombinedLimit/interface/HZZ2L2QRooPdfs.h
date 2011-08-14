@@ -5,6 +5,37 @@
 #include "RooRealProxy.h"
 #include "RooAbsReal.h"
 
+class RooCB : public RooAbsPdf {
+ public:
+  RooCB();
+  RooCB(const char *name, const char *title,
+        RooAbsReal& _x,
+        RooAbsReal& _mean,
+        RooAbsReal& _width,
+        RooAbsReal& _alpha,
+        RooAbsReal& _n,
+        RooAbsReal& _theta
+	);
+  RooCB(const RooCB& other, const char* name=0) ;
+  virtual TObject* clone(const char* newname) const { return new RooCB(*this,newname); }
+  inline virtual ~RooCB() { }
+
+ protected:
+
+  RooRealProxy x ;
+  RooRealProxy mean;
+  RooRealProxy width;
+  RooRealProxy alpha;
+  RooRealProxy n;
+  RooRealProxy theta;
+
+  Double_t evaluate() const ;
+
+ private:
+
+  ClassDef(RooCB,1)
+    };
+
  
 class RooDoubleCB : public RooAbsPdf {
 public:

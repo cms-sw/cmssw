@@ -37,6 +37,7 @@
 #pragma link C++ class RooRelBWUFParam+;
 #pragma link C++ class RooRelBW+;
 #pragma link C++ class RooDoubleCB+;
+#pragma link C++ class RooCB+;
 #pragma link C++ class RooFermi+;
 #if ROOT_VERSION_CODE < ROOT_VERSION(5,29,99)
 #pragma link C++ class RooStats::HistFactory::FlexibleInterpVar+;
