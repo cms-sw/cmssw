@@ -4,9 +4,10 @@
 /*
  * \file DTNoiseCalibration.h
  *
- * $Date: 2010/07/19 22:17:25 $
- * $Revision: 1.9 $
+ * $Date: 2011/05/25 21:03:56 $
+ * $Revision: 1.10 $
  * \author G. Mila - INFN Torino
+ *         A. Vilela Pereira - INFN Torino
  *
 */
 
@@ -17,8 +18,10 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <ctime>
 
 class DTGeometry;
+class DTChamberId;
 class DTSuperLayerId;
 class DTLayerId; 
 class DTWireId;
@@ -41,11 +44,13 @@ class DTNoiseCalibration: public edm::EDAnalyzer{
   void endJob();
 
 private:
-  std::string getChannelName(const DTWireId& wId) const;
+  std::string getChannelName(const DTWireId&) const;
   // Get the name of the layer
-  std::string getLayerName(const DTLayerId& lId) const;
+  std::string getLayerName(const DTLayerId&) const;
   // Get the name of the superLayer
-  std::string getSuperLayerName(const DTSuperLayerId& dtSLId) const;
+  std::string getSuperLayerName(const DTSuperLayerId&) const;
+  // Get the name of the chamber
+  std::string getChamberName(const DTChamberId&) const;
 
   edm::InputTag digiLabel_;
   bool useTimeWindow_;
@@ -67,6 +72,8 @@ private:
 
   int nevents_;
   //int counter;
+  time_t runBeginTime_;
+  time_t runEndTime_;
 
   // Get the DT Geometry
   edm::ESHandle<DTGeometry> dtGeom_;
@@ -79,7 +86,11 @@ private:
   // Map of the occupancy histograms by layer
   std::map<DTLayerId, TH1F*> theHistoOccupancyMap_;
   // Map of occupancy by lumi by wire
-  std::map<DTWireId, TH1F*> theHistoOccupancyVsLumiMap_; 
+  std::map<DTWireId, TH1F*> theHistoOccupancyVsLumiMap_;
+  // Map of occupancy by lumi by chamber
+  std::map<DTChamberId, TH1F*> chamberOccupancyVsLumiMap_;
+  // Map of occupancy by time by chamber
+  std::map<DTChamberId, TH1F*> chamberOccupancyVsTimeMap_; 
   // Map of the histograms with the number of events per evt per wire
   //std::map<DTLayerId, TH2F*> theHistoEvtPerWireMap_;
   // Map of skipped histograms
