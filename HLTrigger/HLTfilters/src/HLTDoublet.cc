@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2010/09/26 10:40:31 $
- *  $Revision: 1.12 $
+ *  $Date: 2011/05/01 08:43:49 $
+ *  $Revision: 1.15 $
  *
  *  \author Martin Grunewald
  *
@@ -30,7 +30,7 @@ template<typename T1, int Tid1, typename T2, int Tid2>
 HLTDoublet<T1,Tid1,T2,Tid2>::HLTDoublet(const edm::ParameterSet& iConfig) :
   inputTag1_(iConfig.template getParameter<edm::InputTag>("inputTag1")),
   inputTag2_(iConfig.template getParameter<edm::InputTag>("inputTag2")),
-  saveTags_ (iConfig.template getUntrackedParameter<bool>("saveTags",false)),
+  saveTags_ (iConfig.template getParameter<bool>("saveTags")),
   min_Dphi_ (iConfig.template getParameter<double>("MinDphi")),
   max_Dphi_ (iConfig.template getParameter<double>("MaxDphi")),
   min_Deta_ (iConfig.template getParameter<double>("MinDeta")),
@@ -91,7 +91,7 @@ HLTDoublet<T1,Tid1,T2,Tid2>::filter(edm::Event& iEvent, const edm::EventSetup& i
    // The filter object
    auto_ptr<TriggerFilterObjectWithRefs>
      filterobject (new TriggerFilterObjectWithRefs(path(),module()));
-   // Don't saveTag the TFOWRs, but rather the collections pointed to!
+   // Don't saveTagsthe TFOWRs, but rather the collections pointed to!
    //   if (saveTags_) {
    //     filterobject->addCollectionTag(inputTag1_);
    //     filterobject->addCollectionTag(inputTag2_);

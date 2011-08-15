@@ -30,7 +30,7 @@
 HLTDiJetAveFilter::HLTDiJetAveFilter(const edm::ParameterSet& iConfig)
 {
    inputJetTag_ = iConfig.getParameter< edm::InputTag > ("inputJetTag");
-   saveTag_     = iConfig.getUntrackedParameter<bool>("saveTag");
+   saveTags_     = iConfig.getParameter<bool>("saveTags");
    minPtAve_    = iConfig.getParameter<double> ("minPtAve"); 
    minPtJet3_   = iConfig.getParameter<double> ("minPtJet3"); 
    minDphi_     = iConfig.getParameter<double> ("minDphi"); 
@@ -44,7 +44,7 @@ void
 HLTDiJetAveFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("inputJetTag",edm::InputTag("hltIterativeCone5CaloJets"));
-  desc.addUntracked<bool>("saveTag",false);
+  desc.add<bool>("saveTags",false);
   desc.add<double>("minPtAve",100.0);
   desc.add<double>("minPtJet3",99999.0);
   desc.add<double>("minDphi",-1.0);
@@ -62,7 +62,7 @@ HLTDiJetAveFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // The filter object
   auto_ptr<trigger::TriggerFilterObjectWithRefs> 
     filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTag_) filterobject->addCollectionTag(inputJetTag_);
+  if (saveTags_) filterobject->addCollectionTag(inputJetTag_);
 
   Handle<CaloJetCollection> recocalojets;
   iEvent.getByLabel(inputJetTag_,recocalojets);

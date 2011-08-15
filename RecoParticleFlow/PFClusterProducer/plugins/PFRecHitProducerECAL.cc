@@ -55,10 +55,12 @@ PFRecHitProducerECAL::PFRecHitProducerECAL(const edm::ParameterSet& iConfig)
   topologicalCleaning_ = 
     iConfig.getParameter<bool>("topological_Cleaning");
 
-  threshCleaning_ = 
-    iConfig.getParameter<double>("thresh_Cleaning");
+  threshCleaningEB_ = 
+    iConfig.getParameter<double>("thresh_Cleaning_EB");
 
-  
+  threshCleaningEE_ = 
+    iConfig.getParameter<double>("thresh_Cleaning_EE");
+
   neighbourmapcalculated_ = false;
 }
 
@@ -164,7 +166,7 @@ PFRecHitProducerECAL::createRecHits(vector<reco::PFRecHit>& rechits,
 
       // Just clean ECAL Barrel rechits out of time by more than 5 sigma.
       // if ( timingCleaning_ && energy > threshCleaning_ && flag == EcalRecHit::kOutOfTime ) { 
-      if ( ( timingCleaning_ && energy > threshCleaning_ && 
+      if ( ( timingCleaning_ && energy > threshCleaningEB_ && 
 	     erh.checkFlag(EcalRecHit::kOutOfTime) ) ||
 	   ( topologicalCleaning_ && 
 	     ( erh.checkFlag(EcalRecHit::kWeird) || 
@@ -216,18 +218,39 @@ PFRecHitProducerECAL::createRecHits(vector<reco::PFRecHit>& rechits,
       const EcalRecHit& erh = (*rhcHandle)[i];
       const DetId& detid = erh.detid();
       double energy = erh.energy();
-      uint32_t flag = erh.recoFlag();
+      //uint32_t flag = erh.recoFlag();
       double time = erh.time();
       EcalSubdetector esd=(EcalSubdetector)detid.subdetId();
       if (esd != 2) continue;
       if(energy < thresh_Endcap_ ) continue;
 
       // Check and skip the TT recovered rechits
-      if ( flag == EcalRecHit::kTowerRecovered ) { 
+      if ( erh.checkFlag(EcalRecHit::kTowerRecovered) ) {
+      // if ( flag == EcalRecHit::kTowerRecovered ) { 
 	// std::cout << "Rechit was recovered with energy " << energy << std::endl;
 	continue;
       }
       
+      
+      // EE cleaning
+    
+      if ( ( timingCleaning_ && energy > threshCleaningEE_ && 
+	     erh.checkFlag(EcalRecHit::kOutOfTime) ) ||
+	   ( topologicalCleaning_ && 
+	     ( erh.checkFlag(EcalRecHit::kWeird) ) ) ) { 
+	reco::PFRecHit *pfrhCleaned = createEcalRecHit(detid, energy,  
+						       PFLayer::ECAL_ENDCAP,
+						       ecalEndcapGeometry);
+	if( !pfrhCleaned ) continue; // problem with this rechit. skip it      
+	pfrhCleaned->setRescale(time);
+	rechitsCleaned.push_back( *pfrhCleaned );
+	delete pfrhCleaned;
+	continue;
+      } 
+      
+
+
+
       reco::PFRecHit *pfrh = createEcalRecHit(detid, energy,
 					      PFLayer::ECAL_ENDCAP,
 					      ecalEndcapGeometry);

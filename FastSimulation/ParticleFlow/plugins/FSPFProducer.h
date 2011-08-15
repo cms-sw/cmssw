@@ -21,14 +21,16 @@ class FSPFProducer : public edm::EDProducer {
   
   virtual void produce(edm::Event&, const edm::EventSetup&);
   virtual void beginJob();
-  virtual void beginRun(edm::Run &, const edm::EventSetup &);
+  virtual void beginRun(edm::Run&, const edm::EventSetup&);
 
  private:
 
   edm::InputTag labelPFCandidateCollection_;
-  double barrel_correction;
-  double endcap_correction;
+  double par1, par2;
+  double barrel_th, endcap_th, middle_th;
 
+  double energy_threshold(double eta);
+  
 };
 
 #endif

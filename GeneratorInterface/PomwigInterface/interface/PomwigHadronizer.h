@@ -17,11 +17,10 @@ namespace gen
         PomwigHadronizer(const edm::ParameterSet &params);
         ~PomwigHadronizer();
 
-        bool readSettings( int );
-	bool initializeForInternalPartons();
+        bool initializeForInternalPartons();
         bool initializeForExternalPartons();
 
-	bool declareStableParticles(const std::vector<int> &pdgIds);
+        bool declareStableParticles(const std::vector<int> &pdgIds);
 	bool declareSpecialSettings( const std::vector<std::string> ) { return true; }
         void statistics();
 

@@ -5,8 +5,8 @@
  *
  *  Virtual interface for the field provider for an individual field volume.
  *
- *  $Date: $
- *  $Revision: $
+ *  $Date: 2008/03/29 14:10:47 $
+ *  $Revision: 1.3 $
  *  \author T. Todorov
  */
 
@@ -23,6 +23,9 @@ public:
   typedef Point3DBase<T,LocalTag>       LocalPointType;
   typedef Vector3DBase<T,GlobalTag>     GlobalVectorType;
   typedef Vector3DBase<T,LocalTag>      LocalVectorType;
+
+
+  virtual ~MagneticFieldProvider(){}
 
   /** Returns the field vector in the local frame, at local position p
    */

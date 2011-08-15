@@ -65,6 +65,7 @@ namespace cms
     
     edm::InputTag theSeedLabel;
 
+    unsigned int maxSeedsBeforeCleaning_;
     // methods for debugging
     virtual TrajectorySeedCollection::const_iterator lastSeed(TrajectorySeedCollection const& theSeedColl){return theSeedColl.end();}
     virtual void printHitsDebugger(edm::Event& e){;}

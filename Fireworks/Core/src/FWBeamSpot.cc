@@ -1,19 +1,28 @@
 #include "Fireworks/Core/interface/FWBeamSpot.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "FWCore/Common/interface/EventBase.h"
+#include "Fireworks/Core/interface/fwLog.h"
 
 void FWBeamSpot::checkBeamSpot(const edm::EventBase* event)
-{
-   edm::InputTag tag("offlineBeamSpot");
-   edm::Handle<reco::BeamSpot> spot;
+{ 
+   try
+   {
+      edm::InputTag tag("offlineBeamSpot");
+      edm::Handle<reco::BeamSpot> spot;
 
-   event->getByLabel(tag, spot);
-   if (spot.isValid())
-   {
-      m_beamspot = spot.product();
+      event->getByLabel(tag, spot);
+      if (spot.isValid())
+      {
+         m_beamspot = spot.product();
+      }
+      else
+      {
+         m_beamspot = 0;
+      }
    }
-   else
+   catch (cms::Exception& iException)
    {
+      fwLog(fwlog::kError) <<"FWBeamSpot::checkBeamSpot failed "<<iException.what() <<std::endl;
       m_beamspot = 0;
    }
 }

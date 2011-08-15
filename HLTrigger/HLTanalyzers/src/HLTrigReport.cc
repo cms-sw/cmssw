@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/03/21 14:55:29 $
- *  $Revision: 1.32 $
+ *  $Date: 2011/03/30 16:17:33 $
+ *  $Revision: 1.33 $
  *
  *  \author Martin Grunewald
  *
@@ -350,7 +350,7 @@ void HLTrigReport::endRun(edm::Run const & run, edm::EventSetup const & setup) {
 }
 
 void HLTrigReport::beginLuminosityBlock(edm::LuminosityBlock const & lumi, edm::EventSetup const & setup) {
-  if (resetBy_ == EVERY_RUN)  reset();
+  if (resetBy_ == EVERY_LUMI) reset();
 }
 
 void HLTrigReport::endLuminosityBlock(edm::LuminosityBlock const & lumi, edm::EventSetup const & setup) {

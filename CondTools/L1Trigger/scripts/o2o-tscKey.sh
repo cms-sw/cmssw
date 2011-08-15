@@ -66,6 +66,14 @@ trap "rm -f o2o-tscKey.lock; mv tmpb.log tmpb.log.save; exit" 1 2 3 4 5 6 7 8 9 
 # run script; args are key records
 rm -f tmpb.log
 
+# Check if o2o-setIOV.sh is running.  If so, wait 15 seconds to prevent simultaneous writing ot ORCON.
+if [ -f o2o-setIOV.lock ]
+    then
+    echo "o2o-setIOV.sh currently running.  Wait 15 seconds...." >> tmpb.log 2>&1
+    sleep 15
+    echo "Resuming process." >> tmpb.log 2>&1
+fi
+
 if [ ${oflag} -eq 0 ]
     then
     $CMSSW_BASE/src/CondTools/L1Trigger/scripts/runL1-O2O-key.sh -x ${centralRel} ${key} >& tmpb.log

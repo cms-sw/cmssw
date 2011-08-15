@@ -4,8 +4,8 @@
 /*
  * \file EEDataCertificationTask.h
  *
- * $Date: 2010/08/08 08:56:00 $
- * $Revision: 1.6 $
+ * $Date: 2011/06/27 08:35:13 $
+ * $Revision: 1.8 $
  * \author E. Di Marco
  *
 */
@@ -54,6 +54,9 @@ void reset(void);
 
 /// Cleanup
 void cleanup(void);
+
+ static const int DccId_[18];
+ static const int nTowerMax_;
   
 private:
 
@@ -81,5 +84,9 @@ MonitorElement* meEEReportSummary_;
 MonitorElement* meEEReportSummaryContents_[36];
 
 };
+
+const int EEDataCertificationTask::DccId_[18] = {1,2,3,4,5,6,7,8,9,
+				       46,47,48,49,50,51,52,53,54};
+const int EEDataCertificationTask::nTowerMax_ = 44;
 
 #endif

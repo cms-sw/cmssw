@@ -14,12 +14,15 @@ p2 = re.compile(r'PRODNAME')
 
 #******************   definitions  **********************************
 jec_type    = 'JetCorrectorParametersCollection'
-ERA         = 'Jec10V1'
+ERA         = 'Spring10'
+UNIQUETAG   = ERA + '_V8'
+ERAJPT      = 'Summer10'
+UNIQUETAGJPT= ERAJPT + '_V8'
 ALGO_LIST   = ['IC5Calo','IC5PF',
                'AK5Calo','AK5PF','AK5JPT','AK5TRK',
                'AK7Calo','AK7PF',
                'KT4Calo','KT4PF',
-               'KT6Calo','KT6PF'
+               #'KT6Calo','KT6PF'
                ]
 #*********************************************************************
 
@@ -28,9 +31,12 @@ files = []
 
 ### L2+L3 Corrections
 for aa in ALGO_LIST: #loop for jet algorithms
-
-    s1 = jec_type + '_' + ERA + '_' + aa
-    s2 = jec_type + '_' + ERA + '_' + aa
+    if aa is not 'AK5JPT' :
+        s1 = jec_type + '_' + UNIQUETAG + '_' + aa
+        s2 = jec_type + '_' + UNIQUETAG + '_' + aa
+    else :
+        s1 = jec_type + '_' + UNIQUETAGJPT + '_' + aa
+        s2 = jec_type + '_' + UNIQUETAGJPT + '_' + aa
     k1 = p1.sub( s1, fileContents )
     k2 = p2.sub( s2, k1 )
     k2outfile = s2 + '.txt'
@@ -44,7 +50,7 @@ for aa in ALGO_LIST: #loop for jet algorithms
 
 
 for ifile in files :
-    s = "./dropBoxOffline_test.sh "+ERA+".db " + ifile
+    s = "./dropBoxOffline_test.sh JEC_"+ERA+".db " + ifile
     print s
-    subprocess.call( ["./dropBoxOffline_test.sh", ERA+".db", ifile])
+    subprocess.call( ["./dropBoxOffline_test.sh", "JEC_"+ERA+".db", ifile])
   
