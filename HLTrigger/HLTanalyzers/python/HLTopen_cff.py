@@ -18,17 +18,17 @@ hltL1NonIsoR9shape = cms.EDProducer( "EgammaHLTR9Producer",
 
 HLTEgammaR9ShapeSequence = cms.Sequence( hltL1IsoR9shape + hltL1NonIsoR9shape )
 
-hltLowMassDisplacedL3Filtered.MaxEta      = cms.double(3.0)
-hltLowMassDisplacedL3Filtered.MinPtPair   = cms.double( 0.0 )
-hltLowMassDisplacedL3Filtered.MinPtMin    = cms.double( 0.0 )
-hltLowMassDisplacedL3Filtered.MaxInvMass  = cms.double( 11.5 )
+#hltLowMassDisplacedL3Filtered.MaxEta      = cms.double(3.0)
+#hltLowMassDisplacedL3Filtered.MinPtPair   = cms.double( 0.0 )
+#hltLowMassDisplacedL3Filtered.MinPtMin    = cms.double( 0.0 )
+#hltLowMassDisplacedL3Filtered.MaxInvMass  = cms.double( 11.5 )
+#
+#hltDisplacedmumuFilterLowMass.MinLxySignificance     = cms.double( 0.0 )
+#hltDisplacedmumuFilterLowMass.MinVtxProbability      = cms.double( 0.0 )
+#hltDisplacedmumuFilterLowMass.MinCosinePointingAngle = cms.double( -2.0 )
 
-hltDisplacedmumuFilterLowMass.MinLxySignificance     = cms.double( 0.0 )
-hltDisplacedmumuFilterLowMass.MinVtxProbability      = cms.double( 0.0 )
-hltDisplacedmumuFilterLowMass.MinCosinePointingAngle = cms.double( -2.0 )
 
-
-HLTDisplacemumuSequence = cms.Sequence(  hltL1sL1DoubleMu0 + hltDimuonL1Filtered0 + hltDimuonL2PreFiltered0 + hltLowMassDisplacedL3Filtered + hltDisplacedmumuVtxProducerLowMass + hltDisplacedmumuFilterLowMass)
+#HLTDisplacemumuSequence = cms.Sequence(  hltL1sL1DoubleMu0 + hltDimuonL1Filtered0 + hltDimuonL2PreFiltered0 + hltLowMassDisplacedL3Filtered + hltDisplacedmumuVtxProducerLowMass + hltDisplacedmumuFilterLowMass)
 
 
 
@@ -55,7 +55,7 @@ DoHltMuon = cms.Path(
     HLTL3muonisorecoSequence +
     HLTMuTrackJpsiPixelRecoSequence + 
     HLTMuTrackJpsiTrackRecoSequence +
-    HLTDisplacemumuSequence +
+##    HLTDisplacemumuSequence +
     HLTEndSequence )
 
 # create the Egamma HLT reco paths
@@ -89,7 +89,9 @@ DoHLTPhoton = cms.Path(
     hltActivityPhotonEcalIsol +
     hltActivityPhotonHcalIsol +
     HLTEcalActivityEgammaRegionalRecoTrackerSequence +
-    hltActivityPhotonHollowTrackIsol
+    hltEcalActivityEgammaRegionalAnalyticalTrackSelector + 
+    hltActivityPhotonHollowTrackIsolWithId
+    ##    hltActivityPhotonHollowTrackIsol
     )
 
 DoHLTElectron = cms.Path(
