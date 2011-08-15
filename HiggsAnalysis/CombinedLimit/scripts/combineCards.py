@@ -61,6 +61,9 @@ for ich,fname in enumerate(args):
                     if pdf[-1] != '?': pdf += '?'
                     systlines[lsyst][0] = pdf
                     for b,v in systeffect.items(): othereffect[b] = v;
+                elif (pdf == "shape?" and otherpdf == "shape") or (pdf == "shape" and otherpdf == "shape?"):
+                    systlines[lsyst][0] = "shape?"
+                    for b,v in systeffect.items(): othereffect[b] = v;
                 else:
                     raise RuntimeError, "File %s defines systematic %s as using pdf %s, while a previous file defines it as using %s" % (fname,lsyst,pdf,otherpdf)
             else:
