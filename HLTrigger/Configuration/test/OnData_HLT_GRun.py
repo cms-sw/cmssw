@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V210 (CMSSW_4_2_0_HLT21)
+# /dev/CMSSW_4_2_0/GRun/V211 (CMSSW_4_2_0_HLT21)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V210')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V211')
 )
 
 process.streams = cms.PSet( 
@@ -3885,6 +3885,9 @@ process.PrescaleService = cms.Service( "PrescaleService",
       ),
       cms.PSet(  pathName = cms.string( "HLT_IsoMu15_v14" ),
         prescales = cms.vuint32( 8, 15, 20, 340, 270, 190, 140, 90, 65, 1, 1 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_IsoMu15_eta2p1_v1" ),
+        prescales = cms.vuint32( 160, 140, 100, 80, 70, 40, 30, 20, 15, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_IsoMu17_v14" ),
         prescales = cms.vuint32( 0, 0, 0, 250, 200, 140, 100, 70, 50, 1, 1 )
