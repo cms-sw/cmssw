@@ -10,7 +10,7 @@ namespace std{} using namespace std;
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
-#include "Geometry/HcalAlgo/interface/DDHCalXtalAlgo.h"
+#include "Geometry/HcalAlgo/plugins/DDHCalXtalAlgo.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 DDHCalXtalAlgo::DDHCalXtalAlgo() {

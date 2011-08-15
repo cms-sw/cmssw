@@ -10,7 +10,7 @@
 #include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
-#include "Geometry/HcalAlgo/interface/DDHCalAngular.h"
+#include "Geometry/HcalAlgo/plugins/DDHCalAngular.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 DDHCalAngular::DDHCalAngular() {

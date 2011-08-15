@@ -14,7 +14,7 @@ namespace std{} using namespace std;
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "Geometry/HcalAlgo/interface/DDHCalTBCableAlgo.h"
+#include "Geometry/HcalAlgo/plugins/DDHCalTBCableAlgo.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 

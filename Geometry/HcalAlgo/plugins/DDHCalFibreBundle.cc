@@ -13,7 +13,7 @@
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "Geometry/HcalAlgo/interface/DDHCalFibreBundle.h"
+#include "Geometry/HcalAlgo/plugins/DDHCalFibreBundle.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 DDHCalFibreBundle::DDHCalFibreBundle() {

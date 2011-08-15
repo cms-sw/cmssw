@@ -9,7 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "Geometry/HcalAlgo/interface/DDHCalLinearXY.h"
+#include "Geometry/HcalAlgo/plugins/DDHCalLinearXY.h"
 
 
 DDHCalLinearXY::DDHCalLinearXY() {
