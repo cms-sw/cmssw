@@ -132,8 +132,7 @@ void GetSignalDefinition(std::vector<stSignal>& signals){
   signals.push_back(stSignal("Stau"  , "PPStau156", "PPStau156", "Pair #tilde{#tau}_{1} 156"     , 156,  0, 1,  0.00704) ); //NLO
   signals.push_back(stSignal("Stau"  , "PPStau200", "PPStau200", "Pair #tilde{#tau}_{1} 200"     , 200,  1, 1,   0.00247) ); //NLO
   signals.push_back(stSignal("Stau"  , "PPStau247", "PPStau247", "Pair #tilde{#tau}_{1} 247"     , 247,  0, 1,  0.00101) ); //NLO
-  signals.push_back(stSignal("Stau"  , "PPStau308", "PPStau308", "Pair #tilde{#
-tau}_{1} 308"     , 308,  0, 1,  0.000353) ); //NLO  
+  signals.push_back(stSignal("Stau"  , "PPStau308", "PPStau308", "Pair #tilde{#tau}_{1} 308"     , 308,  0, 1,  0.000353) ); //NLO  
 
 /* 
    signals.push_back(stSignal("Stau"  , "DCStau121"    , "DICHAMP #tilde{#tau}_{1} 121"  , 121,  1, 1,   0.450000) ); //LO
