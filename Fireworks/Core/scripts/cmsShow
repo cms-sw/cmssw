@@ -18,11 +18,11 @@ if [ f$osname = f"Darwin" ]; then
         exit 1;
     fi
     osv=`sw_vers -productVersion` 
-    osvs=`echo  ${osv%.*}`
-    if [ f${osvs} != f"10.6" ]; then
-        echo "###################################"
-        echo "Only OSX-10.6 is supported!"
-        echo "###################################"
+    osvt=`echo $osv | awk '{if ( $1 >= 10.6 ) print "$osv";}'`
+    if [ "$osvt" == "" ]; then
+        echo "#######################################"
+        echo "Only version 10.6 or greater supported!"
+        echo "#######################################"
 	exit 1;
     fi
 else
