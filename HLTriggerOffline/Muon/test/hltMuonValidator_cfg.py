@@ -19,8 +19,9 @@ process.hltMuonValidator.hltProcessName = hltProcessName
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
-process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'START3X_V25::All'
+process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag = cms.string(autoCond['startup'])
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
