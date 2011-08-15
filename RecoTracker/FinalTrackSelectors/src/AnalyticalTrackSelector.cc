@@ -68,6 +68,12 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
   
     setQualityBit_.push_back( false );
     std::string qualityStr = cfg.getParameter<std::string>("qualityBit");
+    
+    if(d0_par1_[0].size()!=2 || dz_par1_[0].size()!=2 || d0_par2_[0].size()!=2 || dz_par2_[0].size()!=2)
+    {
+      edm::LogError("MisConfiguration")<<"vector of size less then 2";
+      throw; 
+    }
 
     if (cfg.exists("qualityBit")) {
       std::string qualityStr = cfg.getParameter<std::string>("qualityBit");
