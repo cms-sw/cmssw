@@ -59,7 +59,7 @@ class RunOnData(ConfigToolBase):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'names',['All'], "collection name; supported are 'Photons', 'Electrons','Muons', 'Taus', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'", allowedValues=['Photons', 'Electrons','Muons', 'Taus', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'])
         self.addParameter(self._defaultParameters,'postfix',"", "postfix of default sequence")
-        self.addParameter(self._defaultParameters,'outputModules',['out'], "names of all output modules specified to be adapted (default is 'out')")
+        self.addParameter(self._defaultParameters,'outputModules',['out'], "names of all output modules specified to be adapted (default is ['out'])")
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
 
@@ -118,7 +118,7 @@ class RemoveMCMatching(ConfigToolBase):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'names',['All'], "collection name; supported are 'Photons', 'Electrons','Muons', 'Taus', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'", allowedValues=['Photons', 'Electrons','Muons', 'Taus', 'Jets', 'METs', 'All', 'PFAll', 'PFElectrons','PFTaus','PFMuons'])
         self.addParameter(self._defaultParameters,'postfix',"", "postfix of default sequence")
-        self.addParameter(self._defaultParameters,'outputModules',['out'], "names of all output modules specified to be adapted (default is 'out')")
+        self.addParameter(self._defaultParameters,'outputModules',['out'], "names of all output modules specified to be adapted (default is ['out'])")
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
 
@@ -199,7 +199,7 @@ class RemoveMCMatching(ConfigToolBase):
                     if hasattr(process,outMod):
                         getattr(process,outMod).outputCommands.append("drop *_selectedPatJets*_genJets_*")
                     else:
-                        raise KeyError, "process has no module named", outMod
+                        raise KeyError, "process has no OutModule named", outMod
                 
             if( names[obj] == 'METs'      or names[obj] == 'All' ):
                 ## remove mc extra configs for jets
@@ -234,7 +234,7 @@ class RemoveAllPATObjectsBut(ConfigToolBase):
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'names',self._defaultValue, "list of collection names; supported are 'Photons', 'Electrons', 'Muons', 'Taus', 'Jets', 'METs'", Type=list, allowedValues=['Photons', 'Electrons', 'Muons', 'Taus', 'Jets', 'METs'])
-        self.addParameter(self._defaultParameters,'outputModules',['out'], "names of all output modules specified to be adapted (default is 'out')")
+        self.addParameter(self._defaultParameters,'outputModules',['out'], "names of all output modules specified to be adapted (default is ['out'])")
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
 
@@ -277,7 +277,7 @@ class RemoveSpecificPATObjects(ConfigToolBase):
     def __init__(self):
         ConfigToolBase.__init__(self)
         self.addParameter(self._defaultParameters,'names',self._defaultValue, "list of collection names; supported are 'Photons', 'Electrons', 'Muons', 'Taus', 'Jets', 'METs'", Type=list, allowedValues=['Photons', 'Electrons', 'Muons', 'Taus', 'Jets', 'METs'])
-        self.addParameter(self._defaultParameters,'outputModules',['out'], "names of all output modules specified to be adapted (default is 'out')")
+        self.addParameter(self._defaultParameters,'outputModules',['out'], "names of all output modules specified to be adapted (default is ['out'])")
         self.addParameter(self._defaultParameters,'postfix',"", "postfix of default sequence")
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
@@ -414,7 +414,7 @@ class RemoveCleaning(ConfigToolBase):
     _defaultParameters=dicttypes.SortedKeysDict()
     def __init__(self):
         ConfigToolBase.__init__(self)
-        self.addParameter(self._defaultParameters,'outputModules',['out'], "names of all output modules specified to be adapted (default is 'out')")
+        self.addParameter(self._defaultParameters,'outputModules',['out'], "names of all output modules specified to be adapted (default is ['out'])")
         self.addParameter(self._defaultParameters,'postfix',"", "postfix of default sequence")
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
@@ -457,16 +457,16 @@ class RemoveCleaning(ConfigToolBase):
                 applyPostfix(process,m,postfix)
                 )
         if len(outputModules) > 0:
-            print "---------------------------------------------------------------------"
-            print "INFO   : cleaning has been removed. Switch output from clean PAT     "
-            print "         candidates to selected PAT candidates."
+            print "------------------------------------------------------------"
+            print "INFO   : cleaning has been removed. Switching output from"
+            print "         clean PAT candidates to selected PAT candidates."
             ## add selected pat objects to the pat output
             from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoCleaning
             for outMod in outputModules:
                 if hasattr(process,outMod):
                     getattr(process,outMod).outputCommands = patEventContentNoCleaning
                 else:
-                    raise KeyError, "process has no module named", outMod
+                    raise KeyError, "process has no OutModule named", outMod
 
 removeCleaning=RemoveCleaning()
 
@@ -479,7 +479,7 @@ class AddCleaning(ConfigToolBase):
     _defaultParameters=dicttypes.SortedKeysDict()
     def __init__(self):
         ConfigToolBase.__init__(self)
-        self.addParameter(self._defaultParameters,'outputModules',['out'], "names of all output modules specified to be adapted (default is 'out')")
+        self.addParameter(self._defaultParameters,'outputModules',['out'], "names of all output modules specified to be adapted (default is ['out'])")
         self._parameters=copy.deepcopy(self._defaultParameters)
         self._comment = ""
 
@@ -512,15 +512,15 @@ class AddCleaning(ConfigToolBase):
         countLept.tauSource = countLept.tauSource.value().replace('selectedPat','cleanPat')
         if len(outputModules) > 0:
             print "---------------------------------------------------------------------"
-            print "INFO   : cleaning has been added. Switch output from selected PAT    "
-            print "         candidates to clean PAT candidates."
+            print "INFO   : cleaning has been added. Switching output from  "
+            print "         selected PAT candidates to clean PAT candidates."
             ## add clean layer1 objects to the pat output
             from PhysicsTools.PatAlgos.patEventContent_cff import patEventContent
             for outMod in outputModules:
                 if hasattr(process,outMod):
                     getattr(process,outMod).outputCommands = patEventContent
                 else:
-                    raise KeyError, "process has no module named", outMod
+                    raise KeyError, "process has no OutModule named", outMod
 
 addCleaning=AddCleaning()
 
