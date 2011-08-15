@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V211 (CMSSW_4_2_0_HLT21)
+# /dev/CMSSW_4_2_0/GRun/V212 (CMSSW_4_2_0_HLT21)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V211')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V212')
 )
 
 process.streams = cms.PSet( 
@@ -3621,7 +3621,7 @@ process.MicroStateService = cms.Service( "MicroStateService",
 process.ModuleWebRegistry = cms.Service( "ModuleWebRegistry",
 )
 process.PrescaleService = cms.Service( "PrescaleService",
-    lvl1DefaultLabel = cms.untracked.string( "1e33" ),
+    lvl1DefaultLabel = cms.untracked.string( "3e33" ),
     lvl1Labels = cms.vstring( '5e33',
       '4e33',
       '3e33',
@@ -3974,10 +3974,10 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 190, 150, 110, 110, 70, 50, 35, 25, 20, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Photon30_CaloIdVL_v7" ),
-        prescales = cms.vuint32( 34, 34, 34, 34, 1360, 960, 680, 480, 340, 1, 1 )
+        prescales = cms.vuint32( 1, 90, 2000, 2000, 1340, 960, 670, 470, 340, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Photon30_CaloIdVL_IsoL_v8" ),
-        prescales = cms.vuint32( 20, 20, 20, 20, 800, 560, 400, 280, 200, 1, 1 )
+        prescales = cms.vuint32( 1, 160, 3400, 3400, 2270, 1590, 1140, 800, 570, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Photon36_Photon22_v1" ),
         prescales = cms.vuint32( 750, 600, 450, 450, 300, 210, 150, 110, 75, 1, 1 )

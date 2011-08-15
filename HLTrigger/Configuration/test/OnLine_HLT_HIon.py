@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V211 (CMSSW_4_2_0_HLT21)
+# /dev/CMSSW_4_2_0/HIon/V212 (CMSSW_4_2_0_HLT21)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V211')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V212')
 )
 
 process.streams = cms.PSet( 
@@ -2258,7 +2258,7 @@ process.MicroStateService = cms.Service( "MicroStateService",
 process.ModuleWebRegistry = cms.Service( "ModuleWebRegistry",
 )
 process.PrescaleService = cms.Service( "PrescaleService",
-    lvl1DefaultLabel = cms.untracked.string( "1e33" ),
+    lvl1DefaultLabel = cms.untracked.string( "3e33" ),
     lvl1Labels = cms.vstring( '5e33',
       '4e33',
       '3e33',
