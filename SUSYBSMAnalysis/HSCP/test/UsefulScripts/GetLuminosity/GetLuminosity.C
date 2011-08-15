@@ -36,27 +36,32 @@ struct stRun {
    unsigned int runId;
    std::vector<unsigned int> lumiId;   
 };
-std::vector<stRun*> RunMap;
 
-void GetLumiBlocks_Core(vector<string>& fileNames);
-void DumpJson();
+void GetLumiBlocks_Core(vector<string>& fileNames, std::vector<stRun*>& RunMap);
+void DumpJson(const std::vector<stRun*>& RunMap, char* FileName);
+void RemoveRunsAfter(unsigned int RunMax, const std::vector<stRun*>& RunMap, std::vector<stRun*>& NewRunMap);
 
 void GetLuminosity()
 {
-  std::string BaseDirectory = "dcap://cmsdca.fnal.gov:24125/pnfs/cms/WAX/11/store/user/farrell3/EDMFiles/";
-   vector<string> fileNames;
-   fileNames.push_back(BaseDirectory + "Data_RunA_160404_163869.root");
-   fileNames.push_back(BaseDirectory + "Data_RunA_165001_166033.root");
-   fileNames.push_back(BaseDirectory + "Data_RunA_166034_166500.root");
-   fileNames.push_back(BaseDirectory + "Data_RunA_166501_166893.root");
-   fileNames.push_back(BaseDirectory + "Data_RunA_166894_167151.root");
-   fileNames.push_back(BaseDirectory + "Data_RunA_167153_167913.root");
+   std::string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_08_03/";
+   vector<string> inputFiles;
+   inputFiles.push_back(BaseDirectory + "Data_RunA_160404_163869.root");
+   inputFiles.push_back(BaseDirectory + "Data_RunA_165001_166033.root");
+   inputFiles.push_back(BaseDirectory + "Data_RunA_166034_166500.root");
+   inputFiles.push_back(BaseDirectory + "Data_RunA_166501_166893.root");
+   inputFiles.push_back(BaseDirectory + "Data_RunA_166894_167151.root");
+   inputFiles.push_back(BaseDirectory + "Data_RunA_167153_167913.root");
 
-   GetLumiBlocks_Core(fileNames);
-   DumpJson();
+   std::vector<stRun*> RunMap;
+   GetLumiBlocks_Core(inputFiles, RunMap);
+   DumpJson(RunMap, "out.json");
+
+   std::vector<stRun*> RunMapBefRPC;
+   RemoveRunsAfter(165970, RunMap, RunMapBefRPC);
+   DumpJson(RunMapBefRPC, "out_beforeRPCChange.json");
 }
 
-void GetLumiBlocks_Core(vector<string>& fileNames)
+void GetLumiBlocks_Core(vector<string>& fileNames, std::vector<stRun*>& RunMap)
 {
    printf("Running\n");
    for(unsigned int f=0;f<fileNames.size();f++){
@@ -98,41 +103,33 @@ void GetLumiBlocks_Core(vector<string>& fileNames)
         }      
       }printf("\n");
    }
+}
 
+void RemoveRunsAfter(unsigned int RunMax, const std::vector<stRun*>& RunMap, std::vector<stRun*>& NewRunMap){
+   for(unsigned int r=0;r<RunMap.size();r++){
+      if(RunMap[r]->runId<RunMax)NewRunMap.push_back(RunMap[r]);
+   }
 }
 
 
-
-void DumpJson(){
-   FILE* json = fopen("out.json","w");
-   FILE* json_beforeRPCChange = fopen("out_beforeRPCChange.json","w");
-
+void DumpJson(const std::vector<stRun*>& RunMap, char* FileName){
+   FILE* json = fopen(FileName,"w");
    fprintf(json,"{");
-   fprintf(json_beforeRPCChange,"{");
    for(unsigned int r=0;r<RunMap.size();r++){
       stRun* tmp =  RunMap[r];
       fprintf(json,"\"%i\": [",tmp->runId);
-      if (tmp->runId<165970) fprintf(json_beforeRPCChange,"\"%i\": [",tmp->runId);
-
       unsigned int l=0;
       while(l<tmp->lumiId.size()){
          unsigned int FirstLumi = tmp->lumiId[l];
          unsigned Size=0; 
          for(unsigned int l2=l;l2<tmp->lumiId.size() && FirstLumi+l2-l==tmp->lumiId[l2]; l2++){Size++;}
          fprintf(json,"[%i, %i]",FirstLumi,FirstLumi+Size-1);
-         if (tmp->runId<165970) fprintf(json_beforeRPCChange,"[%i, %i]",FirstLumi,FirstLumi+Size-1);
          l+=Size;
          if(l<tmp->lumiId.size()) fprintf(json,",");
-         if (tmp->runId<165970) if(l<tmp->lumiId.size()) fprintf(json_beforeRPCChange,",");
       }
       fprintf(json,"] ");
-      if (tmp->runId<165970) fprintf(json_beforeRPCChange,"] ");
       if(r<RunMap.size()-1)fprintf(json,",");
-      if(r<RunMap.size()-1 && tmp->runId<165970)fprintf(json_beforeRPCChange,",");
    }  
    fprintf(json,"}");   
    fclose(json);
-
-   fprintf(json_beforeRPCChange,"}");
-   fclose(json_beforeRPCChange);
 }
