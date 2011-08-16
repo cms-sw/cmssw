@@ -96,7 +96,7 @@ TwoBodyDecay TwoBodyDecayEstimator::estimate( const std::vector< RefCountedLinea
 
   theNdf = matA.num_row() - matA.num_col();
 
-  return TwoBodyDecay( TwoBodyDecayParameters( vecEstimate, invAtGPrimeA ), chi2, isValid );
+  return TwoBodyDecay( TwoBodyDecayParameters( vecEstimate, invAtGPrimeA ), chi2, isValid, vm );
 }
 
 
