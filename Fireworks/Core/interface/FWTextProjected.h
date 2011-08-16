@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel 
 //         Created:  Fri Aug 12 01:12:28 CEST 2011
-// $Id$
+// $Id: FWTextProjected.h,v 1.1 2011/08/13 04:04:20 amraktad Exp $
 //
 
 #include "TNamed.h"
@@ -36,8 +36,9 @@ private:
    const FWEveText& operator=(const FWEveText&); // stop default
 
 public:
-   float m_offset;
-   FWEveText(const char* txt=""):TEveText(txt), m_offset(0) {}
+   float m_offsetZ;
+   float m_textPad;
+   FWEveText(const char* txt=""):TEveText(txt), m_offsetZ(0), m_textPad(5) {}
    virtual ~FWEveText() {}
 
    virtual TClass* ProjectedClass(const TEveProjection* p) const  ;

@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Aug 12 01:12:18 CEST 2011
-// $Id: FWTextProjected.cc,v 1.1 2011/08/13 04:04:20 amraktad Exp $
+// $Id: FWTextProjected.cc,v 1.2 2011/08/16 01:40:35 amraktad Exp $
 //
 
 // system include files
@@ -51,7 +51,7 @@ void FWEveTextProjected::UpdateProjection()
    TEveProjection& proj = * fManager->GetProjection();
    proj.ProjectPoint(pos[0],pos[1], pos[2], fDepth);
 
-   RefMainTrans().SetPos(pos[0], pos[1], pos[2] + als.m_offset);
+   RefMainTrans().SetPos(pos[0], pos[1], pos[2] + als.m_offsetZ);
 }
 //==============================================================================
 
@@ -91,13 +91,12 @@ void FWEveTextGL::DirectDraw(TGLRnrCtx & rnrCtx) const
    gluUnProject(x + bbox[3], y + bbox[4], z, mm, pm, vp, &fX[2][0], &fX[2][1], &fX[2][2]);
    gluUnProject(x + bbox[0], y + bbox[4], z, mm, pm, vp, &fX[3][0], &fX[3][1], &fX[3][2]);
    glEnable(GL_POLYGON_OFFSET_FILL);
-            
-
-   float a = 4; // padding
-   double xm =  fX[0][0] -a;
-   double xM =  fX[2][0] +a;
-   double ym =  fX[0][1] -a;
-   double yM =  fX[2][1] +a;
+           
+   FWEveText* model = (FWEveText*)fM; 
+   double xm =  fX[0][0] - model->m_textPad;
+   double xM =  fX[2][0] + model->m_textPad;
+   double ym =  fX[0][1] - model->m_textPad;
+   double yM =  fX[2][1] + model->m_textPad;
 
 
    //   TGLUtil::Color(1016);
