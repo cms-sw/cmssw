@@ -2,8 +2,8 @@
  * \file PixelVTXMonitor.cc
  * \author S. Dutta
  * Last Update:
- * $Date: 2011/08/10 05:14:06 $
- * $Revision: 1.1 $
+ * $Date: 2011/08/10 12:28:21 $
+ * $Revision: 1.2 $
  * $Author: dutta $
  *
  * Description: Pixel Vertex Monitoring for different HLT paths
@@ -18,6 +18,7 @@
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "TPRegexp.h"
 
 
 // -----------------------------
@@ -40,16 +41,35 @@ PixelVTXMonitor::~PixelVTXMonitor() {
 
 void PixelVTXMonitor::bookHistograms() {
   std::vector<std::string> hltPathsOfInterest = parameters_.getParameter<std::vector<std::string> > ("HLTPathsOfInterest");
-  for (std::vector<std::string> ::iterator it = hltPathsOfInterest.begin();
-       it != hltPathsOfInterest.end(); it++) {
-    std::string tag = (*it) ;
-    std::string hname = "nPxlVtx_";
-    hname += tag;
+  if (hltPathsOfInterest.size()  == 0) return;
 
-    std::string htitle= "# of Pixel Vertices (";
-    htitle += tag +")";
-    MonitorElement* me = dbe_->book1D(hname, htitle, 101, -0.5, 100.5);
-    vtxHistoMap_.insert(std::make_pair(tag, me));  
+  const std::vector<std::string>& pathList = hltConfig_.triggerNames();
+  std::vector<std::string> selectedPaths;
+  for (std::vector<std::string>::const_iterator it = pathList.begin();
+       it != pathList.end(); ++it) {
+    int nmatch = 0;
+    for (std::vector<std::string>::const_iterator kt = hltPathsOfInterest.begin();
+	 kt != hltPathsOfInterest.end(); ++kt) {
+      nmatch += TPRegexp(*kt).Match(*it);
+    }
+    if (!nmatch) continue;
+    else selectedPaths.push_back(*it);     
+  }
+    
+  for (std::vector<std::string> ::iterator it = selectedPaths.begin();
+       it != selectedPaths.end(); it++) {
+    std::string tag = (*it) ;
+    std::map<std::string, MonitorElement*>::iterator iPos = vtxHistoMap_.find(tag); 
+    if (iPos == vtxHistoMap_.end()) {
+      
+      std::string hname = "nPxlVtx_";
+      hname += tag;
+
+      std::string htitle= "# of Pixel Vertices (";
+      htitle += tag +")";
+      MonitorElement* me = dbe_->book1D(hname, htitle, 101, -0.5, 100.5);
+      vtxHistoMap_.insert(std::make_pair(tag, me)); 
+    } 
   }
 }
 
@@ -58,7 +78,6 @@ void PixelVTXMonitor::beginJob() {
   std::string currentFolder = moduleName_ + "/" + folderName_ ;
   dbe_->setCurrentFolder(currentFolder.c_str());
 
-  bookHistograms();
   
 }
 
@@ -75,6 +94,7 @@ void PixelVTXMonitor::beginRun(edm::Run const& iRun, edm::EventSetup const& iSet
                                   <<hltInputTag_.process() << " failed";
     // In this case, all access methods will return empty values!
   }
+  bookHistograms();
 
 }
 void PixelVTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)  {
@@ -87,13 +107,15 @@ void PixelVTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& i
   std::cout << " for runs: " << iEvent.id().run() << std::endl;
   int nVtx = 0;
   for (reco::VertexCollection::const_iterator ivtx = pixelVertices->begin(); 
-	 ivtx != pixelVertices->end(); ++ivtx) {
-    if ((ivtx->isValid() == true) &&
-        (ivtx->isFake() == false) &&
-	(ivtx->ndof() >= minVtxDoF_) &&
-	(ivtx->tracksSize() != 0)) nVtx++;
+       ivtx != pixelVertices->end(); ++ivtx) {
+    if (minVtxDoF_ == -1) nVtx++;
+    else {
+      if ((ivtx->isValid() == true) &&
+	  (ivtx->isFake() == false) &&
+	  (ivtx->ndof() >= minVtxDoF_) &&
+	  (ivtx->tracksSize() != 0)) nVtx++;
+    }
   }
-
   // Access Trigger Results
   edm::Handle<edm::TriggerResults> triggerResults;
   iEvent.getByLabel(hltInputTag_, triggerResults);
@@ -104,7 +126,7 @@ void PixelVTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& i
     std::string path = it->first; 
     MonitorElement* me = it->second;
     unsigned int index = hltConfig_.triggerIndex(path);
-    if (index < triggerResults->size() && triggerResults->accept(index)) {
+    if ( me && index < triggerResults->size() && triggerResults->accept(index)) {
       me->Fill(nVtx);
     } 
   } 
