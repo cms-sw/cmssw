@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.30 2011/08/13 04:08:06 amraktad Exp $
+// $Id: FWJetProxyBuilder.cc,v 1.31 2011/08/16 01:16:05 amraktad Exp $
 //
 
 #include "TEveJetCone.h"
@@ -39,7 +39,8 @@ struct jetScaleMarker : public  scaleMarker {
 };
 }
 
-static const std::string kJetLabelsOn("Draw Labels");
+static const std::string kJetLabelsRhoPhiOn("Draw Labels RhoPhi");
+static const std::string kJetLabelsRhoZOn("Draw Labels RhoZ");
 static const std::string kJetOffset("Label Offset");
 
 
@@ -56,8 +57,9 @@ public:
    virtual void setItem(const FWEventItem* iItem)
    {
       FWProxyBuilderBase::setItem(iItem);
-      iItem->getConfig()->assertParam(kJetLabelsOn, false);
-      iItem->getConfig()->assertParam(kJetOffset, 1.2, 1.0, 5.0);
+      iItem->getConfig()->assertParam(kJetLabelsRhoPhiOn, false);
+      iItem->getConfig()->assertParam(kJetLabelsRhoZOn, false);
+      iItem->getConfig()->assertParam(kJetOffset, 2.0, 1.0, 5.0);
    }
 
    REGISTER_PROXYBUILDER_METHODS();
@@ -140,14 +142,16 @@ FWJetProxyBuilder::buildViewType(const reco::Jet& iData, unsigned int iIndex, TE
       double theta = iData.theta();
       double phi = iData.phi();
 
-      if (item()->getConfig()->value<bool>(kJetLabelsOn))
-      {
-         markers.m_text = new FWEveText(Form("%.1f", vc->getEnergyScale()->getPlotEt() ?  iData.et() : iData.energy()));
-         markers.m_text->SetMainColor( item()->defaultDisplayProperties().color());
-      }
+     
 
       if ( type == FWViewType::kRhoZ )
       {  
+         if (item()->getConfig()->value<bool>(kJetLabelsRhoZOn))
+         {
+            markers.m_text = new FWEveText(Form("%.1f", vc->getEnergyScale()->getPlotEt() ?  iData.et() : iData.energy()));
+            markers.m_text->SetMainColor( item()->defaultDisplayProperties().color());
+         }
+
          static const float_t offr = 4;
          float r_ecal = context().caloR1() + offr;
          float z_ecal = context().caloZ1() + offr/tan(context().caloTransAngle());
@@ -168,6 +172,12 @@ FWJetProxyBuilder::buildViewType(const reco::Jet& iData, unsigned int iIndex, TE
       }
       else
       {
+         if (item()->getConfig()->value<bool>(kJetLabelsRhoPhiOn))
+         {
+            markers.m_text = new FWEveText(Form("%.1f", vc->getEnergyScale()->getPlotEt() ?  iData.et() : iData.energy()));
+            markers.m_text->SetMainColor( item()->defaultDisplayProperties().color());
+         }
+
          float ecalR = context().caloR1() + 4;
          markers.m_ls->SetScaleCenter(ecalR*cos(phi), ecalR*sin(phi), 0);
          markers.m_ls->AddLine(ecalR*cos(phi), ecalR*sin(phi), 0, (ecalR+size)*cos(phi), (ecalR+size)*sin(phi), 0);
