@@ -4,8 +4,8 @@
 /*
  * \file DTNoiseCalibration.h
  *
- * $Date: 2011/05/25 21:03:56 $
- * $Revision: 1.10 $
+ * $Date: 2011/08/15 20:29:37 $
+ * $Revision: 1.11 $
  * \author G. Mila - INFN Torino
  *         A. Vilela Pereira - INFN Torino
  *
@@ -54,7 +54,7 @@ private:
 
   edm::InputTag digiLabel_;
   bool useTimeWindow_;
-  int triggerWidth_;
+  double triggerWidth_;
   int timeWindowOffset_;
   double maximumNoiseRate_;
   bool useAbsoluteRate_; 

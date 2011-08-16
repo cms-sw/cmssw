@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/05/27 12:39:41 $
- *  $Revision: 1.15 $
+ *  $Date: 2011/08/15 20:29:37 $
+ *  $Revision: 1.16 $
  *  \author G. Mila - INFN Torino
  *          A. Vilela Pereira - INFN Torino 
  */
@@ -44,7 +44,7 @@ using namespace std;
 DTNoiseCalibration::DTNoiseCalibration(const edm::ParameterSet& pset):
   digiLabel_( pset.getParameter<InputTag>("digiLabel") ),
   useTimeWindow_( pset.getParameter<bool>("useTimeWindow") ),
-  triggerWidth_( pset.getParameter<int>("triggerWidth") ),
+  triggerWidth_( pset.getParameter<double>("triggerWidth") ),
   timeWindowOffset_( pset.getParameter<int>("timeWindowOffset") ),
   maximumNoiseRate_( pset.getParameter<double>("maximumNoiseRate") ),
   useAbsoluteRate_( pset.getParameter<bool>("useAbsoluteRate") ), 
@@ -160,8 +160,10 @@ void DTNoiseCalibration::analyze(const edm::Event& event, const edm::EventSetup&
         //Check the TDC trigger width
         int tdcTime = (*digiIt).countsTDC();
         if( !useTimeWindow_ ){
-	   if( ( ((float)tdcTime*25)/32 ) > triggerWidth_ )
+	   if( ( ((float)tdcTime*25)/32 ) > triggerWidth_ ){
               LogError("Calibration") << "Digi has a TDC time (ns) higher than the pre-defined TDC trigger width: " << ((float)tdcTime*25)/32;
+              continue;
+           }
         }	
 
         hTDCTriggerWidth_->Fill(tdcTime);
@@ -214,7 +216,7 @@ void DTNoiseCalibration::analyze(const edm::Event& event, const edm::EventSetup&
         // Histos vs time
         if( chamberOccupancyVsTimeMap_.find(dtChId) == chamberOccupancyVsTimeMap_.end() ){
            string histoName = "OccupancyVsTime_" + getChamberName(dtChId);
-           float secPerBin = 10.0; 
+           float secPerBin = 20.0; 
            unsigned int nBins = ( (unsigned int)(runEndTime_ - runBeginTime_) )/secPerBin;
            rootFile_->cd(); 
            TH1F* hOccupancyVsTimeHisto = new TH1F(histoName.c_str(), histoName.c_str(),
