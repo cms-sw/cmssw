@@ -197,14 +197,14 @@ namespace {
       int index = jet-uncorJet.begin();
       edm::RefToBase<reco::Jet> jetRef(edm::Ref<PFJetCollection>(&uncorJet,index));
       //std::cout << "jet->pt()*corrector.correction (*jet,jetRef,iEvent,iSetup) = " << jet->pt()*corrector.correction (*jet,jetRef,iEvent,iSetup) << std::endl;
-      if( jet->pt()*corrector.correction (*jet,jetRef,iEvent,iSetup) > jetPTthreshold && jet->photonEnergyFraction() < jetEMfracLimit ) {
-	double corr = corrector.correction (*jet,jetRef,iEvent,iSetup) - 1.; // correction itself
+      if( jet->pt()*corrector.correction (*jet,iEvent,iSetup) > jetPTthreshold && jet->photonEnergyFraction() < jetEMfracLimit ) {
+	double corr = corrector.correction (*jet,iEvent,iSetup) - 1.; // correction itself
 	DeltaPx +=  jet->px() * corr;
 	DeltaPy +=  jet->py() * corr;
 	DeltaSumET += jet->et() * corr;
         
       }
-      if (jet->pt() * corrector.correction (*jet,jetRef,iEvent,iSetup) < jetPTthreshold && jet->photonEnergyFraction() < jetEMfracLimit) {
+      if (jet->pt() * corrector.correction (*jet,iEvent,iSetup) < jetPTthreshold && jet->photonEnergyFraction() < jetEMfracLimit) {
 	UDeltaPx -= jet->px();
 	UDeltaPy -= jet->py();
 	USumET += jet->et();
