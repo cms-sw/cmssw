@@ -1,0 +1,3 @@
+<use   name="DetectorDescription/Parser"/>
+<use   name="FWCore/PluginManager"/>
+<flags   EDM_PLUGIN="1"/>
