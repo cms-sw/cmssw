@@ -397,7 +397,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
 
   bool isExtended = mc_bonly->GetPdf()->canBeExtended();
   RooAbsData *dobs = w->data(dataset.c_str());
-  RooAbsPdf  *genPdf = mc_bonly->GetPdf();
+  RooAbsPdf  *genPdf = expectSignal_ > 0 ? mc->GetPdf() : mc_bonly->GetPdf();
   toymcoptutils::SimPdfGenInfo newToyMC(*genPdf, *observables, !unbinned_); RooRealVar *weightVar_ = 0;
 
   if (guessGenMode_ && genPdf->InheritsFrom("RooSimultaneous") && (dobs != 0)) {
@@ -405,7 +405,7 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
       utils::guessChannelMode(dynamic_cast<RooSimultaneous&>(*mc_bonly->GetPdf()), *dobs, 0);
   }
   if (expectSignal_ > 0) { 
-    genPdf = mc->GetPdf(); ((RooRealVar*)POI->first())->setVal(expectSignal_); 
+      ((RooRealVar*)POI->first())->setVal(expectSignal_); 
   }
   if (nToys <= 0) { // observed or asimov
     iToy = nToys;
