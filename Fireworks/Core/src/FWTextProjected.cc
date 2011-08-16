@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Aug 12 01:12:18 CEST 2011
-// $Id$
+// $Id: FWTextProjected.cc,v 1.1 2011/08/13 04:04:20 amraktad Exp $
 //
 
 // system include files
@@ -93,7 +93,7 @@ void FWEveTextGL::DirectDraw(TGLRnrCtx & rnrCtx) const
    glEnable(GL_POLYGON_OFFSET_FILL);
             
 
-   float a = 2; // padding
+   float a = 4; // padding
    double xm =  fX[0][0] -a;
    double xM =  fX[2][0] +a;
    double ym =  fX[0][1] -a;
