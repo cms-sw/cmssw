@@ -75,8 +75,8 @@ namespace {
     for( CaloJetCollection::const_iterator jet = uncorJet.begin(); jet != uncorJet.end(); ++jet) {
       int index = jet-uncorJet.begin();
       edm::RefToBase<reco::Jet> jetRef(edm::Ref<CaloJetCollection>(&uncorJet,index));
-      if( jet->pt()*corrector.correction (*jet,jetRef,iEvent,iSetup) > jetPTthreshold && jet->emEnergyFraction() < jetEMfracLimit ) {
-	double corr = corrector.correction (*jet,jetRef,iEvent,iSetup) - 1.; // correction itself
+      if( jet->pt()*corrector.correction (*jet,iEvent,iSetup) > jetPTthreshold && jet->emEnergyFraction() < jetEMfracLimit ) {
+	double corr = corrector.correction (*jet,iEvent,iSetup) - 1.; // correction itself
 	DeltaPx +=  jet->px() * corr;
 	DeltaPy +=  jet->py() * corr;
 	UDeltaPx +=  jet->px() ;
@@ -84,7 +84,7 @@ namespace {
 	DeltaSumET += jet->et() * corr;
         USumET -=jet->et(); 
       }
-      if( jet->pt() *corrector.correction (*jet,jetRef,iEvent,iSetup)> jetPTthreshold && jet->emEnergyFraction() > jetEMfracLimit ) {
+      if( jet->pt() *corrector.correction (*jet,iEvent,iSetup)> jetPTthreshold && jet->emEnergyFraction() > jetEMfracLimit ) {
         UDeltaPx +=  jet->px() ;
         UDeltaPy +=  jet->py() ;
         USumET -=jet->et(); 
