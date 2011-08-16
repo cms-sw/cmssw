@@ -1,3 +1,5 @@
-<use   name="DetectorDescription/Parser"/>
-<use   name="FWCore/PluginManager"/>
-<flags   EDM_PLUGIN="1"/>
+<library   file="*.cc" name="GeometryHcalAlgoPlugin">
+ <use   name="DetectorDescription/Parser"/>
+ <use   name="FWCore/PluginManager"/>
+ <flags   EDM_PLUGIN="1"/>
+</library>
