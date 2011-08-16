@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWVertexProxyBuilder.cc,v 1.5 2011/03/15 13:29:03 amraktad Exp $
+// $Id: FWVertexProxyBuilder.cc,v 1.6 2011/08/11 03:39:51 amraktad Exp $
 //
 // user include files// user include files
 #include "Fireworks/Core/interface/FWSimpleProxyBuilderTemplate.h"
@@ -37,6 +37,12 @@ public:
    FWVertexProxyBuilder() {}
    virtual ~FWVertexProxyBuilder() {}
 
+   virtual void setItem(const FWEventItem* iItem)
+   {
+      FWProxyBuilderBase::setItem(iItem);
+      iItem->getConfig()->assertParam("Draw Tracks", false);
+   }
+
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
@@ -60,9 +66,7 @@ FWVertexProxyBuilder::build(const reco::Vertex& iData, unsigned int iIndex, TEve
    pointSet->SetNextPoint( v.x(), v.y(), v.z() );
    oItemHolder.AddElement( pointSet );
 
-
-   FWBoolParameter* param = (FWBoolParameter*) item()->proxyBuilderConfig()->getVarParameter("Draw Tracks");
-   if (param->value()) 
+   if ( item()->getConfig()->value<bool>("Draw Tracks")) 
    {
       // do we need this stuff?
       TGeoSphere * sphere = new TGeoSphere(0, 0.002); //would that leak?

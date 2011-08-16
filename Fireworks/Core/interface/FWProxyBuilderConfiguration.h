@@ -16,7 +16,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jul 27 00:58:35 CEST 2011
-// $Id: FWProxyBuilderConfiguration.h,v 1.2 2011/08/10 23:40:21 amraktad Exp $
+// $Id: FWProxyBuilderConfiguration.h,v 1.3 2011/08/11 03:53:09 amraktad Exp $
 //
 
 #include <string>
@@ -26,6 +26,7 @@
 #include "Fireworks/Core/interface/FWParameterSetterEditorBase.h"
 
 #include "Fireworks/Core/interface/FWParameters.h"
+#include "Fireworks/Core/interface/FWGenericParameterWithRange.h"
 
 #ifndef __CINT__
 #include <boost/shared_ptr.hpp>
@@ -39,28 +40,18 @@ class FWConfiguration;
 class FWEventItem;
 
 //==============================================================================
-//==============================================================================
-
 class FWProxyBuilderConfiguration : public FWConfigurableParameterizable,
                                     public FWParameterSetterEditorBase
 {
 public:
-   struct StyleParameters
-   {
-      FWDoubleParameter* m_pointSize;
-      //FWLongParameter* m_lineWidth;
-      const FWConfiguration*  m_config;
-
-      StyleParameters( const FWConfiguration* c) : m_pointSize(0), m_config(c) {};
-      ~StyleParameters() {};
-   };
-
    FWProxyBuilderConfiguration(const FWConfiguration* c, const FWEventItem* item);
    virtual ~FWProxyBuilderConfiguration();
 
-   FWParameterBase*  getVarParameter(const std::string& name, FWViewType::EType type = FWViewType::kTypeSize);
 
-   double  getPointSize();
+   template <class T> FWGenericParameter<T>* assertParam(const std::string& name, T def);
+   template <class T> FWGenericParameterWithRange<T>* assertParam(const std::string& name, T def, T min, T max);
+   template <class T> T value(const std::string& name);
+
 
    virtual void setFrom(const FWConfiguration& iFrom);
    virtual void addTo(FWConfiguration& iTo) const;
@@ -69,12 +60,9 @@ public:
 
 private:
    void makeSetter(TGCompositeFrame*, FWParameterBase*);
-   void assertStyleParameters();
 
    const FWConfiguration*  m_txtConfig;
    const FWEventItem*      m_item;
-
-   StyleParameters*        m_styleParameters;
 
 #ifndef __CINT__
    std::vector<boost::shared_ptr<FWParameterSetterBase> > m_setters;

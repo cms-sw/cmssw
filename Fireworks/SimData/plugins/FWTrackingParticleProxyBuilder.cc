@@ -23,6 +23,11 @@ public:
    FWTrackingParticleProxyBuilder( void ) {} 
    virtual ~FWTrackingParticleProxyBuilder( void ) {}
 
+   virtual void setItem(const FWEventItem* iItem) {
+      FWProxyBuilderBase::setItem(iItem);
+      iItem->getConfig()->assertParam("Point Size", 1l, 3l, 1l);
+   }
+
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
@@ -49,8 +54,7 @@ FWTrackingParticleProxyBuilder::build( const TrackingParticle& iData, unsigned i
    
    TEvePointSet* pointSet = new TEvePointSet;
    setupAddElement( pointSet, track );
-   int ms = item()->proxyBuilderConfig()->getPointSize();
-   pointSet->SetMarkerSize(ms);
+   pointSet->SetMarkerSize(item()->getConfig()->value<long>("Point Size"));
    const FWGeometry *geom = item()->getGeom();
    const std::vector<PSimHit>& hits = iData.trackPSimHit();
 

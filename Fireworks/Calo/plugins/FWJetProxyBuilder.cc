@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.29 2010/11/26 20:24:46 amraktad Exp $
+// $Id: FWJetProxyBuilder.cc,v 1.30 2011/08/13 04:08:06 amraktad Exp $
 //
 
 #include "TEveJetCone.h"
@@ -39,6 +39,9 @@ struct jetScaleMarker : public  scaleMarker {
 };
 }
 
+static const std::string kJetLabelsOn("Draw Labels");
+static const std::string kJetOffset("Label Offset");
+
 
 class FWJetProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Jet>
 {
@@ -49,6 +52,13 @@ public:
    virtual bool havePerViewProduct(FWViewType::EType) const { return true; }
    virtual bool haveSingleProduct() const { return false; } // different view types
    virtual void cleanLocal();
+
+   virtual void setItem(const FWEventItem* iItem)
+   {
+      FWProxyBuilderBase::setItem(iItem);
+      iItem->getConfig()->assertParam(kJetLabelsOn, false);
+      iItem->getConfig()->assertParam(kJetOffset, 1.2, 1.0, 5.0);
+   }
 
    REGISTER_PROXYBUILDER_METHODS();
    
@@ -130,9 +140,7 @@ FWJetProxyBuilder::buildViewType(const reco::Jet& iData, unsigned int iIndex, TE
       double theta = iData.theta();
       double phi = iData.phi();
 
-
-      FWBoolParameter* dlp = (FWBoolParameter*)item()->proxyBuilderConfig()->getVarParameter("Draw Labels");
-      if (dlp->value())
+      if (item()->getConfig()->value<bool>(kJetLabelsOn))
       {
          markers.m_text = new FWEveText(Form("%.1f", vc->getEnergyScale()->getPlotEt() ?  iData.et() : iData.energy()));
          markers.m_text->SetMainColor( item()->defaultDisplayProperties().color());
@@ -177,7 +185,7 @@ FWJetProxyBuilder::buildViewType(const reco::Jet& iData, unsigned int iIndex, TE
 
    }
    context().voteMaxEtAndEnergy(iData.et(), iData.energy());
-
+ 
 }
 
 void
@@ -229,9 +237,9 @@ void FWJetProxyBuilder::setTextPos(fireworks::jetScaleMarker& s, const FWViewCon
    v.Normalize();
 
 
-   FWDoubleParameter* lop = (FWDoubleParameter*)item()->proxyBuilderConfig()->getVarParameter("Label Offset");
+   double off = item()->getConfig()->value<double>(kJetOffset) -1;
    float value = vc->getEnergyScale()->getPlotEt() ? s.m_et : s.m_energy;
-   double trs = (lop->value() -1)* 130 * value/context().getMaxEnergyInEvent(vc->getEnergyScale()->getPlotEt());
+   double trs = off * 130 * value/context().getMaxEnergyInEvent(vc->getEnergyScale()->getPlotEt());
    v *= trs;
 
    float x = l.fV1[0] + v[0];

@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jul 27 00:58:43 CEST 2011
-// $Id: FWProxyBuilderConfiguration.cc,v 1.5 2011/08/11 03:53:10 amraktad Exp $
+// $Id: FWProxyBuilderConfiguration.cc,v 1.6 2011/08/13 04:06:29 amraktad Exp $
 //
 
 // system include files
@@ -33,98 +33,13 @@
 
 FWProxyBuilderConfiguration::FWProxyBuilderConfiguration(const FWConfiguration* c, const FWEventItem* item):
    m_txtConfig(c),
-   m_item(item),
-   m_styleParameters(0)
+   m_item(item)
 {
 }
 
 FWProxyBuilderConfiguration::~FWProxyBuilderConfiguration()
 {
    delete m_txtConfig;
-   delete m_styleParameters;
-}
-
-//==============================================================================
-void
-FWProxyBuilderConfiguration::assertStyleParameters()
-{
-   if ( ! m_styleParameters )
-   {
-      const FWConfiguration* c = m_txtConfig ? m_txtConfig->valueForKey("Style") : 0;
-      m_styleParameters = new StyleParameters(c);
-
-   }
-}
-
-
-double
-FWProxyBuilderConfiguration::getPointSize()
-{ 
-   assertStyleParameters();
-   if (!m_styleParameters->m_pointSize)
-   {
-      m_styleParameters->m_pointSize =  new FWDoubleParameter(0, "Point size", 1.0, 0.1, 10.0);
-      if (m_styleParameters->m_config)
-         m_styleParameters->m_pointSize->setFrom(*(m_styleParameters->m_config));
-
-      m_styleParameters->m_pointSize->changed_.connect(boost::bind(&FWEventItem::proxyConfigChanged, (FWEventItem*)m_item));
-   }
-
-   return m_styleParameters->m_pointSize->value();
-}
-
-
-//______________________________________________________________________________
-
-
-FWParameterBase* FWProxyBuilderConfiguration::getVarParameter(const std::string& name, FWViewType::EType type)
-{
-   // std::cout << "WProxyBuilderConfiguration::getVarParamete "<< name << " ptr  " << m_item <<std::endl;
-   for (FWConfigurableParameterizable::const_iterator i = begin(); i != end(); ++i)
-   {
-      if ((*i)->name() == name)
-         return *i;
-   }
-
-   //   std::cout << "FWProxyBuilderConfiguration::getVarParameter(). No parameter with name " << name << std::endl;
-   const FWConfiguration* varConfig = m_txtConfig &&  m_txtConfig->keyValues() ? m_txtConfig->valueForKey("Var") : 0;
-
-   // AMT:: the following should be templated
-   if (m_item->purpose() == "Candidates")
-   {
-      FWBoolParameter*  mode = new FWBoolParameter(this, name, false);
-      if (varConfig) mode->setFrom(*varConfig);
-      mode->changed_.connect(boost::bind(&FWEventItem::proxyConfigChanged, (FWEventItem*)m_item));
-      return mode;
-   }
-   if (m_item->purpose() == "Vertices")
-   {
-      FWBoolParameter*  mode = new FWBoolParameter(this, name, false);
-      if (varConfig) mode->setFrom(*varConfig);
-      mode->changed_.connect(boost::bind(&FWEventItem::proxyConfigChanged, (FWEventItem*)m_item));
-      return mode;
-   }
-   if (m_item->purpose() == "Jets")
-   {
-      if (name == "Draw Labels")
-      {
-         FWBoolParameter*  mode = new FWBoolParameter(this, name, false);
-         if (varConfig) mode->setFrom(*varConfig);
-         mode->changed_.connect(boost::bind(&FWEventItem::proxyConfigChanged, (FWEventItem*)m_item));
-         return mode;
-      }
-      else
-      {
-         FWDoubleParameter*  mode = new FWDoubleParameter(this, name, 1.2,1.0,3.0);
-         if (varConfig) mode->setFrom(*varConfig);
-         mode->changed_.connect(boost::bind(&FWEventItem::proxyConfigChanged, (FWEventItem*)m_item));
-         return mode;
-      }
-   }
-   else {
-      throw std::runtime_error("Invalid parameter request.");
-      return 0;
-   }
 }
 
 
@@ -138,14 +53,6 @@ FWProxyBuilderConfiguration::addTo( FWConfiguration& iTo) const
       FWConfigurableParameterizable::addTo(vTmp);
       iTo.addKeyValue("Var",vTmp, true);
    }
-   if (m_styleParameters) {
-      FWConfiguration sTmp;
-
-      if (m_styleParameters->m_pointSize) 
-         m_styleParameters->m_pointSize->addTo(sTmp);
-
-      iTo.addKeyValue("Style", sTmp, true);
-   }
 }
 
 
@@ -157,6 +64,7 @@ FWProxyBuilderConfiguration::setFrom(const FWConfiguration& iFrom)
      std::cout << it->first << "FWProxyBuilderConfiguration::setFrom  " << std::endl;
      }*/
 }
+
 
 //______________________________________________________________________________
 
@@ -183,9 +91,62 @@ FWProxyBuilderConfiguration::populateFrame(TGCompositeFrame* settersFrame)
    for(const_iterator it =begin(); it != end(); ++it)
       makeSetter(frame, *it);
 
-   if (m_styleParameters) {
-      if (m_styleParameters->m_pointSize)  makeSetter(frame, m_styleParameters->m_pointSize );
-   }
-
    settersFrame->MapSubwindows();   
 }
+
+//______________________________________________________________________________
+
+template <class T> FWGenericParameter<T>* FWProxyBuilderConfiguration::assertParam(const std::string& name, T def )
+{
+   FWGenericParameter<T>*  mode = new FWGenericParameter<T>(this, name, def);
+
+   //   std::cout << "FWProxyBuilderConfiguration::getVarParameter(). No parameter with name " << name << std::endl;
+   const FWConfiguration* varConfig = m_txtConfig &&  m_txtConfig->keyValues() ? m_txtConfig->valueForKey("Var") : 0;
+   if (varConfig) mode->setFrom(*varConfig);
+
+   mode->changed_.connect(boost::bind(&FWEventItem::proxyConfigChanged, (FWEventItem*)m_item));
+   return mode;
+}
+
+
+
+template <class T> FWGenericParameterWithRange<T>* FWProxyBuilderConfiguration::assertParam(const std::string& name, T def, T min, T max )
+{
+   FWGenericParameterWithRange<T>*  mode = new FWGenericParameterWithRange<T>(this, name, def, min, max);
+
+   //   std::cout << "FWProxyBuilderConfiguration::getVarParameter(). No parameter with name " << name << std::endl;
+   const FWConfiguration* varConfig = m_txtConfig &&  m_txtConfig->keyValues() ? m_txtConfig->valueForKey("Var") : 0;
+   if (varConfig) mode->setFrom(*varConfig);
+
+   mode->changed_.connect(boost::bind(&FWEventItem::proxyConfigChanged, (FWEventItem*)m_item));
+   return mode;
+}
+
+template <class T> T FWProxyBuilderConfiguration::value(const std::string& pname)
+{
+   FWGenericParameter<T>* param = 0;
+
+   for (FWConfigurableParameterizable::const_iterator i = begin(); i != end(); ++i) 
+   {
+      if ((*i)->name() == pname)
+      {
+         param = (FWGenericParameter<T>* )(*i);
+         break;
+      }
+   }
+
+   if (param) 
+      return param->value();
+   else
+      throw std::runtime_error("Invalid parameter request.");
+}
+
+// explicit template instantiation
+
+template bool FWProxyBuilderConfiguration::value<bool>(const std::string& name);
+template long FWProxyBuilderConfiguration::value<long>(const std::string& name);
+template double FWProxyBuilderConfiguration::value<double>(const std::string& name);
+
+template FWGenericParameter<bool>* FWProxyBuilderConfiguration::assertParam(const std::string& name, bool def);
+template FWGenericParameterWithRange<long>* FWProxyBuilderConfiguration::assertParam(const std::string& name, long def,long min, long max);
+template FWGenericParameterWithRange<double>* FWProxyBuilderConfiguration::assertParam(const std::string& name, double def,double min, double max);
