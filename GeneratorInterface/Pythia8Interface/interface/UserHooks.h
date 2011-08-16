@@ -4,25 +4,23 @@ class PtHatReweightUserHook : public Pythia8::UserHooks
 {
 public:
   PtHatReweightUserHook(double _pt = 15, double _power = 4.5) :
-                         pt(_pt), power(_power), factor(1.) {}
+                         pt(_pt), power(_power) {}
   virtual ~PtHatReweightUserHook() {}
 
-  virtual bool canModifySigma() { return true; }
+  virtual bool canBiasSelection() { return true; }
 
-  virtual double multiplySigmaBy(const Pythia8::SigmaProcess* sigmaProcessPtr,
+  virtual double biasSelectionBy(const Pythia8::SigmaProcess* sigmaProcessPtr,
                        const Pythia8::PhaseSpace* phaseSpacePtr, bool inEvent)
   {
-    if ((sigmaProcessPtr->nFinal() == 2) && inEvent) {
-      factor = pow(phaseSpacePtr->pTHat() / pt, power);
-      return factor;
+    //the variable selBias of the base class should be used;
+    if ((sigmaProcessPtr->nFinal() == 2)) {
+      selBias = pow(phaseSpacePtr->pTHat() / pt, power);
+      return selBias;
     }
-    factor = 1;
-    return factor;
+    selBias = 1.;
+    return selBias;
   }
-
-  double getFactor() {return factor;}
 
 private:
 	double pt, power;
-        double factor;
 };

@@ -470,6 +470,11 @@ void Pythia8Hadronizer::finalizeEvent()
   event()->set_signal_process_id(pythia->info.code());
   event()->set_event_scale(pythia->info.pTHat());	//FIXME
 
+  //cout.precision(10);
+  //cout << " pt = " << pythia->info.pTHat() << " weights = "
+  //     << pythia->info.weight() << " "
+  //     << UserHookPointer->biasedSelectionWeight() << endl;
+
   if (event()->alphaQED() <= 0)
     event()->set_alphaQED( pythia->info.alphaEM() );
   if (event()->alphaQCD() <= 0)
@@ -506,15 +511,6 @@ void Pythia8Hadronizer::finalizeEvent()
     event()->weights().push_back( pythia->info.weight() * 1.0e9 );
   else
     event()->weights().push_back( pythia->info.weight() );
-  //
-  // Below is the weight to be used in the case of reweighting by UserHook
-  // This is a temporary solution. It requires the explicit conversion of
-  // the pointer. In future versions (>150) the additional factor introduced
-  // in the UserHook will be stored by pythia. Also, putting the weights
-  // into the HepMC record will be made in the pythia8 HepMCInterface
-  //
-  if(useUserHook)
-    event()->weights().push_back(1./((PtHatReweightUserHook*)UserHookPointer)->getFactor());
 
   // now create the GenEventInfo product from the GenEvent and fill
   // the missing pieces
