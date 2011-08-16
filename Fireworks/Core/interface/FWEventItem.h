@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Jan  3 14:02:21 EST 2008
-// $Id: FWEventItem.h,v 1.45 2010/09/07 15:46:46 yana Exp $
+// $Id: FWEventItem.h,v 1.46 2011/07/30 04:48:44 amraktad Exp $
 //
 
 // system include files
@@ -163,7 +163,7 @@ public:
    void setEvent(const edm::EventBase* iEvent);
 
    const FWGeometry* getGeom() const;
-   FWProxyBuilderConfiguration* proxyBuilderConfig() const { return m_proxyBuilderConfig; }
+   FWProxyBuilderConfiguration* getConfig() const { return m_proxyBuilderConfig; }
 
    void setLabels(const std::string& iModule,
                   const std::string& iProductInstance,

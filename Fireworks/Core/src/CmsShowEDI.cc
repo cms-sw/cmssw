@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.44 2011/07/30 04:49:40 amraktad Exp $
+// $Id: CmsShowEDI.cc,v 1.45 2011/08/13 04:05:19 amraktad Exp $
 //
 
 // system include files
@@ -279,9 +279,7 @@ CmsShowEDI::fillEDIFrame() {
          m_destroyedConn = m_item->goingToBeDestroyed_.connect(boost::bind(&CmsShowEDI::disconnectAll, this));
                        
          clearPBFrame();
-         m_item->proxyBuilderConfig()->populateFrame(m_settersFrame);
-         //if (m_item->purpose() == "Candidates")
-         //  addBut();
+         m_item->getConfig()->populateFrame(m_settersFrame);
       }
       else if(multipleCollections) {
          std::ostringstream s;
