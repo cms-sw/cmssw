@@ -11,8 +11,8 @@ or could be subclassed renaming a function or two.
 # and can be used in config files in general and is now needed for FWLite, it's
 # being moved into CMSSW.
 
-__revision__ = "$Id: LumiList.py,v 1.3 2010/06/08 16:08:25 ewv Exp $"
-__version__ = "$Revision: 1.3 $"
+__revision__ = "$Id: LumiList.py,v 1.4 2010/06/08 18:58:49 ewv Exp $"
+__version__ = "$Revision: 1.4 $"
 
 import json
 
@@ -119,11 +119,10 @@ class LumiList(object):
 
         return theList
 
-
-    def getCMSSWString(self):
+    def _getLumiParts(self):
         """
         Turn compactList into a list of the format
-        R1:L1,R2:L2-R2:L3 which is acceptable to CMSSW LumiBlockRange variable
+        [ 'R1:L1', 'R2:L2-R2:L3' ] which is used by getCMSSWString and getVLuminosityBlockRange
         """
 
         parts = []
@@ -137,16 +136,37 @@ class LumiList(object):
                 else:
                     parts.append("%s:%s-%s:%s" %
                                  (run, lumiPair[0], run, lumiPair[1]))
+        return parts
 
+
+    def getCMSSWString(self):
+        """
+        Turn compactList into a list of the format
+        R1:L1,R2:L2-R2:L3 which is acceptable to CMSSW LumiBlockRange variable
+        """
+
+        parts = self._getLumiParts()
         output = ','.join(parts)
         return str(output)
+
+
+    def getVLuminosityBlockRange(self, tracked = False):
+        """
+        Turn compactList into an (optionally tracked) VLuminosityBlockRange
+        """
+        
+        import FWCore.ParameterSet.Config as cms
+        parts = self._getLumiParts()
+        if tracked:
+            return cms.VLuminosityBlockRange(parts)
+        else:
+            return cms.untracked.VLuminosityBlockRange(parts)
 
 
 
 # Unit test code
 '''
 import unittest
-from WMCore.DataStructs.LumiList import LumiList
 
 
 class LumiListTest(unittest.TestCase):
@@ -159,16 +179,21 @@ class LumiListTest(unittest.TestCase):
         """
         Test reading from JSON
         """
+        import FWCore.ParameterSet.Config as cms
+
         exString = "1:1-1:33,1:35,1:37-1:47,2:49-2:75,2:77-2:130,2:133-2:136"
         exDict   = {'1': [[1, 33], [35, 35], [37, 47]],
                     '2': [[49, 75], [77, 130], [133, 136]]}
+        exVLBR   = cms.VLuminosityBlockRange('1:1-1:33', '1:35', '1:37-1:47', '2:49-2:75', '2:77-2:130', '2:133-2:136')
 
         jsonList = LumiList(filename = 'lumiTest.json')
         lumiString = jsonList.getCMSSWString()
         lumiList = jsonList.getCompactList()
+        lumiVLBR = jsonList.getVLuminosityBlockRange(True)
 
         self.assertTrue(lumiString == exString)
         self.assertTrue(lumiList   == exDict)
+        self.assertTrue(lumiVLBR   == exVLBR)
 
     def testList(self):
         """
