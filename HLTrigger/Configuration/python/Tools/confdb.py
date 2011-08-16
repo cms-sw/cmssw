@@ -734,12 +734,12 @@ if 'GlobalTag' in %%(dict)s:
       self.loadAdditionalConditions('add XML geometry to keep hltGetConditions happy',
         {
           'record'  : 'GeometryFileRcd',
-          'tag'     : 'XMLFILE_Geometry_380V3_Ideal_mc',
+          'tag'     : 'XMLFILE_Geometry_311YV1_Ideal_mc',
           'label'   : 'Ideal',
           'connect' : '%(connect)s/CMS_COND_34X_GEOMETRY'
         }, {
           'record'  : 'GeometryFileRcd',
-          'tag'     : 'XMLFILE_Geometry_380V3_Extended_mc',
+          'tag'     : 'XMLFILE_Geometry_311YV1_Extended_mc',
           'label'   : 'Extended',
           'connect' : '%(connect)s/CMS_COND_34X_GEOMETRY'
         }
