@@ -1,7 +1,7 @@
 //<<<<<< INCLUDES                                                       >>>>>>
 
-#include "Geometry/MTCCTrackerCommonData/interface/DDTIBLayerAlgo_MTCC.h"
-#include "Geometry/MTCCTrackerCommonData/interface/DDTIBRadCableAlgo_MTCC.h"
+#include "Geometry/MTCCTrackerCommonData/plugins/DDTIBLayerAlgo_MTCC.h"
+#include "Geometry/MTCCTrackerCommonData/plugins/DDTIBRadCableAlgo_MTCC.h"
 #include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
 #include "FWCore/PluginManager/interface/ModuleDef.h"
