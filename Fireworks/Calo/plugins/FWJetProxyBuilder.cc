@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.31 2011/08/16 01:16:05 amraktad Exp $
+// $Id: FWJetProxyBuilder.cc,v 1.32 2011/08/16 01:42:27 amraktad Exp $
 //
 
 #include "TEveJetCone.h"
@@ -142,16 +142,8 @@ FWJetProxyBuilder::buildViewType(const reco::Jet& iData, unsigned int iIndex, TE
       double theta = iData.theta();
       double phi = iData.phi();
 
-     
-
       if ( type == FWViewType::kRhoZ )
-      {  
-         if (item()->getConfig()->value<bool>(kJetLabelsRhoZOn))
-         {
-            markers.m_text = new FWEveText(Form("%.1f", vc->getEnergyScale()->getPlotEt() ?  iData.et() : iData.energy()));
-            markers.m_text->SetMainColor( item()->defaultDisplayProperties().color());
-         }
-
+      {
          static const float_t offr = 4;
          float r_ecal = context().caloR1() + offr;
          float z_ecal = context().caloZ1() + offr/tan(context().caloTransAngle());
@@ -172,12 +164,6 @@ FWJetProxyBuilder::buildViewType(const reco::Jet& iData, unsigned int iIndex, TE
       }
       else
       {
-         if (item()->getConfig()->value<bool>(kJetLabelsRhoPhiOn))
-         {
-            markers.m_text = new FWEveText(Form("%.1f", vc->getEnergyScale()->getPlotEt() ?  iData.et() : iData.energy()));
-            markers.m_text->SetMainColor( item()->defaultDisplayProperties().color());
-         }
-
          float ecalR = context().caloR1() + 4;
          markers.m_ls->SetScaleCenter(ecalR*cos(phi), ecalR*sin(phi), 0);
          markers.m_ls->AddLine(ecalR*cos(phi), ecalR*sin(phi), 0, (ecalR+size)*cos(phi), (ecalR+size)*sin(phi), 0);
@@ -187,7 +173,15 @@ FWJetProxyBuilder::buildViewType(const reco::Jet& iData, unsigned int iIndex, TE
       markers.m_ls->SetLineColor(dp.color());
       FWViewEnergyScale* caloScale = vc->getEnergyScale();    
       markers.m_ls->SetScale(caloScale->getScaleFactor3D()*(caloScale->getPlotEt() ?  iData.et() : iData.energy()));
-      setTextPos(markers, vc, type);
+
+      if ((type == FWViewType::kRhoZ && item()->getConfig()->value<bool>(kJetLabelsRhoZOn))||
+          (type == FWViewType::kRhoPhi && item()->getConfig()->value<bool>(kJetLabelsRhoPhiOn) ) )
+      {
+         markers.m_text = new FWEveText(Form("%.1f GeV", vc->getEnergyScale()->getPlotEt() ? iData.et() : iData.energy()));
+         markers.m_text->SetMainColor( item()->defaultDisplayProperties().color());         
+         setTextPos(markers, vc, type);
+      }
+
 
       markers.m_ls->SetMarkerColor(markers.m_ls->GetMainColor());
       setupAddElement( markers.m_ls, &oItemHolder );
@@ -225,12 +219,15 @@ FWJetProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType type,
    for (Lines_t::iterator i = m_lines.begin(); i!= m_lines.end(); ++ i)
    {
       if (vc == (*i).m_vc)
-      { 
-         float value = vc->getEnergyScale()->getPlotEt() ? (*i).m_et : (*i).m_energy;      
-         (*i).m_ls->SetScale(vc->getEnergyScale()->getScaleFactor3D() *value);
+      {  
+         float value = vc->getEnergyScale()->getPlotEt() ? (*i).m_et : (*i).m_energy;
 
-         setTextPos(*i, vc, type);
-
+         (*i).m_ls->SetScale(vc->getEnergyScale()->getScaleFactor3D() * value );
+         if ((*i).m_text) 
+         {
+            (*i).m_text->SetText(Form("%.1f", value));
+            setTextPos(*i, vc, type);
+         }
          TEveStraightLineSetProjected* projLineSet = (TEveStraightLineSetProjected*)(*(*i).m_ls->BeginProjecteds());
          projLineSet->UpdateProjection();
       }
@@ -239,7 +236,7 @@ FWJetProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType type,
 
 
 void FWJetProxyBuilder::setTextPos(fireworks::jetScaleMarker& s, const FWViewContext* vc, FWViewType::EType type)
-{  
+{   
    TEveChunkManager::iterator li( s.m_ls->GetLinePlex() );
    li.next();
    TEveStraightLineSet::Line_t &l = * ( TEveStraightLineSet::Line_t* ) li();
@@ -256,15 +253,13 @@ void FWJetProxyBuilder::setTextPos(fireworks::jetScaleMarker& s, const FWViewCon
    float y = l.fV1[1] + v[1];
    float z = l.fV1[2] + v[2];
 
-   if (s.m_text )
-   {
-      s.m_text->m_offset =  value/context().getMaxEnergyInEvent(vc->getEnergyScale()->getPlotEt());
-      s.m_text->RefMainTrans().SetPos(x, y, z);
-      if ((s.m_text)->BeginProjecteds() != (s.m_text)->EndProjecteds()) {
-         FWEveTextProjected* textProjected = (FWEveTextProjected*)(*(s.m_text)->BeginProjecteds());
-         textProjected->UpdateProjection();
-      }
+   s.m_text->m_offsetZ =  value/context().getMaxEnergyInEvent(vc->getEnergyScale()->getPlotEt());
+   s.m_text->RefMainTrans().SetPos(x, y, z);
+   if ((s.m_text)->BeginProjecteds() != (s.m_text)->EndProjecteds()) {
+      FWEveTextProjected* textProjected = (FWEveTextProjected*)(*(s.m_text)->BeginProjecteds());
+      textProjected->UpdateProjection();
    }
+   
 }
 
 REGISTER_FWPROXYBUILDER( FWJetProxyBuilder, reco::Jet, "Jets", FWViewType::kAll3DBits  | FWViewType::kAllRPZBits | FWViewType::kGlimpseBit);
