@@ -27,7 +27,9 @@ TwoBodyDecayTrajectoryState::TwoBodyDecayTrajectoryState( const TsosContainer & 
     theParticleMass( particleMass ),
     theParameters( tbd.decayParameters() ),
     theDerivatives( AlgebraicMatrix( nLocalParam, nDecayParam ), AlgebraicMatrix( nLocalParam, nDecayParam ) ),
-    theOriginalTsos( tsos )
+    theOriginalTsos( tsos ),
+    thePrimaryMass( tbd.primaryMass() ),
+    thePrimaryWidth( tbd.primaryWidth() )
 {
   construct( magField, propagateErrors );
 }
@@ -42,7 +44,9 @@ TwoBodyDecayTrajectoryState::TwoBodyDecayTrajectoryState( const TsosContainer & 
     theParticleMass( particleMass ),
     theParameters( param ),
     theDerivatives( AlgebraicMatrix( 5, 9 ), AlgebraicMatrix( 5, 9 ) ),
-    theOriginalTsos( tsos )
+    theOriginalTsos( tsos ),
+    thePrimaryMass( 0. ),
+    thePrimaryWidth( -1. ) // dummy values
 {
   construct( magField, propagateErrors );
 }
