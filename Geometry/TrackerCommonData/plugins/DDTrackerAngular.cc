@@ -10,7 +10,7 @@
 #include "DetectorDescription/Base/interface/DDutils.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "Geometry/TrackerCommonData/interface/DDTrackerAngular.h"
+#include "Geometry/TrackerCommonData/plugins/DDTrackerAngular.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 

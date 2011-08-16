@@ -13,7 +13,7 @@
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "Geometry/TrackerCommonData/interface/DDPixBarLayerAlgo.h"
+#include "Geometry/TrackerCommonData/plugins/DDPixBarLayerAlgo.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 

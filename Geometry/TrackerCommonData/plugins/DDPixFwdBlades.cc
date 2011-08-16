@@ -20,7 +20,7 @@
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
 #include "DetectorDescription/Core/interface/DDConstant.h"
-#include "Geometry/TrackerCommonData/interface/DDPixFwdBlades.h"
+#include "Geometry/TrackerCommonData/plugins/DDPixFwdBlades.h"
 #include "CLHEP/Vector/RotationInterfaces.h"
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
