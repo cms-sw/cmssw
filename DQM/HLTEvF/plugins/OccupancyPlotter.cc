@@ -13,35 +13,33 @@
 //
 // Original Author:  Jason Michael Slaunwhite,512 1-008,+41227670494,
 //         Created:  Fri Aug  5 10:34:47 CEST 2011
-// $Id: OccupancyPlotter.cc,v 1.2 2011/08/11 17:44:29 slaunwhj Exp $
+// $Id: OccupancyPlotter.cc,v 1.3 2011/08/15 13:04:48 abrinke1 Exp $
 //
 //
-
 
 // system include files
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-
-#include "DataFormats/HLTReco/interface/TriggerEvent.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/HLTReco/interface/TriggerObject.h"
+
 #include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 
 #include "TMath.h"
 
@@ -79,16 +77,15 @@ class OccupancyPlotter : public edm::EDAnalyzer {
 
 
   bool debugPrint;
+  bool outputPrint;
 
   std::string plotDirectoryName;
 
   DQMStore * dbe;
 
-  MonitorElement* testME;
-
   HLTConfigProvider hltConfig_;
 
-  vector< vector<string> > PDsToBePlotted;
+  vector< vector<string> > PDsVectorPathsVector;
   
 };
 
@@ -109,6 +106,7 @@ OccupancyPlotter::OccupancyPlotter(const edm::ParameterSet& iConfig)
    //now do what ever initialization is needed
 
   debugPrint = false;
+  outputPrint = false;
 
   if (debugPrint) std::cout << "Inside Constructor" << std::endl;
 
@@ -142,12 +140,7 @@ OccupancyPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
    if (debugPrint) std::cout << "Inside analyze" << std::endl;
 
-   if (testME) {
-     testME->Fill(1);
-   }
-
-
-   // Access Trigger Results
+    // Access Trigger Results
    edm::Handle<edm::TriggerResults> triggerResults;
    iEvent.getByLabel(InputTag("TriggerResults","", "HLT"), triggerResults);
    
@@ -167,27 +160,28 @@ OccupancyPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
    const TriggerObjectCollection objects = aodTriggerEvent->getObjects();
 
+
    vector<string> datasetNames =  hltConfig_.streamContent("A") ;
+// Loop over PDs
+   for (unsigned int iPD = 0; iPD < datasetNames.size(); iPD++) { 
 
-   for (unsigned int iPD = 0; iPD < datasetNames.size(); iPD++) {
+     if (datasetNames[iPD] != "SingleMu" && datasetNames[iPD] != "SingleElectron" && datasetNames[iPD] != "Jet") continue;  
 
-     if (datasetNames[iPD] != "SingleMu" && datasetNames[iPD] != "SingleElectron") continue;  
-
-   unsigned int keyTracker[1000];
+     unsigned int keyTracker[1000]; // Array to eliminate double counts by tracking what Keys have already been fired
    for(unsigned int irreproduceableIterator = 0; irreproduceableIterator < 1000; irreproduceableIterator++) {
      keyTracker[irreproduceableIterator] = 1001;
    }
-
-   for (unsigned int iPath = 0; iPath < PDsToBePlotted[iPD].size(); iPath++) {
+// Loop over Paths in each PD
+   for (unsigned int iPath = 0; iPath < PDsVectorPathsVector[iPD].size(); iPath++) { 
      
-     std::string pathName = PDsToBePlotted[iPD][iPath];
+     std::string pathName = PDsVectorPathsVector[iPD][iPath];
 
      if (debugPrint) std::cout << "Looking at path " << pathName << std::endl;
      
      unsigned int index = hltConfig_.triggerIndex(pathName);
 
      if (index < triggerResults->size()) {
-       if(triggerResults->accept(index)){
+       if(triggerResults->accept(index)) {
 
          if (debugPrint)std::cout << "We fired path " << pathName << std::endl;
 
@@ -219,7 +213,7 @@ OccupancyPlotter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
                  TriggerObject foundObject = objects[keys[iKey]];
 		   if(keyTracker[iKey] != iKey) {
 		 	
-		      if (debugPrint) std::cout << "This object has (pt, eta, phi) = "
+		      if (debugPrint || outputPrint) std::cout << "This object has (pt, eta, phi) = "
                                       << std::setw(10) << foundObject.pt()
                               << ", " << std::setw(10) << foundObject.eta() 
 			      << ", " << std::setw(10) << foundObject.phi()
@@ -269,9 +263,6 @@ OccupancyPlotter::beginJob()
 
   }
 
-  testME = dbe->book1D("reportSummaryMap","report Summary Map",2,0,2);
-
-  
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
@@ -297,25 +288,27 @@ OccupancyPlotter::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup)
       if(debugPrint) std::cout << "Warning, didn't find process HLT" << std::endl;
   }
 
-  vector<string> datasetNames =  hltConfig_.streamContent("A") ;
+  vector<string> datasetNames =  hltConfig_.streamContent("A");
   for (unsigned int i=0;i<datasetNames.size();i++) {
-    if (debugPrint) std::cout << "This is dataset " << datasetNames[i] <<std::endl;
+
+    if(debugPrint) std::cout << "This is dataset " << datasetNames[i] <<std::endl;
+
     vector<string> datasetPaths = hltConfig_.datasetContent(datasetNames[i]);
+
     if (debugPrint) std::cout << "datasetPaths.size() = " << datasetPaths.size() << std::endl;
-    PDsToBePlotted.push_back(datasetPaths);
 
-    if (debugPrint) std::cout << "after PDsToBePlotted" << std::endl;
+    PDsVectorPathsVector.push_back(datasetPaths);
 
-    if (datasetNames[i] == "SingleMu" || datasetNames[i] == "SingleElectron") {      
+    if (datasetNames[i] == "SingleMu" || datasetNames[i] == "SingleElectron" || datasetNames[i] == "Jet") {      
+
       if (debugPrint) std::cout <<"Found PD: " << datasetNames[i]  << std::endl;     
       setupHltMatrix(datasetNames[i]);
+
     }    
 
   }// end of loop over dataset names
 
-  
-  
-}
+}// end of beginRun
 
 // ------------ method called when ending the processing of a run  ------------
 void OccupancyPlotter::endRun(edm::Run const&, edm::EventSetup const&)
@@ -328,7 +321,7 @@ std::string h_name;
 std::string h_title;
 
 std::string PD_EtaVsPhiFolder;
-PD_EtaVsPhiFolder = TString("HLT/FourVector/PD_EtaVsPhi");
+PD_EtaVsPhiFolder = TString("HLT/OccupancyPlots/PD_EtaVsPhi");
 
 dbe->setCurrentFolder(PD_EtaVsPhiFolder.c_str());
 
@@ -346,7 +339,7 @@ void OccupancyPlotter::fillHltMatrix(std::string label, double Eta, double Phi) 
 
   std::string fullPathToME;
 
-  fullPathToME = "HLT/FourVector/PD_EtaVsPhi/HLT_"+label+"_EtaVsPhi";
+  fullPathToME = "HLT/OccupancyPlots/PD_EtaVsPhi/HLT_"+label+"_EtaVsPhi";
 
   MonitorElement * ME_2d = dbe->get(fullPathToME);
 
