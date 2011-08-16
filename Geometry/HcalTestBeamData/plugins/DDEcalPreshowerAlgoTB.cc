@@ -1,4 +1,4 @@
-#include "Geometry/HcalTestBeamData/interface/DDEcalPreshowerAlgoTB.h"
+#include "Geometry/HcalTestBeamData/plugins/DDEcalPreshowerAlgoTB.h"
 
 #include <cmath>
 #include <algorithm>
