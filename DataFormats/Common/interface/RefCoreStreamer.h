@@ -15,7 +15,7 @@ namespace edm {
 
     EDProductGetter const* setProductGetter(EDProductGetter const* ep) {
         EDProductGetter const* old = prodGetter_;
-	prodGetter_ = ep;
+        prodGetter_ = ep;
         return old;
     }
     void operator() (TBuffer &R__b, void *objp);
@@ -25,7 +25,7 @@ namespace edm {
     EDProductGetter const* prodGetter_;
   };
 
-  
+
   class RefCoreCheckTransientOnWriteStreamer : public TClassStreamer {
   public:
     explicit RefCoreCheckTransientOnWriteStreamer() : cl_("edm::RefCore::CheckTransientOnWrite"){}
@@ -35,8 +35,8 @@ namespace edm {
   private:
     TClassRef cl_;
   };
-   
+
   void setRefCoreStreamer(bool resetAll = false);
   EDProductGetter const* setRefCoreStreamer(EDProductGetter const* ep);
-} 
+}
 #endif
