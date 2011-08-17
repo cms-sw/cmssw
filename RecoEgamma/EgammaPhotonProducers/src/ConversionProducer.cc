@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Authors:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: ConversionProducer.cc,v 1.10 2011/08/08 01:32:25 bendavid Exp $
+// $Id: ConversionProducer.cc,v 1.11 2011/08/17 16:37:12 nancy Exp $
 //
 //
 
@@ -83,7 +83,6 @@ ConversionProducer::ConversionProducer(const edm::ParameterSet& iConfig):
   maxTrackRho_ = iConfig.getParameter<double>("maxTrackRho");
   maxTrackZ_ = iConfig.getParameter<double>("maxTrackZ");
 
-  allowTrackBC_ = iConfig.getParameter<bool>("AllowTrackBC");
   allowTrackBC_ = iConfig.getParameter<bool>("AllowTrackBC");
   allowD0_ = iConfig.getParameter<bool>("AllowD0");
   allowDeltaPhi_ = iConfig.getParameter<bool>("AllowDeltaPhi");
