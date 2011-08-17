@@ -188,8 +188,6 @@ namespace edm {
       metaDataTree->SetBranchAddress(poolNames::fileFormatVersionBranchName().c_str(), &fftPtr);
     }
 
-    setRefCoreStreamer((EDProductGetter*)0); // backward compatibility
-
     FileID *fidPtr = &fid_;
     if(metaDataTree->FindBranch(poolNames::fileIdentifierBranchName().c_str()) != 0) {
       metaDataTree->SetBranchAddress(poolNames::fileIdentifierBranchName().c_str(), &fidPtr);
@@ -1725,7 +1723,6 @@ namespace edm {
 
   void
   ReducedProvenanceBranchMapperWithReader::readProvenance(BranchMapper const& mapper) const {
-    setRefCoreStreamer((EDProductGetter*)0);
     ReducedProvenanceBranchMapperWithReader* me = const_cast<ReducedProvenanceBranchMapperWithReader*>(this);
     me->rootTree_->fillBranchEntry(me->provBranch_, me->pProvVector_);
     setRefCoreStreamer(true);
