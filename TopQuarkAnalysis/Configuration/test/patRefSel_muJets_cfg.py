@@ -62,15 +62,27 @@ addTriggerMatching = True
 ### Reference selection
 
 from TopQuarkAnalysis.Configuration.patRefSel_refMuJets import *
+# Muons general
 #muonsUsePV             = False
 #muonEmbedTrack         = True
-#muonCutPF                = ''
-#looseMuonCutPF           = ''
-#tightMuonCutPF           = ''
 #muonJetsDR             = 0.3
+# Standard mouns
+#muonCut                = ''
+#looseMuonCut           = ''
+#tightMuonCut           = ''
+# PF muons
+#muonCutPF              = ''
+#looseMuonCutPF         = ''
+#tightMuonCutPF         = ''
+# Standard electrons
+#electronCut            = ''
+# PF electrons
+#electronCutPF          = ''
+# Calo jets
+#jetCut                 = ''
+# PF jets
 #jetCutPF               = ''
 #jetMuonsDRPF           = 0.1
-#electronCutPF            = ''
 
 # Trigger selection according to run range resp. MC sample:
 # lower range limits for data available as suffix;
@@ -103,11 +115,13 @@ useNoTau      = True # before MET top projection
 #pfDzCut   = 0.5
 #pfVertices = 'goodOfflinePrimaryVertices'
 # muons
-#pfMuonSelectionCut = ''
+#pfMuonSelectionCut = 'pt > 5.'
+useMuonCutBasePF = False # use minimal (veto) muon selection cut on top of 'pfMuonSelectionCut'
 #pfMuonIsoConeR   = 0.4
 #pfMuonCombIsoCut = 0.2
 # electrons
-#pfElectronSelectionCut  = ''
+#pfElectronSelectionCut  = 'pt > 5. && gsfTrackRef.isNonnull && gsfTrackRef.trackerExpectedHitsInner.numberOfLostHits < 2'
+useElectronCutBasePF = False # use minimal (veto) electron selection cut on top of 'pfElectronSelectionCut'
 #pfElectronIsoConeR   = 0.3
 #pfElectronCombIsoCut = 0.2
 
@@ -140,7 +154,6 @@ inputFiles = [ '/store/data/Run2011A/MuHad/AOD/PromptReco-v4/000/165/129/42DDEE9
 
 # maximum number of events
 maxInputEvents = -1 # reduce for testing
-maxInputEvents = 1000
 
 ### Conditions
 
@@ -290,6 +303,10 @@ if useL7Parton:
 ### Switch configuration
 
 if runPF2PAT:
+  if useMuonCutBasePF:
+    pfMuonSelectionCut += ' && %s'%( muonCutBase )
+  if useElectronCutBasePF:
+    pfElectronSelectionCut += ' && %s'%( electronCutBase )
   from PhysicsTools.PatAlgos.tools.pfTools import usePF2PAT
   usePF2PAT( process
            , runPF2PAT      = runPF2PAT
@@ -421,7 +438,7 @@ if runStandardPAT:
   process.patDefaultSequence.replace( process.patJetCorrFactors
                                     , process.kt6PFJets * process.patJetCorrFactors
                                     )
-  process.out.outputCommands.append( 'keep double_*_*_' + process.name_() )
+  process.out.outputCommands.append( 'keep double_kt6PFJets_*_' + process.name_() )
   if useL1FastJet:
     process.patJetCorrFactors.useRho = True
     if usePFJets:
@@ -491,7 +508,7 @@ if runPF2PAT:
                                                             )
     if useL1FastJet:
       applyPostfix( process, 'patJetCorrFactors', postfix ).rho = cms.InputTag( 'kt6PFJets' + postfix, 'rho' )
-  process.out.outputCommands.append( 'keep double_*' + postfix + '*_*_' + process.name_() )
+  process.out.outputCommands.append( 'keep double_kt6PFJets' + postfix + '_*_' + process.name_() )
 
   goodPatJetsPF = goodPatJets.clone( src = cms.InputTag( 'selectedPatJets' + postfix ) )
   setattr( process, 'goodPatJets' + postfix, goodPatJetsPF )
@@ -726,7 +743,7 @@ if runStandardPAT:
       pAddPF += process.step0b
     if not runOnMC:
       pAddPF += process.step0c
-    #pAddPF += process.eidCiCSequence
+    pAddPF += process.eidCiCSequence
     pAddPF += process.patDefaultSequence
     pAddPF.remove( process.patJetCorrFactors )
     pAddPF.remove( process.patJetCharge )
