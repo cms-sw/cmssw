@@ -15,7 +15,7 @@ namespace evf
   
   class OutputModule{
   public: 
-    unsigned int getCounts()=0;
+    virtual unsigned int getCounts()=0;
   };
   class ShmOutputModuleRegistry
     {
@@ -26,7 +26,7 @@ namespace evf
       void dumpRegistry();
 
     private:
-      typedef std::map<std::string, edm::FUShmOutputModule*> dct;
+      typedef std::map<std::string, OutputModule*> dct;
       typedef dct::iterator idct;
       void clear();
       dct clm_;
