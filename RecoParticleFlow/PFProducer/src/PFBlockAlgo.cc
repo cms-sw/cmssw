@@ -222,12 +222,13 @@ PFBlockAlgo::packLinks( reco::PFBlock& block,
   
   block.bookLinkData();
 
+  unsigned elsize = els.size();
   //First Loop: update all link data
-  for( unsigned i1=0; i1<els.size(); i1++ ) {
-    for( unsigned i2=0; i2<els.size(); i2++ ) {
+  for( unsigned i1=0; i1<elsize; ++i1 ) {
+    for( unsigned i2=0; i2<i1; ++i2 ) {
       
       // no reflexive link
-      if( i1==i2 ) continue;
+      //if( i1==i2 ) continue;
       
       double dist = -1;
       
@@ -238,7 +239,7 @@ PFBlockAlgo::packLinks( reco::PFBlock& block,
       // are these elements already linked ?
       // this can be optimized
 
-      for( unsigned il=0; il<links.size(); il++ ) {
+      for( unsigned il=0; il<links.size(); ++il ) {
 	if( (links[il].element1() == i1 && 
 	     links[il].element2() == i2) || 
 	    (links[il].element1() == i2 && 
@@ -399,8 +400,8 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       assert( !ecalref.isNull() );
       assert( !hcalref.isNull() );
       // PJ - 14-May-09 : A link by rechit is needed here !
-      // dist = testECALAndHCAL( *ecalref, *hcalref );
-      dist = -1.;
+      dist = testECALAndHCAL( *ecalref, *hcalref );
+      // dist = -1.;
       linktest = PFBlock::LINKTEST_RECHIT;
       break;
     }
@@ -734,13 +735,13 @@ PFBlockAlgo::testECALAndHCAL(const PFCluster& ecal,
   
   //   cout<<"entering testECALAndHCAL"<<endl;
   
-  /*
-  double dist = 
-    computeDist( ecal.positionREP().Eta(),
-		 ecal.positionREP().Phi(), 
-		 hcal.positionREP().Eta(), 
-		 hcal.positionREP().Phi() );
-  */
+  double dist = fabs(ecal.positionREP().Eta()) > 2.5 ?
+    LinkByRecHit::computeDist( ecal.positionREP().Eta(),
+			       ecal.positionREP().Phi(), 
+			       hcal.positionREP().Eta(), 
+			       hcal.positionREP().Phi() )
+    : 
+    -1.;
 
 #ifdef PFLOW_DEBUG
   if(debug_) cout<<"testECALAndHCAL "<< dist <<" "<<endl;
@@ -751,6 +752,8 @@ PFBlockAlgo::testECALAndHCAL(const PFCluster& ecal,
 	<<" hcalphi " << hcal.positionREP().Phi()
   }
 #endif
+
+  if ( dist < 0.2 ) return dist; 
 
   // Need to implement a link by RecHit
   return -1.;
