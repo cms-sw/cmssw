@@ -154,6 +154,7 @@ inputFiles = [ '/store/data/Run2011A/MuHad/AOD/PromptReco-v4/000/165/129/42DDEE9
 
 # maximum number of events
 maxInputEvents = -1 # reduce for testing
+maxInputEvents = 1000
 
 ### Conditions
 
@@ -344,11 +345,43 @@ if runPF2PAT:
   applyPostfix( process, 'isoValElectronWithPhotons', postfix ).deposits[0].deltaR = pfElectronIsoConeR
   applyPostfix( process, 'pfIsolatedElectrons'      , postfix ).combinedIsolationCut = pfElectronCombIsoCut
 
+from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import *
+
 # remove MC matching, object cleaning, objects etc.
+jecLevelsCalo = copy.copy( jecLevels )
 if runStandardPAT:
   if not runOnMC:
     runOnData( process )
+  # subsequent jet area calculations needed for L1FastJet on RECO jets
+  if useCaloJets and useL1FastJet:
+    if useRelVals:
+      process.ak5CaloJets = ak5CaloJets.clone( doAreaFastjet = True )
+      process.ak5JetID    = ak5JetID.clone()
+      process.ak5CaloJetSequence = cms.Sequence(
+        process.ak5CaloJets
+      * process.ak5JetID
+      )
+      from PhysicsTools.PatAlgos.tools.jetTools import switchJetCollection
+      switchJetCollection( process
+                         , cms.InputTag( jetAlgo.lower() + 'CaloJets' )
+                         , doJTA            = True
+                         , doBTagging       = True
+                         , jetCorrLabel     = ( jecSet, jecLevels )
+                         , doType1MET       = False
+                         , genJetCollection = cms.InputTag( jetAlgo.lower() + 'GenJets' )
+                         , doJetID          = True
+                         )
+    else:
+      print 'WARNING patRefSel_muJets_test_cfg.py:'
+      print '        L1FastJet JECs are not available for AK5Calo jets in this data due to missing jet area computation;'
+      print '        switching to   L1Offset   !!!'
+      jecLevelsCalo.insert( 0, 'L1Offset' )
+      jecLevelsCalo.remove( 'L1FastJet' )
+      process.patJetCorrFactors.levels = jecLevelsCalo
+      #process.patJetCorrFactors.useRho = False # FIXME: does not apply
   if usePFJets:
+    if useL1FastJet:
+      process.ak5PFJets = ak5PFJets.clone( doAreaFastjet = True )
     from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
     from PhysicsTools.PatAlgos.tools.metTools import addPfMET
     addJetCollection( process
@@ -384,7 +417,8 @@ if runPF2PAT:
 # JetCorrFactorsProducer configuration has to be fixed in standard work flow after a call to 'runOnData()':
 if runStandardPAT:
   process.patJetCorrFactors.payload = jecSet
-  process.patJetCorrFactors.levels  = jecLevels
+  process.patJetCorrFactors.levels  = jecLevelsCalo
+
 # additional event content has to be (re-)added _after_ the call to 'removeCleaning()':
 process.out.outputCommands += [ 'keep edmTriggerResults_*_*_*'
                               , 'keep *_hltTriggerSummaryAOD_*_*'
@@ -404,8 +438,6 @@ if runOnMC:
 ### Additional configuration
 ###
 
-from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import *
-
 goodPatJetsAddPFLabel = 'goodPatJets' + jetAlgo + pfSuffix
 
 if runStandardPAT:
@@ -417,7 +449,7 @@ if runStandardPAT:
   process.step1a               = step1a.clone()
   process.tightPatMuons        = tightPatMuons.clone()
   process.step1b               = step1b.clone()
-  process.step2                = step2.clone()
+  process.step2                = step2.clone( src = cms.InputTag( 'selectedPatMuons' ) )
 
   if usePFJets:
     loosePatMuonsAddPF = loosePatMuons.clone()
@@ -464,7 +496,7 @@ if runStandardPAT:
 
   ### Electrons
 
-  process.step3 = step3.clone()
+  process.step3 = step3.clone( src = cms.InputTag( 'selectedPatElectrons' ) )
 
 if runPF2PAT:
 
@@ -687,6 +719,8 @@ if runStandardPAT:
     if not runOnMC:
       process.p += process.step0c
     process.p += process.eidCiCSequence
+    if useL1FastJet and useRelVals:
+      process.p += process.ak5CaloJetSequence
     process.p += process.patDefaultSequence
     if usePFJets:
       process.p.remove( getattr( process, 'patJetCorrFactors'                    + jetAlgo + pfSuffix ) )
@@ -744,8 +778,26 @@ if runStandardPAT:
     if not runOnMC:
       pAddPF += process.step0c
     pAddPF += process.eidCiCSequence
+    if useL1FastJet:
+      pAddPF += process.ak5PFJets
     pAddPF += process.patDefaultSequence
     pAddPF.remove( process.patJetCorrFactors )
+    if useCaloJets and useL1FastJet and useRelVals:
+      pAddPF.remove( process.jetTracksAssociatorAtVertex )
+      pAddPF.remove( process.impactParameterTagInfosAOD )
+      pAddPF.remove( process.secondaryVertexTagInfosAOD )
+      pAddPF.remove( process.softMuonTagInfosAOD )
+      pAddPF.remove( process.jetBProbabilityBJetTagsAOD )
+      pAddPF.remove( process.jetProbabilityBJetTagsAOD )
+      pAddPF.remove( process.trackCountingHighPurBJetTagsAOD )
+      pAddPF.remove( process.trackCountingHighEffBJetTagsAOD )
+      pAddPF.remove( process.simpleSecondaryVertexHighEffBJetTagsAOD )
+      pAddPF.remove( process.simpleSecondaryVertexHighPurBJetTagsAOD )
+      pAddPF.remove( process.combinedSecondaryVertexBJetTagsAOD )
+      pAddPF.remove( process.combinedSecondaryVertexMVABJetTagsAOD )
+      pAddPF.remove( process.softMuonBJetTagsAOD )
+      pAddPF.remove( process.softMuonByPtBJetTagsAOD )
+      pAddPF.remove( process.softMuonByIP3dBJetTagsAOD )
     pAddPF.remove( process.patJetCharge )
     pAddPF.remove( process.patJetPartonMatch )
     pAddPF.remove( process.patJetGenJetMatch )
