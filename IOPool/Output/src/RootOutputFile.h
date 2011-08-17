@@ -83,7 +83,7 @@ namespace edm {
                       StoredProductProvenanceVector* productProvenanceVecPtr);
 
      void insertAncestors(ProductProvenance const& iGetParents,
-                          Principal const& principal,
+                          EventPrincipal const& principal,
                           bool produced,
                           std::set<StoredProductProvenance>& oToFill);
 
@@ -113,11 +113,7 @@ namespace edm {
     LuminosityBlockAuxiliary const* pLumiAux_;
     RunAuxiliary const*             pRunAux_;
     StoredProductProvenanceVector eventEntryInfoVector_;
-    StoredProductProvenanceVector lumiEntryInfoVector_;
-    StoredProductProvenanceVector runEntryInfoVector_;
     StoredProductProvenanceVector*        pEventEntryInfoVector_;
-    StoredProductProvenanceVector*        pLumiEntryInfoVector_;
-    StoredProductProvenanceVector*        pRunEntryInfoVector_;
     BranchListIndexes const*        pBranchListIndexes_;
     EventSelectionIDVector const*   pEventSelectionIDs_;
     RootOutputTree eventTree_;
