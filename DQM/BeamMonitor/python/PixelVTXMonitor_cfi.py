@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 pixelVTXMonitor = cms.EDAnalyzer("PixelVTXMonitor",
-    ModuleName          = cms.string('HLT'),
+    ModuleName          = cms.string('BeamPixel'),
     FolderName          = cms.string('PixelVertex'),
     PixelVertexInputTag = cms.InputTag('pixelVertices'),
     HLTInputTag         = cms.InputTag('TriggerResults','','HLT'),
