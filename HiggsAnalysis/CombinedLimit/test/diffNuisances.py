@@ -4,11 +4,17 @@ from sys import argv, stdout, stderr, exit
 from optparse import OptionParser
 
 # import ROOT with a fix to get batch mode (http://root.cern.ch/phpBB3/viewtopic.php?t=3198)
+hasHelp = False 
+for X in ("-h", "-?", "--help"):
+    if X in argv: 
+        hasHelp = True
+        argv.remove(X)
 argv.append( '-b-' )
 import ROOT
 ROOT.gROOT.SetBatch(True)
 ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
 argv.remove( '-b-' )
+if hasHelp: argv.append("-h")
 
 parser = OptionParser(usage="usage: %prog [options] in.root  \nrun with --help to get list of options")
 parser.add_option("--vtol", "--val-tolerance", dest="vtol", default=0.30, type="float", help="Report nuisances whose value changes by more than this amount of sigmas") 
