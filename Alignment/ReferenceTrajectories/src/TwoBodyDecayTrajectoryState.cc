@@ -35,23 +35,6 @@ TwoBodyDecayTrajectoryState::TwoBodyDecayTrajectoryState( const TsosContainer & 
 }
 
 
-TwoBodyDecayTrajectoryState::TwoBodyDecayTrajectoryState( const TsosContainer & tsos,
-							  const TwoBodyDecayParameters & param,
-							  double particleMass,
-							  const MagneticField* magField,
-							  bool propagateErrors )
-  : theValidityFlag( false ),
-    theParticleMass( particleMass ),
-    theParameters( param ),
-    theDerivatives( AlgebraicMatrix( 5, 9 ), AlgebraicMatrix( 5, 9 ) ),
-    theOriginalTsos( tsos ),
-    thePrimaryMass( 0. ),
-    thePrimaryWidth( -1. ) // dummy values
-{
-  construct( magField, propagateErrors );
-}
-
-
 void TwoBodyDecayTrajectoryState::rescaleError( double scale )
 {
   theOriginalTsos.first.rescaleError( scale );

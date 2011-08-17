@@ -27,15 +27,6 @@ public:
 			       const MagneticField* magField,
 			       bool propagateErrors = false );
 
-  /** The constructor takes the two trajectory states that are to be updated (typically the
-   *  innermost trajectory states of two tracks) and the decay parameters.
-   */
-  TwoBodyDecayTrajectoryState( const TsosContainer & tsos,
-			       const TwoBodyDecayParameters & param,
-			       double particleMass,
-			       const MagneticField* magField,
-			       bool propagateErrors = false );
-
   ~TwoBodyDecayTrajectoryState( void ) {}
 
   inline bool isValid( void ) const { return theValidityFlag; }
