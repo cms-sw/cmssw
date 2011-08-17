@@ -348,6 +348,9 @@ PFAlgo debug 0
 // Re-run particle flow	
 particle_flow	on/off	1
 
+// Optimized ECAL/track linking from Yuri
+particle_flow useKDTreeTrackEcalLinker 1
+
 // Track Quality Cut: Tracks are kept if DPt/Pt < Cut * sigma(Had) 
 // and if nHit >= nHitCut
 particle_flow DPtoverPt_Cut  -1. -1. -1. -1. -1. 

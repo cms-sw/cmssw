@@ -907,6 +907,10 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("particle_flow", "on/off", doParticleFlow_);  
   options_->GetOpt("particle_flow", "comparison", doCompare_);  
 
+  useKDTreeTrackEcalLinker_ = true;
+  options_->GetOpt("particle_flow", "useKDTreeTrackEcalLinker", useKDTreeTrackEcalLinker_);  
+  pfBlockAlgo_.setUseOptimization(useKDTreeTrackEcalLinker_);
+
   std::vector<double> DPtovPtCut;
   std::vector<unsigned> NHitCut;
   bool useIterTracking;

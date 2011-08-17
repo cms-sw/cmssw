@@ -271,6 +271,9 @@
   <class name="std::vector<reco::PFBlockElementSuperCluster>"/>
   <class name="edm::Wrapper<std::vector<reco::PFBlockElementSuperCluster> >"/>
 
+  <!-- // Glowinski & Gouzevitch -->
+  <class name="reco::PFMultiLinksTC"/> 
+
 </selection>
 <exclusion>
   <class name="edm::OwnVector<reco::PFBlockElement, edm::ClonePolicy<reco::PFBlockElement> >">
