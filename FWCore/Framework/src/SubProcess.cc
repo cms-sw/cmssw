@@ -199,7 +199,7 @@ namespace edm {
     boost::shared_ptr<RunAuxiliary> aux(new RunAuxiliary(principal.aux()));
     aux->setProcessHistoryID(principal.processHistoryID());
     boost::shared_ptr<RunPrincipal> rpp(new RunPrincipal(aux, preg_, *processConfiguration_, historyAppender_.get()));
-    rpp->fillRunPrincipal(principal.branchMapperPtr(), principal.reader());
+    rpp->fillRunPrincipal(principal.reader());
     principalCache_.insert(rpp);
 
     FullHistoryToReducedHistoryMap & phidConverter(ProcessHistoryRegistry::instance()->extra());
@@ -264,7 +264,7 @@ namespace edm {
     boost::shared_ptr<LuminosityBlockAuxiliary> aux(new LuminosityBlockAuxiliary(principal.aux()));
     aux->setProcessHistoryID(principal.processHistoryID());
     boost::shared_ptr<LuminosityBlockPrincipal> lbpp(new LuminosityBlockPrincipal(aux, preg_, *processConfiguration_, principalCache_.runPrincipalPtr(), historyAppender_.get()));
-    lbpp->fillLuminosityBlockPrincipal(principal.branchMapperPtr(), principal.reader());
+    lbpp->fillLuminosityBlockPrincipal(principal.reader());
     principalCache_.insert(lbpp);
     LuminosityBlockPrincipal& lbp = *principalCache_.lumiPrincipalPtr();
     propagateProducts(InLumi, principal, lbp);

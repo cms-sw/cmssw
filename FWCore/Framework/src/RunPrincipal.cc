@@ -18,23 +18,19 @@ namespace edm {
   }
 
   void
-  RunPrincipal::fillRunPrincipal(
-    boost::shared_ptr<BranchMapper> mapper,
-    DelayedReader* reader) {
+  RunPrincipal::fillRunPrincipal(DelayedReader* reader) {
 
-    fillPrincipal(aux_->processHistoryID(), mapper, reader);
+    fillPrincipal(aux_->processHistoryID(), reader);
 
-    branchMapperPtr()->processHistoryID() = processHistoryID();
     for (const_iterator i = this->begin(), iEnd = this->end(); i != iEnd; ++i) {
-      (*i)->setProvenance(branchMapperPtr());
+      (*i)->setProcessHistoryID(processHistoryID());
     }
   }
 
   void
   RunPrincipal::put(
         ConstBranchDescription const& bd,
-        WrapperOwningHolder const& edp,
-        ProductProvenance& productProvenance) {
+        WrapperOwningHolder const& edp) {
 
     assert(bd.produced());
     if(!edp.isValid()) {
@@ -42,11 +38,10 @@ namespace edm {
         << "put: Cannot put because auto_ptr to product is null."
         << "\n";
     }
-    branchMapperPtr()->insert(productProvenance);
     Group *g = getExistingGroup(bd.branchID());
     assert(g);
     // Group assumes ownership
-    putOrMerge(edp, productProvenance, g);
+    putOrMerge(edp, g);
   }
 
   void
@@ -59,7 +54,6 @@ namespace edm {
         }
       }
     }
-    branchMapperPtr()->setDelayedRead(false);
   }
 
   void

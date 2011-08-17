@@ -13,7 +13,6 @@ is the DataBlock.
 ----------------------------------------------------------------------*/
 
 
-#include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "FWCore/Framework/interface/Principal.h"
@@ -41,9 +40,7 @@ namespace edm {
 
     ~LuminosityBlockPrincipal() {}
 
-    void fillLuminosityBlockPrincipal(
-        boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(),
-        DelayedReader* reader = 0);
+    void fillLuminosityBlockPrincipal(DelayedReader* reader = 0);
 
     RunPrincipal const& runPrincipal() const {
       return *runPrincipal_;
@@ -89,8 +86,7 @@ namespace edm {
 
     void put(
         ConstBranchDescription const& bd,
-        WrapperOwningHolder const& edp,
-        ProductProvenance& productProvenance);
+        WrapperOwningHolder const& edp);
 
     void readImmediate() const;
 

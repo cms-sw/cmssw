@@ -187,6 +187,7 @@ namespace edm {
         checkConsistency(*primaryPrincipal, *secondaryPrincipal);
         checkHistoryConsistency(*primaryPrincipal, *secondaryPrincipal);
         primaryPrincipal->recombine(*secondaryPrincipal, branchIDsToReplace_[InEvent]);
+        primaryPrincipal->mergeMappers(*secondaryPrincipal);
         secondaryEventPrincipal_->clearPrincipal();
       } else {
         throw Exception(errors::MismatchedInputFiles, "PoolSource::readEvent_") <<

@@ -43,7 +43,7 @@ namespace edm {
         return WrapperOwningHolder();
       }
     }
-    setRefCoreStreamer(ep, !fileFormatVersion_.splitProductIDs(), !fileFormatVersion_.productIDIsInt());
+    setRefCoreStreamer(ep);
     TClass* cp = branchInfo.classCache_;
     if(0 == cp) {
       branchInfo.classCache_ = gROOT->GetClass(branchInfo.branchDescription_.wrappedName().c_str());

@@ -28,6 +28,9 @@ namespace edm {
 
   ProductProvenance*
   Provenance::resolve() const {
+    if(!store_) {
+      return 0;
+    }
     if (!productProvenanceValid_) {
       ProductProvenance const* prov  = store_->branchIDToProvenance(branchDescription_->branchID());
       if (prov) {
@@ -49,7 +52,7 @@ namespace edm {
     // Get the ProcessHistory for this event.
     ProcessHistoryRegistry* phr = ProcessHistoryRegistry::instance();
     ProcessHistory ph;
-    if (!phr->getMapped(store_->processHistoryID(), ph)) {
+    if (!phr->getMapped(processHistoryID(), ph)) {
       return ProcessConfigurationID();
     }
 

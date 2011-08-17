@@ -12,23 +12,19 @@ BranchMapperWithReader:
 
 namespace edm {
   class RootTree;
-  class BranchMapperWithReader : public BranchMapper {
+  class BranchMapperWithReader : public ProvenanceReaderBase {
   public:
     BranchMapperWithReader();
     explicit BranchMapperWithReader(RootTree* rootTree);
 
     virtual ~BranchMapperWithReader() {}
-    void insertIntoMap(ProductID const& oldProductID, BranchID const& branchID);
 
   private:
-    virtual void readProvenance_() const;
-    virtual BranchID oldProductIDToBranchID_(ProductID const& oldProductID) const;
-    virtual void reset_();
+    virtual void readProvenance(BranchMapper const& mapper) const;
 
     RootTree* rootTree_;
     ProductProvenanceVector infoVector_;
     mutable ProductProvenanceVector* pInfoVector_;
-    std::map<unsigned int, BranchID> oldProductIDToBranchIDMap_;
   };
 }
 #endif

@@ -9,50 +9,26 @@ BranchMapperWithReader:
 
 namespace edm {
   BranchMapperWithReader::BranchMapperWithReader() :
-         BranchMapper(true),
+         ProvenanceReaderBase(),
          rootTree_(0),
          infoVector_(),
-         pInfoVector_(&infoVector_),
-         oldProductIDToBranchIDMap_()
-  { }
+         pInfoVector_(&infoVector_) {
+  }
 
   BranchMapperWithReader::BranchMapperWithReader(RootTree* rootTree) :
-         BranchMapper(true),
+         ProvenanceReaderBase(),
          rootTree_(rootTree),
          infoVector_(),
-         pInfoVector_(&infoVector_),
-         oldProductIDToBranchIDMap_()
-  { }
+         pInfoVector_(&infoVector_) {
+  }
 
   void
-  BranchMapperWithReader::readProvenance_() const {
-    setRefCoreStreamer(0, false, false);
+  BranchMapperWithReader::readProvenance(BranchMapper const& mapper) const {
     rootTree_->fillBranchEntryMeta(rootTree_->branchEntryInfoBranch(), pInfoVector_);
     setRefCoreStreamer(true);
-    BranchMapperWithReader* me = const_cast<BranchMapperWithReader*>(this);
-    for (ProductProvenanceVector::const_iterator it = infoVector_.begin(), itEnd = infoVector_.end();
-      it != itEnd; ++it) {
-      me->insert(*it);
+    for(ProductProvenanceVector::const_iterator it = infoVector_.begin(), itEnd = infoVector_.end();
+        it != itEnd; ++it) {
+      mapper.insertIntoSet(*it);
     }
-  }
-
-  void
-  BranchMapperWithReader::insertIntoMap(ProductID const& oldProductID, BranchID const& branchID) {
-    oldProductIDToBranchIDMap_.insert(std::make_pair(oldProductID.oldID(), branchID));
-  }
-
-  BranchID
-  BranchMapperWithReader::oldProductIDToBranchID_(ProductID const& oldProductID) const {
-    std::map<unsigned int, BranchID>::const_iterator it = oldProductIDToBranchIDMap_.find(oldProductID.oldID());
-    if(it == oldProductIDToBranchIDMap_.end()) {
-      return BranchID();
-    }
-    return it->second;
-  }
-  
-  void BranchMapperWithReader::reset_()
-  {
-    setDelayedRead(true);
-    oldProductIDToBranchIDMap_.clear();
   }
 }

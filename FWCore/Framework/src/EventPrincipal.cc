@@ -24,6 +24,7 @@ namespace edm {
     Base(reg, pc, InEvent, historyAppender),
           aux_(),
           luminosityBlockPrincipal_(),
+          branchMapperPtr_(),
           unscheduledHandler_(),
           moduleLabelsRunning_(),
           eventSelectionIDs_(new EventSelectionIDVector),
@@ -35,6 +36,7 @@ namespace edm {
     clearPrincipal();
     aux_ = EventAuxiliary();
     luminosityBlockPrincipal_.reset();
+    branchMapperPtr_.reset();
     unscheduledHandler_.reset();
     moduleLabelsRunning_.clear();
     eventSelectionIDs_->clear();
@@ -49,7 +51,7 @@ namespace edm {
         boost::shared_ptr<BranchListIndexes> branchListIndexes,
         boost::shared_ptr<BranchMapper> mapper,
         DelayedReader* reader) {
-    fillPrincipal(aux.processHistoryID(), mapper, reader);
+    fillPrincipal(aux.processHistoryID(), reader);
     aux_ = aux;
     luminosityBlockPrincipal_ = lbp;
     if(eventSelectionIDs) {
@@ -57,7 +59,8 @@ namespace edm {
     }
     aux_.setProcessHistoryID(processHistoryID());
 
-    branchMapperPtr()->processHistoryID() = processHistoryID();
+    branchMapperPtr_ = mapper;
+
     if(branchListIndexes) {
       branchListIndexes_ = branchListIndexes;
     }
@@ -79,7 +82,7 @@ namespace edm {
 
     // Fill in the product ID's in the groups.
     for(const_iterator it = this->begin(), itEnd = this->end(); it != itEnd; ++it) {
-      (*it)->setProvenance(branchMapperPtr(), branchIDToProductID((*it)->branchDescription().branchID()));
+      (*it)->setProvenance(branchMapperPtr(), processHistoryID(), branchIDToProductID((*it)->branchDescription().branchID()));
     }
   }
 
@@ -110,7 +113,7 @@ namespace edm {
         << "put: Cannot put because ptr to product is null."
         << "\n";
     }
-    branchMapperPtr()->insert(productProvenance);
+    branchMapperPtr()->insertIntoSet(productProvenance);
     Group* g = getExistingGroup(bd.branchID());
     assert(g);
     checkUniquenessAndType(edp, g);
@@ -125,7 +128,7 @@ namespace edm {
         ProductProvenance const& productProvenance) {
 
     assert(!bd.produced());
-    branchMapperPtr()->insert(productProvenance);
+    branchMapperPtr()->insertIntoSet(productProvenance);
     Group* g = getExistingGroup(bd.branchID());
     assert(g);
     WrapperOwningHolder const edp(product, g->productData().getInterface());
@@ -274,12 +277,5 @@ namespace edm {
     }
     moduleLabelsRunning_.pop_back();
     return true;
-  }
-
-  ProductID
-  EventPrincipal::oldToNewProductID_(ProductID const& oldProductID) const {
-    BranchID bid = branchMapperPtr()->oldProductIDToBranchID(oldProductID);
-    if(!bid.isValid()) return oldProductID;
-    return branchIDToProductID(bid);
   }
 }

@@ -22,57 +22,39 @@ BranchMapper: Manages the per event/lumi/run per product provenance.
 */
 
 namespace edm {
-  class ProductID;
+  class ProvenanceReaderBase;
+
   class BranchMapper {
   public:
     BranchMapper();
+    explicit BranchMapper(boost::shared_ptr<ProvenanceReaderBase> reader);
 
-    explicit BranchMapper(bool delayedRead);
-
-    virtual ~BranchMapper();
-
-    void write(std::ostream& os) const;
+    ~BranchMapper();
 
     ProductProvenance const* branchIDToProvenance(BranchID const& bid) const;
 
-    void insert(ProductProvenance const& provenanceProduct);
+    void insertIntoSet(ProductProvenance const& provenanceProduct) const;
 
-    void mergeMappers(boost::shared_ptr<BranchMapper> other) {nextMapper_ = other;}
-
-    void setDelayedRead(bool value) {delayedRead_ = value;}
-
-    BranchID oldProductIDToBranchID(ProductID const& oldProductID) const {
-      return oldProductIDToBranchID_(oldProductID);
-    }
-
-    ProcessHistoryID const& processHistoryID() const {return processHistoryID_;}
-
-    ProcessHistoryID& processHistoryID() {return processHistoryID_;}
+    void mergeMappers(boost::shared_ptr<BranchMapper> other);
 
     void reset();
   private:
+    void readProvenance() const;
+
     typedef std::set<ProductProvenance> eiSet;
 
-    void readProvenance() const;
-    virtual void readProvenance_() const {}
-    virtual void reset_() {}
-    
-    virtual BranchID oldProductIDToBranchID_(ProductID const& oldProductID) const;
-
-    eiSet entryInfoSet_;
-
+    mutable eiSet entryInfoSet_;
     boost::shared_ptr<BranchMapper> nextMapper_;
-
     mutable bool delayedRead_;
+    mutable boost::shared_ptr<ProvenanceReaderBase> provenanceReader_;
+  };
 
-    ProcessHistoryID processHistoryID_;
+  class ProvenanceReaderBase {
+  public:
+    ProvenanceReaderBase() {}
+    virtual ~ProvenanceReaderBase();
+    virtual void readProvenance(BranchMapper const& mapper) const = 0;
   };
   
-  inline
-  std::ostream&
-  operator<<(std::ostream& os, BranchMapper const& p) {
-    p.write(os);
-    return os;
-  }
 }
 #endif

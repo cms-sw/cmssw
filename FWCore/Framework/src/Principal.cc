@@ -3,7 +3,6 @@
 
 #include "FWCore/Framework/interface/Principal.h"
 
-#include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/Framework/interface/DelayedReader.h"
@@ -92,7 +91,6 @@ namespace edm {
     processConfiguration_(&pc),
     groups_(reg->constProductList().size(), SharedGroupPtr()),
     preg_(reg),
-    branchMapperPtr_(new BranchMapper),
     reader_(),
     productPtrs_(),
     branchType_(bt),
@@ -193,7 +191,6 @@ namespace edm {
   Principal::clearPrincipal() {
     processHistoryPtr_ = 0;
     processHistoryID_ = ProcessHistoryID();
-    branchMapperPtr_->reset();
     reader_ = 0;
     for (Principal::const_iterator i = begin(), iEnd = end(); i != iEnd; ++i) {
       (*i)->resetProductData();
@@ -203,10 +200,7 @@ namespace edm {
 
   // Set the principal for the Event, Lumi, or Run.
   void
-  Principal::fillPrincipal(ProcessHistoryID const& hist, boost::shared_ptr<BranchMapper> mapper, DelayedReader* reader) {
-    if(mapper) {
-      branchMapperPtr_ = mapper;
-    }
+  Principal::fillPrincipal(ProcessHistoryID const& hist, DelayedReader* reader) {
     if(reader) {
       reader_ = reader;
     }
@@ -666,7 +660,6 @@ namespace edm {
       groups_[index].swap(other.groups_[indexO]);
     }
     reader_->mergeReaders(other.reader());
-    branchMapperPtr_->mergeMappers(other.branchMapperPtr());
   }
 
   WrapperHolder

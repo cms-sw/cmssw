@@ -58,13 +58,26 @@ namespace edm {
   }
 
   void
-  ProducedGroup::mergeProduct_(WrapperOwningHolder const&) const {
-    assert(0);
+  ProducedGroup::mergeProduct_(WrapperOwningHolder const& edp) const {
+    assert(status() == Present);
+    mergeTheProduct(edp);
   }
 
   void
-  ProducedGroup::putProduct_(WrapperOwningHolder const&) const {
-    assert(0);
+  ProducedGroup::putProduct_(WrapperOwningHolder const& edp) const {
+    if(product()) {
+      throw Exception(errors::InsertFailure)
+          << "Attempt to insert more than one product on branch " << productData().branchDescription()->branchName() << "\n";
+    }
+    assert(branchDescription().produced());
+    assert(edp.isValid());
+    assert(status() != Present);
+    assert(status() != Uninitialized);
+    if(productData().getInterface() != 0) {
+      assert(productData().getInterface() == edp.interface());
+    }
+    productData().wrapper_ = edp.product();
+    status_() = Present;
   }
 
   void
@@ -205,15 +218,22 @@ namespace edm {
   }
 
   void
-  Group::setProvenance(boost::shared_ptr<BranchMapper> mapper, ProductID const& pid) {
+  Group::setProvenance(boost::shared_ptr<BranchMapper> mapper, ProcessHistoryID const& phid, ProductID const& pid) {
     //assert(!productData().prov_);
     productData().prov_.setProductID(pid);
     productData().prov_.setStore(mapper);
+    productData().prov_.setProcessHistoryID(phid);
   }
 
   void
-  Group::setProvenance(boost::shared_ptr<BranchMapper> mapper) {
+  Group::setProvenance(boost::shared_ptr<BranchMapper> mapper, ProcessHistoryID const& phid) {
     productData().prov_.setStore(mapper);
+    productData().prov_.setProcessHistoryID(phid);
+  }
+
+  void
+  Group::setProcessHistoryID(ProcessHistoryID const& phid) {
+    productData().prov_.setProcessHistoryID(phid);
   }
 
   Provenance*

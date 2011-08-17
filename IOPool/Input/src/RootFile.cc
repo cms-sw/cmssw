@@ -188,7 +188,7 @@ namespace edm {
       metaDataTree->SetBranchAddress(poolNames::fileFormatVersionBranchName().c_str(), &fftPtr);
     }
 
-    setRefCoreStreamer(0, !fileFormatVersion().splitProductIDs(), !fileFormatVersion().productIDIsInt()); // backward compatibility
+    setRefCoreStreamer((EDProductGetter*)0); // backward compatibility
 
     FileID *fidPtr = &fid_;
     if(metaDataTree->FindBranch(poolNames::fileIdentifierBranchName().c_str()) != 0) {
@@ -1301,7 +1301,7 @@ namespace edm {
                              lb,
                              eventSelectionIDs_,
                              branchListIndexes_,
-                             makeBranchMapper(eventTree_, InEvent),
+                             makeBranchMapper(eventTree_),
                              eventTree_.rootDelayedReader());
 
     // report event read from file
@@ -1402,7 +1402,7 @@ namespace edm {
       return rpCache;
     }
     // End code for backward compatibility before the existence of run trees.
-    rpCache->fillRunPrincipal(makeBranchMapper(runTree_, InRun), runTree_.rootDelayedReader());
+    rpCache->fillRunPrincipal(runTree_.rootDelayedReader());
     // Read in all the products now.
     rpCache->readImmediate();
     ++indexIntoFileIter_;
@@ -1465,8 +1465,7 @@ namespace edm {
     }
     // End code for backward compatibility before the existence of lumi trees.
     lumiTree_.setEntryNumber(indexIntoFileIter_.entry());
-    lbCache->fillLuminosityBlockPrincipal(makeBranchMapper(lumiTree_, InLumi),
-                                         lumiTree_.rootDelayedReader());
+    lbCache->fillLuminosityBlockPrincipal(lumiTree_.rootDelayedReader());
     // Read in all the products now.
     lbCache->readImmediate();
     ++indexIntoFileIter_;
@@ -1641,13 +1640,11 @@ namespace edm {
 
   namespace {
     boost::shared_ptr<BranchMapper>
-    makeBranchMapperInRelease180(RootTree& rootTree, BranchType const& type, ProductRegistry const& preg) {
-      boost::shared_ptr<BranchMapperWithReader> mapper(new BranchMapperWithReader());
-      mapper->setDelayedRead(false);
-
+    makeBranchMapperInRelease180(RootTree& rootTree, ProductRegistry const& preg) {
+      boost::shared_ptr<BranchMapper> mapper(new BranchMapper());
       for(ProductRegistry::ProductList::const_iterator it = preg.productList().begin(),
           itEnd = preg.productList().end(); it != itEnd; ++it) {
-        if(type == it->second.branchType() && !it->second.transient()) {
+        if(InEvent == it->second.branchType() && !it->second.transient()) {
           TBranch *br = rootTree.branches().find(it->first)->second.provenanceBranch_;
           std::auto_ptr<BranchEntryDescription> pb(new BranchEntryDescription);
           BranchEntryDescription* ppb = pb.get();
@@ -1655,82 +1652,59 @@ namespace edm {
           roottree::getEntry(br, rootTree.entryNumber());
           // Not providing parentage!!!
           ProductProvenance entry(it->second.branchID(), ParentageID());
-          mapper->insert(entry);
-          mapper->insertIntoMap(it->second.oldProductID(), it->second.branchID());
+          mapper->insertIntoSet(entry);
         }
       }
       return mapper;
     }
 
     boost::shared_ptr<BranchMapper>
-    makeBranchMapperInRelease200(RootTree&, BranchType const& type, ProductRegistry const& preg) {
-      boost::shared_ptr<BranchMapperWithReader> mapper(new BranchMapperWithReader());
-      mapper->setDelayedRead(false);
+    makeBranchMapperInRelease200(RootTree&, ProductRegistry const& preg) {
+      boost::shared_ptr<BranchMapper> mapper(new BranchMapper());
       for(ProductRegistry::ProductList::const_iterator it = preg.productList().begin(),
           itEnd = preg.productList().end(); it != itEnd; ++it) {
-        if(type == it->second.branchType() && !it->second.transient()) {
+        if(InEvent == it->second.branchType() && !it->second.transient()) {
           // Not providing parentage!!!
           ProductProvenance entry(it->second.branchID(), ParentageID());
-          mapper->insert(entry);
-          mapper->insertIntoMap(it->second.oldProductID(), it->second.branchID());
+          mapper->insertIntoSet(entry);
         }
       }
       return mapper;
     }
 
     boost::shared_ptr<BranchMapper>
-    makeBranchMapperInRelease210(RootTree& rootTree, BranchType const& type) {
-      boost::shared_ptr<BranchMapperWithReader> mapper(new BranchMapperWithReader());
-      mapper->setDelayedRead(false);
-      if(type == InEvent) {
-        std::auto_ptr<std::vector<EventEntryInfo> > infoVector(new std::vector<EventEntryInfo>);
-        std::vector<EventEntryInfo> *pInfoVector = infoVector.get();
-        rootTree.branchEntryInfoBranch()->SetAddress(&pInfoVector);
-        setRefCoreStreamer(0, true, false);
-        roottree::getEntry(rootTree.branchEntryInfoBranch(), rootTree.entryNumber());
-        setRefCoreStreamer(true);
-        for(std::vector<EventEntryInfo>::const_iterator it = infoVector->begin(), itEnd = infoVector->end();
-            it != itEnd; ++it) {
-          EventEntryDescription eed;
-          EntryDescriptionRegistry::instance()->getMapped(it->entryDescriptionID(), eed);
-          Parentage parentage(eed.parents());
-          ProductProvenance entry(it->branchID(), parentage.id());
-          mapper->insert(entry);
-          mapper->insertIntoMap(it->productID(), it->branchID());
-        }
-      } else {
-        std::auto_ptr<std::vector<RunLumiEntryInfo> > infoVector(new std::vector<RunLumiEntryInfo>);
-        std::vector<RunLumiEntryInfo> *pInfoVector = infoVector.get();
-        rootTree.branchEntryInfoBranch()->SetAddress(&pInfoVector);
-        setRefCoreStreamer(0, true, false);
-        roottree::getEntry(rootTree.branchEntryInfoBranch(), rootTree.entryNumber());
-        setRefCoreStreamer(true);
-        for(std::vector<RunLumiEntryInfo>::const_iterator it = infoVector->begin(), itEnd = infoVector->end();
-            it != itEnd; ++it) {
-          ProductProvenance entry(it->branchID(), ParentageID());
-          mapper->insert(entry);
-        }
+    makeBranchMapperInRelease210(RootTree& rootTree) {
+      boost::shared_ptr<BranchMapper> mapper(new BranchMapper());
+      std::auto_ptr<std::vector<EventEntryInfo> > infoVector(new std::vector<EventEntryInfo>);
+      std::vector<EventEntryInfo> *pInfoVector = infoVector.get();
+      rootTree.branchEntryInfoBranch()->SetAddress(&pInfoVector);
+      roottree::getEntry(rootTree.branchEntryInfoBranch(), rootTree.entryNumber());
+      setRefCoreStreamer(true);
+      for(std::vector<EventEntryInfo>::const_iterator it = infoVector->begin(), itEnd = infoVector->end();
+          it != itEnd; ++it) {
+        EventEntryDescription eed;
+        EntryDescriptionRegistry::instance()->getMapped(it->entryDescriptionID(), eed);
+        Parentage parentage(eed.parents());
+        ProductProvenance entry(it->branchID(), parentage.id());
+        mapper->insertIntoSet(entry);
       }
       return mapper;
     }
 
     boost::shared_ptr<BranchMapper>
     makeBranchMapperInRelease300(RootTree& rootTree) {
-      boost::shared_ptr<BranchMapperWithReader> mapper(
-        new BranchMapperWithReader(&rootTree));
-      mapper->setDelayedRead(true);
+      boost::shared_ptr<ProvenanceReaderBase> reader(new BranchMapperWithReader(&rootTree));
+      boost::shared_ptr<BranchMapper> mapper(new BranchMapper(reader));
       return mapper;
     }
-  }
+  } // end anonymous namespace
 
-  class ReducedProvenanceBranchMapperWithReader : public BranchMapper {
+  class ReducedProvenanceBranchMapperWithReader : public ProvenanceReaderBase {
   public:
     ReducedProvenanceBranchMapperWithReader(RootTree* iRootTree,
-                                            const std::vector<ParentageID>& iParentageIDLookup);
+                                            std::vector<ParentageID> const& iParentageIDLookup);
   private:
-    virtual void readProvenance_() const;
-    virtual BranchID oldProductIDToBranchID_(ProductID const& oldProductID) const;
-    virtual void reset_();
+    virtual void readProvenance(BranchMapper const& mapper) const;
 
     RootTree* rootTree_;
     TBranch* provBranch_;
@@ -1741,64 +1715,49 @@ namespace edm {
 
   ReducedProvenanceBranchMapperWithReader::ReducedProvenanceBranchMapperWithReader(
                                               RootTree* iRootTree,
-                                              const std::vector<ParentageID>& iParentageIDLookup):
-  BranchMapper(true),
-  rootTree_(iRootTree),
-  pProvVector_(&provVector_),
-  parentageIDLookup_(iParentageIDLookup){
+                                              std::vector<ParentageID> const& iParentageIDLookup) :
+      ProvenanceReaderBase(),
+      rootTree_(iRootTree),
+      pProvVector_(&provVector_),
+      parentageIDLookup_(iParentageIDLookup) {
     provBranch_ = rootTree_->tree()->GetBranch(BranchTypeToProductProvenanceBranchName(rootTree_->branchType()).c_str());
   }
 
   void
-  ReducedProvenanceBranchMapperWithReader::readProvenance_() const {
-    setRefCoreStreamer(0, false, false);
+  ReducedProvenanceBranchMapperWithReader::readProvenance(BranchMapper const& mapper) const {
+    setRefCoreStreamer((EDProductGetter*)0);
     ReducedProvenanceBranchMapperWithReader* me = const_cast<ReducedProvenanceBranchMapperWithReader*>(this);
     me->rootTree_->fillBranchEntry(me->provBranch_, me->pProvVector_);
     setRefCoreStreamer(true);
     for(StoredProductProvenanceVector::const_iterator it = provVector_.begin(), itEnd = provVector_.end();
          it != itEnd; ++it) {
-      me->insert(ProductProvenance(BranchID(it->branchID_), parentageIDLookup_[it->parentageIDIndex_]));
+      mapper.insertIntoSet(ProductProvenance(BranchID(it->branchID_), parentageIDLookup_[it->parentageIDIndex_]));
     }
   }
 
-  BranchID
-  ReducedProvenanceBranchMapperWithReader::oldProductIDToBranchID_(ProductID const&) const {
-    return BranchID();
-  }
-
-  void
-  ReducedProvenanceBranchMapperWithReader::reset_() {
-    setDelayedRead(true);
-  }
-
   boost::shared_ptr<BranchMapper>
-  RootFile::makeBranchMapper(RootTree& rootTree, BranchType const& type) const {
+  RootFile::makeBranchMapper(RootTree& rootTree) const {
     if(fileFormatVersion().storedProductProvenanceUsed()) {
-      if(type == InEvent) {
-        if(!eventBranchMapper_) {
-          eventBranchMapper_ = boost::shared_ptr<BranchMapper>(new ReducedProvenanceBranchMapperWithReader(&rootTree, parentageIDLookup_));
-        }
-        eventBranchMapper_->reset();
-        return eventBranchMapper_;
+      if(!eventBranchMapper_) {
+        boost::shared_ptr<ProvenanceReaderBase> reader(new ReducedProvenanceBranchMapperWithReader(&rootTree, parentageIDLookup_));
+        eventBranchMapper_ = boost::shared_ptr<BranchMapper>(new BranchMapper(reader));
       }
-      return boost::shared_ptr<BranchMapper>(new ReducedProvenanceBranchMapperWithReader(&rootTree, parentageIDLookup_)); } else if(fileFormatVersion().splitProductIDs()) {
-      if(type == InEvent) {
-        if(!eventBranchMapper_) {
-          eventBranchMapper_ = makeBranchMapperInRelease300(rootTree);
-        }
-        eventBranchMapper_->reset();
-        return eventBranchMapper_;
+      eventBranchMapper_->reset();
+      return eventBranchMapper_;
+    } else if(fileFormatVersion().splitProductIDs()) {
+      if(!eventBranchMapper_) {
+        eventBranchMapper_ = makeBranchMapperInRelease300(rootTree);
       }
-      return makeBranchMapperInRelease300(rootTree);
+      return eventBranchMapper_;
     } else if(fileFormatVersion().perEventProductIDs()) {
       eventBranchMapper_.reset();
-      return makeBranchMapperInRelease210(rootTree, type);
+      return makeBranchMapperInRelease210(rootTree);
     } else if(fileFormatVersion().eventHistoryTree()) {
       eventBranchMapper_.reset();
-      return makeBranchMapperInRelease200(rootTree, type, *productRegistry_);
+      return makeBranchMapperInRelease200(rootTree, *productRegistry_);
     } else {
       eventBranchMapper_.reset();
-      return makeBranchMapperInRelease180(rootTree, type, *productRegistry_);
+      return makeBranchMapperInRelease180(rootTree, *productRegistry_);
     }
   }
   // end backward compatibility

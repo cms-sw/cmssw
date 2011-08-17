@@ -80,7 +80,7 @@ namespace edm {
 
     void addOnDemandGroup(boost::shared_ptr<ConstBranchDescription> bd);
 
-    void fillPrincipal(ProcessHistoryID const& hist, boost::shared_ptr<BranchMapper> mapper, DelayedReader* reader);
+    void fillPrincipal(ProcessHistoryID const& hist, DelayedReader* reader);
 
     void clearPrincipal();
 
@@ -143,8 +143,6 @@ namespace edm {
     void getAllProvenance(std::vector<Provenance const*>& provenances) const;
 
     BranchType const& branchType() const {return branchType_;}
-
-    boost::shared_ptr<BranchMapper> branchMapperPtr() const {return branchMapperPtr_;}
 
     DelayedReader* reader() const {return reader_;}
 
@@ -225,10 +223,6 @@ namespace edm {
     // Pointer to the product registry. There is one entry in the registry
     // for each EDProduct in the event.
     boost::shared_ptr<ProductRegistry const> preg_;
-
-    // Pointer to the 'mapper' that will get provenance information
-    // from the persistent store.
-    boost::shared_ptr<BranchMapper> branchMapperPtr_;
 
     // Pointer to the 'source' that will be used to obtain EDProducts
     // from the persistent store. This 'source' is owned by the input source.

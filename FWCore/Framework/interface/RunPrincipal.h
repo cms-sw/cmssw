@@ -17,7 +17,6 @@ is the DataBlock.
 
 #include "boost/shared_ptr.hpp"
 
-#include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "FWCore/Framework/interface/Principal.h"
 
@@ -38,9 +37,7 @@ namespace edm {
         HistoryAppender* historyAppender = 0);
     ~RunPrincipal() {}
 
-    void fillRunPrincipal(
-        boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(),
-        DelayedReader* reader = 0);
+    void fillRunPrincipal(DelayedReader* reader = 0);
 
     RunAuxiliary const& aux() const {
       return *aux_;
@@ -74,8 +71,7 @@ namespace edm {
 
     void put(
         ConstBranchDescription const& bd,
-        WrapperOwningHolder const& edp,
-        ProductProvenance& productProvenance);
+        WrapperOwningHolder const& edp);
 
     void readImmediate() const;
 

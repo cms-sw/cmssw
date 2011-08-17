@@ -76,11 +76,14 @@ namespace edm {
     // Retrieves pointer to a class containing both the event independent and the per even provenance.
     Provenance* provenance() const;
 
-    // Initializes the event independent portion of the provenance, plus the product ID and the mapper.
-    void setProvenance(boost::shared_ptr<BranchMapper> mapper, ProductID const& pid);
+    // Initializes the event independent portion of the provenance, plus the process history ID, the product ID, and the mapper.
+    void setProvenance(boost::shared_ptr<BranchMapper> mapper, ProcessHistoryID const& phid, ProductID const& pid);
 
-    // Initializes the event independent portion of the provenance, plus the mapper.
-    void setProvenance(boost::shared_ptr<BranchMapper> mapper);
+    // Initializes the event independent portion of the provenance, plus the process history ID and the mapper.
+    void setProvenance(boost::shared_ptr<BranchMapper> mapper, ProcessHistoryID const& phid);
+
+    // Initializes the process history ID.
+    void setProcessHistoryID(ProcessHistoryID const& phid);
 
     // Write the group to the stream.
     void write(std::ostream& os) const;
@@ -206,8 +209,7 @@ namespace edm {
       virtual ~ProducedGroup();
       void producerStarted();
       void producerCompleted();
-      GroupStatus const& status() const {return status_();}
-      GroupStatus& status() {return status_();}
+      GroupStatus& status() const {return status_();}
     private:
       virtual void putProduct_(WrapperOwningHolder const& edp, ProductProvenance const& productProvenance);
       virtual void putProduct_(WrapperOwningHolder const& edp) const;
@@ -217,8 +219,7 @@ namespace edm {
       virtual void checkType_(WrapperOwningHolder const& prod) const {
         reallyCheckType(prod);
       }
-      virtual GroupStatus const& status_() const = 0;
-      virtual GroupStatus& status_() = 0;
+      virtual GroupStatus& status_() const = 0;
       virtual bool productUnavailable_() const;
   };
 
@@ -236,10 +237,9 @@ namespace edm {
       virtual bool onDemand_() const {return false;}
       virtual ProductData const& productData() const {return productData_;}
       virtual ProductData& productData() {return productData_;}
-      virtual GroupStatus const& status_() const {return theStatus_;}
-      virtual GroupStatus& status_() {return theStatus_;}
+      virtual GroupStatus& status_() const {return theStatus_;}
       ProductData productData_;
-      GroupStatus theStatus_;
+      mutable GroupStatus theStatus_;
   };
 
   // Free swap function
@@ -261,10 +261,9 @@ namespace edm {
       virtual bool onDemand_() const {return status() == UnscheduledNotRun;}
       virtual ProductData const& productData() const {return productData_;}
       virtual ProductData& productData() {return productData_;}
-      virtual GroupStatus const& status_() const {return theStatus_;}
-      virtual GroupStatus& status_() {return theStatus_;}
+      virtual GroupStatus& status_() const {return theStatus_;}
       ProductData productData_;
-      GroupStatus theStatus_;
+      mutable GroupStatus theStatus_;
   };
 
   // Free swap function
@@ -286,10 +285,9 @@ namespace edm {
       virtual bool onDemand_() const {return false;}
       virtual ProductData const& productData() const {return productData_;}
       virtual ProductData& productData() {return productData_;}
-      virtual GroupStatus const& status_() const {return theStatus_;}
-      virtual GroupStatus& status_() {return theStatus_;}
+      virtual GroupStatus& status_() const {return theStatus_;}
       ProductData productData_;
-      GroupStatus theStatus_;
+      mutable GroupStatus theStatus_;
   };
 
   // Free swap function

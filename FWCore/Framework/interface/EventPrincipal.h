@@ -15,6 +15,7 @@ is the DataBlock.
 #include "DataFormats/Common/interface/WrapperHolder.h"
 #include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Provenance/interface/BranchListIndex.h"
+#include "DataFormats/Provenance/interface/BranchMapper.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "FWCore/Framework/interface/Principal.h"
@@ -54,7 +55,7 @@ namespace edm {
         boost::shared_ptr<LuminosityBlockPrincipal> lbp,
         boost::shared_ptr<EventSelectionIDVector> eventSelectionIDs = boost::shared_ptr<EventSelectionIDVector>(),
         boost::shared_ptr<BranchListIndexes> branchListIndexes = boost::shared_ptr<BranchListIndexes>(),
-        boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(),
+        boost::shared_ptr<BranchMapper> mapper = boost::shared_ptr<BranchMapper>(new BranchMapper),
         DelayedReader* reader = 0);
 
     void clearEventPrincipal();
@@ -113,6 +114,8 @@ namespace edm {
 
     RunPrincipal & runPrincipal();
 
+    boost::shared_ptr<BranchMapper> branchMapperPtr() const {return branchMapperPtr_;}
+
     void setUnscheduledHandler(boost::shared_ptr<UnscheduledHandler> iHandler);
     boost::shared_ptr<UnscheduledHandler> unscheduledHandler() const;
 
@@ -140,13 +143,15 @@ namespace edm {
 
     ProductID branchIDToProductID(BranchID const& bid) const;
 
+    void mergeMappers(EventPrincipal const& other) {
+      branchMapperPtr_->mergeMappers(other.branchMapperPtr());
+    }
+
     using Base::getProvenance;
 
   private:
 
     BranchID pidToBid(ProductID const& pid) const;
-
-    virtual ProductID oldToNewProductID_(ProductID const& oldProductID) const;
 
     virtual bool unscheduledFill(std::string const& moduleLabel) const;
 
@@ -157,6 +162,9 @@ namespace edm {
     EventAuxiliary aux_;
 
     boost::shared_ptr<LuminosityBlockPrincipal> luminosityBlockPrincipal_;
+
+    // Pointer to the 'mapper' that will get provenance information from the persistent store.
+    boost::shared_ptr<BranchMapper> branchMapperPtr_;
 
     // Handler for unscheduled modules
     boost::shared_ptr<UnscheduledHandler> unscheduledHandler_;

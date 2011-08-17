@@ -155,7 +155,7 @@ namespace edm {
     void initializeDuplicateChecker(std::vector<boost::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
                                     std::vector<boost::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile);
 
-    boost::shared_ptr<BranchMapper> makeBranchMapper(RootTree& rootTree, BranchType const& type) const;
+    boost::shared_ptr<BranchMapper> makeBranchMapper(RootTree& rootTree) const;
 
     std::string const file_;
     std::string const logicalFile_;
