@@ -29,6 +29,11 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 
+// Glowinski & Gouzevitch
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"             
+#include "RecoParticleFlow/PFProducer/interface/KDTreeTrackEcalLinker.h" 
+// !Glowinski & Gouzevitch
+
 // #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
@@ -79,6 +84,10 @@ class PFBlockAlgo {
 		      std::vector<double> & photonSelectionCuts
 		      );
   
+  // Glowinski & Gouzevitch
+  void setUseOptimization(bool useKDTreeTrackEcalLinker);
+  // ! Glowinski & Gouzevitch
+
   typedef std::vector<bool> Mask;
 
   /// set input collections of tracks and clusters
@@ -273,6 +282,11 @@ class PFBlockAlgo {
 
   // the test elements will be transferred to the blocks
   std::list< reco::PFBlockElement* >     elements_;
+
+  // Glowinski & Gouzevitch
+  bool useKDTreeTrackEcalLinker_;
+  KDTreeLinker::TrackEcalLinker TELinker_;
+  // !Glowinski & Gouzevitch
 
   static const Mask                      dummyMask_;
 
@@ -810,6 +824,10 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
       }
       elements_.push_back( primaryElement );
 
+      // Glowinski & Gouzevitch
+      if (useKDTreeTrackEcalLinker_)
+	TELinker_.insertTrack(primaryElement);
+      // !Glowinski & Gouzevitch
     }
 
     if (debug_) std::cout << " " << std::endl;
@@ -901,6 +919,12 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
         = new reco::PFBlockElementCluster( ref,
 					   reco::PFBlockElement::ECAL);
       elements_.push_back( te );
+
+      // Glowinski & Gouzevitch
+      if (useKDTreeTrackEcalLinker_)
+	TELinker_.insertCluster(te, ecalh->at(i).recHitFractions());
+      // !Glowinski & Gouzevitch
+
       // Now mapping with Superclusters
       int scindex= ClusterClusterMapping::checkOverlap(*ref,superClusters_);
 

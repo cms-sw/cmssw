@@ -98,7 +98,9 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
 
   produces<reco::PFBlockCollection>();
   
-
+  // Glowinski & Gouzevitch
+  useKDTreeTrackEcalLinker_ = iConfig.getParameter<bool>("useKDTreeTrackEcalLinker");
+  // !Glowinski & Gouzevitch
   
   // particle flow parameters  -----------------------------------
 
@@ -152,6 +154,9 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   
   pfBlockAlgo_.setDebug(debug_);
 
+  // Glowinski & Gouzevitch
+  pfBlockAlgo_.setUseOptimization(useKDTreeTrackEcalLinker_);
+  // !Glowinski & Gouzevitch
 }
 
 

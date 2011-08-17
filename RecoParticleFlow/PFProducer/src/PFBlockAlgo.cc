@@ -57,6 +57,14 @@ void PFBlockAlgo::setParameters( std::vector<double>& DPtovPtCut,
 
 }
 
+// Glowinski & Gouzevitch
+void PFBlockAlgo::setUseOptimization(bool useKDTreeTrackEcalLinker)
+{
+  useKDTreeTrackEcalLinker_ = useKDTreeTrackEcalLinker;
+}
+// !Glowinski & Gouzevitch
+
+
 PFBlockAlgo::~PFBlockAlgo() {
 
 #ifdef PFLOW_DEBUG
@@ -71,8 +79,15 @@ PFBlockAlgo::~PFBlockAlgo() {
 void 
 PFBlockAlgo::findBlocks() {
 
-  //  cout<<"findBlocks : "<<blocks_.get()<<endl;
-  
+  // Glowinski & Gouzevitch
+  if (useKDTreeTrackEcalLinker_) {
+    TELinker_.buildTree();
+    TELinker_.searchLinks();
+    TELinker_.updateTracksWithLinks();
+    TELinker_.clear();
+  }
+  // !Glowinski & Gouzevitch
+
   // the blocks have not been passed to the event, and need to be cleared
   if(blocks_.get() )blocks_->clear();
   else 
@@ -99,7 +114,8 @@ PFBlockAlgo::findBlocks() {
 
     // build remaining links in current block
     packLinks( blocks_->back(), links );
-  }       
+  }
+
 }
 
 
@@ -358,27 +374,68 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
     
   case PFBlockLink::TRACKandECAL:
     {
-      if(debug_ ) cout<<"TRACKandECAL"<<endl;
-      PFRecTrackRef trackref = lowEl->trackRefPF();
-      
-      if(debug_ ) std::cout << " Track pt " << trackref->trackRef()->pt() << std::endl;
-      
-      PFClusterRef  clusterref = highEl->clusterRef();
-      assert( !trackref.isNull() );
-      assert( !clusterref.isNull() );
-      dist = LinkByRecHit::testTrackAndClusterByRecHit( *trackref, *clusterref, false, debug_ );
-      linktest = PFBlock::LINKTEST_RECHIT;
 
-      if ( debug_ ) { 
-	if( dist > 0. ) { 
-	  std::cout << " Here a link has been established"
-		    << " between a track an Ecal with dist  " 
-		    << dist <<  std::endl;
-	} else {
-	  std::cout << " No link found " << std::endl;
+      /////////// KDTree algorithm
+      // Glowinski & Gouzevitch
+      
+      // If the linking has been done using the KDTree algo
+      if ( useKDTreeTrackEcalLinker_ && lowEl->isMultilinksValide() ) { 
+
+	const reco::PFMultilinksType& multilinks = lowEl->getMultilinks();
+	
+	PFRecTrackRef trackref = lowEl->trackRefPF();
+	PFClusterRef  clusterref = highEl->clusterRef();
+	assert( !trackref.isNull() );
+	assert( !clusterref.isNull() );
+	
+	// Check if the link Track/Ecal exist
+	reco::PFMultilinksType::const_iterator mlit = multilinks.begin();
+	for (; mlit != multilinks.end(); ++mlit)
+	  if ((mlit->first == clusterref->positionREP().Phi()) &&
+	      (mlit->second == clusterref->positionREP().Eta()))
+	    break;
+	
+	// If the link exist, we fill dist and linktest. We use old algorithme method.
+	if (mlit != multilinks.end()){
+	  double clustereta = clusterref->positionREP().Eta();
+	  double clusterphi = clusterref->positionREP().Phi();
+	  
+	  const reco::PFTrajectoryPoint& atECAL = 
+	    trackref->extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax );
+	  double tracketa = atECAL.positionREP().Eta();
+	  double trackphi = atECAL.positionREP().Phi();
+	  
+	  dist = LinkByRecHit::computeDist(clustereta, clusterphi, tracketa, trackphi);
+	  linktest = PFBlock::LINKTEST_RECHIT;
 	}
-      }
+	  
+	// !Glowinski & Gouzevitch
+	/////////// !KDTree algorithm
 
+      } else {// Old algorithm
+	
+	
+	if(debug_ ) cout<<"TRACKandECAL"<<endl;
+	PFRecTrackRef trackref = lowEl->trackRefPF();
+	
+	if(debug_ ) std::cout << " Track pt " << trackref->trackRef()->pt() << std::endl;
+	
+	  PFClusterRef  clusterref = highEl->clusterRef();
+	  assert( !trackref.isNull() );
+	  assert( !clusterref.isNull() );
+	  dist = LinkByRecHit::testTrackAndClusterByRecHit( *trackref, *clusterref, false, debug_ );
+	  linktest = PFBlock::LINKTEST_RECHIT;
+	  
+	  if ( debug_ ) { 
+	    if( dist > 0. ) { 
+	      std::cout << " Here a link has been established"
+			<< " between a track an Ecal with dist  " 
+			<< dist <<  std::endl;
+	    } else {
+	      std::cout << " No link found " << std::endl;
+	    }
+	  }
+      }
       break;
     }
   case PFBlockLink::TRACKandHCAL:
@@ -754,7 +811,7 @@ PFBlockAlgo::testECALAndHCAL(const PFCluster& ecal,
 #endif
 
   if ( dist < 0.2 ) return dist; 
-
+ 
   // Need to implement a link by RecHit
   return -1.;
 }
