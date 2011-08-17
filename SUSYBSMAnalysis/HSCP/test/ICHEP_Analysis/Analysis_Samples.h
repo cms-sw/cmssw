@@ -44,8 +44,8 @@
 
 
 int                  RunningPeriods = 2;
-double               IntegratedLuminosity = 1091.399638766; //976.204518023; //705.273820; //342.603275; //204.160928; //191.04;
-double               IntegratedLuminosityBeforeTriggerChange = 337.484034005; // Total luminosity taken before RPC L1 trigger change (went into effect on run 165970)
+double               IntegratedLuminosity = 1145; //976.204518023; //705.273820; //342.603275; //204.160928; //191.04;
+double               IntegratedLuminosityBeforeTriggerChange = 353.494; // Total luminosity taken before RPC L1 trigger change (went into effect on run 165970)
 float                Event_Weight = 1;
 int                  MaxEntry = -1;
 
