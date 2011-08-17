@@ -115,7 +115,6 @@ namespace edm {
       reg_(new ProductRegistry()),
       processNames_(),
       reader_(new FWLiteDelayedReader),
-      productMap_(),
       prov_(),
       pointerToBranchBuffer_(),
       mapper_(new edm::BranchMapper) {
@@ -129,8 +128,6 @@ namespace edm {
       boost::shared_ptr<ProductRegistry> reg_;
       ProcessHistory processNames_;
       boost::shared_ptr<FWLiteDelayedReader> reader_;
-      typedef std::map<ProductID, BranchDescription> ProductMap;
-      ProductMap productMap_;
       std::vector<EventEntryDescription> prov_;
       std::vector<EventEntryDescription*> pointerToBranchBuffer_;
       FileFormatVersion fileFormatVersion_;
@@ -394,7 +391,6 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
   edm::ProcessHistoryRegistry::instance()->insertCollection(pHistVector);
   edm::ProcessConfigurationRegistry::instance()->insertCollection(procConfigVector);
 
-  m_->productMap_.erase(m_->productMap_.begin(), m_->productMap_.end());
   m_->pointerToBranchBuffer_.erase(m_->pointerToBranchBuffer_.begin(),
                                    m_->pointerToBranchBuffer_.end());
 
@@ -443,7 +439,6 @@ TFWLiteSelectorBasic::setupNewFile(TFile& iFile) {
       if(m_->tree_->GetBranch(prod.branchName().c_str()) == 0) {
         prod.setDropped();
       }
-      m_->productMap_.insert(std::make_pair(it->second.oldProductID(), it->second));
 
       //std::cout << "id " << it->first << " branch " << it->second << std::endl;
       //m_->pointerToBranchBuffer_.push_back(&(*itB));

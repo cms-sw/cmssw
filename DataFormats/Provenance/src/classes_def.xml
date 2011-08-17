@@ -1,7 +1,6 @@
 <lcgdict>
  <class name="edm::ProductID" ClassVersion="10">
   <version ClassVersion="10" checksum="1501211476"/>
-   <field name="oldID_" transient="true"/>
  </class>
  <class name="edm::BranchID" ClassVersion="10">
   <version ClassVersion="10" checksum="21214741"/>
@@ -69,7 +68,7 @@
   </class>
   <class name="std::vector<edm::StoredProductProvenance>"/>
  <class name="edm::BranchDescription" ClassVersion="10">
-  <version ClassVersion="10" checksum="1551710596"/>
+  <version ClassVersion="10" checksum=" 1486343707"/>
  </class>
  <class name="edm::ParameterSetBlob" ClassVersion="10">
   <version ClassVersion="10" checksum="474063030"/>

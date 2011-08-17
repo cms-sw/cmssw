@@ -36,26 +36,7 @@ namespace edm {
     TClassRef cl_;
   };
    
-   
-  class ProductIDStreamer : public TClassStreamer {
-  public:
-    ProductIDStreamer(EDProductGetter const* ep, bool productIDwasLong) :
-    cl_("edm::ProductID"),
-    prodGetter_(ep),
-    productIDwasLong_(productIDwasLong) {}
-
-    void setProductGetter(EDProductGetter const* ep) {
-	prodGetter_ = ep;
-    }
-    void operator() (TBuffer &R__b, void *objp);
-
-  private:
-    TClassRef cl_;
-    EDProductGetter const* prodGetter_;
-    bool productIDwasLong_;
-  };
-
   void setRefCoreStreamer(bool resetAll = false);
-  EDProductGetter const* setRefCoreStreamer(EDProductGetter const* ep, bool oldFormat = false, bool productIDwasLong = false);
+  EDProductGetter const* setRefCoreStreamer(EDProductGetter const* ep);
 } 
 #endif

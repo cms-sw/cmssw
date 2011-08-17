@@ -38,17 +38,11 @@ namespace edm {
 
      // ---------- member functions ---------------------------
 
-     ProductID oldToNewProductID(ProductID const& oldProductID) const {
-       if(oldProductID.oldID() == 0) return oldProductID;
-       return oldToNewProductID_(oldProductID);
-     }
-
      ///These can only be used internally by the framework
      static EDProductGetter const* switchProductGetter(EDProductGetter const*);
      static void assignEDProductGetter(EDProductGetter const*&);
 
 private:
-     virtual ProductID oldToNewProductID_(ProductID const& oldProductID) const;
      // ---------- member data --------------------------------
 
    };

@@ -69,7 +69,6 @@ namespace edm {
     std::string const& moduleLabel() const {return moduleLabel_;}
     std::string const& processName() const {return processName_;}
     BranchID const& branchID() const {return branchID_;}
-    ProductID const& oldProductID() const {return productID_;}
     std::string const& fullClassName() const {return fullClassName_;}
     std::string const& className() const {return fullClassName();}
     std::string const& friendlyClassName() const {return friendlyClassName_;}
@@ -184,11 +183,6 @@ namespace edm {
 
     // An ID uniquely identifying the branch
     mutable BranchID branchID_;
-
-    // An ID uniquely identifying the branch
-    // This field is obsolete and is needed only for backward compatibility
-    // with file format 7 and earlier.
-    ProductID productID_;
 
     // the full name of the type of product this is
     std::string fullClassName_;

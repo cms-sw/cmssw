@@ -7,27 +7,6 @@
 #include <iostream>
 
 namespace edm {
-  void 
-  ProductIDStreamer::operator()(TBuffer &R__b, void *objp) {
-    if (R__b.IsReading()) {
-      UInt_t i0, i1;
-      R__b.ReadVersion(&i0, &i1, cl_);
-      ProductID pid;
-      if (productIDwasLong_) {
-        unsigned long id;
-        R__b >> id;
-        pid.oldID() = id;
-      } else {
-        unsigned int id;
-        R__b >> id;
-        pid.oldID() = id;
-      }
-      ProductID* obj = static_cast<ProductID *>(objp);
-      *obj = (prodGetter_ ? prodGetter_->oldToNewProductID(pid) : pid);
-    } else {
-      assert("ProductID streamer is obsolete" == 0);
-    }
-  }
 
   void 
   RefCoreStreamer::operator()(TBuffer &R__b, void *objp) {
@@ -106,34 +85,15 @@ namespace edm {
     }
   }
 
-  EDProductGetter const* setRefCoreStreamer(EDProductGetter const* ep, bool oldFormat, bool productIDwasLong) {
+  EDProductGetter const* setRefCoreStreamer(EDProductGetter const* ep) {
     EDProductGetter const* returnValue=0;
     if (ep != 0) {
-      if (oldFormat) {
-        TClass *cl = gROOT->GetClass("edm::RefCore");
-        RefCoreStreamer *st = static_cast<RefCoreStreamer *>(cl->GetStreamer());
-        if (st == 0) {
-          cl->AdoptStreamer(new RefCoreStreamer(ep));
-        } else {          
-          returnValue = st->setProductGetter(ep);
-        }
-      } else {
-        TClass *cl = gROOT->GetClass("edm::RefCore::CheckTransientOnWrite");
-        TClassStreamer *st = cl->GetStreamer();
-        if (st == 0) {
-          cl->AdoptStreamer(new RefCoreCheckTransientOnWriteStreamer());
-        } 
-        returnValue = edm::EDProductGetter::switchProductGetter(ep);
-      }
-    }
-    if (oldFormat) {
-      TClass *cl = gROOT->GetClass("edm::ProductID");
-      ProductIDStreamer *st = static_cast<ProductIDStreamer *>(cl->GetStreamer());
+      TClass *cl = gROOT->GetClass("edm::RefCore::CheckTransientOnWrite");
+      TClassStreamer *st = cl->GetStreamer();
       if (st == 0) {
-        cl->AdoptStreamer(new ProductIDStreamer(ep, productIDwasLong));
-      } else {
-        st->setProductGetter(ep);
-      }
+        cl->AdoptStreamer(new RefCoreCheckTransientOnWriteStreamer());
+      } 
+      returnValue = edm::EDProductGetter::switchProductGetter(ep);
     }
     return returnValue;
   }
