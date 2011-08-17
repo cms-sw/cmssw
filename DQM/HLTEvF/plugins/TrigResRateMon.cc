@@ -1,4 +1,4 @@
-// $Id: TrigResRateMon.cc,v 1.17 2011/07/27 17:34:21 lwming Exp $
+// $Id: TrigResRateMon.cc,v 1.18 2011/08/03 16:29:22 lwming Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "TString.h"
@@ -1805,16 +1805,16 @@ void TrigResRateMon::bookTestHisto()
 
   }
 
-  MonitorElement* meXsec1 = dbe_->book1D("Xsec_HLT_IsoMu24", "HLT_IsoMu24 Xsec;Xsec #mub;number of LS", 10, 0.008, 0.014);
-  MonitorElement* meXsec2 = dbe_->book1D("Xsec_HLT_Ele65_CaloIdVT_TrkIdT", "HLT_Ele65_CaloIdVT_TrkIdT Xsec;Xsec #mub;number of LS", 10, 0.0014, 0.004);
-  MonitorElement* meXsec3 = dbe_->book1D("Xsec_HLT_MET200", "HLT_MET200 Xsec;Xsec #mub;number of LS", 10, 0.0, 0.0018);
-  MonitorElement* meXsec4 = dbe_->book1D("Xsec_HLT_Jet370", "HLT_Jet370 Xsec;Xsec #mub;number of LS", 10, 0.0006, 0.00094);
-  MonitorElement* meXsec5 = dbe_->book1D("Xsec_HLT_HT550", "HLT_HT550 Xsec;Xsec #mub;number of LS", 10, 0.0043, 0.0053);
-  MonitorElement* meXsec6 = dbe_->book1D("Xsec_HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL", "HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL Xsec;Xsec #mub;number of LS", 10, 0.0033, 0.0039);
-  MonitorElement* meXsec7 = dbe_->book1D("Xsec_HLT_IsoMu15_LooseIsoPFTau20", "HLT_IsoMu15_LooseIsoPFTau20 Xsec;Xsec #mub;number of LS", 10, 0.001, 0.004);
-  MonitorElement* meXsec8 = dbe_->book1D("Xsec_HLT_PFMHT150", "HLT_PFMHT150 Xsec;Xsec #mub;number of LS", 10, 0.0, 0.0025);
-  MonitorElement* meXsec9 = dbe_->book1D("Xsec_HLT_Photon135", "HLT_Photon135 Xsec;Xsec #mub;number of LS", 10, 0.001, 0.0044);
-  MonitorElement* meXsec10 = dbe_->book1D("Xsec_HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v", "HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v Xsec;Xsec #mub;number of LS", 10, 0.008, 0.014);
+  MonitorElement* meXsec1 = dbe_->book1D("Xsec_HLT_IsoMu30_eta2p1", "HLT_IsoMu30_eta2p1 Xsec;Xsec #mub;number of LS", 10, 0.008, 0.012);
+  MonitorElement* meXsec2 = dbe_->book1D("Xsec_HLT_Ele65_CaloIdVT_TrkIdT", "HLT_Ele65_CaloIdVT_TrkIdT Xsec;Xsec #mub;number of LS", 10, 0.002, 0.0025);
+  MonitorElement* meXsec3 = dbe_->book1D("Xsec_HLT_MET200", "HLT_MET200 Xsec;Xsec #mub;number of LS", 10, 0.0004, 0.0008);
+  MonitorElement* meXsec4 = dbe_->book1D("Xsec_HLT_Jet370", "HLT_Jet370 Xsec;Xsec #mub;number of LS", 10, 0.0006, 0.0008);
+  MonitorElement* meXsec5 = dbe_->book1D("Xsec_HLT_HT600", "HLT_HT600 Xsec;Xsec #mub;number of LS", 10, 0.004, 0.005);
+  MonitorElement* meXsec6 = dbe_->book1D("Xsec_HLT_Photon26_R9Id_Photon18_R9Id", "HLT_Photon26_R9Id_Photon18_R9Id Xsec;Xsec #mub;number of LS", 10, 0.002, 0.004);
+  MonitorElement* meXsec7 = dbe_->book1D("Xsec_HLT_IsoMu15_eta2p1_LooseIsoPFTau20", "HLT_IsoMu15_eta2p1_LooseIsoPFTau20 Xsec;Xsec #mub;number of LS", 10, 0.0022, 0.003);
+  MonitorElement* meXsec8 = dbe_->book1D("Xsec_HLT_PFMHT150", "HLT_PFMHT150 Xsec;Xsec #mub;number of LS", 10, 0.0005, 0.001);
+  MonitorElement* meXsec9 = dbe_->book1D("Xsec_HLT_Photon90_CaloIdVL_IsoL", "HLT_Photon90_CaloIdVL_IsoL Xsec;Xsec #mub;number of LS", 10, 0.0015, 0.0025);
+
 
   v_ME_Xsec.push_back(meXsec1); 
   v_ME_Xsec.push_back(meXsec2); 
@@ -1825,8 +1825,6 @@ void TrigResRateMon::bookTestHisto()
   v_ME_Xsec.push_back(meXsec7); 
   v_ME_Xsec.push_back(meXsec8); 
   v_ME_Xsec.push_back(meXsec9); 
-  v_ME_Xsec.push_back(meXsec10); 
-
 
 
 }
@@ -1852,12 +1850,12 @@ void TrigResRateMon::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, con
    int lumi = int(lumiSeg.id().luminosityBlock());
    LogTrace("TrigResRateMon") << " end lumiSection number " << lumi << endl;
 
-  countHLTPathHitsEndLumiBlock(lumi);
-  countHLTGroupHitsEndLumiBlock(lumi);
+//   countHLTPathHitsEndLumiBlock(lumi);
+//   countHLTGroupHitsEndLumiBlock(lumi);
   //countHLTGroupL1HitsEndLumiBlock(lumi);
   //countHLTGroupBXHitsEndLumiBlock(lumi);
 
-  normalizeHLTMatrix();
+//   normalizeHLTMatrix();
 
   //if (jmsDebug) printCountsPerPathThisLumi();
   if (jmsDebug) printCountsPerPathThisLumi();
@@ -1921,6 +1919,7 @@ void TrigResRateMon::filltestHisto(const int& lumi) {
     unsigned int npaths = testPaths_.size();
     for(unsigned int i = 0; i < npaths; i++){
       TString pathname = testPaths_[i].c_str() ;
+      pathname += "_v" ;
       
       int index = 0 ;
       int rawCount = 0 ;

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: TrigResRateMon_cfi.py,v 1.7 2011/07/20 19:26:54 lwming Exp $
+# $Id: TrigResRateMon_cfi.py,v 1.8 2011/07/27 17:34:21 lwming Exp $
 trRateMon = cms.EDAnalyzer("TrigResRateMon",
     dirname = cms.untracked.string("HLT/TrigResults/"),
     muonRecoCollectionName = cms.untracked.string("muons"),
@@ -63,20 +63,21 @@ trRateMon = cms.EDAnalyzer("TrigResRateMon",
 
   ## Robin
      testPaths = cms.vstring(
-            'HLT_IsoMu24',
+            'HLT_IsoMu30_eta2p1',
             'HLT_Ele65_CaloIdVT_TrkIdT',
-            'HLT_MET200',           
+            'HLT_MET200',
             'HLT_Jet370',
-            'HLT_HT550',
-            'HLT_Photon26_CaloIdL_IsoVL_Photon18_CaloIdL_IsoVL',
-            'HLT_IsoMu15_LooseIsoPFTau20',
+            'HLT_HT600',
+            'HLT_Photon26_R9Id_Photon18_R9Id',
+            'HLT_IsoMu15_eta2p1_LooseIsoPFTau20',
             'HLT_PFMHT150',
-            'HLT_Photon135',
-            'HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v'
+            'HLT_Photon90_CaloIdVL_IsoL'
+
       ),                           
 
    # Will pick the first trigger whose name contains this substring
-   ReferenceTrigger = cms.string('HLT_Ele17_CaloIdL_CaloIsoVL_Ele8_CaloIdL_CaloIsoVL_v'),
+ #  ReferenceTrigger = cms.string('HLT_IsoMu30_eta2p1_v'),
+   ReferenceTrigger = cms.string('HLT_Mu17_Ele8_CaloIdL_v'),        
 
     paths = cms.VPSet(
              cms.PSet(
