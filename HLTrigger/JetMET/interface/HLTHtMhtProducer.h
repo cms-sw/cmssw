@@ -28,13 +28,13 @@ class HLTHtMhtProducer : public edm::EDProducer {
 
   private:
 
-      edm::InputTag jetsLabel_;
-      bool usePt_;
-      std::vector<int> minNJet_;
-      std::vector<double> minPtJet_;
-      std::vector<double> maxEtaJet_;
-      bool useTracks_;
-      edm::InputTag tracksLabel_;
+    bool usePt_;
+    bool useTracks_;
+    std::vector<int>    minNJet_;
+    std::vector<double> minPtJet_;
+    std::vector<double> maxEtaJet_;
+    edm::InputTag jetsLabel_;
+    edm::InputTag tracksLabel_;
 
 };
 

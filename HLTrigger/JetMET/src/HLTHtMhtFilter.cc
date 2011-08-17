@@ -13,23 +13,22 @@
 #include "DataFormats/METReco/interface/MET.h"
 
 
-HLTHtMhtFilter::HLTHtMhtFilter(const edm::ParameterSet & iConfig) {
-
-  saveTags_  = iConfig.getParameter<bool>("saveTags");
-  htLabels_  = iConfig.getParameter<std::vector<edm::InputTag> >("htLabels");
-  mhtLabels_ = iConfig.getParameter<std::vector<edm::InputTag> >("mhtLabels");
-  minHt_     = iConfig.getParameter<std::vector<double> >("minHt");
-  minMht_    = iConfig.getParameter<std::vector<double> >("minMht");
-  minMeff_   = iConfig.getParameter<std::vector<double> >("minMeff");
-  meffSlope_ = iConfig.getParameter<std::vector<double> >("meffSlope");
-  orLabels_  = iConfig.getParameter<std::vector<edm::InputTag> >("toBeORdLabels");
-
-  nOrs_ = htLabels_.size(); // number of settings to .OR.
-  if (!( htLabels_.size() == mhtLabels_.size() &&
-         htLabels_.size() == minHt_.size() &&
-         htLabels_.size() == minMht_.size() &&
-         htLabels_.size() == minMeff_.size() &&
-         htLabels_.size() == meffSlope_.size() ) ||
+HLTHtMhtFilter::HLTHtMhtFilter(const edm::ParameterSet & iConfig) :
+  htLabels_  ( iConfig.getParameter<std::vector<edm::InputTag> >("htLabels") ),
+  mhtLabels_ ( iConfig.getParameter<std::vector<edm::InputTag> >("mhtLabels") ),
+  minHt_     ( iConfig.getParameter<std::vector<double> >("minHt") ),
+  minMht_    ( iConfig.getParameter<std::vector<double> >("minMht") ),
+  minMeff_   ( iConfig.getParameter<std::vector<double> >("minMeff") ),
+  meffSlope_ ( iConfig.getParameter<std::vector<double> >("meffSlope") ),
+  orLabels_  ( iConfig.getParameter<std::vector<edm::InputTag> >("toBeORdLabels") ),
+  nOrs_      ( htLabels_.size() ), // number of settings to .OR.
+  saveTags_  ( iConfig.getParameter<bool>("saveTags") )
+{
+  if (!( htLabels_.size() == mhtLabels_.size() and
+         htLabels_.size() == minHt_.size() and
+         htLabels_.size() == minMht_.size() and
+         htLabels_.size() == minMeff_.size() and
+         htLabels_.size() == meffSlope_.size() ) or
 	 htLabels_.size() == 0 ) {
     nOrs_ = (mhtLabels_.size() < nOrs_ ? mhtLabels_.size() : nOrs_);
     nOrs_ = (minHt_.size()     < nOrs_ ? minHt_.size()     : nOrs_);
@@ -42,7 +41,6 @@ HLTHtMhtFilter::HLTHtMhtFilter(const edm::ParameterSet & iConfig) {
   moduleLabel_ = iConfig.getParameter<std::string>("@module_label");
   produces<reco::METCollection>();
   produces<trigger::TriggerFilterObjectWithRefs>();
-
 }
 
 
@@ -51,8 +49,8 @@ HLTHtMhtFilter::~HLTHtMhtFilter() {
 
 
 void HLTHtMhtFilter::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
-  std::vector<edm::InputTag> tmp1; tmp1.push_back(edm::InputTag(""));
-  std::vector<double>        tmp2; tmp2.push_back(0.);
+  std::vector<edm::InputTag> tmp1(1, edm::InputTag(""));
+  std::vector<double>        tmp2(1, 0.);
   edm::ParameterSetDescription desc;
   desc.add<bool>("saveTags",false);
   desc.add<std::vector<edm::InputTag> >("htLabels",  tmp1);
@@ -100,7 +98,7 @@ bool HLTHtMhtFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
     double mht = (*hmht)[0].pt();
 
     // check if the event passes this cut set
-    accept = accept || (ht > minHt_[i] && mht > minMht_[i] && sqrt(mht + meffSlope_[i]*ht) > minMeff_[i]);
+    accept = accept or (ht > minHt_[i] and mht > minMht_[i] and sqrt(mht + meffSlope_[i]*ht) > minMeff_[i]);
     // in principle we could break if accepted, but in order to save
     // for offline analysis all possible decisions we keep looping here
     // in term of timing this will not matter much; typically 1 or 2 cut-sets

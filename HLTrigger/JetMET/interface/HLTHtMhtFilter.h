@@ -25,7 +25,7 @@ class HLTHtMhtFilter : public HLTFilter {
 
   private:
 
-    bool saveTags_;
+    std::string moduleLabel_;
     std::vector<edm::InputTag> htLabels_;
     std::vector<edm::InputTag> mhtLabels_;
     std::vector<double> minHt_;
@@ -34,7 +34,7 @@ class HLTHtMhtFilter : public HLTFilter {
     std::vector<double> meffSlope_;
     std::vector<edm::InputTag> orLabels_;
     unsigned int nOrs_;
-    std::string moduleLabel_;
+    bool saveTags_;
 
 };
 
