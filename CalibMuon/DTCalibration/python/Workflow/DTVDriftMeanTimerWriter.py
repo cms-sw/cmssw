@@ -33,10 +33,10 @@ class DTVDriftMeanTimerWriter:
         self.process['dtVDriftMeanTimerWriter_cfg.py'].GlobalTag.globaltag = self.config.globaltag
 
         # Input vDrift db
-        if hasattr(self.config,'inputVdriftDB') and self.config.inputVdriftDB:
+        if hasattr(self.config,'inputVDriftDB') and self.config.inputVDriftDB:
             addPoolDBESSource(process = self.process['dtVDriftMeanTimerWriter_cfg.py'],
                               moduleName = 'vDriftDB',record = 'DTMtimeRcd',tag = 'vDrift',
-                              connect = 'sqlite_file:%s' % self.config.inputVdriftDB)
+                              connect = 'sqlite_file:%s' % self.config.inputVDriftDB)
 
         self.process['dtVDriftMeanTimerWriter_cfg.py'].PoolDBOutputService.connect = 'sqlite_file:%s' % vDrift_meantimer_db
         self.process['dtVDriftMeanTimerWriter_cfg.py'].dtVDriftMeanTimerWriter.vDriftAlgoConfig.rootFileName = self.input_file

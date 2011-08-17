@@ -32,10 +32,10 @@ class DTVDriftMeanTimerCalibration:
                               moduleName = 'tTrigDB',record = 'DTTtrigRcd',tag = 'ttrig',label = label,
                               connect = 'sqlite_file:%s' % os.path.basename(self.config.inputTTrigDB))
 
-        if hasattr(self.config,'inputVdriftDB') and self.config.inputVdriftDB:
+        if hasattr(self.config,'inputVDriftDB') and self.config.inputVDriftDB:
             addPoolDBESSource(process = self.process,
                               moduleName = 'vDriftDB',record = 'DTMtimeRcd',tag = 'vDrift',
-                              connect = 'sqlite_file:%s' % os.path.basename(self.config.inputVdriftDB))
+                              connect = 'sqlite_file:%s' % os.path.basename(self.config.inputVDriftDB))
 
         # Prepend paths with unpacker if running on RAW
         if hasattr(self.config,'runOnRAW') and self.config.runOnRAW:
@@ -57,8 +57,8 @@ class DTVDriftMeanTimerCalibration:
         if hasattr(self.config,'inputTTrigDB') and self.config.inputTTrigDB:
             addCrabInputFile(crab_cfg_parser,self.config.inputTTrigDB)
 
-        if hasattr(self.config,'inputVdriftDB') and self.config.inputVdriftDB:
-            addCrabInputFile(crab_cfg_parser,self.config.inputVdriftDB)
+        if hasattr(self.config,'inputVDriftDB') and self.config.inputVDriftDB:
+            addCrabInputFile(crab_cfg_parser,self.config.inputVDriftDB)
 
         self.crab_cfg = crab_cfg_parser
 

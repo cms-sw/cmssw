@@ -43,10 +43,10 @@ class DTTTrigResidualCorr:
                               connect = 'sqlite_file:%s' % self.inputdb)
 
         # Input vDrift db
-        if hasattr(self.config,'inputVdriftDB') and self.config.inputVdriftDB:
+        if hasattr(self.config,'inputVDriftDB') and self.config.inputVDriftDB:
             addPoolDBESSource(process = self.process['dtTTrigResidualCorrection_cfg.py'],
                               moduleName = 'vDriftDB',record = 'DTMtimeRcd',tag = 'vDrift',
-                              connect = 'sqlite_file:%s' % self.config.inputVdriftDB)
+                              connect = 'sqlite_file:%s' % self.config.inputVDriftDB)
 
         # Change DB label if running on Cosmics
         if hasattr(self.config,'runOnCosmics') and self.config.runOnCosmics:

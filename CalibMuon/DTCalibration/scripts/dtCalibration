@@ -712,7 +712,7 @@ if __name__ == '__main__':
     config.label = label
     config.datasetpath = input.datasetpath
     config.runselection = runselection
-    if hasattr(input,'inputVdriftDB') and input.inputVdriftDB: config.inputVdriftDB = os.path.abspath(input.inputVdriftDB)
+    if hasattr(input,'inputVDriftDB') and input.inputVDriftDB: config.inputVDriftDB = os.path.abspath(input.inputVDriftDB)
     if hasattr(input,'inputTTrigDB') and input.inputTTrigDB: config.inputTTrigDB = os.path.abspath(input.inputTTrigDB)
 
     config.runOnRAW = False 
