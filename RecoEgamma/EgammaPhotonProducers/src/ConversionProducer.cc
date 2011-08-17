@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Authors:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: ConversionProducer.cc,v 1.11 2011/08/17 16:37:12 nancy Exp $
+// $Id: ConversionProducer.cc,v 1.12 2011/08/17 16:41:24 nancy Exp $
 //
 //
 
@@ -270,21 +270,29 @@ void ConversionProducer::buildSuperAndBasicClusterGeoMap(const edm::Event& iEven
 
   edm::Handle<edm::View<reco::CaloCluster> > bcHandle = bcBarrelHandle;
   edm::Handle<edm::View<reco::CaloCluster> > scHandle = scBarrelHandle;
-    
-  for (unsigned jj = 0; jj < 2; ++jj ){
-    for (unsigned ii = 0; ii < bcHandle->size(); ++ii ) {
-      if (bcHandle->ptrAt(ii)->energy()>energyBC_)
-	basicClusterPtrs.insert(std::make_pair(bcHandle->ptrAt(ii)->position().eta(), bcHandle->ptrAt(ii)));
+
+  if ( bcHandle.isValid()  ) {    
+    for (unsigned jj = 0; jj < 2; ++jj ){
+      for (unsigned ii = 0; ii < bcHandle->size(); ++ii ) {
+	if (bcHandle->ptrAt(ii)->energy()>energyBC_)
+	  basicClusterPtrs.insert(std::make_pair(bcHandle->ptrAt(ii)->position().eta(), bcHandle->ptrAt(ii)));
       }
-    bcHandle = bcEndcapHandle;
-  }
-  for (unsigned jj = 0; jj < 2; ++jj ){
-    for (unsigned ii = 0; ii < scHandle->size(); ++ii ) {
-      if (scHandle->ptrAt(ii)->energy()>minSCEt_)
-	superClusterPtrs.insert(std::make_pair(scHandle->ptrAt(ii)->position().eta(), scHandle->ptrAt(ii)));
+      bcHandle = bcEndcapHandle;
     }
-    scHandle = scEndcapHandle;
-  } 
+  }
+
+
+  if ( scHandle.isValid()  ) {
+    for (unsigned jj = 0; jj < 2; ++jj ){
+      for (unsigned ii = 0; ii < scHandle->size(); ++ii ) {
+	if (scHandle->ptrAt(ii)->energy()>minSCEt_)
+	  superClusterPtrs.insert(std::make_pair(scHandle->ptrAt(ii)->position().eta(), scHandle->ptrAt(ii)));
+      }
+      scHandle = scEndcapHandle;
+    } 
+  }
+
+
 }
 
 
