@@ -41,17 +41,19 @@ triggerSelectionMC   = triggerSelection_Summer11
 ### Muon selection
 
 # PF2PAT top projection settings
-pfMuonIsoConeR = 0.4 # for mu+jets, default: 0.3
+pfMuonIsoConeR = 0.4 # for mu+jets, default: 0.4
 
-# Minimal selection for veto muons, also basis for signal muons
-muonCutBase  =     'isGlobalMuon'                                                # general reconstruction property
-muonCutBase += ' && pt > 10.'                                                    # transverse momentum
+# Minimal selection for all muons, also basis for signal and veto muons
+muonCutBase  =     'pt > 10.'                                                    # transverse momentum
 muonCutBase += ' && abs(eta) < 2.5'                                              # pseudo-rapisity range
+# veto muon
+muonCutVeto  = muonCutBase
+muonCutVeto += ' && isGlobalMuon'                                                # general reconstruction property
 # standard muon
-muonCut  =  muonCutBase
+muonCut  = muonCutVeto
 muonCut += ' && (trackIso+caloIso)/pt < 0.2'                                     # relative isolation
 # PF muon
-muonCutPF  =  muonCutBase
+muonCutPF  =  muonCutVeto
 muonCutPF += ' && (chargedHadronIso+neutralHadronIso+photonIso)/pt < 0.2'        # relative isolation
 
 # Signal muon selection on top of 'muonCut'
@@ -106,14 +108,16 @@ jetMuonsDRPF = 0.1
 
 ### Electron selection
 
-# Veto electron selection
+# Minimal selection for all electrons, also basis for signal and veto muons
 electronCutBase  =     'et > 15.'                                                  # transverse energy
 electronCutBase += ' && abs(eta) < 2.5'                                            # pseudo-rapisity range
+# veto electron
+electronCutVeto = electronCutBase
 # standard electron
-electronCut  = electronCutBase
+electronCut  = electronCutVeto
 electronCut += ' && (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/et < 0.2' # relative isolation
 # PF electron
-electronCutPF  = electronCutBase
+electronCutPF  = electronCutVeto
 electronCutPF += ' && (chargedHadronIso+neutralHadronIso+photonIso)/et < 0.2'      # relative isolation
 
 ### ------------------------------------------------------------------------ ###
