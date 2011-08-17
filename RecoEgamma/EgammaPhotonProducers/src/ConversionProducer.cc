@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Authors:  Hongliang Liu
 //         Created:  Thu Mar 13 17:40:48 CDT 2008
-// $Id: ConversionProducer.cc,v 1.9 2011/08/05 20:13:56 giordano Exp $
+// $Id: ConversionProducer.cc,v 1.10 2011/08/08 01:32:25 bendavid Exp $
 //
 //
 
@@ -83,6 +83,7 @@ ConversionProducer::ConversionProducer(const edm::ParameterSet& iConfig):
   maxTrackRho_ = iConfig.getParameter<double>("maxTrackRho");
   maxTrackZ_ = iConfig.getParameter<double>("maxTrackZ");
 
+  allowTrackBC_ = iConfig.getParameter<bool>("AllowTrackBC");
   allowTrackBC_ = iConfig.getParameter<bool>("AllowTrackBC");
   allowD0_ = iConfig.getParameter<bool>("AllowD0");
   allowDeltaPhi_ = iConfig.getParameter<bool>("AllowDeltaPhi");
@@ -225,8 +226,8 @@ ConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::multimap<double, reco::CaloClusterPtr> basicClusterPtrs;
   std::multimap<double, reco::CaloClusterPtr> superClusterPtrs;
 
-  if(allowTrackBC_)
-    buildSuperAndBasicClusterGeoMap(iEvent,basicClusterPtrs,superClusterPtrs);
+  
+  buildSuperAndBasicClusterGeoMap(iEvent,basicClusterPtrs,superClusterPtrs);
       
   buildCollection( iEvent, iSetup, convTrackMap,  superClusterPtrs, basicClusterPtrs, the_pvtx, outputConvPhotonCollection);//allow empty basicClusterPtrs
     
@@ -325,24 +326,24 @@ void ConversionProducer::buildCollection(edm::Event& iEvent, const edm::EventSet
   
   
   //2 propagate all tracks into ECAL, record its eta and phi
-  if (allowTrackBC_){  
-    for (std::multimap<float, edm::Ptr<reco::ConversionTrack> >::const_iterator tk_ref = allTracks.begin(); tk_ref != allTracks.end(); ++tk_ref ){
-      const reco::Track* tk = tk_ref->second->trackRef().get()  ;
-          
-
-        //check impact position then match with BC
-        math::XYZPointF ew;
-        if ( getTrackImpactPosition(tk, trackerGeom, magField, ew) ){
-          trackImpactPosition[tk_ref->second] = ew;
-          
-          reco::CaloClusterPtr closest_bc;//the closest matching BC to track
-          
-          if ( getMatchedBC(basicClusterPtrs, ew, closest_bc) ){
-            trackMatchedBC[tk_ref->second] = closest_bc;
-          }
-        }    
-    }
+ 
+  for (std::multimap<float, edm::Ptr<reco::ConversionTrack> >::const_iterator tk_ref = allTracks.begin(); tk_ref != allTracks.end(); ++tk_ref ){
+    const reco::Track* tk = tk_ref->second->trackRef().get()  ;
+    
+    
+    //check impact position then match with BC
+    math::XYZPointF ew;
+    if ( getTrackImpactPosition(tk, trackerGeom, magField, ew) ){
+      trackImpactPosition[tk_ref->second] = ew;
+      
+      reco::CaloClusterPtr closest_bc;//the closest matching BC to track
+      
+      if ( getMatchedBC(basicClusterPtrs, ew, closest_bc) ){
+	trackMatchedBC[tk_ref->second] = closest_bc;
+      }
+    }    
   }
+  
   
   
   //3. pair up tracks: 

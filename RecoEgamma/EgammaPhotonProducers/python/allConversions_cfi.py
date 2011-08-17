@@ -50,7 +50,7 @@ allConversions = cms.EDProducer('ConversionProducer',
     
     AllowD0 = cms.bool(True), #Allow d0*charge cut
     AllowDeltaPhi = cms.bool(False),
-    AllowTrackBC = cms.bool(True), #Allow to match track-basic cluster
+    AllowTrackBC = cms.bool(False), #Allow to match track-basic cluster
     AllowDeltaCot = cms.bool(True), #Allow pairing using delta cot theta cut
     AllowMinApproach = cms.bool(True), #Allow pairing using min approach cut
     AllowOppCharge = cms.bool(True), #use opposite charge tracks to pair
