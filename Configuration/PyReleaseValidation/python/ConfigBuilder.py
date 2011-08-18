@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.334 $"
+__version__ = "$Revision: 1.335 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -291,9 +291,9 @@ class ConfigBuilder(object):
 		for entry in self._options.filein.split(','):
 			print "entry",entry
 			if entry.startswith("filelist:"):
-				filesFromList(entry[9:],s)
+				filesFromList(entry[9:],self.process.source)
 			elif entry.startswith("dbs:"):
-				filesFromDBSQuery(entry[4:],s)
+				filesFromDBSQuery(entry[4:],self.process.source)
 			else:
 				self.process.source.fileNames.append(self._options.dirin+entry)
 		if self._options.secondfilein:
@@ -1567,7 +1567,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.334 $"),
+                                            (version=cms.untracked.string("$Revision: 1.335 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
