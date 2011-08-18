@@ -16,26 +16,37 @@
 
 
 HLTHtMhtProducer::HLTHtMhtProducer(const edm::ParameterSet & iConfig) :
-  usePt_       ( iConfig.getParameter<bool>("usePt") ),
-  useTracks_   ( iConfig.getParameter<bool>("useTracks") ),
-  minNJet_     ( iConfig.getParameter<std::vector<int> >("minNJet") ),
-  minPtJet_    ( iConfig.getParameter<std::vector<double> >("minPtJet") ),
-  maxEtaJet_   ( iConfig.getParameter<std::vector<double> >("maxEtaJet") ),
-  jetsLabel_   ( iConfig.getParameter<edm::InputTag>("jetsLabel") ),
-  tracksLabel_ ( iConfig.getParameter< edm::InputTag >("tracksLabel") )
+  usePt_        ( iConfig.getParameter<bool>("usePt") ),
+  useTracks_    ( iConfig.getParameter<bool>("useTracks") ),
+  minNJetHt_    ( iConfig.getParameter<int>("minNJetHt") ),
+  minNJetMht_   ( iConfig.getParameter<int>("minNJetMht") ),
+  minPtJetHt_   ( iConfig.getParameter<double>("minPtJetHt") ),
+  minPtJetMht_  ( iConfig.getParameter<double>("minPtJetMht") ),
+  maxEtaJetHt_  ( iConfig.getParameter<double>("maxEtaJetHt") ),
+  maxEtaJetMht_ ( iConfig.getParameter<double>("maxEtaJetMht") ),
+  jetsLabel_    ( iConfig.getParameter<edm::InputTag>("jetsLabel") ),
+  tracksLabel_  ( iConfig.getParameter<edm::InputTag>("tracksLabel") )
 {
-
-  if (minNJet_.size() != 2 or
-      minPtJet_.size() != 2 or
-      maxEtaJet_.size() != 2)
-    edm::LogError("HLTHtMhtProducer") << "inconsistent module configuration!";
-
   produces<reco::METCollection>();
-
 }
 
 
 HLTHtMhtProducer::~HLTHtMhtProducer() {
+}
+
+
+void HLTHtMhtProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("jetsLabel", edm::InputTag("hltCaloJetCorrected"));
+  desc.add<int>("minNJetHt", 0);
+  desc.add<int>("minNJetMht", 0);
+  desc.add<double>("minPtJetHt", 40);
+  desc.add<double>("minPtJetMht", 30);
+  desc.add<double>("minEtaJetHt", 3);
+  desc.add<double>("minEtaJetMht", 999);
+  desc.add<bool>("useTracks", false);
+  desc.add<edm::InputTag>("tracksLabel",  edm::InputTag("hltL3Muons"));
+  descriptions.add("hltHtMhtProducer", desc);
 }
 
 
@@ -54,11 +65,11 @@ void HLTHtMhtProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   for (reco::CaloJetCollection::const_iterator jet = jets->begin(); jet != jets->end(); jet++) {
     double mom = (usePt_ ? jet->pt() : jet->et());
-    if (mom > minPtJet_.at(0) and fabs(jet->eta()) < maxEtaJet_.at(0)) {
+    if (mom > minPtJetHt_ and fabs(jet->eta()) < maxEtaJetHt_) {
       ht += mom;
       ++nj_ht;
     }
-    if (mom > minPtJet_.at(1) and fabs(jet->eta()) < maxEtaJet_.at(1)) {
+    if (mom > minPtJetMht_ and fabs(jet->eta()) < maxEtaJetMht_) {
       mhtx -= mom*cos(jet->phi());
       mhty -= mom*sin(jet->phi());
       ++nj_mht;
@@ -66,15 +77,18 @@ void HLTHtMhtProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   }
   if (useTracks_) {
     for (reco::TrackCollection::const_iterator track = tracks->begin(); track != tracks->end(); track++) {
-      if (track->pt() > minPtJet_.at(0) and fabs(track->eta()) < maxEtaJet_.at(0)) {
+      if (track->pt() > minPtJetHt_ and fabs(track->eta()) < maxEtaJetHt_) {
         ht += track->pt();
       }
-      if (track->pt() > minPtJet_.at(1) and fabs(track->eta()) < maxEtaJet_.at(1)) {
+      if (track->pt() > minPtJetMht_ and fabs(track->eta()) < maxEtaJetMht_) {
         mhtx -= track->px();
         mhty -= track->py();
       }
     }
   }
+
+  if (nj_ht  < minNJetHt_ ) { ht = 0; }
+  if (nj_mht < minNJetMht_) { mhtx = 0; mhty = 0; }
 
   metobject->push_back(
     reco::MET(

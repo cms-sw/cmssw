@@ -20,7 +20,6 @@ HLTHtMhtFilter::HLTHtMhtFilter(const edm::ParameterSet & iConfig) :
   minMht_    ( iConfig.getParameter<std::vector<double> >("minMht") ),
   minMeff_   ( iConfig.getParameter<std::vector<double> >("minMeff") ),
   meffSlope_ ( iConfig.getParameter<std::vector<double> >("meffSlope") ),
-  orLabels_  ( iConfig.getParameter<std::vector<edm::InputTag> >("toBeORdLabels") ),
   nOrs_      ( htLabels_.size() ), // number of settings to .OR.
   saveTags_  ( iConfig.getParameter<bool>("saveTags") )
 {
@@ -49,16 +48,16 @@ HLTHtMhtFilter::~HLTHtMhtFilter() {
 
 
 void HLTHtMhtFilter::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
-  std::vector<edm::InputTag> tmp1(1, edm::InputTag(""));
+  std::vector<edm::InputTag> tmp1(1, edm::InputTag("calohtmht"));
   std::vector<double>        tmp2(1, 0.);
   edm::ParameterSetDescription desc;
   desc.add<bool>("saveTags",false);
   desc.add<std::vector<edm::InputTag> >("htLabels",  tmp1);
   desc.add<std::vector<edm::InputTag> >("mhtLabels", tmp1);
-  desc.add<std::vector<double> >("minHt",     tmp2);
-  desc.add<std::vector<double> >("minMht",    tmp2);
-  desc.add<std::vector<double> >("minMeff",   tmp2);
-  desc.add<std::vector<double> >("meffSlope", tmp2);
+  tmp2[0] = 250; desc.add<std::vector<double> >("minHt",     tmp2);
+  tmp2[0] =  70; desc.add<std::vector<double> >("minMht",    tmp2);
+  tmp2[0] =   0; desc.add<std::vector<double> >("minMeff",   tmp2);
+  tmp2[0] =   1; desc.add<std::vector<double> >("meffSlope", tmp2);
   descriptions.add("hltHtMhtFilter", desc);
 }
 
@@ -70,19 +69,6 @@ bool HLTHtMhtFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup)
   // the references to the filter objects
   std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
   if (saveTags_) filterobject->addCollectionTag(moduleLabel_);
-
-  // check first the extra input bools
-  for (unsigned int i = 0; i < orLabels_.size(); ++i) {
-    edm::Handle<bool> orhandle;
-    iEvent.getByLabel(orLabels_[i], orhandle);
-    if (*orhandle) {
-      // put empty objects in the event (so we know this was accepted on an extra bool input)
-      iEvent.put(metobject);
-      iEvent.put(filterobject);
-      // and accept the event
-      return true;
-    }
-  }
 
   bool accept = false;
 

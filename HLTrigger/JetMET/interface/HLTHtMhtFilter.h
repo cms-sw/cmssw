@@ -32,7 +32,6 @@ class HLTHtMhtFilter : public HLTFilter {
     std::vector<double> minMht_;
     std::vector<double> minMeff_;
     std::vector<double> meffSlope_;
-    std::vector<edm::InputTag> orLabels_;
     unsigned int nOrs_;
     bool saveTags_;
 

@@ -24,15 +24,19 @@ class HLTHtMhtProducer : public edm::EDProducer {
 
     explicit HLTHtMhtProducer(const edm::ParameterSet & iConfig);
     ~HLTHtMhtProducer();
+    static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
     virtual void produce(edm::Event & iEvent, const edm::EventSetup & iSetup);
 
   private:
 
     bool usePt_;
     bool useTracks_;
-    std::vector<int>    minNJet_;
-    std::vector<double> minPtJet_;
-    std::vector<double> maxEtaJet_;
+    int minNJetHt_;
+    int minNJetMht_;
+    double minPtJetHt_;
+    double minPtJetMht_;
+    double maxEtaJetHt_;
+    double maxEtaJetMht_;
     edm::InputTag jetsLabel_;
     edm::InputTag tracksLabel_;
 
