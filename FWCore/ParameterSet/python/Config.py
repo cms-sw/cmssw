@@ -1109,7 +1109,7 @@ process.p = cms.Path(process.a)
 process.p2 = cms.Path(process.s)
 
 
-process.schedule = cms.Schedule(*[process.p2,process.p])
+process.schedule = cms.Schedule(*[ process.p2, process.p ])
 """)
             #Reverse order of 'r' and 's'
             p = Process("test")
@@ -1144,7 +1144,7 @@ process.p = cms.Path(process.a)
 process.p2 = cms.Path(process.r)
 
 
-process.schedule = cms.Schedule(*[process.p2,process.p])
+process.schedule = cms.Schedule(*[ process.p2, process.p ])
 """)
         #use an anonymous sequence
             p = Process("test")
@@ -1172,7 +1172,7 @@ process.p = cms.Path(process.a)
 process.p2 = cms.Path(process.r)
 
 
-process.schedule = cms.Schedule(*[process.p2,process.p])
+process.schedule = cms.Schedule(*[ process.p2, process.p ])
 """)
 
         def testSecSource(self):
