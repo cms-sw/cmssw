@@ -1,9 +1,9 @@
-#ifndef TestObjects_OtherThingCollection_h
-#define TestObjects_OtherThingCollection_h
+#ifndef DataFormats_TestObjects_OtherThingCollection_h
+#define DataFormats_TestObjects_OtherThingCollection_h
 
 #include <vector>
 
-#include "DataFormats/TestObjects/interface/OtherThing.h" 
+#include "DataFormats/TestObjects/interface/OtherThing.h"
 
 namespace edmtest {
    typedef std::vector<edmtest::OtherThing> OtherThingCollection;

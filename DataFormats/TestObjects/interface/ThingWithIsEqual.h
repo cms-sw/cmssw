@@ -1,5 +1,7 @@
-#ifndef TestObjects_ThingWithIsEqual_h
-#define TestObjects_ThingWithIsEqual_h
+#ifndef DataFormats_TestObjects_ThingWithIsEqual_h
+#define DataFormats_TestObjects_ThingWithIsEqual_h
+
+#include "FWCore/Utilities/interface/typedefs.h"
 
 namespace edmtest {
 
@@ -7,7 +9,7 @@ namespace edmtest {
     ~ThingWithIsEqual() { }
     ThingWithIsEqual():a() { }
     bool isProductEqual(ThingWithIsEqual const& thingWithIsEqual) const;
-    int a;
+    cms_int32_t a;
   };
 
 }
