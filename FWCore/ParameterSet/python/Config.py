@@ -631,10 +631,7 @@ class Process(object):
         result+=self._dumpPythonList(self.vpsets, options)
         if self.schedule:
             pathNames = ['process.'+p.label_() for p in self.schedule]
-            if len(self.schedule) > 1:
-                result +='process.schedule = cms.Schedule(*[ ' + ', '.join(pathNames) + ' ])\n'
-            else:
-                result +='process.schedule = cms.Schedule( ' + pathNames[0] + ' ])\n'
+            result +='process.schedule = cms.Schedule(*[ ' + ', '.join(pathNames) + ' ])\n'
 
         return result
     def _replaceInSequences(self, label, new):
