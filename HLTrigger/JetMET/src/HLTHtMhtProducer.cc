@@ -38,6 +38,7 @@ HLTHtMhtProducer::~HLTHtMhtProducer() {
 void HLTHtMhtProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("jetsLabel", edm::InputTag("hltCaloJetCorrected"));
+  desc.add<bool>("usePt", true);
   desc.add<int>("minNJetHt", 0);
   desc.add<int>("minNJetMht", 0);
   desc.add<double>("minPtJetHt", 40);
