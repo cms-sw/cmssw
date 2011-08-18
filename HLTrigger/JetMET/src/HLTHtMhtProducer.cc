@@ -42,8 +42,8 @@ void HLTHtMhtProducer::fillDescriptions(edm::ConfigurationDescriptions & descrip
   desc.add<int>("minNJetMht", 0);
   desc.add<double>("minPtJetHt", 40);
   desc.add<double>("minPtJetMht", 30);
-  desc.add<double>("minEtaJetHt", 3);
-  desc.add<double>("minEtaJetMht", 999);
+  desc.add<double>("maxEtaJetHt", 3);
+  desc.add<double>("maxEtaJetMht", 999);
   desc.add<bool>("useTracks", false);
   desc.add<edm::InputTag>("tracksLabel",  edm::InputTag("hltL3Muons"));
   descriptions.add("hltHtMhtProducer", desc);
