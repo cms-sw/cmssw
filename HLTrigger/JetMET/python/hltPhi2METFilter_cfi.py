@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 hltPhi2METFilter = cms.EDFilter("HLTPhi2METFilter",
-    saveTags = cms.untracked.bool( False ),
+    saveTags = cms.bool( False ),
     maxDeltaPhi = cms.double(3.1514),
     inputJetTag = cms.InputTag("iterativeCone5CaloJets"),
     inputMETTag = cms.InputTag("hlt1MET60"),

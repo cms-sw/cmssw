@@ -91,6 +91,7 @@ void FUResource::allocate(FUShmRawCell* shmCell)
   shmCell_=shmCell;
   shmCell_->clear();
   shmCell_->setFuResourceId(fuResourceId_);
+  shmCell_->setEventTypeData();
   eventPayloadSize_=shmCell_->payloadSize();
   nFedMax_         =shmCell_->nFed();
   nSuperFragMax_   =shmCell_->nSuperFrag();
@@ -718,9 +719,14 @@ void FUResource::findFEDs() throw (evf::Exception)
     if(fedId == gtpeId_)
       if(evf::evtn::gtpe_board_sense(fedHeaderAddr)) shmCell_->setEvtNumber(evf::evtn::gtpe_get(fedHeaderAddr));
     if(useEvmBoard_ && (fedId == gtpEvmId_))
-      if(evf::evtn::evm_board_sense(fedHeaderAddr,fedSize)) shmCell_->setEvtNumber(evf::evtn::get(fedHeaderAddr, true));
+      if(evf::evtn::evm_board_sense(fedHeaderAddr,fedSize)) {
+	shmCell_->setEvtNumber(evf::evtn::get(fedHeaderAddr, true));
+	shmCell_->setLumiSection(evf::evtn::getlbn(fedHeaderAddr));
+      }
     if(!useEvmBoard_ && (fedId == gtpDaqId_))
-      if(evf::evtn::daq_board_sense(fedHeaderAddr)) shmCell_->setEvtNumber(evf::evtn::get(fedHeaderAddr, false));
+      if(evf::evtn::daq_board_sense(fedHeaderAddr)) {
+	shmCell_->setEvtNumber(evf::evtn::get(fedHeaderAddr, false));
+      }
     // crc check
     if (doCrcCheck_) {
       UInt_t conscheck=fedTrailer->conscheck;

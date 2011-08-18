@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms 
 process = cms.Process('jecdb') 
 process.load('CondCore.DBCommon.CondDBCommon_cfi') 
-process.CondDBCommon.connect = 'sqlite_file:Jec10V1.db' 
+process.CondDBCommon.connect = 'sqlite_file:Jec10_V1.db' 
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(1)) 
 process.source = cms.Source('EmptySource') 
 process.PoolDBOutputService = cms.Service('PoolDBOutputService', 
@@ -9,47 +9,47 @@ process.PoolDBOutputService = cms.Service('PoolDBOutputService',
    toPut = cms.VPSet( 
       cms.PSet(
          record = cms.string('AK5Calo'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Jec10V1_AK5Calo'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Jec10_V1_AK5Calo'), 
          label  = cms.string('AK5Calo') 
       ),
       cms.PSet(
          record = cms.string('AK5PF'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Jec10V1_AK5PF'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Jec10_V1_AK5PF'), 
          label  = cms.string('AK5PF') 
       ),
       cms.PSet(
          record = cms.string('AK5JPT'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Jec10V1_AK5JPT'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Jec10_V1_AK5JPT'), 
          label  = cms.string('AK5JPT') 
       ),
       cms.PSet(
          record = cms.string('AK5TRK'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Jec10V1_AK5TRK'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Jec10_V1_AK5TRK'), 
          label  = cms.string('AK5TRK') 
       ),
       cms.PSet(
          record = cms.string('AK7Calo'),
-         tag    = cms.string('JetCorrectorParametersCollection_Jec10V1_AK7Calo'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Jec10_V1_AK7Calo'), 
          label  = cms.string('AK7Calo') 
       ),
       cms.PSet(
          record = cms.string('AK7PF'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Jec10V1_AK7PF'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Jec10_V1_AK7PF'), 
          label  = cms.string('AK7PF') 
       ),
       cms.PSet(
          record = cms.string('AK7JPT'),                           
-         tag    = cms.string('JetCorrectorParametersCollection_Jec10V1_AK7JPT'),
+         tag    = cms.string('JetCorrectorParametersCollection_Jec10_V1_AK7JPT'),
          label  = cms.string('AK7JPT')                                          
       ),
       cms.PSet(
          record = cms.string('IC5Calo'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Jec10V1_IC5Calo'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Jec10_V1_IC5Calo'), 
          label  = cms.string('IC5Calo') 
       ),
      cms.PSet(
          record = cms.string('IC5PF'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Jec10V1_IC5PF'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Jec10_V1_IC5PF'), 
          label  = cms.string('IC5PF') 
       ),
       cms.PSet(
@@ -59,17 +59,17 @@ process.PoolDBOutputService = cms.Service('PoolDBOutputService',
       ),
       cms.PSet(
          record = cms.string('KT4PF'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Jec10V1_KT4PF'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Jec10_V1_KT4PF'), 
          label  = cms.string('KT4PF') 
       ),
       cms.PSet(
          record = cms.string('KT6Calo'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Jec10V1_KT6Calo'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Jec10_V1_KT6Calo'), 
          label  = cms.string('KT6Calo') 
       ),
       cms.PSet(
          record = cms.string('KT6PF'), 
-         tag    = cms.string('JetCorrectorParametersCollection_Jec10V1_KT6PF'), 
+         tag    = cms.string('JetCorrectorParametersCollection_Jec10_V1_KT6PF'), 
          label  = cms.string('KT6PF') 
       )
    ) 

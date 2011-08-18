@@ -25,7 +25,7 @@ HLTEgammaDoubleEtDeltaPhiFilter::HLTEgammaDoubleEtDeltaPhiFilter(const edm::Para
    etcut_  = iConfig.getParameter<double> ("etcut");
    minDeltaPhi_ =   iConfig.getParameter<double> ("minDeltaPhi");
    //   ncandcut_  = iConfig.getParameter<int> ("ncandcut",2);
-   store_ = iConfig.getUntrackedParameter<bool> ("saveTag",false) ;
+   store_ = iConfig.getParameter<bool>("saveTags") ;
    relaxed_ = iConfig.getUntrackedParameter<bool> ("relaxed",true) ;
    L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
    L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand");

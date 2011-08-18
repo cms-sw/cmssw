@@ -47,7 +47,7 @@ TrajectoryStateOnSurface TrackAssociatorByPosition::getState(const TrackingParti
     GlobalPoint initialPoint=plane->toGlobal(psimhit->localPosition());
     GlobalVector initialMomentum=plane->toGlobal(psimhit->momentumAtEntry());
     int initialCharge =  (psimhit->particleType()>0) ? -1:1;
-    CartesianTrajectoryError initialCartesianErrors; //no error at initial state  
+    CartesianTrajectoryError initialCartesianErrors(CLHEP::HepSymMatrix(6,0)); //no error at initial state  
     const GlobalTrajectoryParameters initialParameters(initialPoint,initialMomentum,initialCharge,thePropagator->magneticField());
     return TrajectoryStateOnSurface(initialParameters,initialCartesianErrors,*plane,surfaceside);}
   else{

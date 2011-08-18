@@ -49,9 +49,11 @@ class PFClusterAlgo {
   
   /// perform clustering
   void doClustering( const reco::PFRecHitCollection& rechits );
+  void doClustering( const reco::PFRecHitCollection& rechits, const std::vector<bool> & mask );
 
   /// perform clustering in full framework
   void doClustering( const PFRecHitHandle& rechitsHandle );
+  void doClustering( const PFRecHitHandle& rechitsHandle, const std::vector<bool> & mask );
   
   /// setters -------------------------------------------------------
   
@@ -107,9 +109,6 @@ class PFClusterAlgo {
   
   /// Activate cleaning of HCAL RBX's and HPD's
   void setCleanRBXandHPDs( bool cleanRBXandHPDs) { cleanRBXandHPDs_ = cleanRBXandHPDs; }
-
-  /// set rechit mask
-  void setMask( const std::vector<bool>& mask );
 
   /// getters -------------------------------------------------------
  
@@ -206,6 +205,8 @@ class PFClusterAlgo {
  
 
  private:
+  /// perform clustering
+  void doClusteringWorker( const reco::PFRecHitCollection& rechits );
 
   /// Clean HCAL readout box noise and HPD discharge
   void cleanRBXAndHPD( const reco::PFRecHitCollection& rechits );

@@ -1,4 +1,5 @@
 <bin   name="TPGTreeReader" file="TPGTreeReader.cpp">
   <use   name="CaloOnlineTools/EcalTools"/>
   <use   name="boost_header"/>
+  <flags   LCGDICT_ARGS="--deep"/>
 </bin>

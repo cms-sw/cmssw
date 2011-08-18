@@ -208,27 +208,8 @@ void popcon::EcalTPGFineGrainStripEEHandler::getNewObjects()
 	      
 	            std::string ecid_name=ecid_xt.getName();
 
-                    // EB data                                                                                                            
-                    if (ecid_name=="EB_VFE") {
-                      int sm=ecid_xt.getID1();
-                      int tt=ecid_xt.getID2();
-                      int strip=ecid_xt.getID3();
-                      int tcc= sm+54;
-                      if(sm>18) tcc=sm+18 ;
-
-                      // simple formula to calculate the Srip EB identifier                                                               
-
-                      unsigned int stripEBId = 303176+(tt-1)*64+(strip-1)*8+(tcc-37)*8192;
-
-		      EcalTPGFineGrainStripEE::Item item;
-                      item.threshold = (unsigned int)rd_fgr.getThreshold();
-                      item.lut = (unsigned int)rd_fgr.getLUTFgr();
-
-		      fgrStripEE->setValue(stripEBId,item);
- 
-
-                      ++icells;
-                    } else if (ecid_name=="ECAL_readout_strip"){
+	            // EE data
+	            if (ecid_name=="ECAL_readout_strip"){
 		      // EE data
 		      // fed
 		      int id1=ecid_xt.getID1();

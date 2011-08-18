@@ -1,21 +1,15 @@
 //----------Author's Name: B.Fabbro, F.X.Gentit + EB table from P.Jarry  DSM/IRFU/SPP CEA-Saclay
 //----------Copyright:Those valid for CEA software
-//----------Modified:24/03/2011
+//----------Modified:31/03/2010
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaNumbering.h"
-
-//--------------------------------------
-//  TEcnaNumbering.cc
-//  Class creation: 30 September 2005
-//  Documentation: see TEcnaNumbering.h
-//--------------------------------------
 
 ClassImp(TEcnaNumbering)
 //-------------------------------------------------------------------------------------------------------
 //
 //  Building of the numbering for the Ecal channels (EB and EE)
 //
-//  Convention for the names used here and in the other "TEcna" classes:
+//  Convention for the names used here and in the other "TEcna" and "TEcal" classes:
 //
 //  Name     Number                      Reference set   Range      Comment
 //
@@ -25,8 +19,8 @@ ClassImp(TEcnaNumbering)
 //  TowEcha: Electronic channel number   in Tower        [0,24]     S shape data reading order  
 //
 //  DeeSC  : super-crystal(SC) number    in Dee          [1,200]    (IY,IX) progression
-//  DeeCrys: Crystal number              in Dee matrix   [1,5000]   (IY,IX) progression
-//  DeeEcha: Electronic channel number   in Dee matrix   [0,4999]   (IY,IX) progression (starting from 0)
+//  DeeCrys: Crystal number              in Dee          [1,5000]   (IY,IX) progression
+//  DeeEcha: Electronic channel number   in Dee          [0,4999]   (IY,IX) progression (starting from 0)
 //  SCEcha : Electronic channel number   in SC           [1,25]     Crystal numbering for construction 
 //-------------------------------------------------------------------------------------------------------
 
@@ -38,27 +32,6 @@ TEcnaNumbering::TEcnaNumbering() {
 
   Init();
 }
-
-TEcnaNumbering::TEcnaNumbering(TEcnaObject* pObjectManager, const TString SubDet) {
-// Constructor with argument: call to methods Init() and SetEcalSubDetector(const TString)
-
- // cout << "[Info Management] CLASS: TEcnaNumbering.    CREATE OBJECT: this = " << this << endl;
-
-  Init();
-  Long_t i_this = (Long_t)this;
-  pObjectManager->RegisterPointer("TEcnaNumbering", i_this);
-
-  //............................ fEcal  => to be changed in fParEcal
-  fEcal = 0;
-  Int_t iParEcal = pObjectManager->GetPointerValue("TEcnaParEcal");
-  if( iParEcal == 0 )
-    {fEcal = new TEcnaParEcal(pObjectManager, SubDet.Data()); /*fCnew++*/}
-  else
-    {fEcal = (TEcnaParEcal*)iParEcal;}
-
-  SetEcalSubDetector(SubDet.Data());
-}
-
 
 TEcnaNumbering::TEcnaNumbering(const TString SubDet, const TEcnaParEcal* pEcal) {
 // Constructor with argument: call to methods Init() and SetEcalSubDetector(const TString)
@@ -160,17 +133,6 @@ void TEcnaNumbering::SetEcalSubDetector(const TString SubDet, const TEcnaParEcal
     {fEcal = new TEcnaParEcal(SubDet.Data());  /*fCnew++*/ ;}
   else
     {fEcal = (TEcnaParEcal*)pEcal;}
-
-  Int_t MaxCar = fgMaxCar;
-  fFlagSubDet.Resize(MaxCar);
-  fFlagSubDet = fEcal->GetEcalSubDetector();      // fFlagSubDet = "EB" or "EE"
-
-  if( fFlagSubDet == "EB" ){BuildBarrelCrysTable();}
-  if( fFlagSubDet == "EE" ){BuildEndcapCrysTable(); BuildEndcapSCTable();}
-}
-
-void TEcnaNumbering::SetEcalSubDetector(const TString SubDet){
-//Set the current subdetector flag and the current subdetector parameters
 
   Int_t MaxCar = fgMaxCar;
   fFlagSubDet.Resize(MaxCar);
@@ -361,14 +323,14 @@ Int_t TEcnaNumbering::Get1SMCrysFrom1SMTowAnd0TowEcha(const Int_t& n1SMTow,
 	{
 	  n1SMCrys = -2;   // Electronic Cnannel in Tower out of range 
 	  cout << "!TEcnaNumbering::Get1SMCrysFrom1SMTowAnd0TowEcha(...)> Electronic Channel in Tower out of range."
-	       << " i0TowEcha = " << i0TowEcha << "(n1SMTow = " << n1SMTow << ")" << fTTBELL << endl;
+	       << " i0TowEcha = " << i0TowEcha << fTTBELL << endl;
 	}
     }
   else
     {
       n1SMCrys = -3;   // Tower number in SM out of range
       cout << "!TEcnaNumbering::Get1SMCrysFrom1SMTowAnd0TowEcha(...)> Tower number in SM out of range."
-	   << " n1SMTow = " << n1SMTow << "(i0TowEcha = " << i0TowEcha << ")" << fTTBELL << endl;
+	   << " n1SMTow = " << n1SMTow << fTTBELL << endl;
     }
 
   return n1SMCrys;   // Range = [1,1700]
@@ -1028,7 +990,7 @@ void TEcnaNumbering::BuildEndcapCrysTable()
 	fT2d_jch_JY[i_MaxTyp] = &fT1d_jch_JY[0] + i_MaxTyp*MaxCrysP1;}
 
       // type: 0=(top/right), 1=(top/left), 2=(bottom/left), 3=(bottom/right),  
-
+ 
       //................. top/right
       for(Int_t k= 5;k>= 1;k--){fT2d_jch_JY[0][k] = 4;}     //  k =  5, 4, 3, 2, 1 -> fT2d_jch_JY[0][k] = 4
       for(Int_t k=10;k>= 6;k--){fT2d_jch_JY[0][k] = 3;}     //  k = 10, 9, 8, 7, 6 -> fT2d_jch_JY[0][k] = 3

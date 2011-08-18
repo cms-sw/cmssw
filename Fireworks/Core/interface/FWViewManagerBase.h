@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Sat Jan  5 10:29:00 EST 2008
-// $Id: FWViewManagerBase.h,v 1.20 2010/09/07 15:46:46 yana Exp $
+// $Id: FWViewManagerBase.h,v 1.21 2010/09/24 16:22:26 amraktad Exp $
 //
 
 // system include files
@@ -103,7 +103,6 @@ private:
 
    FWModelChangeManager* m_changeManager;
    FWColorManager*       m_colorManager;
-
 };
 
 

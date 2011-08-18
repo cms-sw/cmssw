@@ -21,7 +21,7 @@ class HLT2jetGapFilter : public HLTFilter {
 
    private:
       edm::InputTag inputTag_; // input tag identifying jets
-      bool saveTag_;           // whether to save this tag
+      bool saveTags_;           // whether to save this tag
       double minEt_;
       double minEta_;
 };

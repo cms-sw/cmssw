@@ -5,7 +5,6 @@
 #include "RecoTracker/CkfPattern/interface/CkfTrackCandidateMakerBase.h"
 #include "RecoTracker/DebugTools/interface/CkfDebugTrajectoryBuilder.h"
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 
 namespace cms {
   class CkfDebugTrackCandidateMaker : public CkfTrackCandidateMakerBase, public edm::EDProducer {

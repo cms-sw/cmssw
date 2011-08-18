@@ -41,16 +41,6 @@
   <use name="CondFormats/AlignmentRecord"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
-<library   file="TestWriteESAlignments.cc" name="TestWriteESAlignments">
-  <use name="Utilities/General"/>
-  <use name="CondCore/DBOutputService"/>
-  <use name="CondFormats/Alignment"/>
-  <use name="CondFormats/AlignmentRecord"/>
-  <use name="Geometry/EcalAlgo"/>
-  <use name="Geometry/CaloGeometry"/>
-  <use name="Geometry/Records"/>
-  <flags   EDM_PLUGIN="1"/>
-</library>
 <bin   file="dumpEEIndices2D.cpp">
   <use name="rootgraphics"/>
   <use name="Geometry/CaloGeometry"/>
