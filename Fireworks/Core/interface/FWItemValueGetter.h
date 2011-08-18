@@ -16,17 +16,19 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Nov 30 16:14:58 EST 2008
-// $Id: FWItemValueGetter.h,v 1.2 2009/01/23 21:35:41 amraktad Exp $
+// $Id: FWItemValueGetter.h,v 1.3 2010/08/18 10:30:10 amraktad Exp $
 //
 
-// system include files
 #include <string>
 #include <vector>
 #include "Reflex/Member.h"
 #include "Reflex/Type.h"
-// user include files
 
-// forward declarations
+#include "CommonTools/Utils/src/SelectorPtr.h"
+#include "CommonTools/Utils/src/SelectorBase.h"
+#include "CommonTools/Utils/src/ExpressionPtr.h"
+#include "CommonTools/Utils/src/ExpressionBase.h"
+
 
 class FWItemValueGetter {
 
@@ -43,21 +45,21 @@ public:
 
    std::string valueName() const;
    const std::string& unit() const;
-   // ---------- static member functions --------------------
 
-   // ---------- member functions ---------------------------
    void setValueAndUnit(const std::string& iValue, const std::string& iUnit);
 
 private:
    //FWItemValueGetter(const FWItemValueGetter&); // stop default
-
    //const FWItemValueGetter& operator=(const FWItemValueGetter&); // stop default
 
    // ---------- member data --------------------------------
+    
    ROOT::Reflex::Type m_type;
-   ROOT::Reflex::Member m_memberFunction;
+   // ROOT::Reflex::Member m_memberFunction;
+
+   std::string m_expression;
+   reco::parser::ExpressionPtr m_expr;
    std::string m_unit;
 };
-
 
 #endif
