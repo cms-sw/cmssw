@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.333 $"
+__version__ = "$Revision: 1.334 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -319,11 +319,23 @@ class ConfigBuilder(object):
 		   filesFromOption(self)
            elif self._options.filetype == "LHE":
 		   self.process.source=cms.Source("LHESource", fileNames = cms.untracked.vstring())
-		   filesFromOption(self)
-           elif self._options.filetype == "MCDB":
-               self.process.source=cms.Source("MCDBSource",
-					      articleID = cms.uint32(int(self._options.filein.replace('mcdb:',''))),
-					      supportedProtocols = cms.untracked.vstring("rfio"))
+		   if self._options.filein.startswith("lhe:"):
+			   #list the article directory automatically
+			   args=self._options.filein.split(':')
+			   article=args[1]
+			   print 'LHE input from article ',article
+			   location='/store/lhe/'
+			   import os
+			   textOfFiles=os.popen('cmsLHEtoEOSManager.py -l '+article)
+			   for line in textOfFiles:
+				   for fileName in [x for x in line.split() if '.lhe' in x]:
+					   self.process.source.fileNames.append(location+article+'/'+fileName)
+			   if len(args)>2:
+				   self.process.source.skipEvents = cms.untracked.uint32(int(args[2]))
+		   else:
+			   filesFromOption(self)
+
+		   
 	   elif self._options.filetype == "DQM":
 		   self.process.source=cms.Source("DQMRootSource",
 						  fileNames = cms.untracked.vstring())
@@ -1555,7 +1567,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.333 $"),
+                                            (version=cms.untracked.string("$Revision: 1.334 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
