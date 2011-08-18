@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 22 10:13:39 CST 2009
-// $Id: FWCollectionSummaryTableManager.cc,v 1.8 2010/12/16 12:04:43 amraktad Exp $
+// $Id: FWCollectionSummaryTableManager.cc,v 1.9 2011/03/27 12:22:59 matevz Exp $
 //
 
 // system include files
@@ -82,6 +82,21 @@ FWCollectionSummaryTableManager::FWCollectionSummaryTableManager(FWEventItem* iI
          if(pos->isValid()) m_valueGetters.push_back(pos);
       }
 
+   }
+   else if (strstr(m_collection->purpose().c_str(), "Conversion")  ){
+
+      s_names.push_back(std::pair<std::string,std::string>("pairMomentum().eta()", ""));
+      boost::shared_ptr<FWItemValueGetter> eta( new FWItemValueGetter(type,s_names));
+      if(eta->isValid()) m_valueGetters.push_back(eta);
+
+
+      s_names.begin()->first = "pairMomentum().phi()";
+      boost::shared_ptr<FWItemValueGetter> phi( new FWItemValueGetter(type,s_names));
+      if(phi->isValid()) m_valueGetters.push_back(phi);
+
+      s_names.begin()->first = "pairMomentum().rho()";
+      boost::shared_ptr<FWItemValueGetter> pt( new FWItemValueGetter(type,s_names));
+      if(pt->isValid()) m_valueGetters.push_back(pt);
    }
    else {
       s_names.push_back(std::pair<std::string,std::string>("pt","GeV"));
