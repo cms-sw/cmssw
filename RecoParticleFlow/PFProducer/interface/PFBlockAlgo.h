@@ -31,7 +31,7 @@
 
 // Glowinski & Gouzevitch
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"             
-#include "RecoParticleFlow/PFProducer/interface/KDTreeTrackEcalLinker.h" 
+#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerTrackEcal.h" 
 // !Glowinski & Gouzevitch
 
 // #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -285,7 +285,7 @@ class PFBlockAlgo {
 
   // Glowinski & Gouzevitch
   bool useKDTreeTrackEcalLinker_;
-  KDTreeLinker::TrackEcalLinker TELinker_;
+  KDTreeLinker::KDTreeLinkerTrackEcal TELinker_;
   // !Glowinski & Gouzevitch
 
   static const Mask                      dummyMask_;

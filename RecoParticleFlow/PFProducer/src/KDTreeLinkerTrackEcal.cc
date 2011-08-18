@@ -1,9 +1,10 @@
-#include "RecoParticleFlow/PFProducer/interface/KDTreeTrackEcalLinker.h"
+#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerTrackEcal.h"
+
 #include "TMath.h"
 
 using namespace KDTreeLinker;
 
-TrackEcalLinker::TrackEcalLinker(double	phiOffset,
+KDTreeLinkerTrackEcal::KDTreeLinkerTrackEcal(double	phiOffset,
 				 double ecalDiameter,
 				 bool debug)
   : phiOffset_ (phiOffset), 
@@ -11,51 +12,51 @@ TrackEcalLinker::TrackEcalLinker(double	phiOffset,
     debug_(debug)
 {}
 
-TrackEcalLinker::~TrackEcalLinker()
+KDTreeLinkerTrackEcal::~KDTreeLinkerTrackEcal()
 {
   clear();
 }
 
 void
-TrackEcalLinker::setPhiOffset(double phiOffset)
+KDTreeLinkerTrackEcal::setPhiOffset(double phiOffset)
 {
   phiOffset_ = phiOffset;
 }
 
 double
-TrackEcalLinker::getPhiOffset() const
+KDTreeLinkerTrackEcal::getPhiOffset() const
 {
   return phiOffset_;
 }
 
 void
-TrackEcalLinker::setEcalDiameter(double ecalDiameter)
+KDTreeLinkerTrackEcal::setEcalDiameter(double ecalDiameter)
 {
   ecalDiameter_ = ecalDiameter;
 }
 
 double
-TrackEcalLinker::getEcalDiameter() const
+KDTreeLinkerTrackEcal::getEcalDiameter() const
 {
   return ecalDiameter_;
 }
 
 void 
-TrackEcalLinker::setDebug(bool isDebug)
+KDTreeLinkerTrackEcal::setDebug(bool isDebug)
 {
   debug_ = isDebug;
 }
 
 void
-TrackEcalLinker::insertTrack(reco::PFBlockElement* track)
+KDTreeLinkerTrackEcal::insertTrack(reco::PFBlockElement* track)
 {
   tracksSet_.insert(track);
 }
 
 
 void
-TrackEcalLinker::insertCluster(const reco::PFBlockElement* cluster,
-			       const std::vector<reco::PFRecHitFraction> &fraction)
+KDTreeLinkerTrackEcal::insertCluster(const reco::PFBlockElement* cluster,
+				     const std::vector<reco::PFRecHitFraction> &fraction)
 {
   // We create a list of cluster
   clustersSet_.insert(cluster);
@@ -77,7 +78,7 @@ TrackEcalLinker::insertCluster(const reco::PFBlockElement* cluster,
 }
 
 void 
-TrackEcalLinker::buildTree()
+KDTreeLinkerTrackEcal::buildTree()
 {
   // List of pseudo-rechits that will be used to create the KDTree
   std::vector<RHinfo> eltList;
@@ -116,12 +117,12 @@ TrackEcalLinker::buildTree()
 }
 
 void
-TrackEcalLinker::searchLinks()
+KDTreeLinkerTrackEcal::searchLinks()
 {
   // Must of the code has been taken from LinkByRecHit.cc
 
   // We iterate over the tracks.
-  for(BlockEltSetNC::iterator it = tracksSet_.begin(); 
+  for(BlockEltSet::iterator it = tracksSet_.begin(); 
       it != tracksSet_.end(); it++) {
 	
     reco::PFRecTrackRef trackref = (*it)->trackRefPF();
@@ -184,7 +185,7 @@ TrackEcalLinker::searchLinks()
       // Find all clusters associated to given rechit
       RecHitClusterMap::iterator ret = rhClustersLinks_.find(rhit->ptr);
       
-      for(BlockEltSet::const_iterator clusterIt = ret->second.begin(); 
+      for(BlockEltSet_const::const_iterator clusterIt = ret->second.begin(); 
 	  clusterIt != ret->second.end(); clusterIt++) {
 	
 	reco::PFClusterRef clusterref = (*clusterIt)->clusterRef();
@@ -244,7 +245,7 @@ TrackEcalLinker::searchLinks()
 }
 
 void
-TrackEcalLinker::updateTracksWithLinks()
+KDTreeLinkerTrackEcal::updateTracksWithLinks()
 {
   // For debug purpose
   std::vector<int> histo(25, 0);
@@ -260,7 +261,7 @@ TrackEcalLinker::updateTracksWithLinks()
       if ( it->second.size() < 25)
 	++(histo[it->second.size()]);
 
-    for (BlockEltSet::iterator jt = it->second.begin();
+    for (BlockEltSet_const::iterator jt = it->second.begin();
 	 jt != it->second.end(); ++jt) {
 
       double clusterPhi = (*jt)->clusterRef()->positionREP().Phi();
@@ -281,7 +282,7 @@ TrackEcalLinker::updateTracksWithLinks()
 }
 
 void
-TrackEcalLinker::clear()
+KDTreeLinkerTrackEcal::clear()
 {
   tracksSet_.clear();
   rechitsSet_.clear();
@@ -293,19 +294,19 @@ TrackEcalLinker::clear()
 
 
 bool
-TrackEcalLinker::isCorrectTrack(reco::PFBlockElement* track) const
+KDTreeLinkerTrackEcal::isCorrectTrack(reco::PFBlockElement* track) const
 {
   return tracksSet_.find(track) != tracksSet_.end();
 }
 
 bool
-TrackEcalLinker::isEcalCluster(const reco::PFBlockElement* cluster) const
+KDTreeLinkerTrackEcal::isEcalCluster(const reco::PFBlockElement* cluster) const
 {
   return clustersSet_.find(cluster) != clustersSet_.end();
 }
 
 bool
-TrackEcalLinker::isLinked(reco::PFBlockElement* track,
+KDTreeLinkerTrackEcal::isLinked(reco::PFBlockElement* track,
 			  const reco::PFBlockElement* cluster) const
 {
   BlockEltClusterMap::const_iterator ret = trackClusterLinks_.find(track);
@@ -317,7 +318,7 @@ TrackEcalLinker::isLinked(reco::PFBlockElement* track,
 }
 
 void
-TrackEcalLinker::printTrackLinks(reco::PFBlockElement* track)
+KDTreeLinkerTrackEcal::printTrackLinks(reco::PFBlockElement* track)
 {
   std::cout << " Track :" << *track << std::endl;
 
@@ -326,7 +327,7 @@ TrackEcalLinker::printTrackLinks(reco::PFBlockElement* track)
   std::cout << "   Nbr of associated clusters = " << ret->second.size() << std::endl;
 
   if (ret != trackClusterLinks_.end()) {
-    for (BlockEltSet::iterator it = ret->second.begin();
+    for (BlockEltSet_const::iterator it = ret->second.begin();
 	 it != ret->second.end(); ++it)
       std::cout << "     " << *(*it) << std::endl;
   }  

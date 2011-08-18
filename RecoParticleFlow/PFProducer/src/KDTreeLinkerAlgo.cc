@@ -1,19 +1,19 @@
-#include "RecoParticleFlow/PFProducer/interface/KDTreeTrackEcalLinker.h"
+#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerAlgo.h"
 
 using namespace KDTreeLinker;
 
-KDTree::KDTree()
+KDTreeLinkerAlgo::KDTreeLinkerAlgo()
   : root_ (0)
 {
 }
 
-KDTree::~KDTree()
+KDTreeLinkerAlgo::~KDTreeLinkerAlgo()
 {
   clear();
 }
 
 void
-KDTree::build(std::vector<RHinfo>	&eltList, 
+KDTreeLinkerAlgo::build(std::vector<RHinfo>	&eltList, 
 	      const TBox		&region)
 {
   if (eltList.size()) {
@@ -23,7 +23,7 @@ KDTree::build(std::vector<RHinfo>	&eltList,
 
 
 TNode*
-KDTree::recBuild(std::vector<RHinfo>	&eltList, 
+KDTreeLinkerAlgo::recBuild(std::vector<RHinfo>	&eltList, 
 		 int			low, 
 		 int			high, 
 		 int			depth,
@@ -84,7 +84,7 @@ KDTree::recBuild(std::vector<RHinfo>	&eltList,
 
 //Fast median search with Wirth algorithm in eltList between low and high indexes.
 int
-KDTree::medianSearch(std::vector<RHinfo>	&eltList,
+KDTreeLinkerAlgo::medianSearch(std::vector<RHinfo>	&eltList,
 		     int			low,
 		     int			high,
 		     int			treeDepth)
@@ -128,7 +128,7 @@ KDTree::medianSearch(std::vector<RHinfo>	&eltList,
 }
 
 void 
-KDTree::swap(RHinfo &e1, 
+KDTreeLinkerAlgo::swap(RHinfo &e1, 
 	     RHinfo &e2)
 {
   RHinfo tmp = e1;
@@ -137,11 +137,11 @@ KDTree::swap(RHinfo &e1,
 }
 
 void
-KDTree::search(const TBox		&trackBox,
+KDTreeLinkerAlgo::search(const TBox		&trackBox,
 	       std::vector<RHinfo>	&recHits)
 {
-  if (getRoot())
-    recSearch(getRoot(), trackBox, recHits);
+  if (root_)
+    recSearch(root_, trackBox, recHits);
 }
 
 
@@ -149,7 +149,7 @@ KDTree::search(const TBox		&trackBox,
 
 
 void 
-KDTree::recSearch(const TNode		*current,
+KDTreeLinkerAlgo::recSearch(const TNode		*current,
 		  const TBox		&trackBox,
 		  std::vector<RHinfo>	&recHits)
 {
@@ -214,7 +214,7 @@ KDTree::recSearch(const TNode		*current,
 }
 
 void
-KDTree::addSubtree(const TNode		*current, 
+KDTreeLinkerAlgo::addSubtree(const TNode		*current, 
 		   std::vector<RHinfo>	&recHits)
 {
   // TODO YG : write a clean error msg.
@@ -241,7 +241,7 @@ KDTree::addSubtree(const TNode		*current,
 
 
 void 
-KDTree::clearTree(TNode *&current)
+KDTreeLinkerAlgo::clearTree(TNode *&current)
 {
   if (current->left)
     clearTree(current->left);
@@ -252,14 +252,8 @@ KDTree::clearTree(TNode *&current)
   current = 0;
 }
 
-TNode*
-KDTree::getRoot()
-{
-  return root_;
-}
-
 void 
-KDTree::clear()
+KDTreeLinkerAlgo::clear()
 {
   if (root_)
     clearTree(root_);
