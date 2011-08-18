@@ -4,7 +4,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.h,v 1.18 2011/02/23 16:50:56 kovitang Exp $
+// $Id: CaloJetTester.h,v 1.19 2011/04/21 12:31:27 kovitang Exp $
 
 #include <string>
 
@@ -42,7 +42,6 @@ private:
   std::string METType_;
   std::string inputGenMETLabel_;
   std::string inputCaloMETLabel_;
-   
 
   // count number of events
   MonitorElement* numberofevents;
@@ -99,6 +98,7 @@ private:
   MonitorElement* mpTResponse_600_900_d;
   MonitorElement* mpTResponse_2700_3500_d;
   MonitorElement* mpTResponse_30_d;
+  MonitorElement* mjetArea;
  
   // Leading Jet Parameters
   MonitorElement* mEtaFirst;

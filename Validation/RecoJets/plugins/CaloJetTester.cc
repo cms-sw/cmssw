@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.cc,v 1.28 2011/06/30 15:16:00 kovitang Exp $
+// $Id: CaloJetTester.cc,v 1.29 2011/07/20 14:18:46 kovitang Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -76,30 +76,23 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     = mEnergyFractionHadronic = mEnergyFractionEm 
     = mHFLong = mHFTotal = mHFLong_80  = mHFShort = mHFShort_80 
     = mN90
-      //    = mCaloMEx = mCaloMEx_3000 = mCaloMEy = mCaloMEy_3000 = mCaloMETSig = mCaloMETSig_3000
-      //    = mCaloMET = mCaloMET_3000 =  mCaloMETPhi = mCaloSumET  = mCaloSumET_3000   
+   
     = mHadTiming = mEmTiming 
     = mNJetsEtaC = mNJetsEtaF = mNJets1 = mNJets2
-      //= mAllGenJetsPt = mMatchedGenJetsPt = mAllGenJetsEta = mMatchedGenJetsEta 
-      //= mGenJetMatchEnergyFraction = mReverseMatchEnergyFraction = mRMatch
-      = mDeltaEta = mDeltaPhi //= mEScale = mlinEScale = mDeltaE
-      //= mHadEnergyProfile = mEmEnergyProfile = mJetEnergyProfile = mHadJetEnergyProfile = mEMJetEnergyProfile
+
+      = mDeltaEta = mDeltaPhi
     = mEScale_pt10 = mEScaleFineBin
-      //= mpTScaleB_s = mpTScaleE_s = mpTScaleF_s 
+     
     = mpTScaleB_d = mpTScaleE_d = mpTScaleF_d
     = mpTScalePhiB_d = mpTScalePhiE_d = mpTScalePhiF_d
-      //= mpTScale_60_120_s = mpTScale_200_300_s = mpTScale_600_900_s = mpTScale_2700_3500_s
+
     = mpTScale_60_120_d = mpTScale_200_300_d = mpTScale_600_900_d = mpTScale_2700_3500_d
       
     = mpTScale1DB_60_120    = mpTScale1DE_60_120    = mpTScale1DF_60_120 
     = mpTScale1DB_200_300   = mpTScale1DE_200_300   = mpTScale1DF_200_300 
     = mpTScale1DB_600_900   = mpTScale1DE_600_900   = mpTScale1DF_600_900 
     = mpTScale1DB_2700_3500 = mpTScale1DE_2700_3500 = mpTScale1DF_2700_3500
-    /*
-    = mpTScale1D_60_120 = mpTScale1D_200_300 = mpTScale1D_600_900 = mpTScale1D_2700_3500
-    = mHBEne = mHBTime = mHEEne = mHETime = mHFEne = mHFTime = mHOEne = mHOTime
-    = mEBEne = mEBTime = mEEEne = mEETime 
-      */
+
     = mPthat_80 = mPthat_3000
 
       //Corr Jet
@@ -108,7 +101,7 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
       = mpTRatio_60_120_d = mpTRatio_200_300_d = mpTRatio_600_900_d = mpTRatio_2700_3500_d
       = mpTResponseB_d = mpTResponseE_d = mpTResponseF_d
       = mpTResponse_60_120_d = mpTResponse_200_300_d = mpTResponse_600_900_d = mpTResponse_2700_3500_d
-      = mpTResponse_30_d
+      = mpTResponse_30_d =mjetArea
       = 0;
   
   DQMStore* dbe = &*edm::Service<DQMStore>();
@@ -119,14 +112,7 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     //
     mEta              = dbe->book1D("Eta", "Eta", 120, -6, 6); 
     mEtaFineBin       = dbe->book1D("EtaFineBin_Pt10", "EtaFineBin_Pt10", 600, -6, 6);
-    /*
-    mEtaFineBin1p     = dbe->book1D("EtaFineBin1p_Pt10", "EtaFineBin1p_Pt10", 100, 0, 1.3); 
-    mEtaFineBin2p     = dbe->book1D("EtaFineBin2p_Pt10", "EtaFineBin2p_Pt10", 100, 1.3, 3); 
-    mEtaFineBin3p     = dbe->book1D("EtaFineBin3p_Pt10", "EtaFineBin3p_Pt10", 100, 3, 5); 
-    mEtaFineBin1m     = dbe->book1D("EtaFineBin1m_Pt10", "EtaFineBin1m_Pt10", 100, -1.3, 0); 
-    mEtaFineBin2m     = dbe->book1D("EtaFineBin2m_Pt10", "EtaFineBin2m_Pt10", 100, -3, -1.3); 
-    mEtaFineBin3m     = dbe->book1D("EtaFineBin3m_Pt10", "EtaFineBin3m_Pt10", 100, -5, -3);
-    */
+
     //
     mPhi              = dbe->book1D("Phi", "Phi", 70, -3.5, 3.5); 
     mPhiFineBin       = dbe->book1D("PhiFineBin_Pt10", "PhiFineBin_Pt10", 350, -3.5, 3.5); 
@@ -198,19 +184,8 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     mGenEtaFirst      = dbe->book1D("GenEtaFirst", "GenEtaFirst", 100, -5, 5);
     mGenPhiFirst      = dbe->book1D("GenPhiFirst", "GenPhiFirst", 70, -3.5, 3.5);
     //
-    /*
-    mCaloMEx          = dbe->book1D("CaloMEx","CaloMEx",200,-150,150);
-    mCaloMEx_3000     = dbe->book1D("CaloMEx_3000","CaloMEx_3000",100,-500,500);
-    mCaloMEy          = dbe->book1D("CaloMEy","CaloMEy",200,-150,150);
-    mCaloMEy_3000     = dbe->book1D("CaloMEy_3000","CaloMEy_3000",100,-500,500);
-    mCaloMETSig       = dbe->book1D("CaloMETSig","CaloMETSig",100,0,15);
-    mCaloMETSig_3000  = dbe->book1D("CaloMETSig_3000","CaloMETSig_3000",100,0,50);
-    mCaloMET          = dbe->book1D("CaloMET","CaloMET",100,0,150);
-    mCaloMET_3000     = dbe->book1D("CaloMET_3000","CaloMET_3000",100,0,1000);
-    mCaloMETPhi       = dbe->book1D("CaloMETPhi","CaloMETPhi",70, -3.5, 3.5);
-    mCaloSumET        = dbe->book1D("CaloSumET","CaloSumET",100,0,500);
-    mCaloSumET_3000   = dbe->book1D("CaloSumET_3000","CaloSumET_3000",100,3000,8000);
-    */
+ 
+ 
     //
     mHadTiming        = dbe->book1D("HadTiming", "HadTiming", 75, -50, 100);
     mEmTiming         = dbe->book1D("EMTiming", "EMTiming", 75, -50, 100);
@@ -221,20 +196,7 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     mNJets1           = dbe->bookProfile("NJets1", "NJets1", 100, 0, 200,  100, 0, 50, "s");
     mNJets2           = dbe->bookProfile("NJets2", "NJets2", 100, 0, 4000, 100, 0, 50, "s");
     //
-    /*
-    mHBEne     = dbe->book1D( "HBEne",  "HBEne", 1000, -20, 100 );
-    mHBTime    = dbe->book1D( "HBTime", "HBTime", 200, -200, 200 );
-    mHEEne     = dbe->book1D( "HEEne",  "HEEne", 1000, -20, 100 );
-    mHETime    = dbe->book1D( "HETime", "HETime", 200, -200, 200 );
-    mHOEne     = dbe->book1D( "HOEne",  "HOEne", 1000, -20, 100 );
-    mHOTime    = dbe->book1D( "HOTime", "HOTime", 200, -200, 200 );
-    mHFEne     = dbe->book1D( "HFEne",  "HFEne", 1000, -20, 100 );
-    mHFTime    = dbe->book1D( "HFTime", "HFTime", 200, -200, 200 );
-    mEBEne     = dbe->book1D( "EBEne",  "EBEne", 1000, -20, 100 );
-    mEBTime    = dbe->book1D( "EBTime", "EBTime", 200, -200, 200 );
-    mEEEne     = dbe->book1D( "EEEne",  "EEEne", 1000, -20, 100 );
-    mEETime    = dbe->book1D( "EETime", "EETime", 200, -200, 200 );
-    */
+
     //
     mPthat_80            = dbe->book1D("Pthat_80", "Pthat_80", 100, 0.0, 1000.0); 
     mPthat_3000          = dbe->book1D("Pthat_3000", "Pthat_3000", 100, 1000.0, 4000.0); 
@@ -246,7 +208,7 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     mCorrJetEta = dbe->book1D("CorrEta", "CorrEta", 120, -6, 6);
     mCorrJetPhi = dbe->book1D("CorrPhi", "CorrPhi", 70, -3.5, 3.5);
     
-   
+    mjetArea = dbe->book1D("jetArea","jetArea",25,0,2.5);
 
     //
     double log10PtMin = 0.5; //=3.1622766
@@ -256,55 +218,21 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     double etaMax = 6.;
     int etaBins = 60;
 
-    //double linPtMin = 5;
-    //double linPtMax = 155;
-    //int linPtBins = 15;
-
     int log10PtFineBins = 50;
-    /*
-    mAllGenJetsPt = dbe->book1D("GenJetLOGpT", "GenJet LOG(pT_gen)", 
-				log10PtBins, log10PtMin, log10PtMax);
-    mMatchedGenJetsPt = dbe->book1D("MatchedGenJetLOGpT", "MatchedGenJet LOG(pT_gen)", 
-				    log10PtBins, log10PtMin, log10PtMax);
-    mAllGenJetsEta = dbe->book2D("GenJetEta", "GenJet Eta vs LOG(pT_gen)", 
-				 log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax);
-    mMatchedGenJetsEta = dbe->book2D("MatchedGenJetEta", "MatchedGenJet Eta vs LOG(pT_gen)", 
-				     log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax);
-    */
+
     //
     if (mTurnOnEverything.compare("yes")==0) {
-      /*
-      mHadEnergyProfile = dbe->bookProfile2D("HadEnergyProfile", "HadEnergyProfile", 82, -41, 41, 73, 0, 73, 100, 0, 10000, "s");
-      mEmEnergyProfile  = dbe->bookProfile2D("EmEnergyProfile", "EmEnergyProfile", 82, -41, 41, 73, 0, 73, 100, 0, 10000, "s");
-      */
+
     }
-    /*
-    mJetEnergyProfile = dbe->bookProfile2D("JetEnergyProfile", "JetEnergyProfile", 50, -5, 5, 36, -3.1415987, 3.1415987, 100, 0, 10000, "s");
-    mHadJetEnergyProfile = dbe->bookProfile2D("HadJetEnergyProfile", "HadJetEnergyProfile", 50, -5, 5, 36, -3.1415987, 3.1415987, 100, 0, 10000, "s");
-    mEMJetEnergyProfile = dbe->bookProfile2D("EMJetEnergyProfile", "EMJetEnergyProfile", 50, -5, 5, 36, -3.1415987, 3.1415987, 100, 0, 10000, "s");
-    */
+
     //
     if (mTurnOnEverything.compare("yes")==0) {
-      /*
-    mGenJetMatchEnergyFraction  = dbe->book3D("GenJetMatchEnergyFraction", "GenJetMatchEnergyFraction vs LOG(pT_gen) vs eta", 
-					      log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 101, 0, 1.01);
-    mReverseMatchEnergyFraction  = dbe->book3D("ReverseMatchEnergyFraction", "ReverseMatchEnergyFraction vs LOG(pT_gen) vs eta", 
-					       log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 101, 0, 1.01);
-    mRMatch  = dbe->book3D("RMatch", "delta(R)(Gen-Calo) vs LOG(pT_gen) vs eta", 
-			   log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 60, 0, 3);
-      */
+ 
     mDeltaEta = dbe->book3D("DeltaEta", "DeltaEta vs LOG(pT_gen) vs eta", 
 			      log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 100, -1, 1);
     mDeltaPhi = dbe->book3D("DeltaPhi", "DeltaPhi vs LOG(pT_gen) vs eta", 
 			      log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 100, -1, 1);
-    /*
-    mEScale = dbe->book3D("EScale", "EnergyScale vs LOG(pT_gen) vs eta", 
-			    log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 100, 0, 2);
-    mlinEScale = dbe->book3D("linEScale", "EnergyScale vs LOG(pT_gen) vs eta", 
-			    linPtBins, linPtMin, linPtMax, etaBins, etaMin, etaMax, 100, 0, 2);
-    mDeltaE = dbe->book3D("DeltaE", "DeltaE vs LOG(pT_gen) vs eta", 
-			    log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 2000, -200, 200);
-    */
+
     //
     mEScale_pt10 = dbe->book3D("EScale_pt10", "EnergyScale vs LOG(pT_gen) vs eta", 
 			    log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 100, 0, 2);
@@ -312,12 +240,7 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
 			    log10PtFineBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 100, 0, 2);
     }
 
-    //mpTScaleB_s = dbe->bookProfile("pTScaleB_s", "pTScale_s_0<|eta|<1.3",
-    //				    log10PtBins, log10PtMin, log10PtMax, 0, 2, "s");
-  //mpTScaleE_s = dbe->bookProfile("pTScaleE_s", "pTScale_s_1.3<|eta|<3.0",
-    //				    log10PtBins, log10PtMin, log10PtMax, 0, 2, "s");
-//mpTScaleF_s = dbe->bookProfile("pTScaleF_s", "pTScale_s_3.0<|eta|<5.0",
-//				    log10PtBins, log10PtMin, log10PtMax, 0, 2, "s");
+
     mpTScaleB_d = dbe->bookProfile("pTScaleB_d", "pTScale_d_0<|eta|<1.3",
 				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
     mpTScaleE_d = dbe->bookProfile("pTScaleE_d", "pTScale_d_1.3<|eta|<3.0",
@@ -332,14 +255,7 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
     mpTScalePhiF_d = dbe->bookProfile("pTScalePhiF_d", "pTScalePhi_d_3.0<|eta|<6.0",
 				   70, -3.5, 3.5, 0, 2, " ");
 
-    //    mpTScale_60_120_s    = dbe->bookProfile("pTScale_60_120_s", "pTScale_s_60<pT<120",
-    //					  etaBins, etaMin, etaMax, 0., 2., "s");
-  //    mpTScale_200_300_s   = dbe->bookProfile("pTScale_200_300_s", "pTScale_s_200<pT<300",
-    //					  etaBins, etaMin, etaMax, 0., 2., "s");
-//    mpTScale_600_900_s   = dbe->bookProfile("pTScale_600_900_s", "pTScale_s_600<pT<900",
-//					  etaBins, etaMin, etaMax, 0., 2., "s");
-//    mpTScale_2700_3500_s = dbe->bookProfile("pTScale_2700_3500_s", "pTScale_s_2700<pt<3500",
-//                                          etaBins, etaMin, etaMax, 0., 2., "s");
+
     mpTScale_60_120_d    = dbe->bookProfile("pTScale_60_120_d", "pTScale_d_60<pT<120",
 					  etaBins, etaMin, etaMax, 0., 2., " ");
     mpTScale_200_300_d   = dbe->bookProfile("pTScale_200_300_d", "pTScale_d_200<pT<300",
@@ -376,16 +292,7 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
 				   50, 0, 2);
     mpTScale1DF_2700_3500 = dbe->book1D("pTScale1DF_2700_3500", "pTScale_distribution_for_3.0<|eta|<6.0_2700_3500",
 				   50, 0, 2);
-				   /*
-    mpTScale1D_60_120    = dbe->book1D("pTScale1D_60_120", "pTScale_distribution_for_60<pT<120",
-					    100, 0, 2);
-    mpTScale1D_200_300    = dbe->book1D("pTScale1D_200_300", "pTScale_distribution_for_200<pT<300",
-					    100, 0, 2);
-    mpTScale1D_600_900    = dbe->book1D("pTScale1D_600_900", "pTScale_distribution_for_600<pT<900",
-					    100, 0, 2);
-    mpTScale1D_2700_3500 = dbe->book1D("pTScale1D_2700_3500", "pTScale_distribution_for_2700<pt<3500",
-					    100, 0, 2);
-    */
+
     ///////////Corr profile//////////////
     mpTRatio = dbe->bookProfile("pTRatio", "pTRatio",
 				log10PtBins, log10PtMin, log10PtMax, 100, 0.,5., " ");
@@ -651,6 +558,7 @@ if (!mEvent.isRealData()){
       //if (mEtaFineBin3m) mEtaFineBin3m->Fill (jet->eta());
       if (mPhiFineBin) mPhiFineBin->Fill (jet->phi());
     }
+    if (mjetArea) mjetArea->Fill(jet->jetArea());
     if (mPhi) mPhi->Fill (jet->phi());
     if (mE) mE->Fill (jet->energy());
     if (mE_80) mE_80->Fill (jet->energy());

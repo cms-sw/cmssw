@@ -4,7 +4,7 @@
 // Producer for validation histograms for JPTJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: JPTJetTester.h,v 1.5 2011/04/21 12:38:07 kovitang Exp $
+// $Id: JPTJetTester.h,v 1.6 2011/04/21 13:49:09 kovitang Exp $
 
 #include <string>
 
@@ -98,6 +98,7 @@ private:
   MonitorElement* mpTResponse_600_900_d;
   MonitorElement* mpTResponse_2700_3500_d;
   MonitorElement* mpTResponse_30_d;
+  MonitorElement* mjetArea;
 
   // Leading Jet Parameters
   MonitorElement* mEtaFirst;

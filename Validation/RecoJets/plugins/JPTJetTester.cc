@@ -2,7 +2,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: JPTJetTester.cc,v 1.14 2011/06/30 15:16:00 kovitang Exp $
+// $Id: JPTJetTester.cc,v 1.15 2011/07/20 14:18:46 kovitang Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -115,7 +115,7 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
       = mpTRatio_60_120_d = mpTRatio_200_300_d = mpTRatio_600_900_d = mpTRatio_2700_3500_d
       = mpTResponseB_d = mpTResponseE_d = mpTResponseF_d
       = mpTResponse_60_120_d = mpTResponse_200_300_d = mpTResponse_600_900_d = mpTResponse_2700_3500_d
-      = mpTResponse_30_d
+      = mpTResponse_30_d //=mjetArea
     = 0;
   
   DQMStore* dbe = &*edm::Service<DQMStore>();
@@ -258,6 +258,7 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
     mCorrJetPt_80 = dbe->book1D("CorrPt_80", "CorrPt_80", 100, 0, 4000);
     mCorrJetEta = dbe->book1D("CorrEta", "CorrEta", 120, -6, 6);
     mCorrJetPhi = dbe->book1D("CorrPhi", "CorrPhi", 70, -3.5, 3.5);
+    //mjetArea = dbe->book1D("jetArea","jetArea",25,0,2.5);
 
     //
     double log10PtMin = 0.5; //=3.1622766
@@ -662,6 +663,7 @@ if (!mEvent.isRealData()){
       //if (mEtaFineBin3m) mEtaFineBin3m->Fill (jet->eta());
       if (mPhiFineBin) mPhiFineBin->Fill (jet->phi());
     }
+    //if (mjetArea) mjetArea->Fill(jet->jetArea());
     if (mPhi) mPhi->Fill (jet->phi());
     if (mE) mE->Fill (jet->energy());
     if (mE_80) mE_80->Fill (jet->energy());
