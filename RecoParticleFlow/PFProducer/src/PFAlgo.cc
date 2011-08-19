@@ -3,7 +3,6 @@
 #include "RecoParticleFlow/PFProducer/interface/PFAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"  //PFMuons
 #include "RecoParticleFlow/PFProducer/interface/PFElectronAlgo.h"  
-#include "RecoParticleFlow/PFProducer/interface/PFConversionAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFPhotonAlgo.h"    
 #include "RecoParticleFlow/PFProducer/interface/PFElectronExtraEqual.h"
 
@@ -68,7 +67,6 @@ PFAlgo::PFAlgo()
 
 PFAlgo::~PFAlgo() {
   if (usePFElectrons_) delete pfele_;
-  if (usePFConversions_) delete pfConversion_;
   if (usePFPhotons_)     delete pfpho_;
 }
 
@@ -245,7 +243,6 @@ PFAlgo::setDisplacedVerticesParameters(bool rejectTracks_Bad,
   rejectTracks_Step45_ = rejectTracks_Step45;
   usePFNuclearInteractions_ = usePFNuclearInteractions;
   usePFConversions_ = usePFConversions;
-  pfConversion_ = new PFConversionAlgo();
   usePFDecays_ = usePFDecays;
   dptRel_DispVtx_ = dptRel_DispVtx;
 

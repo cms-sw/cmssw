@@ -74,6 +74,7 @@ PFBlockAlgo::~PFBlockAlgo() {
 #endif
 
   if(photonSelector_) delete photonSelector_;
+
 }
 
 void 
@@ -358,10 +359,12 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
   }
   
   switch(linktype) {
+  // Track and preshower cluster links are not used for now - disable
+    /*
   case PFBlockLink::TRACKandPS1:
   case PFBlockLink::TRACKandPS2:
     {
-      //       cout<<"TRACKandPS"<<endl;
+      //cout<<"TRACKandPS"<<endl;
       PFRecTrackRef trackref = lowEl->trackRefPF();
       PFClusterRef  clusterref = highEl->clusterRef();
       assert( !trackref.isNull() );
@@ -371,7 +374,7 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       linktest = PFBlock::LINKTEST_RECHIT;
       break;
     }
-    
+    */
   case PFBlockLink::TRACKandECAL:
     {
 
@@ -474,6 +477,8 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       linktest = PFBlock::LINKTEST_RECHIT;      
       break;
     }
+  // Links between the two preshower layers are not used for now - disable
+    /*
   case PFBlockLink::PS1andPS2:
     {
       PFClusterRef  ps1ref = lowEl->clusterRef();
@@ -486,6 +491,7 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       linktest = PFBlock::LINKTEST_RECHIT;
       break;
     }
+    */
   case PFBlockLink::TRACKandTRACK:
     {
       if(debug_ ) 
@@ -644,6 +650,8 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       linktest = PFBlock::LINKTEST_RECHIT;
       break;
     }
+  // GSF Track/Brem Track and preshower cluster links are not used for now - disable
+    /*
   case PFBlockLink::PS1andGSF:
   case PFBlockLink::PS2andGSF:
     {
@@ -668,6 +676,7 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       linktest = PFBlock::LINKTEST_RECHIT;
       break;
     }
+    */
   case PFBlockLink::HCALandGSF:
     {
       PFClusterRef  clusterref = lowEl->clusterRef();
