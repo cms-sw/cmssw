@@ -109,12 +109,29 @@ SiStripMonitorDigi = cms.EDAnalyzer("SiStripMonitorDigi",
         subdetswitchon = cms.bool(False)
     ),
 
+    TProfTotalNumberOfDigisVsLS = cms.PSet(
+        subdetswitchon           = cms.bool(False)                
+    ),
+                                    
+    TotalNumberOfDigisFailure = cms.PSet(
+        subdetswitchon        = cms.bool(False),
+        Nbins = cms.int32(6),
+        xmin = cms.double(0.5),
+        xmax = cms.double(6.5),
+        Nbinsy = cms.int32(1),
+        ymin = cms.double(0.5),
+        ymax = cms.double(1.5)
+    ),
+
+    xLumiProf = cms.int32(5),
+
     Mod_On = cms.bool(True),
 
     HistoryProducer = cms.InputTag("consecutiveHEs"),
     ApvPhaseProducer = cms.InputTag("APVPhases"),
 
     UseDCSFiltering = cms.bool(True),
+    topDir = cms.string('SiStrip'),                                    
                                     
     # rest of parameters
     SelectAllDetectors = cms.bool(False),

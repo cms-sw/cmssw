@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Mar 10 11:22:26 CDT 2008
-// $Id: FWDoubleParameterSetter.h,v 1.4 2010/02/12 15:36:46 eulisse Exp $
+// $Id: FWDoubleParameterSetter.h,v 1.5 2010/09/24 18:51:18 amraktad Exp $
 //
 
 // system include files
@@ -43,7 +43,7 @@ public:
 
    // ---------- member functions ---------------------------
    virtual void attach(FWParameterBase*) ;
-   virtual TGFrame* build(TGFrame* iParent) ;
+   virtual TGFrame* build(TGFrame* iParent, bool labelBack=true) ;
 
    virtual void setEnabled(bool);
 

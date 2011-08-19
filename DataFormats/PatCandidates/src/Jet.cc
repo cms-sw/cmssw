@@ -1,5 +1,5 @@
 //
-// $Id: Jet.cc,v 1.41 2010/12/01 18:38:42 rwolf Exp $
+// $Id: Jet.cc,v 1.42 2010/12/11 21:52:31 vadler Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -246,7 +246,7 @@ float Jet::jecFactor(const unsigned int& level, const JetCorrFactors::Flavor& fl
     throw cms::Exception("InvalidRequest") << "This jet does not carry any jet energy correction factor information \n"
 					   << "for a jet energy correction set with index " << set << "\n";
   }
-  return jec_.at(set).correction(level, flavor)/jec_.at(set).correction(currentJECLevel_, currentJECFlavor_);
+  return jec_.at(set).correction(level, flavor)/jec_.at(currentJECSet_).correction(currentJECLevel_, currentJECFlavor_);
 }
 
 /// copy of the jet with correction factor to target step for

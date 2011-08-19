@@ -12,7 +12,7 @@
 typedef stor::ExpirableQueue<stor::I2OChain, stor::RejectNewest<stor::I2OChain> > DN_q_t;
 typedef stor::ExpirableQueue<stor::I2OChain, stor::KeepNewest<stor::I2OChain> > DO_q_t;
 
-using stor::utils::duration_t;
+using stor::utils::Duration_t;
 using stor::testhelper::allocate_frame_with_sample_header;
 
 using namespace stor;
@@ -45,7 +45,7 @@ test_fill_and_go_stale()
   // Make a queue with a short time-to-staleness and small capacity,
   // so we can see it fill up.
   size_t capacity(10);
-  duration_t seconds_to_stale = boost::posix_time::seconds(2);
+  Duration_t seconds_to_stale = boost::posix_time::seconds(2);
   Q q(capacity, seconds_to_stale);
   CPPUNIT_ASSERT(!q.full());
 
@@ -53,7 +53,7 @@ test_fill_and_go_stale()
   for (size_t i = 0; i < capacity; ++i)
     {
       I2OChain event(allocate_frame_with_sample_header(0,1,1));
-      q.enq_nowait(event);
+      CPPUNIT_ASSERT(q.enqNowait(event) == 0);
     }
   CPPUNIT_ASSERT(q.full());
 
@@ -82,11 +82,11 @@ void
 test_pop_freshens_queue()
 {
   size_t capacity(2);
-  duration_t seconds_to_stale = boost::posix_time::seconds(1);
+  Duration_t seconds_to_stale = boost::posix_time::seconds(1);
   Q q(capacity, seconds_to_stale);
 
   // Push in an event, then let the queue go stale.
-  q.enq_nowait(I2OChain(allocate_frame_with_sample_header(0,1,1)));
+  CPPUNIT_ASSERT(q.enqNowait(I2OChain(allocate_frame_with_sample_header(0,1,1))) == 0);
   CPPUNIT_ASSERT(!q.empty());
   utils::sleep(seconds_to_stale);
 
@@ -96,22 +96,18 @@ test_pop_freshens_queue()
   CPPUNIT_ASSERT(q.empty());
   CPPUNIT_ASSERT(clearedEvents == 1);
 
-  // A queue that has gone stale should remain stale if we add a new
-  // event to it.
-  q.enq_nowait(I2OChain(allocate_frame_with_sample_header(0,1,1)));
-  CPPUNIT_ASSERT(!q.empty());
-  CPPUNIT_ASSERT(q.clearIfStale(utils::getCurrentTime(),clearedEvents));
+  // A queue that has gone stale should reject a new event
+  CPPUNIT_ASSERT(q.enqNowait(I2OChain(allocate_frame_with_sample_header(0,1,1))) == 1);
   CPPUNIT_ASSERT(q.empty());
-  CPPUNIT_ASSERT(clearedEvents == 1);
 
   // Popping from the queue should make it non-stale. This must be
   // true *even if the queue is empty*, so that popping does not get
   // an event.
-   I2OChain popped;
-   CPPUNIT_ASSERT(!q.deq_nowait(popped));
-   CPPUNIT_ASSERT(q.empty());
-   CPPUNIT_ASSERT(!q.clearIfStale(utils::getCurrentTime(),clearedEvents));
-   CPPUNIT_ASSERT(clearedEvents == 0);
+  typename Q::ValueType popped;
+  CPPUNIT_ASSERT(!q.deqNowait(popped));
+  CPPUNIT_ASSERT(q.empty());
+  CPPUNIT_ASSERT(!q.clearIfStale(utils::getCurrentTime(),clearedEvents));
+  CPPUNIT_ASSERT(clearedEvents == 0);
 }
 
 //  -------------------------------------------------------------------

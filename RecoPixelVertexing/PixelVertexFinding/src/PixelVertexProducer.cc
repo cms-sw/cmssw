@@ -9,11 +9,6 @@
 #include <memory>
 #include <string>
 #include <cmath>
-#include "MagneticField/Engine/interface/MagneticField.h"
-#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "DataFormats/Common/interface/Handle.h"
-#include "FWCore/Framework/interface/ESHandle.h"
-
 
 PixelVertexProducer::PixelVertexProducer(const edm::ParameterSet& conf) 
   : conf_(conf), verbose_(0), dvf_(0), ptMin_(1.0)
@@ -47,13 +42,6 @@ PixelVertexProducer::~PixelVertexProducer() {
 }
 
 void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
-
-  edm::ESHandle<MagneticField> field;
-  es.get<IdealMagneticFieldRecord>().get(field); 
- 
- //  edm::ESHandle<MagneticField> field;
- //  es.get<IdealMagneticFieldRecord>().get(field);
- 
 
   // First fish the pixel tracks out of the event
   edm::Handle<reco::TrackCollection> trackCollection;
@@ -98,55 +86,29 @@ void PixelVertexProducer::produce(edm::Event& e, const edm::EventSetup& es) {
     }
   }
 
-  int maxvtx_=15;
-  int nvtx2_ = vertexes->size();
-  if (nvtx2_ > 0) {
-    vector<reco::TransientTrack> t_tks;
-    for (int i=0; i<nvtx2_ && i<maxvtx_; i++) {
-      t_tks.clear();
-      for (reco::Vertex::trackRef_iterator j=(*vertexes)[i].tracks_begin(); j!=(*vertexes)[i].tracks_end(); ++j) {
-        t_tks.push_back( reco::TransientTrack(**j,field.product()) );
-      }
-      KalmanVertexFitter kvf;
-      TransientVertex tv = kvf.vertex(t_tks);
-      if (!tv.isValid()) continue;
-      if (verbose_>0) std::cout << "Kalman Position: " << reco::Vertex::Point(tv.position()) << std::endl;
-      double x = tv.position().x();
-      double y = tv.position().y();
-      double z = tv.position().z();
- //     std::cout<<" x/y/z: "<<x<<" "<<y<<" "<<z<<"\n";
-       reco::Vertex v( reco::Vertex::Point(x,y,z), (*vertexes)[i].error(),(*vertexes)[i].chi2() , (*vertexes)[i].ndof() , (*vertexes)[i].tracksSize());
-      for (std::vector<reco::TrackBaseRef >::const_iterator it = (*vertexes)[i].tracks_begin();
+
+  if(bsHandle.isValid())
+   {
+    const reco::BeamSpot & bs = *bsHandle;
+
+    for (unsigned int i=0; i<vertexes->size(); ++i) {
+      double z=(*vertexes)[i].z();
+      double x=bs.x0()+bs.dxdz()*(z-bs.z0());
+      double y=bs.y0()+bs.dydz()*(z-bs.z0()); 
+      reco::Vertex v( reco::Vertex::Point(x,y,z), (*vertexes)[i].error(),(*vertexes)[i].chi2() , (*vertexes)[i].ndof() , (*vertexes)[i].tracksSize());
+       //Copy also the tracks 
+       for (std::vector<reco::TrackBaseRef >::const_iterator it = (*vertexes)[i].tracks_begin();
             it !=(*vertexes)[i].tracks_end(); it++) {
             v.add( *it );
-      }
+       }
       (*vertexes)[i]=v;
+
     }
   }
+   else
+  {
+      edm::LogWarning("PixelVertexProducer") << "No beamspot found. Using returning vertexes with (0,0,Z) ";
+  } 
 
-//  if(bsHandle.isValid())
-//   {
-//    const reco::BeamSpot & bs = *bsHandle;
-//
-//    for (unsigned int i=0; i<vertexes->size(); ++i) {
-//      double z=(*vertexes)[i].z();
-//      double x=bs.x0()+bs.dxdz()*(z-bs.z0());
-//      double y=bs.y0()+bs.dydz()*(z-bs.z0());
-//      reco::Vertex v( reco::Vertex::Point(x,y,z), (*vertexes)[i].error(),(*vertexes)[i].chi2() , (*vertexes)[i].ndof() , (*vertexes)[i].tracksSize());
-//       //Copy also the tracks
-//       for (std::vector<reco::TrackBaseRef >::const_iterator it = (*vertexes)[i].tracks_begin();
-//            it !=(*vertexes)[i].tracks_end(); it++) {
-//            v.add( *it );
-//       }
-//      (*vertexes)[i]=v;
-//    }
-//  }
-//   else
-//  {
-//      edm::LogWarning("PixelVertexProducer") << "No beamspot found. Using returning vertexes with (0,0,Z) ";
-//  }
-
-   e.put(vertexes);
-
-
+  e.put(vertexes);
 }

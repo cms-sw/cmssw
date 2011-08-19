@@ -42,21 +42,20 @@ using namespace std;
 FP420DigiMain::FP420DigiMain(const edm::ParameterSet& conf):conf_(conf){
   std::cout << "Creating a FP420DigiMain" << std::endl;
   ndigis=0;
-  verbosity          = conf_.getUntrackedParameter<int>("VerbosityLevel");
-  theElectronPerADC  = conf_.getParameter<double>("ElectronFP420PerAdc");
-  theThreshold       = conf_.getParameter<double>("AdcFP420Threshold");
-  noNoise            = conf_.getParameter<bool>("NoFP420Noise");
-  addNoisyPixels     = conf_.getParameter<bool>("AddNoisyPixels");
-  thez420            = conf_.getParameter<double>("z420");
-  thezD2             = conf_.getParameter<double>("zD2");
-  thezD3             = conf_.getParameter<double>("zD3");
-  theApplyTofCut     = conf_.getParameter<bool>("ApplyTofCut");
-  tofCut             = conf_.getParameter<double>("LowtofCutAndTo200ns");
-  theApplyChargeIneff= conf_.getParameter<bool>("ApplyChargeIneff");
+  verbosity        = conf_.getUntrackedParameter<int>("VerbosityLevel");
+  theElectronPerADC= conf_.getParameter<double>("ElectronFP420PerAdc");
+  theThreshold     = conf_.getParameter<double>("AdcFP420Threshold");
+  noNoise          = conf_.getParameter<bool>("NoFP420Noise");
+  addNoisyPixels   = conf_.getParameter<bool>("AddNoisyPixels");
+  thez420          = conf_.getParameter<double>("z420");
+  thezD2           = conf_.getParameter<double>("zD2");
+  thezD3           = conf_.getParameter<double>("zD3");
+  theApplyTofCut   = conf_.getParameter<bool>("ApplyTofCut");
+  tofCut           = conf_.getParameter<double>("LowtofCutAndTo200ns");
   //  sn0              = 3;// number of stations
   // pn0              = 6;// number of superplanes
   // rn0              = 3; // number of sensors in superlayer
-  xytype             = 2;
+  xytype           = 2;
   if(verbosity>0) {
     std::cout << "theApplyTofCut=" << theApplyTofCut << " tofCut=" << tofCut << std::endl;
     std::cout << "FP420DigiMain theElectronPerADC=" << theElectronPerADC << " theThreshold=" << theThreshold << " noNoise=" << noNoise << std::endl;
@@ -216,7 +215,7 @@ vector <HDigiFP420> FP420DigiMain::run(const std::vector<PSimHit> &input,
       
       //   xytype = 1 - Y strips;   =2 - X strips;
       //	  HitDigitizerFP420::hit_map_type _temp = theHitDigitizerFP420->processHit(ihit,bfield,xytype,numStrips,pitch);
-      HitDigitizerFP420::hit_map_type _temp = theHitDigitizerFP420->processHit(ihit,bfield,xytype,numStrips,pitch,numStripsW,pitchW,moduleThickness,theApplyChargeIneff, verbosity); 
+      HitDigitizerFP420::hit_map_type _temp = theHitDigitizerFP420->processHit(ihit,bfield,xytype,numStrips,pitch,numStripsW,pitchW,moduleThickness,verbosity); 
       
       
       

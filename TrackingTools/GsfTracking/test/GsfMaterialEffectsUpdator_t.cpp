@@ -44,13 +44,16 @@ void en(){}
 
 int main(int argc, char * arg[]) {
 
+  std::string file("BetheHeitler_cdfmom_nC6_O5.par");
   if (argc<2) {
-    std::cerr << "give parameter file as first argument" << std::endl;
-    return 1;
-  }
+    std::cerr << "parameter file not given in input: default used" << std::endl;
+  } else
+    file = arg[1];
+
+  std::cout << "using file " << file << std::endl;
 
 
-  GsfBetheHeitlerUpdator bhu(arg[1],0); 
+  GsfBetheHeitlerUpdator bhu(file,0); 
   
   GsfMaterialEffectsUpdator * meu = &bhu;
 

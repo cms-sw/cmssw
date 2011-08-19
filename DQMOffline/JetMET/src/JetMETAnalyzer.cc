@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/11/03 17:02:21 $
- *  $Revision: 1.68 $
+ *  $Date: 2010/12/04 00:52:21 $
+ *  $Revision: 1.69 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -446,10 +446,10 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   Int_t JetLoPass = 0;
   Int_t JetHiPass = 0;
 
-  if ( _HighPtJetEventFlag->on() && ! _HighPtJetEventFlag->accept( iEvent, iSetup ) ) 
+  if ( _HighPtJetEventFlag->on() && _HighPtJetEventFlag->accept( iEvent, iSetup ) ) 
     JetHiPass=1;
   
-  if ( _LowPtJetEventFlag->on() && ! _LowPtJetEventFlag->accept( iEvent, iSetup ) ) 
+  if ( _LowPtJetEventFlag->on() && _LowPtJetEventFlag->accept( iEvent, iSetup ) ) 
     JetLoPass=1;
   
   //if (triggerResults.isValid()) {

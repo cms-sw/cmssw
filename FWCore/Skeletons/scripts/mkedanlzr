@@ -7,7 +7,7 @@
 #  execution:  mkedanlzr analyzername
 # 
 #  output:  analyzername/
-#                         Buildfile
+#                         BuildFile.xml
 #                         analyzername_cfg.py
 #                         interface/
 #                         src/analyzername.cc
@@ -25,7 +25,7 @@
 #  example:
 #  mkedanlzr MyAnalyzer 
 #        --> write  MyAnalyzer/
-#                               Buildfile
+#                               BuildFile.xml
 #                               myanalyzer_cfg.py
 #                               interface/
 #                               src/MyAnalyzer.cc
@@ -81,7 +81,7 @@ $skel_dir = &find_mkTemplate_dir($commandFullPath);
 $skeletons{"$skel_dir/EDAnalyzer/edanalyzer.cc"} =
     "$name/src/" . $name . '.cc';
 $skeletons{"$skel_dir/EDAnalyzer/BuildFile.temp"} =
-    "$name/BuildFile";
+    "$name/BuildFile.xml";
 $skeletons{"$skel_dir/EDAnalyzer/ConfFile_cfg.py"} =
         " $name/" . lc($name) . '_cfg.py';
 $skeletons{"$skel_dir/EDAnalyzer/CfiFile_cfi.py"} =
@@ -188,7 +188,7 @@ mkedanlzr  h:
 mkedanlzr  h: execution:  mkedanlzr analyzername [options]
 mkedanlzr  h:
 mkedanlzr  h: output:  analyzername/
-mkedanlzr  h:                       BuildFile
+mkedanlzr  h:                       BuildFile.xml
 mkedanlzr  h:                       analyzername_cfg.py
 mkedanlzr  h:                       interface/
 mkedanlzr  h:                       src/analyzername.cc
@@ -211,7 +211,7 @@ mkedanlzr  h:
 mkedanlzr  h: example:
 mkedanlzr  h: mkedanlzr MyAnalyzer
 mkedanlzr  h:       --> write  MyAnalyzer/
-mkedanlzr  h:                              BuildFile
+mkedanlzr  h:                              BuildFile.xml
 mkedanlzr  h:                              myanalyzer_cfg.py
 mkedanlzr  h:                              interface/
 mkedanlzr  h:                              src/MyAnalyzer.cc

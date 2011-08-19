@@ -186,7 +186,9 @@ const int EventWithHistoryFilter::getAPVMode(const edm::EventSetup& iSetup) cons
 
   edm::ESHandle<SiStripLatency> apvlat;
   iSetup.get<SiStripLatencyRcd>().get(apvlat);
-  const int mode = apvlat->singleMode()!=0 ? apvlat->singleMode() : -1;
+  int mode = -1;
+  if(apvlat->singleReadOutMode()==1) mode = 47;
+  if(apvlat->singleReadOutMode()==0) mode = 37;
 
   // thrown an exception if mode value is invalid
   /*

@@ -114,7 +114,7 @@ InterestingDetIdCollectionProducer::produce (edm::Event& iEvent,
 
   // also add recHits of dead TT if the corresponding TP is saturated
   for (EcalRecHitCollection::const_iterator it = recHitsHandle->begin(); it != recHitsHandle->end(); ++it) {
-          if ( it->checkFlag(EcalRecHit::kTPSaturated) ) {
+          if ( it->flagBits() & (0x1 << EcalRecHit::kTPSaturated) ) {
                   if ( std::find( detIdCollection->begin(), detIdCollection->end(), it->id() ) == detIdCollection->end()
                      ) {
                           detIdCollection->push_back( it->id() );

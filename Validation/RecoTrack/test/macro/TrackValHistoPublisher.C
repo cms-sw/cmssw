@@ -175,11 +175,20 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
 
    // ====== hits and pt
-   rdir->GetObject(collname1+"/nhits_vs_eta_pfx",(TProfile*)rh1);                                                                                                                                                                                
-   sdir->GetObject(collname2+"/nhits_vs_eta_pfx",(TProfile*)sh1);                                                                                                                                                                                
+
+   TH2F* nhits_vs_eta_r; 
+   TH2F* nhits_vs_eta_s; 
+   rdir->GetObject(collname1+"/nhits_vs_eta",nhits_vs_eta_r);  
+   nhits_vs_eta_r->SetName("nhits_vs_eta_r");                                                                                                                               
+   sdir->GetObject(collname2+"/nhits_vs_eta",nhits_vs_eta_s); 
+   nhits_vs_eta_s->SetName("nhits_vs_eta_s");                                                                                                                                                                               
+   (TProfile*)rh1 = nhits_vs_eta_r->ProfileX();
+   (TProfile*)sh1 = nhits_vs_eta_s->ProfileX();
+
    rdir->GetObject(collname1+"/hits",rh2);                                                                                                                                                                                    
    sdir->GetObject(collname2+"/hits",sh2);         
    
+   sdir->GetObject(collname2+"/hits",sh2);         
    rdir->GetObject(collname1+"/num_simul_pT",rh3);
    sdir->GetObject(collname2+"/num_simul_pT",sh3);
    rdir->GetObject(collname1+"/num_reco_pT",rh4);
@@ -227,12 +236,22 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
 
 
    //===== tuning
+   TH2F* chi2_vs_eta_r; 
+   TH2F* chi2_vs_eta_s; 
+ 
+   rdir->GetObject(collname1+"/chi2_vs_eta", chi2_vs_eta_r);
+   chi2_vs_eta_r->SetName("chi2_vs_eta_r");
+
+   sdir->GetObject(collname2+"/chi2_vs_eta", chi2_vs_eta_s);
+   chi2_vs_eta_s->SetName("chi2_vs_eta_s");
+
+   (TProfile*)rh3 = chi2_vs_eta_r->ProfileX();
+   (TProfile*)sh3 = chi2_vs_eta_s->ProfileX();
+
    rdir->GetObject(collname1+"/chi2",rh1);
    sdir->GetObject(collname2+"/chi2",sh1);
    rdir->GetObject(collname1+"/chi2_prob",rh2);
    sdir->GetObject(collname2+"/chi2_prob",sh2);
-   rdir->GetObject(collname1+"/chi2_vs_eta_pfx",(TProfile*)rh3);
-   sdir->GetObject(collname2+"/chi2_vs_eta_pfx",(TProfile*)sh3);
 
    rdir->GetObject(collname1+"/ptres_vs_eta_Mean",rh4);
    sdir->GetObject(collname2+"/ptres_vs_eta_Mean",sh4);

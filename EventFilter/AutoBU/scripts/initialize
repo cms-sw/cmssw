@@ -26,7 +26,7 @@ my $doEP  = 1;
 my $doPyCfg  = 1;
 my $doSM  = 1;
 my $doID = 1;
-my $doDQM = 0;
+my $doDQM = 1;
 my $useStepper = 0;
 my $useAtcp = 1;
 my $forkProcesses = 0;
@@ -93,14 +93,14 @@ my $i2oprotocol = "atcp";
 my $SMperl = 
     $ENV{"CMSSW_RELEASE_BASE"} .
     "/src/EventFilter/StorageManager/scripts/perl";
-my $ConfDBperl = 
-    $ENV{"CMSSW_RELEASE_BASE"} .
-    "/src/EventFilter/AutoBU/scripts";
-if (!-e "$ConfDBperl/onlineConverter"){
-    print "WARNING: ConfDB direct access not available from $ConfDBperl\n\n";
-    $ConfDBperl = 
+my  $ConfDBperl = 
     $ENV{"CMSSW_BASE"} .
     "/src/EventFilter/AutoBU/scripts";
+if (!-e "$ConfDBperl/onlineConverter"){
+    $ConfDBperl = 
+    $ENV{"CMSSW_RELEASE_BASE"} .
+    "/src/EventFilter/AutoBU/scripts";
+    print "WARNING: ConfDB direct access not available from $ConfDBperl\n\n";
     print "WARNING: Using $ConfDBperl instead\n\n";
 }
 my $SMout = "/tmp/$user/sm";
@@ -203,8 +203,11 @@ if ($DBcfg) {
     print "NOTE: retrieving HLT menu from DB\n\n";  
 #    if(!-e "$ConfDBperl/onlineConverter") {die "DB retrieval of HLT menu not available from $ConfDBperl\n";}
     system("$onlineConverterCmd -d cms_rcms.cern.ch -h cmsonr1-v.cms -u CMS_HLT_R -c $DBcfg");
-    $EPcfg = "./EP.py";
-    $SMcfg = "./SM.py";
+    if($emulateLS){
+	system("csplit EP.py /readerPlugin/; cat xx00 > EPP.py; echo \"    evtsPerLS = cms.untracked.uint32($emulateLS),\" >> EPP.py; echo \"    useEventCounter = cms.untracked.bool(True),\" >> EPP.py; cat xx01 >> EPP.py; mv EPP.py EP.py");
+    }
+    $EPcfg = "$pwd/EP.py";
+    $SMcfg = "$pwd/SM.py";
 }
 
 
@@ -221,7 +224,8 @@ if ($EPcfg eq "") {
     close(CFG);
 }
 
-if ($doSM) {
+if ($doSM && $SMcfg eq "") {
+    print "making SM config, $SMcfg\n";
     $SMcfg = $doPyCfg ? "$pwd/cfg/sm.py" : "$pwd/cfg/sm.cfg";
     open(CFG,">$SMcfg") or die ("Can't open file: $!\n");
     if ($doPyCfg){
@@ -312,17 +316,18 @@ my @RBproperties = ("runNumber",   "unsignedInt",$runNumber,
 		    "doCrcCheck",  "unsignedInt","0",
 		    "processKillerEnabled","boolean","false",
 		    "monSleepSec", "unsignedInt","5",
-		    "nbRawCells",  "unsignedInt","16",
+		    "nbRawCells",  "unsignedInt","32",
 		    "nbRecoCells", "unsignedInt","8",
 		    "nbDqmCells",  "unsignedInt","8",
-		    "rawCellSize", "unsignedInt","0x200000",
-		    "recoCellSize","unsignedInt","0x400000",
-                    "dqmCellSize", "unsignedInt","0x100000");
+		    "rawCellSize", "unsignedInt","0x400000",
+		    "recoCellSize","unsignedInt","0x800000",
+                    "dqmCellSize", "unsignedInt","0x800000");
 
 if (!$doEP) { push (@RBproperties,"doDropEvents","boolean","true"); }
 
 my @EPproperties = ("parameterSet",  "string",      "file:$EPcfg",
 		    "runNumber",     "unsignedInt", $runNumber,
+		    "autoRestartSlaves","boolean","true",
 		    "nbSubProcesses","unsignedInt", $forkProcesses);
 if($doID) { 
     push (@EPproperties,"iDieUrl","string","http://$hostname:$IDport/urn:xdaq-application:lid=$IDlocalid");
@@ -481,8 +486,8 @@ print CTL "#!/usr/bin/perl\n\n";
 if ($doSM) {
     print CTL makeCtlCommand("Enable",$SMappname,"SM",$hostname,$SMport,1);
 }
-print CTL makeCtlCommand("Enable",$BUappname,"BU",$hostname,$BUport,0);
 print CTL makeCtlCommand("Enable",$RBappname,"RB",$hostname,$BUport,0);
+print CTL makeCtlCommand("Enable",$BUappname,"BU",$hostname,$BUport,0);
 if ($doEP) {
     for ($i=0;$i<$doEP;$i++) {
 	$port = $EPport + $i;

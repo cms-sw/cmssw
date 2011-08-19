@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb  2 16:45:19 EST 2009
-// $Id: FWTabularWidget.h,v 1.3 2009/04/08 19:02:34 chrjones Exp $
+// $Id: FWTabularWidget.h,v 1.5 2011/02/11 19:56:37 amraktad Exp $
 //
 
 // system include files
@@ -31,62 +31,67 @@ class FWTableManagerBase;
 class FWTabularWidget : public TGFrame
 {
 
-   public:
-      static const TGGC&  getDefaultGC();
+public:
+   static const TGGC&  getDefaultGC();
       
-      FWTabularWidget(FWTableManagerBase* iManager,const TGWindow* p=0, GContext_t context = getDefaultGC()());
-      virtual ~FWTabularWidget();
+   static const int kTextBuffer;
+   static const int kSeperatorWidth;
 
-      // ---------- const member functions ---------------------
-      const std::vector<unsigned int>& widthOfTextInColumns() const { return m_widthOfTextInColumns;}
-      UInt_t verticalOffset() const {return m_vOffset;}
-      UInt_t horizontalOffset() const { return m_hOffset;}
+   FWTabularWidget(FWTableManagerBase* iManager,const TGWindow* p=0, GContext_t context = getDefaultGC()());
+   virtual ~FWTabularWidget();
 
-      // ---------- static member functions --------------------
+   // ---------- const member functions ---------------------
+   const std::vector<unsigned int>& widthOfTextInColumns() const { return m_widthOfTextInColumns;}
+   UInt_t verticalOffset() const {return m_vOffset;}
+   UInt_t horizontalOffset() const { return m_hOffset;}
 
-      // ---------- member functions ---------------------------
-      void setWidthOfTextInColumns(const std::vector<unsigned int>& );
-      void DoRedraw();
-      TGDimension GetDefaultSize() const;
+   // ---------- static member functions --------------------
 
-      void setVerticalOffset(UInt_t);
-      void setHorizontalOffset(UInt_t);
+   // ---------- member functions ---------------------------
+   void setWidthOfTextInColumns(const std::vector<unsigned int>& );
+   void DoRedraw();
+   TGDimension GetDefaultSize() const;
 
-      virtual Bool_t HandleButton(Event_t *event);
+   void setVerticalOffset(UInt_t);
+   void setHorizontalOffset(UInt_t);
 
-      void buttonPressed(Int_t row, Int_t column, Event_t* event, Int_t relX, Int_t relY); //*SIGNAL*
-      void buttonReleased(Int_t row, Int_t column, Event_t* event, Int_t relX, Int_t relY); //*SIGNAL*
+   virtual Bool_t HandleButton(Event_t *event);
 
-      void dataChanged();
-      void needToRedraw();
+   void buttonPressed(Int_t row, Int_t column, Event_t* event, Int_t relX, Int_t relY); //*SIGNAL*
+   void buttonReleased(Int_t row, Int_t column, Event_t* event, Int_t relX, Int_t relY); //*SIGNAL*
 
-      ClassDef(FWTabularWidget,0);
+   void dataChanged();
+   void needToRedraw();
+
+   ClassDef(FWTabularWidget,0);
    
-      void setLineContext(GContext_t iContext);
-      void setBackgroundAreaContext(GContext_t iContext);
+   void setLineContext(GContext_t iContext);
+   void setBackgroundAreaContext(GContext_t iContext);
    
-   private:
-      //FWTabularWidget(const FWTabularWidget&); // stop default
+   void disableGrowInWidth() { m_growInWidth = false; }
 
-      //const FWTabularWidget& operator=(const FWTabularWidget&); // stop default
+private:
+   //FWTabularWidget(const FWTabularWidget&); // stop default
 
-      // ---------- member data --------------------------------
-      static const int kTextBuffer=2;
-      static const int kSeperatorWidth=1;
+   //const FWTabularWidget& operator=(const FWTabularWidget&); // stop default
 
-      void translateToRowColumn(Int_t iX, Int_t iY, Int_t& oRow, Int_t& oCol, Int_t&oRelX, Int_t& oRelY) const;
+   // ---------- member data --------------------------------
 
-      FWTableManagerBase* m_table;
-      std::vector<unsigned int> m_widthOfTextInColumns;
-      std::vector<unsigned int> m_widthOfTextInColumnsMax;
-      int m_textHeight;
-      int m_tableWidth;
+   void translateToRowColumn(Int_t iX, Int_t iY, Int_t& oRow, Int_t& oCol, Int_t&oRelX, Int_t& oRelY) const;
 
-      unsigned int m_vOffset;
-      unsigned int m_hOffset;
+   FWTableManagerBase* m_table;
+   std::vector<unsigned int> m_widthOfTextInColumns;
+   std::vector<unsigned int> m_widthOfTextInColumnsMax;
+   int m_textHeight;
+   int m_tableWidth;
 
-      GContext_t m_normGC;
-      GContext_t m_backgroundGC;
+   unsigned int m_vOffset;
+   unsigned int m_hOffset;
+
+   GContext_t m_normGC;
+   GContext_t m_backgroundGC;
+
+   bool m_growInWidth;
 };
 
 

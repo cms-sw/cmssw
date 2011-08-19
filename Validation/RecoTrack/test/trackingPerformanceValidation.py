@@ -10,10 +10,10 @@ import string
 
 
 ### Reference release
-RefRelease='CMSSW_3_9_0_pre2'
+RefRelease='CMSSW_4_2_0_pre1'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_3_9_0_pre3'
+NewRelease='CMSSW_4_2_0_pre1'
 
 ### startup and ideal sample list
 
@@ -24,7 +24,7 @@ startupsamples= [
     'RelValQCD_Pt_3000_3500'
 ]
 ### the list can be empty if you want to skip the validation for all the samples
-# startupsamples= []
+#startupsamples= []
 
 ### This is the list of startup relvals (with PileUP)
 # startupsamples= ['RelValTTbar_Tauola']
@@ -60,11 +60,11 @@ Version='v1'
 #Version='BX2808-v1'
 
 ### Ideal and Statup tags
-IdealTag='MC_38Y_V9'
-StartupTag='START38_V9'
+IdealTag='MC_311_V1'
+StartupTag='START311_V1'
 
-RefIdealTag='MC_38Y_V9'
-RefStartupTag='START38_V9'
+RefIdealTag='MC_311_V1'
+RefStartupTag='START311_V1'
 ### PileUp: "PU" . No PileUp: "noPU"
 PileUp='noPU'
 #PileUp='PU'
@@ -94,6 +94,7 @@ Tracksname=''
 
 Sequence='comparison_only'
 #Sequence='harvesting'
+#Sequence='only_validation'
 
 
 
@@ -115,7 +116,7 @@ NewRepository = 'new' # copy output into a local folder
 
 
 ### AFS location of central harvesting output. It can be used to avoid running the harvesting by yourself
-castorHarvestedFilesDirectory='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/RelVal/CMSSW_3_9_x'
+castorHarvestedFilesDirectory='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/RelVal/CMSSW_4_2_x'
 
 
 
@@ -174,6 +175,10 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
         mineff='0.5'
         maxeff='1.025'
         maxfake='0.7'
+    elif(trackalgorithm=='iter1'):
+        mineff='0.0'
+        maxeff='0.5'
+        maxfake='0.8'
     else:
         mineff='0'
         maxeff='0.1'

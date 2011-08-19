@@ -1,10 +1,11 @@
 //
-// $Id: TriggerObjectStandAlone.cc,v 1.7 2010/12/16 18:39:17 vadler Exp $
+// $Id: TriggerObjectStandAlone.cc,v 1.9 2011/02/02 17:06:24 vadler Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 
 #include <boost/algorithm/string.hpp>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
 using namespace pat;
@@ -35,7 +36,7 @@ bool TriggerObjectStandAlone::hasAnyName( const std::string & name, const std::v
     // Not failed yet
     bool failed( false );
     // Start searching at the first character
-    unsigned index( 0 );
+    size_type index( 0 );
     // Iterate over evaluation name parts
     for ( std::vector< std::string >::const_iterator iName = namePartsVec.begin(); iName != namePartsVec.end(); ++iName ) {
       // Empty parts due to
@@ -65,27 +66,24 @@ bool TriggerObjectStandAlone::hasAnyName( const std::string & name, const std::v
 }
 
 
-// Methods
-
-
-// Adds a new path name
-void TriggerObjectStandAlone::addPathName( const std::string & pathName, bool pathLastFilterAccepted )
+// Adds a new HLT path or L1 algorithm name
+void TriggerObjectStandAlone::addPathOrAlgorithm( const std::string & name, bool firing )
 {
   // Check, if path is already assigned
-  if ( ! hasPathName( pathName, false ) ) {
+  if ( ! hasPathOrAlgorithm( name, false ) ) {
     // The path itself
-    pathNames_.push_back( pathName );
+    pathNames_.push_back( name );
     // The corresponding usage of the trigger objects
-    pathLastFilterAccepted_.push_back( pathLastFilterAccepted );
+    pathLastFilterAccepted_.push_back( firing );
   }
 }
 
 
-// Gets all path names
-std::vector< std::string > TriggerObjectStandAlone::pathNames( bool pathLastFilterAccepted ) const
+// Gets all HLT path or L1 algorithm names
+std::vector< std::string > TriggerObjectStandAlone::pathsOrAlgorithms( bool firing ) const
 {
   // All path names, if usage not restricted (not required or not available)
-  if ( ! pathLastFilterAccepted || ! hasPathLastFilterAccepted() ) return pathNames_;
+  if ( ! firing || ! hasFiring() ) return pathNames_;
   // Temp vector of path names
   std::vector< std::string > paths;
   // Loop over usage vector and fill corresponding paths into temp vector
@@ -95,6 +93,35 @@ std::vector< std::string > TriggerObjectStandAlone::pathNames( bool pathLastFilt
   // Return temp vector
   return paths;
 }
+
+
+// Checks, if a certain HLT filter label or L1 condition name is assigned
+bool TriggerObjectStandAlone::hasFilterOrCondition( const std::string & name ) const
+{
+  // Move to wild-card parser, if needed
+  if ( name.find( wildcard_ ) != std::string::npos ) return hasAnyName( name, filterLabels_ );
+  // Return, if filter label is assigned
+  return ( std::find( filterLabels_.begin(), filterLabels_.end(), name ) != filterLabels_.end() );
+}
+
+
+// Checks, if a certain path name is assigned
+bool TriggerObjectStandAlone::hasPathOrAlgorithm( const std::string & name, bool firing ) const
+{
+  // Move to wild-card parser, if needed
+  if ( name.find( wildcard_ ) != std::string::npos ) return hasAnyName( name, pathsOrAlgorithms( firing ) );
+  // Deal with older PAT-tuples, where trigger object usage is not available
+  if ( ! hasFiring() ) firing = false;
+  // Check, if path name is assigned at all
+  std::vector< std::string >::const_iterator match( std::find( pathNames_.begin(), pathNames_.end(), name ) );
+  // False, if path name not assigned
+  if ( match == pathNames_.end() ) return false;
+  // Return for assigned path name, if trigger object usage meets requirement
+  return ( firing ? pathLastFilterAccepted_.at( match - pathNames_.begin() ) : true );
+}
+
+
+// Methods
 
 
 // Gets the pat::TriggerObject (parent class)
@@ -107,32 +134,6 @@ TriggerObject TriggerObjectStandAlone::triggerObject()
   for ( size_t i = 0; i < triggerObjectTypes().size(); ++i ) theObj.addTriggerObjectType( triggerObjectTypes().at( i ) );
   // Return TriggerObject
   return theObj;
-}
-
-
-// Checks, if a certain filter label is assigned
-bool TriggerObjectStandAlone::hasFilterLabel( const std::string & filterLabel ) const
-{
-  // Move to wild-card parser, if needed
-  if ( filterLabel.find( wildcard_ ) != std::string::npos ) return hasAnyName( filterLabel, filterLabels_ );
-  // Return, if filter label is assigned
-  return ( std::find( filterLabels_.begin(), filterLabels_.end(), filterLabel ) != filterLabels_.end() );
-}
-
-
-// Checks, if a certain path name is assigned
-bool TriggerObjectStandAlone::hasPathName( const std::string & pathName, bool pathLastFilterAccepted ) const
-{
-  // Move to wild-card parser, if needed
-  if ( pathName.find( wildcard_ ) != std::string::npos ) return hasAnyName( pathName, pathNames( pathLastFilterAccepted ) );
-  // Deal with older PAT-tuples, where trigger object usage is not available
-  if ( ! hasPathLastFilterAccepted() ) pathLastFilterAccepted = false;
-  // Check, if path name is assigned at all
-  std::vector< std::string >::const_iterator match( std::find( pathNames_.begin(), pathNames_.end(), pathName ) );
-  // False, if path name not assigned
-  if ( match == pathNames_.end() ) return false;
-  // Return for assigned path name, if trigger object usage meets requirement
-  return ( pathLastFilterAccepted ? pathLastFilterAccepted_.at( match - pathNames_.begin() ) : true );
 }
 
 
@@ -156,6 +157,6 @@ bool TriggerObjectStandAlone::hasCollection( const std::string & collName ) cons
     }
     return false;
   }
-  // Use parent class's method other wise
+  // Use parent class's method otherwise
   return TriggerObject::hasCollection( collName );
 }

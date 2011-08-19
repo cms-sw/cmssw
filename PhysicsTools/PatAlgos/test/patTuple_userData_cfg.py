@@ -3,13 +3,13 @@ from PhysicsTools.PatAlgos.patTemplate_cfg import *
 
 # the source is already defined in patTemplate_cfg.
 # overriding source and various other things
-#process.load("PhysicsTools.PFCandProducer.Sources.source_ZtoEles_DBS_312_cfi")
+#process.load("CommonTools.ParticleFlow.Sources.source_ZtoEles_DBS_312_cfi")
 #process.source = cms.Source("PoolSource", 
 #     fileNames = cms.untracked.vstring('file:myAOD.root')
 #)
 
 
-# process.load("PhysicsTools.PFCandProducer.Sources.source_ZtoMus_DBS_cfi")
+# process.load("CommonTools.ParticleFlow.Sources.source_ZtoMus_DBS_cfi")
 process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(False))
 
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
@@ -56,7 +56,7 @@ if not postfix=="":
 
 # Add PF2PAT output to the created file
 from PhysicsTools.PatAlgos.patEventContent_cff import patEventContentNoCleaning
-#process.load("PhysicsTools.PFCandProducer.PF2PAT_EventContent_cff")
+#process.load("CommonTools.ParticleFlow.PF2PAT_EventContent_cff")
 #process.out.outputCommands =  cms.untracked.vstring('drop *')
 process.out.outputCommands = cms.untracked.vstring('drop *',
                                                    *patEventContentNoCleaning ) 

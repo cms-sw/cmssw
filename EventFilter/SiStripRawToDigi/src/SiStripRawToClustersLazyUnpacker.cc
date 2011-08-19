@@ -11,7 +11,7 @@ namespace sistrip {
     clusterizer_(&clustalgo),
     rawAlgos_(&rpAlgos),
     buffers_(),
-    rawToDigi_(0,0,0,0,0,0,0),
+    rawToDigi_(0,0,0,0,0,0,0,0),
     dump_(dump)
   {
     buffers_.assign(1024,static_cast<sistrip::FEDBuffer*>(0));

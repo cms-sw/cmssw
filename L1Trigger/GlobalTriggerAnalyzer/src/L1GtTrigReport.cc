@@ -84,11 +84,11 @@ L1GtTrigReport::L1GtTrigReport(const edm::ParameterSet& pSet) {
     // print output
     m_printOutput = pSet.getUntrackedParameter<int>("PrintOutput", 3);
 
-    LogDebug("L1GtTrigReport") << "\nUse L1GlobalTriggerRecord:   "
+    LogDebug("L1GtTrigReport") << "\n  Use L1GlobalTriggerRecord:   " << m_useL1GlobalTriggerRecord
             << "\n   (if false: L1GtTrigReport uses L1GlobalTriggerReadoutRecord.)"
-            << "\nInput tag for L1 GT record:  " << m_l1GtRecordInputTag.label() << " \n"
-            << "\nPrint verbosity level:           " << m_printVerbosity << " \n"
-            << "\nPrint output:                    " << m_printOutput << " \n" << std::endl;
+            << "\n  Input tag for L1 GT record:  " << m_l1GtRecordInputTag.label() << " \n"
+            << "\n  Print verbosity level:           " << m_printVerbosity << " \n"
+            << "\n  Print output:                    " << m_printOutput << " \n" << std::endl;
 
     // initialize cached IDs
 
@@ -308,7 +308,8 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
     // get / update the trigger menu from the EventSetup
     // local cache & check on cacheIdentifier
 
-    unsigned long long l1GtMenuCacheID = evSetup.get<L1GtTriggerMenuRcd>().cacheIdentifier();
+    unsigned long long l1GtMenuCacheID =
+            evSetup.get<L1GtTriggerMenuRcd>().cacheIdentifier();
 
     if (m_l1GtMenuCacheID != l1GtMenuCacheID) {
 
@@ -318,7 +319,11 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
 
         m_l1GtMenuCacheID = l1GtMenuCacheID;
 
+        LogDebug("L1GtTrigReport") << "\n  Changing L1 menu to : \n"
+                << m_l1GtMenu->gtTriggerMenuName() << "\n\n" << std::endl;
+
     }
+
 
     const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
     //const AlgorithmMap& technicalTriggerMap = m_l1GtMenu->gtTechnicalTriggerMap();
@@ -375,43 +380,74 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
 
             m_globalNrErrors[m_physicsDaqPartition]++;
 
-            LogDebug("L1GtTrigReport") << "L1GlobalTriggerRecord with input tag "
-                    << m_l1GtRecordInputTag.label() << " not found.\n\n" << std::endl;
+            edm::LogWarning("L1GtTrigReport") << "\n  L1GlobalTriggerRecord with input tag "
+                    << m_l1GtRecordInputTag.label() << " not found."
+                    << "\n  Event classified as Error\n\n"
+                    << std::endl;
 
         }
 
     } else {
         if (gtReadoutRecord.isValid()) {
 
-            // get Global Trigger finalOR and the decision word
-            boost::uint16_t gtFinalOR = gtReadoutRecord->finalOR();
+            // check if the readout record has size greater than zero, then proceeds
+            const std::vector<L1GtFdlWord>& fdlVec = gtReadoutRecord->gtFdlVector();
+            size_t fdlVecSize = fdlVec.size();
 
-            gtDecisionWordBeforeMask = gtReadoutRecord->decisionWord();
-            technicalTriggerWordBeforeMask = gtReadoutRecord->technicalTriggerWord();
+            if (fdlVecSize > 0) {
 
-            for (unsigned int iDaqPartition = 0; iDaqPartition < m_numberDaqPartitions; ++iDaqPartition) {
+                LogDebug("L1GtTrigReport") << "\n  L1GlobalTriggerReadoutRecord with input tag "
+                        << m_l1GtRecordInputTag.label() << " has gtFdlVector of size " << fdlVecSize
+                        << std::endl;
 
-                bool gtDecision = static_cast<bool>(gtFinalOR & ( 1 << iDaqPartition ));
-                if (gtDecision) {
-                    m_globalNrAccepts[iDaqPartition]++;
+                // get Global Trigger finalOR and the decision word
+                boost::uint16_t gtFinalOR = gtReadoutRecord->finalOR();
+
+                gtDecisionWordBeforeMask = gtReadoutRecord->decisionWord();
+                technicalTriggerWordBeforeMask = gtReadoutRecord->technicalTriggerWord();
+
+                for (unsigned int iDaqPartition = 0; iDaqPartition < m_numberDaqPartitions; ++iDaqPartition) {
+
+                    bool gtDecision = static_cast<bool>(gtFinalOR & ( 1 << iDaqPartition ));
+                    if (gtDecision) {
+                        m_globalNrAccepts[iDaqPartition]++;
+                    }
+
                 }
+
+                pfIndexAlgo
+                        = static_cast<unsigned int>( ( gtReadoutRecord->gtFdlWord() ).gtPrescaleFactorIndexAlgo());
+                pfIndexTech
+                        = static_cast<unsigned int>( ( gtReadoutRecord->gtFdlWord() ).gtPrescaleFactorIndexTech());
+
+                validRecord = true;
+
+            } else {
+
+                for (unsigned int iDaqPartition = 0; iDaqPartition < m_numberDaqPartitions; ++iDaqPartition) {
+                    m_globalNrErrors[iDaqPartition]++;
+                }
+
+                edm::LogWarning("L1GtTrigReport") << "\n  L1GlobalTriggerReadoutRecord with input tag "
+                        << m_l1GtRecordInputTag.label() << " has gtFdlVector of size " << fdlVecSize
+                        << "\n  Invalid L1GlobalTriggerReadoutRecord!"
+                        << "\n  Event classified as Error\n\n"
+                        << std::endl;
+
+                validRecord = false;
 
             }
 
-            pfIndexAlgo
-                    = static_cast<unsigned int>( ( gtReadoutRecord->gtFdlWord() ).gtPrescaleFactorIndexAlgo());
-            pfIndexTech
-                    = static_cast<unsigned int>( ( gtReadoutRecord->gtFdlWord() ).gtPrescaleFactorIndexTech());
-
-            validRecord = true;
         } else {
 
             for (unsigned int iDaqPartition = 0; iDaqPartition < m_numberDaqPartitions; ++iDaqPartition) {
                 m_globalNrErrors[iDaqPartition]++;
             }
 
-            LogDebug("L1GtTrigReport") << "L1GlobalTriggerReadoutRecord with input tag "
-                    << m_l1GtRecordInputTag.label() << " not found.\n\n" << std::endl;
+            edm::LogWarning("L1GtTrigReport") << "\n  L1GlobalTriggerReadoutRecord with input tag "
+                    << m_l1GtRecordInputTag.label() << " not found."
+                    << "\n  Event classified as Error\n\n"
+                    << std::endl;
 
         }
 
@@ -660,6 +696,7 @@ void L1GtTrigReport::endJob() {
 
     myCout << std::dec << std::endl;
     myCout << "L1T-Report " << "----------       Event Summary       ----------\n";
+    myCout << "L1T-Report " << "Total number of events processed: " << m_totalEvents << "\n";
     myCout << "L1T-Report\n";
 
     myCout
@@ -1238,8 +1275,8 @@ void L1GtTrigReport::endJob() {
             break;
         default: {
             std::cout
-                << "\n\nL1GtTrigReport: Error - no print output = " << m_printOutput
-                << " defined! \nCheck available values in the cfi file." << "\n" << std::endl;
+                << "\n\n  L1GtTrigReport: Error - no print output = " << m_printOutput
+                << " defined! \n  Check available values in the cfi file." << "\n" << std::endl;
 
         }
             break;

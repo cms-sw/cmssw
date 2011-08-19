@@ -125,10 +125,10 @@ import FWCore.ParameterSet.Config as cms
 ## HLT_DoublePhoton5_CEP_L1R, HLT_DoublePhoton17_L1R
 ################################################
 
-MC_flag = True
+MC_flag = False
 GLOBAL_TAG = 'GR_R_39X_V4::All'
 if MC_flag:
-    #GLOBAL_TAG = 'START38_V12::All'
+    #GLOBAL_TAG = 'START38_V14::All'
     GLOBAL_TAG = 'START39_V8::All'
     
 HLTPath = "HLT_Ele17_SW_TightEleId_L1R"

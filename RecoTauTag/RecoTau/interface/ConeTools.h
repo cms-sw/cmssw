@@ -15,7 +15,7 @@ class DeltaRFilter {
   public:
     DeltaRFilter(const reco::Candidate::LorentzVector& axis,
                  double min, double max): axis_(axis), min_(min), max_(max) {}
-    bool operator()(const CandType& b) const {
+    bool operator()(const CandType& b) {
       double deltaR = reco::deltaR<reco::Candidate::LorentzVector>
           (axis_, b.p4());
       return(deltaR >= min_ && deltaR < max_);
@@ -32,7 +32,7 @@ class DeltaRPtrFilter {
   public:
     DeltaRPtrFilter(const reco::Candidate::LorentzVector& axis,
                     double min, double max): filter_(axis, min, max) {}
-    bool operator()(const CandType& b) const { return filter_(*b); }
+    bool operator()(const CandType& b) { return filter_(*b); }
   private:
     DeltaRFilter<typename CandType::value_type> filter_;
 };

@@ -20,6 +20,9 @@ public:
   unsigned int numEventsPassed() const { return numEventsPassed_;}
   double filterEfficiency() const { return ( numEventsTried_ > 0 ? (double)numEventsPassed_/(double)numEventsTried_ : 1. ) ; }
   double filterEfficiencyError() const { return ( numEventsTried_ > 0 ? std::sqrt((double)numEventsPassed_*(1.-(double)numEventsPassed_/(double)numEventsTried_))/(double)numEventsTried_ : 1. ); }
+
+  // merge method. It will be used when merging different jobs populating the same lumi section
+  bool mergeProduct(GenFilterInfo const &other);
   
   
 private:

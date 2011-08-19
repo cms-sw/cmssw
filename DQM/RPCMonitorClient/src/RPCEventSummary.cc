@@ -287,8 +287,8 @@ void RPCEventSummary::endRun(const edm::Run& r, const edm::EventSetup& c){
 	   for (int sec = 0 ; sec<6; sec++){
 	     diskFactor += sectorFactor[sec];	
 	     if(reportMe)	{
-	       if (d<0) reportMe->setBinContent(d+5, sec , sectorFactor[sec]);
-	       else  reportMe->setBinContent(d+11, sec , sectorFactor[sec]);
+	       if (d<0) reportMe->setBinContent(d+5, sec+1 , sectorFactor[sec]);
+	       else  reportMe->setBinContent(d+11, sec+1 , sectorFactor[sec]);
 	     } 	 
 	   }
 	   
@@ -310,7 +310,7 @@ void RPCEventSummary::endRun(const edm::Run& r, const edm::EventSetup& c){
      
      //Fill repor summary
      float rpcFactor = barrelFactor;
-     if(doEndcapCertification_) rpcFactor += (endcapFactor/2);
+     if(doEndcapCertification_){ rpcFactor =  ( barrelFactor + endcapFactor)/2; }
      
      globalMe = dbe_->get(eventInfoPath_ +"/reportSummary"); 
      if(globalMe) globalMe->Fill(rpcFactor);
