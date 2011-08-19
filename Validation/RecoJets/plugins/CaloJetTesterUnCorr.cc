@@ -90,11 +90,8 @@ CaloJetTesterUnCorr::CaloJetTesterUnCorr(const edm::ParameterSet& iConfig)
     = mHBEne = mHBTime = mHEEne = mHETime = mHFEne = mHFTime = mHOEne = mHOTime
     = mEBEne = mEBTime = mEEEne = mEETime
       */
-<<<<<<< CaloJetTesterUnCorr.cc
+
     = mPthat_80 = mPthat_3000 =mjetArea =mRho
-=======
-    = mPthat_80 = mPthat_3000 =mjetArea
->>>>>>> 1.5
     = 0;
   
   DQMStore* dbe = &*edm::Service<DQMStore>();

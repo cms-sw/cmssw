@@ -96,11 +96,8 @@ PFJetTesterUnCorr::PFJetTesterUnCorr(const edm::ParameterSet& iConfig)
     = mHBEne = mHBTime = mHEEne = mHETime = mHFEne = mHFTime = mHOEne = mHOTime
     = mEBEne = mEBTime = mEEEne = mEETime
       */ 
-<<<<<<< PFJetTesterUnCorr.cc
-      = mPthat_80 = mPthat_3000 =mjetArea =mRho
-=======
-      = mPthat_80 = mPthat_3000 //=mjetArea
->>>>>>> 1.5
+
+    = mPthat_80 = mPthat_3000 =mjetArea =mRho
     = 0;
   
   DQMStore* dbe = &*edm::Service<DQMStore>();
@@ -636,11 +633,7 @@ if (!mEvent.isRealData()){
       //if (mEtaFineBin3m) mEtaFineBin3m->Fill (jet->eta());
       if (mPhiFineBin) mPhiFineBin->Fill (jet->phi());
     }
-<<<<<<< PFJetTesterUnCorr.cc
     if (mjetArea) mjetArea->Fill(jet->jetArea());
-=======
-    //if (mjetArea) mjetArea->Fill(jet->jetArea());
->>>>>>> 1.5
     if (mPhi) mPhi->Fill (jet->phi());
     if (mE) mE->Fill (jet->energy());
     if (mE_80) mE_80->Fill (jet->energy());
