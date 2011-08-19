@@ -51,6 +51,7 @@ HLT_QuadJet40_IsoPFTau40_v*
 HLT_QuadJet45_IsoPFTau45_v*
 HLT_QuadJet50_Jet40_Jet30_v*
 HLT_QuadJet70_v*
+HLT_QuadJet80_v*                                                                                #   added in "AugX 3e33" menu (sr #122824)
 HLT_EightJet120_v*
 HLT_60Jet10_v*
 HLT_70Jet10_v*
@@ -99,6 +100,7 @@ HLT_HT550_v*
 HLT_HT550_JetPt60_DPhi2p94_v*
 HLT_HT600_v*
 HLT_HT600_JetPt60_DPhi2p94_v*
+HLT_HT650_v*	                                                                                #   added in "AugX 3e33" menu (sr #122824)
 HLT_HT2000_v*
 HLT_PFMHT150_v*
 HLT_MET65_v*

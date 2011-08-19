@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V213
+# /dev/CMSSW_4_2_0/GRun/V214
 
 import FWCore.ParameterSet.Config as cms
 
@@ -174,6 +174,7 @@ streamA_datasetHT_selector.triggerConditions = cms.vstring('HLT_DiJet130_PT130_v
     'HLT_HT550_v8', 
     'HLT_HT600_JetPt60_DPhi2p94_v1', 
     'HLT_HT600_v1', 
+    'HLT_HT650_v1', 
     'HLT_R014_MR150_v7', 
     'HLT_R020_MR150_v7', 
     'HLT_R020_MR550_v7', 
@@ -372,7 +373,8 @@ streamA_datasetMultiJet_selector.triggerConditions = cms.vstring('HLT_CentralJet
     'HLT_QuadJet40_v7', 
     'HLT_QuadJet45_IsoPFTau45_v7', 
     'HLT_QuadJet50_Jet40_Jet30_v3', 
-    'HLT_QuadJet70_v6')
+    'HLT_QuadJet70_v6', 
+    'HLT_QuadJet80_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetPhoton_selector
 streamA_datasetPhoton_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
