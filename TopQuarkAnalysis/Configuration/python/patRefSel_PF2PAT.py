@@ -4,9 +4,9 @@
 
 ### Vertex configuration (for leptons)
 
-pfVertices = 'goodOfflinePrimaryVertices'
-pfD0Cut    = 0.2
-pfDzCut    = 0.5
+pfVertices  = 'goodOfflinePrimaryVertices'
+pfD0Cut     = 0.2
+pfDzCut     = 0.5
 
 ### Muon configuration
 

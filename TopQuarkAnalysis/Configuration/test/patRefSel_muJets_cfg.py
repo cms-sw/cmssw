@@ -111,9 +111,9 @@ useNoTau      = True # before MET top projection
 
 # cuts used in top projections
 # vertices
-#pfD0Cut   = 0.2
-#pfDzCut   = 0.5
-#pfVertices = 'goodOfflinePrimaryVertices'
+#pfVertices  = 'goodOfflinePrimaryVertices'
+#pfD0Cut     = 0.2
+#pfDzCut     = 0.5
 # muons
 #pfMuonSelectionCut = 'pt > 5.'
 useMuonCutBasePF = False # use minimal (veto) muon selection cut on top of 'pfMuonSelectionCut'
@@ -154,7 +154,6 @@ inputFiles = [ '/store/data/Run2011A/MuHad/AOD/PromptReco-v4/000/165/129/42DDEE9
 
 # maximum number of events
 maxInputEvents = -1 # reduce for testing
-maxInputEvents = 1000
 
 ### Conditions
 
@@ -246,7 +245,7 @@ process.step0a = triggerResults.clone(
 
 ### Good vertex selection
 process.load( "TopQuarkAnalysis.Configuration.patRefSel_goodVertex_cfi" )
-process.step0b = process.goodOfflinePrimaryVertexFilter.clone()
+process.step0b = process.goodOfflinePrimaryVertices.clone( filter = True )
 
 ### Event cleaning
 process.load( 'TopQuarkAnalysis.Configuration.patRefSel_eventCleaning_cff' )
@@ -323,8 +322,8 @@ if runPF2PAT:
   applyPostfix( process, 'pfNoElectron', postfix ).enable = useNoElectron
   applyPostfix( process, 'pfNoJet'     , postfix ).enable = useNoJet
   applyPostfix( process, 'pfNoTau'     , postfix ).enable = useNoTau
+  applyPostfix( process, 'pfPileUp', postfix ).Vertices = cms.InputTag( pfVertices )
   if useL1FastJet:
-    applyPostfix( process, 'pfPileUp', postfix ).Vertices            = cms.InputTag( pfVertices )
     applyPostfix( process, 'pfPileUp', postfix ).checkClosestZVertex = False
     applyPostfix( process, 'pfJets', postfix ).doAreaFastjet = True
     applyPostfix( process, 'pfJets', postfix ).doRhoFastjet  = False
@@ -344,6 +343,8 @@ if runPF2PAT:
   applyPostfix( process, 'isoValElectronWithNeutral', postfix ).deposits[0].deltaR = pfElectronIsoConeR
   applyPostfix( process, 'isoValElectronWithPhotons', postfix ).deposits[0].deltaR = pfElectronIsoConeR
   applyPostfix( process, 'pfIsolatedElectrons'      , postfix ).combinedIsolationCut = pfElectronCombIsoCut
+  applyPostfix( process, 'patElectrons', postfix ).pvSrc = cms.InputTag( pfVertices )
+  applyPostfix( process, 'patMuons', postfix ).pvSrc = cms.InputTag( pfVertices )
 
 from TopQuarkAnalysis.Configuration.patRefSel_refMuJets_cfi import *
 
