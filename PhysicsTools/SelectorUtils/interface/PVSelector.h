@@ -18,7 +18,10 @@ public:
   pvSrc_ (params.getParameter<edm::InputTag>("pvSrc") ),
   pvSel_ (params) 
   {
+    push_back("NPV", params.getParameter<int>("NPV") );
+    set("NPV");
     retInternal_ = getBitTemplate();
+    indexNPV_ = index_type(&bits_, "NPV");
   }
   
   bool operator() ( edm::EventBase const & event,  pat::strbitset & ret ) {
@@ -28,9 +31,17 @@ public:
 
     if ( h_primVtx->size() < 1 ) return false;
 
-    reco::Vertex const & pv = h_primVtx->at(0);
 
-    return pvSel_( pv );
+    int npv = 0;
+    for ( std::vector<reco::Vertex>::const_iterator ibegin = h_primVtx->begin(),
+	    iend = h_primVtx->end(), i = ibegin; i != iend; ++i ) {
+      reco::Vertex const & pv = *i;
+      if ( pvSel_( pv ) ) {
+	++npv;
+      }
+    }
+
+    return npv >= cut(indexNPV_, int() );
   }
 
   using EventSelector::operator();
@@ -41,6 +52,7 @@ private:
   edm::InputTag                           pvSrc_;
   PVObjectSelector                        pvSel_;
   edm::Handle<std::vector<reco::Vertex> > h_primVtx;
+  index_type                              indexNPV_;
 };
 
 #endif
