@@ -42,6 +42,7 @@ namespace {
 PFJetTesterUnCorr::PFJetTesterUnCorr(const edm::ParameterSet& iConfig)
   : mInputCollection (iConfig.getParameter<edm::InputTag>( "src" )),
     mInputGenCollection (iConfig.getParameter<edm::InputTag>( "srcGen" )),
+    rho_tag_ (iConfig.getParameter<edm::InputTag>( "srcRho" )),
     mOutputFile (iConfig.getUntrackedParameter<std::string>("outputFile", "")),
     mMatchGenPtThreshold (iConfig.getParameter<double>("genPtThreshold")),
     mGenEnergyFractionThreshold (iConfig.getParameter<double>("genEnergyFractionThreshold")),
@@ -95,7 +96,11 @@ PFJetTesterUnCorr::PFJetTesterUnCorr(const edm::ParameterSet& iConfig)
     = mHBEne = mHBTime = mHEEne = mHETime = mHFEne = mHFTime = mHOEne = mHOTime
     = mEBEne = mEBTime = mEEEne = mEETime
       */ 
+<<<<<<< PFJetTesterUnCorr.cc
+      = mPthat_80 = mPthat_3000 =mjetArea =mRho
+=======
       = mPthat_80 = mPthat_3000 //=mjetArea
+>>>>>>> 1.5
     = 0;
   
   DQMStore* dbe = &*edm::Service<DQMStore>();
@@ -249,7 +254,12 @@ PFJetTesterUnCorr::PFJetTesterUnCorr(const edm::ParameterSet& iConfig)
     //
     mPthat_80            = dbe->book1D("Pthat_80", "Pthat_80", 100, 0.0, 1000.0); 
     mPthat_3000          = dbe->book1D("Pthat_3000", "Pthat_3000", 100, 1000.0, 4000.0); 
+<<<<<<< PFJetTesterUnCorr.cc
+    mjetArea = dbe->book1D("jetArea","jetArea",60,0,12);
+    mRho = dbe->book1D("Rho","Rho",45,-3,6);
+=======
     //mjetArea = dbe->book1D("jetArea","jetArea",25,0,2.5);
+>>>>>>> 1.5
     //
     double log10PtMin = 0.5; //=3.1622766
     double log10PtMax = 3.75; //=5623.41325
@@ -588,6 +598,16 @@ if (!mEvent.isRealData()){
 
 
   //***********************************
+  //*** Get the Jet Rho
+  //***********************************
+  edm::Handle<double> pRho;
+  mEvent.getByLabel(rho_tag_,pRho);
+  if( pRho.isValid() ) {
+    double rho_ = *pRho;
+    if(mRho) mRho->Fill(rho_);
+  }
+
+  //***********************************
   //*** Get the Jet collection
   //***********************************
   math::XYZTLorentzVector p4tmp[2];
@@ -618,7 +638,11 @@ if (!mEvent.isRealData()){
       //if (mEtaFineBin3m) mEtaFineBin3m->Fill (jet->eta());
       if (mPhiFineBin) mPhiFineBin->Fill (jet->phi());
     }
+<<<<<<< PFJetTesterUnCorr.cc
+    if (mjetArea) mjetArea->Fill(jet->jetArea());
+=======
     //if (mjetArea) mjetArea->Fill(jet->jetArea());
+>>>>>>> 1.5
     if (mPhi) mPhi->Fill (jet->phi());
     if (mE) mE->Fill (jet->energy());
     if (mE_80) mE_80->Fill (jet->energy());

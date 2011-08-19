@@ -22,9 +22,9 @@ if [ -n $title ]; then
     if [ -e $reference ]; then
 	if [ -e $new ]; then
 
-	    TAG=(CaloJetTask_iterativeCone5CaloJets CaloJetTask_L2L3CorJetAK5Calo JPTJetTask_JetPlusTrackZSPCorJetIcone5 PFJetTask_iterativeCone5PFJets CaloJetTask_kt4CaloJets CaloJetTask_kt6CaloJets CaloJetTask_ak5CaloJets CaloJetTask_ak7CaloJets PFJetTask_ak5PFJets JPTJetTask_JetPlusTrackZSPCorJetAntiKt5)
-	    TAGREF=(CaloJetTask_iterativeCone5CaloJets CaloJetTask_L2L3CorJetAK5Calo JPTJetTask_JetPlusTrackZSPCorJetIcone5 PFJetTask_iterativeCone5PFJets CaloJetTask_kt4CaloJets CaloJetTask_kt6CaloJets CaloJetTask_ak5CaloJets CaloJetTask_ak7CaloJets PFJetTask_ak5PFJets JPTJetTask_JetPlusTrackZSPCorJetAntiKt5)
-	    FOLDER=(Icone5 CorrAK5 JPTIC5 PFlow kt4 kt6 AntiKt5 AntiKt7 PFlowAntiKt5 JPTAntiKt5)
+	    TAG=(CaloJetTask_iterativeCone5CaloJets CaloJetTask_L2L3CorJetAK5Calo JPTJetTask_JetPlusTrackZSPCorJetIcone5 PFJetTask_iterativeCone5PFJets PFJetTask_kt6PFJets CaloJetTask_kt6CaloJets CaloJetTask_ak5CaloJets CaloJetTask_ak7CaloJets PFJetTask_ak5PFJets JPTJetTask_JetPlusTrackZSPCorJetAntiKt5)
+	    TAGREF=(CaloJetTask_iterativeCone5CaloJets CaloJetTask_L2L3CorJetAK5Calo JPTJetTask_JetPlusTrackZSPCorJetIcone5 PFJetTask_iterativeCone5PFJets PFJetTask_kt6PFJets CaloJetTask_kt6CaloJets CaloJetTask_ak5CaloJets CaloJetTask_ak7CaloJets PFJetTask_ak5PFJets JPTJetTask_JetPlusTrackZSPCorJetAntiKt5)
+	    FOLDER=(Icone5 CorrAK5 JPTIC5 PFlow PFlowKt6 kt6 AntiKt5 AntiKt7 PFlowAntiKt5 JPTAntiKt5)
 	    ntag=${#TAG[@]}
 	    echo "Number of module tags: " $ntag
 	    for (( i=0;i<$ntag;i++ )); do
@@ -55,9 +55,9 @@ if [ -n $title ]; then
                 # Icone Calo
                 elif [ ${FOLDER[${i}]} = ${FOLDER[0]} ]; then
                     cp html/htmlTemplateUnCorr.html $title/${FOLDER[${i}]}
-                 # kt4 Calo
+                 # kt6 PF
                 elif [ ${FOLDER[${i}]} = ${FOLDER[4]} ]; then
-                    cp html/htmlTemplateUnCorr.html $title/${FOLDER[${i}]}
+                    cp html/htmlTemplate_PFUnCorr.html $title/${FOLDER[${i}]}
                  # kt6 Calo
                 elif [ ${FOLDER[${i}]} = ${FOLDER[5]} ]; then
                     cp html/htmlTemplateUnCorr.html $title/${FOLDER[${i}]}

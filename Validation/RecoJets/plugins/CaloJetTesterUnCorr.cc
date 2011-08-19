@@ -90,7 +90,11 @@ CaloJetTesterUnCorr::CaloJetTesterUnCorr(const edm::ParameterSet& iConfig)
     = mHBEne = mHBTime = mHEEne = mHETime = mHFEne = mHFTime = mHOEne = mHOTime
     = mEBEne = mEBTime = mEEEne = mEETime
       */
+<<<<<<< CaloJetTesterUnCorr.cc
+    = mPthat_80 = mPthat_3000 =mjetArea =mRho
+=======
     = mPthat_80 = mPthat_3000 =mjetArea
+>>>>>>> 1.5
     = 0;
   
   DQMStore* dbe = &*edm::Service<DQMStore>();
@@ -220,9 +224,15 @@ CaloJetTesterUnCorr::CaloJetTesterUnCorr(const edm::ParameterSet& iConfig)
     //
     mPthat_80            = dbe->book1D("Pthat_80", "Pthat_80", 100, 0.0, 1000.0); 
     mPthat_3000          = dbe->book1D("Pthat_3000", "Pthat_3000", 100, 1000.0, 4000.0); 
+<<<<<<< CaloJetTesterUnCorr.cc
+
+    mjetArea = dbe->book1D("jetArea","jetArea",60,0,12);
+    mRho = dbe->book1D("Rho","Rho",45,-3,6);
+=======
 
     mjetArea = dbe->book1D("jetArea","jetArea",60,0,6);
     mRho = dbe->book1D("Rho","Rho",30,0,3);
+>>>>>>> 1.5
     //
     double log10PtMin = 0.5; //=3.1622766
     double log10PtMax = 3.75; //=5623.41325

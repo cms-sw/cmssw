@@ -4,7 +4,7 @@
 // Producer for validation histograms for PFJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by Chiyoung.Jeong Feb 2, 2010
-// $Id: PFJetTesterUnCorr.h,v 1.2 2011/04/21 12:31:27 kovitang Exp $
+// $Id: PFJetTesterUnCorr.h,v 1.3 2011/08/18 14:07:42 kovitang Exp $
 
 #include <string>
 
@@ -35,6 +35,7 @@ private:
 
   edm::InputTag mInputCollection;
   edm::InputTag mInputGenCollection;
+  edm::InputTag rho_tag_;
   std::string mOutputFile;
   edm::InputTag inputMETLabel_;
   std::string METType_;
@@ -87,7 +88,12 @@ private:
   MonitorElement* mpTRatio_200_300_d;
   MonitorElement* mpTRatio_600_900_d;
   MonitorElement* mpTRatio_2700_3500_d;
+<<<<<<< PFJetTesterUnCorr.h
   MonitorElement* mjetArea;
+  MonitorElement* mRho;
+=======
+  MonitorElement* mjetArea;
+>>>>>>> 1.3
 
   // Leading Jet Parameters
   MonitorElement* mEtaFirst;

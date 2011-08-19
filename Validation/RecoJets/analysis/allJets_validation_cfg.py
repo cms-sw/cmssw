@@ -6,7 +6,7 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("JETVALIDATION")
 
 process.load('Configuration/StandardSequences/FrontierConditions_GlobalTag_cff')
-process.GlobalTag.globaltag = 'MC_39Y_V7::All'
+process.GlobalTag.globaltag = 'START44_V1::All'
 #process.GlobalTag.globaltag = 'MC_38Y_V14::All'
 
 #process.load("Configuration.StandardSequences.Services_cff")
@@ -30,6 +30,8 @@ process.load("DQMServices.Core.DQM_cfg")
 #process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
 #process.load("JetMETCorrections.Configuration.ZSPJetCorrections332_cff")
 process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
+process.ak5L1JPTOffset.era = 'Jec11V0'
+process.ak5L1JPTOffset.useCondDB = False
 
 # Validation module
 process.load("Validation.RecoJets.JetValidation_cff")
@@ -44,7 +46,7 @@ process.source = cms.Source("PoolSource",
 
     fileNames = cms.untracked.vstring(
 
-'rfio:/castor/cern.ch/user/k/kovitang/TTbar_3_9_4_784E93C0-33F8-DF11-9C13-001A92811708.root'
+'file:/afs/cern.ch/user/k/kovitang/scratch0/RelValTTbar_440pre4/D6CC10AF-9BAB-E011-B5E8-0026189438C2.root'
 
     )
 
