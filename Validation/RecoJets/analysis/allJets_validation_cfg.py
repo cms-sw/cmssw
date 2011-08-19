@@ -30,8 +30,6 @@ process.load("DQMServices.Core.DQM_cfg")
 #process.load("JetMETCorrections.Configuration.JetPlusTrackCorrections_cff")
 #process.load("JetMETCorrections.Configuration.ZSPJetCorrections332_cff")
 process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
-process.ak5L1JPTOffset.era = 'Jec11V0'
-process.ak5L1JPTOffset.useCondDB = False
 
 # Validation module
 process.load("Validation.RecoJets.JetValidation_cff")

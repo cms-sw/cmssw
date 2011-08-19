@@ -224,15 +224,11 @@ CaloJetTesterUnCorr::CaloJetTesterUnCorr(const edm::ParameterSet& iConfig)
     //
     mPthat_80            = dbe->book1D("Pthat_80", "Pthat_80", 100, 0.0, 1000.0); 
     mPthat_3000          = dbe->book1D("Pthat_3000", "Pthat_3000", 100, 1000.0, 4000.0); 
-<<<<<<< CaloJetTesterUnCorr.cc
 
-    mjetArea = dbe->book1D("jetArea","jetArea",60,0,12);
-    mRho = dbe->book1D("Rho","Rho",45,-3,6);
-=======
 
-    mjetArea = dbe->book1D("jetArea","jetArea",60,0,6);
-    mRho = dbe->book1D("Rho","Rho",30,0,3);
->>>>>>> 1.5
+    mjetArea = dbe->book1D("jetArea","jetArea",13,-0.5,12.5);
+    mRho = dbe->book1D("Rho","Rho",20,0,20);
+
     //
     double log10PtMin = 0.5; //=3.1622766
     double log10PtMax = 3.75; //=5623.41325
