@@ -133,10 +133,6 @@ namespace reco {
 
   protected:  
 
-    // Glowinski & Gouzevitch
-    PFMultiLinksTC multilinks_;
-    // ! Glowinski & Gouzevitch
-  
     /// type, see PFBlockElementType
     /// \todo replace by a char ?
     Type     type_;
@@ -149,7 +145,10 @@ namespace reco {
     /// index in block vector 
     unsigned   index_;
 
-
+    // Glowinski & Gouzevitch
+    PFMultiLinksTC multilinks_;
+    // ! Glowinski & Gouzevitch
+  
   };
 }
 #endif
