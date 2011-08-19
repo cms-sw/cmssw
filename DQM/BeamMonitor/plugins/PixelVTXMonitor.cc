@@ -2,8 +2,8 @@
  * \file PixelVTXMonitor.cc
  * \author S. Dutta
  * Last Update:
- * $Date: 2011/08/10 12:28:21 $
- * $Revision: 1.2 $
+ * $Date: 2011/08/16 12:42:08 $
+ * $Revision: 1.3 $
  * $Author: dutta $
  *
  * Description: Pixel Vertex Monitoring for different HLT paths
@@ -56,6 +56,9 @@ void PixelVTXMonitor::bookHistograms() {
     else selectedPaths.push_back(*it);     
   }
     
+  std::string currentFolder = moduleName_ + "/" + folderName_ ;
+  dbe_->setCurrentFolder(currentFolder.c_str());
+
   for (std::vector<std::string> ::iterator it = selectedPaths.begin();
        it != selectedPaths.end(); it++) {
     std::string tag = (*it) ;
@@ -75,10 +78,7 @@ void PixelVTXMonitor::bookHistograms() {
 
 void PixelVTXMonitor::beginJob() {
   dbe_ = edm::Service<DQMStore>().operator->();
-  std::string currentFolder = moduleName_ + "/" + folderName_ ;
-  dbe_->setCurrentFolder(currentFolder.c_str());
-
-  
+ 
 }
 
 void PixelVTXMonitor::beginRun(edm::Run const& iRun, edm::EventSetup const& iSetup) {
