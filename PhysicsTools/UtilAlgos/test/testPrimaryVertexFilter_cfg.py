@@ -22,8 +22,10 @@ process.primaryVertexFilter = cms.EDFilter("PrimaryVertexFilter",
   pvSrc   = cms.InputTag("offlinePrimaryVertices"),
   minNdof = cms.double( 4 ),
   maxZ    = cms.double( 2 ),
-  maxRho  = cms.double(0.2)
+  maxRho  = cms.double(0.2),
+  NPV     = cms.int32(1)
 )
 
 process.p = cms.Path(process.primaryVertexFilter)
 
+process.options   = cms.untracked.PSet( wantSummary = cms.untracked.bool(True) )
