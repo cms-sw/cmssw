@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWJetProxyBuilder.cc,v 1.32 2011/08/16 01:42:27 amraktad Exp $
+// $Id: FWJetProxyBuilder.cc,v 1.33 2011/08/16 21:44:05 amraktad Exp $
 //
 
 #include "TEveJetCone.h"
@@ -39,8 +39,8 @@ struct jetScaleMarker : public  scaleMarker {
 };
 }
 
-static const std::string kJetLabelsRhoPhiOn("Draw Labels RhoPhi");
-static const std::string kJetLabelsRhoZOn("Draw Labels RhoZ");
+static const std::string kJetLabelsRhoPhiOn("Draw Labels in RhoPhi View");
+static const std::string kJetLabelsRhoZOn("Draw Labels in RhoZ View");
 static const std::string kJetOffset("Label Offset");
 
 
@@ -59,7 +59,7 @@ public:
       FWProxyBuilderBase::setItem(iItem);
       iItem->getConfig()->assertParam(kJetLabelsRhoPhiOn, false);
       iItem->getConfig()->assertParam(kJetLabelsRhoZOn, false);
-      iItem->getConfig()->assertParam(kJetOffset, 2.0, 1.0, 5.0);
+      iItem->getConfig()->assertParam(kJetOffset, 2.1, 1.0, 5.0);
    }
 
    REGISTER_PROXYBUILDER_METHODS();
@@ -177,7 +177,7 @@ FWJetProxyBuilder::buildViewType(const reco::Jet& iData, unsigned int iIndex, TE
       if ((type == FWViewType::kRhoZ && item()->getConfig()->value<bool>(kJetLabelsRhoZOn))||
           (type == FWViewType::kRhoPhi && item()->getConfig()->value<bool>(kJetLabelsRhoPhiOn) ) )
       {
-         markers.m_text = new FWEveText(Form("%.1f GeV", vc->getEnergyScale()->getPlotEt() ? iData.et() : iData.energy()));
+         markers.m_text = new FWEveText(Form("%.1f", vc->getEnergyScale()->getPlotEt() ? iData.et() : iData.energy()));
          markers.m_text->SetMainColor( item()->defaultDisplayProperties().color());         
          setTextPos(markers, vc, type);
       }
