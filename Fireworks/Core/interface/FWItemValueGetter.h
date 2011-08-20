@@ -16,11 +16,13 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Nov 30 16:14:58 EST 2008
-// $Id: FWItemValueGetter.h,v 1.3 2010/08/18 10:30:10 amraktad Exp $
+// $Id: FWItemValueGetter.h,v 1.4 2011/08/18 00:37:10 amraktad Exp $
 //
 
 #include <string>
 #include <vector>
+
+#include "Rtypes.h"
 #include "Reflex/Member.h"
 #include "Reflex/Type.h"
 
@@ -30,36 +32,41 @@
 #include "CommonTools/Utils/src/ExpressionBase.h"
 
 
-class FWItemValueGetter {
-
+class FWItemValueGetter
+{
 public:
-   FWItemValueGetter(const ROOT::Reflex::Type&,
-                     const std::vector<std::pair<std::string, std::string> >& iFindValueFrom);
-   //virtual ~FWItemValueGetter();
+   FWItemValueGetter(const ROOT::Reflex::Type&, const std::string& iPurpose);
+   double valueFor(const void*, int idx) const;
+   UInt_t precision( int idx) const;
+   std::vector<std::string> getTitles() const;
+   int numValues() const; 
 
-   // ---------- const member functions ---------------------
-   double valueFor(const void*) const;
-   const std::string& stringValueFor(const void*) const;
+   const std::string& getToolTip(const void* iObject) const;
 
-   bool isValid() const;
-
-   std::string valueName() const;
-   const std::string& unit() const;
-
-   void setValueAndUnit(const std::string& iValue, const std::string& iUnit);
 
 private:
-   //FWItemValueGetter(const FWItemValueGetter&); // stop default
-   //const FWItemValueGetter& operator=(const FWItemValueGetter&); // stop default
+   struct Entry {
+      reco::parser::ExpressionPtr m_expr;
+      std::string m_expression; 
+      std::string m_unit;
+      std::string m_title;
+      UInt_t     m_precision;
 
-   // ---------- member data --------------------------------
-    
+      Entry(reco::parser::ExpressionPtr iExpr, std::string iExpression, std::string iUnit, std::string iTitle, int iPrec) :
+         m_expr(iExpr), m_expression(iExpression), m_unit(iUnit), m_title(iTitle), m_precision(iPrec) {}
+   };
+
+   bool addEntry(std::string iExpression,int iPrec = 2,  std::string iTitle = "",  std::string iUnit = "");
+
+   typedef std::vector<Entry > Entries_t;
+   Entries_t::const_iterator Entries_i;
+
+   Entries_t m_entries;
    ROOT::Reflex::Type m_type;
-   // ROOT::Reflex::Member m_memberFunction;
 
-   std::string m_expression;
-   reco::parser::ExpressionPtr m_expr;
-   std::string m_unit;
+   int m_titleWidth;
+
+   
 };
 
 #endif
