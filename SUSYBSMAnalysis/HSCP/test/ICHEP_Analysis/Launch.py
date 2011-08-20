@@ -119,12 +119,12 @@ def ComputeLimits(InputPattern, syst):
         LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"GMStau432"', '"GMStau432"' ,-1, -1, -1  , syst])
         LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"GMStau494"', '"GMStau494"' ,-1, -1, -1  , syst])
 
-#        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"PPStau100"', '"PPStau100"' ,-1, -1, -1  , syst])
-#        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"PPStau126"', '"PPStau126"' ,-1, -1, -1  , syst])
-#        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"PPStau156"', '"PPStau156"' ,-1, -1, -1  , syst])
-#        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"PPStau200"', '"PPStau200"' ,-1, -1, -1  , syst])
-#        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"PPStau247"', '"PPStau247"' ,-1, -1, -1  , syst])
-#        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"PPStau308"', '"PPStau308"' ,-1, -1, -1  , syst])
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"PPStau100"', '"PPStau100"' ,-1, -1, -1  , syst])
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"PPStau126"', '"PPStau126"' ,-1, -1, -1  , syst])
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"PPStau156"', '"PPStau156"' ,-1, -1, -1  , syst])
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"PPStau200"', '"PPStau200"' ,-1, -1, -1  , syst])
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"PPStau247"', '"PPStau247"' ,-1, -1, -1  , syst])
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"PPStau308"', '"PPStau308"' ,-1, -1, -1  , syst])
 
 #        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"DCStau121"', '"DCStau121"' ,-1, -1, -1  , syst])
 #        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"DCStau182"', '"DCStau182"' ,-1, -1, -1  , syst])
