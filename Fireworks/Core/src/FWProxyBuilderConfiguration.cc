@@ -8,7 +8,7 @@
 //
 // Original Author:  
 //         Created:  Wed Jul 27 00:58:43 CEST 2011
-// $Id: FWProxyBuilderConfiguration.cc,v 1.6 2011/08/13 04:06:29 amraktad Exp $
+// $Id: FWProxyBuilderConfiguration.cc,v 1.7 2011/08/16 01:16:05 amraktad Exp $
 //
 
 // system include files
@@ -101,9 +101,10 @@ template <class T> FWGenericParameter<T>* FWProxyBuilderConfiguration::assertPar
    FWGenericParameter<T>*  mode = new FWGenericParameter<T>(this, name, def);
 
    //   std::cout << "FWProxyBuilderConfiguration::getVarParameter(). No parameter with name " << name << std::endl;
-   const FWConfiguration* varConfig = m_txtConfig &&  m_txtConfig->keyValues() ? m_txtConfig->valueForKey("Var") : 0;
-   if (varConfig) mode->setFrom(*varConfig);
-
+   if ( m_txtConfig) {
+      const FWConfiguration* varConfig = m_txtConfig->keyValues() ? m_txtConfig->valueForKey("Var") : 0;
+      if (varConfig) mode->setFrom(*varConfig);
+   }
    mode->changed_.connect(boost::bind(&FWEventItem::proxyConfigChanged, (FWEventItem*)m_item));
    return mode;
 }
