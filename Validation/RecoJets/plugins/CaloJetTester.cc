@@ -1,7 +1,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTester.cc,v 1.31 2011/08/19 07:49:05 kovitang Exp $
+// $Id: CaloJetTester.cc,v 1.32 2011/08/19 08:56:45 kovitang Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -207,7 +207,7 @@ CaloJetTester::CaloJetTester(const edm::ParameterSet& iConfig)
  
     mCorrJetEta = dbe->book1D("CorrEta", "CorrEta", 120, -6, 6);
     mCorrJetPhi = dbe->book1D("CorrPhi", "CorrPhi", 70, -3.5, 3.5);
-    mjetArea = dbe->book1D("jetArea","jetArea",13,-0.5,12.5);
+    mjetArea = dbe->book1D("jetArea","jetArea",26,-0.5,12.5);
 
 
     //

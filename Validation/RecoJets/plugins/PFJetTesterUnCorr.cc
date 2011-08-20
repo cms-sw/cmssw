@@ -252,7 +252,7 @@ PFJetTesterUnCorr::PFJetTesterUnCorr(const edm::ParameterSet& iConfig)
     mPthat_80            = dbe->book1D("Pthat_80", "Pthat_80", 100, 0.0, 1000.0); 
     mPthat_3000          = dbe->book1D("Pthat_3000", "Pthat_3000", 100, 1000.0, 4000.0); 
 
-    mjetArea = dbe->book1D("jetArea","jetArea",13,-0.5,12.5);
+    mjetArea = dbe->book1D("jetArea","jetArea",26,-0.5,12.5);
     mRho = dbe->book1D("Rho","Rho",20,0,20);
 
     //
