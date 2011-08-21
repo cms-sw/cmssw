@@ -173,7 +173,7 @@ def loadCrabCfg(cfgName=None):
 def addCrabInputFile(crabCfg,inputFile):
     additionalInputFiles = ''
     if crabCfg.has_option('USER','additional_input_files'):
-        additionalInputFiles = crab_cfg_parser.get('USER','additional_input_files')
+        additionalInputFiles = crabCfg.get('USER','additional_input_files')
 
     if additionalInputFiles: additionalInputFiles += ',%s' % inputFile
     else: additionalInputFiles = inputFile

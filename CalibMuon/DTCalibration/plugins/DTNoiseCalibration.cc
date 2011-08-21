@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/08/15 20:29:37 $
- *  $Revision: 1.16 $
+ *  $Date: 2011/08/16 11:05:23 $
+ *  $Revision: 1.17 $
  *  \author G. Mila - INFN Torino
  *          A. Vilela Pereira - INFN Torino 
  */
@@ -223,7 +223,7 @@ void DTNoiseCalibration::analyze(const edm::Event& event, const edm::EventSetup&
                                                                      nBins, (unsigned int)runBeginTime_,
                                                                             (unsigned int)runEndTime_);
            for(int k = 0; k < hOccupancyVsTimeHisto->GetNbinsX(); ++k){
-              if( k%20 == 0 ){
+              if( k%10 == 0 ){
                  unsigned int binLowEdge = hOccupancyVsTimeHisto->GetBinLowEdge(k+1);
                  time_t timeValue = time_t(binLowEdge); 
                  hOccupancyVsTimeHisto->GetXaxis()->SetBinLabel( (k+1),ctime(&timeValue) );
