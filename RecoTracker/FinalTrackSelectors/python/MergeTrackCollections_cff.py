@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
-generalTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
+mergedIterativeTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
     TrackProducers = (cms.InputTag('initialStepTracks'),
                       cms.InputTag('lowPtTripletStepTracks'),
                       cms.InputTag('pixelPairStepTracks'),
@@ -20,8 +20,19 @@ generalTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMer
                                        ),
     setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5,6), pQual=cms.bool(True) )
                              ),
+    copyExtras = False,
+    makeReKeyedSeeds = cms.untracked.bool(False)
+    )
+
+generalTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
+    TrackProducers = (cms.InputTag('mergedIterativeTracks'),
+                      cms.InputTag('convStepTracks')),
+    hasSelector=cms.vint32(0,1),
+    selectedTrackQuals = cms.VInputTag(cms.InputTag(""),
+                                       cms.InputTag("convStepSelector","convStep")
+                                       ),
+    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1), pQual=cms.bool(True) )
+                             ),
     copyExtras = True,
     makeReKeyedSeeds = cms.untracked.bool(True)
     )
-
-trackCollectionMerging = cms.Sequence(generalTracks)

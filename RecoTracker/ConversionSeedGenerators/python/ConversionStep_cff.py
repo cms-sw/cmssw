@@ -209,7 +209,7 @@ convLayerPairs = cms.ESProducer("SeedingLayersESProducer",
                                 )
 
 
-photonConvTrajSeedFromSingleLeg.TrackRefitter = cms.InputTag('generalTracksPre')
+photonConvTrajSeedFromSingleLeg.TrackRefitter = cms.InputTag('mergedIterativeTracks')
 photonConvTrajSeedFromSingleLeg.primaryVerticesTag = cms.InputTag('pixelVertices')
 
 
