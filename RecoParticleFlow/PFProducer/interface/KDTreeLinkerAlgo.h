@@ -29,9 +29,16 @@ namespace KDTreeLinker
     // The KDTree root
     TNode*	root_;
 
+    TNode*	nodePool_;
+    int		nodePoolSize_;
+    int		nodePoolPos_;
+
   private:
     void swap(RHinfo &e1, RHinfo &e2);
-    
+
+    TNode* getNextNode();
+
+
     //Fast median search with Wirth algorithm in eltList between low and high indexes.
     int medianSearch(std::vector<RHinfo>	&eltList,
 		     int			low,
@@ -55,7 +62,7 @@ namespace KDTreeLinker
 		    std::vector<RHinfo> &recHits);
 
     // This method frees the KDTree.     
-    void clearTree(TNode *&current);
+    void clearTree();
   };
 }
 

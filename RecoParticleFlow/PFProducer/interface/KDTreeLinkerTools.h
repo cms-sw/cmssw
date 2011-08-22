@@ -33,6 +33,11 @@ namespace KDTreeLinker
       , phimin (pmin), phimax(pmax)
     {}
 
+    TBox()
+      : etamin (0), etamax(0)
+      , phimin (0), phimax(0)
+    {}
+
   };
 
   
@@ -63,23 +68,30 @@ namespace KDTreeLinker
   struct TNode
   {
     // Data
-    const RHinfo rh;
+    RHinfo rh;
 
     // Right/left sons.
     TNode *left, *right;
 
     // Region bounding box.
-    const TBox region;
+    TBox region;
 
   public:
-    TNode(const TBox&   regionBox,
-	  const RHinfo& rhinfo)
-      : rh(rhinfo), left(0), right(0), region(regionBox)
+    TNode()
+      : left(0), right(0)
     {}
 
-    TNode(const TBox&   regionBox)
-      : left(0), right(0), region(regionBox)
-    {}
+    void setAttributs(const TBox&   regionBox,
+		      const RHinfo& rhinfo)
+    {
+      rh = rhinfo;
+      region = regionBox;
+    }
+
+    void setAttributs(const TBox&   regionBox)
+    {
+      region = regionBox;
+    }
   };
 }
 

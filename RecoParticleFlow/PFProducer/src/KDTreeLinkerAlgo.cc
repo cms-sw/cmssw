@@ -3,7 +3,10 @@
 using namespace KDTreeLinker;
 
 KDTreeLinkerAlgo::KDTreeLinkerAlgo()
-  : root_ (0)
+  : root_ (0),
+    nodePool_(0),
+    nodePoolSize_(-1),
+    nodePoolPos_(-1)
 {
 }
 
@@ -14,9 +17,12 @@ KDTreeLinkerAlgo::~KDTreeLinkerAlgo()
 
 void
 KDTreeLinkerAlgo::build(std::vector<RHinfo>	&eltList, 
-	      const TBox		&region)
+			const TBox		&region)
 {
   if (eltList.size()) {
+    nodePoolSize_ = eltList.size() * 2 - 1;
+    nodePool_ = new TNode[nodePoolSize_];
+
     root_ = recBuild(eltList, 0, eltList.size(), 0, region);
   }
 }
@@ -24,10 +30,10 @@ KDTreeLinkerAlgo::build(std::vector<RHinfo>	&eltList,
 
 TNode*
 KDTreeLinkerAlgo::recBuild(std::vector<RHinfo>	&eltList, 
-		 int			low, 
-		 int			high, 
-		 int			depth,
-		 const TBox&		region)
+			   int			low, 
+			   int			high, 
+			   int			depth,
+			   const TBox&		region)
 {
   int portionSize = high - low;
 
@@ -42,7 +48,8 @@ KDTreeLinkerAlgo::recBuild(std::vector<RHinfo>	&eltList,
 
   if (portionSize == 1) { //leaf case
    
-    TNode *leaf = new TNode(region, eltList[low]);
+    TNode *leaf = getNextNode();
+    leaf->setAttributs(region, eltList[low]);
     return leaf;
 
   } else {//split into two halfplanes
@@ -51,7 +58,8 @@ KDTreeLinkerAlgo::recBuild(std::vector<RHinfo>	&eltList,
     // The odd one to phi dimension
     int medianId = medianSearch(eltList, low, high, depth);
 
-    TNode *node = new TNode(region);
+    TNode *node = getNextNode();
+    node->setAttributs(region);
 
     TBox leftRegion = region;
     TBox rightRegion = region;
@@ -241,22 +249,34 @@ KDTreeLinkerAlgo::addSubtree(const TNode		*current,
 
 
 void 
-KDTreeLinkerAlgo::clearTree(TNode *&current)
+KDTreeLinkerAlgo::clearTree()
 {
-  if (current->left)
-    clearTree(current->left);
-  if (current->right)
-    clearTree(current->right);
-    
-  delete current;
-  current = 0;
+  delete[] nodePool_;
+  nodePool_ = 0;
+  root_ = 0;
+  nodePoolSize_ = -1;
+  nodePoolPos_ = -1;
 }
 
 void 
 KDTreeLinkerAlgo::clear()
 {
   if (root_)
-    clearTree(root_);
+    clearTree();
 }
 
 
+TNode* 
+KDTreeLinkerAlgo::getNextNode()
+{
+  ++nodePoolPos_;
+
+  // TODO YG : Call realloc.
+  if (nodePoolPos_ == nodePoolSize_)
+    {    
+      std::cout << "------------------------- IMPOSSIBLE BECAME POSSIBLE - getNextNode" << std::endl;
+      return 0;
+    }
+
+  return &(nodePool_[nodePoolPos_]);
+}
