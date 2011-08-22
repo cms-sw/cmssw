@@ -6,7 +6,6 @@
 
 /*
   BranchMapper
-
 */
 
 namespace edm {
@@ -17,12 +16,12 @@ namespace edm {
       provenanceReader_() {
   }
 
-  BranchMapper::BranchMapper(boost::shared_ptr<ProvenanceReaderBase> reader) :
+  BranchMapper::BranchMapper(std::auto_ptr<ProvenanceReaderBase> reader) :
       entryInfoSet_(),
       nextMapper_(),
       delayedRead_(true),
-      provenanceReader_(reader) {
-    assert(reader);
+      provenanceReader_(reader.release()) {
+    assert(provenanceReader_);
   }
 
   BranchMapper::~BranchMapper() {}
@@ -40,7 +39,7 @@ namespace edm {
     entryInfoSet_.clear();
     delayedRead_ = true;
   }
-  
+
   void
   BranchMapper::insertIntoSet(ProductProvenance const& entryInfo) const {
     //NOTE:do not read provenance here because we only need the full
@@ -49,7 +48,7 @@ namespace edm {
     //readProvenance();
     entryInfoSet_.insert(entryInfo);
   }
-    
+ 
   void
   BranchMapper::mergeMappers(boost::shared_ptr<BranchMapper> other) {
     nextMapper_ = other;
