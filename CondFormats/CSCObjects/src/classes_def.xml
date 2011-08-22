@@ -11,6 +11,10 @@
  <class name="CSCDBChipSpeedCorrection::Item"/>
  <class name="std::vector<CSCDBChipSpeedCorrection::Item>"/>
  
+ <class name="CSCDBGasGainCorrection"/>
+ <class name="CSCDBGasGainCorrection::Item"/>
+ <class name="std::vector<CSCDBGasGainCorrection::Item>"/>
+ 
  <class name="CSCGains" id="24647172-BE30-DA11-888A-0008743F7CC7"/>
  <class name="CSCGains::Item"/>
  <class name="std::vector<CSCGains::Item>"/>
