@@ -75,6 +75,9 @@ class CSCRecoConditions
   /// Get bad wiregroup word
   const std::bitset<112>& badWireWord( const CSCDetId& id ) const;
 
+  /// returns gas-gain correction given detId (w/layer), strip, channel.  This converts ME1/4 strips 1-16 to ME1/1 channels 65-80
+  float gasGainCorrection( const CSCDetId & detId, int strip, int wire ) const;
+
  private:
 
   /// return gain weight for given strip channel

@@ -28,6 +28,7 @@ CSCMake2DRecHit::CSCMake2DRecHit(const edm::ParameterSet& ps):
   useCalib            = ps.getParameter<bool>("CSCUseCalibrations");
   stripWireDeltaTime  = ps.getParameter<int>("CSCstripWireDeltaTime"); //@@ Non-standard  CSC*s*trip...
   useTimingCorrections= ps.getParameter<bool>("CSCUseTimingCorrections");
+  useGasGainCorrections = ps.getParameter<bool>("CSCUseGasGainCorrections");
 
   xMatchGatti_        = new CSCXonStrip_MatchGatti( ps );
 
@@ -208,6 +209,45 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
   // Convert from bx to ns (multiply by 25)
   int scaledWireTime = 100*findWireBx(wHit.timeBinsOn(), tpeak,id)*25; 
 
+
+  //Get the gas-gain correction for this rechit
+  float gasGainCorrection = -999.;   
+  if (useGasGainCorrections) {
+    gasGainCorrection = recoConditions_->gasGainCorrection(id,centerStrip,centerWire);
+  } 
+
+  /// Correct the 3x3 ADC sum into the energy deposited in the layer.  Note:  this correction will 
+  /// give you dE.  In order to get the dE/dX, you will need to divide by the path length...
+  /// If the algorithm to compute the corrected energy fails, flag it by a specific nonsense value:
+  /// If the user has chosen not to use the gas gain correction --->  -998.
+  /// If the gas gain correction from the database is a bad value ->  -997.
+  /// If it is an edge strip -------------------------------------->  -996.
+  /// If gas-gain is OK, but the ADC vector is the wrong size  ---->  -999.
+  /// If the user has created the Rechit without the energy deposit>  -995.
+  float energyDeposit = -999.;
+  if (gasGainCorrection < -998.) {
+    // if the user has chosen not to use the gas gain correction, set the energy to a different nonsense value
+    energyDeposit = -998.;
+
+  } else if (gasGainCorrection < 0.) {
+    // if the gas gain correction from the database is a bad value, set the energy to yet another nonsense value
+    energyDeposit = -997.;
+
+  } else {
+    // gas-gain correction is OK, correct the 3x3 ADC sum
+    if (adcMap.size()==12) {
+      energyDeposit =
+	adcMap[0] * gasGainCorrection + adcMap[1] * gasGainCorrection + adcMap[2] * gasGainCorrection +
+	adcMap[4] * gasGainCorrection + adcMap[5] * gasGainCorrection + adcMap[6] * gasGainCorrection +
+	adcMap[8] * gasGainCorrection + adcMap[9] * gasGainCorrection + adcMap[10]* gasGainCorrection ;	
+
+    } else if (adcMap.size()==4) {
+      // if this is an edge strip, set the energy to yet another nonsense value
+      energyDeposit = -996.;
+    }
+
+  }
+
   /// store rechit
 
    /// Retrive the L1APhase+strips combination
@@ -218,7 +258,8 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
      CSCRecHit2D rechit( id, lp0, localerr, L1A_and_strips,                  /// L1A;
      //adcMap, wgroups, tpeak, positionWithinTheStrip,
       adcMap, BX_and_wgroups, tpeak, positionWithinTheStrip,        /// BX
-      sigmaWithinTheStrip/stripWidth, quality, sHit.deadStrip(), wHit.deadWG(), scaledWireTime);
+      sigmaWithinTheStrip/stripWidth, quality, sHit.deadStrip(), wHit.deadWG(), scaledWireTime,
+      energyDeposit);
 
   /// To see RecHit content (L1A feature included) (to be commented out)
   // rechit.print();

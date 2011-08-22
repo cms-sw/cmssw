@@ -47,7 +47,9 @@ csc2DRecHits = cms.EDProducer("CSCRecHitDProducer",
     # Do we use the chip and chamber and L1A phase corrections when filling the recHit time?
     #
     CSCUseTimingCorrections = cms.bool(True),
-                              
+    #
+    # Do we correct the energy deposited for gas gains?
+    CSCUseGasGainCorrections = cms.bool(False),
     #
     #    Parameters which are not used currently
     #
