@@ -47,7 +47,7 @@ private:
   static unsigned int iterations_;
   static bool saveHybridResult_, readHybridResults_; 
   static std::string gridFile_;
-  static bool expectedFromGrid_; 
+  static bool expectedFromGrid_, clsQuantiles_; 
   static float quantileForExpectedFromGrid_;
   static bool fullBToys_; 
   static bool fullGrid_; 
@@ -88,6 +88,7 @@ private:
   std::auto_ptr<RooStats::HybridCalculator> create(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, double rVal, Setup &setup);
   std::pair<double,double> eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive=false, double clsTarget=-1) ;
   void applyExpectedQuantile(RooStats::HypoTestResult &hcres);
+  void applyClsQuantile(RooStats::HypoTestResult &hcres);
   RooStats::HypoTestResult *evalGeneric(RooStats::HybridCalculator &hc, bool forceNoFork=false);
   RooStats::HypoTestResult *evalWithFork(RooStats::HybridCalculator &hc);
   // RooStats::HypoTestResult *evalFrequentist(RooStats::HybridCalculator &hc);  // cross-check implementation, 
@@ -102,6 +103,7 @@ private:
   std::pair<double,double> updateGridPoint(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, std::map<double, RooStats::HypoTestResult *>::iterator point);
   void useGrid();
 
+  
 };
 
 #endif

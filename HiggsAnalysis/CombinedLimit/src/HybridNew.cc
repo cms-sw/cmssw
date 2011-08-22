@@ -58,6 +58,7 @@ bool HybridNew::CLs_ = false;
 bool HybridNew::saveHybridResult_  = false;
 bool HybridNew::readHybridResults_ = false; 
 bool  HybridNew::expectedFromGrid_ = false; 
+bool  HybridNew::clsQuantiles_ = true; 
 float HybridNew::quantileForExpectedFromGrid_ = 0.5; 
 bool  HybridNew::fullBToys_ = false; 
 bool  HybridNew::fullGrid_ = false; 
@@ -97,6 +98,7 @@ LimitAlgo("HybridNew specific options") {
         ("readHybridResults", "Read and merge results from file (requires 'toysFile' or 'grid')")
         ("grid",    boost::program_options::value<std::string>(&gridFile_),            "Use the specified file containing a grid of SamplingDistributions for the limit (implies readHybridResults).\n For --singlePoint or --signif use --toysFile=x.root --readHybridResult instead of this.")
         ("expectedFromGrid", boost::program_options::value<float>(&quantileForExpectedFromGrid_)->default_value(0.5), "Use the grid to compute the expected limit for this quantile")
+        ("clsQuantiles", boost::program_options::value<bool>(&clsQuantiles_)->default_value(clsQuantiles_), "Compute correct quantiles of CLs or CLsplusb instead of assuming they're the same as CLb ones")
         //("importanceSamplingNull", boost::program_options::value<bool>(&importanceSamplingNull_)->default_value(importanceSamplingNull_),  
         //                           "Enable importance sampling for null hypothesis (background only)") 
         //("importanceSamplingAlt",  boost::program_options::value<bool>(&importanceSamplingAlt_)->default_value(importanceSamplingAlt_),    
@@ -826,12 +828,88 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
 
 void HybridNew::applyExpectedQuantile(RooStats::HypoTestResult &hcres) {
   if (expectedFromGrid_) {
-      std::vector<Double_t> btoys = hcres.GetNullDistribution()->GetSamplingDistribution();
-      std::sort(btoys.begin(), btoys.end());
-      Double_t testStat = btoys[std::min<int>(floor((1.-quantileForExpectedFromGrid_) * btoys.size()+0.5), btoys.size())];
-      hcres.SetTestStatisticData(testStat);
+      if (clsQuantiles_) {
+          applyClsQuantile(hcres);
+      } else {
+          std::vector<Double_t> btoys = hcres.GetNullDistribution()->GetSamplingDistribution();
+          std::sort(btoys.begin(), btoys.end());
+          Double_t testStat = btoys[std::min<int>(floor((1.-quantileForExpectedFromGrid_) * btoys.size()+0.5), btoys.size())];
+          if (verbose > 0) std::cout << "Text statistics for " << quantileForExpectedFromGrid_ << " quantile: " << testStat << std::endl;
+          hcres.SetTestStatisticData(testStat);
+          std::cout << "CLs quantile = " << (CLs_ ? hcres.CLs() : hcres.CLsplusb()) << " for test stat = " << testStat << std::endl;
+      }
   }
-  
+}
+void HybridNew::applyClsQuantile(RooStats::HypoTestResult &hcres) {
+    RooStats::SamplingDistribution * bDistribution = hcres.GetNullDistribution(), * sDistribution = hcres.GetAltDistribution();
+    const std::vector<Double_t> & bdist   = bDistribution->GetSamplingDistribution();
+    const std::vector<Double_t> & bweight = bDistribution->GetSampleWeights();
+    const std::vector<Double_t> & sdist   = sDistribution->GetSamplingDistribution();
+    const std::vector<Double_t> & sweight = sDistribution->GetSampleWeights();
+    TStopwatch timer;
+
+    /** New test implementation, scales as N*log(N) */
+    timer.Start();
+    std::vector<std::pair<double,double> > bcumul; bcumul.reserve(bdist.size()); 
+    std::vector<std::pair<double,double> > scumul; scumul.reserve(sdist.size());
+    double btot = 0, stot = 0;
+    for (std::vector<Double_t>::const_iterator it = bdist.begin(), ed = bdist.end(), itw = bweight.begin(); it != ed; ++it, ++itw) {
+        bcumul.push_back(std::pair<double,double>(*it, *itw));
+        btot += *itw;
+    }
+    for (std::vector<Double_t>::const_iterator it = sdist.begin(), ed = sdist.end(), itw = sweight.begin(); it != ed; ++it, ++itw) {
+        scumul.push_back(std::pair<double,double>(*it, *itw));
+        stot += *itw;
+    }
+    double sinv = 1.0/stot, binv = 1.0/btot, runningSum;
+    // now compute integral distribution of Q(s+b data) so that we can quickly compute the CL_{s+b} for all test stats.
+    std::sort(scumul.begin(), scumul.end());
+    runningSum = 0;
+    for (std::vector<std::pair<double,double> >::reverse_iterator it = scumul.rbegin(), ed = scumul.rend(); it != ed; ++it) {
+        runningSum += it->second; 
+        it->second = runningSum * sinv;
+    }
+    std::sort(bcumul.begin(), bcumul.end());
+    std::vector<std::pair<double,std::pair<double,double> > > xcumul; xcumul.reserve(bdist.size());
+    runningSum = 0;
+    std::vector<std::pair<double,double> >::const_iterator sbegin = scumul.begin(), send = scumul.end();
+    int k = 0;
+    for (std::vector<std::pair<double,double> >::const_reverse_iterator it = bcumul.rbegin(), ed = bcumul.rend(); it != ed; ++it) {
+        runningSum += it->second; 
+        std::vector<std::pair<double,double> >::const_iterator match = std::upper_bound(sbegin, send, std::pair<double,double>(it->first, 0));
+        double clsb = match->second, clb = runningSum*binv, cls = clsb / clb;
+        if ((++k) % 100 == 0) printf("At %+8.5f  CLb = %6.4f, CLsplusb = %6.4f, CLs =%7.4f\n", it->first, clb, clsb, cls);
+        xcumul.push_back(std::make_pair(CLs_ ? cls : clsb, *it));
+    }
+    // sort 
+    std::sort(xcumul.begin(), xcumul.end()); 
+    // get quantile
+    runningSum = 0; double cut = quantileForExpectedFromGrid_ * btot;
+    for (std::vector<std::pair<double,std::pair<double,double> > >::const_iterator it = xcumul.begin(), ed = xcumul.end(); it != ed; ++it) {
+        runningSum += it->second.second; 
+        if (runningSum >= cut) {
+            hcres.SetTestStatisticData(it->second.first);
+            //std::cout << "CLs quantile = " << it->first << " for test stat = " << it->second.first << std::endl;
+            break;
+        }
+    }
+    //std::cout << "CLs quantile = " << (CLs_ ? hcres.CLs() : hcres.CLsplusb()) << std::endl;
+    //std::cout << "Computed quantiles in " << timer.RealTime() << " s" << std::endl; 
+#if 0
+    /** Implementation in RooStats 5.30: scales as N^2, inefficient */
+    timer.Start();
+    std::vector<std::pair<double, double> > values(bdist.size()); 
+    for (int i = 0, n = bdist.size(); i < n; ++i) { 
+        hcres.SetTestStatisticData( bdist[i] );
+        values[i] = std::pair<double, double>(CLs_ ? hcres.CLs() : hcres.CLsplusb(), bdist[i]);
+    }
+    std::sort(values.begin(), values.end());
+    int index = std::min<int>(floor((1.-quantileForExpectedFromGrid_) * values.size()+0.5), values.size());
+    std::cout << "CLs quantile = " << values[index].first << " for test stat = " << values[index].second << std::endl;
+    hcres.SetTestStatisticData(values[index].second);
+    std::cout << "CLs quantile = " << (CLs_ ? hcres.CLs() : hcres.CLsplusb()) << " for test stat = " << values[index].second << std::endl;
+    std::cout << "Computed quantiles in " << timer.RealTime() << " s" << std::endl; 
+#endif
 }
 
 RooStats::HypoTestResult * HybridNew::evalGeneric(RooStats::HybridCalculator &hc, bool noFork) {
@@ -1150,3 +1228,4 @@ void HybridNew::clearGrid() {
     }
     grid_.clear();
 }
+
