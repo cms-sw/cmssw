@@ -148,8 +148,8 @@ maxInputEvents = -1 # reduce for testing
 ### Conditions
 
 # GlobalTags (w/o suffix '::All')
-globalTagData = 'GR_R_42_V12' # default for CMSSW_4_2_3 RelVals: 'GR_R_42_V12'
-globalTagMC   = 'START42_V12' # default for CMSSW_4_2_3 RelVals: 'START42_V12'
+globalTagData = 'GR_R_42_V19' # default for CMSSW_4_2_8 RelVals: 'GR_R_42_V14'
+globalTagMC   = 'START42_V13' # default for CMSSW_4_2_8 RelVals: 'START42_V12'
 
 ### Output
 
@@ -189,17 +189,18 @@ process.load( "TopQuarkAnalysis.Configuration.patRefSel_inputModule_cfi" )
 if useRelVals:
   from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
   if runOnMC:
-    inputFiles = pickRelValInputFiles( cmsswVersion  = 'CMSSW_4_2_3'
+    inputFiles = pickRelValInputFiles( cmsswVersion  = 'CMSSW_4_2_8'
                                      , relVal        = 'RelValTTbar'
                                      , globalTag     = globalTagMC
                                      , numberOfFiles = -1 # "-1" means "all"
                                      )
   else:
-    inputFiles = pickRelValInputFiles( cmsswVersion  = 'CMSSW_4_2_3'
-                                     , relVal        = 'Mu'
+    print 'running on *Jet* data stream (instead of MultiJet) as no better stream exists as RelVal'
+    inputFiles = pickRelValInputFiles( cmsswVersion  = 'CMSSW_4_2_8'
+                                     , relVal        = 'Jet'
                                      , dataTier      = 'RECO'
-                                     #, globalTag     = globalTagData + '_RelVal_mu2010B'
-                                     , globalTag     = globalTagData + '_mu2010B' # wrong naming scheme in CMSSW_4_2_3
+                                     #, globalTag     = globalTagData + '_RelVal_jet2010B'
+                                     , globalTag     = globalTagData + '_jet2010B' # wrong naming scheme in CMSSW_4_2_8
                                      , numberOfFiles = -1 # "-1" means "all"
                                      )
 process.source.fileNames = inputFiles
