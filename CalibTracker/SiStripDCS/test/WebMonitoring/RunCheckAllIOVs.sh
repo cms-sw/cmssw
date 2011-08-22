@@ -23,13 +23,13 @@ for f in $FILES; do
     mkdir -p $yearDir
     mv $f $yearDir
 done
-  
+
 # Produce the json file for the full database content
 echo "Producing the json file for the full database content"
 python DCSTrend.py
-cp full.js /afs/cern.ch/cms/tracker/sistrcalib/WWW/DCSTrend_v4
+cp full_*.js /afs/cern.ch/cms/tracker/sistrcalib/WWW/DCSTrend
 
 # Produce the json file for the last month
 echo "Producing the json file for the last month"
 python DCSLastTrend.py
-cp oneMonth.js /afs/cern.ch/cms/tracker/sistrcalib/WWW/DCSTrend_v4
+cp oneMonth_*.js /afs/cern.ch/cms/tracker/sistrcalib/WWW/DCSTrend
