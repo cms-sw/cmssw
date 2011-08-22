@@ -25,6 +25,9 @@
 <use   name="HLTrigger/HLTcore"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="L1Trigger/CSCTrackFinder"/>
+<architecture name="osx">
+<flags CXXFLAGS="-g -O0"/>
+</architecture>
 <export>
   <lib   name="1"/>
 </export>

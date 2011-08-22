@@ -1,3 +1,4 @@
+<flags CXXFLAGS="-g -O0"/>
 <library   file="*.cc" name="HLTriggerOfflinespecialPlugins">
   <use   name="HLTriggerOffline/special"/>
   <flags   EDM_PLUGIN="1"/>
