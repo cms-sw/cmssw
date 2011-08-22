@@ -25,7 +25,6 @@ namespace edm {
     }
   }
   RootTree::RootTree(boost::shared_ptr<InputFile> filePtr,
-                     FileFormatVersion const& fileFormatVersion,
                      BranchType const& branchType,
                      unsigned int maxVirtualSize,
                      unsigned int cacheSize,
@@ -45,7 +44,7 @@ namespace edm {
     switchOverEntry_(-1),
     learningEntries_(learningEntries),
     cacheSize_(cacheSize),
-    rootDelayedReader_(new RootDelayedReader(*this, fileFormatVersion, filePtr)),
+    rootDelayedReader_(new RootDelayedReader(*this, filePtr)),
     branchEntryInfoBranch_(metaTree_ ? getProductProvenanceBranch(metaTree_, branchType_) : (tree_ ? getProductProvenanceBranch(tree_, branchType_) : 0)),
     infoTree_(dynamic_cast<TTree*>(filePtr_.get() != 0 ? filePtr->Get(BranchTypeToInfoTreeName(branchType).c_str()) : 0)) // backward compatibility
     {

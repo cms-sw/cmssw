@@ -13,12 +13,10 @@ namespace edm {
 
   RootDelayedReader::RootDelayedReader(
       RootTree const& tree,
-      FileFormatVersion const& fileFormatVersion,
       boost::shared_ptr<InputFile> filePtr) :
    tree_(tree),
    filePtr_(filePtr),
-   nextReader_(),
-   fileFormatVersion_(fileFormatVersion) {
+   nextReader_() {
   }
 
   RootDelayedReader::~RootDelayedReader() {
@@ -52,7 +50,7 @@ namespace edm {
     void* p = cp->New();
     br->SetAddress(&p);
     tree_.getEntry(br, entryNumber());
-    setRefCoreStreamer(!fileFormatVersion_.splitProductIDs());
+    setRefCoreStreamer(false);
     WrapperOwningHolder edp(p, interface);
     return edp;
   }
