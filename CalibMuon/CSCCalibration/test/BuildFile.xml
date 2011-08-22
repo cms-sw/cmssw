@@ -45,6 +45,9 @@
 <library   name="CSCChipSpeedCorrectionPopConAnalyzer" file="stubs/CSCDBChipSpeedCorrectionHandler.cc,stubs/CSCChipSpeedCorrectionPopConAnalyzer.cc">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   name="CSCGasGainCorrectionPopConAnalyzer" file="stubs/CSCDBGasGainCorrectionHandler.cc,stubs/CSCGasGainCorrectionPopConAnalyzer.cc">
+  <flags   EDM_PLUGIN="1"/>
+</library>
 <library   name="Compare" file="stubs/Compare.cc">
   <flags   EDM_PLUGIN="1"/>
 </library>
