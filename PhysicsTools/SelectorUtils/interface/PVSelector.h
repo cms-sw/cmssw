@@ -25,23 +25,35 @@ public:
   }
   
   bool operator() ( edm::EventBase const & event,  pat::strbitset & ret ) {
+    ret.set(false);
     event.getByLabel(pvSrc_, h_primVtx);
 
     // check if there is a good primary vertex
 
     if ( h_primVtx->size() < 1 ) return false;
 
-
+    // Loop over PV's and count those that pass
     int npv = 0;
     for ( std::vector<reco::Vertex>::const_iterator ibegin = h_primVtx->begin(),
 	    iend = h_primVtx->end(), i = ibegin; i != iend; ++i ) {
       reco::Vertex const & pv = *i;
-      if ( pvSel_( pv ) ) {
+      bool ipass = pvSel_(pv);
+      if ( ipass ) {
 	++npv;
       }
     }
 
-    return npv >= cut(indexNPV_, int() );
+    // Set the strbitset
+    if ( npv >= cut(indexNPV_, int() ) || ignoreCut(indexNPV_) ) {
+      passCut(ret, indexNPV_);
+    }
+
+    // Check if there is anything to ignore
+    setIgnored(ret);
+
+    // Return status
+    bool pass = (bool)ret;
+    return pass;
   }
 
   using EventSelector::operator();
