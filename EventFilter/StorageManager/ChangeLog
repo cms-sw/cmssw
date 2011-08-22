@@ -1,3 +1,8 @@
+2011-08-22 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-04-02
+	* Reshuffle some code to avoid dependency on SMProxy header.
+
 2011-07-27 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V08-04-01
