@@ -1,4 +1,64 @@
 {
+    "Asymm_BayesianSimple": {
+        "comment": "all 2 jobs done", 
+        "results": {
+            "counting-B5p5-Obs6-Syst1040B.txt": {
+                "comment": "", 
+                "limit": 7.0469188021426215, 
+                "limitErr": 0.0, 
+                "status": "done", 
+                "t_real": 0.0064637023024260998
+            }, 
+            "counting-B5p5-Obs6-Syst4010B.txt": {
+                "comment": "", 
+                "limit": 7.9597680589811812, 
+                "limitErr": 0.0, 
+                "status": "done", 
+                "t_real": 0.0054557998664677143
+            }
+        }, 
+        "status": "done"
+    }, 
+    "Asymm_ProfileLikelihood": {
+        "comment": "all 2 jobs done", 
+        "results": {
+            "counting-B5p5-Obs6-Syst1040B.txt": {
+                "comment": "", 
+                "limit": 6.7740543027184659, 
+                "limitErr": 0.0, 
+                "status": "done", 
+                "t_real": 0.0096519831568002701
+            }, 
+            "counting-B5p5-Obs6-Syst4010B.txt": {
+                "comment": "", 
+                "limit": 7.8597179848974026, 
+                "limitErr": 0.0, 
+                "status": "done", 
+                "t_real": 0.011214598082005978
+            }
+        }, 
+        "status": "done"
+    }, 
+    "Asymm_Sig_ProfileLikelihood": {
+        "comment": "all 2 jobs done", 
+        "results": {
+            "counting-B5p5-Obs20-Syst1040B.txt": {
+                "comment": "", 
+                "limit": 3.1225955192254466, 
+                "limitErr": 0.0, 
+                "status": "done", 
+                "t_real": 0.00054613349493592978
+            }, 
+            "counting-B5p5-Obs20-Syst4010B.txt": {
+                "comment": "", 
+                "limit": 4.5633356576150117, 
+                "limitErr": 0.0, 
+                "status": "done", 
+                "t_real": 0.00039891799679026008
+            }
+        }, 
+        "status": "done"
+    },
     "Binary_WWZZgg_mh140_ProfileLikelihood": {
         "comment": "LHC-HCG",
         "results": { "toy-WWZZgg-mh140.root": { "comment": "LHC-HCG", "limit": 0.27240163604209278, "limitErr": 0.0, "status": "done", "t_real": 1.363951563835144 } },
