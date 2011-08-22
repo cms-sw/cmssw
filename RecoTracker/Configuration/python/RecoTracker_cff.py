@@ -34,7 +34,7 @@ from RecoTracker.Configuration.RecoTrackerNotStandard_cff import *
 #merging sequence
 from RecoTracker.FinalTrackSelectors.MergeTrackCollections_cff import *
 
-ckftracks_woBH = cms.Sequence(iterTracking*trackCollectionMerging*newCombinedSeeds*doAlldEdXEstimators)
+ckftracks_woBH = cms.Sequence(iterTracking*newCombinedSeeds*doAlldEdXEstimators)
 ckftracks = ckftracks_woBH.copy() #+ beamhaloTracksSeq) # temporarily out, takes too much resources
 
 ckftracks_wodEdX = ckftracks.copy()
