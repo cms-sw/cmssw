@@ -316,13 +316,13 @@ void significanceToPVals(TDirectory *bands, TString inName, TString outName) {
     significanceToPVal(bands, inName+"_nosyst_ntoys",     outName+"_nosyst_ntoys");
 }
 
-void cutBand(TDirectory *bands, TString inName, TString outName, int mMin, int mMax) {
+void cutBand(TDirectory *bands, TString inName, TString outName, float mMin, float mMax) {
     TGraphAsymmErrors *b1 = (TGraphAsymmErrors *) bands->Get(inName);
     if (b1 == 0 || b1->GetN() == 0) return;
     TGraphAsymmErrors *b2 = new TGraphAsymmErrors();
     int n = b1->GetN(), m = 0;
     for (int i = 0; i < n; ++i) {
-        if (mMin <= int(b1->GetX()[i]) && int(b1->GetX()[i]) <= mMax) {
+        if (mMin <= b1->GetX()[i] && b1->GetX()[i] <= mMax) {
             b2->Set(m+1);
             b2->SetPoint(m, b1->GetX()[i], b1->GetY()[i]);
             b2->SetPointError(m, b1->GetErrorXlow(i), b1->GetErrorXhigh(i),
@@ -332,9 +332,10 @@ void cutBand(TDirectory *bands, TString inName, TString outName, int mMin, int m
     }
     b2->SetName(outName);
     bands->WriteTObject(b2, outName);
+    //bands->Add(b2);
 }
 
-void cutBands(TDirectory *bands, TString inName, TString outName, int mMin, int mMax) {
+void cutBands(TDirectory *bands, TString inName, TString outName, float mMin, float mMax) {
     cutBand(bands, inName+"_obs",   outName+"_obs",    mMin, mMax);
     cutBand(bands, inName+"_mean",   outName+"_mean",    mMin, mMax);
     cutBand(bands, inName+"_median", outName+"_median",  mMin, mMax);
@@ -513,6 +514,7 @@ void printLineErr(TDirectory *bands, TString who, TString fileName, TString head
     TGraph *mean = (TGraph*) bands->Get(who);
     if (mean == 0) { std::cerr << "MISSING " << who << std::endl; return; }
     FILE *fout = fopen(fileName.Data(), "w");
+    if (fout == 0)  { std::cerr << "CANNOT WRITE TO " << fileName << std::endl; return; }
     printLineErr(bands,who,fout,header);
     fclose(fout);
 }
@@ -542,21 +544,22 @@ void printLineAErr(TDirectory *bands, TString who, TString fileName, TString hea
 void printBand(TDirectory *bands, TString who, FILE *fout, bool mean=false) {
     TGraphAsymmErrors *obs    = (TGraphAsymmErrors*) bands->Get(who+"_obs");
     TGraphAsymmErrors *mean68 = (TGraphAsymmErrors*) bands->Get(who+(mean?"_mean":"_median"));
-    TGraphAsymmErrors *mean95 = (TGraphAsymmErrors*) bands->Get(who+(mean?"_mean":"_median")+"_95");
+    TGraphAsymmErrors *mean95 = (TGraphAsymmErrors*) bands->Get(who+(mean?"_mean_95":"_median_95"));
     if (mean68 == 0 && obs == 0) { std::cerr << "MISSING " << who << "_mean and " << who << "_obs" << std::endl; return; }
     if (mean68 == 0) { printLineErr(bands, who+"_obs", fout); return; }
     fprintf(fout, "%4s \t %7s  %7s  %7s  %7s  %7s  %7s\n", "mass", " obs ", "-95%", "-68%", (mean ? "mean" : "median"), "+68%", "+95%");
     fprintf(fout,  "%5s\t %7s  %7s  %7s  %7s  %7s  %7s\n", "-----","-----",  "-----", "-----", "-----", "-----", "-----");
     for (int i = 0, n = mean68->GetN(); i < n; ++i) {
-        int j = (obs ? findBin(obs, mean68->GetX()[i]) : -1);
+        int j  = (obs    ? findBin(obs,    mean68->GetX()[i]) : -1);
+        int j2 = (mean95 ? findBin(mean95, mean68->GetX()[i]) : -1);
         fprintf(fout, who.Contains("pval") ? "%4d \t %7.5f  %7.5f  %7.5f  %7.5f  %7.5f  %7.5f\n" : "%4d \t %7.3f  %7.3f  %7.3f  %7.3f  %7.3f  %7.3f\n" , 
             int(mean68->GetX()[i]),  
             j == -1 ? NAN : obs->GetY()[j],
-            mean68->GetY()[i]-mean95->GetErrorYlow(i), 
+            j2 == -1 ? NAN : mean95->GetY()[j2]-mean95->GetErrorYlow(j2), 
             mean68->GetY()[i]-mean68->GetErrorYlow(i), 
             mean68->GetY()[i],
             mean68->GetY()[i]+mean68->GetErrorYhigh(i),
-            mean68->GetY()[i]+mean95->GetErrorYhigh(i)
+            j2 == -1 ? NAN : mean95->GetY()[j2]+mean95->GetErrorYhigh(j2)
         );
     }
 }
