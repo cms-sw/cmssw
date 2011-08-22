@@ -127,9 +127,6 @@
  <class name="edm::RunAux" ClassVersion="10">
   <version ClassVersion="10" checksum="2689473100"/>
  </class>
- <class name="edm::BranchEntryDescription" ClassVersion="10">
-  <version ClassVersion="10" checksum="1666873625"/>
- </class>
  <class name="edm::EventEntryInfo" ClassVersion="10">
   <version ClassVersion="10" checksum="199135386"/>
  </class>
@@ -138,9 +135,6 @@
  </class>
  <class name="std::vector<edm::EventEntryInfo>"/>
  <class name="std::vector<edm::RunLumiEntryInfo>"/>
- <class name="edm::EntryDescription" ClassVersion="10">
-  <version ClassVersion="10" checksum="4216547277"/>
- </class>
  <class name="edm::EntryDescriptionID"/>
  <class name="edm::EventEntryDescription" ClassVersion="10">
   <version ClassVersion="10" checksum="2543392650"/>
