@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V214
+# /dev/CMSSW_4_2_0/GRun/V215
 
 import FWCore.ParameterSet.Config as cms
 
@@ -202,6 +202,14 @@ streamA_datasetHcalNZS_selector.throw      = cms.bool(False)
 streamA_datasetHcalNZS_selector.triggerConditions = cms.vstring('HLT_HcalNZS_v7', 
     'HLT_HcalPhiSym_v8')
 
+from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHighPileUp_selector
+streamA_datasetHighPileUp_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
+streamA_datasetHighPileUp_selector.l1tResults = cms.InputTag('')
+streamA_datasetHighPileUp_selector.throw      = cms.bool(False)
+streamA_datasetHighPileUp_selector.triggerConditions = cms.vstring('HLT_60Jet10_v1', 
+    'HLT_70Jet10_v1', 
+    'HLT_70Jet13_v1')
+
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetJet_selector
 streamA_datasetJet_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetJet_selector.l1tResults = cms.InputTag('')
@@ -260,10 +268,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetMinimumBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMinimumBias_selector.l1tResults = cms.InputTag('')
 streamA_datasetMinimumBias_selector.throw      = cms.bool(False)
-streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_60Jet10_v1', 
-    'HLT_70Jet10_v1', 
-    'HLT_70Jet13_v1', 
-    'HLT_JetE30_NoBPTX3BX_NoHalo_v8', 
+streamA_datasetMinimumBias_selector.triggerConditions = cms.vstring('HLT_JetE30_NoBPTX3BX_NoHalo_v8', 
     'HLT_JetE30_NoBPTX_NoHalo_v8', 
     'HLT_JetE30_NoBPTX_v6', 
     'HLT_JetE50_NoBPTX3BX_NoHalo_v3', 

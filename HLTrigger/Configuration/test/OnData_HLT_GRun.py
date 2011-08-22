@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V214 (CMSSW_4_2_0_HLT21)
+# /dev/CMSSW_4_2_0/GRun/V215 (CMSSW_4_2_0_HLT21)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V214')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V215')
 )
 
 process.streams = cms.PSet( 
@@ -19,6 +19,7 @@ process.streams = cms.PSet(
     'HT',
     'HcalHPDNoise',
     'HcalNZS',
+    'HighPileUp',
     'Jet',
     'LogMonitor',
     'MET',
@@ -218,6 +219,9 @@ process.datasets = cms.PSet(
     'HLT_L1Tech_HCAL_HF_single_channel_v1' ),
   HcalNZS = cms.vstring( 'HLT_HcalNZS_v7',
     'HLT_HcalPhiSym_v8' ),
+  HighPileUp = cms.vstring( 'HLT_60Jet10_v1',
+    'HLT_70Jet10_v1',
+    'HLT_70Jet13_v1' ),
   Jet = cms.vstring( 'HLT_DiJetAve110_v6',
     'HLT_DiJetAve190_v6',
     'HLT_DiJetAve240_v6',
@@ -258,10 +262,7 @@ process.datasets = cms.PSet(
     'HLT_MET65_HBHENoiseFiltered_v5',
     'HLT_MET65_v4',
     'HLT_PFMHT150_v12' ),
-  MinimumBias = cms.vstring( 'HLT_60Jet10_v1',
-    'HLT_70Jet10_v1',
-    'HLT_70Jet13_v1',
-    'HLT_JetE30_NoBPTX3BX_NoHalo_v8',
+  MinimumBias = cms.vstring( 'HLT_JetE30_NoBPTX3BX_NoHalo_v8',
     'HLT_JetE30_NoBPTX_NoHalo_v8',
     'HLT_JetE30_NoBPTX_v6',
     'HLT_JetE50_NoBPTX3BX_NoHalo_v3',
