@@ -63,7 +63,7 @@ namespace edm {
     std::string const& processName() const {return product().processName();}
     std::string const& productInstanceName() const {return product().productInstanceName();}
     std::string const& friendlyClassName() const {return product().friendlyClassName();}
-    ProcessHistoryID processHistoryID() const {return processHistoryID_;}
+    ProcessHistoryID const& processHistoryID() const {return *processHistoryID_;}
     ProcessConfigurationID processConfigurationID() const;
     ParameterSetID psetID() const;
     std::string moduleName() const;
@@ -82,7 +82,7 @@ namespace edm {
 
     void setStore(boost::shared_ptr<BranchMapper> store) const {store_ = store;}
 
-    void setProcessHistoryID(ProcessHistoryID const& pid) {processHistoryID_ = pid;}
+    void setProcessHistoryID(ProcessHistoryID const& phid) {processHistoryID_ = &phid;}
 
     ProductID const& productID() const {return productID_;}
 
@@ -103,7 +103,7 @@ namespace edm {
   private:
     boost::shared_ptr<ConstBranchDescription> branchDescription_;
     ProductID productID_;
-    ProcessHistoryID processHistoryID_;
+    ProcessHistoryID const* processHistoryID_; // Owned by Auxiliary
     mutable bool productProvenanceValid_;
     mutable boost::shared_ptr<ProductProvenance> productProvenancePtr_;
     mutable boost::shared_ptr<BranchMapper> store_;
