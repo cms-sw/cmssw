@@ -38,6 +38,7 @@ float MarkovChainMC::truncatedMeanFraction_ = 0.0;
 bool MarkovChainMC::adaptiveTruncation_ = true;
 float MarkovChainMC::hintSafetyFactor_ = 5.;
 bool MarkovChainMC::saveChain_ = false;
+bool MarkovChainMC::noSlimChain_ = false;
 bool MarkovChainMC::mergeChains_ = false;
 bool MarkovChainMC::readChains_ = false;
 float MarkovChainMC::proposalHelperWidthRangeDivisor_ = 5.;
@@ -84,6 +85,7 @@ MarkovChainMC::MarkovChainMC() :
                 boost::program_options::value<float>(&hintSafetyFactor_)->default_value(hintSafetyFactor_),
                 "set range of integration equal to this number of times the hinted limit")
         ("saveChain", "Save MarkovChain to output file")
+        ("noSlimChain", "Include also nuisance parameters in the chain that is saved to file")
         ("mergeChains", "Merge MarkovChains instead of averaging limits")
         ("readChains", "Just read MarkovChains from toysFile instead of running MCMC directly")
     ;
@@ -106,6 +108,7 @@ void MarkovChainMC::applyOptions(const boost::program_options::variables_map &vm
 
     mass_ = vm["mass"].as<float>();
     saveChain_   = vm.count("saveChain");
+    noSlimChain_   = vm.count("noSlimChain");
     mergeChains_ = vm.count("mergeChains");
     readChains_  = vm.count("readChains");
 
@@ -428,6 +431,7 @@ RooStats::MarkovChain *
 MarkovChainMC::slimChain(const RooArgSet &poi, const RooStats::MarkovChain &chain) const 
 {
     RooArgSet poilvalue(poi); // wtf they don't take a const & ??
+    if (noSlimChain_) poilvalue.add(*chain.Get());
     RooStats::MarkovChain * ret = new RooStats::MarkovChain("","",poilvalue);
     for (int i = 0, n = chain.Size(); i < n; ++i) {
         RooArgSet entry(*chain.Get(i));

@@ -45,6 +45,8 @@ private:
   static float hintSafetyFactor_;
   /// Save Markov Chain in output file
   static bool saveChain_;
+  /// Leave all parameters in the markov chain, not just the POI 
+  static bool noSlimChain_;
   /// Merge chains instead of averaging limits
   static bool mergeChains_; 
   /// Read chains from file instead of running them 
