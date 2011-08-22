@@ -51,6 +51,8 @@
 #include "CondFormats/DataRecord/interface/CSCDBL1TPParametersRcd.h"
 #include "CondFormats/CSCObjects/interface/CSCDQM_DCSData.h"
 #include "CondFormats/DataRecord/interface/CSCDCSDataRcd.h"
+#include "CondFormats/CSCObjects/interface/CSCDBGasGainCorrection.h"
+#include "CondFormats/DataRecord/interface/CSCDBGasGainCorrectionRcd.h"
 
 
 REGISTER_PLUGIN(CSCPedestalsRcd,CSCPedestals);
@@ -75,3 +77,4 @@ REGISTER_PLUGIN(CSCReadoutMappingRcd,CSCReadoutMapping);
 REGISTER_PLUGIN(CSCL1TPParametersRcd,CSCL1TPParameters);
 REGISTER_PLUGIN(CSCDBL1TPParametersRcd,CSCDBL1TPParameters);
 REGISTER_PLUGIN(CSCDCSDataRcd,  cscdqm::DCSData);
+REGISTER_PLUGIN(CSCDBGasGainCorrectionRcd,CSCDBGasGainCorrection);
