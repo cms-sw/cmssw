@@ -77,5 +77,5 @@ detachedTripletStepSeeds.SeedComparitorPSet.ComponentName = 'none'
 
 siClusterTranslator = cms.EDProducer("SiClusterTranslator")
 
-translationAndTracking_wodEdx = cms.Sequence(siClusterTranslator*siPixelRecHits*siStripMatchedRecHits*iterTracking*trackCollectionMerging*newCombinedSeeds)
+translationAndTracking_wodEdx = cms.Sequence(siClusterTranslator*siPixelRecHits*siStripMatchedRecHits*ckftracks_wodEdX)
 translationAndTracking = cms.Sequence(siClusterTranslator*siPixelRecHits*siStripMatchedRecHits*ckftracks)
