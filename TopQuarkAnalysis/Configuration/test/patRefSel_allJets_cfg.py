@@ -287,6 +287,8 @@ if useL7Parton:
 ### Switch configuration
 
 if runPF2PAT:
+  pfMuonSelectionCut += ' && %s'%( muonCutBase )
+  pfElectronSelectionCut += ' && %s'%( electronCutBase )
   from PhysicsTools.PatAlgos.tools.pfTools import usePF2PAT
   usePF2PAT( process
            , runPF2PAT      = runPF2PAT
