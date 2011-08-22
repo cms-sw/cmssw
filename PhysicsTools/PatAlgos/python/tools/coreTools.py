@@ -96,13 +96,15 @@ class RunOnData(ConfigToolBase):
             if mod.startswith('patJetCorrFactors'):
                 prefix = getattr(process, mod).payload.pythonValue().replace("'","")
                 if 'L3Absolute' in getattr(process,mod).levels:
-                    getattr(process,mod).levels.insert(getattr(process,mod).levels.index('L3Absolute')+1, 'L2L3Residual') 
-                    print 'adding L2L3Residual JEC for:', getattr(process,mod).label_()
+                    if not 'L2L3Residual' in getattr(process,mod).levels:
+                        getattr(process,mod).levels.insert(getattr(process,mod).levels.index('L3Absolute')+1, 'L2L3Residual') 
+                        print 'adding L2L3Residual JEC for:', getattr(process,mod).label_()
                 if hasattr(process, prefix+'CombinedCorrector'+postfix):
                     if prefix+'L3Absolute' in getattr(process,prefix+'CombinedCorrector'+postfix).correctors:
-                        idx = getattr(process,prefix+'CombinedCorrector'+postfix).correctors.index(prefix+'L3Absolute')+1
-                        getattr(process,prefix+'CombinedCorrector'+postfix).correctors.insert(idx, prefix+'L2L3Residual')
-                        print 'adding L2L3Residual for TypeI MET correction:', getattr(process,prefix+'CombinedCorrector'+postfix).label_()
+                        if not prefix+'L2L3Residual' in getattr(process,prefix+'CombinedCorrector'+postfix).correctors:
+                            idx = getattr(process,prefix+'CombinedCorrector'+postfix).correctors.index(prefix+'L3Absolute')+1
+                            getattr(process,prefix+'CombinedCorrector'+postfix).correctors.insert(idx, prefix+'L2L3Residual')
+                            print 'adding L2L3Residual for TypeI MET correction:', getattr(process,prefix+'CombinedCorrector'+postfix).label_()
 
 runOnData=RunOnData()
 
@@ -511,7 +513,7 @@ class AddCleaning(ConfigToolBase):
         countLept.muonSource = countLept.muonSource.value().replace('selectedPat','cleanPat')
         countLept.tauSource = countLept.tauSource.value().replace('selectedPat','cleanPat')
         if len(outputModules) > 0:
-            print "---------------------------------------------------------------------"
+            print "------------------------------------------------------------"
             print "INFO   : cleaning has been added. Switching output from  "
             print "         selected PAT candidates to clean PAT candidates."
             ## add clean layer1 objects to the pat output
