@@ -36,7 +36,8 @@ public:
                float errInStrip,
 	       int quality,
                short int badStrip=0, short int badWireGroup=0,
-               int scaledWireTime=0 ); 
+               int scaledWireTime=0,
+	       float energyDeposit=-995.); 
 	
   ~CSCRecHit2D();
 
@@ -88,6 +89,17 @@ public:
   // Calculated wire time in ns
   float wireTime() const { return (float)theScaledWireTime/100.; }
 
+  /// Energy deposited in the layer.  Note:  this value is dE.  In order to 
+  /// get the dE/dX, you will need to divide by the path length.
+  /// Specific failure values...
+  /// If the user has chosen not to use the gas gain correction --->  -998.
+  /// If the gas gain correction from the database is a bad value ->  -997.
+  /// If it is an edge strip -------------------------------------->  -996.
+  /// If gas-gain is OK, but the ADC vector is the wrong size  ---->  -999.
+  /// If the user has created the Rechit without the energy deposit>  -995.
+  /// If the user has created the Rechit with no arguments -------->  -994.
+  float energyDepositedInLayer() const { return theEnergyDeposit; }
+
   /// Returns true if the two TrackingRecHits are using the same input information, false otherwise.  In this case, looks at the geographical ID and channel numbers for strips and wires.
   virtual bool sharesInput(const TrackingRecHit *other, TrackingRecHit::SharedInputType what) const;
   
@@ -114,6 +126,7 @@ private:
   short int theBadStrip;
   short int theBadWireGroup;
   int theScaledWireTime;
+  float theEnergyDeposit;
   ChannelContainer theStripsLowBits; /// L1A
   ChannelContainer theStripsHighBits; /// L1A
   ChannelContainer theWgroupsHighBits; /// BX
