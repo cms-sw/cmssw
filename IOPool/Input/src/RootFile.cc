@@ -2,7 +2,6 @@
 ----------------------------------------------------------------------*/
 
 #include "RootFile.h"
-#include "BranchMapperWithReader.h"
 #include "DuplicateChecker.h"
 #include "InputFile.h"
 #include "ProvenanceAdaptor.h"
@@ -41,7 +40,6 @@
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
 //used for backward compatibility
-#include "DataFormats/Provenance/interface/BranchEntryDescription.h"
 #include "DataFormats/Provenance/interface/EntryDescriptionRegistry.h"
 #include "DataFormats/Provenance/interface/EventAux.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAux.h"
@@ -60,6 +58,28 @@
 #include <list>
 
 namespace edm {
+
+  // Algorithm classes for making ProvenanceReader:
+  class MakeDummyProvenanceReader : public MakeProvenanceReader {
+  public:
+    virtual std::auto_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree) const;
+  };
+  class MakeOldProvenanceReader : public MakeProvenanceReader {
+  public:
+    virtual std::auto_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree) const;
+  };
+  class MakeFullProvenanceReader : public MakeProvenanceReader {
+  public:
+    virtual std::auto_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree) const;
+  };
+  class MakeReducedProvenanceReader : public MakeProvenanceReader {
+  public:
+    MakeReducedProvenanceReader(std::vector<ParentageID> const& parentageIDLookup) : parentageIDLookup_(parentageIDLookup) {}
+    virtual std::auto_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree) const;
+  private:
+    std::vector<ParentageID> const& parentageIDLookup_;
+  };
+
   namespace {
     int
     forcedRunOffset(RunNumber_t const& forcedRunNumber, IndexIntoFile::IndexIntoFileItr inxBegin, IndexIntoFile::IndexIntoFileItr inxEnd) {
@@ -96,7 +116,6 @@ namespace edm {
   private:
      RootTree& eventTree_;
   };
-
 
 //---------------------------------------------------------------------
   RootFile::RootFile(std::string const& fileName,
@@ -143,9 +162,9 @@ namespace edm {
       hasNewlyDroppedBranch_(),
       branchListIndexesUnchanged_(false),
       eventAux_(),
-      eventTree_(filePtr_, fileFormatVersion_, InEvent, treeMaxVirtualSize, treeCacheSize, roottree::defaultLearningEntries),
-      lumiTree_(filePtr_, fileFormatVersion_, InLumi, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries),
-      runTree_(filePtr_, fileFormatVersion_, InRun, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries),
+      eventTree_(filePtr_, InEvent, treeMaxVirtualSize, treeCacheSize, roottree::defaultLearningEntries),
+      lumiTree_(filePtr_, InLumi, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries),
+      runTree_(filePtr_, InRun, treeMaxVirtualSize, roottree::defaultNonEventCacheSize, roottree::defaultNonEventLearningEntries),
       treePointers_(),
       lastEventEntryNumberRead_(-1LL),
       productRegistry_(),
@@ -160,6 +179,7 @@ namespace edm {
       branchChildren_(new BranchChildren),
       duplicateChecker_(duplicateChecker),
       provenanceAdaptor_(),
+      provenanceReaderMaker_(),
       secondaryEventPrincipal_(),
       eventBranchMapper_() {
 
@@ -379,6 +399,8 @@ namespace edm {
       productRegistry_.reset(newReg.release());
     }
 
+    // Here, we make the class that will make the ProvenanceReader
+    provenanceReaderMaker_.reset(makeProvenanceReaderMaker().release());
 
     // Set up information from the product registry.
     ProductRegistry::ProductList const& prodList = productRegistry()->productList();
@@ -1299,7 +1321,7 @@ namespace edm {
                              lb,
                              eventSelectionIDs_,
                              branchListIndexes_,
-                             makeBranchMapper(eventTree_),
+                             makeBranchMapper(),
                              eventTree_.rootDelayedReader());
 
     // report event read from file
@@ -1634,76 +1656,33 @@ namespace edm {
     }
   }
 
-  // backward compatibility
-
-  namespace {
-    boost::shared_ptr<BranchMapper>
-    makeBranchMapperInRelease180(RootTree& rootTree, ProductRegistry const& preg) {
-      boost::shared_ptr<BranchMapper> mapper(new BranchMapper());
-      for(ProductRegistry::ProductList::const_iterator it = preg.productList().begin(),
-          itEnd = preg.productList().end(); it != itEnd; ++it) {
-        if(InEvent == it->second.branchType() && !it->second.transient()) {
-          TBranch *br = rootTree.branches().find(it->first)->second.provenanceBranch_;
-          std::auto_ptr<BranchEntryDescription> pb(new BranchEntryDescription);
-          BranchEntryDescription* ppb = pb.get();
-          br->SetAddress(&ppb);
-          roottree::getEntry(br, rootTree.entryNumber());
-          // Not providing parentage!!!
-          ProductProvenance entry(it->second.branchID(), ParentageID());
-          mapper->insertIntoSet(entry);
-        }
-      }
-      return mapper;
+  std::auto_ptr<MakeProvenanceReader>
+  RootFile::makeProvenanceReaderMaker() const {
+    if(fileFormatVersion_.storedProductProvenanceUsed()) {
+      return std::auto_ptr<MakeProvenanceReader>(new MakeReducedProvenanceReader(parentageIDLookup_));
+    } else if(fileFormatVersion_.splitProductIDs()) {
+      return std::auto_ptr<MakeProvenanceReader>(new MakeFullProvenanceReader);
+    } else if(fileFormatVersion_.perEventProductIDs()) {
+      return std::auto_ptr<MakeProvenanceReader>(new MakeOldProvenanceReader);
+    } else {
+      return std::auto_ptr<MakeProvenanceReader>(new MakeDummyProvenanceReader);
     }
+  }
 
-    boost::shared_ptr<BranchMapper>
-    makeBranchMapperInRelease200(RootTree&, ProductRegistry const& preg) {
-      boost::shared_ptr<BranchMapper> mapper(new BranchMapper());
-      for(ProductRegistry::ProductList::const_iterator it = preg.productList().begin(),
-          itEnd = preg.productList().end(); it != itEnd; ++it) {
-        if(InEvent == it->second.branchType() && !it->second.transient()) {
-          // Not providing parentage!!!
-          ProductProvenance entry(it->second.branchID(), ParentageID());
-          mapper->insertIntoSet(entry);
-        }
-      }
-      return mapper;
+  boost::shared_ptr<BranchMapper>
+  RootFile::makeBranchMapper() {
+    if(!eventBranchMapper_) {
+      eventBranchMapper_.reset(new BranchMapper(provenanceReaderMaker_->makeReader(eventTree_)));
     }
+    eventBranchMapper_->reset();
+    return eventBranchMapper_;
+  }
 
-    boost::shared_ptr<BranchMapper>
-    makeBranchMapperInRelease210(RootTree& rootTree) {
-      boost::shared_ptr<BranchMapper> mapper(new BranchMapper());
-      std::auto_ptr<std::vector<EventEntryInfo> > infoVector(new std::vector<EventEntryInfo>);
-      std::vector<EventEntryInfo> *pInfoVector = infoVector.get();
-      rootTree.branchEntryInfoBranch()->SetAddress(&pInfoVector);
-      roottree::getEntry(rootTree.branchEntryInfoBranch(), rootTree.entryNumber());
-      setRefCoreStreamer(true);
-      for(std::vector<EventEntryInfo>::const_iterator it = infoVector->begin(), itEnd = infoVector->end();
-          it != itEnd; ++it) {
-        EventEntryDescription eed;
-        EntryDescriptionRegistry::instance()->getMapped(it->entryDescriptionID(), eed);
-        Parentage parentage(eed.parents());
-        ProductProvenance entry(it->branchID(), parentage.id());
-        mapper->insertIntoSet(entry);
-      }
-      return mapper;
-    }
-
-    boost::shared_ptr<BranchMapper>
-    makeBranchMapperInRelease300(RootTree& rootTree) {
-      boost::shared_ptr<ProvenanceReaderBase> reader(new BranchMapperWithReader(&rootTree));
-      boost::shared_ptr<BranchMapper> mapper(new BranchMapper(reader));
-      return mapper;
-    }
-  } // end anonymous namespace
-
-  class ReducedProvenanceBranchMapperWithReader : public ProvenanceReaderBase {
+  class ReducedProvenanceReader : public ProvenanceReaderBase {
   public:
-    ReducedProvenanceBranchMapperWithReader(RootTree* iRootTree,
-                                            std::vector<ParentageID> const& iParentageIDLookup);
+    ReducedProvenanceReader(RootTree* iRootTree, std::vector<ParentageID> const& iParentageIDLookup);
   private:
     virtual void readProvenance(BranchMapper const& mapper) const;
-
     RootTree* rootTree_;
     TBranch* provBranch_;
     StoredProductProvenanceVector provVector_;
@@ -1711,7 +1690,7 @@ namespace edm {
     const std::vector<ParentageID>& parentageIDLookup_;
   };
 
-  ReducedProvenanceBranchMapperWithReader::ReducedProvenanceBranchMapperWithReader(
+  ReducedProvenanceReader::ReducedProvenanceReader(
                                               RootTree* iRootTree,
                                               std::vector<ParentageID> const& iParentageIDLookup) :
       ProvenanceReaderBase(),
@@ -1722,8 +1701,8 @@ namespace edm {
   }
 
   void
-  ReducedProvenanceBranchMapperWithReader::readProvenance(BranchMapper const& mapper) const {
-    ReducedProvenanceBranchMapperWithReader* me = const_cast<ReducedProvenanceBranchMapperWithReader*>(this);
+  ReducedProvenanceReader::readProvenance(BranchMapper const& mapper) const {
+    ReducedProvenanceReader* me = const_cast<ReducedProvenanceReader*>(this);
     me->rootTree_->fillBranchEntry(me->provBranch_, me->pProvVector_);
     setRefCoreStreamer(true);
     for(StoredProductProvenanceVector::const_iterator it = provVector_.begin(), itEnd = provVector_.end();
@@ -1732,30 +1711,101 @@ namespace edm {
     }
   }
 
-  boost::shared_ptr<BranchMapper>
-  RootFile::makeBranchMapper(RootTree& rootTree) const {
-    if(fileFormatVersion().storedProductProvenanceUsed()) {
-      if(!eventBranchMapper_) {
-        boost::shared_ptr<ProvenanceReaderBase> reader(new ReducedProvenanceBranchMapperWithReader(&rootTree, parentageIDLookup_));
-        eventBranchMapper_ = boost::shared_ptr<BranchMapper>(new BranchMapper(reader));
-      }
-      eventBranchMapper_->reset();
-      return eventBranchMapper_;
-    } else if(fileFormatVersion().splitProductIDs()) {
-      if(!eventBranchMapper_) {
-        eventBranchMapper_ = makeBranchMapperInRelease300(rootTree);
-      }
-      return eventBranchMapper_;
-    } else if(fileFormatVersion().perEventProductIDs()) {
-      eventBranchMapper_.reset();
-      return makeBranchMapperInRelease210(rootTree);
-    } else if(fileFormatVersion().eventHistoryTree()) {
-      eventBranchMapper_.reset();
-      return makeBranchMapperInRelease200(rootTree, *productRegistry_);
-    } else {
-      eventBranchMapper_.reset();
-      return makeBranchMapperInRelease180(rootTree, *productRegistry_);
+  class FullProvenanceReader : public ProvenanceReaderBase {
+  public:
+    explicit FullProvenanceReader(RootTree* rootTree);
+    virtual ~FullProvenanceReader() {}
+  private:
+    virtual void readProvenance(BranchMapper const& mapper) const;
+    RootTree* rootTree_;
+    ProductProvenanceVector infoVector_;
+    mutable ProductProvenanceVector* pInfoVector_;
+  };
+
+  FullProvenanceReader::FullProvenanceReader(RootTree* rootTree) :
+         ProvenanceReaderBase(),
+         rootTree_(rootTree),
+         infoVector_(),
+         pInfoVector_(&infoVector_) {
+  }
+
+  void
+  FullProvenanceReader::readProvenance(BranchMapper const& mapper) const {
+    rootTree_->fillBranchEntryMeta(rootTree_->branchEntryInfoBranch(), pInfoVector_);
+    setRefCoreStreamer(true);
+    for(ProductProvenanceVector::const_iterator it = infoVector_.begin(), itEnd = infoVector_.end();
+        it != itEnd; ++it) {
+      mapper.insertIntoSet(*it);
     }
   }
-  // end backward compatibility
+
+  class OldProvenanceReader : public ProvenanceReaderBase {
+  public:
+    explicit OldProvenanceReader(RootTree* rootTree);
+    virtual ~OldProvenanceReader() {}
+  private:
+    virtual void readProvenance(BranchMapper const& mapper) const;
+    RootTree* rootTree_;
+    std::vector<EventEntryInfo> infoVector_;
+    mutable std::vector<EventEntryInfo> *pInfoVector_;
+  };
+
+  OldProvenanceReader::OldProvenanceReader(RootTree* rootTree) :
+         ProvenanceReaderBase(),
+         rootTree_(rootTree),
+         infoVector_(),
+         pInfoVector_(&infoVector_) {
+  }
+
+  void
+  OldProvenanceReader::readProvenance(BranchMapper const& mapper) const {
+    rootTree_->branchEntryInfoBranch()->SetAddress(&pInfoVector_);
+    roottree::getEntry(rootTree_->branchEntryInfoBranch(), rootTree_->entryNumber());
+    setRefCoreStreamer(true);
+    for(std::vector<EventEntryInfo>::const_iterator it = infoVector_.begin(), itEnd = infoVector_.end();
+        it != itEnd; ++it) {
+      EventEntryDescription eed;
+      EntryDescriptionRegistry::instance()->getMapped(it->entryDescriptionID(), eed);
+      Parentage parentage(eed.parents());
+      ProductProvenance entry(it->branchID(), parentage.id());
+      mapper.insertIntoSet(entry);
+    }
+  }
+
+  class DummyProvenanceReader : public ProvenanceReaderBase {
+  public:
+    DummyProvenanceReader();
+    virtual ~DummyProvenanceReader() {}
+  private:
+    virtual void readProvenance(BranchMapper const& mapper) const;
+  };
+
+  DummyProvenanceReader::DummyProvenanceReader() :
+      ProvenanceReaderBase() {
+  }
+
+  void
+  DummyProvenanceReader::readProvenance(BranchMapper const&) const {
+    // Not providing parentage!!!
+  }
+
+  std::auto_ptr<ProvenanceReaderBase>
+  MakeDummyProvenanceReader::makeReader(RootTree&) const {
+     return std::auto_ptr<ProvenanceReaderBase>(new DummyProvenanceReader);
+  }
+
+  std::auto_ptr<ProvenanceReaderBase>
+  MakeOldProvenanceReader::makeReader(RootTree& rootTree) const {
+    return std::auto_ptr<ProvenanceReaderBase>(new OldProvenanceReader(&rootTree));
+  }
+
+  std::auto_ptr<ProvenanceReaderBase>
+  MakeFullProvenanceReader::makeReader(RootTree& rootTree) const {
+    return std::auto_ptr<ProvenanceReaderBase>(new FullProvenanceReader(&rootTree));
+  }
+
+  std::auto_ptr<ProvenanceReaderBase>
+  MakeReducedProvenanceReader::makeReader(RootTree& rootTree) const {
+    return std::auto_ptr<ProvenanceReaderBase>(new ReducedProvenanceReader(&rootTree, parentageIDLookup_));
+  }
 }

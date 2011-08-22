@@ -36,11 +36,18 @@ namespace edm {
   //------------------------------------------------------------
   // Class RootFile: supports file reading.
 
+  class BranchMapper;
   class DuplicateChecker;
-  class ProvenanceAdaptor;
-  class GroupSelectorRules;
   class EventSkipperByID;
+  class GroupSelectorRules;
   class InputFile;
+  class ProvenanceReaderBase;
+  class ProvenanceAdaptor;
+
+  class MakeProvenanceReader {
+  public:
+    virtual std::auto_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree) const = 0;
+  };
 
   class RootFile : private boost::noncopyable {
   public:
@@ -155,7 +162,8 @@ namespace edm {
     void initializeDuplicateChecker(std::vector<boost::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
                                     std::vector<boost::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile);
 
-    boost::shared_ptr<BranchMapper> makeBranchMapper(RootTree& rootTree) const;
+    std::auto_ptr<MakeProvenanceReader> makeProvenanceReaderMaker() const;
+    boost::shared_ptr<BranchMapper> makeBranchMapper();
 
     std::string const file_;
     std::string const logicalFile_;
@@ -197,6 +205,7 @@ namespace edm {
     boost::shared_ptr<BranchChildren> branchChildren_;
     boost::shared_ptr<DuplicateChecker> duplicateChecker_;
     boost::scoped_ptr<ProvenanceAdaptor> provenanceAdaptor_; // backward comatibility
+    boost::scoped_ptr<MakeProvenanceReader> provenanceReaderMaker_;
     mutable boost::scoped_ptr<EventPrincipal> secondaryEventPrincipal_;
     mutable boost::shared_ptr<BranchMapper> eventBranchMapper_;
     std::vector<ParentageID> parentageIDLookup_;
