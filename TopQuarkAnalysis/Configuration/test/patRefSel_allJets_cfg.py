@@ -100,9 +100,9 @@ useNoTau      = True # before MET top projection
 # cuts used in top projections
 from TopQuarkAnalysis.Configuration.patRefSel_PF2PAT import *
 # vertices
+#pfVertices = 'goodOfflinePrimaryVertices'
 #pfD0Cut   = 0.2
 #pfDzCut   = 0.5
-#pfVertices = 'offlinePrimaryVertices'
 # muons
 #pfMuonSelectionCut = ''
 #pfMuonIsoConeR   = 0.4
@@ -239,12 +239,14 @@ process.step1 = triggerResults.clone(
 
 ### Good vertex selection
 process.load( "TopQuarkAnalysis.Configuration.patRefSel_goodVertex_cfi" )
-process.step2 = process.goodOfflinePrimaryVertexFilter.clone()
+process.step2 = process.goodOfflinePrimaryVertices.clone( filter = True )
 
 
 ###
 ### PAT/PF2PAT configuration
 ###
+
+from TopQuarkAnalysis.Configuration.patRefSel_refAllJets_cfi import *
 
 if useStandardPAT and runPF2PAT:
   if postfix == '':
@@ -300,11 +302,11 @@ if runPF2PAT:
   applyPostfix( process, 'pfNoElectron', postfix ).enable = useNoElectron
   applyPostfix( process, 'pfNoJet'     , postfix ).enable = useNoJet
   applyPostfix( process, 'pfNoTau'     , postfix ).enable = useNoTau
+  applyPostfix( process, 'pfPileUp', postfix ).Vertices = cms.InputTag( pfVertices )
   if useL1FastJet:
     applyPostfix( process, 'pfJets', postfix ).doAreaFastjet = True
     applyPostfix( process, 'pfJets', postfix ).doRhoFastjet  = False
     applyPostfix( process, 'pfPileUp', postfix ).checkClosestZVertex = False
-    applyPostfix( process, 'pfPileUp', postfix ).Vertices = cms.InputTag( pfVertices )
   applyPostfix( process, 'pfMuonsFromVertex'    , postfix ).vertices = cms.InputTag( pfVertices )
   applyPostfix( process, 'pfMuonsFromVertex'    , postfix ).d0Cut    = pfD0Cut
   applyPostfix( process, 'pfMuonsFromVertex'    , postfix ).dzCut    = pfDzCut
@@ -321,6 +323,8 @@ if runPF2PAT:
   applyPostfix( process, 'isoValElectronWithNeutral', postfix ).deposits[0].deltaR = pfElectronIsoConeR
   applyPostfix( process, 'isoValElectronWithPhotons', postfix ).deposits[0].deltaR = pfElectronIsoConeR
   applyPostfix( process, 'pfIsolatedElectrons'      , postfix ).combinedIsolationCut = pfElectronCombIsoCut
+  applyPostfix( process, 'patElectrons'             , postfix ).pvSrc = cms.InputTag( pfVertices )
+  applyPostfix( process, 'patMuons'                 , postfix ).pvSrc = cms.InputTag( pfVertices )
 
 # remove MC matching, object cleaning, photons and taus
 if useStandardPAT:
@@ -329,6 +333,9 @@ if useStandardPAT:
   removeSpecificPATObjects( process
                           , names = [ 'Photons', 'Taus' ]
                           ) # includes 'removeCleaning'
+  if useL1FastJet:
+    process.ak5PFJets = ak5PFJets.clone( doAreaFastjet = True )
+
 if runPF2PAT:
   if not runOnMC:
     runOnData( process
@@ -344,6 +351,14 @@ if runPF2PAT:
 if useStandardPAT:
   process.patJetCorrFactors.payload = jecSet
   process.patJetCorrFactors.levels  = jecLevels
+  if useL1FastJet:
+    print 'WARNING patRefSel_allJets_test_cfg.py:'
+    print '        L1FastJet JECs are not available for AK5Calo jets in this data due to missing jet area computation;'
+    print '        switching to   L1Offset   !!!'
+    process.patJetCorrFactors.levels.insert( 0, 'L1Offset' )
+    process.patJetCorrFactors.levels.remove( 'L1FastJet' )
+    process.patJetCorrFactors.useRho = False # FIXME: does not apply
+
   from PhysicsTools.PatAlgos.tools.jetTools import *
   jecSetPFNoCHS = jecSetPF.rstrip('chs')
   addJetCollection(process,cms.InputTag('ak5PFJets'),'AK5','PF',
@@ -377,8 +392,6 @@ if runOnMC:
 ### Additional configuration
 ###
 
-from TopQuarkAnalysis.Configuration.patRefSel_refAllJets_cfi import *
-
 if useStandardPAT:
 
   process.intermediatePatMuons = intermediatePatMuons.clone()
@@ -391,10 +404,6 @@ if useStandardPAT:
   process.step3b_3 = step3b_3.clone()
   process.step3b   = cms.Sequence( process.step3b_1 * process.step3b_2 * process.step3b_3 )
 
-  process.kt6PFJets = kt6PFJets.clone( doRhoFastjet = True )
-  process.patDefaultSequence.replace( process.patJetCorrFactors
-                                    , process.kt6PFJets * process.patJetCorrFactors
-                                    )
   process.out.outputCommands.append( 'keep double_*_*_' + process.name_() )
 
   process.goodPatJets       = goodPatJets.clone()
@@ -578,6 +587,8 @@ if useStandardPAT:
   process.p += process.goodOfflinePrimaryVertices
   if useGoodVertex:
     process.p += process.step2
+  if useL1FastJet:
+    process.p += process.ak5PFJets
   process.p += process.patDefaultSequence
   process.p += process.patAddOnSequence
   if use6JetsLoose:
