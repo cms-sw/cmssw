@@ -61,8 +61,8 @@ if [ -z "$FROM_RELEASE" ]; then
   export DYLD_LIBRARY_PATH="/usr/lib"
   export DYLD_FALLBACK_LIBRARY_PATH=${LD_LIBRARY_PATH}
   export PATH=${ROOTSYS}/bin:$PATH
-  # in standalone version hide cmsShow.exe in $SHELLDIR/lib
-  SHELLDIR=$SHELLDIR/lib
+  # hide cmsShow.exe in libexec directory
+  SHELLDIR=$SHELLDIR/libexec
 fi
 
 # Running via ssh can lead to dis-synchronization between server and
