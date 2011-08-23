@@ -17,7 +17,8 @@ metJESCorIC5CaloJet = cms.EDProducer("Type1MET",
                                    UscaleC = cms.double(-0.06),
                                    useTypeII = cms.bool(False),
                                    hasMuonsCorr = cms.bool(False),
-                                   corrector = cms.string('ic5CaloL2L3')
+                                   corrector = cms.string('ic5CaloL2L3'),
+                                   subtractL1Fast = cms.bool(False)
                                    )
 
 metJESCorAK5PFJet = cms.EDProducer("Type1MET",
@@ -31,7 +32,8 @@ metJESCorAK5PFJet = cms.EDProducer("Type1MET",
                                    UscaleC = cms.double(-0.06),
                                    useTypeII = cms.bool(False),
                                    hasMuonsCorr = cms.bool(False),
-                                   corrector = cms.string('ak5PFL2L3')
+                                   corrector = cms.string('ak5PFL2L3'),
+                                   subtractL1Fast = cms.bool(False)
                                    )
 
 

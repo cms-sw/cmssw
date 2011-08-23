@@ -13,7 +13,7 @@
 //
 // Original Author:  Oct 12 08:23
 //         Created:  Wed Oct 12 12:16:04 CDT 2005
-// $Id: Type1MET.cc,v 1.24 2011/05/04 22:47:46 lacroix Exp $
+// $Id: Type1MET.cc,v 1.25 2011/05/18 23:41:16 lacroix Exp $
 //
 //
 
@@ -58,6 +58,7 @@ namespace cms
     UscaleC      = iConfig.getParameter<double>("UscaleC");
     useTypeII      = iConfig.getParameter<bool>("useTypeII");
     hasMuonsCorr   = iConfig.getParameter<bool>("hasMuonsCorr");
+    subtractL1Fast_ = iConfig.getParameter<bool>("subtractL1Fast");
     if( metType == "CaloMET" )
       produces<CaloMETCollection>();
     else
@@ -99,6 +100,7 @@ namespace cms
       Handle<PFJetCollection> inputUncorJets;
       iEvent.getByLabel( inputUncorJetsLabel, inputUncorJets );
       const JetCorrector* corrector = JetCorrector::getJetCorrector (correctorLabel, iSetup);
+      const JetCorrector* corrector2 = JetCorrector::getJetCorrector ("ak5PFL1Fastjet", iSetup);
 
       Handle < PFCandidateCollection > inputUncorUnlustered;
       if (useTypeII) {
@@ -111,10 +113,10 @@ namespace cms
 	Handle<PFMETCollection> inputUncorMet;                     //Define Inputs
 	iEvent.getByLabel( inputUncorMetLabel,  inputUncorMet );     //Get Inputs
 	std::auto_ptr<PFMETCollection> output( new PFMETCollection() );  //Create empty output
-	alg_.run( *(inputUncorMet.product()), *corrector, *(inputUncorJets.product()), *(inputUncorUnlustered.product()),
+	alg_.run( *(inputUncorMet.product()), *corrector, *corrector2, *(inputUncorJets.product()), *(inputUncorUnlustered.product()),
 		  jetPTthreshold, jetEMfracLimit, UscaleA, UscaleB, UscaleC, useTypeII, hasMuonsCorr,
                   *(inputMuons.product()), *(vm_muCorrData_h.product()),
-		  &*output, iEvent, iSetup );                                         //Invoke the algorithm
+		  &*output, iEvent, iSetup, subtractL1Fast_ );                                         //Invoke the algorithm
 	iEvent.put( output );                                        //Put output into Event
       }
     else

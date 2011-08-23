@@ -159,6 +159,7 @@ namespace {
 
   void Type1METAlgo_run(const reco::PFMETCollection& uncorMET, 
 			const JetCorrector& corrector,
+			const JetCorrector& corrector2,
 			const PFJetCollection& uncorJet,
 			const PFCandidateCollection& uncorUnclustered,
 			double jetPTthreshold,
@@ -170,7 +171,7 @@ namespace {
                         bool hasMuonsCorr, 
 			const edm::View<reco::Muon>& inputMuons,
                         const edm::ValueMap<reco::MuonMETCorrectionData>& vm_muCorrData,
-			vector<reco::PFMET>* corMET, edm::Event& iEvent, const edm::EventSetup& iSetup) 
+			vector<reco::PFMET>* corMET, edm::Event& iEvent, const edm::EventSetup& iSetup, const bool subtractL1Fast) 
   {
     if (!corMET) {
       std::cerr << "Type1METAlgo_run-> undefined output MET collection. Stop. " << std::endl;
@@ -197,13 +198,38 @@ namespace {
       int index = jet-uncorJet.begin();
       edm::RefToBase<reco::Jet> jetRef(edm::Ref<PFJetCollection>(&uncorJet,index));
       //std::cout << "jet->pt()*corrector.correction (*jet,jetRef,iEvent,iSetup) = " << jet->pt()*corrector.correction (*jet,jetRef,iEvent,iSetup) << std::endl;
+      //std::cout << "jet->pt()*corrector.correction (*jet,iEvent,iSetup) = " << jet->pt()*corrector.correction (*jet,iEvent,iSetup) << std::endl;
+      //std::cout << "jetPTthreshold = " << jetPTthreshold << std::endl;
       if( jet->pt()*corrector.correction (*jet,iEvent,iSetup) > jetPTthreshold && jet->photonEnergyFraction() < jetEMfracLimit ) {
-	double corr = corrector.correction (*jet,iEvent,iSetup) - 1.; // correction itself
-	DeltaPx +=  jet->px() * corr;
-	DeltaPy +=  jet->py() * corr;
-	DeltaSumET += jet->et() * corr;
-        
+
+	if (!subtractL1Fast)
+	{
+	  double corr = corrector.correction (*jet,iEvent,iSetup) - 1.; // correction itself
+	  DeltaPx +=  jet->px() * corr;
+	  DeltaPy +=  jet->py() * corr;
+	  DeltaSumET += jet->et() * corr;
+        }
+	else
+	{
+	  double corr = corrector.correction (*jet,iEvent,iSetup) - 1.; // correction itself
+	  double corr2 = corrector2.correction (*jet,iEvent,iSetup) - 1.;
+	  //std::cout << "raw jet->px() = " << jet->px()/corr << std::endl;
+	  //std::cout << "jet->px() = " << jet->px() << std::endl;
+	  //std::cout << "jet->px()* corrector = " << jet->px()* corrector.correction (*jet,iEvent,iSetup) << std::endl;
+	  //std::cout << "jet->px()* corr = " << jet->px()* corr << std::endl;
+	  //std::cout << "jet->px()* corr2 = " << jet->px()* corr2 << std::endl;
+	  //std::cout << "jet->pt() = " << jet->pt() << std::endl;
+	  //std::cout << "jet->pt()* corrector = " << jet->pt()* corrector.correction (*jet,iEvent,iSetup) << std::endl;
+	  //std::cout << "jet->pt()* corrector2 = " << jet->pt()* corrector2.correction (*jet,iEvent,iSetup) << std::endl;
+	  DeltaPx +=  jet->px() * corr - (jet->px() * corr2);
+	  DeltaPy +=  jet->py() * corr - (jet->py() * corr2);
+	  DeltaSumET += jet->et() * corr - (jet->et() * corr2);
+
+	}
+
       }
+
+
       if (jet->pt() * corrector.correction (*jet,iEvent,iSetup) < jetPTthreshold && jet->photonEnergyFraction() < jetEMfracLimit) {
 	UDeltaPx -= jet->px();
 	UDeltaPy -= jet->py();
@@ -222,24 +248,8 @@ namespace {
 
 	}
     }
-    if( hasMuonsCorr) {
-       unsigned int nMuons = inputMuons.size();
-       for(unsigned int iMu = 0; iMu<nMuons; iMu++) {
-        const reco::Muon *mu = &inputMuons[iMu]; //new
-        reco::MuonMETCorrectionData muCorrData = (vm_muCorrData)[inputMuons.refAt(iMu)];
-        int flag   = muCorrData.type();
 
-        LorentzVector mup4;
-        if (flag == 0) 		//this muon is not used to correct the MET
-          continue;
-        mup4 = mu->p4();
 
-        UDeltaPx +=  mup4.px();
-        UDeltaPy +=  mup4.py();
-        USumET -=mup4.pt(); 
-       }
-
-    } // end hasMuonsCorr
 
 
     //----------------- Calculate and set deltas for new MET correction
@@ -440,6 +450,7 @@ void Type1METAlgo::run(const CaloMETCollection& uncorMET,
 
 void Type1METAlgo::run(const PFMETCollection& uncorMET, 
 		       const JetCorrector& corrector,
+		       const JetCorrector& corrector2,
 		       const PFJetCollection& uncorJet,
 		       const PFCandidateCollection& uncorUnclustered,
 		       double jetPTthreshold,
@@ -451,9 +462,9 @@ void Type1METAlgo::run(const PFMETCollection& uncorMET,
                        bool hasMuonsCorr,
                        const edm::View<reco::Muon>& inputMuons,
                        const edm::ValueMap<reco::MuonMETCorrectionData>& vm_muCorrData,
-		       PFMETCollection* corMET, edm::Event& iEvent, const edm::EventSetup& iSetup) 
+		       PFMETCollection* corMET, edm::Event& iEvent, const edm::EventSetup& iSetup, const bool subtractL1Fast) 
 {
-  return Type1METAlgo_run(uncorMET, corrector, uncorJet, uncorUnclustered, jetPTthreshold, jetEMfracLimit, UscaleA, UscaleB, UscaleC, useTypeII, hasMuonsCorr, inputMuons, vm_muCorrData, corMET, iEvent, iSetup);
+  return Type1METAlgo_run(uncorMET, corrector, corrector2, uncorJet, uncorUnclustered, jetPTthreshold, jetEMfracLimit, UscaleA, UscaleB, UscaleC, useTypeII, hasMuonsCorr, inputMuons, vm_muCorrData, corMET, iEvent, iSetup, subtractL1Fast);
 }  
 
 
