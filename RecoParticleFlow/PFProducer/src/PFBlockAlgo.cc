@@ -86,6 +86,11 @@ PFBlockAlgo::findBlocks() {
     TELinker_.searchLinks();
     TELinker_.updateTracksWithLinks();
     TELinker_.clear();
+
+    PSELinker_.buildTree();
+    PSELinker_.searchLinks();
+    PSELinker_.updateTracksWithLinks();
+    PSELinker_.clear();
   }
   // !Glowinski & Gouzevitch
 
@@ -116,7 +121,6 @@ PFBlockAlgo::findBlocks() {
     // build remaining links in current block
     packLinks( blocks_->back(), links );
   }
-
 }
 
 
@@ -468,13 +472,36 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
   case PFBlockLink::PS1andECAL:
   case PFBlockLink::PS2andECAL:
     {
-      //       cout<<"PSandECAL"<<endl;
       PFClusterRef  psref = lowEl->clusterRef();
       PFClusterRef  ecalref = highEl->clusterRef();
       assert( !psref.isNull() );
       assert( !ecalref.isNull() );
-      dist = LinkByRecHit::testECALAndPSByRecHit( *ecalref, *psref ,debug_);
-      linktest = PFBlock::LINKTEST_RECHIT;      
+
+      /////////// KDTree algorithm
+      if ( useKDTreeTrackEcalLinker_ && lowEl->isMultilinksValide() ) { 
+
+	const reco::PFMultilinksType& multilinks = lowEl->getMultilinks();
+		
+	// Check if the link Track/Ecal exist
+	reco::PFMultilinksType::const_iterator mlit = multilinks.begin();
+	for (; mlit != multilinks.end(); ++mlit)
+	  if ((mlit->first == ecalref->positionREP().Phi()) &&
+	      (mlit->second == ecalref->positionREP().Eta()))
+	    break;
+	
+	// If the link exist, we fill dist and linktest. We use old algorithme method.
+	if (mlit != multilinks.end()){
+	  dist = LinkByRecHit::testECALAndPSByRecHit( *ecalref, *psref ,debug_);
+	  linktest = PFBlock::LINKTEST_RECHIT;
+	}
+	/////////// KDTree algorithm
+
+      } else { //Old algorithm
+	//       cout<<"PSandECAL"<<endl;
+	dist = LinkByRecHit::testECALAndPSByRecHit( *ecalref, *psref ,debug_);
+	linktest = PFBlock::LINKTEST_RECHIT;      
+      }
+
       break;
     }
   // Links between the two preshower layers are not used for now - disable

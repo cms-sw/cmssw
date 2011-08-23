@@ -32,6 +32,7 @@
 // Glowinski & Gouzevitch
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"             
 #include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerTrackEcal.h" 
+#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerPSEcal.h" 
 // !Glowinski & Gouzevitch
 
 // #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
@@ -286,6 +287,7 @@ class PFBlockAlgo {
   // Glowinski & Gouzevitch
   bool useKDTreeTrackEcalLinker_;
   KDTreeLinker::KDTreeLinkerTrackEcal TELinker_;
+  KDTreeLinker::KDTreeLinkerPSEcal	PSELinker_;
   // !Glowinski & Gouzevitch
 
   static const Mask                      dummyMask_;
@@ -921,8 +923,12 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
       elements_.push_back( te );
 
       // Glowinski & Gouzevitch
-      if (useKDTreeTrackEcalLinker_)
+      if (useKDTreeTrackEcalLinker_){
 	TELinker_.insertCluster(te, ecalh->at(i).recHitFractions());
+
+	if (ref->layer() == PFLayer::ECAL_ENDCAP)
+	  PSELinker_.insertCluster(te, ecalh->at(i).recHitFractions());
+      }
       // !Glowinski & Gouzevitch
 
       // Now mapping with Superclusters
@@ -1021,6 +1027,11 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 					   type );
       elements_.push_back( tp );
       
+      // Glowinski & Gouzevitch
+      if (useKDTreeTrackEcalLinker_)
+	PSELinker_.insertTrack(tp);
+      // !Glowinski & Gouzevitch
+
     }
   }
 }
