@@ -9,7 +9,8 @@
  * 2. Each layer of the CSC system: range 1-2808 (CSCs 2008) 2809-3240 for ME42 <br>
  * 3. Each strip channel of the CSC system: range 1-217728 (CSCs 2008) 217729-252288 for ME42 <br>
  * 4. Each Buckeye chip (1 for each layer in each CFEB)of the CSC system: range 1-13608 (CSCs 2008) 13609-15768 for ME42 <br>
- *
+ * 5. Each Gas Gain Sector (1 for each [CFEB*HV segment] combination in each layer): range 1-45144 (CSCs 2008) 45145-55944 for ME42 <br>
+ * 
  * The chamber and layer may be specified by CSCDetId or labels for endcap, station, ring, chamber, layer.
  * The strip channel is a value 1-80 (or 64: ME13 chambers have only 64 channels.)
  * The chip number is a value 1-30 (or 24: ME13 chambers have only 24 chips.)
@@ -265,6 +266,125 @@ public:
    IndexType chipIndex( IndexType istrip ) const {
      return (istrip-1)/16+1;
    }
+
+  /** 
+   * Number of HV segments per layer in a chamber in ring ir of station is.
+   *
+   * Station label range 1-4, Ring label range 1-3.
+   *
+   * WARNING: ME1a channels are the last 1 of the 5 total in each layer of an ME11 chamber, 
+   * and an input ir=4 is invalid and will give nonsense. <br>
+   */
+  IndexType hvSegmentsPerLayer( IndexType is, IndexType ir ) const {
+    const IndexType nSinL[12] = { 1,3,3, 3,5,0, 3,5,0, 3,5,0 };
+    return nSinL[(is-1)*3 + ir - 1];
+  }
+
+  /** 
+   * Number of Gas Gain sectors per layer in a chamber in ring ir of station is.
+   *
+   * Station label range 1-4, Ring label range 1-3.
+   *
+   * WARNING: ME1a channels are the last 1 of the 5 total in each layer of an ME11 chamber, 
+   * and an input ir=4 is invalid and will give nonsense. <br>
+   */
+  IndexType sectorsPerLayer( IndexType is, IndexType ir ) const {
+    return chipsPerLayer(is,ir)*hvSegmentsPerLayer(is,ir);
+  }
+
+  /**
+   * Linear index for HV segment
+   *
+   * Output is 1-5.
+   *
+   * WARNING: Use at your own risk! The supplied CSCDetId must be chamber station, ring, and wire.
+   * No trapping on out-of-range values!
+   */
+  IndexType hvSegmentIndex(IndexType is, IndexType ir, IndexType iwire ) const {
+
+    IndexType hvSegment = 1;   // There is only one HV segment in ME1/1
+     
+    if (is > 2 && ir == 1) {        // HV segments are the same in ME3/1 and ME4/1
+      if      ( iwire >= 33 && iwire <= 64 ) { hvSegment = 2; }
+      else if ( iwire >= 65 && iwire <= 96 ) { hvSegment = 3; }
+      
+    } else if (is > 1 && ir == 2) { // HV segments are the same in ME2/2, ME3/2, and ME4/2
+      if      ( iwire >= 17 && iwire <= 28 ) { hvSegment = 2; }
+      else if ( iwire >= 29 && iwire <= 40 ) { hvSegment = 3; }
+      else if ( iwire >= 41 && iwire <= 52 ) { hvSegment = 4; }
+      else if ( iwire >= 53 && iwire <= 64 ) { hvSegment = 5; } 
+      
+    } else if (is == 1 && ir == 2) {
+      if      ( iwire >= 25 && iwire <= 48 ) { hvSegment = 2; }
+      else if ( iwire >= 49 && iwire <= 64 ) { hvSegment = 3; }
+      
+    } else if (is == 1 && ir == 3) {
+      if      ( iwire >= 13 && iwire <= 22 ) { hvSegment = 2; }
+      else if ( iwire >= 23 && iwire <= 32 ) { hvSegment = 3; }
+      
+    } else if (is == 2 && ir == 1) {
+      if      ( iwire >= 45 && iwire <= 80 ) { hvSegment = 2; }
+      else if ( iwire >= 81 && iwire <= 112) { hvSegment = 3; }
+      
+    }
+
+    return hvSegment;
+  }
+
+  /**
+   * Linear index for 1st Gas gain sector in ring 'ir' of station 'is' in endcap 'ie'.
+   *
+   * Endcap label range 1-2, Station label range 1-4, Ring label range 1-3.
+   *
+   * WARNING: ME1a channels are the last 1 of the 5 chips total in each layer of an ME11 chamber, 
+   * and an input ir=4 is invalid and will give nonsense.
+   */
+  IndexType sectorStart( IndexType ie, IndexType is, IndexType ir ) const {
+    // There are 36 chambers * 6 layers * 5 CFEB's * 1 HV segment = 1080 gas-gain sectors in ME1/1
+    // There are 36*6*5*3 = 3240 gas-gain sectors in ME1/2
+    // There are 36*6*4*3 = 2592 gas-gain sectors in ME1/3
+    // There are 18*6*5*3 = 1620 gas-gain sectors in ME[2-4]/1
+    // There are 36*6*5*5 = 5400 gas-gain sectors in ME[2-4]/2
+    // Start of -z channels (CSCs 2008) is 22572 + 1 = 22573
+    // Start of +z (ME42) is 45144 + 1 = 45145
+    // Start of -z (ME42) is 45144 + 1 + 5400 = 50545
+    const IndexType nStart[24] = {1    ,1081 , 4321,   //ME+1/1,ME+1/2,ME+1/3
+				  6913 ,8533 ,    0,   //ME+2/1,ME+2/2,ME+2/3
+				  13933,15553,    0,   //ME+3/1,ME+3/2,ME+3/3
+				  20953,45145,    0,   //ME+4/1,ME+4/2,ME+4/3 (note, ME+4/2 index follows ME-4/1...)
+				  22573,23653,26893,   //ME-1/1,ME-1/2,ME-1/3
+				  29485,31105    ,0,   //ME-2/1,ME-2/2,ME-2/3
+				  36505,38125,    0,   //ME-3/1,ME-3/2,ME-3/3
+				  43525,50545,    0};  //ME-4/1,ME-4/2,ME-4/3 (note, ME-4/2 index follows ME+4/2...)                                   
+    return  nStart[(ie-1)*12 + (is-1)*3 + ir - 1];
+  }
+
+  /**
+   * Linear index for Gas gain sector, based on CSCDetId 'id', cathode strip 'istrip' and anode wire 'iwire' 
+   *
+   * Output is 1-45144 (CSCs 2008) and 45145-55944 (ME42).
+   *
+   * WARNING: Use at your own risk!  You must input labels within hardware ranges (e.g., 'id' must correspond 
+   * to a specific layer 1-6). No trapping on out-of-range values!
+   */
+  IndexType gasGainIndex( const CSCDetId& id, IndexType istrip, IndexType iwire ) const {
+    return gasGainIndex(id.endcap(), id.station(), id.ring(), id.chamber(), id.layer(), istrip, iwire);
+  }
+
+  /**
+   * Linear index for Gas gain sector, based on the cathode strip 'istrip' and anode wire 'iwire' 
+   * located in layer 'il' of chamber 'ic' of ring 'ir' in station 'is' of endcap 'ie'.
+   *
+   * Output is 1-45144 (CSCs 2008) and 45145-55944 (ME42).
+   *
+   * WARNING: Use at your own risk! You must input labels within hardware ranges.
+   * No trapping on out-of-range values!
+   */
+  IndexType gasGainIndex( IndexType ie, IndexType is, IndexType ir, IndexType ic, IndexType il, IndexType istrip, IndexType iwire ) const {
+    IndexType ichip      = this->chipIndex(istrip);
+    IndexType ihvsegment = this->hvSegmentIndex(is,ir,iwire);
+    return sectorStart(ie,is,ir)+( (ic-1)*6 + il - 1 )*sectorsPerLayer(is,ir) + (ihvsegment-1)*chipsPerLayer(is,ir) + (ichip-1);
+  }
 
   /**
    *  Decode CSCDetId from various indexes and labels
