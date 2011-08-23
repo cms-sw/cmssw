@@ -263,8 +263,7 @@ double ProfileLikelihood::upperLimitWithMinos(RooAbsPdf &pdf, RooAbsData &data, 
     minim.setPrintLevel(verbose-1);
     minim.setErrorLevel(0.5*TMath::ChisquareQuantile(cl,1));
     nllutils::robustMinimize(*nll, minim, verbose-1);
-    int mnstatus = minim.minos(RooArgSet(poi));
-    //if (mnstatus == -1 && maxTries_ > 1) return poi.getMin();
+    minim.minos(RooArgSet(poi));
     std::auto_ptr<RooFitResult> res(minim.save());
     if (verbose > 1) res->Print("V");
     return poi.getVal() + poi.getAsymErrorHi();
