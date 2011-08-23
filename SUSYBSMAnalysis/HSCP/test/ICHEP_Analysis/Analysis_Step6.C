@@ -227,8 +227,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    //TGraph* Tk_Obs_StopZ     = MakePlot(pFile,talkFile,TkPattern,syst,"Stop Z2"            , 2, "Stop300Z"     , "Stop400Z"     , "Stop500Z");
    TGraph* Tk_Obs_StopN     = MakePlot(pFile,talkFile,TkPattern,syst,"StopN"              , 2, "Stop130N"     , "Stop200N"     , "Stop300N"     , "Stop400N"     , "Stop500N"     , "Stop600N"   , "Stop700N"   , "Stop800N"                      );
    TGraph* Tk_Obs_GMStau    = MakePlot(pFile,talkFile,TkPattern,syst,"GMSB Stau"          , 2, "GMStau100"    , "GMStau126"    , "GMStau156"    , "GMStau200"    , "GMStau247"    , "GMStau308", "GMStau370", "GMStau432", "GMStau494"    );
-   TGraph* Tk_Obs_PPStau    = MakePlot(pFile,talkFile,TkPattern,syst,"Pair Prod. Stau  ", 2, "PPStau100"    , "PPStau126"    , "PPStau156"    , "PPStau200"    , "PPStau247");
-//   TGraph* Tk_Obs_DCStau    = MakePlot(pFile,talkFile,TkPattern,syst,"DiChamp    Stau  ", 2, "DCStau121"    , "DCStau182"    , "DCStau242"    , "DCStau302"                                      );
+   TGraph* Tk_Obs_PPStau    = MakePlot(pFile,talkFile,TkPattern,syst,"Pair Prod. Stau  ", 2, "PPStau100"    , "PPStau126"    , "PPStau156"    , "PPStau200"    , "PPStau247","PPStau308");
+   TGraph* Tk_Obs_DCStau    = MakePlot(pFile,talkFile,TkPattern,syst,"DiChamp    Stau  ", 2, "DCStau100"    , "DCStau121"    , "DCStau182"    , "DCStau242"    , "DCStau302",    "DCStau350"    ,     "DCStau395"    ,      "DCStau420"    ,  "DCStau500");  
    fprintf(pFile,"      \\end{tabular}\n\\end{table}\n\n");
    fprintf(pFile, "\\begin{table}\n   \\centering\n      \\begin{tabular}{|l|cccccc|}\n      \\hline\n");
 
@@ -253,8 +253,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    //TGraph* Mu_Obs_StopZ     = MakePlot(pFile,talkFile,MuPattern,syst,"Stop Z2"            , 2, "Stop300Z"     , "Stop400Z"     , "Stop500Z");
    TGraph* Mu_Obs_StopN     = MakePlot(pFile,talkFile,MuPattern,syst,"StopN"              , 2, "Stop130N"     , "Stop200N"     , "Stop300N"     , "Stop400N"     , "Stop500N"     , "Stop600N"   , "Stop700N"   , "Stop800N"                      );
    TGraph* Mu_Obs_GMStau    = MakePlot(pFile,talkFile,MuPattern,syst,"GMSB Stau"          , 2, "GMStau100"    , "GMStau126"    , "GMStau156"    , "GMStau200"    , "GMStau247"    , "GMStau308", "GMStau370", "GMStau432", "GMStau494"    );
-   TGraph* Mu_Obs_PPStau    = MakePlot(pFile,talkFile,MuPattern,syst,"Pair Prod. Stau  ", 2, "PPStau100"    , "PPStau126"    , "PPStau156"    , "PPStau200"    , "PPStau247" );
-//   TGraph* Mu_Obs_DCStau    = MakePlot(pFile,talkFile,MuPattern,syst,"DiChamp    Stau  ", 2, "DCStau121"    , "DCStau182"    , "DCStau242"    , "DCStau302"                                      );
+   TGraph* Mu_Obs_PPStau    = MakePlot(pFile,talkFile,MuPattern,syst,"Pair Prod. Stau  ", 2, "PPStau100"    , "PPStau126"    , "PPStau156"    , "PPStau200"    , "PPStau247", "PPStau308" );
+   TGraph* Mu_Obs_DCStau    = MakePlot(pFile,talkFile,MuPattern,syst,"DiChamp    Stau  ", 2,"DCStau121"    , "DCStau121"    , "DCStau182"    , "DCStau242"    , "DCStau302"    ,"DCStau350"    ,"DCStau395"    ,"DCStau420"    ,"DCStau500");
    fprintf(pFile,"      \\end{tabular}\n\\end{table}\n\n");
    fprintf(pFile,"\\end{document}\n\n");
 
@@ -267,7 +267,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 
    TGraph* GMStauXSec = MakePlot(NULL,NULL,TkPattern,"","GMSB Stau        ", 0, "GMStau100"    , "GMStau126"    , "GMStau156"    , "GMStau200"    , "GMStau247"    , "GMStau308", "GMStau370", "GMStau432", "GMStau494"    );
    TGraph* PPStauXSec = MakePlot(NULL,NULL,TkPattern,"","Pair Prod. Stau  ", 0, "PPStau100"    , "PPStau126"    , "PPStau156"    , "PPStau200"    , "PPStau247"    , "PPStau308");
-//   TGraph* DCStauXSec = MakePlot(NULL,NULL,TkPattern,"","DiChamp    Stau  ", 0, "DCStau121"    , "DCStau182"    , "DCStau242"    , "DCStau302"                                      );
+   TGraph* DCStauXSec = MakePlot(NULL,NULL,TkPattern,"","DiChamp    Stau  ", 0, "DCStau100"    ,"DCStau121"    , "DCStau182"    , "DCStau242"    , "DCStau302", "DCStau350"     , "DCStau395"     , "DCStau420"     , "DCStau500");
 
    double ThGluinoMass [100]; double ThGluinoXSec [100];  double ThGluinoLow  [100]; double ThGluinoHigh [100]; double ThGluinoErrLow  [100];  double ThGluinoErrHigh [100];
    int ThGluinoN = ReadXSection("gluino_XSec.txt", ThGluinoMass,ThGluinoXSec,ThGluinoLow,ThGluinoHigh, ThGluinoErrLow, ThGluinoErrHigh);
@@ -287,25 +287,39 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 
 
    int ThStauN = 9 ; double ThStauMass [100]; double ThStauXSec [100];  double ThStauLow  [100];  double ThStauHigh [100];
-   ThStauMass[0] = 100; ThStauXSec[0] = 1.326000;  ThStauLow[0] = ThStauXSec[0]*0.85;  ThStauHigh[0] = ThStauXSec[0]*1.15;
-   ThStauMass[1] = 126; ThStauXSec[1] = 0.330000;  ThStauLow[1] = ThStauXSec[1]*0.85;  ThStauHigh[1] = ThStauXSec[1]*1.15;
-   ThStauMass[2] = 156; ThStauXSec[2] = 0.105000;  ThStauLow[2] = ThStauXSec[2]*0.85;  ThStauHigh[2] = ThStauXSec[2]*1.15;
-   ThStauMass[3] = 200; ThStauXSec[3] = 0.025000;  ThStauLow[3] = ThStauXSec[3]*0.85;  ThStauHigh[3] = ThStauXSec[3]*1.15;
-   ThStauMass[4] = 247; ThStauXSec[4] = 0.008000;  ThStauLow[4] = ThStauXSec[4]*0.85;  ThStauHigh[4] = ThStauXSec[4]*1.15;
-   ThStauMass[5] = 308; ThStauXSec[5] = 0.002000;  ThStauLow[5] = ThStauXSec[5]*0.85;  ThStauHigh[5] = ThStauXSec[5]*1.15;
-   ThStauMass[6] = 370; ThStauXSec[6] = 0.0007395; ThStauLow[6] = ThStauXSec[6]*0.85;  ThStauHigh[6] = ThStauXSec[6]*1.15;
-   ThStauMass[7] = 432; ThStauXSec[7] = 0.0002824; ThStauLow[7] = ThStauXSec[7]*0.85;  ThStauHigh[7] = ThStauXSec[7]*1.15;
-   ThStauMass[8] = 494; ThStauXSec[8] = 0.0001139; ThStauLow[8] = ThStauXSec[8]*0.85;  ThStauHigh[8] = ThStauXSec[8]*1.15;
+   ThStauMass[0] = 100; ThStauXSec[0] = 1.3398;  ThStauLow[0] = 1.18163;  ThStauHigh[0] = 1.48684;
+   ThStauMass[1] = 126; ThStauXSec[1] = 0.274591;  ThStauLow[1] = 0.242982;  ThStauHigh[1] = 0.304386;
+   ThStauMass[2] = 156; ThStauXSec[2] = 0.0645953;  ThStauLow[2] = 0.0581651;  ThStauHigh[2] = 0.0709262;
+   ThStauMass[3] = 200; ThStauXSec[3] = 0.0118093;  ThStauLow[3] = 0.0109992;  ThStauHigh[3] = 0.012632;
+   ThStauMass[4] = 247; ThStauXSec[4] = 0.00342512;  ThStauLow[4] = 0.00093519;  ThStauHigh[4] = 0.00102099;
+   ThStauMass[5] = 308; ThStauXSec[5] = 0.00098447;  ThStauLow[5] = 0.00093519;  ThStauHigh[5] = 0.00102099;
+   ThStauMass[6] = 370; ThStauXSec[6] = 0.000353388; ThStauLow[6] = 0.000335826;  ThStauHigh[6] = 0.000366819;
+   ThStauMass[7] = 432; ThStauXSec[7] = 0.000141817; ThStauLow[7] = 0.000134024;  ThStauHigh[7] = 0.000147665;
+   ThStauMass[8] = 494; ThStauXSec[8] = 6.17749e-05; ThStauLow[8] =5.83501e-05 ;  ThStauHigh[8] = 6.45963e-05;
    TCutG* StauXSecErr = GetErrorBand("StauErr", ThStauN,ThStauMass,ThStauLow,ThStauHigh);
 
    int ThPPStauN = 6 ; double ThPPStauMass [100]; double ThPPStauXSec [100];  double ThPPStauLow  [100];  double ThPPStauHigh [100];
-   ThPPStauMass[0] = 100; ThPPStauXSec[0] = 0.038200;  ThPPStauLow[0] = ThPPStauXSec[0]*0.85;  ThPPStauHigh[0] = ThPPStauXSec[0]*1.15;
-   ThPPStauMass[1] = 126; ThPPStauXSec[1] = 0.016200;  ThPPStauLow[1] = ThPPStauXSec[1]*0.85;  ThPPStauHigh[1] = ThPPStauXSec[1]*1.15;
-   ThPPStauMass[2] = 156; ThPPStauXSec[2] = 0.007030;  ThPPStauLow[2] = ThPPStauXSec[2]*0.85;  ThPPStauHigh[2] = ThPPStauXSec[2]*1.15;
-   ThPPStauMass[3] = 200; ThPPStauXSec[3] = 0.002470;  ThPPStauLow[3] = ThPPStauXSec[3]*0.85;  ThPPStauHigh[3] = ThPPStauXSec[3]*1.15;
-   ThPPStauMass[4] = 247; ThPPStauXSec[4] = 0.001000;  ThPPStauLow[4] = ThPPStauXSec[4]*0.85;  ThPPStauHigh[4] = ThPPStauXSec[4]*1.15;
-   ThPPStauMass[5] = 308; ThPPStauXSec[5] = 0.000353;  ThPPStauLow[5] = ThPPStauXSec[5]*0.85;  ThPPStauHigh[5] = ThPPStauXSec[5]*1.15;
+   ThPPStauMass[0] = 100; ThPPStauXSec[0] = 0.038200;  ThPPStauLow[0] = 0.037076;  ThPPStauHigh[0] = 0.0391443;
+   ThPPStauMass[1] = 126; ThPPStauXSec[1] = 0.0161;  ThPPStauLow[1] = 0.0155927;  ThPPStauHigh[1] = 0.016527;
+   ThPPStauMass[2] = 156; ThPPStauXSec[2] = 0.007040;  ThPPStauLow[2] = 0.0067891;  ThPPStauHigh[2] = 0.00723151;
+   ThPPStauMass[3] = 200; ThPPStauXSec[3] = 0.002470;  ThPPStauLow[3] = 0.00237277;  ThPPStauHigh[3] = 0.00253477;
+   ThPPStauMass[4] = 247; ThPPStauXSec[4] = 0.001010;  ThPPStauLow[4] = 0.00096927;  ThPPStauHigh[4] = 0.00103844;
+   ThPPStauMass[5] = 308; ThPPStauXSec[5] = 0.000353;  ThPPStauLow[5] = 0.000335308;  ThPPStauHigh[5] = 0.000363699;
    TCutG* PPStauXSecErr = GetErrorBand("PPStauErr", ThPPStauN,ThPPStauMass,ThPPStauLow,ThPPStauHigh);
+
+
+   int ThDCStauN = 10 ; double ThDCStauMass [100]; double ThDCStauXSec [100];  double ThDCStauLow  [100];  double ThDCStauHigh [100];
+   ThDCStauMass[0] = 100; ThDCStauXSec[0] = 1.405000;  ThDCStauLow[0] = ThDCStauXSec[0]*0.85;  ThDCStauHigh[0] = ThDCStauXSec[0]*1.15;
+   ThDCStauMass[1] = 121; ThDCStauXSec[1] = 0.979000;  ThDCStauLow[1] = ThDCStauXSec[1]*0.85;  ThDCStauHigh[1] = ThDCStauXSec[1]*1.15;
+   ThDCStauMass[2] = 182; ThDCStauXSec[2] = 0.560000;  ThDCStauLow[2] = ThDCStauXSec[2]*0.85;  ThDCStauHigh[2] = ThDCStauXSec[2]*1.15;
+   ThDCStauMass[3] = 242; ThDCStauXSec[3] = 0.489000;  ThDCStauLow[3] = ThDCStauXSec[3]*0.85;  ThDCStauHigh[3] = ThDCStauXSec[3]*1.15;
+   ThDCStauMass[4] = 302; ThDCStauXSec[4] = 0.463000;  ThDCStauLow[4] = ThDCStauXSec[4]*0.85;  ThDCStauHigh[4] = ThDCStauXSec[4]*1.15;
+   ThDCStauMass[5] = 350; ThDCStauXSec[5] = 0.473000;  ThDCStauLow[5] = ThDCStauXSec[5]*0.85;  ThDCStauHigh[5] = ThDCStauXSec[5]*1.15;
+   ThDCStauMass[6] = 395; ThDCStauXSec[6] = 0.420000;  ThDCStauLow[6] = ThDCStauXSec[6]*0.85;  ThDCStauHigh[6] = ThDCStauXSec[6]*1.15;
+   ThDCStauMass[7] = 420; ThDCStauXSec[7] = 0.0035;  ThDCStauLow[7] = ThDCStauXSec[7]*0.85;  ThDCStauHigh[7] = ThDCStauXSec[7]*1.15;
+   ThDCStauMass[8] = 450; ThDCStauXSec[8] = 0.00111;  ThDCStauLow[8] = ThDCStauXSec[8]*0.85;  ThDCStauHigh[8] = ThDCStauXSec[8]*1.15;
+   ThDCStauMass[9] = 500; ThDCStauXSec[9] = 0.0002849;  ThDCStauLow[9] = ThDCStauXSec[9]*0.85;  ThDCStauHigh[9] = ThDCStauXSec[9]*1.15;
+   TCutG* DCStauXSecErr = GetErrorBand("DCStauErr", ThDCStauN,ThDCStauMass,ThDCStauLow,ThDCStauHigh);
 
 /*
    fprintf(pFile,"-----------------------\n0%% TK ONLY       \n-------------------------\n");
@@ -361,7 +375,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GMStau   \n", FindIntersection(Tk_Obs_GMStau   , GMStauXSec, 100, 494, 1, 0.0));
    fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for PPStau   \n", FindIntersection(Tk_Obs_PPStau   , PPStauXSec, 100, 308, 1, 0.0));
 
-//   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for DCStau   \n", FindIntersection(Tk_Obs_DCStau   , DCStauXSec, 121, 302, 1, 0.0));
+   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for DCStau   \n", FindIntersection(Tk_Obs_DCStau   , DCStauXSec, 100, 500, 1, 0.0));
    
    fprintf(pFile,"-----------------------\n0%% TK TOF        \n-------------------------\n");
 //   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for Gluino2C \n", FindIntersection(Mu_Obs_Gluino2C,  GluinoXSec, 300,1000, 1, 0.00));
@@ -378,7 +392,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for StopN    \n", FindIntersection(Mu_Obs_StopN    , StopXSec  , 130, 800, 1, 0.00));
    fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GMStau   \n", FindIntersection(Mu_Obs_GMStau   , GMStauXSec, 100, 494, 1, 0.0));
    fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for PPStau   \n", FindIntersection(Mu_Obs_PPStau   , PPStauXSec, 100, 308, 1, 0.0));
-//   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for DCStau   \n", FindIntersection(Mu_Obs_DCStau   , DCStauXSec, 121, 302, 1, 0.0));
+   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for DCStau   \n", FindIntersection(Mu_Obs_DCStau   , DCStauXSec, 100, 500, 1, 0.0));
 
    fclose(pFile);
    if(syst!="")return;
@@ -398,11 +412,14 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    Tk_Obs_StopN    ->SetLineColor(2);  Tk_Obs_StopN    ->SetMarkerColor(2);   Tk_Obs_StopN    ->SetLineWidth(2);   Tk_Obs_StopN    ->SetLineStyle(1);  Tk_Obs_StopN    ->SetMarkerStyle(25);
    GMStauXSec      ->SetLineColor(1);  GMStauXSec      ->SetMarkerColor(1);   GMStauXSec      ->SetLineWidth(1);   GMStauXSec      ->SetLineStyle(1);  GMStauXSec      ->SetMarkerStyle(1);
    PPStauXSec      ->SetLineColor(6);  PPStauXSec      ->SetMarkerColor(6);   PPStauXSec      ->SetLineWidth(1);   PPStauXSec      ->SetLineStyle(4);  PPStauXSec      ->SetMarkerStyle(1);
-   Mu_Obs_GMStau   ->SetLineColor(1);  Mu_Obs_GMStau   ->SetMarkerColor(1);   Mu_Obs_GMStau   ->SetLineWidth(2);   Mu_Obs_GMStau   ->SetLineStyle(1);  Mu_Obs_GMStau   ->SetMarkerStyle(22);
+   DCStauXSec      ->SetLineColor(9);  PPStauXSec      ->SetMarkerColor(9);   PPStauXSec      ->SetLineWidth(1);   PPStauXSec      ->SetLineStyle(9);  PPStauXSec      ->SetMarkerStyle(1);
+   Mu_Obs_GMStau   ->SetLineColor(1);  Mu_Obs_GMStau   ->SetMarkerColor(1);   Mu_Obs_GMStau   ->SetLineWidth(2);   Mu_Obs_GMStau   ->SetLineStyle(1);  Mu_Obs_GMStau   ->SetMarkerStyle(23);
    Mu_Obs_PPStau   ->SetLineColor(6);  Mu_Obs_PPStau   ->SetMarkerColor(6);   Mu_Obs_PPStau   ->SetLineWidth(2);   Mu_Obs_PPStau   ->SetLineStyle(1);  Mu_Obs_PPStau   ->SetMarkerStyle(23);
+   Mu_Obs_DCStau   ->SetLineColor(9);  Mu_Obs_PPStau   ->SetMarkerColor(9);   Mu_Obs_PPStau   ->SetLineWidth(2);   Mu_Obs_PPStau   ->SetLineStyle(1);  Mu_Obs_PPStau   ->SetMarkerStyle(23);
+
    Tk_Obs_GMStau   ->SetLineColor(1);  Tk_Obs_GMStau   ->SetMarkerColor(1);   Tk_Obs_GMStau   ->SetLineWidth(2);   Tk_Obs_GMStau   ->SetLineStyle(1);  Tk_Obs_GMStau   ->SetMarkerStyle(20);
    Tk_Obs_PPStau   ->SetLineColor(6);  Tk_Obs_PPStau   ->SetMarkerColor(6);   Tk_Obs_PPStau   ->SetLineWidth(2);   Tk_Obs_PPStau   ->SetLineStyle(1);  Tk_Obs_PPStau   ->SetMarkerStyle(20);
-
+   Tk_Obs_DCStau   ->SetLineColor(9);  Tk_Obs_DCStau   ->SetMarkerColor(9);   Tk_Obs_DCStau   ->SetLineWidth(2);   Tk_Obs_DCStau   ->SetLineStyle(1);  Tk_Obs_DCStau   ->SetMarkerStyle(20);
 
 
    c1 = new TCanvas("c1", "c1",600,600);
@@ -411,6 +428,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    MGMu->Add(StopXSec        ,"L");
    MGMu->Add(GMStauXSec      ,"L");
    MGMu->Add(PPStauXSec      ,"L");
+   MGMu->Add(DCStauXSec      ,"L");
    MGMu->Add(Mu_Obs_GluinoF1      ,"LP");
    MGMu->Add(Mu_Obs_GluinoF5      ,"LP");
 //   MGMu->Add(Mu_Obs_GluinoNF1     ,"LP");
@@ -418,11 +436,13 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 //   MGMu->Add(Mu_Obs_StopN         ,"LP");
    MGMu->Add(Mu_Obs_GMStau        ,"LP");
    MGMu->Add(Mu_Obs_PPStau        ,"LP");
+   MGMu->Add(Mu_Obs_DCStau        ,"LP");
    MGMu->Draw("A");
    GluinoXSecErr->Draw("f");
    StopXSecErr  ->Draw("f");
    StauXSecErr  ->Draw("f");
    PPStauXSecErr  ->Draw("f");
+   DCStauXSecErr  ->Draw("f");
    MGMu->Draw("same");
    MGMu->SetTitle("");
    MGMu->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
@@ -444,6 +464,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 //   LEGMu->AddEntry(Mu_Obs_StopN    , "stop; ch. suppr.","LP");
    LEGMu->AddEntry(Mu_Obs_PPStau   , "Pair Prod. stau"       ,"LP");
    LEGMu->AddEntry(Mu_Obs_GMStau   , "GMSB stau"       ,"LP");
+   LEGMu->AddEntry(Mu_Obs_DCStau   , "DiChamp stau"       ,"LP");
    LEGMu->Draw();
 
    TLegend* LEGTh = new TLegend(0.15,0.70,0.50,0.90);
@@ -462,7 +483,10 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    LEGTh->AddEntry(PPStauThLeg   ,"Pair Prod. stau   (NLO)" ,"LF");
    TGraph* StauThLeg = (TGraph*) GMStauXSec->Clone("StauThLeg");
    StauThLeg->SetFillColor(GluinoXSecErr->GetFillColor());
-   LEGTh->AddEntry(StauThLeg   ,"GMSB stau   (LO)" ,"LF");
+   LEGTh->AddEntry(StauThLeg   ,"GMSB stau   (NLO)" ,"LF");
+   TGraph* DCStauThLeg = (TGraph*) DCStauXSec->Clone("DCStauThLeg");
+   DCStauThLeg->SetFillColor(GluinoXSecErr->GetFillColor());
+   LEGTh->AddEntry(DCStauThLeg   ,"Pair Prod. stau   (LO)" ,"LF");
 
    LEGTh->Draw();
 
@@ -480,6 +504,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    MGTk->Add(StopXSec        ,"L");
    MGTk->Add(GMStauXSec      ,"L");
    MGTk->Add(PPStauXSec      ,"L");
+   MGTk->Add(DCStauXSec      ,"L");
    MGTk->Add(Tk_Obs_GluinoF1      ,"LP");
    MGTk->Add(Tk_Obs_GluinoF5      ,"LP");
    MGTk->Add(Tk_Obs_GluinoNF1     ,"LP");
@@ -487,11 +512,13 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    MGTk->Add(Tk_Obs_StopN         ,"LP");
    MGTk->Add(Tk_Obs_GMStau        ,"LP");
    MGTk->Add(Tk_Obs_PPStau        ,"LP");
+   MGTk->Add(Tk_Obs_DCStau        ,"LP");
    MGTk->Draw("A");
    GluinoXSecErr->Draw("f");
    StopXSecErr  ->Draw("f");
    StauXSecErr  ->Draw("f");
    PPStauXSecErr  ->Draw("f");
+   DCStauXSecErr  ->Draw("f");
    MGTk->Draw("same");
    MGTk->SetTitle("");
    MGTk->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
@@ -513,6 +540,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    LEGTk->AddEntry(Tk_Obs_StopN    , "stop; ch. suppr.","LP");
    LEGTk->AddEntry(Tk_Obs_PPStau   , "Pair Prod. stau"       ,"LP");
    LEGTk->AddEntry(Tk_Obs_GMStau   , "GMSB stau"       ,"LP");
+   LEGTk->AddEntry(Tk_Obs_DCStau   , "DiChamp stau"       ,"LP");
    LEGTk->Draw();
 
    LEGTh->Draw();
