@@ -7,7 +7,7 @@
 // int64_t, uint64_t cannot be used, because they resolve to long on some platforms and long long on others.
 // For consistency, we don't use int32_t, uint32_t, int16_t, uint16_t, int8_t or uint8_t, either.
 
-typedef char cms_int8_t;
+typedef signed char cms_int8_t;
 typedef unsigned char cms_uint8_t;
 typedef short cms_int16_t;
 typedef unsigned short cms_uint16_t;
