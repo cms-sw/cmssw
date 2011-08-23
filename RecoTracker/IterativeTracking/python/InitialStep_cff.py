@@ -28,7 +28,7 @@ initialStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter
     ComponentName = 'initialStepTrajectoryFilter',
     filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
     minimumNumberOfHits = 3,
-    maxLostHits = 0,
+    maxLostHits = 1,
     minPt = 0.4
     )
     )
@@ -44,7 +44,7 @@ import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
 initialStepTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
     ComponentName = 'initialStepTrajectoryBuilder',
     trajectoryFilterName = 'initialStepTrajectoryFilter',
-    alwaysUseInvalidHits = False,
+    alwaysUseInvalidHits = True,
     maxCand = 3,
     estimator = cms.string('initialStepChi2Est')
     )
