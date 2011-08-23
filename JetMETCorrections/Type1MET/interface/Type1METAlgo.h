@@ -40,11 +40,13 @@ class Type1METAlgo
   virtual ~Type1METAlgo();
   virtual void run(const reco::PFMETCollection&, 
 		   const JetCorrector&,
+		   const JetCorrector&,
 		   const reco::PFJetCollection&, const reco::PFCandidateCollection&,
 		   double, double, double, double, double, bool, bool,
                    const edm::View<reco::Muon>& ,
                    const edm::ValueMap<reco::MuonMETCorrectionData>& ,
-		   reco::PFMETCollection *, edm::Event& iEvent, const edm::EventSetup& iSetup);
+		   reco::PFMETCollection *, edm::Event& iEvent, const edm::EventSetup& iSetup,
+		   const bool subtractL1Fast);
   virtual void run(const reco::PFMETCollection&, 
 		   const JetCorrector&,
 		   const pat::JetCollection&, 
