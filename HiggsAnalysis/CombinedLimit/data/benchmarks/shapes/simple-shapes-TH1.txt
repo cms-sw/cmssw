@@ -14,6 +14,6 @@ rate            10         100
 --------------------------------
 lumi     lnN    1.10       1.0
 bgnorm   lnN    1.00       1.3
-alpha  shape    -           1   uncertainty on background shape and normalization
-sigma  shape    0.5         -   uncertainty on signal resolution. Assume the histogram is a 2 sigma shift, 
+alpha  shapeN2    -           1   uncertainty on background shape and normalization
+sigma  shapeN2    0.5         -   uncertainty on signal resolution. Assume the histogram is a 2 sigma shift, 
 #                                so divide the unit gaussian by 2 before doing the interpolation

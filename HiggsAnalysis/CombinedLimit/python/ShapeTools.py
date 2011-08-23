@@ -310,9 +310,14 @@ class ShapeBuilder(ModelBuilder):
         if shapeAlgo[-1] == "*": 
             qalgo = 100
             shapeAlgo = shapeAlgo[:-1]
-        if shapeAlgo == "shapeL": qrange = 0;
-        elif shapeAlgo == "shapeN": qalgo = -1;
-        _cache[(channel,process)] = ROOT.VerticalInterpPdf("shape_%s_%s_morph" % (channel,process), "", pdfs, coeffs, qrange, qalgo)
+        if "shapeL" in shapeAlgo: qrange = 0;
+        elif "shapeN" in shapeAlgo: qalgo = -1;
+        if "2" in shapeAlgo:
+            if not nominalPdf.InheritsFrom("RooHistPdf"): raise RuntimeError, "Algorithms 'shape2', 'shapeL2', shapeN2' only work with histogram templates"
+            xvar = nominalPdf.dataHist().get().first()
+            _cache[(channel,process)] = ROOT.VerticalInterpHistPdf("shape_%s_%s_morph" % (channel,process), "", xvar, pdfs, coeffs, qrange, qalgo)
+        else:
+            _cache[(channel,process)] = ROOT.VerticalInterpPdf("shape_%s_%s_morph" % (channel,process), "", pdfs, coeffs, qrange, qalgo)
         return _cache[(channel,process)]
     def isShapeSystematic(self,channel,process,syst):
         shapeUp = self.getShape(channel,process,syst+"Up",allowNoSyst=True)    

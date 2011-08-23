@@ -1,10 +1,12 @@
 #include "../interface/TestProposal.h"
 #include "../interface/DebugProposal.h"
 #include "../interface/VerticalInterpPdf.h"
+#include "../interface/VerticalInterpHistPdf.h"
 #include "../interface/AsymPow.h"
 #include "../interface/CombDataSetFactory.h"
 #include "../interface/TH1Keys.h"
 #include "../interface/RooSimultaneousOpt.h"
+#include "../interface/SimpleCacheSentry.h"
 #include "../interface/HZZ4LRooPdfs.h"
 #include "../interface/th1fmorph.h"
 #include "../interface/HZZ2L2QRooPdfs.h"
@@ -19,10 +21,12 @@
 #pragma link C++ class TestProposal+;
 #pragma link C++ class DebugProposal+;
 #pragma link C++ class VerticalInterpPdf+;
+#pragma link C++ class VerticalInterpHistPdf+;
 #pragma link C++ class AsymPow+;
 #pragma link C++ class CombDataSetFactory+;
 #pragma link C++ class TH1Keys+;
 #pragma link C++ class RooSimultaneousOpt+;
+#pragma link C++ class SimpleCacheSentry+;
 #pragma link C++ function th1fmorph;
 #pragma link C++ class RooqqZZPdf+;
 #pragma link C++ class RooggZZPdf+;
