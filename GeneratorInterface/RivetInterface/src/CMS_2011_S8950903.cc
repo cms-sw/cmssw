@@ -70,11 +70,11 @@ namespace Rivet {
  
     void finalize() {
       
-      scale(_h_dPhi_pT1,1./sumOfWeights());
-      scale(_h_dPhi_pT2,10./sumOfWeights());
-      scale(_h_dPhi_pT3,100./sumOfWeights());
-      scale(_h_dPhi_pT4,1000./sumOfWeights());
-      scale(_h_dPhi_pT5,10000./sumOfWeights());
+      normalize(_h_dPhi_pT1,1.);
+      normalize(_h_dPhi_pT2,1.);
+      normalize(_h_dPhi_pT3,1.);
+      normalize(_h_dPhi_pT4,1.);
+      normalize(_h_dPhi_pT5,1.);
       
     }
     

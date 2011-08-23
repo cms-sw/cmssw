@@ -5,91 +5,102 @@
 #include "Rivet/Projections/FinalState.hh"
 #include "Rivet/Projections/FastJets.hh"
 #include "Rivet/RivetAIDA.hh"
+#include "LWH/Histogram1D.h"
 
 namespace Rivet {
  
  
-   // CMS azimuthal decorellations
+   // CMS Ratio of the 3-jet to 2-jet Cross Sections by Tomo
    
-  class CMS_2011_S9088458 : public Analysis {
-  public:
-    
-    CMS_2011_S9088458() : Analysis("CMS_2011_S9088458") {
-      setBeams(PROTON, PROTON);
-      setNeedsCrossSection(true);
-    }
+   class CMS_2011_S9088458 : public Analysis {
+   public:
+ 
+   CMS_2011_S9088458() : Analysis("CMS_2011_S9088458") {
+    setBeams(PROTON, PROTON);
+    setNeedsCrossSection(true);
+   }
  
  
 // ======================================================== init
 
-    void init() {
-      FinalState fs;
-      FastJets akt(fs, FastJets::ANTIKT, 0.5);
-      addProjection(akt, "antikT");
-      //addProjection(Beam(), "Beam");  			
-      
-      if(fuzzyEquals(sqrtS(), 7000*GeV, 1E-3)){ 
-        
-        // don't forget to name the histograms
-        _h_dPhi_pT1 = bookHistogram1D(1, 1, 1);
-        _h_dPhi_pT2 = bookHistogram1D(2, 1, 1);
-        _h_dPhi_pT3 = bookHistogram1D(3, 1, 1);
-        _h_dPhi_pT4 = bookHistogram1D(4, 1, 1);
-        _h_dPhi_pT5 = bookHistogram1D(5, 1, 1);
-        
-      }
-    }
-    
+   void init() {
+     FinalState fs;
+     FastJets akt(fs, FastJets::ANTIKT, 0.5);
+     addProjection(akt, "antikT");
+
+       
+     if(fuzzyEquals(sqrtS(), 7000*GeV, 1E-3)){ 
+
+       // don't forget to name the histograms
+       _h_dijet.reset (new LWH::Histogram1D(binEdges(1,1,1)));
+       _h_trijet.reset(new LWH::Histogram1D(binEdges(1,1,1)));
+       _h_r32 = bookDataPointSet(1, 1, 1); 
+
+
+     }
+   }
+ 
+ 
 // ======================================================== analyze
-    
-    void analyze(const Event & event) {
-      const double weight = event.weight();
-      
-      const Jets& jets = applyProjection<JetAlg>(event, "antikT").jetsByPt();
-      if (jets.size() < 2) vetoEvent;
-      
-      if (fabs(jets[0].momentum().eta()) > 1.1 || jets[0].momentum().pT() < 80.) vetoEvent;
-      if (fabs(jets[1].momentum().eta()) > 1.1 || jets[1].momentum().pT() < 30.) vetoEvent;
-      
-      double phi1 = jets[0].momentum().phi();
-      double phi2 = jets[1].momentum().phi();
-      
-      double dphi = fabs(phi1-phi2);
-      if (fabs(phi1-phi2) > 3.14159265358) dphi = 2*3.14159265358 - fabs(phi1-phi2);
-      
-      // ordering based on max pT
-      if (jets[0].momentum().pT() > 80.  && jets[0].momentum().pT() < 110.)  _h_dPhi_pT1->fill(dphi, weight);
-      if (jets[0].momentum().pT() > 110. && jets[0].momentum().pT() < 140.)  _h_dPhi_pT2->fill(dphi, weight);
-      if (jets[0].momentum().pT() > 140. && jets[0].momentum().pT() < 200.)  _h_dPhi_pT3->fill(dphi, weight);
-      if (jets[0].momentum().pT() > 200. && jets[0].momentum().pT() < 300.)  _h_dPhi_pT4->fill(dphi, weight);
-      if (jets[0].momentum().pT() > 300.) _h_dPhi_pT5->fill(dphi, weight);
-      
-    }
-    
+
+   void analyze(const Event & event) {
+     const double weight = event.weight();
+
+     const Jets& jets = applyProjection<JetAlg>(event, "antikT").jetsByPt();
+     if (jets.size() < 2) vetoEvent;
+     Jets highpT_jets;
+
+     unsigned int i;
+     for(i=0; i< jets.size(); i++) {
+       if (jets[i].momentum().pT() > 50*GeV && fabs(jets[i].momentum().eta()) < 2.5) highpT_jets.push_back(jets[i]);
+     }
+
+     if (highpT_jets.size() < 2) vetoEvent;
+
+     double HT = 0;
+     for(i=0; i< highpT_jets.size(); i++) 
+       HT = HT + highpT_jets[i].momentum().pT();
+       
+
+     if (highpT_jets.size() >= 2) _h_dijet->fill(HT/TeV, weight) ;
+     if (highpT_jets.size() >= 3) _h_trijet->fill(HT/TeV, weight) ;
+
+
+   }
+ 
 // ======================================================== finalize 
  
-    void finalize() {
-      
-      scale(_h_dPhi_pT1,1./sumOfWeights());
-      scale(_h_dPhi_pT2,10./sumOfWeights());
-      scale(_h_dPhi_pT3,100./sumOfWeights());
-      scale(_h_dPhi_pT4,1000./sumOfWeights());
-      scale(_h_dPhi_pT5,10000./sumOfWeights());
-      
-    }
-    
-  private:
-    
-    AIDA::IHistogram1D* _h_dPhi_pT1;
-    AIDA::IHistogram1D* _h_dPhi_pT2;
-    AIDA::IHistogram1D* _h_dPhi_pT3;
-    AIDA::IHistogram1D* _h_dPhi_pT4;
-    AIDA::IHistogram1D* _h_dPhi_pT5;
-    
-  }; 
+   void finalize() {
+     //AIDA::IHistogramFactory& hf = histogramFactory();
+     //const string dir = histoDir();
+     //hf.divide(dir + "/d03-x01-y01",*_h_trijet, *_h_dijet);
+     vector<double> yval_R32, yerr_R32;
+     for (size_t i = 0;  i < 30; ++i) {
+        const double yval = _h_trijet->binHeight(i) / _h_dijet->binHeight(i);
+        yval_R32.push_back(yval);
+        const double yerr = sqrt(_h_dijet->binError(i)*_h_dijet->binError(i)/(_h_dijet->binHeight(i) * _h_dijet->binHeight(i)) +
+                                 _h_trijet->binError(i)*_h_trijet->binError(i)/(_h_trijet->binHeight(i) * _h_trijet->binHeight(i))) * yval;
+        yerr_R32.push_back(yerr);                         
+      }
+      _h_r32->setCoordinate(1, yval_R32, yerr_R32); 
+   }
  
-  // This global object acts as a hook for the plugin system
-  AnalysisBuilder<CMS_2011_S9088458> plugin_CMS_2011_S9088458;
-  
+
+
+ 
+   private:
+
+
+    shared_ptr<LWH::IHistogram1D> _h_dijet, _h_trijet;
+    AIDA::IDataPointSet* _h_r32;
+
+
+ }; 
+ 
+ 
+   // This global object acts as a hook for the plugin system
+   AnalysisBuilder<CMS_2011_S9088458> plugin_CMS_2011_S9088458;
+ 
 }
+
 
