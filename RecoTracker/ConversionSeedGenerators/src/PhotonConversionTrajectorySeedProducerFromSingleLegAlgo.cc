@@ -363,13 +363,13 @@ inspectTrack(const reco::Track* track, const TrackingRegion & region, math::XYZP
 #endif
     const SeedingHitSet & hits =  hitss[iHits];
     //if (!theComparitor || theComparitor->compatible( hits, es) ) {
-    try{
-      theSeedCreator->trajectorySeed(*seedCollection,hits, originPos, originBounds, ptmin, *myEsetup,convRegion.cotTheta(),ss);
-    }catch(cms::Exception& er){
-      edm::LogError("SeedingConversion") << " Problem in the Single Leg Seed creator " <<er.what()<<std::endl;
-    }catch(std::exception& er){
-      edm::LogError("SeedingConversion") << " Problem in the Single Leg Seed creator " << er.what()<<std::endl;
-    }
+    //try{
+    theSeedCreator->trajectorySeed(*seedCollection,hits, originPos, originBounds, ptmin, *myEsetup,convRegion.cotTheta(),ss);
+    //}catch(cms::Exception& er){
+    //  edm::LogError("SeedingConversion") << " Problem in the Single Leg Seed creator " <<er.what()<<std::endl;
+    //}catch(std::exception& er){
+    //  edm::LogError("SeedingConversion") << " Problem in the Single Leg Seed creator " << er.what()<<std::endl;
+    //}
   }
   return true;
 }
