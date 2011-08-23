@@ -126,18 +126,23 @@ def ComputeLimits(InputPattern, syst):
         LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"PPStau247"', '"PPStau247"' ,-1, -1, -1  , syst])
         LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"PPStau308"', '"PPStau308"' ,-1, -1, -1  , syst])
 
-#        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"DCStau121"', '"DCStau121"' ,-1, -1, -1  , syst])
-#        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"DCStau182"', '"DCStau182"' ,-1, -1, -1  , syst])
-#        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"DCStau242"', '"DCStau242"' ,-1, -1, -1  , syst])
-#        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"DCStau302"', '"DCStau302"' ,-1, -1, -1  , syst])
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"DCStau100"', '"DCStau100"' ,-1, -1, -1  , syst])
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"DCStau121"', '"DCStau121"' ,-1, -1, -1  , syst])
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"DCStau182"', '"DCStau182"' ,-1, -1, -1  , syst])
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"DCStau242"', '"DCStau242"' ,-1, -1, -1  , syst])
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"DCStau302"', '"DCStau302"' ,-1, -1, -1  , syst])
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"DCStau350"', '"DCStau350"' ,-1, -1, -1  , syst])
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"DCStau395"', '"DCStau395"' ,-1, -1, -1  , syst])
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"DCStau420"', '"DCStau420"' ,-1, -1, -1  , syst])
+        LaunchOnCondor.SendCluster_Push(["FWLITE", os.getcwd()+"/Analysis_Step6.C", '"ANALYSE"', InputPattern, '"DCStau500"', '"DCStau500"' ,-1, -1, -1  , syst])
 
 
 
 if len(sys.argv)==1:
 	print "Please pass in argument a number between 0 and 2"
-        print "  0 - Submit the Core of the (TkOnly+TkTOF) Analysis     --> submitting 2x 1 jobs"
+        print "  0 - Submit the Core of the (TkOnly+TkTOF) Analysis     --> submitting 2x 3 jobs"
         print "  1 - Run the control plot macro                         --> submitting    0 jobs"
-        print "  2 - Run the Optimization macro based on best Exp Limit --> submitting 2x75 jobs"
+        print "  2 - Run the Optimization macro based on best Exp Limit --> submitting 2xSignalPoints jobs"
         print "  3 - Run the exclusion plot macro                       --> submitting    0 jobs"
 	sys.exit()
 
