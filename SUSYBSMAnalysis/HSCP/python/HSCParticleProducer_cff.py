@@ -61,6 +61,13 @@ dedxNPHarm2.UsePixel         = cms.bool(False)
 dedxNPTru40                  = dedxTru40.clone()
 dedxNPTru40.UsePixel         = cms.bool(False)
 
+dedxNSHarm2                  = dedxHarm2.clone()
+dedxNSHarm2.UseStrip         = cms.bool(False)
+
+dedxNSTru40                  = dedxTru40.clone()
+dedxNSTru40.UseStrip         = cms.bool(False)
+
+
 ####################################################################################
 #   DEDX DISCRIMINATORS 
 ####################################################################################
@@ -156,8 +163,8 @@ HSCParticleProducer = cms.EDFilter("HSCParticleProducer",
    rpcRecHits         = cms.InputTag("rpcRecHits"),
 
    #TRACK SELECTION FOR THE HSCP SEED
-   minMuP             = cms.double(20),
-   minTkP             = cms.double(20),
+   minMuP             = cms.double(25),
+   minTkP             = cms.double(25),
    maxTkChi2          = cms.double(5),
    minTkHits          = cms.uint32(3),
 
@@ -190,6 +197,6 @@ HSCParticleSelector = cms.EDFilter("HSCParticleSelector",
 #   HSCP Candidate Sequence
 ####################################################################################
 
-HSCParticleProducerSeq = cms.Sequence(offlineBeamSpot + TrackRefitter + dedxHarm2 + dedxTru40 + dedxNPHarm2 + dedxNPTru40 + dedxProd + dedxASmi + dedxNPProd + dedxNPASmi + muontiming + HSCParticleProducer)
+HSCParticleProducerSeq = cms.Sequence(offlineBeamSpot + TrackRefitter + dedxHarm2 + dedxTru40 + dedxNPHarm2 + dedxNPTru40 + dedxNSHarm2 + dedxNSTru40 + dedxProd + dedxASmi + dedxNPProd + dedxNPASmi + muontiming + HSCParticleProducer)
 
 

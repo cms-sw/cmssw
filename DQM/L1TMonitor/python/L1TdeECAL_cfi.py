@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1TdeECAL = cms.EDAnalyzer("L1TdeECAL",
+l1demonecal = cms.EDAnalyzer("L1TdeECAL",
     DataEmulCompareSource = cms.InputTag("l1compare"),
     HistFolder = cms.untracked.string('L1TEMU/ECALexpert/'),
     HistFile = cms.untracked.string('l1demon.root'),

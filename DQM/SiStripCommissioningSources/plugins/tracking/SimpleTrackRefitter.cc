@@ -75,7 +75,7 @@ void SimpleTrackRefitter::setServices(const edm::EventSetup& es)
   edm::ESHandle<TrajectoryFitter> fitter;
   LogDebug("SimpleTrackRefitter") << "get the fitter from the ES" << "\n";
   std::string fitterName = conf_.getParameter<std::string>("Fitter");   
-  es.get<TrackingComponentsRecord>().get(fitterName,fitter);
+  es.get<TrajectoryFitter::Record>().get(fitterName,fitter);
   theFitter=&(*fitter);
   // get the propagator
   edm::ESHandle<Propagator> propagator;
@@ -142,7 +142,7 @@ std::vector<Trajectory> SimpleTrackRefitter::refitTrack(const reco::Track& theT,
   std::vector<Trajectory> trajVec;
   reco::TransientTrack theTT(theT, thePropagator->magneticField() );
   TrajectoryStateOnSurface firstState=thePropagator->propagate(theTT.impactPointState(), hits.front()->det()->surface());
-  AlgebraicSymMatrix55 C= AlgebraicMatrixID();
+  AlgebraicSymMatrix C(5,1);
   C *= 100.;
   if(!firstState.isValid()) return trajVec;
   TrajectoryStateOnSurface theTSOS( firstState.localParameters(), LocalTrajectoryError(C),

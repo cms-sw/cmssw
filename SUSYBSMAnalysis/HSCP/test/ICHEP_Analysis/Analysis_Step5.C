@@ -76,11 +76,14 @@ void Analysis_Step5()
 //   PredictionAndControlPlot(InputDir);
 
 
-   InputDir = "Results/dedxASmi/combined/Eta25/PtMin20/Type0/";
-   unsigned int CutIndex = 45;
-//   SelectionPlot(InputDir, CutIndex);
+   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type0/";   unsigned int CutIndex = 43;//41
+//   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type2/";   unsigned int CutIndex = 57;
+
+//   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type0/";   unsigned int CutIndex = 84;
+//   InputDir = "Results/dedxASmi/combined/Eta25/PtMin25/Type2/";   unsigned int CutIndex = 113;
+   SelectionPlot(InputDir, CutIndex);
    MassPrediction(InputDir, CutIndex);  
-//   PredictionAndControlPlot(InputDir, CutIndex);
+   PredictionAndControlPlot(InputDir, CutIndex);
    return;
 }
 
@@ -118,7 +121,7 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex){
       stPlots_Dump(SignPlots[s], pFile, CutIndex);
    }
 
-//   stPlots_Draw(DataPlots, SavePath + "/Selection_Data", LegendTitle, CutIndex);
+   stPlots_Draw(DataPlots, SavePath + "/Selection_Data", LegendTitle, CutIndex);
 //   stPlots_Draw(MCTrPlots, SavePath + "/Selection_MCTr", LegendTitle);
 
 //   stPlots_Draw(SignPlots[SID_GL600 ], SavePath + "/Selection_" +  signals[SID_GL600 ].Name, LegendTitle);
@@ -126,6 +129,9 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex){
 //   stPlots_Draw(SignPlots[SID_ST300 ], SavePath + "/Selection_" +  signals[SID_ST300 ].Name, LegendTitle);
 //   stPlots_Draw(SignPlots[SID_ST300N], SavePath + "/Selection_" +  signals[SID_ST300N].Name, LegendTitle);
 //   stPlots_Draw(SignPlots[SID_GS126 ], SavePath + "/Selection_" +  signals[SID_GS126 ].Name, LegendTitle);
+
+   stPlots_DrawComparison(SavePath + "/Selection_Comp_Data" , LegendTitle, CutIndex, &DataPlots);
+   return;
 
    stPlots_DrawComparison(SavePath + "/Selection_Comp_Gluino" , LegendTitle, CutIndex, &DataPlots, &SignPlots[SID_GL200 ], &SignPlots[SID_GL500 ], &SignPlots[SID_GL900 ]);
    stPlots_DrawComparison(SavePath + "/Selection_Comp_GluinoN", LegendTitle, CutIndex, &DataPlots, &SignPlots[SID_GL200N], &SignPlots[SID_GL500N], &SignPlots[SID_GL900N]);
@@ -173,9 +179,9 @@ void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex){
    TH1D* CtrlIs_SignTOF        = (TH1D*)GetObjectFromPath(InputFile, "CtrlIs_SignTOF"); CtrlIs_SignTOF->Rebin(1);
 
    TH1D* CtrlTOF_BckgPt        = (TH1D*)GetObjectFromPath(InputFile, "CtrlTOF_BckgPt"); CtrlTOF_BckgPt ->Rebin(1);
-   TH1D* CtrlTOF_BckgIs        = (TH1D*)GetObjectFromPath(InputFile, "CtrlTOF_BckgIs"); CtrlTOF_BckgIs ->Rebin(1);
+   TH1D* CtrlTOF_BckgIs        = (TH1D*)GetObjectFromPath(InputFile, "CtrlTOF_BckgIs"); CtrlTOF_BckgIs ->Rebin(4);
    TH1D* CtrlTOF_SignPt        = (TH1D*)GetObjectFromPath(InputFile, "CtrlTOF_SignPt"); CtrlTOF_SignPt ->Rebin(1);
-   TH1D* CtrlTOF_SignIs        = (TH1D*)GetObjectFromPath(InputFile, "CtrlTOF_SignIs"); CtrlTOF_SignIs ->Rebin(1);
+   TH1D* CtrlTOF_SignIs        = (TH1D*)GetObjectFromPath(InputFile, "CtrlTOF_SignIs"); CtrlTOF_SignIs ->Rebin(4);
 
    TH2D* Pred_P                = (TH2D*)GetObjectFromPath(InputFile, "Pred_P");
    TH2D* Pred_I                = (TH2D*)GetObjectFromPath(InputFile, "Pred_I");
@@ -183,6 +189,20 @@ void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex){
    TH2D* Data_I                = (TH2D*)GetObjectFromPath(InputFile, "DataD_I");   
    TH2D* Data_P                = (TH2D*)GetObjectFromPath(InputFile, "DataD_P");   
    TH2D* Data_TOF              = (TH2D*)GetObjectFromPath(InputFile, "DataD_TOF"); 
+
+   TH1D*  H_A            = (TH1D*)GetObjectFromPath(InputFile, "H_A");
+   TH1D*  H_B            = (TH1D*)GetObjectFromPath(InputFile, "H_B");
+   TH1D*  H_C            = (TH1D*)GetObjectFromPath(InputFile, "H_C");
+   TH1D*  H_D            = (TH1D*)GetObjectFromPath(InputFile, "H_D");
+   TH1D*  H_E            = (TH1D*)GetObjectFromPath(InputFile, "H_E");
+   TH1D*  H_F            = (TH1D*)GetObjectFromPath(InputFile, "H_F");
+   TH1D*  H_G            = (TH1D*)GetObjectFromPath(InputFile, "H_G");
+   TH1D*  H_H            = (TH1D*)GetObjectFromPath(InputFile, "H_H");
+   TH1D*  H_P            = (TH1D*)GetObjectFromPath(InputFile, "H_P");
+
+   TH1D*  HCuts_Pt       = (TH1D*)GetObjectFromPath(InputFile, "HCuts_Pt");
+   TH1D*  HCuts_I        = (TH1D*)GetObjectFromPath(InputFile, "HCuts_I");
+   TH1D*  HCuts_TOF      = (TH1D*)GetObjectFromPath(InputFile, "HCuts_TOF");
 
 
    c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
@@ -326,6 +346,64 @@ void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex){
    SaveCanvas(c1,SavePath,"Prediction_TOFSpectrum");
    delete Histos[0]; delete Histos[1];
    delete c1;
+
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   TH2D* DataVsPred = new TH2D("DataVsPred","DataVsPred",17,35,200, 17,0.05,0.5); 
+   TH2D* DataMap    = new TH2D("DataMap"   ,"DataMap"   ,17,35,200, 17,0.05,0.5);
+   TH2D* PredMap    = new TH2D("PredMap"   ,"PredMap"   ,17,35,200, 17,0.05,0.5);
+   for(unsigned int CutIndex=0;CutIndex<H_P->GetNbinsX();CutIndex++){
+      double P    = H_P->GetBinContent(CutIndex+1);
+      double D    = H_D->GetBinContent(CutIndex+1);
+      double Err  = sqrt( pow(H_P->GetBinError(CutIndex+1),2) + std::max(D,1.0)   );
+//      double Err  = sqrt( pow(H_P->GetBinError(CutIndex+1),2) + pow(P*0.1,2)   );
+      double NSigma = (D-P)/Err;
+
+      DataMap->SetBinContent(DataVsPred->GetXaxis()->FindBin(HCuts_Pt->GetBinContent(CutIndex+1)), DataVsPred->GetYaxis()->FindBin(HCuts_I->GetBinContent(CutIndex+1)), D);
+      PredMap->SetBinContent(DataVsPred->GetXaxis()->FindBin(HCuts_Pt->GetBinContent(CutIndex+1)), DataVsPred->GetYaxis()->FindBin(HCuts_I->GetBinContent(CutIndex+1)), P);
+
+
+//      if(D==0)continue;
+      if(isnan(P))continue;
+      if(P<=0){continue;} //Is <=0 only when prediction failed or is not meaningful (i.e. WP=(0,0,0) )
+      //if( H_B->GetBinContent(CutIndex+1)>=H_A->GetBinContent(CutIndex+1) ||  H_C->GetBinContent(CutIndex+1)>=H_A->GetBinContent(CutIndex+1))continue;
+
+      printf("CutIndex=%3i Pt>%6.2f  I>%6.2f --> D=%6.2E P=%6.2E+-%6.2E(%6.2f+%6.2f)  (%f Sigma)\n",CutIndex, HCuts_Pt->GetBinContent(CutIndex+1),HCuts_I->GetBinContent(CutIndex+1),D,P,Err,H_P->GetBinError(CutIndex+1),sqrt(D),NSigma);
+      DataVsPred->SetBinContent(DataVsPred->GetXaxis()->FindBin(HCuts_Pt->GetBinContent(CutIndex+1)), DataVsPred->GetYaxis()->FindBin(HCuts_I->GetBinContent(CutIndex+1)), NSigma);
+//      DataVsPred->Fill(HCuts_Pt->GetBinContent(CutIndex+1), HCuts_I->GetBinContent(CutIndex+1), NSigma);
+   }
+   DataVsPred->SetMinimum(-3);
+   DataVsPred->SetMaximum(3);
+   Histos[0] = DataVsPred;   legend.push_back("Observed");
+   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "PtCut", "ICut", 0,0, 0,0);
+   //DrawLegend(Histos,legend,LegendTitle,"P");
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"Prediction_PredVsObs");
+   delete c1;
+
+   PredMap->SetMinimum(1E-2);
+   DataMap->SetMinimum(1E-2);
+   PredMap->SetMaximum(std::max(PredMap->GetMaximum(),DataMap->GetMaximum()));
+   DataMap->SetMaximum(std::max(PredMap->GetMaximum(),DataMap->GetMaximum()));
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   c1->SetLogz(true);
+   Histos[0] = PredMap;   legend.push_back("Observed");
+   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "PtCut", "ICut", 0,0, 0,0);
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"Prediction_Pred");
+   delete c1;
+
+
+   c1 = new TCanvas("c1","c1,",600,600);          legend.clear();
+   c1->SetLogz(true);
+   Histos[0] = DataMap;   legend.push_back("Observed");
+   DrawSuperposedHistos((TH1**)Histos, legend, "COLZ",  "PtCut", "ICut", 0,0, 0,0);
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,SavePath,"Prediction_Data");
+   delete c1;
+
+
+
 }
 
 
@@ -877,6 +955,26 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
       Perr = 0; for(int i=Pred->GetXaxis()->FindBin(M);i<Pred->GetXaxis()->FindBin(2000.0);i++){ Perr += pow(Pred->GetBinError(i),2); }  Perr = sqrt(Perr);
       printf("%3.0f<M<2000 --> D=%9.3f P = %9.3f +- %6.3f(stat) +- %6.3f(syst) (=%6.3f)\n", M, D, P, Perr, P*(2*RMS),sqrt(Perr*Perr + pow(P*(2*RMS),2)));
    }
+//   for(int i=Pred->GetXaxis()->FindBin(0.0);i<Pred->GetXaxis()->FindBin(2000.0);i++){printf("MassBin=%6.2f  --> BinEntry=%6.2E +- %6.2E\n",Pred->GetXaxis()->GetBinCenter(i), Pred->GetBinContent(i), Pred->GetBinError(i));}
+
+
+      printf("FullSpectrum --> D=%9.3f P = %9.3f +- %6.3f(stat) +- %6.3f(syst) (=%6.3f)\n", Data->Integral(), Pred->Integral(), 0.0, 0.0, 0.0 );
+      printf("UnderFlow = %6.2f OverFlow = %6.2f\n", Pred->GetBinContent(0), Pred->GetBinContent(Pred->GetNbinsX()+1) );
+
+
+
+   TH1D*  H_A            = (TH1D*)GetObjectFromPath(InputFile, "H_A");
+   TH1D*  H_B            = (TH1D*)GetObjectFromPath(InputFile, "H_B");
+   TH1D*  H_C            = (TH1D*)GetObjectFromPath(InputFile, "H_C");
+   TH1D*  H_D            = (TH1D*)GetObjectFromPath(InputFile, "H_D");
+   TH1D*  H_E            = (TH1D*)GetObjectFromPath(InputFile, "H_E");
+   TH1D*  H_F            = (TH1D*)GetObjectFromPath(InputFile, "H_F");
+   TH1D*  H_G            = (TH1D*)GetObjectFromPath(InputFile, "H_G");
+   TH1D*  H_H            = (TH1D*)GetObjectFromPath(InputFile, "H_H");
+   TH1D*  H_P            = (TH1D*)GetObjectFromPath(InputFile, "H_P");
+   printf("OBSERVED  EVENTS = %6.2E\n",H_D->GetBinContent(CutIndex+1));
+   printf("PREDICTED EVENTS = %6.2E+-%6.2E\n",H_P->GetBinContent(CutIndex+1), H_P->GetBinError(CutIndex+1));
+
 
    Pred->Rebin(2);
    Data->Rebin(2);
@@ -922,7 +1020,7 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
 
    Data->SetMarkerStyle(20);
    Data->SetMarkerColor(1);
-   Data->SetMarkerSize(1.5);
+   Data->SetMarkerSize(1.0);
    Data->SetLineColor(1);
    Data->SetFillColor(0);
    Data->Draw("E1 same");

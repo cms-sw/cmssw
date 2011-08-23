@@ -84,12 +84,6 @@ private:
     /// book all histograms for the module
     void bookHistograms();
 
-    /// exclude from comparison some bits with known disagreement - bit list
-    void excludedAlgoList();
-
-    /// exclusion status for algorithm with bit i
-    bool excludedAlgo(const int&) const;
-
     virtual void beginJob();
     void beginRun(const edm::Run& run, const edm::EventSetup& c);
 
@@ -159,12 +153,6 @@ private:
 
     DQMStore* m_dbe;
 
-    bool m_agree;
-    bool m_dataOnly;
-    bool m_emulOnly;
-    bool m_dataOnlyMask;
-    bool m_emulOnlyMask;
-
 private:
 
     static const int TotalBxInEvent = 5;
@@ -185,9 +173,6 @@ private:
     MonitorElement* m_fdlDataAlgoDecision_NoMatch[TotalBxInEvent][NumberOfGtRecords];
     MonitorElement* m_fdlDataAlgoDecisionPrescaled_NoMatch[TotalBxInEvent][NumberOfGtRecords];
     MonitorElement* m_fdlDataAlgoDecisionUnprescaled_NoMatch[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlDataAlgoDecisionMask_NoMatch[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlDataAlgoDecisionPrescaledMask_NoMatch[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlDataAlgoDecisionUnprescaledMask_NoMatch[TotalBxInEvent][NumberOfGtRecords];
     MonitorElement* m_fdlDataAlgoDecision_Err[NumberOfGtRecords];
 
     MonitorElement* m_fdlEmulAlgoDecision[TotalBxInEvent][NumberOfGtRecords];
@@ -197,9 +182,6 @@ private:
     MonitorElement* m_fdlEmulAlgoDecision_NoMatch[TotalBxInEvent][NumberOfGtRecords];
     MonitorElement* m_fdlEmulAlgoDecisionPrescaled_NoMatch[TotalBxInEvent][NumberOfGtRecords];
     MonitorElement* m_fdlEmulAlgoDecisionUnprescaled_NoMatch[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlEmulAlgoDecisionMask_NoMatch[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlEmulAlgoDecisionPrescaledMask_NoMatch[TotalBxInEvent][NumberOfGtRecords];
-    MonitorElement* m_fdlEmulAlgoDecisionUnprescaledMask_NoMatch[TotalBxInEvent][NumberOfGtRecords];
     MonitorElement* m_fdlEmulAlgoDecision_Err[NumberOfGtRecords];
 
     //
@@ -223,21 +205,12 @@ private:
     MonitorElement* m_fdlDataEmulTechDecisionMask[TotalBxInEvent][NumberOfGtRecords];
     MonitorElement* m_fdlDataEmulTechDecision_Err[NumberOfGtRecords];
 
-    MonitorElement* m_excludedAlgorithmsAgreement;
-
     /// PSB
-
-    // FIXME add PSB comparison
-
-    /// ErrorFlag a la HardwareValidation
-    MonitorElement* m_gtErrorFlag;
-
 
     ///
     int m_nrEvJob;
     int m_nrEvRun;
 
-    std::vector<int> m_excludedAlgoList;
 };
 
 #endif /*DQM_L1TMonitor_L1GtHwValidation_h*/

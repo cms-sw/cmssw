@@ -44,7 +44,7 @@
 
 
 
-double               IntegratedLuminosity = 36.139097; //33.846283;
+double               IntegratedLuminosity = 5.8;
 float                Event_Weight = 1;
 int                  MaxEntry = -1;
 
@@ -64,6 +64,7 @@ class stSignal{
 
 
 void GetSignalDefinition(std::vector<stSignal>& signals){
+/*
    signals.push_back(stSignal("Gluino", "Gluino200"    , "#tilde{g} 200"                 , 200,  1, 606.000000) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino300"    , "#tilde{g} 300"                 , 300,  1,  57.200000) ); //NLO
    signals.push_back(stSignal("Gluino", "Gluino400"    , "#tilde{g} 400"                 , 400,  1,   8.980000) ); //NLO
@@ -102,6 +103,7 @@ void GetSignalDefinition(std::vector<stSignal>& signals){
    signals.push_back(stSignal("Stau"  , "DCStau182"    , "DICHAMP #tilde{#tau}_{1} 182"  , 182,  0,   0.083000) ); //LO
    signals.push_back(stSignal("Stau"  , "DCStau242"    , "DICHAMP #tilde{#tau}_{1} 242"  , 242,  0,   0.022800) ); //LO
    signals.push_back(stSignal("Stau"  , "DCStau302"    , "DICHAMP #tilde{#tau}_{1} 302"  , 302,  1,   0.007700) ); //LO
+*/
 }
 
 struct stMC{
@@ -122,32 +124,11 @@ void GetMCDefinition(std::vector<stMC>& MC){
 
 
 void GetInputFiles(std::vector<string>& inputFiles, string SampleName){
-   string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_3_9_7/11_03_08/";
+   string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_1_3/11_03_30/";
 
    if(SampleName=="Data"){
-      if(rand()%2==0){
-         inputFiles.push_back(BaseDirectory + "Data_135821_141887.root");
-         inputFiles.push_back(BaseDirectory + "Data_141888_144114.root");
-         inputFiles.push_back(BaseDirectory + "Data_146240_147000.root");
-         inputFiles.push_back(BaseDirectory + "Data_147001_147500.root");
-         inputFiles.push_back(BaseDirectory + "Data_147501_148000.root");
-         inputFiles.push_back(BaseDirectory + "Data_148001_148500.root");
-         inputFiles.push_back(BaseDirectory + "Data_148501_149000.root");
-         inputFiles.push_back(BaseDirectory + "Data_149001_149100.root");
-         inputFiles.push_back(BaseDirectory + "Data_149101_149250.root");
-         inputFiles.push_back(BaseDirectory + "Data_149251_149711.root");
-       }else{
-         inputFiles.push_back(BaseDirectory + "Data_135821_141887_B.root");
-         inputFiles.push_back(BaseDirectory + "Data_141888_144114_B.root");
-         inputFiles.push_back(BaseDirectory + "Data_146240_147000_B.root");
-         inputFiles.push_back(BaseDirectory + "Data_147001_147500_B.root");
-         inputFiles.push_back(BaseDirectory + "Data_147501_148000_B.root");
-         inputFiles.push_back(BaseDirectory + "Data_148001_148500_B.root");
-         inputFiles.push_back(BaseDirectory + "Data_148501_149000_B.root");
-         inputFiles.push_back(BaseDirectory + "Data_149001_149100_B.root");
-         inputFiles.push_back(BaseDirectory + "Data_149101_149250_B.root");
-         inputFiles.push_back(BaseDirectory + "Data_149251_149711_B.root");
-       }
+      inputFiles.push_back(BaseDirectory + "Data_RunA.root");
+
 //   }else if(SampleName=="MC_MB"){
 //      inputFiles.push_back(BaseDirectory + "MC_MB.root");
 //   }else if(SampleName=="MC_PPMUX"){

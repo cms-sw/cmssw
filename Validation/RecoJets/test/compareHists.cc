@@ -279,8 +279,8 @@ double makeGifHists4 (TH1* fHist, TH1* fRefHist, TCanvas* fCanvas, const std::st
   int hibin=fHist->GetNbinsX()+1;
   double hiedge = fHist->GetBinLowEdge(hibin);
 
-  //fRefHist->SetMaximum(1.3);
-  //fRefHist->SetMinimum(0.0);
+  fRefHist->SetMaximum(1.3);
+  fRefHist->SetMinimum(0.0);
 
   if (lowedge==0.5 && hiedge==3.75){
     fRefHist->GetXaxis()->SetTickLength(0);
@@ -356,12 +356,12 @@ int main (int argn, char* argv []) {
   }
 
   TDirectory* dirIn = 0;
-  std::string workDir = std::string ("DQMData/Run 1/JetMET/Run summary/RecoJetsV/") + moduleName ; // new format
+  std::string workDir = std::string ("DQMData/JetMET/RecoJetsV/") + moduleName ; // new format
   inputFile->GetObject (workDir.c_str(), dirIn);
 
   if (!dirIn) {
     std::cout << "Fall back to old format for file " << inputFileName << std::endl;
-    workDir = std::string ("DQMData/JetMET/RecoJetsV/") + moduleName; // old format
+    workDir = std::string ("DQMData/") + moduleName; // old format
     inputFile->GetObject (workDir.c_str(), dirIn);
     if (!dirIn) {
       std::cerr << "Can't access workDir in file " << inputFileName << std::endl;
@@ -379,13 +379,13 @@ int main (int argn, char* argv []) {
 
   TDirectory* dirRef = 0;
   //  workDir = std::string ("DQMData/JetMET/RecoJetsV/CaloJetTask_") + refmoduleName; // new format
-  workDir = std::string ("DQMData/Run 1/JetMET/Run summary/RecoJetsV/") + refmoduleName; // new format
+  workDir = std::string ("DQMData/JetMET/RecoJetsV/") + refmoduleName; // new format
   refFile->GetObject (workDir.c_str(), dirRef);
 
   if (!dirRef) {
     std::cout << "Fall back to old format for file " << refFileName << std::endl;
     //    workDir = std::string ("DQMData/CaloJetTask_") + refmoduleName; // old format
-    workDir = std::string ("DQMData/JetMET/RecoJetsV/") + refmoduleName; // old format
+    workDir = std::string ("DQMData/") + refmoduleName; // old format
     refFile->GetObject (workDir.c_str(), dirRef);
     if (!dirRef) {
       std::cerr << "Can't access workDir in file " << refFileName << std::endl;

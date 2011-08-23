@@ -80,3 +80,31 @@ ckfTrackCandidatesP5.useHitsSplitting = True
 rsTrackCandidatesP5.SplitMatchedHits = True
 
 
+
+# REGIONAL RECONSTRUCTION
+# Seeds
+from RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmicsRegionalReconstruction_cff import *
+regionalTrackerCosmicSeeds = RecoTracker.SpecialSeedGenerators.CombinatorialSeedGeneratorForCosmicsRegionalReconstruction_cff.regionalCosmicTrackerSeeds.clone(
+    RegionInJetsCheckPSet = cms.PSet( # verify if the region is built inside a jet
+        doJetsExclusionCheck   = cms.bool( False )
+        )
+)
+# Ckf
+import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
+regionalCosmicTrackerCkfTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
+    src = cms.InputTag( "regionalTrackerCosmicSeeds"),
+    NavigationSchool = cms.string('CosmicNavigationSchool'),
+    #TrajectoryBuilder = cms.string( "CkfTrajectoryBuilder" ),
+    TrajectoryBuilder = cms.string( "GroupedCkfTrajectoryBuilder" ),
+)
+
+# Track producer
+import RecoTracker.TrackProducer.TrackProducer_cfi
+regionalCosmicTrackerTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
+    src = cms.InputTag( "regionalCosmicTrackerCkfTrackCandidates"),
+    NavigationSchool = 'CosmicNavigationSchool',
+    AlgorithmName = 'cosmics',
+    alias = 'regionalCosmicTracks'
+)
+# Final Sequence
+regionalTrackerCosmic = cms.Sequence( regionalTrackerCosmicSeeds * regionalCosmicTrackerCkfTrackCandidates * regionalCosmicTrackerTracks )

@@ -93,15 +93,6 @@ public:
 
 
 #if defined( __GXX_EXPERIMENTAL_CXX0X__)
- Trajectory(Trajectory const & rh) :
-    theData(rh.theData),
-    theChiSquared(rh.theChiSquared), theChiSquaredBad(rh.theChiSquaredBad), theValid(rh.theValid),
-    theNumberOfFoundHits(rh.theNumberOfFoundHits), theNumberOfLostHits(rh.theNumberOfLostHits),
-    theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity),
-    theSeed(rh.theSeed), seedRef_(rh.seedRef_)
-  {}
-
-
   Trajectory(Trajectory && rh) : 
     theData(std::move(rh.theData)),
     theChiSquared(rh.theChiSquared), theChiSquaredBad(rh.theChiSquaredBad), theValid(rh.theValid),
@@ -126,23 +117,6 @@ public:
     return *this;
 
   }
-
- Trajectory & operator=(Trajectory const & rh) {
-    theData = rh.theData;
-    theChiSquared=rh.theChiSquared;
-    theChiSquaredBad=rh.theChiSquaredBad;
-    theValid=rh.theValid;
-    theNumberOfFoundHits=rh.theNumberOfFoundHits;
-    theNumberOfLostHits=rh.theNumberOfLostHits;
-    theDirection=rh.theDirection;
-    theDirectionValidity=rh.theDirectionValidity;
-    theSeed = rh.theSeed;
-    seedRef_ = rh.seedRef_;
-
-    return *this;
-
-  }
-
 
 #endif
 
