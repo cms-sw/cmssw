@@ -1,6 +1,6 @@
 /*
 
-  $Id$
+  $Id: adler32.c,v 1.1 2011/08/11 23:12:52 gowdy Exp $
 
   Program to calculate adler32 checksum for every file given
   on the command line. Uses zlib's adler32 routine.
@@ -12,9 +12,7 @@
 
 */
 
-
 #define _LARGEFILE64_SOURCE
-
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
@@ -22,6 +20,10 @@
 #include <stdio.h>
 #include <zlib.h>
 #include <libgen.h>
+#ifdef __APPLE__
+typedef off_t off64_t;
+#define O_LARGEFILE 0
+#endif
 
 #define EDMFILEUTILADLERBUFSIZE 10*1024*1024 // 10MB buffer
 
