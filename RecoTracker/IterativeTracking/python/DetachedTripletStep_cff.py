@@ -15,7 +15,7 @@ detachedTripletStepClusters = cms.EDProducer("TrackClusterRemover",
     pixelClusters = cms.InputTag("siPixelClusters"),
     stripClusters = cms.InputTag("siStripClusters"),
     Common = cms.PSet(
-        maxChi2 = cms.double(30.0)
+        maxChi2 = cms.double(9.0)
     )
 )
 
