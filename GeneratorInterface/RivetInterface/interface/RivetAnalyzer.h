@@ -33,6 +33,8 @@ class RivetAnalyzer : public edm::EDAnalyzer
   private:
 
   edm::InputTag            _hepmcCollection;
+  bool                     _useExternalWeight;
+  edm::InputTag            _genEventInfoCollection;
   Rivet::AnalysisHandler   _analysisHandler;   
   bool                     _isFirstEvent;
   std::string              _outFileName; 
