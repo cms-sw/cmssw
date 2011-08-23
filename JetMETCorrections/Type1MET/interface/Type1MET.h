@@ -15,7 +15,7 @@
 //
 // Original Author:  Oct 12 08:23
 //         Created:  Wed Oct 12 12:16:04 CDT 2005
-// $Id: Type1MET.h,v 1.3 2010/08/06 20:24:37 wmtan Exp $
+// $Id: Type1MET.h,v 1.4 2010/12/13 11:07:53 gebbert Exp $
 //
 //
 
@@ -59,6 +59,7 @@ namespace cms
     double UscaleC;
     bool useTypeII;
     bool hasMuonsCorr;
+    bool subtractL1Fast_;
   };
 }
 #endif
