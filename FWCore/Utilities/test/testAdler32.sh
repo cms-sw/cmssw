@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "===== Running test of cms_adler32 ======"
 
-expect="2febde33"
+expect="ce0bf49e"
 results=`cms_adler32 $LOCAL_TEST_DIR/../bin/adler32.c | awk '{print $1}'`
 
 if [ "$results" != "$expect" ]; then
