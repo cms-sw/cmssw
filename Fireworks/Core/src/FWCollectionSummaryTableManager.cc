@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 22 10:13:39 CST 2009
-// $Id: FWCollectionSummaryTableManager.cc,v 1.10 2011/08/18 00:38:48 amraktad Exp $
+// $Id: FWCollectionSummaryTableManager.cc,v 1.11 2011/08/20 03:48:40 amraktad Exp $
 //
 
 // system include files
@@ -78,12 +78,12 @@ FWCollectionSummaryTableManager::~FWCollectionSummaryTableManager()
 namespace {
    template<typename S>
    void doSort(const FWEventItem& iItem,
-              const FWItemValueGetter& iGetter,
-               std::multimap<double,int,S>& iMap,
+              const FWItemValueGetter& iGetter, int iCol,
+               std::multimap<double,int,S>& iMap, 
                std::vector<int>& oNewSort) {
       int size = iItem.size();
       for(int index = 0; index < size; ++index) {
-         iMap.insert(std::make_pair(iGetter.valueFor(iItem.modelData(index), index),
+         iMap.insert(std::make_pair(iGetter.valueFor(iItem.modelData(index), iCol),
                                        index));
       }
       std::vector<int>::iterator itVec = oNewSort.begin();
@@ -100,10 +100,10 @@ FWCollectionSummaryTableManager::implSort(int iCol, bool iSortOrder)
 {
    if(iSortOrder) {
       std::multimap<double,int, std::greater<double> > s;
-      doSort(*m_collection, m_collection->valueGetter(), s, m_sortedToUnsortedIndicies);
+      doSort(*m_collection, m_collection->valueGetter(), iCol, s, m_sortedToUnsortedIndicies);
    } else {
       std::multimap<double,int, std::less<double> > s;
-      doSort(*m_collection, m_collection->valueGetter(), s, m_sortedToUnsortedIndicies);
+      doSort(*m_collection, m_collection->valueGetter(), iCol, s, m_sortedToUnsortedIndicies);
    }
 }
 
