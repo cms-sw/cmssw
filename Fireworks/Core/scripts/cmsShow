@@ -124,7 +124,7 @@ if [ "X$debugflag" = Xon ] ; then
    else
       creport=`mktemp /tmp/cmsshow-crash-report-XXXXXXXX`
    fi
-   $SHELLDIR/cmsShow.exe $originalOptions 2>&1 | tee $creport
+   "$SHELLDIR/cmsShow.exe" $originalOptions 2>&1 | tee $creport
    exitSstatus=$?
    echo "" >> $creport
    echo "System Info" >> $creport
@@ -133,11 +133,11 @@ if [ "X$debugflag" = Xon ] ; then
    echo "Crash report saved to '$creport'."
 elif [ "X$debuginteractiveflag" = Xon ] ; then
   echo $originalOptions
-  gdb --args $SHELLDIR/cmsShow.exe $originalOptions
+  gdb --args "$SHELLDIR/cmsShow.exe" $originalOptions
 elif [ "X$valgrindflag" = Xon ] ; then
-  valgrind --num-callers=30 --log-file=valgrind.log.$$ --freelist-vol=100000000 $SHELLDIR/cmsShow.exe $@
+  valgrind --num-callers=30 --log-file=valgrind.log.$$ --freelist-vol=100000000 "$SHELLDIR/cmsShow.exe" $@
 else
-   $SHELLDIR/cmsShow.exe $originalOptions
+   "$SHELLDIR/cmsShow.exe" $originalOptions
    exitStatus=$?
    if [ $exitStatus -gt 128 ] ; then
       if [ "$rootflag" = "off" ] ; then
