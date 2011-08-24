@@ -66,7 +66,7 @@ void PhiSymmetryCalibration_step2::setUp(const edm::EventSetup& se){
 
     EcalCondHeader h;
     namespace fs = boost::filesystem;
-    fs::path p(initialmiscalibfile_.c_str(),fs::native);
+    fs::path p(initialmiscalibfile_.c_str());
     if (!fs::exists(p)) edm::LogError("PhiSym") << "File not found: " 
 						<< initialmiscalibfile_ <<endl;  
     
@@ -92,7 +92,7 @@ void PhiSymmetryCalibration_step2::setUp(const edm::EventSetup& se){
      
     EcalCondHeader h;
     namespace fs = boost::filesystem;
-    fs::path p(oldcalibfile_.c_str(),fs::native);
+    fs::path p(oldcalibfile_.c_str());
     if (!fs::exists(p)) edm::LogError("PhiSym") << "File not found: " 
 						<< oldcalibfile_ <<endl;  
     
