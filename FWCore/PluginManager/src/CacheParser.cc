@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 14:30:46 EDT 2007
-// $Id: CacheParser.cc,v 1.3 2007/11/07 03:34:46 wmtan Exp $
+// $Id: CacheParser.cc,v 1.4 2008/11/11 11:54:43 elmer Exp $
 //
 
 // system include files
@@ -161,7 +161,11 @@ CacheParser::write(const CategoryToInfos& iInfos, std::ostream& oOut)
         it2 != it->second.end();
         ++it2) {
       //remove any directory specification
-      std::string loadable(it2->loadable_.leaf());
+#if (BOOST_VERSION / 100000) >= 1 && ((BOOST_VERSION / 100) % 1000) >= 47
+      std::string loadable(it2->loadable_.filename().string());
+#else
+      std::string loadable(it2->loadable_.filename());
+#endif
       std::string name(it2->name_);
       ordered[loadable].push_back(NameAndType(name,type));
     }

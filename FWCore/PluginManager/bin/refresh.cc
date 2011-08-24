@@ -154,7 +154,7 @@ int main (int argc, char **argv) {
       {
 
         path  filename (*file);
-        path shortName(file->leaf());
+        path shortName(file->path().filename());
         std::string stringName = shortName.string();
 
         static std::string kPluginPrefix(standard::pluginPrefix());
@@ -176,7 +176,7 @@ int main (int argc, char **argv) {
           it != itEnd; ++it) {
         boost::filesystem::path f(*it);
         if (!exists(f)) {
-          std::cerr << "the file '" << f.native_file_string() << "' does not exist" << std::endl;
+          std::cerr << "the file '" << f.string() << "' does not exist" << std::endl;
           return 1;
         }
         if (is_directory(f)) {
@@ -184,10 +184,14 @@ int main (int argc, char **argv) {
           return 1;
         }
         if(directory != f.branch_path()) {
-          std::cerr << "all files must have be in the same directory (" << directory.native_file_string() << ")\n"
-          " the file " << f.native_file_string() << " does not." << std::endl;
+          std::cerr << "all files must have be in the same directory (" << directory.string() << ")\n"
+          " the file " << f.string() << " does not." << std::endl;
         }
+#if (BOOST_VERSION / 100000) >= 1 && ((BOOST_VERSION / 100) % 1000) >= 47
+        files.push_back(f.filename().string());
+#else
         files.push_back(f.leaf());
+#endif
       }
     }
 
@@ -196,9 +200,9 @@ int main (int argc, char **argv) {
 
     CacheParser::LoadableToPlugins old;
     if(exists(cacheFile)) {
-      std::ifstream cf(cacheFile.native_file_string().c_str());
+      std::ifstream cf(cacheFile.string().c_str());
       if(!cf) {
-        cms::Exception("FailedToOpen") << "unable to open file '" << cacheFile.native_file_string() << "' for reading even though it is present.\n"
+        cms::Exception("FailedToOpen") << "unable to open file '" << cacheFile.string() << "' for reading even though it is present.\n"
         "Please check permissions on the file.";
       }
       CacheParser::read(cf, old);
@@ -213,7 +217,7 @@ int main (int argc, char **argv) {
 
     // We open the cache file before forking so that all the children will
     // use it.
-    std::string temporaryFilename = (cacheFile.native_file_string() + ".tmp");
+    std::string temporaryFilename = (cacheFile.string() + ".tmp");
     std::ofstream cf(temporaryFilename.c_str());
     if(!cf) {
       cms::Exception("FailedToOpen") << "unable to open file '" 
@@ -327,7 +331,7 @@ int main (int argc, char **argv) {
       "Please check permissions on the file.";
     }
     CacheParser::write(old, fcf);
-    rename(temporaryFilename.c_str(), cacheFile.native_file_string().c_str());  
+    rename(temporaryFilename.c_str(), cacheFile.string().c_str());  
   } catch(std::exception& iException) {
     std::cerr << "Caught exception " << iException.what() << std::endl;
     returnValue = 1;

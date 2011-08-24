@@ -69,13 +69,13 @@ namespace
     if (bf::is_directory(p))
       throw edm::Exception(edm::errors::FileInPathError)
 	<< "Path " 
-	<< p.native_directory_string()
+	<< p.string()
 	<< " is a directory, not a file\n";
 
     if (bf::symbolic_link_exists(p))
       throw edm::Exception(edm::errors::FileInPathError)
 	<< "Path " 
-	<< p.native_file_string()
+	<< p.string()
 	<< " is a symbolic link, not a file\n";
 
     return true;    
@@ -358,17 +358,22 @@ namespace edm
     while (it != end) {
       // Set the boost::fs path to the current element of
       // CMSSW_SEARCH_PATH:
-      bf::path pathPrefix(*it, bf::no_check);
+      bf::path pathPrefix(*it);
 
       // Does the a file exist? locateFile throws is it finds
       // something goofy.
       if (locateFile(pathPrefix, relativePath_)) {
 	// Convert relative path to canonical form, and save it.
-	relativePath_ = bf::path(relativePath_, bf::no_check).normalize().string();
+	relativePath_ = bf::path(relativePath_).normalize().string();
 	  
 	// Save the absolute path.
-	canonicalFilename_ = bf::complete(relativePath_, 
+#if (BOOST_VERSION / 100000) >= 1 && ((BOOST_VERSION / 100) % 1000) >= 47
+	canonicalFilename_ = bf::absolute(relativePath_, 
 					  pathPrefix).string();
+#else
+        canonicalFilename_ = bf::complete(relativePath_, 
+                                          pathPrefix).string();
+#endif
 	if (canonicalFilename_.empty())
 	  throw edm::Exception(edm::errors::FileInPathError)
 	    << "fullPath is empty"
@@ -382,7 +387,7 @@ namespace edm
 
 	  if (!localTop_.empty()) {
 	    // Create a path object for our local path LOCALTOP:
-	    bf::path local_(localTop_, bf::no_check);
+	    bf::path local_(localTop_);
 	    // If the branch path matches the local path, the file was found locally:
 	    if (br == local_) {
 	      location_ = Local;
@@ -392,7 +397,7 @@ namespace edm
 
 	  if (!releaseTop_.empty()) {
 	    // Create a path object for our release path RELEASETOP:
-	    bf::path release_(releaseTop_, bf::no_check);
+	    bf::path release_(releaseTop_);
 	    // If the branch path matches the release path, the file was found in the release:
 	    if (br == release_) {
 	      location_ = Release;
@@ -402,7 +407,7 @@ namespace edm
 
 	  if (!dataTop_.empty()) {
 	    // Create a path object for our data path DATATOP:
-	    bf::path data_(dataTop_, bf::no_check);
+	    bf::path data_(dataTop_);
 	    // If the branch path matches the data path, the file was found in the data area:
 	    if (br == data_) {
 	      location_ = Data;

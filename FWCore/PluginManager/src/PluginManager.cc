@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Apr  4 14:28:58 EDT 2007
-// $Id: PluginManager.cc,v 1.10 2008/10/21 15:45:04 eulisse Exp $
+// $Id: PluginManager.cc,v 1.11 2010/10/05 16:35:12 eulisse Exp $
 //
 
 // system include files
@@ -72,14 +72,14 @@ PluginManager::PluginManager(const PluginManager::Config& iConfig) :
       boost::filesystem::path dir(*itPath);
       if( exists( dir) ) {
         if(not is_directory(dir) ) {
-          throw cms::Exception("PluginManagerBadPath") <<"The path '"<<dir.native_file_string()<<"' for the PluginManager is not a directory";
+          throw cms::Exception("PluginManagerBadPath") <<"The path '"<<dir.string()<<"' for the PluginManager is not a directory";
         }
         boost::filesystem::path cacheFile = dir/kCacheFile;
         
         if(exists(cacheFile) ) {
-          std::ifstream file(cacheFile.native_file_string().c_str());
+          std::ifstream file(cacheFile.string().c_str());
           if(not file) {
-            throw cms::Exception("PluginMangerCacheProblem")<<"Unable to open the cache file '"<<cacheFile.native_file_string()
+            throw cms::Exception("PluginMangerCacheProblem")<<"Unable to open the cache file '"<<cacheFile.string()
             <<"'. Please check permissions on file";
           }
           CacheParser::read(file, dir, categoryToInfos_);          
@@ -183,7 +183,7 @@ PluginManager::loadableFor_(const std::string& iCategory,
       throw cms::Exception("MultiplePlugins")<<"The plugin '"<<iPlugin<<"' is found in multiple files \n"
       " '"<<range.first->loadable_.leaf()<<"'\n '"
       <<(range.first+1)->loadable_.leaf()<<"'\n"
-      "in directory '"<<range.first->loadable_.branch_path().native_file_string()<<"'.\n"
+      "in directory '"<<range.first->loadable_.branch_path().string()<<"'.\n"
       "The code must be changed so the plugin only appears in one plugin file. "
       "You will need to remove the macro which registers the plugin so it only appears in"
       " one of these files.\n"
@@ -227,8 +227,8 @@ PluginManager::load(const std::string& iCategory,
   if(itLoaded == loadables_.end()) {
     //try to make one
     goingToLoad_(p);
-    Sentry s(loadingLibraryNamed_(), p.native_file_string());
-    //boost::filesystem::path native(p.native_file_string());
+    Sentry s(loadingLibraryNamed_(), p.string());
+    //boost::filesystem::path native(p.string());
     boost::shared_ptr<SharedLibrary> ptr( new SharedLibrary(p) );
     loadables_[p]=ptr;
     justLoaded_(*ptr);
@@ -255,8 +255,8 @@ PluginManager::tryToLoad(const std::string& iCategory,
   if(itLoaded == loadables_.end()) {
     //try to make one
     goingToLoad_(p);
-    Sentry s(loadingLibraryNamed_(), p.native_file_string());
-    //boost::filesystem::path native(p.native_file_string());
+    Sentry s(loadingLibraryNamed_(), p.string());
+    //boost::filesystem::path native(p.string());
     boost::shared_ptr<SharedLibrary> ptr( new SharedLibrary(p) );
     loadables_[p]=ptr;
     justLoaded_(*ptr);
