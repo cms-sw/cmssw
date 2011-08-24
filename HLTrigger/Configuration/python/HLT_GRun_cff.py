@@ -1,10 +1,10 @@
-# /users/jalimena/online_3e33v1p1/For429HLT1hltpatch1/V3 (CMSSW_4_2_0_HLT22)
+# /users/jalimena/online_3e33v1p1/For429HLT1hltpatch1/V4 (CMSSW_4_2_0_HLT23)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/users/jalimena/online_3e33v1p1/For429HLT1hltpatch1/V3')
+  tableName = cms.string('/users/jalimena/online_3e33v1p1/For429HLT1hltpatch1/V4')
 )
 
 streams = cms.PSet( 
@@ -6743,7 +6743,9 @@ hltL3Muons = cms.EDProducer( "L3TrackCombiner",
     labels = cms.VInputTag( 'hltL3MuonsOIState','hltL3MuonsOIHit','hltL3MuonsIOHit' )
 )
 hltL3MuonCandidates = cms.EDProducer( "L3MuonCandidateProducer",
-    InputObjects = cms.InputTag( "hltL3Muons" )
+    InputObjects = cms.InputTag( "hltL3Muons" ),
+    InputLinksObjects = cms.InputTag( "hltL3MuonsLinksCombination" ),
+    MuonPtOption = cms.string( "Tracker" )
 )
 hltPFJetPixelSeedsFromPixelTracks = cms.EDProducer( "SeedGeneratorFromProtoTracksEDProducer",
     InputCollection = cms.InputTag( "hltPixelTracks" ),

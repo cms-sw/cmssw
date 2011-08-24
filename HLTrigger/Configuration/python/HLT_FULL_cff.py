@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HLT/V805 (CMSSW_4_2_0_HLT22)
+# /dev/CMSSW_4_2_0/HLT/V806 (CMSSW_4_2_0_HLT23)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V805')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V806')
 )
 
 streams = cms.PSet( 
@@ -7371,7 +7371,9 @@ hltL3Muons = cms.EDProducer( "L3TrackCombiner",
     labels = cms.VInputTag( 'hltL3MuonsOIState','hltL3MuonsOIHit','hltL3MuonsIOHit' )
 )
 hltL3MuonCandidates = cms.EDProducer( "L3MuonCandidateProducer",
-    InputObjects = cms.InputTag( "hltL3Muons" )
+    InputObjects = cms.InputTag( "hltL3Muons" ),
+    InputLinksObjects = cms.InputTag( "hltL3MuonsLinksCombination" ),
+    MuonPtOption = cms.string( "Global" )
 )
 hltPFJetPixelSeedsFromPixelTracks = cms.EDProducer( "SeedGeneratorFromProtoTracksEDProducer",
     InputCollection = cms.InputTag( "hltPixelTracks" ),
@@ -33001,7 +33003,9 @@ hltL3MuonsNoVtx = cms.EDProducer( "L3TkMuonProducer",
     InputObjects = cms.InputTag( "hltL3TkTracksFromL2NoVtx" )
 )
 hltL3MuonCandidatesNoVtx = cms.EDProducer( "L3MuonCandidateProducer",
-    InputObjects = cms.InputTag( "hltL3MuonsNoVtx" )
+    InputObjects = cms.InputTag( "hltL3Muons" ),
+    InputLinksObjects = cms.InputTag( "hltL3MuonsLinksCombination" ),
+    MuonPtOption = cms.string( "Global" )
 )
 hltMu5NoVertexL3PreFiltered5 = cms.EDFilter( "HLTMuonL3PreFilter",
     BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
