@@ -1,8 +1,8 @@
 #!/bin/bash
 echo "===== Running test of cms_adler32 ======"
 
-expect="ce0bf49e"
-results=`cms_adler32 $LOCAL_TEST_DIR/../bin/adler32.c | awk '{print $1}'`
+expect="fd466a74"
+results=`cms_adler32 $LOCAL_TEST_DIR/doNotModify.txt | awk '{print $1}'`
 
 if [ "$results" != "$expect" ]; then
     echo "result: " $results
