@@ -225,11 +225,11 @@ namespace edm {
           lastClass = itInfo->name_;
           if(cPrefix == lastClass.substr(0, cPrefix.size())) {
             std::string className = classNameForRoot(lastClass.c_str() + cPrefix.size());
-            classes.push_back(std::pair<std::string, std::string>(className, itInfo->loadable_.native_file_string()));
+            classes.push_back(std::pair<std::string, std::string>(className, itInfo->loadable_.string()));
             std::map<std::string, std::string>::iterator itFound = specialsToLib.find(className);
             if(itFound != specialsToLib.end()) {
               // std::cout << "Found " << lastClass << " : " << className << std::endl;
-              itFound->second = itInfo->loadable_.native_file_string();
+              itFound->second = itInfo->loadable_.string();
             }
           }
         }

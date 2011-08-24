@@ -53,7 +53,7 @@ int run_script(std::string const& shell, std::string const& script) {
 }
 
 int do_work(int argc, char* argv[], char** env) {
-  bf::path currentPath(bf::initial_path().string(), bf::no_check);
+  bf::path currentPath(bf::initial_path().string());
 
   if(argc < 4) {
     std::cout << "Usage: " << argv[0] << " shell subdir script1 script2 ... scriptN\n\n"
@@ -62,7 +62,7 @@ int do_work(int argc, char* argv[], char** env) {
               << "(e.g., FWCore/Utilities/test)\n"
               << std::endl;
 
-    std::cout << "Current directory is: " << currentPath.native_directory_string() << '\n';
+    std::cout << "Current directory is: " << currentPath.string() << '\n';
     std::cout << "Current environment:\n";
     std::cout << "---------------------\n";
     for(int i = 0; env[i] != 0; ++i) std::cout << env[i] << '\n';
@@ -78,7 +78,7 @@ int do_work(int argc, char* argv[], char** env) {
   std::string shell(argv[1]);
   std::cerr << "shell is: " << shell << '\n';
 
-  std::cout << "Current directory is: " << currentPath.native_directory_string() << '\n';
+  std::cout << "Current directory is: " << currentPath.string() << '\n';
   // It is unclear about which of these environment variables should
   // be used.
   char const* topdir = getenv("SCRAMRT_LOCALRT");
@@ -88,8 +88,12 @@ int do_work(int argc, char* argv[], char** env) {
 
   if(!arch) {
     // Try to synthesize SCRAM_ARCH value.
-    bf::path exepath(argv[0], bf::no_check);
+    bf::path exepath(argv[0]);
+#if (BOOST_VERSION / 100000) >= 1 && ((BOOST_VERSION / 100) % 1000) >= 47
+    std::string maybe_arch = exepath.parent_path().filename().string();
+#else
     std::string maybe_arch = exepath.branch_path().leaf();
+#endif
     if(setenv("SCRAM_ARCH", maybe_arch.c_str(), 1) != 0) {
       std::cerr << "SCRAM_ARCH not set and attempt to set it failed\n";
       return -1;
