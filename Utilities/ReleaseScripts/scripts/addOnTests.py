@@ -83,7 +83,7 @@ class StandardTester(object):
     
         self.devPath = os.environ['LOCALRT'] + '/src/'
         self.relPath = self.devPath
-        if os.environ.has_key('CMSSW_RELEASE_BASE'): self.relPath = os.environ['CMSSW_RELEASE_BASE'] + '/src/'
+        if os.environ.has_key('CMSSW_RELEASE_BASE') and (os.environ['CMSSW_RELEASE_BASE'] != ""): self.relPath = os.environ['CMSSW_RELEASE_BASE'] + '/src/'
 
         lines = { 'read312RV' : ['cmsRun '+self.file2Path('Utilities/ReleaseScripts/scripts/read312RV_cfg.py')], 
                   'fastsim1'  : ['cmsRun '+self.file2Path('FastSimulation/Configuration/test/IntegrationTestFake_cfg.py')],
