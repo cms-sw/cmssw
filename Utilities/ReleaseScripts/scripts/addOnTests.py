@@ -240,7 +240,7 @@ def main(argv) :
     else:
         if runTests:
             tester.runTests(testList)
-        if uploadDir and dumpTests:
+        if uploadDir:
             tester.upload(uploadDir)
     return
     
