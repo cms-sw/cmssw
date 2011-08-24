@@ -291,7 +291,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    ThStauMass[1] = 126; ThStauXSec[1] = 0.274591;  ThStauLow[1] = 0.242982;  ThStauHigh[1] = 0.304386;
    ThStauMass[2] = 156; ThStauXSec[2] = 0.0645953;  ThStauLow[2] = 0.0581651;  ThStauHigh[2] = 0.0709262;
    ThStauMass[3] = 200; ThStauXSec[3] = 0.0118093;  ThStauLow[3] = 0.0109992;  ThStauHigh[3] = 0.012632;
-   ThStauMass[4] = 247; ThStauXSec[4] = 0.00342512;  ThStauLow[4] = 0.00093519;  ThStauHigh[4] = 0.00102099;
+   ThStauMass[4] = 247; ThStauXSec[4] = 0.00342512;  ThStauLow[4] = 0.00324853;  ThStauHigh[4] = 0.00358232;
    ThStauMass[5] = 308; ThStauXSec[5] = 0.00098447;  ThStauLow[5] = 0.00093519;  ThStauHigh[5] = 0.00102099;
    ThStauMass[6] = 370; ThStauXSec[6] = 0.000353388; ThStauLow[6] = 0.000335826;  ThStauHigh[6] = 0.000366819;
    ThStauMass[7] = 432; ThStauXSec[7] = 0.000141817; ThStauLow[7] = 0.000134024;  ThStauHigh[7] = 0.000147665;
@@ -308,7 +308,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    TCutG* PPStauXSecErr = GetErrorBand("PPStauErr", ThPPStauN,ThPPStauMass,ThPPStauLow,ThPPStauHigh);
 
 
-   int ThDCStauN = 10 ; double ThDCStauMass [100]; double ThDCStauXSec [100];  double ThDCStauLow  [100];  double ThDCStauHigh [100];
+   int ThDCStauN = 9; double ThDCStauMass [100]; double ThDCStauXSec [100];  double ThDCStauLow  [100];  double ThDCStauHigh [100];
    ThDCStauMass[0] = 100; ThDCStauXSec[0] = 1.405000;  ThDCStauLow[0] = ThDCStauXSec[0]*0.85;  ThDCStauHigh[0] = ThDCStauXSec[0]*1.15;
    ThDCStauMass[1] = 121; ThDCStauXSec[1] = 0.979000;  ThDCStauLow[1] = ThDCStauXSec[1]*0.85;  ThDCStauHigh[1] = ThDCStauXSec[1]*1.15;
    ThDCStauMass[2] = 182; ThDCStauXSec[2] = 0.560000;  ThDCStauLow[2] = ThDCStauXSec[2]*0.85;  ThDCStauHigh[2] = ThDCStauXSec[2]*1.15;
@@ -317,8 +317,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    ThDCStauMass[5] = 350; ThDCStauXSec[5] = 0.473000;  ThDCStauLow[5] = ThDCStauXSec[5]*0.85;  ThDCStauHigh[5] = ThDCStauXSec[5]*1.15;
    ThDCStauMass[6] = 395; ThDCStauXSec[6] = 0.420000;  ThDCStauLow[6] = ThDCStauXSec[6]*0.85;  ThDCStauHigh[6] = ThDCStauXSec[6]*1.15;
    ThDCStauMass[7] = 420; ThDCStauXSec[7] = 0.0035;  ThDCStauLow[7] = ThDCStauXSec[7]*0.85;  ThDCStauHigh[7] = ThDCStauXSec[7]*1.15;
-   ThDCStauMass[8] = 450; ThDCStauXSec[8] = 0.00111;  ThDCStauLow[8] = ThDCStauXSec[8]*0.85;  ThDCStauHigh[8] = ThDCStauXSec[8]*1.15;
-   ThDCStauMass[9] = 500; ThDCStauXSec[9] = 0.0002849;  ThDCStauLow[9] = ThDCStauXSec[9]*0.85;  ThDCStauHigh[9] = ThDCStauXSec[9]*1.15;
+   ThDCStauMass[8] = 500; ThDCStauXSec[8] = 0.0002849;  ThDCStauLow[8] = ThDCStauXSec[8]*0.85;  ThDCStauHigh[8] = ThDCStauXSec[8]*1.15;
    TCutG* DCStauXSecErr = GetErrorBand("DCStauErr", ThDCStauN,ThDCStauMass,ThDCStauLow,ThDCStauHigh);
 
 /*
