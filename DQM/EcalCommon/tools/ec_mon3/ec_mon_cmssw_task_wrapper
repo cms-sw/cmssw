@@ -255,8 +255,6 @@ process.load("DQM.EcalBarrelMonitorTasks.EcalBarrelMonitorTasks_cfi")
 
 process.load("DQM.EcalEndcapMonitorTasks.EcalEndcapMonitorTasks_cfi")
 
-process.load("DQM.EcalCalibration.EcalCalibration_cff")
-
 if (localDAQ == 1) :
   process.load("DQM.EcalBarrelMonitorClient.EcalBarrelMonitorClient_cfi")
 
@@ -292,10 +290,6 @@ process.dqmInfoEB = cms.EDAnalyzer("DQMEventInfo",
 
 process.dqmInfoEE = cms.EDAnalyzer("DQMEventInfo",
   subSystemFolder = cms.untracked.string('EcalEndcap')
-)
-
-process.dqmInfoEcalCalib = cms.EDAnalyzer("DQMEventInfo",
-  subSystemFolder = cms.untracked.string('EcalCalibration')
 )
 
 if (localDAQ == 1) :
@@ -566,9 +560,7 @@ if (globalDAQ == 1) | (liveECAL == 1) | (liveCMS == 1) | (playCMS == 1) :
 
 process.ecalClusterSequence = cms.Sequence(process.hybridClusteringSequence*process.multi5x5BasicClusters*process.multi5x5SuperClusters)
 
-process.ecalCalibrationSequence = cms.Sequence(process.ecalCalibrationLaserSequence)
-
-process.ecalMonitorPath = cms.Path(process.ecalDataSequence*process.ecalBarrelMonitorSequence*process.ecalEndcapMonitorSequence*process.ecalCalibrationSequence)
+process.ecalMonitorPath = cms.Path(process.ecalDataSequence*process.ecalBarrelMonitorSequence*process.ecalEndcapMonitorSequence)
 
 process.ecalPhysicsPath = cms.Path(process.ecalDataSequence*process.ecalPhysicsFilter*process.hltTriggerTypeFilter*process.simEcalTriggerPrimitiveDigis*process.ecalClusterSequence*process.ecalBarrelMainSequence*process.ecalBarrelPhysicsSequence*process.ecalEndcapMainSequence*process.ecalEndcapPhysicsSequence)
 
@@ -822,9 +814,6 @@ if (localDAQ == 1) | (globalDAQ == 1) :
 if (liveECAL == 1) :
   process.DQM.collectorHost = 'ecalod-web01.cms'
   process.dqmSaver.dirName = '/data/ecalod-disk01/dqm-data/storage-manager/root'
-
-process.ecalLaserMonitorClient.matacqPlotsDir = cms.untracked.string("/data/ecalod-disk01/dqm-data/laser")
-process.ecalLaserGPIBTask.inputPath = cms.untracked.string("/data/ecalod-disk01/dqm-data/laser/last_switch.log")
 
 EOF2
 
