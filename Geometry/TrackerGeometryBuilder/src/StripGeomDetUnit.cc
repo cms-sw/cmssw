@@ -7,7 +7,7 @@
 StripGeomDetUnit::StripGeomDetUnit( BoundPlane* sp, StripGeomDetType* type,const GeometricDet* gd) : 
   GeomDetUnit(sp), theTopology(new ProxyStripTopology(type, sp)), theGD(gd)
 {
-  setDetId(theGD->geographicalID());
+  if(theDB) setDetId(theGD->geographicalID());
 }
 
 const GeomDetType& StripGeomDetUnit::type() const { return theTopology->type(); }
