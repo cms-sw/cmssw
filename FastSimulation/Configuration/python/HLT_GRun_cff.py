@@ -1,11 +1,11 @@
-# /users/jalimena/online_3e33v1p1/For429HLT1hltpatch1/V3 (CMSSW_4_2_0_HLT22)
+# /users/jalimena/online_3e33v1p1/For429HLT1hltpatch1/V4 (CMSSW_4_2_0_HLT23)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/users/jalimena/online_3e33v1p1/For429HLT1hltpatch1/V3')
+  tableName = cms.string('/users/jalimena/online_3e33v1p1/For429HLT1hltpatch1/V4')
 )
 
 hltESSAK5CaloL2L3 = cms.ESSource( "JetCorrectionServiceChain",
@@ -3932,7 +3932,9 @@ hltL3Muons = cms.EDProducer( "L3TrackCombiner",
     labels = cms.VInputTag( 'hltL3MuonsOIState','hltL3MuonsOIHit','hltL3MuonsIOHit' )
 )
 hltL3MuonCandidates = cms.EDProducer( "L3MuonCandidateProducer",
-    InputObjects = cms.InputTag( "hltL3Muons" )
+    InputObjects = cms.InputTag( "hltL3Muons" ),
+    InputLinksObjects = cms.InputTag( "hltL3MuonsLinksCombination" ),
+    MuonPtOption = cms.string( "Tracker" )
 )
 hltPFMuonMerging = cms.EDProducer( "SimpleTrackListMerger",
     TrackProducer1 = cms.string( "hltL3TkTracksFromL2" ),
