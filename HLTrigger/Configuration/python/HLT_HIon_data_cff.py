@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HIon/V215 (CMSSW_4_2_0_HLT21)
+# /dev/CMSSW_4_2_0/HIon/V216 (CMSSW_4_2_0_HLT22)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V215')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V216')
 )
 
 streams = cms.PSet( 
@@ -4176,7 +4176,12 @@ hltIterativeCone5PileupSubtractionCaloJets = cms.EDProducer( "FastjetJetProducer
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "MultipleAlgoIterator" ),
-    sumRecHits = cms.bool( False )
+    sumRecHits = cms.bool( False ),
+    doAreaDiskApprox = cms.bool( False ),
+    voronoiRfact = cms.double( -9.0 ),
+    useDeterministicSeed = cms.bool( False ),
+    minSeed = cms.uint32( 0 ),
+    Rho_EtaMax = cms.double( 4.4 )
 )
 hltHI1jet35U = cms.EDFilter( "HLT1CaloJet",
     inputTag = cms.InputTag( "hltIterativeCone5PileupSubtractionCaloJets" ),
@@ -4365,7 +4370,12 @@ hltStoppedHSCPIterativeCone5CaloJets = cms.EDProducer( "FastjetJetProducer",
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
-    sumRecHits = cms.bool( False )
+    sumRecHits = cms.bool( False ),
+    doAreaDiskApprox = cms.bool( False ),
+    voronoiRfact = cms.double( -9.0 ),
+    useDeterministicSeed = cms.bool( False ),
+    minSeed = cms.uint32( 0 ),
+    Rho_EtaMax = cms.double( 4.4 )
 )
 hltStoppedHSCP1CaloJetEnergy35 = cms.EDFilter( "HLT1CaloJetEnergy",
     inputTag = cms.InputTag( "hltStoppedHSCPIterativeCone5CaloJets" ),

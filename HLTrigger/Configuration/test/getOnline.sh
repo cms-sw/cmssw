@@ -1,6 +1,7 @@
 #! /bin/bash
 
-HLT='/online/collisions/2011/3e33/v2.0/HLT'
+#HLT='/online/collisions/2011/3e33/v2.0/HLT'
+HLT='/users/jalimena/online_3e33v1p1/For429HLT1hltpatch1'
 L1T='L1GtTriggerMenu_L1Menu_Collisions2011_v5_mc'
 
 # tests
