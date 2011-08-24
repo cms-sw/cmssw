@@ -109,6 +109,34 @@ process.Out = cms.OutputModule("PoolOutputModule",
     ),
 )
 
+from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup
+process.tTrigDB = cms.ESSource("PoolDBESSource",
+                                   CondDBSetup,
+                                   timetype = cms.string('runnumber'),
+                                   toGet = cms.VPSet(cms.PSet(
+                                       record = cms.string('DTTtrigRcd'),
+                                       tag = cms.string('DTTtrig_offline_prep_V03'),
+                                       label = cms.untracked.string('')
+                                   )),
+                                   connect = cms.string('frontier://FrontierPrep/CMS_COND_DT'),
+                                   authenticationMethod = cms.untracked.uint32(0)
+                                   )
+#process.tTrigDB.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
+process.es_prefer_tTrigDB = cms.ESPrefer('PoolDBESSource','tTrigDB')
+
+process.vDriftDB = cms.ESSource("PoolDBESSource",
+                                   CondDBSetup,
+                                   timetype = cms.string('runnumber'),
+                                   toGet = cms.VPSet(cms.PSet(
+                                       record = cms.string('DTMtimeRcd'),
+                                       tag = cms.string('DTVdrift_offline_prep_V03'),
+                                       label = cms.untracked.string('')
+                                   )),
+                                   connect = cms.string('frontier://FrontierPrep/CMS_COND_DT'),
+                                   authenticationMethod = cms.untracked.uint32(0)
+                                   )
+#process.vDriftDB.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
+process.es_prefer_vDriftDB = cms.ESPrefer('PoolDBESSource','vDriftDB')
 
 ########################################################################
 

@@ -15,10 +15,9 @@ process.GlobalTag.globaltag = 'GR_P_V14::All'
 
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
-#      'rfio:/castor/cern.ch/user/q/querten/CRAB_STAGEOUT/10_12_14_HSCPSkim/V5/querten/Mu/EXOHSCPSkim7TeV/0bc44962c8c6b23d45ce69c867f520ea/EXOHSCP_91_1_zAl.root'
-       '/store/group/exotica/HSCPBGSkimMu2010RunA/Mu/EXOHSCPBGSkimMu2010RunA-JC/0bc44962c8c6b23d45ce69c867f520ea/EXOHSCP_9_1_AHo.root'  #RUN136088
-#        '/store/user/quertenmont/11_01_06_HSCPSkim/MuB_V2/querten/Mu/EXOHSCPSkim7TeV_V2/0bc44962c8c6b23d45ce69c867f520ea/EXOHSCP_12_1_g2S.root'
-#         '/store/user/quertenmont/11_01_06_HSCPSkim/MuB_V2/querten/Mu/EXOHSCPSkim7TeV_V2/0bc44962c8c6b23d45ce69c867f520ea/EXOHSCP_87_1_8jU.root' #RUN149442
+        '/store/data/Run2011A/SingleMu/USER/EXOHSCP-05Aug2011-v1/0000/FC150FF5-0FC5-E011-913E-002618943876.root',
+        '/store/data/Run2011A/SingleMu/USER/EXOHSCP-05Aug2011-v1/0000/FA8B74F8-0FC5-E011-9EE5-001A928116B4.root',
+        '/store/data/Run2011A/SingleMu/USER/EXOHSCP-05Aug2011-v1/0000/FA432D78-CEC5-E011-B4F3-00261894394F.root'
    )
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
@@ -108,6 +107,34 @@ process.Out = cms.OutputModule("PoolOutputModule",
     ),
 )
 
+from CondCore.DBCommon.CondDBSetup_cfi import CondDBSetup 
+process.tTrigDB = cms.ESSource("PoolDBESSource",
+                                   CondDBSetup,
+                                   timetype = cms.string('runnumber'),
+                                   toGet = cms.VPSet(cms.PSet(
+                                       record = cms.string('DTTtrigRcd'),
+                                       tag = cms.string('DTTtrig_offline_prep_V03'),
+                                       label = cms.untracked.string('')
+                                   )),
+                                   connect = cms.string('frontier://FrontierPrep/CMS_COND_DT'),
+                                   authenticationMethod = cms.untracked.uint32(0)
+                                   )
+#process.tTrigDB.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
+process.es_prefer_tTrigDB = cms.ESPrefer('PoolDBESSource','tTrigDB')
+
+process.vDriftDB = cms.ESSource("PoolDBESSource",
+                                   CondDBSetup,
+                                   timetype = cms.string('runnumber'),
+                                   toGet = cms.VPSet(cms.PSet(
+                                       record = cms.string('DTMtimeRcd'),
+                                       tag = cms.string('DTVdrift_offline_prep_V03'),
+                                       label = cms.untracked.string('')
+                                   )),
+                                   connect = cms.string('frontier://FrontierPrep/CMS_COND_DT'),
+                                   authenticationMethod = cms.untracked.uint32(0)
+                                   )
+#process.vDriftDB.DBParameters.authenticationPath = '/afs/cern.ch/cms/DB/conddb'
+process.es_prefer_vDriftDB = cms.ESPrefer('PoolDBESSource','vDriftDB')
 
 ########################################################################
 
