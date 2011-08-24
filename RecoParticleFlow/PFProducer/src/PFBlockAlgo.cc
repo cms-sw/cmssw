@@ -86,11 +86,6 @@ PFBlockAlgo::findBlocks() {
     TELinker_.searchLinks();
     TELinker_.updateTracksWithLinks();
     TELinker_.clear();
-
-    PSELinker_.buildTree();
-    PSELinker_.searchLinks();
-    PSELinker_.updateTracksWithLinks();
-    PSELinker_.clear();
   }
   // !Glowinski & Gouzevitch
 
@@ -121,6 +116,7 @@ PFBlockAlgo::findBlocks() {
     // build remaining links in current block
     packLinks( blocks_->back(), links );
   }
+
 }
 
 
@@ -142,7 +138,7 @@ PFBlockAlgo::associate( IE last,
     PFBlock::LinkTest linktest = PFBlock::LINKTEST_RECHIT;
     link( *last, *next, linktype, linktest, dist ); 
 
-   
+    
     if(dist<-0.5) {
 #ifdef PFLOW_DEBUG
       if(debug_ ) cout<<"link failed"<<endl;
@@ -158,7 +154,7 @@ PFBlockAlgo::associate( IE last,
       // this is not necessary? 
       // next->setPFBlock(this);
       
-      // create a link between next and last
+      // create a link between next and last      
       links.push_back( PFBlockLink(linktype, 
 				   linktest,
 				   dist,
@@ -244,6 +240,7 @@ PFBlockAlgo::packLinks( reco::PFBlock& block,
   block.bookLinkData();
 
   unsigned elsize = els.size();
+  unsigned ilStart = 0;
   //First Loop: update all link data
   for( unsigned i1=0; i1<elsize; ++i1 ) {
     for( unsigned i2=0; i2<i1; ++i2 ) {
@@ -260,10 +257,12 @@ PFBlockAlgo::packLinks( reco::PFBlock& block,
       // are these elements already linked ?
       // this can be optimized
 
-      for( unsigned il=0; il<links.size(); ++il ) {
-	if( (links[il].element1() == i1 && 
-	     links[il].element2() == i2) || 
-	    (links[il].element1() == i2 && 
+      unsigned linksize = links.size();
+      for( unsigned il = ilStart; il<linksize; ++il ) {
+	// The following three lines exploits the increasing-element2 ordering of links.
+	if ( links[il].element2() < i1 ) ilStart = il;
+	if ( links[il].element2() > i1 ) break;
+	if( (links[il].element1() == i2 && 
 	     links[il].element2() == i1) ) { // yes
 	  
 	  dist = links[il].dist();
@@ -472,36 +471,13 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
   case PFBlockLink::PS1andECAL:
   case PFBlockLink::PS2andECAL:
     {
+      //       cout<<"PSandECAL"<<endl;
       PFClusterRef  psref = lowEl->clusterRef();
       PFClusterRef  ecalref = highEl->clusterRef();
       assert( !psref.isNull() );
       assert( !ecalref.isNull() );
-
-      /////////// KDTree algorithm
-      if ( useKDTreeTrackEcalLinker_ && lowEl->isMultilinksValide() ) { 
-
-	const reco::PFMultilinksType& multilinks = lowEl->getMultilinks();
-		
-	// Check if the link Track/Ecal exist
-	reco::PFMultilinksType::const_iterator mlit = multilinks.begin();
-	for (; mlit != multilinks.end(); ++mlit)
-	  if ((mlit->first == ecalref->positionREP().Phi()) &&
-	      (mlit->second == ecalref->positionREP().Eta()))
-	    break;
-	
-	// If the link exist, we fill dist and linktest. We use old algorithme method.
-	if (mlit != multilinks.end()){
-	  dist = LinkByRecHit::testECALAndPSByRecHit( *ecalref, *psref ,debug_);
-	  linktest = PFBlock::LINKTEST_RECHIT;
-	}
-	/////////// KDTree algorithm
-
-      } else { //Old algorithm
-	//       cout<<"PSandECAL"<<endl;
-	dist = LinkByRecHit::testECALAndPSByRecHit( *ecalref, *psref ,debug_);
-	linktest = PFBlock::LINKTEST_RECHIT;      
-      }
-
+      dist = LinkByRecHit::testECALAndPSByRecHit( *ecalref, *psref ,debug_);
+      linktest = PFBlock::LINKTEST_RECHIT;      
       break;
     }
   // Links between the two preshower layers are not used for now - disable
