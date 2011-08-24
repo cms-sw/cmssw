@@ -44,7 +44,7 @@
 
 
 int                  RunningPeriods = 2;
-double               IntegratedLuminosity = 1631; //976.204518023; //705.273820; //342.603275; //204.160928; //191.04;
+double               IntegratedLuminosity = 1947; //1631; //976.204518023; //705.273820; //342.603275; //204.160928; //191.04;
 double               IntegratedLuminosityBeforeTriggerChange = 353.494; // Total luminosity taken before RPC L1 trigger change (went into effect on run 165970)
 float                Event_Weight = 1;
 int                  MaxEntry = -1;
@@ -202,6 +202,8 @@ void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName,
      inputFiles.push_back(BaseDirectory + "Data_RunA_170826_172619.root");
      inputFiles.push_back(BaseDirectory + "Data_RunA_172620_172790.root");
      inputFiles.push_back(BaseDirectory + "Data_RunA_172791_172802.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_172803_172900.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_172901_173243.root");
    }else if(SampleName.find("MC_",0)<std::string::npos){
      inputFiles.push_back(BaseDirectory + SampleName + ".root");
    }else{
