@@ -192,9 +192,8 @@ void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName,
 //  std::string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_08_03/";
 //   std::string BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/jchen/11_08_03_HSCP2011EDM/";
    std::string BaseDirectory = "/uscmst1b_scratch/lpc1/lpcphys/jchen/HSCPEDM_08_02_11/";
-   std::string TempDirectory = "/uscmst1b_scratch/lpc1/lpcphys/jchen/HSCPEDM_08_02_11/";
    if(SampleName=="Data"){
-     inputFiles.push_back(TempDirectory + "Data_RunA_160404_163869.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_160404_163869.root");
      inputFiles.push_back(BaseDirectory + "Data_RunA_165001_166033.root");
      inputFiles.push_back(BaseDirectory + "Data_RunA_166034_166500.root");
      inputFiles.push_back(BaseDirectory + "Data_RunA_166501_166893.root");
