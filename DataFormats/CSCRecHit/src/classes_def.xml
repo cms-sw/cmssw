@@ -1,7 +1,7 @@
 <lcgdict>
 <selection>
-  <class name="CSCRecHit2D" ClassVersion="10">
-   <version ClassVersion="10" checksum="2273322213"/>
+  <class name="CSCRecHit2D" ClassVersion="11">
+   <version ClassVersion="11" checksum="2464154506"/>
   </class>
   <class name="std::vector<CSCRecHit2D>"/>
   <class name="std::vector<CSCRecHit2D*>"/>
