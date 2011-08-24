@@ -35,8 +35,7 @@ private:
 
 static const unsigned int s_columns = 3;
 static const char* const s_prefixes[][s_columns] ={ 
-  {"http://fireworks.web.cern.ch/fireworks/","Pre-selected example files at CERN","t"},
-  {"http://uaf-2.t2.ucsd.edu/fireworks/","Pre-selected example files in USA","t"},
+  {"http://uaf-2.t2.ucsd.edu/fireworks-4.2/","Pre-selected example files","t"},
   {"http://", "Web site known by you",0},
   {"file:","Local file [you must type full path name]",0},
   {"dcap://","dCache [FNAL]",0},
@@ -59,8 +58,7 @@ static const char *s_noBrowserMessage[] = {
    "<b>Welcome....</b><BR>",
    "<BR>",
    "<b>You may look at examples:</b><BR>",
-   "If you are in Europe, open example data files at CERN: <a href=http://fireworks.web.cern.ch/fireworks/>http://fireworks.web.cern.ch/fireworks/</a><BR>",
-   "If you are in US, open example data files at UCSD: <a href=http://uaf-2.t2.ucsd.edu/fireworks/>http://uaf-2.t2.ucsd.edu/fireworks/</a><BR>",
+   " Open example data files at UCSD: <a href=http://uaf-2.t2.ucsd.edu/fireworks-4.2/>http://uaf-2.t2.ucsd.edu/fireworks-4.2/</a><BR>",
    "<BR>"
    "<b>You also may load files with Choose Prefix </b><BR>"
    "</BODY></HTML> ",
@@ -115,7 +113,7 @@ CmsShowSearchFiles::CmsShowSearchFiles (const char *filename,
    cancel->Connect("Clicked()","CmsShowSearchFiles",this,"UnmapWindow()");
 
    SetWindowName(windowname);
-   sendToWebBrowser("");
+   sendToWebBrowser(s_prefixes[0][0]);
    MapSubwindows();
    Layout();
    m_prefixMenu=0;
@@ -291,7 +289,7 @@ CmsShowSearchFiles::sendToWebBrowser(const char* iWebFile)
       gVirtualX->SetCursor(GetId(),gVirtualX->CreateCursor(kPointer));
       gVirtualX->SetCursor(m_webFile->GetId(),gVirtualX->CreateCursor(kPointer));
    } else {
-      m_webFile->SetBaseUri("");
+       m_webFile->SetBaseUri("");
       for (int i=0; s_noBrowserMessage[i]; i++) {
          m_webFile->ParseText((char *)s_noBrowserMessage[i]);
       }
