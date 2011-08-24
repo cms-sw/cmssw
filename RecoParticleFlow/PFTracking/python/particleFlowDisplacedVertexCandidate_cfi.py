@@ -23,13 +23,17 @@ particleFlowDisplacedVertexCandidate = cms.EDProducer("PFDisplacedVertexCandidat
     # not used for the moment
     dcaPInnerHitCut = cms.double(1000.0),
 
+    # Primary vertex information used for dxy calculation
+    mainVertexLabel = cms.InputTag("offlinePrimaryVertices", ""),
+    offlineBeamSpotLabel = cms.InputTag("offlineBeamSpot", ""),
+
     # Tracks preselection to reduce the combinatorics in PFDisplacedVertexCandidates
     # this cuts are repeated then in a smarter way in the PFDisplacedVertexFinder
     # be sure you are consistent between them.
     tracksSelectorParameters = cms.PSet(
         nChi2_max = cms.double(5.),
         pt_min = cms.double(.2),
-    )
+    )                                                     
                                    
 )
 

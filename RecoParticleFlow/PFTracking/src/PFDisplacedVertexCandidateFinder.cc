@@ -2,6 +2,7 @@
 
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 
@@ -32,6 +33,25 @@ PFDisplacedVertexCandidateFinder::~PFDisplacedVertexCandidateFinder() {
 	<<eventTracks_.size()<<endl;
 #endif
   
+}
+
+
+void PFDisplacedVertexCandidateFinder::setPrimaryVertex(
+					       edm::Handle< reco::VertexCollection > mainVertexHandle, 
+					       edm::Handle< reco::BeamSpot > beamSpotHandle){
+
+  const math::XYZPoint beamSpot = beamSpotHandle.isValid() ? 
+    math::XYZPoint(beamSpotHandle->x0(), beamSpotHandle->y0(), beamSpotHandle->z0()) : 
+    math::XYZPoint(0, 0, 0);
+
+  // The primary vertex is taken from the refitted list, 
+  // if does not exist from the average offline beam spot position  
+  // if does not exist (0,0,0) is used
+  pvtx_ = mainVertexHandle.isValid() ? 
+    math::XYZPoint(mainVertexHandle->begin()->x(), 
+		   mainVertexHandle->begin()->y(), 
+		   mainVertexHandle->begin()->z()) :
+    beamSpot;
 }
 
 // Set the imput collection of tracks and calculate their
@@ -343,6 +363,7 @@ PFDisplacedVertexCandidateFinder::goodPtResolution( const TrackBaseRef& trackref
   double nChi2 = trackref->normalizedChi2(); 
   double pt = trackref->pt();
   double dpt = trackref->ptError();
+  double dxy = trackref->dxy(pvtx_);
 
   double pt_error = dpt/pt*100;
 
@@ -355,6 +376,10 @@ PFDisplacedVertexCandidateFinder::goodPtResolution( const TrackBaseRef& trackref
 		     << " pt_cut = " << 0.2 << endl;
     return false;
   }
+  //  cout << "dxy = " << dxy << endl; 
+  if (fabs(dxy) < 0.2 && pt < 0.8) return false;
+
+  
 
   return true;
 }
@@ -377,6 +402,10 @@ ostream& operator<<(std::ostream& out, const PFDisplacedVertexCandidateFinder& a
   out<<"number of unassociated elements : "<<a.eventTracks_.size()<<endl;
   out<<endl;
   
+  out << " pvtx_ = " << a.pvtx_ << std::endl;
+  out<<endl;
+
+
   for(PFDisplacedVertexCandidateFinder::IEC ie = a.eventTracks_.begin(); 
       ie != a.eventTracks_.end(); ie++) {
 

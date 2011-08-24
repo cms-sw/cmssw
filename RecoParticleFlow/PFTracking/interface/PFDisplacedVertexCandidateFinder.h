@@ -5,6 +5,8 @@
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexCandidateFwd.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -67,6 +69,9 @@ class PFDisplacedVertexCandidateFinder {
 
   void findDisplacedVertexCandidates();
 
+
+  void setPrimaryVertex(edm::Handle< reco::VertexCollection > mainVertexHandle, 
+			edm::Handle< reco::BeamSpot > beamSpotHandle);
 
  private:
 
@@ -147,7 +152,7 @@ class PFDisplacedVertexCandidateFinder {
   // Two track minimum distance algo
   TwoTrackMinimumDistance theMinimum_;
 
-
+  math::XYZPoint pvtx_;
 
   /// if true, debug printouts activated
   bool   debug_;
