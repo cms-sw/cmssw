@@ -129,7 +129,7 @@ cond::XMLAuthenticationService::XMLAuthenticationService::processFile( const std
   
   // check the 
   boost::filesystem::path filePath( inputFileName );
-  std::string name = filePath.leaf();
+  std::string name = filePath.filename().string();
   if(name!=XML_AUTHENTICATION_FILE){
     cond::DecodingKey key;
     try{
