@@ -14,13 +14,11 @@ def getEmptyAlfabeticalList():
     return aFileList
 
 def make4thLevelLinks(packagePath):
-    #classPath = "/build/ms"            
-    classPath = os.popen("echo $PWD").read().strip()     # path to CMSSW build
-    print classPath
-    global counter4
-    global CMSSW_Version                                                                
-    global doxygenBaseUrl                                                               
-    packagePath = classPath +"/"+CMSSW_Version+"/src/"+packagePath+"/interface/"
+     
+    #classPath = os.popen("echo $PWD").read().strip()     # path to CMSSW build
+    global PROJECT_LOCATION
+    global counter4                                                                                                       
+    packagePath = PROJECT_LOCATION+"/src/"+packagePath+"/interface/"
     print packagePath
     try:
         html = "<ul>"
@@ -122,7 +120,6 @@ def formatCVSLink(package, subPackage):
     return cvsLink
 
 def formatDOCLink(package, subPackage):
-    global doxygenBaseUrl
     
     doxygenLink = ""                        #default value in case no html will be found
     path = package+"_"+subPackage+".html"
@@ -168,7 +165,7 @@ def getListByName(fileName, identifier):    # returns list of branches and leafs
         
 # end of getListByName       
             
-def getHtmlFromList(fileName, identifier, CMSSW_Version): 
+def getHtmlFromList(fileName, identifier): 
     
     
     list = getListByName(fileName, identifier)   
@@ -189,7 +186,6 @@ def getHtmlFromList(fileName, identifier, CMSSW_Version):
                 cvsLink = formatCVSLink(firstElement, currentElement)
                 doxygenLink = formatDOCLink(firstElement, currentElement)
                 # creating 4th Layer
-                global doxygenBaseUrl
                 html += "<li>"+currentElement+" "+cvsLink+" "+doxygenLink        # 3rd level
                 global counter3
                 counter3 += 1
@@ -210,20 +206,22 @@ def getTemplateHtml(fileName):
     
     return html
 
-if len(sys.argv) < 3:
+if len(sys.argv) < 4:
     print "Not enough arguments, try script.py destination data prefix1..."
     sys.exit()
 destinationFile = "tree.html"
 dataFile = sys.argv[1]                      # assosiation file                 
 
-global CMSSW_Version
-CMSSW_Version = sys.argv[2]                 
+CMSSW_Version = sys.argv[2] 
+
+global PROJECT_LOCATION
+PROJECT_LOCATION = sys.argv[3]                 
+
+SCRIPTS = sys.argv[4]    
 
 global fileBasePath
-fileBasePath = CMSSW_Version+"/doc/html" # NO SLASH IN THE END
+fileBasePath = PROJECT_LOCATION+"/doc/html" # NO SLASH IN THE END
 
-global doxygenBaseUrl
-#doxygenBaseUrl = "http://cms-service-sdtweb.web.cern.ch/cms-service-sdtweb/doxygen/"+CMSSW_Version+"/doc/html/" 
 doxygenBaseUrl = "http://cmssdt.cern.ch/SDT/doxygen/"+CMSSW_Version+"/doc/html/"            
 # MUST BE SLASH IN THE END
 
@@ -239,7 +237,7 @@ global counter4
 counter4 = 0
 
 # TEMPLATE
-templateFile = "utils/tree/data/template_splitted.html"                       
+templateFile = SCRIPTS+"/tree/data/template_splitted.html"                       
 textToReplace = "TREE_HTML_GOES_HERE"                       #text in template which will be changed to html of tree
 fileIN = open(templateFile, "r")
 templateHtml = fileIN.read()
@@ -263,9 +261,9 @@ map["daq"] = "https://twiki.cern.ch/twiki/bin/view/CMS/TriDASWikiHome"
 map["visualization"] = "https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideVisualization"
 
 
-for argument in sys.argv[3:]:
+for argument in sys.argv[5:]:
     print argument
-    treeHtml = getHtmlFromList(dataFile, argument, CMSSW_Version)
+    treeHtml = getHtmlFromList(dataFile, argument)
 
     treeHtml = templateHtml.replace(textToReplace, treeHtml)
     treeHtml = treeHtml.replace("</head>", "<base href=\""+doxygenBaseUrl+"\"/></head>")
@@ -282,7 +280,7 @@ for argument in sys.argv[3:]:
 	# END of adding links to Twiki
     
     
-    output = open(CMSSW_Version+"/doc/html/splittedTree/"+argument+".html", "w")
+    output = open(PROJECT_LOCATION+"/doc/html/splittedTree/"+argument+".html", "w")
     output.write(treeHtml)
     output.close()
     

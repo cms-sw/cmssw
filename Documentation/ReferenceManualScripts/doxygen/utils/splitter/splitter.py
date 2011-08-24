@@ -142,7 +142,7 @@ def createHtmlPages():
         
         html = soap.renderContents()
         
-        path = CMSSW_Version+"/doc/html/"+PREFIX+letter+".html"
+        path = PROJECT_LOCATION+"/doc/html/"+PREFIX+letter+".html"
         output = open(path, "w")
         output.write(html)
         output.close()
@@ -152,7 +152,7 @@ def createHtmlPages():
             output.write(html)
             output.close()  
         
-        print CMSSW_Version+"/doc/html/"+PREFIX+letter+".html    Done!"                  
+        print PROJECT_LOCATION+"/doc/html/"+PREFIX+letter+".html    Done!"                  
 
 def backupOriginal():
     fh = open(sourceFile,'r')
@@ -169,15 +169,15 @@ def backupOriginal():
     
     html = soap.renderContents()
     
-    output = open(CMSSW_Version+"/doc/html/"+PREFIX+"All.html", "w")
+    output = open(PROJECT_LOCATION+"/doc/html/"+PREFIX+"All.html", "w")
     output.write(html)
     output.close() 
 
 if len(sys.argv) > 3:
-    global CMSSW_Version
-    CMSSW_Version = sys.argv[1]
+    global PROJECT_LOCATION
+    PROJECT_LOCATION = sys.argv[1]
     global sourceFile   
-    sourceFile = CMSSW_Version+sys.argv[2]
+    sourceFile = PROJECT_LOCATION+sys.argv[2]
     global PREFIX
     PREFIX = sys.argv[3]
     
@@ -189,10 +189,10 @@ if len(sys.argv) > 3:
     createHtmlPages()
     
 else:
-    print "Not enough parameters: file.py CMSSW_Version SOURCE_FILE PREFIX"
-    print "example: file.py CMSSW_3_9_2_patch1 /doc/html/namespaces.html namespaceList_"
+    print "Not enough parameters: file.py PROJECT_LOCATION SOURCE_FILE PREFIX"
+    print "example: file.py /data/CMSSW_4_3_0 /doc/html/namespaces.html namespaceList_"
     print "---"
-    print "CMSSW_Version - (i.e. CMSSW_3_9_2_patch1)"
+    print "PROJECT_LOCATION - (i.e. /data/CMSSW_4_3_0)"
     print "---"
     print "SOURCE_FILE - /doc/html/namespaces.html"    
     print "SOURCE_FILE - /doc/html/configfiles.html"

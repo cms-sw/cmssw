@@ -30,7 +30,7 @@ PROJECT_NUMBER         =
 # If a relative path is entered, it will be relative to the location 
 # where doxygen was started. If left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = ../../@CMSSW_xyz@/doc/
+OUTPUT_DIRECTORY       = doc/
 
 # If the CREATE_SUBDIRS tag is set to YES, then doxygen will create 
 # 4096 sub-directories (in 2 levels) under the output directory of each output 
@@ -448,7 +448,7 @@ WARN_FORMAT            = "$file:$line: $text"
 # and error messages should be written. If left blank the output is written 
 # to stderr.
 
-WARN_LOGFILE           = ../../doxygen_warning_logfile.log
+WARN_LOGFILE           = doxygen_warning_logfile.log
 
 #---------------------------------------------------------------------------
 # configuration options related to the input files
@@ -459,7 +459,7 @@ WARN_LOGFILE           = ../../doxygen_warning_logfile.log
 # directories like "/usr/src/myproject". Separate the files or directories 
 # with spaces.
 
-INPUT                  = ../../@CMSSW_xyz@/src/
+INPUT                  = src/
 
 # If the value of the INPUT tag contains directories, you can use the 
 # FILE_PATTERNS tag to specify one or more wildcard pattern (like *.cpp 

@@ -59,12 +59,7 @@ def process(filename):
     html = fh.read()
     fh.close()
 
-#    html = html.replace("CMSSW_3_10_0_pre1/doc/html","newdoxy")
-#    fh = open(filename,'w')
-#    fh.write(html)
-#    fh.close()
-#    return
-    
+  
     content = ""
     # find only code block
     soup = BeautifulSoup(html)

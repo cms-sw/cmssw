@@ -1,7 +1,7 @@
 import sys
 
-def generateConfigFilesPage(CMSSW_Version):
-    input = open(CMSSW_Version+"/doc/html/namespaces.html", "r")
+def generateConfigFilesPage(PROJECT_LOCATION):
+    input = open(PROJECT_LOCATION+"/doc/html/namespaces.html", "r")
     lines = input.read()
     input.close()
     
@@ -43,17 +43,17 @@ def generateConfigFilesPage(CMSSW_Version):
             
     html = "\n".join(html)
     
-    output = open(CMSSW_Version+"/doc/html/configfiles.html", "w")         
+    output = open(PROJECT_LOCATION+"/doc/html/configfiles.html", "w")         
     output.write(html)
     output.close()
     
 if len(sys.argv) > 1:
-    CMSSW_Version = sys.argv[1]
+    PROJECT_LOCATION = sys.argv[1]
     
-    generateConfigFilesPage(CMSSW_Version)
+    generateConfigFilesPage(PROJECT_LOCATION)
     
     print "configfiles.py done"
 else:
-    print "Not enough parameters: configfiles.py CMSSW_Version"    
+    print "Not enough parameters: configfiles.py PROJECT_LOCATION"    
     
     
