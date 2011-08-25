@@ -18,7 +18,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #--- automatic GlobalTag setting -------------------------------------------
 #--- to set it manually: - comment the following 2 lines
 #--- and uncomment the 3d one with the actual tag to be set properly
-from Configuration.PyReleaseValidation.autoCond import autoCond
+from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['startup']
 
 process.load("DQMServices.Core.DQM_cfg")

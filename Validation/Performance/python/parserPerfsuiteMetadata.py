@@ -425,7 +425,7 @@ class parserPerfsuiteMetadata:
 			#Fixing here the compatibility with new cmsdriver.py --conditions option
 			#(for which now we have autoconditions and FrontierConditions_GlobalTag is optional):
 			if 'auto:' in info['conditions']:
-				from Configuration.PyReleaseValidation.autoCond import autoCond
+				from Configuration.AlCa.autoCond import autoCond
 				info['conditions'] = autoCond[ info['conditions'].split(':')[1] ].split("::")[0]
 			else:
 				if 'FrontierConditions_GlobalTag' in info['conditions']:
@@ -557,7 +557,7 @@ class parserPerfsuiteMetadata:
 			info = self._applyParsingRules(parsing_rules, job_lines)
 			#Fixing here the compatibility with new cmsdriver.py --conditions option (for which now we have autoconditions and FrontierConditions_GlobalTag is optional):
 			if 'auto:' in info['conditions']:
-				from Configuration.PyReleaseValidation.autoCond import autoCond
+				from Configuration.AlCa.autoCond import autoCond
 				info['conditions'] = autoCond[ info['conditions'].split(':')[1] ].split("::")[0]
 			else:
 				if 'FrontierConditions_GlobalTag' in info['conditions']:

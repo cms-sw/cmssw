@@ -498,7 +498,7 @@ if 'PrescaleService' in %(dict)s:
     #   - for running online, do nothing, unless a globaltag has been specified on the command line
     #   - for running offline on data, only add the pfnPrefix
     #   - for running offline on mc, take the GT from the command line of the configuration.type
-    #      - if the GT is "auto:...", insert the code to read it from Configuration.PyReleaseValidation.autoCond
+    #      - if the GT is "auto:...", insert the code to read it from Configuration.AlCa.autoCond
     text = ''
     if self.config.online:
       if self.config.globaltag:
@@ -537,7 +537,7 @@ if 'GlobalTag' in %%(dict)s:
         pass
       elif self.config.globaltag.startswith('auto:'):
         self.config.menuGlobalTagAuto = self.config.globaltag[5:]
-        text += "    from Configuration.PyReleaseValidation.autoCond import autoCond\n"
+        text += "    from Configuration.AlCa.autoCond import autoCond\n"
         text += "    %%(process)sGlobalTag.globaltag = autoCond['%(menuGlobalTagAuto)s']\n"
       else:
         text += "    %%(process)sGlobalTag.globaltag = '%(globaltag)s'\n"

@@ -1554,7 +1554,7 @@ class PerfSuite:
                            # check if we are using the autoCond style of flexible conditions
                            # if so, expand the condition here so that the file names contain the real conditions
                            if "auto:" in fileOptionValue: 
-                              from Configuration.PyReleaseValidation.autoCond import autoCond
+                              from Configuration.AlCa.autoCond import autoCond
                               fileConditionsOption = autoCond[ fileOptionValue.split(':')[1] ]
                            else:
                               # "old style" conditions, hardcoded values ...

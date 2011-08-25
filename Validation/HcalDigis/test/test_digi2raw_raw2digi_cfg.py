@@ -17,7 +17,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #- new
 from Configuration.AlCa.autoCond import autoCond
 #- previous
-#from Configuration.PyReleaseValidation.autoCond import autoCond
+#from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['mc']
 
 process.load('Configuration/StandardSequences/DigiToRaw_cff')

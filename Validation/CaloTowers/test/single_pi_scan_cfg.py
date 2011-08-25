@@ -21,7 +21,7 @@ process.load("Configuration.StandardSequences.GeometryECALHCAL_cff")
 process.load("Configuration.StandardSequences.MagneticField_cff")
 process.g4SimHits.UseMagneticField = False
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-from Configuration.PyReleaseValidation.autoCond import autoCond
+from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['mc']
 
 process.load("DQMServices.Core.DQM_cfg")

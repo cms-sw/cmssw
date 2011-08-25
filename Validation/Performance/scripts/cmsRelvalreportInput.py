@@ -831,7 +831,7 @@ def writeCommands(simcandles,
                                 # check if we are using the autoCond style of flexible conditions
                                 # if so, expand the condition here so that the file names contain the real conditions
                                 if "auto:" in keywords[1]:
-                                    from Configuration.PyReleaseValidation.autoCond import autoCond
+                                    from Configuration.AlCa.autoCond import autoCond
                                     fileConditionsOption = autoCond[ keywords[1].split(':')[1] ]
                                     Conditions = autoCond[ keywords[1].split(':')[1] ].split("::")[0] 
                                 else:

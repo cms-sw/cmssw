@@ -21,7 +21,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load('Configuration/StandardSequences/EndOfProcess_cff')
 process.load('Configuration/EventContent/EventContent_cff')
 
-from Configuration.PyReleaseValidation.autoCond import autoCond
+from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['mc']
 
 process.load('Configuration/StandardSequences/DigiToRaw_cff')
