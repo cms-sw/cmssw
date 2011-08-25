@@ -230,10 +230,9 @@ bool nllutils::robustMinimize(RooAbsReal &nll, RooMinimizer &minim, int verbosit
     bool ret = false;
     for (int tries = 0, maxtries = 4; tries <= maxtries; ++tries) {
         int status = minim.minimize(ROOT::Math::MinimizerOptions::DefaultMinimizerType().c_str(), ROOT::Math::MinimizerOptions::DefaultMinimizerAlgo().c_str());
-        std::auto_ptr<RooFitResult> res(minim.save());
-        if (tries > 0 && res->edm() < 0.05*ROOT::Math::MinimizerOptions::DefaultTolerance()) status = 0;
         //if (verbosity > 1) res->Print("V");
         if (status == 0 && nll.getVal() > initialNll + 0.02) {
+            std::auto_ptr<RooFitResult> res(minim.save());
             printf("\n  --> false minimum, status %d, cov. quality %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->covQual(), res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal());
             if (pars.get() == 0) pars.reset(nll.getParameters((const RooArgSet*)0));
             *pars = res->floatParsInit();
@@ -259,10 +258,16 @@ bool nllutils::robustMinimize(RooAbsReal &nll, RooMinimizer &minim, int verbosit
                 }
             }
         } else if (status == 0) {  
-            printf("\n  --> success: status %d, cov. quality %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->covQual(), res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal());
+            printf("\n  --> success: status %d, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, initialNll, nll.getVal(), initialNll - nll.getVal());
             ret = true;
             break;
         } else if (tries != maxtries) {
+            std::auto_ptr<RooFitResult> res(minim.save());
+            if (tries > 0 && res->edm() < 0.05*ROOT::Math::MinimizerOptions::DefaultTolerance()) {
+                printf("\n  --> acceptable: status %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal());
+                ret = true;
+                break;
+            }
             printf("\n  --> partial fail: status %d, cov. quality %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->covQual(), res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal());
             if (tries == 1) {
                 printf("    ----> Doing a re-scan first, and switching to strategy 1\n");
@@ -275,6 +280,7 @@ bool nllutils::robustMinimize(RooAbsReal &nll, RooMinimizer &minim, int verbosit
                 minim.setStrategy(2);
             }
         } else {
+            std::auto_ptr<RooFitResult> res(minim.save());
             printf("\n  --> final fail: status %d, cov. quality %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->covQual(), res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal());
         }
     }
