@@ -590,12 +590,18 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
         ///   Check if ALCT zero suppression enable:
         ALCT_ZSE            = (buf1[1]&0x1000)>>12;
         
-        /*
-        std::cout << " Number of Wire Groups: " << nWG_round_up << std::endl;
-        std::cout << " ALCT_ZSE: " << ALCT_ZSE << std::endl; 
-        std::cout << " raw_tbins: " << std::dec << raw_tbins << std::endl;
-        std::cout << " LCT Tbins: " << lct_tbins << std::endl;
-         */
+        if (ALCT_ZSE)
+            {
+              for (int g=0; g<4; g++)
+                {
+                  if (buf1[g]==0x1000) ALCT_WordsSinceLastHeader -= (nWG_round_up - 1);
+                }
+            }
+
+//        std::cout << " Number of Wire Groups: " << nWG_round_up << std::endl;
+///        std::cout << " ALCT_ZSE: " << ALCT_ZSE << std::endl; 
+//        std::cout << " raw_tbins: " << std::dec << raw_tbins << std::endl;
+//        std::cout << " LCT Tbins: " << lct_tbins << std::endl;        
 
         //  Data block sizes:
         //   3 words of Vertex ID register + 5 words of config. register bits:
@@ -728,6 +734,13 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 	bCHAMB_ERR[currentChamber] |= 0x1;
       } // some bits in 1st D-Trailer are lost
 
+      /// Print Out ALCT word counting
+/*
+      std::cout << " ALCT Word Since Last Header: " << ALCT_WordsSinceLastHeader << std::endl;
+      std::cout << " ALCT Word Expected: " << ALCT_WordsExpected << std::endl;
+      std::cout << " ALCT Word Since Last Header Zero Supressed: " << ALCT_WordsSinceLastHeaderZeroSuppressed <<
+      std::endl;
+*/
       /// Check calculated CRC sum against reported
       if( checkCrcALCT ){
     uint32_t crc = ( fALCT_Format2007 ? buf0[1] : buf0[0] ) & 0x7ff;
