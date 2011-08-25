@@ -61,9 +61,20 @@ One you have updated your documentation, you can look at how it displays in the 
 
  <ul>
    <li>check out the following packages:  
-<pre> &gt; cvs co /Documentation/ReferenceManualScripts/doxygen </pre>
-  </li>
-  <li>Follow instructions in README.TXT    
+<pre> > cmsrel CMSSW_4_3_0
+ > cd CMSSW_4_3_0/src/
+ > cmsenv
+ > cvs co Documentation/ReferenceManualScripts/doxygen
+
+ > cvs co YOUR_PACKAGE(s)
+
+ > cd ..
+
+ > scramv1 b referencemanual
+
+ wait...
+
+ > firefox doc/html/index.html </pre>
   </li>
 </ul>
 

@@ -1,15 +1,14 @@
-How to generate Reference Manual from zero?
- - ensure that you have rwx permission in current folder
- - run command ./refmanual.sh CMSSW_4_3_0
-   - checkouting source
-   - building Reference Manual
-   - applying non doxygen features
+ cmsrel CMSSW_4_3_0
+ cd CMSSW_4_3_0/src/
+ cmsenv
+ cvs co Documentation/ReferenceManualScripts/doxygen
 
+ cvs co YOUR_PACKAGE(s)
 
+ cd ..
 
-How to generate Reference Manual from your source?
- - provide your own INPUT folder in doxygen/cfgfile file line 462
- - comment or remove 34 line in refmanual.sh file
- - run command ./refmanual.sh CMSSW_4_3_0
-   - building Reference Manual on your provided source code
-   - applying non doxygen features
+ BUILD ( scramv1 b referencemanual )
+
+ wait...
+
+ firefox doc/html/index.html
