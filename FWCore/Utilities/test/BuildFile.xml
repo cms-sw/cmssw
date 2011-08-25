@@ -18,6 +18,8 @@
   </bin>
   <bin   file="Guid_t.cpp">
   </bin>
+  <bin   file="typedefs_t.cpp">
+  </bin>
 </environment>
 <bin   file="HRTime_t.cpp">
   <use   name="cppunit"/>
