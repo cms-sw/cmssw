@@ -288,7 +288,7 @@ def genvalid(fragment,d,suffix='',fi=''):
     if suffix:
         c['-s']=c['-s'].replace('genvalid','genvalid_'+suffix)
     if fi:
-        c['--filein']='mcdb:%d'%(fi,)
+        c['--filein']='lhe:%d'%(fi,)
     c['cfg']=fragment
     return c
     
