@@ -10,13 +10,13 @@ from RecoTracker.RoadSearchCloudMaker.RoadSearchClouds_cff import *
 from RecoTracker.RoadSearchTrackCandidateMaker.RoadSearchTrackCandidates_cff import *
 from RecoTracker.TrackProducer.RSFinalFitWithMaterial_cff import *
 
-### Not the Tracking uses the 2 seed collections separately. The merged seed collection is produced 
-### for backward compatibility with electron reconstruction
+###This seed collection is produced for electron reconstruction
 newCombinedSeeds = RecoTracker.TkSeedGenerator.GlobalCombinedSeeds_cfi.globalCombinedSeeds.clone(
     seedCollections = cms.VInputTag(
       cms.InputTag('initialStepSeeds'),
-      cms.InputTag('lowPtTripletStepSeeds'),
-      cms.InputTag('pixelPairStepSeeds')
+      cms.InputTag('pixelPairStepSeeds'),
+      cms.InputTag('mixedTripletStepSeeds'),
+      cms.InputTag('pixelLessStepSeeds')
       )
     )
 import copy
