@@ -60,8 +60,28 @@ LMFPnPrimDat::LMFPnPrimDat(EcalDBConnection *c, int color,
   setSystem(system);
 }
 
+LMFPnPrimDat& LMFPnPrimDat::setSystem(std::string s) {
+  // LED tables do not hold the shapecorr column. Drop it.
+  std::transform(s.begin(), s.end(), s.begin(), toupper);
+  if (s == "LED") {
+    m_data.erase(m_data.begin());
+    m_keys.erase(m_keys.begin());
+    m_type.erase(m_type.begin());
+    std::map<std::string, unsigned int>::iterator i = m_keys.begin();
+    std::map<std::string, unsigned int>::iterator e = m_keys.end();
+    while (i != e) {
+      // modify indexes
+      (i->second)--;
+      i++;
+    }
+  }
+  LMFColoredTable::setSystem(s);
+  return *this;
+}
+
 void LMFPnPrimDat::init() {
   m_className = "LMFPnPrimDat";
+
   m_keys["SHAPECORRPN"] = 0;
   m_keys["MEAN"] = 1;
   m_keys["RMS"] = 2;
@@ -124,7 +144,9 @@ LMFPnPrimDat& LMFPnPrimDat::setPN(EcalLogicID &id, float mean, float rms,
   return *this;
 }
 LMFPnPrimDat& LMFPnPrimDat::setShapeCorr(EcalLogicID &id, float v ) {
-  LMFDat::setData(id, "SHAPECORRPN", v);
+  if (getSystem() != "LED") {
+    LMFDat::setData(id, "SHAPECORRPN", v);
+  }
   return *this;
 }
 
@@ -160,7 +182,11 @@ float LMFPnPrimDat::getMean(int id) {
 }
 
 float LMFPnPrimDat::getShapeCor(int id) {
-  return getData(id, "SHAPECORRPN");
+  float x = 0;
+  if (getSystem() != "LED") {
+    x = getData(id, "SHAPECORRPN");
+  }
+  return x;
 }
 
 float LMFPnPrimDat::getRMS(int id) {
@@ -192,7 +218,11 @@ float LMFPnPrimDat::getMean(EcalLogicID &id) {
 }
 
 float LMFPnPrimDat::getShapeCor(EcalLogicID &id) {
-  return getData(id, "SHAPECORRPN");
+  float x = 0.;
+  if (getSystem() != "LED") {
+    x = getData(id, "SHAPECORRPN");
+  }
+  return x;
 }
 
 float LMFPnPrimDat::getRMS(EcalLogicID &id) {
@@ -218,4 +248,5 @@ float LMFPnPrimDat::getPNAoverBRMS(EcalLogicID &id) {
 int LMFPnPrimDat::getFlag(EcalLogicID &id) {
   return getData(id, "FLAG");
 }
+
 

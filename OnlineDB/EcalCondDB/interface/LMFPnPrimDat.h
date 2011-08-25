@@ -49,6 +49,8 @@ class LMFPnPrimDat : public LMFColoredTable {
   LMFPnPrimDat& setPNAoverB(EcalLogicID &id, float mean, float rms, float m3);
   LMFPnPrimDat& setFlag(EcalLogicID &id, int v);
 
+  LMFPnPrimDat& setSystem(std::string s);
+
   float getMean(EcalLogicID &id);
   float getRMS(EcalLogicID &id);
   float getM3(EcalLogicID &id);
