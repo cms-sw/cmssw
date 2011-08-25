@@ -55,9 +55,9 @@ def make4thLevelLinks(packagePath):
                     
                 html += link
         html += "</ul>"
-        print html
+        #print html
     except:
-        print "WARNING: make4thLevelLinks failed to find out where the class source files are stored!"
+        #print "WARNING: make4thLevelLinks failed to find out where the class source files are stored!"
         html = ""
             
     return html
