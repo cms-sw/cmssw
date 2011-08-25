@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
+# For Condor -- please modify lines 28, 72, and 159
+
 process = cms.Process("PROD")
-
-
 
 # import of standard configurations
 process.load('Configuration.StandardSequences.Services_cff')
@@ -22,6 +22,12 @@ process.load('IOMC.EventVertexGenerators.VtxSmearedParameters_cfi')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
 # Include the RandomNumberGeneratorService definition
+
+process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
+
+randomNum = 1000 # Set to $randomNumber when running with condor
+process.RandomNumberGeneratorService.generator.initialSeed = cms.untracked.uint32(randomNum)
+
 process.load("FastSimulation.Configuration.RandomServiceInitialization_cff")
 process.RandomNumberGeneratorService.simSiStripDigis = cms.PSet(
       initialSeed = cms.untracked.uint32(1234567),
@@ -58,12 +64,12 @@ process.famosSimHits.TrackerSimHits.firstLoop = False
 process.Timing =  cms.Service("Timing")
 
 # If you want to turn on/off pile-up, default is no pileup
-#process.famosPileUp.PileUpSimulator.averageNumber = 50.00
+process.famosPileUp.PileUpSimulator.averageNumber = 50.00
 ### if doing inefficiency at <PU>=50
 #process.simSiPixelDigis.AddPixelInefficiency = 20
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10000)
+    input = cms.untracked.int32(100) #Set to $nEventsPerJob for Condor
 )
 
 # Input source
@@ -76,7 +82,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.0 $'),
+    version = cms.untracked.string('$Revision: 1.7 $'),
     annotation = cms.untracked.string('SLHCUpgradeSimulations/Configuration/python/FourMuPt_1_50_cfi.py nevts:10'),
     name = cms.untracked.string('PyReleaseValidation')
 )
@@ -90,48 +96,17 @@ process.GaussVtxSmearingParameters.type = cms.string("Gaussian")
 process.famosSimHits.VertexGenerator = process.GaussVtxSmearingParameters
 process.famosPileUp.VertexGenerator = process.GaussVtxSmearingParameters
 
-####################
-from Configuration.Generator.PythiaUEZ2Settings_cfi import *
-from GeneratorInterface.ExternalDecays.TauolaSettings_cff import *
 
-process.generator = cms.EDFilter("Pythia6GeneratorFilter",
-                             pythiaHepMCVerbosity = cms.untracked.bool(False),
-                             maxEventsToPrint = cms.untracked.int32(0),
-                             pythiaPylistVerbosity = cms.untracked.int32(1),
-                             filterEfficiency = cms.untracked.double(1.0),
-                             crossSection = cms.untracked.double(0.9738),
-                             comEnergy = cms.double(7000.0),
-                             ExternalDecays = cms.PSet(
-            Tauola = cms.untracked.PSet(
-                TauolaPolar,
-                            TauolaDefaultInputCards
-                        ),
-                    parameterSets = cms.vstring('Tauola')
-                ),
-                             UseExternalGenerators = cms.untracked.bool(True),
-                             PythiaParameters = cms.PSet(
-            pythiaUESettingsBlock,
-                    processParameters = cms.vstring('MSEL=0            !User defined processes',
-                                                                                            'MSUB(1)=1         !Incl Z0/gamma* production',
-                                                                                            'MSTP(43)=3        !Both Z0 and gamma*',
-                                                                                            'MDME(174,1)=0     !Z decay into d dbar',
-                                                                                            'MDME(175,1)=0     !Z decay into u ubar',
-                                                                                            'MDME(176,1)=0     !Z decay into s sbar',
-                                                                                            'MDME(177,1)=0     !Z decay into c cbar',
-                                                                                            'MDME(178,1)=0     !Z decay into b bbar',
-                                                                                            'MDME(179,1)=0     !Z decay into t tbar',
-                                                                                            'MDME(182,1)=1     !Z decay into e- e+',
-                                                                                            'MDME(183,1)=0     !Z decay into nu_e nu_ebar',
-                                                                                            'MDME(184,1)=0     !Z decay into mu- mu+',
-                                                                                            'MDME(185,1)=0     !Z decay into nu_mu nu_mubar',
-                                                                                            'MDME(186,1)=0     !Z decay into tau- tau+',
-                                                                                            'MDME(187,1)=0     !Z decay into nu_tau nu_taubar',
-                                                                                            'CKIN(1)=200.       !Minimum sqrt(s_hat) value (=Z mass)'),
-                    # This is a vector of ParameterSet names to be read, in this order
-                    parameterSets = cms.vstring('pythiaUESettings',
-                                                            'processParameters')
-                )
-                         )
+####################
+# Select Generator
+
+#process.load("Configuration.Generator.ZEE_cfi")
+process.load("Configuration.Generator.ZTT_cfi")
+#process.load("Configuration.Generator.MinBias_cfi")
+
+####################
+
+
 process.load('Configuration.StandardSequences.Validation_cff')
 
 process.anal = cms.EDAnalyzer("EventContentAnalyzer")
@@ -161,26 +136,26 @@ process.hfreco.doDigis = True
 process.load("SLHCUpgradeSimulations.L1CaloTrigger.SLHCCaloTriggerAnalysisCalibrated_cfi")
 
 process.genParticles = cms.EDProducer("GenParticleProducer",
-                                      saveBarCodes = cms.untracked.bool(True),
-                                      src = cms.InputTag("generator"),
-                                      abortOnUnknownPDGCode = cms.untracked.bool(False)
-                                      )
+		saveBarCodes = cms.untracked.bool(True),
+		src = cms.InputTag("generator"),
+		abortOnUnknownPDGCode = cms.untracked.bool(False)
+		)
 
 
 process.p1 = cms.Path(process.generator+
-                      process.genParticles+
-                      process.famosWithTrackerAndCaloHits+
-                      process.simEcalTriggerPrimitiveDigis+
-                      process.simHcalTriggerPrimitiveDigis+
-                      process.SLHCCaloTrigger+
-                      process.mcSequence+
-                      process.analysisSequenceCalibrated
+		process.genParticles+
+		process.famosWithTrackerAndCaloHits+
+		process.simEcalTriggerPrimitiveDigis+
+		process.simHcalTriggerPrimitiveDigis+
+		process.SLHCCaloTrigger+
+		process.mcSequence+
+		process.analysisSequenceCalibrated
 
-)
+		)
 
 
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string("histograms.root")
-)
+		fileName = cms.string("histograms.root")  #Set to "$outputFileName" when running on Condor
+		)
 
