@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.336 $"
+__version__ = "$Revision: 1.337 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -148,6 +148,9 @@ class ConfigBuilder(object):
         if not self._options.conditions:
                 raise Exception("ERROR: No conditions given!\nPlease specify conditions. E.g. via --conditions=IDEAL_30X::All")
 
+	if 'DQMROOT' in self._options.datatier and 'ENDJOB' in self._options.step:
+		self._options.step=self._options.step.replace(',ENDJOB','')
+		
         # what steps are provided by this class?
         stepList = [re.sub(r'^prepare_', '', methodName) for methodName in ConfigBuilder.__dict__ if methodName.startswith('prepare_')]
         self.stepMap={}
@@ -429,6 +432,7 @@ class ConfigBuilder(object):
 				theFileName+='.root'
 			if len(outDefDict.keys()):
 				raise Exception("unused keys from --output options: "+','.join(outDefDict.keys()))
+			if theStreamType=='DQMROOT': theStreamType=='DQM'
 			if theStreamType=='ALL':
 				theEventContent = cms.PSet(outputCommands = cms.untracked.vstring('keep *'))
 			else:
@@ -437,11 +441,8 @@ class ConfigBuilder(object):
 			if theStreamType=='ALCARECO' and not theFilterName:
 				theFilterName='StreamALCACombined'
 
-			if theStreamType=='DQMROOT': theStreamType='DQM'
-
 			CppType='PoolOutputModule'
 			if theStreamType=='DQM' and theTier=='DQMROOT': CppType='DQMRootOutputModule'
-			if theTier =='DQMROOT': theTier='DQM'
 			output = cms.OutputModule(CppType,			
 						  theEventContent.clone(),
 						  fileName = cms.untracked.string(theFileName),
@@ -496,7 +497,6 @@ class ConfigBuilder(object):
                         theFilterName=self._options.filtername
 		CppType='PoolOutputModule'
 		if streamType=='DQM' and tier=='DQMROOT': CppType='DQMRootOutputModule'
-		if tier =='DQMROOT': tier='DQM'
                 output = cms.OutputModule(CppType,
                                           theEventContent,
                                           fileName = cms.untracked.string(theFileName),
@@ -1574,7 +1574,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.336 $"),
+                                            (version=cms.untracked.string("$Revision: 1.337 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
