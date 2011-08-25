@@ -7,6 +7,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
+#include <boost/unordered_map.hpp>
 
 void (*igProfRequestDump_)(const char *);
 int igProfDumpNumber_ = 0;
@@ -31,5 +32,20 @@ bool setupIgProfDumpHook() {
     }
     signal(SIGUSR2,igProfDumpNow);
     return true;
+}
+
+
+boost::unordered_map<const char *, PerfCounter> perfCounters_;
+
+PerfCounter & PerfCounter::get(const char *name) 
+{
+    return perfCounters_[name];
+}
+
+void PerfCounter::printAll() 
+{
+    for (boost::unordered_map<const char *, PerfCounter>::const_iterator it = perfCounters_.begin(), ed = perfCounters_.end(); it != ed; ++it) {
+        fprintf(stderr, "%-40s: %g\n", it->first, it->second.get());
+    }
 }
 

@@ -79,6 +79,7 @@ int main(int argc, char **argv) {
     ;
   combiner.miscOptions().add_options()
     ("igpMem", "Setup support for memory profiling using IgProf")
+    ("perfCounters", "Dump performance counters at end of job")
     ("LoadLibrary,L", po::value<vector<string> >(&librariesToLoad), "Load library through gSystem->Load(...). Can specify multiple libraries using this option multiple times")
     ;
   desc.add(combiner.statOptions());
@@ -233,6 +234,8 @@ int main(int argc, char **argv) {
 
   for(map<string, LimitAlgo *>::const_iterator i = methods.begin(); i != methods.end(); ++i)
     delete i->second;
+
+  if (vm.count("perfCounters")) PerfCounter::printAll();
 }
 
 
