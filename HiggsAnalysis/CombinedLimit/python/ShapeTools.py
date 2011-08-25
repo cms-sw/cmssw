@@ -82,7 +82,14 @@ class ShapeBuilder(ModelBuilder):
         else:
             self.out._import(self.out.pdf("pdf_bin%s"       % self.DC.bins[0]).clone("model_s"), ROOT.RooFit.Silence())
             self.out._import(self.out.pdf("pdf_bin%s_bonly" % self.DC.bins[0]).clone("model_b"), ROOT.RooFit.Silence())
-  
+        if self.options.fixpars:
+            pars = self.out.pdf("model_s").getParameters(self.out.obs)
+            iter = pars.createIterator()
+            while True:
+                arg = iter.Next()
+                if arg == None: break;
+                if arg.InheritsFrom("RooRealVar") and arg.GetName() != "r": 
+                    arg.setConstant(True);
     ## --------------------------------------
     ## -------- High level helpers ----------
     ## --------------------------------------

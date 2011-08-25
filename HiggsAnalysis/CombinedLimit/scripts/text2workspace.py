@@ -11,6 +11,7 @@ argv.remove( '-b-' )
 
 parser = OptionParser(usage="usage: %prog [options] datacard.txt -o output \nrun with --help to get list of options")
 parser.add_option("-s", "--stat",   dest="stat",    default=False, action="store_true", help="keep only statistical uncertainties, no systematics") 
+parser.add_option("-f", "--fix-pars", dest="fixpars",default=False, action="store_true", help="fix all floating parameters of the pdfs except for the POI") 
 parser.add_option("-c", "--compiled", dest="cexpr", default=False, action="store_true", help="use compiled expressions (not suggested)")
 parser.add_option("-a", "--ascii",    dest="bin",   default=True, action="store_false", help="produce a Workspace in a rootfile in an HLF file (legacy, unsupported)")
 parser.add_option("-b", "--binary",   dest="bin",   default=True, action="store_true",  help="produce a Workspace in a rootfile (default)")
