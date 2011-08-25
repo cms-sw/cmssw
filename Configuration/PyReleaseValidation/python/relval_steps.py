@@ -499,10 +499,6 @@ step4['HARVEST']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
                    '--conditions':'auto:startup',
                    '--mc':'',
                    '--scenario':'pp'}
-step4['HARVEST2']={'-s':'HARVESTING:validationHarvesting+dqmHarvesting',
-                   '--conditions':'auto:startup',
-                   '--mc':'',
-                   '--scenario':'pp'}
 step4['ALCASPLIT']={'-s':'ALCAOUTPUT:@AllForPrompt',
                     '--conditions':'auto:com10',
                     '--scenario':'pp',
