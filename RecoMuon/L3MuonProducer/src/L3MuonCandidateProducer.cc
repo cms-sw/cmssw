@@ -80,7 +80,7 @@ void L3MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
   event.getByLabel(theL3CollectionLabel,tracks);
   
   edm::Handle<reco::MuonTrackLinksCollection> links; 
-  event.getByLabel(theL3LinksLabel,links);
+  bool useLinks = event.getByLabel(theL3LinksLabel,links);
 
   // Create a RecoChargedCandidate collection
   LogTrace(metname)<<" Creating the RecoChargedCandidate collection";
@@ -89,17 +89,19 @@ void L3MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
   for (unsigned int i=0; i<tracks->size(); i++) {
     TrackRef inRef(tracks,i);
     TrackRef tkRef = TrackRef();
-    for(reco::MuonTrackLinksCollection::const_iterator link = links->begin();
-	link != links->end(); ++link){
-      LogTrace(metname) << " link tk pt " << link->trackerTrack()->pt() << " sta pt " << link->standAloneTrack()->pt() << " global pt " << link->globalTrack()->pt() << " inRef pt " << inRef->pt() ;
-      double dR = deltaR(inRef->eta(),inRef->phi(),link->globalTrack()->eta(),link->globalTrack()->phi());
-      if(dR < 0.02 && abs(inRef->pt() - link->globalTrack()->pt())/inRef->pt() < 0.001) {
-	LogTrace(metname) << " *** pt matches *** ";
-	switch(type) {
-	case InnerTrack:    tkRef = link->trackerTrack();    break;
-	case OuterTrack:    tkRef = link->standAloneTrack(); break;
-	case CombinedTrack: tkRef = link->globalTrack();     break;
-	default:            tkRef = link->globalTrack();     break;
+    if (useLinks) {
+      for(reco::MuonTrackLinksCollection::const_iterator link = links->begin();
+	  link != links->end(); ++link){
+	LogTrace(metname) << " link tk pt " << link->trackerTrack()->pt() << " sta pt " << link->standAloneTrack()->pt() << " global pt " << link->globalTrack()->pt() << " inRef pt " << inRef->pt() ;
+	double dR = deltaR(inRef->eta(),inRef->phi(),link->globalTrack()->eta(),link->globalTrack()->phi());
+	if(dR < 0.02 && abs(inRef->pt() - link->globalTrack()->pt())/inRef->pt() < 0.001) {
+	  LogTrace(metname) << " *** pt matches *** ";
+	  switch(type) {
+	  case InnerTrack:    tkRef = link->trackerTrack();    break;
+	  case OuterTrack:    tkRef = link->standAloneTrack(); break;
+	  case CombinedTrack: tkRef = link->globalTrack();     break;
+	  default:            tkRef = link->globalTrack();     break;
+	  }
 	}
       }
     }
