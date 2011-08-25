@@ -540,11 +540,11 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   //set value of "globalConstrained" nuisances to the value of the corresponding global observable and set them constant
   //also fill the RooArgLists which can be passed to the test statistic  in order to produce the correct behaviour
   //this is only supported currently for the optimized version of the LHC-type test statistic
-  RooArgList allnuis(*mc_s->GetNuisanceParameters());
-  RooArgList allgobs(*mc_s->GetGlobalObservables());
   RooArgList gobsParams;
   RooArgList gobs;
-  if (testStat_ == "LHC" && optimizeTestStatistics_) {
+  if (withSystematics && testStat_ == "LHC" && optimizeTestStatistics_) {
+    RooArgList allnuis(*mc_s->GetNuisanceParameters());
+    RooArgList allgobs(*mc_s->GetGlobalObservables());
     for (int i=0; i<allnuis.getSize(); ++i) {
       RooRealVar *nuis = (RooRealVar*)allnuis.at(i);
       if (nuis->getAttribute("globalConstrained")) {
