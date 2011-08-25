@@ -20,9 +20,9 @@
 // system include files
 #include <vector>
 
-#include <boost/cstdint.hpp>
-
 // user include files
+#include "FWCore/Utilities/interface/typedefs.h"
+
 //   base class
 //
 //   for compatibility reasons; L1GtObject moved to separate file
@@ -46,10 +46,10 @@ typedef std::vector<bool> TechnicalTriggerWord;
 typedef unsigned MuonDataWord;
 
 // e-gamma, jet objects
-typedef boost::uint16_t CaloDataWord;
+typedef cms_uint16_t CaloDataWord;
 
 // missing Et
-typedef boost::uint32_t CaloMissingEtWord;
+typedef cms_uint32_t CaloMissingEtWord;
 
 // twelve jet counts, encoded in five bits per count; six jets per 32-bit word
 // code jet count = 31 indicate overflow condition

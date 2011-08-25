@@ -202,7 +202,7 @@ const bool L1GlobalTriggerReadoutRecord::decision() const
 
 // get final OR for all DAQ partitions
 //    general bxInEvent
-const boost::uint16_t L1GlobalTriggerReadoutRecord::finalOR(int bxInEventValue) const
+const cms_uint16_t L1GlobalTriggerReadoutRecord::finalOR(int bxInEventValue) const
 {
 
     for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin();
@@ -227,7 +227,7 @@ const boost::uint16_t L1GlobalTriggerReadoutRecord::finalOR(int bxInEventValue) 
 }
 
 //    bxInEvent = 0
-const boost::uint16_t L1GlobalTriggerReadoutRecord::finalOR() const
+const cms_uint16_t L1GlobalTriggerReadoutRecord::finalOR() const
 {
 
     int bxInEventL1Accept = 0;
@@ -593,7 +593,7 @@ void L1GlobalTriggerReadoutRecord::setGtFdlWord(const L1GtFdlWord& gtFdlWordValu
 
 // get / set PSB word (record) in the GT readout record
 const L1GtPsbWord L1GlobalTriggerReadoutRecord::gtPsbWord(
-    boost::uint16_t boardIdValue, int bxInEventValue) const
+    cms_uint16_t boardIdValue, int bxInEventValue) const
 {
 
     for (std::vector<L1GtPsbWord>::const_iterator itBx = m_gtPsbWord.begin();
@@ -623,7 +623,7 @@ const L1GtPsbWord L1GlobalTriggerReadoutRecord::gtPsbWord(
 
 }
 
-const L1GtPsbWord L1GlobalTriggerReadoutRecord::gtPsbWord(boost::uint16_t boardIdValue) const
+const L1GtPsbWord L1GlobalTriggerReadoutRecord::gtPsbWord(cms_uint16_t boardIdValue) const
 {
 
     int bxInEventL1Accept = 0;
@@ -631,7 +631,7 @@ const L1GtPsbWord L1GlobalTriggerReadoutRecord::gtPsbWord(boost::uint16_t boardI
 }
 
 void L1GlobalTriggerReadoutRecord::setGtPsbWord(
-    const L1GtPsbWord& gtPsbWordValue, boost::uint16_t boardIdValue, int bxInEventValue)
+    const L1GtPsbWord& gtPsbWordValue, cms_uint16_t boardIdValue, int bxInEventValue)
 {
 
     // if a L1GtPsbWord with the same bxInEventValue and boardIdValue exists, replace it
@@ -692,7 +692,7 @@ void L1GlobalTriggerReadoutRecord::setGtPsbWord(
 }
 
 void L1GlobalTriggerReadoutRecord::setGtPsbWord(
-    const L1GtPsbWord& gtPsbWordValue, boost::uint16_t boardIdValue)
+    const L1GtPsbWord& gtPsbWordValue, cms_uint16_t boardIdValue)
 {
 
     int bxInEventL1Accept = 0;

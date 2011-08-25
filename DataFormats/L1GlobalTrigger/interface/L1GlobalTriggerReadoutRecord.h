@@ -23,8 +23,6 @@
 #include <vector>
 #include <iosfwd>
 
-#include <boost/cstdint.hpp>
-
 // user include files
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
@@ -36,6 +34,8 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GtPsbWord.h"
 
 #include "DataFormats/Common/interface/RefProd.h"
+
+#include "FWCore/Utilities/interface/typedefs.h"
 
 // forward declarations
 namespace edm
@@ -85,8 +85,8 @@ public:
     const bool decision(int bxInEventValue) const;
     const bool decision() const;
 
-    const boost::uint16_t finalOR(int bxInEventValue) const;
-    const boost::uint16_t finalOR() const;
+    const cms_uint16_t finalOR(int bxInEventValue) const;
+    const cms_uint16_t finalOR() const;
 
     const DecisionWord & decisionWord(int bxInEventValue) const;
     const DecisionWord & decisionWord() const;
@@ -160,11 +160,11 @@ public:
     }
 
     /// get / set PSB word (record) in the GT readout record
-    const L1GtPsbWord gtPsbWord(boost::uint16_t boardIdValue, int bxInEventValue) const;
-    const L1GtPsbWord gtPsbWord(boost::uint16_t boardIdValue) const;
+    const L1GtPsbWord gtPsbWord(cms_uint16_t boardIdValue, int bxInEventValue) const;
+    const L1GtPsbWord gtPsbWord(cms_uint16_t boardIdValue) const;
 
-    void setGtPsbWord(const L1GtPsbWord&, boost::uint16_t boardIdValue, int bxInEventValue);
-    void setGtPsbWord(const L1GtPsbWord&, boost::uint16_t boardIdValue);
+    void setGtPsbWord(const L1GtPsbWord&, cms_uint16_t boardIdValue, int bxInEventValue);
+    void setGtPsbWord(const L1GtPsbWord&, cms_uint16_t boardIdValue);
     void setGtPsbWord(const L1GtPsbWord& gtPsbWordValue);
 
     // other methods

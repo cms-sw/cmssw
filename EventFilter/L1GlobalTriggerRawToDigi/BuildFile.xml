@@ -7,8 +7,4 @@
 <use   name="CondFormats/DataRecord"/>
 <use   name="CondFormats/L1TObjects"/>
 <use   name="CondFormats/RunInfo"/>
-<use   name="boost"/>
 <flags   EDM_PLUGIN="1"/>
-<export>
-  <lib   name="1"/>
-</export>

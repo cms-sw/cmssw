@@ -181,20 +181,20 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
     L1GtfeWord gtfeBlock = gtReadoutRecord->gtfeWord();
 
     // get the number of Bx in the event for alternative 0 and alternative 1
-    boost::uint16_t recordLength0 = gtfeBlock.recordLength();
-    boost::uint16_t recordLength1 = gtfeBlock.recordLength1();
+    cms_uint16_t recordLength0 = gtfeBlock.recordLength();
+    cms_uint16_t recordLength1 = gtfeBlock.recordLength1();
 
 
     // get list of active boards from the GTFE payload
     // and mask some boards, if required
     // boards not active are not written to the record
 
-    boost::uint16_t activeBoardsGtInitial = gtfeBlock.activeBoards();
-    boost::uint16_t altNrBxBoardInitial = gtfeBlock.altNrBxBoard();
+    cms_uint16_t activeBoardsGtInitial = gtfeBlock.activeBoards();
+    cms_uint16_t altNrBxBoardInitial = gtfeBlock.altNrBxBoard();
 
     // mask some boards, if needed
 
-    boost::uint16_t activeBoardsGt = activeBoardsGtInitial & m_activeBoardsMaskGt;
+    cms_uint16_t activeBoardsGt = activeBoardsGtInitial & m_activeBoardsMaskGt;
 
     if (m_verbosity && m_isDebugEnabled) {
         LogDebug("L1GTDigiToRaw")
@@ -524,9 +524,9 @@ void L1GTDigiToRaw::packHeader(unsigned char* ptrGt, edm::Event& iEvent) {
 
     // The bunch crossing number
     int bxCross = iEvent.bunchCrossing();
-    boost::uint16_t bxCrossHw = 0;
+    cms_uint16_t bxCrossHw = 0;
     if ( ( bxCross & 0xFFF ) == bxCross) {
-        bxCrossHw = static_cast<boost::uint16_t> (bxCross);
+        bxCrossHw = static_cast<cms_uint16_t> (bxCross);
     } else {
         bxCrossHw = 0; // Bx number too large, set to 0!
         if (m_verbosity && m_isDebugEnabled) {
@@ -557,7 +557,7 @@ void L1GTDigiToRaw::packHeader(unsigned char* ptrGt, edm::Event& iEvent) {
 // pack the GTFE block
 void L1GTDigiToRaw::packGTFE(
         const edm::EventSetup& evSetup, unsigned char* ptrGt, L1GtfeWord& gtfeBlock,
-        boost::uint16_t activeBoardsGtValue) {
+        cms_uint16_t activeBoardsGtValue) {
 
     if (m_verbosity && m_isDebugEnabled) {
         LogDebug("L1GTDigiToRaw") << "\nPacking GTFE \n" << std::endl;
@@ -567,7 +567,7 @@ void L1GTDigiToRaw::packGTFE(
 
     // initialize the required number of word64
     int nrWord64 = gtfeBlock.getSize() / uLength;
-    std::vector<boost::uint64_t> tmpWord64;
+    std::vector<cms_uint64_t> tmpWord64;
     tmpWord64.resize(nrWord64);
 
     for (int iWord = 0; iWord < nrWord64; ++iWord) {
@@ -590,7 +590,7 @@ void L1GTDigiToRaw::packGTFE(
 
     // put the words in the FED record
 
-    boost::uint64_t* pw = reinterpret_cast<boost::uint64_t*> (const_cast<unsigned char*> (ptrGt));
+    cms_uint64_t* pw = reinterpret_cast<cms_uint64_t*> (const_cast<unsigned char*> (ptrGt));
 
     for (int iWord = 0; iWord < nrWord64; ++iWord) {
 
@@ -621,7 +621,7 @@ void L1GTDigiToRaw::packFDL(
 
     // initialize the required number of word64
     int nrWord64 = fdlBlock.getSize() / uLength;
-    std::vector<boost::uint64_t> tmpWord64;
+    std::vector<cms_uint64_t> tmpWord64;
     tmpWord64.resize(nrWord64);
 
     for (int iWord = 0; iWord < nrWord64; ++iWord) {
@@ -657,7 +657,7 @@ void L1GTDigiToRaw::packFDL(
 
     // put the words in the FED record
 
-    boost::uint64_t* pw = reinterpret_cast<boost::uint64_t*> (const_cast<unsigned char*> (ptrGt));
+    cms_uint64_t* pw = reinterpret_cast<cms_uint64_t*> (const_cast<unsigned char*> (ptrGt));
 
     for (int iWord = 0; iWord < nrWord64; ++iWord) {
 
@@ -687,7 +687,7 @@ void L1GTDigiToRaw::packPSB(
 
     // initialize the required number of word64
     int nrWord64 = psbBlock.getSize() / uLength;
-    std::vector<boost::uint64_t> tmpWord64;
+    std::vector<cms_uint64_t> tmpWord64;
     tmpWord64.resize(nrWord64);
 
     for (int iWord = 0; iWord < nrWord64; ++iWord) {
@@ -711,7 +711,7 @@ void L1GTDigiToRaw::packPSB(
 
     // put the words in the FED record
 
-    boost::uint64_t* pw = reinterpret_cast<boost::uint64_t*> (const_cast<unsigned char*> (ptrGt));
+    cms_uint64_t* pw = reinterpret_cast<cms_uint64_t*> (const_cast<unsigned char*> (ptrGt));
 
     for (int iWord = 0; iWord < nrWord64; ++iWord) {
 

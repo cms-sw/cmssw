@@ -22,8 +22,6 @@
 #include <iostream>
 #include <iomanip>
 
-#include <boost/cstdint.hpp>
-
 // user include files
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
@@ -36,6 +34,8 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
+
+#include "FWCore/Utilities/interface/typedefs.h"
 
 
 // constructor(s)
@@ -172,7 +172,7 @@ void L1GtTextToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
     
     std::string lineString;
 
-    boost::uint64_t lineInt = 0ULL;
+    cms_uint64_t lineInt = 0ULL;
     int sizeL = sizeof(lineInt);
 
     int fedBlockSize = 8; // block size in bits for FedRawData

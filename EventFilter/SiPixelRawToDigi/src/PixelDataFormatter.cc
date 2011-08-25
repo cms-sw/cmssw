@@ -159,7 +159,7 @@ void PixelDataFormatter::formatRawData(unsigned int lvl1_ID, RawData & fedRawDat
   // translate digis into 32-bit raw words and store in map indexed by Fed
   for (Digis::const_iterator im = digis.begin(); im != digis.end(); im++) {
     allDetDigis++;
-    uint32_t rawId = im->first;
+    cms_uint32_t rawId = im->first;
     hasDetDigis++;
     const DetDigis & detDigis = im->second;
     for (DetDigis::const_iterator it = detDigis.begin(); it != detDigis.end(); it++) {
@@ -220,7 +220,7 @@ void PixelDataFormatter::formatRawData(unsigned int lvl1_ID, RawData & fedRawDat
   } // for (RI feddata 
 }
 
-int PixelDataFormatter::digi2word( uint32_t detId, const PixelDigi& digi, 
+int PixelDataFormatter::digi2word( cms_uint32_t detId, const PixelDigi& digi, 
     std::map<int, vector<Word32> > & words) const
 {
   LogDebug("PixelDataFormatter")

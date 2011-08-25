@@ -36,8 +36,8 @@
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
 #include "EventFilter/SiPixelRawToDigi/interface/ErrorChecker.h"
+#include "FWCore/Utilities/interface/typedefs.h"
 
-#include <boost/cstdint.hpp>
 #include <vector>
 #include <map>
 
@@ -53,13 +53,13 @@ public:
 
   typedef std::map<int, FEDRawData> RawData;
   typedef std::vector<PixelDigi> DetDigis;
-  typedef std::map<uint32_t, DetDigis> Digis;
+  typedef std::map<cms_uint32_t, DetDigis> Digis;
   typedef std::pair<DetDigis::const_iterator, DetDigis::const_iterator> Range; 
   typedef std::vector<SiPixelRawDataError> DetErrors;
-  typedef std::map<uint32_t, DetErrors> Errors;
+  typedef std::map<cms_uint32_t, DetErrors> Errors;
 
-  typedef uint32_t Word32;
-  typedef uint64_t Word64;
+  typedef cms_uint32_t Word32;
+  typedef cms_uint64_t Word64;
 
   PixelDataFormatter(const SiPixelFedCabling* map);
 
@@ -90,7 +90,7 @@ private:
 
   int checkError(const Word32& data) const;
 
-  int digi2word(  uint32_t detId, const PixelDigi& digi,
+  int digi2word(  cms_uint32_t detId, const PixelDigi& digi,
                   std::map<int, std::vector<Word32> > & words) const;
 
   int word2digi(  const int fedId,
@@ -103,7 +103,7 @@ private:
   std::string print(const PixelDigi & digi) const;
   std::string print(const Word64    & word) const;
 
-  uint32_t errorDetId(const SiPixelFrameConverter* converter, 
+  cms_uint32_t errorDetId(const SiPixelFrameConverter* converter, 
 		      int fedId, int errorType, const Word32 & word) const;
 
 };

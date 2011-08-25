@@ -6,8 +6,8 @@
  */
 
 #include "DataFormats/SiPixelRawData/interface/SiPixelRawDataError.h"
+#include "FWCore/Utilities/interface/typedefs.h"
 
-#include <boost/cstdint.hpp>
 #include <vector>
 #include <map>
 
@@ -20,11 +20,11 @@ class ErrorChecker {
 public:
 //  typedef unsigned int Word32;
 //  typedef long long Word64;
-  typedef uint32_t Word32;
-  typedef uint64_t Word64;
+  typedef cms_uint32_t Word32;
+  typedef cms_uint64_t Word64;
 
   typedef std::vector<SiPixelRawDataError> DetErrors;
-  typedef std::map<uint32_t, DetErrors> Errors;
+  typedef std::map<cms_uint32_t, DetErrors> Errors;
 
   ErrorChecker();
 
@@ -45,8 +45,8 @@ public:
 private:
   bool includeErrors;
 
-  uint32_t errorDetId(const SiPixelFrameConverter* converter, 
-		      int errorType, const Word32 & word) const;
+  cms_uint32_t errorDetId(const SiPixelFrameConverter* converter, 
+	 	          int errorType, const Word32 & word) const;
 
 };
 

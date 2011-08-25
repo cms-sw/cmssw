@@ -33,7 +33,7 @@ const int ROC_shift  = DCOL_shift + DCOL_bits;
 const int LINK_shift = ROC_shift + ROC_bits;
 const int OMIT_ERR_shift = 20;
 
-const uint32_t dummyDetId = 0xffffffff;
+const cms_uint32_t dummyDetId = 0xffffffff;
 
 const ErrorChecker::Word64 CRC_mask = ~(~ErrorChecker::Word64(0) << CRC_bits);
 const ErrorChecker::Word32 ERROR_mask = ~(~ErrorChecker::Word32(0) << ROC_bits);
@@ -157,7 +157,7 @@ bool ErrorChecker::checkROC(bool& errorsInEvent, int fedId, const SiPixelFrameCo
 
  if(includeErrors) {
    SiPixelRawDataError error(errorWord, errorType, fedId);
-   uint32_t detId;
+   cms_uint32_t detId;
    detId = errorDetId(converter, errorType, errorWord);
    errors[detId].push_back(error);
  }
@@ -172,7 +172,7 @@ void ErrorChecker::conversionError(int fedId, const SiPixelFrameConverter* conve
     if(includeErrors) {
       int errorType = 35;
       SiPixelRawDataError error(errorWord, errorType, fedId);
-      uint32_t detId = errorDetId(converter, errorType, errorWord);
+      cms_uint32_t detId = errorDetId(converter, errorType, errorWord);
       errors[detId].push_back(error);
     }
     break;
@@ -182,7 +182,7 @@ void ErrorChecker::conversionError(int fedId, const SiPixelFrameConverter* conve
     if(includeErrors) {
       int errorType = 36;
       SiPixelRawDataError error(errorWord, errorType, fedId);
-      uint32_t detId = errorDetId(converter, errorType, errorWord);
+      cms_uint32_t detId = errorDetId(converter, errorType, errorWord);
       errors[detId].push_back(error);
     }
     break;
@@ -192,7 +192,7 @@ void ErrorChecker::conversionError(int fedId, const SiPixelFrameConverter* conve
     if(includeErrors) {
       int errorType = 37;
       SiPixelRawDataError error(errorWord, errorType, fedId);
-      uint32_t detId = errorDetId(converter, errorType, errorWord);
+      cms_uint32_t detId = errorDetId(converter, errorType, errorWord);
       errors[detId].push_back(error);
     }
     break;
@@ -202,7 +202,7 @@ void ErrorChecker::conversionError(int fedId, const SiPixelFrameConverter* conve
     if(includeErrors) {
       int errorType = 38;
       SiPixelRawDataError error(errorWord, errorType, fedId);
-      uint32_t detId = errorDetId(converter, errorType, errorWord);
+      cms_uint32_t detId = errorDetId(converter, errorType, errorWord);
       errors[detId].push_back(error);
     }
     break;
@@ -212,7 +212,7 @@ void ErrorChecker::conversionError(int fedId, const SiPixelFrameConverter* conve
 }
 
 // this function finds the detId for an error word that cannot be processed in word2digi
-uint32_t ErrorChecker::errorDetId(const SiPixelFrameConverter* converter, 
+cms_uint32_t ErrorChecker::errorDetId(const SiPixelFrameConverter* converter, 
     int errorType, const Word32 & word) const
 {
   if (!converter) return dummyDetId;
@@ -240,7 +240,7 @@ uint32_t ErrorChecker::errorDetId(const SiPixelFrameConverter* converter,
       const int DB2_shift = DB1_shift + 1;
       const int DB3_shift = DB2_shift + 1;
       const int DB4_shift = DB3_shift + 1;
-      const uint32_t DataBit_mask = ~(~uint32_t(0) << 1);
+      const cms_uint32_t DataBit_mask = ~(~cms_uint32_t(0) << 1);
 
       int CH1 = (word >> DB0_shift) & DataBit_mask;
       int CH2 = (word >> DB1_shift) & DataBit_mask;
@@ -249,7 +249,7 @@ uint32_t ErrorChecker::errorDetId(const SiPixelFrameConverter* converter,
       int CH5 = (word >> DB4_shift) & DataBit_mask;
       int BLOCK_bits      = 3;
       int BLOCK_shift     = 8;
-      uint32_t BLOCK_mask = ~(~uint32_t(0) << BLOCK_bits);
+      cms_uint32_t BLOCK_mask = ~(~cms_uint32_t(0) << BLOCK_bits);
       int BLOCK = (word >> BLOCK_shift) & BLOCK_mask;
       int localCH = 1*CH1+2*CH2+3*CH3+4*CH4+5*CH5;
       if (BLOCK%2==0) chanNmbr=(BLOCK/2)*9+localCH;
