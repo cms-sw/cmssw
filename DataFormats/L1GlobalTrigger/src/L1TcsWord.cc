@@ -48,17 +48,17 @@ L1TcsWord::L1TcsWord()
 
 // constructor from unpacked values;
 L1TcsWord::L1TcsWord(
-    boost::uint16_t boardIdValue,
-    boost::uint16_t bxNrValue,
-    boost::uint16_t daqNrValue,
-    boost::uint16_t triggerTypeValue,
-    boost::uint16_t statusValue,
-    boost::uint16_t luminositySegmentNrValue,
-    boost::uint32_t partRunNrValue,
-    boost::uint32_t assignedPartitionsValue,
-    boost::uint32_t partTrigNrValue,
-    boost::uint32_t eventNrValue,
-    boost::uint64_t orbitNrValue )
+    cms_uint16_t boardIdValue,
+    cms_uint16_t bxNrValue,
+    cms_uint16_t daqNrValue,
+    cms_uint16_t triggerTypeValue,
+    cms_uint16_t statusValue,
+    cms_uint16_t luminositySegmentNrValue,
+    cms_uint32_t partRunNrValue,
+    cms_uint32_t assignedPartitionsValue,
+    cms_uint32_t partTrigNrValue,
+    cms_uint32_t eventNrValue,
+    cms_uint64_t orbitNrValue )
 {
 
     m_boardId = boardIdValue;
@@ -147,7 +147,7 @@ bool L1TcsWord::operator!=(const L1TcsWord& result) const
 // methods
 
 // set the BoardId value from a 64-bits word
-void L1TcsWord::setBoardId(const boost::uint64_t& word64)
+void L1TcsWord::setBoardId(const cms_uint64_t& word64)
 {
     m_boardId = (word64 & BoardIdMask) >> BoardIdShift;
 
@@ -155,18 +155,18 @@ void L1TcsWord::setBoardId(const boost::uint64_t& word64)
 
 // set the BoardId value in a 64-bits word, having the index iWord
 // in the GTFE raw record
-void L1TcsWord::setBoardIdWord64(boost::uint64_t& word64, int iWord)
+void L1TcsWord::setBoardIdWord64(cms_uint64_t& word64, int iWord)
 {
 
     if (iWord == BoardIdWord) {
-        word64 = word64 | (static_cast<boost::uint64_t> (m_boardId) << BoardIdShift);
+        word64 = word64 | (static_cast<cms_uint64_t> (m_boardId) << BoardIdShift);
     }
 
 }
 
 
 // set the BxNr value from a 64-bits word
-void L1TcsWord::setBxNr(const boost::uint64_t& word64)
+void L1TcsWord::setBxNr(const cms_uint64_t& word64)
 {
 
     m_bxNr = (word64 & BxNrMask) >> BxNrShift;
@@ -175,11 +175,11 @@ void L1TcsWord::setBxNr(const boost::uint64_t& word64)
 
 // set the BxNr value in a 64-bits word, having the index iWord
 // in the GTFE EVM raw record
-void L1TcsWord::setBxNrWord64(boost::uint64_t& word64, int iWord)
+void L1TcsWord::setBxNrWord64(cms_uint64_t& word64, int iWord)
 {
 
     if (iWord == BxNrWord) {
-        word64 = word64 | (static_cast<boost::uint64_t> (m_bxNr) << BxNrShift);
+        word64 = word64 | (static_cast<cms_uint64_t> (m_bxNr) << BxNrShift);
     }
 
 }
@@ -187,7 +187,7 @@ void L1TcsWord::setBxNrWord64(boost::uint64_t& word64, int iWord)
 
 
 // set the DaqNr value from a 64-bits word
-void L1TcsWord::setDaqNr(const boost::uint64_t& word64)
+void L1TcsWord::setDaqNr(const cms_uint64_t& word64)
 {
 
     m_daqNr = (word64 & DaqNrMask) >> DaqNrShift;
@@ -196,18 +196,18 @@ void L1TcsWord::setDaqNr(const boost::uint64_t& word64)
 
 // set the DaqNr value in a 64-bits word, having the index iWord
 // in the GTFE EVM raw record
-void L1TcsWord::setDaqNrWord64(boost::uint64_t& word64, int iWord)
+void L1TcsWord::setDaqNrWord64(cms_uint64_t& word64, int iWord)
 {
 
     if (iWord == DaqNrWord) {
-        word64 = word64 | (static_cast<boost::uint64_t> (m_daqNr) << DaqNrShift);
+        word64 = word64 | (static_cast<cms_uint64_t> (m_daqNr) << DaqNrShift);
     }
 
 }
 
 
 // set the TriggerType value from a 64-bits word
-void L1TcsWord::setTriggerType(const boost::uint64_t& word64)
+void L1TcsWord::setTriggerType(const cms_uint64_t& word64)
 {
 
     m_triggerType = (word64 & TriggerTypeMask) >> TriggerTypeShift;
@@ -216,19 +216,19 @@ void L1TcsWord::setTriggerType(const boost::uint64_t& word64)
 
 // set the TriggerType value in a 64-bits word, having the index iWord
 // in the GTFE EVM raw record
-void L1TcsWord::setTriggerTypeWord64(boost::uint64_t& word64, int iWord)
+void L1TcsWord::setTriggerTypeWord64(cms_uint64_t& word64, int iWord)
 {
 
     if (iWord == TriggerTypeWord) {
         word64 = word64 |
-                 (static_cast<boost::uint64_t> (m_triggerType) << TriggerTypeShift);
+                 (static_cast<cms_uint64_t> (m_triggerType) << TriggerTypeShift);
     }
 
 }
 
 
 // set the Status value from a 64-bits word
-void L1TcsWord::setStatus(const boost::uint64_t& word64)
+void L1TcsWord::setStatus(const cms_uint64_t& word64)
 {
 
     m_status = (word64 & StatusMask) >> StatusShift;
@@ -237,11 +237,11 @@ void L1TcsWord::setStatus(const boost::uint64_t& word64)
 
 // set the Status value in a 64-bits word, having the index iWord
 // in the GTFE EVM raw record
-void L1TcsWord::setStatusWord64(boost::uint64_t& word64, int iWord)
+void L1TcsWord::setStatusWord64(cms_uint64_t& word64, int iWord)
 {
 
     if (iWord == StatusWord) {
-        word64 = word64 | (static_cast<boost::uint64_t> (m_status) << StatusShift);
+        word64 = word64 | (static_cast<cms_uint64_t> (m_status) << StatusShift);
     }
 
 }
@@ -249,7 +249,7 @@ void L1TcsWord::setStatusWord64(boost::uint64_t& word64, int iWord)
 
 
 // set the luminosity segment number value from a 64-bits word
-void L1TcsWord::setLuminositySegmentNr(const boost::uint64_t& word64)
+void L1TcsWord::setLuminositySegmentNr(const cms_uint64_t& word64)
 {
 
     m_luminositySegmentNr =
@@ -259,12 +259,12 @@ void L1TcsWord::setLuminositySegmentNr(const boost::uint64_t& word64)
 
 // set the luminosity segment number value in a 64-bits word, having the index iWord
 // in the GTFE EVM raw record
-void L1TcsWord::setLuminositySegmentNrWord64(boost::uint64_t& word64, int iWord)
+void L1TcsWord::setLuminositySegmentNrWord64(cms_uint64_t& word64, int iWord)
 {
 
     if (iWord == LuminositySegmentNrWord) {
         word64 = word64 |
-                 (static_cast<boost::uint64_t> (m_luminositySegmentNr) << LuminositySegmentNrShift);
+                 (static_cast<cms_uint64_t> (m_luminositySegmentNr) << LuminositySegmentNrShift);
     }
 
 }
@@ -272,7 +272,7 @@ void L1TcsWord::setLuminositySegmentNrWord64(boost::uint64_t& word64, int iWord)
 
 
 // set the PartRunNr value from a 64-bits word
-void L1TcsWord::setPartRunNr(const boost::uint64_t& word64)
+void L1TcsWord::setPartRunNr(const cms_uint64_t& word64)
 {
 
     m_partRunNr = (word64 & PartRunNrMask) >> PartRunNrShift;
@@ -281,12 +281,12 @@ void L1TcsWord::setPartRunNr(const boost::uint64_t& word64)
 
 // set the PartRunNr value in a 64-bits word, having the index iWord
 // in the GTFE EVM raw record
-void L1TcsWord::setPartRunNrWord64(boost::uint64_t& word64, int iWord)
+void L1TcsWord::setPartRunNrWord64(cms_uint64_t& word64, int iWord)
 {
 
     if (iWord == PartRunNrWord) {
         word64 = word64 |
-                 (static_cast<boost::uint64_t> (m_partRunNr) << PartRunNrShift);
+                 (static_cast<cms_uint64_t> (m_partRunNr) << PartRunNrShift);
     }
 
 }
@@ -294,7 +294,7 @@ void L1TcsWord::setPartRunNrWord64(boost::uint64_t& word64, int iWord)
 
 
 // set the AssignedPartitions value from a 64-bits word
-void L1TcsWord::setAssignedPartitions(const boost::uint64_t& word64)
+void L1TcsWord::setAssignedPartitions(const cms_uint64_t& word64)
 {
 
     m_assignedPartitions = (word64 & AssignedPartitionsMask)
@@ -304,12 +304,12 @@ void L1TcsWord::setAssignedPartitions(const boost::uint64_t& word64)
 
 // set the AssignedPartitions value in a 64-bits word, having the index iWord
 // in the GTFE EVM raw record
-void L1TcsWord::setAssignedPartitionsWord64(boost::uint64_t& word64, int iWord)
+void L1TcsWord::setAssignedPartitionsWord64(cms_uint64_t& word64, int iWord)
 {
 
     if (iWord == AssignedPartitionsWord) {
         word64 = word64 |
-                 (static_cast<boost::uint64_t> (m_assignedPartitions)
+                 (static_cast<cms_uint64_t> (m_assignedPartitions)
                   << AssignedPartitionsShift);
     }
 
@@ -318,7 +318,7 @@ void L1TcsWord::setAssignedPartitionsWord64(boost::uint64_t& word64, int iWord)
 
 
 // set the PartTrigNr value from a 64-bits word
-void L1TcsWord::setPartTrigNr(const boost::uint64_t& word64)
+void L1TcsWord::setPartTrigNr(const cms_uint64_t& word64)
 {
 
     m_partTrigNr = (word64 & PartTrigNrMask) >> PartTrigNrShift;
@@ -327,12 +327,12 @@ void L1TcsWord::setPartTrigNr(const boost::uint64_t& word64)
 
 // set the PartTrigNr value in a 64-bits word, having the index iWord
 // in the GTFE EVM raw record
-void L1TcsWord::setPartTrigNrWord64(boost::uint64_t& word64, int iWord)
+void L1TcsWord::setPartTrigNrWord64(cms_uint64_t& word64, int iWord)
 {
 
     if (iWord == PartTrigNrWord) {
         word64 = word64 |
-                 (static_cast<boost::uint64_t> (m_partTrigNr) << PartTrigNrShift);
+                 (static_cast<cms_uint64_t> (m_partTrigNr) << PartTrigNrShift);
     }
 
 }
@@ -340,7 +340,7 @@ void L1TcsWord::setPartTrigNrWord64(boost::uint64_t& word64, int iWord)
 
 
 // set the EventNr value from a 64-bits word
-void L1TcsWord::setEventNr(const boost::uint64_t& word64)
+void L1TcsWord::setEventNr(const cms_uint64_t& word64)
 {
 
     m_eventNr = (word64 & EventNrMask) >> EventNrShift;
@@ -349,12 +349,12 @@ void L1TcsWord::setEventNr(const boost::uint64_t& word64)
 
 // set the EventNr value in a 64-bits word, having the index iWord
 // in the GTFE EVM raw record
-void L1TcsWord::setEventNrWord64(boost::uint64_t& word64, int iWord)
+void L1TcsWord::setEventNrWord64(cms_uint64_t& word64, int iWord)
 {
 
     if (iWord == EventNrWord) {
         word64 = word64 |
-                 (static_cast<boost::uint64_t> (m_eventNr) << EventNrShift);
+                 (static_cast<cms_uint64_t> (m_eventNr) << EventNrShift);
     }
 
 }
@@ -362,7 +362,7 @@ void L1TcsWord::setEventNrWord64(boost::uint64_t& word64, int iWord)
 
 
 // set the OrbitNr value from a 64-bits word
-void L1TcsWord::setOrbitNrFrom(const boost::uint64_t& word64)
+void L1TcsWord::setOrbitNrFrom(const cms_uint64_t& word64)
 {
 
     m_orbitNr = (word64 & OrbitNrMask) >> OrbitNrShift;
@@ -371,11 +371,11 @@ void L1TcsWord::setOrbitNrFrom(const boost::uint64_t& word64)
 
 // set the OrbitNr value in a 64-bits word, having the index iWord
 // in the GTFE EVM raw record
-void L1TcsWord::setOrbitNrWord64(boost::uint64_t& word64, int iWord)
+void L1TcsWord::setOrbitNrWord64(cms_uint64_t& word64, int iWord)
 {
 
     if (iWord == OrbitNrWord) {
-        word64 = word64 | (static_cast<boost::uint64_t> (m_orbitNr) << OrbitNrShift);
+        word64 = word64 | (static_cast<cms_uint64_t> (m_orbitNr) << OrbitNrShift);
     }
 
 }
@@ -505,8 +505,8 @@ void L1TcsWord::unpack(const unsigned char* tcsPtr)
     << "\nUnpacking TCS block.\n"
     << std::endl;
 
-    const boost::uint64_t* payload =
-        reinterpret_cast<boost::uint64_t*>(const_cast<unsigned char*>(tcsPtr));
+    const cms_uint64_t* payload =
+        reinterpret_cast<cms_uint64_t*>(const_cast<unsigned char*>(tcsPtr));
 
     setBoardId(payload[BoardIdWord]);
     setBxNr(payload[BxNrWord]);
@@ -556,12 +556,12 @@ const int L1TcsWord::StatusWord = 0;
 const int L1TcsWord::LuminositySegmentNrWord = 0;
 
 // mask to get the 64-bit-value from the corresponding word in the TCS block
-const boost::uint64_t L1TcsWord::BoardIdMask =               0xFFFF000000000000ULL;
-const boost::uint64_t L1TcsWord::BxNrMask =                  0x00000FFF00000000ULL;
-const boost::uint64_t L1TcsWord::DaqNrMask =                 0x000000000F000000ULL;
-const boost::uint64_t L1TcsWord::TriggerTypeMask =           0x0000000000F00000ULL;
-const boost::uint64_t L1TcsWord::StatusMask =                0x00000000000F0000ULL;
-const boost::uint64_t L1TcsWord::LuminositySegmentNrMask =   0x000000000000FFFFULL;
+const cms_uint64_t L1TcsWord::BoardIdMask =               0xFFFF000000000000ULL;
+const cms_uint64_t L1TcsWord::BxNrMask =                  0x00000FFF00000000ULL;
+const cms_uint64_t L1TcsWord::DaqNrMask =                 0x000000000F000000ULL;
+const cms_uint64_t L1TcsWord::TriggerTypeMask =           0x0000000000F00000ULL;
+const cms_uint64_t L1TcsWord::StatusMask =                0x00000000000F0000ULL;
+const cms_uint64_t L1TcsWord::LuminositySegmentNrMask =   0x000000000000FFFFULL;
 
 // shift to the right to get the value from the "64-bit-value"
 const int L1TcsWord::BoardIdShift = 48;
@@ -576,8 +576,8 @@ const int L1TcsWord::LuminositySegmentNrShift = 0;
 const int L1TcsWord::PartRunNrWord = 1;
 const int L1TcsWord::AssignedPartitionsWord = 1;
 
-const boost::uint64_t L1TcsWord::PartRunNrMask          =   0xFFFFFFFF00000000ULL;
-const boost::uint64_t L1TcsWord::AssignedPartitionsMask =   0x00000000FFFFFFFFULL;
+const cms_uint64_t L1TcsWord::PartRunNrMask          =   0xFFFFFFFF00000000ULL;
+const cms_uint64_t L1TcsWord::AssignedPartitionsMask =   0x00000000FFFFFFFFULL;
 
 const int L1TcsWord::PartRunNrShift = 32;
 const int L1TcsWord::AssignedPartitionsShift = 0;
@@ -587,8 +587,8 @@ const int L1TcsWord::AssignedPartitionsShift = 0;
 const int L1TcsWord::PartTrigNrWord = 2;
 const int L1TcsWord::EventNrWord = 2;
 
-const boost::uint64_t L1TcsWord::PartTrigNrMask =   0xFFFFFFFF00000000ULL;
-const boost::uint64_t L1TcsWord::EventNrMask    =   0x00000000FFFFFFFFULL;
+const cms_uint64_t L1TcsWord::PartTrigNrMask =   0xFFFFFFFF00000000ULL;
+const cms_uint64_t L1TcsWord::EventNrMask    =   0x00000000FFFFFFFFULL;
 
 const int L1TcsWord::PartTrigNrShift = 32;
 const int L1TcsWord::EventNrShift = 0;
@@ -597,7 +597,7 @@ const int L1TcsWord::EventNrShift = 0;
 
 const int L1TcsWord::OrbitNrWord = 3;
 
-const boost::uint64_t L1TcsWord::OrbitNrMask =   0x0000FFFFFFFFFFFFULL;
+const cms_uint64_t L1TcsWord::OrbitNrMask =   0x0000FFFFFFFFFFFFULL;
 
 const int L1TcsWord::OrbitNrShift = 0;
 

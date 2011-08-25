@@ -1,11 +1,11 @@
-// $Id$
+// $Id: LTCDigi.cc,v 1.3 2006/06/09 21:56:18 wittich Exp $
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
 
 
 LTCDigi::LTCDigi(const unsigned char *data)
 {
   // six 64 bit words
-  uint64_t *ld = (uint64_t*)data;
+  cms_uint64_t *ld = (cms_uint64_t*)data;
 
   trigType_   = (ld[0]>>56)&        0xFULL; // 4 bits
 
@@ -33,19 +33,19 @@ LTCDigi::LTCDigi(const unsigned char *data)
 
 }
 //static
-uint32_t LTCDigi::GetEventNumberFromBuffer(const unsigned char *data) 
+cms_uint32_t LTCDigi::GetEventNumberFromBuffer(const unsigned char *data) 
 {
   // six 64 bit words
-  uint64_t *ld = (uint64_t*)data;
-  uint32_t eventNumber = (ld[2])    &0xFFFFFFFFULL; // 32 bits
+  cms_uint64_t *ld = (cms_uint64_t*)data;
+  cms_uint32_t eventNumber = (ld[2])    &0xFFFFFFFFULL; // 32 bits
   return eventNumber;
 }
 //static
-uint32_t LTCDigi::GetRunNumberFromBuffer(const unsigned char *data) 
+cms_uint32_t LTCDigi::GetRunNumberFromBuffer(const unsigned char *data) 
 {
   // six 64 bit words
-  uint64_t *ld = (uint64_t*)data;
-  uint32_t runNumber   = (ld[2]>>32)&0xFFFFFFFFULL; // 32 bits
+  cms_uint64_t *ld = (cms_uint64_t*)data;
+  cms_uint32_t runNumber   = (ld[2]>>32)&0xFFFFFFFFULL; // 32 bits
   return runNumber;
 }
 
@@ -96,7 +96,7 @@ operator<<(std::ostream & stream, const LTCDigi & myDigi)
 }
 
 
-std::string LTCDigi::utcTime(uint64_t t) //const
+std::string LTCDigi::utcTime(cms_uint64_t t) //const
 {
   // note that gmtime isn't reentrant and we don't own the data
   time_t tsmall = t/1000000;
@@ -107,7 +107,7 @@ std::string LTCDigi::utcTime(uint64_t t) //const
   return tstr;
 }
 
-std::string LTCDigi::locTime(uint64_t t) //const
+std::string LTCDigi::locTime(cms_uint64_t t) //const
 {
   time_t tsmall = t/1000000;
   std::string a("LOC: ");
