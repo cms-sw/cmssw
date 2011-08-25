@@ -366,8 +366,8 @@ step2['DIGIHI']=merge([{'--inputEventContent':'RAWSIM'},hiDefaults,step2Defaults
 
 dataReco={'--conditions':'auto:com10',
           '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBias,DQM',
-          '--datatier':'RECO,DQM',
-          '--eventcontent':'RECO,DQM',
+          '--datatier':'RECO,DQMROOT',
+          '--eventcontent':'RECO,DQMROOT',
           '--data':'',
           '--magField':'AutoFromDBCurrent',
           '--customise':'Configuration/DataProcessing/RecoTLR.customisePPData',
@@ -455,6 +455,7 @@ step3['ALCAPROMPT']={'-s':'ALCA:PromptCalibProd',
 step3['HARVESTD']={'-s':'HARVESTING:dqmHarvesting',
                    '--conditions':'auto:com10',
                    '--filein':'file:step2_inDQM.root',
+                   '--filetype':'DQM',
                    '--data':'',
                    '--scenario':'pp'}
 
