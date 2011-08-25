@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.335 $"
+__version__ = "$Revision: 1.336 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -436,7 +436,13 @@ class ConfigBuilder(object):
 				
 			if theStreamType=='ALCARECO' and not theFilterName:
 				theFilterName='StreamALCACombined'
-			output = cms.OutputModule("PoolOutputModule",
+
+			if theStreamType=='DQMROOT': theStreamType='DQM'
+
+			CppType='PoolOutputModule'
+			if theStreamType=='DQM' and theTier=='DQMROOT': CppType='DQMRootOutputModule'
+			if theTier =='DQMROOT': theTier='DQM'
+			output = cms.OutputModule(CppType,			
 						  theEventContent.clone(),
 						  fileName = cms.untracked.string(theFileName),
 						  dataset = cms.untracked.PSet(
@@ -480,6 +486,7 @@ class ConfigBuilder(object):
 
         for i,(streamType,tier) in enumerate(zip(streamTypes,tiers)):
 		if streamType=='': continue
+		if streamType=='DQMROOT': streamType='DQM'
                 theEventContent = getattr(self.process, streamType+"EventContent")
                 if i==0:
                         theFileName=self._options.outfile_name
@@ -1567,7 +1574,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.335 $"),
+                                            (version=cms.untracked.string("$Revision: 1.336 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
