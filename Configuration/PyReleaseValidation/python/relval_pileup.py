@@ -17,5 +17,7 @@ workflows[203]=['Pyquen_GammaJet_pt20_2760GeV',['HydjetQ_B0_2760GeVPUINPUT','Pyq
 workflows[204]=['Pyquen_DiJet_pt80to120_2760GeV',['HydjetQ_B0_2760GeVPUINPUT','Pyquen_DiJet_pt80to120_2760GeV','DIGIHISt3','RECOHISt4']]
 workflows[205]=['Pyquen_ZeemumuJets_pt10_2760GeV',['HydjetQ_B0_2760GeVPUINPUT','Pyquen_ZeemumuJets_pt10_2760GeV','DIGIHISt3','RECOHISt4']]
 
+workflows[206]=['Pyquen_GammaJet_pt20_2760GeV',['HydjetQ_MinBias_2760GeVINPUT','Pyquen_GammaJet_pt20_2760GeV','DIGIHISt3','RECOHISt4']]
+
 #fastsim
-workflows[206]=['TTbar',['TTbarFSPU']]
+workflows[220]=['TTbar',['TTbarFSPU']]
