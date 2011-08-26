@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.337 $"
+__version__ = "$Revision: 1.338 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -148,7 +148,7 @@ class ConfigBuilder(object):
         if not self._options.conditions:
                 raise Exception("ERROR: No conditions given!\nPlease specify conditions. E.g. via --conditions=IDEAL_30X::All")
 
-	if 'DQMROOT' in self._options.datatier and 'ENDJOB' in self._options.step:
+	if hasattr(self._options,"datatier") and 'DQMROOT' in self._options.datatier and 'ENDJOB' in self._options.step:
 		self._options.step=self._options.step.replace(',ENDJOB','')
 		
         # what steps are provided by this class?
@@ -1574,7 +1574,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.337 $"),
+                                            (version=cms.untracked.string("$Revision: 1.338 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
