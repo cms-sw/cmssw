@@ -16,6 +16,7 @@
 #include "../interface/ToyMCSamplerOpt.h"
 #include "../interface/ProfileLikelihood.h"
 #include "../interface/utils.h"
+#include "../interface/AsimovUtils.h"
 
 using namespace RooStats;
 
@@ -271,10 +272,13 @@ std::vector<std::pair<float,float> > Asymptotic::runLimitExpected(RooWorkspace *
     double median = r->getAsymErrorHi();
     double sigma  = median / ROOT::Math::normal_quantile(1-0.5*(1-cl),1.0);
     double alpha = 1-cl;
+    if (verbose > 0) { 
+        std::cout << "Median for expected limits: " << median << std::endl; 
+        std::cout << "Sigma  for expected limits: " << sigma  << std::endl; 
+    }
 
     std::vector<std::pair<float,float> > expected;
     const double quantiles[5] = { 0.025, 0.16, 0.50, 0.84, 0.975 };
-    if (verbose >= 0) std::cout << "\n -- Expected Asymptotic -- " << "\n";
     for (int iq = 0; iq < 5; ++iq) {
         double N     = ROOT::Math::normal_quantile(quantiles[iq], 1.0);
         limit = sigma*(ROOT::Math::normal_quantile(1 - alpha * quantiles[iq], 1.0) + N);
@@ -286,61 +290,21 @@ std::vector<std::pair<float,float> > Asymptotic::runLimitExpected(RooWorkspace *
 }
 
 RooAbsData * Asymptotic::asimovDataset(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data) {
-    if (w->data("_Asymptotic_asimovDataset_") == 0) {
-        // CREATE THE DATASET
-
-        std::cout << "Generating Asimov dataset" << std::endl;
-        RooArgSet  poi(*mc_s->GetParametersOfInterest());
-        RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
-        r->setConstant(true); r->setVal(0);
-        CloseCoutSentry sentry(verbose < 3);
-        mc_s->GetPdf()->fitTo(data, RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Constrain(*mc_s->GetNuisanceParameters()));
-        toymcoptutils::SimPdfGenInfo newToyMC(*mc_b->GetPdf(), *mc_s->GetObservables(), false); 
-        RooRealVar *weightVar = 0;
-        RooAbsData *asimov = newToyMC.generateAsimov(weightVar); // as simple as that
-        asimov->SetName("_Asymptotic_asimovDataset_");
-        w->import(*asimov);
-        delete weightVar;
-
-        // NOW SNAPSHOT THE GLOBAL OBSERVABLES
-        if (withSystematics && mc_s->GetGlobalObservables()) {
-            RooArgSet gobs(*mc_s->GetGlobalObservables());
-            // snapshot data global observables
-            snapGlobalObsData.removeAll();
-            utils::setAllConstant(gobs, true);
-            gobs.snapshot(snapGlobalObsData);
-            // now get the ones for the asimov dataset.
-            // we do this by fitting the nuisance pdf with floating globa observables but fixed nuisances (which we call observables)
-            // we clone the pdf, to avoid messing up the status of the nuisance parameters
-            if (params_.get() == 0) params_.reset(mc_s->GetPdf()->getParameters(data));
-            RooArgSet paramsSetToConstants;
-            std::auto_ptr<TIterator> iter(params_->createIterator());
-            for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
-                RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-                if (rrv) {
-                    if (gobs.find(rrv->GetName())) {
-                        rrv->setConstant(false);
-                    } else {
-                        if (!rrv->isConstant()) paramsSetToConstants.add(*rrv);
-                        rrv->setConstant(true);
-                    }
-                }
-            }
-            mc_s->GetPdf()->fitTo(*w->data("_Asymptotic_asimovDataset_"), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Constrain(gobs));
-            // snapshot
-            snapGlobalObsAsimov.removeAll();
-            utils::setAllConstant(gobs, true);
-            gobs.snapshot(snapGlobalObsAsimov);
-            // revert things to normal
-            gobs = snapGlobalObsData;
-            utils::setAllConstant(paramsSetToConstants, false);
-            utils::setAllConstant(gobs, true);
-            if (verbose > 2) {
-                sentry.clear();
-                std::cout <<   "Global observables in data\n";   snapGlobalObsData.Print("V");
-                std::cout << "\nGlobal observables in asimov\n"; snapGlobalObsAsimov.Print("V");
-            }
-        }
+    // Do this only once
+    if (w->data("_Asymptotic_asimovDataset_") != 0) {
+        return w->data("_Asymptotic_asimovDataset_");
     }
+    // snapshot data global observables
+    RooArgSet gobs;
+    if (withSystematics && mc_s->GetGlobalObservables()) {
+        gobs.add(*mc_s->GetGlobalObservables());
+        snapGlobalObsData.removeAll();
+        utils::setAllConstant(gobs, true);
+        gobs.snapshot(snapGlobalObsData);
+    }
+    // get asimov dataset and global observables
+    RooAbsData *asimovData = asimovutils::asimovDatasetWithFit(mc_s, data, snapGlobalObsAsimov, 0.0, verbose);
+    asimovData->SetName("_Asymptotic_asimovDataset_");
+    w->import(*asimovData); // I'm assuming the Workspace takes ownership. Might be false.
     return w->data("_Asymptotic_asimovDataset_");
 }
