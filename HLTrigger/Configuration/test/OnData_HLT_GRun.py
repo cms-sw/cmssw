@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V222 (CMSSW_4_2_0_HLT21)
+# /dev/CMSSW_4_2_0/GRun/V224 (CMSSW_4_2_0_HLT23)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V222')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V224')
 )
 
 process.streams = cms.PSet( 
@@ -5051,7 +5051,12 @@ process.hltAntiKT5CaloJets = cms.EDProducer( "FastjetJetProducer",
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
-    sumRecHits = cms.bool( False )
+    sumRecHits = cms.bool( False ),
+    doAreaDiskApprox = cms.bool( False ),
+    voronoiRfact = cms.double( -9.0 ),
+    useDeterministicSeed = cms.bool( False ),
+    minSeed = cms.uint32( 0 ),
+    Rho_EtaMax = cms.double( 4.4 )
 )
 process.hltCaloJetIDPassed = cms.EDProducer( "HLTJetIDProducer",
     jetsInput = cms.InputTag( "hltAntiKT5CaloJets" ),
@@ -5238,7 +5243,12 @@ process.hltAntiKT5CaloJetsRegional = cms.EDProducer( "FastjetJetProducer",
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
-    sumRecHits = cms.bool( False )
+    sumRecHits = cms.bool( False ),
+    doAreaDiskApprox = cms.bool( False ),
+    voronoiRfact = cms.double( -9.0 ),
+    useDeterministicSeed = cms.bool( False ),
+    minSeed = cms.uint32( 0 ),
+    Rho_EtaMax = cms.double( 4.4 )
 )
 process.hltCaloJetL1MatchedRegional = cms.EDProducer( "HLTJetL1MatchProducer",
     jetsInput = cms.InputTag( "hltAntiKT5CaloJetsRegional" ),
@@ -6674,7 +6684,12 @@ process.hltAntiKT5CaloJetsPF = cms.EDProducer( "FastjetJetProducer",
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
-    sumRecHits = cms.bool( False )
+    sumRecHits = cms.bool( False ),
+    doAreaDiskApprox = cms.bool( False ),
+    voronoiRfact = cms.double( -9.0 ),
+    useDeterministicSeed = cms.bool( False ),
+    minSeed = cms.uint32( 0 ),
+    Rho_EtaMax = cms.double( 4.4 )
 )
 process.hltAntiKT5CaloJetsPFEt5 = cms.EDFilter( "EtMinCaloJetSelector",
     src = cms.InputTag( "hltAntiKT5CaloJetsPF" ),
@@ -7806,7 +7821,9 @@ process.hltL3Muons = cms.EDProducer( "L3TrackCombiner",
     labels = cms.VInputTag( 'hltL3MuonsOIState','hltL3MuonsOIHit','hltL3MuonsIOHit' )
 )
 process.hltL3MuonCandidates = cms.EDProducer( "L3MuonCandidateProducer",
-    InputObjects = cms.InputTag( "hltL3Muons" )
+    InputObjects = cms.InputTag( "hltL3Muons" ),
+    InputLinksObjects = cms.InputTag( "hltL3MuonsLinksCombination" ),
+    MuonPtOption = cms.string( "Global" )
 )
 process.hltPFJetPixelSeedsFromPixelTracks = cms.EDProducer( "SeedGeneratorFromProtoTracksEDProducer",
     InputCollection = cms.InputTag( "hltPixelTracks" ),
@@ -9010,6 +9027,7 @@ process.hltParticleFlowBlockForTaus = cms.EDProducer( "PFBlockProducer",
     useConvBremGsfTracks = cms.bool( False ),
     useConvBremPFRecTracks = cms.bool( False ),
     useV0 = cms.bool( False ),
+    useKDTreeTrackEcalLinker = cms.bool( True ),
     useIterTracking = cms.bool( False ),
     nuclearInteractionsPurity = cms.uint32( 1 ),
     pf_DPtoverPt_Cut = cms.vdouble( -1.0, -1.0, -1.0, -1.0, -1.0 ),
@@ -9044,6 +9062,8 @@ process.hltParticleFlowForTaus = cms.EDProducer( "PFProducer",
     pf_electronID_crackCorrection = cms.bool( False ),
     pf_convID_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionFeb2311.txt" ),
     pf_conv_mvaCut = cms.double( 0.0 ),
+    sumPtTrackIsoForPhoton = cms.double( -1.0 ),
+    sumPtTrackIsoSlopeForPhoton = cms.double( -1.0 ),
     rejectTracks_Bad = cms.bool( False ),
     rejectTracks_Step45 = cms.bool( False ),
     usePFNuclearInteractions = cms.bool( False ),
@@ -9120,7 +9140,12 @@ process.hltAntiKT5PFJetsForTaus = cms.EDProducer( "FastjetJetProducer",
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
-    sumRecHits = cms.bool( False )
+    sumRecHits = cms.bool( False ),
+    doAreaDiskApprox = cms.bool( False ),
+    voronoiRfact = cms.double( -9.0 ),
+    useDeterministicSeed = cms.bool( False ),
+    minSeed = cms.uint32( 0 ),
+    Rho_EtaMax = cms.double( 4.4 )
 )
 process.hltAntiKT5ConvPFJetsForTaus = cms.EDProducer( "PFJetToCaloProducer",
     Source = cms.InputTag( "hltAntiKT5PFJetsForTaus" )
@@ -9616,7 +9641,12 @@ process.hltStoppedHSCPIterativeCone5CaloJets = cms.EDProducer( "FastjetJetProduc
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
-    sumRecHits = cms.bool( False )
+    sumRecHits = cms.bool( False ),
+    doAreaDiskApprox = cms.bool( False ),
+    voronoiRfact = cms.double( -9.0 ),
+    useDeterministicSeed = cms.bool( False ),
+    minSeed = cms.uint32( 0 ),
+    Rho_EtaMax = cms.double( 4.4 )
 )
 process.hltStoppedHSCPControl1CaloJetEnergy30 = cms.EDFilter( "HLT1CaloJetEnergy",
     inputTag = cms.InputTag( "hltStoppedHSCPIterativeCone5CaloJets" ),
@@ -10280,6 +10310,7 @@ process.hltParticleFlowBlock = cms.EDProducer( "PFBlockProducer",
     useConvBremGsfTracks = cms.bool( False ),
     useConvBremPFRecTracks = cms.bool( False ),
     useV0 = cms.bool( False ),
+    useKDTreeTrackEcalLinker = cms.bool( True ),
     useIterTracking = cms.bool( False ),
     nuclearInteractionsPurity = cms.uint32( 1 ),
     pf_DPtoverPt_Cut = cms.vdouble( 0.5, 0.5, 0.5, 0.5, 0.5 ),
@@ -10314,6 +10345,8 @@ process.hltParticleFlow = cms.EDProducer( "PFProducer",
     pf_electronID_crackCorrection = cms.bool( False ),
     pf_convID_mvaWeightFile = cms.string( "RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionFeb2311.txt" ),
     pf_conv_mvaCut = cms.double( 0.0 ),
+    sumPtTrackIsoForPhoton = cms.double( -1.0 ),
+    sumPtTrackIsoSlopeForPhoton = cms.double( -1.0 ),
     rejectTracks_Bad = cms.bool( False ),
     rejectTracks_Step45 = cms.bool( False ),
     usePFNuclearInteractions = cms.bool( False ),
@@ -10390,7 +10423,12 @@ process.hltAntiKT5PFJets = cms.EDProducer( "FastjetJetProducer",
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
-    sumRecHits = cms.bool( False )
+    sumRecHits = cms.bool( False ),
+    doAreaDiskApprox = cms.bool( False ),
+    voronoiRfact = cms.double( -9.0 ),
+    useDeterministicSeed = cms.bool( False ),
+    minSeed = cms.uint32( 0 ),
+    Rho_EtaMax = cms.double( 4.4 )
 )
 process.hltAntiKT5ConvPFJets = cms.EDProducer( "PFJetToCaloProducer",
     Source = cms.InputTag( "hltAntiKT5PFJets" )
@@ -21697,7 +21735,12 @@ process.hltIconeTau1Regional = cms.EDProducer( "FastjetJetProducer",
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
-    sumRecHits = cms.bool( False )
+    sumRecHits = cms.bool( False ),
+    doAreaDiskApprox = cms.bool( False ),
+    voronoiRfact = cms.double( -9.0 ),
+    useDeterministicSeed = cms.bool( False ),
+    minSeed = cms.uint32( 0 ),
+    Rho_EtaMax = cms.double( 4.4 )
 )
 process.hltCaloTowersTau2Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -21738,7 +21781,12 @@ process.hltIconeTau2Regional = cms.EDProducer( "FastjetJetProducer",
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
-    sumRecHits = cms.bool( False )
+    sumRecHits = cms.bool( False ),
+    doAreaDiskApprox = cms.bool( False ),
+    voronoiRfact = cms.double( -9.0 ),
+    useDeterministicSeed = cms.bool( False ),
+    minSeed = cms.uint32( 0 ),
+    Rho_EtaMax = cms.double( 4.4 )
 )
 process.hltCaloTowersTau3Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -21779,7 +21827,12 @@ process.hltIconeTau3Regional = cms.EDProducer( "FastjetJetProducer",
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
-    sumRecHits = cms.bool( False )
+    sumRecHits = cms.bool( False ),
+    doAreaDiskApprox = cms.bool( False ),
+    voronoiRfact = cms.double( -9.0 ),
+    useDeterministicSeed = cms.bool( False ),
+    minSeed = cms.uint32( 0 ),
+    Rho_EtaMax = cms.double( 4.4 )
 )
 process.hltCaloTowersTau4Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -21820,7 +21873,12 @@ process.hltIconeTau4Regional = cms.EDProducer( "FastjetJetProducer",
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
-    sumRecHits = cms.bool( False )
+    sumRecHits = cms.bool( False ),
+    doAreaDiskApprox = cms.bool( False ),
+    voronoiRfact = cms.double( -9.0 ),
+    useDeterministicSeed = cms.bool( False ),
+    minSeed = cms.uint32( 0 ),
+    Rho_EtaMax = cms.double( 4.4 )
 )
 process.hltCaloTowersCentral1Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -21861,7 +21919,12 @@ process.hltIconeCentral1Regional = cms.EDProducer( "FastjetJetProducer",
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
-    sumRecHits = cms.bool( False )
+    sumRecHits = cms.bool( False ),
+    doAreaDiskApprox = cms.bool( False ),
+    voronoiRfact = cms.double( -9.0 ),
+    useDeterministicSeed = cms.bool( False ),
+    minSeed = cms.uint32( 0 ),
+    Rho_EtaMax = cms.double( 4.4 )
 )
 process.hltCaloTowersCentral2Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -21902,7 +21965,12 @@ process.hltIconeCentral2Regional = cms.EDProducer( "FastjetJetProducer",
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
-    sumRecHits = cms.bool( False )
+    sumRecHits = cms.bool( False ),
+    doAreaDiskApprox = cms.bool( False ),
+    voronoiRfact = cms.double( -9.0 ),
+    useDeterministicSeed = cms.bool( False ),
+    minSeed = cms.uint32( 0 ),
+    Rho_EtaMax = cms.double( 4.4 )
 )
 process.hltCaloTowersCentral3Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -21943,7 +22011,12 @@ process.hltIconeCentral3Regional = cms.EDProducer( "FastjetJetProducer",
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
-    sumRecHits = cms.bool( False )
+    sumRecHits = cms.bool( False ),
+    doAreaDiskApprox = cms.bool( False ),
+    voronoiRfact = cms.double( -9.0 ),
+    useDeterministicSeed = cms.bool( False ),
+    minSeed = cms.uint32( 0 ),
+    Rho_EtaMax = cms.double( 4.4 )
 )
 process.hltCaloTowersCentral4Regional = cms.EDProducer( "CaloTowerCreatorForTauHLT",
     towers = cms.InputTag( "hltTowerMakerForJets" ),
@@ -21984,7 +22057,12 @@ process.hltIconeCentral4Regional = cms.EDProducer( "FastjetJetProducer",
     doAreaFastjet = cms.bool( False ),
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
-    sumRecHits = cms.bool( False )
+    sumRecHits = cms.bool( False ),
+    doAreaDiskApprox = cms.bool( False ),
+    voronoiRfact = cms.double( -9.0 ),
+    useDeterministicSeed = cms.bool( False ),
+    minSeed = cms.uint32( 0 ),
+    Rho_EtaMax = cms.double( 4.4 )
 )
 process.hltL2TauJets = cms.EDProducer( "L2TauJetsMerger",
     EtMin = cms.double( 20.0 ),
