@@ -42,6 +42,7 @@ void SignalMassPlot(string InputPattern, unsigned int CutIndex);
 void GetSystematicOnPrediction(string InputPattern);
 int JobIdToIndex(string JobId);
 void MassPredictionTight(string InputPattern, unsigned int CutIndex, string HistoSuffix="Mass");
+void MakeExpLimitpLot(string Input, string Output);
 
 std::vector<stSignal> signals;
 std::vector<stMC>     MCsample;
@@ -63,12 +64,20 @@ void Analysis_Step5()
    gStyle->SetPalette(1);
    gStyle->SetNdivisions(505);
 
+
    GetSignalDefinition(signals);
    GetMCDefinition(MCsample);
 
    string InputDir;				unsigned int CutIndex;
    std::vector<string> Legends;                 std::vector<string> Inputs;
    int GluinoCutIndex;
+/*
+   MakeExpLimitpLot("Results_1toys_lp/dedxASmi/combined/Eta15/PtMin35/Type0/EXCLUSION/Stop200.info","tmp1.png");
+   MakeExpLimitpLot("Results_3toys_lp/dedxASmi/combined/Eta15/PtMin35/Type0/EXCLUSION/Stop200.info","tmp3.png");
+   MakeExpLimitpLot("Results/dedxASmi/combined/Eta15/PtMin35/Type0/EXCLUSION/Stop200.info","tmp10.png");
+   return;
+*/
+
 
 //   InputDir = "Results/dedxASmi/combined/Eta25/PtMin15/Type0/SplitMode0/WPPt20/WPI20/WPTOF00/";
 //   InputDir = "Results/dedxASmi/combined/Eta25/PtMin20/Type2/SplitMode0/WPPt05/WPI05/WPTOF05/";
@@ -1704,4 +1713,47 @@ int JobIdToIndex(string JobId){
 
 
 
+void MakeExpLimitpLot(string Input, string Output){
+   TH2D* ExpLimitPlot = new TH2D("ExpLimitPlot","ExpLimitPlot", 10,37.5,87.5,13,0.0875,0.4175);
 
+   std::vector<double> VectPt;
+   std::vector<double> VectI;
+   std::vector<double> VectExpLim;
+   FILE* pFile = fopen(Input.c_str(),"r");
+   if(!pFile){
+      printf("Not Found: %s\n",Input.c_str());
+      return;
+   }
+
+   unsigned int Index;
+   double Pt, I, TOF, MassMin, MassMax;
+   double NData, NPred, NPredErr, SignalEff;
+   double ExpLimit;
+   char Model[256], Tmp[2048];
+   while ( ! feof (pFile) ){
+     fscanf(pFile,"%s Testing CutIndex= %d (Pt>%lf I>%lf TOF>%lf) %lf<M<%lf Ndata=%lE NPred=%lE+-%lE SignalEff=%lf --> %lE expected",Model,&Index,&Pt,&I,&TOF,&MassMin,&MassMax,&NData,&NPred,&NPredErr,&SignalEff,&ExpLimit);
+     fgets(Tmp, 256 , pFile);
+//     if(Pt<80 && I<0.38)printf("%s Testing CutIndex= %d (Pt>%f I>%f TOF>%f) %f<M<%f Ndata=%E NPred=%E+-%E SignalEff=%f --> %E expected %s",Model,Index,Pt,I,TOF,MassMin,MassMax,NData,NPred,NPredErr,SignalEff,ExpLimit, Tmp);
+//     ExpLimitPlot->SetBinContent(PtMap[Pt],IsMap[I],ExpLimit);
+     ExpLimitPlot->Fill(Pt,I,ExpLimit);
+   }
+   fclose(pFile);
+  
+
+   TCanvas* c1 = new TCanvas("c1","c1",600,600);
+   c1->SetLogz(true);
+   ExpLimitPlot->SetTitle("");
+   ExpLimitPlot->SetStats(kFALSE);
+   ExpLimitPlot->GetXaxis()->SetTitle("Pt Cut");
+   ExpLimitPlot->GetYaxis()->SetTitle("I  Cut");
+   ExpLimitPlot->GetXaxis()->SetTitleOffset(1.1);
+   ExpLimitPlot->GetYaxis()->SetTitleOffset(1.70);
+   ExpLimitPlot->GetXaxis()->SetNdivisions(505);
+   ExpLimitPlot->GetYaxis()->SetNdivisions(505);
+   ExpLimitPlot->SetMaximum(1E0);
+   ExpLimitPlot->SetMinimum(1E-2);
+   ExpLimitPlot->Draw("COLZ");
+   c1->SaveAs(Output.c_str());
+   delete c1;
+   return;
+}

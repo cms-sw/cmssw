@@ -843,7 +843,7 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
       if(isnan(NPred))continue;
       if(NPred<=0){continue;} //Is <=0 only when prediction failed or is not meaningful (i.e. WP=(0,0,0) )
 //    if(NPred<1E-4){continue;} //This will never be the selection which gives the best expected limit (cutting too much on signal) --> Slowdown computation for nothing...
-      if(NPred>100){continue;}  //When NPred is too big, expected limits just take an infinite time! 
+      if(NPred>1000){continue;}  //When NPred is too big, expected limits just take an infinite time! 
 
       double Eff       = 0;
       double EffP      = 0;
@@ -904,8 +904,8 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
      //fprintf(pFile ,"CutIndex=%4i ManHSCPPerEvents = %6.2f %6.2f %6.2f %6.2f   NTracks = %6.3f %6.3f %6.3f %6.3f\n",CutIndex,signalsMeanHSCPPerEvent[4*CurrentSampleIndex], signalsMeanHSCPPerEvent[4*CurrentSampleIndex+1],signalsMeanHSCPPerEvent[4*CurrentSampleIndex+2],signalsMeanHSCPPerEvent[4*CurrentSampleIndex+3], MassSignProj[0]->Integral(), MassSignProj[1]->Integral(), MassSignProj[2]->Integral(), MassSignProj[3]->Integral());
 
 
-     fprintf(pFile  ,"%10s: Testing CutIndex=%4i (Pt>%6.2f I>%6.2f TOF>%6.2f) %3.0f<M<inf Ndata=%+6.2E NPred=%6.3E+-%6.3E SignalEff=%6.2f",signal.c_str(),CutIndex,HCuts_Pt ->GetBinContent(CutIndex+1), HCuts_I  ->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1), MinRange,NData,NPred, NPredErr,Eff);fflush(stdout);
-     fprintf(stdout ,"%10s: Testing CutIndex=%4i (Pt>%6.2f I>%6.2f TOF>%6.2f) %3.0f<M<inf Ndata=%+6.2E NPred=%6.3E+-%6.3E SignalEff=%6.2f",signal.c_str(),CutIndex,HCuts_Pt ->GetBinContent(CutIndex+1), HCuts_I  ->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1), MinRange,NData,NPred, NPredErr,Eff);fflush(stdout);
+     fprintf(pFile  ,"%10s: Testing CutIndex=%4i (Pt>%6.2f I>%6.3f TOF>%6.3f) %3.0f<M<inf Ndata=%+6.2E NPred=%6.3E+-%6.3E SignalEff=%6.2f",signal.c_str(),CutIndex,HCuts_Pt ->GetBinContent(CutIndex+1), HCuts_I  ->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1), MinRange,NData,NPred, NPredErr,Eff);fflush(stdout);
+     fprintf(stdout ,"%10s: Testing CutIndex=%4i (Pt>%6.2f I>%6.3f TOF>%6.3f) %3.0f<M<inf Ndata=%+6.2E NPred=%6.3E+-%6.3E SignalEff=%6.2f",signal.c_str(),CutIndex,HCuts_Pt ->GetBinContent(CutIndex+1), HCuts_I  ->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1), MinRange,NData,NPred, NPredErr,Eff);fflush(stdout);
 
 
      double ExpLimit = 99999999;
@@ -915,15 +915,15 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
      double signalUncertainty=0.10;
      if (signals[JobIdToIndex(signal)].Mass<450) signalUncertainty=0.15;
 
-     CLMResults = roostats_clm(IntegratedLuminosity, IntegratedLuminosity*0.06, Eff, Eff*signalUncertainty,NPred, NPred*RescaleError, 1);   ExpLimit=CLMResults.GetExpectedLimit();
+     CLMResults = roostats_clm(IntegratedLuminosity, IntegratedLuminosity*0.06, Eff, Eff*signalUncertainty,NPred, NPred*RescaleError, 1 , 1, "bayesian");   ExpLimit=CLMResults.GetExpectedLimit();  //1 Toy
+//     CLMResults = roostats_clm(IntegratedLuminosity, IntegratedLuminosity*0.06, Eff, Eff*signalUncertainty,NPred, NPred*RescaleError, 10, 1, "bayesian");   ExpLimit=CLMResults.GetExpectedLimit();  //10Toys
+     fprintf(pFile ," --> %+7.2E expected",ExpLimit);
+     fprintf(stdout," --> %+7.2E expected",ExpLimit);
      if(toReturn.XSec_Exp<=ExpLimit){fprintf(pFile  ,"\n"); printf("\n"); continue;}
      ObsLimit =  roostats_cl95(IntegratedLuminosity, IntegratedLuminosity*0.06, Eff, Eff*signalUncertainty,NPred, NPred*RescaleError              , NData, false, 1, "bayesian", "");
-
      Significance = getSignificance(NData, NPred, signalUncertainty, RescaleError, 0.06, outpath+"/"+modelName);
-
-     fprintf(pFile ," --> %+7.2E expected (%+7.4E observed) --> Current Best Limit  Significance of %3.2f\n",ExpLimit, ObsLimit,Significance);
-     fprintf(stdout," --> %+7.2E expected (%+7.4E observed) --> Current Best Limit  Significance of %3.2f\n",ExpLimit, ObsLimit,Significance);
- 
+     fprintf(pFile ," (%+7.4E observed) --> Current Best Limit  Significance of %3.2f\n",ObsLimit,Significance);
+     fprintf(stdout," (%+7.4E observed) --> Current Best Limit  Significance of %3.2f\n",ObsLimit,Significance);
      toReturn.Mass      = signals[JobIdToIndex(signal)].Mass;
      toReturn.MassMean  = Mean;
      toReturn.MassSigma = Width;
