@@ -277,6 +277,7 @@ TFWLiteSelectorBasic::Process(Long64_t iEntry) {
       }
       branchListIndexBranch->SetAddress(&pBranchListIndexes);
       branchListIndexBranch->GetEntry(iEntry);
+      edm::BranchIDListHelper::fixBranchListIndexes(*branchListIndexes_);
 
       try {
          m_->reader_->setEntry(iEntry);
