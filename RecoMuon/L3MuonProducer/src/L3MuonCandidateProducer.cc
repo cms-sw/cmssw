@@ -110,7 +110,7 @@ void L3MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
         if (not inRef.isNull()) LogTrace(metname) << " inRef pt " << inRef->pt();
 
         if (link->globalTrack().isNull()) {
-          edm::LogError("Muon|RecoMuon|L3MuonCandidateProducer") << "null reference to global track";
+          edm::LogError("Muon|RecoMuon|L3MuonCandidateProducer") << "null reference to the global track";
           // skip this candidate
           continue;
         }
@@ -128,7 +128,7 @@ void L3MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
         }
       }
       if (tkRef.isNull()) {
-        LogDebug(metname) << "tkRef is NULL";
+        edm::LogWarning(metname) << "null reference to the linked track, reverting to old behaviour";
         tkRef = inRef;
       }
     } else {
