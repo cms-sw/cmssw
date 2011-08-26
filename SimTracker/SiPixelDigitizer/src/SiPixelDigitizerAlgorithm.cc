@@ -734,9 +734,12 @@ void SiPixelDigitizerAlgorithm::drift(const PSimHit& hit){
 #endif
 
   _collection_points.resize( _ionization_points.size()); // set size
-  //float LorentzAng = SiPixelLorentzAngle_->getLorentzAngle(hit.detUnitId());
-  lorentzAngle = SiPixelLorentzAngle_->getLorentzAngle(hit.detUnitId());
-  
+
+  if(use_LorentzAngle_DB_){
+    //float LorentzAng = SiPixelLorentzAngle_->getLorentzAngle(hit.detUnitId());
+    lorentzAngle = SiPixelLorentzAngle_->getLorentzAngle(hit.detUnitId());
+  } 
+
   //LocalVector driftDir=DriftDirection(LorentzAng);  // get the charge drift direction
   LocalVector driftDir=DriftDirection();  // get the charge drift direction
   if(driftDir.z() ==0.) {
