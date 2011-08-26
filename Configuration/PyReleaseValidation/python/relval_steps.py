@@ -227,9 +227,13 @@ U80by2={'--relval': '80,2'}
 hiDefaults={'--conditions':'auto:starthi',
            '--scenario':'HeavyIons'}
 
-step1['HydjetQ_MinBias_2760GeV']=merge([{'-n':0},hiDefaults,genS('Hydjet_Quenched_MinBias_2760GeV_cfi',U500by5)])
-step1['HydjetQ_B0_2760GeV']=merge([{'-n':0},hiDefaults,genS('Hydjet_Quenched_B0_2760GeV_cfi',U80by2)])
+step1['HydjetQ_MinBias_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_MinBias_2760GeV_cfi',U500by5)])
+step1['HydjetQ_MinBias_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_MinBias_2760GeV/CMSSW_4_4_0_pre5-STARTHI44_V1-v1/GEN-SIM',location='STD')}
+step1['HydjetQ_B0_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_B0_2760GeV_cfi',U80by2)])
 step1['HydjetQ_B0_2760GeVPUINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B0_2760GeV/*/GEN-SIM-DIGI-RAW-HLTDEBUG')}
+step1['HydjetQ_B8_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_B8_2760GeV_cfi',U80by2)])
+
+
 
 
 def changeRefRelease(step1s,listOfPairs):
@@ -359,7 +363,7 @@ step2['DIGICOS']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--
 
 step2['DIGIPU1']=merge([step2['DIGI'],PU1])
 
-step2['DIGIHI']=merge([{'--inputEventContent':'RAWSIM'},hiDefaults,step2Defaults])
+step2['DIGIHI']=merge([hiDefaults,step2Defaults])
 
 #add this line when testing from an input file that is not strictly GEN-SIM
 #addForAll(step2,{'--process':'DIGI'})
