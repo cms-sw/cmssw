@@ -2,11 +2,13 @@
 #define ROOT_ToyMCSamplerOpt_h
 
 #include <RooStats/ToyMCSampler.h>
+struct RooProdPdf;
+struct RooPoisson;
 
 namespace toymcoptutils {
     class SinglePdfGenInfo {
         public:
-            enum Mode { Binned, Unbinned };
+            enum Mode { Binned, Unbinned, Counting };
             SinglePdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData = NULL, int forceEvents = 0) ;
             ~SinglePdfGenInfo() ;
             RooAbsData *generate(const RooDataSet* protoData = NULL, int forceEvents = 0) ;
@@ -17,6 +19,9 @@ namespace toymcoptutils {
             RooAbsPdf *pdf_; 
             RooArgSet observables_;
             RooAbsPdf::GenSpec *spec_;
+            RooDataSet *generateCountingAsimov() ;
+            void setToExpected(RooProdPdf &prod, RooArgSet &obs) ;
+            void setToExpected(RooPoisson &pois, RooArgSet &obs) ;
     };
     class SimPdfGenInfo {
         public:

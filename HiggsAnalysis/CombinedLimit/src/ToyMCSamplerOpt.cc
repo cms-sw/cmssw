@@ -5,6 +5,8 @@
 #include <TH1.h>
 #include <RooSimultaneous.h>
 #include <RooRealVar.h>
+#include <RooProdPdf.h>
+#include <RooPoisson.h>
 #include <RooDataHist.h>
 #include <RooDataSet.h>
 #include <RooRandom.h>
@@ -50,13 +52,15 @@ ToyMCSamplerOpt::~ToyMCSamplerOpt()
 
 
 toymcoptutils::SinglePdfGenInfo::SinglePdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData, int forceEvents) :
-   mode_(preferBinned ? Binned : Unbinned),
+   mode_(pdf.canBeExtended() ? (preferBinned ? Binned : Unbinned) : Counting),
    pdf_(&pdf),
    spec_(0) 
 {
-   if (pdf.getAttribute("forceGenBinned")) mode_ = Binned;
-   else if (pdf.getAttribute("forceGenUnbinned")) mode_ = Unbinned;
-   //else std::cout << "Pdf " << pdf.GetName() << " has no preference" << std::endl;
+   if (pdf.canBeExtended()) {
+       if (pdf.getAttribute("forceGenBinned")) mode_ = Binned;
+       else if (pdf.getAttribute("forceGenUnbinned")) mode_ = Unbinned;
+       //else std::cout << "Pdf " << pdf.GetName() << " has no preference" << std::endl;
+   }
 
    RooArgSet *obs = pdf.getObservables(observables);
    observables_.add(*obs);
@@ -79,14 +83,16 @@ toymcoptutils::SinglePdfGenInfo::generate(const RooDataSet* protoData, int force
     if (mode_ == Unbinned) {
         //ret = pdf_->generate(*spec_);
         ret = pdf_->generate(observables_, RooFit::Extended());
-    } else {
+    } else if (mode_ == Binned) {
         //ret = protoData ? pdf_->generateBinned(observables_, RooFit::Extended(), RooFit::ProtoData(*protoData, true, true))
         //                : pdf_->generateBinned(observables_, RooFit::Extended());
         // generateBinnedWorkaround
         RooDataSet *data =  pdf_->generate(observables_, RooFit::Extended());
         ret = new RooDataHist(data->GetName(), "", *data->get(), *data);
         delete data;
-    }
+    } else if (mode_ == Counting) {
+        ret = pdf_->generate(observables_, 1);
+    } else throw std::logic_error("Mode not foreseen in SinglePdfGenInfo::generate");
     //std::cout << "Dataset generated from " << pdf_->GetName() << " (weighted? " << ret->isWeighted() << ")" << std::endl;
     //utils::printRAD(ret);
     return ret;
@@ -95,6 +101,7 @@ toymcoptutils::SinglePdfGenInfo::generate(const RooDataSet* protoData, int force
 RooDataSet *  
 toymcoptutils::SinglePdfGenInfo::generateAsimov(RooRealVar *&weightVar) 
 {
+    if (mode_ == Counting) return generateCountingAsimov();
     if (observables_.getSize() > 1) throw std::invalid_argument(std::string("ERROR in SinglePdfGenInfo::generateAsimov for ") + pdf_->GetName() + ", more than 1 observable");
     RooRealVar &x = (RooRealVar&)*observables_.first();
     if (weightVar == 0) weightVar = new RooRealVar("_weight_","",1.0);
@@ -110,6 +117,62 @@ toymcoptutils::SinglePdfGenInfo::generateAsimov(RooRealVar *&weightVar)
     //std::cout << "Asimov dataset generated from " << pdf_->GetName() << " (sumw? " << data->sumEntries() << ", expected events " << expectedEvents << ")" << std::endl;
     //utils::printRDH(data);
     return data;
+}
+
+
+RooDataSet *  
+toymcoptutils::SinglePdfGenInfo::generateCountingAsimov() 
+{
+    RooArgSet obs(observables_);
+    RooProdPdf *prod = dynamic_cast<RooProdPdf *>(pdf_);
+    RooPoisson *pois = 0;
+    if (prod != 0) {
+        setToExpected(*prod, observables_);
+    } else if ((pois = dynamic_cast<RooPoisson *>(pdf_)) != 0) {
+        setToExpected(*pois, observables_);
+    } else throw std::logic_error("A counting model pdf must be either a RooProdPdf or a RooPoisson");
+    RooDataSet *ret = new RooDataSet(TString::Format("%sData", pdf_->GetName()), "", obs);
+    ret->add(obs);
+    return ret;
+}
+
+void
+toymcoptutils::SinglePdfGenInfo::setToExpected(RooProdPdf &prod, RooArgSet &obs) 
+{
+    std::auto_ptr<TIterator> iter(prod.pdfList().createIterator());
+    for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+        if (!a->dependsOn(obs)) continue;
+        RooPoisson *pois = 0;
+        if ((pois = dynamic_cast<RooPoisson *>(a)) != 0) {
+            setToExpected(*pois, obs);
+        } else {
+            RooProdPdf *subprod = dynamic_cast<RooProdPdf *>(a);
+            if (subprod) setToExpected(*subprod, obs);
+            else throw std::logic_error("Illegal term in counting model: depends on observables, but not Poisson or Product");
+        }
+    }
+}
+
+void
+toymcoptutils::SinglePdfGenInfo::setToExpected(RooPoisson &pois, RooArgSet &obs) 
+{
+    RooRealVar *myobs = 0;
+    RooAbsReal *myexp = 0;
+    std::auto_ptr<TIterator> iter(pois.serverIterator());
+    for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+        if (obs.contains(*a)) {
+            assert(myobs == 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Two observables??");
+            myobs = dynamic_cast<RooRealVar *>(a);
+            assert(myobs != 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Observables is not a RooRealVar??");
+        } else {
+            assert(myexp == 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Two expecteds??");
+            myexp = dynamic_cast<RooAbsReal *>(a);
+            assert(myexp != 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): Expectedis not a RooAbsReal??");
+        }
+    }
+    assert(myobs != 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): No observable?");
+    assert(myexp != 0 && "SinglePdfGenInfo::setToExpected(RooPoisson): No expected?");
+    myobs->setVal(myexp->getVal());
 }
 
 toymcoptutils::SimPdfGenInfo::SimPdfGenInfo(RooAbsPdf &pdf, const RooArgSet& observables, bool preferBinned, const RooDataSet* protoData, int forceEvents) :
