@@ -98,5 +98,6 @@ workflows[30] = ['', ['ZMM','DIGI','RECOMU']]
 ### HI test ###
 workflows[40] = ['',['HydjetQ_MinBias_2760GeV','DIGIHI','RECOHI']]
 workflows[41] = ['',['HydjetQ_B0_2760GeV','DIGIHI','RECOHI']]
+workflows[42] = ['',['HydjetQ_B8_2760GeV','DIGIHI','RECOHI']]
 
 
