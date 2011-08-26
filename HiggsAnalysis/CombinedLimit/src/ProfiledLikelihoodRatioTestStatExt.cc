@@ -11,14 +11,25 @@
 #include <Math/MinimizerOptions.h>
 #include <RooStats/RooStatsUtils.h>
 
+//---- Uncomment this and run with --perfCounters to get statistics of successful and failed fits
+//#define DEBUG_FIT_STATUS
+#ifdef DEBUG_FIT_STATUS
+#include "../interface/ProfilingTools.h"
+#define  COUNT_ONE(x) PerfCounter::add(x);
+#else
+#define  COUNT_ONE(X) 
+#endif
+
+//---- Uncomment this and set some of these to 1 to get more debugging
 #if 0
 #define DBG(X,Z) if (X) { Z; }
 #define DBGV(X,Z) if (X>1) { Z; }
 #define DBG_TestStat_params 0 // ProfiledLikelihoodRatioTestStatOpt::Evaluate; 1 = dump nlls; 2 = dump params at each eval
 #define DBG_TestStat_NOFIT  0 // FIXME HACK: if set, don't profile the likelihood, just evaluate it
-#define DBG_PLTestStat_ctor 1 // dump parameters in c-tor
-#define DBG_PLTestStat_pars 1 // dump parameters in eval
-#define DBG_PLTestStat_fit  1 // dump fit result
+#define DBG_PLTestStat_ctor 0 // dump parameters in c-tor
+#define DBG_PLTestStat_pars 0 // dump parameters in eval
+#define DBG_PLTestStat_fit  0 // dump fit result
+#define DBG_PLTestStat_main 1 // limited debugging (final NLLs, failed fits)
 #else
 #define DBG(X,Z) 
 #define DBGV(X,Z) 
@@ -114,7 +125,8 @@ ProfiledLikelihoodTestStatOpt::ProfiledLikelihoodTestStatOpt(
     gobs_(gobs),
     verbosity_(verbosity)
 {
-    std::cout << "Created for " << pdf.GetName() << "." << std::endl;
+    DBG(DBG_PLTestStat_main, (std::cout << "Created for " << pdf.GetName() << "." << std::endl))
+
     params.snapshot(snap_,false);
     ((RooRealVar*)snap_.find(params.first()->GetName()))->setConstant(false);
     poi_.add(snap_);
@@ -129,7 +141,7 @@ ProfiledLikelihoodTestStatOpt::ProfiledLikelihoodTestStatOpt(
 
 Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*nullPOI*/)
 {
-    std::cout << "Being evaluated on " << data.GetName() << std::endl;
+    DBG(DBG_PLTestStat_main, (std::cout << "Being evaluated on " << data.GetName() << std::endl))
 
     // Take snapshot of initial state, to restore it at the end 
     RooArgSet initialState; params_->snapshot(initialState);
@@ -178,17 +190,17 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
         // must do constrained fit
         thisNLL = minNLL();
         if (thisNLL - nullNLL < -0.02) { 
-            printf("  --> constrained fit is better... will repeat unconstrained fit\n");
+            DBG(DBG_PLTestStat_main, (printf("  --> constrained fit is better... will repeat unconstrained fit\n")))
             r->setConstant(false);
             nullNLL = minNLL();
             bestFitR = r->getVal();
             if (bestFitR > initialR) {
-                printf("   after re-fit, signal %7.4f > %7.4f, test statistics will be zero.\n", bestFitR, initialR);
+                DBG(DBG_PLTestStat_main, (printf("   after re-fit, signal %7.4f > %7.4f, test statistics will be zero.\n", bestFitR, initialR)))
                 thisNLL = nullNLL;
             }
         }
     } else {
-        printf("   signal fit %7.4f > %7.4f: don't need to compute numerator\n", bestFitR, initialR);
+        DBG(DBG_PLTestStat_main, (printf("   signal fit %7.4f > %7.4f: don't need to compute numerator\n", bestFitR, initialR)))
     }
 
     //Restore initial state, to avoid issues with ToyMCSampler
@@ -196,7 +208,7 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
 
     if (!canKeepNLL) nll_.reset();
 
-    printf("\nNLLs:  num % 10.4f, den % 10.4f (signal %7.4f), test stat % 10.4f\n", thisNLL, nullNLL, bestFitR, thisNLL-nullNLL);
+    DBG(DBG_PLTestStat_main, (printf("\nNLLs:  num % 10.4f, den % 10.4f (signal %7.4f), test stat % 10.4f\n", thisNLL, nullNLL, bestFitR, thisNLL-nullNLL)))
     //return std::min(thisNLL-nullNLL, 0.);
     return thisNLL-nullNLL;
 }
@@ -233,55 +245,67 @@ bool nllutils::robustMinimize(RooAbsReal &nll, RooMinimizer &minim, int verbosit
         //if (verbosity > 1) res->Print("V");
         if (status == 0 && nll.getVal() > initialNll + 0.02) {
             std::auto_ptr<RooFitResult> res(minim.save());
-            printf("\n  --> false minimum, status %d, cov. quality %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->covQual(), res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal());
+            DBG(DBG_PLTestStat_main, (printf("\n  --> false minimum, status %d, cov. quality %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->covQual(), res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal())))
             if (pars.get() == 0) pars.reset(nll.getParameters((const RooArgSet*)0));
             *pars = res->floatParsInit();
             if (tries == 0) {
-                printf("    ----> Doing a re-scan and re-trying\n");
+                COUNT_ONE("nllutils::robustMinimize: false minimum (first try)")
+                DBG(DBG_PLTestStat_main, (printf("    ----> Doing a re-scan and re-trying\n")))
                 minim.minimize("Minuit2","Scan");
             } else if (tries == 1) {
-                printf("    ----> Re-trying with strategy = 1\n");
+                COUNT_ONE("nllutils::robustMinimize: false minimum (second try)")
+                DBG(DBG_PLTestStat_main, (printf("    ----> Re-trying with strategy = 1\n")))
                 minim.setStrategy(1);
             } else if (tries == 2) {
-                printf("    ----> Re-trying with strategy = 2\n");
+                COUNT_ONE("nllutils::robustMinimize: false minimum (third try)")
+                DBG(DBG_PLTestStat_main, (printf("    ----> Re-trying with strategy = 2\n")))
                 minim.setStrategy(2);
             } else  {
-                printf("    ----> Last attempt: simplex method \n");
+                COUNT_ONE("nllutils::robustMinimize: false minimum (third try)")
+                DBG(DBG_PLTestStat_main, (printf("    ----> Last attempt: simplex method \n")))
                 status = minim.minimize("Minuit2","Simplex");
                 if (nll.getVal() < initialNll + 0.02) {
-                    printf("\n  --> success: status %d, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, initialNll, nll.getVal(), initialNll - nll.getVal());
+                    DBG(DBG_PLTestStat_main, (printf("\n  --> success: status %d, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, initialNll, nll.getVal(), initialNll - nll.getVal())))
                     ret = true;
+                    COUNT_ONE("nllutils::robustMinimize: final success")
                     break;
                 } else {
-                    printf("\n  --> final fail: status %d, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, initialNll, nll.getVal(), initialNll - nll.getVal());
+                    COUNT_ONE("nllutils::robustMinimize: final fail")
+                    DBG(DBG_PLTestStat_main, (printf("\n  --> final fail: status %d, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, initialNll, nll.getVal(), initialNll - nll.getVal())))
                     return false;
                 }
             }
         } else if (status == 0) {  
-            printf("\n  --> success: status %d, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, initialNll, nll.getVal(), initialNll - nll.getVal());
+            COUNT_ONE("nllutils::robustMinimize: final success")
+            DBG(DBG_PLTestStat_main, (printf("\n  --> success: status %d, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, initialNll, nll.getVal(), initialNll - nll.getVal())))
             ret = true;
             break;
         } else if (tries != maxtries) {
             std::auto_ptr<RooFitResult> res(minim.save());
             if (tries > 0 && res->edm() < 0.05*ROOT::Math::MinimizerOptions::DefaultTolerance()) {
-                printf("\n  --> acceptable: status %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal());
+                COUNT_ONE("nllutils::robustMinimize: accepting fit with bad status but good EDM")
+                COUNT_ONE("nllutils::robustMinimize: final success")
+                DBG(DBG_PLTestStat_main, (printf("\n  --> acceptable: status %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal())))
                 ret = true;
                 break;
             }
-            printf("\n  --> partial fail: status %d, cov. quality %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->covQual(), res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal());
+            DBG(DBG_PLTestStat_main, (printf("\n  --> partial fail: status %d, cov. quality %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->covQual(), res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal())))
             if (tries == 1) {
-                printf("    ----> Doing a re-scan first, and switching to strategy 1\n");
+                COUNT_ONE("nllutils::robustMinimize: failed first attempt")
+                DBG(DBG_PLTestStat_main, (printf("    ----> Doing a re-scan first, and switching to strategy 1\n")))
                 minim.minimize("Minuit2","Scan");
                 minim.setStrategy(1);
             }
             if (tries == 2) {
-                printf("    ----> trying with strategy = 2\n");
+                COUNT_ONE("nllutils::robustMinimize: failed second attempt")
+                DBG(DBG_PLTestStat_main, (printf("    ----> trying with strategy = 2\n")))
                 minim.minimize("Minuit2","Scan");
                 minim.setStrategy(2);
             }
         } else {
+            COUNT_ONE("nllutils::robustMinimize: final fail")
             std::auto_ptr<RooFitResult> res(minim.save());
-            printf("\n  --> final fail: status %d, cov. quality %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->covQual(), res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal());
+            DBG(DBG_PLTestStat_main, (printf("\n  --> final fail: status %d, cov. quality %d, edm %10.7f, nll initial % 10.4f, nll final % 10.4f, change %10.5f\n", status, res->covQual(), res->edm(), initialNll, nll.getVal(), initialNll - nll.getVal())))
         }
     }
     return ret;

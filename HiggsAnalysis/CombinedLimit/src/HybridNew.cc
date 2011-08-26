@@ -576,8 +576,8 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
        CloseCoutSentry sentry(verbose < 3);
        fitMu.reset(mc_s->GetPdf()->fitTo(data, RooFit::Save(1), RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Hesse(0), RooFit::Constrain(*mc_s->GetNuisanceParameters())));
     }
-    if (verbose > 0) { std::cout << "Reference signal fit (r = " << rVal << ")" << std::endl; fitMu->Print("V"); }
-    if (verbose > 0) { std::cout << "Fitting of the signal-plus-background hypothesis done in " << timer.RealTime() << " s" << std::endl; }
+    if (verbose > 1) { std::cout << "Reference signal fit (r = " << rVal << ")" << std::endl; fitMu->Print("V"); }
+    if (verbose > 1) { std::cout << "Fitting of the signal-plus-background hypothesis done in " << timer.RealTime() << " s" << std::endl; }
   } else { fitNuisances_ = false; }
 
   // since ModelConfig cannot allow re-setting sets, we have to re-make everything 
@@ -836,7 +836,7 @@ void HybridNew::applyExpectedQuantile(RooStats::HypoTestResult &hcres) {
           Double_t testStat = btoys[std::min<int>(floor((1.-quantileForExpectedFromGrid_) * btoys.size()+0.5), btoys.size())];
           if (verbose > 0) std::cout << "Text statistics for " << quantileForExpectedFromGrid_ << " quantile: " << testStat << std::endl;
           hcres.SetTestStatisticData(testStat);
-          std::cout << "CLs quantile = " << (CLs_ ? hcres.CLs() : hcres.CLsplusb()) << " for test stat = " << testStat << std::endl;
+          //std::cout << "CLs quantile = " << (CLs_ ? hcres.CLs() : hcres.CLsplusb()) << " for test stat = " << testStat << std::endl;
       }
   }
 }
@@ -873,12 +873,12 @@ void HybridNew::applyClsQuantile(RooStats::HypoTestResult &hcres) {
     std::vector<std::pair<double,std::pair<double,double> > > xcumul; xcumul.reserve(bdist.size());
     runningSum = 0;
     std::vector<std::pair<double,double> >::const_iterator sbegin = scumul.begin(), send = scumul.end();
-    int k = 0;
+    //int k = 0;
     for (std::vector<std::pair<double,double> >::const_reverse_iterator it = bcumul.rbegin(), ed = bcumul.rend(); it != ed; ++it) {
         runningSum += it->second; 
         std::vector<std::pair<double,double> >::const_iterator match = std::upper_bound(sbegin, send, std::pair<double,double>(it->first, 0));
         double clsb = match->second, clb = runningSum*binv, cls = clsb / clb;
-        if ((++k) % 100 == 0) printf("At %+8.5f  CLb = %6.4f, CLsplusb = %6.4f, CLs =%7.4f\n", it->first, clb, clsb, cls);
+        //if ((++k) % 100 == 0) printf("At %+8.5f  CLb = %6.4f, CLsplusb = %6.4f, CLs =%7.4f\n", it->first, clb, clsb, cls);
         xcumul.push_back(std::make_pair(CLs_ ? cls : clsb, *it));
     }
     // sort 
