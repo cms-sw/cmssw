@@ -78,23 +78,29 @@ void L3MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
   LogTrace(metname)<<" Taking the L3/GLB muons: "<<theL3CollectionLabel.label();
   Handle<TrackCollection> tracks; 
   event.getByLabel(theL3CollectionLabel,tracks);
-  
+
   edm::Handle<reco::MuonTrackLinksCollection> links; 
   bool useLinks = event.getByLabel(theL3LinksLabel,links);
 
   // Create a RecoChargedCandidate collection
   LogTrace(metname)<<" Creating the RecoChargedCandidate collection";
   auto_ptr<RecoChargedCandidateCollection> candidates( new RecoChargedCandidateCollection()); 
-
+  LogDebug(metname) << " size = " << tracks->size() ;  
   for (unsigned int i=0; i<tracks->size(); i++) {
     TrackRef inRef(tracks,i);
     TrackRef tkRef = TrackRef();
+
     if (useLinks) {
       for(reco::MuonTrackLinksCollection::const_iterator link = links->begin();
-	  link != links->end(); ++link){
-	LogTrace(metname) << " link tk pt " << link->trackerTrack()->pt() << " sta pt " << link->standAloneTrack()->pt() << " global pt " << link->globalTrack()->pt() << " inRef pt " << inRef->pt() ;
-	double dR = deltaR(inRef->eta(),inRef->phi(),link->globalTrack()->eta(),link->globalTrack()->phi());
-	if(dR < 0.02 && abs(inRef->pt() - link->globalTrack()->pt())/inRef->pt() < 0.001) {
+	  link != links->end(); ++link){ LogDebug(metname) << " i = " << i ;  
+
+	if(!link->trackerTrack().isNull()) LogTrace(metname) << " link tk pt " << link->trackerTrack()->pt();
+	if(!link->standAloneTrack().isNull()) LogTrace(metname) << " sta pt " << link->standAloneTrack()->pt();
+	if(!link->globalTrack().isNull()) LogTrace(metname) << " global pt " << link->globalTrack()->pt();
+	if(!inRef.isNull()) LogTrace(metname) << " inRef pt " << inRef->pt() ;
+
+	double dR = (!link->globalTrack().isNull()) ? deltaR(inRef->eta(),inRef->phi(),link->globalTrack()->eta(),link->globalTrack()->phi()) : 999.;
+	if(tracks->size() > 1 && !link->globalTrack().isNull() && dR < 0.02 && abs(inRef->pt() - link->globalTrack()->pt())/inRef->pt() < 0.001) {
 	  LogTrace(metname) << " *** pt matches *** ";
 	  switch(type) {
 	  case InnerTrack:    tkRef = link->trackerTrack();    break;
