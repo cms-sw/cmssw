@@ -48,12 +48,16 @@ L3MuonCandidateProducer::L3MuonCandidateProducer(const ParameterSet& parameterSe
 
   // StandAlone Collection Label
   theL3CollectionLabel = parameterSet.getParameter<InputTag>("InputObjects");
+
+  // use links
   theUseLinks = parameterSet.existsAs<InputTag>("InputLinksObjects");
   if (theUseLinks) {
     theL3LinksLabel = parameterSet.getParameter<InputTag>("InputLinksObjects");
     if (theL3LinksLabel.label() == "" or theL3LinksLabel.label() == "unused")
       theUseLinks = false;
   }
+
+  // use global, standalone or tracker pT/4-vector assignment
   const std::string & muon_track_for_momentum = parameterSet.existsAs<std::string>("MuonPtOption") ?  parameterSet.getParameter<std::string>("MuonPtOption") : "Global";
   if (muon_track_for_momentum == std::string("Tracker"))
     theType=InnerTrack;
