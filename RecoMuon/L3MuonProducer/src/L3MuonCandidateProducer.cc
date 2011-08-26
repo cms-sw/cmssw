@@ -48,7 +48,12 @@ L3MuonCandidateProducer::L3MuonCandidateProducer(const ParameterSet& parameterSe
 
   // StandAlone Collection Label
   theL3CollectionLabel = parameterSet.getParameter<InputTag>("InputObjects");
-  theL3LinksLabel = parameterSet.existsAs<InputTag>("InputLinksObjects") ? parameterSet.getParameter<InputTag>("InputLinksObjects") : InputTag( "unused");
+  useLinks = parameterSet.existsAs<InputTag>("InputLinksObjects");
+  if (useLinks) {
+    theL3LinksLabel = parameterSet.getParameter<InputTag>("InputLinksObjects");
+    if (theL3LinksLabel.label() == "" or theL3LinksLabel.label() == "unused")
+      useLinks = false;
+  }
   const std::string & muon_track_for_momentum = parameterSet.existsAs<std::string>("MuonPtOption") ?  parameterSet.getParameter<std::string>("MuonPtOption") : "Global";
   if (muon_track_for_momentum == std::string("Tracker"))
     type=InnerTrack;
@@ -80,7 +85,8 @@ void L3MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
   event.getByLabel(theL3CollectionLabel,tracks);
 
   edm::Handle<reco::MuonTrackLinksCollection> links; 
-  bool useLinks = event.getByLabel(theL3LinksLabel,links);
+  if (useLinks)
+    event.getByLabel(theL3LinksLabel, links);
 
   // Create a RecoChargedCandidate collection
   LogTrace(metname)<<" Creating the RecoChargedCandidate collection";
@@ -110,9 +116,12 @@ void L3MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
 	  }
 	}
       }
-    }
-    if(tkRef.isNull()) {
-      LogDebug(metname) << "tkRef is NULL";
+      if(tkRef.isNull()) {
+        LogDebug(metname) << "tkRef is NULL";
+        tkRef = inRef;
+      }
+    } else {
+      // useLinks is false
       tkRef = inRef;
     }
     LogDebug(metname) << "tkRef Used For Momentum pt " << tkRef->pt() << " inRef from the input collection pt " << inRef->pt(); 

@@ -42,6 +42,7 @@ class L3MuonCandidateProducer : public edm::EDProducer {
   edm::InputTag theL3CollectionLabel; 
   edm::InputTag theL3LinksLabel; 
   enum MuonTrackType type;
+  bool useLinks;
 };
 
 #endif
