@@ -27,6 +27,7 @@ SiStripZeroSuppression(edm::ParameterSet const& conf)
     storeInZScollBadAPV = conf.getParameter<bool>("storeInZScollBadAPV");
     useCMMeanMap = conf.getParameter<bool>("useCMMeanMap");
     fixCM = conf.getParameter<bool>("fixCM");
+    numberIter = conf.getParameter<uint32_t>("NumberOfModuleSkippedBeforeForcingRestore");  //to be removed after the test
   } else {
     produceRawDigis = false;
     produceCalculatedBaseline = false;
@@ -267,13 +268,15 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
   
   output.reserve(10000);    
   outputraw.reserve(10000);
+  
+  uint32_t counter =1;               //to be removed after test
   for ( edm::DetSetVector<SiStripRawDigi>::const_iterator 
 	  rawDigis = input.begin(); rawDigis != input.end(); ++rawDigis) {
     	
       edm::DetSet<SiStripDigi> suppressedDigis(rawDigis->id);
     
     int16_t nAPVflagged = 0;
-	
+		
     if ( "ProcessedRaw" == inputTag.instance()) {
       std::vector<int16_t> processedRawDigis, processedRawDigisCopy ;
       transform(rawDigis->begin(), rawDigis->end(), back_inserter(processedRawDigis), boost::bind(&SiStripRawDigi::adc , _1));
@@ -282,7 +285,7 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
 	  }
       algorithms->subtractorCMN->subtract( rawDigis->id, processedRawDigis);
       if( doAPVRestore ){
-	    nAPVflagged = algorithms->restorer->inspect( rawDigis->id, processedRawDigisCopy, algorithms->subtractorCMN->getAPVsCM() );
+	    nAPVflagged = algorithms->restorer->inspect( rawDigis->id, processedRawDigisCopy, algorithms->subtractorCMN->getAPVsCM());
 		algorithms->restorer->restore( processedRawDigis );
 	  }
       algorithms->suppressor->suppress( processedRawDigis, suppressedDigis );
@@ -305,7 +308,7 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
 	  }
       algorithms->subtractorCMN->subtract( rawDigis->id, processedRawDigis);
       if( doAPVRestore ){
-	      nAPVflagged = algorithms->restorer->inspect( rawDigis->id, processedRawDigisCopy, algorithms->subtractorCMN->getAPVsCM() );
+	      nAPVflagged = algorithms->restorer->inspect( rawDigis->id, processedRawDigisCopy, algorithms->subtractorCMN->getAPVsCM());
     	  algorithms->restorer->restore( processedRawDigis );
 	  }
       algorithms->suppressor->suppress( processedRawDigis, suppressedDigis );
@@ -329,12 +332,21 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
     if (suppressedDigis.size() && (storeInZScollBadAPV || nAPVflagged ==0)) 
       output.push_back(suppressedDigis); 
     
-	if (produceRawDigis && nAPVflagged > 0){ 
+    bool forceRestore = false;                                    //to be removed after the test 
+    if((counter % numberIter) ==0) forceRestore = true;          //to be removed after the test  
+    if ((produceRawDigis && nAPVflagged > 0) || forceRestore){  //to be removed after the test
       std::vector<bool> apvf;
       algorithms->restorer->GetAPVFlags(apvf);
       edm::DetSet<SiStripRawDigi> outRawDigis(rawDigis->id);
       edm::DetSet<SiStripRawDigi>::const_iterator itRawDigis = rawDigis->begin(); 
     
+      //-------------------------------------  to be removed after the test
+	     
+	    if(forceRestore){
+	      // std::cout << counter << "  " << numberIter << "  " <<counter % numberIter << std::endl;
+	    	apvf[0] = true;
+	    }
+	//-------------------------------------
 	  //std::cout << "detId: " << rawDigis->id << std::endl;
       for(size_t APVn=0; APVn < apvf.size(); ++APVn){
 	     //std::cout << "APV: " << APVn <<  " " << apvf[APVn] << std::endl;
@@ -344,11 +356,13 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
 		   for(size_t strip =0; strip < 128; ++strip) outRawDigis.push_back(itRawDigis[APVn*128+strip]);
          }
       }
-            
-	  //outputraw.push_back(*rawDigis); 
-	  outputraw.push_back(outRawDigis);
+                                  
+      //outputraw.push_back(*rawDigis); 
+      outputraw.push_back(outRawDigis);
+	  
     }
-  }
+    counter++;  //to be removed after the test
+}
   
 }
 

@@ -48,7 +48,8 @@ class SiStripZeroSuppression : public edm::EDProducer
   bool mergeCollections;
   bool fixCM;
   bool useCMMeanMap;
-
+  
+  uint32_t numberIter;     //to be removed after the test
 };
 #endif
 

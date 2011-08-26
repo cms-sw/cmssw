@@ -25,8 +25,7 @@ SiStripAPVRestorer::SiStripAPVRestorer(const edm::ParameterSet& conf):
   CutToAvoidSignal_(conf.getParameter<double>("CutToAvoidSignal")),
   nSaturatedStrip_(conf.getParameter<uint32_t>("nSaturatedStrip")),
   ApplyBaselineCleaner_(conf.getParameter<bool>("ApplyBaselineCleaner"))
-  
-	
+  	
   
 {
   apvFlags_.clear();
@@ -79,7 +78,7 @@ int16_t SiStripAPVRestorer::inspect( const uint32_t& detId,std::vector<int16_t>&
      badAPVs_.push_back(qualityHandle->IsApvBad(detId_, i));
   }
 	
-  if(InspectAlgo_=="BaselineFollower") return this->BaselineFollowerInspect(digis);
+  if(InspectAlgo_=="BaselineFollower") return this->BaselineFollowerInspect(digis); //the bool should be removed after the test
   if(InspectAlgo_=="AbnormalBaseline") return this->AbnormalBaselineInspect(digis);
   if(InspectAlgo_=="Null") return this->NullInspect(digis);
   if(InspectAlgo_=="BaselineAndSaturation") return this->BaselineAndSaturationInspect(digis);

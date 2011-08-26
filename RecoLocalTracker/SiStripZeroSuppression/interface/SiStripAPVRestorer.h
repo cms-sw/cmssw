@@ -55,7 +55,7 @@ class SiStripAPVRestorer {
   
   template<typename T >int16_t NullInspect(std::vector<T>&);
   template<typename T >int16_t AbnormalBaselineInspect(std::vector<T>&);
-  template<typename T >int16_t BaselineFollowerInspect(std::vector<T>&);
+  template<typename T >int16_t BaselineFollowerInspect(std::vector<T>&);  
   template<typename T >int16_t BaselineAndSaturationInspect(std::vector<T>&);
   template<typename T >void FlatRestore( std::vector<T>& , uint16_t);
   template<typename T >void BaselineFollowerRestore( std::vector<T>&, uint16_t, float );
@@ -115,7 +115,8 @@ class SiStripAPVRestorer {
   double   CutToAvoidSignal_;	       // for iterative median implementation internal to APV restorer
   uint32_t nSaturatedStrip_;           // for BaselineAndSaturation inspect
   bool ApplyBaselineCleaner_;
-    
+  
+                    
 };
 
 #endif
