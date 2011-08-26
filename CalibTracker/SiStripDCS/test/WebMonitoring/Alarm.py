@@ -8,6 +8,14 @@ def sendMail(message):
     os.system("echo \""+message+"\" > mail.txt")
     os.system("mail -s \"DCS WARNING\" \"marco.de.mattia@cern.ch\" < \"mail.txt\"")
     os.system("mail -s \"DCS WARNING\" \"gabriele.benelli@cern.ch\" < \"mail.txt\"")
+    # Tracker DOC
+    os.system("mail -s \"DCS WARNING\" \"0041764875503@mail2sms.cern.ch\" < \"mail.txt\"")
+    # DCS on call
+    os.system("mail -s \"DCS WARNING\" \"0041764872740@mail2sms.cern.ch\" < \"mail.txt\"")
+    # DQM on call
+    os.system("mail -s \"DCS WARNING\" \"0041764872389@mail2sms.cern.ch\" < \"mail.txt\"")
+    # Offline Tracker shift leader
+    os.system("mail -s \"DCS WARNING\" \"0041764872329@mail2sms.cern.ch\" < \"mail.txt\"")
 
 
 def runTheAlarm(file, type):
