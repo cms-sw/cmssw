@@ -189,6 +189,8 @@ class MatrixReader(object):
             ids.sort()
             stepCmds = ['','','','']
             for key in ids:
+                #trick to skip the HImix IB test
+                if key[0]==206: continue;
                 num, name, stepCmds[0], stepCmds[1], stepCmds[2], stepCmds[3], inputInfo = self.step1WorkFlows[key]
                 wfName,stepNames= name.split('+',1)
                 stepNames=stepNames.replace('+RECODFROMRAWRECO','')
