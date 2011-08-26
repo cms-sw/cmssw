@@ -110,7 +110,7 @@ void L3MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
         if(!inRef.isNull()) LogTrace(metname) << " inRef pt " << inRef->pt() ;
 
         double dR = (!link->globalTrack().isNull()) ? deltaR(inRef->eta(),inRef->phi(),link->globalTrack()->eta(),link->globalTrack()->phi()) : 999.;
-        if(tracks->size() > 1 && !link->globalTrack().isNull() && dR < 0.02 && abs(inRef->pt() - link->globalTrack()->pt())/inRef->pt() < 0.001) {
+        if(not link->globalTrack().isNull() and dR < 0.02 and abs(inRef->pt() - link->globalTrack()->pt())/inRef->pt() < 0.001) {
           LogTrace(metname) << " *** pt matches *** ";
           switch(theType) {
           case InnerTrack:    tkRef = link->trackerTrack();    break;
