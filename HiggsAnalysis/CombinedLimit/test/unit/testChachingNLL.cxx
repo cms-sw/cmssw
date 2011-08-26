@@ -22,7 +22,7 @@ RooWorkspace *w;
 
 void testChecker(RooStats::ModelConfig &mc) {
     const RooArgSet *nuis = mc.GetNuisanceParameters();
-    cacheutils::ArgSetChecker check(nuis);
+    cacheutils::ArgSetChecker check(*nuis);
     RooArgList nuisParams(*nuis);
     for (int i = 0; i < 30; ++i) {
         std::cout << "Test #1: " << (check.changed() == false ? "OK" : "FAIL") << std::endl; 
