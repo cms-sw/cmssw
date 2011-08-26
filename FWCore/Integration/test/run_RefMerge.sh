@@ -19,6 +19,9 @@ pushd ${LOCAL_TMP_DIR}
   echo ${test}test------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${test}test_cfg.py || die "cmsRun ${test}test_cfg.py" $?
 
+  echo ${test}test------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}subprocess_cfg.py || die "cmsRun ${test}subprocess_cfg.py" $?
+
 popd
 
 exit 0
