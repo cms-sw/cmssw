@@ -387,8 +387,8 @@ step2['RECOHID']=merge([{'--scenario':'HeavyIons',
 
 step2['TIER0']=merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customisePrompt',
                        '-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@AllForPrompt,L1HwVal,DQM,ENDJOB',
-                       '--datatier':'RECO,AOD,ALCARECO,DQM',
-                       '--eventcontent':'RECO,AOD,ALCARECO,DQM',
+                       '--datatier':'RECO,AOD,ALCARECO,DQMROOT',
+                       '--eventcontent':'RECO,AOD,ALCARECO,DQMROOT',
                        '--process':'RECO'
                        },dataReco])
 #step2['TIER0'].pop('--inputCommands')
