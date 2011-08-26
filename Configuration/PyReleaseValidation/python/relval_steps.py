@@ -230,6 +230,7 @@ hiDefaults={'--conditions':'auto:starthi',
 step1['HydjetQ_MinBias_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_MinBias_2760GeV_cfi',U500by5)])
 step1['HydjetQ_MinBias_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_MinBias_2760GeV/CMSSW_4_4_0_pre5-STARTHI44_V1-v1/GEN-SIM',location='STD')}
 step1['HydjetQ_B0_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_B0_2760GeV_cfi',U80by2)])
+step1['HydjetQ_B0_2760GeVINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B0_2760GeV/CMSSW_3_11_3-START311_V1HI-v2/GEN-SIM-DIGI-RAW-HLTDEBUG',location='STD')}
 step1['HydjetQ_B0_2760GeVPUINPUT']={'INPUT':InputInfo(dataSet='/RelValHydjetQ_B0_2760GeV/*/GEN-SIM-DIGI-RAW-HLTDEBUG')}
 step1['HydjetQ_B8_2760GeV']=merge([{'-n':1},hiDefaults,genS('Hydjet_Quenched_B8_2760GeV_cfi',U80by2)])
 
@@ -363,7 +364,7 @@ step2['DIGICOS']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--
 
 step2['DIGIPU1']=merge([step2['DIGI'],PU1])
 
-step2['DIGIHI']=merge([hiDefaults,step2Defaults])
+step2['DIGIHI']=merge([{'--inputCommands':'"keep *","drop *_simEcalPreshowerDigis_*_*"','-n':10},hiDefaults,step2Defaults])
 
 #add this line when testing from an input file that is not strictly GEN-SIM
 #addForAll(step2,{'--process':'DIGI'})
@@ -407,7 +408,7 @@ step2['RECOCOSD']=merge([{'--scenario':'cosmics',
                           '--customise':'Configuration/DataProcessing/RecoTLR.customiseCosmicData'
                           },dataReco])
 
-step2HImixDefaults=merge([{'-n':'1',
+step2HImixDefaults=merge([{'-n':'10',
                            '--himix':'',
                            '--filein':'file.root',
                            '--process':'HISIGNAL'
