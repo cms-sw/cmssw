@@ -31,8 +31,15 @@ particleFlowDisplacedVertexCandidate = cms.EDProducer("PFDisplacedVertexCandidat
     # this cuts are repeated then in a smarter way in the PFDisplacedVertexFinder
     # be sure you are consistent between them.
     tracksSelectorParameters = cms.PSet(
+    # selection parameters for secondary tracks
         nChi2_max = cms.double(5.),
         pt_min = cms.double(.2),
+    # if the tracks is not a good candidate to be a secondary (dxy cut) restrict in minimal pt
+    # this cut reduce drastically the combinatorics. It is very useful to reduce the
+    # PFDisplacedVertex timing
+        pt_min_prim = cms.double(.8),
+        dxy = cms.double(.2),
+        
     )                                                     
                                    
 )

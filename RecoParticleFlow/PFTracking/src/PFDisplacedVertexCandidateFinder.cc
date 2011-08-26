@@ -377,7 +377,8 @@ PFDisplacedVertexCandidateFinder::goodPtResolution( const TrackBaseRef& trackref
     return false;
   }
   //  cout << "dxy = " << dxy << endl; 
-  if (fabs(dxy) < 0.2 && pt < 0.8) return false;
+  if (fabs(dxy) < dxy_ && pt < pt_min_prim_) return false;
+  //  if (fabs(dxy) < 0.2 && pt < 0.8) return false;
 
   
 
@@ -402,7 +403,11 @@ ostream& operator<<(std::ostream& out, const PFDisplacedVertexCandidateFinder& a
   out<<"number of unassociated elements : "<<a.eventTracks_.size()<<endl;
   out<<endl;
   
+  out << " Tracks selection based on " << std::endl;
   out << " pvtx_ = " << a.pvtx_ << std::endl;
+  out << " fabs(dxy) < " << a.dxy_ << " and pt < "<< a.pt_min_prim_ << std::endl;
+  out << " nChi2 < " << a.nChi2_max_ << " and pt < "<< a.pt_min_ << std::endl;
+
   out<<endl;
 
 

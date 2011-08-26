@@ -48,6 +48,8 @@ class PFDisplacedVertexCandidateFinder {
     dcaPInnerHitCut2_ = dcaPInnerHitCut*dcaPInnerHitCut;
     nChi2_max_ = ps_trk.getParameter<double>("nChi2_max");
     pt_min_ = ps_trk.getParameter<double>("pt_min");
+    pt_min_prim_ = ps_trk.getParameter<double>("pt_min_prim");
+    dxy_ = ps_trk.getParameter<double>("dxy");
   }
 
   /// sets debug printout flag
@@ -144,6 +146,9 @@ class PFDisplacedVertexCandidateFinder {
   /// be sure you are consistent between them
   double nChi2_max_;
   double pt_min_;
+
+  double pt_min_prim_;
+  double dxy_;
 
   /// Max number of expected vertexCandidates in the event
   /// Used to allocate the memory and avoid multiple copy
