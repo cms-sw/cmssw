@@ -265,8 +265,8 @@ class CountingModelBuilder(ModelBuilder):
         for b in self.DC.bins:
             self.doObj("n_exp_bin%s_bonly" % b, "sum", ", ".join(["n_exp_bin%s_proc_%s" % (b,p) for p in self.DC.exp[b].keys() if self.DC.isSignal[p] == False]) )
             self.doObj("n_exp_bin%s"       % b, "sum", ", ".join(["n_exp_bin%s_proc_%s" % (b,p) for p in self.DC.exp[b].keys()                        ]) )
-            self.doObj("pdf_bin%s"       % b, "Poisson", "n_obs_bin%s, n_exp_bin%s"       % (b,b))
-            self.doObj("pdf_bin%s_bonly" % b, "Poisson", "n_obs_bin%s, n_exp_bin%s_bonly" % (b,b))
+            self.doObj("pdf_bin%s"       % b, "Poisson", "n_obs_bin%s, n_exp_bin%s, 1"       % (b,b))
+            self.doObj("pdf_bin%s_bonly" % b, "Poisson", "n_obs_bin%s, n_exp_bin%s_bonly, 1" % (b,b))
     def doCombination(self):
         prefix = "modelObs" if len(self.DC.systs) else "model" # if no systematics, we build directly the model
         nbins = len(self.DC.bins)
