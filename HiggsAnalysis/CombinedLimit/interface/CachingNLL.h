@@ -17,13 +17,37 @@ namespace cacheutils {
     class ArgSetChecker {
         public:
             ArgSetChecker() {}
-            ArgSetChecker(const RooAbsCollection *set) ;
+            ArgSetChecker(const RooAbsCollection &set) ;
             bool changed(bool updateIfChanged=false) ;
         private:
             std::vector<RooRealVar *> vars_;
             std::vector<double> vals_;
     };
 
+// Part zero point five: Cache of pdf values for different parameters
+    class ValuesCache {
+        public:
+            ValuesCache(const RooAbsReal &pdf, const RooArgSet &obs, int size=MaxItems_);
+            ValuesCache(const RooAbsCollection &params, int size=MaxItems_);
+            ~ValuesCache();
+            // search for the item corresponding to the current values of the parameters.
+            // if available, return (&values, true)
+            // if not available, return (&room, false)
+            // and it will be up to the caller code to fill the room the new item
+            std::pair<std::vector<Double_t> *, bool> get(); 
+            void clear();
+        private:
+            struct Item {
+                Item(const RooAbsCollection &set)   : checker(set),   good(false) {}
+                Item(const ArgSetChecker    &check) : checker(check), good(false) {}
+                std::vector<Double_t> values;
+                ArgSetChecker         checker;
+                bool                  good;
+            };
+            int size_, maxSize_;
+            enum { MaxItems_ = 3 };
+            Item *items[MaxItems_];
+    };
 // Part one: cache all values of a pdf
 class CachingPdf {
     public:
@@ -38,10 +62,9 @@ class CachingPdf {
         RooAbsReal *pdfOriginal_;
         RooArgSet  pdfPieces_;
         RooAbsReal *pdf_;
-        ArgSetChecker checker_;
         const RooAbsData *lastData_;
-        std::vector<Double_t> vals_;
-        void realFill_(const RooAbsData &data) ;
+        ValuesCache cache_;
+        void realFill_(const RooAbsData &data, std::vector<Double_t> &values) ;
 };
 
 class CachingAddNLL : public RooAbsReal {
@@ -63,12 +86,12 @@ class CachingAddNLL : public RooAbsReal {
         RooAbsPdf *pdf_;
         RooSetProxy params_;
         const RooAbsData *data_;
-        std::vector<double>  weights_;
+        std::vector<Double_t>  weights_;
         double               sumWeights_;
         mutable std::vector<RooAbsReal*> coeffs_;
         mutable std::vector<CachingPdf>  pdfs_;
         mutable std::vector<RooAbsReal*> integrals_;
-        mutable std::vector<double> partialSum_;
+        mutable std::vector<Double_t> partialSum_;
         mutable bool isRooRealSum_;
 };
 

@@ -5,9 +5,18 @@
 #include <RooDataSet.h>
 #include <RooProduct.h>
 
-cacheutils::ArgSetChecker::ArgSetChecker(const RooAbsCollection *set) 
+//---- Uncomment this to get a '.' printed every some evals
+//#define TRACE_NLL_EVALS
+
+//---- Uncomment this and run with --perfCounters to get cache statistics
+//#define DEBUG_CACHE
+#ifdef DEBUG_CACHE
+#include "../interface/ProfilingTools.h"
+#endif
+
+cacheutils::ArgSetChecker::ArgSetChecker(const RooAbsCollection &set) 
 {
-    std::auto_ptr<TIterator> iter(set->createIterator());
+    std::auto_ptr<TIterator> iter(set.createIterator());
     for (RooAbsArg *a  = dynamic_cast<RooAbsArg *>(iter->Next()); 
                     a != 0; 
                     a  = dynamic_cast<RooAbsArg *>(iter->Next())) {
@@ -18,7 +27,6 @@ cacheutils::ArgSetChecker::ArgSetChecker(const RooAbsCollection *set)
         }
     }
 }
-
 
 bool 
 cacheutils::ArgSetChecker::changed(bool updateIfChanged) 
@@ -38,15 +46,93 @@ cacheutils::ArgSetChecker::changed(bool updateIfChanged)
     return changed;
 }
 
+cacheutils::ValuesCache::ValuesCache(const RooAbsCollection &params, int size) :
+    size_(1),
+    maxSize_(size)
+{
+    assert(size <= MaxItems_);
+    items[0] = new Item(params);
+}
+cacheutils::ValuesCache::ValuesCache(const RooAbsReal &pdf, const RooArgSet &obs, int size) :
+    size_(1),
+    maxSize_(size)
+{
+    assert(size <= MaxItems_);
+    std::auto_ptr<RooArgSet> params(pdf.getParameters(obs));
+    items[0] = new Item(*params);
+}
+
+
+cacheutils::ValuesCache::~ValuesCache() 
+{
+    for (int i = 0; i < size_; ++i) delete items[i];
+}
+
+void cacheutils::ValuesCache::clear() 
+{
+    for (int i = 0; i < size_; ++i) items[i]->good = false;
+}
+
+std::pair<std::vector<Double_t> *, bool> cacheutils::ValuesCache::get() 
+{
+    int found = -1; bool good = false;
+    for (int i = 0; i < size_; ++i) {
+        if (items[i]->good) {
+            // valid entry, check if fresh
+            if (!items[i]->checker.changed()) {
+#ifdef DEBUG_CACHE
+                PerfCounter::add(i == 0 ? "ValuesCache::get hit first" : "ValuesCache::get hit other");
+#endif
+                // fresh: done! 
+                found = i; 
+                good = true; 
+                break;
+            } 
+        } else if (found == -1) {
+            // invalid entry, can be replaced
+            found = i;
+#ifdef DEBUG_CACHE
+            PerfCounter::add("ValuesCache::get hit invalid");
+#endif
+        }
+    } 
+    if (found == -1) {
+        // all entries are valid but old 
+#ifdef DEBUG_CACHE
+        PerfCounter::add("ValuesCache::get miss");
+#endif
+        if (size_ < maxSize_) {
+            // if I can, make a new entry
+            items[size_] = new Item(items[0]->checker); // create a new item, copying the ArgSetChecker from the first one
+            found = size_; 
+            size_++;
+        } else {
+            // otherwise, pick the last one
+            found = size_-1;
+        }
+    }
+    // make sure new entry is the first one
+    if (found != 0) {
+        // remember what found is pointing to
+        Item *f = items[found];
+        // shift the other items down one place
+        while (found > 0) { items[found] = items[found-1]; --found; } 
+        // and put found on top
+        items[found] = f;
+    }
+    if (!good) items[found]->checker.changed(true); // store new values in cache sentry
+    items[found]->good = true;                      // mark this as valid entry
+    return std::pair<std::vector<Double_t> *, bool>(&items[found]->values, good);
+}
+
 cacheutils::CachingPdf::CachingPdf(RooAbsReal *pdf, const RooArgSet *obs) :
     obs_(obs),
     pdfOriginal_(pdf),
     pdfPieces_(),
     pdf_(utils::fullCloneFunc(pdf, pdfPieces_)),
-    lastData_(0)
+    lastData_(0),
+    cache_(*pdf_,*obs_)
 {
-    std::auto_ptr<RooArgSet> params(pdf_->getParameters(*obs_));
-    checker_ = ArgSetChecker(&*params);
 }
 
 cacheutils::CachingPdf::CachingPdf(const CachingPdf &other) :
@@ -54,10 +140,9 @@ cacheutils::CachingPdf::CachingPdf(const CachingPdf &other) :
     pdfOriginal_(other.pdfOriginal_),
     pdfPieces_(),
     pdf_(utils::fullCloneFunc(pdfOriginal_, pdfPieces_)),
-    lastData_(0)
+    lastData_(0),
+    cache_(*pdf_,*obs_)
 {
-    std::auto_ptr<RooArgSet> params(pdf_->getParameters(*obs_));
-    checker_ = ArgSetChecker(&*params);
 }
 
 cacheutils::CachingPdf::~CachingPdf() 
@@ -67,26 +152,35 @@ cacheutils::CachingPdf::~CachingPdf()
 const std::vector<Double_t> & 
 cacheutils::CachingPdf::eval(const RooAbsData &data) 
 {
-    if (lastData_ != &data) {
+#ifdef DEBUG_CACHE
+    PerfCounter::add("CachingPdf::eval called");
+#endif
+    bool newdata = (lastData_ != &data);
+    if (newdata) {
         lastData_ = &data;
         pdf_->optimizeCacheMode(*data.get());
         pdf_->attachDataSet(data);
         const_cast<RooAbsData*>(lastData_)->setDirtyProp(false);
-        vals_.resize(data.numEntries());
-        realFill_(data);
-        checker_.changed(true);
-    } else if (checker_.changed(true)) {
-        realFill_(data);
+        cache_.clear();
+    }
+    std::pair<std::vector<Double_t> *, bool> hit = cache_.get();
+    if (!hit.second) {
+        realFill_(data, *hit.first);
     } 
-    return vals_;
+    return *hit.first;
 }
 
 void
-cacheutils::CachingPdf::realFill_(const RooAbsData &data) 
+cacheutils::CachingPdf::realFill_(const RooAbsData &data, std::vector<Double_t> &vals) 
 {
+#ifdef DEBUG_CACHE
+    PerfCounter::add("CachingPdf::realFill_ called");
+#endif
+    int n = data.numEntries();
+    vals.resize(n); // should be a no-op if size is already >= n.
     //std::auto_ptr<RooArgSet> params(pdf_->getObservables(*obs)); // for non-smart handling of pointers
-    std::vector<Double_t>::iterator itv = vals_.begin();
-    for (int i = 0, n = data.numEntries(); i < n; ++i, ++itv) {
+    std::vector<Double_t>::iterator itv = vals.begin();
+    for (int i = 0; i < n; ++i, ++itv) {
         data.get(i);
         //*params = *data.get(i); // for non-smart handling of pointers
         *itv = pdf_->getVal(obs_);
@@ -199,17 +293,20 @@ cacheutils::CachingAddNLL::setup_()
 Double_t 
 cacheutils::CachingAddNLL::evaluate() const 
 {
+#ifdef DEBUG_CACHE
+    PerfCounter::add("CachingAddNLL::evaluate called");
+#endif
     std::fill( partialSum_.begin(), partialSum_.end(), 0.0 );
 
     std::vector<RooAbsReal*>::iterator  itc = coeffs_.begin(), edc = coeffs_.end();
     std::vector<CachingPdf>::iterator   itp = pdfs_.begin(),   edp = pdfs_.end();
-    std::vector<double>::const_iterator itw, bgw = weights_.begin(),    edw = weights_.end();
-    std::vector<double>::iterator       its, bgs = partialSum_.begin(), eds = partialSum_.end();
+    std::vector<Double_t>::const_iterator itw, bgw = weights_.begin(),    edw = weights_.end();
+    std::vector<Double_t>::iterator       its, bgs = partialSum_.begin(), eds = partialSum_.end();
     double sumCoeff = 0;
     //std::cout << "Performing evaluation of " << GetName() << std::endl;
     for ( ; itc != edc; ++itp, ++itc ) {
         // get coefficient
-        double coeff = (*itc)->getVal();
+        Double_t coeff = (*itc)->getVal();
         if (isRooRealSum_) {
             sumCoeff += coeff * integrals_[itc - coeffs_.begin()]->getVal();
             //std::cout << "  coefficient = " << coeff << ", integral = " << integrals_[itc - coeffs_.begin()]->getVal() << std::endl;
@@ -254,7 +351,7 @@ cacheutils::CachingAddNLL::setData(const RooAbsData &data)
     sumWeights_ = 0.0;
     weights_.resize(data.numEntries());
     partialSum_.resize(data.numEntries());
-    std::vector<double>::iterator itw = weights_.begin();
+    std::vector<Double_t>::iterator itw = weights_.begin();
     for (int i = 0, n = data.numEntries(); i < n; ++i, ++itw) {
         data.get(i);
         *itw = data.weight();
@@ -358,6 +455,9 @@ cacheutils::CachingSimNLL::setup_()
 Double_t 
 cacheutils::CachingSimNLL::evaluate() const 
 {
+#ifdef DEBUG_CACHE
+    PerfCounter::add("CachingSimNLL::evaluate called");
+#endif
     double ret = 0;
     for (std::vector<CachingAddNLL*>::const_iterator it = pdfs_.begin(), ed = pdfs_.end(); it != ed; ++it) {
         if (*it != 0) {
@@ -373,9 +473,11 @@ cacheutils::CachingSimNLL::evaluate() const
             ret -= (pdfval > 1e-7 ? log(pdfval) : log(1e-7)-pdfval);
         }
     }
+#ifdef TRACE_NLL_EVALS
     static unsigned long _trace_ = 0; _trace_++;
-    if (_trace_ % 10 == 0) { putchar('.'); fflush(stdout); }
+    if (_trace_ % 10 == 0)  { putchar('.'); fflush(stdout); }
     //if (_trace_ % 250 == 0) { printf("               NLL % 10.4f after %10lu evals.\n", ret, _trace_); fflush(stdout); }
+#endif
     return ret;
 }
 
