@@ -98,23 +98,23 @@ void L3MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
 
     if (useLinks) {
       for(reco::MuonTrackLinksCollection::const_iterator link = links->begin();
-	  link != links->end(); ++link){ LogDebug(metname) << " i = " << i ;  
+          link != links->end(); ++link){ LogDebug(metname) << " i = " << i ;  
 
-	if(!link->trackerTrack().isNull()) LogTrace(metname) << " link tk pt " << link->trackerTrack()->pt();
-	if(!link->standAloneTrack().isNull()) LogTrace(metname) << " sta pt " << link->standAloneTrack()->pt();
-	if(!link->globalTrack().isNull()) LogTrace(metname) << " global pt " << link->globalTrack()->pt();
-	if(!inRef.isNull()) LogTrace(metname) << " inRef pt " << inRef->pt() ;
+        if(!link->trackerTrack().isNull()) LogTrace(metname) << " link tk pt " << link->trackerTrack()->pt();
+        if(!link->standAloneTrack().isNull()) LogTrace(metname) << " sta pt " << link->standAloneTrack()->pt();
+        if(!link->globalTrack().isNull()) LogTrace(metname) << " global pt " << link->globalTrack()->pt();
+        if(!inRef.isNull()) LogTrace(metname) << " inRef pt " << inRef->pt() ;
 
-	double dR = (!link->globalTrack().isNull()) ? deltaR(inRef->eta(),inRef->phi(),link->globalTrack()->eta(),link->globalTrack()->phi()) : 999.;
-	if(tracks->size() > 1 && !link->globalTrack().isNull() && dR < 0.02 && abs(inRef->pt() - link->globalTrack()->pt())/inRef->pt() < 0.001) {
-	  LogTrace(metname) << " *** pt matches *** ";
-	  switch(type) {
-	  case InnerTrack:    tkRef = link->trackerTrack();    break;
-	  case OuterTrack:    tkRef = link->standAloneTrack(); break;
-	  case CombinedTrack: tkRef = link->globalTrack();     break;
-	  default:            tkRef = link->globalTrack();     break;
-	  }
-	}
+        double dR = (!link->globalTrack().isNull()) ? deltaR(inRef->eta(),inRef->phi(),link->globalTrack()->eta(),link->globalTrack()->phi()) : 999.;
+        if(tracks->size() > 1 && !link->globalTrack().isNull() && dR < 0.02 && abs(inRef->pt() - link->globalTrack()->pt())/inRef->pt() < 0.001) {
+          LogTrace(metname) << " *** pt matches *** ";
+          switch(type) {
+          case InnerTrack:    tkRef = link->trackerTrack();    break;
+          case OuterTrack:    tkRef = link->standAloneTrack(); break;
+          case CombinedTrack: tkRef = link->globalTrack();     break;
+          default:            tkRef = link->globalTrack();     break;
+          }
+        }
       }
       if(tkRef.isNull()) {
         LogDebug(metname) << "tkRef is NULL";
@@ -144,6 +144,6 @@ void L3MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
   event.put(candidates);
  
   LogTrace(metname)<<" Event loaded"
-		   <<"================================";
+                   <<"================================";
 }
 
