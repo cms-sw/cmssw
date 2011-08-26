@@ -48,22 +48,22 @@ L3MuonCandidateProducer::L3MuonCandidateProducer(const ParameterSet& parameterSe
 
   // StandAlone Collection Label
   theL3CollectionLabel = parameterSet.getParameter<InputTag>("InputObjects");
-  useLinks = parameterSet.existsAs<InputTag>("InputLinksObjects");
-  if (useLinks) {
+  theUseLinks = parameterSet.existsAs<InputTag>("InputLinksObjects");
+  if (theUseLinks) {
     theL3LinksLabel = parameterSet.getParameter<InputTag>("InputLinksObjects");
     if (theL3LinksLabel.label() == "" or theL3LinksLabel.label() == "unused")
-      useLinks = false;
+      theUseLinks = false;
   }
   const std::string & muon_track_for_momentum = parameterSet.existsAs<std::string>("MuonPtOption") ?  parameterSet.getParameter<std::string>("MuonPtOption") : "Global";
   if (muon_track_for_momentum == std::string("Tracker"))
-    type=InnerTrack;
+    theType=InnerTrack;
   else if (muon_track_for_momentum == std::string("Standalone"))
-    type=OuterTrack;
+    theType=OuterTrack;
   else if (muon_track_for_momentum == std::string("Global")) 
-    type=CombinedTrack;
+    theType=CombinedTrack;
   else {
     LogError("Muon|RecoMuon|L3MuonCandidateProducer")<<"invalid value for MuonPtOption, please choose among 'Tracker', 'Standalone', 'Global'";
-    type=CombinedTrack;
+    theType=CombinedTrack;
   }
 
   produces<RecoChargedCandidateCollection>();
@@ -85,7 +85,7 @@ void L3MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
   event.getByLabel(theL3CollectionLabel,tracks);
 
   edm::Handle<reco::MuonTrackLinksCollection> links; 
-  if (useLinks)
+  if (theUseLinks)
     event.getByLabel(theL3LinksLabel, links);
 
   // Create a RecoChargedCandidate collection
@@ -96,7 +96,7 @@ void L3MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
     TrackRef inRef(tracks,i);
     TrackRef tkRef = TrackRef();
 
-    if (useLinks) {
+    if (theUseLinks) {
       for(reco::MuonTrackLinksCollection::const_iterator link = links->begin();
           link != links->end(); ++link){ LogDebug(metname) << " i = " << i ;  
 
@@ -108,7 +108,7 @@ void L3MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
         double dR = (!link->globalTrack().isNull()) ? deltaR(inRef->eta(),inRef->phi(),link->globalTrack()->eta(),link->globalTrack()->phi()) : 999.;
         if(tracks->size() > 1 && !link->globalTrack().isNull() && dR < 0.02 && abs(inRef->pt() - link->globalTrack()->pt())/inRef->pt() < 0.001) {
           LogTrace(metname) << " *** pt matches *** ";
-          switch(type) {
+          switch(theType) {
           case InnerTrack:    tkRef = link->trackerTrack();    break;
           case OuterTrack:    tkRef = link->standAloneTrack(); break;
           case CombinedTrack: tkRef = link->globalTrack();     break;
@@ -121,7 +121,7 @@ void L3MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
         tkRef = inRef;
       }
     } else {
-      // useLinks is false
+      // theUseLinks is false
       tkRef = inRef;
     }
     LogDebug(metname) << "tkRef Used For Momentum pt " << tkRef->pt() << " inRef from the input collection pt " << inRef->pt(); 
