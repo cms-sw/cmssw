@@ -58,12 +58,6 @@ pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
 pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originHalfLength = 10.0
 pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 2.0
 
-# TRACKER DATA CONTROL
-import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
-pixelLessStepMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone(
-    ComponentName = 'pixelLessStepMeasurementTracker',
-    skipClusters = cms.InputTag('pixelLessStepClusters')
-    )
 
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi

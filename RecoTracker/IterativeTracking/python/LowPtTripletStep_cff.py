@@ -40,13 +40,6 @@ from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi 
 lowPtTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.ComponentName = 'LowPtClusterShapeSeedComparitor'
 
 
-# TRACKER DATA CONTROL
-import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
-lowPtTripletStepMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone(
-    ComponentName = 'lowPtTripletStepMeasurementTracker',
-    skipClusters = cms.InputTag('lowPtTripletStepClusters')
-    )
-
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
 lowPtTripletStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(

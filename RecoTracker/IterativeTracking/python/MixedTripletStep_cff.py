@@ -106,13 +106,6 @@ mixedTripletStepSeeds.seedCollections = cms.VInputTag(
         cms.InputTag('mixedTripletStepSeedsB'),
         )
 
-# TRACKER DATA CONTROL
-import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
-mixedTripletStepMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone(
-    ComponentName = 'mixedTripletStepMeasurementTracker',
-    skipClusters = cms.InputTag('mixedTripletStepClusters')
-    )
-
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
 mixedTripletStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(

@@ -46,13 +46,6 @@ detachedTripletStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'detachedTriplet
 from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
 detachedTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.ComponentName = 'LowPtClusterShapeSeedComparitor'
 
-# TRACKER DATA CONTROL
-import RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi
-detachedTripletStepMeasurementTracker = RecoTracker.MeasurementDet.MeasurementTrackerESProducer_cfi.MeasurementTracker.clone(
-    ComponentName = 'detachedTripletStepMeasurementTracker',
-    skipClusters = cms.InputTag('detachedTripletStepClusters')
-    )
-
 # QUALITY CUTS DURING TRACK BUILDING
 import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
 detachedTripletStepTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
