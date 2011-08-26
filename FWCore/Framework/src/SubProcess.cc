@@ -175,7 +175,7 @@ namespace edm {
     ep.fillEventPrincipal(aux,
                           principalCache_.lumiPrincipalPtr(),
                           boost::shared_ptr<EventSelectionIDVector>(new EventSelectionIDVector), // UGH use subprocess specific parameter
-                          boost::shared_ptr<BranchListIndexes>(new BranchListIndexes), // UGH figure this out
+                          boost::shared_ptr<BranchListIndexes>(new BranchListIndexes(principal.branchListIndexes())),
                           principal.branchMapperPtr(),
                           principal.reader());
     propagateProducts(InEvent, principal, ep);

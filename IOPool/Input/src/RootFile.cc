@@ -1131,6 +1131,7 @@ namespace edm {
       // old format.  branchListIndexes_ must be filled in from the ProvenanceAdaptor.
       provenanceAdaptor_->branchListIndexes(*branchListIndexes_);
     }
+    BranchIDListHelper::fixBranchListIndexes(*branchListIndexes_);
   }
 
   boost::shared_ptr<LuminosityBlockAuxiliary>

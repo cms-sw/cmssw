@@ -340,6 +340,7 @@ namespace edm {
 
     boost::shared_ptr<EventSelectionIDVector> ids(new EventSelectionIDVector(sd->eventSelectionIDs()));
     boost::shared_ptr<BranchListIndexes> indexes(new BranchListIndexes(sd->branchListIndexes()));
+    BranchIDListHelper::fixBranchListIndexes(*indexes);
     eventPrincipalCache()->fillEventPrincipal(sd->aux(), boost::shared_ptr<LuminosityBlockPrincipal>(), ids, indexes);
     productGetter_.setEventPrincipal(eventPrincipalCache());
     eventCached_ = true;

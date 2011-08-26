@@ -65,7 +65,6 @@ namespace edm {
       branchListIndexes_ = branchListIndexes;
     }
 
-    BranchIDListHelper::fixBranchListIndexes(*branchListIndexes_);
     if(productRegistry().productProduced(InEvent)) {
       // Add index into BranchIDListRegistry for products produced this process
       branchListIndexes_->push_back(productRegistry().producedBranchListIndex());
