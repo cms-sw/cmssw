@@ -176,6 +176,7 @@ private:
 
   edm::InputTag PixelTracksTagL3_; 
   edm::InputTag PixelFEDSizeTag_;
+  edm::InputTag PixelClustersTag_;
 
   // Reco vertex collection
   edm::InputTag VertexTagHLT_;

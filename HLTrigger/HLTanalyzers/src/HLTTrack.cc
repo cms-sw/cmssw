@@ -70,6 +70,7 @@ void HLTTrack::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("ohPixelTracksL3Vz",pixeltracksL3vz,"ohPixelTracksL3Vz[NohPixelTracksL3]/F");
 
   HltTree->Branch("ohPixelFEDSize",&pixelfedsize,"ohPixelFEDSize/I");
+  HltTree->Branch("NohPixelClusters",&npixelclusters,"NohPixelClusters/I");
 }
 
 /* **Analyze the event** */
@@ -79,6 +80,7 @@ void HLTTrack::analyze(
 		       const edm::Handle<reco::VertexCollection> & pixelVertices,
 		       const edm::Handle<reco::RecoChargedCandidateCollection> & PixelTracksL3,
 		       const edm::Handle<FEDRawDataCollection> hfedraw,
+		       const edm::Handle<edmNew::DetSetVector<SiPixelCluster> > & pixelClusters,
 		       TTree* HltTree) {
 
   //isoPixel
@@ -169,6 +171,8 @@ void HLTTrack::analyze(
     }
 
   pixelfedsize = sumoffeds;
+
+  npixelclusters = pixelClusters->dataSize();
 
   //////////////////////////////////////////////////////////////////////////////
   

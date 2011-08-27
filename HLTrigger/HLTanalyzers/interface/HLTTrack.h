@@ -22,6 +22,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
 typedef std::vector<std::string> MyStrings;
 
@@ -43,6 +44,7 @@ public:
 	       const edm::Handle<reco::VertexCollection> & pixelVertices,
                const edm::Handle<reco::RecoChargedCandidateCollection> & PixelTracksL3,
 	       const edm::Handle<FEDRawDataCollection> hfedraw,
+	       const edm::Handle<edmNew::DetSetVector<SiPixelCluster> > & pixelClusters,
 	       TTree* tree);
 
   
@@ -56,6 +58,7 @@ private:
   float *pixeltracksL3pt, *pixeltracksL3eta, *pixeltracksL3phi, *pixeltracksL3vz;
   int npixeltracksL3;
   int pixelfedsize;
+  int npixelclusters;
 
   // input variables
   bool _Monte,_Debug;

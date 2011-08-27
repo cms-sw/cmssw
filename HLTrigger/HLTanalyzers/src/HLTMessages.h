@@ -101,6 +101,7 @@ extern const char * kIsoPixelTracksL2;
 extern const char * kIsoPixelTrackVertices;
 extern const char * kPixelTracksL3; 
 extern const char * kPixelFEDSize;
+extern const char * kPixelClusters;
 
 extern const char * kRecoVerticesHLT; 
 extern const char * kRecoVerticesOffline0;

@@ -103,7 +103,8 @@ const char * kIsoPixelTracksL2            = "L2 Iso Pixel Tracks";
 const char * kIsoPixelTrackVertices       = "Pixel Vertices";
 const char * kPixelTracksL3               = "L3 Pixel Tracks"; 
 const char * kPixelFEDSize                = "Pixel FED size";
- 
+const char * kPixelClusters               = "Pixel Clusters"; 
+
 const char * kRecoVerticesHLT             = "Reconstructed vertices, HLT"; 
 const char * kRecoVerticesOffline0        = "Reconstructed vertices, Offline0";
 const char * kECALActivity                = "ECAL Actvity clust";

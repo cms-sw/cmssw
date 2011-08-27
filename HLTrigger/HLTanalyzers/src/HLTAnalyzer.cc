@@ -167,7 +167,8 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
    // Track OpenHLT input collections
    PixelTracksTagL3_         = conf.getParameter<edm::InputTag> ("PixelTracksL3"); 
    PixelFEDSizeTag_          = conf.getParameter<edm::InputTag> ("PixelFEDSize");
-  
+   PixelClustersTag_         = conf.getParameter<edm::InputTag> ("PixelClusters");
+
     // Reco Vertex collection
     VertexTagHLT_                = conf.getParameter<edm::InputTag> ("PrimaryVertices");  
     VertexTagOffline0_           = conf.getParameter<edm::InputTag> ("OfflinePrimaryVertices0");
@@ -338,6 +339,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     edm::Handle<reco::VertexCollection>         isopixeltrackPixVertices;
     edm::Handle<reco::RecoChargedCandidateCollection> pixeltracksL3; 
     edm::Handle<FEDRawDataCollection> pixelfedsize;
+    edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelclusters;
     
     // Reco vertex collection
     edm::Handle<reco::VertexCollection> recoVertexsHLT;
@@ -500,7 +502,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     getCollection( iEvent, missing, isopixeltrackPixVertices, IsoPixelTrackVerticesTag_,  kIsoPixelTrackVertices );
     getCollection( iEvent, missing, pixeltracksL3,            PixelTracksTagL3_,          kPixelTracksL3 ); 
     getCollection( iEvent, missing, pixelfedsize,             PixelFEDSizeTag_,           kPixelFEDSize );
-
+    getCollection( iEvent, missing, pixelclusters,            PixelClustersTag_,          kPixelClusters );  
     getCollection( iEvent, missing, recoVertexsHLT,           VertexTagHLT_,              kRecoVerticesHLT ); 
     getCollection( iEvent, missing, recoVertexsOffline0,      VertexTagOffline0_,         kRecoVerticesOffline0 );
     
@@ -623,6 +625,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
                             isopixeltrackPixVertices,			  
                             pixeltracksL3, 
 			    pixelfedsize,
+			    pixelclusters,
                             HltTree); 
 
     hlt_analysis_.analyze(
