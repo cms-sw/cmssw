@@ -69,7 +69,7 @@ namespace Rivet {
 // ======================================================== finalize 
  
     void finalize() {
-      
+
       normalize(_h_dPhi_pT1,1.);
       normalize(_h_dPhi_pT2,1.);
       normalize(_h_dPhi_pT3,1.);

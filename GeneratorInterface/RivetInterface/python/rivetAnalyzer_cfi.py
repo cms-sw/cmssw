@@ -6,5 +6,6 @@ rivetAnalyzer = cms.EDAnalyzer('RivetAnalyzer',
   UseExternalWeight = cms.bool(False),
   GenEventInfoCollection = cms.InputTag('generator'),
   CrossSection = cms.double(1000),
+  DoFinalize = cms.bool(True),
   OutputFile = cms.string('out.aida')
 )

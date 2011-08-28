@@ -10,6 +10,8 @@
 
 #include "Rivet/AnalysisHandler.hh"
 #include "Rivet/Analysis.hh"
+#include "Rivet/RivetAIDA.hh"
+#include "LWH/AIManagedObject.h"
 
 #include <string>
 #include <vector>
@@ -23,7 +25,10 @@ using namespace edm;
 RivetAnalyzer::RivetAnalyzer(const edm::ParameterSet& pset) : 
 _analysisHandler(),
 _isFirstEvent(true),
-_outFileName(pset.getParameter<std::string>("OutputFile"))
+_outFileName(pset.getParameter<std::string>("OutputFile")),
+//decide whether to finlaize tthe plots or not.
+//deciding not to finalize them can be useful for further harvesting of many jobs
+_doFinalize(pset.getParameter<bool>("DoFinalize"))
 {
   //retrive the analysis name from paarmeter set
   std::vector<std::string> analysisNames = pset.getParameter<std::vector<std::string> >("AnalysisNames");
@@ -117,8 +122,65 @@ void RivetAnalyzer::endRun(const edm::Run& iRun,const edm::EventSetup& iSetup){
 }
 
 void RivetAnalyzer::endJob(){
-  _analysisHandler.finalize();   
+  if (_doFinalize)
+    _analysisHandler.finalize();
+  else
+    //if we don't finalize we just want to do the transformation from histograms to DPS
+    normalizeTree(_analysisHandler.tree());   
   _analysisHandler.writeData(_outFileName);
 }
+
+void RivetAnalyzer::normalizeTree(AIDA::ITree& tree)    {
+  using namespace AIDA;
+  const vector<string> paths = tree.listObjectNames("/", true); // args set recursive listing
+  std::cout << "Number of objects in AIDA tree = " << paths.size() << std::endl;
+  const string tmpdir = "/RivetNormalizeTmp";
+  tree.mkdir(tmpdir);
+  foreach (const string& path, paths) {
+
+   IManagedObject* hobj = tree.find(path);
+   if (hobj) {
+
+     // Weird seg fault on SLC4 when trying to dyn cast an IProfile ptr to a IHistogram
+     // Fix by attempting to cast to IProfile first, only try IHistogram if it fails.
+     IHistogram1D* histo = 0;
+     IProfile1D* prof = dynamic_cast<IProfile1D*>(hobj);
+     if (!prof) histo = dynamic_cast<IHistogram1D*>(hobj);
+
+     // If it's a normal histo:
+     if (histo) {
+       std::cout << "Converting histo " << path << " to DPS" << std::endl;
+       tree.mv(path, tmpdir);
+       const size_t lastslash = path.find_last_of("/");
+       const string basename = path.substr(lastslash+1, path.length() - (lastslash+1));
+       const string tmppath = tmpdir + "/" + basename;
+       IHistogram1D* tmphisto = dynamic_cast<IHistogram1D*>(tree.find(tmppath));
+       if (tmphisto) {
+         //MSG_TRACE("Temp histo " << tmppath << " exists");
+         _analysisHandler.datapointsetFactory().create(path, *tmphisto);
+       }
+       tree.rm(tmppath);
+     }
+     // If it's a profile histo:
+     else if (prof) {
+       std::cout << "Converting profile histo " << path << " to DPS" << std::endl;
+       tree.mv(path, tmpdir);
+       const size_t lastslash = path.find_last_of("/");
+       const string basename = path.substr(lastslash+1, path.length() - (lastslash+1));
+       const string tmppath = tmpdir + "/" + basename;
+       IProfile1D* tmpprof = dynamic_cast<IProfile1D*>(tree.find(tmppath));
+       if (tmpprof) {
+         //MSG_TRACE("Temp profile histo " << tmppath << " exists");
+         _analysisHandler.datapointsetFactory().create(path, *tmpprof);
+       }
+       tree.rm(tmppath);
+     }
+
+   }
+
+  }
+  tree.rmdir(tmpdir);  
+}
+
 
 DEFINE_FWK_MODULE(RivetAnalyzer);

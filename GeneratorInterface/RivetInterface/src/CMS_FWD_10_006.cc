@@ -56,7 +56,7 @@ namespace Rivet {
     void analyze(const Event& event) {
 
       const double weight = event.weight();
-      
+
       const FastJets& fastjets = applyProjection<FastJets>(event, "Jets"); 
       const Jets jets = fastjets.jetsByPt(32.);
       double cjet_pt=0.0;
