@@ -2,8 +2,8 @@
  * \file PixelVTXMonitor.cc
  * \author S. Dutta
  * Last Update:
- * $Date: 2011/08/16 12:42:08 $
- * $Revision: 1.3 $
+ * $Date: 2011/08/19 10:04:13 $
+ * $Revision: 1.4 $
  * $Author: dutta $
  *
  * Description: Pixel Vertex Monitoring for different HLT paths
@@ -15,6 +15,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
@@ -30,6 +31,7 @@ PixelVTXMonitor::PixelVTXMonitor( const edm::ParameterSet& ps ) : parameters_(ps
 
   moduleName_          = parameters_.getParameter<std::string>("ModuleName");
   folderName_          = parameters_.getParameter<std::string>("FolderName");
+  pixelClusterInputTag_= parameters_.getParameter<edm::InputTag>("PixelClusterInputTag");
   pixelVertexInputTag_ = parameters_.getParameter<edm::InputTag>("PixelVertexInputTag");
   hltInputTag_         = parameters_.getParameter<edm::InputTag>("HLTInputTag");
   minVtxDoF_           = parameters_.getParameter<double>("MinVtxDoF");  
@@ -59,19 +61,28 @@ void PixelVTXMonitor::bookHistograms() {
   std::string currentFolder = moduleName_ + "/" + folderName_ ;
   dbe_->setCurrentFolder(currentFolder.c_str());
 
+  PixelMEs local_MEs;
   for (std::vector<std::string> ::iterator it = selectedPaths.begin();
        it != selectedPaths.end(); it++) {
     std::string tag = (*it) ;
-    std::map<std::string, MonitorElement*>::iterator iPos = vtxHistoMap_.find(tag); 
-    if (iPos == vtxHistoMap_.end()) {
+    std::map<std::string, PixelMEs>::iterator iPos = histoMap_.find(tag); 
+    if (iPos == histoMap_.end()) {
       
-      std::string hname = "nPxlVtx_";
-      hname += tag;
+      std::string hname, htitle;
 
-      std::string htitle= "# of Pixel Vertices (";
+      hname  = "nPxlClus_";
+      hname += tag;
+      htitle= "# of Pixel Clusters (";
       htitle += tag +")";
-      MonitorElement* me = dbe_->book1D(hname, htitle, 101, -0.5, 100.5);
-      vtxHistoMap_.insert(std::make_pair(tag, me)); 
+      local_MEs.clusME= dbe_->book1D(hname, htitle, 200, 0.5, 2000.5);
+
+      hname = "nPxlVtx_";
+      hname += tag;
+      htitle= "# of Pixel Vertices (";
+      htitle += tag +")";
+      local_MEs.vtxME= dbe_->book1D(hname, htitle, 101, -0.5, 100.5);
+
+      histoMap_.insert(std::make_pair(tag, local_MEs)); 
     } 
   }
 }
@@ -98,13 +109,27 @@ void PixelVTXMonitor::beginRun(edm::Run const& iRun, edm::EventSetup const& iSet
 
 }
 void PixelVTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)  {
-  if (!vtxHistoMap_.size()) return;
+  if (!histoMap_.size()) return;
+
+  //Access Pixel Clusters
+  edm::Handle< SiPixelClusterCollectionNew > siPixelClusters;
+  iEvent.getByLabel(pixelClusterInputTag_, siPixelClusters);
+  
+  if(!siPixelClusters.isValid()) {
+    edm::LogError("PixelVTXMonotor") << "Could not find Cluster Collection " << pixelClusterInputTag_;
+    return;
+  }
+  unsigned nClusters = siPixelClusters->size();
+  
 
   //Access Pixel Verteces
   edm::Handle<reco::VertexCollection> pixelVertices;
   iEvent.getByLabel(pixelVertexInputTag_,pixelVertices);
-  if (!pixelVertices.isValid()) return;
-  std::cout << " for runs: " << iEvent.id().run() << std::endl;
+  if (!pixelVertices.isValid()) {
+    edm::LogError("PixelVTXMonotor") << "Could not find Vertex Collection " << pixelVertexInputTag_;
+    return;
+  }
+
   int nVtx = 0;
   for (reco::VertexCollection::const_iterator ivtx = pixelVertices->begin(); 
        ivtx != pixelVertices->end(); ++ivtx) {
@@ -121,13 +146,15 @@ void PixelVTXMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& i
   iEvent.getByLabel(hltInputTag_, triggerResults);
   if (!triggerResults.isValid()) return;
 
-  for (std::map<std::string,MonitorElement*>::iterator it = vtxHistoMap_.begin();
-       it != vtxHistoMap_.end(); ++it) {
+  for (std::map<std::string,PixelMEs>::iterator it = histoMap_.begin();
+       it != histoMap_.end(); ++it) {
     std::string path = it->first; 
-    MonitorElement* me = it->second;
+    MonitorElement* me_clus  = it->second.clusME;
+    MonitorElement* me_vtx  = it->second.vtxME;
     unsigned int index = hltConfig_.triggerIndex(path);
-    if ( me && index < triggerResults->size() && triggerResults->accept(index)) {
-      me->Fill(nVtx);
+    if ( index < triggerResults->size() && triggerResults->accept(index)) {
+      if (me_vtx) me_vtx->Fill(nVtx);
+      if (me_clus) me_clus->Fill(nClusters);
     } 
   } 
 }

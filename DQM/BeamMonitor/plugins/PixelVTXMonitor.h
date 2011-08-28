@@ -3,8 +3,8 @@
  *
  * DQM FED Client
  *
- * $Date: 2011/07/18 15:52:06 $
- * $Revision: 1.0 $
+ * $Date: 2011/08/10 05:14:06 $
+ * $Revision: 1.1 $
  * \author  S. Dutta
  *
 */
@@ -47,6 +47,7 @@ private:
 
   std::string moduleName_;
   std::string folderName_;
+  edm::InputTag pixelClusterInputTag_;
   edm::InputTag pixelVertexInputTag_;
   edm::InputTag hltInputTag_;
   float minVtxDoF_;
@@ -54,7 +55,12 @@ private:
   DQMStore * dbe_;
   HLTConfigProvider hltConfig_;
 
-  std::map<std::string, MonitorElement*>  vtxHistoMap_;
+  struct PixelMEs{
+    MonitorElement* clusME;
+    MonitorElement* vtxME;
+  };
+
+  std::map<std::string, PixelMEs> histoMap_;
 };
 
 #endif
