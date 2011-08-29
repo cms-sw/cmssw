@@ -35,4 +35,15 @@ private:
   void setDirectoryName( const edm::ModuleDescription & desc );
 };
 
+namespace edm {
+   namespace service {
+    // This function is needed so that there will be only on instance
+    // of this service per process when "subprocesses" are being used.
+    inline
+    bool isProcessWideService(TFileService const*) {
+      return true;
+    }
+  }
+}
+
 #endif
