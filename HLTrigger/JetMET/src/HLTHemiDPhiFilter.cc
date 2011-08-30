@@ -48,7 +48,7 @@ HLTHemiDPhiFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions
   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltRHemisphere"));
   desc.add<double>("minDPhi",2.9415);
   desc.add<bool>("acceptNJ",true);
-  descriptions.add("HLTHemiDPhiFilter",desc);
+  descriptions.add("hltHemiDPhiFilter",desc);
 }
 
 //
