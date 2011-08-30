@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2010/08/30 13:14:07 $
- * $Revision: 1.233 $
+ * $Date: 2010/10/17 18:06:34 $
+ * $Revision: 1.234 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -17,6 +17,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/MonTestPulseDat.h"

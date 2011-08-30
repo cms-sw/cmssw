@@ -1,8 +1,8 @@
 /*
  * \file EBClusterClient.cc
  *
- * $Date: 2010/03/27 20:07:56 $
- * $Revision: 1.74 $
+ * $Date: 2010/08/08 08:46:02 $
+ * $Revision: 1.75 $
  * \author G. Della Ricca
  * \author F. Cossutti
  * \author E. Di Marco
@@ -17,6 +17,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 

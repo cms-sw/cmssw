@@ -1,8 +1,8 @@
 /*
  * \file EBBeamCaloClient.cc
  *
- * $Date: 2010/10/17 18:06:33 $
- * $Revision: 1.99 $
+ * $Date: 2011/07/19 09:26:12 $
+ * $Revision: 1.100 $
  * \author G. Della Ricca
  * \author A. Ghezzi
  *
@@ -18,6 +18,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"

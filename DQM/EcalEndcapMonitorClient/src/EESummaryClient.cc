@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2010/09/01 08:46:10 $
- * $Revision: 1.209 $
+ * $Date: 2011/06/27 12:16:03 $
+ * $Revision: 1.209.4.1 $
  * \author G. Della Ricca
  *
 */
@@ -12,10 +12,12 @@
 #include <fstream>
 #include <iomanip>
 #include <math.h>
+#include <utility>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
@@ -23,9 +25,14 @@
 #endif
 
 #include "DataFormats/EcalDetId/interface/EcalScDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalTriggerElectronicsId.h"
+#include "DataFormats/EcalDetId/interface/EEDetId.h"
+
+#include "Geometry/EcalMapping/interface/EcalElectronicsMapping.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
+#include "DQM/EcalCommon/interface/Masks.h"
 
 #include "DQM/EcalEndcapMonitorClient/interface/EEStatusFlagsClient.h"
 #include "DQM/EcalEndcapMonitorClient/interface/EEIntegrityClient.h"
@@ -924,39 +931,39 @@ void EESummaryClient::setup(void) {
 
   if( meTiming_[0] ) dqmStore_->removeElement( meTiming_[0]->getName() );
   sprintf(histo, "EETMT EE - timing quality summary");
-  meTiming_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meTiming_[0] = dqmStore_->book2D(histo, histo, 20, 0., 100., 20, 0., 100.);
   meTiming_[0]->setAxisTitle("ix", 1);
   meTiming_[0]->setAxisTitle("iy", 2);
 
   if( meTiming_[1] ) dqmStore_->removeElement( meTiming_[1]->getName() );
   sprintf(histo, "EETMT EE + timing quality summary");
-  meTiming_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+  meTiming_[1] = dqmStore_->book2D(histo, histo, 20, 0., 100., 20, 0., 100.);
   meTiming_[1]->setAxisTitle("ix", 1);
   meTiming_[1]->setAxisTitle("iy", 2);
 
   if( meTimingMean1D_[0] ) dqmStore_->removeElement( meTimingMean1D_[0]->getName() );
   sprintf(histo, "EETMT EE - timing mean 1D summary");
-  meTimingMean1D_[0] = dqmStore_->book1D(histo, histo, 100, -50., 50.);
+  meTimingMean1D_[0] = dqmStore_->book1D(histo, histo, 100, -25., 25.);
   meTimingMean1D_[0]->setAxisTitle("mean (ns)", 1);
 
   if( meTimingMean1D_[1] ) dqmStore_->removeElement( meTimingMean1D_[1]->getName() );
   sprintf(histo, "EETMT EE + timing mean 1D summary");
-  meTimingMean1D_[1] = dqmStore_->book1D(histo, histo, 100, -50., 50.);
+  meTimingMean1D_[1] = dqmStore_->book1D(histo, histo, 100, -25., 25.);
   meTimingMean1D_[1]->setAxisTitle("mean (ns)", 1);
 
   if( meTimingRMS1D_[0] ) dqmStore_->removeElement( meTimingRMS1D_[0]->getName() );
   sprintf(histo, "EETMT EE - timing rms 1D summary");
-  meTimingRMS1D_[0] = dqmStore_->book1D(histo, histo, 100, 0.0, 150.0);
+  meTimingRMS1D_[0] = dqmStore_->book1D(histo, histo, 100, 0.0, 10.0);
   meTimingRMS1D_[0]->setAxisTitle("rms (ns)", 1);
 
   if( meTimingRMS1D_[1] ) dqmStore_->removeElement( meTimingRMS1D_[1]->getName() );
   sprintf(histo, "EETMT EE + timing rms 1D summary");
-  meTimingRMS1D_[1] = dqmStore_->book1D(histo, histo, 100, 0.0, 150.0);
+  meTimingRMS1D_[1] = dqmStore_->book1D(histo, histo, 100, 0.0, 10.0);
   meTimingRMS1D_[1]->setAxisTitle("rms (ns)", 1);
 
   if ( meTimingMean_ ) dqmStore_->removeElement( meTimingMean_->getName() );
   sprintf(histo, "EETMT timing mean");
-  meTimingMean_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, -50., 50.);
+  meTimingMean_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, -20., 20.,"");
   for (int i = 0; i < 18; i++) {
     meTimingMean_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
@@ -964,7 +971,7 @@ void EESummaryClient::setup(void) {
 
   if ( meTimingRMS_ ) dqmStore_->removeElement( meTimingRMS_->getName() );
   sprintf(histo, "EETMT timing rms");
-  meTimingRMS_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 35.);
+  meTimingRMS_ = dqmStore_->bookProfile(histo, histo, 18, 1, 19, 100, 0., 10.,"");
   for (int i = 0; i < 18; i++) {
     meTimingRMS_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
   }
@@ -1385,6 +1392,8 @@ void EESummaryClient::analyze(void) {
     if ( debug_ ) std::cout << "EESummaryClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
+  uint32_t chWarnBit = 1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_WARNING;
+
   for ( int ix = 1; ix <= 100; ix++ ) {
     for ( int iy = 1; iy <= 100; iy++ ) {
 
@@ -1425,8 +1434,6 @@ void EESummaryClient::analyze(void) {
       if ( meTestPulseG12_[1] ) meTestPulseG12_[1]->setBinContent( ix, iy, 6. );
       if ( meRecHitEnergy_[0] ) meRecHitEnergy_[0]->setBinContent( ix, iy, 0. );
       if ( meRecHitEnergy_[1] ) meRecHitEnergy_[1]->setBinContent( ix, iy, 0. );
-      if ( meTiming_[0] ) meTiming_[0]->setBinContent( ix, iy, 6. );
-      if ( meTiming_[1] ) meTiming_[1]->setBinContent( ix, iy, 6. );
 
       if ( meGlobalSummary_[0] ) meGlobalSummary_[0]->setBinContent( ix, iy, 6. );
       if ( meGlobalSummary_[1] ) meGlobalSummary_[1]->setBinContent( ix, iy, 6. );
@@ -1464,6 +1471,13 @@ void EESummaryClient::analyze(void) {
       if ( meTriggerTowerTiming_[1] ) meTriggerTowerTiming_[1]->setBinContent( ix, iy, 0. );
       if ( meTriggerTowerNonSingleTiming_[0] ) meTriggerTowerNonSingleTiming_[0]->setBinContent( ix, iy, -1 );
       if ( meTriggerTowerNonSingleTiming_[1] ) meTriggerTowerNonSingleTiming_[1]->setBinContent( ix, iy, -1 );
+    }
+  }
+
+  for ( int ix = 1; ix <= 20; ix++ ) {
+    for ( int iy = 1; iy <= 20; iy++ ) {
+      if ( meTiming_[0] ) meTiming_[0]->setBinContent( ix, iy, 6. );
+      if ( meTiming_[1] ) meTiming_[1]->setBinContent( ix, iy, 6. );
     }
   }
 
@@ -1938,45 +1952,6 @@ void EESummaryClient::analyze(void) {
 
           }
 
-          if ( eetmc ) {
-
-            me = eetmc->meg01_[ism-1];
-
-            if ( me ) {
-
-              float xval = me->getBinContent( ix, iy );
-
-              if ( ism >= 1 && ism <= 9 ) {
-                meTiming_[0]->setBinContent( 101 - jx, jy, xval );
-              } else {
-                meTiming_[1]->setBinContent( jx, jy, xval );
-              }
-
-            }
-
-            float num02, mean02, rms02;
-            bool update02 = UtilsClient::getBinStatistics(htmt01_[ism-1], ix, iy, num02, mean02, rms02);
-            // Task timing map is shifted of +50 ns for graphical reasons. Shift back it.
-            mean02 -= 50.;
-
-            if ( update02 ) {
-
-              if ( ism >= 1 && ism <= 9 ) {
-                meTimingMean1D_[0]->Fill(mean02);
-                meTimingRMS1D_[0]->Fill(rms02);
-              } else {
-                meTimingMean1D_[1]->Fill(mean02);
-                meTimingRMS1D_[1]->Fill(rms02);
-              }
-
-              meTimingMean_->Fill( ism, mean02 );
-
-              meTimingRMS_->Fill( ism, rms02 );
-
-            }
-
-          }
-
         }
       }
 
@@ -2124,9 +2099,118 @@ void EESummaryClient::analyze(void) {
 
           }
 
+          if ( eetmc ) {
+
+	    float num01, mean01, rms01;
+	    bool update01 = UtilsClient::getBinStatistics(htmt01_[ism-1], ix, iy, num01, mean01, rms01, 1.);
+	    mean01 -= 50.;
+
+	    if( update01 ){
+
+	      if ( ism >= 1 && ism <= 9 ) {
+		meTimingMean1D_[0]->Fill(mean01);
+		meTimingRMS1D_[0]->Fill(rms01);
+	      } else {
+		meTimingMean1D_[1]->Fill(mean01);
+		meTimingRMS1D_[1]->Fill(rms01);
+	      }
+
+	      meTimingMean_->Fill( ism, mean01 );
+
+	      meTimingRMS_->Fill( ism, rms01 );
+
+	    }
+
+          }
+
         }
       }
 
+      for ( int ix = 1; ix <= 10; ix++ ) {
+	for( int iy = 1; iy <= 10; iy++ ) {
+
+	  int jx = ix + Numbers::ix0EE(ism) / 5;
+	  int jy = iy + Numbers::iy0EE(ism) / 5;
+
+	  if( jx <= 0 || jx >= 21 || jy <= 0 || jy >= 21 ) continue;
+
+	  if ( ism >= 1 && ism <= 9 ) {
+	    if ( ! Numbers::validEESc(ism, 21 - jx, jy) ) continue;
+	  } else {
+	    if ( ! Numbers::validEESc(ism, jx, jy) ) continue;
+	  }
+
+          if ( eetmc ) {
+
+            if ( htmt01_[ism-1] ) {
+
+	      int ixedge = (ix-1) * 5;
+	      int iyedge = (iy-1) * 5;
+	      int jxedge = (jx-1) * 5;
+	      int jyedge = (jy-1) * 5;
+
+	      float nvalid = 0.;
+	      float ent, cont, err;
+	      float num, sum, sumw2;
+	      num = sum = sumw2 = 0.;
+	      bool mask = false;
+	      for(int cx=1; cx<=5; cx++){
+		for(int cy=1; cy<=5; cy++){
+		  int scjx = jxedge + cx;
+		  int scjy = jyedge + cy;
+		  int scix = ixedge + cx;
+		  int sciy = iyedge + cy;
+
+		  if ( ism >= 1 && ism <= 9 ) {
+		    if ( ! Numbers::validEE(ism, 101 - scjx, scjy) ) continue;
+		  } else {
+		    if ( ! Numbers::validEE(ism, scjx, scjy) ) continue;
+		  }
+		  nvalid += 1.;
+
+		  int bin = htmt01_[ism-1]->GetBin(scix, sciy);
+
+		  // htmt01_ are booked with option "s" -> error = RMS not RMS/sqrt(N)
+		  ent = htmt01_[ism-1]->GetBinEntries( bin );
+		  cont = htmt01_[ism-1]->GetBinContent( bin ) - 50.;
+		  err = htmt01_[ism-1]->GetBinError( bin );
+
+		  num += ent;
+		  sum += cont * ent;
+		  sumw2 += (err * err + cont * cont) * ent;
+
+		  if( ent > 1 && (std::abs(cont) > 3. || err > 15.) && Masks::maskChannel(ism, scix, sciy, chWarnBit, EcalEndcap) ) mask = true;
+		}
+	      }
+
+	      float xval = 2.;
+	      if( num > (10. * nvalid / 25.) ){
+
+		float mean = sum / num;
+		float rms = std::sqrt( sumw2 / num - mean * mean );
+
+		if( std::abs(mean) > 3. || rms > 15. ) xval = 0.;
+		else xval = 1.;
+
+	      }
+
+	      int ind;
+	      if ( ism >= 1 && ism <= 9 ){
+		jx = 21 - jx;
+		ind = 0;
+	      }else{
+		ind = 1;
+	      }
+
+	      meTiming_[ind]->setBinContent( jx, jy, xval );
+	      if ( mask ) UtilsClient::maskBinContent( meTiming_[ind], jx, jy );
+
+	    }
+
+          }
+
+	}
+      }
       // PN's summaries
       for( int i = 1; i <= 10; i++ ) {
         for( int j = 1; j <= 5; j++ ) {
@@ -2597,7 +2681,7 @@ void EESummaryClient::analyze(void) {
         float xval = 6;
         float val_in = meIntegrity_[0]->getBinContent(jx,jy);
         float val_po = mePedestalOnline_[0]->getBinContent(jx,jy);
-        float val_tm = meTiming_[0]->getBinContent(jx,jy);
+        float val_tm = meTiming_[0]->getBinContent((jx-1)/5+1,(jy-1)/5+1);
         float val_sf = meStatusFlags_[0]->getBinContent(jx,jy);
         // float val_ee = meTriggerTowerEmulError_[0]->getBinContent(jx,jy); // removed temporarily from the global summary
         float val_ee = 1;
@@ -2729,7 +2813,7 @@ void EESummaryClient::analyze(void) {
         float xval = 6;
         float val_in = meIntegrity_[1]->getBinContent(jx,jy);
         float val_po = mePedestalOnline_[1]->getBinContent(jx,jy);
-        float val_tm = meTiming_[1]->getBinContent(jx,jy);
+        float val_tm = meTiming_[1]->getBinContent((jx-1)/5+1,(jy-1)/5+1);
         float val_sf = meStatusFlags_[1]->getBinContent(jx,jy);
         // float val_ee = meTriggerTowerEmulError_[1]->getBinContent(jx,jy); // removed temporarily from the global summary
         float val_ee = 1;

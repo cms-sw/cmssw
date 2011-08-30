@@ -1,8 +1,8 @@
 /*
  * \file EBStatusFlagsClient.cc
  *
- * $Date: 2010/08/08 08:46:02 $
- * $Revision: 1.43 $
+ * $Date: 2010/08/11 15:01:44 $
+ * $Revision: 1.44 $
  * \author G. Della Ricca
  *
 */
@@ -15,6 +15,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/RunTTErrorsDat.h"

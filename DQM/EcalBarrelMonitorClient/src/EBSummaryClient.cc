@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2010/08/11 15:01:44 $
- * $Revision: 1.219 $
+ * $Date: 2010/09/01 08:46:10 $
+ * $Revision: 1.220 $
  * \author G. Della Ricca
  *
 */
@@ -15,6 +15,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"
@@ -23,6 +24,7 @@
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
+#include "DQM/EcalCommon/interface/Masks.h"
 
 #include "DQM/EcalBarrelMonitorClient/interface/EBStatusFlagsClient.h"
 #include "DQM/EcalBarrelMonitorClient/interface/EBIntegrityClient.h"
@@ -638,23 +640,23 @@ void EBSummaryClient::setup(void) {
 
   if( meTiming_ ) dqmStore_->removeElement( meTiming_->getName() );
   sprintf(histo, "EBTMT timing quality summary");
-  meTiming_ = dqmStore_->book2D(histo, histo, 360, 0., 360., 170, -85., 85.);
+  meTiming_ = dqmStore_->book2D(histo, histo, 72, 0., 360., 34, -85., 85.);
   meTiming_->setAxisTitle("jphi", 1);
   meTiming_->setAxisTitle("jeta", 2);
 
   if( meTimingMean1D_ ) dqmStore_->removeElement( meTimingMean1D_->getName() );
   sprintf(histo, "EBTMT timing mean 1D summary");
-  meTimingMean1D_ = dqmStore_->book1D(histo, histo, 100, -50., 50.);
+  meTimingMean1D_ = dqmStore_->book1D(histo, histo, 100, -25., 25.);
   meTimingMean1D_->setAxisTitle("mean (ns)", 1);
 
   if( meTimingRMS1D_ ) dqmStore_->removeElement( meTimingRMS1D_->getName() );
   sprintf(histo, "EBTMT timing rms 1D summary");
-  meTimingRMS1D_ = dqmStore_->book1D(histo, histo, 100, 0.0, 150.0);
+  meTimingRMS1D_ = dqmStore_->book1D(histo, histo, 100, 0.0, 10.0);
   meTimingRMS1D_->setAxisTitle("rms (ns)", 1);
 
   if ( meTimingMean_ ) dqmStore_->removeElement( meTimingMean_->getName() );
   sprintf(histo, "EBTMT timing mean");
-  meTimingMean_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, -50., 50.);
+  meTimingMean_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, -20., 20.,"");
   for (int i = 0; i < 36; i++) {
     meTimingMean_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
   }
@@ -662,7 +664,7 @@ void EBSummaryClient::setup(void) {
 
   if ( meTimingRMS_ ) dqmStore_->removeElement( meTimingRMS_->getName() );
   sprintf(histo, "EBTMT timing rms");
-  meTimingRMS_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 150.);
+  meTimingRMS_ = dqmStore_->bookProfile(histo, histo, 36, 1, 37, 100, 0., 10.,"");
   for (int i = 0; i < 36; i++) {
     meTimingRMS_->setBinLabel(i+1, Numbers::sEB(i+1).c_str(), 1);
   }
@@ -928,6 +930,8 @@ void EBSummaryClient::analyze(void) {
     if ( debug_ ) std::cout << "EBSummaryClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
+  uint32_t chWarnBit = 1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_WARNING;
+
   for ( int iex = 1; iex <= 170; iex++ ) {
     for ( int ipx = 1; ipx <= 360; ipx++ ) {
 
@@ -948,7 +952,6 @@ void EBSummaryClient::analyze(void) {
       if ( meTestPulseG12_ ) meTestPulseG12_->setBinContent( ipx, iex, 6. );
 
       if ( meRecHitEnergy_ ) meRecHitEnergy_->setBinContent( ipx, iex, 0. );
-      if ( meTiming_ ) meTiming_->setBinContent( ipx, iex, 6. );
 
       if ( meGlobalSummary_ ) meGlobalSummary_->setBinContent( ipx, iex, 6. );
 
@@ -978,6 +981,7 @@ void EBSummaryClient::analyze(void) {
       if ( meTriggerTowerEmulError_ ) meTriggerTowerEmulError_->setBinContent( ipx, iex, 6. );
       if ( meTriggerTowerTiming_ ) meTriggerTowerTiming_->setBinContent( ipx, iex, 0. );
       if ( meTriggerTowerNonSingleTiming_ ) meTriggerTowerNonSingleTiming_->setBinContent( ipx, iex, -1. );
+      if ( meTiming_ ) meTiming_->setBinContent( ipx, iex, 6. );
     }
   }
 
@@ -1383,34 +1387,13 @@ void EBSummaryClient::analyze(void) {
 
           if ( ebtmc ) {
 
-            me = ebtmc->meg01_[ism-1];
-
-            if ( me ) {
-
-              float xval = me->getBinContent( ie, ip );
-
-              int iex;
-              int ipx;
-
-              if ( ism <= 18 ) {
-                iex = 1+(85-ie);
-                ipx = ip+20*(ism-1);
-              } else {
-                iex = 85+ie;
-                ipx = 1+(20-ip)+20*(ism-19);
-              }
-
-              meTiming_->setBinContent( ipx, iex, xval );
-
-            }
-
-
             float num02, mean02, rms02;
-            bool update02 = UtilsClient::getBinStatistics(htmt01_[ism-1], ie, ip, num02, mean02, rms02);
-            // Task timing map is shifted of +50 ns for graphical reasons. Shift back it.
-            mean02 -= 50.;
+
+	    bool update02 = UtilsClient::getBinStatistics(htmt01_[ism-1], ie, ip, num02, mean02, rms02, 3.);
 
             if ( update02 ) {
+
+	      mean02 -= 50.;
 
               meTimingMean1D_->Fill(mean02);
 
@@ -1530,6 +1513,53 @@ void EBSummaryClient::analyze(void) {
             }
 
             meTriggerTowerEmulError_->setBinContent( ipx, iex, xval );
+
+          }
+
+          if ( ebtmc ) {
+
+	    if( htmt01_[ism-1] ){
+
+	      float ent, cont, err;
+	      float num, sum, sumw2;
+	      num = sum = sumw2 = 0.;
+	      bool mask = false;
+
+	      for(int ce=1; ce<=5; ce++){
+		for(int cp=1; cp<=5; cp++){
+
+		  int scie = (ie - 1) * 5 + ce;
+		  int scip = (ip - 1) * 5 + cp; 
+		  int bin = htmt01_[ism-1]->GetBin( scie, scip );
+
+		  // htmt01_ are booked with option "s" -> error = RMS not RMS/sqrt(N)
+		  ent = htmt01_[ism-1]->GetBinEntries( bin );
+		  cont = htmt01_[ism-1]->GetBinContent( bin ) - 50.;
+		  err = htmt01_[ism-1]->GetBinError( bin );
+
+		  num += ent;
+		  sum += cont * ent;
+		  sumw2 += (err * err + cont * cont) * ent;
+
+		  if( ent > 3. && (std::abs(cont) > 2. || err > 10.) && Masks::maskChannel(ism, scie, scip, chWarnBit, EcalBarrel) ) mask = true;
+		}
+	      }
+
+	      float xval = 2.;
+	      if( num > 10. ){
+
+		float mean = sum / num;
+		float rms = std::sqrt( sumw2 / num - mean * mean );
+
+		if( std::abs(mean) > 2. || rms > 10. ) xval = 0.;
+		else xval = 1.;
+
+	      }
+
+	      meTiming_->setBinContent( ipx, iex, xval );
+	      if ( mask ) UtilsClient::maskBinContent( meTiming_, ipx, iex );
+
+	    }
 
           }
 
@@ -1872,10 +1902,13 @@ void EBSummaryClient::analyze(void) {
         int ism = (ipx-1)/20 + 1 ;
         if ( iex>85 ) ism+=18;
 
+	int iet = (iex-1)/5 + 1;
+	int ipt = (ipx-1)/5 + 1;
+
         float xval = 6;
         float val_in = meIntegrity_->getBinContent(ipx,iex);
         float val_po = mePedestalOnline_->getBinContent(ipx,iex);
-        float val_tm = meTiming_->getBinContent(ipx,iex);
+        float val_tm = meTiming_->getBinContent(ipt,iet);
         float val_sf = meStatusFlags_->getBinContent((ipx-1)/5+1,(iex-1)/5+1);
         // float val_ee = meTriggerTowerEmulError_->getBinContent((ipx-1)/5+1,(iex-1)/5+1); // removed from the global summary temporarily
         float val_ee = 1;

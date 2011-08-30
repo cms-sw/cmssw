@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2010/08/09 13:44:54 $
- * $Revision: 1.126 $
+ * $Date: 2010/10/17 18:07:57 $
+ * $Revision: 1.127 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -17,6 +17,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/MonLed1Dat.h"

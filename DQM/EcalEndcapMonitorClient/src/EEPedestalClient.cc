@@ -1,8 +1,8 @@
 /*
  * \file EEPedestalClient.cc
  *
- * $Date: 2010/08/30 13:19:12 $
- * $Revision: 1.119 $
+ * $Date: 2010/10/17 18:07:58 $
+ * $Revision: 1.120 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -17,6 +17,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/MonPedestalsDat.h"

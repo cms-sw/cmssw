@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2010/03/27 20:07:57 $
- * $Revision: 1.125 $
+ * $Date: 2010/08/08 08:46:03 $
+ * $Revision: 1.126 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -16,6 +16,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"

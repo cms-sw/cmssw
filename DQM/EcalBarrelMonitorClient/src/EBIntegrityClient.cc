@@ -2,8 +2,8 @@
 /*
  * \file EBIntegrityClient.cc
  *
- * $Date: 2010/08/08 08:46:02 $
- * $Revision: 1.229 $
+ * $Date: 2010/10/17 18:06:34 $
+ * $Revision: 1.230 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -17,6 +17,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/RunTag.h"

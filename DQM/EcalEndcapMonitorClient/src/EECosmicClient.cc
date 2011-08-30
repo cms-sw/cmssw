@@ -1,8 +1,8 @@
 /*
  * \file EECosmicClient.cc
  *
- * $Date: 2010/08/04 08:20:13 $
- * $Revision: 1.71 $
+ * $Date: 2010/08/08 08:46:06 $
+ * $Revision: 1.72 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -16,6 +16,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/MonOccupancyDat.h"

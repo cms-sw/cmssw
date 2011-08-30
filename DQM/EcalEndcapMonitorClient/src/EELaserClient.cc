@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2010/08/30 13:14:08 $
- * $Revision: 1.139 $
+ * $Date: 2010/10/17 18:07:57 $
+ * $Revision: 1.140 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -17,6 +17,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/MonLaserBlueDat.h"
