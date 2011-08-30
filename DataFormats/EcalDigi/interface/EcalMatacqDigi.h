@@ -1,5 +1,5 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
-//$Id: EcalMatacqDigi.h,v 1.4 2007/03/27 09:55:01 meridian Exp $
+//$Id: EcalMatacqDigi.h,v 1.5 2009/02/25 14:49:51 pgras Exp $
 
 #ifndef ECALMATACQDIGI_H
 #define ECALMATACQDIGI_H 1
@@ -162,12 +162,12 @@ public:
    * second and microseconds since the EPOCH as defined in POSIX.1.
    * See time() standard c function and gettimeofday UNIX function.
    */
-  timeval timeStamp() const { return timeStamp_; }
+  timeval timeStamp() const { timeval value; value.tv_sec = tv_sec_; value.tv_usec = tv_usec_; return value; }
 
   /** Sets the matcq event timestmap
    * @param value new value
    */
-  void timeStamp(timeval value) { timeStamp_ = value; }
+  void timeStamp(timeval value) { tv_sec_ = value.tv_sec; tv_usec_ = value.tv_usec; }
   
   /** Gets the LHC orbit ID of the event
    * Available only for Matacq data format version >=3 and for P5 data.
@@ -363,7 +363,11 @@ private:
 
   /** Matacq acquisition time stamp
    */
-  timeval timeStamp_;
+  /** We don't use timeval directly, because its typedef is platform dependent.
+   */
+  Long64_t tv_sec_;
+  Long64_t tv_usec_;
+
 #endif
   
 };

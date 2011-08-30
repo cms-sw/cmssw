@@ -1,5 +1,5 @@
 // -*- Mode: C++; c-basic-offset: 2; indent-tabs-mode: t; tab-width: 8; -*-
-// $Id: EcalMatacqDigi.cc,v 1.4 2008/01/22 18:52:23 muzaffar Exp $
+// $Id: EcalMatacqDigi.cc,v 1.5 2009/02/25 14:49:51 pgras Exp $
 #include "DataFormats/EcalDigi/interface/EcalMatacqDigi.h"
 
 using namespace std;
@@ -41,6 +41,7 @@ void EcalMatacqDigi::swap(EcalMatacqDigi& a){
   std::swap(emtcPhase_, a.emtcPhase_);
   std::swap(attenuation_dB_, a.attenuation_dB_);
   std::swap(laserPower_, a.laserPower_);
-  std::swap(timeStamp_, a.timeStamp_);
+  std::swap(tv_sec_, a.tv_sec_);
+  std::swap(tv_usec_, a.tv_usec_);
 #endif
 }
