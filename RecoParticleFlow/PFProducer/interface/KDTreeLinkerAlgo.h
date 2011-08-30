@@ -5,65 +5,68 @@
 
 #include <vector>
 
-namespace KDTreeLinker
+// Class that implements the KDTree partition of 2D space and 
+// a closest point search algorithme.
+class KDTreeLinkerAlgo
 {
-  // Class that implements the KDTree partition of space and the search algorithme.
-  class KDTreeLinkerAlgo
-  {
-  public:
-    KDTreeLinkerAlgo();
+ public:
+  KDTreeLinkerAlgo();
+  
+  // Dtor calls clear()
+  ~KDTreeLinkerAlgo();
+  
+  // Here we build the KD tree from the "eltList" in the space define by "region".
+  void build(std::vector<KDTreeNodeInfo>	&eltList,
+	     const KDTreeBox			&region);
+  
+  // Here we search in the KDTree for all points that would be 
+  // contained in the given searchbox. The founded points are stored in resRecHitList.
+  void search(const KDTreeBox			&searchBox,
+	      std::vector<KDTreeNodeInfo>	&resRecHitList);
+  
+  // This method clears all allocated structures.
+  void clear();
+  
+ private:
+  // The KDTree root
+  KDTreeNode*	root_;
+  
+  // The node pool allow us to do just 1 call to new for each tree building.
+  KDTreeNode*	nodePool_;
+  int		nodePoolSize_;
+  int		nodePoolPos_;
 
-    // For now, Dtor just calls clear()
-    ~KDTreeLinkerAlgo();
+ private:
+  // Basic swap function.
+  void swap(KDTreeNodeInfo &e1, KDTreeNodeInfo &e2);
 
-    void build(std::vector<RHinfo>	&eltList,
-	       const TBox		&region);
-    
-    void search(const TBox		&trackBox,
-		std::vector<RHinfo>	&recHits);
+  // Get next node from the node pool.
+  KDTreeNode* getNextNode();
 
-    // This method clears all allocated structures.
-    void clear();
-    
-  private:
-    // The KDTree root
-    TNode*	root_;
+  //Fast median search with Wirth algorithm in eltList between low and high indexes.
+  int medianSearch(std::vector<KDTreeNodeInfo>	&eltList,
+		   int				low,
+		   int				high,
+		   int				treeDepth);
 
-    TNode*	nodePool_;
-    int		nodePoolSize_;
-    int		nodePoolPos_;
+  // Recursif kdtree builder. Is called by build()
+  KDTreeNode *recBuild(std::vector<KDTreeNodeInfo>	&eltList, 
+		       int				low,
+		       int				hight,
+		       int				depth,
+		       const KDTreeBox&			region);
 
-  private:
-    void swap(RHinfo &e1, RHinfo &e2);
+  // Recursif kdtree search. Is called by search()
+  void recSearch(const KDTreeNode		*current,
+		 const KDTreeBox		&trackBox,
+		 std::vector<KDTreeNodeInfo>	&recHits);    
 
-    TNode* getNextNode();
+  // Add all elements of an subtree to the closest elements. Used during the recSearch().
+  void addSubtree(const KDTreeNode		*current, 
+		  std::vector<KDTreeNodeInfo>	&recHits);
 
-
-    //Fast median search with Wirth algorithm in eltList between low and high indexes.
-    int medianSearch(std::vector<RHinfo>	&eltList,
-		     int			low,
-		     int			high,
-		     int			treeDepth);
-
-    // Recursif kdtree builder. Is called by build()
-    TNode *recBuild(std::vector<RHinfo> &eltList, 
-		    int			low,
-		    int			hight,
-		    int			depth,
-		    const TBox&		region);
-
-    // Recursif kdtree search. Is called by search()
-    void recSearch(const TNode		*current,
-		   const TBox		&trackBox,
-		   std::vector<RHinfo>	&recHits);    
-
-    // Add all elements of an subtree to the closest elements. Used during the recSearch().
-    void addSubtree(const TNode		*current, 
-		    std::vector<RHinfo> &recHits);
-
-    // This method frees the KDTree.     
-    void clearTree();
-  };
-}
+  // This method frees the KDTree.     
+  void clearTree();
+};
 
 #endif

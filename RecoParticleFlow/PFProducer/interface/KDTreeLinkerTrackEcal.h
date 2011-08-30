@@ -1,98 +1,63 @@
 #ifndef KDTreeLinkerTrackEcal_h
 #define KDTreeLinkerTrackEcal_h
 
-#include "DataFormats/ParticleFlowReco/interface/PFRecHitFraction.h"
-#include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
-#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
-
+#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerBase.h"
 #include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerTools.h"
 #include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerAlgo.h"
 
-#include <vector>
 
-
-namespace KDTreeLinker
+// This class is used to find all links between Tracks and ECAL clusters
+// using a KDTree algorithm.
+// It is used in PFBlockAlgo.cc in the function links().
+class KDTreeLinkerTrackEcal : public KDTreeLinkerBase
 {
-  // Class that allows to use the KDTreeLinker optimization for Track
-  // and Ecal clusters.
-  class KDTreeLinkerTrackEcal
-  {
-  public:
-    // For the meaning of phiOffset and ecalDiameter fields, see bellow.
-    KDTreeLinkerTrackEcal(double phiOffset = 0.25,
-			  double ecalDiameter = 0.04,
-			  bool debug = false);
-    ~KDTreeLinkerTrackEcal();
+ public:
+  KDTreeLinkerTrackEcal();
+  ~KDTreeLinkerTrackEcal();
+
+  // With this method, we create the list of psCluster that we want to link.
+  void insertTargetElt(reco::PFBlockElement				*track);
+
+  // Here, we create the list of ecalCluster that we want to link. From ecalCluster
+  // and fraction, we will create a second list of rechits that will be used to
+  // build the KDTree.
+  void insertFieldClusterElt(const reco::PFBlockElement			*ecalCluster,
+			     const std::vector<reco::PFRecHitFraction>	&fraction);  
+
+  // The KDTree building from rechits list.
+  void buildTree();
   
-    void setPhiOffset(double phiOffset);
-    void setEcalDiameter(double ecalDiameter);
-    double getPhiOffset() const;
-    double getEcalDiameter() const;
+  // Here we will iterate over all tracks. For each track intersection point with ECAL, 
+  // we will search the closest rechits in the KDTree, from rechits we will find the 
+  // ecalClusters and after that we will check the links between the track and 
+  // all closest ecalClusters.  
+  void searchLinks();
+    
+  // Here, we will store all PS/ECAL founded links in the PFBlockElement class
+  // of each psCluster in the PFmultilinks field.
+  void updatePFBlockEltWithLinks();
   
-    void setDebug(bool isDebug);
+  // Here we free all allocated structures.
+  void clear();
+ 
+ private:
+  // Data used by the KDTree algorithm : sets of Tracks and ECAL clusters.
+  BlockEltSet		targetSet_;
+  ConstBlockEltSet	fieldClusterSet_;
+
+  // Sets of rechits that compose the ECAL clusters. 
+  RecHitSet		rechitsSet_;
   
-    // This 2 methods are used to build the lists of data on which the 
-    // KDTreeLinkerAlgo will work.
-    void insertTrack(reco::PFBlockElement* track);
-    void insertCluster(const reco::PFBlockElement* cluster,
-		       const std::vector<reco::PFRecHitFraction> &fraction);
-  
-    // Build the KDTree from ths lists of tracks and Ecal clusters.
-    void buildTree();
-  
-    // Search for all linked tracks/clusters and save the links in a map.
-    // After that, we may call isLinked() method.
-    void searchLinks();
-  
-    // Save all founded links in the PFMultitracks field in each track.
-    void updateTracksWithLinks();
-  
-    // This method clears ALL allocated structures (KDTree, maps, sets...).
-    // After the call to clear(), isCorrectTrack(), isEcalCluster() and some
-    // other methods will not work well.
-    void clear();
-  
-  
-    // Here, we may check if the Track/Cluster has been selected for the KDTree
-    // processing, i.e. the previous insert methods has been called on thus elements.
-    bool isCorrectTrack(reco::PFBlockElement* track) const;
-    bool isEcalCluster(const reco::PFBlockElement* cluster) const;
-  
-    // Check if the track and the cluster are linked. Should not be called after clear().
-    bool isLinked(reco::PFBlockElement* track,
-		  const reco::PFBlockElement* cluster) const;
-  
-    // Print all linked clusters to the specified track.
-    void printTrackLinks(reco::PFBlockElement* track);
-  
-  private:
-    // Usually, phi is between -Pi and +Pi. But phi space is circular, that's why an element 
-    // with phi = 3.13 and another with phi = -3.14 are close. To solve this problem, during  
-    // the kdtree building step, we duplicate some elements close enough to +Pi (resp -Pi) by
-    // substracting (adding) 2Pi. This field define the threshold of this operation.
-    double		phiOffset_;
-  
-    // When we search for the closest rechits, we approximate a maximal size envelope of rechits
-    // to find all candidates. For this purpose, we need a maximal size of an ECAL cristal.
-    double		ecalDiameter_;
-  
-    bool		debug_;
-  
-    // Data used by the KDTree algorithm : sets of tracks and clusters.
-    BlockEltSet		tracksSet_;
-    BlockEltSet_const	clustersSet_;
-  
-    // Set of all rechits that compose the clusters.
-    RecHitSet		rechitsSet_;
-  
-    // Map of clusters associated to a rechit.
-    RecHitClusterMap	rhClustersLinks_;
-  
-    // Map of linked tracks/clusters.
-    BlockEltClusterMap	trackClusterLinks_;
-  
-    KDTreeLinkerAlgo	tree_;
-  };
-}
+  // Map of linked Track/ECAL clusters.
+  BlockElt2ConstBlockEltMap	target2ClusterLinks_;
+
+  // Map of the ECAL clusters associated to a rechit.
+  RecHit2BlockEltMap	rechit2ClusterLinks_;
+    
+  // KD trees
+  KDTreeLinkerAlgo	tree_;
+
+};
+
 
 #endif /* !KDTreeLinkerTrackEcal_h */

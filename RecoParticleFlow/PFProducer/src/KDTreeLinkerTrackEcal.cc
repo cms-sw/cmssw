@@ -1,15 +1,10 @@
 #include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerTrackEcal.h"
 
+#include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
 #include "TMath.h"
 
-using namespace KDTreeLinker;
-
-KDTreeLinkerTrackEcal::KDTreeLinkerTrackEcal(double	phiOffset,
-				 double ecalDiameter,
-				 bool debug)
-  : phiOffset_ (phiOffset), 
-    ecalDiameter_(ecalDiameter),
-    debug_(debug)
+KDTreeLinkerTrackEcal::KDTreeLinkerTrackEcal()
+  : KDTreeLinkerBase()
 {}
 
 KDTreeLinkerTrackEcal::~KDTreeLinkerTrackEcal()
@@ -18,48 +13,23 @@ KDTreeLinkerTrackEcal::~KDTreeLinkerTrackEcal()
 }
 
 void
-KDTreeLinkerTrackEcal::setPhiOffset(double phiOffset)
+KDTreeLinkerTrackEcal::insertTargetElt(reco::PFBlockElement	*track)
 {
-  phiOffset_ = phiOffset;
-}
-
-double
-KDTreeLinkerTrackEcal::getPhiOffset() const
-{
-  return phiOffset_;
-}
-
-void
-KDTreeLinkerTrackEcal::setEcalDiameter(double ecalDiameter)
-{
-  ecalDiameter_ = ecalDiameter;
-}
-
-double
-KDTreeLinkerTrackEcal::getEcalDiameter() const
-{
-  return ecalDiameter_;
-}
-
-void 
-KDTreeLinkerTrackEcal::setDebug(bool isDebug)
-{
-  debug_ = isDebug;
-}
-
-void
-KDTreeLinkerTrackEcal::insertTrack(reco::PFBlockElement* track)
-{
-  tracksSet_.insert(track);
+  targetSet_.insert(track);
 }
 
 
 void
-KDTreeLinkerTrackEcal::insertCluster(const reco::PFBlockElement* cluster,
-				     const std::vector<reco::PFRecHitFraction> &fraction)
+KDTreeLinkerTrackEcal::insertFieldClusterElt(const reco::PFBlockElement			*ecalCluster,
+					     const std::vector<reco::PFRecHitFraction>	&fraction)
 {
-  // We create a list of cluster
-  clustersSet_.insert(cluster);
+  reco::PFClusterRef clusterref = ecalCluster->clusterRef();
+  if (!((clusterref->layer() == PFLayer::ECAL_ENDCAP) ||
+	(clusterref->layer() == PFLayer::ECAL_BARREL)))
+    return;
+
+  // We create a list of ecalCluster
+  fieldClusterSet_.insert(ecalCluster);
   for(size_t rhit = 0; rhit < fraction.size(); ++rhit) {
     const reco::PFRecHitRef& rh = fraction[rhit].recHitRef();
     double fract = fraction[rhit].fraction();
@@ -69,8 +39,8 @@ KDTreeLinkerTrackEcal::insertCluster(const reco::PFBlockElement* cluster,
       
     const reco::PFRecHit& rechit = *rh;
       
-    // We save the links rechit to Clusters
-    rhClustersLinks_[&rechit].insert(cluster);
+    // We save the links rechit to EcalClusters
+    rechit2ClusterLinks_[&rechit].insert(ecalCluster);
     
     // We create a liste of rechits
     rechitsSet_.insert(&rechit);
@@ -81,28 +51,28 @@ void
 KDTreeLinkerTrackEcal::buildTree()
 {
   // List of pseudo-rechits that will be used to create the KDTree
-  std::vector<RHinfo> eltList;
+  std::vector<KDTreeNodeInfo> eltList;
 
   // Filling of this list
   for(RecHitSet::const_iterator it = rechitsSet_.begin(); 
       it != rechitsSet_.end(); it++) {
     
-    const reco::PFRecHit::REPPoint &posrep = (*(*it)).positionREP();
+    const reco::PFRecHit::REPPoint &posrep = (*it)->positionREP();
     
-    RHinfo rh1 (*it, posrep.Eta(), posrep.Phi());
+    KDTreeNodeInfo rh1 (*it, posrep.Eta(), posrep.Phi());
     eltList.push_back(rh1);
     
     // Here we solve the problem of phi circular set by duplicating some rechits
     // too close to -Pi (or to Pi) and adding (substracting) to them 2 * Pi.
-    if (rh1.phi > (M_PI - getPhiOffset())) {
-      double phi = rh1.phi - 2 * M_PI;
-      RHinfo rh2(*it, posrep.Eta(), phi); 
+    if (rh1.dim2 > (M_PI - getPhiOffset())) {
+      double phi = rh1.dim2 - 2 * M_PI;
+      KDTreeNodeInfo rh2(*it, posrep.Eta(), phi); 
       eltList.push_back(rh2);
     }
 
-    if (rh1.phi < (M_PI * -1.0 + getPhiOffset())) {
-      double phi = rh1.phi + 2 * M_PI;
-      RHinfo rh3(*it, posrep.Eta(), phi); 
+    if (rh1.dim2 < (M_PI * -1.0 + getPhiOffset())) {
+      double phi = rh1.dim2 + 2 * M_PI;
+      KDTreeNodeInfo rh3(*it, posrep.Eta(), phi); 
       eltList.push_back(rh3);
     }
   }
@@ -110,7 +80,9 @@ KDTreeLinkerTrackEcal::buildTree()
   // Here we define the upper/lower bounds of the 2D space (eta/phi).
   double phimin = -1.0 * M_PI - getPhiOffset();
   double phimax = M_PI + getPhiOffset();
-  TBox region(-3.0, 3.0, phimin, phimax);
+
+  // etamin-etamax, phimin-phimax
+  KDTreeBox region(-3.0, 3.0, phimin, phimax);
 
   // We may now build the KDTree
   tree_.build(eltList, region);
@@ -122,11 +94,11 @@ KDTreeLinkerTrackEcal::searchLinks()
   // Must of the code has been taken from LinkByRecHit.cc
 
   // We iterate over the tracks.
-  for(BlockEltSet::iterator it = tracksSet_.begin(); 
-      it != tracksSet_.end(); it++) {
+  for(BlockEltSet::iterator it = targetSet_.begin(); 
+      it != targetSet_.end(); it++) {
 	
     reco::PFRecTrackRef trackref = (*it)->trackRefPF();
-    reco::PFRecTrack track(*trackref);
+    reco::PFRecTrack track (*trackref);
 
     // We set the multilinks flag of the track to true. It will allow us to 
     // use in an optimized way our algo results in the recursive linking algo.
@@ -139,33 +111,34 @@ KDTreeLinkerTrackEcal::searchLinks()
        std::abs(atECAL_tmp.positionREP().Phi())<1E-9 &&
        atECAL_tmp.positionREP().R()<1E-9) 
       track.calculatePositionREP();
-
+    
     const reco::PFTrajectoryPoint& atECAL = 
-      track.extrapolatedPoint(reco::PFTrajectoryPoint::ECALShowerMax );
+      track.extrapolatedPoint(reco::PFTrajectoryPoint::ECALShowerMax);
 
     // The track didn't reach ecal
     if( ! atECAL.isValid() ) continue;
     
     const reco::PFTrajectoryPoint& atVertex = 
       track.extrapolatedPoint( reco::PFTrajectoryPoint::ClosestApproach );
-
+    
     double trackPt = sqrt(atVertex.momentum().Vect().Perp2());
     double tracketa = atECAL.positionREP().Eta();
     double trackphi = atECAL.positionREP().Phi();
     double trackx = atECAL.position().X();
     double tracky = atECAL.position().Y();
     double trackz = atECAL.position().Z();
-
+    
     // Estimate the maximal envelope in phi/eta that will be used to find rechit candidates.
     // Same envelope for cap et barrel rechits.
-    double range = getEcalDiameter() * (2.0 + 1.0 / std::min(1., trackPt / 2.)); 
+    double range = getCristalPhiEtaMaxSize() * (2.0 + 1.0 / std::min(1., trackPt / 2.)); 
 
     // We search for all candidate recHits, ie all recHits contained in the maximal size envelope.
-    std::vector<RHinfo> recHits;
-    TBox trackBox(tracketa-range, tracketa+range, trackphi-range, trackphi+range);
+    std::vector<KDTreeNodeInfo> recHits;
+    KDTreeBox trackBox(tracketa-range, tracketa+range, trackphi-range, trackphi+range);
     tree_.search(trackBox, recHits);
     
-    for(std::vector<RHinfo>::const_iterator rhit = recHits.begin(); 
+    // Here we check all rechit candidates using the non-approximated method.
+    for(std::vector<KDTreeNodeInfo>::const_iterator rhit = recHits.begin(); 
 	rhit != recHits.end(); ++rhit) {
            
       const std::vector< math::XYZPoint >& cornersxyz      = rhit->ptr->getCornersXYZ();
@@ -183,17 +156,16 @@ KDTreeLinkerTrackEcal::searchLinks()
       if ( dphi > M_PI ) dphi = 2.*M_PI - dphi;
       
       // Find all clusters associated to given rechit
-      RecHitClusterMap::iterator ret = rhClustersLinks_.find(rhit->ptr);
+      RecHit2BlockEltMap::iterator ret = rechit2ClusterLinks_.find(rhit->ptr);
       
-      for(BlockEltSet_const::const_iterator clusterIt = ret->second.begin(); 
+      for(ConstBlockEltSet::const_iterator clusterIt = ret->second.begin(); 
 	  clusterIt != ret->second.end(); clusterIt++) {
 	
 	reco::PFClusterRef clusterref = (*clusterIt)->clusterRef();
 	double clusterz = clusterref->position().Z();
 	int fracsNbr = clusterref->recHitFractions().size();
 
-	//BARREL
-	if (clusterref->layer() == PFLayer::ECAL_BARREL){
+	if (clusterref->layer() == PFLayer::ECAL_BARREL){ // BARREL
 	  // Check if the track is in the barrel
 	  if (fabs(trackz) > 300.) continue;
 
@@ -202,16 +174,15 @@ KDTreeLinkerTrackEcal::searchLinks()
 	  
 	  // Check if the track and the cluster are linked
 	  if(deta < (_rhsizeEta / 2.) && dphi < (_rhsizePhi / 2.))
-	    trackClusterLinks_[*it].insert(*clusterIt);
+	    target2ClusterLinks_[*it].insert(*clusterIt);
 
 	  
-	}
-	//CAP 
-	else if (clusterref->layer() == PFLayer::ECAL_ENDCAP) {
+	} else { // ENDCAP
+
 	  // Check if the track is in the cap
 	  if (fabs(trackz) < 300.) continue;
 	  if (trackz * clusterz < 0.) continue;
-
+	  
 	  double x[5];
 	  double y[5];
 	  for ( unsigned jc=0; jc<4; ++jc ) {
@@ -221,47 +192,34 @@ KDTreeLinkerTrackEcal::searchLinks()
 	    y[jc] = cornerposxyz.Y() + (cornerposxyz.Y()-posxyz.Y())
 	      * (1.00+0.50/fracsNbr /std::min(1.,trackPt/2.));
 	  }
-
+	  
 	  x[4] = x[0];
 	  y[4] = y[0];
-
+	  
 	  bool isinside = TMath::IsInside(trackx,
 					  tracky,
 					  5,x,y);
-       
+	  
 	  // Check if the track and the cluster are linked
 	  if( isinside )
-	    trackClusterLinks_[*it].insert(*clusterIt);
-
-
-	} else
-	  //// TODO YG : should never happend. Check?
-	  continue;
-
-	
+	    target2ClusterLinks_[*it].insert(*clusterIt);
+	}
       }
     }
   }
 }
 
 void
-KDTreeLinkerTrackEcal::updateTracksWithLinks()
+KDTreeLinkerTrackEcal::updatePFBlockEltWithLinks()
 {
-  // For debug purpose
-  std::vector<int> histo(25, 0);
-
-  //TODO YG : Check if cluster positionREP() is valid
+  //TODO YG : Check if cluster positionREP() is valid ?
 
   // Here we save in each track the list of phi/eta values of linked clusters.
-  for (BlockEltClusterMap::iterator it = trackClusterLinks_.begin();
-       it != trackClusterLinks_.end(); ++it) {
+  for (BlockElt2ConstBlockEltMap::iterator it = target2ClusterLinks_.begin();
+       it != target2ClusterLinks_.end(); ++it) {
     reco::PFMultiLinksTC multitracks(true);
 
-    if (debug_)
-      if ( it->second.size() < 25)
-	++(histo[it->second.size()]);
-
-    for (BlockEltSet_const::iterator jt = it->second.begin();
+    for (ConstBlockEltSet::iterator jt = it->second.begin();
 	 jt != it->second.end(); ++jt) {
 
       double clusterPhi = (*jt)->clusterRef()->positionREP().Phi();
@@ -272,63 +230,18 @@ KDTreeLinkerTrackEcal::updateTracksWithLinks()
 
     it->first->setMultilinks(multitracks);
   }
-
-  if (debug_) {
-    std::cout << " Number of found links by tracks : " << std::endl;
-    
-    for (size_t i = 0; i < 10; ++i)
-      std::cout << i << " : " << histo[i] << std::endl;
-  }
 }
 
 void
 KDTreeLinkerTrackEcal::clear()
 {
-  tracksSet_.clear();
+  targetSet_.clear();
+  fieldClusterSet_.clear();
+
   rechitsSet_.clear();
-  rhClustersLinks_.clear();
-  clustersSet_.clear();
-  trackClusterLinks_.clear();
+
+  rechit2ClusterLinks_.clear();
+  target2ClusterLinks_.clear();
+
   tree_.clear();
-}
-
-
-bool
-KDTreeLinkerTrackEcal::isCorrectTrack(reco::PFBlockElement* track) const
-{
-  return tracksSet_.find(track) != tracksSet_.end();
-}
-
-bool
-KDTreeLinkerTrackEcal::isEcalCluster(const reco::PFBlockElement* cluster) const
-{
-  return clustersSet_.find(cluster) != clustersSet_.end();
-}
-
-bool
-KDTreeLinkerTrackEcal::isLinked(reco::PFBlockElement* track,
-			  const reco::PFBlockElement* cluster) const
-{
-  BlockEltClusterMap::const_iterator ret = trackClusterLinks_.find(track);
-
-  if ((ret == trackClusterLinks_.end()) ||
-      (ret->second.find(cluster) == ret->second.end()))
-    return false;
-  return true;
-}
-
-void
-KDTreeLinkerTrackEcal::printTrackLinks(reco::PFBlockElement* track)
-{
-  std::cout << " Track :" << *track << std::endl;
-
-  BlockEltClusterMap::iterator ret = trackClusterLinks_.find(track);
-
-  std::cout << "   Nbr of associated clusters = " << ret->second.size() << std::endl;
-
-  if (ret != trackClusterLinks_.end()) {
-    for (BlockEltSet_const::iterator it = ret->second.begin();
-	 it != ret->second.end(); ++it)
-      std::cout << "     " << *(*it) << std::endl;
-  }  
 }

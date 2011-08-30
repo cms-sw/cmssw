@@ -1,7 +1,5 @@
 #include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerAlgo.h"
 
-using namespace KDTreeLinker;
-
 KDTreeLinkerAlgo::KDTreeLinkerAlgo()
   : root_ (0),
     nodePool_(0),
@@ -16,71 +14,69 @@ KDTreeLinkerAlgo::~KDTreeLinkerAlgo()
 }
 
 void
-KDTreeLinkerAlgo::build(std::vector<RHinfo>	&eltList, 
-			const TBox		&region)
+KDTreeLinkerAlgo::build(std::vector<KDTreeNodeInfo>	&eltList, 
+			const KDTreeBox			&region)
 {
   if (eltList.size()) {
     nodePoolSize_ = eltList.size() * 2 - 1;
-    nodePool_ = new TNode[nodePoolSize_];
+    nodePool_ = new KDTreeNode[nodePoolSize_];
 
+    // Here we build the KDTree
     root_ = recBuild(eltList, 0, eltList.size(), 0, region);
   }
 }
 
 
-TNode*
-KDTreeLinkerAlgo::recBuild(std::vector<RHinfo>	&eltList, 
-			   int			low, 
-			   int			high, 
-			   int			depth,
-			   const TBox&		region)
+KDTreeNode*
+KDTreeLinkerAlgo::recBuild(std::vector<KDTreeNodeInfo>	&eltList, 
+			   int				low, 
+			   int				high, 
+			   int				depth,
+			   const KDTreeBox&		region)
 {
   int portionSize = high - low;
 
-  // TODO YG : write a clean error msg.
+  // By construction, portionSize > 0 can't happend.
+  assert(portionSize > 0);
 
-  //Should never happend
-  if (portionSize == 0) {
-    ////////////////////////////////////////////////////////////////////////////////
-    std::cout << "------------------------- IMPOSSIBLE BECAME POSSIBLE" << std::endl;
-    return 0;
-  }
-
-  if (portionSize == 1) { //leaf case
+  if (portionSize == 1) { // Leaf case
    
-    TNode *leaf = getNextNode();
+    KDTreeNode *leaf = getNextNode();
     leaf->setAttributs(region, eltList[low]);
     return leaf;
 
-  } else {//split into two halfplanes
+  } else { // Node case
     
-    // The even depth is associated to eta dimension
-    // The odd one to phi dimension
+    // The even depth is associated to dim1 dimension
+    // The odd one to dim2 dimension
     int medianId = medianSearch(eltList, low, high, depth);
 
-    TNode *node = getNextNode();
+    // We create the node
+    KDTreeNode *node = getNextNode();
     node->setAttributs(region);
 
-    TBox leftRegion = region;
-    TBox rightRegion = region;
 
+    // Here we split into 2 halfplanes the current plane
+    KDTreeBox leftRegion = region;
+    KDTreeBox rightRegion = region;
     if (depth & 1) {
 
-      double medianVal = eltList[medianId].phi;
-      leftRegion.phimax = medianVal;
-      rightRegion.phimin = medianVal;
+      double medianVal = eltList[medianId].dim2;
+      leftRegion.dim2max = medianVal;
+      rightRegion.dim2min = medianVal;
 
     } else {
 
-      double medianVal = eltList[medianId].eta;
-      leftRegion.etamax = medianVal;
-      rightRegion.etamin = medianVal;
+      double medianVal = eltList[medianId].dim1;
+      leftRegion.dim1max = medianVal;
+      rightRegion.dim1min = medianVal;
 
     }
 
     ++depth;
     ++medianId;
 
+    // We recursively build the son nodes
     node->left = recBuild(eltList, low, medianId, depth, leftRegion);
     node->right = recBuild(eltList, medianId, high, depth, rightRegion);
 
@@ -89,14 +85,16 @@ KDTreeLinkerAlgo::recBuild(std::vector<RHinfo>	&eltList,
 }
 
 
-
 //Fast median search with Wirth algorithm in eltList between low and high indexes.
 int
-KDTreeLinkerAlgo::medianSearch(std::vector<RHinfo>	&eltList,
-		     int			low,
-		     int			high,
-		     int			treeDepth)
+KDTreeLinkerAlgo::medianSearch(std::vector<KDTreeNodeInfo>	&eltList,
+			       int				low,
+			       int				high,
+			       int				treeDepth)
 {
+  //We should have at least 1 element to calculate the median...
+  assert(low < high);
+
   int nbrElts = high - low;
   int median = (nbrElts & 1)	? nbrElts / 2 
 				: nbrElts / 2 - 1;
@@ -106,20 +104,20 @@ KDTreeLinkerAlgo::medianSearch(std::vector<RHinfo>	&eltList,
   int m = high - 1;
   
   while (l < m) {
-    RHinfo elt = eltList[median];
+    KDTreeNodeInfo elt = eltList[median];
     int i = l;
     int j = m;
 
     do {
 
-      // The even depth is associated to eta dimension
-      // The odd one to phi dimension
+      // The even depth is associated to dim1 dimension
+      // The odd one to dim2 dimension
       if (treeDepth & 1) {
-	while (eltList[i].phi < elt.phi) i++;
-	while (eltList[j].phi > elt.phi) j--;
+	while (eltList[i].dim2 < elt.dim2) i++;
+	while (eltList[j].dim2 > elt.dim2) j--;
       } else {
-	while (eltList[i].eta < elt.eta) i++;
-	while (eltList[j].eta > elt.eta) j--;
+	while (eltList[i].dim1 < elt.dim1) i++;
+	while (eltList[j].dim1 > elt.dim1) j--;
       }
 
       if (i <= j){
@@ -136,108 +134,83 @@ KDTreeLinkerAlgo::medianSearch(std::vector<RHinfo>	&eltList,
 }
 
 void 
-KDTreeLinkerAlgo::swap(RHinfo &e1, 
-	     RHinfo &e2)
+KDTreeLinkerAlgo::swap(KDTreeNodeInfo	&e1, 
+		       KDTreeNodeInfo	&e2)
 {
-  RHinfo tmp = e1;
+  KDTreeNodeInfo tmp = e1;
   e1 = e2;
   e2 = tmp;
 }
 
 void
-KDTreeLinkerAlgo::search(const TBox		&trackBox,
-	       std::vector<RHinfo>	&recHits)
+KDTreeLinkerAlgo::search(const KDTreeBox		&trackBox,
+			 std::vector<KDTreeNodeInfo>	&recHits)
 {
   if (root_)
     recSearch(root_, trackBox, recHits);
 }
 
-
-
-
-
 void 
-KDTreeLinkerAlgo::recSearch(const TNode		*current,
-		  const TBox		&trackBox,
-		  std::vector<RHinfo>	&recHits)
+KDTreeLinkerAlgo::recSearch(const KDTreeNode		*current,
+			    const KDTreeBox		&trackBox,
+			    std::vector<KDTreeNodeInfo>	&recHits)
 {
-  // TODO YG : write a clean error msg.
-  
-  ////////////////////////////////
-  //Should never happend
-  if (current == 0) {
-    std::cout << "------------------------- IMPOSSIBLE BECAME POSSIBLE" << std::endl;
+  // By construction, current can't be null
+  assert(current != 0);
 
-    return;
-  }
-  //left == null xor right == null => Should never happend
-  if (((current->left == 0) && (current->right != 0)) ||
-      ((current->left != 0) && (current->right == 0)))
-    std::cout << "------------------------- IMPOSSIBLE BECAME POSSIBLE" << std::endl;
-  //////////////////////////////
-
-
+  // By Construction, a node can't have just 1 son.
+  assert (!(((current->left == 0) && (current->right != 0)) ||
+	    ((current->left != 0) && (current->right == 0))));
     
   if ((current->left == 0) && (current->right == 0)) {//leaf case
   
-    //if point inside the rectangle/area
-    if ((current->rh.eta >= trackBox.etamin) && (current->rh.eta <= trackBox.etamax) &&
-	(current->rh.phi >= trackBox.phimin) && (current->rh.phi <= trackBox.phimax))
+    // If point inside the rectangle/area
+    if ((current->rh.dim1 >= trackBox.dim1min) && (current->rh.dim1 <= trackBox.dim1max) &&
+	(current->rh.dim2 >= trackBox.dim2min) && (current->rh.dim2 <= trackBox.dim2max))
       recHits.push_back(current->rh);
 
   } else {
 
     //if region( v->left ) is fully contained in the rectangle
-    if ((current->left->region.etamin >= trackBox.etamin) && 
-	(current->left->region.etamax <= trackBox.etamax) &&
-	(current->left->region.phimin >= trackBox.phimin) && 
-	(current->left->region.phimax <= trackBox.phimax))
+    if ((current->left->region.dim1min >= trackBox.dim1min) && 
+	(current->left->region.dim1max <= trackBox.dim1max) &&
+	(current->left->region.dim2min >= trackBox.dim2min) && 
+	(current->left->region.dim2max <= trackBox.dim2max))
       addSubtree(current->left, recHits);
     
     else { //if region( v->left ) intersects the rectangle
       
-      if (!((current->left->region.etamin >= trackBox.etamax) || 
-	    (current->left->region.etamax <= trackBox.etamin) ||
-	    (current->left->region.phimin >= trackBox.phimax) || 
-	    (current->left->region.phimax <= trackBox.phimin)))
+      if (!((current->left->region.dim1min >= trackBox.dim1max) || 
+	    (current->left->region.dim1max <= trackBox.dim1min) ||
+	    (current->left->region.dim2min >= trackBox.dim2max) || 
+	    (current->left->region.dim2max <= trackBox.dim2min)))
 	recSearch(current->left, trackBox, recHits);
     }
     
     //if region( v->right ) is fully contained in the rectangle
-    if ((current->right->region.etamin >= trackBox.etamin) && 
-	(current->right->region.etamax <= trackBox.etamax) &&
-	(current->right->region.phimin >= trackBox.phimin) && 
-	(current->right->region.phimax <= trackBox.phimax))
+    if ((current->right->region.dim1min >= trackBox.dim1min) && 
+	(current->right->region.dim1max <= trackBox.dim1max) &&
+	(current->right->region.dim2min >= trackBox.dim2min) && 
+	(current->right->region.dim2max <= trackBox.dim2max))
       addSubtree(current->right, recHits);
 
     else { //if region( v->right ) intersects the rectangle
      
-      if (!((current->right->region.etamin >= trackBox.etamax) || 
-	    (current->right->region.etamax <= trackBox.etamin) ||
-	    (current->right->region.phimin >= trackBox.phimax) || 
-	    (current->right->region.phimax <= trackBox.phimin)))
+      if (!((current->right->region.dim1min >= trackBox.dim1max) || 
+	    (current->right->region.dim1max <= trackBox.dim1min) ||
+	    (current->right->region.dim2min >= trackBox.dim2max) || 
+	    (current->right->region.dim2max <= trackBox.dim2min)))
 	recSearch(current->right, trackBox, recHits);
     } 
   }
 }
 
 void
-KDTreeLinkerAlgo::addSubtree(const TNode		*current, 
-		   std::vector<RHinfo>	&recHits)
+KDTreeLinkerAlgo::addSubtree(const KDTreeNode		*current, 
+		   std::vector<KDTreeNodeInfo>	&recHits)
 {
-  // TODO YG : write a clean error msg.
-
-  //////////////////////
-  //Should never happend
-  if (current == 0) 
-    {    
-      std::cout << "------------------------- IMPOSSIBLE BECAME POSSIBLE - addSubtree" << std::endl;
-      return;
-    }
-  //left =null xor right =null => a tester
-  ////////////////////////
-
-
+  // By construction, current can't be null
+  assert(current != 0);
 
   if ((current->left == 0) && (current->right == 0)) // leaf
     recHits.push_back(current->rh);
@@ -266,17 +239,14 @@ KDTreeLinkerAlgo::clear()
 }
 
 
-TNode* 
+KDTreeNode* 
 KDTreeLinkerAlgo::getNextNode()
 {
   ++nodePoolPos_;
 
-  // TODO YG : Call realloc.
-  if (nodePoolPos_ == nodePoolSize_)
-    {    
-      std::cout << "------------------------- IMPOSSIBLE BECAME POSSIBLE - getNextNode" << std::endl;
-      return 0;
-    }
+  // The tree size is exactly 2 * nbrElts - 1 and this is the total allocated memory.
+  // If we have used more than that....there is a big problem.
+  assert(nodePoolPos_ < nodePoolSize_);
 
   return &(nodePool_[nodePoolPos_]);
 }

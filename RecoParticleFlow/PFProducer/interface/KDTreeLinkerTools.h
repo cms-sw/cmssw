@@ -7,93 +7,91 @@
 #include <map>
 #include <set>
 
-namespace KDTreeLinker
+typedef std::set<reco::PFBlockElement*>				BlockEltSet; 
+typedef std::set<const reco::PFBlockElement*>			ConstBlockEltSet; 
+
+typedef std::set<const reco::PFRecHit*>				RecHitSet;
+
+typedef std::map<const reco::PFRecHit*, ConstBlockEltSet>	RecHit2BlockEltMap;
+typedef std::map<reco::PFBlockElement*, ConstBlockEltSet>	BlockElt2ConstBlockEltMap;
+
+
+// Box structure used to define 2D field.
+// It's used in KDTree building step to divide the detector
+// space (ECAL, HCAL...) and in searching step to create a bounding
+// box around the demanded point (Track collision point, PS projection...).
+struct KDTreeBox
 {
-  typedef std::set<reco::PFBlockElement*>			BlockEltSet; 
-  typedef std::set<const reco::PFBlockElement*>			BlockEltSet_const; 
-
-  typedef std::set<const reco::PFRecHit*>			RecHitSet;
-
-  typedef std::map<const reco::PFRecHit*, BlockEltSet_const>	RecHitClusterMap;
-  typedef std::map<reco::PFBlockElement*, BlockEltSet_const>	BlockEltClusterMap;
-
-  // Box structure used to define 2D field with eta/phi axis.
-  // It's used in KDTree building step to divide the ECAL 
-  // eta/phi space and in searching step to create a bounding
-  // box around the demanded point.
-  struct TBox
-  {
-    double etamin, etamax;
-    double phimin, phimax;
-    
+  double dim1min, dim1max;
+  double dim2min, dim2max;
+  
   public:
-    TBox(double emin, double emax, 
-	 double pmin, double pmax)
-      : etamin (emin), etamax(emax)
-      , phimin (pmin), phimax(pmax)
-    {}
 
-    TBox()
-      : etamin (0), etamax(0)
-      , phimin (0), phimax(0)
-    {}
+  KDTreeBox(double d1min, double d1max, 
+	    double d2min, double d2max)
+    : dim1min (d1min), dim1max(d1max)
+    , dim2min (d2min), dim2max(d2max)
+  {}
 
-  };
+  KDTreeBox()
+    : dim1min (0), dim1max(0)
+    , dim2min (0), dim2max(0)
+  {}
+};
 
   
-  // Rechit data stored in each KDTree node.
-  // The eta/phi field duplicate the recHit eta/phi. But in some
-  // situations, phi field is shifted by +-2.Pi
-  struct RHinfo 
-  {
-    const reco::PFRecHit *ptr;
-    double eta;
-    double phi;
-
+// Data stored in each KDTree node.
+// The dim1/dim2 fields are usually the duplication of some PFRecHit values
+// (eta/phi or x/y). But in some situations, phi field is shifted by +-2.Pi
+struct KDTreeNodeInfo 
+{
+  const reco::PFRecHit *ptr;
+  double dim1;
+  double dim2;
+  
   public:
-    RHinfo()
-      : ptr(0)
-    {}
+  KDTreeNodeInfo()
+    : ptr(0)
+  {}
+  
+  KDTreeNodeInfo(const reco::PFRecHit	*rhptr,
+		 double			d1,
+		 double			d2)
+    : ptr(rhptr), dim1(d1), dim2(d2)
+  {}  
+};
 
-    RHinfo(const reco::PFRecHit	*rhptr,
-	   double		e,
-	   double		p)
-      : ptr(rhptr), eta(e), phi(p)
-    {}
 
-  };
-
-
-  // KDTree node.
-  struct TNode
-  {
-    // Data
-    RHinfo rh;
-
-    // Right/left sons.
-    TNode *left, *right;
-
-    // Region bounding box.
-    TBox region;
-
+// KDTree node.
+struct KDTreeNode
+{
+  // Data
+  KDTreeNodeInfo rh;
+  
+  // Right/left sons.
+  KDTreeNode *left, *right;
+  
+  // Region bounding box.
+  KDTreeBox region;
+  
   public:
-    TNode()
-      : left(0), right(0)
-    {}
+  KDTreeNode()
+    : left(0), right(0)
+  {}
+  
+  void setAttributs(const KDTreeBox&		regionBox,
+		    const KDTreeNodeInfo&	rhinfo) 
+  {
+    rh = rhinfo;
+    region = regionBox;
+  }
+  
+  void setAttributs(const KDTreeBox&   regionBox) 
+  {
+    region = regionBox;
+  }
+};
 
-    void setAttributs(const TBox&   regionBox,
-		      const RHinfo& rhinfo)
-    {
-      rh = rhinfo;
-      region = regionBox;
-    }
-
-    void setAttributs(const TBox&   regionBox)
-    {
-      region = regionBox;
-    }
-  };
-}
 
 
 #endif

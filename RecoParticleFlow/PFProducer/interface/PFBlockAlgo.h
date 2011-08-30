@@ -67,16 +67,6 @@
   \date January 2006
 */
 
-struct quartet {
-  double e1, p1, nrj, e2, p2, pt;
-
-  quartet(double e1_, double p1_, double nrj_, 
-	  double e2_, double p2_, double pt_):
-    e1(e1_), p1(p1_), nrj(nrj_), e2(e2_), p2(p2_), pt(pt_)
-  {}
-  quartet(){}
-};
-  
 class PFBlockAlgo {
 
  public:
@@ -296,8 +286,8 @@ class PFBlockAlgo {
 
   // Glowinski & Gouzevitch
   bool useKDTreeTrackEcalLinker_;
-  KDTreeLinker::KDTreeLinkerTrackEcal TELinker_;
-  KDTreeLinker::KDTreeLinkerPSEcal	PSELinker_;
+  KDTreeLinkerTrackEcal TELinker_;
+  KDTreeLinkerPSEcal	PSELinker_;
   // !Glowinski & Gouzevitch
 
   static const Mask                      dummyMask_;
@@ -838,7 +828,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 
       // Glowinski & Gouzevitch
       if (useKDTreeTrackEcalLinker_)
-	TELinker_.insertTrack(primaryElement);
+	TELinker_.insertTargetElt(primaryElement);
       // !Glowinski & Gouzevitch
     }
 
@@ -934,10 +924,8 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 
       // Glowinski & Gouzevitch
       if (useKDTreeTrackEcalLinker_){
-	TELinker_.insertCluster(te, ecalh->at(i).recHitFractions());
-
-	if (ref->layer() == PFLayer::ECAL_ENDCAP)
-	  PSELinker_.insertEcal(te, ecalh->at(i).recHitFractions());
+	TELinker_.insertFieldClusterElt(te, ecalh->at(i).recHitFractions());
+	PSELinker_.insertFieldClusterElt(te, ecalh->at(i).recHitFractions());
       }
       // !Glowinski & Gouzevitch
 
@@ -1039,7 +1027,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
       
       // Glowinski & Gouzevitch
       if (useKDTreeTrackEcalLinker_)
-	PSELinker_.insertPS(tp);
+	PSELinker_.insertTargetElt(tp);
       // !Glowinski & Gouzevitch
 
     }
