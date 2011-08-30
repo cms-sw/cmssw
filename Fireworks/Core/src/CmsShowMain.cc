@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.193 2011/07/15 04:46:59 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.194 2011/08/09 03:39:33 amraktad Exp $
 //
 
 // system include files
@@ -130,7 +130,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       delete w;
    }
    catch (std::exception& iException) {
-      std::cerr << "Failed creating an OpenGL window: " << iException.what() << "\n"
+      fwLog(fwlog::kError) << "Failed creating an OpenGL window: " << iException.what() << "\n"
          "Things to check:\n"
          "- Is DISPLAY environment variable set?\n"
          "- Are OpenGL libraries installed?\n"
@@ -180,9 +180,19 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    po::variables_map vm;
    //po::store(po::parse_command_line(newArgc, newArgv, desc), vm);
    //po::notify(vm);
-   po::store(po::command_line_parser(newArgc, newArgv).
-             options(desc).positional(p).run(), vm);
-   po::notify(vm);
+   try{ 
+      po::store(po::command_line_parser(newArgc, newArgv).
+                options(desc).positional(p).run(), vm);
+
+      po::notify(vm);
+   }
+   catch ( const std::exception& e)
+   {
+      // Return with exit status 0 to avoid generating crash reports
+      fwLog(fwlog::kError) <<  e.what() << std::endl;
+      exit(0);
+   }
+
    if(vm.count(kHelpOpt)) {
       std::cout << desc <<std::endl;
       exit(0);
@@ -627,7 +637,12 @@ CmsShowMain::setupDataHandling()
       draw();
    }
    else if (m_monitor.get() == 0 && (eiManager()->begin() != eiManager()->end()) )
-      openData();
+   {
+      if (m_inputFiles.empty())
+         openDataViaURL();
+      else
+         openData();
+   }
 }
 
 void
