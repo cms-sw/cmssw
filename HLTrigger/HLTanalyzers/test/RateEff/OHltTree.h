@@ -14600,7 +14600,12 @@ void OHltTree::initEGammaWPMap(){
   (map_EGammaCaloId["CaloIdL"])["hovereendcap"] = 0.10 ;
   (map_EGammaCaloId["CaloIdL"])["clusshapebarrel"] = 0.014;
   (map_EGammaCaloId["CaloIdL"])["clusshapeendcap"] = 0.035;
-  // IdT
+  //IdXL
+  (map_EGammaCaloId["CaloIdXL"])["hoverebarrel"] = 0.10 ;
+  (map_EGammaCaloId["CaloIdXL"])["hovereendcap"] = 0.10 ;
+  (map_EGammaCaloId["CaloIdXL"])["clusshapebarrel"] = 0.014;
+  (map_EGammaCaloId["CaloIdXL"])["clusshapeendcap"] = 0.035;
+   // IdT
   (map_EGammaCaloId["CaloIdT"])["hoverebarrel"] = 0.10 ;
   (map_EGammaCaloId["CaloIdT"])["hovereendcap"] = 0.075;
   (map_EGammaCaloId["CaloIdT"])["clusshapebarrel"] = 0.011;
@@ -14662,17 +14667,22 @@ void OHltTree::initEGammaWPMap(){
   (map_PhotonIso[""])["Eiso"] = 999.  ;
   (map_PhotonIso[""])["HisoBR"] = 999. ;
   (map_PhotonIso[""])["HisoEC"] = 999. ;
-  // IdVL
+  // IsoVL
   (map_PhotonIso["IsoVL"])["Tiso"] = 4.0 ;
   (map_PhotonIso["IsoVL"])["Eiso"] = 6.0 ;
   (map_PhotonIso["IsoVL"])["HisoBR"] = 4.0 ;
   (map_PhotonIso["IsoVL"])["HisoEC"] = 4.0 ;
-  // IdL
+  // IsoXL
+  (map_PhotonIso["IsoL"])["Tiso"] = 4.0 ;
+  (map_PhotonIso["IsoL"])["Eiso"] = 4.0 ;
+  (map_PhotonIso["IsoL"])["HisoBR"] = 4.0 ;
+  (map_PhotonIso["IsoL"])["HisoEC"] = 4.0 ;
+  // IsoL                                                                                                 
   (map_PhotonIso["IsoL"])["Tiso"] = 3.5 ;
   (map_PhotonIso["IsoL"])["Eiso"] = 5.5 ;
   (map_PhotonIso["IsoL"])["HisoBR"] = 3.5 ;
   (map_PhotonIso["IsoL"])["HisoEC"] = 3.5 ;
-  // IdT
+  // IsoT
   (map_PhotonIso["IsoT"])["Tiso"] = 3.0 ;
   (map_PhotonIso["IsoT"])["Eiso"] = 5.0 ;
   (map_PhotonIso["IsoT"])["HisoBR"] = 3.0 ;
