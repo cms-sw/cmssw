@@ -111,6 +111,7 @@ KDTreeLinkerPSEcal::searchLinks()
     double xPS = clusterPS.position().X();
     double yPS = clusterPS.position().Y();
 
+    double etaPS = fabs(clusterPS.positionREP().eta());
     double deltaX = 0.;
     double deltaY = 0.;
     double xPSonEcal = xPS;
@@ -139,10 +140,12 @@ KDTreeLinkerPSEcal::searchLinks()
     // Same envelope for cap et barrel rechits.
     
     
-    double maxEcalRadius = 2.0 * getCristalXYMaxSize() / 2.;
+    double maxEcalRadius = getCristalXYMaxSize() / 2.;
 
-    double rangeX = maxEcalRadius * (1 + (0.05 + 1.0 / maxEcalRadius * deltaX / 2.)); 
-    double rangeY = maxEcalRadius * (1 + (0.05 + 1.0 / maxEcalRadius * deltaY / 2.)); 
+    // The inflation factor includes the approximate projection from Preshower to ECAL
+    double inflation = 2.4 - (etaPS-1.6);
+    double rangeX = maxEcalRadius * (1 + (0.05 + 1.0 / maxEcalRadius * deltaX / 2.)) * inflation; 
+    double rangeY = maxEcalRadius * (1 + (0.05 + 1.0 / maxEcalRadius * deltaY / 2.)) * inflation; 
     
     // We search for all candidate recHits, ie all recHits contained in the maximal size envelope.
     std::vector<KDTreeNodeInfo> recHits;
