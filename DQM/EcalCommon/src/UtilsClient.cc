@@ -1,44 +1,17 @@
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 
 #include <string>
+#include <cmath>
 
+#include "TH1.h"
+#include "TProfile.h"
+#include "TClass.h"
 #include "TProfile2D.h"
 
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-template<class T>
-T
-getHisto( const MonitorElement* me, bool clone = false, T ret = 0)
-{
-  if( me ) {
-    TObject* ob = const_cast<MonitorElement*>(me)->getRootObject();
-    if( ob ) { 
-      if( clone ) {
-	if( ret ) {
-	  delete ret;
-	}
-	std::string s = "ME " + me->getName();
-	ret = dynamic_cast<T>(ob->Clone(s.c_str())); 
-	if( ret ) {
-	  ret->SetDirectory(0);
-	}
-      } else {
-	ret = dynamic_cast<T>(ob); 
-      }
-    } else {
-      ret = 0;
-    }
-  } else {
-    if( !clone ) {
-      ret = 0;
-    }
-  }
-  return ret;
-}
-
-template<class T>
 void
-printBadChannels( const MonitorElement* me, const T* hi, bool positive_only = false )
+UtilsClient::printBadChannels( const MonitorElement* me, TH1* hi, bool positive_only)
 {
   if ( ! me ) {
     std::cout << "printBadChannels() failed, NULL pointer to MonitorElement !"
@@ -51,7 +24,7 @@ printBadChannels( const MonitorElement* me, const T* hi, bool positive_only = fa
     return;
   }
   bool title = false;
-  TProfile2D* hj = dynamic_cast<TProfile2D*>(const_cast<T*>(hi));
+  TProfile2D* hj = static_cast<TProfile2D*>(hi);
   int kx = -1;
   int ky = -1;
   for ( int ix = 1; ix <= me->getNbinsX(); ix++ ) {
@@ -97,26 +70,135 @@ printBadChannels( const MonitorElement* me, const T* hi, bool positive_only = fa
   return;
 }
 
-template<class T>
 bool
-getBinStatistics( const T* histo, const int ix, const int iy, float& num, float& mean, float& rms )
+UtilsClient::getBinStatistics( TH1* histo, const int ix, const int iy, float& num, float& mean, float& rms, float minEntries )
 {
   num  = -1.; mean = -1.; rms  = -1.;
-  float n_min_bin = 1.;
 
-  if ( histo ) {
-    num = histo->GetBinEntries(histo->GetBin(ix, iy));
-    if ( num >= n_min_bin ) {
-      mean = histo->GetBinContent(ix, iy);
-      rms  = histo->GetBinError(ix, iy);
-      return true;
-    }
-  }
-  return false;
+  if ( !histo ) return false;
+ 
+  // TProfile2D does not inherit from TProfile; need two pointers
+ 
+  TProfile *p = NULL;
+  TProfile2D *p2 = NULL;
+ 
+  int bin = histo->GetBin(ix, iy);
+  char o;
+ 
+  TClass *cl = histo->IsA();
+  if( cl == TClass::GetClass("TProfile") ){
+    p = dynamic_cast<TProfile *>(histo);
+    num = p->GetBinEntries(bin);
+    o = *( p->GetErrorOption() );
+  }else if( cl == TClass::GetClass("TProfile2D") ){
+    p2 = dynamic_cast<TProfile2D *>(histo);
+    num = p2->GetBinEntries(bin);
+    o = *( p2->GetErrorOption() );
+  }else
+    return false;
+ 
+  if ( num < minEntries ) return false;
+ 
+  mean = histo->GetBinContent(ix, iy);
+  if( o == 's' )
+    rms  = histo->GetBinError(ix, iy);
+  else if( o == '\0' )
+    rms = histo->GetBinError(ix, iy) * std::sqrt( num );
+  // currently not compatible with other error options!!
+ 
+  return true;
 }
+ 
+/*! \fn static bool getTTStatistics( TH1 *histo, const int ix, const int iy, float &num, float &mean, float &rms, float minEntries )
+  \brief Returns true if the TT contains good statistical data. TT is taken as 5x5 block that contains (ix, iy)
+  \param (ix, iy) crystal coordinate. For TProfile iy is ignored
+  CURRENTLY ONLY FOR EB per-supermodule plots
+*/
+// static bool getTTStatistics(TH1 *histo, const int ix, const int iy, float &num, float &mean, float &rms, float minEntries = 1.)
+// {
+//   num = -1.; mean = -1.; rms = -1.;
+ 
+//   if( !histo ) return false;
+ 
+//   TProfile *p = NULL;
+//   TProfile2D *p2 = NULL;
+ 
+//   std::vector<int> bins;
+//   std::vector<float> entries;
+//   char o;
+ 
+//   TClass *cl = histo->IsA();
+//   if( cl == TClass::GetClass("TProfile") ){
+ 
+//     int ic = histo->GetBin(ix);
+//     p = static_cast<TProfile *>(histo);
+ 
+//     o = *( p->GetErrorOption() );
+ 
+//     int je = ((ic-1) / 20) / 5;
+//     int jp = ((ic-1) % 20) / 5;
+ 
+//     int bin;
+//     for(int i = 0; i < 5; i++){
+//       for(int j = 1; j <= 5; j++){
+// 	bin = (je * 5 + i) * 20 + (jp-1) * 5 + j;
+// 	bins.push_back( bin );
+// 	entries.push_back( p->GetBinEntries( bin ) );
+//       }
+//     }
+ 
+//   }else if( cl == TClass::GetClass("TProfile2D") ){
+ 
+//     p2 = static_cast<TProfile2D *>(histo);
+ 
+//     o = *( p2->GetErrorOption() );
+ 
+//     int je = (ix-1) / 5;
+//     int jp = (iy-1) / 5;
+ 
+//     int bin;
+//     for(int i = 1; i <= 5; i++){
+//       for(int j = 1; j <= 5; j++){
+// 	bin = p2->GetBin( je*5+i, jp*5+j );
+// 	bins.push_back( bin );
+// 	entries.push_back( p2->GetBinEntries( bin ) );
+//       }
+//     }
+ 
+//   }else
+//     return false;
+ 
+//   num = 0.;
+//   float tmpm, tmpr;
+//   tmpm = tmpr = 0.;
+ 
+//   int bin;
+//   float ent;
+//   float cont, err;
+//   for(unsigned u = 0; u < bins.size(); u++){
+//     bin = bins[u];
+//     ent = entries[u];
+ 
+//     num += ent;
+//     tmpm += ( cont = histo->GetBinContent( bin ) ) * ent;
+//     if(o == 's')
+//       err = histo->GetBinError( bin );
+//     else if(o == '\0')
+//       err = histo->GetBinError( bin ) * std::sqrt( entries[u] );
+//     tmpr += ( err * err + cont * cont ) * ent; // sumw2 of the bin
+//   }
+ 
+//   if( num < minEntries ) return false;
+ 
+//   mean = tmpm / num;
+//   rms = std::sqrt( tmpr / num - mean * mean );
+ 
+//   return true;
+
+// }
 
 bool
-getBinQuality( const MonitorElement* me, const int ix, const int iy )
+UtilsClient::getBinQuality( const MonitorElement* me, const int ix, const int iy )
 {
   if ( me ) {
     float val = me->getBinContent(ix, iy);
@@ -131,7 +213,7 @@ getBinQuality( const MonitorElement* me, const int ix, const int iy )
 }
 
 bool
-getBinStatus( const MonitorElement* me, const int ix, const int iy )
+UtilsClient::getBinStatus( const MonitorElement* me, const int ix, const int iy )
 {
   if ( me ) {
     float val = me->getBinContent(ix, iy);
@@ -146,7 +228,7 @@ getBinStatus( const MonitorElement* me, const int ix, const int iy )
 }
 
 void
-maskBinContent( const MonitorElement* me, const int ix, const int iy )
+UtilsClient::maskBinContent( const MonitorElement* me, const int ix, const int iy )
 {
   if ( me ) {
     float val = me->getBinContent(ix, iy);
@@ -161,7 +243,7 @@ maskBinContent( const MonitorElement* me, const int ix, const int iy )
 }
 
 int
-getFirstNonEmptyChannel( const TProfile2D* histo )
+UtilsClient::getFirstNonEmptyChannel( const TProfile2D* histo )
 {
   if ( histo ) {
     int ichannel = 1;

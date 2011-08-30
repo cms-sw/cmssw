@@ -5,17 +5,21 @@
   \file UtilsClient.h
   \brief Ecal Monitor Utils for Client
   \author B. Gobbo 
-  \version $Revision: 1.20 $
-  \date $Date: 2010/08/20 21:00:10 $
+  \version $Revision: 1.21 $
+  \date $Date: 2011/08/05 12:22:38 $
 */
 
 /*! \class UtilsClient
     \brief Utilities for Ecal Monitor Client 
  */
 
-class TProfile2D;
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "TObject.h"
 
-class MonitorElement;
+class TH1;
+class TProfile;
+class TProfile2D;
+class TClass;
 
 class UtilsClient {
 
@@ -29,15 +33,15 @@ class UtilsClient {
    */
   template<class T> static T getHisto( const MonitorElement* me, bool clone = false, T ret = 0);
 
-  /*! \fn template<class T> static void printBadChannels( const MonitorElement* me, const T* hi, bool positive_only = false )
+  /*! \fn static void printBadChannels( const MonitorElement* me, const T* hi, bool positive_only = false )
       \brief Print the bad channels
       \param me monitor element
       \param hi histogram
       \param positive_only enable logging of channels with positive content, only
    */
-  template<class T> static void printBadChannels( const MonitorElement* me, const T* hi, bool positive_only = false );
+  static void printBadChannels( const MonitorElement* me, TH1* hi, bool positive_only = false );
 
-  /*! \fn template<class T> static bool getBinStatistics( const T* histo, const int ix, const int iy, float& num, float& mean, float& rms )
+  /*! \fn static bool getBinStatistics( const T* histo, const int ix, const int iy, float& num, float& mean, float& rms )
       \brief Returns true if the bin contains good statistical data
       \param histo input ROOT histogram
       \param (ix, iy) input histogram's bin
@@ -45,7 +49,7 @@ class UtilsClient {
       \param mean bins' mean
       \param rms bin's rms
    */
-  template<class T> static bool getBinStatistics( const T* histo, const int ix, const int iy, float& num, float& mean, float& rms );
+  static bool getBinStatistics( TH1* histo, const int ix, const int iy, float& num, float& mean, float& rms, float minEntries = 1. );
 
   /*! \fn static bool getBinQuality( const MonitorElement* me, const int ix, const int iy )
       \brief Returns true if the bin quality is good or masked
@@ -80,5 +84,36 @@ class UtilsClient {
   ~UtilsClient() {}; // Hidden to force static use
 
 };
+
+template<class T>
+inline
+T
+UtilsClient::getHisto( const MonitorElement* me, bool clone, T ret)
+{
+  if( me ) {
+    TObject* ob = const_cast<MonitorElement*>(me)->getRootObject();
+    if( ob ) { 
+      if( clone ) {
+	if( ret ) {
+	  delete ret;
+	}
+	std::string s = "ME " + me->getName();
+	ret = dynamic_cast<T>(ob->Clone(s.c_str())); 
+	if( ret ) {
+	  ret->SetDirectory(0);
+	}
+      } else {
+	ret = dynamic_cast<T>(ob); 
+      }
+    } else {
+      ret = 0;
+    }
+  } else {
+    if( !clone ) {
+      ret = 0;
+    }
+  }
+  return ret;
+}
 
 #endif
