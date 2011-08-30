@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.78 2010/09/28 13:00:29 dellaric Exp $
+// $Id: Numbers.cc,v 1.79 2011/08/05 10:34:43 yiiyama Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.78 $
-  \date $Date: 2010/09/28 13:00:29 $
+  \version $Revision: 1.79 $
+  \date $Date: 2011/08/05 10:34:43 $
 */
 
 #include <sstream>
@@ -25,6 +25,7 @@
 #include "Geometry/EcalMapping/interface/EcalMappingRcd.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 
 #include "DQM/EcalCommon/interface/Numbers.h"
 
@@ -32,6 +33,7 @@
 
 const EcalElectronicsMapping* Numbers::map = 0;
 const EcalTrigTowerConstituentsMap* Numbers::mapTT = 0;
+const CaloGeometry *Numbers::geometry = 0;
 
 std::vector<DetId> Numbers::crystalsTCC_[100*108];
 std::vector<DetId> Numbers::crystalsDCC_[100* 54];
@@ -55,6 +57,10 @@ void Numbers::initGeometry( const edm::EventSetup& setup, bool verbose ) {
   edm::ESHandle<EcalTrigTowerConstituentsMap> handleTT;
   setup.get<IdealGeometryRecord>().get(handleTT);
   Numbers::mapTT = handleTT.product();
+
+  edm::ESHandle<CaloGeometry> handleGeom;
+  setup.get<CaloGeometryRecord>().get(handleGeom);
+  Numbers::geometry = handleGeom.product();
 
   if ( verbose ) std::cout << "done." << std::endl;
 
@@ -1017,6 +1023,24 @@ bool Numbers::validEE( const int ism, const int ix, const int iy ) {
 
 //-------------------------------------------------------------------------
 
+bool Numbers::validEESc( const int ism, const int ix, const int iy ) {
+
+  int iz = 0;
+
+  if( ism >=  1 && ism <=  9 ) iz = -1;
+  if( ism >= 10 && ism <= 18 ) iz = +1;
+
+  if( EcalScDetId::validDetId(ix, iy, iz) ) {
+
+    EcalScDetId id(ix, iy, iz);
+
+    if( Numbers::iSM( id ) == ism ) return true;
+
+  }
+
+  return false;
+}
+
 const EcalElectronicsMapping* Numbers::getElectronicsMapping() throw( std::runtime_error ) {
 
   if( Numbers::map ) {
@@ -1032,3 +1056,16 @@ const EcalElectronicsMapping* Numbers::getElectronicsMapping() throw( std::runti
   }
 
 }
+
+float Numbers::eta( const DetId &id )
+{
+  const GlobalPoint& pos = geometry->getPosition(id);
+  return pos.eta();
+}
+
+float Numbers::phi( const DetId &id )
+{
+  const GlobalPoint& pos = geometry->getPosition(id);
+  return pos.phi();
+}
+  
