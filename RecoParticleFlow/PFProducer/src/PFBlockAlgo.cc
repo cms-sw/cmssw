@@ -481,7 +481,7 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
 	  double xECAL  = ecalref->position().X();
 	  double yECAL  = ecalref->position().Y();
 
-	  dist = LinkByRecHit::computeDist(xECAL/1000.,yECAL/1000.,xPS/1000.  ,yPS/1000);
+	  dist = LinkByRecHit::computeDist(xECAL/1000.,yECAL/1000.,xPS/1000.  ,yPS/1000, false);
 	}
 
       } else { //Old algorithm
