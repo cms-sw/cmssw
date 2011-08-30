@@ -2,8 +2,8 @@
  * \file PixelVTXMonitor.cc
  * \author S. Dutta
  * Last Update:
- * $Date: 2011/08/19 10:04:13 $
- * $Revision: 1.4 $
+ * $Date: 2011/08/28 10:36:17 $
+ * $Revision: 1.5 $
  * $Author: dutta $
  *
  * Description: Pixel Vertex Monitoring for different HLT paths
@@ -58,6 +58,10 @@ void PixelVTXMonitor::bookHistograms() {
     else selectedPaths.push_back(*it);     
   }
     
+  edm::ParameterSet ClusHistoPar =  parameters_.getParameter<edm::ParameterSet>("TH1ClusPar");
+  edm::ParameterSet VtxHistoPar  =  parameters_.getParameter<edm::ParameterSet>("TH1VtxPar");
+
+
   std::string currentFolder = moduleName_ + "/" + folderName_ ;
   dbe_->setCurrentFolder(currentFolder.c_str());
 
@@ -74,13 +78,19 @@ void PixelVTXMonitor::bookHistograms() {
       hname += tag;
       htitle= "# of Pixel Clusters (";
       htitle += tag +")";
-      local_MEs.clusME= dbe_->book1D(hname, htitle, 200, 0.5, 2000.5);
+      local_MEs.clusME= dbe_->book1D(hname, htitle, 
+        ClusHistoPar.getParameter<int32_t>("Xbins"),
+        ClusHistoPar.getParameter<double>("Xmin"),
+        ClusHistoPar.getParameter<double>("Xmax"));
 
       hname = "nPxlVtx_";
       hname += tag;
       htitle= "# of Pixel Vertices (";
       htitle += tag +")";
-      local_MEs.vtxME= dbe_->book1D(hname, htitle, 101, -0.5, 100.5);
+      local_MEs.vtxME= dbe_->book1D(hname, htitle,
+         VtxHistoPar.getParameter<int32_t>("Xbins"),
+         VtxHistoPar.getParameter<double>("Xmin"),
+         VtxHistoPar.getParameter<double>("Xmax"));
 
       histoMap_.insert(std::make_pair(tag, local_MEs)); 
     } 
