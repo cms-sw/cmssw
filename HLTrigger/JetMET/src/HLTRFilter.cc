@@ -31,15 +31,23 @@ HLTRFilter::HLTRFilter(const edm::ParameterSet& iConfig) :
   min_R_       (iConfig.getParameter<double>       ("minR"   )),
   min_MR_      (iConfig.getParameter<double>       ("minMR"   )),
   DoRPrime_    (iConfig.getParameter<bool>       ("doRPrime"   )),
-  accept_NJ_    (iConfig.getParameter<bool>       ("acceptNJ"   ))
+  accept_NJ_   (iConfig.getParameter<bool>       ("acceptNJ"   )),
+  R_offset_    (iConfig.getParameter<double>       ("ROffset"   )),
+  MR_offset_   (iConfig.getParameter<double>       ("MROffset"   )),
+  R_MR_cut_    (iConfig.getParameter<double>       ("RMRCut"   ))
+  
 
 {
-   LogDebug("") << "Inputs/minR/minMR/doRPrime/acceptNJ : "
+   LogDebug("") << "Inputs/minR/minMR/doRPrime/acceptNJ/ROffset/MROffset/RMRCut : "
 		<< inputTag_.encode() << " "
 		<< inputMetTag_.encode() << " "
 		<< min_R_ << " "
 		<< min_MR_ << " "
-		<< accept_NJ_ << ".";
+		<< accept_NJ_ 
+		<< R_offset_ << " "
+		<< MR_offset_ << " "
+		<< R_MR_cut_
+		<< ".";
 
    //register your products
    produces<trigger::TriggerFilterObjectWithRefs>();
@@ -58,6 +66,9 @@ HLTRFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.add<double>("minMR",100.0);
   desc.add<bool>("doRPrime",false);
   desc.add<bool>("acceptNJ",true);
+  desc.add<double>("ROffset",0.0);
+  desc.add<double>("MROffset",0.0);
+  desc.add<double>("RMRCut",-999999.0);
   descriptions.add("hltRFilter",desc);
 }
 
@@ -139,7 +150,9 @@ HLTRFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      double MTR = sqrt(0.5*(met.Mag()*(ja.Pt()+jb.Pt()) - met.Dot(ja.Vect()+jb.Vect())));
      
      //filter events
-     if(MR>=min_MR_ && float(MTR)/float(MR)>=min_R_) return true;
+     float R = float(MTR)/float(MR);
+     if(MR>=min_MR_ && R>=min_R_
+	&& ( (R*R - R_offset_)*(MR-MR_offset_) )>=R_MR_cut_) return true;
      
    }
 
