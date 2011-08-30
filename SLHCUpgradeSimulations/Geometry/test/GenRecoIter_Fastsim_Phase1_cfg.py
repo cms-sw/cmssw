@@ -55,41 +55,48 @@ process.PixelCPEGenericESProducer.DoCosmics = False
 
 ## CPE for other steps
 process.siPixelRecHits.CPE = cms.string('PixelCPEGeneric')
-process.newPixelRecHits.CPE = cms.string('PixelCPEGeneric')
-process.secPixelRecHits.CPE = cms.string('PixelCPEGeneric')
-process.thPixelRecHits.CPE = cms.string('PixelCPEGeneric')
-process.preFilterZeroStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
-process.preFilterStepOneTracks.TTRHBuilder = cms.string('WithTrackAngle')
-process.secWithMaterialTracks.TTRHBuilder = cms.string('WithTrackAngle')
-process.thWithMaterialTracks.TTRHBuilder = cms.string('WithTrackAngle')
-process.fourthWithMaterialTracks.TTRHBuilder = cms.string('WithTrackAngle')
-process.fifthWithMaterialTracks.TTRHBuilder = cms.string('WithTrackAngle')
+process.initialStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
+process.lowPtTripletStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
+process.pixelPairStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
+process.detachedTripletStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
+process.mixedTripletStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
+process.pixelLessStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
+process.tobTecStepTracks.TTRHBuilder = cms.string('WithTrackAngle')
 
 # Need these lines to stop some errors about missing siStripDigis collections.
 # should add them to fakeConditions_Phase1_cff
+process.MeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
+process.MeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
+process.MeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
 process.MeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
 process.MeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
 process.MeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
-process.newMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
-process.newMeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
-process.newMeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
-process.newMeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
-process.newMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
-process.newMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
-process.secMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
-process.secMeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
-process.secMeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
-process.secMeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
-process.secMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
-process.secMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
-process.thMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
-process.thMeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
-process.thMeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
-process.thMeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
-process.thMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
-process.thMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
-process.fourthMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
-process.fifthMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
+process.lowPtTripletStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
+process.lowPtTripletStepMeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
+process.lowPtTripletStepMeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
+process.lowPtTripletStepMeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
+process.lowPtTripletStepMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
+process.lowPtTripletStepMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
+process.pixelPairStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
+process.pixelPairStepMeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
+process.pixelPairStepMeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
+process.pixelPairStepMeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
+process.pixelPairStepMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
+process.pixelPairStepMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
+process.detachedTripletStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
+process.detachedTripletStepMeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
+process.detachedTripletStepMeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
+process.detachedTripletStepMeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
+process.detachedTripletStepMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
+process.detachedTripletStepMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
+process.mixedTripletStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
+process.mixedTripletStepMeasurementTracker.UseStripModuleQualityDB     = cms.bool(False)
+process.mixedTripletStepMeasurementTracker.UseStripAPVFiberQualityDB   = cms.bool(False)
+process.mixedTripletStepMeasurementTracker.UseStripStripQualityDB      = cms.bool(False)
+process.mixedTripletStepMeasurementTracker.UsePixelModuleQualityDB     = cms.bool(False)
+process.mixedTripletStepMeasurementTracker.UsePixelROCQualityDB        = cms.bool(False)
+process.pixelLessStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
+process.tobTecStepMeasurementTracker.inactiveStripDetectorLabels = cms.VInputTag()
 
 ## for fastsim we need these ################################
 process.TrackerGeometricDetESModule.fromDDD=cms.bool(True)
@@ -110,10 +117,9 @@ process.famosSimHits.TrackerSimHits.firstLoop = False
 process.Timing =  cms.Service("Timing")
 
 # If you want to turn on/off pile-up, default is no pileup
-#process.famosPileUp.PileUpSimulator.averageNumber = 50.00
+process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 ### if doing inefficiency at <PU>=50
 #process.simSiPixelDigis.AddPixelInefficiency = 20
-
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1000)
@@ -135,20 +141,6 @@ process.configurationMetadata = cms.untracked.PSet(
 )
 
 # Output definition
-#process.FEVTDEBUGoutput = cms.OutputModule("PoolOutputModule",
-#    splitLevel = cms.untracked.int32(0),
-#    eventAutoFlushCompressedSize = cms.untracked.int32(5242880),
-#    outputCommands = process.FEVTDEBUGEventContent.outputCommands,
-#    fileName = cms.untracked.string('FourMuPt_1_50_cfi_py_GEN_FASTSIM_HLT.root'),
-#    dataset = cms.untracked.PSet(
-#        filterName = cms.untracked.string(''),
-#        dataTier = cms.untracked.string('GEN-SIM-DIGI-RECO')
-#    ),
-#    SelectEvents = cms.untracked.PSet(
-#        SelectEvents = cms.vstring('generation_step')
-#    )
-#)
-# Output definition
 process.output = cms.OutputModule("PoolOutputModule",
     splitLevel = cms.untracked.int32(0),
     outputCommands = process.RECOSIMEventContent.outputCommands,
@@ -168,66 +160,56 @@ process.GlobalTag.globaltag = 'DESIGN42_V11::All'
 
 process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = True
-#process.simulation = cms.Sequence(process.simulationWithFamos)
-#process.HLTEndSequence = cms.Sequence(process.reconstructionWithFamos)
 process.GaussVtxSmearingParameters.type = cms.string("Gaussian")
 process.famosSimHits.VertexGenerator = process.GaussVtxSmearingParameters
 process.famosPileUp.VertexGenerator = process.GaussVtxSmearingParameters
-# Replace std 10 TeV with 14 TeV pileup files and set the vertex smearing like signal
-#import FastSimulation.Event.GaussianVertexGenerator_cfi as GaussSmearing
-#process.famosPileUp.VertexGenerator = cms.PSet( GaussSmearing.myVertexGenerator )
 
 ####################
-process.load("Configuration.Generator.PythiaUESettings_cfi")
-process.generator = cms.EDFilter("Pythia6GeneratorFilter",
-    pythiaHepMCVerbosity = cms.untracked.bool(False),
-    maxEventsToPrint = cms.untracked.int32(0),
-    pythiaPylistVerbosity = cms.untracked.int32(0),
-    filterEfficiency = cms.untracked.double(1.0),
-    comEnergy = cms.double(14000.0),
-    PythiaParameters = cms.PSet(
-        process.pythiaUESettingsBlock,
-        processParameters = cms.vstring('MSEL      = 0     ! User defined processes', 
-            'MSUB(81)  = 1     ! qqbar to QQbar', 
-            'MSUB(82)  = 1     ! gg to QQbar', 
-            'MSTP(7)   = 6     ! flavour = top', 
-            'PMAS(6,1) = 175.  ! top quark mass'),
-        # This is a vector of ParameterSet names to be read, in this order
-        parameterSets = cms.vstring('pythiaUESettings', 
-            'processParameters')
-    )
-)
-################
-#process.generator = cms.EDProducer("FlatRandomPtGunProducer",
-#    PGunParameters = cms.PSet(
-#        MaxPt = cms.double(50.0),
-#        MinPt = cms.double(0.9),
-#        PartID = cms.vint32(-13, -13),
-#        MaxEta = cms.double(2.5),
-#        MaxPhi = cms.double(3.14159265359),
-#        MinEta = cms.double(-2.5),
-#        MinPhi = cms.double(-3.14159265359)
-#    ),
-#    Verbosity = cms.untracked.int32(0),
-#    psethack = cms.string('Four mu pt 1 to 50'),
-#    AddAntiParticle = cms.bool(True),
-#    firstRun = cms.untracked.uint32(1)
+#process.load("Configuration.Generator.PythiaUESettings_cfi")
+#process.generator = cms.EDFilter("Pythia6GeneratorFilter",
+#    pythiaHepMCVerbosity = cms.untracked.bool(False),
+#    maxEventsToPrint = cms.untracked.int32(0),
+#    pythiaPylistVerbosity = cms.untracked.int32(0),
+#    filterEfficiency = cms.untracked.double(1.0),
+#    comEnergy = cms.double(14000.0),
+#    PythiaParameters = cms.PSet(
+#        process.pythiaUESettingsBlock,
+#        processParameters = cms.vstring('MSEL      = 0     ! User defined processes', 
+#            'MSUB(81)  = 1     ! qqbar to QQbar', 
+#            'MSUB(82)  = 1     ! gg to QQbar', 
+#            'MSTP(7)   = 6     ! flavour = top', 
+#            'PMAS(6,1) = 175.  ! top quark mass'),
+#        # This is a vector of ParameterSet names to be read, in this order
+#        parameterSets = cms.vstring('pythiaUESettings', 
+#            'processParameters')
+#    )
 #)
+################
+process.generator = cms.EDProducer("FlatRandomPtGunProducer",
+    PGunParameters = cms.PSet(
+        MaxPt = cms.double(200.0),
+        MinPt = cms.double(0.9),
+        PartID = cms.vint32(-13, -13),
+        MaxEta = cms.double(2.5),
+        MaxPhi = cms.double(3.14159265359),
+        MinEta = cms.double(-2.5),
+        MinPhi = cms.double(-3.14159265359)
+    ),
+    Verbosity = cms.untracked.int32(0),
+    psethack = cms.string('Four mu pt 1 to 200'),
+    AddAntiParticle = cms.bool(True),
+    firstRun = cms.untracked.uint32(1)
+)
 
 ##########################################################
 process.load("Validation.RecoTrack.cutsTPEffic_cfi")
 process.load("Validation.RecoTrack.cutsTPFake_cfi")
-## if mergedBremsstrahlung is False
-#process.cutsTPEffic.src = cms.InputTag("mergedtruth")
-#process.cutsTPFake.src = cms.InputTag("mergedtruth")
 
 process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
 process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
 process.TrackAssociatorByHits.ROUList = ['famosSimHitsTrackerHits']
-## cannot use the quick one for fastsim hits yet, need ROUList passed to
-## TrackerHitAssociator TODO: ask Mark to implement this
-#process.load('SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi')
-#process.quickTrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
+process.load('SimTracker.TrackAssociation.quickTrackAssociatorByHits_cfi')
+process.quickTrackAssociatorByHits.SimToRecoDenominator = cms.string('reco')
 
 process.load('Configuration.StandardSequences.Validation_cff')
 #
@@ -255,7 +237,7 @@ process.trackValidator.label=cms.VInputTag(cms.InputTag("generalTracks"),
                                            cms.InputTag("cutsRecoTracksZeroHp"),
                                            cms.InputTag("cutsRecoTracksFirstHp")
                                            )
-#process.trackValidator.associators = cms.vstring('quickTrackAssociatorByHits')
+process.trackValidator.associators = cms.vstring('quickTrackAssociatorByHits')
 process.trackValidator.UseAssociators = True
 ## options to match with 363 histos for comparison
 process.trackValidator.histoProducerAlgoBlock.nintEta = cms.int32(20)
@@ -291,18 +273,6 @@ process.slhcTracksValidation = cms.Sequence(process.cutsRecoTracksHp*
                                  process.cutsRecoTracksFirstHp*
                                  process.trackValidator)
 
-#process.load("Validation.RecoTrack.MultiTrackValidator_cff")
-#process.multiTrackValidator.label = ['ctfWithMaterialTracks']
-#process.multiTrackValidator.sim = 'famosSimHits'
-#process.multiTrackValidator.associators = ['TrackAssociatorByHits']
-#process.multiTrackValidator.UseAssociators = True
-#process.multiTrackValidator.outputFile = "validphase1_muon_50GeV.root"
-#process.multiTrackValidator.nint = cms.int32(20)
-#process.multiTrackValidator.nintpT = cms.int32(25)
-#process.multiTrackValidator.maxpT = cms.double(50.0)
-#process.multiTrackValidator.skipHistoFit = cms.untracked.bool(False)
-#process.multiTrackValidator.runStandalone = cms.bool(True)
-
 ########################################
 ### produce an ntuple with hits for analysis
 process.ReadLocalMeasurement = cms.EDAnalyzer("StdHitNtuplizer",
@@ -335,36 +305,20 @@ process.anal = cms.EDAnalyzer("EventContentAnalyzer")
 
 ########################################
 # Path and EndPath definitions
-#process.generation_step = cms.Path(process.pgen_genonly)
-#process.reconstruction = cms.Path(process.reconstructionWithFamos)
-#process.genfiltersummary_step = cms.EndPath(process.genFilterSummary)
-#process.FEVTDEBUGoutput_step = cms.EndPath(process.FEVTDEBUGoutput)
-
-# Schedule definition
-#process.schedule = cms.Schedule(process.generation_step,process.genfiltersummary_step)
-#process.schedule.extend(process.HLTSchedule)
-#process.schedule.extend([process.reconstruction,process.FEVTDEBUGoutput_step])
-## filter all path with the production filter sequence
-#for path in process.paths:
-#	getattr(process,path)._seq = process.generator * getattr(process,path)._seq 
-#
 # Famos with tracks
 process.p0 = cms.Path(process.generator)
 process.p1 = cms.Path(process.famosWithTrackerHits)
 process.p2 = cms.Path(process.trDigi*process.trackingParticles)
-#process.p3 = cms.Path(process.trackerlocalreco)
-#process.p6 = cms.Path(process.oldTracking_wtriplets)
 process.reconstruction_step     = cms.Path(process.trackerlocalreco*
                                                 process.offlineBeamSpot+
-                                                process.recopixelvertexing*process.ckftracks_wodEdXandSteps2345)
+                                                process.recopixelvertexing*process.ckftracks_wodEdX)
 process.p7 = cms.Path(process.anal)
-#process.p8 = cms.Path(process.cutsTPEffic*process.cutsTPFake*process.multiTrackValidator)
 process.p8 = cms.Path(process.cutsTPEffic*process.cutsTPFake*process.slhcTracksValidation)
 process.p9 = cms.Path(process.ReadLocalMeasurement)
 
 process.endjob_step             = cms.Path(process.endOfProcess)
 process.out_step                = cms.EndPath(process.output)
 
-#process.schedule = cms.Schedule(process.p0,process.p1,process.p2,process.reconstruction_step,process.p8,process.p9,process.endjob_step,process.out_step)
-process.schedule = cms.Schedule(process.p0,process.p1,process.p2,process.reconstruction_step,process.p8,process.endjob_step,process.out_step)
+process.schedule = cms.Schedule(process.p0,process.p1,process.p2,process.reconstruction_step,process.p8,process.p9,process.endjob_step,process.out_step)
+#process.schedule = cms.Schedule(process.p0,process.p1,process.p2,process.reconstruction_step,process.p8,process.endjob_step,process.out_step)
 
