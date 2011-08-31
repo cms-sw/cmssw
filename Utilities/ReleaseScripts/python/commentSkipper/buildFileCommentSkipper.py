@@ -30,11 +30,11 @@ def filterOneLineComment(lines, commentStart):
 
 def filterMultilineComment(lines, commentStart, commentEnd):
     i = 0
-
-    while (i != len(lines)):
+    tlines = len(lines)
+    while (i < tlines):
         startIndex = lines[i].find(commentStart)
         startLine = i
-        while(startIndex != -1):
+        while((startIndex != -1) and (i < tlines)):
             endIndex = lines[i].find(commentEnd)
             if endIndex != -1:
                 if startLine == i:

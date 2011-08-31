@@ -22,17 +22,229 @@ SiStripPsuDetIdMap::SiStripPsuDetIdMap() { LogTrace("SiStripPsuDetIdMap") << "[S
 SiStripPsuDetIdMap::~SiStripPsuDetIdMap() {LogTrace("SiStripPsuDetIdMap") << "[SiStripPsuDetIdMap::" << __func__ << "] Destructing ..."; }
 
 // Build PSU-DETID map
-void SiStripPsuDetIdMap::BuildMap( const std::string & mapFile, const bool debug )
+void SiStripPsuDetIdMap::BuildMap()
 {
-  BuildMap(mapFile, debug, LVMap, HVMap, HVUnmapped_Map, HVCrosstalking_Map);
+  // initialize the map vector
+  pgMap.clear();
+  detectorLocations.clear();
+  dcuIds.clear();
+  cgDcuIds.clear();
+  ccuDcuIds.clear();
+
+  // first = DCU ID, second = pointer to TkDcuInfo object
+  SiStripConfigDb::DcuDetIdsV dcu_detid_vector;
+  dcu_device_addr_vector.clear();
+  // pointer to TkDcuPsuMap objects
+  DcuPsuVector powerGroup, controlGroup;
+  
+  // check that the db connection is ready
+  if ( db_ ) {
+    // retrieve both maps, if available
+    SiStripDbParams dbParams_ = db_->dbParams();
+    SiStripDbParams::SiStripPartitions::const_iterator iter;
+    for (iter = dbParams_.partitions().begin(); iter != dbParams_.partitions().end(); ++iter) {
+      if (iter->second.psuVersion().first > 0) {
+	DcuPsusRange PGrange, CGrange;
+	getDcuPsuMap(PGrange,CGrange,iter->second.partitionName());
+	if (!PGrange.empty()) {
+	  DcuPsuVector nextVec( PGrange.begin(), PGrange.end() );
+	  powerGroup.insert( powerGroup.end(), nextVec.begin(), nextVec.end() );
+	}
+	if (!CGrange.empty()) {
+	  DcuPsuVector nextVec( CGrange.begin(), CGrange.end() );
+	  controlGroup.insert( controlGroup.end(), nextVec.begin(), nextVec.end() );
+	}
+      }
+      
+      if (iter->second.dcuVersion().first > 0 && iter->second.fecVersion().first > 0) {
+	SiStripConfigDb::DcuDetIdsRange range = db_->getDcuDetIds(iter->second.partitionName());
+	if (!range.empty()) {
+	  SiStripConfigDb::DcuDetIdsV nextVec( range.begin(), range.end() );
+	  dcu_detid_vector.insert( dcu_detid_vector.end(), nextVec.begin(), nextVec.end() );
+	}
+	//	std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> > nextControlVector = retrieveDcuDeviceAddresses(iter->second.partitionName());
+	std::vector< std::pair< std::vector<uint16_t> , std::vector<uint32_t> > > nextControlVector = retrieveDcuDeviceAddresses(iter->second.partitionName());
+	dcu_device_addr_vector.insert( dcu_device_addr_vector.end(), nextControlVector.begin(), nextControlVector.end() );
+      }
+    }
+  } else {
+    edm::LogWarning("SiStripPsuDetIdMap") << "[SiStripPsuDetIdMap::" << __func__ << "] NULL pointer to SiStripConfigDb service returned!  Cannot build PSU <-> DETID map"; 
+    return;
+  }
+  LogTrace("SiStripPsuDetIdMap") << "[SiStripPsuDetIdMap::" << __func__ << "] All information retrieved!";
+  
+  if (!powerGroup.empty()) {
+    if (!dcu_detid_vector.empty()) {
+      // Retrieve the collated information for all partitions
+      // Now build the map, starting from the PSUs for power groups
+      for (unsigned int psu = 0; psu < powerGroup.size(); psu++) {
+	SiStripConfigDb::DcuDetIdsV::iterator iter = SiStripConfigDb::findDcuDetId( dcu_detid_vector.begin(), dcu_detid_vector.end(), powerGroup[psu]->getDcuHardId() );
+	if (iter != dcu_detid_vector.end()) {
+	  // check for duplicates
+	  bool presentInMap = false, multiEntry = false;
+	  unsigned int locInMap = 0;
+	  for (unsigned int ch = 0; ch < pgMap.size(); ch++) {
+	    if (pgMap[ch].first == iter->second->getDetId() && pgMap[ch].second == powerGroup[psu]->getDatapointName()) {presentInMap = true;}
+	    if (pgMap[ch].first == iter->second->getDetId() && pgMap[ch].second != powerGroup[psu]->getDatapointName()) {
+	      multiEntry = true;
+	      locInMap = ch;
+	    }
+	  }
+	  // if no duplicates, store it!
+	  if (!presentInMap && !multiEntry) {
+	    pgMap.push_back( std::make_pair( iter->second->getDetId(), powerGroup[psu]->getDatapointName() ) );
+	    detectorLocations.push_back( powerGroup[psu]->getPVSSName() );
+	    dcuIds.push_back( powerGroup[psu]->getDcuHardId() );
+	  }
+	  if (multiEntry) {
+	    pgMap[locInMap].first = iter->second->getDetId();
+	    pgMap[locInMap].second = powerGroup[psu]->getDatapointName();
+	    detectorLocations[locInMap] = powerGroup[psu]->getPVSSName();
+	    dcuIds[locInMap] = powerGroup[psu]->getDcuHardId();
+	  }
+	}
+      }
+    } else {
+      edm::LogWarning("SiStripPsuDetIdMap") << "[SiStripPsuDetIdMap::" << __func__ << "] DCU <-> DETID mapping missing!  Cannot build PSU <-> DETID map";
+    }
+  } else {
+    edm::LogWarning("SiStripPsuDetIdMap") << "[SiStripPsuDetIdMap::" << __func__ << "] DCU <-> PSU mapping missing!  Cannot build PSU <-> DETID map";
+  }
+
+  if (!controlGroup.empty() && !dcu_detid_vector.empty()) {
+    for (unsigned int cg = 0; cg < controlGroup.size(); cg++) {
+      std::vector<uint32_t> dcuids = findDcuIdFromDeviceAddress(controlGroup[cg]->getDcuHardId());
+      
+      for (unsigned int d = 0; d < dcuids.size(); d++) {
+	SiStripConfigDb::DcuDetIdsV::iterator iter = SiStripConfigDb::findDcuDetId( dcu_detid_vector.begin(), dcu_detid_vector.end(), dcuids[d] );
+	if (iter != dcu_detid_vector.end()) {
+	  bool presentInMap = false, multiEntry = false;
+	  unsigned int locInMap = 0, locOfCopy = 0;
+	  for (unsigned int ch = 0; ch < cgMap.size(); ch++) {
+	    if (cgMap[ch].first == iter->second->getDetId() && cgMap[ch].second == controlGroup[cg]->getDatapointName()) {
+	      presentInMap = true;
+	      locOfCopy = ch;
+	    }
+	    if (cgMap[ch].first == iter->second->getDetId() && cgMap[ch].second != controlGroup[cg]->getDatapointName()) {
+	      multiEntry = true;
+	      locInMap = ch;
+	    }
+	  }
+	  
+	  if (!presentInMap && !multiEntry) {
+	    cgMap.push_back( std::make_pair(iter->second->getDetId(), controlGroup[cg]->getDatapointName()) );
+	    controlLocations.push_back( controlGroup[cg]->getPVSSName() );
+	    cgDcuIds.push_back( dcuids[d] );
+	    ccuDcuIds.push_back( controlGroup[cg]->getDcuHardId() );
+	  }
+	  if (multiEntry) {
+	    cgMap[locInMap].first = iter->second->getDetId();
+	    cgMap[locInMap].second = controlGroup[cg]->getDatapointName();
+	    controlLocations[locInMap] = controlGroup[cg]->getPVSSName();
+	    cgDcuIds[locInMap] = dcuids[d];
+	    ccuDcuIds[locInMap] = controlGroup[cg]->getDcuHardId();
+	  }
+	}
+      }
+    }
+  }  
+  LogTrace("SiStripPsuDetIdMap") << "[SiStripPsuDetIdMap::" << __func__ << "]: Size of power group PSU-DetID map is: " << pgMap.size();
+  LogTrace("SiStripPsuDetIdMap") << "[SiStripPsuDetIdMap::" << __func__ << "]: Size of control group PSU-DetID map is: " << cgMap.size();
 }
 
-void SiStripPsuDetIdMap::BuildMap( const std::string & mapFile, std::vector<std::pair<uint32_t,std::string> > & rawmap) {
-  //This method is a remnant of the old method, that provided a vector type of map, based on the 
-  //raw reading of a file, with no processing.
-  //FIXME:
-  //This is not currently used, but I think we could slim this down to just a vector with 
-  //the detIDs since the PSUChannel part of the excludedlist (if it ever is in a file) is never used!
+// Extract DCU-PSU map from DB
+void SiStripPsuDetIdMap::getDcuPsuMap(DcuPsusRange &pRange, DcuPsusRange &cRange, std::string partition)
+{
+  // initialize the DCU-PSU range
+  pRange = DcuPsuMapPG_.emptyRange();
+  cRange = DcuPsuMapCG_.emptyRange();
+  // check that the db connection is ready
+  SiStripDbParams dbParams_ = db_->dbParams();
+  // devicefactory needed for DCU-PSU information
+  if ( db_->deviceFactory() ) {
+    // loop over all specified partitions
+    SiStripDbParams::SiStripPartitions::const_iterator iter;
+    for (iter = dbParams_.partitions().begin(); iter != dbParams_.partitions().end(); ++iter) {
+      if ( partition == "" || partition == iter->second.partitionName() ) {
+	if ( iter->second.partitionName() == SiStripPartition::defaultPartitionName_ ) { continue; }
+	// Stolen from RB code - modify to store DCU PSU map instead
+	// Do things the way RB does to make life easier
+	DcuPsusRange rangePG = DcuPsuMapPG_.find(iter->second.partitionName());
+	
+	if (rangePG == DcuPsuMapPG_.emptyRange()) {
+	  try {
+	    db_->deviceFactory()->getDcuPsuMapPartition(iter->second.partitionName(),iter->second.psuVersion().first,iter->second.psuVersion().second);
+	  } catch (... ) { db_->handleException( __func__ ); }
+	  
+	  // now store it locally for power groups
+	  DcuPsuVector pGroup   = db_->deviceFactory()->getPowerGroupDcuPsuMaps();
+	  DcuPsuVector cGroup   = db_->deviceFactory()->getControlGroupDcuPsuMaps();
+	  DcuPsuVector dstPG, dstCG;
+	  clone(pGroup, dstPG);
+	  clone(cGroup, dstCG);
+	  DcuPsuMapPG_.loadNext(iter->second.partitionName(), dstPG);
+	  DcuPsuMapCG_.loadNext(iter->second.partitionName(), dstCG);
+	}
+      } // if partition is blank or equal to the partitionName specified
+    } // for loop
+  } // device factory check
+  
+  // Create range object
+  uint16_t npPG = 0, ncPG = 0;
+  DcuPsusRange PGrange;
+  if ( partition != "" ) { 
+    PGrange = DcuPsuMapPG_.find(partition);
+    npPG = 1;
+    ncPG = PGrange.size();
+  } else { 
+    if (!DcuPsuMapPG_.empty()) {
+      PGrange = DcuPsusRange( DcuPsuMapPG_.find( dbParams_.partitions().begin()->second.partitionName() ).begin(),
+			      DcuPsuMapPG_.find( (--(dbParams_.partitions().end()))->second.partitionName() ).end() );
+    } else {
+      PGrange = DcuPsuMapPG_.emptyRange();
+    }
+    npPG = DcuPsuMapPG_.size();
+    ncPG = PGrange.size();
+  }
+  
+  stringstream ss; 
+  ss << "Found " << ncPG << " entries for power groups in DCU-PSU map";
+  if (DcuPsuMapPG_.empty()) {edm::LogWarning("SiStripPsuDetIdMap") << "[SiStripPsuDetIdMap::" << __func__ << "] " << ss.str();}
+  else {LogTrace("SiStripPsuDetIdMap") << "[SiStripPsuDetIdMap::" << __func__ << "] " << ss.str();}
+
+  uint16_t npCG = 0, ncCG = 0;
+  DcuPsusRange CGrange;
+  if ( partition != "" ) { 
+    CGrange = DcuPsuMapCG_.find(partition);
+    npCG = 1;
+    ncCG = CGrange.size();
+  } else { 
+    if (!DcuPsuMapCG_.empty()) {
+      CGrange = DcuPsusRange( DcuPsuMapCG_.find( dbParams_.partitions().begin()->second.partitionName() ).begin(),
+			      DcuPsuMapCG_.find( (--(dbParams_.partitions().end()))->second.partitionName() ).end() );
+    } else {
+      CGrange = DcuPsuMapCG_.emptyRange();
+    }
+    npCG = DcuPsuMapCG_.size();
+    ncCG = CGrange.size();
+  }
+
+  std::stringstream ss1;
+  ss1 << "Found " << ncCG << " entries for control groups in DCU-PSU map";
+  if (DcuPsuMapCG_.empty()) {edm::LogWarning("SiStripPsuDetIdMap") << "[SiStripPsuDetIdMap::" << __func__ << "] " << ss1.str();}
+  else {LogTrace("SiStripPsuDetIdMap") << "[SiStripPsuDetIdMap::" << __func__ << "] " << ss1.str();}
+  
+  cRange = CGrange;
+  pRange = PGrange;
+}
+
+void SiStripPsuDetIdMap::BuildMap( const std::string & mapFile )
+{
+  BuildMap(mapFile, pgMap);
+}
+
+void SiStripPsuDetIdMap::BuildMap( const std::string & mapFile, PsuDetIdMap & map )
+{
   edm::FileInPath file(mapFile.c_str());
   ifstream ifs( file.fullPath().c_str() );
   string line;
@@ -40,302 +252,98 @@ void SiStripPsuDetIdMap::BuildMap( const std::string & mapFile, std::vector<std:
     if( line != "" ) {
       // split the line and insert in the map
       stringstream ss(line);
-      string PSUChannel;
+      string dpName;
       uint32_t detId;
       ss >> detId;
-      ss >> PSUChannel;
-      rawmap.push_back(std::make_pair(detId, PSUChannel) );
+      ss >> dpName;
+      map.push_back( std::make_pair(detId, dpName) );
     }
   }
 }
 
-//The following is the currently used method (called from SiStripDetVOffBuilder::buildPSUdetIdMap)
-void SiStripPsuDetIdMap::BuildMap( const std::string & mapFile, const bool debug, PsuDetIdMap & LVmap, PsuDetIdMap & HVmap,PsuDetIdMap & HVUnmappedmap,PsuDetIdMap & HVCrosstalkingmap ) //Maybe it would be nicer to return the map instead of using a reference...
-{
-  //This method reads the map from the mapfile indicated in the cfg
-  //It populates the 4 maps (private data members of the SiStripPSUDetIdMap in question) (all maps are std::map<std::string,uint32_t > ):
-  //LVMap
-  //HVMap
-  //HVUnmapped_Map
-  //HVCrosstalking_Map
-  //These maps are accessed, based on the LV/HV case, to extract the detIDs connected to a given PSUChannel... 
-  //see the getDetIDs method...
-  edm::FileInPath file(mapFile.c_str());
-  ifstream ifs( file.fullPath().c_str() );
-  string line;
-  while( getline( ifs, line ) ) {
-    if( line != "" ) {
-      // split the line and insert in the map
-      stringstream ss(line);
-      string PSUChannel;
-      uint32_t detId;
-      ss >> detId;
-      ss >> PSUChannel;
-      //Old "vector of pairs" map!
-      //map.push_back( std::make_pair(detId, dpName) );//This "map" is normally the pgMap of the map of which we are executing BuildMap()...
-      //Using a map to make the look-up easy and avoid lots of lookup loops.
-      std::string PSU=PSUChannel.substr(0,PSUChannel.size()-10);
-      std::string Channel=PSUChannel.substr(PSUChannel.size()-10);
-      LVmap[PSU].push_back(detId); // LVmap uses simply the PSU since there is no channel distinction necessary
-      if (Channel=="channel000") {
-	HVUnmappedmap[PSU].push_back(detId); //Populate HV Unmapped map, by PSU listing all detids unmapped in that PSU (not necessarily all will be unmapped)
-      }
-      else if (Channel=="channel999") {
-	HVCrosstalkingmap[PSU].push_back(detId); //Populate HV Crosstalking map, by PSU listing all detids crosstalking in that PSU (usually all will be unmapped)
-      }
-      else {
-	HVmap[PSUChannel].push_back(detId); //HV map for HV mapped channels, populated by PSU channel!
-      }
+std::vector<uint32_t> SiStripPsuDetIdMap::getLvDetID(std::string pvss) {
+  std::vector<uint32_t> detids;
+  
+  for (PsuDetIdMap::iterator iter = pgMap.begin(); iter != pgMap.end(); iter++) {
+    if (iter->first && iter->second == pvss) {
+      detids.push_back(iter->first);
     }
   }
   
-  //Remove duplicates for all 4 maps
-  for (PsuDetIdMap::iterator psu = LVMap.begin(); psu != LVMap.end(); psu++) {
-    RemoveDuplicateDetIDs(psu->second);
-  }
-  for (PsuDetIdMap::iterator psuchan = HVMap.begin(); psuchan != HVMap.end(); psuchan++) {
-    RemoveDuplicateDetIDs(psuchan->second);
-  }
-  for (PsuDetIdMap::iterator psu = HVUnmapped_Map.begin(); psu != HVUnmapped_Map.end(); psu++) {
-    RemoveDuplicateDetIDs(psu->second);
-  }
-  for (PsuDetIdMap::iterator psu = HVCrosstalking_Map.begin(); psu != HVCrosstalking_Map.end(); psu++) {
-    RemoveDuplicateDetIDs(psu->second);
-  }
-  if (debug) {
-    //Print out all the 4 maps:
-    std::cout<<"Dumping the LV map"<<std::endl;
-    std::cout<<"PSU->detids"<<std::endl;
-    for (PsuDetIdMap::iterator psu = LVMap.begin(); psu != LVMap.end(); psu++) {
-      std::cout<<psu->first<<" corresponds to following detids"<<endl;
-      for (unsigned int i=0; i<psu->second.size(); i++) {
-	std::cout<<"\t\t"<<psu->second[i]<<std::endl;
-      }
-    }
-    std::cout<<"Dumping the HV map for HV mapped channels"<<std::endl;
-    std::cout<<"PSUChannel->detids"<<std::endl;
-    for (PsuDetIdMap::iterator psuchan = HVMap.begin(); psuchan != HVMap.end(); psuchan++) {
-      std::cout<<psuchan->first<<" corresponds to following detids"<<endl;
-      for (unsigned int i=0; i<psuchan->second.size(); i++) {
-	std::cout<<"\t\t"<<psuchan->second[i]<<std::endl;
-      }
-    }
-    std::cout<<"Dumping the HV map for HV UNmapped channels"<<std::endl;
-    std::cout<<"PSU->detids"<<std::endl;
-    for (PsuDetIdMap::iterator psu = HVUnmapped_Map.begin(); psu != HVUnmapped_Map.end(); psu++) {
-      std::cout<<psu->first<<" corresponds to following detids"<<endl;
-      for (unsigned int i=0; i<psu->second.size(); i++) {
-	std::cout<<"\t\t"<<psu->second[i]<<std::endl;
-      }
-    }
-    std::cout<<"Dumping the HV map for HV Crosstalking channels"<<std::endl;
-    std::cout<<"PSU->detids"<<std::endl;
-    for (PsuDetIdMap::iterator psu = HVCrosstalking_Map.begin(); psu != HVCrosstalking_Map.end(); psu++) {
-      std::cout<<psu->first<<" corresponds to following detids"<<endl;
-      for (unsigned int i=0; i<psu->second.size(); i++) {
-	std::cout<<"\t\t"<<psu->second[i]<<std::endl;
-      }
-    }
-    //Could add here consistency checks against the list of detIDs for Strip or Pixels
-    //Number of total detIDs LVMapped, HV Mapped, HVunmapped, HV crosstalking... 
-  }
+  // remove duplicates
+  std::sort(detids.begin(),detids.end());
+  std::vector<uint32_t>::iterator it = std::unique(detids.begin(),detids.end());
+  detids.resize( it - detids.begin() );
+
+  return detids;
 }
 
-void SiStripPsuDetIdMap::RemoveDuplicateDetIDs(std::vector<uint32_t> & detids) {
-  //Function to remove duplicates from a vector of detids
-  if (!detids.empty()) { //Leave empty vector alone ;)
-    std::sort(detids.begin(),detids.end());
-    std::vector<uint32_t>::iterator it = std::unique(detids.begin(),detids.end());
-    detids.resize( it - detids.begin() );
+std::vector<uint32_t> SiStripPsuDetIdMap::getHvDetID(std::string pvss) {
+  std::vector<uint32_t> detids;
+  std::string inputBoard = pvss;
+  std::string::size_type loc = inputBoard.size()-3;
+  inputBoard.erase(loc,3);
+  
+  for (PsuDetIdMap::iterator iter = pgMap.begin(); iter != pgMap.end(); iter++) {
+    std::string board = iter->second;
+    std::string::size_type loca = board.size()-3;
+    board.erase(loca,3);
+    if (iter->first && inputBoard == board) {
+      detids.push_back(iter->first);
+    }
   }
-}
-
-std::vector<uint32_t> SiStripPsuDetIdMap::getLvDetID(std::string PSU) {
-  //Function that returns a vector with all detids associated with a PSU 
-  //(no channel information is saved in the map since it is not relevant for LV!)
-  if (LVMap.find(PSU)!=LVMap.end()) {
-    return LVMap[PSU];
-  }
-  else {
-    std::vector<uint32_t> detids;
-    return detids;
-  }
-}
-
-void SiStripPsuDetIdMap::getHvDetID(std::string PSUChannel, std::vector<uint32_t> & ids, std::vector<uint32_t> & unmapped_ids, std::vector<uint32_t> & crosstalking_ids ) {
-  //Function that (via reference parameters) populates ids, unmapped_ids, crosstalking_ids vectors of detids associated with a given PSU *HV* channel.
-  if (HVMap.find(PSUChannel)!=HVMap.end()) {
-    ids=HVMap[PSUChannel];
-  }
-  //Extract the PSU to check the unmapped and crosstalking maps too corresponding to this channel
-  std::string PSU = PSUChannel.substr(0,PSUChannel.size()-10);
-  if (HVUnmapped_Map.find(PSU)!=HVUnmapped_Map.end()) {
-    unmapped_ids=HVUnmapped_Map[PSU];
-  }
-  if (HVCrosstalking_Map.find(PSU)!=HVCrosstalking_Map.end()) {
-    crosstalking_ids=HVCrosstalking_Map[PSU];
-  }
+  
+  // remove duplicates
+  std::sort(detids.begin(),detids.end());
+  std::vector<uint32_t>::iterator it = std::unique(detids.begin(),detids.end());
+  detids.resize( it - detids.begin() );
+  
+  return detids;
 }
 
 // This method needs to be updated once HV channel mapping is known
 // Currently, channel number is ignored for mapping purposes
 // check both PG and CG as the channels should be unique
-
-void SiStripPsuDetIdMap::getDetID(std::string PSUChannel,const bool debug,std::vector<uint32_t> & detids,std::vector<uint32_t> & unmapped_detids,std::vector<uint32_t> & crosstalking_detids ) {
-  //This function takes as argument the PSUChannel (i.e. the dpname as it comes from the PVSS query, e.g. cms_trk_dcs_02:CAEN/CMS_TRACKER_SY1527_2/branchController05/easyCrate0/easyBoard12/channel001)
-  //And it returns 3 vectors:
-  //1-detids->all the detids positively matching the PSUChannel in question
-  //2-unmapped_detids->the detids that are matching the PSU in question but that are not HV mapped
-  //3-crosstalking_detids->the detids that are matching the PSU in question but exhibit the HV channel cross-talking behavior (they are ON as long as ANY of the 2 HV channels of the supply is ON, so they only go OFF when both channels are OFF)
-  //The second and third vectors are only relevant for the HV case, when unmapped and cross-talking channels need further processing before being turned ON and OFF.
+std::vector<uint32_t> SiStripPsuDetIdMap::getDetID(std::string pvss) {
+  std::vector<uint32_t> detids;
   
-  std::string PSUChannelFromQuery = PSUChannel;
-
-  //Get the channel to see if it is LV or HV, they will be treated differently
-  std::string ChannelFromQuery=PSUChannelFromQuery.substr(PSUChannelFromQuery.size()-10);
-  //Get the PSU from Query, to be used for LVMap and for the HVUnmapped and HVCrosstalking maps:
-  std::string PSUFromQuery=PSUChannelFromQuery.substr(0,PSUChannelFromQuery.size()-10);
-  if (debug) {
-    //FIXME:
-    //Should handle all the couts with MessageLogger!
-    std::cout << "DPNAME from QUERY: "<<PSUChannelFromQuery<<", Channel: "<<ChannelFromQuery<<"PSU: "<<PSUFromQuery<<std::endl;
-  }
-
-  //First prepare the strings needed to do the matching of the PSUChannel from the query to the ones in the map
-
-  //Handle the LV case first:
-  if (ChannelFromQuery=="channel000" or ChannelFromQuery=="channel001") {
-    //For LV channels we need to look for any detID that is reported either as channel000 (not HV mapped)
-    //but also as channel002 and channel003 (if they are HV mapped), or as channel999 (if they are in a crosstalking PSU)
-    //Get the PSU to do a PSU-only matching to get all detIDs connected to the LV channel:
-    //Now loop over the map!
-    //for (PsuDetIdMap::iterator iter = pgMap.begin(); iter != pgMap.end(); iter++) {
-    //  std::string PSUFromMap = iter->second.substr(0,iter->second.size()-10);
-    //  //Careful if you uncomment this cout: it prints 15148 lines when checking for 1 psu name match! (meant for debugging of course)
-    //  //std::cout<<"Truncated DPNAME from MAP: "<<PSUFromMap<<std::endl;
-    //  if (PSUFromQuery == PSUFromMap) {
-    //    detids.push_back(iter->first); //And fill the detids vector with the all detids matching the PSU from the query!
-    //  }
-    //}
-    //No need to loop over if we use an actual map!
-    
-    if (LVMap.find(PSUFromQuery)!=LVMap.end()) {
-      detids=LVMap[PSUFromQuery];
+  std::string inputBoard = pvss;
+  std::string::size_type loc = inputBoard.size()-3;
+  inputBoard.erase(loc,3);
+  
+  for (PsuDetIdMap::iterator iter = pgMap.begin(); iter != pgMap.end(); iter++) {
+    std::string board = iter->second;
+    std::string::size_type loca = board.size()-3;
+    board.erase(loca,3);
+    if (inputBoard == board) {
+      detids.push_back(iter->first);
     }
   }
-  //Handle the HV case too:
-  else if (ChannelFromQuery=="channel002" or ChannelFromQuery=="channel003") {
-    //For the HV channel we need to look at the actual positive matching detIDs, 
-    //but also to the unmapped one (channel000) and the crosstalking ones (channel999).
-    //Assemble the corresponding channel000 (unmapped channels) replacing the last character in PSUChannelFromQuery:
-    //  std::string ZeroedPSUChannelFromQuery= PSUChannelFromQuery;
-    //  ZeroedPSUChannelFromQuery.replace(ZeroedPSUChannelFromQuery.size()-1,1,"0");
-    //  //Same for channel999 for the crosstalking channels:
-    //  //std::string NineNineNine='999';
-    //  std::string NinedPSUChannelFromQuery= PSUChannelFromQuery;
-    //  NinedPSUChannelFromQuery.replace(NinedPSUChannelFromQuery.size()-3,3,"999");
-    //  //std::string NinedPSUChannelFromQuery= PSUChannelFromQuery.substr(0,PSUChannelFromQuery.size()-3);// + '999';
-    //  //Now loop over the map!
-    //  for (PsuDetIdMap::iterator iter = pgMap.begin(); iter != pgMap.end(); iter++) {
-    //    std::string PSUChannelFromMap = iter->second;
-    //    //Careful if you uncomment this cout: it prints 15148 lines when checking for 1 psu name match! (meant for debugging of course)
-    //    //std::cout<<"Truncated DPNAME from MAP: "<<PSUFromMap<<std::endl;
-    //    if (PSUChannelFromMap==PSUChannelFromQuery)  {
-    //      detids.push_back(iter->first); //Fill the detids vector with the all detids matching the PSUChannel from the query!
-    //    }
-    //    if (PSUChannelFromMap==ZeroedPSUChannelFromQuery) {
-    //  	unmapped_detids.push_back(iter->first); //Fill the unmapped_detids vector with the all detids matching the channel000 for the PSU from the query!
-    //  	if (debug) { //BEWARE: this debug printouts can become very heavy! 1 print out per detID matched!
-    //  	  std::cout<<"Matched one of the HV-UNMAPPED channels: "<<ZeroedPSUChannelFromQuery<<std::endl;
-    //  	  std::cout<<"Corresponding to detID: "<<iter->first<<std::endl;
-    //  	  //for (unsigned int i_nohvmap_detid=0;i_nohvmap_detid < iter->first.size();i_nohvmap_detid++) {
-    //  	  //  cout<< iter->first[i_nohvmap_detid] << std::endl;
-    //  	}
-    //    }
-    //    if (PSUChannelFromMap==NinedPSUChannelFromQuery) {
-    //  	crosstalking_detids.push_back(iter->first); //Fill the crosstalking_detids vector with the all detids matching the channel999 for the PSU from the query!
-    //    }
-    //  }
-    if (HVMap.find(PSUChannelFromQuery)!=HVMap.end()) {
-      detids=HVMap[PSUChannelFromQuery];
+  // 12/6/09 (JEC)  Remove control groups because O2O is power groups ONLY
+  /*
+    if (detids.empty()) {
+    LogTrace("SiStripPsuDetIdMap") << "[SiStripPsuDetIdMap::" << __func__ << "] PSU channel not found in PGs ... Searching CGs!";
+    for (PsuDetIdMap::iterator iter = cgMap.begin(); iter != cgMap.end(); iter++) {
+    std::string board = iter->second;
+    // control groups are ONLY LV
+    std::string::size_type loca = board.size()-3;
+    board.erase(loca,3);
+    if (iter->first && inputBoard == board) {detids.push_back(iter->first);}
     }
-    else if (HVUnmapped_Map.find(PSUFromQuery)!=HVUnmapped_Map.end()) {
-      unmapped_detids=HVUnmapped_Map[PSUFromQuery];
     }
-    else if (HVCrosstalking_Map.find(PSUFromQuery)!=HVCrosstalking_Map.end()) {
-      crosstalking_detids=HVCrosstalking_Map[PSUFromQuery];
-    }
-  }
-  //  
-  //  
-  //  //With the new code above that makes use of the channel00X information in the map
-  //  //we should no more need to remove duplicates by construction.
-  //  //The following code was used when there was no channel information in the map, 
-  //  //to elegantly eliminate duplicates.
-  //  //We can now use it as a cross-check (still removing duplicates in case they happen, but writing a message out)
-  //  
-  //  // remove duplicates
-  //  
-  //  //First sort detIDs vector, so that duplicates will be consecutive
-  //  if (!detids.empty()) {
-  //    std::sort(detids.begin(),detids.end());
-  //    //Then use the forward iterator unique from STD that basically removes all consecutive duplicates from the vector
-  //    //and reports a forward iterator pointing to the new end of the sequence
-  //    std::vector<uint32_t>::iterator it = std::unique(detids.begin(),detids.end());
-  //    if (it!=detids.end()) {
-  //      std::cout<<"ARGH! It seems we found duplicate detIDs in the map corresponding to this PSUChannel: "<<PSUChannelFromQuery<<std::endl;
-  //      detids.resize( it - detids.begin() );
-  //    }
-  //    if (debug) {
-  //      std::cout<<"Matched the following detIDs to PSU channel from query "<<PSUChannelFromQuery <<":"<<std::endl;
-  //      for (std::vector<uint32_t>::iterator i_detid=detids.begin();i_detid!=detids.end(); i_detid++) {
-  //  	std::cout<<*i_detid<<std::endl;;
-  //      }
-  //    }
-  //  }
-  //  //Same for unmapped detIDs:
-  //  if (!unmapped_detids.empty()) {
-  //    std::sort(unmapped_detids.begin(),unmapped_detids.end());
-  //    //Then use the forward iterator unique from STD that basically removes all consecutive duplicates from the vector
-  //    //and reports a forward iterator pointing to the new end of the sequence
-  //    std::vector<uint32_t>::iterator it = std::unique(unmapped_detids.begin(),unmapped_detids.end());
-  //    if (it!=unmapped_detids.end()) {
-  //      std::cout<<"ARGH! It seems we found duplicate unmapped_detids in the map corresponding to this PSUChannel: "<<PSUChannelFromQuery<<std::endl;
-  //      unmapped_detids.resize( it - unmapped_detids.begin() );
-  //    }
-  //    if (debug) {
-  //      std::cout<<"Matched the following unmapped_detids to PSU channel from query "<<PSUChannelFromQuery <<":"<<std::endl;
-  //      for (std::vector<uint32_t>::iterator i_detid=unmapped_detids.begin();i_detid!=unmapped_detids.end(); i_detid++) {
-  //  	std::cout<<*i_detid<<std::endl;;
-  //      }
-  //    }
-  //  }
-  //  //Finally, same for crosstalking detIDs:
-  //  if (!crosstalking_detids.empty()) {
-  //    std::sort(crosstalking_detids.begin(),crosstalking_detids.end());
-  //    //Then use the forward iterator unique from STD that basically removes all consecutive duplicates from the vector
-  //    //and reports a forward iterator pointing to the new end of the sequence
-  //    std::vector<uint32_t>::iterator it = std::unique(crosstalking_detids.begin(),crosstalking_detids.end());
-  //    if (it!=crosstalking_detids.end()) {
-  //      std::cout<<"ARGH! It seems we found duplicate crosstalking_detids in the map corresponding to this PSUChannel: "<<PSUChannelFromQuery<<std::endl;
-  //      crosstalking_detids.resize( it - crosstalking_detids.begin() );
-  //    }
-  //    if (debug) {
-  //      std::cout<<"Matched the following crosstalking_detids to PSU channel from query "<<PSUChannelFromQuery <<":"<<std::endl;
-  //      for (std::vector<uint32_t>::iterator i_detid=crosstalking_detids.begin();i_detid!=crosstalking_detids.end(); i_detid++) {
-  //  	std::cout<<*i_detid<<std::endl;;
-  //      }
-  //    }
-  //  }
-  //  
-  //  //Using reference parameters since we are returning multiple objects.
-  //  //return detids;
-
+  */
+  
+  // remove duplicates
+  std::sort(detids.begin(),detids.end());
+  std::vector<uint32_t>::iterator it = std::unique(detids.begin(),detids.end());
+  detids.resize( it - detids.begin() );
+  
+  return detids;
 }
 
 // returns PSU channel name for a given DETID
 std::string SiStripPsuDetIdMap::getPSUName(uint32_t detid) {
-  std::vector< std::pair<uint32_t, std::string> >::iterator iter;
+  PsuDetIdMap::iterator iter;
   for (iter = pgMap.begin(); iter != pgMap.end(); iter++) {
     if (iter->first && iter->first == detid) {return iter->second;}
   }
@@ -344,7 +352,7 @@ std::string SiStripPsuDetIdMap::getPSUName(uint32_t detid) {
 }
 
 std::string SiStripPsuDetIdMap::getPSUName(uint32_t detid, std::string group) {
-  std::vector< std::pair<uint32_t, std::string> >::iterator iter;
+  PsuDetIdMap::iterator iter;
   if (group == "PG") {
     for (iter = pgMap.begin(); iter != pgMap.end(); iter++) {
       if (iter->first && iter->first == detid) {return iter->second;}
@@ -383,23 +391,23 @@ std::string SiStripPsuDetIdMap::getDetectorLocation(uint32_t detid, std::string 
 }
 
 // returns the PVSS name for a given PSU channel
-std::string SiStripPsuDetIdMap::getDetectorLocation(std::string PSUChannel) {
+std::string SiStripPsuDetIdMap::getDetectorLocation(std::string pvss) {
   for (unsigned int i = 0; i < pgMap.size(); i++) {
-    if (pgMap[i].second == PSUChannel) {return detectorLocations[i];}
+    if (pgMap[i].second == pvss) {return detectorLocations[i];}
   }
   for (unsigned int i = 0; i < cgMap.size(); i++) {
-    if (cgMap[i].second == PSUChannel) {return controlLocations[i];}
+    if (cgMap[i].second == pvss) {return controlLocations[i];}
   }
   return "UNKNOWN";
 }
 
 // returns the DCU ID for a given PSU channel
-uint32_t SiStripPsuDetIdMap::getDcuId(std::string PSUChannel) {
+uint32_t SiStripPsuDetIdMap::getDcuId(std::string pvss) {
   for (unsigned int i = 0; i < pgMap.size(); i++) {
-    if (pgMap[i].second == PSUChannel) {return dcuIds[i];}
+    if (pgMap[i].second == pvss) {return dcuIds[i];}
   }
   for (unsigned int i = 0; i < cgMap.size(); i++) {
-    if (cgMap[i].second == PSUChannel) {return cgDcuIds[i];}
+    if (cgMap[i].second == pvss) {return cgDcuIds[i];}
   }
   return 0;
 }
@@ -412,22 +420,22 @@ uint32_t SiStripPsuDetIdMap::getDcuId(uint32_t detid) {
 }
 
 // determine if a given PSU channel is HV or not
-int SiStripPsuDetIdMap::IsHVChannel(std::string PSUChannel) {
+int SiStripPsuDetIdMap::IsHVChannel(std::string pvss) {
   // isHV = 0 means LV, = 1 means HV, = -1 means error
   int isHV = 0;
-  std::string::size_type loc = PSUChannel.find( "channel", 0 );
+  std::string::size_type loc = pvss.find( "channel", 0 );
   if (loc != std::string::npos) {
-    std::string chNumber = PSUChannel.substr(loc+7,3);
+    std::string chNumber = pvss.substr(loc+7,3);
     if (chNumber == "002" || chNumber == "003") {
       isHV = 1;
     } else if (chNumber == "000" || chNumber == "001") {
       isHV = 0;
     } else {
-      edm::LogWarning("SiStripPsuDetIdMap") << "[SiStripPsuDetIdMap::" << __func__ << "] channel number of unexpected format, setting error flag!";
+      edm::LogWarning("SiStripPsuDetIdMap") << "[SiStripPsuDetIdMap::" << __func__ << "] channel number of expected format, setting error flag!";
       isHV = -1;
     }
   } else {
-    edm::LogWarning("SiStripPsuDetIdMap") << "[SiStripPsuDetIdMap::" << __func__ << "] channel number not located in PSU channel name, setting error flag!";
+    edm::LogWarning("SiStripPsuDetIdMap") << "[SiStripPsuDetIdMap::" << __func__ << "] channel number not located in PVSS name, setting error flag!";
     isHV = -1;
   }
   return isHV;

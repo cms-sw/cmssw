@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Thu Jan  3 14:59:23 EST 2008
-// $Id: FWEventItem.cc,v 1.52 2010/08/18 10:30:10 amraktad Exp $
+// $Id: FWEventItem.cc,v 1.53 2010/09/07 15:46:46 yana Exp $
 //
 
 // system include files
@@ -22,7 +22,6 @@
 #include "DataFormats/FWLite/interface/Event.h"
 // Needed to test edm::Event access
 // #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "Fireworks/Core/interface/FWModelId.h"
 #include "Fireworks/Core/interface/FWModelChangeManager.h"
 #include "Fireworks/Core/interface/FWSelectionManager.h"

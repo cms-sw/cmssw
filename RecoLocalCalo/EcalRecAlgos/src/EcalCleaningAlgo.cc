@@ -1,6 +1,6 @@
 /* Implementation of class EcalCleaningAlgo
    \author Stefano Argiro
-   \version $Id: EcalCleaningAlgo.cc,v 1.6 2011/03/08 08:55:41 argiro Exp $
+   \version $Id: EcalCleaningAlgo.cc,v 1.8 2011/05/12 19:00:34 vlimant Exp $
    \date 20 Dec 2010
 */    
 
@@ -89,7 +89,7 @@ EcalCleaningAlgo::checkTopology(const DetId& id,
   
 
   // for energies below threshold, we don't apply e4e1 cut
-  float energy = recHitE(id,rhs);
+  float energy = recHitE(id,rhs,false);
  
   if (energy< ethresh) return EcalRecHit::kGood;
   if (isNearCrack(id) && energy < ethresh*tightenCrack_e1_single_) 
@@ -142,13 +142,14 @@ float EcalCleaningAlgo::e4e1(const DetId& id,
 
  
   float s4 = 0;
-  float e1 = recHitE( id, rhs );
+  float e1 = recHitE( id, rhs, false );
   
   
   if ( e1 == 0 ) return 0;
   const std::vector<DetId>& neighs =  neighbours(id);
   for (size_t i=0; i<neighs.size(); ++i)
-    s4+=recHitE(neighs[i],rhs);
+    // avoid hits out of time when making s4
+    s4+=recHitE(neighs[i],rhs, true);
   
   return s4 / e1;
   
@@ -163,7 +164,7 @@ float EcalCleaningAlgo::e6e2(const DetId& id,
 
     float s4_1 = 0;
     float s4_2 = 0;
-    float e1 = recHitE( id, rhs );
+    float e1 = recHitE( id, rhs , false );
 
 
     float maxene=0;
@@ -173,16 +174,18 @@ float EcalCleaningAlgo::e6e2(const DetId& id,
 
     const std::vector<DetId>& neighs =  neighbours(id);
 
+    // find the most energetic neighbour ignoring time info
     for (size_t i=0; i<neighs.size(); ++i){
-      float ene = recHitE(neighs[i],rhs);
-      s4_1+=ene;
+      float ene = recHitE(neighs[i],rhs,false);
       if (ene>maxene)  {
 	maxene=ene;
 	maxid = neighs[i];
       }
     }
+
     float e2=maxene;
 
+    s4_1 = e4e1(id,rhs)* e1;
     s4_2 = e4e1(maxid,rhs)* e2;
 
     return (s4_1 + s4_2) / (e1+e2) -1. ;
@@ -193,7 +196,8 @@ float EcalCleaningAlgo::e6e2(const DetId& id,
 
 
 float EcalCleaningAlgo::recHitE( const DetId id, 
-				 const EcalRecHitCollection &recHits )
+				 const EcalRecHitCollection &recHits,
+                                 bool useTimingInfo )
 {
   if ( id.rawId() == 0 ) return 0;
   
@@ -206,9 +210,12 @@ float EcalCleaningAlgo::recHitE( const DetId id,
     float ene= (*it).energy();
 
     // ignore out of time in EB when making e4e1 if so configured
-    if (id.subdetId()==EcalBarrel &&
-	it->checkFlag(EcalRecHit::kOutOfTime) 
-	&& ene>ignoreOutOfTimeThresh_) return 0;
+    if (useTimingInfo){
+
+      if (id.subdetId()==EcalBarrel &&
+	  it->checkFlag(EcalRecHit::kOutOfTime) 
+	  && ene>ignoreOutOfTimeThresh_) return 0;
+    }
 
     // ignore hits below threshold
     if (ene < threshold) return 0;
@@ -257,4 +264,15 @@ bool EcalCleaningAlgo::isNearCrack(const DetId& id){
 
 
 
+void EcalCleaningAlgo::setFlags(EcalRecHitCollection& rhs){
+  EcalRecHitCollection::iterator rh;
+  //changing the collection on place
+  for (rh=rhs.begin(); rh!=rhs.end(); ++rh){
+    EcalRecHit::Flags state=checkTopology(rh->id(),rhs);
+    if (state!=EcalRecHit::kGood) { 
+      rh->unsetFlag(EcalRecHit::kGood);
+      rh->setFlag(state);
+    }
+  }
+}
 

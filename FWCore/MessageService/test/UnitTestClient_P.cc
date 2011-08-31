@@ -15,7 +15,7 @@ namespace edmtest
 
 
 void
-  UnitTestClient_P::analyze( edm::Event      const & e
+  UnitTestClient_P::analyze( edm::Event      const & /*unused*/
                            , edm::EventSetup const & /*unused*/
                               )
 {

@@ -1,4 +1,4 @@
-// $Id: DQMTopLevelFolder.h,v 1.1.4.2 2011/03/07 11:33:04 mommsen Exp $
+// $Id: DQMTopLevelFolder.h,v 1.4 2011/04/04 12:03:30 mommsen Exp $
 /// @file: DQMTopLevelFolder.h 
 
 #ifndef EventFilter_StorageManager_DQMTopLevelFolder_h
@@ -8,6 +8,9 @@
 
 #include "boost/shared_ptr.hpp"
 
+#include "DataFormats/Provenance/interface/Timestamp.h"
+
+#include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/Configuration.h"
 #include "EventFilter/StorageManager/interface/DQMFolder.h"
 #include "EventFilter/StorageManager/interface/DQMKey.h"
@@ -26,8 +29,8 @@ namespace stor {
    * Class holding information for one DQM event
    *
    * $Author: mommsen $
-   * $Revision: 1.1.4.2 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.4 $
+   * $Date: 2011/04/04 12:03:30 $
    */
 
   class DQMTopLevelFolder
@@ -119,7 +122,8 @@ namespace stor {
       const QueueIDs&,
       const DQMProcessingParams&,
       DQMEventMonitorCollection&,
-      const unsigned int expectedUpdates
+      const unsigned int expectedUpdates,
+      AlarmHandlerPtr
     );
 
     ~DQMTopLevelFolder();
@@ -163,17 +167,20 @@ namespace stor {
     const DQMProcessingParams dqmParams_;
     DQMEventMonitorCollection& dqmEventMonColl_;
     const unsigned int expectedUpdates_;
+    AlarmHandlerPtr alarmHandler_;
 
     unsigned int nUpdates_;
+    unsigned int mergeCount_;
     utils::TimePoint_t lastUpdate_;
-    unsigned int sentEvents_;
     std::string releaseTag_;
     uint32_t updateNumber_;
+    edm::Timestamp timeStamp_;
 
     typedef boost::shared_ptr<DQMFolder> DQMFolderPtr;
     typedef std::map<std::string, DQMFolderPtr> DQMFoldersMap;
     DQMFoldersMap dqmFolders_;
     
+    static unsigned int sentEvents_;    
   };
 
   typedef boost::shared_ptr<DQMTopLevelFolder> DQMTopLevelFolderPtr;

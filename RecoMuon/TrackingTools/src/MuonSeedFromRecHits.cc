@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2010/06/11 18:28:49 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/11/17 19:09:11 $
+ *  $Revision: 1.25 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -84,7 +84,7 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
   mat[0][0]= p_err;
   
 
-  LocalTrajectoryError error(asSMatrix<5>(mat));
+  LocalTrajectoryError error(mat);
   
   // Create the TrajectoryStateOnSurface
   TrajectoryStateOnSurface tsos(param, error, last->det()->surface(), theField);

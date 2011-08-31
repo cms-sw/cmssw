@@ -15,27 +15,27 @@ TStorageFactorySystem::~TStorageFactorySystem(void)
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 Int_t
-TStorageFactorySystem::MakeDirectory(const char *name)
+TStorageFactorySystem::MakeDirectory(const char */*name*/)
 {
   Error("MakeDirectory", "Unsupported");
   return -1;
 }
 
 void *
-TStorageFactorySystem::OpenDirectory(const char *name)
+TStorageFactorySystem::OpenDirectory(const char */*name*/)
 {
   Error("OpenDirectory", "Unsupported");
   return 0;
 }
 
 void
-TStorageFactorySystem::FreeDirectory(void * /* dirp */)
+TStorageFactorySystem::FreeDirectory(void */*dirp*/)
 {
   Error("FreeDirectory", "Unsupported");
 }
 
 const char *
-TStorageFactorySystem::GetDirEntry(void * /* dirp */)
+TStorageFactorySystem::GetDirEntry(void */*dirp*/)
 {
   Error("GetDirEntry", "Unsupported");
   return 0;

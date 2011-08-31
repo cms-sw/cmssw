@@ -30,8 +30,36 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+// constructor
+L1GtConditionEvaluation::L1GtConditionEvaluation() :
+    m_condMaxNumberObjects(0),
+    m_condLastResult(false),
+    m_combinationsInCond(new CombinationsInCond),
+    m_verbosity(0)
 
+{
 
+    // empty
+
+}
+
+// copy constructor
+L1GtConditionEvaluation::L1GtConditionEvaluation(L1GtConditionEvaluation& cp) {
+
+    m_condMaxNumberObjects = cp.condMaxNumberObjects();
+    m_condLastResult = cp.condLastResult();
+    m_combinationsInCond = cp.getCombinationsInCond();
+
+    m_verbosity = cp.m_verbosity;
+
+}
+
+// destructor
+L1GtConditionEvaluation::~L1GtConditionEvaluation() {
+
+    delete m_combinationsInCond;
+
+}
 
 // methods
 
@@ -45,7 +73,7 @@ void L1GtConditionEvaluation::print(std::ostream& myCout) const {
     CombinationsInCond::const_iterator itVV;
     std::ostringstream myCout1;
 
-    for (itVV = (m_combinationsInCond).begin(); itVV != (m_combinationsInCond).end(); itVV++) {
+    for (itVV = (*m_combinationsInCond).begin(); itVV != (*m_combinationsInCond).end(); itVV++) {
 
         myCout1 << "( ";
 

@@ -1,4 +1,4 @@
-// $Id: Configuration.cc,v 1.1.4.2 2011/03/07 12:01:12 mommsen Exp $
+// $Id: Configuration.cc,v 1.2 2011/03/07 15:41:54 mommsen Exp $
 /// @file: Configuration.cc
 
 #include "EventFilter/SMProxyServer/interface/Configuration.h"
@@ -23,12 +23,14 @@ namespace smproxy
     setDQMProcessingDefaults();
     setDQMArchivingDefaults();
     setQueueConfigurationDefaults();
+    setAlarmDefaults();
 
     setupDataRetrieverInfoSpaceParams(infoSpace);
     setupEventServingInfoSpaceParams(infoSpace);
     setupDQMProcessingInfoSpaceParams(infoSpace);
     setupDQMArchivingInfoSpaceParams(infoSpace);
     setupQueueConfigurationInfoSpaceParams(infoSpace);
+    setupAlarmInfoSpaceParams(infoSpace);
   }
 
   struct DataRetrieverParams Configuration::getDataRetrieverParams() const
@@ -60,7 +62,13 @@ namespace smproxy
     boost::mutex::scoped_lock sl(generalMutex_);
     return queueConfigParamCopy_;
   }
-
+  
+  struct AlarmParams Configuration::getAlarmParams() const
+  {
+    boost::mutex::scoped_lock sl(generalMutex_);
+    return alarmParamCopy_;
+  }
+  
   void Configuration::updateAllParams()
   {
     boost::mutex::scoped_lock sl(generalMutex_);
@@ -69,6 +77,7 @@ namespace smproxy
     updateLocalDQMProcessingData();
     updateLocalDQMArchivingData();
     updateLocalQueueConfigurationData();
+    updateLocalAlarmData();
   }
 
   void Configuration::setDataRetrieverDefaults(unsigned long instanceNumber)
@@ -125,6 +134,13 @@ namespace smproxy
     queueConfigParamCopy_.monitoringSleepSec_ = boost::posix_time::seconds(1);
   }
 
+  void Configuration::setAlarmDefaults()
+  {
+    // set defaults
+    alarmParamCopy_.sendAlarms_ = true;
+    alarmParamCopy_.corruptedEventRate_ = 0.1;
+  }
+  
   void Configuration::
   setupDataRetrieverInfoSpaceParams(xdata::InfoSpace* infoSpace)
   {
@@ -211,7 +227,19 @@ namespace smproxy
     infoSpace->fireItemAvailable("registrationQueueSize", &registrationQueueSize_);
     infoSpace->fireItemAvailable("monitoringSleepSec", &monitoringSleepSec_);
   }
+  
+  void Configuration::
+  setupAlarmInfoSpaceParams(xdata::InfoSpace* infoSpace)
+  {
+    // copy the initial defaults to the xdata variables
+    sendAlarms_ = alarmParamCopy_.sendAlarms_;
+    corruptedEventRate_ = alarmParamCopy_.corruptedEventRate_;
  
+    // bind the local xdata variables to the infospace
+    infoSpace->fireItemAvailable("sendAlarms", &sendAlarms_);
+    infoSpace->fireItemAvailable("corruptedEventRate", &corruptedEventRate_);
+  }
+
   void Configuration::updateLocalDataRetrieverData()
   {
     stor::utils::getStdVector(smRegistrationList_, dataRetrieverParamCopy_.smRegistrationList_);
@@ -270,6 +298,12 @@ namespace smproxy
       stor::utils::secondsToDuration(monitoringSleepSec_);
   }
 
+  void Configuration::updateLocalAlarmData()
+  {
+    alarmParamCopy_.sendAlarms_ = sendAlarms_;
+    alarmParamCopy_.corruptedEventRate_ = corruptedEventRate_;
+  }
+  
   void Configuration::actionPerformed(xdata::Event& ispaceEvent)
   {
     boost::mutex::scoped_lock sl(generalMutex_);

@@ -38,6 +38,7 @@
 
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h" 
 #include "DataFormats/Math/interface/Vector.h" 
 #include "DataFormats/Math/interface/Error.h" 
 #include "TrackingTools/TrajectoryState/interface/CopyUsingClone.h" 

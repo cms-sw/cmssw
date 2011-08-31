@@ -7,20 +7,16 @@ using namespace reco;
 
 SubJetProducer::SubJetProducer(edm::ParameterSet const& conf):
   CompoundJetProducer( conf ),
-  alg_(src_,
-       conf.getParameter<int>("algorithm"),
-       conf.getParameter<double>("centralEtaCut"),
-       conf.getParameter<double>("jetPtMin"),
-       conf.getParameter<double>("jetSize"),
+  alg_(conf.getParameter<double>("jetPtMin"),
        conf.getParameter<int>("nSubjets"),
-       conf.getParameter<bool>("enable_pruning"))
+       conf.getParameter<double>("zcut"),
+       conf.getParameter<double>("rcut_factor"),
+       fjJetDefinition_,
+       doAreaFastjet_,
+       fjActiveArea_,
+       voronoiRfact_
+       )
 {
-    if(alg_.get_pruning()){
-        double z = conf.getParameter<double>("zcut");
-        alg_.set_zcut(z);
-        double rcut = conf.getParameter<double>("rcut_factor");
-        alg_.set_rcut_factor(rcut);
-    }
 }
 
 void SubJetProducer::produce(  edm::Event & e, const edm::EventSetup & c )
@@ -30,7 +26,9 @@ void SubJetProducer::produce(  edm::Event & e, const edm::EventSetup & c )
   
 void SubJetProducer::runAlgorithm( edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  alg_.run( fjInputs_, fjCompoundJets_, iSetup );
+
+  alg_.run( fjInputs_, 
+	    fjCompoundJets_ );
 }
 
 
