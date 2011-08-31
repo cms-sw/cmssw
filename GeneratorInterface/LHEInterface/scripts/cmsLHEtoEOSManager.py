@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.6 $"
+__version__ = "$Revision: 1.7 $"
 
 import os
 import subprocess
@@ -188,8 +188,10 @@ if __name__ == '__main__':
     elif options.artIdLi !=0:
         listPath = defaultEOSRootPath+'/'+str(options.artIdLi)
         theCommand = defaultEOSlistCommand+' '+listPath
-        exeList = subprocess.Popen(["/bin/sh","-c",theCommand])
-        exeList.communicate()
+        exeList = subprocess.Popen(["/bin/sh","-c",theCommand], stdout=subprocess.PIPE)
+        for line in exeList.stdout.readlines():
+            if findXrdDir(line) != None:
+                print findXrdDir(line)
 
 
     if newArt > 0:
