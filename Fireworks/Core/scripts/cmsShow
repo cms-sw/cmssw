@@ -68,7 +68,6 @@ checkRemoteConnection()
    fi
 }
 
-
 setupEnv()
 {
    # strip of the directory name for this shell script
@@ -138,6 +137,23 @@ writeSystemInfoToFile()
    glxinfo >> $file
 }
 
+errorPrint()
+{
+   # Wrap message to defined line width and add padding.
+   echo $1 | awk '{  txt=$0; m=66;\
+                  ll=int(length(txt)/m) ; i=1; \
+                  if (length(txt)>(m +2)) { \
+                      { print "  #  " substr(txt,0,m) "  #  "} \
+                      while (i<ll) { { print "  #  " substr(txt,i*m+1,m) }  i=i+1;} \
+                      fmt=sprintf("%%%ds", ll*m + m + 1 -length(txt) ); x=sprintf(fmt, "#"); \
+                      { print "  #  " substr(txt,i*m+1,m) "  " x "  " } \
+                      }\
+                  else { \
+                      fmt=sprintf("%%%ds", m +1  -length(txt) ); x=sprintf(fmt, "#"); \
+                      { print "  #  " (txt) "  " x " "} } \
+                  }' 
+}
+
 ################################################################################
 # Main body of script starts here
 ################################################################################
@@ -152,7 +168,7 @@ if [ "X$softflag" = "Xon" ] ; then
 fi
 
 
-# Developers cases -- run with gdb or valgrind.
+# Developers cases -- run from gdb or valgrind.
 if [ "X$debuginteractiveflag" = Xon ] ; then
   gdb --args "$SHELLDIR/cmsShow.exe" $originalOptions
   exit;
@@ -162,40 +178,36 @@ elif [ "X$valgrindflag" = Xon ] ; then
 fi
 
 
-# Run cmsShow in debug or non-debug mode.
-tmpfile=`mktemp /tmp/cmsshow-gdb-XXXXXXXX`
+# Run cmsShow 
 if [ -w . ]; then
-   creport="./cmsshow-crash-report.txt"
-   touch $creport
+   creport=`TMPDIR=$PWD mktemp cmsshow-crash-report-XXXX`.txt
 else
-   creport=`mktemp /tmp/cmsshow-crash-report-XXXXXXXX`
+   creport=`mktemp cmsshow-crash-report-XXXX`.txt
 fi
 
+echo $creport
 "$SHELLDIR/cmsShow.exe" $originalOptions  | tee $creport
 exitStatus=${PIPESTATUS[0]}
 
-if [ "X$debugflag" = "Xon" ] ; then
+
+if [ $exitStatus -gt 0 ] && [ "$rootflag" != "on" ] ; then 
    writeSystemInfoToFile $creport
+   echo ""
+   echo "  ########################################################################"
+   errorPrint ""
+   errorPrint "        Abnormal program termination!"
+   errorPrint ""
+   errorPrint "Please send:"
+   errorPrint "$creport"
+   errorPrint "to hn-cms-visualization@cern.ch."
+   errorPrint " "                          
+   errorPrint "Or, notify us by running:"
+   errorPrint "cmsShowSendReport ${creport}"                                       
+   errorPrint ""
+   echo "  ########################################################################"
+   echo ""
 else
-   if [ $exitStatus -gt 0 ] && [ "$rootflag" != "on" ] ; then 
-         echo ""
-         echo "  ########################################################################"
-         echo "  #                                                                      #"
-         echo "  #                  Abnormal program termination!                       #"
-         echo "  #                                                                      #"
-         echo "  #  We regret that this happened and we would appreciate your help      #"
-         echo "  #  in debugging and reporting this problem. Please try to reproduce    #"
-         echo "  #  the problem by running the program with --debug flag to get         #"
-         echo "  #  a crash report and send its content (file name reported on screen)  #"
-         echo "  #  to hn-cms-visualization@cern.ch with brief instructions how to      #"
-         echo "  #  reproduce the problem.                                              #"
-         echo "  #                                                                      #"
-         echo "  ########################################################################"
-         echo ""
-	 writeSystemInfoToFile $creport
-         gzip -c $creport | nc -u -w0 169.228.130.91 9699 
-         rm $creport;        
-   fi
+   rm $creport;
 fi
 
 exit $exitStatus;
