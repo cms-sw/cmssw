@@ -411,10 +411,10 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    Tk_Obs_StopN    ->SetLineColor(2);  Tk_Obs_StopN    ->SetMarkerColor(2);   Tk_Obs_StopN    ->SetLineWidth(2);   Tk_Obs_StopN    ->SetLineStyle(1);  Tk_Obs_StopN    ->SetMarkerStyle(25);
    GMStauXSec      ->SetLineColor(1);  GMStauXSec      ->SetMarkerColor(1);   GMStauXSec      ->SetLineWidth(1);   GMStauXSec      ->SetLineStyle(1);  GMStauXSec      ->SetMarkerStyle(1);
    PPStauXSec      ->SetLineColor(6);  PPStauXSec      ->SetMarkerColor(6);   PPStauXSec      ->SetLineWidth(1);   PPStauXSec      ->SetLineStyle(4);  PPStauXSec      ->SetMarkerStyle(1);
-   DCStauXSec      ->SetLineColor(9);  PPStauXSec      ->SetMarkerColor(9);   PPStauXSec      ->SetLineWidth(1);   PPStauXSec      ->SetLineStyle(9);  PPStauXSec      ->SetMarkerStyle(1);
+   DCStauXSec      ->SetLineColor(9);  PPStauXSec      ->SetMarkerColor(9);   PPStauXSec      ->SetLineWidth(1);   PPStauXSec      ->SetLineStyle(2);  PPStauXSec      ->SetMarkerStyle(1);
    Mu_Obs_GMStau   ->SetLineColor(1);  Mu_Obs_GMStau   ->SetMarkerColor(1);   Mu_Obs_GMStau   ->SetLineWidth(2);   Mu_Obs_GMStau   ->SetLineStyle(1);  Mu_Obs_GMStau   ->SetMarkerStyle(23);
    Mu_Obs_PPStau   ->SetLineColor(6);  Mu_Obs_PPStau   ->SetMarkerColor(6);   Mu_Obs_PPStau   ->SetLineWidth(2);   Mu_Obs_PPStau   ->SetLineStyle(1);  Mu_Obs_PPStau   ->SetMarkerStyle(23);
-   Mu_Obs_DCStau   ->SetLineColor(9);  Mu_Obs_PPStau   ->SetMarkerColor(9);   Mu_Obs_PPStau   ->SetLineWidth(2);   Mu_Obs_PPStau   ->SetLineStyle(1);  Mu_Obs_PPStau   ->SetMarkerStyle(23);
+   Mu_Obs_DCStau   ->SetLineColor(9);  Mu_Obs_DCStau   ->SetMarkerColor(9);   Mu_Obs_DCStau   ->SetLineWidth(2);   Mu_Obs_DCStau   ->SetLineStyle(1);  Mu_Obs_DCStau   ->SetMarkerStyle(20);
 
    Tk_Obs_GMStau   ->SetLineColor(1);  Tk_Obs_GMStau   ->SetMarkerColor(1);   Tk_Obs_GMStau   ->SetLineWidth(2);   Tk_Obs_GMStau   ->SetLineStyle(1);  Tk_Obs_GMStau   ->SetMarkerStyle(20);
    Tk_Obs_PPStau   ->SetLineColor(6);  Tk_Obs_PPStau   ->SetMarkerColor(6);   Tk_Obs_PPStau   ->SetLineWidth(2);   Tk_Obs_PPStau   ->SetLineStyle(1);  Tk_Obs_PPStau   ->SetMarkerStyle(20);
@@ -427,7 +427,6 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    MGMu->Add(StopXSec        ,"L");
    MGMu->Add(GMStauXSec      ,"L");
    MGMu->Add(PPStauXSec      ,"L");
-   MGMu->Add(DCStauXSec      ,"L");
    MGMu->Add(Mu_Obs_GluinoF1      ,"LP");
    MGMu->Add(Mu_Obs_GluinoF5      ,"LP");
 //   MGMu->Add(Mu_Obs_GluinoNF1     ,"LP");
@@ -435,13 +434,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 //   MGMu->Add(Mu_Obs_StopN         ,"LP");
    MGMu->Add(Mu_Obs_GMStau        ,"LP");
    MGMu->Add(Mu_Obs_PPStau        ,"LP");
-   MGMu->Add(Mu_Obs_DCStau        ,"LP");
    MGMu->Draw("A");
    GluinoXSecErr->Draw("f");
    StopXSecErr  ->Draw("f");
    StauXSecErr  ->Draw("f");
    PPStauXSecErr  ->Draw("f");
-   DCStauXSecErr  ->Draw("f");
    MGMu->Draw("same");
    MGMu->SetTitle("");
    MGMu->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
@@ -463,7 +460,6 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 //   LEGMu->AddEntry(Mu_Obs_StopN    , "stop; ch. suppr.","LP");
    LEGMu->AddEntry(Mu_Obs_PPStau   , "Pair Prod. stau"       ,"LP");
    LEGMu->AddEntry(Mu_Obs_GMStau   , "GMSB stau"       ,"LP");
-   LEGMu->AddEntry(Mu_Obs_DCStau   , "DiChamp stau"       ,"LP");
    LEGMu->Draw();
 
    TLegend* LEGTh = new TLegend(0.15,0.70,0.50,0.90);
@@ -483,9 +479,6 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    TGraph* StauThLeg = (TGraph*) GMStauXSec->Clone("StauThLeg");
    StauThLeg->SetFillColor(GluinoXSecErr->GetFillColor());
    LEGTh->AddEntry(StauThLeg   ,"GMSB stau   (NLO)" ,"LF");
-   TGraph* DCStauThLeg = (TGraph*) DCStauXSec->Clone("DCStauThLeg");
-   DCStauThLeg->SetFillColor(GluinoXSecErr->GetFillColor());
-   LEGTh->AddEntry(DCStauThLeg   ,"Pair Prod. stau   (LO)" ,"LF");
 
    LEGTh->Draw();
 
@@ -503,7 +496,6 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    MGTk->Add(StopXSec        ,"L");
    MGTk->Add(GMStauXSec      ,"L");
    MGTk->Add(PPStauXSec      ,"L");
-   MGTk->Add(DCStauXSec      ,"L");
    MGTk->Add(Tk_Obs_GluinoF1      ,"LP");
    MGTk->Add(Tk_Obs_GluinoF5      ,"LP");
    MGTk->Add(Tk_Obs_GluinoNF1     ,"LP");
@@ -511,13 +503,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    MGTk->Add(Tk_Obs_StopN         ,"LP");
    MGTk->Add(Tk_Obs_GMStau        ,"LP");
    MGTk->Add(Tk_Obs_PPStau        ,"LP");
-   MGTk->Add(Tk_Obs_DCStau        ,"LP");
    MGTk->Draw("A");
    GluinoXSecErr->Draw("f");
    StopXSecErr  ->Draw("f");
    StauXSecErr  ->Draw("f");
    PPStauXSecErr  ->Draw("f");
-   DCStauXSecErr  ->Draw("f");
    MGTk->Draw("same");
    MGTk->SetTitle("");
    MGTk->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
@@ -539,7 +529,6 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    LEGTk->AddEntry(Tk_Obs_StopN    , "stop; ch. suppr.","LP");
    LEGTk->AddEntry(Tk_Obs_PPStau   , "Pair Prod. stau"       ,"LP");
    LEGTk->AddEntry(Tk_Obs_GMStau   , "GMSB stau"       ,"LP");
-   LEGTk->AddEntry(Tk_Obs_DCStau   , "DiChamp stau"       ,"LP");
    LEGTk->Draw();
 
    LEGTh->Draw();
@@ -551,6 +540,69 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    SaveCanvas(c1, outpath, string("TkExclusionLog"));
    delete c1;
 
+    c1 = new TCanvas("c1", "c1",600,600);
+   TMultiGraph* MGDCMu = new TMultiGraph();
+   MGDCMu->Add(DCStauXSec      ,"L");
+   MGDCMu->Add(Mu_Obs_DCStau        ,"LP");
+   MGDCMu->Draw("A");
+   DCStauXSecErr  ->Draw("f");
+   MGDCMu->Draw("same");
+   MGDCMu->SetTitle("");
+   MGDCMu->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
+   MGDCMu->GetYaxis()->SetTitle("#sigma (pb)");
+   MGDCMu->GetYaxis()->SetTitleOffset(1.70);
+   MGDCMu->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
+   
+   DrawPreliminary(IntegratedLuminosity);
+   
+   TLegend* LEGDCMu = new TLegend(0.50,0.65,0.80,0.90);
+   LEGDCMu->SetHeader("Tk + TOF");
+   LEGDCMu->SetFillColor(0); 
+   LEGDCMu->SetBorderSize(0);
+   LEGDCMu->AddEntry(Mu_Obs_DCStau   , "DiChamp stau"       ,"LP");
+   LEGDCMu->Draw();
+
+   TLegend* LEGDCTh = new TLegend(0.15,0.70,0.50,0.90);
+   LEGDCTh->SetHeader("Theoretical Prediction");
+   LEGDCTh->SetFillColor(0);
+   LEGDCTh->SetBorderSize(0);
+   TGraph* DCStauThLeg = (TGraph*) DCStauXSec->Clone("DCStauThLeg");
+   DCStauThLeg->SetFillColor(GluinoXSecErr->GetFillColor());
+   LEGDCTh->AddEntry(DCStauThLeg   ,"Dichamp stau   (LO)" ,"LF");
+   LEGDCTh->Draw();
+   SaveCanvas(c1, outpath, string("MuDCExclusion"));
+   c1->SetLogy(true);
+   SaveCanvas(c1, outpath, string("MuDCExclusionLog"));
+   delete c1;
+
+   c1 = new TCanvas("c1", "c1",600,600);
+   TMultiGraph* MGDCTk = new TMultiGraph();
+   MGDCTk->Add(DCStauXSec      ,"L");
+   MGDCTk->Add(Tk_Obs_DCStau        ,"LP");
+   MGDCTk->Draw("A");
+   DCStauXSecErr  ->Draw("f");
+   MGDCTk->Draw("same");
+   MGDCTk->SetTitle("");
+   MGDCTk->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
+   MGDCTk->GetYaxis()->SetTitle("#sigma (pb)");
+   MGDCTk->GetYaxis()->SetTitleOffset(1.70);
+   MGDCTk->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
+   DrawPreliminary(IntegratedLuminosity);
+   
+   TLegend* LEGDCTk = new TLegend(0.50,0.65,0.80,0.90);
+//   LEGDCTk->SetHeader("95% C.L. Limits");
+   LEGDCTk->SetHeader("Tk + only");
+   LEGDCTk->SetFillColor(0); 
+   LEGDCTk->SetBorderSize(0);
+   LEGDCTk->AddEntry(Tk_Obs_DCStau   , "DiChamp stau"       ,"LP");
+   LEGDCTk->Draw();
+
+   LEGDCTh->Draw();
+
+   SaveCanvas(c1, outpath, string("TkDCExclusion"));
+   c1->SetLogy(true);
+   SaveCanvas(c1, outpath, string("TkDCExclusionLog"));
+   delete c1;
    return; 
 }
 
