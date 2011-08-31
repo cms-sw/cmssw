@@ -16,13 +16,12 @@ class KDTreeLinkerTrackEcal : public KDTreeLinkerBase
   ~KDTreeLinkerTrackEcal();
 
   // With this method, we create the list of psCluster that we want to link.
-  void insertTargetElt(reco::PFBlockElement				*track);
+  void insertTargetElt(reco::PFBlockElement		*track);
 
   // Here, we create the list of ecalCluster that we want to link. From ecalCluster
   // and fraction, we will create a second list of rechits that will be used to
   // build the KDTree.
-  void insertFieldClusterElt(const reco::PFBlockElement			*ecalCluster,
-			     const std::vector<reco::PFRecHitFraction>	&fraction);  
+  void insertFieldClusterElt(reco::PFBlockElement	*ecalCluster);  
 
   // The KDTree building from rechits list.
   void buildTree();
@@ -43,13 +42,13 @@ class KDTreeLinkerTrackEcal : public KDTreeLinkerBase
  private:
   // Data used by the KDTree algorithm : sets of Tracks and ECAL clusters.
   BlockEltSet		targetSet_;
-  ConstBlockEltSet	fieldClusterSet_;
+  BlockEltSet		fieldClusterSet_;
 
   // Sets of rechits that compose the ECAL clusters. 
   RecHitSet		rechitsSet_;
   
   // Map of linked Track/ECAL clusters.
-  BlockElt2ConstBlockEltMap	target2ClusterLinks_;
+  BlockElt2BlockEltMap	target2ClusterLinks_;
 
   // Map of the ECAL clusters associated to a rechit.
   RecHit2BlockEltMap	rechit2ClusterLinks_;

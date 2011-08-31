@@ -21,22 +21,26 @@ void
 KDTreeLinkerPSEcal::insertTargetElt(reco::PFBlockElement	*psCluster)
 {
   reco::PFClusterRef clusterref = psCluster->clusterRef();
-  if (!((clusterref->layer() == PFLayer::PS1) || 
-	(clusterref->layer() == PFLayer::PS2)))
-    return;
+
+  // This test is more or less done in PFBlockAlgo.h. In others cases, it should be switch on.
+  //   if (!((clusterref->layer() == PFLayer::PS1) || 
+  // 	(clusterref->layer() == PFLayer::PS2)))
+  //     return;
 
   targetSet_.insert(psCluster);
 }
 
 
 void
-KDTreeLinkerPSEcal::insertFieldClusterElt(const reco::PFBlockElement			*ecalCluster,
-					  const std::vector<reco::PFRecHitFraction>	&fraction)
+KDTreeLinkerPSEcal::insertFieldClusterElt(reco::PFBlockElement	*ecalCluster)
 {
   reco::PFClusterRef clusterref = ecalCluster->clusterRef();
+
   if (clusterref->layer() != PFLayer::ECAL_ENDCAP)
     return;
 	  
+  const std::vector<reco::PFRecHitFraction> &fraction = clusterref->recHitFractions();
+
   // We create a list of cluster
   fieldClusterSet_.insert(ecalCluster);
 
@@ -167,7 +171,7 @@ KDTreeLinkerPSEcal::searchLinks()
       // Find all clusters associated to given rechit
       RecHit2BlockEltMap::iterator ret = rechit2ClusterLinks_.find(rhit->ptr);
       
-      for(ConstBlockEltSet::const_iterator clusterIt = ret->second.begin(); 
+      for(BlockEltSet::const_iterator clusterIt = ret->second.begin(); 
 	  clusterIt != ret->second.end(); clusterIt++) {
 	
 	reco::PFClusterRef clusterref = (*clusterIt)->clusterRef();
@@ -205,11 +209,11 @@ KDTreeLinkerPSEcal::updatePFBlockEltWithLinks()
   //TODO YG : Check if cluster positionREP() is valid ?
 
   // Here we save in each track the list of phi/eta values of linked clusters.
-  for (BlockElt2ConstBlockEltMap::iterator it = target2ClusterLinks_.begin();
+  for (BlockElt2BlockEltMap::iterator it = target2ClusterLinks_.begin();
        it != target2ClusterLinks_.end(); ++it) {
     reco::PFMultiLinksTC multitracks(true);
 
-    for (ConstBlockEltSet::iterator jt = it->second.begin();
+    for (BlockEltSet::iterator jt = it->second.begin();
 	 jt != it->second.end(); ++jt) {
 
       double clusterPhi = (*jt)->clusterRef()->positionREP().Phi();

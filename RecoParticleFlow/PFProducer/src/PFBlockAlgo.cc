@@ -83,6 +83,7 @@ PFBlockAlgo::findBlocks() {
   // Glowinski & Gouzevitch
   if (useKDTreeTrackEcalLinker_) {
     TELinker_.process();
+    THLinker_.process();
     PSELinker_.process();
   }
   // !Glowinski & Gouzevitch
@@ -398,22 +399,35 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
 	for (; mlit != multilinks.end(); ++mlit)
 	  if ((mlit->first == ecalphi) && (mlit->second == ecaleta))
 	    break;
+
 	
 	// If the link exist, we fill dist and linktest. We use old algorithme method.
 	if (mlit != multilinks.end()){
-	  const reco::PFTrajectoryPoint& atECAL = 
-	    trackref->extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax );
 
+
+	  //Should be something like this :
+	  // 	  const reco::PFRecTrack& track = *trackref;
+	  //instead of this :
+	  reco::PFRecTrack track (*trackref);
+	  const reco::PFTrajectoryPoint& atECAL_tmp = 
+	    (*trackref).extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax );
+	  if(std::abs(atECAL_tmp.positionREP().Eta())<1E-9 &&
+	     std::abs(atECAL_tmp.positionREP().Phi())<1E-9 &&
+	     atECAL_tmp.positionREP().R()<1E-9) 
+	    track.calculatePositionREP();
+
+	  const reco::PFTrajectoryPoint& atECAL = 
+	    track.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax );
+	  
 	  double tracketa = atECAL.positionREP().Eta();
 	  double trackphi = atECAL.positionREP().Phi();
-	  
+
 	  dist = LinkByRecHit::computeDist(ecaleta, ecalphi, tracketa, trackphi);
 	}
 
       } else {// Old algorithm
 	  dist = LinkByRecHit::testTrackAndClusterByRecHit( *trackref, *clusterref, false, debug_ );	  
       }
-
 
       if ( debug_ ) { 
 	if( dist > 0. ) { 
@@ -429,13 +443,62 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
     }
   case PFBlockLink::TRACKandHCAL:
     {
-      //       cout<<"TRACKandHCAL"<<endl;
+      //      if(debug_ ) cout<<"TRACKandHCAL"<<endl;
+
       PFRecTrackRef trackref = lowEl->trackRefPF();
       PFClusterRef  clusterref = highEl->clusterRef();
       assert( !trackref.isNull() );
       assert( !clusterref.isNull() );
-      dist = LinkByRecHit::testTrackAndClusterByRecHit( *trackref, *clusterref, false, debug_ );
-      linktest = PFBlock::LINKTEST_RECHIT;      
+
+      // Check if the linking has been done using the KDTree algo
+      // Glowinski & Gouzevitch
+      if ( useKDTreeTrackEcalLinker_ && highEl->isMultilinksValide() ) { //KDTree Algo
+	
+	const reco::PFMultilinksType& multilinks = highEl->getMultilinks();
+
+	reco::PFRecTrack track (*trackref);
+	const reco::PFTrajectoryPoint& atHCALEntrance_tmp = 
+	  (*trackref).extrapolatedPoint( reco::PFTrajectoryPoint::HCALEntrance);
+	if (std::abs(atHCALEntrance_tmp.positionREP().Eta())<1E-9 &&
+	    std::abs(atHCALEntrance_tmp.positionREP().Phi())<1E-9 &&
+	    atHCALEntrance_tmp.positionREP().R()<1E-9)   
+	  track.calculatePositionREP();
+
+	const reco::PFTrajectoryPoint& atHCAL = 
+	  track.extrapolatedPoint(reco::PFTrajectoryPoint::HCALEntrance);
+	  
+	double tracketa = atHCAL.positionREP().Eta();
+	double trackphi = atHCAL.positionREP().Phi();
+
+	// Check if the link Track/Ecal exist
+	reco::PFMultilinksType::const_iterator mlit = multilinks.begin();
+	for (; mlit != multilinks.end(); ++mlit)
+	  if ((mlit->first == trackphi) && (mlit->second == tracketa))
+	    break;
+
+	// If the link exist, we fill dist and linktest. We use old algorithme method.
+	if (mlit != multilinks.end()){
+
+	  const reco::PFTrajectoryPoint& atHCALExit = 
+	    track.extrapolatedPoint(reco::PFTrajectoryPoint::HCALExit);
+	  double dHEta = atHCALExit.positionREP().Eta()-atHCAL.positionREP().Eta();
+	  double dHPhi = atHCALExit.positionREP().Phi()-atHCAL.positionREP().Phi(); 
+	  if ( dHPhi > M_PI ) dHPhi = dHPhi - 2.*M_PI;
+	  else if ( dHPhi < -M_PI ) dHPhi = dHPhi + 2.*M_PI; 
+	  tracketa += 0.1 * dHEta;
+	  trackphi += 0.1 * dHPhi;
+
+	  double clusterphi = clusterref->positionREP().Phi();
+	  double clustereta = clusterref->positionREP().Eta();
+	  
+	  dist = LinkByRecHit::computeDist(clustereta, clusterphi, tracketa, trackphi);
+	}      	
+
+      } else {// Old algorithm
+	dist = LinkByRecHit::testTrackAndClusterByRecHit( *trackref, *clusterref, false, debug_ );	  
+      }
+
+      linktest = PFBlock::LINKTEST_RECHIT;
       break;
     }
   case PFBlockLink::ECALandHCAL:
@@ -454,7 +517,7 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
   case PFBlockLink::PS1andECAL:
   case PFBlockLink::PS2andECAL:
     {
-      if(debug_ ) cout<< "PSandECAL" <<endl;
+      // if(debug_ ) cout<< "PSandECAL" <<endl;
       PFClusterRef  psref = lowEl->clusterRef();
       PFClusterRef  ecalref = highEl->clusterRef();
       assert( !psref.isNull() );

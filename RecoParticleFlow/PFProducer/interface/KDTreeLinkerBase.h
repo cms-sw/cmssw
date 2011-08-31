@@ -14,7 +14,7 @@ class KDTreeLinkerBase
   virtual ~KDTreeLinkerBase();
 
   // Get/Set of the maximal size of the cristal (ECAL, HCAL,...) in phi/eta and
-  // X/Y.
+  // X/Y. By default, thus value are set for the ECAL cristal.
   void setCristalPhiEtaMaxSize(float size);
   void setCristalXYMaxSize(float size);
   float getCristalPhiEtaMaxSize() const;
@@ -29,13 +29,12 @@ class KDTreeLinkerBase
   void setDebug(bool isDebug);
 
   // With this method, we create the list of elements that we want to link.
-  virtual void insertTargetElt(reco::PFBlockElement				*target) = 0;
+  virtual void insertTargetElt(reco::PFBlockElement		*target) = 0;
 
   // Here, we create the list of cluster that we want to link. From cluster
   // and fraction, we will create a second list of rechits that will be used to
   // build the KDTree.
-  virtual void insertFieldClusterElt(const reco::PFBlockElement			*cluster,
-				     const std::vector<reco::PFRecHitFraction>	&fraction) = 0;  
+  virtual void insertFieldClusterElt(reco::PFBlockElement	*cluster) = 0;  
 
   // The KDTree building from rechits list.
   virtual void buildTree() = 0;
@@ -57,7 +56,7 @@ class KDTreeLinkerBase
   virtual void process();
 
  protected:
-  // Cristal maximal size
+  // Cristal maximal size. By default, thus value are set for the ECAL cristal.
   float			cristalPhiEtaMaxSize_;
   float			cristalXYMaxSize_;
 

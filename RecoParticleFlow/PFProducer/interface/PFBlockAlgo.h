@@ -32,6 +32,7 @@
 // Glowinski & Gouzevitch
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"             
 #include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerTrackEcal.h" 
+#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerTrackHcal.h" 
 #include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerPSEcal.h" 
 // !Glowinski & Gouzevitch
 
@@ -287,6 +288,7 @@ class PFBlockAlgo {
   // Glowinski & Gouzevitch
   bool useKDTreeTrackEcalLinker_;
   KDTreeLinkerTrackEcal TELinker_;
+  KDTreeLinkerTrackHcal THLinker_;
   KDTreeLinkerPSEcal	PSELinker_;
   // !Glowinski & Gouzevitch
 
@@ -825,11 +827,6 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 	}
       }
       elements_.push_back( primaryElement );
-
-      // Glowinski & Gouzevitch
-      if (useKDTreeTrackEcalLinker_)
-	TELinker_.insertTargetElt(primaryElement);
-      // !Glowinski & Gouzevitch
     }
 
     if (debug_) std::cout << " " << std::endl;
@@ -921,13 +918,6 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
         = new reco::PFBlockElementCluster( ref,
 					   reco::PFBlockElement::ECAL);
       elements_.push_back( te );
-
-      // Glowinski & Gouzevitch
-      if (useKDTreeTrackEcalLinker_){
-	TELinker_.insertFieldClusterElt(te, ecalh->at(i).recHitFractions());
-	PSELinker_.insertFieldClusterElt(te, ecalh->at(i).recHitFractions());
-      }
-      // !Glowinski & Gouzevitch
 
       // Now mapping with Superclusters
       int scindex= ClusterClusterMapping::checkOverlap(*ref,superClusters_);
@@ -1024,12 +1014,47 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
         = new reco::PFBlockElementCluster( ref,
 					   type );
       elements_.push_back( tp );
-      
-      // Glowinski & Gouzevitch
-      if (useKDTreeTrackEcalLinker_)
-	PSELinker_.insertTargetElt(tp);
-      // !Glowinski & Gouzevitch
+    }
+  }
 
+
+  // -------------- Loop over block elements ---------------------
+
+  // Here we provide to all KDTree linkers the collections to link.
+  // Glowinski & Gouzevitch
+  
+  for (std::list< reco::PFBlockElement* >::iterator it = elements_.begin();
+       it != elements_.end(); ++it) {
+    switch ((*it)->type()){
+	
+    case reco::PFBlockElement::TRACK:
+      if (useKDTreeTrackEcalLinker_) {
+	TELinker_.insertTargetElt(*it);
+	THLinker_.insertTargetElt(*it);
+      }
+      
+      break;
+
+    case reco::PFBlockElement::PS1:
+    case reco::PFBlockElement::PS2:
+      if (useKDTreeTrackEcalLinker_)
+	PSELinker_.insertTargetElt(*it);
+      break;
+
+    case reco::PFBlockElement::HCAL:
+      if (useKDTreeTrackEcalLinker_)
+	THLinker_.insertFieldClusterElt(*it);
+      break;
+	
+    case reco::PFBlockElement::ECAL:
+      if (useKDTreeTrackEcalLinker_) {
+	TELinker_.insertFieldClusterElt(*it);
+	PSELinker_.insertFieldClusterElt(*it);
+      }
+      break;
+
+    default:
+      break;
     }
   }
 }

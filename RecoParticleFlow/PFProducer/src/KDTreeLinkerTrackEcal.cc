@@ -20,13 +20,16 @@ KDTreeLinkerTrackEcal::insertTargetElt(reco::PFBlockElement	*track)
 
 
 void
-KDTreeLinkerTrackEcal::insertFieldClusterElt(const reco::PFBlockElement			*ecalCluster,
-					     const std::vector<reco::PFRecHitFraction>	&fraction)
+KDTreeLinkerTrackEcal::insertFieldClusterElt(reco::PFBlockElement	*ecalCluster)
 {
   reco::PFClusterRef clusterref = ecalCluster->clusterRef();
-  if (!((clusterref->layer() == PFLayer::ECAL_ENDCAP) ||
-	(clusterref->layer() == PFLayer::ECAL_BARREL)))
-    return;
+
+  // This test is more or less done in PFBlockAlgo.h. In others cases, it should be switch on.
+  //   if (!((clusterref->layer() == PFLayer::ECAL_ENDCAP) ||
+  // 	(clusterref->layer() == PFLayer::ECAL_BARREL)))
+  //     return;
+
+  const std::vector<reco::PFRecHitFraction> &fraction = clusterref->recHitFractions();
 
   // We create a list of ecalCluster
   fieldClusterSet_.insert(ecalCluster);
@@ -98,13 +101,13 @@ KDTreeLinkerTrackEcal::searchLinks()
       it != targetSet_.end(); it++) {
 	
     reco::PFRecTrackRef trackref = (*it)->trackRefPF();
-    reco::PFRecTrack track (*trackref);
 
     // We set the multilinks flag of the track to true. It will allow us to 
     // use in an optimized way our algo results in the recursive linking algo.
     (*it)->setIsValidMultilinks(true);
 
     // We fill the positionREP if necessary
+    reco::PFRecTrack track (*trackref);
     const reco::PFTrajectoryPoint& atECAL_tmp = 
       (*trackref).extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax );
     if(std::abs(atECAL_tmp.positionREP().Eta())<1E-9 &&
@@ -158,7 +161,7 @@ KDTreeLinkerTrackEcal::searchLinks()
       // Find all clusters associated to given rechit
       RecHit2BlockEltMap::iterator ret = rechit2ClusterLinks_.find(rhit->ptr);
       
-      for(ConstBlockEltSet::const_iterator clusterIt = ret->second.begin(); 
+      for(BlockEltSet::const_iterator clusterIt = ret->second.begin(); 
 	  clusterIt != ret->second.end(); clusterIt++) {
 	
 	reco::PFClusterRef clusterref = (*clusterIt)->clusterRef();
@@ -215,11 +218,11 @@ KDTreeLinkerTrackEcal::updatePFBlockEltWithLinks()
   //TODO YG : Check if cluster positionREP() is valid ?
 
   // Here we save in each track the list of phi/eta values of linked clusters.
-  for (BlockElt2ConstBlockEltMap::iterator it = target2ClusterLinks_.begin();
+  for (BlockElt2BlockEltMap::iterator it = target2ClusterLinks_.begin();
        it != target2ClusterLinks_.end(); ++it) {
     reco::PFMultiLinksTC multitracks(true);
 
-    for (ConstBlockEltSet::iterator jt = it->second.begin();
+    for (BlockEltSet::iterator jt = it->second.begin();
 	 jt != it->second.end(); ++jt) {
 
       double clusterPhi = (*jt)->clusterRef()->positionREP().Phi();

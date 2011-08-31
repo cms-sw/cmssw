@@ -8,12 +8,10 @@
 #include <set>
 
 typedef std::set<reco::PFBlockElement*>				BlockEltSet; 
-typedef std::set<const reco::PFBlockElement*>			ConstBlockEltSet; 
-
 typedef std::set<const reco::PFRecHit*>				RecHitSet;
 
-typedef std::map<const reco::PFRecHit*, ConstBlockEltSet>	RecHit2BlockEltMap;
-typedef std::map<reco::PFBlockElement*, ConstBlockEltSet>	BlockElt2ConstBlockEltMap;
+typedef std::map<const reco::PFRecHit*, BlockEltSet>		RecHit2BlockEltMap;
+typedef std::map<reco::PFBlockElement*, BlockEltSet>		BlockElt2BlockEltMap;
 
 
 // Box structure used to define 2D field.
