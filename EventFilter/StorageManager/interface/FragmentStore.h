@@ -1,4 +1,4 @@
-// $Id: FragmentStore.h,v 1.9 2011/03/07 15:31:32 mommsen Exp $
+// $Id: FragmentStore.h,v 1.10 2011/03/30 15:16:48 mommsen Exp $
 /// @file: FragmentStore.h 
 
 #ifndef EventFilter_StorageManager_FragmentStore_h
@@ -6,8 +6,7 @@
 
 #include <map>
 
-#include "IOPool/Streamer/interface/HLTInfo.h"
-
+#include "EventFilter/StorageManager/interface/FragKey.h"
 #include "EventFilter/StorageManager/interface/I2OChain.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
 
@@ -20,8 +19,8 @@ namespace stor {
    * Uses a map of I2OChains to store incomplete events.
    *
    * $Author: mommsen $
-   * $Revision: 1.9 $
-   * $Date: 2011/03/07 15:31:32 $
+   * $Revision: 1.10 $
+   * $Date: 2011/03/30 15:16:48 $
    */
   
   class FragmentStore

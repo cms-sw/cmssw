@@ -1,4 +1,4 @@
-// $Id: ChainData.h,v 1.17 2011/03/08 16:01:50 mommsen Exp $
+// $Id: ChainData.h,v 1.18 2011/03/08 18:34:11 mommsen Exp $
 /// @file: ChainData.h
 
 #ifndef CHAINDATA_H
@@ -6,13 +6,14 @@
 
 #include "toolbox/mem/Reference.h"
 
-#include "IOPool/Streamer/interface/HLTInfo.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
+#include "IOPool/Streamer/interface/MsgTools.h"
 
 #include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
 
 #include "EventFilter/StorageManager/interface/Utils.h"
 #include "EventFilter/StorageManager/interface/DQMKey.h"
+#include "EventFilter/StorageManager/interface/FragKey.h"
 #include "EventFilter/StorageManager/interface/StreamID.h"
 #include "EventFilter/StorageManager/interface/QueueID.h"
 #include "EventFilter/StorageManager/interface/Exception.h"

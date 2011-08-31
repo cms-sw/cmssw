@@ -1,7 +1,6 @@
-// $Id: ChainData.cc,v 1.17 2011/03/08 16:01:50 mommsen Exp $
+// $Id: ChainData.cc,v 1.18 2011/03/08 18:34:11 mommsen Exp $
 /// @file: ChainData.cc
 
-#include "IOPool/Streamer/interface/HLTInfo.h"
 #include "IOPool/Streamer/interface/MsgHeader.h"
 
 #include "EventFilter/Utilities/interface/i2oEvfMsgs.h"
