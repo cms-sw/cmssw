@@ -34,7 +34,8 @@ jetMETAnalyzer.pfMETAnalysis.cleanupSelection         = cms.bool(False)
 jetMETAnalyzer.tcMETAnalysis.cleanupSelection         = cms.bool(False)
 
 # prevent jetIDHelper from calculating cell based variables which don't make sense w/ HI bkg subtraction
-jetMETAnalyzer.jetAnalysis.JetIDParams.useRecHits = cms.bool(False)
+jetMETAnalyzer.jetAnalysis.JetIDParams.useRecHits = False
+jetMETAnalyzer.CleanedjetAnalysis.JetIDParams.useRecHits = False
 
 towerSchemeBAnalyzer.AllHist = cms.untracked.bool(False)
 
