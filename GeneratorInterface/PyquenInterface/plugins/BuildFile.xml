@@ -1,4 +1,7 @@
 <use   name="GeneratorInterface/PyquenInterface"/>
+<architecture name="slc5_amd64_gcc45">
+    <flags LDFLAGS="$(PYTHIA6_BASE)/lib/pydata.o"/>                                                                                                                                                                                                                           
+</architecture>
 <library   file="*.cc" name="GeneratorInterfacePyquenInterfacePlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
