@@ -96,7 +96,7 @@ def checkClass(name,version,versionsToChecksums):
             if classChecksum != cs:
                 return (errorMustUpdateClassVersion,classVersion,classChecksum)
             break
-    if not found:
+    if not found and classVersion != 0:
         return (errorMustAddChecksum,classVersion,classChecksum)
     return (noError,classVersion,classChecksum)
 
