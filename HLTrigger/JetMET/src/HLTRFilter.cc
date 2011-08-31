@@ -32,13 +32,13 @@ HLTRFilter::HLTRFilter(const edm::ParameterSet& iConfig) :
   min_MR_      (iConfig.getParameter<double>       ("minMR"   )),
   DoRPrime_    (iConfig.getParameter<bool>       ("doRPrime"   )),
   accept_NJ_   (iConfig.getParameter<bool>       ("acceptNJ"   )),
-  R_offset_    (iConfig.getParameter<double>       ("ROffset"   )),
-  MR_offset_   (iConfig.getParameter<double>       ("MROffset"   )),
-  R_MR_cut_    (iConfig.getParameter<double>       ("RMRCut"   ))
+  R_offset_    ((iConfig.existsAs<double>("R2Offset") ? iConfig.getParameter<double>("R2Offset"):0)),
+  MR_offset_   ((iConfig.existsAs<double>("MROffset") ? iConfig.getParameter<double>("MROffset"):0)),
+  R_MR_cut_    ((iConfig.existsAs<double>("RMRCut") ? iConfig.getParameter<double>("RMRCut"):-999999.))
   
 
 {
-   LogDebug("") << "Inputs/minR/minMR/doRPrime/acceptNJ/ROffset/MROffset/RMRCut : "
+   LogDebug("") << "Inputs/minR/minMR/doRPrime/acceptNJ/R2Offset/MROffset/RMRCut : "
 		<< inputTag_.encode() << " "
 		<< inputMetTag_.encode() << " "
 		<< min_R_ << " "
@@ -66,7 +66,7 @@ HLTRFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.add<double>("minMR",100.0);
   desc.add<bool>("doRPrime",false);
   desc.add<bool>("acceptNJ",true);
-  desc.add<double>("ROffset",0.0);
+  desc.add<double>("R2Offset",0.0);
   desc.add<double>("MROffset",0.0);
   desc.add<double>("RMRCut",-999999.0);
   descriptions.add("hltRFilter",desc);
