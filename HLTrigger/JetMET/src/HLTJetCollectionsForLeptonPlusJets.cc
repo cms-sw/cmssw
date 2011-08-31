@@ -15,7 +15,8 @@
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
-#include "TVector3.h"
+#include "DataFormats/Math/interface/deltaR.h"
+
 
 typedef std::vector<edm::RefVector<std::vector<reco::CaloJet>,reco::CaloJet,edm::refhelper::FindUsingAdvance<std::vector<reco::CaloJet>,reco::CaloJet> > > JetCollectionVector;
 
@@ -68,35 +69,6 @@ HLTJetCollectionsForLeptonPlusJets::produce(edm::Event& iEvent, const edm::Event
   std::vector<reco::RecoChargedCandidateRef> muonCands;
   PrevFilterOutput->getObjects(trigger::TriggerMuon,muonCands);
 
-  //prepare the collection of 3-D vector for lepton momenta
-  std::vector<TVector3> LeptonPs;
-
-  if(!clusCands.empty()){ //try trigger cluster
-    for(size_t candNr=0;candNr<clusCands.size();candNr++){
-      TVector3 positionVector(
-                  clusCands[candNr]->superCluster()->position().x(),
-                  clusCands[candNr]->superCluster()->position().y(),
-                  clusCands[candNr]->superCluster()->position().z());
-      LeptonPs.push_back(positionVector);
-    }
-  }else if(!eleCands.empty()){ // try trigger leptons
-    for(size_t candNr=0;candNr<eleCands.size();candNr++){
-      TVector3 positionVector(
-                  eleCands[candNr]->superCluster()->position().x(),
-                  eleCands[candNr]->superCluster()->position().y(),
-                  eleCands[candNr]->superCluster()->position().z());
-      LeptonPs.push_back(positionVector);
-    }
-  }else if(!muonCands.empty()){  //try trigger muons
-    for(size_t candNr=0;candNr<muonCands.size();candNr++){
-      TVector3 positionVector(
-                  muonCands[candNr]->px(),
-                  muonCands[candNr]->py(),
-                  muonCands[candNr]->pz());
-      LeptonPs.push_back(positionVector);
-    }
-  }
-  
   edm::Handle<reco::CaloJetCollection> theCaloJetCollectionHandle;
   iEvent.getByLabel(sourceJetTag, theCaloJetCollectionHandle);
   
@@ -104,32 +76,43 @@ HLTJetCollectionsForLeptonPlusJets::produce(edm::Event& iEvent, const edm::Event
   
   std::auto_ptr < JetCollectionVector > allSelections(new JetCollectionVector());
   
-    for (unsigned int i = 0; i < LeptonPs.size(); i++) {
-
+ if(!clusCands.empty()){ //try trigger cluster
+    for(size_t candNr=0;candNr<clusCands.size();candNr++){  
         reco::CaloJetRefVector refVector;
-
         for (unsigned int j = 0; j < theCaloJetCollection.size(); j++) {
-            TVector3 JetP(theCaloJetCollection[j].px(), theCaloJetCollection[j].py(), theCaloJetCollection[j].pz());
-            double DR = LeptonPs[i].DeltaR(JetP);
-
-            if (DR > minDeltaR_)
-        refVector.push_back(reco::CaloJetRef(theCaloJetCollectionHandle, j));
+          if (deltaR(clusCands[candNr]->superCluster()->position(),theCaloJetCollection[j]) > minDeltaR_) refVector.push_back(reco::CaloJetRef(theCaloJetCollectionHandle, j));
         }
     allSelections->push_back(refVector);
     }
+ }
 
-    iEvent.put(allSelections);
+ if(!eleCands.empty()){ //try trigger cluster
+    for(size_t candNr=0;candNr<eleCands.size();candNr++){  
+        reco::CaloJetRefVector refVector;
+        for (unsigned int j = 0; j < theCaloJetCollection.size(); j++) {
+          if (deltaR(eleCands[candNr]->superCluster()->position(),theCaloJetCollection[j]) > minDeltaR_) refVector.push_back(reco::CaloJetRef(theCaloJetCollectionHandle, j));
+        }
+    allSelections->push_back(refVector);
+    }
+ }
+
+ if(!muonCands.empty()){ //try trigger cluster
+    for(size_t candNr=0;candNr<muonCands.size();candNr++){  
+        reco::CaloJetRefVector refVector;
+        for (unsigned int j = 0; j < theCaloJetCollection.size(); j++) {
+	  if (deltaR(muonCands[candNr]->p4(),theCaloJetCollection[j]) > minDeltaR_) refVector.push_back(reco::CaloJetRef(theCaloJetCollectionHandle, j));
+        }
+    allSelections->push_back(refVector);
+    }
+ }
+
+
+
+
+ iEvent.put(allSelections);
   
   return;
   
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void HLTJetCollectionsForLeptonPlusJets::beginJob() {
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void HLTJetCollectionsForLeptonPlusJets::endJob() {
 }
 
 //define this as a plug-in

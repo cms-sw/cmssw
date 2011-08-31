@@ -11,7 +11,7 @@
  *  combination of one lepton + jets cleaned against this leptons satisfy the cuts.
  *  These jets are then added to a cleaned jet collection which is put into the event.
  *
- *  $Date: 2011/06/23 08:39:12 $
+ *  $Date: 2011/08/30 15:18:22 $
  *  $Revision: 1.1 $
  *
  *  \author Lukasz Kreczko
@@ -43,9 +43,7 @@ class HLTJetCollectionsForLeptonPlusJets: public edm::EDProducer {
     static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
   private:
-    virtual void beginJob();
     virtual void produce(edm::Event&, const edm::EventSetup&);
-    virtual void endJob();
 
     edm::InputTag hltLeptonTag;
     edm::InputTag sourceJetTag;
