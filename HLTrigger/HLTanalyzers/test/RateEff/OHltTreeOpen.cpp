@@ -19,7 +19,7 @@ typedef ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> > PtEtaPhiELor
 
 bool isSingleEleTrigger(TString triggerName, vector<double>& thresholdEle, vector<TString>& caloId, vector<TString>& caloIso, vector<TString>& trkId, vector<TString>& trkIso){
 	
-  TString patternEle = "(OpenHLT_Ele([0-9]+)_?(CaloId[VLT]+)?_?(CaloIso[VLT]+)?_?(TrkId[VLT]+)?_?((TrkIso[VLT]+)?))$";
+  TString patternEle = "(OpenHLT_Ele([0-9]+)_?(CaloId[VXLT]+)?_?(CaloIso[VLT]+)?_?(TrkId[VLT]+)?_?((TrkIso[VLT]+)?))$";
 
   TPRegexp matchThresholdEle(patternEle);
 
@@ -40,7 +40,7 @@ bool isSingleEleTrigger(TString triggerName, vector<double>& thresholdEle, vecto
 
 bool isDoubleEleTrigger(TString triggerName, vector<double>& thresholdEle, vector<TString>& caloId, vector<TString>& caloIso, vector<TString>& trkId, vector<TString>& trkIso){
 	
-  TString patternEle = "(OpenHLT_DoubleEle([0-9]+)_?(CaloId[VLT]+)?_?(CaloIso[VLT]+)?_?(TrkId[VLT]+)?_?((TrkIso[VLT]+)?))$";
+  TString patternEle = "(OpenHLT_DoubleEle([0-9]+)_?(CaloId[VXLT]+)?_?(CaloIso[VLT]+)?_?(TrkId[VLT]+)?_?((TrkIso[VLT]+)?))$";
 
   TPRegexp matchThresholdEle(patternEle);
 
@@ -61,7 +61,7 @@ bool isDoubleEleTrigger(TString triggerName, vector<double>& thresholdEle, vecto
 
 bool isAsymDoubleEleTrigger(TString triggerName, vector<double>& thresholdEle, vector<TString>& caloId, vector<TString>& caloIso, vector<TString>& trkId, vector<TString>& trkIso){
 	
-  TString patternEle = "(OpenHLT_Ele([0-9]+)_?(CaloId[VLT]+)?_?(CaloIso[VLT]+)?_?(TrkId[VLT]+)?_?(TrkIso[VLT]+)?_Ele([0-9]+)_?(CaloId[VLT]+)?_?(CaloIso[VLT]+)?_?(TrkId[VLT]+)?_?((TrkIso[VLT]+)?))$";
+  TString patternEle = "(OpenHLT_Ele([0-9]+)_?(CaloId[VXLT]+)?_?(CaloIso[VLT]+)?_?(TrkId[VLT]+)?_?(TrkIso[VLT]+)?_Ele([0-9]+)_?(CaloId[VXLT]+)?_?(CaloIso[VLT]+)?_?(TrkId[VLT]+)?_?((TrkIso[VLT]+)?))$";
 
   TPRegexp matchThresholdEle(patternEle);
 
@@ -87,7 +87,7 @@ bool isAsymDoubleEleTrigger(TString triggerName, vector<double>& thresholdEle, v
 
 bool isSingleEleX_HTXTrigger(TString triggerName, vector<double>& thresholds, vector<TString>& caloId, vector<TString>& caloIso, vector<TString>& trkId, vector<TString>& trkIso){
 	
-  TString patternEle = "(OpenHLT_Ele([0-9]+)_?(CaloId[VLT]+)?_?(CaloIso[VLT]+)?_?(TrkId[VLT]+)?_?(TrkIso[VLT]+)?_HT([0-9]+))$";
+  TString patternEle = "(OpenHLT_Ele([0-9]+)_?(CaloId[VXLT]+)?_?(CaloIso[VLT]+)?_?(TrkId[VLT]+)?_?(TrkIso[VLT]+)?_HT([0-9]+))$";
 
   TPRegexp matchThresholdEle(patternEle);
 
@@ -110,7 +110,7 @@ bool isSingleEleX_HTXTrigger(TString triggerName, vector<double>& thresholds, ve
 
 bool isSinglePhotonTrigger(TString triggerName, vector<double>& thresholdPhoton, vector<TString>& r9Id, vector<TString>& caloId,  vector<TString>& photonIso){
 	
-  TString patternPhoton = "(OpenHLT_Photon([0-9]+)_?(R9Id)?_?(CaloId[VLT]+)?_?((Iso[VLT]+)?))$";
+  TString patternPhoton = "(OpenHLT_Photon([0-9]+)_?(R9Id)?_?(CaloId[VXLT]+)?_?((Iso[VXLT]+)?))$";
 
   TPRegexp matchThresholdPhoton(patternPhoton);
 
@@ -130,7 +130,7 @@ bool isSinglePhotonTrigger(TString triggerName, vector<double>& thresholdPhoton,
 
 bool isDoublePhotonTrigger(TString triggerName, vector<double>& thresholdPhoton, vector<TString>& r9Id, vector<TString>& caloId,  vector<TString>& photonIso){
 	
-  TString patternPhoton = "(OpenHLT_DoublePhoton([0-9]+)_?(R9Id)?_?(CaloId[VLT]+)?_?((Iso[VLT]+)?))$";
+  TString patternPhoton = "(OpenHLT_DoublePhoton([0-9]+)_?(R9Id)?_?(CaloId[VXLT]+)?_?((Iso[VXLT]+)?))$";
 
   TPRegexp matchThresholdPhoton(patternPhoton);
 
@@ -151,7 +151,7 @@ bool isDoublePhotonTrigger(TString triggerName, vector<double>& thresholdPhoton,
 
 bool isAsymDoublePhotonTrigger(TString triggerName, vector<double>& thresholdPhoton, vector<TString>& r9Id, vector<TString>& caloId,  vector<TString>& photonIso){
 	
-  TString patternPhoton = "(OpenHLT_Photon([0-9]+)_?(R9Id)?_?(CaloId[VLT]+)?_?(Iso[VLT]+)?_Photon([0-9]+)_?(R9Id)?_?(CaloId[VLT]+)?_?((Iso[VLT]+)?))$";
+  TString patternPhoton = "(OpenHLT_Photon([0-9]+)_?(R9Id)?_?(CaloId[VXLT]+)?_?(Iso[VXLT]+)?_Photon([0-9]+)_?(R9Id)?_?(CaloId[VXLT]+)?_?((Iso[VXLT]+)?))$";
 
   TPRegexp matchThresholdPhoton(patternPhoton);
 
@@ -285,7 +285,7 @@ bool isMuX_HTXTrigger(TString triggerName, vector<double> &thresholds)
 
 bool isMuX_EleX_HTXTrigger(TString triggerName, vector<double>& thresholds, vector<TString>& caloId, vector<TString>& caloIso, vector<TString>& trkId, vector<TString>& trkIso){
 	
-  TString pattern = "(OpenHLT_Mu([0-9]+)_Ele([0-9]+)_?(CaloId[VLT]+)?_?(CaloIso[VLT]+)?_?(TrkId[VLT]+)?_?(TrkIso[VLT]+)?_HT([0-9])+)$";
+  TString pattern = "(OpenHLT_Mu([0-9]+)_Ele([0-9]+)_?(CaloId[VXLT]+)?_?(CaloIso[VLT]+)?_?(TrkId[VLT]+)?_?(TrkIso[VLT]+)?_HT([0-9])+)$";
 
   TPRegexp matchThreshold(pattern);
 
@@ -889,7 +889,7 @@ bool isR0X_MRX_BTagTrigger(TString triggerName, vector<double> &thresholds)
 bool isPhotonX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds, vector<TString>& r9Id, vector<TString>& caloId,  vector<TString>& photonIso)
 {
 	
-  TString pattern = "(OpenHLT_Photon([0-9]+)_?(R9Id)?_?(CaloId[VLT]+)?_?(Iso[VLT]+)?_R0([0-9]+)_MR([0-9]+){1})$";
+  TString pattern = "(OpenHLT_Photon([0-9]+)_?(R9Id)?_?(CaloId[VXLT]+)?_?(Iso[VXLT]+)?_R0([0-9]+)_MR([0-9]+){1})$";
   TPRegexp matchThreshold(pattern);
 	
   if (matchThreshold.MatchB(triggerName)) 
@@ -983,7 +983,7 @@ bool isMuX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
 bool isEleX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds,  vector<TString>& caloId, vector<TString>& caloIso, vector<TString>& trkId, vector<TString>& trkIso)
 {
 	
-  TString pattern = "(OpenHLT_Ele([0-9]+)_?(CaloId[VLT]+)?_?(CaloIso[VLT]+)?_?(TrkId[VLT]+)?_?(TrkIso[VLT]+)?_R0([0-9]+)_MR([0-9]+){1})$";
+  TString pattern = "(OpenHLT_Ele([0-9]+)_?(CaloId[VXLT]+)?_?(CaloIso[VLT]+)?_?(TrkId[VLT]+)?_?(TrkIso[VLT]+)?_R0([0-9]+)_MR([0-9]+){1})$";
   TPRegexp matchThreshold(pattern);
 	
   if (matchThreshold.MatchB(triggerName))
@@ -1598,7 +1598,7 @@ bool isL1SingleEGXTrigger(TString triggerName)
 bool isPhotonX_HTXTrigger(TString triggerName, vector<double> &thresholds, vector<TString>& r9Id, vector<TString>& caloId,  vector<TString>& photonIso)
 {
 	
-  TString pattern = "(OpenHLT_Photon([0-9]+)_?(R9Id)?_?(CaloId[VLT]+)?_?(Iso[VLT]+)?_HT([0-9]+))$";
+  TString pattern = "(OpenHLT_Photon([0-9]+)_?(R9Id)?_?(CaloId[VXLT]+)?_?(Iso[VXLT]+)?_HT([0-9]+))$";
   TPRegexp matchThreshold(pattern);
 	
   if (matchThreshold.MatchB(triggerName))
@@ -1621,7 +1621,7 @@ bool isPhotonX_HTXTrigger(TString triggerName, vector<double> &thresholds, vecto
 bool isPhotonX_MHTXTrigger(TString triggerName, vector<double> &thresholds, vector<TString>& r9Id, vector<TString>& caloId,  vector<TString>& photonIso)
 {
 	
-  TString pattern = "(OpenHLT_Photon([0-9]+)_?(R9Id)?_?(CaloId[VLT]+)?_?(Iso[VLT]+)?_MHT([0-9]+))$";
+  TString pattern = "(OpenHLT_Photon([0-9]+)_?(R9Id)?_?(CaloId[VXLT]+)?_?(Iso[VXLT]+)?_MHT([0-9]+))$";
   TPRegexp matchThreshold(pattern);
 	
   if (matchThreshold.MatchB(triggerName))
