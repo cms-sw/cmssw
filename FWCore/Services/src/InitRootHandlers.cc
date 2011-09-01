@@ -2,7 +2,6 @@
 
 #include "DataFormats/Common/interface/CacheStreamers.h"
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
-#include "DataFormats/Provenance/interface/TransientStreamer.h"
 #include "DataFormats/Streamer/interface/StreamedProductStreamer.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -236,7 +235,6 @@ namespace edm {
 
       // Set custom streamers
       setCacheStreamers();
-      setTransientStreamers();
       setRefCoreStreamer();
       setStreamedProductStreamer();
 
