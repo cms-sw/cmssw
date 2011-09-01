@@ -26,8 +26,7 @@ SiStripZeroSuppression(edm::ParameterSet const& conf)
     produceBaselinePoints = conf.getParameter<bool>("produceBaselinePoints");
     storeInZScollBadAPV = conf.getParameter<bool>("storeInZScollBadAPV");
     useCMMeanMap = conf.getParameter<bool>("useCMMeanMap");
-    fixCM = conf.getParameter<bool>("fixCM");
-    numberIter = conf.getParameter<uint32_t>("NumberOfModuleSkippedBeforeForcingRestore");  //to be removed after the test
+    fixCM = conf.getParameter<bool>("fixCM");  
   } else {
     produceRawDigis = false;
     produceCalculatedBaseline = false;
@@ -40,6 +39,9 @@ SiStripZeroSuppression(edm::ParameterSet const& conf)
   if(mergeCollections){
     storeCM = false;
     produceRawDigis = false;
+    DigisToMergeZS = conf.getParameter<edm::InputTag>("DigisToMergeZS");
+    DigisToMergeVR = conf.getParameter<edm::InputTag>("DigisToMergeVR");
+    produces< edm::DetSetVector<SiStripDigi> > ("ZeroSuppressed");
   }
   
   for(tag_iterator_t inputTag = inputTags.begin(); inputTag != inputTags.end(); ++inputTag ){
@@ -115,109 +117,158 @@ inline void SiStripZeroSuppression::StandardZeroSuppression(edm::Event& e){
 }
 
 inline void SiStripZeroSuppression::MergeCollectionsZeroSuppression(edm::Event& e){
-
- // for(tag_iterator_t inputTag = inputTags.begin(); inputTag != inputTags.end(); ++inputTag ) {
-
+    
+    std::cout<< "starting Merging" << std::endl;
     edm::Handle< edm::DetSetVector<SiStripDigi> > inputdigi;
     edm::Handle< edm::DetSetVector<SiStripRawDigi> > inputraw;
-    e.getByLabel("siStripDigis", "ZeroSuppressed",inputdigi);
-    e.getByLabel("siStripZeroSuppression", "VirginRaw",inputraw);
+    e.getByLabel(DigisToMergeZS,inputdigi);
+    e.getByLabel(DigisToMergeVR,inputraw);
 	
-    std::vector<edm::DetSet<SiStripDigi> > outputdigi; 
-    
-    //copying the input ZS to the output ZS collection
-    for ( edm::DetSetVector<SiStripDigi>::const_iterator 
-	  	   Digis = inputdigi->begin(); Digis != inputdigi->end(); ++Digis) {
-		   outputdigi.push_back(*Digis);
-    }     
+    std::cout << inputdigi->size() << " " << inputraw->size() << std::endl;
 	
-    if (inputraw->size()){	
-    
-        //looping over the raw data collection
-    	for ( edm::DetSetVector<SiStripRawDigi>::const_iterator 
-	  	  rawDigis = inputraw->begin(); rawDigis != inputraw->end(); ++rawDigis) {
+    if (inputraw->size()){
+		
+		std::vector<edm::DetSet<SiStripDigi> > outputdigi; 
+		outputdigi.clear();
+        
+    	//std::cout << "copying the input ZS to the output ZS collection" << std::endl;
+    	for ( edm::DetSetVector<SiStripDigi>::const_iterator Digis = inputdigi->begin(); Digis != inputdigi->end(); ++Digis)  outputdigi.push_back(*Digis);
+       
+	   	    
+        std::cout << "looping over the raw data collection" << std::endl;
+    	for ( edm::DetSetVector<SiStripRawDigi>::const_iterator rawDigis = inputraw->begin(); rawDigis != inputraw->end(); ++rawDigis) {
     	   
-          edm::DetSet<SiStripRawDigi>::const_iterator itRawDigis = rawDigis->begin();
-          uint16_t nAPV = rawDigis->size()/128;
-          std::vector<bool> restoredAPV;
-          restoredAPV.clear();
-          restoredAPV.insert(restoredAPV.begin(), nAPV, false); 
+			edm::DetSet<SiStripRawDigi>::const_iterator itRawDigis = rawDigis->begin();
+			uint16_t nAPV = rawDigis->size()/128;
+			uint32_t rawDetId = rawDigis->id;
           
-          std::cout << "checking which APV have been restored" << std::endl;         
-          for( uint16_t strip =0; strip < rawDigis->size();++strip){
-			  if(itRawDigis[strip].adc()) restoredAPV[strip/128] = true;       
-          }
- 
-          std::cout << "apply the ZS to the raw data collection" << std::endl;
-      	  edm::DetSet<SiStripDigi> suppressedDigis(rawDigis->id);
-      	  std::vector<int16_t> processedRawDigis(rawDigis->size());
-      	  algorithms->subtractorPed->subtract(*rawDigis, processedRawDigis);
-		  //processedRawDigisCopy.assign(processedRawDigis.begin(), processedRawDigis.end());
-          algorithms->subtractorCMN->subtract(rawDigis->id, processedRawDigis);
-		  //nAPVflagged = algorithms->restorer->inspect( rawDigis->id, processedRawDigisCopy, algorithms->subtractorCMN->getAPVsCM() );
-    	  //algorithms->restorer->restore( processedRawDigis );
-          algorithms->suppressor->suppress(processedRawDigis, suppressedDigis);
-           
+			std::vector<bool> restoredAPV;
+			restoredAPV.clear();
+			restoredAPV.insert(restoredAPV.begin(), nAPV, false); 
           
-          std::cout << "looking for the detId with the new ZS in the collection of the zero suppressed data" << std::endl; 
-          std::vector< edm::DetSet<SiStripDigi> >::iterator zsModule = outputdigi.begin();
-          while(zsModule->id != (rawDigis->id)&&(zsModule != outputdigi.end())){
-			++zsModule;
-          }         
-
-          std::cout << "creating the map containing only the digis for not restored APVs" << std::endl;
-          edm::DetSet<SiStripDigi>::iterator itZsModule, itSuppDigi;
           
-          itZsModule = zsModule->begin();
-          std::map<uint16_t, uint16_t> digicopyclean;
-          digicopyclean.clear();
-          for(; itZsModule != zsModule->end(); ++itZsModule){
-             uint16_t adc = itZsModule->adc();
-             uint16_t strip = itZsModule->strip();
-             if(!restoredAPV[strip/128]) digicopyclean.insert(digicopyclean.end(),std::pair<uint16_t, uint16_t>(strip, adc));
-          } 
-          
-          std::cout << "creating the map cointaining only the digis for the restored APVs" << std::endl;
-          itSuppDigi = suppressedDigis.begin();
-          std::map<uint16_t, uint16_t> digitoinsert;
-          digitoinsert.erase(digitoinsert.begin(), digitoinsert.end());
-          for(; itSuppDigi != suppressedDigis.end(); ++itSuppDigi){
-             uint16_t adc = itSuppDigi->adc();
-             uint16_t strip = itSuppDigi->strip();
-             if(restoredAPV[strip/128]) digitoinsert.insert(digitoinsert.end(),std::pair<uint16_t, uint16_t>(strip, adc));
-          } 
-
-          std::cout << "merging the two maps" << std::endl;
-          std::map<uint16_t, uint16_t>::iterator itMap, itMapToInserL, itMapToInserH ;
-          for(uint16_t APVn =0; APVn < restoredAPV.size(); ++APVn){
-              if(restoredAPV[APVn]){
-              	itMapToInserL = digitoinsert.lower_bound(APVn*128);
-				itMapToInserH = digitoinsert.lower_bound(APVn*128 + 128);
-  		  	    //--itMapToInserH;
-                if(itMapToInserL != digitoinsert.end()){
-				  while(itMapToInserL != itMapToInserH){ 
-				   // std::cout << itMapToInserL << " " << itMapToInserH << std::endl;
-					digicopyclean.insert(digicopyclean.lower_bound(APVn*128), itMapToInserL);
-                    ++itMapToInserL;
-				  }
+			bool isModuleRestored = false;
+			for( uint16_t strip =0; strip < rawDigis->size();++strip){
+				if(itRawDigis[strip].adc()!=0){
+				  restoredAPV[strip/128] = true;       
+				  isModuleRestored = true;
 				}
-              }
-              
-          } 
-          
+			}
+ 
+   		  	
+			if(isModuleRestored){
+				std::cout << "apply the ZS to the raw data collection" << std::endl;
+				edm::DetSet<SiStripDigi> suppressedDigis(rawDetId);
+				std::vector<int16_t> processedRawDigis(rawDigis->size());
+				algorithms->subtractorPed->subtract(*rawDigis, processedRawDigis);
+				//processedRawDigisCopy.assign(processedRawDigis.begin(), processedRawDigis.end());
+				algorithms->subtractorCMN->subtract(rawDetId, processedRawDigis);
+				//nAPVflagged = algorithms->restorer->inspect( rawDigis->id, processedRawDigisCopy, algorithms->subtractorCMN->getAPVsCM() );
+				//algorithms->restorer->restore( processedRawDigis );
+				algorithms->suppressor->suppress(processedRawDigis, suppressedDigis);
+			   
+				if(suppressedDigis.size()){	  
+					std::cout << "looking for the detId with the new ZS in the collection of the zero suppressed data" << std::endl; 
+					std::vector<edm::DetSet<SiStripDigi> >::iterator zsModule = outputdigi.begin();
+					//std::vector<edm::DetSet<SiStripDigi> >::iterator LastLowerIdDigis = zsModule;
+					
+					uint32_t zsDetId = zsModule->id;
+					bool isModuleInZscollection = false;
+					while((zsDetId <= rawDetId)&&(zsModule != outputdigi.end())&&(!isModuleInZscollection)){
+						//std::cout << rawDetId << " ==== " <<  zsDetId << std::endl;
+						if( zsDetId == rawDetId){
+							isModuleInZscollection = true;
+						}else{
+							++zsModule;
+							zsDetId = zsModule->id;
+						}
+					}         
+					std::cout << "after the look " << rawDetId << " ==== " <<  zsDetId << std::endl;
+					std::cout << "exiting looking for the detId with the new ZS in the collection of the zero suppressed data" << std::endl; 
+		
+					//creating the map containing the digis (in rawdigi format) merged
+					std::vector<uint16_t> MergedRawDigis;
+					MergedRawDigis.clear();
+					MergedRawDigis.insert(MergedRawDigis.begin(), nAPV*128, 0);
+					
+					uint32_t count=0; // to be removed...
+					
+					edm::DetSet<SiStripDigi> newDigiToIndert(rawDetId);
+					if(!isModuleInZscollection){
+					  std::cout << "WE HAVE A PROBLEM, THE MODULE IS NTOT FOUND" << std::endl;
+					  outputdigi.insert(zsModule, newDigiToIndert);
+						--zsModule;	
+					  std::cout << "new module id -1 " << zsModule->id << std::endl;
+						++zsModule;
+					  std::cout << "new module id " << zsModule->id << std::endl;
+						++zsModule;
+						std::cout << "new module id +1 " << zsModule->id << std::endl;
+						--zsModule;
+					  	
+					} else {
+						std::cout << "inserting only the digis for not restored APVs" << std::endl;
+						std::cout << "size : " << zsModule->size() << std::endl;
+						edm::DetSet<SiStripDigi>::iterator itZsModule = zsModule->begin(); 
+						for(; itZsModule != zsModule->end(); ++itZsModule){
+							uint16_t adc = itZsModule->adc();
+							uint16_t strip = itZsModule->strip();
+							if(!restoredAPV[strip/128]){
+								MergedRawDigis[strip] = adc;
+								++count;
+								std::cout << "original count: "<< count << " strip: " << strip << " adc: " << adc << std::endl;  
+							}
+						} 
+						
+					}
+										 
+					std::cout << "size of digis to keep: " << count << std::endl;				
+					std::cout << "inserting only the digis for the restored APVs" << std::endl;
+					std::cout << "size : " << suppressedDigis.size() << std::endl;
+					edm::DetSet<SiStripDigi>::iterator itSuppDigi = suppressedDigis.begin();
+					for(; itSuppDigi != suppressedDigis.end(); ++itSuppDigi){
+					  uint16_t adc = itSuppDigi->adc();
+					  uint16_t strip = itSuppDigi->strip();
+					  if(restoredAPV[strip/128]){
+					  	MergedRawDigis[strip] = adc;
+					  	std::cout << "new suppressed strip: " << strip << " adc: " << adc << std::endl;
+					  }
+					} 
+				  
+				  
+				  
+					std::cout << "suppressing the raw digis" << std::endl;
+					zsModule->clear();
+					for(uint16_t strip=0; strip < MergedRawDigis.size(); ++strip){
+					  uint16_t adc = MergedRawDigis[strip];
+					  if(adc) zsModule->push_back(SiStripDigi(strip, adc));
+					}
+					std::cout << "size zsModule after the merging: " << zsModule->size() << std::endl;
+					if((count + suppressedDigis.size()) != zsModule->size()) std::cout << "WE HAVE A PROBLEM!!!! THE NUMBER OF DIGIS IS NOT RIGHT==============" << std::endl;
+					std::cout << "exiting suppressing the raw digis" << std::endl;
+				}//if new ZS digis size
+			} //if module restored
+		}//loop over raw data collection
+		
+		uint32_t oldid =0;
+		for(edm::DetSetVector<SiStripDigi>::const_iterator dg = outputdigi.begin(); dg != outputdigi.end(); ++dg){
+			uint32_t iddg = dg->id;
+			if(iddg < oldid){
+				std::cout<< "NOT IN THE RIGHT ORGER" << std:: endl;
+				std::cout<< "======================="<< std:: endl;
+			}
+			oldid = iddg; 
+		}
+		
+		
+		std::cout << "write the output vector" << std::endl;
+		std::auto_ptr< edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>(outputdigi) );
+		e.put( output, "ZeroSuppressed" );  
+		
+		
+    }//if inputraw.size
 
-          std::cout << "copy of the map into the output vector" << std::endl;
-          zsModule->clear();
-          for( itMap= digicopyclean.begin(); itMap != digicopyclean.end(); ++itMap){
-			zsModule->push_back(SiStripDigi(itMap->first, itMap->second));
-		  }	
-    	}
-	
-    	std::auto_ptr< edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>(outputdigi) );
-    	//e.put( output, inputTag->instance() );
-        e.put( output, "ZeroSuppressed" );  	
-  	}
- // }
+
+   
 }
 
 inline void SiStripZeroSuppression::CollectionMergedZeroSuppression(edm::Event& e){
@@ -269,7 +320,7 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
   output.reserve(10000);    
   outputraw.reserve(10000);
   
-  uint32_t counter =1;               //to be removed after test
+  
   for ( edm::DetSetVector<SiStripRawDigi>::const_iterator 
 	  rawDigis = input.begin(); rawDigis != input.end(); ++rawDigis) {
     	
@@ -332,21 +383,13 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
     if (suppressedDigis.size() && (storeInZScollBadAPV || nAPVflagged ==0)) 
       output.push_back(suppressedDigis); 
     
-    bool forceRestore = false;                                    //to be removed after the test 
-    if((counter % numberIter) ==0) forceRestore = true;          //to be removed after the test  
-    if ((produceRawDigis && nAPVflagged > 0) || forceRestore){  //to be removed after the test
+    if (produceRawDigis && nAPVflagged > 0){  
       std::vector<bool> apvf;
       algorithms->restorer->GetAPVFlags(apvf);
       edm::DetSet<SiStripRawDigi> outRawDigis(rawDigis->id);
       edm::DetSet<SiStripRawDigi>::const_iterator itRawDigis = rawDigis->begin(); 
     
-      //-------------------------------------  to be removed after the test
-	     
-	    if(forceRestore){
-	      // std::cout << counter << "  " << numberIter << "  " <<counter % numberIter << std::endl;
-	    	apvf[0] = true;
-	    }
-	//-------------------------------------
+     
 	  //std::cout << "detId: " << rawDigis->id << std::endl;
       for(size_t APVn=0; APVn < apvf.size(); ++APVn){
 	     //std::cout << "APV: " << APVn <<  " " << apvf[APVn] << std::endl;
@@ -361,7 +404,7 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
       outputraw.push_back(outRawDigis);
 	  
     }
-    counter++;  //to be removed after the test
+   
 }
   
 }

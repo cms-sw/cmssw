@@ -32,6 +32,9 @@ class SiStripZeroSuppression : public edm::EDProducer
   void MergeCollectionsZeroSuppression(edm::Event&);
 
   std::vector<edm::InputTag> inputTags;
+  edm::InputTag DigisToMergeZS;
+  edm::InputTag DigisToMergeVR;
+
   typedef std::vector<edm::InputTag>::const_iterator tag_iterator_t;
   std::vector< edm::DetSet<SiStripProcessedRawDigi> > output_apvcm; 
   std::vector< edm::DetSet<SiStripProcessedRawDigi> > output_baseline;
@@ -47,9 +50,8 @@ class SiStripZeroSuppression : public edm::EDProducer
   bool storeInZScollBadAPV;
   bool mergeCollections;
   bool fixCM;
-  bool useCMMeanMap;
-  
-  uint32_t numberIter;     //to be removed after the test
+  bool useCMMeanMap;  
+
 };
 #endif
 
