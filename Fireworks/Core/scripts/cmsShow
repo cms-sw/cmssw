@@ -140,7 +140,7 @@ writeSystemInfoToFile()
 errorPrint()
 {
    # Wrap message to defined line width and add padding.
-   echo $1 | awk '{  txt=$0; m=66;\
+   echo $2 | awk -v m=$1 '{  txt=$0; m-=4; \
                   ll=int(length(txt)/m) ; i=1; \
                   if (length(txt)>(m +2)) { \
                       { print "  #  " substr(txt,0,m) "  #  "} \
@@ -180,9 +180,10 @@ fi
 
 # Run cmsShow 
 if [ -w . ]; then
-   creport=`TMPDIR=$PWD mktemp cmsshow-crash-report-XXXX`.txt
+   creport="cmsshow-crash-report.txt"
 else
-   creport=`mktemp cmsshow-crash-report-XXXX`.txt
+   creport=`mktemp cmsshow-crash-report-XXXX`
+   mv "$creport" "$creport".txt
 fi
 
 echo $creport
@@ -193,18 +194,19 @@ exitStatus=${PIPESTATUS[0]}
 if [ $exitStatus -gt 0 ] && [ "$rootflag" != "on" ] ; then 
    writeSystemInfoToFile $creport
    echo ""
-   echo "  ########################################################################"
-   errorPrint ""
-   errorPrint "        Abnormal program termination!"
-   errorPrint ""
-   errorPrint "Please send:"
-   errorPrint "$creport"
-   errorPrint "to hn-cms-visualization@cern.ch."
-   errorPrint " "                          
-   errorPrint "Or, notify us by running:"
-   errorPrint "cmsShowSendReport ${creport}"                                       
-   errorPrint ""
-   echo "  ########################################################################"
+   msgLen=67;
+   awk -v msgLen=$msgLen 'BEGIN {printf("  %c",  35);  i=0;  while ( i <= msgLen) { printf( "%c", 35 ); ++i}; print ""; }'
+   errorPrint $msgLen ""
+   errorPrint $msgLen "        Abnormal program termination!"
+   errorPrint $msgLen ""
+   errorPrint $msgLen "Please send:"
+   errorPrint $msgLen "$creport"
+   errorPrint $msgLen "to hn-cms-visualization@cern.ch."
+   errorPrint $msgLen " "                          
+   errorPrint $msgLen "Or, notify us by running:"
+   errorPrint $msgLen "cmsShowSendReport ${creport}"            
+   errorPrint $msgLen ""
+   awk -v msgLen=$msgLen 'BEGIN {printf("  %c",  35);  i=0;  while ( i <= msgLen) { printf( "%c", 35 ); ++i}; print ""; }'  
    echo ""
 else
    rm $creport;
