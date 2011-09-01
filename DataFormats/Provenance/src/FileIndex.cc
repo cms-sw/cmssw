@@ -2,12 +2,12 @@
 #include "FWCore/Utilities/interface/Algorithms.h"
 
 #include <algorithm>
-#include <ostream>
 #include <iomanip>
+#include <ostream>
 
 namespace edm {
 
-  FileIndex::FileIndex() : entries_(), transients_() {}
+  FileIndex::FileIndex() : entries_(), transient_() {}
 
   // The default value for sortState_ reflects the fact that
   // the index is always sorted using Run, Lumi, and Event
@@ -17,6 +17,13 @@ namespace edm {
   // sorted.
 
   FileIndex::Transients::Transients() : allInEntryOrder_(false), resultCached_(false), sortState_(kSorted_Run_Lumi_Event) {}
+
+  void
+  FileIndex::Transients::reset() {
+    allInEntryOrder_ = false;
+    resultCached_ = false;
+    sortState_ = kSorted_Run_Lumi_Event;
+  }
 
   void
   FileIndex::addEntry(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, EntryNumber_t entry) {
@@ -43,11 +50,11 @@ namespace edm {
       EntryNumber_t maxEntry = Element::invalidEntry;
       for(std::vector<FileIndex::Element>::const_iterator it = entries_.begin(), itEnd = entries_.end(); it != itEnd; ++it) {
         if(it->getEntryType() == kEvent) {
-	  if(it->entry_ < maxEntry) {
-	    allInEntryOrder() = false;
-	    return false;
+          if(it->entry_ < maxEntry) {
+            allInEntryOrder() = false;
+            return false;
           }
-	  maxEntry = it->entry_;
+          maxEntry = it->entry_;
         }
       }
       allInEntryOrder() = true;
@@ -68,16 +75,15 @@ namespace edm {
       bool lumiMissing = (lumi == 0 && event != 0);
       if(lumiMissing) {
         while(it != itEnd && it->run_ < run) {
-	  ++it;
+          ++it;
         }
         while(it != itEnd && (it->run_ == run && it->event_ < event)) {
-	  ++it;
+          ++it;
         }
       }
     } else {
       it = lower_bound_all(entries_, el, Compare_Run_Lumi_EventEntry());
     }
-    
     return it;
   }
 
@@ -97,11 +103,11 @@ namespace edm {
     }
     if(it->run_ != run || it->lumi_ != lumi || it->event_ != event) {
       if (sortState() == kSorted_Run_Lumi_Event) {
-	return itEnd;
+        return itEnd;
       }
       // not sorted by event, so we need to do a linear search
       while (it != itEnd && it->run_ == run && it->lumi_ == lumi && it->event_ != event) {
- 	++it;
+         ++it;
       }
       if(it->run_ != run || it->lumi_ != lumi || it->event_ != event) {
         return itEnd;
@@ -176,7 +182,7 @@ namespace edm {
   bool operator<(FileIndex::Element const& lh, FileIndex::Element const& rh) {
     if(lh.run_ == rh.run_) {
       if(lh.lumi_ == rh.lumi_) {
-	return lh.event_ < rh.event_;
+        return lh.event_ < rh.event_;
       }
       return lh.lumi_ < rh.lumi_;
     }
@@ -187,13 +193,13 @@ namespace edm {
     if(lh.run_ == rh.run_) {
       if(lh.lumi_ == rh.lumi_) {
         if(lh.event_ == 0U && rh.event_ == 0U) {
-	  return false;
+          return false;
         } else if(lh.event_ == 0U) {
-	  return true;
+          return true;
         } else if(rh.event_ == 0U) {
-	  return false;
-	} else {
-	  return lh.entry_ < rh.entry_;
+          return false;
+        } else {
+          return lh.entry_ < rh.entry_;
         }
       }
       return lh.lumi_ < rh.lumi_;

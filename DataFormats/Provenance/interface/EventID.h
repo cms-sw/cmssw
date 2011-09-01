@@ -20,6 +20,7 @@
 
 // system include files
 #include <iosfwd>
+#include <iostream>
 
 // user include files
 #include "DataFormats/Provenance/interface/RunID.h"

@@ -30,8 +30,8 @@
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
-#include "DataFormats/Provenance/interface/Transient.h"
 #include "DataFormats/Provenance/interface/ESRecordAuxiliary.h"
+#include "FWCore/Utilities/interface/typedefs.h"
 #include <map>
 #include <set>
 #include <vector>

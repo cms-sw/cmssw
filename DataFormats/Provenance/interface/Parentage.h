@@ -6,12 +6,11 @@
 Parentage: The products that were read in producing this product.
 
 ----------------------------------------------------------------------*/
-#include <iosfwd>
-#include <vector>
-
 #include "DataFormats/Provenance/interface/BranchID.h"
 #include "DataFormats/Provenance/interface/ParentageID.h"
-#include "DataFormats/Provenance/interface/Transient.h"
+
+#include <iosfwd>
+#include <vector>
 
 /*
   Parentage
@@ -40,16 +39,20 @@ namespace edm {
     std::vector<BranchID> & parents() {return parents_;}
     void swap(Parentage& other) {parents_.swap(other.parents_); parentageID().swap(other.parentageID());}
 
+    void initializeTransients() const {transient_.reset();}
+
     struct Transients {
       Transients() : parentageID_() {}
+      void reset() {parentageID_.reset();}
       ParentageID parentageID_;
     };
 
+
   private:
-    ParentageID& parentageID() const {return transients_.get().parentageID_;}
+    ParentageID& parentageID() const {return transient_.parentageID_;}
     // The Branch IDs of the parents
     std::vector<BranchID> parents_;
-    mutable Transient<Transients> transients_;
+    mutable Transients transient_;
 
   };
 
@@ -69,7 +72,7 @@ namespace edm {
 
   // Only the 'salient attributes' are testing in equality comparison.
   bool operator==(Parentage const& a, Parentage const& b);
-  inline bool operator!=(Parentage const& a, Parentage const& b) { return !(a==b); }
+  inline bool operator!=(Parentage const& a, Parentage const& b) { return !(a == b); }
 }
 #endif
 

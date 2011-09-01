@@ -33,7 +33,7 @@ namespace edm {
 
   ProductRegistry::ProductRegistry() :
       productList_(),
-      transients_() {
+      transient_() {
   }
 
   ProductRegistry::Transients::Transients() :
@@ -49,9 +49,22 @@ namespace edm {
     for(size_t i = 0; i < productProduced_.size(); ++i) productProduced_[i] = false;
   }
 
+  void
+  ProductRegistry::Transients::reset() {
+    frozen_ = false;
+    constProductList_.clear();
+    for (size_t i = 0; i < productProduced_.size(); ++i) productProduced_[i] = false;
+     anyProductProduced_ = false;
+     productLookup_.reset();
+     elementLookup_.reset();
+     branchIDToIndex_.clear();
+     producedBranchListIndex_ = std::numeric_limits<BranchListIndex>::max();
+     missingDictionaries_.clear();
+  }
+
   ProductRegistry::ProductRegistry(ProductList const& productList, bool toBeFrozen) :
       productList_(productList),
-      transients_() {
+      transient_() {
     frozen() = toBeFrozen;
   }
 
@@ -230,7 +243,7 @@ namespace edm {
     StringSet savedFoundTypes;
     savedFoundTypes.swap(foundTypes());
     constProductList().clear();
-    transients_.get().branchIDToIndex_.clear();
+    transient_.branchIDToIndex_.clear();
     ProductTransientIndex index = 0;
 
     //NOTE it might be possible to remove the need for this temporary map because the productList is ordered by the
@@ -250,7 +263,7 @@ namespace edm {
       // this is safe since items in a map always retain their memory address
       ConstBranchDescription const* pBD = &(constProductList().insert(std::make_pair(i->first, ConstBranchDescription(i->second))).first->second);
 
-      transients_.get().branchIDToIndex_[i->second.branchID()] = index;
+      transient_.branchIDToIndex_[i->second.branchID()] = index;
 
       usedProcessNames.insert(pBD->processName());
 
@@ -304,8 +317,8 @@ namespace edm {
   }
 
   ProductTransientIndex ProductRegistry::indexFrom(BranchID const& iID) const {
-    std::map<BranchID, ProductTransientIndex>::iterator itFind = transients_.get().branchIDToIndex_.find(iID);
-    if(itFind == transients_.get().branchIDToIndex_.end()) {
+    std::map<BranchID, ProductTransientIndex>::iterator itFind = transient_.branchIDToIndex_.find(iID);
+    if(itFind == transient_.branchIDToIndex_.end()) {
       return kInvalidIndex;
     }
     return itFind->second;

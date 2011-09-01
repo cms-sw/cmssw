@@ -3,17 +3,17 @@
 
 /*----------------------------------------------------------------------
 
-FileIndex.h 
+FileIndex.h
+// Obsolete: For Backward compatibility only.
 
 ----------------------------------------------------------------------*/
 
-#include <vector>
-#include <cassert>
 #include "DataFormats/Provenance/interface/RunID.h"
 #include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/Provenance/interface/Transient.h"
 
+#include <cassert>
 #include <iosfwd>
+#include <vector>
 
 namespace edm {
 
@@ -31,18 +31,18 @@ namespace edm {
 
       class Element {
         public:
-	  static EntryNumber_t const invalidEntry = -1LL;
+          static EntryNumber_t const invalidEntry = -1LL;
           Element() : run_(0U), lumi_(0U), event_(0U), entry_(invalidEntry) {
-	  }
+          }
           Element(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event, long long entry) :
-            run_(run), lumi_(lumi), 
+            run_(run), lumi_(lumi),
           event_(event), entry_(entry) {
-	    assert(lumi_ != 0U || event_ == 0U);
-	  }
+            assert(lumi_ != 0U || event_ == 0U);
+          }
           Element(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) :
             run_(run), lumi_(lumi), event_(event), entry_(invalidEntry) {}
           EntryType getEntryType() const {
-	    return lumi_ == 0U ? kRun : (event_ == 0U ? kLumi : kEvent);
+            return lumi_ == 0U ? kRun : (event_ == 0U ? kLumi : kEvent);
           }
           RunNumber_t run_;
           LuminosityBlockNumber_t lumi_;
@@ -77,12 +77,12 @@ namespace edm {
 
       bool
       containsItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const {
-	return event ? containsEvent(run, lumi, event) : (lumi ? containsLumi(run, lumi) : containsRun(run));
+        return event ? containsEvent(run, lumi, event) : (lumi ? containsLumi(run, lumi) : containsRun(run));
       }
 
       bool
       containsEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const {
-	return findEventPosition(run, lumi, event) != entries_.end();
+        return findEventPosition(run, lumi, event) != entries_.end();
       }
 
       bool
@@ -115,21 +115,24 @@ namespace edm {
 
       enum SortState {kNotSorted, kSorted_Run_Lumi_Event, kSorted_Run_Lumi_EventEntry};
 
+      void initializeTransients() const {transient_.reset();}
+
       struct Transients {
-	Transients();
-	bool allInEntryOrder_;
-	bool resultCached_;
-	SortState sortState_;
+        Transients();
+        void reset();
+        bool allInEntryOrder_;
+        bool resultCached_;
+        SortState sortState_;
       };
 
     private:
 
-      bool& allInEntryOrder() const {return transients_.get().allInEntryOrder_;}
-      bool& resultCached() const {return transients_.get().resultCached_;}
-      SortState& sortState() const {return transients_.get().sortState_;}
+      bool& allInEntryOrder() const {return transient_.allInEntryOrder_;}
+      bool& resultCached() const {return transient_.resultCached_;}
+      SortState& sortState() const {return transient_.sortState_;}
 
       std::vector<Element> entries_;
-      mutable Transient<Transients> transients_;
+      mutable Transients transient_;
   };
 
   bool operator<(FileIndex::Element const& lh, FileIndex::Element const& rh);
