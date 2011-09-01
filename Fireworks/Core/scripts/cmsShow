@@ -194,7 +194,7 @@ exitStatus=${PIPESTATUS[0]}
 if [ $exitStatus -gt 0 ] && [ "$rootflag" != "on" ] ; then 
    writeSystemInfoToFile $creport
    echo ""
-   msgLen=67;
+   msgLen=78;
    awk -v msgLen=$msgLen 'BEGIN {printf("  %c",  35);  i=0;  while ( i <= msgLen) { printf( "%c", 35 ); ++i}; print ""; }'
    errorPrint $msgLen ""
    errorPrint $msgLen "        Abnormal program termination!"
