@@ -1,3 +1,9 @@
+2011-08-31 William Tanenbaum <wmtan@fnal.gov>
+
+	* tag V08-05-00
+	* Move FragKey struct from otherwise unused IOPool/Streamer/HLTInfo into
+	  the EventFilter/StorageManager package.
+
 2011-08-22 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V08-04-02
