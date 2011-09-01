@@ -24,7 +24,7 @@ UtilsClient::printBadChannels( const MonitorElement* me, TH1* hi, bool positive_
     return;
   }
   bool title = false;
-  TProfile2D* hj = static_cast<TProfile2D*>(hi);
+  TProfile2D* hj = dynamic_cast<TProfile2D*>(hi);
   int kx = -1;
   int ky = -1;
   for ( int ix = 1; ix <= me->getNbinsX(); ix++ ) {
