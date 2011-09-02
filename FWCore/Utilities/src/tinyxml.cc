@@ -23,6 +23,8 @@ distribution.
 */
 /*
  * THIS FILE WAS ALTERED BY Eric Vaandering, 25 August 2009.
+ * THIS FILE WAS ALTERED BY Bill Tanenbaum, 2 September 2011.
+ * Coverity complains about sprintf, so converted to snprintf.
  */
 #define TIXML_USE_STL
 
@@ -32,7 +34,6 @@ distribution.
 #endif
 
 #include "FWCore/Utilities/interface/tinyxml.h"
-
 
 bool TiXmlBase::condenseWhiteSpace = true;
 
@@ -115,7 +116,7 @@ void TiXmlBase::EncodeString( const TIXML_STRING& str, TIXML_STRING* outString )
 			#if defined(TIXML_SNPRINTF)
 				TIXML_SNPRINTF( buf, sizeof(buf), "&#x%02X;", (unsigned) ( c & 0xff ) );
 			#else
-				sprintf( buf, "&#x%02X;", (unsigned) ( c & 0xff ) );
+				snprintf( buf, sizeof(buf), "&#x%02X;", (unsigned) ( c & 0xff ) );
 			#endif
 
 			//*ME:	warning C4267: convert 'size_t' to 'int'
@@ -688,7 +689,7 @@ void TiXmlElement::SetAttribute( const char * name, int val )
 	#if defined(TIXML_SNPRINTF)
 		TIXML_SNPRINTF( buf, sizeof(buf), "%d", val );
 	#else
-		sprintf( buf, "%d", val );
+		snprintf( buf, sizeof(buf), "%d", val );
 	#endif
 	SetAttribute( name, buf );
 }
@@ -710,7 +711,7 @@ void TiXmlElement::SetDoubleAttribute( const char * name, double val )
 	#if defined(TIXML_SNPRINTF)
 		TIXML_SNPRINTF( buf, sizeof(buf), "%f", val );
 	#else
-		sprintf( buf, "%f", val );
+		snprintf( buf, sizeof(buf), "%f", val );
 	#endif
 	SetAttribute( name, buf );
 }
@@ -1259,7 +1260,7 @@ void TiXmlAttribute::SetIntValue( int _value )
 	#if defined(TIXML_SNPRINTF)
 		TIXML_SNPRINTF(buf, sizeof(buf), "%d", _value);
 	#else
-		sprintf (buf, "%d", _value);
+		snprintf (buf, sizeof(buf), "%d", _value);
 	#endif
 	SetValue (buf);
 }
@@ -1270,7 +1271,7 @@ void TiXmlAttribute::SetDoubleValue( double _value )
 	#if defined(TIXML_SNPRINTF)
 		TIXML_SNPRINTF( buf, sizeof(buf), "%f", _value);
 	#else
-		sprintf (buf, "%f", _value);
+		snprintf (buf, sizeof(buf), "%f", _value);
 	#endif
 	SetValue (buf);
 }
