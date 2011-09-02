@@ -7,7 +7,7 @@ KDTreeLinkerTrackHcal::KDTreeLinkerTrackHcal()
   : KDTreeLinkerBase()
 {
   setCristalPhiEtaMaxSize(0.2);
-  setPhiOffset(.6);
+  setPhiOffset(0.32);
 }
 
 KDTreeLinkerTrackHcal::~KDTreeLinkerTrackHcal()
@@ -125,6 +125,9 @@ KDTreeLinkerTrackHcal::searchLinks()
     double tracketa = atHCAL.positionREP().Eta() + 0.1 * dHEta;
     double trackphi = atHCAL.positionREP().Phi() + 0.1 * dHPhi;
     
+    if (trackphi > M_PI) trackphi -= 2 * M_PI;
+    else if (trackphi < -M_PI) trackphi += 2 * M_PI;
+
     // Estimate the maximal envelope in phi/eta that will be used to find rechit candidates.
     // Same envelope for cap et barrel rechits.
     double inflation = 1.;
