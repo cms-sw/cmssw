@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2011/08/30 09:29:45 $
- * $Revision: 1.211 $
+ * $Date: 2011/09/02 13:55:02 $
+ * $Revision: 1.212 $
  * \author G. Della Ricca
  *
 */
@@ -2171,7 +2171,7 @@ void EESummaryClient::analyze(void) {
 		  sum += cont * ent;
 		  sumw2 += (err * err + cont * cont) * ent;
 
-		  if( ent > 1 && (std::abs(cont) > 3. || err > 3.) && Masks::maskChannel(ism, scix, sciy, chWarnBit, EcalEndcap) ) mask = true;
+		  if( ent > 1 && (std::abs(cont) > 3. || err > 4.) && Masks::maskChannel(ism, scix, sciy, chWarnBit, EcalEndcap) ) mask = true;
 		}
 	      }
 
@@ -2181,7 +2181,7 @@ void EESummaryClient::analyze(void) {
 		float mean = sum / num;
 		float rms = std::sqrt( sumw2 / num - mean * mean );
 
-		if( std::abs(mean) > 3. || rms > 3. ) xval = 0.;
+		if( std::abs(mean) > 3. || rms > 4. ) xval = 0.;
 		else xval = 1.;
 
 	      }

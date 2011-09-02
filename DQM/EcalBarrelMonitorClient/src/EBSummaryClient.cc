@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2011/08/30 09:33:51 $
- * $Revision: 1.221 $
+ * $Date: 2011/09/02 13:55:01 $
+ * $Revision: 1.222 $
  * \author G. Della Ricca
  *
 */
@@ -1533,7 +1533,7 @@ void EBSummaryClient::analyze(void) {
 		  sum += cont * ent;
 		  sumw2 += (err * err + cont * cont) * ent;
 
-		  if( ent > 3. && (std::abs(cont) > 2. || err > 3.) && Masks::maskChannel(ism, scie, scip, chWarnBit, EcalBarrel) ) mask = true;
+		  if( ent > 3. && (std::abs(cont) > 2. || err > 6.) && Masks::maskChannel(ism, scie, scip, chWarnBit, EcalBarrel) ) mask = true;
 		}
 	      }
 
@@ -1543,7 +1543,7 @@ void EBSummaryClient::analyze(void) {
 		float mean = sum / num;
 		float rms = std::sqrt( sumw2 / num - mean * mean );
 
-		if( std::abs(mean) > 2. || rms > 3. ) xval = 0.;
+		if( std::abs(mean) > 2. || rms > 6. ) xval = 0.;
 		else xval = 1.;
 
 	      }

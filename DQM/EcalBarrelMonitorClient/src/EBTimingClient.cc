@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2011/08/30 09:33:51 $
- * $Revision: 1.109 $
+ * $Date: 2011/09/02 13:55:01 $
+ * $Revision: 1.110 $
  * \author G. Della Ricca
  *
 */
@@ -86,7 +86,7 @@ EBTimingClient::EBTimingClient(const edm::ParameterSet& ps) {
 
   expectedMean_ = 0.0;
   discrepancyMean_ = 2.0;
-  RMSThreshold_ = 3.0;
+  RMSThreshold_ = 6.0;
 
 }
 
