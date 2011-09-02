@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2010/10/17 18:06:34 $
- * $Revision: 1.108 $
+ * $Date: 2011/08/30 09:33:51 $
+ * $Revision: 1.109 $
  * \author G. Della Ricca
  *
 */
@@ -86,7 +86,7 @@ EBTimingClient::EBTimingClient(const edm::ParameterSet& ps) {
 
   expectedMean_ = 0.0;
   discrepancyMean_ = 2.0;
-  RMSThreshold_ = 10.;
+  RMSThreshold_ = 3.0;
 
 }
 
@@ -341,8 +341,6 @@ void EBTimingClient::analyze(void) {
   uint32_t bits01 = 0;
   bits01 |= 1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_WARNING;
 
-  char histo[200];
-
   MonitorElement* me;
 
   if( meTimeSummaryMapProjEta_ ) meTimeSummaryMapProjEta_->Reset();
@@ -352,13 +350,11 @@ void EBTimingClient::analyze(void) {
 
     int ism = superModules_[i];
 
-    sprintf(histo, (prefixME_ + "/EBTimingTask/EBTMT timing %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
+    me = dqmStore_->get( prefixME_ + "/EBTimingTask/EBTMT timing " + Numbers::sEB(ism) );
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
-    sprintf(histo, (prefixME_ + "/EBTimingTask/EBTMT timing vs amplitude %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
+    me = dqmStore_->get( prefixME_ + "/EBTimingTask/EBTMT timing vs amplitude " + Numbers::sEB(ism) );
     h02_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;
 

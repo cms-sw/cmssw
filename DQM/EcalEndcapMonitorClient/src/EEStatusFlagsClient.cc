@@ -1,8 +1,8 @@
 /*
  * \file EEStatusFlagsClient.cc
  *
- * $Date: 2010/08/11 15:01:53 $
- * $Revision: 1.46 $
+ * $Date: 2011/08/30 09:29:45 $
+ * $Revision: 1.47 $
  * \author G. Della Ricca
  *
 */
@@ -185,26 +185,21 @@ void EEStatusFlagsClient::analyze(void) {
   uint32_t bits01 = 0;
   bits01 |= 1 << EcalDQMStatusHelper::STATUS_FLAG_ERROR;
 
-  char histo[200];
-
   MonitorElement* me;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    sprintf(histo, (prefixME_ + "/EEStatusFlagsTask/FEStatus/EESFT front-end status %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
+    me = dqmStore_->get( prefixME_ + "/EEStatusFlagsTask/FEStatus/EESFT front-end status " + Numbers::sEE(ism) );
     h01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
-    sprintf(histo, (prefixME_ + "/EEStatusFlagsTask/FEStatus/EESFT front-end status bits %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
+    me = dqmStore_->get( prefixME_ + "/EEStatusFlagsTask/FEStatus/EESFT front-end status bits " + Numbers::sEE(ism) );
     h02_[ism-1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;
 
-    sprintf(histo, (prefixME_ + "/EEStatusFlagsTask/FEStatus/EESFT MEM front-end status %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
+    me = dqmStore_->get( prefixME_ + "/EEStatusFlagsTask/FEStatus/EESFT MEM front-end status " + Numbers::sEE(ism) );
     h03_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h01_[ism-1] );
     meh03_[ism-1] = me;
 

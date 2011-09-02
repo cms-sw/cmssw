@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2010/10/17 18:07:58 $
- * $Revision: 1.107 $
+ * $Date: 2011/08/30 09:29:45 $
+ * $Revision: 1.108 $
  * \author G. Della Ricca
  *
 */
@@ -90,7 +90,7 @@ EETimingClient::EETimingClient(const edm::ParameterSet& ps) {
 
   expectedMean_ = 0.0;
   discrepancyMean_ = 3.;
-  RMSThreshold_ = 15.;
+  RMSThreshold_ = 3.;
 
 }
 
@@ -137,7 +137,7 @@ void EETimingClient::endRun(void) {
 
 void EETimingClient::setup(void) {
 
-  char histo[200];
+  std::string name;
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EETimingClient" );
 
@@ -146,47 +146,47 @@ void EETimingClient::setup(void) {
     int ism = superModules_[i];
 
     if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
-    sprintf(histo, "EETMT timing quality %s", Numbers::sEE(ism).c_str());
-    meg01_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+    name = "EETMT timing quality " + Numbers::sEE(ism);
+    meg01_[ism-1] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
     meg01_[ism-1]->setAxisTitle("ix", 1);
     if ( ism >= 1 && ism <= 9 ) meg01_[ism-1]->setAxisTitle("101-ix", 1);
     meg01_[ism-1]->setAxisTitle("iy", 2);
 
     if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );
-    sprintf(histo, "EETMT timing %s", Numbers::sEE(ism).c_str());
-    mea01_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+    name = "EETMT timing " + Numbers::sEE(ism);
+    mea01_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
     mea01_[ism-1]->setAxisTitle("channel", 1);
     mea01_[ism-1]->setAxisTitle("time (ns)", 2);
 
     if ( mep01_[ism-1] ) dqmStore_->removeElement( mep01_[ism-1]->getName() );
-    sprintf(histo, "EETMT timing mean %s", Numbers::sEE(ism).c_str());
-    mep01_[ism-1] = dqmStore_->book1D(histo, histo, 100, -25., 25.);
+    name = "EETMT timing mean " + Numbers::sEE(ism);
+    mep01_[ism-1] = dqmStore_->book1D(name, name, 100, -25., 25.);
     mep01_[ism-1]->setAxisTitle("mean (ns)", 1);
 
     if ( mer01_[ism-1] ) dqmStore_->removeElement( mer01_[ism-1]->getName() );
-    sprintf(histo, "EETMT timing rms %s", Numbers::sEE(ism).c_str());
-    mer01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0.0, 10.);
+    name = "EETMT timing rms " + Numbers::sEE(ism);
+    mer01_[ism-1] = dqmStore_->book1D(name, name, 100, 0.0, 10.);
     mer01_[ism-1]->setAxisTitle("rms (ns)", 1);
 
   }
 
-  sprintf(histo, "EETMT timing projection eta EE -");
-  meTimeSummaryMapProjEta_[0] = dqmStore_->bookProfile(histo, histo, 20, -3.0, -1.479, -20., 20.,"");
+  name = "EETMT timing projection eta EE -";
+  meTimeSummaryMapProjEta_[0] = dqmStore_->bookProfile(name, name, 20, -3.0, -1.479, -20., 20.,"");
   meTimeSummaryMapProjEta_[0]->setAxisTitle("eta", 1);
   meTimeSummaryMapProjEta_[0]->setAxisTitle("time (ns)", 2);
 
-  sprintf(histo, "EETMT timing projection eta EE +");
-  meTimeSummaryMapProjEta_[1] = dqmStore_->bookProfile(histo, histo, 20, 1.479, 3.0, -20., 20.,"");
+  name = "EETMT timing projection eta EE +";
+  meTimeSummaryMapProjEta_[1] = dqmStore_->bookProfile(name, name, 20, 1.479, 3.0, -20., 20.,"");
   meTimeSummaryMapProjEta_[1]->setAxisTitle("eta", 1);
   meTimeSummaryMapProjEta_[1]->setAxisTitle("time (ns)", 2);
 
-  sprintf(histo, "EETMT timing projection phi EE -");
-  meTimeSummaryMapProjPhi_[0] = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, -20., 20.,"");
+  name = "EETMT timing projection phi EE -";
+  meTimeSummaryMapProjPhi_[0] = dqmStore_->bookProfile(name, name, 50, -M_PI, M_PI, -20., 20.,"");
   meTimeSummaryMapProjPhi_[0]->setAxisTitle("phi", 1);
   meTimeSummaryMapProjPhi_[0]->setAxisTitle("time (ns)", 2);
 
-  sprintf(histo, "EETMT timing projection phi EE +");
-  meTimeSummaryMapProjPhi_[1] = dqmStore_->bookProfile(histo, histo, 50, -M_PI, M_PI, -20., 20.,"");
+  name = "EETMT timing projection phi EE +";
+  meTimeSummaryMapProjPhi_[1] = dqmStore_->bookProfile(name, name, 50, -M_PI, M_PI, -20., 20.,"");
   meTimeSummaryMapProjPhi_[1]->setAxisTitle("phi", 1);
   meTimeSummaryMapProjPhi_[1]->setAxisTitle("time (ns)", 2);
 
@@ -377,8 +377,6 @@ void EETimingClient::analyze(void) {
   uint32_t bits01 = 0;
   bits01 |= 1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_WARNING;
 
-  char histo[200];
-
   MonitorElement* me;
 
   if( meTimeSummaryMapProjEta_[0] && meTimeSummaryMapProjEta_[1] && meTimeSummaryMapProjPhi_[0] && meTimeSummaryMapProjPhi_[1] ){
@@ -422,14 +420,12 @@ void EETimingClient::analyze(void) {
 
     int ism = superModules_[i];
 
-    sprintf(histo, (prefixME_ + "/EETimingTask/EETMT timing %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EETimingTask/EETMT timing " + Numbers::sEE(ism) );
+    h01_[ism-1] = UtilsClient::getHisto( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
-    sprintf(histo, (prefixME_ + "/EETimingTask/EETMT timing vs amplitude %s").c_str(), Numbers::sEE(ism).c_str());
-    me = dqmStore_->get(histo);
-    h02_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h02_[ism-1] );
+    me = dqmStore_->get( prefixME_ + "/EETimingTask/EETMT timing vs amplitude " + Numbers::sEE(ism) );
+    h02_[ism-1] = UtilsClient::getHisto( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;
 
     if ( meg01_[ism-1] ) meg01_[ism-1]->Reset();
