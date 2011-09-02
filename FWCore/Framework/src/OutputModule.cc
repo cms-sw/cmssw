@@ -15,9 +15,12 @@
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/src/CPCSentry.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
+
+#include <cassert>
 
 namespace edm {
   // This grotesque little function exists just to allow calling of
@@ -424,6 +427,37 @@ namespace edm {
   const std::string&
   OutputModule::baseType() {
     return kBaseType;
+  }
+
+  void
+  OutputModule::setEventSelectionInfo(std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
+                                      bool anyProductProduced) {
+
+    ParameterSet selectEventsInfo = getParameterSet(selector_config_id_);
+    selectEventsInfo.addParameter<bool>("InProcessHistory", anyProductProduced);
+    std::string const& label = description().moduleLabel();
+    std::vector<std::string> endPaths;
+    std::vector<int> endPathPositions;
+
+    // The label will be empty if and only if this is a SubProcess
+    // SubProcess's do not appear on any end path
+    if (!label.empty()) {
+      std::map<std::string, std::vector<std::pair<std::string, int> > >::const_iterator iter = outputModulePathPositions.find(label);
+      assert(iter != outputModulePathPositions.end());
+      for (std::vector<std::pair<std::string, int> >::const_iterator i = iter->second.begin(), e = iter->second.end();
+           i != e; ++i) {
+        endPaths.push_back(i->first);
+        endPathPositions.push_back(i->second);
+      }
+    }
+    selectEventsInfo.addParameter<std::vector<std::string> >("EndPaths", endPaths);
+    selectEventsInfo.addParameter<std::vector<int> >("EndPathPositions", endPathPositions);
+    if (!selectEventsInfo.exists("SelectEvents")) {
+      selectEventsInfo.addParameter<std::vector<std::string> >("SelectEvents", std::vector<std::string>());
+    }
+    selectEventsInfo.registerIt();
+
+    selector_config_id_ = selectEventsInfo.id();
   }
 
   void

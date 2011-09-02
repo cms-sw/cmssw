@@ -21,6 +21,7 @@
 #include <algorithm>
 #include <iostream>
 #include <sstream>
+#include <cassert>
 
 // ----------------------------------------------------------------------
 // class invariant checker
@@ -127,6 +128,25 @@ namespace edm {
     std::swap(*pset, it->second.pset());
     psetTable_.erase(it); 
     return pset;
+  }
+
+  void ParameterSet::eraseSimpleParameter(std::string const& name) {
+    assert(!isRegistered());
+    table::iterator it = tbl_.find(name);
+    assert(it != tbl_.end());
+    tbl_.erase(it);
+  }
+
+  void ParameterSet::eraseOrSetUntrackedParameterSet(std::string const& name) {
+    assert(!isRegistered());
+    psettable::iterator it = psetTable_.find(name);
+    assert(it != psetTable_.end());
+    ParameterSet& pset = it->second.pset();
+    if (pset.isRegistered()) {
+      it->second.setIsTracked(false);
+    } else {
+      psetTable_.erase(it);
+    }
   }
 
   std::auto_ptr<std::vector<ParameterSet> > ParameterSet::popVParameterSet(std::string const& name) {

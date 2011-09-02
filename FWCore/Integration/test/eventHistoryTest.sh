@@ -29,4 +29,22 @@ echo "*************************************************"
 echo "**************** Finished pass 4 ****************"
 echo "*************************************************"
 
+# Read the fourth file, make sure the event data have the right history
+cmsRun --parameter-set ${LOCAL_TEST_DIR}/EventHistory_5_cfg.py || die 'Failed in EventHistory_5' $?
+echo "*************************************************"
+echo "**************** Finished pass 5 ****************"
+echo "*************************************************"
+
+# Read the fifth file, make sure the event data have the right history
+cmsRun --parameter-set ${LOCAL_TEST_DIR}/EventHistory_6_cfg.py || die 'Failed in EventHistory_6' $?
+echo "*************************************************"
+echo "**************** Finished pass 6 ****************"
+echo "*************************************************"
+
+# Repeat all the above steps, but slightly modified so all steps run in one job with subprocess
+cmsRun --parameter-set ${LOCAL_TEST_DIR}/EventHistory_SubProcess_cfg.py || die 'Failed in EventHistory_SubProcess' $?
+echo "*************************************************"
+echo "**************** Finished pass SubProcess *******"
+echo "*************************************************"
+
 popd

@@ -33,5 +33,5 @@ process.out = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('testEventHistory_1.root')
 )
 
-process.p = cms.Path(process.intdeque+process.intlist+process.intset+process.intvec)
-process.e = cms.EndPath(process.out)
+process.p1 = cms.Path(process.intdeque+process.intlist+process.intset+process.intvec)
+process.ep1 = cms.EndPath(process.out)

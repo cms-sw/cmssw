@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/Framework/interface/TriggerReport.h"
 #include "FWCore/Framework/src/Factory.h"
+#include "FWCore/Framework/interface/OutputModule.h"
 #include "FWCore/Framework/src/OutputWorker.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
 #include "FWCore/Framework/src/WorkerInPath.h"
@@ -15,7 +16,9 @@
 #include "FWCore/Framework/src/WorkerT.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/FillProductRegistryTransients.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/Registry.h"
+#include "FWCore/Utilities/interface/Algorithms.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 #include "FWCore/Utilities/interface/ReflexTools.h"
@@ -88,6 +91,10 @@ namespace edm {
       ptr->setActivityRegistry(areg);
       return ptr;
     }
+
+    bool binary_search_string(std::vector<std::string> const& v, std::string const& s) {
+      return std::binary_search(v.begin(), v.end(), s);
+    }
   }
 
   // -----------------------------
@@ -127,11 +134,12 @@ namespace edm {
     bool hasPath = false;
 
     int trig_bitpos = 0;
+    vstring labelsOnTriggerPaths;
     for (vstring::const_iterator i = trig_name_list_.begin(),
            e = trig_name_list_.end();
          i != e;
          ++i) {
-      fillTrigPath(proc_pset, preg, processConfiguration, trig_bitpos, *i, results_);
+      fillTrigPath(proc_pset, preg, processConfiguration, trig_bitpos, *i, results_, &labelsOnTriggerPaths);
       ++trig_bitpos;
       hasPath = true;
     }
@@ -169,12 +177,12 @@ namespace edm {
     //does the configuration say we should allow on demand?
     bool allowUnscheduled = opts.getUntrackedParameter<bool>("allowUnscheduled", false);
     std::set<std::string> unscheduledLabels;
+    std::vector<std::string>  shouldBeUsedLabels;
     if (!unusedLabels.empty()) {
       //Need to
       // 1) create worker
       // 2) if it is a WorkerT<EDProducer>, add it to our list
       // 3) hand list to our delayed reader
-      std::vector<std::string>  shouldBeUsedLabels;
 
       for (std::vector<std::string>::iterator itLabel = unusedLabels.begin(), itLabelEnd = unusedLabels.end();
           itLabel != itLabelEnd;
@@ -230,6 +238,9 @@ namespace edm {
       }
     }
 
+    std::map<std::string, std::vector<std::pair<std::string, int> > > outputModulePathPositions;
+    reduceParameterSet(proc_pset, modulesInConfig, modulesInConfigSet, labelsOnTriggerPaths, shouldBeUsedLabels, outputModulePathPositions);
+
     proc_pset.registerIt();
     pset::Registry::instance()->extra().setID(proc_pset.id());
     processConfiguration->setParameterSetID(proc_pset.id());
@@ -254,6 +265,11 @@ namespace edm {
     loadMissingDictionaries();
     preg.setFrozen();
 
+    for (AllOutputWorkers::iterator i = all_output_workers_.begin(), e = all_output_workers_.end();
+         i != e; ++i) {
+      (*i)->setEventSelectionInfo(outputModulePathPositions, preg.anyProductProduced());
+    }
+
     // Sanity check: make sure nobody has added a worker after we've
     // already relied on all_workers_ being full.
     assert (all_workers_count == all_workers_.size());
@@ -262,6 +278,123 @@ namespace edm {
     BranchIDListHelper::updateRegistries(preg);
     fillProductRegistryTransients(*processConfiguration, preg);
   } // Schedule::Schedule
+
+  void Schedule::reduceParameterSet(ParameterSet& proc_pset,
+                                    vstring& modulesInConfig,
+                                    std::set<std::string> const& modulesInConfigSet,
+                                    vstring& labelsOnTriggerPaths,
+                                    vstring& shouldBeUsedLabels,
+                                    std::map<std::string, std::vector<std::pair<std::string, int> > >& outputModulePathPositions) {
+
+    // Before calculating the ParameterSetID of the top level ParameterSet or
+    // saving it in the registry drop from the top level ParameterSet all
+    // OutputModules and EDAnalyzers not on trigger paths. If unscheduled
+    // production is not enabled also drop all the EDFilters and EDProducers
+    // that are not scheduled. Drop the ParameterSet used to configure the module
+    // itself. Also drop the other traces of these labels in the top level
+    // ParameterSet: Remove that labels from @all_modules and from all the
+    // end paths. If this makes any end paths empty, then remove the end path
+    // name from @end_paths, and @paths.
+
+    // First make a list of labels to drop
+    vstring labelsToBeDropped;
+    vstring outputModuleLabels;
+    std::string edmType;
+    std::string const moduleEdmType("@module_edm_type");
+    std::string const outputModule("OutputModule");
+    std::string const edAnalyzer("EDAnalyzer");
+    std::string const edFilter("EDFilter");
+    std::string const edProducer("EDProducer");
+    sort_all(labelsOnTriggerPaths);
+    vstring::const_iterator iLabelsOnTriggerPaths = labelsOnTriggerPaths.begin();
+    vstring::const_iterator endLabelsOnTriggerPaths = labelsOnTriggerPaths.end();
+    sort_all(shouldBeUsedLabels);
+    vstring::const_iterator iShouldBeUsedLabels = shouldBeUsedLabels.begin();
+    vstring::const_iterator endShouldBeUsedLabels = shouldBeUsedLabels.end();
+
+    for (std::set<std::string>::const_iterator i = modulesInConfigSet.begin(),
+	   e = modulesInConfigSet.end(); i != e; ++i) {
+      edmType = proc_pset.getParameterSet(*i).getParameter<std::string>(moduleEdmType);
+      if (edmType == outputModule) {
+        labelsToBeDropped.push_back(*i);
+        outputModuleLabels.push_back(*i);
+      }
+      else if (edmType == edAnalyzer) {
+        while (iLabelsOnTriggerPaths != endLabelsOnTriggerPaths &&
+               *iLabelsOnTriggerPaths < *i) {
+          ++iLabelsOnTriggerPaths;
+        }
+        if (iLabelsOnTriggerPaths == endLabelsOnTriggerPaths ||
+            *iLabelsOnTriggerPaths != *i) {
+          labelsToBeDropped.push_back(*i);
+        }
+      }
+      else if (edmType == edFilter || edmType == edProducer) {
+        while (iShouldBeUsedLabels != endShouldBeUsedLabels &&
+               *iShouldBeUsedLabels < *i) {
+          ++iShouldBeUsedLabels;
+        }
+        if (iShouldBeUsedLabels != endShouldBeUsedLabels &&
+            *iShouldBeUsedLabels == *i) {
+          labelsToBeDropped.push_back(*i);
+        }
+      }
+    }
+
+    // drop the parameter sets used to configure the modules
+    for_all(labelsToBeDropped, boost::bind(&ParameterSet::eraseOrSetUntrackedParameterSet, boost::ref(proc_pset), _1));
+
+    // drop the labels from @all_modules
+    vstring::iterator endAfterRemove = std::remove_if(modulesInConfig.begin(), modulesInConfig.end(), boost::bind(binary_search_string, boost::ref(labelsToBeDropped), _1));
+    modulesInConfig.erase(endAfterRemove, modulesInConfig.end());
+    proc_pset.addParameter<vstring>(std::string("@all_modules"), modulesInConfig);
+
+    // drop the labels from all end paths
+    vstring endPathsToBeDropped;
+    vstring labels;
+    for (vstring::iterator iEndPath = end_path_name_list_.begin(), endEndPath = end_path_name_list_.end();
+         iEndPath != endEndPath;
+         ++iEndPath) {
+      labels = proc_pset.getParameter<vstring>(*iEndPath);
+      vstring::iterator iSave = labels.begin();
+      vstring::iterator iBegin = labels.begin();
+
+      for (vstring::iterator iLabel = labels.begin(), iEnd = labels.end();
+           iLabel != iEnd; ++iLabel) {
+        if (binary_search_string(labelsToBeDropped, *iLabel)) {
+          if (binary_search_string(outputModuleLabels, *iLabel)) {
+            outputModulePathPositions[*iLabel].push_back(std::pair<std::string, int>(*iEndPath, iSave - iBegin));
+          }
+        } else {
+          if (iSave != iLabel) {
+            iSave->swap(*iLabel);
+          }
+          ++iSave;
+        }
+      }
+      labels.erase(iSave, labels.end());
+      if (labels.empty()) {
+        // remove empty end paths and save their names
+        proc_pset.eraseSimpleParameter(*iEndPath);
+        endPathsToBeDropped.push_back(*iEndPath);
+      } else {
+        proc_pset.addParameter<vstring>(*iEndPath, labels);
+      }
+    }
+    sort_all(endPathsToBeDropped);
+    
+    // remove empty end paths from @paths
+    vstring scheduledPaths = proc_pset.getParameter<vstring>("@paths");
+    endAfterRemove = std::remove_if(scheduledPaths.begin(), scheduledPaths.end(), boost::bind(binary_search_string, boost::ref(endPathsToBeDropped), _1));
+    scheduledPaths.erase(endAfterRemove, scheduledPaths.end());
+    proc_pset.addParameter<vstring>(std::string("@paths"), scheduledPaths);
+
+    // remove empty end paths from @end_paths
+    vstring scheduledEndPaths = proc_pset.getParameter<vstring>("@end_paths");
+    endAfterRemove = std::remove_if(scheduledEndPaths.begin(), scheduledEndPaths.end(), boost::bind(binary_search_string, boost::ref(endPathsToBeDropped), _1));
+    scheduledEndPaths.erase(endAfterRemove, scheduledEndPaths.end());
+    proc_pset.addParameter<vstring>(std::string("@end_paths"), scheduledEndPaths);
+  }
 
   void
   Schedule::limitOutput(ParameterSet const& proc_pset) {
@@ -331,12 +464,15 @@ namespace edm {
                              boost::shared_ptr<ProcessConfiguration const> processConfiguration,
                              std::string const& name,
                              bool ignoreFilters,
-                             PathWorkers& out) {
+                             PathWorkers& out,
+                             vstring* labelsOnPaths) {
     vstring modnames = proc_pset.getParameter<vstring>(name);
     vstring::iterator it(modnames.begin()), ie(modnames.end());
     PathWorkers tmpworkers;
 
     for (; it != ie; ++it) {
+
+      if (labelsOnPaths) labelsOnPaths->push_back(*it);
 
       WorkerInPath::FilterAction filterAction = WorkerInPath::Normal;
       if ((*it)[0] == '!')       filterAction = WorkerInPath::Veto;
@@ -385,10 +521,11 @@ namespace edm {
   void Schedule::fillTrigPath(ParameterSet& proc_pset,
                               ProductRegistry& preg,
                               boost::shared_ptr<ProcessConfiguration const> processConfiguration,
-                              int bitpos, std::string const& name, TrigResPtr trptr) {
+                              int bitpos, std::string const& name, TrigResPtr trptr,
+                              vstring* labelsOnTriggerPaths) {
     PathWorkers tmpworkers;
     Workers holder;
-    fillWorkers(proc_pset, preg, processConfiguration, name, false, tmpworkers);
+    fillWorkers(proc_pset, preg, processConfiguration, name, false, tmpworkers, labelsOnTriggerPaths);
 
     for (PathWorkers::iterator wi(tmpworkers.begin()),
           we(tmpworkers.end()); wi != we; ++wi) {
@@ -411,7 +548,7 @@ namespace edm {
                              boost::shared_ptr<ProcessConfiguration const> processConfiguration,
                              int bitpos, std::string const& name) {
     PathWorkers tmpworkers;
-    fillWorkers(proc_pset, preg, processConfiguration, name, true, tmpworkers);
+    fillWorkers(proc_pset, preg, processConfiguration, name, true, tmpworkers, 0);
     Workers holder;
 
     for (PathWorkers::iterator wi(tmpworkers.begin()), we(tmpworkers.end()); wi != we; ++wi) {

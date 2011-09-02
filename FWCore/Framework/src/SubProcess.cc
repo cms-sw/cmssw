@@ -2,11 +2,14 @@
 
 #include "DataFormats/Common/interface/ProductData.h"
 #include "DataFormats/Provenance/interface/BranchID.h"
+#include "DataFormats/Provenance/interface/EventSelectionID.h"
 #include "DataFormats/Provenance/interface/FullHistoryToReducedHistoryMap.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
+#include "FWCore/Framework/interface/EventPrincipal.h"
 #include "FWCore/Framework/interface/Group.h"
 #include "FWCore/Framework/interface/HistoryAppender.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
@@ -104,6 +107,9 @@ namespace edm {
     preg_ = items.preg_;
     processConfiguration_ = items.processConfiguration_;
 
+    std::map<std::string, std::vector<std::pair<std::string, int> > > outputModulePathPositions;
+    setEventSelectionInfo(outputModulePathPositions, parentProductRegistry->anyProductProduced());
+
     boost::shared_ptr<EventPrincipal> ep(new EventPrincipal(preg_, *processConfiguration_, historyAppender_.get()));
     principalCache_.insert(ep);
 
@@ -171,10 +177,17 @@ namespace edm {
   SubProcess::write(EventPrincipal const& principal) {
     EventAuxiliary aux(principal.aux());
     aux.setProcessHistoryID(principal.processHistoryID());
+
+    boost::shared_ptr<EventSelectionIDVector> esids(new EventSelectionIDVector);
+    *esids = principal.eventSelectionIDs();
+    if (principal.productRegistry().anyProductProduced() || !wantAllEvents()) {
+      esids->push_back(selectorConfig());
+    }
+
     EventPrincipal& ep = principalCache_.eventPrincipal();
     ep.fillEventPrincipal(aux,
                           principalCache_.lumiPrincipalPtr(),
-                          boost::shared_ptr<EventSelectionIDVector>(new EventSelectionIDVector), // UGH use subprocess specific parameter
+                          esids,
                           boost::shared_ptr<BranchListIndexes>(new BranchListIndexes(principal.branchListIndexes())),
                           principal.branchMapperPtr(),
                           principal.reader());

@@ -4,10 +4,6 @@ process = cms.Process("SECOND")
 
 process.load("FWCore.Framework.test.cmsExceptionsFatal_cff")
 
-process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(100)
-)
-
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring('file:testEventHistory_1.root')
 )
@@ -50,6 +46,6 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.s = cms.Sequence(process.intdeque+process.intlist+process.intset+process.intvec)
 process.f55 = cms.Path(process.s*process.filt55)
 process.f75 = cms.Path(process.s*process.filt75)
-process.e = cms.EndPath(process.out)
+process.ep2 = cms.EndPath(process.out)
 
-process.sched = cms.Schedule(process.f55, process.f75, process.e)
+process.sched = cms.Schedule(process.f55, process.f75, process.ep2)

@@ -24,6 +24,7 @@ output stream.
 
 #include <string>
 #include <vector>
+#include <map>
 
 namespace edm {
 
@@ -93,6 +94,9 @@ namespace edm {
                  CurrentProcessingContext const* cpc);
     bool doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                  CurrentProcessingContext const* cpc);
+
+    void setEventSelectionInfo(std::map<std::string, std::vector<std::pair<std::string, int> > > const& outputModulePathPositions,
+                               bool anyProductProduced);
 
   private:
 
