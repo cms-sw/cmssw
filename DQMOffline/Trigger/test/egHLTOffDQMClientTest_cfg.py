@@ -38,12 +38,18 @@ process.MessageLogger.cerr.FwkReport = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(),
                             processingMode = cms.untracked.string("RunsLumisAndEvents"),
-)
+                            )
 process.source.fileNames=cms.untracked.vstring(
   #  'file:/data/ndpc3/c/dmorse/HLTDQMrootFiles/May18/SourceTest_420.root',
 
   #  'file:/data/ndpc3/c/dmorse/HLTDQMrootFiles/May18/SourceTest_420_2.root',
-    'rfio:/castor/cern.ch/user/d/dmorse/DQMOfflineSource/DQMOfflineSource_1_1_vMy.root'
+  #  'rfio:/castor/cern.ch/user/d/dmorse/DQMOfflineSource/DQMOfflineSource_1_1_vMy.root'
+   
+    )
+process.source.fileNames.extend(
+[
+    
+]
     )
 #process.source.processingMode = cms.untracked.string("RunsLumisAndEvents"),
 
@@ -73,6 +79,6 @@ process.DQM.collectorHost = ''
 process.dqmSaver.convention = cms.untracked.string('Offline')
 process.dqmSaver.saveByRun = cms.untracked.int32(-1)
 process.dqmSaver.saveAtJobEnd = cms.untracked.bool(True)
-process.dqmSaver.workflow = cms.untracked.string('/Run2011A/SingleElectron/RECO')
+process.dqmSaver.workflow = cms.untracked.string('/Run2011A/SingleElectron/RECORuns172620-173692EtCut35')
 process.dqmSaver.forceRunNumber = cms.untracked.int32(1)
-process.dqmSaver.dirName = '/data/ndpc3/c/dmorse/HLTDQMrootFiles/SourceClientTest'
+process.dqmSaver.dirName = '/data/ndpc3/c/dmorse/HLTDQMrootFiles'

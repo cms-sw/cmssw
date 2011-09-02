@@ -37,6 +37,7 @@ EgHLTOfflineSource::EgHLTOfflineSource(const edm::ParameterSet& iConfig):
   binData_.setup(iConfig.getParameter<edm::ParameterSet>("binData"));
   cutMasks_.setup(iConfig.getParameter<edm::ParameterSet>("cutMasks"));
   eleHLTFilterNames_ = iConfig.getParameter<std::vector<std::string> >("eleHLTFilterNames");
+  eleHLTFilterNames2Leg_ = iConfig.getParameter<std::vector<std::string> >("eleHLTFilterNames2Leg");
   phoHLTFilterNames_ = iConfig.getParameter<std::vector<std::string> >("phoHLTFilterNames");
   eleTightLooseTrigNames_ = iConfig.getParameter<std::vector<std::string> >("eleTightLooseTrigNames");
   diEleTightLooseTrigNames_ = iConfig.getParameter<std::vector<std::string> >("diEleTightLooseTrigNames"); 
@@ -141,6 +142,12 @@ void EgHLTOfflineSource::beginRun(const edm::Run& run, const edm::EventSetup& c)
     for(size_t i=0;i<phoHLTFilterNames_.size();i++){
       dbe_->setCurrentFolder(dirName_+"/Source_Histos/"+phoHLTFilterNames_[i]);
       MonElemFuncs::initTrigTagProbeHist(phoMonElems_,phoHLTFilterNames_[i],cutMasks_.trigTPPho,binData_);
+    }
+    for(size_t i=0;i<eleHLTFilterNames2Leg_.size();i++){
+      dbe_->setCurrentFolder(dirName_+"/Source_Histos/"+eleHLTFilterNames2Leg_[i].substr(eleHLTFilterNames2Leg_[i].find("::")+2));
+      //std::cout<<"FilterName: "<<eleHLTFilterNames2Leg_[i]<<std::endl;
+      //std::cout<<"Folder: "<<eleHLTFilterNames2Leg_[i].substr(eleHLTFilterNames2Leg_[i].find("::")+2)<<std::endl;
+      MonElemFuncs::initTrigTagProbeHist_2Leg(eleMonElems_,eleHLTFilterNames2Leg_[i],cutMasks_.trigTPEle,binData_);
     }
     //tag and probe not yet implimented for photons (attemping to see if it makes sense first)
     // MonElemFuncs::initTrigTagProbeHists(phoMonElems,phoHLTFilterNames_);
@@ -269,12 +276,15 @@ void EgHLTOfflineSource::filterTriggers(const HLTConfigProvider& hltConfig)
   
   std::vector<std::string> activeFilters;
   std::vector<std::string> activeEleFilters;
+  std::vector<std::string> activeEle2LegFilters;
   std::vector<std::string> activePhoFilters;
+  std::vector<std::string> activePho2LegFilters;
   
-  trigTools::getActiveFilters(hltConfig,activeFilters,activeEleFilters,activePhoFilters);
+  trigTools::getActiveFilters(hltConfig,activeFilters,activeEleFilters,activeEle2LegFilters,activePhoFilters,activePho2LegFilters);
   
   trigTools::filterInactiveTriggers(eleHLTFilterNames_,activeFilters);
   trigTools::filterInactiveTriggers(phoHLTFilterNames_,activePhoFilters);
+  trigTools::filterInactiveTriggers(eleHLTFilterNames2Leg_,activeEle2LegFilters);
   trigTools::filterInactiveTightLooseTriggers(eleTightLooseTrigNames_,activeEleFilters);
   trigTools::filterInactiveTightLooseTriggers(diEleTightLooseTrigNames_,activeEleFilters);
   trigTools::filterInactiveTightLooseTriggers(phoTightLooseTrigNames_,activePhoFilters);

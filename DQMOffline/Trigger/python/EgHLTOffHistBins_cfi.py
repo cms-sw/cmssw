@@ -20,6 +20,7 @@ egHLTOffDQMBinData = cms.PSet (
     #r9=cms.PSet(nr=cms.int32(24),min=cms.double(-0.1),max=cms.double(1.1)),
     minr9=cms.PSet(nr=cms.int32(24),min=cms.double(-0.1),max=cms.double(1.1)),
     maxr9=cms.PSet(nr=cms.int32(24),min=cms.double(-0.1),max=cms.double(1.1)),
+    nVertex=cms.PSet(nr=cms.int32(22),min=cms.double(-1.),max=cms.double(21.)),
     #---------
     isolEm=cms.PSet(nr=cms.int32(22),min=cms.double(-1),max=cms.double(10)),
     isolHad=cms.PSet(nr=cms.int32(22),min=cms.double(-1),max=cms.double(10)),

@@ -4,6 +4,8 @@ import FWCore.ParameterSet.Config as cms
 
 egHLTOffFiltersToMon = cms.PSet (
 
+    eleHLTFilterNames2Leg=cms.vstring(),
+    
     eleHLTFilterNames=cms.vstring(
 
     #8E29

@@ -209,11 +209,15 @@ void MonElemFuncs::initStdEleCutHists(std::vector<MonElemWithCutBase<OffEle>*>& 
   histVec.push_back(new MonElemWithCutEBEE<OffEle,float>(baseName+"_phi",
 							 baseName+" #phi;#phi (rad)",
 							 bins.phi.nr,bins.phi.min,bins.phi.max,
-							 &OffEle::phi,cut ? cut->clone():NULL));
-  histVec.push_back(new MonElemWithCutEBEE<OffEle,int>(baseName+"_charge",
+							 &OffEle::phi,cut ? cut->clone():NULL));		
+  histVec.push_back(new MonElemWithCutEBEE<OffEle,int>(baseName+"_nVertex",
+							 baseName+" nVertex;nVertex",
+							 bins.nVertex.nr,bins.nVertex.min,bins.nVertex.max,
+							 &OffEle::NVertex,cut ? cut->clone():NULL));
+  /*  histVec.push_back(new MonElemWithCutEBEE<OffEle,int>(baseName+"_charge",
 						       baseName+" Charge; charge",
 						       bins.charge.nr,bins.charge.min,bins.charge.max,
-						       &OffEle::charge,cut ? cut->clone():NULL)); 
+						       &OffEle::charge,cut ? cut->clone():NULL)); */
 }
 
 
@@ -423,8 +427,8 @@ void MonElemFuncs::initTrigTagProbeHists(std::vector<MonElemContainer<OffEle>*>&
 void MonElemFuncs::initTrigTagProbeHist(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::string filterName,int cutMask,const BinData& bins)
 {   
   std::string trigName(filterName);
-  //float etCutValue = trigTools::getSecondEtThresFromName(filterName);
-  float etCutValue = 0;
+  //float etCutValue = 1.1*trigTools::getSecondEtThresFromName(filterName);
+  float etCutValue = 0.;
   //std::cout<<"TrigName= "<<trigName<<"   etCutValue= "<<etCutValue<<std::endl;
   MonElemContainer<OffEle>* monElemCont = new MonElemContainer<OffEle>("trigTagProbe","Trigger Tag and Probe",new EgTrigTagProbeCut_New(TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17HEDoubleFilter"),cutMask,&OffEle::cutCode));
   //this is all that pass trigtagprobecut
@@ -444,6 +448,25 @@ void MonElemFuncs::initTrigTagProbeHist(std::vector<MonElemContainer<OffEle>*>& 
     bins.et.nr,bins.et.min,bins.et.max,&OffEle::et,new EgObjTrigCut<OffEle>(TrigCodes::getCode(trigName),EgObjTrigCut<OffEle>::AND)));*/
   eleMonElems.push_back(monElemCont);
 }
+
+
+void MonElemFuncs::initTrigTagProbeHist_2Leg(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::string filterName,int cutMask,const BinData& bins)
+{  
+ 
+  std::string trigNameLeg1 = filterName.substr(0,filterName.find("::")); 
+  std::string trigNameLeg2 = filterName.substr(filterName.find("::")+2);
+
+  float etCutValue = 20.;
+  MonElemContainer<OffEle>* monElemCont = new MonElemContainer<OffEle>("trigTagProbe","Trigger Tag and Probe",new EgTrigTagProbeCut_New(TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17HEDoubleFilter"),cutMask,&OffEle::cutCode));
+  //this is all that pass trigtagprobecut
+  MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigNameLeg2,trigNameLeg2+"_"+monElemCont->name()+"_gsfEle_allEt20",bins,new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC));
+  //this is all that pass trigtagprobecut and the probe passes the first trigger
+  MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigNameLeg2,trigNameLeg2+"_"+monElemCont->name()+"_gsfEle_passEt20",bins,&(*(new EgMultiCut<OffEle>) << new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC) << new EgObjTrigCut<OffEle>(TrigCodes::getCode(trigNameLeg1),EgObjTrigCut<OffEle>::AND)));
+  //this is all that pass trigtagprobecut and the probe passes the second trigger and fails the first trigger
+  MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigNameLeg2,trigNameLeg2+"_"+monElemCont->name()+"_gsfEle_passLeg2failLeg1Et20",bins,&(*(new EgMultiCut<OffEle>) << new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC) << new EgObjTrigCut<OffEle>(TrigCodes::getCode(trigNameLeg2),EgObjTrigCut<OffEle>::AND,TrigCodes::getCode(trigNameLeg1),EgObjTrigCut<OffEle>::AND)));
+
+}
+
 
 //Now same for photons
 void MonElemFuncs::initTrigTagProbeHists(std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::vector<std::string> filterNames,int cutMask,const BinData& bins)
@@ -478,7 +501,7 @@ void MonElemFuncs::initTrigTagProbeHists(std::vector<MonElemContainer<OffPho>*>&
 void MonElemFuncs::initTrigTagProbeHist(std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::string filterName,int cutMask,const BinData& bins)
 {
     std::string trigName(filterName);
-    //float etCutValue = trigTools::getSecondEtThresFromName(trigName);
+    //float etCutValue = 1.1*trigTools::getSecondEtThresFromName(trigName);
     float etCutValue = 0.;
     //std::cout<<"TrigName= "<<trigName<<"   etCutValue= "<<etCutValue<<std::endl;
     MonElemContainer<OffPho>* monElemCont = new MonElemContainer<OffPho>("trigTagProbe","Trigger Tag and Probe",new EgTrigTagProbeCut_NewPho(TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17HEDoubleFilter"),cutMask,&OffPho::cutCode));

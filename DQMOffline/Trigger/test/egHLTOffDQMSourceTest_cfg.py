@@ -28,11 +28,6 @@ process.MessageLogger.cerr.FwkSummary = cms.untracked.PSet(
     reportEvery = cms.untracked.int32(500),
     limit = cms.untracked.int32(10000000)
 )
-process.MessageLogger.cerr.FwkReport = cms.untracked.PSet(
-    reportEvery = cms.untracked.int32(500),
-    limit = cms.untracked.int32(10000000)
-)
-
 #process.options = cms.untracked.PSet(wantSummary=cms.untracked.bool(True))
 
 #process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
@@ -59,14 +54,16 @@ process.source.fileNames=[
   #  '/store/data/Run2011A/DoubleElectron/RECO/PromptReco-v4/000/165/102/00530480-CF80-E011-B76C-001617E30D4A.root',
   #  '/store/data/Run2011A/SingleElectron/RECO/PromptReco-v4/000/165/103/0EB41167-EE80-E011-8B64-003048F024DC.root',
   #  '/store/data/Run2011A/DoubleElectron/RECO/PromptReco-v4/000/165/103/B0BACE7E-EE80-E011-886C-00304879BAB2.root',
-
-    '/store/data/Run2011A/SingleElectron/RECO/PromptReco-v5/000/172/163/0C163946-FCBB-E011-8C0C-BCAEC5329719.root',
+  #  '/store/data/Run2011A/SingleElectron/RECO/PromptReco-v5/000/172/163/0C163946-FCBB-E011-8C0C-BCAEC5329719.root',
+    #-----test across runs----
+    #   '/store/data/Run2011A/SingleElectron/RECO/PromptReco-v4/000/165/467/7E4DDAD6-ED85-E011-AC8D-001D09F24600.root',
+    #   '/store/data/Run2011A/SingleElectron/RECO/PromptReco-v4/000/165/472/361C4077-3386-E011-A483-001D09F2960F.root',
+   
     ]
 
-
 process.maxEvents = cms.untracked.PSet(
-  
-    input = cms.untracked.int32(100)
+
+    input = cms.untracked.int32(-1)
 )
 
 
@@ -76,11 +73,14 @@ process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.EventContent.EventContent_cff")
 
 
+process.DQMStore.collateHistograms = True
+
 process.FEVT = cms.OutputModule("PoolOutputModule",
     process.FEVTEventContent,
     dataset = cms.untracked.PSet(dataTier = cms.untracked.string('RECO')),
  #   fileName = cms.untracked.string('/data/ndpc3/c/dmorse/HLTDQMrootFiles/May18/SourceTest_420_2.root')
-    fileName = cms.untracked.string('Run2011A_SingleElectronRuns165364-166462NoEtcut_RECO.root')
+ #   fileName = cms.untracked.string('Run2011A_SingleElectronRuns165364-166462Et40cut_RECO.root')
+    fileName = cms.untracked.string('Run2011A_SingleElectronRuns172620-173692EtCut35_RECO.root')
 )
 process.FEVT.outputCommands = cms.untracked.vstring('drop *','keep *_MEtoEDMConverter_*_DQMTest')
 
@@ -90,6 +90,7 @@ process.FEVT.outputCommands = cms.untracked.vstring('drop *','keep *_MEtoEDMConv
 #process.psource = cms.Path(process.topElectronHLTOffDQMSource*process.egHLTOffDQMSource*process.hltTrigReport*process.MEtoEDMConverter)
 process.psource = cms.Path(process.egHLTOffDQMSource*process.MEtoEDMConverter)
 process.outpath = cms.EndPath(process.FEVT)
+process.MEtoEDMConverter.Verbosity = 0
 process.DQMStore.verbose = 0
 process.DQM.collectorHost = ''
 

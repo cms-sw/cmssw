@@ -98,7 +98,7 @@ int trigTools::getMinNrObjsRequiredByFilter(const std::string& filterName)
 //veto x-triggers, which will be handled by PAGs
 //first step towards automation; for now it is just used to check against filtersToMon
 //should have some overhead but they will be filtered out by filterInactiveTriggers anyway
-void trigTools::getActiveFilters(const HLTConfigProvider& hltConfig,std::vector<std::string>& activeFilters,std::vector<std::string>& activeEleFilters,std::vector<std::string>& activePhoFilters)
+void trigTools::getActiveFilters(const HLTConfigProvider& hltConfig,std::vector<std::string>& activeFilters,std::vector<std::string>& activeEleFilters,std::vector<std::string>& activeEle2LegFilters,std::vector<std::string>& activePhoFilters,std::vector<std::string>& activePho2LegFilters)
 {
   
   activeFilters.clear();
@@ -116,26 +116,45 @@ void trigTools::getActiveFilters(const HLTConfigProvider& hltConfig,std::vector<
 
 	//std::cout<<"Number of prescale sets: "<<hltConfig.prescaleSize()<<std::endl;
 	//std::cout<<std::endl<<"Path Name: "<<pathName<<"   Prescale: "<<hltConfig.prescaleValue(1,pathName)<<std::endl;
-	//std::cout<<std::endl<<"Path Name: "<<pathName<<"   Prescale: "<<hltConfig.prescaleValues(iEvent,iSetup,pathName)<<std::endl;
 
 	if(!filters.empty()){//std::cout<<"Path Name: "<<pathName<<std::endl;
 	  //if(filters.back()=="hltBoolEnd" && filters.size()>=2){
 	  for(size_t filter=0;filter<filters.size();filter++){
-	    if(filters[filter].find("Filter")==filters[filter].size()-6
-	       || filters[filter].find("Filter")==filters[filter].size()-14){//keep only modules that end in "Filter" or "FilterUnseeded"
+	    if(filters[filter].find("Filter")!=filters[filter].npos){//keep only modules that contain the word "Filter"
 	      //std::cout<<"  Module Name: "<<filters[filter]<<" filter#: "<<int(filter)<<"/"<<filters.size()<<" ncandcut: "<<trigTools::getMinNrObjsRequiredByFilter(filters[filter])<<std::endl;
 	      if(//keep only the last filter and the last one with ncandcut==1 (for di-object triggers)
 		 (filter<filters.size()-1  && trigTools::getMinNrObjsRequiredByFilter(filters[filter])==1 && trigTools::getMinNrObjsRequiredByFilter(filters[filter+1])==2)  
-		 || (filter<filters.size()-1  && trigTools::getMinNrObjsRequiredByFilter(filters[filter])==1 && trigTools::getMinNrObjsRequiredByFilter(filters[filter+1])==1 && filters[filter+1].find("Mass")!=filters[filter+1].npos)  
+		 || (filter<filters.size()-1  && trigTools::getMinNrObjsRequiredByFilter(filters[filter])==1 && trigTools::getMinNrObjsRequiredByFilter(filters[filter+1])==1 && filters[filter+1].find("Mass")!=filters[filter+1].npos)
+		 || (filter<filters.size()-1  && trigTools::getMinNrObjsRequiredByFilter(filters[filter])==1 && trigTools::getMinNrObjsRequiredByFilter(filters[filter+1])==1 && filters[filter+1].find("FEM")!=filters[filter+1].npos)  
+		 || (filter<filters.size()-1  && trigTools::getMinNrObjsRequiredByFilter(filters[filter])==1 && trigTools::getMinNrObjsRequiredByFilter(filters[filter+1])==1 && filters[filter+1].find("PFMT")!=filters[filter+1].npos)  
 		 || filter==filters.size()-1 ){
 		activeFilters.push_back(filters[filter]); //saves all modules with saveTags=true
+		//std::cout<<"  Module Name: "<<filters[filter]<<" filter#: "<<int(filter)<<"/"<<filters.size()<<" ncandcut: "<<trigTools::getMinNrObjsRequiredByFilter(filters[filter])<<std::endl;
 		if(pathName.find("Photon")!=pathName.npos){
-		  activePhoFilters.push_back(filters[filter]);
+		  activePhoFilters.push_back(filters[filter]);//saves all "Photon" paths into photon set
+		  int posPho = pathName.find("Pho")+1;
+		  if( pathName.find("Pho",posPho)!=pathName.npos || pathName.find("SC",posPho)!=pathName.npos ){
+		    //This saves all "x_Photon_x_Photon_x" and "x_Photon_x_SC_x" path filters into 2leg photon set
+		    activePho2LegFilters.push_back(filters[filter]);
+		    //std::cout<<"Pho2LegPath: "<<pathName<<std::endl;
+		  }
 		}
 		if(pathName.find("Ele")!=pathName.npos){
-		  activeEleFilters.push_back(filters[filter]);
+		  activeEleFilters.push_back(filters[filter]);//saves all "Ele" paths into electron set
+		  int posEle = pathName.find("Ele")+1;
+		  if( pathName.find("Ele",posEle)!=pathName.npos || pathName.find("SC",posEle)!=pathName.npos ){
+		    if(
+		       (filter<filters.size()-1  && trigTools::getMinNrObjsRequiredByFilter(filters[filter])==1 && trigTools::getMinNrObjsRequiredByFilter(filters[filter+1])==2)
+		       || (filter<filters.size()-1  && trigTools::getMinNrObjsRequiredByFilter(filters[filter])==1 && trigTools::getMinNrObjsRequiredByFilter(filters[filter+1])==1 && filters[filter+1].find("Mass")!=filters[filter+1].npos) 
+		       || (filter<filters.size()-1  && trigTools::getMinNrObjsRequiredByFilter(filters[filter])==1 && trigTools::getMinNrObjsRequiredByFilter(filters[filter+1])==1 && filters[filter+1].find("SC")!=filters[filter+1].npos)  
+		       || (filter<filters.size()-1  && trigTools::getMinNrObjsRequiredByFilter(filters[filter])==1 && trigTools::getMinNrObjsRequiredByFilter(filters[filter+1])==1 && filters[filter+1].find("FEM")!=filters[filter+1].npos)  
+		       ){
+		      //This saves all "x_Ele_x_Ele_x" and "x_Ele_x_SC_x" path filters into 2leg electron set
+		      activeEle2LegFilters.push_back(filters[filter]+"::"+filters[filter+1]);
+		      //std::cout<<"Ele2LegPath: "<<pathName<<std::endl;
+		    }
+		  }
 		}
-		//std::cout<<"  Module Name: "<<filters[filter]<<" filter#: "<<int(filter)<<"/"<<filters.size()<<" ncandcut: "<<trigTools::getMinNrObjsRequiredByFilter(filters[filter])<<std::endl;
 	      }
 	    }
 	  }
@@ -145,8 +164,13 @@ void trigTools::getActiveFilters(const HLTConfigProvider& hltConfig,std::vector<
       }
     }//end hlt path check
   }//end path loop over
+  /*for(size_t i=0;i<activeEle2LegFilters.size();i++){
+    std::cout<<"Leg1: "<<activeEle2LegFilters[i].substr(0,activeEle2LegFilters[i].find("::"))<<std::endl;
+    std::cout<<"Leg2: "<<activeEle2LegFilters[i].substr(activeEle2LegFilters[i].find("::")+2)<<std::endl<<std::endl;
+    }*/
   std::sort(activeFilters.begin(),activeFilters.end());
   std::sort(activeEleFilters.begin(),activeEleFilters.end());
+  std::sort(activeEle2LegFilters.begin(),activeEle2LegFilters.end());
   std::sort(activePhoFilters.begin(),activePhoFilters.end());
 }
 //----------------------------

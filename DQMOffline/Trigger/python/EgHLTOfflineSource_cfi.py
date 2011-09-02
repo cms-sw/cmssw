@@ -20,6 +20,7 @@ egHLTOffDQMSource = cms.EDAnalyzer("EgHLTOfflineSource",
                                  BarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
                                  ElectronCollection = cms.InputTag("gsfElectrons"),
                                  PhotonCollection = cms.InputTag("photons"),
+                                 VertexCollection = cms.InputTag("offlinePrimaryVertices"),
                                  #CaloJetCollection = cms.InputTag("sisCone5CaloJets"),
                                  #--------Morse
                                  CaloJetCollection = cms.InputTag("ak5CaloJets"),

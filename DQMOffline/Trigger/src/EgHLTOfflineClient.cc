@@ -89,8 +89,10 @@ void EgHLTOfflineClient::beginRun(const edm::Run& run, const edm::EventSetup& c)
       hltConfig.init(run,c,hltTag_,changed);
       std::vector<std::string> activeFilters;
       std::vector<std::string> activeEleFilters;
+      std::vector<std::string> activeEle2LegFilters;
       std::vector<std::string> activePhoFilters;
-      egHLT::trigTools::getActiveFilters(hltConfig,activeFilters,activeEleFilters,activePhoFilters);
+      std::vector<std::string> activePho2LegFilters;
+      egHLT::trigTools::getActiveFilters(hltConfig,activeFilters,activeEleFilters,activeEle2LegFilters,activePhoFilters,activePho2LegFilters);
       
       egHLT::trigTools::filterInactiveTriggers(eleHLTFilterNames_,activeFilters);
       egHLT::trigTools::filterInactiveTriggers(phoHLTFilterNames_,activePhoFilters);
