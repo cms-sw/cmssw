@@ -34,6 +34,8 @@ HcalShapes::HcalShapes()
 
   // backward-compatibility with old scheme
   theShapes[0] = theShapes[101];
+  //FIXME "special" HB
+  theShapes[1] = theShapes[101];
   theShapes[2] = theShapes[201];
   theShapes[3] = theShapes[301];
   theShapes[4] = theShapes[401];
