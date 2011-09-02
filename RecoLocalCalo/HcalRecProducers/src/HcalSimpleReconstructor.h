@@ -2,6 +2,7 @@
 #define HCALSIMPLERECONSTRUCTOR_H 1
 
 #include "FWCore/Framework/interface/EDProducer.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "CondFormats/HcalObjects/interface/HcalRecoParams.h"
@@ -26,6 +27,7 @@
       virtual void beginRun(edm::Run&r, edm::EventSetup const & es);
       virtual void endRun(edm::Run&r, edm::EventSetup const & es);
     private:      
+      template<class DIGICOLL, class RECHITCOLL> void process(edm::Event& e, const edm::EventSetup& c);
       HcalSimpleRecAlgo reco_;
       DetId::Detector det_;
       int subdet_;
