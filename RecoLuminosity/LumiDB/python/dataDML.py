@@ -1095,13 +1095,12 @@ def guessnormIdByContext(schema,amodetag,egev1):
 def guessnormIdByName(schema,normname):
     '''
     get norm dataids by name, if there are duplicates, pick max(dataid).Bypass full version lookups
-    select luminorm.data_id from luminorm where name=:normname
+    select data_id from luminorms where entry_name=:normname
     result luminormdataid
     '''   
     luminormids=[]
     qHandle=schema.newQuery()
     try:
-        qHandle.addToTableList( nameDealer.entryTableName(nameDealer.luminormTableName()) )
         qHandle.addToTableList( nameDealer.luminormTableName() )
         qHandle.addToOutputList('DATA_ID','normdataid')
         qConditionStr='ENTRY_NAME=:normname '
