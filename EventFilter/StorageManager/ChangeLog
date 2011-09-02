@@ -4,6 +4,12 @@
 	* Move FragKey struct from otherwise unused IOPool/Streamer/HLTInfo into
 	  the EventFilter/StorageManager package.
 
+2011-09-02 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-04-03
+	* From Luis: fill total amount of dropped events into monitor
+	  element instead of the differential count.
+
 2011-08-22 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V08-04-02
