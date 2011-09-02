@@ -72,8 +72,8 @@ def uncalibratedlumiFromOldLumi(session,runnumber):
             instlumierror=summarycursor.currentRow()['instlumierror'].data()
             instlumiquality=summarycursor.currentRow()['instlumiquality'].data()
             (uncalibratedinstlumi,uncalibratedinstlumierror)=uncalibrateLumi(runnumber,instlumi,instlumierror)
-            startorbit=summarycursor.currentRow()['startorbit'].data()
             numorbit=summarycursor.currentRow()['numorbit'].data()
+            startorbit=summarycursor.currentRow()['startorbit'].data()
             beamenergy=summarycursor.currentRow()['beamenergy'].data()
             beamstatus=summarycursor.currentRow()['beamstatus'].data()
             cmsbxindexblob=None
@@ -85,7 +85,7 @@ def uncalibratedlumiFromOldLumi(session,runnumber):
             beamintensityblob_2=None
             if not summarycursor.currentRow()['beamintensityblob_2'].isNull():
                 beamintensityblob_2=summarycursor.currentRow()['beamintensityblob_2'].data()
-            datadict[lumilsnum]=[cmslsnum,uncalibratedinstlumi,uncalibratedinstlumierror,instlumiquality,beamstatus,beamenergy,startorbit,numorbit,cmsbxindexblob,beamintensityblob_1,beamintensityblob_2]
+            datadict[lumilsnum]=[cmslsnum,uncalibratedinstlumi,uncalibratedinstlumierror,instlumiquality,beamstatus,beamenergy,numorbit,startorbit,cmsbxindexblob,beamintensityblob_1,beamintensityblob_2]
         del summaryQuery
         #print datadict
         for algoname in ['OCC1','OCC2','ET']:
