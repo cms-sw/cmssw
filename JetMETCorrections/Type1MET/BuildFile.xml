@@ -7,7 +7,6 @@
 <use   name="DataFormats/BTauReco"/>
 <use   name="DataFormats/TauReco"/>
 <use   name="DataFormats/MuonReco"/>
-<use   name="DataFormats/PatCandidates"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="JetMETCorrections/Objects"/>
