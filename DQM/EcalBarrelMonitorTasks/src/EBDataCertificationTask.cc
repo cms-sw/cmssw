@@ -1,8 +1,8 @@
 /*
  * \file EBDataCertificationTask.cc
  *
- * $Date: 2011/08/23 00:25:31 $
- * $Revision: 1.27.4.1 $
+ * $Date: 2011/08/30 09:30:32 $
+ * $Revision: 1.29 $
  * \author E. Di Marco
  *
 */
@@ -157,10 +157,8 @@ void EBDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
 
     me = dqmStore_->get((prefixME_ + "/EventInfo/reportSummary"));
     if( me ) me->Fill(totDQMVal);
-    char histo[200];
     for ( int i=0; i<36; i++) {
-      sprintf(histo, "EcalBarrel_%s", Numbers::sEB(i+1).c_str());
-      me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/" + histo);
+      me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryContents/EcalBarrel_" + Numbers::sEB(i+1) ) ;
       if( me ) me->Fill(DQMVal[i]);
 
       me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
