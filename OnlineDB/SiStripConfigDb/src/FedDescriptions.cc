@@ -1,4 +1,4 @@
-// Last commit: $Id: FedDescriptions.cc,v 1.31 2008/06/06 14:48:53 bainbrid Exp $
+// Last commit: $Id: FedDescriptions.cc,v 1.32 2009/04/06 16:57:28 lowette Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
@@ -231,10 +231,11 @@ void SiStripConfigDb::uploadFedDescriptions( std::string partition ) {
 	  
 	  FedDescriptionsV feds( range.begin(), range.end() );
 	  
+          SiStripPartition::Versions fedVersion = iter->second.fedVersion();
 	  deviceFactory(__func__)->setFed9UDescriptions( feds,
 							 iter->second.partitionName(),
-							 (uint16_t*)(&iter->second.fedVersion().first), 
-							 (uint16_t*)(&iter->second.fedVersion().second),
+							 (uint16_t*)(&(fedVersion.first)), 
+							 (uint16_t*)(&(fedVersion.second)),
 							 1 ); // new major version
 
 	  // Some debug

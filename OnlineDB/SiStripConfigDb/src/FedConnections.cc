@@ -1,4 +1,4 @@
-// Last commit: $Id: FedConnections.cc,v 1.33 2009/04/06 16:57:28 lowette Exp $
+// Last commit: $Id: FedConnections.cc,v 1.34 2010/04/20 09:28:13 dstrom Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -229,10 +229,11 @@ void SiStripConfigDb::uploadFedConnections( std::string partition ) {
 
 	    FedConnectionsV conns( range.begin(), range.end() );
 	    
+            SiStripPartition::Versions cabVersion = iter->second.cabVersion();
 	    deviceFactory(__func__)->setConnectionDescriptions( conns,
 								iter->second.partitionName(),
-								&(iter->second.cabVersion().first),
-								&(iter->second.cabVersion().second),
+								&(cabVersion.first),
+								&(cabVersion.second),
 								true ); // new major version
 
 	    // Some debug

@@ -1,4 +1,4 @@
-// Last commit: $Id: DeviceDescriptions.cc,v 1.36 2009/04/06 16:57:28 lowette Exp $
+// Last commit: $Id: DeviceDescriptions.cc,v 1.37 2010/04/20 09:27:45 dstrom Exp $
 
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
@@ -298,10 +298,11 @@ void SiStripConfigDb::uploadDeviceDescriptions( std::string partition ) {
 	  
 	  DeviceDescriptionsV devs( range.begin(), range.end() );
 	  
+          SiStripPartition::Versions fecVersion = iter->second.fecVersion();
 	  deviceFactory(__func__)->setFecDeviceDescriptions( devs,
 							     iter->second.partitionName(),
-							     &(iter->second.fecVersion().first),
-							     &(iter->second.fecVersion().second),
+							     &(fecVersion.first),
+							     &(fecVersion.second),
 							     true ); // new major version
 
 	  // Some debug
