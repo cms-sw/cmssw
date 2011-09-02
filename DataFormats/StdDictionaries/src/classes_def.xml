@@ -170,5 +170,4 @@
  <class name="std::vector<unsigned long long>"/>
  <class name="std::vector<unsigned short>"/>
  <class name="std::vector<const void*>" />
- <class name="timeval"/>
 </lcgdict>

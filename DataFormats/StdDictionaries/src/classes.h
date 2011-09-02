@@ -4,7 +4,6 @@
 #include <map>
 #include <set>
 #include <string>
-#include <sys/time.h>
 #include <vector>
 
 namespace {
