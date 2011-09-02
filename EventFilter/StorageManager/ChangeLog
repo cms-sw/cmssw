@@ -27,6 +27,12 @@
 	* Adjust unit tests to changed interface of InitMsgBuilder of
 	  IOPool/Streamer V07-03-00.
 
+2011-09-02 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-04-00-01
+	* From Luis: fill total amount of dropped events into monitor
+	  element instead of the differential count.
+
 2011-07-07 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V08-04-00
