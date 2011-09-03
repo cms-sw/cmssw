@@ -90,7 +90,6 @@ int main(int argc, char **argv)
    if (res == -1)
       std::cerr << "Sending report has failed." << std::endl;
    else
-      std::cout << "Report has been sent." <<std::endl;man fwrite
+      std::cout << "Report has been sent." <<std::endl;
 
-   exit(1);
 }
