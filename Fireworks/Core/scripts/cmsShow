@@ -203,7 +203,7 @@ if [ $exitStatus -gt 0 ] && [ "$rootflag" != "on" ] ; then
    errorPrint $msgLen "$creport"
    errorPrint $msgLen "to hn-cms-visualization@cern.ch."
    errorPrint $msgLen " "                          
-   errorPrint $msgLen "Or, notify us by running:"
+   errorPrint $msgLen "Alternatively, you can send the bug report anonymously by running:"
    errorPrint $msgLen "cmsShowSendReport ${creport}"            
    errorPrint $msgLen ""
    awk -v msgLen=$msgLen 'BEGIN {printf("  %c",  35);  i=0;  while ( i <= msgLen) { printf( "%c", 35 ); ++i}; print ""; }'  
