@@ -64,14 +64,23 @@ LMFPnPrimDat& LMFPnPrimDat::setSystem(std::string s) {
   // LED tables do not hold the shapecorr column. Drop it.
   std::transform(s.begin(), s.end(), s.begin(), toupper);
   if (s == "LED") {
-    m_data.erase(m_data.begin());
-    m_keys.erase(m_keys.begin());
+    if (m_debug) {
+      std::cout << "Erasing unwanted data" << std::endl;
+    }
     m_type.erase(m_type.begin());
+    m_keys.erase("SHAPECORRPN");
+    if (m_debug) {
+      std::cout << "Data: " << m_data.size() << " Keys: " <<  m_keys.size()
+		<< " Type: " << m_type.size() << std::endl;
+    }
     std::map<std::string, unsigned int>::iterator i = m_keys.begin();
     std::map<std::string, unsigned int>::iterator e = m_keys.end();
     while (i != e) {
       // modify indexes
       (i->second)--;
+      if (m_debug) {
+	std::cout << "Key " << i->first << " = " << i->second << std::endl;
+      }
       i++;
     }
   }
