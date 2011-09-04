@@ -133,8 +133,8 @@ void AlignmentMonitorTracksFromTrajectories::book() {
    m_chi2DOF_improvement = book1D("/iterN/", "m_chi2DOF_improvement", "Track-by-track (chi^2/DOF)/(original chi^2/original DOF)", 100, 0., 10.);
    for (int i = 0;  i < 36;  i++) {
       char name[100], title[100];
-      sprintf(name, "m_pt_phi%d", i);
-      sprintf(title, "Track pt (GeV) in phi bin %d/36", i);
+      snprintf(name, sizeof(name), "m_pt_phi%d", i);
+      snprintf(title, sizeof(title), "Track pt (GeV) in phi bin %d/36", i);
       m_pt[i] = book1D("/iterN/", name, title, 100, 0, 100);
    }
 }

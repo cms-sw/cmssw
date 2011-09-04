@@ -8,7 +8,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Thu Mar 29 13:59:56 CDT 2007
-// $Id: AlignmentMonitorTemplate.cc,v 1.5 2008/08/11 20:24:19 pivarski Exp $
+// $Id: AlignmentMonitorTemplate.cc,v 1.6 2010/02/25 00:27:56 wmtan Exp $
 //
 
 // system include files
@@ -65,8 +65,8 @@ void AlignmentMonitorTemplate::book() {
    std::vector<Alignable*> alignables = pStore()->alignables();
    for (std::vector<Alignable*>::const_iterator it = alignables.begin();  it != alignables.end();  ++it) {
       char name[256], title[256];
-      sprintf(name,  "xresid%d", (*it)->geomDetId().rawId());
-      sprintf(title, "x track-hit for DetId %d", (*it)->geomDetId().rawId());
+      snprintf(name, sizeof(name), "xresid%d", (*it)->geomDetId().rawId());
+      snprintf(title, sizeof(title), "x track-hit for DetId %d", (*it)->geomDetId().rawId());
 
       m_residuals[*it] = book1D("/iterN/", name, title, 100, -5., 5.);
    }
