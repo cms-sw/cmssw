@@ -406,7 +406,7 @@ const float KalmanAlignmentUserVariables::selectedScaling( const int& selected )
 const string KalmanAlignmentUserVariables::toString( const int& i ) const
 {
   char temp[10];
-  sprintf( temp, "%u", i );
+  snprintf( temp, sizeof(temp), "%u", i );
 
   return string( temp );
 }
