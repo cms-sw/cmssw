@@ -15,28 +15,17 @@
 #include <iostream>
 
 DigiCheck::DigiCheck(const edm::ParameterSet&){;}
-DigiCheck::~DigiCheck(){;}
+DigiCheck::~DigiCheck(){
+  std::cout <<  " Saving histos " ;
+  dbe->save("Digicheck.root");
+  std::cout << " done " << std::endl;
+}
 typedef math::XYZVector XYZPoint;
 
 void  DigiCheck::beginRun(edm::Run const& run, edm::EventSetup const& es){
 
   m_firstTimeAnalyze = true ;
-
   dbe = edm::Service<DQMStore>().operator->();
-  h0b = dbe->book2D("h0b","Gain vs Gev",100,0.,1700.,5,-0.5,4.5);
-  h0e = dbe->book2D("h0e","Gain vs Gev",100,0.,3000.,5,-0.5,4.5);
-  h1b = dbe->book2D("h1b","Gain 3 ADC vs GeV - Barrel",140,0.,140.,1000,0,5000);
-  h2b = dbe->book2D("h2b","Gain 2 ADC vs GeV - Barrel",140,0,820,1000,0,5000);
-  h3b = dbe->book2D("h3b","Gain 1 ADC vs GeV - Barrel",140,0,1700,1000,0,5000);
-  h1e = dbe->book2D("h1e","Gain 3 ADC vs GeV- Endcap",140,0,250,1000,0,5000);
-  h2e = dbe->book2D("h2e","Gain 2 ADC vs GeV- Endcap",140,0,1400,1000,0,5000);
-  h3e = dbe->book2D("h3e","Gain 1 ADC vs GeV- Endcap",140,0,3000,1000,0,5000);
-  h4  = dbe->book2D("h4","HBHE GeV adc",1000,0,1000,1000,0,1000);
-  h5  = dbe->book2D("h5","digis vs rechits ",400,0,200,400,0,200);
-  h6  = dbe->book2D("h6","digis vs rechits ",400,0,200,400,0,200);
-  h7  = dbe->book1D("h7","TP digis vs calohits ",100,-10,10);
-  h8  = dbe->book2D("h8","ieta vs TP/calohits ",64,-31.5,31.5,200,-2,2);
-  h9  = dbe->book2D("h9","iphi vs TP/calohits ",100,-0.5,99.5,200,-2,2);
 }
 
 void  DigiCheck::beginJobAnalyze(const edm::EventSetup & c){
@@ -54,6 +43,24 @@ void  DigiCheck::beginJobAnalyze(const edm::EventSetup & c){
   edm::ESHandle<EcalTrigTowerConstituentsMap> hetm;
   c.get<IdealGeometryRecord>().get(hetm);
   eTTmap_ = &(*hetm);
+  std::cout << " Booking histos in " << dbe->pwd().c_str() << std::endl;
+  dbe->setCurrentFolder( "FastSim/Digis" );
+  h0b = dbe->book2D("h0b","Gain vs Gev",100,0.,1700.,5,-0.5,4.5);
+  h0e = dbe->book2D("h0e","Gain vs Gev",100,0.,3000.,5,-0.5,4.5);
+  h1b = dbe->book2D("h1b","Gain 3 ADC vs GeV - Barrel",140,0.,140.,1000,0,5000);
+  h2b = dbe->book2D("h2b","Gain 2 ADC vs GeV - Barrel",140,0,820,1000,0,5000);
+  h3b = dbe->book2D("h3b","Gain 1 ADC vs GeV - Barrel",140,0,1700,1000,0,5000);
+  h1e = dbe->book2D("h1e","Gain 3 ADC vs GeV- Endcap",140,0,250,1000,0,5000);
+  h2e = dbe->book2D("h2e","Gain 2 ADC vs GeV- Endcap",140,0,1400,1000,0,5000);
+  h3e = dbe->book2D("h3e","Gain 1 ADC vs GeV- Endcap",140,0,3000,1000,0,5000);
+  h4  = dbe->book2D("h4","HBHE GeV adc",1000,0,1000,1000,0,1000);
+  h5  = dbe->book2D("h5","digis vs rechits ",400,0,200,400,0,200);
+  h6  = dbe->book2D("h6","digis vs rechits ",400,0,200,400,0,200);
+  h7  = dbe->book1D("h7","TP digis vs calohits ",100,-10,10);
+  h8  = dbe->book2D("h8","ieta vs TP/calohits ",64,-31.5,31.5,200,-2,2);
+  h9  = dbe->book2D("h9","iphi vs TP/calohits ",100,-0.5,99.5,200,-2,2);
+  std::cout << " done " << std::endl;
+
 }
 
 void  DigiCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
@@ -125,10 +132,10 @@ void  DigiCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
 
   edm::Handle<EBDigiCollection> ebDigis;
-  iEvent.getByLabel("caloRecHits",ebDigis);
+  iEvent.getByLabel("ecalRecHit",ebDigis);
   
   edm::Handle<EEDigiCollection> eeDigis;
-  iEvent.getByLabel("caloRecHits",eeDigis);
+  iEvent.getByLabel("ecalRecHit",eeDigis);
 
   std::map<EcalTrigTowerDetId,double> mapTow_et;
   
@@ -224,7 +231,7 @@ void  DigiCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     }
   
   edm::Handle<HBHEDigiCollection> hbheDigis;
-  iEvent.getByLabel("caloRecHits",hbheDigis);
+  iEvent.getByLabel("hbhereco",hbheDigis);
   HBHEDigiCollection::const_iterator k;
   for(k=hbheDigis->begin();k!=hbheDigis->end();++k)
     {
@@ -235,10 +242,10 @@ void  DigiCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 //	std::cout << k->id() << " "  << simHitEnergy << std::endl;
     }
   edm::Handle<EBRecHitCollection> hrechit_EB_col;
-  iEvent.getByLabel("caloRecHits","EcalRecHitsEB",hrechit_EB_col);
+  iEvent.getByLabel("ecalRecHit","EcalRecHitsEB",hrechit_EB_col);
 
   edm::Handle<EERecHitCollection> hrechit_EE_col;
-  iEvent.getByLabel("caloRecHits", "EcalRecHitsEE",hrechit_EE_col);
+  iEvent.getByLabel("ecalRecHit", "EcalRecHitsEE",hrechit_EE_col);
 
   std::map<EcalTrigTowerDetId,double> mapTow_et_rechits;
   
@@ -322,7 +329,7 @@ void  DigiCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
 void DigiCheck::endRun()
 {
-  dbe->save("Digicheck.root");
+  //  dbe->save("Digicheck.root");
 }
 
 
