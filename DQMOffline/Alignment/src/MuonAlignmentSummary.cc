@@ -1,8 +1,8 @@
 /*
  *  DQM client for muon alignment summary
  *
- *  $Date: 2009/04/16 16:11:52 $
- *  $Revision: 1.5 $
+ *  $Date: 2010/03/29 13:18:44 $
+ *  $Revision: 1.6 $
  *  \author J. Fernandez - Univ. Oviedo <Javier.Fernandez@cern.ch>
  */
 
@@ -159,7 +159,7 @@ void MuonAlignmentSummary::endRun(edm::Run const& run, edm::EventSetup const& iS
 
                                 Int_t ybin=1+nwheel*8+nstation*2;
                                 hLocalPositionDT->setBinContent(sector,ybin,fabs(Mean));
-                                sprintf(binLabel, "MB%d/%d_X",wheel, station );
+                                snprintf(binLabel, sizeof(binLabel), "MB%d/%d_X",wheel, station );
                                 hLocalPositionDT->setBinLabel(ybin,binLabel,2);
                                 hLocalPositionRmsDT->setBinContent(sector,ybin,Error);
                                 hLocalPositionRmsDT->setBinLabel(ybin,binLabel,2);
@@ -178,7 +178,7 @@ void MuonAlignmentSummary::endRun(edm::Run const& run, edm::EventSetup const& iS
 
                                 Int_t ybin=1+nwheel*8+nstation*2;
                                 hLocalAngleDT->setBinContent(sector,ybin,fabs(Mean));
-                                sprintf(binLabel, "MB%d/%d_#phi", wheel,station );
+                                snprintf(binLabel, sizeof(binLabel), "MB%d/%d_#phi", wheel,station );
                                 hLocalAngleDT->setBinLabel(ybin,binLabel,2);
                                 hLocalAngleRmsDT->setBinContent(sector,ybin,Error);
                                 hLocalAngleRmsDT->setBinLabel(ybin,binLabel,2);
@@ -199,7 +199,7 @@ void MuonAlignmentSummary::endRun(edm::Run const& run, edm::EventSetup const& iS
 
                                     Int_t ybin=2+nwheel*8+nstation*2;
                                     hLocalPositionDT->setBinContent(sector,ybin,fabs(Mean));
-                                    sprintf(binLabel, "MB%d/%d_Y", wheel,station );
+                                    snprintf(binLabel, sizeof(binLabel), "MB%d/%d_Y", wheel,station );
                                     hLocalPositionDT->setBinLabel(ybin,binLabel,2);
                                     hLocalPositionRmsDT->setBinContent(sector,ybin,Error);
                                     hLocalPositionRmsDT->setBinLabel(ybin,binLabel,2);
@@ -215,7 +215,7 @@ void MuonAlignmentSummary::endRun(edm::Run const& run, edm::EventSetup const& iS
 
                                     Int_t ybin=2+nwheel*8+nstation*2;
                                     hLocalAngleDT->setBinContent(sector,ybin,fabs(Mean));
-                                    sprintf(binLabel, "MB%d/%d_#theta",wheel,station );
+                                    snprintf(binLabel, sizeof(binLabel), "MB%d/%d_#theta",wheel,station );
                                     hLocalAngleDT->setBinLabel(ybin,binLabel,2);
                                     hLocalAngleRmsDT->setBinContent(sector,ybin,Error);
                                     hLocalAngleRmsDT->setBinLabel(ybin,binLabel,2);
@@ -268,7 +268,7 @@ void MuonAlignmentSummary::endRun(edm::Run const& run, edm::EventSetup const& iS
 
                                 Int_t ybin2=2*ybin-1;
                                 hLocalPositionCSC->setBinContent(chamber,ybin2,fabs(Mean));
-                                sprintf(binLabel, "ME%d/%d_X", station,ring );
+                                snprintf(binLabel, sizeof(binLabel), "ME%d/%d_X", station,ring );
                                 hLocalPositionCSC->setBinLabel(ybin2,binLabel,2);
                                 hLocalPositionRmsCSC->setBinContent(chamber,ybin2,Error);
                                 hLocalPositionRmsCSC->setBinLabel(ybin2,binLabel,2);
@@ -287,7 +287,7 @@ void MuonAlignmentSummary::endRun(edm::Run const& run, edm::EventSetup const& iS
 
                                 Int_t ybin2=2*ybin-1;
                                 hLocalAngleCSC->setBinContent(chamber,ybin2,fabs(Mean));
-                                sprintf(binLabel, "ME%d/%d_#phi", station,ring );
+                                snprintf(binLabel, sizeof(binLabel), "ME%d/%d_#phi", station,ring );
                                 hLocalAngleCSC->setBinLabel(ybin2,binLabel,2);
                                 hLocalAngleRmsCSC->setBinContent(chamber,ybin2,Error);
                                 hLocalAngleRmsCSC->setBinLabel(ybin2,binLabel,2);
@@ -305,7 +305,7 @@ void MuonAlignmentSummary::endRun(edm::Run const& run, edm::EventSetup const& iS
 
                                 Int_t ybin2=2*ybin;
                                 hLocalAngleCSC->setBinContent(chamber,ybin2,fabs(Mean));
-                                sprintf(binLabel, "ME%d/%d_#theta", station,ring );
+                                snprintf(binLabel, sizeof(binLabel), "ME%d/%d_#theta", station,ring );
                                 hLocalAngleCSC->setBinLabel(ybin2,binLabel,2);
                                 hLocalAngleRmsCSC->setBinContent(chamber,ybin2,Error);
                                 hLocalAngleRmsCSC->setBinLabel(ybin2,binLabel,2);
@@ -324,7 +324,7 @@ void MuonAlignmentSummary::endRun(edm::Run const& run, edm::EventSetup const& iS
 
                                 Int_t ybin2=2*ybin;
                                 hLocalPositionCSC->setBinContent(chamber,ybin2,fabs(Mean));
-                                sprintf(binLabel, "ME%d/%d_Y", station,ring );
+                                snprintf(binLabel, sizeof(binLabel), "ME%d/%d_Y", station,ring );
                                 hLocalPositionCSC->setBinLabel(ybin2,binLabel,2);
                                 hLocalPositionRmsCSC->setBinContent(chamber,ybin2,Error);
                                 hLocalPositionRmsCSC->setBinLabel(ybin2,binLabel,2);
