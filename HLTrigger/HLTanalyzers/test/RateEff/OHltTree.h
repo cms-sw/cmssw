@@ -14223,7 +14223,16 @@ public:
          float MRmin,
          int NJmax,
          float jetPt);
-   
+
+   int OpenHltRMRPassed(
+         float Rmin,
+         float MRmin,
+         float RMRmin,
+	 float ROffset,
+	 float MROffset,
+         int NJmax,
+         float jetPt);
+
    int OpenHlt1BJetPassedEleRemoval(
          float jetEt,
          float jetEta,
