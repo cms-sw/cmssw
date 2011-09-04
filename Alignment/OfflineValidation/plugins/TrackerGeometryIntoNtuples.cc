@@ -13,7 +13,7 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: TrackerGeometryIntoNtuples.cc,v 1.4 2009/11/19 10:57:23 ntran Exp $
+// $Id: TrackerGeometryIntoNtuples.cc,v 1.5 2010/01/04 18:24:37 mussgill Exp $
 //
 //
 
@@ -97,7 +97,7 @@ TrackerGeometryIntoNtuples::TrackerGeometryIntoNtuples(const edm::ParameterSet& 
 	m_file = new TFile(m_outputFile.c_str(),"RECREATE");
 	m_tree = new TTree(m_outputTreename.c_str(),m_outputTreename.c_str());
 	//char errorTreeName[256];
-	//sprintf(errorTreeName, "%sErrors", m_outputTreename);
+	//snprintf(errorTreeName, sizeof(errorTreeName), "%sErrors", m_outputTreename);
 	//m_treeErrors = new TTree(errorTreeName,errorTreeName);
 	m_treeErrors = new TTree("alignTreeErrors","alignTreeErrors");
 	
