@@ -1037,7 +1037,7 @@ void HIPAlignmentAlgorithm::bookRoot(void)
 	
   TString tname="T1";
   char iterString[5];
-  sprintf(iterString, "%i",theIteration);
+  snprintf(iterString, sizeof(iterString), "%i",theIteration);
   tname.Append("_");
   tname.Append(iterString);
 	
@@ -1358,7 +1358,7 @@ int HIPAlignmentAlgorithm::fillEventwiseTree(const char* filename, int iter, int
 {	
   int totntrk = 0;
   char treeName[64];
-  sprintf(treeName, "T1_%d", iter);
+  snprintf(treeName, sizeof(treeName), "T1_%d", iter);
   //open the file "HIPAlignmentEvents.root" in the job directory
   TFile *jobfile = new TFile(filename, "READ");
   //grab the tree corresponding to this iteration
