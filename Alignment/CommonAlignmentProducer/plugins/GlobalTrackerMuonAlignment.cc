@@ -16,7 +16,7 @@
 // Original Author:  Alexandre Spiridonov
 //         Created:  Fri Oct 16 15:59:05 CEST 2009
 //
-// $Id: GlobalTrackerMuonAlignment.cc,v 1.4 2010/10/13 12:24:01 mussgill Exp $
+// $Id: GlobalTrackerMuonAlignment.cc,v 1.5 2011/03/22 09:49:50 innocent Exp $
 //
 
 // system include files
@@ -1072,23 +1072,23 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
     //if(Rmuon < 400. || Rmuon > 450.) continue; 
     //if(Zmuon < -600. || Zmuon > 600.) continue;
     //if(fabs(Nl.z()) > 0.95) continue;  
-    //std::sprintf(MuSelect, " Barrel");
+    //std::snprintf(MuSelect, sizeof(MuSelect), " Barrel");
     //                                                  EndCap1
     //if(Rmuon < 120. || Rmuon > 450.) continue;
     //if(Zmuon < -720.) continue;
     //if(Zmuon > -580.) continue;
     //if(fabs(Nl.z()) < 0.95) continue;  
-    //std::sprintf(MuSelect, " EndCap1");
+    //std::snprintf(MuSelect, sizeof(MuSelect), " EndCap1");
     //                                                  EndCap2
     //if(Rmuon < 120. || Rmuon > 450.) continue;
     //if(Zmuon >  720.) continue;
     //if(Zmuon <  580.) continue;
     //if(fabs(Nl.z()) < 0.95) continue;  
-    //std::sprintf(MuSelect, " EndCap2");
+    //std::snprintf(MuSelect, sizeof(MuSelect), " EndCap2");
     //                                                 select All
     if(Rmuon < 120. || Rmuon > 450.) continue;  
     if(Zmuon < -720. || Zmuon > 720.) continue;
-    std::sprintf(MuSelect, " Barrel+EndCaps");
+    std::snprintf(MuSelect, sizeof(MuSelect), " Barrel+EndCaps");
 
 
     
@@ -1850,23 +1850,23 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
     //if(Rmuon < 400. || Rmuon > 450.) continue; 
     //if(Zmuon < -600. || Zmuon > 600.) continue;
     //if(fabs(Nl.z()) > 0.95) continue;  
-    //std::sprintf(MuSelect, " Barrel");
+    //std::snprintf(MuSelect, sizeof(MuSelect), " Barrel");
     //                                                  EndCap1
     //if(Rmuon < 120. || Rmuon > 450.) continue;
     //if(Zmuon < -720.) continue;
     //if(Zmuon > -580.) continue;
     //if(fabs(Nl.z()) < 0.95) continue;  
-    //std::sprintf(MuSelect, " EndCap1");
+    //std::snprintf(MuSelect, sizeof(MuSelect), " EndCap1");
     //                                                  EndCap2
     //if(Rmuon < 120. || Rmuon > 450.) continue;
     //if(Zmuon >  720.) continue;
     //if(Zmuon <  580.) continue;
     //if(fabs(Nl.z()) < 0.95) continue;  
-    //std::sprintf(MuSelect, " EndCap2");
+    //std::snprintf(MuSelect, sizeof(MuSelect), " EndCap2");
     //                                                 select All
     if(Rmuon < 120. || Rmuon > 450.) continue;  
     if(Zmuon < -720. || Zmuon > 720.) continue;
-    std::sprintf(MuSelect, " Barrel+EndCaps");
+    std::snprintf(MuSelect, sizeof(MuSelect), " Barrel+EndCaps");
 
     if(debug_)
       std::cout<<" .............. passed all cuts"<<std::endl;
