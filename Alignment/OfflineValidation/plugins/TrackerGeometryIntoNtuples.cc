@@ -97,7 +97,7 @@ TrackerGeometryIntoNtuples::TrackerGeometryIntoNtuples(const edm::ParameterSet& 
 	m_file = new TFile(m_outputFile.c_str(),"RECREATE");
 	m_tree = new TTree(m_outputTreename.c_str(),m_outputTreename.c_str());
 	//char errorTreeName[256];
-	//sprintf(errorTreeName, "%sErrors", m_outputTreename);
+	//snprintf(errorTreeName, sizeof(errorTreeName), "%sErrors", m_outputTreename);
 	//m_treeErrors = new TTree(errorTreeName,errorTreeName);
 	m_treeErrors = new TTree("alignTreeErrors","alignTreeErrors");
 	
