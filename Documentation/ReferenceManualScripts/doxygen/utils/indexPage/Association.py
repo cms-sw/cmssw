@@ -87,7 +87,7 @@ def generateBranchHTML(SRC_DIR, tree, branch):
 
 ## Read template file
 def loadTemplates():
-    templateFile = SCRIPTS_LOCATION+"/indexpage/tree_template.html" 
+    templateFile = SCRIPTS_LOCATION+"/indexPage/tree_template.html" 
 #    templateFile = SCRIPTS_LOCATION+"data/tree_template.html"               
             
     fileIN = open(templateFile, "r")
@@ -95,7 +95,7 @@ def loadTemplates():
     fileIN.close()
     
     
-    templateFile = SCRIPTS_LOCATION+"/indexpage/indexpage_template.html"  
+    templateFile = SCRIPTS_LOCATION+"/indexPage/indexpage_template.html"  
 #    templateFile = SCRIPTS_LOCATION+"data/indexpage_template.html"               
             
     fileIN = open(templateFile, "r")
