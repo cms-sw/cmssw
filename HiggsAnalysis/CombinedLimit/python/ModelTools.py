@@ -1,5 +1,5 @@
 import ROOT
-import re, os
+import re, os, os.path
 from sys import stderr, stdout
 ROOFIT_EXPR = "expr"
 N_OBS_MAX   = 10000
@@ -11,6 +11,7 @@ class ModelBuilderBase():
         self.out = stdout
         if options.bin:
             if options.out == None: options.out = re.sub(".txt$","",options.fileName)+".root"
+            options.baseDir = os.path.dirname(options.fileName)
             ROOT.gSystem.Load("libHiggsAnalysisCombinedLimit.so")
             self.out = ROOT.RooWorkspace("w","w");
             self.out._import = getattr(self.out,"import") # workaround: import is a python keyword

@@ -1,4 +1,5 @@
 from sys import stdout, stderr
+import os.path
 import ROOT
 
 from HiggsAnalysis.CombinedLimit.ModelTools import ModelBuilder
@@ -216,7 +217,11 @@ class ShapeBuilder(ModelBuilder):
             names = [names[0], names[1]]
         strmass = "%d" % self.options.mass if self.options.mass % 1 == 0 else str(self.options.mass)
         finalNames = [ x.replace("$PROCESS",process).replace("$CHANNEL",channel).replace("$SYSTEMATIC",syst).replace("$MASS",strmass) for x in names ]
-        if not _fileCache.has_key(finalNames[0]): _fileCache[finalNames[0]] = ROOT.TFile.Open(finalNames[0])
+        if not _fileCache.has_key(finalNames[0]): 
+            trueFName = finalNames[0]
+            if not os.path.exists(trueFName) and not os.path.isabs(trueFName) and os.path.exists(self.options.baseDir+"/"+trueFName):
+                trueFName = self.options.baseDir+"/"+trueFName;
+            _fileCache[finalNames[0]] = ROOT.TFile.Open(trueFName)
         file = _fileCache[finalNames[0]]; objname = finalNames[1]
         if not file: raise RuntimeError, "Cannot open file %s (from pattern %s)" % (finalNames[0],names[0])
         if ":" in objname: # workspace:obj or ttree:xvar or th1::xvar
