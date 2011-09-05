@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V225 (CMSSW_4_2_0_HLT23)
+# /dev/CMSSW_4_2_0/GRun/V226 (CMSSW_4_2_0_HLT23)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V225')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V226')
 )
 
 process.streams = cms.PSet( 
@@ -4164,12 +4164,6 @@ process.PrescaleService = cms.Service( "PrescaleService",
       cms.PSet(  pathName = cms.string( "HLT_Photon40_CaloIdL_R005_MR150_v5" ),
         prescales = cms.vuint32( 450, 360, 270, 270, 180, 130, 90, 60, 45, 1, 1 )
       ),
-      cms.PSet(  pathName = cms.string( "HLT_HT350_Ele30_CaloIdT_TrkIdT_v1" ),
-        prescales = cms.vuint32( 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
-      ),
-      cms.PSet(  pathName = cms.string( "HLT_HT400_Ele60_CaloIdT_TrkIdT_v1" ),
-        prescales = cms.vuint32( 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
-      ),
       cms.PSet(  pathName = cms.string( "HLT_Ele8_CaloIdT_TrkIdT_DiJet30_v5" ),
         prescales = cms.vuint32( 1500, 1200, 900, 900, 600, 420, 600, 630, 650, 1, 1 )
       ),
@@ -4181,9 +4175,6 @@ process.PrescaleService = cms.Service( "PrescaleService",
       ),
       cms.PSet(  pathName = cms.string( "HLT_Ele8_CaloIdL_CaloIsoVL_Jet40_v8" ),
         prescales = cms.vuint32( 2, 2, 2, 2, 2, 2, 2, 2, 2, 1, 1 )
-      ),
-      cms.PSet(  pathName = cms.string( "HLT_Ele15_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HT250_PFMHT40_v1" ),
-        prescales = cms.vuint32( 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R005_MR200_v1" ),
         prescales = cms.vuint32( 50, 40, 25, 25, 20, 10, 8, 7, 3, 1, 1 )
