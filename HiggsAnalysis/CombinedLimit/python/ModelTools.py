@@ -105,6 +105,7 @@ class ModelBuilder(ModelBuilderBase):
                 if val == 0: raise RuntimeError, "Error: line %s contains all zeroes"
                 theta = val*val; kappa = 1/theta
                 self.doObj("%s_Pdf" % n, "Gamma", "%s[1,%f,%f], %s_In[%g,%g,%g], %g, 0" % (n, max(0.01,1-5*val), 1+5*val, n, kappa, 1, 2*kappa+4, theta))
+                globalobs.append("%s_In" % n)
                 if self.options.bin: self.out.var("%s_In" % n).setConstant(True)
             elif pdf == "gmN":
                 self.doObj("%s_Pdf" % n, "Poisson", "%s_In[%d,0,%d], %s[0,%d]" % (n,args[0],2*args[0]+5,n,2*args[0]+5))
