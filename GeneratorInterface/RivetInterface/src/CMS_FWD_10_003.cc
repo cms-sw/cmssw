@@ -37,7 +37,7 @@ namespace Rivet {
       addProjection(FastJets(fs, FastJets::ANTIKT, 0.5),"Jets");
 
       // Book histograms:
-      _hist_sigma = bookHistogram1D(1,1,2);
+      _hist_sigma = bookHistogram1D(1,1,1);
     }
 
     // Analysis
