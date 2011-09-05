@@ -3825,7 +3825,7 @@ void OHltTree::CheckOpenHlt(
 	  if (prescaleResponse(menu, cfg, rcounter, it))
 	    {
 	      int rc = 0;
-	      float ptl2 = 3.0;
+	      float ptl2 = 3.5;
 	      float ptl3 = 6.0;
 	      float drl3 = 2.0;
 	      float etal3 = 2.15;
@@ -3880,15 +3880,15 @@ void OHltTree::CheckOpenHlt(
 	    }
 	}
     }
-  else if (triggerName.CompareTo("OpenHLT_DoubleMu5_Acoplanarity03") == 0) 
+  else if (triggerName.CompareTo("OpenHLT_DoubleMu7_Acoplanarity03") == 0) 
     { 
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) 
         { 
           if (prescaleResponse(menu, cfg, rcounter, it)) 
             { 
               int rc = 0; 
-              float ptl2 = 3.0; 
-              float ptl3 = 5.0; 
+              float ptl2 = 3.5; 
+              float ptl3 = 7.0; 
               float drl3 = 2.0; 
               float etal3 = 2.15; 
               float etal2 = 2.15; 
