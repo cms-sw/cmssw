@@ -28,8 +28,15 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
             if (mc->GetNuisanceParameters()) {
                 mc->GetPdf()->fitTo(realdata, RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1), RooFit::Constrain(*mc->GetNuisanceParameters()));
             } else {
-                // there might still be some free parameters in the model
-                mc->GetPdf()->fitTo(realdata, RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1));
+                // Do we have free parameters anyway that need fitting?
+                bool hasFloatParams = false;
+                std::auto_ptr<RooArgSet> params(mc->GetPdf()->getParameters(realdata));
+                std::auto_ptr<TIterator> iter(params->createIterator());
+                for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
+                    RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
+                    if ( rrv != 0 && rrv->isConstant() == false ) { hasFloatParams = true; break; }
+                } 
+                if (hasFloatParams) mc->GetPdf()->fitTo(realdata, RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1));
             }
         }
         if (mc->GetNuisanceParameters() && verbose > 1) {
@@ -42,7 +49,7 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
         delete weightVar;
 
         // NOW SNAPSHOT THE GLOBAL OBSERVABLES
-        if (mc->GetGlobalObservables()) {
+        if (mc->GetGlobalObservables() && mc->GetGlobalObservables()->getSize() > 0) {
             RooArgSet gobs(*mc->GetGlobalObservables());
 
             // snapshot data global observables
