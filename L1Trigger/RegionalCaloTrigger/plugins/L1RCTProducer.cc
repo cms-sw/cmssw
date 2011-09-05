@@ -1,6 +1,26 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTProducer.h" 
 
 
+// OMDS test stuff
+#include "RelationalAccess/ISession.h"
+#include "RelationalAccess/ITransaction.h"
+#include "RelationalAccess/IRelationalDomain.h"
+#include "RelationalAccess/ISchema.h"
+#include "RelationalAccess/IQuery.h"
+#include "RelationalAccess/ICursor.h"
+#include "RelationalAccess/IConnection.h"
+#include "CoralBase/AttributeList.h"
+#include "CoralBase/Attribute.h"
+#include "CoralKernel/Context.h"
+
+#include "CondCore/DBCommon/interface/DbConnection.h"
+#include "CondCore/DBCommon/interface/DbConnectionConfiguration.h"
+#include "CondCore/DBCommon/interface/DbTransaction.h"
+
+#include "CondFormats/RunInfo/interface/RunInfo.h"
+#include "FWCore/Framework/interface/Run.h"
+// end OMDS test stuff
+
 #include <vector>
 using std::vector;
 #include <iostream>
@@ -39,6 +59,8 @@ L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) :
   ecalDigis(conf.getParameter<std::vector<edm::InputTag> >("ecalDigis")),
   hcalDigis(conf.getParameter<std::vector<edm::InputTag> >("hcalDigis")),
   bunchCrossings(conf.getParameter<std::vector<int> >("BunchCrossings")),
+  getFedsFromOmds(conf.getParameter<bool>("getFedsFromOmds")),
+  queryDelayInLS(conf.getParameter<unsigned int>("queryDelayInLS")),
   fedUpdatedMask(0)
 {
   produces<L1CaloEmCollection>();
@@ -58,8 +80,188 @@ L1RCTProducer::~L1RCTProducer()
 
 void L1RCTProducer::beginRun(edm::Run& run, const edm::EventSetup& eventSetup)
 {
+  // Testing out this OMDS stuff online
+  // hodge-podged together from http://cmslxr.fnal.gov/lxr/source/CondTools/RunInfo/src/RunInfoRead.cc#191
 
+  // NEED VALUES FOR: (keep these things hard-coded?)
+  //  std::string m_connectionString = "oracle://CMS_OMDS_LB/CMS_TRG_R"; // try this one, they appear to be of this form
+  //  std::string m_connectionString = "oracle://cms_orcoff_prod/CMS_COND_RUNINFO"; 
+  std::string m_connectionString = "oracle://cms_orcoff_prod/CMS_RUNINFO"; // from Salvatore Di Guida
+  //  std::string m_user = "cms_trg_r";
+  //  std::string m_user = "CMS_COND_RUNINFO";
+  std::string m_user = "CMS_COND_GENERAL_R";
+  //  std::string m_pass = "X3lmdvu4"; // FIXMEEEEEEEE!
+  std::string m_pass = ""; // FIXMEEEEEEEE!
+  std::string m_authpath = "/afs/cern.ch/cms/DB/conddb";
+  //  std::string m_tableToRead = "cms_runinfo.runsession_parameter"; // "to be cms_runinfo.runsession_parameter" ??  make it so?
+  //  std::string m_tableToRead = "runsession_parameter"; 
+  std::string m_tableToRead = "RUNSESSION_PARAMETER"; 
+
+  RunInfo temp_sum;
+  
+//   coral::ISession* session = this->connect( m_connectionString,
+// 					    m_user, m_pass );
+//   cond::DbSession* session = this->connect( m_connectionString,
+// 					    m_authpath );
+
+  //make connection object
+  cond::DbConnection         m_connection;
+
+  //  std::cout << "Check 1: configuring connection" << std::endl;
+  
+  //set in configuration object authentication path
+  m_connection.configuration().setAuthenticationPath(m_authpath);
+  m_connection.configure();
+
+  //  std::cout << "Check 2: creating session" << std::endl;
+
+  //create session object from connection
+  cond::DbSession session = m_connection.createSession();
+ 
+  //  std::cout << "Check 3: opening session" << std::flush;
+
+  session.open(m_connectionString,true);
+     
+  //  std::cout << "successful" << std::endl;
+
+  try{
+
+    //    std::cout << "Check 4: starting session transaction" << std::endl;
+    //    session->transaction().start();
+    session.transaction().start(true); // (true=readOnly)
+
+    //    std::cout << "Check 5: creating schema" << std::endl;
+    //    coral::ISchema& schema = session->schema("CMS_RUNINFO");
+    coral::ISchema& schema = session.schema("CMS_RUNINFO");
+
+    //condition 
+    coral::AttributeList conditionData;
+    conditionData.extend<int>( "n_run" );
+    int r_number = run.run(); // ADDED, from FWCore/Common/interface/RunBase.h
+    conditionData[0].data<int>() = r_number;
+
+    std::string m_columnToRead_val = "VALUE";
+
+    std::string m_tableToRead_fed = "RUNSESSION_STRING";
+    coral::IQuery* queryV = schema.newQuery();  
+    queryV->addToTableList(m_tableToRead);
+    queryV->addToTableList(m_tableToRead_fed);
+    queryV->addToOutputList(m_tableToRead_fed + "." + m_columnToRead_val, m_columnToRead_val);
+    //queryV->addToOutputList(m_tableToRead + "." + m_columnToRead, m_columnToRead);
+    //condition
+    std::string condition = m_tableToRead + ".RUNNUMBER=:n_run AND " + m_tableToRead + ".NAME='CMS.LVL0:FED_ENABLE_MASK' AND RUNSESSION_PARAMETER.ID = RUNSESSION_STRING.RUNSESSION_PARAMETER_ID";
+    //std::string condition = m_tableToRead + ".runnumber=:n_run AND " + m_tableToRead + ".name='CMS.LVL0:FED_ENABLE_MASK'";
+    queryV->setCondition(condition, conditionData);
+    coral::ICursor& cursorV = queryV->execute();
+    std::string fed;
+    if ( cursorV.next() ) {
+      //cursorV.currentRow().toOutputStream(std::cout) << std::endl;
+      const coral::AttributeList& row = cursorV.currentRow();
+      fed = row[m_columnToRead_val].data<std::string>();
+    }
+    else {
+      fed="null";
+    }
+    //std::cout << "string fed emask == " << fed << std::endl;
+    delete queryV;
+    
+    std::replace(fed.begin(), fed.end(), '%', ' ');
+    std::stringstream stream(fed);
+    for(;;) 
+      {
+	std::string word; 
+	if ( !(stream >> word) ){break;}
+	std::replace(word.begin(), word.end(), '&', ' ');
+	std::stringstream ss(word);
+	int fedNumber; 
+	int val;
+	ss >> fedNumber >> val;
+	//std::cout << "fed:: " << fed << "--> val:: " << val << std::endl; 
+	//val bit 0 represents the status of the SLINK, but 5 and 7 means the SLINK/TTS is ON but NA or BROKEN (see mail of alex....)
+	if( (val & 0001) == 1 && (val != 5) && (val != 7) ) 
+	  temp_sum.m_fed_in.push_back(fedNumber);
+      } 
+    std::cout << "feds in run:--> ";
+    std::copy(temp_sum.m_fed_in.begin(), temp_sum.m_fed_in.end(), std::ostream_iterator<int>(std::cout, ", "));
+    std::cout << std::endl;
+    /*
+      for (size_t i =0; i<temp_sum.m_fed_in.size() ; ++i)
+      {
+      std::cout << "fed in run:--> " << temp_sum.m_fed_in[i] << std::endl; 
+      } 
+    */
+    
+  }
+  catch (const std::exception& e) { 
+    std::cout << "Exception: " << e.what() << std::endl;
+  }
+  //  delete session;
+  
+  
+  // End testing OMDS stuff
+  
 }
+
+// // HACK right now for OMDS stuff, move into separate class
+
+// // coral::ISession*
+// // L1RCTProducer::connect( const std::string& connectionString,
+// // 			const std::string& user,
+// // 			const std::string& pass ) {
+// //coral::ISession*
+// cond::DbSession*
+// L1RCTProducer::connect( const std::string& connectionString,
+// 			const std::string& authPath ) {
+
+//   //  coral::IConnection*         m_connection(0);
+
+//   //   coral::Context& ctx = coral::Context::instance();
+//   //   coral::IHandle<coral::IRelationalDomain> iHandle=ctx.query<coral::IRelationalDomain>("CORAL/RelationalPlugins/oracle");
+//   //   if ( ! iHandle.isValid() ) {
+//   //     throw std::runtime_error( "Could not load the OracleAccess plugin" );
+//   //   }
+//   //   std::pair<std::string, std::string> connectionAndSchema = iHandle->decodeUserConnectionString( connectionString );
+//   //   if ( ! m_connection ) {
+//   //     m_connection = iHandle->newConnection( connectionAndSchema.first );
+//   //   }
+//   //   if ( ! m_connection->isConnected() ) {
+//   //     m_connection->connect();
+//   //   }
+//   //   coral::ISession* session = m_connection->newSession( connectionAndSchema.second );
+//   //   if ( session ) {
+//   //     session->startUserSession( user, pass );
+//   //   }
+//   //   return session;
+  
+  
+//   //make connection object
+//   cond::DbConnection*         m_connection(0);
+//   //cond::DbConnection         m_connection;
+  
+//   //set in configuration object authentication path
+//   m_connection->configuration().setAuthenticationPath(authPath);
+//   m_connection->configure();
+
+//   //create session object from connection
+//   //  cond::DbSession* dbSes = &(m_connection->createSession());
+//   cond::DbSession dbSes = m_connection->createSession();
+ 
+//   //try to make connection
+// //   if (dbSes)
+// //     {
+// //    dbSes->open(connectionString,true);
+// //     }
+//   dbSes.open(connectionString,true);
+     
+// //   //start a transaction (true=readOnly)
+// //   dbSes->transaction().start(true);
+
+//   return dbSes;
+
+// }
+
+// END HACK
+
 
 void L1RCTProducer::beginLuminosityBlock(edm::LuminosityBlock& lumiSeg,const edm::EventSetup& context)
 {
@@ -101,27 +303,31 @@ void L1RCTProducer::updateConfiguration(const edm::EventSetup& eventSetup)
 
   fedUpdatedMask = new L1RCTChannelMask();
   // copy a constant object
-   for (int i = 0; i < 18; i++)
-     {
-       for (int j = 0; j < 2; j++)
-	 {
-	   for (int k = 0; k < 28; k++)
-	     {
-	       fedUpdatedMask->ecalMask[i][j][k] = cEs->ecalMask[i][j][k];
-	       fedUpdatedMask->hcalMask[i][j][k] =cEs->hcalMask[i][j][k] ;
-	     }
-	   for (int k = 0; k < 4; k++)
-	     {
-	       fedUpdatedMask->hfMask[i][j][k] = cEs->hfMask[i][j][k];
-	     }
-	 }
-     }
+  for (int i = 0; i < 18; i++)
+    {
+      for (int j = 0; j < 2; j++)
+	{
+	  for (int k = 0; k < 28; k++)
+	    {
+	      fedUpdatedMask->ecalMask[i][j][k] = cEs->ecalMask[i][j][k];
+	      fedUpdatedMask->hcalMask[i][j][k] = cEs->hcalMask[i][j][k] ;
+	    }
+	  for (int k = 0; k < 4; k++)
+	    {
+	      fedUpdatedMask->hfMask[i][j][k] = cEs->hfMask[i][j][k];
+	    }
+	}
+    }
 
 
   // adding fed mask into channel mask
+  
+  // get FED vector from RUNINFO
   edm::ESHandle<RunInfo> sum;
   eventSetup.get<RunInfoRcd>().get(sum);
   const RunInfo* summary=sum.product();
+
+  // get FED vector from OMDS in case of online running
 
 
   std::vector<int> caloFeds;  // pare down the feds to the intresting ones
