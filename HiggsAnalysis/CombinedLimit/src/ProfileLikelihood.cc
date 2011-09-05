@@ -29,7 +29,7 @@ float       ProfileLikelihood::maxRelDeviation_ = 0.05;
 float       ProfileLikelihood::maxOutlierFraction_ = 0.25;
 int         ProfileLikelihood::maxOutliers_ = 3;
 bool        ProfileLikelihood::preFit_ = false;
-bool        ProfileLikelihood::useMinos_ = false;
+bool        ProfileLikelihood::useMinos_ = true;
 bool        ProfileLikelihood::bruteForce_ = false;
 bool        ProfileLikelihood::reportPVal_ = false;
 float       ProfileLikelihood::signalForSignificance_ = 0;
@@ -49,7 +49,8 @@ ProfileLikelihood::ProfileLikelihood() :
         ("maxOutliers",        boost::program_options::value<int>(&maxOutliers_)->default_value(maxOutliers_),      "Stop trying after finding N outliers")
         ("plot",   boost::program_options::value<std::string>(&plot_)->default_value(plot_), "Save a plot of the negative log of the profiled likelihood into the specified file")
         ("preFit", "Attept a fit before running the ProfileLikelihood calculator")
-        ("useMinos", "Compute PL limit using Minos directly, bypassing the ProfileLikelihoodCalculator")
+        ("usePLC",   "Compute PL limit using the ProfileLikelihoodCalculator (not default)")
+        ("useMinos", "Compute PL limit using Minos directly, bypassing the ProfileLikelihoodCalculator (default)")
         ("bruteForce", "Compute PL limit by brute force, bypassing the ProfileLikelihoodCalculator and Minos")
         ("pvalue", "Report p-value instead of significance (when running with --significance)")
     ;
@@ -57,7 +58,9 @@ ProfileLikelihood::ProfileLikelihood() :
 
 void ProfileLikelihood::applyOptions(const boost::program_options::variables_map &vm) 
 {
-    useMinos_ = vm.count("useMinos");
+    if (vm.count("usePLC")) useMinos_ = false;
+    else if (vm.count("useMinos")) useMinos_ = true;
+    else useMinos_ = true;
     bruteForce_ = vm.count("bruteForce");
     reportPVal_ = vm.count("pvalue");
 }
