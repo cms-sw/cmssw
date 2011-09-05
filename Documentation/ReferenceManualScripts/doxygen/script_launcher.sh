@@ -15,11 +15,8 @@ time python $SCRIPTS/linker/linker.py $LOCALTOP
 mkdir $LOCALTOP/doc/html/splittedTree
 cp -R $SCRIPTS/tree/jquery/ $LOCALTOP/doc/html/splittedTree
 
-time python $SCRIPTS/tree/tree_splitted.py $ASSOCIATION $CMSSW_xyz $LOCALTOP $SCRIPTS sim fastsim reco dqm daq gen core calib hlt geometry analysis visualization operations l1 db
-
-#Updating and copying index file
-rm $LOCALTOP/doc/html/index.html
-sed -e 's/CMSSW_Version/'$CMSSW_xyz'/g' $SCRIPTS/indexPage/index_template.html > $LOCALTOP/doc/html/index.html
+# Generating tree views and index page
+time python $SCRIPTS/indexpage/Association.py $CMSSW_xyz $LOCALTOP $SCRIPTS
 
 cp $SCRIPTS/other/ReferenceManual.html $LOCALTOP/doc/html
 
