@@ -16,7 +16,7 @@ mkdir $LOCALTOP/doc/html/splittedTree
 cp -R $SCRIPTS/tree/jquery/ $LOCALTOP/doc/html/splittedTree
 
 # Generating tree views and index page
-time python $SCRIPTS/indexpage/Association.py $CMSSW_xyz $LOCALTOP $SCRIPTS
+time python $SCRIPTS/indexPage/Association.py $CMSSW_xyz $LOCALTOP $SCRIPTS
 
 cp $SCRIPTS/other/ReferenceManual.html $LOCALTOP/doc/html
 
