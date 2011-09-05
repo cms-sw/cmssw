@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.7 $"
+__version__ = "$Revision: 1.8 $"
 
 import os
 import subprocess
@@ -54,8 +54,9 @@ def fileUpload(uploadPath,lheList, reallyDoIt):
     inUploadScript = ''
 
     for f in lheList:
+        realFileName = f.split('/')[-1]
         # Check the file existence
-        newFileName = uploadPath+'/'+str(f)
+        newFileName = uploadPath+'/'+str(realFileName)
         addFile = True
         additionalOption = ''  
         theCommand = defaultEOSfeCommand+' '+newFileName
@@ -73,7 +74,7 @@ def fileUpload(uploadPath,lheList, reallyDoIt):
         # add the file
         if addFile:
             print 'Adding file '+str(f)+'\n'
-            inUploadScript += defaultEOScpCommand+additionalOption+' '+str(f)+' '+defaultEOSLoadPath+uploadPath+'/'+str(f)+'\n'
+            inUploadScript += defaultEOScpCommand+additionalOption+' '+str(f)+' '+defaultEOSLoadPath+uploadPath+'/'+str(realFileName)+'\n'
 
 # launch the upload shell script        
 
