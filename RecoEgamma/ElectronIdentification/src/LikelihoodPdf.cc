@@ -30,7 +30,7 @@ LikelihoodPdf::split(std::map<std::string,float> splitFractions,
   if(splitFractions.size()>0 && splitPdf) {
     std::map<std::string,float>::const_iterator splitCatItr;
     for(splitCatItr=splitFractions.begin();splitCatItr!=splitFractions.end();splitCatItr++) {
-      sprintf(buffer,"%s_%s_subdet%d_ptbin%d_%s",_name.c_str(),_species.c_str(),_ecalsubdet,_ptbin,splitCatItr->first.c_str());
+      snprintf(buffer, 100, "%s_%s_subdet%d_ptbin%d_%s",_name.c_str(),_species.c_str(),_ecalsubdet,_ptbin,splitCatItr->first.c_str());
       std::string totPdfName = std::string(buffer);
       _splitRule.insert( std::make_pair(splitCatItr->first,totPdfName) );
     }
@@ -40,17 +40,17 @@ LikelihoodPdf::split(std::map<std::string,float> splitFractions,
   else if(splitFractions.size()>0) {
     std::map<std::string,float>::const_iterator splitCatItr;
     for(splitCatItr=splitFractions.begin();splitCatItr!=splitFractions.end();splitCatItr++) {
-      sprintf(buffer,"%s_%s_subdet%d_ptbin%d",_name.c_str(),_species.c_str(),_ecalsubdet,_ptbin);
+      snprintf(buffer, 100, "%s_%s_subdet%d_ptbin%d",_name.c_str(),_species.c_str(),_ecalsubdet,_ptbin);
       std::string totPdfName = std::string(buffer);
       _splitRule.insert( std::make_pair(splitCatItr->first,totPdfName) );
     }
   }
-
+  
   //! do not split at all (same PDF's, same a-priori for all categories)
   else {
-      sprintf(buffer,"%s_%s_subdet%d_ptbin%d",_name.c_str(),_species.c_str(),_ecalsubdet,_ptbin);
-      std::string totPdfName = std::string(buffer);
-      _splitRule.insert( std::make_pair("NOSPLIT",totPdfName) );
+    snprintf(buffer, 100, "%s_%s_subdet%d_ptbin%d",_name.c_str(),_species.c_str(),_ecalsubdet,_ptbin);
+    std::string totPdfName = std::string(buffer);
+    _splitRule.insert( std::make_pair("NOSPLIT",totPdfName) );
   }
 }
 

@@ -365,9 +365,9 @@ ElectronLikelihood::result (const reco::GsfElectron &electron,
   // Split using only the number of brem clusters
   int bitVal=(electron.numberOfBrems()==0) ? 0 : 1 ;
   
-  char className[20] ;
+  char className[20];
   if(m_signalWeightSplitting.compare("class")==0) {
-    sprintf (className,"class%d",bitVal);
+    snprintf(className, 20, "class%d", bitVal);
   } else {
     throw cms::Exception("BadConfig") << "Only class (0 brem clusters / >=1 brem clusters)"
 				      << " splitting is implemented right now";
@@ -409,9 +409,9 @@ ElectronLikelihood::resultLog (const reco::GsfElectron &electron,
   // Split using only the number of brem clusters
   int bitVal=(electron.numberOfBrems()==0) ? 0 : 1 ;
   
-  char className[20] ;
+  char className[20];
   if(m_signalWeightSplitting.compare("class")==0) {
-    sprintf (className,"class%d",bitVal);
+    snprintf(className, 20, "class%d", bitVal);
   } else {
     throw cms::Exception("BadConfig") << "Only class (0 brem clusters / >=1 brem clusters)"
 				      << " splitting is implemented right now";
