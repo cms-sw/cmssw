@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.72 2011/06/20 15:42:41 babar Exp $
+# $Id: InjectWorker.pl,v 1.73 2011/06/27 15:27:49 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -32,7 +32,6 @@ my %invalidOracleError = (
     '01003' => 'no statement parsed',
     '12545' => 'target host or object does not exist',
     '17008' => 'closed connection',
-    '25408' => 'can not safely replay call',
     '25401' => 'can not continue fetches',
     '25402' => 'transaction must roll back',
     '25403' => 'could not reconnect',
