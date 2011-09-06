@@ -26,6 +26,10 @@ for R in [ 'CLs', 'CLsplusb' ]:
     suite += [ (M, 'fast', MultiOptionTest("Counting_pValues_%s" % R, "simple-counting/counting-B5p5-Obs6-Syst30B.txt", M,
                             "--singlePoint 5 --fork 2 --clsAcc=0.01  --rule=%s" % R,
                             {'Atlas':'--testStat=Atlas', 'LEP':'--testStat=LEP', 'TEV':'--testStat=TEV'})) ]
+    suite += [ (M, 'fast', SingleDatacardTest("Counting_pValues_Freq_0_%s" % R, "simple-counting/counting-B5p5-Obs6-StatOnly.txt", M, "--freq --singlePoint 5 --fork 2 --clsAcc=0.002  --rule=%s" % R)) ]
+    suite += [ (M, 'fast', SingleDatacardTest("Counting_pValues_Freq_B_%s" % R, "simple-counting/counting-B5p5-Obs6-Syst30B.txt",  M, "--freq --singlePoint 5 --fork 2 --clsAcc=0.002  --rule=%s" % R)) ]
+    suite += [ (M, 'fast', SingleDatacardTest("Counting_pValues_Freq_S_%s" % R, "simple-counting/counting-B5p5-Obs6-Syst30S.txt",  M, "--freq --singlePoint 5 --fork 2 --clsAcc=0.002  --rule=%s" % R)) ]
+    suite += [ (M, 'fast', SingleDatacardTest("Counting_pValues_Freq_U_%s" % R, "simple-counting/counting-B5p5-Obs6-Syst30U.txt",  M, "--freq --singlePoint 5 --fork 2 --clsAcc=0.002  --rule=%s" % R)) ]
     suite += [ (M, 'full', MultiOptionTest("Counting_pValues_%s" % R, "simple-counting/counting-B5p5-Obs6-Syst30B.txt", M,
                             "--singlePoint 5 --fork 6 --clsAcc=0.005 --rule=%s" % R,
                             {'Atlas':'--testStat=Atlas', 'LEP':'--testStat=LEP', 'TEV':'--testStat=TEV'})) ]
