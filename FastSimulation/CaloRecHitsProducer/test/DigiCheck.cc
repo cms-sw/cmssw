@@ -54,8 +54,8 @@ void  DigiCheck::beginJobAnalyze(const edm::EventSetup & c){
   h2e = dbe->book2D("h2e","Gain 2 ADC vs GeV- Endcap",140,0,1400,1000,0,5000);
   h3e = dbe->book2D("h3e","Gain 1 ADC vs GeV- Endcap",140,0,3000,1000,0,5000);
   h4  = dbe->book2D("h4","HBHE GeV adc",1000,0,1000,1000,0,1000);
-  h5  = dbe->book2D("h5","digis vs rechits ",400,0,200,400,0,200);
-  h6  = dbe->book2D("h6","digis vs rechits ",400,0,200,400,0,200);
+  h5  = dbe->book2D("h5","digis vs rechits barrel",400,0,200,400,0,200);
+  h6  = dbe->book2D("h6","digis vs rechits endcaps ",400,0,200,400,0,200);
   h7  = dbe->book1D("h7","TP digis vs calohits ",100,-10,10);
   h8  = dbe->book2D("h8","ieta vs TP/calohits ",64,-31.5,31.5,200,-2,2);
   h9  = dbe->book2D("h9","iphi vs TP/calohits ",100,-0.5,99.5,200,-2,2);
@@ -140,7 +140,7 @@ void  DigiCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   std::map<EcalTrigTowerDetId,double> mapTow_et;
   
   //EBDigiCollection::const_iterator i;
-  //  std::cout << " Barrel digis " << std::endl;
+  std::cout << " Barrel digis / Endcap digis " << ebDigis->size() << " " << eeDigis->size() << std::endl;
   //for(i=ebDigis->begin();i!=ebDigis->end();++i)
   for(unsigned int idigi = 0; idigi < ebDigis->size(); ++idigi)
     {
@@ -248,7 +248,7 @@ void  DigiCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   iEvent.getByLabel("ecalRecHit", "EcalRecHitsEE",hrechit_EE_col);
 
   std::map<EcalTrigTowerDetId,double> mapTow_et_rechits;
-  
+  std::cout <<  " Number of RecHits " << hrechit_EB_col->size() << " " << hrechit_EE_col->size() << std::endl;
   EcalRecHitCollection::const_iterator rhit=hrechit_EB_col.product()->begin();
   EcalRecHitCollection::const_iterator rhitend=hrechit_EB_col.product()->end();
   for(;rhit!=rhitend;++rhit)
@@ -312,18 +312,23 @@ void  DigiCheck::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
   // Finally fill the histo
   std::map<EcalTrigTowerDetId,double>::const_iterator mytowerit=mapTow_et.begin();
   std::map<EcalTrigTowerDetId,double>::const_iterator mytoweritend=mapTow_et.end();
+  std::cout << " Number of trigger towers from digis " << mapTow_et.size() << std::endl;
+  std::cout << " Number of trigger towers from RecHits " << mapTow_et_rechits.size() << std::endl;
   for(;mytowerit!=mytoweritend;++mytowerit)
     {
       // Look for the same tower in the RecHits collection 
       std::map<EcalTrigTowerDetId,double>::const_iterator theotherTower=mapTow_et_rechits.find(mytowerit->first);
       if(theotherTower==mapTow_et_rechits.end())
 	{
-	  std::cout << " Strange - in one collection but not in the other " << std::endl;	  
+	  //	  std::cout << " Strange - in one collection but not in the other " << std::endl;	  
 	  continue;
 	}
       double energy1=mytowerit->second*mapTow_sintheta[mytowerit->first];
       double energy2=theotherTower->second*mapTow_sintheta[mytowerit->first];
-      h5->Fill(energy1,energy2);
+      if(mytowerit->first.ietaAbs()<=17)
+	h5->Fill(energy1,energy2);
+      else
+	h6->Fill(energy1,energy2);
     }
 }
 
