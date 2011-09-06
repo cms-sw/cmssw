@@ -60,16 +60,19 @@ convLayerPairs = cms.ESProducer("SeedingLayersESProducer",
                                                         'TOB2+TOB4',
                                                         'TOB2+TEC1_pos', 
                                                         'TOB2+TEC1_neg', 
-                                                        
-                                                        'TOB3+TOB4', 
-                                                        'TOB3+TOB5',
-                                                        'TOB3+TEC1_pos', 
-                                                        'TOB3+TEC1_neg', 
-                                                        
-                                                        'TOB4+TOB5',
-                                                        'TOB4+TOB6',
 
-                                                        'TOB5+TOB6',
+                                                        #NB: re-introduce these combinations when large displaced
+                                                        #    tracks, reconstructed only in TOB will be available
+                                                        #    For instance think at the OutIn Ecal Seeded tracks
+                                                        #'TOB3+TOB4', 
+                                                        #'TOB3+TOB5',
+                                                        #'TOB3+TEC1_pos', 
+                                                        #'TOB3+TEC1_neg', 
+                                                        #
+                                                        #'TOB4+TOB5',
+                                                        #'TOB4+TOB6',
+                                                        #
+                                                        #'TOB5+TOB6',
 
                                                         'TID1_pos+TID2_pos', 
                                                         'TID2_pos+TID3_pos', 
@@ -135,32 +138,27 @@ convLayerPairs = cms.ESProducer("SeedingLayersESProducer",
                                     ),
                                 TID1 = cms.PSet(
                                     useSimpleRphiHitsCleaner = cms.bool(False),
-                                    stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHitUnmatched"),
                                     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
                                     useRingSlector = cms.bool(True),
                                     TTRHBuilder = cms.string('WithTrackAngle'),
-                                    rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHitUnmatched"),
-                                    maxRing = cms.int32(3),
+                                    maxRing = cms.int32(2),
                                     minRing = cms.int32(1),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
                                 TID2 = cms.PSet(
                                     useSimpleRphiHitsCleaner = cms.bool(False),
-                                    stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHitUnmatched"),
                                     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
                                     useRingSlector = cms.bool(True),
                                     TTRHBuilder = cms.string('WithTrackAngle'),
-                                    rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHitUnmatched"),
-                                    maxRing = cms.int32(3),
-                                    minRing = cms.int32(1)
+                                    maxRing = cms.int32(2),
+                                    minRing = cms.int32(1),
+                                    skipClusters = cms.InputTag('convClusters'),
                                     ),
                                 TID3 = cms.PSet(
                                     useSimpleRphiHitsCleaner = cms.bool(False),
-                                    stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHitUnmatched"),
                                     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
                                     useRingSlector = cms.bool(True),
                                     TTRHBuilder = cms.string('WithTrackAngle'),
-                                    rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHitUnmatched"),
                                     maxRing = cms.int32(2),
                                     minRing = cms.int32(1),
                                     skipClusters = cms.InputTag('convClusters'),
@@ -172,7 +170,7 @@ convLayerPairs = cms.ESProducer("SeedingLayersESProducer",
                                     useRingSlector = cms.bool(True),
                                     TTRHBuilder = cms.string('WithTrackAngle'),
                                     rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHitUnmatched"),
-                                    maxRing = cms.int32(2),
+                                    maxRing = cms.int32(7),
                                     stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHitUnmatched"),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
@@ -232,7 +230,8 @@ convCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESP
     ComponentName = 'convCkfTrajectoryBuilder',
     trajectoryFilterName = 'convCkfTrajectoryFilter',
     minNrOfHitsForRebuild = 3,
-    clustersToSkip = cms.InputTag('convClusters')
+    clustersToSkip = cms.InputTag('convClusters'),
+    maxCand = 2
     )
 
 # MAKING OF TRACK CANDIDATES
@@ -242,11 +241,25 @@ convTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCand
     TrajectoryBuilder = 'convCkfTrajectoryBuilder'
 )
 
+import TrackingTools.TrackFitters.RungeKuttaFitters_cff
+convStepFitterSmoother = TrackingTools.TrackFitters.RungeKuttaFitters_cff.KFFittingSmootherWithOutliersRejectionAndRK.clone(
+    ComponentName = 'convStepFitterSmoother',
+    EstimateCut = 30,
+    Smoother = cms.string('convStepRKSmoother')
+    )
+    
+convStepRKTrajectorySmoother = TrackingTools.TrackFitters.RungeKuttaFitters_cff.RKTrajectorySmoother.clone(
+    ComponentName = cms.string('convStepRKSmoother'),
+    errorRescaling = 10.0
+    )
+
+        
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducer_cfi
 convStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'convTrackCandidates',
-    AlgorithmName = cms.string('iter8')
+    AlgorithmName = cms.string('iter8'),
+    Fitter = 'convStepFitterSmoother',
     )
 
 
