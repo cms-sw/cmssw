@@ -1,8 +1,8 @@
-// $Id: SharedResources.h,v 1.5 2009/08/28 16:41:50 mommsen Exp $
+// $Id: SharedResources.h,v 1.6.12.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: SharedResources.h 
 
-#ifndef StorageManager_SharedResources_h
-#define StorageManager_SharedResources_h
+#ifndef EventFilter_StorageManager_SharedResources_h
+#define EventFilter_StorageManager_SharedResources_h
 
 #include <string>
 
@@ -33,30 +33,30 @@ namespace stor {
    * Container for shared resources.
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2009/08/28 16:41:50 $
+   * $Revision: 1.6.12.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
 
   struct SharedResources
   {
 
     // queues
-    boost::shared_ptr<CommandQueue> _commandQueue;
-    boost::shared_ptr<DQMEventQueue> _dqmEventQueue;
-    boost::shared_ptr<FragmentQueue> _fragmentQueue;
-    boost::shared_ptr<StreamQueue> _streamQueue;
-    boost::shared_ptr<RegistrationQueue> _registrationQueue;
-    boost::shared_ptr<EventQueueCollection> _eventConsumerQueueCollection;
-    boost::shared_ptr<DQMEventQueueCollection> _dqmEventConsumerQueueCollection;
+    CommandQueuePtr commandQueue_;
+    DQMEventQueuePtr dqmEventQueue_;
+    FragmentQueuePtr fragmentQueue_;
+    StreamQueuePtr streamQueue_;
+    RegistrationQueuePtr registrationQueue_;
+    EventQueueCollectionPtr eventQueueCollection_;
+    DQMEventQueueCollectionPtr dqmEventQueueCollection_;
 
     // other
-    boost::shared_ptr<Configuration> _configuration;
-    boost::shared_ptr<DiscardManager> _discardManager;
-    boost::shared_ptr<DiskWriterResources> _diskWriterResources;
-    boost::shared_ptr<DQMEventProcessorResources> _dqmEventProcessorResources;
-    boost::shared_ptr<InitMsgCollection> _initMsgCollection;
-    boost::shared_ptr<StatisticsReporter> _statisticsReporter;
-    boost::shared_ptr<RegistrationCollection> _registrationCollection;
+    boost::shared_ptr<Configuration> configuration_;
+    boost::shared_ptr<DiscardManager> discardManager_;
+    boost::shared_ptr<DiskWriterResources> diskWriterResources_;
+    boost::shared_ptr<DQMEventProcessorResources> dqmEventProcessorResources_;
+    boost::shared_ptr<InitMsgCollection> initMsgCollection_;
+    boost::shared_ptr<StatisticsReporter> statisticsReporter_;
+    boost::shared_ptr<RegistrationCollection> registrationCollection_;
 
     /**
      * Add a Failed state-machine event to the command queue
@@ -75,7 +75,7 @@ namespace stor {
   
 } // namespace stor
 
-#endif // StorageManager_SharedResources_h 
+#endif // EventFilter_StorageManager_SharedResources_h 
 
 
 /// emacs configuration

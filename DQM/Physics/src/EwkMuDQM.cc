@@ -12,7 +12,6 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
@@ -35,13 +34,13 @@ EwkMuDQM::EwkMuDQM( const ParameterSet & cfg ) :
       // Input collections
       trigTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrigTag", edm::InputTag("TriggerResults::HLT"))),
       muonTag_(cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"))),
-      metTag_(cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("pfmet"))),
-      jetTag_(cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("ak5PFJets"))),
-      vertexTag_(cfg.getUntrackedParameter<edm::InputTag> ("VertexTag", edm::InputTag("offlinePrimaryVertices"))),
+      metTag_(cfg.getUntrackedParameter<edm::InputTag> ("METTag", edm::InputTag("met"))),
+      metIncludesMuons_(cfg.getUntrackedParameter<bool> ("METIncludesMuons", false)),
+      jetTag_(cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("sisCone5CaloJets"))),
 
       // Main cuts 
-      muonTrig_(cfg.getUntrackedParameter<std::vector<std::string> > ("MuonTrig")),
-      ptCut_(cfg.getUntrackedParameter<double>("PtCut", 20.)),
+      muonTrig_(cfg.getUntrackedParameter<std::string> ("MuonTrig", "HLT_Mu9")),
+      ptCut_(cfg.getUntrackedParameter<double>("PtCut", 25.)),
       etaCut_(cfg.getUntrackedParameter<double>("EtaCut", 2.1)),
       isRelativeIso_(cfg.getUntrackedParameter<bool>("IsRelativeIso", true)),
       isCombinedIso_(cfg.getUntrackedParameter<bool>("IsCombinedIso", false)),
@@ -50,16 +49,13 @@ EwkMuDQM::EwkMuDQM( const ParameterSet & cfg ) :
       mtMax_(cfg.getUntrackedParameter<double>("MtMax", 200.)),
       metMin_(cfg.getUntrackedParameter<double>("MetMin", -999999.)),
       metMax_(cfg.getUntrackedParameter<double>("MetMax", 999999.)),
-      acopCut_(cfg.getUntrackedParameter<double>("AcopCut", 999.)),
+      acopCut_(cfg.getUntrackedParameter<double>("AcopCut", 2.)),
 
       // Muon quality cuts
-      dxyCut_(cfg.getUntrackedParameter<double>("DxyCut", 0.2)),   // dxy < 0.2 cm 
-      normalizedChi2Cut_(cfg.getUntrackedParameter<double>("NormalizedChi2Cut", 10.)), // chi2/ndof (of global fit) <10.0
-      trackerHitsCut_(cfg.getUntrackedParameter<int>("TrackerHitsCut", 11)),  // Tracker Hits >10 
-      pixelHitsCut_(cfg.getUntrackedParameter<int>("PixelHitsCut", 1)), // Pixel Hits >0
-      muonHitsCut_(cfg.getUntrackedParameter<int>("MuonHitsCut", 1)),  // Valid Muon Hits >0 
+      dxyCut_(cfg.getUntrackedParameter<double>("DxyCut", 0.2)),
+      normalizedChi2Cut_(cfg.getUntrackedParameter<double>("NormalizedChi2Cut", 10.)),
+      trackerHitsCut_(cfg.getUntrackedParameter<int>("TrackerHitsCut", 11)),
       isAlsoTrackerMuon_(cfg.getUntrackedParameter<bool>("IsAlsoTrackerMuon", true)),
-      nMatchesCut_(cfg.getUntrackedParameter<int>("NMatchesCut", 2)), // At least 2 Chambers with matches 
 
       // Z rejection
       ptThrForZ1_(cfg.getUntrackedParameter<double>("PtThrForZ1", 20.)),
@@ -85,6 +81,7 @@ void EwkMuDQM::beginRun(const Run& r, const EventSetup&) {
 void EwkMuDQM::beginJob() {
       theDbe = Service<DQMStore>().operator->();
       theDbe->setCurrentFolder("Physics/EwkMuDQM");
+
       init_histograms();
 }
 
@@ -103,6 +100,22 @@ void EwkMuDQM::init_histograms() {
             snprintf(chtitle, 255, "Muon transverse distance to beam spot [cm]");
             dxy_before_ = theDbe->book1D("DXY_BEFORECUTS",chtitle,100,-0.5,0.5);
             dxy_after_ = theDbe->book1D("DXY_LASTCUT",chtitle,100,-0.5,0.5);
+
+            snprintf(chtitle, 255, "Normalized Chi2, inner track fit");
+            chi2_before_ = theDbe->book1D("CHI2_BEFORECUTS",chtitle,100,0.,100.);
+            chi2_after_ = theDbe->book1D("CHI2_LASTCUT",chtitle,100,0.,100.);
+
+            snprintf(chtitle, 255, "Number of hits, inner track");
+            nhits_before_ = theDbe->book1D("NHITS_BEFORECUTS",chtitle,40,-0.5,39.5);
+            nhits_after_ = theDbe->book1D("NHITS_LASTCUT",chtitle,40,-0.5,39.5);
+
+            snprintf(chtitle, 255, "number Of Valid Muon Hits");
+            muonhits_before_= theDbe->book1D("MUONHITS_BEFORECUTS",chtitle,40,-0.5,39.5);
+            muonhits_after_= theDbe->book1D("MUONHITS_LASTCUT",chtitle,40,-0.5,39.5);
+
+            snprintf(chtitle, 255, "Tracker-muon flag (for global muons)");
+            tkmu_before_ = theDbe->book1D("TKMU_BEFORECUTS",chtitle,2,-0.5,1.5);
+            tkmu_after_ = theDbe->book1D("TKMU_LASTCUT",chtitle,2,-0.5,1.5);
 
             snprintf(chtitle, 255, "Quality-muon flag");
             goodewkmuon_before_ = theDbe->book1D("GOODEWKMUON_BEFORECUTS",chtitle,2,-0.5,1.5);
@@ -126,7 +139,7 @@ void EwkMuDQM::init_histograms() {
                   iso_after_ = theDbe->book1D("ISO_LASTCUT",chtitle,100, 0., 20.);
             }
 
-            snprintf(chtitle, 255, "Trigger response (OR of Muon triggers)");
+            snprintf(chtitle, 255, "Trigger response (bit %s)", muonTrig_.data());
             trig_before_ = theDbe->book1D("TRIG_BEFORECUTS",chtitle,2,-0.5,1.5);
             trig_after_ = theDbe->book1D("TRIG_LASTCUT",chtitle,2,-0.5,1.5);
 
@@ -158,17 +171,16 @@ void EwkMuDQM::init_histograms() {
             dimuonmass_before_= theDbe->book1D("DIMUONMASS_BEFORECUTS",chtitle,100,0,200);
             dimuonmass_after_= theDbe->book1D("DIMUONMASS_AFTERZCUTS",chtitle,100,0,200);
 
+            snprintf(chtitle, 255, "DiMuon Mass (global pt + StandAlone pt");
+            dimuonSAmass_before_= theDbe->book1D("DIMUONSTAMASS_BEFORECUTS",chtitle,100,0,200);
+            dimuonSAmass_after_= theDbe->book1D("DIMUONSTAMASS_AFTERZCUTS",chtitle,100,0,200);
+
+            snprintf(chtitle, 255, "DiMuon Mass (StandAlone pt + StandAlone pt");
+            dimuonSASAmass_before_= theDbe->book1D("DIMUONSTASTAMASS_BEFORECUTS",chtitle,100,0,200); 
+            dimuonSASAmass_after_= theDbe->book1D("DIMUONSTASTAMASS_AFTERZCUTS",chtitle,100,0,200);
+            
             snprintf(chtitle, 255, "Global pt for Muons in Z");
             ptmuonZ_after_= theDbe->book1D("PT_AFTERZCUT",chtitle,100,0.,100.);
-
-            snprintf(chtitle, 255, "Number of Valid Primary Vertices");
-            npvs_before_ = theDbe->book1D("NPVs_BEFORECUTS",chtitle,10,-0.5,9.5);
-            npvs_after_ = theDbe->book1D("NPVs_LASTCUT",chtitle,10,-0.5,9.5);
-
-            snprintf(chtitle, 255, "Muon Charge");
-            muoncharge_before_ = theDbe->book1D("MUONCHARGE_BEFORECUTS",chtitle,3,-1.5,1.5);
-            muoncharge_after_ = theDbe->book1D("MUONCHARGE_LASTCUT",chtitle,3,-1.5,1.5);
-
       }
 }
 
@@ -203,101 +215,97 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup &) {
 	//LogWarning("") << ">>> No beam spot found !!!";
 	return;
       }
-
-
-      // Loop to reject/control Z->mumu is done separately
-      unsigned int nmuonsForZ1 = 0;
-      unsigned int nmuonsForZ2 = 0;
-      bool cosmic = false;
-      for (unsigned int i=0; i<muonCollectionSize; i++) {
-            const Muon& mu = muonCollection->at(i);
-            if (!mu.isGlobalMuon()) continue;
-            double pt = mu.pt();
-            double dxy = mu.innerTrack()->dxy(beamSpotHandle->position());
-
-            if (fabs(dxy)>1) { cosmic=true; break;} 
-
-            if (pt>ptThrForZ1_) nmuonsForZ1++;
-            if (pt>ptThrForZ2_) nmuonsForZ2++;
-
-            for (unsigned int j=i+1; j<muonCollectionSize; j++) {
-                 const Muon& mu2 = muonCollection->at(j);
-                 if (mu2.isGlobalMuon() && (mu.charge()*mu2.charge()==-1) ){
-                         const math::XYZTLorentzVector ZRecoGlb (mu.px()+mu2.px(), mu.py()+mu2.py() , mu.pz()+mu2.pz(), mu.p()+mu2.p());
-                         dimuonmass_before_->Fill(ZRecoGlb.mass());
-                 }
-            }
-      }
-     if(cosmic) return;
-
-      LogTrace("") << "> Z rejection: muons above " << ptThrForZ1_ << " [GeV]: " << nmuonsForZ1;
-      LogTrace("") << "> Z rejection: muons above " << ptThrForZ2_ << " [GeV]: " << nmuonsForZ2;
-      nz1_before_->Fill(nmuonsForZ1);
-      nz2_before_->Fill(nmuonsForZ2);
   
       // MET
+      double met_px = 0.;
+      double met_py = 0.;
       Handle<View<MET> > metCollection;
       if (!ev.getByLabel(metTag_, metCollection)) {
 	//LogWarning("") << ">>> MET collection does not exist !!!";
 	return;
       }
       const MET& met = metCollection->at(0);
-      double met_et = met.pt();
-      LogTrace("") << ">>> MET, MET_px, MET_py: " << met_et << ", " << met.px() << ", " << met.py() << " [GeV]";
+      met_px = met.px();
+      met_py = met.py();
+      if (!metIncludesMuons_) {
+            for (unsigned int i=0; i<muonCollectionSize; i++) {
+                  const Muon& mu = muonCollection->at(i);
+                  if (!mu.isGlobalMuon()) continue;
+                  met_px -= mu.px();
+                  met_py -= mu.py();
+            }
+      }
+      double met_et = sqrt(met_px*met_px+met_py*met_py);
+      LogTrace("") << ">>> MET, MET_px, MET_py: " << met_et << ", " << met_px << ", " << met_py << " [GeV]";
       met_before_->Fill(met_et);
 
-      // Vertices in the event
-      Handle<View<reco::Vertex> > vertexCollection;
-           if (!ev.getByLabel(vertexTag_, vertexCollection)) {
-                 LogError("") << ">>> Vertex collection does not exist !!!";
-                 return;
+      // Trigger
+      Handle<TriggerResults> triggerResults;
+      if (!ev.getByLabel(trigTag_, triggerResults)) {
+	//LogWarning("") << ">>> TRIGGER collection does not exist !!!";
+	return;
+      }
+      const edm::TriggerNames & trigNames = ev.triggerNames(*triggerResults);
+      bool trigger_fired = false;
+      /*
+      for (unsigned int i=0; i<triggerResults->size(); i++) {
+            if (triggerResults->accept(i)) {
+                  LogTrace("") << "Accept by: " << i << ", Trigger: " << trigNames.triggerName(i);
             }
-      unsigned int vertexCollectionSize = vertexCollection->size();
+      }
+      */
 
-      
-
-      int nvvertex = 0;
-      for (unsigned int i=0; i<vertexCollectionSize; i++) {
-            const Vertex& vertex = vertexCollection->at(i);
-            if (vertex.isValid()) nvvertex++;
+      // the following gives error on CRAFT08 data where itrig1=19 (vector index out of range)
+      /*
+      int itrig1 = trigNames.triggerIndex(muonTrig_);
+      if (triggerResults->accept(itrig1)) trigger_fired = true;
+      */
+      //suggested replacement: lm250909
+      for (unsigned int i=0; i<triggerResults->size(); i++) {
+        std::string trigName = trigNames.triggerName(i);
+	if ( trigName == muonTrig_ && triggerResults->accept(i)) trigger_fired = true;
       }
 
-      npvs_before_->Fill(nvvertex);
 
-      bool trigger_fired = false;
-      bool not_use_trigger = false;  
-      if(muonTrig_.at(0)==""){not_use_trigger=true;}
-      // Trigger
-            Handle<TriggerResults> triggerResults;
-            if (!ev.getByLabel(trigTag_, triggerResults)) {
-		//LogWarning("") << ">>> TRIGGER collection does not exist !!!";
-		return;
-            }
-            const edm::TriggerNames & trigNames = ev.triggerNames(*triggerResults);
-
-            for (unsigned int i=0; i<triggerResults->size(); i++)
-            {
-              std::string trigName = trigNames.triggerName(i);
-              for (unsigned int j = 0; j < muonTrig_.size(); j++)
-                {
-                  if ( trigName == muonTrig_.at(j) && triggerResults->accept(i))
-                  {
-                    trigger_fired = true;
-                  }
-                }
-            }
-
-            LogTrace("") << ">>> Trigger bit: " << trigger_fired << " for one of ( " ;
-            for (unsigned int k = 0; k < muonTrig_.size(); k++)
-            {
-              LogTrace("") << muonTrig_.at(k) << " ";
-            }
-            LogTrace("") << ")";
-      
+      LogTrace("") << ">>> Trigger bit: " << trigger_fired << " (" << muonTrig_ << ")";
       trig_before_->Fill(trigger_fired);
 
+      // Loop to reject/control Z->mumu is done separately
+      unsigned int nmuonsForZ1 = 0;
+      unsigned int nmuonsForZ2 = 0;
+      for (unsigned int i=0; i<muonCollectionSize; i++) {
+            const Muon& mu = muonCollection->at(i);
+            if (!mu.isGlobalMuon()) continue;
+            double pt = mu.pt();
+            if (pt>ptThrForZ1_) nmuonsForZ1++;
+            if (pt>ptThrForZ2_) nmuonsForZ2++;
 
-
+            for (unsigned int j=0; j<muonCollectionSize; j++) {
+                  if (i==j) continue;
+                  const Muon& mu2 = muonCollection->at(j);
+                 // Glb + Glb  
+                 if (mu2.isGlobalMuon() && j>i ){
+                         const math::XYZTLorentzVector ZRecoGlb (mu.px()+mu2.px(), mu.py()+mu2.py() , mu.pz()+mu2.pz(), mu.p()+mu2.p());
+                         dimuonmass_before_->Fill(ZRecoGlb.mass());
+                 }
+                  // Glb + Standalone 
+                 if (mu2.isStandAloneMuon()){
+                         const math::XYZTLorentzVector ZRecoSta (mu2.outerTrack()->px()+mu.px(), mu.py()+mu.outerTrack()->py() , mu.pz()+mu2.outerTrack()->pz(), mu.p()+mu2.outerTrack()->p());
+                         dimuonSAmass_before_->Fill(ZRecoSta.mass());
+                 }
+                  // Standalone + Standalone 
+                 if (mu2.isStandAloneMuon() && j>i){
+                         const math::XYZTLorentzVector ZRecoStaSta (mu2.outerTrack()->px()+mu.outerTrack()->px(), mu.outerTrack()->py()+mu.outerTrack()->py() , mu.outerTrack()->pz()+mu2.outerTrack()->pz(), mu.outerTrack()->p()+mu2.outerTrack()->p());
+                         dimuonSASAmass_before_->Fill(ZRecoStaSta.mass());
+                 }
+            }
+      
+      }
+      LogTrace("") << "> Z rejection: muons above " << ptThrForZ1_ << " [GeV]: " << nmuonsForZ1;
+      LogTrace("") << "> Z rejection: muons above " << ptThrForZ2_ << " [GeV]: " << nmuonsForZ2;
+      nz1_before_->Fill(nmuonsForZ1);
+      nz2_before_->Fill(nmuonsForZ2);
+      
       // Jet collection
       Handle<View<Jet> > jetCollection;
       if (!ev.getByLabel(jetTag_, jetCollection)) {
@@ -308,13 +316,6 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup &) {
       int njets = 0;
       for (unsigned int i=0; i<jetCollectionSize; i++) {
             const Jet& jet = jetCollection->at(i);
-                  double minDistance=99999; // This is in order to use PFJets
-                  for (unsigned int i=0; i<muonCollectionSize; i++) {
-                        const Muon& mu = muonCollection->at(i);
-                        double distance = sqrt( (mu.eta()-jet.eta())*(mu.eta()-jet.eta()) +(mu.phi()-jet.phi())*(mu.phi()-jet.phi()) );      
-                        if (minDistance>distance) minDistance=distance;
-                  }
-                  if (minDistance<0.3) continue; // 0.3 is the isolation cone around the muon
             if (jet.et()>eJetMin_) njets++;
       }
       LogTrace("") << ">>> Total number of jets: " << jetCollectionSize;
@@ -330,13 +331,11 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup &) {
       bool nz1_hist_done = false;
       bool nz2_hist_done = false;
       bool njets_hist_done = false;
-      bool pv_hist_done = false;
-      bool charge_hist_done = false;
 
       // Central W->mu nu selection criteria
-      const int NFLAGS = 11;
+      const int NFLAGS = 13;
       bool muon_sel[NFLAGS];
-      bool muon4Z=false;
+      bool muon4Z=true;
 
       for (unsigned int i=0; i<muonCollectionSize; i++) {
             for (int j=0; j<NFLAGS; ++j) {
@@ -358,35 +357,29 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup &) {
             LogTrace("") << "\t... pt, eta: " << pt << " [GeV], " << eta;;
             if (pt>ptCut_) muon_sel[0] = true; 
             if (fabs(eta)<etaCut_) muon_sel[1] = true; 
-
-            double charge=mu.charge();
+            if (pt<ptThrForZ1_) { muon4Z = false;}
 
             // d0, chi2, nhits quality cuts
-            double dxy = gm->dxy(beamSpotHandle->position());
+            double dxy = tk->dxy(beamSpotHandle->position());
             double normalizedChi2 = gm->normalizedChi2();
-            double trackerHits = tk->hitPattern().numberOfValidTrackerHits();
-            int pixelHits = tk->hitPattern().numberOfValidPixelHits();
-            int muonHits = gm->hitPattern().numberOfValidMuonHits();
-            int nMatches = mu.numberOfMatches();
-
+            double trackerHits = tk->numberOfValidHits();
+            double validmuonhits=gm->hitPattern().numberOfValidMuonHits();
             LogTrace("") << "\t... dxy, normalizedChi2, trackerHits, isTrackerMuon?: " << dxy << " [cm], " << normalizedChi2 << ", " << trackerHits << ", " << mu.isTrackerMuon();
             if (fabs(dxy)<dxyCut_) muon_sel[2] = true; 
-
-            bool quality=true;
-            
-            if (normalizedChi2>normalizedChi2Cut_) quality =false; 
-            if (trackerHits<trackerHitsCut_) quality =false;
-            if (pixelHits<pixelHitsCut_) quality =false;
-            if (muonHits<muonHitsCut_) quality=false;;
-            if (!mu.isTrackerMuon()) quality=false;
-            if (nMatches<nMatchesCut_) quality=false;
-            muon_sel[3]=quality;
-
+//            if (normalizedChi2<normalizedChi2Cut_) muon_sel[3] = true; 
+            if (muon::isGoodMuon(mu,muon::GlobalMuonPromptTight)) muon_sel[3] = true;
+            if (trackerHits>=trackerHitsCut_) muon_sel[4] = true; 
+            if (mu.isTrackerMuon()) muon_sel[5] = true; 
 
             pt_before_->Fill(pt);
             eta_before_->Fill(eta);
             dxy_before_->Fill(dxy);
-            muoncharge_before_->Fill(charge);
+            chi2_before_->Fill(normalizedChi2);
+            nhits_before_->Fill(trackerHits);
+            muonhits_before_->Fill(validmuonhits);
+            tkmu_before_->Fill(mu.isTrackerMuon());
+
+            bool quality = muon_sel[4]*muon_sel[2]* muon_sel[3]* muon_sel[5];
             goodewkmuon_before_->Fill(quality);
 
             // Isolation cuts
@@ -396,45 +389,42 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup &) {
                   isovar += mu.isolationR03().hadEt;
             }
             if (isRelativeIso_) isovar /= pt;
-            if (isovar<isoCut03_) muon_sel[4] = true; 
+            if (isovar<isoCut03_) muon_sel[6] = true; 
+            if (isovar>=isoCut03_) { muon4Z = false;}
 
             LogTrace("") << "\t... isolation value" << isovar <<", isolated? " << muon_sel[6];
             iso_before_->Fill(isovar);
 
 
             // HLT (not mtched to muon for the time being)
-            if (trigger_fired) muon_sel[5] = true; 
-            else if(not_use_trigger==true) muon_sel[5] = true;  // In order to allow trigger not to be used for selection
-
-            // For Z:
-            if (pt>ptThrForZ1_ && fabs(eta)<etaCut_ && fabs(dxy)<dxyCut_ && quality && trigger_fired && isovar<isoCut03_) { muon4Z = true;}
-
+            if (trigger_fired) muon_sel[7] = true; 
+            else { muon4Z = false;}
 
             // MET/MT cuts
             double w_et = met_et+mu.pt();
-            double w_px = met.px()+mu.px();
-            double w_py = met.py()+mu.py();
+            double w_px = met_px+mu.px();
+            double w_py = met_py+mu.py();
             
             double massT = w_et*w_et - w_px*w_px - w_py*w_py;
             massT = (massT>0) ? sqrt(massT) : 0;
 
             LogTrace("") << "\t... W mass, W_et, W_px, W_py: " << massT << ", " << w_et << ", " << w_px << ", " << w_py << " [GeV]";
-            if (massT>mtMin_ && massT<mtMax_) muon_sel[6] = true; 
+            if (massT>mtMin_ && massT<mtMax_) muon_sel[8] = true; 
             mt_before_->Fill(massT);
-            if (met_et>metMin_ && met_et<metMax_) muon_sel[7] = true; 
+            if (met_et>metMin_ && met_et<metMax_) muon_sel[9] = true; 
 
             // Acoplanarity cuts
-            Geom::Phi<double> deltaphi(mu.phi()-atan2(met.py(),met.px()));
+            Geom::Phi<double> deltaphi(mu.phi()-atan2(met_py,met_px));
             double acop = deltaphi.value();
             if (acop<0) acop = - acop;
             acop = M_PI - acop;
             LogTrace("") << "\t... acoplanarity: " << acop;
-            if (acop<acopCut_) muon_sel[8] = true; 
+            if (acop<acopCut_) muon_sel[10] = true; 
             acop_before_->Fill(acop);
 
             // Remaining flags (from global event information)
-            if (nmuonsForZ1<1 || nmuonsForZ2<2) muon_sel[9] = true; 
-            if (njets<=nJetMax_) muon_sel[10] = true; 
+            if (nmuonsForZ1<1 || nmuonsForZ2<2) muon_sel[11] = true; 
+            if (njets<=nJetMax_) muon_sel[12] = true; 
 
             // Collect necessary flags "per muon"
             int flags_passed = 0;
@@ -445,10 +435,10 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup &) {
             bool all_sel_this = true;
             for (int j=0; j<NFLAGS; ++j) {
                   if (muon_sel[j]) flags_passed += 1;
-                  if (j<4 && !muon_sel[j]) rec_sel_this = false;
-                  if (j<5 && !muon_sel[j]) iso_sel_this = false;
-                  if (j<6 && !muon_sel[j]) hlt_sel_this = false;
-                  if (j<8 && !muon_sel[j]) met_sel_this = false;
+                  if (j<6 && !muon_sel[j]) rec_sel_this = false;
+                  if (j<7 && !muon_sel[j]) iso_sel_this = false;
+                  if (j<8 && !muon_sel[j]) hlt_sel_this = false;
+                  if (j<11 && !muon_sel[j]) met_sel_this = false;
                   if (!muon_sel[j]) all_sel_this = false;
             }
 
@@ -471,59 +461,73 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup &) {
                         eta_after_->Fill(eta);
                   if (!muon_sel[2] || flags_passed==NFLAGS) 
                         dxy_after_->Fill(dxy);
-                  if (!muon_sel[3] || flags_passed==NFLAGS)
-                        goodewkmuon_after_->Fill(quality);
+                  if (!muon_sel[3] || flags_passed==NFLAGS){ 
+                        chi2_after_->Fill(normalizedChi2);
+                        muonhits_after_->Fill(validmuonhits);
+                  }
                   if (!muon_sel[4] || flags_passed==NFLAGS) 
-                        iso_after_->Fill(isovar);
+                        nhits_after_->Fill(trackerHits);
                   if (!muon_sel[5] || flags_passed==NFLAGS) 
+                        tkmu_after_->Fill(mu.isTrackerMuon());
+                  if (!muon_sel[6] || flags_passed==NFLAGS) 
+                        iso_after_->Fill(isovar);
+                  if (!muon_sel[2]||!muon_sel[3] || !muon_sel[4] || !muon_sel[5] || flags_passed==NFLAGS) 
+                        goodewkmuon_after_->Fill(quality);
+                  if (!muon_sel[7] || flags_passed==NFLAGS) 
                         if (!hlt_hist_done) trig_after_->Fill(trigger_fired);
                         hlt_hist_done = true;
-                  if (!muon_sel[6] || flags_passed==NFLAGS) 
+                  if (!muon_sel[8] || flags_passed==NFLAGS) 
                         mt_after_->Fill(massT);
-                  if (!muon_sel[7] || flags_passed==NFLAGS) 
+                  if (!muon_sel[9] || flags_passed==NFLAGS) 
                         if (!met_hist_done) met_after_->Fill(met_et);
                         met_hist_done = true;
-                  if (!muon_sel[8] || flags_passed==NFLAGS) 
+                  if (!muon_sel[10] || flags_passed==NFLAGS) 
                         acop_after_->Fill(acop);
-                  if (!muon_sel[9] || flags_passed==NFLAGS) 
+                  if (!muon_sel[11] || flags_passed==NFLAGS) 
                         if (!nz1_hist_done) nz1_after_->Fill(nmuonsForZ1);
                         nz1_hist_done = true;
-                  if (!muon_sel[9] || flags_passed==NFLAGS) 
+                  if (!muon_sel[11] || flags_passed==NFLAGS) 
                         if (!nz2_hist_done) nz2_after_->Fill(nmuonsForZ2);
                         nz2_hist_done = true;
-                  if (!muon_sel[10] || flags_passed==NFLAGS) { 
+                  if (!muon_sel[12] || flags_passed==NFLAGS) 
                         if (!njets_hist_done) njets_after_->Fill(njets);
                         njets_hist_done = true;
-                  if( flags_passed==NFLAGS ) {
-                        if (!pv_hist_done) npvs_after_->Fill(nvvertex);
-                        if (!charge_hist_done) muoncharge_after_->Fill(charge);
-                     }
-                        pv_hist_done=true; charge_hist_done=true;   
-                  }  
             }
 
 
             // The cases in which the event is rejected as a Z are considered independently:
-            if ( muon4Z &&  !muon_sel[9]){
+            if ( muon4Z &&  !muon_sel[11]){
                    // Plots for 2 muons       
                    bool usedMuon=false;
-                   for (unsigned int j=i+1; j<muonCollectionSize; j++) {
+                   for (unsigned int j=0; j<muonCollectionSize; j++) {
+                         if (i==j) continue;
                          const Muon& mu2 = muonCollection->at(j);
-                              if (!mu2.isGlobalMuon()) continue;
-                              if (mu2.charge() * charge != -1 ) continue;
-                                    double pt2 = mu2.pt(); if (pt2<=ptThrForZ1_) continue;
-                                    double eta2=mu2.eta(); if (fabs(eta2)>etaCut_) continue;
-                                    double isovar2 = mu2.isolationR03().sumPt; 
+                                    double pt2 = mu2.pt();
+                                    double isovar2 = mu2.isolationR03().sumPt;
                                     if (isCombinedIso_) {
                                           isovar2 += mu2.isolationR03().emEt;
                                           isovar2 += mu2.isolationR03().hadEt;
                                     }
                                     if (isRelativeIso_) isovar2 /= pt2;
-                                    if (isovar2>=isoCut03_) continue;
+
+                          if (pt2<=ptThrForZ1_ || isovar2>=isoCut03_) continue;
+                  
+                  // Glb + Glb  
+                             if (mu2.isGlobalMuon() && j>i ){
                                const math::XYZTLorentzVector ZRecoGlb (mu.px()+mu2.px(), mu.py()+mu2.py() , mu.pz()+mu2.pz(), mu.p()+mu2.p());
                                dimuonmass_after_->Fill(ZRecoGlb.mass());
                                if(!usedMuon){ptmuonZ_after_->Fill(mu.pt()); usedMuon=true;}
-                  }
+                             }
+                  // Glb + Standalone 
+                             if (mu2.isStandAloneMuon()){
+                              const math::XYZTLorentzVector ZRecoSta (mu2.outerTrack()->px()+mu.px(), mu.py()+mu.outerTrack()->py() , mu.pz()+mu2.outerTrack()->pz(), mu.p()+mu2.outerTrack()->p());
+                              dimuonSAmass_after_->Fill(ZRecoSta.mass());
+                             }
+                  // Standalone + Standalone 
+                             if (mu2.isStandAloneMuon() && j>i){
+                              const math::XYZTLorentzVector ZRecoStaSta (mu2.outerTrack()->px()+mu.outerTrack()->px(), mu.outerTrack()->py()+mu.outerTrack()->py() , mu.outerTrack()->pz()+mu2.outerTrack()->pz(), mu.outerTrack()->p()+mu2.outerTrack()->p());
+                              dimuonSASAmass_after_->Fill(ZRecoStaSta.mass());
+                             }
             }
 
 
@@ -533,7 +537,7 @@ void EwkMuDQM::analyze (const Event & ev, const EventSetup &) {
 
 
 
-      
+      }
 
       return;
 

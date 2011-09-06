@@ -98,6 +98,8 @@ void TriggerReportHelpers::fillPathIndexTable(std::string &pathstring)
       }
     }
     for(; i<paths_.size(); i++) {
+      if(pathIndexMap_.find(paths_[i])==pathIndexMap_.end())
+	pathIndexMap_[paths_[i]] = i;
       xdata::Table::iterator it = triggerReportAsTableWithNames_.append();
       it->setField("pathIndex",pathIndexMap_[paths_[i]]);
     }
@@ -376,7 +378,7 @@ void TriggerReportHelpers::packTriggerReport(edm::TriggerReport &tr,
       unsigned int j = i + trp->trigPathsInMenu;
       edm::FUShmOutputModule *o = sor->get(outname_[j]);
       if(!o) {
-	sor->dumpRegistry();
+	//	sor->dumpRegistry();
 	continue;
       }
       trp->endPathSummaries[i].timesRun    = 
@@ -417,7 +419,7 @@ void TriggerReportHelpers::packTriggerReport(edm::TriggerReport &tr,
     {
       edm::FUShmOutputModule *o = sor->get(outname_[i+trp->trigPathsInMenu]);
       if(!o) {
-	sor->dumpRegistry();
+	//	sor->dumpRegistry();
 	continue;
       }
       trp_.endPathSummaries[i].timesPassed = o->getCounts();
@@ -439,42 +441,24 @@ void TriggerReportHelpers::sumAndPackTriggerReport(MsgBuf &buf)
 	      << " should be " << lumiSectionIndex_ << " will be skipped" << std::endl;
     return;
   }
-  trs->lumiSection = lumiSectionIndex_;
-  trs->prescaleIndex = trp->prescaleIndex;
-
-  //add to the event summary
-  trs->eventSummary.totalEvents += trp->eventSummary.totalEvents;
-  trs->eventSummary.totalEventsPassed += trp->eventSummary.totalEventsPassed;
-  trs->eventSummary.totalEventsFailed += trp->eventSummary.totalEventsFailed;
-
   //get total paths in the menu
   if(trs->trigPathsInMenu != trp->trigPathsInMenu) 
-    XCEPT_RAISE(evf::Exception,"trig summary inconsistency");
+    {
+      std::ostringstream ost;
+      ost << "trig path summary inconsistency " 
+	  << trs->trigPathsInMenu << " vs. " << trp->trigPathsInMenu;
+      std::cout << ost.str() << std::endl;
+      XCEPT_RAISE(evf::Exception,ost.str());
+    }
   if(trs->endPathsInMenu != trp->endPathsInMenu)
-    XCEPT_RAISE(evf::Exception,"trig summary inconsistency");
-
-  //traverse the trigger report and sum relevant parts, check otherwise
-  // loop on paths
-  for(int i = 0; i < trp->trigPathsInMenu; i++)
     {
-
-      // fill individual path summaries
-      trs->trigPathSummaries[i].timesRun += trp->trigPathSummaries[i].timesRun;
-      trs->trigPathSummaries[i].timesPassed += trp->trigPathSummaries[i].timesPassed;
-      trs->trigPathSummaries[i].timesPassedPs += trp->trigPathSummaries[i].timesPassedPs;
-      trs->trigPathSummaries[i].timesPassedL1 += trp->trigPathSummaries[i].timesPassedL1;
-      trs->trigPathSummaries[i].timesFailed += trp->trigPathSummaries[i].timesFailed; 
-      trs->trigPathSummaries[i].timesExcept += trp->trigPathSummaries[i].timesExcept;
+      std::ostringstream ost;
+      ost << "trig endpath summary inconsistency " 
+	  << trs->endPathsInMenu << " vs. " << trp->endPathsInMenu;
+      std::cout << ost.str() << std::endl;
+      XCEPT_RAISE(evf::Exception,ost.str());
     }
-  for(int i = 0; i < trp->endPathsInMenu; i++)
-    {
-      trs->endPathSummaries[i].timesRun += trp->endPathSummaries[i].timesRun;
-      trs->endPathSummaries[i].timesPassed += trp->endPathSummaries[i].timesPassed;
-      trs->endPathSummaries[i].timesPassedPs += trp->endPathSummaries[i].timesPassedPs;
-      trs->endPathSummaries[i].timesPassedL1 += trp->endPathSummaries[i].timesPassedL1;
-      trs->endPathSummaries[i].timesFailed += trp->endPathSummaries[i].timesFailed;
-      trs->endPathSummaries[i].timesExcept += trp->endPathSummaries[i].timesExcept;
-    }
+  funcs::addToReport(trs,trp,lumiSectionIndex_);
   
 }  
 
@@ -483,32 +467,7 @@ void TriggerReportHelpers::resetPackedTriggerReport()
 
   TriggerReportStatic *trp = (TriggerReportStatic *)cache_->mtext;
 
-  trp->lumiSection = 0;
-  trp->prescaleIndex = 0;
-  //copy the event summary
-  trp->eventSummary.totalEvents = 0;
-  trp->eventSummary.totalEventsPassed = 0;
-  trp->eventSummary.totalEventsFailed = 0;
-
-  for(int i = 0; i < trp->trigPathsInMenu; i++)
-    {
-      // reset individual path summaries
-      trp->trigPathSummaries[i].timesRun = 0;
-      trp->trigPathSummaries[i].timesPassed = 0; 
-      trp->trigPathSummaries[i].timesPassedPs = 0; 
-      trp->trigPathSummaries[i].timesPassedL1 = 0; 
-      trp->trigPathSummaries[i].timesFailed = 0;
-      trp->trigPathSummaries[i].timesExcept = 0;
-    }
-  for(int i = 0; i < trp->endPathsInMenu; i++)
-    {
-      trp->endPathSummaries[i].timesRun    = 0;
-      trp->endPathSummaries[i].timesPassed = 0;
-      trp->endPathSummaries[i].timesPassedPs = 0; 
-      trp->endPathSummaries[i].timesPassedL1 = 0; 
-      trp->endPathSummaries[i].timesFailed = 0;
-      trp->endPathSummaries[i].timesExcept = 0;
-    }
+  funcs::reset(trp);
 
   lumiSectionIndex_++;
 }

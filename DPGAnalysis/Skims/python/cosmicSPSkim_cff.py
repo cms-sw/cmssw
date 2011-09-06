@@ -76,12 +76,4 @@ rsWithMaterialTracksP5Sequence = cms.Sequence(rsWithMaterialTracksP5Filter)
 globalCosmicMuons1LegSequence = cms.Sequence(globalCosmicMuons1LegFilter)
 ctfWithMaterialTracksP5Sequence = cms.Sequence(ctfWithMaterialTracksP5Filter)
 
-cosmicSPSkim=cms.Sequence(cosmicMuonsBarrelOnlySequence*
-                          cosmicMuonsSequence*
-                          cosmicMuons1LegSequence*
-                          globalCosmicMuonsBarrelOnlySequence*
-                          cosmictrackfinderP5Sequence*
-                          globalCosmicMuonsSequence*
-                          rsWithMaterialTracksP5Sequence*
-                          globalCosmicMuons1LegSequence*
-                          ctfWithMaterialTracksP5Sequence)  
+

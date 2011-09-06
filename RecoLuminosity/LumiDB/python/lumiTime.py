@@ -1,4 +1,4 @@
-import os,sys,time
+import os,sys,time,calendar
 from datetime import datetime,timedelta
 
 class lumiTime(object):
@@ -25,12 +25,23 @@ class lumiTime(object):
         given a orbit number, return its corresponding time. Default run begin time counting from orbit=0
         '''
         return self.StrToDatetime(begStrTime)+(orbitnumber-begorbit)*self.OrbitDuration()
-    def OrbitToTimestamp(self,begStrTime,orbitnumber,begorbit=0):
+    def OrbitToLocalTimestamp(self,begStrTime,orbitnumber,begorbit=0):
         '''
         given a orbit number, return its corresponding unixtimestamp. Default run begin time counting from orbit=0
         '''
+        os.environ['TZ']='CET'
+        time.tzset()
         orbittime=self.OrbitToTime(begStrTime,orbitnumber,begorbit)
         return time.mktime(orbittime.timetuple())+orbittime.microsecond/1e6
+
+    def OrbitToUTCTimestamp(self,begStrTime,orbitnumber,begorbit=0):
+        '''
+        given a orbit number, return its corresponding unixtimestamp. Default run begin time counting from orbit=0
+        '''
+        os.environ['TZ']='UTC'
+        time.tzset()
+        orbittime=self.OrbitToTime(begStrTime,orbitnumber,begorbit)
+        return time.mktime(orbittime.timetuple())+(orbittime.microsecond/1e6)
     def StrToDatetime(self,strTime,customfm=''):
         '''convert string timestamp to python datetime
         '''
@@ -61,4 +72,5 @@ if __name__=='__main__':
     print 'orbit 0 : ',c.OrbitToTime(begTimeStr,0,0)
     print 'orbit 1 : ',c.OrbitToTime(begTimeStr,1,0)
     print 'orbit 262144 : ',c.OrbitToTime(begTimeStr,262144,0)
-
+    print 'orbit 0 : ',c.OrbitToUTCTimestamp(begTimeStr,0,0);
+    print 'orbit 0 : ',c.OrbitToLocalTimestamp(begTimeStr,0,0);

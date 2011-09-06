@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Jun 13 09:58:53 EDT 2008
-// $Id: FWGUIEventDataAdder.cc,v 1.49 2010/06/23 12:50:27 eulisse Exp $
+// $Id: FWGUIEventDataAdder.cc,v 1.50 2010/12/02 09:22:26 matevz Exp $
 //
 
 // system include files
@@ -536,6 +536,8 @@ FWGUIEventDataAdder::createWindow()
    m_tableWidget->Connect("rowClicked(Int_t,Int_t,Int_t,Int_t,Int_t)",
                           "FWGUIEventDataAdder",this,
                           "rowClicked(Int_t,Int_t,Int_t,Int_t,Int_t)");
+
+   m_tableWidget->disableGrowInWidth();
    m_name->SetState(true);
    resetButton->SetEnabled(true);
    resetButton->Connect("Clicked()", "FWGUIEventDataAdder", this, "resetNameEntry()");

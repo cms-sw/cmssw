@@ -1,4 +1,4 @@
-// $Id: CurlInterface.cc,v 1.1 2009/08/20 13:44:38 mommsen Exp $
+// $Id: CurlInterface.cc,v 1.2.6.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: CurlInterface.cc
 
 #include "EventFilter/StorageManager/interface/CurlInterface.h"
@@ -10,7 +10,7 @@ CURLcode CurlInterface::getContent
 (
   const std::string& url,
   const std::string& user,
-  std::string& content
+  Content& content
 )
 {
   CURL* curl = curl_easy_init();
@@ -27,7 +27,7 @@ CURLcode CurlInterface::postBinaryMessage
   const std::string& url,
   void* buf,
   size_t size,
-  std::string& content
+  Content& content
 )
 {
   CURL* curl = curl_easy_init();
@@ -48,14 +48,14 @@ CURLcode CurlInterface::postBinaryMessage
 }
 
 
-CURLcode CurlInterface::do_curl(CURL* curl, const std::string& url, std::string& content)
+CURLcode CurlInterface::do_curl(CURL* curl, const std::string& url, Content& content)
 {
   curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
   curl_easy_setopt(curl, CURLOPT_TIMEOUT, 4); // seconds
   curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1); // do not send any signals
   curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, stor::CurlInterface::writeToString);  
   curl_easy_setopt(curl, CURLOPT_WRITEDATA, &content);  
-  curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorBuffer); 
+  curl_easy_setopt(curl, CURLOPT_ERRORBUFFER, errorBuffer_); 
   curl_easy_setopt(curl, CURLOPT_FAILONERROR,1); 
   
   CURLcode returnCode = curl_easy_perform(curl);
@@ -63,23 +63,28 @@ CURLcode CurlInterface::do_curl(CURL* curl, const std::string& url, std::string&
   curl_easy_cleanup(curl);
   
   if (returnCode != CURLE_OK)
-    content = errorBuffer;
-  
+  {
+    size_t i = 0;
+    content.clear();
+    while ( errorBuffer_[i] != '\0' )
+    {
+      content.push_back( errorBuffer_[i] );
+      ++i;
+    }
+    content.push_back('\0');
+  }
+
   return returnCode;
 }
 
 
-size_t CurlInterface::writeToString(char *data, size_t size, size_t nmemb, std::string *buffer)
+size_t CurlInterface::writeToString(char *data, size_t size, size_t nmemb, Content* buffer)
 {
-  int result = 0;
+  if (buffer == NULL) return 0;
 
-  if (buffer != NULL)
-  {
-    buffer->append(data, size * nmemb);
-    result = size * nmemb;
-  }
-  
-  return result;
+  const size_t length = size * nmemb;
+  buffer->insert(buffer->end(), data, data+length);
+  return length;
 }
 
 

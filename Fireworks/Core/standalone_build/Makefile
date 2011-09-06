@@ -11,7 +11,7 @@ endif
 # library extensions
 ifeq ($(shell uname), Linux)
 		CC := c++
-		COMPILERFLAGS := -Wall -O2 -m32 -fPIC ${USER_CXXFLAGS}
+		COMPILERFLAGS := -Wall -O2 -m32 -fPIC ${USER_CXXFLAGS} #-lprofiler
 		SO_EXT := so
 		MAKESHAREDLIB := -shared
 else
@@ -39,7 +39,7 @@ export LinkerOptions := -Wl,-rpath -Wl,
 
 # linux specific, tarball ships compiler
 ifeq ($(shell uname), Linux)
-	export LD_LIBRARY_PATH := ${DIR}/external/gcc/lib:/usr/lib:$(FWROOTSYS)/lib
+	export LD_LIBRARY_PATH := /usr/local/lib:${DIR}/external/gcc/lib:/usr/lib:$(FWROOTSYS)/lib
 	export PATH :=	${DIR}/external/gcc/bin:/Usr/bin:$(PATH)
 else
 	export PATH :=	${DIR}/external/gcc/bin:$(PATH)

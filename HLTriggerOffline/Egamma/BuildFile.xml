@@ -6,7 +6,6 @@
 <use   name="DataFormats/HepMCCandidate"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
 <use   name="HLTrigger/HLTcore"/>
-<use   name="boost"/>
 <flags   EDM_PLUGIN="1"/>
 <export>
 </export>

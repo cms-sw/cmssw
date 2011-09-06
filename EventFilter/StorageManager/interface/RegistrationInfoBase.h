@@ -1,17 +1,20 @@
-// $Id: RegistrationInfoBase.h,v 1.5 2010/04/16 14:39:34 mommsen Exp $
+// $Id: RegistrationInfoBase.h,v 1.6.4.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: RegistrationInfoBase.h 
 
-#ifndef StorageManager_RegistrationInfoBase_h
-#define StorageManager_RegistrationInfoBase_h
+#ifndef EventFilter_StorageManager_RegistrationInfoBase_h
+#define EventFilter_StorageManager_RegistrationInfoBase_h
 
 #include <string>
 
 #include <boost/shared_ptr.hpp>
 
+#include "EventFilter/StorageManager/interface/Configuration.h"
 #include "EventFilter/StorageManager/interface/ConsumerID.h"
 #include "EventFilter/StorageManager/interface/EnquingPolicyTag.h"
 #include "EventFilter/StorageManager/interface/QueueID.h"
 #include "EventFilter/StorageManager/interface/Utils.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 
 namespace stor {
 
@@ -22,14 +25,31 @@ namespace stor {
    * registration info objects.
    *
    * $Author: mommsen $
-   * $Revision: 1.5 $
-   * $Date: 2010/04/16 14:39:34 $
+   * $Revision: 1.6.4.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
 
   class RegistrationInfoBase
   {
 
   public:
+    
+    RegistrationInfoBase
+    (
+      const std::string& consumerName,
+      const std::string& remoteHost,
+      const int& queueSize,
+      const enquing_policy::PolicyTag& queuePolicy,
+      const utils::Duration_t& secondsToStale
+    );
+
+    RegistrationInfoBase
+    (
+      const edm::ParameterSet& pset,
+      const std::string& remoteHost,
+      const EventServingParams& eventServingParams,
+      const bool useEventServingParams
+    );
 
     /**
        The virtual destructor allows polymorphic
@@ -38,9 +58,9 @@ namespace stor {
     virtual ~RegistrationInfoBase() {};
 
     /**
-       Return whether or not *this is a valid registration
+       Mark time when consumer last contacted us
     */
-    bool isValid();
+    void consumerContact();
 
     /**
        Register the consumer represented by this registration with the
@@ -49,66 +69,82 @@ namespace stor {
     void registerMe(EventDistributor* dist);
 
     /**
-     * Returns the ID of the queue corresponding to this consumer
-     * registration.
+       Returns a formatted string which contains the information about the event type.
      */
-    QueueID queueId() const;
-    
-    /**
-       Set the consumer ID.
-     */
-    void setQueueId(QueueID const& id);
+    void eventType(std::ostream&) const;
 
     /**
-     * Returns the enquing policy requested by the consumer
-     * registration.
-     */
-    enquing_policy::PolicyTag queuePolicy() const;
+      Return the ParameterSet containing the consumer registration infos
+    */
+    edm::ParameterSet getPSet() const;
 
     /**
-       Returns the name supplied by the consumer.
+      Print queue information into ostream
      */
-    std::string consumerName() const;
+    void queueInfo(std::ostream&) const;
 
-    /**
-       Returns the ID given to this consumer.
-     */
-    ConsumerID consumerId() const;
+    // Setters:
+    void setMinEventRequestInterval(const utils::Duration_t& interval) { minEventRequestInterval_ = interval; }
 
-    /**
-       Set the consumer ID.
-     */
-    void setConsumerId(const ConsumerID& id);
+    // Accessors
+    bool isValid() const { return consumerId_.isValid(); }
+    const QueueID& queueId() const { return queueId_; }
+    const enquing_policy::PolicyTag& queuePolicy() const { return queuePolicy_; }
+    const std::string& consumerName() const { return consumerName_; }
+    const std::string& remoteHost() const { return remoteHost_; }
+    const std::string& sourceURL() const { return sourceURL_; }
+    const ConsumerID& consumerId() const { return consumerId_; }
+    const int& queueSize() const { return queueSize_; }
+    const int& maxConnectTries() const { return maxConnectTries_; }
+    const int& connectTrySleepTime() const { return connectTrySleepTime_; }
+    const int& retryInterval() const { return retryInterval_; }
+    const utils::Duration_t& minEventRequestInterval() const { return minEventRequestInterval_; }
+    const utils::Duration_t& secondsToStale() const { return secondsToStale_; }
+    bool isStale(const utils::TimePoint_t&) const;
+    double lastContactSecondsAgo(const utils::TimePoint_t&) const;
 
-    /**
-       Returns the queue Size
-     */
-    int queueSize() const;
+    // Setters
+    void setQueueId(const QueueID& id) { queueId_ = id; }
+    void setSourceURL(const std::string& url) { sourceURL_ = url; }
+    void setConsumerId(const ConsumerID& id) { consumerId_ = id; }
 
-    /**
-       Returns the time until the queue becomes stale
-     */
-    utils::duration_t secondsToStale() const;
+    // Comparison:
+    virtual bool operator<(const RegistrationInfoBase&) const;
+    virtual bool operator==(const RegistrationInfoBase&) const;
+    virtual bool operator!=(const RegistrationInfoBase&) const;
+
+
+  protected:
+
+    virtual void do_registerMe(EventDistributor*) = 0;
+    virtual void do_eventType(std::ostream&) const = 0;
+    virtual void do_appendToPSet(edm::ParameterSet&) const = 0;
 
 
   private:
-    virtual void do_registerMe(EventDistributor*) = 0;
-    virtual QueueID do_queueId() const = 0;
-    virtual void do_setQueueId(QueueID const& id) = 0;
-    virtual std::string do_consumerName() const = 0;
-    virtual ConsumerID do_consumerId() const = 0;
-    virtual void do_setConsumerId(ConsumerID const& id) = 0;
-    virtual int do_queueSize() const = 0;
-    virtual enquing_policy::PolicyTag do_queuePolicy() const = 0;
-    virtual utils::duration_t do_secondsToStale() const = 0;
+
+    const std::string                remoteHost_;
+    std::string                      consumerName_;
+    std::string                      sourceURL_;
+    int                              queueSize_;
+    enquing_policy::PolicyTag        queuePolicy_;
+    utils::Duration_t                secondsToStale_;
+    int                              maxConnectTries_;
+    int                              connectTrySleepTime_;
+    int                              retryInterval_;
+    utils::Duration_t                minEventRequestInterval_;
+    QueueID                          queueId_;
+    ConsumerID                       consumerId_;
+    utils::TimePoint_t               lastConsumerContact_;
   };
 
-  typedef boost::shared_ptr<stor::RegistrationInfoBase> RegPtr;
+  typedef boost::shared_ptr<RegistrationInfoBase> RegPtr;
+
 
   inline
-  bool RegistrationInfoBase::isValid()
+  void RegistrationInfoBase::consumerContact()
   {
-    return consumerId().isValid();
+    lastConsumerContact_ = utils::getCurrentTime();
   }
 
   inline
@@ -118,56 +154,29 @@ namespace stor {
   }
 
   inline
-  QueueID RegistrationInfoBase::queueId() const
+  void RegistrationInfoBase::eventType(std::ostream& os) const
   {
-    return do_queueId();
+    do_eventType(os);
   }
 
   inline
-  void RegistrationInfoBase::setQueueId(QueueID const& id)
+  bool RegistrationInfoBase::isStale(const utils::TimePoint_t& now) const
   {
-    do_setQueueId(id);
+    return ( now > lastConsumerContact_ + secondsToStale() );
   }
 
   inline
-  enquing_policy::PolicyTag RegistrationInfoBase::queuePolicy() const
+  double RegistrationInfoBase::lastContactSecondsAgo(const utils::TimePoint_t& now) const
   {
-    return do_queuePolicy();
+    return utils::durationToSeconds( now - lastConsumerContact_ );
   }
 
-  inline
-  std::string RegistrationInfoBase::consumerName() const
-  {
-    return do_consumerName();
-  }
-
-  inline
-  ConsumerID RegistrationInfoBase::consumerId() const
-  {
-    return do_consumerId();
-  }
-
-  inline
-  void RegistrationInfoBase::setConsumerId(ConsumerID const& id)
-  {
-    do_setConsumerId(id);
-  }
-
-  inline
-  int RegistrationInfoBase::queueSize() const
-  {
-    return do_queueSize();
-  }
-
-  inline
-  utils::duration_t RegistrationInfoBase::secondsToStale() const
-  {
-    return do_secondsToStale();
-  }
+  std::ostream& operator<<(std::ostream& os, 
+                           RegistrationInfoBase const& ri);
 
 } // namespace stor
 
-#endif // StorageManager_RegistrationInfoBase_h
+#endif // EventFilter_StorageManager_RegistrationInfoBase_h
 
 
 /// emacs configuration

@@ -21,16 +21,16 @@ pfRecoTauTagInfoProducer = cms.EDProducer("PFRecoTauTagInfoProducer",
     # Quality cuts for tracks (non-PF, from JetTracksAssociator)
     tkminTrackerHitsn = cms.int32(3),
     tkmaxChi2         = cms.double(100.0),
-    tkPVmaxDZ         = cms.double(0.2), ##considered if UsePVconstraint is true
+    tkPVmaxDZ         = cms.double(1.0), ##considered if UsePVconstraint is true
     tkminPixelHitsn   = cms.int32(0),
-    tkmaxipt          = cms.double(0.03),
+    tkmaxipt          = cms.double(0.1),
 
     # Quality cuts for PFCharged Hadron candidates (taken from their underlying recTrack)
     ChargedHadrCand_tkminTrackerHitsn = cms.int32(3), 
     ChargedHadrCand_tkmaxChi2         = cms.double(100.0),
-    ChargedHadrCand_tkmaxipt          = cms.double(0.03),
+    ChargedHadrCand_tkmaxipt          = cms.double(0.1),
     ChargedHadrCand_tkminPixelHitsn   = cms.int32(0),
-    ChargedHadrCand_tkPVmaxDZ         = cms.double(0.2), ##considered if UsePVconstraint is true
+    ChargedHadrCand_tkPVmaxDZ         = cms.double(1.0), ##considered if UsePVconstraint is true
 
     # Smear vertex
     smearedPVsigmaY               = cms.double(0.0015),

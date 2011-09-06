@@ -1,6 +1,8 @@
 {
 
+  
 TColor::InitializeColors(); 
+
 TColor *color = (TColor*)(gROOT->GetListOfColors()->At(41));
 color->SetRGB(1.0, 0.1, 0.5); // deep roze    
 TColor *color = (TColor*)(gROOT->GetListOfColors()->At(42));
@@ -57,4 +59,5 @@ color->SetRGB(1.00, 1.00, 1.00); // white
   gStyle->SetPadRightMargin(0.15);
   gStyle->SetFrameBorderMode(0);
   gStyle->SetFrameFillColor(55);
+
 }

@@ -7,7 +7,7 @@
 // Package:    PatCandidates
 // Class:      pat::TriggerPath
 //
-// $Id: TriggerPath.h,v 1.9 2010/12/15 19:44:27 vadler Exp $
+// $Id: TriggerPath.h,v 1.8 2010/12/16 18:39:17 vadler Exp $
 //
 /**
   \class    pat::TriggerPath TriggerPath.h "DataFormats/PatCandidates/interface/TriggerPath.h"
@@ -18,7 +18,7 @@
    https://twiki.cern.ch/twiki/bin/view/CMS/SWGuidePATTrigger#TriggerPath
 
   \author   Volker Adler
-  \version  $Id: TriggerPath.h,v 1.9 2010/12/15 19:44:27 vadler Exp $
+  \version  $Id: TriggerPath.h,v 1.8 2010/12/16 18:39:17 vadler Exp $
 */
 
 
@@ -62,8 +62,7 @@ namespace pat {
       /// Indeces of trigger filters in pat::TriggerFilterCollection in event
       /// as produced together with the pat::TriggerPathCollection;
       /// also filled in correct order by PATTriggerProducer;
-      /// indices of active filters in filter collection;
-      /// needed, if the module labels are kept empty
+      /// indices of active filters in filter collection
       std::vector< unsigned > filterIndices_;
       /// Index of the last active filter in the list of modules
       unsigned lastActiveFilterSlot_;

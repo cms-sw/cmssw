@@ -7,7 +7,7 @@
 #  execution:  mkesprod filtername
 # 
 #  output:  filtername/
-#                         Buildfile
+#                         BuildFile.xml
 #                         interface/
 #                         src/filtername.cc
 #                         doc/
@@ -23,7 +23,7 @@
 #  example:
 #  mkedfltr MyFilter 
 #        --> write  MyFilter/
-#                               Buildfile
+#                               BuildFile.xml
 #                               interface/
 #                               src/MyFilter.cc
 #                               doc/
@@ -76,7 +76,7 @@ $skel_dir = &find_mkTemplate_dir($commandFullPath);
 $skeletons{"$skel_dir/EDFilter/edfilter.cc"} =
     "$name/src/" . $name . '.cc';
 $skeletons{"$skel_dir/EDFilter/BuildFile.temp"} =
-    "$name/BuildFile";
+    "$name/BuildFile.xml";
 
 if ( ! $do_list )
 {
@@ -175,7 +175,7 @@ mkedfltr  h:
 mkedfltr  h: execution:  mkedfltr filtername
 mkedfltr  h:
 mkedfltr  h: output:  filtername/
-mkedfltr  h:                       BuildFile
+mkedfltr  h:                       BuildFile.xml
 mkedfltr  h:                       interface/
 mkedfltr  h:                       src/filtername.cc
 mkedfltr  h:                       doc/
@@ -192,7 +192,7 @@ mkedfltr  h:
 mkedfltr  h: example:
 mkedfltr  h: mkedfltr MyFilter
 mkedfltr  h:       --> write  MyFilter/
-mkedfltr  h:                              BuildFile
+mkedfltr  h:                              BuildFile.xml
 mkedfltr  h:                              interface/
 mkedfltr  h:                              src/MyFilter.cc
 mkedfltr  h:                              doc/

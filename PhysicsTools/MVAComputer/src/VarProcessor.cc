@@ -10,13 +10,14 @@
 //
 // Author:      Christophe Saout
 // Created:     Sat Apr 24 15:18 CEST 2007
-// $Id: VarProcessor.cc,v 1.6 2009/06/03 09:50:14 saout Exp $
+// $Id: VarProcessor.cc,v 1.7 2010/02/19 10:28:37 saout Exp $
 //
 
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/PluginFactory.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "PhysicsTools/MVAComputer/interface/VarProcessor.h"
 #include "PhysicsTools/MVAComputer/interface/Calibration.h"
@@ -105,6 +106,12 @@ VarProcessor *ProcessRegistry<VarProcessor, Calibration::VarProcessor,
 			// caller will have to deal with the null pointer
 			// in principle this will just give a slightly more
 			// descriptive error message (and will rethrow anyhow)
+
+                  edm::LogError("CannotBuildMVAProc")
+                    << "Caught exception when building processor: "
+                    << name << " message: " << std::endl
+                    << e.what() << std::endl;
+                  throw e;
 		}
 	}
 	return result;

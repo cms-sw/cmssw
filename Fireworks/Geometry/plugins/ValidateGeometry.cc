@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.32 2010/12/13 15:11:11 yana Exp $
+// $Id: ValidateGeometry.cc,v 1.33 2011/01/12 07:59:26 yana Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -473,7 +473,7 @@ ValidateGeometry::validateDTLayerGeometry()
       assert(width == parameters[6]); 
 
       float thickness = layer->surface().bounds().thickness();
-      assert(thickness = parameters[7]);
+      assert(thickness == parameters[7]);
 
       float length = layer->surface().bounds().length();
       assert(length == parameters[8]);

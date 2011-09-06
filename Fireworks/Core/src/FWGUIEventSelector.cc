@@ -1,4 +1,5 @@
 #include "TGLabel.h"
+#include "TGComboBox.h"
 
 #include "Fireworks/Core/interface/FWGUIEventSelector.h"
 #include "Fireworks/Core/interface/FWEventSelector.h"
@@ -8,7 +9,7 @@
 #include "Fireworks/Core/src/FWCheckBoxIcon.h"
 
 
-FWGUIEventSelector::FWGUIEventSelector(TGCompositeFrame* p, FWHLTValidator* validator, FWEventSelector* sel):
+FWGUIEventSelector::FWGUIEventSelector(TGCompositeFrame* p, FWEventSelector* sel, std::vector<std::string>& triggerProcessList):
    TGHorizontalFrame(p),
    m_guiSelector(0),
    m_origSelector(0),
@@ -16,37 +17,64 @@ FWGUIEventSelector::FWGUIEventSelector(TGCompositeFrame* p, FWHLTValidator* vali
    m_text2(0),
    m_enableBtn(0),
    m_deleteBtn(0),
-   m_nEvents(0)
+   m_nEvents(0),
+   m_combo(0),
+   m_validator(0)
 {
    m_origSelector = sel;
-   m_guiSelector = new FWEventSelector();
-   if (m_origSelector) *m_guiSelector = *m_origSelector;
+   m_guiSelector = new FWEventSelector(m_origSelector);
    
+   if (!m_guiSelector->m_triggerProcess.empty())
+   {
+      m_combo = new TGComboBox(this);
+      int cnt = 0;
+      int id = -1;
+      for ( std::vector<std::string>::iterator i = triggerProcessList.begin(); i!=triggerProcessList.end(); ++i)
+      {
+         if ((*i).c_str() == sel->m_triggerProcess) id = cnt;
+         m_combo->AddEntry((*i).c_str(), cnt++);
+      }
+
+      if (id < 0)
+      {
+         m_combo->AddEntry(sel->m_triggerProcess.c_str(), cnt);
+         id = cnt;
+      }
+      m_combo->Select(id, false);
+      m_combo->Resize(80, 21);
+      AddFrame(m_combo, new TGLayoutHints(kLHintsNormal, 2,2,0,1));
+
+      m_validator = new FWHLTValidator(m_guiSelector->m_triggerProcess);
+      m_combo->Connect("Selected(const char*)", "FWGUIEventSelector", this, "triggerProcessCallback(const char*)");
+   }
+
    // -------------- expression
 
    m_text1 = new FWGUIValidatingTextEntry(this, m_guiSelector->m_expression.c_str());
-   m_text1->setValidator(validator);
+   m_text1->SetHeight(20);
+   m_text1->setValidator(m_validator);
    m_text1->ChangeOptions(0);
    m_text1->Connect("TextChanged(char*)", "FWGUIEventSelector",  this, "expressionCallback(char*)");
    AddFrame(m_text1, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 2,2,1,1));
     
    // -------------- comment
 
-   TGCompositeFrame *cfr = new TGHorizontalFrame(this, 120, 22, kFixedSize);
-   AddFrame(cfr,new TGLayoutHints( kLHintsNormal, 2, 2, 1, 1 ));
+   TGCompositeFrame *cfr = new TGHorizontalFrame(this, 120, 20, kFixedSize);
+   AddFrame(cfr,new TGLayoutHints( kLHintsNormal, 2, 2, 1, 3 ));
    m_text2 = new FWGUIValidatingTextEntry(cfr, m_guiSelector->m_description.c_str());
-   m_text2->setValidator(validator);
+   //   m_text2->SetHeight(21);
+   m_text2->setValidator(m_validator);
    m_text2->ChangeOptions(0);
    m_text2->Connect("TextChanged(char*)", "string", &m_guiSelector->m_description, "assign(char*)");
-   cfr->AddFrame(m_text2, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 2,2,1,1));
+   cfr->AddFrame(m_text2, new TGLayoutHints(kLHintsNormal | kLHintsExpandX, 2,2,0,0));
   
    // ---------------- selection info
 
    TGHorizontalFrame* labFrame = new TGHorizontalFrame(this, 60, 22, kFixedSize);
    AddFrame(labFrame, new TGLayoutHints(kLHintsBottom, 2, 2, 2, 2));
    m_nEvents = new TGLabel(labFrame, "");
-   m_nEvents->SetTextJustify(kTextLeft);
-   labFrame->AddFrame(m_nEvents,  new TGLayoutHints(kLHintsBottom|kLHintsExpandX));
+   m_nEvents->SetTextJustify(kTextLeft );
+   labFrame->AddFrame(m_nEvents,  new TGLayoutHints(kLHintsCenterY|kLHintsExpandX));
    updateNEvents();
   
    // ---------------- enable
@@ -59,8 +87,8 @@ FWGUIEventSelector::FWGUIEventSelector(TGCompositeFrame* p, FWHLTValidator* vali
 
    // ---------------- delete 
    m_deleteBtn = new FWCustomIconsButton(this, fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"delete.png"),
-                                               fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"delete-over.png"),
-                                               fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"delete-disabled.png"));
+                                         fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"delete-over.png"),
+                                         fClient->GetPicture(FWCheckBoxIcon::coreIcondir()+"delete-disabled.png"));
    AddFrame(m_deleteBtn, new TGLayoutHints(kLHintsRight|kLHintsCenterY, 2,2,0, 0));
    TQObject::Connect(m_deleteBtn, "Clicked()", "FWGUIEventSelector",  this, "deleteCallback()");
 
@@ -69,6 +97,7 @@ FWGUIEventSelector::FWGUIEventSelector(TGCompositeFrame* p, FWHLTValidator* vali
 FWGUIEventSelector::~FWGUIEventSelector()
 {
    delete m_guiSelector;
+   delete m_validator;
 }
 
 //____________________________________________________________________________
@@ -88,6 +117,14 @@ void FWGUIEventSelector::removeSelector(FWGUIEventSelector* s)
 void FWGUIEventSelector::deleteCallback()
 {
    removeSelector(this);
+}
+
+//______________________________________________________________________________
+void FWGUIEventSelector::triggerProcessCallback(const char* txt)
+{
+   m_guiSelector->m_triggerProcess = txt;
+   m_validator->setProcess(txt);
+   selectorChanged();
 }
 
 //______________________________________________________________________________

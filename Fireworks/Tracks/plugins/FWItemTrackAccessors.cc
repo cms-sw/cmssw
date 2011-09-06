@@ -7,7 +7,7 @@
 //
 // Original Author:  Tom McCauley
 //         Created:  Thu Feb 18 15:19:44 EDT 2008
-// $Id: FWItemTrackAccessors.cc,v 1.7 2010/05/04 17:52:03 mccauley Exp $
+// $Id: FWItemTrackAccessors.cc,v 1.8 2010/06/18 12:44:47 yana Exp $
 //
 
 #include <assert.h>
@@ -21,10 +21,21 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+
 #include "Fireworks/Core/interface/FWItemRandomAccessor.h"
+#include "Fireworks/Core/src/FWItemSingleAccessor.h"
+
+class BeamSpotSingleAccessor : public FWItemSingleAccessor {
+public:
+   BeamSpotSingleAccessor(const TClass* x): FWItemSingleAccessor(x){}
+   virtual ~BeamSpotSingleAccessor() {};
+   REGISTER_FWITEMACCESSOR_METHODS();
+};
 
 REGISTER_TEMPLATE_FWITEMACCESSOR( FWItemDetSetAccessor<edm::DetSetVector<SiStripDigi> >,edm::DetSetVector<SiStripDigi>, "SiStripDigiCollectionAccessor" );
 REGISTER_TEMPLATE_FWITEMACCESSOR( FWItemDetSetAccessor<edm::DetSetVector<PixelDigi> >, edm::DetSetVector<PixelDigi>, "SiPixelDigiCollectionAccessor" );
 REGISTER_TEMPLATE_FWITEMACCESSOR( FWItemNewDetSetAccessor<edmNew::DetSetVector<SiStripCluster> >, edmNew::DetSetVector<SiStripCluster>, "SiStripClusterCollectionNewAccessor" );
 REGISTER_TEMPLATE_FWITEMACCESSOR( FWItemNewDetSetAccessor<edmNew::DetSetVector<SiPixelCluster> >, edmNew::DetSetVector<SiPixelCluster>, "SiPixelClusterCollectionNewAccessor" );
 
+REGISTER_FWITEMACCESSOR(BeamSpotSingleAccessor, reco::BeamSpot, "BeamSpotAccessor");

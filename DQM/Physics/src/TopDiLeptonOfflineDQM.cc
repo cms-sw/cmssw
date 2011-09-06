@@ -34,10 +34,8 @@ namespace TopDiLeptonOffline {
       }
       // electronId is optional; in case it's not found the 
       // InputTag will remain empty
-      if( elecExtras.existsAs<edm::ParameterSet>("electronId") ){
-	edm::ParameterSet elecId=elecExtras.getParameter<edm::ParameterSet>("electronId");
-	electronId_= elecId.getParameter<edm::InputTag>("src");
-	eidPattern_= elecId.getParameter<int>("pattern");
+      if( elecExtras.existsAs<edm::InputTag>("electronId") ){
+	electronId_= elecExtras.getParameter<edm::InputTag>("electronId");
       }
     }
     // muonExtras are optional; they may be omitted or empty
@@ -308,7 +306,7 @@ namespace TopDiLeptonOffline {
     for(edm::View<reco::GsfElectron>::const_iterator elec=elecs->begin(); elec!=elecs->end(); ++elec){
       // restrict to electrons with good electronId
       int idx = elec-elecs->begin();
-      if( electronId_.label().empty() ? true : ((int)(*electronId)[elecs->refAt(idx)] & eidPattern_) ){
+      if( electronId_.label().empty() ? true : (*electronId)[elecs->refAt(idx)]>0.99 ){
 	// apply preselection
 	if(!elecSelect_ || (*elecSelect_)(*elec)){
 	  double isolationTrk = elec->pt()/(elec->pt()+elec->dr03TkSumPt());

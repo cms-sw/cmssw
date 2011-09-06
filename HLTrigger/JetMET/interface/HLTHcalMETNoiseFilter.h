@@ -10,11 +10,16 @@
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "RecoMET/METAlgorithms/interface/HcalNoiseAlgo.h"
 
+namespace edm {
+   class ConfigurationDescriptions;
+}
+
 class HLTHcalMETNoiseFilter : public HLTFilter {
   
  public:
   explicit HLTHcalMETNoiseFilter(const edm::ParameterSet&);
   ~HLTHcalMETNoiseFilter();
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   virtual bool filter(edm::Event&, const edm::EventSetup&);
   
  private:
