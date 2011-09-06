@@ -87,6 +87,31 @@ class LMFLaserConfigDat : public LMFDat {
     return *this;
   }
 
+  float getWavelength(int id) {
+    return getData(id, "WAVELENGTH");
+  }
+  float getVFEGain(int id) {
+    return getData(id, "VFE_GAIN");
+  }
+  float getPNGain(int id) {
+    return getData(id, "PN_GAIN");
+  }
+  float getLSRPower(int id) {
+    return getData(id, "LSR_POWER");
+  }
+  float getLSRAttenuator(int id) {
+    return getData(id, "LSR_ATTENUATOR");
+  }
+  float getLSRCurrent(int id) {
+    return getData(id, "LSR_CURRENT");
+  }
+  float getLSRDelay1(int id) {
+    return getData(id, "LSR_DELAY_1");
+  }
+  float getLSRDelay2(int id) {
+    return getData(id, "LSR_DELAY_2");
+  }
+
   float getWavelength(EcalLogicID &id) {
     return getData(id, "WAVELENGTH");
   }
@@ -102,7 +127,7 @@ class LMFLaserConfigDat : public LMFDat {
   float getLSRAttenuator(EcalLogicID &id) {
     return getData(id, "LSR_ATTENUATOR");
   }
-  float getLSRCURRENT(EcalLogicID &id) {
+  float getLSRCurrent(EcalLogicID &id) {
     return getData(id, "LSR_CURRENT");
   }
   float getLSRDelay1(EcalLogicID &id) {

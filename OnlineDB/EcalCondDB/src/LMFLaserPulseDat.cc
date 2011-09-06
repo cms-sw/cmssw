@@ -103,35 +103,35 @@ LMFLaserPulseDat& LMFLaserPulseDat::setMTQSliding(EcalLogicID &id, float v) {
   return *this;
 }
 
-int LMFLaserPulseDat::getFitMethod(EcalLogicID &id) {
+int LMFLaserPulseDat::getFitMethod(int id) {
   return getData(id, "FIT_METHOD");
 }
 
-float LMFLaserPulseDat::getMTQAmplification(EcalLogicID &id) {
+float LMFLaserPulseDat::getMTQAmplification(int id) {
   return getData(id, "MTQ_AMPL");
 }
 
-float LMFLaserPulseDat::getMTQTime(EcalLogicID &id) {
+float LMFLaserPulseDat::getMTQTime(int id) {
   return getData(id, "MTQ_TIME");
 }
 
-float LMFLaserPulseDat::getMTQRise(EcalLogicID &id) {
+float LMFLaserPulseDat::getMTQRise(int id) {
   return getData(id, "MTQ_RISE");
 }
 
-float LMFLaserPulseDat::getMTQFWHM(EcalLogicID &id) {
+float LMFLaserPulseDat::getMTQFWHM(int id) {
   return getData(id, "MTQ_FWHM");
 }
 
-float LMFLaserPulseDat::getMTQFW20(EcalLogicID &id) {
+float LMFLaserPulseDat::getMTQFW20(int id) {
   return getData(id, "MTQ_FW20");
 }
 
-float LMFLaserPulseDat::getMTQFW80(EcalLogicID &id) {
+float LMFLaserPulseDat::getMTQFW80(int id) {
   return getData(id, "MTQ_FW80");
 }
 
-float LMFLaserPulseDat::getMTQSliding(EcalLogicID &id) {
+float LMFLaserPulseDat::getMTQSliding(int id) {
   return getData(id, "MTQ_SLIDING");
 }
 

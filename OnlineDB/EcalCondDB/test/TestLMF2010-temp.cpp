@@ -38,15 +38,7 @@ public:
   }
 
   void doRun() {
-    std::cout << econn->getDetIdFromLogicId(200) << std::endl;
-    int ebdetid = econn->getDetIdFromLogicId(1011350303);
-    EBDetId e(ebdetid);
-    std::cout << econn->getDetIdFromLogicId(1011350303) << std::endl;
-    std::cout << e.ieta() << " " << e.iphi() << std::endl;
-    int eedetid = econn->getDetIdFromLogicId(2010015016);
-    std::cout << eedetid << std::endl;
-    EEDetId ee(eedetid);
-    std::cout << ee.zside() << " " << ee.ix() << " " << ee.iy() << std::endl;
+    LMFPnPrimDat(econn, "ORANGE", "LED");
   }
 
 private:

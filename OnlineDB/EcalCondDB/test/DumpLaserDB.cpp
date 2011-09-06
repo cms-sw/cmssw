@@ -60,6 +60,28 @@ typedef struct lmffdata {
   int flag;
 } LMFData;
 
+typedef struct matacq {
+  int fit_method;
+  float mtq_ampl;
+  float mtq_time;
+  float mtq_rise;
+  float mtq_fwhm;
+  float mtq_fw20;
+  float mtq_fw80;
+  float mtq_sliding;
+} LMFMtq;
+
+typedef struct laser_config {
+  int wavelength;
+  float vfe_gain;
+  float pn_gain;
+  float lsr_power;
+  float lsr_attenuator;
+  float lsr_current;
+  float lsr_delay_1;
+  float lsr_delay_2;
+} LMFLaserConfig;
+
 typedef struct DetIdData {
   int hashedIndex;
   int eta;
@@ -107,8 +129,34 @@ public:
     delete econn;
   }
 
+  void zero(std::vector<LMFMtq> & lmfmtq) {
+    for (unsigned int i = 0; i < lmfmtq.size(); i++) {
+      lmfmtq[i].fit_method = -1;
+      lmfmtq[i].mtq_ampl = -1000;
+      lmfmtq[i].mtq_time = -1000;
+      lmfmtq[i].mtq_rise = -1000;
+      lmfmtq[i].mtq_fwhm = -1000;
+      lmfmtq[i].mtq_fw20 = -1000;
+      lmfmtq[i].mtq_fw80 = -1000;
+      lmfmtq[i].mtq_sliding = -1000;
+    }
+  }
+
+  void zero(std::vector<LMFLaserConfig> & lmfConf) {
+    for (unsigned int i = 0; i < lmfConf.size(); i++) {
+      lmfConf[i].wavelength     = -1;
+      lmfConf[i].vfe_gain       = -1000;
+      lmfConf[i].pn_gain        = -1000;
+      lmfConf[i].lsr_power      = -1000;
+      lmfConf[i].lsr_attenuator = -1000;
+      lmfConf[i].lsr_current    = -1000;
+      lmfConf[i].lsr_delay_1    = -1000;
+      lmfConf[i].lsr_delay_2    = -1000;
+    }
+  }
+
   void zero(std::vector<LMFData> & lmfdata) {
-    for (int unsigned i = 0; i < lmfdata.size(); i++) {
+    for (unsigned int i = 0; i < lmfdata.size(); i++) {
       lmfdata[i].detId = -1;
       lmfdata[i].logic_id = -1;
       lmfdata[i].eta = -1000;
@@ -207,6 +255,13 @@ public:
 	  // subrun times
 	  subrunstart = ri->getSubRunStart().epoch();
 	  subrunstop  = ri->getSubRunEnd().epoch();
+	  // blue laser configuration for this run
+	  LMFLaserPulseDat mtqConf(econn, "BLUE");
+	  mtqConf.setLMFRunIOV(*ri);
+	  mtqConf.fetch();
+	  LMFLaserConfigDat laserConfig(econn);
+	  laserConfig.setLMFRunIOV(*ri);
+	  laserConfig.fetch();
 	  // *** get data ***
 	  LMFPrimDat prim(econn, color, "LASER");
 	  prim.setLMFRunIOV(*ri);
@@ -233,7 +288,11 @@ public:
 	    int count = 0;
 	    int xcount = 0;
 	    std::vector<LMFData> lmfdata(detids.size());
+	    std::vector<LMFMtq>  lmfmtq(detids.size());
+	    std::vector<LMFLaserConfig> lmflasConf(detids.size());
 	    zero(lmfdata);
+	    zero(lmfmtq);
+	    zero(lmflasConf);
 	    while (li != le) {
 	      // here the logic_id's are those of a LMR: transform into crystals
 	      int logic_id = *li;
@@ -254,6 +313,31 @@ public:
 		lmfdata[index].x   = dd.x; 
 		lmfdata[index].y   = dd.y; 
 		lmfdata[index].z   = dd.z; 
+
+		lmfmtq[index].fit_method = mtqConf.getFitMethod(logic_id);
+		lmfmtq[index].mtq_ampl = mtqConf.getMTQAmplification(logic_id);
+		lmfmtq[index].mtq_time = mtqConf.getMTQTime(logic_id);
+		lmfmtq[index].mtq_rise = mtqConf.getMTQRise(logic_id);
+		lmfmtq[index].mtq_fwhm = mtqConf.getMTQFWHM(logic_id);
+		lmfmtq[index].mtq_fw20 = mtqConf.getMTQFW20(logic_id);
+		lmfmtq[index].mtq_fw80 = mtqConf.getMTQFW80(logic_id);
+		lmfmtq[index].mtq_sliding = mtqConf.getMTQSliding(logic_id);
+
+		lmflasConf[index].wavelength = 
+		  laserConfig.getWavelength(logic_id);
+		lmflasConf[index].vfe_gain = laserConfig.getVFEGain(logic_id);
+		lmflasConf[index].pn_gain = laserConfig.getPNGain(logic_id);
+		lmflasConf[index].lsr_power = 
+		  laserConfig.getLSRPower(logic_id);
+		lmflasConf[index].lsr_attenuator = 
+		  laserConfig.getLSRAttenuator(logic_id);
+		lmflasConf[index].lsr_current = 
+		  laserConfig.getLSRCurrent(logic_id);
+		lmflasConf[index].lsr_delay_1 =
+		  laserConfig.getLSRDelay1(logic_id);
+		lmflasConf[index].lsr_delay_2 =
+		  laserConfig.getLSRDelay1(logic_id);
+
 		xcount++; 
 	      }
 	      // 
@@ -378,6 +462,25 @@ public:
 		alpha = lmfdata[i].alpha;
 		beta = lmfdata[i].beta;
 		flag = lmfdata[i].flag;
+		// matacq variables
+		fit_method = lmfmtq[i].fit_method;
+		mtq_ampl = lmfmtq[i].mtq_ampl;
+		mtq_time = lmfmtq[i].mtq_time;
+		mtq_rise = lmfmtq[i].mtq_rise;
+		mtq_fwhm = lmfmtq[i].mtq_fwhm;
+		mtq_fw20 = lmfmtq[i].mtq_fw20;
+		mtq_fw80 = lmfmtq[i].mtq_fw80;
+		mtq_sliding = lmfmtq[i].mtq_sliding;
+		// laser conf variables
+		wavelength     = lmflasConf[i].wavelength;
+		vfe_gain       = lmflasConf[i].vfe_gain;
+		pn_gain        = lmflasConf[i].pn_gain;
+		lsr_power      = lmflasConf[i].lsr_power;
+		lsr_attenuator = lmflasConf[i].lsr_attenuator;
+		lsr_current    = lmflasConf[i].lsr_current;
+		lsr_delay_1    = lmflasConf[i].lsr_delay_1;
+		lsr_delay_2    = lmflasConf[i].lsr_delay_2;
+
 		tree->Fill();
 		xcount++; 
 	      }
@@ -440,7 +543,24 @@ private:
   float alpha;
   float beta;
   int flag;
-
+  // matacq
+  int fit_method;
+  float mtq_ampl;
+  float mtq_time;
+  float mtq_rise;
+  float mtq_fwhm;
+  float mtq_fw20;
+  float mtq_fw80;
+  float mtq_sliding;
+  // laser config
+  int wavelength;
+  float vfe_gain;
+  float pn_gain;
+  float lsr_power;
+  float lsr_attenuator;
+  float lsr_current;
+  float lsr_delay_1;
+  float lsr_delay_2;
 };
 
 void CondDBApp::init() {
@@ -500,6 +620,24 @@ void CondDBApp::init() {
   tree->Branch("alpha",         &alpha,         "alpha/F");
   tree->Branch("beta",          &beta,          "beta/F");
   tree->Branch("flag",          &flag,          "flag/I");
+
+  tree->Branch("fit_method",  &fit_method,  "fit_method/I");
+  tree->Branch("mtq_ampl",  &mtq_ampl,  "mtq_ampl/F");
+  tree->Branch("mtq_time",  &mtq_time,  "mtq_time/F");
+  tree->Branch("mtq_rise",  &mtq_rise,  "mtq_rise/F");
+  tree->Branch("mtq_fwhm",  &mtq_fwhm,  "mtq_fwhm/F");
+  tree->Branch("mtq_fw20",  &mtq_fw20,  "mtq_fw20/F");
+  tree->Branch("mtq_fw80",  &mtq_fw80,  "mtq_fw80/F");
+  tree->Branch("mtq_sliding",  &mtq_sliding,  "mtq_sliding/F");
+
+  tree->Branch("wavelength",  &wavelength,  "wavelength/I");
+  tree->Branch("vfe_gain",  &vfe_gain,  "vfe_gain/F");
+  tree->Branch("pn_gain",  &pn_gain,  "pn_gain/F");
+  tree->Branch("lsr_power",  &lsr_power,  "lsr_power/F");
+  tree->Branch("lsr_attenuator",  &lsr_attenuator,  "lsr_attenuator/F");
+  tree->Branch("lsr_current",  &lsr_current,  "lsr_current/F");
+  tree->Branch("lsr_delay_1",  &lsr_delay_1,  "lsr_delay_1/F");
+  tree->Branch("lsr_delay_2",  &lsr_delay_2,  "lsr_delay_2/F");
 
   std::cout << "Tree created" << std::endl;
 }
