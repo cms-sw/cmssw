@@ -86,13 +86,13 @@ bool TwoBodyDecayTrajectory::construct( const TwoBodyDecayTrajectoryState& state
   
   int nLocal = deriv.first.num_row();
   int nTbd   = deriv.first.num_col();
-  unsigned int nHitMeas1 = trajectory1.numberOfHitMeas();
-  unsigned int nMsMeas1  = trajectory1.numberOfMsMeas(); 
-  unsigned int nPar1     = trajectory1.numberOfPar();
-  unsigned int nMsPar1   = trajectory1.numberOfMsPar(); 
+  unsigned int nHitMeas1     = trajectory1.numberOfHitMeas();
+  unsigned int nVirtualMeas1 = trajectory1.numberOfVirtualMeas(); 
+  unsigned int nPar1         = trajectory1.numberOfPar();
+  unsigned int nVirtualPar1  = trajectory1.numberOfVirtualPar(); 
      
   // derivatives of the trajectory w.r.t. to the decay parameters
-  AlgebraicMatrix fullDeriv1 = trajectory1.derivatives().sub(1,nHitMeas1+nMsMeas1,1,nLocal) * trajectory1.localToTrajectory() * deriv.first;
+  AlgebraicMatrix fullDeriv1 = trajectory1.derivatives().sub(1,nHitMeas1+nVirtualMeas1,1,nLocal) * trajectory1.localToTrajectory() * deriv.first;
 
   //
   // second track
@@ -103,12 +103,12 @@ bool TwoBodyDecayTrajectory::construct( const TwoBodyDecayTrajectoryState& state
 
   if ( !trajectory2.isValid() ) return false;
   
-  unsigned int nHitMeas2 = trajectory2.numberOfHitMeas();
-  unsigned int nMsMeas2  = trajectory2.numberOfMsMeas();  
-  unsigned int nPar2     = trajectory2.numberOfPar();
-  unsigned int nMsPar2   = trajectory2.numberOfMsPar();
+  unsigned int nHitMeas2     = trajectory2.numberOfHitMeas();
+  unsigned int nVirtualMeas2 = trajectory2.numberOfVirtualMeas();  
+  unsigned int nPar2         = trajectory2.numberOfPar();
+  unsigned int nVirtualPar2  = trajectory2.numberOfVirtualPar();
 
-  AlgebraicMatrix fullDeriv2 = trajectory2.derivatives().sub(1,nHitMeas2+nMsMeas2,1,nLocal) * trajectory2.localToTrajectory() * deriv.second;
+  AlgebraicMatrix fullDeriv2 = trajectory2.derivatives().sub(1,nHitMeas2+nVirtualMeas2,1,nLocal) * trajectory2.localToTrajectory() * deriv.second;
 
   //
   // combine both tracks
@@ -119,43 +119,43 @@ bool TwoBodyDecayTrajectory::construct( const TwoBodyDecayTrajectoryState& state
 
   theNumberOfHits = trajectory1.numberOfHits() + trajectory2.numberOfHits(); 
   theNumberOfPars = nPar1 + nPar2;
-  theNumberOfMsPars = nMsPar1 + nMsPar2;
-  theNumberOfMsMeas = nMsMeas1 + nMsMeas2 + 1; // add virtual mass measurement
+  theNumberOfVirtualPars = nVirtualPar1 + nVirtualPar2;
+  theNumberOfVirtualMeas = nVirtualMeas1 + nVirtualMeas2 + 1; // add virtual mass measurement
   
   // hit measurements from trajectory 1
   int rowOffset = 1;
   int colOffset = 1; 
   theDerivatives.sub( rowOffset, colOffset,                fullDeriv1.sub(            1, nHitMeas1,                     1, nTbd ) );
   colOffset += nTbd;
-  theDerivatives.sub( rowOffset, colOffset, trajectory1.derivatives().sub(            1, nHitMeas1,            nLocal + 1, nPar1 + nMsPar1 ) );
+  theDerivatives.sub( rowOffset, colOffset, trajectory1.derivatives().sub(            1, nHitMeas1,            nLocal + 1, nPar1 + nVirtualPar1 ) );
   // hit measurements from trajectory 2
   rowOffset += nHitMeas1;
   colOffset = 1; 
   theDerivatives.sub( rowOffset, colOffset,                fullDeriv2.sub(            1, nHitMeas2,                     1, nTbd ) );
-  colOffset += (nPar1 + nMsPar1 + nTbd - nLocal);
-  theDerivatives.sub( rowOffset, colOffset, trajectory2.derivatives().sub(            1, nHitMeas2,            nLocal + 1, nPar2 + nMsPar2 ) );  
+  colOffset += (nPar1 + nVirtualPar1 + nTbd - nLocal);
+  theDerivatives.sub( rowOffset, colOffset, trajectory2.derivatives().sub(            1, nHitMeas2,            nLocal + 1, nPar2 + nVirtualPar2 ) );  
   // MS measurements from trajectory 1
   rowOffset += nHitMeas2;  
   colOffset = 1; 
-  theDerivatives.sub( rowOffset, colOffset,                fullDeriv1.sub(nHitMeas1 + 1, nHitMeas1 + nMsMeas1,          1, nTbd ) );  
+  theDerivatives.sub( rowOffset, colOffset,                fullDeriv1.sub(nHitMeas1 + 1, nHitMeas1 + nVirtualMeas1,          1, nTbd ) );  
   colOffset += nTbd;
-  theDerivatives.sub( rowOffset, colOffset, trajectory1.derivatives().sub(nHitMeas1 + 1, nHitMeas1 + nMsMeas1, nLocal + 1, nPar1 + nMsPar1 ) ); 
+  theDerivatives.sub( rowOffset, colOffset, trajectory1.derivatives().sub(nHitMeas1 + 1, nHitMeas1 + nVirtualMeas1, nLocal + 1, nPar1 + nVirtualPar1 ) ); 
   // MS measurements from trajectory 2
-  rowOffset += nMsMeas1;  
+  rowOffset += nVirtualMeas1;  
   colOffset = 1; 
-  theDerivatives.sub( rowOffset, colOffset,                fullDeriv2.sub(nHitMeas2 + 1, nHitMeas2 + nMsMeas2,          1, nTbd ) );
-  colOffset += (nPar1 + nMsPar1 + nTbd - nLocal);  
-  theDerivatives.sub( rowOffset, colOffset, trajectory2.derivatives().sub(nHitMeas2 + 1, nHitMeas2 + nMsMeas2, nLocal + 1, nPar2 + nMsPar2 ) ); 
+  theDerivatives.sub( rowOffset, colOffset,                fullDeriv2.sub(nHitMeas2 + 1, nHitMeas2 + nVirtualMeas2,          1, nTbd ) );
+  colOffset += (nPar1 + nVirtualPar1 + nTbd - nLocal);  
+  theDerivatives.sub( rowOffset, colOffset, trajectory2.derivatives().sub(nHitMeas2 + 1, nHitMeas2 + nVirtualMeas2, nLocal + 1, nPar2 + nVirtualPar2 ) ); 
         
-  theMeasurements.sub(                                    1, trajectory1.measurements().sub(            1, nHitMeas1 ) );
-  theMeasurements.sub( nHitMeas1                        + 1, trajectory2.measurements().sub(            1, nHitMeas2 ) );
-  theMeasurements.sub( nHitMeas1 + nHitMeas2            + 1, trajectory1.measurements().sub(nHitMeas1 + 1, nHitMeas1 + nMsMeas1 ) );
-  theMeasurements.sub( nHitMeas1 + nHitMeas2 + nMsMeas1 + 1, trajectory2.measurements().sub(nHitMeas2 + 1, nHitMeas2 + nMsMeas2 ) );
+  theMeasurements.sub(                                         1, trajectory1.measurements().sub(            1, nHitMeas1 ) );
+  theMeasurements.sub( nHitMeas1                             + 1, trajectory2.measurements().sub(            1, nHitMeas2 ) );
+  theMeasurements.sub( nHitMeas1 + nHitMeas2                 + 1, trajectory1.measurements().sub(nHitMeas1 + 1, nHitMeas1 + nVirtualMeas1 ) );
+  theMeasurements.sub( nHitMeas1 + nHitMeas2 + nVirtualMeas1 + 1, trajectory2.measurements().sub(nHitMeas2 + 1, nHitMeas2 + nVirtualMeas2 ) );
 
-  theMeasurementsCov.sub(                                    1, trajectory1.measurementErrors().sub(            1, nHitMeas1 ) );
-  theMeasurementsCov.sub( nHitMeas1                        + 1, trajectory2.measurementErrors().sub(            1, nHitMeas2 ) );
-  theMeasurementsCov.sub( nHitMeas1 + nHitMeas2            + 1, trajectory1.measurementErrors().sub(nHitMeas1 + 1, nHitMeas1 + nMsMeas1 ) );
-  theMeasurementsCov.sub( nHitMeas1 + nHitMeas2 + nMsMeas1 + 1, trajectory2.measurementErrors().sub(nHitMeas2 + 1, nHitMeas2 + nMsMeas2 ) );
+  theMeasurementsCov.sub(                                         1, trajectory1.measurementErrors().sub(            1, nHitMeas1 ) );
+  theMeasurementsCov.sub( nHitMeas1                             + 1, trajectory2.measurementErrors().sub(            1, nHitMeas2 ) );
+  theMeasurementsCov.sub( nHitMeas1 + nHitMeas2                 + 1, trajectory1.measurementErrors().sub(nHitMeas1 + 1, nHitMeas1 + nVirtualMeas1 ) );
+  theMeasurementsCov.sub( nHitMeas1 + nHitMeas2 + nVirtualMeas1 + 1, trajectory2.measurementErrors().sub(nHitMeas2 + 1, nHitMeas2 + nVirtualMeas2 ) );
 
   theTrajectoryPositions.sub(             1, trajectory1.trajectoryPositions() );
   theTrajectoryPositions.sub( nHitMeas1 + 1, trajectory2.trajectoryPositions() );
@@ -168,7 +168,7 @@ bool TwoBodyDecayTrajectory::construct( const TwoBodyDecayTrajectoryState& state
   theRecHits.insert( theRecHits.end(), recHits.second.begin(), recHits.second.end() );
 
   // add virtual mass measurement
-  rowOffset += nMsMeas2;
+  rowOffset += nVirtualMeas2;
   int indMass = rowOffset-1;
   theMeasurements[indMass] = state.primaryMass() - state.decayParameters()[TwoBodyDecayParameters::mass];
   theMeasurementsCov[indMass][indMass] = state.primaryWidth() * state.primaryWidth();

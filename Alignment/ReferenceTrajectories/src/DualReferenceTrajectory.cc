@@ -78,8 +78,8 @@ bool DualReferenceTrajectory::construct( const TrajectoryStateOnSurface &refTsos
   unsigned int nParam   = theNumberOfPars;
   unsigned int nFwdMeas = fwdTraj->numberOfHitMeas();
   unsigned int nBwdMeas = bwdTraj->numberOfHitMeas();
-  unsigned int nFwdBP   = fwdTraj->numberOfMsMeas();
-  unsigned int nBwdBP   = bwdTraj->numberOfMsMeas();
+  unsigned int nFwdBP   = fwdTraj->numberOfVirtualMeas();
+  unsigned int nBwdBP   = bwdTraj->numberOfVirtualMeas();
   unsigned int nMeas    = nFwdMeas+nBwdMeas-nMeasPerHit; 
        
   theMeasurements.sub( 1, fwdTraj->measurements().sub( 1, nFwdMeas ) );

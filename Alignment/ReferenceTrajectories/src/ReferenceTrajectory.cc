@@ -1,6 +1,6 @@
 //  Author     : Gero Flucke (based on code by Edmund Widl replacing ORCA's TkReferenceTrack)
 //  date       : 2006/09/17
-//  last update: $Date: 2010/11/26 07:54:53 $
+//  last update: $Date: 2011/05/18 10:19:48 $
 //  by         : $Author: mussgill $
 
 #include <memory>
@@ -308,7 +308,7 @@ bool ReferenceTrajectory::construct(const TrajectoryStateOnSurface &refTsos,
   if (refTsos.hasError()) {
     AlgebraicSymMatrix parameterCov = asHepMatrix<5>(refTsos.localError().matrix());
     AlgebraicMatrix  parDeriv;
-    if (theNumberOfMsPars>0) { 
+    if (theNumberOfVirtualPars>0) { 
       parDeriv = theDerivatives.sub( 1, nMeasPerHit*allJacobians.size(), 1, theParameters.num_row() ); 
     } else {
       parDeriv = theDerivatives; 
@@ -830,8 +830,8 @@ bool ReferenceTrajectory::addMaterialEffectsBrl(const std::vector<AlgebraicMatri
   }
   if (nPlane < 2) return false; // pathological cases: need at least 2 planes
 
-  theNumberOfMsPars = 2*(nPlane+1);
-  theNumberOfMsMeas = 2*(nPlane-1);// unsigned underflow for nPlane == 0...
+  theNumberOfVirtualPars = 2*(nPlane+1);
+  theNumberOfVirtualMeas = 2*(nPlane-1);// unsigned underflow for nPlane == 0...
   for (unsigned int k = 0; k <= nPlane; ++k) { sPlane[k] /= (double) (last[k]-first[k]+1); }
 
   // measurements from hits
