@@ -88,6 +88,15 @@ bool Asymptotic::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats
   r->setMin(qtilde_ ? 0 : -r->getMax());
  
   if (params_.get() == 0) params_.reset(mc_s->GetPdf()->getParameters(data));
+
+  hasFloatParams_ = false;
+  std::auto_ptr<TIterator> itparam(params_->createIterator());
+  for (RooAbsArg *a = (RooAbsArg *) itparam->Next(); a != 0; a = (RooAbsArg *) itparam->Next()) {
+      RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
+      if ( rrv != 0 && rrv != r && rrv->isConstant() == false ) { hasFloatParams_ = true; break; }
+  }
+    
+
   RooArgSet constraints; if (withSystematics) constraints.add(*mc_s->GetNuisanceParameters());
   nllD_.reset(mc_s->GetPdf()->createNLL(data,   RooFit::Constrain(constraints)));
   nllA_.reset(mc_s->GetPdf()->createNLL(asimov, RooFit::Constrain(constraints)));
@@ -161,18 +170,22 @@ double Asymptotic::getCLs(RooRealVar &r, double rVal) {
   *params_ = snapGlobalObsData;
   r.setVal(rVal);
   r.setConstant(true);
-  if (!nllutils::robustMinimize(*nllD_, minimD, verbose-1) && picky_) return -999;
-  fitFixD_.reset(minimD.save());
-  if (verbose >= 2) fitFixD_->Print("V");
+  if (hasFloatParams_) {
+      if (!nllutils::robustMinimize(*nllD_, minimD, verbose-1) && picky_) return -999;
+      fitFixD_.reset(minimD.save());
+      if (verbose >= 2) fitFixD_->Print("V");
+  }
   double qmu = 2*(nllD_->getVal() - fitFreeD_->minNll()); if (qmu < 0) qmu = 0;
 
   *params_ = fitFixA_.get() ? fitFixA_->floatParsFinal() : fitFreeA_->floatParsFinal();
   *params_ = snapGlobalObsAsimov;
   r.setVal(rVal);
   r.setConstant(true);
-  if (!nllutils::robustMinimize(*nllA_, minimA, verbose-1) && picky_) return -999;
-  fitFixA_.reset(minimA.save());
-  if (verbose >= 2) fitFixA_->Print("V");
+  if (hasFloatParams_) {
+      if (!nllutils::robustMinimize(*nllA_, minimA, verbose-1) && picky_) return -999;
+      fitFixA_.reset(minimA.save());
+      if (verbose >= 2) fitFixA_->Print("V");
+  }
   double qA  = 2*(nllA_->getVal() - fitFreeA_->minNll()); if (qA < 0) qA = 0;
 
   double CLsb = ROOT::Math::normal_cdf_c(sqrt(qmu));

@@ -187,8 +187,8 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
     r->setConstant(true);
     double thisNLL = nullNLL;
     if (initialR == 0 || bestFitR < initialR) { 
-        // must do constrained fit
-        thisNLL = minNLL();
+        // must do constrained fit (if there's something to fit besides XS)
+        thisNLL = (nuisances_.getSize() > 0 ? minNLL() : nll_->getVal());
         if (thisNLL - nullNLL < -0.02) { 
             DBG(DBG_PLTestStat_main, (printf("  --> constrained fit is better... will repeat unconstrained fit\n")))
             r->setConstant(false);
