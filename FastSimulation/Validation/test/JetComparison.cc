@@ -27,51 +27,20 @@ JetComparison::JetComparison(edm::ParameterSet const& conf)
     LogInfo("OutputInfo") << " jet histograms will NOT be saved";
   }
   
-
-  Char_t histo[20];
-
-  sprintf (histo, "number_of_jets" ) ;
-  meNumberJet = new TH1F(histo, histo, 500 , 0. , 500.);   
-  
-  sprintf (histo, "jet_et" ) ;
-  meEtJet = new TH1F(histo, histo, 1000 , 0. , 1000.);   
-
-  sprintf (histo, "gen_et" ) ;
-  meEtGen = new TH1F(histo, histo, 1000 , 0. , 1000.);   
-
-  sprintf (histo, "jet_et_two_matched" ) ;
-  meEtJetMatched = new TH1F(histo, histo, 1000 , 0. , 1000.);   
-
-  sprintf (histo, "gen_et_two_matched" ) ;
-  meEtGenMatched = new TH1F(histo, histo, 1000 , 0. , 1000.);   
-
-  sprintf (histo, "jet_eta" ) ;
-  meEtaJet = new TH1F(histo, histo, 500 , 0. , 5.);   
-
-  sprintf (histo, "gen_eta" ) ;
-  meEtaGen = new TH1F(histo, histo, 500 , 0. , 5.);   
-    
-  sprintf (histo, "ratio_jet_gen_vs_eta" ) ;
-  meRatio =  new TH2F(histo, histo, 50,  0., 5., 20000 , 0., 5.);   
-
-  sprintf (histo, "hadronic_fraction_vs_eta" ) ;
-  meHadronicFrac_vs_eta =  new TH2F(histo, histo, 50,  0., 5., 1000 , 0., 1.);   
-
-  sprintf (histo, "number_of_towers_with_60_percents_energy_vs_eta" ) ;
-  meNTowers60_vs_eta =  new TH2F(histo, histo, 50,  0., 5., 100 , -0.5, 99.5);   
-
-  sprintf (histo, "number_of_towers_with_90_percents_energy_vs_eta" ) ;
-  meNTowers90_vs_eta =  new TH2F(histo, histo, 50,  0., 5., 100 , -0.5, 99.5);  
-
-  sprintf (histo, "distance_R_between_matched_jets") ;
-  meDistR =  new TH1F(histo, histo, 300,0.,0.3);  
-
-  sprintf (histo, "distance_R_between_matched_jets_vs_eta") ;
-  meDistR_vs_eta =  new TH2F(histo, histo,50,  0., 5., 300,0.,0.3);  
-    
-  sprintf (histo, "number_of_calotowers_vs_eta") ;
-  meNTowers_vs_eta =  new TH2F(histo, histo,50,  0., 5., 51, -0.5, 50.5);  
-
+  meNumberJet = new TH1F("number_of_jets", "number_of_jets", 500 , 0. , 500.);   
+  meEtJet = new TH1F("jet_et", "jet_et", 1000 , 0. , 1000.);   
+  meEtGen = new TH1F("gen_et", "gen_et", 1000 , 0. , 1000.);   
+  meEtJetMatched = new TH1F("jet_et_two_matched", "jet_et_two_matched", 1000 , 0. , 1000.);   
+  meEtGenMatched = new TH1F("gen_et_two_matched", "gen_et_two_matched", 1000 , 0. , 1000.);   
+  meEtaJet = new TH1F("jet_eta" , "jet_eta",  500 , 0. , 5.);   
+  meEtaGen = new TH1F("gen_eta", "gen_eta", 500 , 0. , 5.);   
+  meRatio =  new TH2F("ratio_jet_gen_vs_eta", "ratio_jet_gen_vs_eta", 50,  0., 5., 20000 , 0., 5.);   
+  meHadronicFrac_vs_eta =  new TH2F("hadronic_fraction_vs_eta", "hadronic_fraction_vs_eta", 50,  0., 5., 1000 , 0., 1.);   
+  meNTowers60_vs_eta =  new TH2F("number_of_towers_with_60_percents_energy_vs_eta" , "number_of_towers_with_60_percents_energy_vs_eta" , 50,  0., 5., 100 , -0.5, 99.5);   
+  meNTowers90_vs_eta =  new TH2F("number_of_towers_with_90_percents_energy_vs_eta", "number_of_towers_with_90_percents_energy_vs_eta", 50,  0., 5., 100 , -0.5, 99.5);  
+  meDistR =  new TH1F("distance_R_between_matched_jets", "distance_R_between_matched_jets", 300,0.,0.3);  
+  meDistR_vs_eta =  new TH2F("distance_R_between_matched_jets_vs_eta", "stance_R_between_matched_jets_vs_eta", 50,  0., 5., 300,0.,0.3);  
+  meNTowers_vs_eta =  new TH2F("number_of_calotowers_vs_eta", "number_of_calotowers_vs_eta",50,  0., 5., 51, -0.5, 50.5);  
   fFile = new TFile(outputFile_.c_str(),"RECREATE");
 }
 
