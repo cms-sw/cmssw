@@ -183,7 +183,7 @@ private:
   edm::InputTag VertexTagOffline0_;
 
   int errCnt;
-  const int errMax(){return 100;}
+  static int errMax() { return 100; }
 
   std::string _HistName; // Name of histogram file
   double _EtaMin,_EtaMax;

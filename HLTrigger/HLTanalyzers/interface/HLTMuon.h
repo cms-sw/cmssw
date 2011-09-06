@@ -117,7 +117,7 @@ private:
 
   int evtCounter;
 
-  const float etaBarrel() {return 1.4;}
+  static float etaBarrel() { return 1.4; }
 
 };
 

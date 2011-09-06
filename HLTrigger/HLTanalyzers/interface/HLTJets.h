@@ -182,7 +182,7 @@ private:
     
     int evtCounter;
     
-    const float etaBarrel() {return 1.4;}
+    static float etaBarrel() { return 1.4; }
     
     //create maps linking histogram pointers to HCAL Channel hits and digis
     TString gjetpfx, rjetpfx,gmetpfx, rmetpfx,calopfx;
