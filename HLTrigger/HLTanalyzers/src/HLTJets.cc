@@ -834,9 +834,12 @@ void HLTJets::analyze(edm::Event const& iEvent,
             pfJetPhi[ipfJet] = i->phi();
             pfJetPt[ipfJet] = i->pt();           
             
-	    pfHT  += i -> pt();
-            pfMHTx = pfMHTx + i->px();
-            pfMHTy = pfMHTy + i->py();
+	    if (i->pt() > 40. && abs(i->eta())<3.0)
+	      pfHT  += i -> pt();
+	    if (i->pt() > 30.){
+	      pfMHTx = pfMHTx + i->px();
+	      pfMHTy = pfMHTy + i->py();
+	    }
             ipfJet++;   
         } 
         pfMHT = sqrt(pfMHTx*pfMHTx + pfMHTy*pfMHTy);
