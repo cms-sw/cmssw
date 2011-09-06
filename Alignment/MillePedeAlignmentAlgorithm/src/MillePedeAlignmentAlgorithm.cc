@@ -3,9 +3,9 @@
  *
  *  \author    : Gero Flucke
  *  date       : October 2006
- *  $Revision: 1.75 $
- *  $Date: 2011/08/04 09:34:16 $
- *  (last update by $Author: mussgill $)
+ *  $Revision: 1.76 $
+ *  $Date: 2011/08/08 21:52:32 $
+ *  (last update by $Author: flucke $)
  */
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeAlignmentAlgorithm.h"
@@ -342,9 +342,9 @@ MillePedeAlignmentAlgorithm::addReferenceTrajectory(const EventInfo &eventInfo,
       } 
     } // end loop on hits
 
-// CHK add 'Multiple Scattering Measurements' for break points, broken lines
-    for (unsigned int iMsMeas = 0; iMsMeas < refTrajPtr->numberOfMsMeas(); ++iMsMeas) {
-      this->addMsMeas(refTrajPtr, iMsMeas);
+    // add virtual measurements
+    for (unsigned int iVirtualMeas = 0; iVirtualMeas < refTrajPtr->numberOfVirtualMeas(); ++iVirtualMeas) {
+      this->addVirtualMeas(refTrajPtr, iVirtualMeas);
     }
              
     // kill or end 'track' for mille, depends on #hits criterion
@@ -788,13 +788,13 @@ void MillePedeAlignmentAlgorithm::diagonalize
 
 //__________________________________________________________________________________________________
 void MillePedeAlignmentAlgorithm
-::addRefTrackMsMeas1D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-                    unsigned int iMsMeas, TMatrixDSym &aHitCovarianceM,
-                    TMatrixF &aHitResidualsM, TMatrixF &aLocalDerivativesM)
+::addRefTrackVirtualMeas1D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
+			   unsigned int iVirtualMeas, TMatrixDSym &aHitCovarianceM,
+			   TMatrixF &aHitResidualsM, TMatrixF &aLocalDerivativesM)
 {
-
   // This Method is valid for 1D measurements only
-  const unsigned int xIndex = iMsMeas + refTrajPtr->numberOfHitMeas();
+
+  const unsigned int xIndex = iVirtualMeas + refTrajPtr->numberOfHitMeas();
   // Covariance into a TMatrixDSym
   
   //aHitCovarianceM = new TMatrixDSym(1);
@@ -992,13 +992,13 @@ int MillePedeAlignmentAlgorithm
 
 //__________________________________________________________________________________________________
 void MillePedeAlignmentAlgorithm
-::addMsMeas(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, unsigned int iMsMeas)
+::addVirtualMeas(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr, unsigned int iVirtualMeas)
 {
   TMatrixDSym aHitCovarianceM(1);
   TMatrixF aHitResidualsM(1,1);
   TMatrixF aLocalDerivativesM(1, refTrajPtr->derivatives().num_col());
   // below method fills above 3 'matrices'
-  this->addRefTrackMsMeas1D(refTrajPtr, iMsMeas, aHitCovarianceM, aHitResidualsM, aLocalDerivativesM);
+  this->addRefTrackVirtualMeas1D(refTrajPtr, iVirtualMeas, aHitCovarianceM, aHitResidualsM, aLocalDerivativesM);
   
   // no global parameters (use dummy 0)
   TMatrixF aGlobalDerivativesM(1,1);

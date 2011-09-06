@@ -7,9 +7,9 @@
 ///
 ///  \author    : Gero Flucke
 ///  date       : October 2006
-///  $Revision: 1.33 $
-///  $Date: 2011/05/23 21:12:36 $
-///  (last update by $Author: mussgill $)
+///  $Revision: 1.34 $
+///  $Date: 2011/08/08 21:52:31 $
+///  (last update by $Author: flucke $)
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 
@@ -107,14 +107,14 @@ class MillePedeAlignmentAlgorithm : public AlignmentAlgorithmBase
 			 unsigned int iTrajHit, TMatrixDSym &aHitCovarianceM,
 			 TMatrixF &aHitResidualsM, TMatrixF &aLocalDerivativesM);
   
-  /// adds data from reference trajectory from a specific multiple scattering measurement
-  void addMsMeas(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-		 unsigned int iMsMeas);
+  /// adds data for virtual measurements from reference trajectory
+  void addVirtualMeas(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
+		      unsigned int iVirtualMeas);
 			   
- /// adds multiple scattering data from reference trajectory from a specific Hit
-  void addRefTrackMsMeas1D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
-			   unsigned int iTrajHit,TMatrixDSym &aHitCovarianceM,
-			   TMatrixF &aHitResidualsM, TMatrixF &aLocalDerivativesM);
+ /// adds data for a specific virtual measurement from reference trajectory 
+  void addRefTrackVirtualMeas1D(const ReferenceTrajectoryBase::ReferenceTrajectoryPtr &refTrajPtr,
+				unsigned int iVirtualMeas,TMatrixDSym &aHitCovarianceM,
+				TMatrixF &aHitResidualsM, TMatrixF &aLocalDerivativesM);
   
   /// recursively adding derivatives and labels, false if problems
   bool globalDerivativesHierarchy(const EventInfo &eventInfo, 
