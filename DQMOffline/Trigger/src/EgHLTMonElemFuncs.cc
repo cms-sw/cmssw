@@ -456,14 +456,14 @@ void MonElemFuncs::initTrigTagProbeHist_2Leg(std::vector<MonElemContainer<OffEle
   std::string trigNameLeg1 = filterName.substr(0,filterName.find("::")); 
   std::string trigNameLeg2 = filterName.substr(filterName.find("::")+2);
 
-  float etCutValue = 20.;
+  float etCutValue = 0.;
   MonElemContainer<OffEle>* monElemCont = new MonElemContainer<OffEle>("trigTagProbe","Trigger Tag and Probe",new EgTrigTagProbeCut_New(TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17TrackIsolFilter"),TrigCodes::getCode("hltEle32CaloIdTCaloIsoTTrkIdTTrkIsoTSC17HEDoubleFilter"),cutMask,&OffEle::cutCode));
   //this is all that pass trigtagprobecut
-  MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigNameLeg2,trigNameLeg2+"_"+monElemCont->name()+"_gsfEle_allEt20",bins,new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC));
+  //MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigNameLeg2,trigNameLeg2+"_"+monElemCont->name()+"_gsfEle_allEt20",bins,new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC));
   //this is all that pass trigtagprobecut and the probe passes the first trigger
-  MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigNameLeg2,trigNameLeg2+"_"+monElemCont->name()+"_gsfEle_passEt20",bins,&(*(new EgMultiCut<OffEle>) << new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC) << new EgObjTrigCut<OffEle>(TrigCodes::getCode(trigNameLeg1),EgObjTrigCut<OffEle>::AND)));
+  //MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigNameLeg2,trigNameLeg2+"_"+monElemCont->name()+"_gsfEle_passEt20",bins,&(*(new EgMultiCut<OffEle>) << new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC) << new EgObjTrigCut<OffEle>(TrigCodes::getCode(trigNameLeg1),EgObjTrigCut<OffEle>::AND)));
   //this is all that pass trigtagprobecut and the probe passes the second trigger and fails the first trigger
-  MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigNameLeg2,trigNameLeg2+"_"+monElemCont->name()+"_gsfEle_passLeg2failLeg1Et20",bins,&(*(new EgMultiCut<OffEle>) << new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC) << new EgObjTrigCut<OffEle>(TrigCodes::getCode(trigNameLeg2),EgObjTrigCut<OffEle>::AND,TrigCodes::getCode(trigNameLeg1),EgObjTrigCut<OffEle>::AND)));
+  MonElemFuncs::initStdEleCutHists(monElemCont->cutMonElems(),trigNameLeg2,trigNameLeg2+"_"+monElemCont->name()+"_gsfEle_passLeg2failLeg1",bins,&(*(new EgMultiCut<OffEle>) << new EgGreaterCut<OffEle,float>(etCutValue,&OffEle::etSC) << new EgObjTrigCut<OffEle>(TrigCodes::getCode(trigNameLeg2),EgObjTrigCut<OffEle>::AND,TrigCodes::getCode(trigNameLeg1),EgObjTrigCut<OffEle>::AND)));
 
 }
 

@@ -102,6 +102,10 @@ void trigTools::getActiveFilters(const HLTConfigProvider& hltConfig,std::vector<
 {
   
   activeFilters.clear();
+  activeEleFilters.clear();
+  activeEle2LegFilters.clear();
+  activePhoFilters.clear();
+  activePho2LegFilters.clear();
   
   for(size_t pathNr=0;pathNr<hltConfig.size();pathNr++){
     const std::string& pathName = hltConfig.triggerName(pathNr);

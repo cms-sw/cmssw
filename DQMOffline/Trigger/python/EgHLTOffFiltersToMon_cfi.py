@@ -109,7 +109,8 @@ egHLTOffFiltersToMon = cms.PSet (
 
     
     ),
-                                
+           
+    phoHLTFilterNames2Leg=cms.vstring(),                     
     phoHLTFilterNames=cms.vstring(
 
     #8E29

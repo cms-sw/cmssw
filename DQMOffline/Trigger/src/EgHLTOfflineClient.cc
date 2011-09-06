@@ -30,9 +30,11 @@ EgHLTOfflineClient::EgHLTOfflineClient(const edm::ParameterSet& iConfig):dbe_(NU
   }
  
 
-  //eleHLTFilterNames_ = iConfig.getParameter<std::vector<std::string> >("eleHLTFilterNames");
+  eleHLTFilterNames_ = iConfig.getParameter<std::vector<std::string> >("eleHLTFilterNames");
+  eleHLTFilterNames2Leg_ = iConfig.getParameter<std::vector<std::string> >("eleHLTFilterNames2Leg");
   eleTightLooseTrigNames_ = iConfig.getParameter<std::vector<std::string> >("eleTightLooseTrigNames");
   phoHLTFilterNames_ = iConfig.getParameter<std::vector<std::string> >("phoHLTFilterNames");
+  phoHLTFilterNames2Leg_ = iConfig.getParameter<std::vector<std::string> >("phoHLTFilterNames2Leg");
   phoTightLooseTrigNames_ = iConfig.getParameter<std::vector<std::string> >("phoTightLooseTrigNames");
 
   eleN1EffVars_=iConfig.getParameter<std::vector<std::string> >("eleN1EffVars");
@@ -95,6 +97,7 @@ void EgHLTOfflineClient::beginRun(const edm::Run& run, const edm::EventSetup& c)
       egHLT::trigTools::getActiveFilters(hltConfig,activeFilters,activeEleFilters,activeEle2LegFilters,activePhoFilters,activePho2LegFilters);
       
       egHLT::trigTools::filterInactiveTriggers(eleHLTFilterNames_,activeFilters);
+      egHLT::trigTools::filterInactiveTriggers(eleHLTFilterNames2Leg_,activeEle2LegFilters);
       egHLT::trigTools::filterInactiveTriggers(phoHLTFilterNames_,activePhoFilters);
       egHLT::trigTools::filterInactiveTightLooseTriggers(eleTightLooseTrigNames_,activeEleFilters);
       egHLT::trigTools::filterInactiveTightLooseTriggers(phoTightLooseTrigNames_,activePhoFilters);
@@ -140,6 +143,17 @@ void EgHLTOfflineClient::runClient_()
 	createN1EffHists(eleHLTFilterNames_[filterNr],eleHLTFilterNames_[filterNr]+"_gsfEle_"+eleEffTags_[effNr],regions[regionNr],eleN1EffVars_);
 	createSingleEffHists(eleHLTFilterNames_[filterNr],eleHLTFilterNames_[filterNr]+"_gsfEle_"+eleEffTags_[effNr],regions[regionNr],eleSingleEffVars_);
 	createTrigTagProbeEffHistsNewAlgo(eleHLTFilterNames_[filterNr],regions[regionNr],eleTrigTPEffVsVars_,"gsfEle");
+      }
+    }
+  }
+  for(size_t filterNr=0;filterNr<eleHLTFilterNames2Leg_.size();filterNr++){
+    //std::cout<<"FilterName: "<<eleHLTFilterNames2Leg_[filterNr]<<std::endl;
+    for(size_t regionNr=0;regionNr<regions.size();regionNr++){
+      for(size_t effNr=0;effNr<eleEffTags_.size();effNr++){
+	std::string trigNameLeg1 = eleHLTFilterNames2Leg_[filterNr].substr(0,eleHLTFilterNames2Leg_[filterNr].find("::")); 
+	std::string trigNameLeg2 = eleHLTFilterNames2Leg_[filterNr].substr(eleHLTFilterNames2Leg_[filterNr].find("::")+2);
+	dbe_->setCurrentFolder(dirName_+"/Client_Histos/"+trigNameLeg2);
+	createTrigTagProbeEffHists2Leg(trigNameLeg1,trigNameLeg2,regions[regionNr],eleTrigTPEffVsVars_,"gsfEle");
       }
     }
   }
@@ -283,6 +297,39 @@ void EgHLTOfflineClient::createTrigTagProbeEffHistsNewAlgo(const std::string& fi
   }//end loop over vsVarNames
 }
 
+void EgHLTOfflineClient::createTrigTagProbeEffHists2Leg(const std::string& filterNameLeg1,const std::string& filterNameLeg2,const std::string& region,const std::vector<std::string>& vsVarNames,const std::string& objName)
+{
+  for(size_t varNr=0;varNr<vsVarNames.size();varNr++){
+    
+    std::string allName(dirName_+"/Source_Histos/"+filterNameLeg2+"/"+filterNameLeg2+"_trigTagProbe_"+objName+"_all_"+vsVarNames[varNr]+"_"+region);
+    MonitorElement* all = dbe_->get(allName); 
+    if(all==NULL){
+      edm::LogInfo("EgHLTOfflineClient") <<" couldnt get hist "<<allName;
+      continue;
+    }
+    std::string Leg2NotLeg1SourceName(dirName_+"/Source_Histos/"+filterNameLeg2+"/"+filterNameLeg2+"_trigTagProbe_"+objName+"_passLeg2failLeg1_"+vsVarNames[varNr]+"_"+region);
+    MonitorElement* Leg2NotLeg1Source = dbe_->get(Leg2NotLeg1SourceName); 
+    if(Leg2NotLeg1Source==NULL){
+      edm::LogInfo("EgHLTOfflineClient") <<" couldnt get hist "<<Leg2NotLeg1SourceName;
+      continue;
+    }
+
+    std::string Leg1EffName(dirName_+"/Client_Histos/"+filterNameLeg1+"/"+filterNameLeg1+"_trigTagProbeEff_"+objName+"_vs_"+vsVarNames[varNr]+"_"+region);
+    MonitorElement *Leg1Eff = dbe_->get(Leg1EffName);
+    if(Leg1Eff==NULL){
+      edm::LogInfo("EgHLTOfflineClient") <<" couldnt get hist "<<Leg1EffName;
+      continue;
+    }
+    std::string effHistTitle(filterNameLeg2+"_trigTagProbeEff2Leg_"+objName+"_vs_"+vsVarNames[varNr]+"_"+region);//std::cout<<effHistTitle<<std::endl;
+    if(region=="eb" || region=="ee"){
+      if(region=="eb") effHistTitle = "Barrel "+filterNameLeg2+"_"+objName+" TrigTagProbeEff2Leg vs "+vsVarNames[varNr];
+      if(region=="ee") effHistTitle = "Endcap "+filterNameLeg2+"_"+objName+" TrigTagProbeEff2Leg vs "+vsVarNames[varNr];
+    }//std::cout<<effHistTitle<<std::endl;
+    makeEffMonElem2Leg(filterNameLeg2,filterNameLeg2+"_trigTagProbeEff2Leg_"+objName+"_vs_"+vsVarNames[varNr]+"_"+region,effHistTitle,Leg1Eff,Leg2NotLeg1Source,all);
+  }//end loop over vsVarNames
+}
+
+
 void EgHLTOfflineClient::createLooseTightTrigEff(const std::vector<std::string>&  tightLooseTrigNames,const std::string& region,const std::vector<std::string>& vsVarNames,const std::string& objName)
 {
   for(size_t varNr=0;varNr<vsVarNames.size();varNr++){
@@ -374,6 +421,43 @@ MonitorElement* EgHLTOfflineClient::makeEffMonElemFromPassAndFailAndTagTag(const
   }
   return eff;
 }
+MonitorElement* EgHLTOfflineClient::makeEffMonElem2Leg(const std::string& filter,const std::string& name,const std::string& title,const MonitorElement* Leg1Eff,const MonitorElement* Leg2NotLeg1Source,const MonitorElement* all)
+{
+  TH1F* allHist = all->getTH1F();
+  if(allHist->GetSumw2()==0)allHist->Sumw2();
+  TH1F* Leg2NotLeg1SourceHist = Leg2NotLeg1Source->getTH1F();
+  if(Leg2NotLeg1SourceHist->GetSumw2()==0)Leg2NotLeg1SourceHist->Sumw2();
+
+  TH1F* effHistLeg2NotLeg1 = (TH1F*)allHist->Clone(name.c_str());
+  if(effHistLeg2NotLeg1->GetSumw2()==0)effHistLeg2NotLeg1->Sumw2();
+  effHistLeg2NotLeg1->Divide(Leg2NotLeg1SourceHist, allHist, 1, 1, "B");
+  
+  TH1F* Leg1EffHist = Leg1Eff->getTH1F();
+  if(Leg1EffHist->GetSumw2()==0)Leg1EffHist->Sumw2();
+
+  TH1F* effHistTerm1 = (TH1F*)allHist->Clone(name.c_str());
+  if(effHistTerm1->GetSumw2()==0)effHistTerm1->Sumw2();
+  effHistTerm1->Multiply(Leg1EffHist, Leg1EffHist, 1, 1, "B");
+
+  TH1F* effHistTerm2 = (TH1F*)allHist->Clone(name.c_str());
+  if(effHistTerm2->GetSumw2()==0)effHistTerm2->Sumw2();
+  effHistTerm2->Multiply(Leg1EffHist, effHistLeg2NotLeg1, 1, 1, "B");
+  effHistTerm2->Scale(2);
+
+  TH1F* effHist = (TH1F*)allHist->Clone(name.c_str());
+  if(effHist->GetSumw2()==0)effHist->Sumw2();
+  effHist->Add(effHistTerm1, effHistTerm2, 1, 1);
+  effHist->SetTitle(title.c_str());
+  
+  MonitorElement* eff = dbe_->get(dirName_+"/Client_Histos/"+filter+"/"+name);
+  if(eff==NULL) eff= dbe_->book1D(name,effHist);
+  else{ //I was having problems with collating the histograms, hence why I'm just resetting the histogram value
+    *eff->getTH1F()=*effHist; 
+    delete effHist;
+  }
+  return eff;
+}
+
 //-----Morse-------
 //MonitorElement* EgHLTOfflineClient::makeEffMonElemFromPassAndFail(const std::string& name,const MonitorElement* pass,const MonitorElement* fail)
 MonitorElement* EgHLTOfflineClient::makeEffMonElemFromPassAndFail(const std::string& filterName,const std::string& name,const std::string& title,const MonitorElement* pass,const MonitorElement* fail)
