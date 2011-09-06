@@ -71,6 +71,10 @@ namespace edm {
     
     bool isCompactForm() const;
     
+    //Used by ROOT storage
+    // CMS_CLASS_VERSION(10) // This macro is not defined here, so expand it.
+    static short Class_Version() {return 10;}
+
   private:
 
     /// Hexified version of data *must* contain a multiple of 2
