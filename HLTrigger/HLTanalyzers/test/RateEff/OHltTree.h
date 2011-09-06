@@ -13631,7 +13631,8 @@ public:
          float L1SeedEt,
          bool iso,
          int& EtMaxIt,
-         std::vector<int>* it);
+         std::vector<int>* it,
+         bool WP80);
 
    int OpenHltCleanedTriJetPassed(
         float Et1,
@@ -13654,7 +13655,6 @@ public:
          bool cor,
          const std::string& algo,
          float Deta,
-         float Mjj,
          bool etaOpposite,
          bool jetID,
          std::vector<int> ohEleIts);

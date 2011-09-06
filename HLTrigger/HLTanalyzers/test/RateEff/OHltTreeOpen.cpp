@@ -8755,8 +8755,7 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
     }
 
   ///VBF Paths
-	
- //------ 3E33 ------//
+  //------ 3E33 ------//
   
   //Ele27 - TighterEleIdIsol - CaloJetCor pT 35 25 - Deta 3 + Third Jet 20
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3_Jet20") == 0) {
@@ -8766,7 +8765,7 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 	  {
 	    int EtMaxIt = -1;
 	    std::vector<int> EleIts;
-	    if (OpenHlt1ElectronVbfEleIDPassed(27., 20., true, EtMaxIt, &EleIts)
+            if (OpenHlt1ElectronVbfEleIDPassed(27., 20., true, EtMaxIt, &EleIts, false)
 		>= 1)
 	      {
 		if (OpenHltCleanedTriJetPassed(
@@ -8795,7 +8794,7 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 	  {
 	    int EtMaxIt = -1;
 	    std::vector<int> EleIts;
-	    if (OpenHlt1ElectronVbfEleIDPassed(30., 20., true, EtMaxIt, &EleIts)
+            if (OpenHlt1ElectronVbfEleIDPassed(30., 20., true, EtMaxIt, &EleIts, false)
 		>= 1)
 	      {
 		if (OpenHltCleanedTriJetPassed(
@@ -8824,7 +8823,7 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 	  {
 	    int EtMaxIt = -1;
 	    std::vector<int> EleIts;
-            if (OpenHlt1ElectronVbfEleIDPassed(27., 20., false, EtMaxIt, &EleIts)
+            if (OpenHlt1ElectronVbfEleIDPassed(27., 20., false, EtMaxIt, &EleIts, false)
 		>= 1)
 	      {
 		if (OpenHltCleanedTriJetPassed(
@@ -8844,9 +8843,92 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 	  }
       }
   }
+  
+  //------ 5E33 ------//
+  
+  //Ele27 - WP80 - PFJet pT 25 25 - Deta 3
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele27_WP80_DiPFJet25_Deta3") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second == 1)
+    {
+      if (prescaleResponse(menu, cfg, rcounter, it) )
+      {
+        int EtMaxIt = -1;
+        std::vector<int> EleIts;
+        if (OpenHlt1ElectronVbfEleIDPassed(27., 20., true, EtMaxIt, &EleIts, true)
+            >= 1)
+        {
+          if (OpenHltCleanedDiJetPassed(
+              25.,
+              25.,
+              -1.,
+              false,
+              "PF",
+              3.,
+              false,
+              false,
+              EleIts) >= 1)
+            triggerBit[it] = true;
+        }
+      }
+    }
+  }
+
+  //Ele32 - WP80 - PFJet pT 25 25 - Deta 3p5
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele32_WP80_DiPFJet25_Deta3p5") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second == 1)
+    {
+      if (prescaleResponse(menu, cfg, rcounter, it) )
+      {
+        int EtMaxIt = -1;
+        std::vector<int> EleIts;
+        if (OpenHlt1ElectronVbfEleIDPassed(32., 20., true, EtMaxIt, &EleIts, true)
+            >= 1)
+        {
+          if (OpenHltCleanedDiJetPassed(
+              25.,
+              25.,
+              -1.,
+              false,
+              "PF",
+              3.5,
+              false,
+              false,
+              EleIts) >= 1)
+            triggerBit[it] = true;
+        }
+      }
+    }
+  }
+  
+  //Ele27 - TighterEleId NO Isol - PFJet pT 25 25 - Deta 3 - background
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele27_CaloIdVT_TrkIdT_DiPFJet25_Deta3") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second == 1)
+    {
+      if (prescaleResponse(menu, cfg, rcounter, it) )
+      {
+        int EtMaxIt = -1;
+        std::vector<int> EleIts;
+        if (OpenHlt1ElectronVbfEleIDPassed(27., 20., false, EtMaxIt, &EleIts, false)
+            >= 1)
+        {
+          if (OpenHltCleanedDiJetPassed(
+              25.,
+              25.,
+              -1.,
+              false,
+              "PF",
+              3.,
+              false,
+              false,
+              EleIts) >= 1)
+            triggerBit[it] = true;
+        }
+      }
+    }
+  }
 
   ///ggH Paths
-  //------ 2E33 ------//
+  //------ 3E33 ------//
 
   //Ele27 - TighterEleIdIsol - CaloJetCor pT 30 25 - pfMHT 20
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT20") == 0) {
@@ -8857,7 +8939,7 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 	    int EtMaxIt = -1;
 	    std::vector<int> EleIts;
 	    if (pfMHT > 20. &&
-		OpenHlt1ElectronVbfEleIDPassed(27., 20., true, EtMaxIt, &EleIts)
+		OpenHlt1ElectronVbfEleIDPassed(27., 20., true, EtMaxIt, &EleIts, false)
 		>= 1)
 	      {
 		if (OpenHltCleanedDiJetPassed(
@@ -8866,7 +8948,6 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 					      2.6,
 					      true,
 					      "Calo",
-					      0.,
 					      0.,
 					      false,
 					      false,
@@ -8886,7 +8967,7 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 	    int EtMaxIt = -1;
 	    std::vector<int> EleIts;
 	    if (pfMHT > 25. &&
-		OpenHlt1ElectronVbfEleIDPassed(30., 20., true, EtMaxIt, &EleIts)
+		OpenHlt1ElectronVbfEleIDPassed(30., 20., true, EtMaxIt, &EleIts, false)
 		>= 1)
 	      {
 		if (OpenHltCleanedDiJetPassed(
@@ -8895,7 +8976,6 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 					      2.6,
 					      true,
 					      "Calo",
-					      0.,
 					      0.,
 					      false,
 					      false,
@@ -8914,7 +8994,7 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 	  {
 	    int EtMaxIt = -1;
 	    std::vector<int> EleIts;
-	    if (OpenHlt1ElectronVbfEleIDPassed(27., 20., true, EtMaxIt, &EleIts)
+            if (OpenHlt1ElectronVbfEleIDPassed(27., 20., true, EtMaxIt, &EleIts, false)
 		>= 1)
 	      {
 		if (OpenHltCleanedDiJetPassed(
@@ -8923,7 +9003,6 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 					      2.6,
 					      true,
 					      "Calo",
-					      0.,
 					      0.,
 					      false,
 					      false,
@@ -8942,7 +9021,7 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 	  {
 	    int EtMaxIt = -1;
 	    std::vector<int> EleIts;
-	    if (OpenHlt1ElectronVbfEleIDPassed(27., 20., false, EtMaxIt, &EleIts)
+            if (OpenHlt1ElectronVbfEleIDPassed(27., 20., false, EtMaxIt, &EleIts, false)
 		>= 1)
 	      {
 		if (OpenHltCleanedDiJetPassed(
@@ -8952,7 +9031,6 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 					      true,
 					      "Calo",
 					      0.,
-					      0.,
 					      false,
 					      false,
 					      EleIts) >= 1)
@@ -8960,183 +9038,122 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 	      }
 	  }
       }
+  }
+ 
+  
+  //------ 5E33 ------//
+
+  //Ele27 - WP80 - PFJet pT 25 25 - PFMHT15 - signal
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele27_WP80_DiCentralPFJet25_PFMHT15") == 0) {
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second == 1)
+    {
+      if (prescaleResponse(menu, cfg, rcounter, it) )
+      {
+        int EtMaxIt = -1;
+        std::vector<int> EleIts;
+        if (pfMHT > 15. && 
+            OpenHlt1ElectronVbfEleIDPassed(27., 20., true, EtMaxIt, &EleIts, true)
+            >= 1)
+        {
+          if (OpenHltCleanedDiJetPassed(
+              25.,
+          25.,
+          2.6,
+          false,
+          "PF",
+          0.,
+          false,
+          false,
+          EleIts) >= 1)
+            triggerBit[it] = true;
+        }
+      }
+    }
   }
   
-
-
-
-  //Ele15 - TighterEleIdIsol - CaloJetCor pT 35 25 - Deta 2.
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta2") == 0) {
+  //Ele32 - WP80 - PFJet pT 25 25 - PFMHT20 - backup
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele32_WP80_DiCentralPFJet25_PFMHT25") == 0) {
     if (map_L1BitOfStandardHLTPath.find(triggerName)->second == 1)
+    {
+      if (prescaleResponse(menu, cfg, rcounter, it) )
       {
-	if (prescaleResponse(menu, cfg, rcounter, it) )
-	  {
-	    int EtMaxIt = -1;
-	    std::vector<int> EleIts;
-	    if (OpenHlt1ElectronVbfEleIDPassed(15., 12., true, EtMaxIt, &EleIts)
-		>= 1)
-	      {
-		if (OpenHltCleanedDiJetPassed(
-					      35.,
-					      25.,
-					      -1.,
-					      true,
-					      "Calo",
-					      2.,
-					      0.,
-					      false,
-					      false,
-					      EleIts) >= 1)
-		  triggerBit[it] = true;
-	      }
-	  }
+        int EtMaxIt = -1;
+        std::vector<int> EleIts;
+        if (pfMHT > 25. && 
+            OpenHlt1ElectronVbfEleIDPassed(32., 20., true, EtMaxIt, &EleIts, true)
+            >= 1)
+        {
+          if (OpenHltCleanedDiJetPassed(
+              25.,
+          25.,
+          2.6,
+          false,
+          "PF",
+          0.,
+          false,
+          false,
+          EleIts) >= 1)
+            triggerBit[it] = true;
+        }
       }
+    }
   }
 
-  //Ele15 - TighterEleIdIsol - CaloJetCor pT 35 25 - Deta 3. - backup
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3") == 0) {
+  
+  //Ele27 - TighterEleId NO Isol - Central PFJet pT 25 25 - background
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele27_CaloIdVT_TrkIdT_DiCentralPFJet25") == 0) {
     if (map_L1BitOfStandardHLTPath.find(triggerName)->second == 1)
+    {
+      if (prescaleResponse(menu, cfg, rcounter, it) )
       {
-	if (prescaleResponse(menu, cfg, rcounter, it) )
-	  {
-	    int EtMaxIt = -1;
-	    std::vector<int> EleIts;
-	    if (OpenHlt1ElectronVbfEleIDPassed(15., 12., true, EtMaxIt, &EleIts)
-		>= 1)
-	      {
-		if (OpenHltCleanedDiJetPassed(
-					      35.,
-					      25.,
-					      -1.,
-					      true,
-					      "Calo",
-					      3.,
-					      0.,
-					      false,
-					      false,
-					      EleIts) >= 1)
-		  triggerBit[it] = true;
-	      }
-	  }
+        int EtMaxIt = -1;
+        std::vector<int> EleIts;
+        if (OpenHlt1ElectronVbfEleIDPassed(27., 20., false, EtMaxIt, &EleIts, false)
+            >= 1)
+        {
+          if (OpenHltCleanedDiJetPassed(
+              30.,
+          25.,
+          2.6,
+          false,
+          "PF",
+          0.,
+          false,
+          false,
+          EleIts) >= 1)
+            triggerBit[it] = true;
+        }
       }
+    }
   }
 
-  //Ele15 - TighterEleId NO Isol - CaloJetCor pT 35 25 - Deta 2. background
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_CaloIdVT_TrkIdT_Jet35_Jet25_Deta2") == 0) {
+  //Ele27 - WP80 - PFJet pT 25 25 - PFMHT turn on
+  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele27_WP80_DiCentralPFJet25") == 0) {
     if (map_L1BitOfStandardHLTPath.find(triggerName)->second == 1)
+    {
+      if (prescaleResponse(menu, cfg, rcounter, it) )
       {
-	if (prescaleResponse(menu, cfg, rcounter, it) )
-	  {
-	    int EtMaxIt = -1;
-	    std::vector<int> EleIts;
-	    if (OpenHlt1ElectronVbfEleIDPassed(15., 12., false, EtMaxIt, &EleIts)
-		>= 1)
-	      {
-		if (OpenHltCleanedDiJetPassed(
-					      35.,
-					      25.,
-					      -1.,
-					      true,
-					      "Calo",
-					      2.,
-					      0.,
-					      false,
-					      false,
-					      EleIts) >= 1)
-		  triggerBit[it] = true;
-	      }
-	  }
+        int EtMaxIt = -1;
+        std::vector<int> EleIts;
+        if (OpenHlt1ElectronVbfEleIDPassed(27., 20., true, EtMaxIt, &EleIts, true)
+            >= 1)
+        {
+          if (OpenHltCleanedDiJetPassed(
+              25.,
+          25.,
+          2.6,
+          false,
+          "PF",
+          0.,
+          false,
+          false,
+          EleIts) >= 1)
+            triggerBit[it] = true;
+        }
       }
-  }
-
-  ///ggH Paths
-  //Ele17 - TighterEleIdIsol - CaloJetCor pT 30 25 - pfMHT 15
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele17_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT15") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(triggerName)->second == 1)
-      {
-	if (prescaleResponse(menu, cfg, rcounter, it) )
-	  {
-	    int EtMaxIt = -1;
-	    std::vector<int> EleIts;
-	    if (pfMHT > 15. &&
-		OpenHlt1ElectronVbfEleIDPassed(17., 12., true, EtMaxIt, &EleIts)
-		>= 1)
-	      {
-		if (OpenHltCleanedDiJetPassed(
-					      30.,
-					      25.,
-					      2.6,
-					      true,
-					      "Calo",
-					      0.,
-					      0.,
-					      false,
-					      false,
-					      EleIts) >= 1)
-		  triggerBit[it] = true;
-	      }
-	  }
-      }
+    }
   }
   
-  //Ele17 - TighterEleIdIsol - CaloJetCor pT 30 25 - pfMHT 15
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT20") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(triggerName)->second == 1)
-      {
-	if (prescaleResponse(menu, cfg, rcounter, it) )
-	  {
-	    int EtMaxIt = -1;
-	    std::vector<int> EleIts;
-	    if (pfMHT > 20. &&
-		OpenHlt1ElectronVbfEleIDPassed(25., 12., true, EtMaxIt, &EleIts)
-		>= 1)
-	      {
-		if (OpenHltCleanedDiJetPassed(
-					      30.,
-					      25.,
-					      2.6,
-					      true,
-					      "Calo",
-					      0.,
-					      0.,
-					      false,
-					      false,
-					      EleIts) >= 1)
-		  triggerBit[it] = true;
-	      }
-	  }
-      }
-  }
-   
-  //Ele17 - TighterEleId NO Isol - CaloJetCor pT 30 25
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele17_CaloIdVT_TrkIdT_CentralJet30_CentralJet25") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(triggerName)->second == 1)
-      {
-	if (prescaleResponse(menu, cfg, rcounter, it) )
-	  {
-	    int EtMaxIt = -1;
-	    std::vector<int> EleIts;
-	    if (OpenHlt1ElectronVbfEleIDPassed(17., 12., false, EtMaxIt, &EleIts)
-		>= 1)
-	      {
-		if (OpenHltCleanedDiJetPassed(
-					      30.,
-					      25.,
-					      2.6,
-					      true,
-					      "Calo",
-					      0.,
-					      0.,
-					      false,
-					      false,
-					      EleIts) >= 1)
-		  triggerBit[it] = true;
-	      }
-	  }
-      }
-  }
-  
-
   // 2011-05-11: promoted to v4, removed R9 cut, TODO check
   else if (triggerName.CompareTo("OpenHLT_Ele8_CaloIdL_CaloIsoVL_Jet40_v4") == 0)
     {
@@ -20470,7 +20487,6 @@ int OHltTree::OpenHltCleanedDiJetPassed(
       bool cor,
       const std::string& algo,
       float Deta,
-      float Mjj,
       bool etaOpposite,
       bool jetID,
       std::vector<int> ohEleIts)
@@ -20479,7 +20495,7 @@ int OHltTree::OpenHltCleanedDiJetPassed(
    int NohMyJet = 0;
    float ohMyJetEta[200];
    float ohMyJetPhi[200];
-   float ohMyJetEt[200];
+   float ohMyJetPt[200];
    float ohMyJetE[200];
    float ohMyJetEMF[200];
    float ohMyJetN90hits[200];
@@ -20491,7 +20507,7 @@ int OHltTree::OpenHltCleanedDiJetPassed(
       {
          ohMyJetEta[ohMyJetIt] = ohJetCalEta[ohMyJetIt];
          ohMyJetPhi[ohMyJetIt] = ohJetCalPhi[ohMyJetIt];
-         ohMyJetEt[ohMyJetIt] = ohJetCalE[ohMyJetIt] * sin(2.*atan(exp(-1.
+         ohMyJetPt[ohMyJetIt] = ohJetCalE[ohMyJetIt] * sin(2.*atan(exp(-1.
                *ohJetCalEta[ohMyJetIt])));
          ohMyJetE[ohMyJetIt] = ohJetCalE[ohMyJetIt];
          ohMyJetEMF[ohMyJetIt] = ohJetCalEMF[ohMyJetIt];
@@ -20506,9 +20522,7 @@ int OHltTree::OpenHltCleanedDiJetPassed(
       {
          ohMyJetEta[ohMyJetIt] = ohJetCorCalEta[ohMyJetIt];
          ohMyJetPhi[ohMyJetIt] = ohJetCorCalPhi[ohMyJetIt];
-//          ohMyJetEt[ohMyJetIt] = ohJetCorCalE[ohMyJetIt] * sin(2.*atan(exp(-1.
-//                *ohJetCorCalEta[ohMyJetIt])));
-         ohMyJetEt[ohMyJetIt] = ohJetCorCalPt[ohMyJetIt];
+         ohMyJetPt[ohMyJetIt] = ohJetCorCalPt[ohMyJetIt];
          ohMyJetE[ohMyJetIt] = ohJetCorCalE[ohMyJetIt];
          ohMyJetEMF[ohMyJetIt] = ohJetCorCalEMF[ohMyJetIt];
          ohMyJetN90hits[ohMyJetIt] = ohJetCorCalN90hits[ohMyJetIt];
@@ -20522,84 +20536,90 @@ int OHltTree::OpenHltCleanedDiJetPassed(
       {
          ohMyJetEta[ohMyJetIt] = pfJetEta[ohMyJetIt];
          ohMyJetPhi[ohMyJetIt] = pfJetPhi[ohMyJetIt];
-         ohMyJetEt[ohMyJetIt] = pfJetPt[ohMyJetIt];
+         ohMyJetPt[ohMyJetIt] = pfJetPt[ohMyJetIt];
          ohMyJetEMF[ohMyJetIt] = -1.;
          ohMyJetN90hits[ohMyJetIt] = -1.;
       }
    }
 
    // clean the jet collection from electrons
-   int NohCleanedJet = 0;
-   float ohCleanedJetEta[200];
-   float ohCleanedJetPhi[200];
-   float ohCleanedJetEt[200];
-   float ohCleanedJetE[200];
-   float ohCleanedJetEMF[200];
-   float ohCleanedJetN90hits[200];
-
-   for (int ohMyJetIt = 0; ohMyJetIt < NohMyJet; ++ohMyJetIt)
-   {
-      bool isMatching = false;
-      for (unsigned int ohEleIt = 0; ohEleIt < ohEleIts.size(); ++ohEleIt)
-         if (deltaR(ohEleEta[ohEleIts.at(ohEleIt)], ohElePhi[ohEleIts.at(ohEleIt)], ohMyJetEta[ohMyJetIt], ohMyJetPhi[ohMyJetIt]) < 0.3)
-            isMatching = true;
-
-      if (isMatching == true)
-         continue;
-
-      ohCleanedJetEta[NohCleanedJet] = ohMyJetEta[ohMyJetIt];
-      ohCleanedJetPhi[NohCleanedJet] = ohMyJetPhi[ohMyJetIt];
-      ohCleanedJetEt[NohCleanedJet] = ohMyJetEt[ohMyJetIt];
-      ohCleanedJetE[NohCleanedJet] = ohMyJetE[ohMyJetIt];
-      ohCleanedJetEMF[NohCleanedJet] = ohMyJetEMF[ohMyJetIt];
-      ohCleanedJetN90hits[NohCleanedJet] = ohMyJetN90hits[ohMyJetIt];
-      ++NohCleanedJet;
-   }
-
-   // do the selection
    int rc = 0;
-   if (NohCleanedJet < 2)
-      return rc;
 
-   // loop on jets
-   for (int i = 0; i < NohCleanedJet; ++i)
-   {
+   // loop on each good electron
+   for (unsigned int ohEleIt = 0; ohEleIt < ohEleIts.size(); ++ohEleIt) {
+
+    int NohCleanedJet = 0;
+    float ohCleanedJetEta[200];
+    float ohCleanedJetPhi[200];
+    float ohCleanedJetEt[200];
+    float ohCleanedJetE[200];
+    float ohCleanedJetEMF[200];
+    float ohCleanedJetN90hits[200];
+  
+    for (int ohMyJetIt = 0; ohMyJetIt < NohMyJet; ++ohMyJetIt)
+    {
+        bool isMatching = false;
+        // check if this jet is overlapped with the ohEleIt good electron
+        if (deltaR(ohEleEta[ohEleIts.at(ohEleIt)], ohElePhi[ohEleIts.at(ohEleIt)], ohMyJetEta[ohMyJetIt], ohMyJetPhi[ohMyJetIt]) < 0.3)
+          isMatching = true;
+    
+        if (isMatching == true)
+          continue;
+  
+        ohCleanedJetEta[NohCleanedJet] = ohMyJetEta[ohMyJetIt];
+        ohCleanedJetPhi[NohCleanedJet] = ohMyJetPhi[ohMyJetIt];
+        ohCleanedJetEt[NohCleanedJet] = ohMyJetPt[ohMyJetIt];
+        ohCleanedJetE[NohCleanedJet] = ohMyJetE[ohMyJetIt];
+        ohCleanedJetEMF[NohCleanedJet] = ohMyJetEMF[ohMyJetIt];
+        ohCleanedJetN90hits[NohCleanedJet] = ohMyJetN90hits[ohMyJetIt];
+        ++NohCleanedJet;
+    }
+  
+    // do the selection
+    if (NohCleanedJet < 2)
+      continue; 
+     
+    // loop on jets
+    for (int i = 0; i < NohCleanedJet; ++i)
+    {
       if ( (jetID == true) && (TMath::Abs(ohCleanedJetEta[i]) < 2.6)
             && (ohCleanedJetEMF[i] < 0.01))
-         continue;
+        continue;
       if ( (jetID == true) && (TMath::Abs(ohCleanedJetEta[i]) < 2.6)
             && (ohCleanedJetN90hits[i] < 2))
-         continue;
+        continue;
 
       for (int j = i+1; j < NohCleanedJet; j++)
       {
-         if ( (jetID == true) && (TMath::Abs(ohCleanedJetEta[j]) < 2.6)
-               && (ohCleanedJetEMF[j] < 0.01))
+        if ( (jetID == true) && (TMath::Abs(ohCleanedJetEta[j]) < 2.6)
+              && (ohCleanedJetEMF[j] < 0.01))
             continue;
-         if ( (jetID == true) && (TMath::Abs(ohCleanedJetEta[j]) < 2.6)
-               && (ohCleanedJetN90hits[j] < 2))
+        if ( (jetID == true) && (TMath::Abs(ohCleanedJetEta[j]) < 2.6)
+              && (ohCleanedJetN90hits[j] < 2))
             continue;
+        
+        PtEtaPhiELorentzVector j1(
+              ohCleanedJetEt[i],
+              ohCleanedJetEta[i],
+              ohCleanedJetPhi[i],
+              ohCleanedJetE[i]);
+        PtEtaPhiELorentzVector j2(
+              ohCleanedJetEt[j],
+              ohCleanedJetEta[j],
+              ohCleanedJetPhi[j],
+              ohCleanedJetE[j]);
 
-         PtEtaPhiELorentzVector j1(
-               ohCleanedJetEt[i],
-               ohCleanedJetEta[i],
-               ohCleanedJetPhi[i],
-               ohCleanedJetE[i]);
-         PtEtaPhiELorentzVector j2(
-               ohCleanedJetEt[j],
-               ohCleanedJetEta[j],
-               ohCleanedJetPhi[j],
-               ohCleanedJetE[j]);
 
-         if ( (std::max(ohCleanedJetEt[i], ohCleanedJetEt[j]) > Et1)
-               && (std::min(ohCleanedJetEt[i], ohCleanedJetEt[j]) > Et2)
-               && (deltaEta(ohCleanedJetEta[i], ohCleanedJetEta[j]) > Deta)
-               && ((j1+j2).mass() > Mjj) 
-               && ( (etaOpposite == true && ohCleanedJetEta[i]*ohCleanedJetEta[j] < 0.) || (etaOpposite == false) )
-               && ( (AbsEtaMax > 0 && (TMath::Abs(ohCleanedJetEta[i]) < AbsEtaMax && TMath::Abs(ohCleanedJetEta[j]) < AbsEtaMax)) || AbsEtaMax < 0 ) )
+        if ( (std::max(ohCleanedJetEt[i], ohCleanedJetEt[j]) > Et1)
+              && (std::min(ohCleanedJetEt[i], ohCleanedJetEt[j]) > Et2)
+              && (deltaEta(ohCleanedJetEta[i], ohCleanedJetEta[j]) > Deta)
+              && ( (etaOpposite == true && ohCleanedJetEta[i]*ohCleanedJetEta[j] < 0.) || (etaOpposite == false) )
+              && ( (AbsEtaMax > 0 && (TMath::Abs(ohCleanedJetEta[i]) < AbsEtaMax && TMath::Abs(ohCleanedJetEta[j]) < AbsEtaMax)) || AbsEtaMax < 0 ) ) 
             ++rc;
+
       }
-   }
+    }// end loop on cleaned jets
+   }// end loop on each good electron
 
    return rc;
 }
@@ -20609,83 +20629,147 @@ int OHltTree::OpenHlt1ElectronVbfEleIDPassed(
       float L1SeedEt,
       bool iso,
       int& EtMaxIt,
-      std::vector<int>* it)
+      std::vector<int>* it,
+      bool WP80 = false)
 {
    int rc = 0;
    float EtMax = -9999.;
    if (it != NULL)
       it->clear();
 
-   // Loop over all oh electrons  
-   for (int i = 0; i < NohEle; ++i)
-   {
-      // ET/eta/pixelMatch cuts
-      if (ohEleEt[i] < Et)
-         continue;
-      if (TMath::Abs(ohEleEta[i]) > 2.65)
-         continue;
-      if (ohElePixelSeeds[i] <= 0)
-         continue;
-      if (ohEleP[i] < 0.)
-         continue;
+  // Loop over all oh electrons  
+  for (int i = 0; i < NohEle; ++i)
+  {
+    // ET/eta/pixelMatch cuts
+    if (ohEleEt[i] < Et)
+      continue;
+    if (TMath::Abs(ohEleEta[i]) > 2.65)
+      continue;
+    if (ohElePixelSeeds[i] <= 0)
+      continue;
+    if (ohEleP[i] < 0.)
+      continue;
 
-      // EleID
-      // R9
-      if ( (TMath::Abs(ohEleEta[i]) < 1.479) && (ohEleR9[i] > 0.98))
-         continue;
-      if ( (TMath::Abs(ohEleEta[i]) > 1.479) && (ohEleR9[i] > 999.))
-         continue;
-      // sigmaietaieta
-      if ( (TMath::Abs(ohEleEta[i]) < 1.479) && (ohEleClusShap[i] > 0.011))
-         continue;
-      if ( (TMath::Abs(ohEleEta[i]) > 1.479) && (ohEleClusShap[i] > 0.031))
-         continue;
+    // EleID
+    // R9
+    if ( (TMath::Abs(ohEleEta[i]) < 1.479) && (ohEleR9[i] > 999.))
+      continue;
+    if ( (TMath::Abs(ohEleEta[i]) > 1.479) && (ohEleR9[i] > 999.))
+      continue;
+    
+    if ( WP80 == false ) {
+    
+    // sigmaietaieta
+    if ( (TMath::Abs(ohEleEta[i]) < 1.479) && (ohEleClusShap[i] > 0.011))
+      continue;
+    if ( (TMath::Abs(ohEleEta[i]) > 1.479) && (ohEleClusShap[i] > 0.031))
+      continue;
 
-      // deta
-      if ( (TMath::Abs(ohEleEta[i]) < 1.479) && (TMath::Abs(ohEleDeta[i])
-            > 0.008))
-         continue;
-      if ( (TMath::Abs(ohEleEta[i]) > 1.479) && (TMath::Abs(ohEleDeta[i])
-            > 0.008))
-         continue;
+    // deta
+    if ( (TMath::Abs(ohEleEta[i]) < 1.479) && (TMath::Abs(ohEleDeta[i])
+          > 0.008))
+      continue;
+    if ( (TMath::Abs(ohEleEta[i]) > 1.479) && (TMath::Abs(ohEleDeta[i])
+          > 0.008))
+      continue;
 
-      // dphi
-      if ( (TMath::Abs(ohEleEta[i]) < 1.479) && (TMath::Abs(ohEleDphi[i])
-            > 0.070))
-         continue;
-      if ( (TMath::Abs(ohEleEta[i]) > 1.479) && (TMath::Abs(ohEleDphi[i])
-            > 0.050))
-         continue;
+    // dphi
+    if ( (TMath::Abs(ohEleEta[i]) < 1.479) && (TMath::Abs(ohEleDphi[i])
+          > 0.070))
+      continue;
+    if ( (TMath::Abs(ohEleEta[i]) > 1.479) && (TMath::Abs(ohEleDphi[i])
+          > 0.050))
+      continue;
 
-      // H/E
-      if (ohEleHforHoverE[i]/ohEleE[i] > 0.05)
-         continue;
+    // H/E
+    if (ohEleHforHoverE[i]/ohEleE[i] > 0.05)
+      continue;
 
-      // isolation
+    // isolation
 
-      // tracker iso
-      if ( (iso == true) && (TMath::Abs(ohEleEta[i]) < 1.479) && (ohEleTiso[i]
+    // tracker iso
+    if ( (iso == true) && (TMath::Abs(ohEleEta[i]) < 1.479) && (ohEleTiso[i]
             /ohEleEt[i] > 0.125))
-         continue;
-      if ( (iso == true) && (TMath::Abs(ohEleEta[i]) > 1.479) && (ohEleTiso[i]
+      continue;
+    if ( (iso == true) && (TMath::Abs(ohEleEta[i]) > 1.479) && (ohEleTiso[i]
             /ohEleEt[i] > 0.075))
-         continue;
+      continue;
 
-      // ecal iso
-      if ( (iso == true) && (TMath::Abs(ohEleEta[i]) < 1.479) && (ohEleEiso[i]
+    // ecal iso
+    if ( (iso == true) && (TMath::Abs(ohEleEta[i]) < 1.479) && (ohEleEiso[i]
             /ohEleEt[i] > 0.125))
-         continue;
-      if ( (iso == true) && (TMath::Abs(ohEleEta[i]) > 1.479) && (ohEleEiso[i]
+      continue;
+    if ( (iso == true) && (TMath::Abs(ohEleEta[i]) > 1.479) && (ohEleEiso[i]
             /ohEleEt[i] > 0.075))
-         continue;
+      continue;
 
-      // hcal iso
-      if ( (iso == true) && (TMath::Abs(ohEleEta[i]) < 1.479) && (ohEleHiso[i]
+    // hcal iso
+    if ( (iso == true) && (TMath::Abs(ohEleEta[i]) < 1.479) && (ohEleHiso[i]
             /ohEleEt[i] > 0.125))
-         continue;
-      if ( (iso == true) && (TMath::Abs(ohEleEta[i]) > 1.479) && (ohEleHiso[i]
+      continue;
+    if ( (iso == true) && (TMath::Abs(ohEleEta[i]) > 1.479) && (ohEleHiso[i]
             /ohEleEt[i] > 0.075))
-         continue;
+      continue;
+    
+    }
+    
+    if ( WP80 == true ) {
+    
+    // sigmaietaieta
+    if ( (TMath::Abs(ohEleEta[i]) < 1.479) && (ohEleClusShap[i] > 0.010))
+      continue;
+    if ( (TMath::Abs(ohEleEta[i]) > 1.479) && (ohEleClusShap[i] > 0.030))
+      continue;
+
+    // deta
+    if ( (TMath::Abs(ohEleEta[i]) < 1.479) && (TMath::Abs(ohEleDeta[i])
+          > 0.004))
+      continue;
+    if ( (TMath::Abs(ohEleEta[i]) > 1.479) && (TMath::Abs(ohEleDeta[i])
+          > 0.007))
+      continue;
+
+    // dphi
+    if ( (TMath::Abs(ohEleEta[i]) < 1.479) && (TMath::Abs(ohEleDphi[i])
+          > 0.060))
+      continue;
+    if ( (TMath::Abs(ohEleEta[i]) > 1.479) && (TMath::Abs(ohEleDphi[i])
+          > 0.030))
+      continue;
+
+    // H/E
+    if ( (TMath::Abs(ohEleEta[i]) < 1.479) && ohEleHforHoverE[i]/ohEleE[i] > 0.04)
+      continue;
+    if ( (TMath::Abs(ohEleEta[i]) > 1.479) && ohEleHforHoverE[i]/ohEleE[i] > 0.025)
+      continue;
+    
+    // isolation
+
+    // tracker iso
+    if ( (iso == true) && (TMath::Abs(ohEleEta[i]) < 1.479) && (ohEleTiso[i]
+            /ohEleEt[i] > 0.09))
+      continue;
+    if ( (iso == true) && (TMath::Abs(ohEleEta[i]) > 1.479) && (ohEleTiso[i]
+            /ohEleEt[i] > 0.04))
+      continue;
+
+    // ecal iso
+    if ( (iso == true) && (TMath::Abs(ohEleEta[i]) < 1.479) && (ohEleEiso[i]
+            /ohEleEt[i] > 0.07))
+      continue;
+    if ( (iso == true) && (TMath::Abs(ohEleEta[i]) > 1.479) && (ohEleEiso[i]
+            /ohEleEt[i] > 0.05))
+      continue;
+
+    // hcal iso
+    if ( (iso == true) && (TMath::Abs(ohEleEta[i]) < 1.479) && (ohEleHiso[i]
+            /ohEleEt[i] > 0.1))
+      continue;
+    if ( (iso == true) && (TMath::Abs(ohEleEta[i]) > 1.479) && (ohEleHiso[i]
+            /ohEleEt[i] > 0.025))
+      continue;
+    
+    }
 
       // L1 matching - isolated
 
