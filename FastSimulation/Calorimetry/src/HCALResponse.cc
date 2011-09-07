@@ -465,7 +465,7 @@ HCALResponse::responseHCAL(int mip, double energy, double eta, int partype)
   if(partype == 0) {
     ieta -= 30;  // HF starts at ieta=30 till ieta=51 
                  // but resp.vector from index=0 through 20
-    if(ieta >= maxEMeta ) ieta = maxEMeta;
+    if(ieta >= maxEMeta ) ieta = maxEMeta-1;
     else if(ieta < 0) ieta = 0;
  
     for (int i = 0; i < maxEMe; i++) {
@@ -483,7 +483,7 @@ HCALResponse::responseHCAL(int mip, double energy, double eta, int partype)
     // hadrons
     if(partype == 1) {  
       
-      if(ieta >= maxHDeta) ieta = maxHDeta;
+      if(ieta >= maxHDeta) ieta = maxHDeta-1;
       
       if(ieta < 0 ) ieta = 0;
       for (int i = 0; i < maxHDe; i++) {
