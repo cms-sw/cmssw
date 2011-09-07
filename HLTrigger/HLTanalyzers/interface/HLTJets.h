@@ -140,14 +140,14 @@ private:
     float pfHT;
     float pfMHT;    
     int nohPFJet;
-    float *pfJetEta, *pfJetPhi, *pfJetPt;
+    float *pfJetEta, *pfJetPhi, *pfJetPt, *pfJetE;
     //Reco PFTau
     int nRecoPFTau;
     float *recopfTauEta,*recopfTauPhi,*recopfTauPt,*recopfTauJetPt,*recopfTauLeadTrackPt,*recopfTauLeadPionPt;
     int   *recopfTauTrkIso, *recopfTauGammaIso;
     float *recopfTauDiscrByTancOnePercent,*recopfTauDiscrByTancHalfPercent, *recopfTauDiscrByTancQuarterPercent, *recopfTauDiscrByTancTenthPercent, *recopfTauDiscrByIso, *recopfTauDiscrAgainstMuon, *recopfTauDiscrAgainstElec;
     //Reco PF jets
-    float *jpfrecopt, *jpfrecophi, *jpfrecoeta, *jpfreconeutralHadronFraction, *jpfreconeutralEMFraction, *jpfrecochargedHadronFraction, *jpfrecochargedEMFraction;
+    float *jpfrecopt, *jpfrecoe,*jpfrecophi, *jpfrecoeta, *jpfreconeutralHadronFraction, *jpfreconeutralEMFraction, *jpfrecochargedHadronFraction, *jpfrecochargedEMFraction;
     int  *jpfreconeutralMultiplicity, *jpfrecochargedMultiplicity;
     int nrpj;
 

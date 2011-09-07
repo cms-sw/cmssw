@@ -41,6 +41,7 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 
     const int kMaxRecoPFJet = 10000;
     jpfrecopt=new float[kMaxRecoPFJet];
+    jpfrecoe=new float[kMaxRecoPFJet];
     jpfrecophi=new float[kMaxRecoPFJet];
     jpfrecoeta=new float[kMaxRecoPFJet];
     jpfreconeutralHadronFraction=new float[kMaxRecoPFJet];
@@ -147,6 +148,7 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     pfJetEta         = new float[kMaxPFJet];
     pfJetPhi         = new float[kMaxPFJet];
     pfJetPt         = new float[kMaxPFJet];
+    pfJetE         = new float[kMaxPFJet];
 
 
     const int kMaxTauIso = 5000;
@@ -326,12 +328,14 @@ void HLTJets::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
     HltTree->Branch("pfMHT",&pfMHT,"pfMHT/F");
     HltTree->Branch("NohPFJet",&nohPFJet,"NohPFJet/I");
     HltTree->Branch("pfJetPt",pfJetPt,"pfJetPt[NohPFJet]/F");
+    HltTree->Branch("pfJetE",pfJetE,"pfJetE[NohPFJet]/F");
     HltTree->Branch("pfJetEta",pfJetEta,"pfJetEta[NohPFJet]/F");
     HltTree->Branch("pfJetPhi",pfJetPhi,"pfJetPhi[NohPFJet]/F");
 
     //RECO PFJets
     HltTree->Branch("nrpj",&nrpj,"nrpj/I");
     HltTree->Branch("recopfJetpt",                    jpfrecopt,                     "recopfJetpt[nrpj]/F");
+    HltTree->Branch("recopfJete",                     jpfrecoe,                      "recopfJete[nrpj]/F");
     HltTree->Branch("recopfJetphi",                   jpfrecophi,                    "recopfJetphi[nrpj]/F");
     HltTree->Branch("recopfJeteta",                   jpfrecoeta,                    "recopfJeteta[nrpj]/F");
     HltTree->Branch("recopfJetneutralHadronFraction", jpfreconeutralHadronFraction,  "recopfJetneutralHadronFraction[nrpj]/F");
@@ -833,6 +837,7 @@ void HLTJets::analyze(edm::Event const& iEvent,
             pfJetEta[ipfJet] = i->eta();
             pfJetPhi[ipfJet] = i->phi();
             pfJetPt[ipfJet] = i->pt();           
+	    pfJetE[ipfJet] = i->energy();
             
 	    if (i->pt() > 40. && abs(i->eta())<3.0)
 	      pfHT  += i -> pt();
@@ -845,7 +850,6 @@ void HLTJets::analyze(edm::Event const& iEvent,
         pfMHT = sqrt(pfMHTx*pfMHTx + pfMHTy*pfMHTy);
         
     }
-    
     //////////////// RECO Particle Flow Jets ////////////////////////////////////
     nrpj = 0;
     if(recoPFJets.isValid()){
@@ -859,6 +863,7 @@ void HLTJets::analyze(edm::Event const& iEvent,
 		    jpfrecoeta[ipfJet] = i->eta();
 		    jpfrecophi[ipfJet] = i->phi();
 		    jpfrecopt[ipfJet] = i->pt();           
+		    jpfrecoe[ipfJet] = i->energy();           
 		    jpfreconeutralHadronFraction[ipfJet] = i->neutralHadronEnergyFraction ();
 		    jpfrecochargedHadronFraction[ipfJet] = i->chargedHadronEnergyFraction ();
 		    jpfreconeutralMultiplicity[ipfJet] = i->neutralMultiplicity ();
