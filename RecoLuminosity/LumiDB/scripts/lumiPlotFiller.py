@@ -73,7 +73,7 @@ def createRunList(c,p='.',o='.',dryrun=False):
     else:
         print allruns
         
-def totalLumi2011vstime(c,p='.',i='',o='.',begTime="03/14/11 09:00:00.00",endTime="",selectionfile=None,beamstatus=None,beamenergy=None,beamfluctuation=None,dryrun=False,withTextOutput=False,annotateBoundaryRunnum=False):
+def totalLumi2011vstime(c,p='.',i='',o='.',begTime="03/14/11 09:00:00.00",endTime="",selectionfile=None,beamstatus=None,beamenergy=None,beamfluctuation=None,dryrun=False,withTextOutput=False,annotateBoundaryRunnum=False,withFineCorrection=False):
     plotoutname='totallumivstime-2011.png'
     textoutname='totallumivstime-2011.csv'
     elements=['lumiSumPlot.py','-c',c,'-P',p,'-begin','"'+begTime+'"','-batch',os.path.join(o,plotoutname),'-yscale both','time']
@@ -98,6 +98,8 @@ def totalLumi2011vstime(c,p='.',i='',o='.',begTime="03/14/11 09:00:00.00",endTim
         elements.append(os.path.join(o,textoutname))
     if annotateBoundaryRunnum:
         elements.append('--annotateboundary')
+    if withFineCorrection:
+        elements.append('--with-correction')
     command=' '.join(elements)
     print command
     if not dryrun:
@@ -173,7 +175,7 @@ def totalLumivstime(c,p='.',i='',o='.',begTime="03/30/10 10:00:00.00",endTime=No
         statusAndOutput=commands.getstatusoutput(command)
         print statusAndOutput[1]
         
-def totalLumivstimeLastweek(c,p='.',i='',o='.',selectionfile=None,beamstatus=None,beamenergy=None,beamfluctuation=None,dryrun=False,withTextOutput=False):
+def totalLumivstimeLastweek(c,p='.',i='',o='.',selectionfile=None,beamstatus=None,beamenergy=None,beamfluctuation=None,dryrun=False,withTextOutput=False,withFineCorrection=False):
     '''
     input:
       c connect string
@@ -204,7 +206,9 @@ def totalLumivstimeLastweek(c,p='.',i='',o='.',selectionfile=None,beamstatus=Non
         elements.append(str(beamenergy))
     if beamfluctuation:
         elements.append('-beamfluctuation')
-        elements.append(str(beamfluctuation))   
+        elements.append(str(beamfluctuation))
+    if withFineCorrection:
+        elements.append('--with-correction')
     command=' '.join(elements)
     print command
     if not dryrun:
@@ -242,7 +246,7 @@ def lumi2010PerDay(c,p='.',i='',o='',begTime="03/30/10 10:00:00.00",endTime="11/
         statusAndOutput=commands.getstatusoutput(command)
         print statusAndOutput[1]
         
-def lumi2011PerDay(c,p='.',i='',o='',begTime="03/14/11 09:00:00.00",endTime=None,selectionfile=None,beamstatus=None,beamenergy=None,beamfluctuation=None,dryrun=False,withTextOutput=False,annotateBoundaryRunnum=False):
+def lumi2011PerDay(c,p='.',i='',o='',begTime="03/14/11 09:00:00.00",endTime=None,selectionfile=None,beamstatus=None,beamenergy=None,beamfluctuation=None,dryrun=False,withTextOutput=False,annotateBoundaryRunnum=False,withFineCorrection=False):
     plotoutname='lumiperday-2011.png'
     textoutname='lumiperday-2011.csv'
     elements=['lumiSumPlot.py','-c',c,'-P',p,'-begin','"'+begTime+'"','-batch',os.path.join(o,plotoutname),'-yscale both','perday']
@@ -267,6 +271,8 @@ def lumi2011PerDay(c,p='.',i='',o='',begTime="03/14/11 09:00:00.00",endTime=None
         elements.append(os.path.join(o,textoutname))
     if annotateBoundaryRunnum:
         elements.append('--annotateboundary')
+    if withFineCorrection:
+        elements.append('--with-correction')
     command=' '.join(elements)
     print command
     if not dryrun:
@@ -337,7 +343,7 @@ def totalLumi2010vsRun(c,p='.',i='',o='',begRun="132440",endRun="149509",selecti
         statusAndOutput=commands.getstatusoutput(command)
         print statusAndOutput[1]
         
-def totalLumi2011vsRun(c,p='.',i='',o='',begRun="160442",endRun=None,selectionfile=None,beamstatus=None,beamenergy=None,beamfluctuation=None,dryrun=False,withTextOutput=False):
+def totalLumi2011vsRun(c,p='.',i='',o='',begRun="160442",endRun=None,selectionfile=None,beamstatus=None,beamenergy=None,beamfluctuation=None,dryrun=False,withTextOutput=False,withFineCorrection=False):
     plotoutname='totallumivsrun-2011.png'
     textoutname='totallumivsrun-2011.csv'
     elements=['lumiSumPlot.py','-c',c,'-P',p,'-begin',begRun,'-batch',os.path.join(o,plotoutname),'-yscale both','run']
@@ -357,6 +363,8 @@ def totalLumi2011vsRun(c,p='.',i='',o='',begRun="160442",endRun=None,selectionfi
     if withTextOutput:
         elements.append('-o')
         elements.append(os.path.join(o,textoutname))
+    if withFineCorrection:
+        elements.append('--with-correction')
     command=' '.join(elements)
     print command
     if not dryrun:
@@ -422,7 +430,7 @@ def totalLumi2010vsFill(c,p='.',i='',o='',begFill="1005",endFill="1461",selectio
         statusAndOutput=commands.getstatusoutput(command)
         print statusAndOutput[1]
         
-def totalLumi2011vsFill(c,p='.',i='',o='',begFill="1616",endFill=None,selectionfile=None,beamenergy=None,beamstatus=None,beamfluctuation=None,dryrun=False,withTextOutput=False):
+def totalLumi2011vsFill(c,p='.',i='',o='',begFill="1616",endFill=None,selectionfile=None,beamenergy=None,beamstatus=None,beamfluctuation=None,dryrun=False,withTextOutput=False,withFineCorrection=False):
     plotoutname='totallumivsfill-2011.png'
     textoutname='totallumivsfill-2011.csv'
     elements=['lumiSumPlot.py','-c',c,'-P',p,'-begin',begFill,'-batch',os.path.join(o,plotoutname),'-yscale both','fill']
@@ -442,6 +450,8 @@ def totalLumi2011vsFill(c,p='.',i='',o='',begFill="1616",endFill=None,selectionf
     if withTextOutput:
         elements.append('-o')
         elements.append(os.path.join(o,textoutname))
+    if withFineCorrection:
+        elements.append('--with-correction')
     command=' '.join(elements)
     print command
     if not dryrun:
@@ -480,7 +490,7 @@ def totalLumivsFill(c,p='.',i='',o='',begFill="1005",endFill="",selectionfile=No
     if not dryrun:
         statusAndOutput=commands.getstatusoutput(command)
         print statusAndOutput[1]
-def instLumiForRuns(c,runnumbers,p='.',o='',dryrun=False):
+def instLumiForRuns(c,runnumbers,p='.',o='',dryrun=False,withFineCorrection=False):
     '''
     draw instlumperrun plot for the given runs
     input:
@@ -494,6 +504,8 @@ def instLumiForRuns(c,runnumbers,p='.',o='',dryrun=False):
     for idx,run in enumerate(runnumbers):
         batch=os.path.join(o,plotoutname+str(idx+1)+'.png')
         elements=['lumiInstPlot.py','-c',c,'-P',p,'-begin',str(run),'-batch',batch,'run']
+        if withFineCorrection:
+            elements.append('--with-correction')
         command=' '.join(elements)
         print command
         if not dryrun:
@@ -518,7 +530,7 @@ def instPeak2010Perday(c,p='.',o='.',begTime="03/30/10 10:00:00.00",endTime="11/
         statusAndOutput=commands.getstatusoutput(command)
         print statusAndOutput[1]
         
-def instPeak2011Perday(c,p='.',o='.',begTime="03/14/11 09:00:00.00",endTime="",dryrun=False,withTextOutput=False,annotateBoundaryRunnum=False):
+def instPeak2011Perday(c,p='.',o='.',begTime="03/14/11 09:00:00.00",endTime="",dryrun=False,withTextOutput=False,annotateBoundaryRunnum=False,withFineCorrection=False):
     plotoutname='lumipeak-2011.png'
     textoutname='lumipeak-2011.csv'
     elements=['lumiInstPlot.py','-c',c,'-P',p,'-begin','"'+begTime+'"','-batch',os.path.join(o,plotoutname),'-yscale both','peakperday']
@@ -530,6 +542,8 @@ def instPeak2011Perday(c,p='.',o='.',begTime="03/14/11 09:00:00.00",endTime="",d
         elements.append(os.path.join(o,textoutname))
     if annotateBoundaryRunnum:
         elements.append('--annotateboundary')
+    if withFineCorrection:
+            elements.append('--with-correction')
     command=' '.join(elements)
     print command
     if not dryrun:
@@ -573,6 +587,7 @@ def main():
     parser.add_argument('--annotateboundary',dest='annotateboundary',action='store_true',help='annotate boundary run numbers')
     parser.add_argument('-beamstatus',dest='beamstatus',action='store',required=False,help='selection criteria beam status,e.g. stable')
     parser.add_argument('--withTextOutput',dest='withtextoutput',action='store_true',help='write to text output file')
+    parser.add_argument('--with-correction',dest='withfinecorrection',action='store_true',help='with fine correction')
     parser.add_argument('--dryrun',dest='dryrun',action='store_true',help='dryrun mode')
     parser.add_argument('action',choices=actionlist,help='command actions')
     args=parser.parse_args()
@@ -583,6 +598,7 @@ def main():
     connectstr=args.connect
     isDryrun=False
     withTextOutput=False
+    withFineCorrection=False
     beamstatus=None
     beamenergy=None
     beamfluctuation=None
@@ -596,6 +612,8 @@ def main():
         isDryrun=True
     if args.withtextoutput:
         withTextOutput=True
+    if args.withfinecorrection:
+        withFineCorrection=True
     if args.authpath:
         authpath=args.authpath
     if args.logpath:
@@ -626,7 +644,7 @@ def main():
                 runs.append(int(run))
         else:
             runs=['160442','']
-        totalLumi2011vsRun(connectstr,p=authpath,begRun=str(runs[0]),o=opath,endRun=str(runs[-1]),beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,dryrun=isDryrun,withTextOutput=withTextOutput)
+        totalLumi2011vsRun(connectstr,p=authpath,begRun=str(runs[0]),o=opath,endRun=str(runs[-1]),beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,dryrun=isDryrun,withTextOutput=withTextOutput,withFineCorrection=withFineCorrection)
         
     if args.action == 'totalvsrun':
         if args.ifile:
@@ -642,9 +660,9 @@ def main():
         instPeakPerday(connectstr,p=authpath,o=opath,dryrun=isDryrun,withTextOutput=withTextOutput,annotateBoundaryRunnum=args.annotateboundary)
         
     if args.action == 'instpeak2011vstime':
-        instPeak2011Perday(connectstr,p=authpath,o=opath,dryrun=isDryrun,withTextOutput=withTextOutput,annotateBoundaryRunnum=args.annotateboundary)    
+        instPeak2011Perday(connectstr,p=authpath,o=opath,dryrun=isDryrun,withTextOutput=withTextOutput,annotateBoundaryRunnum=args.annotateboundary,withFineCorrection=withFineCorrection)    
     if args.action == 'total2011vstime':
-        totalLumi2011vstime(connectstr,p=authpath,o=opath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,dryrun=isDryrun,withTextOutput=withTextOutput,annotateBoundaryRunnum=args.annotateboundary)
+        totalLumi2011vstime(connectstr,p=authpath,o=opath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,dryrun=isDryrun,withTextOutput=withTextOutput,annotateBoundaryRunnum=args.annotateboundary,withFineCorrection=withFineCorrection)
         
     if args.action == 'totalvstime':
         totalLumivstime(connectstr,p=authpath,o=opath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,dryrun=isDryrun,withTextOutput=withTextOutput,annotateBoundaryRunnum=args.annotateboundary)
@@ -653,7 +671,7 @@ def main():
         totalLumivstimeLastweek(connectstr,p=authpath,o=opath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,dryrun=isDryrun,withTextOutput=withTextOutput)
 
     if args.action == 'total2011vsfill':
-        totalLumi2011vsFill(connectstr,p=authpath,o=opath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,dryrun=isDryrun,withTextOutput=withTextOutput)
+        totalLumi2011vsFill(connectstr,p=authpath,o=opath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,dryrun=isDryrun,withTextOutput=withTextOutput,withFineCorrection=withFineCorrection)
 
     if args.action == 'totalvsfill':
         totalLumivsFill(connectstr,p=authpath,o=opath,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,dryrun=isDryrun,withTextOutput=withTextOutput)
@@ -662,7 +680,7 @@ def main():
         lumi2011PerDay(connectstr,p=authpath,o=opath,dryrun=isDryrun,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,withTextOutput=withTextOutput,annotateBoundaryRunnum=args.annotateboundary)
 
     if args.action == 'perday':       
-        lumiPerDay(connectstr,p=authpath,o=opath,dryrun=isDryrun,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,withTextOutput=withTextOutput,annotateBoundaryRunnum=args.annotateboundary)
+        lumiPerDay(connectstr,p=authpath,o=opath,dryrun=isDryrun,beamstatus=beamstatus,beamenergy=beamenergy,beamfluctuation=beamfluctuation,withTextOutput=withTextOutput,annotateBoundaryRunnum=args.annotateboundary,withFineCorrection=withFineCorrection)
         
     if args.action == 'physicsperday' or args.action == 'physicsvstime':
         if not args.ifile:
