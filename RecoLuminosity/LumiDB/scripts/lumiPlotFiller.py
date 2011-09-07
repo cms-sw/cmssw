@@ -635,7 +635,7 @@ def main():
         for run in f:
             runs.append(int(run))
         last2runs=[runs[-2],runs[-1]]
-        instLumiForRuns(connectstr,last2runs,p=authpath,o=opath,dryrun=isDryrun)
+        instLumiForRuns(connectstr,last2runs,p=authpath,o=opath,dryrun=isDryrun,withFineCorrection=withFineCorrection)
     if args.action == 'total2011vsrun':
         if args.ifile:
             f=open(args.ifile,'r')
