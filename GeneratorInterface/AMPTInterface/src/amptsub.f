@@ -2823,7 +2823,7 @@ c      PARAMETER (YMT1 = -0.4, YMT2 = 0.4)
       PARAMETER (YMT1 = -1.0, YMT2 = 1.0)
 cbz3/17/99 end
 c.....bin width for mt spectrum and y spectrum
-clin-9/26/03 no symmetrization in y (or eta) for ana/*.dat:
+clin-9/26/03 no symmetrization in y (or eta) for ana.dat:
 c      PARAMETER (BMT = 0.05, BY = 0.2)
       PARAMETER (BMT = 0.05, BY = 0.4)
       COMMON /RUN/ NUM
@@ -2885,7 +2885,7 @@ cbzdbg2/15/99end
             Y = 0.5 * LOG((EE + PZ) / (EE - PZ))
 c.....rapidity cut for the rapidity distribution
             IF (ABS(Y) .GE. 10.0) GOTO 100
-clin-9/26/03 no symmetrization in y (or eta) for ana/*.dat:
+clin-9/26/03 no symmetrization in y (or eta) for ana.dat:
 c            IY = 1 + int(ABS(Y) / BY)
 c            Ieta = 1 + int(ABS(eta) / BY)
             IF (ABS(eta) .GE. 10.0) GOTO 100
@@ -3277,7 +3277,7 @@ cms   OPEN (55, FILE = 'ana/dndmtdy_0_5_km.dat', STATUS = 'UNKNOWN')
 cms   OPEN (56, FILE = 'ana/dndmtdy_k0s.dat', STATUS = 'UNKNOWN')
 cms   OPEN (57, FILE = 'ana/dndmtdy_la.dat', STATUS = 'UNKNOWN')
 cms   OPEN (58, FILE = 'ana/dndmtdy_lb.dat', STATUS = 'UNKNOWN')
-clin-9/26/03 no symmetrization in y (or eta) for ana/*.dat:
+clin-9/26/03 no symmetrization in y (or eta) for ana.dat:
 c      SCALE1 = 1. / REAL(NEVNT * NUM) / BY / 2.0
       SCALE1 = 1. / REAL(NEVNT * NUM) / BY
       SCALE2 = 1. / REAL(NEVNT * NUM) / BMT / (YMT2 - YMT1)
