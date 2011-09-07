@@ -15,6 +15,7 @@
 #include "TVirtualX.h"
 #include "TPRegexp.h"
 #include "Fireworks/Core/interface/CmsShowSearchFiles.h"
+#include "Fireworks/Core/interface/fwLog.h"
 
 
 class FWHtml : public TGHtml {
@@ -37,8 +38,8 @@ private:
 
 static const unsigned int s_columns = 3;
 static const char* const s_prefixes[][s_columns] ={ 
-  {"http://uaf-2.t2.ucsd.edu/fireworks-4.2/"         , "Pre-selected example files","t"},
   {"http://fireworks.web.cern.ch/fireworks/samples-4.2/", "Pre-selected example files","t"},
+  {"http://uaf-2.t2.ucsd.edu/fireworks-4.2/"            , "Pre-selected example files","t"},
   {"http://", "Web site known by you",0},
   {"file:","Local file [you must type full path name]",0},
   {"dcap://","dCache [FNAL]",0},
@@ -76,8 +77,9 @@ static const char *s_noBrowserMessage[] = {
    //"Only a prefix beginning in <STRONG>http:</STRONG> which contains a site name (e.g. http://www.site.org) is supported for browsing."
    "<b>Welcome....</b><BR>",
    "<BR>",
-   "<b>You may look at examples:</b><BR>",
-   " Open example data files at UCSD: <a href=http://uaf-2.t2.ucsd.edu/fireworks-4.2/>http://uaf-2.t2.ucsd.edu/fireworks-4.2/</a><BR>",
+   "<b>You may look at examples:</b><BR>",  
+   "If you are in Europe, open example data files at CERN:  ", " <a href=" , s_prefixes[0][0], ">",  s_prefixes[0][0], "</a><BR>",
+   "If you are in US, open example data files at UCSD:", " <a href=" , s_prefixes[1][0], ">",  s_prefixes[1][0], "</a><BR>",
    "<BR>"
    "<b>You also may load files with Choose Prefix </b><BR>"
    "</BODY></HTML> ",
@@ -96,8 +98,8 @@ static const char *s_readError[] = {
 
 
 CmsShowSearchFiles::CmsShowSearchFiles (const char *filename,
-                                    const char* windowname,
-                                    const TGWindow* p, UInt_t w, UInt_t h)
+                                        const char* windowname,
+                                        const TGWindow* p, UInt_t w, UInt_t h)
    : TGTransientFrame(gClient->GetDefaultRoot(), p, w, h)
 {
    TGVerticalFrame* vf = new TGVerticalFrame(this);
@@ -136,11 +138,19 @@ CmsShowSearchFiles::CmsShowSearchFiles (const char *filename,
    float x2 = getURLResponseTime("uaf-2.t2.ucsd.edu");
    // printf("timtes %f %f \n", x1, x2); fflush(stdout);
    if (x1 > 0 && x1 < x2)
-     sendToWebBrowser(s_prefixes[0][0]);
+   {
+      sendToWebBrowser(s_prefixes[0][0]);
+      fwLog(fwlog::kInfo) << "Search files at the closest site " << s_prefixes[0][0] << std::endl;
+   }
    else if ( x2 > 0)
-     sendToWebBrowser(s_prefixes[1][0]);
+   {
+      sendToWebBrowser(s_prefixes[1][0]);
+      fwLog(fwlog::kInfo) << "Search files at the closest at " << s_prefixes[1][0] << std::endl;
+   }
    else
-     sendToWebBrowser("");
+   {
+      sendToWebBrowser("");
+   }
 
    MapSubwindows();
    Layout();
