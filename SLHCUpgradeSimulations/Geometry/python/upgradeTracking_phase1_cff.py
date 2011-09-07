@@ -7,6 +7,14 @@ from EventFilter.SiStripRawToDigi.SiStripDigiToRaw_cfi import *
 from EventFilter.RawDataCollector.rawDataCollector_cfi import *
 from Configuration.StandardSequences.RawToDigi_cff import *
 
+from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import *
+
+## use same cuts as in 363 tracking in 440pre6 framework
+initialStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.8
+initialStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 0.2
+initialStepSeeds.RegionFactoryPSet.RegionPSet.nSigmaZ = 3.0
+initialStepTrajectoryFilter.filterPset .maxLostHits = 1
+
 #the quadruplet merger configuration 
 from RecoPixelVertexing.PixelTriplets.quadrupletseedmerging_cff import *
 pixelseedmergerlayers.BPix.TTRHBuilder = cms.string("PixelTTRHBuilderWithoutAngle" )
@@ -19,15 +27,36 @@ pixellayertriplets.layerList = cms.vstring( 'BPix1+BPix2+BPix3',
                                             'BPix1+BPix2+BPix4',
                                             'BPix2+BPix3+BPix4',
                                             'BPix1+BPix3+BPix4',
-                                            'BPix1+BPix2+FPix1_pos', 
-                                            'BPix1+BPix2+FPix1_neg', 
-                                            'BPix1+FPix1_pos+FPix2_pos', 
+                                            'BPix1+BPix2+FPix1_pos',
+                                            'BPix1+BPix2+FPix1_neg',
+                                            'BPix1+FPix1_pos+FPix2_pos',
                                             'BPix1+FPix1_neg+FPix2_neg',
                                             'BPix1+FPix2_pos+FPix3_pos',
-                                            'BPix1+FPix2_neg+FPix3_neg'
+                                            'BPix1+FPix2_neg+FPix3_neg',
+                                                 'BPix2+BPix3+FPix1_pos',
+                                                 'BPix2+BPix3+FPix1_neg',
+                                                 'BPix2+FPix1_pos+FPix2_pos',
+                                                 'BPix2+FPix1_neg+FPix2_neg',
+                                                 'FPix1_pos+FPix2_pos+FPix3_pos',
+                                                 'FPix1_neg+FPix2_neg+FPix3_neg'
                                                  )
-## use more combinations for pixel triplets to get high eta tracks
-lowPtTripletStepSeedLayers.layerList = cms.vstring('BPix1+BPix2+BPix3',
+
+## use mixed triplets for step 1 instead of pixel triplets
+lowPtTripletStepSeeds.RegionFactoryPSet = cms.PSet(
+        RegionPsetFomBeamSpotBlockFixedZ,
+        ComponentName = cms.string('GlobalRegionProducerFromBeamSpot')
+    )
+lowPtTripletStepSeeds.OrderedHitsFactoryPSet.SeedingLayers = 'lowPtMixedTripletStepSeedLayers'
+lowPtTripletStepSeeds.ClusterCheckPSet.PixelClusterCollectionLabel = 'siPixelClusters'
+lowPtTripletStepSeeds.ClusterCheckPSet.ClusterCollectionLabel = 'siStripClusters'
+
+#from RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeHitFilterESProducer_cfi import *
+#lowPtTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.ComponentName = 'LowPtClusterShapeSeedComparitor'
+lowPtTripletStepSeeds.OrderedHitsFactoryPSet.GeneratorPSet.SeedComparitorPSet.ComponentName = 'none'
+
+lowPtMixedTripletStepSeedLayers = RecoTracker.TkSeedingLayers.MixedLayerTriplets_cfi.mixedlayertriplets.clone()
+lowPtMixedTripletStepSeedLayers.ComponentName = cms.string('lowPtMixedTripletStepSeedLayers')
+lowPtMixedTripletStepSeedLayers.layerList = cms.vstring('BPix1+BPix2+BPix3',
                                                  'BPix1+BPix2+BPix4',
                                                  'BPix2+BPix3+BPix4',
                                                  'BPix1+BPix3+BPix4',
@@ -54,8 +83,20 @@ lowPtTripletStepSeedLayers.layerList = cms.vstring('BPix1+BPix2+BPix3',
                                                  'BPix2+FPix2_pos+FPix3_pos',
                                                  'BPix2+FPix2_neg+FPix3_neg',
                                                  'FPix1_pos+FPix2_pos+FPix3_pos',
-                                                 'FPix1_neg+FPix2_neg+FPix3_neg'
+                                                 'FPix1_neg+FPix2_neg+FPix3_neg',
+                                                 'FPix1_pos+FPix2_pos+TEC1_pos',
+                                                 'FPix1_neg+FPix2_neg+TEC1_neg',
+                                                 'FPix2_pos+FPix3_pos+TEC1_pos',
+                                                 'FPix2_neg+FPix3_neg+TEC1_neg',
+                                                 'FPix1_pos+FPix2_pos+TEC2_pos',
+                                                 'FPix1_neg+FPix2_neg+TEC2_neg'
                                                  )
+lowPtMixedTripletStepSeedLayers.TEC.matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit")
+lowPtMixedTripletStepSeedLayers.TEC.skipClusters = cms.InputTag('lowPtTripletStepClusters')
+lowPtMixedTripletStepSeedLayers.TEC.useRingSlector = cms.bool(True)
+lowPtMixedTripletStepSeedLayers.TEC.minRing = cms.int32(1)
+lowPtMixedTripletStepSeedLayers.TEC.maxRing = cms.int32(1)
+
 #--->
 # disconnect merger for stepOne to have triplets
 lowPtTripletStepSeeds.SeedMergerPSet.mergeTriplets = cms.bool(False)
