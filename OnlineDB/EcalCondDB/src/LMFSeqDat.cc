@@ -233,7 +233,7 @@ std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(std::vector<std::string> pars,
       }
     }
     ResultSet *rset = stmt->executeQuery();
-    while (rset->next()) {
+    while (rset->next() != 0) {
       int seq_id = rset->getInt(1);
       LMFSeqDat s;
       s.setConnection(m_env, m_conn);

@@ -329,7 +329,7 @@ std::list<LMFRunIOV> LMFRunIOV::fetchBySequence(vector<int> par,
       stmt->setInt(i + 1, par[i]);
     }
     ResultSet *rset = stmt->executeQuery();
-    while (rset->next()) {
+    while (rset->next() != 0) {
       int lmf_iov_id = rset->getInt(1);
       LMFRunIOV iov;
       iov.setConnection(m_env, m_conn);

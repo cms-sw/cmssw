@@ -183,7 +183,7 @@ RunIOV LMFCorrCoefDat::fetchLastInsertedRun() {
   }
   int iov_id = -1;
   try {
-    while (rset->next()) {
+    while (rset->next() != 0) {
       // there should be just one result
       iov_id = rset->getInt(1);
     }
@@ -414,7 +414,7 @@ LMFCorrCoefDat::getCorrections(const Tm &t, const Tm &t2, int max) {
     int lastSeqId = 0;
     int previousSeqId = 0;
     LMFSextuple s;
-    while (rset->next()) {
+    while (rset->next() != 0) {
       int logic_id = rset->getInt(1);
       int seq_id   = rset->getInt(8);
       if (seq_id != lastSeqId) {

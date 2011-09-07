@@ -315,7 +315,7 @@ void LMFDat::fetch(int logic_id, const Tm *timestamp, int direction)
       std::vector<float> x;
       int nData = m_keys.size();
       x.reserve(nData);
-      while (rset->next()) {
+      while (rset->next() != 0) {
 	for (int i = 0; i < nData; i++) {
 	  x.push_back(rset->getFloat(i + 3));
 	}
@@ -372,7 +372,7 @@ std::map<int, std::vector<float> > LMFDat::fetchData()
     ResultSet* rset = stmt->executeQuery();
     std::map<int, std::vector<float> >::iterator i = s.end();
     std::map<int, std::vector<float> >::iterator e = s.end();
-    while (rset->next()) {
+    while (rset->next() != 0) {
       if (m_debug) {
 	cout << m_className << ":: checking " << rset->getInt(1) << endl
 	     << std::flush;
@@ -561,7 +561,7 @@ void LMFDat::getKeyTypes()
     stmt->setString(1, getTableName());
     stmt->setString(2, getIovIdFieldName());
     ResultSet *rset = stmt->executeQuery();
-    while (rset->next()) {
+    while (rset->next() != 0) {
       std::string name = rset->getString(1);
       std::string t = rset->getString(2);
       m_type[m_keys[name]] = t;

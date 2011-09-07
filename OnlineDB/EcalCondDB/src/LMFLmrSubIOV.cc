@@ -178,7 +178,7 @@ std::list<int> LMFLmrSubIOV::getIOVIDsLaterThan(const Tm &tmin, const Tm &tmax,
       }
       ResultSet *rset = stmt->executeQuery();
       int row = 1;
-      while (rset->next()) {
+      while (rset->next() != 0) {
 	if (m_debug) {
 	  std::cout << "Getting row " << row++ << std::endl;
 	}
