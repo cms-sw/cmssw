@@ -13,7 +13,7 @@
 //
 // Original Author:  Oct 12 08:23
 //         Created:  Wed Oct 12 12:16:04 CDT 2005
-// $Id: Type1MET.cc,v 1.26 2011/08/23 19:43:46 lacroix Exp $
+// $Id: Type1MET.cc,v 1.27 2011/09/02 13:19:11 lacroix Exp $
 //
 //
 
@@ -32,7 +32,6 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
-//#include "DataFormats/PatCandidates/interface/Jet.h"
 
 #include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
 
@@ -122,25 +121,7 @@ namespace cms
 		&*output, iEvent, iSetup, subtractL1Fast_ );       //Invoke the algorithm
       iEvent.put( output );                                        //Put output into Event
       }
-//    else
-//      {
-//	Handle<pat::JetCollection> inputUncorJets;
-//	iEvent.getByLabel( inputUncorJetsLabel, inputUncorJets );
-//	const JetCorrector* corrector = JetCorrector::getJetCorrector (correctorLabel, iSetup);
-//	const JetCorrector* corrector2=NULL;
-//	if (subtractL1Fast_)corrector2 = JetCorrector::getJetCorrector (refcorrectorLabel, iSetup);
-//
-//	Handle<PFMETCollection> inputUncorMet;                     //Define Inputs
-//	iEvent.getByLabel( inputUncorMetLabel,  inputUncorMet );     //Get Inputs
-//	std::auto_ptr<PFMETCollection> output( new PFMETCollection() );  //Create empty output
-//	alg_.run( *(inputUncorMet.product()), *corrector, *(inputUncorJets.product()), 
-//		  jetPTthreshold, jetEMfracLimit, UscaleA, UscaleB, UscaleC, useTypeII,
-//		  &*output, iEvent, iSetup );                        //Invoke the algorithm
-//	iEvent.put( output );                                        //Put output into Event
-//      }
   }
-
-  //  DEFINE_FWK_MODULE(Type1MET);  //define this as a plug-in
 
 }//end namespace cms
 
