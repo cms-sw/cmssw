@@ -838,10 +838,13 @@ def xingLuminosityForRun (dbsession, runnum, parameters, lumiXingDict = {},
             xingArray.fromstring( bxlumivalue.readline() )
             numPrinted = 0
             xingLum = []
+            avginstlumi=0.0
+            if len(xingArray)!=0:
+                avginstlumi=sum(xingArray)
             for index, lum in enumerate (xingArray):
                 mynorm=parameters.normFactor
                 if finecorrections:
-                    lum=lumiCorrections.applyfinecorrectionBX(lum,mynorm,finecorrections[0],finecorrections[1],finecorrections[2])
+                    lum=lumiCorrections.applyfinecorrectionBX(lum,avginstlumi*mynorm,mynorm,finecorrections[0],finecorrections[1],finecorrections[2])
                 else:
                     lum*=mynorm
                 if lum < parameters.xingMinLum:
@@ -1567,16 +1570,21 @@ def calibratedDetailForRunLimitresult(query,parameters,runnum,algoname='OCC1',fi
         bxlumierrorArray=array.array('f')
         bxlumierrorArray.fromstring(bxlumierror.readline())
         xingLum=[]
-        #apply selection criteria       
-        maxlumi=max(bxlumivalueArray)       
+        #apply selection criteria
+        maxlumi=0.0
+        if len(bxlumivalueArray)!=0:
+            maxlumi=max(bxlumivalueArray)
+        avginstlumi=0.0
+        if len(bxlumivalueArray)!=0:
+            avginstlumi=sum(bxlumivalueArray)
         for index,lum in enumerate(bxlumivalueArray):
             lumierror = bxlumierrorArray[index]
             if lum<max(parameters.xingMinLum,maxlumi*0.2): 
                 continue
             mynorm=parameters.normFactor
             if finecorrection:
-                lum=lumiCorrections.applyfinecorrectionBX(lum,mynorm,finecorrection[0],finecorrection[1],finecorrection[2])
-                lumierror=lumiCorrections.applyfinecorrectionBX(lumierror,mynorm,finecorrection[0],finecorrection[1],finecorrection[2])
+                lum=lumiCorrections.applyfinecorrectionBX(lum,avginstlumi*mynorm,mynorm,finecorrection[0],finecorrection[1],finecorrection[2])
+                lumierror=lumiCorrections.applyfinecorrectionBX(lumierror,avginstlumi*mynorm,mynorm,finecorrection[0],finecorrection[1],finecorrection[2])
             else:
                 lum*=mynorm
                 lumierror*=mynorm

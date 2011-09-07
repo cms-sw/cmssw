@@ -506,9 +506,10 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
                 recordedlumi=0.0
             instlumi=perlsdata[1]
             instlumierror=perlsdata[2]
-            calibratedlumi=instlumi*normval
+            avglumi=instlumi*normval
+            calibratedlumi=avglumi
             if finecorrections and finecorrections[run]:
-                calibratedlumi=lumiCorrections.applyfinecorrection(calibratedlumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
+                calibratedlumi=lumiCorrections.applyfinecorrection(avglumi,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
             calibratedlumierror=instlumierror*normval
             bstatus=perlsdata[4]
             begev=perlsdata[5]
@@ -549,7 +550,7 @@ def lumiForRange(schema,inputRange,beamstatus=None,amodetag=None,egev=None,withB
                     #    print 'bxvalueArray ',bxvalueArray
                     for idx,bxval in enumerate(bxvalueArray):
                         if finecorrections and finecorrections[run]:
-                            mybxval=lumiCorrections.applyfinecorrectionBX(bxval,perbunchnormval,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
+                            mybxval=lumiCorrections.applyfinecorrectionBX(bxval,avglumi,perbunchnormval,finecorrections[run][0],finecorrections[run][1],finecorrections[run][2])
                         else:
                             mybxval=bxval*perbunchnormval
                         if mybxval>xingMinLum:

@@ -1,14 +1,17 @@
 import os,coral,re
 from RecoLuminosity.LumiDB import nameDealer
-def applyfinecorrectionBX(bxlumi,norm,constfactor,afterglowfactor,nonlinearfactor=0.076):
+def applyfinecorrectionBX(bxlumi,avglumi,norm,constfactor,afterglowfactor,nonlinearfactor):
     if bxlumi<=0:
         return bxlumi
-    bxlumi=bxlumi*norm*constfactor*afterglowfactor
+    correctbxlumi=bxlumi*norm*constfactor*afterglowfactor
     if constfactor!=1.0 and nonlinearfactor!=0:
-        nonlinearTerm=1.0-nonlinearfactor*bxlumi
-        bxlumi=bxlumi*nonlinearTerm
-    #print 'bxlumi,norm,const,after',bxlumi,norm,constfactor,afterglowfactor
-    return bxlumi
+        if avglumi<0:
+            avglumi=0.0
+        nonlinearTerm=1.0-avglumi*nonlinearfactor#0.076/ncollidinbunches
+        correctbxlumi=correctbxlumi*nonlinearTerm
+        #print 'avglumi,nonlinearfactor,nonlinearTerm ',avglumi,nonlinearfactor,nonlinearTerm
+    #print 'bxlumi,avglumi,norm,const,after',bxlumi,avglumi,norm,constfactor,afterglowfactor,correctbxlumi
+    return correctbxlumi
 
 def applyfinecorrection(avglumi,constfactor,afterglowfactor,nonlinearfactor):
     instlumi=avglumi*afterglowfactor*constfactor
