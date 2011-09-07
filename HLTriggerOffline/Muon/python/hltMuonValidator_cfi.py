@@ -4,15 +4,12 @@ hltMuonValidator = cms.EDAnalyzer("HLTMuonValidator",
 
     hltProcessName = cms.string("HLT"),
     hltPathsToCheck = cms.vstring(
-        "HLT_(L[12])?(Double)?(Iso)?Mu[0-9]*(Open)?(_NoVertex)?(_v[0-9]*)?$",
-        "NoFilters",   # special value for looking at objects without filters
+        # All paths containing 'Mu', but not containing 'Multiplicity'
+        "HLT_.*Mu[^l]", 
         ),
 
     genParticleLabel = cms.string("genParticles"       ),
         recMuonLabel = cms.string("muons"              ),
-         l1CandLabel = cms.string("hltL1extraParticles"),
-         l2CandLabel = cms.string("hltL2MuonCandidates"),
-         l3CandLabel = cms.string("hltL3MuonCandidates"),
 
     parametersTurnOn = cms.vdouble(0,
                                    1,  2,  3,  4,  5,  6,  7,  8,  9, 10,

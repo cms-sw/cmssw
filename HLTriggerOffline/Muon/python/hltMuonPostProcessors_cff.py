@@ -74,11 +74,12 @@ hltMuonPostMain.subDirs = ['HLT/Muon/Distributions/*']
 hltMuonPostMain.efficiencyProfile = efficiency_strings
 
 hltMuonPostNonIso = hltMuonPostMain.clone()
-hltMuonPostNonIso.subDirs = ['HLT/Muon/Distributions/^(?:[^I]+|I(?!so))*$']
+#hltMuonPostNonIso.subDirs = ['HLT/Muon/Distributions/^(?:[^I]+|I(?!so))*$']
+hltMuonPostNonIso.subDirs = ['HLT/Muon/Distributions/((?!Iso).)*$']
 hltMuonPostNonIso.efficiencyProfile = noniso_strings
 
 hltMuonPostIso = hltMuonPostMain.clone()
-hltMuonPostIso.subDirs = ['HLT/Muon/Distributions/.*Iso.*']
+hltMuonPostIso.subDirs = ['HLT/Muon/Distributions/.*Iso.*$']
 hltMuonPostIso.efficiencyProfile = iso_strings
 
 hltMuonPostProcessors = cms.Sequence(
