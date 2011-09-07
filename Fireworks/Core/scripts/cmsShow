@@ -178,12 +178,11 @@ elif [ "X$valgrindflag" = Xon ] ; then
 fi
 
 
-# Run cmsShow 
+# Run cmsShow  
 if [ -w . ]; then
-   creport="cmsshow-crash-report.txt"
+   creport=./cmsshow-crash-report.txt
 else
-   creport=`mktemp cmsshow-crash-report-XXXX`
-   mv "$creport" "$creport".txt
+   creport=`mktemp /tmp/cmsshow-crash-report-XXXXXXXX`
 fi
 
 "$SHELLDIR/cmsShow.exe" $originalOptions  | tee $creport
