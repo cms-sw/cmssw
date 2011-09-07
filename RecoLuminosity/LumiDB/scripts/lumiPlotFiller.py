@@ -22,7 +22,7 @@ def create2011RunList(c,p='.',o='.',dryrun=False):
     '''
     msg=coral.MessageStream('')
     msg.setMsgVerbosity(coral.message_Level_Error)
-    os.environ['CORAL_AUTH_PATH']='/build1/zx'
+    os.environ['CORAL_AUTH_PATH']=p
     svc = coral.ConnectionService()
     connectstr=c
     session=svc.connect(connectstr,accessMode=coral.access_ReadOnly)
@@ -53,7 +53,7 @@ def createRunList(c,p='.',o='.',dryrun=False):
     '''
     msg=coral.MessageStream('')
     msg.setMsgVerbosity(coral.message_Level_Error)
-    os.environ['CORAL_AUTH_PATH']='/build1/zx'
+    os.environ['CORAL_AUTH_PATH']=p
     svc = coral.ConnectionService()
     connectstr=c
     session=svc.connect(connectstr,accessMode=coral.access_ReadOnly)
