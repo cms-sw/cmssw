@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from FastSimulation.Tracking.IterativeTracking_cff import * # UGLY CIRCULARITY; only needed for the temporary parameter 'whichTracking'
+whichTracking = 'old' # 'old' is the default for the moment
 
 if(whichTracking=='old'):
     newCombinedSeeds = cms.EDProducer(
