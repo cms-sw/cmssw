@@ -69,7 +69,8 @@ namespace
 {
 void signal_handler_wrapper(int sid, siginfo_t* sinfo, void* sctx)
 {
-   printf("Program received signal ID = %d.\nPrinting stack trace ... \n", sid); fflush(stdout);
+   std::cerr << "Program received signal ID = " <<  sid << std::endl;
+   std::cerr << "Printing stack trace ... " << std::endl;
 
    TString gdbCommand("scripts/gdb-backtrace.sh");
    fireworks::setPath(gdbCommand); 
@@ -139,6 +140,7 @@ int main (int argc, char **argv)
    infoText.ReadLine(infoFile);
    infoFile.close();
    printf("Starting cmsShow, version %s\n", infoText.Data());
+   fflush(stdout);
 
    // check root interactive promp
    bool isri = false;
@@ -153,12 +155,12 @@ int main (int argc, char **argv)
 
    try {
       if (isri) {
-         std::cout<<""<<std::endl;
-         std::cout<<"WARNING:You are running cmsShow with ROOT prompt enabled."<<std::endl;
-         std::cout<<"If you encounter an issue you suspect to be a bug in     "<<std::endl;
-         std::cout<<"cmsShow, please re-run without this option and try to    "<<std::endl;
-         std::cout<<"reproduce it before submitting a bug-report.             "<<std::endl;
-         std::cout<<""<<std::endl;
+         std::cerr<<""<<std::endl;
+         std::cerr<<"WARNING:You are running cmsShow with ROOT prompt enabled."<<std::endl;
+         std::cerr<<"If you encounter an issue you suspect to be a bug in     "<<std::endl;
+         std::cerr<<"cmsShow, please re-run without this option and try to    "<<std::endl;
+         std::cerr<<"reproduce it before submitting a bug-report.             "<<std::endl;
+         std::cerr<<""<<std::endl;
 
          TRint app("cmsShow", &dummyArgc, dummyArgv);
          run_app(app,argc, argv);
