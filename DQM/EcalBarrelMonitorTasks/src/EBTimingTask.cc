@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2011/08/23 00:25:32 $
- * $Revision: 1.66.2.3 $
+ * $Date: 2011/08/30 09:30:33 $
+ * $Revision: 1.70 $
  * \author G. Della Ricca
  *
 */
@@ -114,7 +114,7 @@ void EBTimingTask::setup(void){
   const float maxlogE = 2.;
   float binEdgesE[nbinsE + 1];
   for(int i = 0; i <= nbinsE; i++)
-    binEdgesE[i] = std::pow(10., minlogE + (maxlogE - minlogE) / nbinsE * i);
+    binEdgesE[i] = std::pow((float)10., minlogE + (maxlogE - minlogE) / nbinsE * i);
 
   const int nbinsT = 200;
   const float minT = -50.;

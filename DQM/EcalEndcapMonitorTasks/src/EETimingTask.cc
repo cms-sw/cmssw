@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2011/06/27 09:56:59 $
- * $Revision: 1.75.2.2 $
+ * $Date: 2011/08/30 09:28:42 $
+ * $Revision: 1.78 $
  * \author G. Della Ricca
  *
 */
@@ -129,7 +129,7 @@ void EETimingTask::setup(void){
   const float maxlogE = 2.;
   float binEdgesE[nbinsE + 1];
   for(int i = 0; i <= nbinsE; i++)
-    binEdgesE[i] = std::pow(10., minlogE + (maxlogE - minlogE) / nbinsE * i);
+    binEdgesE[i] = std::pow((float)10., minlogE + (maxlogE - minlogE) / nbinsE * i);
 
   const int nbinsT = 200;
   const float minT = -50.;
