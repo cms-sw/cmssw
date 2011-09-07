@@ -21,7 +21,7 @@ generalTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMer
     setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5,6), pQual=cms.bool(True) )
                              ),
     copyExtras = True,
-    makeReKeyedSeeds = cms.untracked.bool(True)
+    makeReKeyedSeeds = cms.untracked.bool(False)
     )
 
 conversionStepTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
@@ -32,5 +32,5 @@ conversionStepTracks = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.track
     setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(1), pQual=cms.bool(True) )
                              ),
     copyExtras = True,
-    makeReKeyedSeeds = cms.untracked.bool(True)
+    makeReKeyedSeeds = cms.untracked.bool(False)
     )
