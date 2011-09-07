@@ -742,8 +742,8 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex, unsigned int Glui
 //   stPlots_DrawComparison(SavePath + "/Selection_Comp_GMStau" , LegendTitle, CutIndex, &DataPlots, &SignPlots[38], &SignPlots[40], &SignPlots[42]);
    return;
 
-   stPlots_DrawComparison(SavePath + "/Selection_Comp_Gluino" , LegendTitle, CutIndex, &DataPlots, &SignPlots[SID_GL200 ], &SignPlots[SID_GL500 ], &SignPlots[SID_GL900 ]);
-   stPlots_DrawComparison(SavePath + "/Selection_Comp_GluinoN", LegendTitle, CutIndex, &DataPlots, &SignPlots[SID_GL200N], &SignPlots[SID_GL500N], &SignPlots[SID_GL900N]);
+   stPlots_DrawComparison(SavePath + "/Selection_Comp_Gluino" , LegendTitle, CutIndex, &DataPlots, &SignPlots[SID_GL300 ], &SignPlots[SID_GL500 ], &SignPlots[SID_GL900 ]);
+   stPlots_DrawComparison(SavePath + "/Selection_Comp_GluinoN", LegendTitle, CutIndex, &DataPlots, &SignPlots[SID_GL300N], &SignPlots[SID_GL500N], &SignPlots[SID_GL900N]);
    stPlots_DrawComparison(SavePath + "/Selection_Comp_Stop"   , LegendTitle, CutIndex, &DataPlots, &SignPlots[SID_ST200 ], &SignPlots[SID_ST500 ], &SignPlots[SID_ST800 ]);
    stPlots_DrawComparison(SavePath + "/Selection_Comp_StopN"  , LegendTitle, CutIndex, &DataPlots, &SignPlots[SID_ST200N], &SignPlots[SID_ST500N], &SignPlots[SID_ST800N]);
    stPlots_DrawComparison(SavePath + "/Selection_Comp_GMStau" , LegendTitle, CutIndex, &DataPlots, &SignPlots[SID_GS126 ], &SignPlots[SID_GS247 ], &SignPlots[SID_GS308 ]);
