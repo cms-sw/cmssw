@@ -774,6 +774,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    canvas->Print("dedx.pdf");   
    delete l;
 
+    /*
    //===== Pileup 1
    rdir->GetObject(collname1+"/effic_vertcount_barrel",rh1);
    sdir->GetObject(collname2+"/effic_vertcount_barrel",sh1);
@@ -926,7 +927,7 @@ void TrackValHistoPublisher(char* newFile="NEW_FILE",char* refFile="REF_FILE")
    l->Draw();
    canvas->Print("pileup3.pdf");
    delete l;
-
+    */
 
 
  }

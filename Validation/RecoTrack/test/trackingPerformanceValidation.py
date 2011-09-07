@@ -10,24 +10,27 @@ import string
 
 
 ### Reference release
-RefRelease='CMSSW_3_11_1_patch3'
+RefRelease='CMSSW_4_4_0_pre8'
 
 ### Relval release (set if different from $CMSSW_VERSION)
-NewRelease='CMSSW_3_11_1_patch3'
+NewRelease='CMSSW_4_4_0_pre9'
 
 ### startup and ideal sample list
 
 ### This is the list of STARTUP-conditions relvals 
 startupsamples= [
-    'RelValTTbar', 
-    'RelValMinBias', 
-    'RelValQCD_Pt_3000_3500'
+#    'RelValSingleMuPt10', 
+    'RelValSingleMuPt100',
+#    'RelValSingleElectronPt35', 
+#    'RelValTTbar', 
+#    'RelValMinBias', 
+#    'RelValQCD_Pt_3000_3500'
 ]
 ### the list can be empty if you want to skip the validation for all the samples
 #startupsamples= []
 
 ### This is the list of startup relvals (with PileUP)
-startupsamples= ['RelValTTbar_Tauola']
+# startupsamples= ['RelValTTbar_Tauola']
 
 
 ### This is the list of IDEAL-conditions relvals 
@@ -60,27 +63,25 @@ Version='v1'
 #Version='BX2808-v1'
 
 ### Ideal and Statup tags
-IdealTag='MC_311_V1'
-StartupTag='START311_V1'
+IdealTag='MC_44_V4'
+StartupTag='START44_V4'
 
-RefIdealTag='MC_311_V1'
-RefStartupTag='START311_V1'
+RefIdealTag='MC_44_V3'
+RefStartupTag='START44_V3'
 ### PileUp: "PU" . No PileUp: "noPU"
-#PileUp='noPU'
-PileUp='PU'
+PileUp='noPU'
+#PileUp='PU'
 
 
 
 ### Track algorithm name and quality. Can be a list.
 Algos= ['ootb']
-#Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5','iter6']
+#Algos= ['ootb', 'iter0', 'iter1','iter2','iter3','iter4','iter5', 'iter6']
 Qualities=['']
 #Qualities=['', 'highPurity']
 
 ### Leave unchanged unless the track collection name changes
-#cuts='normalizedChi2 < 20 && hitPattern.pixelLayersWithMeasurement > 1'
-#cuts='normalizedChi2 < 20 && hitPattern.pixelLayersWithMeasurement > 1 && hitPattern.stripLayersWithMeasurement > 4'
-cuts=''
+Tracksname='generalTracks'
 
 # Sequence. Possible values:
 #   -only_validation
@@ -123,7 +124,7 @@ castorHarvestedFilesDirectory='/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/RelVal
 
 
 ### Default Nevents
-defaultNevents ='1000'
+defaultNevents ='-1'
 
 ### Put here the number of event to be processed for specific samples (numbers must be strings) 
 ### if not specified is defaultNevents:
@@ -202,17 +203,15 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
     #else:
     #    Tracks=Tracksname
 
-
     if( trackquality !=''):
         NewSelection+='_'+trackquality
     if(trackalgorithm != 'ootb'):
         NewSelection+='_'+trackalgorithm
     if(trackalgorithm == 'ootb' and trackquality == ''):
         NewSelection+='_'+trackalgorithm
-    Tracks='selectedTracks'
+    Tracks=Tracksname
     if (not(trackalgorithm == 'ootb' and trackquality =='')):
         Tracks = 'cutsRecoTracks'
-
 
     NewSelection+=NewSelectionLabel
     listofdatasets = open('listofdataset.txt' , 'w' )
@@ -222,12 +221,12 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
         templatemacroFile = open(macro, 'r')
         print 'Get information from DBS for sample', sample
         newdir=NewRepository+'/'+NewRelease+'/'+NewSelection+'/'+sample 
-	cfgFileName=sample+GlobalTag
+        cfgFileName=sample+GlobalTag
         #check if the sample is already done
         if(os.path.isfile(newdir+'/building.pdf' )!=True):    
 
             if( Sequence=="harvesting"):
-            	harvestedfile='./DQM_V0001_R000000001__' + GlobalTag+ '__' + sample + '__Validation.root'
+                harvestedfile='./DQM_V0001_R000000001__' + GlobalTag+ '__' + sample + '__Validation.root'
             elif( Sequence=="preproduction"):
                 harvestedfile='./DQM_V0001_R000000001__' + sample+ '-' + GlobalTag + '_preproduction_312-v1__GEN-SIM-RECO_1.root'
             elif( Sequence=="comparison_only"):
@@ -315,15 +314,14 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
                         thealgo='\''+thealgo+'\''
                     if(trackquality!=''):
                         thequality='\''+trackquality+'\''
-                    symbol_map = { 'NEVENT':Nevents, 'GLOBALTAG':GlobalTag, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':thealgo, 'QUALITY':thequality, 'TRACKS':Tracks, 'CUTS':cuts}
+                    symbol_map = { 'NEVENT':Nevents, 'GLOBALTAG':GlobalTag, 'SEQUENCE':Sequence, 'SAMPLE': sample, 'ALGORITHM':thealgo, 'QUALITY':thequality, 'TRACKS':Tracks}
 
 
                     cfgFile = open(cfgFileName+'.py' , 'a' )
                     replace(symbol_map, templatecfgFile, cfgFile)
                     if(( (Sequence=="harvesting" or Sequence=="preproduction" or Sequence=="comparison_only") and os.path.isfile(harvestedfile) )==False):
                         # if the file is already harvested do not run the job again
-                        #cmdrun='cmsRun ' +cfgFileName+ '.py >&  ' + cfgFileName + '.log < /dev/zero '
-                        cmdrun='cmsRun ' +cfgFileName+ '.py'
+                        cmdrun='cmsRun ' +cfgFileName+ '.py >&  ' + cfgFileName + '.log < /dev/zero '
                         retcode=os.system(cmdrun)
                     else:
                         retcode=0
@@ -374,8 +372,8 @@ def do_validation(samples, GlobalTag, trackquality, trackalgorithm):
 
                     print "copy py file for sample: " , sample
                     os.system('cp '+cfgFileName+'.py ' + newdir)
-	
-	
+    
+    
         else:
             print 'Validation for sample ' + sample + ' already done. Skipping this sample. \n'
 
@@ -426,4 +424,3 @@ for algo in Algos:
         if(quality =='') and (algo==''):
             RefSelection+='_ootb'
         do_validation(startupsamples, StartupTag, quality , algo)
-        
