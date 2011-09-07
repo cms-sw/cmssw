@@ -4,6 +4,8 @@
 // Creation Date:  MHS May 31, 2005 Initial version.
 //
 //--------------------------------------------
+// $Id$
+
 #include <math.h>
 #include <vector>
 #include "JetMETCorrections/Type1MET/interface/Type1METAlgo.h"
