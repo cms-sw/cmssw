@@ -1,13 +1,16 @@
-#include "Fireworks/Core/interface/fwPaths.h"
 #include "TString.h"
 #include "TSystem.h"
-#include <stdio>
 #include <iostream>
 
-namespace fireworks  {
-const TString p1(gSystem->Getenv("CMSSW_BASE/Fireworks/Core"));
-const TString p2(gSystem->Getenv("CMSSW_RELEASE_BASE/Fireworks/Core"));
+#include "Fireworks/Core/interface/fwPaths.h"
+#include "Fireworks/Core/interface/fwLog.h"
 
+namespace fireworks  {
+
+
+const TString datadir("/src/Fireworks/Core/") ;
+const TString p1 = gSystem->Getenv("CMSSW_BASE") + datadir;
+const TString p2 = gSystem->Getenv("CMSSW_RELEASE_BASE") + datadir;
 
 void setPath( TString& v)
 {
@@ -18,7 +21,8 @@ void setPath( TString& v)
    }
 
    v.Prepend(p2);
-   std::cout << "set PATH " << v << std::endl;
+   if (gSystem->AccessPathName(v))
+      fwLog(fwlog::kError) << "Can't access path " << v << std::endl;
 }
 }
 
