@@ -158,8 +158,9 @@ HLT_DoubleMu5_v*
 HLT_DoubleMu6_v*
 HLT_DoubleMu7_v*
 HLT_DoubleMu45_v*
-HLT_DoubleMu5_Acoplanarity03_v*
-HLT_DoubleMu6_Acoplanarity03_v*
+#HLT_DoubleMu5_Acoplanarity03_v*
+#HLT_DoubleMu6_Acoplanarity03_v*
+HLT_DoubleMu7_Acoplanarity03_v*
 HLT_DoubleMu4_Dimuon4_Bs_Barrel_v*
 HLT_DoubleMu4_Dimuon6_Bs_v*
 HLT_DoubleMu4_Jpsi_Displaced_v*
