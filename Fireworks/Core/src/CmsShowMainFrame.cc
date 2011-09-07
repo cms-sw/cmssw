@@ -5,11 +5,11 @@
 // Class  :     CmsShowMainFrame
 //
 // Implementation:
-//     <Notes on implementation>
+//     <Notes on implementation> 
 //
 // Original Author:  Chris Jones
 //         Created:  Thu May 29 20:58:23 CDT 2008
-// $Id: CmsShowMainFrame.cc,v 1.117 2011/07/14 02:21:31 amraktad Exp $
+// $Id: CmsShowMainFrame.cc,v 1.118 2011/07/20 05:33:23 amraktad Exp $
 
 #include "FWCore/Common/interface/EventBase.h"
 
@@ -45,6 +45,8 @@
 #include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/src/FWCheckBoxIcon.h"
 #include "Fireworks/Core/src/FWNumberEntry.h"
+
+#include "Fireworks/Core/interface/fwPaths.h"
 
 #include <fstream>
 
@@ -726,9 +728,8 @@ CmsShowMainFrame::showFWorksInfo()
 {
    if (m_fworksAbout == 0)
    {
-      TString infoFileName("$(CMSSW_BASE)/src/Fireworks/Core/data/version.txt");
-      gSystem->ExpandPathName(infoFileName);
-      
+      TString infoFileName("/data/version.txt");
+      fireworks::setPath(infoFileName);
       ifstream infoFile(infoFileName);
       TString infoText;
       infoText.ReadFile(infoFile);

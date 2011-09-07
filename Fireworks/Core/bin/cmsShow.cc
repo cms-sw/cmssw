@@ -5,13 +5,14 @@
 #include "TApplication.h"
 #include "TSysEvtHandler.h"
 #include "Getline.h"
-#include "Fireworks/Core/src/CmsShowMain.h"
 #include <iostream>
 #include <fstream>
 #include <string.h>
 #include <memory>
 #include <signal.h>
 
+#include "Fireworks/Core/src/CmsShowMain.h"
+#include "Fireworks/Core/interface/fwPaths.h"
 /* NOTE: This is a short term work around until FWLite can properly handle the MessageLogger
  */
 #include "FWCore/MessageLogger/interface/AbstractMLscribe.h"
@@ -70,14 +71,16 @@ void signal_handler_wrapper(int sid, siginfo_t* sinfo, void* sctx)
 {
    printf("Program received signal ID = %d.\nPrinting stack trace ... \n", sid); fflush(stdout);
 
-   TString gdbCommand;
-   TString gdbscript("$(CMSSW_BASE)/src/Fireworks/Core/scripts/version.txt");
+   TString gdbCommand("scripts/gdb-backtrace.sh");
+   fireworks::setPath(gdbCommand); 
+   gdbCommand += " ";
+
 #if defined(R__MACOSX)
-   gdbCommand = Form ("%s/src/Fireworks/Core/scripts/gdb-backtrace.sh %s/cmsShow.exe %d ", 
-                      gSystem->Getenv("CMSSW_BASE"), gSystem->Getenv("SHELLDIR"), gSystem->GetPid());
+   gdbCommand += gSystem->Getenv("SHELLDIR") + "/cmsShow.exe " +  gSystem->GetPid();
+
 #elif defined(R__LINUX)
-   gdbCommand = Form ("%s/src/Fireworks/Core/scripts/gdb-backtrace.sh %d ", 
-                      gSystem->Getenv("CMSSW_BASE"), gSystem->GetPid());
+   gdbCommand += gSystem->GetPid();
+
 #endif
    gSystem->Exec(gdbCommand.Data());
    gSystem->Exit(sid);   
