@@ -42,10 +42,12 @@ HLT_CentralJet46_CentralJet38_CentralJet20_DiBTagIP3D_v*
 HLT_CentralJet60_CentralJet53_DiBTagIP3D_v*
 HLT_QuadJet40_v*
 HLT_QuadJet40_IsoPFTau40_v*
+HLT_QuadJet45_DiJet40_v*
 HLT_QuadJet45_IsoPFTau45_v*
 HLT_QuadJet50_Jet40_Jet30_v*
 HLT_QuadJet70_v*
 HLT_QuadJet80_v*
+HLT_SixJet45_v*
 HLT_EightJet120_v*
 HLT_60Jet10_v*
 HLT_70Jet10_v*
