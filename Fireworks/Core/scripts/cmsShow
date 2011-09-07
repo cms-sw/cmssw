@@ -193,10 +193,6 @@ if [ $exitStatus -gt 0 ] && [ "$rootflag" != "on" ] ; then
    writeSystemInfoToFile $creport
    echo ""
    msgLen=75;
-   if [ $COLUMNS -gt 0 ] && [ $COLUMNS -gt 80 ]; then
-       loff=5
-       msgLen=`expr $COLUMNS - $loff`
-   fi
    awk -v msgLen=$msgLen 'BEGIN {printf("  %c",  35);  i=0;  while ( i <= msgLen) { printf( "%c", 35 ); ++i}; print ""; }'
    errorPrint $msgLen ""
    errorPrint $msgLen "        Abnormal program termination!"
