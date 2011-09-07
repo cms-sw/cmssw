@@ -37,6 +37,8 @@ private:
   MonitorElement * NoiseSigmaMapClean;
   MonitorElement * LowSigmaChannelStatus;
   MonitorElement * HighSigmaChannelStatus;
+  MonitorElement * NHits;
+  MonitorElement * NChannelBad;
   std::vector<uint16_t>  chanStatus_;
 
   //  CaloGeometryHelper myGeometry;
@@ -47,6 +49,7 @@ private:
   std::vector<float> ICMC;
   double threshold_;
   float adcToGeV_;
+  unsigned Ngood_;
 };
 
 #endif

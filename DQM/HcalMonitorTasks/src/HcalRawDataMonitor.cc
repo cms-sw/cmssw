@@ -78,6 +78,10 @@ HcalRawDataMonitor::HcalRawDataMonitor(const edm::ParameterSet& ps) {
     for (int y=0; y<TWO__SPGT; y++)
       ChannSumm_DataIntegrityCheck_[x][y]=0;
 
+  for (int x=0; x<TWO___FED; x++)
+    for (int y=0; y<THREE_SPG; y++)
+      DataFlowInd_[x][y]=0;
+
   for (int f=0; f<NUMDCCS; f++)
     for (int x=0; x<  TWO_CHANN; x++)
       for (int y=0; y<TWO__SPGT; y++)      

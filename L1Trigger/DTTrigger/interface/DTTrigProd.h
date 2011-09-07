@@ -4,8 +4,8 @@
  *     Main EDProducer for the DTTPG
  *
  *
- *   $Date: 2008/09/05 16:06:35 $
- *   $Revision: 1.6 $
+ *   $Date: 2009/11/02 14:18:30 $
+ *   $Revision: 1.7 $
  *
  *   \author C. Battilana
  *
@@ -46,6 +46,9 @@ private:
 
   // Trigger istance
   DTTrig* my_trig;
+
+  // Trigger Configuration Manager CCB validity flag
+  bool my_CCBValid;
 
   // Sector Format Flag true=[0-11] false=[1-12]
   bool my_DTTFnum;

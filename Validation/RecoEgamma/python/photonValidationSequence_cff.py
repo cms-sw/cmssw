@@ -5,14 +5,6 @@ from Validation.RecoEgamma.photonValidator_cfi import *
 from Validation.RecoEgamma.tkConvValidator_cfi import *
 
 
-import SimTracker.TrackAssociation.TrackAssociatorByHits_cfi
-myTrackAssociatorByHits = SimTracker.TrackAssociation.TrackAssociatorByHits_cfi.TrackAssociatorByHits.clone()
-myTrackAssociatorByHits.ComponentName = cms.string('myTrackAssociatorByHits')
-myTrackAssociatorByHits.Cut_RecoToSim = 0.5
-myTrackAssociatorByHits.Quality_SimToReco = 0.5
-
-
-
 photonValidation.minPhoEtCut = 10
 photonValidation.eMax  = 500
 photonValidation.etMax = 250

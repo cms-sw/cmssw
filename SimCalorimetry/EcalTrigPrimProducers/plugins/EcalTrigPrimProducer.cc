@@ -54,8 +54,6 @@
 #include "CondFormats/EcalObjects/interface/EcalTPGFineGrainStripEE.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
-#include "CondFormats/DataRecord/interface/EcalTPGSpikeRcd.h"
-#include "CondFormats/EcalObjects/interface/EcalTPGSpike.h"
 
 #include "EcalTrigPrimProducer.h"
 #include "SimCalorimetry/EcalTrigPrimAlgos/interface/EcalTrigPrimFunctionalAlgo.h"
@@ -186,11 +184,8 @@ unsigned long long  EcalTrigPrimProducer::getRecords(edm::EventSetup const& setu
   setup.get<EcalTPGTowerStatusRcd>().get(theEcalTPGTowerStatus_handle);
   const EcalTPGTowerStatus * ecaltpgBadTT = theEcalTPGTowerStatus_handle.product();
 
-  edm::ESHandle<EcalTPGSpike> theEcalTPGSpike_handle;
-  setup.get<EcalTPGSpikeRcd>().get(theEcalTPGSpike_handle);
-  const EcalTPGSpike * ecaltpgSpike = theEcalTPGSpike_handle.product();
 
-  algo_->setPointers2(ecaltpgFgEBGroup,ecaltpgLutGroup,ecaltpgLut,ecaltpgFineGrainEB,ecaltpgFineGrainTowerEE,ecaltpgBadTT,ecaltpgSpike);
+  algo_->setPointers2(ecaltpgFgEBGroup,ecaltpgLutGroup,ecaltpgLut,ecaltpgFineGrainEB,ecaltpgFineGrainTowerEE,ecaltpgBadTT);
 
   // we will suppose that everything is to be updated if the EcalTPGLinearizationConstRcd has changed
   return setup.get<EcalTPGLinearizationConstRcd>().cacheIdentifier();

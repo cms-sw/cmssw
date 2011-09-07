@@ -20,7 +20,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/ProcessingController.h"
 #include "FWCore/Framework/interface/ScheduleInfo.h"
 #include "FWCore/Framework/interface/ModuleChanger.h"
@@ -306,7 +306,7 @@ FWFFLooper::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 	 try
 	 {
 	    guiManager()->updateStatus("Loading geometry...");
-	    edm::ESTransientHandle<FWRecoGeometry> geoh;
+	    edm::ESHandle<FWRecoGeometry> geoh;
 	    iSetup.get<FWRecoGeometryRecord>().get(geoh);
 	    getGeom().initMap(geoh.product()->idToName);
 	    m_context->setGeom(&(getGeom()));

@@ -10,8 +10,8 @@ dqmElectronTagProbeAnalysis = cms.EDAnalyzer("ElectronTagProbeAnalyzer",
     FinalStep = cms.string("AtRunEnd"),
     InputFile = cms.string(""),
     OutputFile = cms.string(""),
-    InputFolderName = cms.string("TagAndProbe"),
-    OutputFolderName = cms.string("TagAndProbe"),
+    InputFolderName = cms.string("Egamma/Electrons/TagAndProbe"),
+    OutputFolderName = cms.string("Egamma/Electrons/TagAndProbe"),
     
     Selection = cms.int32(3), # 0=All elec, 1=Etcut, 2=Iso, 3=eId
     ElectronCollection = cms.InputTag("gsfElectrons"),

@@ -1,5 +1,5 @@
 /*
- * $Id: HydjetHadronizer.cc,v 1.9 2010/07/21 14:41:54 yilmaz Exp $
+ * $Id: HydjetHadronizer.cc,v 1.8 2009/09/21 09:36:56 loizides Exp $
  *
  * Interface to the HYDJET generator, produces HepMC events
  *
@@ -411,21 +411,10 @@ bool HydjetHadronizer::hydjet_init(const ParameterSet &pset)
 
 //_____________________________________________________________________
 
-bool HydjetHadronizer::readSettings( int ) {
-
-   Pythia6Service::InstanceWrapper guard(pythia6Service_);
-   pythia6Service_->setGeneralParams();
-
-   return true;
-
-}
-
-//_____________________________________________________________________
-
 bool HydjetHadronizer::initializeForInternalPartons(){
 
    Pythia6Service::InstanceWrapper guard(pythia6Service_);
-   // pythia6Service_->setGeneralParams();
+   pythia6Service_->setGeneralParams();
 
    // the input impact parameter (bxx_) is in [fm]; transform in [fm/RA] for hydjet usage
    const float ra = nuclear_radius();

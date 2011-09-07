@@ -10,9 +10,9 @@ DEFINE_FWK_MODULE(SeedCombiner);
 
 
 #include "RecoTracker/TkSeedGenerator/interface/SeedCreatorFactory.h"
-#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHitsCreator.h"
-#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHitsStraightLineCreator.h"
-#include "RecoTracker/TkSeedGenerator/interface/SeedFromConsecutiveHitsTripletOnlyCreator.h"
+#include "SeedFromConsecutiveHitsCreator.h"
+#include "SeedFromConsecutiveHitsStraightLineCreator.h"
+#include "SeedFromConsecutiveHitsTripletOnlyCreator.h"
 
 DEFINE_EDM_PLUGIN(SeedCreatorFactory, SeedFromConsecutiveHitsCreator, "SeedFromConsecutiveHitsCreator");
 DEFINE_EDM_PLUGIN(SeedCreatorFactory, SeedFromConsecutiveHitsStraightLineCreator, "SeedFromConsecutiveHitsStraightLineCreator");

@@ -1389,6 +1389,15 @@ void HcalDigiMonitor::zeroCounters()
 	      hfHists.tssumminus[i][j]=0;
 	    }
 	}
+
+      if (i<15)
+	{
+	  hbHists.fibbcnoff[i]=0;
+	  heHists.fibbcnoff[i]=0;
+	  hoHists.fibbcnoff[i]=0;
+	  hfHists.fibbcnoff[i]=0;
+	}
+
       if (i<200)
 	{
 	  hbHists.adc[i]=0;

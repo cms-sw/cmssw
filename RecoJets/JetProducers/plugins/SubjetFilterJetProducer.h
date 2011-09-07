@@ -1,21 +1,6 @@
 #ifndef RECOJETS_JETPRODUCERS_SUBJETFILTERJETPRODUCER_H
 #define RECOJETS_JETPRODUCERS_SUBJETFILTERJETPRODUCER_H 1
 
-
-/*
-  The plugin produces the output of the Subjet/Filter jet reconstruction
-  algorithm which was first proposed here: http://arXiv.org/abs/0802.2470
-  
-  The real work is done in RecoJets/JetAlgorithms/src/SubjetFilterAlgorithm.cc
-  
-  CMSSW implementation by David Lopes-Pegna           <david.lopes-pegna@cern.ch>
-                      and Philipp Schieferdecker <philipp.schieferdecker@cern.ch>
-
-  see: https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideSubjetFilterJetProducer
-
-*/
-
-
 #include "VirtualJetProducer.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "RecoJets/JetAlgorithms/interface/CompoundPseudoJet.h"

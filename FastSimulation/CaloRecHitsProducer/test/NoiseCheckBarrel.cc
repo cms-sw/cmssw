@@ -65,6 +65,14 @@ NoiseCheckBarrel::~NoiseCheckBarrel(){
   std::cout << " Calling save histos " << std::endl;
   dbe->save(rootFileName);
   std::cout << "done " << std::endl;
+
+  // Computing the Sigma
+  TF1 * f2 = new TF1("f2","[0]*exp(-0.5*((x-[1])/[2])**2)");
+  NHits->getTH1F()->Fit("f2");
+  float mean= fabs(f2->GetParameter(1));
+  float hotfraction=mean/Ngood_;
+  std::cout << " Hot fraction " << hotfraction << std::endl;
+
 ;}
 typedef math::XYZVector XYZPoint;
 
@@ -74,16 +82,26 @@ void  NoiseCheckBarrel::beginRun(edm::Run const& run, edm::EventSetup const& es)
 
   dbe = edm::Service<DQMStore>().operator->();
 
+  NChannelBad= dbe->book1D("NChannelBad","NChannelBad",10000,0.,10000.);
   // Retrieve the good/bad channels from the DB
   edm::ESHandle<EcalChannelStatus> pEcs;
   es.get<EcalChannelStatusRcd>().get(pEcs);
   const EcalChannelStatus* ecs = 0;
   if( pEcs.isValid() ) ecs = pEcs.product();
+  unsigned nbad=0;
+ Ngood_=0;
   for(unsigned ih=0;ih<EBDetId::kSizeForDenseIndexing;++ih)
     {
       chanStatus_.push_back(((ecs->barrelItems())[ih]).getStatusCode());
+      if(((ecs->barrelItems())[ih]).getStatusCode()!=0) {
+	++nbad;
+      }
+      else {
+	++Ngood_;
+      }
     }
-  
+  NChannelBad->Fill(nbad);
+  std::cout << " N good " << Ngood_ << std::endl;
 }
 
 void  NoiseCheckBarrel::beginJobAnalyze(const edm::EventSetup & c){
@@ -109,6 +127,8 @@ void  NoiseCheckBarrel::beginJobAnalyze(const edm::EventSetup & c){
   
   NoiseSigma= dbe->book1D("NoiseSigma","Sigma",1000,0.,.1);
   RecHit= dbe->book1D("RecHit","Rechit",1000,0.,1.);
+  NHits= dbe->book1D("NHits","NHits",10000,0.,10000.);
+
   NoiseSigmaMap= dbe->book2D("NoiseSigmaMap","Sigma",171,-85.5,85.5,360,0.5,360.5);
   NoiseSigmaClean= dbe->book1D("NoiseSigmaClean","Sigma",500,0.,.1);
   NoiseSigmaMapClean= dbe->book2D("NoiseSigmaMapClean","Sigma",171,-85.5,85.5,360,0.5,360.5);
@@ -157,6 +177,7 @@ void  NoiseCheckBarrel::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
    EcalRecHitCollection::const_iterator rhit=hrechit_EB_col.product()->begin();
    EcalRecHitCollection::const_iterator rhitend=hrechit_EB_col.product()->end();
+   unsigned counter=0;
    for(;rhit!=rhitend;++rhit)
      {      
        EBDetId myDetId(rhit->id());
@@ -164,10 +185,11 @@ void  NoiseCheckBarrel::analyze(const edm::Event& iEvent, const edm::EventSetup&
        individual_histos[ih]->Fill(rhit->energy()/ICMC[ih]) ;
        uint16_t flag=chanStatus_[ih];
        if(flag!=0) continue;
+       ++counter;
        RecHit->Fill(rhit->energy()/ICMC[ih]) ;
        std::cout << "AAA " << myDetId.ieta() << " " << myDetId.iphi() << " " << rhit->energy() << " " << IC[myDetId.hashedIndex()] << " " << ICMC[myDetId.hashedIndex()]  <<" " <<  rhit->energy()/ICMC[myDetId.hashedIndex()] << std::endl;
      }
-
+   NHits->Fill(counter);
 }
 
 void NoiseCheckBarrel::endRun()

@@ -11,15 +11,24 @@ XXX_INPUT_XXX
    )
 )
 
+process.HSCPHLTDuplicate = cms.EDFilter("HSCPHLTFilter",
+   RemoveDuplicates = cms.bool(True),
+   TriggerProcess   = cms.string("HLT"),
+   MuonTriggerMask  = cms.int32(1),  #Ignored
+   METTriggerMask   = cms.int32(1),  #Ignored
+   JetTriggerMask   = cms.int32(1),  #Ignored
+)
 
 process.HSCPHLTFilterMET = cms.EDFilter("HSCPHLTFilter",
-   TriggerProcess  = cms.string("HLT"),
-   MuonTriggerMask = cms.int32(0),  #Ignored
-   METTriggerMask  = cms.int32(1),  #Activated
-   JetTriggerMask  = cms.int32(0),  #Ignored
+   RemoveDuplicates = cms.bool(False),
+   TriggerProcess   = cms.string("HLT"),
+   MuonTriggerMask  = cms.int32(0),  #Ignored
+   METTriggerMask   = cms.int32(1),  #Activated
+   JetTriggerMask   = cms.int32(0),  #Ignored
 )
 
 process.HSCPHLTFilterMU = cms.EDFilter("HSCPHLTFilter",
+   RemoveDuplicates = cms.bool(False),
    TriggerProcess  = cms.string("HLT"),
    MuonTriggerMask = cms.int32(1),  #Activated
    METTriggerMask  = cms.int32(0), #Ignored
@@ -27,12 +36,14 @@ process.HSCPHLTFilterMU = cms.EDFilter("HSCPHLTFilter",
 )
 
 process.HSCPHLTFilterJET = cms.EDFilter("HSCPHLTFilter",
+   RemoveDuplicates = cms.bool(False),
    TriggerProcess  = cms.string("HLT"),
    MuonTriggerMask = cms.int32(0), #Ignored
    METTriggerMask  = cms.int32(0), #Ignored
    JetTriggerMask  = cms.int32(1), #Activated
 )
 
+process.Filter      = cms.Path(process.HSCPHLTDuplicate   )
 process.HscpPathMet = cms.Path(process.HSCPHLTFilterMET   )
 process.HscpPathMu  = cms.Path(process.HSCPHLTFilterMU    )
 process.HscpPathJet = cms.Path(process.HSCPHLTFilterJET   )
@@ -74,6 +85,6 @@ process.Out = cms.OutputModule("PoolOutputModule",
 
 process.endPath = cms.EndPath(process.Out)
 
-process.schedule = cms.Schedule(process.HscpPathMet, process.HscpPathMu, process.HscpPathJet, process.endPath)
+process.schedule = cms.Schedule(process.Filter, process.HscpPathMet, process.HscpPathMu, process.HscpPathJet, process.endPath)
 
 

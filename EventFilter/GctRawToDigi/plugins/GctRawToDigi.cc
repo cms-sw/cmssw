@@ -150,7 +150,7 @@ void GctRawToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     // check for empty events
     if(gctRcd.size() < 16) {
       LogDebug("GCT") << "Cannot unpack: empty/invalid GCT raw data (size = "
-                      << gctRcd.size() << "). Returning empty collections!";
+		      << gctRcd.size() << "). Returning empty collections!";
       addError(1);
       return;
     }
@@ -293,23 +293,19 @@ void GctRawToDigi::addError(const unsigned code) {
 
   // check this isn't going to break error handling
   if (code > MAX_ERR_CODE) {
-    LogDebug("GCT") << "Unknown error code : " << code;
+    edm::LogError("GCT") << "Unknown error code : " << code;
     return;
   }
 
-  // print message on first instance of this error and if verbose flag set to true
-  if (errorCounters_.at(code) == 0 && verbose_) {
+  // print message on first instance of this error
+  if (errorCounters_.at(code) == 0) {
     std::ostringstream os;
-    switch(code) {
-      case 0: os << "Reserved error code - not in use"; break;
-      case 1: os << "FED record empty or too short"; break;
-      case 2: os << "Unknown raw data version"; break;
-      case 3: os << "Detected unknown firmware version"; break;
-      case 4: os << "Detected unknown data block"; break;
-      case 5: os << "Block headers out of sync"; break;
-      case 6: os << "Too many blocks"; break;
-      default: os << "Unknown error code";
-    }
+    if (code == 1) os << "FED record empty or too short";
+    else if (code == 2) os << "Unknown raw data version";
+    else if (code == 3) os << "Detected unknown firmware version";
+    else if (code == 4) os << "Detected unknown data block";
+    else if (code == 5) os << "Block headers out of sync";
+    else if (code == 5) os << "Too many blocks";
     edm::LogError("GCT") << "Unpacking error " << code << " : " << os.str();
   }
 
@@ -320,7 +316,7 @@ void GctRawToDigi::addError(const unsigned code) {
   if (errors_ != 0) {
     errors_->push_back(L1TriggerError(fedId_, code));
   }
-  else LogDebug("GCT") << "Detected error (code=" << code << ") but no error collection available!";
+  else edm::LogError("GCT") << "Detected error (code=" << code << ") but no error collection available!";
 
 }
 
@@ -330,14 +326,13 @@ void GctRawToDigi::endJob()
   unsigned total=0;
   std::ostringstream os;
 
-  for (unsigned i=0 ; i <= MAX_ERR_CODE ; ++i) {
+  for (unsigned i=0; i<MAX_ERR_CODE+1; ++i) {
     total+=errorCounters_.at(i);
     os << "Error " << i << " (" << errorCounters_.at(i) << ")";
-    if(i < MAX_ERR_CODE) { os << ", "; }
   }
-
-  if (total>0 && verbose_) {
-    edm::LogError("GCT") << "Encountered " << total << " unpacking errors: " << os.str();
+   
+  if (total>0) {
+    edm::LogError("GCT") << "Encountered " << total << " unpacking errors. " << os;
   }  
 }
 

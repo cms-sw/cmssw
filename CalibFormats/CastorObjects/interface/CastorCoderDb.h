@@ -2,6 +2,7 @@
 #define CASTOR_CODER_DB_H
 
 #include "CalibFormats/CastorObjects/interface/CastorChannelCoder.h"
+#include "CalibFormats/CastorObjects/interface/QieShape.h"
 #include "CalibFormats/CastorObjects/interface/CastorCoder.h"
 
 /** \class CastorCoderDb

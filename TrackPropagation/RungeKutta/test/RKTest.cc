@@ -92,8 +92,7 @@ void RKTest::propagateInCentralVolume( const MagneticField* field) const
       GlobalPoint targetPos( (propDistance*startingMomentum.unit()).basicVector());
       PlaneBuilder::ReturnType EndPlane = pb.plane( targetPos, rot);
       // Define error matrix
-       ROOT::Math::SMatrixIdentity id;
-      AlgebraicSymMatrix55 C(id);
+      AlgebraicSymMatrix C(5,1);
       C *= 0.01;
       CurvilinearTrajectoryError err(C);
 

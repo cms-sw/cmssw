@@ -127,7 +127,7 @@ cleanMuonTriggerMatchTriggerMuon = cms.EDProducer(
   "PATTriggerMatcherDRDPtLessByR"           # match by DeltaR and DeltaPt, best match by DeltaR
 , src     = cms.InputTag( 'cleanPatMuons' )
 , matched = cms.InputTag( 'patTrigger' )    # default producer label as defined in PhysicsTools/PatAlgos/python/triggerLayer1/triggerProducer_cfi.py
-, matchedCuts = cms.string( 'type( "TriggerL1Mu" ) || type( "TriggerMu" )' )
+, matchedCuts = cms.string( 'type( "TriggerL1Mu" ) || type( "TriggerMuon" )' )
 , maxDPtRel = cms.double( 0.5 )
 , maxDeltaR = cms.double( 0.5 )
 , resolveAmbiguities    = cms.bool( True )  # only one match per trigger object

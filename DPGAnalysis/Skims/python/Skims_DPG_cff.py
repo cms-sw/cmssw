@@ -73,7 +73,7 @@ pathHLTdtSkim =cms.Path(dtHLTSkimseq)
 SKIMStreamDT = cms.FilteredStream(
     responsible = 'DPG',
     name = 'DT',
-    paths = (pathdtSkim,pathHLTdtSkim),
+    paths = (pathHLTdtSkim),
     content = skimContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW-RECO')
@@ -133,20 +133,6 @@ SKIMStreamTPG = cms.FilteredStream(
     dataTier = cms.untracked.string('USER')
     )
     
-#####################
-
-from DPGAnalysis.Skims.HSCPSkim_cff import *
-
-HSCPSkimPath = cms.Path( HSCPSkim )
-SKIMStreamHSCP = cms.FilteredStream(
-    responsible = '',
-    name = 'HSCP',
-    paths = (HSCPSkimPath),
-    content = skimContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('RAW-RECO')
-    )
-
 #####################
 
 
@@ -316,3 +302,19 @@ SKIMStreamZElectron = cms.FilteredStream(
     dataTier = cms.untracked.string('RAW-RECO')
     )
 
+
+#####################
+
+from DPGAnalysis.Skims.HighMETSkim_cff import *
+pfPath = cms.Path(pfMETSelSeq)
+tcPath = cms.Path(tcMETSelSeq)
+SKIMStreamHighMET   = cms.FilteredStream(
+        responsible = 'MET Group',
+            name = 'HighMET',
+            paths = (pfPath,tcPath),
+            content = skimContent.outputCommands,
+            selectEvents = cms.untracked.PSet(),
+            dataTier = cms.untracked.string('RAW-RECO')
+            )
+
+#####################

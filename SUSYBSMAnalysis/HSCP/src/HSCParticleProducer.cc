@@ -14,7 +14,7 @@
 // Original Author:  Rizzi Andrea
 // Reworked and Ported to CMSSW_3_0_0 by Christophe Delaere
 //         Created:  Wed Oct 10 12:01:28 CEST 2007
-// $Id: HSCParticleProducer.cc,v 1.16 2010/05/01 15:40:48 querten Exp $
+// $Id: HSCParticleProducer.cc,v 1.17 2010/12/16 17:08:25 querten Exp $
 //
 //
 
@@ -180,12 +180,12 @@ HSCParticleProducer::filter(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
 
   edm::OrphanHandle<susybsm::HSCParticleCollection> putHandle = iEvent.put(result); 
-  if(useBetaFromEcal){
+//  if(useBetaFromEcal){
 //      edm::RefProd<susybsm::HSCParticleCollection> hscpCollectionHandle = iEvent.getRefBeforePut<susybsm::HSCParticleCollection>();
 //    filler.insert(putHandle, CaloInfoColl.begin(), CaloInfoColl.end());
 //    filler.fill();
 //    iEvent.put(CaloInfoMap);
-  }
+//  }
 
   return filterResult;
 }

@@ -1,4 +1,4 @@
-// $Id: StateMachine.h,v 1.1.4.3 2011/03/23 14:20:51 mommsen Exp $
+// $Id: StateMachine.h,v 1.3 2011/03/24 17:26:25 mommsen Exp $
 /// @file: StateMachine.h 
 
 #ifndef EventFilter_SMProxyServer_StateMachine_h
@@ -97,7 +97,7 @@ namespace smproxy
     stor::RegistrationCollectionPtr getRegistrationCollection() const
     { return registrationCollection_; }
     stor::RegistrationQueuePtr getRegistrationQueue() const
-    { return  registrationQueue_; }
+    { return registrationQueue_; }
     stor::InitMsgCollectionPtr getInitMsgCollection() const
     { return initMsgCollection_; }
     EventQueueCollectionPtr getEventQueueCollection() const

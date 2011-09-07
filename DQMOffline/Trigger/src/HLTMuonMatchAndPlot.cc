@@ -1,8 +1,8 @@
  /** \file DQMOffline/Trigger/HLTMuonMatchAndPlot.cc
  *
- *  $Author: klukas $
- *  $Date: 2011/01/27 19:14:22 $
- *  $Revision: 1.21 $
+ *  $Author: dlange $
+ *  $Date: 2011/05/21 01:32:31 $
+ *  $Revision: 1.25 $
  */
 
 
@@ -65,6 +65,27 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot(const ParameterSet & pset,
   // Prepare the DQMStore object.
   dbe_ = edm::Service<DQMStore>().operator->();
   dbe_->setVerbose(0);
+
+  // Get the trigger level.
+  triggerLevel_ = "L3";
+  TPRegexp levelRegexp("L[1-3]");
+  size_t nModules = moduleLabels_.size();
+  TObjArray * levelArray = levelRegexp.MatchS(moduleLabels_[nModules - 1]);
+  if (levelArray->GetEntriesFast() > 0) {
+    triggerLevel_ = ((TObjString *)levelArray->At(0))->GetString();
+  }
+  delete levelArray;
+
+  // Get the pT cut by parsing the name of the HLT path.
+  cutMinPt_ = 3;
+  TPRegexp ptRegexp("Mu([0-9]*)");
+  TObjArray * objArray = ptRegexp.MatchS(hltPath_);
+  if (objArray->GetEntriesFast() >= 2) {
+    TObjString * ptCutString = (TObjString *)objArray->At(1);
+    cutMinPt_ = atoi(ptCutString->GetString());
+    cutMinPt_ = ceil(cutMinPt_ * plotCuts_["minPtFactor"]);
+  }
+  delete objArray;
 
 }
 
@@ -132,25 +153,6 @@ void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
 
 {
 
-  // Get the trigger level.
-  string triggerLevel = "L3";
-  TPRegexp levelRegexp("L[1-3]");
-  size_t nModules = moduleLabels_.size();
-  TObjArray * levelArray = levelRegexp.MatchS(moduleLabels_[nModules - 1]);
-  if (levelArray->GetEntriesFast() > 0) {
-    triggerLevel = ((TObjString *)levelArray->At(0))->GetString();
-  }
-
-  // Get the pT cut by parsing the name of the HLT path.
-  unsigned int cutMinPt = 3;
-  TPRegexp ptRegexp("Mu([0-9]*)");
-  TObjArray * objArray = ptRegexp.MatchS(hltPath_);
-  if (objArray->GetEntriesFast() >= 2) {
-    TObjString * ptCutString = (TObjString *)objArray->At(1);
-    cutMinPt = atoi(ptCutString->GetString());
-    cutMinPt = ceil(cutMinPt * plotCuts_["minPtFactor"]);
-  }
-
   // Get objects from the event.
   Handle<MuonCollection> allMuons;
   iEvent.getByLabel(inputTags_["recoMuon"], allMuons);
@@ -180,7 +182,7 @@ void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
 
   // Find the best trigger object matches for the targetMuons.
   vector<size_t> matches = matchByDeltaR(targetMuons, hltMuons, 
-                                         plotCuts_[triggerLevel + "DeltaR"]);
+                                         plotCuts_[triggerLevel_ + "DeltaR"]);
 
   // Fill plots for matched muons.
   for (size_t i = 0; i < targetMuons.size(); i++) {
@@ -207,7 +209,7 @@ void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
       // If no match was found, then the numerator plots don't get filled.
       if (suffix == "numer" && matches[i] >= targetMuons.size()) continue;
 
-      if (muon.pt() > cutMinPt) {
+      if (muon.pt() > cutMinPt_) {
         hists_["efficiencyEta_" + suffix]->Fill(muon.eta());
         hists_["efficiencyPhiVsEta_" + suffix]->Fill(muon.eta(), muon.phi());
       }
@@ -216,13 +218,18 @@ void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
         hists_["efficiencyTurnOn_" + suffix]->Fill(muon.pt());
       }
       
-      if (muon.pt() > cutMinPt && fabs(muon.eta()) < plotCuts_["maxEta"]) {
-        double d0 = muon.innerTrack()->dxy(beamSpot->position());
-        double z0 = muon.innerTrack()->dz(beamSpot->position());
-        hists_["efficiencyPhi_" + suffix]->Fill(muon.phi());
-        hists_["efficiencyD0_" + suffix]->Fill(d0);
-        hists_["efficiencyZ0_" + suffix]->Fill(z0);
-        hists_["efficiencyCharge_" + suffix]->Fill(muon.charge());
+      if (muon.pt() > cutMinPt_ && fabs(muon.eta()) < plotCuts_["maxEta"]) {
+        const Track * track = 0;
+        if (muon.isTrackerMuon()) track = & * muon.innerTrack();
+        else if (muon.isStandAloneMuon()) track = & * muon.outerTrack();
+        if (track) {
+          double d0 = track->dxy(beamSpot->position());
+          double z0 = track->dz(beamSpot->position());
+          hists_["efficiencyPhi_" + suffix]->Fill(muon.phi());
+          hists_["efficiencyD0_" + suffix]->Fill(d0);
+          hists_["efficiencyZ0_" + suffix]->Fill(z0);
+          hists_["efficiencyCharge_" + suffix]->Fill(muon.charge());
+        }
       }
       
       // Fill plots for tag and probe
@@ -240,7 +247,7 @@ void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
 
   // Plot fake rates (efficiency for HLT objects to not get matched to RECO).
   vector<size_t> hltMatches = matchByDeltaR(hltMuons, targetMuons,
-                                            plotCuts_[triggerLevel + "DeltaR"]);
+                                            plotCuts_[triggerLevel_ + "DeltaR"]);
   for (size_t i = 0; i < hltMuons.size(); i++) {
     TriggerObject & hltMuon = hltMuons[i];
     bool isFake = hltMatches[i] > hltMuons.size();
@@ -324,7 +331,7 @@ template <class T1, class T2>
 vector<size_t> 
 HLTMuonMatchAndPlot::matchByDeltaR(const vector<T1> & collection1, 
                                    const vector<T2> & collection2,
-                                   const double maxDeltaR = NOMATCH) {
+                                   const double maxDeltaR) {
 
   const size_t n1 = collection1.size();
   const size_t n2 = collection2.size();

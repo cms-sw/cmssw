@@ -65,6 +65,16 @@ namespace {
 
     HcalDcsMap myDcsMap;
     std::vector<HcalDcsMap::Item> myDcsMapVec;
+    
+    HcalLongRecoParams myLongRecoParams;
+    std::vector<HcalLongRecoParam> myLongRecoParamVec;
+    std::vector<uint32_t> myUintVec;
+    
+    HcalRecoParams myRecoParams;
+    std::vector<HcalRecoParam> myRecoParamVec;
+    
+    HcalMCParams myMCParams;
+    std::vector<HcalMCParam> myMCParamsVec;
   };
 }
 

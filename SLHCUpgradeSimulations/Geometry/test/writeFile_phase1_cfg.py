@@ -4,10 +4,12 @@ process = cms.Process("ICALIB")
 #process.load("Configuration.StandardSequences.FakeConditions_cff")
 process.load("Configuration.StandardSequences.Services_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
-process.load("SLHCUpgradeSimulations.Geometry.PhaseI_cmsSimIdealGeometryXML_cff")
+#process.load("SLHCUpgradeSimulations.Geometry.Phase1_R39F16_smpx_cmsSimIdealGeometryXML_cff")
+process.load('SLHCUpgradeSimulations.Geometry.Phase1_R39F16_cmsSimIdealGeometryXML_cff')
 
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.GlobalTag.globaltag = 'MC_36Y_V9::All'
+process.GlobalTag.globaltag = 'DESIGN42_V11::All'
+#process.GlobalTag.globaltag = 'MC_42_V10::All'
 process.TrackerDigiGeometryESModule.applyAlignment = False
 print process.TrackerGeometricDetESModule.fromDDD
 print process.TrackerDigiGeometryESModule.fromDDD,process.TrackerDigiGeometryESModule.applyAlignment
@@ -25,11 +27,11 @@ process.MessageLogger.logfile = cms.untracked.PSet(threshold = cms.untracked.str
 
 process.Timing = cms.Service("Timing")
 
-process.prodstrip = cms.EDFilter("SiStripDetInfoFileWriter",
+process.prodstrip = cms.EDAnalyzer("SiStripDetInfoFileWriter",
     FilePath = cms.untracked.string('SiStripDetInfo_phase1.dat'),
 )
 
-process.prodpixel = cms.EDFilter("SiPixelDetInfoFileWriter",
+process.prodpixel = cms.EDAnalyzer("SiPixelDetInfoFileWriter",
     FilePath = cms.untracked.string('PixelSkimmedGeometry_phase1.txt'),
     WriteROCInfo = cms.untracked.bool(True)
 )
