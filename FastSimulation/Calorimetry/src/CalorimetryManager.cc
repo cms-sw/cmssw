@@ -422,6 +422,7 @@ void CalorimetryManager::EMShowerSimulation(const FSimTrack& myTrack) {
 
   if(pivot.subdetId() == 0) {   // further protection against avbsence of pivot
     edm::LogWarning("CalorimetryManager") <<  "Pivot for egamma  e = "  << myTrack.hcalEntrance().e() << " is not found at depth " << depth << " and meanShower coordinates = " << meanShower << std::endl; 
+    if(myPreshower) delete myPreshower;
     return;
   }
   
