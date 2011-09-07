@@ -145,7 +145,7 @@ CmsShowSearchFiles::CmsShowSearchFiles (const char *filename,
    else if ( x2 > 0)
    {
       sendToWebBrowser(s_prefixes[1][0]);
-      fwLog(fwlog::kInfo) << "Search files at the closest at " << s_prefixes[1][0] << std::endl;
+      fwLog(fwlog::kInfo) << "Search files at " << s_prefixes[1][0] << std::endl;
    }
    else
    {
