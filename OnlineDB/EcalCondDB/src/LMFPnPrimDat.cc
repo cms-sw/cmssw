@@ -31,7 +31,17 @@ LMFPnPrimDat::LMFPnPrimDat(oracle::occi::Environment* env,
 }
 
 LMFPnPrimDat::LMFPnPrimDat(EcalDBConnection *c, std::string color, 
-			 std::string system) : LMFColoredTable(c) {
+			   std::string system, bool d) : LMFColoredTable(c) {
+  if (d) {
+    debug();
+  }
+  init();
+  setColor(color);
+  setSystem(system);
+}
+
+LMFPnPrimDat::LMFPnPrimDat(EcalDBConnection *c, std::string color, 
+			   std::string system) : LMFColoredTable(c) {
   init();
   setColor(color);
   setSystem(system);

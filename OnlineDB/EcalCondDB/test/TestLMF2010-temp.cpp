@@ -38,7 +38,8 @@ public:
   }
 
   void doRun() {
-    LMFPnPrimDat(econn, "ORANGE", "LED");
+    bool b = true;
+    LMFPnPrimDat(econn, "ORANGE", "LED", b);
   }
 
 private:

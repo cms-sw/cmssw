@@ -27,6 +27,8 @@ class LMFPnPrimDat : public LMFColoredTable {
 	      oracle::occi::Connection* conn, std::string color,
 	      std::string system);
   LMFPnPrimDat(EcalDBConnection *c, std::string color, std::string system);
+  LMFPnPrimDat(EcalDBConnection *c, std::string color, std::string system,
+	       bool debug);
   LMFPnPrimDat(int color, std::string system);
   LMFPnPrimDat(oracle::occi::Environment* env,
 	      oracle::occi::Connection* conn, int color,
