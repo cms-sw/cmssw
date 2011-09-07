@@ -133,13 +133,20 @@ int main (int argc, char **argv)
    gEnv->SetValue("Gui.BackgroundColor", "#9f9f9f");
 
    // print version
-   TString infoFileName("data/version.txt");
-   fireworks::setPath(infoFileName);
-   ifstream infoFile(infoFileName);
    TString infoText;
-   infoText.ReadLine(infoFile);
-   infoFile.close();
-   printf("Starting cmsShow, version %s\n", infoText.Data());
+   if (gSystem->Getenv("CMSSW_VERSION"))
+   {
+      infoText = gSystem->Getenv("CMSSW_VERSION");
+   }
+   else
+   {
+      TString infoFileName("data/version.txt");
+      fireworks::setPath(infoFileName);
+      ifstream infoFile(infoFileName);
+      infoText.ReadLine(infoFile);
+      infoFile.close();
+   }
+   printf("Starting cmsShow, version %s.\n", infoText.Data());
    fflush(stdout);
 
    // check root interactive promp
