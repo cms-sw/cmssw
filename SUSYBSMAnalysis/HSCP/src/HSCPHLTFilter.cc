@@ -1,4 +1,4 @@
-#include <memory>
+\#include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EDFilter.h"
@@ -215,8 +215,9 @@ bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if(MuonTrigger1Mask==0)MuonTrigger1=false;
    if(PFMetTriggerMask ==0)PFMetTrigger =false;
 
-   if(MuonTrigger1Mask<0)MuonTrigger1=!MuonTrigger1;
-   if(PFMetTriggerMask <0)PFMetTrigger =!PFMetTrigger;
+   //Allow option of requiring that one of the triggers did NOT file to remove duplicated events
+   if(MuonTrigger1Mask<0 && MuonTrigger1) return false;
+   if(PFMetTriggerMask<0 && PFMetTrigger) return false;
 
 
    bool d =  (MuonTrigger1 | PFMetTrigger);

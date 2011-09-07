@@ -35,7 +35,7 @@ process.HSCPHLTFilter = cms.EDFilter("HSCPHLTFilter",
    TriggerProcess  = cms.string("HLT"),
    RemoveDuplicates    = cms.bool(False),
    MuonTrigger1Mask    = cms.int32(1),  #Activated
-   PFMetTriggerMask    = cms.int32(1),  #Activated
+   PFMetTriggerMask    = cms.int32(0),  #Deactivated
 )
 
 ########################################################################  SPECIAL CASE FOR DATA

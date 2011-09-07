@@ -15,10 +15,9 @@ process.GlobalTag.globaltag = 'GR_P_V14::All'
 
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
-#      'rfio:/castor/cern.ch/user/q/querten/CRAB_STAGEOUT/10_12_14_HSCPSkim/V5/querten/Mu/EXOHSCPSkim7TeV/0bc44962c8c6b23d45ce69c867f520ea/EXOHSCP_91_1_zAl.root'
-       '/store/group/exotica/HSCPBGSkimMu2010RunA/Mu/EXOHSCPBGSkimMu2010RunA-JC/0bc44962c8c6b23d45ce69c867f520ea/EXOHSCP_9_1_AHo.root'  #RUN136088
-#        '/store/user/quertenmont/11_01_06_HSCPSkim/MuB_V2/querten/Mu/EXOHSCPSkim7TeV_V2/0bc44962c8c6b23d45ce69c867f520ea/EXOHSCP_12_1_g2S.root'
-#         '/store/user/quertenmont/11_01_06_HSCPSkim/MuB_V2/querten/Mu/EXOHSCPSkim7TeV_V2/0bc44962c8c6b23d45ce69c867f520ea/EXOHSCP_87_1_8jU.root' #RUN149442
+        '/store/data/Run2011A/MET/USER/EXOHSCP-PromptSkim-v6/0000/E2C742AD-82C4-E011-A138-0026189438D3.root',
+        '/store/data/Run2011A/MET/USER/EXOHSCP-PromptSkim-v6/0000/E0EC82AB-F6CB-E011-B1F8-003048678FD6.root',
+        '/store/data/Run2011A/MET/USER/EXOHSCP-PromptSkim-v6/0000/E024BB80-98C6-E011-A2F2-00261894383C.root'
    )
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
@@ -35,7 +34,7 @@ process.load("SUSYBSMAnalysis.HSCP.HSCPTreeBuilder_cff")
 process.HSCPHLTFilter = cms.EDFilter("HSCPHLTFilter",
    TriggerProcess  = cms.string("HLT"),
    RemoveDuplicates    = cms.bool(False),
-   MuonTrigger1Mask    = cms.int32(-1),  #Activated
+   MuonTrigger1Mask    = cms.int32(-1),  #Deactivated
    PFMetTriggerMask    = cms.int32(1),   #Activated
 )
 
