@@ -72,52 +72,12 @@
 
 <h2>@CMSSW_VERSION@</h2>
 
+
+Generation of index page failed. <br/>
+Reason: @REASON@ <br/>
+Check if python has <b>json</b> and <b>urllib2</b> modules.
+
 </center>
-
-
-
-<script>
-
-   var currentOpen = "";
-
-   function getIframe(file){
-
-	if (currentOpen != ""){
-		document.getElementById(currentOpen).innerHTML='';
-	}
-
-
-
-	if (currentOpen != file){
-
-//		document.getElementById(file).innerHTML='<center><iframe id = \"frame\" src =\"splittedTree/'+file+'.html\" style=\"height:300; width:100%; overflow:auto; border:1px solid lightgray;\"><p>Your browser does not support iframes.</p></iframe></center>';
-		document.getElementById(file).innerHTML='<center><iframe id = \"frame\" src =\"'+file+'.html\" style=\"height:300; width:100%; overflow:auto; border:1px solid lightgray;\"><p>Your browser does not support iframes.</p></iframe></center>';
-		currentOpen = file;
-         }
-	else{
-		currentOpen = "";
-	} 
-  }
-
-</script>
-
-
-
-<p>
-
-<table class="doctable">
-
-<tbody>
-
-<tr class="top" valign="top">
-
-<th class="domain">Domain</th><th class="contact">Contact</th>
-
-</tr>
-
-@TREE_BLOCKS@
-
-</table>
 
 </p>
 

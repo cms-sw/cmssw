@@ -4,19 +4,21 @@ Created on Aug 29, 2011
 @author: MantYdze
 '''
 
-import urllib2, json, os, sys
+errorOnImport = False
+
+import sys
+
+try:
+    import urllib2, os, json
+except:
+    errorOnImport = True    
 
 cvsBaseUrl = "http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW"     # NO SLASH IN THE END
 
 refmanfiles = {}
 
 ## Prepate dictionary of doxygen generated html files
-def prepareRefManFiles(SRC_DIR):
-    
-#    fileIN = open("CMSSW_4_2_5.indexas", "r")
-#    lines = fileIN.read().split("\n")
-#    fileIN.close()
-    
+def prepareRefManFiles(SRC_DIR):    
     output = os.popen("find "+SRC_DIR+" -wholename '*/class*.html' -not \( -name '*-members.html' \) -print")
     lines = output.read().split("\n")
     output.close()
@@ -88,7 +90,6 @@ def generateBranchHTML(SRC_DIR, tree, branch):
 ## Read template file
 def loadTemplates():
     templateFile = SCRIPTS_LOCATION+"/indexPage/tree_template.html" 
-#    templateFile = SCRIPTS_LOCATION+"data/tree_template.html"               
             
     fileIN = open(templateFile, "r")
     treeTemplateHTML = fileIN.read()
@@ -96,8 +97,6 @@ def loadTemplates():
     
     
     templateFile = SCRIPTS_LOCATION+"/indexPage/indexpage_template.html"  
-#    templateFile = SCRIPTS_LOCATION+"data/indexpage_template.html"               
-            
     fileIN = open(templateFile, "r")
     indexPageTemplateHTML = fileIN.read()
     fileIN.close()
@@ -115,11 +114,47 @@ SCRIPTS_LOCATION = sys.argv[3]
 
 SRC_DIR = PROJECT_LOCATION+"/src"    
 
-
+try:
 # Tree Preparation
-(treeTemplateHTML, indexPageTemplate) = loadTemplates()
-prepareRefManFiles(PROJECT_LOCATION+"/doc/html")
-(tree, subsystems) = generateTree(CMSSW_VERSION)
+    (treeTemplateHTML, indexPageTemplate) = loadTemplates()
+    prepareRefManFiles(PROJECT_LOCATION+"/doc/html")
+    (tree, subsystems) = generateTree(CMSSW_VERSION)
+
+    ## Index Page Preparations
+
+    # Loading responsibles for subsystems
+    (managers, users) = json.loads(urllib2.urlopen('https://cmstags.cern.ch/tc/CategoriesManagersJSON').read())
+except:
+    ## Warning page
+    fileIN = open(SCRIPTS_LOCATION+"/indexPage/indexpage_warning.html", "r")
+    indexPageTemplateHTML = fileIN.read()
+    fileIN.close()
+    reason = "Failed during preparing treeview. "
+    if errorOnImport:
+        reason += " Error on import"
+    output = open(PROJECT_LOCATION+"/doc/html/index.html", "w")
+    output.write(indexPageTemplateHTML.replace("@CMSSW_VERSION@", CMSSW_VERSION).replace("@REASON@", reason))
+    output.close()
+    sys.exit(0) 
+
+
+indexPageHTML = ""
+indexPageRowCounter = 0
+indexPageBlock = """
+<tr class=\"@ROW_CLASS@\">
+    <td width=\"50%\"><a href=\"#@SUBSYSTEM@\" onclick=\"javascript:getIframe('@SUBSYSTEM@')\">@SUBSYSTEM@</a></td>
+    <td width=\"50%\" class=\"contact\">@CONTACTS@</td>
+</tr>
+<tr><td colspan=\"2\"><span id=\"@SUBSYSTEM@\"></span></td></tr>
+"""
+
+indexPageBlockNoTree = """
+<tr class=\"@ROW_CLASS@\">
+    <td width=\"50%\">@SUBSYSTEM@</td>
+    <td width=\"50%\" class=\"contact\">@CONTACTS@</td>
+</tr>
+<tr><td colspan=\"2\"><span id=\"@SUBSYSTEM@\"></span></td></tr>
+"""
 
 # Links to Twiki pages
 map = {}
@@ -139,29 +174,6 @@ map["DAQ"] = "https://twiki.cern.ch/twiki/bin/view/CMS/TriDASWikiHome"
 map["Visualization"] = "https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideVisualization"
 map["Documentation"] = "https://twiki.cern.ch/twiki/bin/view/CMS/SWGuide"
 
-
-## Index Page Preparations
-
-# Loading responsibles for subsystems
-(managers, users) = json.loads(urllib2.urlopen('https://cmstags.cern.ch/tc/CategoriesManagersJSON').read())
-
-indexPageHTML = ""
-indexPageRowCounter = 0
-indexPageBlock = """
-<tr class=\"@ROW_CLASS@\">
-    <td width=\"50%\"><a href=\"#@SUBSYSTEM@\" onclick=\"javascript:getIframe('@SUBSYSTEM@')\">@SUBSYSTEM@</a></td>
-    <td width=\"50%\" class=\"contact\">@CONTACTS@</td>
-</tr>
-<tr><td colspan=\"2\"><span id=\"@SUBSYSTEM@\"></span></td></tr>
-"""
-
-indexPageBlockNoTree = """
-<tr class=\"@ROW_CLASS@\">
-    <td width=\"50%\">@SUBSYSTEM@</td>
-    <td width=\"50%\" class=\"contact\">@CONTACTS@</td>
-</tr>
-<tr><td colspan=\"2\"><span id=\"@SUBSYSTEM@\"></span></td></tr>
-"""
 
 
 ## Generating treeviews
@@ -196,7 +208,7 @@ for subsystem in subsystems:
     output.write(treeHTML)
     output.close()
 
-indexPageHTML = indexPageTemplate.replace("@TREE_BLOCKS@", indexPageHTML)
+indexPageHTML = indexPageTemplate.replace("@TREE_BLOCKS@", indexPageHTML).replace("@CMSSW_VERSION@", CMSSW_VERSION)
 output = open(PROJECT_LOCATION+"/doc/html/index.html", "w")
 output.write(indexPageHTML)
 output.close()    
