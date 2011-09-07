@@ -27,8 +27,8 @@ class PUEvent {
   class PUMinBiasEvt {
   public:
     PUMinBiasEvt() : first(0), size(0) {}
-    unsigned first; 
-    unsigned size;
+    unsigned int first; 
+    unsigned int size;
   };   
 
 
@@ -46,9 +46,9 @@ class PUEvent {
   const std::vector<PUEvent::PUMinBiasEvt>& thePUMinBiasEvts() 
     {return PUMinBiasEvts_;}
 
-  const unsigned nParticles() const { return PUParticles_.size(); }
+  const unsigned int nParticles() const { return PUParticles_.size(); }
 
-  const unsigned nMinBias() const { return PUMinBiasEvts_.size(); }
+  const unsigned int nMinBias() const { return PUMinBiasEvts_.size(); }
 
  private:
 

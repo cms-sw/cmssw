@@ -27,8 +27,8 @@ class NUEvent {
   class NUInteraction {
   public:
     NUInteraction() : first(0), last(0) {}
-    unsigned first; 
-    unsigned last;
+    unsigned int first; 
+    unsigned int last;
   };   
 
 
@@ -46,9 +46,9 @@ class NUEvent {
   const std::vector<NUEvent::NUInteraction>& theNUInteractions() 
     {return NUInteractions_;}
 
-  const unsigned nParticles() const { return NUParticles_.size(); }
+  const unsigned int nParticles() const { return NUParticles_.size(); }
 
-  const unsigned nInteractions() const { return NUInteractions_.size(); }
+  const unsigned int nInteractions() const { return NUInteractions_.size(); }
 
  private:
 
