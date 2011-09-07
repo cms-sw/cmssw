@@ -126,18 +126,18 @@ bool HDRShower::setHit(float espot, float theta) {
 
 float HDRShower::getR() {
   float p = random->flatShoot();
-  unsigned int i = 0; while( rpdf[i]<p && i<R_range-1) { i++; }
+  unsigned int i = 1; while( rpdf[i]<p && i<R_range-1) { i++; }
   float r;
-  float dr = rpdf[i+1] - rpdf[i];
+  float dr = rpdf[i] - rpdf[i-1];
   if(dr != 0.0)
-    r=(float(i+1) + (p - rpdf[i])/(rpdf[i+1] - rpdf[i]))/lambdaHD;
-  else r = float(i+1)/lambdaHD;
+    r=(float(i) + (p - rpdf[i-1])/dr)/lambdaHD;
+  else r = float(i)/lambdaHD;
   return(r);
 }
 
 void HDRShower::thetaFunction(int nthetaStep)
 {
-  int i = 0; while( EgridTable[i]<e && i<NEnergyScan) { i++; }
+  int i = 0; while( EgridTable[i]<e && i<NEnergyScan-1) { i++; }
 
   float amean, asig, lambda1, lambda1sig,lam21,lam21sig; 
   amean = Theta1amp[i]; asig = Theta1ampSig[i];
