@@ -133,8 +133,8 @@ int main (int argc, char **argv)
    gEnv->SetValue("Gui.BackgroundColor", "#9f9f9f");
 
    // print version
-   TString infoFileName("$(CMSSW_BASE)/src/Fireworks/Core/data/version.txt");
-   gSystem->ExpandPathName(infoFileName); 
+   TString infoFileName("data/version.txt");
+   fireworks::setPath(infoFileName);
    ifstream infoFile(infoFileName);
    TString infoText;
    infoText.ReadLine(infoFile);
