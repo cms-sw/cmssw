@@ -11,7 +11,9 @@
 #include "TPluginManager.h"
 #include "TUrl.h"
 #include "TSocket.h"
+#include "TSystem.h"
 #include "TVirtualX.h"
+#include "TPRegexp.h"
 #include "Fireworks/Core/interface/CmsShowSearchFiles.h"
 
 
@@ -35,13 +37,30 @@ private:
 
 static const unsigned int s_columns = 3;
 static const char* const s_prefixes[][s_columns] ={ 
-  {"http://uaf-2.t2.ucsd.edu/fireworks-4.2/","Pre-selected example files","t"},
+  {"http://uaf-2.t2.ucsd.edu/fireworks-4.2/"         , "Pre-selected example files","t"},
+  {"http://fireworks.web.cern.ch/fireworks/samples-4.2/", "Pre-selected example files","t"},
   {"http://", "Web site known by you",0},
   {"file:","Local file [you must type full path name]",0},
   {"dcap://","dCache [FNAL]",0},
   {"rfio://","Castor [CERN]",0}
   
 };
+
+float
+getURLResponseTime(const char* url)
+{
+   TString com = "ping -q -c 1 -n " + TString(url) + "| tail -n 1";
+   FILE* p = gSystem->OpenPipe(com, "r");
+   TString l;
+   l.Gets(p);
+   gSystem->ClosePipe(p);
+
+   TPMERegexp re("([\\d\\.]+)");
+   if (re.Match(l))
+      return  re[1].Atof();
+   else
+      return -1;
+}
 
 static const std::string s_httpPrefix("http:");
 static const std::string s_filePrefix("file:");
@@ -113,7 +132,16 @@ CmsShowSearchFiles::CmsShowSearchFiles (const char *filename,
    cancel->Connect("Clicked()","CmsShowSearchFiles",this,"UnmapWindow()");
 
    SetWindowName(windowname);
-   sendToWebBrowser(s_prefixes[0][0]);
+   float x1 = getURLResponseTime("lxplus.cern.ch");
+   float x2 = getURLResponseTime("uaf-2.t2.ucsd.edu");
+   // printf("timtes %f %f \n", x1, x2); fflush(stdout);
+   if (x1 > 0 && x1 < x2)
+     sendToWebBrowser(s_prefixes[0][0]);
+   else if ( x2 > 0)
+     sendToWebBrowser(s_prefixes[1][0]);
+   else
+     sendToWebBrowser("");
+
    MapSubwindows();
    Layout();
    m_prefixMenu=0;
