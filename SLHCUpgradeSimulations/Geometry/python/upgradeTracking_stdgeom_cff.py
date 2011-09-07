@@ -7,6 +7,8 @@ from EventFilter.SiStripRawToDigi.SiStripDigiToRaw_cfi import *
 from EventFilter.RawDataCollector.rawDataCollector_cfi import *
 from Configuration.StandardSequences.RawToDigi_cff import *
 
+from RecoTracker.TkTrackingRegions.GlobalTrackingRegionFromBeamSpot_cfi import *
+
 ## use same cuts as in 363 tracking in 440pre6 framework
 initialStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.8
 initialStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 0.2
