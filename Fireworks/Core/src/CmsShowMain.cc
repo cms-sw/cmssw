@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.194 2011/08/09 03:39:33 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.195 2011/08/30 04:21:14 amraktad Exp $
 //
 
 // system include files
@@ -80,8 +80,6 @@ static const char* const kPlayOpt              = "play";
 static const char* const kPlayCommandOpt       = "play,p";
 static const char* const kLoopOpt              = "loop";
 static const char* const kLoopCommandOpt       = "loop";
-static const char* const kDebugOpt             = "debug";
-static const char* const kDebugCommandOpt      = "debug,d";
 static const char* const kLogLevelCommandOpt   = "log";
 static const char* const kLogLevelOpt          = "log";
 static const char* const kEveOpt               = "eve";
@@ -158,7 +156,6 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       (kLoopCommandOpt,                                   "Loop events in play mode")
       (kPlainRootCommandOpt,                              "Plain ROOT without event display")
       (kRootInteractiveCommandOpt,                        "Enable root interactive prompt")
-      (kDebugCommandOpt,                                  "Start the display from a debugger and produce a crash report")
       (kEnableFPE,                                        "Enable detection of floating-point exceptions")
       (kLogLevelCommandOpt, po::value<unsigned int>(),    "Set log level starting from 0 to 4 : kDebug, kInfo, kWarning, kError")
       (kAdvancedRenderCommandOpt,                         "Use advance options to improve rendering quality       (anti-alias etc)")
@@ -189,8 +186,14 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    catch ( const std::exception& e)
    {
       // Return with exit status 0 to avoid generating crash reports
-      fwLog(fwlog::kError) <<  e.what() << std::endl;
-      exit(0);
+      if (strcmp(e.what(), "debug") == 0) {   
+         fwLog(fwlog::kError) <<  e.what() << std::endl;    
+         exit(0); 
+      }
+      else 
+      {    
+         fwLog(fwlog::kInfo) <<  "Debug option is no longer supported, because cmsShow crash report will be generated automatically in case of non-zero exit status.\n";     
+      }
    }
 
    if(vm.count(kHelpOpt)) {
