@@ -11,10 +11,10 @@ source /afs/cern.ch/cms/cmsset_default.sh;
 export SCRAM_ARCH="$sarch";
 cd $workdir
 eval `scramv1 runtime -sh`
-touch "$logpath/specificLumiHourly.log"
-date >> "$logpath/specificLumiHourly.log"
-specificLumi.py -c $dbConnectionString -P $authdir -i $indir -o $outdir >> "$logpath/specificLumiHourly.log" ;
-date >> "$logpath/specificLumiHourly.log"
+touch "$logpath/specificLumiHourly-withcorrection.log"
+date >> "$logpath/specificLumiHourly-withcorrection.log"
+specificLumi.py -c $dbConnectionString -P $authdir -i $indir -o $outdir --with-correction>> "$logpath/specificLumiHourly-withcorrection.log" ;
+date >> "$logpath/specificLumiHourly-withcorrection.log"
 rm -f "$logpath/checklumi.log"
 touch "$logpath/checklumi.log"
 date >> "$logpath/checklumi.log"
