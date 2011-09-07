@@ -207,7 +207,7 @@ convLayerPairs = cms.ESProducer("SeedingLayersESProducer",
                                 )
 
 
-photonConvTrajSeedFromSingleLeg.TrackRefitter = cms.InputTag('mergedIterativeTracks')
+photonConvTrajSeedFromSingleLeg.TrackRefitter = cms.InputTag('generalTracks')
 photonConvTrajSeedFromSingleLeg.primaryVerticesTag = cms.InputTag('pixelVertices')
 
 
@@ -267,60 +267,50 @@ import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 convStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='convStepTracks',
     trackSelectors= cms.VPSet(
-     RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
-      name='convStep',
-      preFilterName = '',
-      applyAdaptedPVCuts = False,
-      chi2n_par = 2.,
-      res_par = ( 0.003, 0.001 ),
-      minNumberLayers = 3,
-      maxNumberLostLayers = 1,
-      minNumber3DLayers = 1,
-      d0_par1 = ( 5., 8.0 ),
-      dz_par1 = ( 5., 8.0 ),
-      d0_par2 = ( 5., 8.0 ),
-      dz_par2 = ( 5., 8.0 ),
-      )
-     )
-    )
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+            name = 'convStepLoose',
+            applyAdaptedPVCuts = False,
+            chi2n_par = 3.0,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 3,
+            maxNumberLostLayers = 1,
+            minNumber3DLayers = 1,
+            d0_par1 = ( 5., 8.0 ),
+            dz_par1 = ( 5., 8.0 ),
+            d0_par2 = ( 5., 8.0 ),
+            dz_par2 = ( 5., 8.0 )
+            ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+            name = 'convStepTight',
+            preFilterName = 'convStepLoose',
+            chi2n_par = 2.5,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 3,
+            maxNumberLostLayers = 1,
+            minNumber3DLayers = 1,
+            d0_par1 = ( 5., 8.0 ),
+            dz_par1 = ( 5., 8.0 ),
+            d0_par2 = ( 5., 8.0 ),
+            dz_par2 = ( 5., 8.0 )
+            ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+            name = 'convStep',
+            preFilterName = 'convStepTight',
+            chi2n_par = 2.0,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 3,
+            maxNumberLostLayers = 1,
+            minNumber3DLayers = 1,
+            d0_par1 = ( 5., 8.0 ),
+            dz_par1 = ( 5., 8.0 ),
+            d0_par2 = ( 5., 8.0 ),
+            dz_par2 = ( 5., 8.0 )
+            ),
+        ) #end of vpset
+    ) #end of clone
 
-# convStepLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone(
-#     src = 'convStepTracks',
-#     keepAllTracks = True,
-#     copyExtras = False,
-#     copyTrajectories = True,
-#     chi2n_par = 2.,
-#     res_par = ( 0.003, 0.001 ),
-#     minNumberLayers = 3,
-#     maxNumberLostLayers = 1,
-#     minNumber3DLayers = 1,
-#     d0_par1 = ( 5., 8.0 ),
-#     dz_par1 = ( 5., 8.0 ),
-#     d0_par2 = ( 5., 8.0 ),
-#     dz_par2 = ( 5., 8.0 )
-#     )
-# convStepTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone(
-#     src = 'convStepLoose',
-#     keepAllTracks = True,
-#     copyExtras = False,
-#     copyTrajectories = True,
-#     chi2n_par = 2.,
-#     res_par = ( 0.003, 0.001 ),
-#     minNumberLayers = 3,
-#     maxNumberLostLayers = 1,
-#     minNumber3DLayers = 1,
-#     d0_par1 = ( 5., 8.0 ),
-#     dz_par1 = ( 5., 8.0 ),
-#     d0_par2 = ( 5., 8.0 ),
-#     dz_par2 = ( 5., 8.0 )
-#     )
-
-convStep = cms.Sequence( convClusters 
+ConvStep = cms.Sequence( convClusters 
                          + photonConvTrajSeedFromSingleLeg 
                          + convTrackCandidates
                          + convStepTracks
                          + convStepSelector)
-
-
-
-
