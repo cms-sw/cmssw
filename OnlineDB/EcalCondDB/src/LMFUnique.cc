@@ -88,7 +88,13 @@ boost::ptr_list<LMFUnique> LMFUnique::fetchAll() const
 	  if (m_debug) {
 	    o->dump();
 	  }
-	  l.push_back(o);
+	  try {
+	    l.push_back(o);
+	  }
+	  catch (boost::bad_pointer &e) {
+	    throw(std::runtime_error(m_className + "::fetchAll:  " + 
+				     e.what()));
+	  }
 	}
       }
     }
