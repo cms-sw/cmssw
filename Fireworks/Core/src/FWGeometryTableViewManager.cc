@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Fri Jul  8 00:40:37 CEST 2011
-// $Id: FWGeometryTableViewManager.cc,v 1.4 2011/07/15 04:46:59 amraktad Exp $
+// $Id: FWGeometryTableViewManager.cc,v 1.5 2011/08/05 09:38:16 yana Exp $
 //
 
 #include <boost/bind.hpp>
@@ -97,7 +97,8 @@ FWGeometryTableViewManager::initGeoManager()
    }
    catch (std::runtime_error &e)
    {
-     fwLog(fwlog::kError) << "Failed to load simulation geomtery.\n";
+     fwLog(fwlog::kError) << "Failed to find simulation geomtery file. Please set the file path with --sim-geom-file option.\n";
+     exit(0);
    }
    gGeoManager  = old;
    gGeoIdentity = old_id;
