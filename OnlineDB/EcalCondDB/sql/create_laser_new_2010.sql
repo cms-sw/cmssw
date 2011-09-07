@@ -23,6 +23,8 @@
  *              tables and local indices, as well as with
  *              splitted DB sequences.
  * GO 20110531: added support for CLS classes. Added partitions %_11b. 
+ * GO 20110907: updated the script to reflect the current table layout (PN_PRIM_DAT tables
+ *              with columns swapped w.r.t. the real ones)
  */
 
 PROMPT "Starting creating laser tables: "
@@ -634,7 +636,6 @@ CREATE TABLE LMF_LASER_IR_PN_PRIM_DAT
 (
   LMF_IOV_ID        NUMBER NOT NULL,
   LOGIC_ID          NUMBER NOT NULL,
-  FLAG              NUMBER,
   SHAPE_COR_PN      NUMBER, 
   MEAN              NUMBER, -- or BINARY_FLOAT
   RMS               NUMBER, -- or BINARY_FLOAT
@@ -642,6 +643,7 @@ CREATE TABLE LMF_LASER_IR_PN_PRIM_DAT
   PNA_OVER_PNB_MEAN NUMBER, -- or BINARY_FLOAT
   PNA_OVER_PNB_RMS  NUMBER, -- or BINARY_FLOAT
   PNA_OVER_PNB_M3   NUMBER, -- or BINARY_FLOAT
+  FLAG              NUMBER,
   VMIN              NUMBER,
   VMAX              NUMBER,
   CONSTRAINTS LMF_LASER_IR_PN_PRIM_DAT_FK1 FOREIGN KEY(VMIN) 
@@ -755,13 +757,13 @@ CREATE TABLE LMF_LED_BLUE_PN_PRIM_DAT
 (
   LMF_IOV_ID        NUMBER NOT NULL,
   LOGIC_ID          NUMBER NOT NULL,
-  FLAG              NUMBER,
   MEAN              NUMBER, -- or BINARY_FLOAT
   RMS               NUMBER, -- or BINARY_FLOAT
   M3                NUMBER, -- or BINARY_FLOAT
   PNA_OVER_PNB_MEAN NUMBER, -- or BINARY_FLOAT
   PNA_OVER_PNB_RMS  NUMBER, -- or BINARY_FLOAT
   PNA_OVER_PNB_M3   NUMBER, -- or BINARY_FLOAT
+  FLAG              NUMBER,
   VMIN              NUMBER,
   VMAX              NUMBER,
   CONSTRAINTS LMF_LED_BLUE_PN_PRIM_DAT_FK1 FOREIGN KEY(VMIN) 
@@ -838,13 +840,13 @@ CREATE TABLE LMF_LED_ORANGE_PN_PRIM_DAT
 (
   LMF_IOV_ID        NUMBER NOT NULL,
   LOGIC_ID          NUMBER NOT NULL,
-  FLAG              NUMBER,
   MEAN              NUMBER, -- or BINARY_FLOAT
   RMS               NUMBER, -- or BINARY_FLOAT
   M3                NUMBER, -- or BINARY_FLOAT
   PNA_OVER_PNB_MEAN NUMBER, -- or BINARY_FLOAT
   PNA_OVER_PNB_RMS  NUMBER, -- or BINARY_FLOAT
   PNA_OVER_PNB_M3   NUMBER, -- or BINARY_FLOAT
+  FLAG              NUMBER,
   VMIN              NUMBER,
   VMAX              NUMBER,
   CONSTRAINTS LMF_LED_ORANGE_PN_PRIM_DAT_FK1 FOREIGN KEY(VMIN) 
