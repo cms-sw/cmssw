@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.338 $"
+__version__ = "$Revision: 1.339 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -57,6 +57,7 @@ defaultOptions.inputEventContent = None
 defaultOptions.relval = None
 defaultOptions.slhc = None
 defaultOptions.profile = None
+defaultOptions.isRepacked = False
 
 # some helper routines
 def dumpPython(process,name):
@@ -814,9 +815,6 @@ class ConfigBuilder(object):
                 self.DQMOFFLINEDefaultCFF="DQMOffline/Configuration/DQMOfflineMC_cff"
                 self.ALCADefaultCFF="Configuration/StandardSequences/AlCaRecoStreamsMC_cff"
 
-        if hasattr(self._options,"isRepacked") and self._options.isRepacked:
-                self.RAW2DIGIDefaultCFF="Configuration/StandardSequences/RawToDigi_Repacked_cff"
-
         # now for #%#$#! different scenarios
 
         if self._options.scenario=='nocoll' or self._options.scenario=='cosmics':
@@ -1250,7 +1248,9 @@ class ConfigBuilder(object):
 
     def prepare_RAW2DIGI(self, sequence = "RawToDigi"):
             self.loadDefaultOrSpecifiedCFF(sequence,self.RAW2DIGIDefaultCFF)
-	    self.scheduleSequence(sequence.split('.')[-1],'raw2digi_step')
+	    self.scheduleSequence(sequence,'raw2digi_step')
+	    if self._options.isRepacked:
+		    self.renameInputTagsInSequence(sequence)
             return
 
     def prepare_L1HwVal(self, sequence = 'L1HwVal'):
@@ -1426,6 +1426,14 @@ class ConfigBuilder(object):
             def leave(self,visitee):
                     pass
 
+    #visit a sequence to repalce all input tags
+    def renameInputTagsInSequence(self,sequence,oldT="source",newT="rawDataRepacker"):
+	    print "Replacing all InputTag %s => %s"%(oldT,newT)
+	    from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
+	    massSearchReplaceAnyInputTag(getattr(self.process,sequence),oldT,newT)
+	    self.additionalCommands.append('from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag')
+	    self.additionalCommands.append('massSearchReplaceAnyInputTag(process.%s,"%s","%s",False)'%(sequence,oldT,newT))
+
     #change the process name used to address HLT results in any sequence
     def renameHLTprocessInSequence(self,sequence,proc=None,HLTprocess='HLT'):
 	    if self._options.hltProcess:
@@ -1458,6 +1466,8 @@ class ConfigBuilder(object):
                 # schedule DQM as a standard Path
                 self.process.dqmoffline_step = cms.Path( getattr(self.process, sequence) )
         self.schedule.append(self.process.dqmoffline_step)
+	if self._options.isRepacked:
+		self.renameInputTagsInSequence(sequence)
 
     def prepare_HARVESTING(self, sequence = None):
         """ Enrich the process with harvesting step """
@@ -1574,7 +1584,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.338 $"),
+                                            (version=cms.untracked.string("$Revision: 1.339 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
