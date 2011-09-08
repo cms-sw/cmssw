@@ -959,7 +959,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore * bei, bool init, edm::E
 	  }
 	  //If I fill, then I end up majorly overcounting the numbers of errors...
 	  //if(NErrors>0){ errmodsVec->Fill(i,NErrors); } 
-	  if(NErrors>0){ errmodsVec->SetBinContent(i,NErrors); } 
+	  if(NErrors>0){ errmodsVec->SetBinContent(i+1,NErrors); } 
 	}
         SummaryReportMap = bei->get("Pixel/EventInfo/reportSummaryMap");
         if(SummaryReportMap){ 
