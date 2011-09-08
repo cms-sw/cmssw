@@ -33,7 +33,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.37 2011/04/26 08:21:35 dlange Exp $
+#  $Id: EventContent_cff.py,v 1.38 2011/08/02 02:17:14 mikeh Exp $
 #
 #
 #
@@ -358,6 +358,10 @@ HLTDEBUGEventContent.outputCommands.extend(HLTDebugFEVT.outputCommands)
 
 RAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
 RAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
+
+REPACKRAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
+REPACKRAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
+
 
 RECOEventContent.outputCommands.extend(RecoLocalTrackerRECO.outputCommands)
 RECOEventContent.outputCommands.extend(RecoLocalMuonRECO.outputCommands)
