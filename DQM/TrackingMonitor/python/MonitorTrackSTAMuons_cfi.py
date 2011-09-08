@@ -31,10 +31,10 @@ MonitorTrackSTAMuons = cms.EDAnalyzer("TrackingMonitor",
     doSeedParameterHistos      = cms.bool(False),
     doTrackCandHistos          = cms.bool(False),
     doDCAPlots                 = cms.bool(False),
-    doGeneralPropertiesPlots   = cms.bool(False),
-    doHitPropertiesPlots       = cms.bool(False),              
+    doGeneralPropertiesPlots   = cms.bool(True),
+    doHitPropertiesPlots       = cms.bool(True),              
     doGoodTrackPlots           = cms.bool(False),
-    doMeasurementStatePlots    = cms.bool(False),
+    doMeasurementStatePlots    = cms.bool(True),
     doProfilesVsLS             = cms.bool(False),
 
 
