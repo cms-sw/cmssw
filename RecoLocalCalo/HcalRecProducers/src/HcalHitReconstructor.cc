@@ -217,6 +217,7 @@ void HcalHitReconstructor::beginRun(edm::Run&r, edm::EventSetup const & es){
       es.get<HcalFlagHFDigiTimeParamsRcd>().get(p);
       HFDigiTimeParams = new HcalFlagHFDigiTimeParams(*p.product());
     }
+  reco_.beginRun(es);
 }
 
 void HcalHitReconstructor::endRun(edm::Run&r, edm::EventSetup const & es){
@@ -228,6 +229,7 @@ void HcalHitReconstructor::endRun(edm::Run&r, edm::EventSetup const & es){
     {
       if (HFDigiTimeParams) delete HFDigiTimeParams;
     }
+  reco_.endRun();
 }
 
 void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
@@ -498,7 +500,7 @@ void HcalHitReconstructor::produce(edm::Event& e, const edm::EventSetup& eventSe
 	      hfdigibit_->resetFlagTimeSamples(1,3,2);
 	  } // 2010 data; firstSample = 2; samplesToAdd =2 
 
-	
+	//std::cout << "TOADDHF " << toadd << " " << first << " " << std::endl;
 	rec->push_back(reco_.reconstruct(*i,first,toadd,coder,calibrations));
 
 	// Set auxiliary flag
