@@ -179,15 +179,9 @@ fi
 
 
 # Run cmsShow  
-if [ -w . ]; then
-   creport=./cmsshow-crash-report.txt
-else
-   creport=`mktemp /tmp/cmsshow-crash-report-XXXXXXXX`
-fi
-
-"$SHELLDIR/cmsShow.exe" $originalOptions  | tee $creport
-exitStatus=${PIPESTATUS[0]}
-
+creport=`mktemp /tmp/cmsshow-crash-report-XXXXXXXX`.txt
+"$SHELLDIR/cmsShow.exe" $originalOptions 2> >( tee $creport) 
+exitStatus=$?
 
 if [ $exitStatus -gt 0 ] && [ "$rootflag" != "on" ] ; then 
    writeSystemInfoToFile $creport
