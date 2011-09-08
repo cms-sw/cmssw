@@ -31,11 +31,14 @@ def correctionsForRange(schema,inputRange):
         {runnum:(constantfactor,afterglowfactor,nonlinearfactor)}
     '''
     runs=[]
+    result={}
     if isinstance(inputRange,str):
         runs.append(int(inputRange))
     else:
         runs=inputRange
-    result={}
+    for r in runs:
+        if r<160442 :
+            result[r]=(1.0,1.0,0.0)
     afterglows=[]
     s=nameDealer.fillschemeTableName()
     r=nameDealer.cmsrunsummaryTableName()
@@ -81,7 +84,7 @@ def correctionsForRange(schema,inputRange):
         while cursor.next():
             runnum=cursor.currentRow()['runnum'].data()
             #print 'runnum ',runnum 
-            if runnum not in runs:
+            if runnum not in runs or result.has_key(runnum):
                 continue
             fillnum=cursor.currentRow()['fillnum'].data()
             constfactor=1.141
