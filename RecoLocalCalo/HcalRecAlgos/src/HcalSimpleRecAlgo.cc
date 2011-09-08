@@ -11,20 +11,32 @@ static double MaximumFractionalError = 0.0005; // 0.05% error allowed from this 
 HcalSimpleRecAlgo::HcalSimpleRecAlgo(bool correctForTimeslew, bool correctForPulse, float phaseNS) : 
   correctForTimeslew_(correctForTimeslew),
   correctForPulse_(correctForPulse),
-  phaseNS_(phaseNS), setForData_(false), setLeakCorrection_(false) { 
-  initPulseCorr(0);
+  phaseNS_(phaseNS), setForData_(false), setLeakCorrection_(false)
+{ 
+  
+  pulseCorr_ = std::auto_ptr<HcalPulseContainmentManager>(
+	       new HcalPulseContainmentManager(phaseNS_,MaximumFractionalError)
+							  );
 }
   
 
 HcalSimpleRecAlgo::HcalSimpleRecAlgo() : 
   correctForTimeslew_(false), setForData_(false) { }
 
+
+void HcalSimpleRecAlgo::beginRun(edm::EventSetup const & es)
+{
+  pulseCorr_->beginRun(es);
+}
+
+
+void HcalSimpleRecAlgo::endRun()
+{
+  pulseCorr_->endRun();
+}
+
+
 void HcalSimpleRecAlgo::initPulseCorr(int toadd) {
-  if (correctForPulse_) {    
-    pulseCorr_=std::auto_ptr<HcalPulseContainmentManager>(
-      new HcalPulseContainmentManager(phaseNS_,MaximumFractionalError)
-    );
-  }
 }
 
 void HcalSimpleRecAlgo::setForData () { setForData_ = true;}
@@ -50,7 +62,7 @@ static float leakCorr(double energy);
 namespace HcalSimpleRecAlgoImpl {
   template<class Digi, class RecHit>
   inline RecHit reco(const Digi& digi, const HcalCoder& coder, const HcalCalibrations& calibs, 
-		     int ifirst, int n, bool slewCorrect, const HcalPulseContainmentCorrection* corr,
+		     int ifirst, int n, bool slewCorrect, bool pulseCorrect, const HcalPulseContainmentCorrection* corr,
 		     HcalTimeSlew::BiasSetting slewFlavor, bool forData, bool useLeak) {
     CaloSamples tool;
     coder.adc2fC(digi,tool);
@@ -93,10 +105,25 @@ namespace HcalSimpleRecAlgoImpl {
       float wpksamp = (t0 + maxA + t2);
       if (wpksamp!=0) wpksamp=(maxA + 2.0*t2) / wpksamp; 
       time = (maxI - digi.presamples())*25.0 + timeshift_ns_hbheho(wpksamp);
-      if (corr!=0) {
+      if (corr!=0 && pulseCorrect ) {
 	// Apply phase-based amplitude correction:
+
+	/*
+	HcalDetId cell(digi.id());
+	int ieta  = cell.ieta();
+	int iphi  = cell.iphi();
+        int depth = cell.depth();
+	std::cout << "*** ieta, iphi, depth =  " << ieta << ", " << iphi
+		  << ", " << depth 
+                  << "    first, toadd = " << ifirst << ", " << n << std::endl
+	          << "    ampl,  corr,  ampl_after_corr = "
+                  << ampl << ",   " << corr->getCorrection(fc_ampl)
+                  << ",   "
+                  << ampl * corr->getCorrection(fc_ampl) << std::endl;
+	*/
+
 	ampl *= corr->getCorrection(fc_ampl);
-	//      std::cout << fc_ampl << " --> " << corr->getCorrection(fc_ampl) << std::endl;
+
       }
       if (slewCorrect) time-=HcalTimeSlew::delay(std::max(1.0,fc_ampl),slewFlavor);
 
@@ -124,7 +151,7 @@ namespace HcalSimpleRecAlgoImpl {
 
 HBHERecHit HcalSimpleRecAlgo::reconstruct(const HBHEDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
   return HcalSimpleRecAlgoImpl::reco<HBHEDataFrame,HBHERecHit>(digi,coder,calibs,
-							       first,toadd,correctForTimeslew_,
+							       first,toadd,correctForTimeslew_, correctForPulse_,
 							       pulseCorr_->get(digi.id(), toadd),
 							       HcalTimeSlew::Medium,
                                                                setForData_, setLeakCorrection_);
@@ -132,8 +159,7 @@ HBHERecHit HcalSimpleRecAlgo::reconstruct(const HBHEDataFrame& digi, int first, 
 
 HORecHit HcalSimpleRecAlgo::reconstruct(const HODataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
   return HcalSimpleRecAlgoImpl::reco<HODataFrame,HORecHit>(digi,coder,calibs,
-							   first,toadd,
-							   correctForTimeslew_,
+							   first,toadd,correctForTimeslew_,correctForPulse_,
 							   pulseCorr_->get(digi.id(), toadd),
 							   HcalTimeSlew::Slow,
                                                            setForData_, false);
@@ -141,13 +167,16 @@ HORecHit HcalSimpleRecAlgo::reconstruct(const HODataFrame& digi, int first, int 
 
 HcalCalibRecHit HcalSimpleRecAlgo::reconstruct(const HcalCalibDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
   return HcalSimpleRecAlgoImpl::reco<HcalCalibDataFrame,HcalCalibRecHit>(digi,coder,calibs,
-									 first,toadd,correctForTimeslew_,
+									 first,toadd,correctForTimeslew_,correctForPulse_,
 									 pulseCorr_->get(digi.id(), toadd),
 									 HcalTimeSlew::Fast,
                                                                          setForData_, false );
 }
 
 HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi, int first, int toadd, const HcalCoder& coder, const HcalCalibrations& calibs) const {
+
+  const HcalPulseContainmentCorrection* corr = pulseCorr_->get(digi.id(), toadd);
+
   CaloSamples tool;
   coder.adc2fC(digi,tool);
   
@@ -197,6 +226,27 @@ HFRecHit HcalSimpleRecAlgo::reconstruct(const HFDataFrame& digi, int first, int 
     }
 
     time = (maxI - digi.presamples())*25.0 + timeshift_ns_hf(wpksamp);
+
+    if (corr!=0 && correctForPulse_) { 
+      
+      // Apply phase-based amplitude correction:
+      
+      /*
+	HcalDetId cell(digi.id());
+	int ieta  = cell.ieta();
+	int iphi  = cell.iphi();
+        int depth = cell.depth();
+	std::cout << "*** ieta, iphi, depth =  " << ieta << ", " << iphi
+	<< ", " << depth 
+                  << "    first, toadd = " << ifirst << ", " << n << std::endl
+	          << "    ampl,  corr,  ampl_after_corr = "
+                  << ampl << ",   " << corr->getCorrection(fc_ampl)
+                  << ",   "
+                  << ampl * corr->getCorrection(fc_ampl) << std::endl;
+	*/
+      
+      ampl *= corr->getCorrection(amp_fC);
+    }
 
     if (correctForTimeslew_ && (amp_fC>0)) {
       // -5.12327 - put in calibs.timecorr()
