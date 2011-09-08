@@ -62,6 +62,7 @@ def toScreenTotDelivered(lumidata,resultlines,scalefactor,isverbose):
         else:
             result.append([str(run),str(nls),'%.3f'%(totlumival*scalefactor)+' ('+lumiunit+')',runstarttime.strftime("%m/%d/%y %H:%M:%S"),'%.1f'%(avgbeamenergy)])
     sortedresult=sorted(result,key=lambda x : int(x[0]))
+    #print 'sortedresult ',sortedresult
     print ' ==  = '
     if isverbose:
         labels = [('Run', 'Total LS', 'Delivered','Start Time','E(GeV)','Selected LS')]
@@ -70,7 +71,7 @@ def toScreenTotDelivered(lumidata,resultlines,scalefactor,isverbose):
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) )
     else:
         labels = [('Run', 'Total LS', 'Delivered','Start Time','E(GeV)')]
-        print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
+        print tablePrinter.indent (labels+sortedresult, hasHeader = True, separateRows = False,
                                prefix = '| ', postfix = ' |', justify = 'right',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,40) )
     print ' ==  =  Total : '
