@@ -45,34 +45,21 @@ HLTDiMuonGlbTrkFilter::HLTDiMuonGlbTrkFilter(const edm::ParameterSet& iConfig){
 
 void
 HLTDiMuonGlbTrkFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  /*
   edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("BeamSpotTag",edm::InputTag("hltOfflineBeamSpot"));
-  desc.add<edm::InputTag>("CandTag",edm::InputTag("hltL3MuonCandidates"));
-  //  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltDiMuonL2PreFiltered0"));
-  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag(""));
-  desc.add<bool>("FastAccept",false);
-  desc.add<double>("MaxEta",2.5);
-  desc.add<int>("MinNhits",0);
-  desc.add<double>("MaxDr",2.0);
-  desc.add<double>("MaxDz",9999.0);
-  desc.add<int>("ChargeOpt",0);
-  desc.add<double>("MinPtPair",0.0);
-  desc.add<double>("MinPtMax",3.0);
-  desc.add<double>("MinPtMin",3.0);
-  desc.add<double>("MinInvMass",2.8);
-  desc.add<double>("MaxInvMass",3.4);
-  desc.add<double>("MinAcop",-1.0);
-  desc.add<double>("MaxAcop",3.15);
-  desc.add<double>("MinPtBalance",-1.0);
-  desc.add<double>("MaxPtBalance",999999.0);
-  desc.add<double>("NSigmaPt",0.0);
-  desc.add<bool>("saveTags",false);
-  desc.add<double>("MaxDCAMuMu",99999.9);
-  desc.add<double>("MaxRapidityPair",999999.0);
-  desc.add<bool>("CutCowboys",false);
-  descriptions.add("hltMuonDimuonL3Filter",desc);
-  */
+  desc.add<edm::InputTag>("inputMuonCollection",edm::InputTag(""));
+  desc.add<edm::InputTag>("inputCandCollection",edm::InputTag(""));
+  desc.add<int>("minTrkHits",-1);
+  desc.add<int>("minMuonHits",-1);
+  desc.add<double>("maxNormalizedChi2",1e99);
+  desc.add<double>("minDR",0.1);
+  desc.add<unsigned int>("allowedTypeMask",255);
+  desc.add<unsigned int>("requiredTypeMask",0);
+  desc.add<unsigned int>("trkMuonId",0);
+  desc.add<double>("minPtMuon1",17);
+  desc.add<double>("minPtMuon2",8);
+  desc.add<double>("minMass",1);
+  desc.add<bool>("saveTags",true);
+  descriptions.add("hltDiMuonGlbTrkFilter",desc);
 }
 
 bool
