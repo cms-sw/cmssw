@@ -2,10 +2,10 @@ import FWCore.ParameterSet.Config as cms
 import string # use for setting flag masks based on boolean bits
 
 hfreco = cms.EDProducer("HcalHitReconstructor",
-                        correctionPhaseNS = cms.double(0.0),
+                        correctForPhaseContainment = cms.bool(False),
+                        correctionPhaseNS = cms.double(16.0), 
                         digiLabel = cms.InputTag("hcalDigis"),
                         Subdetector = cms.string('HF'),
-                        correctForPhaseContainment = cms.bool(False),
                         correctForTimeslew = cms.bool(False),
                         dropZSmarkedPassed = cms.bool(True),
    		        firstSample = cms.int32(2),
