@@ -11,6 +11,9 @@ public:
   double correction(const HcalDetId & detId, int toAdd, double fc_ampl);
   const HcalPulseContainmentCorrection * get(const HcalDetId & detId, int toAdd);
 
+  void beginRun(edm::EventSetup const & es);
+  void endRun();
+
 private:
 
   struct HcalPulseContainmentEntry {
@@ -23,8 +26,6 @@ private:
   };
 
   std::vector<HcalPulseContainmentEntry> entries_;
-  // indexed on the dense HcalDetId, and stores an index into entries_;
-  std::vector<short> denseIndexToEntry_;
   HcalPulseShapes shapes_;
   float fixedphase_ns_;
   float max_fracerror_;

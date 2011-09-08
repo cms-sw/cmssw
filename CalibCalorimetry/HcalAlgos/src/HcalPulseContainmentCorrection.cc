@@ -1,6 +1,6 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseContainmentCorrection.h"
 #include "CalibCalorimetry/HcalAlgos/src/HcalPulseContainmentAlgo.h"
-#include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapes.h"
+#include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShape.h"
 
 // Function generates a lookup map for a passed-in function (via templated object algoObject,
 // which must contain method "calcpair" that spits out (x,y) pair from a type float seed.
@@ -33,7 +33,7 @@ HcalPulseContainmentCorrection::HcalPulseContainmentCorrection(int num_samples,
 
 // do the same, but with a shape passed in 
 HcalPulseContainmentCorrection::HcalPulseContainmentCorrection(
-  const HcalPulseShapes::Shape * shape, 
+  const HcalPulseShape * shape, 
   int num_samples,
   float fixedphase_ns,
   float max_fracerror)
