@@ -1,7 +1,7 @@
 #include "L1Trigger/RegionalCaloTrigger/interface/L1RCTProducer.h" 
 
 
-// OMDS test stuff
+// OMDS stuff
 #include "RelationalAccess/ISession.h"
 #include "RelationalAccess/ITransaction.h"
 #include "RelationalAccess/IRelationalDomain.h"
@@ -19,7 +19,8 @@
 
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "FWCore/Framework/interface/Run.h"
-// end OMDS test stuff
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+// end OMDS stuff
 
 #include <vector>
 using std::vector;
@@ -61,12 +62,13 @@ L1RCTProducer::L1RCTProducer(const edm::ParameterSet& conf) :
   bunchCrossings(conf.getParameter<std::vector<int> >("BunchCrossings")),
   getFedsFromOmds(conf.getParameter<bool>("getFedsFromOmds")),
   queryDelayInLS(conf.getParameter<unsigned int>("queryDelayInLS")),
+  connectionString(conf.getParameter<std::string>("connectionString")),
+  authpath(conf.getParameter<std::string>("authpath")),
+  tableToRead(conf.getParameter<std::string>("tableToRead")),
   fedUpdatedMask(0)
 {
   produces<L1CaloEmCollection>();
   produces<L1CaloRegionCollection>();
-
- 
 
 }
 
@@ -80,192 +82,35 @@ L1RCTProducer::~L1RCTProducer()
 
 void L1RCTProducer::beginRun(edm::Run& run, const edm::EventSetup& eventSetup)
 {
-  // Testing out this OMDS stuff online
-  // hodge-podged together from http://cmslxr.fnal.gov/lxr/source/CondTools/RunInfo/src/RunInfoRead.cc#191
+  //  std::cout << "getFedsFromOmds is " << getFedsFromOmds << std::endl;
 
-  // NEED VALUES FOR: (keep these things hard-coded?)
-  //  std::string m_connectionString = "oracle://CMS_OMDS_LB/CMS_TRG_R"; // try this one, they appear to be of this form
-  //  std::string m_connectionString = "oracle://cms_orcoff_prod/CMS_COND_RUNINFO"; 
-  std::string m_connectionString = "oracle://cms_orcoff_prod/CMS_RUNINFO"; // from Salvatore Di Guida
-  //  std::string m_user = "cms_trg_r";
-  //  std::string m_user = "CMS_COND_RUNINFO";
-  std::string m_user = "CMS_COND_GENERAL_R";
-  //  std::string m_pass = "X3lmdvu4"; // FIXMEEEEEEEE!
-  std::string m_pass = ""; // FIXMEEEEEEEE!
-  std::string m_authpath = "/afs/cern.ch/cms/DB/conddb";
-  //  std::string m_tableToRead = "cms_runinfo.runsession_parameter"; // "to be cms_runinfo.runsession_parameter" ??  make it so?
-  //  std::string m_tableToRead = "runsession_parameter"; 
-  std::string m_tableToRead = "RUNSESSION_PARAMETER"; 
-
-  RunInfo temp_sum;
+  //  updateConfiguration(context);
+  updateConfiguration(eventSetup);
   
-//   coral::ISession* session = this->connect( m_connectionString,
-// 					    m_user, m_pass );
-//   cond::DbSession* session = this->connect( m_connectionString,
-// 					    m_authpath );
+  int runNumber = run.run();
+  updateFedVector(eventSetup,false,runNumber); // RUNINFO ONLY at beginning of run
 
-  //make connection object
-  cond::DbConnection         m_connection;
-
-  //  std::cout << "Check 1: configuring connection" << std::endl;
-  
-  //set in configuration object authentication path
-  m_connection.configuration().setAuthenticationPath(m_authpath);
-  m_connection.configure();
-
-  //  std::cout << "Check 2: creating session" << std::endl;
-
-  //create session object from connection
-  cond::DbSession session = m_connection.createSession();
- 
-  //  std::cout << "Check 3: opening session" << std::flush;
-
-  session.open(m_connectionString,true);
-     
-  //  std::cout << "successful" << std::endl;
-
-  try{
-
-    //    std::cout << "Check 4: starting session transaction" << std::endl;
-    //    session->transaction().start();
-    session.transaction().start(true); // (true=readOnly)
-
-    //    std::cout << "Check 5: creating schema" << std::endl;
-    //    coral::ISchema& schema = session->schema("CMS_RUNINFO");
-    coral::ISchema& schema = session.schema("CMS_RUNINFO");
-
-    //condition 
-    coral::AttributeList conditionData;
-    conditionData.extend<int>( "n_run" );
-    int r_number = run.run(); // ADDED, from FWCore/Common/interface/RunBase.h
-    conditionData[0].data<int>() = r_number;
-
-    std::string m_columnToRead_val = "VALUE";
-
-    std::string m_tableToRead_fed = "RUNSESSION_STRING";
-    coral::IQuery* queryV = schema.newQuery();  
-    queryV->addToTableList(m_tableToRead);
-    queryV->addToTableList(m_tableToRead_fed);
-    queryV->addToOutputList(m_tableToRead_fed + "." + m_columnToRead_val, m_columnToRead_val);
-    //queryV->addToOutputList(m_tableToRead + "." + m_columnToRead, m_columnToRead);
-    //condition
-    std::string condition = m_tableToRead + ".RUNNUMBER=:n_run AND " + m_tableToRead + ".NAME='CMS.LVL0:FED_ENABLE_MASK' AND RUNSESSION_PARAMETER.ID = RUNSESSION_STRING.RUNSESSION_PARAMETER_ID";
-    //std::string condition = m_tableToRead + ".runnumber=:n_run AND " + m_tableToRead + ".name='CMS.LVL0:FED_ENABLE_MASK'";
-    queryV->setCondition(condition, conditionData);
-    coral::ICursor& cursorV = queryV->execute();
-    std::string fed;
-    if ( cursorV.next() ) {
-      //cursorV.currentRow().toOutputStream(std::cout) << std::endl;
-      const coral::AttributeList& row = cursorV.currentRow();
-      fed = row[m_columnToRead_val].data<std::string>();
-    }
-    else {
-      fed="null";
-    }
-    //std::cout << "string fed emask == " << fed << std::endl;
-    delete queryV;
-    
-    std::replace(fed.begin(), fed.end(), '%', ' ');
-    std::stringstream stream(fed);
-    for(;;) 
-      {
-	std::string word; 
-	if ( !(stream >> word) ){break;}
-	std::replace(word.begin(), word.end(), '&', ' ');
-	std::stringstream ss(word);
-	int fedNumber; 
-	int val;
-	ss >> fedNumber >> val;
-	//std::cout << "fed:: " << fed << "--> val:: " << val << std::endl; 
-	//val bit 0 represents the status of the SLINK, but 5 and 7 means the SLINK/TTS is ON but NA or BROKEN (see mail of alex....)
-	if( (val & 0001) == 1 && (val != 5) && (val != 7) ) 
-	  temp_sum.m_fed_in.push_back(fedNumber);
-      } 
-    std::cout << "feds in run:--> ";
-    std::copy(temp_sum.m_fed_in.begin(), temp_sum.m_fed_in.end(), std::ostream_iterator<int>(std::cout, ", "));
-    std::cout << std::endl;
-    /*
-      for (size_t i =0; i<temp_sum.m_fed_in.size() ; ++i)
-      {
-      std::cout << "fed in run:--> " << temp_sum.m_fed_in[i] << std::endl; 
-      } 
-    */
-    
-  }
-  catch (const std::exception& e) { 
-    std::cout << "Exception: " << e.what() << std::endl;
-  }
-  //  delete session;
-  
-  
-  // End testing OMDS stuff
-  
 }
-
-// // HACK right now for OMDS stuff, move into separate class
-
-// // coral::ISession*
-// // L1RCTProducer::connect( const std::string& connectionString,
-// // 			const std::string& user,
-// // 			const std::string& pass ) {
-// //coral::ISession*
-// cond::DbSession*
-// L1RCTProducer::connect( const std::string& connectionString,
-// 			const std::string& authPath ) {
-
-//   //  coral::IConnection*         m_connection(0);
-
-//   //   coral::Context& ctx = coral::Context::instance();
-//   //   coral::IHandle<coral::IRelationalDomain> iHandle=ctx.query<coral::IRelationalDomain>("CORAL/RelationalPlugins/oracle");
-//   //   if ( ! iHandle.isValid() ) {
-//   //     throw std::runtime_error( "Could not load the OracleAccess plugin" );
-//   //   }
-//   //   std::pair<std::string, std::string> connectionAndSchema = iHandle->decodeUserConnectionString( connectionString );
-//   //   if ( ! m_connection ) {
-//   //     m_connection = iHandle->newConnection( connectionAndSchema.first );
-//   //   }
-//   //   if ( ! m_connection->isConnected() ) {
-//   //     m_connection->connect();
-//   //   }
-//   //   coral::ISession* session = m_connection->newSession( connectionAndSchema.second );
-//   //   if ( session ) {
-//   //     session->startUserSession( user, pass );
-//   //   }
-//   //   return session;
-  
-  
-//   //make connection object
-//   cond::DbConnection*         m_connection(0);
-//   //cond::DbConnection         m_connection;
-  
-//   //set in configuration object authentication path
-//   m_connection->configuration().setAuthenticationPath(authPath);
-//   m_connection->configure();
-
-//   //create session object from connection
-//   //  cond::DbSession* dbSes = &(m_connection->createSession());
-//   cond::DbSession dbSes = m_connection->createSession();
- 
-//   //try to make connection
-// //   if (dbSes)
-// //     {
-// //    dbSes->open(connectionString,true);
-// //     }
-//   dbSes.open(connectionString,true);
-     
-// //   //start a transaction (true=readOnly)
-// //   dbSes->transaction().start(true);
-
-//   return dbSes;
-
-// }
-
-// END HACK
 
 
 void L1RCTProducer::beginLuminosityBlock(edm::LuminosityBlock& lumiSeg,const edm::EventSetup& context)
 {
-  updateConfiguration(context);
+  //  updateConfiguration(context);
+
+  // check LS number every LS, if the checkOMDS flag is set AND it's the right LS, update the FED vector from OMDS
+  // can pass the flag as the bool??  but only check LS number if flag is true anyhow
+  if (getFedsFromOmds)
+    {
+      unsigned int nLumi = lumiSeg.luminosityBlock(); // doesn't even need the (unsigned int) cast because LuminosityBlockNumber_t is already an unsigned int
+      // LS count starts at 1, want to be able to delay 0 LS's intuitively
+      if ( ( (nLumi - 1) == queryDelayInLS) 
+	   || (nLumi % 100 == 0 ) ) // to guard against problems if online DQM crashes; every 100 LS is ~20-30 minutes, not too big a load, hopefully not too long between
+	{
+	  int runNumber = lumiSeg.run();
+	  //	  std::cout << "Lumi section for this FED vector update is " << nLumi << std::endl;
+	  updateFedVector(context,true,runNumber); // OMDS
+	}
+    }
 } 
 
 
@@ -281,6 +126,34 @@ void L1RCTProducer::updateConfiguration(const edm::EventSetup& eventSetup)
   eventSetup.get<L1RCTParametersRcd>().get(rctParameters);
   const L1RCTParameters* r = rctParameters.product();
 
+  //SCALES
+
+  // energy scale to convert eGamma output
+  edm::ESHandle<L1CaloEtScale> emScale;
+  eventSetup.get<L1EmEtScaleRcd>().get(emScale);
+  const L1CaloEtScale* s = emScale.product();
+
+ // get energy scale to convert input from ECAL
+  edm::ESHandle<L1CaloEcalScale> ecalScale;
+  eventSetup.get<L1CaloEcalScaleRcd>().get(ecalScale);
+  const L1CaloEcalScale* e = ecalScale.product();
+  
+  // get energy scale to convert input from HCAL
+  edm::ESHandle<L1CaloHcalScale> hcalScale;
+  eventSetup.get<L1CaloHcalScaleRcd>().get(hcalScale);
+  const L1CaloHcalScale* h = hcalScale.product();
+
+  // set scales
+  rctLookupTables->setEcalScale(e);
+  rctLookupTables->setHcalScale(h);
+
+  rctLookupTables->setRCTParameters(r);
+  rctLookupTables->setL1CaloEtScale(s);
+}
+
+
+void L1RCTProducer::updateFedVector(const edm::EventSetup& eventSetup, bool getFromOmds, int runNumber) // eventSetup apparently doesn't include run number: http://cmslxr.fnal.gov/lxr/source/FWCore/Framework/interface/EventSetup.h
+{
   // list of RCT channels to mask
   edm::ESHandle<L1RCTChannelMask> channelMask;
   eventSetup.get<L1RCTChannelMaskRcd>().get(channelMask);
@@ -320,134 +193,254 @@ void L1RCTProducer::updateConfiguration(const edm::EventSetup& eventSetup)
     }
 
 
-  // adding fed mask into channel mask
+//   // adding fed mask into channel mask
   
-  // get FED vector from RUNINFO
-  edm::ESHandle<RunInfo> sum;
-  eventSetup.get<RunInfoRcd>().get(sum);
-  const RunInfo* summary=sum.product();
+//   // SEPARATE OUT FED VECTOR FROM REST OF CONFIG, do rest of config at run begin, fed vector needs to be checked every LS
 
-  // get FED vector from OMDS in case of online running
+//   if (!getFromOmds)
+//     {
+//       // get from run info
+//       getFedVectorFromRunInfo(eventSetup); // want to keep passing eventSetup through everything???
+//     }
 
+// //   // get FULL FED vector from RUNINFO
+// //   edm::ESHandle<RunInfo> sum;
+// //   eventSetup.get<RunInfoRcd>().get(sum);
+// //   const RunInfo* summary=sum.product();
+// //   const std::vector<int> Feds = summary->m_fed_in; 
+
+//   else{
+//     // get full FED vector from OMDS in case of online running, IF FLAG IS SET
+//     getFedVectorFromOmds();
+//   }
+
+  const std::vector<int> Feds = getFromOmds ? getFedVectorFromOmds(runNumber) : getFedVectorFromRunInfo(eventSetup); // so can create/initialize/assign const quantity in one line accounting for if statement
+  // wikipedia says this is exactly what it's for: http://en.wikipedia.org/wiki/%3F:#C.2B.2B
+
+//   std::cout << "Contents of ";
+//   std::cout << (getFromOmds ? "OMDS " : "RunInfo ");
+//   std::cout << "FED vector" << std::endl;
+//   printFedVector(Feds);
 
   std::vector<int> caloFeds;  // pare down the feds to the intresting ones
   // is this unneccesary?
   // Mike B : This will decrease the find speed so better do it
-  const std::vector<int> Feds = summary->m_fed_in;
-  for(std::vector<int>::const_iterator cf = Feds.begin(); cf != Feds.end(); ++cf){
-    int fedNum = *cf;
-    if(fedNum > 600 && fedNum <724) 
-      caloFeds.push_back(fedNum);
-  }
-
-  for(int  cr = 0; cr < 18; ++cr){
-
-    for(crateSection cs = c_min; cs <= c_max; cs = crateSection(cs +1)) {
-      bool fedFound = false;
-
-
-      //Try to find the FED
-      std::vector<int>::iterator fv = std::find(caloFeds.begin(),caloFeds.end(),crateFED[cr][cs]);
-      if(fv!=caloFeds.end())
-	fedFound = true;
-
-      if(!fedFound) {
-	int eta_min=0;
-	int eta_max=0;
-	bool phi_even[2] = {false};//, phi_odd = false;
-	bool ecal=false;
-	
-	switch (cs) {
-	case ebEvenFed :
-	  eta_min = minBarrel;
-	  eta_max = maxBarrel;
-	  phi_even[0] = true;
-	  ecal = true;	
-	  break;
-	  
-	case ebOddFed:
-	  eta_min = minBarrel;
-	  eta_max = maxBarrel;
-	  phi_even[1] = true;
-	  ecal = true;	
-	  break;
-	  
-	case eeFed:
-	  eta_min = minEndcap;
-	  eta_max = maxEndcap;
-	  phi_even[0] = true;
-	  phi_even[1] = true;
-	  ecal = true;	
-	  break;	
-	  
-	case hbheFed:
-	  eta_min = minBarrel;
-	  eta_max = maxEndcap;
-	  phi_even[0] = true;
-	  phi_even[1] = true;
-	  ecal = false;
-	  break;
-
-	case hfFed:	
-	  eta_min = minHF;
-	  eta_max = maxHF;
-
-	  phi_even[0] = true;
-	  phi_even[1] = true;
-	  ecal = false;
-	  break;
-	default:
-	  break;
-
-	}
-	for(int ieta = eta_min; ieta <= eta_max; ++ieta){
-	  if(ieta<=28) // barrel and endcap
-	    for(int even = 0; even<=1 ; even++){	 
-	      if(phi_even[even]){
-		if(ecal)
-		  fedUpdatedMask->ecalMask[cr][even][ieta-1] = true;
-		else
-		  fedUpdatedMask->hcalMask[cr][even][ieta-1] = true;
-	      }
-	    }
-	  else
-	    for(int even = 0; even<=1 ; even++)
-	      if(phi_even[even])
-		  fedUpdatedMask->hfMask[cr][even][ieta-29] = true;
-	
-	}
-      }
+  for(std::vector<int>::const_iterator cf = Feds.begin(); cf != Feds.end(); ++cf)
+    {
+      int fedNum = *cf;
+      if(fedNum > 600 && fedNum <724) 
+	caloFeds.push_back(fedNum);
     }
-  }
 
-
-  //SCALES
-
-  // energy scale to convert eGamma output
-  edm::ESHandle<L1CaloEtScale> emScale;
-  eventSetup.get<L1EmEtScaleRcd>().get(emScale);
-  const L1CaloEtScale* s = emScale.product();
-
-
- // get energy scale to convert input from ECAL
-  edm::ESHandle<L1CaloEcalScale> ecalScale;
-  eventSetup.get<L1CaloEcalScaleRcd>().get(ecalScale);
-  const L1CaloEcalScale* e = ecalScale.product();
+  for(int  cr = 0; cr < 18; ++cr)
+    {
+      
+      for(crateSection cs = c_min; cs <= c_max; cs = crateSection(cs +1)) 
+	{
+	  bool fedFound = false;
+	  
+	  
+	  //Try to find the FED
+	  std::vector<int>::iterator fv = std::find(caloFeds.begin(),caloFeds.end(),crateFED[cr][cs]);
+	  if(fv!=caloFeds.end())
+	    fedFound = true;
+	  
+	  if(!fedFound) {
+	    int eta_min=0;
+	    int eta_max=0;
+	    bool phi_even[2] = {false};//, phi_odd = false;
+	    bool ecal=false;
+	    
+	    switch (cs) {
+	    case ebEvenFed :
+	      eta_min = minBarrel;
+	      eta_max = maxBarrel;
+	      phi_even[0] = true;
+	      ecal = true;	
+	      break;
+	      
+	    case ebOddFed:
+	      eta_min = minBarrel;
+	      eta_max = maxBarrel;
+	      phi_even[1] = true;
+	      ecal = true;	
+	      break;
+	      
+	    case eeFed:
+	      eta_min = minEndcap;
+	      eta_max = maxEndcap;
+	      phi_even[0] = true;
+	      phi_even[1] = true;
+	      ecal = true;	
+	      break;	
+	      
+	    case hbheFed:
+	      eta_min = minBarrel;
+	      eta_max = maxEndcap;
+	      phi_even[0] = true;
+	      phi_even[1] = true;
+	      ecal = false;
+	      break;
+	      
+	    case hfFed:	
+	      eta_min = minHF;
+	      eta_max = maxHF;
+	      
+	      phi_even[0] = true;
+	      phi_even[1] = true;
+	      ecal = false;
+	      break;
+	    default:
+	      break;
+	      
+	    }
+	    for(int ieta = eta_min; ieta <= eta_max; ++ieta)
+	      {
+		if(ieta<=28) // barrel and endcap
+		  for(int even = 0; even<=1 ; even++)
+		    {	 
+		      if(phi_even[even])
+			{
+			  if(ecal)
+			    fedUpdatedMask->ecalMask[cr][even][ieta-1] = true;
+			  else
+			    fedUpdatedMask->hcalMask[cr][even][ieta-1] = true;
+			}
+		    }
+		else
+		  for(int even = 0; even<=1 ; even++)
+		    if(phi_even[even])
+		      fedUpdatedMask->hfMask[cr][even][ieta-29] = true;
+		
+	      }
+	  }
+	}
+    }
   
-  // get energy scale to convert input from HCAL
-  edm::ESHandle<L1CaloHcalScale> hcalScale;
-  eventSetup.get<L1CaloHcalScaleRcd>().get(hcalScale);
-  const L1CaloHcalScale* h = hcalScale.product();
+  rctLookupTables->setChannelMask(fedUpdatedMask); 
 
-  // set scales
-  rctLookupTables->setEcalScale(e);
-  rctLookupTables->setHcalScale(h);
-
-
-  rctLookupTables->setRCTParameters(r);
-  rctLookupTables->setChannelMask(fedUpdatedMask);
-  rctLookupTables->setL1CaloEtScale(s);
 }
+
+const std::vector<int> L1RCTProducer::getFedVectorFromRunInfo(const edm::EventSetup& eventSetup)
+{
+  //  std::cout << "GETTING FED VECTOR FROM RUNINFO" << std::endl;
+  // get FULL FED vector from RUNINFO
+  edm::ESHandle<RunInfo> sum;
+  eventSetup.get<RunInfoRcd>().get(sum);
+  const RunInfo* summary=sum.product();
+  const std::vector<int> fedvector = summary->m_fed_in;
+
+  return fedvector;
+}
+
+
+//std::vector<int> L1RCTProducer::getFedVectorFromOMDS(const edm::EventSetup& eventSetup)
+const std::vector<int> L1RCTProducer::getFedVectorFromOmds(const int runNumber) // doesn't actually use EventSetup
+{
+
+  //  std::cout << "GETTING FED VECTOR FROM OMDS" << std::endl;
+
+  // Testing out this OMDS stuff online
+  // hodge-podged together from http://cmslxr.fnal.gov/lxr/source/CondTools/RunInfo/src/RunInfoRead.cc#191
+
+//   // NEED VALUES FOR: (keep these things hard-coded?)  NO, authentication details should be configurable
+//   std::string connectionString = "oracle://cms_orcoff_prod/CMS_RUNINFO"; // from Salvatore Di Guida
+//   std::string authpath = "/afs/cern.ch/cms/DB/conddb";
+//   std::string tableToRead = "RUNSESSION_PARAMETER"; // this can maybe be hard-coded, but should possibly be configurable also (since it's configurable in the RunInfoRead code)
+
+  RunInfo temp_sum;
+  
+  //make connection object
+  cond::DbConnection         connection;
+
+  //set in configuration object authentication path
+  connection.configuration().setAuthenticationPath(authpath);
+  connection.configure();
+
+  //create session object from connection
+  cond::DbSession session = connection.createSession();
+ 
+  session.open(connectionString,true);
+     
+  //   try{ // WE ARE NOT SUPPOSED TO BE CATCHING EXCEPTIONS
+  
+  session.transaction().start(true); // (true=readOnly)
+  
+  coral::ISchema& schema = session.schema("CMS_RUNINFO");
+  
+  //condition 
+  coral::AttributeList conditionData;
+  conditionData.extend<int>( "n_run" );
+  //  conditionData[0].data<int>() = r_number;
+  conditionData[0].data<int>() = runNumber;
+
+  std::string columnToRead_val = "VALUE";
+  
+  std::string tableToRead_fed = "RUNSESSION_STRING";
+  coral::IQuery* queryV = schema.newQuery();  
+  queryV->addToTableList(tableToRead);
+  queryV->addToTableList(tableToRead_fed);
+  queryV->addToOutputList(tableToRead_fed + "." + columnToRead_val, columnToRead_val);
+  //queryV->addToOutputList(tableToRead + "." + columnToRead, columnToRead);
+  //condition
+  std::string condition = tableToRead + ".RUNNUMBER=:n_run AND " + tableToRead + ".NAME='CMS.LVL0:FED_ENABLE_MASK' AND RUNSESSION_PARAMETER.ID = RUNSESSION_STRING.RUNSESSION_PARAMETER_ID";
+  //std::string condition = tableToRead + ".runnumber=:n_run AND " + tableToRead + ".name='CMS.LVL0:FED_ENABLE_MASK'";
+  queryV->setCondition(condition, conditionData);
+  coral::ICursor& cursorV = queryV->execute();
+  std::string fed;
+  if ( cursorV.next() ) {
+    //cursorV.currentRow().toOutputStream(std::cout) << std::endl;
+    const coral::AttributeList& row = cursorV.currentRow();
+    fed = row[columnToRead_val].data<std::string>();
+  }
+  else {
+    fed="null";
+  }
+  //std::cout << "string fed emask == " << fed << std::endl;
+  delete queryV;
+  
+  std::replace(fed.begin(), fed.end(), '%', ' ');
+  std::stringstream stream(fed);
+  for(;;) 
+    {
+      std::string word; 
+      if ( !(stream >> word) ){break;}
+      std::replace(word.begin(), word.end(), '&', ' ');
+      std::stringstream ss(word);
+      int fedNumber; 
+      int val;
+      ss >> fedNumber >> val;
+      //std::cout << "fed:: " << fed << "--> val:: " << val << std::endl; 
+      //val bit 0 represents the status of the SLINK, but 5 and 7 means the SLINK/TTS is ON but NA or BROKEN (see mail of alex....)
+      if( (val & 0001) == 1 && (val != 5) && (val != 7) ) 
+	temp_sum.m_fed_in.push_back(fedNumber);
+    } 
+//   std::cout << "feds in run:--> ";
+//   std::copy(temp_sum.m_fed_in.begin(), temp_sum.m_fed_in.end(), std::ostream_iterator<int>(std::cout, ", "));
+//   std::cout << std::endl;
+  /*
+    for (size_t i =0; i<temp_sum.m_fed_in.size() ; ++i)
+    {
+    std::cout << "fed in run:--> " << temp_sum.m_fed_in[i] << std::endl; 
+    } 
+  */
+  
+  // WE ARE NOT SUPPOSED TO BE CATCHING EXCEPTIONS
+  //   }
+  //   catch (const std::exception& e) { 
+  //     std::cout << "Exception: " << e.what() << std::endl;
+  //   }
+
+  //  delete session;
+
+  const std::vector<int> fedvector = temp_sum.m_fed_in;
+
+  return fedvector;
+  
+  // End testing OMDS stuff
+  
+}
+
 
 
 void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
@@ -520,4 +513,76 @@ void L1RCTProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup
   event.put(rctEmCands);
   event.put(rctRegions);
   
+}
+
+// print contents of (FULL) FED vector
+void L1RCTProducer::printFedVector(const std::vector<int> fedVector)
+{
+  std::cout << "Contents of given fedVector: ";
+  std::copy(fedVector.begin(), fedVector.end(), std::ostream_iterator<int>(std::cout, ", "));
+  std::cout << std::endl;
+}
+
+// print contents of RCT channel mask fedUpdatedMask
+void L1RCTProducer::printUpdatedFedMask()
+{
+  if (fedUpdatedMask != 0)
+    {
+      fedUpdatedMask->print(std::cout);
+    }
+  else
+    {
+      std::cout << "Trying to print contents of fedUpdatedMask, but it doesn't exist!" << std::endl;
+    }
+}
+
+// print contents of RCT channel mask fedUpdatedMask
+void L1RCTProducer::printUpdatedFedMaskVerbose()
+{
+  if (fedUpdatedMask != 0)
+    {
+      // print contents of fedvector
+      std::cout << "Contents of fedUpdatedMask: ";
+//       std::copy(fedUpdatedMask.begin(), fedUpdatedMask.end(), std::ostream_iterator<int>(std::cout, ", "));
+      std::cout << "--> ECAL mask: " << std::endl;
+      for (int i = 0; i < 18; i++)
+	{
+	  for (int j = 0; j < 2; j++)
+	    {
+	      for (int k = 0; k < 28; k++)
+		{
+		  std::cout << fedUpdatedMask->ecalMask[i][j][k] << ", ";
+		}
+	    }
+	}
+      std::cout << "--> HCAL mask: " << std::endl;
+      for (int i = 0; i < 18; i++)
+	{
+	  for (int j = 0; j < 2; j++)
+	    {
+	      for (int k = 0; k < 28; k++)
+		{
+		  std::cout << fedUpdatedMask->hcalMask[i][j][k] << ", ";
+		}
+	    }
+	}
+      std::cout << "--> HF mask: " << std::endl;
+      for (int i = 0; i < 18; i++)
+	{
+	  for (int j = 0; j < 2; j++)
+	    {
+	      for (int k = 0; k < 4; k++)
+		{
+		  std::cout << fedUpdatedMask->hfMask[i][j][k] << ", ";
+		}
+	    }
+	}
+
+      std::cout << std::endl;
+    }
+  else
+    {
+      //print error message
+      std::cout << "Trying to print contents of fedUpdatedMask, but it doesn't exist!" << std::endl;
+    }
 }
