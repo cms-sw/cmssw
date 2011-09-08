@@ -112,9 +112,10 @@ conversionTrackSequence = cms.Sequence(ckfTracksFromConversions*conversionTrackP
 #merge the general tracks with the collection from gsf tracks
 #arbitratedmerged flag set based on overlap removal by shared hits, with precedence given to gsf tracks
 gsfGeneralConversionTrackMerger = RecoEgamma.EgammaPhotonProducers.conversionTrackMerger_cfi.conversionTrackMerger.clone(
-    TrackProducer1 = cms.string('generalConversionStepConversionTrackMerger'),
+    TrackProducer1 = cms.string('generalConversionTrackProducer'),
     TrackProducer2 = cms.string('gsfConversionTrackProducer'),
     arbitratedMergedPreferCollection = cms.int32(2),
 )
 
-conversionTrackSequenceNoEcalSeeded = cms.Sequence(generalConversionTrackProducer*conversionStepConversionTrackProducer*gsfConversionTrackProducer*generalConversionStepConversionTrackMerger*gsfGeneralConversionTrackMerger)
+#special sequence for fastsim which skips the ecal-seeded and conversionStep tracks for now
+conversionTrackSequenceNoEcalSeeded = cms.Sequence(generalConversionTrackProducer*gsfConversionTrackProducer*gsfGeneralConversionTrackMerger)
