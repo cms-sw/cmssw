@@ -47,8 +47,16 @@ void getCompressedBuffer(const char* fname, Bytef** buffPtr, unsigned long& zipp
    *buffPtr = deflatedBuff;
 
    // compress buffer
+   zippedSize = deflatedSize;
    compress(deflatedBuff+4, &zippedSize, (const Bytef *)buffer, lSize);
    zippedSize +=4;
+
+   /*
+   printf("zipped size %d \n", (int)zippedSize);
+   FILE* pFileOut = fopen ( "myfile-compressed" , "wb" );
+   fwrite (deflatedBuff , 1 , zippedSize , pFileOut );
+   fclose(pFileOut);
+   */
 }
 
 int main(int argc, char **argv)
