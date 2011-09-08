@@ -205,8 +205,8 @@ HLT_Photon36_CaloIdL_IsoVL_Photon22_R9Id_v*
 HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v*
 HLT_Photon36_R9Id_Photon22_R9Id_v*
 HLT_Photon36_CaloIdL_IsoVL_Photon22_v*
-HLT_Photon44_CaloIdL_Photon34_CaloIdL_v*
-HLT_Photon48_CaloIdL_Photon38_CaloIdL_v*
+#HLT_Photon44_CaloIdL_Photon34_CaloIdL_v*
+#HLT_Photon48_CaloIdL_Photon38_CaloIdL_v*
 HLT_Photon50_CaloIdVL_v*
 HLT_Photon50_CaloIdVL_IsoL_v*
 HLT_Photon70_CaloIdL_HT400_v*
@@ -221,9 +221,12 @@ HLT_Photon135_v*
 HLT_Photon200_NoHE_v*
 HLT_Photon225_NoHE_v*
 HLT_Photon400_v*
-HLT_DoublePhoton33_HEVT_v*
+#HLT_DoublePhoton33_HEVT_v*
 HLT_DoublePhoton38_HEVT_v*
+HLT_DoublePhoton43_HEVT_v*
+HLT_DoublePhoton48_HEVT_v*
 HLT_DoublePhoton60_v*
+HLT_DoublePhoton70_v*
 HLT_DoublePhoton80_v*
 HLT_DoublePhoton5_IsoVL_CEP_v*
 HLT_L1SingleEG5_v*
@@ -248,6 +251,8 @@ HLT_Ele65_CaloIdVT_TrkIdT_v*
 HLT_Ele100_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_v*
 HLT_DoubleEle8_CaloIdT_TrkIdVL_v*
 HLT_DoubleEle33_CaloIdL_v*
+HLT_DoubleEle33_CaloIdL_CaloIsoT_v*
+HLT_DoubleEle33_CaloIdT_v*
 HLT_DoubleEle45_CaloIdL_v*
 HLT_MediumIsoPFTau35_Trk20_v*
 HLT_MediumIsoPFTau35_Trk20_MET60_v*
