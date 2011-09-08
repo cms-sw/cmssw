@@ -77,7 +77,7 @@ void signal_handler_wrapper(int sid, siginfo_t* sinfo, void* sctx)
    gdbCommand += " ";
 
 #if defined(R__MACOSX)
-   gdbCommand += gSystem->Getenv("SHELLDIR") + "/cmsShow.exe " +  gSystem->GetPid();
+   gdbCommand += TString::Format("%s/cmsShow.exe %d", gSystem->Getenv("SHELLDIR"), gSystem->GetPid());
 
 #elif defined(R__LINUX)
    gdbCommand += gSystem->GetPid();
