@@ -54,3 +54,16 @@ comboStrips = cms.PSet(
     maxInputStrips = cms.int32(5),
     stripMassWhenCombining = cms.double(0.0), # assume photon like
 )
+
+# Produce a "strips" of photons
+# with no track quality cuts applied to PFElectrons
+modStrips = strips.clone(
+    plugin = cms.string('RecoTauPiZeroStripPlugin2'),
+    applyElecTrackQcuts = cms.bool(False),
+    minGammaEtStripSeed = cms.double(0.5),
+    minGammaEtStripAdd = cms.double(0.),
+    minStripEt = cms.double(1.0),
+    updateStripAfterEachDaughter = cms.bool(False),
+    maxStripBuildIterations = cms.int32(-1)
+)
+
