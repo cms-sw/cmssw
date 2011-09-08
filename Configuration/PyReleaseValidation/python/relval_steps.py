@@ -387,8 +387,11 @@ step2['RECOSKIM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,DQM',
                           },step2['RECOSKIMALCA']])
 
 step2['RECOHID']=merge([{'--scenario':'HeavyIons',
-                         '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBiasHI+HcalCalMinBias,DQM',
-                         '--customise':'Configuration/DataProcessing/RecoTLR.customiseCommonHI'},step2['RECOD']])
+                         '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBiasHI+HcalCalMinBias,DQM,REPACK',
+                         '--customise':'Configuration/DataProcessing/RecoTLR.customiseCommonHI',
+                         '--datatier':'RECO,DQMROOT,RAW',
+                         '--eventcontent':'RECO,DQMROOT,REPACKRAW'},
+                        step2['RECOD']])
 
 step2['TIER0']=merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customisePrompt',
                        '-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@AllForPrompt,L1HwVal,DQM,ENDJOB',
@@ -441,7 +444,11 @@ step3['RECOPU1']=merge([step3['RECO'],PU1])
 
 step3['RECOHI']=merge([hiDefaults,step3Defaults])
 step3['DIGIHISt3']=step2['DIGIHI']
-
+step3['RECOHIRepackD']=merge([{'cfg':'step3',
+                               '--repacked':'',
+                               '--process':'repackedRECO',
+                               '--filein':'file:step2_inREPACKRAW.root'},
+                              step2['RECOHID']])
 #add this line when testing from an input file that is not strictly GEN-SIM
 #addForAll(step3,{'--hltProcess':'DIGI'})
 
