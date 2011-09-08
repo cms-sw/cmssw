@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.244 2011/07/20 05:36:16 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.245 2011/08/09 03:39:33 amraktad Exp $
 
 
 //
@@ -393,12 +393,6 @@ void
 FWGUIManager::clearStatus()
 {
    m_cmsShowMainFrame->clearStatusBar();
-}
-
-void
-FWGUIManager::processGUIEvents()
-{
-   gSystem->ProcessEvents();
 }
 
 void
