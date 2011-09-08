@@ -25,8 +25,8 @@
    has the option of correcting the reconstructed time for energy-dependent
    time slew associated with the QIE.
     
-   $Date: 2011/05/17 09:23:58 $
-   $Revision: 1.14 $
+   $Date: 2011/07/26 21:22:27 $
+   $Revision: 1.15 $
    \author J. Mans - Minnesota
 */
 class HcalSimpleRecAlgo {
@@ -36,6 +36,8 @@ public:
 		    bool correctForContainment, float fixedPhaseNs);
   /** Simple constructor for PMT-based detectors */
   HcalSimpleRecAlgo();
+  void beginRun(edm::EventSetup const & es);
+  void endRun();
 
   void initPulseCorr(int toadd); 
 
