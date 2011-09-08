@@ -176,7 +176,7 @@ int SiPixelRawDataErrorModule::fill(const edm::DetSetVector<SiPixelRawDataError>
     edm::DetSet<SiPixelRawDataError>::const_iterator  di;
     for(di = isearch->data.begin(); di != isearch->data.end(); di++) {
       int FedId = di->getFedId();                  // FED the error came from
-      int chanNmbr = -1;
+      int chanNmbr = 0;
       int errorType = di->getType();               // type of error
       int TBMType=-1; int TBMMessage=-1; int evtSize=-1; int evtNbr=-1; int fullType=-1;
       bool notReset = true;

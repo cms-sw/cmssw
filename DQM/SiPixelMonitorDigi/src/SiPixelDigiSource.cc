@@ -13,7 +13,7 @@
 //
 // Original Author:  Vincenzo Chiochia
 //         Created:  
-// $Id: SiPixelDigiSource.cc,v 1.48 2010/11/08 11:45:33 merkelp Exp $
+// $Id: SiPixelDigiSource.cc,v 1.49 2010/11/09 10:55:36 merkelp Exp $
 //
 //
 #include "DQM/SiPixelMonitorDigi/interface/SiPixelDigiSource.h"
@@ -206,7 +206,7 @@ void SiPixelDigiSource::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	int blade = PixelEndcapName(DetId((*struct_iter).first)).bladeName();
         int panel = PixelEndcapName(DetId((*struct_iter).first)).pannelName();
 	//std::cout<<"Endcap: "<<side<<" , "<<disk<<" , "<<blade<<" , "<<panel<<" , "<<std::endl;
-	int iter=-1; int i=0;
+	int iter=0; int i=0;
 	if(side==PixelEndcapName::mI){
 	  if(disk==1){
 	    i=0;
