@@ -266,20 +266,26 @@ public:
 	  LMFPrimDat prim(econn, color, "LASER");
 	  prim.setLMFRunIOV(*ri);
 	  std::vector<std::string> channels;
-	  // test : selects just three channels
+	  // uncomment the following line to selects just three channels
+	  /*
 	  channels.push_back("2012043034");
 	  channels.push_back("2012060033");
 	  channels.push_back("2012034040");
 	  prim.setWhereClause("(LOGIC_ID = :I1 OR LOGIC_ID = :I2 OR LOGIC_ID = :I3)", channels); // selects only endcap primitives
+	  */
 	  prim.fetch();
 	  if (prim.getLogicIds().size() > 0) {
 	    LMFRunDat run_dat(econn);
 	    run_dat.setLMFRunIOV(*ri);
+	    /* uncomment the following to select only endcaps
 	    run_dat.setWhereClause("LOGIC_ID > 2000000000"); // selects only endcap primitives
+	    */
 	    run_dat.fetch();
 	    LMFPnPrimDat pnPrim(econn, color, "LASER"); 
 	    pnPrim.setLMFRunIOV(*ri);
+	    /* uncomment the following to select only endcaps
 	    pnPrim.setWhereClause("LOGIC_ID > 2000000000"); // selects only endcap primitives
+	    */
 	    pnPrim.fetch();
 	    // *** run dat ***
 	    std::list<int> logic_ids = run_dat.getLogicIds();
