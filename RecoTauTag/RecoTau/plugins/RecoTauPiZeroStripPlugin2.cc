@@ -6,7 +6,8 @@
  *
  * Author: Michail Bachtis (University of Wisconsin)
  *
- * Code modifications: Evan Friis (UC Davis)
+ * Code modifications: Evan Friis (UC Davis),
+ *                     Christian Veelken (LLR)
  *
  * $Id $
  */
@@ -28,6 +29,12 @@
 #include "RecoTauTag/RecoTau/interface/RecoTauQualityCuts.h"
 #include "RecoTauTag/RecoTau/interface/RecoTauVertexAssociator.h"
 #include "RecoTauTag/RecoTau/interface/CombinatoricGenerator.h"
+
+//-------------------------------------------------------------------------------
+// CV: the following headers are needed only for debug print-out
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+//-------------------------------------------------------------------------------
 
 namespace reco { namespace tau {
 
@@ -58,6 +65,7 @@ class RecoTauPiZeroStripPlugin2 : public RecoTauPiZeroBuilderPlugin
   RecoTauVertexAssociator vertexAssociator_;
 
   RecoTauQualityCuts* qcuts_;
+  bool applyElecTrackQcuts_;
   double minGammaEtStripSeed_;
   double minGammaEtStripAdd_;
 
@@ -94,7 +102,21 @@ RecoTauPiZeroStripPlugin2::RecoTauPiZeroStripPlugin2(const edm::ParameterSet& ps
   //std::cout << " minStripEt = " << minStripEt_ << std::endl;
   
   edm::ParameterSet qcuts_pset = pset.getParameterSet("qualityCuts").getParameterSet("signalQualityCuts");
-  qcuts_pset.addParameter("minGammaEt", std::min(minGammaEtStripSeed_, minGammaEtStripAdd_));
+//-------------------------------------------------------------------------------
+// CV: disable track quality cuts for PFElectronsPFElectron
+//       (treat PFElectrons like PFGammas for the purpose of building eta-phi strips)
+  applyElecTrackQcuts_ = pset.getParameter<bool>("applyElecTrackQcuts");
+  if ( !applyElecTrackQcuts_ ) {
+    qcuts_pset.addParameter<double>("minTrackPt", std::min(minGammaEtStripSeed_, minGammaEtStripAdd_));
+    qcuts_pset.addParameter<double>("maxTrackChi2", 1.e+9);
+    qcuts_pset.addParameter<double>("maxTransverseImpactParameter", 1.e+9);
+    qcuts_pset.addParameter<double>("maxDeltaZ", 1.);
+    qcuts_pset.addParameter<double>("minTrackVertexWeight", -1.);
+    qcuts_pset.addParameter<unsigned>("minTrackPixelHits", 0);
+    qcuts_pset.addParameter<unsigned>("minTrackHits", 0);
+  }
+//-------------------------------------------------------------------------------
+  qcuts_pset.addParameter<double>("minGammaEt", std::min(minGammaEtStripSeed_, minGammaEtStripAdd_));
   qcuts_ = new RecoTauQualityCuts(qcuts_pset);
 
   inputPdgIds_ = pset.getParameter<std::vector<int> >("stripCandidatesParticleIds");
@@ -149,6 +171,15 @@ void markCandsInStrip(std::vector<bool>& candFlags, const std::set<size_t>& cand
   }
 }
 
+namespace {
+  const reco::TrackBaseRef getTrack(const PFCandidate& cand) 
+  {
+    if      ( cand.trackRef().isNonnull()    ) return reco::TrackBaseRef(cand.trackRef());
+    else if ( cand.gsfTrackRef().isNonnull() ) return reco::TrackBaseRef(cand.gsfTrackRef());
+    else return reco::TrackBaseRef();
+  }
+}
+
 RecoTauPiZeroStripPlugin2::return_type RecoTauPiZeroStripPlugin2::operator()(const reco::PFJet& jet) const 
 {
   PiZeroVector output;
@@ -160,20 +191,36 @@ RecoTauPiZeroStripPlugin2::return_type RecoTauPiZeroStripPlugin2::operator()(con
   // Convert to stl::list to allow fast deletions
   PFCandPtrs seedCands;
   PFCandPtrs addCands;
-  //int idx = 0;
+  int idx = 0;
   for ( PFCandPtrs::iterator cand = candsVector.begin();
 	cand != candsVector.end(); ++cand ) {
     //std::cout << "PFGamma (" << idx << "): Et = " << (*cand)->et() << "," 
     //	        << " eta = " << (*cand)->eta() << ", phi = " << (*cand)->phi(); 
     if ( (*cand)->et() > minGammaEtStripSeed_ ) {
-      //std::cout << " --> assigning seedCandId = " << seedCands.size();
+      //std::cout << " --> assigning seedCandId = " << seedCands.size() << std::endl;
+      const reco::TrackBaseRef candTrack = getTrack(*cand);
+      if ( candTrack.isNonnull() ) {
+	//std::cout << "has Track: pt = " << candTrack->pt() << " +/- " << candTrack->ptError() << "," 
+	//	    << " eta = " << candTrack->eta() << ", phi = " << candTrack->phi() << ","
+	//	    << " charge = " << candTrack->charge() << std::endl;
+	//std::cout << " chi2 = " << candTrack->normalizedChi2() << std::endl;
+	//std::cout << " dIP = " << std::abs(candTrack->dxy(vertexAssociator_.associatedVertex(jet)->position())) << std::endl;
+	//std::cout << " dZ = " << std::abs(candTrack->dz(vertexAssociator_.associatedVertex(jet)->position())) << std::endl;
+	//std::cout << " vtxAssocWeight = " << vertexAssociator_.associatedVertex(jet)->trackWeight(candTrack) << std::endl;
+	//std::cout << " numPxlHits = " << candTrack->hitPattern().numberOfValidPixelHits() << std::endl;
+        //std::cout << " numTrkHits = " << candTrack->hitPattern().numberOfValidHits() << std::endl;
+      }
+      //std::cout << "ECAL Et: calibrated = " << (*cand)->ecalEnergy()*sin((*cand)->theta()) << "," 
+      //	  << " raw = " << (*cand)->rawEcalEnergy()*sin((*cand)->theta()) << std::endl;
+      //std::cout << "HCAL Et: calibrated = " << (*cand)->hcalEnergy()*sin((*cand)->theta()) << "," 
+      //	  << " raw = " << (*cand)->rawHcalEnergy()*sin((*cand)->theta()) << std::endl;
       seedCands.push_back(*cand);
     } else if ( (*cand)->et() > minGammaEtStripAdd_  ) {
       //std::cout << " --> assigning addCandId = " << addCands.size();
       addCands.push_back(*cand);
     }
     //std::cout << std::endl;
-    //++idx;
+    ++idx;
   }
 
   std::vector<bool> seedCandFlags(seedCands.size()); // true/false: seedCand is already/not yet included in strip
