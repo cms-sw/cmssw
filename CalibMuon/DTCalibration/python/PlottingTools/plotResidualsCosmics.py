@@ -2,7 +2,7 @@ import ROOT
 from fitResidual import fitResidual
 from drawHistoAllChambers import drawHisto
 
-def plot(fileName,sl,dir='DQMData/Run 1/DT/Run summary/DTCalibValidation'):
+def plot(fileName,sl,dir='DQMData/Run 1/DT/Run summary/DTCalibValidation',option="HISTOPE1",draw=True):
 
     slType = sl
     slStr = "SL%d" % slType
@@ -54,7 +54,9 @@ def plot(fileName,sl,dir='DQMData/Run 1/DT/Run summary/DTCalibValidation'):
                     histoMean.GetXaxis().SetBinLabel(binHistoNew,label) 
                     histoSigma.GetXaxis().SetBinLabel(binHistoNew,label)
 
-    objectsMean = drawHisto(histoMean,title="Mean of residuals (cm)",ymin=-0.1,ymax=0.1)
-    objectsSigma = drawHisto(histoSigma,title="Sigma of residuals (cm)",ymin=0.,ymax=0.15)
+    objectsMean = drawHisto(histoMean,title="Mean of residuals (cm)",
+                                      ymin=-0.1,ymax=0.1,option=option,draw=draw)
+    objectsSigma = drawHisto(histoSigma,title="Sigma of residuals (cm)",
+                                      ymin=0.,ymax=0.15,option=option,draw=draw)
 
     return (objectsMean,objectsSigma)

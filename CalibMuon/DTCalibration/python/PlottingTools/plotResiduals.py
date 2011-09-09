@@ -2,7 +2,12 @@ import ROOT
 from fitResidual import fitResidual
 from drawHistoAllChambers import drawHisto
 
-def plot(fileName,sl,dir='DQMData/Run 1/DT/Run summary/DTCalibValidation'):
+def plot(fileName,sl,dir='DQMData/Run 1/DT/Run summary/DTCalibValidation',option="HISTOPE1",draw=True):
+
+    mean_ymin = -0.02
+    mean_ymax =  0.02
+    sig_ymin = 0.
+    sig_ymax = 0.07
 
     slType = sl
     slStr = "SL%d" % slType
@@ -54,7 +59,9 @@ def plot(fileName,sl,dir='DQMData/Run 1/DT/Run summary/DTCalibValidation'):
                     histoMean.GetXaxis().SetBinLabel(binHistoNew,label) 
                     histoSigma.GetXaxis().SetBinLabel(binHistoNew,label)
 
-    objectsMean = drawHisto(histoMean,title="Mean of residuals (cm)",ymin=-0.02,ymax=0.02)
-    objectsSigma = drawHisto(histoSigma,title="Sigma of residuals (cm)",ymin=0.,ymax=0.07)
+    objectsMean = drawHisto(histoMean,title="Mean of residuals (cm)",
+                                      ymin=mean_ymin,ymax=mean_ymax,option=option,draw=draw)
+    objectsSigma = drawHisto(histoSigma,title="Sigma of residuals (cm)",
+                                        ymin=sig_ymin,ymax=sig_ymax,option=option,draw=draw)
 
     return (objectsMean,objectsSigma)

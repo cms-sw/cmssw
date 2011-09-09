@@ -17,7 +17,7 @@ def drawHisto(histo,title,ymin,ymax,option="HISTOP",draw=True):
         canvas = ROOT.TCanvas("c_" + histo.GetName())
         canvas.SetGridy()
         canvas.SetFillColor(fillColor)
-    if draw: histo.Draw("HISTOP")
+    if draw: histo.Draw(option)
 
     linesWh = {}
     linesSt = {}
