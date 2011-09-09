@@ -402,7 +402,7 @@ HLT_PixelTracks_Multiplicity100_v*
 HLT_BeamGas_HF_v*
 #HLT_BeamGas_HF_Beam1_v* # add to 5e33 once L1 menu is available
 #HLT_BeamGas_HF_Beam2_v* # add to 5e33 once L1 menu is available
-HLT_BeamGas_BSC_v* # remove once HLT_BeamGas_HF_Beam* are in
+#HLT_BeamGas_BSC_v*                                                                     # removed in 5e33 menu (sr #123372)
 HLT_BeamHalo_v*
 HLT_L1_PreCollisions_v*
 HLT_L1_Interbunch_BSC_v*
