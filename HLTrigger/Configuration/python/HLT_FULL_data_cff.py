@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HLT/V828 (CMSSW_4_2_0_HLT23)
+# /dev/CMSSW_4_2_0/HLT/V829 (CMSSW_4_2_0_HLT27)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V828')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V829')
 )
 
 streams = cms.PSet( 
@@ -10842,7 +10842,10 @@ hltR014MR150 = cms.EDFilter( "HLTRFilter",
     minR = cms.double( 0.14 ),
     minMR = cms.double( 150.0 ),
     doRPrime = cms.bool( False ),
-    acceptNJ = cms.bool( True )
+    acceptNJ = cms.bool( True ),
+    R2Offset = cms.double( 0.0 ),
+    MROffset = cms.double( 0.0 ),
+    RMRCut = cms.double( -999999.0 )
 )
 hltPreR020MR150 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -10854,7 +10857,10 @@ hltR020MR150 = cms.EDFilter( "HLTRFilter",
     minR = cms.double( 0.2 ),
     minMR = cms.double( 150.0 ),
     doRPrime = cms.bool( False ),
-    acceptNJ = cms.bool( True )
+    acceptNJ = cms.bool( True ),
+    R2Offset = cms.double( 0.0 ),
+    MROffset = cms.double( 0.0 ),
+    RMRCut = cms.double( -999999.0 )
 )
 hltPreR020MR550 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -10866,7 +10872,10 @@ hltR020MR550 = cms.EDFilter( "HLTRFilter",
     minR = cms.double( 0.2 ),
     minMR = cms.double( 550.0 ),
     doRPrime = cms.bool( False ),
-    acceptNJ = cms.bool( True )
+    acceptNJ = cms.bool( True ),
+    R2Offset = cms.double( 0.0 ),
+    MROffset = cms.double( 0.0 ),
+    RMRCut = cms.double( -999999.0 )
 )
 hltPreR023MR550 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -10878,7 +10887,10 @@ hltR023MT550 = cms.EDFilter( "HLTRFilter",
     minR = cms.double( 0.23 ),
     minMR = cms.double( 550.0 ),
     doRPrime = cms.bool( False ),
-    acceptNJ = cms.bool( True )
+    acceptNJ = cms.bool( True ),
+    R2Offset = cms.double( 0.0 ),
+    MROffset = cms.double( 0.0 ),
+    RMRCut = cms.double( -999999.0 )
 )
 hltPreR025MR150 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -10890,7 +10902,10 @@ hltR025MR150 = cms.EDFilter( "HLTRFilter",
     minR = cms.double( 0.25 ),
     minMR = cms.double( 150.0 ),
     doRPrime = cms.bool( False ),
-    acceptNJ = cms.bool( True )
+    acceptNJ = cms.bool( True ),
+    R2Offset = cms.double( 0.0 ),
+    MROffset = cms.double( 0.0 ),
+    RMRCut = cms.double( -999999.0 )
 )
 hltPreR025MR450 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -10902,7 +10917,10 @@ hltR025MR450 = cms.EDFilter( "HLTRFilter",
     minR = cms.double( 0.25 ),
     minMR = cms.double( 450.0 ),
     doRPrime = cms.bool( False ),
-    acceptNJ = cms.bool( True )
+    acceptNJ = cms.bool( True ),
+    R2Offset = cms.double( 0.0 ),
+    MROffset = cms.double( 0.0 ),
+    RMRCut = cms.double( -999999.0 )
 )
 hltPreR029MR450 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -10914,7 +10932,10 @@ hltR029MR450 = cms.EDFilter( "HLTRFilter",
     minR = cms.double( 0.29 ),
     minMR = cms.double( 450.0 ),
     doRPrime = cms.bool( False ),
-    acceptNJ = cms.bool( True )
+    acceptNJ = cms.bool( True ),
+    R2Offset = cms.double( 0.0 ),
+    MROffset = cms.double( 0.0 ),
+    RMRCut = cms.double( -999999.0 )
 )
 hltPreR033MR350 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -10926,7 +10947,10 @@ hltR033MR350 = cms.EDFilter( "HLTRFilter",
     minR = cms.double( 0.33 ),
     minMR = cms.double( 350.0 ),
     doRPrime = cms.bool( False ),
-    acceptNJ = cms.bool( True )
+    acceptNJ = cms.bool( True ),
+    R2Offset = cms.double( 0.0 ),
+    MROffset = cms.double( 0.0 ),
+    RMRCut = cms.double( -999999.0 )
 )
 hltPreR036MR350 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -10938,7 +10962,10 @@ hltR036MR350 = cms.EDFilter( "HLTRFilter",
     minR = cms.double( 0.36 ),
     minMR = cms.double( 350.0 ),
     doRPrime = cms.bool( False ),
-    acceptNJ = cms.bool( True )
+    acceptNJ = cms.bool( True ),
+    R2Offset = cms.double( 0.0 ),
+    MROffset = cms.double( 0.0 ),
+    RMRCut = cms.double( -999999.0 )
 )
 hltPreR038MR250 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -10950,7 +10977,10 @@ hltR038MR250 = cms.EDFilter( "HLTRFilter",
     minR = cms.double( 0.38 ),
     minMR = cms.double( 250.0 ),
     doRPrime = cms.bool( False ),
-    acceptNJ = cms.bool( True )
+    acceptNJ = cms.bool( True ),
+    R2Offset = cms.double( 0.0 ),
+    MROffset = cms.double( 0.0 ),
+    RMRCut = cms.double( -999999.0 )
 )
 hltPreR042MR250 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -10962,7 +10992,10 @@ hltR042MR250 = cms.EDFilter( "HLTRFilter",
     minR = cms.double( 0.42 ),
     minMR = cms.double( 250.0 ),
     doRPrime = cms.bool( False ),
-    acceptNJ = cms.bool( True )
+    acceptNJ = cms.bool( True ),
+    R2Offset = cms.double( 0.0 ),
+    MROffset = cms.double( 0.0 ),
+    RMRCut = cms.double( -999999.0 )
 )
 hltL1sL1SingleMuOpen = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
@@ -25353,7 +25386,10 @@ hltR005MR200 = cms.EDFilter( "HLTRFilter",
     minR = cms.double( 0.05 ),
     minMR = cms.double( 200.0 ),
     doRPrime = cms.bool( False ),
-    acceptNJ = cms.bool( True )
+    acceptNJ = cms.bool( True ),
+    R2Offset = cms.double( 0.0 ),
+    MROffset = cms.double( 0.0 ),
+    RMRCut = cms.double( -999999.0 )
 )
 hltPreMu8R025MR200 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -25365,7 +25401,10 @@ hltR025MR200 = cms.EDFilter( "HLTRFilter",
     minR = cms.double( 0.25 ),
     minMR = cms.double( 200.0 ),
     doRPrime = cms.bool( False ),
-    acceptNJ = cms.bool( True )
+    acceptNJ = cms.bool( True ),
+    R2Offset = cms.double( 0.0 ),
+    MROffset = cms.double( 0.0 ),
+    RMRCut = cms.double( -999999.0 )
 )
 hltPreMu8R029MR200 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -25377,7 +25416,10 @@ hltR029MR200 = cms.EDFilter( "HLTRFilter",
     minR = cms.double( 0.29 ),
     minMR = cms.double( 200.0 ),
     doRPrime = cms.bool( False ),
-    acceptNJ = cms.bool( True )
+    acceptNJ = cms.bool( True ),
+    R2Offset = cms.double( 0.0 ),
+    MROffset = cms.double( 0.0 ),
+    RMRCut = cms.double( -999999.0 )
 )
 hltPreMu10R005MR200 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -28463,7 +28505,10 @@ hltR005MR150 = cms.EDFilter( "HLTRFilter",
     minR = cms.double( 0.05 ),
     minMR = cms.double( 150.0 ),
     doRPrime = cms.bool( False ),
-    acceptNJ = cms.bool( True )
+    acceptNJ = cms.bool( True ),
+    R2Offset = cms.double( 0.0 ),
+    MROffset = cms.double( 0.0 ),
+    RMRCut = cms.double( -999999.0 )
 )
 hltPrePhoton40CaloIdLR014MR500 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -28475,7 +28520,10 @@ hltR014MR500 = cms.EDFilter( "HLTRFilter",
     minR = cms.double( 0.14 ),
     minMR = cms.double( 500.0 ),
     doRPrime = cms.bool( False ),
-    acceptNJ = cms.bool( True )
+    acceptNJ = cms.bool( True ),
+    R2Offset = cms.double( 0.0 ),
+    MROffset = cms.double( 0.0 ),
+    RMRCut = cms.double( -999999.0 )
 )
 hltPrePhoton40CaloIdLR017MR500 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -28487,7 +28535,10 @@ hltR017MR500 = cms.EDFilter( "HLTRFilter",
     minR = cms.double( 0.17 ),
     minMR = cms.double( 500.0 ),
     doRPrime = cms.bool( False ),
-    acceptNJ = cms.bool( True )
+    acceptNJ = cms.bool( True ),
+    R2Offset = cms.double( 0.0 ),
+    MROffset = cms.double( 0.0 ),
+    RMRCut = cms.double( -999999.0 )
 )
 hltPrePhoton40CaloIdLR020MR350 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -28499,7 +28550,10 @@ hltR020MR350 = cms.EDFilter( "HLTRFilter",
     minR = cms.double( 0.2 ),
     minMR = cms.double( 350.0 ),
     doRPrime = cms.bool( False ),
-    acceptNJ = cms.bool( True )
+    acceptNJ = cms.bool( True ),
+    R2Offset = cms.double( 0.0 ),
+    MROffset = cms.double( 0.0 ),
+    RMRCut = cms.double( -999999.0 )
 )
 hltPrePhoton40CaloIdLR023MR350 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -28511,7 +28565,10 @@ hltR023MR350 = cms.EDFilter( "HLTRFilter",
     minR = cms.double( 0.23 ),
     minMR = cms.double( 350.0 ),
     doRPrime = cms.bool( False ),
-    acceptNJ = cms.bool( True )
+    acceptNJ = cms.bool( True ),
+    R2Offset = cms.double( 0.0 ),
+    MROffset = cms.double( 0.0 ),
+    RMRCut = cms.double( -999999.0 )
 )
 hltPrePhoton40CaloIdLR025MR250 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -28523,7 +28580,10 @@ hltR025MR250 = cms.EDFilter( "HLTRFilter",
     minR = cms.double( 0.25 ),
     minMR = cms.double( 250.0 ),
     doRPrime = cms.bool( False ),
-    acceptNJ = cms.bool( True )
+    acceptNJ = cms.bool( True ),
+    R2Offset = cms.double( 0.0 ),
+    MROffset = cms.double( 0.0 ),
+    RMRCut = cms.double( -999999.0 )
 )
 hltPrePhoton40CaloIdLR029MR250 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -28535,7 +28595,10 @@ hltR029MR250 = cms.EDFilter( "HLTRFilter",
     minR = cms.double( 0.29 ),
     minMR = cms.double( 250.0 ),
     doRPrime = cms.bool( False ),
-    acceptNJ = cms.bool( True )
+    acceptNJ = cms.bool( True ),
+    R2Offset = cms.double( 0.0 ),
+    MROffset = cms.double( 0.0 ),
+    RMRCut = cms.double( -999999.0 )
 )
 hltPrePhoton40CaloIdLR038MR200 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -28547,7 +28610,10 @@ hltR038MR200 = cms.EDFilter( "HLTRFilter",
     minR = cms.double( 0.38 ),
     minMR = cms.double( 200.0 ),
     doRPrime = cms.bool( False ),
-    acceptNJ = cms.bool( True )
+    acceptNJ = cms.bool( True ),
+    R2Offset = cms.double( 0.0 ),
+    MROffset = cms.double( 0.0 ),
+    RMRCut = cms.double( -999999.0 )
 )
 hltPrePhoton40CaloIdLR042MR200 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -28559,7 +28625,10 @@ hltR042MR200 = cms.EDFilter( "HLTRFilter",
     minR = cms.double( 0.42 ),
     minMR = cms.double( 200.0 ),
     doRPrime = cms.bool( False ),
-    acceptNJ = cms.bool( True )
+    acceptNJ = cms.bool( True ),
+    R2Offset = cms.double( 0.0 ),
+    MROffset = cms.double( 0.0 ),
+    RMRCut = cms.double( -999999.0 )
 )
 hltPreDoublePhoton40MR150 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -28616,7 +28685,10 @@ hltMR150 = cms.EDFilter( "HLTRFilter",
     minR = cms.double( 0.0 ),
     minMR = cms.double( 150.0 ),
     doRPrime = cms.bool( False ),
-    acceptNJ = cms.bool( True )
+    acceptNJ = cms.bool( True ),
+    R2Offset = cms.double( 0.0 ),
+    MROffset = cms.double( 0.0 ),
+    RMRCut = cms.double( -999999.0 )
 )
 hltPreDoublePhoton40R014MR150 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
