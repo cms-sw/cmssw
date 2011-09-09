@@ -120,8 +120,6 @@ int EcalFenixLinearizer::setInput(const EcalMGPASample &RawSam)
       mult_ = linConsts_ -> mult_x1;
     } 
   }
-
-  if (famos_) base_=200; //FIXME by preparing a correct TPG.txt for Famos
  
   return 1;
 }
