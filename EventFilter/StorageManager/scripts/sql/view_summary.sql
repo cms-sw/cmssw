@@ -181,26 +181,50 @@ CREATE OR REPLACE FUNCTION REPACKED_CHECK ( lastWrite in DATE, lastTrans in DATE
 BEGIN
         status := 0;
 
-    --if there is any difference, display with blue color, override later if more severe conditions
-    IF ( s_repacked + s_notrepacked != s_checked ) THEN
-    		 status := 1;
 
-        --if last check more than 4 hrs (14400 sec) ago and not all checked files are repacked  turn...
- 	--(put in veto to ignore if deleted=checked!)
-	IF ( (ABS(time_diff(sysdate, lastTrans)) > 14400) AND (s_checked - s_deleted > 0 ) ) THEN
-    	        status := 2;  	
+   IF ( s_repacked != s_checked) THEN
+	IF (s_repacked = s_checked - s_notrepacked ) THEN
+		 status := 4;
+	ELSE	
+  		 status := 1;
 
-   		 --if last check more than 4+ days =105 hrs (378000) ago and not all checked files are repacked  turn magenta
-   		 --(put in veto to ignore if deleted=checked!)
-		IF ( (ABS(time_diff(sysdate, lastTrans)) > 378000) AND (s_checked - s_deleted > 0) ) THEN
-    	   	     status := 3;
+	        --if last check more than 4 hrs (14400 sec) ago and not all checked files are repacked  turn...
+ 		--(put in veto to ignore if deleted=checked!)
+		IF ( (ABS(time_diff(sysdate, lastTrans)) > 14400) AND (s_checked - s_deleted > 0 ) ) THEN
+    	        	status := 2;  	
+
+   		 	--if last check more than 4+ days =105 hrs (378000) ago and not all checked files are repacked  turn magenta
+   		 	--(put in veto to ignore if deleted=checked!)
+			IF ( (ABS(time_diff(sysdate, lastTrans)) > 378000) AND (s_checked - s_deleted > 0) ) THEN
+    	   	     		status := 3;
+			END IF;
 		END IF;
-
 	END IF;
+   END IF;
 
- 
-    END IF;
 
+
+
+--    --if there is any difference, display with blue color, override later if more severe conditions
+--    IF ( s_repacked + s_notrepacked != s_checked ) THEN
+--    		 status := 1;
+--
+--        --if last check more than 4 hrs (14400 sec) ago and not all checked files are repacked  turn...
+-- 	--(put in veto to ignore if deleted=checked!)
+--	IF ( (ABS(time_diff(sysdate, lastTrans)) > 14400) AND (s_checked - s_deleted > 0 ) ) THEN
+--    	        status := 2;  	
+--
+--   		 --if last check more than 4+ days =105 hrs (378000) ago and not all checked files are repacked  turn magenta
+--   		 --(put in veto to ignore if deleted=checked!)
+--		IF ( (ABS(time_diff(sysdate, lastTrans)) > 378000) AND (s_checked - s_deleted > 0) ) THEN
+--    	   	     status := 3;
+--		END IF;
+--
+--	END IF;
+--
+-- 
+--    END IF;
+--
 
 
 
@@ -258,7 +282,7 @@ BEGIN
 
     result_1 := 0;
     --: if all files "checked" are deleted then nothing to do:
-    IF (  s_checked = s_deleted ) THEN
+    IF (  s_checked = s_deleted OR s_repacked = s_deleted ) THEN
 	return result_1; 
     END IF;
 
@@ -307,9 +331,9 @@ BEGIN
 
           DBMS_OUTPUT.PUT_LINE (s_deleted/s_checked || '  < 1.0 - (' || toffset ||' -X*' || dfreq||'/'||time_diff(sysdate, LastTrans )||')/'  ||time_diff( LastTrans, Start_time ) );
 
-        IF (   s_deleted/s_checked < 1.0 - GREATEST(toffset -  2*dfreq - time_diff(sysdate, LastTrans ), 0.0)/time_diff( LastTrans, Start_time ) ) THEN
+        IF (   s_deleted/s_checked < 1.0 - GREATEST(toffset +  2*dfreq - time_diff(sysdate, LastTrans ), 0.0)/time_diff( LastTrans, Start_time ) ) THEN
           result_1 := 2;
-          IF ( s_deleted/s_checked < 1.0 - GREATEST(toffset +  7*dfreq - time_diff(sysdate, LastTrans ), 0.0)/time_diff( LastTrans, Start_time ) ) THEN
+          IF ( s_deleted/s_checked < 1.0 - GREATEST(toffset + 12*dfreq - time_diff(sysdate, LastTrans ), 0.0)/time_diff( LastTrans, Start_time ) ) THEN
              result_1 := 3;
           END IF;
         END IF;
