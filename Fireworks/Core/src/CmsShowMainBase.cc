@@ -42,6 +42,7 @@
 #include "Fireworks/Core/src/SimpleSAXParser.h"
 #include "Fireworks/Core/interface/CmsShowCommon.h"
 #include "Fireworks/Core/interface/fwLog.h"
+#include "Fireworks/Core/interface/fwPaths.h"
 
 
 CmsShowMainBase::CmsShowMainBase()
@@ -525,17 +526,23 @@ CmsShowMainBase::sendVersionInfo()
    }
 
    // send data 
-   char buff[32]; 
-   const char* cmsswr = gSystem->Getenv("CMSSW_VERSION");
-
-   const char* versionFilePath = gSystem->ExpandPathName( cmsswr ?  "$(CMSSW_RELEASE_BASE)/src/Fireworks/Core/data/version.txt" : "$(CMSSW_BASE)/src/Fireworks/Core/data/version.txt" );
-   std::ifstream f(versionFilePath);
-   f.getline(&buff[0], 32);
    char msg[64];
-   snprintf(msg, 64,"%s %s ", &buff[0], cmsswr ? cmsswr :"Standalone" );
-
+   if (gSystem->Getenv("CMSSW_VERSION"))
+   {
+      snprintf(msg, 64,"%s ", gSystem->Getenv("CMSSW_VERSION"));
+   }
+   else
+   {
+      TString versionFileName("data/version.txt");
+      fireworks::setPath(versionFileName);
+      ifstream fs(versionFileName);
+      TString infoText;
+      infoText.ReadLine(fs);
+      fs.close();
+      snprintf(msg, 64,"Standalone %s", infoText.Data());
+   }
    int flags = 0;
-   sendto(sd, msg, strlen(msg)+1, flags, 
-                     (struct sockaddr *) &remoteServAddr, 
-                     sizeof(remoteServAddr));
+   sendto(sd, msg, strlen(msg), flags, 
+          (struct sockaddr *) &remoteServAddr, 
+          sizeof(remoteServAddr));
 }
