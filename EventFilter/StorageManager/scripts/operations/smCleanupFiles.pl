@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: cleanupOrphans.pl,v 1.4 2010/11/17 10:26:04 gbauer Exp $
+# $Id: smCleanupFiles.pl,v 1.11 2010/11/18 10:32:48 gbauer Exp $
 
 use strict;
 use warnings;
@@ -7,6 +7,7 @@ use DBI;
 use Getopt::Long;
 use File::Basename;
 use File::Find ();
+use POSIX;
 
 
 my ($help, $debug, $nothing, $now, $force, $execute, $maxfiles, $fileagemin, $skipdelete, $dbagemax, $dbrepackagemax0, $dbrepackagemax, $dbtdelete);
@@ -19,6 +20,7 @@ my ($dbi, $dbh);
 my ($minRunSMI, $fileageSMI);
 my %h_notfiles;
 
+my $month;
 
 
 #-----------------------------------------------------------------
@@ -38,29 +40,26 @@ sub usage
 
 #-----------------------------------------------------------------
 #subroutine for getting formatted time for SQL to_date method
-sub gettimestamp($)
-		 {
-		     my $stime = shift;
-		     my @ltime = localtime($stime);
-		     my ($sec,$min,$hour,$mday,$mon,$year,$wday,$yday,$isdst) = @ltime;
-		     
-		     $year += 1900;
-		     $mon++;
-		     
-		     my $timestr = $year."-";
-		     if ($mon < 10) {
-			 $timestr=$timestr . "0";
-		     }
-		     
-		     $timestr=$timestr . $mon . "-";
-		     
-		     if ($mday < 10) {
-			 $timestr=$timestr . "0";
-		     }
-		     
-		     $timestr=$timestr . $mday . " " . $hour . ":" . $min . ":" . $sec;
-		     return $timestr;
-		 }
+sub gettimestamp($) {
+    return strftime "%Y-%m-%d %H:%M:%S", localtime $_[0];
+}
+
+# Print out line preceded with current timestamp
+sub printtime {
+    #my $date = strftime "%c", localtime time;
+    my $date = strftime "%Y-%m-%d %H:%M:%S: ", localtime time;
+    print "$date$_\n" for @_;
+}
+
+sub debug {
+    #return unless $debug;
+    $month ||= strftime "%b", localtime time;
+    my $debugfile = "/tmp/gbDebugClean-$month.txt";
+    my $time = strftime "%Y-%m-%d %H:%M:%S: ", localtime time;
+    open(my $fh, '>>', $debugfile) or die "Can't open $debugfile: $!";
+    print {$fh} "$time$_\n" for @_;
+    close $fh;
+}
 
 #-----------------------------------------------------------------
 sub deletefiles()
@@ -114,13 +113,11 @@ sub deletefiles()
     
     
     
-    my $predate=`date`;
-    print "PreQuery: $predate...\n";
+    printtime "PreQuery...\n";
     
     $sth->execute() || die "Initial DB query failed: $dbh->errstr\n";
     
-    my $postdate=`date`;
-    print "PostQuery: $postdate...\n";
+    printtime "PostQuery...\n";
     
 
 ############## Parse and process the result
@@ -216,15 +213,15 @@ sub deletefiles()
 
 # Only print summary if STDIN is a tty, so not in cron
 #if( -t STDIN ) {
-    print "\n=================> DONE!:\n";
-    print ">>BASE QUERY WAS:\n   $myquery,\n";
-    print " $nFiles Files Processed\n" .
-      " $nRMFiles Files rm-ed\n" .
-      " $nRMind ind Files removed\n\n\n";
+    printtime "\n=================> DONE!:\n"
+      . ">>BASE QUERY WAS:\n   $myquery,\n"
+      . " $nFiles Files Processed\n"
+      . " $nRMFiles Files rm-ed\n"
+      . " $nRMind ind Files removed\n\n\n";
 #}
 
 
-  my  $gbNEWdebug =`echo "$nRMFiles Files rm-ed"  >> /tmp/gbDebugClean2.txt`;
+debug( "$nRMFiles Files rm-ed" );
 
 
 #make sure handles are done
@@ -462,7 +459,7 @@ sub deleteCopyManager()
 	print "----- Initial disk usage $favail\n";
 	
 	#delete older than 45 days:
-	my $delete =`find /store/copymanager/Logs/*/ -cmin +64800  -type f   -exec sudo -u cmsprod  rm -f \'{}\' \\\; >& /dev/null`;
+	my $delete =`find /store/copymanager/Logs/*/ -mmin +64800  -type f   -exec sudo -u cmsprod  rm -f \'{}\' \\\; >& /dev/null`;
 	
 	$string = `df $dir | grep dev`;
 	($favail) = ($string =~ /.*\ ([0-9]+)\%.*/);
@@ -471,48 +468,196 @@ sub deleteCopyManager()
 	if( $favail > 85 ){
 	    
 	    #delete older than 32 days:
-	    $delete = `find /store/copymanager/Logs/*/ -cmin +46080  -type f  -exec sudo -u cmsprod  rm -f \'{}\' \\\; >& /dev/null`;
+	    $delete = `find /store/copymanager/Logs/*/ -mmin +46080  -type f  -exec sudo -u cmsprod  rm -f \'{}\' \\\; >& /dev/null`;
 	    
 	    $string = `df $dir | grep dev`;
 	    ($favail) = ($string =~ /.*\ ([0-9]+)\%.*/);
 	    print "----- 32-day disk usage $favail\n";
-	    my $gbdebug1 =`echo "-----   32-day disk usage $favail" >> /tmp/gbDebugClean2.txt`;
-	    my $gbdebug2 =`echo "2: $delete" >> /tmp/gbDebugClean2.txt`;
-
+	    debug( "-----   32-day disk usage $favail" );
+	    debug( "2: $delete" );
 	    
 	    
-	    #brutal action: Manager files older than 15 days, and /tmp area older than 8 days
-	    if( $favail > 94 ){
-		$delete = `find /store/copymanager/Logs/*/ -cmin +21600  -type f  -exec sudo -u cmsprod  rm -f \'{}\' \\\; >& /dev/null`;
-		
-		my $gbdebug3 =`echo "3: $delete" >> /tmp/gbDebugClean2.txt`;
-		
-		$delete = `sudo -u cmsprod find /tmp/* -cmin +4320  -type f  -exec sudo rm -f {} \; >& /dev/null`;
+	    
+	    #brutal action: Manager files older than 20 days
+	    if( $favail > 90 ){
+		debug( "3: $delete" );
+		$delete = `find /store/copymanager/Logs/*/ -mmin +28800  -type f  -exec sudo -u cmsprod  rm -f \'{}\' \\\; >& /dev/null`;
 		
 		
-		#emergency action: Manager files older than 3 days, and /tmp area older than 3 days
-		if( $favail > 96 ){
+		#brutal action: Manager files older than 15 days, and /tmp area older than 8 days
+		if( $favail > 92 ){
 		    
-		    $delete = `find /store/copymanager/Logs/*/ -cmin +4320  -type f  -exec sudo -u cmsprod  rm -f \'{}\' \\\; >& /dev/null`;
+		    $delete = `find /store/copymanager/Logs/*/ -mmin +21600  -type f  -exec sudo -u cmsprod  rm -f \'{}\' \\\; >& /dev/null`;
+		    debug( "4: $delete" );
+		    $delete = `sudo -u cmsprod find /tmp/* -mmin +11520  -type f  -exec sudo rm -f {} \; >& /dev/null`;
 		    
-		    $delete = `find /tmp/* -cmin +4320  -type f  -exec sudo -u   rm -f {} \; >& /dev/null`;
+		    
+		    #brutal action: TransferStatusManager files are bigger and fatter, so tighterdelete: 7 days, and /tmp area older than 5 days
+		    if( $favail > 93 ){
+			
+			$delete = `find /store/copymanager/Logs/TransferStatusManager/ -mmin +10080  -type f  -exec sudo -u cmsprod  rm -f \'{}\' \\\; >& /dev/null`;
+			debug( "5: $delete" );
+			$delete = `sudo -u cmsprod find /tmp/* -mmin +7200  -type f  -exec sudo rm -f {} \; >& /dev/null`;
+			
+			
+			
+			
+			#emergency action: Manager files older than 2 days, and /tmp area older than 2 days
+			if( $favail > 95 ){
+			    
+			    $delete = `find /store/copymanager/Logs/*/ -mmin +2880  -type f  -exec sudo -u cmsprod  rm -f \'{}\' \\\; >& /dev/null`;
+			    debug( "6: $delete" );
+			    $delete = `find /tmp/* -mmin +2880  -type f  -exec sudo -u   rm -f {} \; >& /dev/null`;
+			    
+			}
+			
+		    }
+		    
 		    
 		}
+		
 	    }
+	    
+	    
 	}
 	
 	$string = `df $dir | grep dev`;
 	($favail) = ($string =~ /.*\ ([0-9]+)\%.*/);
 	print "----- FINAL disk usage $favail\n";
 	
-	my $gbdebug =`echo "----- FINAL disk usage $favail " >> /tmp/gbDebugClean2.txt`;
+	debug( "----- FINAL disk usage $favail " );
     }
 }
+
+
+#-----------------------------------------------------------------
+sub cleanInjectCopy()
+{
+
+
+  #dirs format: ["<dir path.", disk-threshold, file-age-for delete, disk-threshold]
+   # [note: "/store/copyworker/workdir/" gets special dir-level treatment]
+   # file-age in MONTHS!
+    my @dirs = (["/store/injectworker/logs/", "smpro",             0.76,  18],
+                ["/store/injectworker/logs/", "smpro",             0.81,  12],
+                ["/store/injectworker/logs/", "smpro",             0.82,   9],
+                ["/store/injectworker/logs/", "smpro",             0.84,   7],
+                ["/store/injectworker/logs/", "smpro",             0.87,   6],
+                ["/store/injectworker/logs/", "smpro",             0.88,   5],
+                ["/store/injectworker/logs/", "smpro",             0.91,   4],
+                ["/store/injectworker/logs/", "smpro",             0.92,   3],
+                ["/store/injectworker/logs/", "smpro",             0.95,   2],
+                ["/store/injectworker/logs/", "smpro",             0.97,   1],
+#
+                ["/store/copyworker/Logs/CopyManager/",  "cmsprod", 0.77,  18],
+                ["/store/copyworker/Logs/CopyManager/",  "cmsprod", 0.811, 12],
+                ["/store/copyworker/Logs/CopyManager/",  "cmsprod", 0.821,  9],
+                ["/store/copyworker/Logs/CopyManager/",  "cmsprod", 0.841,  7],
+                ["/store/copyworker/Logs/CopyManager/",  "cmsprod", 0.871,  6],
+                ["/store/copyworker/Logs/CopyManager/",  "cmsprod", 0.881,  5],
+                ["/store/copyworker/Logs/CopyManager/",  "cmsprod", 0.911,  4],
+                ["/store/copyworker/Logs/CopyManager/",  "cmsprod", 0.921,  3],
+                ["/store/copyworker/Logs/CopyManager/",  "cmsprod", 0.951,  2],
+                ["/store/copyworker/Logs/CopyManager/",  "cmsprod", 0.971,  1],
+#
+                ["/store/copyworker/workdir/",  "cmsprod",          0.73, 18],
+                ["/store/copyworker/workdir/",  "cmsprod",          0.75, 12],
+                ["/store/copyworker/workdir/",  "cmsprod",          0.78,  9],
+                ["/store/copyworker/workdir/",  "cmsprod",          0.80,  6],
+                ["/store/copyworker/workdir/",  "cmsprod",          0.83,  4],
+                ["/store/copyworker/workdir/",  "cmsprod",          0.86,  3],
+                ["/store/copyworker/workdir/",  "cmsprod",          0.90,  2],
+                ["/store/copyworker/workdir/",  "cmsprod",          0.93,  1],
+                ["/store/copyworker/workdir/",  "cmsprod",          0.96, 0.75]);
+my $monthTOmins = 31*24*60; 
+
+    my $ndir = @dirs;  #number of dir in above array:
+ 
+#  sort dirs for deletions according to lowest disk threshold:
+    my @odirs = sort {$a->[2] <=> $b->[2]} @dirs;
+
+    
+    
+    for( my $i=0; $i<$ndir; $i++){
+	
+	if( -d $odirs[$i][0]){
+	    
+	    
+	    print "***************  $odirs[$i][0] \n";
+	    
+	    my $string = `df -h $odirs[$i][0] | grep dev`;
+	    print " $string \n";
+	    
+	    #my ($favail) = ($string =~ /.*\ ([0-9]+)\%\ \//);
+	    my ($favail) = ($string =~ /.*\ ([0-9]+)\%.*/);
+	    $favail = 0.01*$favail;
+	    print "$i: ----- disk usage $favail vs current test: $odirs[$i][2]\n";
+	    
+	    if($favail < $odirs[$i][2] ) {last;}
+	    
+	    my $whom    = $odirs[$i][1];
+	    my $fileage = int($monthTOmins*$odirs[$i][3]);
+	    print ">>> delete from dir $odirs[$i][0] at $odirs[$i][2] disk full and  $odirs[$i][3] months ($fileage min) \n";
+	    
+	    
+	    my $dirappend = '*';
+	    my $dirtype   = "f";
+            my $depth     = "";
+            my $rmop      = "-f";
+	    if( $odirs[$i][0] =~ /.*copyworker\/workdir.*/ ){
+		$dirappend = '0*';
+		$dirtype   = "d";
+                $depth     = ' -maxdepth 1 ';
+                $rmop      = "-fr";
+	    }
+		
+	    
+	    my $string2= `ls -l $odirs[$i][0]$dirappend`;
+	    print " $string2 <<<< \n";
+	    
+	    
+	    
+	    print "find $odirs[$i][0]$dirappend $depth   -mmin +$fileage  -type $dirtype \n";	    
+	    my $delete =`find $odirs[$i][0]$dirappend $depth   -mmin +$fileage  -type $dirtype  `;	    
+	    
+	    print ">>> \n $delete \n";
+	    
+
+#           imagine the full delete statement:
+	    print "find $odirs[$i][0]$dirappend $depth  -mmin +$fileage  -type $dirtype  -exec sudo -u $whom   rm $rmop \'{}\' \\\; >& /dev/null ";
+
+
+
+	    print "$i -------real DELETE: \n   $delete  \n";
+	    debug( 'Starting real DELETE' );
+
+	    #$delete = `find $odirs[$i][0]$dirappend $depth  -mmin +$fileage  -type $dirtype  -exec sudo -u $whom  rm $rmop \'{}\' \\\; >& /dev/null `;
+	    $delete = `find $odirs[$i][0]$dirappend $depth  -mmin +$fileage  -type $dirtype  -exec sudo -u $whom  rm $rmop \'{}\' \\\; `;
+
+            debug( "$i ------- DELETE: \n$delete   \n\n" );
+
+	    
+	}
+	
+    }
+    
+
+	    debug( 'Done' );
+
+
+    return;
+
+
+}
+
+
+
+
 
 #-----------------------------------------------------------------
 sub maxdiskspace(){
     my $maxdisk=-1;
-    for my $string (`df -h | grep sata `){
+    for my $string (`df -h | grep sata..a..v `){
 	my ( my $prcnt ) = ($string =~ /.+\ +.+\ +.+\ +.+\ +([0-9]+)\%.*/);
 	if($maxdisk < $prcnt){ $maxdisk= $prcnt; }
     }
@@ -538,7 +683,7 @@ $execute    = 1;
 $maxfiles   = 100000;     #     -- max number of files out of DB query to process for DELETE
 $fileagemin     = 130;    #min  -- min age for a file to be deleted
 $dbagemax       =  45;    #days -- make DB query for files to delete out to dbagemax 
-$dbrepackagemax0=   4.01; #days -- max age for a file (after CHECK) before it gets deleted EVEN IF no REPACK!
+$dbrepackagemax0=   5.01; #days -- max age for a file (after CHECK) before it gets deleted EVEN IF no REPACK!
 $dbtdelete      =   6.0;  #hrs  -- cycle time to complete deletes over all nodes
 $force      = 0;
 $config     = "/opt/injectworker/.db.conf";
@@ -575,13 +720,27 @@ if ($nothing) { $execute = 0; $debug = 1; }
 #override any input---to overcome /etc/cron.d call!!
 $maxfiles   = 100000;
 
+my ($hour, $min, $hour6);
+
+$month = strftime "%b", localtime time;
+
+#what's the current time at start of cycle; and *relative* to start of cycle:
+   $hour   = strftime "%H", localtime time;
+   $min    = strftime "%M", localtime time;
+   $hour6  =  (60*$hour+$min)%(60*$dbtdelete);
+   $hour6  =  $hour6/60;
+#my $min1  = `date +%M`+0;
+#   $min   = 0;
+
+
+
+printtime "TIMES: hour=$hour:$min; hour6=$hour6=$hour%$dbtdelete; min=$min  \n";
+debug( "-------START:   TIMES: hour=$hour:$min; hour6=$hour6=$hour%$dbtdelete; min=$min" );
 
 my $sysindx=-1;
 # sysindex = 0;  maindaq
 # sysindex = 1;  minidaq
 # sysindex = 2;  daqval
-
-
 
 
 #check what is the percentage of maximally full "Sata" array:
@@ -623,22 +782,15 @@ my $ncyc;  {use integer; $ncyc=$maxSM/$dbtdelete;}
 
 
 
-#what's the current time at start of cycle; and *relative* to start of cycle:
-my $hour   = `date +%H`+0;
-my $min    = `date +%M`+0;
-my $hour6  =  (60*$hour+$min)%(60*$dbtdelete);
-   $hour6  =  $hour6/60;
-#my $min1  = `date +%M`+0;
-#   $min   = 0;
 
-`date`;
-    print "\n TIMES: hour=$hour:$min; hour6=$hour6=$hour%$dbtdelete; min=$min  \n";
+
+
 
 my $sleeptime = 0;
 
 
-my $gbdebug2 =`echo "*********************************************************************************** " >> /tmp/gbDebugClean2.txt`;
-   $gbdebug2 =`echo "*********************** $hostname  $hour:$min ******maxdisk: $maxdisk%  *********** " >> /tmp/gbDebugClean2.txt`;
+debug( "*********************************************************************************** " );
+debug( "*********************** $hostname  $hour:$min ******maxdisk: $maxdisk%  *********** " );
 
 my $hourPC  = 0; 
 my $minPC   = 0; 
@@ -700,17 +852,15 @@ if(0<$deltaT && $deltaT < $tcron - 0.5){                #times are in min!
 print "$hostname:  $rack $node REAL sleep time: $sleeptime \n";
 
 
-my $date=`date`;
-print "$date  ..maybe sleep 60*$sleeptime...\n";
+printtime "..maybe sleep 60*$sleeptime...";
 
 if( !$now && $sleeptime>0 ){ 
  
-  my $gbdebug1 =`echo "$date   sleep $sleeptime min" >> /tmp/gbDebugClean2.txt`;
+   debug( "sleep $sleeptime min" );
    sleep(60*$sleeptime);
 }
 
-$date=`date`;
-print "$date  ..sleep done...\n";
+printtime "..sleep done...";
 
 
 
@@ -741,8 +891,7 @@ $dbh    = DBI->connect($dbi,$reader,$phrase)
 $minRunSMI   = 134000; #smallest run number being handled
 $fileageSMI  = 5;         #in days
 
-$date=`date`;
-  my $gbdebug1 =`echo "$date------------ $hostname: $hour6- AND $min ===> deltaTime= $deltaT || deltcycle=$dbtdelete hrs; minrepack=$dbrepackagemax day; minage=$fileagemin min; sleep $sleeptime min" >> /tmp/gbDebugClean2.txt`;
+debug( "------------ $hostname: $hour6- AND $min ===> deltaTime= $deltaT || deltcycle=$dbtdelete hrs; minrepack=$dbrepackagemax day; minage=$fileagemin min; sleep $sleeptime min" );
 
 
 
@@ -750,12 +899,11 @@ $date=`date`;
 
 #get updated time:
     #what's the current time:
- $hour  = `date +%H`+0;
- $min   = `date +%M`+0;
+ $hour   = strftime "%H", localtime time;
+ $min    = strftime "%M", localtime time;
  $hour6 =  (60*$hour+$min)%(60*$dbtdelete);
  $hour6 =  $hour6/60;
  $min   = 0.0;
-
 
 
 $deltaT   = 60*($hourPC3-$hour6) +  $minPC20;
@@ -769,61 +917,62 @@ print "$hostname: post sleep check: $hour ($hour6) h AND $min min ===> deltaTime
 $sleeptime= 60*($node-12);
 
 
-   $date=`date`;
 if( abs($deltaT) < 1.5  ||  $now  ){ 
     if( !$now ){ sleep 2;}
     
 
-    my  $gbNEWdebug =`date:  >> /tmp/gbDebugClean2.txt`;
-    $gbNEWdebug =`echo ">>>> DELETE:  $hostname: $hour6- AND $min ===> deltaTime= $deltaT  " >> /tmp/gbDebugClean2.txt`;
+    debug( ">>>> DELETE:  $hostname: $hour6- AND $min ===> deltaTime= $deltaT  " );
     
-    print "$date ..execute DELETES cycle...\n";
+    printtime "..execute DELETES cycle...";
     if (!$skipdelete) { deletefiles(); }
-    $date=`date`;
-    print "$date ..DONE executing DELETES...\n";
+    printtime "..DONE executing DELETES...";
     
     #if we did a file delete, kill the snooze time for the UNACCTFILES:
     $sleeptime=0;
 
 }else{
     
-    print "unsatisfied, eXIT!..\n";
-    sleep 1;
+    printtime "unsatisfied time window!..";
+    sleep  1;
 }
 
 
 
-$date=`date`;
-print "$date  ..execute !Files...(but sleep $sleeptime sec first)... \n";
+
+printtime "..execute !Files...(but sleep $sleeptime sec first)... (maxdisk: $maxdisk)";
 sleep $sleeptime;
 if( $maxdisk > -1 ){uncountfiles();}  #sata dir must exist to bother and make call!
-$date=`date`;
-print "$date ..DONE executing unDELETES...\n";
-
+printtime "..DONE executing unDELETES...";
 
 $dbh->disconnect;
 
 }
 
-my  $gbdebug =`date >> /tmp/gbDebugClean2.txt`;
-$gbdebug =`echo "    $hour && $min: Delta-t= $deltaT " >> /tmp/gbDebugClean2.txt`;
-
-
-
+debug( "    $hour && $min: Delta-t= $deltaT " );
 
 
 #=======MIGRATE worker/manager files :
 if($now ||  abs($deltaT) < 8   ) { 
-    my $date=`date`;
-    print " $date: cleanup CopyManager if there  \n";
+    printtime "cleanup CopyManager if there";
     deleteCopyManager(); 
 
-    $date=`date`;
-    print "$date .. move copyworker work-logs.... \n";
-    my $clnmngr = `sudo -u cmsprod  perl /cmsnfshome0/nfshome0/gbauer/cleanupCopyWorkerWorkDir.pl`;
+    printtime ".. move copyworker work-logs....";
+    my $clnmngr = `sudo -u cmsprod  perl /cmsnfshome0/nfshome0/smpro/sm_scripts_cvs/operations/cleanupCopyWorkerWorkDir.pl`;
     
 }
 
-    $date=`date`;
-    print "$date .. all done!\n";
+    printtime ".. done with moving copyworker work-logs....";
 
+
+#=======remove old injec/copy-worker files (try only once a day!):
+if($now || ( abs($deltaT) < 8  && $hour>=11 && $hour<17 )  ) { 
+    printtime ".. move remove inject/copy-worker logs....";
+    cleanInjectCopy();
+}
+
+
+debug( " ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" );
+debug( " ---------------------------------\n" );
+
+
+printtime ".....EXIT SCRIPT";
