@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V234
+# /dev/CMSSW_4_2_0/GRun/V235
 
 import FWCore.ParameterSet.Config as cms
 
@@ -385,6 +385,8 @@ streamA_datasetMultiJet_selector.triggerConditions = cms.vstring('HLT_CentralJet
     'HLT_QuadJet40_v7', 
     'HLT_QuadJet45_DiJet40_v1', 
     'HLT_QuadJet45_IsoPFTau45_v7', 
+    'HLT_QuadJet50_DiJet40_v1', 
+    'HLT_QuadJet50_IsoPFTau50_v1', 
     'HLT_QuadJet50_Jet40_Jet30_v3', 
     'HLT_QuadJet70_v6', 
     'HLT_QuadJet80_v1', 
@@ -413,12 +415,12 @@ streamA_datasetPhoton_selector.triggerConditions = cms.vstring('HLT_DoubleEle33_
     'HLT_Photon20_CaloIdVL_IsoL_v7', 
     'HLT_Photon20_R9Id_Photon18_R9Id_v7', 
     'HLT_Photon225_NoHE_v2', 
-    'HLT_Photon26_CaloIdXL_IsoXL_Photon18_CaloIdXL_IsoXL_v1', 
-    'HLT_Photon26_CaloIdXL_IsoXL_Photon18_R9Id_v1', 
+    'HLT_Photon26_CaloIdXL_IsoXL_Photon18_CaloIdXL_IsoXL_Mass60_v1', 
+    'HLT_Photon26_CaloIdXL_IsoXL_Photon18_R9IdT_Mass60_v1', 
     'HLT_Photon26_CaloIdXL_IsoXL_Photon18_v1', 
     'HLT_Photon26_Photon18_v7', 
-    'HLT_Photon26_R9Id_Photon18_CaloIdXL_IsoXL_v1', 
-    'HLT_Photon26_R9Id_Photon18_R9Id_v4', 
+    'HLT_Photon26_R9IdT_Photon18_CaloIdXL_IsoXL_Mass60_v1', 
+    'HLT_Photon26_R9IdT_Photon18_R9IdT_Mass60_v1', 
     'HLT_Photon30_CaloIdVL_IsoL_v9', 
     'HLT_Photon30_CaloIdVL_v8', 
     'HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v4', 
