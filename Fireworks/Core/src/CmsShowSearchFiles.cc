@@ -137,15 +137,16 @@ CmsShowSearchFiles::CmsShowSearchFiles (const char *filename,
    float x1 = getURLResponseTime("lxplus.cern.ch");
    float x2 = getURLResponseTime("uaf-2.t2.ucsd.edu");
    // printf("timtes %f %f \n", x1, x2); fflush(stdout);
+
    if (x1 > 0 && x1 < x2)
    {
       sendToWebBrowser(s_prefixes[0][0]);
-      fwLog(fwlog::kInfo) << "Search files at the closest site " << s_prefixes[0][0] << std::endl;
+      fwLog(fwlog::kInfo) << "Search files at " << s_prefixes[0][0] << "." << std::endl;
    }
    else if ( x2 > 0)
    {
       sendToWebBrowser(s_prefixes[1][0]);
-      fwLog(fwlog::kInfo) << "Search files at " << s_prefixes[1][0] << std::endl;
+      fwLog(fwlog::kInfo) << "Search files at " << s_prefixes[1][0] << "." <<  std::endl;
    }
    else
    {
