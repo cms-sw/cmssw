@@ -605,6 +605,7 @@ def toCSVLumiByLSXing(lumidata,scalefactor,filename):
         for l in result:
             r.write(str(l)+'\n')
     else:
+        r=csvReporter.csvReporter(filename)
         r.writeRow(fieldnames)
         r.writeRows(result)
     
