@@ -30,8 +30,10 @@ HLT_DiJet130_PT130_v*
 HLT_DiJet160_PT160_v*
 HLT_CentralJet80_MET65_v*
 HLT_CentralJet80_MET80_v*
-HLT_CentralJet80_MET100_v*
-HLT_CentralJet80_MET160_v*
+HLT_CentralJet80_MET95_v*                                                       #added in 5e33 menu (sr #123262)
+#HLT_CentralJet80_MET100_v*                                                     #removed in 5e33 menu (sr #123262)
+HLT_CentralJet80_MET110_v*                                                      #added in 5e33 menu (sr #123262)
+#HLT_CentralJet80_MET160_v*                                                     #removed in 5e33 menu (sr #123262)
 HLT_DiJet60_MET45_v*
 HLT_DiCentralJet20_MET100_HBHENoiseFiltered_v*
 HLT_DiCentralJet20_MET80_v*
@@ -48,6 +50,10 @@ HLT_QuadJet50_Jet40_Jet30_v*
 HLT_QuadJet50_DiJet40_v*
 HLT_QuadJet70_v*
 HLT_QuadJet80_v*
+HLT_QuadJet90_v*                                                                #added in 5e33 menu (sr #123262)
+HLT_SixJet45_v*
+HLT_EightJet35_v*                                                               #added in 5e33 menu (sr #123262)
+HLT_EightJet40_v*                                                               #added in 5e33 menu (sr #123262)
 HLT_EightJet120_v*
 HLT_60Jet10_v*
 HLT_70Jet10_v*
@@ -98,6 +104,7 @@ HLT_HT550_JetPt60_DPhi2p94_v*
 HLT_HT600_v*
 HLT_HT600_JetPt60_DPhi2p94_v*
 HLT_HT650_v*
+HLT_HT750_v*                                                                    #added in 5e33 menu (sr #123262)
 HLT_HT2000_v*
 HLT_PFMHT150_v*
 HLT_MET65_v*
@@ -153,6 +160,7 @@ HLT_IsoMu30_eta2p1_v*
 HLT_IsoMu34_eta2p1_v*
 HLT_L2DoubleMu23_NoVertex_v*
 HLT_L2DoubleMu30_NoVertex_v*
+HLT_L2DoubleMu45_NoVertex_v*                                                            #added in 5e33 menu (sr #123262)
 HLT_DoubleMu3_v*
 HLT_DoubleMu5_v*
 HLT_DoubleMu6_v*
@@ -216,6 +224,8 @@ HLT_Photon75_CaloIdVL_v*
 HLT_Photon75_CaloIdVL_IsoL_v*
 HLT_Photon90_CaloIdVL_v*
 HLT_Photon90_CaloIdVL_IsoL_v*
+HLT_Photon90EBOnly_CaloIdVL_IsoL_TriPFJet25_v*                                                  #added in 5e33 menu (sr #123262)
+HLT_Photon90EBOnly_CaloIdVL_IsoL_TriPFJet30_v*                                                  #added in 5e33 menu (sr #123262)
 HLT_Photon135_v*
 HLT_Photon200_NoHE_v*
 HLT_Photon225_NoHE_v*

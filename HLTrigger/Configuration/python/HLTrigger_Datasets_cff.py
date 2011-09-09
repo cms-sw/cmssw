@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V233
+# /dev/CMSSW_4_2_0/GRun/V234
 
 import FWCore.ParameterSet.Config as cms
 
@@ -76,6 +76,7 @@ streamA_datasetDoubleMu_selector.triggerConditions = cms.vstring('HLT_DoubleMu3_
     'HLT_L2DoubleMu0_v7', 
     'HLT_L2DoubleMu23_NoVertex_v7', 
     'HLT_L2DoubleMu30_NoVertex_v3', 
+    'HLT_L2DoubleMu45_NoVertex_v1', 
     'HLT_Mu13_Mu8_v7', 
     'HLT_Mu17_Mu8_v7', 
     'HLT_Mu8_Jet40_v10', 
@@ -176,6 +177,7 @@ streamA_datasetHT_selector.triggerConditions = cms.vstring('HLT_DiJet130_PT130_v
     'HLT_HT600_JetPt60_DPhi2p94_v1', 
     'HLT_HT600_v1', 
     'HLT_HT650_v1', 
+    'HLT_HT750_v1', 
     'HLT_R014_MR150_v7', 
     'HLT_R020_MR150_v7', 
     'HLT_R020_MR550_v7', 
@@ -244,10 +246,10 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetMET_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetMET_selector.l1tResults = cms.InputTag('')
 streamA_datasetMET_selector.throw      = cms.bool(False)
-streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CentralJet80_MET100_v7', 
-    'HLT_CentralJet80_MET160_v7', 
+streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CentralJet80_MET110_v1', 
     'HLT_CentralJet80_MET65_v7', 
     'HLT_CentralJet80_MET80_v6', 
+    'HLT_CentralJet80_MET95_v1', 
     'HLT_DiCentralJet20_BTagIP_MET65_v7', 
     'HLT_DiCentralJet20_MET100_HBHENoiseFiltered_v1', 
     'HLT_DiCentralJet20_MET80_v5', 
@@ -372,6 +374,8 @@ streamA_datasetMultiJet_selector.triggerConditions = cms.vstring('HLT_CentralJet
     'HLT_DoubleJet70_ForwardBackward_v7', 
     'HLT_DoubleJet80_ForwardBackward_v7', 
     'HLT_EightJet120_v1', 
+    'HLT_EightJet35_v1', 
+    'HLT_EightJet40_v1', 
     'HLT_ExclDiJet60_HFAND_v6', 
     'HLT_ExclDiJet60_HFOR_v6', 
     'HLT_L1DoubleJet36Central_v4', 
@@ -384,6 +388,7 @@ streamA_datasetMultiJet_selector.triggerConditions = cms.vstring('HLT_CentralJet
     'HLT_QuadJet50_Jet40_Jet30_v3', 
     'HLT_QuadJet70_v6', 
     'HLT_QuadJet80_v1', 
+    'HLT_QuadJet90_v1', 
     'HLT_SixJet45_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetPhoton_selector
@@ -448,7 +453,9 @@ streamA_datasetPhotonHad_selector.triggerConditions = cms.vstring('HLT_Photon30_
     'HLT_Photon70_CaloIdL_HT400_v3', 
     'HLT_Photon70_CaloIdL_HT500_v1', 
     'HLT_Photon70_CaloIdL_MHT110_v1', 
-    'HLT_Photon70_CaloIdL_MHT90_v3')
+    'HLT_Photon70_CaloIdL_MHT90_v3', 
+    'HLT_Photon90EBOnly_CaloIdVL_IsoL_TriPFJet25_v1', 
+    'HLT_Photon90EBOnly_CaloIdVL_IsoL_TriPFJet30_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetSingleElectron_selector
 streamA_datasetSingleElectron_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
