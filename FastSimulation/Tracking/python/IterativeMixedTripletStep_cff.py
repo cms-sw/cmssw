@@ -75,16 +75,15 @@ thStepVtx = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurit
 src = 'iterativeMixedTripletStepMerging',
 copyTrajectories = True,
 copyExtras = True,
-chi2n_par = 0.9,
+chi2n_par = 1.2,
 res_par = ( 0.003, 0.001 ),
 minNumberLayers = 3,
-##minNumber3DLayers = 3,
-minNumber3DLayers = 1, # ?
+minNumber3DLayers = 2, 
 maxNumberLostLayers = 1,
-d0_par1 = ( 0.9, 3.0 ),
-dz_par1 = ( 0.9, 3.0 ),
-d0_par2 = ( 1.0, 3.0 ),
-dz_par2 = ( 1.0, 3.0 )
+d0_par1 = ( 1.2, 3.0 ),
+dz_par1 = ( 1.2, 3.0 ),
+d0_par2 = ( 1.3, 3.0 ),
+dz_par2 = ( 1.3, 3.0 )
 )
 
 thStepTrk = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone(
