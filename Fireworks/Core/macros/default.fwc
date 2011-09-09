@@ -64,7 +64,7 @@
      <string>0</string>
    </config>
   </config>
-  <config name="Jets" version="4">
+  <config name="Jets" version="6">
    <config name="type" version="0">
      <string>std::vector&lt;reco::PFJet&gt;</string>
    </config>
@@ -94,6 +94,19 @@
    </config>
    <config name="transparency" version="0">
      <string>0</string>
+   </config>
+   <config name="PBConfig" version="1">
+    <config name="Var" version="1">
+     <config name="Draw Labels in RhoPhi View" version="0">
+       <string>1</string>
+     </config>
+     <config name="Draw Labels in RhoZ View" version="0">
+       <string>0</string>
+     </config>
+     <config name="Label Offset" version="0">
+       <string>2.1</string>
+     </config>
+    </config>
    </config>
   </config>
   <config name="Tracks" version="4">
