@@ -88,7 +88,6 @@ def toCSVTotDelivered(lumidata,filename,resultlines,scalefactor,isverbose):
     input:  {run:[lumilsnum,cmslsnum,timestamp,beamstatus,beamenergy,deliveredlumi,calibratedlumierror,(bxidx,bxvalues,bxerrs),(bxidx,b1intensities,b2intensities)]}
     '''
     result=[]
-    r=csvReporter.csvReporter(filename)
     fieldnames = ['Run', 'Total LS', 'Delivered(/ub)','UTCTime','E(GeV)']
     if isverbose:
         fieldnames.append('Selected LS')
@@ -114,8 +113,17 @@ def toCSVTotDelivered(lumidata,filename,resultlines,scalefactor,isverbose):
         else:
             result.append([run,nls,totlumival*scalefactor,runstarttime.strftime("%m/%d/%y %H:%M:%S"),avgbeamenergy])
     sortedresult=sorted(result,key=lambda x : int(x[0]))
-    r.writeRow(fieldnames)
-    r.writeRows(sortedresult)
+    r=None
+    assert(filename)
+    if filename.upper()=='STDOUT':
+        r=sys.stdout
+        r.write(','.join(fieldnames)+'\n')
+        for l in sortedresult:
+            r.write(str(l)+'\n')
+    else:
+        r=csvReporter.csvReporter(filename)
+        r.writeRow(fieldnames)
+        r.writeRows(sortedresult)
 
 def toScreenOverview(lumidata,resultlines,scalefactor,isverbose):
     '''
@@ -234,8 +242,18 @@ def toCSVOverview(lumidata,filename,resultlines,scalefactor,isverbose):
             selectedlsStr = CommonUtil.splitlistToRangeString(selectedcmsls)
         result.append([run,nls,totdeliveredlumi*scalefactor,selectedlsStr,totrecordedlumi*scalefactor])
     sortedresult=sorted(result,key=lambda x : int(x[0]))
-    r.writeRow(fieldnames)
-    r.writeRows(sortedresult)
+    
+    r=None
+    assert(filename)
+    if filename.upper()=='STDOUT':
+        r=sys.stdout
+        r.write(','.join(fieldnames)+'\n')
+        for l in sortedresult:
+            r.write(str(l)+'\n')
+    else:
+        r=csvReporter.csvReporter(filename)
+        r.writeRow(fieldnames)
+        r.writeRows(sortedresult)
 def toScreenLumiByLS(lumidata,resultlines,scalefactor,isverbose):
     '''
     input:
@@ -317,8 +335,6 @@ def toScreenLumiByLS(lumidata,resultlines,scalefactor,isverbose):
 def toCSVLumiByLS(lumidata,filename,resultlines,scalefactor,isverbose):
     result=[]
     fieldnames=['Run','LS','UTCTime','Beam Status','E(GeV)','Delivered(/ub)','Recorded(/ub)']
-    r=csvReporter.csvReporter(filename)
-
     for rline in resultlines:
         result.append(rline)
         
@@ -337,8 +353,16 @@ def toCSVLumiByLS(lumidata,filename,resultlines,scalefactor,isverbose):
             recordedlumi=lsdata[6]
             result.append([run,str(lumilsnum)+':'+str(cmslsnum),ts.strftime('%m/%d/%y %H:%M:%S'),bs,begev,deliveredlumi*scalefactor,recordedlumi*scalefactor])
     sortedresult=sorted(result,key=lambda x : int(x[0]))
-    r.writeRow(fieldnames)
-    r.writeRows(sortedresult)
+    assert(filename)
+    if filename.upper()=='STDOUT':
+        r=sys.stdout
+        r.write(','.join(fieldnames)+'\n')
+        for l in sortedresult:
+            r.write(str(l)+'\n')
+    else:
+        r=csvReporter.csvReporter(filename)
+        r.writeRow(fieldnames)
+        r.writeRows(sortedresult)
 
 def toScreenLSEffective(lumidata,resultlines,scalefactor,isverbose):
     '''
@@ -382,8 +406,6 @@ def toCSVLSEffective(lumidata,filename,resultlines,scalefactor,isverbose):
     input:  {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),{hltpath:[l1name,l1prescale,hltprescale,efflumi]},bxdata,beamdata]}
     '''
     result=[]#[run,ls,hltpath,l1bitname,hltpresc,l1presc,efflumi]
-    r=csvReporter.csvReporter(filename)
-    
     for run in sorted(lumidata):#loop over runs
         rundata=lumidata[run]
         if rundata is None:
@@ -412,8 +434,16 @@ def toCSVLSEffective(lumidata,filename,resultlines,scalefactor,isverbose):
                 else:
                     result.append([run,cmslsnum,hltpathname,l1name,hltprescale,l1prescale,recorded*scalefactor,'n/a'])
     fieldnames = ['Run','LS','HLTpath','L1bit','HLTpresc','L1presc','Recorded(/ub)','Effective(/ub)']
-    r.writeRow(fieldnames)
-    r.writeRows(result)
+    assert(filename)
+    if filename.upper()=='STDOUT':
+        r=sys.stdout
+        r.write(','.join(fieldnames)+'\n')
+        for l in result:
+            r.write(str(l)+'\n')
+    else:
+        r=csvReporter.csvReporter(filename)
+        r.writeRow(fieldnames)
+        r.writeRows(result)
 
 def toScreenTotEffective(lumidata,resultlines,scalefactor,isverbose):
     '''
@@ -504,7 +534,6 @@ def toScreenTotEffective(lumidata,resultlines,scalefactor,isverbose):
     
 def toCSVTotEffective(lumidata,filename,resultlines,scalefactor,isverbose):
     result=[]#[run,hltpath,l1bitname,totefflumi]
-    r=csvReporter.csvReporter(filename)
     for run in sorted(lumidata):#loop over runs
         rundata=lumidata[run]
         if rundata is None:
@@ -532,8 +561,17 @@ def toCSVTotEffective(lumidata,filename,resultlines,scalefactor,isverbose):
         for name in sorted(totefflumiDict):
             result.append([run,name,pathmap[name],totefflumiDict[name]*scalefactor])
     fieldnames=['Run','HLTpath','L1bit','Effective(/ub)']
-    r.writeRow(fieldnames)
-    r.writeRows(result)
+    assert(filename)
+    if filename.upper()=='STDOUT':
+        r=sys.stdout
+        r.write(','.join(fieldnames)+'\n')
+        for l in result:
+            r.write(str(l)+'\n')
+    else:
+        r=csvReporter.csvReporter(filename)
+        r.writeRow(fieldnames)
+        r.writeRows(result)
+        
 def toCSVLumiByLSXing(lumidata,scalefactor,filename):
     '''
     input:{run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),{hltpath:[l1name,l1prescale,hltprescale,efflumi]},bxdata,beamdata]}
@@ -541,8 +579,8 @@ def toCSVLumiByLSXing(lumidata,scalefactor,filename):
     fieldnames=['Run','CMSLS','Delivered(/ub)','Recorded(/ub)','BX']
     '''
     result=[]
+    assert(filename)
     fieldnames=['run','ls','delivered(/ub)','recorded(/ub)','bx']
-    r=csvReporter.csvReporter(filename)
     for run in sorted(lumidata):
         rundata=lumidata[run]
         if rundata is None:
@@ -560,8 +598,15 @@ def toCSVLumiByLSXing(lumidata,scalefactor,filename):
                 result.append(bxresult)
             else:
                 result.append([run,cmslsnum,deliveredlumi*scalefactor,recordedlumi*scalefactor])
-    r.writeRow(fieldnames)
-    r.writeRows(result)
+    r=None
+    if filename.upper()=='STDOUT':
+        r=sys.stdout
+        r.write(','.join(fieldnames)+'\n')
+        for l in result:
+            r.write(str(l)+'\n')
+    else:
+        r.writeRow(fieldnames)
+        r.writeRows(result)
     
 def toScreenLSTrg(trgdata,iresults=[],isverbose=False):
     '''
@@ -606,7 +651,6 @@ def toCSVLSTrg(trgdata,filename,iresults=[],isverbose=False):
     input:{run:[[cmslsnum,deadfrac,deadtimecount,bitzero_count,bitzero_prescale,[(name,count,presc),]],..]
     '''
     result=[]
-    r=csvReporter.csvReporter(filename)
     fieldnames=['Run','LS','dfrac','dcount','bit,cout,presc']
     for rline in iresults:
         result.append(rline)
@@ -631,8 +675,16 @@ def toCSVLSTrg(trgdata,filename,iresults=[],isverbose=False):
                 result.append([run,cmslsnum,deadfrac,dcount,bitdataStr])
             else:
                 result.append([run,cmslsnum,deadfrac,dcount])
-    r.writeRow(fieldnames)
-    r.writeRows(result)
+    assert(filename)
+    if filename.upper()=='STDOUT':
+        r=sys.stdout
+        r.write(','.join(fieldnames)+'\n')
+        for l in result:
+            r.write(str(l)+'\n')
+    else:
+        r=csvReporter.csvReporter(filename)
+        r.writeRow(fieldnames)
+        r.writeRows(result)
     
 def toScreenConfTrg(trgconfdata,iresults=[],isverbose=False):
     '''
@@ -673,7 +725,6 @@ def toCSVConfTrg(trgconfdata,filename,iresults=[],isverbose=False):
     input {run:[datasource,normbitname,[allbits]]}
     '''
     result=[]
-    r=csvReporter.csvReporter(filename)
     fieldnames=['Run','source','bitnames']
     if isverbose:
         fieldnames.append('normbit')
@@ -697,8 +748,16 @@ def toCSVConfTrg(trgconfdata,filename,iresults=[],isverbose=False):
             result.append([run,datasource,bitnames,normbit])
         else:
             result.append([run,datasource,bitnames])
-    r.writeRow(fieldnames)
-    r.writeRows(result)
+    assert(filename)
+    if filename.upper()=='STDOUT':
+        r=sys.stdout
+        r.write(','.join(fieldnames)+'\n')
+        for l in result:
+            r.write(str(l)+'\n')
+    else:
+        r=csvReporter.csvReporter(filename)
+        r.writeRow(fieldnames)
+        r.writeRows(result)
 
 def toScreenLSHlt(hltdata,iresults=[],isverbose=False):
     '''
@@ -752,7 +811,6 @@ def toCSVLSHlt(hltdata,filename,iresults=None,isverbose=False):
     input:{runnumber:[(cmslsnum,[(hltpath,hltprescale,l1pass,hltaccept),...]),(cmslsnum,[])})}
     '''
     result=[]
-    r=csvReporter.csvReporter(filename)
     fieldnames=['Run','LS','hltpath,hltprescale']
     if isverbose:
         fieldnames[-1]+=',l1pass,hltaccept'
@@ -792,8 +850,17 @@ def toCSVLSHlt(hltdata,filename,iresults=None,isverbose=False):
                 allbitsresult.append(mybitStr)
             allbitsresult=';'.join(allbitsresult)
             result.append([run,cmslsnum,allbitsresult])
-    r.writeRow(fieldnames)
-    r.writeRows(result)
+            
+    assert(filename)
+    if filename.upper()=='STDOUT':
+        r=sys.stdout
+        r.write(','.join(fieldnames)+'\n')
+        for l in result:
+            r.write(str(l)+'\n')
+    else:
+        r=csvReporter.csvReporter(filename)
+        r.writeRow(fieldnames)
+        r.writeRows(result)        
     
 def toScreenConfHlt(hltconfdata,iresults=[],isverbose=False):
     '''
@@ -837,9 +904,6 @@ def toCSVConfHlt(hltconfdata,filename,iresults=[],isverbose=False):
     input:{runnumber,[(hltpath,l1seedexpr,l1bitname),...]}
     '''
     result=[]
-    r=csvReporter.csvReporter(filename)
-    fieldnames=['Run','hltpath','l1seedexpr','l1bit']
-    result=[]
     for rline in iresults:
         result.append(rline)
     for run in sorted(hltconfdata):
@@ -854,9 +918,18 @@ def toCSVConfHlt(hltconfdata,filename,iresults=[],isverbose=False):
             if not thisbit:
                 thisbit='n/a'
             result.append([str(run),thispath,thisseed,thisbit])
-    r.writeRow(fieldnames)
-    r.writeRows(result)
-
+    fieldnames=['Run','hltpath','l1seedexpr','l1bit']
+    assert(filename)
+    if filename.upper()=='STDOUT':
+        r=sys.stdout
+        r.write(','.join(fieldnames)+'\n')
+        for l in result:
+            r.write(str(l)+'\n')
+    else:
+        r=csvReporter.csvReporter(filename)
+        r.writeRow(fieldnames)
+        r.writeRows(result)
+        
 def toScreenLSBeam(beamdata,iresults=[],dumpIntensity=False,isverbose=False):
     '''
     input: {run:[(lumilsnum(0),cmslsnum(1),beamstatus(2),beamenergy(3),beaminfolist(4)),..]}
@@ -905,7 +978,6 @@ def toCSVLSBeam(beamdata,filename,resultlines,dumpIntensity=False,isverbose=Fals
     beaminfolist:[(bxidx,b1,b2)]
     '''
     result=[]
-    r=csvReporter.csvReporter(filename)
     fieldnames=['Run','LS','beamstatus','egev']
     if dumpIntensity:
         fieldnames.append('(bxidx,b1,b2)')
@@ -938,5 +1010,14 @@ def toCSVLSBeam(beamdata,filename,resultlines,dumpIntensity=False,isverbose=Fals
                 allbxresult.append(thisbxresultStr)
             allbxresultStr=' '.join(allbxresult)
             result.append([str(run),str(lumilsnum)+':'+str(cmslsnum),beamstatus,'%.2f'%beamenergy,allbxresultStr])
-    r.writeRow(fieldnames)
-    r.writeRows(result)
+    assert(filename)
+    if filename.upper()=='STDOUT':
+        r=sys.stdout
+        r.write(','.join(fieldnames)+'\n')
+        for l in result:
+            r.write(str(l)+'\n')
+    else:
+        r=csvReporter.csvReporter(filename)
+        r.writeRow(fieldnames)
+        r.writeRows(result)
+
