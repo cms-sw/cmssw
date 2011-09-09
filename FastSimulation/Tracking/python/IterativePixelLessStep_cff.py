@@ -35,7 +35,7 @@ iterativePixelLessSeeds.primaryVertices = ['none']
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 iterativePixelLessTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
 iterativePixelLessTrackCandidates.SeedProducer = cms.InputTag("iterativePixelLessSeeds","PixelLessPairs")
-iterativePixelLessTrackCandidates.TrackProducers = ['firstfilter', 'secfilter','thfilter'] # add 0 and 0.5 ?
+iterativePixelLessTrackCandidates.TrackProducers = ['zeroStepFilter', 'zerofivefilter', 'firstfilter', 'secfilter','thfilter'] # add 0 and 0.5 ?
 iterativePixelLessTrackCandidates.KeepFittedTracks = False
 iterativePixelLessTrackCandidates.MinNumberOfCrossedLayers = 6 # was 5
 
@@ -75,15 +75,15 @@ src = 'iterativePixelLessTrackMerging',
 ##keepAllTracks = True
 copyExtras = True,
 copyTrajectories = True,
-chi2n_par = 0.3,
+chi2n_par = 0.5,
 res_par = ( 0.003, 0.001 ),
-minNumberLayers = 6,
+minNumberLayers = 5,
 minNumber3DLayers = 3,
-maxNumberLostLayers = 0,
-d0_par1 = ( 1.0, 4.0 ),
-dz_par1 = ( 1.0, 4.0 ),
-d0_par2 = ( 1.0, 4.0 ),
-dz_par2 = ( 1.0, 4.0 )
+maxNumberLostLayers = 1,
+d0_par1 = ( 1.5, 4.0 ),
+dz_par1 = ( 1.5, 4.0 ),
+d0_par2 = ( 1.5, 4.0 ),
+dz_par2 = ( 1.5, 4.0 )
 )
 
 foufilter = cms.EDProducer("QualityFilter",
