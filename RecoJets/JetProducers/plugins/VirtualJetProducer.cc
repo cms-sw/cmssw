@@ -518,7 +518,7 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
 	}
       */
       clusterSequenceWithArea->get_median_rho_and_sigma(*fjRangeDef_,false,*rho,*sigma,mean_area);
-      if((*rho < 0)|| (isnan(*rho))) {
+      if((*rho < 0)|| (std::isnan(*rho))) {
 	edm::LogError("BadRho") << "rho value is " << *rho << " area:" << mean_area << " and n_empty_jets: " << clusterSequenceWithArea->n_empty_jets(*fjRangeDef_) << " with range " << fjRangeDef_->description()
 				<<". Setting rho to rezo.";
 	*rho = 0;
