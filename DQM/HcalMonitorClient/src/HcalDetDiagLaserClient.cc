@@ -14,8 +14,8 @@
 /*
  * \file HcalDetDiagLaserClient.cc
  * 
- * $Date: 2010/03/20 20:55:43 $
- * $Revision: 1.3.4.5 $
+ * $Date: 2010/03/25 16:47:29 $
+ * $Revision: 1.5 $
  * \author J. Temple
  * \brief Hcal DetDiagLaser Client class
  */
@@ -61,6 +61,8 @@ HcalDetDiagLaserClient::HcalDetDiagLaserClient(std::string myname, const edm::Pa
 						   ps.getUntrackedParameter<double>("minerrorrate",0.05));
   minevents_    = ps.getUntrackedParameter<int>("DetDiagLaser_minevents",
 						ps.getUntrackedParameter<int>("minevents",1));
+  Online_                = ps.getUntrackedParameter<bool>("online",false);
+
   ProblemCells=0;
   ProblemCellsByDepth=0;
 }

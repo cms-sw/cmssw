@@ -13,7 +13,6 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"

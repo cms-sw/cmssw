@@ -5,7 +5,3 @@ lumi::Exception::Exception(const std::string& message,
 lumi::nonCollisionException::nonCollisionException(
 			   const std::string& methodName,
 			   const std::string& moduleName):lumi::Exception("not a collision run" , methodName,moduleName) {}
-lumi::invalidDataException::invalidDataException(
-			   const std::string& message,			 
-			   const std::string& methodName,
-			   const std::string& moduleName):lumi::Exception("invalid data :"+message,methodName,moduleName) {}

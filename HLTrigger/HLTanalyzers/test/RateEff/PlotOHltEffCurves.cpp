@@ -142,12 +142,12 @@ void OHltTree::PlotOHltEffCurves(
    }
    else if (ohltobject == "jet")
    {
-      nhlt=NrecoJetCorCal;
+      nhlt=NohJetCorCal;
       for (int i=0; i<nhlt; i++)
       {
-         hltpt[i] = recoJetCorCalPt[i];
-         hlteta[i] = recoJetCorCalEta[i];
-         hltphi[i] = recoJetCorCalPhi[i];
+         hltpt[i] = ohJetCorCalPt[i];
+         hlteta[i] = ohJetCorCalEta[i];
+         hltphi[i] = ohJetCorCalPhi[i];
       }
       if (cfg->selectBranchL1extra)
          nl1= NL1CenJet;
@@ -158,12 +158,12 @@ void OHltTree::PlotOHltEffCurves(
          l1phi[i] = L1CenJetPhi[i];
       }
       if (cfg->selectBranchReco)
-         nrec=NrecoJetCorCal;
+         nrec=NohJetCorCal;
       for (int i=0; i<nrec; i++)
       {
-         recopt[i] = recoJetCorCalPt[i];
-         recoeta[i] = recoJetCorCalEta[i];
-         recophi[i] = recoJetCorCalPhi[i];
+         recopt[i] = ohJetCorCalPt[i];
+         recoeta[i] = ohJetCorCalEta[i];
+         recophi[i] = ohJetCorCalPhi[i];
       }
       mctruthpid = 21; // gluons - probably should be GenJets or something
    }

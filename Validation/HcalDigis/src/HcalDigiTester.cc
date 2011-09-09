@@ -375,18 +375,8 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
         // single ts amplitude
 	double val = (tool[ii]-calibrations.pedestal(capid));
 
-	if (val > 10.) {
-	  if (depth == 1) 
-	    monitor()->fillmeAll10slices_depth1(double(ii), val);
-          else 
-	    monitor()->fillmeAll10slices_depth2(double(ii), val);
-	}
-	if (val > 100.) {
-	  if (depth == 1) 
-	    monitor()->fillmeAll10slices1D_depth1(double(ii), val);
-          else 
-	    monitor()->fillmeAll10slices1D_depth2(double(ii), val);
-	}
+	if (val > 10.)  monitor()->fillmeAll10slices(double(ii), val);
+	if (val > 100.) monitor()->fillmeAll10slices1D(double(ii), val);
  	
 	if( closen == 1 &&( ieta * zsign >= 0 )) { 
 	  monitor()->fillmeSignalTimeSlice(double(ii), val);

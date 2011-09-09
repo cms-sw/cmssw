@@ -1,9 +1,12 @@
 #ifndef DDD_graph_h
 #define DDD_graph_h
 
+//#include <pair>
 #include <vector>
 #include <map>
 #include <iostream>
+
+
 
 // Adjecencylist graph
 
@@ -11,70 +14,59 @@
 template <class N, class E> 
 class graph
 {
+
 public:
-  typedef std::vector<double>::size_type index_type;
-  // (node-index target, edge)
-  typedef std::pair<index_type, index_type> edge_type;
-  // (std::vector of edge_types for the adj_list)
-  typedef std::vector<edge_type> edge_list;
-  // (node-index -> edge_list) the adjacency-list
-  typedef std::vector<edge_list> adj_list;
-  
   class const_iterator
   {
-    friend class graph<N, E>;
-  public:
+    friend class graph<N,E>;
+   public:
     typedef typename graph::index_type index_type;
     typedef typename graph::adj_list adj_list;
     typedef typename graph::edge_list edge_list;
     
-    struct value_type
-    {
+    struct value_type {
       friend class graph<N,E>::const_iterator;
-      value_type( const graph & g, index_type a, index_type e ) 
-	: gr_( g ), a_( a ), e_( e ) 
-	{ }
+      value_type(const graph & g, index_type a, index_type e) 
+       : gr_(g), a_(a), e_(e) 
+       { }
       
-      const N & from( void ) const { return gr_.nodeData( a_ ); }
-      const N & to( void )   const { return gr_.nodeData( gr_.adjl_[a_][e_].first ); }
-      const E & edge( void ) const { return gr_.edgeData( gr_.adjl_[a_][e_].second ); }
+      const N & from() const { return gr_.nodeData(a_); }
+      const N & to()   const { return gr_.nodeData(gr_.adjl_[a_][e_].first); }
+      const E & edge() const { return gr_.edgeData(gr_.adjl_[a_][e_].second); }
       
-    private:
-      const graph & gr_;
-      index_type a_, e_;       
+      private:
+        const graph & gr_;
+	 index_type a_,e_;       
     };
     
     typedef value_type& reference;
     typedef value_type* pointer;
        
-    bool operator==( const const_iterator & i ) const {  
-      return (( vt_.a_ == i.vt_.a_ ) && ( vt_.e_ == i.vt_.e_ )) ? true : false;
+    bool operator==(const const_iterator & i) const {  
+     return ( (vt_.a_ == i.vt_.a_) && (vt_.e_ == i.vt_.e_) ) ? true : false;
     }
     
-    bool operator!=( const const_iterator & i ) const {
-      return (( vt_.a_ == i.vt_.a_ ) && ( vt_.e_ == i.vt_.e_ )) ? false : true;
+    bool operator!=(const const_iterator & i) const {
+      return ( (vt_.a_ == i.vt_.a_) && (vt_.e_ == i.vt_.e_) ) ? false : true;
     }
 
     void operator++() {
-      while( vt_.gr_.size() > vt_.a_ )
-      {
+      while(vt_.gr_.size() > vt_.a_){
+       // std::cout << "                   it++: ait=" << vt_.a_ << "  eit=" << vt_.e_ << std::endl;      
         index_type i = vt_.gr_.adjl_[vt_.a_].size();
-        if( i > vt_.e_+1 )
-	{
-	  ++vt_.e_;
-	  return;
-	}
-	vt_.e_=0;
-	++vt_.a_;
-	while( vt_.gr_.size() > vt_.a_ )
-	{
-	  if( vt_.gr_.adjl_[vt_.a_].size())
-	  {
-	    return;
-	  }
+        if (i > vt_.e_+1) {
+  	   ++vt_.e_;
+	   return;
+	 }
+	 vt_.e_=0;
+	 ++vt_.a_;
+	 while( vt_.gr_.size() > vt_.a_ ) {
+	   if ( vt_.gr_.adjl_[vt_.a_].size() ) {
+	     return;
+	   }
 	  ++vt_.a_;
-	}
-      } 
+      }
+     } 
     }
 
     const value_type & operator*() const {
@@ -85,27 +77,27 @@ public:
       return &vt_;
     }  
     
-  private:
-    explicit const_iterator( const graph & g )
-      : vt_( g, 0, 0 )
-      {}
+    private:
+      explicit const_iterator(const graph & g)
+       : vt_(g, 0, 0)
+       { }
       
-    const_iterator( const graph & g, index_type ait, index_type eit ) 
-      : vt_( g, ait, eit )
-      {} 
+      const_iterator(const graph & g, index_type ait, index_type eit) 
+	: vt_(g, ait, eit)
+	{ 	} 
        
-    value_type vt_;
+      value_type vt_;
       
-    bool operator<( const const_iterator & i ) const { 
-      return ( vt_.a_ < i.vt_.a_ ) && ( vt_.e_ < i.vt_.e_ );
-    }
+      bool operator<(const const_iterator & i) const { 
+        return ( vt_.a_ < i.vt_.a_ ) && ( vt_.e_ < i.vt_.e_);
+      }
 
-    bool operator>(const const_iterator & i) const {
-      return ( vt_.a_ > i.vt_.a_ ) && ( vt_.e_ > i.vt_.e_ );
-    }
+      bool operator>(const const_iterator & i) const {
+        return ( vt_.a_ > i.vt_.a_ ) && ( vt_.e_ > i.vt_.e_);
+      }
   };
 
-  void dump_graph( void ) const;  
+  void dump_graph() const;  
   // Graphtypes
   
   struct value_type {
@@ -115,12 +107,21 @@ public:
     N firstToValue() const { return first; }
     E secondToValue() const { return second; }
   };
-
+  
+  typedef std::vector<double>::size_type index_type;
+  
+  // (node-index target, edge)
+  typedef std::pair<index_type, index_type> edge_type;
+  
   // (node-index -> node)
   typedef std::vector<N> node_list;
   typedef std::vector<E> edge_store;
   
+  // (std::vector of edge_types for the adj_list)
+  typedef std::vector<edge_type> edge_list;
+
   // (node-index -> edge_list) the adjacency-list
+  typedef std::vector<edge_list> adj_list;
   typedef typename adj_list::iterator adj_iterator;
   typedef typename adj_list::const_iterator const_adj_iterator;
     
@@ -208,7 +209,7 @@ public:
 
   void swap( graph<N, E> & );
   
-  // Data   
+// Data   
 private:
   
   // adjacency list
@@ -276,16 +277,16 @@ void graph<N,E>::addEdge(const N & from, const N & to, const E & edge)
 template<class N, class E>
 typename graph<N,E>::edge_range graph<N,E>::edges(index_type nodeIndex)
 {
-  edge_list & edges = adjl_[nodeIndex];
-  return edge_range(edges.begin(), edges.end());
+   edge_list & edges = adjl_[nodeIndex];
+   return edge_range(edges.begin(), edges.end());
 }
 
 
 template<class N, class E>
 typename graph<N,E>::const_edge_range graph<N,E>::edges(index_type nodeIndex) const
 {
-  const edge_list & edges = adjl_[nodeIndex];
-  return const_edge_range(edges.begin(), edges.end());
+   const edge_list & edges = adjl_[nodeIndex];
+   return const_edge_range(edges.begin(), edges.end());
 }
 
 
@@ -336,45 +337,45 @@ const N & graph<N,E>::nodeData(const const_adj_iterator & it) const
 template<class N, class E>
 void graph<N,E>::findRoots(edge_list & result) const
 {
-  result.clear();
+   result.clear();
       
-  const_adj_iterator it = begin();   
-  const_adj_iterator ed = end();
-  std::vector<bool> rootCandidate(size(), true);
+   const_adj_iterator it = begin();   
+   const_adj_iterator ed = end();
+   std::vector<bool> rootCandidate(size(), true);
   
-  for (; it != ed; ++it) {
-    const edge_list & el = *it;
-    typename edge_list::const_iterator el_it = el.begin();
-    typename edge_list::const_iterator el_ed = el.end();
-    for (; el_it != el_ed; ++el_it) {
-      rootCandidate[el_it->first]=false; 
-      //el_rt = el_it; // stop at the first encountered candidate!
-      //std::cout << "graphwalker: found a root candidate = " << g.nodeData(el_rt->first) << std::endl;
-      //break; 
-    }
-  }
-  std::vector<bool>::size_type v_sz = 0;
-  std::vector<bool>::size_type v_ed = rootCandidate.size();
-  for (; v_sz < v_ed; ++v_sz) {
-    if (rootCandidate[v_sz]) {
-      //std::cout << "found = " << g.nodeData(v_sz) << std::endl;
-      result.push_back(edge_type(v_sz,0));    
-    }
-  }  
+   for (; it != ed; ++it) {
+      const edge_list & el = *it;
+      typename edge_list::const_iterator el_it = el.begin();
+      typename edge_list::const_iterator el_ed = el.end();
+      for (; el_it != el_ed; ++el_it) {
+         rootCandidate[el_it->first]=false; 
+	  //el_rt = el_it; // stop at the first encountered candidate!
+	  //std::cout << "graphwalker: found a root candidate = " << g.nodeData(el_rt->first) << std::endl;
+	  //break; 
+      }
+   }
+   std::vector<bool>::size_type v_sz = 0;
+   std::vector<bool>::size_type v_ed = rootCandidate.size();
+   for (; v_sz < v_ed; ++v_sz) {
+     if (rootCandidate[v_sz]) {
+       //std::cout << "found = " << g.nodeData(v_sz) << std::endl;
+       result.push_back(edge_type(v_sz,0));    
+     }
+   }  
 }
 
 template<class N, class E>
 bool graph<N,E>::replace(const N & oldNode, const N & newNode)
 {
-  typename indexer_type::iterator it = indexer_.find(oldNode);
-  if (it != indexer_.end()) {
-    index_type oldIndex = it->second;
-    nodes_[oldIndex]=newNode;
-    indexer_[newNode]=oldIndex;
-    indexer_.erase(it);
-  }  
-  else throw(oldNode);
-  return true;   
+   typename indexer_type::iterator it = indexer_.find(oldNode);
+   if (it != indexer_.end()) {
+     index_type oldIndex = it->second;
+     nodes_[oldIndex]=newNode;
+     indexer_[newNode]=oldIndex;
+     indexer_.erase(it);
+   }  
+   else throw(oldNode);
+   return true;   
 }
 
 template<class N, class E>
@@ -410,36 +411,36 @@ template<class N, class E>
 void graph<N,E>::dump_graph() const
 {
   //  std::cout << adjl_ << std::endl;
-  /*
-    std::cout << "Nodes and their indices:" << std::endl;
-    typename indexer_type::const_iterator it = indexer_.begin();
-    for (; it != indexer_.end(); ++it) {
-    std::cout << ' ' << it->first << ' ' << it->second << std::endl;
-    }
-  */   
+/*
+   std::cout << "Nodes and their indices:" << std::endl;
+   typename indexer_type::const_iterator it = indexer_.begin();
+   for (; it != indexer_.end(); ++it) {
+      std::cout << ' ' << it->first << ' ' << it->second << std::endl;
+   }
+*/   
 }
 
 
 template<class N, class E>
 void graph<N,E>::invert(graph<N,E> & g) const
 {
-  adj_list::size_type it = 0;
-  adj_list::size_type ed = adjl_.size();
-  // loop over adjacency-list of this graph
-  for (; it < ed; ++it) {
-    const edge_list & el = adjl_[it];
-    edge_list::size_type eit = 0;
-    edge_list::size_type eed = el.size();
-    // loop over edges of current node
-    for (; eit < eed; ++eit) {
-      const edge_type & e = el[eit];
-      g.addEdge(nodeData(e.first), nodeData(it), edgeData(e.second));
+    adj_list::size_type it = 0;
+    adj_list::size_type ed = adjl_.size();
+    // loop over adjacency-list of this graph
+    for (; it < ed; ++it) {
+      const edge_list & el = adjl_[it];
+      edge_list::size_type eit = 0;
+      edge_list::size_type eed = el.size();
+      // loop over edges of current node
+      for (; eit < eed; ++eit) {
+         const edge_type & e = el[eit];
+         g.addEdge(nodeData(e.first), nodeData(it), edgeData(e.second));
+      } 
     } 
-  } 
 }
 
 template<class N, class E>
-void graph<N,E>::swap( graph<N, E> & g) { 
+  void graph<N,E>::swap( graph<N, E> & g) { 
   adjl_.swap(g.adjl_);
   nodes_.swap(g.nodes_);
   edges_.swap(g.edges_);

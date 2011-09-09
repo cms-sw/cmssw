@@ -1,9 +1,0 @@
-This package contains two python scripts and a RooFit macro that can be used to generate a background function binned in eta
-for the J/Psi.
-
-RunAllEtaBins.py runs MuScleFit over all the bins specified therein (bins of (eta_mu1, eta_mu2) to take into account correlations)
-to produce the plots (1 iteration without any fit).
-It then runs the macro CrystalBallFitOnData_JPsi.cc to fit the background.
-Look in RunAllEtaBins.py for more detailed instructions.
-
-After this, you can run BuildBackgrounFunction.py to produce the code of the function to be inserted in Functions.h

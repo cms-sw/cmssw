@@ -123,8 +123,8 @@ void BetaCalculatorECAL::addInfoToCandidate(HSCParticle& candidate, edm::Handle<
        sumTrackLength+=mapIt->second;
        sumEnergy+=hit.energy();
        crossedRecHits.push_back(hit);
-       result.ecalSwissCrossKs.push_back(EcalSeverityLevelAlgo::spikeFromNeighbours(ebDetId,(*ebRecHits),0.2,EcalSeverityLevelAlgo::kSwissCross));
-       result.ecalE1OverE9s.push_back(EcalSeverityLevelAlgo::spikeFromNeighbours(ebDetId,(*ebRecHits),0.2,EcalSeverityLevelAlgo::kE1OverE9));
+//       result.ecalSwissCrossKs.push_back(EcalSeverityLevelAlgo::spikeFromNeighbours(ebDetId,(*ebRecHits),0.2,EcalSeverityLevelAlgo::kSwissCross));
+//       result.ecalE1OverE9s.push_back(EcalSeverityLevelAlgo::spikeFromNeighbours(ebDetId,(*ebRecHits),0.2,EcalSeverityLevelAlgo::kE1OverE9));
        result.ecalTrackLengths.push_back(mapIt->second);
        result.ecalTrackExitPositions.push_back(trackExitMapIt->second);
        result.ecalEnergies.push_back(hit.energy());

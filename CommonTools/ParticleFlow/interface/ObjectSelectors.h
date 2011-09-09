@@ -1,5 +1,5 @@
-#ifndef PhysicsTools_PFCandProducer_ObjectSelectors
-#define PhysicsTools_PFCandProducer_ObjectSelectors
+#ifndef CommonTools_ParticleFlow_ObjectSelectors
+#define CommonTools_ParticleFlow_ObjectSelectors
 
 #include "CommonTools/ParticleFlow/interface/ObjectSelector.h"
 #include "CommonTools/ParticleFlow/interface/PtMinPFCandidateSelectorDefinition.h"

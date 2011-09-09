@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2009/12/22 17:41:43 $
- *  $Revision: 1.22 $
+ *  $Date: 2010/01/22 18:42:41 $
+ *  $Revision: 1.23 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -14,6 +14,8 @@
 #include "DQMOffline/Muon/src/MuonRecoAnalyzer.h"
 #include "DQMOffline/Muon/src/SegmentTrackAnalyzer.h"
 #include "DQMOffline/Muon/src/MuonKinVsEtaAnalyzer.h"
+#include "DQMOffline/Muon/src/DiMuonHistograms.h"
+
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -60,7 +62,8 @@ MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& pSet) {
   theMuonRecoAnalyzerFlag = parameters.getUntrackedParameter<bool>("DoMuonRecoAnalysis",true);
   theMuonSegmentsAnalyzerFlag = parameters.getUntrackedParameter<bool>("DoTrackSegmentsAnalysis",true);
   theMuonKinVsEtaAnalyzerFlag = parameters.getUntrackedParameter<bool>("DoMuonKinVsEtaAnalysis",false);
-
+  theDiMuonHistogramsFlag = parameters.getUntrackedParameter<bool>("DoDiMuonHistograms",true);
+  
   // do the analysis on muon energy
   if(theMuEnergyAnalyzerFlag)
     theMuEnergyAnalyzer = new MuonEnergyDepositAnalyzer(parameters.getParameter<ParameterSet>("muonEnergyAnalysis"), theService);
@@ -73,17 +76,19 @@ MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& pSet) {
   // do the analysis of kin quantities in eta regions
   if(theMuonRecoAnalyzerFlag)
     theMuonKinVsEtaAnalyzer = new MuonKinVsEtaAnalyzer(parameters.getParameter<ParameterSet>("muonKinVsEtaAnalysis"), theService);
+  if(theDiMuonHistogramsFlag)
+    theDiMuonHistograms = new DiMuonHistograms(parameters.getParameter<ParameterSet>("dimuonHistograms"), theService);
   // do the analysis on muon track segments
   if(theMuonSegmentsAnalyzerFlag){
     // analysis on glb muon tracks
     ParameterSet  trackGlbMuAnalysisParameters = parameters.getParameter<ParameterSet>("trackSegmentsAnalysis");
     trackGlbMuAnalysisParameters.addParameter<edm::InputTag>("MuTrackCollection",
-						    theGlbMuTrackCollectionLabel);
+							     theGlbMuTrackCollectionLabel);
     theGlbMuonSegmentsAnalyzer = new SegmentTrackAnalyzer(trackGlbMuAnalysisParameters, theService);
     // analysis on sta muon tracks
     ParameterSet  trackStaMuAnalysisParameters = parameters.getParameter<ParameterSet>("trackSegmentsAnalysis");
     trackStaMuAnalysisParameters.addParameter<edm::InputTag>("MuTrackCollection",
-						    theStaMuTrackCollectionLabel);
+							     theStaMuTrackCollectionLabel);
     theStaMuonSegmentsAnalyzer = new SegmentTrackAnalyzer(trackStaMuAnalysisParameters, theService);
   }
 }
@@ -100,6 +105,9 @@ MuonAnalyzer::~MuonAnalyzer() {
   }
   if(theMuonKinVsEtaAnalyzerFlag) {
     delete theMuonKinVsEtaAnalyzer;
+  }
+  if(theDiMuonHistogramsFlag) {
+    delete theDiMuonHistograms;
   }
 }
 
@@ -120,6 +128,10 @@ void MuonAnalyzer::beginJob(void) {
   }
   if(theMuonKinVsEtaAnalyzerFlag) {
     theMuonKinVsEtaAnalyzer->beginJob(theDbe);
+  }
+
+  if(theDiMuonHistogramsFlag) {
+    theDiMuonHistograms->beginJob(theDbe);
   }
 
 }
@@ -150,8 +162,12 @@ void MuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	 theMuonKinVsEtaAnalyzer->analyze(iEvent, iSetup, *recoMu);
        }
      }
+     
+     if (theDiMuonHistogramsFlag){
+       LogTrace(metname)<<"[MuonAnalyzer] Call to the dimuon analyzer";
+       theDiMuonHistograms->analyze(iEvent,iSetup);
+     }
    }
-
 
    // Take the track containers
    Handle<reco::TrackCollection> glbTracks;

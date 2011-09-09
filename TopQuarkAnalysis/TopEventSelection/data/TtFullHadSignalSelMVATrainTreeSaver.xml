@@ -20,28 +20,49 @@
 		   <var source="input" name="sqrt_s"            />
 		   <var source="input" name="Et56"              />
 		   <var source="input" name="M3"                />
+		   <var source="input" name="TCHE_Bjets"        />
 		   <var source="input" name="TCHP_Bjets"        />
-		   <var source="input" name="SSV_Bjets"         />
+		   <var source="input" name="SSVHE_Bjets"       />
+		   <var source="input" name="SSVHP_Bjets"       />
 		   <var source="input" name="CSV_Bjets"         />
+		   <var source="input" name="CSVMVA_Bjets"      />
 		   <var source="input" name="SM_Bjets"          />
+		   <var source="input" name="TCHE_Bjet1"        />
+		   <var source="input" name="TCHE_Bjet2"        />
+		   <var source="input" name="TCHE_Bjet3"        />
+		   <var source="input" name="TCHE_Bjet4"        />
+		   <var source="input" name="TCHE_Bjet5"        />
+		   <var source="input" name="TCHE_Bjet6"        />
 		   <var source="input" name="TCHP_Bjet1"        />
 		   <var source="input" name="TCHP_Bjet2"        />
 		   <var source="input" name="TCHP_Bjet3"        />
 		   <var source="input" name="TCHP_Bjet4"        />
 		   <var source="input" name="TCHP_Bjet5"        />
 		   <var source="input" name="TCHP_Bjet6"        />
-		   <var source="input" name="SSV_Bjet1"         />
-		   <var source="input" name="SSV_Bjet2"         />
-		   <var source="input" name="SSV_Bjet3"         />
-		   <var source="input" name="SSV_Bjet4"         />
-		   <var source="input" name="SSV_Bjet5"         />
-		   <var source="input" name="SSV_Bjet6"         />
+		   <var source="input" name="SSVHE_Bjet1"       />
+		   <var source="input" name="SSVHE_Bjet2"       />
+		   <var source="input" name="SSVHE_Bjet3"       />
+		   <var source="input" name="SSVHE_Bjet4"       />
+		   <var source="input" name="SSVHE_Bjet5"       />
+		   <var source="input" name="SSVHE_Bjet6"       />
+		   <var source="input" name="SSVHP_Bjet1"       />
+		   <var source="input" name="SSVHP_Bjet2"       />
+		   <var source="input" name="SSVHP_Bjet3"       />
+		   <var source="input" name="SSVHP_Bjet4"       />
+		   <var source="input" name="SSVHP_Bjet5"       />
+		   <var source="input" name="SSVHP_Bjet6"       />
 		   <var source="input" name="CSV_Bjet1"         />
 		   <var source="input" name="CSV_Bjet2"         />
 		   <var source="input" name="CSV_Bjet3"         />
 		   <var source="input" name="CSV_Bjet4"         />
 		   <var source="input" name="CSV_Bjet5"         />
 		   <var source="input" name="CSV_Bjet6"         />
+		   <var source="input" name="CSVMVA_Bjet1"      />
+		   <var source="input" name="CSVMVA_Bjet2"      />
+		   <var source="input" name="CSVMVA_Bjet3"      />
+		   <var source="input" name="CSVMVA_Bjet4"      />
+		   <var source="input" name="CSVMVA_Bjet5"      />
+		   <var source="input" name="CSVMVA_Bjet6"      />
 		   <var source="input" name="SM_Bjet1"          />
 		   <var source="input" name="SM_Bjet2"          />
 		   <var source="input" name="SM_Bjet3"          />
@@ -54,6 +75,48 @@
 		   <var source="input" name="pt4"               />
 		   <var source="input" name="pt5"               />
 		   <var source="input" name="pt6"               />
+		   <var source="input" name="EtSin2Theta1"      />
+		   <var source="input" name="EtSin2Theta2"      />
+		   <var source="input" name="EtSin2Theta3"      />
+		   <var source="input" name="EtSin2Theta4"      />
+		   <var source="input" name="EtSin2Theta5"      />
+		   <var source="input" name="EtSin2Theta6"      />
+		   <var source="input" name="EtSin2Theta3jet"   />
+		   <var source="input" name="theta1"            />
+		   <var source="input" name="theta2"            />
+		   <var source="input" name="theta3"            />
+		   <var source="input" name="theta4"            />
+		   <var source="input" name="theta5"            />
+		   <var source="input" name="theta6"            />
+		   <var source="input" name="theta3jet"         />
+		   <var source="input" name="sinTheta1"         />
+		   <var source="input" name="sinTheta2"         />
+		   <var source="input" name="sinTheta3"         />
+		   <var source="input" name="sinTheta4"         />
+		   <var source="input" name="sinTheta5"         />
+		   <var source="input" name="sinTheta6"         />
+		   <var source="input" name="sinTheta3jet"      />
+		   <var source="input" name="thetaStar1"        />
+		   <var source="input" name="thetaStar2"        />
+		   <var source="input" name="thetaStar3"        />
+		   <var source="input" name="thetaStar4"        />
+		   <var source="input" name="thetaStar5"        />
+		   <var source="input" name="thetaStar6"        />
+		   <var source="input" name="thetaStar3jet"     />
+		   <var source="input" name="sinThetaStar1"     />
+		   <var source="input" name="sinThetaStar2"     />
+		   <var source="input" name="sinThetaStar3"     />
+		   <var source="input" name="sinThetaStar4"     />
+		   <var source="input" name="sinThetaStar5"     />
+		   <var source="input" name="sinThetaStar6"     />
+		   <var source="input" name="sinThetaStar3jet"  />
+		   <var source="input" name="EtStar1"           />
+		   <var source="input" name="EtStar2"           />
+		   <var source="input" name="EtStar3"           />
+		   <var source="input" name="EtStar4"           />
+		   <var source="input" name="EtStar5"           />
+		   <var source="input" name="EtStar6"           />
+		   <var source="input" name="EtStar3jet"        />
 		   <var source="input" name="pt1_pt2"           />
 		   <var source="input" name="pt1_pt3"           />
 		   <var source="input" name="pt1_pt4"           />
@@ -102,9 +165,87 @@
 		   <var source="input" name="jet4_phiphiMoment" />
 		   <var source="input" name="jet5_phiphiMoment" />
 		   <var source="input" name="jet6_phiphiMoment" />
+		   <var source="input" name="jet1_etaetaMomentMoment" />
+		   <var source="input" name="jet2_etaetaMomentMoment" />
+		   <var source="input" name="jet3_etaetaMomentMoment" />
+		   <var source="input" name="jet4_etaetaMomentMoment" />
+		   <var source="input" name="jet5_etaetaMomentMoment" />
+		   <var source="input" name="jet6_etaetaMomentMoment" />
+		   <var source="input" name="jet1_etaphiMomentMoment" />
+		   <var source="input" name="jet2_etaphiMomentMoment" />
+		   <var source="input" name="jet3_etaphiMomentMoment" />
+		   <var source="input" name="jet4_etaphiMomentMoment" />
+		   <var source="input" name="jet5_etaphiMomentMoment" />
+		   <var source="input" name="jet6_etaphiMomentMoment" />
+		   <var source="input" name="jet1_phiphiMomentMoment" />
+		   <var source="input" name="jet2_phiphiMomentMoment" />
+		   <var source="input" name="jet3_phiphiMomentMoment" />
+		   <var source="input" name="jet4_phiphiMomentMoment" />
+		   <var source="input" name="jet5_phiphiMomentMoment" />
+		   <var source="input" name="jet6_phiphiMomentMoment" />
+		   <var source="input" name="jet1_etaetaMomentLogEt" />
+		   <var source="input" name="jet2_etaetaMomentLogEt" />
+		   <var source="input" name="jet3_etaetaMomentLogEt" />
+		   <var source="input" name="jet4_etaetaMomentLogEt" />
+		   <var source="input" name="jet5_etaetaMomentLogEt" />
+		   <var source="input" name="jet6_etaetaMomentLogEt" />
+		   <var source="input" name="jet1_etaphiMomentLogEt" />
+		   <var source="input" name="jet2_etaphiMomentLogEt" />
+		   <var source="input" name="jet3_etaphiMomentLogEt" />
+		   <var source="input" name="jet4_etaphiMomentLogEt" />
+		   <var source="input" name="jet5_etaphiMomentLogEt" />
+		   <var source="input" name="jet6_etaphiMomentLogEt" />
+		   <var source="input" name="jet1_phiphiMomentLogEt" />
+		   <var source="input" name="jet2_phiphiMomentLogEt" />
+		   <var source="input" name="jet3_phiphiMomentLogEt" />
+		   <var source="input" name="jet4_phiphiMomentLogEt" />
+		   <var source="input" name="jet5_phiphiMomentLogEt" />
+		   <var source="input" name="jet6_phiphiMomentLogEt" />
+		   <var source="input" name="jet1_etaetaMomentMomentLogEt" />
+		   <var source="input" name="jet2_etaetaMomentMomentLogEt" />
+		   <var source="input" name="jet3_etaetaMomentMomentLogEt" />
+		   <var source="input" name="jet4_etaetaMomentMomentLogEt" />
+		   <var source="input" name="jet5_etaetaMomentMomentLogEt" />
+		   <var source="input" name="jet6_etaetaMomentMomentLogEt" />
+		   <var source="input" name="jet1_etaphiMomentMomentLogEt" />
+		   <var source="input" name="jet2_etaphiMomentMomentLogEt" />
+		   <var source="input" name="jet3_etaphiMomentMomentLogEt" />
+		   <var source="input" name="jet4_etaphiMomentMomentLogEt" />
+		   <var source="input" name="jet5_etaphiMomentMomentLogEt" />
+		   <var source="input" name="jet6_etaphiMomentMomentLogEt" />
+		   <var source="input" name="jet1_phiphiMomentMomentLogEt" />
+		   <var source="input" name="jet2_phiphiMomentMomentLogEt" />
+		   <var source="input" name="jet3_phiphiMomentMomentLogEt" />
+		   <var source="input" name="jet4_phiphiMomentMomentLogEt" />
+		   <var source="input" name="jet5_phiphiMomentMomentLogEt" />
+		   <var source="input" name="jet6_phiphiMomentMomentLogEt" />
+		   <var source="input" name="jet1_etaetaMomentNoB" />
+		   <var source="input" name="jet2_etaetaMomentNoB" />
+		   <var source="input" name="jet3_etaetaMomentNoB" />
+		   <var source="input" name="jet4_etaetaMomentNoB" />
+		   <var source="input" name="jet5_etaetaMomentNoB" />
+		   <var source="input" name="jet6_etaetaMomentNoB" />
+		   <var source="input" name="jet1_etaphiMomentNoB" />
+		   <var source="input" name="jet2_etaphiMomentNoB" />
+		   <var source="input" name="jet3_etaphiMomentNoB" />
+		   <var source="input" name="jet4_etaphiMomentNoB" />
+		   <var source="input" name="jet5_etaphiMomentNoB" />
+		   <var source="input" name="jet6_etaphiMomentNoB" />
+		   <var source="input" name="jet1_phiphiMomentNoB" />
+		   <var source="input" name="jet2_phiphiMomentNoB" />
+		   <var source="input" name="jet3_phiphiMomentNoB" />
+		   <var source="input" name="jet4_phiphiMomentNoB" />
+		   <var source="input" name="jet5_phiphiMomentNoB" />
+		   <var source="input" name="jet6_phiphiMomentNoB" />
 		   <var source="input" name="jets_etaetaMoment" />
 		   <var source="input" name="jets_etaphiMoment" />
 		   <var source="input" name="jets_phiphiMoment" />
+		   <var source="input" name="jets_etaetaMomentLogEt" />
+		   <var source="input" name="jets_etaphiMomentLogEt" />
+		   <var source="input" name="jets_phiphiMomentLogEt" />
+		   <var source="input" name="jets_etaetaMomentNoB" />
+		   <var source="input" name="jets_etaphiMomentNoB" />
+		   <var source="input" name="jets_phiphiMomentNoB" />
 		   <var source="input" name="aplanarity"        />
 		   <var source="input" name="sphericity"        />
 		   <var source="input" name="circularity"       />
@@ -112,15 +253,127 @@
 		   <var source="input" name="C"                 />
 		   <var source="input" name="D"                 />
 		   <var source="input" name="centrality"        />
+		   <var source="input" name="aplanarityAll"     />
+		   <var source="input" name="sphericityAll"     />
+		   <var source="input" name="circularityAll"    />
+		   <var source="input" name="isotropyAll"       />
+		   <var source="input" name="CAll"              />
+		   <var source="input" name="DAll"              />
+		   <var source="input" name="centralityAlt"     />
+		   <var source="input" name="aplanarityAllCMS"  />
+		   <var source="input" name="sphericityAllCMS"  />
+		   <var source="input" name="circularityAllCMS" />
+		   <var source="input" name="isotropyAllCMS"    />
+		   <var source="input" name="CAllCMS"           />
+		   <var source="input" name="DAllCMS"           />
+		   <var source="input" name="thrust"            />
+		   <var source="input" name="thrustCMS"         />
 		   <var source="input" name="dRMin1"            />
 		   <var source="input" name="dRMin2"            />
-		   <var source="input" name="sumDR3JetMin1"     />
-		   <var source="input" name="sumDR3JetMin2"     />
+		   <var source="input" name="dRMin3"            />
+		   <var source="input" name="dRMin4"            />
+		   <var source="input" name="dRMin5"            />
+		   <var source="input" name="dRMin6"            />
+		   <var source="input" name="dRMin7"            />
+		   <var source="input" name="dRMin8"            />
+		   <var source="input" name="dRMin9"            />
+		   <var source="input" name="dRMin10"           />
+		   <var source="input" name="dRMin11"           />
+		   <var source="input" name="dRMin12"           />
+		   <var source="input" name="dRMin13"           />
+		   <var source="input" name="dRMin14"           />
+		   <var source="input" name="dRMin15"           />
 		   <var source="input" name="dRMin1Mass"        />
 		   <var source="input" name="dRMin2Mass"        />
+		   <var source="input" name="dRMin3Mass"        />
+		   <var source="input" name="dRMin4Mass"        />
+		   <var source="input" name="dRMin5Mass"        />
+		   <var source="input" name="dRMin6Mass"        />
+		   <var source="input" name="dRMin7Mass"        />
+		   <var source="input" name="dRMin8Mass"        />
+		   <var source="input" name="dRMin9Mass"        />
+		   <var source="input" name="dRMin10Mass"       />
+		   <var source="input" name="dRMin11Mass"       />
+		   <var source="input" name="dRMin12Mass"       />
+		   <var source="input" name="dRMin13Mass"       />
+		   <var source="input" name="dRMin14Mass"       />
+		   <var source="input" name="dRMin15Mass"       />
+		   <var source="input" name="dRMin1Angle"       />
+		   <var source="input" name="dRMin2Angle"       />
+		   <var source="input" name="dRMin3Angle"       />
+		   <var source="input" name="dRMin4Angle"       />
+		   <var source="input" name="dRMin5Angle"       />
+		   <var source="input" name="dRMin6Angle"       />
+		   <var source="input" name="dRMin7Angle"       />
+		   <var source="input" name="dRMin8Angle"       />
+		   <var source="input" name="dRMin9Angle"       />
+		   <var source="input" name="dRMin10Angle"      />
+		   <var source="input" name="dRMin11Angle"      />
+		   <var source="input" name="dRMin12Angle"      />
+		   <var source="input" name="dRMin13Angle"      />
+		   <var source="input" name="dRMin14Angle"      />
+		   <var source="input" name="dRMin15Angle"      />
+		   <var source="input" name="sumDR3JetMin1"     />
+		   <var source="input" name="sumDR3JetMin2"     />
+		   <var source="input" name="sumDR3JetMin3"     />
+		   <var source="input" name="sumDR3JetMin4"     />
+		   <var source="input" name="sumDR3JetMin5"     />
+		   <var source="input" name="sumDR3JetMin6"     />
+		   <var source="input" name="sumDR3JetMin7"     />
+		   <var source="input" name="sumDR3JetMin8"     />
+		   <var source="input" name="sumDR3JetMin9"     />
+		   <var source="input" name="sumDR3JetMin10"    />
+		   <var source="input" name="sumDR3JetMin11"    />
+		   <var source="input" name="sumDR3JetMin12"    />
+		   <var source="input" name="sumDR3JetMin13"    />
+		   <var source="input" name="sumDR3JetMin14"    />
+		   <var source="input" name="sumDR3JetMin15"    />
+		   <var source="input" name="sumDR3JetMin16"    />
+		   <var source="input" name="sumDR3JetMin17"    />
+		   <var source="input" name="sumDR3JetMin18"    />
+		   <var source="input" name="sumDR3JetMin19"    />
+		   <var source="input" name="sumDR3JetMin20"    />
 		   <var source="input" name="sumDR3JetMin1Mass" />
 		   <var source="input" name="sumDR3JetMin2Mass" />
-                </input>
+		   <var source="input" name="sumDR3JetMin3Mass" />
+		   <var source="input" name="sumDR3JetMin4Mass" />
+		   <var source="input" name="sumDR3JetMin5Mass" />
+		   <var source="input" name="sumDR3JetMin6Mass" />
+		   <var source="input" name="sumDR3JetMin7Mass" />
+		   <var source="input" name="sumDR3JetMin8Mass" />
+		   <var source="input" name="sumDR3JetMin9Mass" />
+		   <var source="input" name="sumDR3JetMin10Mass"/>
+		   <var source="input" name="sumDR3JetMin11Mass"/>
+		   <var source="input" name="sumDR3JetMin12Mass"/>
+		   <var source="input" name="sumDR3JetMin13Mass"/>
+		   <var source="input" name="sumDR3JetMin14Mass"/>
+		   <var source="input" name="sumDR3JetMin15Mass"/>
+		   <var source="input" name="sumDR3JetMin16Mass"/>
+		   <var source="input" name="sumDR3JetMin17Mass"/>
+		   <var source="input" name="sumDR3JetMin18Mass"/>
+		   <var source="input" name="sumDR3JetMin19Mass"/>
+		   <var source="input" name="sumDR3JetMin20Mass"/>
+		   <var source="input" name="massDiffMWCands1"  />
+		   <var source="input" name="massDiffMWCands2"  />
+		   <var source="input" name="massDiffMWCands3"  />
+		   <var source="input" name="massDiffMWCands4"  />
+		   <var source="input" name="massDiffMWCands5"  />
+		   <var source="input" name="massDiffMWCands6"  />
+		   <var source="input" name="massDiffMWCands7"  />
+		   <var source="input" name="massDiffMWCands8"  />
+		   <var source="input" name="massDiffMWCands9"  />
+		   <var source="input" name="massDiffMWCands10" />
+		   <var source="input" name="massDiffMWCands11" />
+		   <var source="input" name="massDiffMWCands12" />
+		   <var source="input" name="massDiffMWCands13" />
+		   <var source="input" name="massDiffMWCands14" />
+		   <var source="input" name="massDiffMWCands15" />
+		   <var source="input" name="massDiffMWCands16" />
+		   <var source="input" name="massDiffMWCands17" />
+		   <var source="input" name="massDiffMWCands18" />
+		   <var source="input" name="massDiffMWCands19" />
+		   <var source="input" name="massDiffMWCands20" />
+               </input>
                 <config>
 
                 </config>

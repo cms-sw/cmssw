@@ -17,7 +17,7 @@
  
 HLTTrackerHaloFilter::HLTTrackerHaloFilter(const edm::ParameterSet& config) :
   inputTag_     (config.getParameter<edm::InputTag>("inputTag")),
-  saveTag_      (config.getUntrackedParameter<bool>("saveTag", false)),
+  saveTags_      (config.getParameter<bool>("saveTags")),
   max_clusTp_   (config.getParameter<int>("MaxClustersTECp")),
   max_clusTm_   (config.getParameter<int>("MaxClustersTECm")),
   sign_accu_    (config.getParameter<int>("SignalAccumulation")),
@@ -50,7 +50,7 @@ bool HLTTrackerHaloFilter::filter(edm::Event& event, const edm::EventSetup& iSet
   
   // The filter object
   std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTag_) filterobject->addCollectionTag(inputTag_);
+  if (saveTags_) filterobject->addCollectionTag(inputTag_);
   event.put(filterobject);
   
   // get hold of products from Event

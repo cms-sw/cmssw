@@ -1,5 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
+# migration to PAT v2 and reorganization of dimuon sequences
+
 from ElectroWeakAnalysis.Skimming.dimuonsHLTFilter_cfi import *
 from ElectroWeakAnalysis.Skimming.patCandidatesForDimuonsSequences_cff import *
 from ElectroWeakAnalysis.Skimming.dimuons_cfi import *

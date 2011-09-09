@@ -90,8 +90,7 @@ SequentialVertexFitter<N>::vertex(const std::vector<reco::TransientTrack> & trac
   if (!insideTrackerBounds(linP)) linP = GlobalPoint(0,0,0);
 
   // Initial vertex state, with a very large error matrix
-  ROOT::Math::SMatrixIdentity id;
-  AlgebraicSymMatrix33 we(id);
+  AlgebraicSymMatrix we(3,1);
   GlobalError error(we*10000);
   VertexState state(linP, error);
   std::vector<RefCountedVertexTrack> vtContainer = linearizeTracks(tracks, state);
@@ -113,8 +112,7 @@ SequentialVertexFitter<N>::vertex(const std::vector<RefCountedVertexTrack> & tra
 {
   // Initial vertex state, with a very small weight matrix
   GlobalPoint linP = tracks[0]->linearizedTrack()->linearizationPoint();
-  ROOT::Math::SMatrixIdentity id;
-  AlgebraicSymMatrix33 we(id);
+  AlgebraicSymMatrix we(3,1);
   GlobalError error(we*10000);
   VertexState state(linP, error);
   return fit(tracks, state, false);
@@ -130,8 +128,7 @@ SequentialVertexFitter<N>::vertex(const std::vector<reco::TransientTrack> & trac
 			       const GlobalPoint& linPoint) const
 { 
   // Initial vertex state, with a very large error matrix
-  ROOT::Math::SMatrixIdentity id;
-  AlgebraicSymMatrix33 we(id);
+  AlgebraicSymMatrix we(3,1);
   GlobalError error(we*10000);
   VertexState state(linPoint, error);
   std::vector<RefCountedVertexTrack> vtContainer = linearizeTracks(tracks, state);
@@ -155,8 +152,7 @@ SequentialVertexFitter<N>::vertex(const std::vector<reco::TransientTrack> & trac
     // Linearization Point search if there are more than 1 track
     GlobalPoint linP = theLinP->getLinearizationPoint(tracks);
     if (!insideTrackerBounds(linP)) linP = GlobalPoint(0,0,0);
-    ROOT::Math::SMatrixIdentity id;
-    AlgebraicSymMatrix33 we(id);
+    AlgebraicSymMatrix we(3,1);
     GlobalError error(we*10000);
     VertexState lpState(linP, error);
     vtContainer = linearizeTracks(tracks, lpState);
@@ -305,9 +301,7 @@ SequentialVertexFitter<N>::fit(const std::vector<RefCountedVertexTrack> & tracks
     if (!validVertex) {
       // reset initial vertex position to (0,0,0) and force new iteration 
       // if number of steps not exceeded
-      ROOT::Math::SMatrixIdentity id;
-      AlgebraicSymMatrix33 we(id);
-      GlobalError error(we*10000);
+      GlobalError error(AlgebraicSymMatrix(3,1)*10000);
       fVertex = CachingVertex<N>(GlobalPoint(0,0,0), error,
                               initialTracks, 0);
     }

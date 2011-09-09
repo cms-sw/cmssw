@@ -216,6 +216,7 @@ void PixelDataFormatter::formatRawData(unsigned int lvl1_ID, RawData & fedRawDat
       throw cms::Exception(s);
     } // if (word !=
     fedRawData[fedId] = *rawData;
+    delete rawData;
   } // for (RI feddata 
 }
 

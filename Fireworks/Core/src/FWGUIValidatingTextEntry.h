@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Fri Aug 22 18:13:29 EDT 2008
-// $Id: FWGUIValidatingTextEntry.h,v 1.6 2010/11/10 20:07:06 amraktad Exp $
+// $Id: FWGUIValidatingTextEntry.h,v 1.8 2011/07/20 04:54:49 amraktad Exp $
 //
 
 // system include files
@@ -48,6 +48,10 @@ public:
    void setValidator(FWValidatorBase*);
    void showOptions();
    void hideOptions();
+
+   TGListBox* getListBox() const { return m_list; }
+   void setMaxListBoxHeight(UInt_t x) { m_listHeight = x; }
+
    virtual Bool_t ProcessMessage(Long_t msg, Long_t parm1, Long_t parm2);
 
    void keyPressedInPopup(TGFrame*, UInt_t keysym, UInt_t mask);
@@ -62,9 +66,10 @@ private:
 
    // ---------- member data --------------------------------
    TGComboBoxPopup* m_popup;
-   TGListBox* m_list;
-
+   TGListBox*       m_list;
    FWValidatorBase* m_validator;
+
+   UInt_t           m_listHeight;
 #ifndef __CINT__
    std::vector<std::pair<boost::shared_ptr<std::string>, std::string> > m_options;
 #endif

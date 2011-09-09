@@ -13,7 +13,7 @@ int UTC_SL1::n = 0;
 int UTC_SL2::n = 0;
 
 void
-  UTC_SL1::analyze( edm::Event      const & e
+  UTC_SL1::analyze( edm::Event      const & /*unused*/
                             , edm::EventSetup const & /*unused*/
                               )
 {
@@ -29,7 +29,7 @@ void
 }  
 
 void
-  UTC_SL2::analyze( edm::Event      const & e
+  UTC_SL2::analyze( edm::Event      const & /*unused*/
                             , edm::EventSetup const & /*unused*/
                               )
 {
@@ -44,7 +44,7 @@ void
 }  
 
 void
-  UTC_SLUMMARY::analyze( edm::Event      const & e
+  UTC_SLUMMARY::analyze( edm::Event      const & /*unused*/
                             , edm::EventSetup const & /*unused*/
                               )
 {
@@ -61,7 +61,7 @@ void
 }  
 
 void
-  UTC_SLUMMARY::endLuminosityBlock( edm::LuminosityBlock const & lb
+  UTC_SLUMMARY::endLuminosityBlock( edm::LuminosityBlock const & /*unused*/
                             , edm::EventSetup const & /*unused*/
                               )
 {
