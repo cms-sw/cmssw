@@ -538,15 +538,14 @@ grant select on V_SM_SUMMARY to public;
 --This is essentially a stupid replication of V_SM_SUMMARY + undelete file selections
 create or replace view V_SM_SUMMARY_UNDELETE
 AS  SELECT * FROM (SELECT * FROM V_SM_SUMMARY_Full WHERE (NOTFILES+N_OPEN+N_CLOSED>N_DELETED) 
-                                                AND NVL(time_diff(sysdate,MAX_STOP_WRITE)/60/60/24,1)<65),
+                                                AND time_diff(sysdate,NVL(MAX_STOP_WRITE,sysdate))/60/60/24<65),
                 (SELECT TO_CHAR (RUN_NUMBER) AS RUN_NUMBER2,
-                        ROUND(time_diff(sysdate,MAX_STOP_WRITE)/60/60/24,2) as RUNAGE
+                        ROUND(time_diff(sysdate,NVL(MAX_STOP_WRITE,'01-JAN-11 10.01.00.000000 AM'))/60/60/24,2) as RUNAGE
                            FROM V_SM_SUMMARY WHERE (NOTFILES+N_OPEN+N_CLOSED>N_DELETED) 
-                                                AND NVL(time_diff(sysdate,MAX_STOP_WRITE)/60/60/24,1)<65)
-                WHERE RUN_NUMBER=RUN_NUMBER2(+) and NVL(time_diff(sysdate,MAX_STOP_WRITE)/60/60,24)>5  
+                                                AND time_diff(sysdate,NVL(MAX_STOP_WRITE,sysdate))/60/60/24<65)
+                WHERE RUN_NUMBER=RUN_NUMBER2(+) and time_diff(sysdate,NVL(MAX_STOP_WRITE,'01-JAN-11 10.01.00.000000 AM'))/60/60>5 
                 ORDER BY RUN_NUMBER DESC ;
 
  
 grant select on V_SM_SUMMARY_UNDELETE to public;
 
---
