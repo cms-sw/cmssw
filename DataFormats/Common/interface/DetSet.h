@@ -8,12 +8,13 @@ associated with a common DetId with a DetId instance, holding the
 common DetId value. The collected objects may or may not contain their
 own copy of the common DetId.
 
-$Id: DetSet.h,v 1.14 2011/03/08 14:01:16 innocent Exp $
+$Id: DetSet.h,v 1.15 2011/03/08 18:47:15 chrjones Exp $
 
 ----------------------------------------------------------------------*/
 
 #include <vector>
 #include <stdint.h>
+#include <stddef.h>
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 
 namespace edm {
