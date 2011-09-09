@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V235
+# /dev/CMSSW_4_2_0/GRun/V236
 
 import FWCore.ParameterSet.Config as cms
 
@@ -18,7 +18,6 @@ streamA_datasetCommissioning_selector.hltResults = cms.InputTag('TriggerResults'
 streamA_datasetCommissioning_selector.l1tResults = cms.InputTag('')
 streamA_datasetCommissioning_selector.throw      = cms.bool(False)
 streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_Activity_Ecal_SC7_v8', 
-    'HLT_BeamGas_BSC_v5', 
     'HLT_BeamGas_HF_v6', 
     'HLT_IsoTrackHB_v7', 
     'HLT_IsoTrackHE_v8', 
