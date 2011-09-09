@@ -26,7 +26,8 @@ HitExtractorSTRP::HitExtractorSTRP( const DetLayer* detLayer,
     SeedingLayer::Side & side, int idLayer)
   : theLayer(detLayer), theSide(side), theIdLayer(idLayer),
     hasMatchedHits(false), hasRPhiHits(false), hasStereoHits(false),
-    hasRingSelector(false), theMinRing(1), theMaxRing(0), hasSimpleRphiHitsCleaner(true)
+    hasRingSelector(false), theMinRing(1), theMaxRing(0), hasSimpleRphiHitsCleaner(true),
+    lastId_(0)
 { }
 
 void HitExtractorSTRP::useRingSelector(int minRing, int maxRing) 
@@ -45,16 +46,14 @@ bool HitExtractorSTRP::ringRange(int ring) const
 
 bool HitExtractorSTRP::skipThis(const SiStripRecHit2D * hit,
 				edm::Handle<edmNew::DetSetVector<SiStripClusterRef> > & stripClusterRefs) const {
-  static DetId lastId=hit->geographicalId();
-  static edmNew::DetSetVector<SiStripClusterRef>::const_iterator f=stripClusterRefs->find(lastId.rawId());
-  if (hit->geographicalId()!=lastId){
-    lastId=hit->geographicalId();
-    f=stripClusterRefs->find(lastId.rawId());
+  if (hit->geographicalId()!=lastId_){
+    lastId_=hit->geographicalId();
+    f_=stripClusterRefs->find(lastId_.rawId());
   }  
-  if (f==stripClusterRefs->end()) return false;
+  if (f_==stripClusterRefs->end()) return false;
   if (!hit->isValid())  return false;
 
-  bool skipping=(find(f->begin(),f->end(),hit->cluster())!=f->end());
+  bool skipping=(find(f_->begin(),f_->end(),hit->cluster())!=f_->end());
   //if (skipping) LogDebug("HitExtractorSTRP")<<"skipping a hit on :"<<hit->geographicalId().rawId()<<" key: "<<hit->cluster().key();
   return skipping;
 }
@@ -103,6 +102,8 @@ void HitExtractorSTRP::cleanedOfClusters( const edm::Event& ev, HitExtractor::Hi
   LogDebug("HitExtractorPIX")<<"getting: "<<hits.size()<<" in input.";
   edm::Handle<edmNew::DetSetVector<SiStripClusterRef> > stripClusterRefs;
   ev.getByLabel(theSkipClusters,stripClusterRefs);
+  lastId_=0;
+  f_=stripClusterRefs->end();
   HitExtractor::Hits newHits;
   unsigned int skipped=0;
   unsigned int projected=0;

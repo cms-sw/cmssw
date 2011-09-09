@@ -51,6 +51,8 @@ private:
   bool hasRingSelector; int theMinRing, theMaxRing; 
   bool hasSimpleRphiHitsCleaner;
   mutable bool failProjection;
+  mutable DetId lastId_;
+  mutable edmNew::DetSetVector<SiStripClusterRef>::const_iterator f_;
 };
 
 }
