@@ -12,6 +12,14 @@ def replaceTemplate(template,**opts):
 
     return result
  
+def getDatasetStr(datasetpath):
+    datasetstr = datasetpath
+    datasetstr.strip()
+    if datasetstr[0] == '/': datasetstr = datasetstr[1:]
+    datasetstr = datasetstr.replace('/','_')
+
+    return datasetstr
+
 def dqmWorkflowName(datasetpath,type,rev=1):
     workflowName = datasetpath
     sections = workflowName.split('/')[1:]

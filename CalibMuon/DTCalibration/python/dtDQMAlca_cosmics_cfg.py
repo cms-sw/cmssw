@@ -5,7 +5,7 @@ process = cms.Process("DQM")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
 
-process.load("CalibMuon.DTCalibration.dt_offlineAnalysis_common_cff")
+process.load("CalibMuon.DTCalibration.dt_offlineAnalysis_common_cosmics_cff")
 process.GlobalTag.globaltag = ""
 
 process.load("DQMServices.Core.DQM_cfg")
@@ -20,7 +20,7 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)
 )
 
-#process.load("CalibMuon.DTCalibration.ALCARECODtCalib_cff")
+process.load("CalibMuon.DTCalibration.ALCARECODtCalib_cff")
 process.load("DQM.DTMonitorModule.ALCARECODTCalibSynchDQM_cff")
 
 process.output = cms.OutputModule("PoolOutputModule",
