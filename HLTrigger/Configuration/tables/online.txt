@@ -30,10 +30,10 @@ HLT_DiJet130_PT130_v*
 HLT_DiJet160_PT160_v*
 HLT_CentralJet80_MET65_v*
 HLT_CentralJet80_MET80_v*
-HLT_CentralJet80_MET95_v*                                                       #added in 5e33 menu (sr #123262)
-#HLT_CentralJet80_MET100_v*                                                     #removed in 5e33 menu (sr #123262)
-HLT_CentralJet80_MET110_v*                                                      #added in 5e33 menu (sr #123262)
-#HLT_CentralJet80_MET160_v*                                                     #removed in 5e33 menu (sr #123262)
+HLT_CentralJet80_MET95_v*							#added in 5e33 menu (sr #123262)
+#HLT_CentralJet80_MET100_v*							#removed in 5e33 menu (sr #123262)
+HLT_CentralJet80_MET110_v*							#added in 5e33 menu (sr #123262)
+#HLT_CentralJet80_MET160_v*							#removed in 5e33 menu (sr #123262)
 HLT_DiJet60_MET45_v*
 HLT_DiCentralJet20_MET100_HBHENoiseFiltered_v*
 HLT_DiCentralJet20_MET80_v*
@@ -44,16 +44,17 @@ HLT_CentralJet46_CentralJet38_CentralJet20_DiBTagIP3D_v*
 HLT_CentralJet60_CentralJet53_DiBTagIP3D_v*
 HLT_QuadJet40_v*
 HLT_QuadJet40_IsoPFTau40_v*
+HLT_QuadJet45_DiJet40_v*
 HLT_QuadJet45_IsoPFTau45_v*
 HLT_QuadJet50_IsoPFTau50_v*
 HLT_QuadJet50_Jet40_Jet30_v*
 HLT_QuadJet50_DiJet40_v*
 HLT_QuadJet70_v*
 HLT_QuadJet80_v*
-HLT_QuadJet90_v*                                                                #added in 5e33 menu (sr #123262)
+HLT_QuadJet90_v*								#added in 5e33 menu (sr #123262)
 HLT_SixJet45_v*
-HLT_EightJet35_v*                                                               #added in 5e33 menu (sr #123262)
-HLT_EightJet40_v*                                                               #added in 5e33 menu (sr #123262)
+HLT_EightJet35_v*								#added in 5e33 menu (sr #123262)
+HLT_EightJet40_v*								#added in 5e33 menu (sr #123262)
 HLT_EightJet120_v*
 HLT_60Jet10_v*
 HLT_70Jet10_v*
@@ -104,7 +105,7 @@ HLT_HT550_JetPt60_DPhi2p94_v*
 HLT_HT600_v*
 HLT_HT600_JetPt60_DPhi2p94_v*
 HLT_HT650_v*
-HLT_HT750_v*                                                                    #added in 5e33 menu (sr #123262)
+HLT_HT750_v*									#added in 5e33 menu (sr #123262)
 HLT_HT2000_v*
 HLT_PFMHT150_v*
 HLT_MET65_v*
@@ -160,14 +161,15 @@ HLT_IsoMu30_eta2p1_v*
 HLT_IsoMu34_eta2p1_v*
 HLT_L2DoubleMu23_NoVertex_v*
 HLT_L2DoubleMu30_NoVertex_v*
-HLT_L2DoubleMu45_NoVertex_v*                                                            #added in 5e33 menu (sr #123262)
+HLT_L2DoubleMu45_NoVertex_v*								#added in 5e33 menu (sr #123262)
 HLT_DoubleMu3_v*
 HLT_DoubleMu5_v*
 HLT_DoubleMu6_v*
 HLT_DoubleMu7_v*
 HLT_DoubleMu45_v*
-HLT_DoubleMu5_Acoplanarity03_v*
-HLT_DoubleMu6_Acoplanarity03_v*
+#HLT_DoubleMu5_Acoplanarity03_v*
+#HLT_DoubleMu6_Acoplanarity03_v*
+HLT_DoubleMu7_Acoplanarity03_v*
 HLT_DoubleMu4_Dimuon4_Bs_Barrel_v*
 HLT_DoubleMu4_Dimuon6_Bs_v*
 HLT_DoubleMu4_Jpsi_Displaced_v*
@@ -199,14 +201,14 @@ HLT_Photon20_R9Id_Photon18_R9Id_v*
 HLT_Photon20_CaloIdVT_IsoT_Ele8_CaloIdL_CaloIsoVL_v*
 HLT_Photon26_Photon18_v*
 HLT_Photon26_CaloIdXL_IsoXL_Photon18_v*
-HLT_Photon26_CaloIdXL_IsoXL_Photon18_R9IdT_Mass60_v*                                            #added in 5e33 menu (sr #123279)
-#HLT_Photon26_CaloIdXL_IsoXL_Photon18_R9Id_v*                                                   #removed in 5e33 menu (sr #123279)
-HLT_Photon26_CaloIdXL_IsoXL_Photon18_CaloIdXL_IsoXL_Mass60_v*                                   #added in 5e33 menu (sr #123279)
-#HLT_Photon26_CaloIdXL_IsoXL_Photon18_CaloIdXL_IsoXL_v*                                         #removed in 5e33 menu (sr #123279)
-HLT_Photon26_R9IdT_Photon18_CaloIdXL_IsoXL_Mass60_v*                                             #added in 5e33 menu (sr #123279)
-#HLT_Photon26_R9Id_Photon18_CaloIdXL_IsoXL_v*                                                   #removed in 5e33 menu (sr #123279)
-HLT_Photon26_R9IdT_Photon18_R9IdT_Mass60_v*                                                      #added in 5e33 menu (sr #123279)
-#HLT_Photon26_R9Id_Photon18_R9Id_v*                                                             #removed in 5e33 menu (sr #123279)
+HLT_Photon26_CaloIdXL_IsoXL_Photon18_R9IdT_Mass60_v*						#added in 5e33 menu (sr #123279)
+#HLT_Photon26_CaloIdXL_IsoXL_Photon18_R9Id_v*							#removed in 5e33 menu (sr #123279)
+HLT_Photon26_CaloIdXL_IsoXL_Photon18_CaloIdXL_IsoXL_Mass60_v*					#added in 5e33 menu (sr #123279)
+#HLT_Photon26_CaloIdXL_IsoXL_Photon18_CaloIdXL_IsoXL_v*						#removed in 5e33 menu (sr #123279)
+HLT_Photon26_R9IdT_Photon18_CaloIdXL_IsoXL_Mass60_v*						#added in 5e33 menu (sr #123279)
+#HLT_Photon26_R9Id_Photon18_CaloIdXL_IsoXL_v*							#removed in 5e33 menu (sr #123279)
+HLT_Photon26_R9IdT_Photon18_R9IdT_Mass60_v*							#added in 5e33 menu (sr #123279)
+#HLT_Photon26_R9Id_Photon18_R9Id_v*								#removed in 5e33 menu (sr #123279)
 HLT_Photon30_CaloIdVL_v*
 HLT_Photon30_CaloIdVL_IsoL_v*
 HLT_Photon36_Photon22_v*
@@ -216,8 +218,8 @@ HLT_Photon36_CaloIdL_IsoVL_Photon22_R9Id_v*
 HLT_Photon36_R9Id_Photon22_CaloIdL_IsoVL_v*
 HLT_Photon36_R9Id_Photon22_R9Id_v*
 HLT_Photon36_CaloIdL_IsoVL_Photon22_v*
-HLT_Photon44_CaloIdL_Photon34_CaloIdL_v*
-HLT_Photon48_CaloIdL_Photon38_CaloIdL_v*
+#HLT_Photon44_CaloIdL_Photon34_CaloIdL_v*
+#HLT_Photon48_CaloIdL_Photon38_CaloIdL_v*
 HLT_Photon50_CaloIdVL_v*
 HLT_Photon50_CaloIdVL_IsoL_v*
 HLT_Photon70_CaloIdL_HT400_v*
@@ -228,15 +230,18 @@ HLT_Photon75_CaloIdVL_v*
 HLT_Photon75_CaloIdVL_IsoL_v*
 HLT_Photon90_CaloIdVL_v*
 HLT_Photon90_CaloIdVL_IsoL_v*
-HLT_Photon90EBOnly_CaloIdVL_IsoL_TriPFJet25_v*                                                  #added in 5e33 menu (sr #123262)
-HLT_Photon90EBOnly_CaloIdVL_IsoL_TriPFJet30_v*                                                  #added in 5e33 menu (sr #123262)
+HLT_Photon90EBOnly_CaloIdVL_IsoL_TriPFJet25_v*							#added in 5e33 menu (sr #123262)
+HLT_Photon90EBOnly_CaloIdVL_IsoL_TriPFJet30_v*							#added in 5e33 menu (sr #123262)
 HLT_Photon135_v*
 HLT_Photon200_NoHE_v*
 HLT_Photon225_NoHE_v*
 HLT_Photon400_v*
-HLT_DoublePhoton33_HEVT_v*
+#HLT_DoublePhoton33_HEVT_v*
 HLT_DoublePhoton38_HEVT_v*
+HLT_DoublePhoton43_HEVT_v*
+HLT_DoublePhoton48_HEVT_v*
 HLT_DoublePhoton60_v*
+HLT_DoublePhoton70_v*
 HLT_DoublePhoton80_v*
 HLT_DoublePhoton5_IsoVL_CEP_v*
 HLT_L1SingleEG5_v*
@@ -251,22 +256,31 @@ HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkI
 HLT_Ele17_CaloIdVT_CaloIsoVT_TrkIdT_TrkIsoVT_Ele8_Mass30_v*
 HLT_Ele22_CaloIdL_CaloIsoVL_Ele15_HFT_v*
 HLT_Ele25_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v*
+HLT_Ele27_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v*
+HLT_Ele27_WP80_v*
 HLT_Ele27_WP80_PFMT50_v*
+HLT_Ele32_WP70_v*
 HLT_Ele32_WP70_PFMT50_v*
 HLT_Ele32_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_v*
+HLT_Ele32_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v*
 HLT_Ele32_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v*
 HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_SC17_v*
 HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_Ele17_v*
 HLT_Ele65_CaloIdVT_TrkIdT_v*
-HLT_Ele100_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_v*
+HLT_Ele80_CaloIdVT_TrkIdT_v*
+HLT_Ele100_CaloIdVT_TrkIdT_v*
+#HLT_Ele100_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_v*
 HLT_DoubleEle8_CaloIdT_TrkIdVL_v*
 HLT_DoubleEle33_CaloIdL_v*
+HLT_DoubleEle33_CaloIdL_CaloIsoT_v*
+HLT_DoubleEle33_CaloIdT_v*
 HLT_DoubleEle45_CaloIdL_v*
 HLT_MediumIsoPFTau35_Trk20_v*
 HLT_MediumIsoPFTau35_Trk20_MET60_v*
 HLT_MediumIsoPFTau35_Trk20_MET70_v*
 HLT_IsoPFTau40_IsoPFTau30_Trk5_eta2p1_v*
 HLT_DoubleIsoPFTau45_Trk5_eta2p1_v*
+HLT_DoubleIsoPFTau55_Trk5_eta2p1_v*
 HLT_HT300_DoubleIsoPFTau10_Trk3_PFMHT40_v*
 HLT_HT350_DoubleIsoPFTau10_Trk3_PFMHT45_v*
 HLT_BTagMu_DiJet20_Mu5_v*
@@ -292,6 +306,7 @@ HLT_Mu8_Ele17_CaloIdL_v*
 HLT_Mu8_Ele17_CaloIdT_CaloIsoVL_v*
 HLT_Mu8_Photon20_CaloIdVT_IsoT_v*
 HLT_Mu8_Jet40_v*
+HLT_Mu15_L1ETM20_v*
 HLT_Mu15_Photon20_CaloIdL_v*
 HLT_Mu15_DoublePhoton15_CaloIdL_v*
 HLT_Mu17_eta2p1_CentralJet30_v*
@@ -306,6 +321,7 @@ HLT_Mu12_eta2p1_DiCentralJet20_BTagIP3D1stTrack_v*
 HLT_Mu12_eta2p1_DiCentralJet20_DiBTagIP3D1stTrack_v*
 HLT_Mu40_HT200_v*
 HLT_Mu60_HT200_v*
+HLT_IsoMu15_L1ETM20_v*
 HLT_Mu15_LooseIsoPFTau15_v*
 HLT_IsoMu15_LooseIsoPFTau15_v*
 HLT_IsoMu15_eta2p1_LooseIsoPFTau20_v*
@@ -349,6 +365,7 @@ HLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R029_MR200_v*
 HLT_Ele18_CaloIdVT_TrkIdT_MediumIsoPFTau20_v*
 HLT_Ele18_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau20_v*
 HLT_Ele20_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau20_v*
+HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau25_v*
 HLT_Ele25_CaloIdVT_TrkIdT_CentralJet30_v*
 HLT_Ele25_CaloIdVT_TrkIdT_DiCentralJet30_v*
 HLT_Ele25_CaloIdVT_TrkIdT_TriCentralJet30_v*
@@ -360,13 +377,20 @@ HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_QuadCentralJet30_v*
 HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_BTagIP_v*
 HLT_Ele25_CaloIdVT_TrkIdT_CentralJet30_BTagIP_v*
 HLT_Ele20_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3_Jet20_v*
-HLT_Ele27_CaloIdVT_TrkIdT_Jet35_Jet25_Deta3_Jet20_v*
-HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3_Jet20_v*
-HLT_Ele30_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3p5_Jet25_v*
-HLT_Ele27_CaloIdVT_TrkIdT_CentralJet30_CentralJet25_v*
-HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_v*
-HLT_Ele30_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralJet30_PFMHT25_v*
-HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT20_v*
+#HLT_Ele27_CaloIdVT_TrkIdT_Jet35_Jet25_Deta3_Jet20_v*
+#HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3_Jet20_v*
+#HLT_Ele30_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3p5_Jet25_v*
+#HLT_Ele27_CaloIdVT_TrkIdT_CentralJet30_CentralJet25_v*
+#HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_v*
+#HLT_Ele30_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralJet30_PFMHT25_v*
+#HLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT20_v*
+HLT_Ele27_WP80_DiCentralPFJet25_PFMHT15_v*
+HLT_Ele27_CaloIdVT_TrkIdT_DiCentralPFJet25_v*
+HLT_Ele27_WP80_DiCentralPFJet25_v*
+HLT_Ele27_WP80_DiPFJet25_Deta3_v*
+HLT_Ele27_CaloIdVT_TrkIdT_DiPFJet25_Deta3_v*
+HLT_Ele32_WP80_DiPFJet25_Deta3p5_v*
+HLT_Ele32_WP80_DiCentralPFJet25_PFMHT25_v*
 HLT_Photon30_CaloIdVT_CentralJet20_BTagIP_v*
 HLT_HT200_DoubleEle5_CaloIdVL_MassJPsi_v*
 HLT_DoubleEle8_CaloIdT_TrkIdVL_HT150_v*
@@ -376,7 +400,9 @@ HLT_TripleEle10_CaloIdL_TrkIdVL_v*
 HLT_PixelTracks_Multiplicity80_v*
 HLT_PixelTracks_Multiplicity100_v*
 HLT_BeamGas_HF_v*
-HLT_BeamGas_BSC_v*
+#HLT_BeamGas_HF_Beam1_v* # add to 5e33 once L1 menu is available
+#HLT_BeamGas_HF_Beam2_v* # add to 5e33 once L1 menu is available
+#HLT_BeamGas_BSC_v*                                                                     # removed in 5e33 menu (sr #123372)
 HLT_BeamHalo_v*
 HLT_L1_PreCollisions_v*
 HLT_L1_Interbunch_BSC_v*
