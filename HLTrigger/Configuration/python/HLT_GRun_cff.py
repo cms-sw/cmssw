@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/GRun/V237 (CMSSW_4_2_0_HLT27)
+# /dev/CMSSW_4_2_0/GRun/V238 (CMSSW_4_2_0_HLT27)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V237')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V238')
 )
 
 streams = cms.PSet( 
@@ -24317,7 +24317,7 @@ hltL1sL1SingleMu10ETM20 = cms.EDFilter( "HLTLevel1GTSeed",
     L1NrBxInEvent = cms.int32( 3 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleMu10" ),
+    L1SeedsLogicalExpression = cms.string( "L1_Mu10_ETM20" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
