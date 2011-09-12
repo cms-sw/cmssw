@@ -2,8 +2,8 @@
  *  
  *  See header file for description of class
  *
- *  $Date: 2008/03/13 21:15:53 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/01/06 14:18:54 $
+ *  $Revision: 1.8 $
  *  \author M. Strang SUNY-Buffalo
  */
 
@@ -81,9 +81,6 @@ if (dbe) {
     if (verbosity > 0 ) dbe->showDirStructure();
   }
 
- Char_t hname[100];
- Char_t htitle[100];
- 
 //monitor elements 
 
 //Si Strip  ***Done***
@@ -96,29 +93,16 @@ for(int i = 0; i<19; ++i)
   mehSiStripADC[i]=0;
   mehSiStripStrip[i]=0;
 }
- std::string hcharname, hchartitle;
 dbe->setCurrentFolder("GlobalDigisV/SiStrips");
 for(int amend = 0; amend < 19; ++amend)
 { 
-  hcharname = "hSiStripn_"+SiStripString[amend];
-  hchartitle= SiStripString[amend]+"  Digis";
-  sprintf(hname, hcharname.c_str());
-  sprintf(htitle, hchartitle.c_str());
-  mehSiStripn[amend] = dbe->book1D(hname,htitle,500,0.,1000.);
+  mehSiStripn[amend] = dbe->book1D("hSiStripn_"+SiStripString[amend], SiStripString[amend]+"  Digis",500,0.,1000.);
   mehSiStripn[amend]->setAxisTitle("Number of Digis",1);
   mehSiStripn[amend]->setAxisTitle("Count",2);
-  hcharname = "hSiStripADC_"+SiStripString[amend];
-  hchartitle= SiStripString[amend]+" ADC";
-  sprintf(hname, hcharname.c_str());
-  sprintf(htitle, hchartitle.c_str());
-  mehSiStripADC[amend] = dbe->book1D(hname,htitle,150,0.0,300.);
+  mehSiStripADC[amend] = dbe->book1D("hSiStripADC_"+SiStripString[amend],SiStripString[amend]+" ADC",150,0.0,300.);
   mehSiStripADC[amend]->setAxisTitle("ADC",1);
   mehSiStripADC[amend]->setAxisTitle("Count",2);
-  hcharname = "hSiStripStripADC_"+SiStripString[amend];
-  hchartitle= SiStripString[amend]+" Strip";
-  sprintf(hname, hcharname.c_str());
-  sprintf(htitle, hchartitle.c_str());
-  mehSiStripStrip[amend] = dbe->book1D(hname,htitle,200,0.0,800.);
+  mehSiStripStrip[amend] = dbe->book1D("hSiStripStripADC_"+SiStripString[amend],SiStripString[amend]+" Strip",200,0.0,800.);
   mehSiStripStrip[amend]->setAxisTitle("Strip Number",1);
   mehSiStripStrip[amend]->setAxisTitle("Count",2);
 }
@@ -144,42 +128,21 @@ dbe->setCurrentFolder("GlobalDigisV/HCals");
  
 for(int amend = 0; amend < 4; ++amend)
 {
-  hcharname = "hHcaln_"+HCalString[amend];
-  hchartitle= HCalString[amend]+"  digis";
-  sprintf(hname, hcharname.c_str());
-  sprintf(htitle, hchartitle.c_str());
-  mehHcaln[amend] = dbe->book1D(hname,htitle, 1000, calnLower[amend], calnUpper[amend]);
+  mehHcaln[amend] = dbe->book1D("hHcaln_"+HCalString[amend],HCalString[amend]+"  digis", 1000, calnLower[amend], calnUpper[amend]);
   mehHcaln[amend]->setAxisTitle("Number of Digis",1);
   mehHcaln[amend]->setAxisTitle("Count",2);
-  hcharname = "hHcalAEE_"+HCalString[amend];
-  hchartitle= HCalString[amend]+"Cal AEE";
-  sprintf(hname, hcharname.c_str());
-  sprintf(htitle, hchartitle.c_str());
-  mehHcalAEE[amend] = dbe->book1D(hname,htitle, 60, -10., 50.);
+  mehHcalAEE[amend] = dbe->book1D("hHcalAEE_"+HCalString[amend],HCalString[amend]+"Cal AEE", 60, -10., 50.);
   mehHcalAEE[amend]->setAxisTitle("Analog Equivalent Energy",1);
   mehHcalAEE[amend]->setAxisTitle("Count",2);
-  hcharname = "hHcalSHE_"+HCalString[amend];
-  hchartitle= HCalString[amend]+"Cal SHE";
-  sprintf(hname, hcharname.c_str());
-  sprintf(htitle, hchartitle.c_str());
-  mehHcalSHE[amend] = dbe->book1D(hname,htitle, 100, 0.0, SHEUpper[amend]);
+  mehHcalSHE[amend] = dbe->book1D("hHcalSHE_"+HCalString[amend],HCalString[amend]+"Cal SHE", 100, 0.0, SHEUpper[amend]);
   mehHcalSHE[amend]->setAxisTitle("Simulated Hit Energy",1);
   mehHcalSHE[amend]->setAxisTitle("Count",2);
-  hcharname = "hHcalAEESHE_"+HCalString[amend];
-  hchartitle= HCalString[amend]+"Cal AEE/SHE";
-  sprintf(hname, hcharname.c_str());
-  sprintf(htitle, hchartitle.c_str());
-  mehHcalAEESHE[amend] = dbe->book1D(hname, htitle, SHEvAEEnBins[amend], SHEvAEELower[amend], SHEvAEEUpper[amend]);
+  mehHcalAEESHE[amend] = dbe->book1D("hHcalAEESHE_"+HCalString[amend], HCalString[amend]+"Cal AEE/SHE", SHEvAEEnBins[amend], SHEvAEELower[amend], SHEvAEEUpper[amend]);
   mehHcalAEESHE[amend]->setAxisTitle("ADC / SHE",1);
   mehHcalAEESHE[amend]->setAxisTitle("Count",2);
   
   //************  Not sure how to do Profile ME **************
-
-  hcharname = "hHcalSHEvAEE_"+HCalString[amend];
-  hchartitle= HCalString[amend]+"Cal SHE vs. AEE";
-  sprintf(hname, hcharname.c_str());
-  sprintf(htitle, hchartitle.c_str());
-  mehHcalSHEvAEE[amend] = dbe->bookProfile(hname,htitle, 60, (float)-10., (float)50., 100, (float)0., (float)ProfileUpper[amend],"");
+  mehHcalSHEvAEE[amend] = dbe->bookProfile("hHcalSHEvAEE_"+HCalString[amend],HCalString[amend]+"Cal SHE vs. AEE", 60, (float)-10., (float)50., 100, (float)0., (float)ProfileUpper[amend],"");
   mehHcalSHEvAEE[amend]->setAxisTitle("AEE / SHE",1);
   mehHcalSHEvAEE[amend]->setAxisTitle("SHE",2);
 
@@ -204,48 +167,24 @@ dbe->setCurrentFolder("GlobalDigisV/ECals");
  
 for(int amend = 0; amend < 2; ++amend)
 {
-  hcharname = "hEcaln_"+ECalString[amend];
-  hchartitle= ECalString[amend]+"  digis";
-  sprintf(hname, hcharname.c_str());
-  sprintf(htitle, hchartitle.c_str());
-  mehEcaln[amend] = dbe->book1D(hname,htitle, 300, 1000., 4000.);
+  mehEcaln[amend] = dbe->book1D("hEcaln_"+ECalString[amend],ECalString[amend]+"  digis", 300, 1000., 4000.);
   mehEcaln[amend]->setAxisTitle("Number of Digis",1);
   mehEcaln[amend]->setAxisTitle("Count",2);
-  hcharname = "hEcalAEE_"+ECalString[amend];
-  hchartitle= ECalString[amend]+"Cal AEE";
-  sprintf(hname, hcharname.c_str());
-  sprintf(htitle, hchartitle.c_str());
-  mehEcalAEE[amend] = dbe->book1D(hname,htitle, 100, 0., 1.);
+  mehEcalAEE[amend] = dbe->book1D("hEcalAEE_"+ECalString[amend],ECalString[amend]+"Cal AEE", 100, 0., 1.);
   mehEcalAEE[amend]->setAxisTitle("Analog Equivalent Energy",1);
   mehEcalAEE[amend]->setAxisTitle("Count",2);
-  hcharname = "hEcalSHE_"+ECalString[amend];
-  hchartitle= ECalString[amend]+"Cal SHE";
-  sprintf(hname, hcharname.c_str());
-  sprintf(htitle, hchartitle.c_str());
-  mehEcalSHE[amend] = dbe->book1D(hname,htitle, 50, 0., 5.);
+  mehEcalSHE[amend] = dbe->book1D("hEcalSHE_"+ECalString[amend],ECalString[amend]+"Cal SHE", 50, 0., 5.);
   mehEcalSHE[amend]->setAxisTitle("Simulated Hit Energy",1);
   mehEcalSHE[amend]->setAxisTitle("Count",2);
-  hcharname = "hEcalMaxPos_"+ECalString[amend];
-  hchartitle= ECalString[amend]+"Cal MaxPos";
-  sprintf(hname, hcharname.c_str());
-  sprintf(htitle, hchartitle.c_str());
-  mehEcalMaxPos[amend] = dbe->book1D(hname,htitle,10, 0., 10.);
+  mehEcalMaxPos[amend] = dbe->book1D("hEcalMaxPos_"+ECalString[amend],ECalString[amend]+"Cal MaxPos",10, 0., 10.);
   mehEcalMaxPos[amend]->setAxisTitle("Maximum Position",1);
   mehEcalMaxPos[amend]->setAxisTitle("Count",2);
   
   //************  Not sure how to do Profile ME **************
-  hcharname = "hEcalSHEvAEESHE_"+ECalString[amend];
-  hchartitle= ECalString[amend]+"Cal SHE vs. AEE/SHE";
-  sprintf(hname, hcharname.c_str());
-  sprintf(htitle, hchartitle.c_str());
-  mehEcalSHEvAEESHE[amend] = dbe->bookProfile(hname,htitle,100, (float)0., (float)10., 50, (float)0., (float)5.,"");
+  mehEcalSHEvAEESHE[amend] = dbe->bookProfile("hEcalSHEvAEESHE_"+ECalString[amend],ECalString[amend]+"Cal SHE vs. AEE/SHE",100, (float)0., (float)10., 50, (float)0., (float)5.,"");
   mehEcalSHEvAEESHE[amend]->setAxisTitle("AEE / SHE",1);
   mehEcalSHEvAEESHE[amend]->setAxisTitle("SHE",2);
-  hcharname = "hEcalMultvAEE_"+ECalString[amend];
-  hchartitle= ECalString[amend]+"Cal Multi vs. AEE";
-  sprintf(hname, hcharname.c_str());
-  sprintf(htitle, hchartitle.c_str());
-  mehEcalMultvAEE[amend] = dbe->bookProfile(hname,htitle, 100, (float)0., (float)10., 400, (float)0., (float)4000.,"");
+  mehEcalMultvAEE[amend] = dbe->bookProfile("hEcalMultvAEE_"+ECalString[amend],ECalString[amend]+"Cal Multi vs. AEE", 100, (float)0., (float)10., 400, (float)0., (float)4000.,"");
   mehEcalMultvAEE[amend]->setAxisTitle("Analog Equivalent Energy",1);
   mehEcalMultvAEE[amend]->setAxisTitle("Number of Digis",2);
 
@@ -253,22 +192,14 @@ for(int amend = 0; amend < 2; ++amend)
 
 }
   mehEcaln[2] = 0;
-  hcharname = "hEcaln_ES";
-  hchartitle= "ESCAL  digis";
-  sprintf(hname, hcharname.c_str());
-  sprintf(htitle, hchartitle.c_str());
-  mehEcaln[2] = dbe->book1D(hname,htitle, 100, 0., 500.);
+  mehEcaln[2] = dbe->book1D("hEcaln_ES","ESCAL  digis", 100, 0., 500.);
   mehEcaln[2]->setAxisTitle("Number of Digis",1);
   mehEcaln[2]->setAxisTitle("Count",2);
   std::string ADCNumber[3] = {"0", "1", "2"};
   for(int i =0; i<3; ++i)
     {
       mehEScalADC[i] = 0;
-      hcharname = "hEcalADC"+ADCNumber[i]+"_ES";
-      hchartitle= "ESCAL  ADC"+ADCNumber[i];
-      sprintf(hname, hcharname.c_str());
-      sprintf(htitle, hchartitle.c_str());
-      mehEScalADC[i] = dbe->book1D(hname,htitle, 150, 950., 1500.);
+      mehEScalADC[i] = dbe->book1D("hEcalADC"+ADCNumber[i]+"_ES","ESCAL  ADC"+ADCNumber[i], 150, 950., 1500.);
       mehEScalADC[i]->setAxisTitle("ADC"+ADCNumber[i],1);
       mehEScalADC[i]->setAxisTitle("Count",2);
 
@@ -287,33 +218,17 @@ for(int j =0; j<7; ++j)
 dbe->setCurrentFolder("GlobalDigisV/SiPixels");
 for(int amend = 0; amend < 7; ++amend)
 {
-  hcharname = "hSiPixeln_"+SiPixelString[amend];
-  hchartitle= SiPixelString[amend]+" Digis";
-  sprintf(hname, hcharname.c_str());
-  sprintf(htitle, hchartitle.c_str());
-  if(amend<3) mehSiPixeln[amend] = dbe->book1D(hname,htitle,50,0.,100.);
-  else mehSiPixeln[amend] = dbe->book1D(hname,htitle,25,0.,50.);
+  if(amend<3) mehSiPixeln[amend] = dbe->book1D("hSiPixeln_"+SiPixelString[amend],SiPixelString[amend]+" Digis",50,0.,100.);
+  else mehSiPixeln[amend] = dbe->book1D("hSiPixeln_"+SiPixelString[amend],SiPixelString[amend]+" Digis",25,0.,50.);
   mehSiPixeln[amend]->setAxisTitle("Number of Digis",1);
   mehSiPixeln[amend]->setAxisTitle("Count",2);
-  hcharname = "hSiPixelADC_"+SiPixelString[amend];
-  hchartitle= SiPixelString[amend]+" ADC";
-  sprintf(hname, hcharname.c_str());
-  sprintf(htitle, hchartitle.c_str());
-  mehSiPixelADC[amend] = dbe->book1D(hname,htitle,150,0.0,300.);
+  mehSiPixelADC[amend] = dbe->book1D("hSiPixelADC_"+SiPixelString[amend],SiPixelString[amend]+" ADC",150,0.0,300.);
   mehSiPixelADC[amend]->setAxisTitle("ADC",1);
   mehSiPixelADC[amend]->setAxisTitle("Count",2);
-  hcharname = "hSiPixelRow_"+SiPixelString[amend];
-  hchartitle= SiPixelString[amend]+" Row";
-  sprintf(hname, hcharname.c_str());
-  sprintf(htitle, hchartitle.c_str());
-  mehSiPixelRow[amend] = dbe->book1D(hname,htitle,100,0.0,100.);
+  mehSiPixelRow[amend] = dbe->book1D("hSiPixelRow_"+SiPixelString[amend],SiPixelString[amend]+" Row",100,0.0,100.);
   mehSiPixelRow[amend]->setAxisTitle("Row Number",1);
   mehSiPixelRow[amend]->setAxisTitle("Count",2);
-  hcharname = "hSiPixelColumn_"+SiPixelString[amend];
-  hchartitle= SiPixelString[amend]+" Column";
-  sprintf(hname, hcharname.c_str());
-  sprintf(htitle, hchartitle.c_str());
-  mehSiPixelCol[amend] = dbe->book1D(hname,htitle,200,0.0,500.);
+  mehSiPixelCol[amend] = dbe->book1D("hSiPixelColumn_"+SiPixelString[amend],SiPixelString[amend]+" Column",200,0.0,500.);
   mehSiPixelCol[amend]->setAxisTitle("Column Number",1);
   mehSiPixelCol[amend]->setAxisTitle("Count",2);
 }
@@ -331,32 +246,16 @@ for(int i =0; i < 4; ++i)
 
 for(int j = 0; j < 4; ++j)
 {
-  hcharname = "hDtMuonn_"+MuonString[j];
-  hchartitle= MuonString[j]+"  digis";
-  sprintf(hname,hcharname.c_str());
-  sprintf(htitle,hchartitle.c_str());
-  mehDtMuonn[j] = dbe->book1D(hname,htitle,25, 0., 50.);
+  mehDtMuonn[j] = dbe->book1D("hDtMuonn_"+MuonString[j],MuonString[j]+"  digis",25, 0., 50.);
   mehDtMuonn[j]->setAxisTitle("Number of Digis",1);
   mehDtMuonn[j]->setAxisTitle("Count",2);
-  hcharname = "hDtLayer_"+MuonString[j];
-  hchartitle= MuonString[j]+"  Layer";
-  sprintf(hname,hcharname.c_str());
-  sprintf(htitle,hchartitle.c_str());
-  mehDtMuonLayer[j] = dbe->book1D(hname,htitle,12, 1., 13.);
+  mehDtMuonLayer[j] = dbe->book1D("hDtLayer_"+MuonString[j],MuonString[j]+"  Layer",12, 1., 13.);
   mehDtMuonLayer[j]->setAxisTitle("4 * (SuperLayer - 1) + Layer",1);
   mehDtMuonLayer[j]->setAxisTitle("Count",2);
-  hcharname = "hDtMuonTime_"+MuonString[j];
-  hchartitle= MuonString[j]+"  Time";
-  sprintf(hname,hcharname.c_str());
-  sprintf(htitle,hchartitle.c_str());
-  mehDtMuonTime[j] = dbe->book1D(hname,htitle,300, 400., 1000.);
+  mehDtMuonTime[j] = dbe->book1D("hDtMuonTime_"+MuonString[j],MuonString[j]+"  Time",300, 400., 1000.);
   mehDtMuonTime[j]->setAxisTitle("Time",1);
   mehDtMuonTime[j]->setAxisTitle("Count",2);
-  hcharname = "hDtMuonTimevLayer_"+MuonString[j];
-  hchartitle= MuonString[j]+"  Time vs. Layer";
-  sprintf(hname,hcharname.c_str());
-  sprintf(htitle,hchartitle.c_str());
-  mehDtMuonTimevLayer[j] = dbe->bookProfile(hname,htitle,12, 1., 13., 300, 400., 1000.,"");
+  mehDtMuonTimevLayer[j] = dbe->bookProfile("hDtMuonTimevLayer_"+MuonString[j],MuonString[j]+"  Time vs. Layer",12, 1., 13., 300, 400., 1000.,"");
   mehDtMuonTimevLayer[j]->setAxisTitle("4 * (SuperLayer - 1) + Layer",1);
   mehDtMuonTimevLayer[j]->setAxisTitle("Time",2);
 }
@@ -364,40 +263,24 @@ for(int j = 0; j < 4; ++j)
 //  ****  Have to do CSC and RPC now *****
 //CSC 
 mehCSCStripn = 0;
-hcharname = "hCSCStripn";
-hchartitle = "CSC Strip digis";
-sprintf(hname,hcharname.c_str());
-sprintf(htitle,hchartitle.c_str());
-mehCSCStripn = dbe->book1D(hname,htitle,25, 0., 50.);
+mehCSCStripn = dbe->book1D("hCSCStripn","CSC Strip digis",25, 0., 50.);
 mehCSCStripn->setAxisTitle("Number of Digis",1);
 mehCSCStripn->setAxisTitle("Count",2);
 
 mehCSCStripADC = 0;
-hcharname = "hCSCStripADC";
-hchartitle = "CSC Strip ADC";
-sprintf(hname,hcharname.c_str());
-sprintf(htitle,hchartitle.c_str());
-mehCSCStripADC = dbe->book1D(hname,htitle, 110, 0., 1100.);
+mehCSCStripADC = dbe->book1D("hCSCStripADC","CSC Strip ADC", 110, 0., 1100.);
 mehCSCStripADC->setAxisTitle("ADC",1);
 mehCSCStripADC->setAxisTitle("Count",2);
 
 mehCSCWiren = 0;
-hcharname = "hCSCWiren";
-hchartitle = "CSC Wire digis";
-sprintf(hname,hcharname.c_str());
-sprintf(htitle,hchartitle.c_str());
-mehCSCWiren = dbe->book1D(hname,htitle,25, 0., 50.);
+mehCSCWiren = dbe->book1D("hCSCWiren","CSC Wire digis",25, 0., 50.);
 mehCSCWiren->setAxisTitle("Number of Digis",1);
 mehCSCWiren->setAxisTitle("Count",2);
 
 
 
 mehCSCWireTime = 0;
-hcharname = "hCSCWireTime";
-hchartitle = "CSC Wire Time";
-sprintf(hname,hcharname.c_str());
-sprintf(htitle,hchartitle.c_str());
-mehCSCWiren = dbe->book1D(hname,htitle,10, 0., 10.);
+mehCSCWiren = dbe->book1D("hCSCWireTime","CSC Wire Time",10, 0., 10.);
 mehCSCWiren->setAxisTitle("Time",1);
 mehCSCWiren->setAxisTitle("Count",2);
  
