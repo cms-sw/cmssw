@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.245 2011/08/09 03:39:33 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.246 2011/09/08 03:09:28 amraktad Exp $
 
 
 //
@@ -971,7 +971,7 @@ class areaInfo
 public:
    areaInfo (TGFrameElementPack* frameElement)
    {
-      eveWindow          = 0;
+      eveWindow         = 0;
       originalSlot      = 0;
       undockedMainFrame = 0;
       weight = frameElement->fWeight;
@@ -986,11 +986,11 @@ public:
          originalSlot = eveFrame->GetEveWindow();
    }
 
-   areaInfo () {}
+  areaInfo () : weight(0), undocked(false) {}
 
-   Float_t     weight;
-   Bool_t      undocked;
-   TEveWindow *eveWindow;
+   Float_t      weight;
+   Bool_t       undocked;
+   TEveWindow  *eveWindow;
    TGMainFrame *undockedMainFrame;// cached to help find original slot for undocked windows
    TEveWindow  *originalSlot;
 };
