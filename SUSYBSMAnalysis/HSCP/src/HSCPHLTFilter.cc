@@ -33,7 +33,7 @@ class HSCPHLTFilter : public edm::EDFilter {
       virtual void endJob() ;
       bool isDuplicate(unsigned int Run, unsigned int Event);
 
-      bool IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& InputPath, double NewThreshold, int NObjectAboveThreshold, bool averageThreshold);
+  bool IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& InputPath, double NewThreshold, double etaCut, int NObjectAboveThreshold, bool averageThreshold);
 
       std::string TriggerProcess;
 
@@ -117,41 +117,45 @@ bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
    // HLT TRIGGER BASED ON 1 MUON!
-   if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu30_v8")){
-      if(tr.accept(tr.triggerIndex("HLT_Mu30_v8"))){MuonTrigger1 = true;}
+   if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu40_eta2p1_v1")) {
+     if(tr.accept(tr.triggerIndex("HLT_Mu40_eta2p1_v1"))){MuonTrigger1 = true;}
    }else{
-      if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu30_v7")){
-         if(tr.accept(tr.triggerIndex("HLT_Mu30_v7"))){MuonTrigger1 = true;}
-      }else{
+     if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu30_v8")){
+       if(IncreasedTreshold(trEv, InputTag("hltSingleMu30L2QualL3Filtered30","",TriggerProcess), 40, 2.1, 1, false)){MuonTrigger1 = true;}
+     }else{
+       if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu30_v7")){
+	 if(IncreasedTreshold(trEv, InputTag("hltSingleMu30L2QualL3Filtered30","",TriggerProcess), 40, 2.1, 1, false)){MuonTrigger1 = true;}
+       }else{
          if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu30_v6")){
-            if(tr.accept(tr.triggerIndex("HLT_Mu30_v6"))){MuonTrigger1 = true;}
+	   if(IncreasedTreshold(trEv, InputTag("hltSingleMu30L2QualL3Filtered30","",TriggerProcess), 40, 2.1, 1, false)){MuonTrigger1 = true;}
          }else{
-            if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu30_v5")){
-               if(tr.accept(tr.triggerIndex("HLT_Mu30_v5"))){MuonTrigger1 = true;}
-            }else{
-               if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu30_v4")){
-                  if(tr.accept(tr.triggerIndex("HLT_Mu30_v4"))){MuonTrigger1 = true;}
-               }else{
-                  if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu30_v3")){
-                     if(tr.accept(tr.triggerIndex("HLT_Mu30_v3"))){MuonTrigger1 = true;}
-                  }else{
-                     if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu30_v2")){
-                        if(tr.accept(tr.triggerIndex("HLT_Mu30_v2"))){MuonTrigger1 = true;}
-                     }else{
-                        if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu30_v1")){
-                           if(tr.accept(tr.triggerIndex("HLT_Mu30_v1"))){MuonTrigger1 = true;}
-                        }else{
-                           printf("HSCPHLTFilter --> HLT_Mu30_v1  not found\n");
-                           for(unsigned int i=0;i<tr.size();i++){
-                              printf("Path %3i %50s --> %1i\n",i, tr.triggerName(i).c_str(),tr.accept(i));
-                           }fflush(stdout);
-                          exit(0);
-                       }
-                    }
-                 }
-              }
+	   if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu30_v5")){
+	     if(IncreasedTreshold(trEv, InputTag("hltSingleMu30L3Filtered30","",TriggerProcess), 40, 2.1, 1, false)){MuonTrigger1 = true;}
+	   }else{
+	     if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu30_v4")){
+	       if(IncreasedTreshold(trEv, InputTag("hltSingleMu30L3Filtered30","",TriggerProcess), 40, 2.1, 1, false)){MuonTrigger1 = true;}
+	     }else{
+	       if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu30_v3")){
+		 if(IncreasedTreshold(trEv, InputTag("hltSingleMu30L3Filtered30","",TriggerProcess), 40, 2.1, 1, false)){MuonTrigger1 = true;}
+	       }else{
+		 if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu30_v2")){
+		   if(IncreasedTreshold(trEv, InputTag("hltSingleMu30L3Filtered30","",TriggerProcess), 40, 2.1, 1, false)){MuonTrigger1 = true;}
+		 }else{
+		   if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu30_v1")){
+		     if(IncreasedTreshold(trEv, InputTag("hltSingleMu30L3Filtered30","",TriggerProcess), 40, 2.1, 1, false)){MuonTrigger1 = true;}
+		   }else{
+		     printf("HSCPHLTFilter --> HLT_Mu30_v1  not found\n");
+		     for(unsigned int i=0;i<tr.size();i++){
+		       printf("Path %3i %50s --> %1i\n",i, tr.triggerName(i).c_str(),tr.accept(i));
+		     }fflush(stdout);
+		     exit(0);
+		   }
+		 }
+	       }
+	     }
            }
-        }
+	 }
+       }
      }
    }
 
@@ -215,7 +219,7 @@ bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if(MuonTrigger1Mask==0)MuonTrigger1=false;
    if(PFMetTriggerMask ==0)PFMetTrigger =false;
 
-   //Allow option of requiring that one of the triggers did NOT file to remove duplicated events
+   //Allow option of requiring that one of the triggers did NOT fire to remove duplicated events
    if(MuonTrigger1Mask<0 && MuonTrigger1) return false;
    if(PFMetTriggerMask<0 && PFMetTrigger) return false;
 
@@ -225,7 +229,7 @@ bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 }
 
-bool HSCPHLTFilter::IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& InputPath, double NewThreshold, int NObjectAboveThreshold, bool averageThreshold)
+   bool HSCPHLTFilter::IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& InputPath, double NewThreshold, double etaCut, int NObjectAboveThreshold, bool averageThreshold)
 {
    unsigned int filterIndex = trEv.filterIndex(InputPath);
    //if(filterIndex<trEv.sizeFilters())printf("SELECTED INDEX =%i --> %s    XXX   %s\n",filterIndex,trEv.filterTag(filterIndex).label().c_str(), trEv.filterTag(filterIndex).process().c_str());
@@ -243,7 +247,7 @@ bool HSCPHLTFilter::IncreasedTreshold(const trigger::TriggerEvent& trEv, const e
       if(!averageThreshold){
          int NObjectAboveThresholdObserved = 0;
          for (int i=0; i!=n; ++i) {
-            if(TOC[KEYS[i]].pt()> NewThreshold) NObjectAboveThresholdObserved++;
+	   if(TOC[KEYS[i]].pt()> NewThreshold && fabs(TOC[KEYS[i]].eta())<etaCut) NObjectAboveThresholdObserved++;
             //cout << "   " << i << " " << VIDS[i] << "/" << KEYS[i] << ": "<< TOC[KEYS[i]].id() << " " << TOC[KEYS[i]].pt() << " " << TOC[KEYS[i]].eta() << " " << TOC[KEYS[i]].phi() << " " << TOC[KEYS[i]].mass()<< endl;
          }
          if(NObjectAboveThresholdObserved>=NObjectAboveThreshold)return true;
