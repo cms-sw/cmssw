@@ -179,6 +179,16 @@ import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 """
 
+    # from CMSSW_4_4_0 / CMSSW_5_0_0_pre1: change input label for V00-04-17-00 RecoVertex/BeamSpotProducer
+    if not self.config.fastsim:
+      self.data += """
+# from CMSSW_4_4_0 / CMSSW_5_0_0_pre1: change input label for V00-04-17-00 RecoVertex/BeamSpotProducer
+if cmsswVersion > "CMSSW_4_4":
+    if 'hltOnlineBeamSpot' in %(dict)s:
+        %(process)shltOnlineBeamSpot.src = %(process)shltOnlineBeamSpot.label
+        del %(process)shltOnlineBeamSpot.label
+"""
+
     # from CMSSW_4_4_0_pre8: update HF configuration for V00-09-18 RecoLocalCalo/HcalRecProducers
     if not self.config.fastsim:
       self.data += """
