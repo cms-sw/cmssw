@@ -74,7 +74,7 @@ HLTJetCollectionsVBFFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
   // The filter object
   auto_ptr<trigger::TriggerFilterObjectWithRefs> 
     filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTags_) filterobject->addCollectionTag(inputTag_);
+  if (saveTags_) filterobject->addCollectionTag(originalTag_);
 
   Handle<JetCollectionVector> theCaloJetCollectionsHandle;
   iEvent.getByLabel(inputTag_,theCaloJetCollectionsHandle);
