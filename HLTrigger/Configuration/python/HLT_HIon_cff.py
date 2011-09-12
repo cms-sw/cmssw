@@ -1,16 +1,15 @@
-# /dev/CMSSW_4_2_0/HIon/V241 (CMSSW_4_2_0_HLT27)
+# /dev/CMSSW_4_2_0/HIon/V236 (CMSSW_4_2_0_HLT27)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V241')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V236')
 )
 
 streams = cms.PSet( 
   A = cms.vstring( 'HIAllPhysics',
     'HICorePhysics',
-    'HIUnused',
     'LogMonitor' ),
   Calibration = cms.vstring( 'TestEnablesEcalHcalDT' ),
   DQM = cms.vstring( 'OnlineMonitor',
@@ -67,27 +66,8 @@ datasets = cms.PSet(
     'HLT_HIL2DoubleMu3',
     'HLT_HIMinBiasHfOrBSC',
     'HLT_HIPhoton30_Cleaned_Core' ),
-  HIUnused = cms.vstring( 'HLT_HIBptxXOR',
-    'HLT_HIDoublePhoton5_CEP_L1R',
-    'HLT_HIJet50U',
-    'HLT_HIJet75U_Core',
-    'HLT_HIL1Algo_BptxXOR_BSC_OR',
-    'HLT_HIL1SingleMu3',
-    'HLT_HIL2DoubleMu0',
-    'HLT_HIL2Mu20',
-    'HLT_HIL2Mu5Tight',
-    'HLT_HIMinBiasBSC_OR',
-    'HLT_HIMinBiasHfOrBSC',
-    'HLT_HIMinBiasPixel_SingleTrack',
-    'HLT_HIMinBiasZDC_Calo_PlusOrMinus',
-    'HLT_HIPhoton15_Cleaned_Core',
-    'HLT_HIPhoton30',
-    'HLT_HIStoppedHSCP35',
-    'HLT_HIUpcMu',
-    'HLT_HIZeroBiasPixel_SingleTrack' ),
   LogMonitor = cms.vstring( 'HLT_LogMonitor_v1' ),
-  OfflineMonitor = cms.vstring( 'HLT_HcalCalibration_v2',
-    'HLT_LogMonitor_v1' ),
+  OfflineMonitor = cms.vstring( 'HLT_LogMonitor_v1' ),
   OfflineMonitorHI = cms.vstring( 'HLT_HIActivityHF_Coincidence3',
     'HLT_HIActivityHF_Single3',
     'HLT_HIBptxXOR',
@@ -4585,6 +4565,12 @@ HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_DTCalibration_v1, HLT_Ecal
 # version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
+
+# from CMSSW_4_4_0 / CMSSW_5_0_0_pre1: change input label for V00-04-17-00 RecoVertex/BeamSpotProducer
+if cmsswVersion > "CMSSW_4_4":
+    if 'hltOnlineBeamSpot' in locals():
+        hltOnlineBeamSpot.src = hltOnlineBeamSpot.label
+        del hltOnlineBeamSpot.label
 
 # from CMSSW_4_4_0_pre8: update HF configuration for V00-09-18 RecoLocalCalo/HcalRecProducers
 if cmsswVersion > "CMSSW_4_4":
