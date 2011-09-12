@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/07/18 14:32:48 $
- *  $Revision: 1.27 $
+ *  $Date: 2011/09/08 16:14:52 $
+ *  $Revision: 1.28 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -240,7 +240,7 @@ void TrackingMonitor::beginJob(void)
     
 
     doTkCandPlots=conf_.getParameter<bool>("doTrackCandHistos");
-    if (doAllPlots) doTkCandPlots=true;
+    //    if (doAllPlots) doTkCandPlots=true;
 
     if (doTkCandPlots){
 
