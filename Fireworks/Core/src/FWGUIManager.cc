@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.247 2011/09/12 12:51:09 yana Exp $
+// $Id: FWGUIManager.cc,v 1.248 2011/09/12 22:21:59 amraktad Exp $
 
 
 //
@@ -826,9 +826,16 @@ FWGUIManager::promptForSaveConfigurationFile()
 void
 FWGUIManager::exportImageOfMainView()
 {
-   TGFrameElementPack* frameEL = (TGFrameElementPack*) m_viewPrimPack->GetPack()->GetList()->At(1);
-   TEveCompositeFrame* ef = dynamic_cast<TEveCompositeFrame*>(frameEL->fFrame);
-   m_viewMap[ef->GetEveWindow()]->promptForSaveImageTo(m_cmsShowMainFrame);
+   if (m_viewPrimPack->GetPack()->GetList()->GetSize() > 2)
+   {
+      TGFrameElementPack* frameEL = (TGFrameElementPack*) m_viewPrimPack->GetPack()->GetList()->At(1);
+      TEveCompositeFrame* ef = dynamic_cast<TEveCompositeFrame*>(frameEL->fFrame);
+      m_viewMap[ef->GetEveWindow()]->promptForSaveImageTo(m_cmsShowMainFrame);
+   }
+   else
+   {
+      fwLog(fwlog::kError) << "Main view has been destroyed." << std::endl; 
+   }
 }
 
 void
@@ -1068,10 +1075,10 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
          wpacked.push_back(areaInfo(frameEL));
    }
    TGPack* sp = m_viewSecPack->GetPack();
-   Int_t nf = sp->GetList()->GetSize();
+   TGFrameElementPack *seFE;
    TIter frame_iterator(sp->GetList());
-   for (Int_t i=0; i<nf; ++i) {
-      TGFrameElementPack *seFE = (TGFrameElementPack*)frame_iterator();
+   while ((seFE = (TGFrameElementPack*)frame_iterator() ))
+   {
       if (seFE->fWeight)
          wpacked.push_back(areaInfo(seFE));
    }
