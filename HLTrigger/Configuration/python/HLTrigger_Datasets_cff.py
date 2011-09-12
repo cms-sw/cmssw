@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V241
+# /dev/CMSSW_4_2_0/GRun/V243
 
 import FWCore.ParameterSet.Config as cms
 
@@ -315,6 +315,11 @@ streamA_datasetMuHad_selector.triggerConditions = cms.vstring('HLT_DoubleMu5_Mas
     'HLT_IsoMu17_eta2p1_CentralJet30_BTagIP_v1', 
     'HLT_IsoMu17_eta2p1_CentralJet30_v1', 
     'HLT_IsoMu17_eta2p1_DiCentralJet30_v1', 
+    'HLT_IsoMu17_eta2p1_DiCentralPFJet25_PFMHT15_v1', 
+    'HLT_IsoMu17_eta2p1_DiCentralPFJet25_PFMHT25_v1', 
+    'HLT_IsoMu17_eta2p1_DiCentralPFJet25_v1', 
+    'HLT_IsoMu17_eta2p1_DiPFJet25_Deta3_PFJet25_v1', 
+    'HLT_IsoMu17_eta2p1_DiPFJet25_Deta3_v1', 
     'HLT_IsoMu17_eta2p1_QuadCentralJet30_v1', 
     'HLT_IsoMu17_eta2p1_TriCentralJet30_v1', 
     'HLT_IsoMu20_DiCentralJet34_v3', 
@@ -328,6 +333,8 @@ streamA_datasetMuHad_selector.triggerConditions = cms.vstring('HLT_DoubleMu5_Mas
     'HLT_Mu17_eta2p1_CentralJet30_BTagIP_v1', 
     'HLT_Mu17_eta2p1_CentralJet30_v1', 
     'HLT_Mu17_eta2p1_DiCentralJet30_v1', 
+    'HLT_Mu17_eta2p1_DiCentralPFJet25_PFMHT15_v1', 
+    'HLT_Mu17_eta2p1_DiPFJet25_Deta3_v1', 
     'HLT_Mu17_eta2p1_QuadCentralJet30_v1', 
     'HLT_Mu17_eta2p1_TriCentralJet30_v1', 
     'HLT_Mu40_HT300_v1', 
