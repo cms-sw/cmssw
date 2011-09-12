@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V245
+# /dev/CMSSW_4_2_0/GRun/V246
 
 import FWCore.ParameterSet.Config as cms
 
@@ -80,7 +80,6 @@ streamA_datasetDoubleMu_selector.triggerConditions = cms.vstring('HLT_DoubleMu3_
     'HLT_DoubleMu6_v8', 
     'HLT_DoubleMu7_Acoplanarity03_v1', 
     'HLT_DoubleMu7_v8', 
-    'HLT_GlbMu17_TrkMu8_v1', 
     'HLT_L1DoubleMu0_v4', 
     'HLT_L2DoubleMu0_v7', 
     'HLT_L2DoubleMu23_NoVertex_v7', 
@@ -88,6 +87,7 @@ streamA_datasetDoubleMu_selector.triggerConditions = cms.vstring('HLT_DoubleMu3_
     'HLT_L2DoubleMu45_NoVertex_v1', 
     'HLT_Mu13_Mu8_v7', 
     'HLT_Mu17_Mu8_v7', 
+    'HLT_Mu17_TkMu8_v1', 
     'HLT_Mu8_Jet40_v10', 
     'HLT_TripleMu5_v9')
 
