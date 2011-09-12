@@ -1,4 +1,8 @@
+<<<<<<< HLTrigger_Datasets_cff.py
+# /dev/CMSSW_4_2_0/GRun/V249
+=======
 # /dev/CMSSW_4_2_0/GRun/V248
+>>>>>>> 1.395
 
 import FWCore.ParameterSet.Config as cms
 
@@ -355,6 +359,7 @@ streamA_datasetMuOnia_selector.throw      = cms.bool(False)
 streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Dimuon0_Jpsi_Muon_v7', 
     'HLT_Dimuon0_Jpsi_NoVertexing_v3', 
     'HLT_Dimuon0_Jpsi_v6', 
+    'HLT_Dimuon0_Omega_Phi_v1', 
     'HLT_Dimuon0_Upsilon_Muon_v7', 
     'HLT_Dimuon0_Upsilon_v6', 
     'HLT_Dimuon10_Jpsi_Barrel_v6', 

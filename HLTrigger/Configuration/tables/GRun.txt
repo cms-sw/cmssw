@@ -187,6 +187,7 @@ HLT_DoubleMu4_Jpsi_Displaced_v*
 HLT_DoubleMu5_Jpsi_Displaced_v*
 HLT_DoubleMu4p5_LowMass_Displaced_v*
 HLT_DoubleMu5_LowMass_Displaced_v*
+HLT_Dimuon0_Omega_Phi_v*								#added in 5e33 menu (sr #123436)
 HLT_Dimuon0_Jpsi_NoVertexing_v*
 HLT_Dimuon0_Jpsi_v*
 HLT_Dimuon0_Jpsi_Muon_v*

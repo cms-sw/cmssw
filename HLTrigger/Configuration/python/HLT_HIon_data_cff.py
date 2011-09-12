@@ -1,10 +1,18 @@
+<<<<<<< HLT_HIon_data_cff.py
+# /dev/CMSSW_4_2_0/HIon/V249 (CMSSW_4_2_0_HLT27)
+=======
 # /dev/CMSSW_4_2_0/HIon/V248 (CMSSW_4_2_0_HLT27)
+>>>>>>> 1.253
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
+<<<<<<< HLT_HIon_data_cff.py
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V249')
+=======
   tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V248')
+>>>>>>> 1.253
 )
 
 streams = cms.PSet( 
