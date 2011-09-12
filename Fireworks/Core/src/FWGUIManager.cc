@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.246 2011/09/08 03:09:28 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.247 2011/09/12 12:51:09 yana Exp $
 
 
 //
@@ -451,14 +451,13 @@ FWGUIManager::getSwapCandidate()
       }
       if (swapCandidate == 0)
       {
-         // no eve window found in primary check secondary
+         // no eve window found in primary, check secondary
          TGPack* sp = m_viewSecPack->GetPack();
-         Int_t nf = sp->GetList()->GetSize();
          TIter frame_iterator(sp->GetList());
-         for (Int_t i=0; i<nf; ++i) {
-            pel = (TGFrameElementPack*)frame_iterator();
+         while ((pel = (TGFrameElementPack*)frame_iterator())) 
+         {
             pef = dynamic_cast<TEveCompositeFrame*>(pel->fFrame);
-            if ( pef && pef->GetEveWindow())
+            if ( pef && pef->GetEveWindow() && pel->fState)
             {
                swapCandidate =  pef->GetEveWindow() ;
                break;
@@ -466,7 +465,6 @@ FWGUIManager::getSwapCandidate()
          }
       }
    }
-
    return swapCandidate;
 }
 
