@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.109 2011/06/03 23:30:50 amraktad Exp $
+// $Id: CmsShowNavigator.cc,v 1.110 2011/08/10 14:27:02 yana Exp $
 //
 
 #include "DataFormats/FWLite/interface/Event.h"
@@ -838,9 +838,9 @@ CmsShowNavigator::setFrom(const FWConfiguration& iFrom)
    else
    {
       int numberOfFilters = 0;
-      const FWConfiguration* value = iFrom.valueForKey( "EventFilter_total" );
-      std::istringstream s(value->value());
-      s>>numberOfFilters;
+      const FWConfiguration* nfvalue = iFrom.valueForKey( "EventFilter_total" );
+      if(nfvalue)
+         numberOfFilters = atoi(nfvalue->value().c_str());
 
       for(int i=0; i<numberOfFilters; ++i)
       {
