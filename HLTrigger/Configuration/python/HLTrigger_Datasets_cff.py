@@ -1,8 +1,4 @@
-<<<<<<< HLTrigger_Datasets_cff.py
-# /dev/CMSSW_4_2_0/GRun/V249
-=======
-# /dev/CMSSW_4_2_0/GRun/V248
->>>>>>> 1.395
+# /dev/CMSSW_4_2_0/GRun/V252
 
 import FWCore.ParameterSet.Config as cms
 
