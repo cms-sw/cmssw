@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HLT/V856 (CMSSW_4_2_0_HLT28)
+# /dev/CMSSW_4_2_0/HLT/V857 (CMSSW_4_2_0_HLT28)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V856')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V857')
 )
 
 streams = cms.PSet( 
@@ -2335,6 +2335,8 @@ datasets = cms.PSet(
     'HLT_DoubleEle45_CaloIdL_v4',
     'HLT_DoublePhoton33_HEVT_v4',
     'HLT_DoublePhoton38_HEVT_v3',
+    'HLT_DoublePhoton40_CaloIdL_MR150_v1',
+    'HLT_DoublePhoton40_CaloIdL_R014_MR150_v1',
     'HLT_DoublePhoton40_MR150_v6',
     'HLT_DoublePhoton40_R014_MR150_v6',
     'HLT_DoublePhoton43_HEVT_v1',
@@ -2377,9 +2379,7 @@ datasets = cms.PSet(
     'HLT_Photon75_CaloIdVL_v7',
     'HLT_Photon90_CaloIdVL_IsoL_v5',
     'HLT_Photon90_CaloIdVL_v4' ),
-  PhotonHad = cms.vstring( 'HLT_DoublePhoton40_CaloIdL_MR150_v1',
-    'HLT_DoublePhoton40_CaloIdL_R014_MR150_v1',
-    'HLT_Photon30_CaloIdVT_CentralJet20_BTagIP_v3',
+  PhotonHad = cms.vstring( 'HLT_Photon30_CaloIdVT_CentralJet20_BTagIP_v3',
     'HLT_Photon40_CaloIdL_R005_MR150_v5',
     'HLT_Photon40_CaloIdL_R014_MR500_v3',
     'HLT_Photon40_CaloIdL_R017_MR500_v3',

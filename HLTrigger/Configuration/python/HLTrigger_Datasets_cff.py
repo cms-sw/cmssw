@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V252
+# /dev/CMSSW_4_2_0/GRun/V254
 
 import FWCore.ParameterSet.Config as cms
 
@@ -149,7 +149,6 @@ streamA_datasetHT_selector.triggerConditions = cms.vstring('HLT_DiJet130_PT130_v
     'HLT_FatJetMass850_DR1p1_Deta2p0_v2', 
     'HLT_HT150_v8', 
     'HLT_HT2000_v2', 
-    'HLT_HT200_AlphaT0p55_v2', 
     'HLT_HT200_v8', 
     'HLT_HT250_AlphaT0p58_v1', 
     'HLT_HT250_AlphaT0p60_v1', 
@@ -416,6 +415,8 @@ streamA_datasetPhoton_selector.triggerConditions = cms.vstring('HLT_DoubleEle33_
     'HLT_DoubleEle33_CaloIdT_v1', 
     'HLT_DoubleEle45_CaloIdL_v4', 
     'HLT_DoublePhoton38_HEVT_v3', 
+    'HLT_DoublePhoton40_CaloIdL_MR150_v1', 
+    'HLT_DoublePhoton40_CaloIdL_R014_MR150_v1', 
     'HLT_DoublePhoton43_HEVT_v1', 
     'HLT_DoublePhoton48_HEVT_v1', 
     'HLT_DoublePhoton5_IsoVL_CEP_v7', 
@@ -454,9 +455,7 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetPhotonHad_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetPhotonHad_selector.l1tResults = cms.InputTag('')
 streamA_datasetPhotonHad_selector.throw      = cms.bool(False)
-streamA_datasetPhotonHad_selector.triggerConditions = cms.vstring('HLT_DoublePhoton40_CaloIdL_MR150_v1', 
-    'HLT_DoublePhoton40_CaloIdL_R014_MR150_v1', 
-    'HLT_Photon30_CaloIdVT_CentralJet20_BTagIP_v3', 
+streamA_datasetPhotonHad_selector.triggerConditions = cms.vstring('HLT_Photon30_CaloIdVT_CentralJet20_BTagIP_v3', 
     'HLT_Photon40_CaloIdL_R017_MR500_v3', 
     'HLT_Photon40_CaloIdL_R023_MR350_v3', 
     'HLT_Photon40_CaloIdL_R029_MR250_v3', 
