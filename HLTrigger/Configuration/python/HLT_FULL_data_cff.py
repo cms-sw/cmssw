@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HLT/V851 (CMSSW_4_2_0_HLT27)
+# /dev/CMSSW_4_2_0/HLT/V853 (CMSSW_4_2_0_HLT27)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V851')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V853')
 )
 
 streams = cms.PSet( 
@@ -29794,7 +29794,7 @@ hltPreIsoMu17eta2p1DiPFJet25Deta3PFJet25 = cms.EDFilter( "HLTPrescaler",
 )
 hltIsoMu172p1DiPFJet25Deta3PFJet25JetCollectionsVBFFilter = cms.EDFilter( "HLTJetCollectionsVBFFilter",
     inputTag = cms.InputTag( "hltIsoMu172p1JetCollectionsForLeptonPlusJets" ),
-    saveTags = cms.bool( True ),
+    saveTags = cms.bool( False ),
     SoftJetPt = cms.double( 25.0 ),
     HardJetPt = cms.double( 25.0 ),
     MinDeltaEta = cms.double( 3.0 ),
@@ -34414,7 +34414,7 @@ hltEle27WP80CleanAK5PFJet25 = cms.EDProducer( "HLTJetCollectionsForElePlusJets",
 )
 hltEle27WP80CentralDiPFJet25Cleaned = cms.EDFilter( "HLTJetCollectionsFilter",
     inputTag = cms.InputTag( "hltEle27WP80CleanAK5PFJet25" ),
-    saveTags = cms.bool( True ),
+    saveTags = cms.bool( False ),
     MinJetPt = cms.double( 25.0 ),
     MaxAbsJetEta = cms.double( 2.6 ),
     MinNJets = cms.uint32( 2 )
@@ -34557,7 +34557,7 @@ hltPreEle27WP80DiPFJet25Deta3 = cms.EDFilter( "HLTPrescaler",
 )
 hltEle27WP80DiPFJet25CleanedDeta3 = cms.EDFilter( "HLTJetCollectionsVBFFilter",
     inputTag = cms.InputTag( "hltEle27WP80CleanAK5PFJet25" ),
-    saveTags = cms.bool( True ),
+    saveTags = cms.bool( False ),
     SoftJetPt = cms.double( 25.0 ),
     HardJetPt = cms.double( 25.0 ),
     MinDeltaEta = cms.double( 3.0 ),
@@ -34593,7 +34593,7 @@ hltEle27CaloIdVTTrkIdTCleanAK5PFJet25 = cms.EDProducer( "HLTJetCollectionsForEle
 )
 hltEle27CaloIdVTTrkIdTDiPFJet25CleanedDeta3 = cms.EDFilter( "HLTJetCollectionsVBFFilter",
     inputTag = cms.InputTag( "hltEle27CaloIdVTTrkIdTCleanAK5PFJet25" ),
-    saveTags = cms.bool( True ),
+    saveTags = cms.bool( False ),
     SoftJetPt = cms.double( 25.0 ),
     HardJetPt = cms.double( 25.0 ),
     MinDeltaEta = cms.double( 3.0 ),
@@ -35049,7 +35049,7 @@ hltEle32WP80CleanAK5PFJet25 = cms.EDProducer( "HLTJetCollectionsForElePlusJets",
 )
 hltEle32WP80CentralDiPFJet25Cleaned = cms.EDFilter( "HLTJetCollectionsFilter",
     inputTag = cms.InputTag( "hltEle32WP80CleanAK5PFJet25" ),
-    saveTags = cms.bool( True ),
+    saveTags = cms.bool( False ),
     MinJetPt = cms.double( 25.0 ),
     MaxAbsJetEta = cms.double( 2.6 ),
     MinNJets = cms.uint32( 2 )
@@ -35060,7 +35060,7 @@ hltPreEle32WP80DiPFJet25Deta3p5 = cms.EDFilter( "HLTPrescaler",
 )
 hltEle32WP80DiPFJet25CleanedDeta3p5 = cms.EDFilter( "HLTJetCollectionsVBFFilter",
     inputTag = cms.InputTag( "hltEle32WP80CleanAK5PFJet25" ),
-    saveTags = cms.bool( True ),
+    saveTags = cms.bool( False ),
     SoftJetPt = cms.double( 25.0 ),
     HardJetPt = cms.double( 25.0 ),
     MinDeltaEta = cms.double( 3.5 ),
