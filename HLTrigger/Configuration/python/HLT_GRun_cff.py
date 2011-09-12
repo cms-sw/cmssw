@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/GRun/V246 (CMSSW_4_2_0_HLT27)
+# /dev/CMSSW_4_2_0/GRun/V247 (CMSSW_4_2_0_HLT27)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V246')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V247')
 )
 
 streams = cms.PSet( 
@@ -26494,7 +26494,7 @@ hltIsoMu172p1JetCollectionsForLeptonPlusJets = cms.EDProducer( "HLTJetCollection
 )
 hltIsoMu172p1DiCentralPFJet25Filter = cms.EDFilter( "HLTJetCollectionsFilter",
     inputTag = cms.InputTag( "hltIsoMu172p1JetCollectionsForLeptonPlusJets" ),
-    saveTags = cms.bool( True ),
+    saveTags = cms.bool( False ),
     MinJetPt = cms.double( 25.0 ),
     MaxAbsJetEta = cms.double( 2.6 ),
     MinNJets = cms.uint32( 2 )
@@ -26518,7 +26518,7 @@ hltPreMu17eta2p1DiPFJet25Deta3 = cms.EDFilter( "HLTPrescaler",
 )
 hltMu172p1DiPFJet25Deta3JetCollectionsVBFFilter = cms.EDFilter( "HLTJetCollectionsVBFFilter",
     inputTag = cms.InputTag( "hltMu172p1JetCollectionsForLeptonPlusJets" ),
-    saveTags = cms.bool( True ),
+    saveTags = cms.bool( False ),
     SoftJetPt = cms.double( 25.0 ),
     HardJetPt = cms.double( 25.0 ),
     MinDeltaEta = cms.double( 3.0 ),
@@ -26533,7 +26533,7 @@ hltPreIsoMu17eta2p1DiPFJet25Deta3 = cms.EDFilter( "HLTPrescaler",
 )
 hltIsoMu172p1DiPFJet25Deta3JetCollectionsVBFFilter = cms.EDFilter( "HLTJetCollectionsVBFFilter",
     inputTag = cms.InputTag( "hltIsoMu172p1JetCollectionsForLeptonPlusJets" ),
-    saveTags = cms.bool( True ),
+    saveTags = cms.bool( False ),
     SoftJetPt = cms.double( 25.0 ),
     HardJetPt = cms.double( 25.0 ),
     MinDeltaEta = cms.double( 3.0 ),
