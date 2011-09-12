@@ -201,6 +201,7 @@ HLT_Dimuon9_PsiPrime_v*
 HLT_Dimuon11_PsiPrime_v*
 HLT_Mu13_Mu8_v*
 HLT_Mu17_Mu8_v*
+HLT_GlbMu17_TrkMu8_v* # added in 5e33 (sr #123431)
 HLT_TripleMu5_v*
 HLT_DoubleMu5_IsoMu5_v*
 HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v*

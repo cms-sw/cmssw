@@ -201,6 +201,7 @@ HLT_Dimuon9_PsiPrime_v*
 HLT_Dimuon11_PsiPrime_v*
 HLT_Mu13_Mu8_v*
 HLT_Mu17_Mu8_v*
+HLT_GlbMu17_TrkMu8_v* # added in 5e33 (sr #123431)
 HLT_TripleMu5_v*
 HLT_DoubleMu5_IsoMu5_v*
 HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v*
@@ -487,7 +488,9 @@ AlCa_RPCMuonNoTriggers_v*
 AlCa_RPCMuonNoHits_v*
 AlCa_RPCMuonNormalisation_v*
 DQM_FEDIntegrity_v*
+# HLTriggerFirstPath # only in GRun, not in online
 HLTriggerFinalPath
+# HLTAnalyzerEndpath # only in GRun, not in online
 AOutput
 ALCAP0Output
 ALCAPHISYMOutput
