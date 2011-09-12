@@ -379,29 +379,27 @@ FWGUIEventFilter::CloseWindow()
 void
 FWGUIEventFilter::checkApplyButton()
 {
-   bool changed = m_filtersRemoved;
+   // set color of apply button if changed
+
+   bool changed = ( m_filtersRemoved || (getFilterMode() != m_origFilterMode) );
 
    if (!changed)
    {
-      changed = (getFilterMode() != m_origFilterMode);
-
-      if (!changed)
+      std::list<FWGUIEventSelector*>::iterator i = m_guiSelectors.begin();
+      while (i != m_guiSelectors.end())
       {
-         std::list<FWGUIEventSelector*>::iterator i = m_guiSelectors.begin();
-         while (i != m_guiSelectors.end())
+         if ((*i)->origSelector() == 0 ||
+             (*i)->guiSelector()->m_enabled    != (*i)->origSelector()->m_enabled  ||
+             (*i)->guiSelector()->m_expression != (*i)->origSelector()->m_expression )
          {
-            if ((*i)->origSelector() == 0)
-               break;
-
-            if ( (*i)->guiSelector()->m_enabled    != (*i)->origSelector()->m_enabled  ||
-                 (*i)->guiSelector()->m_expression != (*i)->origSelector()->m_expression )
-               break;
-
-            ++i;
+            changed = true;
+            break;
          }
-         changed = (i != m_guiSelectors.end());
+
+         ++i;
       }
    }
+
 
    m_applyBtn->SetForegroundColor(changed ? 0x40FF80 : 0x000000);
    gClient->NeedRedraw( m_applyBtn);
