@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-// $Id: FWGUIManager.cc,v 1.248 2011/09/12 22:21:59 amraktad Exp $
+// $Id: FWGUIManager.cc,v 1.249 2011/09/12 22:56:09 amraktad Exp $
 
 
 //
@@ -1224,11 +1224,15 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
             TEveWindow* lastWindow = lastViewIt->first;
             lastWindow->UndockWindow();
             TEveCompositeFrameInMainFrame* emf = dynamic_cast<TEveCompositeFrameInMainFrame*>(lastWindow->GetEveFrame());
-            const TGMainFrame* mf =  dynamic_cast<const TGMainFrame*>(emf->GetParent());
-            m_cmsShowMainFrame->bindCSGActionKeys(mf);
-            TGMainFrame* mfp = (TGMainFrame*)mf;
-            const FWConfiguration* mwc = (areaIt->second).valueForKey("UndockedWindowPos");
-            setWindowInfoFrom(*mwc, mfp);
+            if (emf ) {
+               const TGMainFrame* mf =  dynamic_cast<const TGMainFrame*>(emf->GetParent());
+               if (mf) {
+                  m_cmsShowMainFrame->bindCSGActionKeys(mf);
+                  TGMainFrame* mfp = (TGMainFrame*)mf; // have to cast in non-const
+                  const FWConfiguration* mwc = (areaIt->second).valueForKey("UndockedWindowPos");
+                  setWindowInfoFrom(*mwc, mfp);
+               }
+            }
          }
          areaIt++;
       }
