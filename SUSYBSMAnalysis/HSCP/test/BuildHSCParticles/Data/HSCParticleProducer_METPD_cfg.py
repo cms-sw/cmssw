@@ -77,14 +77,14 @@ process.Out = cms.OutputModule("PoolOutputModule",
          "keep *_genParticles_*_*",
          "keep GenEventInfoProduct_generator_*_*",
          "keep *_offlinePrimaryVertices_*_*",
-         "keep *_cscSegments_*_*",
-         "keep *_rpcRecHits_*_*",
-         "keep *_dt4DSegments_*_*",
+         #"keep *_cscSegments_*_*",
+         #"keep *_rpcRecHits_*_*",
+         #"keep *_dt4DSegments_*_*",
          "keep SiStripClusteredmNewDetSetVector_generalTracksSkim_*_*",
          "keep SiPixelClusteredmNewDetSetVector_generalTracksSkim_*_*",
-         "keep *_reducedHSCPhbhereco_*_*",      #
-         "keep *_reducedHSCPEcalRecHitsEB_*_*", #
-         "keep *_reducedHSCPEcalRecHitsEE_*_*", #
+         #"keep *_reducedHSCPhbhereco_*_*",      #
+         #"keep *_reducedHSCPEcalRecHitsEB_*_*", #
+         #"keep *_reducedHSCPEcalRecHitsEE_*_*", #
          "keep *_TrackRefitter_*_*",
          "drop TrajectorysToOnerecoTracksAssociation_TrackRefitter__",
          "keep *_standAloneMuons_*_*",

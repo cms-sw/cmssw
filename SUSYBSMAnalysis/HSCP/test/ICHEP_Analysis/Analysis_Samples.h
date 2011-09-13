@@ -63,7 +63,7 @@
 #define SID_DS500     57
 
 int                  RunningPeriods = 2;
-double               IntegratedLuminosity = 2080; //1912; //1947; //1631; //976.204518023; //705.273820; //342.603275; //204.160928; //191.04;
+double               IntegratedLuminosity = 2125; //2080; //1912; //1947; //1631; //976.204518023; //705.273820; //342.603275; //204.160928; //191.04;
 double               IntegratedLuminosityBeforeTriggerChange = 353.494; // Total luminosity taken before RPC L1 trigger change (went into effect on run 165970)
 float                Event_Weight = 1;
 int                  MaxEntry = -1;
