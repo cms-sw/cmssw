@@ -21,7 +21,8 @@ public:
   typedef TwoBodyDecayParameters::ParameterName ParameterName;
 
   TwoBodyDecay( void ) :
-    theDecayParameters(), theChi2( 0. ), theValidityFlag( false ) {}
+    theDecayParameters(), theChi2( 0. ), theValidityFlag( false ),
+    thePrimaryMass( 0. ), thePrimaryWidth( 0. )  {}
 
   TwoBodyDecay( const TwoBodyDecayParameters &param, double chi2, bool valid, 
 		const TwoBodyDecayVirtualMeasurement &vm ) :
