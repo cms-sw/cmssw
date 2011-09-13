@@ -13,7 +13,7 @@ time python $SCRIPTS/linker/linker.py $LOCALTOP
 
 #Generationg tree view
 mkdir $LOCALTOP/doc/html/splittedTree
-cp -R $SCRIPTS/tree/jquery/ $LOCALTOP/doc/html/splittedTree
+cp -R $SCRIPTS/jquery/ $LOCALTOP/doc/html/splittedTree
 
 # Generating tree views and index page
 time python $SCRIPTS/indexPage/Association.py $CMSSW_xyz $LOCALTOP $SCRIPTS
@@ -24,3 +24,6 @@ cp $SCRIPTS/other/ReferenceManual.html $LOCALTOP/doc/html
 time python $SCRIPTS/splitter/splitter.py $LOCALTOP /doc/html/namespaces.html namespaceList_ 
 time python $SCRIPTS/splitter/splitter.py $LOCALTOP /doc/html/configfiles.html configfilesList_ 
 time python $SCRIPTS/splitter/splitter.py $LOCALTOP /doc/html/annotated.html annotatedList_ 
+
+
+find $LOCALTOP/doc/html/ -name "*.html" ! \( -name "*dir_*" -o -name "*globals_*" -o -name "*namespacemembers_*" -o -name "*functions_*" \) -print | sort > $LOCALTOP/$CMSSW_xyz.index
