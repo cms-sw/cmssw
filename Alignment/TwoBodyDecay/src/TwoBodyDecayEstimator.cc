@@ -8,6 +8,7 @@
 //#include "DataFormats/CLHEP/interface/Migration.h"
 
 TwoBodyDecayEstimator::TwoBodyDecayEstimator( const edm::ParameterSet & config )
+  :theNdf(0)
 {
   const edm::ParameterSet & estimatorConfig = config.getParameter< edm::ParameterSet >( "EstimatorParameters" );
 
