@@ -6,6 +6,3 @@
 <use   name="CondFormats/DataRecord"/>
 <use   name="DataFormats/EcalDetId"/>
 <use   name="clhep"/>
-<export>
-  <lib   name="1"/>
-</export>
