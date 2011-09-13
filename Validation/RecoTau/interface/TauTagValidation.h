@@ -99,6 +99,7 @@ private:
   std::map<std::string,  MonitorElement *> etaTauVisibleMap;
   std::map<std::string,  MonitorElement *> phiTauVisibleMap;
   std::map<std::string,  MonitorElement *> pileupTauVisibleMap;
+  std::map<std::string,  MonitorElement *> plotMap_;
 
   // All the extra MonitorElements that we would like to add for each Tau Tagging step
   // First for the PFTaus
@@ -148,7 +149,7 @@ private:
 
   // book-keeping variables
 
-  DQMStore* dbeTau;
+  DQMStore* dbeTau_;
 
   int numEvents_;
 
@@ -162,14 +163,3 @@ private:
 };
 
 #endif
-
-
-
-
-
-
-
-
-
-
-
