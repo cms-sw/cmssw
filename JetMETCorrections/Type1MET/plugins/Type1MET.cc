@@ -13,13 +13,13 @@
 //
 // Original Author:  Oct 12 08:23
 //         Created:  Wed Oct 12 12:16:04 CDT 2005
-// $Id: Type1MET.cc,v 1.27 2011/09/02 13:19:11 lacroix Exp $
+// $Id: Type1MET.cc,v 1.28 2011/09/07 18:16:15 sakuma Exp $
 //
 //
 
 
 // user include files
-#include "JetMETCorrections/Type1MET/interface/Type1MET.h"
+#include "JetMETCorrections/Type1MET/plugins/Type1MET.h"
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/METReco/interface/MET.h"
@@ -35,6 +35,7 @@
 
 #include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
 
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 using namespace reco;
 
@@ -123,5 +124,7 @@ namespace cms
       }
   }
 
-}//end namespace cms
+  DEFINE_FWK_MODULE(Type1MET); //define this as a plug-in
+
+} //end namespace cms
 

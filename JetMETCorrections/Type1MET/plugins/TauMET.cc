@@ -3,7 +3,7 @@
 // 
 // Original Authors:  Alfredo Gurrola, Chi Nhan Nguyen
 
-#include "JetMETCorrections/Type1MET/interface/TauMET.h"
+#include "JetMETCorrections/Type1MET/plugins/TauMET.h"
 
 #include "DataFormats/METReco/interface/MET.h"
 #include "DataFormats/METReco/interface/METCollection.h"
@@ -15,6 +15,8 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "JetMETCorrections/Objects/interface/JetCorrector.h"
+
+#include "FWCore/Framework/interface/MakerMacros.h"
 
 using namespace reco;
 using namespace std;
@@ -100,7 +102,8 @@ namespace cms
   // ------------ method called once each job just after ending the event loop  ------------
   void TauMET::endJob() { }
 
-  //DEFINE_FWK_MODULE(TauMET);  //define this as a plug-in
-}
+  DEFINE_FWK_MODULE(TauMET); //define this as a plug-in
+
+} //end namespace cms
 
   

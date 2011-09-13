@@ -4,7 +4,7 @@
 // Creation Date:  MHS May 31, 2005 Initial version.
 //
 //--------------------------------------------
-// $Id$
+// $Id: Type1METAlgo.cc,v 1.28 2011/09/07 20:07:35 sakuma Exp $
 
 #include <math.h>
 #include <vector>
@@ -80,18 +80,20 @@ namespace {
     // ---------------- which are above the given threshold.  This requires that the
     // ---------------- uncorrected jets be matched with the corrected jets.
     for( CaloJetCollection::const_iterator jet = uncorJet.begin(); jet != uncorJet.end(); ++jet) {
-      if( jet->pt()*corrector.correction (*jet,iEvent,iSetup) > jetPTthreshold && jet->emEnergyFraction() < jetEMfracLimit ) {
+      int index = jet-uncorJet.begin();
+      edm::RefToBase<reco::Jet> jetRef(edm::Ref<CaloJetCollection>(&uncorJet,index));
+      if( jet->pt()*corrector.correction (*jet,jetRef,iEvent,iSetup) > jetPTthreshold && jet->emEnergyFraction() < jetEMfracLimit ) {
 	if (!subtractL1Fast)
 	{
-	  double corr = corrector.correction (*jet,iEvent,iSetup) - 1.; // correction itself
+	  double corr = corrector.correction (*jet,jetRef,iEvent,iSetup) - 1.; // correction itself
 	  DeltaPx +=  jet->px() * corr;
 	  DeltaPy +=  jet->py() * corr;
 	  DeltaSumET += jet->et() * corr;
 	} 
 	else
 	{
-	  double corr = corrector.correction (*jet,iEvent,iSetup) - 1.; // correction itself
-	  double corr2 = corrector2.correction (*jet,iEvent,iSetup) - 1.;
+	  double corr = corrector.correction (*jet,jetRef,iEvent,iSetup) - 1.; // correction itself
+	  double corr2 = corrector2.correction (*jet,jetRef,iEvent,iSetup) - 1.;
 	  DeltaPx +=  jet->px() * corr - (jet->px() * corr2);
 	  DeltaPy +=  jet->py() * corr - (jet->py() * corr2);
 	  DeltaSumET += jet->et() * corr - (jet->et() * corr2);
@@ -100,7 +102,7 @@ namespace {
 	UDeltaPy +=  jet->py() ;
 	USumET -=jet->et();
       }
-      if( jet->pt() *corrector.correction (*jet,iEvent,iSetup)> jetPTthreshold && jet->emEnergyFraction() > jetEMfracLimit ) {
+      if( jet->pt() *corrector.correction (*jet,jetRef,iEvent,iSetup)> jetPTthreshold && jet->emEnergyFraction() > jetEMfracLimit ) {
         UDeltaPx +=  jet->px() ;
         UDeltaPy +=  jet->py() ;
         USumET -=jet->et(); 
@@ -199,26 +201,28 @@ namespace {
     // ---------------- which are above the given threshold.  This requires that the
     // ---------------- uncorrected jets be matched with the corrected jets.
     for( PFJetCollection::const_iterator jet = uncorJet.begin(); jet != uncorJet.end(); ++jet) {
-      if( jet->pt()*corrector.correction (*jet,iEvent,iSetup) > jetPTthreshold && jet->photonEnergyFraction() < jetEMfracLimit ) {
+      int index = jet-uncorJet.begin();
+      edm::RefToBase<reco::Jet> jetRef(edm::Ref<PFJetCollection>(&uncorJet,index));
+      if( jet->pt()*corrector.correction (*jet,jetRef,iEvent,iSetup) > jetPTthreshold && jet->photonEnergyFraction() < jetEMfracLimit ) {
 
 	if (!subtractL1Fast)
 	{
-	  double corr = corrector.correction (*jet,iEvent,iSetup) - 1.; // correction itself
+	  double corr = corrector.correction (*jet,jetRef,iEvent,iSetup) - 1.; // correction itself
 	  DeltaPx +=  jet->px() * corr;
 	  DeltaPy +=  jet->py() * corr;
 	  DeltaSumET += jet->et() * corr;
         }
 	else
 	{
-	  double corr = corrector.correction (*jet,iEvent,iSetup) - 1.; // correction itself
-	  double corr2 = corrector2.correction (*jet,iEvent,iSetup) - 1.;
+	  double corr = corrector.correction (*jet,jetRef,iEvent,iSetup) - 1.; // correction itself
+	  double corr2 = corrector2.correction (*jet,jetRef,iEvent,iSetup) - 1.;
 	  DeltaPx +=  jet->px() * corr - (jet->px() * corr2);
 	  DeltaPy +=  jet->py() * corr - (jet->py() * corr2);
 	  DeltaSumET += jet->et() * corr - (jet->et() * corr2);
 	}
       }
 
-      if (jet->pt() * corrector.correction (*jet,iEvent,iSetup) < jetPTthreshold && jet->photonEnergyFraction() < jetEMfracLimit) {
+      if (jet->pt() * corrector.correction (*jet,jetRef,iEvent,iSetup) < jetPTthreshold && jet->photonEnergyFraction() < jetEMfracLimit) {
 	UDeltaPx -= jet->px();
 	UDeltaPy -= jet->py();
 	USumET += jet->et();

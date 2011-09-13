@@ -1,5 +1,5 @@
-#ifndef Type1MET_TauMET_h
-#define Type1MET_TauMET_h
+#ifndef JetMETCorrections_Type1MET_TauMET_h
+#define JetMETCorrections_Type1MET_TauMET_h
 
 // Original Authors:  Alfredo Gurrola, Chi Nhan Nguyen
 
@@ -16,7 +16,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "JetMETCorrections/Type1MET/src/TauMETAlgo.h"
+#include "JetMETCorrections/Type1MET/interface/TauMETAlgo.h"
 
 
 namespace cms 
