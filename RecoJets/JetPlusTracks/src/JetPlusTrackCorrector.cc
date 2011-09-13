@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include <fstream>
 #include <vector>
 #include <iomanip>
@@ -425,7 +426,40 @@ void JetPlusTrackCorrector::matchTracks( const JetTracks& jet_tracks,
 
       if ( useTrackQuality_ && (*itrk)->quality(trackQuality_) && theSumPtForBetaOld<=0. ) 
                                               theSumPtForBeta += (**itrk).pt();           
-     
+//
+// Track either belongs to PV or do not belong to any vertex
+
+       const reco::TrackBaseRef ttr1(*itrk);     
+
+//      std::cout<<" Size of PV "<<pvCollection->size()<<std::endl;
+
+      int numpv=0;
+
+      int itrack_belong = -1;
+ 
+      for( reco::VertexCollection::const_iterator iv = pvCollection->begin(); iv != pvCollection->end(); iv++) {
+        numpv++;
+           std::vector<reco::TrackBaseRef>::const_iterator rr = 
+                                                find((*iv).tracks_begin(),
+                                                     (*iv).tracks_end(),
+                                                                   ttr1);
+           if( rr != (*iv).tracks_end() ) { 
+                      itrack_belong++; 
+            //          std::cout<<" Numpv "<<numpv<<std::endl; 
+                      break;
+           }
+
+      } // all vertices 
+
+//      std::cout<<" Track in PV "<<itrack_belong<<" "<<numpv<<std::endl;
+
+      if( numpv > 1 && itrack_belong == 0 ) {
+       //       std::cout<<" Drop track "<<std::endl;
+      continue;
+      }
+
+     // std::cout<<" we take it "<<numpv<<" "<<itrack_belong<<std::endl; 
+
       if ( failTrackQuality(itrk) ) { continue; }
 
 //     std::cout<<" Track accepted "<<std::endl;
@@ -1097,7 +1131,7 @@ void JetPlusTrackCorrector::rebuildJta( const reco::Jet& fJet,
 					TrackRefs& tracksthis,
 					TrackRefs& Excl ) const {
   
-  //std::cout<<" NEW1 Merge/Split schema "<<jetSplitMerge_<<std::endl;
+ // std::cout<<" NEW1 Merge/Split schema "<<jetSplitMerge_<<std::endl;
 
   tracksthis = reco::JetTracksAssociation::getValue(jtV0,fJet);
 
@@ -1109,7 +1143,7 @@ void JetPlusTrackCorrector::rebuildJta( const reco::Jet& fJet,
   TrackRefs tracks = tracksthis;
   tracksthis.clear();
 
-  //std::cout<<" Size of initial vector "<<tracks.size()<<" "<<fJet.et()<<" "<<fJet.eta()<<" "<<fJet.phi()<<std::endl;
+//  std::cout<<" Size of initial vector "<<tracks.size()<<" "<<fJet.et()<<" "<<fJet.eta()<<" "<<fJet.phi()<<std::endl;
 
   int tr=0;
 
