@@ -76,8 +76,6 @@ CorrMETData METCorrectionAlgorithm::compMETCorrection(edm::Event& evt, const edm
     }
   }
 
-  std::cout << "type I correction: px = " << metCorr.mex << ", py = " << metCorr.mey << std::endl;
-
   if ( applyType2Corrections_ ) {
 //--- compute momentum sum of all "unclustered energy" in the event
     CorrMETData unclEnergySum;
@@ -86,24 +84,14 @@ CorrMETData METCorrectionAlgorithm::compMETCorrection(edm::Event& evt, const edm
       edm::Handle<CorrMETData> unclEnergySummand;
       evt.getByLabel(*srcUnclEnergySum, unclEnergySummand);
 
-      std::cout << srcUnclEnergySum->label() << ": px = " << unclEnergySummand->mex << "," 
-		<< " py = " << unclEnergySummand->mey << std::endl;
-
       unclEnergySum.mex   += unclEnergySummand->mex;
       unclEnergySum.mey   += unclEnergySummand->mey;
       unclEnergySum.sumet += unclEnergySummand->sumet;
     }
 
-    std::cout << " unclEnergySum: px = " << unclEnergySum.mex << ", py = " << unclEnergySum.mey << std::endl;
-
 //--- calibrate "unclustered energy"
     double unclEnergySumPt = sqrt(unclEnergySum.mex*unclEnergySum.mex + unclEnergySum.mey*unclEnergySum.mey);
-    std::cout << " unclEnergySumPt = " << unclEnergySumPt << std::endl;
     double unclEnergyScaleFactor = type2CorrFormula_->Eval(unclEnergySumPt);
-    std::cout << " unclEnergyScaleFactor = " << unclEnergyScaleFactor << std::endl;
-
-    std::cout << "type II correction: px = " << -(unclEnergyScaleFactor - 1.)*unclEnergySum.mex << ","
-	      << " py = " << -(unclEnergyScaleFactor - 1.)*unclEnergySum.mey << std::endl;
 
 //--- MET balances momentum of reconstructed particles,
 //    hence correction to "unclustered energy" and corresponding Type 2 MET correction are of opposite sign

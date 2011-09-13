@@ -14,9 +14,9 @@
  *          Florent Lacroix, University of Illinois at Chicago
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.00 $
+ * \version $Revision: 1.1 $
  *
- * $Id: CorrectedMETProducerT.h,v 1.18 2011/05/30 15:19:41 veelken Exp $
+ * $Id: CorrectedMETProducerT.h,v 1.1 2011/09/13 14:35:34 veelken Exp $
  *
  */
 
@@ -37,10 +37,6 @@ namespace CorrectedMETProducer_namespace
   template <typename T>
   reco::Candidate::LorentzVector correctedP4(const T& rawMEt, const CorrMETData& correction)
   {
-    std::cout << "<correctedP4>: " << std::endl;
-    std::cout << " px: rawMEt = " << rawMEt.px() << ", correction = " << correction.mex << std::endl;
-    std::cout << " py: rawMEt = " << rawMEt.py() << ", correction = " << correction.mey << std::endl;
-
     double correctedMEtPx = rawMEt.px() + correction.mex;
     double correctedMEtPy = rawMEt.py() + correction.mey;
     double correctedMEtPt = sqrt(correctedMEtPx*correctedMEtPx + correctedMEtPy*correctedMEtPy);
@@ -91,9 +87,6 @@ class CorrectedMETProducerT : public edm::EDProducer
 
   void produce(edm::Event& evt, const edm::EventSetup& es)
   {
-    std::cout << "<CorrectedMETProducer::produce>:" << std::endl;
-    std::cout << " moduleLabel = " << moduleLabel_ << std::endl;
-
     std::auto_ptr<METCollection> correctedMEtCollection(new METCollection);
 
     edm::Handle<METCollection> rawMEtCollection;
