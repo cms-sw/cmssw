@@ -43,15 +43,15 @@ public:
   inline const AlgebraicSymMatrix & covariance( void ) const { return theCovariance; }
 
   /// Get specified decay parameter.
-  inline const double operator[]( ParameterName name ) const { return theParameters[name]; }
+  inline double operator[]( ParameterName name ) const { return theParameters[name]; }
 
   /// Get specified decay parameter.
-  inline const double operator()( ParameterName name ) const { return theParameters[name]; }
+  inline double operator()( ParameterName name ) const { return theParameters[name]; }
 
   /// Get specified range of decay parameters.
   inline const AlgebraicVector sub( ParameterName first, ParameterName last ) const { return theParameters.sub( first+1, last+1 ); }
 
-  inline const bool hasError( void ) const { return ( theCovariance.num_row() != 0 ); }
+  inline bool hasError( void ) const { return ( theCovariance.num_row() != 0 ); }
 
 private:
 

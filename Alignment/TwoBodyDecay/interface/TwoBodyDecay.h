@@ -37,20 +37,20 @@ public:
   inline const AlgebraicSymMatrix & covariance( void ) const { return theDecayParameters.covariance(); }
 
   /// Get specified decay parameter.
-  inline const double operator[]( ParameterName name ) const { return theDecayParameters[name]; }
+  inline double operator[]( ParameterName name ) const { return theDecayParameters[name]; }
 
   /// Get specified decay parameter.
-  inline const double operator()( ParameterName name ) const { return theDecayParameters(name); }
+  inline double operator()( ParameterName name ) const { return theDecayParameters(name); }
 
-  inline const bool hasError( void ) const { return theDecayParameters.hasError(); }
+  inline bool hasError( void ) const { return theDecayParameters.hasError(); }
 
-  inline const double chi2( void ) const { return theChi2; }
+  inline double chi2( void ) const { return theChi2; }
 
-  inline const bool isValid( void ) const { return theValidityFlag; }
+  inline bool isValid( void ) const { return theValidityFlag; }
   inline void setInvalid( void ) { theValidityFlag = false; }
 
-  inline const double primaryMass( void ) const { return thePrimaryMass; }
-  inline const double primaryWidth( void ) const { return thePrimaryWidth; }
+  inline double primaryMass( void ) const { return thePrimaryMass; }
+  inline double primaryWidth( void ) const { return thePrimaryWidth; }
 
  private:
 

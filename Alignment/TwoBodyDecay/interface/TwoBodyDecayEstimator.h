@@ -31,7 +31,7 @@ public:
 				 const TwoBodyDecayParameters & linearizationPoint,
 				 const TwoBodyDecayVirtualMeasurement & vm ) const;
 
-  inline const int ndf( void ) const { return theNdf; }
+  inline int ndf( void ) const { return theNdf; }
   inline const AlgebraicVector& pulls( void ) const { return thePulls; }
 
   virtual TwoBodyDecayEstimator* clone( void ) const { return new TwoBodyDecayEstimator( *this ); }
