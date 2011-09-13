@@ -121,7 +121,7 @@ bool PassPreselection(const susybsm::HSCParticle& hscp,  const reco::DeDxData& d
 
 
 bool PassingTrigger(const fwlite::ChainEvent& ev, const std::string& TriggerName){
-      edm::TriggerResultsByName tr = ev.triggerResultsByName("Merge");
+      edm::TriggerResultsByName tr = ev.triggerResultsByName("MergeHLT");
       if(!tr.isValid())return false;
 
       bool Accept = false;

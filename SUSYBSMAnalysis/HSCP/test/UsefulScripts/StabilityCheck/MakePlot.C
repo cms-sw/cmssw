@@ -148,7 +148,7 @@ void MakedEdxPlot()
 
 
    c1 = new TCanvas("c1","c1,",1200,600);          legend.clear();
-   Histos[0] = SingleMu_NVertProf;                 legend.push_back("SingleMu30");
+   Histos[0] = SingleMu_NVertProf;                 legend.push_back("SingleMu40");
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "<#Reco Vertices>", 0,0, 0,0);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    DrawLegend(Histos,legend,"","P");
@@ -159,7 +159,7 @@ void MakedEdxPlot()
  
 
    c1 = new TCanvas("c1","c1,",1200,600);          legend.clear();
-   Histos[0] = SingleMu_PtProf;                    legend.push_back("SingleMu30");
+   Histos[0] = SingleMu_PtProf;                    legend.push_back("SingleMu40");
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "p_{T} (GeV/c)", 0,0, 0,0);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    DrawLegend(Histos,legend,"","P");
@@ -169,7 +169,7 @@ void MakedEdxPlot()
 
 
    c1 = new TCanvas("c1","c1,",1200,600);          legend.clear();
-   Histos[0] = SingleMu_dEdxProf;                  legend.push_back("SingleMu30");
+   Histos[0] = SingleMu_dEdxProf;                  legend.push_back("SingleMu40");
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "I_{as}", 0,0, 0.02,0.06);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    DrawLegend(Histos,legend,"","P");
@@ -178,7 +178,7 @@ void MakedEdxPlot()
    delete c1;
 
    c1 = new TCanvas("c1","c1,",1200,600);          legend.clear();
-   Histos[0] = SingleMu_dEdxMProf;                  legend.push_back("SingleMu30");
+   Histos[0] = SingleMu_dEdxMProf;                  legend.push_back("SingleMu40");
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "I_{h}", 0,0, 3.2,3.4);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    DrawLegend(Histos,legend,"","P");
@@ -190,10 +190,10 @@ void MakedEdxPlot()
 
 /*
    c1 = new TCanvas("c1","c1,",1200,600);          legend.clear();
-   Histos[0] = SingleMu_dEdxMProfLumi166380;       legend.push_back("SingleMu30 - Run166380");
-   Histos[1] = SingleMu_dEdxMProfLumi166512;       legend.push_back("SingleMu30 - Run166512");
-   Histos[2] = SingleMu_dEdxMProfLumi167807;       legend.push_back("SingleMu30 - Run167807");
-   Histos[3] = SingleMu_dEdxMProfLumi167898;       legend.push_back("SingleMu30 - Run167898");
+   Histos[0] = SingleMu_dEdxMProfLumi166380;       legend.push_back("SingleMu40 - Run166380");
+   Histos[1] = SingleMu_dEdxMProfLumi166512;       legend.push_back("SingleMu40 - Run166512");
+   Histos[2] = SingleMu_dEdxMProfLumi167807;       legend.push_back("SingleMu40 - Run167807");
+   Histos[3] = SingleMu_dEdxMProfLumi167898;       legend.push_back("SingleMu40 - Run167898");
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "Lumi", "I_{h}", 0,0, 3.2,3.4);
    for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
    DrawLegend(Histos,legend,"","P");
@@ -284,7 +284,7 @@ void MakePlot()
 
    c1 = new TCanvas("c1","c1,",1200,600);          legend.clear();
    Histos[0] = Any_PtProf;                         legend.push_back("Any");
-   Histos[1] = SingleMu_PtProf;                    legend.push_back("SingleMu30");
+   Histos[1] = SingleMu_PtProf;                    legend.push_back("SingleMu40");
    Histos[2] = PFMet_PtProf;                       legend.push_back("PFMHT150");
 
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "p_{T} (GeV/c)", 0,0, 0,150);
@@ -296,7 +296,7 @@ void MakePlot()
 
    c1 = new TCanvas("c1","c1,",1200,600);          legend.clear();
    Histos[0] = Any_dEdxProf;                       legend.push_back("Any");
-   Histos[1] = SingleMu_dEdxProf;                  legend.push_back("SingleMu30");
+   Histos[1] = SingleMu_dEdxProf;                  legend.push_back("SingleMu40");
    Histos[2] = PFMet_dEdxProf;                     legend.push_back("PFMHT150");
 
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "I_{as}", 0,0, 0.02,0.05);
@@ -309,7 +309,7 @@ void MakePlot()
 
    c1 = new TCanvas("c1","c1,",1200,600);          legend.clear();
    Histos[0] = Any_dEdxMProf;                      legend.push_back("Any");
-   Histos[1] = SingleMu_dEdxMProf;                 legend.push_back("SingleMu30");
+   Histos[1] = SingleMu_dEdxMProf;                 legend.push_back("SingleMu40");
    Histos[2] = PFMet_dEdxMProf;                    legend.push_back("PFMHT150");
 
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "I_{h}", 0,0, 3.2,3.45);
@@ -323,7 +323,7 @@ void MakePlot()
 
    c1 = new TCanvas("c1","c1,",1200,600);          legend.clear();
    Histos[0] = Any_TOFProf;                        legend.push_back("Any");
-   Histos[1] = SingleMu_TOFProf;                   legend.push_back("SingleMu30");
+   Histos[1] = SingleMu_TOFProf;                   legend.push_back("SingleMu40");
    Histos[2] = PFMet_TOFProf;                      legend.push_back("PFMHT150");
    
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "1/#beta_{TOF}", 0,0, 1,1.1);
@@ -335,7 +335,7 @@ void MakePlot()
 
    c1 = new TCanvas("c1","c1,",1200,600);          legend.clear();
    Histos[0] = Any_TOFDTProf;                        legend.push_back("Any");
-   Histos[1] = SingleMu_TOFDTProf;                   legend.push_back("SingleMu30");
+   Histos[1] = SingleMu_TOFDTProf;                   legend.push_back("SingleMu40");
    Histos[2] = PFMet_TOFDTProf;                      legend.push_back("PFMHT150");
 
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "1/#beta_{TOF_DT}", 0,0, 1,1.1);
@@ -347,7 +347,7 @@ void MakePlot()
 
    c1 = new TCanvas("c1","c1,",1200,600);          legend.clear();
    Histos[0] = Any_TOFCSCProf;                        legend.push_back("Any");
-   Histos[1] = SingleMu_TOFCSCProf;                   legend.push_back("SingleMu30");
+   Histos[1] = SingleMu_TOFCSCProf;                   legend.push_back("SingleMu40");
    Histos[2] = PFMet_TOFCSCProf;                      legend.push_back("PFMHT150");
 
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "1/#beta_{TOF_CSC}", 0,0, 1,1.1);
