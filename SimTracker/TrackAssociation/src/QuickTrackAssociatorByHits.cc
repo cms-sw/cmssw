@@ -80,7 +80,7 @@ QuickTrackAssociatorByHits::QuickTrackAssociatorByHits( const QuickTrackAssociat
 	else pHitAssociator_=NULL;
 }
 
-QuickTrackAssociatorByHits::QuickTrackAssociatorByHits& QuickTrackAssociatorByHits::operator=( const QuickTrackAssociatorByHits& otherAssociator )
+QuickTrackAssociatorByHits& QuickTrackAssociatorByHits::operator=( const QuickTrackAssociatorByHits& otherAssociator )
 {
 	// Free up the old pHitAssociator_
 	delete pHitAssociator_;
