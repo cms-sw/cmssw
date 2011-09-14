@@ -153,54 +153,54 @@ TestConverter2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
 		  
 		  if ((*it).rawId() == (*iGeomDet).rawId()) {
 		  
-		    DetId * thisId = new DetId( (*iGeomDet).rawId() );
-
-		    if (thisId->subdetId() == int(StripSubdetector::TIB) ) {
-		      TIBDetId * thisTIBid = new TIBDetId( *thisId );
+		    DetId thisId((*iGeomDet).rawId());
+		    
+		    if (thisId.subdetId() == int(StripSubdetector::TIB) ) {
+		      TIBDetId thisTIBid((*iGeomDet).rawId());
 		      subdid_ = 3;
-		      layerdisk_ = thisTIBid->layer(); 
-		      std::vector<unsigned int> theString = thisTIBid->string();
+		      layerdisk_ = thisTIBid.layer(); 
+		      std::vector<unsigned int> theString = thisTIBid.string();
 		      fwbw_ = theString[0];
 		      frontback_ = theString[1];
 		      stringrod_ = theString[2];
 		      petal_ = 0;
-		      module_ = thisTIBid->module();
+		      module_ = thisTIBid.module();
 
-		    } else if (thisId->subdetId() == int(StripSubdetector::TID) ) {
-		      TIDDetId * thisTIDid = new TIDDetId( *thisId );
+		    } else if (thisId.subdetId() == int(StripSubdetector::TID) ) {
+		      TIDDetId thisTIDid((*iGeomDet).rawId());
 		      subdid_ = 4;
-		      layerdisk_ = thisTIDid->wheel(); 
-		      std::vector<unsigned int> theModule = thisTIDid->module();
+		      layerdisk_ = thisTIDid.wheel(); 
+		      std::vector<unsigned int> theModule = thisTIDid.module();
 		      frontback_ = theModule[0];
 		      module_ = theModule[1];
 		      petal_ = 0;
-		      fwbw_ = thisTIDid->side();
-		      stringrod_ = thisTIDid->ring();
+		      fwbw_ = thisTIDid.side();
+		      stringrod_ = thisTIDid.ring();
 		     
-		    } else if (thisId->subdetId() == int(StripSubdetector::TOB) ) {
-		      TOBDetId * thisTOBid = new TOBDetId( *thisId );
+		    } else if (thisId.subdetId() == int(StripSubdetector::TOB) ) {
+		      TOBDetId thisTOBid((*iGeomDet).rawId());
 		      subdid_ = 5;
-		      layerdisk_ = thisTOBid->layer(); 
-		      std::vector<unsigned int> theRod = thisTOBid->rod();
+		      layerdisk_ = thisTOBid.layer(); 
+		      std::vector<unsigned int> theRod = thisTOBid.rod();
 		      fwbw_ = theRod[0];
 		      stringrod_ = theRod[1];
 		      petal_ = 0;
 		      frontback_ = 0;
-		      module_ = thisTOBid->module();
+		      module_ = thisTOBid.module();
 		      
-		    } else if (thisId->subdetId() == int(StripSubdetector::TEC) ) {
-		      TECDetId * thisTECid = new TECDetId( *thisId );
+		    } else if (thisId.subdetId() == int(StripSubdetector::TEC) ) {
+		      TECDetId thisTECid((*iGeomDet).rawId());
 		      subdid_ = 6;
-		      layerdisk_ = thisTECid->wheel(); 
-		      std::vector<unsigned int> thePetal = thisTECid->petal();
+		      layerdisk_ = thisTECid.wheel(); 
+		      std::vector<unsigned int> thePetal = thisTECid.petal();
 		      frontback_ = thePetal[0];
 		      petal_ = thePetal[1];
-		      fwbw_ = thisTECid->side();
-		      stringrod_ = thisTECid->ring();
-		      module_ = thisTECid->module();
+		      fwbw_ = thisTECid.side();
+		      stringrod_ = thisTECid.ring();
+		      module_ = thisTECid.module();
 		         
 		    } else {
-		      std::cout << "WARNING!!! this DetId (" << thisId->rawId() << ") does not belong to SiStrip tracker" << std::endl;
+		      std::cout << "WARNING!!! this DetId (" << thisId.rawId() << ") does not belong to SiStrip tracker" << std::endl;
 		      break;
 		    }
 

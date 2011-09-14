@@ -167,24 +167,24 @@ TestIdealGeometry::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
 	    if (((*iGeomDet)->geographicalId()).subdetId() == int(StripSubdetector::TIB)) {
 	      
 	      comparisonVect[0] = int(StripSubdetector::TIB);
-	      TIBDetId * thisTIBid = new TIBDetId( (*iGeomDet)->geographicalId() );
-	      comparisonVect[1] = thisTIBid->layer();
+	      TIBDetId thisTIBid( (*iGeomDet)->geographicalId() );
+	      comparisonVect[1] = thisTIBid.layer();
               if (comparisonVect[1] < 3) countDet = countDet + 2;  
-	      std::vector<unsigned int> theString = thisTIBid->string();
+	      std::vector<unsigned int> theString = thisTIBid.string();
 	      comparisonVect[2] = theString[0];
 	      comparisonVect[3] = theString[1];
 	      comparisonVect[4] = theString[2];
-	      comparisonVect[5] = thisTIBid->module();
+	      comparisonVect[5] = thisTIBid.module();
 	      
 	    } else if (((*iGeomDet)->geographicalId()).subdetId() == int(StripSubdetector::TID)) {
 	      
 	      comparisonVect[0] = int(StripSubdetector::TID);
-	      TIDDetId * thisTIDid = new TIDDetId( (*iGeomDet)->geographicalId() );
-	      comparisonVect[1] = thisTIDid->side();
-	      comparisonVect[2] = thisTIDid->wheel();
-	      comparisonVect[3] = thisTIDid->ring();
+	      TIDDetId thisTIDid( (*iGeomDet)->geographicalId() );
+	      comparisonVect[1] = thisTIDid.side();
+	      comparisonVect[2] = thisTIDid.wheel();
+	      comparisonVect[3] = thisTIDid.ring();
               if (comparisonVect[3] < 3) countDet = countDet + 2; 
-	      std::vector<unsigned int> theModule = thisTIDid->module();
+	      std::vector<unsigned int> theModule = thisTIDid.module();
 	      comparisonVect[4] = theModule[0];
 	      comparisonVect[5] = theModule[1];
 	      
