@@ -14,7 +14,8 @@
 #include "Alignment/SurveyAnalysis/test/SurveyDBReader.h"
 
 SurveyDBReader::SurveyDBReader(const edm::ParameterSet& cfg):
-  theFileName( cfg.getParameter<std::string>("fileName") )
+  theFileName( cfg.getParameter<std::string>("fileName") ),
+  theFirstEvent(true)
 {
 }
 
