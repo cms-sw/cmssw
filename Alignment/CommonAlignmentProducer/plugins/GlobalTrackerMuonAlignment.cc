@@ -16,7 +16,7 @@
 // Original Author:  Alexandre Spiridonov
 //         Created:  Fri Oct 16 15:59:05 CEST 2009
 //
-// $Id: GlobalTrackerMuonAlignment.cc,v 1.5 2011/03/22 09:49:50 innocent Exp $
+// $Id: GlobalTrackerMuonAlignment.cc,v 1.6 2011/09/04 17:21:57 mussgill Exp $
 //
 
 // system include files
@@ -212,7 +212,7 @@ class GlobalTrackerMuonAlignment : public edm::EDAnalyzer {
   CLHEP::HepVector MuGlShift;   // evaluated global muon shifts  
   CLHEP::HepVector MuGlAngle;   // evaluated global muon angles  
 
-  char MuSelect[100];           // what part of muon system is selected for 1st hit 
+  std::string MuSelect;         // what part of muon system is selected for 1st hit 
 
   ofstream OutGlobalTxt;        // output the vector of global alignment as text     
 
@@ -1071,25 +1071,24 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
     //                                            select Barrel 
     //if(Rmuon < 400. || Rmuon > 450.) continue; 
     //if(Zmuon < -600. || Zmuon > 600.) continue;
-    //if(fabs(Nl.z()) > 0.95) continue;  
-    //std::snprintf(MuSelect, sizeof(MuSelect), " Barrel");
+    //if(fabs(Nl.z()) > 0.95) continue;
+    //MuSelect = " Barrel";
     //                                                  EndCap1
     //if(Rmuon < 120. || Rmuon > 450.) continue;
     //if(Zmuon < -720.) continue;
     //if(Zmuon > -580.) continue;
     //if(fabs(Nl.z()) < 0.95) continue;  
-    //std::snprintf(MuSelect, sizeof(MuSelect), " EndCap1");
+    //MuSelect = " EndCap1";
     //                                                  EndCap2
     //if(Rmuon < 120. || Rmuon > 450.) continue;
     //if(Zmuon >  720.) continue;
     //if(Zmuon <  580.) continue;
     //if(fabs(Nl.z()) < 0.95) continue;  
-    //std::snprintf(MuSelect, sizeof(MuSelect), " EndCap2");
+    //MuSelect = " EndCap2";
     //                                                 select All
     if(Rmuon < 120. || Rmuon > 450.) continue;  
     if(Zmuon < -720. || Zmuon > 720.) continue;
-    std::snprintf(MuSelect, sizeof(MuSelect), " Barrel+EndCaps");
-
+    MuSelect = " Barrel+EndCaps";
 
     
     if(debug_)
@@ -1850,23 +1849,23 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
     //if(Rmuon < 400. || Rmuon > 450.) continue; 
     //if(Zmuon < -600. || Zmuon > 600.) continue;
     //if(fabs(Nl.z()) > 0.95) continue;  
-    //std::snprintf(MuSelect, sizeof(MuSelect), " Barrel");
+    //MuSelect = " Barrel";
     //                                                  EndCap1
     //if(Rmuon < 120. || Rmuon > 450.) continue;
     //if(Zmuon < -720.) continue;
     //if(Zmuon > -580.) continue;
     //if(fabs(Nl.z()) < 0.95) continue;  
-    //std::snprintf(MuSelect, sizeof(MuSelect), " EndCap1");
+    //MuSelect = " EndCap1";
     //                                                  EndCap2
     //if(Rmuon < 120. || Rmuon > 450.) continue;
     //if(Zmuon >  720.) continue;
     //if(Zmuon <  580.) continue;
     //if(fabs(Nl.z()) < 0.95) continue;  
-    //std::snprintf(MuSelect, sizeof(MuSelect), " EndCap2");
+    //MuSelect = " EndCap2";
     //                                                 select All
     if(Rmuon < 120. || Rmuon > 450.) continue;  
     if(Zmuon < -720. || Zmuon > 720.) continue;
-    std::snprintf(MuSelect, sizeof(MuSelect), " Barrel+EndCaps");
+    MuSelect = " Barrel+EndCaps";
 
     if(debug_)
       std::cout<<" .............. passed all cuts"<<std::endl;
