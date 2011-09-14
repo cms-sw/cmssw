@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Mar  5 09:13:43 EST 2008
-// $Id: FWDetailViewManager.h,v 1.23 2010/06/01 19:02:00 amraktad Exp $
+// $Id: FWDetailViewManager.h,v 1.24 2011/02/10 14:58:05 amraktad Exp $
 //
 #include <map>
 #include <string>
@@ -38,7 +38,7 @@ public:
    void openDetailViewFor(const FWModelId&, const std::string&);
    void colorsChanged();
    void newEventCallback();
-   void eveWindowDestroyed();
+   void eveWindowDestroyed(TEveWindow*);
 
 protected:
    FWColorManager                *m_colorManager;
@@ -54,9 +54,10 @@ private:
    {
       TEveCompositeFrameInMainFrame *m_eveFrame;
       FWDetailViewBase              *m_detailView;
+      TEveWindow                    *m_eveWindow;
 
-      ViewFrame(TEveCompositeFrameInMainFrame *f, FWDetailViewBase* v):
-         m_eveFrame(f), m_detailView(v) {}
+      ViewFrame(TEveCompositeFrameInMainFrame *f, FWDetailViewBase* v, TEveWindow* w):
+         m_eveFrame(f), m_detailView(v), m_eveWindow(w) {}
    };
 
    typedef std::vector<ViewFrame> vViews_t;

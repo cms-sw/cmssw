@@ -46,7 +46,7 @@ process.load("Configuration.Generator.TTbar_cfi")
 #process.load("FastSimulation.Configuration.CommonInputs_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load('FastSimulation.Configuration.Geometries_cff')
-from Configuration.PyReleaseValidation.autoCond import autoCond
+from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['startup']
 
 # L1 Emulator and HLT Setup

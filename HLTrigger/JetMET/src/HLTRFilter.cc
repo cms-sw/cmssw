@@ -13,7 +13,6 @@
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 
-
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -32,16 +31,23 @@ HLTRFilter::HLTRFilter(const edm::ParameterSet& iConfig) :
   min_R_       (iConfig.getParameter<double>       ("minR"   )),
   min_MR_      (iConfig.getParameter<double>       ("minMR"   )),
   DoRPrime_    (iConfig.getParameter<bool>       ("doRPrime"   )),
-  accept_NJ_    (iConfig.getParameter<bool>       ("acceptNJ"   ))
+  accept_NJ_   (iConfig.getParameter<bool>       ("acceptNJ"   )),
+  R_offset_    ((iConfig.existsAs<double>("R2Offset") ? iConfig.getParameter<double>("R2Offset"):0)),
+  MR_offset_   ((iConfig.existsAs<double>("MROffset") ? iConfig.getParameter<double>("MROffset"):0)),
+  R_MR_cut_    ((iConfig.existsAs<double>("RMRCut") ? iConfig.getParameter<double>("RMRCut"):-999999.))
+  
 
 {
-   LogDebug("") << "Inputs/minR/minMR/doRPrime/acceptNJ : "
+   LogDebug("") << "Inputs/minR/minMR/doRPrime/acceptNJ/R2Offset/MROffset/RMRCut : "
 		<< inputTag_.encode() << " "
 		<< inputMetTag_.encode() << " "
 		<< min_R_ << " "
 		<< min_MR_ << " "
-		<< DoRPrime_ << " "
-		<< accept_NJ_ << ".";
+		<< accept_NJ_ 
+		<< R_offset_ << " "
+		<< MR_offset_ << " "
+		<< R_MR_cut_
+		<< ".";
 
    //register your products
    produces<trigger::TriggerFilterObjectWithRefs>();
@@ -60,6 +66,9 @@ HLTRFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   desc.add<double>("minMR",100.0);
   desc.add<bool>("doRPrime",false);
   desc.add<bool>("acceptNJ",true);
+  desc.add<double>("R2Offset",0.0);
+  desc.add<double>("MROffset",0.0);
+  desc.add<double>("RMRCut",-999999.0);
   descriptions.add("hltRFilter",desc);
 }
 
@@ -94,75 +103,61 @@ HLTRFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    if (not hemispheres.isValid() or not inputMet.isValid())
      return false;
 
-   if(hemispheres->size() ==0){  // the Hemisphere Maker will produce an empty collection of hemispheres iff the number of jets in the
+   if(hemispheres->size() ==0){  // the Hemisphere Maker will produce an empty collection of hemispheres if the number of jets in the
      return accept_NJ_;   // event is greater than the maximum number of jets
    }
 
-
    //***********************************
-   //Calculate R or R prime
+   //Calculate R 
 
-   TLorentzVector j1(hemispheres->at(0).x(),hemispheres->at(0).y(),hemispheres->at(0).z(),hemispheres->at(0).t());
-   TLorentzVector j2(hemispheres->at(1).x(),hemispheres->at(1).y(),hemispheres->at(1).z(),hemispheres->at(1).t());
+   TLorentzVector ja(hemispheres->at(0).x(),hemispheres->at(0).y(),hemispheres->at(0).z(),hemispheres->at(0).t());
+   TLorentzVector jb(hemispheres->at(1).x(),hemispheres->at(1).y(),hemispheres->at(1).z(),hemispheres->at(1).t());
 
-  j1.SetPtEtaPhiM(j1.Pt(),j1.Eta(),j1.Phi(),0.0);
-  j2.SetPtEtaPhiM(j2.Pt(),j2.Eta(),j2.Phi(),0.0);
-  
-  if(j2.Pt() > j1.Pt()){
-    TLorentzVector temp = j1;
-    j1 = j2;
-    j2 = temp;
-  }
-  
-  double num = j1.P()-j2.P();
-  double den = j1.Pz()-j2.Pz();
-  if(fabs(num)==fabs(den)) return false; //ignore if beta=1
-  if(fabs(num)<fabs(den) && DoRPrime_) return false; //num<den ==> R event
-  if(fabs(num)>fabs(den) && !DoRPrime_) return false; // num>den ==> R' event
+   if(ja.Pt() > 0.1) { // some good R combination was found
+     
+     ja.SetPtEtaPhiM(ja.Pt(),ja.Eta(),ja.Phi(),0.0);
+     jb.SetPtEtaPhiM(jb.Pt(),jb.Eta(),jb.Phi(),0.0);
+     
+     if(ja.Pt() > jb.Pt()){
+       TLorentzVector temp = ja;
+       ja = jb;
+       jb = temp;
+     }
+     
+     double A = ja.P();
+     double B = jb.P();
+     double az = ja.Pz();
+     double bz = jb.Pz();
+     TVector3 jaT, jbT;
+     jaT.SetXYZ(ja.Px(),ja.Py(),0.0);
+     jbT.SetXYZ(jb.Px(),jb.Py(),0.0);
+     double ATBT = (jaT+jbT).Mag2();
 
- //now we can calculate MTR
-  TVector3 met;
-  met.SetPtEtaPhi((inputMet->front()).pt(),0.0,(inputMet->front()).phi());
-  double MTR = sqrt(0.5*(met.Mag()*(j1.Pt()+j2.Pt()) - met.Dot(j1.Vect()+j2.Vect())));
+     double MR = sqrt((A+B)*(A+B)-(az+bz)*(az+bz)-
+			(jbT.Dot(jbT)-jaT.Dot(jaT))*(jbT.Dot(jbT)-jaT.Dot(jaT))/(jaT+jbT).Mag2());
 
- //calculate MR or MRP
-  double MR=0;
-  if(!DoRPrime_){    //CALCULATE MR
-    double temp = (j1.P()*j2.Pz()-j2.P()*j1.Pz())*(j1.P()*j2.Pz()-j2.P()*j1.Pz());
-    temp /= (j1.Pz()-j2.Pz())*(j1.Pz()-j2.Pz())-(j1.P()-j2.P())*(j1.P()-j2.P());    
-    MR = 2.*sqrt(temp);
-  }else{      //CALCULATE MRP   
-    double jaP = j1.Pt()*j1.Pt() +j1.Pz()*j2.Pz()-j1.P()*j2.P();
-    double jbP = j2.Pt()*j2.Pt() +j1.Pz()*j2.Pz()-j1.P()*j2.P();
-    jbP *= -1.;
-    double den = sqrt((j1.P()-j2.P())*(j1.P()-j2.P())-(j1.Pz()-j2.Pz())*(j1.Pz()-j2.Pz()));
-    
-    jaP /= den;
-    jbP /= den;
-    
-    double temp = jaP*met.Dot(j2.Vect())/met.Mag() + jbP*met.Dot(j1.Vect())/met.Mag();
-    temp = temp*temp;
-    
-    den = (met.Dot(j1.Vect()+j2.Vect())/met.Mag())*(met.Dot(j1.Vect()+j2.Vect())/met.Mag())-(jaP-jbP)*(jaP-jbP);
-    
-    if(den <= 0.0) return false;
+     double mybeta = (jbT.Dot(jbT)-jaT.Dot(jaT))/
+       sqrt(ATBT*((A+B)*(A+B)-(az+bz)*(az+bz)));
 
-    temp /= den;
-    temp = 2.*sqrt(temp);
-    
-    double bR = (jaP-jbP)/(met.Dot(j1.Vect()+j2.Vect())/met.Mag());
-    double gR = 1./sqrt(1.-bR*bR);
-    
-    temp *= gR;
+     double mygamma = 1./sqrt(1.-mybeta*mybeta);
 
-    MR = temp;
-  }
+     //use gamma times MRstar
+     MR *= mygamma;
 
-  // filter decision
-  bool accept(MR>=min_MR_ && float(MTR)/float(MR)>=min_R_);
+     //now we can calculate MTR
+     TVector3 met;
+     met.SetPtEtaPhi((inputMet->front()).pt(),0.0,(inputMet->front()).phi());
+     double MTR = sqrt(0.5*(met.Mag()*(ja.Pt()+jb.Pt()) - met.Dot(ja.Vect()+jb.Vect())));
+     
+     //filter events
+     float R = float(MTR)/float(MR);
+     if(MR>=min_MR_ && R>=min_R_
+	&& ( (R*R - R_offset_)*(MR-MR_offset_) )>=R_MR_cut_) return true;
+     
+   }
 
-
-  return accept;
+   // filter decision
+   return false;
 }
 
 DEFINE_FWK_MODULE(HLTRFilter);

@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.187 2011/02/22 16:22:33 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.192 2011/07/13 20:50:57 amraktad Exp $
 //
 
 // system include files
@@ -72,6 +72,8 @@ static const char* const kConfigFileOpt        = "config-file";
 static const char* const kConfigFileCommandOpt = "config-file,c";
 static const char* const kGeomFileOpt          = "geom-file";
 static const char* const kGeomFileCommandOpt   = "geom-file,g";
+static const char* const kSimGeomFileOpt       = "sim-geom-file";
+static const char* const kSimGeomFileCommandOpt= "sim-geom-file";
 static const char* const kNoConfigFileOpt      = "noconfig";
 static const char* const kNoConfigFileCommandOpt = "noconfig,n";
 static const char* const kPlayOpt              = "play";
@@ -99,6 +101,7 @@ static const char* const kFreePaletteCommandOpt = "free-palette";
 static const char* const kAutoSaveAllViews = "auto-save-all-views";
 static const char* const kEnableFPE        = "enable-fpe";
 static const char* const kZeroWinOffsets   = "zero-window-offsets";
+static const char* const kNoVersionCheck   = "no-version-check";
 
 
 //
@@ -119,7 +122,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
      m_liveTimer(new SignalTimer()),
      m_liveTimeout(600000),
      m_lastPointerPositionX(-999),
-     m_lastPointerPositionY(-999)
+     m_lastPointerPositionY(-999),
+     m_noVersionCheck(false)
 {
    try {
       TGLWidget* w = TGLWidget::Create(gClient->GetDefaultRoot(), kTRUE, kTRUE, 0, 10, 10);
@@ -165,6 +169,8 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       (kFreePaletteCommandOpt,                            "Allow free color selection (requires special configuration!)")
       (kAutoSaveAllViews, po::value<std::string>(),       "Auto-save all views with given prefix (run_event_lumi_view.png is appended)")
       (kZeroWinOffsets,                                   "Disable auto-detection of window position offsets.")
+      (kNoVersionCheck,                                   "No file version check.")
+      (kSimGeomFileCommandOpt,po::value<std::string>(),   "Set simulation geometry file to browse")
       (kHelpCommandOpt,                                   "Display help message");
    po::positional_options_description p;
    p.add(kInputFilesOpt, -1);
@@ -235,6 +241,11 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    }
    fwLog(fwlog::kInfo) << "Geom " << geometryFilename() << std::endl;
 
+   if (vm.count(kSimGeomFileOpt)) {
+      setSimGeometryFilename(vm[kSimGeomFileOpt].as<std::string>());
+   } else {
+      setSimGeometryFilename("cmsSimGeom-14.root");
+   }
    // Free-palette palette
    if (vm.count(kFreePaletteCommandOpt)) {
       FWColorPopup::EnableFreePalette();
@@ -311,6 +322,9 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       fmt += "%d_%d_%d_%s.png";
       setAutoSaveAllViewsFormat(fmt);
    }
+   if(vm.count(kNoVersionCheck)) {
+      m_noVersionCheck=true;
+   }
    if(vm.count(kEnableFPE)) {
       gSystem->SetFPEMask();
    }
@@ -328,7 +342,10 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
 //
 
 CmsShowMain::~CmsShowMain()
-{}
+{
+   //avoids a seg fault from eve which happens if eve is terminated after the GUI is gone
+   selectionManager()->clearSelection();
+}
 
 class DieTimer : public TTimer
 {
@@ -595,7 +612,6 @@ CmsShowMain::setupDataHandling()
       if (!m_navigator->appendFile(fname, false, false))
       {
          guiManager()->updateStatus("failed to load data file");
-         openData();
       }
       else
       {
@@ -610,7 +626,7 @@ CmsShowMain::setupDataHandling()
       checkPosition();
       draw();
    }
-   else if (m_monitor.get() == 0)
+   else if (m_monitor.get() == 0 && (eiManager()->begin() != eiManager()->end()) )
       openData();
 }
 

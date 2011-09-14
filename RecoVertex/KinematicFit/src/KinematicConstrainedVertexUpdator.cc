@@ -154,7 +154,7 @@ KinematicConstrainedVertexUpdator::update(const AlgebraicVector& inPar,
 
 //making resulting vertex 
   GlobalPoint vPos (finPar(1),finPar(2),finPar(3));
-  VertexState st(vPos,GlobalError( asSMatrix<3>(pCov)));
+  VertexState st(vPos,GlobalError(pCov));
   RefCountedKinematicVertex rVtx = vFactory->vertex(st,chi(1),ndf);
 
 //making refitted states of Kinematic Particles

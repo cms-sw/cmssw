@@ -19,8 +19,12 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include <vector>
 
-	
+
+
 class HLTDisplacedmumuVtxProducer : public edm::EDProducer {
  public:
   explicit HLTDisplacedmumuVtxProducer(const edm::ParameterSet&);
@@ -31,7 +35,10 @@ class HLTDisplacedmumuVtxProducer : public edm::EDProducer {
   virtual void endJob() ;
 
  private:  
+  bool checkPreviousCand(const reco::TrackRef& trackref, std::vector<reco::RecoChargedCandidateRef>& ref2);
+
   edm::InputTag src_;
+  edm::InputTag previousCandTag_;
   double maxEta_;
   double minPt_;
   double minPtPair_;

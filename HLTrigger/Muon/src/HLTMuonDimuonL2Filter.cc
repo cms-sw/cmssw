@@ -56,7 +56,7 @@ HLTMuonDimuonL2Filter::HLTMuonDimuonL2Filter(const edm::ParameterSet& iConfig):
    min_PtBalance_ (iConfig.getParameter<double> ("MinPtBalance")),
    max_PtBalance_ (iConfig.getParameter<double> ("MaxPtBalance")),
    nsigma_Pt_   (iConfig.getParameter<double> ("NSigmaPt")),
-   saveTag_  (iConfig.getUntrackedParameter<bool> ("SaveTag",false)) 
+   saveTags_  (iConfig.getParameter<bool>("saveTags")) 
 {
 
    LogDebug("HLTMuonDimuonL2Filter")
@@ -109,7 +109,7 @@ HLTMuonDimuonL2Filter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // get hold of trks
    Handle<RecoChargedCandidateCollection> mucands;
    iEvent.getByLabel (candTag_,mucands);
-   if(saveTag_)filterproduct->addCollectionTag(candTag_);
+   if(saveTags_)filterproduct->addCollectionTag(candTag_);
 
    BeamSpot beamSpot;
    Handle<BeamSpot> recoBeamSpotHandle;

@@ -1,10 +1,27 @@
+2011-06-08 Emilio Meschi <Remigius.Mommsen@cern.ch>
+
+	* tag V00-08-06
+	* further fixes for mods to MicroStateService
+
+2011-05-19 Emilio Meschi <Remigius.Mommsen@cern.ch>
+
+	* tag V00-08-05
+	* small change to adapt to modifications in MicroStateService
+	
+2011-04-14 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V00-08-04
+	* Use process id of actual process, i.e. the slave EP,
+	  instead of the creating process, i.e. the master EP.
+	  This improves the diagonstic on the StorageManager side.
+
 2011-01-19 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V00-08-03
 	* (01) parameterset desciption
 	* (02) migration to xml BuildFiles
-	* (03) add support for stream rates 
-	
+	* (03) add support for stream rates
+
 2010-04-30 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V00-08-00

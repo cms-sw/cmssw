@@ -24,41 +24,8 @@ namespace reco {
 
   public:
 
-    TransientTrack() {}
-
-    explicit TransientTrack( BasicTransientTrack * btt ) : Base(btt) {}
-
-    ~TransientTrack() {}
-
-
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
-
-    TransientTrack(TransientTrack const & rh) :
-      Base(rh){}
-    
-    
-    TransientTrack(TransientTrack && rh) :
-      Base(std::move(rh)){}
-    
-    TransientTrack & operator=(TransientTrack && rh) {
-      this->Base::operator=(std::move(rh));
-      //      Base::swap(rh);
-      return *this;
-    }
-    
-    TransientTrack & operator=(TransientTrack const & rh) {
-      this->Base::operator=(rh);
-      return *this;
-    }
-    
-    
-#else
-    
-    void swap(TransientTrack & rh) {
-      Base::swap(rh);
-    }
-#endif
-
+    // constructor from persistent track
+    TransientTrack(); 
     TransientTrack( const Track & tk , const MagneticField* field); 
     TransientTrack( const TrackRef & tk , const MagneticField* field); 
 
@@ -66,7 +33,7 @@ namespace reco {
 
     TransientTrack( const Track & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
 
-
+    TransientTrack( BasicTransientTrack * btt ) : Base(btt) {}
 
     void setES(const edm::EventSetup& es) {sharedData().setES(es);}
 

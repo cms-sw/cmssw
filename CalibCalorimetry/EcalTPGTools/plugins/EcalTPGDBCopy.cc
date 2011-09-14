@@ -8,39 +8,34 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 
 
-#include "CondFormats/EcalObjects/interface/EcalTPGPedestals.h" 
-#include "CondFormats/EcalObjects/interface/EcalTPGLinearizationConst.h" 
-#include "CondFormats/EcalObjects/interface/EcalTPGSlidingWindow.h" 
-#include "CondFormats/EcalObjects/interface/EcalTPGFineGrainEBIdMap.h" 
-#include "CondFormats/EcalObjects/interface/EcalTPGFineGrainStripEE.h" 
-#include "CondFormats/EcalObjects/interface/EcalTPGFineGrainTowerEE.h" 
-#include "CondFormats/EcalObjects/interface/EcalTPGLutIdMap.h" 
-#include "CondFormats/EcalObjects/interface/EcalTPGWeightIdMap.h" 
-#include "CondFormats/EcalObjects/interface/EcalTPGWeightGroup.h" 
-#include "CondFormats/EcalObjects/interface/EcalTPGLutGroup.h" 
-#include "CondFormats/EcalObjects/interface/EcalTPGFineGrainEBGroup.h" 
-#include "CondFormats/EcalObjects/interface/EcalTPGPhysicsConst.h" 
-#include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h" 
-#include "CondFormats/EcalObjects/interface/EcalTPGSpike.h" 
-#include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h" 
-#include "CondFormats/EcalObjects/interface/EcalTPGStripStatus.h" 
-
-#include "CondFormats/DataRecord/interface/EcalTPGPedestalsRcd.h" 
-#include "CondFormats/DataRecord/interface/EcalTPGLinearizationConstRcd.h" 
-#include "CondFormats/DataRecord/interface/EcalTPGSlidingWindowRcd.h" 
-#include "CondFormats/DataRecord/interface/EcalTPGFineGrainEBIdMapRcd.h" 
-#include "CondFormats/DataRecord/interface/EcalTPGFineGrainStripEERcd.h" 
-#include "CondFormats/DataRecord/interface/EcalTPGFineGrainTowerEERcd.h" 
-#include "CondFormats/DataRecord/interface/EcalTPGLutIdMapRcd.h" 
-#include "CondFormats/DataRecord/interface/EcalTPGWeightIdMapRcd.h" 
-#include "CondFormats/DataRecord/interface/EcalTPGWeightGroupRcd.h" 
-#include "CondFormats/DataRecord/interface/EcalTPGLutGroupRcd.h" 
-#include "CondFormats/DataRecord/interface/EcalTPGFineGrainEBGroupRcd.h" 
-#include "CondFormats/DataRecord/interface/EcalTPGPhysicsConstRcd.h" 
-#include "CondFormats/DataRecord/interface/EcalTPGCrystalStatusRcd.h" 
-#include "CondFormats/DataRecord/interface/EcalTPGTowerStatusRcd.h" 
-#include "CondFormats/DataRecord/interface/EcalTPGSpikeRcd.h" 
-#include "CondFormats/DataRecord/interface/EcalTPGStripStatusRcd.h" 
+#include "CondFormats/EcalObjects/interface/EcalTPGPedestals.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGLinearizationConst.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGSlidingWindow.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGFineGrainEBIdMap.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGFineGrainStripEE.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGFineGrainTowerEE.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGLutIdMap.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGWeightIdMap.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGWeightGroup.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGLutGroup.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGFineGrainEBGroup.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGPhysicsConst.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h"
+#include "CondFormats/EcalObjects/interface/EcalTPGTowerStatus.h"
+#include "CondFormats/DataRecord/interface/EcalTPGPedestalsRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGLinearizationConstRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGSlidingWindowRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGFineGrainEBIdMapRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGFineGrainStripEERcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGFineGrainTowerEERcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGLutIdMapRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGWeightIdMapRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGWeightGroupRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGLutGroupRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGFineGrainEBGroupRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGPhysicsConstRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGCrystalStatusRcd.h"
+#include "CondFormats/DataRecord/interface/EcalTPGTowerStatusRcd.h"
 
 #include "EcalTPGDBCopy.h"
 
@@ -124,11 +119,9 @@ bool EcalTPGDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string cont
     cacheID = evtSetup.get<EcalTPGCrystalStatusRcd>().cacheIdentifier();
   } else if (container == "EcalTPGTowerStatus") {
     cacheID = evtSetup.get<EcalTPGTowerStatusRcd>().cacheIdentifier();
-  } else if (container == "EcalTPGSpike") {
-    cacheID = evtSetup.get<EcalTPGSpikeRcd>().cacheIdentifier();
-  } else if (container == "EcalTPGStripStatus") {
-    cacheID = evtSetup.get<EcalTPGStripStatusRcd>().cacheIdentifier();
   }
+   
+
   else {
     throw cms::Exception("Unknown container");
   }
@@ -145,38 +138,38 @@ bool EcalTPGDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string cont
 
 
 void EcalTPGDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string container)
-{ 
-
+{
   edm::Service<cond::service::PoolDBOutputService> dbOutput;
   if ( !dbOutput.isAvailable() ) {
     throw cms::Exception("PoolDBOutputService is not available");
   }
-  
-  
+
   std::string recordName = m_records[container];
-  
 
   if (container == "EcalTPGPedestals") {
     edm::ESHandle<EcalTPGPedestals> handle;
     evtSetup.get<EcalTPGPedestalsRcd>().get(handle);
     const EcalTPGPedestals* obj = handle.product();
     dbOutput->createNewIOV<const EcalTPGPedestals>( new EcalTPGPedestals(*obj), dbOutput->beginOfTime(),dbOutput->endOfTime(),recordName);
-    
-  } else if (container == "EcalTPGLinearizationConst") {
+
+  }  else if (container == "EcalTPGLinearizationConst") {
     edm::ESHandle<EcalTPGLinearizationConst> handle;
     evtSetup.get<EcalTPGLinearizationConstRcd>().get(handle);
     const EcalTPGLinearizationConst* obj = handle.product();
 
     dbOutput->createNewIOV<const EcalTPGLinearizationConst>( new EcalTPGLinearizationConst(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
-  } else if (container == "EcalTPGSlidingWindow") {
+
+  }  else if (container == "EcalTPGSlidingWindow") {
     edm::ESHandle<EcalTPGSlidingWindow> handle;
     evtSetup.get<EcalTPGSlidingWindowRcd>().get(handle);
     const EcalTPGSlidingWindow* obj = handle.product();
 
     dbOutput->createNewIOV<const EcalTPGSlidingWindow>( new EcalTPGSlidingWindow(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
-  } else if (container == "EcalTPGFineGrainEBIdMap") {
+
+  }
+else if (container == "EcalTPGFineGrainEBIdMap") {
     edm::ESHandle<EcalTPGFineGrainEBIdMap> handle;
     evtSetup.get<EcalTPGFineGrainEBIdMapRcd>().get(handle);
     const EcalTPGFineGrainEBIdMap* obj = handle.product();
@@ -187,7 +180,7 @@ void EcalTPGDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string contai
     evtSetup.get<EcalTPGFineGrainStripEERcd>().get(handle);
     const EcalTPGFineGrainStripEE* obj = handle.product();
     dbOutput->createNewIOV<const EcalTPGFineGrainStripEE>( new EcalTPGFineGrainStripEE(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
-    
+
   } else if (container == "EcalTPGFineGrainTowerEE") {
     edm::ESHandle<EcalTPGFineGrainTowerEE> handle;
     evtSetup.get<EcalTPGFineGrainTowerEERcd>().get(handle);
@@ -219,20 +212,17 @@ void EcalTPGDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string contai
     dbOutput->createNewIOV<const EcalTPGLutGroup>( new EcalTPGLutGroup(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
   } else if (container == "EcalTPGFineGrainEBGroup") {
-  
     edm::ESHandle<EcalTPGFineGrainEBGroup> handle;
     evtSetup.get<EcalTPGFineGrainEBGroupRcd>().get(handle);
-    
     const EcalTPGFineGrainEBGroup* obj = handle.product();
-    
     dbOutput->createNewIOV<const EcalTPGFineGrainEBGroup>( new EcalTPGFineGrainEBGroup(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
-    
+
   } else if (container == "EcalTPGPhysicsConst") {
     edm::ESHandle<EcalTPGPhysicsConst> handle;
     evtSetup.get<EcalTPGPhysicsConstRcd>().get(handle);
     const EcalTPGPhysicsConst* obj = handle.product();
     dbOutput->createNewIOV<const EcalTPGPhysicsConst>( new EcalTPGPhysicsConst(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
-    
+
   } else if (container == "EcalTPGCrystalStatus") {
     edm::ESHandle<EcalTPGCrystalStatus> handle;
     evtSetup.get<EcalTPGCrystalStatusRcd>().get(handle);
@@ -245,22 +235,8 @@ void EcalTPGDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string contai
     const EcalTPGTowerStatus* obj = handle.product();
     dbOutput->createNewIOV<const EcalTPGTowerStatus>( new EcalTPGTowerStatus(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
-  } else if (container == "EcalTPGSpike") {
-
-    edm::ESHandle<EcalTPGSpike> handle;
-    evtSetup.get<EcalTPGSpikeRcd>().get(handle);
-    const EcalTPGSpike* obj = handle.product();
-    
-    dbOutput->createNewIOV<const EcalTPGSpike>( new EcalTPGSpike(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
-    
-  } else if (container == "EcalTPGStripStatus") {
-     
-    edm::ESHandle<EcalTPGStripStatus> handle;
-    evtSetup.get<EcalTPGStripStatusRcd>().get(handle);
-    const EcalTPGStripStatus* obj = handle.product();
-    dbOutput->createNewIOV<const EcalTPGStripStatus>( new EcalTPGStripStatus(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
-    
-  } 
+  }
+  
   
   else {
     throw cms::Exception("Unknown container");

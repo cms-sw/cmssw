@@ -2,14 +2,14 @@
 #define PhysicsTools_UtilAlgos_interface_EDFilterWrapper_h
 
 /**
-  \class    FilterWrapper FilterWrapper.h "PhysicsTools/UtilAlgos/interface/FilterWrapper.h"
-  \brief    Wrapper class around a class of type BasicAnalyzer to "convert" it into a full EDFilter
+  \class    EDFilterWrapper EDFilterWrapper.h "PhysicsTools/UtilAlgos/interface/EDFilterWrapper.h"
+  \brief    Wrapper class for a class of type BasicFilter to "convert" it into a full EDFilter
 
-   This template class is a wrapper round classes of type BasicFilter as defined in in the 
+   This template class is a wrapper around classes of type BasicFilter as defined in the 
    BasicFilter.h file of this package. From this class the wrapper expects the following 
    member functions:
    
-   + a contructor with a const edm::ParameterSet& as input.
+   + a constructor with a const edm::ParameterSet& as input.
    + a filter function with an const edm::EventBase& as input
    
    the function is called within the wrapper. The wrapper translates the common class into 
@@ -28,7 +28,7 @@
    full framework and within FWLite. 
 
    NOTE: in the current implementation this wrapper class does not support use of the EventSetup. 
-   If you want to make use of this feature we recommend you to start from an EDAnalyzer from the 
+   If you want to make use of this feature we recommend you to start from an EDFilter from the 
    very beginning and just to stay within the full framework.
 */
 

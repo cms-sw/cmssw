@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/04/22 08:00:54 $
- *  $Revision: 1.5 $
+ *  $Date: 2011/05/01 08:43:49 $
+ *  $Revision: 1.8 $
  *
  *  \author Martin Grunewald
  *
@@ -25,7 +25,7 @@
 template<typename T, int Tid>
 HLTSmartSinglet<T,Tid>::HLTSmartSinglet(const edm::ParameterSet& iConfig) :
   inputTag_ (iConfig.template getParameter<edm::InputTag>("inputTag")),
-  saveTag_  (iConfig.template getUntrackedParameter<bool>("saveTag",false)),
+  saveTags_  (iConfig.template getParameter<bool>("saveTags")),
   cut_      (iConfig.template getParameter<std::string>  ("cut"     )),
   min_N_    (iConfig.template getParameter<int>          ("MinN"    )),
   select_   (cut_                                                    )
@@ -65,7 +65,7 @@ HLTSmartSinglet<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
    // The filter object
    auto_ptr<TriggerFilterObjectWithRefs>
      filterObject (new TriggerFilterObjectWithRefs(path(),module()));
-   if (saveTag_) filterObject->addCollectionTag(inputTag_);
+   if (saveTags_) filterObject->addCollectionTag(inputTag_);
    // Ref to Candidate object to be recorded in filter object
    TRef ref;
 

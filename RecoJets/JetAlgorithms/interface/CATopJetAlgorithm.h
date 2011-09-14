@@ -34,17 +34,19 @@
 
 #include "RecoJets/JetAlgorithms/interface/CompoundPseudoJet.h"
 
+
 #include <fastjet/JetDefinition.hh>
 #include <fastjet/PseudoJet.hh>
 #include <fastjet/ClusterSequence.hh>
-
+#include <fastjet/ActiveAreaSpec.hh>
+#include <fastjet/ClusterSequenceArea.hh>
 
 class CATopJetAlgorithm{
  public:
   /** Constructor
   */
   CATopJetAlgorithm(edm::InputTag mSrc,
-			bool   verbose,
+		    bool   verbose,
 		    int algorithm,
 		    int useAdjacency,
 		    double centralEtaCut,            
@@ -52,12 +54,16 @@ class CATopJetAlgorithm{
 		    const std::vector<double> & sumEtBins,      
 		    const std::vector<double> & rBins,       
 		    const std::vector<double> & ptFracBins,  
-			const std::vector<double> & deltarBins,
+		    const std::vector<double> & deltarBins,
 		    const std::vector<double> & nCellBins,
-			double seedThreshold,            
-			bool   useMaxTower,
+		    double seedThreshold,            
+		    bool   useMaxTower,
 		    double sumEtEtaCut,
-		    double etFrac) :
+		    double etFrac,
+		    boost::shared_ptr<fastjet::JetDefinition> fjJetDefinition,
+		    bool doAreaFastjet,
+		    boost::shared_ptr<fastjet::ActiveAreaSpec> fjActiveArea,
+		    double voronoiRfact) :
     mSrc_          (mSrc          ),
     verbose_   	   (verbose       ),
     algorithm_     (algorithm     ),
@@ -72,13 +78,16 @@ class CATopJetAlgorithm{
     seedThreshold_ (seedThreshold ), 
     useMaxTower_   (useMaxTower   ),
     sumEtEtaCut_   (sumEtEtaCut   ),   
-    etFrac_        (etFrac        )
+    etFrac_        (etFrac        ),
+    fjJetDefinition_(fjJetDefinition),
+    doAreaFastjet_ (doAreaFastjet),
+    fjActiveArea_  (fjActiveArea),
+    voronoiRfact_  (voronoiRfact)
       { }
 
     /// Find the ProtoJets from the collection of input Candidates.
     void run( const std::vector<fastjet::PseudoJet> & cell_particles, 
-	      std::vector<CompoundPseudoJet> & hardjetsOutput,
-	      edm::EventSetup const & c
+	      std::vector<CompoundPseudoJet> & hardjetsOutput 
 	      );
 
  private:
@@ -104,7 +113,10 @@ class CATopJetAlgorithm{
   double              sumEtEtaCut_;   			//<! eta for event SumEt - NOT USED                                 
   double              etFrac_;	      			//<! fraction of event sumEt / 2 for a jet to be considered "hard" - NOT USED 
   std::string         jetType_;       			//<! CaloJets or GenJets - NOT USED
-
+  boost::shared_ptr<fastjet::JetDefinition> fjJetDefinition_; //<! jet definition to use
+  bool                doAreaFastjet_; //<! whether or not to use the fastjet area
+  boost::shared_ptr<fastjet::ActiveAreaSpec> fjActiveArea_; //<! fastjet area spec
+  double              voronoiRfact_;  //<! fastjet voronoi area R factor
 
   // Decide if the two jets are in adjacent cells    
   bool adjacentCells(const fastjet::PseudoJet & jet1, const fastjet::PseudoJet & jet2, 

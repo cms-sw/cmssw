@@ -31,7 +31,8 @@ def removeTtFullLepHypGenMatch(process):
 ## set a specific attribute for all hypotheses to a given value
 ## -> this works for "jets", "leps", "mets", "maxNJets"
 def setForAllTtFullLepHypotheses(process, attribute, value):
-    modules = ["ttFullLepHypGenMatch",     
+    modules = ["ttFullLepJetPartonMatch",
+               "ttFullLepHypGenMatch",     
                "ttFullLepHypKinSolution",
 	       "kinSolutionTtFullLepEventHypothesis"]
     for obj in range(len(modules)):

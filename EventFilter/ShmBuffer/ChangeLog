@@ -1,3 +1,23 @@
+2011-05-20  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-08-11
+	* fixed server side discard methods and asserts
+	
+2011-05-11  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-08-10
+	* improved handling of EOL (added event type in raw cell,
+	added USEDLS event state, cross checks)
+
+2011-04-15  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-08-09
+
+2011-04-13  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-08-08
+	* add functions to discard orphaned cells
+
 2011-01-19  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-08-07

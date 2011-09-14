@@ -113,7 +113,7 @@ if __name__ == '__main__':
     parser.add_argument('-lumiversion',dest='lumiversion',action='store',default='0001',help='lumi data version, optional')
     parser.add_argument('-hltpath',dest='hltpath',action='store',default='all',help='specific hltpath to calculate the recorded luminosity,optional')
     parser.add_argument('-siteconfpath',dest='siteconfpath',action='store',help='specific path to site-local-config.xml file, optional. If path undefined, fallback to cern proxy&server')
-    parser.add_argument('-xingMinLum', dest = 'xingMinLum', type='float', default=1e-3,required=False,help='Minimum luminosity considered for "lumibylsXing" action')
+    parser.add_argument('-xingMinLum', dest = 'xingMinLum', type=float, default=1e-3,required=False,help='Minimum luminosity considered for "lumibylsXing" action')
     parser.add_argument('--verbose',dest='verbose',action='store_true',help='verbose mode for printing' )
     parser.add_argument('--nowarning',dest='nowarning',action='store_true',help='suppress bad for lumi warnings' )
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')

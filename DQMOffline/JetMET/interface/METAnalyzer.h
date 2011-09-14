@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for MET (Mu corrected/TcMET)
  *
- *  $Date: 2010/07/05 15:26:06 $
- *  $Revision: 1.20 $
+ *  $Date: 2010/09/22 19:40:34 $
+ *  $Revision: 1.21 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -226,10 +226,10 @@ class METAnalyzer : public METAnalyzerBase {
   MonitorElement* hMETRate;
 
   MonitorElement* hmetME;
-  MonitorElement* hNevents;
+  //removed for optimizations//MonitorElement* hNevents;
   MonitorElement* hMEx;
   MonitorElement* hMEy;
-  MonitorElement* hEz;
+  //removed for optimizations//MonitorElement* hEz;
   MonitorElement* hMETSig;
   MonitorElement* hMET;
   MonitorElement* hMETPhi;
@@ -238,9 +238,9 @@ class METAnalyzer : public METAnalyzerBase {
   MonitorElement* hMET_logx;
   MonitorElement* hSumET_logx;
 
-  MonitorElement* hMETIonFeedbck;
-  MonitorElement* hMETHPDNoise;
-  MonitorElement* hMETRBXNoise;
+  //removed for optimizations//MonitorElement* hMETIonFeedbck;
+  //removed for optimizations//MonitorElement* hMETHPDNoise;
+  //removed for optimizations//MonitorElement* hMETRBXNoise;
 
   MonitorElement* hMExLS;
   MonitorElement* hMEyLS;

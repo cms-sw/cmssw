@@ -150,6 +150,8 @@ namespace fwlite {
 
          virtual edm::TriggerResultsByName triggerResultsByName(std::string const& process) const;
 
+         edm::ProcessHistory const& processHistory() const {return history();}
+
          fwlite::LuminosityBlock const& getLuminosityBlock() const;
          fwlite::Run             const& getRun() const;
 

@@ -36,6 +36,8 @@
 
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
 
+#include "RecoJets/JetProducers/interface/JetIDHelper.h"
+
 typedef std::vector<std::string> MyStrings;
 
 /** \class HLTJets
@@ -66,8 +68,11 @@ public:
     void setup(const edm::ParameterSet& pSet, TTree* tree);
     
     /** Analyze the Data */
-    void analyze(const edm::Handle<reco::CaloJetCollection>      & recojets,
-                 const edm::Handle<reco::CaloJetCollection>      & corjets,
+    void analyze(edm::Event const& iEvent,
+		 const edm::Handle<reco::CaloJetCollection>      & ohjets,
+                 const edm::Handle<reco::CaloJetCollection>      & ohcorjets,
+		 const edm::Handle<reco::CaloJetCollection>      & recojets,
+		 const edm::Handle<reco::CaloJetCollection>      & recocorjets,
                  const edm::Handle<reco::GenJetCollection>       & gjets,
                  const edm::Handle<reco::CaloMETCollection>      & rmets,
                  const edm::Handle<reco::GenMETCollection>       & gmets,
@@ -94,14 +99,21 @@ public:
 private:
     
     // Tree variables
-    float *jcalpt, *jcalphi, *jcaleta, *jcale, *jcalemf, *jcaln90;
-    float *jcorcalpt, *jcorcalphi, *jcorcaleta, *jcorcale, *jcorcalemf, *jcorcaln90;
+    float *jhcalpt, *jhcalphi, *jhcaleta, *jhcale, *jhcalemf, *jhcaln90, *jhcaln90hits;
+    float *jhcorcalpt, *jhcorcalphi, *jhcorcaleta, *jhcorcale, *jhcorcalemf, *jhcorcaln90, *jhcorcaln90hits;
+
+    float *jrcalpt, *jrcalphi, *jrcaleta, *jrcale, *jrcalemf, *jrcaln90, *jrcaln90hits;
+    float *jrcorcalpt, *jrcorcalphi, *jrcorcaleta, *jrcorcale, *jrcorcalemf, *jrcorcaln90, *jrcorcaln90hits;
+
     float *jgenpt, *jgenphi, *jgeneta, *jgene;
     float *towet, *toweta, *towphi, *towen, *towem, *towhd, *towoe;
     float mcalmet,mcalphi,mcalsum;
     float htcalet,htcalphi,htcalsum;
     float mgenmet,mgenphi,mgensum;
-    int njetcal,ncorjetcal,njetgen,ntowcal;
+
+    int njetgen,ntowcal;
+    int nhjetcal,nhcorjetcal;
+    int nrjetcal,nrcorjetcal;
     
     // Taus
     float *l2tauemiso, *l25tauPt;
@@ -110,13 +122,16 @@ private:
     float *tauEta, *tauPt, *tauPhi; 
     //PFTau
     int nohPFTau;
+    int *ohpfTauProngs;
     float *ohpfTauEta,*ohpfTauPhi,*ohpfTauPt,*ohpfTauJetPt,*ohpfTauLeadTrackPt,*ohpfTauLeadPionPt;
     float *ohpfTauTrkIso, *ohpfTauGammaIso;
     //PFTau with tight cone
     int nohPFTauTightCone;
+    int *ohpfTauTightConeProngs;
     float *ohpfTauTightConeEta,*ohpfTauTightConePhi,*ohpfTauTightConePt,*ohpfTauTightConeJetPt,*ohpfTauTightConeLeadTrackPt,*ohpfTauTightConeLeadPionPt;
     float *ohpfTauTightConeTrkIso, *ohpfTauTightConeGammaIso;
     //PFJets
+    float pfHT;
     float pfMHT;    
     int nohPFJet;
     float *pfJetEta, *pfJetPhi, *pfJetPt;
@@ -131,6 +146,30 @@ private:
     int nrpj;
 
   
+    // isolation/signal cands for recoPFTau and HLTPFtau
+    int  noRecoPFTausSignal;
+    int *signalTrToPFTauMatch;
+    float *recoPFTauSignalTrDz;
+    float *recoPFTauSignalTrPt;
+
+    int noRecoPFTausIso;
+    int *isoTrToPFTauMatch;
+    float *recoPFTauIsoTrDz;
+    float *recoPFTauIsoTrPt;
+
+    int  noHLTPFTausSignal;
+    int *hltpftauSignalTrToPFTauMatch;
+    float *HLTPFTauSignalTrDz;
+    float *HLTPFTauSignalTrPt;
+
+    int noHLTPFTausIso;
+    int *hltpftauIsoTrToPFTauMatch;
+    float *HLTPFTauIsoTrDz;
+    float *HLTPFTauIsoTrPt;
+
+    reco::helper::JetIDHelper *jetID;
+
+
     // input variables
     bool _Monte,_Debug;
     float _CalJetMin, _GenJetMin;

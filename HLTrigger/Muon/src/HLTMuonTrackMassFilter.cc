@@ -21,6 +21,11 @@
 
 #include "DataFormats/Math/interface/deltaR.h"
 
+#include "TrackingTools/PatternTools/interface/ClosestApproachInRPhi.h"
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -36,7 +41,7 @@ HLTMuonTrackMassFilter::HLTMuonTrackMassFilter(const edm::ParameterSet& iConfig)
   muonTag_(iConfig.getParameter<edm::InputTag>("CandTag")),
   trackTag_(iConfig.getParameter<edm::InputTag>("TrackTag")),
   prevCandTag_(iConfig.getParameter<edm::InputTag>("PreviousCandTag")),
-  saveTag_(iConfig.getUntrackedParameter<bool>("SaveTag")),
+  saveTags_(iConfig.getParameter<bool>("saveTags")),
   minMasses_(iConfig.getParameter< std::vector<double> >("MinMasses")),
   maxMasses_(iConfig.getParameter< std::vector<double> >("MaxMasses")),
   checkCharge_(iConfig.getParameter<bool>("checkCharge")),
@@ -47,7 +52,8 @@ HLTMuonTrackMassFilter::HLTMuonTrackMassFilter(const edm::ParameterSet& iConfig)
   maxTrackDz_(iConfig.getParameter<double>("MaxTrackDz")),
   minTrackHits_(iConfig.getParameter<int>("MinTrackHits")),
   maxTrackNormChi2_(iConfig.getParameter<double>("MaxTrackNormChi2")),
-  maxDzMuonTrack_(iConfig.getParameter<double>("MaxDzMuonTrack")),
+//   maxDzMuonTrack_(iConfig.getParameter<double>("MaxDzMuonTrack")),
+  max_DCAMuonTrack_(iConfig.getParameter<double>("MaxDCAMuonTrack")),
   cutCowboys_(iConfig.getParameter<bool>("CutCowboys"))
 {
   //register your products
@@ -75,7 +81,7 @@ HLTMuonTrackMassFilter::HLTMuonTrackMassFilter(const edm::ParameterSet& iConfig)
   stream << "  muonCandidates = " << muonTag_ << "\n";
   stream << "  trackCandidates = " << trackTag_ << "\n";
   stream << "  previousCandidates = " << prevCandTag_ << "\n";
-  stream << "  saveTag = " << saveTag_ << "\n";
+  stream << "  saveTags= " << saveTags_ << "\n";
   stream << "  mass windows =";
   for ( size_t i=0; i<minMasses_.size(); ++i )  
     stream << " (" << minMasses_[i] << "," << maxMasses_[i] << ")";
@@ -88,7 +94,7 @@ HLTMuonTrackMassFilter::HLTMuonTrackMassFilter(const edm::ParameterSet& iConfig)
   stream << "  MaxTrackDz = " << maxTrackDz_ << "\n";
   stream << "  MinTrackHits = " << minTrackHits_ << "\n";
   stream << "  MaxTrackNormChi2 = " << maxTrackNormChi2_ << "\n";
-  stream << "  MaxDzMuonTrack = " << maxDzMuonTrack_ << "\n";
+//   stream << "  MaxDzMuonTrack = " << maxDzMuonTrack_ << "\n";
   LogDebug("HLTMuonTrackMassFilter") << stream.str();
 
 }
@@ -98,30 +104,32 @@ HLTMuonTrackMassFilter::fillDescriptions(edm::ConfigurationDescriptions& descrip
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("BeamSpotTag",edm::InputTag("hltOfflineBeamSpot"));
   desc.add<edm::InputTag>("CandTag",edm::InputTag("hltL3MuonCandidates"));
-  desc.add<edm::InputTag>("TrackTag",edm::InputTag("hltMuTkMuJpsiTrackerMuonCands"));
-  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltMu0TkMuJpsiTrackMassFiltered"));
-  desc.addUntracked<bool>("SaveTag",false);
+  //  desc.add<edm::InputTag>("TrackTag",edm::InputTag("hltMuTkMuJpsiTrackerMuonCands"));
+  desc.add<edm::InputTag>("TrackTag",edm::InputTag(""));
+  //  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltMu0TkMuJpsiTrackMassFiltered"));
+  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag(""));
+  desc.add<bool>("saveTags",false);
   {
     std::vector<double> temp1;
     temp1.reserve(1);
-    temp1.push_back(2.5);
+    temp1.push_back(2.8);
     desc.add<std::vector<double> >("MinMasses",temp1);
   }
   {
     std::vector<double> temp1;
     temp1.reserve(1);
-    temp1.push_back(4.1);
+    temp1.push_back(3.4);
     desc.add<std::vector<double> >("MaxMasses",temp1);
   }
   desc.add<bool>("checkCharge",true);
   desc.add<double>("MinTrackPt",0.0);
-  desc.add<double>("MinTrackP",2.7);
+  desc.add<double>("MinTrackP",3.0);
   desc.add<double>("MaxTrackEta",999.0);
   desc.add<double>("MaxTrackDxy",999.0);
   desc.add<double>("MaxTrackDz",999.0);
   desc.add<int>("MinTrackHits",5);
   desc.add<double>("MaxTrackNormChi2",10000000000.0);
-  desc.add<double>("MaxDzMuonTrack",0.5);
+  desc.add<double>("MaxDCAMuonTrack",99999.9);
   desc.add<bool>("CutCowboys",false);
   descriptions.add("hltMuonTrackMassFilter",desc);
 }
@@ -132,7 +140,7 @@ HLTMuonTrackMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
  // The filter object
   std::auto_ptr<trigger::TriggerFilterObjectWithRefs>
     filterproduct (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if ( saveTag_ ) {
+  if ( saveTags_ ) {
     filterproduct->addCollectionTag(muonTag_);
     filterproduct->addCollectionTag(trackTag_);
   }
@@ -142,6 +150,9 @@ HLTMuonTrackMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   edm::Handle<reco::BeamSpot> beamspotHandle;
   iEvent.getByLabel(beamspotTag_,beamspotHandle);
   reco::BeamSpot::Point beamspot(beamspotHandle->position());
+  // Needed for DCA calculation
+  edm::ESHandle<MagneticField> bFieldHandle;
+  iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
   //
   // Muons
   //
@@ -225,7 +236,7 @@ HLTMuonTrackMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   //
   // combinations
   //
-  unsigned int nDz(0);
+//   unsigned int nDz(0);
   unsigned int nQ(0);
   unsigned int nCowboy(0);
   unsigned int nComb(0);
@@ -242,12 +253,31 @@ HLTMuonTrackMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 // 	      << muon.track()->dz(beamspot)-track.track()->dz(beamspot) << " "
 // 	      << track.charge()+qMuon << " "
 // 	      << (p4Muon+track.p4()).mass() << "\n";
-      if ( fabs(muon.track()->dz(beamspot)-track.track()->dz(beamspot))>
-	   maxDzMuonTrack_ )  continue;
-      ++nDz;
+      
+//       if ( fabs(muon.track()->dz(beamspot)-track.track()->dz(beamspot))>
+// 	   maxDzMuonTrack_ )  continue;
+//       ++nDz;
       if ( checkCharge_ && track.charge()!=-qMuon )  continue;
       ++nQ;
 
+      ///
+      
+      // DCA between the two muons
+      
+      reco::TrackRef tk1 = muon.track();
+      reco::TrackRef tk2 = track.track();
+      
+      reco::TransientTrack mu1TT(*tk1, &(*bFieldHandle));
+      reco::TransientTrack mu2TT(*tk2, &(*bFieldHandle));
+      TrajectoryStateClosestToPoint mu1TS = mu1TT.impactPointTSCP();
+      TrajectoryStateClosestToPoint mu2TS = mu2TT.impactPointTSCP();
+      if (mu1TS.isValid() && mu2TS.isValid()) {
+         ClosestApproachInRPhi cApp;
+         cApp.calculate(mu1TS.theState(), mu2TS.theState());
+         if (!cApp.status() || cApp.distance() > max_DCAMuonTrack_) continue;
+      }
+      
+      ///
       // if cutting on cowboys reject muons that bend towards each other
       if(cutCowboys_ && (qMuon*deltaPhi(p4Muon.phi(), track.phi()) > 0.)) continue;
       ++nCowboy;
@@ -275,7 +305,7 @@ HLTMuonTrackMassFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   if ( edm::isDebugEnabled() ) {
     std::ostringstream stream;
     stream << "Total number of combinations = " 
-	   << selectedMuonRefs.size()*selectedTrackRefs.size() << " , after dz " << nDz
+// 	   << selectedMuonRefs.size()*selectedTrackRefs.size() << " , after dz " << nDz
 	   << " , after charge " << nQ << " , after cutCowboy " << nCowboy << " , after mass " << nComb << std::endl;
     stream << "Found " << nComb << " jpsi candidates with # / mass / q / pt / eta" << std::endl;
     std::vector<reco::RecoChargedCandidateRef> muRefs;

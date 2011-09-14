@@ -100,7 +100,7 @@ for kinematic_var in kin_plots:
     jetPtVersion.name = kinematic_var.name.value() + "OfJet"
     jetPtVersion.description = kinematic_var.description.value() + "Of Jet"
     #jetPtVersion.plotquantity = "jetRef()." + kinematic_var.plotquantity.value()
-    jetPtVersion.plotquantity = "jetRef()." + kinematic_var.plotquantity.value()
+    jetPtVersion.plotquantity = "pfTauTagInfoRef().pfjetRef()." + kinematic_var.plotquantity.value()
     tau_histograms.append(jetPtVersion)
 
     matchedVersion = copy.deepcopy(kinematic_var)

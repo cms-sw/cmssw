@@ -5,8 +5,8 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
- *  $Date: 2011/02/14 09:52:07 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/07/02 13:34:23 $
+ *  $Revision: 1.3 $
  *
  */
 
@@ -39,14 +39,11 @@ class TauValidation : public edm::EDAnalyzer
                electron,
                muon,
                pi,
-               rho,
-	       a1,
                K,
-	       Kstar,
 	       pi1pi0,
                pinpi0,
                tripi,
-//               tripinpi0,
+               tripinpi0,
 	       stable};
 	// tau mother particles 
 	enum  {other,
@@ -71,11 +68,8 @@ class TauValidation : public edm::EDAnalyzer
 	int tauMother(const HepMC::GenParticle*);
 	int tauProngs(const HepMC::GenParticle*);
 	int tauDecayChannel(const HepMC::GenParticle*);
-	int findMother(const HepMC::GenParticle*);
-	int findTauDecayChannel(const HepMC::GenParticle*);
 	void rtau(const HepMC::GenParticle*,int,int);
 	void spinEffects(const HepMC::GenParticle*,int,int);
-	void spinEffectsZ(const HepMC::GenParticle*);
 	double leadingPionMomentum(const HepMC::GenParticle*);
 	double visibleTauEnergy(const HepMC::GenParticle*);
 	TLorentzVector leadingPionP4(const HepMC::GenParticle*);
@@ -86,6 +80,9 @@ class TauValidation : public edm::EDAnalyzer
 
 	double tauEtCut;
 
+	double tauPtSum,photonFromTauPtSum;
+	int    nTaus,nTausWithPhotons;
+
   	/// PDT table
   	edm::ESHandle<HepPDT::ParticleDataTable> fPDGTable ;
   
@@ -93,10 +90,10 @@ class TauValidation : public edm::EDAnalyzer
   	DQMStore *dbe;
 
         MonitorElement *nEvt;
-  	MonitorElement *TauPt, *TauEta, *TauPhi, *TauProngs, *TauDecayChannels, *TauMothers, 
+  	MonitorElement *TauPt, *TauEta, *TauProngs, *TauDecayChannels, *TauMothers, 
                        *TauRtauW, *TauRtauHpm,
-                       *TauSpinEffectsW, *TauSpinEffectsHpm, *TauSpinEffectsZ,
-	               *TauPhotonsN,*TauPhotonsPt;
+                       *TauSpinEffectsW, *TauSpinEffectsHpm,
+	               *TauPhotons;
 };
 
 #endif

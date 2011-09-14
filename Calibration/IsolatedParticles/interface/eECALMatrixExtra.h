@@ -1,3 +1,4 @@
+// -*- C++ -*
 /* 
 The function eECALmatrix returns total energy contained in 
 NxN crystal matrix for EcalRecHits or PCaloSimHits.
