@@ -58,13 +58,12 @@ void SurveyDataReader::readFile( const std::string& textFileName ,const std::str
                          // if double-sided get the glued module
 
 	  if (fileType == "TID") {
-            TIDDetId *myTDI; 
-	    myTDI = new TIDDetId( d_inputs[2], d_inputs[3], d_inputs[4], d_inputs[5], d_inputs[6], ster);
-	    m_detId = myTDI->rawId();
+	    TIDDetId myTDI(d_inputs[2], d_inputs[3], d_inputs[4], d_inputs[5], d_inputs[6], ster);
+	    m_detId = myTDI.rawId();
 	  }
 	  else if (fileType == "TIB") {
-	    TIBDetId *myTBI = new TIBDetId( d_inputs[2], d_inputs[3], d_inputs[4], d_inputs[5], d_inputs[6], ster); 
-	    m_detId = myTBI->rawId();
+	    TIBDetId myTBI(d_inputs[2], d_inputs[3], d_inputs[4], d_inputs[5], d_inputs[6], ster); 
+	    m_detId = myTBI.rawId();
 	  }
 
           if (abs(int(m_detId) - int(d_inputs[1])) > 2) {  // Check DetId calculation ...
