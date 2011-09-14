@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V254 (CMSSW_4_2_0_HLT28)
+# /dev/CMSSW_4_2_0/GRun/V255 (CMSSW_4_2_0_HLT28)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V254')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V255')
 )
 
 process.streams = cms.PSet( 
@@ -156,7 +156,6 @@ process.datasets = cms.PSet(
     'HLT_DoublePhoton80_v2',
     'HLT_EightJet120_v1',
     'HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v8',
-    'HLT_Ele65_CaloIdVT_TrkIdT_v4',
     'HLT_HT2000_v2',
     'HLT_Jet370_v6',
     'HLT_Jet800_v1',
@@ -165,6 +164,7 @@ process.datasets = cms.PSet(
     'HLT_Mu100_eta2p1_v1',
     'HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_v4',
     'HLT_Mu17_Mu8_v7',
+    'HLT_Photon225_NoHE_v2',
     'HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v4',
     'HLT_Photon400_v2',
     'HLT_Photon75_CaloIdVL_IsoL_v8',
@@ -33444,13 +33444,13 @@ process.hltPreExpressOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_Mu17_Mu8_v7',
       'HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v4',
       'HLT_Photon75_CaloIdVL_IsoL_v8 / 15',
+      'HLT_Photon225_NoHE_v2',
       'HLT_Photon400_v2',
       'HLT_DoublePhoton80_v2',
       'HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v8',
-      'HLT_Ele65_CaloIdVT_TrkIdT_v4',
       'HLT_DoubleEle45_CaloIdL_v4',
       'HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_v4',
-      'HLT_ZeroBias_v4' ),
+      'HLT_ZeroBias_v4 / 2' ),
     hltResults = cms.InputTag( "TriggerResults" ),
     l1tResults = cms.InputTag( "hltGtDigis" ),
     l1tIgnoreMask = cms.bool( False ),
@@ -35266,7 +35266,6 @@ process.hltOutputExpress = cms.OutputModule( "PoolOutputModule",
   'HLT_DoublePhoton80_v2',
   'HLT_EightJet120_v1',
   'HLT_Ele17_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_Ele8_CaloIdT_CaloIsoVL_TrkIdVL_TrkIsoVL_v8',
-  'HLT_Ele65_CaloIdVT_TrkIdT_v4',
   'HLT_HT2000_v2',
   'HLT_Jet370_v6',
   'HLT_Jet800_v1',
@@ -35275,6 +35274,7 @@ process.hltOutputExpress = cms.OutputModule( "PoolOutputModule",
   'HLT_Mu100_eta2p1_v1',
   'HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_v4',
   'HLT_Mu17_Mu8_v7',
+  'HLT_Photon225_NoHE_v2',
   'HLT_Photon36_CaloIdL_IsoVL_Photon22_CaloIdL_IsoVL_v4',
   'HLT_Photon400_v2',
   'HLT_Photon75_CaloIdVL_IsoL_v8',
