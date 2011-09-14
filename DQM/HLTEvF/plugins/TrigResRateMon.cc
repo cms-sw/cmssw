@@ -1,4 +1,4 @@
-// $Id: TrigResRateMon.cc,v 1.19 2011/08/17 17:29:51 lwming Exp $
+// $Id: TrigResRateMon.cc,v 1.20 2011/09/07 17:28:56 lwming Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "TString.h"
@@ -386,7 +386,9 @@ void TrigResRateMon::beginRun(const edm::Run& run, const edm::EventSetup& c)
 
     //    const unsigned int n(hltConfig_.size());
 
+    TotalDroppedCounts = 0;
     //Robin-------Diagnostic plots--------
+    meDiagnostic = dbe->book1D("DroppedCounts Diagnose", "LSs vs Status;Status;LSs", 3, -0.5,2.5 );
     meCountsDroppedPerLS = dbe->book1D("CountsDroppedVsLS", "Counts vs LumiSec;LS;Dropped Stream Counts", nLS_, 0.5, nLS_+0.5);
     meCountsPassPerLS = dbe->book1D("CountsPassVsLS", "Counts vs LumiSec;LS;Passed Stream Counts", nLS_, 0.5, nLS_+0.5);
     meCountsStreamPerLS = dbe->book1D("CountsStreamVsLS", "Counts vs LumiSec;LS;Stream Counts", nLS_, 0.5, nLS_+0.5);
@@ -1895,11 +1897,20 @@ void TrigResRateMon::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, con
   // dropped events
   MonitorElement* tempDroppedEvents = dbe_->get("SM_SMPS_Stats/droppedEventsCount_HLTTrigerResults" );
   if (tempDroppedEvents) {
+    TH1F* tempDiagnostic = meDiagnostic->getTH1F();
     if (tempDroppedEvents->kind() == MonitorElement::DQM_KIND_INT){
-      int64_t droppedCounts =  tempDroppedEvents->getIntValue();
+      tempDiagnostic->Fill(2);
+      int64_t tempDroppedCounts =  tempDroppedEvents->getIntValue();
+      int64_t currentDroppedCounts = tempDroppedCounts - TotalDroppedCounts;
+      TotalDroppedCounts = tempDroppedCounts ;
       TH1F* tempCountsDroppedPerLS = meCountsDroppedPerLS->getTH1F();
-      tempCountsDroppedPerLS->SetBinContent(lumi, droppedCounts);
+      tempCountsDroppedPerLS->SetBinContent(lumi, currentDroppedCounts);
     }
+    else     tempDiagnostic->Fill(1);
+  }
+  else {
+    TH1F* tempDiagnostic = meDiagnostic->getTH1F();
+    tempDiagnostic->Fill(0);
   }
 
   TH1F* tempXsecStreamPerLS = meXsecStreamPerLS->getTH1F();
