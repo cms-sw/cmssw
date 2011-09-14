@@ -7,6 +7,7 @@
 #include "OnlineDB/EcalCondDB/interface/IDataItem.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #include "OnlineDB/EcalCondDB/interface/EcalLogicID.h"
+#include "OnlineDB/EcalCondDB/interface/ODDelaysDat.h"
 
 class RunFEConfigDat : public IDataItem {
  public:
@@ -20,6 +21,7 @@ class RunFEConfigDat : public IDataItem {
   inline int getConfigId() const { return m_config; }
   inline void setConfigId(int x) { m_config = x; }
 
+  std::list<ODDelaysDat> getDelays();
 
  private:
   void prepareWrite() 

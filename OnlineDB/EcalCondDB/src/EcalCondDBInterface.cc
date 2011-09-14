@@ -1,4 +1,4 @@
-// $Id: EcalCondDBInterface.cc,v 1.33 2011/05/18 12:59:17 organtin Exp $
+// $Id: EcalCondDBInterface.cc,v 1.34 2011/05/27 14:37:14 organtin Exp $
 
 #include <iostream>
 #include <string>
@@ -66,6 +66,7 @@ void EcalCondDBInterface::fillLogicId2DetIdMaps() {
   
 }
 
+
 EcalLogicID EcalCondDBInterface::getEcalLogicID( int logicID )
   throw(std::runtime_error)
 {
@@ -103,7 +104,39 @@ EcalLogicID EcalCondDBInterface::getEcalLogicID( int logicID )
   return EcalLogicID( name, logicID, id1, id2, id3, mapsTo );  
 }
 
-
+std::list<ODDelaysDat> EcalCondDBInterface::fetchFEDelaysForRun(RunIOV *iov)
+  throw(std::runtime_error)
+{
+  std::list<ODDelaysDat> ret;
+  RunFEConfigDat d;
+  std::map<EcalLogicID, RunFEConfigDat > fillMap;
+  try {
+    d.setConnection(env, conn);
+    d.fetchData(&fillMap, iov);
+  } catch (std::runtime_error &e) {
+    throw e;
+  }
+  std::map<EcalLogicID, RunFEConfigDat >::const_iterator i = fillMap.begin();
+  std::map<EcalLogicID, RunFEConfigDat >::const_iterator e = fillMap.end();
+  while (i != e) {
+    ODFEDAQConfig feDaqConfig;
+    ODFEDAQConfig temp;
+    temp.setId(i->second.getConfigId());
+    feDaqConfig.setConnection(env, conn);
+    feDaqConfig.fetchData(&temp);
+    std::vector<ODDelaysDat> delays;
+    ODDelaysDat temp2;
+    temp2.setConnection(env, conn);
+    temp2.fetchData(&delays, temp.getDelayId());
+    std::vector<ODDelaysDat>::const_iterator di = delays.begin();
+    std::vector<ODDelaysDat>::const_iterator de = delays.end();
+    while (di != de) {
+      ret.push_back(*di++);
+    }
+    i++;
+  }
+  return ret;
+}
 
 EcalLogicID EcalCondDBInterface::getEcalLogicID( string name,
 						 int id1,

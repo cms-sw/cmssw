@@ -8,6 +8,9 @@
 <bin   file="TestLMF2010-temp.cpp">
   <flags NO_TESTRUN="1"/>
 </bin>
+<bin   file="GetDelays.cpp">
+  <flags NO_TESTRUN="1"/>
+</bin>
 <bin   file="TestLMF2010-write.cpp">
   <flags NO_TESTRUN="1"/>
 </bin>

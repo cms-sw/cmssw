@@ -86,6 +86,7 @@ void RunFEConfigDat::fetchData(map< EcalLogicID, RunFEConfigDat >* fillMap, RunI
 
   try {
 
+    createReadStatement();
     m_readStmt->setSQL("SELECT cv.name, cv.logic_id, cv.id1, cv.id2, cv.id3, cv.maps_to, "
 		 "d.Config_id "
 		 "FROM channelview cv JOIN run_FEConfig_dat d "
@@ -106,11 +107,12 @@ void RunFEConfigDat::fetchData(map< EcalLogicID, RunFEConfigDat >* fillMap, RunI
 
       dat.setConfigId( rset->getInt(7) );
  
-
       p.second = dat;
       fillMap->insert(p);
     }
+    terminateReadStatement();
   } catch (SQLException &e) {
     throw(std::runtime_error("RunFEConfigDat::fetchData():  "+e.getMessage()));
   }
 }
+

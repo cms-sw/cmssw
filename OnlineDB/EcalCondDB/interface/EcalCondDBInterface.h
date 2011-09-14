@@ -1,7 +1,7 @@
 /***********************************************/
 /* EcalCondDBInterface.h		       */
 /* 					       */
-/* $Id: EcalCondDBInterface.h,v 1.37 2011/05/18 12:59:17 organtin Exp $ 	        		       */
+/* $Id: EcalCondDBInterface.h,v 1.38 2011/05/27 14:37:14 organtin Exp $ 	        		       */
 /* 					       */
 /* Interface to the Ecal Conditions DB.	       */
 /***********************************************/
@@ -195,6 +195,13 @@ class EcalCondDBInterface : public EcalDBConnection {
   void insertLmfDat(LMFDat* dat)
     throw(std::runtime_error);
   void insertLmfDat(std::list<LMFDat*> dat)
+    throw(std::runtime_error);
+
+  /**
+   *  Return run Fe Config Dat objects for a given run
+   */
+
+  std::list<ODDelaysDat> fetchFEDelaysForRun(RunIOV *iov)
     throw(std::runtime_error);
 
   /**
