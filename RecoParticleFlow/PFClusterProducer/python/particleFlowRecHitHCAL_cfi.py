@@ -53,6 +53,14 @@ particleFlowRecHitHCAL = cms.EDProducer("PFRecHitProducerHCAL",
 # Also apply DPG cleaning
     ApplyTimeDPG = cms.bool(False),
     ApplyPulseDPG = cms.bool(False),
+# Specify maximum severity levels for which each HCAL flag will still be treated as "normal".  (If the flag severity is larger than the level, the appropriate PF cleaning will take place.)  These ints are similar to the HcalAcceptSeverityLevel parameter used in default CaloTowers, but do not necessarily have to share the same value. 
+                                        
+    HcalMaxAllowedHFLongShortSev = cms.int32(9),
+    HcalMaxAllowedHFDigiTimeSev = cms.int32(9),
+    HcalMaxAllowedHFInTimeWindowSev = cms.int32(9),
+    HcalMaxAllowedChannelStatusSev = cms.int32(9),
+                                              
+                                        
 
 # Compensate for ECAL dead channels                                        
     ECAL_Compensate = cms.bool(False),

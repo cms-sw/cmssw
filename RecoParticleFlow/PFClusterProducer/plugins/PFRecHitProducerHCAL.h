@@ -118,6 +118,14 @@ class PFRecHitProducerHCAL : public PFRecHitProducer {
 
   bool applyTimeDPG_;
   bool applyPulseDPG_;
+  int  HcalMaxAllowedHFLongShortSev_;
+  int  HcalMaxAllowedHFDigiTimeSev_;
+  int  HcalMaxAllowedHFInTimeWindowSev_;
+  int  HcalMaxAllowedChannelStatusSev_;
+
+  int hcalHFLongShortFlagValue_;
+  int hcalHFDigiTimeFlagValue_;
+  int hcalHFInTimeWindowFlagValue_;
 
   // Compensate for dead ECAL channels
   bool ECAL_Compensate_;

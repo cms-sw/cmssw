@@ -33,7 +33,8 @@
 #include "RecoCaloTools/Navigation/interface/CaloTowerNavigator.h"
 
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
-
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
+#include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
 
 using namespace std;
 using namespace edm;
@@ -91,6 +92,10 @@ PFRecHitProducerHCAL::PFRecHitProducerHCAL(const edm::ParameterSet& iConfig)
 
   applyTimeDPG_ = iConfig.getParameter<bool>("ApplyTimeDPG");
   applyPulseDPG_ = iConfig.getParameter<bool>("ApplyPulseDPG");
+  HcalMaxAllowedHFLongShortSev_ = iConfig.getParameter<int>("HcalMaxAllowedHFLongShortSev");
+  HcalMaxAllowedHFDigiTimeSev_ = iConfig.getParameter<int>("HcalMaxAllowedHFDigiTimeSev");
+  HcalMaxAllowedHFInTimeWindowSev_ = iConfig.getParameter<int>("HcalMaxAllowedHFInTimeWindowSev");
+  HcalMaxAllowedChannelStatusSev_ = iConfig.getParameter<int>("HcalMaxAllowedChannelStatusSev");
 
   ECAL_Compensate_ = iConfig.getParameter<bool>("ECAL_Compensate");
   ECAL_Threshold_ = iConfig.getParameter<double>("ECAL_Threshold");
@@ -99,6 +104,12 @@ PFRecHitProducerHCAL::PFRecHitProducerHCAL(const edm::ParameterSet& iConfig)
 
   EM_Depth_ = iConfig.getParameter<double>("EM_Depth");
   HAD_Depth_ = iConfig.getParameter<double>("HAD_Depth");
+
+  //Get integer values of individual HCAL HF flags
+  hcalHFLongShortFlagValue_=1<<HcalCaloFlagLabels::HFLongShort;
+  hcalHFDigiTimeFlagValue_=1<<HcalCaloFlagLabels::HFDigiTime;
+  hcalHFInTimeWindowFlagValue_=1<<HcalCaloFlagLabels::HFInTimeWindow;
+
 
   //--ab
   produces<reco::PFRecHitCollection>("HFHAD").setBranchAlias("HFHADRecHits");
@@ -141,6 +152,11 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
   // get the endcap geometry
   const CaloSubdetectorGeometry *hcalEndcapGeometry = 
     geoHandle->getSubdetectorGeometry(DetId::Hcal, HcalEndcap);
+
+  // Get Hcal Severity Level Computer, so that the severity of each rechit flag/status may be determined
+  edm::ESHandle<HcalSeverityLevelComputer> hcalSevLvlComputerHndl;
+  iSetup.get<HcalSeverityLevelComputerRcd>().get(hcalSevLvlComputerHndl);
+  const HcalSeverityLevelComputer* hcalSevLvlComputer = hcalSevLvlComputerHndl.product();
 
   //--ab
   auto_ptr< vector<reco::PFRecHit> > HFHADRecHits( new vector<reco::PFRecHit> ); 
@@ -423,6 +439,8 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		typedef HFRecHitCollection::const_iterator iHF;
 		iHF theLongHit = hfHandle->find(theLongDetId); 
 		iHF theShortHit = hfHandle->find(theShortDetId); 
+		int theLongFlag = theLongHit->flags();
+		int theShortFlag = theShortHit->flags();
 		// 
 		double theLongHitEnergy = 0.;
 		double theShortHitEnergy = 0.;
@@ -435,16 +453,23 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		//
 		if ( theLongHit != hfHandle->end() ) { 
 		  theLongHitEnergy = theLongHit->energy();
-		  flagLongDPG = applyLongShortDPG_ && theLongHit->flagField(HcalCaloFlagLabels::HFLongShort)==1;
-		  flagLongTimeDPG = applyTimeDPG_ && theLongHit->flagField(HcalCaloFlagLabels::HFInTimeWindow)==1;
-		  flagLongPulseDPG = applyPulseDPG_ && theLongHit->flagField(HcalCaloFlagLabels::HFDigiTime)==1;
+		  flagLongDPG = applyLongShortDPG_ && ( hcalSevLvlComputer->getSeverityLevel(theLongDetId, theLongFlag & hcalHFLongShortFlagValue_, 0)> HcalMaxAllowedHFLongShortSev_);
+		  flagLongTimeDPG = applyTimeDPG_ && ( hcalSevLvlComputer->getSeverityLevel(theLongDetId, theLongFlag & hcalHFInTimeWindowFlagValue_, 0)> HcalMaxAllowedHFInTimeWindowSev_);
+		  flagLongPulseDPG = applyPulseDPG_ && ( hcalSevLvlComputer->getSeverityLevel(theLongDetId, theLongFlag & hcalHFDigiTimeFlagValue_, 0)> HcalMaxAllowedHFDigiTimeSev_);
+
+		  //flagLongDPG =  applyLongShortDPG_ && theLongHit->flagField(HcalCaloFlagLabels::HFLongShort)==1;
+		  //flagLongTimeDPG = applyTimeDPG_ && theLongHit->flagField(HcalCaloFlagLabels::HFInTimeWindow)==1;
+		  //flagLongPulseDPG = applyPulseDPG_ && theLongHit->flagField(HcalCaloFlagLabels::HFDigiTime)==1;
 		}
 		//
 		if ( theShortHit != hfHandle->end() ) { 
 		  theShortHitEnergy = theShortHit->energy();
-		  flagShortDPG =  applyLongShortDPG_ && theShortHit->flagField(HcalCaloFlagLabels::HFLongShort)==1;
-		  flagShortTimeDPG = applyTimeDPG_ && theShortHit->flagField(HcalCaloFlagLabels::HFInTimeWindow)==1;
-		  flagShortPulseDPG = applyPulseDPG_ && theShortHit->flagField(HcalCaloFlagLabels::HFDigiTime)==1;
+		  flagShortDPG = applyLongShortDPG_ && ( hcalSevLvlComputer->getSeverityLevel(theShortDetId, theShortFlag & hcalHFLongShortFlagValue_, 0)> HcalMaxAllowedHFLongShortSev_);
+		  flagShortTimeDPG = applyTimeDPG_ && ( hcalSevLvlComputer->getSeverityLevel(theShortDetId, theShortFlag & hcalHFInTimeWindowFlagValue_, 0)> HcalMaxAllowedHFInTimeWindowSev_);
+		  flagShortPulseDPG = applyPulseDPG_ && ( hcalSevLvlComputer->getSeverityLevel(theShortDetId, theShortFlag & hcalHFDigiTimeFlagValue_, 0)> HcalMaxAllowedHFDigiTimeSev_);
+		  //flagShortDPG =  applyLongShortDPG_ && theShortHit->flagField(HcalCaloFlagLabels::HFLongShort)==1;
+		  //flagShortTimeDPG = applyTimeDPG_ && theShortHit->flagField(HcalCaloFlagLabels::HFInTimeWindow)==1;
+		  //flagShortPulseDPG = applyPulseDPG_ && theShortHit->flagField(HcalCaloFlagLabels::HFDigiTime)==1;
 		}
 
 		// Then check the timing in short and long fibres in all other towers.
@@ -511,8 +536,10 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		  // In this case don't apply the cleaning
 		  const HcalChannelStatus* theStatus = theHcalChStatus->getValues(theLongDetId);
 		  unsigned theStatusValue = theStatus->getValue();
+		  int theSeverityLevel = hcalSevLvlComputer->getSeverityLevel(detid, 0, theStatusValue);
 		  // The channel is killed
-		  if ( !theStatusValue ) { 
+		  /// if ( !theStatusValue ) 
+		  if (theSeverityLevel<=HcalMaxAllowedChannelStatusSev_) {
 		    // rescaleFactor = 0. ;
 		    pfrhHFHADCleaned = createHcalRecHit( detid, 
 							 theShortHitEnergy, 
@@ -545,8 +572,12 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		  // In this case don't apply the cleaning
 		  const HcalChannelStatus* theStatus = theHcalChStatus->getValues(theShortDetId);
 		  unsigned theStatusValue = theStatus->getValue();
+
+		  int theSeverityLevel = hcalSevLvlComputer->getSeverityLevel(detid, 0, theStatusValue);
 		  // The channel is killed
-		  if ( !theStatusValue ) { 
+		  /// if ( !theStatusValue ) 
+		  if (theSeverityLevel<=HcalMaxAllowedChannelStatusSev_) {
+		    
 		    //rescaleFactor = 0. ;
 		    pfrhHFEMCleaned = createHcalRecHit( detid, 
 						      theLongHitEnergy, 
@@ -622,6 +653,8 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		  HcalDetId theShortDetId29 (HcalForward, ieta29, iphi, 2);
 		  iHF theLongHit29 = hfHandle->find(theLongDetId29); 
 		  iHF theShortHit29 = hfHandle->find(theShortDetId29); 
+		  int theLongFlag29 = theLongHit29->flags();
+		  int theShortFlag29 = theShortHit29->flags();
 		  // 
 		  double theLongHitEnergy29 = 0.;
 		  double theShortHitEnergy29 = 0.;
@@ -634,16 +667,24 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		  //
 		  if ( theLongHit29 != hfHandle->end() ) { 		    
 		    theLongHitEnergy29 = theLongHit29->energy() ;
-		    flagLongDPG29 = applyLongShortDPG_ && theLongHit29->flagField(HcalCaloFlagLabels::HFLongShort)==1;
-		    flagLongTimeDPG29 = applyTimeDPG_ && theLongHit29->flagField(HcalCaloFlagLabels::HFInTimeWindow)==1;
-		    flagLongPulseDPG29 = applyPulseDPG_ && theLongHit29->flagField(HcalCaloFlagLabels::HFDigiTime)==1;
+		    flagLongDPG29 = applyLongShortDPG_ && ( hcalSevLvlComputer->getSeverityLevel(theLongDetId29, theLongFlag29 & hcalHFLongShortFlagValue_, 0)> HcalMaxAllowedHFLongShortSev_);
+		    flagLongTimeDPG29 = applyTimeDPG_ && ( hcalSevLvlComputer->getSeverityLevel(theLongDetId29, theLongFlag29 & hcalHFInTimeWindowFlagValue_, 0)> HcalMaxAllowedHFInTimeWindowSev_);
+		    flagLongPulseDPG29 = applyPulseDPG_ && ( hcalSevLvlComputer->getSeverityLevel(theLongDetId29, theLongFlag29 & hcalHFDigiTimeFlagValue_, 0)> HcalMaxAllowedHFDigiTimeSev_);
+
+		    //flagLongDPG29 = applyLongShortDPG_ && theLongHit29->flagField(HcalCaloFlagLabels::HFLongShort)==1;
+		    //flagLongTimeDPG29 = applyTimeDPG_ && theLongHit29->flagField(HcalCaloFlagLabels::HFInTimeWindow)==1;
+		    //flagLongPulseDPG29 = applyPulseDPG_ && theLongHit29->flagField(HcalCaloFlagLabels::HFDigiTime)==1;
 		  }
 		  //
 		  if ( theShortHit29 != hfHandle->end() ) { 		    
 		    theShortHitEnergy29 = theShortHit29->energy();		  
-		    flagShortDPG29 = applyLongShortDPG_ && theShortHit29->flagField(HcalCaloFlagLabels::HFLongShort)==1;
-		    flagShortTimeDPG29 = applyTimeDPG_ && theShortHit29->flagField(HcalCaloFlagLabels::HFInTimeWindow)==1;
-		    flagShortPulseDPG29 = applyPulseDPG_ && theShortHit29->flagField(HcalCaloFlagLabels::HFDigiTime)==1;
+		    flagShortDPG29 = applyLongShortDPG_ && ( hcalSevLvlComputer->getSeverityLevel(theShortDetId29, theShortFlag29 & hcalHFLongShortFlagValue_, 0)> HcalMaxAllowedHFLongShortSev_);
+		    flagShortTimeDPG29 = applyTimeDPG_ && ( hcalSevLvlComputer->getSeverityLevel(theShortDetId29, theShortFlag29 & hcalHFInTimeWindowFlagValue_, 0)> HcalMaxAllowedHFInTimeWindowSev_);
+		    flagLongPulseDPG29 = applyPulseDPG_ && ( hcalSevLvlComputer->getSeverityLevel(theShortDetId29, theShortFlag29 & hcalHFDigiTimeFlagValue_, 0)> HcalMaxAllowedHFDigiTimeSev_);
+
+		    //flagShortDPG29 = applyLongShortDPG_ && theShortHit29->flagField(HcalCaloFlagLabels::HFLongShort)==1;
+		    //flagShortTimeDPG29 = applyTimeDPG_ && theShortHit29->flagField(HcalCaloFlagLabels::HFInTimeWindow)==1;
+		    //flagShortPulseDPG29 = applyPulseDPG_ && theShortHit29->flagField(HcalCaloFlagLabels::HFDigiTime)==1;
 		  }
 
 		  if ( theLongHitEnergy29 > longShortFibre_Cut && 
@@ -708,8 +749,11 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		    // In this case don't apply the cleaning
 		    const HcalChannelStatus* theStatus = theHcalChStatus->getValues(theLongDetId29);
 		    unsigned theStatusValue = theStatus->getValue();
+
+		    int theSeverityLevel = hcalSevLvlComputer->getSeverityLevel(detid, 0, theStatusValue);
 		    // The channel is killed
-		    if ( !theStatusValue ) { 
+		    /// if ( !theStatusValue ) 
+		    if (theSeverityLevel<=HcalMaxAllowedChannelStatusSev_) {
 		      //rescaleFactor = 0. ;
 		      pfrhHFHADCleaned29 = createHcalRecHit( detid, 
 							   theShortHitEnergy29, 
@@ -743,8 +787,11 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		    // In this case don't apply the cleaning
 		    const HcalChannelStatus* theStatus = theHcalChStatus->getValues(theShortDetId29);
 		    unsigned theStatusValue = theStatus->getValue();
+		    int theSeverityLevel = hcalSevLvlComputer->getSeverityLevel(detid, 0, theStatusValue);
 		    // The channel is killed
-		    if ( !theStatusValue ) { 
+		    /// if ( !theStatusValue ) 
+		    if (theSeverityLevel<=HcalMaxAllowedChannelStatusSev_) {
+
 		      //rescaleFactor = 0. ;
 		      pfrhHFEMCleaned29 = createHcalRecHit( detid, 
 							    theLongHitEnergy29, 
