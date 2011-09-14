@@ -189,8 +189,8 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 
    TCanvas* c1;
 
-   string MuPattern  = "Results/dedxASmi/combined/Eta15/PtMin35/Type2/";
-   string TkPattern  = "Results/dedxASmi/combined/Eta15/PtMin35/Type0/";
+   string MuPattern  = "Results/dedxASmi/combined/Eta15/PtMin45/Type2/";
+   string TkPattern  = "Results/dedxASmi/combined/Eta15/PtMin45/Type0/";
 
 
    string outpath = string("Results/EXCLUSION/");
@@ -857,7 +857,7 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
    ///##############################################################################"
 
    for(int CutIndex=0;CutIndex<MassData->GetNbinsX();CutIndex++){
-      if(HCuts_Pt ->GetBinContent(CutIndex+1) < 35 ) continue;  // Be sure the pT cut is high enough to get some statistic for both ABCD and mass shape
+      if(HCuts_Pt ->GetBinContent(CutIndex+1) < 45 ) continue;  // Be sure the pT cut is high enough to get some statistic for both ABCD and mass shape
       if(H_E->GetBinContent(CutIndex+1) >0 && (H_A->GetBinContent(CutIndex+1)<25 || H_F->GetBinContent(CutIndex+1)<25 || H_G->GetBinContent(CutIndex+1)<25))continue;  //Skip events where Prediction (AFG/EE) is not reliable
       if(H_E->GetBinContent(CutIndex+1)==0 && (H_C->GetBinContent(CutIndex+1)<25 || H_B->GetBinContent(CutIndex+1)<25))continue;  //Skip events where Prediction (CB/A) is not reliable
       GetSignalMeanHSCPPerEvent(pattern,CutIndex, MinRange, MaxRange);
@@ -955,8 +955,8 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
      //fprintf(pFile ,"CutIndex=%4i ManHSCPPerEvents = %6.2f %6.2f %6.2f %6.2f   NTracks = %6.3f %6.3f %6.3f %6.3f\n",CutIndex,signalsMeanHSCPPerEvent[0], signalsMeanHSCPPerEvent[1],signalsMeanHSCPPerEvent[2],signalsMeanHSCPPerEvent[3], MassSignProj[0]->Integral(), MassSignProj[1]->Integral(), MassSignProj[2]->Integral(), MassSignProj[3]->Integral());
 
 
-     fprintf(pFile  ,"%10s: Testing CutIndex=%4i (Pt>%6.2f I>%6.3f TOF>%6.3f) %3.0f<M<inf Ndata=%+6.2E NPred=%6.3E+-%6.3E SignalEff=%6.2f",signal.c_str(),CutIndex,HCuts_Pt ->GetBinContent(CutIndex+1), HCuts_I  ->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1), MinRange,NData,NPred, NPredErr,Eff);fflush(stdout);
-     fprintf(stdout ,"%10s: Testing CutIndex=%4i (Pt>%6.2f I>%6.3f TOF>%6.3f) %3.0f<M<inf Ndata=%+6.2E NPred=%6.3E+-%6.3E SignalEff=%6.2f",signal.c_str(),CutIndex,HCuts_Pt ->GetBinContent(CutIndex+1), HCuts_I  ->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1), MinRange,NData,NPred, NPredErr,Eff);fflush(stdout);
+     fprintf(pFile  ,"%10s: Testing CutIndex=%4i (Pt>%6.2f I>%6.3f TOF>%6.3f) %3.0f<M<inf Ndata=%+6.2E NPred=%6.3E+-%6.3E SignalEff=%6.3f",signal.c_str(),CutIndex,HCuts_Pt ->GetBinContent(CutIndex+1), HCuts_I  ->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1), MinRange,NData,NPred, NPredErr,Eff);fflush(stdout);
+     fprintf(stdout ,"%10s: Testing CutIndex=%4i (Pt>%6.2f I>%6.3f TOF>%6.3f) %3.0f<M<inf Ndata=%+6.2E NPred=%6.3E+-%6.3E SignalEff=%6.3f",signal.c_str(),CutIndex,HCuts_Pt ->GetBinContent(CutIndex+1), HCuts_I  ->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1), MinRange,NData,NPred, NPredErr,Eff);fflush(stdout);
 
 
      double ExpLimit = 99999999;
@@ -965,9 +965,9 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
      LimitResult CLMResults;
      double signalUncertainty=0.10;
      if (signals[JobIdToIndex(signal)].Mass<450) signalUncertainty=0.15;
-
-     CLMResults = roostats_clm(IntegratedLuminosity, IntegratedLuminosity*0.06, Eff, Eff*signalUncertainty,NPred, NPred*RescaleError, 1 , 1, "bayesian");   ExpLimit=CLMResults.GetExpectedLimit();  //1 Toy
-//     CLMResults = roostats_clm(IntegratedLuminosity, IntegratedLuminosity*0.06, Eff, Eff*signalUncertainty,NPred, NPred*RescaleError, 10, 1, "bayesian");   ExpLimit=CLMResults.GetExpectedLimit();  //10Toys
+     continue;
+     //     CLMResults = roostats_clm(IntegratedLuminosity, IntegratedLuminosity*0.06, Eff, Eff*signalUncertainty,NPred, NPred*RescaleError, 1 , 1, "bayesian");   ExpLimit=CLMResults.GetExpectedLimit();  //1 Toy
+     CLMResults = roostats_clm(IntegratedLuminosity, IntegratedLuminosity*0.06, Eff, Eff*signalUncertainty,NPred, NPred*RescaleError, 10, 1, "bayesian");   ExpLimit=CLMResults.GetExpectedLimit();  //10Toys
 
      fprintf(pFile ," --> %+7.2E expected",ExpLimit);
      fprintf(stdout," --> %+7.2E expected",ExpLimit);

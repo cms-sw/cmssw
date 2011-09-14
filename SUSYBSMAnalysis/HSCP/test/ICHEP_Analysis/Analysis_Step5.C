@@ -99,12 +99,12 @@ void Analysis_Step5()
 // SignalMassPlot(InputDir,0);return;
 // GetSystematicOnPrediction(InputDir);
 
-   InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type0/";   CutIndex = 4;
+   InputDir = "Results/dedxASmi/combined/Eta15/PtMin45/Type0/";   CutIndex = 4;
    MassPrediction(InputDir, CutIndex, "Mass");
 //   PredictionAndControlPlot(InputDir, CutIndex);
 //  CutFlow(InputDir);
 //   SelectionPlot(InputDir, CutIndex, 0);
-   InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type2/";   CutIndex = 16;
+   InputDir = "Results/dedxASmi/combined/Eta15/PtMin45/Type2/";   CutIndex = 16;
    MassPrediction(InputDir, CutIndex, "Mass");
 //   CutFlow(InputDir);
 //   SelectionPlot(InputDir, CutIndex, 0);return;
@@ -114,17 +114,17 @@ void Analysis_Step5()
    //SelectionPlot(InputDir, CutIndex);
    //PredictionAndControlPlot(InputDir, CutIndex);
    //GetSystematicOnPrediction(InputDir);
-return;
+   //return;
 
-   InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type0/";   CutIndex = 11;/*65;*//*39;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
+   InputDir = "Results/dedxASmi/combined/Eta15/PtMin45/Type0/";   CutIndex = 11;/*65;*//*39;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
    CutIndex=28;
    GluinoCutIndex=11;   
    SelectionPlot(InputDir, CutIndex, GluinoCutIndex);   
 
-   InputDir = "Results/dedxASmi/combined/Eta15/PtMin35/Type2/";   CutIndex = 225;/*211;*//*167;95;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
+   InputDir = "Results/dedxASmi/combined/Eta15/PtMin45/Type2/";   CutIndex = 225;/*211;*//*167;95;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
    GluinoCutIndex=650;
    SelectionPlot(InputDir, CutIndex, GluinoCutIndex);
-//   InputDir = "Results/dedxASmi/combined/Eta25/PtMin35/Type0/";   CutIndex = 64;   Make2DPlot_Core(InputDir,CutIndex);
+//   InputDir = "Results/dedxASmi/combined/Eta25/PtMin45/Type0/";   CutIndex = 64;   Make2DPlot_Core(InputDir,CutIndex);
 
 
 // 31, 65, 44, 64
@@ -819,7 +819,7 @@ void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex){
    if(CtrlPt_S3_Is->Integral()>0)CtrlPt_S3_Is->Scale(1/CtrlPt_S3_Is->Integral());
    if(CtrlPt_S4_Is->Integral()>0)CtrlPt_S4_Is->Scale(1/CtrlPt_S4_Is->Integral());
 // Histos[0] = CtrlPt_S1_Is;                     legend.push_back(" 25<p_{T}< 35 GeV");
-   Histos[0] = CtrlPt_S2_Is;                     legend.push_back(" 35<p_{T}< 50 GeV");
+   Histos[0] = CtrlPt_S2_Is;                     legend.push_back(" 45<p_{T}< 50 GeV");
    Histos[1] = CtrlPt_S3_Is;                     legend.push_back(" 50<p_{T}<100 GeV");
    Histos[2] = CtrlPt_S4_Is;                     legend.push_back("100<p_{T}");
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxS_Legend, "arbitrary units", 0,0.5, 0,0);
@@ -836,7 +836,7 @@ void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex){
    if(CtrlPt_S3_Im->Integral()>0)CtrlPt_S3_Im->Scale(1/CtrlPt_S3_Im->Integral());
    if(CtrlPt_S4_Im->Integral()>0)CtrlPt_S4_Im->Scale(1/CtrlPt_S4_Im->Integral());
 // Histos[0] = CtrlPt_S1_Im;                     legend.push_back(" 25<p_{T}< 35 GeV");
-   Histos[0] = CtrlPt_S2_Im;                     legend.push_back(" 35<p_{T}< 50 GeV");
+   Histos[0] = CtrlPt_S2_Im;                     legend.push_back(" 45<p_{T}< 50 GeV");
    Histos[1] = CtrlPt_S3_Im;                     legend.push_back(" 50<p_{T}<100 GeV");
    Histos[2] = CtrlPt_S4_Im;                     legend.push_back("100<p_{T}");
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  dEdxM_Legend, "arbitrary units", 3.0,10, 0,0);
@@ -853,7 +853,7 @@ void PredictionAndControlPlot(string InputPattern, unsigned int CutIndex){
    if(CtrlPt_S3_TOF->Integral()>0)CtrlPt_S3_TOF->Scale(1/CtrlPt_S3_TOF->Integral());
    if(CtrlPt_S4_TOF->Integral()>0)CtrlPt_S4_TOF->Scale(1/CtrlPt_S4_TOF->Integral());
 // Histos[0] = CtrlPt_S1_TOF;                    legend.push_back(" 25<p_{T}< 35 GeV");
-   Histos[0] = CtrlPt_S2_TOF;                    legend.push_back(" 35<p_{T}< 50 GeV");
+   Histos[0] = CtrlPt_S2_TOF;                    legend.push_back(" 45<p_{T}< 50 GeV");
    Histos[1] = CtrlPt_S3_TOF;                    legend.push_back(" 50<p_{T}<100 GeV");
    Histos[2] = CtrlPt_S4_TOF;                    legend.push_back("100<p_{T}");
    DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "1/#beta", "arbitrary units", 1,1.4, 0,0); 
