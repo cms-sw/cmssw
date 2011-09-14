@@ -24,7 +24,7 @@ namespace cond {
     
     // stamp and return current revision number;
     int stamp( std::string const & icomment, bool append=false);
-    
+
     int revision() const { return  m_revision;}
     
     cond::Time_t timestamp() const { return m_timestamp;}

@@ -8,12 +8,13 @@ namespace {
 namespace cond {
 
   UpdateStamp::UpdateStamp() : 
-    m_revision(-1), m_timestamp(0), m_comment("not stamped"){}
+    m_revision(-1), m_timestamp(0), m_comment("not stamped"),m_scope(Unknown){}
     
   UpdateStamp::UpdateStamp(UpdateStamp const & rhs) {
     m_revision = rhs.m_revision;
     m_timestamp = rhs.m_timestamp;
     m_comment = rhs.m_comment;
+    m_scope = rhs.m_scope;
   }
     
   UpdateStamp::~UpdateStamp(){}
@@ -26,5 +27,5 @@ namespace cond {
     else m_comment = icomment;
     return m_revision;
   }
-    
+
 }

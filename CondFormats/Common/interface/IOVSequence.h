@@ -64,6 +64,8 @@ namespace cond {
 
     void updateLastTill(cond::Time_t till) { m_lastTill=till;}
 
+    void updateMetadata( const std::string& metadata, bool append=true );
+
   public:
     Container const & iovs() const;
 
