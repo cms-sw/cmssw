@@ -238,7 +238,6 @@ namespace cond {
     flushUpdates();
   }
 
-
   void 
   IOVEditor::updateClosure( cond::Time_t newtillTime ){
     if( m_token.empty() ) reportError("cond::IOVEditor::updateClosure cannot change non-existing IOV index");

@@ -116,12 +116,8 @@ cond::service::PoolDBOutputService::initDB( bool forReading )
   DbOpenTransaction trans( m_session.transaction() );
   try{
     if(!forReading) {
-      bool createIOVContainer = true;
-      if(!m_session.createDatabase()){
-	std::set<std::string> conts = m_session.storage().containers();
-        if( conts.find( IOVNames::container() )!=conts.end()) createIOVContainer = false;
-      }
-      if( createIOVContainer) m_session.storage().createContainer( IOVNames::container() );
+      cond::IOVSchemaUtility schemaUtil( m_session );
+      schemaUtil.createIOVContainerIfNecessary();
       m_session.storage().lockContainer( IOVNames::container() );
     }
     //init logdb if required
