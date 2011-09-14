@@ -9,7 +9,8 @@
 #include "Alignment/SurveyAnalysis/interface/DTSurvey.h"
 #include <iostream>
 
-DTSurvey::DTSurvey(const std::string& Wheel, const std::string& Chambers, int n) {
+DTSurvey::DTSurvey(const std::string& Wheel, const std::string& Chambers, int n)
+  : chambers(0) {
   
   nameOfWheelInfoFile = Wheel;
   nameOfChamberInfoFile = Chambers;
