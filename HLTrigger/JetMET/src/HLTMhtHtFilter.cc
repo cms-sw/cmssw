@@ -14,6 +14,8 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -32,7 +34,7 @@
 HLTMhtHtFilter::HLTMhtHtFilter(const edm::ParameterSet& iConfig)
 {
   inputJetTag_ = iConfig.getParameter< edm::InputTag > ("inputJetTag");
-  saveTag_     = iConfig.getUntrackedParameter<bool>("saveTag",false);
+  saveTags_     = iConfig.getParameter<bool>("saveTags");
   minMht_= iConfig.getParameter<double> ("minMht");
   minPtJet_= iConfig.getParameter<std::vector<double> > ("minPtJet");
   minNJet_= iConfig.getParameter<int> ("minNJet");
@@ -46,14 +48,18 @@ HLTMhtHtFilter::HLTMhtHtFilter(const edm::ParameterSet& iConfig)
   usePt_= iConfig.getParameter<bool>("usePt");
   minPT12_= iConfig.getParameter<double> ("minPT12");
   minMeff_= iConfig.getParameter<double> ("minMeff");
+  meffSlope_ = iConfig.getParameter<double> ("meffSlope");
   minHt_= iConfig.getParameter<double> ("minHt");
   minAlphaT_= iConfig.getParameter<double> ("minAlphaT");
+
+  useTracks_ = iConfig.getParameter<bool> ("useTracks");
+  inputTracksTag_ = iConfig.getParameter< edm::InputTag > ("inputTracksTag");
 
   // sanity checks
   if (       (minPtJet_.size()    !=  etaJet_.size())
        || (  (minPtJet_.size()<1) || (etaJet_.size()<1) )
        || ( ((minPtJet_.size()<2) || (etaJet_.size()<2))
-	    && ( (mode_==1) || (mode_==2) || (mode_ == 5))) ) {
+      && ( (mode_==1) || (mode_==2) || (mode_ == 5))) ) {
     edm::LogError("HLTMhtHtFilter") << "inconsistent module configuration!";
   }
 
@@ -66,7 +72,7 @@ HLTMhtHtFilter::~HLTMhtHtFilter(){}
 void HLTMhtHtFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("inputJetTag",edm::InputTag("hltMCJetCorJetIcone5HF07"));
-  desc.addUntracked<bool>("saveTag",false);
+  desc.add<bool>("saveTags",false);
   desc.add<double>("minMht",0.0);
   {
     std::vector<double> temp1;
@@ -87,8 +93,11 @@ void HLTMhtHtFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<bool>("usePt",true);
   desc.add<double>("minPT12",0.0);
   desc.add<double>("minMeff",180.0);
+  desc.add<double>("meffSlope",1.0);
   desc.add<double>("minHt",0.0);
   desc.add<double>("minAlphaT",0.0);
+  desc.add<bool>("useTracks",false);
+  desc.add<edm::InputTag>("inputTracksTag",edm::InputTag("hltL3Mouns"));
   descriptions.add("hltMhtHtFilter",desc);
 }
 
@@ -104,13 +113,16 @@ bool
   using namespace trigger;
   // The filter object
   auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTag_) filterobject->addCollectionTag(inputJetTag_);
+  if (saveTags_) filterobject->addCollectionTag(inputJetTag_);
 
   CaloJetRef ref;
   // Get the Candidates
 
   Handle<CaloJetCollection> recocalojets;
   iEvent.getByLabel(inputJetTag_,recocalojets);
+
+  Handle<TrackCollection> tracks;
+  if (useTracks_) iEvent.getByLabel(inputTracksTag_,tracks);
 
   // look at all candidates,  check cuts and add to filter object
   int n(0), nj(0), flag(0);
@@ -131,6 +143,7 @@ bool
         if (jetVar > minPtJet_.at(1) && fabs(recocalojet->eta()) < etaJet_.at(1)) {
           mhtx -= jetVar*cos(recocalojet->phi());
           mhty -= jetVar*sin(recocalojet->phi());
+          if (mode_==1) ++nj;
         }
       }
       if (mode_==2 || mode_==4 || mode_==5) {//---get HT
@@ -149,23 +162,43 @@ bool
       }
       if(mode_ == 5){
         double mHT = sqrt( (mhtx*mhtx) + (mhty*mhty) );
-        dht += ( nj < 2 ? jetVar : -1.* jetVar ); //@@ only use for njets < 4
+	// Make sure to apply jet selection to the jets going into deltaHT as well!!!!!
+        if (jetVar > minPtJet_.at(0) && fabs(recocalojet->eta()) < etaJet_.at(0)) {
+	  dht += ( nj < 2 ? jetVar : -1.* jetVar ); //@@ only use for njets < 4
+        }
         if ( nj == 2 || nj == 3 ) {
           aT = ( ht - fabs(dht) ) / ( 2. * sqrt( ( ht*ht ) - ( mHT*mHT  ) ) );
         } else if ( nj > 3 ) {
           aT = ht / ( 2.*sqrt( ( ht*ht ) - ( mHT*mHT  ) ) );
         }
         if(ht > minHt_ && aT > minAlphaT_){
-  // put filter object into the Event
+    // put filter object into the Event
           flag = 1;
         }
       }
     }
+    if ( (useTracks_) && (tracks->size()>0) ) {
+      for (TrackCollection::const_iterator track = tracks->begin();
+           track != tracks->end(); track++) {
+        if (mode_==1 || mode_==2 || mode_ == 5) {//---get MHT
+          if (track->pt() > minPtJet_.at(1) && fabs(track->eta()) < etaJet_.at(1)) {
+            mhtx -= track->px();
+            mhty -= track->py();
+	  }
+	}
+        if (mode_==2 || mode_==4 || mode_==5) {//---get HT
+          if (track->pt() > minPtJet_.at(0) && fabs(track->eta()) < etaJet_.at(0)) {
+            ht += track->pt();
+            nj++;
+	  }
+	}
+      }
+    }
 
-  if( mode_==1 && sqrt(mhtx*mhtx + mhty*mhty) > minMht_) flag=1;
-  if( mode_==2 && sqrt(mhtx*mhtx + mhty*mhty)+ht > minMeff_) flag=1;
+  if( mode_==1 && sqrt(mhtx*mhtx + mhty*mhty) > minMht_ && nj >= minNJet_ ) flag=1;
+  if( mode_==2 && sqrt(mhtx*mhtx + mhty*mhty) + meffSlope_*ht > minMeff_) flag=1;
   if( mode_==3 && sqrt(mhtx*mhtx + mhty*mhty) > minPT12_ && nj>1) flag=1;
-  if( mode_==4 && ht > minHt_) flag=1;
+  if( mode_==4 && ht > minHt_ && nj >= minNJet_ ) flag=1;
 
   if (flag==1) {
     for (reco::CaloJetCollection::const_iterator recocalojet = recocalojets->begin(); recocalojet!=recocalojets->end(); recocalojet++) {

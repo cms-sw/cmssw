@@ -7,6 +7,8 @@
 class DTDigiSimLink {
 
  public:
+  typedef uint32_t ChannelType;
+
   // Construct from the wire number and the digi number (this identifies 
   // uniquely multiple digis on the same wire), the TDC counts, the SimTrack Id and the EncodedEvent Id.
   explicit DTDigiSimLink(int wireNr, int digiNr, int nTDC, unsigned int trackId, EncodedEventId evId);
@@ -18,6 +20,9 @@ class DTDigiSimLink {
 
   // Default constructor.
   DTDigiSimLink();
+  
+  // The channel identifier and the digi number packed together
+  ChannelType channel() const;
   
   // Return wire number
   int wire() const;
@@ -40,6 +45,12 @@ class DTDigiSimLink {
 private:
   // The value of one TDC count in ns
   static const double reso;
+
+  // Used to repack the channel number to an int
+  struct ChannelPacking {
+    uint16_t wi;
+    uint16_t num;
+  };
   
  private:
   uint16_t theWire;       // wire number

@@ -6,5 +6,5 @@ HLTMuonIsoFilter = cms.EDFilter( "HLTMuonIsoFilter",
                                  MinN = cms.int32( 1 ),
                                  DepTag = cms.VInputTag( 'hltL3MuonIsolations' ),
                                  IsolatorPSet = cms.PSet(  ),
-                                 SaveTag = cms.untracked.bool( False )
+                                 saveTags = cms.bool( False )
                                  )

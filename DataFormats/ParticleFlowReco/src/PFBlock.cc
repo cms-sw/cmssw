@@ -184,6 +184,7 @@ ostream& reco::operator<<(  ostream& out,
   int iHB = 0;
   int iHFEM = 0;
   int iHFHAD = 0;
+  int iSC = 0;
 
   // for each element in turn
   std::vector<bool> toPrint(elements.size(),static_cast<bool>(true));
@@ -212,6 +213,10 @@ ostream& reco::operator<<(  ostream& out,
 	toPrint[ie] = false;
       }
       break;    
+    case PFBlockElement::SC:
+      iSC++;
+      ss << "SC" << iSC;
+      break;
     default:{
       PFClusterRef clusterref = elements[ie].clusterRef();
       int layer = clusterref->layer();

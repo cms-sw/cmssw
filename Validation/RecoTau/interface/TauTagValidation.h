@@ -69,7 +69,6 @@ private:
  // Matching criteria
   double matchDeltaR_Leptons_;
   double matchDeltaR_Jets_;
-  double leadingTrackCut_;
 
   // output histograms
   bool saveoutputhistograms_;

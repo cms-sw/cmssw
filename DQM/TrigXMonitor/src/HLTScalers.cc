@@ -1,6 +1,12 @@
-// $Id: HLTScalers.cc,v 1.28 2011/03/29 09:46:03 rekovic Exp $
+// $Id: HLTScalers.cc,v 1.30 2011/03/30 21:44:03 fwyzard Exp $
 // 
 // $Log: HLTScalers.cc,v $
+// Revision 1.30  2011/03/30 21:44:03  fwyzard
+// make sure HLTConfigProvider is used only if succesfully initialized
+//
+// Revision 1.29  2011/03/30 21:35:40  fwyzard
+// make sure all members are initialized
+//
 // Revision 1.28  2011/03/29 09:46:03  rekovic
 // clean vector pairPDPaths in beginRun and tidy up
 //
@@ -209,7 +215,7 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
       scalers_->getTH1()->GetXaxis()->SetBinLabel(q, j->c_str());
     }
 
-    for (unsigned int i=0;i<nPD;i++) {
+    for (unsigned int i = 0; i < nPD; i++) {
       LogDebug("HLTScalers") << i << ": " << pairPDPaths_[i].first << std::endl ;
       scalersPD_->getTH1()->GetXaxis()->SetBinLabel(i+1, pairPDPaths_[i].first.c_str());
     }
@@ -248,11 +254,11 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
   }
 
   bool anyGroupPassed = false;
-  for (unsigned int mi=0; mi< pairPDPaths_.size(); mi++) {
+  for (unsigned int mi = 0; mi < pairPDPaths_.size(); mi++) {
 
     bool groupPassed = false;
 
-    for (unsigned int i=0; i< pairPDPaths_[mi].second.size(); i++)
+    for (unsigned int i = 0; i < pairPDPaths_[mi].second.size(); i++)
     { 
 
       //string hltPathName =  hist_2d->GetXaxis()->GetBinLabel(i);
@@ -272,25 +278,20 @@ void HLTScalers::analyze(const edm::Event &e, const edm::EventSetup &c)
       // --------------------------------------------------------
 
       if(hltResults->accept(pathByIndex)) {
-        
         groupPassed = true; 
         break;
-
      }
 
     }
 
     if(groupPassed) {
-      
       scalersPD_->Fill(mi);
       anyGroupPassed = true;
-
     }
 
   }
-  if(anyGroupPassed) scalersPD_->Fill(pairPDPaths_.size()-1);
 
-  
+  if(anyGroupPassed) scalersPD_->Fill(pairPDPaths_.size()-1);
 }
 
 void HLTScalers::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
@@ -302,7 +303,6 @@ void HLTScalers::beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     scalersN_->Reset();
   if ( hltOverallScalerN_ )
     hltOverallScalerN_->Reset();
-
 }
 
 
@@ -330,32 +330,40 @@ void HLTScalers::beginRun(const edm::Run& run, const edm::EventSetup& c)
 
   // HLT config does not change within runs!
   bool changed=false;
- 
-  if (!hltConfig_.init(run, c, processname_, changed)) {
-
-
-    LogDebug("TrigXMonitor") << "HLTConfigProvider failed to initialize.";
-
-
-    // check if trigger name in (new) config
-    //  cout << "Available TriggerNames are: " << endl;
-    //  hltConfig_.dump("Triggers");
-  }
 
   // clear vector pairPDPaths_
   pairPDPaths_.clear();
 
-  // get hold of PD names and constituent path names
-  std::vector<std::string> PD =  hltConfig_.streamContent("A") ;
-  for (unsigned int i=0;i<PD.size();i++) {
+  if (not hltConfig_.init(run, c, processname_, changed)) {
+    edm::LogError("TrigXMonitor") << "HLTConfigProvider failed to initialize.";
+  } else {
 
-    std::vector<std::string> datasetPaths = hltConfig_.datasetContent(PD[i]);
-    pairPDPaths_.push_back(make_pair(PD[i],datasetPaths));
+    // check if trigger name in (new) config
+    //  cout << "Available TriggerNames are: " << endl;
+    //  hltConfig_.dump("Triggers");
+
+    if (hltConfig_.streamIndex("A")<hltConfig_.streamNames().size()) {
+
+      // get hold of PD names and constituent path names
+      const std::vector<std::string> & PD = hltConfig_.streamContent("A") ;
+
+      for (unsigned int i = 0; i < PD.size(); i++) {
+
+        const std::vector<std::string> & datasetPaths = hltConfig_.datasetContent(PD[i]);
+        pairPDPaths_.push_back(make_pair(PD[i], datasetPaths));
+
+      }
+
+      // push stream A and its PDs
+      pairPDPaths_.push_back(make_pair("A", PD));
+
+    } else {
+
+      LogDebug("HLTScalers") << "HLTScalers::beginRun, steamm A not in the HLT menu ";
+
+    }
 
   }
-  // push stream A and its PDs
-  pairPDPaths_.push_back(make_pair("A",PD));
-
 }
 
 /// EndRun

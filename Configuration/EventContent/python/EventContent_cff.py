@@ -26,11 +26,14 @@ import FWCore.ParameterSet.Config as cms
 #  RAWSIM, RECOSIM, AODSIM: 
 #    include reconstruction and simulation
 #
+#  GENRAW
+#    slimmed-down version of RAWSIM for small transient disk size during MC production, contains Gen+Rawdata
+#
 #  RAWDEBUG(RAWSIM+ALL_SIM_INFO), RAWDEBUGHLT(RAWDEBUG+HLTDEBUG)
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.34 2011/02/16 12:47:51 cerminar Exp $
+#  $Id: EventContent_cff.py,v 1.37 2011/04/26 08:21:35 dlange Exp $
 #
 #
 #
@@ -160,6 +163,16 @@ RAWSIMEventContent = cms.PSet(
 #
 #
 RECOSIMEventContent = cms.PSet(
+    outputCommands = cms.untracked.vstring('drop *'),
+    splitLevel = cms.untracked.int32(0),
+    eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
+)
+#
+#
+# GENRAW Data Tier definition
+#
+#
+GENRAWEventContent = cms.PSet(
     outputCommands = cms.untracked.vstring('drop *'),
     splitLevel = cms.untracked.int32(0),
     eventAutoFlushCompressedSize=cms.untracked.int32(5*1024*1024)
@@ -408,6 +421,20 @@ RAWSIMEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
 RAWSIMEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
 RAWSIMEventContent.outputCommands.extend(IOMCRAW.outputCommands)
 RAWSIMEventContent.outputCommands.extend(CommonEventContent.outputCommands)
+
+GENRAWEventContent.outputCommands.extend(RAWEventContent.outputCommands)
+GENRAWEventContent.outputCommands.extend(GeneratorInterfaceRECO.outputCommands)
+GENRAWEventContent.outputCommands.extend(SimG4CoreRECO.outputCommands)
+GENRAWEventContent.outputCommands.extend(SimTrackerRAW.outputCommands)
+GENRAWEventContent.outputCommands.extend(SimMuonRECO.outputCommands)
+GENRAWEventContent.outputCommands.extend(SimCalorimetryRECO.outputCommands)
+GENRAWEventContent.outputCommands.extend(SimGeneralRECO.outputCommands)
+GENRAWEventContent.outputCommands.extend(RecoGenMETFEVT.outputCommands)
+GENRAWEventContent.outputCommands.extend(RecoGenJetsFEVT.outputCommands)
+GENRAWEventContent.outputCommands.extend(MEtoEDMConverterFEVT.outputCommands)
+GENRAWEventContent.outputCommands.extend(IOMCRAW.outputCommands)
+GENRAWEventContent.outputCommands.extend(DigiToRawFEVT.outputCommands)
+GENRAWEventContent.outputCommands.extend(CommonEventContent.outputCommands)
 
 REPACKRAWSIMEventContent.outputCommands.extend(REPACKRAWEventContent.outputCommands)
 REPACKRAWSIMEventContent.outputCommands.extend(SimG4CoreRAW.outputCommands)

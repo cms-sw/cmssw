@@ -44,9 +44,9 @@ bool HitExtractorSTRP::ringRange(int ring) const
 }
 
 bool HitExtractorSTRP::skipThis(const SiStripRecHit2D * hit,
-				edm::Handle<edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef> > & stripClusterRefs) const {
+				edm::Handle<edmNew::DetSetVector<SiStripClusterRef> > & stripClusterRefs) const {
   static DetId lastId=hit->geographicalId();
-  static edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef>::const_iterator f=stripClusterRefs->find(lastId.rawId());
+  static edmNew::DetSetVector<SiStripClusterRef>::const_iterator f=stripClusterRefs->find(lastId.rawId());
   if (hit->geographicalId()!=lastId){
     lastId=hit->geographicalId();
     f=stripClusterRefs->find(lastId.rawId());
@@ -55,7 +55,7 @@ bool HitExtractorSTRP::skipThis(const SiStripRecHit2D * hit,
   if (!hit->isValid())  return false;
 
   bool skipping=(find(f->begin(),f->end(),hit->cluster())!=f->end());
-  if (skipping) LogDebug("HitExtractorSTRP")<<"skipping a hit on :"<<hit->geographicalId().rawId()<<" key: "<<find(f->begin(),f->end(),hit->cluster())->key();
+  //if (skipping) LogDebug("HitExtractorSTRP")<<"skipping a hit on :"<<hit->geographicalId().rawId()<<" key: "<<hit->cluster().key();
   return skipping;
 }
 
@@ -63,13 +63,16 @@ bool HitExtractorSTRP::skipThis(const SiStripRecHit2D * hit,
 void HitExtractorSTRP::project(TransientTrackingRecHit::ConstRecHitPointer & ptr,
 			       const SiStripRecHit2D * hit,
 			       TransientTrackingRecHit::ConstRecHitPointer & replaceMe) const{
+  
+  if (failProjection) {replaceMe=0; return;}
   TrackingRecHitProjector<ProjectedRecHit2D> proj;
   TransientTrackingRecHit::RecHitPointer sHit=theSLayer->hitBuilder()->build(hit);
   replaceMe=proj.project( *sHit, *ptr->det());
+  if (!replaceMe) LogDebug("HitExtractorSTRP")<<"projection failed.";
 }
 
 bool HitExtractorSTRP::skipThis(TransientTrackingRecHit::ConstRecHitPointer & ptr,
-				edm::Handle<edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef> > & stripClusterRefs,
+				edm::Handle<edmNew::DetSetVector<SiStripClusterRef> > & stripClusterRefs,
 				TransientTrackingRecHit::ConstRecHitPointer & replaceMe) const {
   const SiStripMatchedRecHit2D * hit = (SiStripMatchedRecHit2D *) ptr->hit();
 
@@ -84,8 +87,12 @@ bool HitExtractorSTRP::skipThis(TransientTrackingRecHit::ConstRecHitPointer & pt
   else{
     if (rejectSt) project(ptr,hit->stereoHit(),replaceMe);
     else if (rejectMono) project(ptr,hit->monoHit(),replaceMe);
-    if (!replaceMe) return true;
-    return false;
+    if (!replaceMe) return true; //means that the projection failed, and needs to be skipped
+    if (rejectSt)
+      LogDebug("HitExtractorSTRP")<<"a matched hit is partially masked, and the mono hit got projected onto: "<<replaceMe->hit()->geographicalId().rawId()<<" key: "<<hit->monoHit()->cluster().key();
+    else if (rejectMono)
+      LogDebug("HitExtractorSTRP")<<"a matched hit is partially masked, and the stereo hit got projected onto: "<<replaceMe->hit()->geographicalId().rawId()<<" key: "<<hit->stereoHit()->cluster().key();
+    return false; //means the projection succeeded or nothing to be masked, no need to skip and replaceMe is going to be used anyways.
   }
   return false;
 }
@@ -93,23 +100,30 @@ bool HitExtractorSTRP::skipThis(TransientTrackingRecHit::ConstRecHitPointer & pt
 
 void HitExtractorSTRP::cleanedOfClusters( const edm::Event& ev, HitExtractor::Hits & hits,
 					  bool matched)const{
-  edm::Handle<edmNew::DetSetVector<TkStripMeasurementDet::SiStripClusterRef> > stripClusterRefs;
+  LogDebug("HitExtractorPIX")<<"getting: "<<hits.size()<<" in input.";
+  edm::Handle<edmNew::DetSetVector<SiStripClusterRef> > stripClusterRefs;
   ev.getByLabel(theSkipClusters,stripClusterRefs);
   HitExtractor::Hits newHits;
+  uint skipped=0;
+  uint projected=0;
   newHits.reserve(hits.size());
   TransientTrackingRecHit::ConstRecHitPointer replaceMe;
   for (unsigned int iH=0;iH!=hits.size();++iH){
     replaceMe=hits[iH];
     if (matched && skipThis(hits[iH],stripClusterRefs,replaceMe)){
       LogDebug("HitExtractorSTRP")<<"skipping a matched hit on :"<<hits[iH]->hit()->geographicalId().rawId();
+      skipped++;
       continue;
     }
     if (!matched && skipThis((SiStripRecHit2D*) hits[iH]->hit(),stripClusterRefs)){
       LogDebug("HitExtractorSTRP")<<"skipping a hit on :"<<hits[iH]->hit()->geographicalId().rawId()<<" key: ";
+      skipped++;
       continue;
     }
+    if (replaceMe!=hits[iH]) projected++;
     newHits.push_back(replaceMe);
   }
+  LogDebug("HitExtractorPIX")<<"skipped :"<<skipped<<" strip rechits because of clusters and projected: "<<projected;
   hits.swap(newHits);
 }
 
@@ -271,6 +285,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
 	  if (skipClusters) cleanedOfClusters(ev,result,false);
       }
   }
+  LogDebug("HitExtractorSTRP")<<" giving: "<<result.size()<<" out";
   return result;
 }
 

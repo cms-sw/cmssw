@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for PFMET
  *
- *  $Date: 2010/09/22 19:40:31 $
- *  $Revision: 1.20 $
+ *  $Date: 2010/09/23 20:39:01 $
+ *  $Revision: 1.21 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech 
  */
@@ -210,11 +210,11 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
   MonitorElement* mePfChargedEMFraction;
   MonitorElement* mePfChargedHadFraction;
   MonitorElement* mePfMuonFraction;
-
-  MonitorElement* meNevents;
+  
+  //removed for optimizations//MonitorElement* meNevents;
   MonitorElement* mePfMEx;
   MonitorElement* mePfMEy;
-  MonitorElement* mePfEz;
+  //removed for optimizations//MonitorElement* mePfEz;
   MonitorElement* mePfMETSig;
   MonitorElement* mePfMET;
   MonitorElement* mePfMETPhi;
@@ -225,9 +225,9 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
   MonitorElement* mePfMET_logx;
   MonitorElement* mePfSumET_logx;
 
-  MonitorElement* mePfMETIonFeedbck;
-  MonitorElement* mePfMETHPDNoise;
-  MonitorElement* mePfMETRBXNoise;
+  //removed for optimizations//MonitorElement* mePfMETIonFeedbck;
+  //removed for optimizations//MonitorElement* mePfMETHPDNoise;
+  //removed for optimizations//MonitorElement* mePfMETRBXNoise;
 
   MonitorElement* mePfMETRate;
 

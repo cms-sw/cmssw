@@ -1,4 +1,4 @@
-// $Id: TTUWedgeORLogic.cc,v 1.5 2009/10/26 12:52:16 aosorio Exp $
+// $Id: TTUWedgeORLogic.cc,v 1.4 2009/10/04 19:17:44 aosorio Exp $
 // Include files 
 
 
@@ -22,21 +22,22 @@ TTUWedgeORLogic::TTUWedgeORLogic(  ) {
   //m_maxsectors = 3; //this is the size of the wedge
 
   //the key is the starting sector: sec 2 -> quadrant 7,8,9 and so on
-
-  //TODO: I am not doing the horizontal cases 1 -> 6,7,8 and the opposite: 7 -> 2,1,12
-
+ 
   m_wedgeSector[2]   = 1; //this is the size of the wedge: sec 2
   m_wedgeSector[3]   = 1; //this is the size of the wedge: sec 3
   m_wedgeSector[4]   = 1; //this is the size of the wedge: sec 4
   m_wedgeSector[5]   = 1; //this is the size of the wedge: sec 5
   m_wedgeSector[6]   = 1; //this is the size of the wedge: sec 6
-
-  
   m_wedgeSector[7]   = 3; //this is the size of the wedge: bottom quadrant 1
   m_wedgeSector[8]   = 3; //this is the size of the wedge: bottom quadrant 2
   m_wedgeSector[9]   = 3; //this is the size of the wedge: bottom quadrant 3
   m_wedgeSector[10]  = 3; //this is the size of the wedge: bottom quadrant 4
   m_wedgeSector[11]  = 3; //this is the size of the wedge: bottom quadrant 5
+
+  //m_wedgeSector.push_back(2); //this is the starting sector for each wedge
+  //m_wedgeSector.push_back(4);
+  //m_wedgeSector.push_back(8);
+  //m_wedgeSector.push_back(10);
 
   m_maxwedges = m_wedgeSector.size();
   

@@ -2,6 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 def switchToL1Emulator(process):
   """patch the process to run the RawToDigi and SimL1Emulator sequences instead of unpacking the hltGctDigis and hltGtDigis"""
+
+  # redefine the HLTL1UnpackerSequence
   HLTL1UnpackerSequence = cms.Sequence( process.RawToDigi + process.SimL1Emulator + process.hltL1GtObjectMap + process.hltL1extraParticles )
 
   for iterable in process.sequences.itervalues():
@@ -14,6 +16,18 @@ def switchToL1Emulator(process):
       iterable.replace( process.HLTL1UnpackerSequence, HLTL1UnpackerSequence)
 
   process.HLTL1UnpackerSequence = HLTL1UnpackerSequence
+
+  # redefine the single hltGtDigis module, for paths that do not use the HLTL1UnpackerSequence
+  process.HLTL1GtDigisSequence = cms.Sequence( process.RawToDigi + process.SimL1Emulator )
+
+  for iterable in process.sequences.itervalues():
+      iterable.replace( process.hltGtDigis, process.HLTL1GtDigisSequence)
+
+  for iterable in process.paths.itervalues():
+      iterable.replace( process.hltGtDigis, process.HLTL1GtDigisSequence)
+
+  for iterable in process.endpaths.itervalues():
+      iterable.replace( process.hltGtDigis, process.HLTL1GtDigisSequence)
 
   return process
 
@@ -39,7 +53,7 @@ def switchToCustomL1Digis(process, customGmt, customGct, customGt):
 
   # automatic replacements to use "simGtDigis" and "simGctDigis" instead of "hltGtDigis" or "hltGctDigis"
   for module in process.__dict__.itervalues():
-    if isinstance(module, cms._Parameterizable):
+    if isinstance(module, cms._Module):
       for parameter in module.__dict__.itervalues():
         if isinstance(parameter, cms.InputTag):
           if parameter.moduleLabel == 'hltGtDigis':

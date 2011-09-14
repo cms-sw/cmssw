@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.31 2010/10/14 13:55:24 beaudett Exp $
+// $Id: Electron.h,v 1.33 2011/03/31 10:13:26 namapane Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.31 2010/10/14 13:55:24 beaudett Exp $
+  \version  $Id: Electron.h,v 1.33 2011/03/31 10:13:26 namapane Exp $
 */
 
 
@@ -38,6 +38,10 @@ namespace pat {
   typedef edm::RefVector<ElectronCollection> ElectronRefVector;
 }
 
+namespace reco {
+  /// pipe operator (introduced to use pat::Electron with PFTopProjectors)
+  std::ostream& operator<<(std::ostream& out, const pat::Electron& obj);
+}
 
 // Class definition
 namespace pat {
@@ -140,18 +144,39 @@ namespace pat {
       /// get the candidate pointer with index i
       reco::CandidatePtr sourceCandidatePtr( size_type i ) const;
 
-      /// dB gives the impact parameter wrt the beamline.
-      /// If this is not cached it is not meaningful, since
-      /// it relies on the distance to the beamline.
-      double dB() const;
-      double edB() const;
-      void setDB(double dB, double edB) { dB_ = dB; edB_ = edB; cachedDB_ = true;}
-
+      // ---- embed various impact parameters with errors ----
+      //
+      // example:
+      //
+      //    // this will return the muon inner track
+      //    // transverse impact parameter
+      //    // relative to the primary vertex
+      //    muon->dB(pat::Muon::PV2D);
+      //
+      //    // this will return the uncertainty
+      //    // on the muon inner track
+      //    // transverse impact parameter
+      //    // relative to the primary vertex
+      //    // or -1.0 if there is no valid PV in the event
+      //    muon->edB(pat::Muon::PV2D);
+      //
+      // IpType defines the type of the impact parameter
+      // None is default and reverts to old behavior controlled by 
+      // patMuons.usePV = True/False
+      typedef enum IPTYPE { None = 0, PV2D = 1, PV3D = 2, BS2D = 3, BS3D = 4 } IpType;       
+      double dB(IpType type = None) const;
+      double edB(IpType type = None) const;
+      void setDB(double dB, double edB, IpType type = None);    
+      
       // ---- Momentum estimate specific methods ----
       const LorentzVector & ecalDrivenMomentum() const {return ecalDrivenMomentum_;}
       void setEcalDrivenMomentum(const Candidate::LorentzVector& mom) {ecalDrivenMomentum_=mom;}
 
+      /// pipe operator (introduced to use pat::Electron with PFTopProjectors)
+      friend std::ostream& reco::operator<<(std::ostream& out, const pat::Electron& obj);
+
     protected:
+      void initImpactParameters(); // init IP defaults in a constructor
 
       // ---- for content embedding ----
       bool embeddedGsfElectronCore_;
@@ -184,6 +209,12 @@ namespace pat {
       bool    cachedDB_;         // have these values been cached?
       double  dB_;               // dB and edB are the impact parameter at the primary vertex,
       double  edB_;              // dB and edB are the impact parameter at the primary vertex,
+
+      // ---- cached impact parameters ----
+      std::vector<bool>    cachedIP_;  // has the IP (former dB) been cached?
+      std::vector<double>  ip_;        // dB and edB are the impact parameter at the primary vertex,
+      std::vector<double>  eip_;       // and its uncertainty as recommended by the tracking group
+      
   };
 }
 

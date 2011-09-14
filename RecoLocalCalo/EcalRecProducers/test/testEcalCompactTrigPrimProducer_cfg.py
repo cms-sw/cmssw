@@ -5,8 +5,7 @@ process = cms.Process("test")
 process.ecalCompactTrigPrimProducerTest = cms.EDAnalyzer("EcalCompactTrigPrimProducerTest",
                                                      #tpDigiColl = cms.InputTag("simEcalTriggerPrimitiveDigis"),
                                                      tpDigiColl = cms.InputTag("ecalDigis:EcalTriggerPrimitives"),
-                                                     tpRecColl  = cms.InputTag("ecalCompactTrigPrim"),
-                                                     tpSkimColl = cms.InputTag("ecalTPSkim")
+                                                     tpRecColl  = cms.InputTag("ecalCompactTrigPrim")
                                                      )
 
 process.maxEvents = cms.untracked.PSet(

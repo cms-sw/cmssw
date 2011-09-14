@@ -40,7 +40,7 @@ public:
 
   Propagator (PropagationDirection dir = alongMomentum) :
     theDir(dir) {}
-  virtual ~Propagator();
+  virtual ~Propagator() {}
 
   /** Propagate from a free state (e.g. position and momentum in 
    *  in global cartesian coordinates) to a surface.

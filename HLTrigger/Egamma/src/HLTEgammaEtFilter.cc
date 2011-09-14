@@ -1,6 +1,6 @@
 /** \class HLTEgammaEtFilter
  *
- * $Id: HLTEgammaEtFilter.cc,v 1.9 2009/01/15 14:31:49 covarell Exp $
+ * $Id: HLTEgammaEtFilter.cc,v 1.10 2009/01/27 13:57:07 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -25,7 +25,7 @@ HLTEgammaEtFilter::HLTEgammaEtFilter(const edm::ParameterSet& iConfig)
    etcutEB_  = iConfig.getParameter<double> ("etcutEB");
    etcutEE_  = iConfig.getParameter<double> ("etcutEE");
    ncandcut_  = iConfig.getParameter<int> ("ncandcut");
-   store_ = iConfig.getUntrackedParameter<bool> ("SaveTag",false) ;
+   store_ = iConfig.getParameter<bool>("saveTags") ;
    relaxed_ = iConfig.getUntrackedParameter<bool> ("relaxed",true) ;
    L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
    L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 

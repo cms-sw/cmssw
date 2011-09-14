@@ -4,11 +4,11 @@
 
 import FWCore.ParameterSet.Config as cms
 
-dumpRaw = cms.EDAnalyzer("EcalDumpRaw",
+dumpRaw = cms.EDAnalyzer("DumpRaw",
                          amplCut = cms.untracked.double(5.),
                          dump = cms.untracked.bool(True),
                          dumpAdc = cms.untracked.bool(True),
-                         l1aHistory = cms.untracked.bool(False),
+                         #doHisto = cms.untracked.bool(True),
                          maxEvt  = cms.untracked.int32(10000),
                          profileFedId = cms.untracked.int32(0),
                          profileRuId = cms.untracked.int32(1),

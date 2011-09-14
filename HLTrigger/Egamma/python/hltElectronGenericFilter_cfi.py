@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 hltElectronGenericFilter = cms.EDFilter("HLTElectronGenericFilter",
-   SaveTag = cms.untracked.bool( False ),
+   saveTags = cms.bool( False ),
 
    lessThan = cms.bool(True),			  			  
    thrRegularEB = cms.double(0.0),

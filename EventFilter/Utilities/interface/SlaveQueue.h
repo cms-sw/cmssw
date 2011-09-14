@@ -35,7 +35,7 @@ namespace evf{
     int post(MsgBuf &ptr)
       {
 	int rc;                  /* error code retuend by system calls. */
-	rc = msgsnd(queue_id_,ptr.ptr_, ptr.msize()+1,0);
+	rc = msgsnd(queue_id_,ptr.ptr_, ptr.msize(),0);
 	//	delete ptr;
 	if(rc==-1)
 	  std::cout << "snd::Slave failed to post message - error:"
@@ -45,7 +45,7 @@ namespace evf{
     unsigned long rcv(MsgBuf &ptr)
       {
 	unsigned long msg_type = MSQS_MESSAGE_TYPE_SLA;
-	int rc = msgrcv(queue_id_, ptr.ptr_, ptr.msize()+1, - msg_type, 0);
+	int rc = msgrcv(queue_id_, ptr.ptr_, ptr.msize(), - msg_type, 0);
 	if (rc == -1 && errno != ENOMSG) 
 	  {
 	    std::string serr = "rcv::Slave failed to get message from queue - error:";
@@ -58,7 +58,7 @@ namespace evf{
     unsigned long rcvNonBlocking(MsgBuf &ptr)
       {
 	unsigned long msg_type = MSQS_MESSAGE_TYPE_SLA;
-	int rc = msgrcv(queue_id_, ptr.ptr_, ptr.msize()+1, - msg_type, IPC_NOWAIT);
+	int rc = msgrcv(queue_id_, ptr.ptr_, ptr.msize(), - msg_type, IPC_NOWAIT);
 	if (rc == -1 && errno != ENOMSG) 
 	  {
 	    std::string serr = "rcvnb::Slave failed to get message from queue - error:";
@@ -71,7 +71,7 @@ namespace evf{
     unsigned long rcvNonBlockingAny(MsgBuf &ptr)
       {
 	unsigned long msg_type = 0;
-	int rc = msgrcv(queue_id_, ptr.ptr_, ptr.msize()+1, msg_type, IPC_NOWAIT);
+	int rc = msgrcv(queue_id_, ptr.ptr_, ptr.msize(), msg_type, IPC_NOWAIT);
 	if (rc == -1 && errno != ENOMSG) 
 	  {
 	    std::string serr = "rcvnb::Slave failed to get message from queue - error:";

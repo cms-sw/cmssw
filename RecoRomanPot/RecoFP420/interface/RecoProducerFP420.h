@@ -27,24 +27,18 @@ private:
 
   int verbosity;
 
+  double length;
   double m_x0, m_y0, m_q2, m_e;
   double m_tx0, m_ty0;
-
   // Hector
-  H_BeamLine * m_beamlineFP4201;
-  H_BeamLine * m_beamlineFP4202;
-  double lengthfp420;
-  H_BeamLine * m_beamlineHPS2401;
-  H_BeamLine * m_beamlineHPS2402;
-  double lengthhps240;
-  std::string beam1filename;
-  std::string beam2filename;
-
+  H_BeamLine * m_beamline1;
+  H_BeamLine * m_beamline2;
   //
   H_RecRPObject * m_rp420_f;
   H_RecRPObject * m_rp420_b;
-  H_RecRPObject * m_rp240_f;
-  H_RecRPObject * m_rp240_b;
+
+  std::string beam1filename;
+  std::string beam2filename;
 
 };
 #endif
