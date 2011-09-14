@@ -2,7 +2,6 @@
 #ifndef HSCP_ANALYSIS_SAMPLE
 #define HSCP_ANALYSIS_SAMPLE
 
-
 #define SID_GL300     0
 #define SID_GL400     1
 #define SID_GL500     2
@@ -52,15 +51,44 @@
 #define SID_PS200     46
 #define SID_PS247     47
 #define SID_PS308     48
-#define SID_DS100     49
-#define SID_DS121     50
-#define SID_DS182     51
-#define SID_DS242     52
-#define SID_DS302     53
-#define SID_DS350     54
-#define SID_DS395     55
-#define SID_DS420     56
-#define SID_DS500     57
+#define SID_D08K100   49
+#define SID_D08K121   50
+#define SID_D08K182   51
+#define SID_D08K242   52
+#define SID_D08K302   53
+#define SID_D08K350   54
+#define SID_D08K370   55
+#define SID_D08K390   56
+#define SID_D08K395   57
+#define SID_D08K400   58
+#define SID_D08K410   59
+#define SID_D08K420   60
+#define SID_D08K500   61
+#define SID_D12K100   62
+#define SID_D12K182   63
+#define SID_D12K302   64
+#define SID_D12K500   65
+#define SID_D12K530   66
+#define SID_D12K570   67
+#define SID_D12K590   68
+#define SID_D12K595   69
+#define SID_D12K600   70
+#define SID_D12K610   71
+#define SID_D12K620   72
+#define SID_D12K700   73
+#define SID_D16K100   74
+#define SID_D16K182   75
+#define SID_D16K302   76
+#define SID_D16K500   77
+#define SID_D16K700   78
+#define SID_D16K730   79
+#define SID_D16K770   80
+#define SID_D16K790   81
+#define SID_D16K795   82
+#define SID_D16K800   83
+#define SID_D16K820   84
+#define SID_D16K900   85
+
 
 int                  RunningPeriods = 2;
 double               IntegratedLuminosity = 2125; //2080; //1912; //1947; //1631; //976.204518023; //705.273820; //342.603275; //204.160928; //191.04;
@@ -151,15 +179,46 @@ void GetSignalDefinition(std::vector<stSignal>& signals){
   signals.push_back(stSignal("Stau"  , "PPStau247", "PPStau247", "Pair #tilde{#tau}_{1} 247"     , 247,  0, 1,  0.00101) ); //NLO
   signals.push_back(stSignal("Stau"  , "PPStau308", "PPStau308", "Pair #tilde{#tau}_{1} 308"     , 308,  0, 1,  0.000353) ); //NLO  
 
-   signals.push_back(stSignal("Stau" , "DCStau100" , "DCStau100"    , "DICHAMP #tilde{#tau}_{1} 100"  , 100,  1, 1,   1.405000) ); //LO
-   signals.push_back(stSignal("Stau" , "DCStau121" , "DCStau121"    , "DICHAMP #tilde{#tau}_{1} 121"  , 121,  1, 1,   0.979000) ); //LO
-   signals.push_back(stSignal("Stau" , "DCStau182"  , "DCStau182"    , "DICHAMP #tilde{#tau}_{1} 182"  , 182,  0, 1,   0.560000) ); //LO
-   signals.push_back(stSignal("Stau" , "DCStau242" , "DCStau242"    , "DICHAMP #tilde{#tau}_{1} 242"  , 242,  0, 1,  0.489000) ); //LO
-   signals.push_back(stSignal("Stau"  , "DCStau302"  , "DCStau302"    , "DICHAMP #tilde{#tau}_{1} 302"  , 302,  1, 1,   0.463000) ); //LO
-   signals.push_back(stSignal("Stau" , "DCStau350" , "DCStau350"    , "DICHAMP #tilde{#tau}_{1} 350"  , 350,  1, 1,   0.473000) ); //LO
-   signals.push_back(stSignal("Stau" , "DCStau395"  , "DCStau395"    , "DICHAMP #tilde{#tau}_{1} 395"  , 395,  1, 1,   0.420000) ); //LO
-   signals.push_back(stSignal("Stau" , "DCStau420"  , "DCStau420"    , "DICHAMP #tilde{#tau}_{1} 420"  , 420,  1, 1,   0.003500) ); //LO
-   signals.push_back(stSignal("Stau" , "DCStau500" , "DCStau500"    , "DICHAMP #tilde{#tau}_{1} 500"  , 500,  1, 1,   0.0002849) ); //LO
+  signals.push_back(stSignal("DCRho08HyperK" , "DCRho08HyperK100" , "DCRho08HyperK100"    , "DICHAMP #tilde{K} 100"  , 100,  1, 1,   1.405000) ); //LO
+  signals.push_back(stSignal("DCRho08HyperK" , "DCRho08HyperK121" , "DCRho08HyperK121"    , "DICHAMP #tilde{K} 121"  , 121,  1, 1,   0.979000) ); //LO
+  signals.push_back(stSignal("DCRho08HyperK" , "DCRho08HyperK182" , "DCRho08HyperK182"    , "DICHAMP #tilde{K} 182"  , 182,  0, 1,   0.560000) ); //LO
+  signals.push_back(stSignal("DCRho08HyperK" , "DCRho08HyperK242" , "DCRho08HyperK242"    , "DICHAMP #tilde{K} 242"  , 242,  0, 1,   0.489000) ); //LO
+  signals.push_back(stSignal("DCRho08HyperK" , "DCRho08HyperK302" , "DCRho08HyperK302"    , "DICHAMP #tilde{K} 302"  , 302,  1, 1,   0.463000) ); //LO
+  signals.push_back(stSignal("DCRho08HyperK" , "DCRho08HyperK350" , "DCRho08HyperK350"    , "DICHAMP #tilde{K} 350"  , 350,  1, 1,   0.473000) ); //LO
+  signals.push_back(stSignal("DCRho08HyperK" , "DCRho08HyperK370" , "DCRho08HyperK370"    , "DICHAMP #tilde{K} 370"  , 370,  1, 1,   0.48288105) ); //LO
+  signals.push_back(stSignal("DCRho08HyperK" , "DCRho08HyperK390" , "DCRho08HyperK390"    , "DICHAMP #tilde{K} 390"  , 390,  1, 1,   0.47132496) ); //LO
+  signals.push_back(stSignal("DCRho08HyperK" , "DCRho08HyperK395" , "DCRho08HyperK395"    , "DICHAMP #tilde{K} 395"  , 395,  1, 1,   0.420000) ); //LO
+  signals.push_back(stSignal("DCRho08HyperK" , "DCRho08HyperK400" , "DCRho08HyperK400"    , "DICHAMP #tilde{K} 400"  , 400,  1, 1,   0.473000) ); //LO
+  signals.push_back(stSignal("DCRho08HyperK" , "DCRho08HyperK410" , "DCRho08HyperK410"    , "DICHAMP #tilde{K} 410"  , 410,  1, 1,   0.0060812129) ); //LO
+  signals.push_back(stSignal("DCRho08HyperK" , "DCRho08HyperK420" , "DCRho08HyperK420"    , "DICHAMP #tilde{K} 420"  , 420,  1, 1,   0.003500) ); //LO
+  signals.push_back(stSignal("DCRho08HyperK" , "DCRho08HyperK500" , "DCRho08HyperK500"    , "DICHAMP #tilde{K} 500"  , 500,  1, 1,   0.0002849) ); //LO
+  
+  signals.push_back(stSignal("DCRho12HyperK" , "DCRho12HyperK100" , "DCRho12HyperK100"  , "DICHAMP #tilde{K} 100"  , 100,  1, 1, 0.8339415992) ); //LO        
+  signals.push_back(stSignal("DCRho12HyperK" , "DCRho12HyperK182" , "DCRho12HyperK182"  , "DICHAMP #tilde{K} 182"  , 182,  1, 1, 0.168096952140) ); //LO 
+  signals.push_back(stSignal("DCRho12HyperK" , "DCRho12HyperK302" , "DCRho12HyperK302"  , "DICHAMP #tilde{K} 302"  , 302,  1, 1, 0.079554948387) ); //LO      
+  signals.push_back(stSignal("DCRho12HyperK" , "DCRho12HyperK500" , "DCRho12HyperK500"  , "DICHAMP #tilde{K} 500"  , 500,  1, 1, 0.063996737) ); //LO         
+  signals.push_back(stSignal("DCRho12HyperK" , "DCRho12HyperK530" , "DCRho12HyperK530"  , "DICHAMP #tilde{K} 530"  , 530,  1, 1, 0.064943882) ); //LO         
+  signals.push_back(stSignal("DCRho12HyperK" , "DCRho12HyperK570" , "DCRho12HyperK570"  , "DICHAMP #tilde{K} 570"  , 570,  1, 1, 0.0662920530) ); //LO        
+  signals.push_back(stSignal("DCRho12HyperK" , "DCRho12HyperK590" , "DCRho12HyperK590"  , "DICHAMP #tilde{K} 590"  , 590,  1, 1, 0.060748383) ); //LO         
+  signals.push_back(stSignal("DCRho12HyperK" , "DCRho12HyperK595" , "DCRho12HyperK595"  , "DICHAMP #tilde{K} 595"  , 595,  1, 1, 0.04968409) ); //LO          
+  signals.push_back(stSignal("DCRho12HyperK" , "DCRho12HyperK600" , "DCRho12HyperK600"  , "DICHAMP #tilde{K} 600"  , 600,  1, 1, 0.0026232721237) ); //LO     
+  signals.push_back(stSignal("DCRho12HyperK" , "DCRho12HyperK610" , "DCRho12HyperK610"  , "DICHAMP #tilde{K} 610"  , 610,  1, 1, 0.00127431) ); //LO          
+  signals.push_back(stSignal("DCRho12HyperK" , "DCRho12HyperK620" , "DCRho12HyperK620"  , "DICHAMP #tilde{K} 620"  , 620,  1, 1, 0.00056965104319) ); //LO    
+  signals.push_back(stSignal("DCRho12HyperK" , "DCRho12HyperK700" , "DCRho12HyperK700"  , "DICHAMP #tilde{K} 700"  , 700,  1, 1, 0.00006122886211) ); //LO     
+
+  signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK100" , "DCRho16HyperK100"  , "DICHAMP #tilde{K} 100"  , 100,  1, 1, 0.711518686800) ); //LO       
+  signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK182" , "DCRho16HyperK182"  , "DICHAMP #tilde{K} 182"  , 182,  1, 1, 0.089726059780) ); //LO       
+  signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK302" , "DCRho16HyperK302"  , "DICHAMP #tilde{K} 302"  , 302,  1, 1, 0.019769637301) ); //LO       
+  signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK500" , "DCRho16HyperK500"  , "DICHAMP #tilde{K} 500"  , 500,  1, 1, 0.0063302286576) ); //LO      
+  signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK700" , "DCRho16HyperK700"  , "DICHAMP #tilde{K} 700"  , 700,  1, 1, 0.002536779850) ); //LO       
+  signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK730" , "DCRho16HyperK730"  , "DICHAMP #tilde{K} 730"  , 730,  1, 1, 0.002536779850) ); //LO
+  signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK770" , "DCRho16HyperK770"  , "DICHAMP #tilde{K} 770"  , 770,  1, 1, 0.001737551) ); //LO 
+  signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK790" , "DCRho16HyperK790"  , "DICHAMP #tilde{K} 790"  , 790,  1, 1, 0.00161578593) ); //LO
+  signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK795" , "DCRho16HyperK795"  , "DICHAMP #tilde{K} 795"  , 795,  1, 1, 0.00153513713) ); //LO
+  signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK800" , "DCRho16HyperK800"  , "DICHAMP #tilde{K} 800"  , 800,  1, 1, 0.000256086965) ); //LO
+  signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK810" , "DCRho16HyperK810"  , "DICHAMP #tilde{K} 810"  , 810,  1, 1, 0.000140664) ); //LO 
+  signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK820" , "DCRho16HyperK820"  , "DICHAMP #tilde{K} 820"  , 820,  1, 1, 0.000097929923655) ); //LO 
+  signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK900" , "DCRho16HyperK900"  , "DICHAMP #tilde{K} 900"  , 900,  1, 1, 0.000013146066) ); //LO       
 
 }
 
@@ -179,7 +238,7 @@ void GetMCDefinition(std::vector<stMC>& MC){
    MC.push_back(stMC("MC_DYToTauTau"            ,     1.300E3  , -1, -1, 0));
    MC.push_back(stMC("MC_DYToMuMu"              ,     1.300E3  , -1, -1, 0));
    MC.push_back(stMC("MC_WJetsToLNu"            ,     2.777E4  , -1, -1, 1));
-   MC.push_back(stMC("MC_TTJets"                 ,     9.400E1  , -1, -1, 1));
+   MC.push_back(stMC("MC_TTJets"                ,     9.400E1  , -1, -1, 1));
    MC.push_back(stMC("MC_QCD_Pt-30to50"         ,     5.310E7  , -1, -1, 0));
    MC.push_back(stMC("MC_QCD_Pt-50to80"         ,     6.360E6  , -1, -1, 0));
    MC.push_back(stMC("MC_QCD_Pt-80to120"        ,     7.840E5  , -1, -1, 0));
@@ -209,8 +268,8 @@ void GetMCDefinition(std::vector<stMC>& MC){
 
 void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName, int period=0){
 //  std::string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_08_03/";
-//   std::string BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/jchen/11_08_03_HSCP2011EDM/";
-   std::string BaseDirectory = "/uscmst1b_scratch/lpc1/lpcphys/jchen/HSCPEDM_08_02_11/";
+//   std::string BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/jchen/11_09_13_HSCP2011EDM/";
+   std::string BaseDirectory = "/uscmst1b_scratch/lpc1/lpcphys/jchen/HSCPEDM_09_13_11/";
    if(SampleName=="Data"){
      inputFiles.push_back(BaseDirectory + "Data_RunA_160404_163869.root");
      inputFiles.push_back(BaseDirectory + "Data_RunA_165001_166033.root");
