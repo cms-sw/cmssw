@@ -54,13 +54,13 @@ public:
 	//! returns the chi^2 of the fit
 	value_t getChi2();
 
-	const pede_label_t getLocalDerivsSize()                {return nLcD; };
-	const pede_label_t getGlobalDerivsSize()               {return nGlD; };
+	pede_label_t getLocalDerivsSize()                      {return nLcD; };
+	pede_label_t getGlobalDerivsSize()                     {return nGlD; };
 	const pede_deriv_t* getLocalDerivsPtr(count_t i)       {return localDerivsMatrix_.Array()+i*nLcD; };
 	const pede_deriv_t* getGlobalDerivsPtr(count_t i)      {return globalDerivsMatrix_.Array()+i*nGlD;};
 	const pede_label_t* getGlobalDerivsLabelPtr(count_t i) {return i<4 ? &labelVec1_[0] : &labelVec2_[0];};
-	const pede_deriv_t getResiduum(count_t i) { return (pede_deriv_t) r(i); };
-	const pede_deriv_t getSigma(count_t i) { return i%2 ? sigma_x_ : sigma_y_ ; };
+	pede_deriv_t getResiduum(count_t i) { return (pede_deriv_t) r(i); };
+	pede_deriv_t getSigma(count_t i) { return i%2 ? sigma_x_ : sigma_y_ ; };
 
 	void setLocalDerivsToZero(count_t i);
 	void setGlobalDerivsToZero(count_t i);

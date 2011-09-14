@@ -57,22 +57,22 @@ class SurveyPxbImage
 	void fill(std::istringstream &iss);
 
 	//! Get \p Id of first module
-	const id_t getIdFirst() { return idPair_.first; };
+	id_t getIdFirst() { return idPair_.first; };
 	//! Get \p Id of second module
-	const id_t getIdSecond() { return idPair_.second; };
+	id_t getIdSecond() { return idPair_.second; };
 	//! Get \p Id pair
 	const idPair_t getIdPair() { return idPair_; };
 
 	/*! Get coordinate of a measurement
 	  \param m number of mark
 	 */
-    const coord_t getCoord(count_t m);	
+        const coord_t getCoord(count_t m);	
 
 	//! Get Gaussian error in u direction
-	const value_t getSigmaX() { return sigma_x_; }
+        value_t getSigmaX() { return sigma_x_; }
 
 	//! Get Gaussian error in u direction
-	const value_t getSigmaY() { return sigma_y_; }
+	value_t getSigmaY() { return sigma_y_; }
 
 	//! returns validity flag
 	bool isValid() { return isValidFlag_; };
