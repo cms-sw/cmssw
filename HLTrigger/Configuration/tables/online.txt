@@ -443,7 +443,7 @@ HLT_Ele27_CaloIdVT_TrkIdT_DiPFJet25_Deta3_v*                                    
 HLT_Ele32_WP80_DiPFJet25_Deta3p5_v*                                                             #   added in 5e33 menu (sr #123293)
 HLT_Ele32_WP80_DiCentralPFJet25_PFMHT25_v*                                                      #   added in 5e33 menu (sr #123293)
 HLT_Photon30_CaloIdVT_CentralJet20_BTagIP_v*
-HLT_HT200_DoubleEle5_CaloIdVL_MassJPsi_v*
+#HLT_HT200_DoubleEle5_CaloIdVL_MassJPsi_v*                                                      # removed in 5e33 menu (as requested by Michele Pioppi)
 HLT_DoubleEle8_CaloIdT_TrkIdVL_HT150_v*
 #HLT_DoubleEle8_CaloIdT_TrkIdVL_Mass4_HT150_v*                                                  # removed in 5e33 menu (sr #123317)
 HLT_DoubleEle8_CaloIdT_TrkIdVL_Mass8_HT150_v*                                                   #   added in 5e33 menu (sr #123317)
