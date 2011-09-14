@@ -965,7 +965,7 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
      LimitResult CLMResults;
      double signalUncertainty=0.10;
      if (signals[JobIdToIndex(signal)].Mass<450) signalUncertainty=0.15;
-     continue;
+
      //     CLMResults = roostats_clm(IntegratedLuminosity, IntegratedLuminosity*0.06, Eff, Eff*signalUncertainty,NPred, NPred*RescaleError, 1 , 1, "bayesian");   ExpLimit=CLMResults.GetExpectedLimit();  //1 Toy
      CLMResults = roostats_clm(IntegratedLuminosity, IntegratedLuminosity*0.06, Eff, Eff*signalUncertainty,NPred, NPred*RescaleError, 10, 1, "bayesian");   ExpLimit=CLMResults.GetExpectedLimit();  //10Toys
 
