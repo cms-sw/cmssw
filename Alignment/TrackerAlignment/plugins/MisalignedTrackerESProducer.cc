@@ -119,7 +119,12 @@ MisalignedTrackerESProducer::produce( const TrackerDigiGeometryRecord& iRecord )
                                           theAlignRecordName);
       poolDbService->writeOne<AlignmentErrors>(alignmentErrors, poolDbService->currentTime(),
                                                theErrorRecordName);
-    }
+  } else {
+    // poolDbService::writeOne takes over ownership
+    // we have to delete in the case that containers are not written
+    delete alignments;
+    delete alignmentErrors;
+  }
   
 
   edm::LogInfo("MisalignedTracker") << "Producer done";
