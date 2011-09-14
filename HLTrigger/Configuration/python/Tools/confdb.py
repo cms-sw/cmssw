@@ -46,6 +46,9 @@ class HLTProcess(object):
 
     "HLT_HT250_DoubleDisplacedJet60_v*",
     "HLT_HT250_DoubleDisplacedJet60_PromptTrack_v*",
+
+    # new in "5e33"
+    "HLT_Mu17_TkMu8_v*",
   )
 
   def __init__(self, configuration):
