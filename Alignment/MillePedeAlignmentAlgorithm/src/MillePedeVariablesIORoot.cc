@@ -3,8 +3,8 @@
  *
  *  \author    : Gero Flucke
  *  date       : November 2006
- *  $Revision: 1.5 $
- *  $Date: 2007/10/11 16:13:20 $
+ *  $Revision: 1.6 $
+ *  $Date: 2008/10/14 07:19:32 $
  *  (last update by $Author: flucke $)
  */
 
@@ -20,10 +20,20 @@
 #include "TTree.h"
 
 // -------------------------------------------------------------------------------------------------
-MillePedeVariablesIORoot::MillePedeVariablesIORoot()
+MillePedeVariablesIORoot::MillePedeVariablesIORoot() :
+  myId(0), myObjId(0), myNumPar(0),
+  myHitsX(0), myHitsY(0), myLabel(0)
 {
   treename = "MillePedeUser";
   treetxt = "MillePede User Variables";
+  for (unsigned int i=0;i<kMaxNumPar;i++) {
+    myIsValid[i] = 0;
+    myDiffBefore[i] = 0.;
+    myGlobalCor[i] = 0.;
+    myPreSigma[i] = 0.;
+    myParameter[i] = 0.;
+    mySigma[i] = 0.;
+  }
 }
 
 // -------------------------------------------------------------------------------------------------
