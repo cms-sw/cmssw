@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Sat Feb 16 00:04:55 CST 2008
-// $Id: MuonGeometryDBConverter.cc,v 1.14 2010/01/04 17:04:08 mussgill Exp $
+// $Id: MuonGeometryDBConverter.cc,v 1.15 2011/09/15 09:12:01 mussgill Exp $
 //
 //
 
@@ -76,6 +76,9 @@ MuonGeometryDBConverter::MuonGeometryDBConverter(const edm::ParameterSet &iConfi
    : m_done(false)
    , m_input(iConfig.getParameter<std::string>("input"))
    , m_output(iConfig.getParameter<std::string>("output"))
+   , m_shiftErr(0.)
+   , m_angleErr(0.)
+   , m_getAPEs(false)
 {
    ////////////////////////////////////////////////////////////////////
    // Version V02-03-02 and earlier of this module had support for   //
