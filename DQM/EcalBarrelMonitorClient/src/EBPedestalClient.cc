@@ -1,8 +1,8 @@
 /*
  * \file EBPedestalClient.cc
  *
- * $Date: 2011/08/30 09:33:51 $
- * $Revision: 1.228 $
+ * $Date: 2011/09/02 13:55:01 $
+ * $Revision: 1.229 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -786,7 +786,7 @@ void EBPedestalClient::analyze(void) {
 
     }
 
-    if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 6) != MGPAGainsPN_.end() ) {
+    if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
 
       me = dqmStore_->get(prefixME_ + "/EBPedestalTask/PN/Gain16/EBPDT PNs pedestal " + Numbers::sEB(ism) + " G16");
       i02_[ism-1] = UtilsClient::getHisto( me, cloneME_, i02_[ism-1] );

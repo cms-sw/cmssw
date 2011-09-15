@@ -1,8 +1,8 @@
 /*
  * \file EcalEndcapMonitorClient.cc
  *
- * $Date: 2011/08/30 09:29:45 $
- * $Revision: 1.265 $
+ * $Date: 2011/09/02 13:55:03 $
+ * $Revision: 1.266 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -60,8 +60,8 @@
 #include "DQM/EcalEndcapMonitorClient/interface/EETimingClient.h"
 #include "DQM/EcalEndcapMonitorClient/interface/EELedClient.h"
 
-EcalEndcapMonitorClient::EcalEndcapMonitorClient(const edm::ParameterSet& ps) {
-
+EcalEndcapMonitorClient::EcalEndcapMonitorClient(const edm::ParameterSet& ps) 
+{
   // verbose switch
 
   verbose_ = ps.getUntrackedParameter<bool>("verbose",  true);
@@ -611,6 +611,8 @@ EcalEndcapMonitorClient::EcalEndcapMonitorClient(const edm::ParameterSet& ps) {
   clientsStatus_.insert(std::pair<std::string,int>( "Led",            11 ));
   clientsStatus_.insert(std::pair<std::string,int>( "StatusFlags",    12 ));
   clientsStatus_.insert(std::pair<std::string,int>( "Occupancy",      13 ));
+
+  summaryClient_ = 0;
 
   if ( find(enabledClients_.begin(), enabledClients_.end(), "Summary" ) != enabledClients_.end() ) {
 

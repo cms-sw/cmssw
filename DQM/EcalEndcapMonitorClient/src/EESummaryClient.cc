@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2011/09/02 13:55:02 $
- * $Revision: 1.212 $
+ * $Date: 2011/09/02 14:02:36 $
+ * $Revision: 1.213 $
  * \author G. Della Ricca
  *
 */
@@ -281,7 +281,7 @@ void EESummaryClient::setup(void) {
   name = "EEIT integrity quality errors summary";
   meIntegrityErr_ = dqmStore_->book1D(name, name, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
-    meIntegrityErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    meIntegrityErr_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
   }
 
   if ( meIntegrityPN_ ) dqmStore_->removeElement( meIntegrityPN_->getName() );
@@ -306,7 +306,7 @@ void EESummaryClient::setup(void) {
   name = "EEIT digi occupancy summary 1D";
   meOccupancy1D_ = dqmStore_->book1D(name, name, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
-    meOccupancy1D_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    meOccupancy1D_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
   }
 
   if ( meOccupancyPN_ ) dqmStore_->removeElement( meOccupancyPN_->getName() );
@@ -331,7 +331,7 @@ void EESummaryClient::setup(void) {
   name = "EESFT front-end status errors summary";
   meStatusFlagsErr_ = dqmStore_->book1D(name, name, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
-    meStatusFlagsErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    meStatusFlagsErr_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
   }
 
   if ( mePedestalOnline_[0] ) dqmStore_->removeElement( mePedestalOnline_[0]->getName() );
@@ -362,21 +362,21 @@ void EESummaryClient::setup(void) {
   name = "EEPOT pedestal G12 mean";
   mePedestalOnlineMean_ = dqmStore_->bookProfile(name, name, 18, 1, 19, 100, 150., 250.);
   for (int i = 0; i < 18; i++) {
-    mePedestalOnlineMean_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    mePedestalOnlineMean_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
   }
 
   if ( mePedestalOnlineRMS_ ) dqmStore_->removeElement( mePedestalOnlineRMS_->getName() );
   name = "EEPOT pedestal G12 rms";
   mePedestalOnlineRMS_ = dqmStore_->bookProfile(name, name, 18, 1, 19, 100, 0., 10.);
   for (int i = 0; i < 18; i++) {
-    mePedestalOnlineRMS_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    mePedestalOnlineRMS_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
   }
 
   if ( mePedestalOnlineErr_ ) dqmStore_->removeElement( mePedestalOnlineErr_->getName() );
   name = "EEPOT pedestal quality errors summary G12";
   mePedestalOnlineErr_ = dqmStore_->book1D(name, name, 18, 1, 19);
   for (int i = 0; i < 18; i++) {
-    mePedestalOnlineErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    mePedestalOnlineErr_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
   }
 
   if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
@@ -397,7 +397,7 @@ void EESummaryClient::setup(void) {
     name = "EELT laser quality errors summary L1";
     meLaserL1Err_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
-      meLaserL1Err_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLaserL1Err_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     if ( meLaserL1PN_ ) dqmStore_->removeElement( meLaserL1PN_->getName() );
@@ -410,28 +410,28 @@ void EESummaryClient::setup(void) {
     name = "EELT PN laser quality errors summary L1";
     meLaserL1PNErr_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
-      meLaserL1PNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLaserL1PNErr_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     if ( meLaserL1Ampl_ ) dqmStore_->removeElement( meLaserL1Ampl_->getName() );
     name = "EELT laser L1 amplitude summary";
     meLaserL1Ampl_ = dqmStore_->bookProfile(name, name, 18, 1, 19, 4096, 0., 4096., "s");
     for (int i = 0; i < 18; i++) {
-      meLaserL1Ampl_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLaserL1Ampl_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     if ( meLaserL1Timing_ ) dqmStore_->removeElement( meLaserL1Timing_->getName() );
     name = "EELT laser L1 timing summary";
     meLaserL1Timing_ = dqmStore_->bookProfile(name, name, 18, 1, 19, 100, 0., 10., "s");
     for (int i = 0; i < 18; i++) {
-      meLaserL1Timing_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLaserL1Timing_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     if ( meLaserL1AmplOverPN_ ) dqmStore_->removeElement( meLaserL1AmplOverPN_->getName() );
     name = "EELT laser L1 amplitude over PN summary";
     meLaserL1AmplOverPN_ = dqmStore_->bookProfile(name, name, 18, 1, 19, 4096, 0., 4096.*12., "s");
     for (int i = 0; i < 18; i++) {
-      meLaserL1AmplOverPN_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLaserL1AmplOverPN_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
   }
@@ -454,7 +454,7 @@ void EESummaryClient::setup(void) {
     name = "EELT laser quality errors summary L2";
     meLaserL2Err_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
-      meLaserL2Err_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLaserL2Err_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     if ( meLaserL2PN_ ) dqmStore_->removeElement( meLaserL2PN_->getName() );
@@ -467,28 +467,28 @@ void EESummaryClient::setup(void) {
     name = "EELT PN laser quality errors summary L2";
     meLaserL2PNErr_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
-      meLaserL2PNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLaserL2PNErr_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     if ( meLaserL2Ampl_ ) dqmStore_->removeElement( meLaserL2Ampl_->getName() );
     name = "EELT laser L2 amplitude summary";
     meLaserL2Ampl_ = dqmStore_->bookProfile(name, name, 18, 1, 19, 4096, 0., 4096., "s");
     for (int i = 0; i < 18; i++) {
-      meLaserL2Ampl_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLaserL2Ampl_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     if ( meLaserL2Timing_ ) dqmStore_->removeElement( meLaserL2Timing_->getName() );
     name = "EELT laser L2 timing summary";
     meLaserL2Timing_ = dqmStore_->bookProfile(name, name, 18, 1, 19, 100, 0., 10., "s");
     for (int i = 0; i < 18; i++) {
-      meLaserL2Timing_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLaserL2Timing_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     if ( meLaserL2AmplOverPN_ ) dqmStore_->removeElement( meLaserL2AmplOverPN_->getName() );
     name = "EELT laser L2 amplitude over PN summary";
     meLaserL2AmplOverPN_ = dqmStore_->bookProfile(name, name, 18, 1, 19, 4096, 0., 4096.*12., "s");
     for (int i = 0; i < 18; i++) {
-      meLaserL2AmplOverPN_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLaserL2AmplOverPN_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
   }
@@ -511,7 +511,7 @@ void EESummaryClient::setup(void) {
     name = "EELT laser quality errors summary L3";
     meLaserL3Err_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
-      meLaserL3Err_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLaserL3Err_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     if ( meLaserL3PN_ ) dqmStore_->removeElement( meLaserL3PN_->getName() );
@@ -524,28 +524,28 @@ void EESummaryClient::setup(void) {
     name = "EELT PN laser quality errors summary L3";
     meLaserL3PNErr_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
-      meLaserL3PNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLaserL3PNErr_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     if ( meLaserL3Ampl_ ) dqmStore_->removeElement( meLaserL3Ampl_->getName() );
     name = "EELT laser L3 amplitude summary";
     meLaserL3Ampl_ = dqmStore_->bookProfile(name, name, 18, 1, 19, 4096, 0., 4096., "s");
     for (int i = 0; i < 18; i++) {
-      meLaserL3Ampl_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLaserL3Ampl_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     if ( meLaserL3Timing_ ) dqmStore_->removeElement( meLaserL3Timing_->getName() );
     name = "EELT laser L3 timing summary";
     meLaserL3Timing_ = dqmStore_->bookProfile(name, name, 18, 1, 19, 100, 0., 10., "s");
     for (int i = 0; i < 18; i++) {
-      meLaserL3Timing_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLaserL3Timing_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     if ( meLaserL3AmplOverPN_ ) dqmStore_->removeElement( meLaserL3AmplOverPN_->getName() );
     name = "EELT laser L3 amplitude over PN summary";
     meLaserL3AmplOverPN_ = dqmStore_->bookProfile(name, name, 18, 1, 19, 4096, 0., 4096.*12., "s");
     for (int i = 0; i < 18; i++) {
-      meLaserL3AmplOverPN_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLaserL3AmplOverPN_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
   }
@@ -568,7 +568,7 @@ void EESummaryClient::setup(void) {
     name = "EELT laser quality errors summary L4";
     meLaserL4Err_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
-      meLaserL4Err_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLaserL4Err_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     if ( meLaserL4PN_ ) dqmStore_->removeElement( meLaserL4PN_->getName() );
@@ -581,28 +581,28 @@ void EESummaryClient::setup(void) {
     name = "EELT PN laser quality errors summary L4";
     meLaserL4PNErr_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
-      meLaserL4PNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLaserL4PNErr_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     if ( meLaserL4Ampl_ ) dqmStore_->removeElement( meLaserL4Ampl_->getName() );
     name = "EELT laser L4 amplitude summary";
     meLaserL4Ampl_ = dqmStore_->bookProfile(name, name, 18, 1, 19, 4096, 0., 4096., "s");
     for (int i = 0; i < 18; i++) {
-      meLaserL4Ampl_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLaserL4Ampl_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     if ( meLaserL4Timing_ ) dqmStore_->removeElement( meLaserL4Timing_->getName() );
     name = "EELT laser L4 timing summary";
     meLaserL4Timing_ = dqmStore_->bookProfile(name, name, 18, 1, 19, 100, 0., 10., "s");
     for (int i = 0; i < 18; i++) {
-      meLaserL4Timing_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLaserL4Timing_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     if ( meLaserL4AmplOverPN_ ) dqmStore_->removeElement( meLaserL4AmplOverPN_->getName() );
     name = "EELT laser L4 amplitude over PN summary";
     meLaserL4AmplOverPN_ = dqmStore_->bookProfile(name, name, 18, 1, 19, 4096, 0., 4096.*12., "s");
     for (int i = 0; i < 18; i++) {
-      meLaserL4AmplOverPN_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLaserL4AmplOverPN_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
   }
@@ -625,7 +625,7 @@ void EESummaryClient::setup(void) {
     name = "EELDT led quality errors summary L1";
     meLedL1Err_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
-      meLedL1Err_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLedL1Err_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     if ( meLedL1PN_ ) dqmStore_->removeElement( meLedL1PN_->getName() );
@@ -638,28 +638,28 @@ void EESummaryClient::setup(void) {
     name = "EELDT PN led quality errors summary L1";
     meLedL1PNErr_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
-      meLedL1PNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLedL1PNErr_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     if ( meLedL1Ampl_ ) dqmStore_->removeElement( meLedL1Ampl_->getName() );
     name = "EELDT led L1 amplitude summary";
     meLedL1Ampl_ = dqmStore_->bookProfile(name, name, 18, 1, 19, 4096, 0., 4096., "s");
     for (int i = 0; i < 18; i++) {
-      meLedL1Ampl_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLedL1Ampl_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     if ( meLedL1Timing_ ) dqmStore_->removeElement( meLedL1Timing_->getName() );
     name = "EELDT led L1 timing summary";
     meLedL1Timing_ = dqmStore_->bookProfile(name, name, 18, 1, 19, 100, 0., 10., "s");
     for (int i = 0; i < 18; i++) {
-      meLedL1Timing_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLedL1Timing_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     if ( meLedL1AmplOverPN_ ) dqmStore_->removeElement( meLedL1AmplOverPN_->getName() );
     name = "EELDT led L1 amplitude over PN summary";
     meLedL1AmplOverPN_ = dqmStore_->bookProfile(name, name, 18, 1, 19, 4096, 0., 4096.*12., "s");
     for (int i = 0; i < 18; i++) {
-      meLedL1AmplOverPN_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLedL1AmplOverPN_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
   }
@@ -682,7 +682,7 @@ void EESummaryClient::setup(void) {
     name = "EELDT led quality errors summary L2";
     meLedL2Err_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
-      meLedL2Err_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLedL2Err_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     if ( meLedL2PN_ ) dqmStore_->removeElement( meLedL2PN_->getName() );
@@ -695,28 +695,28 @@ void EESummaryClient::setup(void) {
     name = "EELDT PN led quality errors summary L2";
     meLedL2PNErr_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
-      meLedL2PNErr_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLedL2PNErr_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     if ( meLedL2Ampl_ ) dqmStore_->removeElement( meLedL2Ampl_->getName() );
     name = "EELDT led L2 amplitude summary";
     meLedL2Ampl_ = dqmStore_->bookProfile(name, name, 18, 1, 19, 4096, 0., 4096., "s");
     for (int i = 0; i < 18; i++) {
-      meLedL2Ampl_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLedL2Ampl_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     if ( meLedL2Timing_ ) dqmStore_->removeElement( meLedL2Timing_->getName() );
     name = "EELDT led L2 timing summary";
     meLedL2Timing_ = dqmStore_->bookProfile(name, name, 18, 1, 19, 100, 0., 10., "s");
     for (int i = 0; i < 18; i++) {
-      meLedL2Timing_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLedL2Timing_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     if ( meLedL2AmplOverPN_ ) dqmStore_->removeElement( meLedL2AmplOverPN_->getName() );
     name = "EELDT led L2 amplitude over PN summary";
     meLedL2AmplOverPN_ = dqmStore_->bookProfile(name, name, 18, 1, 19, 4096, 0., 4096.*12., "s");
     for (int i = 0; i < 18; i++) {
-      meLedL2AmplOverPN_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meLedL2AmplOverPN_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
   }
@@ -890,7 +890,7 @@ void EESummaryClient::setup(void) {
     name = "EETPT test pulse amplitude G01 summary";
     meTestPulseAmplG01_ = dqmStore_->bookProfile(name, name, 18, 1, 19, 4096, 0., 4096.*12., "s");
     for (int i = 0; i < 18; i++) {
-      meTestPulseAmplG01_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meTestPulseAmplG01_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
   }
@@ -901,7 +901,7 @@ void EESummaryClient::setup(void) {
     name = "EETPT test pulse amplitude G06 summary";
     meTestPulseAmplG06_ = dqmStore_->bookProfile(name, name, 18, 1, 19, 4096, 0., 4096.*12., "s");
     for (int i = 0; i < 18; i++) {
-      meTestPulseAmplG06_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meTestPulseAmplG06_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
   }
@@ -912,7 +912,7 @@ void EESummaryClient::setup(void) {
     name = "EETPT test pulse amplitude G12 summary";
     meTestPulseAmplG12_ = dqmStore_->bookProfile(name, name, 18, 1, 19, 4096, 0., 4096.*12., "s");
     for (int i = 0; i < 18; i++) {
-      meTestPulseAmplG12_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meTestPulseAmplG12_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
   }
@@ -965,7 +965,7 @@ void EESummaryClient::setup(void) {
   name = "EETMT timing mean";
   meTimingMean_ = dqmStore_->bookProfile(name, name, 18, 1, 19, 100, -20., 20.,"");
   for (int i = 0; i < 18; i++) {
-    meTimingMean_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    meTimingMean_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
   }
   meTimingMean_->setAxisTitle("mean (ns)", 2);
 
@@ -973,7 +973,7 @@ void EESummaryClient::setup(void) {
   name = "EETMT timing rms";
   meTimingRMS_ = dqmStore_->bookProfile(name, name, 18, 1, 19, 100, 0., 10.,"");
   for (int i = 0; i < 18; i++) {
-    meTimingRMS_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+    meTimingRMS_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
   }
   meTimingRMS_->setAxisTitle("rms (ns)", 2);
 
@@ -2146,19 +2146,23 @@ void EESummaryClient::analyze(void) {
 	      float num, sum, sumw2;
 	      num = sum = sumw2 = 0.;
 	      bool mask = false;
+	      float eta = 999.;
+
 	      for(int cx=1; cx<=5; cx++){
 		for(int cy=1; cy<=5; cy++){
-		  int scjx = jxedge + cx;
+		  int scjx = (ism >= 1 && ism <= 9) ? 101 - (jxedge + cx) : jxedge + cx;
 		  int scjy = jyedge + cy;
 		  int scix = ixedge + cx;
 		  int sciy = iyedge + cy;
 
-		  if ( ism >= 1 && ism <= 9 ) {
-		    if ( ! Numbers::validEE(ism, 101 - scjx, scjy) ) continue;
-		  } else {
-		    if ( ! Numbers::validEE(ism, scjx, scjy) ) continue;
-		  }
+		  if ( ! Numbers::validEE(ism, scjx, scjy) ) continue;
+
 		  nvalid += 1.;
+
+		  if( eta > 4.0 ){ // EE |eta| is < 3.0
+		    EEDetId id(scjx, scjy, (ism / 10) * 2 - 1);
+		    eta = Numbers::eta(id);
+		  }
 
 		  int bin = htmt01_[ism-1]->GetBin(scix, sciy);
 
@@ -2171,7 +2175,9 @@ void EESummaryClient::analyze(void) {
 		  sum += cont * ent;
 		  sumw2 += (err * err + cont * cont) * ent;
 
-		  if( ent > 1 && (std::abs(cont) > 3. || err > 4.) && Masks::maskChannel(ism, scix, sciy, chWarnBit, EcalEndcap) ) mask = true;
+		  float rmsThreshold = std::abs(eta) > 2.6 ? 10. : 4.;
+
+		  if( ent > 1 && (std::abs(cont) > 3. || err > rmsThreshold) && Masks::maskChannel(ism, scix, sciy, chWarnBit, EcalEndcap) ) mask = true;
 		}
 	      }
 
@@ -2181,7 +2187,9 @@ void EESummaryClient::analyze(void) {
 		float mean = sum / num;
 		float rms = std::sqrt( sumw2 / num - mean * mean );
 
-		if( std::abs(mean) > 3. || rms > 4. ) xval = 0.;
+		float rmsThreshold = std::abs(eta) > 2.6 ? 10. : 4.;
+
+		if( std::abs(mean) > 3. || rms > rmsThreshold ) xval = 0.;
 		else xval = 1.;
 
 	      }
@@ -2390,234 +2398,229 @@ void EESummaryClient::analyze(void) {
 
           int jx = ix + Numbers::ix0EE(ism);
           int jy = iy + Numbers::iy0EE(ism);
+	  if( ism >= 1 && ism <= 9 ) jx = 101 - jx;
 
-          int ic = -1;
-          if ( ism >= 1 && ism <= 9 ) {
-            ic = Numbers::icEE(ism, 101 - jx, jy);
-          } else {
-            ic = Numbers::icEE(ism, jx, jy);
-          }
+	  if( !Numbers::validEE(ism, jx, jy) ) continue;
 
-          if( ic != -1 ) {
+          int ic = Numbers::icEE(ism, jx, jy);
 
-            if ( eelc ) {
+	  if ( eelc ) {
 
-              if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
+	    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 1) != laserWavelengths_.end() ) {
 
-                MonitorElement *meg = eelc->meg01_[ism-1];
+	      MonitorElement *meg = eelc->meg01_[ism-1];
 
-                float xval = 2;
-                if ( meg ) xval = meg->getBinContent( ix, iy );
+	      float xval = 2;
+	      if ( meg ) xval = meg->getBinContent( ix, iy );
 
-                // exclude channels without laser data (yellow in the quality map)
-                if( xval != 2 && xval != 5 ) {
+	      // exclude channels without laser data (yellow in the quality map)
+	      if( xval != 2 && xval != 5 ) {
 
-                  MonitorElement* mea01 = eelc->mea01_[ism-1];
-                  MonitorElement* met01 = eelc->met01_[ism-1];
-                  MonitorElement* meaopn01 = eelc->meaopn01_[ism-1];
+		MonitorElement* mea01 = eelc->mea01_[ism-1];
+		MonitorElement* met01 = eelc->met01_[ism-1];
+		MonitorElement* meaopn01 = eelc->meaopn01_[ism-1];
 
-                  if( mea01 && met01 && meaopn01 ) {
-                    meLaserL1Ampl_->Fill( ism, mea01->getBinContent( ic ) );
-                    if( met01->getBinContent( ic ) > 0. ) meLaserL1Timing_->Fill( ism, met01->getBinContent( ic ) );
-                    meLaserL1AmplOverPN_->Fill( ism, meaopn01->getBinContent( ic ) );
-                  }
+		if( mea01 && met01 && meaopn01 ) {
+		  meLaserL1Ampl_->Fill( ism, mea01->getBinContent( ic ) );
+		  if( met01->getBinContent( ic ) > 0. ) meLaserL1Timing_->Fill( ism, met01->getBinContent( ic ) );
+		  meLaserL1AmplOverPN_->Fill( ism, meaopn01->getBinContent( ic ) );
+		}
 
-                }
+	      }
 
-              }
+	    }
 
-              if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
+	    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 2) != laserWavelengths_.end() ) {
 
-                MonitorElement *meg = eelc->meg02_[ism-1];
+	      MonitorElement *meg = eelc->meg02_[ism-1];
 
-                float xval = 2;
-                if ( meg ) xval = meg->getBinContent( ix, iy );
+	      float xval = 2;
+	      if ( meg ) xval = meg->getBinContent( ix, iy );
 
-                // exclude channels without laser data (yellow in the quality map)
-                if( xval != 2 && xval != 5 ) {
+	      // exclude channels without laser data (yellow in the quality map)
+	      if( xval != 2 && xval != 5 ) {
 
-                  MonitorElement* mea02 = eelc->mea02_[ism-1];
-                  MonitorElement* met02 = eelc->met02_[ism-1];
-                  MonitorElement* meaopn02 = eelc->meaopn02_[ism-1];
+		MonitorElement* mea02 = eelc->mea02_[ism-1];
+		MonitorElement* met02 = eelc->met02_[ism-1];
+		MonitorElement* meaopn02 = eelc->meaopn02_[ism-1];
 
-                  if( mea02 && met02 && meaopn02 ) {
-                    meLaserL2Ampl_->Fill( ism, mea02->getBinContent( ic ) );
-                    if( met02->getBinContent( ic ) > 0. ) meLaserL2Timing_->Fill( ism, met02->getBinContent( ic ) );
-                    meLaserL2AmplOverPN_->Fill( ism, meaopn02->getBinContent( ic ) );
-                  }
+		if( mea02 && met02 && meaopn02 ) {
+		  meLaserL2Ampl_->Fill( ism, mea02->getBinContent( ic ) );
+		  if( met02->getBinContent( ic ) > 0. ) meLaserL2Timing_->Fill( ism, met02->getBinContent( ic ) );
+		  meLaserL2AmplOverPN_->Fill( ism, meaopn02->getBinContent( ic ) );
+		}
 
-                }
+	      }
 
-              }
+	    }
 
-              if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
+	    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 3) != laserWavelengths_.end() ) {
 
-                MonitorElement *meg = eelc->meg03_[ism-1];
+	      MonitorElement *meg = eelc->meg03_[ism-1];
 
-                float xval = 2;
-                if ( meg ) xval = meg->getBinContent( ix, iy );
+	      float xval = 2;
+	      if ( meg ) xval = meg->getBinContent( ix, iy );
 
-                // exclude channels without laser data (yellow in the quality map)
-                if( xval != 2 && xval != 5 ) {
+	      // exclude channels without laser data (yellow in the quality map)
+	      if( xval != 2 && xval != 5 ) {
 
-                  MonitorElement* mea03 = eelc->mea03_[ism-1];
-                  MonitorElement* met03 = eelc->met03_[ism-1];
-                  MonitorElement* meaopn03 = eelc->meaopn03_[ism-1];
+		MonitorElement* mea03 = eelc->mea03_[ism-1];
+		MonitorElement* met03 = eelc->met03_[ism-1];
+		MonitorElement* meaopn03 = eelc->meaopn03_[ism-1];
 
-                  if( mea03 && met03 && meaopn03 ) {
-                    meLaserL3Ampl_->Fill( ism, mea03->getBinContent( ic ) );
-                    if( met03->getBinContent( ic ) > 0. ) meLaserL3Timing_->Fill( ism, met03->getBinContent( ic ) );
-                    meLaserL3AmplOverPN_->Fill( ism, meaopn03->getBinContent( ic ) );
-                  }
+		if( mea03 && met03 && meaopn03 ) {
+		  meLaserL3Ampl_->Fill( ism, mea03->getBinContent( ic ) );
+		  if( met03->getBinContent( ic ) > 0. ) meLaserL3Timing_->Fill( ism, met03->getBinContent( ic ) );
+		  meLaserL3AmplOverPN_->Fill( ism, meaopn03->getBinContent( ic ) );
+		}
 
-                }
+	      }
 
-              }
+	    }
 
-              if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
+	    if ( find(laserWavelengths_.begin(), laserWavelengths_.end(), 4) != laserWavelengths_.end() ) {
 
-                MonitorElement *meg = eelc->meg04_[ism-1];
+	      MonitorElement *meg = eelc->meg04_[ism-1];
 
-                float xval = 2;
-                if ( meg ) xval = meg->getBinContent( ix, iy );
+	      float xval = 2;
+	      if ( meg ) xval = meg->getBinContent( ix, iy );
 
-                // exclude channels without laser data (yellow in the quality map)
-                if( xval != 2 && xval != 5 ) {
+	      // exclude channels without laser data (yellow in the quality map)
+	      if( xval != 2 && xval != 5 ) {
 
-                  MonitorElement* mea04 = eelc->mea04_[ism-1];
-                  MonitorElement* met04 = eelc->met04_[ism-1];
-                  MonitorElement* meaopn04 = eelc->meaopn04_[ism-1];
+		MonitorElement* mea04 = eelc->mea04_[ism-1];
+		MonitorElement* met04 = eelc->met04_[ism-1];
+		MonitorElement* meaopn04 = eelc->meaopn04_[ism-1];
 
-                  if( mea04 && met04 && meaopn04 ) {
-                    meLaserL4Ampl_->Fill( ism, mea04->getBinContent( ic ) );
-                    if( met04->getBinContent( ic ) > 0. ) meLaserL4Timing_->Fill( ism, met04->getBinContent( ic ) );
-                    meLaserL4AmplOverPN_->Fill( ism, meaopn04->getBinContent( ic ) );
-                  }
+		if( mea04 && met04 && meaopn04 ) {
+		  meLaserL4Ampl_->Fill( ism, mea04->getBinContent( ic ) );
+		  if( met04->getBinContent( ic ) > 0. ) meLaserL4Timing_->Fill( ism, met04->getBinContent( ic ) );
+		  meLaserL4AmplOverPN_->Fill( ism, meaopn04->getBinContent( ic ) );
+		}
 
-                }
+	      }
 
-              }
+	    }
 
-            }
+	  }
 
-            if ( eeldc ) {
+	  if ( eeldc ) {
 
-              if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
+	    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 1) != ledWavelengths_.end() ) {
 
-                MonitorElement *meg = eeldc->meg01_[ism-1];
+	      MonitorElement *meg = eeldc->meg01_[ism-1];
 
-                float xval = 2;
-                if ( meg )  xval = meg->getBinContent( ix, iy );
+	      float xval = 2;
+	      if ( meg )  xval = meg->getBinContent( ix, iy );
 
-                // exclude channels without led data (yellow in the quality map)
-                if( xval != 2 && xval != 5 ) {
+	      // exclude channels without led data (yellow in the quality map)
+	      if( xval != 2 && xval != 5 ) {
 
-                  MonitorElement* mea01 = eeldc->mea01_[ism-1];
-                  MonitorElement* met01 = eeldc->met01_[ism-1];
-                  MonitorElement* meaopn01 = eeldc->meaopn01_[ism-1];
+		MonitorElement* mea01 = eeldc->mea01_[ism-1];
+		MonitorElement* met01 = eeldc->met01_[ism-1];
+		MonitorElement* meaopn01 = eeldc->meaopn01_[ism-1];
 
-                  if( mea01 && met01 && meaopn01 ) {
-                    meLedL1Ampl_->Fill( ism, mea01->getBinContent( ic ) );
-                    if( met01->getBinContent( ic ) > 0. ) meLedL1Timing_->Fill( ism, met01->getBinContent( ic ) );
-                    meLedL1AmplOverPN_->Fill( ism, meaopn01->getBinContent( ic ) );
-                  }
+		if( mea01 && met01 && meaopn01 ) {
+		  meLedL1Ampl_->Fill( ism, mea01->getBinContent( ic ) );
+		  if( met01->getBinContent( ic ) > 0. ) meLedL1Timing_->Fill( ism, met01->getBinContent( ic ) );
+		  meLedL1AmplOverPN_->Fill( ism, meaopn01->getBinContent( ic ) );
+		}
 
-                }
+	      }
 
-              }
+	    }
 
-              if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
+	    if ( find(ledWavelengths_.begin(), ledWavelengths_.end(), 2) != ledWavelengths_.end() ) {
 
-                MonitorElement *meg = eeldc->meg02_[ism-1];
+	      MonitorElement *meg = eeldc->meg02_[ism-1];
 
-                float xval = 2;
-                if ( meg )  xval = meg->getBinContent( ix, iy );
+	      float xval = 2;
+	      if ( meg )  xval = meg->getBinContent( ix, iy );
 
-                // exclude channels without led data (yellow in the quality map)
-                if( xval != 2 && xval != 5 ) {
+	      // exclude channels without led data (yellow in the quality map)
+	      if( xval != 2 && xval != 5 ) {
 
-                  MonitorElement* mea02 = eeldc->mea02_[ism-1];
-                  MonitorElement* met02 = eeldc->met02_[ism-1];
-                  MonitorElement* meaopn02 = eeldc->meaopn02_[ism-1];
+		MonitorElement* mea02 = eeldc->mea02_[ism-1];
+		MonitorElement* met02 = eeldc->met02_[ism-1];
+		MonitorElement* meaopn02 = eeldc->meaopn02_[ism-1];
 
-                  if( mea02 && met02 && meaopn02 ) {
-                    meLedL2Ampl_->Fill( ism, mea02->getBinContent( ic ) );
-                    if( met02->getBinContent( ic ) > 0. ) meLedL2Timing_->Fill( ism, met02->getBinContent( ic ) );
-                    meLedL2AmplOverPN_->Fill( ism, meaopn02->getBinContent( ic ) );
-                  }
+		if( mea02 && met02 && meaopn02 ) {
+		  meLedL2Ampl_->Fill( ism, mea02->getBinContent( ic ) );
+		  if( met02->getBinContent( ic ) > 0. ) meLedL2Timing_->Fill( ism, met02->getBinContent( ic ) );
+		  meLedL2AmplOverPN_->Fill( ism, meaopn02->getBinContent( ic ) );
+		}
 
-                }
+	      }
 
-              }
+	    }
 
-            }
+	  }
 
-            if ( eetpc ) {
+	  if ( eetpc ) {
 
-              MonitorElement *meg01 = eetpc->meg01_[ism-1];
-              MonitorElement *meg02 = eetpc->meg02_[ism-1];
-              MonitorElement *meg03 = eetpc->meg03_[ism-1];
+	    MonitorElement *meg01 = eetpc->meg01_[ism-1];
+	    MonitorElement *meg02 = eetpc->meg02_[ism-1];
+	    MonitorElement *meg03 = eetpc->meg03_[ism-1];
 
-              if ( meg01 ) {
+	    if ( meg01 ) {
 
-                float xval01 = meg01->getBinContent( ix, iy );
+	      float xval01 = meg01->getBinContent( ix, iy );
 
-                if ( xval01 != 2 && xval01 != 5 ) {
+	      if ( xval01 != 2 && xval01 != 5 ) {
 
-                  me = eetpc->mea01_[ism-1];
+		me = eetpc->mea01_[ism-1];
 
-                  if ( me ) {
+		if ( me ) {
 
-                    meTestPulseAmplG01_->Fill( ism, me->getBinContent( ic ) );
+		  meTestPulseAmplG01_->Fill( ism, me->getBinContent( ic ) );
 
-                  }
+		}
 
-                }
+	      }
 
-              }
+	    }
 
-              if ( meg02 ) {
+	    if ( meg02 ) {
 
-                float xval02 = meg02->getBinContent( ix, iy );
+	      float xval02 = meg02->getBinContent( ix, iy );
 
-                if ( xval02 != 2 && xval02 != 5 ) {
+	      if ( xval02 != 2 && xval02 != 5 ) {
 
-                  me = eetpc->mea02_[ism-1];
+		me = eetpc->mea02_[ism-1];
 
-                  if ( me ) {
+		if ( me ) {
 
-                    meTestPulseAmplG06_->Fill( ism, me->getBinContent( ic ) );
+		  meTestPulseAmplG06_->Fill( ism, me->getBinContent( ic ) );
 
-                  }
+		}
 
-                }
+	      }
 
-              }
+	    }
 
-              if ( meg03 ) {
+	    if ( meg03 ) {
 
-                float xval03 = meg03->getBinContent( ix, iy );
+	      float xval03 = meg03->getBinContent( ix, iy );
 
-                if ( xval03 != 2 && xval03 != 5 ) {
+	      if ( xval03 != 2 && xval03 != 5 ) {
 
-                  me = eetpc->mea03_[ism-1];
+		me = eetpc->mea03_[ism-1];
 
-                  if ( me ) {
+		if ( me ) {
 
-                    meTestPulseAmplG12_->Fill( ism, me->getBinContent( ic ) );
+		  meTestPulseAmplG12_->Fill( ism, me->getBinContent( ic ) );
 
-                  }
+		}
 
-                }
+	      }
 
-              }
+	    }
 
-            } //etpc
+	  } //etpc
 
-          }
 
-        } // loop on jy
-      } // loop on jx
+        } // loop on iy
+      } // loop on ix
 
     } // loop on SM
 
@@ -2665,8 +2668,8 @@ void EESummaryClient::analyze(void) {
     nValidChannelsEE[i] = 0;
   }
 
-  for ( int jx = 1; jx <= 100; jx++ ) {
-    for ( int jy = 1; jy <= 100; jy++ ) {
+  for ( int jx = 1; jx <= 2; jx++ ) {
+    for ( int jy = 1; jy <= 2; jy++ ) {
 
       if(meIntegrity_[0] && mePedestalOnline_[0] && meTiming_[0] && meStatusFlags_[0] && meTriggerTowerEmulError_[0]) {
 
@@ -2716,7 +2719,7 @@ void EESummaryClient::analyze(void) {
         float val_ld = 1;
         if (val_ld_1 == 0 || val_ld_2==0) val_ld=0;
 
-        // DO NOT CONSIDER CALIBRATION EVENTS IN THE REPORT SUMMARY UNTIL LHC COLLISIONS
+        // DO NOT CONSIDER CALIBRATION EVENTS IN THE REPORT SUMMARY FOR NOW
         val_ls = 1;
         val_ld = 1;
 
@@ -2848,7 +2851,7 @@ void EESummaryClient::analyze(void) {
         float val_ld = 1;
         if (val_ld_1 == 0 || val_ld_2==0) val_ld=0;
 
-        // DO NOT CONSIDER CALIBRATION EVENTS IN THE REPORT SUMMARY UNTIL LHC COLLISIONS
+        // DO NOT CONSIDER CALIBRATION EVENTS IN THE REPORT SUMMARY FOR NOW
         val_ls = 1;
         val_ld = 1;
 
@@ -2934,6 +2937,8 @@ void EESummaryClient::analyze(void) {
 
     }
   }
+
+
 
   MonitorElement* me;
 

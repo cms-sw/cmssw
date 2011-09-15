@@ -1,8 +1,8 @@
 /*
  * \file EETimingClient.cc
  *
- * $Date: 2011/09/02 13:55:02 $
- * $Revision: 1.109 $
+ * $Date: 2011/09/02 14:02:36 $
+ * $Revision: 1.110 $
  * \author G. Della Ricca
  *
 */
@@ -90,7 +90,8 @@ EETimingClient::EETimingClient(const edm::ParameterSet& ps) {
 
   expectedMean_ = 0.0;
   discrepancyMean_ = 3.;
-  RMSThreshold_ = 4.;
+  RMSThresholdLowEta_ = 4.;
+  RMSThresholdHighEta_ = 10.;
 
 }
 
@@ -461,12 +462,16 @@ void EETimingClient::analyze(void) {
 
         if ( update01 ) {
 
+	  EEDetId id(jx, jy, -1 + iz * 2);
+
+	  float eta = Numbers::eta(id);
+
           float val;
 
           val = 1.;
           if ( std::abs(mean01 - expectedMean_) > discrepancyMean_ )
             val = 0.;
-          if ( rms01 > RMSThreshold_ )
+          if ( rms01 > (std::abs(eta) > 2.6 ? RMSThresholdHighEta_ : RMSThresholdLowEta_) )
             val = 0.;
           if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent(ix, iy, val);
 
@@ -482,9 +487,7 @@ void EETimingClient::analyze(void) {
             if ( mer01_[ism-1] ) mer01_[ism-1]->Fill(rms01);
           }
 
-	  EEDetId id(jx, jy, -1 + iz * 2);
-
-	  if( meTimeSummaryMapProjEta_[iz] ) meTimeSummaryMapProjEta_[iz]->Fill(Numbers::eta(id), mean01);
+	  if( meTimeSummaryMapProjEta_[iz] ) meTimeSummaryMapProjEta_[iz]->Fill(eta, mean01);
 	  if( meTimeSummaryMapProjPhi_[iz] ) meTimeSummaryMapProjPhi_[iz]->Fill(Numbers::phi(id), mean01);
 
         }
