@@ -771,7 +771,7 @@ TMatrixD DTMuonMillepede::getbsurveyMatrix(int wh, int st, int se) {
 }
 
 
-TMatrixD DTMuonMillepede::prepareForLagrange(TMatrixD m) {
+TMatrixD DTMuonMillepede::prepareForLagrange(const TMatrixD &m) {
  
   TMatrixD updatedMatrix = m;
   updatedMatrix.ResizeTo(m.GetNrows()+6, m.GetNcols()+6);

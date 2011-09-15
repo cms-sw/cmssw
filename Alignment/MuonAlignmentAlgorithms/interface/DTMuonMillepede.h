@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_DTMuonMillepede_H
 
 /** \class DTMuonMillepede
- *  $Date:$
- *  $Revision: 1.3 $
+ *  $Date: 2010/02/25 11:33:32 $
+ *  $Revision: 1.2 $
  *  \author Luca Scodellaro <Luca.Scodellaro@cern.ch>
  */
 
@@ -43,7 +43,7 @@ class DTMuonMillepede : public DTMuonLocalAlignment {
 
   TMatrixD getLagMatrix(int, int, int);
   
-  TMatrixD prepareForLagrange(TMatrixD );
+  TMatrixD prepareForLagrange(const TMatrixD &);
 
   void setBranchTree();
 
