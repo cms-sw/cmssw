@@ -88,10 +88,10 @@ void TestMuonHierarchy::dumpAlignable( const Alignable* alignable,
   else leaders_ += blank_;
 
   const align::Alignables& comps = alignable->components();
-  if ( unsigned int ndau = comps.size() ) {
-    unsigned int idau = 0;
+  if ( unsigned int ndau_ = comps.size() ) {
+    unsigned int idau_ = 0;
     for ( align::Alignables::const_iterator iter = comps.begin(); iter != comps.end(); ++iter )
-      dumpAlignable( *iter, ++idau, ndau );
+      dumpAlignable( *iter, ++idau_, ndau_ );
   }
 
   leaders_ = leaders_.substr( 0, leaders_.length()-blank_.length() );
