@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-offlinePrimaryVertices = cms.EDProducer("PrimaryVertexProducer",
+pixelVertices = cms.EDProducer("PrimaryVertexProducer",
 
     verbose = cms.untracked.bool(False),
     TrackLabel = cms.InputTag("pixelTracks"),
@@ -26,7 +26,7 @@ offlinePrimaryVertices = cms.EDProducer("PrimaryVertexProducer",
     vertexCollections = cms.VPSet(
      [cms.PSet(label=cms.string(""),
                algorithm=cms.string("AdaptiveVertexFitter"),
-               minNdof=cms.double(0.0),
+               minNdof=cms.double(2.0),
                useBeamConstraint = cms.bool(False),
                maxDistanceToBeam = cms.double(2.0)
                )
