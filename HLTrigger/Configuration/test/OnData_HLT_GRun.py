@@ -37103,29 +37103,6 @@ if 'GlobalTag' in process.__dict__:
     from Configuration.AlCa.autoCond import autoCond
     process.GlobalTag.globaltag = autoCond['hltonline']
 
-# override the L1 menu
-if 'GlobalTag' in process.__dict__:
-    process.GlobalTag.toGet.append(
-        cms.PSet(
-            record  = cms.string( 'L1GtTriggerMenuRcd' ),
-            tag     = cms.string( 'L1GtTriggerMenu_L1Menu_Collisions2011_v6_mc' ),
-            label   = cms.untracked.string( '' ),
-            connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_31X_L1T' )
-        )
-    )
-
-# customize the L1 emulator to run only the GT, and take the GCT and GMT from data
-process.load( 'Configuration.StandardSequences.RawToDigi_Data_cff' )
-process.load( 'Configuration.StandardSequences.SimL1Emulator_cff' )
-import L1Trigger.Configuration.L1Trigger_custom
-process = L1Trigger.Configuration.L1Trigger_custom.customiseL1GtEmulatorFromRaw( process )
-process = L1Trigger.Configuration.L1Trigger_custom.customiseResetPrescalesAndMasks( process )
-
-# customize the HLT to use the emulated results
-import HLTrigger.Configuration.customizeHLTforL1Emulator
-process = HLTrigger.Configuration.customizeHLTforL1Emulator.switchToL1Emulator( process )
-process = HLTrigger.Configuration.customizeHLTforL1Emulator.switchToSimGtDigis( process )
-
 if 'MessageLogger' in process.__dict__:
     process.MessageLogger.categories.append('TriggerSummaryProducerAOD')
     process.MessageLogger.categories.append('L1GtTrigReport')
