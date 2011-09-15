@@ -249,7 +249,7 @@ public:
 	while (ri != re) {
 	  // lmr
 	  lmr = ri->getLmr();
-	  std::cout << std::endl << "  LMR " << std::setw(2) << lmr;
+	  std::cout << std::endl << "  LMR " << std::setw(2) << lmr << std::flush;
 	  // color
 	  sprintf(&color[0], "%s", ri->getColorShortName().c_str());
 	  // subrun times
@@ -259,9 +259,11 @@ public:
 	  LMFLaserPulseDat mtqConf(econn, "BLUE");
 	  mtqConf.setLMFRunIOV(*ri);
 	  mtqConf.fetch();
+	  std::list<int> mtqLogicIds = mtqConf.getLogicIds();
 	  LMFLaserConfigDat laserConfig(econn);
 	  laserConfig.setLMFRunIOV(*ri);
 	  laserConfig.fetch();
+	  std::list<int> laserConfigLogicIds = laserConfig.getLogicIds();
 	  // *** get data ***
 	  LMFPrimDat prim(econn, color, "LASER");
 	  prim.setLMFRunIOV(*ri);
@@ -320,30 +322,39 @@ public:
 		lmfdata[index].y   = dd.y; 
 		lmfdata[index].z   = dd.z; 
 
-		lmfmtq[index].fit_method = mtqConf.getFitMethod(logic_id);
-		lmfmtq[index].mtq_ampl = mtqConf.getMTQAmplification(logic_id);
-		lmfmtq[index].mtq_time = mtqConf.getMTQTime(logic_id);
-		lmfmtq[index].mtq_rise = mtqConf.getMTQRise(logic_id);
-		lmfmtq[index].mtq_fwhm = mtqConf.getMTQFWHM(logic_id);
-		lmfmtq[index].mtq_fw20 = mtqConf.getMTQFW20(logic_id);
-		lmfmtq[index].mtq_fw80 = mtqConf.getMTQFW80(logic_id);
-		lmfmtq[index].mtq_sliding = mtqConf.getMTQSliding(logic_id);
+		std::list<int>::iterator logicIdIsThere = std::find(mtqLogicIds.begin(),
+								    mtqLogicIds.end(),
+								    logic_id);
+		if (logicIdIsThere != mtqLogicIds.end()) {
+		  lmfmtq[index].fit_method = mtqConf.getFitMethod(logic_id);
+		  lmfmtq[index].mtq_ampl = mtqConf.getMTQAmplification(logic_id);
+		  lmfmtq[index].mtq_time = mtqConf.getMTQTime(logic_id);
+		  lmfmtq[index].mtq_rise = mtqConf.getMTQRise(logic_id);
+		  lmfmtq[index].mtq_fwhm = mtqConf.getMTQFWHM(logic_id);
+		  lmfmtq[index].mtq_fw20 = mtqConf.getMTQFW20(logic_id);
+		  lmfmtq[index].mtq_fw80 = mtqConf.getMTQFW80(logic_id);
+		  lmfmtq[index].mtq_sliding = mtqConf.getMTQSliding(logic_id);
+		}
 
-		lmflasConf[index].wavelength = 
-		  laserConfig.getWavelength(logic_id);
-		lmflasConf[index].vfe_gain = laserConfig.getVFEGain(logic_id);
-		lmflasConf[index].pn_gain = laserConfig.getPNGain(logic_id);
-		lmflasConf[index].lsr_power = 
-		  laserConfig.getLSRPower(logic_id);
-		lmflasConf[index].lsr_attenuator = 
-		  laserConfig.getLSRAttenuator(logic_id);
-		lmflasConf[index].lsr_current = 
-		  laserConfig.getLSRCurrent(logic_id);
-		lmflasConf[index].lsr_delay_1 =
-		  laserConfig.getLSRDelay1(logic_id);
-		lmflasConf[index].lsr_delay_2 =
-		  laserConfig.getLSRDelay1(logic_id);
-
+		logicIdIsThere = std::find(laserConfigLogicIds.begin(),
+					   laserConfigLogicIds.end(),
+					   logic_id);
+		if (logicIdIsThere != laserConfigLogicIds.end()) {
+		  lmflasConf[index].wavelength = 
+		    laserConfig.getWavelength(logic_id);
+		  lmflasConf[index].vfe_gain = laserConfig.getVFEGain(logic_id);
+		  lmflasConf[index].pn_gain = laserConfig.getPNGain(logic_id);
+		  lmflasConf[index].lsr_power = 
+		    laserConfig.getLSRPower(logic_id);
+		  lmflasConf[index].lsr_attenuator = 
+		    laserConfig.getLSRAttenuator(logic_id);
+		  lmflasConf[index].lsr_current = 
+		    laserConfig.getLSRCurrent(logic_id);
+		  lmflasConf[index].lsr_delay_1 =
+		    laserConfig.getLSRDelay1(logic_id);
+		  lmflasConf[index].lsr_delay_2 =
+		    laserConfig.getLSRDelay1(logic_id);
+		}
 		xcount++; 
 	      }
 	      // 
