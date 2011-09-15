@@ -172,6 +172,7 @@ int cond::ListIOVUtilities::execute(){
                   << "  Time: " <<  cond::time::to_boost(iov.iov().timestamp())
                   << ";  Revision: " << iov.iov().revision()<<std::endl;
       }
+      std::cout <<"\tMetadata: " << iov.iov().metadata()<<std::endl;
       std::cout <<"\tTimeType: " << cond::timeTypeSpecs[iov.timetype()].name<<std::endl;
       std::cout <<"\t";
       std::string headerValLine = printValidityHeader( cond::timeTypeSpecs[iov.timetype()].type );

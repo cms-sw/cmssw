@@ -61,6 +61,9 @@ namespace cond{
     //stamp iov
     void stamp(std::string const & icomment, bool append=false);
 
+    /// edit metadata
+    void editMetadata( std::string const & metadata, bool append=false);
+
     /// Update the closure of the iov sequence
     void updateClosure( cond::Time_t newtillTime );
 

@@ -238,6 +238,13 @@ namespace cond {
     flushUpdates();
   }
 
+  void IOVEditor::editMetadata( std::string const & metadata, 
+				bool append ){
+    if(!m_isActive) this->init();
+    m_iov->updateMetadata( metadata, append);
+    flushUpdates();
+  }
+
   void 
   IOVEditor::updateClosure( cond::Time_t newtillTime ){
     if( m_token.empty() ) reportError("cond::IOVEditor::updateClosure cannot change non-existing IOV index");
