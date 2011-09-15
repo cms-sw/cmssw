@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/12/06 01:39:29 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/04/10 16:36:41 $
+ *  $Revision: 1.7 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -95,11 +95,11 @@ std::ostream &operator << (std::ostream& os, const AlignableCSCEndcap& b )
 
 
 /// Recursive printout of whole Half Barrel structure
-void AlignableCSCEndcap::dump( void )
+void AlignableCSCEndcap::dump( void ) const
 {
 
   edm::LogInfo("AlignableDump") << (*this);
-  for ( std::vector<AlignableCSCStation*>::iterator iLayer = theCSCStations.begin();
+  for ( std::vector<AlignableCSCStation*>::const_iterator iLayer = theCSCStations.begin();
 		iLayer != theCSCStations.end(); iLayer++ )
 	(*iLayer)->dump();
 
