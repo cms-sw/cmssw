@@ -68,7 +68,9 @@ private:
 //
 // constructors and destructor
 //
-TestMuonReader::TestMuonReader( const edm::ParameterSet& iConfig ) 
+TestMuonReader::TestMuonReader( const edm::ParameterSet& iConfig ) :
+  theTree(0), theFile(0), rot(0),
+  x(0.), y(0.), z(0.), phi(0.), theta(0.), length(0.), thick(0.), width(0.)
 { 
 }
 
