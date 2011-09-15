@@ -32,7 +32,7 @@ iterativeTobTecSeeds.primaryVertices = ['none']
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 iterativeTobTecTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
 iterativeTobTecTrackCandidates.SeedProducer = cms.InputTag("iterativeTobTecSeeds","TobTecLayerPairs")
-iterativeTobTecTrackCandidates.TrackProducers = ['firstfilter','secfilter','thfilter','foufilter'] # add 0 and 0.5?
+iterativeTobTecTrackCandidates.TrackProducers = ['pixelPairStepTracks','detachedTripletStepTracks','mixedTripletStepTracks','pixelLessStepTracks'] # add 0 and 0.5?
 iterativeTobTecTrackCandidates.KeepFittedTracks = False
 iterativeTobTecTrackCandidates.MinNumberOfCrossedLayers = 3
 
@@ -49,53 +49,71 @@ iterativeTobTecTracks.Propagator = 'PropagatorWithMaterial'
 
 # track merger
 #from FastSimulation.Tracking.IterativeFifthTrackMerger_cfi import *
-iterativeTobTecTrackMerging = cms.EDProducer("FastTrackMerger",
-                                          TrackProducers = cms.VInputTag(cms.InputTag("iterativeTobTecTrackCandidates"),
-                                                                         cms.InputTag("iterativeTobTecTracks")),
-                                          RemoveTrackProducers =  cms.untracked.VInputTag(cms.InputTag("zeroStepFilter"),
-                                                                                          cms.InputTag("zerofivefilter"),  
-                                                                                          cms.InputTag("firstfilter"),  
-                                                                                          cms.InputTag("secfilter"),    
-                                                                                          cms.InputTag("thfilter"),     
-                                                                                          cms.InputTag("foufilter")),   
-                                          trackAlgo = cms.untracked.uint32(10), # iter6
-                                          MinNumberOfTrajHits = cms.untracked.uint32(6), # was 4
-                                          MaxLostTrajHits = cms.untracked.uint32(0)
-                                          )
+tobTecStepTracks = cms.EDProducer("FastTrackMerger",
+                                  TrackProducers = cms.VInputTag(cms.InputTag("iterativeTobTecTrackCandidates"),
+                                                                 cms.InputTag("iterativeTobTecTracks")),
+                                  RemoveTrackProducers =  cms.untracked.VInputTag(cms.InputTag("initialStepTracks"),
+                                                                                  cms.InputTag("lowPtTripletStepTracks"),  
+                                                                                  cms.InputTag("pixelPairStepTracks"),  
+                                                                                  cms.InputTag("detachedTripletStepTracks"),    
+                                                                                  cms.InputTag("mixedTripletStepTracks"),     
+                                                                                  cms.InputTag("pixelLessStepTracks")),   
+                                  trackAlgo = cms.untracked.uint32(10), # iter6
+                                  MinNumberOfTrajHits = cms.untracked.uint32(6), # was 4
+                                  MaxLostTrajHits = cms.untracked.uint32(0)
+                                  )
 
 
-# track filter
-#from FastSimulation.Tracking.IterativeFifthTrackFilter_cff import *
-import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
-fifthStep = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone(
-src = 'iterativeTobTecTrackMerging',
-##keepAllTracks = True,
-copyExtras = True,
-copyTrajectories = True,
-chi2n_par = 0.25,
-res_par = ( 0.003, 0.001 ),
-minNumberLayers = 6, # was 4
-minNumber3DLayers = 2,
-maxNumberLostLayers = 0,
-d0_par1 = ( 1.2, 4.0 ),
-dz_par1 = ( 1.1, 4.0 ),
-d0_par2 = ( 1.2, 4.0 ),
-dz_par2 = ( 1.1, 4.0 )
-)
-
-fifthfilter = cms.EDProducer("QualityFilter",
-    TrackQuality = cms.string('highPurity'),
-    recTracks = cms.InputTag("fifthStep")
-)
-
-
-iterativeTobTecTrackFiltering = cms.Sequence(fifthStep*fifthfilter)
-
+# track selection
+import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
+tobTecStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
+        src='tobTecStepTracks',
+            trackSelectors= cms.VPSet(
+            RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+                name = 'tobTecStepLoose',
+                            chi2n_par = 0.4,
+                            res_par = ( 0.003, 0.001 ),
+                            minNumberLayers = 5,
+                            maxNumberLostLayers = 1,
+                            minNumber3DLayers = 2,
+                            d0_par1 = ( 2.0, 4.0 ),
+                            dz_par1 = ( 1.8, 4.0 ),
+                            d0_par2 = ( 2.0, 4.0 ),
+                            dz_par2 = ( 1.8, 4.0 )
+                            ),
+                    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+                name = 'tobTecStepTight',
+                            preFilterName = 'tobTecStepLoose',
+                            chi2n_par = 0.3,
+                            res_par = ( 0.003, 0.001 ),
+                            minNumberLayers = 5,
+                            maxNumberLostLayers = 0,
+                            minNumber3DLayers = 2,
+                            d0_par1 = ( 1.5, 4.0 ),
+                            dz_par1 = ( 1.4, 4.0 ),
+                            d0_par2 = ( 1.5, 4.0 ),
+                            dz_par2 = ( 1.4, 4.0 )
+                            ),
+                    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+                name = 'tobTecStep',
+                            preFilterName = 'tobTecStepTight',
+                            chi2n_par = 0.2,
+                            res_par = ( 0.003, 0.001 ),
+                            minNumberLayers = 5,
+                            maxNumberLostLayers = 0,
+                            minNumber3DLayers = 2,
+                            d0_par1 = ( 1.4, 4.0 ),
+                            dz_par1 = ( 1.3, 4.0 ),
+                            d0_par2 = ( 1.4, 4.0 ),
+                            dz_par2 = ( 1.3, 4.0 )
+                            ),
+                    ) #end of vpset
+            ) #end of clone
 
 # sequence
 iterativeTobTecStep = cms.Sequence(iterativeTobTecSeeds
                                       +iterativeTobTecTrackCandidates
                                       +iterativeTobTecTracks
-                                      +iterativeTobTecTrackMerging
-                                      +iterativeTobTecTrackFiltering)
+                                      +tobTecStepTracks
+                                      +tobTecStepSelector)
 

@@ -35,7 +35,7 @@ iterativePixelLessSeeds.primaryVertices = ['none']
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 iterativePixelLessTrackCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
 iterativePixelLessTrackCandidates.SeedProducer = cms.InputTag("iterativePixelLessSeeds","PixelLessPairs")
-iterativePixelLessTrackCandidates.TrackProducers = ['zeroStepFilter', 'zerofivefilter', 'firstfilter', 'secfilter','thfilter'] # add 0 and 0.5 ?
+iterativePixelLessTrackCandidates.TrackProducers = ['initialStepTracks', 'lowPtTripletStepTracks', 'pixelPairStepTracks', 'detachedTripletStepTracks','mixedTripletStepTracks'] # add 0 and 0.5 ?
 iterativePixelLessTrackCandidates.KeepFittedTracks = False
 iterativePixelLessTrackCandidates.MinNumberOfCrossedLayers = 6 # was 5
 
@@ -53,48 +53,70 @@ iterativePixelLessTracks.Propagator = 'PropagatorWithMaterial'
 
 # track merger
 #from FastSimulation.Tracking.IterativeFourthTrackMerger_cfi import *
-iterativePixelLessTrackMerging = cms.EDProducer("FastTrackMerger",
-TrackProducers = cms.VInputTag(cms.InputTag("iterativePixelLessTrackCandidates"),
-                               cms.InputTag("iterativePixelLessTracks")),
-RemoveTrackProducers =  cms.untracked.VInputTag(cms.InputTag("zeroStepFilter"),
-                                                cms.InputTag("zerofivefilter"),   
-                                                cms.InputTag("firstfilter"),   
-                                                cms.InputTag("secfilter"),     
-                                                cms.InputTag("thfilter")),     
-trackAlgo = cms.untracked.uint32(9),
-MinNumberOfTrajHits = cms.untracked.uint32(6), # was 5
-MaxLostTrajHits = cms.untracked.uint32(0)
-)
+pixelLessStepTracks = cms.EDProducer("FastTrackMerger",
+                                     TrackProducers = cms.VInputTag(cms.InputTag("iterativePixelLessTrackCandidates"),
+                                                                    cms.InputTag("iterativePixelLessTracks")),
+                                     RemoveTrackProducers =  cms.untracked.VInputTag(cms.InputTag("initialStepTracksr"),
+                                                                                     cms.InputTag("lowPtTripletStepTracks"),   
+                                                                                     cms.InputTag("pixelPairStepTracks"),   
+                                                                                     cms.InputTag("detachedTripletStepTracks"),     
+                                                                                     cms.InputTag("mixedTripletStepTracks")),     
+                                     trackAlgo = cms.untracked.uint32(9),
+                                     MinNumberOfTrajHits = cms.untracked.uint32(6), # was 5
+                                     MaxLostTrajHits = cms.untracked.uint32(0)
+                                     )
 
-
-# track filter
-#from FastSimulation.Tracking.IterativeFourthTrackFilter_cff import *
-import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
-fouStep = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone(
-src = 'iterativePixelLessTrackMerging',
-##keepAllTracks = True
-copyExtras = True,
-copyTrajectories = True,
-chi2n_par = 0.5,
-res_par = ( 0.003, 0.001 ),
-minNumberLayers = 5,
-minNumber3DLayers = 3,
-maxNumberLostLayers = 1,
-d0_par1 = ( 1.5, 4.0 ),
-dz_par1 = ( 1.5, 4.0 ),
-d0_par2 = ( 1.5, 4.0 ),
-dz_par2 = ( 1.5, 4.0 )
-)
-
-foufilter = cms.EDProducer("QualityFilter",
-    TrackQuality = cms.string('highPurity'),
-    recTracks = cms.InputTag("fouStep")
-)
-
-
-iterativePixelLessTrackFiltering = cms.Sequence(fouStep*foufilter)
+# track selection
+import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
+pixelLessStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
+        src='pixelLessStepTracks',
+            trackSelectors= cms.VPSet(
+            RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+                name = 'pixelLessStepLoose',
+                            chi2n_par = 0.5,
+                            res_par = ( 0.003, 0.001 ),
+                            minNumberLayers = 5,
+                            maxNumberLostLayers = 1,
+                            minNumber3DLayers = 3,
+                            d0_par1 = ( 1.5, 4.0 ),
+                            dz_par1 = ( 1.5, 4.0 ),
+                            d0_par2 = ( 1.5, 4.0 ),
+                            dz_par2 = ( 1.5, 4.0 )
+                            ),
+                    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+                name = 'pixelLessStepTight',
+                            preFilterName = 'pixelLessStepLoose',
+                            chi2n_par = 0.35,
+                            res_par = ( 0.003, 0.001 ),
+                            minNumberLayers = 5,
+                            maxNumberLostLayers = 0,
+                            minNumber3DLayers = 3,
+                            d0_par1 = ( 1.2, 4.0 ),
+                            dz_par1 = ( 1.2, 4.0 ),
+                            d0_par2 = ( 1.2, 4.0 ),
+                            dz_par2 = ( 1.2, 4.0 )
+                            ),
+                    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+                name = 'pixelLessStep',
+                            preFilterName = 'pixelLessStepTight',
+                            chi2n_par = 0.25,
+                            res_par = ( 0.003, 0.001 ),
+                            minNumberLayers = 5,
+                            maxNumberLostLayers = 0,
+                            minNumber3DLayers = 3,
+                            d0_par1 = ( 1., 4.0 ),
+                            dz_par1 = ( 1., 4.0 ),
+                            d0_par2 = ( 1., 4.0 ),
+                            dz_par2 = ( 1., 4.0 )
+                            ),
+                    ) #end of vpset
+            ) #end of clone
 
 
 # sequence
-iterativePixelLessStep = cms.Sequence(iterativePixelLessSeeds+iterativePixelLessTrackCandidates+iterativePixelLessTracks+iterativePixelLessTrackMerging+iterativePixelLessTrackFiltering)
+iterativePixelLessStep = cms.Sequence(iterativePixelLessSeeds+
+                                      iterativePixelLessTrackCandidates+
+                                      iterativePixelLessTracks+
+                                      pixelLessStepTracks+
+                                      pixelLessStepSelector)
 

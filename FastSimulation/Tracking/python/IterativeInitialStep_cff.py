@@ -43,48 +43,37 @@ iterativeInitialTracks.Propagator = 'PropagatorWithMaterial'
 
 # track merger
 #from FastSimulation.Tracking.IterativeFirstTrackMerger_cfi import *
-iterativeZeroTrackMerging = cms.EDProducer("FastTrackMerger",
-    TrackProducers = cms.VInputTag(cms.InputTag("iterativeInitialTrackCandidates"),
-                                   cms.InputTag("iterativeInitialTracks")),
-    trackAlgo = cms.untracked.uint32(4) # iter0
-)
+initialStepTracks = cms.EDProducer("FastTrackMerger",
+                                   TrackProducers = cms.VInputTag(cms.InputTag("iterativeInitialTrackCandidates"),
+                                                                  cms.InputTag("iterativeInitialTracks")),
+                                   trackAlgo = cms.untracked.uint32(4) # iter0
+                                   )
 
-# track filter
-#from FastSimulation.Tracking.IterativeFirstTrackFilter_cff import *
-# Track filtering and quality.
-#   input:    iterativeFirstTrackMerging 
-#   output:   generalTracks
-#   sequence: iterativeFirstTrackFiltering
-# Official sequence has loose and tight quality tracks, not reproduced
-# here. (People will use generalTracks, eventually.)
-###from RecoTracker.IterativeTracking.FirstFilter_cfi import *
-
-
-import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
-
-
-zeroStepTracksWithQuality = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone()
-zeroStepTracksWithQuality.src = 'iterativeZeroTrackMerging'
-zeroStepTracksWithQuality.keepAllTracks = True
-zeroStepTracksWithQuality.copyExtras = True
-zeroStepTracksWithQuality.copyTrajectories = True
-
-
-zeroStepFilter = cms.EDProducer("QualityFilter",
-     TrackQuality = cms.string('highPurity'),
-     recTracks = cms.InputTag("zeroStepTracksWithQuality:")
-)
-
-iterativeZeroTrackFiltering = cms.Sequence(zeroStepTracksWithQuality+zeroStepFilter)
-
-
+# Final selection
+import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
+initialStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
+        src='initialStepTracks',
+        trackSelectors= cms.VPSet(
+            RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+                name = 'initialStepLoose',
+                            ), #end of pset
+                    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+                name = 'initialStepTight',
+                            preFilterName = 'initialStepLoose',
+                            ),
+                    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+                name = 'initialStep',
+                            preFilterName = 'initialStepTight',
+                            ),
+            ) #end of vpset
+        ) #end of clone
 
 
 # Final sequence
 iterativeInitialStep = cms.Sequence(iterativeInitialSeeds
-                                      +iterativeInitialTrackCandidates
-                                      +iterativeInitialTracks
-                                      +iterativeZeroTrackMerging
-                                      +iterativeZeroTrackFiltering)
+                                    +iterativeInitialTrackCandidates
+                                    +iterativeInitialTracks
+                                    +initialStepTracks
+                                    +initialStepSelector)
 
 

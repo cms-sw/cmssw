@@ -31,7 +31,7 @@ iterativeMixedTripletStepSeeds.primaryVertices = ['none']
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 iterativeMixedTripletStepCandidates = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
 iterativeMixedTripletStepCandidates.SeedProducer = cms.InputTag("iterativeMixedTripletStepSeeds","MixedTriplets")
-iterativeMixedTripletStepCandidates.TrackProducers = ['firstfilter', 'secfilter']
+iterativeMixedTripletStepCandidates.TrackProducers = ['pixelPairStepTracks', 'detachedTripletStepTracks']
 iterativeMixedTripletStepCandidates.KeepFittedTracks = False
 iterativeMixedTripletStepCandidates.MinNumberOfCrossedLayers = 3
 
@@ -48,78 +48,118 @@ iterativeMixedTripletStepTracks.Propagator = 'PropagatorWithMaterial'
 
 # track merger
 #from FastSimulation.Tracking.IterativeMixedTripletStepMerger_cfi import *
-iterativeMixedTripletStepMerging = cms.EDProducer("FastTrackMerger",
-                                          TrackProducers = cms.VInputTag(cms.InputTag("iterativeMixedTripletStepCandidates"),
-                                                                         cms.InputTag("iterativeMixedTripletStepTracks")),
-                                          RemoveTrackProducers =  cms.untracked.VInputTag(cms.InputTag("zeroStepFilter"),
-                                                                                          cms.InputTag("zerofivefilter"),   
-                                                                                          cms.InputTag("firstfilter"),   
-                                                                                          cms.InputTag("secfilter")),    
-                                          trackAlgo = cms.untracked.uint32(8),
-                                          MinNumberOfTrajHits = cms.untracked.uint32(4), # ?
-                                          MaxLostTrajHits = cms.untracked.uint32(0)                                          
-                                          )
+mixedTripletStepTracks = cms.EDProducer("FastTrackMerger",
+                                        TrackProducers = cms.VInputTag(cms.InputTag("iterativeMixedTripletStepCandidates"),
+                                                                       cms.InputTag("iterativeMixedTripletStepTracks")),
+                                        RemoveTrackProducers =  cms.untracked.VInputTag(cms.InputTag("initialStepTracks"),
+                                                                                        cms.InputTag("lowPtTripletStepTracks"),   
+                                                                                        cms.InputTag("pixelPairStepTracks"),   
+                                                                                        cms.InputTag("detachedTripletStepTracks")),    
+                                        trackAlgo = cms.untracked.uint32(8),
+                                        MinNumberOfTrajHits = cms.untracked.uint32(4), # ?
+                                        MaxLostTrajHits = cms.untracked.uint32(0)                                          
+                                        )
 
-# track filter
-#from FastSimulation.Tracking.IterativeMixedTripletStepFilter_cff import *
-##OLD WAY
-##import RecoParticleFlow.PFTracking.vertexFilter_cfi
-##thStep = RecoParticleFlow.PFTracking.vertexFilter_cfi.vertFilter.clone()
-##iterativeThirdTrackFiltering = cms.Sequence(thStep)
-##thStep.recTracks = cms.InputTag("iterativeThirdTrackMerging")
-##thStep.TrackAlgorithm = 'iter3'
-##thStep.DistZFromVertex = 0.1
+# TRACK SELECTION AND QUALITY FLAG SETTING.
+import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
+mixedTripletStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
+        src='mixedTripletStepTracks',
+            trackSelectors= cms.VPSet(
+            RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+                name = 'mixedTripletStepVtxLoose',
+                            chi2n_par = 1.2,
+                            res_par = ( 0.003, 0.001 ),
+                            minNumberLayers = 3,
+                            maxNumberLostLayers = 1,
+                            minNumber3DLayers = 2,
+                            d0_par1 = ( 1.2, 3.0 ),
+                            dz_par1 = ( 1.2, 3.0 ),
+                            d0_par2 = ( 1.3, 3.0 ),
+                            dz_par2 = ( 1.3, 3.0 )
+                            ),
+                    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+                name = 'mixedTripletStepTrkLoose',
+                            chi2n_par = 0.6,
+                            res_par = ( 0.003, 0.001 ),
+                            minNumberLayers = 4,
+                            maxNumberLostLayers = 1,
+                            minNumber3DLayers = 3,
+                            d0_par1 = ( 1.2, 4.0 ),
+                            dz_par1 = ( 1.2, 4.0 ),
+                            d0_par2 = ( 1.2, 4.0 ),
+                            dz_par2 = ( 1.2, 4.0 )
+                            ),
+                    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+                name = 'mixedTripletStepVtxTight',
+                            preFilterName = 'mixedTripletStepVtxLoose',
+                            chi2n_par = 0.6,
+                            res_par = ( 0.003, 0.001 ),
+                            minNumberLayers = 3,
+                            maxNumberLostLayers = 1,
+                            minNumber3DLayers = 3,
+                            d0_par1 = ( 1.1, 3.0 ),
+                            dz_par1 = ( 1.1, 3.0 ),
+                            d0_par2 = ( 1.2, 3.0 ),
+                            dz_par2 = ( 1.2, 3.0 )
+                            ),
+                    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+                name = 'mixedTripletStepTrkTight',
+                            preFilterName = 'mixedTripletStepTrkLoose',
+                            chi2n_par = 0.4,
+                            res_par = ( 0.003, 0.001 ),
+                            minNumberLayers = 5,
+                            maxNumberLostLayers = 1,
+                            minNumber3DLayers = 4,
+                            d0_par1 = ( 1.1, 4.0 ),
+                            dz_par1 = ( 1.1, 4.0 ),
+                            d0_par2 = ( 1.1, 4.0 ),
+                            dz_par2 = ( 1.1, 4.0 )
+                            ),
+                    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+                name = 'mixedTripletStepVtx',
+                            preFilterName = 'mixedTripletStepVtxTight',
+                            chi2n_par = 0.4,
+                            res_par = ( 0.003, 0.001 ),
+                            minNumberLayers = 3,
+                            maxNumberLostLayers = 1,
+                            minNumber3DLayers = 3,
+                            d0_par1 = ( 1.1, 3.0 ),
+                            dz_par1 = ( 1.1, 3.0 ),
+                            d0_par2 = ( 1.2, 3.0 ),
+                            dz_par2 = ( 1.2, 3.0 )
+                            ),
+                    RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+                name = 'mixedTripletStepTrk',
+                            preFilterName = 'mixedTripletStepTrkTight',
+                            chi2n_par = 0.3,
+                            res_par = ( 0.003, 0.001 ),
+                            minNumberLayers = 5,
+                            maxNumberLostLayers = 0,
+                            minNumber3DLayers = 4,
+                            d0_par1 = ( 0.9, 4.0 ),
+                            dz_par1 = ( 0.9, 4.0 ),
+                            d0_par2 = ( 0.9, 4.0 ),
+                            dz_par2 = ( 0.9, 4.0 )
+                            )
+                    ) #end of vpset
+            ) #end of clone
 
-import RecoTracker.FinalTrackSelectors.selectHighPurity_cfi
-thStepVtx = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone(
-src = 'iterativeMixedTripletStepMerging',
-copyTrajectories = True,
-copyExtras = True,
-chi2n_par = 1.2,
-res_par = ( 0.003, 0.001 ),
-minNumberLayers = 3,
-minNumber3DLayers = 2, 
-maxNumberLostLayers = 1,
-d0_par1 = ( 1.2, 3.0 ),
-dz_par1 = ( 1.2, 3.0 ),
-d0_par2 = ( 1.3, 3.0 ),
-dz_par2 = ( 1.3, 3.0 )
-)
-
-thStepTrk = RecoTracker.FinalTrackSelectors.selectHighPurity_cfi.selectHighPurity.clone(
-src = 'iterativeMixedTripletStepMerging',
-copyTrajectories = True,
-chi2n_par = 0.5,
-res_par = ( 0.003, 0.001 ),
-#minNumberLayers = 5,
-minNumberLayers = 3,
-#minNumber3DLayers = 4,
-minNumber3DLayers = 1, # ?
-maxNumberLostLayers = 1,
-d0_par1 = ( 1.0, 4.0 ),
-dz_par1 = ( 1.0, 4.0 ),
-d0_par2 = ( 1.0, 4.0 ),
-dz_par2 = ( 1.0, 4.0 )
-)
-
-##import RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi
-##thStep = RecoTracker.FinalTrackSelectors.ctfrsTrackListMerger_cfi.ctfrsTrackListMerger.clone()
-##thStep.TrackProducer1 = 'thStepVtx'
-##thStep.TrackProducer2 = 'thStepTrk'
-
-
-thStep = cms.EDProducer("FastTrackMerger",
-                      TrackProducers = cms.VInputTag(cms.InputTag("thStepVtx"),
-                                                     cms.InputTag("thStepTrk"))
-)
-
-thfilter = cms.EDProducer("QualityFilter",
-    TrackQuality = cms.string('highPurity'),
-    recTracks = cms.InputTag("thStep")
-)
-
-iterativeMixedTripletStepFiltering = cms.Sequence(thStepVtx*thStepTrk*thStep*thfilter)
+import RecoTracker.FinalTrackSelectors.trackListMerger_cfi
+mixedTripletStep = RecoTracker.FinalTrackSelectors.trackListMerger_cfi.trackListMerger.clone(
+    TrackProducers = cms.VInputTag(cms.InputTag('mixedTripletStepTracks'),
+                                   cms.InputTag('mixedTripletStepTracks')),
+    hasSelector=cms.vint32(1,1),
+    selectedTrackQuals = cms.VInputTag(cms.InputTag("mixedTripletStepSelector","mixedTripletStepVtx"),
+                                       cms.InputTag("mixedTripletStepSelector","mixedTripletStepTrk")),
+    setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1), pQual=cms.bool(True) )),
+    writeOnlyTrkQuals=cms.bool(True)
+    )
 
 # sequence
-iterativeMixedTripletStep = cms.Sequence(iterativeMixedTripletStepSeeds+iterativeMixedTripletStepCandidates+iterativeMixedTripletStepTracks+iterativeMixedTripletStepMerging+iterativeMixedTripletStepFiltering)
+iterativeMixedTripletStep = cms.Sequence(iterativeMixedTripletStepSeeds+
+                                         iterativeMixedTripletStepCandidates+
+                                         iterativeMixedTripletStepTracks+
+                                         mixedTripletStepTracks+
+                                         mixedTripletStepSelector+
+                                         mixedTripletStep)
 

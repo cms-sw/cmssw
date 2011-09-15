@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-whichTracking = 'old' # 'old' is the default for the moment
+whichTracking = 'new' # 'old' is the default for the moment
 
 if(whichTracking=='old'):
     newCombinedSeeds = cms.EDProducer(
