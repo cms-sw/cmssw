@@ -40,7 +40,8 @@
 #include <iostream>
 #include <fstream>
 
-MuonGeometryArrange::MuonGeometryArrange(const edm::ParameterSet& cfg)
+MuonGeometryArrange::MuonGeometryArrange(const edm::ParameterSet& cfg) :
+  theSurveyIndex(0), _writeToDB(false), _commonMuonLevel(align::invalid), firstEvent_(true)
 {
 	referenceMuon=0x0;
 	currentMuon=0x0;
