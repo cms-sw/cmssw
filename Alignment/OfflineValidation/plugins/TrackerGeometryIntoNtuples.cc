@@ -13,7 +13,7 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: TrackerGeometryIntoNtuples.cc,v 1.5 2010/01/04 18:24:37 mussgill Exp $
+// $Id: TrackerGeometryIntoNtuples.cc,v 1.6 2011/09/04 17:40:58 mussgill Exp $
 //
 //
 
@@ -63,7 +63,6 @@ private:
 	
 	// ----------member data ---------------------------
 	//std::vector<AlignTransform> m_align;
-	Alignments* theAlignments;
 	AlignableTracker* theCurrentTracker;
 	
 	uint32_t m_rawid;
@@ -90,7 +89,8 @@ private:
 //
 // constructors and destructor
 //
-TrackerGeometryIntoNtuples::TrackerGeometryIntoNtuples(const edm::ParameterSet& iConfig)
+TrackerGeometryIntoNtuples::TrackerGeometryIntoNtuples(const edm::ParameterSet& iConfig) :
+  theCurrentTracker(0)
 {
 	m_outputFile = iConfig.getUntrackedParameter< std::string > ("outputFile");
 	m_outputTreename = iConfig.getUntrackedParameter< std::string > ("outputTreename");
@@ -105,7 +105,9 @@ TrackerGeometryIntoNtuples::TrackerGeometryIntoNtuples(const edm::ParameterSet& 
 
 
 TrackerGeometryIntoNtuples::~TrackerGeometryIntoNtuples()
-{}
+{
+  delete theCurrentTracker;
+}
 
 
 //
@@ -173,6 +175,8 @@ void TrackerGeometryIntoNtuples::analyze(const edm::Event& iEvent, const edm::Ev
 		
 	}
 	
+	delete theAlignments;
+
 	std::vector<AlignTransformError> alignErrors = alignmentErrors->m_alignError;
 	for (std::vector<AlignTransformError>::const_iterator i = alignErrors.begin(); i != alignErrors.end(); ++i){
 
