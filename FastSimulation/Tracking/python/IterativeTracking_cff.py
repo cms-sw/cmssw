@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-whichTracking = 'old' # 'old' is the default for the moment
+whichTracking = 'new' # 'old' is the default for the moment
 
 from FastSimulation.Tracking.PixelTracksProducer_cff import *
 from FastSimulation.Tracking.PixelVerticesProducer_cff import *
