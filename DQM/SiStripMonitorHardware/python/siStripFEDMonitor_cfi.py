@@ -4,7 +4,7 @@ siStripFEDMonitor = cms.EDAnalyzer("SiStripFEDMonitorPlugin",
   #Raw data collection
   RawDataTag = cms.untracked.InputTag('source'),
   #Folder in DQM Store to write global histograms to
-  HistogramFolderName = cms.untracked.string('SiStrip/ReadoutView/FedMonitoringSummary'),
+  HistogramFolderName = cms.untracked.string('SiStrip/ReadoutView/FedSummary'),
   #Fill all detailed histograms at FED level even if they will be empty (so that files can be merged)
   FillAllDetailedHistograms = cms.untracked.bool(False),
   #do histos vs time with time=event number. Default time = orbit number (s).
@@ -20,6 +20,7 @@ siStripFEDMonitor = cms.EDAnalyzer("SiStripFEDMonitorPlugin",
   #lumi histogram
   ErrorFractionByLumiBlockHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(False) ),          
   #Global/summary histograms
+  FedEventSizeHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),                
   DataPresentHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
   AnyFEDErrorsHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
   AnyDAQProblemsHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
@@ -31,6 +32,11 @@ siStripFEDMonitor = cms.EDAnalyzer("SiStripFEDMonitorPlugin",
   FEOverflowsHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
   FEMissingHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
   BadMajorityAddressesHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  BadMajorityInPartitionHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  FeMajFracTIBHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  FeMajFracTOBHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  FeMajFracTECBHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
+  FeMajFracTECFHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
   FETimeDiffTIBHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
   FETimeDiffTOBHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
   FETimeDiffTECBHistogramConfig = cms.untracked.PSet( Enabled = cms.untracked.bool(True) ),
@@ -125,9 +131,9 @@ siStripFEDMonitor = cms.EDAnalyzer("SiStripFEDMonitorPlugin",
   ),
   nUnconnectedChannelsHistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True),
-    NBins = cms.untracked.uint32(353),
-    Min = cms.untracked.double(0),
-    Max = cms.untracked.double(42240)
+    NBins = cms.untracked.uint32(250),
+    Min = cms.untracked.double(6000),
+    Max = cms.untracked.double(8000)
   ),
   nAPVStatusBitHistogramConfig = cms.untracked.PSet(
     Enabled = cms.untracked.bool(True),
@@ -236,5 +242,11 @@ siStripFEDMonitor = cms.EDAnalyzer("SiStripFEDMonitorPlugin",
     NBins = cms.untracked.uint32(600),
     Min = cms.untracked.double(0),
     Max = cms.untracked.double(3600)
-  )
-)
+  ),
+  FedMaxEventSizevsTimeHistogramConfig = cms.untracked.PSet(
+    Enabled = cms.untracked.bool(True),
+    NBins = cms.untracked.uint32(600),
+    Min = cms.untracked.double(0),
+    Max = cms.untracked.double(3600)                
+  )                             
+ )

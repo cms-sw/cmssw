@@ -2,7 +2,7 @@
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
- * $Id: HLTElectronEoverpFilterRegional.cc,v 1.8 2008/11/03 11:00:50 ghezzi Exp $
+ * $Id: HLTElectronEoverpFilterRegional.cc,v 1.9 2009/02/09 16:27:18 covarell Exp $
  *
  */
 
@@ -35,7 +35,7 @@ HLTElectronEoverpFilterRegional::HLTElectronEoverpFilterRegional(const edm::Para
    ncandcut_  = iConfig.getParameter<int> ("ncandcut");
    doIsolated_  = iConfig.getParameter<bool> ("doIsolated");
    
-   store_ = iConfig.getUntrackedParameter<bool> ("SaveTag",false) ;
+   store_ = iConfig.getParameter<bool>("saveTags") ;
    // L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
    // L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
 

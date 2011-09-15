@@ -153,7 +153,7 @@ void PixelVertexTest::analyze(
   simy_ = (simVtcs->size() > 0) ? (*simVtcs)[0].position().y() : -9999.0;
   simz_ = (simVtcs->size() > 0) ? (*simVtcs)[0].position().z() : -9999.0;
   if (verbose_ > 1) {
-    for (unsigned int i=0; i<simVtcs->size(); i++) {
+    for (int i=0; i<simVtcs->size(); i++) {
       std::cout << (*simVtcs)[i].parentIndex() << ": " << (*simVtcs)[i].position().x() << ", " << (*simVtcs)[i].position().y() << ", " << (*simVtcs)[i].position().z() << ";  ";
     }
     std::cout << "\n" << std::endl;
@@ -217,14 +217,14 @@ void PixelVertexTest::analyze(
   PVClusterComparer vcompare;
   for (int i=0; i<nvtx2_ && i<maxvtx_; i++) {
     vz2_[i] = vertexes[i].z();
-    errvz2_[i] = std::sqrt(vertexes[i].zError());
+    errvz2_[i] = std::sqrt(vertexes[i].error(2,2));
     ntrk2_[i] = vertexes[i].tracksSize();
     sumpt2_[i] = vcompare.pTSquaredSum(vertexes[i]);
     // Now calculate my own average position by hand to cross check conversion process
     //    trks.clear(); // not yet implemented
     while (! trks.empty()) trks.erase( trks.begin() );
-    for (reco::Vertex::trackRef_iterator j=vertexes[i].tracks_begin(); j!=vertexes[i].tracks_end(); ++j) 
-      trks.push_back( j->castTo<reco::TrackRef>() );
+    for (reco::track_iterator j=vertexes[i].tracks_begin(); j!=vertexes[i].tracks_end(); ++j) 
+      trks.push_back( *j );
     trk2avg_[i] = pos.wtAverage(trks).value();
   }
 
@@ -233,7 +233,7 @@ void PixelVertexTest::analyze(
     vector<reco::TransientTrack> t_tks;
     for (int i=0; i<nvtx2_ && i<maxvtx_; i++) {
       t_tks.clear();
-      for (reco::Vertex::trackRef_iterator j=vertexes[i].tracks_begin(); j!=vertexes[i].tracks_end(); ++j) {
+      for (reco::track_iterator j=vertexes[i].tracks_begin(); j!=vertexes[i].tracks_end(); ++j) {
 	t_tks.push_back( reco::TransientTrack(**j,field.product()) );
       }
       KalmanVertexFitter kvf;

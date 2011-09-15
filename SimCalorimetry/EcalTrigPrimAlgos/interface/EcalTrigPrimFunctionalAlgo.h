@@ -63,8 +63,8 @@ class EcalTrigPrimFunctionalAlgo
 		   EcalTrigPrimDigiCollection & result,
 		   EcalTrigPrimDigiCollection & resultTcp);
 
-  void setPointers(const EcalTPGLinearizationConst *ecaltpLin,const EcalTPGPedestals *ecaltpPed,const EcalTPGSlidingWindow * ecaltpgSlidW,const EcalTPGWeightIdMap * ecaltpgWeightMap,const EcalTPGWeightGroup * ecaltpgWeightGroup,const EcalTPGFineGrainStripEE * ecaltpgFgStripEE, const EcalTPGCrystalStatus * ecaltpgBadX, const EcalTPGStripStatus * ecaltpgStripStatus)  {
-    estrip_->setPointers(ecaltpPed,ecaltpLin,ecaltpgWeightMap,ecaltpgWeightGroup,ecaltpgSlidW,ecaltpgFgStripEE,ecaltpgBadX,ecaltpgStripStatus);
+  void setPointers(const EcalTPGLinearizationConst *ecaltpLin,const EcalTPGPedestals *ecaltpPed,const EcalTPGSlidingWindow * ecaltpgSlidW,const EcalTPGWeightIdMap * ecaltpgWeightMap,const EcalTPGWeightGroup * ecaltpgWeightGroup,const EcalTPGFineGrainStripEE * ecaltpgFgStripEE, const EcalTPGCrystalStatus * ecaltpgBadX)  {
+    estrip_->setPointers(ecaltpPed,ecaltpLin,ecaltpgWeightMap,ecaltpgWeightGroup,ecaltpgSlidW,ecaltpgFgStripEE,ecaltpgBadX);
 
   }
   void setPointers2(  const EcalTPGFineGrainEBGroup * ecaltpgFgEBGroup,
@@ -72,10 +72,9 @@ class EcalTrigPrimFunctionalAlgo
 		      const EcalTPGLutIdMap * ecaltpgLut,
 		      const EcalTPGFineGrainEBIdMap * ecaltpgFineGrainEB,
 		      const EcalTPGFineGrainTowerEE * ecaltpgFineGrainTowerEE,
-		      const EcalTPGTowerStatus * ecaltpgBadTT,
-                      const EcalTPGSpike * ecaltpgSpike){
+		      const EcalTPGTowerStatus * ecaltpgBadTT){
    
-  etcp_->setPointers(ecaltpgFgEBGroup,ecaltpgLutGroup,ecaltpgLut,ecaltpgFineGrainEB,ecaltpgFineGrainTowerEE,ecaltpgBadTT,ecaltpgSpike);
+  etcp_->setPointers(ecaltpgFgEBGroup,ecaltpgLutGroup,ecaltpgLut,ecaltpgFineGrainEB,ecaltpgFineGrainTowerEE,ecaltpgBadTT);
   }
 
  private:

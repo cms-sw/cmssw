@@ -7,9 +7,6 @@
 #include "RecoLocalTracker/ClusterParameterEstimator/interface/StripClusterParameterEstimator.h"
 #include <boost/shared_ptr.hpp>
 #include <map>
-#include "FWCore/Framework/interface/DependentRecordImplementation.h"
-#include "CalibTracker/Records/interface/SiStripDependentRecords.h"
-#include "CalibTracker/SiStripESProducers/plugins/real/SiStripLorentzAngleDepESProducer.h"
 
 class  StripCPEESProducer: public edm::ESProducer {
 

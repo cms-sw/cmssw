@@ -24,10 +24,8 @@ ProjectedRecHit2D::clone( const TrajectoryStateOnSurface& ts) const
     if(!originalHit().cluster().isNull()){
       const SiStripCluster& clust = *(originalHit().cluster());  
       
-      const GeomDetUnit * gdu = reinterpret_cast<const GeomDetUnit *>(theOriginalDet);
-      //if (!gdu) std::cout<<"no luck dude"<<std::endl;
       StripClusterParameterEstimator::LocalValues lv = 
-	theCPE->localParameters( clust, *gdu, ts);
+	theCPE->localParameters( clust, *detUnit(), ts);
       
       RecHitPointer updatedOriginalHit = 
 	TSiStripRecHit2DLocalPos::build( lv.first, lv.second, theOriginalDet, 
@@ -39,9 +37,8 @@ ProjectedRecHit2D::clone( const TrajectoryStateOnSurface& ts) const
     }else{
       const SiStripCluster& clust = *(originalHit().cluster_regional());  
       
-      const GeomDetUnit * gdu = reinterpret_cast<const GeomDetUnit *>(theOriginalDet);
       StripClusterParameterEstimator::LocalValues lv = 
-	theCPE->localParameters( clust, *gdu, ts);
+	theCPE->localParameters( clust, *detUnit(), ts);
       
       RecHitPointer updatedOriginalHit = 
 	TSiStripRecHit2DLocalPos::build( lv.first, lv.second, theOriginalDet, 

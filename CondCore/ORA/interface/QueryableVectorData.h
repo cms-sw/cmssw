@@ -49,8 +49,12 @@ namespace ora    {
     }
 
     Iterator& operator=( const Iterator& rhs ){
-      m_vecIterator = rhs.m_vecIterator;
+      if(&rhs != this ){
+	m_vecIterator = rhs.m_vecIterator;
+      }
+      return *this;
     }
+
     virtual ~Iterator(){
     }
 
@@ -94,7 +98,10 @@ namespace ora    {
     }
 
     CIterator& operator=( const CIterator& rhs ){
-      m_vecIterator = rhs.m_vecIterator;
+      if(&rhs != this ){
+	m_vecIterator = rhs.m_vecIterator;
+      }    
+      return *this;
     }
 
     virtual ~CIterator(){
@@ -139,7 +146,10 @@ namespace ora    {
     }
 
     RIterator& operator=( const RIterator& rhs ){
-      m_vecIterator = rhs.m_vecIterator;
+      if(&rhs != this ){
+	m_vecIterator = rhs.m_vecIterator;
+      }
+      return *this;
     }
 
     virtual ~RIterator(){
@@ -184,7 +194,10 @@ namespace ora    {
     }
 
     CRIterator& operator=( const CRIterator& rhs ){
-      m_vecIterator = rhs.m_vecIterator;
+      if(&rhs != this ){
+	m_vecIterator = rhs.m_vecIterator;
+      }
+      return *this;
     }
 
     virtual ~CRIterator(){

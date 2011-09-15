@@ -1,13 +1,12 @@
 #include "DQMServices/Core/interface/DQMOldReceiver.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/src/DQMError.h"
 
 DQMOldReceiver::DQMOldReceiver(const std::string &, int, const std::string &, int, bool)
-  : store_ (DQMStore::instance())
+  : store_ (0)
 {}
 
 DQMOldReceiver::DQMOldReceiver(void)
-  : store_ (DQMStore::instance())
+  : store_ (0)
 {}
 
 DQMOldReceiver::~DQMOldReceiver(void)

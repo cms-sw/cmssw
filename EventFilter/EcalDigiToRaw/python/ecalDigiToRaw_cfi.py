@@ -28,12 +28,12 @@ ecaldigitorawzerosup = cms.EDProducer("EcalDigiToRaw",
         31, 32, 33, 34, 35, 
         36, 37, 38, 39, 40, 
         41, 42, 43, 44, 45, 
+
         46, 47, 48, 49, 50, 
         51, 52, 53, 54),
-# dccFOV is used to discriminate across different dataformat / datarules
-# 0: good till June 09 MC production, included
-# 1: indicates that real raw data have newly formatted EE TCC data, and raw  data unpacker undestandts it
-    dccFOV = cms.int32(0),
     WriteTCCBlock = cms.untracked.bool(True),
     DoBarrel = cms.untracked.bool(True)
 )
+
+
+

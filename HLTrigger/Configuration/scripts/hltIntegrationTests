@@ -1,0 +1,297 @@
+#! /bin/bash
+
+function log() {
+  echo -e "$@"
+}
+
+function err() {
+  echo -e "$@" 1>&2
+}
+
+
+NAME=$(basename $0)
+
+HELP="Run the integration tests over all paths in a given HLT menu.
+
+Usage:
+  $NAME -h|--help
+  $NAME [-d|--dir WORKDIR] [-s|--setup SETUP] [-i|--input RAW] [-j|--jobs JOBS] [-x|--extra OPTIONS] [--mc] 
+        [ [-n|--size EVENTS] [-k|--skip EVENTS] | [-e|--events EVENTS] ] MENU
+
+  MENU is the HLT menu to test. 
+  
+  -s | --setup SETUP        Use the Services and EventSetup modules from a different menu 
+                            (usefull when testing a ConfDB area with only some new paths)
+  -d | --dir    WORKDIR     Create all files and run all tests inside WORKDIR (defauls: ./hltintegration)
+  -i | --input  INPUT       Use the specified RAW data file as input
+  -n | --size   EVENTS      Run on EVENTS events (-1 for all, default is 100)
+  -k | --skip   EVENTS      Skip the first EVENTS (default is 0)
+  -e | --events EVENTS      Run on a comma-separated list of EVENTS, a VEventRange
+  -j | --jobs   JOBS        Run JOBS jobs in parallel (default is 4)
+  -x | --extra  OPTIONS     Pass OPTIONS directly to hltGetConfiguration
+       --mc                 Run over MC instead of data (the default)
+  -h | --help               Print this help message and exit.
+
+
+  The supported formats for both menu specifications are:
+    - [hltdev:]/path/to/configuration[/Vn]
+    - orcoff:/path/to/configuration[/Vn]
+    - run:runnumber
+  The possible databases are \"hltdev\" (default, used for offline development) and \"orcoff\" 
+  (used for online menus). If no version is specified, the latest one is automatically used.
+  If \"run:\" is used instead, the actual HLT menu for the given run number is looked up and used.
+
+  It's possible to pass arbitrary command line options to hltGetConfiguration, using \"-x --option\".
+  To pass multiple options, enclose them in quotes, or use \"-x\" more than once. 
+
+  Note: '--events' is not supported together with '--size' or '--skip'.
+
+
+Exmples:
+
+  $NAME /dev/CMSSW_4_2_0/GRun
+
+      will test the latest version of the GRun menu.
+
+
+  $NAME /dev/CMSSW_4_2_0/GRun -x --l1-emulator
+
+      will test the latest version of the GRun, running the L1 emulator.
+
+
+  $NAME /users/fwyzard/physics/HLT/V6 -s orcoff:/cdaq/physics/Run2011/1e33/v1.3/HLT/V6
+
+      will test the paths from /users/fwyzard/physics/HLT/V6, using the environment from the 
+      online menu \"1e33\" v1.3 V6
+
+"
+
+# parse command line argument and options
+OPTS=$(getopt -n "$NAME" -o "s:d:i:j:n:k:e:x:h" -l "setup:,dir:,input:,jobs:,size:,skip:,events:,mc,extra:,help" -- "$@")
+
+# invalid options
+if [ $? != 0 ]; then 
+  exit 1
+fi
+
+# reload the parsed options into the environment
+eval set -- "$OPTS"
+
+MENU=""
+SETUP=""
+INPUT=""
+SIZE=100
+SKIP=0
+EVENTS=""
+JOBS=4
+WORKDIR="hltintegration"
+EXTRA=""
+DATA="--data"
+
+SELECTION=""
+
+# parse options
+while true; do
+  case "$1" in
+    "-h" | "--help" )
+      echo "$HELP"
+      exit 0
+      ;;
+    "-s" | "--setup" )
+      SETUP="$2"
+      shift 2
+      ;;
+    "-d" | "--dir" )
+      WORKDIR="$2"
+      shift 2
+      ;;
+    "-i" | "--input" )
+      INPUT="--input $2"
+      shift 2
+      ;;
+    "-n" | "--size" )
+      if [ "$SELECTION" == "complex" ]; then
+        err "'--events' is not supported together with '--size' or '--skip'"
+        exit 1
+      fi
+      SELECTION="simple"
+      SIZE=$2
+      if ((SIZE == 0)) && [ "$SIZE" != "0" ]; then
+        err "$NAME error: invalid option \"$1 $2\""
+        err "Try '$NAME --help' for more information."
+        exit 1
+      fi
+      shift 2
+      ;;
+    "-k" | "--skip" )
+      if [ "$SELECTION" == "complex" ]; then
+        err "'--events' is not supported together with '--size' or '--skip'"
+        exit 1
+      fi
+      SELECTION="simple"
+      SKIP=$2
+      if ((SKIP == 0)) && [ "$SKIP" != "0" ]; then
+        err "$NAME error: invalid option \"$1 $2\""
+        err "Try '$NAME --help' for more information."
+        exit 1
+      fi
+      shift 2
+      ;;
+    "-e" | "--events" )
+      if [ "$SELECTION" == "simple" ]; then
+        err "'--events' is not supported together with '--size' or '--skip'"
+        exit 1
+      fi
+      SELECTION="complex"
+      EVENTS="$2"
+      shift 2
+      ;;
+    "-j" | "--jobs" )
+      JOBS=$2
+      if ((JOBS == 0)); then
+        err "$NAME error: invalid option \"$1 $2\""
+        err "Try '$NAME --help' for more information."
+        exit 1
+      fi
+      shift 2
+      ;;
+    "-x" | "--extra" )
+      EXTRA="$EXTRA $2"
+      shift 2
+      ;;
+    "--mc" )
+      DATA="--mc"
+      shift 1
+      ;;
+    "--" )
+      # inserted by getopt to singal the end of options
+      shift
+      break
+      ;;
+  esac
+done
+
+# parse required argument
+if (( $# == 0 )); then
+  err "$NAME error: missing argument."
+  err "Try '$NAME --help' for more information."
+  exit 1
+elif (( $# > 1 )); then
+  err "$NAME error: too many arguments."
+  err "Try '$NAME --help' for more information."
+  exit 1
+else
+  MENU="$1"
+fi
+
+
+# run the tests
+rm -rf "$WORKDIR"
+mkdir  "$WORKDIR"
+cd     "$WORKDIR"
+
+# find the list of all trigger paths
+TRIGGERS=$(hltListPaths -p "$MENU")
+
+# print some info
+if [ "$SELECTION" == "complex" ]; then
+  log "Will run $(echo $TRIGGERS | wc -w) HLT paths over $(echo $EVENTS | tr ',' '\n' | wc -l) events, with $JOBS jobs in parallel"
+else
+  log "Will run $(echo $TRIGGERS | wc -w) HLT paths over $SIZE events, with $JOBS jobs in parallel"
+fi
+
+# create all dumps
+log "Extracting full menu dump"
+hltGetConfiguration "$MENU" --full --offline $DATA $INPUT --unprescale --process "TEST$(date -u +'%Y%m%d%H%M%S')" $EXTRA > hlt.py
+
+# select which events to run on
+if [ "$SELECTION" == "complex" ]; then
+  cat >> hlt.py << @EOF
+# event selection customised by hltIntegrationTests
+if 'maxEvents' in process.__dict__:
+    delattr(process, 'maxEvents')
+process.source.eventsToProcess = cms.untracked.VEventRange( '$(echo $EVENTS | sed -e"s/,/','/g")' )
+@EOF
+else
+  cat >> hlt.py << @EOF
+# event selection customised by hltIntegrationTests
+if 'maxEvents' in process.__dict__:
+    delattr(process, 'maxEvents')
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32( $SIZE) )
+process.source.skipEvents = cms.untracked.uint32( $SKIP )
+@EOF
+fi
+
+# dump the menu name, and its release template
+log "HLT menu: $(head -n1 hlt.py | cut -c 3-)"
+
+# check the prescale modules
+hltCheckPrescaleModules -w hlt.py
+
+log "Preparing single-path configurations"
+for TRIGGER in $TRIGGERS; do
+  cat > "$TRIGGER".py << @EOF
+from hlt import *
+
+process.hltOutput = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "$TRIGGER.root" ),
+    fastCloning = cms.untracked.bool( False ),
+    outputCommands = cms.untracked.vstring(
+      'drop *',
+      'keep edmTriggerResults_*_*_*',
+    )
+)
+
+process.Output = cms.EndPath( process.hltOutput )
+
+process.schedule = cms.Schedule( process.$TRIGGER, process.Output )
+@EOF
+done
+
+# if a separate setup is requested, create the setup_cff.py file and patch all dumps to use it
+if [ "$SETUP" ]; then
+  log "Extracting setup_cff dump"
+  edmConfigFromDB --cff --configName "$SETUP" --nopaths --services -FUShmDQMOutputService > setup_cff.py
+  sed -i -e's/process = cms.Process(.*)/&\nprocess.load("setup_cff")/' hlt.py $(for TRIGGER in $TRIGGERS; do echo "$TRIGGER".py; done)
+fi
+
+# run all HLT dumps
+cat > .makefile << @EOF
+TRIGGERS=$(echo $TRIGGERS)
+CFGS=\$(TRIGGERS:%=%.py)
+LOGS=\$(TRIGGERS:%=%.log)
+DONE=\$(TRIGGERS:%=%.done)
+
+.PHONY: all clean hlt \$(TRIGGERS)
+
+all: hlt \$(TRIGGERS)
+
+clean:
+	@rm -f hlt.log hlt.done \$(LOGS) \$(DONE)
+
+hlt: hlt.done
+
+hlt.done: hlt.py
+	@echo -e "\tfull menu dump"
+	@cmsRun hlt.py >& hlt.log < /dev/zero && touch hlt.done
+
+\$(TRIGGERS): %: %.done
+
+\$(DONE): %.done: %.py
+	@echo -e "\t\$*"
+	@cmsRun \$*.py >& \$*.log < /dev/zero && touch \$*.done
+
+@EOF
+
+log "Running..."
+make -f .makefile -j$JOBS -k
+
+
+# compare HLT results
+log "Comparing the results of running each path by iteslf with those from the full menu"
+if hltCompareResults; then
+  log "done"
+fi
+
+# done
+cd ..

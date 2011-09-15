@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2010/08/11 15:01:53 $
- * $Revision: 1.208 $
+ * $Date: 2011/06/27 08:33:16 $
+ * $Revision: 1.210 $
  * \author G. Della Ricca
  *
 */
@@ -22,7 +22,7 @@
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"
 #endif
 
-#include "DataFormats/EcalDetId/interface/EEDetId.h"
+#include "DataFormats/EcalDetId/interface/EcalScDetId.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -2881,68 +2881,47 @@ void EESummaryClient::analyze(void) {
   me = dqmStore_->get(prefixME_ + "/EventInfo/reportSummaryMap");
   if ( me ) {
 
-    int nValidChannelsTT[2][20][20];
-    int nGlobalErrorsTT[2][20][20];
-    int nOutOfGeometryTT[2][20][20];
-    for ( int jxdcc = 0; jxdcc < 20; jxdcc++ ) {
-      for ( int jydcc = 0; jydcc < 20; jydcc++ ) {
-        for ( int iside = 0; iside < 2; iside++ ) {
-          nValidChannelsTT[iside][jxdcc][jydcc] = 0;
-          nGlobalErrorsTT[iside][jxdcc][jydcc] = 0;
-          nOutOfGeometryTT[iside][jxdcc][jydcc] = 0;
+    int nValidChannelsSC[2][20][20];
+    int nGlobalErrorsSC[2][20][20];
+    for ( int iside = 0; iside < 2; iside++ ) {
+      for ( int jxdcc = 0; jxdcc < 20; jxdcc++ ) {
+	for ( int jydcc = 0; jydcc < 20; jydcc++ ) {
+          nValidChannelsSC[iside][jxdcc][jydcc] = 0;
+          nGlobalErrorsSC[iside][jxdcc][jydcc] = 0;
         }
       }
     }
 
-    int ttx[200][100];
-    int tty[200][100];
-    for ( int jx = 1; jx <= 100; jx++ ) {
-      for ( int jy = 1; jy <= 100; jy++ ) {
-        for ( int iside = 0; iside < 2; iside++ ) {
-
-          int jxdcc = (jx-1)/5+1;
-          int jydcc = (jy-1)/5+1;
-
-          float xval = meGlobalSummary_[iside]->getBinContent( jx, jy );
-
-          if ( xval >= 0 && xval <= 5 ) {
-            if ( xval != 2 && xval != 5 ) ++nValidChannelsTT[iside][jxdcc-1][jydcc-1];
-            if ( xval == 0 ) ++nGlobalErrorsTT[iside][jxdcc-1][jydcc-1];
-          } else {
-            nOutOfGeometryTT[iside][jxdcc-1][jydcc-1]++;
-          }
-
-          int ix = (iside==0) ? jx-1 : jx-1+100;
-          int iy = jy-1;
-          ttx[ix][iy] = jxdcc-1;
-          tty[ix][iy] = jydcc-1;
-        }
-      }
-    }
-
-    for ( int iz = -1; iz < 2; iz+=2 ) {
+    for (int iside = 0; iside < 2; iside++ ) {
       for ( int ix = 1; ix <= 100; ix++ ) {
         for ( int iy = 1; iy <= 100; iy++ ) {
 
-          int jx = (iz==1) ? 100 + ix : ix;
-          int jy = iy;
+          int jxsc = (ix-1)/5;
+          int jysc = (iy-1)/5;
 
-          float xval = -1;
+          float xval = meGlobalSummary_[iside]->getBinContent( ix, iy );
 
-          if( EEDetId::validDetId(ix, iy, iz) ) {
-
-            int TTx = ttx[jx-1][jy-1];
-            int TTy = tty[jx-1][jy-1];
-
-            int iside = (iz==1) ? 1 : 0;
-
-            if( nValidChannelsTT[iside][TTx][TTy] != 0 )
-              xval = 1.0 - float(nGlobalErrorsTT[iside][TTx][TTy])/float(nValidChannelsTT[iside][TTx][TTy]);
-
-            me->setBinContent( jx, jy, xval );
-
+          if ( xval >= 0 && xval <= 5 ) {
+            if ( xval != 2 && xval != 5 ) ++nValidChannelsSC[iside][jxsc][jysc];
+            if ( xval == 0 ) ++nGlobalErrorsSC[iside][jxsc][jysc];
           }
+
         }
+      }
+    }
+
+    for (int iside = 0; iside < 2; iside++ ) {
+      for ( int jxsc = 0; jxsc < 20; jxsc++ ) {
+	for ( int jysc = 0; jysc < 20; jysc++ ) {
+
+	  float scval = -1;
+
+	  if( nValidChannelsSC[iside][jxsc][jysc] != 0 )
+	    scval = 1.0 - float(nGlobalErrorsSC[iside][jxsc][jysc])/float(nValidChannelsSC[iside][jxsc][jysc]);
+
+	  me->setBinContent( jxsc+iside*20+1, jysc+1, scval );
+
+	}
       }
     }
 

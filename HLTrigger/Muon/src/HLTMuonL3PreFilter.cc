@@ -46,7 +46,7 @@ HLTMuonL3PreFilter::HLTMuonL3PreFilter(const ParameterSet& iConfig) :
    max_Dz_    (iConfig.getParameter<double> ("MaxDz")),
    min_Pt_    (iConfig.getParameter<double> ("MinPt")),
    nsigma_Pt_  (iConfig.getParameter<double> ("NSigmaPt")), 
-   saveTag_  (iConfig.getUntrackedParameter<bool> ("SaveTag")) 
+   saveTags_  (iConfig.getParameter<bool>("saveTags")) 
 {
 
    LogDebug("HLTMuonL3PreFilter")
@@ -73,7 +73,8 @@ HLTMuonL3PreFilter::fillDescriptions(edm::ConfigurationDescriptions& description
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("BeamSpotTag",edm::InputTag("hltOfflineBeamSpot"));
   desc.add<edm::InputTag>("CandTag",edm::InputTag("hltL3MuonCandidates"));
-  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltDiMuonL2PreFiltered0"));
+  //  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltDiMuonL2PreFiltered0"));
+  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag(""));
   desc.add<int>("MinN",1);
   desc.add<double>("MaxEta",2.5);
   desc.add<int>("MinNhits",0);
@@ -81,7 +82,7 @@ HLTMuonL3PreFilter::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<double>("MaxDz",9999.0);
   desc.add<double>("MinPt",3.0);
   desc.add<double>("NSigmaPt",0.0);
-  desc.addUntracked<bool>("SaveTag",false);
+  desc.add<bool>("saveTags",false);
   descriptions.add("hltMuonL3PreFilter",desc);
 }
 
@@ -104,7 +105,7 @@ HLTMuonL3PreFilter::filter(Event& iEvent, const EventSetup& iSetup)
 
    // get hold of trks
    Handle<RecoChargedCandidateCollection> mucands;
-   if(saveTag_)filterproduct->addCollectionTag(candTag_);
+   if(saveTags_)filterproduct->addCollectionTag(candTag_);
    iEvent.getByLabel (candTag_,mucands);
    // sort them by L2Track
    std::map<reco::TrackRef, std::vector<RecoChargedCandidateRef> > L2toL3s;
@@ -146,30 +147,31 @@ HLTMuonL3PreFilter::filter(Event& iEvent, const EventSetup& iSetup)
        RecoChargedCandidateRef & cand=L2toL3s_it->second[iTk];
        TrackRef tk = cand->track();
 
-       LogDebug("HLTMuonL3PreFilter") << " Muon in loop, q*pt= " << tk->charge()*tk->pt() << ", eta= " << tk->eta() << ", hits= " << tk->numberOfValidHits() << ", d0= " << tk->d0() << ", dz= " << tk->dz();
+       LogDebug("HLTMuonL3PreFilter") << " Muon in loop, q*pt= " << tk->charge()*tk->pt() <<" (" << cand->charge()*cand->pt() << ") " << ", eta= " << tk->eta() << " (" << cand->eta() << ") " << ", hits= " << tk->numberOfValidHits() << ", d0= " << tk->d0() << ", dz= " << tk->dz();
        
        // eta cut
-       if (fabs(tk->eta())>max_Eta_) continue;
+       if (fabs(cand->eta())>max_Eta_) continue;
        
        // cut on number of hits
        if (tk->numberOfValidHits()<min_Nhits_) continue;
        
        //dr cut
        //if (fabs(tk->d0())>max_Dr_) continue;
-       if (fabs(tk->dxy(beamSpot.position()))>max_Dr_) continue;
-       
+       if (fabs( (- (cand->vx()-beamSpot.x0()) * cand->py() + (cand->vy()-beamSpot.y0()) * cand->px() ) / cand->pt() ) >max_Dr_) continue;
+
        //dz cut
-       if (fabs(tk->dz())>max_Dz_) continue;
+       if (fabs((cand->vz()-beamSpot.z0()) - ((cand->vx()-beamSpot.x0())*cand->px()+(cand->vy()-beamSpot.y0())*cand->py())/cand->pt() * cand->pz()/cand->pt())>max_Dz_) continue;
        
        // Pt threshold cut
-       double pt = tk->pt();
+       double pt = cand->pt();
        double err0 = tk->error(0);
        double abspar0 = fabs(tk->parameter(0));
        double ptLx = pt;
        // convert 50% efficiency threshold to 90% efficiency threshold
        if (abspar0>0) ptLx += nsigma_Pt_*err0/abspar0*pt;
-       LogTrace("HLTMuonL3PreFilter") << " ...Muon in loop, pt= "
-				      << pt << ", ptLx= " << ptLx;
+       LogTrace("HLTMuonL3PreFilter") << " ...Muon in loop, trackkRef pt= "
+				      << tk->pt() << ", ptLx= " << ptLx 
+				      << " cand pT " << cand->pt();
       if (ptLx<min_Pt_) continue;
       
       filterproduct->addObject(TriggerMuon,cand);
@@ -184,8 +186,7 @@ HLTMuonL3PreFilter::filter(Event& iEvent, const EventSetup& iSetup)
      RecoChargedCandidateRef candref =  RecoChargedCandidateRef(vref[i]);
      TrackRef tk = candref->get<TrackRef>();
      LogDebug("HLTMuonL3PreFilter")
-       << " Track passing filter: pt= " << tk->pt() << ", eta: " 
-       << tk->eta();
+       << " Track passing filter: trackRef pt= " << tk->pt() << " (" << candref->pt() << ") " << ", eta: " << tk->eta() << " (" << candref->eta() << ") ";
    }
    
    // filter decision

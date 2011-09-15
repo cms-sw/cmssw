@@ -1,27 +1,35 @@
-#include <cassert>
+/* 
+ *  \class TPNCor
+ *
+ *  $Date: 2008/04/09 14:12:06 $
+ *  \author: Julie Malcles - CEA/Saclay
+ */
+
+#include <CalibCalorimetry/EcalLaserAnalyzer/interface/TPNCor.h>
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include <sstream>
 #include <iostream>
 #include <iomanip>
 #include <fstream>
+
+#include "math.h"
+
 using namespace std;
+//using namespace edm;
 
-#include "CalibCalorimetry/EcalLaserAnalyzer/interface/TPNCor.h"
+//ClassImp(TPNCor)
 
-
-// ClassImp(TPNCor)
-
-TPNCor::TPNCor( string filename )
+// Constructor...
+TPNCor::TPNCor(string filename)
 {
-
 
   // Initialize
 
   isFileOK=0;
 
-  for(int i=0;i<2;i++){
-    for(int k=0;k<10;k++){
-      for(int j=0;j<3;j++){
-	corParams[i][k][j] = 0.0  ;
-      }
+  for(int i=0;i<iSizePar;i++){
+    for(int j=0;j<iSizeGain;j++){
+      corParams[j][i] = 0.0   ;
     }
   }
   
@@ -30,63 +38,57 @@ TPNCor::TPNCor( string filename )
   FILE *test;
   test = fopen(filename.c_str(),"r");
   char c;
-  int gain=0;
+  int gain;
   double aa, bb, cc;
+  ifstream fin;
   
-  int kk=0;
   if( test ) {
     fclose( test );
-    ifstream fin(filename.c_str(),ifstream::in);
-   
+    fin.open(filename.c_str());
     while( (c=fin.peek()) != EOF )
       {
-	fin >> aa >> bb >> cc;
+	fin >> gain>> aa >> bb >> cc;
 	
-	if(gain<2){
-	  corParams[gain][kk][0]=aa;
-	  corParams[gain][kk][1]=bb;
-	  corParams[gain][kk][2]=cc;
-	}
-
-	kk++;
-	if(kk==10){
-	  gain=1;
-	  kk=0;
+	if(gain<iSizeGain){
+	  corParams[gain][0]=aa;
+	  corParams[gain][1]=bb;
+	  corParams[gain][2]=cc;
 	}
       }
     isFileOK=1;
     fin.close();
   }else {
-    cout <<" No PN linearity corrections file found, no correction will be applied "<< endl;    
+    cout <<" No PN linearity corrections file found, no correction will be applied "<< endl;
   }
 
- 
 }
 
-TPNCor::~TPNCor() 
-{
- 
+// Destructor
+TPNCor::~TPNCor()
+{ 
+
+  
 }
 
-double
-TPNCor::getPNCorrectionFactor( double val0 , int gain )
+double TPNCor::getPNCorrectionFactor( double val0 , int gain )
 {
-  double cor=0.0;  
+  
+  double cor=0;
   double corr=1.0;
-
   double pn=val0;
   double xpn=val0/1000.0;
 
   if( isFileOK==0) return 1.0;
-  assert(  gain<2 );
-  
-  cor=xpn*(corParams[gain][0][0] +xpn*(corParams[gain][0][1]+xpn*corParams[gain][0][2]));
-  
-  if(pn!=0) corr = 1.0 - cor/pn;
-  else corr=1.0;
 
+  if( gain> iSizeGain ) cout << "Unknown gain, gain has to be lower than "<<iSizeGain << endl;
+  
+  if( gain< iSizeGain ) {
+    
+    cor=xpn*(corParams[gain][0] +xpn*(corParams[gain][1]+xpn*corParams[gain][2]));
+    
+    if(pn!=0) corr = 1.0 - cor/pn;
+    else corr=1.0;
+  } 
   
   return corr;
-  
-  
 }

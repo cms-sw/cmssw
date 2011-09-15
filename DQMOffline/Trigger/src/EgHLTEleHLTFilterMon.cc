@@ -15,14 +15,14 @@ EleHLTFilterMon::EleHLTFilterMon(const std::string& filterName,TrigCodes::TrigBi
   filterName_(filterName),
   filterBit_(filterBit)
 {
-  bool doChargeSep = true;
-  bool monHLTFailedEle = true;
+  bool doChargeSep = false;
+  bool monHLTFailedEle = false;
   bool doFakeRate=false;
   bool doTagAndProbe=false;
 
   eleMonElems_.push_back(new MonElemContainer<OffEle>());
   //---Morse-------
-  eleMonElems_.push_back(new MonElemContainer<OffEle>("_cut"," cut, debug hists ",new EgHLTDQMVarCut<OffEle>(~0x0,&OffEle::cutCode)));
+  //eleMonElems_.push_back(new MonElemContainer<OffEle>("_cut"," cut, debug hists ",new EgHLTDQMVarCut<OffEle>(~0x0,&OffEle::cutCode)));
   //-----------------
   if(doChargeSep){
     eleMonElems_.push_back(new MonElemContainer<OffEle>("_posCharge"," q=+1 ",new ChargeCut<OffEle>(1)));
@@ -55,8 +55,8 @@ EleHLTFilterMon::EleHLTFilterMon(const std::string& filterName,TrigCodes::TrigBi
 				  filterName_+"_gsfEle_effVsEt"+eleEffHists_[i]->name(),bins.et,&OffEle::et,masks);
     MonElemFuncs::initStdEffHists(eleEffHists_[i]->cutMonElems(),
 				  filterName_+"_gsfEle_effVsEta"+eleEffHists_[i]->name(),bins.eta,&OffEle::eta,masks); 
-    MonElemFuncs::initStdEffHists(eleEffHists_[i]->cutMonElems(),
-				  filterName_+"_gsfEle_effVsPhi"+eleEffHists_[i]->name(),bins.phi,&OffEle::phi,masks); 
+    /*  MonElemFuncs::initStdEffHists(eleEffHists_[i]->cutMonElems(),
+	filterName_+"_gsfEle_effVsPhi"+eleEffHists_[i]->name(),bins.phi,&OffEle::phi,masks); */
     // MonElemFuncs::initStdEffHists(eleEffHists_[i]->cutMonElems(),
     //			  filterName_+"_gsfEle_effVsCharge"+eleEffHists_[i]->name(),bins.charge,&OffEle::chargeF);
   }

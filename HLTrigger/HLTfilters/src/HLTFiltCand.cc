@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2008/05/09 05:59:22 $
- *  $Revision: 1.12 $
+ *  $Date: 2011/05/01 08:43:49 $
+ *  $Revision: 1.15 $
  *
  *  \author Martin Grunewald
  *
@@ -52,7 +52,7 @@ HLTFiltCand::HLTFiltCand(const edm::ParameterSet& iConfig) :
   mhtsTag_ (iConfig.getParameter<edm::InputTag>("mhtsTag")),
   trckTag_ (iConfig.getParameter<edm::InputTag>("trckTag")),
   ecalTag_ (iConfig.getParameter<edm::InputTag>("ecalTag")),
-  saveTags_(iConfig.getUntrackedParameter<bool>("saveTags",false)),
+  saveTags_(iConfig.getParameter<bool>("saveTags")),
   min_Pt_  (iConfig.getParameter<double>("MinPt"))
 {
   LogDebug("") << "MinPt cut " << min_Pt_

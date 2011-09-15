@@ -461,8 +461,8 @@ process.hltLevel1GTSeed.L1GtObjectMapTag = cms.InputTag('hltL1GtObjectMap')
 # InputTag for L1 muon collection
 #process.hltLevel1GTSeed.L1MuonCollectionTag = cms.InputTag('l1extraParticles')
     
-# saveTags for AOD book-keeping
-#process.hltLevel1GTSeed.saveTags = cms.untracked.bool(True)
+# saveTagsfor AOD book-keeping
+#process.hltLevel1GTSeed.saveTags = cms.bool( True )
 
 
 # path to be run

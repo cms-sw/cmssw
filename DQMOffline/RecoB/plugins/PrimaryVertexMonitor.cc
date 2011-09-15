@@ -140,48 +140,51 @@ void PrimaryVertexMonitor::analyze(const edm::Event& iEvent, const edm::EventSet
 
 void PrimaryVertexMonitor::vertexPlots(const Vertex & v, const BeamSpot& beamSpot, int i)
 {
-    float weight = 0;
-    for(reco::Vertex::trackRef_iterator t = v.tracks_begin(); 
-	t!=v.tracks_end(); t++) weight+= v.trackWeight(*t);
-    trksWeight[i]->Fill(weight);
-    nbtksinvtx[i]->Fill(v.tracksSize());
-
-    vtxchi2[i]->Fill(v.chi2());
-    vtxndf[i]->Fill(v.ndof());
-    vtxprob[i]->Fill(ChiSquaredProbability(v.chi2() ,v.ndof()));
 
     if (!v.isValid()) type[i]->Fill(2.);
     else if (v.isFake()) type[i]->Fill(1.);
     else type[i]->Fill(0.);
 
-    xrec[i]->Fill(v.position().x());
-    yrec[i]->Fill(v.position().y());
-    zrec[i]->Fill(v.position().z());
+    if (v.isValid() && !v.isFake()) {
+      float weight = 0;
+      for(reco::Vertex::trackRef_iterator t = v.tracks_begin(); 
+	  t!=v.tracks_end(); t++) weight+= v.trackWeight(*t);
+      trksWeight[i]->Fill(weight);
+      nbtksinvtx[i]->Fill(v.tracksSize());
 
-    float xb = beamSpot.x0() + beamSpot.dxdz() * (v.position().z() - beamSpot.z0());
-    float yb = beamSpot.y0() + beamSpot.dydz() * (v.position().z() - beamSpot.z0());
-    xDiff[i]->Fill((v.position().x() - xb)*10000);
-    yDiff[i]->Fill((v.position().y() - yb)*10000);
+      vtxchi2[i]->Fill(v.chi2());
+      vtxndf[i]->Fill(v.ndof());
+      vtxprob[i]->Fill(ChiSquaredProbability(v.chi2() ,v.ndof()));
 
-    xerr[i]->Fill(v.xError()*10000);
-    yerr[i]->Fill(v.yError()*10000);
-    zerr[i]->Fill(v.zError()*10000);
-    xerrVsTrks[i]->Fill(weight, v.xError()*10000);
-    yerrVsTrks[i]->Fill(weight, v.yError()*10000);
-    zerrVsTrks[i]->Fill(weight, v.zError()*10000);
+      xrec[i]->Fill(v.position().x());
+      yrec[i]->Fill(v.position().y());
+      zrec[i]->Fill(v.position().z());
 
-    nans[i]->Fill(1.,std::isnan(v.position().x())*1.);
-    nans[i]->Fill(2.,std::isnan(v.position().y())*1.);
-    nans[i]->Fill(3.,std::isnan(v.position().z())*1.);
+      float xb = beamSpot.x0() + beamSpot.dxdz() * (v.position().z() - beamSpot.z0());
+      float yb = beamSpot.y0() + beamSpot.dydz() * (v.position().z() - beamSpot.z0());
+      xDiff[i]->Fill((v.position().x() - xb)*10000);
+      yDiff[i]->Fill((v.position().y() - yb)*10000);
 
-    int index = 3;
-    for (int i = 0; i != 3; i++) {
-      for (int j = i; j != 3; j++) {
-	index++;
-	nans[i]->Fill(index*1., std::isnan(v.covariance(i, j))*1.);
-	// in addition, diagonal element must be positive
-	if (j == i && v.covariance(i, j) < 0) {
-	  nans[i]->Fill(index*1., 1.);
+      xerr[i]->Fill(v.xError()*10000);
+      yerr[i]->Fill(v.yError()*10000);
+      zerr[i]->Fill(v.zError()*10000);
+      xerrVsTrks[i]->Fill(weight, v.xError()*10000);
+      yerrVsTrks[i]->Fill(weight, v.yError()*10000);
+      zerrVsTrks[i]->Fill(weight, v.zError()*10000);
+
+      nans[i]->Fill(1.,std::isnan(v.position().x())*1.);
+      nans[i]->Fill(2.,std::isnan(v.position().y())*1.);
+      nans[i]->Fill(3.,std::isnan(v.position().z())*1.);
+
+      int index = 3;
+      for (int i = 0; i != 3; i++) {
+	for (int j = i; j != 3; j++) {
+	  index++;
+	  nans[i]->Fill(index*1., std::isnan(v.covariance(i, j))*1.);
+	  // in addition, diagonal element must be positive
+	  if (j == i && v.covariance(i, j) < 0) {
+	    nans[i]->Fill(index*1., 1.);
+	  }
 	}
       }
     }

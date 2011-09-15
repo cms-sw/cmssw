@@ -1,5 +1,5 @@
 //
-// $Id: Jet.h,v 1.52 2010/12/01 18:38:42 rwolf Exp $
+// $Id: Jet.h,v 1.53 2010/12/11 21:52:31 vadler Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Jet_h
@@ -13,7 +13,7 @@
    'pat' namespace
 
   \author   Steven Lowette, Giovanni Petrucciani, Roger Wolf, Christian Autermann
-  \version  $Id: Jet.h,v 1.52 2010/12/01 18:38:42 rwolf Exp $
+  \version  $Id: Jet.h,v 1.53 2010/12/11 21:52:31 vadler Exp $
 */
 
 
@@ -52,6 +52,10 @@ namespace pat {
   typedef edm::RefVector<JetCollection> JetRefVector;
 }
 
+namespace reco {
+  /// pipe operator (introduced to use pat::Jet with PFTopProjectors)
+  std::ostream& operator<<(std::ostream& out, const pat::Jet& obj);
+}
 
 // Class definition
 namespace pat {
@@ -464,6 +468,9 @@ namespace pat {
       void updateFwdGenJetFwdRef( edm::Ref<reco::GenJetCollection> updateRef ) {
 	genJetFwdRef_ = edm::FwdRef<reco::GenJetCollection>( updateRef, genJetFwdRef_.backRef() );
       }
+
+      /// pipe operator (introduced to use pat::Jet with PFTopProjectors)
+      friend std::ostream& reco::operator<<(std::ostream& out, const Jet& obj);
 
     protected:
 

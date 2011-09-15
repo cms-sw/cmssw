@@ -7,19 +7,15 @@ class NUEvent {
   
   
  public:
-  NUEvent() : NParticles_(0), NInteractions_(0) {}
-  virtual ~NUEvent() {}
+  NUEvent() {}
   void reset() {
     NUParticles_.clear();
     NUInteractions_.clear();
-    NParticles_ = 0;
-    NInteractions_ = 0;  
   }
 
   class NUParticle {
   public:
     NUParticle() : px(0.), py(0.), pz(0.),mass(0.),id(0) {}
-    virtual ~NUParticle() {}
     float px; 
     float py;
     float pz;
@@ -31,7 +27,6 @@ class NUEvent {
   class NUInteraction {
   public:
     NUInteraction() : first(0), last(0) {}
-    virtual ~NUInteraction() {}
     unsigned first; 
     unsigned last;
   };   
@@ -39,12 +34,10 @@ class NUEvent {
 
   void addNUParticle( const NUParticle& ptc ) {
     NUParticles_.push_back(ptc);
-    ++NParticles_;
   }
 
   void addNUInteraction( const NUInteraction& idx ) {
     NUInteractions_.push_back(idx);
-    ++NInteractions_;
   }
 
   const std::vector<NUEvent::NUParticle>& theNUParticles() 
@@ -53,16 +46,14 @@ class NUEvent {
   const std::vector<NUEvent::NUInteraction>& theNUInteractions() 
     {return NUInteractions_;}
 
-  const unsigned nParticles() const { return NParticles_; }
+  const unsigned nParticles() const { return NUParticles_.size(); }
 
-  const unsigned nInteractions() const { return NInteractions_; }
+  const unsigned nInteractions() const { return NUInteractions_.size(); }
 
  private:
 
   std::vector<NUEvent::NUParticle> NUParticles_;
   std::vector<NUEvent::NUInteraction> NUInteractions_;
-  unsigned NParticles_;
-  unsigned NInteractions_;
   
 };
 
