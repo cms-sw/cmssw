@@ -13,7 +13,7 @@
 //
 // Original Author:  Erik Butz
 //         Created:  Tue Dec 11 14:03:05 CET 2007
-// $Id: TrackerOfflineValidation.cc,v 1.50 2011/07/04 09:24:13 wanx Exp $
+// $Id: TrackerOfflineValidation.cc,v 1.51 2011/07/27 15:45:48 wanx Exp $
 //
 //
 
@@ -95,7 +95,8 @@ private:
 		      ResXprimeHisto(), NormResXprimeHisto(), 
 		      ResYprimeHisto(), NormResYprimeHisto(),
                       ResXvsXProfile(), ResXvsYProfile(),
-                      ResYvsXProfile(), ResYvsYProfile() {} 
+                      ResYvsXProfile(), ResYvsYProfile(),
+                      LocalX(), LocalY() {} 
     TH1* ResHisto;
     TH1* NormResHisto;
     TH1* ResYHisto;
