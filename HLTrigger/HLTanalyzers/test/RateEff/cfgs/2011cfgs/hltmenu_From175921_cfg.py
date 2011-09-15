@@ -28,17 +28,12 @@ run:{
 data:{ 
  # Enter the length of 1 lumi section and prescale factor of the dataset
  lumiSectionLength = 23.3;
- lumiScaleFactor = 1.93; #consistent with runLumiblockList/ 5e33
+ lumiScaleFactor = 1.97; #consistent with runLumiblockList/ 5e33
  prescaleNormalization = 1;
 
-
-
-##run 173236
 runLumiblockList = ( 
-   (175921, 57, 176 ) # (runnr, minLumiBlock, maxLumiBlock)
+   (175921,  60, 176) # (runnr, minLumiBlock, maxLumiBlock)
   );
-
-
 
 };
 
