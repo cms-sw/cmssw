@@ -2,6 +2,7 @@
 #define Fireworks_TableWidget_FWTextTreeCellRenderer_h
 
 #include <cassert>
+#include <iostream>
 
 #include "Fireworks/TableWidget/interface/FWTextTableCellRenderer.h"
 #include "Fireworks/TableWidget/interface/GlobalContexts.h"
@@ -27,7 +28,8 @@ public:
         m_editor(0),
         m_showEditor(false),
         m_isParent(false),
-        m_isOpen(false)
+        m_isOpen(false),
+        m_blackIcon(true)
    {}
 
    // Where to find the icons
@@ -42,31 +44,38 @@ public:
    }
 
    static
-   const TGPicture* closedImage()
+   const TGPicture* closedImage(bool isBlack = true)
    {
-      static const TGPicture* s_picture=gClient->GetPicture(coreIcondir()+"arrow-black-right.png");
-      return s_picture;
+      static const TGPicture* s_picture_white = gClient->GetPicture(coreIcondir()+"arrow-white-right-blackbg.png");
+      static const TGPicture* s_picture_black = gClient->GetPicture(coreIcondir()+"arrow-black-right.png");
+
+      return isBlack ? s_picture_black : s_picture_white;
    }
 
    static
-   const TGPicture* openedImage()
+   const TGPicture* openedImage(bool isBlack = true)
    {
-      static const TGPicture* s_picture=gClient->GetPicture(coreIcondir()+"arrow-black-down.png");
-      return s_picture;
+      static const TGPicture* s_picture_white = gClient->GetPicture(coreIcondir()+"arrow-white-down-blackbg.png");
+      static const TGPicture* s_picture_black = gClient->GetPicture(coreIcondir()+"arrow-black-down.png");
+
+      return isBlack ? s_picture_black : s_picture_white;
    }
+
 
    static
    int iconWidth()
    {
-      return  openedImage()->GetWidth() + s_iconOffset;
+      return  openedImage(true)->GetWidth() + s_iconOffset;
    }
 
    virtual void setIndentation(int indentation = 0) { m_indentation = indentation; }
    virtual void setCellEditor(TGTextEntry *editor) { m_editor = editor; }
    virtual void showEditor(bool value) { m_showEditor = value; }
+ 
 
    void setIsParent(bool value) {m_isParent = value; }
    void setIsOpen(bool value) {m_isOpen = value; }
+   void setBlackIcon(bool value) { m_blackIcon = value; }
 
    virtual UInt_t width() const
    {
@@ -116,13 +125,9 @@ public:
       } 
       int xOffset = 0;
       if(m_isParent) {
-         if(m_isOpen) {
-            openedImage()->Draw(iID,graphicsContext()->GetGC(),m_indentation+iX,iY +2);
-            xOffset += openedImage()->GetWidth() + s_iconOffset;
-         } else {
-            closedImage()->Draw(iID,graphicsContext()->GetGC(),m_indentation+iX,iY +2);
-            xOffset += closedImage()->GetWidth() + s_iconOffset;
-         }
+         const TGPicture* img = m_isOpen ?  openedImage(m_blackIcon) : closedImage(m_blackIcon);         
+         img->Draw(iID,graphicsContext()->GetGC(),m_indentation+iX,iY +2);
+         xOffset += img->GetWidth() + s_iconOffset;
       }
 
       FontMetrics_t metrics;
@@ -139,6 +144,7 @@ private:
    bool           m_showEditor;
    bool           m_isParent;
    bool           m_isOpen;
+   bool           m_blackIcon;
    const TGGC*    m_editContext;
 };
 

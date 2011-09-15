@@ -2,8 +2,11 @@
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
+#include "DetectorDescription/Core/interface/DDRoot.h"
 #include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDAlgo.h"
 #include "DetectorDescription/ExprAlgo/interface/AlgoPos.h"
+#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Base/interface/DDException.h"
 
 #include "DetectorDescription/Core/interface/DDSpecifics.h"

@@ -35,6 +35,11 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     recoverEEVFE  = cms.bool(False),
     recoverEBFE = cms.bool(True),
     recoverEEFE = cms.bool(True),
+    #db statuses for which recovery in EE should not be attempted           
+    dbStatusToBeExcludedEE = cms.vint32(
+                                        142
+                                        ), # dead,LV off
+                            
     # --- logWarnings for saturated DeadFEs
     # if the logWarningThreshold is negative the Algo will not try recovery (in EE is not tested we may need negative threshold e.g. -1.e+9)
     # if you want to enable recovery but you don't wish to throw logWarnings put the logWarningThresholds very high e.g +1.e+9

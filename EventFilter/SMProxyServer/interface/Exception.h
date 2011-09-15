@@ -1,4 +1,4 @@
-// $Id: Exception.h,v 1.1.4.2 2011/03/07 12:01:12 mommsen Exp $
+// $Id: Exception.h,v 1.2 2011/03/07 15:41:54 mommsen Exp $
 /// @file: Exception.h 
 
 #ifndef EventFilter_SMProxyServer_Exception_h
@@ -13,8 +13,8 @@ namespace smproxy {
      List of exceptions thrown by the SMProxyServer
 
      $Author: mommsen $
-     $Revision: 1.1.4.2 $
-     $Date: 2011/03/07 12:01:12 $
+     $Revision: 1.2 $
+     $Date: 2011/03/07 15:41:54 $
   */
 }
 
@@ -72,6 +72,11 @@ XCEPT_DEFINE_EXCEPTION(smproxy, DQMArchival)
  * State transition error
  */
 XCEPT_DEFINE_EXCEPTION(smproxy, StateTransition)
+
+/**
+ * Corrupted events alarm
+ */
+XCEPT_DEFINE_EXCEPTION(smproxy, CorruptedEvents)
 
 
 #endif // EventFilter_SMProxyServer_Exception_h

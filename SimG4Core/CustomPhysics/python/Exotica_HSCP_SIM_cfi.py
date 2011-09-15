@@ -7,21 +7,21 @@ def customise(process):
 	SLHA_FILE = process.generator.slhaFile.value()
 	PROCESS_FILE = process.generator.processFile.value()
 	PARTICLE_FILE = process.generator.particleFile.value()
-	USE_REGGE = process.generator.useregge.value()
+	
 
 	process.load("SimG4Core.CustomPhysics.CustomPhysics_cfi")
 	process.customPhysicsSetup.particlesDef = PARTICLE_FILE
-	process.customPhysicsSetup.reggeModel = USE_REGGE
-	process.g4SimHits.Watchers = cms.VPSet (
-		cms.PSet(
-		type = cms.string('RHStopTracer'),
-		RHStopTracer = cms.PSet(
-		verbose = cms.untracked.bool (False),
-		traceParticle = cms.string ("(~|tau1).*"),
-		stopRegularParticles = cms.untracked.bool (False)
-		)        
-		)
-		)
+
+        process.g4SimHits.Watchers = cms.VPSet (
+            cms.PSet(
+            type = cms.string('RHStopTracer'),
+            RHStopTracer = cms.PSet(
+            verbose = cms.untracked.bool (False),
+            traceParticle = cms.string ("(~|tau1).*"),
+            stopRegularParticles = cms.untracked.bool (False)
+            )        
+            )
+            )
 
 	
 	if FLAVOR=="gluino" or FLAVOR=="stop":

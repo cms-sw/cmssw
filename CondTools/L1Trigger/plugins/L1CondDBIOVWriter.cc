@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Sun Mar  2 20:09:46 CET 2008
-// $Id: L1CondDBIOVWriter.cc,v 1.18 2010/02/10 02:53:44 wsun Exp $
+// $Id: L1CondDBIOVWriter.cc,v 1.19 2010/02/16 21:59:24 wsun Exp $
 //
 //
 
@@ -49,7 +49,8 @@ L1CondDBIOVWriter::L1CondDBIOVWriter(const edm::ParameterSet& iConfig)
    : m_tscKey( iConfig.getParameter<std::string> ("tscKey") ),
      m_ignoreTriggerKey( iConfig.getParameter<bool> ("ignoreTriggerKey") ),
      m_logKeys( iConfig.getParameter<bool>( "logKeys" ) ),
-     m_logTransactions( iConfig.getParameter<bool>( "logTransactions" ) )
+     m_logTransactions( iConfig.getParameter<bool>( "logTransactions" ) ),
+     m_forceUpdate( iConfig.getParameter<bool>( "forceUpdate" ) )
 {
    //now do what ever initialization is needed
    typedef std::vector<edm::ParameterSet> ToSave;
@@ -162,7 +163,7 @@ L1CondDBIOVWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
    // sub-records.
    bool throwException = false ;
 
-   if( triggerKeyIOVUpdated )
+   if( triggerKeyIOVUpdated || m_forceUpdate )
      {
        // Loop over record@type in L1TriggerKey
        L1TriggerKey::RecordToKey::const_iterator itr =

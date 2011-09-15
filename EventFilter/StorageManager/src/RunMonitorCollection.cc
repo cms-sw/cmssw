@@ -1,4 +1,4 @@
-// $Id: RunMonitorCollection.cc,v 1.14.4.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: RunMonitorCollection.cc,v 1.15 2011/03/07 15:31:32 mommsen Exp $
 /// @file: RunMonitorCollection.cc
 
 #include <string>
@@ -164,8 +164,7 @@ namespace stor {
   {
     if ( ! alarmParams_.isProductionSystem_ ) return;
     
-    if ( (val.second.previousCount == 0)
-      || (val.second.count - val.second.previousCount > alarmParams_.unwantedEvents_) )
+    if ( (val.second.count - val.second.previousCount) > alarmParams_.unwantedEvents_ )
     {
       std::ostringstream msg;
       msg << "Received " << val.second.count << " events"

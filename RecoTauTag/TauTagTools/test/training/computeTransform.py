@@ -51,96 +51,32 @@ signal_scale = signal_histo.Integral()/signal_denominator_histo.Integral()
 background_scale = \
         background_histo.Integral()/background_denominator_histo.Integral()
 
+signal_integral = signal_histo.GetIntegral()
+background_integral = background_histo.GetIntegral()
+
 min = signal_histo.GetBinCenter(1)
 max = signal_histo.GetBinCenter(signal_histo.GetNbinsX())
+
+transform_values = []
+
+last_value = -1
+for bin in range(1, signal_histo.GetNbinsX()+1):
+    bin_center = signal_histo.GetBinCenter(bin)
+    signal_passing = 1.0 - signal_integral[bin]
+    background_passing = 1.0 - background_integral[bin]
+    transform_value = last_value
+    if signal_passing > 0:
+        transform_value = ((signal_passing*signal_scale) /
+                           (signal_passing*signal_scale +
+                            background_passing*background_scale))
+        last_value = transform_value
+    transform_values.append(transform_value)
 
 output_object = cms.PSet(
     min = cms.double(min),
     max = cms.double(max),
+    transform = cms.vdouble(transform_values)
 )
-
-transform_values = []
-
-# Get the cut for a signal efficiencies of 60%, 40%, 20% (loose, medium, tight)
-thresholds = [0.7, 0.6, 0.5]
-threshold_values = []
-
-def make_cdf(histogram):
-    # Build the cumulative distribution function from a histogram.  We don't add
-    # points on the graph where the CDF isn't changing (and we aren't on the
-    # starting or ending plateu).  This is due to bad
-    # statistics.
-    points = []
-    integral = histogram.GetIntegral()
-    for ibin in range(0, histogram.GetNbinsX()+1):
-        bin_center = histogram.GetBinCenter(ibin+1)
-        cdf = integral[ibin]
-        # Check if we have a new highest point to add, or are on a plateu
-        if not points or cdf < 1e-6 or (1-cdf) < 1e-6 or cdf > points[-1][1]:
-            points.append((bin_center, cdf))
-    output = ROOT.TGraph(len(points))
-    for i, (x, y) in enumerate(points):
-        output.SetPoint(i, x, y)
-    return output
-
-def compute_transform(raw_cut, signal_cdf, signal_scale,
-                      background_cdf, bkg_scale):
-    """Compute the regularization transformation function"""
-
-    signal_passing = (1.0 - signal_cdf.Eval(raw_cut))
-    background_passing = (1.0 - background_cdf.Eval(raw_cut))
-
-    signal_passing_weighted = signal_passing*signal_scale
-    background_passing_weighted = background_passing*background_scale
-
-    denominator = signal_passing_weighted + background_passing_weighted
-    output = {
-        'raw_cut' : raw_cut,
-        'transform' : denominator and (signal_passing_weighted/denominator) or 0,
-        'signal_passing' : signal_passing,
-        'background_passing' : background_passing,
-        'signal_passing_weighted' : signal_passing_weighted,
-        'background_passing_weighted' : background_passing_weighted,
-    }
-    return output
-
-# Build the cumulative distribution functions
-print "Building signal c.d.f"
-signal_cdf = make_cdf(signal_histo)
-print "Building background c.d.f"
-background_cdf = make_cdf(background_histo)
-transform = lambda x: compute_transform(x, signal_cdf, signal_scale,
-                                        background_cdf, background_scale)
-npoints = 1000
-for ix in range(npoints):
-    x = min + ix*(max-min)*1.0/npoints
-    transform_result = transform(x)
-    transform_values.append(transform_result['transform'])
-    # Check if this is one of our cuts
-    if thresholds and transform_result['signal_passing'] < thresholds[0]:
-        print "***********"
-        print x, transform_result
-        thresholds.pop(0)
-        threshold_values.append((x, transform_result['transform']))
-
-output_object.transform = cms.vdouble(transform_values)
-# Store information about the weight of this decay mode for signal
-output_object.signalDecayModeWeight = cms.double(signal_scale)
-output_object.backgroundDecayModeWeight = cms.double(background_scale)
-
-print threshold_values
-
-# On the chance that a decay mode has nothing in it
-if not threshold_values:
-    threshold_values = [(-1,-1)]*3
-# Store the loose medium and tight cut thresholds
-output_object.looseCutRaw = cms.double(threshold_values[0][0])
-output_object.looseCut = cms.double(threshold_values[0][1])
-output_object.mediumCutRaw = cms.double(threshold_values[1][0])
-output_object.mediumCut = cms.double(threshold_values[1][1])
-output_object.tightCutRaw = cms.double(threshold_values[2][0])
-output_object.tightCut = cms.double(threshold_values[2][1])
-
 output_file = open(options.o, 'w')
 output_file.write('import FWCore.ParameterSet.Config as cms\n')
 output_file.write("transform = %s\n" % output_object.dumpPython())

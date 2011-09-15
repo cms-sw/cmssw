@@ -12,7 +12,7 @@ EcalFenixAmplitudeFilter::EcalFenixAmplitudeFilter()
 EcalFenixAmplitudeFilter::~EcalFenixAmplitudeFilter(){
 }
 
-int EcalFenixAmplitudeFilter::setInput(int input, int fgvb)
+int EcalFenixAmplitudeFilter::setInput(int input)
 {
   if(input>0X3FFFF)
     {
@@ -22,74 +22,49 @@ int EcalFenixAmplitudeFilter::setInput(int input, int fgvb)
   if(inputsAlreadyIn_<5)
     {
       buffer_[inputsAlreadyIn_]=input;
-      fgvbBuffer_[inputsAlreadyIn_]=fgvb;
       inputsAlreadyIn_++;
     }
   else
     {
-      for(int i=0; i<4; i++)
-      {
-         buffer_[i]=buffer_[i+1];
-         fgvbBuffer_[i]=fgvbBuffer_[i+1];
-      }
+      for(int i=0; i<4; i++) buffer_[i]=buffer_[i+1];
       buffer_[4]=input;
-      fgvbBuffer_[4]=fgvb;
     }
   return 1;
 }
 
-void EcalFenixAmplitudeFilter::process(std::vector<int> &addout,std::vector<int> &output, std::vector<int> &fgvbIn, std::vector<int> &fgvbOut)
+void EcalFenixAmplitudeFilter::process(std::vector<int> &addout,std::vector<int> &output)
 {
   // test
   inputsAlreadyIn_=0;
-  for (unsigned int i =0;i<5;i++){
-     buffer_[i]=0;//FIXME: 5
-     fgvbBuffer_[i]=0;
-  }
+  for (unsigned int i =0;i<5;i++) buffer_[i]=0;//FIXME: 5
   
   // test end
   
   for (unsigned int i =0;i<addout.size();i++){
     
-    setInput(addout[i],fgvbIn[i]);
-    process();
-    output[i]=processedOutput_;
-    fgvbOut[i]=processedFgvbOutput_;
+    setInput(addout[i]);
+    output[i]=process();
   }
   // shift the result by 1!
   for (unsigned int i=0 ; i<(output.size());i++){
-    if (i!=output.size()-1){
-       output[i]=output[i+1];
-       fgvbOut[i] = fgvbOut[i+1];
-    }
-    else{
-      output[i]=0;
-      fgvbOut[i] = 0;
-    }
+    if (i!=output.size()-1) output[i]=output[i+1];
+    else output[i]=0;
   }  
   return;
 }
 
-void EcalFenixAmplitudeFilter::process()
+int EcalFenixAmplitudeFilter::process()
 {
   //UB FIXME: 5
-  processedOutput_ = 0;
-  processedFgvbOutput_ = 0;
-  if(inputsAlreadyIn_<5) return;
+  if(inputsAlreadyIn_<5) return 0;
   int output=0;
-  int fgvbInt = 0;
   for(int i=0; i<5; i++)
-  {
-    output+=(weights_[i]*buffer_[i])>>shift_;
-    if((fgvbBuffer_[i] == 1 && i == 3) || fgvbInt == 1)
     {
-      fgvbInt = 1;
+      output+=(weights_[i]*buffer_[i])>>shift_;
     }
-  }
   if(output<0) output=0;
   if(output>0X3FFFF)  output=0X3FFFF;
-  processedOutput_ = output;
-  processedFgvbOutput_ = fgvbInt;
+  return output;
 }
 
 void EcalFenixAmplitudeFilter::setParameters(uint32_t raw,const EcalTPGWeightIdMap * ecaltpgWeightMap,const EcalTPGWeightGroup * ecaltpgWeightGroup)
@@ -102,19 +77,11 @@ void EcalFenixAmplitudeFilter::setParameters(uint32_t raw,const EcalTPGWeightIdM
     const EcalTPGWeightIdMap::EcalTPGWeightMap & weightmap = ecaltpgWeightMap -> getMap();
     EcalTPGWeightIdMap::EcalTPGWeightMapItr itw = weightmap.find(weightid);
     (*itw).second.getValues(params_[0],params_[1],params_[2],params_[3],params_[4]);
-
     // we have to transform negative coded in 7 bits into negative coded in 32 bits
     // maybe this should go into the getValue method??
-    //std::cout << "peak flag settings" << std::endl;
     for (int i=0;i<5;++i){
       weights_[i] = (params_[i] & 0x40) ?    (int)( params_[i] | 0xffffffc0) : (int)(params_[i]);
-
-      // Construct the peakFlag for sFGVB processing
-      //peakFlag_[i] = ((params_[i] & 0x80) > 0x0) ? 1 : 0;
-      //std::cout << " " << params_[i] << std::endl;
-      //std::cout << " " << peakFlag_[i] << std::endl;
     }
-    //std::cout << std::endl;
   }
   else edm::LogWarning("EcalTPG")<<" could not find EcalTPGGroupsMap entry for "<<raw;
 }

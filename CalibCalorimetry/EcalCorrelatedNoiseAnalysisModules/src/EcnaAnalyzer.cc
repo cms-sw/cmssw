@@ -14,22 +14,18 @@
 //
 // Original Author:  Bernard Fabbro
 //         Created:  Fri Jun  2 10:27:01 CEST 2006
-// $Id: EcnaAnalyzer.cc,v 1.1 2010/04/09 08:57:35 fabbro Exp $
+// $Id: EcnaAnalyzer.cc,v 1.2 2007/08/10 14:52:31 ferriff Exp $
 //
-//          Update: 02/03/2011  
+//          Update: 01/04/2010  
 
 // CMSSW include files
 
-//#include <signal.h>
+#include <signal.h>
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisModules/interface/EcnaAnalyzer.h"
-//#include <DataFormats/Provenance/interface/Timestamp.h>
+#include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParEcal.h"
+#include <DataFormats/Provenance/interface/Timestamp.h>
 
-//--------------------------------------
-//  EcnaAnalyzer.cc
-//  Class creation: 02 June 2006
-//  Documentation: see EcnaAnalyzer.h
-//--------------------------------------
 //
 // constants, enums and typedefs
 //
@@ -50,46 +46,17 @@ EcnaAnalyzer::EcnaAnalyzer(const edm::ParameterSet& pSet) :
   using namespace edm;
   using namespace std;
 
-  fMyEcnaEBObjectManager = new TEcnaObject();
-  fMyEcnaEEObjectManager = new TEcnaObject();
-
-  TEcnaParPaths* myPathEB = new TEcnaParPaths(fMyEcnaEBObjectManager);
-  TEcnaParPaths* myPathEE = new TEcnaParPaths(fMyEcnaEEObjectManager);
-
-  std::cout << "*EcnaAnalyzer-constructor> Check path for resultsq Root files." << endl;
-
-  if( myPathEB->GetPathForResultsRootFiles() == kFALSE )
-    {
-      std::cout << "*EcnaAnalyzer-constructor> *** ERROR *** Path for result files not found." << endl;
-      kill(getpid(),SIGUSR2);
-    }
-  else
-    {
-      std::cout << "*EcnaAnalyzer-constructor> Path for result files found = " << myPathEB->ResultsRootFilePath() << endl;
-    }
-
-  if( myPathEE->GetPathForResultsRootFiles() == kFALSE )
-    {
-      std::cout << "*EcnaAnalyzer-constructor> *** ERROR *** Path for result files not found." << endl;
-      kill(getpid(),SIGUSR2);
-    }
-  else
-    {
-      std::cout << "*EcnaAnalyzer-constructor> Path for result files found = " << myPathEE->ResultsRootFilePath() << endl;
-    }
-
-
   std::cout << "*EcnaAnalyzer-constructor> Parameter initialization." << endl;
 
   fgMaxCar = (Int_t)512;
   fTTBELL = '\007';
   fOutcomeError = kFALSE;
 
-  fMyEBEcal      = new TEcnaParEcal(fMyEcnaEBObjectManager, "EB");
-  fMyEBNumbering = new TEcnaNumbering(fMyEcnaEBObjectManager, "EB");
+  fMyEBEcal      = new TEcnaParEcal("EB");
+  fMyEBNumbering = new TEcnaNumbering("EB", fMyEBEcal);
 
-  fMyEEEcal      = new TEcnaParEcal(fMyEcnaEEObjectManager, "EE");
-  fMyEENumbering = new TEcnaNumbering(fMyEcnaEEObjectManager, "EE");
+  fMyEEEcal      = new TEcnaParEcal("EE");
+  fMyEENumbering = new TEcnaNumbering("EE", fMyEEEcal);
 
   //========================================================================================== 
   //.................................. Get parameter values from python file
@@ -144,6 +111,7 @@ EcnaAnalyzer::EcnaAnalyzer(const edm::ParameterSet& pSet) :
   fEvtNumber = 0;
   fEvtNumberMemo = -1;
   fRecNumber = 0;
+  fBadBuildCnaRun = 0;
 
   fDeeDS5Memo1 = 0;
   fDeeDS5Memo2 = 0;
@@ -273,16 +241,6 @@ EcnaAnalyzer::EcnaAnalyzer(const edm::ParameterSet& pSet) :
   fNbOfTreatedFedsInStex = new Int_t[fMaxTreatedStexCounter];
   for(Int_t i=0; i<fMaxTreatedStexCounter; i++){fNbOfTreatedFedsInStex[i] = 0;}
 
-
-  //.......................... counters of events for GetSampleAdcValues
-  fBuildEventDistribBad = 0;
-  fBuildEventDistribBad = new Int_t[fMaxTreatedStexCounter];
-  for(Int_t i=0; i<fMaxTreatedStexCounter; i++){fBuildEventDistribBad[i] = 0;}
-
-  fBuildEventDistribGood = 0;
-  fBuildEventDistribGood = new Int_t[fMaxTreatedStexCounter];
-  for(Int_t i=0; i<fMaxTreatedStexCounter; i++){fBuildEventDistribGood[i] = 0;}
-
   //----------------------------------- Analysis name codes ------------------------------------------
   //   
   //                  AnalysisName  RunType         Gain    DBLS (Dynamic BaseLine Substraction)
@@ -342,7 +300,7 @@ EcnaAnalyzer::EcnaAnalyzer(const edm::ParameterSet& pSet) :
       fAnalysisName == "AdcSPeg12" || fAnalysisName == "AdcSLaser" || fAnalysisName == "AdcSPes12 " )
     {fDynBaseLineSub = "yes";}
 
-  //....................... Index range for ECNA init and for loop on GetSampleAdcValues calls
+  //....................... Index range for ECNA init and for loop on BuildEventDistribution calls
   if( fStexNumber == 0 )
     {
       if( fStexName == "SM"  )
@@ -438,7 +396,7 @@ EcnaAnalyzer::~EcnaAnalyzer()
 	      fMyCnaEBSM[iSM]->StartStopDate(fDateFirst[iSM], fDateLast[iSM]);
 	      fMyCnaEBSM[iSM]->StartStopTime(fTimeFirst[iSM], fTimeLast[iSM]);
 	      
-	      //........................................ Init .root file
+	      //........................................ get the sample values in array
 	      fMyCnaEBSM[iSM]->GetReadyToCompute();
 	      fMyCnaEBSM[iSM]->SampleValues();
 	      
@@ -476,7 +434,7 @@ EcnaAnalyzer::~EcnaAnalyzer()
 	      fMyCnaEEDee[iDee]->StartStopDate(fDateFirst[iDee], fDateLast[iDee]);
 	      fMyCnaEEDee[iDee]->StartStopTime(fTimeFirst[iDee], fTimeLast[iDee]);
 	      
-	      //........................................ Init .root file
+	      //........................................ get the sample values in array
 	      fMyCnaEEDee[iDee]->GetReadyToCompute();
 	      fMyCnaEEDee[iDee]->SampleValues();
 	      
@@ -498,21 +456,11 @@ EcnaAnalyzer::~EcnaAnalyzer()
   std::cout <<endl;
 
   //-----------------------------------------------------------------------------------
-
-  std::cout << "*EcnaAnalyzer-destructor> Status of events returned by GetSampleAdcValues(): "
-	    << endl;
-
-  for(Int_t i0Stex=fStexIndexBegin; i0Stex<fStexIndexStop; i0Stex++ )
-    {
-      std::cout << fStexName << i0Stex+1 << "> Status OK: " << fBuildEventDistribGood[i0Stex]
-		<< " / ERROR(S): " << fBuildEventDistribBad[i0Stex];
-      if( fBuildEventDistribBad[i0Stex] > 0 )
-	{std::cout << " <=== SHOULD BE EQUAL TO ZERO ! " << fTTBELL;}
-      std::cout << endl;
-    }
+  std::cout << "*EcnaAnalyzer-destructor> Numbers of events with ERROR(S) returned by BuildEventDistributions(): "
+       << fBadBuildCnaRun << endl;
 
   std::cout << endl<< "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - " <<  endl;
-  
+
   std::cout << "*EcnaAnalyzer-destructor> Run types seen in event headers before selection:" << endl;
 
   for(Int_t i=0; i<fMaxRunTypeCounter; i++)
@@ -545,8 +493,8 @@ EcnaAnalyzer::~EcnaAnalyzer()
 
   if( fStexNumber == 0 )
     {
-      // std::cout << "*EcnaAnalyzer-destructor> fDateFirst = " << fDateFirst[0] << endl
-      //           << "                          fDateLast  = " << fDateLast[fMaxTreatedStexCounter-1] << endl << endl;
+      std::cout << "*EcnaAnalyzer-destructor> fDateFirst = " << fDateFirst[0] << endl
+		<< "                          fDateLast  = " << fDateLast[fMaxTreatedStexCounter-1] << endl << endl;
     }
   if( fStexNumber > 0 )
     {
@@ -556,12 +504,14 @@ EcnaAnalyzer::~EcnaAnalyzer()
 
   std::cout << endl<< "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - " <<  endl;
 
+  //std::cout << "*EcnaAnalyzer-destructor> fTimeFirst = " << fTimeFirst[0] << endl
+  //     << "                          fTimeLast  = " << fTimeLast[fMaxTreatedStexCounter-1] << endl << endl;
+  //
+  //std::cout << endl<< "- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - " <<  endl;
+
   Int_t n0 =0; CheckMsg(n0);
 
-  delete fMyEBNumbering;
   delete fMyEENumbering;
-
-  delete fMyEBEcal;
   delete fMyEEEcal;
 
   std::cout << "*EcnaAnalyzer-destructor> End of execution." << endl;
@@ -690,6 +640,7 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   if( fMemoCutOK == 0 )return;   // return if no event passed the user's analysis cut
 
   //========================== SELECTED EVENTS ================================
+
   fNbOfSelectedEvents++;
   if( fNbOfSelectedEvents == 1 ){Int_t n2 = 2; CheckMsg(n2);}
 
@@ -698,8 +649,30 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
   if( fMyCnaEBSM == 0 && fStexName == "SM" )
     {
       fMyCnaEBSM = new TEcnaRun*[fMyEBEcal->MaxSMInEB()];
+
       for(Int_t i0SM = 0; i0SM < fMyEBEcal->MaxSMInEB(); i0SM++)
 	{fMyCnaEBSM[i0SM] = 0;}
+
+      //for(Int_t iSM = 0; iSM < fMyEBEcal->MaxSMInEB(); iSM++)
+      //{
+      // if( (fStexNumber > 0 && iSM == fStexNumber-1) || (fStexNumber == 0) )
+      //  {
+      //   fMyCnaEBSM[iSM] = new TEcnaRun("EB", fNbOfSamples);
+      //   fMyCnaEBSM[iSM]->GetReadyToReadData(fAnalysisName,  fRunNumber,
+      //					  fFirstReqEvent, fLastReqEvent, fReqNbOfEvts,
+      //					  iSM+1,          fRunTypeNumber);
+      //   std::cout << "*EcnaAnalyzer::analyze(...)> ********* INIT ECNA EB ********* " << endl
+      //	   << "                                   fAnalysisName = " << fAnalysisName << endl
+      //	   << "                                      fRunNumber = " << fRunNumber << endl
+      //	   << "                                  fFirstReqEvent = " << fFirstReqEvent << endl
+      //	   << "                                   fLastReqEvent = " << fLastReqEvent << endl
+      //	   << "                                    fReqNbOfEvts = " << fReqNbOfEvts << endl
+      //	   << "                                              SM = " << iSM+1 << endl
+      //           << "                                        run type = " << runtype(fRunTypeNumber) << endl;
+      // }
+      //  if( fStexNumber > 0 && iSM != fStexNumber-1 ){fMyCnaEBSM[iSM] = new TEcnaRun();}
+      //}
+
     }
   //.................................................................. EE (Dee)
   if( fMyCnaEEDee == 0 && fStexName == "Dee" )
@@ -707,9 +680,32 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       fMyCnaEEDee = new TEcnaRun*[fMyEEEcal->MaxDeeInEE()];
       for(Int_t iDee = 0; iDee < fMyEEEcal->MaxDeeInEE(); iDee++)
 	{fMyCnaEEDee[iDee] = 0;}
+
+      
+      //for(Int_t iDee = 0; iDee < fMyEEEcal->MaxDeeInEE(); iDee++)
+      //{ 
+      // if( (fStexNumber > 0 && iDee == fStexNumber-1) || (fStexNumber == 0) )
+      //   {
+      //      fMyCnaEEDee[iDee] = new TEcnaRun("EE", fNbOfSamples);
+      //      fMyCnaEEDee[iDee]->GetReadyToReadData(fAnalysisName,  fRunNumber,
+      // 					    fFirstReqEvent, fLastReqEvent, fReqNbOfEvts,
+      // 					    iDee+1,         fRunTypeNumber);
+      //      
+      //     std::cout << "*EcnaAnalyzer::analyze(...)> ********* INIT ECNA EE ********* " << endl
+      // 	   << "                                   fAnalysisName = " << fAnalysisName << endl
+      // 	   << "                                      fRunNumber = " << fRunNumber << endl
+      // 	   << "                                  fFirstReqEvent = " << fFirstReqEvent << endl
+      // 	   << "                                   fLastReqEvent = " << fLastReqEvent << endl
+      // 	   << "                                    fReqNbOfEvts = " << fReqNbOfEvts << endl
+      // 	   << "                                             Dee = " << iDee+1 << endl
+      // 	   << "                                        run type = " << runtype(fRunTypeNumber) << endl;
+      //     }
+      //   if( fStexNumber > 0 && iDee != fStexNumber-1 ){fMyCnaEEDee[iDee] = new TEcnaRun();}
+      // 	}
     }
   
   //============================ EVENT TREATMENT ==============================
+
   Int_t MaxNbOfStex = 0;
   if( fStexName == "SM"  ){MaxNbOfStex = fMyEBEcal->MaxSMInEB();}
   if( fStexName == "Dee" ){MaxNbOfStex = fMyEEEcal->MaxDeeInEE();}
@@ -750,112 +746,94 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 		  
 		  Int_t i0SM = id_crystal.ism() - 1;    //   <============== GET the SM number - 1 here
 		  
+		  //=============================== Init Ecna EB ===============================
+		  if( fMyCnaEBSM[i0SM] == 0 )
+		    {
+		      fMyCnaEBSM[i0SM] = new TEcnaRun("EB", fNbOfSamples);
+		      fMyCnaEBSM[i0SM]->GetReadyToReadData(fAnalysisName,  fRunNumber,
+							   fFirstReqEvent, fLastReqEvent, fReqNbOfEvts,
+							   i0SM+1,         fRunTypeNumber);
+		      
+		      std::cout << "*EcnaAnalyzer::analyze(...)> ********* INIT ECNA EB ********* " << endl
+				<< "                                   fAnalysisName = " << fAnalysisName << endl
+				<< "                                      fRunNumber = " << fRunNumber << endl
+				<< "                                  fFirstReqEvent = " << fFirstReqEvent << endl
+				<< "                                   fLastReqEvent = " << fLastReqEvent << endl
+				<< "                                    fReqNbOfEvts = " << fReqNbOfEvts << endl
+				<< "                                              SM = " << i0SM+1 << endl
+				<< "                                        run type = " << runtype(fRunTypeNumber) << endl;
+		    }
+		  //============================================================================
+
 		  if( i0SM >= 0 && i0SM<fMaxTreatedStexCounter )
 		    {
-		      if( fMyCnaEBSM[i0SM] == 0 && fStexStatus[i0SM] != 2 )
-			{
-			  //=============================== Init Ecna EB ===============================
-			  fMyCnaEBSM[i0SM] = new TEcnaRun(fMyEcnaEBObjectManager, "EB", fNbOfSamples);
-			  fMyCnaEBSM[i0SM]->GetReadyToReadData(fAnalysisName,  fRunNumber,
-							       fFirstReqEvent, fLastReqEvent, fReqNbOfEvts,
-							       i0SM+1,         fRunTypeNumber);
-		      
-			  std::cout << "*EcnaAnalyzer::analyze(...)> ********* INIT ECNA EB ********* " << endl
-				    << "                                   fAnalysisName = " << fAnalysisName << endl
-				    << "                                      fRunNumber = " << fRunNumber << endl
-				    << "                                  fFirstReqEvent = " << fFirstReqEvent << endl
-				    << "                                   fLastReqEvent = " << fLastReqEvent << endl
-				    << "                                    fReqNbOfEvts = " << fReqNbOfEvts << endl
-				    << "                                              SM = " << i0SM+1 << endl
-				    << "                                        run type = " << runtype(fRunTypeNumber)
-				    << endl;
-			  //============================================================================
-			}
-		      
-		      if( fStexStatus[i0SM] < 2 )  // nothing to do if status=2 reached
-			{
-			  fStexDigiOK[i0SM]++;
-			  if( fStexDigiOK[i0SM] == 1 ){fStexNbOfTreatedEvents[i0SM]++;}
-			  
-			  if( fStexNbOfTreatedEvents[i0SM] >= 1 && fStexNbOfTreatedEvents[i0SM] <= fReqNbOfEvts )
-			    {
-			      //......................................... date of first event (in real time)
-			      edm::Timestamp Time = iEvent.time();
-			      edm::TimeValue_t t_current_ev_time = (cond::Time_t)Time.value();
-			      time_t         i_current_ev_time = (time_t)(t_current_ev_time>>32);
-			      const time_t*  p_current_ev_time = &i_current_ev_time;
-			      char*          astime            = ctime(p_current_ev_time);
+		      fStexDigiOK[i0SM]++;
+		      if( fStexDigiOK[i0SM] == 1 ){fStexNbOfTreatedEvents[i0SM]++;}
 
-			      if( fStexDigiOK[i0SM] == 1 && fStexNbOfTreatedEvents[i0SM] == 1 &&
-				  ( fStexNumber == 0 || i0SM+1 == fStexNumber )
-				  )
-				{
-				  fTimeFirst[i0SM] = i_current_ev_time;
-				  fDateFirst[i0SM] = astime;
-				  fTimeLast[i0SM]  = i_current_ev_time;
-				  fDateLast[i0SM]  = astime;
-				  std::cout << "*----> beginning of analysis for " << fStexName << i0SM+1
-					    << ". First analyzed event date : " << astime << endl;
-				  //      << " t_current_ev_time = " << t_current_ev_time  << endl
-				  //      << " i_current_ev_time = " << i_current_ev_time  << endl
-				  //      << " p_current_ev_time = " << p_current_ev_time  << endl
-				}
+		      if( fStexNbOfTreatedEvents[i0SM] >= 1 && fStexNbOfTreatedEvents[i0SM] <= fReqNbOfEvts )
+		      {
+			//......................................... date of first event
+			if( fStexDigiOK[i0SM] == 1 && fStexNbOfTreatedEvents[i0SM] == 1 &&
+			    ( fStexNumber == 0 || i0SM+1 == fStexNumber )
+			    )
+			  {
+			    edm::Timestamp Time = iEvent.time();
+			    edm::TimeValue_t t_current_ev_time = (cond::Time_t)Time.value();
+			    time_t         i_current_ev_time = (time_t)(t_current_ev_time>>32);
+			    const time_t*  p_current_ev_time = &i_current_ev_time;
+			    char*          astime            = ctime(p_current_ev_time);
+			    fTimeFirst[i0SM] = i_current_ev_time;
+			    fDateFirst[i0SM] = astime;
+			    std::cout << "*----> beginning of analysis for " << fStexName << i0SM+1
+				      << ". First event date : " << astime << endl;
+			      //      << " t_current_ev_time = " << t_current_ev_time  << endl
+			      //      << " i_current_ev_time = " << i_current_ev_time  << endl
+			      //      << " p_current_ev_time = " << p_current_ev_time  << endl
+			  }
 
-			      if( i_current_ev_time < fTimeFirst[i0SM] )
-				{ fTimeFirst[i0SM] = i_current_ev_time; fDateFirst[i0SM] = astime;}
-			      if( i_current_ev_time > fTimeLast[i0SM] )
-				{ fTimeLast[i0SM] = i_current_ev_time; fDateLast[i0SM] = astime;}
+			  //=============================================> CUT on i0SM value
+			  if( (fStexNumber > 0 && i0SM == fStexNumber-1) || (fStexNumber == 0) )
+			    { 
+			      Int_t iEta = id_crystal.ietaSM(); // ietaSM() : range = [1,85]
+			      Int_t iPhi = id_crystal.iphiSM(); // iphiSM() : range = [1,20]
 			      
-			      //=============================================> CUT on i0SM value
-			      if( (fStexNumber > 0 && i0SM == fStexNumber-1) || (fStexNumber == 0) )
-				{ 
-				  Int_t iEta = id_crystal.ietaSM(); // ietaSM() : range = [1,85]
-				  Int_t iPhi = id_crystal.iphiSM(); // iphiSM() : range = [1,20]
-				  
-				  Int_t n1SMCrys  =
-				    (iEta-1)*(fMyEBEcal->MaxTowPhiInSM()*fMyEBEcal->MaxCrysPhiInTow())+iPhi; // range = [1,1700]
-				  Int_t n1SMTow   = fMyEBNumbering->Get1SMTowFrom1SMCrys(n1SMCrys);          // range = [1,68]
-				  Int_t i0TowEcha = fMyEBNumbering->Get0TowEchaFrom1SMCrys(n1SMCrys);        // range = [0,24]
-				  
-				  Int_t NbOfSamplesFromDigis = digiItr->size();
-				  
-				  EBDataFrame df( *digiItr );
-				  
-				  if( NbOfSamplesFromDigis > 0 && NbOfSamplesFromDigis <= fMyEBEcal->MaxSampADC() )
+			      Int_t n1SMCrys  =
+				(iEta-1)*(fMyEBEcal->MaxTowPhiInSM()*fMyEBEcal->MaxCrysPhiInTow())+iPhi; // range = [1,1700]
+			      Int_t n1SMTow   = fMyEBNumbering->Get1SMTowFrom1SMCrys(n1SMCrys);          // range = [1,68]
+			      Int_t i0TowEcha = fMyEBNumbering->Get0TowEchaFrom1SMCrys(n1SMCrys);        // range = [0,24]
+			      
+			      Int_t NbOfSamplesFromDigis = digiItr->size();
+			      
+			      EBDataFrame df( *digiItr );
+			      
+			      if( NbOfSamplesFromDigis > 0 && NbOfSamplesFromDigis <= fMyEBEcal->MaxSampADC() )
+				{
+				  Double_t adcDBLS = (Double_t)0;
+				  // Three 1st samples mean value for Dynamic Base Line Substraction (DBLS)
+				  if( fDynBaseLineSub == "yes" )
 				    {
-				      Double_t adcDBLS = (Double_t)0;
-				      // Three 1st samples mean value for Dynamic Base Line Substraction (DBLS)
-				      if( fDynBaseLineSub == "yes" )
-					{
-					  for (Int_t i0Sample=0; i0Sample<3; i0Sample++)  
-					    {adcDBLS += (Double_t)(df.sample(i0Sample).adc());}
-					  adcDBLS /= (Double_t)3;
-					}
-				      // Loop over the samples
-				      for (Int_t i0Sample=0; i0Sample<fNbOfSamples; i0Sample++)  
-					{
-					  Double_t adc = (Double_t)(df.sample(i0Sample).adc()) - adcDBLS;
-					  //................................................. Calls to GetSampleAdcValues
-					  if( fMyCnaEBSM[i0SM]->GetSampleAdcValues
-					      (fStexNbOfTreatedEvents[i0SM],n1SMTow,i0TowEcha,i0Sample,adc) == kTRUE )
-					    {
-					      fBuildEventDistribGood[i0SM]++;
-					    }
-					  else
-					    {
-					      fBuildEventDistribBad[i0SM]++;
-					    }
-					}
+				      for (Int_t i0Sample=0; i0Sample<3; i0Sample++)  
+					{adcDBLS += (Double_t)(df.sample(i0Sample).adc());}
+				      adcDBLS /= (Double_t)3;
 				    }
-				  else
+				  // Loop over the samples
+				  for (Int_t i0Sample=0; i0Sample<fNbOfSamples; i0Sample++)  
 				    {
-				      std::cout << "EcnaAnalyzer::analyze(...)> NbOfSamplesFromDigis out of bounds = "
-						<< NbOfSamplesFromDigis << endl;
+				      Double_t adc = (Double_t)(df.sample(i0Sample).adc()) - adcDBLS;
+				      //................................................. Calls to BuildEventDistributions
+				      if( fMyCnaEBSM[i0SM]->BuildEventDistributions
+					  (fStexNbOfTreatedEvents[i0SM],n1SMTow,i0TowEcha,i0Sample,adc) == kFALSE )
+					{fBadBuildCnaRun++;}
 				    }
-				} // end of if( (fStexNumber > 0 && i0SM == fStexNumber-1) || (fStexNumber == 0) )
-			    } // end of if( fStexNbOfTreatedEvents[i0SM] >= 1 && fStexNbOfTreatedEvents[i0SM] <= fReqNbOfEvts )
-			} // end of if( fStexStatus[i0SM] < 2 )
-		    } // end of if( i0SM >= 0 && i0SM<fMaxTreatedStexCounter  )	  
+				}
+			      else
+				{
+				  std::cout << "EcnaAnalyzer::analyze(...)> NbOfSamplesFromDigis out of bounds = "
+					    << NbOfSamplesFromDigis << endl;
+				}
+			    } // end of if( (fStexNumber > 0 && i0SM == fStexNumber-1) || (fStexNumber == 0) )
+		      } // end of if( fStexNbOfTreatedEvents[i0SM] >= 1 && fStexNbOfTreatedEvents[i0SM] <= fReqNbOfEvts )
+		    } // end of if( i0SM >= 0 && i0SM<fMyEBEcal->MaxSMInEB() )
 		} // end of for (EBDigiCollection::const_iterator digiItr = digisEB->begin();
 	          //             digiItr != digisEB->end(); ++digiItr)
 	      
@@ -863,11 +841,12 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 		{
 		  fStexDigiOK[i0SM] = 0;  // reset fStexDigiOK[i0SM] after loop on digis
 		}
-	      
+
 	    } // end of if( Int_t(digisEB->end()-digisEB->begin()) >= 0 &&
 	      // Int_t(digisEB->end()-digisEB->begin()) <=  Int_t(digisEB->size()) )
 	} // end of if( fStexName == "SM" && fSMIndexBegin < fSMIndexStop )
       
+
       //=============================================================== Record type EE (Dee)
       if( fStexName == "Dee" && fDeeIndexBegin < fDeeIndexStop )
 	{
@@ -925,172 +904,154 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 		  Int_t i0Dee = n1DeeNumber-1;   //   <============== GET the Dee number - 1 here
 
+		  //=============================== Init Ecna EE ===============================
+		  if( fMyCnaEEDee[i0Dee] == 0 )
+		    {
+		      fMyCnaEEDee[i0Dee] = new TEcnaRun("EE", fNbOfSamples);
+		      fMyCnaEEDee[i0Dee]->GetReadyToReadData(fAnalysisName,  fRunNumber,
+							     fFirstReqEvent, fLastReqEvent, fReqNbOfEvts,
+							     i0Dee+1,         fRunTypeNumber);
+		      
+		      std::cout << "*EcnaAnalyzer::analyze(...)> ********* INIT ECNA EE ********* " << endl
+				<< "                                   fAnalysisName = " << fAnalysisName << endl
+				<< "                                      fRunNumber = " << fRunNumber << endl
+				<< "                                  fFirstReqEvent = " << fFirstReqEvent << endl
+				<< "                                   fLastReqEvent = " << fLastReqEvent << endl
+				<< "                                    fReqNbOfEvts = " << fReqNbOfEvts << endl
+				<< "                                             Dee = " << i0Dee+1 << endl
+				<< "                                        run type = " << runtype(fRunTypeNumber) << endl;
+		    }
+		  //============================================================================
+
 		  if( i0Dee >= 0 && i0Dee<fMaxTreatedStexCounter )
 		    {
-		      if( fMyCnaEEDee[i0Dee] == 0  && fStexStatus[i0Dee] != 2 )
-			{
-			  //=============================== Init Ecna EE ===============================
-			  fMyCnaEEDee[i0Dee] = new TEcnaRun(fMyEcnaEEObjectManager, "EE", fNbOfSamples);
-			  fMyCnaEEDee[i0Dee]->GetReadyToReadData(fAnalysisName,  fRunNumber,
-								 fFirstReqEvent, fLastReqEvent, fReqNbOfEvts,
-								 i0Dee+1,         fRunTypeNumber);
-			  
-			  std::cout << "*EcnaAnalyzer::analyze(...)> ********* INIT ECNA EE ********* " << endl
-				    << "                                   fAnalysisName = " << fAnalysisName << endl
-				    << "                                      fRunNumber = " << fRunNumber << endl
-				    << "                                  fFirstReqEvent = " << fFirstReqEvent << endl
-				    << "                                   fLastReqEvent = " << fLastReqEvent << endl
-				    << "                                    fReqNbOfEvts = " << fReqNbOfEvts << endl
-				    << "                                             Dee = " << i0Dee+1 << endl
-				    << "                                        run type = " << runtype(fRunTypeNumber)
-				    << endl;
-			  //============================================================================
-			}
+		      Bool_t cOKForTreatment = kFALSE;
 
-		      if( fStexStatus[i0Dee] < 2 ) // nothing to do if status=2 reached
+		      if( fAnalysisName == "AdcPeg12"  || fAnalysisName == "AdcSPeg12" )
 			{
-			  Bool_t cOKForTreatment = kFALSE;
-
-			  if( fAnalysisName == "AdcPeg12"  || fAnalysisName == "AdcSPeg12" )
+			  if( fFedTcc >= 1 && fFedTcc <= MaxSMAndDS )
 			    {
-			      if( fFedTcc >= 1 && fFedTcc <= MaxSMAndDS )
-				{
-				  fFedDigiOK[fESFromFedTcc[fFedTcc-1]-1]++;
+			      fFedDigiOK[fESFromFedTcc[fFedTcc-1]-1]++;
 
-				  if( !(fESFromFedTcc[fFedTcc-1] == 5 || fESFromFedTcc[fFedTcc-1] == 14) )
-				    {  
-				      if( fFedDigiOK[fESFromFedTcc[fFedTcc-1]-1] == 1 )
-					{
-					  fFedNbOfTreatedEvents[fESFromFedTcc[fFedTcc-1]-1]++;
-					}
-				      if( fFedNbOfTreatedEvents[fESFromFedTcc[fFedTcc-1]-1] >= 1 &&
-					  fFedNbOfTreatedEvents[fESFromFedTcc[fFedTcc-1]-1] <= fReqNbOfEvts )
-					{
-					  fStexNbOfTreatedEvents[i0Dee] = fFedNbOfTreatedEvents[fESFromFedTcc[fFedTcc-1]-1];
-					  cOKForTreatment = kTRUE;
-					}
-				    }
-				  if( fESFromFedTcc[fFedTcc-1] == 5 || fESFromFedTcc[fFedTcc-1] == 14 )
+			      if( !(fESFromFedTcc[fFedTcc-1] == 5 || fESFromFedTcc[fFedTcc-1] == 14) )
+				{  
+				  if( fFedDigiOK[fESFromFedTcc[fFedTcc-1]-1] == 1 )
 				    {
-				      if( fFedDigiOK[fESFromFedTcc[fFedTcc-1]-1] == 1 )
+				      fFedNbOfTreatedEvents[fESFromFedTcc[fFedTcc-1]-1]++;
+				    }
+				  if( fFedNbOfTreatedEvents[fESFromFedTcc[fFedTcc-1]-1] >= 1 &&
+				      fFedNbOfTreatedEvents[fESFromFedTcc[fFedTcc-1]-1] <= fReqNbOfEvts )
+				    {
+				      fStexNbOfTreatedEvents[i0Dee] = fFedNbOfTreatedEvents[fESFromFedTcc[fFedTcc-1]-1];
+				      cOKForTreatment = kTRUE;
+				    }
+				}
+			      if( fESFromFedTcc[fFedTcc-1] == 5 || fESFromFedTcc[fFedTcc-1] == 14 )
+				{
+				  if( fFedDigiOK[fESFromFedTcc[fFedTcc-1]-1] == 1 )
+				    {
+				      fFedNbOfTreatedEvents[fESFromFedTcc[fFedTcc-1]-1]++;
+				      fDeeDS5Memo1 = n1DeeNumber;
+				      fStexNbOfTreatedEvents[i0Dee] = fFedNbOfTreatedEvents[fESFromFedTcc[fFedTcc-1]-1];
+				    }
+				  else
+				    {
+				      if( fDeeDS5Memo2 == 0 )
 					{
-					  fFedNbOfTreatedEvents[fESFromFedTcc[fFedTcc-1]-1]++;
-					  fDeeDS5Memo1 = n1DeeNumber;
-					  fStexNbOfTreatedEvents[i0Dee] = fFedNbOfTreatedEvents[fESFromFedTcc[fFedTcc-1]-1];
-					}
-				      else
-					{
-					  if( fDeeDS5Memo2 == 0 )
+					  if( n1DeeNumber != fDeeDS5Memo1 )
 					    {
-					      if( n1DeeNumber != fDeeDS5Memo1 )
-						{
-						  // change of Dee in Data sector 5
-						  fDeeDS5Memo2 = n1DeeNumber;
-						  fStexNbOfTreatedEvents[i0Dee] =
-						    fFedNbOfTreatedEvents[fESFromFedTcc[fFedTcc-1]-1];
-						}
+					      // change of Dee in Data sector 5
+					      fDeeDS5Memo2 = n1DeeNumber;
+					      fStexNbOfTreatedEvents[i0Dee] =
+						fFedNbOfTreatedEvents[fESFromFedTcc[fFedTcc-1]-1];
 					    }
 					}
-				      if( fFedNbOfTreatedEvents[fESFromFedTcc[fFedTcc-1]-1] >= 1 &&
-					  fFedNbOfTreatedEvents[fESFromFedTcc[fFedTcc-1]-1] <= fReqNbOfEvts )
-					{
-					  cOKForTreatment = kTRUE;
-					}
 				    }
-				} // end of if( fFedTcc >= 1 && fFedTcc <= MaxSMAndDS )
-			    } // end of if( fAnalysisName == "AdcPeg12"  || fAnalysisName == "AdcSPeg12" )
-			  else
-			    {
-			      fStexDigiOK[i0Dee]++;
-			      if( fStexDigiOK[i0Dee] == 1 ){fStexNbOfTreatedEvents[i0Dee]++;}
-			      if( fStexNbOfTreatedEvents[i0Dee] >= 1 &&
-				  fStexNbOfTreatedEvents[i0Dee] <= fReqNbOfEvts )
-				{cOKForTreatment = kTRUE;}
-			    }
+				  if( fFedNbOfTreatedEvents[fESFromFedTcc[fFedTcc-1]-1] >= 1 &&
+				      fFedNbOfTreatedEvents[fESFromFedTcc[fFedTcc-1]-1] <= fReqNbOfEvts )
+				    {
+				      cOKForTreatment = kTRUE;
+				    }
+				}
+			    } // end of if( fFedTcc >= 1 && fFedTcc <= MaxSMAndDS )
+			} // end of if( fAnalysisName == "AdcPeg12"  || fAnalysisName == "AdcSPeg12" )
+		      else
+			{
+			  fStexDigiOK[i0Dee]++;
+			  if( fStexDigiOK[i0Dee] == 1 ){fStexNbOfTreatedEvents[i0Dee]++;}
+			  if( fStexNbOfTreatedEvents[i0Dee] >= 1 &&
+			      fStexNbOfTreatedEvents[i0Dee] <= fReqNbOfEvts )
+			    {cOKForTreatment = kTRUE;}
+			}
 
-			  if( cOKForTreatment== kTRUE )
+		      if( cOKForTreatment== kTRUE )
+			{
+			  //......................................... date of first event
+			  if( ( !(fAnalysisName == "AdcPeg12" || fAnalysisName == "AdcSPeg12") &&
+				fStexDigiOK[i0Dee] == 1 &&
+				fStexNbOfTreatedEvents[i0Dee] == 1 ) ||
+			      (  (fAnalysisName == "AdcPeg12"  || fAnalysisName == "AdcSPeg12") && 
+				 fFedDigiOK[fESFromFedTcc[fFedTcc-1]-1] == 1 &&
+				 fStexNbOfTreatedEvents[i0Dee] == 1 &&
+				 fMemoDateFirstEvent[i0Dee] == 0 ) )
 			    {
-			      //......................................... date of first event (in real time)
 			      edm::Timestamp Time = iEvent.time();
 			      edm::TimeValue_t t_current_ev_time = (cond::Time_t)Time.value();
 			      time_t         i_current_ev_time = (time_t)(t_current_ev_time>>32);
 			      const time_t*  p_current_ev_time = &i_current_ev_time;
 			      char*          astime            = ctime(p_current_ev_time);
+			      fTimeFirst[i0Dee] = i_current_ev_time;
+			      fDateFirst[i0Dee] = astime;
+			      std::cout << "----- beginning of analysis for " << fStexName << i0Dee+1 << "-------"  << endl
+				//<< " t_current_ev_time = " << t_current_ev_time  << endl
+				//<< " i_current_ev_time = " << i_current_ev_time  << endl
+				//<< " p_current_ev_time = " << p_current_ev_time  << endl
+					<< " First event date  = " << astime << endl
+					<< " Nb of selected evts = " << fNbOfSelectedEvents << endl
+					<< "---------------------------------------------------------------"  << endl;
+			      fMemoDateFirstEvent[i0Dee]++;
+			    }
 
-			      if( ( !(fAnalysisName == "AdcPeg12" || fAnalysisName == "AdcSPeg12") &&
-				    fStexDigiOK[i0Dee] == 1 &&
-				    fStexNbOfTreatedEvents[i0Dee] == 1 ) ||
-				  (  (fAnalysisName == "AdcPeg12"  || fAnalysisName == "AdcSPeg12") && 
-				     fFedDigiOK[fESFromFedTcc[fFedTcc-1]-1] == 1 &&
-				     fStexNbOfTreatedEvents[i0Dee] == 1 &&
-				     fMemoDateFirstEvent[i0Dee] == 0 ) )
+			  //=============================================> cut on i0Dee value
+			  if( (fStexNumber > 0 && i0Dee == fStexNumber-1) || (fStexNumber == 0) )
+			    {
+			      TString sDir = fMyEENumbering->GetDeeDirViewedFromIP(n1DeeNumber);
+			      Int_t n1DeeSCEcna = fMyEENumbering->Get1DeeSCEcnaFrom1DeeCrys(n1DeeCrys, sDir);
+			      Int_t i0SCEcha = fMyEENumbering->Get1SCEchaFrom1DeeCrys(n1DeeCrys, sDir) - 1;
+			      
+			      Int_t NbOfSamplesFromDigis = digiItr->size();
+			      
+			      EEDataFrame df( *digiItr );
+			      
+			      if( NbOfSamplesFromDigis > 0 && NbOfSamplesFromDigis <= fMyEEEcal->MaxSampADC() )
 				{
-				  fTimeFirst[i0Dee] = i_current_ev_time;
-				  fDateFirst[i0Dee] = astime;
-				  fTimeLast[i0Dee]  = i_current_ev_time;
-				  fDateLast[i0Dee]  = astime;
-				  std::cout << "----- beginning of analysis for " << fStexName << i0Dee+1 << "-------"  << endl
-				    //<< " t_current_ev_time = " << t_current_ev_time  << endl
-				    //<< " i_current_ev_time = " << i_current_ev_time  << endl
-				    //<< " p_current_ev_time = " << p_current_ev_time  << endl
-					    << " First event date  = " << astime << endl
-					    << " Nb of selected evts = " << fNbOfSelectedEvents << endl
-					    << "---------------------------------------------------------------"  << endl;
-				  fMemoDateFirstEvent[i0Dee]++;
+				  Double_t adcDBLS = (Double_t)0;
+				  // Three 1st samples mean value for Dynamic Base Line Substraction (DBLS)
+				  if( fDynBaseLineSub == "yes" )
+				    {
+				      for (Int_t i0Sample=0; i0Sample<3; i0Sample++)  
+					{adcDBLS += (Double_t)(df.sample(i0Sample).adc());}
+				      adcDBLS /= (Double_t)3;
+				    }
+				  // Loop over the samples
+				  for (Int_t i0Sample = 0; i0Sample < fNbOfSamples; i0Sample++)  
+				    {
+				      Double_t adc = (Double_t)(df.sample(i0Sample).adc()) - adcDBLS;
+				      //................................................. Calls to BuildEventDistributions
+				      if( fMyCnaEEDee[i0Dee]->BuildEventDistributions
+					  (fStexNbOfTreatedEvents[i0Dee],n1DeeSCEcna,i0SCEcha,i0Sample,adc) == kFALSE )
+					{fBadBuildCnaRun++;}
+				    }
 				}
-
-			      if( i_current_ev_time < fTimeFirst[i0Dee] )
-				{ fTimeFirst[i0Dee] = i_current_ev_time; fDateFirst[i0Dee] = astime;}
-			      if( i_current_ev_time > fTimeLast[i0Dee] )
-				{ fTimeLast[i0Dee] = i_current_ev_time; fDateLast[i0Dee] = astime;}
-			      
-			      //=============================================> cut on i0Dee value
-			      if( (fStexNumber > 0 && i0Dee == fStexNumber-1) || (fStexNumber == 0) )
+			      else
 				{
-				  TString sDir = fMyEENumbering->GetDeeDirViewedFromIP(n1DeeNumber);
-				  Int_t n1DeeSCEcna = fMyEENumbering->Get1DeeSCEcnaFrom1DeeCrys(n1DeeCrys, sDir);
-				  Int_t i0SCEcha = fMyEENumbering->Get1SCEchaFrom1DeeCrys(n1DeeCrys, sDir) - 1;
-			      
-				  Int_t NbOfSamplesFromDigis = digiItr->size();
-			      
-				  EEDataFrame df( *digiItr );
-			      
-				  if( NbOfSamplesFromDigis > 0 && NbOfSamplesFromDigis <= fMyEEEcal->MaxSampADC() )
-				    {
-				      Double_t adcDBLS = (Double_t)0;
-				      // Three 1st samples mean value for Dynamic Base Line Substraction (DBLS)
-				      if( fDynBaseLineSub == "yes" )
-					{
-					  for (Int_t i0Sample=0; i0Sample<3; i0Sample++)  
-					    {adcDBLS += (Double_t)(df.sample(i0Sample).adc());}
-					  adcDBLS /= (Double_t)3;
-					}
-				      // Loop over the samples
-				      for (Int_t i0Sample = 0; i0Sample < fNbOfSamples; i0Sample++)  
-					{
-					  Double_t adc = (Double_t)(df.sample(i0Sample).adc()) - adcDBLS;
-					  //................................................. Calls to GetSampleAdcValues
-					  if( fMyCnaEEDee[i0Dee]->GetSampleAdcValues
-					      (fStexNbOfTreatedEvents[i0Dee],n1DeeSCEcna,i0SCEcha,i0Sample,adc) == kTRUE )
-					    {
-					      fBuildEventDistribGood[i0Dee]++;
-					    }
-					  else
-					    {
-					      fBuildEventDistribBad[i0Dee]++;
-					    }
-					}
-				    }
-				  else
-				    {
-				      std::cout << "EcnaAnalyzer::analyze(...)> NbOfSamplesFromDigis out of bounds = "
-						<< NbOfSamplesFromDigis << endl;
-				    }
-				} // end of if( (fStexNumber > 0 && i0Dee == fStexNumber-1) || (fStexNumber == 0) )
-			    } // end of if( fFedNbOfTreatedEvents[fESFromFedTcc[fFedTcc-1]-1] >= 1 &&
+				  std::cout << "EcnaAnalyzer::analyze(...)> NbOfSamplesFromDigis out of bounds = "
+					    << NbOfSamplesFromDigis << endl;
+				}
+			    } // end of if( (fStexNumber > 0 && i0Dee == fStexNumber-1) || (fStexNumber == 0) )
+			} // end of if( fFedNbOfTreatedEvents[fESFromFedTcc[fFedTcc-1]-1] >= 1 &&
 			  // fFedNbOfTreatedEvents[fESFromFedTcc[fFedTcc-1]-1] <= fReqNbOfEvts )
-			} // end of if( fStexStatus[i0Dee] < 2 )
-		    } // end of if( i0Dee >= 0 && i0Dee<fMaxTreatedStexCounter )
+		    } // end of if( i0Dee >= 0 && i0Dee<fMyEEEcal->MaxDeeInEE() )
 		} // end of for (EBDigiCollection::const_iterator digiItr = digisEB->begin();
                   //             digiItr != digisEB->end(); ++digiItr)
 
@@ -1152,7 +1113,7 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 		  fFedStatus[i0FedES] = 1;
 		  fTreatedFedOrder++; fFedStatusOrder[i0FedES] = fTreatedFedOrder;
 		}
-	      if( fFedNbOfTreatedEvents[i0FedES] > fReqNbOfEvts ){fFedStatus[i0FedES] = 2;}
+	      if( fFedNbOfTreatedEvents[i0FedES] >  fReqNbOfEvts ){fFedStatus[i0FedES] = 2;}
 	    }
 	}
     
@@ -1202,24 +1163,21 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	{
 	  fNbOfTreatedStexs++; // increase nb of treated Stex's only if fStexStatus[i0Stex] == 1
 	  //....................................................... date of last event
-	  //edm::Timestamp Time = iEvent.time();
-	  //edm::TimeValue_t t_current_ev_time = (cond::Time_t)Time.value();
-	  //time_t         i_current_ev_time = (time_t)(t_current_ev_time>>32);
-	  //const time_t*  p_current_ev_time = &i_current_ev_time;
-	  //char*          astime            = ctime(p_current_ev_time);
-	  //fTimeLast[i0Stex] = i_current_ev_time;
-	  //fDateLast[i0Stex] = astime;
-
-	  //if( i_current_ev_time > fTimeLast[i0Stex] )
-	  // {fTimeLast[i0Stex] = i_current_ev_time; fDateLast[i0Stex] = astime;}
+	  edm::Timestamp Time = iEvent.time();
+	  edm::TimeValue_t t_current_ev_time = (cond::Time_t)Time.value();
+	  time_t         i_current_ev_time = (time_t)(t_current_ev_time>>32);
+	  const time_t*  p_current_ev_time = &i_current_ev_time;
+	  char*          astime            = ctime(p_current_ev_time);
+	  fTimeLast[i0Stex] = i_current_ev_time;
+	  fDateLast[i0Stex] = astime;
 	  
 	  std::cout << "---------- End of analysis for " << fStexName << i0Stex+1 << " -----------" << endl;
 	  Int_t n3 = 3; CheckMsg(n3, i0Stex);
 	  // std::cout 	   << " t_current_ev_time = " << t_current_ev_time  << endl
 	  //<< " i_current_ev_time = " << i_current_ev_time  << endl
 	  //<< " p_current_ev_time = " << p_current_ev_time  << endl
-	  // std::cout 	    << " Last analyzed event date  = " << astime << endl;
-	  std::cout 	    << " Number of selected events = " << fNbOfSelectedEvents << endl;
+	  std::cout 	    << " Last event date           = " << astime << endl
+			    << " Number of selected events = " << fNbOfSelectedEvents << endl;
 	  std::cout << endl << fNbOfTreatedStexs << " " << fStexName
 		    << "'s with " << fReqNbOfEvts << " events analyzed." << endl
 		    << "---------------------------------------------------------"  << endl;
@@ -1233,7 +1191,7 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 		  fMyCnaEBSM[i0Stex]->StartStopDate(fDateFirst[i0Stex], fDateLast[i0Stex]);
 		  fMyCnaEBSM[i0Stex]->StartStopTime(fTimeFirst[i0Stex], fTimeLast[i0Stex]);
 		  
-		  //........................................ Init .root file
+		  //........................................ get the sample values in array
 		  fMyCnaEBSM[i0Stex]->GetReadyToCompute();
 		  fMyCnaEBSM[i0Stex]->SampleValues();
 		  
@@ -1257,7 +1215,7 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 		  fMyCnaEEDee[i0Stex]->StartStopDate(fDateFirst[i0Stex], fDateLast[i0Stex]);
 		  fMyCnaEEDee[i0Stex]->StartStopTime(fTimeFirst[i0Stex], fTimeLast[i0Stex]);
 		  
-		  //........................................ Init .root file
+		  //........................................ get the sample values in array
 		  fMyCnaEEDee[i0Stex]->GetReadyToCompute();
 		  fMyCnaEEDee[i0Stex]->SampleValues();
 

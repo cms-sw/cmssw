@@ -13,7 +13,7 @@
 //
 // Original Author:  Werner Man-Li Sun
 //         Created:  Tue Sep 16 22:43:22 CEST 2008
-// $Id: L1CaloHcalScaleConfigOnlineProd.cc,v 1.5 2010/07/20 04:16:38 wmtan Exp $
+// $Id: L1CaloHcalScaleConfigOnlineProd.cc,v 1.4 2010/07/20 02:58:33 wmtan Exp $
 //
 //
 
@@ -171,8 +171,7 @@ L1CaloHcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
     paramResults.fillVariable("RCTLSB",hcalLSB);    
     paramResults.fillVariable("NOMINAL_GAIN",nominal_gain);
  
-    float    rctlsb = hcalLSB;
-
+        float    rctlsb = hcalLSB == 0.25 ? 1./4 : 1./8;
 
 
     l1t::OMDSReader::QueryResults chanKey =m_omdsReader.basicQuery(
