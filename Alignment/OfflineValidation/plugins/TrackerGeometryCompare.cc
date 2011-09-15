@@ -49,7 +49,8 @@
 #include <iostream>
 #include <fstream>
 
-TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg)
+TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg) :
+  theSurveyIndex(0), _commonTrackerLevel(align::invalid), firstEvent_(true)
 {
 	
 	//input is ROOT
