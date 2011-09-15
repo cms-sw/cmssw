@@ -1631,9 +1631,12 @@ void popcon::EcalChannelStatusHandler::getNewObjects() {
   MonVersionDef monverdef;
   monverdef.setMonitoringVersion("test01");
   MonRunTag mon_tag;
-  if (m_runtype=="PEDESTAL") mon_tag.setGeneralTag("CMSSW");        
-  if (m_runtype=="LASER")    mon_tag.setGeneralTag("CMSSW");        
-  if (m_runtype=="COSMIC" || m_runtype=="BEAM" || m_runtype=="PHYSICS" || m_runtype=="HALO" || m_runtype=="GLOBAL_COSMICS" ) mon_tag.setGeneralTag("CMSSW-online");        
+  // if (m_runtype=="PEDESTAL") mon_tag.setGeneralTag("CMSSW");        
+  // if (m_runtype=="LASER")    mon_tag.setGeneralTag("CMSSW");        
+  // if (m_runtype=="COSMIC" || m_runtype=="BEAM" || m_runtype=="PHYSICS" || m_runtype=="HALO" || m_runtype=="GLOBAL_COSMICS" ) mon_tag.setGeneralTag("CMSSW-online");        
+  if (m_runtype=="PEDESTAL") mon_tag.setGeneralTag("CMSSW-offline-private");        
+  if (m_runtype=="LASER")    mon_tag.setGeneralTag("CMSSW-offline-private");        
+  if (m_runtype=="COSMIC" || m_runtype=="BEAM" || m_runtype=="PHYSICS" || m_runtype=="HALO" || m_runtype=="GLOBAL_COSMICS" ) mon_tag.setGeneralTag("CMSSW-online-private");        
   mon_tag.setMonVersionDef(monverdef);
   MonRunList mon_list;
   mon_list.setMonRunTag(mon_tag);
