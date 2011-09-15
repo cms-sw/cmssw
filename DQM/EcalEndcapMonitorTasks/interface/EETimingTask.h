@@ -4,8 +4,8 @@
 /*
  * \file EETimingTask.h
  *
- * $Date: 2011/08/30 09:29:05 $
- * $Revision: 1.20 $
+ * $Date: 2011/09/15 21:03:25 $
+ * $Revision: 1.21 $
  * \author G. Della Ricca
  *
 */
@@ -93,6 +93,7 @@ edm::ESHandle<CaloGeometry> pGeometry_;
 bool init_;
 bool initCaloGeometry_;
 
+bool useBeamStatus_;
 bool stableBeamsDeclared_;
 
 };

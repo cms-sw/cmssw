@@ -4,8 +4,8 @@
 /*
  * \file EBTimingTask.h
  *
- * $Date: 2011/08/30 09:32:03 $
- * $Revision: 1.19 $
+ * $Date: 2011/09/15 20:59:51 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  *
 */
@@ -83,6 +83,7 @@ MonitorElement* meTimeSummaryMap_, *meTimeSummaryMapProjEta_, *meTimeSummaryMapP
 
 bool init_;
 
+bool useBeamStatus_;
 bool stableBeamsDeclared_;
 
 };
