@@ -1,11 +1,11 @@
-// $Id: Numbers.cc,v 1.79 2011/08/05 10:34:43 yiiyama Exp $
+// $Id: Numbers.cc,v 1.80 2011/08/30 09:06:13 yiiyama Exp $
 
 /*!
   \file Numbers.cc
   \brief Some "id" conversions
   \author B. Gobbo
-  \version $Revision: 1.79 $
-  \date $Date: 2011/08/05 10:34:43 $
+  \version $Revision: 1.80 $
+  \date $Date: 2011/08/30 09:06:13 $
 */
 
 #include <sstream>
@@ -35,14 +35,19 @@ const EcalElectronicsMapping* Numbers::map = 0;
 const EcalTrigTowerConstituentsMap* Numbers::mapTT = 0;
 const CaloGeometry *Numbers::geometry = 0;
 
-std::vector<DetId> Numbers::crystalsTCC_[100*108];
-std::vector<DetId> Numbers::crystalsDCC_[100* 54];
+const unsigned Numbers::crystalsTCCArraySize_;
+const unsigned Numbers::crystalsDCCArraySize_;
+
+std::vector<DetId> Numbers::crystalsTCC_[crystalsTCCArraySize_];
+std::vector<DetId> Numbers::crystalsDCC_[crystalsDCCArraySize_];
 
 bool Numbers::init = false;
 
 //-------------------------------------------------------------------------
 
-void Numbers::initGeometry( const edm::EventSetup& setup, bool verbose ) {
+void
+Numbers::initGeometry( const edm::EventSetup& setup, bool verbose )
+{
 
   if( Numbers::init ) return;
 
@@ -68,7 +73,9 @@ void Numbers::initGeometry( const edm::EventSetup& setup, bool verbose ) {
 
 //-------------------------------------------------------------------------
 
-int Numbers::iEB( const int ism ) throw( std::runtime_error ) {
+int
+Numbers::iEB( const unsigned ism )
+{
 
   // EB-
   if( ism >=  1 && ism <= 18 ) return( -ism );
@@ -76,15 +83,15 @@ int Numbers::iEB( const int ism ) throw( std::runtime_error ) {
   // EB+
   if( ism >= 19 && ism <= 36 ) return( +ism - 18 );
 
-  std::ostringstream s;
-  s << "Wrong SM id determination: iSM = " << ism;
-  throw( std::runtime_error( s.str() ) );
+  throw cms::Exception("InvalidParameter") << "Wrong SM id determination: iSM = " << ism;
 
 }
 
 //-------------------------------------------------------------------------
 
-std::string Numbers::sEB( const int ism  ) {
+std::string
+Numbers::sEB( const unsigned ism  )
+{
 
   int ieb = Numbers::iEB( ism );
 
@@ -101,7 +108,9 @@ std::string Numbers::sEB( const int ism  ) {
 
 //-------------------------------------------------------------------------
 
-int Numbers::iEE( const int ism ) throw( std::runtime_error ) {
+int
+Numbers::iEE( const unsigned ism )
+{
 
   // EE-
   if( ism ==  1 ) return( -7 );
@@ -125,15 +134,15 @@ int Numbers::iEE( const int ism ) throw( std::runtime_error ) {
   if( ism == 17 ) return( +5 );
   if( ism == 18 ) return( +6 );
 
-  std::ostringstream s;
-  s << "Wrong SM id determination: iSM = " << ism;
-  throw( std::runtime_error( s.str() ) );
+  throw cms::Exception("InvalidParameter") << "Wrong SM id determination: iSM = " << ism;
 
 }
 
 //-------------------------------------------------------------------------
 
-EcalSubdetector Numbers::subDet( const EBDetId& id ) {
+EcalSubdetector
+Numbers::subDet( const EBDetId& id )
+{
 
   return( id.subdet() );
 
@@ -141,7 +150,9 @@ EcalSubdetector Numbers::subDet( const EBDetId& id ) {
 
 //-------------------------------------------------------------------------
 
-EcalSubdetector Numbers::subDet( const EEDetId& id ) {
+EcalSubdetector
+Numbers::subDet( const EEDetId& id ) 
+{
 
   return( id.subdet() );
 
@@ -149,7 +160,9 @@ EcalSubdetector Numbers::subDet( const EEDetId& id ) {
 
 //-------------------------------------------------------------------------
 
-EcalSubdetector Numbers::subDet( const EcalTrigTowerDetId& id ) {
+EcalSubdetector
+Numbers::subDet( const EcalTrigTowerDetId& id )
+{
 
   return( id.subDet() );
 
@@ -157,7 +170,9 @@ EcalSubdetector Numbers::subDet( const EcalTrigTowerDetId& id ) {
 
 //-------------------------------------------------------------------------                                                                                                                                                                
 
-EcalSubdetector Numbers::subDet( const EcalScDetId& id ) {
+EcalSubdetector
+Numbers::subDet( const EcalScDetId& id )
+{
 
   return( id.subdet() );
 
@@ -165,7 +180,9 @@ EcalSubdetector Numbers::subDet( const EcalScDetId& id ) {
 
 //-------------------------------------------------------------------------
 
-EcalSubdetector Numbers::subDet( const EcalElectronicsId& id ) {
+EcalSubdetector
+Numbers::subDet( const EcalElectronicsId& id ) 
+{
 
   return( id.subdet() );
 
@@ -173,7 +190,9 @@ EcalSubdetector Numbers::subDet( const EcalElectronicsId& id ) {
 
 //-------------------------------------------------------------------------
 
-EcalSubdetector Numbers::subDet( const EcalPnDiodeDetId& id ) {
+EcalSubdetector
+Numbers::subDet( const EcalPnDiodeDetId& id ) 
+{
 
   return( (EcalSubdetector) id.iEcalSubDetectorId() );
 
@@ -181,7 +200,9 @@ EcalSubdetector Numbers::subDet( const EcalPnDiodeDetId& id ) {
 
 //-------------------------------------------------------------------------
 
-EcalSubdetector Numbers::subDet( const EcalDCCHeaderBlock& id ) throw( std::runtime_error ) {
+EcalSubdetector 
+Numbers::subDet( const EcalDCCHeaderBlock& id )
+{
 
   int idcc = id.id();
 
@@ -194,15 +215,15 @@ EcalSubdetector Numbers::subDet( const EcalDCCHeaderBlock& id ) throw( std::runt
   // EE+
   if ( idcc >= 46 && idcc <= 54 ) return( EcalEndcap );
 
-  std::ostringstream s;
-  s << "Wrong DCC id: dcc = " << idcc;
-  throw( std::runtime_error( s.str() ) );
+  throw cms::Exception("InvalidParameter") << "Wrong DCC id: dcc = " << idcc;
 
 }
 
 //-------------------------------------------------------------------------
 
-std::string Numbers::sEE( const int ism  ) {
+std::string
+Numbers::sEE( const unsigned ism  )
+{
 
   int iee = Numbers::iEE( ism );
 
@@ -219,76 +240,95 @@ std::string Numbers::sEE( const int ism  ) {
 
 //-------------------------------------------------------------------------
 
-int Numbers::iSM( const int ism, const EcalSubdetector subdet ) throw( std::runtime_error ) {
+// for EB, converts between two schemes. Old scheme [1:9] for EB-, new scheme (used in EBDetId) [1:9] for EB+
+unsigned
+Numbers::iSM( const unsigned ism, const EcalSubdetector subdet )
+{
 
   if( subdet == EcalBarrel ) {
 
-    // EB-
     if( ism >=  1 && ism <= 18 ) return( ism+18 );
 
-    // EB+
     if( ism >= 19 && ism <= 36 ) return( ism-18 );
 
-    std::ostringstream s;
-    s << "Wrong SM id: iSM = " << ism;
-    throw( std::runtime_error( s.str() ) );
+    throw cms::Exception("InvalidParameter") << "Wrong SM id: iSM = " << ism;
 
   } else if( subdet == EcalEndcap ) {
 
-    // EE-
     if( ism >=  1 && ism <=  9 ) return( ism+9 );
 
-    // EE+
     if (ism >= 10 && ism <= 18 ) return( ism-9 );
 
-    std::ostringstream s;
-    s << "Wrong SM id: iSM = " << ism;
-    throw( std::runtime_error( s.str() ) );
-
-  } else {
-
-    std::ostringstream s;
-    s << "Invalid subdetector: subdet = " << subdet;
-    throw( std::runtime_error( s.str() ) );
+    throw cms::Exception("InvalidParameter") << "Wrong SM id: iSM = " << ism;
 
   }
+
+  throw cms::Exception("InvalidParameter") << "Invalid subdetector: subdet = " << subdet;
 
 }
 
 //-------------------------------------------------------------------------
 
-int Numbers::iSM( const EBDetId& id ) throw( std::runtime_error ) {
+unsigned
+Numbers::iSM( const EBDetId& id )
+{
 
-  if( Numbers::map ) {
+  if( !Numbers::map ) throw cms::Exception("ObjectUnavailable") << "ECAL Geometry not available";
 
-    const EcalElectronicsId eid = Numbers::map->getElectronicsId(id);
-    int idcc = eid.dccId();
+  const EcalElectronicsId eid = Numbers::map->getElectronicsId(id);
+  int idcc = eid.dccId();
+
+  // EB-/EB+
+  if( idcc >= 10 && idcc <= 45 ) return( idcc - 9 );
+
+  throw cms::Exception("InvalidParameter") << "Wrong DCC id: dcc = " << idcc;
+
+}
+
+
+//-------------------------------------------------------------------------
+
+unsigned
+Numbers::iSM( const EEDetId& id )
+{
+
+  if( !Numbers::map ) throw cms::Exception("ObjectUnavailable") << "ECAL Geometry not available";
+
+  const EcalElectronicsId eid = Numbers::map->getElectronicsId(id);
+  int idcc = eid.dccId();
+
+  // EE-
+  if( idcc >=  1 && idcc <=  9 ) return( idcc );
+
+  // EE+
+  if( idcc >= 46 && idcc <= 54 ) return( idcc - 45 + 9 );
+
+  throw cms::Exception("InvalidParameter") << "Wrong DCC id: dcc = " << idcc;
+
+}
+
+//-------------------------------------------------------------------------
+
+unsigned
+Numbers::iSM( const EcalTrigTowerDetId& id )
+{
+
+  if( !Numbers::map ) throw cms::Exception("ObjectUnavailable") << "ECAL Geometry not available";
+
+  EcalSubdetector subdet = Numbers::subDet( id );
+
+  if( subdet == EcalBarrel ) {
+
+    int idcc = Numbers::map->DCCid(id);
 
     // EB-/EB+
     if( idcc >= 10 && idcc <= 45 ) return( idcc - 9 );
 
-    std::ostringstream s;
-    s << "Wrong DCC id: dcc = " << idcc;
-    throw( std::runtime_error( s.str() ) );
+    throw cms::Exception("InvalidParameter") << "Wrong DCC id: dcc = " << idcc;
 
-  } else {
+  } else if( subdet ==  EcalEndcap) {
 
-    std::ostringstream s;
-    s << "ECAL Geometry not available";
-    throw( std::runtime_error( s.str() ) );
-
-  }
-
-}
-
-//-------------------------------------------------------------------------
-
-int Numbers::iSM( const EEDetId& id ) throw( std::runtime_error ) {
-
-  if( Numbers::map ) {
-
-    const EcalElectronicsId eid = Numbers::map->getElectronicsId(id);
-    int idcc = eid.dccId();
+    int idcc = Numbers::map->DCCid(id);
 
     // EE-
     if( idcc >=  1 && idcc <=  9 ) return( idcc );
@@ -296,84 +336,19 @@ int Numbers::iSM( const EEDetId& id ) throw( std::runtime_error ) {
     // EE+
     if( idcc >= 46 && idcc <= 54 ) return( idcc - 45 + 9 );
 
-    std::ostringstream s;
-    s << "Wrong DCC id: dcc = " << idcc;
-    throw( std::runtime_error( s.str() ) );
-
-  } else {
-
-    std::ostringstream s;
-    s << "ECAL Geometry not available";
-    throw( std::runtime_error( s.str() ) );
+    throw cms::Exception("InvalidParameter") << "Wrong DCC id: dcc = " << idcc;
 
   }
+
+  throw cms::Exception("InvalidParameter") << "Invalid subdetector: subdet = " << subdet;
 
 }
 
 //-------------------------------------------------------------------------
 
-int Numbers::iSM( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
-
-  EcalSubdetector subdet = Numbers::subDet( id );
-
-  if( subdet == EcalBarrel ) {
-
-    if( Numbers::map ) {
-
-      int idcc = Numbers::map->DCCid(id);
-
-      // EB-/EB+
-      if( idcc >= 10 && idcc <= 45 ) return( idcc - 9 );
-
-      std::ostringstream s;
-      s << "Wrong DCC id: dcc = " << idcc;
-      throw( std::runtime_error( s.str() ) );
-
-    } else {
-
-      std::ostringstream s;
-      s << "ECAL Geometry not available";
-      throw( std::runtime_error( s.str() ) );
-
-    }
-
-  } else if( subdet ==  EcalEndcap) {
-
-    if( Numbers::map ) {
-
-      int idcc = Numbers::map->DCCid(id);
-
-      // EE-
-      if( idcc >=  1 && idcc <=  9 ) return( idcc );
-
-      // EE+
-      if( idcc >= 46 && idcc <= 54 ) return( idcc - 45 + 9 );
-
-      std::ostringstream s;
-      s << "Wrong DCC id: dcc = " << idcc;
-      throw( std::runtime_error( s.str() ) );
-
-    } else {
-
-      std::ostringstream s;
-      s << "ECAL Geometry not available";
-      throw( std::runtime_error( s.str() ) );
-
-    }
-
-  } else {
-
-    std::ostringstream s;
-    s << "Invalid subdetector: subdet = " << subdet;
-    throw( std::runtime_error( s.str() ) );
-
-  }
-
-}
-
-//-------------------------------------------------------------------------
-
-int Numbers::iSM( const EcalElectronicsId& id ) throw( std::runtime_error ) {
+unsigned
+Numbers::iSM( const EcalElectronicsId& id )
+{
 
   int idcc = id.dccId();
 
@@ -386,15 +361,15 @@ int Numbers::iSM( const EcalElectronicsId& id ) throw( std::runtime_error ) {
   // EE+
   if( idcc >= 46 && idcc <= 54 ) return( idcc - 45 + 9 );
 
-  std::ostringstream s;
-  s << "Wrong DCC id: dcc = " << idcc;
-  throw( std::runtime_error( s.str() ) );
+  throw cms::Exception("InvalidParameter") << "Wrong DCC id: dcc = " << idcc;
 
 }
 
 //-------------------------------------------------------------------------
 
-int Numbers::iSM( const EcalPnDiodeDetId& id ) throw( std::runtime_error ) {
+unsigned
+Numbers::iSM( const EcalPnDiodeDetId& id )
+{
 
   int idcc = id.iDCCId();
 
@@ -407,19 +382,19 @@ int Numbers::iSM( const EcalPnDiodeDetId& id ) throw( std::runtime_error ) {
   // EE+
   if( idcc >= 46 && idcc <= 54 ) return( idcc - 45 + 9 );
 
-  std::ostringstream s;
-  s << "Wrong DCC id: dcc = " << idcc;
-  throw( std::runtime_error( s.str() ) );
+  throw cms::Exception("InvalidParameter") << "Wrong DCC id: dcc = " << idcc;
 
 }
 
 //-------------------------------------------------------------------------
 
-int Numbers::iSM( const EcalScDetId& id ) throw( std::runtime_error ) {
+unsigned
+Numbers::iSM( const EcalScDetId& id )
+{
 
-    std::pair<int, int> dccsc = Numbers::map->getDCCandSC( id );
+  std::pair<int, int> dccsc = Numbers::map->getDCCandSC( id );
 
-    int idcc = dccsc.first;
+  int idcc = dccsc.first;
 
   // EE-
   if( idcc >=  1 && idcc <=  9 ) return( idcc );
@@ -430,15 +405,15 @@ int Numbers::iSM( const EcalScDetId& id ) throw( std::runtime_error ) {
   // EE+
   if( idcc >= 46 && idcc <= 54 ) return( idcc - 45 + 9 );
 
-  std::ostringstream s;
-  s << "Wrong DCC id: dcc = " << idcc;
-  throw( std::runtime_error( s.str() ) );
+  throw cms::Exception("InvalidParameter") << "Wrong DCC id: dcc = " << idcc;
 
 }
 
 //-------------------------------------------------------------------------
 
-int Numbers::iSM( const EcalDCCHeaderBlock& id, const EcalSubdetector subdet ) throw( std::runtime_error ) {
+unsigned
+Numbers::iSM( const EcalDCCHeaderBlock& id, const EcalSubdetector subdet )
+{
 
   int idcc = id.id();
 
@@ -451,25 +426,27 @@ int Numbers::iSM( const EcalDCCHeaderBlock& id, const EcalSubdetector subdet ) t
   // EE+
   if( idcc >= 46 && idcc <= 54 ) return( idcc - 45 + 9 );
 
-  std::ostringstream s;
-  s << "Wrong DCC id: dcc = " << idcc;
-  throw( std::runtime_error( s.str() ) );
+  throw cms::Exception("InvalidParameter") << "Wrong DCC id: dcc = " << idcc;
 
 }
 
 //-------------------------------------------------------------------------
 
-int Numbers::iSC( const EcalScDetId& id ) throw( std::runtime_error ) {
+unsigned
+Numbers::iSC( const EcalScDetId& id )
+{
 
     std::pair<int, int> dccsc = Numbers::map->getDCCandSC( id );
 
-    return dccsc.second;
+    return static_cast<unsigned>(dccsc.second);
 
 }
 
 //-------------------------------------------------------------------------
 
-int Numbers::iSC( const int ism, const EcalSubdetector subdet, const int i1, const int i2 ) throw( std::runtime_error ) {
+unsigned
+Numbers::iSC( const unsigned ism, const EcalSubdetector subdet, const unsigned i1, const unsigned i2 )
+{
 
   if( subdet == EcalBarrel ) {
 
@@ -480,50 +457,32 @@ int Numbers::iSC( const int ism, const EcalSubdetector subdet, const int i1, con
 
   } else if( subdet == EcalEndcap ) {
 
+    if( !Numbers::map ) throw( std::runtime_error( "ECAL Geometry not available" ) );
+
+    // use ism only for determination of +/-
+
     int iz = 0;
 
     if( ism >=  1 && ism <=  9 ) iz = -1;
     if( ism >= 10 && ism <= 18 ) iz = +1;
 
-    if( EEDetId::validDetId(i1, i2, iz) ) {
+    EEDetId id(i1, i2, iz, EEDetId::XYMODE); // throws an exception if invalid
 
-      EEDetId id(i1, i2, iz, EEDetId::XYMODE);
+    const EcalElectronicsId eid = Numbers::map->getElectronicsId(id);
 
-      if( Numbers::iSM( id ) != ism ) return( -1 );
-
-      if( Numbers::map ) {
-
-        const EcalElectronicsId eid = Numbers::map->getElectronicsId(id);
-
-        return( eid.towerId() );
-
-      } else {
-
-        std::ostringstream s;
-        s << "ECAL Geometry not available";
-        throw( std::runtime_error( s.str() ) );
-
-      }
-
-    } else {
-
-      return( -1 );
-
-    }
-
-  } else {
-
-    std::ostringstream s;
-    s << "Invalid subdetector: subdet = " << subdet;
-    throw( std::runtime_error( s.str() ) );
+    return( static_cast<unsigned>( eid.towerId() ));
 
   }
+
+  throw cms::Exception("InvalidParameter") << "Invalid subdetector: subdet = " << subdet;
 
 }
 
 //-------------------------------------------------------------------------
 
-int Numbers::iTT( const int ism, const EcalSubdetector subdet, const int i1, const int i2 ) throw( std::runtime_error ) {
+unsigned
+Numbers::iTT( const unsigned ism, const EcalSubdetector subdet, const unsigned i1, const unsigned i2 )
+{
 
   if( subdet == EcalBarrel ) {
 
@@ -531,122 +490,58 @@ int Numbers::iTT( const int ism, const EcalSubdetector subdet, const int i1, con
 
   } else if( subdet == EcalEndcap ) {
 
+    if( !Numbers::mapTT ) throw cms::Exception("ObjectUnavailable") << "ECAL Geometry not available";
+
+    // use ism only for determination of +/-
+
     int iz = 0;
 
     if( ism >=  1 && ism <=  9 ) iz = -1;
     if( ism >= 10 && ism <= 18 ) iz = +1;
 
-    if( EEDetId::validDetId(i1, i2, iz) ) {
+    EEDetId id(i1, i2, iz, EEDetId::XYMODE); // throws an exception if invalid
 
-      EEDetId id(i1, i2, iz, EEDetId::XYMODE);
+    const EcalTrigTowerDetId towid = Numbers::mapTT->towerOf(id);
 
-      if( Numbers::iSM( id ) != ism ) return( -1 );
-
-      if( Numbers::mapTT ) {
-
-        const EcalTrigTowerDetId towid = Numbers::mapTT->towerOf(id);
-
-        return( iTT(towid) );
-
-      } else {
-
-        std::ostringstream s;
-        s << "ECAL Geometry not available";
-        throw( std::runtime_error( s.str() ) );
-
-      }
-
-    } else {
-
-      return( -1 );
-
-    }
-
-  } else {
-
-    std::ostringstream s;
-    s << "Invalid subdetector: subdet = " << subdet;
-    throw( std::runtime_error( s.str() ) );
+    return( static_cast<unsigned>( iTT(towid) ) );
 
   }
+
+  throw cms::Exception("InvalidParameter") << "Invalid subdetector: subdet = " << subdet;
 
 }
 
 //-------------------------------------------------------------------------
 
-int Numbers::iTT( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
+unsigned
+Numbers::iTT( const EcalTrigTowerDetId& id )
+{
+
+  if( !Numbers::map ) throw cms::Exception("ObjectUnavailable") << "ECAL Geometry not available";
 
   EcalSubdetector subdet = Numbers::subDet( id );
 
-  if( subdet == EcalBarrel ) {
+  if( subdet == EcalBarrel || subdet ==  EcalEndcap ) return( static_cast<unsigned>( Numbers::map->iTT(id) ) );
 
-    if( Numbers::map ) {
-
-      return( Numbers::map->iTT(id) );
-
-    } else {
-
-      std::ostringstream s;
-      s << "ECAL Geometry not available";
-      throw( std::runtime_error( s.str() ) );
-
-    }
-
-  } else if( subdet ==  EcalEndcap) {
-
-    if( Numbers::map ) {
-
-      return( Numbers::map->iTT(id) );
-
-    } else {
-
-      std::ostringstream s;
-      s << "ECAL Geometry not available";
-      throw( std::runtime_error( s.str() ) );
-
-    }
-
-  } else {
-
-    std::ostringstream s;
-    s << "Invalid subdetector: subdet = " << subdet;
-    throw( std::runtime_error( s.str() ) );
-
-  }
+  throw cms::Exception("InvalidParameter") << "Invalid subdetector: subdet = " << subdet;
 
 }
 
 //-------------------------------------------------------------------------
 
-int Numbers::iTCC( const int ism, const EcalSubdetector subdet, const int i1, const int i2 ) throw( std::runtime_error ) {
+unsigned
+Numbers::iTCC( const unsigned ism, const EcalSubdetector subdet, const unsigned i1, const unsigned i2 )
+{
+
+  if( !Numbers::mapTT ) throw cms::Exception("ObjectUnavailable") << "ECAL Geometry not available";
 
   if( subdet == EcalBarrel ) {
-   
-    if( EBDetId::validDetId(i1, i2) ) {
 
-      EBDetId id = EBDetId(i1, i2, EBDetId::ETAPHIMODE);
+    EBDetId id(i1, i2, EBDetId::ETAPHIMODE);
 
-      if( Numbers::iSM( id ) != ism ) return( -1 );
+    const EcalTrigTowerDetId towid = Numbers::mapTT->towerOf(id);
 
-      if( Numbers::mapTT ) {
-
-        const EcalTrigTowerDetId towid = Numbers::mapTT->towerOf(id);
-
-        return( Numbers::map->TCCid(towid) );
-
-      } else {
-
-        std::ostringstream s;
-        s << "ECAL Geometry not available";
-        throw( std::runtime_error( s.str() ) );
-
-      }
-
-    } else {
-
-      return( -1 );
-
-    }
+    return( static_cast<unsigned>( Numbers::map->TCCid(towid) ) );
 
   } else if( subdet ==  EcalEndcap) {
 
@@ -655,116 +550,62 @@ int Numbers::iTCC( const int ism, const EcalSubdetector subdet, const int i1, co
     if( ism >=  1 && ism <=  9 ) iz = -1;
     if( ism >= 10 && ism <= 18 ) iz = +1;
 
-    if( EEDetId::validDetId(i1, i2, iz) ) {
+    EEDetId id(i1, i2, iz, EEDetId::XYMODE);
 
-      EEDetId id(i1, i2, iz, EEDetId::XYMODE);
+    const EcalTrigTowerDetId towid = Numbers::mapTT->towerOf(id);
 
-      if( Numbers::iSM( id ) != ism ) return( -1 );
-
-      if( Numbers::mapTT ) {
-
-        const EcalTrigTowerDetId towid = Numbers::mapTT->towerOf(id);
-
-        return( Numbers::map->TCCid(towid) );
-
-      } else {
-
-        std::ostringstream s;
-        s << "ECAL Geometry not available";
-        throw( std::runtime_error( s.str() ) );
-
-      }
-
-    } else {
-
-      return( -1 );
-
-    }
-
-  } else {
-
-    std::ostringstream s;
-    s << "Invalid subdetector: subdet = " << subdet;
-    throw( std::runtime_error( s.str() ) );
+    return( static_cast<unsigned>( Numbers::map->TCCid(towid) ) );
 
   }
+
+  throw cms::Exception("InvalidSubdetector") << "subdet = " << subdet;
 
 }
 
 //-------------------------------------------------------------------------
 
-int Numbers::iTCC( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
+unsigned
+Numbers::iTCC( const EcalTrigTowerDetId& id )
+{
+
+  if( !Numbers::map ) throw cms::Exception("ObjectUnavailable") << "ECAL Geometry not available";
 
   EcalSubdetector subdet = Numbers::subDet( id );
 
-  if( subdet == EcalBarrel ) {
+  if( subdet == EcalBarrel || subdet == EcalEndcap ) return( static_cast<unsigned>( Numbers::map->TCCid(id) ) );
 
-    if( Numbers::map ) {
-
-      return( Numbers::map->TCCid(id) );
-
-    } else {
-
-      std::ostringstream s;
-      s << "ECAL Geometry not available";
-      throw( std::runtime_error( s.str() ) );
-
-    }
-
-  } else if( subdet ==  EcalEndcap) {
-
-    if( Numbers::map ) {
-
-      return( Numbers::map->TCCid(id) );
-
-    } else {
-
-      std::ostringstream s;
-      s << "ECAL Geometry not available";
-      throw( std::runtime_error( s.str() ) );
-
-    }
-
-  } else {
-
-    std::ostringstream s;
-    s << "Invalid subdetector: subdet = " << subdet;
-    throw( std::runtime_error( s.str() ) );
-
-  }
+  throw cms::Exception("InvalidParameter") << "Invalid subdetector: subdet = " << subdet;
 
 }
 
 //-------------------------------------------------------------------------
 
-std::vector<DetId>* Numbers::crystals( const EcalTrigTowerDetId& id ) throw( std::runtime_error ) {
+std::vector<DetId> *
+Numbers::crystals( const EcalTrigTowerDetId& id )
+{
 
-  if( Numbers::map ) {
+  if( !Numbers::map ) throw cms::Exception("ObjectUnavailable") << "ECAL Geometry not available";
 
-    int itcc = Numbers::map->TCCid(id);
-    int itt = Numbers::map->iTT(id);
+  int itcc = Numbers::map->TCCid(id);
+  int itt = Numbers::map->iTT(id);
 
-    int index = 100*(itcc-1) + (itt-1);
+  unsigned index = 100*(itcc-1) + (itt-1);
 
-    if ( Numbers::crystalsTCC_[index].size() == 0 ) {
-      Numbers::crystalsTCC_[index] = Numbers::map->ttConstituents( itcc, itt );
-    }
+  if( index > crystalsTCCArraySize_ ) throw cms::Exception("InvalidParameter") << "TCC index " << index;
 
-    return &(Numbers::crystalsTCC_[index]);
-
-  } else {
-
-    std::ostringstream s;
-    s << "ECAL Geometry not available";
-    throw( std::runtime_error( s.str() ) );
-
+  if ( Numbers::crystalsTCC_[index].size() == 0 ) {
+    Numbers::crystalsTCC_[index] = Numbers::map->ttConstituents( itcc, itt );
   }
+
+  return &(Numbers::crystalsTCC_[index]);
 
 }
 
 //-------------------------------------------------------------------------
 
-int Numbers::RtHalf(const EBDetId& id) {
+unsigned
+Numbers::RtHalf(const EBDetId& id)
+{
 
   int ic = id.ic();
   int ie = (ic-1)/20 + 1;
@@ -778,7 +619,9 @@ int Numbers::RtHalf(const EBDetId& id) {
 
 //-------------------------------------------------------------------------
 
-int Numbers::RtHalf(const EEDetId& id) {
+unsigned
+Numbers::RtHalf(const EEDetId& id)
+{
 
   int ix = id.ix();
 
@@ -796,160 +639,138 @@ int Numbers::RtHalf(const EEDetId& id) {
 
 //-------------------------------------------------------------------------
 
-std::vector<DetId>* Numbers::crystals( const EcalElectronicsId& id ) throw( std::runtime_error ) {
+std::vector<DetId> *
+Numbers::crystals( const EcalElectronicsId& id )
+{
 
-  if( Numbers::map ) {
+  if( !Numbers::map ) throw cms::Exception("ObjectUnavailable") << "ECAL Geometry not available";
 
-    int idcc = id.dccId();
-    int isc = id.towerId();
+  int idcc = id.dccId();
+  int isc = id.towerId();
 
-    return Numbers::crystals( idcc, isc );
+  return Numbers::crystals( idcc, isc );
 
-  } else {
+}
 
-    std::ostringstream s;
-    s << "ECAL Geometry not available";
-    throw( std::runtime_error( s.str() ) );
+//-------------------------------------------------------------------------
 
+std::vector<DetId> *
+Numbers::crystals( unsigned idcc, unsigned isc )
+{
+
+  if( !Numbers::map ) throw cms::Exception("ObjectUnavailable") << "ECAL Geometry not available";
+
+  unsigned index = 100*(idcc-1) + (isc-1);
+
+  if( index > crystalsDCCArraySize_ ) throw cms::Exception("InvalidParameter") << "DCC index " << index;
+
+  if ( Numbers::crystalsDCC_[index].size() == 0 ) {
+    Numbers::crystalsDCC_[index] = Numbers::map->dccTowerConstituents(idcc, isc);
   }
 
-}
-
-//-------------------------------------------------------------------------
-
-std::vector<DetId>* Numbers::crystals( int idcc, int isc ) throw( std::runtime_error ) {
-
-  if( Numbers::map ) {
-
-    int index = 100*(idcc-1) + (isc-1);
-
-    if ( Numbers::crystalsDCC_[index].size() == 0 ) {
-      Numbers::crystalsDCC_[index] = Numbers::map->dccTowerConstituents(idcc, isc);
-    }
-
-    return &(Numbers::crystalsDCC_[index]);
-
-  } else {
-
-    std::ostringstream s;
-    s << "ECAL Geometry not available";
-    throw( std::runtime_error( s.str() ) );
-
-  }
+  return &(Numbers::crystalsDCC_[index]);
 
 }
 
 //-------------------------------------------------------------------------
 
-const EcalScDetId Numbers::getEcalScDetId( const EEDetId& id ) throw( std::runtime_error ) {
+const EcalScDetId
+Numbers::getEcalScDetId( const EEDetId& id )
+{
 
-  if( Numbers::map ) {
+  if( !Numbers::map ) throw cms::Exception("ObjectUnavailable") << "ECAL Geometry not available";
 
-    const EcalElectronicsId& eid = Numbers::map->getElectronicsId(id);
+  const EcalElectronicsId& eid = Numbers::map->getElectronicsId(id);
 
-    int idcc = eid.dccId();
-    int isc = eid.towerId();
+  int idcc = eid.dccId();
+  int isc = eid.towerId();
 
-    const std::vector<EcalScDetId> ids = Numbers::map->getEcalScDetId( idcc, isc, true );
+  const std::vector<EcalScDetId> ids = Numbers::map->getEcalScDetId( idcc, isc, true );
 
-    return ids.size() > 0 ? ids[0] : EcalScDetId();
-
-  } else {
-
-    std::ostringstream s;
-    s << "ECAL Geometry not available";
-    throw( std::runtime_error( s.str() ) );
-
-  }
+  return ids.size() > 0 ? ids[0] : EcalScDetId();
 
 }
 
 //-------------------------------------------------------------------------
 
-int Numbers::indexEB( const int ism, const int ie, const int ip ) {
+unsigned
+Numbers::indexEB( const unsigned ism, const unsigned ie, const unsigned ip )
+{
 
-  return( (ip-1) + 20*(ie-1) + 1 );
+  unsigned ic = (ip-1) + 20*(ie-1) + 1;
+
+  if( ic == 0 || ic > static_cast<unsigned>( EBDetId::kCrystalsPerSM ) ) throw cms::Exception("InvalidParameter") << "ism=" << ism << " ie=" << ie << " ip=" << ip;
+
+  return ic;
 
 }
 
 //-------------------------------------------------------------------------
 
-int Numbers::indexEE( const int ism, const int ix, const int iy ) {
+unsigned
+Numbers::indexEE( const unsigned ism, const unsigned ix, const unsigned iy )
+{
 
   int iz = 0;
 
   if( ism >=  1 && ism <=  9 ) iz = -1;
   if( ism >= 10 && ism <= 18 ) iz = +1;
 
-  if( EEDetId::validDetId(ix, iy, iz) ) {
+  if( !EEDetId::validDetId(ix, iy, iz) ) throw cms::Exception("InvalidParameter") << "ism=" << ism << " ix=" << ix << " iy=" << iy;
 
-    return( 1000*ix + iy );
-
-  } else {
-
-    return( -1 );
-
-  }
+  return( 1000*ix + iy );
 
 }
 
 //-------------------------------------------------------------------------
 
-int Numbers::icEB( const int ism, const int ie, const int ip ) {
+unsigned
+Numbers::icEB( const unsigned ism, const unsigned ie, const unsigned ip )
+{
 
-  return( (ip-1) + 20*(ie-1) + 1 );
+  return Numbers::indexEB( ism, ie, ip );
 
 }
 
 //-------------------------------------------------------------------------
 
-int Numbers::icEE( const int ism, const int ix, const int iy ) throw( std::runtime_error ) {
+unsigned
+Numbers::icEE( const unsigned ism, const unsigned ix, const unsigned iy )
+{
+
+  if( !Numbers::map ) throw cms::Exception("ObjectUnavailable") << "ECAL Geometry not available";
 
   int iz = 0;
 
   if( ism >=  1 && ism <=  9 ) iz = -1;
   if( ism >= 10 && ism <= 18 ) iz = +1;
 
-  if( EEDetId::validDetId(ix, iy, iz) ) {
+  EEDetId id(ix, iy, iz, EEDetId::XYMODE);
 
-    EEDetId id(ix, iy, iz, EEDetId::XYMODE);
+  const EcalElectronicsId eid = Numbers::map->getElectronicsId(id);
 
-    if( Numbers::iSM( id ) != ism ) return( -1 );
+  int vfe = eid.towerId();
+  int strip = eid.stripId();
+  int channel = eid.xtalId();
 
-    if( Numbers::map ) {
-
-      const EcalElectronicsId eid = Numbers::map->getElectronicsId(id);
-
-      int vfe = eid.towerId();
-      int strip = eid.stripId();
-      int channel = eid.xtalId();
-
-      // EE-05 & EE+05
-      if( ism == 8 || ism == 17 ) {
-        if( vfe > 17 ) vfe = vfe - 7;
-      }
-
-      return ( (vfe-1)*25 + (strip-1)*5 + channel );
-
-    } else {
-
-      std::ostringstream s;
-      s << "ECAL Geometry not available";
-      throw( std::runtime_error( s.str() ) );
-
-    }
-
-  } else {
-
-    return( -1 );
-
+  // EE-05 & EE+05
+  if( ism == 8 || ism == 17 ) {
+    if( vfe > 17 ) vfe = vfe - 7;
   }
+
+  unsigned ic = (vfe-1)*25 + (strip-1)*5 + channel;
+
+  if( ic == 0 || ic > static_cast<unsigned>( EEDetId::kSizeForDenseIndexing ) ) throw cms::Exception("InvalidParameter") << "ic=" << ic;
+
+  return ic;
 
 }
 
 //-------------------------------------------------------------------------
 
-int Numbers::ix0EE( const int ism ) {
+int
+Numbers::ix0EE( const unsigned ism )
+{
 
   if( ism == 1 || ism == 15 ) return( -  5 );
   if( ism == 2 || ism == 14 ) return( +  0 );
@@ -967,7 +788,9 @@ int Numbers::ix0EE( const int ism ) {
 
 //-------------------------------------------------------------------------
 
-int Numbers::ix0EEm( const int ism ) {
+int
+Numbers::ix0EEm( const unsigned ism )
+{
 
   switch( ism ){
   case 1: return -105;
@@ -984,7 +807,9 @@ int Numbers::ix0EEm( const int ism ) {
   return ix0EE( ism );
 }
 
-int Numbers::iy0EE( const int ism ) {
+int
+Numbers::iy0EE( const unsigned ism )
+{
 
   if( ism == 1 || ism == 10 ) return( + 20 );
   if( ism == 2 || ism == 11 ) return( + 45 );
@@ -1002,7 +827,9 @@ int Numbers::iy0EE( const int ism ) {
 
 //-------------------------------------------------------------------------
 
-bool Numbers::validEE( const int ism, const int ix, const int iy ) {
+bool
+Numbers::validEE( const unsigned ism, const unsigned ix, const unsigned iy )
+{
 
   int iz = 0;
 
@@ -1023,7 +850,9 @@ bool Numbers::validEE( const int ism, const int ix, const int iy ) {
 
 //-------------------------------------------------------------------------
 
-bool Numbers::validEESc( const int ism, const int ix, const int iy ) {
+bool
+Numbers::validEESc( const unsigned ism, const unsigned ix, const unsigned iy )
+{
 
   int iz = 0;
 
@@ -1041,29 +870,25 @@ bool Numbers::validEESc( const int ism, const int ix, const int iy ) {
   return false;
 }
 
-const EcalElectronicsMapping* Numbers::getElectronicsMapping() throw( std::runtime_error ) {
+const EcalElectronicsMapping *
+Numbers::getElectronicsMapping()
+{
 
-  if( Numbers::map ) {
+  if( !Numbers::map ) throw cms::Exception("ObjectUnavailable") << "ECAL Geometry not available";
 
-    return Numbers::map;
-
-  } else {
-
-    std::ostringstream s;
-    s << "ECAL Geometry not available";
-    throw( std::runtime_error( s.str() ) );
-
-  }
+  return Numbers::map;
 
 }
 
-float Numbers::eta( const DetId &id )
+float
+Numbers::eta( const DetId &id )
 {
   const GlobalPoint& pos = geometry->getPosition(id);
   return pos.eta();
 }
 
-float Numbers::phi( const DetId &id )
+float
+Numbers::phi( const DetId &id )
 {
   const GlobalPoint& pos = geometry->getPosition(id);
   return pos.phi();

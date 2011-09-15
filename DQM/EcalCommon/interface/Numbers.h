@@ -5,8 +5,8 @@
   \file Numbers.h
   \brief Some "id" conversions
   \author B. Gobbo 
-  \version $Revision: 1.38 $
-  \date $Date: 2011/08/05 10:34:43 $
+  \version $Revision: 1.39 $
+  \date $Date: 2011/08/30 09:06:12 $
 */
 
 #include <string>
@@ -40,13 +40,13 @@ class Numbers {
 
   static void initGeometry( const edm::EventSetup& setup, bool verbose = false );
 
-  static int iEB( const int ism ) throw( std::runtime_error );
+  static int iEB( const unsigned ism );
 
-  static std::string sEB( const int ism );
+  static std::string sEB( const unsigned ism );
 
-  static int iEE( const int ism ) throw( std::runtime_error );
+  static int iEE( const unsigned ism );
 
-  static std::string sEE( const int ism );
+  static std::string sEE( const unsigned ism );
 
   static EcalSubdetector subDet( const EBDetId& id );
 
@@ -60,68 +60,69 @@ class Numbers {
 
   static EcalSubdetector subDet( const EcalPnDiodeDetId& id );
 
-  static EcalSubdetector subDet( const EcalDCCHeaderBlock& id ) throw( std::runtime_error );
+  static EcalSubdetector subDet( const EcalDCCHeaderBlock& id );
 
-  static int iSM( const int ism, const EcalSubdetector subdet ) throw( std::runtime_error );
+  // for EB, converts between two schemes. Old scheme [1:9] for EB-, new scheme (used in EBDetId) [1:9] for EB+
+  static unsigned iSM( const unsigned ism, const EcalSubdetector subdet );
 
-  static int iSM( const EBDetId& id ) throw( std::runtime_error );
+  static unsigned iSM( const EBDetId& id );
 
-  static int iSM( const EEDetId& id ) throw( std::runtime_error );
+  static unsigned iSM( const EEDetId& id );
 
-  static int iSM( const EcalTrigTowerDetId& id ) throw( std::runtime_error );
+  static unsigned iSM( const EcalTrigTowerDetId& id );
 
-  static int iSM( const EcalElectronicsId& id ) throw( std::runtime_error );
+  static unsigned iSM( const EcalElectronicsId& id );
 
-  static int iSM( const EcalPnDiodeDetId& id ) throw( std::runtime_error );
+  static unsigned iSM( const EcalPnDiodeDetId& id );
 
-  static int iSM( const EcalScDetId& id ) throw( std::runtime_error );
+  static unsigned iSM( const EcalScDetId& id );
 
-  static int iSM( const EcalDCCHeaderBlock& id, const EcalSubdetector subdet ) throw( std::runtime_error );
+  static unsigned iSM( const EcalDCCHeaderBlock& id, const EcalSubdetector subdet );
 
-  static int iSC( const EcalScDetId& id ) throw( std::runtime_error );
+  static unsigned iSC( const EcalScDetId& id );
 
-  static int iSC( const int ism, const EcalSubdetector subdet, const int i1, const int i2 ) throw( std::runtime_error );
+  static unsigned iSC( const unsigned ism, const EcalSubdetector subdet, const unsigned i1, const unsigned i2 );
 
-  static int iTT( const int ism, const EcalSubdetector subdet, const int i1, const int i2 ) throw( std::runtime_error );
+  static unsigned iTT( const unsigned ism, const EcalSubdetector subdet, const unsigned i1, const unsigned i2 );
 
-  static int iTT( const EcalTrigTowerDetId& id ) throw( std::runtime_error );
+  static unsigned iTT( const EcalTrigTowerDetId& id );
 
-  static int iTCC(const int ism, const EcalSubdetector subdet, const int i1, const int i2) throw( std::runtime_error );
+  static unsigned iTCC(const unsigned ism, const EcalSubdetector subdet, const unsigned i1, const unsigned i2);
 
-  static int iTCC(const EcalTrigTowerDetId& id) throw( std::runtime_error );
+  static unsigned iTCC(const EcalTrigTowerDetId& id);
 
-  static std::vector<DetId>* crystals( const EcalTrigTowerDetId& id ) throw( std::runtime_error );
+  static std::vector<DetId>* crystals( const EcalTrigTowerDetId& id );
 
-  static std::vector<DetId>* crystals( const EcalElectronicsId& id ) throw( std::runtime_error );
+  static std::vector<DetId>* crystals( const EcalElectronicsId& id );
 
-  static std::vector<DetId>* crystals( int idcc, int isc ) throw( std::runtime_error );
+  static std::vector<DetId>* crystals( unsigned idcc, unsigned isc );
 
-  static const EcalScDetId getEcalScDetId( const EEDetId& id ) throw( std::runtime_error );
+  static const EcalScDetId getEcalScDetId( const EEDetId& id );
 
-  static int indexEB( const int ism, const int ie, const int ip );
+  static unsigned indexEB( const unsigned ism, const unsigned ie, const unsigned ip );
 
-  static int indexEE( const int ism, const int ix, const int iy );
+  static unsigned indexEE( const unsigned ism, const unsigned ix, const unsigned iy );
 
-  static int icEB( const int ism, const int ix, const int iy );
+  static unsigned icEB( const unsigned ism, const unsigned ix, const unsigned iy );
 
-  static int icEE( const int ism, const int ix, const int iy ) throw( std::runtime_error );
+  static unsigned icEE( const unsigned ism, const unsigned ix, const unsigned iy );
 
-  static int RtHalf(const EBDetId& id);
+  static unsigned RtHalf(const EBDetId& id);
 
-  static int RtHalf(const EEDetId& id);
+  static unsigned RtHalf(const EEDetId& id);
 
-  static int ix0EE( const int ism );
+  static int ix0EE( const unsigned ism );
 
   // returns ix0 in negative-number scheme for EE- instead of 101-ix
-  static int ix0EEm( const int ism );
+  static int ix0EEm( const unsigned ism );
 
-  static int iy0EE( const int ism );
+  static int iy0EE( const unsigned ism );
 
-  static bool validEE( const int ism, const int ix, const int iy );
+  static bool validEE( const unsigned ism, const unsigned ix, const unsigned iy );
 
-  static bool validEESc( const int ism, const int ix, const int iy );
+  static bool validEESc( const unsigned ism, const unsigned ix, const unsigned iy );
 
-  static const EcalElectronicsMapping* getElectronicsMapping() throw( std::runtime_error );
+  static const EcalElectronicsMapping* getElectronicsMapping();
 
   // temporary - this is not really an "id conversion" - must find a better place to implement
   static float eta( const DetId &id );
@@ -139,8 +140,11 @@ private:
 
   static const CaloGeometry *geometry;
 
-  static std::vector<DetId> crystalsTCC_[100*108];
-  static std::vector<DetId> crystalsDCC_[100* 54];
+  static const unsigned crystalsTCCArraySize_ = 100 * 108;
+  static const unsigned crystalsDCCArraySize_ = 100 * 54;
+
+  static std::vector<DetId> crystalsTCC_[crystalsTCCArraySize_];
+  static std::vector<DetId> crystalsDCC_[crystalsDCCArraySize_];
 
 };
 
