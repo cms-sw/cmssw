@@ -4,8 +4,8 @@
 /** \class AlignableDTBarrel
  *  The alignable muon DT barrel.
  *
- *  $Date: 2008/04/10 16:36:41 $
- *  $Revision: 1.9 $
+ *  $Date: 2008/04/15 16:05:53 $
+ *  $Revision: 1.10 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
@@ -58,7 +58,7 @@ class AlignableDTBarrel : public AlignableComposite
   friend std::ostream& operator << ( std::ostream&, const AlignableDTBarrel& );
 
   /// Recursive printout of the muon Barrel structure
-  void dump( void );
+  void dump( void ) const;
 
 
   // Get alignments sorted by DetId

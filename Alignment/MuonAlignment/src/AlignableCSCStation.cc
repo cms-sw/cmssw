@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/02/14 12:54:54 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/04/10 16:36:41 $
+ *  $Revision: 1.6 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -103,11 +103,11 @@ std::ostream &operator << (std::ostream& os, const AlignableCSCStation& b )
 
 
 /// Recursive printout of whole CSC Station structure
-void AlignableCSCStation::dump( void )
+void AlignableCSCStation::dump( void ) const
 {
 
   edm::LogInfo("AlignableDump") << (*this);
-  for ( std::vector<AlignableCSCRing*>::iterator iRing = theCSCRings.begin();
+  for ( std::vector<AlignableCSCRing*>::const_iterator iRing = theCSCRings.begin();
 		iRing != theCSCRings.end(); iRing++ )
 	 edm::LogInfo("AlignableDump")  << (**iRing);
 

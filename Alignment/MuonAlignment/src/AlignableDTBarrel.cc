@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2007/12/06 01:39:29 $
- *  $Revision: 1.6 $
+ *  $Date: 2008/04/10 16:36:41 $
+ *  $Revision: 1.7 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -96,11 +96,11 @@ std::ostream &operator << (std::ostream& os, const AlignableDTBarrel& b )
 
 
 /// Recursive printout of whole Half Barrel structure
-void AlignableDTBarrel::dump( void )
+void AlignableDTBarrel::dump( void ) const
 {
 
   edm::LogInfo("AlignableDump") << (*this);
-  for ( std::vector<AlignableDTWheel*>::iterator iWheel = theDTWheels.begin();
+  for ( std::vector<AlignableDTWheel*>::const_iterator iWheel = theDTWheels.begin();
 		iWheel != theDTWheels.end(); iWheel++ )
 	(*iWheel)->dump();
 

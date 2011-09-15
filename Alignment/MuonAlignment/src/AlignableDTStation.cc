@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/08/04 20:18:51 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/04/10 16:36:41 $
+ *  $Revision: 1.5 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -94,11 +94,11 @@ std::ostream &operator << (std::ostream& os, const AlignableDTStation& b )
 
 
 /// Recursive printout of whole DT Station structure
-void AlignableDTStation::dump( void )
+void AlignableDTStation::dump( void ) const
 {
 
   edm::LogInfo("AlignableDump") << (*this);
-  for ( std::vector<AlignableDTChamber*>::iterator iChamber = theDTChambers.begin();
+  for ( std::vector<AlignableDTChamber*>::const_iterator iChamber = theDTChambers.begin();
 		iChamber != theDTChambers.end(); iChamber++ )
 	edm::LogInfo("AlignableDump") << (**iChamber);
 

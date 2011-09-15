@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/02/14 12:54:54 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/04/10 16:36:41 $
+ *  $Revision: 1.2 $
  *  \author Jim Pivarski - Texas A&M University
  */
  
@@ -103,11 +103,11 @@ std::ostream &operator << (std::ostream& os, const AlignableCSCRing& b )
 
 
 /// Recursive printout of whole CSC Ring structure
-void AlignableCSCRing::dump( void )
+void AlignableCSCRing::dump( void ) const
 {
 
   edm::LogInfo("AlignableDump") << (*this);
-  for ( std::vector<AlignableCSCChamber*>::iterator iChamber = theCSCChambers.begin();
+  for ( std::vector<AlignableCSCChamber*>::const_iterator iChamber = theCSCChambers.begin();
 		iChamber != theCSCChambers.end(); iChamber++ )
 	 edm::LogInfo("AlignableDump")  << (**iChamber);
 

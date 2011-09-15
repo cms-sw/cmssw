@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/08/04 20:18:51 $
- *  $Revision: 1.4 $
+ *  $Date: 2008/04/10 16:36:41 $
+ *  $Revision: 1.5 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -93,11 +93,11 @@ std::ostream &operator << (std::ostream& os, const AlignableDTWheel& b )
 
 
 /// Recursive printout of whole DT Wheel structure
-void AlignableDTWheel::dump( void )
+void AlignableDTWheel::dump( void ) const 
 {
 
   edm::LogInfo("AlignableDump") << (*this);
-  for ( std::vector<AlignableDTStation*>::iterator iStation = theDTStations.begin();
+  for ( std::vector<AlignableDTStation*>::const_iterator iStation = theDTStations.begin();
 		iStation != theDTStations.end(); iStation++ )
 	(*iStation)->dump();
 
