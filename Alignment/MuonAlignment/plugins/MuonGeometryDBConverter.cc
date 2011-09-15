@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Sat Feb 16 00:04:55 CST 2008
-// $Id: MuonGeometryDBConverter.cc,v 1.13 2009/10/07 20:46:38 pivarski Exp $
+// $Id: MuonGeometryDBConverter.cc,v 1.14 2010/01/04 17:04:08 mussgill Exp $
 //
 //
 
@@ -176,21 +176,25 @@ MuonGeometryDBConverter::analyze(const edm::Event &iEvent, const edm::EventSetup
 
       /////////////
 
-      if (m_output == std::string("none")) {}
+      if (muonAlignment) {
 
-      else if (m_output == std::string("db")) {
-	 muonAlignment->saveToDB();
+	if (m_output == std::string("none")) {}
+
+	else if (m_output == std::string("db")) {
+	  muonAlignment->saveToDB();
+	}
+
+	else if (m_output == std::string("surveydb")) {
+	  muonAlignment->saveSurveyToDB();
+	}
+
+	else if (m_output == std::string("xml")) {
+	  muonAlignment->writeXML(m_outputXML, iSetup);
+	}
+
+	delete muonAlignment;
+
       }
-
-      else if (m_output == std::string("surveydb")) {
-	 muonAlignment->saveSurveyToDB();
-      }
-
-      else if (m_output == std::string("xml")) {
-	 muonAlignment->writeXML(m_outputXML, iSetup);
-      }
-
-      delete muonAlignment;
 
       m_done = true;
    } // end if not done
