@@ -13,7 +13,7 @@
 //
 // Original Author:  Nhan Tran
 //         Created:  Mon Jul 16m 16:56:34 CDT 2007
-// $Id: Tracker_OldtoNewConverter.cc,v 1.1 2008/02/27 17:35:48 ebutz Exp $
+// $Id: Tracker_OldtoNewConverter.cc,v 1.2 2010/01/04 18:24:37 mussgill Exp $
 //
 //
 
@@ -86,7 +86,11 @@ private:
 //
 // constructors and destructor
 //
-Tracker_OldtoNewConverter::Tracker_OldtoNewConverter(const edm::ParameterSet& iConfig)
+Tracker_OldtoNewConverter::Tracker_OldtoNewConverter(const edm::ParameterSet& iConfig) :
+  m_inputTFile(0), m_outputTFile(0), m_inputTree(0), m_outputTree(0),
+  rawid_i(0), rawid_f(0),
+  x_i(0.), y_i(0.), z_i(0.), a_i(0.), b_i(0.), c_i(0.),
+  x_f(0.), y_f(0.), z_f(0.), a_f(0.), b_f(0.), c_f(0.)
 {
 	m_conversionType = iConfig.getUntrackedParameter< std::string > ("conversionType");
 	m_inputFile = iConfig.getUntrackedParameter< std::string > ("inputFile");
