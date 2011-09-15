@@ -5,12 +5,12 @@
 class RPFlatParams{
  public:
   struct EP {
-    double x[50];
-    double y[50];
-    double xSub1[50];
-    double ySub1[50];
-    double xSub2[50];
-    double ySub2[50];
+    float x[50];
+    float y[50];
+    float xSub1[50];
+    float ySub1[50];
+    float xSub2[50];
+    float ySub2[50];
     int RPNameIndx[50];
   };
   RPFlatParams(){}
