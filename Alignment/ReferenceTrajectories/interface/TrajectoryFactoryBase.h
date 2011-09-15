@@ -41,8 +41,8 @@ public:
 
   virtual TrajectoryFactoryBase* clone( void ) const = 0;
 
-  inline const MaterialEffects materialEffects( void ) const { return theMaterialEffects; }
-  inline const PropagationDirection propagationDirection( void ) const { return thePropDir; }
+  inline MaterialEffects materialEffects( void ) const { return theMaterialEffects; }
+  inline PropagationDirection propagationDirection( void ) const { return thePropDir; }
 
 protected:
 
@@ -53,8 +53,8 @@ protected:
 
 private:
 
-  const MaterialEffects materialEffects( const std::string & strME ) const;
-  const PropagationDirection propagationDirection( const std::string & strPD ) const;
+  MaterialEffects materialEffects( const std::string & strME ) const;
+  PropagationDirection propagationDirection( const std::string & strPD ) const;
 
   MaterialEffects theMaterialEffects;
   PropagationDirection thePropDir;

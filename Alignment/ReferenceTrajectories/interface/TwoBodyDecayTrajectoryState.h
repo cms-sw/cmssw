@@ -38,8 +38,8 @@ public:
 
   void rescaleError( double scale );
 
-  inline const double primaryMass( void ) const { return thePrimaryMass; }
-  inline const double primaryWidth( void ) const { return thePrimaryWidth; }
+  inline double primaryMass( void ) const { return thePrimaryMass; }
+  inline double primaryWidth( void ) const { return thePrimaryWidth; }
 
 private:
 

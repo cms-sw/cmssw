@@ -108,7 +108,7 @@ TrajectoryFactoryBase::useRecHit( const TransientTrackingRecHit::ConstRecHitPoin
 }
 
 
-const TrajectoryFactoryBase::MaterialEffects
+TrajectoryFactoryBase::MaterialEffects
 TrajectoryFactoryBase::materialEffects( const std::string & strME ) const
 {
   if ( strME == "MultipleScattering" ) return ReferenceTrajectoryBase::multipleScattering;
@@ -125,7 +125,7 @@ TrajectoryFactoryBase::materialEffects( const std::string & strME ) const
 }
 
 
-const PropagationDirection
+PropagationDirection
 TrajectoryFactoryBase::propagationDirection( const std::string & strPD ) const
 {
   if ( strPD == "oppositeToMomentum" ) return oppositeToMomentum;
