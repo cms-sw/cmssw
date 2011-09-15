@@ -1,8 +1,8 @@
 /*
  * \file EETimingTask.cc
  *
- * $Date: 2011/08/30 09:28:42 $
- * $Revision: 1.78 $
+ * $Date: 2011/09/07 22:07:59 $
+ * $Revision: 1.79 $
  * \author G. Della Ricca
  *
 */
@@ -22,6 +22,7 @@
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
@@ -49,6 +50,8 @@ EETimingTask::EETimingTask(const edm::ParameterSet& ps){
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
 
+  L1GtEvmReadoutRecord_ = ps.getParameter<edm::InputTag>("L1GtEvmReadoutRecord");
+
   for (int i = 0; i < 18; i++) {
     meTime_[i] = 0;
     meTimeMap_[i] = 0;
@@ -63,6 +66,8 @@ EETimingTask::EETimingTask(const edm::ParameterSet& ps){
 
   meTimeDelta_ = 0;
   meTimeDelta2D_ = 0;
+
+  stableBeamsDeclared_ = false;
 
 }
 
@@ -91,6 +96,8 @@ void EETimingTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
   }
 
   if ( ! mergeRuns_ ) this->reset();
+
+  stableBeamsDeclared_ = false;
 
 }
 
@@ -257,6 +264,8 @@ void EETimingTask::endJob(void){
 
 void EETimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
+  const unsigned STABLE_BEAMS = 11;
+
   bool isData = true;
   bool enable = false;
   int runType[18];
@@ -295,6 +304,23 @@ void EETimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   if ( ! init_ ) this->setup();
 
   ievt_++;
+
+  // resetting plots when stable beam is declared
+  if( !stableBeamsDeclared_ ) {
+    edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtRecord;
+    if( e.getByLabel(L1GtEvmReadoutRecord_, gtRecord) ) {
+
+      unsigned lhcBeamMode = gtRecord->gtfeWord().beamMode();
+
+      if( lhcBeamMode == STABLE_BEAMS ){
+
+	reset();
+
+	stableBeamsDeclared_ = true;
+
+      }
+    }
+  }
 
   float sumTime_hithr[2] = {0.,0.};
   int n_hithr[2] = {0,0};

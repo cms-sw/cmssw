@@ -4,8 +4,8 @@
 /*
  * \file EETimingTask.h
  *
- * $Date: 2011/06/27 10:33:50 $
- * $Revision: 1.17.4.2 $
+ * $Date: 2011/08/30 09:29:05 $
+ * $Revision: 1.20 $
  * \author G. Della Ricca
  *
 */
@@ -77,6 +77,7 @@ float energyThreshold_;
 
 edm::InputTag EcalRawDataCollection_;
 edm::InputTag EcalRecHitCollection_;
+edm::InputTag L1GtEvmReadoutRecord_;
 
 MonitorElement* meTime_[18];
 MonitorElement* meTimeMap_[18];
@@ -91,6 +92,8 @@ edm::ESHandle<CaloGeometry> pGeometry_;
 
 bool init_;
 bool initCaloGeometry_;
+
+bool stableBeamsDeclared_;
 
 };
 

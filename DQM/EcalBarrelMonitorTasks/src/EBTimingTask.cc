@@ -1,8 +1,8 @@
 /*
  * \file EBTimingTask.cc
  *
- * $Date: 2011/08/30 09:30:33 $
- * $Revision: 1.70 $
+ * $Date: 2011/09/07 22:07:33 $
+ * $Revision: 1.71 $
  * \author G. Della Ricca
  *
 */
@@ -24,6 +24,7 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
 
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
@@ -49,6 +50,8 @@ EBTimingTask::EBTimingTask(const edm::ParameterSet& ps){
   EcalRawDataCollection_ = ps.getParameter<edm::InputTag>("EcalRawDataCollection");
   EcalRecHitCollection_ = ps.getParameter<edm::InputTag>("EcalRecHitCollection");
 
+  L1GtEvmReadoutRecord_ = ps.getParameter<edm::InputTag>("L1GtEvmReadoutRecord");
+
   for (int i = 0; i < 36; i++) {
     meTime_[i] = 0;
     meTimeMap_[i] = 0;
@@ -58,6 +61,8 @@ EBTimingTask::EBTimingTask(const edm::ParameterSet& ps){
   meTimeAmpliSummary_ = 0;
   meTimeSummary1D_ = 0;
   meTimeSummaryMap_ = 0;
+
+  stableBeamsDeclared_ = false;
 
 }
 
@@ -81,6 +86,8 @@ void EBTimingTask::beginRun(const edm::Run& r, const edm::EventSetup& c) {
   Numbers::initGeometry(c, false);
 
   if ( ! mergeRuns_ ) this->reset();
+
+  stableBeamsDeclared_ = false;
 
 }
 
@@ -208,6 +215,8 @@ void EBTimingTask::endJob(void){
 
 void EBTimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
+  const unsigned STABLE_BEAMS = 11;
+
   bool isData = true;
   bool enable = false;
   int runType[36];
@@ -246,6 +255,23 @@ void EBTimingTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   if ( ! init_ ) this->setup();
 
   ievt_++;
+
+  // resetting plots when stable beam is declared
+  if( !stableBeamsDeclared_ ) {
+    edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtRecord;
+    if( e.getByLabel(L1GtEvmReadoutRecord_, gtRecord) ) {
+
+      unsigned lhcBeamMode = gtRecord->gtfeWord().beamMode();
+
+      if( lhcBeamMode == STABLE_BEAMS ){
+
+	reset();
+
+	stableBeamsDeclared_ = true;
+
+      }
+    }
+  }
 
   edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
   c.get<EcalSeverityLevelAlgoRcd>().get(sevlv);

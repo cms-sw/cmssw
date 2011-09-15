@@ -5,6 +5,7 @@ ecalBarrelTimingTask = cms.EDAnalyzer("EBTimingTask",
     enableCleanup = cms.untracked.bool(False),
     mergeRuns = cms.untracked.bool(False),
     EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
-    EcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB")
+    EcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
+    L1GtEvmReadoutRecord = cms.InputTag("l1GtEvmUnpack")
 )
 

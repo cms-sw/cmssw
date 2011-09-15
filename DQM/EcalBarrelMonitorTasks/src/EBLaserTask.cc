@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2011/08/23 00:25:31 $
- * $Revision: 1.132.4.2 $
+ * $Date: 2011/08/30 09:30:32 $
+ * $Revision: 1.134 $
  * \author G. Della Ricca
  *
 */
@@ -666,7 +666,7 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   bool enable = false;
   int runType[36];
   for (int i=0; i<36; i++) runType[i] = -1;
-  int rtHalf[36];
+  unsigned rtHalf[36];
   for (int i=0; i<36; i++) rtHalf[i] = -1;
   int waveLength[36];
   for (int i=0; i<36; i++) waveLength[i] = -1;

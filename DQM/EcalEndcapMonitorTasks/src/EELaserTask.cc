@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2011/08/12 15:57:34 $
- * $Revision: 1.74.4.1 $
+ * $Date: 2011/08/30 09:28:42 $
+ * $Revision: 1.76 $
  * \author G. Della Ricca
  *
 */
@@ -728,7 +728,7 @@ void EELaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   bool enable = false;
   int runType[18];
   for (int i=0; i<18; i++) runType[i] = -1;
-  int rtHalf[18];
+  unsigned rtHalf[18];
   for (int i=0; i<18; i++) rtHalf[i] = -1;
   int waveLength[18];
   for (int i=0; i<18; i++) waveLength[i] = -1;

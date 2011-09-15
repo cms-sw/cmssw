@@ -8,6 +8,7 @@
 <use   name="TBDataFormats/EcalTBObjects"/>
 <use   name="DataFormats/EgammaReco"/>
 <use   name="DataFormats/Math"/>
+<use   name="DataFormats/L1GlobalTrigger"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>

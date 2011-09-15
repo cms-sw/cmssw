@@ -4,8 +4,8 @@
 /*
  * \file EBTimingTask.h
  *
- * $Date: 2011/08/23 00:31:22 $
- * $Revision: 1.16.14.3 $
+ * $Date: 2011/08/30 09:32:03 $
+ * $Revision: 1.19 $
  * \author G. Della Ricca
  *
 */
@@ -71,6 +71,7 @@ float energyThreshold_;
 
 edm::InputTag EcalRawDataCollection_;
 edm::InputTag EcalRecHitCollection_;
+edm::InputTag L1GtEvmReadoutRecord_;
 
 MonitorElement* meTime_[36];
 MonitorElement* meTimeMap_[36];
@@ -81,6 +82,8 @@ MonitorElement* meTimeSummary1D_;
 MonitorElement* meTimeSummaryMap_, *meTimeSummaryMapProjEta_, *meTimeSummaryMapProjPhi_;
 
 bool init_;
+
+bool stableBeamsDeclared_;
 
 };
 

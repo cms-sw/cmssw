@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2010/08/08 08:46:09 $
- * $Revision: 1.65 $
+ * $Date: 2011/08/30 09:28:42 $
+ * $Revision: 1.66 $
  * \author G. Della Ricca
  *
 */
@@ -399,7 +399,7 @@ void EELedTask::analyze(const edm::Event& e, const edm::EventSetup& c){
   bool enable = false;
   int runType[18];
   for (int i=0; i<18; i++) runType[i] = -1;
-  int rtHalf[18];
+  unsigned rtHalf[18];
   for (int i=0; i<18; i++) rtHalf[i] = -1;
   int waveLength[18];
   for (int i=0; i<18; i++) waveLength[i] = -1;
