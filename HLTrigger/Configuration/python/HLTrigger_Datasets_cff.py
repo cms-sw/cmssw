@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V256
+# /dev/CMSSW_4_2_0/GRun/V258
 
 import FWCore.ParameterSet.Config as cms
 
@@ -127,7 +127,6 @@ streamA_datasetElectronHad_selector.triggerConditions = cms.vstring('HLT_DoubleE
     'HLT_Ele8_CaloIdT_TrkIdT_DiJet30_v6', 
     'HLT_Ele8_CaloIdT_TrkIdT_QuadJet30_v6', 
     'HLT_Ele8_CaloIdT_TrkIdT_TriJet30_v6', 
-    'HLT_HT200_DoubleEle5_CaloIdVL_MassJPsi_v4', 
     'HLT_HT350_Ele5_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_PFMHT45_v7', 
     'HLT_HT400_Ele5_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_PFMHT50_v1', 
     'HLT_HT400_Ele60_CaloIdT_TrkIdT_v2', 
@@ -308,6 +307,8 @@ streamA_datasetMuHad_selector.throw      = cms.bool(False)
 streamA_datasetMuHad_selector.triggerConditions = cms.vstring('HLT_DoubleMu5_Mass8_HT150_v1', 
     'HLT_DoubleMu8_Mass8_HT150_v1', 
     'HLT_DoubleMu8_Mass8_HT200_v1', 
+    'HLT_DoubleTkIso10Mu5_Mass8_HT150_v1', 
+    'HLT_DoubleTkIso10Mu5_Mass8_HT200_v1', 
     'HLT_HT300_Mu15_PFMHT40_v2', 
     'HLT_HT300_Mu15_PFMHT50_v1', 
     'HLT_HT350_Mu5_PFMHT45_v9', 
@@ -345,7 +346,9 @@ streamA_datasetMuHad_selector.triggerConditions = cms.vstring('HLT_DoubleMu5_Mas
     'HLT_Mu5_TriJet30_v2', 
     'HLT_Mu60_HT300_v1', 
     'HLT_Mu8_Ele8_CaloIdT_TrkIdVL_Mass8_HT150_v1', 
-    'HLT_Mu8_Ele8_CaloIdT_TrkIdVL_Mass8_HT200_v1')
+    'HLT_Mu8_Ele8_CaloIdT_TrkIdVL_Mass8_HT200_v1', 
+    'HLT_TkIso10Mu5_Ele8_CaloIdT_CaloIsoVVL_TrkIdVL_Mass8_HT150_v1', 
+    'HLT_TkIso10Mu5_Ele8_CaloIdT_CaloIsoVVL_TrkIdVL_Mass8_HT200_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMuOnia_selector
 streamA_datasetMuOnia_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
