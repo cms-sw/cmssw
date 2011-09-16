@@ -46,15 +46,8 @@ class WorkFlowRunner(Thread):
         if not os.path.exists(wfDir):
             os.makedirs(wfDir)
 
-        preamble = ''
-        if os.path.exists( os.path.join(os.environ["CMS_PATH"],'cmsset_default.sh') ) :
-            preamble = 'source $CMS_PATH/cmsset_default.sh; '
-        else:
-            preamble = 'source $CMS_PATH/sw/cmsset_default.sh; '
-        preamble += 'eval `scram run -sh`; '
-        preamble += 'cd '+wfDir+'; '
-        preamble += 'ulimit -v 4069000;' # make sure processes keep within limits ...
-        
+        preamble = 'cd '+wfDir+'; '
+       
         startime='date %s' %time.asctime()
 
         # set defaults for the statuses
