@@ -7,14 +7,12 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"                
 #include "CondFormats/DataRecord/interface/SiStripCondDataRecords.h"
-#include "CalibTracker/Records/interface/SiStripDependentRecords.h"
 #include "boost/mpl/vector.hpp"
-
 
 class  TkStripCPERecord: public edm::eventsetup::DependentRecordImplementation<TkStripCPERecord,
   boost::mpl::vector<  TrackerDigiGeometryRecord,
                        IdealMagneticFieldRecord,
-                       SiStripLorentzAngleDepRcd,
+                       SiStripLorentzAngleRcd,
                        SiStripConfObjectRcd,
                        SiStripLatencyRcd,
                        SiStripNoisesRcd,

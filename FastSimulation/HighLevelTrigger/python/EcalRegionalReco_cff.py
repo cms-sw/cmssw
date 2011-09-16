@@ -37,3 +37,7 @@ hltESRecHitAll.InputRecHitCollections = cms.VInputTag(cms.InputTag("ecalPreshowe
 hltESRegionalEgammaRecHit.InputRecHitCollectionTypes = [1]
 hltESRegionalEgammaRecHit.OutputRecHitCollections = ['EcalRecHitsES']
 hltESRegionalEgammaRecHit.InputRecHitCollections = cms.VInputTag(cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"))
+
+# Provide dummy calonoise sequences
+import FastSimulation.HighLevelTrigger.DummyModule_cfi
+HLTHBHENoiseSequence = FastSimulation.HighLevelTrigger.DummyModule_cfi.dummyModule.clone()

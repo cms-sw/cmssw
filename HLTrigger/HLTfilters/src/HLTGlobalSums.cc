@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2009/04/08 14:24:27 $
- *  $Revision: 1.8 $
+ *  $Date: 2011/05/01 08:43:49 $
+ *  $Revision: 1.11 $
  *
  *  \author Martin Grunewald
  *
@@ -27,7 +27,7 @@
 template<typename T, int Tid>
 HLTGlobalSums<T,Tid>::HLTGlobalSums(const edm::ParameterSet& iConfig) :
   inputTag_   (iConfig.template getParameter<edm::InputTag>("inputTag")),
-  saveTag_    (iConfig.template getUntrackedParameter<bool> ("saveTag",false)),
+  saveTags_    (iConfig.template getParameter<bool>("saveTags")),
   observable_ (iConfig.template getParameter<std::string>("observable")),
   min_        (iConfig.template getParameter<double>("Min")),
   max_        (iConfig.template getParameter<double>("Max")),
@@ -95,7 +95,7 @@ HLTGlobalSums<T,Tid>::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    // The filter object
    auto_ptr<TriggerFilterObjectWithRefs>
      filterobject (new TriggerFilterObjectWithRefs(path(),module()));
-   if (saveTag_) filterobject->addCollectionTag(inputTag_);
+   if (saveTags_) filterobject->addCollectionTag(inputTag_);
    // Ref to Candidate object to be recorded in filter object
    TRef ref;
 

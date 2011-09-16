@@ -44,14 +44,23 @@ parser.add_argument('--globaltag',
                     action  = 'store', 
                     metavar = 'TAG', 
                     default = None,
-                    help    = 'Override the GlobalTag in the HLT menu:\n- when running on data, the default behaviour is to not override the GobalTag in the HLT menu;\n- when running on MC, the default behaviour is to use the GlobalTag from "type" and the current PyRelVal configuration.\nTo run on data with a different release than the menu was designed for, try "auto:hltonline"' )
+                    help    = 'Override the GlobalTag in the HLT menu:\n- when running on data, the default behaviour is to not override the GobalTag in the HLT menu\n- when running on MC, the default behaviour is to use the GlobalTag from "type" and the current PyRelVal configuration.\nTo run on data with a different release than the menu was designed for, try "auto:hltonline"' )
 parser.add_argument('--l1', 
                     dest    = 'l1', 
                     action  = 'store',
                     type    = options.ConnectionL1TMenu,
                     default = None,
                     metavar = 'MENU', 
-                    help    = 'Override the L1 menu, using the payload "L1GtTriggerMenu_<%(metavar)s>_mc" from the database.\nThe default behaviour is to run with the L1 menu from the GlobalTag' )
+                    help    = 'Override the L1 menu, using the given payload from the database. %(metavar)s should have the format "L1GtTriggerMenu_MENU_mc".\nThe default behaviour is to run with the L1 menu from the GlobalTag' )
+parser.add_argument('--l1-emulator',
+                    dest    = 'emulator',
+                    action  = 'store',
+                    metavar = 'EMULATOR',
+                    nargs   = '?',
+                    choices = [ 'gt', 'gmt,gt', 'gct,gt', 'gmt,gct,gt', 'gct,gmt,gt', 'all' ], 
+                    default = None,
+                    const   = 'gt',
+                    help    = 'Run the L1 emulator. Possible sub-options are:\n- "gt": run only the GT emulator. Trigger primitives, GMT and GCT are taken from the data\n- "gct,gt": emulate calo primitives, RCT, GCT and GT. Muon primitives and GMT are taken from the data\n- "gmt,gt": emulate muon primitives, GMT and GT. Calo primitives, RCT and GCT are taken from the data\n - "gmt,gct,gt", "gct,gmt,gt", "all": run the whole L1 emulator.\nThe default behaviour is to not run the L1 emulator.\nIf the option is used without arguments, "gt" is assumed.' )
 parser.add_argument('--unprescale', 
                     dest    = 'unprescale', 
                     action  = 'store_true', 
@@ -62,20 +71,39 @@ parser.add_argument('--open',
                     action  = 'store_true', 
                     default = False, 
                     help    = 'Run the HLT in "open" mode, overriding all ED/HLTFilters to always pass (implies --unprescale)' )
+parser.add_argument('--profiling', 
+                    dest    = 'profiling', 
+                    action  = 'store_true', 
+                    default = False,
+                    help    = 'Instrument the menu with the modules for profiling studies (hltGetaw and hltGetConditions), disable options, and remove all EndPaths (implies --no-output)' )
 parser.add_argument('--timing', 
                     dest    = 'timing', 
                     action  = 'store_true', 
                     default = False,
-                    help    = 'Instrument the menu with the modules and EndPath needed for timing studies (implies --no-output)' )
+                    help    = 'Instrument the menu with the Servie, EDModules and EndPath needed for timing studies (implies --profiling and --no-output)' )
+parser.add_argument('--paths',
+                    dest    = 'paths',
+                    action  = 'store',
+                    type    = str,
+                    default = None,
+                    metavar = 'PATHS',
+                    help    = 'Include only the given comma-separated-list of paths in the dump (wildcards are accepted)\nNote that in a full dump the "smart prescale" modules will likely fail, unless removed with --output none or minimal' )
+parser.add_argument('--input',
+                    dest    = 'input',
+                    action  = 'store',
+                    type    = str,
+                    default = None,
+                    metavar = 'SOURCE',
+                    help    = 'If specified, run over the specified SOURCE file. Otherwise a default is chosen up depending on the other options' )
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--output',
                     dest    = 'output',
                     action  = 'store',
                     metavar = 'OUTPUT',
-                    choices = [ 'all', 'minimal', 'none' ], 
+                    choices = [ 'all', 'minimal', 'none', 'full' ], 
                     default = 'all',
-                    help    = 'Use\n- "all" to output all output modules (default),\n- "minimal" to only output the TriggerResults,\n- "none" to remove all output modules' )
+                    help    = 'Use:\n- "all" to output all output modules (default)\n- "minimal" to only output the TriggerResults\n- "none" to remove all output modules\n- "full" to output a single root file with "keep *" event content.' )
 group.add_argument('--no-output',
                     dest    = 'output',
                     action  = 'store_const',
@@ -107,7 +135,7 @@ group.add_argument('--full',
 group.add_argument('--cff', 
                     dest    = 'fragment', 
                     action  = 'store_true', 
-                    help    = 'Generate a stripped down configuration file fragment, for inclusion by e.g. cmsDriver.py' )
+                    help    = 'Generate a stripped down configuration file fragment, for inclusion by e.g. cmsDriver.py (with no input or output sections)' )
 
 group = parser.add_mutually_exclusive_group()
 group.add_argument('--online', 

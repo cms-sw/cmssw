@@ -1,4 +1,4 @@
-// $Id: StreamsMonitorCollection.cc,v 1.14.4.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: StreamsMonitorCollection.cc,v 1.20 2011/06/20 15:55:53 mommsen Exp $
 /// @file: StreamsMonitorCollection.cc
 
 #include <string>
@@ -24,7 +24,7 @@ namespace stor {
   {}
   
   
-  const StreamsMonitorCollection::StreamRecordPtr
+  StreamsMonitorCollection::StreamRecordPtr
   StreamsMonitorCollection::getNewStreamRecord()
   {
     boost::mutex::scoped_lock sl(streamRecordsMutex_);
@@ -36,6 +36,33 @@ namespace stor {
     return streamRecord;
   }
   
+  
+  void StreamsMonitorCollection::getStreamRecords(StreamRecordList& list) const
+  {
+    boost::mutex::scoped_lock sl(streamRecordsMutex_);
+
+    list.clear();
+    list.reserve(streamRecords_.size());
+    
+    for (
+      StreamRecordList::const_iterator 
+        it = streamRecords_.begin(), itEnd = streamRecords_.end();
+      it != itEnd;
+      ++it
+    )
+    {
+      list.push_back(*it);
+    }
+  }
+  
+
+  bool StreamsMonitorCollection::streamRecordsExist() const
+  {
+    boost::mutex::scoped_lock sl(streamRecordsMutex_);
+
+    return ( ! streamRecords_.empty() );
+  }
+
   
   void StreamsMonitorCollection::StreamRecord::incrementFileCount
   (
@@ -56,7 +83,7 @@ namespace stor {
   }
   
   
-  void StreamsMonitorCollection::StreamRecord::reportLumiSectionInfo
+  bool StreamsMonitorCollection::StreamRecord::reportLumiSectionInfo
   (
     const uint32_t& lumiSection,
     std::string& str
@@ -77,13 +104,19 @@ namespace stor {
     }
     msg << "\t" << streamName << ":" << count;
     str += msg.str();
+
+    return (count>0);
   }
   
   
-  void StreamsMonitorCollection::reportAllLumiSectionInfos(DbFileHandlerPtr dbFileHandler)
+  void StreamsMonitorCollection::reportAllLumiSectionInfos
+  (
+    DbFileHandlerPtr dbFileHandler,
+    EndOfRunReportPtr endOfRunReport
+  )
   {
     boost::mutex::scoped_lock sl(streamRecordsMutex_);
-    
+
     UnreportedLS unreportedLS;
     getListOfAllUnreportedLS(unreportedLS);
     
@@ -91,15 +124,22 @@ namespace stor {
            itEnd = unreportedLS.end(); it != itEnd; ++it)
     {
       std::string lsEntry;
+      bool filesWritten = false;
+
       for (StreamRecordList::const_iterator 
              stream = streamRecords_.begin(),
              streamEnd = streamRecords_.end();
            stream != streamEnd;
            ++stream)
       {
-        (*stream)->reportLumiSectionInfo((*it), lsEntry);
+        if ( (*stream)->reportLumiSectionInfo((*it), lsEntry) )
+          filesWritten = true;
       }
+      lsEntry += "\tEoLS:0";
       dbFileHandler->write(lsEntry);
+
+      if (filesWritten) ++(endOfRunReport->lsCountWithFiles);
+      endOfRunReport->updateLatestWrittenLumiSection(*it);
     }
   }
   

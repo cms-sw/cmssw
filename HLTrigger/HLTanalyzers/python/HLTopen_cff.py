@@ -3,21 +3,46 @@ import FWCore.ParameterSet.Config as cms
 # import the whole HLT menu
 from HLTrigger.HLTanalyzers.HLT_FULL_cff import *
 
+hltL1IsoR9shape = cms.EDProducer( "EgammaHLTR9Producer",
+                                  recoEcalCandidateProducer = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
+                                  ecalRechitEB = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEB' ),
+                                  ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEE' ),
+                                 useSwissCross = cms.bool( False )
+                                  )
+hltL1NonIsoR9shape = cms.EDProducer( "EgammaHLTR9Producer",
+                                     recoEcalCandidateProducer = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" ),
+                                     ecalRechitEB = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEB' ),
+                                     ecalRechitEE = cms.InputTag( 'hltEcalRegionalEgammaRecHit','EcalRecHitsEE' ),
+                                     useSwissCross = cms.bool( False )
+                                     )
+
+HLTEgammaR9ShapeSequence = cms.Sequence( hltL1IsoR9shape + hltL1NonIsoR9shape )
+
+hltLowMassDisplacedL3Filtered.MaxEta      = cms.double(3.0)
+hltLowMassDisplacedL3Filtered.MinPtPair   = cms.double( 0.0 )
+hltLowMassDisplacedL3Filtered.MinPtMin    = cms.double( 0.0 )
+hltLowMassDisplacedL3Filtered.MaxInvMass  = cms.double( 11.5 )
+
+hltDisplacedmumuFilterLowMass.MinLxySignificance     = cms.double( 0.0 )
+hltDisplacedmumuFilterLowMass.MinVtxProbability      = cms.double( 0.0 )
+hltDisplacedmumuFilterLowMass.MinCosinePointingAngle = cms.double( -2.0 )
+
+
+HLTDisplacemumuSequence = cms.Sequence(  hltL1sL1DoubleMu0 + hltDimuonL1Filtered0 + hltDimuonL2PreFiltered0 + hltLowMassDisplacedL3Filtered + hltDisplacedmumuVtxProducerLowMass + hltDisplacedmumuFilterLowMass)
+
+
 
 # create the jetMET HLT reco path
 DoHLTJets = cms.Path(HLTBeginSequence + 
     HLTBeginSequence +
     HLTRecoJetSequenceAK5Corrected +
-    # HLTRegionalRecoJetSequenceAK5Corrected +
-    HLTRecoMETSequence +                 
-    HLTDoJet30HTRecoSequence
+    HLTRecoMETSequence +
+    HLTDoLocalHcalWithoutHOSequence                  
 )
 DoHLTJetsU = cms.Path(HLTBeginSequence +
     HLTBeginSequence +
     HLTRecoJetSequenceAK5Uncorrected +
-    # HLTRegionalRecoJetSequenceAK5Corrected +
-    HLTRecoMETSequence +
-    HLTDoJet30HTRecoSequence
+    HLTRecoMETSequence
 )
 
 # create the muon HLT reco path
@@ -30,6 +55,7 @@ DoHltMuon = cms.Path(
     HLTL3muonisorecoSequence +
     HLTMuTrackJpsiPixelRecoSequence + 
     HLTMuTrackJpsiTrackRecoSequence +
+    HLTDisplacemumuSequence +
     HLTEndSequence )
 
 # create the Egamma HLT reco paths
@@ -44,7 +70,6 @@ DoHLTPhoton = cms.Path(
     HLTEgammaR9IDSequence +
     hltL1IsolatedPhotonEcalIsol + 
     hltL1NonIsolatedPhotonEcalIsol + 
-    HLTDoLocalHcalWithoutHOSequence + 
     hltL1IsolatedPhotonHcalIsol + 
     hltL1NonIsolatedPhotonHcalIsol + 
     HLTDoLocalPixelSequence +
@@ -56,7 +81,16 @@ DoHLTPhoton = cms.Path(
     hltL1NonIsoEgammaRegionalCkfTrackCandidates +
     hltL1NonIsoEgammaRegionalCTFFinalFitWithMaterial +
     hltL1IsolatedPhotonHollowTrackIsol +
-    hltL1NonIsolatedPhotonHollowTrackIsol )
+    hltL1NonIsolatedPhotonHollowTrackIsol +
+    HLTEcalActivitySequence +
+    hltActivityPhotonHcalForHE +
+    hltActivityR9ID +
+    hltActivityPhotonClusterShape +
+    hltActivityPhotonEcalIsol +
+    hltActivityPhotonHcalIsol +
+    HLTEcalActivityEgammaRegionalRecoTrackerSequence +
+    hltActivityPhotonHollowTrackIsol
+    )
 
 DoHLTElectron = cms.Path(
     HLTBeginSequence +
@@ -65,7 +99,7 @@ DoHLTElectron = cms.Path(
     HLTL1NonIsolatedEcalClustersSequence +
     hltL1IsoRecoEcalCandidate +
     hltL1NonIsoRecoEcalCandidate +
-    HLTEgammaR9ShapeSequence +
+    HLTEgammaR9ShapeSequence +#was commented out for HT jobs
     HLTEgammaR9IDSequence +
     hltL1IsoHLTClusterShape +
     hltL1NonIsoHLTClusterShape +
@@ -103,7 +137,6 @@ DoHLTTau = cms.Path(HLTBeginSequence +
                     OpenHLTCaloTausCreatorSequence +
                     openhltL2TauJets +
                     openhltL2TauIsolationProducer +
-                    #                    openhltL2TauRelaxingIsolationSelector +
                     HLTDoLocalPixelSequence +
                     HLTRecopixelvertexingSequence +
                     OpenHLTL25TauTrackReconstructionSequence +
@@ -111,17 +144,14 @@ DoHLTTau = cms.Path(HLTBeginSequence +
                     TauOpenHLT+
                     HLTRecoJetSequencePrePF +
                     HLTPFJetTriggerSequence +
+                    HLTPFJetTriggerSequenceForTaus +
                     HLTPFTauSequence +
                     HLTEndSequence)
 
-
-# create the b-jet HLT paths
-from HLTrigger.HLTanalyzers.OpenHLT_BJet_cff import *
 # create the b-jet HLT paths
 from HLTrigger.HLTanalyzers.OpenHLT_BJet_cff import *
 DoHLTBTag = cms.Path(
         HLTBeginSequence +
-    #    HLTBCommonL2recoSequence +
         OpenHLTBLifetimeL25recoSequence +
         OpenHLTBSoftMuonL25recoSequence +
         OpenHLTBLifetimeL3recoSequence +
@@ -156,5 +186,3 @@ DoHLTMinBiasPixelTracks = cms.Path(
     hltPixelTracks +
     hltPixelVertices)
 
-## Thers is no need to do this as by default 5E32 menu makes use of "hltOnlineBeamSpot" for all the modules
-# hltPixelVertices.beamSpot = cms.InputTag( "hltOnlineBeamSpot" )

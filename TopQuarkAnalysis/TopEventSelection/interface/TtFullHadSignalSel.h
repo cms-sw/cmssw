@@ -7,8 +7,6 @@
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
-#include "PhysicsTools/CandUtils/interface/EventShapeVariables.h"
-
 class TtFullHadSignalSel {
   // common calculator class for likelihood
   // variables in fully hadronic ttbar decays
@@ -26,115 +24,89 @@ public:
   double Et56()   const { return Et56_;   }
   double M3()     const { return M3_;     }
 
-  double TCHP_Bjets() const { return TCHP_Bjets_; }
-  double SSV_Bjets()  const { return SSV_Bjets_;  }
-  double CSV_Bjets()  const { return CSV_Bjets_;  }
-  double SM_Bjets()   const { return SM_Bjets_;   }
+  double TCHE_Bjets()   const { return TCHE_Bjets_;   }
+  double TCHP_Bjets()   const { return TCHP_Bjets_;   }
+  double SSVHE_Bjets()  const { return SSVHE_Bjets_;  }
+  double SSVHP_Bjets()  const { return SSVHP_Bjets_;  }
+  double CSV_Bjets()    const { return CSV_Bjets_;    }
+  double CSVMVA_Bjets() const { return CSVMVA_Bjets_; }
+  double SM_Bjets()     const { return SM_Bjets_;     }
 
-  double TCHP_Bjet1() const { return TCHP_Bjet1_; }
-  double TCHP_Bjet2() const { return TCHP_Bjet2_; }
-  double TCHP_Bjet3() const { return TCHP_Bjet3_; }
-  double TCHP_Bjet4() const { return TCHP_Bjet4_; }
-  double TCHP_Bjet5() const { return TCHP_Bjet5_; }
-  double TCHP_Bjet6() const { return TCHP_Bjet6_; }
-  double SSV_Bjet1()  const { return SSV_Bjet1_;  }
-  double SSV_Bjet2()  const { return SSV_Bjet2_;  }
-  double SSV_Bjet3()  const { return SSV_Bjet3_;  }
-  double SSV_Bjet4()  const { return SSV_Bjet4_;  }
-  double SSV_Bjet5()  const { return SSV_Bjet5_;  }
-  double SSV_Bjet6()  const { return SSV_Bjet6_;  }
-  double CSV_Bjet1()  const { return CSV_Bjet1_;  }
-  double CSV_Bjet2()  const { return CSV_Bjet2_;  }
-  double CSV_Bjet3()  const { return CSV_Bjet3_;  }
-  double CSV_Bjet4()  const { return CSV_Bjet4_;  }
-  double CSV_Bjet5()  const { return CSV_Bjet5_;  }
-  double CSV_Bjet6()  const { return CSV_Bjet6_;  }
-  double SM_Bjet1()   const { return SM_Bjet1_;   }
-  double SM_Bjet2()   const { return SM_Bjet2_;   }
-  double SM_Bjet3()   const { return SM_Bjet3_;   }
-  double SM_Bjet4()   const { return SM_Bjet4_;   }
-  double SM_Bjet5()   const { return SM_Bjet5_;   }
-  double SM_Bjet6()   const { return SM_Bjet6_;   }
+  double TCHE_Bjet  (unsigned short i) const { return (TCHE_BJet_Discs_  .size() >= i) ? TCHE_BJet_Discs_  .at(TCHE_BJet_Discs_  .size()-i) : -100.; }
+  double TCHP_Bjet  (unsigned short i) const { return (TCHP_BJet_Discs_  .size() >= i) ? TCHP_BJet_Discs_  .at(TCHP_BJet_Discs_  .size()-i) : -100.; }
+  double SSVHE_Bjet (unsigned short i) const { return (SSVHE_BJet_Discs_ .size() >= i) ? SSVHE_BJet_Discs_ .at(SSVHE_BJet_Discs_ .size()-i) : -100.; }
+  double SSVHP_Bjet (unsigned short i) const { return (SSVHP_BJet_Discs_ .size() >= i) ? SSVHP_BJet_Discs_ .at(SSVHP_BJet_Discs_ .size()-i) : -100.; }
+  double CSV_Bjet   (unsigned short i) const { return (CSV_BJet_Discs_   .size() >= i) ? CSV_BJet_Discs_   .at(CSV_BJet_Discs_   .size()-i) : -100.; }
+  double CSVMVA_Bjet(unsigned short i) const { return (CSVMVA_BJet_Discs_.size() >= i) ? CSVMVA_BJet_Discs_.at(CSVMVA_BJet_Discs_.size()-i) : -100.; }
+  double SM_Bjet    (unsigned short i) const { return (SM_BJet_Discs_    .size() >= i) ? SM_BJet_Discs_    .at(SM_BJet_Discs_    .size()-i) : -100.; }
 
-  double pt1() const { return pt1_; }
-  double pt2() const { return pt2_; }
-  double pt3() const { return pt3_; }
-  double pt4() const { return pt4_; }
-  double pt5() const { return pt5_; }
-  double pt6() const { return pt6_; }
+  double pt(unsigned short i) const { return (pts_.size() >= i) ? pts_.at(i-1) : -1.; }
 
-  double pt1_pt2() const { return (pt1_ - pt2_); }
-  double pt1_pt3() const { return (pt1_ - pt3_); }
-  double pt1_pt4() const { return (pt1_ - pt4_); }
-  double pt1_pt5() const { return (pt1_ - pt5_); }
-  double pt1_pt6() const { return (pt1_ - pt6_); }
-  double pt2_pt3() const { return (pt2_ - pt3_); }
-  double pt2_pt4() const { return (pt2_ - pt4_); }
-  double pt2_pt5() const { return (pt2_ - pt5_); }
-  double pt2_pt6() const { return (pt2_ - pt6_); }
-  double pt3_pt4() const { return (pt3_ - pt4_); }
-  double pt3_pt5() const { return (pt3_ - pt5_); }
-  double pt3_pt6() const { return (pt3_ - pt6_); }
-  double pt4_pt5() const { return (pt4_ - pt5_); }
-  double pt4_pt6() const { return (pt4_ - pt6_); }
-  double pt5_pt6() const { return (pt5_ - pt6_); }
+  double EtSin2Theta (unsigned short i, bool boosted=false) const { return boosted? ( (EtStars_     .size() >= i) ? EtStars_       .at(i-1)  : -1.) :
+										      (EtSin2Thetas_.size() >= i) ? EtSin2Thetas_  .at(i-1)  : -1.; }
+  double theta       (unsigned short i, bool boosted=false) const { return boosted? ( (thetaStars_  .size() >= i) ? thetaStars_    .at(i-1)  : -1.) :
+										      (thetas_      .size() >= i) ? thetas_        .at(i-1)  : -1.; }
+  double sinTheta    (unsigned short i, bool boosted=false) const { return boosted? ( (thetaStars_  .size() >= i) ? sin(thetaStars_.at(i-1)) : -1.) :
+										      (thetas_      .size() >= i) ? sin(thetas_    .at(i-1)) : -1.; }
 
-  double pt1_pt2_norm() const { return ((pt1_ - pt2_)/(pt1_ + pt2_)); }
-  double pt1_pt3_norm() const { return ((pt1_ - pt3_)/(pt1_ + pt3_)); }
-  double pt1_pt4_norm() const { return ((pt1_ - pt4_)/(pt1_ + pt4_)); }
-  double pt1_pt5_norm() const { return ((pt1_ - pt5_)/(pt1_ + pt5_)); }
-  double pt1_pt6_norm() const { return ((pt1_ - pt6_)/(pt1_ + pt6_)); }
-  double pt2_pt3_norm() const { return ((pt2_ - pt3_)/(pt2_ + pt3_)); }
-  double pt2_pt4_norm() const { return ((pt2_ - pt4_)/(pt2_ + pt4_)); }
-  double pt2_pt5_norm() const { return ((pt2_ - pt5_)/(pt2_ + pt5_)); }
-  double pt2_pt6_norm() const { return ((pt2_ - pt6_)/(pt2_ + pt6_)); }
-  double pt3_pt4_norm() const { return ((pt3_ - pt4_)/(pt3_ + pt4_)); }
-  double pt3_pt5_norm() const { return ((pt3_ - pt5_)/(pt3_ + pt5_)); }
-  double pt3_pt6_norm() const { return ((pt3_ - pt6_)/(pt3_ + pt6_)); }
-  double pt4_pt5_norm() const { return ((pt4_ - pt5_)/(pt4_ + pt5_)); }
-  double pt4_pt6_norm() const { return ((pt4_ - pt6_)/(pt4_ + pt6_)); }
-  double pt5_pt6_norm() const { return ((pt5_ - pt6_)/(pt5_ + pt6_)); }
+  double EtSin2Theta3jet(bool boosted=false) const { return boosted?       EtStar3jet_ : EtSin2Theta3jet_; }
+  double theta3jet      (bool boosted=false) const { return boosted?    thetaStar3jet_ :       theta3jet_; }
+  double sinTheta3jet   (bool boosted=false) const { return boosted? sinThetaStar3jet_ :    sinTheta3jet_; }
 
-  double jet1_etaetaMoment() const { return jet1_etaetaMoment_; }
-  double jet2_etaetaMoment() const { return jet2_etaetaMoment_; }
-  double jet3_etaetaMoment() const { return jet3_etaetaMoment_; }
-  double jet4_etaetaMoment() const { return jet4_etaetaMoment_; }
-  double jet5_etaetaMoment() const { return jet5_etaetaMoment_; }
-  double jet6_etaetaMoment() const { return jet6_etaetaMoment_; }
-  double jet1_etaphiMoment() const { return jet1_etaphiMoment_; }
-  double jet2_etaphiMoment() const { return jet2_etaphiMoment_; }
-  double jet3_etaphiMoment() const { return jet3_etaphiMoment_; }
-  double jet4_etaphiMoment() const { return jet4_etaphiMoment_; }
-  double jet5_etaphiMoment() const { return jet5_etaphiMoment_; }
-  double jet6_etaphiMoment() const { return jet6_etaphiMoment_; }
-  double jet1_phiphiMoment() const { return jet1_phiphiMoment_; }
-  double jet2_phiphiMoment() const { return jet2_phiphiMoment_; }
-  double jet3_phiphiMoment() const { return jet3_phiphiMoment_; }
-  double jet4_phiphiMoment() const { return jet4_phiphiMoment_; }
-  double jet5_phiphiMoment() const { return jet5_phiphiMoment_; }
-  double jet6_phiphiMoment() const { return jet6_phiphiMoment_; }
+  double pti_ptj(unsigned short i, unsigned short j, bool norm=false) const { return (pts_.size() >= j) ? ( norm ? (pt(i) - pt(j))/(pt(i) + pt(j)) : (pt(i) - pt(j)) ) : -1.; }
 
-  double jets_etaetaMoment() const { return (jet1_etaetaMoment_ + jet2_etaetaMoment_ + jet3_etaetaMoment_ + jet4_etaetaMoment_ + jet5_etaetaMoment_ + jet6_etaetaMoment_); }
-  double jets_etaphiMoment() const { return (jet1_etaphiMoment_ + jet2_etaphiMoment_ + jet3_etaphiMoment_ + jet4_etaphiMoment_ + jet5_etaphiMoment_ + jet6_etaphiMoment_); }
-  double jets_phiphiMoment() const { return (jet1_phiphiMoment_ + jet2_phiphiMoment_ + jet3_phiphiMoment_ + jet4_phiphiMoment_ + jet5_phiphiMoment_ + jet6_phiphiMoment_); }
+  double jet_etaetaMoment(unsigned short i, bool noB=false) const { return noB? ( (etaetaMomentsNoB_.size()>= i)? etaetaMomentsNoB_.at(etaetaMomentsNoB_.size() - i) : -100.) :
+                                                                                  (etaetaMoments_   .size()>= i)? etaetaMoments_   .at(etaetaMoments_   .size() - i) : -100.; }
+  double jet_etaphiMoment(unsigned short i, bool noB=false) const { return noB? ( (etaphiMomentsNoB_.size()>= i)? etaphiMomentsNoB_.at(etaphiMomentsNoB_.size() - i) : -100.) :
+                                                                                  (etaphiMoments_   .size()>= i)? etaphiMoments_   .at(etaphiMoments_   .size() - i) : -100.; }
+  double jet_phiphiMoment(unsigned short i, bool noB=false) const { return noB? ( (phiphiMomentsNoB_.size()>= i)? phiphiMomentsNoB_.at(phiphiMomentsNoB_.size() - i) : -100.) :
+                                                                                  (phiphiMoments_   .size()>= i)? phiphiMoments_   .at(phiphiMoments_   .size() - i) : -100.; }
 
-  double aplanarity()  const { return aplanarity_;  }
-  double sphericity()  const { return sphericity_;  }
-  double circularity() const { return circularity_; }
-  double isotropy()    const { return isotropy_;    }
-  double C()           const { return C_;           }
-  double D()           const { return D_;           }
-  double centrality()  const { return (Ht_/H_);     }
+  double jet_etaetaMomentMoment(unsigned short i) const { return (etaetaMomentsMoment_.size()>= i)? etaetaMomentsMoment_.at(etaetaMomentsMoment_.size() - i) : -100.; }
+  double jet_etaphiMomentMoment(unsigned short i) const { return (etaphiMomentsMoment_.size()>= i)? etaphiMomentsMoment_.at(etaphiMomentsMoment_.size() - i) : -100.; }
+  double jet_phiphiMomentMoment(unsigned short i) const { return (phiphiMomentsMoment_.size()>= i)? phiphiMomentsMoment_.at(phiphiMomentsMoment_.size() - i) : -100.; }
 
-  double dRMin1()        const { return dRMin1_;        }
-  double dRMin2()        const { return dRMin2_;        }
-  double sumDR3JetMin1() const { return sumDR3JetMin1_; }
-  double sumDR3JetMin2() const { return sumDR3JetMin2_; }
-	 			   	    			   
-  double dRMin1Mass()        const { return dRMin1Mass_;        }
-  double dRMin2Mass()        const { return dRMin2Mass_;        }
-  double sumDR3JetMin1Mass() const { return sumDR3JetMin1Mass_; }
-  double sumDR3JetMin2Mass() const { return sumDR3JetMin2Mass_; }
+  double jets_etaetaMoment(bool noB=false) const { return noB ? jets_etaetaMomentNoB_ : jets_etaetaMoment_; }
+  double jets_etaphiMoment(bool noB=false) const { return noB ? jets_etaphiMomentNoB_ : jets_etaphiMoment_; }
+  double jets_phiphiMoment(bool noB=false) const { return noB ? jets_phiphiMomentNoB_ : jets_phiphiMoment_; }
+
+  double jet_etaetaMomentLogEt(unsigned short i) const { return (etaetaMomentsLogEt_.size()>= i)? etaetaMomentsLogEt_.at(etaetaMomentsLogEt_.size() - i) : -100.; }
+  double jet_etaphiMomentLogEt(unsigned short i) const { return (etaphiMomentsLogEt_.size()>= i)? etaphiMomentsLogEt_.at(etaphiMomentsLogEt_.size() - i) : -100.; }
+  double jet_phiphiMomentLogEt(unsigned short i) const { return (phiphiMomentsLogEt_.size()>= i)? phiphiMomentsLogEt_.at(phiphiMomentsLogEt_.size() - i) : -100.; }
+
+  double jet_etaetaMomentMomentLogEt(unsigned short i) const { return (etaetaMomentsMomentLogEt_.size()>= i)? etaetaMomentsMomentLogEt_.at(etaetaMomentsMomentLogEt_.size() - i) : -100.; }
+  double jet_etaphiMomentMomentLogEt(unsigned short i) const { return (etaphiMomentsMomentLogEt_.size()>= i)? etaphiMomentsMomentLogEt_.at(etaphiMomentsMomentLogEt_.size() - i) : -100.; }
+  double jet_phiphiMomentMomentLogEt(unsigned short i) const { return (phiphiMomentsMomentLogEt_.size()>= i)? phiphiMomentsMomentLogEt_.at(phiphiMomentsMomentLogEt_.size() - i) : -100.; }
+
+  double jets_etaetaMomentLogEt() const { return jets_etaetaMomentLogEt_; }
+  double jets_etaphiMomentLogEt() const { return jets_etaphiMomentLogEt_; }
+  double jets_phiphiMomentLogEt() const { return jets_phiphiMomentLogEt_; }
+
+  double aplanarity (bool allJets=false) const { return allJets ? aplanarityAll_  : aplanarity_;  }
+  double sphericity (bool allJets=false) const { return allJets ? sphericityAll_  : sphericity_;  }
+  double circularity(bool allJets=false) const { return allJets ? circularityAll_ : circularity_; }
+  double isotropy   (bool allJets=false) const { return allJets ? isotropyAll_    : isotropy_;    }
+  double C          (bool allJets=false) const { return allJets ? CAll_           : C_;           }
+  double D          (bool allJets=false) const { return allJets ? DAll_           : D_;           }
+
+  double aplanarityAllCMS () const { return aplanarityAllCMS_;  }
+  double sphericityAllCMS () const { return sphericityAllCMS_;  }
+  double circularityAllCMS() const { return circularityAllCMS_; }
+  double isotropyAllCMS   () const { return isotropyAllCMS_;    }
+  double CAllCMS          () const { return CAllCMS_;           }
+  double DAllCMS          () const { return DAllCMS_;           }
+
+  double centrality(bool alternative=false)  const { return alternative ? (Ht_/sqrt_s_) : (Ht_/H_); }
+
+  double thrust(bool inCMS=false) const { return inCMS ? thrustCMS_ : thrust_; }
+
+  double dRMin     (unsigned short i)  const { return (dR_     .size() >= i) ? dR_     .at(i-1) : -1.; }
+  double dRMinMass (unsigned short i)  const { return (dRMass_ .size() >= i) ? dRMass_ .at(i-1) : -1.; }
+  double dRMinAngle(unsigned short i)  const { return (dRAngle_.size() >= i) ? dRAngle_.at(i-1) : -1.; }
+
+  double sumDR3JetMin    (unsigned short i) const { return (dR3Jets_        .size() >= i) ? dR3Jets_        .at(i-1) : -1.; }
+  double sumDR3JetMinMass(unsigned short i) const { return (dR3JetsMass_    .size() >= i) ? dR3JetsMass_    .at(i-1) : -1.; }
+  double massDiffMWCands (unsigned short i) const { return (massDiffMWCands_.size() >= i) ? massDiffMWCands_.at(i-1) : -1.; }
 
 private:
   
@@ -146,61 +118,66 @@ private:
   double Et56_;
   double M3_;
   
+  double TCHE_Bjets_;
   double TCHP_Bjets_;
-  double SSV_Bjets_;
+  double SSVHE_Bjets_;
+  double SSVHP_Bjets_;
   double CSV_Bjets_;
+  double CSVMVA_Bjets_;
   double SM_Bjets_;
 
-  double TCHP_Bjet1_;
-  double TCHP_Bjet2_;
-  double TCHP_Bjet3_;
-  double TCHP_Bjet4_;
-  double TCHP_Bjet5_;
-  double TCHP_Bjet6_;
-  double SSV_Bjet1_;
-  double SSV_Bjet2_;
-  double SSV_Bjet3_;
-  double SSV_Bjet4_;
-  double SSV_Bjet5_;
-  double SSV_Bjet6_;
-  double CSV_Bjet1_;
-  double CSV_Bjet2_;
-  double CSV_Bjet3_;
-  double CSV_Bjet4_;
-  double CSV_Bjet5_;
-  double CSV_Bjet6_;
-  double SM_Bjet1_;
-  double SM_Bjet2_;
-  double SM_Bjet3_;
-  double SM_Bjet4_;
-  double SM_Bjet5_;
-  double SM_Bjet6_;
+  std::vector<double> TCHE_BJet_Discs_;
+  std::vector<double> TCHP_BJet_Discs_;
+  std::vector<double> SSVHE_BJet_Discs_;
+  std::vector<double> SSVHP_BJet_Discs_;
+  std::vector<double> CSV_BJet_Discs_;
+  std::vector<double> CSVMVA_BJet_Discs_;
+  std::vector<double> SM_BJet_Discs_;
 
-  double pt1_;
-  double pt2_;
-  double pt3_;
-  double pt4_;
-  double pt5_;
-  double pt6_;
+  std::vector<double> pts_;
+  std::vector<double> EtSin2Thetas_;
+  std::vector<double> thetas_;
+  std::vector<double> thetaStars_;
+  std::vector<double> EtStars_;
 
-  double jet1_etaetaMoment_;
-  double jet2_etaetaMoment_;
-  double jet3_etaetaMoment_;
-  double jet4_etaetaMoment_;
-  double jet5_etaetaMoment_;
-  double jet6_etaetaMoment_;
-  double jet1_etaphiMoment_;
-  double jet2_etaphiMoment_;
-  double jet3_etaphiMoment_;
-  double jet4_etaphiMoment_;
-  double jet5_etaphiMoment_;
-  double jet6_etaphiMoment_;
-  double jet1_phiphiMoment_;
-  double jet2_phiphiMoment_;
-  double jet3_phiphiMoment_;
-  double jet4_phiphiMoment_;
-  double jet5_phiphiMoment_;
-  double jet6_phiphiMoment_;
+  double EtSin2Theta3jet_;
+  double theta3jet_;
+  double thetaStar3jet_;
+  double sinTheta3jet_;
+  double sinThetaStar3jet_;
+  double EtStar3jet_;
+
+  std::vector<double> etaetaMoments_;
+  std::vector<double> etaphiMoments_;
+  std::vector<double> phiphiMoments_;
+
+  std::vector<double> etaetaMomentsMoment_;
+  std::vector<double> etaphiMomentsMoment_;
+  std::vector<double> phiphiMomentsMoment_;
+
+  std::vector<double> etaetaMomentsLogEt_;
+  std::vector<double> etaphiMomentsLogEt_;
+  std::vector<double> phiphiMomentsLogEt_;
+
+  std::vector<double> etaetaMomentsMomentLogEt_;
+  std::vector<double> etaphiMomentsMomentLogEt_;
+  std::vector<double> phiphiMomentsMomentLogEt_;
+
+  std::vector<double> etaetaMomentsNoB_;
+  std::vector<double> etaphiMomentsNoB_;
+  std::vector<double> phiphiMomentsNoB_;
+
+  double jets_etaetaMoment_;
+  double jets_etaphiMoment_;
+  double jets_phiphiMoment_;
+
+  double jets_etaetaMomentLogEt_;
+  double jets_etaphiMomentLogEt_;
+  double jets_phiphiMomentLogEt_;
+
+  double jets_etaetaMomentNoB_;
+  double jets_etaphiMomentNoB_;
+  double jets_phiphiMomentNoB_;
 
   double aplanarity_;
   double sphericity_;
@@ -209,15 +186,32 @@ private:
   double C_;
   double D_;
 
-  double dRMin1_;
-  double dRMin2_;
-  double sumDR3JetMin1_;
-  double sumDR3JetMin2_;
+  double aplanarityAll_;
+  double sphericityAll_;
+  double circularityAll_;
+  double isotropyAll_;
+  double CAll_;
+  double DAll_;
 
-  double dRMin1Mass_;
-  double dRMin2Mass_;
-  double sumDR3JetMin1Mass_;
-  double sumDR3JetMin2Mass_;
+  double aplanarityAllCMS_;
+  double sphericityAllCMS_;
+  double circularityAllCMS_;
+  double isotropyAllCMS_;
+  double CAllCMS_;
+  double DAllCMS_;
+
+  double thrust_;
+  double thrustCMS_;
+
+  std::vector<double> dR_;
+  std::vector<double> dRMass_;
+  std::vector<double> dRAngle_;
+
+  std::vector<double> dR3Jets_;
+  std::vector<double> dR3JetsMass_;
+
+  std::vector<double> massDiffMWCands_;
+
 };
 
 #endif

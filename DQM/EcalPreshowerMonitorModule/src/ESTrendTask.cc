@@ -3,6 +3,7 @@
 #include <vector>
 #include <math.h>
 
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -68,7 +69,7 @@ void ESTrendTask::beginRun(const Run& r, const EventSetup& c) {
 
   if ( ! mergeRuns_ ) this->reset();
 
-  start_time_ = time(NULL);
+  start_time_ = (r.beginTime()).unixTime();
 
   //std::cout << "start time : " << start_time_ << std::endl;
 
@@ -183,7 +184,7 @@ void ESTrendTask::analyze(const Event& e, const EventSetup& c) {
   ievt_++;
 
   // Collect time information
-  updateTime();
+  updateTime(e);
 
   long int diff_current_start = current_time_ - start_time_;
   long int diff_last_start    = last_time_ - start_time_;
@@ -284,10 +285,10 @@ void ESTrendTask::analyze(const Event& e, const EventSetup& c) {
 
 }
 
-void ESTrendTask::updateTime() {
+void ESTrendTask::updateTime(const edm::Event& e) {
 
   last_time_ = current_time_;
-  current_time_ = time(NULL);
+  current_time_ = e.time().unixTime();
 
 }
 

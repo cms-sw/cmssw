@@ -9,10 +9,6 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/JetReco/interface/GenJet.h"
-#include "DataFormats/JetReco/interface/JPTJet.h"
-#include "DataFormats/JetReco/interface/JPTJetCollection.h"
-
-
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <TFile.h>
@@ -104,6 +100,3 @@ DEFINE_FWK_MODULE(GenJetPlotsExample);
 /////////// PF Jet Instance ////////
 typedef JetPlotsExample<PFJet> PFJetPlotsExample;
 DEFINE_FWK_MODULE(PFJetPlotsExample);
-/////////// JPT Jet Instance ////////
-typedef JetPlotsExample<JPTJet> JPTJetPlotsExample;
-DEFINE_FWK_MODULE(JPTJetPlotsExample);

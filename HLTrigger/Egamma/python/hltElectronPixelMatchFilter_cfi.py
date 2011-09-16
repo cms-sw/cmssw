@@ -7,7 +7,7 @@ hltElectronPixelMatchFilter = cms.EDFilter("HLTElectronPixelMatchFilter",
     npixelmatchcut = cms.double(1.0),
     ncandcut = cms.int32(1),
     doIsolated = cms.bool(True),
-    SaveTag = cms.untracked.bool( False ),
+    saveTags = cms.bool( False ),
     L1IsoCand = cms.InputTag( "hltL1IsoRecoEcalCandidate" ),
     L1NonIsoCand = cms.InputTag( "hltL1NonIsoRecoEcalCandidate" )
 )

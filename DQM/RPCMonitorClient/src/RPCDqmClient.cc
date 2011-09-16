@@ -25,7 +25,7 @@ RPCDqmClient::RPCDqmClient(const edm::ParameterSet& iConfig){
   parameters_ = iConfig;
 
   offlineDQM_ = parameters_.getUntrackedParameter<bool> ("OfflineDQM",true); 
-  
+  useRollInfo_=  parameters_.getUntrackedParameter<bool>("UseRollInfo", false);
   //check enabling
   enableDQMClients_ =parameters_.getUntrackedParameter<bool> ("EnableRPCDqmClient",true); 
   minimumEvents_= parameters_.getUntrackedParameter<int>("MinimumRPCEvents", 10000);
@@ -96,7 +96,7 @@ void  RPCDqmClient::endRun(const edm::Run& r, const edm::EventSetup& c){
   if(offlineDQM_) this->getMonitorElements(r, c);
 
   float   rpcevents = minimumEvents_;
-  if(RPCEvents_) rpcevents = RPCEvents_ -> getIntValue();
+  if(RPCEvents_) rpcevents = RPCEvents_ ->getBinContent(1);
   
   if(rpcevents < minimumEvents_) return;
   
@@ -116,7 +116,8 @@ void  RPCDqmClient::getMonitorElements(const edm::Run& r, const edm::EventSetup&
   c.get<MuonGeometryRecord>().get(rpcGeo);
   
   //dbe_->setCurrentFolder(prefixDir_);
-   
+  RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
+  MonitorElement * myMe = NULL;
   //loop on all geometry and get all histos
   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
     if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
@@ -129,14 +130,16 @@ void  RPCDqmClient::getMonitorElements(const edm::Run& r, const edm::EventSetup&
 	 
 	 //Get Occupancy ME for roll
 	 RPCGeomServ RPCname(detId);	   
-	 RPCBookFolderStructure *  folderStr = new RPCBookFolderStructure();
-	 
+	 std::string rollName= "";
 	 //loop on clients
 	 for( unsigned int cl = 0; cl<clientModules_.size(); cl++ ){
-	   
-	   MonitorElement * myMe = dbe_->get(prefixDir_ +"/"+ folderStr->folderStructure(detId)+"/"+clientHisto_[cl]+ "_"+RPCname.name()); 
+	   if(useRollInfo_) rollName = 	RPCname.name();
+	   else     rollName = 	RPCname.chambername();
+	     
+	   myMe = NULL;
+	   myMe = dbe_->get(prefixDir_ +"/"+ folderStr->folderStructure(detId)+"/"+clientHisto_[cl]+ "_"+rollName); 
 
-	  if (!myMe || find(myMeVect.begin(), myMeVect.end(), myMe)!=myMeVect.end())continue;
+	  if (!myMe)continue;
 
 	  dbe_->tag(myMe, clientTag_[cl]);
 
@@ -155,6 +158,7 @@ void  RPCDqmClient::getMonitorElements(const edm::Run& r, const edm::EventSetup&
     (*it)->getMonitorElements(myMeVect, myDetIds);
   }
 
+  delete folderStr;
  
 }
  
@@ -188,7 +192,7 @@ void RPCDqmClient::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::
     (*it)->endLuminosityBlock( lumiSeg, c);
   
   float   rpcevents = minimumEvents_;
-  if(RPCEvents_) rpcevents = RPCEvents_ -> getIntValue();
+  if(RPCEvents_) rpcevents = RPCEvents_ ->getBinContent(1);
   
   if( rpcevents < minimumEvents_) return;
 

@@ -7,9 +7,5 @@
 <flags   EDM_PLUGIN="1"/>
 <library   file="plugins.cc" name="HiJetAlgosPlugins">
 </library>
-<library   file="HiL1Subtractor.cc" name="HiJetAlgosExtraPlugins">
-</library>
 <library   file="HiGenCleaner.cc" name="HiGenJetPlugins">
-</library>
-<library   file="ParticleTowerProducer.cc" name="HiParticleTowerProducerPlugins">
 </library>

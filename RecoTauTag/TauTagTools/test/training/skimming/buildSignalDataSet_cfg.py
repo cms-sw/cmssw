@@ -14,16 +14,13 @@ Author: Evan K. Friis (UC Davis)
 
 '''
 
-# We have to put working defaults here since multicrab doesn't respect the fact
-# that we require good argv to be passed
-sampleId = -999
-sampleName = "ErrorParsingCLI"
+sampleId = None
+sampleName = None
 
+print sys.argv
 if not hasattr(sys, "argv"):
-    #raise ValueError, "Can't extract CLI arguments!"
-    print "ERROR: Can't extract CLI arguments!"
+    raise ValueError, "Can't extract CLI arguments!"
 else:
-    print sys.argv
     argOffset = 0
     if sys.argv[0] != 'cmsRun':
         argOffset = 1
@@ -88,11 +85,7 @@ process.globalReReco =  cms.Sequence(process.offlineBeamSpot+
 
 # Particle Flow re-processing
 process.pfReReco = cms.Sequence(process.particleFlowReco+
-                                process.ak5PFJets+
-                                process.kt6PFJets)
-
-process.kt6PFJets.doRhoFastjet = True
-process.kt6PFJets.Rho_EtaMax = cms.double( 4.4)
+                                process.ak5PFJets)
 
 process.rereco = cms.Sequence(
     process.localReReco*
@@ -339,9 +332,7 @@ poolOutputCommands = cms.untracked.vstring(
     'keep patTriggerEvent_*_*_TANC',
     'keep PileupSummaryInfo_*_*_*',
     'keep *_ak5PFJets_*_TANC',
-    'keep *_kt6PFJets_*_TANC', # for PU subtraction
     'keep *_offlinePrimaryVertices_*_TANC',
-    'keep *_offlineBeamSpot_*_TANC',
     'keep *_particleFlow_*_TANC',
     'keep recoTracks_generalTracks_*_TANC',
     'keep recoTracks_electronGsfTracks_*_TANC',

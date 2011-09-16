@@ -4,8 +4,8 @@
 /*
  * \file EBTimingTask.h
  *
- * $Date: 2009/12/08 10:35:45 $
- * $Revision: 1.15 $
+ * $Date: 2011/06/27 09:08:17 $
+ * $Revision: 1.16.14.1 $
  * \author G. Della Ricca
  *
 */
@@ -26,6 +26,8 @@ EBTimingTask(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EBTimingTask();
+
+ static const float shiftProf2D;
 
 protected:
 
@@ -79,5 +81,7 @@ MonitorElement* meTimeSummaryMap_, *meTimeSummaryMapProjEta_, *meTimeSummaryMapP
 bool init_;
 
 };
+
+const float EBTimingTask::shiftProf2D = 50.;
 
 #endif

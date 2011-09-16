@@ -11,6 +11,8 @@
 #include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 #include "DataFormats/Candidate/interface/VertexCompositeCandidateFwd.h"
 
+#include "DataFormats/ParticleFlowReco/interface/PFMultilinksTC.h" // Glowinski & Gouzevitch
+
 #include <iostream>
 
 
@@ -119,9 +121,18 @@ namespace reco {
 
     friend std::ostream& operator<<( std::ostream& out, 
                                      const PFBlockElement& element );
+
+    // Glowinski & Gouzevitch
+    void setMultilinks(const PFMultiLinksTC& ml) {multilinks_ = ml;}
+    void setIsValidMultilinks(bool isVal) {multilinks_.isValid = isVal;}
+    void setMultilinksList(const PFMultilinksType& links) {multilinks_.linkedClusters = links;}
     
+    bool isMultilinksValide() const {return multilinks_.isValid;}
+    const PFMultilinksType& getMultilinks() const {return multilinks_.linkedClusters;}
+    // ! Glowinski & Gouzevitch
+
   protected:  
-  
+
     /// type, see PFBlockElementType
     /// \todo replace by a char ?
     Type     type_;
@@ -134,7 +145,10 @@ namespace reco {
     /// index in block vector 
     unsigned   index_;
 
-
+    // Glowinski & Gouzevitch
+    PFMultiLinksTC multilinks_;
+    // ! Glowinski & Gouzevitch
+  
   };
 }
 #endif

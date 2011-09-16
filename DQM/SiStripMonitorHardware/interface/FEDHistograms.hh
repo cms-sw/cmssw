@@ -42,10 +42,12 @@ public:
 		  );
 
   void fillCountersHistograms(const FEDErrors::FEDCounters & aFedLevelCounters, 
-			      const FEDErrors::ChannelCounters & aChLevelCounters, 
+			      const FEDErrors::ChannelCounters & aChLevelCounters,
+			      const unsigned int aMaxSize,
 			      const double aTime);
 
-  void fillFEDHistograms(FEDErrors & aFedError, 
+  void fillFEDHistograms(FEDErrors & aFedError,
+			 const unsigned int aEvtSize,
 			 bool lFullDebug
 			 );
 
@@ -62,6 +64,12 @@ public:
 			  const FEDErrors::APVLevelErrors & aAPVErr, 
 			  bool fullDebug
 			  );
+
+  void fillMajorityHistograms(const unsigned int aPart,
+			      const float aValue,
+			      const std::vector<unsigned int> & aFedIdVec);
+
+  bool feMajHistosEnabled();
 
   void fillLumiHistograms(const FEDErrors::LumiErrors & aLumErr);
 
@@ -88,6 +96,9 @@ protected:
 private:
 
   //counting histograms (histogram of number of problems per event)
+  HistogramConfig fedEventSize_;
+  HistogramConfig fedMaxEventSizevsTime_;
+
   HistogramConfig nFEDErrors_, 
     nFEDDAQProblems_, 
     nFEDsWithFEProblems_, 
@@ -135,7 +146,8 @@ private:
     dataMissing_, 
     dataPresent_, 
     feOverflows_, 
-    badMajorityAddresses_, 
+    badMajorityAddresses_,
+    badMajorityInPartition_,
     feMissing_, 
     anyFEProblems_;
 
@@ -146,6 +158,11 @@ private:
 
   HistogramConfig apveAddress_;
   HistogramConfig feMajAddress_;
+
+  HistogramConfig feMajFracTIB_;
+  HistogramConfig feMajFracTOB_;
+  HistogramConfig feMajFracTECB_;
+  HistogramConfig feMajFracTECF_;
 
   HistogramConfig medianAPV0_;
   HistogramConfig medianAPV1_;

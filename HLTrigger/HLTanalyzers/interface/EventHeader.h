@@ -2,6 +2,9 @@
 #define EVTHDR_H
 
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "DataFormats/Luminosity/interface/LumiSummary.h" 
+#include "DataFormats/Luminosity/interface/LumiDetails.h" 
 #include "TChain.h"
 
 
@@ -29,7 +32,7 @@ private:
 	int fLumiBlock;
 	int fBx;
 	int fOrbit;
-
+	double fAvgInstDelLumi;
 
   // input variables
   bool _Debug;

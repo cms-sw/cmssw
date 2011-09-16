@@ -120,7 +120,7 @@ CrystalPad::CrystalPad(unsigned number, int onEcal,
 }
 CrystalPad::CrystalPad(unsigned number, 
 		       const std::vector<XYZPoint>& corners,
-		       const Transform3D & trans,double scaf) 
+		       const Transform3D & trans,double scaf,bool bothdirections) 
   : 
   corners_(aVector),
   dir_(aVector),
@@ -150,7 +150,8 @@ CrystalPad::CrystalPad(unsigned number,
 
 	  XYZPoint corner=rotation_(corners[ic])+translation_;
 	  //	  std::cout << corner << std::endl ;
-	  corners_[ic] = CLHEP::Hep2Vector(corner.X(),corner.Y()*yscalefactor_);
+	  double xscalefactor=(bothdirections) ? yscalefactor_:1.;
+	  corners_[ic] = CLHEP::Hep2Vector(corner.X()*xscalefactor,corner.Y()*yscalefactor_);
 	  center_+=corners_[ic];
 	}
       for(unsigned ic=0;ic<4;++ic)
