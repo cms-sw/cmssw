@@ -99,7 +99,7 @@ bool HitExtractorSTRP::skipThis(TransientTrackingRecHit::ConstRecHitPointer & pt
 
 void HitExtractorSTRP::cleanedOfClusters( const edm::Event& ev, HitExtractor::Hits & hits,
 					  bool matched,
-					  uint cleanFrom)const{
+					  unsigned int cleanFrom)const{
   LogDebug("HitExtractorPIX")<<"getting: "<<hits.size()<<" in input.";
   edm::Handle<edmNew::DetSetVector<SiStripClusterRef> > stripClusterRefs;
   ev.getByLabel(theSkipClusters,stripClusterRefs);
@@ -134,7 +134,7 @@ HitExtractor::Hits HitExtractorSTRP::hits(const SeedingLayer & sl, const edm::Ev
   HitExtractor::Hits result;
   TrackerLayerIdAccessor accessor;
   theSLayer=&sl;
-  uint cleanFrom=0;
+  unsigned int cleanFrom=0;
   //
   // TIB
   //
