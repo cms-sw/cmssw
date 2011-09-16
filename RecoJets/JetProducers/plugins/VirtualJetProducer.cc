@@ -174,8 +174,8 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
   }
 
   if ( doPUOffsetCorr_ ) {
-     if ( jetTypeE != JetType::CaloJet ) {
-        throw cms::Exception("InvalidInput") << "Can only offset correct jets of type CaloJet";
+    if ( jetTypeE != JetType::CaloJet && jetTypeE != JetType::BasicJet) {
+        throw cms::Exception("InvalidInput") << "Can only offset correct jets of type CaloJet or BasicJet";
      }
      
      if(iConfig.exists("subtractorName")) puSubtractorName_  =  iConfig.getParameter<string> ("subtractorName");
