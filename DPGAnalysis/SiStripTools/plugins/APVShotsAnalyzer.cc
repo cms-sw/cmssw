@@ -219,13 +219,13 @@ APVShotsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
        uint32_t det=shot->detId();
        if (_useCabling){
-	 const std::vector<FedChannelConnection> & conns = _detCabling->getConnections( det );
+         const std::vector<const FedChannelConnection *> & conns = _detCabling->getConnections( det );
 
 	 if (!(conns.size())) continue;
 	 uint16_t lFedId = 0;
 	 for (uint32_t ch = 0; ch<conns.size(); ch++) {
-	   lFedId = conns[ch].fedId();
-	   //uint16_t lFedCh = conns[ch].fedCh();
+           lFedId = conns[ch]->fedId();
+           //uint16_t lFedCh = conns[ch]->fedCh();
    
 	   if (lFedId < sistrip::FED_ID_MIN || lFedId > sistrip::FED_ID_MAX){
 	     std::cout << " -- Invalid fedid " << lFedId << " for detid " << det << " connection " << ch << std::endl;
