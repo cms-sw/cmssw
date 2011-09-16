@@ -657,7 +657,7 @@ my $monthTOmins = 31*24*60;
 #-----------------------------------------------------------------
 sub maxdiskspace(){
     my $maxdisk=-1;
-    for my $string (`df -h | grep sata..a..v `){
+    for my $string (`df -h | grep "/store/sata" `){
 	my ( my $prcnt ) = ($string =~ /.+\ +.+\ +.+\ +.+\ +([0-9]+)\%.*/);
 	if($maxdisk < $prcnt){ $maxdisk= $prcnt; }
     }
@@ -955,13 +955,9 @@ debug( "    $hour && $min: Delta-t= $deltaT " );
 if($now ||  abs($deltaT) < 8   ) { 
     printtime "cleanup CopyManager if there";
     deleteCopyManager(); 
-
-    printtime ".. move copyworker work-logs....";
-    my $clnmngr = `sudo -u cmsprod  perl /cmsnfshome0/nfshome0/smpro/sm_scripts_cvs/operations/cleanupCopyWorkerWorkDir.pl`;
-    
 }
 
-    printtime ".. done with moving copyworker work-logs....";
+    printtime ".. done with deleting copyManager logs....";
 
 
 #=======remove old injec/copy-worker files (try only once a day!):
