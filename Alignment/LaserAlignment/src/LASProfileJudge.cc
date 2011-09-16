@@ -13,7 +13,9 @@
 ///
 ///
 ///
-LASProfileJudge::LASProfileJudge() {
+LASProfileJudge::LASProfileJudge() :
+  overdriveThreshold(0)
+{
 
   // switch on the zero filter by default
   isZeroFilter = true;

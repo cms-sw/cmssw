@@ -2,7 +2,7 @@
 
   Original Authors:  Gero Flucke/Kolja Kaschube
            Created:  Wed May  6 08:43:02 CEST 2009
-           $Id: TkLasBeamFitter.cc,v 1.9 2010/06/02 13:11:55 kaschube Exp $
+           $Id: TkLasBeamFitter.cc,v 1.10 2010/07/20 02:58:17 wmtan Exp $
 
  Description: Fitting LAS beams with track model and providing TrajectoryStateOnSurface for hits.
 
@@ -183,7 +183,13 @@ ESHandle<TrackerGeometry> geometry;
 TkLasBeamFitter::TkLasBeamFitter(const edm::ParameterSet &iConfig) :
   src_(iConfig.getParameter<edm::InputTag>("src")),
   fitBeamSplitters_(iConfig.getParameter<bool>("fitBeamSplitters")),
-  nAtParameters_(iConfig.getParameter<unsigned int>("numberOfFittedAtParameters"))
+  nAtParameters_(iConfig.getParameter<unsigned int>("numberOfFittedAtParameters")),
+  h_bsAngle(0), h_hitX(0), h_hitXTecPlus(0), h_hitXTecMinus(0),
+  h_hitXAt(0), h_chi2(0), h_chi2ndof(0), h_pull(0), h_res(0), 
+  h_resTecPlus(0), h_resTecMinus(0), h_resAt(0),
+  h_bsAngleVsBeam(0), h_hitXvsZTecPlus(0), h_hitXvsZTecMinus(0),
+  h_hitXvsZAt(0), h_resVsZTecPlus(0), h_resVsZTecMinus(0), h_resVsZAt(0),
+  h_resVsHitTecPlus(0), h_resVsHitTecMinus(0), h_resVsHitAt(0)
 {
   // declare the products to produce
   this->produces<TkFittedLasBeamCollection, edm::InRun>();

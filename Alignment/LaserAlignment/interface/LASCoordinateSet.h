@@ -13,7 +13,8 @@ class LASCoordinateSet {
   
  public:
 
-  LASCoordinateSet() {}
+  LASCoordinateSet() :
+    phi(0.), phiError(0.), r(0.), rError(0.), z(0.), zError(0.) {}
   LASCoordinateSet( double, double, double, double, double, double );
 
   void GetCoordinates( double&, double&, double&, double&, double&, double& ) const;

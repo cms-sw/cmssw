@@ -6,7 +6,9 @@
 ///
 ///
 ///
-LASConstants::LASConstants() {
+LASConstants::LASConstants() :
+  atRadius(0.), tecBsZPosition(0.), atZPosition(0.)
+{
 }
 
 
