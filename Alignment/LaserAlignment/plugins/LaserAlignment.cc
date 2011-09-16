@@ -1,8 +1,8 @@
 /** \file LaserAlignment.cc
  *  LAS reconstruction module
  *
- *  $Date: 2009/08/26 17:50:06 $
- *  $Revision: 1.39 $
+ *  $Date: 2010/01/06 09:38:00 $
+ *  $Revision: 1.40 $
  *  \author Maarten Thomas
  *  \author Jan Olzem
  */
@@ -38,7 +38,8 @@ LaserAlignment::LaserAlignment( edm::ParameterSet const& theConf ) :
   theFile(),
   theAlignableTracker(),
   theAlignRecordName( "TrackerAlignmentRcd" ),
-  theErrorRecordName( "TrackerAlignmentErrorRcd" )   {
+  theErrorRecordName( "TrackerAlignmentErrorRcd" ),
+  firstEvent_(true) {
 
 
   std::cout << std::endl;
@@ -130,11 +131,14 @@ void LaserAlignment::beginJob() {
 
     // creating a new file
     theFile = new TFile( theFileName.c_str(), "RECREATE", "CMS ROOT file" );
-    theFile->SetCompressionLevel(theCompression);
     
     // initialize the histograms
-    if ( theFile ) singleModulesDir = theFile->mkdir( "single modules" );
-    else throw cms::Exception( " [LaserAlignment::beginJob]") << " ** ERROR: could not open file:" << theFileName.c_str() << " for writing." << std::endl;
+    if ( theFile ) {
+      theFile->SetCompressionLevel(theCompression);
+      singleModulesDir = theFile->mkdir( "single modules" );
+    } else 
+      throw cms::Exception( " [LaserAlignment::beginJob]") << " ** ERROR: could not open file:"
+							   << theFileName.c_str() << " for writing." << std::endl;
 
   }
 
@@ -511,26 +515,28 @@ void LaserAlignment::endRun( edm::Run& theRun, const edm::EventSetup& theSetup )
     const DetId theDetId( detectorId.GetTECEntry( det, ring, beam, disk ) );
     const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>( theTracker.idToDet( theDetId ) );
       
-    // first, set the measured coordinates to their nominal values
-    measuredCoordinates.SetTECEntry( det, ring, beam, disk, nominalCoordinates.GetTECEntry( det, ring, beam, disk ) );
-
-    if( isGoodFit ) { // convert strip position to global phi and replace the nominal phi value/error
-
-      measuredStripPositions.GetTECEntry( det, ring, beam, disk ) = peakFinderResults;
-      const float positionInStrips =  theSetNominalStrips ? 256. : peakFinderResults.first; // implementation of "ForceFitterToNominalStrips" config parameter
-      const GlobalPoint& globalPoint = theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( positionInStrips ) );
-      measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhi( ConvertAngle( globalPoint.barePhi() ) );
-
-      // const GlobalError& globalError = errorTransformer.transform( theStripDet->specificTopology().localError( peakFinderResults.first, pow( peakFinderResults.second, 2 ) ), theStripDet->surface() );
-      // measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhiError( globalError.phierr( globalPoint ) );
-      measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhiError( 0.00046  ); // PRELIMINARY ESTIMATE
-
-    }
-    else { // keep nominal position (middle-of-module) but set a giant phi error so that the module can be ignored by the alignment algorithm
-      measuredStripPositions.GetTECEntry( det, ring, beam, disk ) = std::pair<float,float>( 256., 1000. );
-      const GlobalPoint& globalPoint = theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( 256. ) );
-      measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhi( ConvertAngle( globalPoint.barePhi() ) );
-      measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhiError( 1000. );
+    if (theStripDet) {
+      // first, set the measured coordinates to their nominal values
+      measuredCoordinates.SetTECEntry( det, ring, beam, disk, nominalCoordinates.GetTECEntry( det, ring, beam, disk ) );
+      
+      if( isGoodFit ) { // convert strip position to global phi and replace the nominal phi value/error
+	
+	measuredStripPositions.GetTECEntry( det, ring, beam, disk ) = peakFinderResults;
+	const float positionInStrips =  theSetNominalStrips ? 256. : peakFinderResults.first; // implementation of "ForceFitterToNominalStrips" config parameter
+	const GlobalPoint& globalPoint = theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( positionInStrips ) );
+	measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhi( ConvertAngle( globalPoint.barePhi() ) );
+	
+	// const GlobalError& globalError = errorTransformer.transform( theStripDet->specificTopology().localError( peakFinderResults.first, pow( peakFinderResults.second, 2 ) ), theStripDet->surface() );
+	// measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhiError( globalError.phierr( globalPoint ) );
+	measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhiError( 0.00046  ); // PRELIMINARY ESTIMATE
+	
+      }
+      else { // keep nominal position (middle-of-module) but set a giant phi error so that the module can be ignored by the alignment algorithm
+	measuredStripPositions.GetTECEntry( det, ring, beam, disk ) = std::pair<float,float>( 256., 1000. );
+	const GlobalPoint& globalPoint = theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( 256. ) );
+	measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhi( ConvertAngle( globalPoint.barePhi() ) );
+	measuredCoordinates.GetTECEntry( det, ring, beam, disk ).SetPhiError( 1000. );
+      }
     }
       
   } while( moduleLoop.TECLoop( det, ring, beam, disk ) );
@@ -558,23 +564,25 @@ void LaserAlignment::endRun( edm::Run& theRun, const edm::EventSetup& theSetup )
     const DetId theDetId( detectorId.GetTIBTOBEntry( det, beam, pos ) );
     const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>( theTracker.idToDet( theDetId ) );
       
-    // first, set the measured coordinates to their nominal values
-    measuredCoordinates.SetTIBTOBEntry( det, beam, pos, nominalCoordinates.GetTIBTOBEntry( det, beam, pos ) );
+    if (theStripDet) {
+      // first, set the measured coordinates to their nominal values
+      measuredCoordinates.SetTIBTOBEntry( det, beam, pos, nominalCoordinates.GetTIBTOBEntry( det, beam, pos ) );
       
-    if( isGoodFit ) { // convert strip position to global phi and replace the nominal phi value/error
-      measuredStripPositions.GetTIBTOBEntry( det, beam, pos ) = peakFinderResults;
-      const float positionInStrips =  theSetNominalStrips ? 256. + getTIBTOBNominalBeamOffset( det, beam, pos ) : peakFinderResults.first; // implementation of "ForceFitterToNominalStrips" config parameter
-      const GlobalPoint& globalPoint = theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( positionInStrips ) );
-      measuredCoordinates.GetTIBTOBEntry( det, beam, pos ).SetPhi( ConvertAngle( globalPoint.barePhi() ) );
-      measuredCoordinates.GetTIBTOBEntry( det, beam, pos ).SetPhiError( 0.00028 ); // PRELIMINARY ESTIMATE
+      if( isGoodFit ) { // convert strip position to global phi and replace the nominal phi value/error
+	measuredStripPositions.GetTIBTOBEntry( det, beam, pos ) = peakFinderResults;
+	const float positionInStrips =  theSetNominalStrips ? 256. + getTIBTOBNominalBeamOffset( det, beam, pos ) : peakFinderResults.first; // implementation of "ForceFitterToNominalStrips" config parameter
+	const GlobalPoint& globalPoint = theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( positionInStrips ) );
+	measuredCoordinates.GetTIBTOBEntry( det, beam, pos ).SetPhi( ConvertAngle( globalPoint.barePhi() ) );
+	measuredCoordinates.GetTIBTOBEntry( det, beam, pos ).SetPhiError( 0.00028 ); // PRELIMINARY ESTIMATE
+      }
+      else { // keep nominal position but set a giant phi error so that the module can be ignored by the alignment algorithm
+	measuredStripPositions.GetTIBTOBEntry( det, beam, pos ) = std::pair<float,float>( 256. + getTIBTOBNominalBeamOffset( det, beam, pos ), 1000. );
+	const GlobalPoint& globalPoint = theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( 256. + getTIBTOBNominalBeamOffset( det, beam, pos ) ) );
+	measuredCoordinates.GetTIBTOBEntry( det, beam, pos ).SetPhi( ConvertAngle( globalPoint.barePhi() ) );
+	measuredCoordinates.GetTIBTOBEntry( det, beam, pos ).SetPhiError( 1000. );
+      }
     }
-    else { // keep nominal position but set a giant phi error so that the module can be ignored by the alignment algorithm
-      measuredStripPositions.GetTIBTOBEntry( det, beam, pos ) = std::pair<float,float>( 256. + getTIBTOBNominalBeamOffset( det, beam, pos ), 1000. );
-      const GlobalPoint& globalPoint = theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( 256. + getTIBTOBNominalBeamOffset( det, beam, pos ) ) );
-      measuredCoordinates.GetTIBTOBEntry( det, beam, pos ).SetPhi( ConvertAngle( globalPoint.barePhi() ) );
-      measuredCoordinates.GetTIBTOBEntry( det, beam, pos ).SetPhiError( 1000. );
-    }
-      
+
   } while( moduleLoop.TIBTOBLoop( det, beam, pos ) );
 
 
@@ -599,23 +607,24 @@ void LaserAlignment::endRun( edm::Run& theRun, const edm::EventSetup& theSetup )
     const DetId theDetId( detectorId.GetTEC2TECEntry( det, beam, disk ) );
     const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>( theTracker.idToDet( theDetId ) );
 
-    // first, set the measured coordinates to their nominal values
-    measuredCoordinates.SetTEC2TECEntry( det, beam, disk, nominalCoordinates.GetTEC2TECEntry( det, beam, disk ) );
-    
-    if( isGoodFit ) { // convert strip position to global phi and replace the nominal phi value/error
-      measuredStripPositions.GetTEC2TECEntry( det, beam, disk ) = peakFinderResults;
-      const float positionInStrips =  theSetNominalStrips ? 256. + getTEC2TECNominalBeamOffset( det, beam, disk ) : peakFinderResults.first; // implementation of "ForceFitterToNominalStrips" config parameter
-      const GlobalPoint& globalPoint = theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( positionInStrips ) );
-      measuredCoordinates.GetTEC2TECEntry( det, beam, disk ).SetPhi( ConvertAngle( globalPoint.barePhi() ) );
-      measuredCoordinates.GetTEC2TECEntry( det, beam, disk ).SetPhiError( 0.00047 ); // PRELIMINARY ESTIMATE
+    if (theStripDet) {
+      // first, set the measured coordinates to their nominal values
+      measuredCoordinates.SetTEC2TECEntry( det, beam, disk, nominalCoordinates.GetTEC2TECEntry( det, beam, disk ) );
+      
+      if( isGoodFit ) { // convert strip position to global phi and replace the nominal phi value/error
+	measuredStripPositions.GetTEC2TECEntry( det, beam, disk ) = peakFinderResults;
+	const float positionInStrips =  theSetNominalStrips ? 256. + getTEC2TECNominalBeamOffset( det, beam, disk ) : peakFinderResults.first; // implementation of "ForceFitterToNominalStrips" config parameter
+	const GlobalPoint& globalPoint = theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( positionInStrips ) );
+	measuredCoordinates.GetTEC2TECEntry( det, beam, disk ).SetPhi( ConvertAngle( globalPoint.barePhi() ) );
+	measuredCoordinates.GetTEC2TECEntry( det, beam, disk ).SetPhiError( 0.00047 ); // PRELIMINARY ESTIMATE
+      }
+      else { // keep nominal position but set a giant phi error so that the module can be ignored by the alignment algorithm
+	measuredStripPositions.GetTEC2TECEntry( det, beam, disk ) = std::pair<float,float>( 256. + getTEC2TECNominalBeamOffset( det, beam, disk ), 1000. );
+	const GlobalPoint& globalPoint = theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( 256. + getTEC2TECNominalBeamOffset( det, beam, disk ) ) );
+	measuredCoordinates.GetTEC2TECEntry( det, beam, disk ).SetPhi( ConvertAngle( globalPoint.barePhi() ) );
+	measuredCoordinates.GetTEC2TECEntry( det, beam, disk ).SetPhiError( 1000. );
+      }
     }
-    else { // keep nominal position but set a giant phi error so that the module can be ignored by the alignment algorithm
-      measuredStripPositions.GetTEC2TECEntry( det, beam, disk ) = std::pair<float,float>( 256. + getTEC2TECNominalBeamOffset( det, beam, disk ), 1000. );
-      const GlobalPoint& globalPoint = theStripDet->surface().toGlobal( theStripDet->specificTopology().localPosition( 256. + getTEC2TECNominalBeamOffset( det, beam, disk ) ) );
-      measuredCoordinates.GetTEC2TECEntry( det, beam, disk ).SetPhi( ConvertAngle( globalPoint.barePhi() ) );
-      measuredCoordinates.GetTEC2TECEntry( det, beam, disk ).SetPhiError( 1000. );
-    }
-
 
   } while( moduleLoop.TEC2TECLoop( det, beam, disk ) );
   
@@ -1523,7 +1532,7 @@ void LaserAlignment::DumpStripFileSet( LASGlobalData<std::pair<float,float> >& m
 ///
 ///
 ///
-void LaserAlignment::DumpHitmaps( LASGlobalData<int> numberOfAcceptedProfiles ) {
+void LaserAlignment::DumpHitmaps( LASGlobalData<int> &numberOfAcceptedProfiles ) {
 
   std::cout << " [LaserAlignment::DumpHitmaps] -- Dumping hitmap for TEC+:" << std::endl;
   std::cout << " [LaserAlignment::DumpHitmaps] -- Ring4:" << std::endl;
@@ -1720,10 +1729,12 @@ void LaserAlignment::testRoutine( void ) {
     const DetId theDetId( detectorId.GetTECEntry( det, ring, beam, disk ) );
     const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>( theTracker.idToDet( theDetId ) );
     
-    const GlobalPoint gp( GlobalPoint::Cylindrical( radius, tecPhiPositions[beam], zPositions[disk] ) );
-    
-    const LocalPoint lp( theStripDet->surface().toLocal( gp ) );
-    std::cout << "__TEC: " << 256. - theStripDet->specificTopology().strip( lp ) << std::endl; /////////////////////////////////
+    if (theStripDet) {
+      const GlobalPoint gp( GlobalPoint::Cylindrical( radius, tecPhiPositions[beam], zPositions[disk] ) );
+      
+      const LocalPoint lp( theStripDet->surface().toLocal( gp ) );
+      std::cout << "__TEC: " << 256. - theStripDet->specificTopology().strip( lp ) << std::endl; /////////////////////////////////
+    }
 
   } while( moduleLoop.TECLoop( det, ring, beam, disk ) );
 
@@ -1739,11 +1750,13 @@ void LaserAlignment::testRoutine( void ) {
     const DetId theDetId( detectorId.GetTIBTOBEntry( det, beam, pos ) );
     const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>( theTracker.idToDet( theDetId ) );
     
-    const GlobalPoint gp( GlobalPoint::Cylindrical( radius, atPhiPositions[beam], theZ ) );
-    
-    const LocalPoint lp( theStripDet->surface().toLocal( gp ) );
-    std::cout << "__TIBTOB det " << det << " beam " << beam << " pos " << pos << "  " << 256. - theStripDet->specificTopology().strip( lp );
-    std::cout << "           " << theStripDet->position().perp()<< std::endl; /////////////////////////////////
+    if (theStripDet) {
+      const GlobalPoint gp( GlobalPoint::Cylindrical( radius, atPhiPositions[beam], theZ ) );
+      
+      const LocalPoint lp( theStripDet->surface().toLocal( gp ) );
+      std::cout << "__TIBTOB det " << det << " beam " << beam << " pos " << pos << "  " << 256. - theStripDet->specificTopology().strip( lp );
+      std::cout << "           " << theStripDet->position().perp()<< std::endl; /////////////////////////////////
+    }
 
   } while( moduleLoop.TIBTOBLoop( det, beam, pos ) );
 
@@ -1758,10 +1771,12 @@ void LaserAlignment::testRoutine( void ) {
     const DetId theDetId( detectorId.GetTEC2TECEntry( det, beam, disk ) );
     const StripGeomDetUnit* const theStripDet = dynamic_cast<const StripGeomDetUnit*>( theTracker.idToDet( theDetId ) );
     
-    const GlobalPoint gp( GlobalPoint::Cylindrical( radius, atPhiPositions[beam], zPositions[disk] ) );
-    
-    const LocalPoint lp( theStripDet->surface().toLocal( gp ) );
-    std::cout << "__TEC2TEC det " << det << " beam " << beam << " disk " << disk << "  " << 256. - theStripDet->specificTopology().strip( lp ) << std::endl; /////////////////////////////////
+    if (theStripDet) {
+      const GlobalPoint gp( GlobalPoint::Cylindrical( radius, atPhiPositions[beam], zPositions[disk] ) );
+      
+      const LocalPoint lp( theStripDet->surface().toLocal( gp ) );
+      std::cout << "__TEC2TEC det " << det << " beam " << beam << " disk " << disk << "  " << 256. - theStripDet->specificTopology().strip( lp ) << std::endl; /////////////////////////////////
+    }
 
   } while( moduleLoop.TEC2TECLoop( det, beam, disk ) );
 

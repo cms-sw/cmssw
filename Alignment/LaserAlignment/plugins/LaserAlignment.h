@@ -6,8 +6,8 @@
 /** \class LaserAlignment
  *  Main reconstruction module for the Laser Alignment System
  *
- *  $Date: 2009/10/14 07:34:14 $
- *  $Revision: 1.27 $
+ *  $Date: 2010/01/06 09:38:00 $
+ *  $Revision: 1.28 $
  *  \author Maarten Thomas
  *  \author Jan Olzem
  */
@@ -130,7 +130,7 @@ class LaserAlignment : public edm::EDProducer, public TObject {
   void DumpStripFileSet( LASGlobalData<std::pair<float,float> >& );
 
   /// for debugging only, will disappear
-  void DumpHitmaps( LASGlobalData<int> );
+  void DumpHitmaps( LASGlobalData<int>& );
 
   /// apply endcap correction to masked modules in TEC
   void ApplyEndcapMaskingCorrections( LASGlobalData<LASCoordinateSet>&, LASGlobalData<LASCoordinateSet>&, LASEndcapAlignmentParameterSet& );
