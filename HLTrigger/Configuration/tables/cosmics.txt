@@ -8,7 +8,8 @@ HLT_L1SingleMu10_v*
 HLT_L1SingleEG5_v*
 HLT_L1SingleEG12_v*
 HLT_BeamGas_HF_v*
-HLT_BeamGas_BSC_v*
+HLT_BeamGas_HF_Beam1_v*
+HLT_BeamGas_HF_Beam2_v*
 HLT_BeamHalo_v*
 HLT_L1_PreCollisions_v*
 HLT_L1_Interbunch_BSC_v*
