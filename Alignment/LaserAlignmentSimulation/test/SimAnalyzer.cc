@@ -1,8 +1,8 @@
 /** \file SimAnalyzer.cc
  *  Get some statistics and plots about the simulation of the Laser Alignment System
  *
- *  $Date: 2008/01/22 18:51:34 $
- *  $Revision: 1.5 $
+ *  $Date: 2009/12/14 22:21:45 $
+ *  $Revision: 1.6 $
  *  \author Maarten Thomas
  */
 
@@ -32,7 +32,31 @@
 	theSearchZTOB(theConf.getUntrackedParameter<double>("SearchWindowZTOB",1.0)),
 	theFile(),
 	theCompression(theConf.getUntrackedParameter<int>("ROOTFileCompression",1)),
-	theFileName(theConf.getUntrackedParameter<std::string>("ROOTFileName","test.root"))
+	theFileName(theConf.getUntrackedParameter<std::string>("ROOTFileName","test.root")),
+	theBarrelSimHitsX(0),
+	theBarrelSimHitsY(0),
+	theBarrelSimHitsZ(0),
+	theBarrelSimHitsYvsX(0),
+	theBarrelSimHitsXvsZ(0),
+	theBarrelSimHitsYvsZ(0),
+	theBarrelSimHitsRvsZ(0),
+	theBarrelSimHitsPhivsX(0),
+	theBarrelSimHitsPhivsY(0),
+	theBarrelSimHitsPhivsZ(0),
+	// the histograms for Endcap Hits
+	theEndcapSimHitsX(0),
+	theEndcapSimHitsY(0),
+	theEndcapSimHitsZ(0),
+	theEndcapSimHitsYvsX(0),
+	theEndcapSimHitsXvsZ(0),
+	theEndcapSimHitsYvsZ(0),
+	theEndcapSimHitsRvsZ(0),
+	theEndcapSimHitsPhivsX(0),
+	theEndcapSimHitsPhivsY(0),
+	theEndcapSimHitsPhivsZ(0),
+	// the histograms for all SimHits
+	theSimHitsRvsZ(0),
+	theSimHitsPhivsZ(0)  
 {
 	// load the configuration from the ParameterSet  
 	edm::LogInfo("SimAnalyzer") << "==========================================================="  
@@ -50,10 +74,12 @@
 
 SimAnalyzer::~SimAnalyzer()
 {
-	// close the rootfile
-	closeRootFile();
-
-	if (theFile != 0) { delete theFile; }
+	if (theFile != 0) {
+	        // close the rootfile
+	        closeRootFile();
+	  
+   	        delete theFile; 
+	}
 
 }
 
@@ -83,11 +109,11 @@ void SimAnalyzer::beginJob()
 		<< "     creating a CMS Root Tree ...";
 	// creating a new file
 	theFile = new TFile(theFileName.c_str(),"RECREATE","CMS ROOT file");
-	theFile->SetCompressionLevel(theCompression);
 
 	// initialize the histograms
 	if (theFile) 
 	{
+         	theFile->SetCompressionLevel(theCompression);
 		this->initHistograms();
 	}
 	else 
