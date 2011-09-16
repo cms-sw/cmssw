@@ -1,9 +1,9 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.54 $
-///  last update: $Date: 2011/08/08 21:30:50 $
-///  by         : $Author: flucke $
+///  Revision   : $Revision: 1.55 $
+///  last update: $Date: 2011/08/12 09:36:36 $
+///  by         : $Author: mussgill $
 
 #include "AlignmentProducer.h"
 #include "FWCore/Framework/interface/LooperFactory.h" 
@@ -296,17 +296,17 @@ void AlignmentProducer::endOfJob()
                                << "events in last loop, do not dare to store to DB.";
   } else {
     
+    // Expand run ranges and make them unique
+    edm::VParameterSet runRangeSelectionVPSet(theParameterSet.getParameter<edm::VParameterSet>("RunRangeSelection"));
+    RunRanges uniqueRunRanges(this->makeNonOverlappingRunRanges(runRangeSelectionVPSet));
+    if (uniqueRunRanges.empty()) { // create dummy IOV
+      const RunRange runRange(cond::timeTypeSpecs[cond::runnumber].beginValue,
+			      cond::timeTypeSpecs[cond::runnumber].endValue);
+      uniqueRunRanges.push_back(runRange);
+    }
+
     // Save alignments to database
     if (saveToDB_ || saveApeToDB_ || saveDeformationsToDB_) {
-      
-      // Expand run ranges and make them unique
-      edm::VParameterSet runRangeSelectionVPSet(theParameterSet.getParameter<edm::VParameterSet>("RunRangeSelection"));
-      RunRanges uniqueRunRanges(this->makeNonOverlappingRunRanges(runRangeSelectionVPSet));
-      if (uniqueRunRanges.empty()) { // create dummy IOV
-        const RunRange runRange(cond::timeTypeSpecs[cond::runnumber].beginValue,
-                                cond::timeTypeSpecs[cond::runnumber].endValue);
-        uniqueRunRanges.push_back(runRange);
-      }
       for (RunRanges::const_iterator iRunRange = uniqueRunRanges.begin();
            iRunRange != uniqueRunRanges.end();
            ++iRunRange) {
@@ -314,9 +314,18 @@ void AlignmentProducer::endOfJob()
         this->writeForRunRange((*iRunRange).first);
       }
     }
+
+    if (theAlignableExtras) {
+      for (RunRanges::const_iterator iRunRange = uniqueRunRanges.begin();
+	   iRunRange != uniqueRunRanges.end();
+	   ++iRunRange) {
+	edm::LogInfo("Alignment") << "Dumping extra alignables for run range " 
+				  << (*iRunRange).first << " - " << (*iRunRange).second << std::endl; 
+	theAlignmentAlgo->setParametersForRunRange(*iRunRange);
+	theAlignableExtras->dump();
+      }
+    }
   }
-  
-  if (theAlignableExtras) theAlignableExtras->dump();
 }
 
 //_____________________________________________________________________________
@@ -855,7 +864,6 @@ AlignmentProducer::makeNonOverlappingRunRanges(const edm::VParameterSet& RunRang
   if (!RunRangeSelectionVPSet.empty()) {
 
     std::map<RunNumber,RunNumber> uniqueFirstRunNumbers;
-    std::map<RunNumber,RunNumber> uniqueLastRunNumbers;
     
     for (std::vector<edm::ParameterSet>::const_iterator ipset = RunRangeSelectionVPSet.begin();
 	 ipset != RunRangeSelectionVPSet.end();
@@ -892,26 +900,15 @@ AlignmentProducer::makeNonOverlappingRunRanges(const edm::VParameterSet& RunRang
       }
     }
 
-    std::map<RunNumber,RunNumber>::iterator iFirst = uniqueFirstRunNumbers.begin();
-    ++iFirst;
-    while (iFirst!=uniqueFirstRunNumbers.end()) {
-      uniqueLastRunNumbers[(*iFirst).first] = (*iFirst).first - 1;
-      ++iFirst;
-    }
-    uniqueLastRunNumbers[endValue] = endValue;
-    
     for (std::map<RunNumber,RunNumber>::iterator iFirst = uniqueFirstRunNumbers.begin();
 	 iFirst!=uniqueFirstRunNumbers.end();
 	 ++iFirst) {
-      for (std::map<RunNumber,RunNumber>::iterator iLast = uniqueLastRunNumbers.begin();
-	   iLast!=uniqueLastRunNumbers.end();
-	   ++iLast) {
-	if ((*iLast).first>(*iFirst).first) {
-	  uniqueRunRanges.push_back(std::pair<RunNumber,RunNumber>((*iFirst).first, (*iLast).first));
-	  break;
-	}
-      }
+      uniqueRunRanges.push_back(std::pair<RunNumber,RunNumber>((*iFirst).first, endValue));
     }
+    for (unsigned int i = 0;i<uniqueRunRanges.size()-1;++i) {
+      uniqueRunRanges[i].second = uniqueRunRanges[i+1].first - 1;
+    }
+    
   } else {
         
     uniqueRunRanges.push_back(std::pair<RunNumber,RunNumber>(beginValue, endValue));
