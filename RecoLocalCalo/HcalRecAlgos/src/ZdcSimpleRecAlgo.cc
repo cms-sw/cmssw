@@ -24,7 +24,7 @@ void ZdcSimpleRecAlgo::initPulseCorr(int toadd) {
     pulseCorr_=std::auto_ptr<HcalPulseContainmentCorrection>(new HcalPulseContainmentCorrection(toadd,phaseNS_,MaximumFractionalError));
   }
 }
-static float timeshift_ns_zdc(float wpksamp);
+//static float timeshift_ns_zdc(float wpksamp);
 
 namespace ZdcSimpleRecAlgoImpl {
   template<class Digi, class RecHit>
@@ -353,6 +353,7 @@ static const float actual_ns_zdc[num_bins_zdc] = {
 24.92000  // 0.990-1.000
 };
 
+/*
 float timeshift_ns_zdc(float wpksamp) {
   float flx = (num_bins_zdc*(wpksamp - wpksamp0_zdc)/scale_zdc);
   int index = (int)flx;
@@ -371,3 +372,4 @@ float timeshift_ns_zdc(float wpksamp) {
   yval = y1 + (y2-y1)*(flx-(float)index);
   return yval;
 }
+*/
