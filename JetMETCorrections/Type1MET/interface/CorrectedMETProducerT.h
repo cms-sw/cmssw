@@ -14,9 +14,9 @@
  *          Florent Lacroix, University of Illinois at Chicago
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: CorrectedMETProducerT.h,v 1.2 2011/09/13 16:03:14 veelken Exp $
+ * $Id: CorrectedMETProducerT.h,v 1.3 2011/09/16 08:03:38 veelken Exp $
  *
  */
 
@@ -98,8 +98,6 @@ class CorrectedMETProducerT : public edm::EDProducer
       
       static CorrectedMETProducer_namespace::CorrectedMETFactoryT<T> correctedMET_factory;
       T correctedMEt = correctedMET_factory(*rawMEt, correction);
-
-      //std::cout << moduleLabel_ << ": rawMET = " << rawMEt->pt() << " --> correctedMET = " << correctedMEt.pt() << std::endl;
 
       correctedMEtCollection->push_back(correctedMEt);
     }
