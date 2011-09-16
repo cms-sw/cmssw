@@ -1,8 +1,8 @@
 /** \file LaserBeamsTEC1.cc
  *  
  *
- *  $Date: 2009/05/26 07:12:23 $
- *  $Revision: 1.6 $
+ *  $Date: 2010/09/09 18:22:48 $
+ *  $Revision: 1.7 $
  *  \author Maarten Thomas
  */
 
@@ -17,7 +17,9 @@
 #include "G4ParticleDefinition.hh"
 #include "G4ParticleGun.hh"
 
-LaserBeamsTEC1::LaserBeamsTEC1()
+LaserBeamsTEC1::LaserBeamsTEC1() :
+  theParticleGun(0),
+  theDRand48Engine(0)
 {
   G4int nPhotonsGun = 1;
   G4int nPhotonsBeam = 1;
