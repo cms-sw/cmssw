@@ -102,11 +102,11 @@ HLT_HT450_v*
 HLT_HT450_AlphaT0p51_v* 
 #HLT_HT450_AlphaT0p52_v*                                                                        # removed in 5e33 menu (sr #123317)
 HLT_HT500_v*
-HLT_HT500_JetPt60_DPhi2p94_v*
+#HLT_HT500_JetPt60_DPhi2p94_v*                                                                  # removed in 5e33 menu (sr #123533) - keep in the master
 HLT_HT550_v*
-HLT_HT550_JetPt60_DPhi2p94_v*
+#HLT_HT550_JetPt60_DPhi2p94_v*                                                                  # removed in 5e33 menu (sr #123533) - keep in the master
 HLT_HT600_v*
-HLT_HT600_JetPt60_DPhi2p94_v*
+#HLT_HT600_JetPt60_DPhi2p94_v*                                                                  # removed in 5e33 menu (sr #123533) - keep in the master
 HLT_HT650_v*
 HLT_HT750_v*                                                                                    #   added in 5e33 menu (sr #123262)
 HLT_HT2000_v*
