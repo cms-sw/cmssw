@@ -4,10 +4,6 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/METReco/interface/CorrMETData.h"
 
-#include "JetMETCorrections/Type1MET/interface/metCorrAuxFunctions.h"
-
-using namespace metCorr_namespace;
-
 PFCandMETcorrInputProducer::PFCandMETcorrInputProducer(const edm::ParameterSet& cfg)
   : moduleLabel_(cfg.getParameter<std::string>("@module_label"))
 {

@@ -1,5 +1,28 @@
 import FWCore.ParameterSet.Config as cms
 
+# load jet energy correction parameters
+from JetMETCorrections.Configuration.JetCorrectionServices_cff import *
+
+#--------------------------------------------------------------------------------
+# produce rho parameters needed for L1FastJet corrections
+from CommonTools.ParticleFlow.pfNoPileUp_cff import pfNoPileUpSequence
+
+from RecoJets.JetProducers.kt4PFJets_cfi import kt4PFJets
+kt6PFJets = kt4PFJets.clone(
+    src = cms.InputTag('particleFlow'),
+    rParam = cms.double(0.6),
+    doAreaFastjet = cms.bool(True),
+    doRhoFastjet = cms.bool(True),
+    Rho_EtaMax = cms.double(2.5)
+)
+
+# CV: need to rerun 'ak5PFJets' module with jet area computation enabled,
+#     since it has not been enabled per default in CMSSW_4_2_x
+#    (if the jet area of 'ak5PFJets' is zero, the L1FastjetCorrector::correction function always returns 1.0)
+from RecoJets.JetProducers.ak5PFJets_cfi import ak5PFJets
+ak5PFJets.doAreaFastjet = cms.bool(True)
+#--------------------------------------------------------------------------------
+
 #--------------------------------------------------------------------------------
 # select PFCandidates for Type 2 MET correction:
 #  (1) select PFCandidates ("unclustered energy") not within jets
@@ -32,7 +55,7 @@ pfType2Cands = cms.EDFilter("PdgIdPFCandidateSelector",
 pfJetMETcorr = cms.EDProducer("PFJetMETcorrInputProducer",
     src = cms.InputTag('ak5PFJets'),
     offsetCorrLabel = cms.string("ak5PFL1Fastjet"),
-    jetCorrLabel = cms.string("ak5PFL1FastL2L3"),                         
+    jetCorrLabel = cms.string("ak5PFL1FastL2L3"), # NOTE: use "ak5PFL1FastL2L3" for MC / "ak5PFL1FastL2L3Residual" for Data
     jetCorrEtaMax = cms.double(4.7),
     type1JetPtThreshold = cms.double(10.0),
     skipEM = cms.bool(True),
@@ -82,7 +105,10 @@ pfType1p2CorrectedMet = cms.EDProducer("CorrectedPFMETProducer",
 #--------------------------------------------------------------------------------
 # define sequence to run all modules
 producePFMETCorrections = cms.Sequence(
-    pfCandsNotInJet
+    pfNoPileUpSequence
+   * kt6PFJets
+   * ak5PFJets
+   * pfCandsNotInJet
    * pfType2Cands
    * pfJetMETcorr
    * pfCandMETcorr
