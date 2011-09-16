@@ -10,7 +10,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Wed Mar 22 12:24:20 CET 2006
-// $Id: SiStripDetCabling.h,v 1.8 2009/06/10 16:30:33 demattia Exp $
+// $Id: SiStripDetCabling.h,v 1.9 2009/07/25 11:34:10 demattia Exp $
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
 #include <boost/cstdint.hpp>
@@ -23,10 +23,10 @@ class SiStripDetCabling
   SiStripDetCabling();
   virtual ~SiStripDetCabling();
   SiStripDetCabling(const SiStripFedCabling &);
-  void addDevices(const FedChannelConnection &, std::map< uint32_t, std::vector<FedChannelConnection> >&);
+  void addDevices(const FedChannelConnection &, std::map< uint32_t, std::vector<const FedChannelConnection *> >&);
   void addDevices(const FedChannelConnection &); // special case of above addDevices
   // getters
-  inline const  std::map< uint32_t, std::vector<FedChannelConnection> >& getDetCabling() const { return fullcabling_; }
+  inline const  std::map< uint32_t, std::vector<const FedChannelConnection *> >& getDetCabling() const { return fullcabling_; }
   // for DQM use: all detectors that have at least one connected APV
   void  addActiveDetectorsRawIds(std::vector<uint32_t> &) const;                    // add to vector Ids of connected modules (active == connected)
   void  addAllDetectorsRawIds(std::vector<uint32_t> & vector_to_fill_with_detids ) const; // add to vector Ids of all modules
@@ -38,7 +38,7 @@ class SiStripDetCabling
   void  addUnDetected( std::map<uint32_t, std::vector<int> > &) const; // map of detector to list of APVs for APVs seen neither from FECS or FEDs
   void  addNotConnectedAPVs( std::map<uint32_t, std::vector<int> > &) const; // map of detector to list of APVs that are not connected - combination of addDetected and addUnDetected
   // other
-  const std::vector<FedChannelConnection>& getConnections( uint32_t det_id ) const;
+  const std::vector<const FedChannelConnection *>& getConnections( uint32_t det_id ) const;
   const FedChannelConnection& getConnection( uint32_t det_id, unsigned short apv_pair ) const;
   const unsigned int getDcuId( uint32_t det_id ) const;
   const uint16_t nApvPairs(uint32_t det_id) const; // maximal nr. of apvpairs a detector can have (2 or 3)
@@ -69,8 +69,8 @@ class SiStripDetCabling
   uint32_t detNumber(const std::string & subDet, const uint16_t layer, const int connectionType) const;
 
   // ---------- member data --------------------------------
-  // map of KEY=detid DATA=vector<FedChannelConnection> 
-  std::map< uint32_t, std::vector<FedChannelConnection> > fullcabling_;
+  // map of KEY=detid DATA=vector<FedChannelConnection>
+  std::map< uint32_t, std::vector<const FedChannelConnection *> > fullcabling_;
   // map of KEY=detid DATA=vector of apvs, maximum 6 APVs per detector module : 0,1,2,3,4,5
   std::map< uint32_t, std::vector<int> > connected_; // seen from FECs and FEDs
   std::map< uint32_t, std::vector<int> > detected_; // seen from FECs but not from FEDs

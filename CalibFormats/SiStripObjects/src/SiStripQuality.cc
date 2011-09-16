@@ -1,7 +1,7 @@
 //
 // Author:      Domenico Giordano
 // Created:     Wed Sep 26 17:42:12 CEST 2007
-// $Id: SiStripQuality.cc,v 1.20 2009/11/30 13:32:32 giordano Exp $
+// $Id: SiStripQuality.cc,v 1.21 2010/02/20 20:55:07 wmtan Exp $
 //
 #include "FWCore/Utilities/interface/typelookup.h"
 #include "CalibFormats/SiStripObjects/interface/SiStripQuality.h"
@@ -232,18 +232,18 @@ void SiStripQuality::addInvalidConnectionFromCabling()
   std::vector<uint32_t>::const_iterator itdetEnd = connected_detids.end();
   for(;itdet!=itdetEnd;++itdet){
     //LogTrace("SiStripQuality") << "[addInvalidConnectionFromCabling] looking at detid " <<*itdet << std::endl;
-    const std::vector<FedChannelConnection>& fedconns=SiStripDetCabling_->getConnections(*itdet);
-    std::vector<FedChannelConnection>::const_iterator itconns=fedconns.begin();
-    std::vector<FedChannelConnection>::const_iterator itconnsEnd=fedconns.end();
+    const std::vector<const FedChannelConnection *>& fedconns=SiStripDetCabling_->getConnections(*itdet);
+    std::vector<const FedChannelConnection *>::const_iterator itconns=fedconns.begin();
+    std::vector<const FedChannelConnection *>::const_iterator itconnsEnd=fedconns.end();
     
     unsigned short nApvPairs=SiStripDetCabling_->nApvPairs(*itdet);
     short ngoodConn=0, goodConn=0;
     for(;itconns!=itconnsEnd;++itconns){
-      //LogTrace("SiStripQuality") << "[addInvalidConnectionFromCabling] apvpair " << itconns->apvPairNumber() << " napvpair " << itconns->nApvPairs()<< " detid " << itconns->detId() << std::endl;
-      if(itconns->nApvPairs()==sistrip::invalid_)
+      //LogTrace("SiStripQuality") << "[addInvalidConnectionFromCabling] apvpair " << (*itconns)->apvPairNumber() << " napvpair " << (*itconns)->nApvPairs()<< " detid " << (*itconns)->detId() << std::endl;
+      if( (*itconns == 0) || ((*itconns)->nApvPairs()==sistrip::invalid_) )
 	continue;
       ngoodConn++;
-      goodConn = goodConn | ( 0x1 << itconns->apvPairNumber() );
+      goodConn = goodConn | ( 0x1 << (*itconns)->apvPairNumber() );
     }
 
     if (ngoodConn!=nApvPairs){
