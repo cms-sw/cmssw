@@ -295,12 +295,6 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 	/*     delE = Emax - Emin = 1.24 eV  --> */
 	/*   */
 	/* default for Castor nameVolume  == "CASF" or (C3TF & C4TF)  */
-	float effPMTandTransport = 0.19;
-	/* for test HF geometry volumes:   
-	   if(nameVolume == "GF2Q" || nameVolume == "GFNQ" || 
-	   nameVolume == "GR2Q" || nameVolume == "GRNQ")
-	   effPMTandTransport = 0.19;
-	*/
 
 	float thFullRefl = 23.;  /* 23.dergee */
 	float thFullReflRad = thFullRefl*pi/180.;
@@ -402,27 +396,21 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 
 
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-	if(charge != 0. && beta > bThreshold && d_qz != 0. ) {
-
-	  meanNCherPhot = 370.*charge*charge* 
-	    ( 1. - 1./(nMedium*nMedium*beta*beta) )*
-	    photEnSpectrDE*stepl;
-
-	  // dLamdX:
-	  //   meanNCherPhot = (2.*pi/137.)*charge*charge* 
-	  //                     ( 1. - 1./(nMedium*nMedium*beta*beta) )*
-	  //                     photEnSpectrDL*stepl;
-
-
-	  //     NCherPhot = meanNCherPhot;
-	  // Poisson:
-	  G4int poissNCherPhot = (G4int) G4Poisson(meanNCherPhot);
-
-	  if(poissNCherPhot < 0) poissNCherPhot = 0; 
-	  
-	  NCherPhot = poissNCherPhot * effPMTandTransport * d_qz;
-
+		  
+	if(charge != 0. && beta > bThreshold )  {
+			  
+			  meanNCherPhot = 370.*charge*charge*
+			  ( 1. - 1./(nMedium*nMedium*beta*beta) )*
+			  photEnSpectrDE*stepl;
+			  
+			  G4int poissNCherPhot = (G4int) G4Poisson(meanNCherPhot);
+			  
+			  if(poissNCherPhot < 0) poissNCherPhot = 0;
+			  
+			  float effPMTandTransport = 0.19;
+			  double ReflPower = 0.1;
+			  double proba = d_qz + (1-d_qz)*ReflPower;
+			  NCherPhot = poissNCherPhot*effPMTandTransport*proba*0.307;
 
 
 #ifdef debugLog
