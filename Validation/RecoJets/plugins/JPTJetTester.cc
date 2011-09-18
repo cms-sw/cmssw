@@ -2,7 +2,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: JPTJetTester.cc,v 1.15 2011/07/20 14:18:46 kovitang Exp $
+// $Id: JPTJetTester.cc,v 1.16 2011/08/18 14:07:42 kovitang Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -264,9 +264,10 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
     double log10PtMin = 0.5; //=3.1622766
     double log10PtMax = 3.75; //=5623.41325
     int log10PtBins = 26; 
-    double etaMin = -6.;
-    double etaMax = 6.;
-    int etaBins = 50;
+    //double etaMin = -6.;
+    //double etaMax = 6.;
+    //int etaBins = 50;
+    double etaRange[91] = {-6.0,-5.8,-5.6,-5.4,-5.2,-5.0,-4.8,-4.6,-4.4,-4.2,-4.0,-3.8,-3.6,-3.4,-3.2,-3.0,-2.9,-2.8,-2.7,-2.6,-2.5,-2.4,-2.3,-2.2,-2.1,-2.0,-1.9,-1.8,-1.7,-1.6,-1.5,-1.4,-1.3,-1.2,-1.1,-1.0,-0.9,-0.8,-0.7,-0.6,-0.5,-0.4,-0.3,-0.2,-0.1,0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2.0,2.1,2.2,2.3,2.4,2.5,2.6,2.7,2.8,2.9,3.0,3.2,3.4,3.6,3.8,4.0,4.2,4.4,4.6,4.8,5.0,5.2,5.4,5.6,5.8,6.0};
 
     //double linPtMin = 5;
     //double linPtMax = 155;
@@ -306,10 +307,12 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
       mRMatch  = dbe->book3D("RMatch", "delta(R)(Gen-Calo) vs LOG(pT_gen) vs eta", 
 			     log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 60, 0, 3);
       */
+ /*
       mDeltaEta = dbe->book3D("DeltaEta", "DeltaEta vs LOG(pT_gen) vs eta", 
 			      log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 100, -1, 1);
       mDeltaPhi = dbe->book3D("DeltaPhi", "DeltaPhi vs LOG(pT_gen) vs eta", 
 			      log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 100, -1, 1);
+*/
       /*
       mEScale = dbe->book3D("EScale", "EnergyScale vs LOG(pT_gen) vs eta", 
 			    log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 100, 0, 2);
@@ -319,11 +322,13 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
 			    log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 2000, -200, 200);
       */
       //
+/*
       mEScale_pt10 = dbe->book3D("EScale_pt10", "EnergyScale vs LOG(pT_gen) vs eta", 
 				 log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 100, 0, 2);
       mEScaleFineBin = dbe->book3D("EScaleFineBins", "EnergyScale vs LOG(pT_gen) vs eta", 
 				   log10PtFineBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 100, 0, 2);
-    }
+*/  
+  }
     /*
     mpTScaleB_s = dbe->bookProfile("pTScaleB_s", "pTScale_s_0<|eta|<1.3",
 				    log10PtBins, log10PtMin, log10PtMax, 0, 2, "s");
@@ -332,15 +337,15 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
     mpTScaleF_s = dbe->bookProfile("pTScaleF_s", "pTScale_s_3.0<|eta|<5.0",
 				    log10PtBins, log10PtMin, log10PtMax, 0, 2, "s");
     */
-    mpTScaleB_d = dbe->bookProfile("pTScaleB_d", "pTScale_d_0<|eta|<1.3",
+    mpTScaleB_d = dbe->bookProfile("pTScaleB_d", "pTScale_d_0<|eta|<1.5",
 				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-    mpTScaleE_d = dbe->bookProfile("pTScaleE_d", "pTScale_d_1.3<|eta|<3.0",
+    mpTScaleE_d = dbe->bookProfile("pTScaleE_d", "pTScale_d_1.5<|eta|<3.0",
 				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
     mpTScaleF_d = dbe->bookProfile("pTScaleF_d", "pTScale_d_3.0<|eta|<6.0",
 				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-    mpTScalePhiB_d = dbe->bookProfile("pTScalePhiB_d", "pTScalePhi_d_0<|eta|<1.3",
+    mpTScalePhiB_d = dbe->bookProfile("pTScalePhiB_d", "pTScalePhi_d_0<|eta|<1.5",
 				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
-    mpTScalePhiE_d = dbe->bookProfile("pTScalePhiE_d", "pTScalePhi_d_1.3<|eta|<3.0",
+    mpTScalePhiE_d = dbe->bookProfile("pTScalePhiE_d", "pTScalePhi_d_1.5<|eta|<3.0",
 				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
     mpTScalePhiF_d = dbe->bookProfile("pTScalePhiF_d", "pTScalePhi_d_3.0<|eta|<6.0",
 				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
@@ -355,38 +360,38 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
     etaBins, etaMin, etaMax, 0., 2., "s");
 */
     mpTScale_60_120_d    = dbe->bookProfile("pTScale_60_120_d", "pTScale_d_60<pT<120",
-					  etaBins, etaMin, etaMax, 0., 2., " ");
+					  90,etaRange, 0., 2., " ");
     mpTScale_200_300_d   = dbe->bookProfile("pTScale_200_300_d", "pTScale_d_200<pT<300",
-					  etaBins, etaMin, etaMax, 0., 2., " ");
+					  90,etaRange, 0., 2., " ");
     mpTScale_600_900_d   = dbe->bookProfile("pTScale_600_900_d", "pTScale_d_600<pT<900",
-					  etaBins, etaMin, etaMax, 0., 2., " ");
+					  90,etaRange, 0., 2., " ");
     mpTScale_2700_3500_d = dbe->bookProfile("pTScale_2700_3500_d", "pTScale_d_2700<pt<3500",
-                                          etaBins, etaMin, etaMax, 0., 2., " ");
+                                          90,etaRange, 0., 2., " ");
     
-    mpTScale1DB_60_120 = dbe->book1D("pTScale1DB_60_120", "pTScale_distribution_for_0<|eta|<1.3_60_120",
+    mpTScale1DB_60_120 = dbe->book1D("pTScale1DB_60_120", "pTScale_distribution_for_0<|eta|<1.5_60_120",
 				   100, 0, 2);
-    mpTScale1DE_60_120 = dbe->book1D("pTScale1DE_60_120", "pTScale_distribution_for_1.3<|eta|<3.0_60_120",
+    mpTScale1DE_60_120 = dbe->book1D("pTScale1DE_60_120", "pTScale_distribution_for_1.5<|eta|<3.0_60_120",
 				   50, 0, 2);
     mpTScale1DF_60_120 = dbe->book1D("pTScale1DF_60_120", "pTScale_distribution_for_3.0<|eta|<6.0_60_120",
 				   50, 0, 2);
 
-    mpTScale1DB_200_300 = dbe->book1D("pTScale1DB_200_300", "pTScale_distribution_for_0<|eta|<1.3_200_300",
+    mpTScale1DB_200_300 = dbe->book1D("pTScale1DB_200_300", "pTScale_distribution_for_0<|eta|<1.5_200_300",
 				   100, 0, 2);
-    mpTScale1DE_200_300 = dbe->book1D("pTScale1DE_200_300", "pTScale_distribution_for_1.3<|eta|<3.0_200_300",
+    mpTScale1DE_200_300 = dbe->book1D("pTScale1DE_200_300", "pTScale_distribution_for_1.5<|eta|<3.0_200_300",
 				   50, 0, 2);
     mpTScale1DF_200_300 = dbe->book1D("pTScale1DF_200_300", "pTScale_distribution_for_3.0<|eta|<6.0_200_300",
 				   50, 0, 2);
 
-    mpTScale1DB_600_900 = dbe->book1D("pTScale1DB_600_900", "pTScale_distribution_for_0<|eta|<1.3_600_900",
+    mpTScale1DB_600_900 = dbe->book1D("pTScale1DB_600_900", "pTScale_distribution_for_0<|eta|<1.5_600_900",
 				   100, 0, 2);
-    mpTScale1DE_600_900 = dbe->book1D("pTScale1DE_600_900", "pTScale_distribution_for_1.3<|eta|<3.0_600_900",
+    mpTScale1DE_600_900 = dbe->book1D("pTScale1DE_600_900", "pTScale_distribution_for_1.5<|eta|<3.0_600_900",
 				   50, 0, 2);
     mpTScale1DF_600_900 = dbe->book1D("pTScale1DF_600_900", "pTScale_distribution_for_3.0<|eta|<6.0_600_900",
 				   50, 0, 2);
 
-    mpTScale1DB_2700_3500 = dbe->book1D("pTScale1DB_2700_3500", "pTScale_distribution_for_0<|eta|<1.3_2700_3500",
+    mpTScale1DB_2700_3500 = dbe->book1D("pTScale1DB_2700_3500", "pTScale_distribution_for_0<|eta|<1.5_2700_3500",
 				   100, 0, 2);
-    mpTScale1DE_2700_3500 = dbe->book1D("pTScale1DE_2700_3500", "pTScale_distribution_for_1.3<|eta|<3.0_2700_3500",
+    mpTScale1DE_2700_3500 = dbe->book1D("pTScale1DE_2700_3500", "pTScale_distribution_for_1.5<|eta|<3.0_2700_3500",
 				   50, 0, 2);
     mpTScale1DF_2700_3500 = dbe->book1D("pTScale1DF_2700_3500", "pTScale_distribution_for_3.0<|eta|<6.0_2700_3500",
 				   50, 0, 2);
@@ -403,38 +408,38 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
  ///////////Corr profile//////////////
     mpTRatio = dbe->bookProfile("pTRatio", "pTRatio",
                                 log10PtBins, log10PtMin, log10PtMax, 100, 0.,5., " ");
-    mpTRatioB_d = dbe->bookProfile("pTRatioB_d", "pTRatio_d_0<|eta|<1.3",
+    mpTRatioB_d = dbe->bookProfile("pTRatioB_d", "pTRatio_d_0<|eta|<1.5",
                                    log10PtBins, log10PtMin, log10PtMax, 0, 5, " ");
-    mpTRatioE_d = dbe->bookProfile("pTRatioE_d", "pTRatio_d_1.3<|eta|<3.0",
+    mpTRatioE_d = dbe->bookProfile("pTRatioE_d", "pTRatio_d_1.5<|eta|<3.0",
                                    log10PtBins, log10PtMin, log10PtMax, 0, 5, " ");
     mpTRatioF_d = dbe->bookProfile("pTRatioF_d", "pTRatio_d_3.0<|eta|<6.0",
                                    log10PtBins, log10PtMin, log10PtMax, 0, 5, " ");
     mpTRatio_60_120_d    = dbe->bookProfile("pTRatio_60_120_d", "pTRatio_d_60<pT<120",
-                                          etaBins, etaMin, etaMax, 0., 5., " ");
+                                          90,etaRange, 0., 5., " ");
     mpTRatio_200_300_d   = dbe->bookProfile("pTRatio_200_300_d", "pTRatio_d_200<pT<300",
-                                          etaBins, etaMin, etaMax, 0., 5., " ");
+                                          90,etaRange, 0., 5., " ");
     mpTRatio_600_900_d   = dbe->bookProfile("pTRatio_600_900_d", "pTRatio_d_600<pT<900",
-                                          etaBins, etaMin, etaMax, 0., 5., " ");
+                                          90,etaRange, 0., 5., " ");
     mpTRatio_2700_3500_d = dbe->bookProfile("pTRatio_2700_3500_d", "pTRatio_d_2700<pt<3500",
-                                          etaBins, etaMin, etaMax, 0., 5., " ");
+                                          90,etaRange, 0., 5., " ");
     mpTResponse = dbe->bookProfile("pTResponse", "pTResponse",
 				log10PtBins, log10PtMin, log10PtMax, 100, 0.8,1.2, " ");
-    mpTResponseB_d = dbe->bookProfile("pTResponseB_d", "pTResponse_d_0<|eta|<1.3",
+    mpTResponseB_d = dbe->bookProfile("pTResponseB_d", "pTResponse_d_0<|eta|<1.5",
 				      log10PtBins, log10PtMin, log10PtMax, 0.8, 1.2, " ");
-    mpTResponseE_d = dbe->bookProfile("pTResponseE_d", "pTResponse_d_1.3<|eta|<3.0",
+    mpTResponseE_d = dbe->bookProfile("pTResponseE_d", "pTResponse_d_1.5<|eta|<3.0",
                                    log10PtBins, log10PtMin, log10PtMax, 0.8, 1.2, " ");
     mpTResponseF_d = dbe->bookProfile("pTResponseF_d", "pTResponse_d_3.0<|eta|<6.0",
                                    log10PtBins, log10PtMin, log10PtMax, 0.8, 1.2, " ");
     mpTResponse_60_120_d    = dbe->bookProfile("pTResponse_60_120_d", "pTResponse_d_60<pT<120",
-                                          etaBins, etaMin, etaMax, 0.8, 1.2, " ");
+                                          90,etaRange, 0.8, 1.2, " ");
     mpTResponse_200_300_d   = dbe->bookProfile("pTResponse_200_300_d", "pTResponse_d_200<pT<300",
-                                          etaBins, etaMin, etaMax, 0.8, 1.2, " ");
+                                          90,etaRange, 0.8, 1.2, " ");
     mpTResponse_600_900_d   = dbe->bookProfile("pTResponse_600_900_d", "pTResponse_d_600<pT<900",
-                                          etaBins, etaMin, etaMax, 0.8, 1.2, " ");
+                                          90,etaRange, 0.8, 1.2, " ");
     mpTResponse_2700_3500_d = dbe->bookProfile("pTResponse_2700_3500_d", "pTResponse_d_2700<pt<3500",
-					       etaBins, etaMin, etaMax, 0.8, 1.2, " ");
+					       90,etaRange, 0.8, 1.2, " ");
     mpTResponse_30_d = dbe->bookProfile("pTResponse_30_d", "pTResponse_d_pt>30",
-					       etaBins, etaMin, etaMax, 0.8, 1.2, " ");
+					       90,etaRange, 0.8, 1.2, " ");
   } // if (dbe)
 
   if (mOutputFile.empty ()) {
@@ -647,7 +652,7 @@ if (!mEvent.isRealData()){
   int nJetC = 0;
   for (; jet != jptJets->end (); jet++, jetIndex++) {
     if (jet->pt() > 10.) {
-      if (fabs(jet->eta()) > 1.3) 
+      if (fabs(jet->eta()) > 1.5) 
 	nJetF++;
       else 
 	nJetC++;	  
@@ -767,11 +772,11 @@ if (!mEvent.isRealData()){
       mCorrJetPhi->Fill(correctedJet.phi());
       mpTRatio->Fill(log10(jet->pt()),correctedJet.pt()/jet->pt());
 
-       if (fabs(jet->eta())<1.3) {
+       if (fabs(jet->eta())<1.5) {
            mpTRatioB_d->Fill(log10(jet->pt()), correctedJet.pt()/jet->pt());
       }
 
-     if (fabs(jet->eta())>1.3 && fabs(jet->eta())<3.0) {
+     if (fabs(jet->eta())>1.5 && fabs(jet->eta())<3.0) {
         mpTRatioE_d->Fill (log10(jet->pt()), correctedJet.pt()/jet->pt());
      }
      if (fabs(jet->eta())>3.0 && fabs(jet->eta())<6.0) {
@@ -908,11 +913,11 @@ if (!mEvent.isRealData()){
 	if (deltaRBest < mRThreshold) { // Matched
 	  mpTResponse->Fill(log10(genJet.pt()),CorrJetPtBest/genJet.pt());
 	  
-	  if (fabs(genJet.eta())<1.3) {
+	  if (fabs(genJet.eta())<1.5) {
 	    mpTResponseB_d->Fill(log10(genJet.pt()), CorrJetPtBest/genJet.pt());
 	  }	
 	  
-	  if (fabs(genJet.eta())>1.3 && fabs(genJet.eta())<3.0) {
+	  if (fabs(genJet.eta())>1.5 && fabs(genJet.eta())<3.0) {
 	    mpTResponseE_d->Fill (log10(genJet.pt()), CorrJetPtBest/genJet.pt());   
 	  }
 	  
@@ -998,7 +1003,7 @@ void JPTJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::JPTJ
     mDelPt->Fill  ((fGenJet.pt()-fJPTJet.pt())/fGenJet.pt());
   }
 
-  if (fabs(fGenJet.eta())<1.3) {
+  if (fabs(fGenJet.eta())<1.5) {
 
     //mpTScaleB_s->Fill (log10(PtGen), PtJpt/PtGen);
     mpTScaleB_d->Fill (log10(PtGen), PtJpt/PtGen);
@@ -1019,7 +1024,7 @@ void JPTJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::JPTJ
     
   }
 
-  if (fabs(fGenJet.eta())>1.3 && fabs(fGenJet.eta())<3.0) {
+  if (fabs(fGenJet.eta())>1.5 && fabs(fGenJet.eta())<3.0) {
     //mpTScaleE_s->Fill (log10(PtGen), PtJpt/PtGen);
     mpTScaleE_d->Fill (log10(PtGen), PtJpt/PtGen);
     mpTScalePhiE_d->Fill (fGenJet.phi(), PtJpt/PtGen);

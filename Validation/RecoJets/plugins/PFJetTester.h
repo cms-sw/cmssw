@@ -4,7 +4,7 @@
 // Producer for validation histograms for PFJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by Chiyoung.Jeong Feb 2, 2010
-// $Id: PFJetTester.h,v 1.9 2011/04/21 12:31:27 kovitang Exp $
+// $Id: PFJetTester.h,v 1.10 2011/08/18 14:07:42 kovitang Exp $
 
 #include <string>
 
@@ -129,10 +129,18 @@ private:
   MonitorElement* mNeutralEmEnergy_3000;
   MonitorElement* mNeutralHadronEnergy_3000;
 
-  MonitorElement* mChargedEmEnergyFraction;
-  MonitorElement* mChargedHadronEnergyFraction;
-  MonitorElement* mNeutralEmEnergyFraction;
-  MonitorElement* mNeutralHadronEnergyFraction;
+  MonitorElement* mChargedEmEnergyFraction_B;
+  MonitorElement* mChargedEmEnergyFraction_E;
+  MonitorElement* mChargedEmEnergyFraction_F;
+  MonitorElement* mChargedHadronEnergyFraction_B;
+  MonitorElement* mChargedHadronEnergyFraction_E;
+  MonitorElement* mChargedHadronEnergyFraction_F;
+  MonitorElement* mNeutralEmEnergyFraction_B;
+  MonitorElement* mNeutralEmEnergyFraction_E;
+  MonitorElement* mNeutralEmEnergyFraction_F;
+  MonitorElement* mNeutralHadronEnergyFraction_B;
+  MonitorElement* mNeutralHadronEnergyFraction_E;
+  MonitorElement* mNeutralHadronEnergyFraction_F;
 
   //  MonitorElement* mMaxEInEmTowers;
   //  MonitorElement* mMaxEInHadTowers;

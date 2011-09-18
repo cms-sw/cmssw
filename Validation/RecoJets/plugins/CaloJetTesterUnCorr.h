@@ -4,7 +4,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: CaloJetTesterUnCorr.h,v 1.2 2011/04/21 12:31:27 kovitang Exp $
+// $Id: CaloJetTesterUnCorr.h,v 1.3 2011/08/18 14:07:42 kovitang Exp $
 
 #include <string>
 
@@ -133,8 +133,12 @@ private:
   MonitorElement* mEmEnergyInEE_80;
   MonitorElement* mEmEnergyInEB_3000;
   MonitorElement* mEmEnergyInEE_3000;
-  MonitorElement* mEnergyFractionHadronic;
-  MonitorElement* mEnergyFractionEm;
+  MonitorElement* mEnergyFractionHadronic_B;
+  MonitorElement* mEnergyFractionHadronic_E;
+  MonitorElement* mEnergyFractionHadronic_F;
+  MonitorElement* mEnergyFractionEm_B;
+  MonitorElement* mEnergyFractionEm_E;
+  MonitorElement* mEnergyFractionEm_F;
   MonitorElement* mHFTotal;
   MonitorElement* mHFTotal_80;
   MonitorElement* mHFTotal_3000;
