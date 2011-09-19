@@ -65,7 +65,7 @@ void CustomParticleFactory::loadCustomParticles(const std::string & filePath){
 void CustomParticleFactory::addCustomParticle(int pdgCode, double mass, const std::string & name){
   
   
-  if(pdgCode%100 <25 && abs(pdgCode) / 1000000 == 0){
+   if(abs(pdgCode)%100 <14 && abs(pdgCode) / 1000000 == 0){
     edm::LogError("") << "Pdg code too low " << pdgCode << " "<<abs(pdgCode) / 1000000  << std::endl;
     return;
   }
@@ -85,6 +85,18 @@ void CustomParticleFactory::addCustomParticle(int pdgCode, double mass, const st
   double massGeV =mass*GeV;
   double width = 0.0*MeV;
   double charge = eplus* CustomPDGParser::s_charge(pdgCode);
+    if (name.compare(0,4,"~HIP") == 0)
+    {
+
+       if ((name.compare(0,7,"~HIPbar") == 0))  {std::string str = name.substr (7); charge=eplus*atoi(str.c_str())/3.;}
+       else {std::string str = name.substr (4); charge=eplus*atoi(str.c_str())*-1./3.;  }
+    }
+    if (name.compare(0,9,"anti_~HIP") == 0)
+    {
+
+       if ((name.compare(0,12,"anti_~HIPbar") == 0))  {std::string str = name.substr (12); charge=eplus*atoi(str.c_str())*-1./3.;}
+       else {std::string str = name.substr (9); charge=eplus*atoi(str.c_str())*1./3.;  }
+    }
   int spin =  (int)CustomPDGParser::s_spin(pdgCode)-1;
   int parity = +1;
   int conjugation = 0;
