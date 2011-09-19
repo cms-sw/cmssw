@@ -48,9 +48,9 @@ void ...(edm::Event& e, const edm::EventSetup& es) {
 
  - CaloGeometry
  - CaloSubdetectorGeometry
- - CaloCellGeometry 
-   - calogeom::IdealObliquePrism
-   - calogeom::IdealZPrism
+ - CaloCellGeometry
+   - IdealObliquePrism
+   - IdealZPrism
    - TruncatedPyramid
    - PreshowerStrip
 
