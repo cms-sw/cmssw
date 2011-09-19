@@ -17,7 +17,17 @@
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
 //__________________________________________________________________________________________________
-AlignableModifier::AlignableModifier( void )
+AlignableModifier::AlignableModifier( void ) :
+  distribution_(""),
+  random_(false), gaussian_(false), setError_(false),
+  setRotations_(false),setTranslations_(false),
+  seed_(0),
+  scaleError_(0.), scale_(0.),
+  phiX_(0.), phiY_(0.), phiZ_(0.),
+  phiXlocal_(0.), phiYlocal_(0.), phiZlocal_(0.),
+  dX_(0.), dY_(0.), dZ_(0.),
+  dXlocal_(0.), dYlocal_(0.), dZlocal_(0.),
+  twist_(0.), shear_(0.)
 {
 
   theDRand48Engine = new CLHEP::DRand48Engine();
@@ -69,7 +79,7 @@ void AlignableModifier::init_( void )
 
 //__________________________________________________________________________________________________
 // Return true if given parameter name should be propagated down
-const bool AlignableModifier::isPropagated( const std::string& parameterName ) const
+bool AlignableModifier::isPropagated( const std::string& parameterName ) const
 {
 
   if ( parameterName == "distribution"    || 
