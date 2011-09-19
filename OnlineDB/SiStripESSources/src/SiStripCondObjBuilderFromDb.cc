@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.22 2010/04/09 12:54:15 alinn Exp $
-// Latest tag:  $Name:  $
+// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.23 2011/09/19 08:32:24 demattia Exp $
+// Latest tag:  $Name: V05-01-01 $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h"
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
@@ -532,11 +532,11 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
 	  << "\n "
 	  << " Unable to find FED connection for detid : " << std::dec << *det_id << " APV pair number " << apvPair
 	  << " Writing default values" << std::endl;
-	ipair->print(ssMessage);
+	(*ipair)->print(ssMessage);
 	//If no connection was found, add 100 to apvpair
 	apvPair+=100;
 	std::cout << " Put apvPair+100:" << apvPair << " into vector!" << std::endl;
-	p_apvpcon=std::make_pair(apvPair,*ipair);
+	p_apvpcon=std::make_pair(apvPair,**ipair);
 	v_apvpcon.push_back(p_apvpcon);
 	apvPair=apvPair-100;
 	continue;
@@ -569,7 +569,7 @@ void SiStripCondObjBuilderFromDb::buildAnalysisRelatedObjects( SiStripConfigDb* 
     return;
   }
 
-   i_trackercon detids_end=tc.end();
+  i_trackercon detids_end=tc.end();
 
   //loop detids
   for(i_trackercon detids=tc.begin();detids!=detids_end;detids++){
