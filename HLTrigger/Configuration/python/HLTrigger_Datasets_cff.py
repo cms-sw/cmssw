@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V261
+# /dev/CMSSW_4_2_0/GRun/V263
 
 import FWCore.ParameterSet.Config as cms
 
@@ -166,13 +166,17 @@ streamA_datasetHT_selector.triggerConditions = cms.vstring('HLT_DiJet130_PT130_v
     'HLT_HT300_PFMHT55_v9', 
     'HLT_HT300_PFMHT65_v2', 
     'HLT_HT300_v10', 
+    'HLT_HT350_MHT100_v1', 
+    'HLT_HT350_MHT110_v1', 
     'HLT_HT350_MHT70_v3', 
     'HLT_HT350_MHT80_v3', 
     'HLT_HT350_MHT90_v2', 
     'HLT_HT350_v9', 
     'HLT_HT400_AlphaT0p51_v8', 
     'HLT_HT400_AlphaT0p52_v3', 
+    'HLT_HT400_MHT100_v1', 
     'HLT_HT400_MHT80_v2', 
+    'HLT_HT400_MHT90_v1', 
     'HLT_HT400_v9', 
     'HLT_HT450_AlphaT0p51_v3', 
     'HLT_HT450_v9', 
