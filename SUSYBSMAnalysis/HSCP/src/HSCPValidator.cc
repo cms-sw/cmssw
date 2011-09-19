@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth Cooper,27 1-024,+41227672342,
 //         Created:  Wed Apr 14 14:27:52 CEST 2010
-// $Id: HSCPValidator.cc,v 1.6 2011/03/15 16:01:46 querten Exp $
+// $Id: HSCPValidator.cc,v 1.7 2011/04/08 23:20:41 gowdy Exp $
 //
 //
 
@@ -137,9 +137,9 @@ HSCPValidator::HSCPValidator(const edm::ParameterSet& iConfig) :
   simTrackParticleBetaHist_ = fileService->make<TH1F>("simTrackParticleBeta","Beta of simTrackParticle",100,0,1);
 
 //HLT Info
-  hltmet100_ = fileService->make<TH1F>("HLT_MET100","MET100",3,-1,2);
-  hltjet140_ = fileService->make<TH1F>("HLT_JET140","JET140",3,-1,2);
-  hltmu15_ = fileService->make<TH1F>("HLT_Mu15","Mu15",3,-1,2);
+  hltmet = fileService->make<TH1F>("HLT_MET","MET",3,-1,2);
+  hltjet = fileService->make<TH1F>("HLT_JET","JET",3,-1,2);
+  hltmu = fileService->make<TH1F>("HLT_Mu","Mu",3,-1,2);
 
 
   // SIM-DIGI: ECAL
@@ -290,6 +290,7 @@ void HSCPValidator::makeGenPlots(const edm::Event& iEvent)
     // Check if the particleId is in our R-hadron list
     std::vector<int>::const_iterator partIdItr = find(particleIds_.begin(),particleIds_.end(),(*p)->pdg_id());
     if(partIdItr==particleIds_.end()){
+       
        //calculate MET(neutrino+ HSCP as MET)
        if(abs((*p)->pdg_id())!=12 && abs((*p)->pdg_id())!=14 && abs((*p)->pdg_id())!=16){ //for non-neutrino particles. 
           missingpx_nohscp-=(*p)->momentum().px();
@@ -356,7 +357,7 @@ void HSCPValidator::makeSimTrackPlots(const edm::Event& iEvent)
      
      simTrackParticleBetaHist_->Fill((*simTrack).momentum().P()/(*simTrack).momentum().e());  
      
-
+     // std::cout<<"Particle:"<<simTrack->type()<<" Charge:"<<simTrack->charge()<<std::endl;
 
   }
 }
@@ -369,16 +370,10 @@ void HSCPValidator::makeHLTPlots(const edm::Event& iEvent)
 
       edm::TriggerResultsByName tr = iEvent.triggerResultsByName("HLT");
 
-      if(!tr.isValid()){
-         std::cout<<"Tirgger Results not available"<<std::endl;
-       }
+          if(!tr.isValid()){
+        std::cout<<"Tirgger Results not available"<<std::endl;
+      }
  
-//     std::cout<<"trigger names are : ";
-//      for(unsigned int i=0;i<tr.size();i++){
-//         std::cout<<" "<<tr.triggerName(i);
-//      }
-//      std::cout<<std::endl;
-
    edm::Handle< trigger::TriggerEvent > trEvHandle;
    iEvent.getByLabel("hltTriggerSummaryAOD", trEvHandle);
    trigger::TriggerEvent trEv = *trEvHandle;
@@ -388,70 +383,65 @@ void HSCPValidator::makeHLTPlots(const edm::Event& iEvent)
 
 
    // HLT TRIGGER BASED ON 1 MUON!
-   if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu15_v1")){
-      if(tr.accept(tr.triggerIndex("HLT_Mu15_v1"))) hltmu15_->Fill(1);
-      else hltmu15_->Fill(0);
-   }else{
-      if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu11")){
-         if(IncreasedTreshold(trEv, InputTag("hltSingleMu11L3Filtered11","","HLT"), 15, 1, false))  hltmu15_->Fill(1);
-         else hltmu15_->Fill(0);
+   if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu40_v1")){
+      if(tr.accept(tr.triggerIndex("HLT_Mu40_v1"))) hltmu->Fill(1);
+      else {hltmu->Fill(0);}
+   }
+   else{
+      if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu30_v1")){
+         if(IncreasedTreshold(trEv, InputTag("hltSingleMu30L3Filtered30","","HLT"), 40,2.1, 1, false)) hltmu->Fill(1);
+         else hltmu->Fill(0);
       }else{
-         if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu9")){
-            if(IncreasedTreshold(trEv, InputTag("hltSingleMu9L3Filtered9","","HLT"), 15, 1, false)) hltmu15_->Fill(1);
-            else hltmu15_->Fill(0);
-         }else{           printf("BUG with HLT_Mu15\n");
-
+         printf("BUG with HLT_Mu\n");
+         std::cout<<"trigger names are : ";
+         for(unsigned int i=0;i<tr.size();i++){
+            std::cout<<" "<<tr.triggerName(i);
          }
+         std::cout<<std::endl;       
       }
    }
+
 
  // HLT TRIGGER BASED ON MET!
-   if(TrIndex_Unknown != tr.triggerIndex("HLT_MET100_v3")){
-      if(tr.accept(tr.triggerIndex("HLT_MET100_v3")))hltmet100_->Fill(1);
-      else hltmet100_->Fill(0);
+   if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v3")){
+      if(tr.accept(tr.triggerIndex("HLT_PFMHT150_v3")))hltmet->Fill(1);
+      else hltmet->Fill(0);
    }else{
-      if(TrIndex_Unknown != tr.triggerIndex("HLT_MET100_v2")){
-          if(tr.accept(tr.triggerIndex("HLT_MET100_v2"))) hltmet100_->Fill(1);
-          else hltmet100_->Fill(0);
-      }else{
-         if(TrIndex_Unknown != tr.triggerIndex("HLT_MET100")){
-             if(tr.accept(tr.triggerIndex("HLT_MET100"))) hltmet100_->Fill(1);
-             else hltmet100_->Fill(0);
-         }else{
-           printf("BUG with HLT_MET100\n");
-
-         }
+      if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v2")){
+          if(tr.accept(tr.triggerIndex("HLT_PFMHT150_v2"))) hltmet->Fill(1);
+          else hltmet->Fill(0);
+      }
+      else{
+         printf("BUG with HLT_MET\n");
+         
       }
    }
+   
 
   // HLT TRIGGER BASED ON 1 JET!
-   if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet140U_v3")){
-       if(tr.accept(tr.triggerIndex("HLT_Jet140U_v3")))hltjet140_->Fill(1);
-       else   hltjet140_->Fill(0);
+   if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet370_v1")){
+       if(tr.accept(tr.triggerIndex("HLT_Jet370_v1")))hltjet->Fill(1);
+       else   hltjet->Fill(0);
    }else{ 
-      if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet140U_v1")){
-          if(tr.accept(tr.triggerIndex("HLT_Jet140U_v1")))hltjet140_->Fill(1);
-          else   hltjet140_->Fill(0);
+      if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet100U")){
+         if(IncreasedTreshold(trEv, InputTag("hlt1jet100U","","HLT"), 140, 5.,1, false))hltjet->Fill(1);
+         else   hltjet->Fill(0);
       }else{
-         if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet100U")){
-             if(IncreasedTreshold(trEv, InputTag("hlt1jet100U","","HLT"), 140, 1, false))hltjet140_->Fill(1);
-             else   hltjet140_->Fill(0);
+         if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet70U")){   
+            if(IncreasedTreshold(trEv, InputTag("hlt1jet70U","","HLT"), 140, 5.,1, false))hltjet->Fill(1);
+            else   hltjet->Fill(0);
          }else{
-            if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet70U")){   
-               if(IncreasedTreshold(trEv, InputTag("hlt1jet70U","","HLT"), 140, 1, false))hltjet140_->Fill(1);
-               else   hltjet140_->Fill(0);
+            if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet50U")){
+               if(IncreasedTreshold(trEv, InputTag("hlt1jet50U","","HLT"), 140,2.5, 1, false))hltjet->Fill(1);
+               else   hltjet->Fill(0); 
             }else{
-               if(TrIndex_Unknown != tr.triggerIndex("HLT_Jet50U")){
-                  if(IncreasedTreshold(trEv, InputTag("hlt1jet50U","","HLT"), 140, 1, false))hltjet140_->Fill(1);
-                  else   hltjet140_->Fill(0); 
-               }else{
-                  printf("BUG with HLT_Jet140\n");
-
-               }
+               printf("BUG with HLT_Jet\n");
+               
             }
          }
       }
    }
+   
 
 
 
@@ -780,7 +770,9 @@ std::string HSCPValidator::intToString(int num)
 
 
 //------Increase trigger thresold----
-bool HSCPValidator::IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& InputPath, double NewThreshold, int NObjectAboveThreshold, bool averageThreshold)
+
+
+bool HSCPValidator::IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& InputPath, double NewThreshold, double etaCut, int NObjectAboveThreshold, bool averageThreshold)
 {
    unsigned int filterIndex = trEv.filterIndex(InputPath);
    //if(filterIndex<trEv.sizeFilters())printf("SELECTED INDEX =%i --> %s    XXX   %s\n",filterIndex,trEv.filterTag(filterIndex).label().c_str(), trEv.filterTag(filterIndex).process().c_str());
@@ -798,7 +790,7 @@ bool HSCPValidator::IncreasedTreshold(const trigger::TriggerEvent& trEv, const e
       if(!averageThreshold){
          int NObjectAboveThresholdObserved = 0;
          for (int i=0; i!=n; ++i) {
-            if(TOC[KEYS[i]].pt()> NewThreshold) NObjectAboveThresholdObserved++;
+	   if(TOC[KEYS[i]].pt()> NewThreshold && fabs(TOC[KEYS[i]].eta())<etaCut) NObjectAboveThresholdObserved++;
             //cout << "   " << i << " " << VIDS[i] << "/" << KEYS[i] << ": "<< TOC[KEYS[i]].id() << " " << TOC[KEYS[i]].pt() << " " << TOC[KEYS[i]].eta() << " " << TOC[KEYS[i]].phi() << " " << TOC[KEYS[i]].mass()<< endl;
          }
          if(NObjectAboveThresholdObserved>=NObjectAboveThreshold)return true;
@@ -824,7 +816,6 @@ bool HSCPValidator::IncreasedTreshold(const trigger::TriggerEvent& trEv, const e
    }
    return false;
 }
-
 
 
 //define this as a plug-in

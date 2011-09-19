@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth Cooper,27 1-024,+41227672342,
 //         Created:  Wed Apr 14 14:27:52 CEST 2010
-// $Id: HSCPValidator.h,v 1.3 2011/02/22 06:50:06 querten Exp $
+// $Id: HSCPValidator.h,v 1.4 2011/03/15 16:01:46 querten Exp $
 //
 //
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -54,7 +54,7 @@ class HSCPValidator : public edm::EDAnalyzer {
       void makeSimDigiPlotsECAL(const edm::Event& iEvent);
       void makeSimDigiPlotsRPC(const edm::Event& iEvent);
       void makeHLTPlots(const edm::Event& iEvent);
-      bool IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& InputPath, double NewThreshold, int NObjectAboveThreshold, bool averageThreshold);
+      bool IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& InputPath, double NewThreshold, double etaCut,int NObjectAboveThreshold, bool averageThreshold);
       // ----------member data ---------------------------
       bool doGenPlots_;
       bool doHLTPlots_;
@@ -127,8 +127,8 @@ class HSCPValidator : public edm::EDAnalyzer {
       TH1F* rpcTimeOfFlightEndCap_[3];       
       TH1F* rpcBXEndCap_[3];      
       //HLT
-      TH1F* hltmet100_;
-      TH1F* hltjet140_;
-      TH1F* hltmu15_;
+      TH1F* hltmet;
+      TH1F* hltjet;
+      TH1F* hltmu;
 
 };
