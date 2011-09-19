@@ -62,7 +62,7 @@ protected:
   const AlgebraicVector extractTrueParameters( void ) const;
 
   const std::string selectedParameter( const int& selected ) const;
-  const float selectedScaling( const int& selected ) const;
+  float selectedScaling( const int& selected ) const;
 
   const std::string toString( const int& i ) const;
 

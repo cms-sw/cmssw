@@ -377,7 +377,7 @@ const string KalmanAlignmentUserVariables::selectedParameter( const int& selecte
 }
 
 
-const float KalmanAlignmentUserVariables::selectedScaling( const int& selected ) const
+float KalmanAlignmentUserVariables::selectedScaling( const int& selected ) const
 {
   const float micron = 1e-4;
   const float millirad = 1e-3;
