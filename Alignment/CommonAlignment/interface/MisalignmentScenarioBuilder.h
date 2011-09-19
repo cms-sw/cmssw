@@ -3,8 +3,8 @@
 
 /// \class MisalignmentScenarioBuilder
 ///
-/// $Date: 2009/03/15 17:10:46 $
-/// $Revision: 1.8 $
+/// $Date: 2009/03/20 17:28:51 $
+/// $Revision: 1.9 $
 ///
 /// $Author: flucke $
 /// \author Frederic Ronga - CERN-PH-CMG
@@ -24,7 +24,8 @@ class MisalignmentScenarioBuilder
 public:
  
   /// Default constructor
-  MisalignmentScenarioBuilder( ) {};
+  MisalignmentScenarioBuilder( ) :
+    theModifierCounter(0) {};
 
   /// Destructor
   virtual ~MisalignmentScenarioBuilder() {};
