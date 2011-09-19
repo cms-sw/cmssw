@@ -1,8 +1,8 @@
 /*
  * \file EESummaryClient.cc
  *
- * $Date: 2011/09/02 14:02:36 $
- * $Revision: 1.213 $
+ * $Date: 2011/09/15 21:02:09 $
+ * $Revision: 1.214 $
  * \author G. Della Ricca
  *
 */
@@ -2668,8 +2668,8 @@ void EESummaryClient::analyze(void) {
     nValidChannelsEE[i] = 0;
   }
 
-  for ( int jx = 1; jx <= 2; jx++ ) {
-    for ( int jy = 1; jy <= 2; jy++ ) {
+  for ( int jx = 1; jx <= 100; jx++ ) {
+    for ( int jy = 1; jy <= 100; jy++ ) {
 
       if(meIntegrity_[0] && mePedestalOnline_[0] && meTiming_[0] && meStatusFlags_[0] && meTriggerTowerEmulError_[0]) {
 
