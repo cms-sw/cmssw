@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HIon/V258 (CMSSW_4_2_0_HLT28)
+# /dev/CMSSW_4_2_0/HIon/V261 (CMSSW_4_2_0_HLT28)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V258')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V261')
 )
 
 streams = cms.PSet( 
@@ -266,6 +266,20 @@ datasets = cms.PSet(
   TestEnablesTracker = cms.vstring( 'HLT_TrackerCalibration_v2' )
 )
 
+hltESSAK5CaloL1L2L3 = cms.ESSource( "JetCorrectionServiceChain",
+  appendToDataLabel = cms.string( "" ),
+  correctors = cms.vstring( 'hltESSak5CaloL1Fastjet',
+    'hltESSL2RelativeCorrectionService',
+    'hltESSL3AbsoluteCorrectionService' ),
+  label = cms.string( "hltESSAK5CaloL1L2L3" )
+)
+hltESSak5CaloL1Fastjet = cms.ESSource( "L1FastjetCorrectionService",
+  era = cms.string( "Jec10V1" ),
+  level = cms.string( "L1FastJet" ),
+  algorithm = cms.string( "AK5Calo" ),
+  section = cms.string( "" ),
+  srcRho = cms.InputTag( 'hltKT6CaloJets','rho' )
+)
 hltESSAK5CaloL2L3 = cms.ESSource( "JetCorrectionServiceChain",
   appendToDataLabel = cms.string( "" ),
   correctors = cms.vstring( 'hltESSL2RelativeCorrectionService',

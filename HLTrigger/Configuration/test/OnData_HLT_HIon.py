@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V258 (CMSSW_4_2_0_HLT28)
+# /dev/CMSSW_4_2_0/HIon/V261 (CMSSW_4_2_0_HLT28)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V258')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V261')
 )
 
 process.streams = cms.PSet( 
@@ -271,6 +271,20 @@ process.source = cms.Source( "PoolSource",
     fileNames = cms.untracked.vstring( '/store/data/Run2011A/MinimumBias/RAW/v1/000/165/205/6C8BA6D0-F680-E011-B467-003048F118AC.root' )
 )
 
+process.hltESSAK5CaloL1L2L3 = cms.ESSource( "JetCorrectionServiceChain",
+    appendToDataLabel = cms.string( "" ),
+    correctors = cms.vstring( 'hltESSak5CaloL1Fastjet',
+      'hltESSL2RelativeCorrectionService',
+      'hltESSL3AbsoluteCorrectionService' ),
+    label = cms.string( "hltESSAK5CaloL1L2L3" )
+)
+process.hltESSak5CaloL1Fastjet = cms.ESSource( "L1FastjetCorrectionService",
+    era = cms.string( "Jec10V1" ),
+    level = cms.string( "L1FastJet" ),
+    algorithm = cms.string( "AK5Calo" ),
+    section = cms.string( "" ),
+    srcRho = cms.InputTag( 'hltKT6CaloJets','rho' )
+)
 process.GlobalTag = cms.ESSource( "PoolDBESSource",
     appendToDataLabel = cms.string( "" ),
     timetype = cms.string( "runnumber" ),

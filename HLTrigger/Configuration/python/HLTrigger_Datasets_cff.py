@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V258
+# /dev/CMSSW_4_2_0/GRun/V261
 
 import FWCore.ParameterSet.Config as cms
 
@@ -176,11 +176,8 @@ streamA_datasetHT_selector.triggerConditions = cms.vstring('HLT_DiJet130_PT130_v
     'HLT_HT400_v9', 
     'HLT_HT450_AlphaT0p51_v3', 
     'HLT_HT450_v9', 
-    'HLT_HT500_JetPt60_DPhi2p94_v3', 
     'HLT_HT500_v9', 
-    'HLT_HT550_JetPt60_DPhi2p94_v3', 
     'HLT_HT550_v9', 
-    'HLT_HT600_JetPt60_DPhi2p94_v2', 
     'HLT_HT600_v2', 
     'HLT_HT650_v2', 
     'HLT_HT750_v1', 
@@ -255,6 +252,7 @@ streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CentralJet80_ME
     'HLT_DiCentralJet20_MET80_v6', 
     'HLT_DiJet60_MET45_v8', 
     'HLT_IsoMu15_L1ETM20_v1', 
+    'HLT_L1ETM30_v4', 
     'HLT_L2Mu60_1Hit_MET40_v5', 
     'HLT_L2Mu60_1Hit_MET60_v5', 
     'HLT_MET100_HBHENoiseFiltered_v6', 
@@ -395,7 +393,6 @@ streamA_datasetMultiJet_selector.triggerConditions = cms.vstring('HLT_CentralJet
     'HLT_ExclDiJet60_HFAND_v7', 
     'HLT_ExclDiJet60_HFOR_v7', 
     'HLT_L1DoubleJet36Central_v4', 
-    'HLT_L1ETM30_v4', 
     'HLT_L1MultiJet_v4', 
     'HLT_QuadJet40_IsoPFTau40_v14', 
     'HLT_QuadJet40_v9', 
