@@ -10,6 +10,7 @@
 #include <unistd.h>
 #include <cstring>
 
+#include "boost/version.hpp"
 #include "boost/filesystem/convenience.hpp"
 
 #include "FWCore/Utilities/interface/EDMException.h"
