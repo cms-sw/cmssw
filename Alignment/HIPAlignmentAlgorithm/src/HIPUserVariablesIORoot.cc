@@ -13,10 +13,17 @@
 // ----------------------------------------------------------------------------
 // constructor
 
-HIPUserVariablesIORoot::HIPUserVariablesIORoot()
+HIPUserVariablesIORoot::HIPUserVariablesIORoot() :
+  ObjId(0), Id(0),Nhit(0), Nparj(0), Npare(0),
+  AlignableChi2(0.), AlignableNdof(0)
 {
   treename = "T9";
   treetxt = "HIP User Variables";
+  
+  for (unsigned int i=0;i<nparmax*(nparmax+1)/2;++i) 
+    Jtvj[i] = 0.;
+  for (unsigned int i=0;i<nparmax;++i) 
+    Jtve[i] = 0.;
 }
 
 // ----------------------------------------------------------------------------
