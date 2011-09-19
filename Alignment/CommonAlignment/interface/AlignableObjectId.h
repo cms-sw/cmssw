@@ -21,7 +21,7 @@ public:
   typedef std::pair<std::string, align::StructureType> PairEnumReverseType;
 
   /// Convert name to type
-  const align::StructureType nameToType( const std::string& name ) const;
+  align::StructureType nameToType( const std::string& name ) const;
 
   /// Convert type to name
   const std::string& typeToName( align::StructureType type ) const;

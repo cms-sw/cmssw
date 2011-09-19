@@ -21,8 +21,8 @@
 /// parameters/derivatives/covariance as subvector/submatrix
 /// of reduced size.
 ///
-///  $Date: 2008/09/02 14:55:34 $
-///  $Revision: 1.8 $
+///  $Date: 2010/10/26 19:50:21 $
+///  $Revision: 1.9 $
 /// (last update by $Author: flucke $)
 
 // include and not forward declare to ensure automatic conversion from AlignableDet(Unit): 
@@ -71,7 +71,7 @@ public:
   const std::vector<bool>& selector( void ) const;
 
   /// Get number of selected parameters 
-  const int numSelected( void ) const;
+  int numSelected( void ) const;
 
   /// Get selected parameters
   AlgebraicVector selectedParameters( void ) const;
@@ -106,10 +106,10 @@ public:
   virtual unsigned int hierarchyLevel() const;
 
   /// Get number of parameters
-  const int size(void) const;
+  int size(void) const;
 
   /// Get validity flag
-  const bool isValid(void) const;
+  bool isValid(void) const;
   /// Set validity flag
   void setValid(bool v);
 

@@ -68,7 +68,7 @@ const std::vector<bool>& AlignmentParameters::selector(void) const
 }
 
 //__________________________________________________________________________________________________
-const int AlignmentParameters::numSelected(void) const
+int AlignmentParameters::numSelected(void) const
 {
   return theData->numSelected();
 }
@@ -174,14 +174,14 @@ unsigned int AlignmentParameters::hierarchyLevel() const
 
 
 //__________________________________________________________________________________________________
-const int AlignmentParameters::size(void) const
+int AlignmentParameters::size(void) const
 { 
   return theData->parameters().num_row();
 }
 
 
 //__________________________________________________________________________________________________
-const bool AlignmentParameters::isValid(void) const
+bool AlignmentParameters::isValid(void) const
 { 
   return bValid;
 }

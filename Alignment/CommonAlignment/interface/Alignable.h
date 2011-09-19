@@ -18,8 +18,8 @@ class SurfaceDeformation;
  * Any Alignable object can be moved and rotated.
  * Also an alignment uncertainty can be set.
  *
- *  $Date: 2010/10/29 12:16:28 $
- *  $Revision: 1.34 $
+ *  $Date: 2011/05/23 20:53:16 $
+ *  $Revision: 1.35 $
  *  (last update by $Author: mussgill $)
  */
 
@@ -64,7 +64,7 @@ public:
   virtual Alignables components() const = 0;
 
   /// Return number of direct components
-  const int size() const { return components().size(); }
+  int size() const { return components().size(); }
 
   /// Return the list of lowest daughters (non-composites) of Alignable.
   /// Contain itself if Alignable is a unit.

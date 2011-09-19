@@ -31,7 +31,7 @@ public:
   bool modify( Alignable* alignable, const edm::ParameterSet& pSet );
 
   /// Check if given parameter should be propagated
-  const bool isPropagated( const std::string& parameterName ) const;
+  bool isPropagated( const std::string& parameterName ) const;
 
   /// Move alignable in global space according to parameters
   void moveAlignable( Alignable* alignable, bool random, bool gaussian,
