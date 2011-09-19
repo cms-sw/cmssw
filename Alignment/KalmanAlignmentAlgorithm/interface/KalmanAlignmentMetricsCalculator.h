@@ -86,10 +86,6 @@ private:
 
   void createBranches( TTree* tree );
   void setBranchAddresses( TTree* tree );
-
-  align::ID theAli1Id, theAli2Id;
-  align::StructureType theAli1ObjId, theAli2ObjId;
-  int theDist;
 };
 
 
