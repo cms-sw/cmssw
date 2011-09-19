@@ -1,26 +1,26 @@
 ***DoubleMu***
-Trigger Rates [Hz] :
+Trigger Rates [Hz] : 
          Name                       Prescale (HLT*L1)   Indiv.          Pure   Cumulative
 ----------------------------------------------------------------------------------------------
                                 HLT_L1DoubleMu0_v4 (    1510*20  )     0.705 +-   0.022 |    0.705 |    0.705
                                 HLT_L2DoubleMu0_v7 (     470*20  )     0.873 +-   0.024 |    0.866 |    1.571
-                      HLT_L2DoubleMu23_NoVertex_v7 (      20*1  )     0.881 +-   0.024 |    0.880 |    2.451
-                      HLT_L2DoubleMu30_NoVertex_v3 (       1*1  )     9.965 +-   0.082 |    9.476 |   11.926
-                                 HLT_DoubleMu3_v10 (      45*20  )     1.307 +-   0.030 |    1.279 |   13.206
-                                  HLT_DoubleMu5_v1 (      10*20  )     1.160 +-   0.028 |    0.981 |   14.187
-                                  HLT_DoubleMu6_v8 (      90*1  )     1.156 +-   0.028 |    1.126 |   15.313
-                                  HLT_DoubleMu7_v8 (      45*1  )     1.268 +-   0.029 |    0.617 |   15.929
-                                 HLT_DoubleMu45_v6 (       1*1  )     0.231 +-   0.012 |    0.087 |   16.017
-                   HLT_DoubleMu5_Acoplanarity03_v6 (     110*1  )     0.113 +-   0.009 |    0.103 |   16.120
-                   HLT_DoubleMu6_Acoplanarity03_v1 (       1*1  )     6.921 +-   0.068 |    6.375 |   22.495
-                                   HLT_Mu13_Mu8_v7 (       1*1  )    17.920 +-   0.109 |   15.042 |   37.537
-                                   HLT_Mu17_Mu8_v7 (       1*1  )    11.207 +-   0.086 |    0.000 |   37.537
-                                  HLT_TripleMu5_v9 (       1*1  )     1.841 +-   0.035 |    1.177 |   38.714
-                           HLT_DoubleMu5_IsoMu5_v8 (       1*1  )     0.341 +-   0.015 |    0.000 |   38.714
-                                 HLT_Mu8_Jet40_v10 (    2310*20  )     0.030 +-   0.004 |    0.030 |   38.744
+                      HLT_L2DoubleMu23_NoVertex_v7 (      20*1  )     0.836 +-   0.024 |    0.835 |    2.406
+                      HLT_L2DoubleMu30_NoVertex_v3 (       1*1  )     9.498 +-   0.080 |    9.038 |   11.444
+                  OpenHLT_L2DoubleMu45_NoVertex_v1 (       1*1  )     0.000 +-   0.000 |    0.000 |   11.444
+                                 HLT_DoubleMu3_v10 (      45*20  )     1.307 +-   0.030 |    1.279 |   12.724
+                                  HLT_DoubleMu5_v1 (      10*20  )     1.160 +-   0.028 |    0.981 |   13.705
+                                  HLT_DoubleMu6_v8 (      90*1  )     1.156 +-   0.028 |    1.126 |   14.831
+                                  HLT_DoubleMu7_v8 (      45*1  )     1.268 +-   0.029 |    0.617 |   15.447
+                                 HLT_DoubleMu45_v6 (       1*1  )     0.231 +-   0.012 |    0.087 |   15.535
+               OpenHLT_DoubleMu7_Acoplanarity03_v1 (       1*1  )     0.000 +-   0.000 |    0.000 |   15.535
+                                   HLT_Mu13_Mu8_v7 (       1*1  )    17.920 +-   0.109 |   15.634 |   31.169
+                                   HLT_Mu17_Mu8_v7 (       1*1  )    11.207 +-   0.086 |    0.000 |   31.169
+                             OpenHLT_Mu17_TkMu8_v1 (       1*  )     0.000 +-   0.000 |    0.000 |   31.169
+                                  HLT_TripleMu5_v9 (       1*1  )     1.841 +-   0.035 |    1.357 |   32.525
+                           HLT_DoubleMu5_IsoMu5_v8 (       1*1  )     0.341 +-   0.015 |    0.000 |   32.525
+                                 HLT_Mu8_Jet40_v10 (    2310*20  )     0.030 +-   0.004 |    0.030 |   32.555
 
-                                               TOTAL RATE : 38.744 +- 0.161 Hz
-
+                                               TOTAL RATE : 32.555 +- 0.147 Hz
 
 ***SingleMu***
 Trigger Rates [Hz] :
@@ -56,58 +56,62 @@ Trigger Rates [Hz] :
 
 
 ***SingleElectron***
-Trigger Rates [Hz] :
+Trigger Rates [Hz] : 
          Name                       Prescale (HLT*L1)   Indiv.          Pure   Cumulative
 ----------------------------------------------------------------------------------------------
    HLT_Ele25_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v5 (      20*0  )     0.000 +-   0.000 |    0.000 |    0.000
-                          HLT_Ele27_WP80_PFMT50_v4 (       1*30  )     0.877 +-   0.024 |    0.877 |    0.877
-                          HLT_Ele32_WP70_PFMT50_v4 (       1*1  )    12.365 +-   0.091 |   11.912 |   12.790
-  HLT_Ele32_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_v5 (     480*1  )     0.630 +-   0.021 |    0.608 |   13.398
-     HLT_Ele32_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v7 (      80*1  )     0.887 +-   0.024 |    0.606 |   14.003
-                      HLT_Ele65_CaloIdVT_TrkIdT_v4 (       1*1  )    11.092 +-   0.086 |    9.816 |   23.819
- HLT_Ele100_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_v3 (       1*1  )     7.732 +-   0.072 |    5.729 |   29.548
+                          HLT_Ele27_WP80_PFMT50_v4 (       1*1  )     0.863 +-   0.024 |    0.863 |    0.863
+OpenHLT_Ele27_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v1 (       1*1  )     0.000 +-   0.000 |    0.000 |    0.863
+                             OpenHLT_Ele27_WP80_v1 (       1*1  )     0.000 +-   0.000 |    0.000 |    0.863
+                          HLT_Ele32_WP70_PFMT50_v4 (       1*1  )    12.365 +-   0.091 |   11.912 |   12.776
+                             OpenHLT_Ele32_WP70_v1 (       1*1  )     0.000 +-   0.000 |    0.000 |   12.776
+  HLT_Ele32_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_v5 (     480*1  )     0.630 +-   0.021 |    0.608 |   13.384
+OpenHLT_Ele32_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v1 (       1*1  )     0.000 +-   0.000 |    0.000 |   13.384
+     HLT_Ele32_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v7 (      80*1  )     0.887 +-   0.024 |    0.606 |   13.989
+                      HLT_Ele65_CaloIdVT_TrkIdT_v4 (       1*1  )    11.092 +-   0.086 |    9.816 |   23.805
+                  OpenHLT_Ele80_CaloIdVT_TrkIdT_v1 (       1*1  )     0.000 +-   0.000 |    0.000 |   23.805
+                 OpenHLT_Ele100_CaloIdVT_TrkIdT_v1 (       1*1  )     0.000 +-   0.000 |    0.000 |   23.805
 
-                                               TOTAL RATE : 29.548 +- 0.140 Hz
-----------------------------------------------------------------------------------------------
-
-
+                                               TOTAL RATE : 23.805 +- 0.126 Hz
 
 ***Tau***
-Trigger Rates [Hz] :
+Trigger Rates [Hz] : 
          Name                       Prescale (HLT*L1)   Indiv.          Pure   Cumulative
 ----------------------------------------------------------------------------------------------
                      HLT_MediumIsoPFTau35_Trk20_v1 (      11*40  )     0.793 +-   0.023 |    0.793 |    0.793
                HLT_MediumIsoPFTau35_Trk20_MET60_v1 (       1*1  )    15.513 +-   0.102 |   15.509 |   16.302
                HLT_MediumIsoPFTau35_Trk20_MET70_v1 (       1*1  )     5.507 +-   0.061 |    0.000 |   16.302
                HLT_DoubleIsoPFTau45_Trk5_eta2p1_v3 (       1*1, 1  )     4.117 +-   0.052 |    4.050 |   20.352
+           OpenHLT_DoubleIsoPFTau55_Trk5_eta2p1_v1 (       1*1, 1  )     0.000 +-   0.000 |    0.000 |   20.352
           HLT_IsoPFTau40_IsoPFTau30_Trk5_eta2p1_v3 (       0*10, 20  )     0.000 +-   0.000 |    0.000 |   20.352
 
                                                TOTAL RATE : 20.352 +- 0.117 Hz
 
 
 ***TauPlusX***
-Trigger Rates [Hz] :
+Trigger Rates [Hz] : 
          Name                       Prescale (HLT*L1)   Indiv.          Pure   Cumulative
 ----------------------------------------------------------------------------------------------
-                       HLT_QuadJet50_IsoPFTau50_v1 (       1*1  )     9.289 +-   0.079 |    9.289 |    9.289
-        HLT_HT300_DoubleIsoPFTau10_Trk3_PFMHT40_v8 (       1*1  )     1.772 +-   0.034 |    1.677 |   10.966
-        HLT_HT350_DoubleIsoPFTau10_Trk3_PFMHT45_v8 (       1*1  )     0.677 +-   0.021 |    0.000 |   10.966
-                       HLT_Mu15_LooseIsoPFTau15_v9 (       0*30  )     0.000 +-   0.000 |    0.000 |   10.966
-                    HLT_IsoMu15_LooseIsoPFTau15_v9 (       0*30  )     0.000 +-   0.000 |    0.000 |   10.966
-             HLT_IsoMu15_eta2p1_LooseIsoPFTau20_v1 (       1*1  )    13.767 +-   0.096 |   13.761 |   24.727
-            HLT_IsoMu15_eta2p1_MediumIsoPFTau20_v1 (       1*1  )     6.812 +-   0.067 |    0.002 |   24.729
-             HLT_IsoMu15_eta2p1_TightIsoPFTau20_v1 (       1*1  )     5.250 +-   0.059 |    0.000 |   24.729
-     HLT_Ele18_CaloIdVT_TrkIdT_MediumIsoPFTau20_v1 (       4*30  )     0.387 +-   0.016 |    0.385 |   25.114
-HLT_Ele18_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau20_v1 (       1*30  )     0.505 +-   0.018 |    0.377 |   25.490
-HLT_Ele20_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau20_v1 (       1*1, 0  )    10.895 +-   0.085 |   10.382 |   35.873
+        HLT_HT350_DoubleIsoPFTau10_Trk3_PFMHT45_v8 (       1*1  )     0.677 +-   0.021 |    0.677 |    0.677
+    OpenHLT_HT400_DoubleIsoPFTau10_Trk3_PFMHT50_v1 (       1*1400, 1  )     0.000 +-   0.000 |    0.000 |    0.677
+                       HLT_Mu15_LooseIsoPFTau15_v9 (       0*30  )     0.000 +-   0.000 |    0.000 |    0.677
+                    HLT_IsoMu15_LooseIsoPFTau15_v9 (       0*30  )     0.000 +-   0.000 |    0.000 |    0.677
+             HLT_IsoMu15_eta2p1_LooseIsoPFTau20_v1 (       1*1  )    13.767 +-   0.096 |   13.767 |   14.444
+            HLT_IsoMu15_eta2p1_MediumIsoPFTau20_v1 (       1*1  )     6.812 +-   0.067 |    0.002 |   14.446
+             HLT_IsoMu15_eta2p1_TightIsoPFTau20_v1 (       1*1  )     5.250 +-   0.059 |    0.000 |   14.446
+     HLT_Ele18_CaloIdVT_TrkIdT_MediumIsoPFTau20_v1 (       4*30  )     0.387 +-   0.016 |    0.387 |   14.833
+HLT_Ele18_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau20_v1 (       1*30  )     0.505 +-   0.018 |    0.378 |   15.211
+HLT_Ele20_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau20_v1 (       1*1, 0  )    10.895 +-   0.085 |   10.454 |   25.665
+OpenHLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau25_v1 (       1*  )     0.000 +-   0.000 |    0.000 |   25.665
 
-                                               TOTAL RATE : 35.873 +- 0.155 Hz
-
+                                               TOTAL RATE : 25.665 +- 0.131 Hz
 
 ***HighPileUp***
-Trigger Rates [Hz] :
+Trigger Rates [Hz] : 
          Name                       Prescale (HLT*L1)   Indiv.          Pure   Cumulative
 ----------------------------------------------------------------------------------------------
+                           OpenHLT_800TowCal0p5_v1 (       1*1  )     0.000 +-   0.000 |    0.000 |    0.000
+                           OpenHLT_950TowCal0p6_v1 (       1*1  )     0.000 +-   0.000 |    0.000 |    0.000
                                     HLT_60Jet10_v1 (     200*1  )     6.714 +-   0.067 |    6.714 |    6.714
                                     HLT_70Jet10_v1 (      70*1  )     5.177 +-   0.059 |    4.932 |   11.646
                                     HLT_70Jet13_v1 (       4*1  )     1.938 +-   0.036 |    1.854 |   13.500
