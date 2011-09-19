@@ -13,6 +13,16 @@ HLT_Jet300_v*
 HLT_Jet370_v*
 HLT_Jet370_NoJetID_v*
 HLT_Jet800_v*
+HLT_Jet30_L1FastJet_v*                                                                          #   added in 5e33 menu (L1FastJet testing) 
+HLT_Jet60_L1FastJet_v*                                                                          #   added in 5e33 menu (L1FastJet testing) 
+HLT_Jet80_L1FastJet_v*                                                                          #   added in 5e33 menu (L1FastJet testing) 
+HLT_Jet110_L1FastJet_v*                                                                         #   added in 5e33 menu (L1FastJet testing) 
+HLT_Jet150_L1FastJet_v*                                                                         #   added in 5e33 menu (L1FastJet testing) 
+HLT_Jet190_L1FastJet_v*                                                                         #   added in 5e33 menu (L1FastJet testing) 
+HLT_Jet240_L1FastJet_v*                                                                         #   added in 5e33 menu (L1FastJet testing) 
+HLT_Jet300_L1FastJet_v*                                                                         #   added in 5e33 menu (L1FastJet testing) 
+HLT_Jet370_L1FastJet_v*                                                                         #   added in 5e33 menu (L1FastJet testing) 
+HLT_Jet800_L1FastJet_v*                                                                         #   added in 5e33 menu (L1FastJet testing) 
 HLT_DiJetAve30_v*
 HLT_DiJetAve60_v*
 HLT_DiJetAve110_v*
@@ -110,6 +120,30 @@ HLT_HT600_v*
 HLT_HT650_v*
 HLT_HT750_v*                                                                                    #   added in 5e33 menu (sr #123262)
 HLT_HT2000_v*
+HLT_HT150_L1FastJet_v*                                                                          #   added in 5e33 menu (L1FastJet testing)
+HLT_HT200_L1FastJet_v*                                                                          #   added in 5e33 menu (L1FastJet testing)
+HLT_HT250_L1FastJet_v*                                                                          #   added in 5e33 menu (L1FastJet testing)
+HLT_HT250_MHT90_L1FastJet_v*                                                                    #   added in 5e33 menu (L1FastJet testing)
+HLT_HT250_MHT100_L1FastJet_v*                                                                   #   added in 5e33 menu (L1FastJet testing)
+HLT_HT300_L1FastJet_v*                                                                          #   added in 5e33 menu (L1FastJet testing)
+HLT_HT300_MHT80_L1FastJet_v*                                                                    #   added in 5e33 menu (L1FastJet testing)
+HLT_HT300_MHT90_L1FastJet_v*                                                                    #   added in 5e33 menu (L1FastJet testing)
+HLT_HT350_L1FastJet_v*                                                                          #   added in 5e33 menu (L1FastJet testing)
+HLT_HT350_MHT70_L1FastJet_v*                                                                    #   added in 5e33 menu (L1FastJet testing)
+HLT_HT350_MHT80_L1FastJet_v*                                                                    #   added in 5e33 menu (L1FastJet testing)
+HLT_HT350_MHT90_L1FastJet_v*                                                                    #   added in 5e33 menu (L1FastJet testing)
+HLT_HT350_MHT100_L1FastJet_v*                                                                   #   added in 5e33 menu (L1FastJet testing)
+HLT_HT350_MHT110_L1FastJet_v*                                                                   #   added in 5e33 menu (L1FastJet testing)
+HLT_HT400_L1FastJet_v*                                                                          #   added in 5e33 menu (L1FastJet testing)
+HLT_HT400_MHT80_L1FastJet_v*                                                                    #   added in 5e33 menu (L1FastJet testing)
+HLT_HT400_MHT90_L1FastJet_v*                                                                    #   added in 5e33 menu (L1FastJet testing)
+HLT_HT400_MHT100_L1FastJet_v*                                                                   #   added in 5e33 menu (L1FastJet testing)
+HLT_HT450_L1FastJet_v*                                                                          #   added in 5e33 menu (L1FastJet testing)
+HLT_HT500_L1FastJet_v*                                                                          #   added in 5e33 menu (L1FastJet testing)
+HLT_HT550_L1FastJet_v*                                                                          #   added in 5e33 menu (L1FastJet testing)
+HLT_HT600_L1FastJet_v*                                                                          #   added in 5e33 menu (L1FastJet testing)
+HLT_HT650_L1FastJet_v*                                                                          #   added in 5e33 menu (L1FastJet testing)
+HLT_HT750_L1FastJet_v*                                                                          #   added in 5e33 menu (L1FastJet testing)
 HLT_PFMHT150_v*
 HLT_MET65_v*
 HLT_MET100_v*
@@ -488,11 +522,9 @@ AlCa_EcalPhiSym_v*
 AlCa_RPCMuonNoTriggers_v*
 AlCa_RPCMuonNoHits_v*
 AlCa_RPCMuonNormalisation_v*
-AlCa_LumiPixels_v*                                                                         #   added in 5e33 menu (sr #123507)					
+AlCa_LumiPixels_v*                                                                         #   added in 5e33 menu (sr #123507)
 DQM_FEDIntegrity_v*
-# HLTriggerFirstPath # only in GRun, not in online
 HLTriggerFinalPath
-# HLTAnalyzerEndpath # only in GRun, not in online
 AOutput
 ALCAP0Output
 ALCAPHISYMOutput
