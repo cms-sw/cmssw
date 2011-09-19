@@ -75,6 +75,8 @@ AlignableObjectId::AlignableObjectId()
   theMap.insert( PairEnumType( AlignableCSCLayer    ,  "CSCLayer"     ) );
   theMap.insert( PairEnumType( AlignableMuon        ,  "Muon"         ) );
 
+  theMap.insert( PairEnumType( BeamSpot, "BeamSpot" ) );
+
   // Create the reverse map
   std::transform( theMap.begin(), theMap.end(),
 		  std::inserter( theReverseMap, theReverseMap.begin() ),
@@ -84,7 +86,7 @@ AlignableObjectId::AlignableObjectId()
 
 
 //__________________________________________________________________________________________________
-const StructureType
+StructureType
 AlignableObjectId::nameToType( const std::string& name ) const
 {
   ReverseMapEnumType::const_iterator n = theReverseMap.find(name);
