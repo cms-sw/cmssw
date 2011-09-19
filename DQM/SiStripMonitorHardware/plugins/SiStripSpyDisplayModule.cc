@@ -259,7 +259,7 @@ SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::EventSetup
     // Loop over detIDs as obtained from the SpyChannelMonitor config file.
     for (std::vector<uint32_t>::iterator d = detIDs_.begin(); d!=detIDs_.end(); ++d) {
         // TODO: Need some error checking here, probably...
-        const std::vector<FedChannelConnection> & conns = lCabling->getConnections( *d );
+        const std::vector<const FedChannelConnection *> & conns = lCabling->getConnections( *d );
         //cout << "________________________________________________" << endl;
         //cout << "FED channels found in detId " << *d << " is " << conns.size() << endl;
         if (!(conns.size())) {
@@ -281,7 +281,7 @@ SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::EventSetup
             TFileDirectory chan_dir = detID_dir.mkdir(ssss.str());
             
             // Get the fed key from the detID and the channel
-            uint32_t fedkey = SiStripFedKey::fedIndex(conns[ch].fedId(), conns[ch].fedCh());
+            uint32_t fedkey = SiStripFedKey::fedIndex(conns[ch]->fedId(), conns[ch]->fedCh());
             
             // (Spy) Scope Mode (SM)
             //=======================
@@ -305,7 +305,7 @@ SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::EventSetup
             // Payload Unordered Raw (UR)
             //============================
             if (!((inputPayloadRawDigiLabel_.label()=="") && (inputPayloadRawDigiLabel_.instance()==""))) {
-                uint32_t fedindex = SiStripFedKey::fedIndex(conns[ch].fedId(), conns[ch].fedCh());
+                uint32_t fedindex = SiStripFedKey::fedIndex(conns[ch]->fedId(), conns[ch]->fedCh());
                 //cout << "Attempting to find payload mode raw digis" << endl;
                 edm::Handle< edm::DetSetVector< SiStripRawDigi > > ur_rawdigis;
                 iEvent.getByLabel( inputPayloadRawDigiLabel_, ur_rawdigis );
@@ -314,7 +314,7 @@ SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::EventSetup
             // Payload Reordered Raw
             //=======================
             if (!((inputReorderedPayloadRawDigiLabel_.label()=="") && (inputReorderedPayloadRawDigiLabel_.instance()==""))) {
-                uint32_t fedkey = SiStripFedKey::fedIndex(conns[ch].fedId(), conns[ch].fedCh());
+                uint32_t fedkey = SiStripFedKey::fedIndex(conns[ch]->fedId(), conns[ch]->fedCh());
                 edm::Handle< edm::DetSetVector< SiStripRawDigi > > rrp_rawdigis;
                 iEvent.getByLabel( inputReorderedPayloadRawDigiLabel_, rrp_rawdigis );
                 if (!(MakeRawDigiHist_(rrp_rawdigis, fedkey, chan_dir, REORDERED_PAYLOAD_RAW))) { ; }
