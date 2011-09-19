@@ -1,6 +1,6 @@
-// Last commit: $Id: SiStripCondObjBuilderFromDb.h,v 1.9 2010/02/10 13:54:54 alinn Exp $
-// Latest tag:  $Name: V05-00-04 $
-// Location:    $Source: /cvs_server/repositories/CMSSW/CMSSW/OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h,v $
+// Last commit: $Id: SiStripCondObjBuilderFromDb.h,v 1.10 2010/04/09 12:54:15 alinn Exp $
+// Latest tag:  $Name:  $
+// Location:    $Source: /cvs/CMSSW/CMSSW/OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h,v $
 
 #ifndef OnlineDB_SiStripESSources_SiStripCondObjBuilderFromDb_H
 #define OnlineDB_SiStripESSources_SiStripCondObjBuilderFromDb_H
@@ -122,7 +122,7 @@ class SiStripCondObjBuilderFromDb {
   bool retrieveFedDescriptions(SiStripConfigDb* const db);
   bool retrieveTimingAnalysisDescriptions( SiStripConfigDb* const db);
   vector<uint32_t> retrieveActiveDetIds(const SiStripDetCabling& det_cabling);
-  vector<FedChannelConnection> buildConnections(const SiStripDetCabling& det_cabling, uint32_t det_id );
+  vector<const FedChannelConnection *> buildConnections(const SiStripDetCabling& det_cabling, uint32_t det_id );
   uint16_t retrieveNumberAPVPairs(uint32_t det_id);
  
   //set and store data

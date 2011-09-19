@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.21 2010/02/10 13:27:07 alinn Exp $
-// Latest tag:  $Name: V05-00-03 $
+// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.22 2010/04/09 12:54:15 alinn Exp $
+// Latest tag:  $Name:  $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h"
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
@@ -209,15 +209,15 @@ vector<uint32_t> SiStripCondObjBuilderFromDb::retrieveActiveDetIds(const SiStrip
 // -----------------------------------------------------------------------------
 /** */
  //build connections per DetId
-vector<FedChannelConnection> SiStripCondObjBuilderFromDb::buildConnections(const SiStripDetCabling& det_cabling, uint32_t det_id ){
-    vector<FedChannelConnection> conns = det_cabling.getConnections(det_id);
-    if (conns.size()==0){
-      edm::LogWarning(mlESSources_)
+vector<const FedChannelConnection *> SiStripCondObjBuilderFromDb::buildConnections(const SiStripDetCabling& det_cabling, uint32_t det_id ){
+  vector<const FedChannelConnection *> conns = det_cabling.getConnections(det_id);
+  if (conns.size()==0){
+    edm::LogWarning(mlESSources_)
 	<< "SiStripCondObjBuilderFromDb::" << __func__ << "]"
 	<< " Unable to build condition object!"
 	<< " No FED channel connections found for detid "<< det_id;
-    }
-    return conns;
+  }
+  return conns;
 }
 
 // -----------------------------------------------------------------------------
@@ -496,9 +496,9 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
        
        
     //build connections per DetId
-    const vector<FedChannelConnection>& conns=buildConnections(det_cabling, *det_id);
+    const vector<const FedChannelConnection *>& conns=buildConnections(det_cabling, *det_id);
        
-    vector<FedChannelConnection>::const_iterator ipair = conns.begin();	
+    vector<const FedChannelConnection *>::const_iterator ipair = conns.begin();
     if(conns.size() ==0 ) continue;
        
     //retrieve number of APV pairs per detid
@@ -506,21 +506,25 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
        
 
     //loop connections and check if APVPair is connected
-    vector< vector<FedChannelConnection>::const_iterator > listConns(nApvPairs,conns.end());
+    vector< vector<const FedChannelConnection *>::const_iterator > listConns(nApvPairs,conns.end());
               
-    for ( ; ipair != conns.end(); ipair++ ){ 
+    for ( ; ipair != conns.end(); ++ipair ){
       // Check if the ApvPair is connected
-      if (ipair->fedId()!=sistrip::invalid_ && ipair->apvPairNumber()<3){
+      if ((*ipair)->fedId()!=sistrip::invalid_ && (*ipair)->apvPairNumber()<3){
+        // (*ipair)->print(ssMessage);
+	// ssMessage<< std::endl;
 	listConns[ipair-conns.begin()]=ipair;
       } else {
 	std::cout
 	  << "\n impossible to assign connection position in listConns " << std::endl;
+        // (*ipair)->print(ssMessage);
+	// ssMessage << std::endl;
       }
     }
     
     // get data
-    vector< vector<FedChannelConnection>::const_iterator >::const_iterator ilistConns=listConns.begin();
-     for (uint16_t apvPair=0;apvPair<listConns.size();apvPair++){
+    // vector< vector<const FedChannelConnection *>::const_iterator >::const_iterator ilistConns=listConns.begin();
+    for (uint16_t apvPair=0;apvPair<listConns.size();++apvPair){
       ipair=listConns[apvPair];
           if ( ipair == conns.end() ) {
 	// Fill object with default values
@@ -537,7 +541,7 @@ void SiStripCondObjBuilderFromDb::buildStripRelatedObjects( SiStripConfigDb* con
 	apvPair=apvPair-100;
 	continue;
       }
-      p_apvpcon=std::make_pair(apvPair,*ipair);
+      p_apvpcon=std::make_pair(apvPair,**ipair);
       v_apvpcon.push_back(p_apvpcon);
     } //conns loop 
     p_detcon=std::make_pair(*det_id,v_apvpcon);
