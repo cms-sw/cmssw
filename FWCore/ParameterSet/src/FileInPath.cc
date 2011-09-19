@@ -9,6 +9,7 @@
 
 #include <cstdlib>
 #include <vector>
+#include "boost/version.hpp"
 #include "boost/filesystem/path.hpp"
 #include "boost/filesystem/operations.hpp"
 
@@ -367,7 +368,7 @@ namespace edm
 	relativePath_ = bf::path(relativePath_).normalize().string();
 	  
 	// Save the absolute path.
-#if (BOOST_VERSION / 100000) >= 1 && ((BOOST_VERSION / 100) % 1000) >= 47
+#if ((BOOST_VERSION / 100000) >= 1) && (((BOOST_VERSION / 100) % 1000) >= 47)
 	canonicalFilename_ = bf::absolute(relativePath_, 
 					  pathPrefix).string();
 #else
