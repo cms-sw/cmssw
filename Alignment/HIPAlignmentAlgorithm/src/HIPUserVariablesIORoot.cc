@@ -20,9 +20,9 @@ HIPUserVariablesIORoot::HIPUserVariablesIORoot() :
   treename = "T9";
   treetxt = "HIP User Variables";
   
-  for (unsigned int i=0;i<nparmax*(nparmax+1)/2;++i) 
+  for (int i=0;i<nparmax*(nparmax+1)/2;++i) 
     Jtvj[i] = 0.;
-  for (unsigned int i=0;i<nparmax;++i) 
+  for (int i=0;i<nparmax;++i) 
     Jtve[i] = 0.;
 }
 
