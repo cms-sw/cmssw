@@ -2,8 +2,8 @@
   \file UtilFunctions.cc
   \brief Ecal Monitor Utility functions
   \author Dongwook Jang
-  \version $Revision: 1.2 $
-  \date $Date: 2011/08/05 10:34:43 $
+  \version $Revision: 1.3 $
+  \date $Date: 2011/08/12 08:25:22 $
 */
 
 #include "DQM/EcalCommon/interface/UtilFunctions.h"
@@ -75,15 +75,17 @@ namespace ecaldqm {
     // the first bin goes to underflow
     // each bin moves to the right
 
-    int firstBin, bound, increment;
+    int firstBin, lastBin, bound, increment;
     switch(d){
     case kRight:
       firstBin = nBins + 1;
+      lastBin = 0;
       bound = bins;
       increment = -1;
       break;
     case kLeft:
       firstBin = 0;
+      lastBin = nBins + 1;
       bound = nBins - bins + 1;
       increment = 1;
       break;
@@ -112,6 +114,12 @@ namespace ecaldqm {
 	sumw2->SetAt( sumw2->GetAt( i+shift ), i );
       }
 
+      for(int i = bound; i != lastBin + increment; i += increment){
+	p->SetBinContent( i, 0 );
+	p->SetBinEntries( i, 0 );
+	sumw2->SetAt( 0., i );
+      }
+
     }else if( h->InheritsFrom("TH2") ){
 
       TH2 *h2 = static_cast<TH2 *>(h);
@@ -125,9 +133,13 @@ namespace ecaldqm {
       h2->SetEntries(nentries);
 
       for(int i = firstBin; i != bound; i += increment)
-	for(int j=0 ; j<=nBinsY+1 ; j++)
+	for(int j = 0; j <= nBinsY + 1; j++)
 	  h2->SetBinContent( i, j, h2->GetBinContent(i+shift, j) );
 
+      for(int i = bound; i != lastBin + increment; i += increment)
+	for(int j = 0; j <= nBinsY + 1; j++)
+	  h2->SetBinContent( i, j, 0 );
+	  
     }else if( h->InheritsFrom("TH1") ){ // any other histogram class
 
       // assumes sum(binContent) == entries
@@ -138,6 +150,9 @@ namespace ecaldqm {
 
       for(int i = firstBin; i != bound; i += increment)
 	h->SetBinContent( i, h->GetBinContent(i+shift) );
+
+      for(int i = bound; i != lastBin + increment; i += increment)
+	h->SetBinContent( i, 0 );
     }
 
 
