@@ -13,7 +13,7 @@
 //
 // Original Author:  Suchandra Dutta
 //         Created:  Fri June  1 17:00:00 CET 2007
-// $Id: SiStripMonitorRawData.cc,v 1.6 2008/03/01 00:38:25 dutta Exp $
+// $Id: SiStripMonitorRawData.cc,v 1.7 2009/11/05 21:08:29 dutta Exp $
 //
 //
 
@@ -111,9 +111,9 @@ void SiStripMonitorRawData::analyze(edm::Event const& iEvent, edm::EventSetup co
     if (digis == digi_collection->end() ||
         digis->data.size() == 0 || 
         digis->data.size() > 768 )  {
-      std::vector<FedChannelConnection> fed_conns = detcabling->getConnections((*idetid));
+      std::vector<const FedChannelConnection *> fed_conns = detcabling->getConnections((*idetid));
       for (unsigned int  k = 0; k < fed_conns.size() ; k++) {
-        float fed_id = fed_conns[k].fedId() + 0.01*fed_conns[k].fedCh();
+        float fed_id = fed_conns[k]->fedId() + 0.01*fed_conns[k]->fedCh();
         BadFedNumber->Fill(fed_id);
       }
       continue;
