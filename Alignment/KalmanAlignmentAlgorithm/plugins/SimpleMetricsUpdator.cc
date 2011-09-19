@@ -8,7 +8,10 @@
 
 
 
-SimpleMetricsUpdator::SimpleMetricsUpdator( const edm::ParameterSet & config ) : KalmanAlignmentMetricsUpdator( config )
+SimpleMetricsUpdator::SimpleMetricsUpdator( const edm::ParameterSet & config ) : 
+  KalmanAlignmentMetricsUpdator( config ),
+  theMinDeltaPerp(0.), theMaxDeltaPerp(0.), theMinDeltaZ(0.), theMaxDeltaZ(0.),
+  theGeomDist(0.), theMetricalThreshold(0)
 {
   short int maxDistance = config.getUntrackedParameter< int >( "MaxMetricsDistance", 3 );
   theMetricsCalculator.setMaxDistance( maxDistance );
