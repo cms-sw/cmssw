@@ -12,8 +12,8 @@ caTopCaloJets = cms.EDProducer("CATopJetProducer",
                                CaloJetParameters,
                                AnomalousCellParameters,
                                jetAlgorithm = cms.string("CambridgeAachen"),
-                               rParam = cms.double(0.8)
-                               )
+                               rParam = cms.double(0.0) #Parameter not used by CATopJetProducer but is necessary. use rbBins in CATopJetParameters_cfi.py
+							   )
 
 
 caTopGenJets = cms.EDProducer("CATopJetProducer",
@@ -21,8 +21,8 @@ caTopGenJets = cms.EDProducer("CATopJetProducer",
                               GenJetParameters,
                               AnomalousCellParameters,
                               jetAlgorithm = cms.string("CambridgeAachen"),
-                              rParam = cms.double(0.8)
-                              )
+                              rParam = cms.double(0.0) #Parameter not used by CATopJetProducer but is necessary. use rbBins in CATopJetParameters_cfi.py
+							  )
 
 
 
@@ -31,6 +31,6 @@ caTopPFJets = cms.EDProducer("CATopJetProducer",
                              PFJetParameters,
                              AnomalousCellParameters,
                              jetAlgorithm = cms.string("CambridgeAachen"),
-                             rParam = cms.double(0.8)
+                             rParam = cms.double(0.0) #Parameter not used by CATopJetProducer but is necessary. use rbBins in CATopJetParameters_cfi.py
                              )
 

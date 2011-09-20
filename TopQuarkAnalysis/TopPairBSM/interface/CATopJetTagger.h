@@ -23,7 +23,7 @@
 //
 // Original Author:  "Salvatore Rappoccio"
 //         Created:  Thu Jul  3 00:19:30 CDT 2008
-// $Id: CATopJetTagger.h,v 1.3 2008/09/22 22:18:07 yumiceva Exp $
+// $Id: CATopJetTagger.h,v 1.4.2.2.2.1 2010/11/29 23:12:07 jdolen Exp $
 //
 //
 
@@ -43,7 +43,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "FWCore/ParameterSet/interface/InputTag.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
 
@@ -71,7 +71,7 @@ class CATopJetTagger : public edm::EDProducer {
 
 
    private:
-      virtual void beginJob(const edm::EventSetup&) ;
+      virtual void beginJob() ;
       virtual void produce( edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
 
@@ -80,16 +80,7 @@ class CATopJetTagger : public edm::EDProducer {
   edm::InputTag   src_;
 
   double      TopMass_;
-  double      TopMassMin_;
-  double      TopMassMax_;
-
   double      WMass_;
-  double      WMassMin_;
-  double      WMassMax_;
-
-  double      MinMassMin_;
-  double      MinMassMax_;
-
   bool        verbose_;
 
 };
