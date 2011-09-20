@@ -33,7 +33,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.38 2011/08/02 02:17:14 mikeh Exp $
+#  $Id: EventContent_cff.py,v 1.39 2011/09/08 13:59:20 vlimant Exp $
 #
 #
 #
@@ -604,3 +604,7 @@ ALCARECOEventContent.outputCommands.extend(OutALCARECOSiStripPCLHistos_noDrop.ou
 
 ALCARECOEventContent.outputCommands.append('drop *_MEtoEDMConverter_*_*')
 
+REPACKRAWSIMEventContent.outputCommands.extend(['drop FEDRawDataCollection_source_*_*',
+                                                'drop FEDRawDataCollection_rawDataCollector_*_*'])
+REPACKRAWEventContent.outputCommands.extend(['drop FEDRawDataCollection_source_*_*',
+                                                'drop FEDRawDataCollection_rawDataCollector_*_*'])
