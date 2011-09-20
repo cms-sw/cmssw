@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.339 $"
+__version__ = "$Revision: 1.340 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -132,6 +132,11 @@ def filesFromDBSQuery(query,s=None):
 	if len(sec)!=0:
 		print "found parent files:",sec
 	return (prim,sec)
+
+def MassReplaceInputTag(aProcess,oldT="source",newT="rawDataRepacker"):
+	from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
+	for s in aProcess.paths_().keys():
+		massSearchReplaceAnyInputTag(getattr(aProcess,s),oldT,newT)
 
 
 class ConfigBuilder(object):
@@ -1249,8 +1254,8 @@ class ConfigBuilder(object):
     def prepare_RAW2DIGI(self, sequence = "RawToDigi"):
             self.loadDefaultOrSpecifiedCFF(sequence,self.RAW2DIGIDefaultCFF)
 	    self.scheduleSequence(sequence,'raw2digi_step')
-	    if self._options.isRepacked:
-		    self.renameInputTagsInSequence(sequence)
+	    #	    if self._options.isRepacked:
+	    #self.renameInputTagsInSequence(sequence)
             return
 
     def prepare_L1HwVal(self, sequence = 'L1HwVal'):
@@ -1431,7 +1436,9 @@ class ConfigBuilder(object):
 	    print "Replacing all InputTag %s => %s"%(oldT,newT)
 	    from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
 	    massSearchReplaceAnyInputTag(getattr(self.process,sequence),oldT,newT)
-	    self.additionalCommands.append('from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag')
+	    loadMe='from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag'
+	    if not loadMe in self.additionalCommands:
+		    self.additionalCommands.append(loadMe)
 	    self.additionalCommands.append('massSearchReplaceAnyInputTag(process.%s,"%s","%s",False)'%(sequence,oldT,newT))
 
     #change the process name used to address HLT results in any sequence
@@ -1466,8 +1473,8 @@ class ConfigBuilder(object):
                 # schedule DQM as a standard Path
                 self.process.dqmoffline_step = cms.Path( getattr(self.process, sequence) )
         self.schedule.append(self.process.dqmoffline_step)
-	if self._options.isRepacked:
-		self.renameInputTagsInSequence(sequence)
+	#if self._options.isRepacked:
+	#	self.renameInputTagsInSequence(sequence)
 
     def prepare_HARVESTING(self, sequence = None):
         """ Enrich the process with harvesting step """
@@ -1584,7 +1591,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.339 $"),
+                                            (version=cms.untracked.string("$Revision: 1.340 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
@@ -1668,6 +1675,7 @@ class ConfigBuilder(object):
         for path in self.process.paths:
             if getattr(self.process,path) not in self.blacklist_paths:
                 self.pythonCfgCode += dumpPython(self.process,path)
+		
         for endpath in self.process.endpaths:
             if getattr(self.process,endpath) not in self.blacklist_paths:
                 self.pythonCfgCode += dumpPython(self.process,endpath)
@@ -1698,6 +1706,13 @@ class ConfigBuilder(object):
 
         self.pythonCfgCode += result
 
+	#repacked version
+	if self._options.isRepacked:
+		self.pythonCfgCode +="\n"
+		self.pythonCfgCode +="from Configuration.PyReleaseValidation.ConfigBuilder import MassReplaceInputTag\n"
+		self.pythonCfgCode +="MassReplaceInputTag(process)\n"
+		MassReplaceInputTag(self.process)
+		
         # special treatment in case of production filter sequence 2/2
         if self.productionFilterSequence:
                 self.pythonCfgCode +='# filter all path with the production filter sequence\n'
