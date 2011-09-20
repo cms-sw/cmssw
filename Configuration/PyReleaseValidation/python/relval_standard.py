@@ -46,7 +46,9 @@ workflows[4.22] = ['', ['RunCosmics2011A','RECOCOSD','ALCACOSD','SKIMCOSD']]
 #workflows[4.27] = ['',['ZElSkim2011A','RECOSKIM']]
 #workflows[4.28] = ['',['HighMet2011A','RECOSKIM']]
 
-workflows[4.51] = ['',['RunHI2010','RECOHID','RECOHIRepackD']]
+workflows[4.51] = ['',['RunHI2010','REPACKHID','RECOHID11St3']]
+workflows[4.52] = ['',['RunHI2010','RECOHID10','RECOHIR10D11']]
+workflows[4.53] = ['',['RunHI2011','RECOHID11']]
 
 ### fastsim ###
 #workflows[5.1] = ['TTbar', ['TTbarFS1']]

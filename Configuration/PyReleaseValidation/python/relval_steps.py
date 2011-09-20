@@ -1,4 +1,4 @@
-
+4
 InputInfoNDefault=2000000    
 class InputInfo(object):
     def __init__(self,dataSet,label='',run=0,files=1000,events=InputInfoNDefault,location='CAF') :
@@ -82,7 +82,8 @@ step1['RunElectron2011A']={'INPUT':InputInfo(dataSet='/SingleElectron/Run2011A-v
 step1['RunPhoton2011A']={'INPUT':InputInfo(dataSet='/Photon/Run2011A-v1/RAW',label='photon2011A',run=Run2011A,events=100000)}
 step1['RunJet2011A']={'INPUT':InputInfo(dataSet='/Jet/Run2011A-v1/RAW',label='jet2011A',run=Run2011A,events=100000)}
 
-step1['RunHI2010']={'INPUT':InputInfo(dataSet='/HIAllPhysics/HIRun2010-v1/RAW',label='hi201',run=152698,events=100000,location='STD')}
+step1['RunHI2010']={'INPUT':InputInfo(dataSet='/HIAllPhysics/HIRun2010-v1/RAW',label='hi2010',run=152698,events=100000,location='STD')}
+step1['RunHI2011']={'INPUT':InputInfo(dataSet='/HIAllPhysics/HIRun2011A-v1/RAW',label='hi2011',run=174773,events=100000,location='STD')}
 
 #### Standard release validation samples ####
 
@@ -386,12 +387,23 @@ step2['RECOSKIMALCA']=merge([{'--customise':'Configuration/DataProcessing/RecoTL
 step2['RECOSKIM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,DQM',
                           },step2['RECOSKIMALCA']])
 
-step2['RECOHID']=merge([{'--scenario':'HeavyIons',
-                         '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBiasHI+HcalCalMinBias,DQM,REPACK',
-                         '--customise':'Configuration/DataProcessing/RecoTLR.customiseCommonHI',
-                         '--datatier':'RECO,DQMROOT,RAW',
-                         '--eventcontent':'RECO,DQMROOT,REPACKRAW'},
+step2['REPACKHID']=merge([{'--scenario':'HeavyIons',
+                         '-s':'RAW2DIGI,REPACK',
+                         '--datatier':'RAW',
+                         '--eventcontent':'REPACKRAW'},
                         step2['RECOD']])
+step2['REPACKHID'].pop('--customise')
+step2['RECOHID10']=merge([{'--scenario':'HeavyIons',
+                         '-s':'RAW2DIGI,L1Reco,RECO,ALCA:SiStripCalZeroBias+SiStripCalMinBias+TkAlMinBiasHI+HcalCalMinBias,DQM',
+                         '--customise':'Configuration/DataProcessing/RecoTLR.customiseCommonHI',
+                         '--datatier':'RECO,DQMROOT',
+                         '--eventcontent':'RECO,DQMROOT'},
+                        step2['RECOD']])
+step2['RECOHID11']=merge([{'--repacked':''},
+                          step2['RECOHID10']])
+step2['RECOHID10']['-s']+=',REPACK'
+step2['RECOHID10']['--datatier']+=',RAW'
+step2['RECOHID10']['--eventcontent']+=',REPACKRAW'
 
 step2['TIER0']=merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customisePrompt',
                        '-s':'RAW2DIGI,L1Reco,RECO,ALCAPRODUCER:@AllForPrompt,L1HwVal,DQM,ENDJOB',
@@ -444,11 +456,13 @@ step3['RECOPU1']=merge([step3['RECO'],PU1])
 
 step3['RECOHI']=merge([hiDefaults,step3Defaults])
 step3['DIGIHISt3']=step2['DIGIHI']
-step3['RECOHIRepackD']=merge([{'cfg':'step3',
-                               '--repacked':'',
-                               '--process':'repackedRECO',
-                               '--filein':'file:step2_inREPACKRAW.root'},
-                              step2['RECOHID']])
+
+step3['RECOHID11St3']=merge([{'cfg':'step3',
+                              '--process':'ZStoRECO'},
+                             step2['RECOHID11']])
+step3['RECOHIR10D11']=merge([{'--filein':'file:step2_inREPACKRAW.root'},
+                             step3['RECOHID11St3']])
+
 #add this line when testing from an input file that is not strictly GEN-SIM
 #addForAll(step3,{'--hltProcess':'DIGI'})
 
