@@ -1,11 +1,11 @@
-# /online/collisions/2011/5e33/v1.1/HLT/V4 (CMSSW_4_2_0_HLT28)
+# /online/collisions/2011/5e33/v1.1/HLT/V6 (CMSSW_4_2_0_HLT28)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2011/5e33/v1.1/HLT/V4')
+  tableName = cms.string('/online/collisions/2011/5e33/v1.1/HLT/V6')
 )
 
 hltESSAK5CaloL1L2L3 = cms.ESSource( "JetCorrectionServiceChain",
