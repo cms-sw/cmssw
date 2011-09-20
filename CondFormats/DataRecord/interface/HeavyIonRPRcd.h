@@ -1,5 +1,5 @@
-#ifndef DataRecord_HeavyIonRcd_h
-#define DataRecord_HeavyIonRcd_h
+#ifndef DataRecord_HeavyIonRPRcd_h
+#define DataRecord_HeavyIonRPRcd_h
 // -*- C++ -*-
 //
 // Package:     DataRecord
@@ -16,7 +16,7 @@
 //
 // Author:      
 // Created:     Tue Jul 10 05:49:16 EDT 2007
-// $Id: HeavyIonRcd.h,v 1.1 2007/11/06 13:01:32 yilmaz Exp $
+// $Id: HeavyIonRPRcd.h,v 1.1 2011/09/20 14:08:53 yilmaz Exp $
 //
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
