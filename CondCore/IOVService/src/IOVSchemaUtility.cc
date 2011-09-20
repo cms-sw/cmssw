@@ -30,7 +30,7 @@ bool cond::IOVSchemaUtility::createIOVContainerIfNecessary(){
     c.setAccessPermission( cond::DbSession::CONDITIONS_GENERAL_WRITER, true );
     return true;
   }
-  if(m_log) *m_log << "WARNING: container \"" << cond::IOVNames::container() << "\" already exists in the database "<<db.connectionString()<<std::endl;
+  if(m_log) *m_log << "INFO: container \"" << cond::IOVNames::container() << "\" already exists in the database "<<db.connectionString()<<std::endl;
   return false;
 }
 

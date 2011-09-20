@@ -13,6 +13,7 @@
 
 #include "CondCore/IOVService/interface/IOVNames.h"
 #include "CondCore/IOVService/interface/IOVSchemaUtility.h"
+#include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/Utilities/interface/Utilities.h"
 #include <iterator>
 #include <limits>
@@ -162,7 +163,10 @@ int cond::ExportIOVUtilities::execute(){
 	std::cout<<"dest iov token "<<destiovtoken<<std::endl;
 	std::cout<<"dest iov type "<<sourceiovtype<<std::endl;
       }
+      cond::IOVEditor iovEditor( destdb, destiovtoken );
+      iovEditor.setScope( cond::IOVSequence::Tag );
     }
+    
     
     ::sleep(1);
     

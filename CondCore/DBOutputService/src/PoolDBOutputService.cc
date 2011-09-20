@@ -217,6 +217,7 @@ cond::service::PoolDBOutputService::createNewIOV( GetToken const & payloadToken,
     unsigned int payloadIdx=editor.append(firstSinceTime, objToken);
     iovToken=editor.token();
     editor.stamp(cond::userInfo(),false);
+    editor.setScope( cond::IOVSequence::Tag );
     
     cond::MetaData metadata(m_session);
 

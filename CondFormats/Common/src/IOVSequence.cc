@@ -12,6 +12,7 @@ namespace cond {
     m_notOrdered(false), 
     m_metadata(""),
     m_payloadClasses(),
+    m_scope( Unknown ),
     m_sorted(0) {}
   
   IOVSequence::IOVSequence( cond::TimeType ttype ) :
@@ -21,6 +22,7 @@ namespace cond {
     m_notOrdered(false), 
     m_metadata(" "),
     m_payloadClasses(),
+    m_scope( Unknown ),
     m_sorted(0) {}
 
   IOVSequence::IOVSequence(int ttype, 
@@ -32,6 +34,7 @@ namespace cond {
     m_notOrdered(false), 
     m_metadata(imetadata),
     m_payloadClasses(),
+    m_scope( Unknown ),
     m_sorted(0) {}
     
   IOVSequence::~IOVSequence(){
@@ -46,6 +49,7 @@ namespace cond {
     m_notOrdered(rh.m_notOrdered),
     m_metadata(rh.m_metadata),
     m_payloadClasses(rh.m_payloadClasses),
+    m_scope( rh.m_scope ),
     m_sorted(0) {}
   
   IOVSequence & IOVSequence::operator=(IOVSequence const & rh) {
@@ -57,6 +61,7 @@ namespace cond {
     m_notOrdered=rh.m_notOrdered;
     m_metadata = rh.m_metadata;
     m_payloadClasses = rh.m_payloadClasses;
+    m_scope = rh.m_scope;
     return *this;
   }
 
@@ -127,7 +132,9 @@ namespace cond {
 				    bool append ){
     std::string sep(". ");
     if( !metadata.empty() ){
-      if (append) m_metadata += sep + metadata;
+      if (append && !m_metadata.empty()) {
+	m_metadata += sep + metadata;
+      }
       else m_metadata = metadata;
     }
   }

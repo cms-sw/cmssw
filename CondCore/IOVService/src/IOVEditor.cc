@@ -245,6 +245,12 @@ namespace cond {
     flushUpdates();
   }
 
+  void IOVEditor::setScope( cond::IOVSequence::ScopeType scope ){
+    if(!m_isActive) this->init();
+    m_iov->setScope( scope );
+    flushUpdates();    
+  }
+
   void 
   IOVEditor::updateClosure( cond::Time_t newtillTime ){
     if( m_token.empty() ) reportError("cond::IOVEditor::updateClosure cannot change non-existing IOV index");
