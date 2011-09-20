@@ -2,7 +2,7 @@
 // Producer for validation histograms for CaloJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: JPTJetTester.cc,v 1.16 2011/08/18 14:07:42 kovitang Exp $
+// $Id: JPTJetTester.cc,v 1.17 2011/09/18 21:01:00 kovitang Exp $
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -95,15 +95,15 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
       //= mpTScaleB_s = mpTScaleE_s = mpTScaleF_s 
     = mpTScaleB_d = mpTScaleE_d = mpTScaleF_d
       = mpTScalePhiB_d = mpTScalePhiE_d = mpTScalePhiF_d
-      //= mpTScale_60_120_s = mpTScale_200_300_s = mpTScale_600_900_s = mpTScale_2700_3500_s
-    = mpTScale_60_120_d = mpTScale_200_300_d = mpTScale_600_900_d = mpTScale_2700_3500_d
+      //= mpTScale_30_200_s = mpTScale_200_600_s = mpTScale_600_1500_s = mpTScale_1500_3500_s
+    = mpTScale_30_200_d = mpTScale_200_600_d = mpTScale_600_1500_d = mpTScale_1500_3500_d
       
-    = mpTScale1DB_60_120    = mpTScale1DE_60_120    = mpTScale1DF_60_120 
-    = mpTScale1DB_200_300   = mpTScale1DE_200_300   = mpTScale1DF_200_300 
-    = mpTScale1DB_600_900   = mpTScale1DE_600_900   = mpTScale1DF_600_900 
-    = mpTScale1DB_2700_3500 = mpTScale1DE_2700_3500 = mpTScale1DF_2700_3500
+    = mpTScale1DB_30_200    = mpTScale1DE_30_200    = mpTScale1DF_30_200 
+    = mpTScale1DB_200_600   = mpTScale1DE_200_600   = mpTScale1DF_200_600 
+    = mpTScale1DB_600_1500   = mpTScale1DE_600_1500   = mpTScale1DF_600_1500 
+    = mpTScale1DB_1500_3500 = mpTScale1DE_1500_3500 = mpTScale1DF_1500_3500
 	/*
-    = mpTScale1D_60_120 = mpTScale1D_200_300 = mpTScale1D_600_900 = mpTScale1D_2700_3500
+    = mpTScale1D_30_200 = mpTScale1D_200_600 = mpTScale1D_600_1500 = mpTScale1D_1500_3500
     = mHBEne = mHBTime = mHEEne = mHETime = mHFEne = mHFTime = mHOEne = mHOTime
     = mEBEne = mEBTime = mEEEne = mEETime 
       */
@@ -112,9 +112,9 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
       //Corr Jet
     = mCorrJetPt = mCorrJetPt =mCorrJetPt_80  =mCorrJetEta =mCorrJetPhi =mpTRatio =mpTResponse
       = mpTRatioB_d = mpTRatioE_d = mpTRatioF_d
-      = mpTRatio_60_120_d = mpTRatio_200_300_d = mpTRatio_600_900_d = mpTRatio_2700_3500_d
+      = mpTRatio_30_200_d = mpTRatio_200_600_d = mpTRatio_600_1500_d = mpTRatio_1500_3500_d
       = mpTResponseB_d = mpTResponseE_d = mpTResponseF_d
-      = mpTResponse_60_120_d = mpTResponse_200_300_d = mpTResponse_600_900_d = mpTResponse_2700_3500_d
+      = mpTResponse_30_200_d = mpTResponse_200_600_d = mpTResponse_600_1500_d = mpTResponse_1500_3500_d
       = mpTResponse_30_d //=mjetArea
     = 0;
   
@@ -183,7 +183,7 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
     //
     mEmEnergyInEB     = dbe->book1D("EmEnergyInEB", "EmEnergyInEB", 100, 0, 50); 
     mEmEnergyInEE     = dbe->book1D("EmEnergyInEE", "EmEnergyInEE", 100, 0, 50); 
-    mEmEnergyInHF     = dbe->book1D("EmEnergyInHF", "EmEnergyInHF", 120, -20, 100); 
+    mEmEnergyInHF     = dbe->book1D("EmEnergyInHF", "EmEnergyInHF", 200, -20, 100); 
     mEmEnergyInEB_80  = dbe->book1D("EmEnergyInEB_80", "EmEnergyInEB_80", 100, 0, 200); 
     mEmEnergyInEE_80  = dbe->book1D("EmEnergyInEE_80", "EmEnergyInEE_80", 100, 0, 1000); 
     mEmEnergyInEB_3000= dbe->book1D("EmEnergyInEB_3000", "EmEnergyInEB_3000", 100, 0, 3000); 
@@ -305,7 +305,7 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
       mReverseMatchEnergyFraction  = dbe->book3D("ReverseMatchEnergyFraction", "ReverseMatchEnergyFraction vs LOG(pT_gen) vs eta", 
 					       log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 101, 0, 1.01);
       mRMatch  = dbe->book3D("RMatch", "delta(R)(Gen-Calo) vs LOG(pT_gen) vs eta", 
-			     log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 60, 0, 3);
+			     log10PtBins, log10PtMin, log10PtMax, etaBins, etaMin, etaMax, 30, 0, 3);
       */
  /*
       mDeltaEta = dbe->book3D("DeltaEta", "DeltaEta vs LOG(pT_gen) vs eta", 
@@ -350,59 +350,59 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
     mpTScalePhiF_d = dbe->bookProfile("pTScalePhiF_d", "pTScalePhi_d_3.0<|eta|<6.0",
 				   log10PtBins, log10PtMin, log10PtMax, 0, 2, " ");
     /*
-    mpTScale_60_120_s    = dbe->bookProfile("pTScale_60_120_s", "pTScale_s_60<pT<120",
+    mpTScale_30_200_s    = dbe->bookProfile("pTScale_30_200_s", "pTScale_s_30<pT<200",
 					  etaBins, etaMin, etaMax, 0., 2., "s");
-    mpTScale_200_300_s   = dbe->bookProfile("pTScale_200_300_s", "pTScale_s_200<pT<300",
+    mpTScale_200_600_s   = dbe->bookProfile("pTScale_200_600_s", "pTScale_s_200<pT<600",
 					  etaBins, etaMin, etaMax, 0., 2., "s");
-    mpTScale_600_900_s   = dbe->bookProfile("pTScale_600_900_s", "pTScale_s_600<pT<900",
+    mpTScale_600_1500_s   = dbe->bookProfile("pTScale_600_1500_s", "pTScale_s_600<pT<1500",
 					  etaBins, etaMin, etaMax, 0., 2., "s");
-    mpTScale_2700_3500_s = dbe->bookProfile("pTScale_2700_3500_s", "pTScale_s_2700<pt<3500",
+    mpTScale_1500_3500_s = dbe->bookProfile("pTScale_1500_3500_s", "pTScale_s_1500<pt<3500",
     etaBins, etaMin, etaMax, 0., 2., "s");
 */
-    mpTScale_60_120_d    = dbe->bookProfile("pTScale_60_120_d", "pTScale_d_60<pT<120",
+    mpTScale_30_200_d    = dbe->bookProfile("pTScale_30_200_d", "pTScale_d_30<pT<200",
 					  90,etaRange, 0., 2., " ");
-    mpTScale_200_300_d   = dbe->bookProfile("pTScale_200_300_d", "pTScale_d_200<pT<300",
+    mpTScale_200_600_d   = dbe->bookProfile("pTScale_200_600_d", "pTScale_d_200<pT<600",
 					  90,etaRange, 0., 2., " ");
-    mpTScale_600_900_d   = dbe->bookProfile("pTScale_600_900_d", "pTScale_d_600<pT<900",
+    mpTScale_600_1500_d   = dbe->bookProfile("pTScale_600_1500_d", "pTScale_d_600<pT<1500",
 					  90,etaRange, 0., 2., " ");
-    mpTScale_2700_3500_d = dbe->bookProfile("pTScale_2700_3500_d", "pTScale_d_2700<pt<3500",
+    mpTScale_1500_3500_d = dbe->bookProfile("pTScale_1500_3500_d", "pTScale_d_1500<pt<3500",
                                           90,etaRange, 0., 2., " ");
     
-    mpTScale1DB_60_120 = dbe->book1D("pTScale1DB_60_120", "pTScale_distribution_for_0<|eta|<1.5_60_120",
+    mpTScale1DB_30_200 = dbe->book1D("pTScale1DB_30_200", "pTScale_distribution_for_0<|eta|<1.5_30_200",
 				   100, 0, 2);
-    mpTScale1DE_60_120 = dbe->book1D("pTScale1DE_60_120", "pTScale_distribution_for_1.5<|eta|<3.0_60_120",
+    mpTScale1DE_30_200 = dbe->book1D("pTScale1DE_30_200", "pTScale_distribution_for_1.5<|eta|<3.0_30_200",
 				   50, 0, 2);
-    mpTScale1DF_60_120 = dbe->book1D("pTScale1DF_60_120", "pTScale_distribution_for_3.0<|eta|<6.0_60_120",
+    mpTScale1DF_30_200 = dbe->book1D("pTScale1DF_30_200", "pTScale_distribution_for_3.0<|eta|<6.0_30_200",
 				   50, 0, 2);
 
-    mpTScale1DB_200_300 = dbe->book1D("pTScale1DB_200_300", "pTScale_distribution_for_0<|eta|<1.5_200_300",
+    mpTScale1DB_200_600 = dbe->book1D("pTScale1DB_200_600", "pTScale_distribution_for_0<|eta|<1.5_200_600",
 				   100, 0, 2);
-    mpTScale1DE_200_300 = dbe->book1D("pTScale1DE_200_300", "pTScale_distribution_for_1.5<|eta|<3.0_200_300",
+    mpTScale1DE_200_600 = dbe->book1D("pTScale1DE_200_600", "pTScale_distribution_for_1.5<|eta|<3.0_200_600",
 				   50, 0, 2);
-    mpTScale1DF_200_300 = dbe->book1D("pTScale1DF_200_300", "pTScale_distribution_for_3.0<|eta|<6.0_200_300",
+    mpTScale1DF_200_600 = dbe->book1D("pTScale1DF_200_600", "pTScale_distribution_for_3.0<|eta|<6.0_200_600",
 				   50, 0, 2);
 
-    mpTScale1DB_600_900 = dbe->book1D("pTScale1DB_600_900", "pTScale_distribution_for_0<|eta|<1.5_600_900",
+    mpTScale1DB_600_1500 = dbe->book1D("pTScale1DB_600_1500", "pTScale_distribution_for_0<|eta|<1.5_600_1500",
 				   100, 0, 2);
-    mpTScale1DE_600_900 = dbe->book1D("pTScale1DE_600_900", "pTScale_distribution_for_1.5<|eta|<3.0_600_900",
+    mpTScale1DE_600_1500 = dbe->book1D("pTScale1DE_600_1500", "pTScale_distribution_for_1.5<|eta|<3.0_600_1500",
 				   50, 0, 2);
-    mpTScale1DF_600_900 = dbe->book1D("pTScale1DF_600_900", "pTScale_distribution_for_3.0<|eta|<6.0_600_900",
+    mpTScale1DF_600_1500 = dbe->book1D("pTScale1DF_600_1500", "pTScale_distribution_for_3.0<|eta|<6.0_600_1500",
 				   50, 0, 2);
 
-    mpTScale1DB_2700_3500 = dbe->book1D("pTScale1DB_2700_3500", "pTScale_distribution_for_0<|eta|<1.5_2700_3500",
+    mpTScale1DB_1500_3500 = dbe->book1D("pTScale1DB_1500_3500", "pTScale_distribution_for_0<|eta|<1.5_1500_3500",
 				   100, 0, 2);
-    mpTScale1DE_2700_3500 = dbe->book1D("pTScale1DE_2700_3500", "pTScale_distribution_for_1.5<|eta|<3.0_2700_3500",
+    mpTScale1DE_1500_3500 = dbe->book1D("pTScale1DE_1500_3500", "pTScale_distribution_for_1.5<|eta|<3.0_1500_3500",
 				   50, 0, 2);
-    mpTScale1DF_2700_3500 = dbe->book1D("pTScale1DF_2700_3500", "pTScale_distribution_for_3.0<|eta|<6.0_2700_3500",
+    mpTScale1DF_1500_3500 = dbe->book1D("pTScale1DF_1500_3500", "pTScale_distribution_for_3.0<|eta|<6.0_1500_3500",
 				   50, 0, 2);
 /*
-    mpTScale1D_60_120    = dbe->book1D("pTScale1D_60_120", "pTScale_distribution_for_60<pT<120",
+    mpTScale1D_30_200    = dbe->book1D("pTScale1D_30_200", "pTScale_distribution_for_30<pT<200",
 					    100, 0, 2);
-    mpTScale1D_200_300    = dbe->book1D("pTScale1D_200_300", "pTScale_distribution_for_200<pT<300",
+    mpTScale1D_200_600    = dbe->book1D("pTScale1D_200_600", "pTScale_distribution_for_200<pT<600",
 					    100, 0, 2);
-    mpTScale1D_600_900    = dbe->book1D("pTScale1D_600_900", "pTScale_distribution_for_600<pT<900",
+    mpTScale1D_600_1500    = dbe->book1D("pTScale1D_600_1500", "pTScale_distribution_for_600<pT<1500",
 					    100, 0, 2);
-    mpTScale1D_2700_3500 = dbe->book1D("pTScale1D_2700_3500", "pTScale_distribution_for_2700<pt<3500",
+    mpTScale1D_1500_3500 = dbe->book1D("pTScale1D_1500_3500", "pTScale_distribution_for_1500<pt<3500",
 					    100, 0, 2);
     */
  ///////////Corr profile//////////////
@@ -414,13 +414,13 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
                                    log10PtBins, log10PtMin, log10PtMax, 0, 5, " ");
     mpTRatioF_d = dbe->bookProfile("pTRatioF_d", "pTRatio_d_3.0<|eta|<6.0",
                                    log10PtBins, log10PtMin, log10PtMax, 0, 5, " ");
-    mpTRatio_60_120_d    = dbe->bookProfile("pTRatio_60_120_d", "pTRatio_d_60<pT<120",
+    mpTRatio_30_200_d    = dbe->bookProfile("pTRatio_30_200_d", "pTRatio_d_30<pT<200",
                                           90,etaRange, 0., 5., " ");
-    mpTRatio_200_300_d   = dbe->bookProfile("pTRatio_200_300_d", "pTRatio_d_200<pT<300",
+    mpTRatio_200_600_d   = dbe->bookProfile("pTRatio_200_600_d", "pTRatio_d_200<pT<600",
                                           90,etaRange, 0., 5., " ");
-    mpTRatio_600_900_d   = dbe->bookProfile("pTRatio_600_900_d", "pTRatio_d_600<pT<900",
+    mpTRatio_600_1500_d   = dbe->bookProfile("pTRatio_600_1500_d", "pTRatio_d_600<pT<1500",
                                           90,etaRange, 0., 5., " ");
-    mpTRatio_2700_3500_d = dbe->bookProfile("pTRatio_2700_3500_d", "pTRatio_d_2700<pt<3500",
+    mpTRatio_1500_3500_d = dbe->bookProfile("pTRatio_1500_3500_d", "pTRatio_d_1500<pt<3500",
                                           90,etaRange, 0., 5., " ");
     mpTResponse = dbe->bookProfile("pTResponse", "pTResponse",
 				log10PtBins, log10PtMin, log10PtMax, 100, 0.8,1.2, " ");
@@ -430,13 +430,13 @@ JPTJetTester::JPTJetTester(const edm::ParameterSet& iConfig)
                                    log10PtBins, log10PtMin, log10PtMax, 0.8, 1.2, " ");
     mpTResponseF_d = dbe->bookProfile("pTResponseF_d", "pTResponse_d_3.0<|eta|<6.0",
                                    log10PtBins, log10PtMin, log10PtMax, 0.8, 1.2, " ");
-    mpTResponse_60_120_d    = dbe->bookProfile("pTResponse_60_120_d", "pTResponse_d_60<pT<120",
+    mpTResponse_30_200_d    = dbe->bookProfile("pTResponse_30_200_d", "pTResponse_d_30<pT<200",
                                           90,etaRange, 0.8, 1.2, " ");
-    mpTResponse_200_300_d   = dbe->bookProfile("pTResponse_200_300_d", "pTResponse_d_200<pT<300",
+    mpTResponse_200_600_d   = dbe->bookProfile("pTResponse_200_600_d", "pTResponse_d_200<pT<600",
                                           90,etaRange, 0.8, 1.2, " ");
-    mpTResponse_600_900_d   = dbe->bookProfile("pTResponse_600_900_d", "pTResponse_d_600<pT<900",
+    mpTResponse_600_1500_d   = dbe->bookProfile("pTResponse_600_1500_d", "pTResponse_d_600<pT<1500",
                                           90,etaRange, 0.8, 1.2, " ");
-    mpTResponse_2700_3500_d = dbe->bookProfile("pTResponse_2700_3500_d", "pTResponse_d_2700<pt<3500",
+    mpTResponse_1500_3500_d = dbe->bookProfile("pTResponse_1500_3500_d", "pTResponse_d_1500<pt<3500",
 					       90,etaRange, 0.8, 1.2, " ");
     mpTResponse_30_d = dbe->bookProfile("pTResponse_30_d", "pTResponse_d_pt>30",
 					       90,etaRange, 0.8, 1.2, " ");
@@ -782,17 +782,17 @@ if (!mEvent.isRealData()){
      if (fabs(jet->eta())>3.0 && fabs(jet->eta())<6.0) {
         mpTRatioF_d->Fill (log10(jet->pt()), correctedJet.pt()/jet->pt());
     }
-     if (jet->pt()>60.0 && jet->pt()<120.0) {
-    mpTRatio_60_120_d->Fill (jet->eta(),correctedJet.pt()/jet->pt());
+     if (jet->pt()>30.0 && jet->pt()<200.0) {
+    mpTRatio_30_200_d->Fill (jet->eta(),correctedJet.pt()/jet->pt());
   }
-   if (jet->pt()>200.0 && jet->pt()<300.0) {
-    mpTRatio_200_300_d->Fill (jet->eta(),correctedJet.pt()/jet->pt());
+   if (jet->pt()>200.0 && jet->pt()<600.0) {
+    mpTRatio_200_600_d->Fill (jet->eta(),correctedJet.pt()/jet->pt());
   }
-   if (jet->pt()>600.0 && jet->pt()<900.0) {
-    mpTRatio_600_900_d->Fill (jet->eta(),correctedJet.pt()/jet->pt());
+   if (jet->pt()>600.0 && jet->pt()<1500.0) {
+    mpTRatio_600_1500_d->Fill (jet->eta(),correctedJet.pt()/jet->pt());
   }
-   if (jet->pt()>2700.0 && jet->pt()<3500.0) {
-    mpTRatio_2700_3500_d->Fill (jet->eta(),correctedJet.pt()/jet->pt());
+   if (jet->pt()>1500.0 && jet->pt()<3500.0) {
+    mpTRatio_1500_3500_d->Fill (jet->eta(),correctedJet.pt()/jet->pt());
   }
 
   }
@@ -924,17 +924,17 @@ if (!mEvent.isRealData()){
 	  if (fabs(genJet.eta())>3.0 && fabs(genJet.eta())<6.0) {
         mpTResponseF_d->Fill (log10(genJet.pt()), CorrJetPtBest/genJet.pt());
 	  }
-	  if (genJet.pt()>60.0 && genJet.pt()<120.0) {
-	    mpTResponse_60_120_d->Fill (genJet.eta(),CorrJetPtBest/genJet.pt());
+	  if (genJet.pt()>30.0 && genJet.pt()<200.0) {
+	    mpTResponse_30_200_d->Fill (genJet.eta(),CorrJetPtBest/genJet.pt());
 	  }
-	  if (genJet.pt()>200.0 && genJet.pt()<300.0) {
-	    mpTResponse_200_300_d->Fill (genJet.eta(),CorrJetPtBest/genJet.pt());
+	  if (genJet.pt()>200.0 && genJet.pt()<600.0) {
+	    mpTResponse_200_600_d->Fill (genJet.eta(),CorrJetPtBest/genJet.pt());
 	  }
-	  if (genJet.pt()>600.0 && genJet.pt()<900.0) {
-	    mpTResponse_600_900_d->Fill (genJet.eta(),CorrJetPtBest/genJet.pt());
+	  if (genJet.pt()>600.0 && genJet.pt()<1500.0) {
+	    mpTResponse_600_1500_d->Fill (genJet.eta(),CorrJetPtBest/genJet.pt());
 	  }
-	  if (genJet.pt()>2700.0 && genJet.pt()<3500.0) {
-	    mpTResponse_2700_3500_d->Fill (genJet.eta(),CorrJetPtBest/genJet.pt());
+	  if (genJet.pt()>1500.0 && genJet.pt()<3500.0) {
+	    mpTResponse_1500_3500_d->Fill (genJet.eta(),CorrJetPtBest/genJet.pt());
 	  }
 	  if (genJet.pt()>30.0) {
 	    mpTResponse_30_d->Fill (genJet.eta(),CorrJetPtBest/genJet.pt());
@@ -1009,17 +1009,17 @@ void JPTJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::JPTJ
     mpTScaleB_d->Fill (log10(PtGen), PtJpt/PtGen);
     mpTScalePhiB_d->Fill (fGenJet.phi(), PtJpt/PtGen);
     
-    if (PtGen>60.0 && PtGen<120.0) {
-      mpTScale1DB_60_120->Fill (fJPTJet.pt()/fGenJet.pt());
+    if (PtGen>30.0 && PtGen<200.0) {
+      mpTScale1DB_30_200->Fill (fJPTJet.pt()/fGenJet.pt());
     }
-    if (PtGen>200.0 && PtGen<300.0) {
-      mpTScale1DB_200_300->Fill (fJPTJet.pt()/fGenJet.pt());
+    if (PtGen>200.0 && PtGen<600.0) {
+      mpTScale1DB_200_600->Fill (fJPTJet.pt()/fGenJet.pt());
     }
-    if (PtGen>600.0 && PtGen<900.0) {
-      mpTScale1DB_600_900->Fill (fJPTJet.pt()/fGenJet.pt());
+    if (PtGen>600.0 && PtGen<1500.0) {
+      mpTScale1DB_600_1500->Fill (fJPTJet.pt()/fGenJet.pt());
     }
-    if (PtGen>2700.0 && PtGen<3500.0) {
-      mpTScale1DB_2700_3500->Fill (fJPTJet.pt()/fGenJet.pt());
+    if (PtGen>1500.0 && PtGen<3500.0) {
+      mpTScale1DB_1500_3500->Fill (fJPTJet.pt()/fGenJet.pt());
     }
     
   }
@@ -1029,17 +1029,17 @@ void JPTJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::JPTJ
     mpTScaleE_d->Fill (log10(PtGen), PtJpt/PtGen);
     mpTScalePhiE_d->Fill (fGenJet.phi(), PtJpt/PtGen);
     
-    if (PtGen>60.0 && PtGen<120.0) {
-      mpTScale1DE_60_120->Fill (fJPTJet.pt()/fGenJet.pt());
+    if (PtGen>30.0 && PtGen<200.0) {
+      mpTScale1DE_30_200->Fill (fJPTJet.pt()/fGenJet.pt());
     }
-    if (PtGen>200.0 && PtGen<300.0) {
-      mpTScale1DE_200_300->Fill (fJPTJet.pt()/fGenJet.pt());
+    if (PtGen>200.0 && PtGen<600.0) {
+      mpTScale1DE_200_600->Fill (fJPTJet.pt()/fGenJet.pt());
     }
-    if (PtGen>600.0 && PtGen<900.0) {
-      mpTScale1DE_600_900->Fill (fJPTJet.pt()/fGenJet.pt());
+    if (PtGen>600.0 && PtGen<1500.0) {
+      mpTScale1DE_600_1500->Fill (fJPTJet.pt()/fGenJet.pt());
     }
-    if (PtGen>2700.0 && PtGen<3500.0) {
-      mpTScale1DE_2700_3500->Fill (fJPTJet.pt()/fGenJet.pt());
+    if (PtGen>1500.0 && PtGen<3500.0) {
+      mpTScale1DE_1500_3500->Fill (fJPTJet.pt()/fGenJet.pt());
     }
     
   }
@@ -1050,43 +1050,43 @@ void JPTJetTester::fillMatchHists (const reco::GenJet& fGenJet, const reco::JPTJ
     mpTScaleF_d->Fill (log10(PtGen), PtJpt/PtGen);
     mpTScalePhiF_d->Fill (fGenJet.phi(), PtJpt/PtGen);
     
-    if (PtGen>60.0 && PtGen<120.0) {
-      mpTScale1DF_60_120->Fill (fJPTJet.pt()/fGenJet.pt());
+    if (PtGen>30.0 && PtGen<200.0) {
+      mpTScale1DF_30_200->Fill (fJPTJet.pt()/fGenJet.pt());
     }
-    if (PtGen>200.0 && PtGen<300.0) {
-      mpTScale1DF_200_300->Fill (fJPTJet.pt()/fGenJet.pt());
+    if (PtGen>200.0 && PtGen<600.0) {
+      mpTScale1DF_200_600->Fill (fJPTJet.pt()/fGenJet.pt());
     }
-    if (PtGen>600.0 && PtGen<900.0) {
-      mpTScale1DF_600_900->Fill (fJPTJet.pt()/fGenJet.pt());
+    if (PtGen>600.0 && PtGen<1500.0) {
+      mpTScale1DF_600_1500->Fill (fJPTJet.pt()/fGenJet.pt());
     }
-    if (PtGen>2700.0 && PtGen<3500.0) {
-      mpTScale1DF_2700_3500->Fill (fJPTJet.pt()/fGenJet.pt());
+    if (PtGen>1500.0 && PtGen<3500.0) {
+      mpTScale1DF_1500_3500->Fill (fJPTJet.pt()/fGenJet.pt());
     }
     
   }
 
-  if (fGenJet.pt()>60.0 && fGenJet.pt()<120.0) {
-    //mpTScale_60_120_s->Fill (fGenJet.eta(),fJPTJet.pt()/fGenJet.pt());
-    mpTScale_60_120_d->Fill (fGenJet.eta(),fJPTJet.pt()/fGenJet.pt());
-    //mpTScale1D_60_120->Fill (fJPTJet.pt()/fGenJet.pt());
+  if (fGenJet.pt()>30.0 && fGenJet.pt()<200.0) {
+    //mpTScale_30_200_s->Fill (fGenJet.eta(),fJPTJet.pt()/fGenJet.pt());
+    mpTScale_30_200_d->Fill (fGenJet.eta(),fJPTJet.pt()/fGenJet.pt());
+    //mpTScale1D_30_200->Fill (fJPTJet.pt()/fGenJet.pt());
   }
 
-  if (fGenJet.pt()>200.0 && fGenJet.pt()<300.0) {
-    //mpTScale_200_300_s->Fill (fGenJet.eta(),fJPTJet.pt()/fGenJet.pt());
-    mpTScale_200_300_d->Fill (fGenJet.eta(),fJPTJet.pt()/fGenJet.pt());
-    //mpTScale1D_200_300->Fill (fJPTJet.pt()/fGenJet.pt());
+  if (fGenJet.pt()>200.0 && fGenJet.pt()<600.0) {
+    //mpTScale_200_600_s->Fill (fGenJet.eta(),fJPTJet.pt()/fGenJet.pt());
+    mpTScale_200_600_d->Fill (fGenJet.eta(),fJPTJet.pt()/fGenJet.pt());
+    //mpTScale1D_200_600->Fill (fJPTJet.pt()/fGenJet.pt());
   }
 
-  if (fGenJet.pt()>600.0 && fGenJet.pt()<900.0) {
-    //mpTScale_600_900_s->Fill (fGenJet.eta(),fJPTJet.pt()/fGenJet.pt());
-    mpTScale_600_900_d->Fill (fGenJet.eta(),fJPTJet.pt()/fGenJet.pt());
-    //mpTScale1D_600_900->Fill (fJPTJet.pt()/fGenJet.pt());
+  if (fGenJet.pt()>600.0 && fGenJet.pt()<1500.0) {
+    //mpTScale_600_1500_s->Fill (fGenJet.eta(),fJPTJet.pt()/fGenJet.pt());
+    mpTScale_600_1500_d->Fill (fGenJet.eta(),fJPTJet.pt()/fGenJet.pt());
+    //mpTScale1D_600_1500->Fill (fJPTJet.pt()/fGenJet.pt());
   }
 
-  if (fGenJet.pt()>2700.0 && fGenJet.pt()<3500.0) {
-    //mpTScale_2700_3500_s->Fill (fGenJet.eta(),fJPTJet.pt()/fGenJet.pt());
-    mpTScale_2700_3500_d->Fill (fGenJet.eta(),fJPTJet.pt()/fGenJet.pt());
-    //mpTScale1D_2700_3500->Fill (fJPTJet.pt()/fGenJet.pt());
+  if (fGenJet.pt()>1500.0 && fGenJet.pt()<3500.0) {
+    //mpTScale_1500_3500_s->Fill (fGenJet.eta(),fJPTJet.pt()/fGenJet.pt());
+    mpTScale_1500_3500_d->Fill (fGenJet.eta(),fJPTJet.pt()/fGenJet.pt());
+    //mpTScale1D_1500_3500->Fill (fJPTJet.pt()/fGenJet.pt());
   }
 
 

@@ -4,7 +4,7 @@
 // Producer for validation histograms for JPTJet objects
 // F. Ratnikov, Sept. 7, 2006
 // Modified by J F Novak July 10, 2008
-// $Id: JPTJetTester.h,v 1.6 2011/04/21 13:49:09 kovitang Exp $
+// $Id: JPTJetTester.h,v 1.7 2011/08/18 14:07:42 kovitang Exp $
 
 #include <string>
 
@@ -85,18 +85,18 @@ private:
   MonitorElement* mpTRatioB_d;
   MonitorElement* mpTRatioE_d;
   MonitorElement* mpTRatioF_d;
-  MonitorElement* mpTRatio_60_120_d;
-  MonitorElement* mpTRatio_200_300_d;
-  MonitorElement* mpTRatio_600_900_d;
-  MonitorElement* mpTRatio_2700_3500_d;
+  MonitorElement* mpTRatio_30_200_d;
+  MonitorElement* mpTRatio_200_600_d;
+  MonitorElement* mpTRatio_600_1500_d;
+  MonitorElement* mpTRatio_1500_3500_d;
   MonitorElement* mpTResponse;
   MonitorElement* mpTResponseB_d;
   MonitorElement* mpTResponseE_d;
   MonitorElement* mpTResponseF_d;
-  MonitorElement* mpTResponse_60_120_d;
-  MonitorElement* mpTResponse_200_300_d;
-  MonitorElement* mpTResponse_600_900_d;
-  MonitorElement* mpTResponse_2700_3500_d;
+  MonitorElement* mpTResponse_30_200_d;
+  MonitorElement* mpTResponse_200_600_d;
+  MonitorElement* mpTResponse_600_1500_d;
+  MonitorElement* mpTResponse_1500_3500_d;
   MonitorElement* mpTResponse_30_d;
   MonitorElement* mjetArea;
 
@@ -221,32 +221,32 @@ private:
   MonitorElement* mpTScalePhiE_d;
   MonitorElement* mpTScalePhiF_d;
 
-  MonitorElement* mpTScale_60_120_s;
-  MonitorElement* mpTScale_200_300_s;
-  MonitorElement* mpTScale_600_900_s;
-  MonitorElement* mpTScale_2700_3500_s;
+  MonitorElement* mpTScale_30_200_s;
+  MonitorElement* mpTScale_200_600_s;
+  MonitorElement* mpTScale_600_1500_s;
+  MonitorElement* mpTScale_1500_3500_s;
 
-  MonitorElement* mpTScale_60_120_d;
-  MonitorElement* mpTScale_200_300_d;
-  MonitorElement* mpTScale_600_900_d;
-  MonitorElement* mpTScale_2700_3500_d;
+  MonitorElement* mpTScale_30_200_d;
+  MonitorElement* mpTScale_200_600_d;
+  MonitorElement* mpTScale_600_1500_d;
+  MonitorElement* mpTScale_1500_3500_d;
 
-  MonitorElement* mpTScale1DB_60_120;
-  MonitorElement* mpTScale1DE_60_120;
-  MonitorElement* mpTScale1DF_60_120;
-  MonitorElement* mpTScale1DB_200_300;
-  MonitorElement* mpTScale1DE_200_300;
-  MonitorElement* mpTScale1DF_200_300;
-  MonitorElement* mpTScale1DB_600_900;
-  MonitorElement* mpTScale1DE_600_900;
-  MonitorElement* mpTScale1DF_600_900;
-  MonitorElement* mpTScale1DB_2700_3500;
-  MonitorElement* mpTScale1DE_2700_3500;
-  MonitorElement* mpTScale1DF_2700_3500;
-  MonitorElement* mpTScale1D_60_120;
-  MonitorElement* mpTScale1D_200_300;
-  MonitorElement* mpTScale1D_600_900;
-  MonitorElement* mpTScale1D_2700_3500;
+  MonitorElement* mpTScale1DB_30_200;
+  MonitorElement* mpTScale1DE_30_200;
+  MonitorElement* mpTScale1DF_30_200;
+  MonitorElement* mpTScale1DB_200_600;
+  MonitorElement* mpTScale1DE_200_600;
+  MonitorElement* mpTScale1DF_200_600;
+  MonitorElement* mpTScale1DB_600_1500;
+  MonitorElement* mpTScale1DE_600_1500;
+  MonitorElement* mpTScale1DF_600_1500;
+  MonitorElement* mpTScale1DB_1500_3500;
+  MonitorElement* mpTScale1DE_1500_3500;
+  MonitorElement* mpTScale1DF_1500_3500;
+  MonitorElement* mpTScale1D_30_200;
+  MonitorElement* mpTScale1D_200_600;
+  MonitorElement* mpTScale1D_600_1500;
+  MonitorElement* mpTScale1D_1500_3500;
 
   MonitorElement* mDelEta;
   MonitorElement* mDelPhi;
