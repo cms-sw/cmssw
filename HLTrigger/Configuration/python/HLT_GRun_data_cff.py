@@ -1,10 +1,10 @@
-# /online/collisions/2011/5e33/v1.1/HLT/V4 (CMSSW_4_2_0_HLT28)
+# /online/collisions/2011/5e33/v1.1/HLT/V6 (CMSSW_4_2_0_HLT28)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/online/collisions/2011/5e33/v1.1/HLT/V4')
+  tableName = cms.string('/online/collisions/2011/5e33/v1.1/HLT/V6')
 )
 
 streams = cms.PSet( 
@@ -33,6 +33,7 @@ streams = cms.PSet(
     'SingleMu',
     'Tau',
     'TauPlusX' ),
+  ALCALUMIPIXELS = cms.vstring( 'AlCaLumiPixels' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSym' ),
   Calibration = cms.vstring( 'TestEnablesEcalHcalDT' ),
@@ -47,6 +48,7 @@ streams = cms.PSet(
   TrackerCalibration = cms.vstring( 'TestEnablesTracker' )
 )
 datasets = cms.PSet( 
+  AlCaLumiPixels = cms.vstring( 'AlCa_LumiPixels_v1' ),
   AlCaP0 = cms.vstring( 'AlCa_EcalEta_v9',
     'AlCa_EcalPi0_v10' ),
   AlCaPhiSym = cms.vstring( 'AlCa_EcalPhiSym_v7' ),
