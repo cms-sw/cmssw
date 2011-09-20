@@ -98,7 +98,9 @@ struct stGraph{
    TGraph* GluinoNF5;
    TGraph* GMStau;
    TGraph* PPStau;
-   TGraph* DCStau;
+   TGraph* DCRho08HyperK;
+   TGraph* DCRho12HyperK;
+   TGraph* DCRho16HyperK;
    TGraph* GluinoTh;
    TGraph* StopTh;
    TGraph* GMStauTh;
@@ -106,7 +108,7 @@ struct stGraph{
    TCutG*  StopThErr;
 };
 
-TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string syst, string ModelName, int XSectionType=2, string Mass0="", string Mass1="", string Mass2="", string Mass3="", string Mass4="", string Mass5="", string Mass6="", string Mass7="", string Mass8="", string Mass9="");
+TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string syst, string ModelName, int XSectionType=2, string Mass0="", string Mass1="", string Mass2="", string Mass3="", string Mass4="", string Mass5="", string Mass6="", string Mass7="", string Mass8="", string Mass9="",string Mass10="", string Mass11="", string Mass12="", string Mass13="");
 
 
 stAllInfo Exclusion(string pattern, string modelName, string signal, double Ratio_0C=-1, double Ratio_1C=-1, double Ratio_2C=-1, string syst="");
@@ -228,7 +230,10 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    TGraph* Tk_Obs_StopN     = MakePlot(pFile,talkFile,TkPattern,syst,"StopN"              , 2, "Stop130N"     , "Stop200N"     , "Stop300N"     , "Stop400N"     , "Stop500N"     , "Stop600N"   , "Stop700N"   , "Stop800N"                      );
    TGraph* Tk_Obs_GMStau    = MakePlot(pFile,talkFile,TkPattern,syst,"GMSB Stau"          , 2, "GMStau100"    , "GMStau126"    , "GMStau156"    , "GMStau200"    , "GMStau247"    , "GMStau308", "GMStau370", "GMStau432", "GMStau494"    );
    TGraph* Tk_Obs_PPStau    = MakePlot(pFile,talkFile,TkPattern,syst,"Pair Prod. Stau  ", 2, "PPStau100"    , "PPStau126"    , "PPStau156"    , "PPStau200"    , "PPStau247","PPStau308");
-   TGraph* Tk_Obs_DCStau    = MakePlot(pFile,talkFile,TkPattern,syst,"DiChamp    Stau  ", 2, "DCStau100"    , "DCStau121"    , "DCStau182"    , "DCStau242"    , "DCStau302",    "DCStau350"    ,     "DCStau395"    ,      "DCStau420"    ,  "DCStau500");  
+   TGraph* Tk_Obs_DCRho08HyperK    = MakePlot(pFile,talkFile,TkPattern,syst,"DiChamp    Rho08  ", 2, "DCRho08HyperK100"    , "DCRho08HyperK121"    , "DCRho08HyperK182"    , "DCRho08HyperK242"    , "DCRho08HyperK302",    "DCRho08HyperK350"    ,    "DCRho08HyperK370"    , "DCRho08HyperK390"    ,  "DCRho08HyperK395"    ,  "DCRho08HyperK400"    ,  "DCRho08HyperK410"    ,    "DCRho08HyperK420"    ,  "DCRho08HyperK500");  
+   TGraph* Tk_Obs_DCRho12HyperK    = MakePlot(pFile,talkFile,TkPattern,syst,"DiChamp    Rho12  ", 2,"DCRho12HyperK100"    , "DCRho12HyperK182"    , "DCRho12HyperK302"    , "DCRho12HyperK500" , "DCRho12HyperK530"  , "DCRho12HyperK570"     ,"DCRho12HyperK590"     , "DCRho12HyperK595" , "DCRho12HyperK600"   , "DCRho12HyperK610"    ,"DCRho12HyperK620"    ,"DCRho12HyperK700");
+   TGraph* Tk_Obs_DCRho16HyperK    = MakePlot(pFile,talkFile,TkPattern,syst,"DiChamp    Rho16  ", 2,"DCRho16HyperK100"    , "DCRho16HyperK182"    , "DCRho16HyperK302"    , "DCRho16HyperK500"    , "DCRho16HyperK700" , "DCRho16HyperK730" , "DCRho16HyperK770"   , "DCRho16HyperK790"     , "DCRho16HyperK795" , "DCRho16HyperK800"     ,"DCRho16HyperK820"    ,"DCRho16HyperK900");
+
    fprintf(pFile,"      \\end{tabular}\n\\end{table}\n\n");
    fprintf(pFile, "\\begin{table}\n   \\centering\n      \\begin{tabular}{|l|cccccc|}\n      \\hline\n");
 
@@ -254,7 +259,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    TGraph* Mu_Obs_StopN     = MakePlot(pFile,talkFile,MuPattern,syst,"StopN"              , 2, "Stop130N"     , "Stop200N"     , "Stop300N"     , "Stop400N"     , "Stop500N"     , "Stop600N"   , "Stop700N"   , "Stop800N"                      );
    TGraph* Mu_Obs_GMStau    = MakePlot(pFile,talkFile,MuPattern,syst,"GMSB Stau"          , 2, "GMStau100"    , "GMStau126"    , "GMStau156"    , "GMStau200"    , "GMStau247"    , "GMStau308", "GMStau370", "GMStau432", "GMStau494"    );
    TGraph* Mu_Obs_PPStau    = MakePlot(pFile,talkFile,MuPattern,syst,"Pair Prod. Stau  ", 2, "PPStau100"    , "PPStau126"    , "PPStau156"    , "PPStau200"    , "PPStau247", "PPStau308" );
-   TGraph* Mu_Obs_DCStau    = MakePlot(pFile,talkFile,MuPattern,syst,"DiChamp    Stau  ", 2,"DCStau121"    , "DCStau121"    , "DCStau182"    , "DCStau242"    , "DCStau302"    ,"DCStau350"    ,"DCStau395"    ,"DCStau420"    ,"DCStau500");
+   TGraph* Mu_Obs_DCRho08HyperK    = MakePlot(pFile,talkFile,MuPattern,syst,"DiChamp    Rho08  ", 2, "DCRho08HyperK100"    , "DCRho08HyperK121"    , "DCRho08HyperK182"    , "DCRho08HyperK242"    , "DCRho08HyperK302",    "DCRho08HyperK350"    ,    "DCRho08HyperK370"    , "DCRho08HyperK390"    ,  "DCRho08HyperK395"    ,  "DCRho08HyperK400"    ,  "DCRho08HyperK410"    ,    "DCRho08HyperK420"    ,  "DCRho08HyperK500");
+   TGraph* Mu_Obs_DCRho12HyperK    = MakePlot(pFile,talkFile,MuPattern,syst,"DiChamp    Rho12  ", 2, "DCRho12HyperK100"    , "DCRho12HyperK182"    , "DCRho12HyperK302"    , "DCRho12HyperK500" , "DCRho12HyperK530"  , "DCRho12HyperK570"     , "DCRho12HyperK590"     ,"DCRho12HyperK595" , "DCRho12HyperK600"   , "DCRho12HyperK610"    ,"DCRho12HyperK620"    ,"DCRho12HyperK700");
+
+   TGraph* Mu_Obs_DCRho16HyperK    = MakePlot(pFile,talkFile,MuPattern,syst,"DiChamp    Rho16  ", 2, "DCRho16HyperK100"    , "DCRho16HyperK182"    , "DCRho16HyperK302"    , "DCRho16HyperK500"    , "DCRho16HyperK700" , "DCRho16HyperK730" , "DCRho16HyperK770"   , "DCRho16HyperK790"     , "DCRho16HyperK795" , "DCRho16HyperK800"     ,"DCRho16HyperK820"    ,"DCRho16HyperK900");
+
    fprintf(pFile,"      \\end{tabular}\n\\end{table}\n\n");
    fprintf(pFile,"\\end{document}\n\n");
 
@@ -267,7 +276,12 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 
    TGraph* GMStauXSec = MakePlot(NULL,NULL,TkPattern,"","GMSB Stau        ", 0, "GMStau100"    , "GMStau126"    , "GMStau156"    , "GMStau200"    , "GMStau247"    , "GMStau308", "GMStau370", "GMStau432", "GMStau494"    );
    TGraph* PPStauXSec = MakePlot(NULL,NULL,TkPattern,"","Pair Prod. Stau  ", 0, "PPStau100"    , "PPStau126"    , "PPStau156"    , "PPStau200"    , "PPStau247"    , "PPStau308");
-   TGraph* DCStauXSec = MakePlot(NULL,NULL,TkPattern,"","DiChamp    Stau  ", 0, "DCStau100"    ,"DCStau121"    , "DCStau182"    , "DCStau242"    , "DCStau302", "DCStau350"     , "DCStau395"     , "DCStau420"     , "DCStau500");
+   TGraph* DCRho08HyperKXSec = MakePlot(NULL,NULL,TkPattern,"","DiChamp    Rho08  ", 0,  "DCRho08HyperK100"    , "DCRho08HyperK121"    , "DCRho08HyperK182"    , "DCRho08HyperK242"    , "DCRho08HyperK302",    "DCRho08HyperK350"    ,    "DCRho08HyperK370"    , "DCRho08HyperK390"    ,  "DCRho08HyperK395"    ,  "DCRho08HyperK400"    ,  "DCRho08HyperK410"    ,    "DCRho08HyperK420"    ,  "DCRho08HyperK500");  
+
+   TGraph* DCRho12HyperKXSec = MakePlot(NULL,NULL,TkPattern,"","DiChamp    Rho12  ", 0, "DCRho12HyperK100"    , "DCRho12HyperK182"    , "DCRho12HyperK302"    , "DCRho12HyperK500" , "DCRho12HyperK530"  , "DCRho12HyperK570"     ,"DCRho12HyperK590"     , "DCRho12HyperK595" , "DCRho12HyperK600"   , "DCRho12HyperK610"    ,"DCRho12HyperK620"    ,"DCRho12HyperK700");
+
+   TGraph* DCRho16HyperKXSec = MakePlot(NULL,NULL,TkPattern,"","DiChamp    Rho16  ", 0, "DCRho16HyperK100"    , "DCRho16HyperK182"    , "DCRho16HyperK302"    , "DCRho16HyperK500"    , "DCRho16HyperK700" , "DCRho16HyperK730" , "DCRho16HyperK770"   , "DCRho16HyperK790"     , "DCRho16HyperK795" , "DCRho16HyperK800"     , "DCRho16HyperK810"     ,"DCRho16HyperK820"    ,"DCRho16HyperK900");
+
 
    double ThGluinoMass [100]; double ThGluinoXSec [100];  double ThGluinoLow  [100]; double ThGluinoHigh [100]; double ThGluinoErrLow  [100];  double ThGluinoErrHigh [100];
    int ThGluinoN = ReadXSection("gluino_XSec.txt", ThGluinoMass,ThGluinoXSec,ThGluinoLow,ThGluinoHigh, ThGluinoErrLow, ThGluinoErrHigh);
@@ -307,18 +321,53 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    ThPPStauMass[5] = 308; ThPPStauXSec[5] = 0.000353;  ThPPStauLow[5] = 0.000335308;  ThPPStauHigh[5] = 0.000363699;
    TCutG* PPStauXSecErr = GetErrorBand("PPStauErr", ThPPStauN,ThPPStauMass,ThPPStauLow,ThPPStauHigh);
 
+   int ThDCRho08HyperKN = 13; double ThDCRho08HyperKMass [100]; double ThDCRho08HyperKXSec [100];  double ThDCRho08HyperKLow  [100];  double ThDCRho08HyperKHigh [100];
+   ThDCRho08HyperKMass[0] = 100; ThDCRho08HyperKXSec[0] = 1.405000;  ThDCRho08HyperKLow[0] = ThDCRho08HyperKXSec[0]*0.85;  ThDCRho08HyperKHigh[0] = ThDCRho08HyperKXSec[0]*1.15;
+   ThDCRho08HyperKMass[1] = 121; ThDCRho08HyperKXSec[1] = 0.979000;  ThDCRho08HyperKLow[1] = ThDCRho08HyperKXSec[1]*0.85;  ThDCRho08HyperKHigh[1] = ThDCRho08HyperKXSec[1]*1.15;
+   ThDCRho08HyperKMass[2] = 182; ThDCRho08HyperKXSec[2] = 0.560000;  ThDCRho08HyperKLow[2] = ThDCRho08HyperKXSec[2]*0.85;  ThDCRho08HyperKHigh[2] = ThDCRho08HyperKXSec[2]*1.15;
+   ThDCRho08HyperKMass[3] = 242; ThDCRho08HyperKXSec[3] = 0.489000;  ThDCRho08HyperKLow[3] = ThDCRho08HyperKXSec[3]*0.85;  ThDCRho08HyperKHigh[3] = ThDCRho08HyperKXSec[3]*1.15;
+   ThDCRho08HyperKMass[4] = 302; ThDCRho08HyperKXSec[4] = 0.463000;  ThDCRho08HyperKLow[4] = ThDCRho08HyperKXSec[4]*0.85;  ThDCRho08HyperKHigh[4] = ThDCRho08HyperKXSec[4]*1.15;
+   ThDCRho08HyperKMass[5] = 350; ThDCRho08HyperKXSec[5] = 0.473000;  ThDCRho08HyperKLow[5] = ThDCRho08HyperKXSec[5]*0.85;  ThDCRho08HyperKHigh[5] = ThDCRho08HyperKXSec[5]*1.15;
+   ThDCRho08HyperKMass[6] = 370; ThDCRho08HyperKXSec[6] = 0.48288105;  ThDCRho08HyperKLow[6] = ThDCRho08HyperKXSec[6]*0.85;  ThDCRho08HyperKHigh[6] = ThDCRho08HyperKXSec[6]*1.15;
+   ThDCRho08HyperKMass[7] = 390; ThDCRho08HyperKXSec[7] = 0.47132496;  ThDCRho08HyperKLow[7] = ThDCRho08HyperKXSec[7]*0.85;  ThDCRho08HyperKHigh[7] = ThDCRho08HyperKXSec[7]*1.15;
+   ThDCRho08HyperKMass[8] = 395; ThDCRho08HyperKXSec[8] = 0.420000;  ThDCRho08HyperKLow[8] = ThDCRho08HyperKXSec[8]*0.85;  ThDCRho08HyperKHigh[8] = ThDCRho08HyperKXSec[8]*1.15;
+   ThDCRho08HyperKMass[9] = 400; ThDCRho08HyperKXSec[9] = 0.473000;  ThDCRho08HyperKLow[9] = ThDCRho08HyperKXSec[9]*0.85;  ThDCRho08HyperKHigh[9] = ThDCRho08HyperKXSec[9]*1.15;
+   ThDCRho08HyperKMass[10] = 410; ThDCRho08HyperKXSec[10] = 0.0060812129;  ThDCRho08HyperKLow[10] = ThDCRho08HyperKXSec[10]*0.85;  ThDCRho08HyperKHigh[10] = ThDCRho08HyperKXSec[10]*1.15;
+   ThDCRho08HyperKMass[11] = 420; ThDCRho08HyperKXSec[11] = 0.0035;  ThDCRho08HyperKLow[11] = ThDCRho08HyperKXSec[11]*0.85;  ThDCRho08HyperKHigh[11] = ThDCRho08HyperKXSec[11]*1.15;
+   ThDCRho08HyperKMass[12] = 500; ThDCRho08HyperKXSec[12] = 0.0002849;  ThDCRho08HyperKLow[12] = ThDCRho08HyperKXSec[12]*0.85;  ThDCRho08HyperKHigh[12] = ThDCRho08HyperKXSec[12]*1.15;
+   TCutG* DCRho08HyperKXSecErr = GetErrorBand("DCRho08HyperKErr", ThDCRho08HyperKN,ThDCRho08HyperKMass,ThDCRho08HyperKLow,ThDCRho08HyperKHigh);
 
-   int ThDCStauN = 9; double ThDCStauMass [100]; double ThDCStauXSec [100];  double ThDCStauLow  [100];  double ThDCStauHigh [100];
-   ThDCStauMass[0] = 100; ThDCStauXSec[0] = 1.405000;  ThDCStauLow[0] = ThDCStauXSec[0]*0.85;  ThDCStauHigh[0] = ThDCStauXSec[0]*1.15;
-   ThDCStauMass[1] = 121; ThDCStauXSec[1] = 0.979000;  ThDCStauLow[1] = ThDCStauXSec[1]*0.85;  ThDCStauHigh[1] = ThDCStauXSec[1]*1.15;
-   ThDCStauMass[2] = 182; ThDCStauXSec[2] = 0.560000;  ThDCStauLow[2] = ThDCStauXSec[2]*0.85;  ThDCStauHigh[2] = ThDCStauXSec[2]*1.15;
-   ThDCStauMass[3] = 242; ThDCStauXSec[3] = 0.489000;  ThDCStauLow[3] = ThDCStauXSec[3]*0.85;  ThDCStauHigh[3] = ThDCStauXSec[3]*1.15;
-   ThDCStauMass[4] = 302; ThDCStauXSec[4] = 0.463000;  ThDCStauLow[4] = ThDCStauXSec[4]*0.85;  ThDCStauHigh[4] = ThDCStauXSec[4]*1.15;
-   ThDCStauMass[5] = 350; ThDCStauXSec[5] = 0.473000;  ThDCStauLow[5] = ThDCStauXSec[5]*0.85;  ThDCStauHigh[5] = ThDCStauXSec[5]*1.15;
-   ThDCStauMass[6] = 395; ThDCStauXSec[6] = 0.420000;  ThDCStauLow[6] = ThDCStauXSec[6]*0.85;  ThDCStauHigh[6] = ThDCStauXSec[6]*1.15;
-   ThDCStauMass[7] = 420; ThDCStauXSec[7] = 0.0035;  ThDCStauLow[7] = ThDCStauXSec[7]*0.85;  ThDCStauHigh[7] = ThDCStauXSec[7]*1.15;
-   ThDCStauMass[8] = 500; ThDCStauXSec[8] = 0.0002849;  ThDCStauLow[8] = ThDCStauXSec[8]*0.85;  ThDCStauHigh[8] = ThDCStauXSec[8]*1.15;
-   TCutG* DCStauXSecErr = GetErrorBand("DCStauErr", ThDCStauN,ThDCStauMass,ThDCStauLow,ThDCStauHigh);
+   int ThDCRho12HyperKN = 12; double ThDCRho12HyperKMass [100]; double ThDCRho12HyperKXSec [100];  double ThDCRho12HyperKLow  [100];  double ThDCRho12HyperKHigh [100];
+   ThDCRho12HyperKMass[0] = 100; ThDCRho12HyperKXSec[0] = 0.8339415992;  ThDCRho12HyperKLow[0] = ThDCRho12HyperKXSec[0]*0.85;  ThDCRho12HyperKHigh[0] = ThDCRho12HyperKXSec[0]*1.15;
+   ThDCRho12HyperKMass[1] = 182; ThDCRho12HyperKXSec[1] = 0.168096952140;  ThDCRho12HyperKLow[1] = ThDCRho12HyperKXSec[1]*0.85;  ThDCRho12HyperKHigh[1] = ThDCRho12HyperKXSec[1]*1.15;
+   ThDCRho12HyperKMass[2] = 302; ThDCRho12HyperKXSec[2] = 0.079554948387;  ThDCRho12HyperKLow[2] = ThDCRho12HyperKXSec[2]*0.85;  ThDCRho12HyperKHigh[2] = ThDCRho12HyperKXSec[2]*1.15;
+   ThDCRho12HyperKMass[3] = 500; ThDCRho12HyperKXSec[3] = 0.063996737;  ThDCRho12HyperKLow[3] = ThDCRho12HyperKXSec[3]*0.85;  ThDCRho12HyperKHigh[3] = ThDCRho12HyperKXSec[3]*1.15;
+   ThDCRho12HyperKMass[4] = 530; ThDCRho12HyperKXSec[4] = 0.064943882;  ThDCRho12HyperKLow[4] = ThDCRho12HyperKXSec[4]*0.85;  ThDCRho12HyperKHigh[4] = ThDCRho12HyperKXSec[4]*1.15;
+   ThDCRho12HyperKMass[5] = 570; ThDCRho12HyperKXSec[5] = 0.0662920530;  ThDCRho12HyperKLow[5] = ThDCRho12HyperKXSec[5]*0.85;  ThDCRho12HyperKHigh[5] = ThDCRho12HyperKXSec[5]*1.15;
+   ThDCRho12HyperKMass[6] = 590; ThDCRho12HyperKXSec[6] = 0.060748383;  ThDCRho12HyperKLow[6] = ThDCRho12HyperKXSec[6]*0.85;  ThDCRho12HyperKHigh[6] = ThDCRho12HyperKXSec[6]*1.15;
+   ThDCRho12HyperKMass[7] = 595; ThDCRho12HyperKXSec[7] = 0.04968409;  ThDCRho12HyperKLow[7] = ThDCRho12HyperKXSec[7]*0.85;  ThDCRho12HyperKHigh[7] = ThDCRho12HyperKXSec[7]*1.15;
+   ThDCRho12HyperKMass[8] = 600; ThDCRho12HyperKXSec[8] = 0.0026232721237;  ThDCRho12HyperKLow[8] = ThDCRho12HyperKXSec[8]*0.85;  ThDCRho12HyperKHigh[8] = ThDCRho12HyperKXSec[8]*1.15;
+   ThDCRho12HyperKMass[9] = 610; ThDCRho12HyperKXSec[9] = 0.00127431;  ThDCRho12HyperKLow[9] = ThDCRho12HyperKXSec[9]*0.85;  ThDCRho12HyperKHigh[9] = ThDCRho12HyperKXSec[9]*1.15;
+   ThDCRho12HyperKMass[10] = 620; ThDCRho12HyperKXSec[10] = 0.00056965104319;  ThDCRho12HyperKLow[10] = ThDCRho12HyperKXSec[10]*0.85;  ThDCRho12HyperKHigh[10] = ThDCRho12HyperKXSec[10]*1.15;
+   ThDCRho12HyperKMass[11] = 700; ThDCRho12HyperKXSec[11] = 0.00006122886211;  ThDCRho12HyperKLow[11] = ThDCRho12HyperKXSec[11]*0.85;  ThDCRho12HyperKHigh[11] = ThDCRho12HyperKXSec[11]*1.15;
+   TCutG* DCRho12HyperKXSecErr = GetErrorBand("DCRho12HyperKErr", ThDCRho12HyperKN,ThDCRho12HyperKMass,ThDCRho12HyperKLow,ThDCRho12HyperKHigh);
+
+   int ThDCRho16HyperKN = 12; double ThDCRho16HyperKMass [100]; double ThDCRho16HyperKXSec [100];  double ThDCRho16HyperKLow  [100];  double ThDCRho16HyperKHigh [100];
+   ThDCRho16HyperKMass[0] = 100; ThDCRho16HyperKXSec[0] = 0.711518686800;  ThDCRho16HyperKLow[0] = ThDCRho16HyperKXSec[0]*0.85;  ThDCRho16HyperKHigh[0] = ThDCRho16HyperKXSec[0]*1.15;
+   ThDCRho16HyperKMass[1] = 182; ThDCRho16HyperKXSec[1] = 0.089726059780;  ThDCRho16HyperKLow[1] = ThDCRho16HyperKXSec[1]*0.85;  ThDCRho16HyperKHigh[1] = ThDCRho16HyperKXSec[1]*1.15;
+   ThDCRho16HyperKMass[2] = 302; ThDCRho16HyperKXSec[2] = 0.019769637301;  ThDCRho16HyperKLow[2] = ThDCRho16HyperKXSec[2]*0.85;  ThDCRho16HyperKHigh[2] = ThDCRho16HyperKXSec[2]*1.15;
+   ThDCRho16HyperKMass[3] = 500; ThDCRho16HyperKXSec[3] = 0.0063302286576;  ThDCRho16HyperKLow[3] = ThDCRho16HyperKXSec[3]*0.85;  ThDCRho16HyperKHigh[3] = ThDCRho16HyperKXSec[3]*1.15;
+   ThDCRho16HyperKMass[4] = 700; ThDCRho16HyperKXSec[4] = 0.002536779850;  ThDCRho16HyperKLow[4] = ThDCRho16HyperKXSec[4]*0.85;  ThDCRho16HyperKHigh[4] = ThDCRho16HyperKXSec[4]*1.15;
+   ThDCRho16HyperKMass[5] = 730; ThDCRho16HyperKXSec[5] = 0.002536779850;  ThDCRho16HyperKLow[5] = ThDCRho16HyperKXSec[5]*0.85;  ThDCRho16HyperKHigh[5] = ThDCRho16HyperKXSec[5]*1.15;
+   ThDCRho16HyperKMass[6] = 770; ThDCRho16HyperKXSec[6] = 0.001737551;  ThDCRho16HyperKLow[6] = ThDCRho16HyperKXSec[6]*0.85;  ThDCRho16HyperKHigh[6] = ThDCRho16HyperKXSec[6]*1.15;
+   ThDCRho16HyperKMass[7] = 790; ThDCRho16HyperKXSec[7] =0.00161578593 ;  ThDCRho16HyperKLow[7] = ThDCRho16HyperKXSec[7]*0.85;  ThDCRho16HyperKHigh[7] = ThDCRho16HyperKXSec[7]*1.15;
+   ThDCRho16HyperKMass[8] = 795; ThDCRho16HyperKXSec[8] = 0.00153513713;  ThDCRho16HyperKLow[8] = ThDCRho16HyperKXSec[8]*0.85;  ThDCRho16HyperKHigh[8] = ThDCRho16HyperKXSec[8]*1.15;
+   ThDCRho16HyperKMass[9] = 800; ThDCRho16HyperKXSec[9] = 0.000256086965;  ThDCRho16HyperKLow[9] = ThDCRho16HyperKXSec[9]*0.85;  ThDCRho16HyperKHigh[9] = ThDCRho16HyperKXSec[9]*1.15;
+   ThDCRho16HyperKMass[10] = 820; ThDCRho16HyperKXSec[10] = 0.000097929923655;  ThDCRho16HyperKLow[10] = ThDCRho16HyperKXSec[10]*0.85;  ThDCRho16HyperKHigh[10] = ThDCRho16HyperKXSec[10]*1.15;
+   ThDCRho16HyperKMass[11] = 900; ThDCRho16HyperKXSec[11] = 0.000013146066;  ThDCRho16HyperKLow[11] = ThDCRho16HyperKXSec[11]*0.85;  ThDCRho16HyperKHigh[11] = ThDCRho16HyperKXSec[11]*1.15;
+   TCutG* DCRho16HyperKXSecErr = GetErrorBand("DCRho16HyperKErr", ThDCRho16HyperKN,ThDCRho16HyperKMass,ThDCRho16HyperKLow,ThDCRho16HyperKHigh);
+
+
 
 /*
    fprintf(pFile,"-----------------------\n0%% TK ONLY       \n-------------------------\n");
@@ -373,8 +422,12 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for StopN    \n", FindIntersection(Tk_Obs_StopN    , StopXSec  , 130, 800, 1, 0.00));
    fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GMStau   \n", FindIntersection(Tk_Obs_GMStau   , GMStauXSec, 100, 494, 1, 0.0));
    fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for PPStau   \n", FindIntersection(Tk_Obs_PPStau   , PPStauXSec, 100, 308, 1, 0.0));
+   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for DCRho08HyperK   \n", FindIntersection(Tk_Obs_DCRho08HyperK   , DCRho08HyperKXSec, 100, 500, 1, 0.0));
+   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for DCRho12HyperK   \n", FindIntersection(Tk_Obs_DCRho12HyperK   , DCRho12HyperKXSec, 100, 700, 1, 0.0));
+    fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for DCRho16HyperK   \n", FindIntersection(Tk_Obs_DCRho16HyperK   , DCRho16HyperKXSec, 100, 900, 1, 0.0));
 
-   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for DCStau   \n", FindIntersection(Tk_Obs_DCStau   , DCStauXSec, 100, 500, 1, 0.0));
+
+
    
    fprintf(pFile,"-----------------------\n0%% TK TOF        \n-------------------------\n");
 //   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for Gluino2C \n", FindIntersection(Mu_Obs_Gluino2C,  GluinoXSec, 300,1000, 1, 0.00));
@@ -391,7 +444,10 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for StopN    \n", FindIntersection(Mu_Obs_StopN    , StopXSec  , 130, 800, 1, 0.00));
    fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GMStau   \n", FindIntersection(Mu_Obs_GMStau   , GMStauXSec, 100, 494, 1, 0.0));
    fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for PPStau   \n", FindIntersection(Mu_Obs_PPStau   , PPStauXSec, 100, 308, 1, 0.0));
-   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for DCStau   \n", FindIntersection(Mu_Obs_DCStau   , DCStauXSec, 100, 500, 1, 0.0));
+
+   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for DCRho08HyperK   \n", FindIntersection(Mu_Obs_DCRho08HyperK   , DCRho08HyperKXSec, 100, 500, 1, 0.0));
+   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for DCRho12HyperK   \n", FindIntersection(Mu_Obs_DCRho12HyperK   , DCRho12HyperKXSec, 100, 700, 1, 0.0));
+   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for DCRho16HyperK   \n", FindIntersection(Mu_Obs_DCRho16HyperK   , DCRho16HyperKXSec, 100, 900, 1, 0.0));
 
    fclose(pFile);
    if(syst!="")return;
@@ -411,14 +467,24 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    Tk_Obs_StopN    ->SetLineColor(2);  Tk_Obs_StopN    ->SetMarkerColor(2);   Tk_Obs_StopN    ->SetLineWidth(2);   Tk_Obs_StopN    ->SetLineStyle(1);  Tk_Obs_StopN    ->SetMarkerStyle(25);
    GMStauXSec      ->SetLineColor(1);  GMStauXSec      ->SetMarkerColor(1);   GMStauXSec      ->SetLineWidth(1);   GMStauXSec      ->SetLineStyle(1);  GMStauXSec      ->SetMarkerStyle(1);
    PPStauXSec      ->SetLineColor(6);  PPStauXSec      ->SetMarkerColor(6);   PPStauXSec      ->SetLineWidth(1);   PPStauXSec      ->SetLineStyle(4);  PPStauXSec      ->SetMarkerStyle(1);
-   DCStauXSec      ->SetLineColor(9);  PPStauXSec      ->SetMarkerColor(9);   PPStauXSec      ->SetLineWidth(1);   PPStauXSec      ->SetLineStyle(2);  PPStauXSec      ->SetMarkerStyle(1);
+   DCRho08HyperKXSec      ->SetLineColor(4);  DCRho08HyperKXSec      ->SetMarkerColor(4);   DCRho08HyperKXSec      ->SetLineWidth(1);   DCRho08HyperKXSec      ->SetLineStyle(3);  DCRho08HyperKXSec      ->SetMarkerStyle(1);
+   DCRho12HyperKXSec      ->SetLineColor(2);  DCRho12HyperKXSec      ->SetMarkerColor(2);   DCRho12HyperKXSec      ->SetLineWidth(1);   DCRho12HyperKXSec      ->SetLineStyle(2);  DCRho12HyperKXSec      ->SetMarkerStyle(1);
+   DCRho16HyperKXSec      ->SetLineColor(1);  DCRho16HyperKXSec      ->SetMarkerColor(1);   DCRho16HyperKXSec      ->SetLineWidth(1);   DCRho16HyperKXSec      ->SetLineStyle(1);  DCRho16HyperKXSec      ->SetMarkerStyle(1);
+
+
    Mu_Obs_GMStau   ->SetLineColor(1);  Mu_Obs_GMStau   ->SetMarkerColor(1);   Mu_Obs_GMStau   ->SetLineWidth(2);   Mu_Obs_GMStau   ->SetLineStyle(1);  Mu_Obs_GMStau   ->SetMarkerStyle(23);
    Mu_Obs_PPStau   ->SetLineColor(6);  Mu_Obs_PPStau   ->SetMarkerColor(6);   Mu_Obs_PPStau   ->SetLineWidth(2);   Mu_Obs_PPStau   ->SetLineStyle(1);  Mu_Obs_PPStau   ->SetMarkerStyle(23);
-   Mu_Obs_DCStau   ->SetLineColor(9);  Mu_Obs_DCStau   ->SetMarkerColor(9);   Mu_Obs_DCStau   ->SetLineWidth(2);   Mu_Obs_DCStau   ->SetLineStyle(1);  Mu_Obs_DCStau   ->SetMarkerStyle(20);
+   Mu_Obs_DCRho08HyperK   ->SetLineColor(4);  Mu_Obs_DCRho08HyperK   ->SetMarkerColor(4);   Mu_Obs_DCRho08HyperK   ->SetLineWidth(2);   Mu_Obs_DCRho08HyperK   ->SetLineStyle(1);  Mu_Obs_DCRho08HyperK   ->SetMarkerStyle(22);
+   Mu_Obs_DCRho12HyperK   ->SetLineColor(2);  Mu_Obs_DCRho12HyperK   ->SetMarkerColor(2);   Mu_Obs_DCRho12HyperK   ->SetLineWidth(2);   Mu_Obs_DCRho12HyperK   ->SetLineStyle(1);  Mu_Obs_DCRho12HyperK   ->SetMarkerStyle(23);
+   Mu_Obs_DCRho16HyperK   ->SetLineColor(1);  Mu_Obs_DCRho16HyperK   ->SetMarkerColor(1);   Mu_Obs_DCRho16HyperK   ->SetLineWidth(2);   Mu_Obs_DCRho16HyperK   ->SetLineStyle(1);  Mu_Obs_DCRho16HyperK   ->SetMarkerStyle(26);
+
 
    Tk_Obs_GMStau   ->SetLineColor(1);  Tk_Obs_GMStau   ->SetMarkerColor(1);   Tk_Obs_GMStau   ->SetLineWidth(2);   Tk_Obs_GMStau   ->SetLineStyle(1);  Tk_Obs_GMStau   ->SetMarkerStyle(20);
    Tk_Obs_PPStau   ->SetLineColor(6);  Tk_Obs_PPStau   ->SetMarkerColor(6);   Tk_Obs_PPStau   ->SetLineWidth(2);   Tk_Obs_PPStau   ->SetLineStyle(1);  Tk_Obs_PPStau   ->SetMarkerStyle(20);
-   Tk_Obs_DCStau   ->SetLineColor(9);  Tk_Obs_DCStau   ->SetMarkerColor(9);   Tk_Obs_DCStau   ->SetLineWidth(2);   Tk_Obs_DCStau   ->SetLineStyle(1);  Tk_Obs_DCStau   ->SetMarkerStyle(20);
+   Tk_Obs_DCRho08HyperK   ->SetLineColor(4);  Tk_Obs_DCRho08HyperK   ->SetMarkerColor(4);   Tk_Obs_DCRho08HyperK   ->SetLineWidth(2);   Tk_Obs_DCRho08HyperK   ->SetLineStyle(1);  Tk_Obs_DCRho08HyperK   ->SetMarkerStyle(22);
+   Tk_Obs_DCRho12HyperK   ->SetLineColor(2);  Tk_Obs_DCRho12HyperK   ->SetMarkerColor(2);   Tk_Obs_DCRho12HyperK   ->SetLineWidth(2);   Tk_Obs_DCRho12HyperK   ->SetLineStyle(1);  Tk_Obs_DCRho12HyperK   ->SetMarkerStyle(23);
+   Tk_Obs_DCRho16HyperK   ->SetLineColor(1);  Tk_Obs_DCRho16HyperK   ->SetMarkerColor(1);   Tk_Obs_DCRho16HyperK   ->SetLineWidth(2);   Tk_Obs_DCRho16HyperK   ->SetLineStyle(1);  Tk_Obs_DCRho16HyperK   ->SetMarkerStyle(26);
+
 
 
    c1 = new TCanvas("c1", "c1",600,600);
@@ -542,10 +608,16 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 
     c1 = new TCanvas("c1", "c1",600,600);
    TMultiGraph* MGDCMu = new TMultiGraph();
-   MGDCMu->Add(DCStauXSec      ,"L");
-   MGDCMu->Add(Mu_Obs_DCStau        ,"LP");
+   MGDCMu->Add(DCRho08HyperKXSec      ,"L");
+   MGDCMu->Add(Mu_Obs_DCRho08HyperK        ,"LP");
+   MGDCMu->Add(DCRho12HyperKXSec      ,"L");
+   MGDCMu->Add(Mu_Obs_DCRho12HyperK        ,"LP");
+   MGDCMu->Add(DCRho16HyperKXSec      ,"L");
+   MGDCMu->Add(Mu_Obs_DCRho16HyperK        ,"LP");
    MGDCMu->Draw("A");
-   DCStauXSecErr  ->Draw("f");
+//   DCRho08HyperKXSecErr  ->Draw("f");
+//   DCRho12HyperKXSecErr  ->Draw("f");
+//   DCRho16HyperKXSecErr  ->Draw("f");
    MGDCMu->Draw("same");
    MGDCMu->SetTitle("");
    MGDCMu->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
@@ -559,16 +631,24 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    LEGDCMu->SetHeader("Tk + TOF");
    LEGDCMu->SetFillColor(0); 
    LEGDCMu->SetBorderSize(0);
-   LEGDCMu->AddEntry(Mu_Obs_DCStau   , "DiChamp stau"       ,"LP");
+   LEGDCMu->AddEntry(Mu_Obs_DCRho08HyperK   , "DiChamp #tilde{#rho} = 0.8 TeV"       ,"LP");
+   LEGDCMu->AddEntry(Mu_Obs_DCRho12HyperK   , "DiChamp #tilde{#rho} = 1.2 TeV"       ,"LP");
+   LEGDCMu->AddEntry(Mu_Obs_DCRho16HyperK   , "DiChamp #tilde{#rho} = 1.6 TeV"       ,"LP");
    LEGDCMu->Draw();
 
    TLegend* LEGDCTh = new TLegend(0.15,0.70,0.50,0.90);
    LEGDCTh->SetHeader("Theoretical Prediction");
    LEGDCTh->SetFillColor(0);
    LEGDCTh->SetBorderSize(0);
-   TGraph* DCStauThLeg = (TGraph*) DCStauXSec->Clone("DCStauThLeg");
-   DCStauThLeg->SetFillColor(GluinoXSecErr->GetFillColor());
-   LEGDCTh->AddEntry(DCStauThLeg   ,"Dichamp stau   (LO)" ,"LF");
+   TGraph* DCRho08HyperKThLeg = (TGraph*) DCRho08HyperKXSec->Clone("DCRho08HyperKThLeg");
+   DCRho08HyperKThLeg->SetFillColor(GluinoXSecErr->GetFillColor());
+   LEGDCTh->AddEntry(DCRho08HyperKThLeg   ,"DiChamp #tilde{#rho} = 0.8 TeV   (LO)" ,"L");
+   TGraph* DCRho12HyperKThLeg = (TGraph*) DCRho12HyperKXSec->Clone("DCRho12HyperKThLeg");
+   DCRho12HyperKThLeg->SetFillColor(GluinoXSecErr->GetFillColor());
+   LEGDCTh->AddEntry(DCRho12HyperKThLeg   ,"DiChamp #tilde{#rho} = 1.2 TeV   (LO)" ,"L");
+   TGraph* DCRho16HyperKThLeg = (TGraph*) DCRho16HyperKXSec->Clone("DCRho16HyperKThLeg");
+   DCRho16HyperKThLeg->SetFillColor(GluinoXSecErr->GetFillColor());
+   LEGDCTh->AddEntry(DCRho16HyperKThLeg   ,"DiChamp #tilde{#rho} = 1.6 TeV   (LO)" ,"L");
    LEGDCTh->Draw();
    SaveCanvas(c1, outpath, string("MuDCExclusion"));
    c1->SetLogy(true);
@@ -577,10 +657,16 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
 
    c1 = new TCanvas("c1", "c1",600,600);
    TMultiGraph* MGDCTk = new TMultiGraph();
-   MGDCTk->Add(DCStauXSec      ,"L");
-   MGDCTk->Add(Tk_Obs_DCStau        ,"LP");
+   MGDCTk->Add(DCRho08HyperKXSec      ,"L");
+   MGDCTk->Add(Tk_Obs_DCRho08HyperK        ,"LP");
+   MGDCTk->Add(DCRho12HyperKXSec      ,"L");
+   MGDCTk->Add(Tk_Obs_DCRho12HyperK        ,"LP");
+   MGDCTk->Add(DCRho16HyperKXSec      ,"L");
+   MGDCTk->Add(Tk_Obs_DCRho16HyperK        ,"LP");
    MGDCTk->Draw("A");
-   DCStauXSecErr  ->Draw("f");
+//   DCRho08HyperKXSecErr  ->Draw("f");
+//   DCRho12HyperKXSecErr  ->Draw("f");
+//   DCRho16HyperKXSecErr  ->Draw("f");
    MGDCTk->Draw("same");
    MGDCTk->SetTitle("");
    MGDCTk->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
@@ -594,7 +680,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    LEGDCTk->SetHeader("Tk + only");
    LEGDCTk->SetFillColor(0); 
    LEGDCTk->SetBorderSize(0);
-   LEGDCTk->AddEntry(Tk_Obs_DCStau   , "DiChamp stau"       ,"LP");
+   LEGDCTk->AddEntry(Tk_Obs_DCRho08HyperK   , "DiChamp #tilde{#rho} = 0.8 TeV"       ,"LP");
+   LEGDCTk->AddEntry(Tk_Obs_DCRho12HyperK   , "DiChamp #tilde{#rho} = 1.2 TeV"       ,"LP");
+   LEGDCTk->AddEntry(Tk_Obs_DCRho16HyperK   , "DiChamp #tilde{#rho} = 1.6 TeV"       ,"LP");
    LEGDCTk->Draw();
 
    LEGDCTh->Draw();
@@ -658,6 +746,53 @@ void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern){
    Models.push_back("GMStau200");
    Models.push_back("GMStau247");
    Models.push_back("GMStau308");
+   Models.push_back("GMStau370"); 
+   Models.push_back("GMStau432"); 
+   Models.push_back("GMStau494");
+   Models.push_back("PPStau100");
+   Models.push_back("PPStau126"); 
+   Models.push_back("PPStau156"); 
+   Models.push_back("PPStau200"); 
+   Models.push_back("PPStau247");
+   Models.push_back("PPStau308");
+   Models.push_back("DCRho08HyperK100");
+   Models.push_back("DCRho08HyperK121"); 
+   Models.push_back("DCRho08HyperK182"); 
+   Models.push_back("DCRho08HyperK242"); 
+   Models.push_back("DCRho08HyperK302");  
+   Models.push_back("DCRho08HyperK350");
+   Models.push_back("DCRho08HyperK370");
+   Models.push_back("DCRho08HyperK390");  
+   Models.push_back("DCRho08HyperK395"); 
+   Models.push_back("DCRho08HyperK400");
+   Models.push_back("DCRho08HyperK410");
+   Models.push_back("DCRho08HyperK420");
+   Models.push_back("DCRho08HyperK500");
+   Models.push_back("DCRho12HyperK100"); 
+   Models.push_back("DCRho12HyperK182");
+   Models.push_back("DCRho12HyperK302");
+   Models.push_back("DCRho12HyperK500"); 
+   Models.push_back("DCRho12HyperK530"); 
+   Models.push_back("DCRho12HyperK570");
+   Models.push_back("DCRho12HyperK590"); 
+   Models.push_back("DCRho12HyperK595");
+   Models.push_back("DCRho12HyperK600");
+   Models.push_back("DCRho12HyperK610");
+   Models.push_back("DCRho12HyperK620");
+   Models.push_back("DCRho12HyperK700");
+   Models.push_back("DCRho16HyperK100");
+   Models.push_back("DCRho16HyperK182"); 
+   Models.push_back("DCRho16HyperK302");
+   Models.push_back("DCRho16HyperK500");
+   Models.push_back("DCRho16HyperK700"); 
+   Models.push_back("DCRho16HyperK730"); 
+   Models.push_back("DCRho16HyperK770");
+   Models.push_back("DCRho16HyperK790");
+   Models.push_back("DCRho16HyperK795");
+   Models.push_back("DCRho16HyperK800");
+   Models.push_back("DCRho16HyperK820");
+   Models.push_back("DCRho16HyperK900");
+   
 
    if(IsTkOnly){
      fprintf(pFile, "%20s   Eff   --> PScale |  EstimScale | DiscrimScale || TotalUncertainty\n","Model");
@@ -691,9 +826,9 @@ void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern){
 
 
 
-TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string syst, string ModelName, int XSectionType, string Mass0, string Mass1, string Mass2, string Mass3, string Mass4, string Mass5, string Mass6, string Mass7, string Mass8, string Mass9){
+TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string syst, string ModelName, int XSectionType, string Mass0, string Mass1, string Mass2, string Mass3, string Mass4, string Mass5, string Mass6, string Mass7, string Mass8, string Mass9,string Mass10, string Mass11, string Mass12, string Mass13){
    unsigned int N=0;
-   stAllInfo Infos[10];
+   stAllInfo Infos[14];
 
    if(Mass0!=""){Infos[0] = stAllInfo(InputPattern+"/EXCLUSION" + syst + "/"+Mass0+".txt"); N=1;}
    if(Mass1!=""){Infos[1] = stAllInfo(InputPattern+"/EXCLUSION" + syst + "/"+Mass1+".txt"); N=2;}
@@ -705,12 +840,17 @@ TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string syst, 
    if(Mass7!=""){Infos[7] = stAllInfo(InputPattern+"/EXCLUSION" + syst + "/"+Mass7+".txt"); N=8;}
    if(Mass8!=""){Infos[8] = stAllInfo(InputPattern+"/EXCLUSION" + syst + "/"+Mass8+".txt"); N=9;}
    if(Mass9!=""){Infos[9] = stAllInfo(InputPattern+"/EXCLUSION" + syst + "/"+Mass9+".txt"); N=10;}
+   if(Mass10!=""){Infos[10] = stAllInfo(InputPattern+"/EXCLUSION" + syst + "/"+Mass10+".txt"); N=11;}
+   if(Mass11!=""){Infos[11] = stAllInfo(InputPattern+"/EXCLUSION" + syst + "/"+Mass11+".txt"); N=12;}
+   if(Mass12!=""){Infos[12] = stAllInfo(InputPattern+"/EXCLUSION" + syst + "/"+Mass12+".txt"); N=13;}
+   if(Mass13!=""){Infos[13] = stAllInfo(InputPattern+"/EXCLUSION" + syst + "/"+Mass13+".txt"); N=14;}
+
+   double Mass   [14];for(unsigned int i=0;i<14;i++){Mass   [i]=Infos[i].Mass;    }
+   double XSecTh [14];for(unsigned int i=0;i<14;i++){XSecTh [i]=Infos[i].XSec_Th; }
+   double XSecObs[14];for(unsigned int i=0;i<14;i++){XSecObs[i]=Infos[i].XSec_Obs;}
+   double XSecExp[14];for(unsigned int i=0;i<14;i++){XSecExp[i]=Infos[i].XSec_Exp;}
 
 
-   double Mass   [10];for(unsigned int i=0;i<10;i++){Mass   [i]=Infos[i].Mass;    }
-   double XSecTh [10];for(unsigned int i=0;i<10;i++){XSecTh [i]=Infos[i].XSec_Th; }
-   double XSecObs[10];for(unsigned int i=0;i<10;i++){XSecObs[i]=Infos[i].XSec_Obs;}
-   double XSecExp[10];for(unsigned int i=0;i<10;i++){XSecExp[i]=Infos[i].XSec_Exp;}
 
 /*
    if(pFile){
