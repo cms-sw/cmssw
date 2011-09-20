@@ -10968,7 +10968,20 @@ else if (triggerName.CompareTo("OpenHLT_Ele32_WP70_PFMT50_v1")  == 0)
             }
         }
     }
-
+  else if (triggerName.CompareTo("OpenHLT_IsoMu17_eta2p1_DiCentralPFJet30") == 0) 
+    { 
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) 
+        { 
+          if (prescaleResponse(menu, cfg, rcounter, it)) 
+            { 
+	      if (OpenHlt1MuonPassed(0., 10., 17., 2., 1, 2.1, 2.1, 1, 2)>=1 
+                  && OpenHlt1PFJetPassed(30, 2.6)>=2)
+                { 
+                  triggerBit[it] = true; 
+                } 
+            } 
+        } 
+    } 
 	
   else if (isDoubleMuX_HTXTrigger(triggerName, thresholds))
      {
@@ -19290,6 +19303,22 @@ int OHltTree::OpenHlt1CorJetPassed(double pt, double etamax)
 	}
     }
   return rc;
+}
+
+int OHltTree::OpenHlt1PFJetPassed(double pt, double etamax)
+{
+  int rc = 0; 
+         
+  // Loop over all oh corrected jets 
+  for (int i=0; i<NohPFJet; i++) 
+    { 
+      if (pfJetPt[i]>pt && fabs(pfJetEta[i])<etamax) 
+        { // Jet pT cut 
+          rc++; 
+        } 
+    } 
+  return rc; 
+
 }
 
 int OHltTree::OpenHltDiJetAvePassed(double pt)

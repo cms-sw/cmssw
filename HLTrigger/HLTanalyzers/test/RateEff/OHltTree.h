@@ -14115,6 +14115,8 @@ public:
 
    int OpenHlt1CorJetPassedNoJetID(double pt);  
 
+   int OpenHlt1PFJetPassed(double pt, double eta); 
+
    int OpenHltFwdJetPassed(double esum);
    
    int OpenHltFwdCorJetPassed(double esum);
