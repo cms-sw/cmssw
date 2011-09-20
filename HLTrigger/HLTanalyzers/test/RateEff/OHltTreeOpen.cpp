@@ -3752,6 +3752,19 @@ void OHltTree::CheckOpenHlt(
 	    }
 	}
     }
+  else if (triggerName.CompareTo("OpenHLT_L2DoubleMu45_NoVertex") == 0) 
+    { 
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) 
+        { 
+          if (prescaleResponse(menu, cfg, rcounter, it)) 
+            { 
+              if (OpenHlt1L2MuonNoVertexPassed(0., 45., 9999.)>=2) 
+                { 
+                  triggerBit[it] = true; 
+                } 
+            } 
+        } 
+    } 
   else if (triggerName.CompareTo("OpenHLT_L2DoubleMu23_NoVertex") == 0)
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
