@@ -460,7 +460,8 @@ step3['DIGIHISt3']=step2['DIGIHI']
 step3['RECOHID11St3']=merge([{'cfg':'step3',
                               '--process':'ZStoRECO'},
                              step2['RECOHID11']])
-step3['RECOHIR10D11']=merge([{'--filein':'file:step2_inREPACKRAW.root'},
+step3['RECOHIR10D11']=merge([{'--filein':'file:step2_inREPACKRAW.root',
+                              '--filtername':'reRECO'},
                              step3['RECOHID11St3']])
 
 #add this line when testing from an input file that is not strictly GEN-SIM
