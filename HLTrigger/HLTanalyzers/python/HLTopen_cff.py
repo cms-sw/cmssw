@@ -53,6 +53,7 @@ DoHltMuon = cms.Path(
     HLTL2muonisorecoSequence + 
     HLTL3muonrecoSequence + 
     HLTL3muonisorecoSequence +
+    HLTL3muonTkIso10recoSequence + 
     HLTMuTrackJpsiPixelRecoSequence + 
     HLTMuTrackJpsiTrackRecoSequence +
 ##    HLTDisplacemumuSequence +

@@ -38,6 +38,7 @@ extern const char * kOniaTrackCands;
 extern const char * kDimuvtxcands3;
 extern const char * kIsoMap2;
 extern const char * kIsoMap3;
+extern const char * kIsoTrk10Map3;
 extern const char * kMulinks;
 extern const char * kTaus;
 extern const char * kPFTaus;

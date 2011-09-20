@@ -80,6 +80,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     MuNoVtxCandTag2_     = conf.getParameter<edm::InputTag> ("MuNoVtxCandTag2");
     MuCandTag3_          = conf.getParameter<edm::InputTag> ("MuCandTag3");
     MuIsolTag3_          = conf.getParameter<edm::InputTag> ("MuIsolTag3");
+    MuTrkIsolTag3_       = conf.getParameter<edm::InputTag> ("MuTrkIsolTag3");
     oniaPixelTag_        = conf.getParameter<edm::InputTag> ("OniaPixelTag");
     oniaTrackTag_        = conf.getParameter<edm::InputTag> ("OniaTrackTag");
     DiMuVtx_             = conf.getParameter<edm::InputTag> ("DiMuVtx");
@@ -255,7 +256,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     edm::Handle<reco::RecoChargedCandidateCollection> mucands2, mucands3, munovtxcands2;
     edm::Handle<reco::RecoChargedCandidateCollection> oniaPixelCands, oniaTrackCands;
     edm::Handle<reco::VertexCollection> dimuvtxcands3;
-    edm::Handle<edm::ValueMap<bool> >                 isoMap2,  isoMap3;
+    edm::Handle<edm::ValueMap<bool> >                 isoMap2,  isoMap3, isoTrk10Map3;
     edm::Handle<reco::HLTTauCollection>               taus;
     edm::Handle<reco::PFTauCollection>               pftaus;
     edm::Handle<reco::PFTauCollection>               pftausTightCone;
@@ -430,6 +431,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     getCollection( iEvent, missing, dimuvtxcands3,   DiMuVtx_,           kDimuvtxcands3 );
     getCollection( iEvent, missing, isoMap2,         MuIsolTag2_,        kIsoMap2 );
     getCollection( iEvent, missing, isoMap3,         MuIsolTag3_,        kIsoMap3 );
+    getCollection( iEvent, missing, isoTrk10Map3,    MuTrkIsolTag3_,     kIsoTrk10Map3 ); 
     getCollection( iEvent, missing, hRawBJets,                m_rawBJets,                 kBTagJets );
     getCollection( iEvent, missing, hCorrectedBJets,          m_correctedBJets,           kBTagCorrectedJets );
     getCollection( iEvent, missing, hLifetimeBJetsL25,        m_lifetimeBJetsL25,         kBTagLifetimeBJetsL25 );
@@ -559,6 +561,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
                            isoMap2,
                            mucands3,
                            isoMap3,
+			   isoTrk10Map3,
                            oniaPixelCands,
                            oniaTrackCands,
 			   dimuvtxcands3,
