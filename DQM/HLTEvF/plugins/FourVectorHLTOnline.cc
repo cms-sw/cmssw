@@ -1,4 +1,4 @@
-// $Id: FourVectorHLTOnline.cc,v 1.36 2011/03/29 13:51:44 rekovic Exp $
+// $Id: FourVectorHLTOnline.cc,v 1.37 2011/06/22 16:25:20 abrinke1 Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "DQM/HLTEvF/interface/FourVectorHLTOnline.h"
@@ -187,6 +187,8 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
   */
 
+  // Get trigger results
+  
   edm::Handle<TriggerResults> triggerResults;
   iEvent.getByLabel(triggerResultsLabel_,triggerResults);
   if(!triggerResults.isValid()) {
@@ -410,7 +412,7 @@ FourVectorHLTOnline::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   }
   */
 
-  fillHltMatrix(triggerNames);
+  //fillHltMatrix(triggerNames);
 
 
   // Loop over paths
@@ -934,7 +936,7 @@ void FourVectorHLTOnline::beginRun(const edm::Run& run, const edm::EventSetup& c
 
       fGroupTempCountPair.push_back(make_pair(fGroupNamePathsPair[g].first,0));
       fGroupL1TempCountPair.push_back(make_pair(fGroupNamePathsPair[g].first,0));
-      setupHltMatrix(fGroupNamePathsPair[g].first,fGroupNamePathsPair[g].second);
+      //setupHltMatrix(fGroupNamePathsPair[g].first,fGroupNamePathsPair[g].second);
 
     }
     /*
@@ -1690,11 +1692,11 @@ void FourVectorHLTOnline::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg
    int lumi = int(lumiSeg.id().luminosityBlock());
    LogTrace("FourVectorHLTOnline") << " end lumiSection number " << lumi << std::endl;
 
-  countHLTPathHitsEndLumiBlock(lumi);
-  countHLTGroupHitsEndLumiBlock(lumi);
-  countHLTGroupL1HitsEndLumiBlock(lumi);
+   //countHLTPathHitsEndLumiBlock(lumi);
+   //countHLTGroupHitsEndLumiBlock(lumi);
+   //countHLTGroupL1HitsEndLumiBlock(lumi);
 
-  countHLTGroupBXHitsEndLumiBlock(lumi);
+   //countHLTGroupBXHitsEndLumiBlock(lumi);
 
 }
 
