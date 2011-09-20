@@ -534,6 +534,7 @@ HLTAnalyzerEndpath # only in GRun, not in online
 AOutput
 ALCAP0Output
 ALCAPHISYMOutput
+ALCALUMIPIXELSOutput
 CalibrationOutput
 DQMOutput
 EcalCalibrationOutput

@@ -532,6 +532,7 @@ HLTriggerFinalPath
 AOutput
 ALCAP0Output
 ALCAPHISYMOutput
+ALCALUMIPIXELSOutput
 CalibrationOutput
 DQMOutput
 EcalCalibrationOutput
