@@ -5,8 +5,8 @@
  *
  *  Provide basic functionalities useful for MuScleFit
  *
- *  $Date: 2011/03/31 15:57:45 $
- *  $Revision: 1.30 $
+ *  $Date: 2011/05/12 08:58:38 $
+ *  $Revision: 1.31 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo - INFN Padova
  */
 
@@ -24,6 +24,7 @@
 
 #include "MuonAnalysis/MomentumScaleCalibration/interface/CrossSectionHandler.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/BackgroundHandler.h"
+#include "MuonAnalysis/MomentumScaleCalibration/interface/ResolutionFunction.h"
 
 #include <vector>
 
@@ -79,6 +80,7 @@ public:
   static double massResolution( const lorentzVector & mu1, const lorentzVector & mu2, const std::vector<double> & parval );
   static double massResolution( const lorentzVector & mu1, const lorentzVector & mu2, std::auto_ptr<double> parval );
   static double massResolution( const lorentzVector & mu1, const lorentzVector & mu2, double* parval );
+  static double massResolution( const lorentzVector& mu1, const lorentzVector& mu2, const ResolutionFunction & resolFunc );
 
   static double massProb( const double & mass, const double & rapidity, const int ires, const double & massResol );
   /* static double massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, const std::vector<double> & parval, const bool doUseBkgrWindow = false ); */

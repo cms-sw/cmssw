@@ -1,7 +1,7 @@
 /** See header file for a class description
  *
- *  $Date: 2011/03/31 15:57:45 $
- *  $Revision: 1.50 $
+ *  $Date: 2011/05/12 08:59:00 $
+ *  $Revision: 1.51 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -538,55 +538,43 @@ double MuScleFitUtils::massResolution( const lorentzVector& mu1,
   return massRes;
 }
 
+/**
+ * We use the following formula: <br>
+ *
+ * M = sqrt ( (E1+E2)^2 - (P1+P2)^2 ) <br>
+ *
+ * where we express E and P as a function of Pt, phi, and theta: <br>
+ *
+ * E  = sqrt ( Pt^2*(1+cotg(theta)^2) + M_mu^2 ) <br>
+ * Px = Pt*cos(phi), Py = Pt*sin(phi), Pz = Pt*cotg(theta) <br>
+ *
+ * from which we find <br>
+ *
+ * M = sqrt( 2*M_mu^2 + 2*sqrt(Pt1^2/sin(theta1)^2 + M_mu^2)*sqrt(Pt2^2/sin(theta2)^2 + M_mu^2) -
+ *           2*Pt1*Pt2* ( cos(phi1-phi2) + cotg(theta1)*cotg(theta2) ) )
+ *
+ * and derive WRT Pt1, Pt2, phi1, phi2, theta1, theta2 to get the resolution.
+ */
 double MuScleFitUtils::massResolution( const lorentzVector& mu1,
                                        const lorentzVector& mu2,
                                        double* parval )
 {
-  // We use the following formula:
-  //
-  // M = sqrt ( (E1+E2)^2 - (P1+P2)^2 )
-  //
-  // where we express E and P as a function of Pt, phi, and theta:
-  //
-  // E  = sqrt ( Pt^2*(1+cotg(theta)^2) + M_mu^2 )
-  // Px = Pt*cos(phi), Py = Pt*sin(phi), Pz = Pt*cotg(theta)
-  //
-  // from which we find
-  //
-  // M = sqrt( 2*M_mu^2 + 2*sqrt(Pt1^2/sin(theta1)^2 + M_mu^2)*sqrt(Pt2^2/sin(theta2)^2 + M_mu^2) -
-  //           2*Pt1*Pt2* ( cos(phi1-phi2) + cotg(theta1)*cotg(theta2) ) )
-  //
-  // and derive WRT Pt1, Pt2, phi1, phi2, theta1, theta2 to get the resolution.
-  // --------------------------------------------------------------------------
   double mass   = (mu1+mu2).mass();
   double pt1    = mu1.Pt();
   double phi1   = mu1.Phi();
   double eta1   = mu1.Eta();
   double theta1 = 2*atan(exp(-eta1));
-  // double cotgTheta1 = cos(theta1)/sin(theta1);
   double pt2    = mu2.Pt();
   double phi2   = mu2.Phi();
   double eta2   = mu2.Eta();
   double theta2 = 2*atan(exp(-eta2));
-  // double cotgTheta2 = cos(theta2)/sin(theta2);
 
-  // double mass_check = sqrt(2*mMu2+2*sqrt(std::pow(pt1/sin(theta1),2)+mMu2)*sqrt(std::pow(pt2/sin(theta2),2)+mMu2)-
-  //			   2*pt1*pt2*(cos(phi1-phi2)+1/(tan(theta1)*tan(theta2))));
-
-  // ATTENTION: need to compute 1/tan(theta) as cos(theta)/sin(theta) because the latter diverges for theta=pi/2
-  // -----------------------------------------------------------------------------------------------------------
   double dmdpt1  = (pt1/std::pow(sin(theta1),2)*sqrt((std::pow(pt2/sin(theta2),2)+mMu2)/(std::pow(pt1/sin(theta1),2)+mMu2))-
 		    pt2*(cos(phi1-phi2)+cos(theta1)*cos(theta2)/(sin(theta1)*sin(theta2))))/mass;
   double dmdpt2  = (pt2/std::pow(sin(theta2),2)*sqrt((std::pow(pt1/sin(theta1),2)+mMu2)/(std::pow(pt2/sin(theta2),2)+mMu2))-
 		    pt1*(cos(phi2-phi1)+cos(theta2)*cos(theta1)/(sin(theta2)*sin(theta1))))/mass;
   double dmdphi1 = pt1*pt2/mass*sin(phi1-phi2);
   double dmdphi2 = pt2*pt1/mass*sin(phi2-phi1);
-  // double dmdtheta1 = (-std::pow(pt1/sin(theta1),2)/tan(theta1)*
-  //	 	        sqrt((std::pow(pt2/sin(theta2),2)+mMu2)/(std::pow(pt1/sin(theta1),2)+mMu2))+
-  //		        2*pt1*pt2/(tan(theta2)*std::pow(sin(theta1),2)))/mass;
-  // double dmdtheta2 = (-std::pow(pt2/sin(theta2),2)/tan(theta2)*
-  //		        sqrt((std::pow(pt1/sin(theta1),2)+mMu2)/(std::pow(pt2/sin(theta2),2)+mMu2))+
-  //	                2*pt2*pt1/(tan(theta1)*std::pow(sin(theta2),2)))/mass;
   double dmdcotgth1 = (pt1*pt1*cos(theta1)/sin(theta1)*
                        sqrt((std::pow(pt2/sin(theta2),2)+mMu2)/(std::pow(pt1/sin(theta1),2)+mMu2)) -
 		       pt1*pt2*cos(theta2)/sin(theta2))/mass;
@@ -620,14 +608,6 @@ double MuScleFitUtils::massResolution( const lorentzVector& mu1,
   			 std::pow(dmdcotgth1*sigma_cotgth1,2)+std::pow(dmdcotgth2*sigma_cotgth2,2)+
   			 2*dmdpt1*dmdpt2*cov_pt1pt2);
 
-  // if( sigma_cotgth1 < 0 || sigma_cotgth2 < 0 ) {
-  //   std::cout << "WARNING: sigma_cotgth1 = " << sigma_cotgth1 << std::endl;
-  //   std::cout << "WARNING: sigma_cotgth2 = " << sigma_cotgth2 << std::endl;
-  //   std::cout << "mass_res = " << mass_res << std::endl;
-  // }
-
-  // double mass_res = sqrt(std::pow(dmdpt1*sigma_pt1*pt1,2)+std::pow(dmdpt2*sigma_pt2*pt2,2));
-
   if (debug>19) {
     std::cout << "  Pt1=" << pt1 << " phi1=" << phi1 << " cotgth1=" << cos(theta1)/sin(theta1) << " - Pt2=" << pt2
 	 << " phi2=" << phi2 << " cotgth2=" << cos(theta2)/sin(theta2) << std::endl;
@@ -652,47 +632,63 @@ double MuScleFitUtils::massResolution( const lorentzVector& mu1,
       if (mass_res>ResMaxSigma[ires] && counter_resprob<100) {
 	counter_resprob++;
 	LogDebug("MuScleFitUtils") << "RESOLUTION PROBLEM: ires=" << ires << std::endl;
-	// std::cout << "RESOLUTION PROBLEM: ires=" << ires << std::endl;
-// 	std::cout << "---------------------------" << std::endl;
-// 	std::cout << "  Pt1=" << pt1 << " phi1=" << phi1 << " cotgth1=" << cos(theta1)/sin(theta1) << " - Pt2=" << pt2
-// 	     << " phi2=" << phi2 << " cotgth2=" << cos(theta2)/sin(theta2) << std::endl;
-// 	if (ResolFitType==1)
-// 	  std::cout << " P[0]="
-// 	       << parval[0] << " P[1]=" << parval[1] << "P[2]=" << parval[2] << " P[3]=" << parval[3]
-// 	       << " P[4]=" << parval[4] << " P[5]=" << parval[5] << std::endl;
-// 	if (ResolFitType==2)
-// 	  std::cout << " P[0]="
-// 	       << parval[0] << " P[1]=" << parval[1] << "P[2]=" << parval[2] << " P[3]=" << parval[3] << std::endl;
-// 	std::cout << "  Dmdpt1= " << dmdpt1 << " dmdpt2= " << dmdpt2 << " sigma_pt1="
-// 	     << sigma_pt1 << " sigma_pt2=" << sigma_pt2 << std::endl;
-// 	std::cout << "  Dmdphi1= " << dmdphi1 << " dmdphi2= " << dmdphi2 << " sigma_phi1="
-// 	     << sigma_phi1 << " sigma_phi2=" << sigma_phi2 << std::endl;
-// 	std::cout << "  Dmdcotgth1= " << dmdcotgth1 << " dmdcotgth2= " << dmdcotgth2
-// 	     << " sigma_cotgth1="
-// 	     << sigma_cotgth1 << " sigma_cotgth2=" << sigma_cotgth2 << std::endl;
-// 	std::cout << "  Mass resolution (pval) for muons of Pt = " << pt1 << " " << pt2
-// 	     << " : " << mass << " +- " << mass_res << std::endl;
-// 	std::cout << "---------------------------" << std::endl;
 	didit = true;
       }
     }
   }
 
-//   if( mass_res != mass_res ) {
-//     std::cout << "MASS_RESOL_NAN PROBLEM:" << std::endl;
-//     std::cout << "---------------------------" << std::endl;
-//     std::cout << "  Pt1=" << pt1 << " phi1=" << phi1 << " cotgth1=" << cos(theta1)/sin(theta1) << " - Pt2=" << pt2
-//          << " phi2=" << phi2 << " cotgth2=" << cos(theta2)/sin(theta2) << std::endl;
-//     std::cout << " P[0]=" << parval[0] << " P[1]=" << parval[1] << "P[2]=" << parval[2] << " P[3]=" << parval[3] << " P[4]=" << parval[4] << std::endl;
-//     std::cout << "  Dmdpt1= " << dmdpt1 << " dmdpt2= " << dmdpt2 << " sigma_pt1=" << sigma_pt1 << " sigma_pt2=" << sigma_pt2 << std::endl;
-//     std::cout << "  Dmdphi1= " << dmdphi1 << " dmdphi2= " << dmdphi2 << " sigma_phi1=" << sigma_phi1 << " sigma_phi2=" << sigma_phi2 << std::endl;
-//     std::cout << "  Dmdcotgth1= " << dmdcotgth1 << " dmdcotgth2= " << dmdcotgth2 << " sigma_cotgth1=" << sigma_cotgth1 << " sigma_cotgth2=" << sigma_cotgth2 << std::endl;
-//     std::cout << "  Mass resolution (pval) for muons of Pt = " << pt1 << " " << pt2 << " : " << mass << " +- " << mass_res << std::endl;
-//     std::cout << "---------------------------" << std::endl;
-//   }
+  return mass_res;
+}
+
+/**
+ * This method can be used outside MuScleFit. It gets the ResolutionFunction that must have been built with the parameters. <br>
+ * TO-DO: this method duplicates the code in the previous method. It should be changed to avoid the duplication.
+ */
+double MuScleFitUtils::massResolution( const lorentzVector& mu1,
+                                       const lorentzVector& mu2,
+				       const ResolutionFunction & resolFunc )
+{
+  double mass   = (mu1+mu2).mass();
+  double pt1    = mu1.Pt();
+  double phi1   = mu1.Phi();
+  double eta1   = mu1.Eta();
+  double theta1 = 2*atan(exp(-eta1));
+  double pt2    = mu2.Pt();
+  double phi2   = mu2.Phi();
+  double eta2   = mu2.Eta();
+  double theta2 = 2*atan(exp(-eta2));
+
+  double dmdpt1  = (pt1/std::pow(sin(theta1),2)*sqrt((std::pow(pt2/sin(theta2),2)+mMu2)/(std::pow(pt1/sin(theta1),2)+mMu2))-
+		    pt2*(cos(phi1-phi2)+cos(theta1)*cos(theta2)/(sin(theta1)*sin(theta2))))/mass;
+  double dmdpt2  = (pt2/std::pow(sin(theta2),2)*sqrt((std::pow(pt1/sin(theta1),2)+mMu2)/(std::pow(pt2/sin(theta2),2)+mMu2))-
+		    pt1*(cos(phi2-phi1)+cos(theta2)*cos(theta1)/(sin(theta2)*sin(theta1))))/mass;
+  double dmdphi1 = pt1*pt2/mass*sin(phi1-phi2);
+  double dmdphi2 = pt2*pt1/mass*sin(phi2-phi1);
+  double dmdcotgth1 = (pt1*pt1*cos(theta1)/sin(theta1)*
+                       sqrt((std::pow(pt2/sin(theta2),2)+mMu2)/(std::pow(pt1/sin(theta1),2)+mMu2)) -
+		       pt1*pt2*cos(theta2)/sin(theta2))/mass;
+  double dmdcotgth2 = (pt2*pt2*cos(theta2)/sin(theta2)*
+                       sqrt((std::pow(pt1/sin(theta1),2)+mMu2)/(std::pow(pt2/sin(theta2),2)+mMu2)) -
+		       pt2*pt1*cos(theta1)/sin(theta1))/mass;
+
+  // Resolution parameters:
+  // ----------------------
+  double sigma_pt1 = resolFunc.sigmaPt( mu1 );
+  double sigma_pt2 = resolFunc.sigmaPt( mu2 );
+  double sigma_phi1 = resolFunc.sigmaPhi( mu1 );
+  double sigma_phi2 = resolFunc.sigmaPhi( mu2 );
+  double sigma_cotgth1 = resolFunc.sigmaCotgTh( mu1 );
+  double sigma_cotgth2 = resolFunc.sigmaCotgTh( mu2 );
+
+  // Sigma_Pt is defined as a relative sigmaPt/Pt for this reason we need to
+  // multiply it by pt.
+  double mass_res = sqrt(std::pow(dmdpt1*sigma_pt1*pt1,2)+std::pow(dmdpt2*sigma_pt2*pt2,2)+
+  			 std::pow(dmdphi1*sigma_phi1,2)+std::pow(dmdphi2*sigma_phi2,2)+
+  			 std::pow(dmdcotgth1*sigma_cotgth1,2)+std::pow(dmdcotgth2*sigma_cotgth2,2));
 
   return mass_res;
 }
+
 
 // Mass probability - version with linear background included, accepts std::vector<double> parval
 // -----------------------------------------------------------------------------------------
