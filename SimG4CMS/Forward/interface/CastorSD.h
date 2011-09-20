@@ -50,6 +50,7 @@ private:
   
   bool                    useShowerLibrary;
   double                  energyThresholdSL; 
+  double		  non_compensation_factor;
 
 protected:
 
