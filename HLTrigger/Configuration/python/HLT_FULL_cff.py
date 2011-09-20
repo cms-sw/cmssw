@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HLT/V876 (CMSSW_4_2_0_HLT28)
+# /dev/CMSSW_4_2_0/HLT/V881 (CMSSW_4_2_0_HLT28)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V876')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V881')
 )
 
 streams = cms.PSet( 
@@ -4888,10 +4888,10 @@ hltAntiKT5CaloJets = cms.EDProducer( "FastjetJetProducer",
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
     sumRecHits = cms.bool( False ),
-    doAreaDiskApprox = cms.bool( False ),
-    voronoiRfact = cms.double( -9.0 ),
-    useDeterministicSeed = cms.bool( False ),
-    minSeed = cms.uint32( 0 ),
+    doAreaDiskApprox = cms.bool( True ),
+    voronoiRfact = cms.double( 0.9 ),
+    useDeterministicSeed = cms.bool( True ),
+    minSeed = cms.uint32( 14327 ),
     Rho_EtaMax = cms.double( 4.4 )
 )
 hltCaloJetIDPassed = cms.EDProducer( "HLTJetIDProducer",
@@ -4964,61 +4964,8 @@ hltKT6CaloJets = cms.EDProducer( "FastjetJetProducer",
     minSeed = cms.uint32( 14327 ),
     Rho_EtaMax = cms.double( 4.4 )
 )
-hltAntiKT5CaloJetsL1FastJet = cms.EDProducer( "FastjetJetProducer",
-    UseOnlyVertexTracks = cms.bool( False ),
-    UseOnlyOnePV = cms.bool( False ),
-    DzTrVtxMax = cms.double( 0.0 ),
-    DxyTrVtxMax = cms.double( 0.0 ),
-    MinVtxNdof = cms.int32( 5 ),
-    MaxVtxZ = cms.double( 15.0 ),
-    jetAlgorithm = cms.string( "AntiKt" ),
-    rParam = cms.double( 0.5 ),
-    src = cms.InputTag( "hltTowerMakerForAll" ),
-    srcPVs = cms.InputTag( "offlinePrimaryVertices" ),
-    jetType = cms.string( "CaloJet" ),
-    jetPtMin = cms.double( 3.0 ),
-    inputEtMin = cms.double( 0.3 ),
-    inputEMin = cms.double( 0.0 ),
-    doPVCorrection = cms.bool( False ),
-    doPUOffsetCorr = cms.bool( False ),
-    nSigmaPU = cms.double( 1.0 ),
-    radiusPU = cms.double( 0.5 ),
-    Active_Area_Repeats = cms.int32( 1 ),
-    GhostArea = cms.double( 0.01 ),
-    Ghost_EtaMax = cms.double( 5.0 ),
-    maxBadEcalCells = cms.uint32( 9999999 ),
-    maxRecoveredEcalCells = cms.uint32( 9999999 ),
-    maxProblematicEcalCells = cms.uint32( 9999999 ),
-    maxBadHcalCells = cms.uint32( 9999999 ),
-    maxRecoveredHcalCells = cms.uint32( 9999999 ),
-    maxProblematicHcalCells = cms.uint32( 9999999 ),
-    doAreaFastjet = cms.bool( False ),
-    doRhoFastjet = cms.bool( False ),
-    subtractorName = cms.string( "" ),
-    sumRecHits = cms.bool( False ),
-    doAreaDiskApprox = cms.bool( True ),
-    voronoiRfact = cms.double( 0.9 ),
-    useDeterministicSeed = cms.bool( True ),
-    minSeed = cms.uint32( 14327 ),
-    Rho_EtaMax = cms.double( 4.4 )
-)
-hltCaloJetIDPassedL1FastJet = cms.EDProducer( "HLTJetIDProducer",
-    jetsInput = cms.InputTag( "hltAntiKT5CaloJetsL1FastJet" ),
-    min_EMF = cms.double( 1.0E-6 ),
-    max_EMF = cms.double( 999.0 ),
-    min_N90 = cms.int32( -2 ),
-    min_N90hits = cms.int32( 2 ),
-    JetIDParams = cms.PSet( 
-      useRecHits = cms.bool( True ),
-      hbheRecHitsColl = cms.InputTag( "hltHbhereco" ),
-      hoRecHitsColl = cms.InputTag( "hltHoreco" ),
-      hfRecHitsColl = cms.InputTag( "hltHfreco" ),
-      ebRecHitsColl = cms.InputTag( 'hltEcalRecHitAll','EcalRecHitsEB' ),
-      eeRecHitsColl = cms.InputTag( 'hltEcalRecHitAll','EcalRecHitsEE' )
-    )
-)
 hltCaloJetL1FastJetCorrected = cms.EDProducer( "CaloJetCorrectionProducer",
-    src = cms.InputTag( "hltCaloJetIDPassedL1FastJet" ),
+    src = cms.InputTag( "hltCaloJetIDPassed" ),
     verbose = cms.untracked.bool( False ),
     alias = cms.untracked.string( "JetCorJetAntiKT5L1L2L3" ),
     correctors = cms.vstring( 'hltESSAK5CaloL1L2L3' )
@@ -5188,10 +5135,10 @@ hltAntiKT5CaloJetsRegional = cms.EDProducer( "FastjetJetProducer",
     doRhoFastjet = cms.bool( False ),
     subtractorName = cms.string( "" ),
     sumRecHits = cms.bool( False ),
-    doAreaDiskApprox = cms.bool( False ),
-    voronoiRfact = cms.double( -9.0 ),
-    useDeterministicSeed = cms.bool( False ),
-    minSeed = cms.uint32( 0 ),
+    doAreaDiskApprox = cms.bool( True ),
+    voronoiRfact = cms.double( 0.9 ),
+    useDeterministicSeed = cms.bool( True ),
+    minSeed = cms.uint32( 14327 ),
     Rho_EtaMax = cms.double( 4.4 )
 )
 hltCaloJetL1MatchedRegional = cms.EDProducer( "HLTJetL1MatchProducer",
@@ -13715,7 +13662,7 @@ hltL3fL1sMu16Eta2p1L1f0L2f16QL2IsoL3Filtered34 = cms.EDFilter( "HLTMuonL3PreFilt
     NSigmaPt = cms.double( 0.0 ),
     saveTags = cms.bool( False )
 )
-hltL3IsoL1sMu16Eta2p1L1f0L2f16QL2IsoL3f20L3IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
+hltL3IsoL1sMu16Eta2p1L1f0L2f16QL2IsoL3f34L3IsoFiltered = cms.EDFilter( "HLTMuonIsoFilter",
     CandTag = cms.InputTag( "hltL3MuonCandidates" ),
     PreviousCandTag = cms.InputTag( "hltL3fL1sMu16Eta2p1L1f0L2f16QL2IsoL3Filtered34" ),
     MinN = cms.int32( 1 ),
@@ -37338,7 +37285,7 @@ hltL3MuonsNoVtx = cms.EDProducer( "L3TkMuonProducer",
 hltL3MuonCandidatesNoVtx = cms.EDProducer( "L3MuonCandidateProducer",
     InputObjects = cms.InputTag( "hltL3MuonsNoVtx" ),
     InputLinksObjects = cms.InputTag( "hltL3MuonsLinksCombination" ),
-    MuonPtOption = cms.string( "Global" )
+    MuonPtOption = cms.string( "Tracker" )
 )
 hltMu5NoVertexL3PreFiltered5 = cms.EDFilter( "HLTMuonL3PreFilter",
     BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
@@ -38900,7 +38847,7 @@ HLTDoLocalHcalSequence = cms.Sequence( hltHcalDigis + hltHbhereco + hltHfreco + 
 HLTDoCaloSequence = cms.Sequence( hltEcalRawToRecHitFacility + hltEcalRegionalRestFEDs + hltEcalRecHitAll + HLTDoLocalHcalSequence + hltTowerMakerForAll )
 HLTRecoJetSequenceAK5Uncorrected = cms.Sequence( HLTDoCaloSequence + hltAntiKT5CaloJets )
 HLTRecoJetSequenceAK5Corrected = cms.Sequence( HLTRecoJetSequenceAK5Uncorrected + hltCaloJetIDPassed + hltCaloJetCorrected )
-HLTRecoJetSequenceAK5L1FastJetCorrected = cms.Sequence( HLTDoCaloSequence + hltKT6CaloJets + hltAntiKT5CaloJetsL1FastJet + hltCaloJetIDPassedL1FastJet + hltCaloJetL1FastJetCorrected )
+HLTRecoJetSequenceAK5L1FastJetCorrected = cms.Sequence( HLTDoCaloSequence + hltKT6CaloJets + hltAntiKT5CaloJets + hltCaloJetIDPassed + hltCaloJetL1FastJetCorrected )
 HLTDoRegionalJetEcalSequence = cms.Sequence( hltEcalRawToRecHitFacility + hltEcalRegionalJetsFEDs + hltEcalRegionalJetsRecHit )
 HLTRegionalTowerMakerForJetsSequence = cms.Sequence( HLTDoRegionalJetEcalSequence + HLTDoLocalHcalSequence + hltTowerMakerForJets )
 HLTRegionalRecoJetSequenceAK5Corrected = cms.Sequence( HLTRegionalTowerMakerForJetsSequence + hltAntiKT5CaloJetsRegional + hltCaloJetL1MatchedRegional + hltCaloJetIDPassedRegional + hltCaloJetCorrectedRegional )
@@ -39368,7 +39315,7 @@ HLT_IsoMu24_v11 = cms.Path( HLTBeginSequence + hltL1sL1SingleMu16 + hltPreIsoMu2
 HLT_IsoMu24_eta2p1_v5 = cms.Path( HLTBeginSequence + hltL1sMu14Eta2p1 + hltPreIsoMu24eta2p1 + hltL1fL1sMu14Eta2p1L1Filtered0 + HLTL2muonrecoSequence + hltL2fL1sMu14Eta2p1L1f0L2Filtered14Q + HLTL2muonisorecoSequence + hltL2IsoL1sMu14Eta2p1L1f0L2f14QL2IsoFiltered + HLTL3muonrecoSequence + hltL3fL1sMu14Eta2p1L1f0L2f14QL2IsoL3Filtered24 + HLTL3muonisorecoSequence + hltL3IsoL1sMu14Eta2p1L1f0L2f14QL2IsoL3f24L3IsoFiltered + HLTEndSequence )
 HLT_IsoMu30_v10 = cms.Path( HLTBeginSequence + hltL1sL1SingleMu12 + hltPreIsoMu30 + hltL1SingleMu12L1Filtered0 + HLTL2muonrecoSequence + hltL2Mu12L2QualFiltered12 + HLTL2muonisorecoSequence + hltSingleMuIsoL2QualIsoFiltered12 + HLTL3muonrecoSequence + hltSingleMuL2QualIsoL3PreFiltered30 + HLTL3muonisorecoSequence + hltSingleMuL2QualIsoL3IsoFiltered30 + HLTEndSequence )
 HLT_IsoMu30_eta2p1_v5 = cms.Path( HLTBeginSequence + hltL1sMu14Eta2p1 + hltPreIsoMu30eta2p1 + hltL1fL1sMu14Eta2p1L1Filtered0 + HLTL2muonrecoSequence + hltL2fL1sMu14Eta2p1L1f0L2Filtered14Q + HLTL2muonisorecoSequence + hltL2IsoL1sMu14Eta2p1L1f0L2f14QL2IsoFiltered + HLTL3muonrecoSequence + hltL3fL1sMu14Eta2p1L1f0L2f14QL2IsoL3Filtered30 + HLTL3muonisorecoSequence + hltL3IsoL1sMu14Eta2p1L1f0L2f14QL2IsoL3f30L3IsoFiltered + HLTEndSequence )
-HLT_IsoMu34_eta2p1_v3 = cms.Path( HLTBeginSequence + hltL1sMu16Eta2p1 + hltPreIsoMu34eta2p1 + hltL1fL1sMu16Eta2p1L1Filtered0 + HLTL2muonrecoSequence + hltL2fL1sMu16Eta2p1L1f0L2Filtered16Q + HLTL2muonisorecoSequence + hltL2IsoL1sMu16Eta2p1L1f0L2f16QL2IsoFiltered + HLTL3muonrecoSequence + hltL3fL1sMu16Eta2p1L1f0L2f16QL2IsoL3Filtered34 + HLTL3muonisorecoSequence + hltL3IsoL1sMu16Eta2p1L1f0L2f16QL2IsoL3f20L3IsoFiltered + HLTEndSequence )
+HLT_IsoMu34_eta2p1_v3 = cms.Path( HLTBeginSequence + hltL1sMu16Eta2p1 + hltPreIsoMu34eta2p1 + hltL1fL1sMu16Eta2p1L1Filtered0 + HLTL2muonrecoSequence + hltL2fL1sMu16Eta2p1L1f0L2Filtered16Q + HLTL2muonisorecoSequence + hltL2IsoL1sMu16Eta2p1L1f0L2f16QL2IsoFiltered + HLTL3muonrecoSequence + hltL3fL1sMu16Eta2p1L1f0L2f16QL2IsoL3Filtered34 + HLTL3muonisorecoSequence + hltL3IsoL1sMu16Eta2p1L1f0L2f16QL2IsoL3f34L3IsoFiltered + HLTEndSequence )
 HLT_L2DoubleMu23_NoVertex_v8 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMu3p5 + hltPreL2DoubleMu23NoVertex + hltL1DoubleMuon3p5L1Filtered0 + HLTL2muonrecoSequenceNoVtx + hltL2DoubleMu23NoVertexL2PreFiltered + HLTEndSequence )
 HLT_L2DoubleMu30_NoVertex_v4 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMu3p5 + hltPreL2DoubleMu30NoVertex + hltL1DoubleMuon3p5L1Filtered0 + HLTL2muonrecoSequenceNoVtx + hltL2DoubleMu30NoVertexL2PreFiltered + HLTEndSequence )
 HLT_L2DoubleMu45_NoVertex_v1 = cms.Path( HLTBeginSequence + hltL1sL1DoubleMu3p5 + hltPreL2DoubleMu45NoVertex + hltL1DoubleMuon3p5L1Filtered0 + HLTL2muonrecoSequenceNoVtx + hltL2DoubleMu45NoVertexL2PreFiltered + HLTEndSequence )
