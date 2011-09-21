@@ -417,7 +417,7 @@ process.caPrunedPFlow.nSubjets = cms.int32(2)
 process.caPrunedGen =  cms.EDProducer(
     "SubJetProducer",
     GenJetParameters.clone(src = cms.InputTag("genParticlesForJetsNoNu"),
-                           doAreaFastjet = cms.bool(True),
+                           doAreaFastjet = cms.bool(False),
                            doRhoFastjet = cms.bool(False)
                            ),
     AnomalousCellParameters,
@@ -437,8 +437,8 @@ process.caPrunedGen =  cms.EDProducer(
 process.caTopTagPFlow = cms.EDProducer(
     "CATopJetProducer",
     PFJetParameters.clone( src = cms.InputTag('pfNoElectron'+postfix),
-                           doAreaFastjet = cms.bool(True),
-                           doRhoFastjet = cms.bool(False)                         
+                           doAreaFastjet = cms.bool(False),
+                           doRhoFastjet = cms.bool(False),                       
                            ),
     AnomalousCellParameters,
     CATopJetParameters,
@@ -464,7 +464,7 @@ process.CATopTagInfosPFlow = cms.EDProducer("CATopJetTagger",
 process.caTopTagGen = cms.EDProducer(
     "CATopJetProducer",
     GenJetParameters.clone(src = cms.InputTag("genParticlesForJetsNoNu"),
-                           doAreaFastjet = cms.bool(True),
+                           doAreaFastjet = cms.bool(False),
                            doRhoFastjet = cms.bool(False)),
     AnomalousCellParameters,
     CATopJetParameters,
