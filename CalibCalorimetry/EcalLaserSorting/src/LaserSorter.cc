@@ -1,6 +1,6 @@
 //emacs settings:-*- mode: c++; c-basic-offset: 2; indent-tabs-mode: nil -*-
 /*
- * $Id: LaserSorter.cc,v 1.11 2010/02/12 17:40:32 pgras Exp $
+ * $Id: LaserSorter.cc,v 1.12 2010/04/20 21:46:27 pgras Exp $
  */
 
 /***************************************************
@@ -128,7 +128,7 @@ LaserSorter::LaserSorter(const edm::ParameterSet& pset)
   if(timeLogFile_.size()>0){
     timeLog_.open(timeLogFile_.c_str());
     if(timeLog_.fail()){
-      cout << "[LaserSorter] "
+      cout << "[LaserSorter " << now() << "] "
            << "Failed to open file " << timeLogFile_ << " to log timing.\n";
       timing_ = false;
     } else{
@@ -179,8 +179,11 @@ LaserSorter::analyze(const edm::Event& event, const edm::EventSetup& es){
   if(timing_){
     timeval t;
     gettimeofday(&t, 0);
-    timeLog_ << (t.tv_usec - timer_.tv_usec)*1. 
-      + (t.tv_sec - timer_.tv_sec)*1.e6 << "\n";
+    timeLog_ << t.tv_sec << "."
+             << setfill('0') << setw(3) << (t.tv_usec+500)/1000 << setfill(' ')
+             << "\t"
+             << (t.tv_usec - timer_.tv_usec)*1. 
+      + (t.tv_sec - timer_.tv_sec)*1.e6 << "\t";
     timer_ = t;
   } 
 
@@ -296,7 +299,7 @@ LaserSorter::analyze(const edm::Event& event, const edm::EventSetup& es){
         assignedLB = out->startingLumiBlock();
         if(out->excludedOrbit().find(event.orbitNumber())
            ==out->excludedOrbit().end()){
-          if(verbosity_ > 1) cout << "[LaserSorter] "
+          if(verbosity_ > 1) cout << "[LaserSorter " << now() << "] "
                               << "Writing out event from FED " << triggeredFedId 
                               << " LB " << event.luminosityBlock()
                               << " orbit " << event.orbitNumber() << "\n";
@@ -326,7 +329,7 @@ LaserSorter::analyze(const edm::Event& event, const edm::EventSetup& es){
       timeval t;
       gettimeofday(&t, 0);
       timeLog_ << (t.tv_usec - timer_.tv_usec)*1. 
-        + (t.tv_sec - timer_.tv_sec)*1.e6 << "\t";
+        + (t.tv_sec - timer_.tv_sec)*1.e6 << "\n";
       timer_ = t;
     }
 }
@@ -370,14 +373,14 @@ int LaserSorter::getDetailedTriggerType(const edm::Handle<FEDRawDataCollection>&
     if(!FEDNumbering::inRange(id)) continue;
     const FEDRawData& data = rawdata->FEDData(id);
     const int detailedTrigger32 = 5;
-    if(verbosity_>3) cout << "[LaserSorter] " 
-                     << "FED " << id << " data size: "  
+    if(verbosity_>3) cout << "[LaserSorter " << now() << "] " 
+                          << "FED " << id << " data size: "  
                           << data.size() << "\n"; 
     if(data.size()>=4*(detailedTrigger32+1)){
       ecalData = true;
       const uint32_t* pData32 = (const uint32_t*) data.data();
       int tType = pData32[detailedTrigger32] & 0xFFF;
-      if(verbosity_>3) cout << "[LaserSorter] "
+      if(verbosity_>3) cout << "[LaserSorter " << now() << "] "
                             << "Trigger type " << tType << "\n";
       stat.add(tType);
     }
@@ -421,7 +424,7 @@ void LaserSorter::closeOldStreams(edm::LuminosityBlockNumber_t lumiBlock){
     if(it->startingLumiBlock() < minLumiBlock
        || it->startingLumiBlock() > maxLumiBlock){
       //event older than 2 lumi block => stream can be closed
-      if(verbosity_) cout << "[LaserSorter] "
+      if(verbosity_) cout << "[LaserSorter " << now() << "] "
                        << "Closing file for "
                        << "FED " 
                        << it->fedId()
@@ -441,7 +444,7 @@ LaserSorter::getStream(int fedId,
   if((fedId != -1) &&
      (fedId < ecalDccFedIdMin_ || fedId > ecalDccFedIdMax_)) fedId = -1;
   
-  if(verbosity_) cout << "[LaserSorter] "
+  if(verbosity_>1) cout << "[LaserSorter " << now() << "] "
        << "Looking for an opened output file for FED " 
        << fedId << " LB " << lumiBlock
        << "\n";
@@ -458,7 +461,7 @@ LaserSorter::getStream(int fedId,
   }
   //stream was not found. Let's create one
 
-  if(verbosity_) cout << "[LaserSorter] "
+  if(verbosity_) cout << "[LaserSorter " << now() << "] "
                       << "File not yet opened. Opening it.\n";
 
   OutStreamList::iterator streamRecord = createOutStream(fedId, lumiBlock);
@@ -519,7 +522,7 @@ bool LaserSorter::writeFedBlock(std::ofstream& out,
                           << "\t From Dcc header: " << dccLen64*8 << " Byte\n";
     
     const size_t nBytes = data.size();
-    //       cout << "[LaserSorter] " 
+    //       cout << "[LaserSorter " << now() << "] " 
     //            << "Writing " << nBytes << " byte from adress " 
     //            << (void*) data.data() << " to file.\n";
     if(out.fail()) cout << "[LaserSorter " << now() << "] " << "Problem with stream!\n";
@@ -595,7 +598,7 @@ LaserSorter::createOutStream(int fedId,
   ifstream in(finalName.c_str());
   bool newFile = true;
   if(in.good()){//file already exists with final name.
-    if(verbosity_) cout << "[LaserSorter] " << "File "
+    if(verbosity_) cout << "[LaserSorter " << now() << "] " << "File "
                         << finalName
                         << " already exists. It will be updated if needed.\n";
     //Copying its contents:
@@ -625,10 +628,10 @@ LaserSorter::createOutStream(int fedId,
       in.read((char*) &indexTableOffsetValue,
               sizeof(indexTableOffsetValue));
       if(in.fail()){
-        cout << "[LaserSorter] " << "Failed to read offset of index table "
+        cout << "[LaserSorter " << now() << "] " << "Failed to read offset of index table "
           " in the existing file " << finalName << "\n";
       } else{
-        if(verbosity_>2) cout << "[LaserSorter] " << "Index table offset of "
+        if(verbosity_>2) cout << "[LaserSorter " << now() << "] " << "Index table offset of "
                            "original file " << finalName << ": 0x"
                               << hex << setfill('0')
                               << setw(8) << indexTableOffsetValue
@@ -792,7 +795,7 @@ void LaserSorter::streamFileName(int fedId,
   finalName = dir + "/" + fileName;
   tmpName = dir + "/" + tmpFileName;
 
-  if(verbosity_>3) cout << "[LaserSorter] " << "File path: "
+  if(verbosity_>3) cout << "[LaserSorter " << now() << "] " << "File path: "
                         << finalName << "\n";
 }
 
@@ -1037,7 +1040,7 @@ bool LaserSorter::readIndexTable(std::ifstream& in,
     return false;
   }
 
-  if(verbosity_ > 1) cout << "[LaserSorter] " << "Orbit IDs of events "
+  if(verbosity_ > 1) cout << "[LaserSorter " << now() << "] " << "Orbit IDs of events "
                           << "already contained in the file "
                           << inName << ":";
   for(unsigned i = 0; i < outRcd.indices()->size(); ++i){
