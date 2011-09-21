@@ -37,6 +37,28 @@ bool isSingleEleTrigger(TString triggerName, vector<double>& thresholdEle, vecto
   else return false;
 }
 
+bool isSingleEleWPTrigger(TString triggerName, vector<double>& thresholdEle, vector<TString>& caloId, vector<TString>& caloIso, vector<TString>& trkId, vector<TString>& trkIso){ 
+  
+  TString patternEle = "(OpenHLT_Ele([0-9]+)_WP([0-9]+)){1}$"; 
+
+  TPRegexp matchThresholdEle(patternEle); 
+
+  if (matchThresholdEle.MatchB(triggerName)) 
+    { 
+      TObjArray *subStrL   = TPRegexp(patternEle).MatchS(triggerName); 
+      thresholdEle.push_back((((TObjString *)subStrL->At(2))->GetString()).Atof()); 
+      caloId.push_back("WP"+((TObjString *)subStrL->At(3))->GetString()); 
+      caloIso.push_back("WP"+((TObjString *)subStrL->At(3))->GetString()); 
+      trkId.push_back("WP"+((TObjString *)subStrL->At(3))->GetString()); 
+      trkIso.push_back("WP"+((TObjString *)subStrL->At(3))->GetString()); 
+      delete subStrL; 
+ 
+      return true; 
+    } 
+  else return false; 
+} 
+
+
 bool isDoubleEleTrigger(TString triggerName, vector<double>& thresholdEle, vector<TString>& caloId, vector<TString>& caloIso, vector<TString>& trkId, vector<TString>& trkIso){
 	
   TString patternEle = "(OpenHLT_DoubleEle([0-9]+)_?(CaloId[VXLT]+)?_?(CaloIso[VLT]+)?_?(TrkId[VLT]+)?_?((TrkIso[VLT]+)?))$";
@@ -1771,7 +1793,6 @@ bool isHTX_MuX_pfMHTXTrigger(
     return false;
 }
 
-
 bool isEleX_CaloIdT_CaloIsoVL_TrkIdT_TrkIsoVL_HTXTrigger(
 							 TString triggerName,
 							 vector<double> &thresholds)
@@ -2195,6 +2216,23 @@ void OHltTree::CheckOpenHlt(
 	  }
       }
 
+  else if (isSingleEleWPTrigger(triggerName, thresholdEle, caloId, caloIso, trkId, trkIso)){ 
+
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) 
+      { 
+        if (prescaleResponse(menu, cfg, rcounter, it)) 
+          { 
+            if (OpenHlt1ElectronPassed(thresholdEle[0],  
+                                       map_EGammaCaloId[caloId[0]], 
+                                       map_EleCaloIso[caloIso[0]], 
+                                       map_EleTrkId[trkId[0]], 
+                                       map_EleTrkIso[trkIso[0]] 
+                                       ) >= 1)   
+               
+	      triggerBit[it] = true; 
+	  } 
+      } 
+  } 
 
   /*DoubleEle*/
 
