@@ -1,7 +1,7 @@
 //
 // Original Author:  Pietro Govoni
 //         Created:  Thu Aug 10 16:21:22 CEST 2006
-// $Id: IsTBH4Type.cc,v 1.2 2006/09/05 17:07:27 meridian Exp $
+// $Id: IsTBH4Type.cc,v 1.3 2007/12/31 18:43:17 ratnik Exp $
 //
 //
 
@@ -38,7 +38,7 @@ IsTBH4Type::IsTBH4Type(const edm::ParameterSet& iConfig)
    eventHeaderCollection_ = iConfig.getParameter<std::string> ("eventHeaderCollection") ;
    eventHeaderProducer_   = iConfig.getParameter<std::string> ("eventHeaderProducer") ;
    typeToFlag_            = iConfig.getParameter<std::string> ("typeToFlag") ;
-   notFound_              = iConfig.getUntrackedParameter<bool> ("ifHeaderNotFound","false") ;
+   notFound_              = iConfig.getUntrackedParameter<bool> ("ifHeaderNotFound",false) ;
 }
 
 
