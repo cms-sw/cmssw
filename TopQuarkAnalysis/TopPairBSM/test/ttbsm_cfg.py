@@ -203,8 +203,9 @@ process.prunedGenParticles = cms.EDProducer("GenParticlePruner",
                                             src = cms.InputTag("genParticles"),
                                             select = cms.vstring(
                                                 "drop  *"
-                                                ,"keep status = 3" #keeps all particles from the hard matrix element
-                                                ,"+keep (abs(pdgId) = 11 | abs(pdgId) = 13) & status = 1" #keeps all stable muons and electrons and their (direct) mothers.
+                                                ,"keep status = 3" #keeps  particles from the hard matrix element
+                                                ,"keep (abs(pdgId) >= 11 & abs(pdgId) <= 16) & status = 1" #keeps e/mu and nus with status 1
+                                                ,"keep (abs(pdgId)  = 15) & status = 3" #keeps taus
                                                 )
                                             )
 
@@ -691,7 +692,7 @@ process.patseq = cms.Sequence(
     process.goodPatJetsCA8PrunedPF*
     process.goodPatJetsCATopTagPF*
     process.flavorHistorySeq*
-#    process.prunedGenParticles*
+    process.prunedGenParticles*
     process.caPrunedGen*
     process.caTopTagGen*
     process.CATopTagInfosGen
@@ -717,7 +718,7 @@ if options.useData == True :
     process.patseq.remove( process.caPrunedGen )
     process.patseq.remove( process.caTopTagGen )
     process.patseq.remove( process.CATopTagInfosGen )
-#    process.patseq.remove( process.prunedGenParticles )
+    process.patseq.remove( process.prunedGenParticles )
 
 process.p0 = cms.Path(
     process.patseq
