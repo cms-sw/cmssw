@@ -54,6 +54,7 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
   minHighHitE_       = iConfig.getParameter<double>("minHighHitE");
 
   HcalAcceptSeverityLevel_ = iConfig.getParameter<uint32_t>("HcalAcceptSeverityLevel");
+  HcalRecHitFlagsToBeExcluded_ = iConfig.getParameter<std::vector<int> >("HcalRecHitFlagsToBeExcluded");
 
   TS4TS5EnergyThreshold_ = iConfig.getParameter<double>("TS4TS5EnergyThreshold");
 
@@ -399,22 +400,25 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
   for(HBHERecHitCollection::const_iterator it=handle->begin(); it!=handle->end(); ++it) {
     const HBHERecHit &rechit=(*it);
 
-    // skip bad rechits (other than those flagged by the isolated noise algorithm)
+    // skip bad rechits (other than those flagged by the isolated noise, triangle, flat, and spike algorithms)
     const DetId id = rechit.detid();
     uint32_t recHitFlag = rechit.flags();    
-    uint32_t noisebitset = (1 << HcalCaloFlagLabels::HBHEIsolatedNoise);
+    uint32_t isolbitset = (1 << HcalCaloFlagLabels::HBHEIsolatedNoise);
     uint32_t flatbitset = (1 << HcalCaloFlagLabels::HBHEFlatNoise);
     uint32_t spikebitset = (1 << HcalCaloFlagLabels::HBHESpikeNoise);
     uint32_t trianglebitset = (1 << HcalCaloFlagLabels::HBHETriangleNoise);
     uint32_t ts4ts5bitset = (1 << HcalCaloFlagLabels::HBHETS4TS5Noise);
-    recHitFlag = (recHitFlag & noisebitset) ? recHitFlag-noisebitset : recHitFlag;
+    for(unsigned int i=0; i<HcalRecHitFlagsToBeExcluded_.size(); i++) {
+      uint32_t bitset = (1 << HcalRecHitFlagsToBeExcluded_[i]);
+      recHitFlag = (recHitFlag & bitset) ? recHitFlag-bitset : recHitFlag;
+    }
     const uint32_t dbStatusFlag = dbHcalChStatus->getValues(id)->getValue();
     int severityLevel = hcalSevLvlComputer->getSeverityLevel(id, recHitFlag, dbStatusFlag);
     bool isRecovered  = hcalSevLvlComputer->recoveredRecHit(id, recHitFlag);
     if(severityLevel!=0 && !isRecovered && severityLevel>static_cast<int>(HcalAcceptSeverityLevel_)) continue;
 
     // if it was ID'd as isolated noise, update the summary object
-    if(rechit.flags() & noisebitset) {
+    if(rechit.flags() & isolbitset) {
       summary.nisolnoise_++;
       summary.isolnoisee_ += rechit.energy();
       GlobalPoint gp = geo->getPosition(rechit.id());
