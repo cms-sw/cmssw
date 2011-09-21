@@ -11135,7 +11135,7 @@ else if (triggerName.CompareTo("OpenHLT_Ele32_WP70_PFMT50_v1")  == 0)
                 int N= int(thresholds[0]);
                 double pt= thresholds[1];
                 if(OpenHltNJetPtPassed(N, pt)) {
-                    cout << triggerName << " (" << N << ", " << pt << ") passed" << endl;
+                    //cout << triggerName << " (" << N << ", " << pt << ") passed" << endl;
                     triggerBit[it] = true;
                 }
             }
@@ -11148,7 +11148,7 @@ else if (triggerName.CompareTo("OpenHLT_Ele32_WP70_PFMT50_v1")  == 0)
                 int N= int(thresholds[0]);
                 double Et= thresholds[1];
                 if(OpenHltNTowCalEtPassed(N, Et)) {
-                    cout << triggerName << " (" << N << ", " << Et << ") passed" << endl;
+                    //cout << triggerName << " (" << N << ", " << Et << ") passed" << endl;
                     triggerBit[it] = true;
                 }
             }
