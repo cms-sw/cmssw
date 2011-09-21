@@ -23,8 +23,8 @@
   <class name="pat::Electron"  ClassVersion="10">
    <version ClassVersion="10" checksum="1662079993"/>
   </class>
-  <class name="pat::Muon"  ClassVersion="10">
-   <version ClassVersion="10" checksum="2367573922"/>
+  <class name="pat::Muon"  ClassVersion="11">
+   <version ClassVersion="11" checksum="489577659"/>
   </class>
   <class name="pat::Tau"  ClassVersion="11">
    <version ClassVersion="11" checksum="3100353428"/>
