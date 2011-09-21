@@ -381,8 +381,7 @@ dataReco={'--conditions':'auto:com10',
           '--scenario':'pp',
           }
 step2['RECOD']=merge([{'--scenario':'pp',},dataReco])
-step2['RECOSKIMALCA']=merge([{'--customise':'Configuration/DataProcessing/RecoTLR.customiseVALSKIM',
-                              '--inputCommands':'"keep *","drop *_*_*_RECO"'
+step2['RECOSKIMALCA']=merge([{'--inputCommands':'"keep *","drop *_*_*_RECO"'
                               },step2['RECOD']])
 step2['RECOSKIM']=merge([{'-s':'RAW2DIGI,L1Reco,RECO,DQM',
                           },step2['RECOSKIMALCA']])
