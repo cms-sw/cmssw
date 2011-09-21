@@ -146,7 +146,9 @@ def loadCmsProcess(psetPath):
     process = sys.modules[psetPath].process
 
     import copy 
-    processNew = copy.copy(process)
+    #FIXME: clone process
+    #processNew = copy.deepcopy(process)
+    processNew = copy.copy(process) 
     return processNew
 
 def prependPaths(process,seqname):
