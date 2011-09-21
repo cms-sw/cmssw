@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# $Id: TrigResRateMon_cfi.py,v 1.8 2011/07/27 17:34:21 lwming Exp $
+# $Id: TrigResRateMon_cfi.py,v 1.9 2011/08/17 17:29:52 lwming Exp $
 trRateMon = cms.EDAnalyzer("TrigResRateMon",
     dirname = cms.untracked.string("HLT/TrigResults/"),
     muonRecoCollectionName = cms.untracked.string("muons"),
@@ -58,7 +58,13 @@ trRateMon = cms.EDAnalyzer("TrigResRateMon",
      # HLT_Mu                            
      MaskedPaths = cms.vstring(
             'HLT_ZeroBias_v',
-            'HLT_Mu3_v'
+            'HLT_Mu5_v',
+            'HLT_Mu8_v',
+            'HLT_Mu12_v',
+            'HLT_Jet30_v',
+            'HLT_Jet60_v',
+            'HLT_DiJetAve30_v'
+            
       ),
 
   ## Robin

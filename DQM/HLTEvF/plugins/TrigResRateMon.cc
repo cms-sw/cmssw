@@ -1,4 +1,4 @@
-// $Id: TrigResRateMon.cc,v 1.20 2011/09/07 17:28:56 lwming Exp $
+// $Id: TrigResRateMon.cc,v 1.21 2011/09/14 16:34:56 lwming Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "TString.h"
@@ -681,9 +681,12 @@ void TrigResRateMon::beginRun(const edm::Run& run, const edm::EventSetup& c)
       tempDS.xsecPerPathME_Name = pathsSummaryFolder_ + "HLT_" + datasetNames[i] + "_Xsec";
       tempDS.rawCountsPerPathME_Name = pathsSummaryFolder_ + "HLT_" + datasetNames[i] + "_RawCounts";
       tempDS.scaledXsecPerPathME_Name = pathsSummaryFolder_ + "HLT_" + datasetNames[i] + "_XsecScaled";
+      tempDS.ratePerLSME_Name = pathsSummaryFolder_ + "HLT_" + datasetNames[i] + "_Rate"; //Robin
       tempDS.setMaskedPaths(maskedPaths_);
       if (jmsDebug) tempDS.printMaskedPaths();
       primaryDataSetInformation.push_back(tempDS);
+
+      rawCountsPerPD.push_back(0);  //Robin
     }
 
     // push stream A and its PDs
@@ -1073,6 +1076,11 @@ void TrigResRateMon::setupHltMatrix(const std::string& label, vector<std::string
                          paths.size(), -0.5, paths.size()-0.5);
     MonitorElement* ME_XsecScaled = dbe_->bookProfile(h_name.c_str(), &tempProfileScaled);
 
+    ///////HLT PD rate plot
+    h_name= "HLT_"+label+"_Rate";
+    h_title = "HLT_"+label+"_Rate -- histogram shows Average Rate per LS;LS;Rate [Hz]";
+
+    MonitorElement* ME_Rate = dbe_->book1D(h_name.c_str(), h_title.c_str(),nLS_, 0, nLS_);
 
 
 //     dbe_->setCurrentFolder(pathsSummaryHLTCorrelationsFolder_.c_str());
@@ -1326,14 +1334,15 @@ void TrigResRateMon::fillHltMatrix(const edm::TriggerNames & triggerNames, const
 
   } // end for i
 
-//   if(groupPassed) {
-    
+  if(groupPassed) {
+  
+    rawCountsPerPD[mi]++ ;
     //hist_1d->Fill(groupBinNumber-1);//binNumber1 = 0 = first filter
     //hist_2d->Fill(groupBinNumber-1,groupBinNumber-1);//binNumber1 = 0 = first filter
     //hist_2d->Fill(anyBinNumber-1,groupBinNumber-1);//binNumber1 = 0 = first filter
     //hist_2d->Fill(groupBinNumber-1,anyBinNumber-1);//binNumber1 = 0 = first filter
 
-//   }
+  }
 
   // if the group belongs to stream A
   // store groupName and Bool if it has passed 
@@ -1633,13 +1642,18 @@ void TrigResRateMon::addLumiToAverage(double lumi) {
     
 }
 
-void TrigResRateMon::fillXsecPerDataset() {
+void TrigResRateMon::fillXsecPerDataset(const int& lumi) {
 
   // calculate the reference cross section
 
   double refTrigXSec = referenceTrigCountsPS_ / ( averageInstLumi * LSsize_);
 
-  
+  //  string fullpath = pathsSummaryFolder_ + "HLT_A_Pass_Any";
+  //  MonitorElement * meStreamA = dbe_->get(fullpath);
+  //  if (!meStreamA )  std::cout << "sorry but couldn't get the stream A ME" << std::endl;
+
+  int iPD = 0;
+
   for (std::vector<DatasetInfo>::iterator iDS = primaryDataSetInformation.begin();
        iDS != primaryDataSetInformation.end();
        iDS++) {
@@ -1657,8 +1671,22 @@ void TrigResRateMon::fillXsecPerDataset() {
       if (jmsDebug) std::cout << "sorry but couldn't find this scaled xsec plot"<< iDS->datasetName << std::endl;
     }
 
-  }
+    ///PD rate plot
+    MonitorElement * thisRatePlot = dbe_->get(iDS->ratePerLSME_Name);
+    if (thisRatePlot) {
+
+      double rate = rawCountsPerPD[iPD] / LSsize_ ;
+      
+      TH1F* rateHist = thisRatePlot->getTH1F();
+      rateHist->SetBinContent(lumi, rate);
+    }
+    else {
+      if (jmsDebug) std::cout << "sorry but couldn't find this rate plot"<< iDS->datasetName << std::endl;
+    }
   
+    rawCountsPerPD[iPD] = 0 ;
+    iPD++;
+  }
   
 }
 
@@ -1866,9 +1894,10 @@ void TrigResRateMon::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, con
   //if (jmsDebug) printCountsPerPathThisLumi();
   if (jmsDebug) printCountsPerPathThisLumi();
   if (jmsDebug) std::cout << "Average lumi is " << averageInstLumi << std::endl;
-  fillXsecPerDataset();
+  fillXsecPerDataset(lumi);
 
   filltestHisto(lumi);  //Robin
+
 
   //Robin-------Diagnostic plots--------
 //   TH1F* tempXsecPerLS = meXsecPerLS->getTH1F();
