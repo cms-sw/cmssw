@@ -8,10 +8,11 @@
  * impact angle and position (also along the wire) and perform linear fit on
  * improved hits.
  *
- * $Date: 2010/04/15 12:04:46 $
- * $Revision: 1.17 $
+ * $Date: 2010/04/16 14:11:06 $
+ * $Revision: 1.18 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
+ * \author M.Meneghelli - INFN BO <marco.meneghelli@cern.ch>
  *
  */
 
@@ -33,6 +34,7 @@ class DTRecSegment2D;
 class DTRecSegment4D;
 class DTLinearFit;
 class DTRecHitBaseAlgo;
+class DTChamberRecSegment2D;
 
 namespace edm{class EventSetup; class ParameterSet;}
 
@@ -88,6 +90,9 @@ class DTSegmentUpdator{
                     GlobalVector &gdir,
                     const int step=2) const;
 
+   //rejects bad hits (due to deltas) for phi segment
+   void rejectBadHits(DTChamberRecSegment2D* ) const;
+
     /// interface to LinearFit
     void fit(const std::vector<float>& x,
              const std::vector<float>& y, 
@@ -107,6 +112,7 @@ class DTSegmentUpdator{
 
     bool vdrift_4parfit;
     double T0_hit_resolution;
+    bool perform_delta_rejecting;
     bool debug;
 
 };

@@ -1,17 +1,21 @@
 /** \file
  *
- * $Date: 2010/04/16 14:11:06 $
- * $Revision: 1.40 $
+ * $Date: 2010/11/08 13:34:22 $
+ * $Revision: 1.41 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \       A.Meneguzzo - Padova University  <anna.meneguzzo@pd.infn.it>
  * \       M.Pelliccioni - INFN TO <pellicci@cern.ch>
+ * \       M.Meneghelli - INFN BO <marco.meneghelli@cern.ch>
  */
 
 /* This Class Header */
 #include "RecoLocalMuon/DTSegment/src/DTSegmentUpdator.h"
 
 /* Collaborating Class Header */
+
+//mene
+#include "DataFormats/DTRecHit/interface/DTChamberRecSegment2D.h"
 
 #include "DataFormats/DTRecHit/interface/DTRecSegment2D.h"
 #include "DataFormats/DTRecHit/interface/DTSLRecSegment2D.h"
@@ -46,6 +50,7 @@ DTSegmentUpdator::DTSegmentUpdator(const ParameterSet& config) :
   theFitter(new DTLinearFit()) ,
   vdrift_4parfit(config.getParameter<bool>("performT0_vdriftSegCorrection")),
   T0_hit_resolution(config.getParameter<double>("hit_afterT0_resolution")),
+  perform_delta_rejecting(config.getParameter<bool>("perform_delta_rejecting")),
   debug(config.getUntrackedParameter<bool>("debug",false)) 
 {  
   string theAlgoName = config.getParameter<string>("recAlgo");
@@ -74,6 +79,9 @@ void DTSegmentUpdator::update(DTRecSegment4D* seg, const bool calcT0) const {
 
   const bool hasPhi = seg->hasPhi();
   const bool hasZed = seg->hasZed();
+
+  //reject the bad hits (due to delta rays)
+  if(perform_delta_rejecting && hasPhi) rejectBadHits(seg->phiSegment());
 
   int step = (hasPhi && hasZed) ? 3 : 2;
   if(calcT0) step = 4;
@@ -387,6 +395,135 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg, GlobalPoint &gpos,
   }
   seg->update(updatedRecHits);
 }
+
+void DTSegmentUpdator::rejectBadHits(DTChamberRecSegment2D* phiSeg) const {
+
+  vector<float> x;
+  vector<float> y;
+  
+  if(debug) cout << " Inside the segment updator, now loop on hits:   ( x == z_loc , y == x_loc) " << endl;
+ 
+  vector<DTRecHit1D> hits = phiSeg->specificRecHits();
+  for (vector<DTRecHit1D>::const_iterator hit=hits.begin();
+       hit!=hits.end(); ++hit) {
+
+    // I have to get the hits position (the hit is in the layer rf) in SL frame...
+    GlobalPoint glbPos = ( theGeom->layer( hit->wireId().layerId() ) )->toGlobal(hit->localPosition());
+    LocalPoint pos = ( theGeom->idToDet(phiSeg->geographicalId()) )->toLocal(glbPos);
+
+    x.push_back(pos.z()); 
+    y.push_back(pos.x());
+  }
+
+  if(debug){
+    cout << " end of segment! " << endl;
+    cout << " size = Number of Hits: " << x.size() << "  " << y.size() << endl;
+  }
+  
+  // Perform the 2 par fit:
+  float par[2]={0.,0.}; // q , m
+
+  //variables to perform the fit:
+  float Sx = 0.;
+  float Sy = 0.;
+  float Sx2 = 0.;
+  float Sy2 = 0.;
+  float Sxy = 0.;
+
+  const int N =  x.size();
+	
+  for(int i = 0; i < N;++i){
+    Sx += x.at(i);
+    Sy += y.at(i);
+    Sx2 += x.at(i)*x.at(i);
+    Sy2 += y.at(i)*y.at(i);
+    Sxy += x.at(i)*y.at(i);
+		
+  }
+	
+  const float delta = N*Sx2 - Sx*Sx;
+  par[0] = ( Sx2*Sy - Sx*Sxy )/delta;
+  par[1] = ( N*Sxy - Sx*Sy )/delta;
+
+  if(debug) cout << "fit 2 parameters done ----> par0: "<< par[0] << "  par1: "<< par[1] << endl;
+
+  // Calc residuals:
+  float residuals[10];
+	
+  for(int i = 0; i < 10;++i)
+    residuals[i] = 0;
+	
+  for(int i = 0; i < N;++i)		
+    residuals[i] = y.at(i) - par[1]*x.at(i) - par[0];
+	
+  if(debug) cout << " Residuals computed! "<<  endl;
+		
+		
+  // Perform bad hit rejecting -- update hits
+  vector<DTRecHit1D> updatedRecHits;
+	
+  float mean_residual = 0.; //mean of the absolute values of residuals
+	
+  for (int i = 0; i < N; ++i)
+    mean_residual += fabs(residuals[i]);
+	
+  mean_residual = mean_residual/(N - 2);	
+	
+  if(debug) cout << " mean_residual: "<< mean_residual << endl;
+	
+  int i = 0;
+	
+  for (vector<DTRecHit1D>::const_iterator hit=hits.begin();
+       hit!=hits.end(); ++hit) {
+		
+    DTRecHit1D newHit1D = (*hit);
+
+    if(fabs(residuals[i])/mean_residual < 1.5){
+					
+      updatedRecHits.push_back(newHit1D);
+      if(debug) cout << " accepted "<< i+1 << "th hit" <<"  Irej: " << fabs(residuals[i])/mean_residual << endl;
+      ++i;
+    }
+    else {
+      if(debug) cout << " rejected "<< i+1 << "th hit" <<"  Irej: " << fabs(residuals[i])/mean_residual << endl;
+      ++i;
+      continue;
+    }
+  }
+	
+  phiSeg->update(updatedRecHits);	
+  
+  //final check!
+  if(debug){ 
+  
+    vector<float> x_upd;
+    vector<float> y_upd;
+ 
+    cout << " Check the update action: " << endl;
+ 
+    vector<DTRecHit1D> hits_upd = phiSeg->specificRecHits();
+    for (vector<DTRecHit1D>::const_iterator hit=hits_upd.begin();
+	 hit!=hits_upd.end(); ++hit) {
+
+      // I have to get the hits position (the hit is in the layer rf) in SL frame...
+      GlobalPoint glbPos = ( theGeom->layer( hit->wireId().layerId() ) )->toGlobal(hit->localPosition());
+      LocalPoint pos = ( theGeom->idToDet(phiSeg->geographicalId()) )->toLocal(glbPos);
+
+      x_upd.push_back(pos.z()); 
+      y_upd.push_back(pos.x());
+
+      cout << " x_upd: "<< pos.z() << "  y_upd: "<< pos.x() << endl;
+
+
+    }
+  
+    cout << " end of segment! " << endl;
+    cout << " size = Number of Hits: " << x_upd.size() << "  " << y_upd.size() << endl;
+    
+  }// end debug
+  
+  return;
+} //end DTSegmentUpdator::rejectBadHits
 
 void DTSegmentUpdator::calculateT0corr(DTRecSegment4D* seg) const {
   if(seg->hasPhi()) calculateT0corr(seg->phiSegment());

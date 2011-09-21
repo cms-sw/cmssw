@@ -24,7 +24,8 @@ DTCombinatorialPatternReco2DAlgo_LinearDriftFromDB_CosmicData = cms.PSet(
         # Parameters for  T0 fit segment in the Updator and
         performT0SegCorrection = cms.bool(False),
         performT0_vdriftSegCorrection = cms.bool(False),
-        hit_afterT0_resolution = cms.double(0.03)
+        hit_afterT0_resolution = cms.double(0.03),
+        perform_delta_rejecting = cms.bool(False)
     ),
     Reco2DAlgoName = cms.string('DTCombinatorialPatternReco')
 )
