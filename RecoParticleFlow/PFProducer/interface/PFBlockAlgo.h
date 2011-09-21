@@ -311,7 +311,7 @@ class PFBlockAlgo {
 
   // This parameters defines the level of purity of
   // nuclear interactions choosen.
-  // Level 1 is only high Purity sample labeled as isNucl
+  // Level 1 is only high Purity sample labeled as isNucl.
   // Level 2 isNucl + isNucl_Loose (2 secondary tracks vertices)
   // Level 3 isNucl + isNucl_Loose + isNucl_Kink
   //         (low purity sample made of 1 primary and 1 secondary track)
@@ -644,10 +644,12 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
       //      std::cout << "Nuclear Interactions Purity " <<  nuclearInteractionsPurity_ << std::endl;
       //     dispacedVertexRef->displacedVertexRef()->Dump();
       //bool bIncludeVertices = true;
-
+      // We add a cut at rho > 2.7 since this corresponds to the lower edge of the beam pipe
+      // This cut have to be changer when a new beam pipe would be installed
       
       bool bIncludeVertices = false; 
-      bool bNucl = dispacedVertexRef->displacedVertexRef()->isNucl();
+      bool bNucl = dispacedVertexRef->displacedVertexRef()->isNucl()
+	&& dispacedVertexRef->displacedVertexRef()->position().rho()>  2.7;
       bool bNucl_Loose = dispacedVertexRef->displacedVertexRef()->isNucl_Loose();
       bool bNucl_Kink = dispacedVertexRef->displacedVertexRef()->isNucl_Kink();
 
