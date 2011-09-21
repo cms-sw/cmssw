@@ -183,50 +183,50 @@ void GetSystematicOnPrediction(string InputPattern){
 
 
    std::vector<int> Index;   std::vector<int> Plot;
-   Index.push_back(14);      Plot.push_back(0);
-   Index.push_back(15);      Plot.push_back(0);
+//vary respective to TOF cut 50, 0.05 1.05->1.2
    Index.push_back(16);      Plot.push_back(0);
    Index.push_back(17);      Plot.push_back(0);
    Index.push_back(18);      Plot.push_back(0);
    Index.push_back(19);      Plot.push_back(0);
    Index.push_back(20);      Plot.push_back(0);
-
-   Index.push_back(14);      Plot.push_back(1);
-   Index.push_back(26);      Plot.push_back(1);
-   Index.push_back(38);      Plot.push_back(1);
-   Index.push_back(50);      Plot.push_back(1);
-   Index.push_back(62);      Plot.push_back(1);
-   Index.push_back(74);      Plot.push_back(1);
+   Index.push_back(21);      Plot.push_back(0);
+   Index.push_back(22);      Plot.push_back(0);
+//vary respective to I cut 50, 0.05->0.225 1.05
+   Index.push_back(16);      Plot.push_back(1);
+   Index.push_back(30);      Plot.push_back(1);
+   Index.push_back(44);      Plot.push_back(1);
+   Index.push_back(58);      Plot.push_back(1);
+   Index.push_back(72);      Plot.push_back(1);
    Index.push_back(86);      Plot.push_back(1);
-   Index.push_back(98);      Plot.push_back(1);
-
-   Index.push_back(14);      Plot.push_back(2);
-   Index.push_back(194);     Plot.push_back(2);
-   Index.push_back(374);     Plot.push_back(2);
-   Index.push_back(554);     Plot.push_back(2);
-   Index.push_back(734);     Plot.push_back(2);
-   Index.push_back(914);     Plot.push_back(2);
-   Index.push_back(1094);    Plot.push_back(2);
-   Index.push_back(1274);    Plot.push_back(2);
-
-   Index.push_back(14+26);      Plot.push_back(3);
-   Index.push_back(194+26);     Plot.push_back(3);
-   Index.push_back(374+26);     Plot.push_back(3);
-   Index.push_back(554+26);     Plot.push_back(3);
-   Index.push_back(734+26);     Plot.push_back(3);
-   Index.push_back(914+26);     Plot.push_back(3);
-   Index.push_back(1094+26);    Plot.push_back(3);
-   Index.push_back(1274+26);    Plot.push_back(3);
-
-   Index.push_back(14+96);      Plot.push_back(4);
-   Index.push_back(194+96);     Plot.push_back(4);
-   Index.push_back(374+96);     Plot.push_back(4);
-   Index.push_back(554+96);     Plot.push_back(4);
-   Index.push_back(734+96);     Plot.push_back(4);
-   Index.push_back(914+96);     Plot.push_back(4);
-   Index.push_back(1094+96);    Plot.push_back(4);
-   Index.push_back(1274+96);    Plot.push_back(4);
-
+   Index.push_back(100);      Plot.push_back(1);
+   Index.push_back(114);      Plot.push_back(1);
+//vary respective to Pt cut 50->115 0.05 1.05
+   Index.push_back(16);      Plot.push_back(2);
+   Index.push_back(436);     Plot.push_back(2);
+   Index.push_back(856);     Plot.push_back(2);
+   Index.push_back(1276);     Plot.push_back(2);
+   Index.push_back(1696);     Plot.push_back(2);
+   Index.push_back(2116);     Plot.push_back(2);
+   Index.push_back(2536);    Plot.push_back(2);
+   Index.push_back(2746);    Plot.push_back(2);
+//vary respective to Pt cut 50->115 0.1 1.1 
+   Index.push_back(46);      Plot.push_back(3);
+   Index.push_back(466);     Plot.push_back(3);
+   Index.push_back(886);     Plot.push_back(3);
+   Index.push_back(1306);     Plot.push_back(3);
+   Index.push_back(1726);     Plot.push_back(3);
+   Index.push_back(2146);     Plot.push_back(3);
+   Index.push_back(2566);    Plot.push_back(3);
+   Index.push_back(2776);    Plot.push_back(3);
+//vary respective to Pt cut 50->115 0.15 1.05 
+   Index.push_back(72);      Plot.push_back(4);
+   Index.push_back(492);     Plot.push_back(4);
+   Index.push_back(912);     Plot.push_back(4);
+   Index.push_back(1332);     Plot.push_back(4);
+   Index.push_back(1752);     Plot.push_back(4);
+   Index.push_back(2172);     Plot.push_back(4);
+   Index.push_back(2592);    Plot.push_back(4);
+   Index.push_back(2802);    Plot.push_back(4);
    //Not used
    Index.push_back(82 + 4);     Plot.push_back(5);
    Index.push_back(154+ 4);     Plot.push_back(5);
@@ -480,7 +480,7 @@ void GetSystematicOnPrediction(string InputPattern){
           TLegend* LEG = new TLegend(0.50,0.65,0.80,0.90);
           LEG->SetFillColor(0);
           LEG->SetBorderSize(0);
-          LEG->AddEntry(graph_sum,  "I_{as}>0.25 & 1/#beta>1.05", "L");
+          LEG->AddEntry(graph_sum,  "I_{as}>0.15 & 1/#beta>1.05", "L");
           LEG->AddEntry(graph_sum2, "I_{as}>0.05 & 1/#beta>1.05", "L");
           LEG->AddEntry(graph_sum3, "I_{as}>0.10 & 1/#beta>1.10", "L");
           LEG->Draw();
@@ -524,7 +524,7 @@ void GetSystematicOnPrediction(string InputPattern){
           TLegend* LEG = new TLegend(0.50,0.65,0.80,0.90);
           LEG->SetFillColor(0);
           LEG->SetBorderSize(0);
-          LEG->AddEntry(graph_stat,  "I_{as}>0.25 & 1/#beta>1.05", "L");
+          LEG->AddEntry(graph_stat,  "I_{as}>0.15 & 1/#beta>1.05", "L");
           LEG->AddEntry(graph_stat2, "I_{as}>0.05 & 1/#beta>1.05", "L");
           LEG->AddEntry(graph_stat3, "I_{as}>0.10 & 1/#beta>1.10", "L");
           LEG->Draw();
@@ -568,7 +568,7 @@ void GetSystematicOnPrediction(string InputPattern){
           TLegend* LEG = new TLegend(0.50,0.65,0.80,0.90);
           LEG->SetFillColor(0);
           LEG->SetBorderSize(0);
-          LEG->AddEntry(graph_statB,  "I_{as}>0.25 & 1/#beta>1.05", "L");
+          LEG->AddEntry(graph_statB,  "I_{as}>0.15 & 1/#beta>1.05", "L");
           LEG->AddEntry(graph_statB2, "I_{as}>0.05 & 1/#beta>1.05", "L");
           LEG->AddEntry(graph_statB3, "I_{as}>0.10 & 1/#beta>1.10", "L");
           LEG->Draw();
@@ -618,7 +618,7 @@ void GetSystematicOnPrediction(string InputPattern){
           TLegend* LEG = new TLegend(0.50,0.65,0.80,0.90);
           LEG->SetFillColor(0);
           LEG->SetBorderSize(0);
-          LEG->AddEntry(graph_syst,  "I_{as}>0.25 & 1/#beta>1.05", "L");
+          LEG->AddEntry(graph_syst,  "I_{as}>0.15 & 1/#beta>1.05", "L");
           LEG->AddEntry(graph_syst2, "I_{as}>0.05 & 1/#beta>1.05", "L");
           LEG->AddEntry(graph_syst3, "I_{as}>0.10 & 1/#beta>1.10", "L");
           LEG->Draw();
@@ -738,6 +738,7 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex, unsigned int Glui
 
 //   stPlots_DrawComparison(SavePath + "/Selection_Comp_Data" , LegendTitle, CutIndex, &DataPlots);
    stPlots_DrawComparison(SavePath + "/Selection_Comp_Gluino" , LegendTitle, GluinoCutIndex, &DataPlots, &MCTrPlots, &SignPlots[0], &SignPlots[3], &SignPlots[5]);
+   stPlots_DrawComparison(SavePath + "/Selection_Comp_DCStau" , LegendTitle, CutIndex, &DataPlots, &SignPlots[SID_D12K182 ], &SignPlots[SID_D12K595 ], &SignPlots[SID_D12K700 ]);
 //   stPlots_DrawComparison(SavePath + "/Selection_Comp_Stop"   , LegendTitle, CutIndex, &DataPlots, &SignPlots[24]);
 //   stPlots_DrawComparison(SavePath + "/Selection_Comp_GMStau" , LegendTitle, CutIndex, &DataPlots, &SignPlots[38], &SignPlots[40], &SignPlots[42]);
    return;
