@@ -15,9 +15,7 @@ HLT_Jet370_NoJetID_v*
 HLT_Jet800_v*
 HLT_Jet30_L1FastJet_v*                                                                          #   added in 5e33 menu (L1FastJet testing) 
 HLT_Jet60_L1FastJet_v*                                                                          #   added in 5e33 menu (L1FastJet testing) 
-HLT_Jet80_L1FastJet_v*                                                                          #   added in 5e33 menu (L1FastJet testing) 
 HLT_Jet110_L1FastJet_v*                                                                         #   added in 5e33 menu (L1FastJet testing) 
-HLT_Jet150_L1FastJet_v*                                                                         #   added in 5e33 menu (L1FastJet testing) 
 HLT_Jet190_L1FastJet_v*                                                                         #   added in 5e33 menu (L1FastJet testing) 
 HLT_Jet240_L1FastJet_v*                                                                         #   added in 5e33 menu (L1FastJet testing) 
 HLT_Jet300_L1FastJet_v*                                                                         #   added in 5e33 menu (L1FastJet testing) 
@@ -392,7 +390,7 @@ HLT_Mu40_HT300_v*                                                               
 HLT_Mu60_HT300_v*                                                                               #   added in 5e33 menu (sr #123317)
 HLT_IsoMu15_L1ETM20_v*
 HLT_Mu15_LooseIsoPFTau15_v*
-HLT_IsoMu15_LooseIsoPFTau15_v*
+#HLT_IsoMu15_LooseIsoPFTau15_v*                                                                 # removed in 5e33 menu (mail from Joshua)
 HLT_IsoMu15_eta2p1_LooseIsoPFTau20_v*
 HLT_IsoMu15_eta2p1_MediumIsoPFTau20_v*
 HLT_IsoMu15_eta2p1_TightIsoPFTau20_v*
