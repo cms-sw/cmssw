@@ -127,7 +127,7 @@ void TransientVertex::refittedTracks(
 }
 
 
-void TransientVertex::tkToTkCovariance(const TTtoTTmap covMap)
+void TransientVertex::tkToTkCovariance(const TTtoTTmap &covMap)
 {
   theCovMap = covMap;
   theCovMapAvailable = true;

@@ -205,7 +205,7 @@ public:
    */
   AlgebraicMatrix33 tkToTkCovariance(const reco::TransientTrack& t1, 
   				const reco::TransientTrack& t2) const;
-  void tkToTkCovariance(const TTtoTTmap covMap);
+  void tkToTkCovariance(const TTtoTTmap &covMap);
 
   operator reco::Vertex() const;
 
