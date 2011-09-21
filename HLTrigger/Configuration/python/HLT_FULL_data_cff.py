@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HLT/V881 (CMSSW_4_2_0_HLT28)
+# /dev/CMSSW_4_2_0/HLT/V883 (CMSSW_4_2_0_HLT28)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V881')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V883')
 )
 
 streams = cms.PSet( 
@@ -2505,17 +2505,10 @@ datasets = cms.PSet(
 
 hltESSAK5CaloL1L2L3 = cms.ESSource( "JetCorrectionServiceChain",
   appendToDataLabel = cms.string( "" ),
-  correctors = cms.vstring( 'hltESSak5CaloL1Fastjet',
+  correctors = cms.vstring( 'hltESSL1FastJetCorrectionService',
     'hltESSL2RelativeCorrectionService',
     'hltESSL3AbsoluteCorrectionService' ),
   label = cms.string( "hltESSAK5CaloL1L2L3" )
-)
-hltESSak5CaloL1Fastjet = cms.ESSource( "L1FastjetCorrectionService",
-  era = cms.string( "Jec10V1" ),
-  level = cms.string( "L1FastJet" ),
-  algorithm = cms.string( "AK5Calo" ),
-  section = cms.string( "" ),
-  srcRho = cms.InputTag( 'hltKT6CaloJets','rho' )
 )
 hltESSAK5CaloL2L3 = cms.ESSource( "JetCorrectionServiceChain",
   appendToDataLabel = cms.string( "" ),
@@ -2540,6 +2533,14 @@ hltESSHcalSeverityLevel = cms.ESSource( "EmptyESSource",
   iovIsRunNotTime = cms.bool( True ),
   appendToDataLabel = cms.string( "" ),
   firstValid = cms.vuint32( 1 )
+)
+hltESSL1FastJetCorrectionService = cms.ESSource( "L1FastjetCorrectionService",
+  era = cms.string( "Jec10V1" ),
+  level = cms.string( "L1FastJet" ),
+  algorithm = cms.string( "AK5Calo" ),
+  section = cms.string( "" ),
+  srcRho = cms.InputTag( 'hltKT6CaloJets','rho' ),
+  useCondDB = cms.untracked.bool( True )
 )
 hltESSL2RelativeCorrectionService = cms.ESSource( "LXXXCorrectionService",
   appendToDataLabel = cms.string( "" ),
@@ -11183,6 +11184,10 @@ hltPreHT350MHT100 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
+hltPreHT350MHT100L1FastJet = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
 hltPreHT350MHT110 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
@@ -11203,6 +11208,10 @@ hltMHT110 = cms.EDFilter( "HLTMhtHtFilter",
     inputTracksTag = cms.InputTag( "unused" ),
     minPtJet = cms.vdouble( 30.0, 30.0 ),
     etaJet = cms.vdouble( 5.0, 5.0 )
+)
+hltPreHT350MHT110L1FastJet = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
 )
 hltMHT110L1FastJet = cms.EDFilter( "HLTMhtHtFilter",
     inputJetTag = cms.InputTag( "hltCaloJetL1FastJetCorrected" ),
@@ -39097,7 +39106,7 @@ HLT_L1SingleJet36_v4 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet36 + hltPre
 HLT_Jet30_v7 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet16 + hltPreJet30 + HLTRecoJetSequenceAK5Corrected + hltSingleJet30 + HLTEndSequence )
 HLT_Jet30_L1FastJet_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet16 + hltPreJet30L1FastJet + HLTRecoJetSequenceAK5L1FastJetCorrected + hltSingleJet30L1FastJet + HLTEndSequence )
 HLT_Jet60_v7 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet36 + hltPreJet60 + HLTRegionalRecoJetSequenceAK5Corrected + hltSingleJet60Regional + HLTEndSequence )
-HLT_Jet60_L1FastJet_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet36 + hltPreJet60 + hltPreJet60L1FastJet + HLTRecoJetSequenceAK5L1FastJetCorrected + hltSingleJet60L1FastJet + HLTEndSequence )
+HLT_Jet60_L1FastJet_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet36 + hltPreJet60L1FastJet + HLTRecoJetSequenceAK5L1FastJetCorrected + hltSingleJet60L1FastJet + HLTEndSequence )
 HLT_Jet80_v6 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet52 + hltPreJet80 + HLTRegionalRecoJetSequenceAK5Corrected + hltSingleJet80Regional + HLTEndSequence )
 HLT_Jet80_L1FastJet_v1 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet52 + hltPreJet80L1FastJet + HLTRecoJetSequenceAK5L1FastJetCorrected + hltSingleJet80L1FastJet + HLTEndSequence )
 HLT_Jet110_v7 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet68 + hltPreJet110 + HLTRegionalRecoJetSequenceAK5Corrected + hltSingleJet110Regional + HLTEndSequence )
@@ -39216,9 +39225,9 @@ HLT_HT350_MHT80_L1FastJet_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT100 + hlt
 HLT_HT350_MHT90_v2 = cms.Path( HLTBeginSequence + hltL1sL1HTT100 + hltPreHT350MHT90 + HLTRecoJetSequenceAK5Corrected + hltHT350 + hltMHT90 + HLTEndSequence )
 HLT_HT350_MHT90_L1FastJet_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT100 + hltPreHT350MHT90L1FastJet + HLTRecoJetSequenceAK5L1FastJetCorrected + hltHT350L1FastJet + hltMHT90L1FastJet + HLTEndSequence )
 HLT_HT350_MHT100_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT100 + hltPreHT350MHT100 + HLTRecoJetSequenceAK5Corrected + hltHT350 + hltMHT100 + HLTEndSequence )
-HLT_HT350_MHT100_L1FastJet_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT100 + hltPreHT350MHT90L1FastJet + HLTRecoJetSequenceAK5L1FastJetCorrected + hltHT350L1FastJet + hltMHT100L1FastJet + HLTEndSequence )
+HLT_HT350_MHT100_L1FastJet_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT100 + hltPreHT350MHT100L1FastJet + HLTRecoJetSequenceAK5L1FastJetCorrected + hltHT350L1FastJet + hltMHT100L1FastJet + HLTEndSequence )
 HLT_HT350_MHT110_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT100 + hltPreHT350MHT110 + HLTRecoJetSequenceAK5Corrected + hltHT350 + hltMHT110 + HLTEndSequence )
-HLT_HT350_MHT110_L1FastJet_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT100 + hltPreHT350MHT90L1FastJet + HLTRecoJetSequenceAK5L1FastJetCorrected + hltHT350L1FastJet + hltMHT110L1FastJet + HLTEndSequence )
+HLT_HT350_MHT110_L1FastJet_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT100 + hltPreHT350MHT110L1FastJet + HLTRecoJetSequenceAK5L1FastJetCorrected + hltHT350L1FastJet + hltMHT110L1FastJet + HLTEndSequence )
 HLT_HT350_AlphaT0p52_v3 = cms.Path( HLTBeginSequence + hltL1sL1HTT100 + hltPreHT350AlphaT0p52 + HLTRecoJetSequenceAK5Corrected + hltHT350AlphaT0p52 + HLTEndSequence )
 HLT_HT350_AlphaT0p53_v8 = cms.Path( HLTBeginSequence + hltL1sL1HTT100 + hltPreHT350AlphaT0p53 + HLTRecoJetSequenceAK5Corrected + hltHT350AlphaT0p53 + HLTEndSequence )
 HLT_HT400_v9 = cms.Path( HLTBeginSequence + hltL1sL1HTT100 + hltPreHT400 + HLTRecoJetSequenceAK5Corrected + hltHT400 + HLTEndSequence )

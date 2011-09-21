@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HIon/V266 (CMSSW_4_2_0_HLT28)
+# /dev/CMSSW_4_2_0/HIon/V267 (CMSSW_4_2_0_HLT28)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V266')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V267')
 )
 
 streams = cms.PSet( 
@@ -268,17 +268,10 @@ datasets = cms.PSet(
 
 hltESSAK5CaloL1L2L3 = cms.ESSource( "JetCorrectionServiceChain",
   appendToDataLabel = cms.string( "" ),
-  correctors = cms.vstring( 'hltESSak5CaloL1Fastjet',
+  correctors = cms.vstring( 'hltESSL1FastJetCorrectionService',
     'hltESSL2RelativeCorrectionService',
     'hltESSL3AbsoluteCorrectionService' ),
   label = cms.string( "hltESSAK5CaloL1L2L3" )
-)
-hltESSak5CaloL1Fastjet = cms.ESSource( "L1FastjetCorrectionService",
-  era = cms.string( "Jec10V1" ),
-  level = cms.string( "L1FastJet" ),
-  algorithm = cms.string( "AK5Calo" ),
-  section = cms.string( "" ),
-  srcRho = cms.InputTag( 'hltKT6CaloJets','rho' )
 )
 hltESSAK5CaloL2L3 = cms.ESSource( "JetCorrectionServiceChain",
   appendToDataLabel = cms.string( "" ),
@@ -303,6 +296,14 @@ hltESSHcalSeverityLevel = cms.ESSource( "EmptyESSource",
   iovIsRunNotTime = cms.bool( True ),
   appendToDataLabel = cms.string( "" ),
   firstValid = cms.vuint32( 1 )
+)
+hltESSL1FastJetCorrectionService = cms.ESSource( "L1FastjetCorrectionService",
+  era = cms.string( "Jec10V1" ),
+  level = cms.string( "L1FastJet" ),
+  algorithm = cms.string( "AK5Calo" ),
+  section = cms.string( "" ),
+  srcRho = cms.InputTag( 'hltKT6CaloJets','rho' ),
+  useCondDB = cms.untracked.bool( True )
 )
 hltESSL2RelativeCorrectionService = cms.ESSource( "LXXXCorrectionService",
   appendToDataLabel = cms.string( "" ),
