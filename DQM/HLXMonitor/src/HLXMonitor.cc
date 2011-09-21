@@ -35,8 +35,8 @@ HLXMonitor::HLXMonitor(const edm::ParameterSet& iConfig)
    reconnTime       = iConfig.getUntrackedParameter< unsigned int >("ReconnectionTime",5);
    DistribIP1       = iConfig.getUntrackedParameter< std::string  >("PrimaryHLXDAQIP", "vmepcs2f17-18");
    DistribIP2       = iConfig.getUntrackedParameter< std::string  >("SecondaryHLXDAQIP", "vmepcs2f17-19");
-   ResetAtNewRun    = iConfig.getUntrackedParameter< bool         >("NewRun_Reset","true");
-   SaveAtEndJob     = iConfig.getUntrackedParameter< bool         >("SaveAtEndJob","true");
+   ResetAtNewRun    = iConfig.getUntrackedParameter< bool         >("NewRun_Reset",true);
+   SaveAtEndJob     = iConfig.getUntrackedParameter< bool         >("SaveAtEndJob",true);
 
    eventInfoFolderHLX_ = iConfig.getUntrackedParameter<std::string>("eventInfoFolderHLX", "EventInfoHLX") ;
    eventInfoFolder_ = iConfig.getUntrackedParameter<std::string   >("eventInfoFolder", "EventInfo") ;
