@@ -42,7 +42,7 @@ public:
 
 	struct Photon {
 	    Photon(int id, float X, float Y, float Z, float T, float Lambda):
-	    	fiberId(id), x(X), y(Y), z(z), t(T), lambda(Lambda) {}
+	    	fiberId(id), x(X), y(Y), z(Z), t(T), lambda(Lambda) {}
 	    int fiberId;
 	    float x;
 	    float y;
