@@ -2047,6 +2047,47 @@ bool isDoubleMuX_HTXTrigger(TString triggerName, vector<double> &thresholds)
 }
 
 
+bool isNJetPtTrigger(TString triggerName, vector<double> &thresholds)
+{
+    TString pattern = "(OpenHLT_([0-9]+)Jet([0-9]+))(_v[0-9]+)?$";
+    TPRegexp matchThreshold(pattern);
+	
+    if (matchThreshold.MatchB(triggerName))
+    {
+        TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+        double thresholdN  = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+        double thresholdPt = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+        thresholds.push_back(thresholdN);
+        thresholds.push_back(thresholdPt);
+        delete subStrL;
+        return true;
+    }
+    else
+        return false;
+}
+
+
+bool isNTowCalEt0pTrigger(TString triggerName, vector<double> &thresholds)
+{
+    TString pattern = "(OpenHLT_([0-9]+)TowCal0p([0-9]+))(_v[0-9]+)?$";
+    TPRegexp matchThreshold(pattern);
+
+    if (matchThreshold.MatchB(triggerName))
+    {
+        TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+        double thresholdN  = ((TObjString *)subStrL->At(2))->GetString().Atof();
+        double thresholdEt = 0;
+        istringstream iss(string("0.") + ((TObjString *)subStrL->At(3))->GetString().Data());
+        iss >> thresholdEt;
+        thresholds.push_back(thresholdN);
+        thresholds.push_back(thresholdEt);
+        delete subStrL;
+        return true;
+    }
+    else
+        return false;
+}
+
 
 void OHltTree::CheckOpenHlt(
 			    OHltConfig *cfg,
@@ -11050,6 +11091,31 @@ else if (triggerName.CompareTo("OpenHLT_Ele32_WP70_PFMT50_v1")  == 0)
     }
   }
 	
+    else if (isNJetPtTrigger(triggerName, thresholds)) {
+        if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+            if (prescaleResponse(menu,cfg,rcounter,it)) {
+                int N= int(thresholds[0]);
+                double pt= thresholds[1];
+                if(OpenHltNJetPtPassed(N, pt)) {
+                    cout << triggerName << " (" << N << ", " << pt << ") passed" << endl;
+                    triggerBit[it] = true;
+                }
+            }
+        }
+    }
+
+    else if (isNTowCalEt0pTrigger(triggerName, thresholds)) {
+        if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
+            if (prescaleResponse(menu,cfg,rcounter,it)) {
+                int N= int(thresholds[0]);
+                double Et= thresholds[1];
+                if(OpenHltNTowCalEtPassed(N, Et)) {
+                    cout << triggerName << " (" << N << ", " << Et << ") passed" << endl;
+                    triggerBit[it] = true;
+                }
+            }
+        }
+    }
  
   //AGB - HT + 2Tau (+MET)
 	
@@ -21393,4 +21459,26 @@ int OHltTree::OpenHlt3MuonOSMassVtxPassed(
 	}
     }
   return rc;
+}
+
+
+bool OHltTree::OpenHltNJetPtPassed(int N, const double& pt)
+{
+    Int_t NpassPt= 0;
+    for (int i= 0; i < NohJetCorCal; ++i)
+    {
+        if (ohJetCorCalPt[i] >= pt) NpassPt++;
+    }
+    return NpassPt >= N;
+}
+
+
+bool OHltTree::OpenHltNTowCalEtPassed(int N, const double& Et)
+{
+    Int_t NpassEt= 0;
+    for (int i= 0; i < NrecoTowCal; ++i)
+    {
+        if (recoTowEt[i] >= Et) NpassEt++;
+    }
+    return NpassEt >= N;
 }

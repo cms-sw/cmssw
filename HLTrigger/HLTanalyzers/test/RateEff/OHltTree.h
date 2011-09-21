@@ -14369,6 +14369,10 @@ public:
 				   double cos,
 				   double lxysig);
 
+    bool OpenHltNJetPtPassed(int N, const double& pt);
+
+    bool OpenHltNTowCalEtPassed(int N, const double& Et);
+
    int readRefPrescaleFromFile(TString st);
 
    int OpenL1SetSingleJetBit(const float& thresh);
