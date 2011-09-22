@@ -15,7 +15,9 @@
 \section desc Description
 <!-- Short description of what this package is supposed to provide -->
 
-(THE PACKAGE ADMINISTATOR SHOULD REPLACE THIS SENTENCE WITH HAND-WRITTEN DOCUMENTATION SAYING WHAT THE PACKAGE DOES.)
+Extend the GeomDet and Topology interfaces to supply required CSC geometry
+functionality.
+
 
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
