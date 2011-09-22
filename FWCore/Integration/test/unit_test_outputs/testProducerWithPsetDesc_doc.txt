@@ -1,4 +1,4 @@
-1  ProducerWithPSetDesc  pluginTestProducerWithPSetDesc.so
+1  ProducerWithPSetDesc  "pluginTestProducerWithPSetDesc.so"
 
 This plugin has 3 PSet descriptions. The description used to validate a 
 configuration is selected by matching the module labels. If none match, then 
