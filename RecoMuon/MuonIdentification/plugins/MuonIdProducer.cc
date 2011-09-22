@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.64 2011/08/03 22:44:34 slava77 Exp $
+// $Id: MuonIdProducer.cc,v 1.65 2011/08/04 08:55:35 vlimant Exp $
 //
 //
 
@@ -26,6 +26,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/CaloMuon.h"
+#include "DataFormats/MuonReco/interface/MuonCocktails.h"
 #include "DataFormats/MuonReco/interface/MuonTime.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtra.h"
 #include "DataFormats/MuonReco/interface/MuonTimeExtraMap.h"
@@ -272,16 +273,20 @@ reco::CaloMuon MuonIdProducer::makeCaloMuon( const reco::Muon& muon )
 
 reco::Muon MuonIdProducer::makeMuon( const reco::MuonTrackLinks& links )
 {
-  LogTrace("MuonIdentification") << "Creating a muon from a link to tracks object";
+   LogTrace("MuonIdentification") << "Creating a muon from a link to tracks object";
+
    reco::Muon aMuon;
-   if ( links.trackerTrack()->pt() > ptThresholdToFillCandidateP4WithGlobalFit_ &&
-	links.globalTrack()->pt()  > ptThresholdToFillCandidateP4WithGlobalFit_ &&
-	( fabs(links.trackerTrack()->qoverp()-links.globalTrack()->qoverp()) < 
-	  sigmaThresholdToFillCandidateP4WithGlobalFit_ * links.trackerTrack()->qoverpError() ) )
-     aMuon = makeMuon( *(links.globalTrack()) );
-   else
-     aMuon = makeMuon( *(links.trackerTrack()) );
-     
+   reco::TrackRef chosenTrack;
+   
+   if (tpfmsCollectionHandle_.isValid() && !tpfmsCollectionHandle_.failedToGet() && 
+       pickyCollectionHandle_.isValid() && !pickyCollectionHandle_.failedToGet()) 
+       chosenTrack = muon::tevOptimized( links.globalTrack(), links.trackerTrack(), 
+                                         *tpfmsCollectionHandle_, *tpfmsCollectionHandle_, *pickyCollectionHandle_,
+                                         ptThresholdToFillCandidateP4WithGlobalFit_);
+     else chosenTrack = muon::sigmaSwitch( links.globalTrack(), links.trackerTrack(), 
+                                           sigmaThresholdToFillCandidateP4WithGlobalFit_,
+                                           ptThresholdToFillCandidateP4WithGlobalFit_);
+   aMuon = makeMuon(*chosenTrack);
    aMuon.setInnerTrack( links.trackerTrack() );
    aMuon.setOuterTrack( links.standAloneTrack() );
    aMuon.setGlobalTrack( links.globalTrack() );
