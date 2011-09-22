@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2011/04/06 14:35:06 $
- *  $Revision: 1.3 $
+ *  $Date: 2011/09/22 09:52:34 $
+ *  $Revision: 1.4 $
  */
  
 #include "Validation/EventGenerator/interface/BasicHepMCValidation.h"
@@ -189,10 +189,10 @@ void BasicHepMCValidation::beginJob()
     status1ShortLived->setBinLabel(10,"W-/W+");
     status1ShortLived->setBinLabel(11,"PDG = 7,8,17,25-99");
 
-    DeltaEcms = dbe->book1D("DeltaEcms","Log10 fractional deviation from nominal Ecms", 100,-5., 5.);
-    DeltaPx = dbe->book1D("DeltaPx","Log10 fractional deviation from nominal Px", 100,-5., 5.);
-    DeltaPy = dbe->book1D("DeltaPy","Log10 fractional deviation from nominal Py", 100,-5., 5.);
-    DeltaPz = dbe->book1D("DeltaPz","Log10 fractional deviation from nominal Pz", 100,-5., 5.);
+    DeltaEcms = dbe->book1D("DeltaEcms","fractional deviation from nominal Ecms", 200,0.99, 1.01);
+    DeltaPx = dbe->book1D("DeltaPx","fractional deviation from nominal Px", 200,0.99, 1.01);
+    DeltaPy = dbe->book1D("DeltaPy","fractional deviation from nominal Py", 200,0.99, 1.01);
+    DeltaPz = dbe->book1D("DeltaPz","fractional deviation from nominal Pz", 200,0.99, 1.01);
 
   }
   return;
@@ -548,10 +548,10 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
   if ( myGenEvent->valid_beam_particles() ) {
     ecms = myGenEvent->beam_particles().first->momentum().e()+myGenEvent->beam_particles().second->momentum().e();
   }
-  DeltaEcms->Fill(std::log10(etotal/ecms));
-  DeltaPx->Fill(std::log10(1+pxtotal/ecms));
-  DeltaPy->Fill(std::log10(1+pytotal/ecms));
-  DeltaPz->Fill(std::log10(1+pztotal/ecms));
+  DeltaEcms->Fill(etotal/ecms);
+  DeltaPx->Fill(1.+pxtotal/ecms);
+  DeltaPy->Fill(1.+pytotal/ecms);
+  DeltaPz->Fill(1.+pztotal/ecms);
 
   ///filling multiplicity ME's
   stablePtclNumber->Fill(log10(stablePtclNum+0.1)); 
