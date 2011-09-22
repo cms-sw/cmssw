@@ -13,7 +13,4 @@
 <use   name="TrackingTools/TrackFitters"/>
 <use   name="TrackingTools/TrajectoryState"/>
 <use   name="Utilities/General"/>
-<export>
-  <lib   name="1"/>
-</export>
 <flags   EDM_PLUGIN="1"/>
