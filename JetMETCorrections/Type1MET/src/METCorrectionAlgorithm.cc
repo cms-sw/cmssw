@@ -70,8 +70,8 @@ CorrMETData METCorrectionAlgorithm::compMETCorrection(edm::Event& evt, const edm
       edm::Handle<CorrMETData> type1Correction;
       evt.getByLabel(*srcType1Correction, type1Correction);
 
-      metCorr.mex   += type1Correction->mey;
-      metCorr.mey   += type1Correction->mex;
+      metCorr.mex   += type1Correction->mex;
+      metCorr.mey   += type1Correction->mey;
       metCorr.sumet += type1Correction->sumet;
     }
   }
