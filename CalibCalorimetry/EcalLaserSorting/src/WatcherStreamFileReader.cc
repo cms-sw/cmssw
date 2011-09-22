@@ -34,7 +34,7 @@ std::string WatcherStreamFileReader::fileName_;
 namespace {
 ssize_t getline (char **lineptr, size_t *n, FILE *fp)
 {
-    ssize_t result;
+    ssize_t result = -1;
     size_t cur_len = 0;
 
     if (lineptr == NULL || n == NULL || fp == NULL)
