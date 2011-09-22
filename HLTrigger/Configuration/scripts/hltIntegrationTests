@@ -233,6 +233,15 @@ for TRIGGER in $TRIGGERS; do
   cat > "$TRIGGER".py << @EOF
 from hlt import *
 
+if not ( 'HLTriggerFinalPath' in process.__dict__) :
+  process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
+    processName = cms.string( "@" )
+)
+  process.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
+    processName = cms.string( "@" )
+)
+  process.HLTriggerFinalPath = cms.Path( process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW ) 
+
 process.hltOutput = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "$TRIGGER.root" ),
     fastCloning = cms.untracked.bool( False ),
