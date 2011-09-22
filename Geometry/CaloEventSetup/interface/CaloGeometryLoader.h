@@ -13,10 +13,9 @@
 #include <string>
 #include <vector>
 
-/** \class EcalGeometryLoader
+/** \class CaloGeometryLoader<T>
  *
- *
- * base class for endcap and barrel loaders so code sharing can occur
+ * Templated class for calo subdetector geometry loaders from DDD.
 */
 
 class DDCompactView;
@@ -24,44 +23,44 @@ class DDCompactView;
 template < class T >
 class CaloGeometryLoader
 {
-   public:
+public:
 
-      typedef std::vector< double > ParmVec ;
+  typedef std::vector< double > ParmVec ;
 
-      typedef boost::shared_ptr< CaloSubdetectorGeometry > PtrType ;
+  typedef boost::shared_ptr< CaloSubdetectorGeometry > PtrType ;
 
-      typedef CaloSubdetectorGeometry::ParVec    ParVec ;
-      typedef CaloSubdetectorGeometry::ParVecVec ParVecVec ;
+  typedef CaloSubdetectorGeometry::ParVec    ParVec ;
+  typedef CaloSubdetectorGeometry::ParVecVec ParVecVec ;
 
-      static const double k_ScaleFromDDDtoGeant ;
+  static const double k_ScaleFromDDDtoGeant ;
 
-      CaloGeometryLoader< T >() ;
+  CaloGeometryLoader< T >() ;
 
-      virtual ~CaloGeometryLoader< T >() {}
+  virtual ~CaloGeometryLoader< T >() {}
  
-      PtrType load( const DDCompactView* cpv,
-		    const Alignments*    alignments = 0 ,
-		    const Alignments*    globals    = 0  ) ;  
+  PtrType load( const DDCompactView* cpv,
+		const Alignments*    alignments = 0 ,
+		const Alignments*    globals    = 0  ) ;  
 
-   private:
+private:
 
-      void makeGeometry( const DDCompactView*  cpv        , 
-			 T*                    geom       ,
-			 const Alignments*     alignments ,
-			 const Alignments*     globals       ) ;
+  void makeGeometry( const DDCompactView*  cpv        , 
+		     T*                    geom       ,
+		     const Alignments*     alignments ,
+		     const Alignments*     globals       ) ;
       
-      void fillNamedParams( DDFilteredView fv,
-			    T*             geom ) ;
+  void fillNamedParams( DDFilteredView fv,
+			T*             geom ) ;
       
-      void fillGeom( T*                    geom ,
-		     const ParmVec&        pv ,
-		     const HepGeom::Transform3D& tr ,
-		     const DetId&          id    ) ;
+  void fillGeom( T*                    geom ,
+		 const ParmVec&        pv ,
+		 const HepGeom::Transform3D& tr ,
+		 const DetId&          id    ) ;
 
-      unsigned int getDetIdForDDDNode( const DDFilteredView& fv ) ;
+  unsigned int getDetIdForDDDNode( const DDFilteredView& fv ) ;
 
-      typename T::NumberingScheme m_scheme;
-      DDSpecificsFilter  m_filter;
+  typename T::NumberingScheme m_scheme;
+  DDSpecificsFilter  m_filter;
 };
 
 #endif
