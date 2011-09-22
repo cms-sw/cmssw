@@ -6,6 +6,3 @@
 <use   name="CalibFormats/HcalObjects"/>
 <use   name="CalibFormats/CaloTPG"/>
 <use   name="DataFormats/HcalDigi"/>
-<export>
-  <lib   name="1"/>
-</export>
