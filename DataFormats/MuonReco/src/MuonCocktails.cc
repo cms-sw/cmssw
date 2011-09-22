@@ -3,14 +3,20 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 
 //
-// Return the TeV-optimized refit track, aka the cocktail or Tune P.
+// Return the TeV-optimized refit track (aka the cocktail or Tune P) or
+// the tracker track if either the optimized pT or tracker pT is below the pT threshold
 //
 reco::TrackRef muon::tevOptimized(const reco::TrackRef& combinedTrack,
 				  const reco::TrackRef& trackerTrack,
 				  const reco::TrackRef& tpfmsTrack,
 				  const reco::TrackRef& pickyTrack,
+ 			          const double ptThreshold,
 				  const double tune1,
 				  const double tune2) {
+
+  // If Tracker pT is below the pT threshold (currently 200 GeV) - return the Tracker track
+  if (trackerTrack->pt() < ptThreshold) return trackerTrack;  
+
   // Array for convenience below.
   const reco::TrackRef refit[4] = { 
     trackerTrack, 
@@ -52,75 +58,12 @@ reco::TrackRef muon::tevOptimized(const reco::TrackRef& combinedTrack,
   if (prob[2] > 0. && (prob[chosen] - prob[2]) > tune2)
     chosen = 2;
 
-  // Done. Return the chosen track (which can be the global track in
+  // Done. If pT of the chosen track is below the threshold value, return the tracker track.
+  if (refit[chosen]->pt() < ptThreshold) return trackerTrack;    
+
+  // Return the chosen track (which can be the global track in
   // very rare cases).
   return refit[chosen];
-}
-
-//
-// Return the TeV-optimized refit track (older, deprecated version).
-//
-reco::TrackRef muon::tevOptimizedOld( const reco::TrackRef& combinedTrack,
-				      const reco::TrackRef& trackerTrack,
-				      const reco::TrackToTrackMap tevMap1,
-				      const reco::TrackToTrackMap tevMap2,
-				      const reco::TrackToTrackMap tevMap3 ) {
-
-  std::vector<reco::TrackRef> refit(4);
-  reco::TrackRef result;
-  bool ok[4];
-  ok[0] = true; // Assume tracker track OK.
-  
-  reco::TrackToTrackMap::const_iterator gmrTrack = tevMap1.find(combinedTrack);
-  reco::TrackToTrackMap::const_iterator fmsTrack = tevMap2.find(combinedTrack);
-  reco::TrackToTrackMap::const_iterator pmrTrack = tevMap3.find(combinedTrack);
-
-  ok[1] = gmrTrack != tevMap1.end();
-  ok[2] = fmsTrack != tevMap2.end();
-  ok[3] = pmrTrack != tevMap3.end();
-
-  double prob[4];
-
-  if (ok[0]) refit[0] = trackerTrack;
-  if (ok[1]) refit[1] = (*gmrTrack).val;
-  if (ok[2]) refit[2] = (*fmsTrack).val;
-  if (ok[3]) refit[3] = (*pmrTrack).val;
-  
-  for (unsigned int i=0; i<4; i++)
-    prob[i] = (ok[i] && refit[i]->numberOfValidHits())
-      ? trackProbability(refit[i]) : 0.0; 
-
-//  std::cout << "Probabilities: " << prob[0] << " " << prob[1] << " " << prob[2] << " " << prob[3] << std::endl;
-
-  if (prob[1] ) result = refit[1];
-  if ((prob[1] == 0) && prob[3]) result = refit[3];
-  
-  if (prob[1] && prob[3] && ((prob[1] - prob[3]) > 0.05 ))  result = refit[3];
-
-  if (prob[0] && prob[2] && fabs(prob[2] - prob[0]) > 30.) {
-    result = refit[0];
-    return result;
-  }
-
-  if ((prob[1] == 0) && (prob[3] == 0) && prob[2]) result = refit[2];
-
-  reco::TrackRef tmin;
-  double probmin = 0.0;
-
-  if (prob[1] && prob[3]) {
-    probmin = prob[3]; tmin = refit[3];
-    if ( prob[1] < prob[3] ) { probmin = prob[1]; tmin = refit[1]; }
-  } else if ((prob[3] == 0) && prob[1]) { 
-    probmin = prob[1]; tmin = refit[1]; 
-  } else if ((prob[1] == 0) && prob[3]) {
-    probmin = prob[3]; tmin = refit[3]; 
-  }
-
-  if (probmin && prob[2] && ( (probmin - prob[2]) > 3.5 )) {
-    result = refit[2];
-  }
-
-  return result;
 }
 
 //
@@ -136,6 +79,13 @@ double muon::trackProbability(const reco::TrackRef track) {
   }
 
 }
+
+reco::TrackRef muon::getTevRefitTrack(const reco::TrackRef& combinedTrack,
+		   		      const reco::TrackToTrackMap& map) {
+  reco::TrackToTrackMap::const_iterator it = map.find(combinedTrack);
+  return it == map.end() ? reco::TrackRef() : it->val;
+}
+
 
 //
 // Get the sigma-switch decision (tracker-only versus global).
