@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/GRun/V267 (CMSSW_4_2_0_HLT28)
+# /dev/CMSSW_4_2_0/GRun/V270 (CMSSW_4_2_0_HLT28)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V267')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V270')
 )
 
 streams = cms.PSet( 
@@ -4575,7 +4575,7 @@ hltSiPixelDigis = cms.EDProducer( "SiPixelRawToDigi",
 )
 hltSiPixelClusters = cms.EDProducer( "SiPixelClusterProducer",
     src = cms.InputTag( "hltSiPixelDigis" ),
-    maxNumberOfClusters = cms.int32( 12000 ),
+    maxNumberOfClusters = cms.int32( 20000 ),
     payloadType = cms.string( "HLT" ),
     ChannelThreshold = cms.int32( 1000 ),
     SeedThreshold = cms.int32( 1000 ),
@@ -10464,7 +10464,7 @@ hltHT650L1FastJet = cms.EDFilter( "HLTMhtHtFilter",
     minPT12 = cms.double( 0.0 ),
     minMeff = cms.double( 0.0 ),
     meffSlope = cms.double( 1.0 ),
-    minHt = cms.double( 600.0 ),
+    minHt = cms.double( 650.0 ),
     minAlphaT = cms.double( 0.0 ),
     useTracks = cms.bool( False ),
     inputTracksTag = cms.InputTag( "unused" ),
@@ -12581,7 +12581,7 @@ hltDisplacedmumuFilterDoubleMu5Jpsi = cms.EDFilter( "HLTDisplacedmumuFilter",
     MinLxySignificance = cms.double( 3.0 ),
     MaxLxySignificance = cms.double( -1.0 ),
     MaxNormalisedChi2 = cms.double( 999999.0 ),
-    MinVtxProbability = cms.double( 0.1 ),
+    MinVtxProbability = cms.double( 0.15 ),
     MinCosinePointingAngle = cms.double( 0.9 ),
     saveTags = cms.bool( True ),
     DisplacedVertexTag = cms.InputTag( "hltDisplacedmumuVtxProducerDoubleMu5Jpsi" ),
@@ -32593,9 +32593,6 @@ hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
 hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
     processName = cms.string( "@" )
 )
-hltBoolTrue = cms.EDFilter( "HLTBool",
-    result = cms.bool( True )
-)
 hltL1GtTrigReport = cms.EDAnalyzer( "L1GtTrigReport",
     UseL1GlobalTriggerRecord = cms.bool( False ),
     L1GtRecordInputTag = cms.InputTag( "hltGtDigis" )
@@ -33289,7 +33286,7 @@ AlCa_RPCMuonNoHits_v6 = cms.Path( HLTBeginSequence + hltL1sAlCaRPC + hltPreAlCaR
 AlCa_RPCMuonNormalisation_v6 = cms.Path( HLTBeginSequence + hltL1sAlCaRPC + hltPreAlCaRPCMuonNormalisation + hltRPCMuonNormaL1Filtered0 + HLTMuonLocalRecoSequence + HLTEndSequence )
 AlCa_LumiPixels_v1 = cms.Path( HLTBeginSequence + hltL1sZeroBiasInstance1 + hltPreLumiPixels + hltFEDSelectorLumiPixels + HLTEndSequence )
 DQM_FEDIntegrity_v5 = cms.Path( HLTBeginSequence + hltPreDQMFEDIntegrity + hltCSCMonitorModule + hltDTDQMEvF + hltEcalRawToRecHitFacility + hltEcalRegionalRestFEDs + hltEcalRecHitAll + hltEcalRawToRecHitByproductProducer + hltEBHltTask + hltEEHltTask + hltESFEDIntegrityTask + hltHcalDigis + hltHcalDataIntegrityMonitor + hltL1tfed + hltSiPixelDigis + hltSiPixelHLTSource + hltSiStripFEDCheck + hltMuonRPCDigis + hltRPCFEDIntegrity + hltBoolFalse )
-HLTriggerFinalPath = cms.Path( hltGtDigis + hltScalersRawToDigi + hltFEDSelector + hltTriggerSummaryAOD + hltTriggerSummaryRAW + hltBoolTrue )
+HLTriggerFinalPath = cms.Path( hltGtDigis + hltScalersRawToDigi + hltFEDSelector + hltTriggerSummaryAOD + hltTriggerSummaryRAW )
 HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + hltTrigReport )
 
 
