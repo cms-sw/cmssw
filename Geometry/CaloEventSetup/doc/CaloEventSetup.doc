@@ -15,7 +15,8 @@
 \section desc Description
 <!-- Short description of what this package is supposed to provide -->
 
-(THE PACKAGE ADMINISTATOR SHOULD REPLACE THIS SENTENCE WITH HAND-WRITTEN DOCUMENTATION SAYING WHAT THE PACKAGE DOES.)
+This package provides a templated subdetector geometry loader,a DB
+reader, writer and an aligned event setup producer for calorimetry geometry.
 
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
@@ -25,22 +26,44 @@
 - CaloGeometryDBWriter
 - CaloGeometryEP
 - CaloGeometryLoader
+  - see implemented plugins in Geometry/EcalAlgo/plugins:
+  - CaloGeometryLoader < EcalBarrelGeometry >
+  - CaloGeometryLoader < EcalEndcapGeometry >
+  - CaloGeometryLoader < EcalPreshowerGeometry >
 - CaloTopologyRecord
 
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
 
+- AlignedCaloGeometryDBReader_cfi.py
+- AlignedCaloGeometry_cfi.py
+- CaloGeometryBuilder_cfi.py
+- CaloGeometryDBReader_cfi.py
+- CaloGeometryDBWriter_cfi.py
+- CaloGeometry_cfi.py
+- CaloTopology_cfi.py
+- CaloTowerConstituents_cfi.py
+- EcalTrigTowerConstituents_cfi.py
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
-Unknown
+
+The comparison among the Local DB, CondDB and XML is made using these files:
+
+ @see runTestCaloGeometryDB_cfg.py  #analysis of CondDB 
+ @see runTestCaloGeometryLocalDB_cfg.py  #analysis of Local DB 
+ @see runTestCaloGeometryDDD_cfg.py  #analysis of XML 
+
+For more details: 
+ @link
+ https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideDDDversusDataBaseValidation#Calo_Geometry @endlink
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
-Unknown
+Stable.
 
 <hr>
 Last updated:
-@DATE@  Author: computer-generated.
+@DATE@  I. Osborne
 */
 
