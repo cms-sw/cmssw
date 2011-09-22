@@ -18,6 +18,3 @@
 <use   name="RecoLocalCalo/EcalRecAlgos"/>
 <use   name="clhep"/>
 <use   name="hepmc"/>
-<export>
-  <lib   name="1"/>
-</export>
