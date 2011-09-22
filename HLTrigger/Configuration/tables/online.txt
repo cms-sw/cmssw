@@ -67,6 +67,8 @@ HLT_EightJet120_v*
 HLT_60Jet10_v*
 HLT_70Jet10_v*
 HLT_70Jet13_v*
+HLT_800Tower0p6_v*                                                                              #   added in 5e33 menu (sr #123603)
+HLT_1000Tower0p7_v*                                                                             #   added in 5e33 menu (sr #123603)
 HLT_ExclDiJet60_HFOR_v*
 HLT_ExclDiJet60_HFAND_v*
 HLT_JetE30_NoBPTX_v*
@@ -196,8 +198,10 @@ HLT_Mu30_v*
 HLT_Mu30_eta2p1_v*
 HLT_Mu40_v*
 HLT_Mu40_eta2p1_v*
+HLT_Mu50_eta2p1_v*                                                                              #   added in 5e33 menu (backups)
 HLT_Mu60_eta2p1_v*
 HLT_Mu100_eta2p1_v*
+HLT_Mu200_eta2p1_v*                                                                             #   added in 5e33 menu (backups)
 HLT_IsoMu15_v*
 HLT_IsoMu15_eta2p1_v*
 HLT_IsoMu17_v*
@@ -206,6 +210,7 @@ HLT_IsoMu24_v*
 HLT_IsoMu24_eta2p1_v*
 HLT_IsoMu30_eta2p1_v*
 HLT_IsoMu34_eta2p1_v*
+HLT_IsoMu40_eta2p1_v*                                                                           #   added in 5e33 menu (backups)
 HLT_L2DoubleMu23_NoVertex_v*
 HLT_L2DoubleMu30_NoVertex_v*
 HLT_L2DoubleMu45_NoVertex_v*                                                                    #   added in 5e33 menu (sr #123262)
