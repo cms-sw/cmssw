@@ -57,7 +57,9 @@ if [ "$MSSDIRPOOL" != "cmscafuser" ]; then
 else
 # Using cmscafuser pool => cmsStageIn command must be used
   . /afs/cern.ch/cms/caf/setup.sh
-  MSSCAFDIR=`echo $MSSDIR | awk 'sub("/castor/cern.ch/cms","")'`
+  #MSSCAFDIR=`echo $MSSDIR | awk 'sub("/castor/cern.ch/cms","")'`
+  MSSCAFDIR=`echo $MSSDIR | perl -pe 's/\/castor\/cern.ch\/cms//gi'`
+  
   untilSuccess cmsStageIn $MSSCAFDIR/milleBinaryISN.dat.gz milleBinaryISN.dat.gz
   untilSuccess cmsStageIn $MSSCAFDIR/treeFileISN.root treeFileISN.root
 fi

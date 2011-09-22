@@ -51,7 +51,8 @@ if [ "$MSSDIRPOOL" != "cmscafuser" ]; then
 else
 # Using cmscafuser pool => cmsStageOut command must be used
   . /afs/cern.ch/cms/caf/setup.sh
-  MSSCAFDIR=`echo $MSSDIR | awk 'sub("/castor/cern.ch/cms","")'`
+  MSSCAFDIR=`echo $MSSDIR | perl -pe 's/\/castor\/cern.ch\/cms//gi'`
+  
   echo "cmsStageOut milleBinaryISN.dat.gz $MSSCAFDIR/milleBinaryISN.dat.gz > /dev/null"
   cmsStageOut milleBinaryISN.dat.gz    $MSSCAFDIR/milleBinaryISN.dat.gz  > /dev/null
   cmsStageOut treeFile*root         $MSSCAFDIR/treeFileISN.root > /dev/null
