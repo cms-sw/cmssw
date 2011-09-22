@@ -24,6 +24,7 @@ app_name[12]=evf::FUEventProcessor      ; app_host[12]=STMGR_DEV_FU6_HOST    ; a
 app_name[13]=evf::FUEventProcessor      ; app_host[13]=STMGR_DEV_FU7_HOST    ; app_port[13]=STMGR_DEV_FU7_PORT
 app_name[14]=evf::FUEventProcessor      ; app_host[14]=STMGR_DEV_FU8_HOST    ; app_port[14]=STMGR_DEV_FU8_PORT
 app_name[15]=evf::FUEventProcessor      ; app_host[15]=STMGR_DEV_CONSFU_HOST ; app_port[15]=STMGR_DEV_CONSFU_PORT
+app_name[16]=evf::FUEventProcessor      ; app_host[16]=STMGR_DEV_BU_HOST     ; app_port[16]=STMGR_DEV_BU_PORT
 
 # ATCP can only be configured/enabled once (emulating connect)
 for appcount in 1 2 ; do
@@ -42,16 +43,20 @@ done
 # and we should skip sending commands to the SMProxyServer.  So, we'll replace the
 # SMPS in the application maps.
 isPlayback=`echo $STMGR_CONFIG | grep -c 'sm_playback.xml'`
-if [[ $isPlayback -gt 0 ]] ; then
-    app_name[4]=evf::FUEventProcessor  ; app_host[4]=STMGR_DEV_BU_HOST ; app_port[4]=STMGR_DEV_BU_PORT
-fi
-
 if [[ $command == "Configure" || 
       $command == "Enable" ]] ; then
-    sequence="$( seq 3 $(($SMDEV_FU_PROCESS_COUNT+6)) ) 15"
+    if [[ $isPlayback -gt 0 ]] ; then
+        sequence="3 5 6 16 7"
+    else
+        sequence="$( seq 3 $(($SMDEV_FU_PROCESS_COUNT+6)) ) 15"
+    fi
 elif [[ $command == "Halt" ||
         $command == "Stop" ]] ; then
-    sequence="5 $( seq 7 $(($SMDEV_FU_PROCESS_COUNT+6)) ) 6 4 3 15"
+    if [[ $isPlayback -gt 0 ]] ; then
+        sequence="5 16 7 6 3"
+    else
+        sequence="5 $( seq 7 $(($SMDEV_FU_PROCESS_COUNT+6)) ) 6 4 3 15"
+    fi
 else
     echo "Unknown state machine command: $command"
     exit 1
@@ -59,31 +64,27 @@ fi
 
 
 for appcount in $sequence ; do
-    # the effect of this "if" is skip the consumer FU when running playback
-    if [[ $isPlayback -eq 0 || $appcount != 15 ]] ; then
-        echo ""
-        echo "========================================"
-        echo "Sending $command to ${app_name[$appcount]}..."
-        echo "========================================"
-
+    echo ""
+    echo "========================================"
+    echo "Sending $command to ${app_name[$appcount]}..."
+    echo "========================================"
+    
         # Special delays
-        if [[ $appcount == 15 && $command == "Enable" ]] ; then sleep 15 ; fi
-        if  [[ $isPlayback -gt 0 && $appcount == 3 && $command == "Enable" ]] ; then sleep 10 ; fi
-
-        ./sendSimpleCmdToApp ${app_host[$appcount]} ${app_port[$appcount]} ${app_name[$appcount]} 0 $command
-        echo ""
-        if [[ $command == "Stop" ]] ; then
-            if [[ ${app_name[$appcount]} == "evf::BU" ]] ; then
-                sleep 5
-            elif [[ ${app_name[$appcount]} == "evf::FUResourceBroker" ]] ; then
-                sleep 1
-            elif [[ ${app_name[$appcount]} == "StorageManager" ]] ; then
-                sleep 10
-            elif [[ ${app_name[$appcount]} != "evf::FUEventProcessor" ]] ; then
-                sleep 2
-            fi
-        else
+    if [[ $appcount == 15 && $command == "Enable" ]] ; then sleep 15 ; fi
+    
+    ./sendSimpleCmdToApp ${app_host[$appcount]} ${app_port[$appcount]} ${app_name[$appcount]} 0 $command
+    echo ""
+    if [[ $command == "Stop" ]] ; then
+        if [[ ${app_name[$appcount]} == "evf::BU" ]] ; then
+            sleep 5
+        elif [[ ${app_name[$appcount]} == "evf::FUResourceBroker" ]] ; then
+            sleep 1
+        elif [[ ${app_name[$appcount]} == "StorageManager" ]] ; then
+            sleep 10
+        elif [[ ${app_name[$appcount]} != "evf::FUEventProcessor" ]] ; then
             sleep 2
         fi
+    else
+        sleep 2
     fi
 done

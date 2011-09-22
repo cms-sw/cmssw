@@ -39,10 +39,14 @@ class HLTHcalMETNoiseFilter : public HLTFilter {
   double minHighEHitTime_;
   double maxHighEHitTime_;
   double maxRBXEMF_;
-  
+
   // imported from the RecoMET/METProducers/python/hcalnoiseinfoproducer_cfi
   double minRecHitE_, minLowHitE_, minHighHitE_;
-  
+
+  double TS4TS5EnergyThreshold_;
+  std::vector<std::pair<double, double> > TS4TS5UpperCut_;
+  std::vector<std::pair<double, double> > TS4TS5LowerCut_;  
+    
   // helper function to compare noise data energies
   struct noisedatacomp {
     inline bool operator() ( const CommonHcalNoiseRBXData& t1, const CommonHcalNoiseRBXData& t2) {

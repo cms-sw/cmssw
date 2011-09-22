@@ -24,7 +24,7 @@ HLTPMMassFilter::HLTPMMassFilter(const edm::ParameterSet& iConfig)
 
   isElectron1_ = iConfig.getUntrackedParameter<bool> ("isElectron1",true) ;
   isElectron2_ = iConfig.getUntrackedParameter<bool> ("isElectron2",true) ;
-  store_ = iConfig.getUntrackedParameter<bool> ("SaveTag",false) ;
+  store_ = iConfig.getParameter<bool>("saveTags") ;
   relaxed_ = iConfig.getUntrackedParameter<bool> ("relaxed",true) ;
   L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
   L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 

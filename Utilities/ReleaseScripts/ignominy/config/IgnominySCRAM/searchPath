@@ -707,9 +707,6 @@ sub addLCGProjectInfo ()
     }
   }
 
-  print "search include .*:(.*):\"${base}/include/\$1\"\n";
-  print "search include .*:(.*):\"${base}/${arch}/include/\$1\"\n";
-
   my $src="${base}/${src_name}";
   my $srcq=quotemeta($src);
   opendir(DIR, &getActualPath("$src")) || return;
@@ -717,15 +714,15 @@ sub addLCGProjectInfo ()
   
   my $incdirs=[];
   if(&isExist("INCLUDE", $cache1->{TOOL}{SETUP}{$tool})){$incdirs=$cache1->{TOOL}{SETUP}{$tool}{INCLUDE};}
-  my $has_inc=0;
-  foreach my $inc (@{$incdirs})
-  {if($inc=~/\/include$/){$has_inc=1; last;}}
-
-  if($has_inc)
+  if(scalar(@{$incdirs})>0)
   {
-    foreach my $i ("include", "${arch}/include")
+    foreach my $inc (@{$incdirs})
     {
-      my $inc="${base}/${i}";
+      if ((!-e $inc) || (!-d &getActualPath("$inc"))){next;}
+      print "search include .*:(.*):\"${inc}/\$1\"\n";
+    }
+    foreach my $inc (@{$incdirs})
+    {
       if ((!-e $inc) || (!-d &getActualPath("$inc"))){next;}
       my $incq=quotemeta("$inc");
       opendir(DIR, &getActualPath("$inc")) || return;

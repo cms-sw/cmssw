@@ -76,9 +76,7 @@ void ResolutionAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup
   typedef std::vector<std::pair<lorentzVector,lorentzVector> > MuonPairVector;
   MuonPairVector savedPairVector;
   MuonPairVector genPairVector;
-  
-  std::vector<std::pair<int, int> > evtRun;
-  rootTreeHandler.readTree(maxEvents_, treeFileName_, &savedPairVector, 0, &evtRun, &genPairVector);
+  rootTreeHandler.readTree(maxEvents_, treeFileName_, &savedPairVector, 0, &genPairVector);
   MuonPairVector::iterator savedPair = savedPairVector.begin();
   MuonPairVector::iterator genPair = genPairVector.begin();
   std::cout << "Starting loop on " << savedPairVector.size() << " muons" << std::endl;

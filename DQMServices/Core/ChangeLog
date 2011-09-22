@@ -1,3 +1,9 @@
+2011-05-05  Luis I. Lopera  <lilopera@cern.ch>
+
+  * interface/DQMStore.h: Added DQMArchiver as friend class, so that 
+  StorageManager Proxy Server doesn't have to create unnecesary 
+  dependencies to DQMHttpSource.
+  
 2010-11-16  Lassi A. Tuura  <lat@iki.fi>
 
 	* bin/DumpFile.cpp (hexlify): Finally fix this function to avoid

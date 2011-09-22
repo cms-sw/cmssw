@@ -41,7 +41,7 @@ class HLTMuonL3PreFilter : public HLTFilter {
       double max_Dz_;           // dz cut
       double min_Pt_;           // pt threshold in GeV 
       double nsigma_Pt_;        // pt uncertainty margin (in number of sigmas)
-      bool saveTag_;            // should we save the input collection ?
+      bool saveTags_;            // should we save the input collection ?
 
 };
 

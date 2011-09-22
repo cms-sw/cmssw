@@ -49,7 +49,10 @@ class HLTMuonDimuonL3Filter : public HLTFilter {
       double min_PtBalance_;    // minimum Pt difference
       double max_PtBalance_;    // maximum Pt difference
       double nsigma_Pt_;        // pt uncertainty margin (in number of sigmas)
-      bool saveTag_;            // should we save the input collection ?
+      double max_DCAMuMu_;      // DCA between the two muons
+      double max_YPair_;        // |rapidity| of pair
+      bool saveTags_;            // should we save the input collection ?
+      bool cutCowboys_;             ///< if true, reject muon-track pairs that bend towards each other
 
 };
 

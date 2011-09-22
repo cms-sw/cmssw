@@ -1,4 +1,3 @@
-#include "FWCore/PluginManager/interface/ModuleDef.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "RecoTracker/SpecialSeedGenerators/interface/CtfSpecialSeedGenerator.h"
 #include "RecoTracker/SpecialSeedGenerators/interface/CosmicSeedGenerator.h"

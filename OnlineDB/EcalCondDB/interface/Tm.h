@@ -1,4 +1,4 @@
-// $Id: Tm.h,v 1.4 2010/09/30 14:16:42 organtin Exp $
+// $Id: Tm.h,v 1.3 2010/04/29 11:07:54 organtin Exp $
 
 #ifndef TM_HH
 #define TM_HH
@@ -66,11 +66,6 @@ class Tm {
   uint64_t microsTime() const;
 
   /*
-   *  return the number of nanoseconds packed as a CMS time
-   */
-  uint64_t cmsNanoSeconds() const;
-
-  /*
    *  Set self to current time
    */
   void setToCurrentLocalTime();
@@ -83,10 +78,9 @@ class Tm {
   void setToGMTime( time_t t );
 
   /*
-   *  Set using microseconds and CMS times
+   *  Set using microseconds
    */
   void setToMicrosTime(uint64_t micros);
-  void setToCmsNanoTime(uint64_t nanos);
 
   /*
    *  Set to string of format YYYY-MM-DD HH:MM:SS
@@ -94,16 +88,6 @@ class Tm {
   void setToString(const std::string s) throw(std::runtime_error);
 
   void dumpTm();
-
-  inline bool operator<(const Tm &t) const 
-    {
-      return microsTime() < t.microsTime();
-    }
-
-  inline bool operator<=(const Tm &t) const 
-    {
-      return microsTime() <= t.microsTime();
-    }
 
   inline bool operator==(const Tm &t) const
     {   return (m_tm.tm_hour  == t.m_tm.tm_hour &&
@@ -123,19 +107,10 @@ class Tm {
     setToMicrosTime(microsTime() - seconds * 1e6);
     return *this;
   }
-
   Tm& operator+=(int seconds) {
     setToMicrosTime(microsTime() + seconds * 1e6);
     return *this;
   }
-
-  const Tm operator+(int seconds) {
-    Tm ret = *this;
-    ret += seconds;
-    return ret;
-  }
-
-  friend std::ostream& operator<< (std::ostream &out, const Tm &t);
 
  private:
   struct tm m_tm;

@@ -29,6 +29,13 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
 
+// Glowinski & Gouzevitch
+#include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"             
+#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerTrackEcal.h" 
+#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerTrackHcal.h" 
+#include "RecoParticleFlow/PFProducer/interface/KDTreeLinkerPSEcal.h" 
+// !Glowinski & Gouzevitch
+
 // #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
@@ -79,6 +86,10 @@ class PFBlockAlgo {
 		      std::vector<double> & photonSelectionCuts
 		      );
   
+  // Glowinski & Gouzevitch
+  void setUseOptimization(bool useKDTreeTrackEcalLinker);
+  // ! Glowinski & Gouzevitch
+
   typedef std::vector<bool> Mask;
 
   /// set input collections of tracks and clusters
@@ -109,6 +120,7 @@ class PFBlockAlgo {
   ///COLIN: I think this is for particle flow at HLT...
   template< template<typename> class T >
     void setInput(const T<reco::PFRecTrackCollection>&    trackh,
+		  const T<reco::MuonCollection>&    muonh,
 		  const T<reco::PFClusterCollection>&  ecalh,
 		  const T<reco::PFClusterCollection>&  hcalh,
 		  const T<reco::PFClusterCollection>&  hfemh,
@@ -120,7 +132,7 @@ class PFBlockAlgo {
 		  const Mask& psMask = dummyMask_ ) {
     T<reco::GsfPFRecTrackCollection> gsftrackh;
     T<reco::GsfPFRecTrackCollection> convbremgsftrackh;
-    T<reco::MuonCollection> muonh;
+    //T<reco::MuonCollection> muonh;
     T<reco::PFDisplacedTrackerVertexCollection> nuclearh;
     T<reco::PFRecTrackCollection>    nucleartrackh;
     T<reco::PFConversionCollection> convh;
@@ -198,6 +210,9 @@ class PFBlockAlgo {
   /// Showing the connections between the elements
   void buildGraph(); 
 
+  /// Avoid to check links when not useful
+  inline bool linkPrefilter(const reco::PFBlockElement* last, const reco::PFBlockElement* next) const;
+
   /// check whether 2 elements are linked. Returns distance and linktype
   void link( const reco::PFBlockElement* el1, 
 	     const reco::PFBlockElement* el2, 
@@ -272,6 +287,13 @@ class PFBlockAlgo {
   // the test elements will be transferred to the blocks
   std::list< reco::PFBlockElement* >     elements_;
 
+  // Glowinski & Gouzevitch
+  bool useKDTreeTrackEcalLinker_;
+  KDTreeLinkerTrackEcal TELinker_;
+  KDTreeLinkerTrackHcal THLinker_;
+  KDTreeLinkerPSEcal	PSELinker_;
+  // !Glowinski & Gouzevitch
+
   static const Mask                      dummyMask_;
 
   /// DPt/Pt cut for creating atrack element
@@ -306,6 +328,9 @@ class PFBlockAlgo {
   /// SC corresponding to the PF cluster
   //  std::map<reco::PFClusterRef,int>  pfcRefSCMap_;
   std::vector<int> pfcSCVec_;
+
+  // A boolean to avoid to compare ECAL and ECAl if there i no superclusters in the event
+  bool bNoSuperclus_;
 
   /// PF clusters corresponding to a given SC
   std::vector<std::vector<reco::PFClusterRef> > scpfcRefs_;
@@ -384,7 +409,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 
   if(gsftrackh.isValid() ) {
     const  reco::GsfPFRecTrackCollection PFGsfProd = *(gsftrackh.product());
-    for(unsigned i=0;i<gsftrackh->size(); i++) {
+    for(unsigned i=0;i<gsftrackh->size(); ++i) {
       if( !gsftrackMask.empty() &&
           !gsftrackMask[i] ) continue;
       reco::GsfPFRecTrackRef refgsf(gsftrackh,i );   
@@ -440,7 +465,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
       
       typedef std::vector<reco::PFTrajectoryPoint>::const_iterator IP;
       for(IP itPfGsfPoint =  PfGsfPoint.begin();  
-	  itPfGsfPoint!= PfGsfPoint.end();itPfGsfPoint++) {
+	  itPfGsfPoint!= PfGsfPoint.end();++itPfGsfPoint) {
 	
 	if (itPfGsfPoint->isValid()){
 	  int layGsfP = itPfGsfPoint->layer();
@@ -450,7 +475,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 	    GetPout = true;
 	  }
 	  //const math::XYZTLorentzVector GsfMoment = itPfGsfPoint->momentum();
-	  c_gsf++;
+	  ++c_gsf;
 	}
       }
       math::XYZTLorentzVector pin = PfGsfPoint[0].momentum();      
@@ -460,7 +485,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
       if(useConvBremPFRecTracks_) {
 	const std::vector<reco::PFRecTrackRef>& temp_convBremPFRecTracks(refgsf->convBremPFRecTrackRef());
 	if(temp_convBremPFRecTracks.size() > 0) {
-	  for(unsigned int iconv = 0; iconv <temp_convBremPFRecTracks.size(); iconv++) {
+	  for(unsigned int iconv = 0; iconv <temp_convBremPFRecTracks.size(); ++iconv) {
 	    convBremPFRecTracks.push_back(temp_convBremPFRecTracks[iconv]);
 	  }
 	}
@@ -472,7 +497,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 
       std::vector<reco::PFBrem> pfbrem = refgsf->PFRecBrem();
       
-      for (unsigned i2=0;i2<pfbrem.size(); i2++) {
+      for (unsigned i2=0;i2<pfbrem.size(); ++i2) {
 	const double DP = pfbrem[i2].DeltaP();
 	const double SigmaDP =  pfbrem[i2].SigmaDeltaP(); 
 	const unsigned int TrajP = pfbrem[i2].indTrajPoint();
@@ -534,12 +559,12 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 
   if(convh.isValid() ) {
     reco::PFBlockElement* trkFromConversionElement;
-    for(unsigned i=0;i<convh->size(); i++) {
+    for(unsigned i=0;i<convh->size(); ++i) {
       reco::PFConversionRef convRef(convh,i);
 
       unsigned int trackSize=(convRef->pfTracks()).size();
       if ( convRef->pfTracks().size() < 2) continue;
-      for(unsigned iTk=0;iTk<trackSize; iTk++) {
+      for(unsigned iTk=0;iTk<trackSize; ++iTk) {
 	
 	reco::PFRecTrackRef compPFTkRef = convRef->pfTracks()[iTk];	
 	trkFromConversionElement = new reco::PFBlockElementTrack(convRef->pfTracks()[iTk]);
@@ -565,10 +590,10 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
   
   if(v0.isValid() ) {
     reco::PFBlockElement* trkFromV0Element = 0;
-    for(unsigned i=0;i<v0->size(); i++) {
+    for(unsigned i=0;i<v0->size(); ++i) {
       reco::PFV0Ref v0Ref( v0, i );
       unsigned int trackSize=(v0Ref->pfTracks()).size();
-      for(unsigned iTk=0;iTk<trackSize; iTk++) {
+      for(unsigned iTk=0;iTk<trackSize; ++iTk) {
 
 	reco::PFRecTrackRef newPFRecTrackRef = (v0Ref->pfTracks())[iTk]; 
 	reco::TrackBaseRef newTrackBaseRef(newPFRecTrackRef->trackRef());
@@ -576,7 +601,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 	
 	/// One need to cross check if those tracks was not already filled
 	/// from the conversion collection
-	for(IE iel = elements_.begin(); iel != elements_.end(); iel++){
+	for(IE iel = elements_.begin(); iel != elements_.end(); ++iel){
 	  reco::TrackBaseRef elemTrackBaseRef((*iel)->trackRef());
 	  if (newTrackBaseRef == elemTrackBaseRef){	    
 	    trkFromV0Element = *iel;
@@ -611,7 +636,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 
   if(nuclearh.isValid()) {
     reco::PFBlockElement* trkFromDisplacedVertexElement = 0;
-    for(unsigned i=0;i<nuclearh->size(); i++) {
+    for(unsigned i=0;i<nuclearh->size(); ++i) {
 
       const reco::PFDisplacedTrackerVertexRef dispacedVertexRef( nuclearh, i );
 
@@ -637,7 +662,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 	  std::cout << "Displaced Vertex " << i << std::endl;
 	  dispacedVertexRef->displacedVertexRef()->Dump();
 	}
-	for(unsigned iTk=0;iTk < trackSize; iTk++) {
+	for(unsigned iTk=0;iTk < trackSize; ++iTk) {
 
 
 	  // This peace of code looks weired at first but it seems to be necessary to let 
@@ -649,7 +674,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 
 	  
 	  if (nucleartrackh.isValid()){
-	    for(unsigned i=0;i<nucleartrackh->size(); i++) {
+	    for(unsigned i=0;i<nucleartrackh->size(); ++i) {
 	      reco::PFRecTrackRef transientPFRecTrackRef(nucleartrackh,i);
 	      reco::TrackBaseRef transientTrackBaseRef(transientPFRecTrackRef->trackRef());
 	      if (constTrackBaseRef==transientTrackBaseRef){
@@ -667,7 +692,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 
 	  /// One need to cross check if those tracks was not already filled
 	  /// from the conversion or V0 collections
-	  for(IE iel = elements_.begin(); iel != elements_.end(); iel++){
+	  for(IE iel = elements_.begin(); iel != elements_.end(); ++iel){
 	    reco::TrackBaseRef elemTrackBaseRef((*iel)->trackRef());
 	    if (newTrackBaseRef == elemTrackBaseRef){
 	      trkFromDisplacedVertexElement = *iel;
@@ -724,12 +749,12 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 
     Mask trackMaskVertex;
 
-    for(unsigned i=0;i<trackh->size(); i++) {
+    for(unsigned i=0;i<trackh->size(); ++i) {
       reco::PFRecTrackRef pfRefTrack( trackh,i );
       reco::TrackRef trackRef = pfRefTrack->trackRef();
 
       bool bMask = true;
-      for(IE iel = elements_.begin(); iel != elements_.end(); iel++){
+      for(IE iel = elements_.begin(); iel != elements_.end(); ++iel){
 	reco::TrackRef elemTrackRef = (*iel)->trackRef();
 	if( trackRef == elemTrackRef ) {
 	  if (debug_) std::cout << " " << trackRef.key();
@@ -744,7 +769,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 
     if (debug_) std::cout << "Additionnal tracks from main collection " << std::endl;
 
-    for(unsigned i=0;i<trackh->size(); i++) {
+    for(unsigned i=0;i<trackh->size(); ++i) {
 
 
       // this track has been disabled
@@ -781,7 +806,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 	// attach to it the reference
 	if (!trackMaskVertex.empty() && !trackMaskVertex[i]){
 	  reco::TrackRef primaryTrackRef = ref->trackRef();
-	  for(IE iel = elements_.begin(); iel != elements_.end(); iel++){
+	  for(IE iel = elements_.begin(); iel != elements_.end(); ++iel){
 	    reco::TrackRef elemTrackRef = (*iel)->trackRef();
 	    if( primaryTrackRef == elemTrackRef ) {
 	      (*iel)->setMuonRef( muonref );
@@ -798,7 +823,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
       // set track type T_FROM_GAMMA for pfrectracks associated to conv brems
       if(useConvBremPFRecTracks_) {
 	if(convBremPFRecTracks.size() > 0.) {
-	  for(unsigned int iconv = 0; iconv < convBremPFRecTracks.size(); iconv++) {
+	  for(unsigned int iconv = 0; iconv < convBremPFRecTracks.size(); ++iconv) {
 	    if((*ref).trackRef() == (*convBremPFRecTracks[iconv]).trackRef()) {
 	      bool value = true;
 	      primaryElement->setTrackType(reco::PFBlockElement::T_FROM_GAMMACONV, value);
@@ -807,7 +832,6 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 	}
       }
       elements_.push_back( primaryElement );
-
     }
 
     if (debug_) std::cout << " " << std::endl;
@@ -821,7 +845,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
     
  
     const  reco::GsfPFRecTrackCollection ConvPFGsfProd = *(convbremgsftrackh.product());
-    for(unsigned i=0;i<convbremgsftrackh->size(); i++) {
+    for(unsigned i=0;i<convbremgsftrackh->size(); ++i) {
 
       reco::GsfPFRecTrackRef refgsf(convbremgsftrackh,i );   
       
@@ -839,7 +863,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
       
       typedef std::vector<reco::PFTrajectoryPoint>::const_iterator IP;
       for(IP itPfGsfPoint =  PfGsfPoint.begin();  
-	  itPfGsfPoint!= PfGsfPoint.end();itPfGsfPoint++) {
+	  itPfGsfPoint!= PfGsfPoint.end();++itPfGsfPoint) {
 	
 	if (itPfGsfPoint->isValid()){
 	  int layGsfP = itPfGsfPoint->layer();
@@ -849,7 +873,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 	    GetPout = true;
 	  }
 	  //const math::XYZTLorentzVector GsfMoment = itPfGsfPoint->momentum();
-	  c_gsf++;
+	  ++c_gsf;
 	}
       }
       math::XYZTLorentzVector pin = PfGsfPoint[0].momentum();      
@@ -868,7 +892,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
       elements_.push_back( gsfEl);
       std::vector<reco::PFBrem> pfbrem = refgsf->PFRecBrem();
       
-      for (unsigned i2=0;i2<pfbrem.size(); i2++) {
+      for (unsigned i2=0;i2<pfbrem.size(); ++i2) {
 	const double DP = pfbrem[i2].DeltaP();
 	const double SigmaDP =  pfbrem[i2].SigmaDeltaP(); 
 	const unsigned int TrajP = pfbrem[i2].indTrajPoint();
@@ -887,8 +911,13 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 
 
   if(ecalh.isValid() ) {
-    pfcSCVec_.resize(ecalh->size(),-1);
-    for(unsigned i=0;i<ecalh->size(); i++)  {
+    //  pfcSCVec_.resize(ecalh->size(),-1);
+ 
+    bNoSuperclus_  = (superClusters_.size() == 0);
+    if (!bNoSuperclus_) pfcSCVec_.resize(ecalh->size(),-1);
+
+
+    for(unsigned i=0;i<ecalh->size(); ++i)  {
 
       // this ecal cluster has been disabled
       if( !ecalMask.empty() &&
@@ -899,21 +928,29 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
         = new reco::PFBlockElementCluster( ref,
 					   reco::PFBlockElement::ECAL);
       elements_.push_back( te );
-      // Now mapping with Superclusters
-      int scindex= ClusterClusterMapping::checkOverlap(*ref,superClusters_);
 
-      if(scindex>=0) 	{
+      if (!bNoSuperclus_) {
+
+	// Now mapping with Superclusters
+	int scindex= ClusterClusterMapping::checkOverlap(*ref,superClusters_);
+
+	if(scindex>=0) 	{
 	  pfcSCVec_[ref.key()]=scindex;
 	  scpfcRefs_[scindex].push_back(ref);
 	}
+      }
+
     }
+
+    bNoSuperclus_ = (scpfcRefs_.size() == 0);
+
   }
 
   // -------------- HCAL clusters ---------------------
 
   if(hcalh.isValid() ) {
     
-    for(unsigned i=0;i<hcalh->size(); i++)  {
+    for(unsigned i=0;i<hcalh->size(); ++i)  {
       
       // this hcal cluster has been disabled
       if( !hcalMask.empty() &&
@@ -932,7 +969,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 
   if(hfemh.isValid() ) {
     
-    for(unsigned i=0;i<hfemh->size(); i++)  {
+    for(unsigned i=0;i<hfemh->size(); ++i)  {
       
       // this hfem cluster has been disabled
       if( !hfemMask.empty() &&
@@ -951,7 +988,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 
   if(hfhadh.isValid() ) {
     
-    for(unsigned i=0;i<hfhadh->size(); i++)  {
+    for(unsigned i=0;i<hfhadh->size(); ++i)  {
       
       // this hfhad cluster has been disabled
       if( !hfhadMask.empty() &&
@@ -971,7 +1008,7 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
   // -------------- PS clusters ---------------------
 
   if(psh.isValid() ) {
-    for(unsigned i=0;i<psh->size(); i++)  {
+    for(unsigned i=0;i<psh->size(); ++i)  {
 
       // this ps cluster has been disabled
       if( !psMask.empty() &&
@@ -994,7 +1031,47 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
         = new reco::PFBlockElementCluster( ref,
 					   type );
       elements_.push_back( tp );
+    }
+  }
+
+
+  // -------------- Loop over block elements ---------------------
+
+  // Here we provide to all KDTree linkers the collections to link.
+  // Glowinski & Gouzevitch
+  
+  for (std::list< reco::PFBlockElement* >::iterator it = elements_.begin();
+       it != elements_.end(); ++it) {
+    switch ((*it)->type()){
+	
+    case reco::PFBlockElement::TRACK:
+      if (useKDTreeTrackEcalLinker_) {
+	TELinker_.insertTargetElt(*it);
+	THLinker_.insertTargetElt(*it);
+      }
       
+      break;
+
+    case reco::PFBlockElement::PS1:
+    case reco::PFBlockElement::PS2:
+      if (useKDTreeTrackEcalLinker_)
+	PSELinker_.insertTargetElt(*it);
+      break;
+
+    case reco::PFBlockElement::HCAL:
+      if (useKDTreeTrackEcalLinker_)
+	THLinker_.insertFieldClusterElt(*it);
+      break;
+	
+    case reco::PFBlockElement::ECAL:
+      if (useKDTreeTrackEcalLinker_) {
+	TELinker_.insertFieldClusterElt(*it);
+	PSELinker_.insertFieldClusterElt(*it);
+      }
+      break;
+
+    default:
+      break;
     }
   }
 }

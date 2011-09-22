@@ -12,6 +12,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
+#include "RecoTracker/TkSeedingLayers/interface/SeedComparitorFactory.h"
+#include "RecoTracker/TkSeedingLayers/interface/SeedComparitor.h"
+
 #include "DataFormats/GeometryVector/interface/Pi.h"
 
 using pixelrecoutilities::LongitudinalBendingCorrection;
@@ -31,8 +34,23 @@ PixelTripletHLTGenerator:: PixelTripletHLTGenerator(const edm::ParameterSet& cfg
 {
   theMaxElement=cfg.getParameter<unsigned int>("maxElement");
   dphi =  (useFixedPreFiltering) ?  cfg.getParameter<double>("phiPreFiltering") : 0;
+
+  if (cfg.exists("SeedComparitorPSet")){
+  edm::ParameterSet comparitorPSet =
+    cfg.getParameter<edm::ParameterSet>("SeedComparitorPSet");
+  std::string comparitorName = comparitorPSet.getParameter<std::string>("ComponentName");
+  theComparitor = (comparitorName == "none") ?
+    0 :  SeedComparitorFactory::get()->create( comparitorName, comparitorPSet);
+  }
+  else
+    theComparitor=0;
 }
 
+PixelTripletHLTGenerator::~PixelTripletHLTGenerator()
+  
+{ delete thePairGenerator;
+  delete theComparitor;
+}
 
 void PixelTripletHLTGenerator::init( const HitPairGenerator & pairs,
       const std::vector<SeedingLayer> & layers,
@@ -165,26 +183,35 @@ void PixelTripletHLTGenerator::hitTriplets(
           Range allowedZ = predictionRZ(p3_r);
           correction.correctRZRange(allowedZ);
 
-          float zErr = nSigmaRZ * std::sqrt(float(hit->globalPositionError().czz()));
+          float zErr = nSigmaRZ * hit->errorGlobalZ();
           Range hitRange(p3_z-zErr, p3_z+zErr);
           Range crossingRange = allowedZ.intersection(hitRange);
           if (crossingRange.empty())  continue;
         } else {
           Range allowedR = predictionRZ(p3_z);
           correction.correctRZRange(allowedR); 
-          float rErr = nSigmaRZ * std::sqrt(float(hit->globalPositionError().rerr( hit->globalPosition())));
+          float rErr = nSigmaRZ * hit->errorGlobalR();
           Range hitRange(p3_r-rErr, p3_r+rErr);
           Range crossingRange = allowedR.intersection(hitRange);
           if (crossingRange.empty())  continue;
         }
 
-	float phiErr = nSigmaPhi*std::sqrt(float(hit->globalPositionError().phierr(hit->globalPosition())));
+	float phiErr = nSigmaPhi*hit->errorGlobalRPhi()/p3_r;
         for (int icharge=-1; icharge <=1; icharge+=2) {
           Range rangeRPhi = predictionRPhi(p3_r, icharge);
           correction.correctRPhiRange(rangeRPhi);
           if (checkPhiInRange(p3_phi, rangeRPhi.first/p3_r-phiErr, rangeRPhi.second/p3_r+phiErr)) {
-            result.push_back( OrderedHitTriplet( (*ip).inner(), (*ip).outer(), hit)); 
-            break;
+	    // insert here check with comparitor
+	    OrderedHitTriplet hittriplet( (*ip).inner(), (*ip).outer(), hit);
+	    if(!theComparitor  || theComparitor->compatible(hittriplet,es) ) {
+	      result.push_back( hittriplet );
+	    } else {
+	      LogDebug("RejectedTriplet") << "rejected triplet from comparitor "
+					  << hittriplet.outer()->globalPosition().x() << " "
+					  << hittriplet.outer()->globalPosition().y() << " "
+					  << hittriplet.outer()->globalPosition().z();
+	    }
+	    break;
           } 
         }
       } 

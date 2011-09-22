@@ -55,7 +55,7 @@ namespace evf{
     unsigned long rcv(MsgBuf &ptr)
       {
 	unsigned long msg_type = ptr->mtype;
-	int rc = msgrcv(queue_id_, ptr.ptr_, ptr.msize()+1, ptr->mtype, 0);
+	int rc = msgrcv(queue_id_, ptr.ptr_, ptr.msize(), ptr->mtype, 0);
 	if (rc == -1 && errno != ENOMSG)  
 	  {
 	    std::string serr = "rcv::Master failed to get message from queue - error:";
@@ -68,7 +68,7 @@ namespace evf{
     unsigned long rcvNonBlocking(MsgBuf &ptr)
       {
 	unsigned long msg_type = ptr->mtype;
-	int rc = msgrcv(queue_id_, ptr.ptr_, ptr.msize()+1, msg_type, IPC_NOWAIT);
+	int rc = msgrcv(queue_id_, ptr.ptr_, ptr.msize(), msg_type, IPC_NOWAIT);
 	if (rc == -1 && errno != ENOMSG)  
 	  {
 	    std::string serr = "rcvnb::Master failed to get message from queue - error:";
@@ -81,6 +81,8 @@ namespace evf{
     int disconnect()
       {
 	int ret = msgctl(queue_id_,IPC_RMID,0);
+	if(ret !=0)
+	  std::cout <<  "disconnect of master queue failed - error:" << strerror(errno) << std::endl;
 	status_ = -1000;
 	return ret;
       }
@@ -113,7 +115,7 @@ namespace evf{
       MsgBuf msg;
       while(occup_>0)
 	{
-	  msgrcv(queue_id_, msg.ptr_, msg.msize()+1, 0, 0);
+	  msgrcv(queue_id_, msg.ptr_, msg.msize(), 0, 0);
 	  status();
 	  std::cout << "drained one message, occupancy now " << occup_ << std::endl;
 	}

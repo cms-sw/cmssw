@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth Cooper,27 1-024,+41227672342,
 //         Created:  Wed Apr 14 14:27:52 CEST 2010
-// $Id: HSCPValidator.cc,v 1.5 2011/02/22 06:50:06 querten Exp $
+// $Id: HSCPValidator.cc,v 1.6 2011/03/15 16:01:46 querten Exp $
 //
 //
 
@@ -96,10 +96,10 @@ edm::Service<TFileService> fileService;
 //
 HSCPValidator::HSCPValidator(const edm::ParameterSet& iConfig) :
   doGenPlots_ (iConfig.getParameter<bool>("MakeGenPlots")),
+  doHLTPlots_ (iConfig.getParameter<bool>("MakeHLTPlots")),
   doSimTrackPlots_ (iConfig.getParameter<bool>("MakeSimTrackPlots")),
   doSimDigiPlots_ (iConfig.getParameter<bool>("MakeSimDigiPlots")),
   doRecoPlots_ (iConfig.getParameter<bool>("MakeRecoPlots")),
-  doHLTPlots_ (iConfig.getParameter<bool>("MakeHLTPlots")),
   label_ (iConfig.getParameter<edm::InputTag>("generatorLabel")),
   particleIds_ (iConfig.getParameter< std::vector<int> >("particleIds")),
   particleStatus_ (iConfig.getUntrackedParameter<int>("particleStatus",1)),

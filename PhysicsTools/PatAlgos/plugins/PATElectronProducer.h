@@ -1,5 +1,5 @@
 //
-// $Id: PATElectronProducer.h,v 1.23 2010/04/20 16:09:29 srappocc Exp $
+// $Id: PATElectronProducer.h,v 1.25 2011/03/31 09:52:39 namapane Exp $
 //
 
 #ifndef PhysicsTools_PatAlgos_PATElectronProducer_h
@@ -13,7 +13,7 @@
    a collection of objects of reco::GsfElectron.
 
   \author   Steven Lowette, James Lamb\
-  \version  $Id: PATElectronProducer.h,v 1.23 2010/04/20 16:09:29 srappocc Exp $
+  \version  $Id: PATElectronProducer.h,v 1.25 2011/03/31 09:52:39 namapane Exp $
 */
 
 
@@ -37,6 +37,9 @@
 #include "PhysicsTools/PatAlgos/interface/PATUserDataHelper.h"
 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterLazyTools.h"
+
+#include "TrackingTools/TransientTrack/interface/TransientTrack.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include <string>
 
@@ -74,6 +77,7 @@ namespace pat {
 
       /// pflow specific
       bool          useParticleFlow_;
+      edm::InputTag linkToPFSource_;  //SAK
       edm::InputTag pfElecSrc_;
       bool          embedPFCandidate_;
 
@@ -104,6 +108,16 @@ namespace pat {
 			  const GenAssociations& genMatches,
 			  const IsoDepositMaps& deposits,
 			  const IsolationValueMaps& isolationValues ) const;
+
+    // embed various impact parameters with errors
+    // embed high level selection
+    void embedHighLevel( pat::Electron & anElectron,
+			 reco::GsfTrackRef track,
+			 reco::TransientTrack & tt,
+			 reco::Vertex & primaryVertex,
+			 bool primaryVertexIsValid,
+			 reco::BeamSpot & beamspot,
+			 bool beamspotIsValid );
 
       typedef std::pair<pat::IsolationKeys,edm::InputTag> IsolationLabel;
       typedef std::vector<IsolationLabel> IsolationLabels;

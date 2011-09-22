@@ -336,7 +336,9 @@ bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
 			      unsigned int & aCounterUnpacker,
 			      const bool aDoMeds,
 			      MonitorElement *aMedianHist0,
-			      MonitorElement *aMedianHist1
+			      MonitorElement *aMedianHist1,
+			      const bool aDoFEMaj,
+			      std::vector<std::vector<std::pair<unsigned int,unsigned int> > > & aFeMajFrac
 			      )
 {
   //try to construct the basic buffer object (do not check payload)
@@ -371,7 +373,7 @@ bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
     //so analyze FE and channels to fill histograms.
 
     //fe check... 
-    fillFEErrors(buffer.get());
+    fillFEErrors(buffer.get(),aDoFEMaj,aFeMajFrac);
     
     //channel checks
     fillChannelErrors(buffer.get(),
@@ -420,7 +422,9 @@ bool FEDErrors::fillFEDErrors(const FEDRawData& aFedData,
   return !(anyFEDErrors());
 }
 
-bool FEDErrors::fillFEErrors(const sistrip::FEDBuffer* aBuffer)
+bool FEDErrors::fillFEErrors(const sistrip::FEDBuffer* aBuffer,
+			     const bool aDoFEMaj,
+			     std::vector<std::vector<std::pair<unsigned int,unsigned int> > > & aFeMajFrac)
 {
   bool foundOverflow = false;
   bool foundBadMajority = false;
@@ -514,6 +518,18 @@ bool FEDErrors::fillFEErrors(const sistrip::FEDBuffer* aBuffer)
 
       lFeErr.FeMaj = debugHeader->feUnitMajorityAddress(iFE);
 
+      if (aDoFEMaj){
+	if (lFeErr.SubDetID == 2 || lFeErr.SubDetID == 3 || lFeErr.SubDetID == 4)
+	  aFeMajFrac[0].push_back(std::pair<unsigned int, unsigned int>(fedID_,lFeErr.FeMaj));
+	else if (lFeErr.SubDetID == 5)
+	  aFeMajFrac[1].push_back(std::pair<unsigned int, unsigned int>(fedID_,lFeErr.FeMaj));
+	else if (lFeErr.SubDetID == 0)
+	  aFeMajFrac[2].push_back(std::pair<unsigned int, unsigned int>(fedID_,lFeErr.FeMaj));
+	else if (lFeErr.SubDetID == 1)
+	  aFeMajFrac[3].push_back(std::pair<unsigned int, unsigned int>(fedID_,lFeErr.FeMaj));
+      }
+
+
       if (aBuffer->apveAddress()){
 	lFeErr.TimeDifference = //0;
 	  static_cast<unsigned int>(sistrip::FEDAddressConversion::timeLocation(debugHeader->feUnitMajorityAddress(iFE)))-static_cast<unsigned int>(sistrip::FEDAddressConversion::timeLocation(aBuffer->apveAddress()));
@@ -596,50 +612,84 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
       }
       else {//if FE good
 
-	bool activeChannel = false;
+	bool apvBad[2] = {false,false};
+	sistrip::FEDChannelStatus lStatus = sistrip::CHANNEL_STATUS_NO_PROBLEMS;
+	//CHANNEL_STATUS_NO_PROBLEMS
+	//CHANNEL_STATUS_LOCKED
+	//CHANNEL_STATUS_IN_SYNC
+	//CHANNEL_STATUS_APV1_ADDRESS_GOOD
+	//CHANNEL_STATUS_APV1_NO_ERROR_BIT
+	//CHANNEL_STATUS_APV0_ADDRESS_GOOD
+	//CHANNEL_STATUS_APV0_NO_ERROR_BIT
 
 	if (debugHeader) {
-	  if (!debugHeader->unlocked(iCh)) activeChannel = true;
+	  lStatus = debugHeader->getChannelStatus(iCh);
+	  apvBad[0] = 
+	    !(lStatus & sistrip::CHANNEL_STATUS_LOCKED) || 
+	    !(lStatus & sistrip::CHANNEL_STATUS_IN_SYNC) ||
+	    !(lStatus & sistrip::CHANNEL_STATUS_APV0_ADDRESS_GOOD) ||
+	    !(lStatus & sistrip::CHANNEL_STATUS_APV0_NO_ERROR_BIT);
+	  apvBad[1] = 
+	    !(lStatus & sistrip::CHANNEL_STATUS_LOCKED) ||
+	    !(lStatus & sistrip::CHANNEL_STATUS_IN_SYNC) ||
+	    !(lStatus & sistrip::CHANNEL_STATUS_APV1_ADDRESS_GOOD) ||
+	    !(lStatus & sistrip::CHANNEL_STATUS_APV1_NO_ERROR_BIT);
+	  //if (!debugHeader->unlocked(iCh)) {
+	  if (lStatus & sistrip::CHANNEL_STATUS_LOCKED) {
+	    lChErr.IsActive = true;
+	    if (lStatus == sistrip::CHANNEL_STATUS_NO_PROBLEMS) continue;
+	    //if (debugHeader->outOfSyncFromBit(iCh)) {
+	    if (!(lStatus & sistrip::CHANNEL_STATUS_IN_SYNC)) {
+	      lChErr.OutOfSync = true;
+	    }
+	  }
 	  else {
 	    lChErr.Unlocked = true;
 	  }
-	  if (debugHeader->outOfSync(iCh)) {
-	    lChErr.OutOfSync = true;
-	  }
 	} else {
-	  if (header->checkChannelStatusBits(iCh)) activeChannel = true;
+	  //if (header->checkChannelStatusBits(iCh)) activeChannel = true;
+	  apvBad[0] = !header->checkStatusBits(iCh,0);
+	  apvBad[1] = !header->checkStatusBits(iCh,1);
+	  if (!apvBad[0] && !apvBad[1]) {
+	    lChErr.IsActive = true;
+	    continue;
+	  }
 	}
 
-	lChErr.IsActive = activeChannel;
 	if (lChErr.Unlocked || lChErr.OutOfSync) addBadChannel(lChErr);
 
 	//std::ostringstream lMode;
 	//lMode << aBuffer->readoutMode();
 	
 	bool lFirst = true;
-
+	
 	for (unsigned int iAPV = 0; iAPV < 2; iAPV++) {//loop on APVs
 
 	  FEDErrors::APVLevelErrors lAPVErr;
 	  lAPVErr.APVID = 2*iCh+iAPV;
 	  lAPVErr.ChannelID = iCh;
 	  lAPVErr.Connected = connected_[iCh];
-	  lAPVErr.IsActive = activeChannel;
+	  lAPVErr.IsActive = lChErr.IsActive;
 	  lAPVErr.APVStatusBit = false;
 	  lAPVErr.APVError = false;
 	  lAPVErr.APVAddressError = false;
 
-	  if (!header->checkStatusBits(iCh,iAPV)){
+	  //if (!header->checkStatusBits(iCh,iAPV)){
+	  if (apvBad[iAPV]) {
 	    lFailMonitoringChannelCheck = true;
 	    lAPVErr.APVStatusBit = true;
 	    foundError = true;
 	  }
 
-	  if (debugHeader) {
-	    if (debugHeader->apvError(iCh,iAPV)) {
+	  if (debugHeader && !lChErr.Unlocked && !lChErr.OutOfSync) {
+	    //if (debugHeader->apvErrorFromBit(iCh,iAPV)) {
+	    if ( (iAPV==0 && !(lStatus & sistrip::CHANNEL_STATUS_APV0_NO_ERROR_BIT)) ||
+		 (iAPV==1 && !(lStatus & sistrip::CHANNEL_STATUS_APV1_NO_ERROR_BIT))) {
 	      lAPVErr.APVError = true;
 	    }
-	    if (debugHeader->apvAddressError(iCh,iAPV)) {
+	    //if (debugHeader->apvAddressErrorFromBit(iCh,iAPV)) {
+	    if ((iAPV==0 && !(lStatus & sistrip::CHANNEL_STATUS_APV0_ADDRESS_GOOD)) ||
+		(iAPV==1 && !(lStatus & sistrip::CHANNEL_STATUS_APV1_ADDRESS_GOOD))) {
 	      lAPVErr.APVAddressError = true;
 	    }
 	  }
@@ -649,6 +699,7 @@ bool FEDErrors::fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
 	       lAPVErr.APVAddressError
 	       ) addBadAPV(lAPVErr, lFirst);
 	}//loop on APVs
+
       }//if FE good
     }//if connected
 

@@ -221,14 +221,15 @@ namespace edm {
     for (unsigned int is=0;is< maxNbSources_;++is) {
       doit_[is]=false;
       pileup_[is].clear();
+      TrueNumInteractions_[is].clear();
     }
     
     if (input_)  {
       if (playback_) {
 	getEventStartInfo(e,0);
-	input_->readPileUp(pileup_[0], vectorEventIDs_);
+	input_->readPileUp(pileup_[0], vectorEventIDs_, TrueNumInteractions_[0]);
       } else {
-	input_->readPileUp(pileup_[0], vectorEventIDs_); 
+	input_->readPileUp(pileup_[0], vectorEventIDs_, TrueNumInteractions_[0]); 
         setEventStartInfo(0);
       }
       if (input_->doPileup()) {  
@@ -239,9 +240,9 @@ namespace edm {
     if (cosmics_) {
       if (playback_) {
 	getEventStartInfo(e,1);
-	cosmics_->readPileUp(pileup_[1], vectorEventIDs_); 
+	cosmics_->readPileUp(pileup_[1], vectorEventIDs_, TrueNumInteractions_[1]); 
       } else {
-	cosmics_->readPileUp(pileup_[1], vectorEventIDs_); 
+	cosmics_->readPileUp(pileup_[1], vectorEventIDs_, TrueNumInteractions_[1]); 
 	setEventStartInfo(1);
       }
       if (cosmics_->doPileup()) {  
@@ -253,9 +254,9 @@ namespace edm {
     if (beamHalo_p_) {
       if (playback_) {
 	getEventStartInfo(e,2);
-	beamHalo_p_->readPileUp(pileup_[2], vectorEventIDs_);
+	beamHalo_p_->readPileUp(pileup_[2], vectorEventIDs_, TrueNumInteractions_[2]);
       } else {
-	beamHalo_p_->readPileUp(pileup_[2], vectorEventIDs_);
+	beamHalo_p_->readPileUp(pileup_[2], vectorEventIDs_, TrueNumInteractions_[2]);
 	setEventStartInfo(2);
       }
       if (beamHalo_p_->doPileup()) {  
@@ -267,9 +268,9 @@ namespace edm {
     if (beamHalo_m_) {
       if (playback_) {
 	getEventStartInfo(e,3);
-	beamHalo_m_->readPileUp(pileup_[3], vectorEventIDs_);
+	beamHalo_m_->readPileUp(pileup_[3], vectorEventIDs_, TrueNumInteractions_[3]);
       } else {
-	beamHalo_m_->readPileUp(pileup_[3], vectorEventIDs_);
+	beamHalo_m_->readPileUp(pileup_[3], vectorEventIDs_, TrueNumInteractions_[3]);
 	setEventStartInfo(3);
       }
       if (beamHalo_m_->doPileup()) {  

@@ -98,15 +98,27 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
 
   produces<reco::PFBlockCollection>();
   
-
+  // Glowinski & Gouzevitch
+  useKDTreeTrackEcalLinker_ = iConfig.getParameter<bool>("useKDTreeTrackEcalLinker");
+  // !Glowinski & Gouzevitch
   
   // particle flow parameters  -----------------------------------
 
   std::vector<double> DPtovPtCut 
      = iConfig.getParameter<std::vector<double> >("pf_DPtoverPt_Cut");   
+  if (DPtovPtCut.size()!=5)
+    {
+      edm::LogError("MisConfiguration")<<" vector pf_DPtoverPt_Cut has to be of size 5";
+      throw;
+    }
 
   std::vector<unsigned> NHitCut 
      = iConfig.getParameter<std::vector<unsigned> >("pf_NHit_Cut");   
+  if (NHitCut.size()!=5)
+    {
+      edm::LogError("MisConfiguration")<<" vector pf_NHit_Cut has to be of size 5";
+      throw;
+    }
 
   bool useIterTracking
     = iConfig.getParameter<bool>("useIterTracking");
@@ -142,6 +154,9 @@ PFBlockProducer::PFBlockProducer(const edm::ParameterSet& iConfig) {
   
   pfBlockAlgo_.setDebug(debug_);
 
+  // Glowinski & Gouzevitch
+  pfBlockAlgo_.setUseOptimization(useKDTreeTrackEcalLinker_);
+  // !Glowinski & Gouzevitch
 }
 
 
@@ -205,15 +220,15 @@ PFBlockProducer::produce(Event& iEvent,
   Handle< reco::MuonCollection > recMuons;
 
   // LogDebug("PFBlockProducer")<<"get reco muons"<<endl;
-  if(!usePFatHLT_) {
-    found = iEvent.getByLabel(inputTagRecMuons_, recMuons);
+  //if(!usePFatHLT_) {
+  found = iEvent.getByLabel(inputTagRecMuons_, recMuons);
   
     //if(!found )
     //  LogError("PFBlockProducer")<<" cannot get recmuons: "
     //			 <<inputTagRecMuons_<<endl;
 
   // get PFNuclearInteractions
-  }
+  //}
   //---------- Gouzevitch
   //  Handle< reco::PFNuclearInteractionCollection > pfNuclears; 
   Handle< reco::PFDisplacedTrackerVertexCollection > pfNuclears; 
@@ -305,7 +320,8 @@ PFBlockProducer::produce(Event& iEvent,
 			       << inputTagEGPhotons_ << endl;
 
   if( usePFatHLT_  ) {
-     pfBlockAlgo_.setInput( recTracks, 			   
+     pfBlockAlgo_.setInput( recTracks, 		
+			    recMuons,
 			   clustersECAL,
 			   clustersHCAL,
 			   clustersHFEM,

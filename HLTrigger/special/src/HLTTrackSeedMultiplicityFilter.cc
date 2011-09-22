@@ -13,7 +13,7 @@ private:
   virtual bool filter(edm::Event&, const edm::EventSetup&);
 
   edm::InputTag inputTag_;       // input tag identifying product containing track seeds
-  bool          saveTag_;        // whether to save this tag
+  bool          saveTags_;        // whether to save this tag
   unsigned int  min_seeds_;      // minimum number of track seeds
   unsigned int  max_seeds_;      // maximum number of track seeds
 
@@ -34,7 +34,7 @@ private:
  
 HLTTrackSeedMultiplicityFilter::HLTTrackSeedMultiplicityFilter(const edm::ParameterSet& config) :
   inputTag_     (config.getParameter<edm::InputTag>("inputTag")),
-  saveTag_      (config.getUntrackedParameter<bool>("saveTag", false)),
+  saveTags_      (config.getParameter<bool>("saveTags")),
   min_seeds_ (config.getParameter<unsigned int>("minSeeds")),
   max_seeds_ (config.getParameter<unsigned int>("maxSeeds"))
 {
@@ -64,7 +64,7 @@ bool HLTTrackSeedMultiplicityFilter::filter(edm::Event& event, const edm::EventS
 
   // The filter object
   std::auto_ptr<trigger::TriggerFilterObjectWithRefs> filterobject (new trigger::TriggerFilterObjectWithRefs(path(),module()));
-  if (saveTag_) filterobject->addCollectionTag(inputTag_);
+  if (saveTags_) filterobject->addCollectionTag(inputTag_);
 
   // get hold of products from Event
   edm::Handle<TrajectorySeedCollection> seedColl;
