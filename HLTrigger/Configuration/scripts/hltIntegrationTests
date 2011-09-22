@@ -244,7 +244,7 @@ process.hltOutput = cms.OutputModule( "PoolOutputModule",
 
 process.Output = cms.EndPath( process.hltOutput )
 
-process.schedule = cms.Schedule( process.$TRIGGER, process.Output )
+process.schedule = cms.Schedule( process.$TRIGGER, process.HLTriggerFinalPath, process.Output )
 @EOF
 done
 
