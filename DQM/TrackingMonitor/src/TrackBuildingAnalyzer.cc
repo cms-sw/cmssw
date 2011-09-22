@@ -109,7 +109,7 @@ void TrackBuildingAnalyzer::beginJob(DQMStore * dqmStore_)
     doProfPHI=conf_.getParameter<bool>("doSeedNVsPhiProf");
     doProfETA=conf_.getParameter<bool>("doSeedNVsEtaProf");
 
-    if (doAllPlots){doAllSeedPlots=true; doTCPlots=true;}
+    //    if (doAllPlots){doAllSeedPlots=true; doTCPlots=true;}
 
     dqmStore_->setCurrentFolder(MEFolderName);
 

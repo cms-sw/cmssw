@@ -3,7 +3,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "TPRegexp.h"
+
 
 class JetMETDQMPostProcessor : public edm::EDAnalyzer {
  public:
@@ -15,7 +15,7 @@ class JetMETDQMPostProcessor : public edm::EDAnalyzer {
   void endJob();
 
  private:
-  std::string subDir_, patternJetTrg_, patternMetTrg_;
+  std::string subDir_;
 
 };
 

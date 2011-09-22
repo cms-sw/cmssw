@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.134.4.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: StorageManager.cc,v 1.135 2011/03/07 15:31:32 mommsen Exp $
 /// @file: StorageManager.cc
 
 #include "EventFilter/StorageManager/interface/DiskWriter.h"
@@ -706,6 +706,37 @@ StorageManager::processDQMConsumerEventRequest( xgi::Input* in, xgi::Output* out
   throw( xgi::exception::Exception )
 {
   consumerUtils_->processDQMConsumerEventRequest(in,out);
+}
+
+namespace stor {
+  //////////////////////////////////////
+  // Specialization for ConsumerUtils //
+  //////////////////////////////////////
+  template<>
+  void
+  ConsumerUtils<Configuration,EventQueueCollection>::
+  writeConsumerEvent(xgi::Output* out, const I2OChain& evt) const
+  {
+    writeHTTPHeaders( out );
+    
+    #ifdef STOR_DEBUG_CORRUPTED_EVENT_HEADER
+    double r = rand()/static_cast<double>(RAND_MAX);
+    if (r < 0.1)
+    {
+      std::cout << "Simulating corrupted event header" << std::endl;
+      EventHeader* h = (EventHeader*)evt.dataLocation(0);
+      h->protocolVersion_ = 1;
+    }
+    #endif // STOR_DEBUG_CORRUPTED_EVENT_HEADER
+    
+    const unsigned int nfrags = evt.fragmentCount();
+    for ( unsigned int i = 0; i < nfrags; ++i )
+    {
+      const unsigned long len = evt.dataSize( i );
+      unsigned char* location = evt.dataLocation( i );
+      out->write( (char*)location, len );
+    } 
+  }
 }
 
 

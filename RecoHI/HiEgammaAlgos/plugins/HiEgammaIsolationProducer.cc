@@ -137,16 +137,16 @@ HiEgammaIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       } else if (var_ == calcTxy) {
          if (mode_ == 1) {
             // No background subtraction for the moment...
-	    floats[i] = TxyC.getTxy((*recoPhotons)[i],x_,y_);
+	    floats[i] = TxyC.getTxy((*recoPhotons)[i].superCluster(),x_,y_);
 	 } else {
-	    floats[i] = TxyC.getTxy((*recoPhotons)[i],x_,y_);
+	    floats[i] = TxyC.getTxy((*recoPhotons)[i].superCluster(),x_,y_);
 	 }
       } else if (var_ == calcDRxy) {
          if (mode_ == 1) {
             // No background subtraction for the moment...
-	    floats[i] = dRxyC.getDRxy((*recoPhotons)[i],x_,y_);
+	    floats[i] = dRxyC.getDRxy((*recoPhotons)[i].superCluster(),x_,y_);
 	 } else {
-	    floats[i] = dRxyC.getDRxy((*recoPhotons)[i],x_,y_);
+	    floats[i] = dRxyC.getDRxy((*recoPhotons)[i].superCluster(),x_,y_);
 	 }
       }
    }

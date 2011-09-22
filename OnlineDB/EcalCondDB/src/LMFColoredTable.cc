@@ -57,7 +57,6 @@ std::string LMFColoredTable::getSystem() const {
 }
 
 LMFColoredTable& LMFColoredTable::setColor(std::string color) {
-  std::transform(color.begin(), color.end(), color.begin(), toupper);
   std::map<int, std::string>::const_iterator i = COLOR.begin();
   std::map<int, std::string>::const_iterator e = COLOR.end();
   bool loop = true;
@@ -72,7 +71,6 @@ LMFColoredTable& LMFColoredTable::setColor(std::string color) {
 }
 
 LMFColoredTable& LMFColoredTable::setSystem(std::string system) {
-  std::transform(system.begin(), system.end(), system.begin(), toupper);
   std::map<int, std::string>::const_iterator i = SYSTEM.begin();
   std::map<int, std::string>::const_iterator e = SYSTEM.end();
   bool loop = true;

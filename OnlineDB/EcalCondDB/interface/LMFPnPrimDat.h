@@ -58,15 +58,6 @@ class LMFPnPrimDat : public LMFColoredTable {
   float getShapeCor(EcalLogicID &id);
   int getFlag(EcalLogicID &id);
 
-  float getMean(int id);
-  float getRMS(int id);
-  float getM3(int id);
-  float getPNAoverBMean(int id);
-  float getPNAoverBRMS(int id);
-  float getPNAoverBM3(int id);
-  float getShapeCor(int id);
-  int getFlag(int id);
-
   bool isValid();
   // to do: complete list of set/get methods
 

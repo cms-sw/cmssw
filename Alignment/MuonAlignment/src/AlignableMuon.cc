@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/04/25 21:23:15 $
- *  $Revision: 1.21 $
+ *  $Date: 2008/04/15 09:21:23 $
+ *  $Revision: 1.20 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -53,7 +53,7 @@ AlignableMuon::AlignableMuon( const DTGeometry* dtGeometry , const CSCGeometry* 
 AlignableMuon::~AlignableMuon() 
 {
 
-  for ( align::Alignables::iterator iter=theMuonComponents.begin();
+  for ( std::vector<Alignable*>::iterator iter=theMuonComponents.begin();
 		iter != theMuonComponents.end(); iter++){
     delete *iter;
   }
@@ -266,16 +266,16 @@ void AlignableMuon::buildCSCEndcap( const CSCGeometry* pCSC  )
 }
 
 //--------------------------------------------------------------------------------------------------
-align::Alignables AlignableMuon::DTLayers()
+std::vector<Alignable*> AlignableMuon::DTLayers()
 {
-  align::Alignables result;
+  std::vector<Alignable*> result;
 
-  align::Alignables chambers = DTChambers();
-  for (align::Alignables::const_iterator chamberIter = chambers.begin();  chamberIter != chambers.end();  ++chamberIter) {
-     align::Alignables superlayers = (*chamberIter)->components();
-     for (align::Alignables::const_iterator superlayerIter = superlayers.begin();  superlayerIter != superlayers.end();  ++superlayerIter) {
-	align::Alignables layers = (*superlayerIter)->components();
-	for (align::Alignables::const_iterator layerIter = layers.begin();  layerIter != layers.end();  ++layerIter) {
+  std::vector<Alignable*> chambers = DTChambers();
+  for (std::vector<Alignable*>::const_iterator chamberIter = chambers.begin();  chamberIter != chambers.end();  ++chamberIter) {
+     std::vector<Alignable*> superlayers = (*chamberIter)->components();
+     for (std::vector<Alignable*>::const_iterator superlayerIter = superlayers.begin();  superlayerIter != superlayers.end();  ++superlayerIter) {
+	std::vector<Alignable*> layers = (*superlayerIter)->components();
+	for (std::vector<Alignable*>::const_iterator layerIter = layers.begin();  layerIter != layers.end();  ++layerIter) {
 	   result.push_back(*layerIter);
 	}
      }
@@ -285,14 +285,14 @@ align::Alignables AlignableMuon::DTLayers()
 }
 
 //--------------------------------------------------------------------------------------------------
-align::Alignables AlignableMuon::DTSuperLayers()
+std::vector<Alignable*> AlignableMuon::DTSuperLayers()
 {
-  align::Alignables result;
+  std::vector<Alignable*> result;
 
-  align::Alignables chambers = DTChambers();
-  for (align::Alignables::const_iterator chamberIter = chambers.begin();  chamberIter != chambers.end();  ++chamberIter) {
-     align::Alignables superlayers = (*chamberIter)->components();
-     for (align::Alignables::const_iterator superlayerIter = superlayers.begin();  superlayerIter != superlayers.end();  ++superlayerIter) {
+  std::vector<Alignable*> chambers = DTChambers();
+  for (std::vector<Alignable*>::const_iterator chamberIter = chambers.begin();  chamberIter != chambers.end();  ++chamberIter) {
+     std::vector<Alignable*> superlayers = (*chamberIter)->components();
+     for (std::vector<Alignable*>::const_iterator superlayerIter = superlayers.begin();  superlayerIter != superlayers.end();  ++superlayerIter) {
 	result.push_back(*superlayerIter);
      }
   }
@@ -301,47 +301,47 @@ align::Alignables AlignableMuon::DTSuperLayers()
 }
 
 //--------------------------------------------------------------------------------------------------
-align::Alignables AlignableMuon::DTChambers()
+std::vector<Alignable*> AlignableMuon::DTChambers()
 {
-  align::Alignables result;
+  std::vector<Alignable*> result;
   copy( theDTChambers.begin(), theDTChambers.end(), back_inserter(result) );
   return result;
 }
 
 //--------------------------------------------------------------------------------------------------
-align::Alignables AlignableMuon::DTStations()
+std::vector<Alignable*> AlignableMuon::DTStations()
 {
-  align::Alignables result;
+  std::vector<Alignable*> result;
   copy( theDTStations.begin(), theDTStations.end(), back_inserter(result) );
   return result;
 }
 
 
 //--------------------------------------------------------------------------------------------------
-align::Alignables AlignableMuon::DTWheels()
+std::vector<Alignable*> AlignableMuon::DTWheels()
 {
-  align::Alignables result;
+  std::vector<Alignable*> result;
   copy( theDTWheels.begin(), theDTWheels.end(), back_inserter(result) );
   return result;
 }
 
 //--------------------------------------------------------------------------------------------------
-align::Alignables AlignableMuon::DTBarrel()
+std::vector<Alignable*> AlignableMuon::DTBarrel()
 {
-  align::Alignables result ;
+  std::vector<Alignable*> result ;
   copy( theDTBarrel.begin(), theDTBarrel.end(), back_inserter(result) );
   return result;
 }
 
 //--------------------------------------------------------------------------------------------------
-align::Alignables AlignableMuon::CSCLayers()
+std::vector<Alignable*> AlignableMuon::CSCLayers()
 {
-  align::Alignables result;
+  std::vector<Alignable*> result;
 
-  align::Alignables chambers = CSCChambers();
-  for (align::Alignables::const_iterator chamberIter = chambers.begin();  chamberIter != chambers.end();  ++chamberIter) {
-     align::Alignables layers = (*chamberIter)->components();
-     for (align::Alignables::const_iterator layerIter = layers.begin();  layerIter != layers.end();  ++layerIter) {
+  std::vector<Alignable*> chambers = CSCChambers();
+  for (std::vector<Alignable*>::const_iterator chamberIter = chambers.begin();  chamberIter != chambers.end();  ++chamberIter) {
+     std::vector<Alignable*> layers = (*chamberIter)->components();
+     for (std::vector<Alignable*>::const_iterator layerIter = layers.begin();  layerIter != layers.end();  ++layerIter) {
 	result.push_back(*layerIter);
      }
   }
@@ -350,33 +350,33 @@ align::Alignables AlignableMuon::CSCLayers()
 }
 
 //--------------------------------------------------------------------------------------------------
-align::Alignables AlignableMuon::CSCChambers()
+std::vector<Alignable*> AlignableMuon::CSCChambers()
 {
-  align::Alignables result;
+  std::vector<Alignable*> result;
   copy( theCSCChambers.begin(), theCSCChambers.end(), back_inserter(result) );
   return result;
 }
 
 //--------------------------------------------------------------------------------------------------
-align::Alignables AlignableMuon::CSCRings()
+std::vector<Alignable*> AlignableMuon::CSCRings()
 {
-  align::Alignables result;
+  std::vector<Alignable*> result;
   copy( theCSCRings.begin(), theCSCRings.end(), back_inserter(result) );
   return result;
 }
 
 //--------------------------------------------------------------------------------------------------
-align::Alignables AlignableMuon::CSCStations()
+std::vector<Alignable*> AlignableMuon::CSCStations()
 {
-  align::Alignables result;
+  std::vector<Alignable*> result;
   copy( theCSCStations.begin(), theCSCStations.end(), back_inserter(result) );
   return result;
 }
 
 //--------------------------------------------------------------------------------------------------
-align::Alignables AlignableMuon::CSCEndcaps()
+std::vector<Alignable*> AlignableMuon::CSCEndcaps()
 {
-  align::Alignables result;
+  std::vector<Alignable*> result;
   copy( theCSCEndcaps.begin(), theCSCEndcaps.end(), back_inserter(result) );
   return result;
 }
@@ -386,8 +386,8 @@ align::Alignables AlignableMuon::CSCEndcaps()
 void AlignableMuon::recursiveSetMothers( Alignable* alignable )
 {
   
-  align::Alignables components = alignable->components();
-  for ( align::Alignables::iterator iter = components.begin();
+  std::vector<Alignable*> components = alignable->components();
+  for ( std::vector<Alignable*>::iterator iter = components.begin();
 		iter != components.end(); iter++ )
 	{
 	  (*iter)->setMother( alignable );
@@ -399,10 +399,10 @@ void AlignableMuon::recursiveSetMothers( Alignable* alignable )
 Alignments* AlignableMuon::alignments( void ) const
 {
 
-  align::Alignables comp = this->components();
+  std::vector<Alignable*> comp = this->components();
   Alignments* m_alignments = new Alignments();
   // Add components recursively
-  for ( align::Alignables::iterator i=comp.begin(); i!=comp.end(); i++ )
+  for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
     {
       Alignments* tmpAlignments = (*i)->alignments();
       std::copy( tmpAlignments->m_align.begin(), tmpAlignments->m_align.end(), 
@@ -420,11 +420,11 @@ Alignments* AlignableMuon::alignments( void ) const
 AlignmentErrors* AlignableMuon::alignmentErrors( void ) const
 {
 
-  align::Alignables comp = this->components();
+  std::vector<Alignable*> comp = this->components();
   AlignmentErrors* m_alignmentErrors = new AlignmentErrors();
 
   // Add components recursively
-  for ( align::Alignables::iterator i=comp.begin(); i!=comp.end(); i++ )
+  for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
     {
 	  AlignmentErrors* tmpAlignmentErrors = (*i)->alignmentErrors();
       std::copy( tmpAlignmentErrors->m_alignError.begin(), tmpAlignmentErrors->m_alignError.end(), 

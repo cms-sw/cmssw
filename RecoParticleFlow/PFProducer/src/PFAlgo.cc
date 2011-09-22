@@ -3,7 +3,6 @@
 #include "RecoParticleFlow/PFProducer/interface/PFAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"  //PFMuons
 #include "RecoParticleFlow/PFProducer/interface/PFElectronAlgo.h"  
-#include "RecoParticleFlow/PFProducer/interface/PFConversionAlgo.h"
 #include "RecoParticleFlow/PFProducer/interface/PFPhotonAlgo.h"    
 #include "RecoParticleFlow/PFProducer/interface/PFElectronExtraEqual.h"
 
@@ -68,7 +67,6 @@ PFAlgo::PFAlgo()
 
 PFAlgo::~PFAlgo() {
   if (usePFElectrons_) delete pfele_;
-  if (usePFConversions_) delete pfConversion_;
   if (usePFPhotons_)     delete pfpho_;
 }
 
@@ -245,7 +243,6 @@ PFAlgo::setDisplacedVerticesParameters(bool rejectTracks_Bad,
   rejectTracks_Step45_ = rejectTracks_Step45;
   usePFNuclearInteractions_ = usePFNuclearInteractions;
   usePFConversions_ = usePFConversions;
-  pfConversion_ = new PFConversionAlgo();
   usePFDecays_ = usePFDecays;
   dptRel_DispVtx_ = dptRel_DispVtx;
 
@@ -835,9 +832,9 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 
       if ( rejectTracks_Step45_ && ecalElems.empty() && 
 	   trackMomentum > 30. && Dpt > 0.5 && 
-	   ( trackRef->algo() == TrackBase::iter3 || 
-	     trackRef->algo() == TrackBase::iter4 || 
-	     trackRef->algo() == TrackBase::iter5 ) ) {
+	   ( trackRef->algo() == TrackBase::iter4 || 
+	     trackRef->algo() == TrackBase::iter5 || 
+	     trackRef->algo() == TrackBase::iter6 ) ) {
 
 	//
 	double dptRel = Dpt/trackRef->pt()*100;
@@ -1564,12 +1561,13 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       case TrackBase::iter1:
       case TrackBase::iter2:
       case TrackBase::iter3:
+      case TrackBase::iter4:
 	blowError = 1.;
 	break;
-      case TrackBase::iter4:
+      case TrackBase::iter5:
 	blowError = factors45_[0];
 	break;
-      case TrackBase::iter5:
+      case TrackBase::iter6:
 	blowError = factors45_[1];
 	break;
       default:
@@ -1981,9 +1979,10 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	case TrackBase::iter1:
 	case TrackBase::iter2:
 	case TrackBase::iter3:
-	  break;
 	case TrackBase::iter4:
+	  break;
 	case TrackBase::iter5:
+	case TrackBase::iter6:
 	  active[iTrack] = false;	
 	  totalChargedMomentum -= trackref->p();
 	  
@@ -2438,7 +2437,7 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
       if( !active[iEcal] ) continue;
 
       // Check the distance (one HCALPlusECAL tower, roughly)
-      if ( dist > 0.15 ) continue;
+      // if ( dist > 0.15 ) continue;
 
       //COLINFEB16 
       // what could be done is to

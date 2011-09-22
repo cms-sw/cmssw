@@ -104,20 +104,13 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet) :
             m_alternativeNrBxBoardDaq(parSet.getParameter<unsigned int> ("AlternativeNrBxBoardDaq")),
             m_alternativeNrBxBoardEvm(parSet.getParameter<unsigned int> ("AlternativeNrBxBoardEvm")),
             m_psBstLengthBytes(parSet.getParameter<int> ("BstLengthBytes")),
-            m_algorithmTriggersUnprescaled(parSet.getParameter<bool> ("AlgorithmTriggersUnprescaled")),
-            m_algorithmTriggersUnmasked(parSet.getParameter<bool> ("AlgorithmTriggersUnmasked")),
-            m_technicalTriggersUnprescaled(parSet.getParameter<bool> ("TechnicalTriggersUnprescaled")),
-            m_technicalTriggersUnmasked(parSet.getParameter<bool> ("TechnicalTriggersUnmasked")),
-            m_technicalTriggersVetoUnmasked(parSet.getParameter<bool> ("TechnicalTriggersVetoUnmasked")),
             m_verbosity(parSet.getUntrackedParameter<int>("Verbosity", 0)),
             m_isDebugEnabled(edm::isDebugEnabled())
 
 
 {
 
-    if (m_verbosity) {
-
-        LogDebug("L1GlobalTrigger") << std::endl;
+    if (m_verbosity && m_isDebugEnabled) {
 
         LogTrace("L1GlobalTrigger")
                 << "\nInput tag for muon collection from GMT:         " << m_muGmtInputTag
@@ -151,13 +144,6 @@ L1GlobalTrigger::L1GlobalTrigger(const edm::ParameterSet& parSet) :
                 << m_alternativeNrBxBoardEvm << std::dec
                 << " \n"
                 << "\nLength of BST message [bytes]:                  " << m_psBstLengthBytes
-                << "\n"
-                << "\nRun algorithm triggers unprescaled:             " << m_algorithmTriggersUnprescaled
-                << "\nRun algorithm triggers unmasked (all enabled):  " << m_algorithmTriggersUnmasked
-                << "\n"
-                << "\nRun technical triggers unprescaled:             " << m_technicalTriggersUnprescaled
-                << "\nRun technical triggers unmasked (all enabled):  " << m_technicalTriggersUnmasked
-                << "\nRun technical triggers veto unmasked (no veto): " << m_technicalTriggersUnmasked
                 << "\n"
                 << std::endl;
     }
@@ -1059,13 +1045,7 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
                 m_numberDaqPartitions,
                 m_gtGTL, m_gtPSB,
                 pfAlgoSetIndex,
-                pfTechSetIndex,
-                m_algorithmTriggersUnprescaled,
-                m_algorithmTriggersUnmasked,
-                m_technicalTriggersUnprescaled,
-                m_technicalTriggersUnmasked,
-                m_technicalTriggersVetoUnmasked
-                );
+                pfTechSetIndex);
 
         if (m_produceL1GtDaqRecord && ( daqNrFdlBoards > 0 )) {
             m_gtFDL->fillDaqFdlBlock(iBxInEvent,

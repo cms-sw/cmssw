@@ -43,7 +43,7 @@ LumiReWeighting::LumiReWeighting( std::string generatedFile,
 	generatedFile_ = boost::shared_ptr<TFile>( new TFile(generatedFileName_.c_str()) ); //MC distribution
 	dataFile_      = boost::shared_ptr<TFile>( new TFile(dataFileName_.c_str()) );      //Data distribution
 
-	weights_ = boost::shared_ptr<TH1>(  (static_cast<TH1*>(dataFile_->Get( DataHistName_.c_str() )->Clone() )) );
+	weights_ = boost::shared_ptr<TH1F> ( new TH1F( *(static_cast<TH1F*>(dataFile_->Get( DataHistName_.c_str() )->Clone() ))));
 
 	// MC * data/MC = data, so the weights are data/MC:
 
@@ -52,7 +52,7 @@ LumiReWeighting::LumiReWeighting( std::string generatedFile,
 	weights_->Scale( 1.0/ weights_->Integral() );
 	weights_->SetName("lumiWeights");
 
-	TH1* den = dynamic_cast<TH1*>(generatedFile_->Get( GenHistName_.c_str() ));
+	TH1F* den = dynamic_cast<TH1F*>(generatedFile_->Get( GenHistName_.c_str() ));
 
 	den->Scale(1.0/ den->Integral());
 
@@ -89,8 +89,8 @@ LumiReWeighting::LumiReWeighting( std::vector< float > MC_distr, std::vector< fl
 
   Int_t NBins = MC_distr.size();
 
-  weights_ = boost::shared_ptr<TH1> ( new TH1F("luminumer","luminumer",NBins,-0.5, float(NBins)-0.5) );
-  TH1* den = new TH1F("lumidenom","lumidenom",NBins,-0.5, float(NBins)-0.5) ;
+  weights_ = boost::shared_ptr<TH1F> ( new TH1F("luminumer","luminumer",NBins,-0.5, float(NBins)-0.5) );
+  TH1F* den = new TH1F("lumidenom","lumidenom",NBins,-0.5, float(NBins)-0.5) ;
 
   for(int ibin = 1; ibin<NBins+1; ++ibin ) {
     weights_->SetBinContent(ibin, Lumi_distr[ibin-1]);
@@ -126,12 +126,6 @@ double LumiReWeighting::weight( int npv ) {
   int bin = weights_->GetXaxis()->FindBin( npv );
   return weights_->GetBinContent( bin );
 }
-
-double LumiReWeighting::weight3BX( float ave_npv ) {
-  int bin = weights_->GetXaxis()->FindBin( ave_npv );
-  return weights_->GetBinContent( bin );
-}
-
 
 // This version of weight does all of the work for you, assuming you want to re-weight
 // using the true number of interactions in the in-time beam crossing.
@@ -187,35 +181,6 @@ double LumiReWeighting::weight( const edm::EventBase &e ) {
   return weights_->GetBinContent( bin );
  
 }
-
-double LumiReWeighting::weight3BX( const edm::EventBase &e ) {
-
-
-  // get pileup summary information
-
-  Handle<std::vector< PileupSummaryInfo > >  PupInfo;
-  e.getByLabel(edm::InputTag("addPileupInfo"), PupInfo);
-
-  std::vector<PileupSummaryInfo>::const_iterator PVI;
-
-  int sum_npv = 0;
-
-  for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
-
-    sum_npv += PVI->getPU_NumInteractions();
-
-  }
-
-  float ave_npv = float(sum_npv)/3.;
-
-
-  int bin = weights_->GetXaxis()->FindBin( ave_npv );
-
-  return weights_->GetBinContent( bin );
- 
-}
-
-
 
 void LumiReWeighting::weightOOT_init() {
 

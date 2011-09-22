@@ -4,8 +4,8 @@
 /** \class MuonScenarioBuilder
  *  The misalignment scenario builder.
  *
- *  $Date: 2009/09/15 17:09:58 $
- *  $Revision: 1.5 $
+ *  $Date: 2008/04/15 16:05:53 $
+ *  $Revision: 1.4 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
 
@@ -41,14 +41,16 @@ public:
   /// this special method allows to move the complete muon system by a same amount
   void moveMuon( const edm::ParameterSet& scenario );
   
-  align::Scalars extractParameters( const edm::ParameterSet& , const char* );
+  std::vector<float> extractParameters( const edm::ParameterSet& , const char* );
 
-  void moveChamberInSector( Alignable *, align::Scalars, align::Scalars, align::Scalars, align::Scalars );
+  void moveChamberInSector( Alignable *, std::vector<float>, std::vector<float>, std::vector<float> , std::vector<float> );
 private: // Members
 
   AlignableMuon* theAlignableMuon;   ///< Pointer to alignable Muon object
   
   AlignableModifier theMuonModifier; 
 };
+
+
 
 #endif

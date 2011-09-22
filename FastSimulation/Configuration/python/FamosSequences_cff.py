@@ -204,8 +204,19 @@ electronGsfTracks.TrajectoryInEvent = True
 # PF related electron sequences defined in FastSimulation.ParticleFlow.ParticleFlowFastSim_cff
 from RecoEgamma.ElectronIdentification.electronIdSequence_cff import *
 
+if(whichTracking=='old'): # this parameter is defined in FastSimulation/Tracking/python/IterativeTracking_cff.py; temporary switch until the new tracking is fully validated
+    iterativeTrackingBeginning = cms.Sequence(
+        iterativeFirstSeeds
+        )
+else:
+    iterativeTrackingBeginning = cms.Sequence(
+        iterativeInitialSeeds+
+        iterativeLowPtTripletSeeds
+        )
+
+
 famosGsfTrackSequence = cms.Sequence(
-    iterativeFirstSeeds+
+    iterativeTrackingBeginning+ 
     newCombinedSeeds+
     particleFlowCluster+ 
     ecalDrivenElectronSeeds+

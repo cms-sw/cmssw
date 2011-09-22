@@ -1,4 +1,0 @@
-<use   name="PhysicsTools/RooStatsCms"/>
-<environment>
-  <bin   file="rescalc.cc"></bin>
-</environment>

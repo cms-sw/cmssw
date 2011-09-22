@@ -24,7 +24,7 @@ class TGHtml;
 class FWLayoutBuilder
 {
 protected:
-   FWLayoutBuilder(TGCompositeFrame *window);
+   FWLayoutBuilder(TGCompositeFrame *window, bool expandY = true);
    FWLayoutBuilder &newRow();
 
    FWLayoutBuilder &indent(int left = 2, int right = -1);
@@ -93,7 +93,7 @@ private:
 class FWDialogBuilder : public FWLayoutBuilder
 {
 public:
-   FWDialogBuilder(TGCompositeFrame *window, FWDialogBuilder *parent = 0);
+   FWDialogBuilder(TGCompositeFrame *window, FWDialogBuilder *parent = 0, bool expandY = true);
 
    FWDialogBuilder &newRow();
    FWDialogBuilder &indent(int left = 2, int right = -1);   

@@ -60,16 +60,19 @@ convLayerPairs = cms.ESProducer("SeedingLayersESProducer",
                                                         'TOB2+TOB4',
                                                         'TOB2+TEC1_pos', 
                                                         'TOB2+TEC1_neg', 
-                                                        
-                                                        'TOB3+TOB4', 
-                                                        'TOB3+TOB5',
-                                                        'TOB3+TEC1_pos', 
-                                                        'TOB3+TEC1_neg', 
-                                                        
-                                                        'TOB4+TOB5',
-                                                        'TOB4+TOB6',
 
-                                                        'TOB5+TOB6',
+                                                        #NB: re-introduce these combinations when large displaced
+                                                        #    tracks, reconstructed only in TOB will be available
+                                                        #    For instance think at the OutIn Ecal Seeded tracks
+                                                        #'TOB3+TOB4', 
+                                                        #'TOB3+TOB5',
+                                                        #'TOB3+TEC1_pos', 
+                                                        #'TOB3+TEC1_neg', 
+                                                        #
+                                                        #'TOB4+TOB5',
+                                                        #'TOB4+TOB6',
+                                                        #
+                                                        #'TOB5+TOB6',
 
                                                         'TID1_pos+TID2_pos', 
                                                         'TID2_pos+TID3_pos', 
@@ -135,32 +138,27 @@ convLayerPairs = cms.ESProducer("SeedingLayersESProducer",
                                     ),
                                 TID1 = cms.PSet(
                                     useSimpleRphiHitsCleaner = cms.bool(False),
-                                    stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHitUnmatched"),
                                     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
                                     useRingSlector = cms.bool(True),
                                     TTRHBuilder = cms.string('WithTrackAngle'),
-                                    rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHitUnmatched"),
-                                    maxRing = cms.int32(3),
+                                    maxRing = cms.int32(2),
                                     minRing = cms.int32(1),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
                                 TID2 = cms.PSet(
                                     useSimpleRphiHitsCleaner = cms.bool(False),
-                                    stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHitUnmatched"),
                                     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
                                     useRingSlector = cms.bool(True),
                                     TTRHBuilder = cms.string('WithTrackAngle'),
-                                    rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHitUnmatched"),
-                                    maxRing = cms.int32(3),
-                                    minRing = cms.int32(1)
+                                    maxRing = cms.int32(2),
+                                    minRing = cms.int32(1),
+                                    skipClusters = cms.InputTag('convClusters'),
                                     ),
                                 TID3 = cms.PSet(
                                     useSimpleRphiHitsCleaner = cms.bool(False),
-                                    stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHitUnmatched"),
                                     matchedRecHits = cms.InputTag("siStripMatchedRecHits","matchedRecHit"),
                                     useRingSlector = cms.bool(True),
                                     TTRHBuilder = cms.string('WithTrackAngle'),
-                                    rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHitUnmatched"),
                                     maxRing = cms.int32(2),
                                     minRing = cms.int32(1),
                                     skipClusters = cms.InputTag('convClusters'),
@@ -172,7 +170,7 @@ convLayerPairs = cms.ESProducer("SeedingLayersESProducer",
                                     useRingSlector = cms.bool(True),
                                     TTRHBuilder = cms.string('WithTrackAngle'),
                                     rphiRecHits = cms.InputTag("siStripMatchedRecHits","rphiRecHitUnmatched"),
-                                    maxRing = cms.int32(2),
+                                    maxRing = cms.int32(7),
                                     stereoRecHits = cms.InputTag("siStripMatchedRecHits","stereoRecHitUnmatched"),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
@@ -209,7 +207,7 @@ convLayerPairs = cms.ESProducer("SeedingLayersESProducer",
                                 )
 
 
-photonConvTrajSeedFromSingleLeg.TrackRefitter = cms.InputTag('generalTracksPre')
+photonConvTrajSeedFromSingleLeg.TrackRefitter = cms.InputTag('generalTracks')
 photonConvTrajSeedFromSingleLeg.primaryVerticesTag = cms.InputTag('pixelVertices')
 
 
@@ -232,7 +230,8 @@ convCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESP
     ComponentName = 'convCkfTrajectoryBuilder',
     trajectoryFilterName = 'convCkfTrajectoryFilter',
     minNrOfHitsForRebuild = 3,
-    clustersToSkip = cms.InputTag('convClusters')
+    clustersToSkip = cms.InputTag('convClusters'),
+    maxCand = 2
     )
 
 # MAKING OF TRACK CANDIDATES
@@ -242,11 +241,25 @@ convTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCand
     TrajectoryBuilder = 'convCkfTrajectoryBuilder'
 )
 
+import TrackingTools.TrackFitters.RungeKuttaFitters_cff
+convStepFitterSmoother = TrackingTools.TrackFitters.RungeKuttaFitters_cff.KFFittingSmootherWithOutliersRejectionAndRK.clone(
+    ComponentName = 'convStepFitterSmoother',
+    EstimateCut = 30,
+    Smoother = cms.string('convStepRKSmoother')
+    )
+    
+convStepRKTrajectorySmoother = TrackingTools.TrackFitters.RungeKuttaFitters_cff.RKTrajectorySmoother.clone(
+    ComponentName = cms.string('convStepRKSmoother'),
+    errorRescaling = 10.0
+    )
+
+        
 # TRACK FITTING
 import RecoTracker.TrackProducer.TrackProducer_cfi
 convStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'convTrackCandidates',
-    AlgorithmName = cms.string('iter8')
+    AlgorithmName = cms.string('iter8'),
+    Fitter = 'convStepFitterSmoother',
     )
 
 
@@ -254,60 +267,50 @@ import RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi
 convStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiTrackSelector.clone(
     src='convStepTracks',
     trackSelectors= cms.VPSet(
-     RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
-      name='convStep',
-      preFilterName = '',
-      applyAdaptedPVCuts = False,
-      chi2n_par = 2.,
-      res_par = ( 0.003, 0.001 ),
-      minNumberLayers = 3,
-      maxNumberLostLayers = 1,
-      minNumber3DLayers = 1,
-      d0_par1 = ( 5., 8.0 ),
-      dz_par1 = ( 5., 8.0 ),
-      d0_par2 = ( 5., 8.0 ),
-      dz_par2 = ( 5., 8.0 ),
-      )
-     )
-    )
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.looseMTS.clone(
+            name = 'convStepLoose',
+            applyAdaptedPVCuts = False,
+            chi2n_par = 3.0,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 3,
+            maxNumberLostLayers = 1,
+            minNumber3DLayers = 1,
+            d0_par1 = ( 5., 8.0 ),
+            dz_par1 = ( 5., 8.0 ),
+            d0_par2 = ( 5., 8.0 ),
+            dz_par2 = ( 5., 8.0 )
+            ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.tightMTS.clone(
+            name = 'convStepTight',
+            preFilterName = 'convStepLoose',
+            chi2n_par = 2.5,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 3,
+            maxNumberLostLayers = 1,
+            minNumber3DLayers = 1,
+            d0_par1 = ( 5., 8.0 ),
+            dz_par1 = ( 5., 8.0 ),
+            d0_par2 = ( 5., 8.0 ),
+            dz_par2 = ( 5., 8.0 )
+            ),
+        RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.highpurityMTS.clone(
+            name = 'convStep',
+            preFilterName = 'convStepTight',
+            chi2n_par = 2.0,
+            res_par = ( 0.003, 0.001 ),
+            minNumberLayers = 3,
+            maxNumberLostLayers = 1,
+            minNumber3DLayers = 1,
+            d0_par1 = ( 5., 8.0 ),
+            dz_par1 = ( 5., 8.0 ),
+            d0_par2 = ( 5., 8.0 ),
+            dz_par2 = ( 5., 8.0 )
+            ),
+        ) #end of vpset
+    ) #end of clone
 
-# convStepLoose = RecoTracker.FinalTrackSelectors.selectLoose_cfi.selectLoose.clone(
-#     src = 'convStepTracks',
-#     keepAllTracks = True,
-#     copyExtras = False,
-#     copyTrajectories = True,
-#     chi2n_par = 2.,
-#     res_par = ( 0.003, 0.001 ),
-#     minNumberLayers = 3,
-#     maxNumberLostLayers = 1,
-#     minNumber3DLayers = 1,
-#     d0_par1 = ( 5., 8.0 ),
-#     dz_par1 = ( 5., 8.0 ),
-#     d0_par2 = ( 5., 8.0 ),
-#     dz_par2 = ( 5., 8.0 )
-#     )
-# convStepTight = RecoTracker.FinalTrackSelectors.selectTight_cfi.selectTight.clone(
-#     src = 'convStepLoose',
-#     keepAllTracks = True,
-#     copyExtras = False,
-#     copyTrajectories = True,
-#     chi2n_par = 2.,
-#     res_par = ( 0.003, 0.001 ),
-#     minNumberLayers = 3,
-#     maxNumberLostLayers = 1,
-#     minNumber3DLayers = 1,
-#     d0_par1 = ( 5., 8.0 ),
-#     dz_par1 = ( 5., 8.0 ),
-#     d0_par2 = ( 5., 8.0 ),
-#     dz_par2 = ( 5., 8.0 )
-#     )
-
-convStep = cms.Sequence( convClusters 
+ConvStep = cms.Sequence( convClusters 
                          + photonConvTrajSeedFromSingleLeg 
                          + convTrackCandidates
                          + convStepTracks
                          + convStepSelector)
-
-
-
-
