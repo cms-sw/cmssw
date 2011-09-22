@@ -25,7 +25,13 @@ options.register ('writeFat',
                   False,
                   VarParsing.multiplicity.singleton,
                   VarParsing.varType.int,
-                  "Output tracks and PF candidates")
+                  "Output tracks and PF candidates (and GenParticles for MC)")
+
+options.register ('writeGenParticles',
+                  False,
+                  VarParsing.multiplicity.singleton,
+                  VarParsing.varType.int,
+                  "Output GenParticles collection")
 
 options.register ('use41x',
                   False,
@@ -242,6 +248,22 @@ process.patJetCorrFactorsPFlow.levels = inputJetCorrLabel[1]
 process.patJetCorrFactorsPFlow.rho = cms.InputTag("kt6PFJetsPFlow", "rho")
 if not options.use41x and not options.forceCheckClosestZVertex :
     process.pfPileUpPFlow.checkClosestZVertex = False
+
+
+# Adapt fine details of top projection for top group synchronization
+
+#muons
+process.isoValMuonWithNeutralPFlow.deposits[0].deltaR = 0.3
+process.isoValMuonWithChargedPFlow.deposits[0].deltaR = 0.3
+process.isoValMuonWithPhotonsPFlow.deposits[0].deltaR = 0.3
+#electrons
+process.isoValElectronWithNeutralPFlow.deposits[0].deltaR = 0.3
+process.isoValElectronWithChargedPFlow.deposits[0].deltaR = 0.3
+process.isoValElectronWithPhotonsPFlow.deposits[0].deltaR = 0.3
+
+process.pfIsolatedMuonsPFlow.combinedIsolationCut = 0.2
+
+process.pfNoTauPFlow.enable = False
 
 
 # In order to have a coherent semileptonic channel also, add
@@ -679,7 +701,7 @@ process.goodPatJetsCATopTagPF = cms.EDFilter("PFJetIDSelectionFunctorFilter",
 process.patseq = cms.Sequence(
     process.scrapingVeto*
     process.HBHENoiseFilter*
-#    process.offlinePrimaryVerticesDAF*    
+    #process.offlinePrimaryVerticesDAF*    
     process.goodOfflinePrimaryVertices*
     process.primaryVertexFilter*
     process.genParticlesForJetsNoNu*
@@ -692,7 +714,7 @@ process.patseq = cms.Sequence(
     process.goodPatJetsCA8PrunedPF*
     process.goodPatJetsCATopTagPF*
     process.flavorHistorySeq*
-    process.prunedGenParticles*
+    #process.prunedGenParticles*
     process.caPrunedGen*
     process.caTopTagGen*
     process.CATopTagInfosGen
@@ -812,7 +834,7 @@ if options.writeFat :
         'keep recoBaseTagInfosOwned_selectedPatJets*_*_*',
         'keep CaloTowers_selectedPatJets*_*_*'
         ]
-    
+if options.writeFat or options.writeGenParticles :
     if options.useData == False :
         process.out.outputCommands += [
             'keep *_genParticles_*_*'
