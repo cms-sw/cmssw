@@ -15,26 +15,32 @@
 \section desc Description
 <!-- Short description of what this package is supposed to provide -->
 
-(THE PACKAGE ADMINISTATOR SHOULD REPLACE THIS SENTENCE WITH HAND-WRITTEN DOCUMENTATION SAYING WHAT THE PACKAGE DOES.)
-
-\subsection interface Public interface
-<!-- List the classes that are provided for use in other packages (if any) -->
-
+This package contains a top level XML geometry description and Python
+configuration file fragments for various scenarious. The XML files are
+part of an external cmsswdata tool. The configuration fragments are
+released in CMSSW and used through the standard sequences. See
+Configuration/StandardSequences package.
 
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
 
 
+
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
-Unknown
+
+- Geometry/CMSCommonData/test/geometryTestRun_cfg.py
+
+The test analyzes an Ideal geometry scenario from XML for RPC, DT, CSC, Tracker
+and Calo geometries.
+
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
-Unknown
+Stable.
 
 <hr>
 Last updated:
-@DATE@  Author: computer-generated.
+@DATE@  I. Osborne
 */
 
