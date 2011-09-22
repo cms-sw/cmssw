@@ -207,14 +207,14 @@ hltGetConfiguration "$MENU" --full --offline $DATA $INPUT --unprescale --process
 cat >> hlt.py << @EOF
 # add (simplified) HLTriggerFinalPath if missing
 if not ( 'HLTriggerFinalPath' in process.__dict__) :
-  process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
-    processName = cms.string( "@" )
-)
-  process.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
-    processName = cms.string( "@" )
-)
-  process.HLTriggerFinalPath = cms.Path( process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW ) 
-# process.schedule.extend([process.HLTriggerFinalPath])
+    process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
+        processName = cms.string( "@" )
+    )
+    process.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
+        processName = cms.string( "@" )
+    )
+
+    process.HLTriggerFinalPath = cms.Path( process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW ) 
 @EOF
 
 # select which events to run on
