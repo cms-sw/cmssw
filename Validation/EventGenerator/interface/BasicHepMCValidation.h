@@ -5,8 +5,8 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
- *  $Date: 2010/07/02 13:34:22 $
- *  $Revision: 1.2 $
+ *  $Date: 2011/04/06 14:35:06 $
+ *  $Revision: 1.3 $
  *
  */
 
@@ -109,6 +109,11 @@ class BasicHepMCValidation : public edm::EDAnalyzer
 	MonitorElement *Bjorken_x;
 
     MonitorElement *status1ShortLived;
+
+    MonitorElement *DeltaEcms;
+    MonitorElement *DeltaPx;
+    MonitorElement *DeltaPy;
+    MonitorElement *DeltaPz;
 
 };
 

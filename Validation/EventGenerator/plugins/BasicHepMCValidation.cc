@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2010/07/02 13:34:23 $
- *  $Revision: 1.2 $
+ *  $Date: 2011/04/06 14:35:06 $
+ *  $Revision: 1.3 $
  */
  
 #include "Validation/EventGenerator/interface/BasicHepMCValidation.h"
@@ -188,6 +188,12 @@ void BasicHepMCValidation::beginJob()
     status1ShortLived->setBinLabel(9,"Z0");
     status1ShortLived->setBinLabel(10,"W-/W+");
     status1ShortLived->setBinLabel(11,"PDG = 7,8,17,25-99");
+
+    DeltaEcms = dbe->book1D("DeltaEcms","Log10 fractional deviation from nominal Ecms", 100,-5., 5.);
+    DeltaPx = dbe->book1D("DeltaPx","Log10 fractional deviation from nominal Px", 100,-5., 5.);
+    DeltaPy = dbe->book1D("DeltaPy","Log10 fractional deviation from nominal Py", 100,-5., 5.);
+    DeltaPz = dbe->book1D("DeltaPz","Log10 fractional deviation from nominal Pz", 100,-5., 5.);
+
   }
   return;
 }
@@ -220,6 +226,8 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
   int outVrtxStablePtclNum = 0; int stablePtclNum = 0; int otherPtclNum = 0; int unknownPDTNum = 0; int stableChaNum = 0;
   //
   double bjorken = 0.;
+  //
+  double etotal = 0. ; double pxtotal = 0.; double pytotal = 0.; double pztotal = 0.;
 
   ///Gathering the HepMCProduct information
   edm::Handle<HepMCProduct> evt;
@@ -309,6 +317,10 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
         if ( Id == 23 ) status1ShortLived->Fill(9);
         if ( std::abs(Id) == 24 ) status1ShortLived->Fill(10);
         if ( std::abs(Id) == 7 || std::abs(Id) == 8 || std::abs(Id) == 17 || (std::abs(Id) >= 25 && std::abs(Id) <= 99) ) status1ShortLived->Fill(11);
+        etotal += ptcl->momentum().e(); 
+        pxtotal += ptcl->momentum().px(); 
+        pytotal += ptcl->momentum().py(); 
+        pztotal += ptcl->momentum().pz(); 
       }
 	
       ///counting multiplicities and filling momentum distributions
@@ -530,6 +542,16 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
       //	if( 0 < Id && 100 > Id) ++part_counter[Id];
     }//event particles
 
+
+  // set a default sqrt(s) and then check in the event
+  double ecms = 7000.;
+  if ( myGenEvent->valid_beam_particles() ) {
+    ecms = myGenEvent->beam_particles().first->momentum().e()+myGenEvent->beam_particles().second->momentum().e();
+  }
+  DeltaEcms->Fill(std::log10(etotal/ecms));
+  DeltaPx->Fill(std::log10(1+pxtotal/ecms));
+  DeltaPy->Fill(std::log10(1+pytotal/ecms));
+  DeltaPz->Fill(std::log10(1+pztotal/ecms));
 
   ///filling multiplicity ME's
   stablePtclNumber->Fill(log10(stablePtclNum+0.1)); 
