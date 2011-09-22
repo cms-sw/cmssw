@@ -13,7 +13,7 @@ process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")
 
 process.load("Geometry.TrackerGeometryBuilder.trackerGeometry_cfi")
 
-process.load("MagneticField.Engine.volumeBasedMagneticField_cfi")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 
 process.load("Geometry.CaloEventSetup.CaloGeometry_cff")
 
