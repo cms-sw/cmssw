@@ -37,8 +37,14 @@ private:
 
     for ( unsigned int icount = 0 ; icount < (unsigned int)nup_; icount++ ) {
 
-      std::cout << "# " << icount << " " << idup_[icount] << " " << (pup_[icount])[0] << " " << (pup_[icount])[1] << " " << (pup_[icount])[2] << " " << (pup_[icount])[3] << " " << (pup_[icount])[4] << std::endl;
-
+      std::cout << "# " << std::setw(14) << std::fixed << icount 
+                << std::setw(14) << std::fixed << idup_[icount] 
+                << std::setw(14) << std::fixed << (pup_[icount])[0] 
+                << std::setw(14) << std::fixed << (pup_[icount])[1] 
+                << std::setw(14) << std::fixed << (pup_[icount])[2] 
+                << std::setw(14) << std::fixed << (pup_[icount])[3] 
+                << std::setw(14) << std::fixed << (pup_[icount])[4] 
+                << std::endl;
     }
 
 
