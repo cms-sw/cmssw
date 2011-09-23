@@ -714,7 +714,7 @@ process.patseq = cms.Sequence(
     process.goodPatJetsCA8PrunedPF*
     process.goodPatJetsCATopTagPF*
     process.flavorHistorySeq*
-    #process.prunedGenParticles*
+    process.prunedGenParticles*
     process.caPrunedGen*
     process.caTopTagGen*
     process.CATopTagInfosGen
