@@ -175,9 +175,9 @@ if options.generate and not foundRootDoesNotMatchError:
                     classVersion += 1
                     parts = splitArgs[:]
                     indexToClassVersion = 0
-                    for p in parts:
+                    for pt in parts:
                         indexToClassVersion +=1
-                        if -1 != p.find('ClassVersion'):
+                        if -1 != pt.find('ClassVersion'):
                             break
                     parts[indexToClassVersion]=str(classVersion)
                     newLine = '"'.join(parts)
