@@ -57,7 +57,9 @@ CSCWireTopology::CSCWireTopology(
 CSCWireTopology::CSCWireTopology( const CSCWireTopology& mewt ) :
   theAlignmentPinToFirstWire(mewt.theAlignmentPinToFirstWire) {
   if (mewt.theWireGrouping) theWireGrouping = mewt.theWireGrouping->clone();
+  else theWireGrouping = 0;
   if (mewt.theWireGeometry) theWireGeometry = mewt.theWireGeometry->clone();
+  else theWireGeometry = 0;
   
 }
 
