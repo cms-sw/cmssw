@@ -66,9 +66,9 @@ public:
   virtual const Topology& topology() const;
 
   /// Accessors for LayerGeometry's
-  const CSCLayerGeometry* const oddLayerGeometry( int iendcap ) const 
+  const CSCLayerGeometry* oddLayerGeometry( int iendcap ) const 
    { return (iendcap==1? poszOddLayerGeometry:negzOddLayerGeometry);}
-  const CSCLayerGeometry* const evenLayerGeometry( int iendcap ) const 
+  const CSCLayerGeometry* evenLayerGeometry( int iendcap ) const 
    { return (iendcap==1? poszEvenLayerGeometry:negzEvenLayerGeometry);}
 
    /**
