@@ -1,9 +1,6 @@
 #include "DetectorDescription/Core/interface/DDAlgo.h"
 #include "DetectorDescription/ExprAlgo/interface/AlgoPos.h"
 
-//DDBase<DDName,AlgoPos*>::StoreT::pointer_type
-//  DDBase<DDName,AlgoPos*>::StoreT::instance_ = 0;
-
 std::ostream & operator<<(std::ostream & os, const DDAlgo & algo)
 {
  DDBase<DDName,AlgoPos*>::def_type defined(algo.isDefined());

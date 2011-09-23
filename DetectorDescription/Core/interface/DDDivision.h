@@ -111,10 +111,10 @@ class DDDivision : public DDBase<DDName, DDI::Division*>
   
   //  virtual ~G4PVDivision();
 
-  const DDAxes axis() const;
-  const int nReplicas() const;
-  const double width() const;
-  const double offset() const;
+  DDAxes axis() const;
+  int nReplicas() const;
+  double width() const;
+  double offset() const;
   const DDLogicalPart & parent() const;
  
 

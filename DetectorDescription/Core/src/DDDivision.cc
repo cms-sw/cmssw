@@ -82,22 +82,22 @@ DDDivision::DDDivision(const DDName & name,
   //  DD_NDC(name);
 }
 
-const DDAxes DDDivision::axis() const
+DDAxes DDDivision::axis() const
 {
   return rep().axis();
 }
 
-const int DDDivision::nReplicas() const
+int DDDivision::nReplicas() const
 {
   return rep().nReplicas();
 }
 
-const double DDDivision::width() const
+double DDDivision::width() const
 {
   return rep().width();
 }
 
-const double DDDivision::offset() const
+double DDDivision::offset() const
 {
   return rep().offset();
 }

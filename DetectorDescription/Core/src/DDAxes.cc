@@ -29,7 +29,7 @@ const std::string AxesNames::name(const DDAxes& s)
   return it->first;
 }
 
-const DDAxes AxesNames::index(const std::string & s)
+DDAxes AxesNames::index(const std::string & s)
 {
   return axesmap_[s];
 }
@@ -39,7 +39,7 @@ const std::string DDAxesNames::name(const DDAxes& s)
   return instance().name(s);
 }
 
-const DDAxes DDAxesNames::index(const std::string & s) 
+DDAxes DDAxesNames::index(const std::string & s) 
 {
   return instance().index(s);
 }

@@ -35,7 +35,7 @@ struct DDSolidShapesName {
     return c[s];   			  
   }
   
-  static const DDSolidShape index( const int& ind ) {
+  static DDSolidShape index( const int& ind ) {
     switch (ind) {
     case 0:
       return dd_not_init;

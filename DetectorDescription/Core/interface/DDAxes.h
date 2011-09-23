@@ -17,7 +17,7 @@ public:
   
   const std::string name(const DDAxes& s) ;
   
-  const DDAxes index(const std::string & s);
+  DDAxes index(const std::string & s);
   
 private:
   std::map<std::string, DDAxes> axesmap_;
@@ -31,7 +31,7 @@ class DDAxesNames : public DDI::Singleton<AxesNames> {
 
   static const std::string name(const DDAxes& s);
 
-  static const DDAxes index(const std::string & s);
+  static DDAxes index(const std::string & s);
 
 };	   
 

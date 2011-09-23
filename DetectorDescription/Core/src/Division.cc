@@ -28,10 +28,10 @@ Division::Division(const DDLogicalPart & parent,
   : parent_(parent), axis_(axis), nReplicas_(0), width_(width), offset_(offset)
 { }
 
-const DDAxes Division::axis() const { return axis_; }
-const int Division::nReplicas() const { return nReplicas_; }
-const double Division::width() const { return width_; }
-const double Division::offset() const { return offset_; }
+DDAxes Division::axis() const { return axis_; }
+int Division::nReplicas() const { return nReplicas_; }
+double Division::width() const { return width_; }
+double Division::offset() const { return offset_; }
 const DDLogicalPart & Division::parent() const { return parent_; }
 
 void Division::stream(std::ostream & os) 
