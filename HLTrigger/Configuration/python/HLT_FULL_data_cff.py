@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HLT/V898 (CMSSW_4_2_0_HLT28)
+# /dev/CMSSW_4_2_0/HLT/V899 (CMSSW_4_2_0_HLT28)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V898')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V899')
 )
 
 streams = cms.PSet( 
@@ -6915,14 +6915,16 @@ hltDt4DSegments = cms.EDProducer( "DTRecSegment4DProducer",
         debug = cms.untracked.bool( False ),
         recAlgo = cms.string( "DTLinearDriftFromDBAlgo" ),
         nUnSharedHitsMin = cms.int32( 2 ),
-        performT0SegCorrection = cms.bool( False )
+        performT0SegCorrection = cms.bool( False ),
+        perform_delta_rejecting = cms.bool( False )
       ),
       performT0_vdriftSegCorrection = cms.bool( False ),
       debug = cms.untracked.bool( False ),
       recAlgo = cms.string( "DTLinearDriftFromDBAlgo" ),
       nUnSharedHitsMin = cms.int32( 2 ),
       AllDTRecHits = cms.bool( True ),
-      performT0SegCorrection = cms.bool( False )
+      performT0SegCorrection = cms.bool( False ),
+      perform_delta_rejecting = cms.bool( False )
     )
 )
 hltMuonCSCDigis = cms.EDProducer( "CSCDCCUnpacker",
