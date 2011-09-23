@@ -51,8 +51,8 @@ class CSCLayerGeometryInside : public edm::EDAnalyzer {
       double ylo;
       double yhi;
 
-      TH1F* h1as;
-      TH1F* h1bs;
+  //      TH1F* h1as;
+  //      TH1F* h1bs;
 
       TH2F* h1ai;
       TH2F* h1ao;
