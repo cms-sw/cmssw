@@ -905,7 +905,12 @@ int main(int argc, char* argv[]) {
 
   std::string fileName;
   if(vm.count(kFileNameOpt)) {
-    fileName = vm[kFileNameOpt].as<std::string>();
+    try {
+      fileName = vm[kFileNameOpt].as<std::string>();
+    } catch(boost::bad_any_cast const& e) {
+      std::cout << e.what() << std::endl;
+      return 2;
+    }
   } else {
     std::cout << "Data file not specified." << std::endl;
     std::cout << desc << std::endl;
@@ -914,7 +919,12 @@ int main(int argc, char* argv[]) {
 
   std::string findMatch;
   if(vm.count(kFindMatchOpt)) {
-    findMatch = vm[kFindMatchOpt].as<std::string>();
+    try {
+      findMatch = vm[kFindMatchOpt].as<std::string>();
+    } catch(boost::bad_any_cast const& e) {
+      std::cout << e.what() << std::endl;
+      return 2;
+    }
   }
 
   //silence ROOT warnings about missing dictionaries

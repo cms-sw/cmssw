@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
    }
 
    uint32 adler = (b << 16) | a;
-   std::cout << std::hex << adler << " " << filename << std::endl;
+   std::cout << std::hex << adler << std::dec << " " << filename << std::endl;
 
    file.close();
    return 0;

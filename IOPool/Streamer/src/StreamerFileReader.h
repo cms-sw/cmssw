@@ -25,12 +25,12 @@ namespace edm {
     virtual ~StreamerFileReader();
     virtual EventPrincipal* read();
 
-    InitMsgView const* getHeader(); 
+    InitMsgView const* getHeader();
     EventMsgView const* getNextEvent();
-    bool const newHeader(); 
+    bool newHeader();
     static void fillDescriptions(ConfigurationDescriptions& descriptions);
 
-  private:  
+  private:
     std::vector<std::string> streamerNames_; // names of Streamer files
     std::auto_ptr<StreamerInputFile> streamReader_;
     boost::shared_ptr<EventSkipperByID> eventSkipperByID_;

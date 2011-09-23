@@ -65,7 +65,11 @@ namespace edm {
     lumi_(0),
     l1bit_(0),
     hltbits_(0),
-    origSize_(0) { // no compression as default value - we need this!
+    origSize_(0),
+    host_name_(),
+    hltTriggerSelections_(),
+    outputModuleId_(0) {
+    // no compression as default value - we need this!
 
     // test luminosity sections
     struct timeval now;
@@ -87,7 +91,7 @@ namespace edm {
     }
     serialize_databuffer.bufs_.resize(maxEventSize_);
     int got_host = gethostname(host_name_, 255);
-    if(got_host != 0) strcpy(host_name_, "noHostNameFoundOrTooLong");
+    if(got_host != 0) strncpy(host_name_, "noHostNameFoundOrTooLong", sizeof(host_name_));
     //loadExtraClasses();
     // do the line below instead of loadExtraClasses() to avoid Root errors
     RootAutoLibraryLoader::enable();

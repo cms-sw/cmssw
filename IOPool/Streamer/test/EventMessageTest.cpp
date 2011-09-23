@@ -19,6 +19,7 @@ Disclaimer: Most of the code here is randomly written during
 #include "IOPool/Streamer/interface/EventMessage.h"
 
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "IOPool/Streamer/interface/DumpTools.h"
 #include "zlib.h"
 
@@ -98,8 +99,11 @@ int main()
   if(equal(&buf[0],&buf[0]+view.size(),buf2.begin())==false)
     {
       std::cerr << "Init buffers not the same!\n";
-      dumpInit(&buf[0]);
-      dumpInit(&buf2[0]);
+      try {
+        dumpInit(&buf[0]);
+        dumpInit(&buf2[0]);
+      } catch(cms::Exception const&) {
+      }
       abort();
     }
 

@@ -95,9 +95,9 @@ TStorageFactoryFile::TStorageFactoryFile(void)
 
 
 TStorageFactoryFile::TStorageFactoryFile(const char *path,
-					 Option_t *option /* = "" */,
-					 const char *ftitle /* = "" */,
-					 Int_t compress /* = 1 */)
+                                         Option_t *option /* = "" */,
+                                         const char *ftitle /* = "" */,
+                                         Int_t compress /* = 1 */)
   : TFile(path, "NET", ftitle, compress), // Pass "NET" to prevent local access in base class
     storage_(0)
 {
@@ -130,6 +130,7 @@ TStorageFactoryFile::TStorageFactoryFile(const char *path,
     create   = true;
     fOption  = "CREATE";
   }
+  assert(!recreate);
 
   if (update && gSystem->AccessPathName(path, kFileExists))
   {
@@ -140,7 +141,7 @@ TStorageFactoryFile::TStorageFactoryFile(const char *path,
   int           openFlags = IOFlags::OpenRead;
   if (!read)    openFlags |= IOFlags::OpenWrite;
   if (create)   openFlags |= IOFlags::OpenCreate;
-  if (recreate) openFlags |= IOFlags::OpenCreate | IOFlags::OpenTruncate;
+  //if (recreate) openFlags |= IOFlags::OpenCreate | IOFlags::OpenTruncate;
 
   // Open storage
   if (! (storage_ = StorageFactory::get()->open(path, openFlags)))
@@ -214,8 +215,8 @@ TStorageFactoryFile::ReadBuffer(char *buf, Int_t len)
     Bool_t   async = c->IsAsyncReading();
 
     StorageAccount::Stamp cstats(async
-				 ? storageCounter(s_statsCPrefetch, "readPrefetchToCache")
-				 : storageCounter(s_statsCRead, "readViaCache"));
+                                 ? storageCounter(s_statsCPrefetch, "readPrefetchToCache")
+                                 : storageCounter(s_statsCRead, "readViaCache"));
 
     Int_t st = ReadBufferViaCache(async ? 0 : buf, len);
 
@@ -226,7 +227,7 @@ TStorageFactoryFile::ReadBuffer(char *buf, Int_t len)
     if (st == 1) {
       if (async) {
         cstats.tick(len);
-	Seek(here);
+        Seek(here);
       } else {
         cstats.tick(len);
         stats.tick(len);
@@ -375,7 +376,7 @@ TStorageFactoryFile::ReadBuffers(char *buf, Long64_t *pos, Int_t *len, Int_t nbu
           // and return kTRUE - signaling an error.
           result = ((IOSize)len[i] == storage_->xread(&buf[k], len[i])) ? kFALSE : kTRUE;
           xstats.tick(len[i]);
-             
+
           if (result)
             break;
           k += len[i];
@@ -416,14 +417,17 @@ TStorageFactoryFile::ReadBuffers(char *buf, Long64_t *pos, Int_t *len, Int_t nbu
     fCacheRead = old;
     return result;
   }
+  assert(!buf);
 
   // Read from underlying storage.
+  void* const nobuf = 0;
   Int_t total = 0;
   std::vector<IOPosBuffer> iov;
   iov.reserve(nbuf);
   for (Int_t i = 0; i < nbuf; ++i)
   {
-    iov.push_back(IOPosBuffer(pos[i], buf ? buf + total : 0, len[i]));
+    // iov.push_back(IOPosBuffer(pos[i], buf ? buf + total : 0, len[i]));
+    iov.push_back(IOPosBuffer(pos[i], nobuf, len[i]));
     total += len[i];
   }
 
@@ -556,8 +560,8 @@ TStorageFactoryFile::SysSeek(Int_t /* fd */, Long64_t offset, Int_t whence)
 {
   StorageAccount::Stamp stats(storageCounter(s_statsSeek, "seek"));
   Storage::Relative rel = (whence == SEEK_SET ? Storage::SET
-    	    	           : whence == SEEK_CUR ? Storage::CURRENT
-    		           : Storage::END);
+                               : whence == SEEK_CUR ? Storage::CURRENT
+                               : Storage::END);
 
   offset = storage_->position(offset, rel);
   stats.tick();
@@ -575,7 +579,7 @@ TStorageFactoryFile::SysSync(Int_t /* fd */)
 
 Int_t
 TStorageFactoryFile::SysStat(Int_t /* fd */, Long_t *id, Long64_t *size,
-    		      Long_t *flags, Long_t *modtime)
+                             Long_t *flags, Long_t *modtime)
 {
   StorageAccount::Stamp stats(storageCounter(s_statsStat, "stat"));
   // FIXME: Most of this is unsupported or makes no sense with Storage

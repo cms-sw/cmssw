@@ -1,4 +1,4 @@
-/* 
+/*
 
 Example code to write DQM Event Message to file
 
@@ -8,6 +8,7 @@ Example code to write DQM Event Message to file
 #include <stdint.h>
 
 #include "IOPool/Streamer/interface/MsgTools.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 #include "IOPool/Streamer/interface/DQMEventMsgBuilder.h"
 #include "IOPool/Streamer/interface/DQMEventMessage.h"
@@ -21,7 +22,7 @@ using namespace edm;
 //{
 
 int main()
-{ 
+{
   typedef std::vector<uint8> Buffer;
   Buffer buf(1024);
   //Buffer buf2(1024);
@@ -35,16 +36,17 @@ int main()
   std::string host_name = "mytestnode.cms";
 
   DQMEvent::TObjectTable toTable;
-  
+
   StreamDQMOutputFile dqmFile("dqm_file.dqm");
 
-  for (int i=0; i != 10; ++i) {
-	Timestamp fakeTime(i);
+  try {
+      for (int i=0; i != 10; ++i) {
+        Timestamp fakeTime(i);
         // create the message
-  	DQMEventMsgBuilder dqmMsgBuilder(&buf[0], buf.size(),
-                                     run, event++, 
-				     //fakeTime.value(),
-				     fakeTime,
+        DQMEventMsgBuilder dqmMsgBuilder(&buf[0], buf.size(),
+                                     run, event++,
+                                     //fakeTime.value(),
+                                     fakeTime,
                                      lumiSection, updateNumber,
                                      (uint32)adler32_chksum,
                                      host_name.c_str(),
@@ -52,14 +54,19 @@ int main()
                                      toTable);
 
 
-  	//Serialize the msg
-  
+        //Serialize the msg
 
-  	//Lets write out this msg in a file
 
-  	dqmFile.write(dqmMsgBuilder);
-   } 
-  /***	DQMEventMsgView dqmMsgView(&buf[0]);
+        //Lets write out this msg in a file
+
+        dqmFile.write(dqmMsgBuilder);
+     }
+  }
+  catch(cms::Exception const& e) {
+    std::cout << e.explainSelf() << std::endl;
+    return 1;
+  }
+  /*** DQMEventMsgView dqmMsgView(&buf[0]);
   std::cout
     << "code = " << dqmMsgView.code()<< ", "
     << "\nsize = " << dqmMsgView.size()<< ", "
@@ -70,7 +77,6 @@ int main()
     << "topFolderName = " << dqmMsgView.topFolderName() << "\n"
     << "release = " << dqmMsgView.releaseTag() << "\n";
    ***/
-
   return 0;
 }
 

@@ -113,7 +113,7 @@ namespace edm {
     BranchMap const& branches() const;
 
     //For backwards compatibility
-    TBranch* const branchEntryInfoBranch() const {return branchEntryInfoBranch_;}
+    TBranch* branchEntryInfoBranch() const {return branchEntryInfoBranch_;}
     
     void trainCache(char const* branchNames);
     void resetTraining() {trainNow_ = true;}

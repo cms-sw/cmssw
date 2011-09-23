@@ -82,7 +82,7 @@ namespace edm {
 
     void writeTree() const;
 
-    TTree* const tree() const {
+    TTree* tree() const {
       return tree_;
     }
 

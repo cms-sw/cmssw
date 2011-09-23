@@ -16,7 +16,7 @@ namespace edm {
 // Driver for configuring ROOT plug-in manager to use TStorageFactoryFile.
 class TFileAdaptor {
 public:
-  TFileAdaptor(edm::ParameterSet const& p, edm::ActivityRegistry& ar);
+  TFileAdaptor(edm::ParameterSet const& pset, edm::ActivityRegistry& ar);
 
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 

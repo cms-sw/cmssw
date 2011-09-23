@@ -1,6 +1,6 @@
 /** Example code shows you to write Streamer files.
-    All values are dummy here, The Init message contains different 
-    values from what Event Header contains, this is only 
+    All values are dummy here, The Init message contains different
+    values from what Event Header contains, this is only
     for the demonstration, obviously.
 
     Change total number of written events using,
@@ -21,6 +21,7 @@ Disclaimer: Most of the code here is randomly written during
 #include "IOPool/Streamer/interface/InitMessage.h"
 
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "IOPool/Streamer/interface/StreamerOutputFile.h"
 
 #include "zlib.h"
@@ -28,7 +29,7 @@ Disclaimer: Most of the code here is randomly written during
 #define NO_OF_EVENTS 10
 
 int main()
-{ 
+{
   typedef std::vector<uint8> Buffer;
   Buffer buf(1024);
   Buffer buf2(11024);
@@ -46,7 +47,7 @@ int main()
   hlt_names.push_back("e");  hlt_names.push_back("f");
   hlt_names.push_back("g");  hlt_names.push_back("h");
   hlt_names.push_back("i");
-    
+
   l1_names.push_back("t10");  l1_names.push_back("t11");
   l1_names.push_back("t12");  l1_names.push_back("t13");
   l1_names.push_back("t14");  l1_names.push_back("t15");
@@ -76,16 +77,22 @@ int main()
   std::copy(&test_value[0],&test_value[0]+sizeof(test_value),
             init.dataAddress());
 
-  //Do a dumpInit here if you need to see the event.    
+  //Do a dumpInit here if you need to see the event.
 
   //Start the Streamer file
-  std::cout <<"Trying to Write a Streamer file"<< std::endl; 
+  std::cout <<"Trying to Write a Streamer file"<< std::endl;
   std::string initfilename = "teststreamfile.dat";
   StreamerOutputFile stream_writer(initfilename);
-  
-  std::cout << "Trying to Write Out The Init message into Streamer File: " 
+
+  std::cout << "Trying to Write Out The Init message into Streamer File: "
       << initfilename << std::endl;
-  stream_writer.write(init);
+  try {
+    stream_writer.write(init);
+  }
+  catch(cms::Exception const& e) {
+    std::cout << e.explainSelf() << std::endl;
+    return 1;
+  }
 
   // ------- event
 
@@ -100,7 +107,7 @@ int main()
   //l1bit[16]=false;  l1bit[17]=false;  l1bit[18]=true;  l1bit[19]=true;
 
   //Lets Build 10 Events and then Write them into Streamer file.
-  
+
   adler32_chksum = (uint32)cms::Adler32((char*)&test_value_event[0], sizeof(test_value_event));
   //host_name = "mytestnode.cms";
 
@@ -114,9 +121,14 @@ int main()
 
     //Lets write this to our streamer file .
     std::cout<<"Writing Event# : "<<eventId<<" To Streamer file"<< std::endl;
-    stream_writer.write(emb);
+    try {
+      stream_writer.write(emb);
+    }
+    catch(cms::Exception const& e) {
+      std::cout << e.explainSelf() << std::endl;
+      return 1;
+    }
   }
-
 
   //Write the EOF Record Both at the end of Streamer file
   uint32 dummyStatusCode = 1234;
@@ -127,8 +139,7 @@ int main()
   hltStats.push_back(34);
 
   stream_writer.writeEOF(dummyStatusCode, hltStats);
- 
+
   return 0;
 }
-
 

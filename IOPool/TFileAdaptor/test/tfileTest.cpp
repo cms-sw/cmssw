@@ -7,6 +7,8 @@
 #include <string>
 #include <iostream>
 
+#include "boost/filesystem/operations.hpp"
+
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -20,7 +22,17 @@ int main(int argc, char* argv[]) {
 
   char const* tStorageFactoryFileFunc = "TStorageFactoryFile(char const*, Option_t*, char const*, Int_t)"; 
 
-  edmplugin::PluginManager::configure(edmplugin::standard::config());
+  try {
+    edmplugin::PluginManager::configure(edmplugin::standard::config());
+  }
+  catch(cms::Exception const& e) {
+    std::cout << e.explainSelf() << std::endl;
+    return 1;
+  }
+  catch(boost::system::system_error const& e) {
+    std::cout << e.what() << std::endl;
+    return 1;
+  }
 
   gEnv->SetValue("Root.Stacktrace", "0");
   // set our own root plugin

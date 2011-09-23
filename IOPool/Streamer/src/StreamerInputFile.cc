@@ -29,17 +29,21 @@ namespace edm {
     currentEvMsg_(),
     headerBuf_(1000*1000),
     eventBuf_(1000*1000*7),
+    currentFile_(0),
+    streamerNames_(),
     multiStreams_(false),
     currentFileName_(),
     currentFileOpen_(false),
     eventSkipperByID_(eventSkipperByID),
     numberOfEventsToSkip_(numberOfEventsToSkip),
+    currRun_(0),
+    currProto_(0),
     newHeader_(false),
+    storage_(),
     endOfFile_(false) {
     openStreamerFile(name);
     readStartMessage();
   }
-
 
   StreamerInputFile::StreamerInputFile(std::vector<std::string> const& names,
                                        int* numberOfEventsToSkip,

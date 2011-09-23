@@ -4,26 +4,47 @@
 #include <iterator>
 #include <cstring>
 
-InitMsgView::InitMsgView(void* buf):
-  buf_((uint8*)buf),head_(buf)
-{
+InitMsgView::InitMsgView(void* buf) :
+  buf_((uint8*)buf),
+  head_(buf),
+  release_start_(0),
+  release_len_(0),
+  processName_start_(0),
+  processName_len_(0),
+  outputModuleLabel_start_(0),
+  outputModuleLabel_len_(0),
+  outputModuleId_(0),
+  hlt_trig_start_(0),
+  hlt_trig_count_(0),
+  hlt_trig_len_(0),
+  hlt_select_start_(0),
+  hlt_select_count_(0),
+  hlt_select_len_(0),
+  l1_trig_start_(0),
+  l1_trig_count_(0),
+  l1_trig_len_(0),
+  adler32_chksum_(0),
+  host_name_start_(0),
+  host_name_len_(0),
+  desc_start_(0),
+  desc_len_(0) {
   if (protocolVersion() == 2) {
-      std::cout << "Protocol Version 2 encountered" << std::endl; 
+      std::cout << "Protocol Version 2 encountered" << std::endl;
       release_start_ = buf_ + sizeof(InitHeader) - (sizeof(uint32)*2);
       // Minus the size for Init and Event Header size fileds
       // in the InitHeader
-  } else { //For version 3 
+  } else { //For version 3
       release_start_ = buf_ + sizeof(InitHeader);
   }
   release_len_ = *release_start_;
   release_start_ += sizeof(uint8);
   uint8* pos = release_start_ + release_len_;
 
-  //Lets get Process Name from right after Release Name  
+  //Lets get Process Name from right after Release Name
   if (protocolVersion() > 3) {
-	//std::cout << "Protocol Version > 3 encountered" << std::endl;
-	processName_len_ = *pos;
-	processName_start_ = (uint8*)(pos + sizeof(uint8));
+        //std::cout << "Protocol Version > 3 encountered" << std::endl;
+        processName_len_ = *pos;
+        processName_start_ = (uint8*)(pos + sizeof(uint8));
         pos = processName_start_ + processName_len_;
 
         // Output Module Label
@@ -39,7 +60,6 @@ InitMsgView::InitMsgView(void* buf):
             }
         }
   }
-
 
   hlt_trig_start_ = pos;
   hlt_trig_count_ = convert32(hlt_trig_start_);
@@ -149,7 +169,7 @@ uint32 InitMsgView::eventHeaderSize() const
        uint32 l1_sz = get_l1_bit_cnt();
        if (l1_sz != 0) l1_sz = 1 + ((l1_sz-1)/8);
 
-       return 1 + (4*8) + hlt_sz+l1_sz; 
+       return 1 + (4*8) + hlt_sz+l1_sz;
    }
 
    InitHeader* h = reinterpret_cast<InitHeader*>(buf_);

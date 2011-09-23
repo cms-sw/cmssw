@@ -37,7 +37,7 @@ namespace edm {
     EventMsgView const* currentRecord() const { return currentEvMsg_.get(); }
     /** Points to current Record */
 
-    bool const newHeader() { bool tmp = newHeader_; newHeader_ = false; return tmp;}  /** Test bit if a new header is encountered */
+    bool newHeader() { bool tmp = newHeader_; newHeader_ = false; return tmp;}  /** Test bit if a new header is encountered */
 
 
   private:

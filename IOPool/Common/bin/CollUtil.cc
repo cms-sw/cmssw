@@ -228,6 +228,7 @@ namespace edm {
 
   void printEventLists(TFile *tfl) {
     TTree *metaDataTree = dynamic_cast<TTree *>(tfl->Get(poolNames::metaDataTreeName().c_str()));
+    assert(0 != metaDataTree);
 
     FileFormatVersion fileFormatVersion;
     FileFormatVersion *fftPtr = &fileFormatVersion;
@@ -242,8 +243,7 @@ namespace edm {
       preIndexIntoFilePrintEventLists(tfl, fileFormatVersion, metaDataTree);
     }
   }
-  
-  
+
   static void preIndexIntoFilePrintEventsInLumis(TFile*, FileFormatVersion const& fileFormatVersion, TTree *metaDataTree) {
     FileIndex fileIndex;
     FileIndex *findexPtr = &fileIndex;
@@ -257,7 +257,7 @@ namespace edm {
       "files created with earlier releases and printout of the event list will fail.\n";
       return;
     }
-    
+
     std::cout <<"\n"<< std::setw(15) << "Run"
     << std::setw(15) << "Lumi"
     << std::setw(15) << "# Events"
@@ -274,7 +274,7 @@ namespace edm {
           //print the previous one
           if(lumiID !=0) {
             std::cout << std::setw(15) << runID
-            << std::setw(15) << lumiID 
+            << std::setw(15) << lumiID
             << std::setw(15) << nEvents<<"\n";
           }
           nEvents=0;
@@ -286,13 +286,13 @@ namespace edm {
     //print the last one
     if(lumiID !=0) {
       std::cout << std::setw(15) << runID
-      << std::setw(15) << lumiID 
+      << std::setw(15) << lumiID
       << std::setw(15) << nEvents<<"\n";
     }
-    
+
     std::cout << "\n";
   }
-  
+
   static void postIndexIntoFilePrintEventsInLumis(TFile* tfl, FileFormatVersion const& fileFormatVersion, TTree *metaDataTree) {
     IndexIntoFile indexIntoFile;
     IndexIntoFile *findexPtr = &indexIntoFile;
@@ -310,7 +310,7 @@ namespace edm {
     << std::setw(15) << "Lumi"
     << std::setw(15) << "# Events"
     << "\n";
-    
+
     unsigned long nEvents = 0;
     unsigned long runID = 0;
     unsigned long lumiID = 0;
@@ -327,7 +327,7 @@ namespace edm {
             //print the previous one
             if(lumiID !=0) {
               std::cout << std::setw(15) << runID
-              << std::setw(15) << lumiID 
+              << std::setw(15) << lumiID
               << std::setw(15) << nEvents<<"\n";
             }
             nEvents=0;
@@ -345,16 +345,16 @@ namespace edm {
     //print the last one
     if(lumiID !=0) {
       std::cout << std::setw(15) << runID
-      << std::setw(15) << lumiID 
+      << std::setw(15) << lumiID
       << std::setw(15) << nEvents<<"\n";
     }
-    
     std::cout << "\n";
   }
 
   void printEventsInLumis(TFile *tfl) {
     TTree *metaDataTree = dynamic_cast<TTree *>(tfl->Get(poolNames::metaDataTreeName().c_str()));
-    
+    assert(0 != metaDataTree);
+
     FileFormatVersion fileFormatVersion;
     FileFormatVersion *fftPtr = &fileFormatVersion;
     if (metaDataTree->FindBranch(poolNames::fileFormatVersionBranchName().c_str()) != 0) {
@@ -368,5 +368,4 @@ namespace edm {
       preIndexIntoFilePrintEventsInLumis(tfl, fileFormatVersion, metaDataTree);
     }
   }
-
 }

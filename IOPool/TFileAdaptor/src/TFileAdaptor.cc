@@ -42,7 +42,7 @@
       || std::find(native_.begin(), native_.end(), proto) != native_.end();
   }
 
-  TFileAdaptor::TFileAdaptor(edm::ParameterSet const& p, edm::ActivityRegistry& ar)
+  TFileAdaptor::TFileAdaptor(edm::ParameterSet const& pset, edm::ActivityRegistry& ar)
     : enabled_(true),
       doStats_(true),
       cacheHint_("application-only"),
@@ -51,21 +51,21 @@
       minFree_(0),
       timeout_(0U),
       native_() {
-    if (!(enabled_ = p.getUntrackedParameter<bool> ("enable", enabled_)))
+    if (!(enabled_ = pset.getUntrackedParameter<bool> ("enable", enabled_)))
       return;
 
     StorageFactory* f = StorageFactory::get();
-    doStats_ = p.getUntrackedParameter<bool> ("stats", doStats_);
+    doStats_ = pset.getUntrackedParameter<bool> ("stats", doStats_);
 
     // values set in the site local config or in SiteLocalConfigService override
     // any values set here for this service.
     // These parameters here are needed only for backward compatibility
     // for WMDM tools until we switch to only using the site local config for this info.
-    cacheHint_ = p.getUntrackedParameter<std::string> ("cacheHint", cacheHint_);
-    readHint_ = p.getUntrackedParameter<std::string> ("readHint", readHint_);
-    tempDir_ = p.getUntrackedParameter<std::string> ("tempDir", f->tempPath());
-    minFree_ = p.getUntrackedParameter<double> ("tempMinFree", f->tempMinFree());
-    native_ = p.getUntrackedParameter<std::vector<std::string> >("native", native_);
+    cacheHint_ = pset.getUntrackedParameter<std::string> ("cacheHint", cacheHint_);
+    readHint_ = pset.getUntrackedParameter<std::string> ("readHint", readHint_);
+    tempDir_ = pset.getUntrackedParameter<std::string> ("tempDir", f->tempPath());
+    minFree_ = pset.getUntrackedParameter<double> ("tempMinFree", f->tempMinFree());
+    native_ = pset.getUntrackedParameter<std::vector<std::string> >("native", native_);
 
     ar.watchPostEndJob(this, &TFileAdaptor::termination);
 

@@ -34,7 +34,7 @@ namespace edm {
     int const& compressionLevel() const {return compressionLevel_;}
     std::string const& compressionAlgorithm() const {return compressionAlgorithm_;}
     int const& basketSize() const {return basketSize_;}
-    int const eventAutoFlushSize() const {return eventAutoFlushSize_;}
+    int eventAutoFlushSize() const {return eventAutoFlushSize_;}
     int const& splitLevel() const {return splitLevel_;}
     std::string const& basketOrder() const {return basketOrder_;}
     int const& treeMaxVirtualSize() const {return treeMaxVirtualSize_;}

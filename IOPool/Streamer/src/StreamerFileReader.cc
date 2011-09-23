@@ -52,7 +52,7 @@ namespace edm {
     return(deserializeEvent(*eview));
   }
 
-  bool const
+  bool
   StreamerFileReader::newHeader() {
     return streamReader_->newHeader();
   }
