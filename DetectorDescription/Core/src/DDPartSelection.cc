@@ -36,7 +36,7 @@ struct DDSelLevelCollector
 };
 
 
-void noNameSpace(char const * first, char const* last) {
+void noNameSpace(char const * /*first*/, char const* /*last*/) {
   DDI::Singleton<DDSelLevelCollector>::instance().namespace_="";
 }
 /* Functor for the parser; it does not consume memory -
@@ -50,7 +50,7 @@ struct DDSelLevelFtor
   { }
   
   // parser calls this whenever a selection has been parsed ( //ns:nm[cn], /nm, //ns:nm, .... ) 
-  void operator() (char const* first, char const* last) const {
+  void operator() (char const* /*first*/, char const* /*last*/) const {
    if(c_.path()){
     if (c_.isCopyNoValid_ && c_.isChild_) {
       c_.path()->push_back(DDPartSelRegExpLevel(c_.namespace_,c_.name_,c_.copyNo_,ddchildposp));
@@ -137,7 +137,7 @@ struct SpecParParser : public grammar<SpecParParser>
   template <typename ScannerT>
   struct definition
   {
-    definition(SpecParParser const& self) {
+    definition(SpecParParser const& /*self*/) {
          
         Selection  //= FirstStep[selLevelFtor()] 
                   //>> *SelectionStep[selLevelFtor()]

@@ -212,7 +212,7 @@ void DDStreamer::names_read()
 
 
 template<class T> 
-size_t dd_count(const T & dummy)
+size_t dd_count(const T & /*dummy*/)
 {
   size_t result(0);
   typename T::template iterator<T> it(T::begin()), ed(T::end());
@@ -319,7 +319,7 @@ void DDStreamer::materials_read()
   }
 }
 
-void dd_stream_booleans(std::ostream& os, DDSolid s, DDSolidShape sh)
+void dd_stream_booleans(std::ostream& os, DDSolid s, DDSolidShape /*sh*/)
 {
   DDBooleanSolid b(s);
   DDRotation temprot = b.rotation();

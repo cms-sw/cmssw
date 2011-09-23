@@ -23,7 +23,7 @@ namespace {
 	std::cout << (*p).first <<","<<(*p).second <<" "; 
        if (!siz.empty()) std::cout << std::endl;
     }
-    void add(bool r, int id, int im) {
+    void add(bool r, int /*id*/, int /*im*/) {
       if(r) {
 	++t;
 	return;

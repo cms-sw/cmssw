@@ -121,7 +121,7 @@ void checkNorm ( double check ) {
 
 }
 
-int main(int argc, char *argv[]) {
+int main(int /*argc*/, char **/*argv[]*/) {
   cout << "====================== CLHEP: ========================" << endl;
   // Examples from DD XML
   // <ReflectionRotation name="180R" thetaX="90*deg" phiX="0*deg" thetaY="90*deg" phiY="90*deg" thetaZ="180*deg" phiZ="0*deg" />

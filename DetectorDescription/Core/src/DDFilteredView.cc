@@ -285,7 +285,7 @@ DDFilteredView::nav_type DDFilteredView::copyNumbers() const
 }
 
 
-bool DDFilteredView::goTo(const DDFilteredView::nav_type & n)
+bool DDFilteredView::goTo(const DDFilteredView::nav_type & /*n*/)
 {
  // WARNING!!!!!!!!!!
  // NOT IMPLEMENTED!!!!!!!

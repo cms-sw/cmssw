@@ -11,7 +11,7 @@
 #include <vector>
 #include "DetectorDescription/Core/interface/DDSolidShapes.h"
 
-int main(int argc, char *argv[])
+int main(int /*argc*/, char **/*argv[]*/)
 {
   std::cout  << "" << std::endl;
   std::vector<std::string> ddShapeTypeNames;
