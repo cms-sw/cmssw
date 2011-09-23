@@ -15,23 +15,26 @@
  *
  *  Function: describes the cathode signal using                       <BR>
  *                the single-parameter Gatti formula:                  <BR>
- *                              1 - tanh(K_2 * lambda)**2              <BR>
- *     Gamma(lambda) = K_1 * -------------------------------           <BR>
- *                           1 + K_3 * tanh (K_2 *lambda)**2           <BR>
- *     lambda = x/h, h is anode cathode spacing                        <BR>
- *                                                                     <BR>
- *     K_2 = pi/2*(1 - 0.5*sqrt(K_3))                                  <BR>
- *                                                                     <BR>
- *              K_2*sqrt(K_3)                                          <BR>
- *      K_1 = -------------------                                      <BR>
- *            4 * atan(sqrt(K_3))                                      <BR>
- *                                                                     <BR>
- *  References  : E.Gatti, A.Longoni, NIM 163 (1979) 82-93.            <BR>
- *                                                                     <BR>
- *  For K_3, "It is used parametrization from Fig.2 from E.Mathieson   <BR>
- *            J.S.Gordon, "Cathode charge distributions in multi-      <BR>
- *            wire chambers", NIM 227 (1984) 277-282"                  <BR>
- *  (comment from GATTI3 in cmsim/src/mc_uty/.)                        <BR>
+@code
+ *                              1 - tanh(K_2 * lambda)**2              
+ *     Gamma(lambda) = K_1 * -------------------------------           
+ *                           1 + K_3 * tanh (K_2 *lambda)**2           
+ *     lambda = x/h, h is anode cathode spacing                        
+ *                                                                     
+ *     K_2 = pi/2*(1 - 0.5*sqrt(K_3))                                  
+ *                                                                     
+ *              K_2*sqrt(K_3)                                          
+ *      K_1 = -------------------                                      
+ *            4 * atan(sqrt(K_3))                                      
+ *                                                                     
+ *  References  : E.Gatti, A.Longoni, NIM 163 (1979) 82-93.            
+ *                                                                     
+ *  For K_3, "It is used parametrization from Fig.2 from E.Mathieson   
+ *            J.S.Gordon, "Cathode charge distributions in multi-      
+ *            wire chambers", NIM 227 (1984) 277-282"                  
+ *  (comment from GATTI3 in cmsim/src/mc_uty/.)                        
+@endcode
+ 
  */
 
 class CSCChamberSpecs;
