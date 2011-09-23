@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.65 2011/08/04 08:55:35 vlimant Exp $
+// $Id: MuonIdProducer.cc,v 1.66 2011/09/22 11:27:37 ptraczyk Exp $
 //
 //
 
@@ -281,7 +281,8 @@ reco::Muon MuonIdProducer::makeMuon( const reco::MuonTrackLinks& links )
    if (tpfmsCollectionHandle_.isValid() && !tpfmsCollectionHandle_.failedToGet() && 
        pickyCollectionHandle_.isValid() && !pickyCollectionHandle_.failedToGet()) 
        chosenTrack = muon::tevOptimized( links.globalTrack(), links.trackerTrack(), 
-                                         *tpfmsCollectionHandle_, *tpfmsCollectionHandle_, *pickyCollectionHandle_,
+                                         muon::getTevRefitTrack(links.globalTrack(), *tpfmsCollectionHandle_),
+                                         muon::getTevRefitTrack(links.globalTrack(), *pickyCollectionHandle_),
                                          ptThresholdToFillCandidateP4WithGlobalFit_);
      else chosenTrack = muon::sigmaSwitch( links.globalTrack(), links.trackerTrack(), 
                                            sigmaThresholdToFillCandidateP4WithGlobalFit_,
