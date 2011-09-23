@@ -67,7 +67,7 @@ CSCLayerGeometry::CSCLayerGeometry(const CSCLayerGeometry& melg) :
 			 0.5 * melg.thickness() ),
   theWireTopology(0), theStripTopology(0), 
   hBottomEdge(melg.hBottomEdge), hTopEdge(melg.hTopEdge),
-  apothem(melg.apothem)
+  apothem(melg.apothem), chamberType(melg.chamberType) 
 {
   // CSCStripTopology is abstract, so need clone()
   if (melg.theStripTopology) theStripTopology = melg.theStripTopology->clone();
