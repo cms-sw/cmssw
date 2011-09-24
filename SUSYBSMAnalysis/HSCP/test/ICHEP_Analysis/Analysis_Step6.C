@@ -39,6 +39,10 @@ struct stAllInfo{
    double XSec_Th;
    double XSec_Err;
    double XSec_Exp;
+   double XSec_ExpUp;
+   double XSec_ExpDown;
+   double XSec_Exp2Up;
+   double XSec_Exp2Down;
    double XSec_Obs;
    double Eff;
    double Eff_SYSTP;
@@ -56,31 +60,35 @@ struct stAllInfo{
    float  NSign;
 
    stAllInfo(string path=""){
-      Mass=-1; XSec_Th=-1; XSec_Err=-1; XSec_Exp=-1; XSec_Obs=-1; Eff=-1; Eff_SYSTP=-1; Eff_SYSTI=-1;  Eff_SYSTM=-1; Eff_SYSTT=-1;
+      Mass=-1; XSec_Th=-1; XSec_Err=-1; XSec_Exp=-1; XSec_ExpUp=-1;XSec_ExpDown=-1;XSec_Exp2Up=-1;XSec_Exp2Down=-1; XSec_Obs=-1; Eff=-1; Eff_SYSTP=-1; Eff_SYSTI=-1;  Eff_SYSTM=-1; Eff_SYSTT=-1;
       if(path=="")return;
       FILE* pFile = fopen(path.c_str(),"r");
       if(!pFile){printf("Can't open %s\n",path.c_str()); return;}
-      fscanf(pFile,"Mass      : %lf\n",&Mass);
-      fscanf(pFile,"MassMean  : %lf\n",&MassMean);
-      fscanf(pFile,"MassSigma : %lf\n",&MassSigma);
-      fscanf(pFile,"MassCut   : %lf\n",&MassCut);
-      fscanf(pFile,"Index     : %lf\n",&Index);
-      fscanf(pFile,"WP_Pt     : %lf\n",&WP_Pt);
-      fscanf(pFile,"WP_I      : %lf\n",&WP_I);
-      fscanf(pFile,"WP_TOF    : %lf\n",&WP_TOF);
-      fscanf(pFile,"Eff       : %lf\n",&Eff);
-      fscanf(pFile,"Eff_SystP : %lf\n",&Eff_SYSTP);
-      fscanf(pFile,"Eff_SystI : %lf\n",&Eff_SYSTI);
-      fscanf(pFile,"Eff_SystM : %lf\n",&Eff_SYSTM);
-      fscanf(pFile,"Eff_SystT : %lf\n",&Eff_SYSTT);
-      fscanf(pFile,"Signif    : %lf\n",&Significance);
-      fscanf(pFile,"XSec_Th   : %lf\n",&XSec_Th);
-      fscanf(pFile,"XSec_Exp  : %lf\n",&XSec_Exp);
-      fscanf(pFile,"XSec_Obs  : %lf\n",&XSec_Obs);
-      fscanf(pFile,"NData     : %E\n" ,&NData);
-      fscanf(pFile,"NPred     : %E\n" ,&NPred);
-      fscanf(pFile,"NPredErr  : %E\n" ,&NPredErr);
-      fscanf(pFile,"NSign     : %E\n" ,&NSign);
+      fscanf(pFile,"Mass         : %lf\n",&Mass);
+      fscanf(pFile,"MassMean     : %lf\n",&MassMean);
+      fscanf(pFile,"MassSigma    : %lf\n",&MassSigma);
+      fscanf(pFile,"MassCut      : %lf\n",&MassCut);
+      fscanf(pFile,"Index        : %lf\n",&Index);
+      fscanf(pFile,"WP_Pt        : %lf\n",&WP_Pt);
+      fscanf(pFile,"WP_I         : %lf\n",&WP_I);
+      fscanf(pFile,"WP_TOF       : %lf\n",&WP_TOF);
+      fscanf(pFile,"Eff          : %lf\n",&Eff);
+      fscanf(pFile,"Eff_SystP    : %lf\n",&Eff_SYSTP);
+      fscanf(pFile,"Eff_SystI    : %lf\n",&Eff_SYSTI);
+      fscanf(pFile,"Eff_SystM    : %lf\n",&Eff_SYSTM);
+      fscanf(pFile,"Eff_SystT    : %lf\n",&Eff_SYSTT);
+      fscanf(pFile,"Signif       : %lf\n",&Significance);
+      fscanf(pFile,"XSec_Th      : %lf\n",&XSec_Th);
+      fscanf(pFile,"XSec_Exp     : %lf\n",&XSec_Exp);
+      fscanf(pFile,"XSec_ExpUp   : %lf\n",&XSec_ExpUp);
+      fscanf(pFile,"XSec_ExpDown : %lf\n",&XSec_ExpDown);
+      fscanf(pFile,"XSec_Exp2Up  : %lf\n",&XSec_Exp2Up);
+      fscanf(pFile,"XSec_Exp2Down: %lf\n",&XSec_Exp2Down);
+      fscanf(pFile,"XSec_Obs     : %lf\n",&XSec_Obs);
+      fscanf(pFile,"NData        : %E\n" ,&NData);
+      fscanf(pFile,"NPred        : %E\n" ,&NPred);
+      fscanf(pFile,"NPredErr     : %E\n" ,&NPredErr);
+      fscanf(pFile,"NSign        : %E\n" ,&NSign);
       fclose(pFile);
    }
 
@@ -120,6 +128,7 @@ int ReadXSection(string InputFile, double* Mass, double* XSec, double* Low, doub
 TCutG* GetErrorBand(string name, int N, double* Mass, double* Low, double* High);
 void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern);
 double getSignificance(double NData, double NPred, double signalUncertainty, double backgroundError, double luminosityError, string outpath);
+void DrawModelLimtWithBand(string InputPattern, string inputmodel);
 
 //double PlotMinScale = 0.1;
 //double PlotMaxScale = 50000;
@@ -187,17 +196,31 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
       stAllInfo result = Exclusion(InputPattern, modelName, signal, Ratio_0C, Ratio_1C, Ratio_2C, syst);
       return;
    }
-
+   
+   std::vector<string> Models;
+   Models.push_back("Gluinof1");
+   Models.push_back("Gluinof5");
+   Models.push_back("GluinoN");
+   Models.push_back("Stop");
+   Models.push_back("StopN");
+   Models.push_back("GMStau");
+   Models.push_back("PPStau");
+   Models.push_back("DCRho08");
+   Models.push_back("DCRho12");
+   Models.push_back("DCRho16");
 
    TCanvas* c1;
 
    string MuPattern  = "Results/dedxASmi/combined/Eta15/PtMin45/Type2/";
    string TkPattern  = "Results/dedxASmi/combined/Eta15/PtMin45/Type0/";
 
-
    string outpath = string("Results/EXCLUSION/");
    MakeDirectories(outpath);
 
+   for(int i=0;i<Models.size();i++){
+      DrawModelLimtWithBand(MuPattern, Models[i]);
+      DrawModelLimtWithBand(TkPattern, Models[i]);
+   }
 
 
    FILE* pFile = fopen((string("Analysis_Step6_Result") + syst + ".txt").c_str(),"w");
@@ -691,6 +714,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    c1->SetLogy(true);
    SaveCanvas(c1, outpath, string("TkDCExclusionLog"));
    delete c1;
+
+
+
    return; 
 }
 
@@ -905,6 +931,10 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
    toReturn.XSec_Th   = signals[JobIdToIndex(signal)].XSec;
    toReturn.XSec_Err  = signals[JobIdToIndex(signal)].XSec * 0.15;
    toReturn.XSec_Exp  = 1E50;
+   toReturn.XSec_ExpUp    = 1E50;
+   toReturn.XSec_ExpDown  = 1E50;
+   toReturn.XSec_Exp2Up   = 1E50;
+   toReturn.XSec_Exp2Down = 1E50;
    toReturn.XSec_Obs  = 1E50;
    toReturn.Eff       = 0;
    toReturn.Eff_SYSTP = 0;
@@ -1121,31 +1151,6 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
      toReturn.NPredErr  = NPredErr;
      toReturn.NSign     = Eff*(signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
 
-
-     FILE* pFile2 = fopen((outpath+"/"+modelName+".txt").c_str(),"w");
-     if(!pFile2)printf("Can't open file : %s\n",(outpath+"/"+modelName+".txt").c_str());
-     fprintf(pFile2,"Mass      : %f\n",signals[JobIdToIndex(signal)].Mass);
-     fprintf(pFile2,"MassMean  : %f\n",toReturn.MassMean);
-     fprintf(pFile2,"MassSigma : %f\n",toReturn.MassSigma);
-     fprintf(pFile2,"MassCut   : %f\n",toReturn.MassCut);
-     fprintf(pFile2,"Index     : %f\n",toReturn.Index);
-     fprintf(pFile2,"WP_Pt     : %f\n",toReturn.WP_Pt);
-     fprintf(pFile2,"WP_I      : %f\n",toReturn.WP_I);
-     fprintf(pFile2,"WP_TOF    : %f\n",toReturn.WP_TOF);
-     fprintf(pFile2,"Eff       : %f\n",toReturn.Eff);
-     fprintf(pFile2,"Eff_SystP : %f\n",toReturn.Eff_SYSTP);
-     fprintf(pFile2,"Eff_SystI : %f\n",toReturn.Eff_SYSTI);
-     fprintf(pFile2,"Eff_SystM : %f\n",toReturn.Eff_SYSTM);
-     fprintf(pFile2,"Eff_SystT : %f\n",toReturn.Eff_SYSTT);
-     fprintf(pFile2,"Signif    : %f\n",toReturn.Significance);
-     fprintf(pFile2,"XSec_Th   : %f\n",toReturn.XSec_Th);
-     fprintf(pFile2,"XSec_Exp  : %f\n",toReturn.XSec_Exp);
-     fprintf(pFile2,"XSec_Obs  : %f\n",toReturn.XSec_Obs);
-     fprintf(pFile2,"NData     : %+6.2E\n",toReturn.NData);
-     fprintf(pFile2,"NPred     : %+6.2E\n",toReturn.NPred);
-     fprintf(pFile2,"NPredErr  : %+6.2E\n",toReturn.NPredErr);
-     fprintf(pFile2,"NSign     : %+6.2E\n",toReturn.NSign);
-     fclose(pFile2);
    }   
    fclose(pFile);   
 
@@ -1160,38 +1165,51 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
      double NData=toReturn.NData;
 
      CLMResults = roostats_clm(IntegratedLuminosity, IntegratedLuminosity*0.06, Eff, Eff*signalUncertainty,NPred, NPred*RescaleError, 1000, 1, "bayesian");   ExpLimit=CLMResults.GetExpectedLimit();  //1000Toys
+     double ExpLimitup    = CLMResults.GetOneSigmaHighRange();
+     double ExpLimitdown  = CLMResults.GetOneSigmaLowRange();
+     double ExpLimit2up   = CLMResults.GetTwoSigmaHighRange();
+     double ExpLimit2down = CLMResults.GetTwoSigmaLowRange();
 
      ObsLimit =  roostats_cl95(IntegratedLuminosity, IntegratedLuminosity*0.06, Eff, Eff*signalUncertainty,NPred, NPred*RescaleError              , NData, false, 1, "bayesian", "");
      Significance = getSignificance(NData, NPred, signalUncertainty, RescaleError, 0.06, outpath+"/"+modelName);
 
      toReturn.XSec_Exp  = ExpLimit;
+     toReturn.XSec_ExpUp    = ExpLimitup;
+     toReturn.XSec_ExpDown  = ExpLimitdown;
+     toReturn.XSec_Exp2Up   = ExpLimit2up;
+     toReturn.XSec_Exp2Down = ExpLimit2down;     
      toReturn.XSec_Obs  = ObsLimit;
      toReturn.Significance = Significance;
 
-  FILE* pFile2 = fopen((outpath+"/"+modelName+".txt").c_str(),"w");
-  if(!pFile2)printf("Can't open file : %s\n",(outpath+"/"+modelName+".txt").c_str());
-  fprintf(pFile2,"Mass      : %f\n",signals[JobIdToIndex(signal)].Mass);
-  fprintf(pFile2,"MassMean  : %f\n",toReturn.MassMean);
-  fprintf(pFile2,"MassSigma : %f\n",toReturn.MassSigma);
-  fprintf(pFile2,"MassCut   : %f\n",toReturn.MassCut);
-  fprintf(pFile2,"Index     : %f\n",toReturn.Index);
-  fprintf(pFile2,"WP_Pt     : %f\n",toReturn.WP_Pt);
-  fprintf(pFile2,"WP_I      : %f\n",toReturn.WP_I);
-  fprintf(pFile2,"WP_TOF    : %f\n",toReturn.WP_TOF);
-  fprintf(pFile2,"Eff       : %f\n",toReturn.Eff);
-  fprintf(pFile2,"Eff_SystP : %f\n",toReturn.Eff_SYSTP);
-  fprintf(pFile2,"Eff_SystI : %f\n",toReturn.Eff_SYSTI);
-  fprintf(pFile2,"Eff_SystM : %f\n",toReturn.Eff_SYSTM);
-  fprintf(pFile2,"Eff_SystT : %f\n",toReturn.Eff_SYSTT);
-  fprintf(pFile2,"Signif    : %f\n",toReturn.Significance);
-  fprintf(pFile2,"XSec_Th   : %f\n",toReturn.XSec_Th);
-  fprintf(pFile2,"XSec_Exp  : %f\n",toReturn.XSec_Exp);
-  fprintf(pFile2,"XSec_Obs  : %f\n",toReturn.XSec_Obs);
-  fprintf(pFile2,"NData     : %+6.2E\n",toReturn.NData);
-  fprintf(pFile2,"NPred     : %+6.2E\n",toReturn.NPred);
-  fprintf(pFile2,"NPredErr  : %+6.2E\n",toReturn.NPredErr);
-  fprintf(pFile2,"NSign     : %+6.2E\n",toReturn.NSign);
-  fclose(pFile2);
+     FILE* pFile2 = fopen((outpath+"/"+modelName+".txt").c_str(),"w");
+     if(!pFile2)printf("Can't open file : %s\n",(outpath+"/"+modelName+".txt").c_str());
+     fprintf(pFile2,"Mass         : %f\n",signals[JobIdToIndex(signal)].Mass);
+     fprintf(pFile2,"MassMean     : %f\n",toReturn.MassMean);
+     fprintf(pFile2,"MassSigma    : %f\n",toReturn.MassSigma);
+     fprintf(pFile2,"MassCut      : %f\n",toReturn.MassCut);
+     fprintf(pFile2,"Index        : %f\n",toReturn.Index);
+     fprintf(pFile2,"WP_Pt        : %f\n",toReturn.WP_Pt);
+     fprintf(pFile2,"WP_I         : %f\n",toReturn.WP_I);
+     fprintf(pFile2,"WP_TOF       : %f\n",toReturn.WP_TOF);
+     fprintf(pFile2,"Eff          : %f\n",toReturn.Eff);
+     fprintf(pFile2,"Eff_SystP    : %f\n",toReturn.Eff_SYSTP);
+     fprintf(pFile2,"Eff_SystI    : %f\n",toReturn.Eff_SYSTI);
+     fprintf(pFile2,"Eff_SystM    : %f\n",toReturn.Eff_SYSTM);
+     fprintf(pFile2,"Eff_SystT    : %f\n",toReturn.Eff_SYSTT);
+     fprintf(pFile2,"Signif       : %f\n",toReturn.Significance);
+     fprintf(pFile2,"XSec_Th      : %f\n",toReturn.XSec_Th);
+     fprintf(pFile2,"XSec_Exp     : %f\n",toReturn.XSec_Exp);
+     fprintf(pFile2,"XSec_ExpUp   : %f\n",toReturn.XSec_ExpUp);
+     fprintf(pFile2,"XSec_ExpDown : %f\n",toReturn.XSec_ExpDown);
+     fprintf(pFile2,"XSec_Exp2Up  : %f\n",toReturn.XSec_Exp2Up);
+     fprintf(pFile2,"XSec_Exp2Down: %f\n",toReturn.XSec_Exp2Down);
+     fprintf(pFile2,"XSec_Obs     : %f\n",toReturn.XSec_Obs);     
+     fprintf(pFile2,"NData        : %+6.2E\n",toReturn.NData);
+     fprintf(pFile2,"NPred        : %+6.2E\n",toReturn.NPred);
+     fprintf(pFile2,"NPredErr     : %+6.2E\n",toReturn.NPredErr);
+     fprintf(pFile2,"NSign        : %+6.2E\n",toReturn.NSign);
+
+     fclose(pFile2);
  
    return toReturn;
 }
@@ -1398,4 +1416,214 @@ double getSignificance(double NData, double NPred, double signalUncertainty, dou
   system(("rm " + outpath + "_temp_2.txt").c_str());                                                                                                                                                       
 
   return significance;
+}
+
+void DrawModelLimtWithBand(string InputPattern, string inputmodel)
+{
+   std::vector<string> Models;
+   string modelname;
+   if(inputmodel == "Gluinof1"){
+      Models.push_back("Gluino300_f1");
+      Models.push_back("Gluino400_f1");
+      Models.push_back("Gluino500_f1");
+      Models.push_back("Gluino600_f1");
+      Models.push_back("Gluino700_f1");
+      Models.push_back("Gluino800_f1");
+      Models.push_back("Gluino900_f1");
+      Models.push_back("Gluino1000_f1");
+      modelname="gluino; 10% #tilde{g}g (NLO+NLL)";
+   }
+   else if(inputmodel == "Gluinof5"){
+      Models.push_back("Gluino300_f5");
+      Models.push_back("Gluino400_f5");
+      Models.push_back("Gluino500_f5");
+      Models.push_back("Gluino600_f5");
+      Models.push_back("Gluino700_f5");
+      Models.push_back("Gluino800_f5");
+      Models.push_back("Gluino900_f5");
+      Models.push_back("Gluino1000_f5");
+      modelname="gluino; 50% #tilde{g}g (NLO+NLL)";
+   }
+   else if(inputmodel == "GluinoN"){
+      Models.push_back("Gluino300N_f1");
+      Models.push_back("Gluino400N_f1");
+      Models.push_back("Gluino500N_f1");
+      Models.push_back("Gluino600N_f1");
+      Models.push_back("Gluino700N_f1");
+      Models.push_back("Gluino800N_f1");
+      Models.push_back("Gluino900N_f1");
+      Models.push_back("Gluino1000N_f1");
+      modelname="gluino; 10% #tilde{g}g; ch. suppr.(NLO+NLL)";
+
+   }
+   else if(inputmodel == "Stop"){
+      Models.push_back("Stop130");
+      Models.push_back("Stop200");
+      Models.push_back("Stop300");
+      Models.push_back("Stop400");
+      Models.push_back("Stop500");
+      Models.push_back("Stop600");
+      Models.push_back("Stop700");
+      Models.push_back("Stop800");
+      modelname="stop (NLO+NLL)";
+   }
+   else if(inputmodel == "StopN"){
+      Models.push_back("Stop130N");
+      Models.push_back("Stop200N");
+      Models.push_back("Stop300N");
+      Models.push_back("Stop400N");
+      Models.push_back("Stop500N");
+      Models.push_back("Stop600N");
+      Models.push_back("Stop700N");
+      Models.push_back("Stop800N");
+      modelname="stop;ch. suppr. (NLO+NLL)";
+  }
+   else if(inputmodel == "GMStau"){
+      Models.push_back("GMStau100");
+      Models.push_back("GMStau126");
+      Models.push_back("GMStau156");
+      Models.push_back("GMStau200");
+      Models.push_back("GMStau247");
+      Models.push_back("GMStau308");
+      Models.push_back("GMStau370"); 
+      Models.push_back("GMStau432"); 
+      Models.push_back("GMStau494");
+      modelname="GMSB stau (NLO)";
+  }
+   else if(inputmodel == "PPStau"){
+      Models.push_back("PPStau100");
+      Models.push_back("PPStau126"); 
+      Models.push_back("PPStau156"); 
+      Models.push_back("PPStau200"); 
+      Models.push_back("PPStau247");
+      Models.push_back("PPStau308");
+      modelname="Pair Prod. stau (NLO)";
+   }
+   else if(inputmodel == "DCRho08"){
+      Models.push_back("DCRho08HyperK100");
+      Models.push_back("DCRho08HyperK121"); 
+      Models.push_back("DCRho08HyperK182"); 
+      Models.push_back("DCRho08HyperK242"); 
+      Models.push_back("DCRho08HyperK302");  
+      Models.push_back("DCRho08HyperK350");
+      Models.push_back("DCRho08HyperK370");
+      Models.push_back("DCRho08HyperK390");  
+      Models.push_back("DCRho08HyperK395"); 
+      Models.push_back("DCRho08HyperK400");
+      Models.push_back("DCRho08HyperK410");
+      Models.push_back("DCRho08HyperK420");
+      Models.push_back("DCRho08HyperK500");
+      modelname="DiChamp #tilde{#rho} = 0.8 TeV (LO)";
+   }
+   else if(inputmodel == "DCRho12"){
+      Models.push_back("DCRho12HyperK100"); 
+      Models.push_back("DCRho12HyperK182");
+      Models.push_back("DCRho12HyperK302");
+      Models.push_back("DCRho12HyperK500"); 
+      Models.push_back("DCRho12HyperK530"); 
+      Models.push_back("DCRho12HyperK570");
+      Models.push_back("DCRho12HyperK590"); 
+      Models.push_back("DCRho12HyperK595");
+      Models.push_back("DCRho12HyperK600");
+      Models.push_back("DCRho12HyperK610");
+      Models.push_back("DCRho12HyperK620");
+      Models.push_back("DCRho12HyperK700");
+      modelname="DiChamp #tilde{#rho} = 1.2 TeV (LO)";
+   }
+   else if(inputmodel == "DCRho16"){
+      Models.push_back("DCRho16HyperK100");
+      Models.push_back("DCRho16HyperK182"); 
+      Models.push_back("DCRho16HyperK302");
+      Models.push_back("DCRho16HyperK500");
+      Models.push_back("DCRho16HyperK700"); 
+      Models.push_back("DCRho16HyperK730"); 
+      Models.push_back("DCRho16HyperK770");
+      Models.push_back("DCRho16HyperK790");
+      Models.push_back("DCRho16HyperK795");
+      Models.push_back("DCRho16HyperK800");
+      Models.push_back("DCRho16HyperK820");
+      Models.push_back("DCRho16HyperK900");
+      modelname="DiChamp #tilde{#rho} = 1.6 TeV (LO)";
+   }
+   else{cout<<"no model specified"<<endl;}
+
+   bool IsTkOnly = (InputPattern.find("Type0",0)<std::string::npos);
+   string prefix = "Mu"; 
+   if(IsTkOnly) prefix ="Tk";
+
+
+   unsigned int N = Models.size();
+   stAllInfo Infos;double Mass[N], XSecTh[N], XSecExp[N],XSecObs[N], XSecExpUp[N],XSecExpDown[N],XSecExp2Up[N],XSecExp2Down[N];
+   for(int i=0;i<N;i++){
+      Infos = stAllInfo(InputPattern+"EXCLUSION/" + Models[i] +".txt");
+      Mass[i]=Infos.Mass;
+      XSecTh [i]=Infos.XSec_Th;
+      XSecObs[i]=Infos.XSec_Obs;
+      XSecExp[i]=Infos.XSec_Exp;
+      XSecExpUp[i]=Infos.XSec_ExpUp;
+      XSecExpDown[i]=Infos.XSec_ExpDown;
+      XSecExp2Up[i]=Infos.XSec_Exp2Up;
+      XSecExp2Down[i]=Infos.XSec_Exp2Down;
+   }
+
+   TGraph* graphtheory = new TGraph(N,Mass,XSecTh);
+   TGraph* graphobs = new TGraph(N,Mass,XSecObs);
+   TGraph* graphexp = new TGraph(N,Mass,XSecExp);
+   TCutG*  ExpErr = GetErrorBand("ExpErr",N,Mass,XSecExpDown,XSecExpUp);
+   TCutG*  Exp2SigmaErr = GetErrorBand("Exp2SigmaErr",N,Mass,XSecExp2Down,XSecExp2Up);
+
+   graphtheory->SetLineStyle(3);
+   graphtheory->SetFillColor(kBlue);
+   graphexp->SetLineStyle(4); 
+   graphexp->SetLineColor(kRed);
+   graphexp->SetMarkerStyle(); 
+   graphexp->SetMarkerSize(0.); 
+   Exp2SigmaErr->SetFillColor(kYellow);
+   Exp2SigmaErr->SetLineColor(kWhite);
+   ExpErr->SetFillColor(kGreen);
+   ExpErr->SetLineColor(kWhite);
+   graphobs->SetLineColor(kBlack);
+   graphobs->SetLineWidth(2);
+   graphobs->SetMarkerColor(kBlack);
+   graphobs->SetMarkerStyle(23);
+
+   TCanvas* c1 = new TCanvas("c1", "c1",600,600);
+   TMultiGraph* MG = new TMultiGraph();
+
+   MG->Add(graphexp      ,"LP");
+   MG->Add(graphobs      ,"LP");
+   MG->Add(graphtheory      ,"L");
+   MG->Draw("A");
+   Exp2SigmaErr->Draw("f");
+   ExpErr  ->Draw("f");
+   MG->Draw("same");
+   MG->SetTitle("");
+   MG->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
+   MG->GetYaxis()->SetTitle("#sigma (pb)");
+   MG->GetYaxis()->SetTitleOffset(1.70);
+   MG->GetYaxis()->SetRangeUser(PlotMinScale,PlotMaxScale);
+   DrawPreliminary(IntegratedLuminosity);
+   
+   TLegend* LEG = new TLegend(0.40,0.65,0.8,0.90);
+   string headerstr;
+   headerstr = "95% C.L. Limits (Tk + TOF)";
+   if(IsTkOnly) headerstr = "95% C.L. Limits (Tk + only)";
+   LEG->SetHeader(headerstr.c_str());
+   LEG->SetFillColor(0); 
+   LEG->SetBorderSize(0);
+   LEG->AddEntry(graphtheory,  modelname.c_str() ,"L");
+   LEG->AddEntry(graphexp, "Expected"       ,"L");
+   LEG->AddEntry(ExpErr, "Expected #pm 1#sigma","F");
+   LEG->AddEntry(Exp2SigmaErr, "Expected #pm 2#sigma "       ,"F");
+   LEG->AddEntry(graphobs, "Observed"       ,"LP");
+   LEG->Draw();
+
+   c1->SetLogy(true);
+
+
+   if(IsTkOnly)   SaveCanvas(c1,"Results/EXCLUSION/", string("Tk"+ inputmodel + "ExclusionLog"));
+   else    SaveCanvas(c1,"Results/EXCLUSION/", string("Mu"+ inputmodel + "ExclusionLog"));
+   delete c1;
+
+
 }
