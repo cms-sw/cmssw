@@ -64,11 +64,13 @@ HLT_SixJet45_v*
 HLT_EightJet35_v*                                                                               #   added in 5e33 menu (sr #123262)
 HLT_EightJet40_v*                                                                               #   added in 5e33 menu (sr #123262)
 HLT_EightJet120_v*
-HLT_60Jet10_v*
+#HLT_60Jet10_v*                                                                                 # removed in 5e33 menu (sr #123692)
 HLT_70Jet10_v*
 HLT_70Jet13_v*
-HLT_800Tower0p6_v*                                                                              #   added in 5e33 menu (sr #123603)
-HLT_1000Tower0p7_v*                                                                             #   added in 5e33 menu (sr #123603)
+HLT_300Tower0p5_v*                                                                              #   added in 5e33 menu (sr #123692)
+HLT_300Tower0p6_v*                                                                              #   added in 5e33 menu (sr #123692)
+HLT_300Tower0p7_v*                                                                              #   added in 5e33 menu (sr #123692)
+HLT_300Tower0p8_v*                                                                              #   added in 5e33 menu (sr #123692)
 HLT_ExclDiJet60_HFOR_v*
 HLT_ExclDiJet60_HFAND_v*
 HLT_JetE30_NoBPTX_v*
