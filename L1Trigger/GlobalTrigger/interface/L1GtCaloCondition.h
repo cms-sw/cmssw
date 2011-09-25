@@ -78,6 +78,14 @@ public:
 
     void setGtCaloTemplate(const L1GtCaloTemplate*);
 
+    ///   get / set the pointer to PSB
+    inline const L1GlobalTriggerPSB* gtPSB() const {
+        return m_gtPSB;
+    }
+
+    void setGtPSB(const L1GlobalTriggerPSB*);
+
+
     ///   get / set the number of bits for eta of calorimeter objects
     inline const int gtIfCaloEtaNumberBits() const {
         return m_ifCaloEtaNumberBits;
@@ -85,12 +93,12 @@ public:
 
     void setGtIfCaloEtaNumberBits(const int&);
 
-    ///   get / set the pointer to PSB
-    inline const L1GlobalTriggerPSB* gtPSB() const {
-        return m_gtPSB;
+    ///   get / set maximum number of bins for the delta phi scales
+    inline const int gtCorrParDeltaPhiNrBins() const {
+        return m_corrParDeltaPhiNrBins;
     }
 
-    void setGtPSB(const L1GlobalTriggerPSB*);
+    void setGtCorrParDeltaPhiNrBins(const int&);
 
 private:
 
@@ -114,6 +122,9 @@ private:
 
     /// number of bits for eta of calorimeter objects
     int m_ifCaloEtaNumberBits;
+
+    // maximum number of bins for the delta phi scales
+    unsigned int m_corrParDeltaPhiNrBins;
 
 };
 

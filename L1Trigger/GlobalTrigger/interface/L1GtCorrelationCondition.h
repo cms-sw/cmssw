@@ -67,6 +67,13 @@ public:
 
 public:
 
+    ///   get / set the number of phi bins
+    inline const unsigned int gtNrBinsPhi() const {
+        return m_nrBinsPhi;
+    }
+
+    void setGtNrBinsPhi(const unsigned int);
+
     ///   get / set the pointer to a L1GtCondition
     inline const L1GtCorrelationTemplate* gtCorrelationTemplate() const {
         return m_gtCorrelationTemplate;
@@ -109,6 +116,9 @@ private:
     int m_cond1NrL1Objects;
     int m_cond0EtaBits;
     int m_cond1EtaBits;
+
+    /// number of bins for delta phi
+    unsigned int m_nrBinsPhi;
 
     /// pointer to GTL, to be able to get the trigger objects
     const L1GlobalTriggerGTL* m_gtGTL;

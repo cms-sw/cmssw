@@ -51,6 +51,7 @@ L1GtCaloCondition::L1GtCaloCondition() :
     L1GtConditionEvaluation() {
 
     m_ifCaloEtaNumberBits = -1;
+    m_corrParDeltaPhiNrBins = 0;
 
 }
 
@@ -67,6 +68,8 @@ L1GtCaloCondition::L1GtCaloCondition(const L1GtCondition* caloTemplate, const L1
     m_gtPSB(ptrPSB),
     m_ifCaloEtaNumberBits(ifCaloEtaNumberBits)
 {
+
+    m_corrParDeltaPhiNrBins = 0;
 
     // maximum number of objects received for the evaluation of the condition
     // retrieved before from event setup
@@ -103,6 +106,7 @@ void L1GtCaloCondition::copy(const L1GtCaloCondition& cp) {
     m_gtPSB = cp.gtPSB();
 
     m_ifCaloEtaNumberBits = cp.gtIfCaloEtaNumberBits();
+    m_corrParDeltaPhiNrBins = cp.m_corrParDeltaPhiNrBins;
 
     m_condMaxNumberObjects = cp.condMaxNumberObjects();
     m_condLastResult = cp.condLastResult();
@@ -139,6 +143,13 @@ void L1GtCaloCondition::setGtCaloTemplate(const L1GtCaloTemplate* caloTempl) {
 
 }
 
+///   set the pointer to PSB
+void L1GtCaloCondition::setGtPSB(const L1GlobalTriggerPSB* ptrPSB) {
+
+    m_gtPSB = ptrPSB;
+
+}
+
 //   set the number of bits for eta of calorimeter objects
 void L1GtCaloCondition::setGtIfCaloEtaNumberBits(const int& ifCaloEtaNumberBitsValue) {
 
@@ -146,10 +157,11 @@ void L1GtCaloCondition::setGtIfCaloEtaNumberBits(const int& ifCaloEtaNumberBitsV
 
 }
 
-///   set the pointer to PSB
-void L1GtCaloCondition::setGtPSB(const L1GlobalTriggerPSB* ptrPSB) {
+//   set the maximum number of bins for the delta phi scales
+void L1GtCaloCondition::setGtCorrParDeltaPhiNrBins(
+        const int& corrParDeltaPhiNrBins) {
 
-    m_gtPSB = ptrPSB;
+    m_corrParDeltaPhiNrBins = corrParDeltaPhiNrBins;
 
 }
 
@@ -316,16 +328,35 @@ const bool L1GtCaloCondition::evaluateCondition() const {
 
             // check if candDeltaPhi > 180 (via delta_phi_maxbits)
             // delta_phi contains bits for 0..180 (0 and 180 included)
-            while (candDeltaPhi> corrPar.deltaPhiMaxbits) {
+            // protect also against infinite loop...
+
+            int nMaxLoop = 10;
+            int iLoop = 0;
+
+            while (candDeltaPhi > m_corrParDeltaPhiNrBins) {
+
+                unsigned int candDeltaPhiInitial = candDeltaPhi;
 
                 // candDeltaPhi > 180 ==> take 360 - candDeltaPhi
-                candDeltaPhi = (corrPar.deltaPhiMaxbits - 1)*2 - candDeltaPhi;
+                candDeltaPhi = (m_corrParDeltaPhiNrBins - 1) * 2 - candDeltaPhi;
                 if (m_verbosity) {
                     LogTrace("L1GlobalTrigger")
-                        << "  candDeltaPhi rescaled to: " << candDeltaPhi
-                        << std::endl;
+                            << "    Initial candDeltaPhi = "
+                            << candDeltaPhiInitial
+                            << " > m_corrParDeltaPhiNrBins = "
+                            << m_corrParDeltaPhiNrBins
+                            << "  ==> candDeltaPhi rescaled to: "
+                            << candDeltaPhi << " [ loop index " << iLoop
+                            << "; breaks after " << nMaxLoop << " loops ]\n"
+                            << std::endl;
+                }
+
+                iLoop++;
+                if (iLoop > nMaxLoop) {
+                    return false;
                 }
             }
+
 
             if (!checkBit(corrPar.deltaPhiRange, candDeltaPhi)) {
                 continue;
@@ -333,7 +364,7 @@ const bool L1GtCaloCondition::evaluateCondition() const {
 
         } // end wsc check
 
-        // if we get here all checks were successfull for this combination
+        // if we get here all checks were successful for this combination
         // set the general result for evaluateCondition to "true"
 
         condResult = true;
@@ -434,6 +465,12 @@ const bool L1GtCaloCondition::checkObjectParameter(const int iCondition, const L
 void L1GtCaloCondition::print(std::ostream& myCout) const {
 
     m_gtCaloTemplate->print(myCout);
+
+    myCout << "    Number of bits for eta of calorimeter objects = "
+            << m_ifCaloEtaNumberBits << std::endl;
+    myCout << "    Maximum number of bins for the delta phi scales = "
+            << m_corrParDeltaPhiNrBins << "\n " << std::endl;
+
     L1GtConditionEvaluation::print(myCout);
 
 }

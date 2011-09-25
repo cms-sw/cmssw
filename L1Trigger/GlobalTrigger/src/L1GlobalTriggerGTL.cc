@@ -91,6 +91,7 @@ L1GlobalTriggerGTL::L1GlobalTriggerGTL() :
 
     // pointer to conversion - actually done in the event loop (cached)
     m_gtEtaPhiConversions = new L1GtEtaPhiConversions();
+    m_gtEtaPhiConversions->setVerbosity(m_verbosity);
 
 }
 
@@ -215,9 +216,7 @@ void L1GlobalTriggerGTL::run(
             m_l1GtMenu->corEnergySumTemplate();
 
     // conversion needed for correlation conditions
-    // waste time - done also when no correlation template is in the menu
-    // TODO timing against "search the conditionMap for correlation conditions,
-    //      execute it conditionally?"
+    // done in the condition loop when the first correlation template is in the menu
     bool convertScale = false;
 
     // get / update the calorimeter geometry from the EventSetup
@@ -252,8 +251,15 @@ void L1GlobalTriggerGTL::run(
     }
 
     if (convertScale) {
-        m_gtEtaPhiConversions->convert(m_l1CaloGeometry, m_l1MuTriggerScales,
-                ifCaloEtaNumberBits, ifMuEtaNumberBits);
+        m_gtEtaPhiConversions->setVerbosity(m_verbosity);
+        m_gtEtaPhiConversions->convert(m_l1CaloGeometry,
+                m_l1MuTriggerScales, ifCaloEtaNumberBits,
+                ifMuEtaNumberBits);
+
+        // set convertScale to false to avoid executing the conversion
+        // more than once - in case the scales change it will be set to true
+        // in the cache check
+        convertScale = false;
     }
 
 
@@ -289,6 +295,9 @@ void L1GlobalTriggerGTL::run(
                             nrL1Mu, ifMuEtaNumberBits);
 
                     muCondition->setVerbosity(m_verbosity);
+                    muCondition->setGtCorrParDeltaPhiNrBins(
+                            (m_gtEtaPhiConversions->gtObjectNrBinsPhi(Mu)) / 2
+                                    + 1);
                     muCondition->evaluateConditionStoreResult();
 
                     cMapResults[itCond->first] = muCondition;
@@ -316,6 +325,10 @@ void L1GlobalTriggerGTL::run(
                             ifCaloEtaNumberBits);
 
                     caloCondition->setVerbosity(m_verbosity);
+                    caloCondition->setGtCorrParDeltaPhiNrBins(
+                            (m_gtEtaPhiConversions->gtObjectNrBinsPhi(
+                                    ((itCond->second)->objectType())[0])) / 2
+                                    + 1);
                     caloCondition->evaluateConditionStoreResult();
 
                     cMapResults[itCond->first] = caloCondition;

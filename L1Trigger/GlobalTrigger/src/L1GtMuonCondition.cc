@@ -58,7 +58,7 @@ L1GtMuonCondition::L1GtMuonCondition(const L1GtCondition* muonTemplate,
     m_gtGTL(ptrGTL),
     m_ifMuEtaNumberBits(ifMuEtaNumberBits)
 {
-
+    m_corrParDeltaPhiNrBins = 0;
     m_condMaxNumberObjects = nrL1Mu;
 }
 
@@ -69,6 +69,7 @@ void L1GtMuonCondition::copy(const L1GtMuonCondition &cp) {
     m_gtGTL = cp.gtGTL();
 
     m_ifMuEtaNumberBits = cp.gtIfMuEtaNumberBits();
+    m_corrParDeltaPhiNrBins = cp.m_corrParDeltaPhiNrBins;
 
     m_condMaxNumberObjects = cp.condMaxNumberObjects();
     m_condLastResult = cp.condLastResult();
@@ -104,19 +105,30 @@ void L1GtMuonCondition::setGtMuonTemplate(const L1GtMuonTemplate* muonTempl) {
 
 }
 
-//   set the number of bits for eta of muon objects
-void L1GtMuonCondition::setGtIfMuEtaNumberBits(const int& ifMuEtaNumberBitsValue) {
-
-    m_ifMuEtaNumberBits = ifMuEtaNumberBitsValue;
-
-}
-
 ///   set the pointer to GTL
 void L1GtMuonCondition::setGtGTL(const L1GlobalTriggerGTL* ptrGTL) {
 
     m_gtGTL = ptrGTL;
 
 }
+
+
+//   set the number of bits for eta of muon objects
+void L1GtMuonCondition::setGtIfMuEtaNumberBits(
+        const int& ifMuEtaNumberBitsValue) {
+
+    m_ifMuEtaNumberBits = ifMuEtaNumberBitsValue;
+
+}
+
+//   set the maximum number of bins for the delta phi scales
+void L1GtMuonCondition::setGtCorrParDeltaPhiNrBins(
+        const int& corrParDeltaPhiNrBins) {
+
+    m_corrParDeltaPhiNrBins = corrParDeltaPhiNrBins;
+
+}
+
 
 // try all object permutations and check spatial correlations, if required
 const bool L1GtMuonCondition::evaluateCondition() const {
@@ -323,12 +335,33 @@ const bool L1GtMuonCondition::evaluateCondition() const {
 
             // check if candDeltaPhi > 180 (via delta_phi_maxbits)
             // delta_phi contains bits for 0..180 (0 and 180 included)
-            while (candDeltaPhi> corrPar.deltaPhiMaxbits) {
+            // protect also against infinite loop...
+
+            int nMaxLoop = 10;
+            int iLoop = 0;
+
+            while (candDeltaPhi > m_corrParDeltaPhiNrBins) {
+
+                unsigned int candDeltaPhiInitial = candDeltaPhi;
 
                 // candDeltaPhi > 180 ==> take 360 - candDeltaPhi
-                candDeltaPhi = (corrPar.deltaPhiMaxbits - 1)*2 - candDeltaPhi;
-                LogTrace("L1GlobalTrigger") << "  candDeltaPhi rescaled to: " << candDeltaPhi
-                    << std::endl;
+                candDeltaPhi = (m_corrParDeltaPhiNrBins - 1) * 2 - candDeltaPhi;
+                if (m_verbosity) {
+                    LogTrace("L1GlobalTrigger")
+                            << "    Initial candDeltaPhi = "
+                            << candDeltaPhiInitial
+                            << " > m_corrParDeltaPhiNrBins = "
+                            << m_corrParDeltaPhiNrBins
+                            << "  ==> candDeltaPhi rescaled to: "
+                            << candDeltaPhi << " [ loop index " << iLoop
+                            << "; breaks after " << nMaxLoop << " loops ]\n"
+                            << std::endl;
+                }
+
+                iLoop++;
+                if (iLoop > nMaxLoop) {
+                    return false;
+                }
             }
 
             // delta_phi bitmask is saved in two boost::uint64_t words
@@ -513,6 +546,12 @@ const bool L1GtMuonCondition::checkObjectParameter(const int iCondition, const L
 void L1GtMuonCondition::print(std::ostream& myCout) const {
 
     m_gtMuonTemplate->print(myCout);
+
+    myCout << "    Number of bits for eta of muon objects = "
+            << m_ifMuEtaNumberBits << std::endl;
+    myCout << "    Maximum number of bins for the delta phi scales = "
+            << m_corrParDeltaPhiNrBins << "\n " << std::endl;
+
     L1GtConditionEvaluation::print(myCout);
 
 }

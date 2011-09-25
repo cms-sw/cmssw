@@ -73,13 +73,6 @@ public:
     }
 
     void setGtMuonTemplate(const L1GtMuonTemplate*);
-    
-    ///   get / set the number of bits for eta of muon objects
-    inline const int gtIfMuEtaNumberBits() const {
-        return m_ifMuEtaNumberBits;
-    }
-
-    void setGtIfMuEtaNumberBits(const int&);    
 
     ///   get / set the pointer to GTL
     inline const L1GlobalTriggerGTL* gtGTL() const {
@@ -87,6 +80,23 @@ public:
     }
 
     void setGtGTL(const L1GlobalTriggerGTL*);
+
+
+    ///   get / set the number of bits for eta of muon objects
+    inline const int gtIfMuEtaNumberBits() const {
+        return m_ifMuEtaNumberBits;
+    }
+
+    void setGtIfMuEtaNumberBits(const int&);
+
+
+    ///   get / set maximum number of bins for the delta phi scales
+    inline const int gtCorrParDeltaPhiNrBins() const {
+        return m_corrParDeltaPhiNrBins;
+    }
+
+    void setGtCorrParDeltaPhiNrBins(const int&);
+
 
 private:
 
@@ -110,6 +120,11 @@ private:
 
     /// number of bits for eta of muon objects
     int m_ifMuEtaNumberBits;
+
+    // maximum number of bins for the delta phi scales
+    unsigned int m_corrParDeltaPhiNrBins;
+
+
 
 };
 
