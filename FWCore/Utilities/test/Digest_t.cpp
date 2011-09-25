@@ -1,6 +1,8 @@
+#include "FWCore/Utilities/interface/Digest.h"
+#include "FWCore/Utilities/interface/Exception.h"
+
 #include <cassert>
 #include <iostream>
-#include "FWCore/Utilities/interface/Digest.h"
 
 using cms::Digest;
 using cms::MD5Result;
@@ -36,9 +38,8 @@ void testConversions() {
   //check the MD5Result lookup table
   MD5Result lookup;
   MD5Result fromHex;
-  for(unsigned int i=0; i<256;++i)
-  {
-    for(unsigned int j=0; j<16;++j) {
+  for(unsigned int i=0; i<256; ++i) {
+    for(unsigned int j=0; j<16; ++j) {
       lookup.bytes[j]=static_cast<char>(i);
       fromHex.fromHexifiedString(lookup.toString());
       assert(lookup == fromHex);
@@ -46,7 +47,6 @@ void testConversions() {
       assert(lookup.compactForm() == fromHex.compactForm());
     }
   }
-
 }
 
 void testEmptyString() {
@@ -80,5 +80,12 @@ int main() {
   testGivenString("{ }");
   testGivenString("abc 123 abc");
   testEmptyString();
-  testConversions();
+  try {
+    testConversions();
+  }
+  catch(cms::Exception const& e) {
+    std::cerr << e.explainSelf() << std::endl; 
+    return 1;
+  }
+  return 0;
 }

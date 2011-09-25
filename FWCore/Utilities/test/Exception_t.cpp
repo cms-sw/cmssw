@@ -1,45 +1,42 @@
 
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <iostream>
-#include <string>
-#include <iomanip>
 #include <cstdlib>
+#include <iomanip>
+#include <iostream>
 #include <memory>
+#include <string>
 
-struct Thing
-{
+struct Thing {
   Thing():x() { }
   explicit Thing(int xx):x(xx) { }
   int x;
 };
 
-std::ostream& operator<<(std::ostream& os, const Thing& t)
-{
+std::ostream& operator<<(std::ostream& os, const Thing& t) {
   os << "Thing(" << t.x << ")";
   return os;
 }
 
 const char expected[] =   "An exception of category 'InfiniteLoop' occurred.\n"
                            "Exception Message:\n"
-			   "In func1\n"
-			   "This is just a test: \n"
-			   "double: 1.11111\n"
-			   "float:  2.22222\n"
-			   "uint:   75\n"
-			   "string: a string\n"
-			   "char*:  a nonconst pointer\n"
-			   "char[]: a c-style array\n"
-			   "Thing:  Thing(4)\n"
-			   "\n"
-			   "double: 1.111110e+00\n"
-			   "float:  2.22e+00\n"
-			   "char*:  ..a nonconst pointer\n"
-			   "\n"
-			   "Gave up\n";
+                           "In func1\n"
+                           "This is just a test: \n"
+                           "double: 1.11111\n"
+                           "float:  2.22222\n"
+                           "uint:   75\n"
+                           "string: a string\n"
+                           "char*:  a nonconst pointer\n"
+                           "char[]: a c-style array\n"
+                           "Thing:  Thing(4)\n"
+                           "\n"
+                           "double: 1.111110e+00\n"
+                           "float:  2.22e+00\n"
+                           "char*:  ..a nonconst pointer\n"
+                           "\n"
+                           "Gave up\n";
 
-void func3()
-{
+void func3() {
   double d = 1.11111;
   float f = 2.22222;
   unsigned int i = 75U;
@@ -48,7 +45,7 @@ void func3()
   char c2[] = "a c-style array";
   Thing thing(4);
 
-  //  throw cms::Exception("DataCorrupt") 
+  //  throw cms::Exception("DataCorrupt")
   cms::Exception e("DataCorrupt");
   e << "This is just a test: \n"
     << "double: " << d << "\n"
@@ -61,19 +58,17 @@ void func3()
     << std::endl
     << "double: " << std::scientific << d << "\n"
     << "float:  " << std::setprecision(2) << f << "\n"
-    << "char*:  " << std::setfill('.') << std::setw(20) << c1 << "\n"
+    << "char*:  " << std::setfill('.') << std::setw(20) << c1 << std::setfill(' ') << "\n"
     << std::endl;
 
   throw e;
 }
 
-void func2()
-{
+void func2() {
   func3();
 }
 
-void func1()
-{
+void func1() {
   try {
     func2();
   }
@@ -81,18 +76,17 @@ void func1()
     cms::Exception toThrow("InfiniteLoop", "In func1", e);
     toThrow << "Gave up";
     throw toThrow;
-  }  
+  }
 }
 
-int main()
-{
+int main() {
   try {
     func1();
   }
   catch (cms::Exception& e) {
     std::cerr << "*** main caught Exception, output is ***\n"
               << e.explainSelf()
-	      << "*** After exception output ***" << std::endl;
+              << "*** After exception output ***" << std::endl;
 
     if (e.explainSelf() != expected ||
         e.explainSelf() != std::string(e.what())) {
@@ -201,7 +195,7 @@ int main()
   e6.setAlreadyPrinted(true);
   cms::Exception e9(e6);
   if (!e9.alreadyPrinted()) abort();
-  
+
   if (e7.explainSelf() != expected5) {
     abort();
   }
@@ -313,7 +307,7 @@ int main()
   try {
     ptr->raise();
   }
-  catch (cms::Exception & ex) {
+  catch (cms::Exception& ex) {
     ex << "last one ";
     std::cerr << ex;
     std::string expected7_6("An exception of category 'DEF' occurred while\n"
@@ -332,5 +326,5 @@ int main()
       abort();
     }
   }
-  return 0; 
+  return 0;
 }

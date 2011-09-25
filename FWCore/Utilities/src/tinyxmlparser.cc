@@ -24,6 +24,9 @@ distribution.
 
 /*
  * THIS FILE WAS ALTERED BY Eric Vaandering, 25 August 2009.
+ *
+ * THIS FILE WAS ALTERED BY Bill Tanenbaum, 25 September 2011
+ * to fix Coverity error (use after free).
  */
 #define TIXML_USE_STL
 #include <ctype.h>
@@ -762,7 +765,9 @@ const char* TiXmlDocument::Parse( const char* p, TiXmlParsingData* prevData, TiX
 		if ( node )
 		{
 			p = node->Parse( p, &data, encoding );
-			LinkEndChild( node );
+			// LinkEndChild just returns the input pointer unmodified,
+			// except if node is deleted, in which case it returns 0.
+			node = LinkEndChild( node );
 		}
 		else
 		{
@@ -771,7 +776,7 @@ const char* TiXmlDocument::Parse( const char* p, TiXmlParsingData* prevData, TiX
 
 		// Did we get encoding info?
 		if (    encoding == TIXML_ENCODING_UNKNOWN
-			 && node->ToDeclaration() )
+			 && node && node->ToDeclaration() )
 		{
 			TiXmlDeclaration* dec = node->ToDeclaration();
 			const char* enc = dec->Encoding();

@@ -15,6 +15,7 @@
 
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/RegexMatch.h"
 #include "FWCore/Utilities/interface/TestHelper.h"
 
 namespace bf = boost::filesystem;
@@ -72,6 +73,8 @@ int do_work(int argc, char* argv[], char** env) {
     return -1;
   }
 
+  char const* goodDirectory = "[A-Za-z0-9/_.-]+";
+
   for(int i = 0; i < argc; ++i) {
     std::cout << "argument " << i << ": " << argv[i] << '\n';
   }
@@ -84,6 +87,17 @@ int do_work(int argc, char* argv[], char** env) {
   // be used.
   char const* topdir = getenv("SCRAMRT_LOCALRT");
   if(!topdir) topdir = getenv("LOCALRT");
+  try {
+    if(!edm::untaintString(topdir, goodDirectory)) {
+      std::cerr << "Invalid top directory '" << topdir << "'" << std::endl;;
+      return -1;
+    }
+  }
+  catch(std::runtime_error const& e) {
+    std::cerr << "Invalid top directory '" << topdir << "'" << std::endl;;
+    std::cerr << "e.what" << std::endl;;
+    return -1;
+  }
 
   char const* arch = getenv("SCRAM_ARCH");
 
@@ -105,10 +119,21 @@ int do_work(int argc, char* argv[], char** env) {
   int rc = 0;
 
   if(!topdir) {
-    std::cout << "Neither SCRAMRT_LOCALRT nor LOCALRT is not defined" << std::endl;;
+    std::cerr << "Neither SCRAMRT_LOCALRT nor LOCALRT is defined" << std::endl;;
     return -1;
   }
 
+  try {
+    if(!edm::untaintString(argv[2], goodDirectory)) {
+      std::cerr << "Invalid test directory '" << argv[2] << "'" << std::endl;;
+      return -1;
+    }
+  }
+  catch(std::runtime_error const& e) {
+    std::cerr << "Invalid test directory '" << argv[2] << "'" << std::endl;;
+    std::cerr << "e.what" << std::endl;;
+    return -1;
+  }
 
   std::string testdir(topdir); testdir += "/src/"; testdir += argv[2];
   std::string tmpdir(topdir);  tmpdir += "/tmp/";   tmpdir += arch;
