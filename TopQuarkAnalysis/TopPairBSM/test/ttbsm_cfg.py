@@ -59,6 +59,7 @@ if not options.useData :
             ]
     else :
         process.source.fileNames = [
+            '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/9AF32315-EC97-E011-8B25-0026189438B3.root',
             '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/18F1D3EA-E597-E011-8452-00304867BFBC.root'
             ## '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/6C8DAC5B-7E98-E011-828B-0018F34D0D62.root',
             ## '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/6C4B1EFF-EC97-E011-815F-00261894392C.root',
@@ -103,6 +104,9 @@ else :
             '/store/data/Run2010A/JetMET/AOD/Apr21ReReco-v1/0000/C04521C3-9A70-E011-9DC8-001A928116BC.root'
             ]
 
+#process.source.eventsToProcess = cms.untracked.VEventRange( ['1:86747'] )
+
+#process.source.skipEvents = cms.untracked.uint32(17268) 
 
 print options
 
@@ -215,6 +219,14 @@ process.prunedGenParticles = cms.EDProducer("GenParticlePruner",
                                                 )
                                             )
 
+
+## process.prunedGenParticles = cms.EDProducer("GenParticlePruner",
+##                                             src = cms.InputTag("genParticles"),
+##                                             select = cms.vstring(
+##                                                 "drop  *"
+##                                                 ,"keep++ (abs(pdgId) =6) "
+##                                                 )
+##                                             )
 
 ###############################
 #### Jet RECO includes ########
