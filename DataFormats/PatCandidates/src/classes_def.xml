@@ -224,6 +224,12 @@
   <class name="std::vector<pat::JetCorrFactors>" />
   <class name="edm::ValueMap<pat::JetCorrFactors>" />
   <class name="edm::Wrapper<edm::ValueMap<pat::JetCorrFactors> >" />
+  <class name="std::vector<pat::TauJetCorrFactors::CorrectionFactor>" />
+  <class name="edm::Wrapper<std::vector<pat::TauJetCorrFactors::CorrectionFactor> >" />
+  <class name="pat::TauJetCorrFactors" />
+  <class name="std::vector<pat::TauJetCorrFactors>" />
+  <class name="edm::ValueMap<pat::TauJetCorrFactors>" />
+  <class name="edm::Wrapper<edm::ValueMap<pat::TauJetCorrFactors> >" />
 
   <class name="StringMap"  ClassVersion="10">
    <version ClassVersion="10" checksum="2534181505"/>
