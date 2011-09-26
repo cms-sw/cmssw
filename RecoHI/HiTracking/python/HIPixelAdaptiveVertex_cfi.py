@@ -20,7 +20,7 @@ hiPixelAdaptiveVertex = cms.EDProducer("PrimaryVertexProducer",
     beamSpotLabel = cms.InputTag("offlineBeamSpot"),
     # label of tracks to be used
     TrackLabel = cms.InputTag("hiSelectedProtoTracks"),
-    useBeamConstraint = cms.bool(True),
+    useBeamConstraint = cms.bool(False),
     # clustering
     TkClusParameters = cms.PSet(
         algorithm = cms.string("gap"),
