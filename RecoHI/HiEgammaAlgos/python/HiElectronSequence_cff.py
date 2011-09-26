@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 # creates the recoGsfTracks_electronGsfTracks__RECO = input GSF tracks
 from TrackingTools.GsfTracking.GsfElectronTracking_cff import *
+#from RecoEgamma.EgammaElectronProducers.ecalDrivenElectronSeeds_cfi import *
 ecalDrivenElectronSeeds.SeedConfiguration.initialSeeds = "hiPixelTrackSeeds"
 electronCkfTrackCandidates.src = "ecalDrivenElectronSeeds"
 
@@ -13,9 +14,9 @@ electronGsfTrackingHi = cms.Sequence(ecalDrivenElectronSeeds *
 from RecoEgamma.EgammaElectronProducers.gsfElectronSequence_cff import *
 from RecoParticleFlow.PFProducer.pfElectronTranslator_cff import *
 gsfElectrons.ctfTracksTag     = cms.InputTag("hiGlobalPrimTracks")
-ecalDrivenGsfElectrons.ctfTracksTag = cms.InputTag("hiGlobalPrimTracks")
+#ecalDrivenGsfElectrons.ctfTracksTag = cms.InputTag("hiGlobalPrimTracks")
 gsfElectronCores.ctfTracks = cms.InputTag("hiGlobalPrimTracks")
-ecalDrivenGsfElectronCores.ctfTracks = cms.InputTag("hiGlobalPrimTracks")
+#ecalDrivenGsfElectronCores.ctfTracks = cms.InputTag("hiGlobalPrimTracks")
 
 hiElectronSequence = cms.Sequence(electronGsfTrackingHi * 
 			          pfElectronTranslator * 
