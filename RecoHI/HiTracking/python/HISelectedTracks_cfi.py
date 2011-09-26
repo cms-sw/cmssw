@@ -16,7 +16,7 @@ hiGoodTracks = cms.EDProducer("HiAnalyticalTrackSelector",
                                   qualityBit = cms.string('highPurity'), ## set to '' or comment out if you don't want to set the bit
 
                                   # parameters for cutting on pterror/pt and number of valid hits
-                                  min_relpterr = cms.double(0.05),
+                                  max_relpterr = cms.double(0.05),
                                   min_nhits = cms.uint32(12),
 
                                   # parameters for adapted optimal cuts on chi2 and primary vertex compatibility
@@ -53,7 +53,7 @@ hiTracksWithLooseQuality = hiGoodTracks.clone(src = cms.InputTag("hiGlobalPrimTr
 
 hiTracksWithTightQuality = hiGoodTracks.clone(src = cms.InputTag("hiGlobalPrimTracks"),
                                                                         qualityBit = cms.string('tight'),
-                                                                        min_relpterr = cms.double(0.06),
+                                                                        max_relpterr = cms.double(0.06),
                                                                         min_nhits = cms.uint32(13),
                                                                         chi2n_par = cms.double(0.15),
                                                                         d0_par2 =cms.vdouble(999.0, 0.0),

@@ -10,7 +10,7 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: HiAnalyticalTrackSelector.h,v 1.1 2011/09/08 15:47:53 sungho Exp $
+ * $Id: HiAnalyticalTrackSelector.h,v 1.1 2011/09/19 20:58:32 mnguyen Exp $
  *
  */
 
@@ -66,7 +66,7 @@ namespace reco { namespace modules {
             bool setQualityBit_;
             TrackBase::TrackQuality qualityToSet_;
 
-	    double min_relpterr_;
+	    double max_relpterr_;
 	    uint32_t min_nhits_;
 
             /// vertex cuts

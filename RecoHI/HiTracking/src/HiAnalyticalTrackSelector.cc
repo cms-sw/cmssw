@@ -16,7 +16,7 @@ HiAnalyticalTrackSelector::HiAnalyticalTrackSelector( const edm::ParameterSet & 
                          false ),  // as this is what you expect from a well behaved selector
     setQualityBit_( false ),
     qualityToSet_( TrackBase::undefQuality ),
-    min_relpterr_( cfg.getParameter<double>("min_relpterr") ),
+    max_relpterr_( cfg.getParameter<double>("max_relpterr") ),
     min_nhits_( cfg.getParameter<uint32_t>("min_nhits") ),
     vtxNumber_( cfg.getParameter<int32_t>("vtxNumber") ),
     vtxTracks_( cfg.getParameter<uint32_t>("vtxTracks") ),
@@ -195,7 +195,7 @@ bool HiAnalyticalTrackSelector::select(const reco::BeamSpot &vertexBeamSpot, con
    double relpterr = tk.ptError()/pt;
    uint32_t nhits = tk.numberOfValidHits();
 
-   if(relpterr > min_relpterr_) return false;
+   if(relpterr > max_relpterr_) return false;
    if(nhits < min_nhits_) return false;
 
    // optimized cuts adapted to the track nlayers, pt, eta:
