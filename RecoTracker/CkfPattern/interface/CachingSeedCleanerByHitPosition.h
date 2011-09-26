@@ -22,7 +22,7 @@ class CachingSeedCleanerByHitPosition : public RedundantSeedCleaner  {
    virtual ~CachingSeedCleanerByHitPosition() { theVault.clear(); theCache.clear(); }
   private:
     std::vector<Trajectory::RecHitContainer> theVault;
-    std::multimap<uint32_t, unsigned short> theCache;
+    std::multimap<uint32_t, unsigned int> theCache;
 
     //uint64_t comps_, tracks_, calls_;
 };

@@ -22,7 +22,7 @@ void CachingSeedCleanerByHitPosition::done() {
 
 void CachingSeedCleanerByHitPosition::add(const Trajectory *trj) {
     typedef Trajectory::RecHitContainer::const_iterator TI;
-    unsigned short idx = theVault.size();
+    unsigned int idx = theVault.size();
     Trajectory::RecHitContainer hits = trj->recHits();
     theVault.push_back(hits);
 
@@ -30,7 +30,7 @@ void CachingSeedCleanerByHitPosition::add(const Trajectory *trj) {
     for (TI t = hits.begin(), te = hits.end(); t != te; ++t) {
         if ((*t)->isValid()) {
             detid = (*t)->geographicalId().rawId();
-            if (detid) theCache.insert(std::pair<uint32_t, unsigned short>(detid, idx));
+            if (detid) theCache.insert(std::pair<uint32_t, unsigned int>(detid, idx));
         }
     }
 }
@@ -44,7 +44,7 @@ bool CachingSeedCleanerByHitPosition::good(const TrajectorySeed *seed) {
     SI first = range.first, last = range.second, curr;
     uint32_t detid = first->geographicalId().rawId();
     
-    std::multimap<uint32_t, unsigned short>::const_iterator it, end = theCache.end();
+    std::multimap<uint32_t, unsigned int>::const_iterator it, end = theCache.end();
 
     //calls_++;
     for (it = theCache.find(detid); (it != end) && (it->first == detid); ++it) {
