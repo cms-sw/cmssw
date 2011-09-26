@@ -35,7 +35,12 @@ looseMTS = cms.PSet(
     
     # Absolute cuts in case of no PV. If yes, please define also max_d0NoPV and max_z0NoPV 
     applyAbsCutsIfNoPV = cms.bool(False),
-    keepAllTracks= cms.bool(False)
+    keepAllTracks= cms.bool(False),
+
+    # parameters for cutting on pterror/pt and number of valid hits
+    min_relpterr = cms.double(9999.),
+    min_nhits = cms.uint32(0)
+                             
     ) # end of pset
 
 tightMTS=looseMTS.clone(

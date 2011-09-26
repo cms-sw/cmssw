@@ -36,6 +36,8 @@ MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
   max_d0NoPV_.reserve(trkSelectors.size());
   max_z0NoPV_.reserve(trkSelectors.size());
   preFilter_.reserve(trkSelectors.size());
+  max_relpterr_.reserve(trkSelectors.size());
+  min_nhits_.reserve(trkSelectors.size());
 
   for ( unsigned int i=0; i<trkSelectors.size(); i++) {
 
@@ -63,6 +65,9 @@ MultiTrackSelector::MultiTrackSelector( const edm::ParameterSet & cfg ) :
     // Flag to apply absolute cuts if no PV passes the selection
     applyAbsCutsIfNoPV_.push_back(trkSelectors[i].getParameter<bool>("applyAbsCutsIfNoPV"));
     keepAllTracks_.push_back( trkSelectors[i].getParameter<bool>("keepAllTracks")); 
+    max_relpterr_.push_back(trkSelectors[i].getParameter<double>("max_relpterr"));
+    min_nhits_.push_back(trkSelectors[i].getParameter<int32_t>("min_nhits"));
+
   
     setQualityBit_.push_back( false );
     std::string qualityStr = trkSelectors[i].getParameter<std::string>("qualityBit");
@@ -241,6 +246,15 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
 
   // Get track parameters
   double pt = tk.pt(), eta = tk.eta();
+
+  //cuts on relative error on pt and number of valid hits
+  double relpterr = tk.ptError()/max(pt,1e-9);
+  uint32_t nhits = tk.numberOfValidHits();
+  if(relpterr > max_relpterr_[tsNum]) return false;
+  if(nhits < min_nhits_[tsNum]) return false;
+
+
+  //other track parameters
   double d0 = -tk.dxy(vertexBeamSpot.position()), d0E =  tk.d0Error(),
     dz = tk.dz(vertexBeamSpot.position()), dzE =  tk.dzError();
 
@@ -253,7 +267,6 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
 		      pow(dz_par2_[tsNum][0]*nlayers,dz_par2_[tsNum][1])*dzE );
   double d0Cut = min( pow(d0_par1_[tsNum][0]*nlayers,d0_par1_[tsNum][1])*nomd0E, 
 		      pow(d0_par2_[tsNum][0]*nlayers,d0_par2_[tsNum][1])*d0E );
-
 
   // ---- PrimaryVertex compatibility cut
   bool primaryVertexZCompatibility(false);   

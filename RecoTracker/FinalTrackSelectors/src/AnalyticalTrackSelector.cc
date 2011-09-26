@@ -31,7 +31,9 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     max_d0NoPV_.reserve(1);
     max_z0NoPV_.reserve(1);
     preFilter_.reserve(1);
-    
+    max_relpterr_.reserve(1);
+    min_nhits_.reserve(1);
+
     src_ = cfg.getParameter<edm::InputTag>( "src" );
     beamspot_ = cfg.getParameter<edm::InputTag>( "beamspot" );
     useVertices_ = cfg.getParameter<bool>( "useVertices" );
@@ -50,6 +52,7 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     dz_par1_.push_back(cfg.getParameter< std::vector<double> >("dz_par1"));
     d0_par2_.push_back(cfg.getParameter< std::vector<double> >("d0_par2"));
     dz_par2_.push_back(cfg.getParameter< std::vector<double> >("dz_par2"));
+
     // Boolean indicating if adapted primary vertex compatibility cuts are to be applied.
     applyAdaptedPVCuts_.push_back(cfg.getParameter<bool>("applyAdaptedPVCuts"));
     // Impact parameter absolute cuts.
@@ -60,12 +63,15 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     min_layers_.push_back(cfg.getParameter<uint32_t>("minNumberLayers") );
     min_3Dlayers_.push_back(cfg.getParameter<uint32_t>("minNumber3DLayers") );
     max_lostLayers_.push_back(cfg.getParameter<uint32_t>("maxNumberLostLayers"));
+    max_relpterr_.push_back(cfg.getParameter<double>("max_relpterr"));
+    min_nhits_.push_back(cfg.getParameter<int32_t>("min_nhits"));
+
     // Flag to apply absolute cuts if no PV passes the selection
     applyAbsCutsIfNoPV_.push_back(cfg.getParameter<bool>("applyAbsCutsIfNoPV"));
     keepAllTracks_.push_back( cfg.exists("keepAllTracks") ?
 		              cfg.getParameter<bool>("keepAllTracks") :
 		              false ); 
-  
+ 
     setQualityBit_.push_back( false );
     std::string qualityStr = cfg.getParameter<std::string>("qualityBit");
     
