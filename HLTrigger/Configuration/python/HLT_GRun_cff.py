@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/GRun/V273 (CMSSW_4_2_0_HLT28)
+# /dev/CMSSW_4_2_0/GRun/V274 (CMSSW_4_2_0_HLT28)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V273')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V274')
 )
 
 streams = cms.PSet( 
@@ -26278,7 +26278,7 @@ hltMu172p1JetCollectionsForLeptonPlusJets = cms.EDProducer( "HLTJetCollectionsFo
 )
 hltMu172p1CentralPFJet30Filter = cms.EDFilter( "HLTJetCollectionsFilter",
     inputTag = cms.InputTag( "hltMu172p1JetCollectionsForLeptonPlusJets" ),
-    originalTag = cms.InputTag( "hltIterativeCone5CaloJets" ),
+    originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     saveTags = cms.bool( True ),
     MinJetPt = cms.double( 30.0 ),
     MaxAbsJetEta = cms.double( 2.6 ),
@@ -26290,7 +26290,7 @@ hltPreMu17eta2p1DiCentralPFJet30 = cms.EDFilter( "HLTPrescaler",
 )
 hltMu172p1DiCentralPFJet30Filter = cms.EDFilter( "HLTJetCollectionsFilter",
     inputTag = cms.InputTag( "hltMu172p1JetCollectionsForLeptonPlusJets" ),
-    originalTag = cms.InputTag( "hltIterativeCone5CaloJets" ),
+    originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     saveTags = cms.bool( True ),
     MinJetPt = cms.double( 30.0 ),
     MaxAbsJetEta = cms.double( 2.6 ),
@@ -26302,7 +26302,7 @@ hltPreMu17eta2p1TriCentralPFJet30 = cms.EDFilter( "HLTPrescaler",
 )
 hltMu172p1TriCentralPFJet30Filter = cms.EDFilter( "HLTJetCollectionsFilter",
     inputTag = cms.InputTag( "hltMu172p1JetCollectionsForLeptonPlusJets" ),
-    originalTag = cms.InputTag( "hltIterativeCone5CaloJets" ),
+    originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     saveTags = cms.bool( True ),
     MinJetPt = cms.double( 30.0 ),
     MaxAbsJetEta = cms.double( 2.6 ),
@@ -26314,7 +26314,7 @@ hltPreMu17eta2p1QuadCentralPFJet30 = cms.EDFilter( "HLTPrescaler",
 )
 hltMu172p1QuadCentralPFJet30Filter = cms.EDFilter( "HLTJetCollectionsFilter",
     inputTag = cms.InputTag( "hltMu172p1JetCollectionsForLeptonPlusJets" ),
-    originalTag = cms.InputTag( "hltIterativeCone5CaloJets" ),
+    originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     saveTags = cms.bool( True ),
     MinJetPt = cms.double( 30.0 ),
     MaxAbsJetEta = cms.double( 2.6 ),
@@ -27406,7 +27406,7 @@ hltIsoMu172p1JetCollectionsForLeptonPlusJets = cms.EDProducer( "HLTJetCollection
 )
 hltIsoMu172p1CentralPFJet30Filter = cms.EDFilter( "HLTJetCollectionsFilter",
     inputTag = cms.InputTag( "hltIsoMu172p1JetCollectionsForLeptonPlusJets" ),
-    originalTag = cms.InputTag( "hltIterativeCone5CaloJets" ),
+    originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     saveTags = cms.bool( True ),
     MinJetPt = cms.double( 30.0 ),
     MaxAbsJetEta = cms.double( 2.6 ),
@@ -27418,7 +27418,7 @@ hltPreIsoMu17eta2p1DiCentralPFJet30 = cms.EDFilter( "HLTPrescaler",
 )
 hltIsoMu172p1DiCentralPFJet30Filter = cms.EDFilter( "HLTJetCollectionsFilter",
     inputTag = cms.InputTag( "hltIsoMu172p1JetCollectionsForLeptonPlusJets" ),
-    originalTag = cms.InputTag( "hltIterativeCone5CaloJets" ),
+    originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     saveTags = cms.bool( True ),
     MinJetPt = cms.double( 30.0 ),
     MaxAbsJetEta = cms.double( 2.6 ),
@@ -27430,7 +27430,7 @@ hltPreIsoMu17eta2p1TriCentralPFJet30 = cms.EDFilter( "HLTPrescaler",
 )
 hltIsoMu172p1TriCentralPFJet30Filter = cms.EDFilter( "HLTJetCollectionsFilter",
     inputTag = cms.InputTag( "hltIsoMu172p1JetCollectionsForLeptonPlusJets" ),
-    originalTag = cms.InputTag( "hltIterativeCone5CaloJets" ),
+    originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     saveTags = cms.bool( True ),
     MinJetPt = cms.double( 30.0 ),
     MaxAbsJetEta = cms.double( 2.6 ),
@@ -27442,7 +27442,7 @@ hltPreIsoMu17eta2p1QuadCentralPFJet30 = cms.EDFilter( "HLTPrescaler",
 )
 hltIsoMu172p1QuadCentralPFJet30Filter = cms.EDFilter( "HLTJetCollectionsFilter",
     inputTag = cms.InputTag( "hltIsoMu172p1JetCollectionsForLeptonPlusJets" ),
-    originalTag = cms.InputTag( "hltIterativeCone5CaloJets" ),
+    originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     saveTags = cms.bool( True ),
     MinJetPt = cms.double( 30.0 ),
     MaxAbsJetEta = cms.double( 2.6 ),
@@ -30013,7 +30013,7 @@ hltEle25CaloIdVTTrkIdTJetCollectionsForLeptonPlusPFJets = cms.EDProducer( "HLTJe
 )
 hltEle25CaloIdVTTrkIdTCentralPFJet30EleCleaned = cms.EDFilter( "HLTJetCollectionsFilter",
     inputTag = cms.InputTag( "hltEle25CaloIdVTTrkIdTJetCollectionsForLeptonPlusPFJets" ),
-    originalTag = cms.InputTag( "hltIterativeCone5CaloJets" ),
+    originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     saveTags = cms.bool( True ),
     MinJetPt = cms.double( 30.0 ),
     MaxAbsJetEta = cms.double( 2.6 ),
@@ -30025,7 +30025,7 @@ hltPreEle25CaloIdVTTrkIdTDiCentralPFJet30 = cms.EDFilter( "HLTPrescaler",
 )
 hltEle25CaloIdVTTrkIdTDiCentralPFJet30EleCleaned = cms.EDFilter( "HLTJetCollectionsFilter",
     inputTag = cms.InputTag( "hltEle25CaloIdVTTrkIdTJetCollectionsForLeptonPlusPFJets" ),
-    originalTag = cms.InputTag( "hltIterativeCone5CaloJets" ),
+    originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     saveTags = cms.bool( True ),
     MinJetPt = cms.double( 30.0 ),
     MaxAbsJetEta = cms.double( 2.6 ),
@@ -30037,7 +30037,7 @@ hltPreEle25CaloIdVTTrkIdTTriCentralPFJet30 = cms.EDFilter( "HLTPrescaler",
 )
 hltEle25CaloIdVTTrkIdTTriCentralPFJet30EleCleaned = cms.EDFilter( "HLTJetCollectionsFilter",
     inputTag = cms.InputTag( "hltEle25CaloIdVTTrkIdTJetCollectionsForLeptonPlusPFJets" ),
-    originalTag = cms.InputTag( "hltIterativeCone5CaloJets" ),
+    originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     saveTags = cms.bool( True ),
     MinJetPt = cms.double( 30.0 ),
     MaxAbsJetEta = cms.double( 2.6 ),
@@ -30049,7 +30049,7 @@ hltPreEle25CaloIdVTTrkIdTQuadCentralPFJet30 = cms.EDFilter( "HLTPrescaler",
 )
 hltEle25CaloIdVTTrkIdTQuadCentralPFJet30EleCleaned = cms.EDFilter( "HLTJetCollectionsFilter",
     inputTag = cms.InputTag( "hltEle25CaloIdVTTrkIdTJetCollectionsForLeptonPlusPFJets" ),
-    originalTag = cms.InputTag( "hltIterativeCone5CaloJets" ),
+    originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     saveTags = cms.bool( True ),
     MinJetPt = cms.double( 30.0 ),
     MaxAbsJetEta = cms.double( 2.6 ),
@@ -30231,7 +30231,7 @@ hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTJetCollectionsForLeptonPlusPFJets = cms.EDP
 )
 hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTCentralPFJet30EleCleaned = cms.EDFilter( "HLTJetCollectionsFilter",
     inputTag = cms.InputTag( "hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTJetCollectionsForLeptonPlusPFJets" ),
-    originalTag = cms.InputTag( "hltIterativeCone5CaloJets" ),
+    originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     saveTags = cms.bool( True ),
     MinJetPt = cms.double( 30.0 ),
     MaxAbsJetEta = cms.double( 2.6 ),
@@ -30243,7 +30243,7 @@ hltPreEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTDiCentralPFJet30 = cms.EDFilter( "HLTPre
 )
 hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTDiCentralPFJet30EleCleaned = cms.EDFilter( "HLTJetCollectionsFilter",
     inputTag = cms.InputTag( "hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTJetCollectionsForLeptonPlusPFJets" ),
-    originalTag = cms.InputTag( "hltIterativeCone5CaloJets" ),
+    originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     saveTags = cms.bool( True ),
     MinJetPt = cms.double( 30.0 ),
     MaxAbsJetEta = cms.double( 2.6 ),
@@ -30255,7 +30255,7 @@ hltPreEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTTriCentralPFJet30 = cms.EDFilter( "HLTPr
 )
 hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTTriCentralPFJet30EleCleaned = cms.EDFilter( "HLTJetCollectionsFilter",
     inputTag = cms.InputTag( "hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTJetCollectionsForLeptonPlusPFJets" ),
-    originalTag = cms.InputTag( "hltIterativeCone5CaloJets" ),
+    originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     saveTags = cms.bool( True ),
     MinJetPt = cms.double( 30.0 ),
     MaxAbsJetEta = cms.double( 2.6 ),
@@ -30267,7 +30267,7 @@ hltPreEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTQuadCentralPFJet30 = cms.EDFilter( "HLTP
 )
 hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTQuadCentralPFJet30EleCleaned = cms.EDFilter( "HLTJetCollectionsFilter",
     inputTag = cms.InputTag( "hltEle25CaloIdVTCaloIsoTTrkIdTTrkIsoTJetCollectionsForLeptonPlusPFJets" ),
-    originalTag = cms.InputTag( "hltIterativeCone5CaloJets" ),
+    originalTag = cms.InputTag( "hltAntiKT5ConvPFJets" ),
     saveTags = cms.bool( True ),
     MinJetPt = cms.double( 30.0 ),
     MaxAbsJetEta = cms.double( 2.6 ),
