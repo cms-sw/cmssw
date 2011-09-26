@@ -90,6 +90,8 @@ public:
 
 private:
 
+  int validChambers(const reco::TrackRef & track);
+
   // Tree variables
   float *muonpt, *muonphi, *muoneta, *muonet, *muone, *muonchi2NDF, *muoncharge,
   *muonTrkIsoR03, *muonECalIsoR03, *muonHCalIsoR03, *muonD0;
@@ -99,7 +101,7 @@ private:
   float *muonl2novtxpt, *muonl2novtxeta, *muonl2novtxphi, *muonl2novtxdr, *muonl2novtxdz; 
   float *muonl2pterr, *muonl3pterr, *muonl2novtxpterr;
   int nmuon, nmu2cand, nmu3cand, nmu2novtxcand;
-  int *muonl2chg, *muonl2iso, *muonl2nhits,*muonl2nstat, *muonl3chg, *muonl3iso, *muonl32idx, *muonl3nhits, *muonl21idx, *muonl2novtxchg, *muonl2novtxiso, *muonl2novtx1idx, *muonl2novtxnhits;
+  int *muonl2chg, *muonl2iso, *muonl2nhits, *muonl2nchambers, *muonl2nstat, *muonl3chg, *muonl3iso, *muonl32idx, *muonl3nhits, *muonl21idx, *muonl2novtxchg, *muonl2novtxiso, *muonl2novtx1idx, *muonl2novtxnhits, *muonl2novtxnchambers;
   int *muonl3ntrackerhits, *muonl3nmuonhits, *muonl3trk10iso;
 
   int nOniaPixelCand, nOniaTrackCand;
