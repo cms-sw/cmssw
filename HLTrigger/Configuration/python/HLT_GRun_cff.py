@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/GRun/V276 (CMSSW_4_2_0_HLT28)
+# /dev/CMSSW_4_2_0/GRun/V277 (CMSSW_4_2_0_HLT29)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V276')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V277')
 )
 
 streams = cms.PSet( 
@@ -5545,6 +5545,7 @@ hltHcalNoiseInfoProducer = cms.EDProducer( "HcalNoiseInfoProducer",
     minHighHitE = cms.double( 25.0 ),
     HcalAcceptSeverityLevel = cms.uint32( 9 ),
     TS4TS5EnergyThreshold = cms.double( 50.0 ),
+    HcalRecHitFlagsToBeExcluded = cms.vint32( 11, 12, 13, 14, 15 ),
     TS4TS5UpperThreshold = cms.vdouble( 70.0, 90.0, 100.0, 400.0, 4000.0 ),
     TS4TS5UpperCut = cms.vdouble( 1.0, 0.8, 0.75, 0.72, 0.72 ),
     TS4TS5LowerThreshold = cms.vdouble( 100.0, 120.0, 150.0, 200.0, 300.0, 400.0, 500.0 ),
