@@ -458,14 +458,13 @@ UInt_t FUResourceTable::allocateResource()
 bool FUResourceTable::buildResource(MemRef_t* bufRef)
 {
   bool eventComplete=false;
-  
+  bool lastMsg=isLastMessageOfEvent(bufRef);  
   I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME *block=
     (I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME*)bufRef->getDataLocation();
   
   UInt_t      fuResourceId=(UInt_t)block->fuTransactionId;
   UInt_t      buResourceId=(UInt_t)block->buResourceId;
   FUResource* resource    =resources_[fuResourceId];
-  
   // allocate resource
   if (!resource->fatalError()&&!resource->isAllocated()) {
     FUShmRawCell* cell=shmBuffer_->rawCellToWrite();
@@ -506,7 +505,6 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
   // bad event, release msg, and the whole resource if this was the last one
   //else {
   if (resource->fatalError()) {
-    bool lastMsg=isLastMessageOfEvent(bufRef);
     if (lastMsg) {
       shmBuffer_->releaseRawCell(resource->shmCell());
       resource->release();
@@ -519,7 +517,7 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
       bu_->sendDiscard(buResourceId);
       sendAllocate();
     }
-    bufRef->release(); // this should now be safe re: appendToSuperFrag as corrupted blocks will be removed... 
+    //    bufRef->release(); // this should now be safe re: appendToSuperFrag as corrupted blocks will be removed... 
   }
   
   return eventComplete;
@@ -1033,8 +1031,9 @@ void FUResourceTable::sendDqmEvent(UInt_t   fuDqmId,
 //______________________________________________________________________________
 bool FUResourceTable::isLastMessageOfEvent(MemRef_t* bufRef)
 {
-  while (0!=bufRef->getNextReference()) bufRef=bufRef->getNextReference();
-  
+  while (0!=bufRef->getNextReference()) {
+    bufRef=bufRef->getNextReference();
+  }
   I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME *block=
     (I2O_EVENT_DATA_BLOCK_MESSAGE_FRAME*)bufRef->getDataLocation();
   
@@ -1042,7 +1041,6 @@ bool FUResourceTable::isLastMessageOfEvent(MemRef_t* bufRef)
   UInt_t nBlock    =block->nbBlocksInSuperFragment;
   UInt_t iSuperFrag=block->superFragmentNb;
   UInt_t nSuperFrag=block->nbSuperFragmentsInEvent;
-
   return ((iSuperFrag==nSuperFrag-1)&&(iBlock==nBlock-1));
 }
 

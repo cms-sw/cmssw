@@ -1,6 +1,6 @@
 2011-09-27  Emilio Meschi  <emilio.meschi@cern.ch>
 
-	* tag V00-16-12
+	* tag V00-16-13 (12 used by e ulisse for compiler compat)
 	* hopefully fix handling of oversize or otherwise corrupt events
 
 2011-06-08  Emilio Meschi  <emilio.meschi@cern.ch>
