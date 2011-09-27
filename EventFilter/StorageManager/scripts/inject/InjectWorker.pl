@@ -30,6 +30,7 @@ my %invalidOracleError = (
     '01031' => 'insufficient privileges',
     '01012' => 'not logged on',
     '01003' => 'no statement parsed',
+    '02291' => 'integrity constraint violated - parent key not found',
     '12545' => 'target host or object does not exist',
     '17008' => 'closed connection',
     '25401' => 'can not continue fetches',
