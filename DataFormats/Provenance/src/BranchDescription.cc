@@ -1,5 +1,4 @@
 #include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/FriendlyName.h"
@@ -55,29 +54,30 @@ namespace edm {
 
   BranchDescription::BranchDescription(
                         BranchType const& branchType,
-                        std::string const& mdLabel,
-                        std::string const& procName,
-                        std::string const& name,
-                        std::string const& fName,
-                        std::string const& pin,
-                        ModuleDescription const& modDesc,
+                        std::string const& moduleLabel,
+                        std::string const& processName,
+                        std::string const& className,
+                        std::string const& friendlyClassName,
+                        std::string const& productInstanceName,
+                        std::string const& moduleName,
+                        ParameterSetID const& parameterSetID,
                         TypeID const& theTypeID,
                         std::set<std::string> const& aliases) :
       branchType_(branchType),
-      moduleLabel_(mdLabel),
-      processName_(procName),
+      moduleLabel_(moduleLabel),
+      processName_(processName),
       branchID_(),
-      fullClassName_(name),
-      friendlyClassName_(fName),
-      productInstanceName_(pin),
+      fullClassName_(className),
+      friendlyClassName_(friendlyClassName),
+      productInstanceName_(productInstanceName),
       branchAliases_(aliases),
       transient_() {
     dropped() = false;
     produced() = true;
     onDemand() = false;
+    transient_.moduleName_ = moduleName;
+    transient_.parameterSetID_ = parameterSetID;
     typeID() = theTypeID;
-    transient_.parameterSetID_ = modDesc.parameterSetID();
-    transient_.moduleName_ = modDesc.moduleName();
     init();
   }
 

@@ -158,7 +158,6 @@ testEvent::registerProduct(std::string const& tag,
 
   boost::shared_ptr<ProcessConfiguration> processX(new ProcessConfiguration(process));
   processConfigurations_.push_back(processX);
-  ModuleDescription localModuleDescription(moduleParams.id(), moduleClassName, moduleLabel, processX.get());
 
   TypeID product_type(typeid(T));
 
@@ -168,11 +167,12 @@ testEvent::registerProduct(std::string const& tag,
                            product_type.userClassName(),
                            product_type.friendlyClassName(),
                            productInstanceName,
-                           localModuleDescription,
+                           moduleClassName,
+                           moduleParams.id(),
                            product_type
                         );
 
-  moduleDescriptions_[tag] = localModuleDescription;
+  moduleDescriptions_[tag] = ModuleDescription(moduleParams.id(), moduleClassName, moduleLabel, processX.get());
   availableProducts_->addProduct(branch);
 }
 
@@ -247,7 +247,8 @@ testEvent::testEvent() :
                            product_type.userClassName(),
                            product_type.friendlyClassName(),
                            productInstanceName,
-                           *currentModuleDescription_,
+                           moduleClassName,
+                           moduleParams.id(),
                            product_type
                         );
 

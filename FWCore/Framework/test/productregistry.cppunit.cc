@@ -8,7 +8,6 @@
 
 
 #include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "FWCore/Framework/interface/ConstProductRegistry.h"
 #include "FWCore/Framework/interface/EventProcessor.h"
@@ -45,8 +44,6 @@ public:
   void testProductRegistration();
 
  private:
-  boost::shared_ptr<edm::ModuleDescription> intModule_;
-  boost::shared_ptr<edm::ModuleDescription> floatModule_;
   boost::shared_ptr<edm::BranchDescription> intBranch_;
   boost::shared_ptr<edm::BranchDescription> floatBranch_;
 };
@@ -78,14 +75,14 @@ namespace {
            new edm::ProcessConfiguration());
          pc->setParameterSetID(dummyProcessPset.id());
 
-         edm::ModuleDescription module(iDesc.parameterSetID(), "", "", pc.get());
          edm::BranchDescription prod(iDesc.branchType(),
                                      name_,
                                      iDesc.processName(),
                                      iDesc.fullClassName(),
                                      iDesc.friendlyClassName(),
                                      iDesc.productInstanceName() + "-" + name_,
-                                     module,
+                                     "",
+                                     iDesc.parameterSetID(),
                                      iDesc.typeID()
                                     );
          reg_->addProduct(prod);
@@ -94,8 +91,6 @@ namespace {
 }
 
 testProductRegistry::testProductRegistry() :
-  intModule_(),
-  floatModule_(),
   intBranch_(),
   floatBranch_() {
 }
@@ -111,15 +106,15 @@ void testProductRegistry::setUp() {
 
   edm::ParameterSet pset;
   pset.registerIt();
-  intModule_.reset(new edm::ModuleDescription(pset.id(), "", "", processConfiguration.get()));
   intBranch_.reset(new edm::BranchDescription(edm::InEvent, "label", "PROD",
                                           "int", "int", "int",
-                                          *intModule_, edm::TypeID(typeid(int))));
+                                          "", pset.id(),
+                                          edm::TypeID(typeid(int))));
 
-  floatModule_.reset(new edm::ModuleDescription(intModule_->parameterSetID(), "", "", processConfiguration.get()));
   floatBranch_.reset(new edm::BranchDescription(edm::InEvent, "label", "PROD",
                                             "float", "float", "float",
-                                            *floatModule_, edm::TypeID(typeid(float))));
+                                            "", pset.id(),
+                                            edm::TypeID(typeid(float))));
 
 }
 
@@ -130,8 +125,6 @@ namespace {
 void testProductRegistry::tearDown() {
   kill_and_clear(floatBranch_);
   kill_and_clear(intBranch_);
-  kill_and_clear(floatModule_);
-  kill_and_clear(intModule_);
 }
 
 void testProductRegistry:: testSignal() {

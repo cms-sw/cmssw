@@ -141,7 +141,6 @@ void testGenericHandle::getbyLabelTest() {
 
   edm::ParameterSet pset;
   pset.registerIt();
-  edm::ModuleDescription modDesc(pset.id(), "Blah", "", processConfiguration.get());
 
   edm::BranchDescription product(edm::InEvent,
                                  label,
@@ -149,7 +148,8 @@ void testGenericHandle::getbyLabelTest() {
                                  dummytype.userClassName(),
                                  className,
                                  productInstanceName,
-                                 modDesc,
+                                 "",
+                                 pset.id(),
                                  dummytype
                               );
 

@@ -115,7 +115,6 @@ void testEventGetRefBeforePut::getRefTest() {
 
   edm::ParameterSet pset;
   pset.registerIt();
-  edm::ModuleDescription modDesc(pset.id(), "Blah", "", processConfiguration.get());
 
   edm::BranchDescription product(edm::InEvent,
                                  label,
@@ -123,7 +122,8 @@ void testEventGetRefBeforePut::getRefTest() {
                                  dummytype.userClassName(),
                                  className,
                                  productInstanceName,
-                                 modDesc,
+                                 "",
+                                 pset.id(),
                                  dummytype
                               );
 

@@ -10,7 +10,6 @@ Test of the EventPrincipal class.
 #include "DataFormats/Provenance/interface/BranchIDListHelper.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
-#include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
 #include "DataFormats/Provenance/interface/Parentage.h"
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
@@ -127,8 +126,6 @@ test_ep::fake_single_process_branch(std::string const& tag,
   modParams.addParameter<std::string>("@module_label", moduleLabel);
   modParams.registerIt();
   boost::shared_ptr<edm::ProcessConfiguration> process(fake_single_module_process(tag, processName, modParams));
-  boost::shared_ptr<edm::ProcessConfiguration> processX(new edm::ProcessConfiguration(*process));
-  edm::ModuleDescription mod(modParams.id(), moduleClass, moduleLabel, processX.get());
 
   boost::shared_ptr<edm::BranchDescription> result(
     new edm::BranchDescription(edm::InEvent,
@@ -137,7 +134,8 @@ test_ep::fake_single_process_branch(std::string const& tag,
                                productClassName,
                                friendlyProductClassName,
                                productInstanceName,
-                               mod,
+                               moduleClass,
+                               modParams.id(),
                                dummyType));
   branchDescriptions_[tag] = result;
   return result;

@@ -23,7 +23,7 @@ namespace edm {
                                        bool iIsListener) {
     std::string const prefix("LCGReflex/");
     Reflex::Type null;
-    for (TypeLabelList::const_iterator p = iBegin; p != iEnd; ++p) {
+    for(TypeLabelList::const_iterator p = iBegin; p != iEnd; ++p) {
       if(null == Reflex::Type::ByName(p->typeID_.userClassName()) ) {
         //attempt to load
         edmplugin::PluginCapabilities::get()->tryToLoad(prefix + p->typeID_.userClassName());
@@ -34,7 +34,8 @@ namespace edm {
                               p->typeID_.userClassName(),
                               p->typeID_.friendlyClassName(),
                               p->productInstanceName_,
-                              iDesc,
+                              iDesc.moduleName(),
+                              iDesc.parameterSetID(),
                               p->typeID_);
       if (!p->branchAlias_.empty()) pdesc.branchAliases().insert(p->branchAlias_);
       iReg.addProduct(pdesc, iIsListener);

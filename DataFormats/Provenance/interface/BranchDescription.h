@@ -42,12 +42,13 @@ namespace edm {
     BranchDescription();
 
     BranchDescription(BranchType const& branchType,
-                      std::string const& mdLabel,
-                      std::string const& procName,
-                      std::string const& name,
-                      std::string const& fName,
-                      std::string const& pin,
-                      ModuleDescription const& modDesc,
+                      std::string const& moduleLabel,
+                      std::string const& processName,
+                      std::string const& className,
+                      std::string const& friendlyClassName,
+                      std::string const& productInstanceName,
+                      std::string const& moduleName,
+                      ParameterSetID const& parameterSetID,
                       TypeID const& theTypeID,
                       std::set<std::string> const& aliases = std::set<std::string>());
 
