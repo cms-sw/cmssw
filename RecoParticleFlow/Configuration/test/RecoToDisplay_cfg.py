@@ -16,7 +16,9 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source(
     "PoolSource",
-    fileNames = cms.untracked.vstring(),
+    fileNames = cms.untracked.vstring(
+    #"file:reco.root",
+    ),
     eventsToProcess = cms.untracked.VEventRange(),
     #eventsToProcess = cms.untracked.VEventRange('1:1217421-1:1217421'),
     #                                             '1:1220344-1:1220344',
@@ -39,8 +41,13 @@ process.load("RecoParticleFlow.Configuration.ReDisplay_EventContent_cff")
 process.display = cms.OutputModule("PoolOutputModule",
     process.DisplayEventContent,
     #outputCommands = cms.untracked.vstring('keep *'),
-    #process.RECOSIMEventContent,
     fileName = cms.untracked.string('display.root')
+)
+
+process.load("Configuration.EventContent.EventContent_cff")
+process.reco = cms.OutputModule("PoolOutputModule",
+    process.RECOSIMEventContent,
+    fileName = cms.untracked.string('reco.root')
 )
 
 # modify reconstruction sequence
@@ -96,15 +103,33 @@ process.genReReco = cms.Sequence(process.generator+
                                  process.recoGenMET+
                                  process.particleFlowSimParticle)
 
+#process.load("RecoParticleFlow.PFProducer.particleFlowCandidateChecker_cfi")
+#process.particleFlowCandidateChecker.pfCandidatesReco = cms.InputTag("particleFlow","","REPROD")
+#process.particleFlowCandidateChecker.pfCandidatesReReco = cms.InputTag("particleFlow","","REPROD2")
+#process.particleFlowCandidateChecker.pfJetsReco = cms.InputTag("ak5PFJets","","REPROD")
+#process.particleFlowCandidateChecker.pfJetsReReco = cms.InputTag("ak5PFJets","","REPROD2")
 # The complete reprocessing
 process.p = cms.Path(process.localReReco+
                      process.globalReReco+
                      process.pfReReco+
                      process.genReReco
+                     #+process.particleFlowCandidateChecker
                      )
 
 # And the output.
-process.outpath = cms.EndPath(process.display)
+process.outpath = cms.EndPath(
+    #process.reco +
+    process.display
+)
+
+# And the monitoring
+process.SimpleMemoryCheck = cms.Service("SimpleMemoryCheck",
+                                        ignoreTotal=cms.untracked.int32(1),
+                                        jobReportOutputOnly = cms.untracked.bool(True)
+                                        )
+process.Timing = cms.Service("Timing",
+                             summaryOnly = cms.untracked.bool(True)
+                             )
 
 # And the logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
