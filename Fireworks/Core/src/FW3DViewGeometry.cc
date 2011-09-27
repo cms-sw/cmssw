@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 22:06:57 CET 2010
-// $Id: FW3DViewGeometry.cc,v 1.14 2011/09/27 03:04:58 amraktad Exp $
+// $Id: FW3DViewGeometry.cc,v 1.15 2011/09/27 04:34:19 amraktad Exp $
 //
 
 // system include files
@@ -132,7 +132,8 @@ FW3DViewGeometry::showMuonBarrelFull(bool showMuonBarrel)
                if( iStation < 4 && iSector > 12 ) continue;
                DTChamberId id( iWheel, iStation, iSector );
                TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
-               shape->SetTitle(TString::Format("DT W=%d, S=%d, Sec=%d", iWheel, iStation, iSector));
+               shape->SetTitle(TString::Format("DT: W=%d, S=%d, Sec=%d\ndet-id=%u",
+                                               iWheel, iStation, iSector, id.rawId()));
                addToCompound(shape, kFWMuonBarrelLineColorIndex);
                cStation->AddElement(shape);
             }
@@ -187,8 +188,8 @@ FW3DViewGeometry::showMuonEndcap( bool showMuonEndcap )
                   Int_t iLayer = 0; // chamber
 		  CSCDetId id( iEndcap, iStation, iRing, iChamber, iLayer );
 		  TEveGeoShape* shape = m_geom->getEveShape( id.rawId() );
-                  shape->SetTitle(TString::Format("CSC %s, S=%d, R=%d, C=%d", 
-                                                  cEndcap->GetName(), iStation, iRing, iChamber));
+                  shape->SetTitle(TString::Format("CSC: %s, S=%d, R=%d, C=%d\ndet-id=%u",
+                                                  cEndcap->GetName(), iStation, iRing, iChamber, id.rawId()));
  	  	            
                   addToCompound(shape, kFWMuonEndcapLineColorIndex);
 		  cRing->AddElement( shape );
