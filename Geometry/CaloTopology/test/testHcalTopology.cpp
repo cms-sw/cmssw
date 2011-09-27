@@ -6,7 +6,7 @@
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 
-int main(int argc, char* argv[]) {
+int main(int /*argc*/, char** /*argv*/) {
 
   HcalTopology topology;
   for (int idet=0; idet<4; idet++) {

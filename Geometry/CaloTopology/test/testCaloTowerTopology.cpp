@@ -5,7 +5,7 @@
 #include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
 
-int main(int argc, char* argv[]) {
+int main(int /*argc*/, char** /*argv*/) {
 
   CaloTowerTopology topology;
   for (int ieta=-41; ieta<=41; ieta++) {

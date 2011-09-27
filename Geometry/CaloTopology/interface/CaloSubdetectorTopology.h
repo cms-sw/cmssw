@@ -9,8 +9,8 @@
 #include <vector>
 /** \class CaloSubdetectorTopology
       
-$Date: 2006/09/07 09:43:39 $
-$Revision: 1.2 $
+$Date: 2010/03/22 18:43:28 $
+$Revision: 1.3 $
 \author P.Meridiani INFN Roma1
 \author J. Mans - Minnesota
 */
@@ -22,7 +22,7 @@ public:
   /// virtual destructor
   virtual ~CaloSubdetectorTopology() { }
   /// is this detid present in the Topology?
-  virtual bool valid(const DetId& id) const { return false; };
+  virtual bool valid(const DetId& /*id*/) const { return false; };
   /** Get the neighbors of the given cell in east direction*/
   virtual std::vector<DetId> east(const DetId& id) const = 0;
   /** Get the neighbors of the given cell in west direction*/

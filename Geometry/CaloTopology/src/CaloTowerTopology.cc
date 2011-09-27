@@ -107,11 +107,11 @@ std::vector<DetId> CaloTowerTopology::south(const DetId& id) const {
   return dd;
 }
 
-std::vector<DetId> CaloTowerTopology::up(const DetId& id) const {
+std::vector<DetId> CaloTowerTopology::up(const DetId& /*id*/) const {
   return std::vector<DetId>();
 }
 
-std::vector<DetId> CaloTowerTopology::down(const DetId& id) const {
+std::vector<DetId> CaloTowerTopology::down(const DetId& /*id*/) const {
   return std::vector<DetId>();
 }
 

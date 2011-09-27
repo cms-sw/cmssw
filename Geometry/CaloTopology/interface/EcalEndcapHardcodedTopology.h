@@ -55,14 +55,14 @@ class EcalEndcapHardcodedTopology : public CaloSubdetectorTopology
       return vNeighborsDetId;
     }
   
-  virtual std::vector<DetId> up(const DetId& id) const
+  virtual std::vector<DetId> up(const DetId& /*id*/) const
     {
       std::cout << "EcalEndcapHardcodedTopology::up() not yet implemented" << std::endl; 
       std::vector<DetId> vNeighborsDetId;
       return  vNeighborsDetId;
     }
   
-  virtual std::vector<DetId> down(const DetId& id) const
+  virtual std::vector<DetId> down(const DetId& /*id*/) const
     {
       std::cout << "EcalEndcapHardcodedTopology::down() not yet implemented" << std::endl; 
       std::vector<DetId> vNeighborsDetId;

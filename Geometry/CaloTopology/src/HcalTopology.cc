@@ -117,7 +117,7 @@ std::vector<DetId> HcalTopology::up(const DetId& id) const {
   return  vNeighborsDetId;
 }
 
-std::vector<DetId> HcalTopology::down(const DetId& id) const {
+std::vector<DetId> HcalTopology::down(const DetId& /*id*/) const {
   std::cout << "HcalTopology::down() not yet implemented" << std::endl; 
   std::vector<DetId> vNeighborsDetId;
   return  vNeighborsDetId;
