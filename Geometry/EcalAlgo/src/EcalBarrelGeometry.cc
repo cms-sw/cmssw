@@ -57,7 +57,7 @@ EcalBarrelGeometry::detIdFromLocalAlignmentIndex( unsigned int iLoc )
 }
 
 unsigned int
-EcalBarrelGeometry::alignmentTransformIndexGlobal( const DetId& id )
+EcalBarrelGeometry::alignmentTransformIndexGlobal( const DetId& /*id*/ )
 {
    return (unsigned int)DetId::Ecal - 1 ;
 }

@@ -1,6 +1,3 @@
-#include "Geometry/CaloGeometry/interface/PreshowerStrip.h"
-
-#include "DataFormats/EcalDetId/interface/ESDetId.h"
 #include "Geometry/EcalAlgo/interface/EcalPreshowerGeometry.h"
 
 #include "Geometry/CaloEventSetup/interface/CaloGeometryLoader.h"
@@ -9,8 +6,6 @@
 template class CaloGeometryLoader< EcalPreshowerGeometry > ;
 
 #include "DetectorDescription/Core/interface/DDFilteredView.h"
-//#include "DetectorDescription/Core/interface/DDInit.h"
-
 
 #include <iostream>
 #include <vector>
@@ -71,8 +66,8 @@ EcalPGL::fillGeom( EcalPreshowerGeometry*      geom ,
 
 template <>
 void 
-EcalPGL::fillNamedParams( DDFilteredView         fv   ,
-			  EcalPreshowerGeometry* geom  )
+EcalPGL::fillNamedParams( DDFilteredView         /*fv*/   ,
+			  EcalPreshowerGeometry* /*geom*/  )
 {
    // nothing yet for preshower
 }

@@ -11,14 +11,31 @@ typedef CaloCellGeometry::Pt3D     Pt3D     ;
 typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
 typedef HepGeom::Plane3D<CCGFloat> Pl3D     ;
 
-EcalEndcapGeometry::EcalEndcapGeometry() :
-   _nnmods ( 316 ) ,
-   _nncrys ( 25 ) ,
-   m_borderMgr ( 0 ),
-   m_borderPtrVec ( 0 ),
-   m_avgZ ( -1 ),
-   m_cellVec      ( k_NumberOfCellsForCorners )
+EcalEndcapGeometry::EcalEndcapGeometry( void )
+  : _nnmods( 316 ),
+    _nncrys( 25 ),
+    zeP( 0. ),
+    zeN( 0. ),
+    m_wref( 0. ),
+    m_del( 0. ),
+    m_nref( 0 ),
+    m_borderMgr( 0 ),
+    m_borderPtrVec( 0 ),
+    m_avgZ( -1 ),
+    m_cellVec( k_NumberOfCellsForCorners )
 {
+  m_xlo[0] = 999.;
+  m_xlo[1] = 999.;
+  m_xhi[0] = -999.;
+  m_xhi[1] = -999.;
+  m_ylo[0] = 999.;
+  m_ylo[1] = 999.;
+  m_yhi[0] = -999.;
+  m_yhi[1] = -999.;
+  m_xoff[0] = 0.;
+  m_xoff[1] = 0.;
+  m_yoff[0] = 0.;
+  m_yoff[0] = 0.;
 }
 
 EcalEndcapGeometry::~EcalEndcapGeometry() 
@@ -45,7 +62,7 @@ EcalEndcapGeometry::detIdFromLocalAlignmentIndex( unsigned int iLoc )
 }
 
 unsigned int
-EcalEndcapGeometry::alignmentTransformIndexGlobal( const DetId& id )
+EcalEndcapGeometry::alignmentTransformIndexGlobal( const DetId& /*id*/ )
 {
    return (unsigned int)DetId::Ecal - 1 ;
 }
@@ -454,7 +471,7 @@ EcalEndcapGeometry::getClosestBarrelCells( EEDetId id ) const
 void
 EcalEndcapGeometry::localCorners( Pt3DVec&        lc  ,
 				  const CCGFloat* pv  ,
-				  unsigned int    i   ,
+				  unsigned int   /*i*/,
 				  Pt3D&           ref   )
 {
    TruncatedPyramid::localCorners( lc, pv, ref ) ;

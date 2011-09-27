@@ -18,10 +18,16 @@ EcalPreshowerGeometry::EcalPreshowerGeometry() :
    m_yCtrOff      ( 0.05 ) ,  // gap at center
    m_cellVec      ( k_NumberOfCellsForCorners )
 {
+  m_zplane[0] = 0. ;
+  m_zplane[1] = 0. ;
+  m_zplane[2] = 0. ;
+  m_zplane[3] = 0. ;
 }
 
 
-EcalPreshowerGeometry::~EcalPreshowerGeometry() {}
+EcalPreshowerGeometry::~EcalPreshowerGeometry()
+{
+}
 
 unsigned int
 EcalPreshowerGeometry::alignmentTransformIndexLocal( const DetId& id )
@@ -70,7 +76,7 @@ EcalPreshowerGeometry::detIdFromLocalAlignmentIndex( unsigned int iLoc )
 }
 
 unsigned int
-EcalPreshowerGeometry::alignmentTransformIndexGlobal( const DetId& id )
+EcalPreshowerGeometry::alignmentTransformIndexGlobal( const DetId& /*id*/ )
 {
    return (unsigned int)DetId::Ecal - 1 ;
 }
@@ -232,7 +238,7 @@ EcalPreshowerGeometry::getClosestCellInPlane( const GlobalPoint& point,
 void
 EcalPreshowerGeometry::localCorners( Pt3DVec&        lc  ,
 				     const CCGFloat* pv  ,
-				     unsigned int    i   ,
+				     unsigned int    /*i*/   ,
 				     Pt3D&           ref   )
 {
    PreshowerStrip::localCorners( lc, pv, ref ) ;
@@ -240,8 +246,8 @@ EcalPreshowerGeometry::localCorners( Pt3DVec&        lc  ,
 
 void
 EcalPreshowerGeometry::newCell( const GlobalPoint& f1 ,
-				const GlobalPoint& f2 ,
-				const GlobalPoint& f3 ,
+				const GlobalPoint& /*f2*/ ,
+				const GlobalPoint& /*f3*/ ,
 				const CCGFloat*    parm ,
 				const DetId&       detId    ) 
 {
