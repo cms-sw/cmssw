@@ -95,18 +95,18 @@ public:
   }
 
   /// conversion taking also the angle from the track state
-  virtual MeasurementPoint measurementPosition( const LocalPoint &lp, const LocalTrackAngles &dir) const {
+  virtual MeasurementPoint measurementPosition( const LocalPoint &lp, const LocalTrackAngles &/*dir*/) const {
       return measurementPosition(lp);
   }
 
   /// conversion taking also the angle from the track state
   virtual MeasurementError 
-  measurementError( const LocalPoint &lp, const LocalError &le, const LocalTrackAngles &dir) const {
+  measurementError( const LocalPoint &lp, const LocalError &le, const LocalTrackAngles &/*dir*/) const {
       return measurementError(lp, le);
   }
 
   /// conversion taking also the angle from the track state
-  virtual int channel( const LocalPoint &lp, const LocalTrackAngles &dir) const {
+  virtual int channel( const LocalPoint &lp, const LocalTrackAngles &/*dir*/) const {
       return channel(lp);
   }
 

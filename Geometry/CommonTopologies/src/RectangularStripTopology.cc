@@ -28,14 +28,14 @@ RectangularStripTopology::localPosition(const MeasurementPoint& mp) const {
 }
 
 LocalError 
-RectangularStripTopology::localError(float strip, float stripErr2) const{
+RectangularStripTopology::localError(float /*strip*/, float stripErr2) const{
   return LocalError(stripErr2 * thePitch*thePitch,
 		    0.f,
 		    theStripLength*theStripLength*(1.f/12.f));
 }
 
 LocalError 
-RectangularStripTopology::localError(const MeasurementPoint& mp,
+RectangularStripTopology::localError(const MeasurementPoint& /*mp*/,
   const MeasurementError& merr) const{
   return LocalError(merr.uu() * thePitch*thePitch,
 		    merr.uv() * thePitch*theStripLength,
@@ -57,7 +57,7 @@ RectangularStripTopology::measurementPosition(const LocalPoint& lp) const {
 }
 
 MeasurementError 
-RectangularStripTopology::measurementError(const LocalPoint& lp,
+RectangularStripTopology::measurementError(const LocalPoint& /*lp*/,
   const LocalError& lerr) const {
   return MeasurementError(lerr.xx()/(thePitch*thePitch),
   			  lerr.xy()/(thePitch*theStripLength),
@@ -75,12 +75,12 @@ RectangularStripTopology::pitch() const {
 }
   
 float 
-RectangularStripTopology::localPitch(const LocalPoint& lp) const {
+RectangularStripTopology::localPitch(const LocalPoint& /*lp*/) const {
   return thePitch;
 }
   
 float 
-RectangularStripTopology::stripAngle(float strip) const {
+RectangularStripTopology::stripAngle(float /*strip*/) const {
   return 0;
 }
   

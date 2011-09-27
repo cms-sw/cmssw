@@ -32,14 +32,14 @@ public:
   virtual float strip( const LocalPoint& ) const = 0;
 
   /// conversion taking also the angle from the track state (LocalTrajectoryParameters)
-  virtual float strip( const LocalPoint& lp, const Topology::LocalTrackAngles &ltp ) const {
+  virtual float strip( const LocalPoint& lp, const Topology::LocalTrackAngles &/*ltp*/ ) const {
     return strip(lp);
   }
   virtual float pitch() const = 0;
   virtual float localPitch( const LocalPoint& ) const = 0; 
 
   /// conversion taking also the angle from the track state (LocalTrajectoryParameters)
-  virtual float localPitch( const LocalPoint& lp, const Topology::LocalTrackAngles &ltp ) const {
+  virtual float localPitch( const LocalPoint& lp, const Topology::LocalTrackAngles &/*ltp*/ ) const {
     return localPitch(lp);
   }
   virtual float stripAngle( float strip ) const = 0;
@@ -50,7 +50,7 @@ public:
   virtual float localStripLength(const LocalPoint& aLP) const = 0;
 
   /// conversion taking also the angle from the track state (LocalTrajectoryParameters)
-  virtual float localStripLength( const LocalPoint& lp, const Topology::LocalTrackAngles &ltp ) const {
+  virtual float localStripLength( const LocalPoint& lp, const Topology::LocalTrackAngles &/*ltp*/ ) const {
     return localStripLength(lp);
   }
 

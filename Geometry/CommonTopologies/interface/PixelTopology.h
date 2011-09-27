@@ -21,7 +21,7 @@ class PixelTopology : public Topology {
   virtual std::pair<float,float> pixel( const LocalPoint& p) const = 0;
 
   /// conversion taking also the angle from the track state
-  virtual std::pair<float,float> pixel( const LocalPoint& p, const Topology::LocalTrackAngles &ltp ) const { 
+  virtual std::pair<float,float> pixel( const LocalPoint& p, const Topology::LocalTrackAngles &/*ltp*/ ) const { 
     return pixel(p); 
   }
   
@@ -31,8 +31,8 @@ class PixelTopology : public Topology {
 
   virtual float localX(const float mpX) const = 0;
   virtual float localY(const float mpY) const = 0;
-  virtual float localX(const float mpX, const Topology::LocalTrackPred &trk) const { return localX(mpX); }
-  virtual float localY(const float mpY, const Topology::LocalTrackPred &trk) const { return localY(mpY); }
+  virtual float localX(const float mpX, const Topology::LocalTrackPred &/*trk*/) const { return localX(mpX); }
+  virtual float localY(const float mpY, const Topology::LocalTrackPred &/*trk*/) const { return localY(mpY); }
 
   virtual bool isItBigPixelInX(const int ixbin) const = 0;
   virtual bool isItBigPixelInY(const int iybin) const = 0;

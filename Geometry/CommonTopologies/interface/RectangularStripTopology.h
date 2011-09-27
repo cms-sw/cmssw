@@ -42,7 +42,7 @@ public:
 
   virtual float stripLength() const {return theStripLength;}
 
-  virtual float localStripLength(const LocalPoint& aLP) const {
+  virtual float localStripLength(const LocalPoint& /*aLP*/) const {
     return stripLength();
   }
 
