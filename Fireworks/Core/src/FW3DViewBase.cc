@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DViewBase.cc,v 1.20 2010/11/09 16:56:24 amraktad Exp $
+// $Id: FW3DViewBase.cc,v 1.21 2011/02/22 18:37:31 amraktad Exp $
 //
 #include <boost/bind.hpp>
 
@@ -44,8 +44,8 @@
 FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId):
    FWEveView(iParent, typeId),
    m_geometry(0),
-   m_showMuonBarrel(this, "Show Muon Barrel", false ),
-   m_showMuonEndcap(this, "Show Muon Endcap", false),
+   m_showMuonBarrel(this, "Show Muon Barrel",  0l, 0l, 2l ),
+   m_showMuonEndcap(this, "Show Muon Endcap", false ),
    m_showPixelBarrel(this, "Show Pixel Barrel", false ),
    m_showPixelEndcap(this, "Show Pixel Endcap", false),
    m_showTrackerBarrel(this, "Show Tracker Barrel", false ),
@@ -53,6 +53,11 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId):
    m_showWireFrame(this, "Show Wire Frame", true)
 {
    viewerGL()->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
+
+   m_showMuonBarrel.addEntry(0, "Hide");
+   m_showMuonBarrel.addEntry(1, "Simplified");
+   m_showMuonBarrel.addEntry(2, "Full");
+   m_showMuonBarrel.changed_.connect(boost::bind(&FW3DViewBase::showMuonBarrel,this,_1));
 }
 
 FW3DViewBase::~FW3DViewBase()
@@ -67,13 +72,21 @@ void FW3DViewBase::setContext(const fireworks::Context& context)
    m_geometry = new FW3DViewGeometry(context);
    geoScene()->AddElement(m_geometry);
    
-   m_showMuonBarrel.changed_.connect(boost::bind(&FW3DViewGeometry::showMuonBarrel,m_geometry,_1));
-   m_showMuonEndcap.changed_.connect(boost::bind(&FW3DViewGeometry::showMuonEndcap,m_geometry,_1));
    m_showPixelBarrel.changed_.connect(boost::bind(&FW3DViewGeometry::showPixelBarrel,m_geometry,_1));
    m_showPixelEndcap.changed_.connect(boost::bind(&FW3DViewGeometry::showPixelEndcap,m_geometry,_1));
    m_showTrackerBarrel.changed_.connect(boost::bind(&FW3DViewGeometry::showTrackerBarrel,m_geometry,_1));
    m_showTrackerEndcap.changed_.connect(boost::bind(&FW3DViewGeometry::showTrackerEndcap,m_geometry,_1));
+   m_showMuonEndcap.changed_.connect(boost::bind(&FW3DViewGeometry::showMuonEndcap,m_geometry,_1));
    m_showWireFrame.changed_.connect(boost::bind(&FW3DViewBase::showWireFrame,this, _1));
+}
+
+void FW3DViewBase::showMuonBarrel(long x)
+{
+   if (m_geometry)
+   {
+      m_geometry->showMuonBarrel(x == 1);
+      m_geometry->showMuonBarrelFull(x == 2);
+   }
 }
 
 void
@@ -124,17 +137,19 @@ FW3DViewBase::populateController(ViewerParameterGUI& gui) const
    FWEveView::populateController(gui);
 
    gui.requestTab("Detector").
-      addParam(&m_showPixelBarrel).
-      addParam(&m_showPixelEndcap).
-      addParam(&m_showTrackerBarrel).
-      addParam(&m_showTrackerEndcap).
       addParam(&m_showMuonBarrel).
       addParam(&m_showMuonEndcap).
+      addParam(&m_showTrackerBarrel).
+      addParam(&m_showTrackerEndcap).
+      addParam(&m_showPixelBarrel).
+      addParam(&m_showPixelEndcap).  
+      separator().
       addParam(&m_showWireFrame);
+
 
    gui.requestTab("Style").separator();
    gui.getTabContainer()->AddFrame(new TGTextButton(gui.getTabContainer(), "Root controls",
-                     Form("TEveGedEditor::SpawnNewEditor((TGLViewer*)0x%lx)", (unsigned long)viewerGL())));
+                                                    Form("TEveGedEditor::SpawnNewEditor((TGLViewer*)0x%lx)", (unsigned long)viewerGL())));
 }
 
 

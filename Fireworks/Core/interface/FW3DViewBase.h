@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DViewBase.h,v 1.8 2010/09/08 19:18:55 amraktad Exp $
+// $Id: FW3DViewBase.h,v 1.9 2010/09/15 11:48:41 amraktad Exp $
 //
 
 // system include files
@@ -64,7 +64,7 @@ private:
    FW3DViewGeometry*  m_geometry;
 
    // parameters
-   FWBoolParameter m_showMuonBarrel;
+   FWEnumParameter m_showMuonBarrel;
    FWBoolParameter m_showMuonEndcap;
    FWBoolParameter m_showPixelBarrel;
    FWBoolParameter m_showPixelEndcap;
@@ -73,6 +73,7 @@ private:
    FWBoolParameter m_showWireFrame;
    
    void showWireFrame( bool );
+   void showMuonBarrel( long );
 };
 
 
