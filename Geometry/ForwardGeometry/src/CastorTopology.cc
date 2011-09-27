@@ -191,39 +191,39 @@ std::vector<DetId> CastorTopology::incModule(const DetId& id) const{
 }
 
   
-std::vector<DetId> CastorTopology::east(const DetId& id) const
+std::vector<DetId> CastorTopology::east(const DetId& /*id*/) const
 {
   std::cout << "CastorTopology::east() not yet implemented" << std::endl;
   std::vector<DetId> vNeighborsDetId;
   return  vNeighborsDetId;
 }
 
-std::vector<DetId> CastorTopology::west(const DetId& id) const
+std::vector<DetId> CastorTopology::west(const DetId& /*id*/) const
 {
   std::cout << "CastorTopology::west() not yet implemented" << std::endl;
   std::vector<DetId> vNeighborsDetId;
   return  vNeighborsDetId;
 }
 
-std::vector<DetId> CastorTopology::north(const DetId& id) const
+std::vector<DetId> CastorTopology::north(const DetId& /*id*/) const
 {
   std::cout << "CastorTopology::north() not yet implemented" << std::endl;
   std::vector<DetId> vNeighborsDetId;
   return  vNeighborsDetId;
 }
-std::vector<DetId> CastorTopology::south(const DetId& id) const
+std::vector<DetId> CastorTopology::south(const DetId& /*id*/) const
 {
   std::cout << "CastorTopology::south() not yet implemented" << std::endl;
   std::vector<DetId> vNeighborsDetId;
   return  vNeighborsDetId;
 }
-std::vector<DetId> CastorTopology::up(const DetId& id) const
+std::vector<DetId> CastorTopology::up(const DetId& /*id*/) const
 {
   std::cout << "CastorTopology::up() not yet implemented" << std::endl;
   std::vector<DetId> vNeighborsDetId;
   return  vNeighborsDetId;
 }
-std::vector<DetId> CastorTopology::down(const DetId& id) const
+std::vector<DetId> CastorTopology::down(const DetId& /*id*/) const
 {
   std::cout << "CastorTopology::down() not yet implemented" << std::endl;
   std::vector<DetId> vNeighborsDetId;

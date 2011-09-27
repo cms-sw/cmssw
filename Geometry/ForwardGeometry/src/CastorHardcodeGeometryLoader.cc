@@ -33,7 +33,7 @@ void CastorHardcodeGeometryLoader::init()
 }
 
 std::auto_ptr<CaloSubdetectorGeometry> 
-CastorHardcodeGeometryLoader::load( DetId::Detector det, 
+CastorHardcodeGeometryLoader::load( DetId::Detector /*det*/, 
 				    int             subdet)
 {
    std::auto_ptr<CaloSubdetectorGeometry> hg(new CastorGeometry( extTopology ));

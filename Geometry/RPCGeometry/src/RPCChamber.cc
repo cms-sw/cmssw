@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2008/01/22 21:31:36 $
- *  $Revision: 1.4 $
+ *  $Date: 2010/04/09 12:17:27 $
+ *  $Revision: 1.5 $
  *  Author: Raffaello Trentadue - Universit? Bari 
  *  Mail:     <raffaello.trentadue@ba.infn.it>
  */
@@ -23,7 +23,7 @@ RPCChamber::RPCChamber(RPCDetId id,
 		       const ReferenceCountingPointer<BoundPlane> & plane) :
   GeomDet(plane), theId(id)
 {
-setDetId(id);
+  setDetId(id);
 }
 
 /* Destructor */ 
@@ -72,7 +72,8 @@ RPCChamber::rolls() const
   return theRolls;
 }
 
-const int RPCChamber::nrolls() const
+int
+RPCChamber::nrolls() const
 {
   return theRolls.size();
 }

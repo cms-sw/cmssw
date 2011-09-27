@@ -15,8 +15,7 @@ ZdcGeometry::ZdcGeometry() :
    lastReqSubdet_(0),
    m_ownsTopology ( true ),
    m_cellVec ( k_NumberOfCellsForCorners )
-{
-}
+{}
 
 ZdcGeometry::ZdcGeometry( const ZdcTopology* topology) :
    theTopology(topology),
@@ -24,12 +23,11 @@ ZdcGeometry::ZdcGeometry( const ZdcTopology* topology) :
    lastReqSubdet_(0),
    m_ownsTopology ( false ),
    m_cellVec ( k_NumberOfCellsForCorners )
-{
-}
+{}
 
 ZdcGeometry::~ZdcGeometry() 
 {
-   if( m_ownsTopology ) delete theTopology ;
+  if( m_ownsTopology ) delete theTopology ;
 }
 /*
 DetId ZdcGeometry::getClosestCell(const GlobalPoint& r) const
@@ -61,7 +59,7 @@ ZdcGeometry::alignmentTransformIndexLocal( const DetId& id )
 }
 
 unsigned int
-ZdcGeometry::alignmentTransformIndexGlobal( const DetId& id )
+ZdcGeometry::alignmentTransformIndexGlobal( const DetId& /*id*/ )
 {
    return (unsigned int)DetId::Calo - 1 ;
 }
@@ -69,7 +67,7 @@ ZdcGeometry::alignmentTransformIndexGlobal( const DetId& id )
 void
 ZdcGeometry::localCorners( Pt3DVec&        lc  ,
 			   const CCGFloat* pv ,
-			   unsigned int    i  ,
+			   unsigned int    /*i*/  ,
 			   Pt3D&           ref  )
 {
    IdealZDCTrapezoid::localCorners( lc, pv, ref ) ;
@@ -77,8 +75,8 @@ ZdcGeometry::localCorners( Pt3DVec&        lc  ,
 
 void
 ZdcGeometry::newCell( const GlobalPoint& f1 ,
-		      const GlobalPoint& f2 ,
-		      const GlobalPoint& f3 ,
+		      const GlobalPoint& /*f2*/ ,
+		      const GlobalPoint& /*f3*/ ,
 		      const CCGFloat*    parm ,
 		      const DetId&       detId   ) 
 {

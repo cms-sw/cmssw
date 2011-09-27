@@ -5,12 +5,13 @@ typedef CaloCellGeometry::CCGFloat CCGFloat ;
 typedef CaloCellGeometry::Pt3D     Pt3D     ;
 typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
 
-IdealZDCTrapezoid::IdealZDCTrapezoid() :
-   CaloCellGeometry()
+IdealZDCTrapezoid::IdealZDCTrapezoid()
+  : CaloCellGeometry()
 {
 }
 
 IdealZDCTrapezoid::IdealZDCTrapezoid( const IdealZDCTrapezoid& idzt ) 
+  : CaloCellGeometry( idzt )
 {
    *this = idzt ;
 }
@@ -31,34 +32,34 @@ IdealZDCTrapezoid::IdealZDCTrapezoid( const GlobalPoint& faceCenter,
 	 
 IdealZDCTrapezoid::~IdealZDCTrapezoid() {}
 
-const CCGFloat 
+CCGFloat 
 IdealZDCTrapezoid::an() const { return param()[0] ; }
 
-const CCGFloat 
+CCGFloat 
 IdealZDCTrapezoid::dx() const 
 {
    return param()[1] ; 
 }
 
-const CCGFloat 
+CCGFloat 
 IdealZDCTrapezoid::dy() const 
 {
    return param()[2] ; 
 }
 
-const CCGFloat 
+CCGFloat 
 IdealZDCTrapezoid::dz() const 
 {
    return param()[3] ; 
 }
 
-const CCGFloat 
+CCGFloat 
 IdealZDCTrapezoid::ta() const 
 {
    return tan( an() ) ; 
 }
 
-const CCGFloat 
+CCGFloat 
 IdealZDCTrapezoid::dt() const 
 {
    return dy()*ta() ; 

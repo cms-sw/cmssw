@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Haiyun Teng
 //         Created:  Wed Feb 25 18:09:15 CET 2009
-// $Id: RPCCSC.cc,v 1.4 2009/08/25 23:22:32 case Exp $
+// $Id: RPCCSC.cc,v 1.5 2009/11/13 13:36:49 fambrogl Exp $
 //
 //
 
@@ -110,7 +110,7 @@ class RPCCSC : public edm::EDAnalyzer {
 
 
 
-RPCCSC::RPCCSC(const edm::ParameterSet& iConfig)
+RPCCSC::RPCCSC(const edm::ParameterSet& /*iConfig*/)
 
 {
     //now do what ever initialization is needed
@@ -135,7 +135,7 @@ void RPCCSC::beginJob() {
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-RPCCSC::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+RPCCSC::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 {
   using namespace std;
   edm::ESHandle<RPCGeometry> pRPCGeom;

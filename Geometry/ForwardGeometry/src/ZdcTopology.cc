@@ -195,39 +195,39 @@ std::vector<DetId> ZdcTopology::longitudinal(const DetId& id) const{
   return vNeighborsDetId;
 }
 
-std::vector<DetId> ZdcTopology::east(const DetId& id) const
+std::vector<DetId> ZdcTopology::east(const DetId& /*id*/) const
 {
   std::cout << "ZdcTopology::east() not yet implemented" << std::endl;
   std::vector<DetId> vNeighborsDetId;
   return  vNeighborsDetId;
 }
 
-std::vector<DetId> ZdcTopology::west(const DetId& id) const
+std::vector<DetId> ZdcTopology::west(const DetId& /*id*/) const
 {
   std::cout << "ZdcTopology::west() not yet implemented" << std::endl;
   std::vector<DetId> vNeighborsDetId;
   return  vNeighborsDetId;
 }
 
-std::vector<DetId> ZdcTopology::north(const DetId& id) const
+std::vector<DetId> ZdcTopology::north(const DetId& /*id*/) const
 {
   std::cout << "ZdcTopology::north() not yet implemented" << std::endl;
   std::vector<DetId> vNeighborsDetId;
   return  vNeighborsDetId;
 }
-std::vector<DetId> ZdcTopology::south(const DetId& id) const
+std::vector<DetId> ZdcTopology::south(const DetId& /*id*/) const
 {
   std::cout << "ZdcTopology::south() not yet implemented" << std::endl;
   std::vector<DetId> vNeighborsDetId;
   return  vNeighborsDetId;
 }
-std::vector<DetId> ZdcTopology::up(const DetId& id) const
+std::vector<DetId> ZdcTopology::up(const DetId& /*id*/) const
 {
   std::cout << "ZdcTopology::up() not yet implemented" << std::endl;
   std::vector<DetId> vNeighborsDetId;
   return  vNeighborsDetId;
 }
-std::vector<DetId> ZdcTopology::down(const DetId& id) const
+std::vector<DetId> ZdcTopology::down(const DetId& /*id*/) const
 {
   std::cout << "ZdcTopology::down() not yet implemented" << std::endl;
   std::vector<DetId> vNeighborsDetId;

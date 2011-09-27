@@ -47,7 +47,7 @@ class RPCRadiiAnalyzer : public edm::EDAnalyzer {
   std::ofstream ofos;
 };
 
-RPCRadiiAnalyzer::RPCRadiiAnalyzer( const edm::ParameterSet& iConfig )
+RPCRadiiAnalyzer::RPCRadiiAnalyzer( const edm::ParameterSet& /*iConfig*/ )
   : dashedLineWidth_(104), dashedLine_( std::string(dashedLineWidth_, '-') ), 
     myName_( "RPCRadiiAnalyzer" ) 
 { 
@@ -63,7 +63,7 @@ RPCRadiiAnalyzer::~RPCRadiiAnalyzer()
 }
 
 void
-RPCRadiiAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
+RPCRadiiAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup )
 {
   edm::ESHandle<RPCGeometry> pDD;
   iSetup.get<MuonGeometryRecord>().get( pDD );     

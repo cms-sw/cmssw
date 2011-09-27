@@ -13,7 +13,7 @@
 //
 // Original Author:  pts/91
 //         Created:  Wed Sep 26 17:08:29 CEST 2007
-// $Id: RPCGEO.cc,v 1.5 2009/11/13 13:36:55 fambrogl Exp $
+// $Id: RPCGEO.cc,v 1.6 2010/02/07 11:14:02 carrillo Exp $
 //
 //
 
@@ -77,7 +77,7 @@ class RPCGEO : public edm::EDAnalyzer {
 //
 // constructors and destructor
 //
-RPCGEO::RPCGEO(const edm::ParameterSet& iConfig){
+RPCGEO::RPCGEO(const edm::ParameterSet& /*iConfig*/){
    //now do what ever initialization is needed
 }
 
@@ -95,7 +95,7 @@ RPCGEO::~RPCGEO()
 
 // ------------ method called to for each event  ------------
 void
-RPCGEO::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 {
    using namespace edm;
 

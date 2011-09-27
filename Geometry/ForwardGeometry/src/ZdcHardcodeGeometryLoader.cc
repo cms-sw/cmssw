@@ -26,7 +26,7 @@ void ZdcHardcodeGeometryLoader::init()
 }
 
 ZdcHardcodeGeometryLoader::ReturnType 
-ZdcHardcodeGeometryLoader::load(DetId::Detector det, int subdet)
+ZdcHardcodeGeometryLoader::load(DetId::Detector /*det*/, int subdet)
 {
    ReturnType hg(new ZdcGeometry( extTopology ) );
    if(subdet == HcalZDCDetId::SubdetectorId)

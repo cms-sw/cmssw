@@ -46,7 +46,7 @@ class RPCSectorAnalyzer : public edm::EDAnalyzer {
   std::ofstream ofos;
 };
 
-RPCSectorAnalyzer::RPCSectorAnalyzer( const edm::ParameterSet& iConfig )
+RPCSectorAnalyzer::RPCSectorAnalyzer( const edm::ParameterSet& /*iConfig*/ )
   : dashedLineWidth_(104), dashedLine_( std::string(dashedLineWidth_, '-') ), 
     myName_( "RPCSectorAnalyzer" ) 
 { 
@@ -62,7 +62,7 @@ RPCSectorAnalyzer::~RPCSectorAnalyzer()
 }
 
 void
-RPCSectorAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
+RPCSectorAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup )
 {
   edm::ESHandle<RPCGeometry> pDD;
   iSetup.get<MuonGeometryRecord>().get( pDD );     

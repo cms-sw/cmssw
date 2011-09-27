@@ -8,12 +8,13 @@ typedef CaloCellGeometry::Pt3D     Pt3D     ;
 typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
 typedef CaloCellGeometry::Tr3D     Tr3D     ;
 
-IdealCastorTrapezoid::IdealCastorTrapezoid() :
-   CaloCellGeometry()
+IdealCastorTrapezoid::IdealCastorTrapezoid()
+  : CaloCellGeometry()
 {
 }
 
 IdealCastorTrapezoid::IdealCastorTrapezoid( const IdealCastorTrapezoid& idct ) 
+  : CaloCellGeometry( idct )
 {
    *this = idct ;
 }
@@ -27,8 +28,8 @@ IdealCastorTrapezoid::operator=( const IdealCastorTrapezoid& idct )
 
 IdealCastorTrapezoid::IdealCastorTrapezoid( const GlobalPoint& faceCenter,
 					    const CornersMgr*  mgr       ,
-					    const CCGFloat*    parm       ) :  
-   CaloCellGeometry ( faceCenter, mgr, parm )  
+					    const CCGFloat*    parm       )
+  : CaloCellGeometry ( faceCenter, mgr, parm )  
 {
 }
 	 
@@ -36,67 +37,67 @@ IdealCastorTrapezoid::~IdealCastorTrapezoid()
 {
 }
 
-const CCGFloat 
+CCGFloat 
 IdealCastorTrapezoid::dxl() const 
 {
    return param()[0] ; 
 }
 
-const CCGFloat 
+CCGFloat 
 IdealCastorTrapezoid::dxh() const 
 {
    return param()[1] ; 
 }
 
-const CCGFloat 
+CCGFloat 
 IdealCastorTrapezoid::dx()  const 
 {
    return ( dxl()+dxh() )/2. ; 
 }
 
-const CCGFloat 
+CCGFloat 
 IdealCastorTrapezoid::dh()  const 
 {
    return param()[2] ; 
 }
 
-const CCGFloat 
+CCGFloat 
 IdealCastorTrapezoid::dy()  const 
 {
    return dh()*sin(an()) ; 
 }
 
-const CCGFloat 
+CCGFloat 
 IdealCastorTrapezoid::dz()  const 
 {
    return param()[3] ; 
 }
 
-const CCGFloat 
+CCGFloat 
 IdealCastorTrapezoid::dhz() const 
 {
    return dh()*cos(an()) ; 
 }
 
-const CCGFloat 
+CCGFloat 
 IdealCastorTrapezoid::dzb() const 
 {
    return dz() + dhz() ;
 }
 
-const CCGFloat 
+CCGFloat 
 IdealCastorTrapezoid::dzs() const 
 {
    return dz() - dhz() ; 
 }
 
-const CCGFloat 
+CCGFloat 
 IdealCastorTrapezoid::an()  const 
 {
    return param()[4] ; 
 }
 
-const CCGFloat 
+CCGFloat 
 IdealCastorTrapezoid::dR()  const 
 {
    return param()[5] ; 

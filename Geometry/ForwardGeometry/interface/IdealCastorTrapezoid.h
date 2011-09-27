@@ -26,8 +26,8 @@
   
   Total: 6+3 parameters 
   
-  $Date: 2010/04/20 17:25:13 $
-  $Revision: 1.11 $
+  $Date: 2011/05/29 18:41:47 $
+  $Revision: 1.12 $
   \author P. Katsas - UoA
   */
 class IdealCastorTrapezoid: public CaloCellGeometry 
@@ -53,17 +53,17 @@ class IdealCastorTrapezoid: public CaloCellGeometry
 	 
       virtual const CornersVec& getCorners() const;
 
-      const CCGFloat dxl() const ; 
-      const CCGFloat dxh() const ; 
-      const CCGFloat dx()  const ; 
-      const CCGFloat dh()  const ;
-      const CCGFloat dy()  const ; 
-      const CCGFloat dz()  const ;
-      const CCGFloat dhz() const ; 
-      const CCGFloat dzb() const ; 
-      const CCGFloat dzs() const ;
-      const CCGFloat an()  const ;
-      const CCGFloat dR()  const ;
+      CCGFloat dxl() const ; 
+      CCGFloat dxh() const ; 
+      CCGFloat dx()  const ; 
+      CCGFloat dh()  const ;
+      CCGFloat dy()  const ; 
+      CCGFloat dz()  const ;
+      CCGFloat dhz() const ; 
+      CCGFloat dzb() const ; 
+      CCGFloat dzs() const ;
+      CCGFloat an()  const ;
+      CCGFloat dR()  const ;
 
       virtual void vocalCorners( Pt3DVec&        vec ,
 				 const CCGFloat* pv  ,
