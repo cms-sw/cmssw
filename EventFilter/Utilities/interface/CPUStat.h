@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include <iostream>
+#include "EventFilter/Utilities/interface/AsciiRollingChart.h"
 
 namespace evf{
 
@@ -30,6 +31,7 @@ namespace evf{
 	if(mstat_[i]!=0) std::cout << i << " " << float(mstat_[i])/float(entries_)
 				   << std::endl;
     }
+    std::string &getChart(){return chart_.draw();}
     void sendStat(unsigned int);
     void sendLegenda(const std::vector<std::string> &);
   private:
@@ -38,6 +40,7 @@ namespace evf{
     int nstates_;
     int entries_;
     int *mstat_;
+    AsciiRollingChart chart_;
   };
 }
 #endif

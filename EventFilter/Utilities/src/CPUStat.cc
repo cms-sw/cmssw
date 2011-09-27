@@ -7,6 +7,7 @@ CPUStat::CPUStat(unsigned int nstates, std::string iDieUrl) : iDieUrl_(iDieUrl)
 							    , nstates_(nstates)
 							    , entries_(0)
 							    , mstat_(new int[nstates_])
+							    , chart_("busy fraction",50)
 {
   poster_ = new CurlPoster(iDieUrl_);
   for(int i = 0; i < nstates_; i++)
@@ -20,6 +21,7 @@ CPUStat::~CPUStat()
 
 void CPUStat::sendStat(unsigned int lsid)
 {
+  chart_.flip(lsid,float(entries_-mstat_[2])/float(entries_));
   poster_->postBinary((unsigned char *)mstat_,(nstates_+1)*sizeof(int),lsid,"/postChoke");
 }
 
