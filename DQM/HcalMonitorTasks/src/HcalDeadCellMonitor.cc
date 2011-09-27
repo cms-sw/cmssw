@@ -519,6 +519,7 @@ void HcalDeadCellMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg
     {
       fillNevents_problemCells();
       fillNevents_recentrechits();
+      fillNevents_recentdigis();
             
       endLumiProcessed_=true;
       is_RBX_loss_=0;
@@ -697,9 +698,13 @@ void HcalDeadCellMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
 	    is_RBX_loss_ = 1;
 	    rbxlost[i] = 1;
 	  }
-
+      
+      int intensity1_ = gtfeEvmExtWord.totalIntensityBeam1();
+      int intensity2_ = gtfeEvmExtWord.totalIntensityBeam2();
+      
       for (unsigned int i=132;i<156;++i)
-	if(occupancy_RBX[i] == 0 && gtfeEvmExtWord.beamMode() == 11) // only in stable beam mode (11), otherwise 
+	if(occupancy_RBX[i] == 0 && gtfeEvmExtWord.beamMode() == 11) 
+	  if(intensity1_>100 && intensity2_>100)                     // only in stable beam mode (11) and with circulating beams, otherwise 
 	  {                                                          // this check is too sensitive in HF
 	    is_RBX_loss_ = 1;
 	    rbxlost[i] = 1;
