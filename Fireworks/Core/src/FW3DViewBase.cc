@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DViewBase.cc,v 1.21 2011/02/22 18:37:31 amraktad Exp $
+// $Id: FW3DViewBase.cc,v 1.22 2011/09/27 03:03:21 amraktad Exp $
 //
 #include <boost/bind.hpp>
 
@@ -50,7 +50,8 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId):
    m_showPixelEndcap(this, "Show Pixel Endcap", false),
    m_showTrackerBarrel(this, "Show Tracker Barrel", false ),
    m_showTrackerEndcap(this, "Show Tracker Endcap", false),
-   m_showWireFrame(this, "Show Wire Frame", true)
+   m_showWireFrame(this, "Show Wire Frame", true),
+   m_selectable(this, "Set Selectable", false)
 {
    viewerGL()->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
 
@@ -58,6 +59,8 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId):
    m_showMuonBarrel.addEntry(1, "Simplified");
    m_showMuonBarrel.addEntry(2, "Full");
    m_showMuonBarrel.changed_.connect(boost::bind(&FW3DViewBase::showMuonBarrel,this,_1));
+   m_showWireFrame.changed_.connect(boost::bind(&FW3DViewBase::showWireFrame,this, _1));
+   m_selectable.changed_.connect(boost::bind(&FW3DViewBase::selectable,this, _1));
 }
 
 FW3DViewBase::~FW3DViewBase()
@@ -77,7 +80,6 @@ void FW3DViewBase::setContext(const fireworks::Context& context)
    m_showTrackerBarrel.changed_.connect(boost::bind(&FW3DViewGeometry::showTrackerBarrel,m_geometry,_1));
    m_showTrackerEndcap.changed_.connect(boost::bind(&FW3DViewGeometry::showTrackerEndcap,m_geometry,_1));
    m_showMuonEndcap.changed_.connect(boost::bind(&FW3DViewGeometry::showMuonEndcap,m_geometry,_1));
-   m_showWireFrame.changed_.connect(boost::bind(&FW3DViewBase::showWireFrame,this, _1));
 }
 
 void FW3DViewBase::showMuonBarrel(long x)
@@ -97,6 +99,11 @@ FW3DViewBase::showWireFrame( bool x)
    gEve->Redraw3D();
 }
 
+void
+FW3DViewBase::selectable( bool x)
+{
+      geoScene()->GetGLScene()->SetSelectable(x);
+}
 //______________________________________________________________________________
 void
 FW3DViewBase::addTo(FWConfiguration& iTo) const
@@ -144,7 +151,8 @@ FW3DViewBase::populateController(ViewerParameterGUI& gui) const
       addParam(&m_showPixelBarrel).
       addParam(&m_showPixelEndcap).  
       separator().
-      addParam(&m_showWireFrame);
+      addParam(&m_showWireFrame).
+      addParam(&m_selectable);
 
 
    gui.requestTab("Style").separator();
