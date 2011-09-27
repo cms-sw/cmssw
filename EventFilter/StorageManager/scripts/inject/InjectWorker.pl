@@ -567,8 +567,8 @@ sub update_db {
     $rows = 'undef' unless defined $rows;
     if ($errflag) {
         my $errorString  = $heap->{sths}->{$handler}->errstr;
-        my $oracleError  = ( $errorString =~ /ORA-(\d+):/ );
         my $errorMessage = '';
+        my ($oracleError) = $errorString =~ /ORA-(\d+):/;
         if ( exists $invalidOracleError{$oracleError} ) {
             my $delay = $args->{_RetryDelay} ||= $retrydelay;
             my $retries = ( $args->{_Retries} ||= $maxretries )--;
@@ -611,7 +611,7 @@ sub update_db {
     # If injection was successful, update the summary tables
     if ( $handler =~ /^(?:insert|close)File$/ ) {
         $kernel->post( 'logger',
-                info => "$handler successfull for $args->{FILENAME}" );
+            info => "$handler successfull for $args->{FILENAME}" );
         $kernel->yield(
             update_db               => $args,
             "${handler}SummaryProc" => qw( FILENAME )
