@@ -1,5 +1,7 @@
 #
 # cfg file to run online L1 Trigger emulator DQM
+#     the user can choose the environment (live, playback, file-P5, file)
+#     for 'file, one can also choose the global tag type and the actual tag
 #
 # V M Ghete 2010-07-09
 
@@ -10,16 +12,39 @@ import sys
 # choose the environment you run
 #l1DqmEnv = 'live'
 #l1DqmEnv = 'playback'
+#l1DqmEnv = 'file-P5'
 l1DqmEnv = 'file'
+
+# for 'file' choose also the type of the global tag and (edit) the actual global tag
+if l1DqmEnv == 'file' :
+    
+    globalTagType = 'HLT'
+    #globalTagType = 'P'
+    #globalTagType = 'E'
+    #globalTagType = 'R'
+    
+    if globalTagType == 'HLT' :
+        globalTagValue = 'GR_H_V22'
+    elif globalTagType == 'P' :
+        globalTagValue = 'GR_P_V24'
+    elif globalTagType == 'E' :
+        globalTagValue = 'GR_E_V20'
+    elif globalTagType == 'R' :
+        globalTagValue = 'GR_R_42_V20'
+    else :
+        print 'No valid global tag type', globalTagType
+        print 'Valid types: HLT, P, E, R'
+        sys.exit()
+
 
 process = cms.Process("L1TEmuDQM")
 
 # check that a valid choice for environment exists
 
-if not ((l1DqmEnv == 'live') or l1DqmEnv == 'playback' or l1DqmEnv == 'file' or l1DqmEnv == 'file-P5') : 
+if not ((l1DqmEnv == 'live') or l1DqmEnv == 'playback' or l1DqmEnv == 'file-P5' or l1DqmEnv == 'file' ) : 
     print 'No valid input source was chosen. Your value for l1DqmEnv input parameter is:'  
     print 'l1DqmEnv = ', l1DqmEnv
-    print 'Available options: "live", "playback", "file" ', 'file-P5'
+    print 'Available options: "live", "playback", "file-P5", "file" '
     sys.exit()
 
 #----------------------------
@@ -75,12 +100,16 @@ else :
     process.load("DQM.L1TMonitor.environment_file_cfi")
 
     process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
-    process.GlobalTag.globaltag = 'GR_P_V20::All'
+    
+    if globalTagType == 'HLT' :
+         process.GlobalTag.connect = 'frontier://FrontierProd/CMS_COND_31X_GLOBALTAG' 
+         process.GlobalTag.pfnPrefix = cms.untracked.string('frontier://FrontierProd/') 
+                      
+    process.GlobalTag.globaltag = globalTagValue+'::All'
     es_prefer_GlobalTag = cms.ESPrefer('GlobalTag')
 
 
 process.load("Configuration.StandardSequences.Geometry_cff")
-
 
 #-------------------------------------
 # sequences needed for L1 emulator DQM
