@@ -71,7 +71,7 @@ private:
 //
 // constructors and destructor
 //
-dumpEcalTrigTowerMapping::dumpEcalTrigTowerMapping( const edm::ParameterSet& iConfig )
+dumpEcalTrigTowerMapping::dumpEcalTrigTowerMapping( const edm::ParameterSet& /*iConfig*/ )
 {
    //now do what ever initialization is needed
   pass_=0;
@@ -224,7 +224,7 @@ void dumpEcalTrigTowerMapping::build(const CaloGeometry& cg, const EcalTrigTower
 }
 // ------------ method called to produce the data  ------------
 void
-dumpEcalTrigTowerMapping::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
+dumpEcalTrigTowerMapping::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup )
 {
    
    std::cout << "Here I am " << std::endl;

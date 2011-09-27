@@ -73,7 +73,7 @@ private:
 //
 // constructors and destructor
 //
-testEcalGetWindow::testEcalGetWindow( const edm::ParameterSet& iConfig )
+testEcalGetWindow::testEcalGetWindow( const edm::ParameterSet& /*iConfig*/ )
 {
    //now do what ever initialization is needed
   pass_=0;
@@ -94,7 +94,7 @@ testEcalGetWindow::~testEcalGetWindow()
 //
 // member functions
 //
-void testEcalGetWindow::build(const CaloGeometry& cg, const CaloTopology& ct, DetId::Detector det, int subdetn, const char* name) 
+void testEcalGetWindow::build(const CaloGeometry& /*cg*/, const CaloTopology& ct, DetId::Detector det, int subdetn, const char* name) 
 {
   if (det == DetId::Ecal && subdetn == EcalEndcap) 
     {
@@ -224,7 +224,7 @@ void testEcalGetWindow::build(const CaloGeometry& cg, const CaloTopology& ct, De
 }
 // ------------ method called to produce the data  ------------
 void
-testEcalGetWindow::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
+testEcalGetWindow::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup )
 {
    
    std::cout << "Here I am " << std::endl;

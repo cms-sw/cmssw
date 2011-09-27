@@ -11,7 +11,7 @@
 #include <iostream>
 #include <cstdlib>
 
-int main(int argc,char** argv) 
+int main(int /*argc*/,char** /*argv*/) 
 {  
   gStyle->SetOptStat(0);
   gStyle->SetCanvasBorderMode(0);

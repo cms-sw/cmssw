@@ -7,7 +7,7 @@
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 
 
-CaloTopologyBuilder::CaloTopologyBuilder( const edm::ParameterSet& iConfig )
+CaloTopologyBuilder::CaloTopologyBuilder( const edm::ParameterSet& /*iConfig*/ )
 {
    //the following line is needed to tell the framework what
    // data is being produced

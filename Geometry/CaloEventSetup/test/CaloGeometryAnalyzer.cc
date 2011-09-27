@@ -140,7 +140,7 @@ class CaloGeometryAnalyzer : public edm::EDAnalyzer
 //
 // constructors and destructor
 //
-CaloGeometryAnalyzer::CaloGeometryAnalyzer( const edm::ParameterSet& iConfig )
+CaloGeometryAnalyzer::CaloGeometryAnalyzer( const edm::ParameterSet& /*iConfig*/ )
 {
    //now do what ever initialization is needed
   pass_=0;
@@ -1090,7 +1090,7 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 
 // ------------ method called to produce the data  ------------
 void
-CaloGeometryAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
+CaloGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup )
 {
 
    edm::ESHandle<CaloGeometry> pG;

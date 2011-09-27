@@ -54,7 +54,7 @@ class CaloAlignmentRcdWrite : public edm::EDAnalyzer
 {
 public:
 
-  explicit CaloAlignmentRcdWrite(const edm::ParameterSet& iConfig)
+  explicit CaloAlignmentRcdWrite(const edm::ParameterSet& /*iConfig*/)
     :nEventCalls_(0) {}
   ~CaloAlignmentRcdWrite() {}
   
@@ -90,7 +90,7 @@ void CaloAlignmentRcdWrite::writeAlignments(const edm::EventSetup& evtSetup)
 				      recordName);
 }
   
-void CaloAlignmentRcdWrite::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup)
+void CaloAlignmentRcdWrite::analyze(const edm::Event& /*evt*/, const edm::EventSetup& evtSetup)
 {
    if (nEventCalls_ > 0) {
      std::cout << "Writing to DB to be done only once, "

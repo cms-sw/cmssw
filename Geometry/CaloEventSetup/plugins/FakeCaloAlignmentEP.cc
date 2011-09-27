@@ -93,7 +93,7 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 
 //-------------------------------------------------------------------
  
-      ReturnAli    produceEBAli( const EBAlignmentRcd& iRecord ) 
+      ReturnAli    produceEBAli( const EBAlignmentRcd& /*iRecord*/ ) 
       {
 	 ReturnAli ali ( new Alignments ) ;
 	 std::vector<AlignTransform>& vtr ( ali->m_align ) ;
@@ -110,14 +110,14 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 	 return ali ;
       }
 
-      ReturnAliErr produceEBAliErr( const EBAlignmentErrorRcd& iRecord ) 
+      ReturnAliErr produceEBAliErr( const EBAlignmentErrorRcd& /*iRecord*/ ) 
       { 
 	 ReturnAliErr aliErr ( new AlignmentErrors ); 
 	 return aliErr ;
       }
 //-------------------------------------------------------------------
 
-      ReturnAli    produceEEAli( const EEAlignmentRcd& iRecord ) 
+      ReturnAli    produceEEAli( const EEAlignmentRcd& /*iRecord*/ ) 
       {
 	 ReturnAli ali ( new Alignments ) ;
 	 std::vector<AlignTransform>& vtr ( ali->m_align ) ;
@@ -133,14 +133,14 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 	 return ali ;
       }
 
-      ReturnAliErr produceEEAliErr( const EEAlignmentErrorRcd& iRecord ) 
+      ReturnAliErr produceEEAliErr( const EEAlignmentErrorRcd& /*iRecord*/ ) 
       { 
 	 ReturnAliErr aliErr ( new AlignmentErrors ); 
 	 return aliErr ;
       }
 //-------------------------------------------------------------------
 
-      ReturnAli    produceESAli( const ESAlignmentRcd& iRecord ) 
+      ReturnAli    produceESAli( const ESAlignmentRcd& /*iRecord*/ ) 
       {
 	 ReturnAli ali ( new Alignments ) ;
 	 std::vector<AlignTransform>& vtr ( ali->m_align ) ;
@@ -156,14 +156,14 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 	 return ali ;
       }
 
-      ReturnAliErr produceESAliErr( const ESAlignmentErrorRcd& iRecord ) 
+      ReturnAliErr produceESAliErr( const ESAlignmentErrorRcd& /*iRecord*/ ) 
       { 
 	 ReturnAliErr aliErr ( new AlignmentErrors ); 
 	 return aliErr ;
       }
 //-------------------------------------------------------------------
 
-      ReturnAli    produceHBAli( const HBAlignmentRcd& iRecord ) 
+      ReturnAli    produceHBAli( const HBAlignmentRcd& /*iRecord*/ ) 
       {
 	 ReturnAli ali ( new Alignments ) ;
 	 std::vector<AlignTransform>& vtr ( ali->m_align ) ;
@@ -179,14 +179,14 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 	 return ali ;
       }
 
-      ReturnAliErr produceHBAliErr( const HBAlignmentErrorRcd& iRecord ) 
+      ReturnAliErr produceHBAliErr( const HBAlignmentErrorRcd& /*iRecord*/ ) 
       { 
 	 ReturnAliErr aliErr ( new AlignmentErrors ); 
 	 return aliErr ;
       }
 //-------------------------------------------------------------------
 
-      ReturnAli    produceHEAli( const HEAlignmentRcd& iRecord ) 
+      ReturnAli    produceHEAli( const HEAlignmentRcd& /*iRecord*/ ) 
       {
 	 ReturnAli ali ( new Alignments ) ;
 	 std::vector<AlignTransform>& vtr ( ali->m_align ) ;
@@ -202,14 +202,14 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 	 return ali ;
       }
 
-      ReturnAliErr produceHEAliErr( const HEAlignmentErrorRcd& iRecord ) 
+      ReturnAliErr produceHEAliErr( const HEAlignmentErrorRcd& /*iRecord*/ ) 
       { 
 	 ReturnAliErr aliErr ( new AlignmentErrors ); 
 	 return aliErr ;
       }
 //-------------------------------------------------------------------
 
-      ReturnAli    produceHOAli( const HOAlignmentRcd& iRecord ) 
+      ReturnAli    produceHOAli( const HOAlignmentRcd& /*iRecord*/ ) 
       {
 	 ReturnAli ali ( new Alignments ) ;
 	 std::vector<AlignTransform>& vtr ( ali->m_align ) ;
@@ -225,14 +225,14 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 	 return ali ;
       }
 
-      ReturnAliErr produceHOAliErr( const HOAlignmentErrorRcd& iRecord ) 
+      ReturnAliErr produceHOAliErr( const HOAlignmentErrorRcd& /*iRecord*/ ) 
       { 
 	 ReturnAliErr aliErr ( new AlignmentErrors ); 
 	 return aliErr ;
       }
 //-------------------------------------------------------------------
 
-      ReturnAli    produceHFAli( const HFAlignmentRcd& iRecord ) 
+      ReturnAli    produceHFAli( const HFAlignmentRcd& /*iRecord*/ ) 
       {
 	 ReturnAli ali ( new Alignments ) ;
 	 std::vector<AlignTransform>& vtr ( ali->m_align ) ;
@@ -248,14 +248,14 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 	 return ali ;
       }
 
-      ReturnAliErr produceHFAliErr( const HFAlignmentErrorRcd& iRecord ) 
+      ReturnAliErr produceHFAliErr( const HFAlignmentErrorRcd& /*iRecord*/ ) 
       { 
 	 ReturnAliErr aliErr ( new AlignmentErrors ); 
 	 return aliErr ;
       }
 //-------------------------------------------------------------------
 
-      ReturnAli    produceZdcAli( const ZDCAlignmentRcd& iRecord ) 
+      ReturnAli    produceZdcAli( const ZDCAlignmentRcd& /*iRecord*/ ) 
       {
 	 ReturnAli ali ( new Alignments ) ;
 	 std::vector<AlignTransform>& vtr ( ali->m_align ) ;
@@ -271,14 +271,14 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 	 return ali ;
       }
 
-      ReturnAliErr produceZdcAliErr( const ZDCAlignmentErrorRcd& iRecord ) 
+      ReturnAliErr produceZdcAliErr( const ZDCAlignmentErrorRcd& /*iRecord*/ ) 
       { 
 	 ReturnAliErr aliErr ( new AlignmentErrors ); 
 	 return aliErr ;
       }
 //-------------------------------------------------------------------
 
-      ReturnAli    produceCastorAli( const CastorAlignmentRcd& iRecord ) 
+      ReturnAli    produceCastorAli( const CastorAlignmentRcd& /*iRecord*/ ) 
       {
 	 ReturnAli ali ( new Alignments ) ;
 	 std::vector<AlignTransform>& vtr ( ali->m_align ) ;
@@ -294,7 +294,7 @@ class FakeCaloAlignmentEP : public edm::ESProducer
 	 return ali ;
       }
 
-      ReturnAliErr produceCastorAliErr( const CastorAlignmentErrorRcd& iRecord ) 
+      ReturnAliErr produceCastorAliErr( const CastorAlignmentErrorRcd& /*iRecord*/ ) 
       { 
 	 ReturnAliErr aliErr ( new AlignmentErrors ); 
 	 return aliErr ;

@@ -24,8 +24,8 @@ class TestWriteESAlignments : public edm::EDAnalyzer
 {
 public:
 
-  explicit TestWriteESAlignments(const edm::ParameterSet& iConfig)
-    :nEventCalls_(0) {}
+  explicit TestWriteESAlignments(const edm::ParameterSet& /*iConfig*/)
+    : nEventCalls_(0) {}
   ~TestWriteESAlignments() {}
   
 //  template<typename T>
@@ -38,7 +38,7 @@ private:
   unsigned int nEventCalls_;
 };
   
-void TestWriteESAlignments::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup)
+void TestWriteESAlignments::analyze(const edm::Event& /*evt*/, const edm::EventSetup& evtSetup)
 {
    if (nEventCalls_ > 0) {
      std::cout << "Writing to DB to be done only once, "

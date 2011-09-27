@@ -45,7 +45,7 @@ class CaloAlignmentRcdRead : public edm::EDAnalyzer
 {
 public:
 
-  explicit CaloAlignmentRcdRead( const edm::ParameterSet& iConfig )
+  explicit CaloAlignmentRcdRead( const edm::ParameterSet& /*iConfig*/ )
     :nEventCalls_(0) {}
   ~CaloAlignmentRcdRead() {}
   
@@ -78,7 +78,7 @@ void CaloAlignmentRcdRead::dumpAlignments(const edm::EventSetup& evtSetup)
   }
 }
 
-void CaloAlignmentRcdRead::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup)
+void CaloAlignmentRcdRead::analyze(const edm::Event& /*evt*/, const edm::EventSetup& evtSetup)
 {
   if (nEventCalls_>0) {
     std::cout << "Reading from DB to be done only once, "

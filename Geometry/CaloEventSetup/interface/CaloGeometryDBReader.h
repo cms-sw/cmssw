@@ -3,21 +3,21 @@
 
 class CaloGeometryDBReader
 {
-   public:
+public:
 
-      typedef CaloSubdetectorGeometry::TrVec  TrVec      ;
-      typedef CaloSubdetectorGeometry::DimVec DimVec     ;
-      typedef CaloSubdetectorGeometry::IVec   IVec       ;
+  typedef CaloSubdetectorGeometry::TrVec  TrVec      ;
+  typedef CaloSubdetectorGeometry::DimVec DimVec     ;
+  typedef CaloSubdetectorGeometry::IVec   IVec       ;
 
-      static void write( TrVec&      tvec, 
-			 DimVec&     dvec, 
-			 IVec&       ivec,
-			 std::string str   ) {}
+  static void write( TrVec&      /*tvec*/, 
+		     DimVec&     /*dvec*/, 
+		     IVec&       /*ivec*/,
+		     std::string /*str*/   ) {}
 
-      static bool writeFlag() { return false ; }
+  static bool writeFlag() { return false ; }
 
-      CaloGeometryDBReader() {}
-      virtual ~CaloGeometryDBReader() {}
+  CaloGeometryDBReader() {}
+  virtual ~CaloGeometryDBReader() {}
 };
 
 #endif
