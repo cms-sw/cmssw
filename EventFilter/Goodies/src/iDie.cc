@@ -255,7 +255,7 @@ void iDie::iChokeMiniInterface(xgi::Input *in,xgi::Output *out)
 {
   unsigned int i = 0;
 
-  std::cout << "iChoke, last_ls= " << last_ls_ << std::endl;
+  //  std::cout << "iChoke, last_ls= " << last_ls_ << std::endl;
   if(last_ls_==0) return;
   *out << "<div id=\"cls\">" << last_ls_ << "</div>" 
        << "<div id=\"clr\">" << cpuentries_[last_ls_-1] << "</div>" << std::endl;
@@ -324,7 +324,7 @@ void iDie::iChoke(xgi::Input *in,xgi::Output *out)
 void iDie::postEntry(xgi::Input*in,xgi::Output*out)
   throw (xgi::exception::Exception)
 {
-  std::cout << "postEntry " << std::endl;
+  //  std::cout << "postEntry " << std::endl;
   timeval tv;
   gettimeofday(&tv,0);
   time_t now = tv.tv_sec;
@@ -336,8 +336,8 @@ void iDie::postEntry(xgi::Input*in,xgi::Output*out)
   */
   std::vector<cgicc::FormEntry> el1;
   el1 = cgi.getElements();
-  for(unsigned int i = 0; i < el1.size(); i++)
-    std::cout << "name="<<el1[i].getName() << std::endl;
+//   for(unsigned int i = 0; i < el1.size(); i++)
+//     std::cout << "name="<<el1[i].getName() << std::endl;
   el1.clear();
   cgi.getElement("run",el1);
   if(el1.size()!=0)
@@ -402,7 +402,7 @@ void iDie::postEntry(xgi::Input*in,xgi::Output*out)
 void iDie::postEntryiChoke(xgi::Input*in,xgi::Output*out)
   throw (xgi::exception::Exception)
 {
-  std::cout << "postEntryiChoke " << std::endl;
+  //  std::cout << "postEntryiChoke " << std::endl;
   unsigned int lsid = 0;
   cgicc::Cgicc cgi(in); 
   /*  cgicc::CgiEnvironment cgie(in);
@@ -410,8 +410,8 @@ void iDie::postEntryiChoke(xgi::Input*in,xgi::Output*out)
   */
   std::vector<cgicc::FormEntry> el1;
   el1 = cgi.getElements();
-  for(unsigned int i = 0; i < el1.size(); i++)
-    std::cout << "name="<<el1[i].getName() << std::endl;
+//   for(unsigned int i = 0; i < el1.size(); i++)
+//     std::cout << "name="<<el1[i].getName() << std::endl;
   el1.clear();
   cgi.getElement("run",el1);
   if(el1.size()!=0)
@@ -427,7 +427,7 @@ void iDie::postEntryiChoke(xgi::Input*in,xgi::Output*out)
   cgi.getElement("trp",el1);
   if(el1.size()!=0)
     {
-      parseModuleHisto(el1[0].getStrippedValue().c_str(),lsid);
+      parseModuleHisto(el1[0].getValue().c_str(),lsid);
     }
   el1.clear();
 }
@@ -437,6 +437,7 @@ void iDie::reset()
 {
   fus_.erase(fus_.begin(),fus_.end());
   totalCores_=0;
+  last_ls_ = 0;
 }
 
 void iDie::parseModuleLegenda(std::string leg)
@@ -458,7 +459,7 @@ void iDie::parseModuleLegenda(std::string leg)
 
 void iDie::parseModuleHisto(const char *crp, unsigned int lsid)
 {
-  std::cout << "parseModuleHisto ls=" << lsid << std::endl; 
+  //  std::cout << "parseModuleHisto ls=" << lsid << std::endl; 
   if(last_ls_ < lsid) last_ls_ = lsid; 
   int *trp = (int*)crp;
   if(lsid>=cpustat_.size()){
@@ -475,7 +476,7 @@ void iDie::parseModuleHisto(const char *crp, unsigned int lsid)
 
 void iDie::parsePathLegenda(std::string leg)
 {
-  std::cout << "parsePathLegenda" << std::endl;
+  //  std::cout << "parsePathLegenda" << std::endl;
   std::cout << leg << std::endl;
   mappath_.clear();
   boost::char_separator<char> sep(",");
@@ -488,7 +489,7 @@ void iDie::parsePathLegenda(std::string leg)
 
 void iDie::parsePathHisto(const unsigned char *crp, unsigned int lsid)
 {
-  std::cout << "parsePathHisto ls=" << lsid << std::endl; 
+  //  std::cout << "parsePathHisto ls=" << lsid << std::endl; 
   TriggerReportStatic *trp = (TriggerReportStatic*)crp;
   if(lsid>=trp_.size()){
     trp_.resize(lsid);
