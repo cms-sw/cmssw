@@ -26,7 +26,7 @@ class VertexHistogramMaker {
 
   void book(const std::string dirname="");
   void beginRun(const unsigned int nrun);
-  void fill(const unsigned int orbit, const int bx, const reco::VertexCollection& vertices, const double weight=1.);
+  void fill(const unsigned int orbit, const int bx, const float bxlumi, const reco::VertexCollection& vertices, const double weight=1.);
   void fill(const edm::Event& iEvent, const reco::VertexCollection& vertices, const double weight=1.);
 
  private:
@@ -44,6 +44,8 @@ class VertexHistogramMaker {
   RunHistogramManager m_rhm;
   TH1F* m_hnvtx;
   TH1F* m_hntruevtx;
+  TProfile* m_hntruevtxvslumi;
+  TH2D* m_hntruevtxvslumi2D;
   TH1F* m_hntracks;
   TH1F* m_hsqsumptsq;
   TH1F* m_hsqsumptsqheavy;

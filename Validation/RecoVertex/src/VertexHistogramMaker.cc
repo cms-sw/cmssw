@@ -2,9 +2,11 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/Luminosity/interface/LumiDetails.h"
 #include "TH2F.h"
 #include "TH1F.h"
 #include "TProfile.h"
@@ -54,6 +56,12 @@ void VertexHistogramMaker::book(const std::string dirname) {
 
   m_hntruevtx = currdir->make<TH1F>("ntruevtx","Number of True Vertices",40,-0.5,39.5);
   m_hntruevtx->GetXaxis()->SetTitle("vertices");   m_hntruevtx->GetYaxis()->SetTitle("Events"); 
+
+  m_hntruevtxvslumi = currdir->make<TProfile>("ntruevtxvslumi","Number of True Vertices vs BX lumi",125,-0.,5.);
+  m_hntruevtxvslumi->GetXaxis()->SetTitle("BX lumi [*10^30 cm-2s-1]");   m_hntruevtxvslumi->GetYaxis()->SetTitle("Vertices"); 
+
+  m_hntruevtxvslumi2D = currdir->make<TH2D>("ntruevtxvslumi2D","Number of True Vertices vs BX lumi",125,0.,5.,100,-0.5,99.5);
+  m_hntruevtxvslumi2D->GetXaxis()->SetTitle("BX lumi [*10^30 cm-2s-1]");   m_hntruevtxvslumi2D->GetYaxis()->SetTitle("Vertices"); 
 
   m_hntracks = currdir->make<TH1F>("ntracks","Number of Tracks",200,-0.5,199.5);
   m_hntracks->GetXaxis()->SetTitle("tracks");   m_hntracks->GetYaxis()->SetTitle("Vertices"); 
@@ -220,7 +228,7 @@ void VertexHistogramMaker::beginRun(const unsigned int nrun) {
   }
 }
 
-void VertexHistogramMaker::fill(const unsigned int orbit, const int bx, const reco::VertexCollection& vertices, const double weight) {
+void VertexHistogramMaker::fill(const unsigned int orbit, const int bx, const float bxlumi, const reco::VertexCollection& vertices, const double weight) {
   
   m_hnvtx->Fill(vertices.size(),weight);
   
@@ -294,6 +302,12 @@ void VertexHistogramMaker::fill(const unsigned int orbit, const int bx, const re
   }
 
   m_hntruevtx->Fill(ntruevtx,weight);
+
+  if(bxlumi >= 0.) {
+    m_hntruevtxvslumi->Fill(bxlumi,ntruevtx,weight);
+    m_hntruevtxvslumi2D->Fill(bxlumi,ntruevtx,weight);
+  }
+
   if(m_runHisto) {
     if(m_runHistoProfile) {
       if(m_hnvtxvsorbrun && *m_hnvtxvsorbrun )  (*m_hnvtxvsorbrun)->Fill(orbit,ntruevtx,weight);
@@ -311,6 +325,19 @@ void VertexHistogramMaker::fill(const unsigned int orbit, const int bx, const re
 
 void VertexHistogramMaker::fill(const edm::Event& iEvent, const reco::VertexCollection& vertices, const double weight) {
 
-  fill(iEvent.orbitNumber(),iEvent.bunchCrossing(),vertices,weight);
+  // get luminosity
+
+  edm::Handle<LumiDetails> ld;
+  iEvent.getLuminosityBlock().getByLabel("lumiProducer",ld);
+
+  float bxlumi = -1.;
+
+  if(ld.isValid()) {
+    if(ld->isValid()) {
+      bxlumi = ld->lumiValue(LumiDetails::kOCC1,iEvent.bunchCrossing())*6.37;
+    }
+  }
+  
+  fill(iEvent.orbitNumber(),iEvent.bunchCrossing(),bxlumi,vertices,weight);
 
 }
