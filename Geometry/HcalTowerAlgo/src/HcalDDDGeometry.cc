@@ -23,7 +23,9 @@ HcalDDDGeometry::HcalDDDGeometry() :
 }
 
 
-HcalDDDGeometry::~HcalDDDGeometry() {}
+HcalDDDGeometry::~HcalDDDGeometry()
+{
+}
 
 
 std::vector<DetId> const & HcalDDDGeometry::getValidDetIds(DetId::Detector det,

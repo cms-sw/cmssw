@@ -368,10 +368,10 @@ DDEcalBarrelNewAlgo::~DDEcalBarrelNewAlgo() {}
 
 
 void DDEcalBarrelNewAlgo::initialize(const DDNumericArguments      & nArgs,
-				  const DDVectorArguments       & vArgs,
-				  const DDMapArguments          & mArgs,
-				  const DDStringArguments       & sArgs,
-				  const DDStringVectorArguments & vsArgs) {
+				     const DDVectorArguments       & vArgs,
+				     const DDMapArguments          & /*mArgs*/,
+				     const DDStringArguments       & sArgs,
+				     const DDStringVectorArguments & vsArgs) {
 
    LogDebug("EcalGeom") << "DDEcalBarrelAlgo info: Initialize" ;
    m_idNameSpace = DDCurrentNamespace::ns();

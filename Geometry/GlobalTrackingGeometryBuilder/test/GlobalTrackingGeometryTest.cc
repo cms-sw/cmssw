@@ -1,8 +1,8 @@
 /*
  * \file GlobalTrackingGeometryTest.cc
  *
- *  $Date: 2006/10/27 01:35:29 $
- *  $Revision: 1.3 $
+ *  $Date: 2008/01/22 21:32:38 $
+ *  $Revision: 1.4 $
  *  \author M. Sani
  */
 
@@ -29,7 +29,7 @@
 #include <iomanip> 
 #include <vector>
 
-GlobalTrackingGeometryTest::GlobalTrackingGeometryTest( const edm::ParameterSet& iConfig)
+GlobalTrackingGeometryTest::GlobalTrackingGeometryTest( const edm::ParameterSet& /*iConfig*/)
  : my_name( "GlobalTrackingGeometryTest" ) {}
 
 GlobalTrackingGeometryTest::~GlobalTrackingGeometryTest() {}
@@ -134,7 +134,7 @@ void GlobalTrackingGeometryTest::analyzeTracker(const GlobalTrackingGeometry* ge
     std::cout << "Tracker det: GlobalTrackingGeometry succesfully tested." << std::endl;
 }
 
-void GlobalTrackingGeometryTest::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
+void GlobalTrackingGeometryTest::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup )
 {
     std::cout << myName() << ": Analyzer..." << std::endl;
 

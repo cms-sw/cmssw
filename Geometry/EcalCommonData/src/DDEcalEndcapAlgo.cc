@@ -77,9 +77,9 @@ DDEcalEndcapAlgo::~DDEcalEndcapAlgo() {}
 
 void DDEcalEndcapAlgo::initialize(const DDNumericArguments      & nArgs,
 				  const DDVectorArguments       & vArgs,
-				  const DDMapArguments          & mArgs,
+				  const DDMapArguments          & /*mArgs*/,
 				  const DDStringArguments       & sArgs,
-				  const DDStringVectorArguments & vsArgs) {
+				  const DDStringVectorArguments & /*vsArgs*/) {
 
 //   edm::LogInfo("EcalGeom") << "DDEcalEndcapAlgo info: Initialize" ;
    m_idNameSpace = DDCurrentNamespace::ns();
@@ -468,7 +468,7 @@ DDEcalEndcapAlgo::EECreateCR()
 
 void 
 DDEcalEndcapAlgo::EEPositionCRs( const DDName        pName, 
-				 const DDTranslation offset, 
+				 const DDTranslation /*offset*/, 
 				 const int           iSCType,
 				 DDCompactView&      cpv      ) 
 {

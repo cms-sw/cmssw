@@ -11,7 +11,9 @@ CaloTowerGeometry::CaloTowerGeometry() :
 }
   
 
-CaloTowerGeometry::~CaloTowerGeometry() {}
+CaloTowerGeometry::~CaloTowerGeometry()
+{
+}
 
 
 unsigned int

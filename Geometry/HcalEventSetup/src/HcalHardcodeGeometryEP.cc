@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: HcalHardcodeGeometryEP.cc,v 1.9 2008/08/30 19:32:21 fedor Exp $
+// $Id: HcalHardcodeGeometryEP.cc,v 1.10 2009/01/23 18:42:18 heltsley Exp $
 //
 //
 
@@ -41,7 +41,7 @@ class HcalTopology;
 // constructors and destructor
 //
 
-HcalHardcodeGeometryEP::HcalHardcodeGeometryEP( const edm::ParameterSet& ps ) 
+HcalHardcodeGeometryEP::HcalHardcodeGeometryEP( const edm::ParameterSet& /*ps*/ ) 
 {
    //the following line is needed to tell the framework what
    // data is being produced
@@ -69,7 +69,7 @@ HcalHardcodeGeometryEP::~HcalHardcodeGeometryEP()
 // ------------ method called to produce the data  ------------
 
 void
-HcalHardcodeGeometryEP::idealRecordCallBack( const IdealGeometryRecord& iRecord )
+HcalHardcodeGeometryEP::idealRecordCallBack( const IdealGeometryRecord& /*iRecord*/ )
 {
 }
 

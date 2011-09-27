@@ -13,7 +13,7 @@
 //
 // Original Author:  Jeremiah Mans
 //         Created:  Mon Oct  3 11:35:27 CDT 2005
-// $Id: CaloTowerHardcodeGeometryEP.cc,v 1.2 2009/01/29 22:29:34 heltsley Exp $
+// $Id: CaloTowerHardcodeGeometryEP.cc,v 1.3 2010/03/26 19:56:09 sunanda Exp $
 //
 //
 
@@ -30,7 +30,7 @@
 //
 // constructors and destructor
 //
-CaloTowerHardcodeGeometryEP::CaloTowerHardcodeGeometryEP(const edm::ParameterSet& iConfig)
+CaloTowerHardcodeGeometryEP::CaloTowerHardcodeGeometryEP(const edm::ParameterSet& /*iConfig*/)
 {
    //the following line is needed to tell the framework what
    // data is being produced
@@ -53,7 +53,7 @@ CaloTowerHardcodeGeometryEP::~CaloTowerHardcodeGeometryEP()
 
 // ------------ method called to produce the data  ------------
 CaloTowerHardcodeGeometryEP::ReturnType
-CaloTowerHardcodeGeometryEP::produce(const CaloTowerGeometryRecord& iRecord)
+CaloTowerHardcodeGeometryEP::produce(const CaloTowerGeometryRecord& /*iRecord*/)
 {
    std::auto_ptr<CaloSubdetectorGeometry> pCaloSubdetectorGeometry(loader_->load()) ;
 

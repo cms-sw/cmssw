@@ -335,7 +335,7 @@ DDEcalBarrelAlgo::~DDEcalBarrelAlgo() {}
 
 void DDEcalBarrelAlgo::initialize(const DDNumericArguments      & nArgs,
 				  const DDVectorArguments       & vArgs,
-				  const DDMapArguments          & mArgs,
+				  const DDMapArguments          & /*mArgs*/,
 				  const DDStringArguments       & sArgs,
 				  const DDStringVectorArguments & vsArgs) {
 
