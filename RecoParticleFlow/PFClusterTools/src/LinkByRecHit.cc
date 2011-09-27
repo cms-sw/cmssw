@@ -7,7 +7,7 @@
 //#define PFLOW_DEBUG
 
 double 
-LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track_tmp, 
+LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track, 
 					    const reco::PFCluster&  cluster,
 					    bool isBrem,
 					    bool debug)  {
@@ -17,16 +17,6 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track_tmp,
     std::cout<<"entering test link by rechit function"<<std::endl;
 #endif
   
-  reco::PFRecTrack track(track_tmp);
-  const reco::PFTrajectoryPoint& atECAL_tmp
-    = track_tmp.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax );
-  if(std::abs(atECAL_tmp.positionREP().Eta())<1E-9 &&
-     std::abs(atECAL_tmp.positionREP().Phi())<1E-9 &&
-     atECAL_tmp.positionREP().R()<1E-9) {
-    // needs to be recomputed 
-    track.calculatePositionREP();
-  }
-
   //cluster position
   double clustereta  = cluster.positionREP().Eta();
   double clusterphi  = cluster.positionREP().Phi();
@@ -43,7 +33,6 @@ LinkByRecHit::testTrackAndClusterByRecHit ( const reco::PFRecTrack& track_tmp,
     = track.extrapolatedPoint( reco::PFTrajectoryPoint::ClosestApproach );
   const reco::PFTrajectoryPoint& atECAL 
     = track.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax );
-
 
   //track at calo's
   double tracketa = 999999.9;
