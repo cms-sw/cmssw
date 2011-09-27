@@ -16,7 +16,7 @@ GeomDet::SubDetector GeomDetUnit::subDetector() const {
   return type().subDetector();
 }
 
-void GeomDetUnit::setSurfaceDeformation(const SurfaceDeformation * deformation)
+void GeomDetUnit::setSurfaceDeformation(const SurfaceDeformation * /*deformation*/)
 {
   throw cms::Exception("Geometry") 
     << "setting SurfaceDeformation not implemented for DetId "
