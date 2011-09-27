@@ -321,7 +321,7 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
 // 	    << (hasPrescaleService_.value_ ? 0x1 : 0) <<std::endl;
   unsigned short smap 
     = ((nbSubProcesses_.value_!=0) ? 0x10 : 0)
-    + ((instance_.value_==0) ? 0x8 : 0)
+    + (((instance_.value_%80)==0) ? 0x8 : 0) // have at least one legend per slice
     + (hasServiceWebRegistry_.value_ ? 0x4 : 0) 
     + (hasModuleWebRegistry_.value_ ? 0x2 : 0) 
     + (hasPrescaleService_.value_ ? 0x1 : 0);
@@ -416,7 +416,7 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
 // 	    << (hasPrescaleService_.value_ ? 0x1 : 0) <<std::endl;
   unsigned short smap 
     = ((nbSubProcesses_.value_!=0) ? 0x10 : 0)
-    + ((instance_.value_==0) ? 0x8 : 0)
+    + (((instance_.value_%80)==0) ? 0x8 : 0) // have at least one legend per slice
     + (hasServiceWebRegistry_.value_ ? 0x4 : 0) 
     + (hasModuleWebRegistry_.value_ ? 0x2 : 0) 
     + (hasPrescaleService_.value_ ? 0x1 : 0);
@@ -1870,7 +1870,9 @@ void FUEventProcessor::updater(xgi::Input *in,xgi::Output *out)
     for(unsigned int i = 0; i<logRingIndex_; i++)
       *out << logRing_[i] << std::endl;
   cDiv(out);
-  
+  mDiv(out,"cha");
+  if(cpustat_) *out << cpustat_->getChart();
+  cDiv(out);
 }
 
 void FUEventProcessor::procStat(xgi::Input *in, xgi::Output *out)
@@ -1888,7 +1890,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.131 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.132 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());
