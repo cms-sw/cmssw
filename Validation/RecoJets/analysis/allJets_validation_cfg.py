@@ -53,7 +53,7 @@ process.source = cms.Source("PoolSource",
 )
 
 process.fileSaver = cms.EDAnalyzer("JetFileSaver",
-                        OutputFile = cms.untracked.string('histo_1.root')
+                        OutputFile = cms.untracked.string('histo.root')
 )
 
 ## Test for corrected jets - available only for 
