@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 22:06:57 CET 2010
-// $Id: FW3DViewGeometry.cc,v 1.13 2011/09/27 00:29:06 matevz Exp $
+// $Id: FW3DViewGeometry.cc,v 1.14 2011/09/27 03:04:58 amraktad Exp $
 //
 
 // system include files
@@ -187,6 +187,9 @@ FW3DViewGeometry::showMuonEndcap( bool showMuonEndcap )
                   Int_t iLayer = 0; // chamber
 		  CSCDetId id( iEndcap, iStation, iRing, iChamber, iLayer );
 		  TEveGeoShape* shape = m_geom->getEveShape( id.rawId() );
+                  shape->SetTitle(TString::Format("CSC %s, S=%d, R=%d, C=%d", 
+                                                  cEndcap->GetName(), iStation, iRing, iChamber));
+ 	  	            
                   addToCompound(shape, kFWMuonEndcapLineColorIndex);
 		  cRing->AddElement( shape );
                }
@@ -216,6 +219,7 @@ FW3DViewGeometry::showPixelBarrel( bool showPixelBarrel )
 	   id != ids.end(); ++id )
       {
 	 TEveGeoShape* shape = m_geom->getEveShape( *id );
+         shape->SetTitle(Form("PixelBarrel %d",*id));
          addToCompound(shape, kFWPixelBarrelColorIndex);
          m_pixelBarrelElements->AddElement( shape );
       }
@@ -241,6 +245,8 @@ FW3DViewGeometry::showPixelEndcap(bool  showPixelEndcap )
 	   id != ids.end(); ++id )
       {
 	 TEveGeoShape* shape = m_geom->getEveShape( *id );
+
+         shape->SetTitle(Form("PixelEndCap %d",*id));
          addToCompound(shape, kFWPixelEndcapColorIndex);
          m_pixelEndcapElements->AddElement( shape );
       }
@@ -275,6 +281,8 @@ FW3DViewGeometry::showTrackerBarrel( bool  showTrackerBarrel )
 	   id != ids.end(); ++id )
       {
 	 TEveGeoShape* shape = m_geom->getEveShape( *id );
+
+         shape->SetTitle(Form("TrackerBarrel %d",*id));
          addToCompound(shape, kFWTrackerBarrelColorIndex);
          m_trackerBarrelElements->AddElement( shape );
       }
@@ -308,6 +316,8 @@ FW3DViewGeometry::showTrackerEndcap( bool showTrackerEndcap )
 	   id != ids.end(); ++id )
       {
 	 TEveGeoShape* shape = m_geom->getEveShape( *id );
+
+         shape->SetTitle(Form("TrackerEndcap %d",*id));
          addToCompound(shape, kFWTrackerEndcapColorIndex);
          m_trackerEndcapElements->AddElement( shape );
       }
