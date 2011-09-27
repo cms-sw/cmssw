@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/02/22 11:06:45 $
- *  $Revision: 1.1 $
+ *  $Date: 2006/03/20 19:22:21 $
+ *  $Revision: 1.2 $
  *  \author R. Bellan  - INFN Torino
  */
 
@@ -37,40 +37,56 @@ DTTopology::DTTopology(int firstWire, int nChannels,float semilenght): theFirstC
 #endif
 }
 
-const float DTTopology::sensibleWidth() const{
+float
+DTTopology::sensibleWidth() const
+{
   return theWidth-IBeamThickness;
 }
 
-const float DTTopology::sensibleHeight() const{
+float
+DTTopology::sensibleHeight() const
+{
   return theHeight-plateThickness;
 }
 
-LocalPoint DTTopology::localPosition( const MeasurementPoint& mp) const{
+LocalPoint
+DTTopology::localPosition( const MeasurementPoint& mp) const
+{
     return LocalPoint( (mp.x() - theFirstChannel)*theWidth + theOffSet.x() , 
                        (1-mp.y())*theLength + theOffSet.y());
 }
 
-LocalError DTTopology::localError( const MeasurementPoint& mp, const MeasurementError& me) const{
+LocalError
+DTTopology::localError( const MeasurementPoint& /*mp*/, const MeasurementError& me) const
+{
   return LocalError(me.uu()*(theWidth*theWidth), 0,
                     me.vv()*(theLength*theLength));
 }
 
-MeasurementPoint DTTopology::measurementPosition( const LocalPoint& lp) const{
+MeasurementPoint
+DTTopology::measurementPosition( const LocalPoint& lp) const
+{
   return MeasurementPoint( static_cast<int>( (lp.x()-theOffSet.x())/theWidth + theFirstChannel),
                            1 - (lp.y()-theOffSet.y())/theLength);
 }
 
-MeasurementError DTTopology::measurementError( const LocalPoint& lp, const LocalError& le) const{
+MeasurementError
+DTTopology::measurementError( const LocalPoint& /*lp*/, const LocalError& le) const
+{
   return MeasurementError(le.xx()/(theWidth*theWidth),0,
                           le.yy()/(theLength*theLength));
 }
 
-int DTTopology::channel( const LocalPoint& lp) const{
+int
+DTTopology::channel( const LocalPoint& lp) const
+{
   return static_cast<int>( (lp.x()-theOffSet.x())/theWidth + theFirstChannel);
 }
 
 // return the x wire position in the layer, starting from its wire number.
-float DTTopology::wirePosition(int wireNumber) const{
+float
+DTTopology::wirePosition(int wireNumber) const
+{
   if (wireNumber - (theFirstChannel-1) <= 0 || wireNumber > lastChannel() )
     throw cms::Exception("InvalidWireNumber") << "DTTopology::wirePosition:" 
 					      << " Requested wire number: "<< wireNumber 
@@ -91,7 +107,9 @@ float DTTopology::wirePosition(int wireNumber) const{
 
 
 //New cell geometry
-DTTopology::Side DTTopology::onWhichBorder(float x, float y, float z) const{
+DTTopology::Side
+DTTopology::onWhichBorder(float x, float /*y*/, float z) const
+{
   
   // epsilon = Tolerance to determine if a hit starts/ends on the cell border.
   // Current value comes from CMSIM, where hit position is
@@ -123,7 +141,9 @@ DTTopology::Side DTTopology::onWhichBorder(float x, float y, float z) const{
   
 
 //Old geometry of the DT
-DTTopology::Side DTTopology::onWhichBorder_old(float x, float y, float z) const{
+DTTopology::Side
+DTTopology::onWhichBorder_old(float x, float /*y*/, float z) const
+{
 
   // epsilon = Tolerance to determine if a hit starts/ends on the cell border.
   // Current value comes from CMSIM, where hit position is

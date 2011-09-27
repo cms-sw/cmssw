@@ -17,8 +17,8 @@
  * The Topology interface is extended with methods relevant for
  * the DT detectors, e.g. wirePosition(int), etc.
  *  
- *  $Date: 2007/03/09 00:40:40 $
- *  $Revision: 1.4 $
+ *  $Date: 2009/04/30 09:05:25 $
+ *  $Revision: 1.5 $
  *
  * \author R. Bellan - INFN Torino
  *
@@ -64,27 +64,27 @@ class DTTopology: public Topology {
   float wirePosition(int wireNumber) const;
   
   //checks if a wire number is valid
-  const bool isWireValid(const int wireNumber) const {return (wireNumber - (theFirstChannel-1) <= 0 || wireNumber > lastChannel() ) ? false : true;}
+  bool isWireValid(const int wireNumber) const {return (wireNumber - (theFirstChannel-1) <= 0 || wireNumber > lastChannel() ) ? false : true;}
 
   /// Returns the cell width.
-  const float cellWidth() const {return theWidth;}
+  float cellWidth() const {return theWidth;}
   /// Returns the cell height.
-  const float cellHeight() const {return theHeight;}
+  float cellHeight() const {return theHeight;}
   /// Returns the cell length. This is the length of the sensitive volume,
   /// i.e. lenght of the wire minus the lenght of the two tappini (1.55 mm each)
-  const float cellLenght() const {return theLength;}
+  float cellLenght() const {return theLength;}
   /// Returns the number of wires in the layer
-  const int channels() const {return theNChannels;} 
+  int channels() const {return theNChannels;} 
 
   /// Returns the wire number of the first wire
-  const int firstChannel() const {return theFirstChannel;} 
+  int firstChannel() const {return theFirstChannel;} 
   /// Returns the wire number of the last wire
-  const int lastChannel() const {return theNChannels+theFirstChannel-1;} 
+  int lastChannel() const {return theNChannels+theFirstChannel-1;} 
 
   /// Returns the width of the actual sensible volume of the cell.
-  const float sensibleWidth() const;
+  float sensibleWidth() const;
   /// Returns the height of the actual sensible volume of the cell.
-  const float sensibleHeight() const;
+  float sensibleHeight() const;
 
   /// Sides of the cell
   enum Side {zMin,zMax,xMin,xMax,yMin,yMax,none}; 
