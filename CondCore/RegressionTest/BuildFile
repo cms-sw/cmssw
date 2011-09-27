@@ -8,5 +8,5 @@
 	<use name=FWCore/Framework>
 	<use name=CondCore/DBCommon>
 	<use name=CondCore/MetaDataService>
-	<lib name=CondCoreDBTest>
+	<lib name=CondCoreRegressionTest>
 </export>
