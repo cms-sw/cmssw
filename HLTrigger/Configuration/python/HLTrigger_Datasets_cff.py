@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V277
+# /dev/CMSSW_4_2_0/GRun/V278
 
 import FWCore.ParameterSet.Config as cms
 
@@ -432,23 +432,34 @@ streamA_datasetMultiJet_selector.triggerConditions = cms.vstring('HLT_CentralJet
     'HLT_DoubleJet60_ForwardBackward_v9', 
     'HLT_DoubleJet70_ForwardBackward_v9', 
     'HLT_DoubleJet80_ForwardBackward_v9', 
+    'HLT_EightJet120_L1FastJet_v1', 
     'HLT_EightJet120_v4', 
+    'HLT_EightJet35_L1FastJet_v1', 
     'HLT_EightJet35_v2', 
+    'HLT_EightJet40_L1FastJet_v1', 
     'HLT_EightJet40_v2', 
     'HLT_ExclDiJet60_HFAND_v8', 
     'HLT_ExclDiJet60_HFOR_v8', 
     'HLT_L1DoubleJet36Central_v4', 
     'HLT_L1MultiJet_v4', 
     'HLT_QuadJet40_IsoPFTau40_v16', 
+    'HLT_QuadJet40_L1FastJet_v1', 
     'HLT_QuadJet40_v10', 
+    'HLT_QuadJet45_DiJet40_L1FastJet_v1', 
     'HLT_QuadJet45_DiJet40_v2', 
     'HLT_QuadJet45_IsoPFTau45_v11', 
+    'HLT_QuadJet50_DiJet40_L1FastJet_v1', 
     'HLT_QuadJet50_DiJet40_v4', 
     'HLT_QuadJet50_IsoPFTau50_v5', 
+    'HLT_QuadJet50_Jet40_Jet30_L1FastJet_v1', 
     'HLT_QuadJet50_Jet40_Jet30_v6', 
+    'HLT_QuadJet70_L1FastJet_v1', 
     'HLT_QuadJet70_v9', 
+    'HLT_QuadJet80_L1FastJet_v1', 
     'HLT_QuadJet80_v4', 
+    'HLT_QuadJet90_L1FastJet_v1', 
     'HLT_QuadJet90_v2', 
+    'HLT_SixJet45_L1FastJet_v1', 
     'HLT_SixJet45_v2')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetPhoton_selector

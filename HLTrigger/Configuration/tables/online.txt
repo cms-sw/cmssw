@@ -51,19 +51,30 @@ HLT_CentralJet46_CentralJet38_DiBTagIP3D_v*
 HLT_CentralJet46_CentralJet38_CentralJet20_DiBTagIP3D_v*
 HLT_CentralJet60_CentralJet53_DiBTagIP3D_v*
 HLT_QuadJet40_v*
+HLT_QuadJet40_L1FastJet_v*                                                                      #   added in 5e33 menu (L1FastJet testing)
 HLT_QuadJet40_IsoPFTau40_v*
 HLT_QuadJet45_DiJet40_v*
+HLT_QuadJet45_DiJet40_L1FastJet_v*                                                              #   added in 5e33 menu (L1FastJet testing)
 HLT_QuadJet45_IsoPFTau45_v*
 HLT_QuadJet50_IsoPFTau50_v*
 HLT_QuadJet50_Jet40_Jet30_v*
+HLT_QuadJet50_Jet40_Jet30_L1FastJet_v*                                                          #   added in 5e33 menu (L1FastJet testing)
 HLT_QuadJet50_DiJet40_v*
+HLT_QuadJet50_DiJet40_L1FastJet_v*                                                              #   added in 5e33 menu (L1FastJet testing)
 HLT_QuadJet70_v*
+HLT_QuadJet70_L1FastJet_v*                                                                      #   added in 5e33 menu (L1FastJet testing)
 HLT_QuadJet80_v*
+HLT_QuadJet80_L1FastJet_v*                                                                      #   added in 5e33 menu (L1FastJet testing)
 HLT_QuadJet90_v*                                                                                #   added in 5e33 menu (sr #123262)
+HLT_QuadJet90_L1FastJet_v*                                                                      #   added in 5e33 menu (L1FastJet testing)
 HLT_SixJet45_v*
+HLT_SixJet45_L1FastJet_v*                                                                       #   added in 5e33 menu (L1FastJet testing)
 HLT_EightJet35_v*                                                                               #   added in 5e33 menu (sr #123262)
+HLT_EightJet35_L1FastJet_v*                                                                     #   added in 5e33 menu (L1FastJet testing)
 HLT_EightJet40_v*                                                                               #   added in 5e33 menu (sr #123262)
+HLT_EightJet40_L1FastJet_v*                                                                     #   added in 5e33 menu (L1FastJet testing)
 HLT_EightJet120_v*
+HLT_EightJet120_L1FastJet_v*                                                                    #   added in 5e33 menu (L1FastJet testing)
 #HLT_60Jet10_v*                                                                                 # removed in 5e33 menu (sr #123692)
 HLT_70Jet10_v*
 HLT_70Jet13_v*
@@ -552,9 +563,7 @@ AlCa_RPCMuonNoHits_v*
 AlCa_RPCMuonNormalisation_v*
 AlCa_LumiPixels_v*                                                                              #   added in 5e33 menu (sr #123507)
 DQM_FEDIntegrity_v*
-# HLTriggerFirstPath # only in GRun, not in online
 HLTriggerFinalPath
-# HLTAnalyzerEndpath # only in GRun, not in online
 AOutput
 ALCAP0Output
 ALCAPHISYMOutput
