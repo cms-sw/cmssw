@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 22:06:52 CET 2010
-// $Id: FW3DViewGeometry.h,v 1.6 2010/09/28 11:39:50 amraktad Exp $
+// $Id: FW3DViewGeometry.h,v 1.7 2011/09/27 00:29:05 matevz Exp $
 //
 
 #include "Fireworks/Core/interface/FWViewGeometryList.h"
@@ -44,7 +44,6 @@ public:
    void showMuonBarrel( bool );
    void showMuonBarrelFull( bool );
    void showMuonEndcap( bool );
-   void showMuonEndcapFull( bool );
    void showPixelBarrel( bool );
    void showPixelEndcap( bool );
    void showTrackerBarrel( bool );

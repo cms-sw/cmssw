@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 22:06:57 CET 2010
-// $Id: FW3DViewGeometry.cc,v 1.12 2010/09/28 11:39:51 amraktad Exp $
+// $Id: FW3DViewGeometry.cc,v 1.13 2011/09/27 00:29:06 matevz Exp $
 //
 
 // system include files
@@ -129,6 +129,7 @@ FW3DViewGeometry::showMuonBarrelFull(bool showMuonBarrel)
             cWheel->AddElement(cStation);
             for (Int_t iSector = 1 ; iSector <= 14; ++iSector)
             {
+               if( iStation < 4 && iSector > 12 ) continue;
                DTChamberId id( iWheel, iStation, iSector );
                TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
                shape->SetTitle(TString::Format("DT W=%d, S=%d, Sec=%d", iWheel, iStation, iSector));
@@ -198,58 +199,6 @@ FW3DViewGeometry::showMuonEndcap( bool showMuonEndcap )
    if( m_muonEndcapElements )
    {
       m_muonEndcapElements->SetRnrState( showMuonEndcap );
-      gEve->Redraw3D();
-   }
-}
-
-void
-FW3DViewGeometry::showMuonEndcapFull(bool showMuonEndcap)
-{
-   if (showMuonEndcap && !m_muonEndcapFullElements)
-   {
-      m_muonEndcapFullElements = new TEveElementList ("CSC" );
-      for (Int_t iEndcap = 1; iEndcap <= 2; ++iEndcap ) // 1=forward (+Z), 2=backward(-Z)
-      { 
-         TEveElementList *cEndcap = 0;
-         if (iEndcap == 1 )
-            cEndcap = new TEveElementList("Forward");
-         else
-            cEndcap = new TEveElementList("Backward");
-         m_muonEndcapElements->AddElement(cEndcap);
-	 // Actual CSC geometry:
-	 // Station 1 has 4 rings with 36 chambers in each
-	 // Station 2: ring 1 has 18 chambers, ring 2 has 36 chambers
-	 // Station 3: ring 1 has 18 chambers, ring 2 has 36 chambers
-	 // Station 4: ring 1 has 18 chambers
-         for (Int_t iStation = 1; iStation <= 4; ++iStation )
-         {
-            TEveElementList *cStation = new TEveElementList(TString::Format("Station %d", iStation));
-            cEndcap->AddElement(cStation);
-            for (Int_t iRing = 1; iRing <= 4; ++iRing)
-	    {
-               if (iStation > 1 && iRing > 2) continue;
-               if (iStation > 3 && iRing > 1) continue;
-               TEveElementList* cRing = new TEveElementList(TString::Format("Ring %d", iRing));
-               cStation->AddElement (cRing );
-               Int_t maxChambers = (iRing == 1 && iStation > 1) ? 18 : 36;
-               for (Int_t iChamber = 1; iChamber <= maxChambers; ++iChamber)
-               {
-                  Int_t iLayer = 0; // chamber
-		  CSCDetId id(iEndcap, iStation, iRing, iChamber, iLayer);
-		  TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
-                  shape->SetTitle(TString::Format("CSC %s, S=%d, R=%d, C=%d", cEndcap->GetName(), iStation, iRing, iChamber));
-                  addToCompound(shape, kFWMuonEndcapLineColorIndex);
-		  cRing->AddElement(shape);
-               }
-            }
-         }
-      }
-      AddElement(m_muonEndcapFullElements);
-   }
-
-   if (m_muonEndcapElements)
-   {
-      m_muonEndcapFullElements->SetRnrState(showMuonEndcap);
       gEve->Redraw3D();
    }
 }
