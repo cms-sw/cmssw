@@ -51,7 +51,7 @@ REGISTER_PLUGIN(RPCEMapRcd,RPCEMap);
 REGISTER_PLUGIN(RPCStripNoisesRcd,RPCStripNoises);
 REGISTER_PLUGIN(RPCClusterSizeRcd,RPCClusterSize); //new plugin 21.XII.2009 for RPC cluster size chamber by chamber 
 REGISTER_PLUGIN(RPCDQMObjectRcd,RPCDQMObject); //new plugin for RPC DQMPVT 
-//REGISTER_PLUGIN(RPCNoiseObjectRcd,RPCNoiseObject); //new plugin for RPC DQMPVT 
+REGISTER_PLUGIN(RPCNoiseObjectRcd,RPCNoiseObject); //new plugin for RPC DQMPVT 
 REGISTER_PLUGIN(L1RPCHwConfigRcd,L1RPCHwConfig);
 REGISTER_PLUGIN(RPCObGasRcd,RPCObGas);
 REGISTER_PLUGIN(RPCObImonRcd,RPCObImon);
