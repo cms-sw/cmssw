@@ -18,77 +18,71 @@
 
 class TruncatedPyramid : public CaloCellGeometry
 {
-   public:
+public:
 
       typedef CaloCellGeometry::CCGFloat CCGFloat ;
       typedef CaloCellGeometry::Pt3D     Pt3D     ;
       typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
       typedef CaloCellGeometry::Tr3D     Tr3D     ;
 
-      TruncatedPyramid() ;
+  TruncatedPyramid( void );
 
-      TruncatedPyramid( const TruncatedPyramid& tr ) ;
+  TruncatedPyramid( const TruncatedPyramid& tr ) ;
+  
+  TruncatedPyramid& operator=( const TruncatedPyramid& tr ) ;
 
-      TruncatedPyramid& operator=( const TruncatedPyramid& tr ) ;
+  TruncatedPyramid( const CornersMgr*  cMgr ,
+		    const GlobalPoint& fCtr ,
+		    const GlobalPoint& bCtr ,
+		    const GlobalPoint& cor1 ,
+		    const CCGFloat*    parV   ) ;
 
-      TruncatedPyramid( const CornersMgr*  cMgr ,
-			const GlobalPoint& fCtr ,
-			const GlobalPoint& bCtr ,
-			const GlobalPoint& cor1 ,
-			const CCGFloat*    parV   ) ;
+  TruncatedPyramid( const CornersVec& corn ,
+		    const CCGFloat*   par    ) ;
 
-      TruncatedPyramid( const CornersVec& corn ,
-			const CCGFloat*   par    ) ;
+  virtual ~TruncatedPyramid() ;
 
-      virtual ~TruncatedPyramid() ;
+  const GlobalPoint getPosition( CCGFloat depth ) const ;
+  
+  virtual const CornersVec& getCorners() const ;
 
-      const GlobalPoint getPosition( CCGFloat depth ) const ;
+  // Return thetaAxis polar angle of axis of the crystal
+  CCGFloat getThetaAxis() const ;
 
-      virtual const CornersVec& getCorners() const ;
+  // Return phiAxis azimuthal angle of axis of the crystal
+  CCGFloat getPhiAxis() const ;
 
-      // Return thetaAxis polar angle of axis of the crystal
-      CCGFloat getThetaAxis() const ;
+  const GlobalVector& axis() const ;
 
-      // Return phiAxis azimuthal angle of axis of the crystal
-      CCGFloat getPhiAxis() const ;
+  // for geometry creation in other classes
+  static void createCorners( const std::vector<CCGFloat>& pv ,
+			     const Tr3D&                  tr ,
+			     std::vector<GlobalPoint>&    co   ) ;
 
-      const GlobalVector& axis() const ;
+  virtual void vocalCorners( Pt3DVec&        vec ,
+			     const CCGFloat* pv  ,
+			     Pt3D&           ref  ) const ;
 
-      // for geometry creation in other classes
-/*      static void createCorners( const std::vector<CCGFloat>& pv ,
-				 const Tr3D&                  tr ,
-				 CornersVec&                  co   ) ;*/
-      static void createCorners( const std::vector<CCGFloat>& pv ,
-				 const Tr3D&                  tr ,
-				 std::vector<GlobalPoint>&    co   ) ;
+  static void localCorners( Pt3DVec&        vec ,
+			    const CCGFloat* pv  ,
+			    Pt3D&           ref  ) ;
 
-      virtual void vocalCorners( Pt3DVec&        vec ,
-				 const CCGFloat* pv  ,
-				 Pt3D&           ref  ) const ;
+  static void localCornersReflection( Pt3DVec&        vec ,
+				      const CCGFloat* pv  ,
+				      Pt3D&           ref  ) ;
 
-      static void localCorners( Pt3DVec&        vec ,
+  static void localCornersSwap( Pt3DVec&        vec ,
 				const CCGFloat* pv  ,
 				Pt3D&           ref  ) ;
 
-      static void localCornersReflection( Pt3DVec&        vec ,
-					  const CCGFloat* pv  ,
-					  Pt3D&           ref  ) ;
+  virtual void getTransform( Tr3D& tr, Pt3DVec* lptr ) const ;
 
-      static void localCornersSwap( Pt3DVec&        vec ,
-				    const CCGFloat* pv  ,
-				    Pt3D&           ref  ) ;
+private:
+  GlobalVector makeAxis( void );
 
-      virtual void getTransform( Tr3D& tr, Pt3DVec* lptr ) const ;
-
-   private:
-
-      GlobalVector makeAxis() ;
-
-      const GlobalPoint backCtr() const ;
-      
-      GlobalVector m_axis ;
-
-      Pt3D         m_corOne ;
+  const GlobalPoint backCtr( void ) const;    
+  GlobalVector m_axis;
+  Pt3D         m_corOne;
 };
 
 std::ostream& operator<<( std::ostream& s, const TruncatedPyramid& cell ) ;

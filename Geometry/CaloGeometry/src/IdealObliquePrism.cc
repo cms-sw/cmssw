@@ -7,31 +7,29 @@ typedef IdealObliquePrism::Pt3DVec  Pt3DVec  ;
 
 IdealObliquePrism::IdealObliquePrism() :
    CaloCellGeometry()
-{
-}
+{}
 
 IdealObliquePrism::IdealObliquePrism( const IdealObliquePrism& idop ) 
+  : CaloCellGeometry( idop )
 {
-   *this = idop ;
+  *this = idop ;
 }
 
 IdealObliquePrism& 
 IdealObliquePrism::operator=( const IdealObliquePrism& idop ) 
 {
-   if( &idop != this ) CaloCellGeometry::operator=( idop ) ;
-   return *this ;
+  if( &idop != this ) CaloCellGeometry::operator=( idop ) ;
+  return *this ;
 }
 
 IdealObliquePrism::IdealObliquePrism( const GlobalPoint& faceCenter, 
 				      const CornersMgr*  mgr       ,
-				      const CCGFloat*    parm       ) : 
-   CaloCellGeometry ( faceCenter, mgr, parm )
-{
-}
+				      const CCGFloat*    parm       )
+  : CaloCellGeometry ( faceCenter, mgr, parm )
+{}
 
 IdealObliquePrism::~IdealObliquePrism() 
-{
-}
+{}
 
 CCGFloat 
 IdealObliquePrism::dEta()  const 

@@ -3,7 +3,7 @@
 
 #include "Geometry/CaloGeometry/interface/EZMgrFL.h"
 
-/*
+/** \class EZArrayFL<T>
 
   stl-vector-LIKE Class designed to allow many small fixed-length
   containers to have a common memory managed by a single higher-level object.

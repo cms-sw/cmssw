@@ -21,12 +21,12 @@ TruncatedPyramid::TruncatedPyramid() :
    CaloCellGeometry() ,
    m_axis ( 0., 0., 0. ),
    m_corOne ( 0., 0., 0. ) 
-{
-}
+{}
 
-TruncatedPyramid::TruncatedPyramid( const TruncatedPyramid& tr ) 
+TruncatedPyramid::TruncatedPyramid( const TruncatedPyramid& tr )
+  : CaloCellGeometry( tr )
 {
-   *this = tr ; 
+  *this = tr ; 
 }
 
 TruncatedPyramid& 
@@ -49,20 +49,17 @@ TruncatedPyramid::TruncatedPyramid( const CornersMgr*  cMgr ,
    CaloCellGeometry ( fCtr, cMgr, parV ) ,
    m_axis           ( ( bCtr - fCtr ).unit() ) ,
    m_corOne         ( cor1.x(), cor1.y(), cor1.z() ) 
-{
-} 
+{} 
 
 TruncatedPyramid::TruncatedPyramid( const CornersVec& corn ,
 				    const CCGFloat*   par    ) :
    CaloCellGeometry ( corn, par   ) , 
    m_axis           ( makeAxis()  ) ,
    m_corOne         ( corn[0].x(), corn[0].y(), corn[0].z()  )
-{
-} 
+{} 
 
 TruncatedPyramid::~TruncatedPyramid() 
-{
-}
+{}
 
 const GlobalPoint 
 TruncatedPyramid::getPosition( CCGFloat depth ) const 

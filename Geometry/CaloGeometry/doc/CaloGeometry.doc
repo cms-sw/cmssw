@@ -24,25 +24,22 @@
   Generally, the ideal CaloGeometry is assembled by the CaloGeometryBuilder 
   (in the \ref Geometry_CaloEventSetup "CaloEventSetup" package).  To extract
   the geometry, one needs code similar to:
-\htmlonly
-<pre>
+
+@code
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "FWCore/Framework/interface/ESHandle.h"
- 
-.
-.
-.
- 
+
+...
+
 void ...(edm::Event& e, const edm::EventSetup& es) {
   edm::ESHandle<CaloGeometry> pGeo;
   c.get<IdealGeometryRecord>().get(pGeo);
   
   const CaloGeometry* geom=pGeo.product();
- 
-</pre>
-\endhtmlonly
+@endcode 
+
 
 \subsection interface Public interface
 

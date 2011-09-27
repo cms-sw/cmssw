@@ -16,8 +16,7 @@ CaloSubdetectorGeometry::CaloSubdetectorGeometry() :
    m_sortedIds (false) ,
    m_deltaPhi  ( 0 ) ,
    m_deltaEta  ( 0 )  
-{
-}
+{}
 
 
 CaloSubdetectorGeometry::~CaloSubdetectorGeometry() 
@@ -29,8 +28,8 @@ CaloSubdetectorGeometry::~CaloSubdetectorGeometry()
 }
 
 const std::vector<DetId>& 
-CaloSubdetectorGeometry::getValidDetIds( DetId::Detector det    , 
-					 int             subdet   ) const 
+CaloSubdetectorGeometry::getValidDetIds( DetId::Detector /*det*/    , 
+					 int             /*subdet*/   ) const 
 {
    if( !m_sortedIds )
    {

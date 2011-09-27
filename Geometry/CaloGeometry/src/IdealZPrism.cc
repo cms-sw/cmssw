@@ -5,33 +5,31 @@ typedef IdealZPrism::CCGFloat CCGFloat ;
 typedef IdealZPrism::Pt3D     Pt3D     ;
 typedef IdealZPrism::Pt3DVec  Pt3DVec  ;
 
-IdealZPrism::IdealZPrism() :
-   CaloCellGeometry()
-{
-}
+IdealZPrism::IdealZPrism()
+  : CaloCellGeometry()
+{}
 
 IdealZPrism::IdealZPrism( const IdealZPrism& idzp ) 
+  : CaloCellGeometry( idzp )
 {
-   *this = idzp ;
+  *this = idzp ;
 }
 
 IdealZPrism& 
 IdealZPrism::operator=( const IdealZPrism& idzp ) 
 {
-   if( &idzp != this ) CaloCellGeometry::operator=( idzp ) ;
-   return *this ;
+  if( &idzp != this ) CaloCellGeometry::operator=( idzp ) ;
+  return *this ;
 }
 
 IdealZPrism::IdealZPrism( const GlobalPoint& faceCenter , 
 			  const CornersMgr*  mgr        ,
-			  const CCGFloat*    parm         )  : 
-   CaloCellGeometry ( faceCenter, mgr, parm )   
-{
-}
+			  const CCGFloat*    parm         )
+  : CaloCellGeometry ( faceCenter, mgr, parm )   
+{}
 
 IdealZPrism::~IdealZPrism() 
-{
-}
+{}
 
 CCGFloat 
 IdealZPrism::dEta() const 

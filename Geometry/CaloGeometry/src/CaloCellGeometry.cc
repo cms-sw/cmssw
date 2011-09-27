@@ -20,12 +20,11 @@ CaloCellGeometry::CaloCellGeometry() :
    m_refPoint ( 0., 0., 0. ),
    m_corners  (  ) ,
    m_parms    ( (CCGFloat*) 0 ) 
-{
-}
+{}
 
 CaloCellGeometry::CaloCellGeometry( const CaloCellGeometry& cell )
 {
-   *this = cell ;
+  *this = cell ;
 }
 
 CaloCellGeometry&
@@ -41,8 +40,7 @@ CaloCellGeometry::operator=( const CaloCellGeometry& cell )
 }
 
 CaloCellGeometry::~CaloCellGeometry()
-{
-}
+{}
 
 const GlobalPoint& 
 CaloCellGeometry::getPosition() const 
@@ -53,7 +51,7 @@ CaloCellGeometry::getPosition() const
 bool 
 CaloCellGeometry::emptyCorners() const 
 {
-   return m_corners.empty() ;
+  return m_corners.empty() ;
 }
 
 const CCGFloat* 
@@ -68,8 +66,7 @@ CaloCellGeometry::CaloCellGeometry( CornersVec::const_reference gp ,
    m_refPoint ( gp  ),
    m_corners  ( mgr ),
    m_parms    ( par ) 
-{
-}
+{}
 
 CaloCellGeometry::CaloCellGeometry( const CornersVec& cv,
 				    const CCGFloat*   par ) : 
@@ -78,8 +75,7 @@ CaloCellGeometry::CaloCellGeometry( const CornersVec& cv,
 		0.25*( cv[0].z() + cv[1].z() + cv[2].z() + cv[3].z() )  ), 
    m_corners  ( cv ),
    m_parms    ( par ) 
-{
-}
+{}
 
 CaloCellGeometry::CornersVec& 
 CaloCellGeometry::setCorners() const 
