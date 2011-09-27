@@ -425,6 +425,7 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
 	  //Should be something like this :
 	  // 	  const reco::PFRecTrack& track = *trackref;
 	  //instead of this :
+	  /*
 	  reco::PFRecTrack track (*trackref);
 	  const reco::PFTrajectoryPoint& atECAL_tmp = 
 	    (*trackref).extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax );
@@ -432,9 +433,10 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
 	     std::abs(atECAL_tmp.positionREP().Phi())<1E-9 &&
 	     atECAL_tmp.positionREP().R()<1E-9) 
 	    track.calculatePositionREP();
+	  */
 
 	  const reco::PFTrajectoryPoint& atECAL = 
-	    track.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax );
+	    trackref->extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax );
 	  
 	  double tracketa = atECAL.positionREP().Eta();
 	  double trackphi = atECAL.positionREP().Phi();
@@ -443,7 +445,10 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
 	}
 
       } else {// Old algorithm
-	  dist = LinkByRecHit::testTrackAndClusterByRecHit( *trackref, *clusterref, false, debug_ );	  
+	if ( trackref->extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() )
+	  dist = LinkByRecHit::testTrackAndClusterByRecHit( *trackref, *clusterref, false, debug_ );
+	else
+	  dist = -1.;
       }
 
       if ( debug_ ) { 
@@ -473,6 +478,7 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
 	
 	const reco::PFMultilinksType& multilinks = highEl->getMultilinks();
 
+	/*
 	reco::PFRecTrack track (*trackref);
 	const reco::PFTrajectoryPoint& atHCALEntrance_tmp = 
 	  (*trackref).extrapolatedPoint( reco::PFTrajectoryPoint::HCALEntrance);
@@ -480,9 +486,11 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
 	    std::abs(atHCALEntrance_tmp.positionREP().Phi())<1E-9 &&
 	    atHCALEntrance_tmp.positionREP().R()<1E-9)   
 	  track.calculatePositionREP();
+	*/
 
 	const reco::PFTrajectoryPoint& atHCAL = 
-	  track.extrapolatedPoint(reco::PFTrajectoryPoint::HCALEntrance);
+	  trackref->extrapolatedPoint(reco::PFTrajectoryPoint::HCALEntrance);
+	
 	  
 	double tracketa = atHCAL.positionREP().Eta();
 	double trackphi = atHCAL.positionREP().Phi();
@@ -497,7 +505,7 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
 	if (mlit != multilinks.end()){
 
 	  const reco::PFTrajectoryPoint& atHCALExit = 
-	    track.extrapolatedPoint(reco::PFTrajectoryPoint::HCALExit);
+	    trackref->extrapolatedPoint(reco::PFTrajectoryPoint::HCALExit);
 	  double dHEta = atHCALExit.positionREP().Eta()-atHCAL.positionREP().Eta();
 	  double dHPhi = atHCALExit.positionREP().Phi()-atHCAL.positionREP().Phi(); 
 	  if ( dHPhi > M_PI ) dHPhi = dHPhi - 2.*M_PI;
@@ -512,7 +520,10 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
 	}      	
 
       } else {// Old algorithm
-	dist = LinkByRecHit::testTrackAndClusterByRecHit( *trackref, *clusterref, false, debug_ );	  
+	if ( trackref->extrapolatedPoint( reco::PFTrajectoryPoint::HCALEntrance ).isValid() )
+	  dist = LinkByRecHit::testTrackAndClusterByRecHit( *trackref, *clusterref, false, debug_ );
+	else
+	  dist = -1.;
       }
 
       //      linktest = PFBlock::LINKTEST_RECHIT;
@@ -573,7 +584,10 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       assert( !clusterref.isNull() );
       const reco::PFBlockElementGsfTrack *  GsfEl =  dynamic_cast<const reco::PFBlockElementGsfTrack*>(highEl);
       const PFRecTrack * myTrack =  &(GsfEl->GsftrackPF());
-      dist = LinkByRecHit::testTrackAndClusterByRecHit( *myTrack, *clusterref, false, debug_ );
+      if ( myTrack->extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() )
+	dist = LinkByRecHit::testTrackAndClusterByRecHit( *myTrack, *clusterref, false, debug_ );
+      else
+	dist = -1.;
       //   linktest = PFBlock::LINKTEST_RECHIT;
       
       if ( debug_ ) {
@@ -694,7 +708,10 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       double SignBremDp = DP/SigmaDP;
       */
       bool isBrem = true;
-      dist = LinkByRecHit::testTrackAndClusterByRecHit( *myTrack, *clusterref, isBrem, debug_);
+      if ( myTrack->extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() )
+	dist = LinkByRecHit::testTrackAndClusterByRecHit( *myTrack, *clusterref, isBrem, debug_);
+      else
+	dist = -1.;
       if( debug_ && dist > 0. ) 
 	std::cout << "ECALandBREM: dist testTrackAndClusterByRecHit " 
 		  << dist << std::endl;
@@ -707,7 +724,11 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       assert( !clusterref.isNull() );
       const reco::PFBlockElementGsfTrack *  GsfEl =  dynamic_cast<const reco::PFBlockElementGsfTrack*>(highEl);
       const PFRecTrack * myTrack =  &(GsfEl->GsftrackPF());
-      dist = LinkByRecHit::testTrackAndClusterByRecHit( *myTrack, *clusterref, false, debug_ );
+      if ( myTrack->extrapolatedPoint( reco::PFTrajectoryPoint::HCALEntrance ).isValid() )
+	dist = LinkByRecHit::testTrackAndClusterByRecHit( *myTrack, *clusterref, false, debug_ );
+      else
+	dist = -1.;
+
       //    linktest = PFBlock::LINKTEST_RECHIT;
       break;
     }
@@ -718,7 +739,10 @@ PFBlockAlgo::link( const reco::PFBlockElement* el1,
       const reco::PFBlockElementBrem * BremEl =  dynamic_cast<const reco::PFBlockElementBrem*>(highEl);
       const PFRecTrack * myTrack = &(BremEl->trackPF());
       bool isBrem = true;
-      dist = LinkByRecHit::testTrackAndClusterByRecHit( *myTrack, *clusterref, isBrem, debug_);
+      if ( myTrack->extrapolatedPoint( reco::PFTrajectoryPoint::HCALEntrance ).isValid() )
+	dist = LinkByRecHit::testTrackAndClusterByRecHit( *myTrack, *clusterref, isBrem, debug_);
+      else
+	dist = -1.;
       break;
     }
   case PFBlockLink::SCandECAL:

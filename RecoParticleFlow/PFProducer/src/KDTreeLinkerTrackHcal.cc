@@ -104,15 +104,11 @@ KDTreeLinkerTrackHcal::searchLinks()
       it != targetSet_.end(); it++) {
 	
     reco::PFRecTrackRef trackref = (*it)->trackRefPF();
-    reco::PFRecTrack track (*trackref);
-
-    // if needed we calculate positionREP
-    trackREPCheck(trackref, track);
 
     const reco::PFTrajectoryPoint& atHCAL = 
-      track.extrapolatedPoint(reco::PFTrajectoryPoint::HCALEntrance);
+      trackref->extrapolatedPoint(reco::PFTrajectoryPoint::HCALEntrance);
     const reco::PFTrajectoryPoint& atHCALExit = 
-      track.extrapolatedPoint(reco::PFTrajectoryPoint::HCALExit);
+      trackref->extrapolatedPoint(reco::PFTrajectoryPoint::HCALExit);
     
     // The track didn't reach hcal
     if( ! atHCAL.isValid()) continue;
@@ -177,32 +173,6 @@ KDTreeLinkerTrackHcal::searchLinks()
 }
 
 void
-KDTreeLinkerTrackHcal::trackREPCheck(reco::PFRecTrackRef&	trackref,
-				     reco::PFRecTrack&		track)
-{
-
-  // We fill the positionREP if necessary
-  const reco::PFTrajectoryPoint& atHCALEntrance_tmp = 
-    (*trackref).extrapolatedPoint( reco::PFTrajectoryPoint::HCALEntrance);
-  if (std::abs(atHCALEntrance_tmp.positionREP().Eta())<1E-9 &&
-      std::abs(atHCALEntrance_tmp.positionREP().Phi())<1E-9 &&
-      atHCALEntrance_tmp.positionREP().R()<1E-9) 
-    
-    track.calculatePositionREP();
-
-  else {
-   
-    const reco::PFTrajectoryPoint& atHCALExit_tmp  = 
-      (*trackref).extrapolatedPoint( reco::PFTrajectoryPoint::HCALExit);
-    if(std::abs(atHCALExit_tmp.positionREP().Eta())<1E-9 &&
-       std::abs(atHCALExit_tmp.positionREP().Phi())<1E-9 &&
-       atHCALExit_tmp.positionREP().R()<1E-9) 
-      track.calculatePositionREP();
-  }
-}
-
-
-void
 KDTreeLinkerTrackHcal::updatePFBlockEltWithLinks()
 {
   //TODO YG : Check if cluster positionREP() is valid ?
@@ -216,11 +186,8 @@ KDTreeLinkerTrackHcal::updatePFBlockEltWithLinks()
 	 jt != it->second.end(); ++jt) {
 
       reco::PFRecTrackRef trackref = (*jt)->trackRefPF();
-      reco::PFRecTrack track (*trackref);
-      
-      trackREPCheck(trackref, track);
       const reco::PFTrajectoryPoint& atHCAL = 
-	track.extrapolatedPoint(reco::PFTrajectoryPoint::HCALEntrance);
+	trackref->extrapolatedPoint(reco::PFTrajectoryPoint::HCALEntrance);
       double tracketa = atHCAL.positionREP().Eta();
       double trackphi = atHCAL.positionREP().Phi();
       

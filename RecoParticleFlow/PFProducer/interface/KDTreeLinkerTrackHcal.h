@@ -40,11 +40,6 @@ class KDTreeLinkerTrackHcal : public KDTreeLinkerBase
   void clear();
  
  private:
-  void trackREPCheck(reco::PFRecTrackRef&	trackref,
-		     reco::PFRecTrack&		track);
-
-
- private:
   // Data used by the KDTree algorithm : sets of Tracks and HCAL clusters.
   BlockEltSet		targetSet_;
   BlockEltSet		fieldClusterSet_;

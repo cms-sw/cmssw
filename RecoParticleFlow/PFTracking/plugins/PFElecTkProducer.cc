@@ -845,8 +845,8 @@ PFElecTkProducer::resolveGsfTracks(const vector<reco::GsfPFRecTrack>  & GsfPFVec
   return n_keepGsf;
 }
 float 
-PFElecTkProducer::minTangDist(const reco::GsfPFRecTrack primGsf,
-			      const reco::GsfPFRecTrack secGsf) {
+PFElecTkProducer::minTangDist(const reco::GsfPFRecTrack& primGsf,
+			      const reco::GsfPFRecTrack& secGsf) {
 
   float minDeta = 1000.; 
   float minDphi = 1000.; 
@@ -971,7 +971,8 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
       // this is needed just to save some cpu-time for this is hard-coded     
       if(deta < 0.5 && fabs(dphi) < 1.0) {
 	bool foundLink = false;
-	double distGsf = LinkByRecHit::testTrackAndClusterByRecHit(gsfPfTrack , clust );
+	double distGsf = gsfPfTrack.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() ?
+	  LinkByRecHit::testTrackAndClusterByRecHit(gsfPfTrack , clust ) : -1.;
 	// check if it touch the GsfTrack
 	if(distGsf > 0.) {
 	  if(nEcalDriven) 
@@ -986,8 +987,9 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
 	  vector<PFBrem> primPFBrem = gsfPfTrack.PFRecBrem();
 	  for(unsigned ipbrem = 0; ipbrem < primPFBrem.size(); ipbrem++) {
 	    if(primPFBrem[ipbrem].indTrajPoint() == 99) continue;
-	    reco::PFRecTrack pfBremTrack = primPFBrem[ipbrem];
-	    double dist = LinkByRecHit::testTrackAndClusterByRecHit(pfBremTrack , clust, true );
+	    const reco::PFRecTrack& pfBremTrack = primPFBrem[ipbrem];
+	    double dist = pfBremTrack.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() ?
+	      LinkByRecHit::testTrackAndClusterByRecHit(pfBremTrack , clust, true ) : -1.;
 	    if(dist > 0.) {
 	      if(nEcalDriven) 
 		iEnergy += clust.energy();
@@ -1034,19 +1036,21 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
       if(ndeta < 0.5 && fabs(ndphi) < 1.0) {
 	bool foundNLink = false;
 	
-	double distGsf = LinkByRecHit::testTrackAndClusterByRecHit(nGsfPFRecTrack , clust );
+	double distGsf = nGsfPFRecTrack.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() ?
+	  LinkByRecHit::testTrackAndClusterByRecHit(nGsfPFRecTrack , clust ) : -1.;
 	if(distGsf > 0.) {
 	  nPFCluster.push_back(clust);
 	  nEnergy += clust.energy();
 	  foundNLink = true;
 	}
 	if(foundNLink == false) {
-	  vector<PFBrem> primPFBrem = nGsfPFRecTrack.PFRecBrem();
+	  const vector<PFBrem>& primPFBrem = nGsfPFRecTrack.PFRecBrem();
 	  for(unsigned ipbrem = 0; ipbrem < primPFBrem.size(); ipbrem++) {
 	    if(primPFBrem[ipbrem].indTrajPoint() == 99) continue;
-	    reco::PFRecTrack pfBremTrack = primPFBrem[ipbrem];
+	    const reco::PFRecTrack& pfBremTrack = primPFBrem[ipbrem];
 	    if(foundNLink == false) {
-	      double dist = LinkByRecHit::testTrackAndClusterByRecHit(pfBremTrack , clust, true );
+	      double dist = pfBremTrack.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() ?
+		LinkByRecHit::testTrackAndClusterByRecHit(pfBremTrack , clust, true ) : -1.;
 	      if(dist > 0.) {
 		nPFCluster.push_back(clust);
 		nEnergy += clust.energy();
@@ -1064,7 +1068,8 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
       // just to save cpu time, for this hard-coded
       if(ideta < 0.5 && fabs(idphi) < 1.0) {
 	bool foundILink = false;
-	double dist = LinkByRecHit::testTrackAndClusterByRecHit(iGsfPFRecTrack , clust );
+	double dist = iGsfPFRecTrack.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() ?
+	  LinkByRecHit::testTrackAndClusterByRecHit(iGsfPFRecTrack , clust ) : -1.;
 	if(dist > 0.) {
 	  iPFCluster.push_back(clust);
 	  iEnergy += clust.energy();
@@ -1074,7 +1079,7 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
 	  vector<PFBrem> primPFBrem = iGsfPFRecTrack.PFRecBrem();
 	  for(unsigned ipbrem = 0; ipbrem < primPFBrem.size(); ipbrem++) {
 	    if(primPFBrem[ipbrem].indTrajPoint() == 99) continue;
-	    reco::PFRecTrack pfBremTrack = primPFBrem[ipbrem];
+	    const reco::PFRecTrack& pfBremTrack = primPFBrem[ipbrem];
 	    if(foundILink == false) {
 	      double dist = LinkByRecHit::testTrackAndClusterByRecHit(pfBremTrack , clust, true );
 	      if(dist > 0.) {

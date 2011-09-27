@@ -106,23 +106,14 @@ KDTreeLinkerTrackEcal::searchLinks()
     // use in an optimized way our algo results in the recursive linking algo.
     (*it)->setIsValidMultilinks(true);
 
-    // We fill the positionREP if necessary
-    reco::PFRecTrack track (*trackref);
-    const reco::PFTrajectoryPoint& atECAL_tmp = 
-      (*trackref).extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax );
-    if(std::abs(atECAL_tmp.positionREP().Eta())<1E-9 &&
-       std::abs(atECAL_tmp.positionREP().Phi())<1E-9 &&
-       atECAL_tmp.positionREP().R()<1E-9) 
-      track.calculatePositionREP();
-    
     const reco::PFTrajectoryPoint& atECAL = 
-      track.extrapolatedPoint(reco::PFTrajectoryPoint::ECALShowerMax);
+      trackref->extrapolatedPoint(reco::PFTrajectoryPoint::ECALShowerMax);
 
     // The track didn't reach ecal
     if( ! atECAL.isValid() ) continue;
     
     const reco::PFTrajectoryPoint& atVertex = 
-      track.extrapolatedPoint( reco::PFTrajectoryPoint::ClosestApproach );
+      trackref->extrapolatedPoint( reco::PFTrajectoryPoint::ClosestApproach );
     
     double trackPt = sqrt(atVertex.momentum().Vect().Perp2());
     double tracketa = atECAL.positionREP().Eta();

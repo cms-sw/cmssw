@@ -1049,8 +1049,10 @@ PFBlockAlgo::setInput(const T<reco::PFRecTrackCollection>&    trackh,
 	
     case reco::PFBlockElement::TRACK:
       if (useKDTreeTrackEcalLinker_) {
-	TELinker_.insertTargetElt(*it);
-	THLinker_.insertTargetElt(*it);
+	if ( (*it)->trackRefPF()->extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() )
+	  TELinker_.insertTargetElt(*it);
+	if ( (*it)->trackRefPF()->extrapolatedPoint( reco::PFTrajectoryPoint::HCALEntrance ).isValid() )
+	  THLinker_.insertTargetElt(*it);
       }
       
       break;
