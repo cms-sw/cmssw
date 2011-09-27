@@ -85,6 +85,7 @@ HLT_HT250_v*
 #HLT_HT250_AlphaT0p55_v*                                                                        # removed in 5e33 menu (sr #123317)
 HLT_HT250_AlphaT0p58_v*                                                                         #   added in 5e33 menu (sr #123317)
 HLT_HT250_AlphaT0p60_v*                                                                         #   added in 5e33 menu (sr #123317)
+HLT_HT250_AlphaT0p65_v*                                                                         #   added in 5e33 menu (sr #123743)
 HLT_HT250_DoubleDisplacedJet60_v*
 HLT_HT250_DoubleDisplacedJet60_PromptTrack_v*
 HLT_HT250_MHT90_v* 
@@ -100,6 +101,7 @@ HLT_HT300_CentralJet30_BTagIP_PFMHT65_v*
 #HLT_HT300_AlphaT0p53_v*                                                                        # removed in 5e33 menu (sr #123317)
 HLT_HT300_AlphaT0p54_v*
 HLT_HT300_AlphaT0p55_v*                                                                         #   added in 5e33 menu (sr #123317)
+HLT_HT300_AlphaT0p60_v*                                                                         #   added in 5e33 menu (sr #123734)
 HLT_HT350_v*
 HLT_HT350_MHT70_v*
 HLT_HT350_MHT80_v*
@@ -107,7 +109,7 @@ HLT_HT350_MHT90_v*
 HLT_HT350_MHT100_v*                                                                             #   added in 5e33 menu (sr #123549)
 HLT_HT350_MHT110_v*                                                                             #   added in 5e33 menu (sr #123549)
 #HLT_HT350_AlphaT0p52_v*                                                                        # removed in 5e33 menu (sr #123317)
-#HLT_HT350_AlphaT0p53_v*                                                                        # removed in 5e33 menu (sr #123317)
+HLT_HT350_AlphaT0p53_v*                                                                         # removed (sr #123317) but added back (sr #123734)
 HLT_HT400_v*
 HLT_HT400_MHT80_v*
 HLT_HT400_MHT90_v*                                                                              #   added in 5e33 menu (sr #123549)
@@ -170,6 +172,7 @@ HLT_R025_MR450_v*
 HLT_R033_MR350_v*
 #HLT_R036_MR350_v*                                                                              # removed in 5e33 menu (sr #123317)
 HLT_R038_MR250_v*
+HLT_R038_MR300_v*                                                                               #   added in 5e33 menu (sr #123734)
 #HLT_R042_MR250_v*                                                                              # removed in 5e33 menu (sr #123317)
 HLT_R014_MR200_CentralJet40_BTagIP_v*                                                           #   added in 5e33 menu (sr #123317)
 HLT_R014_MR400_CentralJet40_BTagIP_v*                                                           #   added in 5e33 menu (sr #123317)
@@ -549,7 +552,9 @@ AlCa_RPCMuonNoHits_v*
 AlCa_RPCMuonNormalisation_v*
 AlCa_LumiPixels_v*                                                                              #   added in 5e33 menu (sr #123507)
 DQM_FEDIntegrity_v*
+# HLTriggerFirstPath # only in GRun, not in online
 HLTriggerFinalPath
+# HLTAnalyzerEndpath # only in GRun, not in online
 AOutput
 ALCAP0Output
 ALCAPHISYMOutput

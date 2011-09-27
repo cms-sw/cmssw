@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V275
+# /dev/CMSSW_4_2_0/GRun/V276
 
 import FWCore.ParameterSet.Config as cms
 
@@ -154,6 +154,7 @@ streamA_datasetHT_selector.triggerConditions = cms.vstring('HLT_DiJet130_PT130_v
     'HLT_HT200_v10', 
     'HLT_HT250_AlphaT0p58_v2', 
     'HLT_HT250_AlphaT0p60_v2', 
+    'HLT_HT250_AlphaT0p65_v1', 
     'HLT_HT250_DoubleDisplacedJet60_PromptTrack_v8', 
     'HLT_HT250_DoubleDisplacedJet60_v10', 
     'HLT_HT250_L1FastJet_v2', 
@@ -164,6 +165,7 @@ streamA_datasetHT_selector.triggerConditions = cms.vstring('HLT_DiJet130_PT130_v
     'HLT_HT250_v10', 
     'HLT_HT300_AlphaT0p54_v4', 
     'HLT_HT300_AlphaT0p55_v2', 
+    'HLT_HT300_AlphaT0p60_v1', 
     'HLT_HT300_CentralJet30_BTagIP_PFMHT55_v11', 
     'HLT_HT300_CentralJet30_BTagIP_PFMHT65_v4', 
     'HLT_HT300_CentralJet30_BTagIP_v9', 
@@ -175,6 +177,7 @@ streamA_datasetHT_selector.triggerConditions = cms.vstring('HLT_DiJet130_PT130_v
     'HLT_HT300_PFMHT55_v11', 
     'HLT_HT300_PFMHT65_v4', 
     'HLT_HT300_v11', 
+    'HLT_HT350_AlphaT0p53_v9', 
     'HLT_HT350_L1FastJet_v2', 
     'HLT_HT350_MHT100_L1FastJet_v2', 
     'HLT_HT350_MHT100_v2', 
@@ -214,6 +217,7 @@ streamA_datasetHT_selector.triggerConditions = cms.vstring('HLT_DiJet130_PT130_v
     'HLT_R025_MR450_v9', 
     'HLT_R033_MR350_v9', 
     'HLT_R038_MR250_v9', 
+    'HLT_R038_MR300_v1', 
     'HLT_RMR65_v2')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetHcalHPDNoise_selector
