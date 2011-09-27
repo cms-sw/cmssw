@@ -18,6 +18,8 @@
 #include "CondFormats/DataRecord/interface/RPCClusterSizeRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCDQMObject.h"
 #include "CondFormats/DataRecord/interface/RPCDQMObjectRcd.h"
+#include "CondFormats/RPCObjects/interface/RPCNoiseObject.h"
+#include "CondFormats/DataRecord/interface/RPCNoiseObjectRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCMaskedStrips.h"
 #include "CondFormats/DataRecord/interface/RPCMaskedStripsRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCDeadStrips.h"
@@ -49,6 +51,7 @@ REGISTER_PLUGIN(RPCEMapRcd,RPCEMap);
 REGISTER_PLUGIN(RPCStripNoisesRcd,RPCStripNoises);
 REGISTER_PLUGIN(RPCClusterSizeRcd,RPCClusterSize); //new plugin 21.XII.2009 for RPC cluster size chamber by chamber 
 REGISTER_PLUGIN(RPCDQMObjectRcd,RPCDQMObject); //new plugin for RPC DQMPVT 
+//REGISTER_PLUGIN(RPCNoiseObjectRcd,RPCNoiseObject); //new plugin for RPC DQMPVT 
 REGISTER_PLUGIN(L1RPCHwConfigRcd,L1RPCHwConfig);
 REGISTER_PLUGIN(RPCObGasRcd,RPCObGas);
 REGISTER_PLUGIN(RPCObImonRcd,RPCObImon);
