@@ -16,7 +16,7 @@
 //
 // Original Author:  Alja Mrak-Tadel
 //         Created:  Thu Mar 25 22:06:52 CET 2010
-// $Id: FW3DViewGeometry.h,v 1.5 2010/09/16 17:37:48 amraktad Exp $
+// $Id: FW3DViewGeometry.h,v 1.6 2010/09/28 11:39:50 amraktad Exp $
 //
 
 #include "Fireworks/Core/interface/FWViewGeometryList.h"
@@ -42,7 +42,9 @@ public:
    // ---------- member functions ---------------------------
 
    void showMuonBarrel( bool );
+   void showMuonBarrelFull( bool );
    void showMuonEndcap( bool );
+   void showMuonEndcapFull( bool );
    void showPixelBarrel( bool );
    void showPixelEndcap( bool );
    void showTrackerBarrel( bool );
@@ -55,12 +57,13 @@ private:
    // ---------- member data --------------------------------
 
    TEveElementList*   m_muonBarrelElements;
+   TEveElementList*   m_muonBarrelFullElements;
    TEveElementList*   m_muonEndcapElements;
+   TEveElementList*   m_muonEndcapFullElements;
    TEveElementList*   m_pixelBarrelElements;
    TEveElementList*   m_pixelEndcapElements;
    TEveElementList*   m_trackerBarrelElements;
    TEveElementList*   m_trackerEndcapElements;
 };
-
 
 #endif
