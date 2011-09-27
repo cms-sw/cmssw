@@ -194,6 +194,11 @@ void HcalDigiMonitor::setup()
 				     NLumiBlocks_,0.5,NLumiBlocks_+0.5,
 				     100,0,10000);
 
+  ProblemDigisInLastNLB_HBHEHF_alarm=dbe_->book1D("ProblemDigisInLastNLB_HBHEHF_alarm",
+					      "Total Number of ProblemDigis HBHEHF in last 10 LS. Last bin contains OverFlow",
+					      100,0,100);
+
+
   if (makeDiagnostics_) 
     {
       // by default, unpacked digis won't have these errors
@@ -430,6 +435,31 @@ void HcalDigiMonitor::analyze(edm::Event const&e, edm::EventSetup const&s)
   // Get HLT trigger information for HF timing study
   passedMinBiasHLT_=false;
 
+  /////////////////////////////////////////////////////////////////
+  // check if detectors whether they were ON
+  edm::Handle<DcsStatusCollection> dcsStatus;
+  e.getByLabel("scalersRawToDigi", dcsStatus);
+  
+  if (dcsStatus.isValid() && dcsStatus->size() != 0) 
+    {      
+      if ((*dcsStatus)[0].ready(DcsStatus::HBHEa) &&
+	  (*dcsStatus)[0].ready(DcsStatus::HBHEb) &&   
+	  (*dcsStatus)[0].ready(DcsStatus::HBHEc))
+	{	
+	  hbhedcsON = true;
+	  if (debug_) std::cout << "hbhe on" << std::endl;
+	} 
+      else hbhedcsON = false;
+
+      if ((*dcsStatus)[0].ready(DcsStatus::HF))
+	{
+	  hfdcsON = true;
+	  if (debug_) std::cout << "hf on" << std::endl;
+	} 
+      else hfdcsON = false;
+    }
+  ///////////////////////////////////////////////////////////////
+
   edm::Handle<edm::TriggerResults> hltRes;
   if (!(e.getByLabel(hltresultsLabel_,hltRes)))
     {
@@ -545,6 +575,7 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
 	h_invalid_bcn->Fill(bcN);
       if (orN>-1)
 	h_invalid_orbitnumMod103->Fill(orN%103);
+
       return;
     }
   
@@ -637,8 +668,8 @@ void HcalDigiMonitor::processEvent(const HBHEDigiCollection& hbhe,
     }
 
   // // Fill good digis vs lumi block; also fill bad errors?
-  // HBocc_vs_LB->Fill(currentLS,hbHists.count_good);
-  // HEocc_vs_LB->Fill(currentLS,heHists.count_good);
+  HBocc_vs_LB->Fill(currentLS,hbHists.count_good);
+  HEocc_vs_LB->Fill(currentLS,heHists.count_good);
 
   // Calculate number of bad quality cells and bad quality fraction
   if (HBpresent_ && (hbHists.count_good>0 || hbHists.count_bad>0))
@@ -872,7 +903,7 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
 	  if (shutOffOrbitTest_ == false) err |= 0xF; // not an error if test turned off
 	}
     }
-  
+
   int tssum=0;
 
   bool digi_error=false;
@@ -946,10 +977,14 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
   // These plots generally don't get filled, unless we turn off the suppression of bad digis
   if (err>0)
     {
-      ++h.count_bad;
-      ++baddigis[calcEta][iPhi-1][iDepth-1];
-      ++errorVME[static_cast<int>(2*(digi.elecId().htrSlot()+0.5*digi.elecId().htrTopBottom()))][static_cast<int>(digi.elecId().readoutVMECrateId())];
-      ++errorSpigot[static_cast<int>(digi.elecId().spigot())][static_cast<int>(digi.elecId().dccid())];
+      if(uniqcounter[calcEta][iPhi-1][iDepth-1]<1)  
+	{
+	  ++h.count_bad;
+	  ++baddigis[calcEta][iPhi-1][iDepth-1];
+	  ++errorVME[static_cast<int>(2*(digi.elecId().htrSlot()+0.5*digi.elecId().htrTopBottom()))][static_cast<int>(digi.elecId().readoutVMECrateId())];
+	  ++errorSpigot[static_cast<int>(digi.elecId().spigot())][static_cast<int>(digi.elecId().dccid())];
+	}
+      uniqcounter[calcEta][iPhi-1][iDepth-1]++; 
 
       return err;
     }
@@ -1051,6 +1086,14 @@ void HcalDigiMonitor::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   if (ProblemsCurrentLB)
     ProblemsCurrentLB->Reset();
   
+  ProblemDigisInLastNLB_HBHEHF_alarm->Reset();
+
+  //increase the number of LS counting, for alarmer. Only make alarms for HBHE
+  if(hbhedcsON == true && hfdcsON == true && HBpresent_ == 1 && HEpresent_ == 1 && HFpresent_ == 1)
+    ++alarmer_counter_; 
+  else 
+    alarmer_counter_ = 0;
+
   fill_Nevents();
 
   zeroCounters(); // reset counters of good/bad digis
@@ -1072,7 +1115,13 @@ void HcalDigiMonitor::fill_Nevents()
   ProblemsVsLB_HO->Fill(currentLS,hoHists.count_bad);
   ProblemsVsLB_HF->Fill(currentLS,hfHists.count_bad);
   ProblemsVsLB_HBHEHF->Fill(currentLS,hbHists.count_bad+heHists.count_bad+hfHists.count_bad);
-  
+
+  if( hbHists.count_bad+heHists.count_bad+hfHists.count_bad < 50 )
+    alarmer_counter_ = 0;
+    
+  if( alarmer_counter_ >= 5 )
+    ProblemDigisInLastNLB_HBHEHF_alarm->Fill( std::min(int(hbHists.count_bad+heHists.count_bad+hfHists.count_bad), 99) );
+
   // Fill the number of problem digis in each channel
   if (ProblemsCurrentLB)
     {      
@@ -1391,7 +1440,13 @@ void HcalDigiMonitor::zeroCounters()
   // Call this after all every N evnets
 
   /******** Zero all counters *******/
-  
+  for (int d=0; d<DEPTHBINS; d++) {
+    for (int eta=0; eta<ETABINS; eta++) {
+      for (int phi=0; phi<PHIBINS; phi++){
+	uniqcounter[eta][phi][d] = 0.0;
+      }
+    }
+  }
 
   hbHists.count_bad=0;
   hbHists.count_good=0;
@@ -1573,6 +1628,11 @@ void HcalDigiMonitor::reset()
   zeroCounters();
   
   // then reset the MonitorElements
+
+  ProblemDigisInLastNLB_HBHEHF_alarm->Reset();
+  alarmer_counter_ = 0;
+ 
+  hbhedcsON = true; hfdcsON = true;
 
   DigiErrorsByDepth.Reset();
   DigiErrorsBadCapID.Reset();
