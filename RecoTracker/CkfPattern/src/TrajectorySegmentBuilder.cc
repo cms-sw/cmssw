@@ -85,7 +85,7 @@ TrajectorySegmentBuilder::segments (const TSOS startingState)
   //
   // check number of combinations
   //
-  enum { MAXCOMB = 1000000 };
+  enum { MAXCOMB = 100000000 };
   int ncomb(1);
   int ngrp(0);
   bool truncate(false);
