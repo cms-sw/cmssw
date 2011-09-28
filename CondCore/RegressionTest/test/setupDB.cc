@@ -65,7 +65,6 @@ int main(int argc, char **argv)
 		conn.configure();
 		//conn.configuration().setAuthenticationPath(aut);
 		//conn.configure( cond::CmsDefaults );
-		std::cout<<"TEST TEST"<<std::endl;
 		TestFunct tc;
 		tc.s = conn.createSession();
 		tc.s.open( connStr );
