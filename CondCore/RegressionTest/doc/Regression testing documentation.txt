@@ -208,3 +208,4 @@ Structure of test log files :
 ########################################################### - start/end of test sequence
 *********************************************************** - start/end of  command
 
+ Note for webApp.py : to use webApp, please create folders named „sessions“ and „logs“ in the same directory as webApp.py
