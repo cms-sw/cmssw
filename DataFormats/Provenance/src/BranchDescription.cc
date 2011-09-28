@@ -62,6 +62,7 @@ namespace edm {
                         std::string const& moduleName,
                         ParameterSetID const& parameterSetID,
                         TypeID const& theTypeID,
+                        bool produced,
                         std::set<std::string> const& aliases) :
       branchType_(branchType),
       moduleLabel_(moduleLabel),
@@ -73,7 +74,7 @@ namespace edm {
       branchAliases_(aliases),
       transient_() {
     dropped() = false;
-    produced() = true;
+    transient_.produced_ = produced,
     onDemand() = false;
     transient_.moduleName_ = moduleName;
     transient_.parameterSetID_ = parameterSetID;

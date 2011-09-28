@@ -50,6 +50,7 @@ namespace edm {
                       std::string const& moduleName,
                       ParameterSetID const& parameterSetID,
                       TypeID const& theTypeID,
+                      bool produced = true,
                       std::set<std::string> const& aliases = std::set<std::string>());
 
     ~BranchDescription() {}
