@@ -28,7 +28,6 @@ AlignmentTwoBodyDecayTrackSelector::AlignmentTwoBodyDecayTrackSelector(const edm
   if (theMassrangeSwitch){
     theMinMass = cfg.getParameter<double>( "minXMass" );
     theMaxMass = cfg.getParameter<double>( "maxXMass" );
-    theMass = cfg.getParameter<double>( "PDGMass" );
     theDaughterMass = cfg.getParameter<double>( "daughterMass" );
     theCandNumber = cfg.getParameter<unsigned int>( "numberOfCandidates" );//Number of candidates to keep
     LogDebug("Alignment") << ">  Massrange min,max         :   " << theMinMass   << "," << theMaxMass 
@@ -37,7 +36,6 @@ AlignmentTwoBodyDecayTrackSelector::AlignmentTwoBodyDecayTrackSelector(const edm
   }else{
     theMinMass = 0;
     theMaxMass = 0;
-    theMass = 0;
     theDaughterMass = 0;
   }
   theChargeSwitch = cfg.getParameter<bool>( "applyChargeFilter" );
