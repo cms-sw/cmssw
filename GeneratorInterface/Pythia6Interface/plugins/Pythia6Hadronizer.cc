@@ -393,6 +393,26 @@ void Pythia6Hadronizer::finalizeEvent()
          event()->print();
       }
    }
+
+   // dump of all settings after all initializations
+   if ( fDisplayPythiaCards ) {
+     fDisplayPythiaCards = false;
+     call_pylist(12);
+     call_pylist(13);
+     std::cout << "\n PYPARS \n" << std::endl;
+     std::cout << std::setw(5) << std::fixed << "I"
+               << std::setw(10) << std::fixed << "MSTP(I)"
+               << std::setw(16) << std::fixed << "PARP(I)"
+               << std::setw(10) << std::fixed << "MSTI(I)"
+               << std::setw(16) << std::fixed << "PARI(I)" << std::endl;
+     for ( unsigned int ind=0; ind < 200; ind++ ) {
+       std::cout << std::setw(5) << std::fixed << ind+1
+                 << std::setw(10) << std::fixed << pypars.mstp[ind]
+                 << std::setw(16) << std::fixed << pypars.parp[ind]
+                 << std::setw(10) << std::fixed << pypars.msti[ind]
+                 << std::setw(16) << std::fixed << pypars.pari[ind] << std::endl;
+     }
+   }
    
    return;
 }
