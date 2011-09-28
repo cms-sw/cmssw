@@ -104,3 +104,9 @@
         <use name="Fireworks/Geometry"/>
 	<flags EDM_PLUGIN="1"/>
 </library>
+
+<library file="FWTGeoRecoGeometryESProducerPlugin.cc"
+         name="FireworksGeometryFWTGeoRecoGeometryESProducerPlugin">
+        <use name="Fireworks/Geometry"/>
+	<flags EDM_PLUGIN="1"/>
+</library>
