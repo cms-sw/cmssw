@@ -89,10 +89,23 @@ namespace {
     reco::SimToRecoCollection ii3;
     reco::SimToRecoCollection::const_iterator itii3;
     edm::Wrapper<reco::SimToRecoCollection > ii2;
+    edm::helpers::KeyVal<TrackingParticleRefProd, edm::View<reco::Track> > ij2;
 
     reco::RecoToSimCollection jj3;
     reco::RecoToSimCollection::const_iterator  itjj3;
     edm::Wrapper<reco::RecoToSimCollection > jj2;
+    edm::helpers::KeyVal<edm::View<reco::Track>, TrackingParticleRefProd> ij3;
+
+    edm::helpers::KeyVal<edm::RefProd<std::vector<TrackingParticle> >,edm::RefToBaseProd<reco::Track> > aa;
+    edm::helpers::KeyVal<edm::RefToBaseProd<reco::Track>,edm::RefProd<std::vector<TrackingParticle> > > aaa;
+    std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,std::vector<std::pair<edm::RefToBase<reco::Track>,double> > > > aaaa;
+    std::map<unsigned int,edm::helpers::KeyVal<edm::RefToBase<reco::Track>,std::vector<std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double> > > > aaaaa;
+    edm::helpers::KeyVal<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,std::vector<std::pair<edm::RefToBase<reco::Track>,double> > > aaaaaaa;
+    edm::helpers::KeyVal<edm::RefToBase<reco::Track>,std::vector<std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double> > > aaaaaaaa;
+    
+    std::vector<std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double> > aaaaaaaaa;
+    std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double> aaaaaaaaaaa;  
+    
       
     edm::reftobase::Holder<reco::Candidate, reco::RecoChargedCandidateRef> rbc1;
     edm::reftobase::RefHolder<reco::RecoChargedCandidateRef> rbc2;

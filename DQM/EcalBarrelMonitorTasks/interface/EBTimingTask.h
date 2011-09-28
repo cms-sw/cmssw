@@ -4,8 +4,8 @@
 /*
  * \file EBTimingTask.h
  *
- * $Date: 2009/12/08 10:35:45 $
- * $Revision: 1.15 $
+ * $Date: 2011/08/23 00:31:22 $
+ * $Revision: 1.16.14.3 $
  * \author G. Della Ricca
  *
 */
@@ -26,6 +26,8 @@ EBTimingTask(const edm::ParameterSet& ps);
 
 /// Destructor
 virtual ~EBTimingTask();
+
+static const float shiftProf2D_;
 
 protected:
 
@@ -65,6 +67,8 @@ bool enableCleanup_;
 
 bool mergeRuns_;
 
+float energyThreshold_;
+
 edm::InputTag EcalRawDataCollection_;
 edm::InputTag EcalRecHitCollection_;
 
@@ -79,5 +83,7 @@ MonitorElement* meTimeSummaryMap_, *meTimeSummaryMapProjEta_, *meTimeSummaryMapP
 bool init_;
 
 };
+
+const float EBTimingTask::shiftProf2D_ = 50.;
 
 #endif

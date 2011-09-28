@@ -1,7 +1,7 @@
 #ifndef PerigeeConversions_H
 #define PerigeeConversions_H
 
-#include "DataFormats/Math/interface/AlgebraicROOTObjects.h"
+#include "DataFormats/CLHEP/interface/AlgebraicObjects.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrajectoryParametrization/interface/PerigeeTrajectoryParameters.h"
 #include "TrackingTools/TrajectoryParametrization/interface/PerigeeTrajectoryError.h"
@@ -51,7 +51,11 @@ public:
    * 3 parameters are the transverse curvature, theta and phi.
    */
 
-   GlobalVector momentumFromPerigee(const AlgebraicVector3& momentum, 
+  GlobalVector momentumFromPerigee(const AlgebraicVector& momentum, 
+    const TrackCharge& charge, const GlobalPoint& referencePoint,
+    const MagneticField* field)  const;
+
+  GlobalVector momentumFromPerigee(const AlgebraicVector3& momentum, 
     const TrackCharge& charge, const GlobalPoint& referencePoint,
     const MagneticField* field)  const;
 
@@ -82,12 +86,26 @@ public:
    * (x, y, z, transverse curvature, theta, phi).
    */
   TrajectoryStateClosestToPoint trajectoryStateClosestToPoint
+	(const AlgebraicVector& momentum, const GlobalPoint& referencePoint,
+	 const TrackCharge& charge, const AlgebraicMatrix& theCovarianceMatrix,
+	 const MagneticField* field) const;
+
+  TrajectoryStateClosestToPoint trajectoryStateClosestToPoint
 	(const AlgebraicVector3& momentum, const GlobalPoint& referencePoint,
 	 const TrackCharge& charge, const AlgebraicSymMatrix66& theCovarianceMatrix,
 	 const MagneticField* field) const;
 
 
-/**
+  /**
+   * Jacobians of tranformations between the parametrixation
+   * (x, y, z, transverse curvature, theta, phi) to Cartesian
+   */
+
+  AlgebraicMatrix  jacobianParameters2Cartesian_old
+	(const AlgebraicVector& momentum, const GlobalPoint& position,
+	 const TrackCharge& charge, const MagneticField* field) const;
+ 
+  /**
    * Jacobians of tranformations between the parametrixation
    * (x, y, z, transverse curvature, theta, phi) to Cartesian
    */
@@ -104,6 +122,10 @@ public:
    * approach in transverse plane and perigee frame. The fts must therefore be
    * given at exactly this point in order to yield the correct Jacobians.
    */
+
+  AlgebraicMatrix jacobianCurvilinear2Perigee_old(const FreeTrajectoryState& fts) const;
+
+  AlgebraicMatrix jacobianPerigee2Curvilinear_old(const GlobalTrajectoryParameters& gtp) const;
 
   AlgebraicMatrix55 jacobianCurvilinear2Perigee(const FreeTrajectoryState& fts) const;
 

@@ -59,11 +59,11 @@ void MaterialBudgetCastorHistos::fillStartTrack(const G4Track* aTrack) {
     intLength.clear();
   }
 
-  edm::LogInfo("MaterialBudget") << "MaterialBudgetCastorHistos: Track " 
-				 << aTrack->GetTrackID() << " Code " << theID
-				 << " Energy " << theEnergy/GeV << " GeV; Eta "
-				 << eta << " Phi " << phi/deg << " PT "
-				 << dir.perp()/GeV << " GeV *****";
+  LogDebug("MaterialBudget") << "MaterialBudgetCastorHistos: Track " 
+			     << aTrack->GetTrackID() << " Code " << theID
+			     << " Energy " << theEnergy/GeV << " GeV; Eta "
+			     << eta << " Phi " << phi/deg << " PT "
+			     << dir.perp()/GeV << " GeV *****";
 }
 
 
@@ -97,22 +97,22 @@ void MaterialBudgetCastorHistos::fillPerStep(const G4Step* aStep) {
       radLength.push_back(step/radl);
       intLength.push_back(step/intl);
     }
-    edm::LogInfo("MaterialBudget") << name << " " << step << " " << matName 
-				   << " " << stepLen << " " << step/radl << " " 
-				   << radLen << " " <<step/intl << " " <<intLen;
+    LogDebug("MaterialBudget") << name << " " << step << " " << matName 
+			       << " " << stepLen << " " << step/radl << " " 
+			       << radLen << " " << step/intl << " " << intLen;
   } else {
-    edm::LogInfo("MaterialBudget") << "MaterialBudgetCastorHistos: Step at " 
-				   << name << " Length " << step << " in " 
-				   << matName << " of density " << density 
-				   << " g/cc; Radiation Length " <<radl <<" mm;"
-				   << " Interaction Length " << intl << " mm\n"
-				   << "                          Position " 
-				   << aStep->GetPreStepPoint()->GetPosition()
-				   << " Cylindrical R "
-				   <<aStep->GetPreStepPoint()->GetPosition().perp()
-				   << " Length (so far) " << stepLen << " L/X0 "
-				   << step/radl << "/" << radLen << " L/Lambda "
-				   << step/intl << "/" << intLen;
+    LogDebug("MaterialBudget") << "MaterialBudgetCastorHistos: Step at " << name 
+			       << " Length " << step << " in " << matName 
+			       << " of density " << density << " g/cc;"
+			       << " Radiation Length " << radl << " mm;"
+			       << " Interaction Length " << intl << " mm\n"
+			       << "                          Position " 
+			       << aStep->GetPreStepPoint()->GetPosition()
+			       << " Cylindrical R "
+			       <<aStep->GetPreStepPoint()->GetPosition().perp()
+			       << " Length (so far) " << stepLen << " L/X0 " 
+			       << step/radl << "/" << radLen << " L/Lambda " 
+			       << step/intl << "/" << intLen;
   }
 
   int level = ((touch->GetHistoryDepth())+1);
@@ -152,7 +152,6 @@ void MaterialBudgetCastorHistos::fillPerStep(const G4Step* aStep) {
 
 
 void MaterialBudgetCastorHistos::fillEndTrack() {
-
   if (fillHistos) {
     if (id1 != 0) fillHisto(id1, 1);
     if (id2 != 0) fillHisto(id2, 1);
@@ -259,11 +258,11 @@ void MaterialBudgetCastorHistos::fillHisto(int id, int ix) {
     etaAbs = -eta;
     ii    += 10;
   }
-  LogDebug("MaterialBudget") << "MaterialBudgetCastorHistos:FillHisto "
-			     << "called with index " << id << ":" << ix 
-			     << ":" << ii << " eta " << etaAbs << " (" 
-			     << eta << ") integrated  step " << stepLen 
-			     << " X0 " << radLen << " Lamda " << intLen;
+  LogDebug("MaterialBudget") << "MaterialBudgetCastorHistos:FillHisto called "
+			     << "with index " << id << ":" << ix << ":" << ii
+			     << " eta " << etaAbs << " (" << eta << ")"
+			     << " integrated  step " << stepLen << " X0 " 
+			     << radLen << " Lamda " << intLen;
   
   me100[ii]->Fill(eta, radLen);
   me200[ii]->Fill(eta, intLen);

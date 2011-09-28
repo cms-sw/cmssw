@@ -11,6 +11,7 @@ class RPCGeomServ{
   virtual ~RPCGeomServ();
   virtual std::string shortname();
   virtual std::string name();
+  virtual std::string chambername();
   virtual int eta_partition(); 
   virtual int chambernr();
   virtual int segment();

@@ -130,12 +130,12 @@ void HeavyFlavorHarvesting::calculateEfficiency1D( TH1* num, TH1* den, string ef
   for(int i=1;i<=num->GetNbinsX();i++){
     double e, low, high;
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
-    if (int(den->GetBinContent(i))>0.) e= int(num->GetBinContent(i))/int(den->GetBinContent(i));
+    if (int(den->GetBinContent(i))>0.) e= double(num->GetBinContent(i))/double(den->GetBinContent(i));
     else e=0.;
-    low=TEfficiency::Wilson((int)den->GetBinContent(i),(int)num->GetBinContent(i),0.683,false);
-    high=TEfficiency::Wilson((int)den->GetBinContent(i),(int)num->GetBinContent(i),0.683,true);
+    low=TEfficiency::Wilson((double)den->GetBinContent(i),(double)num->GetBinContent(i),0.683,false);
+    high=TEfficiency::Wilson((double)den->GetBinContent(i),(double)num->GetBinContent(i),0.683,true);
 #else
-    Efficiency( (int)num->GetBinContent(i), (int)den->GetBinContent(i), 0.683, e, low, high );
+    Efficiency( (double)num->GetBinContent(i), (double)den->GetBinContent(i), 0.683, e, low, high );
 #endif
     double err = e-low>high-e ? e-low : high-e;
     //here is the trick to store info in TProfile:
@@ -168,12 +168,12 @@ void HeavyFlavorHarvesting::calculateEfficiency2D( TH2F* num, TH2F* den, string 
   for(int i=0;i<num->GetSize();i++){
     double e, low, high;
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
-    if (int(den->GetBinContent(i))>0.) e= int(num->GetBinContent(i))/int(den->GetBinContent(i));
+    if (int(den->GetBinContent(i))>0.) e= double(num->GetBinContent(i))/double(den->GetBinContent(i));
     else e=0.;
-    low=TEfficiency::Wilson((int)den->GetBinContent(i),(int)num->GetBinContent(i),0.683,false);
-    high=TEfficiency::Wilson((int)den->GetBinContent(i),(int)num->GetBinContent(i),0.683,true);
+    low=TEfficiency::Wilson((double)den->GetBinContent(i),(double)num->GetBinContent(i),0.683,false);
+    high=TEfficiency::Wilson((double)den->GetBinContent(i),(double)num->GetBinContent(i),0.683,true);
 #else
-    Efficiency( (int)num->GetBinContent(i), (int)den->GetBinContent(i), 0.683, e, low, high );
+    Efficiency( (double)num->GetBinContent(i), (double)den->GetBinContent(i), 0.683, e, low, high );
 #endif
     double err = e-low>high-e ? e-low : high-e;
     //here is the trick to store info in TProfile:

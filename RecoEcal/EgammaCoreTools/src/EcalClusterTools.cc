@@ -977,181 +977,142 @@ std::vector<float> EcalClusterTools::scLocalCovariances(const reco::SuperCluster
 // default value of 0.8 ensures sMaj = sMin for unconverted photons 
 // (if phiCorrectionFactor=1 sMaj > sMin and alpha=0 also for unconverted photons)
 
-
 Cluster2ndMoments EcalClusterTools::cluster2ndMoments( const reco::BasicCluster &basicCluster, const EcalRecHitCollection &recHits, double phiCorrectionFactor, double w0, bool useLogWeights) {
 
-  Cluster2ndMoments returnMoments;
-  returnMoments.sMaj = -1.;
-  returnMoments.sMin = -1.;
-  returnMoments.alpha = 0.;
+    Cluster2ndMoments returnMoments;
+    returnMoments.sMaj = -1.;
+    returnMoments.sMin = -1.;
+    returnMoments.alpha = 0.;
 
-  // for now implemented only for EB:
-  //  if( fabs( basicCluster.eta() ) < 1.479 ) { 
+    // for now implemented only for EB:
+    if( fabs( basicCluster.eta() ) < 1.479 ) { 
 
-    std::vector<const EcalRecHit*> RH_ptrs;
-    
-    std::vector< std::pair<DetId, float> > myHitsPair = basicCluster.hitsAndFractions();
-    std::vector<DetId> usedCrystals;
-    for(unsigned int i=0; i< myHitsPair.size(); i++){
-      usedCrystals.push_back(myHitsPair[i].first);
+        std::vector<const EcalRecHit*> RH_ptrs;
+
+        std::vector< std::pair<DetId, float> > myHitsPair = basicCluster.hitsAndFractions();
+        std::vector<DetId> usedCrystals;
+        for(unsigned int i=0; i< myHitsPair.size(); i++){
+            usedCrystals.push_back(myHitsPair[i].first);
+        }
+
+        for(unsigned int i=0; i<usedCrystals.size(); i++){
+            //get pointer to recHit object
+            EcalRecHitCollection::const_iterator myRH = recHits.find(usedCrystals[i]);
+            RH_ptrs.push_back(  &(*myRH)  );
+        }
+
+        returnMoments = EcalClusterTools::cluster2ndMoments(RH_ptrs, phiCorrectionFactor, w0, useLogWeights);
+
     }
-    
-    for(unsigned int i=0; i<usedCrystals.size(); i++){
-      //get pointer to recHit object
-      EcalRecHitCollection::const_iterator myRH = recHits.find(usedCrystals[i]);
-      RH_ptrs.push_back(  &(*myRH)  );
-    }
 
-      returnMoments = EcalClusterTools::cluster2ndMoments(RH_ptrs, phiCorrectionFactor, w0, useLogWeights);
-
-      //  }
-
-  return returnMoments;
+    return returnMoments;
 
 }
 
 
 Cluster2ndMoments EcalClusterTools::cluster2ndMoments( const reco::SuperCluster &superCluster, const EcalRecHitCollection &recHits, double phiCorrectionFactor, double w0, bool useLogWeights) {
 
-  // for now returns second moments of supercluster seed cluster:
-  Cluster2ndMoments returnMoments;
-  returnMoments.sMaj = -1.;
-  returnMoments.sMin = -1.;
-  returnMoments.alpha = 0.;
+    // for now returns second moments of supercluster seed cluster:
+    Cluster2ndMoments returnMoments;
+    returnMoments.sMaj = -1.;
+    returnMoments.sMin = -1.;
+    returnMoments.alpha = 0.;
 
-  // for now implemented only for EB:
-  //  if( fabs( superCluster.eta() ) < 1.479 ) { 
-    returnMoments = EcalClusterTools::cluster2ndMoments( *(superCluster.seed()), recHits, phiCorrectionFactor, w0, useLogWeights);
-    //  }
+    // for now implemented only for EB:
+    if( fabs( superCluster.eta() ) < 1.479 ) { 
+        returnMoments = EcalClusterTools::cluster2ndMoments( *(superCluster.seed()), recHits, phiCorrectionFactor, w0, useLogWeights);
+    }
 
-  return returnMoments;
+    return returnMoments;
 
 }
 
 
 Cluster2ndMoments EcalClusterTools::cluster2ndMoments( std::vector<const EcalRecHit*> RH_ptrs, double phiCorrectionFactor, double w0, bool useLogWeights) {
 
-  double mid_eta(0),mid_phi(0),mid_x(0),mid_y(0);
-  
-  double Etot = EcalClusterTools::getSumEnergy(  RH_ptrs  );
- 
-  double max_phi=-10.;
-  double min_phi=100.;
-  
-  
-  std::vector<double> etaDetId;
-  std::vector<double> phiDetId;
-  std::vector<double> xDetId;
-  std::vector<double> yDetId;
-  std::vector<double> wiDetId;
- 
-  int nCry=0;
-  double denominator=0.;
-  bool isBarrel(1);
+    double mid_eta,mid_phi;
+    mid_eta=mid_phi=0.;
 
-  // loop over rechits and compute weights:
-  for(std::vector<const EcalRecHit*>::const_iterator rh_ptr = RH_ptrs.begin(); rh_ptr != RH_ptrs.end(); rh_ptr++){
+    double Etot = EcalClusterTools::getSumEnergy(  RH_ptrs  );
 
-    //get iEta, iPhi
-    double temp_eta(0),temp_phi(0),temp_x(0),temp_y(0);
-    isBarrel = (*rh_ptr)->detid().subdetId()==EcalBarrel;
-    
-    if(isBarrel) {
-      temp_eta = (getIEta((*rh_ptr)->detid()) > 0. ? getIEta((*rh_ptr)->detid()) + 84.5 : getIEta((*rh_ptr)->detid()) + 85.5);
-      temp_phi= getIPhi((*rh_ptr)->detid()) - 0.5;
+    double max_phi=-10.;
+    double min_phi=100.;
+
+    std::vector<double> etaDetId;
+    std::vector<double> phiDetId;
+    std::vector<double> wiDetId;
+
+    int nCry=0;
+    double denominator=0.;
+
+
+    // loop over rechits and compute weights:
+    for(std::vector<const EcalRecHit*>::const_iterator rh_ptr = RH_ptrs.begin(); rh_ptr != RH_ptrs.end(); rh_ptr++){
+
+        //get iEta, iPhi
+        EBDetId temp_EBDetId( (*rh_ptr)->detid() );
+        double temp_eta=(temp_EBDetId.ieta() > 0. ? temp_EBDetId.ieta() + 84.5 : temp_EBDetId.ieta() + 85.5);
+        double temp_phi=temp_EBDetId.iphi() - 0.5;
+        double temp_ene=(*rh_ptr)->energy();
+
+        double temp_wi=((useLogWeights) ?
+                std::max(0., w0 + log( fabs(temp_ene)/Etot ))
+                :  temp_ene);
+
+        if(temp_phi>max_phi) max_phi=temp_phi;
+        if(temp_phi<min_phi) min_phi=temp_phi;
+        etaDetId.push_back(temp_eta);
+        phiDetId.push_back(temp_phi);
+        wiDetId.push_back(temp_wi);
+        denominator+=temp_wi;
+        nCry++;
     }
-    else {
-      temp_eta = getIEta((*rh_ptr)->detid());  
-      temp_x =  getNormedIX((*rh_ptr)->detid());
-      temp_y =  getNormedIY((*rh_ptr)->detid());
-    }	  
-
-    double temp_ene=(*rh_ptr)->energy();
-    
-    double temp_wi=((useLogWeights) ?
-                    std::max(0., w0 + log( fabs(temp_ene)/Etot ))
-                    :  temp_ene);
 
 
-    if(temp_phi>max_phi) max_phi=temp_phi;
-    if(temp_phi<min_phi) min_phi=temp_phi;
-    etaDetId.push_back(temp_eta);
-    phiDetId.push_back(temp_phi);
-    xDetId.push_back(temp_x);
-    yDetId.push_back(temp_y);
-    wiDetId.push_back(temp_wi);
-    denominator+=temp_wi;
-    nCry++;
-  }
-
-  if(isBarrel){
     // correct phi wrap-around:
     if(max_phi==359.5 && min_phi==0.5){ 
-      for(int i=0; i<nCry; i++){
-	if(phiDetId[i] - 179. > 0.) phiDetId[i]-=360.; 
-	mid_phi+=phiDetId[i]*wiDetId[i];
-	mid_eta+=etaDetId[i]*wiDetId[i];
-      }
-    } else{
-      for(int i=0; i<nCry; i++){
-	mid_phi+=phiDetId[i]*wiDetId[i];
-	mid_eta+=etaDetId[i]*wiDetId[i];
-      }
+        for(int i=0; i<nCry; i++){
+            if(phiDetId[i] - 179. > 0.) phiDetId[i]-=360.; 
+            mid_phi+=phiDetId[i]*wiDetId[i];
+            mid_eta+=etaDetId[i]*wiDetId[i];
+        }
     }
-  }else{
-    for(int i=0; i<nCry; i++){
-      mid_eta+=etaDetId[i]*wiDetId[i];      
-      mid_x+=xDetId[i]*wiDetId[i];
-      mid_y+=yDetId[i]*wiDetId[i];
+
+    else{
+        for(int i=0; i<nCry; i++){
+            mid_phi+=phiDetId[i]*wiDetId[i];
+            mid_eta+=etaDetId[i]*wiDetId[i];
+        }
     }
-  }
-  
-  mid_eta/=denominator;
-  mid_phi/=denominator;
-  mid_x/=denominator;
-  mid_y/=denominator;
 
+    mid_eta/=denominator;
+    mid_phi/=denominator;
 
-  // See = sigma eta eta
-  // Spp = (B field corrected) sigma phi phi
-  // See = (B field corrected) sigma eta phi
-  double See=0.;
-  double Spp=0.;
-  double Sep=0.;
-  double deta(0),dphi(0);
-  // compute (phi-corrected) covariance matrix:
-  for(int i=0; i<nCry; i++) {
-    if(isBarrel) {
-      deta = etaDetId[i]-mid_eta;
-      dphi = phiDetId[i]-mid_phi;
-    } else {
-      deta = etaDetId[i]-mid_eta;
-      float hitLocalR2 = (xDetId[i]-mid_x)*(xDetId[i]-mid_x)+(yDetId[i]-mid_y)*(yDetId[i]-mid_y);
-      float hitR2 = xDetId[i]*xDetId[i]+yDetId[i]*yDetId[i];
-      float meanR2 = mid_x*mid_x+mid_y*mid_y;
-      float hitR = sqrt(hitR2);
-      float meanR = sqrt(meanR2);
-      float phi = acos((hitR2+meanR2-hitLocalR2)/(2*hitR*meanR));
-      dphi = hitR*phi;
+    // See = sigma eta eta
+    // Spp = (B field corrected) sigma phi phi
+    // See = (B field corrected) sigma eta phi
+    double See=0.;
+    double Spp=0.;
+    double Sep=0.;
 
+    // compute (phi-corrected) covariance matrix:
+    for(int i=0; i<nCry; i++) {
+        See += (wiDetId[i]*(etaDetId[i]-mid_eta)*(etaDetId[i]-mid_eta)) / denominator;
+        Spp += phiCorrectionFactor*(wiDetId[i]*(phiDetId[i]-mid_phi)*(phiDetId[i]-mid_phi)) / denominator;
+        Sep += sqrt(phiCorrectionFactor)*(wiDetId[i]*(etaDetId[i]-mid_eta)*(phiDetId[i]-mid_phi)) / denominator;
     }
-    See += (wiDetId[i]* deta * deta) / denominator;
-    Spp += phiCorrectionFactor*(wiDetId[i]* dphi * dphi) / denominator;
-    Sep += sqrt(phiCorrectionFactor)*(wiDetId[i]*deta*dphi) / denominator;
-  }
 
-  Cluster2ndMoments returnMoments;
+    Cluster2ndMoments returnMoments;
 
-  // compute matrix eigenvalues:
-  returnMoments.sMaj = ((See + Spp) + sqrt((See - Spp)*(See - Spp) + 4.*Sep*Sep)) / 2.;
-  returnMoments.sMin = ((See + Spp) - sqrt((See - Spp)*(See - Spp) + 4.*Sep*Sep)) / 2.;
+    // compute matrix eigenvalues:
+    returnMoments.sMaj = ((See + Spp) + sqrt((See - Spp)*(See - Spp) + 4.*Sep*Sep)) / 2.;
+    returnMoments.sMin = ((See + Spp) - sqrt((See - Spp)*(See - Spp) + 4.*Sep*Sep)) / 2.;
 
-  returnMoments.alpha = atan( (See - Spp + sqrt( (Spp - See)*(Spp - See) + 4.*Sep*Sep )) / (2.*Sep));
+    returnMoments.alpha = atan( (See - Spp + sqrt( (Spp - See)*(Spp - See) + 4.*Sep*Sep )) / (2.*Sep));
 
-  return returnMoments;
+    return returnMoments;
 
 }
-
 
 
 

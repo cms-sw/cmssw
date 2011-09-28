@@ -19,7 +19,14 @@ FamosCalorimetryBlock = cms.PSet(
             FrontLeakageProbability = cms.double(1.0),
             GridSize = cms.int32(7),
             # change globally the Moliere radius 
-            RadiusFactor = cms.double(1.096),
+            
+
+            ### changed after tuning - Feb - July - Shilpi Jain
+            #RadiusFactor = cms.double(1.096),
+            RadiusFactorEB = cms.double(1.096),
+            RadiusFactorEE = cms.double(1.25),
+            ### changed after tuning - Feb - July - Shilpi Jain
+            
             RadiusPreshowerCorrections = cms.vdouble(0.137, 10.3), # default value for maxshower depth dependence-->works fine
             MipsinGeV = cms.vdouble(0.0001421,0.0000812), # increase in mipsinGeV by 75% only in layer1
             #SpotFraction < 0 <=> deactivated. In the case, CoreIntervals and 

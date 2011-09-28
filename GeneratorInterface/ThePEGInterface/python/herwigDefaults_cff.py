@@ -76,10 +76,6 @@ herwigDefaultsBlock = cms.PSet(
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 7000.0',
 		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.0*GeV',
 	),
-	cm8TeV = cms.vstring(
-		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 8000.0',
-		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.0*GeV',
-	),
 	cm10TeV = cms.vstring(
 		'set /Herwig/Generators/LHCGenerator:EventHandler:LuminosityFunction:Energy 10000.0',
 		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.1*GeV',
@@ -107,23 +103,6 @@ herwigDefaultsBlock = cms.PSet(
 		'set UECuts:MHatMin 8.6',
 		'set MPIHandler:InvRadius 1.2',
 		'cd /'
-	),
-	# UE Tune UE7-1
-	ue_7_1 = cms.vstring(
-		'set LHCGenerator:EventHandler:LuminosityFunction:Energy 7000.0',
-		'set /Herwig/Shower/Evolver:IntrinsicPtGaussian 2.2*GeV',
-		'# Read ColourReconnection LEP tune settings',
-		'read ColourRec.LEPtune',
-		'set /Herwig/Hadronization/ColourReconnector:ColourReconnection Yes',
-		'set /Herwig/Hadronization/ColourReconnector:ReconnectionProbability 0.6165547',
-		'set /Herwig/Partons/RemnantDecayer:colourDisrupt 0.3493643',
-		'set /Herwig/UnderlyingEvent/KtCut:MinKT 3.36',
-		'set /Herwig/UnderlyingEvent/UECuts:MHatMin 6.72',
-		'# MPI model settings',
-		'set /Herwig/UnderlyingEvent/MPIHandler:InvRadius 0.81',
-		'set /Herwig/UnderlyingEvent/MPIHandler:softInt Yes',
-		'set /Herwig/UnderlyingEvent/MPIHandler:twoComp Yes',
-		'set /Herwig/UnderlyingEvent/MPIHandler:DLmode 3',
 	),
 
 	# reweight presets
@@ -204,14 +183,11 @@ herwigDefaultsBlock = cms.PSet(
 	# Default settings for using POWHEG
 	powhegDefaults = cms.vstring(
 		'# Need to use an NLO PDF',
-		'cp /Herwig/Partons/MRST-NLO /cmsPDFSet',
 		'set /Herwig/Particles/p+:PDF    /Herwig/Partons/MRST-NLO',
 		'set /Herwig/Particles/pbar-:PDF /Herwig/Partons/MRST-NLO',
-
 		'# and strong coupling',
 		'create Herwig::O2AlphaS O2AlphaS',
 		'set /Herwig/Generators/LHCGenerator:StandardModelParameters:QCD/RunningAlphaS O2AlphaS',
-
 		'# Setup the POWHEG shower',
 		'cd /Herwig/Shower',
 		'# use the general recon for now',
