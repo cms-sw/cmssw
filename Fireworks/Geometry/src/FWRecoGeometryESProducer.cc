@@ -92,7 +92,7 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
   addTECGeometry();
   addDTGeometry();
   addCSCGeometry();
-  addRPCGeometry();
+  //addRPCGeometry();
   addCaloGeometry();
 
   m_fwGeometry->idToName.resize( m_current + 1 );
@@ -223,8 +223,10 @@ FWRecoGeometryESProducer::addRPCGeometry( void )
       unsigned int current = insert_id( rawid );
       fillShapeAndPlacement( current, roll );
 
+      std::cout << "RPCRoll with detid " << rawid << std::endl;
+      
       const StripTopology& topo = roll->specificTopology();
-      m_fwGeometry->idToName[current].topology[0] = roll->nstrips();
+      m_fwGeometry->idToName[current].topology[0] = topo.nstrips();
       m_fwGeometry->idToName[current].topology[1] = topo.stripLength();
       m_fwGeometry->idToName[current].topology[2] = topo.pitch();
     }

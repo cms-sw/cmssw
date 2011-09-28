@@ -18,8 +18,8 @@ namespace edm
 class CaloGeometry;
 class GlobalTrackingGeometry;
 class TrackerGeometry;
-class FWRecoGeometry;
-class FWRecoGeometryRecord;
+class FWTGeoRecoGeometry;
+class FWTGeoRecoGeometryRecord;
 
 class TGeoManager;
 class TGeoShape;
@@ -34,7 +34,7 @@ public:
   TGeoMgrFromReco( const edm::ParameterSet& );
   virtual ~TGeoMgrFromReco( void );
   
-  boost::shared_ptr<FWRecoGeometry> produce( const FWRecoGeometryRecord& );
+  boost::shared_ptr<FWTGeoRecoGeometry> produce( const FWTGeoRecoGeometryRecord& );
 
 private:
   TGeoMgrFromReco( const TGeoMgrFromReco& );
@@ -66,7 +66,7 @@ private:
   edm::ESTransientHandle<CaloGeometry>           m_caloGeom;
   const TrackerGeometry* m_trackerGeom;
   
-  boost::shared_ptr<FWRecoGeometry> m_fwGeometry;
+  boost::shared_ptr<FWTGeoRecoGeometry> m_fwGeometry;
 };
 
 #endif // GEOMETRY_TGEO_MGR_FROM_RECO_H
