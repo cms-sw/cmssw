@@ -1,8 +1,8 @@
 /// \file AlignmentProducer.cc
 ///
 ///  \author    : Frederic Ronga
-///  Revision   : $Revision: 1.55 $
-///  last update: $Date: 2011/08/12 09:36:36 $
+///  Revision   : $Revision: 1.56 $
+///  last update: $Date: 2011/09/16 15:03:32 $
 ///  by         : $Author: mussgill $
 
 #include "AlignmentProducer.h"
@@ -305,26 +305,48 @@ void AlignmentProducer::endOfJob()
       uniqueRunRanges.push_back(runRange);
     }
 
-    // Save alignments to database
-    if (saveToDB_ || saveApeToDB_ || saveDeformationsToDB_) {
-      for (RunRanges::const_iterator iRunRange = uniqueRunRanges.begin();
-           iRunRange != uniqueRunRanges.end();
-           ++iRunRange) {
-        theAlignmentAlgo->setParametersForRunRange(*iRunRange);
+    std::vector<align::PositionType> beamSpotPositions;
+    std::vector<std::pair<double,double> > beamSpotSlopes;
+
+    for (RunRanges::const_iterator iRunRange = uniqueRunRanges.begin();
+	 iRunRange != uniqueRunRanges.end();
+	 ++iRunRange) {
+      theAlignmentAlgo->setParametersForRunRange(*iRunRange);
+
+      // Save alignments to database
+      if (saveToDB_ || saveApeToDB_ || saveDeformationsToDB_)
         this->writeForRunRange((*iRunRange).first);
+
+      // Deal with extra alignables, e.g. beam spot
+      if (theAlignableExtras) {
+	Alignables &alis = theAlignableExtras->beamSpot();
+	if (!alis.empty()) {
+	  beamSpotPositions.push_back(alis[0]->globalPosition());
+	  align::LocalVector lv(0.0, 0.0, 1.0);
+	  align::GlobalVector gv = alis[0]->surface().toGlobal(lv);
+	  beamSpotSlopes.push_back(std::pair<double,double>(gv.x()/gv.z(), gv.y()/gv.z()));
+	}
       }
     }
-
+    
     if (theAlignableExtras) {
+      std::ostringstream bsOutput;
+      
+      std::vector<align::PositionType>::const_iterator itPos = beamSpotPositions.begin();
+      std::vector<std::pair<double,double> >::const_iterator itSlope = beamSpotSlopes.begin();
       for (RunRanges::const_iterator iRunRange = uniqueRunRanges.begin();
 	   iRunRange != uniqueRunRanges.end();
-	   ++iRunRange) {
-	edm::LogInfo("Alignment") << "Dumping extra alignables for run range " 
-				  << (*iRunRange).first << " - " << (*iRunRange).second << std::endl; 
-	theAlignmentAlgo->setParametersForRunRange(*iRunRange);
-	theAlignableExtras->dump();
+	   ++iRunRange, ++itPos, ++itSlope) {
+	bsOutput << "Run range: " << (*iRunRange).first << " - " << (*iRunRange).second << "\n";
+	bsOutput << "  Position: " << (*itPos).x() << ", " <<  (*itPos).y() << ", " <<  (*itPos).z() << "\n"; 
+	bsOutput << "  Slopes:   dx/dz = " << (*itSlope).first << " dy/dz = " <<  (*itSlope).second << "\n"; 
       }
+
+      edm::LogInfo("Alignment") << "@SUB=AlignmentProducer::endOfJob"
+				<< "Beamspot:\n"
+				<< bsOutput.str();
     }
+
   }
 }
 
