@@ -35,14 +35,16 @@ def adaptPFMuons(process,module,postfix="" ):
     module.useParticleFlow = True
     module.userIsolation   = cms.PSet()
     module.isoDeposits = cms.PSet(
-        pfChargedHadrons = cms.InputTag("isoDepMuonWithCharged" + postfix),
-        pfNeutralHadrons = cms.InputTag("isoDepMuonWithNeutral" + postfix),
-        pfPhotons = cms.InputTag("isoDepMuonWithPhotons" + postfix)
+        pfChargedHadrons = cms.InputTag("muPFIsoDepositCharged" + postfix),
+        pfPUChargedHadrons = cms.InputTag("muPFIsoDepositPU" + postfix),
+        pfNeutralHadrons = cms.InputTag("muPFIsoDepositNeutral" + postfix),
+        pfPhotons = cms.InputTag("muPFIsoDepositGamma" + postfix)
         )
     module.isolationValues = cms.PSet(
-        pfChargedHadrons = cms.InputTag("isoValMuonWithCharged" + postfix),
-        pfNeutralHadrons = cms.InputTag("isoValMuonWithNeutral" + postfix),
-        pfPhotons = cms.InputTag("isoValMuonWithPhotons" + postfix)
+        pfChargedHadrons = cms.InputTag("muPFIsoValueCharged04"+ postfix),
+        pfPUChargedHadrons = cms.InputTag("muPFIsoValuePU04" + postfix),
+        pfNeutralHadrons = cms.InputTag("muPFIsoValueNeutral04" + postfix),
+        pfPhotons = cms.InputTag("muPFIsoValueGamma04" + postfix)
         )
     # matching the pfMuons, not the standard muons.
     applyPostfix(process,"muonMatch",postfix).src = module.pfMuonSource

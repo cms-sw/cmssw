@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.44 2011/06/30 16:23:39 rwolf Exp $
+// $Id: PATMuonProducer.cc,v 1.45 2011/09/21 03:40:18 tucker Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -477,6 +477,7 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
   isoDepositsPSet.addOptional<edm::InputTag>("hcal");
   isoDepositsPSet.addOptional<edm::InputTag>("particle");
   isoDepositsPSet.addOptional<edm::InputTag>("pfChargedHadrons");
+  isoDepositsPSet.addOptional<edm::InputTag>("pfPUChargedHadrons");
   isoDepositsPSet.addOptional<edm::InputTag>("pfNeutralHadrons");
   isoDepositsPSet.addOptional<edm::InputTag>("pfPhotons");
   isoDepositsPSet.addOptional<std::vector<edm::InputTag> >("user");
@@ -489,6 +490,7 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
   isolationValuesPSet.addOptional<edm::InputTag>("hcal");
   isolationValuesPSet.addOptional<edm::InputTag>("particle");
   isolationValuesPSet.addOptional<edm::InputTag>("pfChargedHadrons");
+  isolationValuesPSet.addOptional<edm::InputTag>("pfPUChargedHadrons");
   isolationValuesPSet.addOptional<edm::InputTag>("pfNeutralHadrons");
   isolationValuesPSet.addOptional<edm::InputTag>("pfPhotons");
   iDesc.addOptional("isolationValues", isolationValuesPSet);
@@ -537,6 +539,9 @@ void PATMuonProducer::readIsolationLabels( const edm::ParameterSet & iConfig, co
     }
     if (depconf.exists("pfChargedHadrons"))  {
       labels.push_back(std::make_pair(pat::PfChargedHadronIso, depconf.getParameter<edm::InputTag>("pfChargedHadrons")));
+    }
+    if (depconf.exists("pfPUChargedHadrons"))  {
+      labels.push_back(std::make_pair(pat::PfPUChargedHadronIso, depconf.getParameter<edm::InputTag>("pfPUChargedHadrons")));
     }
     if (depconf.exists("pfNeutralHadrons"))  {
       labels.push_back(std::make_pair(pat::PfNeutralHadronIso, depconf.getParameter<edm::InputTag>("pfNeutralHadrons")));

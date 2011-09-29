@@ -100,4 +100,4 @@ getattr(process,"pfNoMuon"+postfix).verbose = False
 process.MessageLogger.cerr.FwkReport.reportEvery = 10
 
 # to relax the muon isolation, uncomment the following:
-#process.pfIsolatedMuonsPFlow.combinedIsolationCut = 99999
+#process.pfIsolatedMuonsPFlow.isolationCut = 99999
