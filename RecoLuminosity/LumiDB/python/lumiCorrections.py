@@ -7,8 +7,8 @@ def applyfinecorrectionBX(bxlumi,avglumi,norm,constfactor,afterglowfactor,nonlin
     if constfactor!=1.0 and nonlinearfactor!=0:
         if avglumi<0:
             avglumi=0.0
-        nonlinearTerm=1.0-avglumi*nonlinearfactor#0.076/ncollidinbunches
-        correctbxlumi=correctbxlumi*nonlinearTerm
+        nonlinearTerm=1.0+avglumi*nonlinearfactor#0.076/ncollidinbunches
+        correctbxlumi=correctbxlumi/nonlinearTerm
         #print 'avglumi,nonlinearfactor,nonlinearTerm ',avglumi,nonlinearfactor,nonlinearTerm
     #print 'bxlumi,avglumi,norm,const,after',bxlumi,avglumi,norm,constfactor,afterglowfactor,correctbxlumi
     return correctbxlumi
@@ -16,8 +16,8 @@ def applyfinecorrectionBX(bxlumi,avglumi,norm,constfactor,afterglowfactor,nonlin
 def applyfinecorrection(avglumi,constfactor,afterglowfactor,nonlinearfactor):
     instlumi=avglumi*afterglowfactor*constfactor
     if nonlinearfactor!=0 and constfactor!=1.0:
-        nonlinearTerm=1.0-avglumi*nonlinearfactor#0.076/ncollidinbunches
-        instlumi=instlumi*nonlinearTerm
+        nonlinearTerm=1.0+avglumi*nonlinearfactor#0.076/ncollidinbunches
+        instlumi=instlumi/nonlinearTerm
     #print 'avglumi,const,after,nonlinear,instlumi ',avglumi,constfactor,afterglowfactor,nonlinearfactor,instlumi
     return instlumi
 
