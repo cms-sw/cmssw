@@ -1,11 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-MC = True
-runAOD = True
+MC = False
+runFromAOD = False
+runFromALCA = True
 HLTFilter = False
+
 ECALRecalib = True
-ApplyNewInterCalib = False
-ApplyNewLaser = False
+ECALFromRAW = False
+ApplyInterCalib = False
+#Switch to turn on/off application of LC. To be set to False when running from RAW and want to produce LC=1
+ApplyLaser = False
 
 ZSkim = True
 WSkim = False
@@ -25,8 +29,12 @@ W_ELECTRON_ET_CUT_MIN = 30.0
 MET_CUT_MIN = 20.
 MT_CUT_MIN = 50.
 
-process = cms.Process('ALCASKIM')
+if (not runFromALCA):
+    processName = 'ALCASKIM'
+else:
+    processName ='ALCARERECO'
 
+process = cms.Process(processName)
 #process.prescaler = cms.EDFilter("Prescaler",
 #                                    prescaleFactor = cms.int32(prescale),
 #                                    prescaleOffset = cms.int32(0)
@@ -48,7 +56,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1000)
+    input = cms.untracked.int32(10000)
 )
 
 #from Calibration.EcalCalibAlgos.DoubleElectron_Jul05_ALCAELECTRON_cff import *
@@ -57,7 +65,13 @@ process.maxEvents = cms.untracked.PSet(
 readFiles = cms.untracked.vstring()
 
 readFiles.extend( [
-"/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/0AD7EA94-A29C-E011-BC75-001A4BA81FB8.root"
+# MC Aod 
+#"/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/0AD7EA94-A29C-E011-BC75-001A4BA81FB8.root"
+# ALCA
+"/store/data/Run2011A/DoubleElectron/ALCARECO/EcalCalElectron-05Jul2011ReReco-ECAL-v1/0000/623BA151-6CAD-E011-9514-00304867BECC.root"    
+# RAW-RECO
+
+# RelVal
 #"/store/RelVal/CMSSW_4_2_8/RelValZEE/GEN-SIM-RECO/START42_V12-v1/0025/529A2B04-05BB-E011-837A-001A92811708.root"
 ] )
 
@@ -77,9 +91,6 @@ if (MC):
     process.GlobalTag.globaltag = 'START42_V12::All'
 else:
     process.GlobalTag.globaltag = 'GR_R_42_V17::All' 
-
-
-
 
 
 #process.GlobalTag.toGet = cms.VPSet(
@@ -122,7 +133,7 @@ process.selectedElectrons = cms.EDFilter("GsfElectronRefSelector",
 process.PassingWP90 = process.selectedElectrons.clone(
     cut = cms.string(
         process.selectedElectrons.cut.value() +
-            " && (gsfTrack.trackerExpectedHitsInner.numberOfHits<=1 && !(-0.02<convDist<0.02 && -0.02<convDcot<0.02))" #wrt std WP90 allowing 1 numberOfMissingExpectedHits
+            " && (gsfTrack.trackerExpectedHitsInner.numberOfHits<=1)" #wrt std WP90 allowing 1 numberOfMissingExpectedHits
             " && (ecalEnergy*sin(superClusterPosition.theta)>" + str(ELECTRON_ET_CUT_MIN) + ")"
             " && ((isEB"
             " && ( dr03TkSumPt/p4.Pt <0.12 && dr03EcalRecHitSumEt/p4.Pt < 0.09 && dr03HcalTowerSumEt/p4.Pt  < 0.1 )"
@@ -141,8 +152,8 @@ process.PassingWP90 = process.selectedElectrons.clone(
             )
     )
 
-process.Zele_sequence = cms.Sequence(
-    process.selectedElectrons * process.PassingWP90
+process.ele_sequence = cms.Sequence(
+    process.PassingWP90
     )
 
 
@@ -152,36 +163,62 @@ process.Zele_sequence = cms.Sequence(
 process.electronRecalib = cms.Sequence()
 
 if (ECALRecalib):
-    process.load('Configuration.StandardSequences.Reconstruction_cff')
-    process.load("Calibration.EcalCalibAlgos.electronRecalibSCAssociator_cfi")
-    process.load("RecoLocalCalo.EcalRecProducers.ecalRecalibRecHit_cfi")
+    if (not ECALFromRAW):
+        process.load("Calibration.EcalCalibAlgos.electronRecalibSCAssociator_cfi")
+        process.load("RecoLocalCalo.EcalRecProducers.ecalRecalibRecHit_cfi")
+        process.ecalRecHit.doIntercalib = cms.bool(ApplyInterCalib)
+        process.ecalRecHit.doLaserCorrection = cms.bool(ApplyLaser)
+        if (runFromAOD):
+            process.ecalRecHit.EBRecHitCollection = "reducedEcalRecHitsEB"
+            process.ecalRecHit.EERecHitCollection = "reducedEcalRecHitsEE"
+        elif (runFromALCA): 
+            process.ecalRecHit.EBRecHitCollection = "alCaIsolatedElectrons:alcaBarrelHits"
+            process.ecalRecHit.EERecHitCollection = "alCaIsolatedElectrons:alcaEndcapHits"
 
-    process.ecalRecHit.doIntercalib = cms.bool(ApplyNewInterCalib)
-    process.ecalRecHit.doLaserCorrection = cms.bool(ApplyNewLaser)
-    if (runAOD):
-        process.ecalRecHit.EBRecHitCollection = "reducedEcalRecHitsEB"
-        process.ecalRecHit.EERecHitCollection = "reducedEcalRecHitsEE"
+        process.ecalRecHit.EBRecalibRecHitCollection = "EcalRecHitsEB"
+        process.ecalRecHit.EERecalibRecHitCollection = "EcalRecHitsEE"
+        process.electronRecalib *= (process.ecalRecHit)
+    else:
+        #restarting from ECAL RAW to reconstruct amplitudes and energies
+        process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
+        process.ecalRecHit.laserCorrection=cms.bool(ApplyNewLaser)
+        #no switch in standard recHit producer to apply new intercalibrations
+        process.electronRecalib *= (process.ecalDigis * process.ecalLocalRecoSequence)
         
-    process.ecalRecHit.EBRecalibRecHitCollection = "EcalRecHitsEB"
-    process.ecalRecHit.EERecalibRecHitCollection = "EcalRecHitsEE"
-
+    process.load("RecoEcal.Configuration.RecoEcal_cff")
     process.correctedHybridSuperClusters.corectedSuperClusterCollection = 'recalibSC'
     process.correctedMulti5x5SuperClustersWithPreshower.corectedSuperClusterCollection = 'endcapRecalibSC'
 
-    if (runAOD):
+    if (runFromAOD):
         process.multi5x5SuperClustersWithPreshower.preshRecHitProducer = cms.InputTag("reducedEcalRecHitsES")
         process.multi5x5PreshowerClusterShape.preshRecHitProducer = cms.InputTag("reducedEcalRecHitsES")
-#        process.multi5x5SuperClustersWithPreshower.preshRecHitProducer = cms.InputTag("alCaIsolatedElectrons","alcaPreshowerHits")
-#        process.multi5x5PreshowerClusterShape.preshRecHitProducer = cms.InputTag("alCaIsolatedElectrons","alcaPreshowerHits")
-
+    elif (runFromALCA):
+        process.multi5x5SuperClustersWithPreshower.preshRecHitProducer = cms.InputTag("alCaIsolatedElectrons","alcaPreshowerHits")
+        process.multi5x5PreshowerClusterShape.preshRecHitProducer = cms.InputTag("alCaIsolatedElectrons","alcaPreshowerHits")
 
     process.electronRecalibSCAssociator.scIslandCollection = cms.string('endcapRecalibSC')
     process.electronRecalibSCAssociator.scIslandProducer = cms.string('correctedMulti5x5SuperClustersWithPreshower')
     process.electronRecalibSCAssociator.scProducer = cms.string('correctedHybridSuperClusters')
     process.electronRecalibSCAssociator.scCollection = cms.string('recalibSC')
-    process.electronRecalibSCAssociator.electronProducer = 'PassingWP90'
-    process.electronRecalib *= (process.ecalRecHit * process.hybridClusteringSequence* process.multi5x5ClusteringSequence * process.multi5x5PreshowerClusteringSequence * process.electronRecalibSCAssociator)
+    process.electronRecalibSCAssociator.electronProducer = 'gsfElectrons'
+    process.electronRecalib *= (process.hybridClusteringSequence* process.multi5x5ClusteringSequence * process.multi5x5PreshowerClusteringSequence * process.electronRecalibSCAssociator)
 
+if (runFromAOD):
+    process.alCaIsolatedElectrons.esRecHitsLabel = cms.InputTag("reducedEcalRecHitsES")
+elif (runFromALCA):
+    process.alCaIsolatedElectrons.esRecHitsLabel = cms.InputTag("alCaIsolatedElectrons","alcaPreshowerHits")
+
+if (ECALRecalib):
+    process.alCaIsolatedElectrons.ebRecHitsLabel = cms.InputTag("ecalRecHit:EcalRecHitsEB")
+    process.alCaIsolatedElectrons.eeRecHitsLabel = cms.InputTag("ecalRecHit:EcalRecHitsEE")
+    process.alCaIsolatedElectrons.electronLabel = cms.InputTag("electronRecalibSCAssociator")        
+elif (runFromAOD):
+    process.alCaIsolatedElectrons.ebRecHitsLabel = cms.InputTag("reducedEcalRecHitsEB")
+    process.alCaIsolatedElectrons.eeRecHitsLabel = cms.InputTag("reducedEcalRecHitsEE")
+elif (runFromALCA):
+    process.alCaIsolatedElectrons.ebRecHitsLabel = cms.InputTag("alCaIsolatedElectrons:alcaBarrelHits")
+    process.alCaIsolatedElectrons.eeRecHitsLabel = cms.InputTag("alCaIsolatedElectrons:alcaEndcapHits")
+    
 ##    ____       _
 ##   |  _ \ __ _(_)_ __ ___
 ##   | |_) / _` | | '__/ __|
@@ -227,31 +264,42 @@ if (HLTFilter):
     process.ZEEHltFilter.HLTPaths = ["HLT_Ele*"]
     process.tagGsfSeq *= process.ZEEHltFilter
 
-if (runAOD):
-    process.alCaIsolatedElectrons.esRecHitsLabel = cms.InputTag("reducedEcalRecHitsES")
-
-if (ECALRecalib):
-    process.alCaIsolatedElectrons.ebRecHitsLabel = cms.InputTag("ecalRecHit:EcalRecHitsEB")
-    process.alCaIsolatedElectrons.eeRecHitsLabel = cms.InputTag("ecalRecHit:EcalRecHitsEE")
-    process.alCaIsolatedElectrons.electronLabel = cms.InputTag("electronRecalibSCAssociator")        
-elif (runAOD):
-    process.alCaIsolatedElectrons.ebRecHitsLabel = cms.InputTag("reducedEcalRecHitsEB")
-    process.alCaIsolatedElectrons.eeRecHitsLabel = cms.InputTag("reducedEcalRecHitsEE")        
 
 
 #    process.tagGsfSeq *= process.ecalRecHit 
+if (not runFromALCA):
+    process.load('RecoJets.Configuration.RecoPFJets_cff')
+    process.kt6PFJetsForRhoCorrection = process.kt6PFJets.clone(doRhoFastjet = True)
+    process.kt6PFJetsForRhoCorrection.Rho_EtaMax = cms.double(2.5)
+    process.tagGsfSeq *= (process.kt6PFJetsForRhoCorrection) 
 
-process.load('RecoJets.Configuration.RecoPFJets_cff')
-process.kt6PFJetsForRhoCorrection = process.kt6PFJets.clone(doRhoFastjet = True)
-process.kt6PFJetsForRhoCorrection.Rho_EtaMax = cms.double(2.5)
+process.tagGsfSeq *= (process.ele_sequence * process.filter * process.electronRecalib )
 
+if ( (ECALRecalib) or (not runFromALCA) ):
+    process.tagGsfSeq *= ( process.seqALCARECOEcalCalElectronRECO )
 
-process.tagGsfSeq *= (process.kt6PFJetsForRhoCorrection * process.Zele_sequence * process.filter * process.electronRecalib * process.seqALCARECOEcalCalElectronRECO )
 process.zFilterPath = cms.Path( process.tagGsfSeq )
 
 process.OutALCARECOEcalCalElectron.outputCommands.extend( [ "keep *_pfMet_*_*", "keep *_kt6*_rho_*", "keep *_offlinePrimaryVerticesWithBS_*_*","keep *_generator_*_*" ] )
 if (ECALRecalib):
-    process.OutALCARECOEcalCalElectron.outputCommands.extend( [ "keep *_electronRecalibSCAssociator_*_*" ] )
+    process.OutALCARECOEcalCalElectron.outputCommands.extend( [
+        "drop recoGsfElectrons_*_*_*",
+        "drop recoGsfElectronCores_*_*_*",
+        "drop recoSuperClusters_*_*_*",
+        "drop recoCaloClusters_*_*_*",
+        "drop recoPreshowerClusters_*_*_*",
+        "drop recoPreshowerClusterShapes_*_*_*",
+        "keep *_electronRecalibSCAssociator_*_*",
+        'keep recoSuperClusters_correctedHybridSuperClusters_*_'+processName,
+        'keep recoCaloClusters_hybridSuperClusters_*_'+processName,
+        'keep recoSuperClusters_hybridSuperClusters_uncleanOnlyHybridSuperClusters_'+processName,
+        # Endcap clusters
+        'keep recoCaloClusters_multi5x5SuperClusters_multi5x5EndcapBasicClusters_'+processName,
+        'keep recoSuperClusters_correctedMulti5x5SuperClustersWithPreshower_*_'+processName,
+        # Preshower clusters
+        'keep recoPreshowerClusters_multi5x5SuperClustersWithPreshower_*_'+processName,
+        'keep recoPreshowerClusterShapes_multi5x5PreshowerClusterShape_*_'+processName ] )
+    
 process.ALCARECOoutput = cms.OutputModule("PoolOutputModule",
                                           splitLevel = cms.untracked.int32(0),
 #                                          outputCommands = cms.untracked.vstring('keep *_*_*_ZEEALCASKIM'),
