@@ -54,6 +54,47 @@ def Divide(hNum,hDen):
                 ret.SetBinError(binI,(numVal/denVal)*math.sqrt(math.pow(numErr/numVal,2) + math.pow(denErr/denVal,2) ) )
     return ret
 
+def FindParents(histoPath):
+    root = histoPath[:histoPath.find('_')]
+    par = histoPath[histoPath.find('Eff')+3:]
+    validationPlots = validation.TauEfficiencies.plots._Parameterizable__parameterNames
+    found =0
+    num = ''
+    den = ''
+    for efficiency in validationPlots:
+        effpset = getattr(validation.TauEfficiencies.plots,efficiency)
+        effName = effpset.efficiency.value()
+        effNameCut = effName[effName.find('_'):effName.find('#')]
+        if effNameCut in histoPath:
+            if found == 1:
+                print 'More than one pair of parents found for ' + histopath + ':'
+                assert(False)
+            num = root + effpset.numerator.value()[effName.find('_'):].replace('#PAR#',par)
+            den = root + effpset.denominator.value()[effName.find('_'):].replace('#PAR#',par)
+            found += 1
+    return [num,den]
+
+def Rebin(tfile, histoPath, rebinVal):
+    parents = FindParents(histoPath)
+    num = tfile.Get(parents[0])
+    if type(num) != TH1F:
+        print 'Looking for '+num
+        print 'Plot now found! What the hell are you doing? Exiting...'
+        sys.exit()
+    denSingle = tfile.Get(parents[1])
+    if type(denSingle) != TH1F:
+        print 'Looking for '+denSingle
+        print 'Plot now found! What the hell are you doing? Exiting...'
+        sys.exit()
+    num.Rebin(rebinVal)
+    den = denSingle.Rebin(rebinVal,'denClone')
+    retVal = num.Clone(histoPath+'Rebin%s'%rebinVal)
+    #print 'Num : ' + parents[0]
+    #print 'Den : ' +parents[1]
+    #print "NumBins: %s DenBins: %s" % (num.GetNbinsX(), den.GetNbinsX() )
+    retVal.Divide(num,den,1,1,'B')
+    return retVal
+
 parser = OptionParser(description=__doc__)
 parser.add_option('--TestFile','-T',metavar='testFile', type=str,help='Sets the test file',dest='test',default = '')
 parser.add_option('--RefFile','-R',metavar='refFile', type=str,help='Sets the reference file',dest='ref',default = '')
@@ -66,6 +107,7 @@ parser.add_option('--maxLog',metavar='number', type=float,help='Sets the maximum
 parser.add_option('--minDiv',metavar='number', type=float,help='Sets the minimum of the scale in the ratio pad',dest='minDiv',default = 0.001)
 parser.add_option('--maxDiv',metavar='number', type=float,help='Sets the maximum of the scale in the ratio pad',dest='maxDiv',default = 2)
 parser.add_option('--logDiv',action="store_true", dest="logDiv", default=False, help="Sets the log scale in the plot")
+parser.add_option('--rebin', dest="rebin", type=int, default=-1, help="Sets the rebinning scale")
 #parser.add_option('--search,-s',metavar='searchStrings', type=str,help='Sets the label to put in the plots for ref file',dest='testLabel',default = None) No idea on how to tell python to use all the strings before a new option, thus moving this from option to argument (but may be empty)
 
 (options,toPlot) = parser.parse_args()
@@ -115,12 +157,18 @@ diffPad.Draw()
 colors = [2,3,4,6,5,7,28,1,2,3,4,6,5,7,28,1,2,3,4,6,5,7,28,1,2,3,4,6,5,7,28,1,2,3,4,6,5,7,28,1]
 first = True
 divHistos = []
+testHs = []
+refHs = []
 for histoPath,color in zip(histoList,colors):
-    testH = testFile.Get(histoPath)
+    if(options.rebin == -1):
+        testH = testFile.Get(histoPath)
+    else:
+        testH = Rebin(testFile,histoPath,options.rebin)
     if type(testH) != TH1F:
         print 'Looking for '+histoPath
         print 'Test plot now found! What the hell are you doing? Exiting...'
         sys.exit()
+    testHs.append(testH)
     xAx = histoPath[histoPath.find('Eff')+len('Eff'):]
     effPad.cd()
     if hasattr(validation.standardDrawingStuff.xAxes,xAx):
@@ -145,9 +193,13 @@ for histoPath,color in zip(histoList,colors):
         testH.Draw('same ex0 l')
     if refFile == None:
         continue
-    refH = refFile.Get(histoPath)
+    if(options.rebin == -1):
+        refH = refFile.Get(histoPath)
+    else:
+        refH = Rebin(refFile,histoPath,options.rebin)
     if type(refH) != TH1F:
         continue
+    refHs.append(refH)
     refH.SetLineColor(color)
     refH.SetLineWidth(1)
     refH.DrawCopy('same hist')
