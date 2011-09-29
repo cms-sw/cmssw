@@ -1159,19 +1159,19 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
    fclose(pFile);   
 
    //Find reach for point with best S Over sqrt(B) first.
-   double NPred=CutInfo[MaxSOverBIndex].NPred;
-   double NPredErr=CutInfo[MaxSOverBIndex].NPredErr;
-   double Eff=CutInfo[MaxSOverBIndex].Eff;
+   double NPredSB=CutInfo[MaxSOverBIndex].NPred;
+   double NPredErrSB=CutInfo[MaxSOverBIndex].NPredErr;
+   double EffSB=CutInfo[MaxSOverBIndex].Eff;
 
    double FiveSigma=1E50;
    for (int n_obs=5; n_obs<1000; n_obs++) {
-     if(nSigma(NPred, n_obs, NPredErr/NPred)>=5) {
+     if(nSigma(NPredSB, n_obs, NPredErrSB/NPredSB)>=5) {
        FiveSigma=n_obs;
        break;
      }
    }
 
-   double MinReach=(FiveSigma-NPred)/(Eff*IntegratedLuminosity);
+   double MinReach=(FiveSigma-NPredSB)/(EffSB*IntegratedLuminosity);
    toReturn=CutInfo[MaxSOverBIndex]; // In case this point does give the best reach avoids rounding errors
 
    for(int CutIndex=0;CutIndex<MassData->GetNbinsX();CutIndex++){
@@ -1196,34 +1196,30 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
      toReturn=CutInfo[CutIndex];
    }
 
-   double ExpLimit = 99999999;
-   double ObsLimit = 99999999;
-   double Significance = -1;
    LimitResult CLMResults;
    double signalUncertainty=0.10;
    if (signals[JobIdToIndex(signal)].Mass<450) signalUncertainty=0.15;
-   NPred=toReturn.NPred;
-   NPredErr=toReturn.NPredErr;
-   Eff=toReturn.Eff;
+   double NPred=toReturn.NPred;
+   double NPredErr=toReturn.NPredErr;
+   double Eff=toReturn.Eff;
    double NData=toReturn.NData;
 
-   CLMResults = roostats_clm(IntegratedLuminosity, IntegratedLuminosity*0.06, Eff, Eff*signalUncertainty,NPred, NPredErr, 1000, 1, "bayesian");   ExpLimit=CLMResults.GetExpectedLimit();  //1000Toys
+   CLMResults =  roostats_limit(IntegratedLuminosity, IntegratedLuminosity*0.06, Eff, Eff*signalUncertainty,NPred, NPredErr, NData, false, 0, "cls", "", 12345);
+
+   double ExpLimit=CLMResults.GetExpectedLimit();
    double ExpLimitup    = CLMResults.GetOneSigmaHighRange();
    double ExpLimitdown  = CLMResults.GetOneSigmaLowRange();
    double ExpLimit2up   = CLMResults.GetTwoSigmaHighRange();
    double ExpLimit2down = CLMResults.GetTwoSigmaLowRange();
+   double ObsLimit = CLMResults.GetObservedLimit();
 
-   ObsLimit =  roostats_cl95(IntegratedLuminosity, IntegratedLuminosity*0.06, Eff, Eff*signalUncertainty,NPred, NPredErr              , NData, false, 1, "bayesian", "");
-
-   Significance = nSigma(NPred, NData, NPredErr/NPred);
-
-   toReturn.XSec_Exp  = ExpLimit;
-   toReturn.XSec_ExpUp    = ExpLimitup;
-   toReturn.XSec_ExpDown  = ExpLimitdown;
-   toReturn.XSec_Exp2Up   = ExpLimit2up;
-   toReturn.XSec_Exp2Down = ExpLimit2down;
-   toReturn.XSec_Obs  = ObsLimit;
-   toReturn.Significance = Significance;
+   toReturn.XSec_Exp  = CLMResults.GetExpectedLimit();
+   toReturn.XSec_ExpUp    = CLMResults.GetOneSigmaHighRange();
+   toReturn.XSec_ExpDown  = CLMResults.GetOneSigmaLowRange();
+   toReturn.XSec_Exp2Up   = CLMResults.GetTwoSigmaHighRange();
+   toReturn.XSec_Exp2Down = CLMResults.GetTwoSigmaLowRange();
+   toReturn.XSec_Obs  = CLMResults.GetObservedLimit();
+   toReturn.Significance = nSigma(NPred, NData, NPredErr/NPred);
 
      FILE* pFile2 = fopen((outpath+"/"+modelName+".txt").c_str(),"w");
      if(!pFile2)printf("Can't open file : %s\n",(outpath+"/"+modelName+".txt").c_str());
