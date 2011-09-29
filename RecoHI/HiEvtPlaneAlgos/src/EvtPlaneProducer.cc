@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Sergey Petrushanko
 //         Created:  Fri Jul 11 10:05:00 2008
-// $Id: EvtPlaneProducer.cc,v 1.11 2011/09/24 14:02:09 ssanders Exp $
+// $Id: EvtPlaneProducer.cc,v 1.12 2011/09/29 15:43:07 ssanders Exp $
 //
 //
 #define TRACKCOLLECTION 1
@@ -145,7 +145,6 @@ private:
   
   bool useECAL_;
   bool useHCAL_;
-  bool genSubEvt_;
   bool useTrack_;
   bool useTrackPtWeight_;
   double minet_;
@@ -154,7 +153,6 @@ private:
   double maxpt_;
   double minvtx_;
   double maxvtx_;
-  double biggap_;
   double dzerr_;
   double chi2_;
 };
@@ -421,8 +419,6 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       std::auto_ptr<EvtPlaneCollection> evtplaneOutput(new EvtPlaneCollection);
       
   EvtPlane *ep[NumEPNames];
-  EvtPlane *ep1[NumEPNames];
-  EvtPlane *ep2[NumEPNames];
   
   double ang=-10;
   double sv = 0;
@@ -437,35 +433,19 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if(useTrack_) {
     for(int i = 0; i<9; i++) {
       evtplaneOutput->push_back(*ep[i]);
-      if(genSubEvt_) {
-	evtplaneOutput->push_back(*ep1[i]);
-	evtplaneOutput->push_back(*ep2[i]);
-      }
     }  
   }
   for(int i = 9; i<NumEPNames; i++) {
     if(useECAL_ && !useHCAL_) {
       if(EPNames[i].rfind("Ecal")!=string::npos) {
 	evtplaneOutput->push_back(*ep[i]);
-	if(genSubEvt_) {
-	  evtplaneOutput->push_back(*ep1[i]);
-	  evtplaneOutput->push_back(*ep2[i]);
-	}
       }
     } else if (useHCAL_ && !useECAL_) {
       if(EPNames[i].rfind("Hcal")!=string::npos) {
 	evtplaneOutput->push_back(*ep[i]);
-	if(genSubEvt_) {
-	  evtplaneOutput->push_back(*ep1[i]);
-	  evtplaneOutput->push_back(*ep2[i]);
-	}
       }
     }else if (useECAL_ && useHCAL_) {
       evtplaneOutput->push_back(*ep[i]);
-      if(genSubEvt_) {
-	evtplaneOutput->push_back(*ep1[i]);
-	evtplaneOutput->push_back(*ep2[i]);
-      }
     }
   }
   

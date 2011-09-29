@@ -14,7 +14,7 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Sat Jun 26 16:04:04 EDT 2010
-// $Id: HiEvtPlaneFlatProducer.cc,v 1.11 2011/09/20 18:07:31 ssanders Exp $
+// $Id: HiEvtPlaneFlatProducer.cc,v 1.1 2011/09/24 14:02:09 ssanders Exp $
 //
 //
 
@@ -74,13 +74,6 @@
 
 #include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneFlattenGen.h"
 #include "TROOT.h"
-//#include "TFile.h"
-#include "TH1.h"
-#include "TH2D.h"
-#include "TH2F.h"
-#include "TTree.h"
-#include "TH1I.h"
-#include "TF1.h"
 #include "TList.h"
 #include "TString.h"
 #include <time.h>
@@ -175,18 +168,18 @@ HiEvtPlaneFlatProducer::~HiEvtPlaneFlatProducer()
 void
 HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
+  using namespace edm;
   using namespace std;
   using namespace reco;
   using namespace HepMC;
   //
   //Get Centrality
   //
-if(!centrality_) centrality_ = new CentralityProvider(iSetup);
-
-   centrality_->newEvent(iEvent,iSetup); // make sure you do this first in every event
-   //   double c = centrality_->centralityValue();
-   int bin = centrality_->getBin();
+  if(!centrality_) centrality_ = new CentralityProvider(iSetup);
+  
+  centrality_->newEvent(iEvent,iSetup); // make sure you do this first in every event
+  //   double c = centrality_->centralityValue();
+  int bin = centrality_->getBin();
 
   double centval = 2.5*bin+1.25;
   //
