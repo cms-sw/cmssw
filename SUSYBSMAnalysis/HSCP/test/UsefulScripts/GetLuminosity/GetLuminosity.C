@@ -58,6 +58,11 @@ void GetLuminosity()
    inputFiles.push_back(BaseDirectory + "Data_RunA_172791_172802.root");
    inputFiles.push_back(BaseDirectory + "Data_RunA_172803_172900.root");
    inputFiles.push_back(BaseDirectory + "Data_RunA_172901_173243.root");
+   inputFiles.push_back(BaseDirectory + "Data_RunA_173244_173692.root");
+   inputFiles.push_back(TempDirectory + "Data_RunA_175860_176099.root");
+   inputFiles.push_back(TempDirectory + "Data_RunA_176100_176309.root");
+   inputFiles.push_back(BaseDirectory + "Data_RunA_175860_176099.root");
+   inputFiles.push_back(BaseDirectory + "Data_RunA_176100_176309.root");
 
    std::vector<stRun*> RunMap;
    GetLumiBlocks_Core(inputFiles, RunMap);

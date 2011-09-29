@@ -29,7 +29,13 @@ FarmDirectory = "MERGE"
 #LaunchOnCondor.ListToFile(LaunchOnCondor.GetListOfFiles('"','/store/user/farrell3/EDMFilesToBeMergedDTNewConstants/RunA_*_172901_173243/HSCP_*.root','",'), FarmDirectory + "InputFile.txt")
 #LaunchOnCondor.SendCMSJobs(FarmDirectory, "Data_RunA_172901_173243", "Merge_cfg.py", FarmDirectory + "InputFile.txt", 1, [])
 
-LaunchOnCondor.ListToFile(LaunchOnCondor.GetListOfFiles('"','/store/user/farrell3/HSCPEDMUpdateTo2p1fb01Sep2011/RunA_*_173244_173692/HSCP_*.root','",'), FarmDirectory + "InputFile.txt")
-LaunchOnCondor.SendCMSJobs(FarmDirectory, "Data_RunA_173244_173692", "Merge_cfg.py", FarmDirectory + "InputFile.txt", 1, [])
+#LaunchOnCondor.ListToFile(LaunchOnCondor.GetListOfFiles('"','/store/user/farrell3/HSCPEDMUpdateTo2p1fb01Sep2011/RunA_*_173244_173692/HSCP_*.root','",'), FarmDirectory + "InputFile.txt")
+#LaunchOnCondor.SendCMSJobs(FarmDirectory, "Data_RunA_173244_173692", "Merge_cfg.py", FarmDirectory + "InputFile.txt", 1, [])
+
+LaunchOnCondor.ListToFile(LaunchOnCondor.GetListOfFiles('"','/store/user/farrell3/HSCPEDMUpdateTo2p4fb23Sep2011/RunA_*_175860_176099/HSCP_*.root','",'), FarmDirectory + "InputFile.txt")
+LaunchOnCondor.SendCMSJobs(FarmDirectory, "Data_RunA_175860_176099", "Merge_cfg.py", FarmDirectory + "InputFile.txt", 1, [])
+
+LaunchOnCondor.ListToFile(LaunchOnCondor.GetListOfFiles('"','/store/user/farrell3/HSCPEDMUpdateTo2p4fb23Sep2011/RunA_*_176100_176309/HSCP_*.root','",'), FarmDirectory + "InputFile.txt")
+LaunchOnCondor.SendCMSJobs(FarmDirectory, "Data_RunA_176100_176309", "Merge_cfg.py", FarmDirectory + "InputFile.txt", 1, [])
 
 os.system("rm " +  FarmDirectory + "InputFile.txt")
