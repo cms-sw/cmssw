@@ -18,10 +18,9 @@ siStripZeroSuppression = cms.EDProducer("SiStripZeroSuppression",
     fixCM= cms.bool(False),                # put -999 into CM collection for "inspected" APV
 
     produceRawDigis = cms.bool(True),     # if mergeCollection is True, produceRawDigi is not considered
-    produceCalculatedBaseline = cms.bool(False),
+    produceCalculatedBaseline = cms.bool(True),
     produceBaselinePoints = cms.bool(False),
     storeInZScollBadAPV = cms.bool(True),
     mergeCollections = cms.bool(False),
-    doAPVRestore = cms.bool(True),
-    useCMMeanMap= cms.bool(False)
+    
 )

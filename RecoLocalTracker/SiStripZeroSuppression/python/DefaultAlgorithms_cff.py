@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 DefaultAlgorithms = cms.PSet(
-
+    doAPVRestore = cms.bool(True),
+    useCMMeanMap= cms.bool(False),
     ## Pedestal subtraction ----------------
     PedestalSubtractionFedMode = cms.bool(False),
 

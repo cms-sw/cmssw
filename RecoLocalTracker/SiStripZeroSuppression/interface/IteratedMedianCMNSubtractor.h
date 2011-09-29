@@ -1,3 +1,4 @@
+
 #ifndef RECOLOCALTRACKER_SISTRIPZEROSUPPRESSION_SISTRIPITERATEDMEDIANCOMMONMODENOISESUBTRACTION_H
 #define RECOLOCALTRACKER_SISTRIPZEROSUPPRESSION_SISTRIPITERATEDMEDIANCOMMONMODENOISESUBTRACTION_H
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripCommonModeNoiseSubtractor.h"
@@ -14,12 +15,12 @@ class IteratedMedianCMNSubtractor : public SiStripCommonModeNoiseSubtractor {
  public:
   
   void init(const edm::EventSetup& es);
-  void subtract(const uint32_t&,std::vector<int16_t>&);
-  void subtract(const uint32_t&,std::vector<float>&);
+  void subtract(const uint32_t&,const uint16_t&, std::vector<int16_t>&);
+  void subtract(const uint32_t&,const uint16_t&, std::vector<float>&);
   
  private:
 
-  template<typename T >void subtract_(const uint32_t&,std::vector<T>&);
+  template<typename T >void subtract_(const uint32_t&, const uint16_t&, std::vector<T>&);
 inline float pairMedian( std::vector<std::pair<float,float> >& sample);
  
   IteratedMedianCMNSubtractor(double sigma, int iterations) : 

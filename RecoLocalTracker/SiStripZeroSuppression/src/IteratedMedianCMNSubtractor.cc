@@ -20,13 +20,13 @@ void IteratedMedianCMNSubtractor::init(const edm::EventSetup& es){
   }
 }
 
-void IteratedMedianCMNSubtractor::subtract(const uint32_t& detId,std::vector<int16_t>& digis){ subtract_(detId,digis);}
-void IteratedMedianCMNSubtractor::subtract(const uint32_t& detId,std::vector<float>& digis){ subtract_(detId,digis);}
+void IteratedMedianCMNSubtractor::subtract(const uint32_t& detId, const uint16_t& firstAPV, std::vector<int16_t>& digis){ subtract_(detId, firstAPV, digis);}
+void IteratedMedianCMNSubtractor::subtract(const uint32_t& detId, const uint16_t& firstAPV, std::vector<float>& digis){ subtract_(detId,firstAPV, digis);}
 
 template<typename T>
 inline
 void IteratedMedianCMNSubtractor::
-subtract_(const uint32_t& detId,std::vector<T>& digis){
+subtract_(const uint32_t& detId, const uint16_t& firstAPV, std::vector<T>& digis){
 
   SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detId);
   SiStripQuality::Range detQualityRange = qualityHandle->getRange(detId);
@@ -37,8 +37,9 @@ subtract_(const uint32_t& detId,std::vector<T>& digis){
   subset.reserve(128);
 
   _vmedians.clear(); 
-
-  for( uint16_t APV=0; APV< digis.size()/128; ++APV)
+  
+  uint16_t APV=firstAPV;
+  for( ; APV< digis.size()/128+firstAPV; ++APV)
   {
     subset.clear();
     // fill subset vector with all good strips and their noises

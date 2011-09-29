@@ -24,9 +24,11 @@ class SiStripZeroSuppression : public edm::EDProducer
  private:
 
   void processRaw(const edm::InputTag&, const edm::DetSetVector<SiStripRawDigi>&, std::vector<edm::DetSet<SiStripDigi> >&, std::vector<edm::DetSet<SiStripRawDigi> >& );
+  void storeExtraOutput(uint32_t, int16_t);
+  void formatRawDigis(edm::DetSetVector<SiStripRawDigi>::const_iterator, edm::DetSet<SiStripRawDigi>&);
   void storeCMN(uint32_t, const std::vector< std::pair<short,float> >&);
-  void storeBaseline(uint32_t, const std::vector< std::pair<short,float> >&, std::map< uint16_t, std::vector < int16_t> >&);
-  void storeBaselinePoints(uint32_t, std::vector< std::map< uint16_t, int16_t> >&);
+  void storeBaseline(uint32_t, const std::vector< std::pair<short,float> >&);
+  void storeBaselinePoints(uint32_t);
   void StandardZeroSuppression(edm::Event&);
   void CollectionMergedZeroSuppression(edm::Event&);
   void MergeCollectionsZeroSuppression(edm::Event&);
@@ -43,14 +45,14 @@ class SiStripZeroSuppression : public edm::EDProducer
   
   
   bool storeCM;
-  bool doAPVRestore;
+  // bool doAPVRestore;
   bool produceRawDigis;
   bool produceCalculatedBaseline;
   bool produceBaselinePoints;
   bool storeInZScollBadAPV;
   bool mergeCollections;
   bool fixCM;
-  bool useCMMeanMap;  
+  //bool useCMMeanMap;  
 
 };
 #endif
