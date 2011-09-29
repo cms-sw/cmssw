@@ -161,9 +161,9 @@ if __name__ == '__main__':
 
     config.refDBTag = input.refDBTag
     config.connectStr = input.connectStr
-    config.dbFiles = input.dbFiles.split(',')
+    if hasattr(input,'dbFiles') and input.dbFiles: config.dbFiles = input.dbFiles.split(',')
     config.dbValidRuns = []
-    if input.dbValidRuns: config.dbValidRuns = [int(item) for item in input.dbValidRuns.split(',')]
+    if hasattr(input,'dbValidRuns') and input.dbValidRuns: config.dbValidRuns = [int(item) for item in input.dbValidRuns.split(',')]
 
     base_label = ''
     if input.workflowType == 'ttrig': base_label = 'Ttrig'

@@ -1,4 +1,5 @@
 from tools import loadCmsProcess,writeCfg,dqmWorkflowName
+from addPoolDBESSource import addPoolDBESSource
 from CmsswTask import *
 import os
 
