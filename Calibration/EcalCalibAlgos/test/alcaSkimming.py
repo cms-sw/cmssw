@@ -1,21 +1,34 @@
 import FWCore.ParameterSet.Config as cms
 
+#
+#    _____             __ _                        _   _
+#   / ____|           / _(_)                      | | (_)
+#   | |     ___  _ __ | |_ _  __ _ _   _ _ __ __ _| |_ _  ___  _ __
+#   | |    / _ \| '_ \|  _| |/ _` | | | | '__/ _` | __| |/ _ \| '_ \
+#   | |___| (_) | | | | | | | (_| | |_| | | | (_| | |_| | (_) | | | |
+#    \_____\___/|_| |_|_| |_|\__, |\__,_|_|  \__,_|\__|_|\___/|_| |_|
+#                             __/ |
+#                            |___/
+
+# From which kind of dataset are you starting from?
 MC = False
 runFromAOD = False
-runFromALCA = True
-HLTFilter = False
+runFromALCA = False
 
-ECALRecalib = True
+# Do you want to reReco ECAL RecHits (also from RAW if you have them) ? 
+ECALRecalib = False
 ECALFromRAW = False
 ApplyInterCalib = False
 #Switch to turn on/off application of LC. To be set to False when running from RAW and want to produce LC=1
 ApplyLaser = False
 
-ZSkim = True
-WSkim = False
 
+# Do you want to filter events? 
+HLTFilter = False
 HLTPath = "HLT_Ele"
 HLTProcessName = "HLT"
+ZSkim = True
+WSkim = False
 
 #electron cuts
 ELECTRON_ET_CUT_MIN = 20.0
@@ -28,6 +41,17 @@ MASS_CUT_MIN = 60.
 W_ELECTRON_ET_CUT_MIN = 30.0
 MET_CUT_MIN = 20.
 MT_CUT_MIN = 50.
+
+
+#    _____  __             _             _         _
+#   / ____|/ _|           | |           | |       | |
+#   | |    | |_ __ _   ___| |_ __ _ _ __| |_ ___  | |__   ___ _ __ ___
+#   | |    |  _/ _` | / __| __/ _` | '__| __/ __| | '_ \ / _ \ '__/ _ \
+#   | |____| || (_| | \__ \ || (_| | |  | |_\__ \ | | | |  __/ | |  __/
+#    \_____|_| \__, | |___/\__\__,_|_|   \__|___/ |_| |_|\___|_|  \___|
+#               __/ |
+#              |___/
+   
 
 if (not runFromALCA):
     processName = 'ALCASKIM'
@@ -56,7 +80,7 @@ process.load('Configuration.EventContent.EventContent_cff')
 process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(10000)
+    input = cms.untracked.int32(1000)
 )
 
 #from Calibration.EcalCalibAlgos.DoubleElectron_Jul05_ALCAELECTRON_cff import *
@@ -68,9 +92,9 @@ readFiles.extend( [
 # MC Aod 
 #"/store/mc/Summer11/DYJetsToLL_TuneZ2_M-50_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/0AD7EA94-A29C-E011-BC75-001A4BA81FB8.root"
 # ALCA
-"/store/data/Run2011A/DoubleElectron/ALCARECO/EcalCalElectron-05Jul2011ReReco-ECAL-v1/0000/623BA151-6CAD-E011-9514-00304867BECC.root"    
+#"/store/data/Run2011A/DoubleElectron/ALCARECO/EcalCalElectron-05Jul2011ReReco-ECAL-v1/0000/623BA151-6CAD-E011-9514-00304867BECC.root"    
 # RAW-RECO
-
+"/store/data/Run2011A/DoubleElectron/RAW-RECO/ZElectron-PromptSkim-v4/0000/407132B4-EC93-E011-B11F-00248C0BE005.root"
 # RelVal
 #"/store/RelVal/CMSSW_4_2_8/RelValZEE/GEN-SIM-RECO/START42_V12-v1/0025/529A2B04-05BB-E011-837A-001A92811708.root"
 ] )
@@ -163,8 +187,9 @@ process.ele_sequence = cms.Sequence(
 process.electronRecalib = cms.Sequence()
 
 if (ECALRecalib):
+    process.load("Calibration.EcalCalibAlgos.electronRecalibSCAssociator_cfi")
+            
     if (not ECALFromRAW):
-        process.load("Calibration.EcalCalibAlgos.electronRecalibSCAssociator_cfi")
         process.load("RecoLocalCalo.EcalRecProducers.ecalRecalibRecHit_cfi")
         process.ecalRecHit.doIntercalib = cms.bool(ApplyInterCalib)
         process.ecalRecHit.doLaserCorrection = cms.bool(ApplyLaser)
@@ -181,9 +206,10 @@ if (ECALRecalib):
     else:
         #restarting from ECAL RAW to reconstruct amplitudes and energies
         process.load('Configuration.StandardSequences.RawToDigi_Data_cff')
-        process.ecalRecHit.laserCorrection=cms.bool(ApplyNewLaser)
+        process.load('RecoLocalCalo.Configuration.RecoLocalCalo_cff')
+        process.ecalRecHit.laserCorrection=cms.bool(ApplyLaser)
         #no switch in standard recHit producer to apply new intercalibrations
-        process.electronRecalib *= (process.ecalDigis * process.ecalLocalRecoSequence)
+        process.electronRecalib *= ( (process.ecalDigis+process.ecalPreshowerDigis) * process.ecalLocalRecoSequence)
         
     process.load("RecoEcal.Configuration.RecoEcal_cff")
     process.correctedHybridSuperClusters.corectedSuperClusterCollection = 'recalibSC'
