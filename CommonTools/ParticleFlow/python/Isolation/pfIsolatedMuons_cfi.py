@@ -11,7 +11,7 @@ pfIsolatedMuons  = cms.EDFilter(
         cms.InputTag("muPFIsoValueNeutral04"),
         cms.InputTag("muPFIsoValueGamma04")
         ),
-    doDeltaBetaCorrection = cms.bool(True),
+    doDeltaBetaCorrection = cms.bool(False),
     deltaBetaIsolationValueMap = cms.InputTag("muPFIsoValuePU04"),
     deltaBetaFactor = cms.double(-0.5),
     ## if True isolation is relative to pT
