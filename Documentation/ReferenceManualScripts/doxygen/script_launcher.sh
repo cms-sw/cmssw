@@ -25,5 +25,5 @@ time python $SCRIPTS/splitter/splitter.py $LOCALTOP /doc/html/namespaces.html na
 time python $SCRIPTS/splitter/splitter.py $LOCALTOP /doc/html/configfiles.html configfilesList_ 
 time python $SCRIPTS/splitter/splitter.py $LOCALTOP /doc/html/annotated.html annotatedList_ 
 
-
+rm $LOCALTOP/$CMSSW_xyz.index
 find $LOCALTOP/doc/html/ -name "*.html" ! \( -name "*dir_*" -o -name "*globals_*" -o -name "*namespacemembers_*" -o -name "*functions_*" \) -print | sort > $LOCALTOP/$CMSSW_xyz.index
