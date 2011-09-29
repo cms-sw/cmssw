@@ -14,7 +14,7 @@ siStripZeroSuppression = cms.EDProducer("SiStripZeroSuppression",
     DigisToMergeVR = cms.InputTag('siStripVRDigis','VirginRaw'),
                                     
 
-    storeCM = cms.bool(True), 
+    storeCM = cms.bool(False), 
     fixCM= cms.bool(False),                # put -999 into CM collection for "inspected" APV
 
     produceRawDigis = cms.bool(False),     # if mergeCollection is True, produceRawDigi is not considered
