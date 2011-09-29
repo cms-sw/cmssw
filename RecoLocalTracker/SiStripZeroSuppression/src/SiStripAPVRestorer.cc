@@ -25,7 +25,7 @@ SiStripAPVRestorer::SiStripAPVRestorer(const edm::ParameterSet& conf):
   CutToAvoidSignal_(conf.getParameter<double>("CutToAvoidSignal")),
   nSaturatedStrip_(conf.getParameter<uint32_t>("nSaturatedStrip")),
   ApplyBaselineCleaner_(conf.getParameter<bool>("ApplyBaselineCleaner")),
-  MeanCM_(conf.getParameter<uint32_t>("MeanCM"))  
+  MeanCM_(conf.getParameter<int32_t>("MeanCM"))  
   
 {
   apvFlags_.clear();

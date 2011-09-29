@@ -220,20 +220,14 @@ void SiStripFedZeroSuppression::fillThresholds_(const uint32_t detID, size_t siz
   SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detID);
   SiStripThreshold::Range detThRange = thresholdHandle->getRange(detID);
 
-  //  if (highThr_.size() != size) { 
-  //  highThr_.resize(size); 
-  //  lowThr_.resize(size);
-  //  noises_.resize(size);
-  //  highThrSN_.resize(size);
-  //  lowThrSN_.resize(size);
-  //}
-
-   highThr_.resize(768); 
-   lowThr_.resize(768);
-   noises_.resize(768);
-   highThrSN_.resize(768);
-   lowThrSN_.resize(768);
-
+  if (highThr_.size() != size) { 
+    highThr_.resize(size); 
+    lowThr_.resize(size);
+    noises_.resize(size);
+    highThrSN_.resize(size);
+    lowThrSN_.resize(size);
+  }
+  
   noiseHandle->allNoises(noises_, detNoiseRange);
   thresholdHandle->allThresholds(lowThrSN_, highThrSN_, detThRange); // thresholds as S/N
   for (size_t strip = 0; strip < size; ++strip) {
@@ -258,43 +252,11 @@ void SiStripFedZeroSuppression::suppress(const std::vector<int16_t>& in, const u
     LogTrace("SiStripZeroSuppression") << "[SiStripFedZeroSuppression::suppress] Zero suppression on std::vector<int16_t>: detID " << detID << " size = " << in.size();
 #endif
 
-  //fillThresholds_(detID, size); // want to decouple this from the other cost
-
-   SiStripNoises::Range detNoiseRange = noiseHandle->getRange(detID);
-  SiStripThreshold::Range detThRange = thresholdHandle->getRange(detID);
-
-  //  if (highThr_.size() != size) { 
-  //  highThr_.resize(size); 
-  //  lowThr_.resize(size);
-  //  noises_.resize(size);
-  //  highThrSN_.resize(size);
-  //  lowThrSN_.resize(size);
-  //}
-
-   highThr_.resize(768); 
-   lowThr_.resize(768);
-   noises_.resize(768);
-   highThrSN_.resize(768);
-   lowThrSN_.resize(768);
-
-  noiseHandle->allNoises(noises_, detNoiseRange);
-  thresholdHandle->allThresholds(lowThrSN_, highThrSN_, detThRange); // thresholds as S/N
-  size_t strip = firstAPV*128;
- for (; strip < size+firstAPV*128; ++strip) {
-    float noise     = noises_[strip];
-    //  uncomment line below to check bluk noise decoding
-    //assert( noise == noiseHandle->getNoiseFast(strip,detNoiseRange) ); 
-    highThr_[strip] = static_cast<int16_t>(highThrSN_[strip]*noise+0.5+1e-6);
-    lowThr_[strip]  = static_cast<int16_t>( lowThrSN_[strip]*noise+0.5+1e-6);
-    // Note: it's a bit wierd, but there are some cases for which 'highThrSN_[strip]*noise' is an exact integer
-    //   but due to roundoffs it gets rounded to the integer below if. 
-    //   Apparently the optimized code inlines differently and this changes the roundoff.
-    //   The +1e-6 fixes the problem.   [GPetruc]
-  } 
+  fillThresholds_(detID, size+firstAPV*128); // want to decouple this from the other cost
 
 
   std::vector<int16_t>::const_iterator in_iter=in.begin();
-   strip = firstAPV*128;
+  uint16_t strip = firstAPV*128;
   for (; strip < size+firstAPV*128; ++strip, ++in_iter){
 
     size_t strip_mod_128 = strip & 127;
