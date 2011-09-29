@@ -26,6 +26,7 @@
 #include "Analysis_Samples.h"
 //#include "CL95.h"
 #include "roostats_cl95.C"
+#include "nSigma.C"
 
 using namespace std;
 
@@ -127,7 +128,6 @@ double FindIntersection(TGraph* obs, TGraph* th, double Min, double Max, double 
 int ReadXSection(string InputFile, double* Mass, double* XSec, double* Low, double* High,  double* ErrLow, double* ErrHigh);
 TCutG* GetErrorBand(string name, int N, double* Mass, double* Low, double* High);
 void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern);
-double getSignificance(double NData, double NPred, double signalUncertainty, double backgroundError, double luminosityError, string outpath);
 void DrawModelLimtWithBand(string InputPattern, string inputmodel);
 
 //double PlotMinScale = 0.1;
@@ -188,7 +188,6 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    gStyle->SetPalette(1);
    gStyle->SetNdivisions(505,"X");
    gStyle->SetNdivisions(550,"Y");
-
 
    if(MODE=="COMPILE")return;
 
@@ -953,7 +952,9 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
 
    double RatioValue[] = {Ratio_0C, Ratio_1C, Ratio_2C};
 
- 
+   double MaxSOverB=-1; 
+   int MaxSOverBIndex=-1;
+
    string outpath = pattern + "/EXCLUSION/";
    if(syst!=""){outpath = pattern + "/EXCLUSION" + syst + "/";}
    MakeDirectories(outpath);
@@ -1025,6 +1026,10 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
    MinRange = MassSignProj[0]->GetXaxis()->GetBinLowEdge(MassSignProj[0]->GetXaxis()->FindBin(MinRange)); //Round to a bin value to avoid counting prpoblem due to the binning. 
    delete MassSignProj[0];
    ///##############################################################################"
+
+   //Going to first loop and find the cut with the min S over sqrt(B) because this is quick and normally gives a cut with a reach near the minimum
+   stAllInfo CutInfo[MassData->GetNbinsX()];
+   for(int CutIndex=0;CutIndex<MassData->GetNbinsX();CutIndex++) CutInfo[CutIndex]=toReturn;
 
    for(int CutIndex=0;CutIndex<MassData->GetNbinsX();CutIndex++){
       if(HCuts_Pt ->GetBinContent(CutIndex+1) < 45 ) continue;  // Be sure the pT cut is high enough to get some statistic for both ABCD and mass shape
@@ -1127,10 +1132,7 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
       fprintf(pFile  ,"%10s: Testing CutIndex=%4i (Pt>%6.2f I>%6.3f TOF>%6.3f) %3.0f<M<inf Ndata=%+6.2E NPred=%6.3E+-%6.3E SignalEff=%6.3f\n",signal.c_str(),CutIndex,HCuts_Pt ->GetBinContent(CutIndex+1), HCuts_I  ->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1), MinRange,NData,NPred, NPredErr,Eff);fflush(stdout);
       fprintf(stdout ,"%10s: Testing CutIndex=%4i (Pt>%6.2f I>%6.3f TOF>%6.3f) %3.0f<M<inf Ndata=%+6.2E NPred=%6.3E+-%6.3E SignalEff=%6.3f\n",signal.c_str(),CutIndex,HCuts_Pt ->GetBinContent(CutIndex+1), HCuts_I  ->GetBinContent(CutIndex+1), HCuts_TOF->GetBinContent(CutIndex+1), MinRange,NData,NPred, NPredErr,Eff);fflush(stdout);
 
-      double NSign=Eff*(signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
-      double B=std::max(NPred, 0.05);
-      double currentMaxSB=toReturn.NSign/sqrt(std::max(toReturn.NPred, (float)0.05));
-     if(NSign/sqrt(B)<=currentMaxSB) continue;
+      if(Eff/sqrt(max(0.1, NPred))>MaxSOverB) {MaxSOverB=Eff/sqrt(max(0.1, NPred)); MaxSOverBIndex=CutIndex;}
 
      toReturn.MassMean  = Mean;
      toReturn.MassSigma = Width;
@@ -1151,35 +1153,77 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
      toReturn.NPredErr  = NPredErr;
      toReturn.NSign     = Eff*(signals[CurrentSampleIndex].XSec*IntegratedLuminosity);
 
-   }   
+     CutInfo[CutIndex]=toReturn;
+   }
+
    fclose(pFile);   
 
-     double ExpLimit = 99999999;
-     double ObsLimit = 99999999;
-     double Significance = -1;
-     LimitResult CLMResults;
-     double signalUncertainty=0.10;
-     if (signals[JobIdToIndex(signal)].Mass<450) signalUncertainty=0.15;
-     double NPred=toReturn.NPred;
-     double Eff=toReturn.Eff;
-     double NData=toReturn.NData;
+   //Find reach for point with best S Over sqrt(B) first.
+   double NPred=CutInfo[MaxSOverBIndex].NPred;
+   double NPredErr=CutInfo[MaxSOverBIndex].NPredErr;
+   double Eff=CutInfo[MaxSOverBIndex].Eff;
 
-     CLMResults = roostats_clm(IntegratedLuminosity, IntegratedLuminosity*0.06, Eff, Eff*signalUncertainty,NPred, NPred*RescaleError, 1000, 1, "bayesian");   ExpLimit=CLMResults.GetExpectedLimit();  //1000Toys
-     double ExpLimitup    = CLMResults.GetOneSigmaHighRange();
-     double ExpLimitdown  = CLMResults.GetOneSigmaLowRange();
-     double ExpLimit2up   = CLMResults.GetTwoSigmaHighRange();
-     double ExpLimit2down = CLMResults.GetTwoSigmaLowRange();
+   double FiveSigma=1E50;
+   for (int n_obs=5; n_obs<1000; n_obs++) {
+     if(nSigma(NPred, n_obs, NPredErr/NPred)>=5) {
+       FiveSigma=n_obs;
+       break;
+     }
+   }
 
-     ObsLimit =  roostats_cl95(IntegratedLuminosity, IntegratedLuminosity*0.06, Eff, Eff*signalUncertainty,NPred, NPred*RescaleError              , NData, false, 1, "bayesian", "");
-     Significance = getSignificance(NData, NPred, signalUncertainty, RescaleError, 0.06, outpath+"/"+modelName);
+   double MinReach=(FiveSigma-NPred)/(Eff*IntegratedLuminosity);
+   toReturn=CutInfo[MaxSOverBIndex]; // In case this point does give the best reach avoids rounding errors
 
-     toReturn.XSec_Exp  = ExpLimit;
-     toReturn.XSec_ExpUp    = ExpLimitup;
-     toReturn.XSec_ExpDown  = ExpLimitdown;
-     toReturn.XSec_Exp2Up   = ExpLimit2up;
-     toReturn.XSec_Exp2Down = ExpLimit2down;     
-     toReturn.XSec_Obs  = ObsLimit;
-     toReturn.Significance = Significance;
+   for(int CutIndex=0;CutIndex<MassData->GetNbinsX();CutIndex++){
+     double NPred=CutInfo[CutIndex].NPred;
+     double NPredErr=CutInfo[CutIndex].NPredErr;
+     double Eff=CutInfo[CutIndex].Eff;
+     if(Eff==0) continue;  //Eliminate points where prediction could not be made
+     double FiveSigma=1E50;
+     for (int n_obs=5; n_obs<1000; n_obs++) {
+       if(n_obs<(NPred+3*sqrt(NPred))) continue;    //5 sigma implies more than 5 times sqrt(B) excess so can cut these points, put it at 3 to be safe
+       double thisReach=(n_obs-NPred)/(Eff*IntegratedLuminosity);
+       if(thisReach>=MinReach) break;    // This selection point will not give the optimum reach so move on
+       if(nSigma(NPred, n_obs, NPredErr/NPred)>=5) {
+	 FiveSigma=n_obs;
+	 break;
+       }
+     }
+
+     double Reach=(FiveSigma-NPred)/(Eff*IntegratedLuminosity);
+     if(Reach>MinReach) continue;
+     MinReach=Reach;
+     toReturn=CutInfo[CutIndex];
+   }
+
+   double ExpLimit = 99999999;
+   double ObsLimit = 99999999;
+   double Significance = -1;
+   LimitResult CLMResults;
+   double signalUncertainty=0.10;
+   if (signals[JobIdToIndex(signal)].Mass<450) signalUncertainty=0.15;
+   NPred=toReturn.NPred;
+   NPredErr=toReturn.NPredErr;
+   Eff=toReturn.Eff;
+   double NData=toReturn.NData;
+
+   CLMResults = roostats_clm(IntegratedLuminosity, IntegratedLuminosity*0.06, Eff, Eff*signalUncertainty,NPred, NPredErr, 1000, 1, "bayesian");   ExpLimit=CLMResults.GetExpectedLimit();  //1000Toys
+   double ExpLimitup    = CLMResults.GetOneSigmaHighRange();
+   double ExpLimitdown  = CLMResults.GetOneSigmaLowRange();
+   double ExpLimit2up   = CLMResults.GetTwoSigmaHighRange();
+   double ExpLimit2down = CLMResults.GetTwoSigmaLowRange();
+
+   ObsLimit =  roostats_cl95(IntegratedLuminosity, IntegratedLuminosity*0.06, Eff, Eff*signalUncertainty,NPred, NPredErr              , NData, false, 1, "bayesian", "");
+
+   Significance = nSigma(NPred, NData, NPredErr/NPred);
+
+   toReturn.XSec_Exp  = ExpLimit;
+   toReturn.XSec_ExpUp    = ExpLimitup;
+   toReturn.XSec_ExpDown  = ExpLimitdown;
+   toReturn.XSec_Exp2Up   = ExpLimit2up;
+   toReturn.XSec_Exp2Down = ExpLimit2down;
+   toReturn.XSec_Obs  = ObsLimit;
+   toReturn.Significance = Significance;
 
      FILE* pFile2 = fopen((outpath+"/"+modelName+".txt").c_str(),"w");
      if(!pFile2)printf("Can't open file : %s\n",(outpath+"/"+modelName+".txt").c_str());
@@ -1373,49 +1417,6 @@ TCutG* GetErrorBand(string name, int N, double* Mass, double* Low, double* High)
       cutg->SetPoint(N+i,Mass[N-1-i], Max);
    }
    return cutg;
-}
-
-double getSignificance(double NData, double NPred, double signalUncertainty, double backgroundError, double luminosityError, string outpath)
-{
-  FILE* dataCard = fopen((outpath + "_temp_1.txt").c_str(),"w");
-
-  fprintf(dataCard, "imax 1  number of channels\n");
-  fprintf(dataCard, "jmax 1  number of backgrounds\n");
-  fprintf(dataCard, "kmax 3  number of nuisance parameters (sources of systematical uncertainties)\n");
-  fprintf(dataCard, "bin 1\n");
-  fprintf(dataCard, "observation %f\n", NData);
-  fprintf(dataCard, "bin              1     1\n");
-  fprintf(dataCard, "process         signal   bckgd\n");
-  fprintf(dataCard, "process          0     1\n");
-  fprintf(dataCard, "rate             2    %f\n", NPred);
-  fprintf(dataCard, "lumi    lnN    %f    -    lumi affects signal\n",1+luminosityError);
-  fprintf(dataCard, "eff     lnN    %f    -   signal efficiency\n", 1+signalUncertainty);
-  fprintf(dataCard, "backg lnN      -   %f  total background\n", 1+backgroundError);
-  fclose(dataCard);
-
-  system(("combine -M ProfileLikelihood --significance " + outpath + "_temp_1.txt > " + outpath + "_temp_2.txt").c_str());
-
-  ifstream infile;
-  infile.open ((outpath + "_temp_2.txt").c_str());
-  bool loop=true;
-  double significance=-1;
-
-  if (infile.is_open())
-    {
-      while ( infile.good() && loop)
-	{
-          string word;
-          infile >> word;
-          if (word=="Significance:") loop=false;
-        }
-      if (infile.good()) infile >> significance;
-      infile.close();
-    }
-
-  system(("rm " + outpath + "_temp_1.txt").c_str());
-  system(("rm " + outpath + "_temp_2.txt").c_str());                                                                                                                                                       
-
-  return significance;
 }
 
 void DrawModelLimtWithBand(string InputPattern, string inputmodel)
