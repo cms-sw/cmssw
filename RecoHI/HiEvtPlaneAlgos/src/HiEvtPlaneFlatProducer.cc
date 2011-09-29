@@ -14,7 +14,7 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Sat Jun 26 16:04:04 EDT 2010
-// $Id: HiEvtPlaneFlatProducer.cc,v 1.1 2011/09/24 14:02:09 ssanders Exp $
+// $Id: HiEvtPlaneFlatProducer.cc,v 1.2 2011/09/29 18:46:39 ssanders Exp $
 //
 //
 
@@ -72,8 +72,7 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/HIObjects/interface/RPFlatParams.h"
 
-#include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneFlattenGen.h"
-#include "TROOT.h"
+#include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneFlatten.h"
 #include "TList.h"
 #include "TString.h"
 #include <time.h>
@@ -110,7 +109,7 @@ class HiEvtPlaneFlatProducer : public edm::EDProducer {
 
  
   Double_t epang[NumEPNames];
-  HiEvtPlaneFlattenGen * flat[NumEPNames];
+  HiEvtPlaneFlatten * flat[NumEPNames];
   RPFlatParams * rpFlat;
   int nRP;
 
@@ -138,8 +137,8 @@ HiEvtPlaneFlatProducer::HiEvtPlaneFlatProducer(const edm::ParameterSet& iConfig)
   centrality_ = 0;
   Int_t FlatOrder = 21;
   for(int i = 0; i<NumEPNames; i++) {
-    flat[i] = new HiEvtPlaneFlattenGen();
-    flat[i]->Init(FlatOrder,NumCentBins,wcent,EPNames[i],EPOrder[i]);
+    flat[i] = new HiEvtPlaneFlatten();
+    flat[i]->Init(FlatOrder,11,4,EPNames[i],EPOrder[i]);
     Double_t psirange = 4;
     if(EPOrder[i]==2 ) psirange = 2;
     if(EPOrder[i]==3 ) psirange = 1.5;
@@ -181,7 +180,7 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   //   double c = centrality_->centralityValue();
   int bin = centrality_->getBin();
 
-  double centval = 2.5*bin+1.25;
+  //  double centval = 2.5*bin+1.25;
   //
   //Get Vertex
   //
@@ -236,15 +235,12 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   for (EvtPlaneCollection::const_iterator rp = evtPlanes->begin();rp !=evtPlanes->end(); rp++) {
     size_t pos;
     if(rp->angle() > -5) {
-      pos = rp->label().find("_sub");      
       string baseName = rp->label();
-      if(pos != string::npos) baseName = rp->label().substr(0,pos);
       for(int i = 0; i< NumEPNames; i++) {
 	if(EPNames[i].compare(baseName)==0) {
-	  double psiFlat = flat[i]->GetFlatPsi(rp->angle(),vzr_sell,centval);
+	  double psiFlat = flat[i]->GetFlatPsi(rp->angle(),vzr_sell,bin);
 	  epang[i]=psiFlat;
-	  if(EPNames[i].compare(rp->label())==0) {
-	    
+	  if(EPNames[i].compare(rp->label())==0) {	    
 	    psiFull[i] = psiFlat;
 	    ep[i]= new EvtPlane(psiFlat, rp->sumSin(), rp->sumCos(),rp->label().data());
 	  } 

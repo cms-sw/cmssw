@@ -14,7 +14,7 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Sat Jun 26 16:04:04 EDT 2010
-// $Id: HiEvtPlaneFlatCalib.cc,v 1.1 2011/09/20 18:17:41 ssanders Exp $
+// $Id: HiEvtPlaneFlatCalib.cc,v 1.1 2011/09/24 14:02:09 ssanders Exp $
 //
 //
 
@@ -72,7 +72,7 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/HIObjects/interface/RPFlatParams.h"
 
-#include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneFlattenGen.h"
+#include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneFlatten.h"
 #include "TROOT.h"
 #include "TFile.h"
 #include "TH1.h"
@@ -93,6 +93,8 @@ using namespace std;
 using std::vector;
 using std::rand;
 
+static const  int NumCentBins=9;
+static const  double wcent[] ={0,5,10,20,30,40,50,60,70,100};
 
 //
 // class declaration
@@ -132,7 +134,7 @@ class HiEvtPlaneFlatCalib : public edm::EDProducer {
   TH1D * hPsiFlatSub1[NumEPNames];
   TH1D * hPsiFlatSub2[NumEPNames];
   Double_t epang[NumEPNames];
-  HiEvtPlaneFlattenGen * flat[NumEPNames];
+  HiEvtPlaneFlatten * flat[NumEPNames];
   RPFlatParams * rpFlat;
   int nRP;
   bool genFlatPsi_;
@@ -164,14 +166,11 @@ HiEvtPlaneFlatCalib::HiEvtPlaneFlatCalib(const edm::ParameterSet& iConfig)
   hcent = fs->make<TH1D>("cent","cent",41,0,40);
   hvtx = fs->make<TH1D>("vtx","vtx",1000,-50,50);
   //setting before 8:35 CDT on 11Jan2011
-  //int ncent = 9;
-  //double wcent[] ={0,5,10,20,30,40,50,60,70,100};
   Int_t FlatOrder = 21;
-  //Int_t FlatOrder = 4;
   for(int i = 0; i<NumEPNames; i++) {
     TFileDirectory subdir = fs->mkdir(Form("%s",EPNames[i].data()));
-    flat[i] = new HiEvtPlaneFlattenGen();
-    flat[i]->Init(FlatOrder,NumCentBins,wcent,EPNames[i],EPOrder[i]);
+    flat[i] = new HiEvtPlaneFlatten();
+    flat[i]->Init(FlatOrder,11,4,EPNames[i],EPOrder[i]);
     int nbins = flat[i]->GetHBins();
     flatXhist[i] = subdir.make<TH1D>(Form("x_%s",EPNames[i].data()),Form("x_%s",EPNames[i].data()),nbins,-0.5,nbins-0.5);
     flatYhist[i] = subdir.make<TH1D>(Form("y_%s",EPNames[i].data()),Form("y_%s",EPNames[i].data()),nbins,-0.5,nbins-0.5);
@@ -193,7 +192,8 @@ HiEvtPlaneFlatCalib::HiEvtPlaneFlatCalib(const edm::ParameterSet& iConfig)
       hPsiFlatCent[i][j] = subdir.make<TH1D>(hname.Data(),hname.Data(),800,-psirange,psirange);
       hPsiFlatCent[i][j]->SetXTitle("#Psi");
       hPsiFlatCent[i][j]->SetYTitle(Form("Counts (%d<cent#leq%d%c)",(int) wcent[j],(int) wcent[j+1],'%'));
-    }
+    }  
+
   }
   
 }
@@ -223,23 +223,10 @@ HiEvtPlaneFlatCalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //
   //Get Centrality
   //
-if(!centrality_) centrality_ = new CentralityProvider(iSetup);
+  if(!centrality_) centrality_ = new CentralityProvider(iSetup);
 
    centrality_->newEvent(iEvent,iSetup); // make sure you do this first in every event
-   //   double c = centrality_->centralityValue();
    int bin = centrality_->getBin();
-
-
-//   if(!cbins_) cbins_ = getCentralityBinsFromDB(iSetup);
-//   edm::Handle<reco::Centrality> cent;
-//   iEvent.getByLabel(edm::InputTag("hiCentrality"),cent);
-//   if(!cent.isValid()){
-//     cout << "Error! Can't get hiCentrality product!" << endl;
-//     return ;
-//   }  
-
-//   double  hf = cent->EtHFhitSum();
-//   int bin = cbins_->getBin(hf);
   double centval = 2.5*bin+1.25;
   hcent->Fill(bin);
   //
@@ -281,7 +268,7 @@ if(!centrality_) centrality_ = new CentralityProvider(iSetup);
   iEvent.getByLabel("hiEvtPlane","recoLevel",evtPlanes);
 
   if(!evtPlanes.isValid()){
-    //    cout << "Error! Can't get hiEvtPlane product!" << endl;
+    //cout << "Error! Can't get hiEvtPlane product!" << endl;
     return ;
   }
   double psiFull[NumEPNames];
@@ -295,17 +282,14 @@ if(!centrality_) centrality_ = new CentralityProvider(iSetup);
     ep[i]=0;
   }
   for (EvtPlaneCollection::const_iterator rp = evtPlanes->begin();rp !=evtPlanes->end(); rp++) {
-    size_t pos;
     if(rp->angle() > -5) {
-      pos = rp->label().find("_sub");      
       string baseName = rp->label();
-      if(pos != string::npos) baseName = rp->label().substr(0,pos);
       for(int i = 0; i< NumEPNames; i++) {
 	if(EPNames[i].compare(baseName)==0) {
-	  double psiFlat = flat[i]->GetFlatPsi(rp->angle(),vzr_sell,centval);
+	  double psiFlat = flat[i]->GetFlatPsi(rp->angle(),vzr_sell,bin);
 	  epang[i]=psiFlat;
 	  if(EPNames[i].compare(rp->label())==0) {
-	    flat[i]->Fill(rp->angle(),vzr_sell,centval);
+	    flat[i]->Fill(rp->angle(),vzr_sell,bin);
 	    if(i==0)  hvtx->Fill(vzr_sell);
 
 	    if(centval<=80) hPsi[i]->Fill(rp->angle());
