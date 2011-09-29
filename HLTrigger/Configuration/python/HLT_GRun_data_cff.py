@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/GRun/V279 (CMSSW_4_2_0_HLT29)
+# /dev/CMSSW_4_2_0/GRun/V280 (CMSSW_4_2_0_HLT30)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V279')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V280')
 )
 
 streams = cms.PSet( 
@@ -5799,11 +5799,13 @@ hltDoubleJet36Eta2p6 = cms.EDFilter( "HLT1CaloJet",
     MinN = cms.int32( 2 )
 )
 hltPixelVertices3DbbPhi = cms.EDProducer( "PrimaryVertexProducer",
-    useBeamConstraint = cms.bool( False ),
-    minNdof = cms.double( 0.0 ),
-    algorithm = cms.string( "AdaptiveVertexFitter" ),
     TrackLabel = cms.InputTag( "hltPixelTracks" ),
     beamSpotLabel = cms.InputTag( "hltOnlineBeamSpot" ),
+    algorithm = cms.string( "AdaptiveVertexFitter" ),
+    label = cms.string( "" ),
+    minNdof = cms.double( 0.0 ),
+    useBeamConstraint = cms.bool( False ),
+    maxDistanceToBeam = cms.double( 2.0 ),
     TkFilterParameters = cms.PSet( 
       maxD0Significance = cms.double( 100.0 ),
       minPt = cms.double( 0.5 ),
@@ -5813,11 +5815,18 @@ hltPixelVertices3DbbPhi = cms.EDProducer( "PrimaryVertexProducer",
       trackQuality = cms.string( "any" ),
       algorithm = cms.string( "filter" )
     ),
-    VtxFinderParameters = cms.PSet(  ),
     PVSelParameters = cms.PSet(  maxDistanceToBeam = cms.double( 2.0 ) ),
     TkClusParameters = cms.PSet( 
       algorithm = cms.string( "gap" ),
       TkGapClusParameters = cms.PSet(  zSeparation = cms.double( 0.1 ) )
+    ),
+    vertexCollections = cms.VPSet( 
+      cms.PSet(  maxDistanceToBeam = cms.double( 2.0 ),
+        useBeamConstraint = cms.bool( False ),
+        minNdof = cms.double( 0.0 ),
+        algorithm = cms.string( "AdaptiveVertexFitter" ),
+        label = cms.string( "" )
+      )
     )
 )
 hltSelector4Jets = cms.EDFilter( "LargestEtCaloJetSelector",
