@@ -15,8 +15,8 @@ from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
 process.source = cms.Source(
   "PoolSource"
 , fileNames = cms.untracked.vstring(
-    pickRelValInputFiles( formerVersion = True
-                        , globalTag     = 'START42_V12'
+    pickRelValInputFiles( cmsswVersion = 'CMSSW_4_2_8'
+                        , globalTag    = 'START42_V12'
                         )
   )
 )
