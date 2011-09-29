@@ -55,7 +55,7 @@
  */
 
 /*
- * $Id: DOMCount.cpp,v 1.4 2008/01/22 18:46:26 muzaffar Exp $
+ * $Id: DOMCount.cpp,v 1.5 2011/01/26 15:39:16 yana Exp $
  */
 
 // ---------------------------------------------------------------------------
@@ -328,7 +328,7 @@ int main(int argC, char* argV[])
     //  Get the starting time and kick off the parse of the indicated
     //  file. Catch any exceptions that might propogate out of it.
     //
-    unsigned long duration;
+    //unsigned long duration;
 
     bool more = true;
     ifstream fin;
@@ -376,10 +376,10 @@ int main(int argC, char* argV[])
             // reset document pool
             parser->resetDocumentPool();
 
-            const unsigned long startMillis = XMLPlatformUtils::getCurrentMillis();
+            //const unsigned long startMillis = XMLPlatformUtils::getCurrentMillis();
             doc = parser->parseURI(xmlFile);
-            const unsigned long endMillis = XMLPlatformUtils::getCurrentMillis();
-            duration = endMillis - startMillis;
+            //const unsigned long endMillis = XMLPlatformUtils::getCurrentMillis();
+            //duration = endMillis - startMillis;
         }
 
         catch (const XMLException& toCatch)

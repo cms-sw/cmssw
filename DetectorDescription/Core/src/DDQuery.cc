@@ -65,16 +65,16 @@ const std::vector<DDExpandedNode> & DDQuery::exec()
 	  //DCOUT('F', "DDQuery: examining " << epv_.geoHistory().back() );
 	  
 	  std::vector<const DDsvalues_type *> specs = epv_.specifics();
-	  std::vector<const DDsvalues_type *>::const_iterator sit = specs.begin();
+// 	  std::vector<const DDsvalues_type *>::const_iterator sit = specs.begin();
 	  //FIXME: find a solution when more then one specifics_type is attached to
 	  //FIXME: particlular nodes ... (merging the specifics-map, etc ...)
 	  //FIXME: for (; sit != specs.end() ; ++sit) {
-	    DDsvalues_type dummy;
-	    const DDsvalues_type * specifics;
-	    if (sit==specs.end())
-	      specifics = &dummy;
-	    else
-	      specifics = *sit;
+// 	    DDsvalues_type dummy;
+// 	    const DDsvalues_type * specifics;
+// 	    if (sit==specs.end())
+// 	      specifics = &dummy;
+// 	    else
+// 	      specifics = *sit;
 	      
 	    criteria_type::iterator it = criteria_.begin();
 	    logops_type::iterator logOpIt = logOps_.begin();

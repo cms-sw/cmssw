@@ -273,7 +273,6 @@ DDRotationMatrix global_simpleAngular_1::rotation()
 	{
 	  
 	  DDRotation myDDRotation(DDName(rn, ns));
-	  DDRotationMatrix rm = *(myDDRotation.rotation());
 	  return *(myDDRotation.rotation());
 	}
       else
@@ -432,7 +431,6 @@ DDRotationMatrix global_simpleAngular_2::rotation()
 	{
 	  
 	  DDRotation myDDRotation(DDName(rn, ns));
-	  DDRotationMatrix rm = *(myDDRotation.rotation());
 	  return *(myDDRotation.rotation());
 	}
       else

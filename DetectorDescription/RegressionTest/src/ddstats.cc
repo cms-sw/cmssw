@@ -19,8 +19,7 @@ void ddstats(std::ostream & os)
   int noExpNodes(1); // number of expanded-nodes
 
   // number of Logical- and PosParts, Solids, Materials
-  int noLog(0), noPos(0), noSol(0), noMat(0), noRot(0); 
-  noPos = noEdges;
+  int noLog(0), noSol(0), noMat(0), noRot(0); 
   
   // accumulative number of name-characters (logparts,solids,rotation,materials)
   int noCLog(0), noCSol(0), noCMat(0), noCRot(0);

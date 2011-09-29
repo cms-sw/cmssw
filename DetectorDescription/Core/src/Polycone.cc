@@ -65,12 +65,12 @@ double Polycone::volume() const
 {
   double result = -1.;
   if (shape_==ddpolycone_rrz) {
-   int loop = (p_.size()-2)/3 -1;
+   unsigned int loop = (p_.size()-2)/3 -1;
    assert(loop>0);
    double sec=0;
    DCOUT('V',"Polycone::volume(), loop=" << loop);
    int i=2;
-   for (int j=2; j<(loop+2); ++j) {
+   for (unsigned int j=2; j<(loop+2); ++j) {
      double dz= std::fabs(p_[i]-p_[i+3]);
       DCOUT('v', "   dz=" << dz/cm << "cm zi=" << p_[i] << " zii=" << p_[i+3] );
       double v_min = dz * pi/3. *(  p_[i+1]*p_[i+1] + p_[i+4]*p_[i+4]

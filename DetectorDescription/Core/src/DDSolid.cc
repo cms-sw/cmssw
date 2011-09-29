@@ -340,16 +340,16 @@ std::vector<double> DDPolySolid::getVec (const size_t& which,
   // which:  first second or third std::vector 
   // offset: number of non-std::vector components before std::vectors start
   std::string locErr;
-  size_t szVec = 0;
+//   size_t szVec = 0;
   std::vector<double> tvec; // = new std::vector<double>;
   if ( (rep().parameters().size() - offset) % numVecs != 0 ) { // / 2 != (rep().parameters().size() - 2) \ 2) {
     locErr = std::string("Could not find equal sized components of std::vectors in a PolySolid description.");
     edm::LogError ("DDSolid") << "rep().parameters().size()=" << rep().parameters().size() << "  numVecs=" << numVecs
 	 << "  offset=" << offset << std::endl;
   }
-  else {
-    szVec = (rep().parameters().size() - offset)/ numVecs;
-  }
+//   else {
+//     szVec = (rep().parameters().size() - offset)/ numVecs;
+//   }
   for (size_t i = offset + which; i < rep().parameters().size(); i = i + numVecs) {
     tvec.push_back(rep().parameters()[i]);
   }		   
