@@ -4,8 +4,8 @@
 /*
  * \file DTTriggerEfficiencyTask.h
  *
- * $Date: 2009/07/29 10:30:30 $
- * $Revision: 1.1 $
+ * $Date: 2010/01/05 10:14:40 $
+ * $Revision: 1.2 $
  * \author C. Battilana - CIEMAT
  *
 */
@@ -20,6 +20,8 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -36,11 +38,7 @@
 
 class DTGeometry;
 class DTChamberId;
-class DTRecSegment4D;
-class DTLocalTrigger;
 class DTTrigGeomUtils;
-class L1MuDTChambPhDigi;
-class L1MuDTChambThDigi;
 
 class DTTriggerEfficiencyTask: public edm::EDAnalyzer{
   
@@ -69,8 +67,8 @@ class DTTriggerEfficiencyTask: public edm::EDAnalyzer{
   /// checks for RPC Triggers
   bool hasRPCTriggers(const edm::Event& e);
 
-  /// return the top folder 0=DDU 1=DCC
-  std::string topFolder(bool source) { return source ? "DT/03-LocalTrigger-DCC/" : "DT/04-LocalTrigger-DDU/"; }
+  /// return the top folder
+  std::string topFolder(std::string source) { return source=="DCC" ? "DT/03-LocalTrigger-DCC/" : "DT/04-LocalTrigger-DDU/"; }
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);
@@ -86,12 +84,17 @@ class DTTriggerEfficiencyTask: public edm::EDAnalyzer{
   int nevents;
 
   bool processDCC, processDDU, detailedPlots;
+  std::vector<std::string> processTags;
   int minBXDDU, maxBXDDU;
 
-  int phCodeBestDCC[6][5][13];
-  int phCodeBestDDU[6][5][13];
-  const L1MuDTChambPhDigi* phBestDCC[6][5][13];
-  const DTLocalTrigger*    phBestDDU[6][5][13];
+  float phiAccRange;
+  int nMinHitsPhi;
+
+  edm::InputTag inputTagDCC;
+  edm::InputTag inputTagDDU;
+  edm::InputTag inputTagSEG;
+
+  edm::InputTag inputTagGMT;
 
   DQMStore* dbe;
   edm::ParameterSet parameters;

@@ -1,8 +1,8 @@
 /*
  * \file DTTriggerEfficiencyTask.cc
  * 
- * $Date: 2010/02/11 00:10:57 $
- * $Revision: 1.6 $
+ * $Date: 2011/06/14 14:23:54 $
+ * $Revision: 1.7 $
  * \author C.Battilana - CIEMAT
  *
 */
@@ -11,7 +11,6 @@
 
 // Framework
 #include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Utilities/interface/InputTag.h"
 
 // DT trigger
 #include "DQM/DTMonitorModule/interface/DTTrigGeomUtils.h"
@@ -64,56 +63,45 @@ void DTTriggerEfficiencyTask::beginJob(){
 
   LogTrace ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask") << "[DTTriggerEfficiencyTask]: BeginJob" << endl;
 
-  detailedPlots = parameters.getUntrackedParameter<bool>("detailedAnalysis",false);
-  processDCC = parameters.getUntrackedParameter<bool>("processDCC",true);
-  processDDU = parameters.getUntrackedParameter<bool>("processDDU",true);
-  minBXDDU = parameters.getUntrackedParameter<int>("minBXDDU",0);
-  maxBXDDU = parameters.getUntrackedParameter<int>("maxBXDDU",20);
+  inputTagDCC = parameters.getUntrackedParameter<edm::InputTag>("inputTagDCC");
+  inputTagDDU = parameters.getUntrackedParameter<edm::InputTag>("inputTagDDU");
+  inputTagSEG = parameters.getUntrackedParameter<edm::InputTag>("inputTagSEG");
+  inputTagGMT = parameters.getUntrackedParameter<edm::InputTag>("inputTagGMT");
+
+  detailedPlots = parameters.getUntrackedParameter<bool>("detailedAnalysis");
+  processDCC = parameters.getUntrackedParameter<bool>("processDCC");
+  processDDU = parameters.getUntrackedParameter<bool>("processDDU");
+  minBXDDU = parameters.getUntrackedParameter<int>("minBXDDU");
+  maxBXDDU = parameters.getUntrackedParameter<int>("maxBXDDU");
+
+  nMinHitsPhi = parameters.getUntrackedParameter<int>("nMinHitsPhi");
+  phiAccRange = parameters.getUntrackedParameter<double>("phiAccRange");
+
+  if (processDCC) processTags.push_back("DCC");
+  if (processDDU) processTags.push_back("DDU");
   
-  nevents = 0;
-
-  for (int wh=-2;wh<=2;++wh){
-    if (processDCC) {
-
-      bookWheelHistos(wh,"DCC_TrigEffDenum","Task");
-      bookWheelHistos(wh,"DCC_TrigEffNum","Task");
-      bookWheelHistos(wh,"DCC_TrigEffCorrNum","Task");
-
-      if (detailedPlots) {
-	for (int stat=1;stat<=4;++stat){
-	  for (int sect=1;sect<=12;++sect){
-	    DTChamberId dtChId(wh,stat,sect);   
-	    bookChamberHistos(dtChId,"DCC_TrackPosvsAngleAnyQual","Segment");
-	    bookChamberHistos(dtChId,"DCC_TrackPosvsAngleCorr","Segment");
-	    bookChamberHistos(dtChId,"DCC_TrackPosvsAngle","Segment");
-	  }
-	}
-      }
-    }
-    if (processDDU) {
-
-      bookWheelHistos(wh,"DDU_TrigEffDenum","Task");
-      bookWheelHistos(wh,"DDU_TrigEffNum","Task");
-      bookWheelHistos(wh,"DDU_TrigEffCorrNum","Task");
-
-      if (detailedPlots) {
-	for (int stat=1;stat<=4;++stat){
-	  for (int sect=1;sect<=12;++sect){
-	    DTChamberId dtChId(wh,stat,sect);   
-	    bookChamberHistos(dtChId,"DDU_TrackPosvsAngleAnyQual","Segment");
-	    bookChamberHistos(dtChId,"DDU_TrackPosvsAngleCorr","Segment");
-	    bookChamberHistos(dtChId,"DDU_TrackPosvsAngle","Segment");
-	  }
-	}
-      }
-    }
-  } // end of wheel loop
-
 }
 
 void DTTriggerEfficiencyTask::beginRun(const edm::Run& run, const edm::EventSetup& context){
 
   LogTrace ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask") << "[DTTriggerEfficiencyTask]: BeginRun" << endl;
+
+  nevents = 0;
+
+  for (int wh=-2;wh<=2;++wh){
+    vector<string>::const_iterator tagIt  = processTags.begin();
+    vector<string>::const_iterator tagEnd = processTags.end();
+    for (; tagIt!=tagEnd; ++tagIt) {
+      bookWheelHistos(wh,(*tagIt),"Task");
+      if (detailedPlots) {
+	for (int stat=1;stat<=4;++stat){
+	  for (int sect=1;sect<=12;++sect){
+	    bookChamberHistos(DTChamberId(wh,stat,sect),(*tagIt),"Segment");
+	  }
+	}
+      }
+    }
+  }
 
   context.get<MuonGeometryRecord>().get(muonGeom);
   trigGeomUtils = new DTTrigGeomUtils(muonGeom);
@@ -130,8 +118,6 @@ void DTTriggerEfficiencyTask::beginLuminosityBlock(const LuminosityBlock& lumiSe
 void DTTriggerEfficiencyTask::endJob(){
 
   LogTrace ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask")  << "[DTTriggerEfficiencyTask]: analyzed " << nevents << " events" << endl;
-//   if (processDDU) { dbe->rmdir(topFolder(0)); } // DDU top Folder
-//   if (processDCC) { dbe->rmdir(topFolder(1)); } // DCC top Folder
 
 }
 
@@ -142,18 +128,8 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
 
   if (!hasRPCTriggers(e)) { return; }
 
-  InputTag inputTagDCC = parameters.getUntrackedParameter<edm::InputTag>("inputTagDCC");
-  InputTag inputTagDDU = parameters.getUntrackedParameter<edm::InputTag>("inputTagDDU");
-  InputTag inputTagSEG = parameters.getUntrackedParameter<edm::InputTag>("inputTagSEG");
-
-  for (int i=0;i<5;++i){
-    for (int j=0;j<6;++j){
-      for (int k=0;k<13;++k){
-	phCodeBestDCC[j][i][k] = -1;
-	phCodeBestDDU[j][i][k] = -1;
-      }
-    }
-  }
+  map<DTChamberId,const L1MuDTChambPhDigi*> phBestDCC;
+  map<DTChamberId,const DTLocalTrigger*>    phBestDDU;
   
   // Getting best DCC Stuff
   edm::Handle<L1MuDTChambPhContainer> l1DTTPGPh;
@@ -169,12 +145,12 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
     int phst    = iph->stNum();
     int phcode  = iph->code();
 
-    if(phcode>phCodeBestDCC[phwheel+3][phst][phsec] && phcode<7) {
-      phCodeBestDCC[phwheel+3][phst][phsec]=phcode; 
-      phBestDCC[phwheel+3][phst][phsec] = &(*iph);
-    }
-  }
+    DTChamberId chId(phwheel,phst,phsec);
 
+    if( phcode < 7 && (phBestDCC.find(chId) == phBestDCC.end() || 
+		       phcode>phBestDCC[chId]->code()) ) phBestDCC[chId] = &(*iph);
+  }
+  
   //Getting Best DDU Stuff
   Handle<DTLocalTriggerCollection> trigsDDU;
   e.getByLabel(inputTagDDU,trigsDDU);
@@ -185,20 +161,15 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
     const DTChamberId& id = (*detUnitIt).first;
     const DTLocalTriggerCollection::Range& range = (*detUnitIt).second;
 
-    int wh = id.wheel();
-    int sec = id.sector();
-    int st = id.station();
-
-    for (DTLocalTriggerCollection::const_iterator trigIt = range.first; trigIt!=range.second;++trigIt){
-	
+    DTLocalTriggerCollection::const_iterator trigIt  = range.first;
+    DTLocalTriggerCollection::const_iterator trigEnd = range.second;
+    for (; trigIt!= trigEnd;++trigIt){
       int quality = trigIt->quality();
-
       if(quality>-1 && quality<7 &&
-	 quality>phCodeBestDDU[wh+3][st][sec]) {
-	phCodeBestDDU[wh+3][st][sec]=quality;
-	phBestDDU[wh+3][st][sec] = &(*trigIt);
-      }
+	 (phBestDDU.find(id) == phBestDDU.end() || 
+	  quality>phBestDDU[id]->quality()) ) phBestDDU[id] = &(*trigIt);
     }
+    
   }
 
   //Getting Best Segments
@@ -252,81 +223,58 @@ void DTTriggerEfficiencyTask::analyze(const edm::Event& e, const edm::EventSetup
     map<string, MonitorElement*> &innerChME = chamberHistos[indexCh];
     map<string, MonitorElement*> &innerWhME = wheelHistos[wheel];
     
-    if (fabs(xdir)<30. && nHitsPhi>=7){
-      
-      if (processDCC) {
-	int qual   = phCodeBestDCC[wheel+3][station][scsector];
-	innerWhME.find("DCC_TrigEffDenum")->second->Fill(scsector,station);
-	if ( qual>=0 && qual<7 ) {
-	  innerWhME.find("DCC_TrigEffNum")->second->Fill(scsector,station);
-	  if ( qual>=4 ) {
-	    innerWhME.find("DCC_TrigEffCorrNum")->second->Fill(scsector,station);
-	    // if (qual==7 ) {
-// 	      innerWhME.find("DCC_TrackPosvsAngleHH")->second->Fill(scsector,wheel);
-// 	    }
-	  }
-	}
-	if (detailedPlots) {
-	  innerChME.find("DCC_TrackPosvsAngle")->second->Fill(xdir,x);
-	  if ( qual>=0 && qual<7 ) {
-	    innerChME.find("DCC_TrackPosvsAngleAnyQual")->second->Fill(xdir,x);
-	    if ( qual>=4 ) {
-		innerChME.find("DCC_TrackPosvsAngleCorr")->second->Fill(xdir,x);	
-		// if (qual==7 ) {
-// 		  innerChME.find("DCC_TrackPosvsAngleHH")->second->Fill(xdir,x);
-// 		}
-	    }
-	  }
-	}
-      }
+    if (fabs(xdir)<phiAccRange && nHitsPhi>=nMinHitsPhi){
 
-      if (processDDU) {
-	int qual   = phCodeBestDDU[wheel+3][station][scsector];
-	innerWhME.find("DDU_TrigEffDenum")->second->Fill(scsector,station);
-	bool qualOK = qual>=0 && qual<7;
-	int bx = qualOK ? phBestDDU[wheel+3][station][scsector]->bx() : -10;
-	if ( qualOK && bx>=minBXDDU && bx<=maxBXDDU ) {
-	  innerWhME.find("DDU_TrigEffNum")->second->Fill(scsector,station);
+      vector<string>::const_iterator tagIt  = processTags.begin();
+      vector<string>::const_iterator tagEnd = processTags.end();
+
+      for (; tagIt!=tagEnd; ++tagIt) { 
+
+	int qual   = (*tagIt) == "DCC" ?
+	  phBestDCC.find(dtChId) != phBestDCC.end() ? phBestDCC[dtChId]->code() : -1 :
+	  phBestDDU.find(dtChId) != phBestDDU.end() ? phBestDDU[dtChId]->quality() : -1;
+
+	innerWhME.find((*tagIt) + "_TrigEffDenum")->second->Fill(scsector,station);
+	if ( qual>=0 && qual<7 ) {
+	  innerWhME.find((*tagIt) + "_TrigEffNum")->second->Fill(scsector,station);
 	  if ( qual>=4 ) {
-	    innerWhME.find("DDU_TrigEffCorrNum")->second->Fill(scsector,station);
-	    // if (qual==7 ) {
-// 	      innerWhME.find("DDU_TrackPosvsAngleHH")->second->Fill(scsector,wheel);
-// 	    }
+	    innerWhME.find((*tagIt) + "_TrigEffCorrNum")->second->Fill(scsector,station);
 	  }
 	}
 	if (detailedPlots) {
-	  innerChME.find("DDU_TrackPosvsAngle")->second->Fill(xdir,x);
-	  if ( qualOK && bx>+minBXDDU && bx<maxBXDDU ) {
-	    innerChME.find("DDU_TrackPosvsAngleAnyQual")->second->Fill(xdir,x);
+	  innerChME.find((*tagIt) + "_TrackPosvsAngle")->second->Fill(xdir,x);
+	  if ( qual>=0 && qual<7 ) {
+	    innerChME.find((*tagIt) + "_TrackPosvsAngleAnyQual")->second->Fill(xdir,x);
 	    if ( qual>=4 ) {
-	      innerChME.find("DDU_TrackPosvsAngleCorr")->second->Fill(xdir,x);	
-	      // if (qual==7 ) {
-// 		innerChME.find("DDU_TrackPosvsAngleHH")->second->Fill(xdir,x);
-// 	      }
+	      innerChME.find((*tagIt) + "_TrackPosvsAngleCorr")->second->Fill(xdir,x);	
 	    }
 	  }
 	}
       }
     }
   }
-
+  
 }
 
 bool DTTriggerEfficiencyTask::hasRPCTriggers(const edm::Event& e) {
 
-  InputTag inputTagGMT = parameters.getUntrackedParameter<edm::InputTag>("inputTagGMT");
   edm::Handle<L1MuGMTReadoutCollection> gmtrc; 
   e.getByLabel(inputTagGMT,gmtrc);
 
   std::vector<L1MuGMTReadoutRecord> gmt_records = gmtrc->getRecords();
-  std::vector<L1MuGMTReadoutRecord>::const_iterator igmtrr;
-   
-  for(igmtrr=gmt_records.begin(); igmtrr!=gmt_records.end(); igmtrr++) {
-    if( (*igmtrr).getBxInEvent()==0 ) {
-      std::vector<L1MuRegionalCand>::const_iterator iter1;
-      std::vector<L1MuRegionalCand> rmc = (*igmtrr).getBrlRPCCands();
-      for(iter1=rmc.begin(); iter1!=rmc.end(); iter1++) {
-	if ( !(*iter1).empty() ) {
+  std::vector<L1MuGMTReadoutRecord>::const_iterator igmtrr = gmt_records.begin();
+  std::vector<L1MuGMTReadoutRecord>::const_iterator egmtrr = gmt_records.end();
+  for(; igmtrr!=egmtrr; igmtrr++) {
+
+    std::vector<L1MuGMTExtendedCand> candsGMT = igmtrr->getGMTCands();
+    std::vector<L1MuGMTExtendedCand>::const_iterator candGMTIt   = candsGMT.begin();
+    std::vector<L1MuGMTExtendedCand>::const_iterator candGMTEnd  = candsGMT.end();
+
+    for(; candGMTIt!=candGMTEnd; ++candGMTIt){
+      if(!candGMTIt->empty()) {
+	int quality = candGMTIt->quality();
+	if(candGMTIt->bx()==0 && 
+	   (quality == 5 || quality == 7)){
 	  return true;
 	}
       }
@@ -337,7 +285,7 @@ bool DTTriggerEfficiencyTask::hasRPCTriggers(const edm::Event& e) {
   
 }
 
-void DTTriggerEfficiencyTask::bookChamberHistos(const DTChamberId& dtCh, string histoTag, string folder) {
+void DTTriggerEfficiencyTask::bookChamberHistos(const DTChamberId& dtCh, string histoType, string folder) {
   
   int wh = dtCh.wheel();		
   int sc = dtCh.sector();	
@@ -346,72 +294,87 @@ void DTTriggerEfficiencyTask::bookChamberHistos(const DTChamberId& dtCh, string 
   stringstream station; station << st;	
   stringstream sector; sector << sc;	
 
-  string histoType     = histoTag.substr(4,histoTag.find("_",4)-4);
-  string hwFolder      = topFolder(histoTag.substr(0,3)=="DCC"); 
+  string hwFolder      = topFolder(histoType); 
   string bookingFolder = hwFolder + "Wheel" + wheel.str() + "/Sector" + sector.str() + "/Station" + station.str() + "/" + folder;
-  string histoName     = histoTag + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
+  string histoTag      = "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
 
   dbe->setCurrentFolder(bookingFolder);
     
-  LogTrace ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask") << "[DTTriggerEfficiencyTask]: booking " << bookingFolder << "/" << histoName << endl;
-    
-  if( histoType.find("TrackPosvsAngle") == 0 ){
-    float min, max;
-    int nbins;
-    trigGeomUtils->phiRange(dtCh,min,max,nbins,20);
-    string histoLabel = "Position vs Angle (phi)";
-    if (histoType.find("Corr")  != string::npos) histoLabel += " for correlated triggers";
-    else if (histoType.find("AnyQual") != string::npos) histoLabel += " for any qual triggers";
-    (chamberHistos[dtCh.rawId()])[histoTag] = dbe->book2D(histoName,histoLabel,12,-30.,30.,nbins,min,max);
-    return ;
-  }
+  LogTrace ("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask") 
+    << "[DTTriggerEfficiencyTask]: booking histos in " << bookingFolder << endl;
+  
+  float min, max;
+  int nbins;
+  trigGeomUtils->phiRange(dtCh,min,max,nbins,20);
 
+  string histoName = histoType + "_TrackPosvsAngle" +  histoTag;
+  string histoLabel = "Position vs Angle (phi)";
+  (chamberHistos[dtCh.rawId()])[histoType + "_TrackPosvsAngle"] = 
+    dbe->book2D(histoName,histoLabel,12,-30.,30.,nbins,min,max);
+
+  histoName = histoType + "_TrackPosvsAngleAnyQual" +  histoTag;
+  histoLabel = "Position vs Angle (phi) for any qual triggers";
+  (chamberHistos[dtCh.rawId()])[histoType + "_TrackPosvsAngleAnyQual"] = 
+    dbe->book2D(histoName,histoLabel,12,-30.,30.,nbins,min,max);
+
+  histoName = histoType + "_TrackPosvsAngleCorr" +  histoTag;
+  histoLabel = "Position vs Angle (phi) for correlated triggers";
+  (chamberHistos[dtCh.rawId()])[histoType + "_TrackPosvsAngleCorr"] = 
+    dbe->book2D(histoName,histoLabel,12,-30.,30.,nbins,min,max);
+  
 }
 
-void DTTriggerEfficiencyTask::bookWheelHistos(int wheel,string hTag,string folder) {
-  
+void DTTriggerEfficiencyTask::bookWheelHistos(int wheel,string hTag,string folder) {  
+
   stringstream wh; wh << wheel;
   string basedir;  
-  bool isDCC = hTag.substr(0,3)=="DCC" ;  
   if (hTag.find("Summary") != string::npos ) {
-    basedir = topFolder(isDCC);   //Book summary histo outside folder directory
+    basedir = topFolder(hTag);   //Book summary histo outside folder directory
   } else {
-    basedir = topFolder(isDCC) + folder + "/" ;
+    basedir = topFolder(hTag) + folder + "/" ;
   }
-  //if (folder != "") {
-  //  basedir += folder +"/" ;
-  //}
+
   dbe->setCurrentFolder(basedir);
 
-  string hname    = hTag+ "_W" + wh.str();
+  string hTagName = "_W" + wh.str();
 
-  LogTrace("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask") << "[DTTriggerEfficiencyTask]: booking "<< basedir << hname;
+  LogTrace("DTDQM|DTMonitorModule|DTTriggerEfficiencyTask") 
+    << "[DTTriggerEfficiencyTask]: booking histos in "<< basedir << endl;  
+
+  string hName = hTag + "_TrigEffDenum" + hTagName;
+  MonitorElement* me = dbe->book2D(hName.c_str(),hName.c_str(),12,1,13,4,1,5);
   
-//   if (hTag.find("Phi")!= string::npos ||
-//       hTag.find("Summary") != string::npos ){    
-    MonitorElement* me = dbe->book2D(hname.c_str(),hname.c_str(),12,1,13,4,1,5);
-
-    me->setBinLabel(1,"MB1",2);
-    me->setBinLabel(2,"MB2",2);
-    me->setBinLabel(3,"MB3",2);
-    me->setBinLabel(4,"MB4",2);
-    me->setAxisTitle("Sector",1);
-    
-    wheelHistos[wheel][hTag] = me;
-    return;
-    //   }
+  me->setBinLabel(1,"MB1",2);
+  me->setBinLabel(2,"MB2",2);
+  me->setBinLabel(3,"MB3",2);
+  me->setBinLabel(4,"MB4",2);
+  me->setAxisTitle("Sector",1);
   
-//   if (hTag.find("Theta") != string::npos){
-//     MonitorElement* me =dbe->book2D(hname.c_str(),hname.c_str(),12,1,13,3,1,4);
+  wheelHistos[wheel][hTag + "_TrigEffDenum"] = me;
 
-//     me->setBinLabel(1,"MB1",2);
-//     me->setBinLabel(2,"MB2",2);
-//     me->setBinLabel(3,"MB3",2);
-//     me->setAxisTitle("Sector",1);
+  hName = hTag + "_TrigEffNum" + hTagName;
+  me = dbe->book2D(hName.c_str(),hName.c_str(),12,1,13,4,1,5);
+  
+  me->setBinLabel(1,"MB1",2);
+  me->setBinLabel(2,"MB2",2);
+  me->setBinLabel(3,"MB3",2);
+  me->setBinLabel(4,"MB4",2);
+  me->setAxisTitle("Sector",1);
+  
+  wheelHistos[wheel][hTag + "_TrigEffNum"] = me;
 
-//     wheelHistos[wheel][hTag] = me;
-//     return;
-//   }
+  hName = hTag + "_TrigEffCorrNum" + hTagName;
+  me = dbe->book2D(hName.c_str(),hName.c_str(),12,1,13,4,1,5);
+  
+  me->setBinLabel(1,"MB1",2);
+  me->setBinLabel(2,"MB2",2);
+  me->setBinLabel(3,"MB3",2);
+  me->setBinLabel(4,"MB4",2);
+  me->setAxisTitle("Sector",1);
+  
+  wheelHistos[wheel][hTag + "_TrigEffCorrNum"] = me;
+
+  return;
   
 }
 
