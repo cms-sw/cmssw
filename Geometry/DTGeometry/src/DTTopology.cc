@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2006/03/20 19:22:21 $
- *  $Revision: 1.2 $
+ *  $Date: 2011/09/27 09:23:01 $
+ *  $Revision: 1.3 $
  *  \author R. Bellan  - INFN Torino
  */
 
@@ -87,7 +87,7 @@ DTTopology::channel( const LocalPoint& lp) const
 float
 DTTopology::wirePosition(int wireNumber) const
 {
-  if (wireNumber - (theFirstChannel-1) <= 0 || wireNumber > lastChannel() )
+  if (!isWireValid( wireNumber ))//- (theFirstChannel-1) <= 0. || wireNumber > lastChannel() )
     throw cms::Exception("InvalidWireNumber") << "DTTopology::wirePosition:" 
 					      << " Requested wire number: "<< wireNumber 
 					      << " ,but the first wire number is "<< theFirstChannel

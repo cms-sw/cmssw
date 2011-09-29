@@ -94,7 +94,7 @@ void DDEcalPreshowerAlgoTB::doLayers(DDCompactView& cpv) {
   for(size_t i = 0; i<rminVec.size(); ++i) {
     int I = int(i)+1; // FOTRAN I (offset +1)
     
-    double rIn(0),rOut(0),zHalf(0);
+    double zHalf(0);
       
     // create the name
     std::ostringstream name;
@@ -102,8 +102,8 @@ void DDEcalPreshowerAlgoTB::doLayers(DDCompactView& cpv) {
     DDName ddname(name.str(), idNameSpace); // namespace:name
       
     // tube dimensions
-    rIn = rmaxVec[i];
-    rOut = rminVec[i];
+    //     rIn = rmaxVec[i];
+    //     rOut = rminVec[i];
     zHalf = thickLayers_[i]/2.;
 
     // position the logical part w.r.t. the parent volume
