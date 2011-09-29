@@ -1,5 +1,5 @@
 //
-// $Id: Tau.cc,v 1.19 2011/07/21 16:42:41 veelken Exp $
+// $Id: Tau.cc,v 1.20 2011/09/29 08:42:45 veelken Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Tau.h"
@@ -477,9 +477,9 @@ const reco::PFCandidateRefVector & Tau::signalPFGammaCands() const {
     return pfSpecific().selectedSignalPFGammaCands_;
 }
 
-//const std::vector<reco::RecoTauPiZero> & Tau::signalPiZeroCandidates() const {
-//  return pfSpecific().signalPiZeroCandidates_;
-//}
+const std::vector<reco::RecoTauPiZero> & Tau::signalPiZeroCandidates() const {
+  return pfSpecific().signalPiZeroCandidates_;
+}
 
 const reco::PFCandidateRefVector & Tau::isolationPFCands() const {
   if (embeddedIsolationPFCands_) {
@@ -541,9 +541,9 @@ const reco::PFCandidateRefVector & Tau::isolationPFGammaCands() const {
     return pfSpecific().selectedIsolationPFGammaCands_;
 }
 
-//const std::vector<reco::RecoTauPiZero> & Tau::isolationPiZeroCandidates() const {
-//  return pfSpecific().isolationPiZeroCandidates_;
-//}
+const std::vector<reco::RecoTauPiZero> & Tau::isolationPiZeroCandidates() const {
+  return pfSpecific().isolationPiZeroCandidates_;
+}
 
 /// ============= -Tau-jet Energy Correction methods ============
 /// (copied from DataFormats/PatCandidates/src/Jet.cc)

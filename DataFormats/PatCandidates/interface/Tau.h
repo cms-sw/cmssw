@@ -1,5 +1,5 @@
 //
-// $Id: Tau.h,v 1.30 2011/07/21 16:42:41 veelken Exp $
+// $Id: Tau.h,v 1.31 2011/09/29 08:42:42 veelken Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Tau_h
@@ -17,7 +17,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Christophe Delaere, Giovanni Petrucciani, Frederic Ronga, Colin Bernet
-  \version  $Id: Tau.h,v 1.30 2011/07/21 16:42:41 veelken Exp $
+  \version  $Id: Tau.h,v 1.31 2011/09/29 08:42:42 veelken Exp $
 */
 
 
@@ -183,7 +183,7 @@ namespace pat {
       const reco::PFCandidateRefVector & signalPFGammaCands() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      //const std::vector<reco::RecoTauPiZero> & signalPiZeroCandidates() const;
+      const std::vector<reco::RecoTauPiZero> & signalPiZeroCandidates() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
       const reco::PFCandidateRefVector & isolationPFCands() const;
@@ -198,7 +198,7 @@ namespace pat {
       const reco::PFCandidateRefVector & isolationPFGammaCands() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
-      //const std::vector<reco::RecoTauPiZero> & isolationPiZeroCandidates() const;
+      const std::vector<reco::RecoTauPiZero> & isolationPiZeroCandidates() const;
       /// Method copied from reco::PFTau. 
       /// Throws an exception if this pat::Tau was not made from a reco::PFTau
       float isolationPFChargedHadrCandsPtSum() const { return pfSpecific().isolationPFChargedHadrCandsPtSum_; }
