@@ -36,7 +36,7 @@ ChannelCompatibilityCheck::ChannelCompatibilityCheck() :
         ("minimizerStrategy",  boost::program_options::value<int>(&minimizerStrategy_)->default_value(minimizerStrategy_),      "Stragegy for minimizer")
         ("fixedSignalStrength", boost::program_options::value<float>(&mu_)->default_value(mu_),  "Compute the compatibility for a fixed signal strength. If not specified, it's left floating")
         ("saveFitResult",       "Save fit results in output file")
-        ("groups",              boost::program_options::value<std::string>(), "Group channels according to the specified list of expressions (NOT IMPLEMENTED YET)")
+        ("group,g",             boost::program_options::value<std::vector<std::string> >(&groups_), "Group together channels that contain a given name. Can be used multiple times.")
     ;
 }
 
@@ -59,15 +59,15 @@ bool ChannelCompatibilityCheck::run(RooWorkspace *w, RooStats::ModelConfig *mc_s
   int nbins = cat->numBins((const char *)0);
   TString satname = TString::Format("%s_freeform", sim->GetName());
   std::auto_ptr<RooSimultaneous> newsim((typeid(*sim) == typeid(RooSimultaneousOpt)) ? new RooSimultaneousOpt(satname, "", *cat) : new RooSimultaneous(satname, "", *cat)); 
-  std::vector<std::pair<std::string,std::string> > rs;
+  std::map<std::string,std::string> rs;
   RooArgSet minosVars;
   for (int ic = 0, nc = nbins; ic < nc; ++ic) {
       cat->setBin(ic);
       RooAbsPdf *pdfi = sim->getPdf(cat->getLabel());
       if (pdfi == 0) continue;
       RooCustomizer customizer(*pdfi, "freeform");
-      TString riName = TString::Format("_ChannelCompatibilityCheck_%s_%s", r->GetName(), cat->getLabel());
-      rs.push_back(std::pair<std::string,std::string>(cat->getLabel(), riName.Data()));
+      TString riName = TString::Format("_ChannelCompatibilityCheck_%s_%s", r->GetName(), nameForLabel(cat->getLabel()).c_str());
+      rs.insert(std::pair<std::string,std::string>(nameForLabel(cat->getLabel()), riName.Data()));
       if (w->var(riName) == 0) {
         w->factory(TString::Format("%s[%g,%g]", riName.Data(), r->getMin(), r->getMax()));
       }
@@ -100,9 +100,9 @@ bool ChannelCompatibilityCheck::run(RooWorkspace *w, RooStats::ModelConfig *mc_s
         RooRealVar *rNominal = (RooRealVar*) result_nominal->floatParsFinal().find(r->GetName());
         printf("Nominal fit  : %s = %7.4f  %+6.4f/%+6.4f\n", r->GetName(), rNominal->getVal(), rNominal->getAsymErrorLo(), rNominal->getAsymErrorHi());
     }
-    for (int i = 0, n = rs.size(); i < n; ++i) {
-        RooRealVar *ri = (RooRealVar*) result_freeform->floatParsFinal().find(rs[i].second.c_str());
-        printf("Alternate fit: %s = %7.4f  %+6.4f/%+6.4f   in channel %s\n", r->GetName(), ri->getVal(), ri->getAsymErrorLo(), ri->getAsymErrorHi(), rs[i].first.c_str());
+    for (std::map<std::string,std::string>::const_iterator it = rs.begin(), ed = rs.end(); it != ed; ++it) {
+        RooRealVar *ri = (RooRealVar*) result_freeform->floatParsFinal().find(it->second.c_str());
+        printf("Alternate fit: %s = %7.4f  %+6.4f/%+6.4f   in channel %s\n", r->GetName(), ri->getVal(), ri->getAsymErrorLo(), ri->getAsymErrorHi(), it->first.c_str());
     }
   }
   std::cout << "Chi2-like compatibility variable: " << limit << std::endl;
@@ -114,4 +114,12 @@ bool ChannelCompatibilityCheck::run(RooWorkspace *w, RooStats::ModelConfig *mc_s
   return true;
 }
 
+std::string ChannelCompatibilityCheck::nameForLabel(const char *label)
+{
+    std::string ret(label);
+    for (std::vector<std::string>::const_iterator it = groups_.begin(), ed = groups_.end(); it != ed; ++it) {
+        if (ret.find(*it) != std::string::npos) { ret = *it; break; }
+    }
+    return ret;
+}
 

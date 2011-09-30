@@ -22,6 +22,8 @@ public:
   virtual void applyOptions(const boost::program_options::variables_map &vm) ;
 
 protected:
+  std::string nameForLabel(const char *label) ;
+
   static std::string minimizerAlgo_;
   static float       minimizerTolerance_;
   static int         minimizerStrategy_;
