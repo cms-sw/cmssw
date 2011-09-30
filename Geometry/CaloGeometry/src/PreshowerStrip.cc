@@ -27,7 +27,6 @@ PreshowerStrip::operator=( const PreshowerStrip& tr )
   {
     CaloCellGeometry::operator=( tr ) ;
   }
-  std::cout << tr << std::endl;
   return *this ; 
 }
 
