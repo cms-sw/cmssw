@@ -12,9 +12,9 @@
  *
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: JetCorrExtractorT.h,v 1.1 2011/09/16 08:03:38 veelken Exp $
+ * $Id: JetCorrExtractorT.h,v 1.2 2011/09/30 08:11:33 veelken Exp $
  *
  */
 
@@ -42,22 +42,11 @@ namespace
     return jetCorrector->correction(rawJet, evt, es);
   }
 
-  template <typename T>
-  double getCorrection(const T& rawJet, const std::string& jetCorrLabel, 
-		       const edm::Event& evt, const edm::EventSetup& es, 
-		       const edm::RefToBase<reco::Jet>& rawJetRef, 
-		       double maxResidualCorr)
+  double sign(double x)
   {
-    double jetCorrFactor = getCorrection(rawJet, jetCorrLabel, evt, es, rawJetRef);
-    if ( maxResidualCorr < 9.9 && jetCorrLabel.find("Residual") != std::string::npos ) {
-      std::string jetCorrLabel_exclResidualCorr = std::string(jetCorrLabel, 0, jetCorrLabel.find("Residual"));
-      double jetCorrFactor_exclResidualCorr = getCorrection(rawJet, jetCorrLabel_exclResidualCorr, evt, es, rawJetRef);
-      if ( jetCorrFactor_exclResidualCorr > 0. ) {
-	double residualCorr = jetCorrFactor/jetCorrFactor_exclResidualCorr;
-	if ( residualCorr > maxResidualCorr ) jetCorrFactor = maxResidualCorr*jetCorrFactor_exclResidualCorr;
-      }
-    }
-    return jetCorrFactor;
+    if      ( x > 0. ) return +1.;
+    else if ( x < 0. ) return -1.;
+    else               return  0.;
   }
 }
 
@@ -69,7 +58,7 @@ class JetCorrExtractorT
   reco::Candidate::LorentzVector operator()(const T& rawJet, const std::string& jetCorrLabel, 
 					    const edm::Event* evt = 0, const edm::EventSetup* es = 0, 
 					    const edm::RefToBase<reco::Jet>* rawJetRef = 0, 
-					    double jetCorrEtaMax = 9.9, double maxResidualCorr = 9.9,
+					    double jetCorrEtaMax = 9.9, 
 					    const reco::Candidate::LorentzVector* rawJetP4_specified = 0)
   {
     // "general" implementation requires access to edm::Event and edm::EventSetup,
@@ -88,17 +77,17 @@ class JetCorrExtractorT
     //  https://hypernews.cern.ch/HyperNews/CMS/get/JetMET/1259/1.html
     double jetCorrFactor = 1.;
     if ( fabs(rawJetP4.eta()) < jetCorrEtaMax ) {      
-      jetCorrFactor = getCorrection(rawJet, jetCorrLabel, *evt, *es, *rawJetRef, maxResidualCorr);
+      jetCorrFactor = getCorrection(rawJet, jetCorrLabel, *evt, *es, *rawJetRef);
     } else {
       reco::Candidate::PolarLorentzVector modJetPolarP4(rawJetP4);
-      modJetPolarP4.SetEta(TMath::Sign(rawJetP4.eta())*jetCorrEtaMax);
+      modJetPolarP4.SetEta(sign(rawJetP4.eta())*jetCorrEtaMax);
       
       reco::Candidate::LorentzVector modJetP4(modJetPolarP4);
       
       T modJet(rawJet);
       modJet.setP4(modJetP4);
       
-      jetCorrFactor = getCorrection(modJet, jetCorrLabel, *evt, *es, *rawJetRef, maxResidualCorr);
+      jetCorrFactor = getCorrection(modJet, jetCorrLabel, *evt, *es, *rawJetRef);
     }
 
     reco::Candidate::LorentzVector corrJetP4 = rawJetP4;

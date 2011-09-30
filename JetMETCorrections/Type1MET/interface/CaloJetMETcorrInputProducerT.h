@@ -10,9 +10,9 @@
  *          Florent Lacroix, University of Illinois at Chicago
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: CaloJetMETcorrInputProducerT.h,v 1.1 2011/09/16 08:03:37 veelken Exp $
+ * $Id: CaloJetMETcorrInputProducerT.h,v 1.2 2011/09/30 08:10:55 veelken Exp $
  *
  */
 
@@ -72,9 +72,6 @@ class CaloJetMETcorrInputProducerT : public edm::EDProducer
 
     jetCorrEtaMax_ = ( cfg.exists("jetCorrEtaMax") ) ?
       cfg.getParameter<double>("jetCorrEtaMax") : 9.9;
-
-    maxResidualCorr_ = ( cfg.exists("maxResidualCorr") ) ?
-      cfg.getParameter<double>("maxResidualCorr") : 9.9;
 
     type1JetPtThreshold_ = cfg.getParameter<double>("type1JetPtThreshold");
 
@@ -139,7 +136,7 @@ class CaloJetMETcorrInputProducerT : public edm::EDProducer
       edm::RefToBase<reco::Jet> rawJetRef(edm::Ref<JetCollection>(jets, jetIndex));
 
       reco::Candidate::LorentzVector corrJetP4 = jetCorrExtractor_(rawJet, jetCorrLabel_, 
-								   &evt, &es, &rawJetRef, jetCorrEtaMax_, maxResidualCorr_);
+								   &evt, &es, &rawJetRef, jetCorrEtaMax_);
       if ( corrJetP4.pt() > type1JetPtThreshold_ ) {
 	
 	unclEnergySum->mex   -= rawJetP4.px();
@@ -151,7 +148,7 @@ class CaloJetMETcorrInputProducerT : public edm::EDProducer
 	reco::Candidate::LorentzVector rawJetP4offsetCorr = rawJetP4;
 	if ( offsetCorrLabel_ != "" ) {
 	  rawJetP4offsetCorr = jetCorrExtractor_(rawJet, offsetCorrLabel_, 
-						 &evt, &es, &rawJetRef, jetCorrEtaMax_, maxResidualCorr_);
+						 &evt, &es, &rawJetRef, jetCorrEtaMax_);
 	  
 	  offsetEnergySum->mex   += (rawJetP4.px() - rawJetP4offsetCorr.px());
 	  offsetEnergySum->mey   += (rawJetP4.py() - rawJetP4offsetCorr.py());
@@ -189,8 +186,6 @@ class CaloJetMETcorrInputProducerT : public edm::EDProducer
                          // reported in
                          //  https://hypernews.cern.ch/HyperNews/CMS/get/jes/270.html
                          //  https://hypernews.cern.ch/HyperNews/CMS/get/JetMET/1259/1.html
-
-  double maxResidualCorr_; // upper limit on L2/L3 residual correction
 
   double type1JetPtThreshold_; // threshold to distinguish between jets entering Type 1 MET correction
                                // and jets entering "unclustered energy" sum

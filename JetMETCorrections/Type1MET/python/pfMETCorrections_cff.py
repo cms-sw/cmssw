@@ -21,29 +21,12 @@ ak5PFJets.doAreaFastjet = cms.bool(True)
 #--------------------------------------------------------------------------------
 
 #--------------------------------------------------------------------------------
-# select PFCandidates for Type 2 MET correction:
-#  (1) select PFCandidates ("unclustered energy") not within jets
+# select PFCandidates ("unclustered energy") not within jets
+# for Type 2 MET correction
 from CommonTools.ParticleFlow.TopProjectors.pfNoJet_cfi import pfNoJet
 pfCandsNotInJet = pfNoJet.clone(
     topCollection = cms.InputTag('ak5PFJets'),
     bottomCollection = cms.InputTag('particleFlow')
-)
-#  (2) select subset of PFCandidates corresponding to neutral hadrons or photons
-from CommonTools.ParticleFlow.ParticleSelectors.pfAllChargedHadrons_cfi import pfAllChargedHadrons
-from CommonTools.ParticleFlow.ParticleSelectors.pfAllElectrons_cfi import pfAllElectrons
-from CommonTools.ParticleFlow.ParticleSelectors.pfAllMuons_cfi import pfAllMuons
-from CommonTools.ParticleFlow.ParticleSelectors.pfAllNeutralHadrons_cfi import pfAllNeutralHadrons
-from CommonTools.ParticleFlow.ParticleSelectors.pfAllPhotons_cfi import pfAllPhotons
-pfType2CandPdgIds = []
-#pfType2CandPdgIds.extend(pfAllChargedHadrons.pdgId.value())
-#pfType2CandPdgIds.extend(pfAllElectrons.pdgId.value())
-#pfType2CandPdgIds.extend(pfAllMuons.pdgId.value())
-pfType2CandPdgIds.extend(pfAllNeutralHadrons.pdgId.value())
-pfType2CandPdgIds.extend(pfAllPhotons.pdgId.value())
-
-pfType2Cands = cms.EDFilter("PdgIdPFCandidateSelector",
-    src = cms.InputTag('pfCandsNotInJet'),
-    pdgId = cms.vint32(pfType2CandPdgIds)
 )
 #--------------------------------------------------------------------------------
 
@@ -54,7 +37,6 @@ pfJetMETcorr = cms.EDProducer("PFJetMETcorrInputProducer",
     offsetCorrLabel = cms.string("ak5PFL1Fastjet"),
     jetCorrLabel = cms.string("ak5PFL1FastL2L3"), # NOTE: use "ak5PFL1FastL2L3" for MC / "ak5PFL1FastL2L3Residual" for Data
     jetCorrEtaMax = cms.double(4.7),
-    maxResidualCorr = cms.double(9.9), # no restriction, take all Data-to-MC corrections determined by JetMET group as they are
     type1JetPtThreshold = cms.double(10.0),
     skipEM = cms.bool(True),
     skipEMfractionThreshold = cms.double(0.90),
@@ -106,7 +88,6 @@ producePFMETCorrections = cms.Sequence(
     kt6PFJets
    * ak5PFJets
    * pfCandsNotInJet
-   * pfType2Cands
    * pfJetMETcorr
    * pfCandMETcorr
    * pfType1CorrectedMet
