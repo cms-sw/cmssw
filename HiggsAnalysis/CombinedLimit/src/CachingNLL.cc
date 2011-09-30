@@ -470,7 +470,8 @@ cacheutils::CachingSimNLL::evaluate() const
         for (std::vector<RooAbsPdf *>::const_iterator it = constrainPdfs_.begin(), ed = constrainPdfs_.end(); it != ed; ++it) { 
             double pdfval = (*it)->getVal(nuis_);
             if (pdfval == 0) logEvalError((std::string("Constraint pdf ")+(*it)->GetName()+" evaluated to zero").c_str());
-            ret -= (pdfval > 1e-7 ? log(pdfval) : log(1e-7)-pdfval);
+            //ret -= (pdfval > 1e-7 ? log(pdfval) : log(1e-7)-pdfval);
+            ret -= log(pdfval);
         }
     }
 #ifdef TRACE_NLL_EVALS

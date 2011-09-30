@@ -52,6 +52,7 @@
 #include "../interface/CloseCoutSentry.h"
 #include "../interface/RooSimultaneousOpt.h"
 #include "../interface/ToyMCSamplerOpt.h"
+#include "../interface/AsimovUtils.h"
 
 using namespace RooStats;
 using namespace RooFit;
@@ -411,7 +412,17 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     iToy = nToys;
     if (iToy == -1) {	
         if (newGen_) {
-            dobs = newToyMC.generateAsimov(weightVar_); // as simple as that
+            if (toysFrequentist_) {
+                if (dobs == 0) throw std::invalid_argument("Frequentist Asimov datasets can't be generated without a real dataset to fit");
+                RooArgSet gobsAsimov;
+                dobs = asimovutils::asimovDatasetWithFit(mc, *dobs, gobsAsimov, expectSignal_, verbose);
+                if (mc->GetGlobalObservables()) {
+                    RooArgSet gobs(*mc->GetGlobalObservables());
+                    gobs = gobsAsimov;
+                }
+            } else {
+                dobs = newToyMC.generateAsimov(weightVar_); // as simple as that
+            }
         } else if (isExtended) {
             if (unbinned_) {
                 throw std::invalid_argument("Asimov datasets can only be generated binned");
