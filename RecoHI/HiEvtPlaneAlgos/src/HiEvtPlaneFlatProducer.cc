@@ -14,7 +14,7 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Sat Jun 26 16:04:04 EDT 2010
-// $Id: HiEvtPlaneFlatProducer.cc,v 1.5 2011/09/30 12:20:30 yilmaz Exp $
+// $Id: HiEvtPlaneFlatProducer.cc,v 1.6 2011/09/30 18:06:41 yilmaz Exp $
 //
 //
 
@@ -257,7 +257,7 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   for(int i = 0; i< NumEPNames; i++) {
     if(ep[i]!=0) evtplaneOutput->push_back(*ep[i]);
   }
-  iEvent.put(evtplaneOutput, "recoLevel");
+  iEvent.put(evtplaneOutput);
   storeNames_ = 0;  
 }
 
