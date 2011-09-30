@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Sergey Petrushanko
 //         Created:  Fri Jul 11 10:05:00 2008
-// $Id: EvtPlaneProducer.cc,v 1.15 2011/09/30 12:14:04 yilmaz Exp $
+// $Id: EvtPlaneProducer.cc,v 1.16 2011/09/30 12:20:30 yilmaz Exp $
 //
 //
 #define TRACKCOLLECTION 1
@@ -242,7 +242,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double tower_energyet, tower_energyet_e, tower_energyet_h;
     double s1, s2, s11, s21,s13,s23,s14,s24,s15,s25,s16,s26;
     Handle<CaloTowerCollection> calotower;
-    iEvent.getByLabel("towerMaker",calotower);
+    iEvent.getByLabel(caloCollection_,calotower);
     
     if(calotower.isValid()){
       
@@ -309,8 +309,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     double track_charge;
 #ifdef TRACKCOLLECTION  
     Handle<reco::TrackCollection> tracks;
-    //    iEvent.getByLabel("hiSelectedTracks", tracks);
-    iEvent.getByLabel("hiGoodTightMergedTracks", tracks);
+    iEvent.getByLabel(trackCollection_, tracks);
     
     if(tracks.isValid()){
       for(reco::TrackCollection::const_iterator j = tracks->begin(); j != tracks->end(); j++){
@@ -327,7 +326,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  for(reco::RecoChargedCandidateCollection::const_iterator j = tracks->begin(); j != tracks->end(); j++){
 #endif  
 	edm::Handle<reco::VertexCollection> vertex;
-	iEvent.getByLabel("hiSelectedVertex", vertex);
+	iEvent.getByLabel(vtxCollection_, vertex);
 	
 // find the vertex point and error
 

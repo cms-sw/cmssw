@@ -14,7 +14,7 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Sat Jun 26 16:04:04 EDT 2010
-// $Id: HiEvtPlaneFlatProducer.cc,v 1.4 2011/09/30 12:14:04 yilmaz Exp $
+// $Id: HiEvtPlaneFlatProducer.cc,v 1.5 2011/09/30 12:20:30 yilmaz Exp $
 //
 //
 
@@ -238,7 +238,6 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     ep[i]=0;
   }
   for (EvtPlaneCollection::const_iterator rp = evtPlanes->begin();rp !=evtPlanes->end(); rp++) {
-    size_t pos;
     if(rp->angle() > -5) {
       string baseName = rp->label();
       for(int i = 0; i< NumEPNames; i++) {
