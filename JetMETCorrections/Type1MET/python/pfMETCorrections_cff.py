@@ -54,8 +54,8 @@ pfJetMETcorr = cms.EDProducer("PFJetMETcorrInputProducer",
     offsetCorrLabel = cms.string("ak5PFL1Fastjet"),
     jetCorrLabel = cms.string("ak5PFL1FastL2L3"), # NOTE: use "ak5PFL1FastL2L3" for MC / "ak5PFL1FastL2L3Residual" for Data
     jetCorrEtaMax = cms.double(4.7),
+    maxResidualCorr = cms.double(9.9), # no restriction, take all Data-to-MC corrections determined by JetMET group as they are
     type1JetPtThreshold = cms.double(10.0),
-    #type1JetPtThreshold = cms.double(6.0),                          
     skipEM = cms.bool(True),
     skipEMfractionThreshold = cms.double(0.90),
     skipMuons = cms.bool(True),
@@ -66,7 +66,6 @@ pfJetMETcorr = cms.EDProducer("PFJetMETcorrInputProducer",
 #--------------------------------------------------------------------------------
 # produce Type 2 MET corrections for selected PFCandidates
 pfCandMETcorr = cms.EDProducer("PFCandMETcorrInputProducer",
-    #src = cms.InputTag('pfType2Cands')
     src = cms.InputTag('pfCandsNotInJet')                         
 )   
 #--------------------------------------------------------------------------------
@@ -91,13 +90,12 @@ pfType1p2CorrectedMet = cms.EDProducer("CorrectedPFMETProducer",
     applyType2Corrections = cms.bool(True),
     srcUnclEnergySums = cms.VInputTag(
         cms.InputTag('pfJetMETcorr', 'type2'),
-        #cms.InputTag('pfJetMETcorr', 'offset'),
+        cms.InputTag('pfJetMETcorr', 'offset'),
         cms.InputTag('pfCandMETcorr')                                    
     ),                              
     type2CorrFormula = cms.string("A"),
     type2CorrParameter = cms.PSet(
         A = cms.double(1.2)
-        #A = cms.double(1.1)                                   
     )
 )   
 #--------------------------------------------------------------------------------
