@@ -129,6 +129,14 @@ process.load("DQM.L1TMonitor.L1TSync_cff")
 # l1tMonitorClient and l1tMonitorClientEndPathSeq
 process.load("DQM.L1TMonitorClient.L1TMonitorClient_cff")   
 
+# change the DB connections when not at P5 - works on lxplus only...
+if ( l1DqmEnv == 'file' ) : 
+    process.l1tSync.oracleDB = cms.string("oracle://cms_orcoff_prod/CMS_COND_31X_L1T")
+    process.l1tSync.pathCondDB = cms.string("/afs/cern.ch/cms/DB/conddb")
+    #
+    process.l1tRate.oracleDB = cms.string("oracle://cms_orcoff_prod/CMS_COND_31X_L1T")
+    process.l1tRate.pathCondDB = cms.string("/afs/cern.ch/cms/DB/conddb")
+    
 
 #-------------------------------------
 # paths & schedule for L1 Trigger DQM
@@ -208,7 +216,7 @@ process.schedule = cms.Schedule(process.rawToDigiPath,
 
 #process.l1tMonitorOnline.remove(process.l1ExtraDqmSeq)
 
-process.l1tMonitorOnline.remove(process.l1tRate)
+#process.l1tMonitorOnline.remove(process.l1tRate)
 
 #process.l1tMonitorOnline.remove(process.l1tRctSeq)
 
@@ -221,7 +229,7 @@ process.l1tMonitorOnline.remove(process.l1tRate)
 #process.l1tMonitorEndPathSeq.remove(process.l1tscalers)
 
 #
-process.schedule.remove(process.l1tSyncPath)
+#process.schedule.remove(process.l1tSyncPath)
 
                                     
 #
