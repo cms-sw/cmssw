@@ -236,7 +236,8 @@ def loadPF2PAT(process,mcInfo,jetMetCorrections,extMatch,doSusyTopProjection,pos
 
 
     #PF type I corrected MET
-    addPFTypeIMet(process)
+	# Temporarily disabled for first 44X recipe -- Benjamin
+    # addPFTypeIMet(process)
 
     #Set isolation cone to 0.3
     process.isoValElectronWithChargedPF.deposits[0].deltaR = 0.3
