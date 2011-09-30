@@ -7,10 +7,11 @@ from CalibMuon.DTCalibration.DTCalibMuonSelection_cfi import *
 
 # AlCaReco for DT calibration
 ALCARECODtCalibHIHLTFilter = copy.deepcopy(hltHighLevel)
-ALCARECODtCalibHIHLTFilter.andOr = True ## choose logical OR between Triggerbits
-ALCARECODtCalibHIHLTFilter.HLTPaths = ['HLT_HIL1SingleMu3']
-#ALCARECODtCalibHIHLTFilter.throw = False ## dont throw on unknown path names
-#ALCARECODtCalibHIHLTFilter.eventSetupPathsKey = 'MuAlcaDtCalibHI'
+#ALCARECODtCalibHIHLTFilter.andOr = True ## choose logical OR between Triggerbits
+#ALCARECODtCalibHIHLTFilter.HLTPaths = ['HLT_HIL1SingleMu3']
+#ALCARECODtCalibHIHLTFilter.HLTPaths = ['HLT_.*']
+ALCARECODtCalibHIHLTFilter.throw = False ## dont throw on unknown path names
+ALCARECODtCalibHIHLTFilter.eventSetupPathsKey = 'MuAlcaDtCalibHI'
 
 import RecoLocalMuon.DTSegment.dt4DSegments_CombPatternReco4D_LinearDriftFromDB_cfi as dt4DSegmentsCfiRef
 dt4DSegmentsNoWire = dt4DSegmentsCfiRef.dt4DSegments.clone()
@@ -19,7 +20,7 @@ dt4DSegmentsNoWire.Reco4DAlgoConfig.Reco2DAlgoConfig.recAlgoConfig.tTrigModeConf
 
 #this is to select collisions
 primaryVertexFilter = cms.EDFilter("VertexSelector",
-   src = cms.InputTag("offlinePrimaryVertices"),
+   src = cms.InputTag("hiSelectedVertex"),
    cut = cms.string("!isFake && ndof > 4 && abs(z) <= 15 && position.Rho <= 2"),
    filter = cms.bool(True),
 )
@@ -31,5 +32,6 @@ noscraping = cms.EDFilter("FilterOutScraping",
    thresh = cms.untracked.double(0.25)
 )
 
-#seqALCARECODtCalibHI = cms.Sequence(primaryVertexFilter * noscraping * ALCARECODtCalibHIHLTFilter * DTCalibMuonSelection * dt4DSegmentsNoWire) 
-seqALCARECODtCalibHI = cms.Sequence(ALCARECODtCalibHIHLTFilter * primaryVertexFilter * DTCalibMuonSelection * dt4DSegmentsNoWire) 
+#seqALCARECODtCalibHI = cms.Sequence(ALCARECODtCalibHIHLTFilter * primaryVertexFilter * DTCalibMuonSelection * dt4DSegmentsNoWire) 
+
+seqALCARECODtCalibHI = cms.Sequence(ALCARECODtCalibHIHLTFilter * dt4DSegmentsNoWire) 

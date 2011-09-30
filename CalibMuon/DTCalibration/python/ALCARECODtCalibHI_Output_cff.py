@@ -15,7 +15,8 @@ OutALCARECODtCalibHI_noDrop = cms.PSet(
         'keep *_TriggerResults_*_*',
         'keep recoTracks_cosmicMuons_*_*',
         'keep recoMuons_muons_*_*',
-        'keep booledmValueMap_muid*_*_*')
+        'keep booledmValueMap_muid*_*_*',
+        'keep *_hiSelectedVertex_*_*')
 )
 
 
