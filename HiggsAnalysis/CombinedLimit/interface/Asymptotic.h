@@ -36,6 +36,8 @@ private:
   static float       minimizerTolerance_;
   static int         minimizerStrategy_;
 
+  static double rValue_;
+
   bool    hasFloatParams_;
   mutable std::auto_ptr<RooArgSet>  params_;
   mutable std::auto_ptr<RooAbsReal> nllD_, nllA_; 

@@ -29,6 +29,8 @@ bool  Asymptotic::noMinos_ = false;
 std::string Asymptotic::minimizerAlgo_ = "Minuit2";
 float       Asymptotic::minimizerTolerance_ = 0.1;
 int         Asymptotic::minimizerStrategy_  = 0;
+double Asymptotic::rValue_ = 1.0;
+
 
 Asymptotic::Asymptotic() : 
 LimitAlgo("Asymptotic specific options") {
@@ -36,6 +38,7 @@ LimitAlgo("Asymptotic specific options") {
         ("rAbsAcc", boost::program_options::value<double>(&rAbsAccuracy_)->default_value(rAbsAccuracy_), "Absolute accuracy on r to reach to terminate the scan")
         ("rRelAcc", boost::program_options::value<double>(&rRelAccuracy_)->default_value(rRelAccuracy_), "Relative accuracy on r to reach to terminate the scan")
         ("run", boost::program_options::value<std::string>(&what_)->default_value(what_), "What to run: both (default), observed, expected.")
+        ("singlePoint",  boost::program_options::value<double>(&rValue_),  "Just compute CLs for the given value of r")
         ("minimizerAlgo",      boost::program_options::value<std::string>(&minimizerAlgo_)->default_value(minimizerAlgo_), "Choice of minimizer used for profiling (Minuit vs Minuit2)")
         ("minimizerTolerance", boost::program_options::value<float>(&minimizerTolerance_)->default_value(minimizerTolerance_),  "Tolerance for minimizer used for profiling")
         ("minimizerStrategy",  boost::program_options::value<int>(&minimizerStrategy_)->default_value(minimizerStrategy_),      "Stragegy for minimizer")
@@ -46,8 +49,13 @@ LimitAlgo("Asymptotic specific options") {
 }
 
 void Asymptotic::applyOptions(const boost::program_options::variables_map &vm) {
-    if (what_ != "observed" && what_ != "expected" && what_ != "both") 
-        throw std::invalid_argument("Asymptotic: option 'run' can only be 'observed', 'expected' or 'both' (the default)");
+    if (vm.count("singlePoint") && !vm["singlePoint"].defaulted()) {
+        if (!vm["run"].defaulted()) throw std::invalid_argument("Asymptotic: when using --singlePoint you can't use --run (at least for now)");
+        what_ = "singlePoint";
+    } else {
+        if (what_ != "observed" && what_ != "expected" && what_ != "both") 
+            throw std::invalid_argument("Asymptotic: option 'run' can only be 'observed', 'expected' or 'both' (the default)");
+    }
     picky_ = vm.count("picky");
     noMinos_ = vm.count("noMinos");
 }
@@ -61,16 +69,20 @@ bool Asymptotic::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::Mod
     ProfileLikelihood::MinimizerSentry minimizerConfig(minimizerAlgo_, minimizerTolerance_);
     if (verbose > 0) std::cout << "Will compute " << what_ << " limit(s) using minimizer " << minimizerAlgo_ 
                         << " with strategy " << minimizerStrategy_ << " and tolerance " << minimizerTolerance_ << std::endl;
-
+ 
     bool ret = false;
     std::vector<std::pair<float,float> > expected;
-    if (what_ != "observed") expected = runLimitExpected(w, mc_s, mc_b, data, limit, limitErr, hint);
+    if (what_ == "both" || what_ == "expected") expected = runLimitExpected(w, mc_s, mc_b, data, limit, limitErr, hint);
     if (what_ != "expected") ret = runLimit(w, mc_s, mc_b, data, limit, limitErr, hint);
 
     if (verbose >= 0) {
         const char *rname = mc_s->GetParametersOfInterest()->first()->GetName();
         std::cout << "\n -- Asymptotic -- " << "\n";
-        if (ret && what_ != "expected") printf("Observed Limit: %s < %6.4f\n", rname, limit);
+        if (what_ == "singlePoint") {
+            printf("Observed CLs for %s = %.1f: %6.4f \n", rname, rValue_, limit);
+        } else if (ret && what_ != "expected") {
+            printf("Observed Limit: %s < %6.4f\n", rname, limit);
+        }
         for (std::vector<std::pair<float,float> >::const_iterator it = expected.begin(), ed = expected.end(); it != ed; ++it) {
             printf("Expected %4.1f%%: %s < %6.4f\n", it->first*100, rname, it->second);
         }
@@ -134,6 +146,11 @@ bool Asymptotic::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats
 
   *params_ = fitFreeD_->floatParsFinal();
   r->setConstant(true);
+
+  if (what_ == "singlePoint") {
+    limit = getCLs(*r, rValue_);
+    return true;
+  }
 
   double clsTarget = 1-cl;
   double rMin = std::max<double>(0, r->getVal()), rMax = rMin + 3 * ((RooRealVar*)fitFreeD_->floatParsFinal().find(r->GetName()))->getError();
