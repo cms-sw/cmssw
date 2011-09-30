@@ -25,13 +25,12 @@ class SiStripRawProcessingAlgorithms {
   inline std::map< uint16_t, std::map< uint16_t, int16_t> >& GetSmoothedPoints(){return restorer->GetSmoothedPoints();}
   inline const std::vector< std::pair<short,float> >& getAPVsCM(){return subtractorCMN->getAPVsCM();}
 
- private:
-  
   const std::auto_ptr<SiStripPedestalsSubtractor> subtractorPed;
   const std::auto_ptr<SiStripCommonModeNoiseSubtractor> subtractorCMN;
   const std::auto_ptr<SiStripFedZeroSuppression> suppressor;
   const std::auto_ptr<SiStripAPVRestorer> restorer;
 
+ private:
   const bool doAPVRestore;
   const bool useCMMeanMap;
 

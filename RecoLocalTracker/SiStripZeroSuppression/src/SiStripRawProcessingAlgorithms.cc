@@ -66,15 +66,10 @@ int16_t SiStripRawProcessingAlgorithms::SuppressProcessedRawData(const uint32_t&
       
       int16_t nAPVFlagged =0;
      // transform(rawDigis->begin(), rawDigis->end(), back_inserter(processedRawDigis), boost::bind(&SiStripRawDigi::adc , _1));
-     // std::cout << "here 1 " << id  << " APV " << firstAPV << std::endl;
       if( doAPVRestore ) processedRawDigisPedSubtracted.assign(processedRawDigis.begin(), processedRawDigis.end());
-      // std::cout << "here 2" << std::endl;
       subtractorCMN->subtract(id, firstAPV,  processedRawDigis);
-      //std::cout << "here 3" << std::endl;
       if( doAPVRestore ) nAPVFlagged = restorer->InspectAndRestore(id, firstAPV, processedRawDigisPedSubtracted, processedRawDigis, subtractorCMN->getAPVsCM() );
-      //std::cout << "here 4" << std::endl;
       suppressor->suppress( processedRawDigis, firstAPV,  suppressedDigis ); 
-      //std::cout << "here 5" << std::endl;
       return nAPVFlagged;
 }
 

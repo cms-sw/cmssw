@@ -14,13 +14,13 @@ siStripZeroSuppression = cms.EDProducer("SiStripZeroSuppression",
     DigisToMergeVR = cms.InputTag('siStripVRDigis','VirginRaw'),
                                     
 
-    storeCM = cms.bool(False), 
+    storeCM = cms.bool(True), 
     fixCM= cms.bool(False),                # put -999 into CM collection for "inspected" APV
 
-    produceRawDigis = cms.bool(False),     # if mergeCollection is True, produceRawDigi is not considered
+    produceRawDigis = cms.bool(True),     # if mergeCollection is True, produceRawDigi is not considered
     produceCalculatedBaseline = cms.bool(False),
     produceBaselinePoints = cms.bool(False),
-    storeInZScollBadAPV = cms.bool(False),
+    storeInZScollBadAPV = cms.bool(True),
     mergeCollections = cms.bool(False)
     
 )

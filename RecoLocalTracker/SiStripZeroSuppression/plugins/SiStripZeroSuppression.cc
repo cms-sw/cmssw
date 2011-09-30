@@ -162,29 +162,24 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
     	
       edm::DetSet<SiStripDigi> suppressedDigis(rawDigis->id);
       int16_t nAPVflagged = 0;
-      
-      std::cout << "before processiong" << std::endl;
+        
       if ( "ProcessedRaw" == inputTag.instance()) nAPVflagged = algorithms->SuppressProcessedRawData(*rawDigis, suppressedDigis);
       else if ( "VirginRaw" == inputTag.instance()) nAPVflagged = algorithms->SuppressVirginRawData(*rawDigis, suppressedDigis); 
       else     
       throw cms::Exception("Unknown input type") 
 	<< inputTag.instance() << " unknown.  SiStripZeroZuppression can only process types \"VirginRaw\" and \"ProcessedRaw\" ";
 
-       std::cout << "before storing extra output" << std::endl; 
       //here storing the output
       this->storeExtraOutput(rawDigis->id, nAPVflagged);
-      std::cout << "before storing output" << std::endl;
       if (suppressedDigis.size() && (storeInZScollBadAPV || nAPVflagged ==0)) 
 	output.push_back(suppressedDigis); 
-    
-      std::cout << "before storing raw output" <<  std::endl;
+         
       if (produceRawDigis && nAPVflagged > 0){  
 	edm::DetSet<SiStripRawDigi> outRawDigis(rawDigis->id);
 	this->formatRawDigis(rawDigis, outRawDigis);
 	outputraw.push_back(outRawDigis);
       }
-     
-     std::cout << "after storing raw output" <<  std::endl; 
+         
   }
   
 }
