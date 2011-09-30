@@ -37,6 +37,7 @@
 #include <string>
 
 #ifndef LOCAL_FITTING_PROCEDURE
+#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #endif
 
@@ -46,6 +47,7 @@ class PhotonFix {
 
 #ifndef LOCAL_FITTING_PROCEDURE
   PhotonFix(const reco::Photon &p);
+  PhotonFix(double eta, double phi);  
   
   // Must be called before instantiating any PhotonFix objects
   static bool initialiseParameters(const edm::ParameterSet &iConfig);

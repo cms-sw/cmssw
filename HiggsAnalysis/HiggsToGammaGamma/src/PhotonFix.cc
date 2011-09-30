@@ -4,7 +4,6 @@
 #include <iomanip>
 
 #ifndef LOCAL_FITTING_PROCEDURE
-#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -36,6 +35,15 @@ PhotonFix::PhotonFix(const reco::Photon &p):
 
   setup(true);
 }
+
+PhotonFix::PhotonFix(double eta, double phi):
+  _e(0.0), 
+  _eta(eta) , 
+  _phi(phi),
+  _r9(1.0) {
+
+  setup(true);
+}
 #endif
 
 PhotonFix::PhotonFix(double e, double eta, double phi, double r9, double aC, double aS, double aM, double bC, double bS, double bM):
@@ -57,7 +65,6 @@ void PhotonFix::setup(bool doGeom){
 
   #ifndef LOCAL_FITTING_PROCEDURE
   // Check constants have been set up
-  assert(_initialisedParams);
   assert(_initialisedGeom);
   #endif
 
@@ -188,6 +195,12 @@ void PhotonFix::setup(bool doGeom){
 }
 
 double PhotonFix::fixedEnergy() const {
+  
+  #ifndef LOCAL_FITTING_PROCEDURE
+  // Check constants have been set up
+  assert(_initialisedParams);
+  #endif  
+  
   double f(0.0);
   
   // Overall scale and energy(T) dependence
@@ -229,6 +242,11 @@ double PhotonFix::fixedEnergy() const {
 }
 
 double PhotonFix::sigmaEnergy() const {
+  
+  #ifndef LOCAL_FITTING_PROCEDURE
+  // Check constants have been set up
+  assert(_initialisedParams);
+  #endif  
   
   // Overall resolution scale vs energy
   double sigma;
