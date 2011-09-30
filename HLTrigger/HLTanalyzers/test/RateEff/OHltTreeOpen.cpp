@@ -8744,6 +8744,74 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 	    }
 	}
     }
+
+  /**********************************************/
+  // with L2Q and eta restrictions
+  else if (triggerName.CompareTo("OpenHLT_Mu17_eta2p1_CentralJet30_BTagIP") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      int rc = 0;
+				
+	      int max = (NohBJetL2Corrected > 4) ? 4 : NohBJetL2Corrected;
+	      for (int j = 0; j < max; j++)
+		{//loop over jets
+					
+		  if (ohBJetL2CorrectedEt[j] > 30. && fabs(ohBJetL2CorrectedEta[j]) < 3.) {// ET and eta cuts
+						
+		    if (ohBJetIPL25Tag[j] >= 0)
+		      { // Level 2.5 b tag  
+			if (ohBJetIPL3Tag[j] >= 3.3)
+			  { // Level 3 b tag  
+			    rc++;
+			  }
+		      }
+		  } // ET and eta cuts
+		}//loop over jets
+				
+	      if (rc >= 1 && OpenHlt1MuonPassed(0., 14., 17., 2., 0, 2.1, 2.1, 1, 2)>=1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
+	
+  /**********************************************/
+	
+  else if (triggerName.CompareTo("OpenHLT_IsoMu17_eta2p1_CentralJet30_BTagIP") == 0)
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      int rc = 0;
+				
+	      int max = (NohBJetL2Corrected > 4) ? 4 : NohBJetL2Corrected;
+	      for (int j = 0; j < max; j++)	     
+		{//loop over jets
+					
+		  if (ohBJetL2CorrectedEt[j] > 30. && fabs(ohBJetL2CorrectedEta[j]) < 3.) { // ET and eta cuts
+						
+		    if (ohBJetIPL25Tag[j] >= 0)
+		      { // Level 2.5 b tag  
+			if (ohBJetIPL3Tag[j] >= 3.3)
+			  { // Level 3 b tag  
+			    rc++;
+			  }
+		      }
+		  } // ET and eta cuts
+		}//loop over jets
+				
+	      if (rc >= 1 && OpenHlt1MuonPassed(0., 14., 17., 2., 1, 2.1, 2.1, 1, 2)>=1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
 	
   /**********************************************/
 	
@@ -11488,13 +11556,30 @@ else if (triggerName.CompareTo("OpenHLT_Ele32_WP70_PFMT50_v1")  == 0)
             }
         }
     }
-  else if (triggerName.CompareTo("OpenHLT_IsoMu17_eta2p1_DiCentralPFJet30") == 0) 
+
+
+// ttbar lep+jets PFjet paths
+  else if (triggerName.CompareTo("OpenHLT_Mu17_eta2p1_CentralPFJet30") == 0) 
     { 
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) 
         { 
           if (prescaleResponse(menu, cfg, rcounter, it)) 
             { 
-	      if (OpenHlt1MuonPassed(0., 10., 17., 2., 1, 2.1, 2.1, 1, 2)>=1 
+	      if (OpenHlt1MuonPassed(0., 14., 17., 2., 0, 2.1, 2.1, 1, 2)>=1 
+                  && OpenHlt1PFJetPassed(30, 2.6)>=1)
+                { 
+                  triggerBit[it] = true; 
+                } 
+            } 
+        } 
+    } 
+  else if (triggerName.CompareTo("OpenHLT_Mu17_eta2p1_DiCentralPFJet30") == 0) 
+    { 
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) 
+        { 
+          if (prescaleResponse(menu, cfg, rcounter, it)) 
+            { 
+	      if (OpenHlt1MuonPassed(0., 14., 17., 2., 0, 2.1, 2.1, 1, 2)>=1 
                   && OpenHlt1PFJetPassed(30, 2.6)>=2)
                 { 
                   triggerBit[it] = true; 
@@ -11502,7 +11587,92 @@ else if (triggerName.CompareTo("OpenHLT_Ele32_WP70_PFMT50_v1")  == 0)
             } 
         } 
     } 
-	
+  else if (triggerName.CompareTo("OpenHLT_Mu17_eta2p1_TriCentralPFJet30") == 0) 
+    { 
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) 
+        { 
+          if (prescaleResponse(menu, cfg, rcounter, it)) 
+            { 
+	      if (OpenHlt1MuonPassed(0., 14., 17., 2., 0, 2.1, 2.1, 1, 2)>=1 
+                  && OpenHlt1PFJetPassed(30, 2.6)>=3)
+                { 
+                  triggerBit[it] = true; 
+                } 
+            } 
+        } 
+    } 
+  else if (triggerName.CompareTo("OpenHLT_Mu17_eta2p1_QuadCentralPFJet30") == 0) 
+    { 
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) 
+        { 
+          if (prescaleResponse(menu, cfg, rcounter, it)) 
+            { 
+	      if (OpenHlt1MuonPassed(0., 14., 17., 2., 0, 2.1, 2.1, 1, 2)>=1 
+                  && OpenHlt1PFJetPassed(30, 2.6)>=4)
+                { 
+                  triggerBit[it] = true; 
+                } 
+            } 
+        } 
+    } 
+
+  else if (triggerName.CompareTo("OpenHLT_IsoMu17_eta2p1_CentralPFJet30") == 0) 
+    { 
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) 
+        { 
+          if (prescaleResponse(menu, cfg, rcounter, it)) 
+            { 
+	      if (OpenHlt1MuonPassed(0., 14., 17., 2., 1, 2.1, 2.1, 1, 2)>=1 
+                  && OpenHlt1PFJetPassed(30, 2.6)>=1)
+                { 
+                  triggerBit[it] = true; 
+                } 
+            } 
+        } 
+    } 
+  else if (triggerName.CompareTo("OpenHLT_IsoMu17_eta2p1_DiCentralPFJet30") == 0) 
+    { 
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) 
+        { 
+          if (prescaleResponse(menu, cfg, rcounter, it)) 
+            { 
+	      if (OpenHlt1MuonPassed(0., 14., 17., 2., 1, 2.1, 2.1, 1, 2)>=1 
+                  && OpenHlt1PFJetPassed(30, 2.6)>=2)
+                { 
+                  triggerBit[it] = true; 
+                } 
+            } 
+        } 
+    } 
+  else if (triggerName.CompareTo("OpenHLT_IsoMu17_eta2p1_TriCentralPFJet30") == 0) 
+    { 
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) 
+        { 
+          if (prescaleResponse(menu, cfg, rcounter, it)) 
+            { 
+	      if (OpenHlt1MuonPassed(0., 14., 17., 2., 1, 2.1, 2.1, 1, 2)>=1 
+                  && OpenHlt1PFJetPassed(30, 2.6)>=3)
+                { 
+                  triggerBit[it] = true; 
+                } 
+            } 
+        } 
+    } 
+  else if (triggerName.CompareTo("OpenHLT_IsoMu17_eta2p1_QuadCentralPFJet30") == 0) 
+    { 
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1) 
+        { 
+          if (prescaleResponse(menu, cfg, rcounter, it)) 
+            { 
+	      if (OpenHlt1MuonPassed(0., 14., 17., 2., 1, 2.1, 2.1, 1, 2)>=1 
+                  && OpenHlt1PFJetPassed(30, 2.6)>=4)
+                { 
+                  triggerBit[it] = true; 
+                } 
+            } 
+        } 
+    } 
+
   else if (isDoubleMuX_HTXTrigger(triggerName, thresholds))
      {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
