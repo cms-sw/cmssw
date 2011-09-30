@@ -106,7 +106,8 @@ namespace edm {
         WrapperOwningHolder const& edp,
         ProductProvenance const& productProvenance) {
 
-    assert(bd.produced());
+    // assert commented out for DaqSource.  When DaqSource no longer uses put(), the assert can be restored.
+    //assert(produced());
     if(!edp.isValid()) {
       throw Exception(errors::InsertFailure, "Null Pointer")
         << "put: Cannot put because ptr to product is null."
