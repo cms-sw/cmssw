@@ -12,7 +12,7 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: CaloJetMETcorrInputProducer.h,v 1.1 2011/09/13 14:35:35 veelken Exp $
+ * $Id: CaloJetMETcorrInputProducerT.h,v 1.1 2011/09/16 08:03:37 veelken Exp $
  *
  */
 
@@ -42,6 +42,18 @@ namespace CaloJetMETcorrInputProducer_namespace
 
      void operator()(const T&) const {} // no type-checking needed for reco::CaloJet input
   };
+
+  template <typename T>
+  class RawJetExtractorT // this template is neccessary to support pat::Jets
+                         // (because pat::Jet->p4() returns the JES corrected, not the raw, jet momentum)
+  {
+    public:
+
+     reco::Candidate::LorentzVector  operator()(const T& jet) const 
+     { 
+       return jet.p4();
+     } 
+  };
 }
 
 template <typename T>
@@ -60,7 +72,10 @@ class CaloJetMETcorrInputProducerT : public edm::EDProducer
 
     jetCorrEtaMax_ = ( cfg.exists("jetCorrEtaMax") ) ?
       cfg.getParameter<double>("jetCorrEtaMax") : 9.9;
-    
+
+    maxResidualCorr_ = ( cfg.exists("maxResidualCorr") ) ?
+      cfg.getParameter<double>("maxResidualCorr") : 9.9;
+
     type1JetPtThreshold_ = cfg.getParameter<double>("type1JetPtThreshold");
 
     skipEM_ = cfg.getParameter<bool>("skipEM");
@@ -117,27 +132,30 @@ class CaloJetMETcorrInputProducerT : public edm::EDProducer
 
       static CaloJetMETcorrInputProducer_namespace::InputTypeCheckerT<T> checkInputType;
       checkInputType(rawJet);
+
+      static CaloJetMETcorrInputProducer_namespace::RawJetExtractorT<T> rawJetExtractor;
+      reco::Candidate::LorentzVector rawJetP4 = rawJetExtractor(rawJet);
       
       edm::RefToBase<reco::Jet> rawJetRef(edm::Ref<JetCollection>(jets, jetIndex));
 
       reco::Candidate::LorentzVector corrJetP4 = jetCorrExtractor_(rawJet, jetCorrLabel_, 
-								   &evt, &es, &rawJetRef, jetCorrEtaMax_);
+								   &evt, &es, &rawJetRef, jetCorrEtaMax_, maxResidualCorr_);
       if ( corrJetP4.pt() > type1JetPtThreshold_ ) {
 	
-	unclEnergySum->mex   -= rawJet.px();
-	unclEnergySum->mey   -= rawJet.py();
-	unclEnergySum->sumet -= rawJet.et();
+	unclEnergySum->mex   -= rawJetP4.px();
+	unclEnergySum->mey   -= rawJetP4.py();
+	unclEnergySum->sumet -= rawJetP4.Et();
 	
 	if ( skipEM_ && rawJet.emEnergyFraction() > skipEMfractionThreshold_ ) continue;
 	
-	reco::Candidate::LorentzVector rawJetP4offsetCorr = rawJet.p4();
+	reco::Candidate::LorentzVector rawJetP4offsetCorr = rawJetP4;
 	if ( offsetCorrLabel_ != "" ) {
 	  rawJetP4offsetCorr = jetCorrExtractor_(rawJet, offsetCorrLabel_, 
-						 &evt, &es, &rawJetRef, jetCorrEtaMax_);
+						 &evt, &es, &rawJetRef, jetCorrEtaMax_, maxResidualCorr_);
 	  
-	  offsetEnergySum->mex   += (rawJet.px() - rawJetP4offsetCorr.px());
-	  offsetEnergySum->mey   += (rawJet.py() - rawJetP4offsetCorr.py());
-	  offsetEnergySum->sumet += (rawJet.et() - rawJetP4offsetCorr.Et());
+	  offsetEnergySum->mex   += (rawJetP4.px() - rawJetP4offsetCorr.px());
+	  offsetEnergySum->mey   += (rawJetP4.py() - rawJetP4offsetCorr.py());
+	  offsetEnergySum->sumet += (rawJetP4.Et() - rawJetP4offsetCorr.Et());
 	}
 
 //--- MET balances momentum of reconstructed particles,
@@ -171,6 +189,8 @@ class CaloJetMETcorrInputProducerT : public edm::EDProducer
                          // reported in
                          //  https://hypernews.cern.ch/HyperNews/CMS/get/jes/270.html
                          //  https://hypernews.cern.ch/HyperNews/CMS/get/JetMET/1259/1.html
+
+  double maxResidualCorr_; // upper limit on L2/L3 residual correction
 
   double type1JetPtThreshold_; // threshold to distinguish between jets entering Type 1 MET correction
                                // and jets entering "unclustered energy" sum

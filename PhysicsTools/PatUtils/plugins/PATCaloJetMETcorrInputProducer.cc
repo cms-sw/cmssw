@@ -13,12 +13,24 @@ namespace CaloJetMETcorrInputProducer_namespace
   {
     public:
 
-    void operator()(const pat::Jet& jet) const 
+     void operator()(const pat::Jet& jet) const 
      {
        // check that pat::Jet is of Calo-type
        if ( !jet.isCaloJet() )
 	 throw cms::Exception("InvalidInput")
 	   << "Input pat::Jet is not of Calo-type !!\n";
+     } 
+  };
+
+  template <>
+  class RawJetExtractorT<pat::Jet>
+  {
+    public:
+
+     reco::Candidate::LorentzVector operator()(const pat::Jet& jet) const 
+     { 
+       if ( jet.jecSetsAvailable() ) return jet.correctedP4("Uncorrected");
+       else return jet.p4();
      } 
   };
 }

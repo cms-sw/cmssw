@@ -14,7 +14,7 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: PFJetMETcorrInputProducerT.h,v 1.1 2011/09/13 14:35:35 veelken Exp $
+ * $Id: PFJetMETcorrInputProducerT.h,v 1.1 2011/09/16 08:03:38 veelken Exp $
  *
  */
 
@@ -48,6 +48,18 @@ namespace PFJetMETcorrInputProducer_namespace
 
      void operator()(const T&) const {} // no type-checking needed for reco::PFJet input
   };
+
+  template <typename T>
+  class RawJetExtractorT // this template is neccessary to support pat::Jets
+                         // (because pat::Jet->p4() returns the JES corrected, not the raw, jet momentum)
+  {
+    public:
+
+     reco::Candidate::LorentzVector operator()(const T& jet) const 
+     {        
+       return jet.p4();
+     } 
+  };
 }
 
 template <typename T>
@@ -68,6 +80,9 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
     jetCorrEtaMax_ = ( cfg.exists("jetCorrEtaMax") ) ?
       cfg.getParameter<double>("jetCorrEtaMax") : 9.9;
     
+    maxResidualCorr_ = ( cfg.exists("maxResidualCorr") ) ?
+      cfg.getParameter<double>("maxResidualCorr") : 9.9;
+
     type1JetPtThreshold_ = cfg.getParameter<double>("type1JetPtThreshold");
     
     skipEM_ = cfg.getParameter<bool>("skipEM");
@@ -111,7 +126,8 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
       
       if ( skipEM_ && rawJet.photonEnergyFraction() > skipEMfractionThreshold_ ) continue;
       
-      reco::Candidate::LorentzVector rawJetP4 = rawJet.p4();
+      static PFJetMETcorrInputProducer_namespace::RawJetExtractorT<T> rawJetExtractor;
+      reco::Candidate::LorentzVector rawJetP4 = rawJetExtractor(rawJet);
       if ( skipMuons_ ) {
 	std::vector<reco::PFCandidatePtr> cands = rawJet.getPFConstituents();
 	for ( std::vector<reco::PFCandidatePtr>::const_iterator cand = cands.begin();
@@ -126,13 +142,13 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
       edm::RefToBase<reco::Jet> rawJetRef(edm::Ref<JetCollection>(jets, jetIndex));
 
       reco::Candidate::LorentzVector corrJetP4 = jetCorrExtractor_(rawJet, jetCorrLabel_, 
-								   &evt, &es, &rawJetRef, jetCorrEtaMax_, &rawJetP4);
+								   &evt, &es, &rawJetRef, jetCorrEtaMax_, maxResidualCorr_, &rawJetP4);
       if ( corrJetP4.pt() > type1JetPtThreshold_ ) {
 	
 	reco::Candidate::LorentzVector rawJetP4offsetCorr = rawJetP4;
 	if ( offsetCorrLabel_ != "" ) {
 	  rawJetP4offsetCorr = jetCorrExtractor_(rawJet, offsetCorrLabel_, 
-						 &evt, &es, &rawJetRef, jetCorrEtaMax_, &rawJetP4);
+						 &evt, &es, &rawJetRef, jetCorrEtaMax_, maxResidualCorr_, &rawJetP4);
 	  
 	  offsetEnergySum->mex   += (rawJetP4.px() - rawJetP4offsetCorr.px());
 	  offsetEnergySum->mey   += (rawJetP4.py() - rawJetP4offsetCorr.py());
@@ -174,6 +190,8 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
                          // reported in
                          //  https://hypernews.cern.ch/HyperNews/CMS/get/jes/270.html
                          //  https://hypernews.cern.ch/HyperNews/CMS/get/JetMET/1259/1.html
+
+  double maxResidualCorr_; // upper limit on L2/L3 residual correction
 
   double type1JetPtThreshold_; // threshold to distinguish between jets entering Type 1 MET correction
                                // and jets entering "unclustered energy" sum
