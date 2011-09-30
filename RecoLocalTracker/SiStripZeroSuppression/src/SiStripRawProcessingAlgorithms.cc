@@ -37,7 +37,7 @@ void SiStripRawProcessingAlgorithms::initialize(const edm::EventSetup& es) {
 
 
 
-inline int16_t SiStripRawProcessingAlgorithms::SuppressVirginRawData(const uint32_t& id, const uint16_t& firstAPV, std::vector<int16_t>& processedRawDigis , edm::DetSet<SiStripDigi>& suppressedDigis ){
+int16_t SiStripRawProcessingAlgorithms::SuppressVirginRawData(const uint32_t& id, const uint16_t& firstAPV, std::vector<int16_t>& processedRawDigis , edm::DetSet<SiStripDigi>& suppressedDigis ){
      
   //std::vector<int16_t>  processedRawDigisPedSubtracted;
       
