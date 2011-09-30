@@ -51,15 +51,15 @@ class TestDetSet: public CppUnit::TestFixture
   CPPUNIT_TEST(algorithm);
   CPPUNIT_TEST(onDemand);
   CPPUNIT_TEST(toRangeMap);
-  
+
   CPPUNIT_TEST_SUITE_END();
-  
+
 public:
-  TestDetSet(); 
+  TestDetSet();
   ~TestDetSet() {}
   void setUp() {}
   void tearDown() {}
-  
+
   void default_ctor();
   void inserting();
   void filling();
@@ -67,7 +67,6 @@ public:
   void algorithm();
   void onDemand();
   void toRangeMap();
-  
 
 public:
   std::vector<DSTV::data_type> sv;
@@ -76,11 +75,10 @@ public:
 
 CPPUNIT_TEST_SUITE_REGISTRATION(TestDetSet);
 
-TestDetSet::TestDetSet() : sv(10){ 
+TestDetSet::TestDetSet() : sv(10){
   DSTV::data_type v[10] = {0.,1.,2.,3.,4.,5.,6.,7.,8.,9.};
   std::copy(v,v+10,sv.begin());
-} 
-
+}
 
 void TestDetSet::default_ctor() {
 
@@ -95,12 +93,12 @@ void TestDetSet::default_ctor() {
   CPPUNIT_ASSERT(!detsets.empty());
   // follow is nonsense still valid construct... (maybe it shall throw...)
   DST df(detsets,detsets.item(1));
-  CPPUNIT_ASSERT(df.id()==0); 
-  CPPUNIT_ASSERT(df.size()==0); 
-  CPPUNIT_ASSERT(df.m_data+1==&detsets.m_data.front()); 
+  CPPUNIT_ASSERT(df.id()==0);
+  CPPUNIT_ASSERT(df.size()==0);
+  CPPUNIT_ASSERT(df.m_data+1==&detsets.m_data.front());
   df.set(detsets,detsets.item(2));
-  CPPUNIT_ASSERT(df.size()==0); 
-  CPPUNIT_ASSERT(df.m_data+1==&detsets.m_data.front()); 
+  CPPUNIT_ASSERT(df.size()==0);
+  CPPUNIT_ASSERT(df.m_data+1==&detsets.m_data.front());
   DSTV detsets2(3);
   // test swap
   detsets.swap(detsets2);
@@ -110,8 +108,6 @@ void TestDetSet::default_ctor() {
   CPPUNIT_ASSERT(detsets2.subdetId()==2);
   CPPUNIT_ASSERT(detsets2.size()==3);
   CPPUNIT_ASSERT(detsets2.dataSize()==10);
-  
-
 }
 
 void TestDetSet::inserting() {
@@ -125,31 +121,30 @@ void TestDetSet::inserting() {
     CPPUNIT_ASSERT(detsets.size()==n);
     CPPUNIT_ASSERT(detsets.dataSize()==ntot);
     CPPUNIT_ASSERT(detsets.detsetSize(n-1)==n);
-    CPPUNIT_ASSERT(df.size()==n); 
-    CPPUNIT_ASSERT(df.id()==id); 
-    
+    CPPUNIT_ASSERT(df.size()==n);
+    CPPUNIT_ASSERT(df.id()==id);
+
     std::copy(sv.begin(),sv.begin()+n,df.begin());
-    
+
     std::vector<DST::data_type> v1(n);
     std::vector<DST::data_type> v2(n);
     std::copy(detsets.m_data.begin()+ntot-n,detsets.m_data.begin()+ntot,v2.begin());
     std::copy(sv.begin(),sv.begin()+n,v1.begin());
     CPPUNIT_ASSERT(v1==v2);
   }
-  
+
   // test error conditions
   try {
-    DST dfe = detsets.insert(22,6);
-    CPPUNIT_ASSERT("insert did not threw"==0);
-  } 
+    detsets.insert(22,6);
+    CPPUNIT_ASSERT("insert did not throw"==0);
+  }
   catch (edm::Exception const & err) {
     CPPUNIT_ASSERT(err.categoryCode()==edm::errors::InvalidReference);
   }
-  
 }
 
 void TestDetSet::filling() {
-  
+
   DSTV detsets(2);
   unsigned int ntot=0;
   for (unsigned int n=1;n<5;++n) {
@@ -158,23 +153,23 @@ void TestDetSet::filling() {
     CPPUNIT_ASSERT(detsets.size()==n);
     CPPUNIT_ASSERT(detsets.dataSize()==ntot);
     CPPUNIT_ASSERT(detsets.detsetSize(n-1)==0);
-    CPPUNIT_ASSERT(ff.item.offset==int(detsets.dataSize())); 
-    CPPUNIT_ASSERT(ff.item.size==0); 
-    CPPUNIT_ASSERT(ff.item.id==id); 
+    CPPUNIT_ASSERT(ff.item.offset==int(detsets.dataSize()));
+    CPPUNIT_ASSERT(ff.item.size==0);
+    CPPUNIT_ASSERT(ff.item.id==id);
     ntot+=1;
     ff.push_back(3.14);
     CPPUNIT_ASSERT(detsets.dataSize()==ntot);
     CPPUNIT_ASSERT(detsets.detsetSize(n-1)==1);
     CPPUNIT_ASSERT(detsets.m_data.back().v==3.14f);
-    CPPUNIT_ASSERT(ff.item.offset==int(detsets.dataSize())-1); 
-    CPPUNIT_ASSERT(ff.item.size==1);  
+    CPPUNIT_ASSERT(ff.item.offset==int(detsets.dataSize())-1);
+    CPPUNIT_ASSERT(ff.item.size==1);
     ntot+=n-1;
     ff.resize(n);
     CPPUNIT_ASSERT(detsets.dataSize()==ntot);
     CPPUNIT_ASSERT(detsets.detsetSize(n-1)==n);
-    CPPUNIT_ASSERT(ff.item.offset==int(detsets.dataSize()-n)); 
-    CPPUNIT_ASSERT(ff.item.size==n);  
-    
+    CPPUNIT_ASSERT(ff.item.offset==int(detsets.dataSize()-n));
+    CPPUNIT_ASSERT(ff.item.size==n);
+
     std::copy(sv.begin(),sv.begin()+n,ff.begin());
 
     std::vector<DST::data_type> v1(n);
@@ -217,36 +212,33 @@ void TestDetSet::filling() {
  }
  CPPUNIT_ASSERT(detsets.size()==5);
  CPPUNIT_ASSERT(!detsets.exists(31));
- 
 
   // test error conditions
   try {
     FF ff1(detsets, 22);
-    CPPUNIT_ASSERT(" fast filler did not threw"==0);
-  } 
+    CPPUNIT_ASSERT(" fast filler did not throw"==0);
+  }
   catch (edm::Exception const & err) {
     CPPUNIT_ASSERT(err.categoryCode()==edm::errors::InvalidReference);
   }
-  
+
   try {
     FF ff1(detsets, 44);
     FF ff2(detsets, 45);
-    CPPUNIT_ASSERT(" fast filler did not threw"==0);
+    CPPUNIT_ASSERT(" fast filler did not throw"==0);
   } catch (edm::Exception const &err) {
     CPPUNIT_ASSERT(err.categoryCode()==edm::errors::LogicError);
   }
- 
- 
 }
 
 namespace {
   struct VerifyIter{
     VerifyIter(TestDetSet * itest, unsigned int in=1, int iincr=1):
       n(in), incr(iincr), test(*itest){}
-    
+
     void operator()(DST const & df) {
-      CPPUNIT_ASSERT(df.id()==20+n); 
-      CPPUNIT_ASSERT(df.size()==n); 
+      CPPUNIT_ASSERT(df.id()==20+n);
+      CPPUNIT_ASSERT(df.size()==n);
       std::vector<DST::data_type> v1(n);
       std::vector<DST::data_type> v2(n);
       std::copy(df.begin(),df.end(),v2.begin());
@@ -254,7 +246,7 @@ namespace {
       CPPUNIT_ASSERT(v1==v2);
       n+=incr;
     }
-    
+
     unsigned int n;
     int incr;
     TestDetSet & test;
@@ -280,8 +272,6 @@ namespace {
       return i1/10 < i2/10;
     }
   };
-
-
 }
 
 void TestDetSet::iterator() {
@@ -331,21 +321,19 @@ void TestDetSet::iterator() {
   catch (edm::Exception const &) {
     CPPUNIT_ASSERT("DetSetVector threw when not expected"==0);
   }
-  
-
 
   try{
     DSTV::const_iterator p = detsets.find(44);
     CPPUNIT_ASSERT(p==detsets.end());
-  } 
+  }
   catch (edm::Exception const &) {
-    CPPUNIT_ASSERT("find threw edm exception when not expected"==0);
-    
+    CPPUNIT_ASSERT("find thrown edm exception when not expected"==0);
+
   }
   try{
-    DST df = detsets[44];
-    CPPUNIT_ASSERT("[] did not threw"==0);
-  } 
+    detsets[44];
+    CPPUNIT_ASSERT("[] did not throw"==0);
+  }
   catch (edm::Exception const & err) {
        CPPUNIT_ASSERT(err.categoryCode()==edm::errors::InvalidReference);
   }
@@ -353,7 +341,7 @@ void TestDetSet::iterator() {
 
 namespace {
 
-  std::pair<unsigned int, cmp10> acc(unsigned int i){ 
+  std::pair<unsigned int, cmp10> acc(unsigned int i){
     return std::make_pair(i*10,cmp10());
   }
 
@@ -371,9 +359,6 @@ namespace {
   };
 
 }
-
-
-
 
 void TestDetSet::algorithm() {
   DSTV detsets(2);
@@ -399,7 +384,6 @@ void TestDetSet::algorithm() {
     std::copy(sv.begin(),sv.begin()+4,ff.begin());
   }
 
-
   DSTV::Range r = detsetRangeFromPair(detsets,acc(3));
   CPPUNIT_ASSERT(r.second-r.first==2);
   r =  edmNew::detsetRangeFromPair(detsets,acc(4));
@@ -409,15 +393,11 @@ void TestDetSet::algorithm() {
   edmNew::copyDetSetRange(detsets,v,acc(3));
   VerifyAlgos va(v);
   edmNew::foreachDetSetObject(detsets,acc(3), va);
-
 }
-
-
 
 #include <boost/assign/std/vector.hpp>
 // for operator =+
 using namespace boost::assign;
-
 
 void TestDetSet::onDemand() {
   boost::shared_ptr<Getter> pg(new Getter(this));
@@ -452,24 +432,22 @@ void TestDetSet::onDemand() {
   CPPUNIT_ASSERT(std::for_each(detsets.begin(),detsets.end(),VerifyIter(this,1,2)).n==9);
   CPPUNIT_ASSERT(g.ntot==1+3+5+7);
 
-  
   try{
     DSTV::const_iterator p = detsets.find(22);
     CPPUNIT_ASSERT(p==detsets.end());
-  } 
+  }
   catch (edm::Exception const &) {
-    CPPUNIT_ASSERT("find threw edm exception when not expected"==0);
-    
+    CPPUNIT_ASSERT("find thrown edm exception when not expected"==0);
+
   }
   try{
-    DST df = detsets[22];
-    CPPUNIT_ASSERT("[] did not threw"==0);
-  } 
+    detsets[22];
+    CPPUNIT_ASSERT("[] did not throw"==0);
+  }
   catch (edm::Exception const & err) {
        CPPUNIT_ASSERT(err.categoryCode()==edm::errors::InvalidReference);
   }
 }
-
 
 void TestDetSet::toRangeMap() {
   DSTV detsets(2);

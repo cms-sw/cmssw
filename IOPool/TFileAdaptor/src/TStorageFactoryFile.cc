@@ -334,7 +334,7 @@ TStorageFactoryFile::ReadBuffers(char *buf, Long64_t *pos, Int_t *len, Int_t nbu
     IOOffset cur;
     std::vector<char> buf2(0);
     Int_t i = 0; // Position in the buffer.
-    Int_t n = 0; // Number of reads we have coalesced.
+    UInt_t n = 0; // Number of reads we have coalesced.
 
     // Size of our coalesce window.  In ROOT 5.26, this is actually a variable
     // you can tweak, but it's not exposed in CMSSW.
@@ -405,7 +405,7 @@ TStorageFactoryFile::ReadBuffers(char *buf, Long64_t *pos, Int_t *len, Int_t nbu
 
           // Now, copy the data from the read to the appropriate buffer in
           // order to fulfill the request.
-          for (Int_t j=0;j<n;j++) {
+          for (UInt_t j=0;j<n;++j) {
                 memcpy(&buf[k],&buf2[pos[i-n+j]-curbegin],len[i-n+j]);
                 k += len[i-n+j];
           }

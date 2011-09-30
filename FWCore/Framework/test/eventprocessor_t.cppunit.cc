@@ -251,8 +251,7 @@ void testeventprocessor::driveAsyncTest(bool(testeventprocessor::*func)(edm::Eve
 }
 
 void testeventprocessor::parseTest() {
-  int rc = -1;                // we should never return this value!
-  try { work(); rc = 0;}
+  try { work();}
   catch (cms::Exception& e) {
       std::cerr << "cms exception caught: "
                 << e.explainSelf() << std::endl;

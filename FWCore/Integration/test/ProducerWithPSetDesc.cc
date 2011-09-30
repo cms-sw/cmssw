@@ -149,7 +149,6 @@ namespace edmtest {
     assert(vstring[2] == std::string(""));
 
     edm::EventID eventID1(11, 0, 12);
-    edm::EventID eventID1x = ps.getParameter<edm::EventID>("eventIDv1");
     assert(ps.getParameter<edm::EventID>("eventIDv1") == eventID1);
     edm::EventID eventID2(101, 0, 102);
     assert(ps.getParameter<edm::EventID>("eventIDv2") == eventID2);
@@ -967,7 +966,7 @@ namespace edmtest {
     // ------------------------------------------
 
     edm::ParameterSetDescription iDesc1;
-    pn = iDesc1.add<int>("p_int", 1);
+    iDesc1.add<int>("p_int", 1);
     iDesc1.setAllowAnything();
     iDesc1.setComment("A comment for a ParameterSetDescription");
 

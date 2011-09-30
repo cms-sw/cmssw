@@ -107,7 +107,11 @@ RFIOFile::open (const char *name,
 		int perms /* = 066 */)
 {
   // Save parameters for error recovery.
-  m_name = name;
+  if (name == 0) {
+    m_name = "";
+  } else {
+    m_name = name;
+  }
   m_flags = flags;
   m_perms = perms;
 
@@ -435,7 +439,7 @@ RFIOFile::prefetch (const IOPosBuffer *what, IOSize n)
   int result;
   while ((result = rfio_preseek64(m_fd, &iov[0], n)) == -1)
   {
-    if (--retry <= 0)
+    if (--retry == 0)
     {
       edm::LogError("RFIOFile::prefetch")
         << "RFIOFile::prefetch(name='" << m_name << "') failed with error '"

@@ -2,7 +2,7 @@
 //
 // Package:     Provenance
 // Class  :     TransientProductLookupMap
-// 
+//
 // Implementation:
 //     <Notes on implementation>
 //
@@ -35,7 +35,7 @@ namespace edm {
      if(iRHS.first < iLHS.first) {
         return false;
      }
-     
+
      int c = iLHS.second->moduleLabel().compare(iRHS.second->moduleLabel());
      if(c < 0) {
         return true;
@@ -50,10 +50,10 @@ namespace edm {
      if(c > 0) {
         return false;
      }
-     
+
      return iLHS.second->processName() < iRHS.second->processName();
   }
-  
+
   //
   // constructors and destructor
   //
@@ -64,14 +64,14 @@ namespace edm {
       processNameOrderingForBranchType_(static_cast<unsigned int>(NumBranchTypes), std::vector<std::string>()),
       fillCount_(0) {
   }
-  
+
   // TransientProductLookupMap::TransientProductLookupMap(TransientProductLookupMap const& rhs) {
   //    // do actual copying here;
   // }
-  
+
   //TransientProductLookupMap::~TransientProductLookupMap() {
   //}
-  
+
   void
   TransientProductLookupMap::reset() {
       branchLookup_.clear();
@@ -82,7 +82,7 @@ namespace edm {
       }
       fillCount_ = 0;
   }
-  
+
   //
   // assignment operators
   //
@@ -93,7 +93,7 @@ namespace edm {
   //
   //   return *this;
   // }
-  
+
   //
   // member functions
   //
@@ -132,12 +132,12 @@ namespace edm {
            return iLHS.first.branchType() < iRHS.first.branchType();
         }
      };
-     
+
      struct CompareProcessList {
         std::vector<std::string> const* list_;
-  
+
         CompareProcessList(std::vector<std::string> const* iList) : list_(iList) {}
-        
+
         bool operator()(ProductLookupIndex const& iLHS, ProductLookupIndex const& iRHS) const {
            std::string const& lhs = iLHS.branchDescription()->processName();
            std::string const& rhs = iRHS.branchDescription()->processName();
@@ -153,10 +153,10 @@ namespace edm {
         }
      };
   }
-  
+
   static
   void
-  fillInProcessIndexes(TransientProductLookupMap::ProductLookupIndexList::iterator iIt, 
+  fillInProcessIndexes(TransientProductLookupMap::ProductLookupIndexList::iterator iIt,
                         TransientProductLookupMap::ProductLookupIndexList::iterator iEnd,
                         std::vector<std::string> const& iNameOrder) {
      //NOTE the iterators are already in the same order as iNameOrder
@@ -175,34 +175,34 @@ namespace edm {
         iIt->setProcessIndex(index);
      }
   }
-  
-  void 
+
+  void
   TransientProductLookupMap::reorderIfNecessary(BranchType iBranch, ProcessHistory const& iHistory, std::string const& iNewProcessName) {
 
      ProcessHistoryID& historyID = historyIDsForBranchType_[iBranch];
-     if(iHistory.id() == historyID) { 
+     if(iHistory.id() == historyID) {
         //std::cout <<"no reordering since history unchanged"<<std::endl;
         return;
      }
-     
+
      if(iHistory.empty()) {
         //std::cout <<"no reordering since history empty"<<std::endl;
-        historyID = iHistory.id(); 
-        return; 
+        historyID = iHistory.id();
+        return;
      }
      std::vector<std::string>& processNameOrdering = processNameOrderingForBranchType_[iBranch];
-  
+
      //iHistory may be missing entries in processNameOrdering if two files were merged together and one file
      // had fewer processing steps than the other one.
      //iHistory may have more entries than processNameOrdering if all data products for those extra entries
      // were dropped
-     
+
      //if iHistory already in same order as processNameOrdering than we don't have to do anything
      std::vector<std::string>::iterator it = processNameOrdering.begin();
      std::vector<std::string>::iterator itEnd = processNameOrdering.end();
      ProcessHistory::const_iterator itH = iHistory.begin();
      ProcessHistory::const_iterator itHEnd = iHistory.end();
-     
+
      {
         std::vector<std::string>::iterator itStart = it;
         bool mustReorder = false;
@@ -227,39 +227,38 @@ namespace edm {
            ++it;
         }
         //can only reach the end if we found all the items in the correct order
-        if(it == itEnd) { 
+        if(it == itEnd) {
            return;
         }
      }
-  
+
      //must re-sort
      //Increment the fill count so users can check if the map has been modified.
      ++fillCount_;
      historyID = iHistory.id();
      std::vector<std::string> temp(processNameOrdering.size(), std::string());
-     
-     
+
      //we want to add the items at the back
      std::vector<std::string>::reverse_iterator itR = temp.rbegin();
      std::vector<std::string>::reverse_iterator itREnd = temp.rend();
      ProcessHistory::const_reverse_iterator itRH = iHistory.rbegin();
      ProcessHistory::const_reverse_iterator itRHEnd = iHistory.rend();
-  
+
      if(processNameOrdering.end() != std::find(processNameOrdering.begin(), processNameOrdering.end(), iNewProcessName)) {
         *itR = iNewProcessName;
         ++itR;
-	if (iNewProcessName == itRH->processName()) {
-	  ++itRH;
-	}
+        if (iNewProcessName == itRH->processName()) {
+          ++itRH;
+        }
      }
      for(; itRH != itRHEnd; ++itRH) {
         if(processNameOrdering.end() != std::find(processNameOrdering.begin(), processNameOrdering.end(), itRH->processName())) {
-           
+
            *itR = itRH->processName();
            ++itR;
         }
      }
-  
+
      //have to fill in the missing processes from processNameOrdering_
      // we do this at the beginning because we lookup data in the reverse order
      // so we want the ones we know are there to be searched first
@@ -275,14 +274,14 @@ namespace edm {
         }
         ++itOld;
      }
-     
+
      processNameOrdering.swap(temp);
-     
+
      //now we need to go through our data structure and change the processing orders
      //first find the range for this BranchType
-     std::pair<TypeInBranchTypeLookup::iterator, TypeInBranchTypeLookup::iterator> branchRange = 
+     std::pair<TypeInBranchTypeLookup::iterator, TypeInBranchTypeLookup::iterator> branchRange =
      std::equal_range(branchLookup_.begin(), branchLookup_.end(), std::make_pair(TypeInBranchType(TypeID(), iBranch), BranchDescriptionIndex(0)), BranchTypeOnlyCompare());
-     
+
      if(branchRange.first == branchRange.second) {
         return;
      }
@@ -292,7 +291,7 @@ namespace edm {
      if(branchRange.second != branchLookup_.end()) {
         itIndexEnd = productLookupIndexList_.begin() + branchRange.second->second;
      }
-     
+
      while(itIndex != itIndexEnd) {
         itIndex->setIsFirst(false);
         ProductLookupIndexList::iterator itNext = itIndex;
@@ -303,17 +302,17 @@ namespace edm {
         itIndex->setIsFirst(true);
         itIndex = itNext;
      }
-     
+
      //Now that we know all the IDs time to set the values
      fillInProcessIndexes(productLookupIndexList_.begin() + branchRange.first->second, itIndexEnd, processNameOrdering);
-  
+
   }
-  
-  void 
+
+  void
   TransientProductLookupMap::fillFrom(FillFromMap const& iMap) {
 
      assert(processNameOrderingForBranchType_.size() == historyIDsForBranchType_.size());
-  
+
      //Increment the fill count so users can check if the map has been modified.
      ++fillCount_;
 
@@ -321,10 +320,10 @@ namespace edm {
      productLookupIndexList_.reserve(iMap.size());
      branchLookup_.clear();
      branchLookup_.reserve(iMap.size()); //this is an upperbound
-     
+
      std::set<std::string, std::greater<std::string> > processNames;
      TypeInBranchType lastSeen(TypeID(), NumBranchTypes);
-  
+
      //since the actual strings are stored elsewhere, there is no reason to make a copy
      static std::string const kEmpty;
      std::string const* lastSeenModule = &kEmpty;
@@ -348,26 +347,26 @@ namespace edm {
                             );
         if(isFirst) {
            lastSeenModule = &(it->first.second->moduleLabel());
-           lastSeenProductInstance = &(it->first.second->productInstanceName());         
+           lastSeenProductInstance = &(it->first.second->productInstanceName());
         }
         processNames.insert(it->first.second->processName());
      }
-  
+
      std::vector<ProcessHistoryID>::iterator itPH = historyIDsForBranchType_.begin();
      std::vector<ProcessHistoryID>::iterator itPHEnd = historyIDsForBranchType_.end();
-     
+
      std::vector<std::vector<std::string> >::iterator itPN = processNameOrderingForBranchType_.begin();
-     std::vector<std::vector<std::string> >::iterator itPNEnd = processNameOrderingForBranchType_.end();
-     
+     //std::vector<std::vector<std::string> >::iterator itPNEnd = processNameOrderingForBranchType_.end();
+
      for(;itPH != itPHEnd; ++itPH, ++itPN) {
         *itPH = ProcessHistoryID();
         itPN->assign(processNames.begin(), processNames.end());
      }
-  
+
      //Now that we know all the IDs time to set the values
      fillInProcessIndexes(productLookupIndexList_.begin(), productLookupIndexList_.end(), processNameOrderingForBranchType_.front());
   }
-  
+
   //
   // const member functions
   //
@@ -380,7 +379,7 @@ namespace edm {
      };
   }
 
-  std::pair<TransientProductLookupMap::const_iterator, TransientProductLookupMap::const_iterator> 
+  std::pair<TransientProductLookupMap::const_iterator, TransientProductLookupMap::const_iterator>
   TransientProductLookupMap::equal_range(TypeInBranchType const& iKey) const {
      TypeInBranchTypeLookup::const_iterator itFind = std::lower_bound(branchLookup_.begin(),
                                                                       branchLookup_.end(),
@@ -396,11 +395,11 @@ namespace edm {
      }
      return std::make_pair(itStart, itEnd);
   }
-  
-  std::pair<TransientProductLookupMap::const_iterator, TransientProductLookupMap::const_iterator> 
+
+  std::pair<TransientProductLookupMap::const_iterator, TransientProductLookupMap::const_iterator>
   TransientProductLookupMap::equal_range(TypeInBranchType const& iKey,
-	 std::string const& moduleLabel,
-	 std::string const& productInstanceName) const {
+         std::string const& moduleLabel,
+         std::string const& productInstanceName) const {
      std::pair<const_iterator, const_iterator> itPair = this->equal_range(iKey);
 
      if (itPair.first == itPair.second) {
@@ -408,7 +407,7 @@ namespace edm {
      }
 
      // Advance lower bound only
-     itPair.first = std::lower_bound(itPair.first, itPair.second, std::make_pair(&moduleLabel, &productInstanceName), CompareModuleLabelAndProductInstanceName());  
+     itPair.first = std::lower_bound(itPair.first, itPair.second, std::make_pair(&moduleLabel, &productInstanceName), CompareModuleLabelAndProductInstanceName());
      // Protect against no match
      if (!(itPair.first < itPair.second) ||
          itPair.first->branchDescription()->moduleLabel() != moduleLabel ||
@@ -417,7 +416,7 @@ namespace edm {
      }
      return itPair;
   }
-  
+
   //
   // static member functions
   //

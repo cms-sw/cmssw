@@ -5,6 +5,7 @@
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/GetPassID.h"
 #include "FWCore/Version/interface/GetReleaseVersion.h"
 
@@ -32,11 +33,17 @@ bool checkRunOrLumiEntry(edm::IndexIntoFile::RunOrLumiEntry const& rl,
   return true;
 }
 
-int main()
-{
+int main() {
   edm::ParameterSet dummyPset;
-  dummyPset.registerIt();
-  edm::ParameterSetID psetID = dummyPset.id();
+  edm::ParameterSetID psetID;
+  try {
+    dummyPset.registerIt();
+    psetID = dummyPset.id();
+  }
+  catch(cms::Exception const& e) {
+    std::cerr << e.explainSelf() << std::endl;
+    return 1;
+  }
 
   edm::ProcessHistory pnl1;
   assert(pnl1 == pnl1);
@@ -288,7 +295,7 @@ int main()
     std::cout << rv1[3] << "  " << rph4 << "\n";
 
     for (std::vector<edm::IndexIntoFile::RunOrLumiEntry>::const_iterator iter = runOrLumiEntries.begin(),
-	   iEnd = runOrLumiEntries.end();
+         iEnd = runOrLumiEntries.end();
          iter != iEnd; ++iter) {
       std::cout << iter->orderPHIDRun() << "  "
                 << iter->orderPHIDRunLumi() << "  "
@@ -321,5 +328,6 @@ int main()
     assert(checkRunOrLumiEntry(runOrLumiEntries.at(16), 9, -1, 9, 3, 1,  0, -1, -1));
     assert(checkRunOrLumiEntry(runOrLumiEntries.at(17), 9,  7, 7, 3, 1, 11, -1, -1));
   }
+  return 0;
 }
 

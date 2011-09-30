@@ -54,11 +54,10 @@ StorageAccount::summaryText (bool banner /*=false*/) {
 
 std::string
 StorageAccount::summaryXML (void) {
-  bool first = true;
   std::ostringstream os;
   os << "<storage-timing-summary>\n";
   for (StorageStats::iterator i = s_stats.begin (); i != s_stats.end(); ++i)
-    for (OperationStats::iterator j = i->second->begin (); j != i->second->end (); ++j, first = false)
+    for (OperationStats::iterator j = i->second->begin (); j != i->second->end (); ++j)
       os << " <counter-value subsystem='" << i->first
          << "' counter-name='" << j->first
          << "' num-operations='" << j->second.attempts

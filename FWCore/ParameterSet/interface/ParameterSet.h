@@ -67,16 +67,16 @@ namespace edm {
     // Entry-handling
     Entry const& retrieve(char const*) const;
     Entry const& retrieve(std::string const&) const;
-    Entry const* const retrieveUntracked(char const*) const;
-    Entry const* const retrieveUntracked(std::string const&) const;
-    Entry const* const retrieveUnknown(char const*) const;
-    Entry const* const retrieveUnknown(std::string const&) const;
+    Entry const* retrieveUntracked(char const*) const;
+    Entry const* retrieveUntracked(std::string const&) const;
+    Entry const* retrieveUnknown(char const*) const;
+    Entry const* retrieveUnknown(std::string const&) const;
     ParameterSetEntry const& retrieveParameterSet(std::string const&) const;
-    ParameterSetEntry const* const retrieveUntrackedParameterSet(std::string const&) const;
-    ParameterSetEntry const* const retrieveUnknownParameterSet(std::string const&) const;
+    ParameterSetEntry const* retrieveUntrackedParameterSet(std::string const&) const;
+    ParameterSetEntry const* retrieveUnknownParameterSet(std::string const&) const;
     VParameterSetEntry const& retrieveVParameterSet(std::string const&) const;
-    VParameterSetEntry const* const retrieveUntrackedVParameterSet(std::string const&) const;
-    VParameterSetEntry const* const retrieveUnknownVParameterSet(std::string const&) const;
+    VParameterSetEntry const* retrieveUntrackedVParameterSet(std::string const&) const;
+    VParameterSetEntry const* retrieveUnknownVParameterSet(std::string const&) const;
 
     void insertParameterSet(bool okay_to_replace, std::string const& name, ParameterSetEntry const& entry);
     void insertVParameterSet(bool okay_to_replace, std::string const& name, VParameterSetEntry const& entry);

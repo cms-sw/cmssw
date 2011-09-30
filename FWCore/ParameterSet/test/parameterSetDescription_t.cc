@@ -36,7 +36,7 @@ namespace testParameterSetDescription {
         psetDesc.validate(pset);
         assert(0);
       }
-      catch(edm::Exception) {
+      catch(edm::Exception const&) {
         // There should be an exception
       }
     }
@@ -115,7 +115,7 @@ namespace testParameterSetDescription {
         set.add<double>("testTypeChecking2", 11.0);
         assert(0);
       }
-        catch(edm::Exception) {
+        catch(edm::Exception const&) {
         // There should be an exception
       }
     }
@@ -124,7 +124,7 @@ namespace testParameterSetDescription {
       edm::ParameterWildcard<int> wrong("a*", edm::RequireZeroOrMore, true);
       assert(0);
     }
-      catch(edm::Exception) {
+      catch(edm::Exception const&) {
       // There should be an exception
     }
 
@@ -311,7 +311,7 @@ namespace testParameterSetDescription {
                         1 >> edm::ParameterDescription<std::string>("oivalue", "102", true));
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     // Types used in case parameters cannot duplicate type already used in a wildcard
     edm::ParameterSetDescription psetDesc1;
@@ -326,7 +326,7 @@ namespace testParameterSetDescription {
                          2 >> edm::ParameterDescription<std::string>("oivalue", "102", true));
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     // Types used in the switch parameter cannot duplicate type already used in a wildcard
     edm::ParameterSetDescription psetDesc2;
@@ -340,7 +340,7 @@ namespace testParameterSetDescription {
                         2 >> edm::ParameterDescription<std::string>("avalue", "102", true));
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     // Type used in the switch parameter cannot duplicate type in a case wildcard
     edm::ParameterSetDescription psetDesc3;
@@ -351,7 +351,7 @@ namespace testParameterSetDescription {
                                edm::ParameterDescription<double>("xvalue2", 101.0, true)));
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     // Type used in a parameter cannot duplicate type in a case wildcard
     edm::ParameterSetDescription psetDesc4;
@@ -363,7 +363,7 @@ namespace testParameterSetDescription {
                                edm::ParameterDescription<double>("xvalue2", 101.0, true)));
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     // No problem is wildcard type and parameter type are the same for different cases.
     edm::ParameterSetDescription psetDesc5;
@@ -382,7 +382,7 @@ namespace testParameterSetDescription {
                                edm::ParameterDescription<double>("xvalue2", 101.0, true)));
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     // Case labels cannot be the same as a label that already exists
     edm::ParameterSetDescription psetDesc7;
@@ -394,7 +394,7 @@ namespace testParameterSetDescription {
                                edm::ParameterDescription<double>("xvalue2", 101.0, true)));
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     // Case labels cannot be the same as a switch label
     edm::ParameterSetDescription psetDesc8;
@@ -405,7 +405,7 @@ namespace testParameterSetDescription {
                                edm::ParameterDescription<double>("xvalue2", 101.0, true)));
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     // Parameter set switch value must be one of the defined cases
     edm::ParameterSetDescription psetDesc9;
@@ -419,7 +419,7 @@ namespace testParameterSetDescription {
       psetDesc9.validate(pset);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     edm::ParameterSwitch<int> pswitch(edm::ParameterDescription<int>("xswitch", 1, true),
                          0 >> edm::ParameterWildcard<double>("*", edm::RequireAtLeastOne, true) or
@@ -465,14 +465,14 @@ namespace testParameterSetDescription {
       psetDesc1.validate(pset1);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */}
+    catch(edm::Exception const&) { /* There should be an exception */}
 
     // More than one of the options existing should also fail
     try {
       psetDesc1.validate(pset2);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */}
+    catch(edm::Exception const&) { /* There should be an exception */}
 
     // One of the labels cannot already exist in the description
     edm::ParameterSetDescription psetDesc2;
@@ -488,7 +488,7 @@ namespace testParameterSetDescription {
       psetDesc2.addNode(node2);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     // One of the labels cannot already exist in the description, other order
     edm::ParameterSetDescription psetDesc3;
@@ -504,7 +504,7 @@ namespace testParameterSetDescription {
       psetDesc3.add<unsigned>("xvalue1", 1U);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     // A parameter cannot use the same type as a wildcard
     edm::ParameterSetDescription psetDesc4;
@@ -522,7 +522,7 @@ namespace testParameterSetDescription {
       psetDesc4.addNode(w4);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     // A parameter cannot use the same type as a wildcard
     edm::ParameterSetDescription psetDesc5;
@@ -540,7 +540,7 @@ namespace testParameterSetDescription {
       psetDesc5.addNode(n5);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
   }
 
 // ---------------------------------------------------------------------------------
@@ -592,7 +592,7 @@ namespace testParameterSetDescription {
       psetDesc2.addNode(node2);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     // One of the labels cannot already exist in the description, other order
     edm::ParameterSetDescription psetDesc3;
@@ -607,7 +607,7 @@ namespace testParameterSetDescription {
       psetDesc3.add<unsigned>("x1", 1U);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     // Put the duplicate labels in different nodes of the "or" expression
     edm::ParameterSetDescription psetDesc4;
@@ -620,7 +620,7 @@ namespace testParameterSetDescription {
       psetDesc4.addNode(node4);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     // A type used in a wildcard should not be the same as a type
     // used for another parameter
@@ -634,7 +634,7 @@ namespace testParameterSetDescription {
       psetDesc5.addNode(node5);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     // A type used in a wildcard should not be the same as a type
     // used for another parameter node
@@ -649,7 +649,7 @@ namespace testParameterSetDescription {
       psetDesc6.addNode(node6);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     // A type used in a wildcard should not be the same as a type
     // used for another parameter node
@@ -664,7 +664,7 @@ namespace testParameterSetDescription {
       psetDesc7.addNode(node7);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
   }
 
 // ---------------------------------------------------------------------------------
@@ -721,7 +721,7 @@ namespace testParameterSetDescription {
       psetDesc2.addNode(node2);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     // One of the labels cannot already exist in the description, other order
     edm::ParameterSetDescription psetDesc3;
@@ -736,7 +736,7 @@ namespace testParameterSetDescription {
       psetDesc3.add<unsigned>("x1", 1U);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     // Put the duplicate labels in different nodes of the "and" expression
     edm::ParameterSetDescription psetDesc4;
@@ -749,7 +749,7 @@ namespace testParameterSetDescription {
       psetDesc4.addNode(node4);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     // A type used in a wildcard should not be the same as a type
     // used for another parameter
@@ -763,7 +763,7 @@ namespace testParameterSetDescription {
       psetDesc5.addNode(node5);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     // A type used in a wildcard should not be the same as a type
     // used for another parameter node
@@ -778,7 +778,7 @@ namespace testParameterSetDescription {
       psetDesc6.addNode(node6);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     // A type used in a wildcard should not be the same as a type
     // used for another parameter node
@@ -793,7 +793,7 @@ namespace testParameterSetDescription {
       psetDesc7.addNode(node7);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
   }
 
 // ---------------------------------------------------------------------------------
@@ -877,7 +877,7 @@ namespace testParameterSetDescription {
       psetDesc2.addNode(node2);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     // One of the labels cannot already exist in the description, other order
     edm::ParameterSetDescription psetDesc3;
@@ -892,7 +892,7 @@ namespace testParameterSetDescription {
       psetDesc3.add<unsigned>("x1", 1U);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     // Put the duplicate labels in different nodes of the "and" expression
     edm::ParameterSetDescription psetDesc4;
@@ -905,7 +905,7 @@ namespace testParameterSetDescription {
       psetDesc4.addNode(node4);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     // A type used in a wildcard should not be the same as a type
     // used for another parameter
@@ -919,7 +919,7 @@ namespace testParameterSetDescription {
       psetDesc5.addNode(node5);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     // A type used in a wildcard should not be the same as a type
     // used for another parameter node
@@ -934,7 +934,7 @@ namespace testParameterSetDescription {
       psetDesc6.addNode(node6);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     // A type used in a wildcard should not be the same as a type
     // used for another parameter node
@@ -949,7 +949,7 @@ namespace testParameterSetDescription {
       psetDesc7.addNode(node7);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
   }
 
 // ---------------------------------------------------------------------------------
@@ -984,7 +984,7 @@ namespace testParameterSetDescription {
       psetDesc2.addNode(node2);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     // A type used in a wildcard should not be the same as a type
     // used for another parameter node
@@ -996,7 +996,7 @@ namespace testParameterSetDescription {
       psetDesc3.addNode(node3);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     edm::ParameterSetDescription psetDesc4;
     psetDesc4.labelsFrom<edm::ParameterSetDescription>("allowedLabelsA");
@@ -1012,7 +1012,7 @@ namespace testParameterSetDescription {
       psetDesc4.validate(psetA);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     std::vector<std::string> labels1;
     labels1.push_back(std::string("setB"));
@@ -1032,7 +1032,7 @@ namespace testParameterSetDescription {
       psetDesc5.validate(psetA);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     // Now include "x" in the description and it should once again pass validation
     edm::ParameterSetDescription psetDesc6;
@@ -1053,7 +1053,7 @@ namespace testParameterSetDescription {
       psetDesc9.validate(psetA);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
     psetDesc10.validate(psetA);
 
     // Now repeat what was done above with the variations
@@ -1077,7 +1077,7 @@ namespace testParameterSetDescription {
         psetDesc14.validate(psetC);
         assert(0);
       }
-      catch(edm::Exception) { /* There should be an exception */ }
+      catch(edm::Exception const&) { /* There should be an exception */ }
 
       std::vector<std::string> labels1;
       labels1.push_back(std::string("vSetD"));
@@ -1097,7 +1097,7 @@ namespace testParameterSetDescription {
         psetDesc15.validate(psetC);
         assert(0);
       }
-      catch(edm::Exception) { /* There should be an exception */ }
+      catch(edm::Exception const&) { /* There should be an exception */ }
 
       // Now include "y" in the description and it should once again pass validation
       edm::ParameterSetDescription psetDesc6;
@@ -1119,7 +1119,7 @@ namespace testParameterSetDescription {
         psetDesc19.validate(psetC);
         assert(0);
       }
-      catch(edm::Exception) { /* There should be an exception */ }
+      catch(edm::Exception const&) { /* There should be an exception */ }
       psetDesc20.validate(psetC);
     }
   }
@@ -1135,7 +1135,7 @@ namespace testParameterSetDescription {
       psetDesc.validate(pset);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     pset.addParameter<int>("x", 1);
     psetDesc.validate(pset);
@@ -1145,7 +1145,7 @@ namespace testParameterSetDescription {
       psetDesc.validate(pset);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
   }
 
 // ---------------------------------------------------------------------------------
@@ -1161,7 +1161,7 @@ namespace testParameterSetDescription {
       psetDesc1.validate(pset1);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     edm::ParameterSet pset2;
     pset2.addParameter<edm::ParameterSet>("test2", edm::ParameterSet());
@@ -1172,7 +1172,7 @@ namespace testParameterSetDescription {
       psetDesc2.validate(pset2);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     edm::ParameterSet pset3;
     pset3.addParameter<std::vector<edm::ParameterSet> >("test3", std::vector<edm::ParameterSet>());
@@ -1183,7 +1183,7 @@ namespace testParameterSetDescription {
       psetDesc3.validate(pset3);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
   }
 
 // ---------------------------------------------------------------------------------
@@ -1199,7 +1199,7 @@ namespace testParameterSetDescription {
       psetDesc1.validate(pset1);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     edm::ParameterSet pset2;
     pset2.addParameter<int>("test2", 1);
@@ -1210,7 +1210,7 @@ namespace testParameterSetDescription {
       psetDesc2.validate(pset2);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
 
     edm::ParameterSet pset3;
     pset3.addParameter<int>("test3", 1);
@@ -1221,7 +1221,7 @@ namespace testParameterSetDescription {
       psetDesc3.validate(pset3);
       assert(0);
     }
-    catch(edm::Exception) { /* There should be an exception */ }
+    catch(edm::Exception const&) { /* There should be an exception */ }
   }
 
 // ---------------------------------------------------------------------------------
@@ -1249,7 +1249,7 @@ int main(int, char**) {
       psetDesc.validate(params);
       assert(0);
     }
-    catch(edm::Exception) {
+    catch(edm::Exception const&) {
       // OK
     }
 
@@ -1311,7 +1311,7 @@ int main(int, char**) {
     psetDesc.validate(psetWrongTrackiness);
     assert(0);
   }
-  catch(edm::Exception) {
+  catch(edm::Exception const&) {
     // There should be an exception
   }
 
@@ -1321,7 +1321,7 @@ int main(int, char**) {
     psetDesc.validate(psetWrongType);
     assert(0);
   }
-  catch(edm::Exception) {
+  catch(edm::Exception const&) {
     // There should be an exception
   }
 
@@ -1522,23 +1522,23 @@ int main(int, char**) {
     // for the first test do not put a parameter in the description
     // so there will be an extra parameter in the ParameterSet and
     // validation should fail.
-    if(i > 0) par = nestLevel2.add<int>("intLevel2a", 1);
+    if(i > 0) nestLevel2.add<int>("intLevel2a", 1);
 
     // for the next test validation should pass
 
     // For the last test add an extra required parameter in the
     // description that is not in the ParameterSet.
-    if(i == 2) par = nestLevel2.add<int>("intLevel2extra", 11);
+    if(i == 2) nestLevel2.add<int>("intLevel2extra", 11);
 
-    par = nestLevel2.addUntracked<int>("intLevel2b", 1);
-    par = nestLevel2.addOptional<int>("intLevel2c", 1);
-    par = nestLevel2.addOptionalUntracked<int>("intLevel2d", 1);
-    par = nestLevel2.addOptional<int>("intLevel2e", 1);
-    par = nestLevel2.addOptionalUntracked<int>("intLevel2f", 1);
+    nestLevel2.addUntracked<int>("intLevel2b", 1);
+    nestLevel2.addOptional<int>("intLevel2c", 1);
+    nestLevel2.addOptionalUntracked<int>("intLevel2d", 1);
+    nestLevel2.addOptional<int>("intLevel2e", 1);
+    nestLevel2.addOptionalUntracked<int>("intLevel2f", 1);
 
     edm::ParameterSetDescription nestLevel1;
-    par = nestLevel1.add<int>("intLevel1a", 1);
-    par = nestLevel1.add<edm::ParameterSetDescription>("nestLevel1b", nestLevel2);
+    nestLevel1.add<int>("intLevel1a", 1);
+    nestLevel1.add<edm::ParameterSetDescription>("nestLevel1b", nestLevel2);
 
     testDescriptions[i].addVPSetUntracked("nestLevel0", nestLevel1);
   }
@@ -1548,7 +1548,7 @@ int main(int, char**) {
     testDescriptions[0].validate(pset);
     assert(0);
   }
-  catch(edm::Exception) {
+  catch(edm::Exception const&) {
     // There should be an exception
   }
 

@@ -516,7 +516,6 @@ ProvenanceDumper::dumpProcessHistory_() {
     std::cout << *phv_.begin();
     historyGraph_.addChild(HistoryNode(*(phv_.begin()->begin()), 1));
   } else {
-    bool multipleHistories = false;
     std::map<edm::ProcessConfigurationID, unsigned int> simpleIDs;
     for(edm::ProcessHistoryVector::const_iterator it = phv_.begin(), itEnd = phv_.end();
          it != itEnd;
@@ -547,7 +546,6 @@ ProvenanceDumper::dumpProcessHistory_() {
             }
           }
           if(isUnique) {
-            multipleHistories = true;
             simpleIDs[itH->id()] = parent->size() + 1;
             parent->addChild(HistoryNode(*itH, simpleIDs[itH->id()]));
             parent = parent->lastChildAddress();
@@ -937,6 +935,7 @@ int main(int argc, char* argv[]) {
   int exitCode(0);
   try {
     dumper.dump();
+    exitCode = dumper.exitCode();
   }
   catch (cms::Exception const& x) {
     std::cerr << "cms::Exception caught\n";
@@ -954,5 +953,5 @@ int main(int argc, char* argv[]) {
   }
 
   dumper.printErrors(std::cerr);
-  return dumper.exitCode();
+  return exitCode;
 }

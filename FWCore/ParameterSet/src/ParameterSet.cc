@@ -126,7 +126,7 @@ namespace edm {
     assert(it != psetTable_.end());
     std::auto_ptr<ParameterSet> pset(new ParameterSet);
     std::swap(*pset, it->second.pset());
-    psetTable_.erase(it); 
+    psetTable_.erase(it);
     return pset;
   }
 
@@ -155,7 +155,7 @@ namespace edm {
     assert(it != vpsetTable_.end());
     std::auto_ptr<std::vector<ParameterSet> > vpset(new std::vector<ParameterSet>);
     std::swap(*vpset, it->second.vpset());
-    vpsetTable_.erase(it); 
+    vpsetTable_.erase(it);
     return vpset;
   }
 
@@ -179,8 +179,8 @@ namespace edm {
 //    cms::Digest md5alg(stringrep);
 //    id_ = ParameterSetID(md5alg.digest().toString());
     cms::Digest newDigest;
-    toDigest(newDigest); 
-    id_ = ParameterSetID(newDigest.digest().toString());    
+    toDigest(newDigest);
+    id_ = ParameterSetID(newDigest.digest().toString());
 //    assert(md5alg.digest().toString() == newDigest.digest().toString());
     assert(isRegistered());
   }
@@ -258,12 +258,12 @@ namespace edm {
     return it->second;
   }  // retrieve()
 
-  Entry const* const
+  Entry const*
   ParameterSet::retrieveUntracked(char const* name) const {
     return retrieveUntracked(std::string(name));
   }
 
-  Entry const* const
+  Entry const*
   ParameterSet::retrieveUntracked(std::string const& name) const {
     table::const_iterator  it = tbl_.find(name);
 
@@ -308,7 +308,7 @@ namespace edm {
     return it->second;
   }  // retrieve()
 
-  ParameterSetEntry const* const
+  ParameterSetEntry const*
   ParameterSet::retrieveUntrackedParameterSet(std::string const& name) const {
     psettable::const_iterator  it = psetTable_.find(name);
 
@@ -347,7 +347,7 @@ namespace edm {
     return it->second;
   }  // retrieve()
 
-  VParameterSetEntry const* const
+  VParameterSetEntry const*
   ParameterSet::retrieveUntrackedVParameterSet(std::string const& name) const {
     vpsettable::const_iterator it = vpsetTable_.find(name);
 
@@ -362,12 +362,12 @@ namespace edm {
     return &it->second;
   }  // retrieve()
 
-  Entry const* const
+  Entry const*
   ParameterSet::retrieveUnknown(char const* name) const {
     return retrieveUnknown(std::string(name));
   }
 
-  Entry const* const
+  Entry const*
   ParameterSet::retrieveUnknown(std::string const& name) const {
     table::const_iterator it = tbl_.find(name);
     if(it == tbl_.end()) {
@@ -376,7 +376,7 @@ namespace edm {
     return &it->second;
   }
 
-  ParameterSetEntry const* const
+  ParameterSetEntry const*
   ParameterSet::retrieveUnknownParameterSet(std::string const& name) const {
     psettable::const_iterator  it = psetTable_.find(name);
     if(it == psetTable_.end()) {
@@ -385,7 +385,7 @@ namespace edm {
     return &it->second;
   }
 
-  VParameterSetEntry const* const
+  VParameterSetEntry const*
   ParameterSet::retrieveUnknownVParameterSet(std::string const& name) const {
     vpsettable::const_iterator  it = vpsetTable_.find(name);
     if(it == vpsetTable_.end()) {
@@ -607,7 +607,7 @@ namespace edm {
   void
   ParameterSet::toDigest(cms::Digest &digest) const {
     digest.append("<", 1);
-    bool started = false; 
+    bool started = false;
     for(table::const_iterator b = tbl_.begin(), e = tbl_.end(); b != e; ++b) {
       if(b->second.isTracked()) {
         if (started)
@@ -851,7 +851,7 @@ namespace edm {
     typedef ParameterSet::table::const_iterator Ti;
     for (Ti i = a.tbl().begin(), e = a.tbl().end(),
             j = b.tbl().begin(), f = b.tbl().end();
-            i != e; ++i, ++j) {
+            i != e && j != f; ++i, ++j) {
       if(*i != *j) {
         return false;
       }
@@ -859,7 +859,7 @@ namespace edm {
     typedef ParameterSet::psettable::const_iterator Pi;
     for (Pi i = a.psetTable().begin(), e = a.psetTable().end(),
             j = b.psetTable().begin(), f = b.psetTable().end();
-            i != e; ++i, ++j) {
+            i != e && j != f; ++i, ++j) {
       if(i->first != j->first) {
         return false;
       }
@@ -873,7 +873,7 @@ namespace edm {
     typedef ParameterSet::vpsettable::const_iterator PVi;
     for (PVi i = a.vpsetTable().begin(), e = a.vpsetTable().end(),
              j = b.vpsetTable().begin(), f = b.vpsetTable().end();
-             i != e; ++i, ++j) {
+             i != e && j != f; ++i, ++j) {
       if(i->first != j->first) {
         return false;
       }

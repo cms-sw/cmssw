@@ -563,8 +563,8 @@ namespace edmtest {
 
   private:
     template<typename PROD> void make_a_product(edm::Event& e);
-    void fill_a_data(DSTVSimpleProduct::data_type& d, int i);
-    void fill_a_data(DSTVSimpleDerivedProduct::data_type& d, int i);
+    void fill_a_data(DSTVSimpleProduct::data_type& d, unsigned int i);
+    void fill_a_data(DSTVSimpleDerivedProduct::data_type& d, unsigned int i);
 
     int size_;
   };
@@ -576,13 +576,13 @@ namespace edmtest {
   }
 
   void
-  DSTVProducer::fill_a_data(DSTVSimpleDerivedProduct::data_type& d, int i) {
+  DSTVProducer::fill_a_data(DSTVSimpleDerivedProduct::data_type& d, unsigned int i) {
     d.key = size_ - i;
     d.value = 1.5 * i;
   }
 
   void
-  DSTVProducer::fill_a_data(DSTVSimpleProduct::data_type& d, int i) {
+  DSTVProducer::fill_a_data(DSTVSimpleProduct::data_type& d, unsigned int i) {
     d.data = size_ - i;
   }
 
@@ -598,12 +598,12 @@ namespace edmtest {
     std::auto_ptr<product_type> p(new product_type());
     product_type& v = *p;
 
-    int n = 0;
+    unsigned int n = 0;
     for(id_type id = 1; id<static_cast<id_type>(size_) ;++id) {
       ++n;
       detset item(v, id); // this will get DetID id
       item.resize(n);
-      for(int i = 0; i < n; ++i)
+      for(unsigned int i = 0; i < n; ++i)
         fill_a_data(item[i], i);
     }
 

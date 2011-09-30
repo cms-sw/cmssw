@@ -13,6 +13,7 @@ namespace edm {
    Provenance::Provenance() :
     branchDescription_(),
     productID_(),
+    processHistoryID_(),
     productProvenanceValid_(false),
     productProvenancePtr_(new ProductProvenance),
     store_() {
@@ -21,6 +22,7 @@ namespace edm {
    Provenance::Provenance(boost::shared_ptr<ConstBranchDescription> const& p, ProductID const& pid) :
     branchDescription_(p),
     productID_(pid),
+    processHistoryID_(),
     productProvenanceValid_(false),
     productProvenancePtr_(new ProductProvenance),
     store_() {
@@ -41,7 +43,7 @@ namespace edm {
     return productProvenancePtr_.get();
   }
 
-  ProcessConfigurationID 
+  ProcessConfigurationID
   Provenance::processConfigurationID() const {
     if (parameterSetIDs().size() == 1) {
       return parameterSetIDs().begin()->first;
@@ -59,7 +61,7 @@ namespace edm {
     ProcessConfiguration config;
     if (!ph.getConfigurationForProcess(processName(), config)) {
       return ProcessConfigurationID();
-    } 
+    }
     return config.id();
   }
 
@@ -86,7 +88,7 @@ namespace edm {
     return it->second;
   }
 
-  std::string 
+  std::string
   Provenance::moduleName() const {
     if (!product().moduleName().empty()) {
       return product().moduleName();
@@ -110,7 +112,6 @@ namespace edm {
     productProvenance()->write(os);
   }
 
-
   bool operator==(Provenance const& a, Provenance const& b) {
     return a.product() == b.product();
   }
@@ -127,7 +128,7 @@ namespace edm {
     productProvenanceValid_ = true;
   }
 
-  void 
+  void
   Provenance::swap(Provenance& iOther) {
     branchDescription_.swap(iOther.branchDescription_);
     productID_.swap(iOther.productID_);

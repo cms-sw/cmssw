@@ -212,7 +212,7 @@ int ELadministrator::severityCount(
   int k = from.getLevel();
   int sum = severityCounts_[k];
 
-  while ( ++k <= to.getLevel() )
+  while ( ++k != to.getLevel() )
     sum += severityCounts_[k];
 
   return  sum;
