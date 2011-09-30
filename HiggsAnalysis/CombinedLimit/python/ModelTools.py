@@ -89,8 +89,8 @@ class ModelBuilder(ModelBuilderBase):
         globalobs = []
         for (n,nofloat,pdf,args,errline) in self.DC.systs: 
             if pdf == "lnN" or pdf.startswith("shape"):
-                #print "%s_Pdf = Gaussian(%s[-5,5], 0, 1);" % (n,n)
-                self.doObj("%s_Pdf" % n, "Gaussian", "%s[-5,5], %s_In[0,-5,5], 1" % (n,n));
+                r = "-4,4" if pdf == "shape" else "-7,7"
+                self.doObj("%s_Pdf" % n, "Gaussian", "%s[%s], %s_In[0,%s], 1" % (n,r,n,r));
                 globalobs.append("%s_In" % n)
                 if self.options.bin:
                   self.out.var("%s_In" % n).setConstant(True)
@@ -111,6 +111,21 @@ class ModelBuilder(ModelBuilderBase):
                 self.doObj("%s_Pdf" % n, "Poisson", "%s_In[%d,0,%d], %s[0,%d]" % (n,args[0],2*args[0]+5,n,2*args[0]+5))
                 globalobs.append("%s_In" % n)
                 if self.options.bin: self.out.var("%s_In" % n).setConstant(True)
+            elif pdf == "trG":
+                trG_min = -7; trG_max = +7;
+                for b in errline.keys():
+                    for v in errline[b].values():
+                        if v > 0 and 1.0 + trG_min * v < 0: trG_min = -1.0/v;
+                        if v < 0 and 1.0 + trG_max * v < 0: trG_max = -1.0/v;
+                r = "%f,%f" % (trG_min,trG_max);
+                self.doObj("%s_Pdf" % n, "Gaussian", "%s[0,%s], %s_In[0,%s], 1" % (n,r,n,r));
+                globalobs.append("%s_In" % n)
+                if self.options.bin:
+                  self.out.var("%s_In" % n).setConstant(True)
+            elif pdf == "lnU":
+                self.doObj("%s_Pdf" % n, "Uniform", "%s[-1,1]" % n);
+            elif pdf == "unif":
+                self.doObj("%s_Pdf" % n, "Uniform", "%s[%f,%f]" % (n,args[0],args[1]))
             elif pdf == "param":
                 mean = float(args[0])
                 if "/" in args[1]: 
@@ -186,7 +201,7 @@ class ModelBuilder(ModelBuilderBase):
                     if errline[b][p] == 0.0: continue
                     if pdf == "lnN" and errline[b][p] == 1.0: continue
                     iSyst += 1
-                    if pdf == "lnN":
+                    if pdf == "lnN" or pdf == "lnU":
                         if type(errline[b][p]) == list:
                             elow, ehigh = errline[b][p];
                             strexpr += " * @%d" % iSyst
@@ -196,6 +211,9 @@ class ModelBuilder(ModelBuilderBase):
                             strargs += ", %s" % n
                     elif pdf == "gmM":
                         strexpr += " * @%d " % iSyst
+                        strargs += ", %s" % n
+                    elif pdf == "trG" or pdf == "unif":
+                        strexpr += " * (1+%f*@%d) " % (errline[b][p], iSyst)
                         strargs += ", %s" % n
                     elif pdf == "gmN":
                         strexpr += " * @%d " % iSyst

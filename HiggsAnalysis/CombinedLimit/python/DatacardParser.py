@@ -103,10 +103,12 @@ def parseCard(file, options):
           lsyst = lsyst.replace("[nofloat]","")
           nofloat = True
         if re.match("[0-9]+",lsyst): lsyst = "theta"+lsyst
-        if pdf == "lnN" or pdf == "gmM" or pdf.startswith("shape"):
+        if pdf == "lnN" or pdf == "lnU" or pdf == "gmM" or pdf == "trG" or pdf.startswith("shape"):
             pass # nothing special to do
         elif pdf == "gmN":
             args = [int(f[2])]; numbers = f[3:];
+        elif pdf == "unif":
+            args = [float(f[2]), float(f[3])]; numbers = f[4:];
         elif pdf == "param":
             # for parametric uncertainties, there's no line to account per bin/process effects
             # just assume everything else is an argument and move on
@@ -125,7 +127,7 @@ def parseCard(file, options):
         nonNullEntries = 0 
         for (b,p,s),r in zip(ret.keyline,numbers):
             if "/" in r: # "number/number"
-                if pdf != "lnN": raise RuntimeError, "Asymmetric errors are allowed only for Log-normals"
+                if pdf not in ["lnN","lnU"]: raise RuntimeError, "Asymmetric errors are allowed only for Log-normals"
                 errline[b][p] = [ float(x) for x in r.split("/") ]
             else:
                 errline[b][p] = float(r) 
