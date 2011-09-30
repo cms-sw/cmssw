@@ -16,18 +16,21 @@ runFromAOD = False
 runFromALCA = False
 
 # Do you want to reReco ECAL RecHits (also from RAW if you have them) ? 
-ECALRecalib = False
-ECALFromRAW = False
-ApplyInterCalib = False
+ECALRecalib = True
+ECALFromRAW = True
+ApplyInterCalib = True
 #Switch to turn on/off application of LC. To be set to False when running from RAW and want to produce LC=1
 ApplyLaser = False
 
+# Do you want to produce also small E/p ntuples?
+simpleNtupleEoverP = False
 
 # Do you want to filter events? 
 HLTFilter = False
 HLTPath = "HLT_Ele"
 HLTProcessName = "HLT"
-ZSkim = True
+
+ZSkim = False
 WSkim = False
 
 #electron cuts
@@ -114,10 +117,15 @@ process.options = cms.untracked.PSet(
 if (MC):
     process.GlobalTag.globaltag = 'START42_V12::All'
 else:
-    process.GlobalTag.globaltag = 'GR_R_42_V17::All' 
+    process.GlobalTag.globaltag = 'GR_R_42_V21::All' 
 
 
-#process.GlobalTag.toGet = cms.VPSet(
+process.GlobalTag.toGet = cms.VPSet(
+        cms.PSet(
+            record = cms.string("EcalLaserAPDPNRatiosRcd"),
+            tag = cms.string("EcalLaserAPDPNRatios_p1p2p3_v2_mc"),
+            connect =cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ECAL")
+            ),
 # cms.PSet(record = cms.string("EcalIntercalibConstantsRcd"),
 #          tag = cms.string("EcalIntercalibConstants_v10_offline"),
 #          connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_31X_ECAL")
@@ -137,7 +145,7 @@ else:
 #   ,cms.PSet(record = cms.string("BeamSpotObjectsRcd"),
 #          tag = cms.string("BeamSpotObjects_PCL_byLumi_v0_prompt"),
 #          connect = cms.untracked.string("frontier://PromptProd/CMS_COND_31X_BEAMSPOT")
-#         )
+         )
 
 
 
@@ -304,6 +312,15 @@ process.tagGsfSeq *= (process.ele_sequence * process.filter * process.electronRe
 if ( (ECALRecalib) or (not runFromALCA) ):
     process.tagGsfSeq *= ( process.seqALCARECOEcalCalElectronRECO )
 
+if (simpleNtupleEoverP):
+    from Calibration.EcalCalibAlgos.ntuplesProduction_cff import *
+    addSimpleNtupleEoverP(process,ECALRecalib)
+    process.TFileService = cms.Service(
+        "TFileService",
+        fileName = cms.string("simpleNtupleEoP.root")
+    )
+    process.tagGsfSeq *= process.simpleNtupleEoverP_step
+    
 process.zFilterPath = cms.Path( process.tagGsfSeq )
 
 process.OutALCARECOEcalCalElectron.outputCommands.extend( [ "keep *_pfMet_*_*", "keep *_kt6*_rho_*", "keep *_offlinePrimaryVerticesWithBS_*_*","keep *_generator_*_*" ] )
