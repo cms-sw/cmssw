@@ -7,11 +7,12 @@ rctDigis = cms.EDProducer("L1RCTProducer",
     ecalDigis = cms.VInputTag(cms.InputTag("ecalTriggerPrimitiveDigis")),
     BunchCrossings = cms.vint32(0),
     getFedsFromOmds = cms.bool(False),
-#    getFedsFromOmds = cms.bool(True),
+#    getFedsFromOmds = cms.bool(True), # ONLY for online DQM!
     queryDelayInLS = cms.uint32(10),
-    connectionString = cms.string("oracle://cms_orcoff_prod/CMS_RUNINFO"),
-    authpath = cms.string("/afs/cern.ch/cms/DB/conddb"),
-    tableToRead = cms.string("RUNSESSION_PARAMETER")
+    queryIntervalInLS = cms.uint32(100)#,
+#    connectionString = cms.string("oracle://cms_orcoff_prod/CMS_RUNINFO"),
+#    authpath = cms.string("/afs/cern.ch/cms/DB/conddb"),
+#    tableToRead = cms.string("RUNSESSION_PARAMETER")
 )
 
 

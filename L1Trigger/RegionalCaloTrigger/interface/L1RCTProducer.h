@@ -67,8 +67,9 @@ class L1RCTProducer : public edm::EDProducer
 /*   void getFedVectorFromRunInfo(const edm::EventSetup&); // or have these return a vector of ints? or a RunInfo?? that'll be pretty big... */
 /*   void getFedVectorFromOmds(const edm::EventSetup&); */
   const std::vector<int> getFedVectorFromRunInfo(const edm::EventSetup&); // or have these return a vector of ints? or a RunInfo?? that'll be pretty big...
-  //  std::vector<int> getFedVectorFromOmds(const edm::EventSetup&);
-  const std::vector<int> getFedVectorFromOmds(const int);
+  const std::vector<int> getFedVectorFromOmds(const edm::EventSetup&);
+  //  const std::vector<int> getFedVectorFromOmds(const int);
+  //  const std::vector<int> getFedVectorFromOmds();
 
   void printFedVector(const std::vector<int>);
   void printUpdatedFedMask();
@@ -84,9 +85,10 @@ class L1RCTProducer : public edm::EDProducer
   std::vector<int> bunchCrossings; 
   bool getFedsFromOmds;
   unsigned int queryDelayInLS;
-  std::string connectionString;
-  std::string authpath;
-  std::string tableToRead;
+  unsigned int queryIntervalInLS;
+/*   std::string connectionString; */
+/*   std::string authpath; */
+/*   std::string tableToRead; */
 
   //Create a channel mask object to be updated at every Run....
   L1RCTChannelMask* fedUpdatedMask;
