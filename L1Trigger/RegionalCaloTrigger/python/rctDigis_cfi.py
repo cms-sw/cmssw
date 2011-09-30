@@ -10,9 +10,6 @@ rctDigis = cms.EDProducer("L1RCTProducer",
 #    getFedsFromOmds = cms.bool(True), # ONLY for online DQM!
     queryDelayInLS = cms.uint32(10),
     queryIntervalInLS = cms.uint32(100)#,
-#    connectionString = cms.string("oracle://cms_orcoff_prod/CMS_RUNINFO"),
-#    authpath = cms.string("/afs/cern.ch/cms/DB/conddb"),
-#    tableToRead = cms.string("RUNSESSION_PARAMETER")
 )
 
 
