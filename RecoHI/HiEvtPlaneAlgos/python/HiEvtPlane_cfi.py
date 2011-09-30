@@ -1,9 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
 hiEvtPlane = cms.EDProducer("EvtPlaneProducer",
-                            vtxCollection_=cms.untracked.string("hiSelectedVertex"),
-                            caloCollection_=cms.untracked.string("towerMaker"),
-                            trackCollection_=cms.untracked.string("hiGoodTightMergedTracks"),
+                            vtxCollection_=cms.InputTag("hiSelectedVertex"),
+                            caloCollection_=cms.InputTag("towerMaker"),
+                            trackCollection_=cms.InputTag("hiGoodTightMergedTracks"),
                             useECAL_ = cms.untracked.bool(True),
                             useHCAL_ = cms.untracked.bool(True),
                             useTrackPtWeight_ = cms.untracked.bool(True),

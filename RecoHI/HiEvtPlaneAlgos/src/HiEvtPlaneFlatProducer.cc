@@ -14,7 +14,7 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Sat Jun 26 16:04:04 EDT 2010
-// $Id: HiEvtPlaneFlatProducer.cc,v 1.2 2011/09/29 18:46:39 ssanders Exp $
+// $Id: HiEvtPlaneFlatProducer.cc,v 1.3 2011/09/29 22:23:09 ssanders Exp $
 //
 //
 
@@ -101,13 +101,15 @@ class HiEvtPlaneFlatProducer : public edm::EDProducer {
       virtual void endJob() ;
       
       // ----------member data ---------------------------
-  //  const CentralityBins * cbins_;
-  CentralityProvider * centrality_;
+
+  edm::InputTag vtxCollection_;
+  edm::InputTag inputPlanes_;
+  edm::InputTag centrality_;
+
   int vs_sell;   // vertex collection size
   float vzr_sell;
   float vzErr_sell;
 
- 
   Double_t epang[NumEPNames];
   HiEvtPlaneFlatten * flat[NumEPNames];
   RPFlatParams * rpFlat;
@@ -131,10 +133,14 @@ typedef TrackingParticleRefVector::iterator               tp_iterator;
 //
 HiEvtPlaneFlatProducer::HiEvtPlaneFlatProducer(const edm::ParameterSet& iConfig)
 {
+
+  vtxCollection_  = iConfig.getParameter<edm::InputTag>("vtxCollection_");
+  inputPlanes_ = iConfig.getParameter<edm::InputTag>("inputPlanes_");
+  centrality_ = iConfig.getParameter<edm::InputTag>("centrality_");
+
    //register your products
-  produces<reco::EvtPlaneCollection>("recoLevel");
+  produces<reco::EvtPlaneCollection>();
    //now do what ever other initialization is needed
-  centrality_ = 0;
   Int_t FlatOrder = 21;
   for(int i = 0; i<NumEPNames; i++) {
     flat[i] = new HiEvtPlaneFlatten();
@@ -174,18 +180,17 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   //
   //Get Centrality
   //
-  if(!centrality_) centrality_ = new CentralityProvider(iSetup);
-  
-  centrality_->newEvent(iEvent,iSetup); // make sure you do this first in every event
-  //   double c = centrality_->centralityValue();
-  int bin = centrality_->getBin();
+
+  edm::Handle<int> ch;
+  iEvent.getByLabel(centrality_,ch);
+  int bin = *(ch.product());
 
   //  double centval = 2.5*bin+1.25;
   //
   //Get Vertex
   //
   edm::Handle<reco::VertexCollection> vertexCollection3;
-  iEvent.getByLabel("hiSelectedVertex",vertexCollection3);
+  iEvent.getByLabel(vtxCollection_,vertexCollection3);
   const reco::VertexCollection * vertices3 = vertexCollection3.product();
   vs_sell = vertices3->size();
   if(vs_sell>0) {
@@ -216,7 +221,7 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   //
   
   Handle<reco::EvtPlaneCollection> evtPlanes;
-  iEvent.getByLabel("hiEvtPlane","recoLevel",evtPlanes);
+  iEvent.getByLabel(inputPlanes_,evtPlanes);
   
   if(!evtPlanes.isValid()){
     //    cout << "Error! Can't get hiEvtPlane product!" << endl;

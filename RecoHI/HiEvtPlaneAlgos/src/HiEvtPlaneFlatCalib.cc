@@ -14,7 +14,7 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Sat Jun 26 16:04:04 EDT 2010
-// $Id: HiEvtPlaneFlatCalib.cc,v 1.1 2011/09/24 14:02:09 ssanders Exp $
+// $Id: HiEvtPlaneFlatCalib.cc,v 1.2 2011/09/29 22:23:09 ssanders Exp $
 //
 //
 
@@ -24,7 +24,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -100,14 +100,14 @@ static const  double wcent[] ={0,5,10,20,30,40,50,60,70,100};
 // class declaration
 //
 
-class HiEvtPlaneFlatCalib : public edm::EDProducer {
+class HiEvtPlaneFlatCalib : public edm::EDAnalyzer {
    public:
       explicit HiEvtPlaneFlatCalib(const edm::ParameterSet&);
       ~HiEvtPlaneFlatCalib();
 
    private:
       virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
       
       // ----------member data ---------------------------
@@ -158,8 +158,7 @@ typedef TrackingParticleRefVector::iterator               tp_iterator;
 HiEvtPlaneFlatCalib::HiEvtPlaneFlatCalib(const edm::ParameterSet& iConfig)
 {
   genFlatPsi_ = iConfig.getUntrackedParameter<bool>("genFlatPsi_",true);
-   //register your products
-  produces<reco::EvtPlaneCollection>("recoLevel");
+
    //now do what ever other initialization is needed
   //  cbins_ = 0;
   centrality_ = 0;
@@ -214,7 +213,7 @@ HiEvtPlaneFlatCalib::~HiEvtPlaneFlatCalib()
 
 // ------------ method called to produce the data  ------------
 void
-HiEvtPlaneFlatCalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+HiEvtPlaneFlatCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
    using namespace edm;
   using namespace std;
@@ -276,7 +275,6 @@ HiEvtPlaneFlatCalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     psiFull[i] = -10;
   }
 
-  std::auto_ptr<EvtPlaneCollection> evtplaneOutput(new EvtPlaneCollection);
   EvtPlane * ep[NumEPNames];
   for(int i = 0; i<NumEPNames; i++) {
     ep[i]=0;
@@ -299,7 +297,6 @@ HiEvtPlaneFlatCalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      for(int j = 0; j<NumCentBins; j++) {
 		if(centval>wcent[j]&&centval<=wcent[j+1]) hPsiFlatCent[i][j]->Fill(psiFlat);
 	      }
-	      ep[i]= new EvtPlane(psiFlat, rp->sumSin(), rp->sumCos(),rp->label().data());
 	    }
 	  } 
 	}
@@ -307,11 +304,6 @@ HiEvtPlaneFlatCalib::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     }    
   }
 
-  for(int i = 0; i< NumEPNames; i++) {
-    if(ep[i]!=0) evtplaneOutput->push_back(*ep[i]);
-  }
-  iEvent.put(evtplaneOutput, "recoLevel");
-  
 }
 
 // ------------ method called once each job just before starting event loop  ------------

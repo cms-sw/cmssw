@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Sergey Petrushanko
 //         Created:  Fri Jul 11 10:05:00 2008
-// $Id: EvtPlaneProducer.cc,v 1.13 2011/09/29 18:46:39 ssanders Exp $
+// $Id: EvtPlaneProducer.cc,v 1.14 2011/09/29 22:23:09 ssanders Exp $
 //
 //
 #define TRACKCOLLECTION 1
@@ -141,9 +141,9 @@ private:
   virtual void endJob() ;
   
   // ----------member data ---------------------------
-  string vtxCollection_;
-  string caloCollection_;
-  string trackCollection_;
+  edm::InputTag vtxCollection_;
+  edm::InputTag caloCollection_;
+  edm::InputTag trackCollection_;
   bool useECAL_;
   bool useHCAL_;
   bool useTrack_;
@@ -175,9 +175,9 @@ EvtPlaneProducer::EvtPlaneProducer(const edm::ParameterSet& iConfig)
   
   
   //register your products
-  vtxCollection_  = iConfig.getUntrackedParameter<string>("vtxCollection_","hiSelectedVertex");
-  caloCollection_  = iConfig.getUntrackedParameter<string>("caloCollection_","towerMaker");
-  trackCollection_  = iConfig.getUntrackedParameter<string>("trackCollection_","hiGoodTightMergedTracks");
+  vtxCollection_  = iConfig.getParameter<edm::InputTag>("vtxCollection_");
+  caloCollection_  = iConfig.getParameter<edm::InputTag>("caloCollection_");
+  trackCollection_  = iConfig.getParameter<edm::InputTag>("trackCollection_");
   useECAL_ = iConfig.getUntrackedParameter<bool>("useECAL_",true);
   useHCAL_ = iConfig.getUntrackedParameter<bool>("useHCAL_",true);
   useTrack_ = iConfig.getUntrackedParameter<bool>("useTrack",true);
@@ -194,7 +194,7 @@ EvtPlaneProducer::EvtPlaneProducer(const edm::ParameterSet& iConfig)
 
   produces<reco::EvtPlaneCollection>("recoLevel");
   for(int i = 0; i<NumEPNames; i++ ) {
-      rp[i] = new GenPlane(EPNames[i],EPEtaMin1[i],EPEtaMax1[i],EPEtaMin2[i],EPEtaMax2[i],EPOrder[i]);
+    rp[i] = new GenPlane(EPNames[i].data(),EPEtaMin1[i],EPEtaMax1[i],EPEtaMin2[i],EPEtaMax2[i],EPOrder[i]);
   }
 }
 
@@ -226,7 +226,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //Get Vertex
   //
   edm::Handle<reco::VertexCollection> vertexCollection3;
-  iEvent.getByLabel(vtxCollection_.data(),vertexCollection3);
+  iEvent.getByLabel(vtxCollection_,vertexCollection3);
   const reco::VertexCollection * vertices3 = vertexCollection3.product();
   vs_sell = vertices3->size();
   if(vs_sell>0) {
@@ -429,7 +429,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   for(int i = 0; i<NumEPNames; i++) {
     rp[i]->getAngle(ang,sv,cv);
-    ep[i] = new EvtPlane(ang,sv,cv,EPNames[i].data());
+    ep[i] = new EvtPlane(ang,sv,cv,EPNames[i]);
   }
   if(useTrack_) {
     for(int i = 0; i<9; i++) {
