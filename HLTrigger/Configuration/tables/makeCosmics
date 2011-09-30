@@ -4,7 +4,7 @@
 #
 
 MASTER="/dev/CMSSW_4_2_0/HLT"                   # no version, take the latest one
-TARGET="/online/cosmics/2011/5e32/v4.1/HLT"     # where to store the online-compliant menu
+TARGET="/online/cosmics/2011/3e33/v1.1/HLT"     # where to store the online-compliant menu
 TABLES="cosmics"
 
 source subtables.sh

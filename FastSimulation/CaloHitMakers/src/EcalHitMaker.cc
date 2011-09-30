@@ -1054,7 +1054,7 @@ EcalHitMaker::getPads(double depth,bool inCm)
       // If the quad is completly defined. Store it ! 
       if(corners.size()==4)
 	{
-	  padsatdepth_[ic]=CrystalPad(ic,corners,trans,bfactor_);
+	  padsatdepth_[ic]=CrystalPad(ic,corners,trans,bfactor_,!central_);
 	  // Parameter to be tuned
 	  if(hasbeenpulled) padsatdepth_[ic].setSurvivalProbability(pulledPadProbability_);
 	  validPads_[ic]=true;
@@ -1173,8 +1173,7 @@ EcalHitMaker::configureGeometry()
   double theta=EcalEntrance_.theta();
   if(theta>M_PI_2) theta=M_PI-theta;
   bfactor_=1./(1.+0.133*theta);
-  // the effect of the magnetic field in the EC is currently ignored 
-  if(myCalorimeter->magneticField()==0. || !central_) bfactor_=1.;
+  if(myCalorimeter->magneticField()==0. ) bfactor_=1.;
 }
 
 // project fPoint on the plane (original,normal)

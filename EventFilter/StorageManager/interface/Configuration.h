@@ -1,4 +1,4 @@
-// $Id: Configuration.h,v 1.27 2011/03/07 15:31:31 mommsen Exp $
+// $Id: Configuration.h,v 1.30 2011/06/01 13:47:01 mommsen Exp $
 /// @file: Configuration.h 
 
 
@@ -33,7 +33,6 @@ namespace stor
     std::string fileName_;
     std::string filePath_;
     std::string dbFilePath_;
-    std::string fileCatalog_;
     std::string setupLabel_;
     int nLogicalDisk_;
     int maxFileSizeMB_;
@@ -43,6 +42,7 @@ namespace stor
     utils::Duration_t fileClosingTestInterval_;
     double fileSizeTolerance_;
     std::string faultyEventsStream_;
+    bool checkAdler32_;
 
     typedef std::vector<std::string> OtherDiskPaths;
     OtherDiskPaths otherDiskPaths_;
@@ -63,6 +63,7 @@ namespace stor
     utils::Duration_t readyTimeDQM_;
     bool useCompressionDQM_;
     int compressionLevelDQM_;
+    unsigned int discardDQMUpdatesForOlderLS_;
   };
 
   /**
@@ -159,8 +160,8 @@ namespace stor
    * only at requested times.
    *
    * $Author: mommsen $
-   * $Revision: 1.27 $
-   * $Date: 2011/03/07 15:31:31 $
+   * $Revision: 1.30 $
+   * $Date: 2011/06/01 13:47:01 $
    */
 
   class Configuration : public xdata::ActionListener
@@ -339,7 +340,6 @@ namespace stor
     xdata::String filePath_;
     xdata::String dbFilePath_;
     xdata::Vector<xdata::String> otherDiskPaths_;
-    xdata::String fileCatalog_;
     xdata::String setupLabel_;
     xdata::Integer nLogicalDisk_;
     xdata::Integer maxFileSize_;
@@ -349,6 +349,7 @@ namespace stor
     xdata::Integer fileClosingTestInterval_;  // seconds
     xdata::Double fileSizeTolerance_;
     xdata::String faultyEventsStream_;
+    xdata::Boolean checkAdler32_;
 
     xdata::Integer activeConsumerTimeout_;  // seconds
     xdata::Integer consumerQueueSize_;
@@ -361,6 +362,7 @@ namespace stor
     xdata::Integer readyTimeDQM_;  // seconds
     xdata::Boolean useCompressionDQM_;
     xdata::Integer compressionLevelDQM_;
+    xdata::UnsignedInteger32 discardDQMUpdatesForOlderLS_;
 
     xdata::UnsignedInteger32 commandQueueSize_;
     xdata::UnsignedInteger32 dqmEventQueueSize_;

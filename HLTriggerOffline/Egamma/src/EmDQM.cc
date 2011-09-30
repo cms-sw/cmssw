@@ -60,7 +60,6 @@ EmDQM::EmDQM(const edm::ParameterSet& pset)
   genEtaAcc = pset.getParameter<double>("genEtaAcc");
   genEtAcc  = pset.getParameter<double>("genEtAcc");
   // plotting paramters (untracked because they don't affect the physics)
-  plotEtMin  = pset.getUntrackedParameter<double>("genEtMin",0.);
   plotPtMin  = pset.getUntrackedParameter<double>("PtMin",0.);
   plotPtMax  = pset.getUntrackedParameter<double>("PtMax",1000.);
   plotEtaMax = pset.getUntrackedParameter<double>("EtaMax", 2.7);
@@ -375,9 +374,6 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
     if (  !( abs((*currentGenParticle).pdgId())==pdgGen  && (*currentGenParticle).status()==1 && (*currentGenParticle).et() > 2.0)  )  continue;
 
     reco::GenParticle tmpcand( *(currentGenParticle) );
-
-    if (tmpcand.et() < plotEtMin) continue;
-
     allSortedGenParticles.push_back(tmpcand);
   }
 
@@ -424,19 +420,17 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
   std::vector<reco::Particle> sortedGen;
   for(edm::View<reco::Candidate>::const_iterator genpart = cutCounter->begin(); genpart != cutCounter->end();genpart++){
     reco::Particle tmpcand(  genpart->charge(), genpart->p4(), genpart->vertex(),genpart->pdgId(),genpart->status() );
-    if (tmpcand.et() >= plotEtMin) {
-      sortedGen.push_back(tmpcand);
-    }
+    sortedGen.push_back(tmpcand);
   }
   std::sort(sortedGen.begin(),sortedGen.end(),pTComparator_ );
 
   // Now the collection of gen particles is sorted by pt.
   // So, remove all particles from the collection so that we 
   // only have the top "1 thru gencut_" particles in it
-  if (sortedGen.size() < gencut_){
+  sortedGen.erase(sortedGen.begin()+gencut_,sortedGen.end());
+  if (gencut_ != sortedGen.size() ){
     return;
   }
-  sortedGen.erase(sortedGen.begin()+gencut_,sortedGen.end());
 
 
   for (unsigned int i = 0 ; i < gencut_ ; i++ ) {

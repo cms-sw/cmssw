@@ -7,7 +7,6 @@ tau ID discriminator.
 Author: Evan K. Friis
 
 '''
-import math
 
 import sys
 output_file = sys.argv[1]
@@ -78,10 +77,10 @@ def make_perf_curve(signal, background, signal_denom, background_denom):
 # Get the discriminators to plot
 discriminators = {}
 discriminators['hpsPFTauProducer'] = [
-    'hpsPFTauDiscriminationByDecayModeFinding',
+    #'hpsPFTauDiscriminationByDecayModeFinding',
     'hpsPFTauDiscriminationByLooseIsolation',
     'hpsPFTauDiscriminationByMediumIsolation',
-    'hpsPFTauDiscriminationByTightIsolation',
+    #'hpsPFTauDiscriminationByTightIsolation',
 ]
 
 discriminators['shrinkingConePFTauProducer'] = [
@@ -89,7 +88,7 @@ discriminators['shrinkingConePFTauProducer'] = [
     #'shrinkingConePFTauDiscriminationByIsolation',
     #'shrinkingConePFTauDiscriminationByTrackIsolation',
     #'shrinkingConePFTauDiscriminationByECALIsolation',
-    #'shrinkingConePFTauDiscriminationByTaNC',
+    'shrinkingConePFTauDiscriminationByTaNC',
     #'shrinkingConePFTauDiscriminationByTaNCfrOnePercent',
     'shrinkingConePFTauDiscriminationByTaNCfrHalfPercent',
     #'shrinkingConePFTauDiscriminationByTaNCfrQuarterPercent',
@@ -98,8 +97,8 @@ discriminators['shrinkingConePFTauProducer'] = [
 
 discriminators['hpsTancTaus'] = [
     #'hpsTancTausDiscriminationByTancRaw',
-    #'hpsTancTausDiscriminationByTanc',
-    'hpsTancTausDiscriminationByTancLoose',
+    'hpsTancTausDiscriminationByTanc',
+    #'hpsTancTausDiscriminationByTancLoose',
     'hpsTancTausDiscriminationByTancMedium',
     'hpsTancTausDiscriminationByTancTight',
 ]
@@ -137,25 +136,18 @@ discriminator_translator = {
 
 disc_to_plot = discriminators.keys()
 
-good_colors = [ROOT.EColor.kRed-9, ROOT.EColor.kBlue-9, ROOT.EColor.kBlack,
-               ROOT.EColor.kGreen-9, ROOT.EColor.kViolet, ROOT.EColor.kAzure]
+good_colors = [ROOT.EColor.kRed-9, ROOT.EColor.kBlue-9, ROOT.EColor.kBlack]
 disc_to_plot = ['shrinkingConePFTauProducer', 'hpsPFTauProducer', 'hpsTancTaus']
 
 pt_curves_to_plot = [
-    #('shrinkingConePFTauProducer',
-     #'shrinkingConePFTauDiscriminationByTaNCfrHalfPercent'),
+    ('shrinkingConePFTauProducer',
+     'shrinkingConePFTauDiscriminationByTaNCfrHalfPercent'),
     ('hpsPFTauProducer',
      'hpsPFTauDiscriminationByLooseIsolation'),
-    ('hpsPFTauProducer',
-     'hpsPFTauDiscriminationByMediumIsolation'),
-    ('hpsPFTauProducer',
-     'hpsPFTauDiscriminationByTightIsolation'),
     ('hpsTancTaus',
-    'hpsTancTausDiscriminationByTancLoose'),
+     'hpsTancTausDiscriminationByTancTight'),
     ('hpsTancTaus',
-    'hpsTancTausDiscriminationByTancMedium'),
-    ('hpsTancTaus',
-    'hpsTancTausDiscriminationByTancTight'),
+     'hpsTancTausDiscriminationByTanc'),
 ]
 
 _PT_CUT = 15
@@ -168,13 +160,6 @@ _DENOM_PLOT_TYPE = {
     'background' : '_pt_jetPt', # compare to reconstructed total jet pt
 }
 
-def binomial_eff_and_error(passed, total):
-    if total == 0:
-        return (0,0)
-    eff = passed*1.0/total
-    error = math.sqrt((passed*1.0/(total*total))*(1-eff))
-    return (eff, error)
-
 canvas = ROOT.TCanvas("blah", "blah", 800, 1200)
 if __name__ == "__main__":
     steering = {}
@@ -183,16 +168,14 @@ if __name__ == "__main__":
 
     print "Loading histograms"
     # Load all the histograms
-    for sample in ['signal', 'background']:
-        sample_info = steering[sample]
+    for sample, sample_info in steering.iteritems():
         sample_info['algos'] = {}
         for producer in discriminators.keys():
             sample_info['algos'][producer] = {}
             for discriminator in discriminators[producer]:
-                print "Getting %s-%s" % (producer, discriminator)
-                producer_folder = sample_info['file'].Get("plot"+producer)
-                to_get = discriminator + _DENOM_PLOT_TYPE[sample]
-                raw_histo = producer_folder.Get(to_get)
+                to_get = "plot" + producer + "/" + discriminator + \
+                        _DENOM_PLOT_TYPE[sample]
+                raw_histo = sample_info['file'].Get(to_get)
 
                 min_denom_bin = raw_histo.GetZaxis().FindBin(_DENOM_CUT[sample])
 
@@ -216,45 +199,13 @@ if __name__ == "__main__":
                 raw_histo.GetYaxis().SetRange(0, raw_histo.GetNbinsY()+1)
                 pt_eff_denom = raw_histo.Project3D("denom_z")
 
-                discriminator_cut = 0.975
-
                 raw_histo.GetXaxis().SetRange(
-                    raw_histo.GetXaxis().FindBin(discriminator_cut),
+                    raw_histo.GetXaxis().FindBin(0.995),
                     raw_histo.GetNbinsX()+1)
                 raw_histo.GetYaxis().SetRange(
                     min_pt_bin, raw_histo.GetNbinsY()+1)
                 pt_eff_numerator = raw_histo.Project3D("numerator_z")
 
-                # Get the vertex information
-                vs_truePU = producer_folder.Get(
-                    discriminator + "_truePU")
-                vs_recoPU = producer_folder.Get(
-                    discriminator + "_recoPU")
-
-                truePU_graph = ROOT.TGraphErrors(vs_truePU.GetNbinsY())
-                recoPU_graph = ROOT.TGraphErrors(vs_recoPU.GetNbinsY())
-
-                # Compute the marginal efficiency in the numerator as a function
-                # of PU.
-                for histo, graph in [(vs_truePU, truePU_graph),
-                                     (vs_recoPU, recoPU_graph)]:
-                    for nPUVtx in range(0, histo.GetNbinsY()):
-                        # TH2F bin index is offset by 1
-                        ybin = nPUVtx + 1
-                        vtx_projection = histo.ProjectionX(
-                            "temp", ybin, ybin)
-                        total_entries = vtx_projection.Integral()
-                        passing_entries = vtx_projection.Integral(
-                            vtx_projection.FindBin(discriminator_cut),
-                            vtx_projection.GetNbinsX()+1)
-                        efficiency = (
-                            total_entries and passing_entries/total_entries
-                            or 0.)
-                        efficiency, error = binomial_eff_and_error(
-                            passing_entries, total_entries)
-                        graph.SetPoint(nPUVtx, nPUVtx, efficiency)
-                        graph.SetPointError(nPUVtx, 0, error)
-                        graph.Fit("pol1")
 
                 #print "Mean X Proj:", projection.GetMean(1)
                 #print "Post cut entries:", projection.Integral()
@@ -263,8 +214,6 @@ if __name__ == "__main__":
                     'denominator' : denom,
                     'pt_eff_num' : pt_eff_numerator,
                     'pt_eff_denom' : pt_eff_denom,
-                    'truePU' : truePU_graph,
-                    'recoPU' : recoPU_graph
                 }
                 #sample_info['algos'][producer][discriminator + '_denominator']\
                 #        = projection.Integral()
@@ -283,7 +232,7 @@ if __name__ == "__main__":
     good_markers = [20, 21, 24, 26, 22, 26, 20, 21, 24, 26, 22 ]
     #good_colors = [ROOT.EColor.kRed, ROOT.EColor.kBlue, ROOT.EColor.kGreen + 2]
     # The background histogram
-    histo = ROOT.TH1F("blank", "blank", 200, 0, 1.0)
+    histo = ROOT.TH1F("blank", "blank", 100, 0, 1.0)
     histo.SetMinimum(8e-4)
     histo.SetMaximum(0.5)
     histo.GetXaxis().SetTitle("Signal efficiency")
@@ -336,18 +285,13 @@ if __name__ == "__main__":
     ROOT.gPad.Update()
     ROOT.gPad.SaveAs(output_file)
 
-    pt_legend = ROOT.TLegend(0.15, 0.65, 0.85, 0.85)
-    pt_legend.SetFillStyle(0)
-    pt_legend.SetBorderSize(0)
     pt_canvas = ROOT.TCanvas('pt', 'pt', 1000, 500)
     pt_canvas.Divide(2)
-    signal_frame = ROOT.TH1F("sigbkg", "Signal efficiency", 10, 0, 200)
+    signal_frame = ROOT.TH1F("sigbkg", "Signal efficiency", 10, 0, 100)
     signal_frame.SetMaximum(1)
-    signal_frame.GetXaxis().SetTitle("True tau p_{T}")
-    background_frame = ROOT.TH1F("bkgbkg", "Fake Rate", 10, 0, 200)
+    background_frame = ROOT.TH1F("bkgbkg", "Fake Rate", 10, 0, 100)
     background_frame.SetMaximum(1e-1)
-    background_frame.GetXaxis().SetTitle("Jet p_{T}")
-    background_frame.SetMinimum(1e-4)
+    background_frame.SetMinimum(1e-3)
     pt_canvas.cd(1)
     signal_frame.Draw()
     pt_canvas.cd(2)
@@ -368,17 +312,11 @@ if __name__ == "__main__":
         signal_eff.Draw("p")
         signal_eff.SetMarkerColor(color)
         signal_eff.SetMarkerStyle(20)
-        pt_legend.AddEntry(
-            signal_eff,
-            "%s - %s" % (
-                producer_translator[producer],
-                discriminator_translator[discriminator],
-            ), "p")
         keep.append(signal_eff)
         background_num = background_algos[discriminator]['pt_eff_num']
         background_denom = background_algos[discriminator]['pt_eff_denom']
-        background_num.Rebin(20)
-        background_denom.Rebin(20)
+        background_num.Rebin(5)
+        background_denom.Rebin(5)
         background_eff = ROOT.TGraphAsymmErrors(background_num, background_denom)
         background_eff.SetMarkerColor(color)
         background_eff.SetMarkerStyle(20)
@@ -386,57 +324,5 @@ if __name__ == "__main__":
         background_eff.Draw("p")
         keep.append(background_eff)
 
-    pt_legend.Draw()
     pt_canvas.SaveAs(output_file.replace('.pdf', '_pt_eff.pdf'))
-
-    print "Making PU plots"
-    vtx_signal = ROOT.TH1F("sig_vtx", "Efficiency vs. PU", 16, -0.5, 15.5)
-    vtx_signal.SetMaximum(1.0)
-    vtx_signal.SetMinimum(0)
-    vtx_signal.GetXaxis().SetTitle("N_{PU}")
-    vtx_background = ROOT.TH1F("bkg_vtx", "Fake rate vs. PU", 16, -0.5, 15.5)
-    vtx_background.GetXaxis().SetTitle("N_{PU}")
-    vtx_background.SetMaximum(1)
-    vtx_background.SetMinimum(1e-3)
-
-    # Make vtx plots
-    for puType in ['truePU', 'recoPU']:
-        pt_canvas.cd(1)
-        vtx_signal.Draw()
-        pt_canvas.cd(2)
-        vtx_background.Draw()
-        for color, (producer, discriminator) in zip(good_colors, pt_curves_to_plot):
-            print "Making PU plots for", producer, discriminator
-            signal_algos = steering['signal']['algos'][producer]
-            background_algos = steering['background']['algos'][producer]
-            signal_graph = signal_algos[discriminator][puType]
-            background_graph = background_algos[discriminator][puType]
-
-            signal_graph.SetMarkerStyle(20)
-            signal_graph.SetMarkerColor(color)
-            signal_graph.SetLineColor(color)
-            signal_graph.SetLineWidth(2)
-
-            pt_canvas.cd(1)
-            signal_graph.Draw("pe")
-            signal_graph.GetFunction("pol1").SetLineStyle(2)
-            signal_graph.GetFunction("pol1").SetLineWidth(1)
-            signal_graph.GetFunction("pol1").SetLineColor(color)
-            keep.append(signal_graph)
-
-            background_graph.SetMarkerStyle(20)
-            background_graph.SetMarkerColor(color)
-            background_graph.SetLineColor(color)
-            background_graph.SetLineWidth(2)
-            background_graph.GetFunction("pol1").SetLineStyle(2)
-            background_graph.GetFunction("pol1").SetLineWidth(1)
-            background_graph.GetFunction("pol1").SetLineColor(color)
-
-            pt_canvas.cd(2)
-            background_graph.Draw("ep")
-            keep.append(background_graph)
-
-        pt_legend.Draw()
-        pt_canvas.SaveAs(output_file.replace('.pdf', '_%s.pdf' % puType))
-
 

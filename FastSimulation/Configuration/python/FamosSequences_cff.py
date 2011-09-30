@@ -11,6 +11,11 @@ from PhysicsTools.HepMCCandAlgos.genParticleCandidatesFast_cfi import *
 # Famos PileUp Producer
 from FastSimulation.PileUpProducer.PileUpProducer_cff import *
 
+# PileupSummaryInfo
+from SimGeneral.PileupInformation.AddPileupSummary_cfi import *
+addPileupInfo.PileupMixingLabel = 'famosPileUp'
+addPileupInfo.simHitLabel = 'famosSimHits'
+
 # Famos SimHits producer
 from FastSimulation.EventProducer.FamosSimHits_cff import *
 
@@ -68,6 +73,7 @@ from FastSimulation.ParticleFlow.ParticleFlowFastSim_cff import *
 from RecoJets.Configuration.RecoJetsGlobal_cff import *
 #from RecoJets.Configuration.JetIDProducers_cff import *
 from RecoMET.Configuration.RecoMET_cff import *
+metreco.remove(BeamHaloId)
 
 caloJetMet = cms.Sequence(
     recoJets+
@@ -96,7 +102,7 @@ caloJetMetGen = cms.Sequence(
 )
 
 # Muon parametrization
-from FastSimulation.ParamL3MuonProducer.ParamL3Muon_cfi import *
+#from FastSimulation.ParamL3MuonProducer.ParamL3Muon_cfi import *
 
 # Muon simHit sequence 
 from FastSimulation.MuonSimHitProducer.MuonSimHitProducer_cfi import *
@@ -252,6 +258,7 @@ famosBTaggingSequence = cms.Sequence(
 famosSimulationSequence = cms.Sequence(
     offlineBeamSpot+
     famosPileUp+
+    addPileupInfo+
     famosSimHits+
     MuonSimHits+
     mix
@@ -386,17 +393,17 @@ famosWithCaloTowersAndParticleFlow = cms.Sequence(
     caloTowersRec
 )
 
-famosWithMuons = cms.Sequence(
-    famosWithTracks+
-    paramMuons
-)
-
-famosWithMuonsAndIsolation = cms.Sequence(
-    famosWithTracksAndCaloTowers+
-    paramMuons+
-    ak5CaloJets+
-    muIsolation_ParamGlobalMuons
-)
+#famosWithMuons = cms.Sequence(
+#    famosWithTracks+
+#    paramMuons
+#)
+#
+#famosWithMuonsAndIsolation = cms.Sequence(
+#    famosWithTracksAndCaloTowers+
+#    paramMuons+
+#    ak5CaloJets+
+#    muIsolation_ParamGlobalMuons
+#)
 
 famosWithElectrons = cms.Sequence(
     famosWithTracksAndEcalClusters+

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/03/11 15:14:10 $
- *  $Revision: 1.70 $
+ *  $Date: 2011/06/07 16:42:19 $
+ *  $Revision: 1.69.6.2 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -51,7 +51,7 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   theJetAnalyzerFlag            = parameters.getUntrackedParameter<bool>("DoJetAnalysis",    true);
   theJetCleaningFlag            = parameters.getUntrackedParameter<bool>("DoJetCleaning",    true);
   theIConeJetAnalyzerFlag       = parameters.getUntrackedParameter<bool>("DoIterativeCone",  false);
-  theSConeJetAnalyzerFlag       = parameters.getUntrackedParameter<bool>("DoSisCone",  false);
+  theSConeJetAnalyzerFlag       = parameters.getUntrackedParameter<bool>("DoSisCone",        false);
   theJetPtAnalyzerFlag          = parameters.getUntrackedParameter<bool>("DoJetPtAnalysis",  false);
   theJetPtCleaningFlag          = parameters.getUntrackedParameter<bool>("DoJetPtCleaning",  false);
   theJPTJetAnalyzerFlag         = parameters.getUntrackedParameter<bool>("DoJPTJetAnalysis", false);
@@ -73,6 +73,7 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   DCSFilterCalo = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilterCalo"));
   DCSFilterPF   = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilterPF"));
   DCSFilterJPT  = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilterJPT"));
+  DCSFilterAll  = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilterAll"));
   // Used for Jet DQM - For MET DQM, DCS selection applied in ***METAnalyzer
 
   // --- do the analysis on the Jets
@@ -153,11 +154,6 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
     theCleanedPFJetAnalyzer = new PFJetAnalyzer(parameters.getParameter<ParameterSet>("CleanedpfJetAnalysis"));
     theCleanedPFJetAnalyzer->setSource("PFJets");
   }
-
-  if(theDiJetSelectionFlag){
-    thePFDiJetAnalyzer  = new PFJetAnalyzer(parameters.getParameter<ParameterSet>("PFDijetAnalysis"));
-    thePFDiJetAnalyzer->setSource("PFDiJets");
-  }
   //Trigger selectoin
   edm::ParameterSet highptjetparms = parameters.getParameter<edm::ParameterSet>("highPtJetTrigger");
   edm::ParameterSet lowptjetparms  = parameters.getParameter<edm::ParameterSet>("lowPtJetTrigger" );
@@ -173,8 +169,8 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   if(theCaloMETAnalyzerFlag){
     theCaloMETAnalyzer       = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETAnalysis"));
     theCaloMETNoHFAnalyzer   = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETNoHFAnalysis"));
-    theCaloMETHOAnalyzer     = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETHOAnalysis"));
-    theCaloMETNoHFHOAnalyzer = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETNoHFHOAnalysis"));
+    //removed for optimizations//theCaloMETHOAnalyzer     = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETHOAnalysis"));
+    //removed for optimizations//theCaloMETNoHFHOAnalyzer = new CaloMETAnalyzer(parameters.getParameter<ParameterSet>("caloMETNoHFHOAnalysis"));
   }
   if(theTcMETAnalyzerFlag){
     theTcMETAnalyzer = new METAnalyzer(parameters.getParameter<ParameterSet>("tcMETAnalysis"));
@@ -254,9 +250,8 @@ JetMETAnalyzer::~JetMETAnalyzer() {
   if(theJPTJetAnalyzerFlag)        delete theJPTJetAnalyzer;
   if(theJPTJetCleaningFlag)        delete theCleanedJPTJetAnalyzer;
 
-  if(thePFJetAnalyzerFlag)       delete thePFJetAnalyzer;
-  if(thePFJetCleaningFlag)       delete theCleanedPFJetAnalyzer;
-  if(theDiJetSelectionFlag)      delete thePFDiJetAnalyzer;
+  if(thePFJetAnalyzerFlag)         delete thePFJetAnalyzer;
+  if(thePFJetCleaningFlag)         delete theCleanedPFJetAnalyzer;
 
   delete _HighPtJetEventFlag;
   delete _LowPtJetEventFlag;
@@ -264,8 +259,8 @@ JetMETAnalyzer::~JetMETAnalyzer() {
   if(theCaloMETAnalyzerFlag){
     delete theCaloMETAnalyzer;
     delete theCaloMETNoHFAnalyzer;
-    delete theCaloMETHOAnalyzer;
-    delete theCaloMETNoHFHOAnalyzer;
+    //removed for optimizations//delete theCaloMETHOAnalyzer;
+    //removed for optimizations//delete theCaloMETNoHFHOAnalyzer;
   }
   if(theTcMETAnalyzerFlag)         delete theTcMETAnalyzer;
   if(theMuCorrMETAnalyzerFlag)     delete theMuCorrMETAnalyzer;
@@ -275,6 +270,7 @@ JetMETAnalyzer::~JetMETAnalyzer() {
   delete DCSFilterCalo;
   delete DCSFilterPF;
   delete DCSFilterJPT;
+  delete DCSFilterAll;
 
 }
 
@@ -315,15 +311,14 @@ void JetMETAnalyzer::beginJob(void) {
 
   if(thePFJetAnalyzerFlag)  thePFJetAnalyzer->beginJob(dbe);
   if(thePFJetCleaningFlag)  theCleanedPFJetAnalyzer->beginJob(dbe);
-  if(theDiJetSelectionFlag) thePFDiJetAnalyzer->beginJob(dbe); 
 
   //
   //--- MET
   if(theCaloMETAnalyzerFlag){
     theCaloMETAnalyzer->beginJob(dbe);
     theCaloMETNoHFAnalyzer->beginJob(dbe);
-    theCaloMETHOAnalyzer->beginJob(dbe);
-    theCaloMETNoHFHOAnalyzer->beginJob(dbe);
+    //removed for optimizations//theCaloMETHOAnalyzer->beginJob(dbe);
+    //removed for optimizations//theCaloMETNoHFHOAnalyzer->beginJob(dbe);
   }
   if(theTcMETAnalyzerFlag) theTcMETAnalyzer->beginJob(dbe);
   if(theMuCorrMETAnalyzerFlag) theMuCorrMETAnalyzer->beginJob(dbe);
@@ -332,7 +327,16 @@ void JetMETAnalyzer::beginJob(void) {
   
   dbe->setCurrentFolder("JetMET");
   lumisecME = dbe->book1D("lumisec", "lumisec", 500, 0., 500.);
-
+  cleanupME = dbe->book1D("cleanup", "cleanup", 10, 0., 10.);
+  cleanupME->setBinLabel(1,"Primary Vertex");
+  cleanupME->setBinLabel(2,"DCS::Pixel");
+  cleanupME->setBinLabel(3,"DCS::SiStrip");
+  cleanupME->setBinLabel(4,"DCS::ECAL");
+  cleanupME->setBinLabel(5,"DCS::ES");
+  cleanupME->setBinLabel(6,"DCS::HBHE");
+  cleanupME->setBinLabel(7,"DCS::HF");
+  cleanupME->setBinLabel(8,"DCS::HO");
+  cleanupME->setBinLabel(9,"DCS::Muon");
 }
 
 // ***********************************************************
@@ -343,6 +347,7 @@ void JetMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
 
   if ( _HighPtJetEventFlag->on() ) _HighPtJetEventFlag->initRun( iRun, iSetup );
   if ( _LowPtJetEventFlag ->on() ) _LowPtJetEventFlag ->initRun( iRun, iSetup );
+
   //--- htlConfig_
   //processname_="HLT";
   bool changed(true);
@@ -356,7 +361,7 @@ void JetMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
       LogDebug("JetMETAnalyzer") << "HLTConfigProvider failed to initialize.";
     }
   }
-
+  /*
   hltpathME = 0;
   if (_hlt_initialized) {
   //if (hltConfig_.init(iRun,iSetup,processname_,changed)) {
@@ -369,7 +374,8 @@ void JetMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
       if (hltpathME) hltpathME->setBinLabel(j+1,hltConfig_.triggerName(j));
       // if (hltConfig_.triggerName(j)=="HLT_PhysicsDeclared") 
     }
-  }  
+  }
+  */
   //
   //--- Jet
 
@@ -378,8 +384,8 @@ void JetMETAnalyzer::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
   if(theCaloMETAnalyzerFlag){
     theCaloMETAnalyzer->beginRun(iRun, iSetup);
     theCaloMETNoHFAnalyzer->beginRun(iRun, iSetup);
-    theCaloMETHOAnalyzer->beginRun(iRun, iSetup);
-    theCaloMETNoHFHOAnalyzer->beginRun(iRun, iSetup);
+    //removed for optimizations//theCaloMETHOAnalyzer->beginRun(iRun, iSetup);
+    //removed for optimizations//theCaloMETNoHFHOAnalyzer->beginRun(iRun, iSetup);
   }
   if(theTcMETAnalyzerFlag) theTcMETAnalyzer->beginRun(iRun, iSetup);
   if(theMuCorrMETAnalyzerFlag) theMuCorrMETAnalyzer->beginRun(iRun, iSetup);
@@ -399,8 +405,8 @@ void JetMETAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
   if(theCaloMETAnalyzerFlag){
     theCaloMETAnalyzer->endRun(iRun, iSetup, dbe);
     theCaloMETNoHFAnalyzer->endRun(iRun, iSetup, dbe);
-    theCaloMETHOAnalyzer->endRun(iRun, iSetup, dbe);
-    theCaloMETNoHFHOAnalyzer->endRun(iRun, iSetup, dbe);
+    //removed for optimizations//theCaloMETHOAnalyzer->endRun(iRun, iSetup, dbe);
+    //removed for optimizations//theCaloMETNoHFHOAnalyzer->endRun(iRun, iSetup, dbe);
   }
   if(theTcMETAnalyzerFlag)     theTcMETAnalyzer->endRun(iRun, iSetup, dbe);
   if(theMuCorrMETAnalyzerFlag) theMuCorrMETAnalyzer->endRun(iRun, iSetup, dbe);
@@ -437,7 +443,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	if(_doHLTPhysicsOn) bPhysicsDeclared = true;
       }
 
-    //sanity check
+    /*//sanity check
     if (_hlt_initialized && hltConfig_.size() && triggerResults->size()==hltConfig_.size()){
       //check the trigger results
       for (unsigned int j=0; j!=hltConfig_.size(); ++j) {
@@ -445,7 +451,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	  if (hltpathME) hltpathME->Fill(j);
 	}
       }
-    }
+      }*/
   }
   
   if (DEBUG)  std::cout << "trigger label " << theTriggerResultsLabel << std::endl;
@@ -578,6 +584,17 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     
   bool bJetCleanup = bTechTriggers && bPrimaryVertex && bPhysicsDeclared;
 
+  DCSFilterAll->filter(iEvent, iSetup);
+  
+  if (bPrimaryVertex) cleanupME->Fill(0.5);
+  if ( DCSFilterAll->passPIX      ) cleanupME->Fill(1.5);
+  if ( DCSFilterAll->passSiStrip  ) cleanupME->Fill(2.5);
+  if ( DCSFilterAll->passECAL     ) cleanupME->Fill(3.5);
+  if ( DCSFilterAll->passES       ) cleanupME->Fill(4.5);
+  if ( DCSFilterAll->passHBHE     ) cleanupME->Fill(5.5);
+  if ( DCSFilterAll->passHF       ) cleanupME->Fill(6.5);
+  if ( DCSFilterAll->passHO       ) cleanupME->Fill(7.5);
+  if ( DCSFilterAll->passMuon     ) cleanupME->Fill(8.5);
 
   // **** Get the Calo Jet container
   edm::Handle<reco::CaloJetCollection> caloJets;
@@ -622,7 +639,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   } // caloJets.isValid()
 
 
-  if(caloJets.isValid()){
+  /*if(caloJets.isValid()){
     if(theJetPtAnalyzerFlag){
       LogTrace(metname)<<"[JetMETAnalyzer] Call to the Jet Pt anti-Kt analyzer";
       thePtAKJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
@@ -636,7 +653,7 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       theCleanedPtAKJetAnalyzer->analyze(iEvent, iSetup, *caloJets);
     }
   } // DCS
-  } // caloJets.isValid() 
+  } */// caloJets.isValid() 
   
   // **** Get the SISCone Jet container
   iEvent.getByLabel(theSCJetCollectionLabel, caloJets);    
@@ -725,15 +742,12 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
       LogTrace(metname)<<"[JetMETAnalyzer] Call to the PFJet analyzer";
       thePFJetAnalyzer->analyze(iEvent, iSetup, *pfJets);
       }
-    if(thePFJetCleaningFlag){
+    if(thePFJetCleaningFlag && bJetCleanup){
     if(DCSFilterPF->filter(iEvent, iSetup)){
       theCleanedPFJetAnalyzer->setJetHiPass(JetHiPass);
       theCleanedPFJetAnalyzer->setJetLoPass(JetLoPass);
       LogTrace(metname)<<"[JetMETAnalyzer] Call to the Cleaned PFJet analyzer";
       theCleanedPFJetAnalyzer->analyze(iEvent, iSetup, *pfJets);
-      if(theDiJetSelectionFlag){
-	thePFDiJetAnalyzer->analyze(iEvent, iSetup, *pfJets);
-      }
     } // DCS
     }  
   } else {
@@ -747,8 +761,8 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
      
     theCaloMETAnalyzer->analyze(iEvent,       iSetup, *triggerResults);
     theCaloMETNoHFAnalyzer->analyze(iEvent,   iSetup, *triggerResults);
-    theCaloMETHOAnalyzer->analyze(iEvent,     iSetup, *triggerResults);
-    theCaloMETNoHFHOAnalyzer->analyze(iEvent, iSetup, *triggerResults);
+    //removed for optimizations//theCaloMETHOAnalyzer->analyze(iEvent,     iSetup, *triggerResults);
+    //removed for optimizations//theCaloMETNoHFHOAnalyzer->analyze(iEvent, iSetup, *triggerResults);
   }
 
   //
@@ -800,8 +814,8 @@ void JetMETAnalyzer::endJob(void) {
   if(theCaloMETAnalyzerFlag){
     theCaloMETAnalyzer->endJob();
     theCaloMETNoHFAnalyzer->endJob();
-    theCaloMETHOAnalyzer->endJob();
-    theCaloMETNoHFHOAnalyzer->endJob();
+    //removed for optimizations//theCaloMETHOAnalyzer->endJob();
+    //removed for optimizations//theCaloMETNoHFHOAnalyzer->endJob();
   }
   if(theTcMETAnalyzerFlag) theTcMETAnalyzer->endJob();
   if(theMuCorrMETAnalyzerFlag) theMuCorrMETAnalyzer->endJob();
@@ -835,12 +849,8 @@ void JetMETAnalyzer::endJob(void) {
     if(theIConeJetAnalyzerFlag) theCleanedPtICJetAnalyzer->endJob();
   }
 
-  if(theJPTJetAnalyzerFlag)   theJPTJetAnalyzer->endJob();
-  if(theJPTJetCleaningFlag)   theCleanedJPTJetAnalyzer->endJob();
-
-  if(thePFJetAnalyzerFlag)  thePFJetAnalyzer->endJob();
-  if(thePFJetCleaningFlag)  theCleanedPFJetAnalyzer->endJob();
-  if(theDiJetSelectionFlag) thePFDiJetAnalyzer->endJob();
+  if(theJPTJetAnalyzerFlag) theJPTJetAnalyzer->endJob();
+  if(theJPTJetCleaningFlag) theCleanedJPTJetAnalyzer->endJob();
 
   if(outputMEsInRootFile){
     dbe->save(outputFileName);

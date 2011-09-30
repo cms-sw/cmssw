@@ -1,4 +1,4 @@
-// $Id: FilesMonitorCollection.h,v 1.15.4.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: FilesMonitorCollection.h,v 1.16 2011/03/07 15:31:32 mommsen Exp $
 /// @file: FilesMonitorCollection.h 
 
 #ifndef EventFilter_StorageManager_FilesMonitorCollection_h
@@ -24,8 +24,8 @@ namespace stor {
    * A collection of monitoring entities for open and closed files
    *
    * $Author: mommsen $
-   * $Revision: 1.15.4.1 $
-   * $Date: 2011/03/07 11:33:04 $
+   * $Revision: 1.16 $
+   * $Date: 2011/03/07 15:31:32 $
    */
   
   class FilesMonitorCollection : public MonitorCollection
@@ -63,6 +63,7 @@ namespace stor {
       bool               isOpen;            // true if file is in open directory
       uint64_t           fileSize;          // file size in bytes
       uint32_t           eventCount;        // number of events
+      uint32_t           adler32;           // Adler32 checksum
       std::string closingReason();          // reason why file was closed
       std::string fileName();               // full file name
       std::string filePath(FileStatus status=current); // complete file path for the given file status

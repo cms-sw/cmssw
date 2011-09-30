@@ -4,20 +4,12 @@
 <use   name="DQMServices/Core"/>
 <use   name="DataFormats/L1GlobalMuonTrigger"/>
 <use   name="DataFormats/L1GlobalTrigger"/>
+<use   name="DataFormats/TrackReco"/>
 <use   name="CondFormats/L1TObjects"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="DQM/EcalCommon"/>
 <use   name="CondFormats/EcalObjects"/>
-<use   name="Geometry/CaloTopology"/>
-<use   name="DataFormats/EcalDetId"/>
-<use   name="DataFormats/EcalRecHit"/>
-<use   name="DataFormats/EgammaReco"/>
-<use   name="RecoEgamma/EgammaTools"/>
-<use   name="RecoEcal/EgammaCoreTools"/>
-<use   name="MagneticField/Engine"/>
-<use   name="MagneticField/Records"/>
-<use   name="CommonTools/UtilAlgos"/>
-
+<use   name="root"/>
 <export>
   <lib   name="1"/>
 </export>

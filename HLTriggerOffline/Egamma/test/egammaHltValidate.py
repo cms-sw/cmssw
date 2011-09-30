@@ -26,11 +26,6 @@ outputRootFile="DQM_V0001_HLT_R000000001.root"
 # could actually get rid of the version string in the datasets
 # as we explicitly require the release in the DBS query ?
 knownDatasets = {
-    "diGamma" : {
-        "dataset": "/RelValH130GGgluonfusion/CMSSW_%(version)s*/GEN-SIM-DIGI-RAW-HLTDEBUG",
-        "output":  "DiGamma_%(version)s.root", 
-        },
-
     "photonJet" : {
         "dataset": "/RelValPhotonJets_Pt_10/CMSSW_%(version)s*/GEN-SIM-DIGI-RAW-HLTDEBUG",
         "output":  "GammaJet_%(version)s.root", 

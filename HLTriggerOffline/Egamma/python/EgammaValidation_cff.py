@@ -36,54 +36,27 @@ if not use_new_method:
 
     #which triggers for which sample
 
-    paths.Wenu = [#'HLT_Ele17_SW_TighterEleIdIsol_L1RDQM',
-                  #'HLT_Ele10_LW_L1RDQM',
-                  #'HLT_Ele15_SW_L1RDQM',
-                  #'HLT_Ele10_LW_EleId_L1RDQM',
-                  #'HLT_Ele15_SiStrip_L1RDQM'
-                  'HLT_Ele10_SW_EleId_HT70U_L1R_v2_DQM',
-                  'HLT_Ele10_SW_HT100U_L1R_v2_DQM',
-                  'HLT_Ele10_SW_HT70U_L1R_v2_DQM',
-                  'HLT_Ele10_SW_L1R_v2_DQM',
-                  'HLT_Ele12_SW_TighterEleId_L1R_v2_DQM',
-                  'HLT_Ele17_SW_Isol_L1R_v2_DQM',
-                  'HLT_Ele17_SW_L1R_v2_DQM',
-                  'HLT_Ele17_SW_TighterEleIdIsol_L1R_v3_DQM',
-                  'HLT_Ele22_SW_L1R_v2_DQM',
-                  'HLT_Ele22_SW_TighterCaloIdIsol_L1R_v2_DQM',
-                  'HLT_Ele22_SW_TighterEleId_L1R_v3_DQM',
-                  'HLT_Ele32_SW_TighterEleId_L1R_v2_DQM'
-                 ]
+    paths.Wenu = [
+                  'HLT_Ele17_SW_TighterEleIdIsol_L1RDQM',
 
-    paths.Zee = paths.Wenu + [#'HLT_DoubleEle5_SW_L1RDQM'
-                              'HLT_DoubleEle17_SW_L1R_v1_DQM',
-                              'HLT_DoubleEle4_SW_eeRes_L1R_v2_DQM',
-                              'HLT_DoubleEle5_SW_Upsilon_L1R_v2_DQM',
-                              'HLT_DoubleEle8_SW_HT70U_L1R_v1_DQM'
-                             ]
+                  'HLT_Ele10_LW_L1RDQM',
+                  'HLT_Ele15_SW_L1RDQM',
+                  'HLT_Ele10_LW_EleId_L1RDQM',
+                  'HLT_Ele15_SiStrip_L1RDQM']
 
-    paths.GammaJet = [#'HLT_Photon10_L1R_DQM',
-                      #'HLT_Photon15_TrackIso_L1R_DQM',
-                      #'HLT_Photon15_LooseEcalIso_L1R_DQM',
-                      #'HLT_Photon20_Cleaned_L1R_DQM',
-                      #'HLT_Photon25_LooseEcalIso_TrackIso_L1R_DQM'
-                      'HLT_Photon10_Cleaned_L1R_DQM',
-                      'HLT_Photon110_NoHE_Cleaned_L1R_v1_DQM',
+    paths.Zee = paths.Wenu + ['HLT_DoubleEle5_SW_L1RDQM']
+
+    paths.GammaJet = ['HLT_Photon10_L1R_DQM',
+                      'HLT_Photon15_TrackIso_L1R_DQM',
+                      'HLT_Photon15_LooseEcalIso_L1R_DQM',
                       'HLT_Photon20_Cleaned_L1R_DQM',
-                      'HLT_Photon20_NoHE_L1R_DQM',
-                      'HLT_Photon30_Cleaned_L1R_DQM',
-                      'HLT_Photon40_CaloId_Cleaned_L1R_v1_DQM',
-                      'HLT_Photon50_Cleaned_L1R_v1_DQM',
-                      'HLT_Photon50_NoHE_L1R_DQM',
-                      'HLT_Photon70_Cleaned_L1R_v1_DQM'
-                     ]
+                      'HLT_Photon25_LooseEcalIso_TrackIso_L1R_DQM']
 
-    paths.DiGamma  = [#'HLT_Photon10_L1R_DQM','HLT_DoublePhoton10_L1R_DQM'
-                      'HLT_DoublePhoton22_L1R_v1_DQM',
-                      'HLT_DoublePhoton5_CEP_L1R_v3_DQM'
-                     ]
+    paths.DiGamma  = ['HLT_Photon10_L1R_DQM','HLT_DoublePhoton10_L1R_DQM']
 
-    pathlumi = { 'HLT_Ele17_SW_TighterEleIdIsol_L1RDQM': '8e29',
+    pathlumi = {
+                 'HLT_Ele17_SW_TighterEleIdIsol_L1RDQM': '8e29',
+
                  'HLT_Ele10_LW_L1RDQM':'8e29',
                  'HLT_Ele15_SW_L1RDQM':'1e31',
                  'HLT_Ele10_LW_EleId_L1RDQM':'8e29',
@@ -96,10 +69,6 @@ if not use_new_method:
                  'HLT_DoublePhoton10_L1R_DQM':'8e29',
                  'HLT_Photon25_L1R_DQM':'1e31',
                  'HLT_Photon25_LooseEcalIso_TrackIso_L1R_DQM':'1e31'}
-
-    # add the new paths automatically
-    for path in paths.Wenu + paths.Zee + paths.GammaJet + paths.DiGamma:
-        pathlumi[path] = '8e29'
 
     lumiprocess = { '8e29':'HLT',
                     '1e31':'HLT'

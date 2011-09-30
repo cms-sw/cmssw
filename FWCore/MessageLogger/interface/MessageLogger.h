@@ -111,6 +111,9 @@
 //		   capture any pointed-to strings in anticipation of key 
 //		   objects going away before a message is going to be issued.
 //
+// 24 fwyzard 7/6/11    Add support for discarding LogError-level messages
+//                      on a per-module basis (needed at HLT)
+//
 // =================================================
 
 // system include files
@@ -158,19 +161,20 @@ class LogError
 {
 public:
   explicit LogError( std::string const & id ) 
-    : ap( new MessageSender(ELerror,id) )
+    : ap ( (edm::MessageDrop::instance()->errorEnabled) ?       // Change log 24
+           new MessageSender(ELerror,id) : 0 )
   { }
   ~LogError();							// Change log 13
 
   template< class T >
     LogError & 
-    operator<< (T const & t)  { (*ap) << t; return *this; }
+    operator<< (T const & t)  { if(ap.get()) (*ap) << t; return *this; }
   LogError & 
   operator<< ( std::ostream&(*f)(std::ostream&))  
-				      { (*ap) << f; return *this; }
+				      { if(ap.get()) (*ap) << f; return *this; }     
   LogError & 
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
-				      { (*ap) << f; return *this; }     
+				      { if(ap.get()) (*ap) << f; return *this; }     
 
 private:
   std::auto_ptr<MessageSender> ap; 
@@ -273,10 +277,10 @@ public:
 								// Change log 14
   LogPrint & 
   operator<< ( std::ostream&(*f)(std::ostream&))  
-				{ if(ap.get()) (*ap) << f; return *this; }
+				      { if(ap.get()) (*ap) << f; return *this; }
   LogPrint & 
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
-				{ if(ap.get()) (*ap) << f; return *this; }      
+				      { if(ap.get()) (*ap) << f; return *this; }      
 
 private:
   std::auto_ptr<MessageSender> ap; 
@@ -289,20 +293,21 @@ private:
 class LogProblem						// change log 4
 {
 public:
-  explicit LogProblem( std::string const & id ) 
-    : ap( new MessageSender(ELerror,id,true) )
+ explicit LogProblem ( std::string const & id )
+    : ap ( (edm::MessageDrop::instance()->errorEnabled) ?       // Change log 24
+           new MessageSender(ELerror,id,true) : 0 )
   { }
   ~LogProblem();						// Change log 13
 
   template< class T >
     LogProblem & 
-    operator<< (T const & t)  { (*ap) << t; return *this; }
+    operator<< (T const & t)  { if(ap.get()) (*ap) << t; return *this; }
   LogProblem & 
   operator<< ( std::ostream&(*f)(std::ostream&))  
-				      { (*ap) << f; return *this; }
+				      { if(ap.get()) (*ap) << f; return *this; }
   LogProblem & 
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
-				      { (*ap) << f; return *this; }     
+				      { if(ap.get()) (*ap) << f; return *this; }
 
 private:
   std::auto_ptr<MessageSender> ap; 
@@ -315,19 +320,20 @@ class LogImportant						// change log 11
 {
 public:
   explicit LogImportant( std::string const & id ) 
-    : ap( new MessageSender(ELerror,id,true) )
+    : ap ( (edm::MessageDrop::instance()->errorEnabled) ?       // Change log 24
+           new MessageSender(ELerror,id,true) : 0 )
   { }
   ~LogImportant();						 // Change log 13
 
   template< class T >
     LogImportant & 
-    operator<< (T const & t)  { (*ap) << t; return *this; }
+    operator<< (T const & t)  { if(ap.get()) (*ap) << t; return *this; }      
   LogImportant & 
   operator<< ( std::ostream&(*f)(std::ostream&))  
-				      { (*ap) << f; return *this; }
+				      { if(ap.get()) (*ap) << f; return *this; }      
   LogImportant & 
   operator<< ( std::ios_base&(*f)(std::ios_base&) )  
-				      { (*ap) << f; return *this; }     
+				      { if(ap.get()) (*ap) << f; return *this; }      
 
 private:
   std::auto_ptr<MessageSender> ap; 
@@ -478,7 +484,7 @@ class Suppress_LogDebug_
   // will produce absolutely no executable code.
 public:
   template< class T >
-    Suppress_LogDebug_ &operator<< (T const & t) { return *this; }	// Change log 12
+    Suppress_LogDebug_ &operator<< (T const&) { return *this; }	// Change log 12
     Suppress_LogDebug_ &operator<< (std::ostream&(*)(std::ostream&)) { return *this; }	// Change log 12
     Suppress_LogDebug_ &operator<< (std::ios_base&(*)(std::ios_base&)) { return *this; } // Change log 12
 };  // Suppress_LogDebug_

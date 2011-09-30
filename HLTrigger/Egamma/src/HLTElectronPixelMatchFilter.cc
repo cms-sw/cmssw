@@ -1,6 +1,6 @@
 /** \class HLTElectronPixelMatchFilter
  *
- * $Id: HLTElectronPixelMatchFilter.cc,v 1.11 2008/04/22 17:01:17 ghezzi Exp $
+ * $Id: HLTElectronPixelMatchFilter.cc,v 1.12 2009/01/28 17:04:19 ghezzi Exp $
  *
  *  \author Monica Vazquez Acosta (CERN)
  *
@@ -45,7 +45,7 @@ HLTElectronPixelMatchFilter::HLTElectronPixelMatchFilter(const edm::ParameterSet
 
   doIsolated_    = iConfig.getParameter<bool> ("doIsolated");
 
-   store_ = iConfig.getUntrackedParameter<bool> ("SaveTag",false) ;
+   store_ = iConfig.getParameter<bool>("saveTags") ;
    L1IsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1IsoCand"); 
    L1NonIsoCollTag_= iConfig.getParameter< edm::InputTag > ("L1NonIsoCand"); 
 

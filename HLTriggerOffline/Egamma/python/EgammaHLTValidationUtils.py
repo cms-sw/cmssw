@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import FWCore.ParameterSet.Config as cms
-import sys, os, re
+import sys, os
 
 # prefix for printouts
 msgPrefix = "[" + os.path.basename(__file__) + "]"
@@ -161,16 +161,6 @@ class EgammaDQMModuleMaker:
             cutCollection = "fiducial" + getProcessName(pdgGen, requiredNumberOfGeneratedObjects)
 
         #--------------------
-        # find Et threshold of primary object
-        #--------------------
-        mo = re.match("HLT_.*?(\d+).*",pathName)
-
-        if mo != None:
-            etThreshold = float(mo.group(1))
-        else:
-            etThreshold = -1.0
-
-        #--------------------
         # initialize the analyzer we put together here
         #--------------------
         self.__result = cms.EDAnalyzer("EmDQM",
@@ -180,7 +170,6 @@ class EgammaDQMModuleMaker:
                                      reqNum = cms.uint32(requiredNumberOfGeneratedObjects),
                                      filters = cms.VPSet(), # will be added later
                                      PtMax = cms.untracked.double(100.0),
-                                     genEtMin = cms.untracked.double(etThreshold),
                                      pdgGen = cms.int32(pdgGen),
                                      cutcollection = cms.InputTag(cutCollection),
 

@@ -16,8 +16,6 @@ Extensions from Len Apanasevich.
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
-
 
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/HLTReco/interface/TriggerEventWithRefs.h"
@@ -46,12 +44,6 @@ Extensions from Len Apanasevich.
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
-
-#include <vector>
-#include <string>
-#include "TPRegexp.h"
-
 
 namespace edm {
   class TriggerNames;
@@ -66,7 +58,7 @@ class HLTJetMETValidation : public edm::EDAnalyzer {
  private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&);
+
   void getHLTResults(const edm::TriggerResults&,
                      const edm::TriggerNames & triggerNames);
 
@@ -75,63 +67,28 @@ class HLTJetMETValidation : public edm::EDAnalyzer {
   edm::InputTag CaloJetAlgorithm, GenJetAlgorithm, CaloMETColl, GenMETColl, HLTriggerResults;
 
   //Just a tag for better file organization
-  std::string triggerTag_, MyTrigger, patternJetTrg_, patternMetTrg_, patternMuTrg_;
+  std::string triggerTag_, MyTrigger;
 
-  //edm::InputTag _HLTPath;
-  //edm::InputTag _HLTLow;
+  edm::InputTag _HLTPath;
+  edm::InputTag _HLTLow;
 
   std::string outFile_;
 
-  DQMStore* store;
-
-  std::vector<MonitorElement*> _meRecoJetPt;
-  std::vector<MonitorElement*> _meRecoJetPtTrgMC;
-  std::vector<MonitorElement*> _meRecoJetPtTrg;
-  std::vector<MonitorElement*> _meRecoJetPtTrgLow;
-  std::vector<MonitorElement*> _meRecoJetEta;
-  std::vector<MonitorElement*> _meRecoJetEtaTrgMC;
-  std::vector<MonitorElement*> _meRecoJetEtaTrg;
-  std::vector<MonitorElement*> _meRecoJetEtaTrgLow;
-  std::vector<MonitorElement*> _meRecoJetPhi;
-  std::vector<MonitorElement*> _meRecoJetPhiTrgMC;
-  std::vector<MonitorElement*> _meRecoJetPhiTrg;
-  std::vector<MonitorElement*> _meRecoJetPhiTrgLow;
-
-  std::vector<MonitorElement*> _meGenJetPt;
-  std::vector<MonitorElement*> _meGenJetPtTrgMC;
-  std::vector<MonitorElement*> _meGenJetPtTrg;
-  std::vector<MonitorElement*> _meGenJetPtTrgLow;
-  std::vector<MonitorElement*> _meGenJetEta;
-  std::vector<MonitorElement*> _meGenJetEtaTrgMC;
-  std::vector<MonitorElement*> _meGenJetEtaTrg;
-  std::vector<MonitorElement*> _meGenJetEtaTrgLow;
-  std::vector<MonitorElement*> _meGenJetPhi;
-  std::vector<MonitorElement*> _meGenJetPhiTrgMC;
-  std::vector<MonitorElement*> _meGenJetPhiTrg;
-  std::vector<MonitorElement*> _meGenJetPhiTrgLow;
-
-  std::vector<MonitorElement*> _meRecoMET;
-  std::vector<MonitorElement*> _meRecoMETTrgMC;
-  std::vector<MonitorElement*> _meRecoMETTrg;
-  std::vector<MonitorElement*> _meRecoMETTrgLow;  
-  std::vector<MonitorElement*> _meGenMET;
-  std::vector<MonitorElement*> _meGenMETTrgMC;
-  std::vector<MonitorElement*> _meGenMETTrg;
-  std::vector<MonitorElement*> _meGenMETTrgLow;  
-
-  //MonitorElement *_meGenHT, *_meGenHTTrg, *_meGenHTTrgLow;
-  //MonitorElement *_meRecoHT, *_meRecoHTTrg, *_meRecoHTTrgLow;
+  MonitorElement *_meRecoJetEta, *_meRecoJetEtaTrg, *_meRecoJetEtaTrgLow;
+  MonitorElement *_meRecoJetPhi, *_meRecoJetPhiTrg, *_meRecoJetPhiTrgLow;
+  MonitorElement *_meRecoJetPt, *_meRecoJetPtTrg, *_meRecoJetPtTrgLow;
+  MonitorElement *_meGenJetPt, *_meGenJetPtTrg,  *_meGenJetPtTrgLow;
+  MonitorElement *_meGenJetEta, *_meGenJetEtaTrg, *_meGenJetEtaTrgLow;
+  MonitorElement *_meGenJetPhi, *_meGenJetPhiTrg, *_meGenJetPhiTrgLow;
+  MonitorElement *_meRecoMET, *_meRecoMETTrg, *_meRecoMETTrgLow;
+  MonitorElement *_meGenMET, *_meGenMETTrg, *_meGenMETTrgLow;
+  MonitorElement *_meGenHT, *_meGenHTTrg, *_meGenHTTrgLow;
+  MonitorElement *_meRecoHT, *_meRecoHTTrg, *_meRecoHTTrgLow;
   MonitorElement *_triggerResults;
 
 //Define Numbers 
 
   int evtCnt;
-
-  HLTConfigProvider hltConfig_;
-  std::vector<std::string> hltTrgJet;
-  std::vector<std::string> hltTrgJetLow;
-  std::vector<std::string> hltTrgMet;
-  std::vector<std::string> hltTrgMetLow;
 
 // store hlt information in a map
   std::vector<bool> hlttrigs;

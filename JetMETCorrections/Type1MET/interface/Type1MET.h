@@ -15,7 +15,7 @@
 //
 // Original Author:  Oct 12 08:23
 //         Created:  Wed Oct 12 12:16:04 CDT 2005
-// $Id: Type1MET.h,v 1.3 2010/08/06 20:24:37 wmtan Exp $
+// $Id: Type1MET.h,v 1.2 2010/05/16 15:21:59 jdamgov Exp $
 //
 //
 
@@ -50,7 +50,6 @@ namespace cms
     std::string metType;
     std::string inputUncorMetLabel;
     std::string inputUncorJetsLabel;
-    edm::InputTag inputUncorUnlusteredLabel;
     std::string correctorLabel;
     double jetPTthreshold;
     double jetEMfracLimit;
