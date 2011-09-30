@@ -27,14 +27,13 @@ class SiStripRawProcessingAlgorithms {
 
  private:
   
-  const bool doAPVRestore;
-  const bool useCMMeanMap;
-
   const std::auto_ptr<SiStripPedestalsSubtractor> subtractorPed;
   const std::auto_ptr<SiStripCommonModeNoiseSubtractor> subtractorCMN;
   const std::auto_ptr<SiStripFedZeroSuppression> suppressor;
   const std::auto_ptr<SiStripAPVRestorer> restorer;
 
+  const bool doAPVRestore;
+  const bool useCMMeanMap;
 
   SiStripRawProcessingAlgorithms(std::auto_ptr<SiStripPedestalsSubtractor> ped,
 				 std::auto_ptr<SiStripCommonModeNoiseSubtractor> cmn,
