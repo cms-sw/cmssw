@@ -14,7 +14,7 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Sat Jun 26 16:04:04 EDT 2010
-// $Id: HiEvtPlaneFlatProducer.cc,v 1.3 2011/09/29 22:23:09 ssanders Exp $
+// $Id: HiEvtPlaneFlatProducer.cc,v 1.4 2011/09/30 12:14:04 yilmaz Exp $
 //
 //
 
@@ -83,7 +83,6 @@
 using namespace std;
 #include <vector>
 using std::vector;
-using std::rand;
 
 
 //
@@ -114,6 +113,7 @@ class HiEvtPlaneFlatProducer : public edm::EDProducer {
   HiEvtPlaneFlatten * flat[NumEPNames];
   RPFlatParams * rpFlat;
   int nRP;
+  bool storeNames_;
 
 };
 
@@ -137,7 +137,7 @@ HiEvtPlaneFlatProducer::HiEvtPlaneFlatProducer(const edm::ParameterSet& iConfig)
   vtxCollection_  = iConfig.getParameter<edm::InputTag>("vtxCollection_");
   inputPlanes_ = iConfig.getParameter<edm::InputTag>("inputPlanes_");
   centrality_ = iConfig.getParameter<edm::InputTag>("centrality_");
-
+  storeNames_ = 1;
    //register your products
   produces<reco::EvtPlaneCollection>();
    //now do what ever other initialization is needed
@@ -247,7 +247,8 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	  epang[i]=psiFlat;
 	  if(EPNames[i].compare(rp->label())==0) {	    
 	    psiFull[i] = psiFlat;
-	    ep[i]= new EvtPlane(psiFlat, rp->sumSin(), rp->sumCos(),rp->label().data());
+	    if(storeNames_) ep[i]= new EvtPlane(psiFlat, rp->sumSin(), rp->sumCos(),rp->label().data());
+	    else ep[i]= new EvtPlane(psiFlat, rp->sumSin(), rp->sumCos(),"");
 	  } 
 	}
       }
@@ -258,7 +259,7 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     if(ep[i]!=0) evtplaneOutput->push_back(*ep[i]);
   }
   iEvent.put(evtplaneOutput, "recoLevel");
-  
+  storeNames_ = 0;  
 }
 
 // ------------ method called once each job just before starting event loop  ------------

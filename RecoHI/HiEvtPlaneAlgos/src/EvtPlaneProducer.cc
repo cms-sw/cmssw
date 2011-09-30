@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Sergey Petrushanko
 //         Created:  Fri Jul 11 10:05:00 2008
-// $Id: EvtPlaneProducer.cc,v 1.14 2011/09/29 22:23:09 ssanders Exp $
+// $Id: EvtPlaneProducer.cc,v 1.15 2011/09/30 12:14:04 yilmaz Exp $
 //
 //
 #define TRACKCOLLECTION 1
@@ -60,10 +60,6 @@ Implementation:
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include <cstdlib>
-#include "TROOT.h"
-
-using std::rand;
-
 using namespace std;
 
 #include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneList.h"
@@ -156,6 +152,8 @@ private:
   double maxvtx_;
   double dzerr_;
   double chi2_;
+
+  bool storeNames_;
 };
 
 //
@@ -191,7 +189,7 @@ EvtPlaneProducer::EvtPlaneProducer(const edm::ParameterSet& iConfig)
   dzerr_ = iConfig.getUntrackedParameter<double>("dzerr_",10.);
   chi2_  = iConfig.getUntrackedParameter<double>("chi2_",40.);
 
-
+  storeNames_ = 1;
   produces<reco::EvtPlaneCollection>("recoLevel");
   for(int i = 0; i<NumEPNames; i++ ) {
     rp[i] = new GenPlane(EPNames[i].data(),EPEtaMin1[i],EPEtaMax1[i],EPEtaMin2[i],EPEtaMax2[i],EPOrder[i]);
@@ -429,7 +427,8 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   for(int i = 0; i<NumEPNames; i++) {
     rp[i]->getAngle(ang,sv,cv);
-    ep[i] = new EvtPlane(ang,sv,cv,EPNames[i]);
+    if(storeNames_) ep[i] = new EvtPlane(ang,sv,cv,EPNames[i]);
+    else ep[i] = new EvtPlane(ang,sv,cv,"");
   }
   if(useTrack_) {
     for(int i = 0; i<9; i++) {
@@ -451,6 +450,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   
   iEvent.put(evtplaneOutput, "recoLevel");
+  //  storeNames_ = 0;
 }
   
   // ------------ method called once each job just before starting event loop  ------------
