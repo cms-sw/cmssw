@@ -31,7 +31,7 @@ process.source = cms.Source(
 
 # Famos configuration
 process.load("FastSimulation.Configuration.CommonInputs_cff")
-from Configuration.PyReleaseValidation.autoCond import autoCond
+from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['mc']
 
 # Famos sequences

@@ -29,15 +29,6 @@ TFitConstraintEp::TFitConstraintEp()
   ,_component(TFitConstraintEp::pX)
 {}
 
-TFitConstraintEp::TFitConstraintEp(const TString &name, const TString &title,
-                                   TFitConstraintEp::component thecomponent,
-                                   Double_t constraint)
-  :TAbsFitConstraint(name, title)
-  ,_constraint(constraint)
-  ,_component(thecomponent)
-{
-}
-
 TFitConstraintEp::TFitConstraintEp(std::vector<TAbsFitParticle*>* particles, 
 				   TFitConstraintEp::component thecomponent, 
 				   Double_t constraint)

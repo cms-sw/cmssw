@@ -23,7 +23,6 @@ Options for sqlite-->xml conversion:
 --ringsOnly     special flag for xml dumping of CSC ring structure only, it automatically
                 turns off all DTs and also CSC's chambers and layers on output and coordinates
                 are relative "to none"
---runNumber N   Use run #N to extract xml from necessary IOV
 """ % vars()
 
 if len(sys.argv) < 3:
@@ -56,13 +55,6 @@ parser.add_option("--ringsOnly",
   default=False,
   dest="ringsOnly")
 
-parser.add_option("-r", "--runNumber",
-  help="Use run #N to extract xml from necessary IOV (default is 1)",
-  type="int",
-  default=1,
-  dest="runNumber")
-
-
 options, args = parser.parse_args(sys.argv[3:])
 
 supRings="True"
@@ -75,7 +67,6 @@ if options.noLayers or options.ringsOnly: supLayers="True"
 relativeTo=options.relativeTo
 if options.ringsOnly: relativeTo="none"
 
-runNumber = options.runNumber
 
 theInputFile = sys.argv[1]
 theOutputFile = sys.argv[2]
@@ -95,11 +86,6 @@ if theInputFile[-3:]==".db" and theOutputFile[-4:]==".xml":
   ok = True
   file("tmp_converter_cfg.py","w").write("""# sqlite2xml conversion
 from Alignment.MuonAlignment.convertSQLitetoXML_cfg import *
-
-process.source = cms.Source("EmptySource",
-    numberEventsInRun = cms.untracked.uint32(1),
-    firstRun = cms.untracked.uint32(%(runNumber)d)
-)
 
 process.PoolDBESSource.connect = "sqlite_file:%(theInputFile)s"
 process.MuonGeometryDBConverter.outputXML.fileName = "%(theOutputFile)s"

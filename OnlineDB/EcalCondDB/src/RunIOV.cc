@@ -414,46 +414,7 @@ void RunIOV::setByRun(RunTag* tag, run_t run)
    }
 }
 
-void RunIOV::setByTime(std::string location, const Tm &t) 
-  throw(std::runtime_error)
-{
-  this->checkConnection();
-   
-  DateHandler dh(m_env, m_conn);
 
-   try {
-     Statement* stmt = m_conn->createStatement();
-
-     stmt->setSQL("SELECT iov_id FROM (SELECT iov_id FROM run_iov riov "
-		  "JOIN run_tag rtag ON riov.tag_id = rtag.tag_id "
-		  "JOIN location_def loc ON rtag.location_id = loc.def_id "
-		  "WHERE loc.location = :1 AND "
-		  "run_start <= to_date(:2, 'YYYY-MM-DD HH24:MI:SS') AND "
-		  "run_end >= to_date(:3, 'YYYY-MM-DD HH24:MI:SS') "
-		  "AND rtag.gen_tag != 'INVALID' ORDER BY iov_id DESC) "
-		  "where ROWNUM <=1");
-     stmt->setString(1, location);
-     stmt->setString(2, t.str());
-     stmt->setString(3, t.str());
-     
-     ResultSet* rset = stmt->executeQuery();
-     if (rset->next()) {
-       int id = rset->getInt(1);
-       this->setByID(id);
-     } else {
-       throw(std::runtime_error("RunIOV::setByTime(loc, run):  Given run is not in the database"));
-     }
-     
-     // Check for uniqueness of run
-     if (rset->next()) {
-       throw(std::runtime_error("RunIOV::setByTime(loc, run):  Run is nonunique for given location."));
-     }
-
-     m_conn->terminateStatement(stmt);
-   } catch (SQLException &e) {
-     throw(std::runtime_error("RunIOV::setByTime(loc, run):  " + e.getMessage()));
-   }
-}
 
 void RunIOV::setByRun(std::string location, run_t run) 
   throw(std::runtime_error)

@@ -16,13 +16,12 @@ logDir       = 'logfiles'
 compRootDir  = 'compRoot'
 # Containers
 #vectorRE       = re.compile (r'^vector<(\S+)>')
-doubleRE       = re.compile (r'^(double|int)')
 vectorRE       = re.compile (r'^vector<([^<>]+)>')
 detSetVecRE    = re.compile (r'^edm::DetSetVector<([^<>]+)>')
 edColRE        = re.compile (r'^edm::EDCollection<([^<>]+)>')
 sortedColRE    = re.compile (r'^edm::SortedCollection<([^<>]+),\S+?> >')
 singletonRE    = re.compile (r'^([\w:]+)$')
-containerList  = [vectorRE, detSetVecRE, edColRE, sortedColRE, doubleRE]
+containerList  = [vectorRE, detSetVecRE, edColRE, sortedColRE]
 
 class EdmObject (object):
 
@@ -36,7 +35,7 @@ class EdmObject (object):
                 self.name = match.group(1)
                 break
 
-    def __str__ (self):
+    def __str__ (self):        
         return pprint.pformat (self.__dict__)
 
     def __bool__ (self):
@@ -283,13 +282,9 @@ if __name__ == "__main__":
             # print "  ", obj.label(),
             name = obj.name
             prettyName = nonAlphaRE.sub('', name)
-            scriptName = 'edmOneToOneComparison.py'
-            if prettyName in ['int', 'double']:
-                scriptName = 'simpleEdmComparison.py'
             prettyLabel = commaRE.sub ('_', obj.label())
-            compareCmd = '%s %s %s %s --compare --label=reco^%s^%s' \
-                          % (scriptName,
-                             prettyName + '.txt',
+            compareCmd = 'edmOneToOneComparison.py %s %s %s --compare --label=reco^%s^%s' \
+                          % (prettyName + '.txt',
                              filename1,
                              filename2,
                              prettyName,
@@ -328,5 +323,4 @@ if __name__ == "__main__":
             summaryOptions = '--counts'
         summaryCmd = 'summarizeEdmComparisonLogfiles.py %s %s logfiles' \
                      % (summaryOptions, summaryMask)
-        print summaryCmd
         print commands.getoutput (summaryCmd)

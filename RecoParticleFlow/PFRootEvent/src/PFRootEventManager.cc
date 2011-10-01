@@ -907,6 +907,11 @@ void PFRootEventManager::readOptions(const char* file,
   options_->GetOpt("particle_flow", "on/off", doParticleFlow_);  
   options_->GetOpt("particle_flow", "comparison", doCompare_);  
 
+  useKDTreeTrackEcalLinker_ = true;
+  options_->GetOpt("particle_flow", "useKDTreeTrackEcalLinker", useKDTreeTrackEcalLinker_);  
+  std::cout << "Use Track-ECAL link optimization: " << useKDTreeTrackEcalLinker_ << std::endl;
+  pfBlockAlgo_.setUseOptimization(useKDTreeTrackEcalLinker_);
+
   std::vector<double> DPtovPtCut;
   std::vector<unsigned> NHitCut;
   bool useIterTracking;
@@ -2867,7 +2872,7 @@ void PFRootEventManager::pfCandCompare(int entry) {
       double deltaE = (*pfCandidates_)[i].energy()-pfCandCMSSW_[i].energy();
       double deltaEta = (*pfCandidates_)[i].eta()-pfCandCMSSW_[i].eta();
       double deltaPhi = (*pfCandidates_)[i].phi()-pfCandCMSSW_[i].phi();
-      if ( fabs(deltaE) > 1E-5 ||
+      if ( fabs(deltaE) > 2E-5 ||
 	   fabs(deltaEta) > 1E-9 ||
 	   fabs(deltaPhi) > 1E-9 ) { 
 	cout << "+++WARNING+++ PFCandidate " << i 

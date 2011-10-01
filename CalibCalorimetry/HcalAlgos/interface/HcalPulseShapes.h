@@ -2,26 +2,39 @@
 #define CALIBCALORIMETRY_HCALALGOS_HCALPULSESHAPES_H 1
 
 #include <vector>
-#include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShape.h"
-#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
 /** \class HcalPulseShapes
   *  
-  * $Date: 2011/06/23 01:29:25 $
-  * $Revision: 1.3 $
+  * $Date: 2006/10/27 19:46:53 $
+  * $Revision: 1.2 $
   * \author J. Mans - Minnesota
   */
 class HcalPulseShapes {
 public:
-  typedef HcalPulseShape Shape;
   HcalPulseShapes();
+
+  class Shape {
+  public:
+    Shape();
+    void setNBin(int n);
+    void setShapeBin(int i, float f);
+    float getTpeak() const { return tpeak_; }
+    float operator()(double time) const;
+    float at(double time) const;
+    float integrate(double tmin, double tmax) const;
+    int nbins() const {return nbin_;}
+  private:
+    std::vector<float> shape_;
+    int nbin_;
+    float tpeak_;
+  };
+
 
   const Shape& hbShape() const { return hpdShape_; }
   const Shape& heShape() const { return hpdShape_; }
   const Shape& hfShape() const { return hfShape_; }
   const Shape& hoShape(bool sipm=false) const { return hpdShape_; }
-  /// automatically figures out which shape to return
-  const Shape& shape(const HcalDetId & detId) const;
+
 private:
   Shape hpdShape_, hfShape_;
   void computeHPDShape(Shape& s);

@@ -107,7 +107,7 @@ namespace edm {
   void
   ParameterSetDescription::validate(ParameterSet & pset) const
   {
-    if (unknown_ || anythingAllowed()) return;
+    if (unknown_) return;
 
     std::set<std::string> validatedLabels;
     for_all(entries_,
@@ -144,7 +144,7 @@ namespace edm {
       // Try again
       if (validatedLabels.size() != parameterNames.size()) {
 
-        if (IllegalParameters::throwAnException()) {
+        if (IllegalParameters::throwAnException() && !anythingAllowed()) {
           throwIllegalParameters(parameterNames, validatedLabels);
         }
       }
@@ -191,9 +191,9 @@ namespace edm {
 
     if (anythingAllowed()) {
       dfh.indent(os);
-      os << "Description allows anything and requires nothing.\n";
+      os << "Description allows anything. If the configured PSet contains illegal parameters,\n";
       dfh.indent(os);
-      os << "The configured PSet will not be validated.\n";
+      os << "then validation will ignore them instead of throwing an exception.\n";
       if (!dfh.brief()) os << "\n";
     }
 

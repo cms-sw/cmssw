@@ -27,7 +27,7 @@ bool isSingleEleTrigger(TString triggerName, vector<double>& thresholdEle, vecto
     {
       TObjArray *subStrL   = TPRegexp(patternEle).MatchS(triggerName);
       thresholdEle.push_back((((TObjString *)subStrL->At(2))->GetString()).Atof());
-      caloId.push_back(((TObjString *)subStrL->At(3))->GetString());
+      caloId .push_back(((TObjString *)subStrL->At(3))->GetString());
       caloIso.push_back(((TObjString *)subStrL->At(4))->GetString());
       trkId.push_back(((TObjString *)subStrL->At(5))->GetString());
       trkIso.push_back(((TObjString *)subStrL->At(6))->GetString());
@@ -84,29 +84,6 @@ bool isAsymDoubleEleTrigger(TString triggerName, vector<double>& thresholdEle, v
     }
   else return false;
 }
-
-bool isSingleEleX_HTXTrigger(TString triggerName, vector<double>& thresholds, vector<TString>& caloId, vector<TString>& caloIso, vector<TString>& trkId, vector<TString>& trkIso){
-	
-  TString patternEle = "(OpenHLT_Ele([0-9]+)_?(CaloId[VLT]+)?_?(CaloIso[VLT]+)?_?(TrkId[VLT]+)?_?(TrkIso[VLT]+)?_HT([0-9]+))$";
-
-  TPRegexp matchThresholdEle(patternEle);
-
-  if (matchThresholdEle.MatchB(triggerName))
-    {
-      TObjArray *subStrL   = TPRegexp(patternEle).MatchS(triggerName);
-      thresholds.push_back((((TObjString *)subStrL->At(2))->GetString()).Atof());//Ele
-      caloId.push_back(((TObjString *)subStrL->At(3))->GetString());
-      caloIso.push_back(((TObjString *)subStrL->At(4))->GetString());
-      trkId.push_back(((TObjString *)subStrL->At(5))->GetString());
-      trkIso.push_back(((TObjString *)subStrL->At(6))->GetString());
-      thresholds.push_back((((TObjString *)subStrL->At(7))->GetString()).Atof());//HT
-      delete subStrL;
-
-      return true;
-    }
-  else return false;
-}
-
 
 bool isSinglePhotonTrigger(TString triggerName, vector<double>& thresholdPhoton, vector<TString>& r9Id, vector<TString>& caloId,  vector<TString>& photonIso){
 	
@@ -173,16 +150,42 @@ bool isAsymDoublePhotonTrigger(TString triggerName, vector<double>& thresholdPho
   else return false;
 }
 
+
+
+
+//define L1, L2, L3 sets of thresholds for *standard* muons -Lucie : should be moved to .h ?
+void getMuThresholds(double L3pt, vector<double> &thresholds){
+
+  thresholds.push_back(0.);
+
+  if (L3pt == 3.) thresholds.push_back(0.);
+  else if (L3pt == 5.) thresholds.push_back(3.);
+  else if (L3pt == 8.) thresholds.push_back(3.);
+  else if (L3pt == 12.) thresholds.push_back(7.);
+  else if (L3pt == 13.) thresholds.push_back(7.);
+  else if (L3pt == 15.) thresholds.push_back(10.);
+  else if (L3pt == 17.) thresholds.push_back(10.);
+  else if (L3pt == 20.) thresholds.push_back(12.);
+  else if (L3pt == 24.) thresholds.push_back(12.);
+  else if (L3pt == 30.) thresholds.push_back(12.);
+  else if (L3pt == 40.) thresholds.push_back(16.);
+  else if (L3pt == 60.) thresholds.push_back(16.);
+  else if (L3pt == 100.) thresholds.push_back(16.);  
+
+  thresholds.push_back(L3pt);
+}
+
+
 bool isMuXTrigger(TString triggerName, vector<double> &thresholds)
 {
-  TString pattern = "(OpenHLT_Mu([0-9]+)){1}$";
+ TString pattern = "(OpenHLT_Mu([0-9]+)){1}$";
   TPRegexp matchThreshold(pattern);
 
   if (matchThreshold.MatchB(triggerName))
     {
       TObjArray *subStrL   = TPRegexp(pattern).MatchS(triggerName);
       double thresholdL3Mu = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      thresholds.push_back(thresholdL3Mu);
+      getMuThresholds(thresholdL3Mu, thresholds);
       delete subStrL;
       return true;
     }
@@ -199,7 +202,7 @@ bool isIsoMuXTrigger(TString triggerName, vector<double> &thresholds)
     {
       TObjArray *subStrL   = TPRegexp(pattern).MatchS(triggerName);
       double thresholdL3Mu = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      thresholds.push_back(thresholdL3Mu);
+      getMuThresholds(thresholdL3Mu, thresholds);
       delete subStrL;
       return true;
     }
@@ -216,27 +219,8 @@ bool isIsoMuX_eta2pXTrigger(TString triggerName, vector<double> &thresholds)
     {
       TObjArray *subStrL   = TPRegexp(pattern).MatchS(triggerName);
       double thresholdL3Mu = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      getMuThresholds(thresholdL3Mu, thresholds);
       double thresholdEta  = (((TObjString *)subStrL->At(3))->GetString()).Atof();
-      thresholds.push_back(thresholdL3Mu);
-      thresholds.push_back(2. + thresholdEta/10.);
-      delete subStrL;
-      return true;
-    }
-  else
-    return false;
-}
-
-bool isMuX_eta2pXTrigger(TString triggerName, vector<double> &thresholds)  
-{
- TString pattern = "(OpenHLT_Mu([0-9]+)_eta2p([0-9]+)){1}$";
-  TPRegexp matchThreshold(pattern);
-
-  if (matchThreshold.MatchB(triggerName))
-    {
-      TObjArray *subStrL   = TPRegexp(pattern).MatchS(triggerName);
-      double thresholdL3Mu = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      double thresholdEta  = (((TObjString *)subStrL->At(3))->GetString()).Atof();
-      thresholds.push_back(thresholdL3Mu);
       thresholds.push_back(2. + thresholdEta/10.);
       delete subStrL;
       return true;
@@ -255,7 +239,7 @@ bool isMuX_MuXTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL    = TPRegexp(pattern).MatchS(triggerName);
       double thresholdL3Mu0 = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       double thresholdL3Mu1 = (((TObjString *)subStrL->At(3))->GetString()).Atof();
-      thresholds.push_back(thresholdL3Mu0);
+      getMuThresholds(thresholdL3Mu0, thresholds);
       thresholds.push_back(thresholdL3Mu1);
       delete subStrL;
       return true;
@@ -274,7 +258,7 @@ bool isMuX_HTXTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL   = TPRegexp(pattern).MatchS(triggerName);
       double thresholdL3Mu = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       double thresholdHT   = (((TObjString *)subStrL->At(3))->GetString()).Atof();
-      thresholds.push_back(thresholdL3Mu);
+      getMuThresholds(thresholdL3Mu, thresholds);
       thresholds.push_back(thresholdHT);
       delete subStrL;
       return true;
@@ -283,28 +267,6 @@ bool isMuX_HTXTrigger(TString triggerName, vector<double> &thresholds)
     return false;
 }
 
-bool isMuX_EleX_HTXTrigger(TString triggerName, vector<double>& thresholds, vector<TString>& caloId, vector<TString>& caloIso, vector<TString>& trkId, vector<TString>& trkIso){
-	
-  TString pattern = "(OpenHLT_Mu([0-9]+)_Ele([0-9]+)_?(CaloId[VLT]+)?_?(CaloIso[VLT]+)?_?(TrkId[VLT]+)?_?(TrkIso[VLT]+)?_HT([0-9])+)$";
-
-  TPRegexp matchThreshold(pattern);
-
-  if (matchThreshold.MatchB(triggerName))
-    {
-      TObjArray *subStrL   = TPRegexp(pattern).MatchS(triggerName);
-      thresholds.push_back((((TObjString *)subStrL->At(2))->GetString()).Atof());
-      thresholds.push_back((((TObjString *)subStrL->At(3))->GetString()).Atof());
-      caloId.push_back(((TObjString *)subStrL->At(4))->GetString());
-      caloIso.push_back(((TObjString *)subStrL->At(5))->GetString());
-      trkId.push_back(((TObjString *)subStrL->At(6))->GetString());
-      trkIso.push_back(((TObjString *)subStrL->At(7))->GetString());
-      thresholds.push_back((((TObjString *)subStrL->At(8))->GetString()).Atof());
-      delete subStrL;
-
-      return true;
-    }
-  else return false;
-}
 
 bool isJetXUTrigger(TString triggerName, vector<double> &thresholds)
 {
@@ -886,21 +848,18 @@ bool isR0X_MRX_BTagTrigger(TString triggerName, vector<double> &thresholds)
     return false;
 }
 
-bool isPhotonX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds, vector<TString>& r9Id, vector<TString>& caloId,  vector<TString>& photonIso)
+bool isPhotonX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
 {
 	
-  TString pattern = "(OpenHLT_Photon([0-9]+)_?(R9Id)?_?(CaloId[VLT]+)?_?(Iso[VLT]+)?_R0([0-9]+)_MR([0-9]+){1})$";
+  TString pattern = "(OpenHLT_Photon([0-9]+)_R0([0-9]+)_MR([0-9]+){1})$";
   TPRegexp matchThreshold(pattern);
 	
   if (matchThreshold.MatchB(triggerName)) 
     {
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdPhoton = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      r9Id.push_back(((TObjString *)subStrL->At(3))->GetString());
-      caloId.push_back(((TObjString *)subStrL->At(4))->GetString());
-      photonIso.push_back(((TObjString *)subStrL->At(5))->GetString());
-      double thresholdR = (((TObjString *)subStrL->At(6))->GetString()).Atof();
-      double thresholdMR = (((TObjString *)subStrL->At(7))->GetString()).Atof();
+      double thresholdR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      double thresholdMR = (((TObjString *)subStrL->At(4))->GetString()).Atof();
       thresholds.push_back(thresholdPhoton);
       thresholds.push_back(thresholdR/100.);
       thresholds.push_back(thresholdMR);
@@ -969,7 +928,7 @@ bool isMuX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
       double thresholdL3Mu = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       double thresholdR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
       double thresholdMR = (((TObjString *)subStrL->At(4))->GetString()).Atof();
-      thresholds.push_back(thresholdL3Mu);
+      getMuThresholds(thresholdL3Mu, thresholds);
       thresholds.push_back(thresholdR/100.);
       thresholds.push_back(thresholdMR);
       delete subStrL;
@@ -980,25 +939,21 @@ bool isMuX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
 }
 
 
-bool isEleX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds,  vector<TString>& caloId, vector<TString>& caloIso, vector<TString>& trkId, vector<TString>& trkIso)
+bool isEleLX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
 {
 	
-  TString pattern = "(OpenHLT_Ele([0-9]+)_?(CaloId[VLT]+)?_?(CaloIso[VLT]+)?_?(TrkId[VLT]+)?_?(TrkIso[VLT]+)?_R0([0-9]+)_MR([0-9]+){1})$";
+  TString pattern = "(OpenHLT_Ele([0-9]+)_CaloIdL_TrkIdVL_CaloIsoVL_TrkIsoVL_R0([0-9]+)_MR([0-9]+){1})$";
   TPRegexp matchThreshold(pattern);
 	
   if (matchThreshold.MatchB(triggerName))
     {
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdEle = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      caloId.push_back(((TObjString *)subStrL->At(3))->GetString());
-      caloIso.push_back(((TObjString *)subStrL->At(4))->GetString());
-      trkId.push_back(((TObjString *)subStrL->At(5))->GetString());
-      trkIso.push_back(((TObjString *)subStrL->At(6))->GetString());
-      double thresholdR = (((TObjString *)subStrL->At(7))->GetString()).Atof();
-      double thresholdMR = (((TObjString *)subStrL->At(8))->GetString()).Atof();
-      thresholds.push_back(thresholdEle);
+      double thresholdR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      double thresholdMR = (((TObjString *)subStrL->At(4))->GetString()).Atof();
       thresholds.push_back(thresholdR/100.);
       thresholds.push_back(thresholdMR);
+      thresholds.push_back(thresholdEle);
       delete subStrL;
       return true;
     }
@@ -1006,6 +961,27 @@ bool isEleX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds,  vec
     return false;
 }
 
+bool isEleTX_R0X_MRXTrigger(TString triggerName, vector<double> &thresholds)
+{
+	
+  TString pattern = "(OpenHLT_Ele([0-9]+)_CaloIdT_TrkIdVL_CaloIsoVL_TrkIsoVL_R0([0-9]+)_MR([0-9]+){1})$";
+  TPRegexp matchThreshold(pattern);
+	
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdEle = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      double thresholdMR = (((TObjString *)subStrL->At(4))->GetString()).Atof();
+      thresholds.push_back(thresholdR/100.);
+      thresholds.push_back(thresholdMR);
+      thresholds.push_back(thresholdEle);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
 
 bool isMuX_MR0XTrigger(TString triggerName, vector<double> &thresholds)
 {
@@ -1018,7 +994,7 @@ bool isMuX_MR0XTrigger(TString triggerName, vector<double> &thresholds)
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdL3Mu = (((TObjString *)subStrL->At(2))->GetString()).Atof();
       double thresholdMR = (((TObjString *)subStrL->At(3))->GetString()).Atof();
-      thresholds.push_back(thresholdL3Mu);
+      getMuThresholds(thresholdL3Mu, thresholds);
       thresholds.push_back(thresholdMR);
       delete subStrL;
       return true;
@@ -1595,20 +1571,17 @@ bool isL1SingleEGXTrigger(TString triggerName)
     return false;
 }
 
-bool isPhotonX_HTXTrigger(TString triggerName, vector<double> &thresholds, vector<TString>& r9Id, vector<TString>& caloId,  vector<TString>& photonIso)
+bool isPhotonX_HTXTrigger(TString triggerName, vector<double> &thresholds)
 {
 	
-  TString pattern = "(OpenHLT_Photon([0-9]+)_?(R9Id)?_?(CaloId[VLT]+)?_?(Iso[VLT]+)?_HT([0-9]+))$";
+  TString pattern = "(OpenHLT_Photon([0-9]+)_HT([0-9]+)_L1R)$";
   TPRegexp matchThreshold(pattern);
 	
   if (matchThreshold.MatchB(triggerName))
     {
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdPhoton = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      r9Id.push_back(((TObjString *)subStrL->At(3))->GetString());
-      caloId.push_back(((TObjString *)subStrL->At(4))->GetString());
-      photonIso.push_back(((TObjString *)subStrL->At(5))->GetString());
-      double thresholdHT = (((TObjString *)subStrL->At(6))->GetString()).Atof();
+      double thresholdHT = (((TObjString *)subStrL->At(3))->GetString()).Atof();
       thresholds.push_back(thresholdPhoton);
       thresholds.push_back(thresholdHT);
       delete subStrL;
@@ -1618,20 +1591,17 @@ bool isPhotonX_HTXTrigger(TString triggerName, vector<double> &thresholds, vecto
     return false;
 }
 
-bool isPhotonX_MHTXTrigger(TString triggerName, vector<double> &thresholds, vector<TString>& r9Id, vector<TString>& caloId,  vector<TString>& photonIso)
+bool isPhotonX_MHTXTrigger(TString triggerName, vector<double> &thresholds)
 {
 	
-  TString pattern = "(OpenHLT_Photon([0-9]+)_?(R9Id)?_?(CaloId[VLT]+)?_?(Iso[VLT]+)?_MHT([0-9]+))$";
+  TString pattern = "(OpenHLT_Photon([0-9]+)_MHT([0-9]+)_L1R)$";
   TPRegexp matchThreshold(pattern);
 	
   if (matchThreshold.MatchB(triggerName))
     {
       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
       double thresholdPhoton = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-      r9Id.push_back(((TObjString *)subStrL->At(3))->GetString());
-      caloId.push_back(((TObjString *)subStrL->At(4))->GetString());
-      photonIso.push_back(((TObjString *)subStrL->At(5))->GetString());
-      double thresholdMHT = (((TObjString *)subStrL->At(6))->GetString()).Atof();
+      double thresholdMHT = (((TObjString *)subStrL->At(3))->GetString()).Atof();
       thresholds.push_back(thresholdPhoton);
       thresholds.push_back(thresholdMHT);
       delete subStrL;
@@ -1641,27 +1611,27 @@ bool isPhotonX_MHTXTrigger(TString triggerName, vector<double> &thresholds, vect
     return false;
 }
 
-// bool isPhotonX_CaloIdL_HTXTrigger(
-// 				  TString triggerName,
-// 				  vector<double> &thresholds)
-// {
-//   // 2011-03-29 promoted to vX TODO check
-//   TString pattern = "(OpenHLT_Photon([0-9]+)_CaloIdL_HT([0-9]+)(_v[0-9]+))$";
-//   TPRegexp matchThreshold(pattern);
+bool isPhotonX_CaloIdL_HTXTrigger(
+				  TString triggerName,
+				  vector<double> &thresholds)
+{
+  // 2011-03-29 promoted to vX TODO check
+  TString pattern = "(OpenHLT_Photon([0-9]+)_CaloIdL_HT([0-9]+)(_v[0-9]+))$";
+  TPRegexp matchThreshold(pattern);
 	
-//   if (matchThreshold.MatchB(triggerName))
-//     {
-//       TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
-//       double thresholdPhoton = (((TObjString *)subStrL->At(2))->GetString()).Atof();
-//       double thresholdHT = (((TObjString *)subStrL->At(3))->GetString()).Atof();
-//       thresholds.push_back(thresholdPhoton);
-//       thresholds.push_back(thresholdHT);
-//       delete subStrL;
-//       return true;
-//     }
-//   else
-//     return false;
-// }
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdPhoton = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdHT = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      thresholds.push_back(thresholdPhoton);
+      thresholds.push_back(thresholdHT);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
 
 bool isPhotonX_CaloIdL_MHTXTrigger(
 				   TString triggerName,
@@ -1699,7 +1669,7 @@ bool isHTX_MuX_pfMHTXTrigger(
       double thresholdL3Mu  = (((TObjString *)subStrL->At(3))->GetString()).Atof();
       double thresholdpfMHT = (((TObjString *)subStrL->At(4))->GetString()).Atof();
       thresholds.push_back(thresholdHT);
-      thresholds.push_back(thresholdL3Mu);
+      getMuThresholds(thresholdL3Mu, thresholds);
       thresholds.push_back(thresholdpfMHT);
       delete subStrL;
       return true;
@@ -2091,7 +2061,6 @@ void OHltTree::CheckOpenHlt(
 	  }
       }
 
-
   /*DoubleEle*/
 
   else if (isAsymDoubleEleTrigger(triggerName, thresholdEle, caloId, caloIso, trkId, trkIso)){
@@ -2138,30 +2107,6 @@ void OHltTree::CheckOpenHlt(
       }
 
 
-  /*SingleEle cross triggers*/
-
-  else if (isSingleEleX_HTXTrigger(triggerName, thresholds, caloId, caloIso, trkId, trkIso)){
-    
-    if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-      {
-	if (prescaleResponse(menu, cfg, rcounter, it))
-	  {
-	    if ((OpenHlt1ElectronPassed(thresholds[0], 
-				       map_EGammaCaloId[caloId[0]],
-				       map_EleCaloIso[caloIso[0]],
-				       map_EleTrkId[trkId[0]],
-				       map_EleTrkIso[trkIso[0]]
-				       ) >= 1)	&&
-		(OpenHltSumCorHTPassed(thresholds[1], 40.) == 1)
-		)
-	      
-		triggerBit[it] = true;
-	      }
-	  }
-      }
-
-
-
   /*SinglePhoton*/
 
   else if (isSinglePhotonTrigger(triggerName, thresholdPhoton, r9Id, caloId, photonIso)){
@@ -2181,122 +2126,50 @@ void OHltTree::CheckOpenHlt(
 	  }
       }
 
- /*DoublePhoton*/
 
-//   else if (isDoublePhotonTrigger(triggerName, thresholdPhoton, r9Id, caloId, photonIso)){
-    
-//     if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-//       {
-// 	if (prescaleResponse(menu, cfg, rcounter, it))
-// 	  {
-// 	    if (OpenHlt1PhotonPassed(thresholdPhoton[0],
-// 				     map_PhotonR9ID[r9Id[0]],
-// 				     map_EGammaCaloId[caloId[0]],
-// 				     map_PhotonIso[photonIso[0]]
-// 				     ) >= 2)	
-	      
-// 		triggerBit[it] = true;
-// 	      }
-// 	  }
-//       }
-
-
-//  version with EcalActiv , i.e. with no L1 seed
-
- else if (isDoublePhotonTrigger(triggerName, thresholdPhoton, r9Id, caloId, photonIso)){
-   
-   if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-     {
-       std::vector<int> firstVector =  VecOpenHlt1PhotonPassed(thresholdPhoton[0],
-				     map_PhotonR9ID[r9Id[0]],
-				     map_EGammaCaloId[caloId[0]],
-				     map_PhotonIso[photonIso[0]]);
-	      
-	    if (firstVector.size()>=1){
-	      std::vector<int> secondVector = VecOpenHlt1EcalActivPassed(thresholdPhoton[0],
-				     map_PhotonR9ID[r9Id[0]],
-				     map_EGammaCaloId[caloId[0]],
-				     map_PhotonIso[photonIso[0]]);
-
-	      if (secondVector.size()>=1){
-		for (unsigned int i=0; i<firstVector.size(); i++)
-		  {
-		    for (unsigned int j=0; j<secondVector.size() ; j++)
-		      {
-			if(abs(ohEcalActivEt[firstVector[i]] - ohPhotEt[secondVector[j]]) > 0.00001) 
-			triggerBit[it] = true;
-		      }
-		  }
-	      }
-	    }
-     }
- }
-
- /*DoublePhoton Asym*/
-
-//   else if (isAsymDoublePhotonTrigger(triggerName, thresholdPhoton, r9Id, caloId, photonIso)){
-    
-//     if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-//       {
-// 	if (prescaleResponse(menu, cfg, rcounter, it))
-// 	  {
-// 	     if ((OpenHlt1PhotonPassed(thresholdPhoton[1],
-// 				     map_PhotonR9ID[r9Id[1]],
-// 				     map_EGammaCaloId[caloId[1]],
-// 				     map_PhotonIso[photonIso[1]]
-// 				     ) >= 2) 	&&
-	      
-// 		(OpenHlt1PhotonPassed(thresholdPhoton[0],
-// 				     map_PhotonR9ID[r9Id[0]],
-// 				     map_EGammaCaloId[caloId[0]],
-// 				     map_PhotonIso[photonIso[0]]
-// 				      ) >= 1)
-// 		 )
-
-// 		triggerBit[it] = true;
-// 	      }
-// 	  }
-//       }
-
-
-//  version with EcalActiv , i.e. with no L1 seed
-
- else if (isAsymDoublePhotonTrigger(triggerName, thresholdPhoton, r9Id, caloId, photonIso)){
+  else if (isDoublePhotonTrigger(triggerName, thresholdPhoton, r9Id, caloId, photonIso)){
     
     if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
       {
 	if (prescaleResponse(menu, cfg, rcounter, it))
 	  {
-
-
-	    std::vector<int> firstVector =  VecOpenHlt1PhotonPassed(thresholdPhoton[0],
+	    if (OpenHlt1PhotonPassed(thresholdPhoton[0],
 				     map_PhotonR9ID[r9Id[0]],
 				     map_EGammaCaloId[caloId[0]],
-				     map_PhotonIso[photonIso[0]]);
+				     map_PhotonIso[photonIso[0]]
+				     ) >= 2)	
 	      
-	    if (firstVector.size()>=1){
-	      std::vector<int> secondVector = VecOpenHlt1EcalActivPassed(thresholdPhoton[1],
-				     map_PhotonR9ID[r9Id[1]],
-				     map_EGammaCaloId[caloId[1]],
-				     map_PhotonIso[photonIso[1]]);
-
-	      if (secondVector.size()>=1){
-		for (unsigned int i=0; i<firstVector.size(); i++)
-		  {
-		    for (unsigned int j=0; j<secondVector.size() ; j++)
-		      {
-			if(abs(ohEcalActivEt[firstVector[i]] - ohPhotEt[secondVector[j]] > 0.00001))
-			triggerBit[it] = true;
-		      }
-		  }
+		triggerBit[it] = true;
 	      }
-	    }
-
-
-
 	  }
       }
-  }
+
+ /*DoublePhoton*/
+
+  else if (isAsymDoublePhotonTrigger(triggerName, thresholdPhoton, r9Id, caloId, photonIso)){
+    
+    if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+      {
+	if (prescaleResponse(menu, cfg, rcounter, it))
+	  {
+	     if ((OpenHlt1PhotonPassed(thresholdPhoton[1],
+				     map_PhotonR9ID[r9Id[1]],
+				     map_EGammaCaloId[caloId[1]],
+				     map_PhotonIso[photonIso[1]]
+				     ) >= 2) 	&&
+	      
+		(OpenHlt1PhotonPassed(thresholdPhoton[0],
+				     map_PhotonR9ID[r9Id[0]],
+				     map_EGammaCaloId[caloId[0]],
+				     map_PhotonIso[photonIso[0]]
+				      ) >= 1)
+		 )
+
+		triggerBit[it] = true;
+	      }
+	  }
+      }
+
 
   /* Single Jet */
   else if (triggerName.CompareTo("OpenHLT_L1SingleCenJet") == 0)
@@ -3009,7 +2882,7 @@ void OHltTree::CheckOpenHlt(
 	}
     }
 	
-  else if (isPhotonX_R0X_MRXTrigger(triggerName, thresholds, r9Id, caloId, photonIso))
+  else if (isPhotonX_R0X_MRXTrigger(triggerName, thresholds))
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	{
@@ -3017,14 +2890,10 @@ void OHltTree::CheckOpenHlt(
 	    {
 	      if (prescaleResponse(menu, cfg, rcounter, it))
 		{
-		  if (OpenHlt1PhotonPassed(thresholds[0],
-				     map_PhotonR9ID[r9Id[0]],
-				     map_EGammaCaloId[caloId[0]],
-				     map_PhotonIso[photonIso[0]]
-				     ) >= 1)		
+		  if (OpenHltPhoCuts(thresholds[0], 0.15, 0.10, 0.014, 0.034, 999, 999) >= 1)
 		    {
 		      triggerBit[it] = true;
-		       }
+		    }
 		}
 	    }
 	}
@@ -3109,9 +2978,9 @@ void OHltTree::CheckOpenHlt(
 	{
 	  if (prescaleResponse(menu, cfg, rcounter, it))
 	    {
-	      if (OpenHlt1MuonPassed(map_muThresholds[thresholds[0]], 2., 0)>=1)
+	      if (OpenHlt1MuonPassed(thresholds[0], thresholds[1], thresholds[2], 2., 0)>=1)
 		{
-	     	  if (OpenHltRPassed(thresholds[1], thresholds[2], false, 7, 40.)>0)
+		  if (OpenHltRPassed(thresholds[3], thresholds[4], false, 7, 40.)>0)
 		    triggerBit[it] = true;
 		}
 	    }
@@ -3123,36 +2992,82 @@ void OHltTree::CheckOpenHlt(
 	{
 	  if (prescaleResponse(menu, cfg, rcounter, it))
 	    {
-	      if (OpenHlt1MuonPassed(map_muThresholds[thresholds[0]], 2., 0)>=1)
+	      if (OpenHlt1MuonPassed(thresholds[0], thresholds[1], thresholds[2], 2., 0)>=1)
 		{
-		  if (OpenHltRPassed(thresholds[1], thresholds[2], false, 7, 40.)>0)
+		  if (OpenHltRPassed(thresholds[3], thresholds[4], false, 7, 40.)>0)
 		    triggerBit[it] = true;
 		}
 	    }
 	}
     }
 	
-  else if (isEleX_R0X_MRXTrigger(triggerName, thresholds, caloId, caloIso, trkId, trkIso))
+  else if (isEleLX_R0X_MRXTrigger(triggerName, thresholds))
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	{
 	  if (prescaleResponse(menu, cfg, rcounter, it))
 	    {
-	      if ( OpenHlt1ElectronPassed(thresholds[0], 
-				       map_EGammaCaloId[caloId[0]],
-				       map_EleCaloIso[caloIso[0]],
-				       map_EleTrkId[trkId[0]],
-				       map_EleTrkIso[trkIso[0]]
-				       ) >= 1)	
+	      if ( (OpenHlt1ElectronSamHarperPassed(thresholds[2], 0, // ET, L1isolation 
+						    999.,
+						    999., // Track iso barrel, Track iso endcap 
+						    0.2,
+						    0.2, // Track/pT iso barrel, Track/pT iso endcap 
+						    0.2,
+						    0.2, // H/ET iso barrel, H/ET iso endcap 
+						    0.2,
+						    0.2, // E/ET iso barrel, E/ET iso endcap 
+						    0.15,
+						    0.10, // H/E barrel, H/E endcap 
+						    0.014,
+						    0.035, // cluster shape barrel, cluster shape endcap 
+						    999.,//0.98,
+						    999.,//1.0, // R9 barrel, R9 endcap 
+						    0.01,
+						    0.01, // Deta barrel, Deta endcap 
+						    0.15,
+						    0.10 // Dphi barrel, Dphi endcap 
+						    )>=1))
 		{
-		  if (OpenHltRPassed(thresholds[1], thresholds[2], false, 7, 40.)>0)
+		  if (OpenHltRPassed(thresholds[0], thresholds[1], false, 7, 40.)>0)
 		    triggerBit[it] = true;
 		}
 	    }
 	}
     }
-
-
+  else if (isEleTX_R0X_MRXTrigger(triggerName, thresholds))
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      if (OpenHlt1ElectronSamHarperPassed(thresholds[2], 0, // ET, L1isolation 
+						  999.,
+						  999., // Track iso barrel, Track iso endcap 
+						  0.2,
+						  0.2, // Track/pT iso barrel, Track/pT iso endcap 
+						  0.2,
+						  0.2, // H/ET iso barrel, H/ET iso endcap 
+						  0.2,
+						  0.2, // E/ET iso barrel, E/ET iso endcap 
+						  0.1,
+						  0.075, // H/E barrel, H/E endcap 
+						  0.011,
+						  0.031, // cluster shape barrel, cluster shape endcap 
+						  999.,//0.98,
+						  999.,//1.0, // R9 barrel, R9 endcap 
+						  0.008,
+						  0.008, // Deta barrel, Deta endcap 
+						  0.07,
+						  0.05 // Dphi barrel, Dphi endcap 
+						  )>=1)
+					
+		{
+		  if (OpenHltRPassed(thresholds[0], thresholds[1], false, 7, 40.)>0)
+		    triggerBit[it] = true;
+		}
+	    }
+	}
+    }
   else if (isEleLX_MR0XTrigger(triggerName, thresholds))
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
@@ -3465,33 +3380,20 @@ void OHltTree::CheckOpenHlt(
 	{
 	  if (prescaleResponse(menu, cfg, rcounter, it))
 	    {
-	      if (OpenHlt1MuonPassed(map_muThresholds[thresholds[0]], 2., 0)>=1)
+	      if (OpenHlt1MuonPassed(thresholds[0], thresholds[1], thresholds[2], 2., 0)>=1)
 		{
 		  triggerBit[it] = true;
 		}
 	    }
 	}
     }	
-  else if (isMuX_eta2pXTrigger(triggerName, thresholds))
-    {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-        {
-          if (prescaleResponse(menu, cfg, rcounter, it))
-            {
-              if (OpenHlt1MuonPassed(map_muThresholds[thresholds[0]], 2., 0, thresholds[1], thresholds[1])>=1)
-                {
-                  triggerBit[it] = true;
-                }
-            }
-        }
-    }
   else if (isIsoMuX_eta2pXTrigger(triggerName, thresholds))
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
         {
           if (prescaleResponse(menu, cfg, rcounter, it))
             {
-              if (OpenHlt1MuonPassed(map_muThresholds[thresholds[0]], 2., 1, thresholds[1], thresholds[1])>=1)
+              if (OpenHlt1MuonPassed(thresholds[0], thresholds[1], thresholds[2], 2., 1, thresholds[3], thresholds[3])>=1)
                 {
                   triggerBit[it] = true;
                 }
@@ -3504,7 +3406,7 @@ void OHltTree::CheckOpenHlt(
 	{
 	  if (prescaleResponse(menu, cfg, rcounter, it))
 	    {
-	      if (OpenHlt1MuonPassed(map_muThresholds[thresholds[0]], 2., 1)>=1)
+	      if (OpenHlt1MuonPassed(thresholds[0], thresholds[1], thresholds[2], 2., 1)>=1)
 		{
 		  triggerBit[it] = true;
 		}
@@ -4839,22 +4741,6 @@ void OHltTree::CheckOpenHlt(
 	    }
 	}
     }
-
-  /*dimuon for Higgs*/
-  else if (triggerName.CompareTo("OpenHLT_DiMuon6_LowMass") == 0)
-    {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-	{
-	  if (prescaleResponse(menu, cfg, rcounter, it))
-	    {
-	      if (OpenHlt2MuonOSMassVtxHiggsPassed(3., 3., 4., 2., 1, 5., 14.5, 2.5, 6., 0.5, 10, -2, 6.)>=1)
-		{
-		  triggerBit[it] = true;
-		}
-	    }
-       }
-    }
-  		
 	
   /*MuOnia 1e33*/
   else if (triggerName.CompareTo("OpenHLT_Dimuon6p5_Barrel_PsiPrime_v1") == 0)
@@ -5476,52 +5362,7 @@ else if (triggerName.CompareTo("OpenHLT_DoubleEle8_CaloIdT_TrkIdT_v1") == 0)//ne
 }
 
 	
-  //JH
- else if (triggerName.CompareTo("OpenHLT_Ele22_CaloIdL_CaloIsoVL_Ele15_HFT") == 0) {
-   if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1) {
-     if (prescaleResponse(menu, cfg, rcounter, it)) {
-       // 17 GeV Electron
-       if (
-	   OpenHlt1ElectronSamHarperPassed(
-					   22., 0, // ET, L1isolation
-					   999., 999., // Track iso barrel, Track iso endcap
-					   999., 999., // Track/pT iso barrel, Track/pT iso endcap
-					   .2, .2, // H/ET iso barrel, H/ET iso endcap
-					   .2, .2, // E/ET iso barrel, E/ET iso endcap
-					   0.15, 0.1,  // H/E barrel, H/E endcap
-					   0.014, 0.035, // cluster shape barrel, cluster shape endcap
-					   999, 999,  // R9 barrel, R9 endcap
-					   999, 999,   // Deta barrel, Deta endcap
-					   999, 999    // Dphi barrel, Dphi endcap
-					   ) >=1
-	   ) {
-	 // HF e code
-	 float MinPt  = 15.0;
-	 float MaxEta = 5.0;
-	 float MinEta = -5.0;
-	 float e9e25Min = 0.92; // e9e25 > 0.92
-	 float e1e9Min = 0.6; // e1e9 > 0.6
-	 float Min2DCut = 0.2; // 2DCut > 0.2
-
-	 for(int i = 0; i < NohHFECALClus; i++){ // These arrays are kept in sync when creating openhlt.root
-	   if (
-                               ohHFEleClustere9e25[i] > e9e25Min &&
-                               ohHFEleClustere1e9[i]  > e1e9Min  &&
-                               ohHFEleCluster2Dcut[i] > Min2DCut &&
-                               ohHFEleEta[i] < MaxEta &&
-                               ohHFEleEta[i] > MinEta &&
-                               ohHFElePt[i]  > MinPt
-			       ) {
-	     triggerBit[it] = true; // Fired
-	   }
-	 }
-       }
-     }
-   }
- }
-
-  //end JH	
-
+	
   // 2011-05-11: promoted to v4. Removed R9 cut.
   else if (triggerName.CompareTo("OpenHLT_Ele17_CaloIdL_CaloIsoVL_v4") == 0)
     {
@@ -7412,72 +7253,83 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
   // to be removed ??
   /*PhotonX_(M)HTX */
 	
-  else if (isPhotonX_HTXTrigger(triggerName, thresholds, r9Id, caloId, photonIso))
+  else if (isPhotonX_HTXTrigger(triggerName, thresholds))
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	{
 	  if (prescaleResponse(menu, cfg, rcounter, it))
 	    {
-	      if (OpenHlt1PhotonPassed(thresholds[0],
-				     map_PhotonR9ID[r9Id[0]],
-				     map_EGammaCaloId[caloId[0]],
-				     map_PhotonIso[photonIso[0]]
-				     ) >= 1	&& OpenHltSumCorHTPassed(thresholds[1], 40.)>=1)
-	      
-	      {
+	      if (OpenHlt1PhotonPassedRA3(
+					  thresholds[0],
+					  0,
+					  999.,
+					  999.,
+					  999.,
+					  999.,
+					  0.075,
+					  0.075,
+					  0.98,
+					  1.0)>=1 && OpenHltSumCorHTPassed(thresholds[1], 30.)>=1)
+		{
 		  triggerBit[it] = true;
 		}
 	    }
 	}
     }
 	
-   else if (isPhotonX_MHTXTrigger(triggerName, thresholds, r9Id, caloId, photonIso))
-     {
+  else if (isPhotonX_MHTXTrigger(triggerName, thresholds))
+    {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
 	{
 	  if (prescaleResponse(menu, cfg, rcounter, it))
 	    {
-	      if (OpenHlt1PhotonPassed(thresholds[0],
-				     map_PhotonR9ID[r9Id[0]],
-				     map_EGammaCaloId[caloId[0]],
-				     map_PhotonIso[photonIso[0]]
-				     ) >= 1  && OpenHltMHT(thresholds[1], 30.)>=1)
+	      if (OpenHlt1PhotonPassedRA3(
+					  thresholds[0],
+					  0,
+					  999.,
+					  999.,
+					  999.,
+					  999.,
+					  0.075,
+					  0.075,
+					  0.98,
+					  1.0)>=1 && OpenHltMHT(thresholds[1], 30.)>=1)
 		{
 		  triggerBit[it] = true;
 		}
 	    }
- 	}
-     }
+	}
+    }
 	
-//   else if (isPhotonX_CaloIdL_HTXTrigger(triggerName, thresholds))
-//     {
-//       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-// 	{
-// 	  if (prescaleResponse(menu, cfg, rcounter, it))
-// 	    {
-// 	      if (OpenHltPhoCuts(thresholds[0], 0.15, 0.10, 0.014, 0.034, 999, 999) >= 1
-// 		  && OpenHltSumCorHTPassed(thresholds[1], 30.)>=1)
-// 		{
-// 		  triggerBit[it] = true;
-// 		}
-// 	    }
-// 	}
-//     }
+  else if (isPhotonX_CaloIdL_HTXTrigger(triggerName, thresholds))
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      if (OpenHltPhoCuts(thresholds[0], 0.15, 0.10, 0.014, 0.034, 999, 999) >= 1
+		  && OpenHltSumCorHTPassed(thresholds[1], 30.)>=1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
 	
-//   else if (isPhotonX_CaloIdL_MHTXTrigger(triggerName, thresholds))
-//     {
-//       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-// 	{
-// 	  if (prescaleResponse(menu, cfg, rcounter, it))
-// 	    {
-// 	      if (OpenHltPhoCuts(thresholds[0], 0.15, 0.10, 0.014, 0.034, 999, 999) >= 1
-// 		  && OpenHltMHT(thresholds[1], 30.)>=1)
-// 		{
-// 		  triggerBit[it] = true;
-// 		}
-// 	    }
-// 	}
-//     }
+  else if (isPhotonX_CaloIdL_MHTXTrigger(triggerName, thresholds))
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+	      if (OpenHltPhoCuts(thresholds[0], 0.15, 0.10, 0.014, 0.034, 999, 999) >= 1
+		  && OpenHltMHT(thresholds[1], 30.)>=1)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
 	
   /*
    * 2011-01-26 added by Christian Hartl
@@ -8199,93 +8051,7 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 	      for (int j = 0; j < max; j++)
 		{//loop over jets
 		  
-		  if (ohBJetL2CorrectedEt[j] > 20.) {// ET cut on L2.5 jets
-		    
-		    if (ohBJetIPL25Tag[j] > 4.0)
-		      { // Level 2.5 b tag  
-			if (ohBJetIPL3Tag[j] > 6.0)
-			  { // Level 3 b tag  
-			    rc++;
-			  }
-		      }
-		  } // ET cut
-		}//loop over jets
-				
-	      if (njets >=2 && njetsht >= 1 && rc >= 2)
-		{
-		  triggerBit[it] = true;
-		}
-	    }
-	}
-    }
-
-  //renamed trigger
- else if (triggerName.CompareTo("OpenHLT_CentralJet46_CentralJet38_DiBTagIP3D") == 0)
-    {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-	{
-	  if (prescaleResponse(menu, cfg, rcounter, it))
-	    {
-	      int rc = 0;
-	      int njets = 0;
-	      int njetsht = 0;
-	      
-	      for (int j = 0; j < NohBJetL2Corrected ; j++){
-		if (ohBJetL2CorrectedEt[j] > 38. && fabs(ohBJetL2CorrectedEta[j]) < 2.6) // ET and eta cuts
-		  {
-		    njets ++;
-		    if (ohBJetL2CorrectedEt[j] > 46.) njetsht++;
-		  }
-	      }
-
-	      int max = (NohBJetL2Corrected > 4) ? 4 : NohBJetL2Corrected;
-	      for (int j = 0; j < max; j++)
-		{//loop over jets
-		  
-		  if (ohBJetL2CorrectedEt[j] > 20.) {// ET cut on L2.5 jets
-		    
-		    if (ohBJetIPL25Tag[j] > 3.0)
-		      { // Level 2.5 b tag  
-			if (ohBJetIPL3Tag[j] > 6.0)
-			  { // Level 3 b tag  
-			    rc++;
-			  }
-		      }
-		  } // ET cut
-		}//loop over jets
-				
-	      if (njets >=2 && njetsht >= 1 && rc >= 2)
-		{
-		  triggerBit[it] = true;
-		}
-	    }
-	}
-    }
-
-  //high pT trigger
- else if (triggerName.CompareTo("OpenHLT_CentralJet60_CentralJet53_DiBTagIP3D") == 0)
-    {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-	{
-	  if (prescaleResponse(menu, cfg, rcounter, it))
-	    {
-	      int rc = 0;
-	      int njets = 0;
-	      int njetsht = 0;
-	      
-	      for (int j = 0; j < NohBJetL2Corrected ; j++){
-		if (ohBJetL2CorrectedEt[j] > 60. && fabs(ohBJetL2CorrectedEta[j]) < 2.6) // ET and eta cuts
-		  {
-		    njets ++;
-		    if (ohBJetL2CorrectedEt[j] > 53.) njetsht++;
-		  }
-	      }
-
-	      int max = (NohBJetL2Corrected > 4) ? 4 : NohBJetL2Corrected;
-	      for (int j = 0; j < max; j++)
-		{//loop over jets
-		  
-		  if (ohBJetL2CorrectedEt[j] > 20.) {// ET cut on L2.5 jets
+		  if (ohBJetL2CorrectedEt[j] > 30.) {// ET cut on L2.5 jets
 		    
 		    if (ohBJetIPL25Tag[j] > 2.5)
 		      { // Level 2.5 b tag  
@@ -8297,7 +8063,7 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 		  } // ET cut
 		}//loop over jets
 				
-	      if (njets >=2 && njetsht >= 1 && rc >= 2)
+	      if (njets >=2 && njetsht >= 1 && rc >= 1)
 		{
 		  triggerBit[it] = true;
 		}
@@ -8305,89 +8071,6 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 	}
     }
 
-  //July7th bPhi triggers
- else if (triggerName.CompareTo("OpenHLT_CentralJet46_CentralJet38_CentralJet20_DiBTagIP3D") == 0)
-    {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-	{
-	  if (prescaleResponse(menu, cfg, rcounter, it))
-	    {
-	      int rc = 0;
-	      int njets = 0;
-	      int njetsht = 0;
-	      
-	      for (int j = 0; j < NohBJetL2Corrected ; j++){
-		if (ohBJetL2CorrectedEt[j] > 38. && fabs(ohBJetL2CorrectedEta[j]) < 2.6) // ET and eta cuts
-		  {
-		    njets ++;
-		    if (ohBJetL2CorrectedEt[j] > 46.) njetsht++;
-		  }
-	      }
-
-	      int max = (NohBJetL2Corrected > 4) ? 4 : NohBJetL2Corrected;
-	      for (int j = 0; j < max; j++)
-		{//loop over jets
-		  
-		  if (ohBJetL2CorrectedEt[j] > 20.) {// ET cut on L2.5 jets
-		    
-		    if (ohBJetIPL25Tag[j] > 3.0)
-		      { // Level 2.5 b tag  
-			if (ohBJetIPL3Tag[j] > 6.0)
-			  { // Level 3 b tag  
-			    rc++;
-			  }
-		      }
-		  } // ET cut
-		}//loop over jets
-				
-	      if (njets >=2 && njetsht >= 1 && rc >= 2)
-		{
-		  triggerBit[it] = true;
-		}
-	    }
-	}
-    }
-
-  //control region trigger
- else if (triggerName.CompareTo("OpenHLT_DiCentralJet36_BTagIP3DLoose") == 0)
-    {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-	{
-	  if (prescaleResponse(menu, cfg, rcounter, it))
-	    {
-	      int rc = 0;
-	      int njets = 0;
-	      
-	      for (int j = 0; j < NohBJetL2Corrected ; j++){
-		if (ohBJetL2CorrectedEt[j] > 36. && fabs(ohBJetL2CorrectedEta[j]) < 2.6) // ET and eta cuts
-		  {
-		    njets ++;
-		  }
-	      }
-
-	      int max = (NohBJetL2Corrected > 4) ? 4 : NohBJetL2Corrected;
-	      for (int j = 0; j < max; j++)
-		{//loop over jets
-		  
-		  if (ohBJetL2CorrectedEt[j] > 20.) {// ET cut on L2.5 jets
-		    
-		    if (ohBJetIPL25Tag[j] > 0.)
-		      { // Level 2.5 b tag  
-			if (ohBJetIPL3Tag[j] > 3.0)
-			  { // Level 3 b tag  
-			    rc++;
-			  }
-		      }
-		  } // ET cut
-		}//loop over jets
-				
-	      if (njets >=2 && rc >= 1)
-		{
-		  triggerBit[it] = true;
-		}
-	    }
-	}
-    }
 
   /**********************************************/
 	
@@ -8564,215 +8247,6 @@ else if (triggerName.CompareTo("OpenHLT_Photon30_CaloIdVT_CentralJet20_BTagIP") 
 
   ///VBF Paths
 	
- //------ 3E33 ------//
-  
-  //Ele20 - TighterEleIdIsol - CaloJetCor pT 35 25 - Deta 3 + Third Jet 20
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele20_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3_Jet20") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(triggerName)->second == 1)
-      {
-	if (prescaleResponse(menu, cfg, rcounter, it) )
-	  {
-	    int EtMaxIt = -1;
-	    std::vector<int> EleIts;
-	    if (OpenHlt1ElectronVbfEleIDPassed(20., 12., true, EtMaxIt, &EleIts)
-		>= 1)
-	      {
-		if (OpenHltCleanedTriJetPassed(
-					      35.,
-					      25.,
-                                              20.,
-					      -1.,
-					      true,
-					      "Calo",
-					      3.,
-					      0.,
-					      false,
-					      false,
-					      EleIts) >= 1)
-		  triggerBit[it] = true;
-	      }
-	  }
-      }
-  }
-
-  //Ele22 - TighterEleIdIsol - CaloJetCor pT 35 25 - Deta 3.5 + Third Jet 25 - backup
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele22_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta3p5_Jet25") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(triggerName)->second == 1)
-      {
-	if (prescaleResponse(menu, cfg, rcounter, it) )
-	  {
-	    int EtMaxIt = -1;
-	    std::vector<int> EleIts;
-	    if (OpenHlt1ElectronVbfEleIDPassed(22., 12., true, EtMaxIt, &EleIts)
-		>= 1)
-	      {
-		if (OpenHltCleanedTriJetPassed(
-					      35.,
-					      25.,
-                                              25.,
-					      -1.,
-					      true,
-					      "Calo",
-					      3.5,
-					      0.,
-					      false,
-					      false,
-					      EleIts) >= 1)
-		  triggerBit[it] = true;
-	      }
-	  }
-      }
-  }
-
-  //Ele20 - TighterEleId NO Isol - CaloJetCor pT 35 25 - Deta 3 + Third Jet 20 - background
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele20_CaloIdVT_TrkIdT_Jet35_Jet25_Deta3_Jet20") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(triggerName)->second == 1)
-      {
-	if (prescaleResponse(menu, cfg, rcounter, it) )
-	  {
-	    int EtMaxIt = -1;
-	    std::vector<int> EleIts;
-            if (OpenHlt1ElectronVbfEleIDPassed(20., 12., false, EtMaxIt, &EleIts)
-		>= 1)
-	      {
-		if (OpenHltCleanedTriJetPassed(
-					      35.,
-					      25.,
-                                              20.,
-					      -1.,
-					      true,
-					      "Calo",
-					      3.,
-					      0.,
-					      false,
-					      false,
-					      EleIts) >= 1)
-		  triggerBit[it] = true;
-	      }
-	  }
-      }
-  }
-
-  ///ggH Paths
-  //------ 2E33 ------//
-
-  //Ele27 - TighterEleIdIsol - CaloJetCor pT 30 25 - pfMHT 20
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25_PFMHT20") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(triggerName)->second == 1)
-      {
-	if (prescaleResponse(menu, cfg, rcounter, it) )
-	  {
-	    int EtMaxIt = -1;
-	    std::vector<int> EleIts;
-	    if (pfMHT > 20. &&
-		OpenHlt1ElectronVbfEleIDPassed(27., 12., true, EtMaxIt, &EleIts)
-		>= 1)
-	      {
-		if (OpenHltCleanedDiJetPassed(
-					      30.,
-					      25.,
-					      2.6,
-					      true,
-					      "Calo",
-					      0.,
-					      0.,
-					      false,
-					      false,
-					      EleIts) >= 1)
-		  triggerBit[it] = true;
-	      }
-	  }
-      }
-  }
-  
-  //Ele30 - TighterEleIdIsol - CaloJetCor pT 30 30 - pfMHT 25 - backup
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele30_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_DiCentralJet30_PFMHT25") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(triggerName)->second == 1)
-      {
-	if (prescaleResponse(menu, cfg, rcounter, it) )
-	  {
-	    int EtMaxIt = -1;
-	    std::vector<int> EleIts;
-	    if (pfMHT > 25. &&
-		OpenHlt1ElectronVbfEleIDPassed(30., 12., true, EtMaxIt, &EleIts)
-		>= 1)
-	      {
-		if (OpenHltCleanedDiJetPassed(
-					      30.,
-					      30.,
-					      2.6,
-					      true,
-					      "Calo",
-					      0.,
-					      0.,
-					      false,
-					      false,
-					      EleIts) >= 1)
-		  triggerBit[it] = true;
-	      }
-	  }
-      }
-  }
-   
-  //Ele27 - TighterEleIdIsol - CaloJetCor pT 30 25 - pfMHT turn on studies
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele27_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_CentralJet30_CentralJet25") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(triggerName)->second == 1)
-      {
-	if (prescaleResponse(menu, cfg, rcounter, it) )
-	  {
-	    int EtMaxIt = -1;
-	    std::vector<int> EleIts;
-	    if (OpenHlt1ElectronVbfEleIDPassed(27., 12., true, EtMaxIt, &EleIts)
-		>= 1)
-	      {
-		if (OpenHltCleanedDiJetPassed(
-					      30.,
-					      25.,
-					      2.6,
-					      true,
-					      "Calo",
-					      0.,
-					      0.,
-					      false,
-					      false,
-					      EleIts) >= 1)
-		  triggerBit[it] = true;
-	      }
-	  }
-      }
-  }
-
-  //Ele27 - TighterEleId NO Isol - CaloJetCor pT 30 25 - background
-  else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele27_CaloIdVT_TrkIdT_CentralJet30_CentralJet25") == 0) {
-    if (map_L1BitOfStandardHLTPath.find(triggerName)->second == 1)
-      {
-	if (prescaleResponse(menu, cfg, rcounter, it) )
-	  {
-	    int EtMaxIt = -1;
-	    std::vector<int> EleIts;
-	    if (OpenHlt1ElectronVbfEleIDPassed(27., 12., false, EtMaxIt, &EleIts)
-		>= 1)
-	      {
-		if (OpenHltCleanedDiJetPassed(
-					      30.,
-					      25.,
-					      2.6,
-					      true,
-					      "Calo",
-					      0.,
-					      0.,
-					      false,
-					      false,
-					      EleIts) >= 1)
-		  triggerBit[it] = true;
-	      }
-	  }
-      }
-  }
-  
-
-
-
   //Ele15 - TighterEleIdIsol - CaloJetCor pT 35 25 - Deta 2.
   else if (menu->GetTriggerName(it).CompareTo("OpenHLT_Ele15_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_Jet35_Jet25_Deta2") == 0) {
     if (map_L1BitOfStandardHLTPath.find(triggerName)->second == 1)
@@ -10795,7 +10269,7 @@ else if (triggerName.CompareTo("OpenHLT_Ele32_WP70_PFMT50_v1")  == 0)
   else if (isHTX_MuX_pfMHTXTrigger(triggerName, thresholds)) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1){
       if (prescaleResponse(menu,cfg,rcounter,it)){
-	if(OpenHltpfMHT(thresholds[2]) && OpenHltSumCorHTPassed(thresholds[0])>0 && OpenHlt1MuonPassed(map_muThresholds[thresholds[1]],2.,0)>0)
+	if(OpenHltpfMHT(thresholds[1]) && OpenHltSumCorHTPassed(thresholds[0])>0 && OpenHlt1MuonPassed(3.,3.,5.,2.,0)>0)
 	  {
 	    triggerBit[it] = true;
 	  }
@@ -10807,7 +10281,7 @@ else if (triggerName.CompareTo("OpenHLT_Ele32_WP70_PFMT50_v1")  == 0)
   else if (isMuX_HTXTrigger(triggerName, thresholds)) {
     if (map_L1BitOfStandardHLTPath.find(menu->GetTriggerName(it))->second==1){
       if (prescaleResponse(menu,cfg,rcounter,it)){
-	if( OpenHltSumCorHTPassed(thresholds[1])>0 && OpenHlt1MuonPassed(map_muThresholds[thresholds[0]],2.,0)>0)
+	if( OpenHltSumCorHTPassed(thresholds[3])>0 && OpenHlt1MuonPassed(thresholds[0], thresholds[1], thresholds[2],2.,0)>0)
 	  {
 	    triggerBit[it] = true;
 	  }
@@ -11391,140 +10865,9 @@ else if (triggerName.CompareTo("OpenHLT_Ele32_WP70_PFMT50_v1")  == 0)
             }
         }
     }
-  else if (triggerName.CompareTo("OpenHLT_IsoMu15_MediumIsoPFTau20") == 0)
-    {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-        {
-          if (prescaleResponse(menu, cfg, rcounter, it))
-            {
-              if (OpenHlt1MuonPassed(10., 10., 15., 2., 1)>=1)
-                if (OpenHltPFTauPassedNoMuon(20., 1., 1., 999.)>=1)
-                  {
-                    triggerBit[it] = true;
-                  }
-            }
-        }
-    }
 
   /*Electron-Tau cross-triggers*/
-  else if (triggerName.CompareTo("OpenHLT_Ele18_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau20")
-           == 0)
-    {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-        {
-          if (prescaleResponse(menu, cfg, rcounter, it))
-            {
-              if (OpenHlt1Ele1PFTauPassed(
-                                          18.,
-                                          0,
-                                          999.,
-                                          999.,
-                                          0.125,
-                                          0.075,
-                                          0.125,
-                                          0.075,
-                                          0.125,
-                                          0.075,
-                                          0.05,
-                                          0.05,
-                                          0.011,
-                                          0.031,
-                                          0.98,
-                                          1.,
-                                          0.008,
-                                          0.008,
-                                          0.07,
-                                          0.05,
-                                          20.,
-                                          2.5,
-                                          1.,
-                                          1.,
-                                          1000.,
-                                          0.) >= 1)
-	      triggerBit[it] = true;
-            }
-        }
-    }
-
-  else if (triggerName.CompareTo("OpenHLT_Ele18_CaloIdVT_TrkIdT_MediumIsoPFTau20")
-           == 0)
-    {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-        {
-          if (prescaleResponse(menu, cfg, rcounter, it))
-            {
-              if (OpenHlt1Ele1PFTauPassed(
-                                          18.,
-                                          0,
-                                          999.,
-                                          999.,
-                                          999.,
-                                          999.,
-                                          999.,
-                                          999.,
-                                          999.,
-                                          999.,
-                                          0.05,
-                                          0.05,
-                                          0.011,
-                                          0.031,
-                                          0.98,
-                                          1.,
-                                          0.008,
-                                          0.008,
-                                          0.07,
-                                          0.05,
-                                          20.,
-                                          2.5,
-                                          1.,
-                                          1.,
-                                          1000.,
-                                          0.) >= 1)
-              triggerBit[it] = true;
-            }
-        }
-    }
 	
-  else if (triggerName.CompareTo("OpenHLT_Ele20_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau20")
-           == 0)
-    {
-      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-        {
-          if (prescaleResponse(menu, cfg, rcounter, it))
-            {
-              if (OpenHlt1Ele1PFTauPassed(
-                                          20.,
-                                          0,
-                                          999.,
-                                          999.,
-                                          0.125,
-                                          0.075,
-                                          0.125,
-                                          0.075,
-                                          0.125,
-                                          0.075,
-                                          0.05,
-                                          0.05,
-                                          0.011,
-                                          0.031,
-                                          0.98,
-                                          1.,
-                                          0.008,
-                                          0.008,
-                                          0.07,
-                                          0.05,
-                                          20.,
-                                          2.5,
-                                          1.,
-                                          1.,
-                                          1000.,
-                                          0.) >= 1)
-              triggerBit[it] = true;
-            }
-        }
-    }
-
-
   // 2011-03-29 promoted to v2 TODO check
   else if (triggerName.CompareTo("OpenHLT_Ele15_CaloIdVT_TrkIdT_LooseIsoPFTau15_v2")
 	   == 0)
@@ -12394,26 +11737,6 @@ else if (triggerName.CompareTo("OpenHLT_Ele32_WP70_PFMT50_v1")  == 0)
 	}
     }
 	
-  else if (isMuX_EleX_HTXTrigger(triggerName, thresholds, caloId, caloIso, trkId, trkIso)){
-    
-    if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
-      {
-	if (prescaleResponse(menu, cfg, rcounter, it))
-	  {
-	    if ((OpenHlt1MuonPassed(map_muThresholds[thresholds[0]], 2., 0)>=1) &&
-	        (OpenHlt1ElectronPassed(thresholds[1], 
-				       map_EGammaCaloId[caloId[0]],
-				       map_EleCaloIso[caloIso[0]],
-				       map_EleTrkId[trkId[0]],
-				       map_EleTrkIso[trkIso[0]]
-					) >= 1) &&
-		(OpenHltSumCorHTPassed(thresholds[2], 40.) == 1))
-	      triggerBit[it] = true;
-	      }
-	  }
-      }
-
-
   else if (triggerName.CompareTo("OpenHLT_Mu3_Ele8_CaloIdL_TrkIdVL_HT160_v2") == 0)
     {
       if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
@@ -15250,160 +14573,6 @@ int OHltTree::OpenHlt1PhotonPassed(
 }
 
 
-//Lucie / Arnaud 
-vector<int> OHltTree::VecOpenHlt1PhotonPassed(
-				   float Et,
-				   std::map< TString, float> r9Id,
-				   std::map< TString, float> caloId,
-				   std::map< TString, float> photonIso
-				   )
-{
-  float barreleta = 1.479;
-  float endcapeta = 2.65;
-  int L1iso = 0;
-	
-  vector<int> rc;
-
-  // Loop over all oh electrons
-  for (int i=0; i<NohPhot; i++)
-    {
-      float ohPhotE = ohPhotEt[i] / (sin(2*atan(exp(-1.0*ohPhotEta[i]))));
-      float ohPhotHoverE = ohPhotHforHoverE[i]/ohPhotE;
-      int isbarrel = 0;
-      int isendcap = 0;
-      if (TMath::Abs(ohPhotEta[i]) < barreleta)
-	isbarrel = 1;
-      if (barreleta < TMath::Abs(ohPhotEta[i]) && TMath::Abs(ohPhotEta[i])
-	  < endcapeta)
-	isendcap = 1;
-		
-      float quadraticEcalIsol = ohPhotEiso[i] - (0.012 * ohPhotEt[i]);
-      float quadraticHcalIsol = ohPhotHiso[i] - (0.005 * ohPhotEt[i]);
-      float quadraticTrackIsol = ohPhotTiso[i] - (0.002 * ohPhotEt[i]);
-		
-      if (ohPhotEt[i] > Et)
-	{
-	  if (TMath::Abs(ohPhotEta[i]) < endcapeta)
-	    {
-	      if (ohPhotL1iso[i] >= L1iso)
-		{ // L1iso is 0 or 1 
-		  if (ohPhotL1Dupl[i] == false)
-		    { // remove double-counted L1 SCs 
-		      if ( (isbarrel && (quadraticHcalIsol < photonIso["HisoBR"]))
-			   || (isendcap && (quadraticHcalIsol < photonIso["HisoEC"] )))
-			{
-			  if ( (isbarrel && (quadraticEcalIsol <  photonIso["Eiso"]))
-			       || (isendcap && (quadraticEcalIsol
-						< photonIso["Eiso"])))
-			    {
-			      if ( ((isbarrel) && (ohPhotHoverE < caloId["hoverebarrel"]))
-				   || ((isendcap) && (ohPhotHoverE < caloId["hovereendcap"])))
-				{
-				  if (((isbarrel) && (quadraticTrackIsol < photonIso["Tiso"]))
-				      || ((isendcap) && (quadraticTrackIsol
-							 < photonIso["Tiso"] )))
-				    {
-				      if ( (isbarrel && ohPhotClusShap[i]
-					    < caloId["clusshapebarrel"]) || (isendcap
-								   && ohPhotClusShap[i] < caloId["clusshapeendcap"]))
-					{
-					  if ( (isbarrel && ohPhotR9[i] < r9Id["HoverEEB"])
-					       || (isendcap && ohPhotR9[i] < r9Id["HoverEEC"]))
-					    {
-					      rc.push_back(i);
-					    }
-					}
-				    }
-				}
-			    }
-			}
-		    }
-		}
-	    }
-	}
-    }
-	
-  return rc;
-}
-
-
-
-//Arnaud ohEcalActiv
-vector<int>  OHltTree::VecOpenHlt1EcalActivPassed(
-				   float Et,
-				   std::map< TString, float> r9Id,
-				   std::map< TString, float> caloId,
-				   std::map< TString, float> photonIso
-				   )
-{
-  float barreleta = 1.479;
-  float endcapeta = 2.65;
-  int L1iso = 0;
-	
-  vector<int> rc;
-
-  // Loop over all oh electrons
-  for (int i=0; i<NohEcalActiv; i++)
-    {
-      float ohEcalActivE = ohEcalActivEt[i] / (sin(2*atan(exp(-1.0*ohEcalActivEta[i]))));
-      float ohEcalActivHoverE = ohEcalActivHforHoverE[i]/ohEcalActivE;
-      int isbarrel = 0;
-      int isendcap = 0;
-      if (TMath::Abs(ohEcalActivEta[i]) < barreleta)
-	isbarrel = 1;
-      if (barreleta < TMath::Abs(ohEcalActivEta[i]) && TMath::Abs(ohEcalActivEta[i])
-	  < endcapeta)
-	isendcap = 1;
-		
-      float quadraticEcalIsol = ohEcalActivEiso[i] - (0.012 * ohEcalActivEt[i]);
-      float quadraticHcalIsol = ohEcalActivHiso[i] - (0.005 * ohEcalActivEt[i]);
-      float quadraticTrackIsol = ohEcalActivTiso[i] - (0.002 * ohEcalActivEt[i]);
-		
-      if (ohEcalActivEt[i] > Et)
-	{
-	  if (TMath::Abs(ohEcalActivEta[i]) < endcapeta)
-	    {
-	      if (ohEcalActivL1iso[i] >= L1iso)
-		{ // L1iso is 0 or 1 
-		  //if (ohEcalActivL1Dupl[i] == false ){
-		     // remove double-counted L1 SCs 
-		      if ( (isbarrel && (quadraticHcalIsol < photonIso["HisoBR"]))
-
-			   || (isendcap && (quadraticHcalIsol < photonIso["HisoEC"] )))
-			{
-			  if ( (isbarrel && (quadraticEcalIsol <  photonIso["Eiso"]))
-			       || (isendcap && (quadraticEcalIsol
-						< photonIso["Eiso"])))
-			    {
-			      if ( ((isbarrel) && (ohEcalActivHoverE < caloId["hoverebarrel"]))
-				   || ((isendcap) && (ohEcalActivHoverE < caloId["hovereendcap"])))
-				{
-				  if (((isbarrel) && (quadraticTrackIsol < photonIso["Tiso"]))
-				      || ((isendcap) && (quadraticTrackIsol
-							 < photonIso["Tiso"] )))
-				    {
-				      if ( (isbarrel && ohEcalActivClusShap[i]
-					    < caloId["clusshapebarrel"]) || (isendcap
-								   && ohEcalActivClusShap[i] < caloId["clusshapeendcap"]))
-					{
-					  if ( (isbarrel && ohEcalActivR9[i] < r9Id["HoverEEB"])
-					       || (isendcap && ohEcalActivR9[i] < r9Id["HoverEEC"]))
-					    {
-					      rc.push_back(i);
-					    }
-					}
-				    }
-				}
-			    }
-			}
-		      //}
-		}
-	    }
-	}
-    }
-	
-  return rc;
-}
 
 vector<int> OHltTree::VectorOpenHlt1PhotonSamHarperPassed(
 							  float Et,
@@ -17439,9 +16608,7 @@ int OHltTree::OpenHlt1MuonPassed(
 				 double dr,
 				 int iso,
 				 double etal2,
-				 double etal3,
-				 int minNHits,
-				 int minNStats
+				 double etal3
 				 )
 {
   // This example implements the new (CMSSW_2_X) flat muon pT cuts.
@@ -17484,10 +16651,6 @@ int OHltTree::OpenHlt1MuonPassed(
 						
 		      if ( (fabs(ohMuL2Eta[j])<etal2))
 			{ // L2 eta cut
-			  ////add Nhits, Nstat
-			  if ((fabs(ohMuL2Eta[j])<0.9) || (fabs(ohMuL2Eta[j])>1.5 && fabs(ohMuL2Eta[j])<2.1) || ((ohMuL2Nhits[j]>= minNHits)&&(ohMuL2Nstat[j]>= minNStats)))
-			    {
-			    
 			  if (ohMuL2Pt[j] > ptl2)
 			    { // L2 pT cut
 			      if (ohMuL2Iso[j] >= iso)
@@ -17552,7 +16715,6 @@ int OHltTree::OpenHlt1MuonPassed(
 				      rcL1L2L3++;
 				    }
 				} // End L2 isolation cut 
-			    }//end Nhits, NStat cuts
 			    } // End L2 eta cut
 			} // End L2 pT cut
 		    } // End L3 isolation cut
@@ -17564,134 +16726,120 @@ int OHltTree::OpenHlt1MuonPassed(
   return rcL1L2L3;
 }
 
-int OHltTree::OpenHlt1MuonPassed(
-				 vector<double> muThresholds,
-				 double dr,
-				 int iso,
-				 double etal2,
-				 double etal3,
-				 int minNHits,
-				 int minNStats 
-				 )
-{
-  // This example implements the new (CMSSW_2_X) flat muon pT cuts.
-  // To emulate the old behavior, the cuts should be written
-  // L2:        ohMuL2Pt[i]+3.9*ohMuL2PtErr[i]*ohMuL2Pt[i]
-  // L3:        ohMuL3Pt[i]+2.2*ohMuL3PtErr[i]*ohMuL3Pt[i]
-	
-  int rcL1 = 0;
-  int rcL2 = 0;
-  int rcL3 = 0;
-  int rcL1L2L3 = 0;
-  int NL1Mu = 8;
-  int L1MinimalQuality = 1;
-  int L1MaximalQuality = 7;
-  int doL1L2matching = 0;
-	
-  for (int ic = 0; ic < 10; ic++)
-    L3MuCandIDForOnia[ic] = -1;
-	
-  // Loop over all oh L3 muons and apply cuts
-  for (int i=0; i<NohMuL3; i++)
-    {
-      int bestl1l2drmatchind = -1;
-      double bestl1l2drmatch = 999.0;
-		
-      if (fabs(ohMuL3Eta[i]) < etal3)
-	{ // L3 eta cut  
-	  if (ohMuL3Pt[i] > muThresholds[2])
-	    { // L3 pT cut        
-	      if (ohMuL3Dr[i] < dr)
-		{ // L3 DR cut
-		  if (ohMuL3Iso[i] >= iso)
-		    { // L3 isolation
-		      rcL3++;
-						
-		      // Begin L2 muons here. 
-		      // Get best L2<->L3 match, then 
-		      // begin applying cuts to L2
-		      int j = ohMuL3L2idx[i]; // Get best L2<->L3 match
-						
-		      if ( (fabs(ohMuL2Eta[j])<etal2))
-			{ // L2 eta cut
-			  if ((fabs(ohMuL2Eta[j])<0.9) || (fabs(ohMuL2Eta[j])>1.5 && fabs(ohMuL2Eta[j])<2.1) || ((ohMuL2Nhits[j]>= minNHits)&&(ohMuL2Nstat[j]>minNStats)))
-			    {
-			  if (ohMuL2Pt[j] >  muThresholds[1] )
-			    { // L2 pT cut
-			      if (ohMuL2Iso[j] >= iso)
-				{ // L2 isolation
-				  rcL2++;
-									
-				  // Begin L1 muons here.
-				  // Require there be an L1Extra muon Delta-R
-				  // matched to the L2 candidate, and that it have 
-				  // good quality and pass nominal L1 pT cuts 
-				  for (int k = 0; k < NL1Mu; k++)
-				    {
-				      if ( (L1MuPt[k] < muThresholds[0])) // L1 pT cut
-					continue;
-										
-				      double deltaphi = fabs(ohMuL2Phi[j]-L1MuPhi[k]);
-				      if (deltaphi > 3.14159)
-					deltaphi = (2.0 * 3.14159) - deltaphi;
-										
-				      double deltarl1l2 =
-					sqrt((ohMuL2Eta[j]-L1MuEta[k])
-					     *(ohMuL2Eta[j]-L1MuEta[k])
-					     + (deltaphi*deltaphi));
-				      if (deltarl1l2 < bestl1l2drmatch)
-					{
-					  bestl1l2drmatchind = k;
-					  bestl1l2drmatch = deltarl1l2;
-					}
-				    } // End loop over L1Extra muons
-									
-				  if (doL1L2matching == 1)
-				    {
-				      // Cut on L1<->L2 matching and L1 quality
-				      if ((bestl1l2drmatch > 0.3)
-					  || (L1MuQal[bestl1l2drmatchind]
-					      < L1MinimalQuality)
-					  || (L1MuQal[bestl1l2drmatchind]
-					      > L1MaximalQuality))
-					{
-					  rcL1 = 0;
-					  cout << "Failed L1-L2 match/quality" << endl;
-					  cout << "L1-L2 delta-eta = "
-					       << L1MuEta[bestl1l2drmatchind] << ", "
-					       << ohMuL2Eta[j] << endl;
-					  cout << "L1-L2 delta-pho = "
-					       << L1MuPhi[bestl1l2drmatchind] << ", "
-					       << ohMuL2Phi[j] << endl;
-					  cout << "L1-L2 delta-R = " << bestl1l2drmatch
-					       << endl;
-					}
-				      else
-					{
-					  cout << "Passed L1-L2 match/quality" << endl;
-					  L3MuCandIDForOnia[rcL1L2L3] = i;
-					  rcL1++;
-					  rcL1L2L3++;
-					} // End L1 matching and quality cuts	      
-				    }
-				  else
-				    {
-				      L3MuCandIDForOnia[rcL1L2L3] = i;
-				      rcL1L2L3++;
-				    }
-				} // End L2 isolation cut 
-			    }//end NHits, NStat
-			    } // End L2 eta cut
-			} // End L2 pT cut
-		    } // End L3 isolation cut
-		} // End L3 DR cut
-	    } // End L3 pT cut
-	} // End L3 eta cut
-    } // End loop over L3 muons		      
-	
-  return rcL1L2L3;
-}
-
+// int OHltTree::OpenHlt1MuonEtaRestrictedPassed(  
+// 					      double ptl1,  
+// 					      double ptl2,  
+// 					      double ptl3,  
+// 					      double dr,  
+// 					      int iso, 
+// 					      double etal3)
+// {
+//   int rcL1 = 0; 
+//   int rcL2 = 0; 
+//   int rcL3 = 0; 
+//   int rcL1L2L3 = 0; 
+//   int NL1Mu = 8; 
+//   int L1MinimalQuality = 4; 
+//   int L1MaximalQuality = 7; 
+//   int doL1L2matching = 0; 
+         
+//   // Loop over all oh L3 muons and apply cuts 
+//   for (int i=0; i<NohMuL3; i++) 
+//     { 
+//       int bestl1l2drmatchind = -1; 
+//       double bestl1l2drmatch = 999.0; 
+                 
+//       if (fabs(ohMuL3Eta[i]) < etal3) 
+//         { // L3 eta cut   
+//           if (ohMuL3Pt[i] > ptl3) 
+//             { // L3 pT cut         
+//               if (ohMuL3Dr[i] < dr) 
+//                 { // L3 DR cut 
+//                   if (ohMuL3Iso[i] >= iso) 
+//                     { // L3 isolation 
+//                       rcL3++; 
+                                                 
+//                       // Begin L2 muons here.  
+//                       // Get best L2<->L3 match, then  
+//                       // begin applying cuts to L2 
+//                       int j = ohMuL3L2idx[i]; // Get best L2<->L3 match 
+                                                 
+//                       if ( (fabs(ohMuL2Eta[j])<2.5)) 
+//                         { // L2 eta cut 
+//                           if (ohMuL2Pt[j] > ptl2) 
+//                             { // L2 pT cut 
+//                               if (ohMuL2Iso[j] >= iso) 
+//                                 { // L2 isolation 
+//                                   rcL2++; 
+                                                                         
+//                                   // Begin L1 muons here. 
+//                                   // Require there be an L1Extra muon Delta-R 
+//                                   // matched to the L2 candidate, and that it have  
+//                                   // good quality and pass nominal L1 pT cuts  
+//                                   for (int k = 0; k < NL1Mu; k++) 
+//                                     { 
+//                                       if ( (L1MuPt[k] < ptl1)) // L1 pT cut 
+//                                         continue; 
+                                                                                 
+//                                       double deltaphi = fabs(ohMuL2Phi[j]-L1MuPhi[k]); 
+//                                       if (deltaphi > 3.14159) 
+//                                         deltaphi = (2.0 * 3.14159) - deltaphi; 
+                                                                                 
+//                                       double deltarl1l2 = 
+//                                         sqrt((ohMuL2Eta[j]-L1MuEta[k]) 
+//                                              *(ohMuL2Eta[j]-L1MuEta[k]) 
+//                                              + (deltaphi*deltaphi)); 
+//                                       if (deltarl1l2 < bestl1l2drmatch) 
+//                                         { 
+//                                           bestl1l2drmatchind = k; 
+//                                           bestl1l2drmatch = deltarl1l2; 
+//                                         } 
+//                                     } // End loop over L1Extra muons 
+                                                                         
+//                                   if (doL1L2matching == 1) 
+//                                     { 
+//                                       // Cut on L1<->L2 matching and L1 quality 
+//                                       if ((bestl1l2drmatch > 0.3) 
+//                                           || (L1MuQal[bestl1l2drmatchind] 
+//                                               < L1MinimalQuality) 
+//                                           || (L1MuQal[bestl1l2drmatchind] 
+//                                               > L1MaximalQuality)) 
+//                                         { 
+//                                           rcL1 = 0; 
+//                                           cout << "Failed L1-L2 match/quality" << endl; 
+//                                           cout << "L1-L2 delta-eta = " 
+//                                                << L1MuEta[bestl1l2drmatchind] << ", " 
+//                                                << ohMuL2Eta[j] << endl; 
+//                                           cout << "L1-L2 delta-pho = " 
+//                                                << L1MuPhi[bestl1l2drmatchind] << ", " 
+//                                                << ohMuL2Phi[j] << endl; 
+//                                           cout << "L1-L2 delta-R = " << bestl1l2drmatch 
+//                                                << endl; 
+//                                         } 
+//                                       else 
+//                                         { 
+//                                           cout << "Passed L1-L2 match/quality" << endl; 
+//                                           L3MuCandIDForOnia[rcL1L2L3] = i; 
+//                                           rcL1++; 
+//                                           rcL1L2L3++; 
+//                                         } // End L1 matching and quality cuts          
+//                                     } 
+//                                   else 
+//                                     { 
+//                                       L3MuCandIDForOnia[rcL1L2L3] = i; 
+//                                       rcL1L2L3++; 
+//                                     } 
+//                                 } // End L2 isolation cut  
+//                             } // End L2 eta cut 
+//                         } // End L2 pT cut 
+//                     } // End L3 isolation cut 
+//                 } // End L3 DR cut 
+//             } // End L3 pT cut 
+//         } // End L3 eta cut 
+//     } // End loop over L3 muons                
+         
+//   return rcL1L2L3; 
+// } 
 
 //// Separating between Jets and Muon.....
 int OHltTree::OpenHlt1MuonIsoJetPassed(
@@ -17841,6 +16989,117 @@ int OHltTree::OpenHlt1MuonIsoJetPassed(
   return rcL1L2L3;
 	
 }
+
+// int OHltTree::OpenHlt2MuonPassed(
+// 				 double ptl1,
+// 				 double ptl2,
+// 				 double ptl3,
+// 				 double dr,
+// 				 int iso)
+// {
+//   // Note that the dimuon paths generally have different L1 requirements than 
+//   // the single muon paths. Therefore this example is implemented in a separate
+//   // function.
+//   //
+//   // This example implements the new (CMSSW_2_X) flat muon pT cuts. 
+//   // To emulate the old behavior, the cuts should be written 
+//   // L2:        ohMuL2Pt[i]+3.9*ohMuL2PtErr[i]*ohMuL2Pt[i] 
+//   // L3:        ohMuL3Pt[i]+2.2*ohMuL3PtErr[i]*ohMuL3Pt[i] 
+	
+//   int rcL1 = 0;
+//   int rcL2 = 0;
+//   int rcL3 = 0;
+//   int rcL1L2L3 = 0;
+//   int NL1Mu = 8;
+//   int L1MinimalQuality = 3;
+//   int L1MaximalQuality = 7;
+//   int doL1L2matching = 0;
+	
+//   // Loop over all oh L3 muons and apply cuts 
+//   for (int i=0; i<NohMuL3; i++)
+//     {
+//       int bestl1l2drmatchind = -1;
+//       double bestl1l2drmatch = 999.0;
+		
+//       if (fabs(ohMuL3Eta[i]) < 2.5)
+// 	{ // L3 eta cut   
+// 	  if (ohMuL3Pt[i] > ptl3)
+// 	    { // L3 pT cut         
+// 	      if (ohMuL3Dr[i] < dr)
+// 		{ // L3 DR cut 
+// 		  if (ohMuL3Iso[i] >= iso)
+// 		    { // L3 isolation 
+// 		      rcL3++;
+						
+// 		      // Begin L2 muons here.  
+// 		      // Get best L2<->L3 match, then  
+// 		      // begin applying cuts to L2 
+// 		      int j = ohMuL3L2idx[i]; // Get best L2<->L3 match 
+						
+// 		      if ( (fabs(ohMuL2Eta[j])<2.5))
+// 			{ // L2 eta cut 
+// 			  if (ohMuL2Pt[j] > ptl2)
+// 			    { // L2 pT cut 
+// 			      if (ohMuL2Iso[j] >= iso)
+// 				{ // L2 isolation  
+// 				  rcL2++;
+									
+// 				  // Begin L1 muons here. 
+// 				  // Require there be an L1Extra muon Delta-R 
+// 				  // matched to the L2 candidate, and that it have  
+// 				  // good quality and pass nominal L1 pT cuts  
+// 				  for (int k = 0; k < NL1Mu; k++)
+// 				    {
+// 				      if ( (L1MuPt[k] < ptl1)) // L1 pT cut 
+// 					continue;
+										
+// 				      double deltaphi = fabs(ohMuL2Phi[j]-L1MuPhi[k]);
+// 				      if (deltaphi > 3.14159)
+// 					deltaphi = (2.0 * 3.14159) - deltaphi;
+										
+// 				      double deltarl1l2 =
+// 					sqrt((ohMuL2Eta[j]-L1MuEta[k])
+// 					     *(ohMuL2Eta[j]-L1MuEta[k])
+// 					     + (deltaphi*deltaphi));
+// 				      if (deltarl1l2 < bestl1l2drmatch)
+// 					{
+// 					  bestl1l2drmatchind = k;
+// 					  bestl1l2drmatch = deltarl1l2;
+// 					}
+// 				    } // End loop over L1Extra muons 
+									
+// 				  if (doL1L2matching == 1)
+// 				    {
+// 				      // Cut on L1<->L2 matching and L1 quality 
+// 				      if ((bestl1l2drmatch > 0.3)
+// 					  || (L1MuQal[bestl1l2drmatchind]
+// 					      < L1MinimalQuality)
+// 					  || (L1MuQal[bestl1l2drmatchind]
+// 					      > L1MaximalQuality))
+// 					{
+// 					  rcL1 = 0;
+// 					}
+// 				      else
+// 					{
+// 					  rcL1++;
+// 					  rcL1L2L3++;
+// 					} // End L1 matching and quality cuts        
+// 				    }
+// 				  else
+// 				    {
+// 				      rcL1L2L3++;
+// 				    }
+// 				} // End L2 isolation cut 
+// 			    } // End L2 eta cut
+// 			} // End L2 pT cut 
+// 		    } // End L3 isolation cut 
+// 		} // End L3 DR cut 
+// 	    } // End L3 pT cut 
+// 	} // End L3 eta cut 
+//     } // End loop over L3 muons                  
+	
+//   return rcL1L2L3;
+// }
 
 int OHltTree::OpenHlt1L2MuonPassed(double ptl1, double ptl2, double dr)
 {
@@ -20055,157 +19314,6 @@ int OHltTree::OpenL1SetSingleJetBit(const float& thresh)
 	
 }
 
-int OHltTree::OpenHltCleanedTriJetPassed(
-    float Et1,
-    float Et2,
-    float Et3,
-    float AbsEtaMax,
-    bool cor,
-    const std::string& algo,
-    float Deta,
-    float Mjj,
-    bool etaOpposite,
-    bool jetID,
-    std::vector<int> ohEleIts)
-{
-   // fill the jet collection
-  int NohMyJet = 0;
-  float ohMyJetEta[200];
-  float ohMyJetPhi[200];
-  float ohMyJetEt[200];
-  float ohMyJetE[200];
-  float ohMyJetEMF[200];
-  float ohMyJetN90[200];
-
-  if ( (cor == false) && (algo == "Calo"))
-  {
-    NohMyJet = NohJetCal;
-    for (int ohMyJetIt = 0; ohMyJetIt < NohMyJet; ++ohMyJetIt)
-    {
-      ohMyJetEta[ohMyJetIt] = ohJetCalEta[ohMyJetIt];
-      ohMyJetPhi[ohMyJetIt] = ohJetCalPhi[ohMyJetIt];
-      ohMyJetEt[ohMyJetIt] = ohJetCalE[ohMyJetIt] * sin(2.*atan(exp(-1.
-          *ohJetCalEta[ohMyJetIt])));
-      ohMyJetE[ohMyJetIt] = ohJetCalE[ohMyJetIt];
-      ohMyJetEMF[ohMyJetIt] = ohJetCalEMF[ohMyJetIt];
-      ohMyJetN90[ohMyJetIt] = ohJetCalN90[ohMyJetIt];
-    }
-  }
-
-  if ( (cor == true) && (algo == "Calo"))
-  {
-    NohMyJet = NohJetCorCal;
-    for (int ohMyJetIt = 0; ohMyJetIt < NohMyJet; ++ohMyJetIt)
-    {
-      ohMyJetEta[ohMyJetIt] = ohJetCorCalEta[ohMyJetIt];
-      ohMyJetPhi[ohMyJetIt] = ohJetCorCalPhi[ohMyJetIt];
-//          ohMyJetEt[ohMyJetIt] = ohJetCorCalE[ohMyJetIt] * sin(2.*atan(exp(-1.
-//                *ohJetCorCalEta[ohMyJetIt])));
-      ohMyJetEt[ohMyJetIt] = ohJetCorCalPt[ohMyJetIt];
-      ohMyJetE[ohMyJetIt] = ohJetCorCalE[ohMyJetIt];
-      ohMyJetEMF[ohMyJetIt] = ohJetCorCalEMF[ohMyJetIt];
-      ohMyJetN90[ohMyJetIt] = ohJetCorCalN90[ohMyJetIt];
-    }
-  }
-
-  if ( (cor == false) && (algo == "PF"))
-  {
-    NohMyJet = NohPFJet;
-    for (int ohMyJetIt = 0; ohMyJetIt < NohMyJet; ++ohMyJetIt)
-    {
-      ohMyJetEta[ohMyJetIt] = pfJetEta[ohMyJetIt];
-      ohMyJetPhi[ohMyJetIt] = pfJetPhi[ohMyJetIt];
-      ohMyJetEt[ohMyJetIt] = pfJetPt[ohMyJetIt];
-      ohMyJetEMF[ohMyJetIt] = -1.;
-      ohMyJetN90[ohMyJetIt] = -1.;
-    }
-  }
-
-   // clean the jet collection from electrons
-  int NohCleanedJet = 0;
-  float ohCleanedJetEta[200];
-  float ohCleanedJetPhi[200];
-  float ohCleanedJetEt[200];
-  float ohCleanedJetE[200];
-  float ohCleanedJetEMF[200];
-  float ohCleanedJetN90[200];
-
-  for (int ohMyJetIt = 0; ohMyJetIt < NohMyJet; ++ohMyJetIt)
-  {
-    bool isMatching = false;
-    for (unsigned int ohEleIt = 0; ohEleIt < ohEleIts.size(); ++ohEleIt)
-      if (deltaR(ohEleEta[ohEleIts.at(ohEleIt)], ohElePhi[ohEleIts.at(ohEleIt)], ohMyJetEta[ohMyJetIt], ohMyJetPhi[ohMyJetIt]) < 0.3)
-        isMatching = true;
-
-    if (isMatching == true)
-      continue;
-
-    ohCleanedJetEta[NohCleanedJet] = ohMyJetEta[ohMyJetIt];
-    ohCleanedJetPhi[NohCleanedJet] = ohMyJetPhi[ohMyJetIt];
-    ohCleanedJetEt[NohCleanedJet] = ohMyJetEt[ohMyJetIt];
-    ohCleanedJetE[NohCleanedJet] = ohMyJetE[ohMyJetIt];
-    ohCleanedJetEMF[NohCleanedJet] = ohMyJetEMF[ohMyJetIt];
-    ohCleanedJetN90[NohCleanedJet] = ohMyJetN90[ohMyJetIt];
-    ++NohCleanedJet;
-  }
-
-   // do the selection
-  int rc = 0;
-  if (NohCleanedJet < 2)
-    return rc;
-
-   // loop on jets
-  for (int i = 0; i < NohCleanedJet; ++i)
-  {
-    if ( (jetID == true) && (TMath::Abs(ohCleanedJetEta[i]) < 2.6)
-          && (ohCleanedJetEMF[i] < 0.01))
-      continue;
-    if ( (jetID == true) && (TMath::Abs(ohCleanedJetEta[i]) < 2.6)
-          && (ohCleanedJetN90[i] < 2))
-      continue;
-
-    for (int j = i+1; j < NohCleanedJet; j++)
-    {
-      if ( (jetID == true) && (TMath::Abs(ohCleanedJetEta[j]) < 2.6)
-            && (ohCleanedJetEMF[j] < 0.01))
-        continue;
-      if ( (jetID == true) && (TMath::Abs(ohCleanedJetEta[j]) < 2.6)
-            && (ohCleanedJetN90[j] < 2))
-        continue;
-
-      PtEtaPhiELorentzVector j1(
-          ohCleanedJetEt[i],
-      ohCleanedJetEta[i],
-      ohCleanedJetPhi[i],
-      ohCleanedJetE[i]);
-      PtEtaPhiELorentzVector j2(
-          ohCleanedJetEt[j],
-      ohCleanedJetEta[j],
-      ohCleanedJetPhi[j],
-      ohCleanedJetE[j]);
-
-      if ( (std::max(ohCleanedJetEt[i], ohCleanedJetEt[j]) > Et1)
-            && (std::min(ohCleanedJetEt[i], ohCleanedJetEt[j]) > Et2)
-            && (deltaEta(ohCleanedJetEta[i], ohCleanedJetEta[j]) > Deta)
-            && ((j1+j2).mass() > Mjj) 
-            && ( (etaOpposite == true && ohCleanedJetEta[i]*ohCleanedJetEta[j] < 0.) || (etaOpposite == false) )
-            && ( (AbsEtaMax > 0 && (TMath::Abs(ohCleanedJetEta[i]) < AbsEtaMax && TMath::Abs(ohCleanedJetEta[j]) < AbsEtaMax)) || AbsEtaMax < 0 ) ){
-        for (int k = 0; k < NohCleanedJet; k++)
-          
-          if ( k != i 
-               && k != j 
-               && ohCleanedJetEt[k] > Et3 
-               && ( (AbsEtaMax > 0 && (TMath::Abs(ohCleanedJetEta[k]) < AbsEtaMax && TMath::Abs(ohCleanedJetEta[k]) < AbsEtaMax)) || AbsEtaMax < 0 ) )
-            ++rc;
-      }
-    }
-  }
-
-  return rc;
-}
-
-
-
 int OHltTree::OpenHltCleanedDiJetPassed(
       float Et1,
       float Et2,
@@ -20832,87 +19940,6 @@ int OHltTree::OpenHlt2MuonOSMassVtxPassed(
 					       && (ohMuL2Pt[l2match2] > ptl2))
 					    { // L2 pT cut
 					      rc++;
-					    }
-					}
-				    }
-				}
-			    }
-			}
-		    }
-		}
-	    }
-	}
-    }
-  return rc;
-}
-
-int OHltTree::OpenHlt2MuonOSMassVtxHiggsPassed(
-					  double ptl1,
-					  double ptl2,
-					  double ptl3,
-					  double dr,
-					  int iso,
-					  double masslow,
-					  double masshigh,
-					  double etal3,
-					  double dimupt,
-					  double dca,
-					  double chi2,
-					  double cos,
-					  double lxysig)
-{
-  int rc = 0;
-  TLorentzVector mu1;
-  TLorentzVector mu2;
-  TLorentzVector diMu;
-  const double muMass = 0.105658367;
-  
-  for (int i=0; i<NohDiMu; i++) 
-    {
-      if (ohDiMuDCA[i]<dca)
-	{
-	  for (int j=0 ; j<NohDiMuVtx; j++)
-	    {
-	      if ((ohDiMu1st[i]==ohDiMuVtx1st[j] && ohDiMu2nd[i]==ohDiMuVtx2nd[j]) || (ohDiMu1st[i]==ohDiMuVtx2nd[j] && ohDiMu2nd[i]==ohDiMuVtx1st[j]))
-		{
-		  if (ohDiMuVtxROverSig[j]<=lxysig && ohDiMuVtxCosAlpha[j]>cos && ohDiMuVtxChi2[j]<chi2)
-		    {
-		      if (ohMuL3Pt[ohDiMu1st[i]] > ptl3 && ohMuL3Pt[ohDiMu2nd[i]] > ptl3)
-			{ // L3 pT cut
-			  if (fabs(ohMuL3Eta[ohDiMu1st[i]]) < etal3 && fabs(ohMuL3Eta[ohDiMu2nd[i]]) < etal3)
-			    { // L3 eta cut
-			      if (ohMuL3Dr[ohDiMu1st[i]] < dr && ohMuL3Dr[ohDiMu2nd[i]] < dr)
-				{ // L3 DR cut
-				  if (ohMuL3Iso[i] >= iso)
-				    {//L3 iso cut
-				      if ((ohMuL3Chg[ohDiMu1st[i]] * ohMuL3Chg[ohDiMu2nd[i]]) < 0)
-					{ // opposite charge
-					  mu1.SetPtEtaPhiM(
-							   ohMuL3Pt[ohDiMu1st[i]],
-							   ohMuL3Eta[ohDiMu1st[i]],
-							   ohMuL3Phi[ohDiMu1st[i]],
-							   muMass);
-					  mu2.SetPtEtaPhiM(
-							   ohMuL3Pt[ohDiMu2nd[i]],
-							   ohMuL3Eta[ohDiMu2nd[i]],
-							   ohMuL3Phi[ohDiMu2nd[i]],
-							   muMass);
-					  diMu = mu1 + mu2;
-					  float diMuMass = diMu.M();
-					  float diMuPt = diMu.Pt();
-					  
-					  
-					  if ((diMuMass <= masshigh) && (diMuMass >= masslow) && diMuPt > dimupt)
-					    {
-					      
-					      int l2match1 = ohMuL3L2idx[ohDiMu1st[i]];
-					      int l2match2 = ohMuL3L2idx[ohDiMu2nd[i]];
-					      
-					      if ( (ohMuL2Pt[l2match1] > ptl2)
-						   && (ohMuL2Pt[l2match2] > ptl2))
-						{ // L2 pT cut
-						  rc++;
-						}
 					    }
 					}
 				    }
