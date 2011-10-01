@@ -26,10 +26,10 @@ class ClusterChecker {
   bool doACheck_;
   edm::InputTag clusterCollectionInputTag_;
   edm::InputTag pixelClusterCollectionInputTag_;
-  uint32_t maxNrOfCosmicClusters_;
-  uint32_t maxNrOfPixelClusters_;
+  unsigned int maxNrOfCosmicClusters_;
+  unsigned int maxNrOfPixelClusters_;
   StringCutObjectSelector<reco::utils::ClusterTotals> selector_;
-  uint32_t ignoreDetsAboveNClusters_;
+  unsigned int ignoreDetsAboveNClusters_;
 };
 
 #endif
