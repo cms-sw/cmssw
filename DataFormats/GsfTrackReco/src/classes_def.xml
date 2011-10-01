@@ -5,9 +5,9 @@
   <class name="std::vector<reco::GsfComponent5D>"/>
 
   <class name="reco::GsfTangent" ClassVersion="10">
-   <version ClassVersion="10" checksum="1741239738"/>
-     <field name="position_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t> >" /> 
-     <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t> >" />
+   <version ClassVersion="10" checksum="3902664602"/>
+     <field name="position_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
+     <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" />
      <field name="deltaP_" iotype="Double32_t" />
      <field name="sigDeltaP_" iotype="Double32_t" />
    </class>
