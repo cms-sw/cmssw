@@ -1,8 +1,8 @@
 <lcgdict>
 <selection>
   <class name="reco::Particle" ClassVersion="10">
-   <version ClassVersion="10" checksum="572275660"/>
-    <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t> >" />
+   <version ClassVersion="10" checksum="2605909260"/>
+    <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" />
     <field name="p4Polar_" transient="true" />
     <field name="p4Cartesian_" transient="true" />
   </class>
@@ -11,9 +11,9 @@
     <field name="mothers_" transient="true"/>
   </class>
   <class name="reco::LeafCandidate"  ClassVersion="10">
-   <version ClassVersion="10" checksum="2733056179"/>
+   <version ClassVersion="10" checksum="4128105563"/>
   </class>
-    <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t> >" />
+    <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" />
     <field name="p4Polar_" transient="true" />
     <field name="p4Cartesian_" transient="true" />
   <class name="reco::CompositeCandidate" ClassVersion="10">
