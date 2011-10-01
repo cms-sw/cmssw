@@ -570,7 +570,6 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
       jetArea  *= rParam_;
       jetArea  *= rParam_;
     }  
-    jet.setJetArea (jetArea);
     
     // get the constituents from fastjet
     std::vector<fastjet::PseudoJet> fjConstituents =
@@ -589,6 +588,8 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
                                           fjJet.E()),
                   vertex_, 
                   constituents, iSetup);
+
+    jet.setJetArea (jetArea);
     
     if(doPUOffsetCorr_){
       jet.setPileup(subtractor_->getPileUpEnergy(ijet));

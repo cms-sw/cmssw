@@ -5,7 +5,7 @@
    date of first version: Sept 2008
 
 */
-//$Id: FourVectorHLTClient.cc,v 1.25 2010/04/29 07:08:36 rekovic Exp $
+//$Id: FourVectorHLTClient.cc,v 1.26 2011/06/15 16:22:10 bjk Exp $
 
 #include "DQMOffline/Trigger/interface/FourVectorHLTClient.h"
 
@@ -658,7 +658,7 @@ TProfile *  FourVectorHLTClient::get1DProfile(string meName, DQMStore * dbi)
 }
 
 TString FourVectorHLTClient::removeVersions(TString histVersion) {
-  for (int ii = 1; ii < 10; ii++) {
+  for (int ii = 1; ii < 100; ii++) {
     string ver = "_v";
     string version ="";
     stringstream ss;

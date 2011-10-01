@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRPZView.h,v 1.21 2011/03/25 18:02:45 amraktad Exp $
+// $Id: FWRPZView.h,v 1.22 2011/03/26 10:15:10 amraktad Exp $
 //
 
 // system include files
@@ -56,6 +56,7 @@ public:
    virtual void voteCaloMaxVal();
 
    virtual void eventBegin();
+   virtual void eventEnd();
 
    //returns the new element created from this import
    void importElements(TEveElement* iProjectableChild, float layer, TEveElement* iProjectedParent=0);

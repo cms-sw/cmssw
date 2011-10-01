@@ -98,6 +98,7 @@ class PFElectronTranslator : public edm::EDProducer
   std::string GsfElectronCoreCollection_;
   std::string GsfElectronCollection_;
   double MVACut_;
+  bool checkStatusFlag_;
 
   // The following vectors correspond to a GSF track, but the order is not 
   // the order of the tracks in the GSF track collection

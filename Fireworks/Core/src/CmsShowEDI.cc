@@ -8,7 +8,7 @@
 //
 // Original Author:  Joshua Berger
 //         Created:  Mon Jun 23 15:48:11 EDT 2008
-// $Id: CmsShowEDI.cc,v 1.43 2010/12/08 10:45:20 amraktad Exp $
+// $Id: CmsShowEDI.cc,v 1.45 2011/08/13 04:05:19 amraktad Exp $
 //
 
 // system include files
@@ -99,6 +99,7 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
                       &m_layerEntry).expand(false).floatLeft()
       .addTextButton("To front", &m_frontButton).expand(false)
       .vSpacer()
+      .addHSeparator()
       .endTab()
       .beginTab("Filter")
       .indent(3)
@@ -162,10 +163,10 @@ CmsShowEDI::CmsShowEDI(const TGWindow* p, UInt_t w, UInt_t h, FWSelectionManager
    
 
    TGCompositeFrame* cf = m_tabs->GetTabContainer(0);
-   m_settersFrame = new TGHorizontalFrame(cf);
+   m_settersFrame = new TGVerticalFrame(cf);
    m_settersFrame->SetCleanup(kDeepCleanup);
    // m_settersFrame->SetBackgroundColor(0xff00ff);
-   cf->AddFrame(m_settersFrame, new TGLayoutHints(kLHintsExpandX |kLHintsExpandY ));
+   cf->AddFrame(m_settersFrame, new TGLayoutHints(kLHintsExpandX| kLHintsExpandY ));
 
    SetWindowName("Collection Controller");
    MapSubwindows();
@@ -278,9 +279,7 @@ CmsShowEDI::fillEDIFrame() {
          m_destroyedConn = m_item->goingToBeDestroyed_.connect(boost::bind(&CmsShowEDI::disconnectAll, this));
                        
          clearPBFrame();
-         m_item->proxyBuilderConfig()->populateFrame(m_settersFrame);
-         //if (m_item->purpose() == "Candidates")
-         //  addBut();
+         m_item->getConfig()->populateFrame(m_settersFrame);
       }
       else if(multipleCollections) {
          std::ostringstream s;

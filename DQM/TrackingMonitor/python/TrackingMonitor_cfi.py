@@ -26,7 +26,7 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     MeasurementState = cms.string('ImpactPoint'),
     
     # which plots to do
-    doAllPlots                 = cms.bool(False),
+    doAllPlots                 = cms.bool(True),
     doTrackerSpecific          = cms.bool(False),
     doBeamSpotPlots            = cms.bool(False),
     doSeedParameterHistos      = cms.bool(False),
@@ -35,7 +35,7 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     doGeneralPropertiesPlots   = cms.bool(False),
     doHitPropertiesPlots       = cms.bool(False),              
     doGoodTrackPlots           = cms.bool(False),
-    doMeasurementStatePlots    = cms.bool(False),
+    doMeasurementStatePlots    = cms.bool(True),
     doProfilesVsLS             = cms.bool(False),
 
     #which seed plots to do

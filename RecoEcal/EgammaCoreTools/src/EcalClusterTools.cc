@@ -890,7 +890,10 @@ float EcalClusterTools::getDPhiEndcap(const DetId& crysId,float meanX,float mean
     float hitR = sqrt(hitR2);
     float meanR = sqrt(meanR2);
 
-    float phi = acos((hitR2+meanR2-hitLocalR2)/(2*hitR*meanR));
+    float tmp = (hitR2+meanR2-hitLocalR2)/(2*hitR*meanR);
+    if (tmp<-1) tmp =-1;
+    if (tmp>1)  tmp=1;
+    float phi = acos(tmp);
     float dPhi = hitR*phi;
 
     return dPhi;

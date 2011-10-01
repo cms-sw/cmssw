@@ -28,7 +28,7 @@ workflows[102] = [ '', ['SinglePiE50HCAL']]
 
 workflows[103]=['',['InclusiveppMuX','DIGI','RECO']]
 
-workflows[105]=['MinBiasHcalNZS',['MinBiasHS','ALCANZS']]
+workflows[105]=['MinBiasHcalNZS',['MinBiasHS','DIGI','ALCANZS']]
 
 workflows[106]=['',['bJpsiX','DIGI','RECO']]
 workflows[107]=['',['QQH120Inv','DIGI','RECO']]

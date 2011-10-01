@@ -4,7 +4,6 @@
 <use   name="DataFormats/Candidate"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="RecoEcal/EgammaClusterAlgos"/>
-<use   name="DataFormats/EgammaCandidates"/>
 <use   name="clhep"/>
 <use   name="root"/>
 <export>

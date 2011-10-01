@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/07/14 14:46:04 $
- *  $Revision: 1.26 $
+ *  $Date: 2011/09/08 16:14:52 $
+ *  $Revision: 1.28 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -199,7 +199,7 @@ void TrackingMonitor::beginJob(void)
     doAllSeedPlots=conf_.getParameter<bool>("doSeedParameterHistos");
     doSeedNumberPlot=conf_.getParameter<bool>("doSeedNumberHisto");
     doSeedVsClusterPlot=conf_.getParameter<bool>("doSeedVsClusterHisto");
-    if (doAllPlots) doAllSeedPlots=true;
+    //    if (doAllPlots) doAllSeedPlots=true;
 
     runTrackBuildingAnalyzerForSeed=(doAllSeedPlots || conf_.getParameter<bool>("doSeedPTHisto") ||conf_.getParameter<bool>("doSeedETAHisto") || conf_.getParameter<bool>("doSeedPHIHisto") || conf_.getParameter<bool>("doSeedThetaHisto") || conf_.getParameter<bool>("doSeedQHisto") || conf_.getParameter<bool>("doSeedDxyHisto") || conf_.getParameter<bool>("doSeedDzHisto") || conf_.getParameter<bool>("doSeedNRecHitsHisto") || conf_.getParameter<bool>("doSeedNVsPhiProf")|| conf_.getParameter<bool>("doSeedNVsEtaProf"));
 
@@ -240,7 +240,7 @@ void TrackingMonitor::beginJob(void)
     
 
     doTkCandPlots=conf_.getParameter<bool>("doTrackCandHistos");
-    if (doAllPlots) doTkCandPlots=true;
+    //    if (doAllPlots) doTkCandPlots=true;
 
     if (doTkCandPlots){
 

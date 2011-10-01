@@ -70,9 +70,7 @@ def setForAllTtSemiLepHypotheses(process, attribute, value):
                "findTtSemiLepJetCombMVA",
                "ttSemiLepHypMVADisc",
                "kinFitTtSemiLepEventHypothesis",
-               "ttSemiLepHypKinFit",
-               "hitFitTtSemiLepEventHypothesis",
-               "ttSemiLepHypHitFit"]
+               "ttSemiLepHypKinFit"]
     for obj in range(len(modules)):
         object = getattr(process, modules[obj])
         if hasattr(object, attribute):

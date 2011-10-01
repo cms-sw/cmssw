@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.21 2011/07/07 16:46:53 chrjones Exp $
+// $Id: DQMRootSource.cc,v 1.22 2011/07/11 07:46:20 chrjones Exp $
 //
 
 // system include files
@@ -500,8 +500,6 @@ DQMRootSource::readRun_(boost::shared_ptr<edm::RunPrincipal> rpCache)
     }
   }
 
-  rpCache->addToProcessHistory();
-
   if(m_presentIndexItr != m_orderedIndices.end()) {
     RunLumiToRange runLumiRange = m_runlumiToRange[*m_presentIndexItr];
     //NOTE: it is possible to have an Run when all we have stored is lumis
@@ -513,6 +511,8 @@ DQMRootSource::readRun_(boost::shared_ptr<edm::RunPrincipal> rpCache)
   
   edm::Service<edm::JobReport> jr;
   jr->reportInputRunNumber(rpCache->id().run());
+
+  rpCache->fillRunPrincipal();
   return rpCache;
 }
 boost::shared_ptr<edm::LuminosityBlockPrincipal> 
@@ -535,7 +535,8 @@ DQMRootSource::readLuminosityBlock_( boost::shared_ptr<edm::LuminosityBlockPrinc
   
   edm::Service<edm::JobReport> jr;
   jr->reportInputLumiSection(lbCache->id().run(),lbCache->id().luminosityBlock());
-  
+
+  lbCache->fillLuminosityBlockPrincipal();
   return lbCache;
 }
 

@@ -48,7 +48,7 @@ class LMFClsDat : public LMFColoredTable {
   LMFClsDat& setRMS(EcalLogicID &id, float v);
   LMFClsDat& setNevt(EcalLogicID &id, int v);
   LMFClsDat& setFlag(EcalLogicID &id, int v);
-  LMFClsDat& setFlagNorm(EcalLogicID &id, float v);
+  LMFClsDat& setEFlag(EcalLogicID &id, float v);
 
   int   getLMFRefRunIOVID(EcalLogicID &id);
   float getMean(EcalLogicID &id);
@@ -57,7 +57,7 @@ class LMFClsDat : public LMFColoredTable {
   float getRMS(EcalLogicID &id);
   int   getNevt(EcalLogicID &id);
   int   getFlag(EcalLogicID &id);
-  float getFlagNorm(EcalLogicID &id);
+  float getEFlag(EcalLogicID &id);
 
   std::string getSystem() const { return ""; }
 

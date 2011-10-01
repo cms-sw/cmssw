@@ -86,7 +86,7 @@ process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag ='GR_R_38X_V13A::All'
 
 #process.GlobalTag.globaltag ='GR_P_V14::All'
-process.GlobalTag.globaltag ='GR_R_42_V13::All'
+process.GlobalTag.globaltag ='GR_R_42_V19::All'
 
 # the task - JetMET objects
 if iscosmics =="True":
