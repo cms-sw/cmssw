@@ -6,20 +6,20 @@
    <version ClassVersion="10" checksum="2022291691"/>
   </class>
   <class name="reco::TrackBase" ClassVersion="10">
-   <version ClassVersion="10" checksum="161533057"/>
-    <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t> >" /> 
-    <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t> >" /> 
+   <version ClassVersion="10" checksum="3019978065"/>
+    <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
+    <field name="momentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
   </class>
   <class name="reco::TrackExtraBase" ClassVersion="10">
    <version ClassVersion="10" checksum="3548207838"/>
   </class>
 
   <class name="reco::TrackExtra" ClassVersion="10">
-   <version ClassVersion="10" checksum="1361533418"/>
-    <field name="outerPosition_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t> >" /> 
-    <field name="outerMomentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t> >" /> 
-    <field name="innerPosition_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t> >" /> 
-    <field name="innerMomentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t> >" /> 
+   <version ClassVersion="10" checksum="1613098482"/>
+    <field name="outerPosition_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
+    <field name="outerMomentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
+    <field name="innerPosition_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
+    <field name="innerMomentum_" iotype="ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" /> 
   </class>
   <class name="std::vector<reco::TrackExtra>"/>
   <class name="edm::Wrapper<std::vector<reco::TrackExtra> >"/>
