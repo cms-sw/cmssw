@@ -24,7 +24,7 @@ TrackerCollisionTrackMon.doAllPlots            = cms.bool(False)
 TrackerCollisionTrackMon.doHitPropertiesPlots  = cms.bool(True)
 TrackerCollisionTrackMon.doGeneralPropertiesPlots  = cms.bool(True)
 TrackerCollisionTrackMon.doBeamSpotPlots       = cms.bool(True)
-TrackerCollisionTrackMon.doSeedParameterHistos = cms.bool(True)
+TrackerCollisionTrackMon.doSeedParameterHistos = cms.bool(False)
 
 TrackerCollisionTrackMon.doLumiAnalysis        = cms.bool(True)                       
 

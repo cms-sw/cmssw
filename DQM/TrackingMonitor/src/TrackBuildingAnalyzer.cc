@@ -22,6 +22,7 @@ TrackBuildingAnalyzer::TrackBuildingAnalyzer(const edm::ParameterSet& iConfig)
     , SeedPt(NULL)
     , SeedEta(NULL)
     , SeedPhi(NULL)
+    , SeedPhiVsEta(NULL)
     , SeedTheta(NULL)
     , SeedQ(NULL)
     , SeedDxy(NULL)
@@ -101,6 +102,7 @@ void TrackBuildingAnalyzer::beginJob(DQMStore * dqmStore_)
     doPT=conf_.getParameter<bool>("doSeedPTHisto");
     doETA=conf_.getParameter<bool>("doSeedETAHisto");
     doPHI=conf_.getParameter<bool>("doSeedPHIHisto");
+    doPHIVsETA=conf_.getParameter<bool>("doSeedPHIVsETAHisto");
     doTheta=conf_.getParameter<bool>("doSeedThetaHisto");
     doQ=conf_.getParameter<bool>("doSeedQHisto");
     doDxy =conf_.getParameter<bool>("doSeedDxyHisto");
@@ -136,6 +138,13 @@ void TrackBuildingAnalyzer::beginJob(DQMStore * dqmStore_)
       SeedPhi = dqmStore_->book1D(histname+CatagoryName, histname+CatagoryName, PhiBin, PhiMin, PhiMax);
       SeedPhi->setAxisTitle("Seed #phi", 1);
       SeedPhi->setAxisTitle("Number of Seed", 2);
+    }
+
+    if (doAllSeedPlots || doPHIVsETA) {
+      histname = "SeedPhiVsEta_"+seedProducer.label() + "_";
+      SeedPhiVsEta = dqmStore_->book2D(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax);
+      SeedPhiVsEta->setAxisTitle("Seed #eta", 1);
+      SeedPhiVsEta->setAxisTitle("Seed #phi", 2);
     }
 
     if (doAllSeedPlots || doTheta){
@@ -292,6 +301,7 @@ void TrackBuildingAnalyzer::analyze
     if (doAllSeedPlots || doPT) SeedPt->Fill( pt );
     if (doAllSeedPlots || doETA) SeedEta->Fill( eta );
     if (doAllSeedPlots || doPHI) SeedPhi->Fill( phi );
+    if (doAllSeedPlots || doPHIVsETA) SeedPhiVsEta->Fill( eta, phi);
     if (doAllSeedPlots || doTheta) SeedTheta->Fill( theta );
     if (doAllSeedPlots || doDxy) SeedDxy->Fill( dxy );
     if (doAllSeedPlots || doDz) SeedDz->Fill( dz );
