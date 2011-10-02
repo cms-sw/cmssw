@@ -38,7 +38,7 @@ std::auto_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCabl
   SiStripRegionCabling::Cabling regioncabling(etadivisions_*phidivisions_,SiStripRegionCabling::RegionCabling(SiStripRegionCabling::ALLSUBDETS,SiStripRegionCabling::WedgeCabling(SiStripRegionCabling::ALLLAYERS,SiStripRegionCabling::ElementCabling())));
   
   //Loop det cabling
-  std::map< uint32_t, std::vector<FedChannelConnection> >::const_iterator idet = detcabling->getDetCabling().begin();
+  std::map< uint32_t, std::vector<const FedChannelConnection *> >::const_iterator idet = detcabling->getDetCabling().begin();
   for (;idet!=detcabling->getDetCabling().end();idet++) {
     if (!idet->first || (idet->first == sistrip::invalid32_)) continue;
 
@@ -59,15 +59,15 @@ std::auto_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCabl
     uint32_t layer = SiStripRegionCabling::layerFromDetId(idet->first);
 
     //@@ BELOW IS TEMP FIX TO HANDLE BUG IN DET CABLING
-    std::vector<FedChannelConnection> conns = idet->second;
-    std::vector<FedChannelConnection>::iterator iconn = conns.begin();
-    std::vector<FedChannelConnection>::iterator jconn = conns.end();
+    std::vector<const FedChannelConnection *> conns = idet->second;
+    std::vector<const FedChannelConnection *>::iterator iconn = conns.begin();
+    std::vector<const FedChannelConnection *>::iterator jconn = conns.end();
 
     //Update region cabling map
     regioncabling[reg][subdet][layer][idet->first].resize(conns.size());
     for ( ; iconn != jconn; ++iconn ) {
-      if ( iconn->apvPairNumber() < conns.size() ) { 
-	regioncabling[reg][subdet][layer][idet->first][iconn->apvPairNumber()] = *iconn;
+      if ( (*iconn)->apvPairNumber() < conns.size() ) { 
+	regioncabling[reg][subdet][layer][idet->first][(*iconn)->apvPairNumber()] = **iconn;
       }
     }
     
