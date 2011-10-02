@@ -14,7 +14,7 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Sat Jun 26 16:04:04 EDT 2010
-// $Id: HiEvtPlaneFlatProducer.cc,v 1.6 2011/09/30 18:06:41 yilmaz Exp $
+// $Id: HiEvtPlaneFlatProducer.cc,v 1.7 2011/09/30 19:23:09 yilmaz Exp $
 //
 //
 
@@ -201,7 +201,6 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   //
   //Get Flattening Parameters
   //
-  cout<<"Get Flattening Parameters"<<endl;
   edm::ESHandle<RPFlatParams> flatparmsDB_;
   iSetup.get<HeavyIonRPRcd>().get(flatparmsDB_);
   int flatTableSize = flatparmsDB_->m_table.size();
