@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: MuonDetIdAssociator.cc,v 1.1 2011/04/07 09:12:02 innocent Exp $
+// $Id: MuonDetIdAssociator.cc,v 1.2 2011/06/15 12:12:54 dmytro Exp $
 //
 //
 
@@ -26,6 +26,7 @@
 #include "Geometry/CSCGeometry/interface/CSCChamber.h"
 #include "Geometry/RPCGeometry/interface/RPCChamber.h"
 #include <deque>
+#include "Geometry/RPCGeometry/interface/RPCGeometry.h"
 
 void MuonDetIdAssociator::check_setup() const {
    if (geometry_==0) throw cms::Exception("ConfigurationProblem") << "GlobalTrackingGeomtry is not set\n";
@@ -72,8 +73,12 @@ const std::vector<DetId>& MuonDetIdAssociator::getValidDetIds(unsigned int subDe
   if (! geometry_->slaveGeometry(RPCDetId()) ) throw cms::Exception("FatalError") << "Cannnot RPCGeometry\n";
   const std::vector<GeomDet*>& geomDetsRPC = geometry_->slaveGeometry(RPCDetId())->dets();
   for(std::vector<GeomDet*>::const_iterator it = geomDetsRPC.begin(); it != geomDetsRPC.end(); ++it)
-    if (RPCChamber* rpc = dynamic_cast< RPCChamber*>(*it)) validIds_.push_back(rpc->id());
-
+    if (RPCChamber* rpc = dynamic_cast< RPCChamber*>(*it)) {
+      std::vector< const RPCRoll*> rolls = (rpc->rolls());
+      for(std::vector<const RPCRoll*>::iterator r = rolls.begin(); r != rolls.end(); ++r)
+	validIds_.push_back((*r)->id().rawId());
+    }
+  
   return validIds_;
 }
 
