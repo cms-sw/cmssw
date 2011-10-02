@@ -51,10 +51,11 @@ int16_t SiStripRawProcessingAlgorithms::SuppressVirginRawData(const uint32_t& id
 }
 
 int16_t SiStripRawProcessingAlgorithms::SuppressVirginRawData(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& suppressedDigis){
+   
    std::vector<int16_t> RawDigis;
    RawDigis.clear();
    edm::DetSet<SiStripRawDigi>::const_iterator itrawDigis = rawDigis.begin();
-   for(; itrawDigis != rawDigis.begin(); ++itrawDigis) RawDigis.push_back(itrawDigis->adc());
+   for(; itrawDigis != rawDigis.end(); ++itrawDigis) RawDigis.push_back(itrawDigis->adc());
    return this->SuppressVirginRawData(rawDigis.id, 0,RawDigis , suppressedDigis);
 }
   
@@ -78,6 +79,6 @@ int16_t SiStripRawProcessingAlgorithms::SuppressProcessedRawData(const edm::DetS
    std::vector<int16_t> RawDigis;
    RawDigis.clear();
    edm::DetSet<SiStripRawDigi>::const_iterator itrawDigis = rawDigis.begin();
-   for(; itrawDigis != rawDigis.begin(); ++itrawDigis) RawDigis.push_back(itrawDigis->adc());
+   for(; itrawDigis != rawDigis.end(); ++itrawDigis) RawDigis.push_back(itrawDigis->adc());
     return this->SuppressProcessedRawData(rawDigis.id, 0, RawDigis , suppressedDigis );
 }
