@@ -13,7 +13,7 @@
 //
 // Original Author:  Dmytro Kovalskyi
 //         Created:  Fri Apr 21 10:59:41 PDT 2006
-// $Id: TrackDetectorAssociator.cc,v 1.47 2011/04/21 10:50:11 innocent Exp $
+// $Id: TrackDetectorAssociator.cc,v 1.48 2011/06/15 12:12:54 dmytro Exp $
 //
 //
 
@@ -701,7 +701,7 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
       TrajectoryStateOnSurface stateOnSurface = cachedTrajectory_.propagate( &geomDet->surface() );
       if (! stateOnSurface.isValid()) {
          LogTrace("TrackAssociator") << "Failed to propagate the track; moving on\n\t"<<
-            detId->rawId() << " not crossed\n";
+	   "Element is not crosssed: " << DetIdInfo::info(*detId) << "\n";
          continue;
       }
       // timers.pop_and_push("MuonDetIdAssociator::getTrajectoryInMuonDetector::matching::geometryAccess",TimerStack::FastMonitoring);
@@ -755,14 +755,18 @@ void TrackDetectorAssociator::getTAMuonChamberMatches(std::vector<TAMuonChamberM
       // timers.pop_and_push("MuonDetIdAssociator::getTrajectoryInMuonDetector::matching::checking",TimerStack::FastMonitoring);
       if ( (distanceX < parameters.muonMaxDistanceX && distanceY < parameters.muonMaxDistanceY) ||
 	   (sigmaX < parameters.muonMaxDistanceSigmaX && sigmaY < parameters.muonMaxDistanceSigmaY) ) {
-         LogTrace("TrackAssociator") << "found a match, DetId: " << detId->rawId();
+	LogTrace("TrackAssociator") << "found a match: " << DetIdInfo::info(*detId) << "\n";
          TAMuonChamberMatch match;
          match.tState = stateOnSurface;
          match.localDistanceX = distanceX;
          match.localDistanceY = distanceY;
          match.id = *detId;
          matches.push_back(match);
-      }
+      } else {
+	LogTrace("TrackAssociator") << "chamber is too far: " << 
+	  DetIdInfo::info(*detId) << "\n\tdistanceX: " << distanceX << "\t distanceY: " << distanceY <<
+	  "\t sigmaX: " << sigmaX << "\t sigmaY: " << sigmaY << "\n";
+      }	
       //timers.pop();
    }
    //timers.pop();
