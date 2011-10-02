@@ -110,7 +110,8 @@ private:
   static const int NEtaBins = 4;
   int    nEventProc;
   double genPartPBins[NPBins+1], genPartEtaBins[NEtaBins+1];
-  double pSeed, ptMin, etaMax;
+  double pSeed, ptMin, etaMax, pCutIsolate;
+  bool   a_Isolation;
 
   std::string genSrc_;
   const MagneticField *bField;

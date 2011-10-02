@@ -52,6 +52,8 @@ IsolatedGenParticles::IsolatedGenParticles(const edm::ParameterSet& iConfig) {
   a_charIsoR = a_coneR + 28.9;
   a_neutIsoR = a_charIsoR*0.726;
   a_mipR     = iConfig.getUntrackedParameter<double>("ConeRadiusMIP",14.0);
+  a_Isolation= iConfig.getUntrackedParameter<bool>("UseConeIsolation",false);
+  pCutIsolate= iConfig.getUntrackedParameter<double>("PMaxIsolation",20.0);
   debug      = iConfig.getUntrackedParameter<bool>("Debug", false );
 
   debugL1Info_           = iConfig.getUntrackedParameter<bool>( "DebugL1Info", false );
@@ -73,6 +75,8 @@ IsolatedGenParticles::IsolatedGenParticles(const edm::ParameterSet& iConfig) {
 	    << "\n a_coneR " << a_coneR << " a_charIsoR " << a_charIsoR
 	    << " a_neutIsoR " << a_neutIsoR << " a_mipR " << a_mipR 
 	    << " debug " << debug << " debugL1Info " <<   debugL1Info_ << "\n"
+	    << " Isolation Flag " << a_Isolation << " with cut "
+	    << pCutIsolate << " GeV\n"
 	    << " L1extraTauJetSource_   " << L1extraTauJetSource_ 
 	    << " L1extraCenJetSource_   " << L1extraCenJetSource_ 
 	    << " L1extraFwdJetSource_   " << L1extraFwdJetSource_   
@@ -269,18 +273,18 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
 
   if (useHepMC) {
     const HepMC::GenEvent *myGenEvent = hepmc->GetEvent();
-    std::vector<spr::propagatedGenTrackID> trackIDs =       spr::propagateCALO(myGenEvent, pdt, geo, bField, etaMax, false);
+    std::vector<spr::propagatedGenTrackID> trackIDs = spr::propagateCALO(myGenEvent, pdt, geo, bField, etaMax, false);
     
     for (unsigned int indx=0; indx<trackIDs.size(); ++indx) {
-	int charge = trackIDs[indx].charge;
-	HepMC::GenEvent::particle_const_iterator p = trackIDs[indx].trkItr;
-	momVec = math::XYZTLorentzVector((*p)->momentum().px(), (*p)->momentum().py(), (*p)->momentum().pz(), (*p)->momentum().e());
-	if (debug) std::cout << "trkIndx " << indx << " pdgid " << trackIDs[indx].pdgId << " charge " << charge <<	" momVec " << momVec << std::endl; 
-	// only stable particles avoiding electrons and muons
-	if (trackIDs[indx].ok && (std::abs(trackIDs[indx].pdgId)<11 ||
-				  std::abs(trackIDs[indx].pdgId)>=21)) {
-	  // consider particles within a phased space	  
-	  if (momVec.Pt() > ptMin && std::abs(momVec.eta()) < etaMax) { 
+      int charge = trackIDs[indx].charge;
+      HepMC::GenEvent::particle_const_iterator p = trackIDs[indx].trkItr;
+      momVec = math::XYZTLorentzVector((*p)->momentum().px(), (*p)->momentum().py(), (*p)->momentum().pz(), (*p)->momentum().e());
+      if (debug) std::cout << "trkIndx " << indx << " pdgid " << trackIDs[indx].pdgId << " charge " << charge <<	" momVec " << momVec << std::endl; 
+      // only stable particles avoiding electrons and muons
+      if (trackIDs[indx].ok && (std::abs(trackIDs[indx].pdgId)<11 ||
+				std::abs(trackIDs[indx].pdgId)>=21)) {
+	// consider particles within a phased space	  
+	if (momVec.Pt() > ptMin && std::abs(momVec.eta()) < etaMax) { 
 	  posVec  = GlobalPoint(0.1*(*p)->production_vertex()->position().x(), 
 				0.1*(*p)->production_vertex()->position().y(), 
 				0.1*(*p)->production_vertex()->position().z());
@@ -309,8 +313,10 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
 		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, geo, theHBHETopology, a_charIsoR, trackIDs[indx].directionHCAL, isoinfoIsoHCR, false);
 	      }
 
-	      if (isoinfo7x7.maxNearP < 1.0) 
-		fillIsolatedTrack(momVec, posECAL, trackIDs[indx].pdgId);
+	      bool saveTrack = true;
+	      if (a_Isolation) saveTrack = (isoinfoR.maxNearP < pCutIsolate);
+	      else             saveTrack = (isoinfo7x7.maxNearP < pCutIsolate);
+	      if (saveTrack) fillIsolatedTrack(momVec, posECAL, trackIDs[indx].pdgId);
 	    }
 	  }
 	} else { // stabale particles within |eta|=2.5
@@ -319,7 +325,7 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
       }
     } // loop over gen particles
   } else { 
-    std::vector<spr::propagatedGenParticleID> trackIDs =       spr::propagateCALO(genParticles, pdt, geo, bField, etaMax, false);
+    std::vector<spr::propagatedGenParticleID> trackIDs = spr::propagateCALO(genParticles, pdt, geo, bField, etaMax, false);
 
     for (unsigned int indx=0; indx<trackIDs.size(); ++indx) {
       int charge = trackIDs[indx].charge;
@@ -359,8 +365,10 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
 		spr::hGenSimInfo(trackIDs[indx].detIdHCAL, p, trackIDs, geo, theHBHETopology, a_charIsoR, trackIDs[indx].directionHCAL, isoinfoIsoHCR, false);
 	      }
 
-	      if (isoinfo7x7.maxNearP < 1.0) 
-		fillIsolatedTrack(momVec, posECAL, trackIDs[indx].pdgId);
+	      bool saveTrack = true;
+	      if (a_Isolation) saveTrack = (isoinfoIsoR.maxNearP < pCutIsolate);
+	      else             saveTrack = (isoinfo7x7.maxNearP < pCutIsolate);
+	      if (saveTrack) fillIsolatedTrack(momVec, posECAL, trackIDs[indx].pdgId);
 	    }
 	  }
 	} else { // stabale particles within |eta|=2.5
