@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V280
+# /dev/CMSSW_4_2_0/GRun/V286
 
 import FWCore.ParameterSet.Config as cms
 
@@ -512,6 +512,7 @@ streamA_datasetPhotonHad_selector.hltResults = cms.InputTag('TriggerResults', ''
 streamA_datasetPhotonHad_selector.l1tResults = cms.InputTag('')
 streamA_datasetPhotonHad_selector.throw      = cms.bool(False)
 streamA_datasetPhotonHad_selector.triggerConditions = cms.vstring('HLT_Photon30_CaloIdVT_CentralJet20_BTagIP_v5', 
+    'HLT_Photon40_CaloIdL_R014_MR150_v1', 
     'HLT_Photon40_CaloIdL_R017_MR500_v5', 
     'HLT_Photon40_CaloIdL_R023_MR350_v5', 
     'HLT_Photon40_CaloIdL_R029_MR250_v5', 

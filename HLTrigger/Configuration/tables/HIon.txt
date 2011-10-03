@@ -1,44 +1,58 @@
 # "HIon" menu
-HLT_HIZeroBias
-HLT_HIZeroBiasXOR
-HLT_HIZeroBiasPixel_SingleTrack
-HLT_HIMinBiasBSC
-HLT_HIMinBiasBSC_OR
-HLT_HIMinBiasHF
-HLT_HIMinBiasHf_OR
-HLT_HIMinBiasHfOrBSC
-HLT_HIMinBiasPixel_SingleTrack
-HLT_HIMinBiasZDC_Calo
-HLT_HIMinBiasZDC_Calo_PlusOrMinus
-HLT_HIMinBiasZDC_Scint
-HLT_HIMinBiasZDCPixel_SingleTrack
-HLT_HIBptxXOR
-HLT_HIL1Algo_BptxXOR_BSC_OR
-HLT_HIL1SingleMu3
-HLT_HIL1SingleMu5
-HLT_HIL1SingleMu7
-HLT_HIL1DoubleMuOpen
-HLT_HIL2Mu3
-HLT_HIL2Mu5Tight
-HLT_HIL2Mu20
-HLT_HIL2DoubleMu0
-HLT_HIL2DoubleMu3
-HLT_HIUpcEcal
-HLT_HIUpcMu
-HLT_HIPhoton15
-HLT_HIPhoton20
-HLT_HIPhoton30
-HLT_HIDoublePhoton5_CEP_L1R
-HLT_HIJet35U
-HLT_HIJet50U
-HLT_HIJet75U
-HLT_HIJet90U
-HLT_HIStoppedHSCP35
-HLT_HIActivityHF_Coincidence3
-HLT_HIActivityHF_Single3
-HLT_HIClusterVertexCompatibility
-HLT_HICentralityVeto
-HLT_HIRandom
+HLT_HIZeroBias_v*
+HLT_HIZeroBiasXOR_v*
+HLT_HIZeroBiasPixel_SingleTrack_v*
+HLT_HIMinBiasBSC_v*
+HLT_HIMinBiasBSC_OR_v*
+HLT_HIMinBiasHF_v*
+HLT_HIMinBiasHf_OR_v*
+HLT_HIMinBiasHfOrBSC_v*
+HLT_HIMinBiasPixel_SingleTrack_v*
+HLT_HIMinBiasZDC_Calo_v*
+HLT_HIMinBiasZDC_Calo_PlusOrMinus_v*
+HLT_HIMinBiasZDC_Scint_v*
+HLT_HIMinBiasZDCPixel_SingleTrack_v*
+HLT_HIBptxXOR_v*
+HLT_HIL1Algo_BptxXOR_BSC_OR_v*
+HLT_HIL1SingleMu3_v*
+HLT_HIL1SingleMu5_v*
+HLT_HIL1SingleMu7_v*
+HLT_HIL1DoubleMuOpen_v*
+HLT_HIL2Mu3_v*
+HLT_HIL2Mu5Tight_v*
+HLT_HIL2Mu20_v*
+HLT_HIL2DoubleMu0_v*
+HLT_HIL2DoubleMu3_v*
+HLT_HIUpcEcal_v*
+HLT_HIUpcMu_v*
+HLT_HIPhoton15_v*
+HLT_HIPhoton20_v*
+HLT_HIPhoton30_v*
+HLT_HIDoublePhoton5_CEP_L1R_v*
+# HLT_HIJet35U         # removed for 2011 (sr #123637)
+# HLT_HIJet50U         # removed for 2011 (sr #123637)
+# HLT_HIJet75U         # removed for 2011 (sr #123637)
+# HLT_HIJet90U         # removed for 2011 (sr #123637)
+# HLT_HIJet55_v*       #   added for 2011 (sr #123637) need new L1 menu
+# HLT_HIJet65_v*       #   added for 2011 (sr #123637) need new L1 menu
+# HLT_HIJet80_v*       #   added for 2011 (sr #123637) need new L1 menu
+# HLT_HIJet95_v*       #   added for 2011 (sr #123637) need new L1 menu
+# HLT_HIDiJet55_v*     #   added for 2011 (sr #123637) need new L1 menu
+# HLT_HIJet65_Jet55_v* #   added for 2011 (sr #123637) need new L1 menu
+HLT_HIStoppedHSCP35_v*
+HLT_HIActivityHF_Coincidence3_v*
+HLT_HIActivityHF_Single3_v*
+HLT_HIClusterVertexCompatibility_v*
+HLT_HICentralityVeto_v*
+HLT_HIRandom_v*
+# HLT_HIUCC010_v*      #   added for 2011 (sr #123637) need new L1 menu
+# HLT_HIUCC015_v*      #   added for 2011 (sr #123637) need new L1 menu
+HLT_HIUPCNeuMuPixel_SingleTrack_v*        #   added for 2011 (sr #123637)
+HLT_HIUPCNeuEG2Pixel_SingleTrack_v*       #   added for 2011 (sr #123637)
+HLT_HIUPCNeuEG5Pixel_SingleTrack_v*       #   added for 2011 (sr #123637)
+HLT_HIUPCNeuHcalHfMuPixel_SingleTrack_v*  #   added for 2011 (sr #123637)
+HLT_HIUPCNeuHcalHfEG2Pixel_SingleTrack_v* #   added for 2011 (sr #123637)
+HLT_HIUPCNeuHcalHfEG5Pixel_SingleTrack_v* #   added for 2011 (sr #123637)
 HLT_DTCalibration_v*
 HLT_EcalCalibration_v*
 HLT_HcalCalibration_v*

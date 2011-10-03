@@ -447,6 +447,7 @@ HLT_DoubleTkIso10Mu5_Mass8_HT200_v*                                             
 HLT_DoubleMu5_Ele8_CaloIdT_TrkIdVL_v*
 HLT_DoubleMu5_Ele8_CaloIdT_TrkIdT_v*                                                            #   added in 5e33 menu (sr #123317)
 #HLT_Photon40_CaloIdL_R005_MR150_v*                                                             # removed in 5e33 menu (sr #123317)
+HLT_Photon40_CaloIdL_R014_MR150_v*                                                              #   added in 5e33 menu (sr #123317)
 HLT_Photon40_CaloIdL_R017_MR500_v*
 HLT_Photon40_CaloIdL_R023_MR350_v*
 HLT_Photon40_CaloIdL_R029_MR250_v*
