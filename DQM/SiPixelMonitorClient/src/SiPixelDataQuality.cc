@@ -147,7 +147,7 @@ void SiPixelDataQuality::bookGlobalQualityFlag(DQMStore * bei, bool Tier0Flag, i
     errmodsMap = new TH2F("errmodsMap","errmodsMap",40,0.,40.,36,1.,37.);
     goodmodsMap = new TH2F("goodmodsMap","goodmodsMap",40,0.,40.,36,1.,37.);
     */
-    SummaryReportMap = bei->book2D("reportSummaryMap","Pixel Summary Map",2000,0.,2000.,40,0.,40.);
+    SummaryReportMap = bei->book2D("reportSummaryMap","Pixel Summary Map",3000,0.,3000.,40,0.,40.);
     SummaryReportMap->setAxisTitle("Lumi Section",1);
     SummaryReportMap->setAxisTitle("Pixel FED #",2);
     allmodsVec = new TH1D("allmodsVec","allmodsVec",40,0.,40.);
