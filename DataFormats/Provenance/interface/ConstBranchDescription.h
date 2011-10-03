@@ -32,6 +32,7 @@ namespace edm {
     void write(std::ostream& os) const {ptr_->write(os);}
 
     std::string const& moduleLabel() const {return ptr_->moduleLabel();}
+    std::string const& moduleName() const {return ptr_->moduleName();}
     std::string const& processName() const {return ptr_->processName();}
     BranchID const& branchID() const {return ptr_->branchID();}
     std::string const& fullClassName() const {return ptr_->fullClassName();}
