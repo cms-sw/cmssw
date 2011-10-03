@@ -256,7 +256,7 @@ ak5JetTracksAssociatorAtVertex.tracks = 'generalTracks'
 from RecoVertex.Configuration.RecoVertex_cff import *
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 from RecoBTag.Configuration.RecoBTag_cff import *
-offlinePrimaryVerticesWithBS.TrackLabel = 'generalTracks'
+#offlinePrimaryVerticesWithBS.TrackLabel = 'generalTracks'
 
 famosBTaggingSequence = cms.Sequence(
     btagging
