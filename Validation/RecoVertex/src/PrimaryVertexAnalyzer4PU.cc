@@ -22,6 +22,7 @@
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
+// see https://twiki.cern.ch/twiki/bin/view/CMS/PileupInformation
 
 // AOD et al
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -93,6 +94,9 @@ PrimaryVertexAnalyzer4PU::PrimaryVertexAnalyzer4PU(const ParameterSet& iConfig):
   doMatching_= iConfig.getUntrackedParameter<bool>("matching", false);
   printXBS_= iConfig.getUntrackedParameter<bool>("XBS", false);
   sigmaZoverride_= iConfig.getUntrackedParameter<double>("sigmaZ", 0.0); // 0 means use beamspot, >0 means use this value
+  nPUmin_= abs(iConfig.getUntrackedParameter<int>("PUmin", 0));
+  cout << "nPUMin="<< nPUmin_ << endl;
+  nPUmax_= abs(iConfig.getUntrackedParameter<int>("PUmax", 1000000));
   useVertexFilter_ = iConfig.getUntrackedParameter<bool>("useVertexFilter", false);
   //filterBeamError_ = iConfig.getUntrackedParameter<bool>("filterBeamError", false);
   bxFilter_ = iConfig.getUntrackedParameter<int>("bxFilter", 0);  // <0 means all bx
@@ -101,6 +105,7 @@ PrimaryVertexAnalyzer4PU::PrimaryVertexAnalyzer4PU(const ParameterSet& iConfig):
   dumpPUcandidates_=iConfig.getUntrackedParameter<bool>("dumpPUcandidates", false);
   dumpSignalVsTag_=iConfig.getUntrackedParameter<bool>("dumpSignalVsTag", false);
   nEventSummary_= iConfig.getUntrackedParameter<int>("eventSummaries", 1000);
+  ndump_= iConfig.getUntrackedParameter<int>("nDump", 10);
 
   //vstring 	std::vector<std::string> 	v = cms.vstring( 'thing one', "thing two")
   std::vector<std::string> defaultCollections;
@@ -115,7 +120,6 @@ PrimaryVertexAnalyzer4PU::PrimaryVertexAnalyzer4PU(const ParameterSet& iConfig):
   eventcounter_=0;
   dumpcounter_=0;
   eventSummaryCounter_=0;
-  ndump_=10;
   DEBUG_=false;
   //DEBUG_=true;
   RECO_=false;
@@ -405,7 +409,13 @@ std::map<std::string, TH1*>  PrimaryVertexAnalyzer4PU::bookVertexHistograms(){
   add(h, new TH1F("xbeamPullPUcand","x - beam pull of PU candidates (ndof>4)",100,-20., 20.));
   add(h, new TH1F("ybeamPullPUcand","y - beam pull of PU candidates (ndof>4)",100,-20., 20.));
   add(h, new TH1F("ndofOverNtk","ndof / ntk of ndidates (ndof>4)",100,0., 2.));
-  //add(h, new TH1F("sumwOverNtk","sumw / ntk of ndidates (ndof>4)",100,0., 2.));
+  add(h, new TH1F("sumwoverntk","sumw / ntk of ndidates (ndof>4)",100,0., 1.));
+  add(h, new TProfile("sumwoverntkvsz","sumw / ntk of ndidates (ndof>4)",100, -20., 20.,0., 1.));
+  add(h, new TProfile("ndofvsz","<ndof> vs z (ndof>4)",100, -20., 20.,0., 1000.));
+  add(h, new TH2F("log10ndofvsz","log10(ndof) vs z",100, -20., 20.,20,-1, 3.));
+  add(h, new TH1F("sumwoverntk0","sumw / ntk of ndidates (ndof>0)",100,0., 1.));
+  add(h, new TProfile("sumwoverntkvsz0","sumw / ntk of ndidates (ndof>0)",100, -20., 20.,0., 1.));
+  add(h, new TH2F("sumwoverntkvsz1","sumw / ntk of ndidates (ndof>0)",100, -20., 20.,20,0., 1.));
   add(h, new TH1F("ndofOverNtkPUcand","ndof / ntk of ndidates (ndof>4)",100,0., 2.));
   //add(h, new TH1F("sumwOverNtkPUcand","sumw / ntk of ndidates (ndof>4)",100,0., 2.));
   add(h, new TH1F("zPUcand","z positions of PU candidates (all)",100,-20., 20.));
@@ -423,10 +433,10 @@ std::map<std::string, TH1*>  PrimaryVertexAnalyzer4PU::bookVertexHistograms(){
   add(h, new TH1F("nrecvtx6","# of reconstructed vertices with ndof>6", 50, -0.5, 49.5));
   add(h, new TH1F("nrecvtx7","# of reconstructed vertices with ndof>7", 50, -0.5, 49.5));
   add(h, new TH1F("nrecvtx8","# of reconstructed vertices with ndof>8", 50, -0.5, 49.5));
-  add(h, new TH1F("nrectrk","# of reconstructed tracks", 100, -0.5, 99.5));
+  add(h, new TH1F("nrectrk","# of reconstructed tracks", 1000, -0.5, 999.5));
   add(h, new TH1F("nsimtrk","# of simulated tracks", 100, -0.5, 99.5));
   add(h, new TH1F("nsimtrkSignal","# of simulated tracks (Signal)", 100, -0.5, 99.5));
-  add(h, new TH1F("nsimtrkPU","# of simulated tracks (PU)", 100, -0.5, 99.5));
+  add(h, new TH1F("nsimtrkPU","# of simulated tracks (PU)", 1-00, -0.5, 999.5));
   h["nsimtrk"]->StatOverflows(kTRUE);
   h["nsimtrkPU"]->StatOverflows(kTRUE);
   h["nsimtrkSignal"]->StatOverflows(kTRUE);
@@ -440,9 +450,7 @@ std::map<std::string, TH1*>  PrimaryVertexAnalyzer4PU::bookVertexHistograms(){
   h["trackAssEffvsPt"] =  new TProfile("trackAssEffvsPt","track association efficiency vs pt",20, 0., 100., 0, 1.);
 
   // cluster stuff
-  h["nseltrk"]         = new TH1F("nseltrk","# of reconstructed tracks selected for PV", 100, -0.5, 99.5);
-  h["nclutrkall"]      = new TH1F("nclutrkall","# of reconstructed tracks in clusters", 100, -0.5, 99.5);
-  h["nclutrkvtx"]      = new TH1F("nclutrkvtx","# of reconstructed tracks in clusters of reconstructed vertices", 100, -0.5, 99.5);
+  h["nseltrk"]         = new TH1F("nseltrk","# of reconstructed tracks selected for PV", 1000, -0.5, 999.5);
   h["nclu"]            = new TH1F("nclu","# of clusters", 100, -0.5, 99.5);
   h["nclu0vtx"]        = new TH1F("nclu0vtx","# of clusters in events with no PV", 100, -0.5, 99.5);
   h["zlost1"]           = new TH1F("zlost1","z of lost vertices (bad z)", 100, -20., 20.);
@@ -456,6 +464,7 @@ std::map<std::string, TH1*>  PrimaryVertexAnalyzer4PU::bookVertexHistograms(){
   add(h, new TH1F("fakeVtxZNdofgt05","z of fake vertices with ndof>0.5", 100, -20., 20.));
   add(h, new TH1F("fakeVtxZNdofgt2","z of fake vertices with ndof>2", 100, -20., 20.));
   add(h, new TH1F("fakeVtxZNdofgt4","z of fake vertices with ndof>4", 100, -20., 20.));
+  add(h, new TH1F("fakeVtxZNdofgt8","z of fake vertices with ndof>8", 100, -20., 20.));
   add(h, new TH1F("fakeVtxZ","z of fake vertices", 100, -20., 20.));
   add(h, new TH1F("fakeVtxNdof","ndof of fake vertices", 500,0., 100.));
   add(h,new TH1F("fakeVtxNtrk","number of tracks in fake vertex",20,-0.5, 19.5));
@@ -502,7 +511,7 @@ std::map<std::string, TH1*>  PrimaryVertexAnalyzer4PU::bookVertexHistograms(){
     add(h, new TH2F( ("nPxLayersVsPt_"+types[t]).c_str(),"number of pixel layers (barrel+endcap)", 8,0.,8.,10, 0., 10.));
     add(h, new TH1F( ("trackQuality_"+types[t]).c_str(),"track quality ", 7, -1., 6.));
   }
-  add(h, new TH1F("trackWt","track weight in vertex",100,0., 1.));
+  add(h, new TH1F("trackWt","track weight in vertex",1000,0., 1.));
    
 
   h["nrectrk"]->StatOverflows(kTRUE);
@@ -1325,7 +1334,7 @@ void PrimaryVertexAnalyzer4PU::dumpHitInfo(const reco::Track & t){
 //void PrimaryVertexAnalyzer4PU::printRecVtxs(const Handle<reco::VertexCollection> recVtxs, std::string title){
 void PrimaryVertexAnalyzer4PU::printRecVtxs(const reco::VertexCollection * recVtxs, std::string title){
     int ivtx=0;
-    std::cout << std::endl << title << std::endl;
+    std::cout << std::endl << title << "  "<<recVtxs->size()<<"" << std::endl;
     for(reco::VertexCollection::const_iterator v=recVtxs->begin(); 
 	v!=recVtxs->end(); ++v){
       string vtype=" recvtx  ";
@@ -1579,8 +1588,12 @@ void PrimaryVertexAnalyzer4PU::printPVTrks(const Handle<reco::TrackCollection> &
     
     Measurement1D IP=selTrks[i].stateAtBeamLine().transverseImpactParameter();
     cout << setw (8) << IP.value() << "+/-" << setw (6) << IP.error();
-    if(selTrks[i].track().ptError()<1){
+    //if(selTrks[i].track().ptError()<1){
+    double erel=selTrks[i].track().ptError()/selTrks[i].track().pt();
+    if(erel<0.1){
       cout << " " << setw(7) << setprecision(2)  << selTrks[i].track().pt()*selTrks[i].track().charge();
+    }else if (erel<0.5){
+      cout << " " << setw(6) << setprecision(1)  << selTrks[i].track().pt()*selTrks[i].track().charge() << "-";
     }else{
       cout << " " << setw(6) << setprecision(1)  << selTrks[i].track().pt()*selTrks[i].track().charge() << "*";
       //cout << "+/-" << setw(6)<< setprecision(2) << selTrks[i].track().ptError();
@@ -2200,21 +2213,40 @@ std::vector<PrimaryVertexAnalyzer4PU::simPrimaryVertex> PrimaryVertexAnalyzer4PU
 reco::VertexCollection * PrimaryVertexAnalyzer4PU::vertexFilter(Handle<reco::VertexCollection> pvs, bool filter){
   reco::VertexCollection * pv = new reco::VertexCollection;
   if(filter){
-    // dynamic ndof filter
-    for(reco::VertexCollection::const_iterator  ipv1 = pvs->begin(); ipv1 != pvs->end(); ipv1++) {
-      double deltaz=1e10;
-      for( reco::VertexCollection::const_iterator  ipv2 = pvs->begin(); ipv2 != pvs->end(); ) {
-      if ((ipv2->ndof() > ipv1->ndof()) && (fabs(ipv2->position().z()-ipv1->position().z())<fabs(deltaz))){
-	deltaz=ipv2->position().z()-ipv1->position().z();
+    // ptmin filter
+    for(reco::VertexCollection::const_iterator  ipv = pvs->begin(); ipv != pvs->end(); ipv++) {
+      double ptmin=0;
+      for(trackit_t tv=ipv->tracks_begin(); tv!=ipv->tracks_end(); tv++){
+	double pt=tv->get()->pt();
+	if (pt>ptmin) { ptmin=pt;}
       }
+      if(ptmin>0.5){
+	pv->push_back(*ipv);
       }
-      if(ipv1->ndof()>fabs(2.0/deltaz)) pv->push_back(*ipv1);
     }
   }else{
-    for(reco::VertexCollection::const_iterator  ipv1 = pvs->begin(); ipv1 != pvs->end(); ipv1++ ) { pv->push_back(*ipv1);}
+    for(reco::VertexCollection::const_iterator  ipv = pvs->begin(); ipv != pvs->end(); ipv++ ) { pv->push_back(*ipv);}
   }
   return pv;
 }
+// reco::VertexCollection * PrimaryVertexAnalyzer4PU::vertexFilter(Handle<reco::VertexCollection> pvs, bool filter){
+//   reco::VertexCollection * pv = new reco::VertexCollection;
+//   if(filter){
+//     // dynamic ndof filter
+//     for(reco::VertexCollection::const_iterator  ipv1 = pvs->begin(); ipv1 != pvs->end(); ipv1++) {
+//       double deltaz=1e10;
+//       for( reco::VertexCollection::const_iterator  ipv2 = pvs->begin(); ipv2 != pvs->end(); ) {
+//       if ((ipv2->ndof() > ipv1->ndof()) && (fabs(ipv2->position().z()-ipv1->position().z())<fabs(deltaz))){
+// 	deltaz=ipv2->position().z()-ipv1->position().z();
+//       }
+//       }
+//       if(ipv1->ndof()>fabs(2.0/deltaz)) pv->push_back(*ipv1);
+//     }
+//   }else{
+//     for(reco::VertexCollection::const_iterator  ipv1 = pvs->begin(); ipv1 != pvs->end(); ipv1++ ) { pv->push_back(*ipv1);}
+//   }
+//   return pv;
+// }
 
 
 // ------------ method called to produce the data  ------------
@@ -2258,10 +2290,33 @@ PrimaryVertexAnalyzer4PU::analyze(const Event& iEvent, const EventSetup& iSetup)
 
 
 
-  Handle<PileupSummaryInfo> puInfoH;
-  bool bPuInfo=iEvent.getByLabel("addPileupInfo", puInfoH);
-
-
+   PileupSummaryInfo  puInfo;
+   Handle<PileupSummaryInfo> puInfoH;
+   bool bPuInfo=iEvent.getByLabel("addPileupInfo", puInfoH);
+   if ( bPuInfo ){
+     // pre 3_11/4_1_3
+     puInfo=*puInfoH;
+   }else{
+    // new style (> 3_11_3/4_1_3), a vector
+    Handle<std::vector< PileupSummaryInfo > >  vpuInfoH;
+    bPuInfo=iEvent.getByLabel("addPileupInfo", vpuInfoH);
+    if (bPuInfo){
+      std::vector<PileupSummaryInfo>::const_iterator PVI;
+      for(PVI = vpuInfoH->begin(); PVI != vpuInfoH->end(); ++PVI) {
+	if(verbose_){
+	  std::cout << " Pileup Information: bunchXing, nvtx: " << PVI->getBunchCrossing() << " " << PVI->getPU_NumInteractions() << 
+	    "  nz=" << PVI->getPU_zpositions().size() << std::endl;
+	}
+	if (PVI->getBunchCrossing()==0){
+	  bPuInfo=true;
+	  puInfo=*PVI;
+	}
+      }
+    }
+  }
+   if (bPuInfo && ((puInfo.getPU_zpositions().size()<nPUmin_) || (puInfo.getPU_zpositions().size()>nPUmax_))){
+     return;
+   }
 
   // genParticles for AOD et al:  https://twiki.cern.ch/twiki/bin/view/CMSPublic/WorkBookGenParticleCandidate
    Handle<GenParticleCollection> genParticles;
@@ -2284,6 +2339,11 @@ PrimaryVertexAnalyzer4PU::analyze(const Event& iEvent, const EventSetup& iSetup)
   Handle<reco::TrackCollection> recTrks;
   iEvent.getByLabel(recoTrackProducer_, recTrks);
 
+
+  if(recTrks->size()==0){
+    cout << "Event without tracks skipped " <<  eventcounter_ << " " <<  event_ << endl;
+    return;
+  }
 
   int nhighpurity=0, ntot=0;
   for(reco::TrackCollection::const_iterator t=recTrks->begin(); t!=recTrks->end(); ++t){  
@@ -2345,23 +2405,6 @@ PrimaryVertexAnalyzer4PU::analyze(const Event& iEvent, const EventSetup& iSetup)
   }
 
 
-//   if(bnoBS){
-//     if((recVtxs->begin()->isValid())&&(recVtxs->begin()->ndof()>1)&&(recVtxs->begin()->ndof()>(0.0*recVtxs->begin()->tracksSize()))){  // was 5 and 0.2
-//       Fill(hnoBS,"xrecBeamvsdxXBS",recVtxs->begin()->xError(),recVtxs->begin()->x()-vertexBeamSpot_.x0());
-//       Fill(hnoBS,"yrecBeamvsdyXBS",recVtxs->begin()->yError(),recVtxs->begin()->y()-vertexBeamSpot_.y0());
-
-//       if(printXBS_) {
-// 	cout << Form("XBS %10d %5d %10d  %4d  %5lu %6.1f    %8.4f %8.4f       %8.4f %8.4f      %8.4f %8.4f",
-// 		     run_,luminosityBlock_,event_,bunchCrossing_,
-// 		     (unsigned long)(recVtxs->begin()->tracksSize()), recVtxs->begin()->ndof(),
-//       		   recVtxs->begin()->x(), 		   recVtxs->begin()->xError(), 
-//       		   recVtxs->begin()->y(), 		   recVtxs->begin()->yError(), 
-//       		   recVtxs->begin()->z(), 		   recVtxs->begin()->zError()
-//       		   ) << endl; 
-//       }
-
-//     }
-//   }
 
  
   // for the associator
@@ -2394,7 +2437,7 @@ PrimaryVertexAnalyzer4PU::analyze(const Event& iEvent, const EventSetup& iSetup)
   vector<SimEvent> simEvt;
   if (gotTP && gotTV && !(trackAssociatorLabel_=="None") ){
 
-   // need hits (raw or fevt or recodebu ) for this to work
+   // need hits (raw or fevt or recodebug ) for this to work
     edm::ESHandle<TrackAssociatorBase> theAssociator;
     iSetup.get<TrackAssociatorRecord>().get(trackAssociatorLabel_, theAssociator);
     associator_ = (TrackAssociatorBase *) theAssociator.product();
@@ -2419,21 +2462,27 @@ PrimaryVertexAnalyzer4PU::analyze(const Event& iEvent, const EventSetup& iSetup)
     simpv=getSimPVs(evtMC);
 
     if (bPuInfo) {
-      //cout << "PileupSummaryInfo  nPU=" << puInfoH->getPU_NumInteractions() << endl;
-      for(int i=0; i<puInfoH->getPU_NumInteractions(); i++){
-//  	cout << "pile-up " << i << ")"
-//  	     << " z= " << puInfoH->getPU_zpositions()[i]
-//  	     << " nlo=" << puInfoH->getPU_ntrks_lowpT()[i]
-//  	     << " nhi=" << puInfoH->getPU_ntrks_highpT()[i] <<  endl;
- 	PrimaryVertexAnalyzer4PU::simPrimaryVertex v(vertexBeamSpot_.x0(),vertexBeamSpot_.y0(),puInfoH->getPU_zpositions()[i]);
+      //for(int i=0; i<puInfo.getPU_NumInteractions(); i++){
+      for(unsigned int i=0; i<puInfo.getPU_zpositions().size(); i++){
+	if(false){
+  	cout << "pile-up " << i << ")"
+  	     << " z= " << puInfo.getPU_zpositions()[i]
+  	     << " nlo=" << puInfo.getPU_ntrks_lowpT()[i]
+  	     << " nhi=" << puInfo.getPU_ntrks_highpT()[i] <<  endl;
+	}
+
+ 	PrimaryVertexAnalyzer4PU::simPrimaryVertex v(vertexBeamSpot_.x0(),vertexBeamSpot_.y0(),puInfo.getPU_zpositions()[i]);
  	v.type=2;  // partial
  	// nlo cut-off is 0.1 GeV  (includes the high pt tracks)
  	// hi cut-off is 0.5 GeV
-	v.nGenTrk=puInfoH->getPU_ntrks_lowpT()[i];
-	v.sumpT=puInfoH->getPU_sumpT_lowpT()[i];
- 	//v.eventId=puInfoH->getPU_EventID()[i];
+	v.nGenTrk=puInfo.getPU_ntrks_lowpT()[i];
+	v.sumpT=puInfo.getPU_sumpT_lowpT()[i];
+ 	//v.eventId=puInfo.getPU_EventID()[i];
  	simpv.push_back(v);
       }
+    }else{
+      if(verbose_){cout << "no PU info found " << endl;}
+      cout << "no PU info found !!!!!!!!!!!!!!!!" << endl;
     }
 
     if(verbose_){
@@ -2452,19 +2501,20 @@ PrimaryVertexAnalyzer4PU::analyze(const Event& iEvent, const EventSetup& iSetup)
     MC_=true;
     if(verbose_) {cout << "Signal vertex  z=" << simpv[0].z << "  n=" << simpv[0].nGenTrk << endl;}
     if (bPuInfo) {
-      if(verbose_) {cout << "PileupSummaryInfo  nPU=" << puInfoH->getPU_NumInteractions() << endl;}
-      for(int i=0; i<puInfoH->getPU_NumInteractions(); i++){
-//  	cout << "pile-up " << i << ")"
-//  	     << " z= " << puInfoH->getPU_zpositions()[i]
-//  	     << " nlo=" << puInfoH->getPU_ntrks_lowpT()[i]
-//  	     << " nhi=" << puInfoH->getPU_ntrks_highpT()[i] <<  endl;
- 	PrimaryVertexAnalyzer4PU::simPrimaryVertex v(vertexBeamSpot_.x0(),vertexBeamSpot_.y0(),puInfoH->getPU_zpositions()[i]);
+      if(verbose_) {cout << "PileupSummaryInfo  nPU=" << puInfo.getPU_NumInteractions() << endl;}
+      //for(int i=0; i<puInfo.getPU_NumInteractions(); i++){
+      for(unsigned int i=0; i<puInfo.getPU_zpositions().size(); i++){
+	cout << " i="<< i << endl;
+	cout << " z= " << puInfo.getPU_zpositions()[i] << endl;
+	cout << " nlo=" << puInfo.getPU_ntrks_lowpT()[i] << endl;
+	cout << " nhi=" << puInfo.getPU_ntrks_highpT()[i] << endl;
+ 	PrimaryVertexAnalyzer4PU::simPrimaryVertex v(vertexBeamSpot_.x0(),vertexBeamSpot_.y0(),puInfo.getPU_zpositions()[i]);
  	v.type=2;  // partial
  	// nlo cut-off is 0.1 GeV  (includes the high pt tracks)
  	// hi cut-off is 0.5 GeV
-	v.nGenTrk=puInfoH->getPU_ntrks_lowpT()[i];
-	v.sumpT=puInfoH->getPU_sumpT_lowpT()[i];
- 	//v.eventId=puInfoH->getPU_EventID()[i];
+	v.nGenTrk=puInfo.getPU_ntrks_lowpT()[i];
+	v.sumpT=puInfo.getPU_sumpT_lowpT()[i];
+ 	//v.eventId=puInfo.getPU_EventID()[i];
  	simpv.push_back(v);
       }
     }
@@ -2533,7 +2583,7 @@ PrimaryVertexAnalyzer4PU::analyze(const Event& iEvent, const EventSetup& iSetup)
 
 
   // print summary info 
-  if((dumpThisEvent_ && (dumpcounter_<5)) ||(verbose_ && (eventcounter_<ndump_))){
+  if((dumpThisEvent_ && (dumpcounter_<ndump_)) ||(verbose_ && (eventcounter_<ndump_))){
     cout << endl << "Event dump" << dumpcounter_ << endl
 	 << "event counter=" << eventcounter_
 	 << " Run=" << run_ << "  LumiBlock " << luminosityBlock_ << "  event  " << event_
@@ -2547,8 +2597,11 @@ PrimaryVertexAnalyzer4PU::analyze(const Event& iEvent, const EventSetup& iSetup)
 	printRecVtxs(recVtxs_[*vCollection]);
 	if(! trksdumped){
 	  printPVTrks(recTrks, recVtxs_[*vCollection], tsim, simEvt, false);
+	  cout << "---" << endl;
 	  trksdumped=true; // only dump one track list per event
 	}
+      }else{
+	cout << "Vertex collection not found !!!  This should not happen!"<<endl;
       }
     }
 
@@ -2620,15 +2673,21 @@ void PrimaryVertexAnalyzer4PU::printEventSummary(std::map<std::string, TH1*> & h
       tag="*";
     }
 
+    double ndof=0;
+    if(idxrec<recVtxs->size()){
+      ndof=recVtxs->at(zrecv[idxrec].second).ndof();
+    }
+
     if( (idxrec<recVtxs->size()) && (idxsim<simpv.size()) 
 	&& (abs(zrecv[idxrec].first-zsimv[idxsim].first)<(zmatch+recVtxs->at(zrecv[idxrec].second).zError()))
 	&& (((idxsim+1)==simpv.size())||(fabs(zrecv[idxrec].first-zsimv[idxsim].first)<fabs(zrecv[idxrec].first-zsimv[idxsim+1].first)))
 	&& (((idxrec+1)==recVtxs->size())||(fabs(zrecv[idxrec].first-zsimv[idxsim].first)<fabs(zrecv[idxrec+1].first-zsimv[idxsim].first)))
 	){
-      cout <<  setw(8) << fixed << zrecv[idxrec].first << tag
+      cout <<  setw(8) <<  setprecision(4) << fixed << zrecv[idxrec].first << tag
 	   <<"   <->    " <<setw(8) << fixed <<  zsimv[idxsim].first
 	   << signal
-	   << setw(4) <<  simpv[zsimv[idxsim].second].nGenTrk;
+	   << setw(4) <<  simpv[zsimv[idxsim].second].nGenTrk
+      << " (ndof=" << fixed << setw(5)  << setprecision(1) << ndof  << ")" ;
       if(zsimv[idxsim].second==0){
 	if(tag==" "){ 
 	  cout << "  signal vertex not tagged" << endl;
@@ -2642,22 +2701,27 @@ void PrimaryVertexAnalyzer4PU::printEventSummary(std::map<std::string, TH1*> & h
 
       idxrec++;
       idxsim++;
+
     }else if (   ((idxrec<recVtxs->size()) && (idxsim<simpv.size())&& (zrecv[idxrec].first<zsimv[idxsim].first))
 	      || ((idxrec<recVtxs->size()) && (idxsim==simpv.size())) ){
-      cout <<  setw(8) << fixed << zrecv[idxrec].first << tag
+      //if ((ndof>4)&&(zrecv[idxrec].first<-0.5)&&(zrecv[idxrec].first>-1.)){ cout << "FFFake " << message << endl; dumpThisEvent_=true;}
+      //if (ndof>4){ dumpThisEvent_=true;}
+      cout <<  setw(8) << setprecision(4) << fixed << zrecv[idxrec].first << tag
 	   << "                      "
-	   << "   fake" << endl;
+	   << "  (ndof=" << fixed << setw(5)  << setprecision(1) << ndof  << ")" 
+	   << "   fake " << endl;
       idxrec++;
+
     }else if (    ((idxrec<recVtxs->size()) && (idxsim<simpv.size()) && (zrecv[idxrec].first>zsimv[idxsim].first))
 	       || ((idxrec==recVtxs->size()) && (idxsim<simpv.size())) ){
-      cout << "         " <<  "   <->    " <<  setw(8) << fixed << zsimv[idxsim].first 
+      cout << "         " <<  "   <->    " <<  setw(8) << setprecision(4) << fixed << zsimv[idxsim].first 
 	   << signal
 	   << setw(4) <<  simpv[zsimv[idxsim].second].nGenTrk;
       if (simpv[zsimv[idxsim].second].nGenTrk>2){
 	if(zsimv[idxsim].second==0){
-	   cout << "  lost signal vertex" << endl;
+	   cout << "                lost signal vertex" << endl;
 	}else{
-	   cout << "  lost PU" << endl;
+	   cout << "                lost PU" << endl;
 	}
       }else{
 	cout<< endl;
@@ -3513,6 +3577,7 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
 	    if (vrec->ndof()>=0.5) Fill(h,"fakeVtxZNdofgt05",vrec->z());
 	    if (vrec->ndof()>=2.0) Fill(h,"fakeVtxZNdofgt2",vrec->z());
 	    if (vrec->ndof()>=4.0) Fill(h,"fakeVtxZNdofgt4",vrec->z());
+	    if (vrec->ndof()>=8.0) Fill(h,"fakeVtxZNdofgt8",vrec->z());
 	    Fill(h,"fakeVtxNdof",vrec->ndof());
 	    Fill(h,"fakeVtxNtrk",vrec->tracksSize());
 	    if(vrec->tracksSize()==2){  Fill(h,"fake2trkchi2vsndof",vrec->ndof(),vrec->chi2());   }
@@ -3644,6 +3709,7 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
       if (v->ndof()>8) nrec8++;
     }
   }
+  if (nrec==0) { cout << "nrec==0     nseltrks="<< nseltrks << "    nrectrks="  << nrectrks << endl; dumpThisEvent_=true;}
   Fill(h,"nrecvtx",nrec);
   Fill(h,"nrecvtx2",nrec2);
   Fill(h,"nrecvtx3",nrec3);
@@ -3788,10 +3854,19 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
     Fill(h,"vtxndf",v->ndof());
     Fill(h,"vtxprob",ChiSquaredProbability(v->chi2() ,v->ndof()));
     Fill(h,"vtxndfvsntk",v->tracksSize(), v->ndof());
+    double sumw=0.5*(v->ndof()+2);
+    Fill(h,"sumwoverntk0",sumw/v->tracksSize());
+    Fill(h,"sumwoverntkvsz0",v->position().z(), sumw/v->tracksSize());
+    Fill(h,"sumwoverntkvsz1",v->position().z(), sumw/v->tracksSize());
     if(v->ndof()>4){
+      Fill(h,"sumwoverntk",sumw/v->tracksSize());
+      Fill(h,"sumwoverntkvsz",v->position().z(), sumw/v->tracksSize());
       Fill(h,"vtxndfoverntk",v->ndof()/v->tracksSize());
       Fill(h,"vtxndf2overntk",(v->ndof()+2)/v->tracksSize());
     }
+    Fill(h,"ndofvsz", v->position().z(),v->ndof());
+    double log10ndof=v->ndof()>0 ? log(v->ndof())/log(10.) : -10;
+    Fill(h,"log10ndofvsz", v->position().z(), log10ndof);
     Fill(h,"zrecvsnt",v->position().z(),float(nrectrks));
     if(nrectrks>100){
       Fill(h,"zrecNt100",v->position().z());
@@ -3977,8 +4052,6 @@ void PrimaryVertexAnalyzer4PU::analyzeVertexCollection(std::map<std::string, TH1
 	  Fill(h,"ybeamPUcand",v->position().y()-vertexBeamSpot_.y0());
 	  Fill(h,"xbeamPullPUcand",(v->position().x()-vertexBeamSpot_.x0())/v->xError());
 	  Fill(h,"ybeamPullPUcand",(v->position().y()-vertexBeamSpot_.y0())/v->yError());
-	  //Fill(h,"sumwOverNtkPUcand",sumw/v->tracksSize());
-	  //Fill(h,"sumwOverNtkPUcand",sumw/v1->tracksSize());
 	  Fill(h,"ndofOverNtkPUcand",v->ndof()/v->tracksSize());
 	  Fill(h,"ndofOverNtkPUcand",v1->ndof()/v1->tracksSize());
 	  Fill(h,"xbeamPUcand",v1->position().x()-vertexBeamSpot_.x0());

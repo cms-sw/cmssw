@@ -34,9 +34,7 @@ process.load("RecoVertex.Configuration.RecoVertex_cff")
 # the following section is only needed if one wants to modify parameters or the vertexreco sequence
 from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import *
 from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesWithBS_cfi import *
-from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesDA_cfi import *
-process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesDA_cfi")  # not in the standard configuration
-process.vertexreco = cms.Sequence(offlinePrimaryVertices*offlinePrimaryVerticesWithBS*offlinePrimaryVerticesDA)
+process.vertexreco = cms.Sequence(offlinePrimaryVertices*offlinePrimaryVerticesWithBS)
 
 
 

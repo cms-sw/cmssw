@@ -362,6 +362,8 @@ private:
   int bunchCrossing_;
   int orbitNumber_;
   double sigmaZ_;
+  unsigned int nPUmin_;
+  unsigned int nPUmax_;
   double sigmaZoverride_;
   bool useVertexFilter_;
   int bxFilter_;

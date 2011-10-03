@@ -25,11 +25,9 @@ process.load("RecoVertex.Configuration.RecoVertex_cff")
 
 from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import *
 from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesWithBS_cfi import *
-from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesDA_cfi import *
-process.load("RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesDA_cfi")  # not in the standard configuration
 
 # new squence (if needed)
-#process.vertexreco = cms.Sequence(offlinePrimaryVertices)
+offlinePrimaryVerticesDA=offlinePrimaryVertices.clone()
 process.vertexreco = cms.Sequence(offlinePrimaryVertices*offlinePrimaryVerticesWithBS*offlinePrimaryVerticesDA)
 
 
@@ -51,28 +49,16 @@ TkFilterParameters=cms.PSet(
 process.offlinePrimaryVertices.verbose = cms.untracked.bool(False)            
 process.offlinePrimaryVertices.TkFilterParameters=TkFilterParameters
 process.offlinePrimaryVertices.TrackLabel = cms.InputTag("generalTracks")
-process.offlinePrimaryVertices.minNdof  = cms.double(0.0)     # ndof = 2 * sum(weights) - 3, ndof >0 means 
-process.offlinePrimaryVertices.PVSelParameters=cms.PSet(  maxDistanceToBeam = cms.double(0.1)   )  
-process.offlinePrimaryVertices.TkClusParameters=cms.PSet(algorithm=cms.string('gap'),                        # clustering algorithm
+process.offlinePrimaryVertices.TkClusParameters=cms.PSet(algorithm=cms.string('gap'),
                                                          TkGapClusParameters=cms.PSet(zSeparation = cms.double(0.2))) # 2 mm separation
+process.offlinePrimaryVertices.vertexCollections[0].minNdof  = cms.double(0.0)     # no contraint: ndof = 2 * sum(weights) - 3
+process.offlinePrimaryVertices.vertexCollections[1].minNdof  = cms.double(2.0)     # w/constraint: ndof = 2 * sum(weights)
 
 
-# offlinePrimaryVertices   gap clustering with beam-constrained fit
-process.offlinePrimaryVerticesWithBS.verbose = cms.untracked.bool(False)
-process.offlinePrimaryVerticesWithBS.TkFilterParameters=TkFilterParameters
-process.offlinePrimaryVerticesWithBS.TrackLabel = cms.InputTag("generalTracks")
-process.offlinePrimaryVerticesWithBS.minNdof  = cms.double(2.0)   # ndof = 2 * sum(weights), ndof>2 means more than one track
-process.offlinePrimaryVerticesWithBS.PVSelParameters=cms.PSet(   maxDistanceToBeam = cms.double(1.0)   )  # irrelevant with constraint
-process.offlinePrimaryVerticesWithBS.TkClusParameters=cms.PSet(algorithm=cms.string('gap'),                 # clustering algorithm
-                                                             TkGapClusParameters=cms.PSet(zSeparation = cms.double(0.2))) # 2 mm separation
-
-
-# offlinePrimaryVerticesDA   deterministic annealing clustering + fit with beam constraint
+# Test
 process.offlinePrimaryVerticesDA.verbose = cms.untracked.bool(False)
 process.offlinePrimaryVerticesDA.TkFilterParameters=TkFilterParameters
 process.offlinePrimaryVerticesDA.TrackLabel = cms.InputTag("generalTracks")
-process.offlinePrimaryVerticesDA.minNdof  = cms.double(2.0)
-process.offlinePrimaryVerticesDA.PVSelParameters=cms.PSet(   maxDistanceToBeam = cms.double(1.0)   )
 process.offlinePrimaryVerticesDA.TkClusParameters=cms.PSet(
     algorithm=cms.string('DA'),
     TkDAClusParameters = cms.PSet(
@@ -80,6 +66,14 @@ process.offlinePrimaryVerticesDA.TkClusParameters=cms.PSet(
       Tmin = cms.double(4.0),           #  freezeout temperature
       vertexSize = cms.double(0.05)     #  ~ resolution / sqrt(Tmin)
     )
+    
+process.offlinePrimaryVerticesDA.vertexCollections =  cms.VPSet(
+     [cms.PSet(label=cms.string(""),
+               algorithm=cms.string("AdaptiveVertexFitter"),
+               minNdof=cms.double(0.0),
+               useBeamConstraint = cms.bool(False),
+               maxDistanceToBeam = cms.double(1.0)
+               )]
 )
 
 
@@ -88,8 +82,8 @@ process.offlinePrimaryVerticesDA.TkClusParameters=cms.PSet(
 # the analyzer 
 process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
 process.load("Validation.RecoVertex.PrimaryVertexAnalyzer4PU_cfi") 
-
-
+process.vertexAnalysis.vertexCollections=cms.untracked.vstring(["offlinePrimaryVertices","offlinePrimaryVerticesDA"]) 
+ 
 
 process.p = cms.Path(process.vertexreco*process.vertexAnalysis)
 
