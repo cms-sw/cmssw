@@ -564,9 +564,7 @@ AlCa_RPCMuonNoHits_v*
 AlCa_RPCMuonNormalisation_v*
 AlCa_LumiPixels_v*                                                                              #   added in 5e33 menu (sr #123507)
 DQM_FEDIntegrity_v*
-# HLTriggerFirstPath # only in GRun, not in online
 HLTriggerFinalPath
-# HLTAnalyzerEndpath # only in GRun, not in online
 AOutput
 ALCAP0Output
 ALCAPHISYMOutput
