@@ -239,6 +239,7 @@ void GetMCDefinition(std::vector<stMC>& MC){
    MC.push_back(stMC("MC_DYToMuMu"              ,     1.300E3  , -1, -1, 0));
    MC.push_back(stMC("MC_WJetsToLNu"            ,     2.777E4  , -1, -1, 1));
    MC.push_back(stMC("MC_TTJets"                ,     9.400E1  , -1, -1, 1));
+   MC.push_back(stMC("MC_QCD_Pt-15to30"         ,     8.16E8  , -1, -1, 0));
    MC.push_back(stMC("MC_QCD_Pt-30to50"         ,     5.310E7  , -1, -1, 0));
    MC.push_back(stMC("MC_QCD_Pt-50to80"         ,     6.360E6  , -1, -1, 0));
    MC.push_back(stMC("MC_QCD_Pt-80to120"        ,     7.840E5  , -1, -1, 0));
