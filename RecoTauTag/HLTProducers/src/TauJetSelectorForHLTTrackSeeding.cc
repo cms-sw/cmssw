@@ -127,13 +127,13 @@ TauJetSelectorForHLTTrackSeeding::produce(edm::Event& iEvent, const edm::EventSe
      // We are looking for signal jets, not PU jets
      double fractionChargedPU = ptTrk2/calojet->pt(); 
      if ( fractionChargedPU > fractionMaxChargedPUInCaloCone_ ) continue;
-
+     /*
      std::cout << "Calo Jet " << calojet->pt() << " " << calojet->eta() 
 	       << " " << ptIn << " " << ptOut << " " << fracIn
 	       << " " << ptTrk << " " << ntrk 
 	       << " " << fractionChargedPU
 	       << std::endl;
-     
+     */
      math::XYZTLorentzVector p4(calojet->p4());
      math::XYZPoint vertex(calojet->vertex());
      augmentedTrackJets->push_back(reco::TrackJet(p4,vertex));
