@@ -22,6 +22,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <boost/filesystem.hpp>
+#include <boost/version.hpp>
 #include <boost/bind.hpp>
 //#include <iostream>
 #include "CoralBase/MessageStream.h"
