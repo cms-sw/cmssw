@@ -19,6 +19,7 @@ class TClass;
 namespace edm {
   BranchDescription::Transients::Transients() :
     parameterSetID_(),
+    moduleName_(),
     branchName_(),
     wrappedName_(),
     produced_(false),
