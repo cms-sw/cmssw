@@ -6,7 +6,7 @@
 //
 // Original Author:  Alan Tua
 //         Created:  Wed Jul  9 21:40:17 CEST 2008
-// $Id: MuonSegmentMatcher.cc,v 1.9 2009/10/20 13:26:08 ptraczyk Exp $
+// $Id: MuonSegmentMatcher.cc,v 1.10 2011/01/25 22:48:19 ptraczyk Exp $
 //
 //
 
@@ -133,6 +133,8 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track &muo
       } //End Muon Hit Iteration
 		
       matchRatioZ = countMuonDTHits == 0 ? 0 : countAgreeingHits/countMuonDTHits;
+      if (nhitsZ)
+        if (countAgreeingHits/nhitsZ>matchRatioZ) matchRatioZ=countAgreeingHits/nhitsZ;
     } //End HasZed Check
 			
     if(rechit->hasPhi()) {
@@ -180,10 +182,10 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track &muo
       } // End Muon Hit Iteration
 
       matchRatioPhi = countMuonDTHits != 0 ? countAgreeingHits/countMuonDTHits : 0;
+      if (nhitsPhi)
+        if (countAgreeingHits/nhitsPhi>matchRatioPhi) matchRatioPhi=countAgreeingHits/nhitsPhi;
     } // End HasPhi Check
-
 //    DTChamberId chamberSegId2((rechit->geographicalId()).rawId());
-    
     if (dtTightMatch && nhitsPhi && nhitsZ) {
       if((matchRatioPhi>0.9)&&(matchRatioZ>0.9)) {
 //	cout<<"Making a tight match in Chamber "<<chamberSegId2<<endl;
