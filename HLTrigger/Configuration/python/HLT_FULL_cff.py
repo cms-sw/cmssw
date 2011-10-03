@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HLT/V917 (CMSSW_4_2_0_HLT30)
+# /dev/CMSSW_4_2_0/HLT/V918 (CMSSW_4_2_0_HLT30)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V917')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V918')
 )
 
 streams = cms.PSet( 
@@ -82,11 +82,15 @@ datasets = cms.PSet(
     'HLT_L1SingleEG5_v3',
     'HLT_L1SingleJet16_v4',
     'HLT_L1SingleJet36_v4',
+    'HLT_L1SingleMu10_v4',
+    'HLT_L1SingleMu20_v4',
     'HLT_L1SingleMuOpen_DT_v4',
     'HLT_L1SingleMuOpen_v4',
     'HLT_L1Tech_DT_GlobalOR_v2',
     'HLT_L1_Interbunch_BSC_v3',
     'HLT_L1_PreCollisions_v3',
+    'HLT_L2Mu10_v6',
+    'HLT_L2Mu20_v6',
     'HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v12' ),
   Cosmics = cms.vstring( 'HLT_BeamHalo_v7',
     'HLT_L1SingleMuOpen_AntiBPTX_v3',
@@ -2679,10 +2683,6 @@ datasets = cms.PSet(
     'HLT_IsoMu30_v11',
     'HLT_IsoMu34_eta2p1_v4',
     'HLT_IsoMu40_eta2p1_v1',
-    'HLT_L1SingleMu10_v4',
-    'HLT_L1SingleMu20_v4',
-    'HLT_L2Mu10_v6',
-    'HLT_L2Mu20_v6',
     'HLT_Mu100_eta2p1_v4',
     'HLT_Mu100_v8',
     'HLT_Mu12_v11',
