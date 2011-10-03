@@ -1,7 +1,7 @@
 /** See header file for a class description
  *
- *  $Date: 2011/05/12 08:59:00 $
- *  $Revision: 1.51 $
+ *  $Date: 2011/09/20 14:57:56 $
+ *  $Revision: 1.52 $
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
  */
 // Some notes:
@@ -177,11 +177,11 @@ double MuScleFitUtils::x[][10000];
 
 // Probability matrices and normalization values
 // ---------------------------------------------
-int MuScleFitUtils::nbins = 1001;
-double MuScleFitUtils::GLZValue[][1002][1002];
-double MuScleFitUtils::GLZNorm[][1002];
-double MuScleFitUtils::GLValue[][1002][1002];
-double MuScleFitUtils::GLNorm[][1002];
+int MuScleFitUtils::nbins = 1000;
+double MuScleFitUtils::GLZValue[][1001][1001];
+double MuScleFitUtils::GLZNorm[][1001];
+double MuScleFitUtils::GLValue[][1001][1001];
+double MuScleFitUtils::GLNorm[][1001];
 double MuScleFitUtils::ResMaxSigma[];
 
 // Masses and widths from PDG 2006, half widths to be revised
@@ -727,7 +727,7 @@ double MuScleFitUtils::massProb( const double & mass, const double & resEta, con
  * - if passing iRes != 0, iY is used to select the resonance
  */
 double MuScleFitUtils::probability( const double & mass, const double & massResol,
-                                    const double GLvalue[][1002][1002], const double GLnorm[][1002],
+                                    const double GLvalue[][1001][1001], const double GLnorm[][1001],
                                     const int iRes, const int iY )
 {
   if( iRes == 0 && iY > 23 ) {
