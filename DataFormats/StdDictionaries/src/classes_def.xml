@@ -26,6 +26,7 @@
  <class name="std::map<std::basic_string<char>,std::vector<std::basic_string<char> > >"/>
  <class name="std::map<std::basic_string<char>,std::vector<std::pair<std::basic_string<char>,double> > >"/>
  <class name="std::map<std::basic_string<char>,unsigned int>"/>
+ <class name="std::map<std::basic_string<char>,unsigned long>"/>
  <class name="std::map<std::pair<int,int>,double>"/>
  <class name="std::map<std::pair<int,int>,int>"/>
  <class name="std::map<std::pair<short,short>,std::pair<short,std::vector<short> > >"/>
