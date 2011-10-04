@@ -11,7 +11,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HFShape.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/ZDCShape.h"
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalSiPMShape.h"
-#include <vector>
+#include <map>
 class CaloVShape;
 class DetId;
 class HcalMCParams;
@@ -28,8 +28,11 @@ public:
   virtual const CaloVShape * shape(const DetId & detId) const;
 
 private:
+  // hardcoded, if we can't figure it out form the DB
+  const CaloVShape * defaultShape(const DetId & detId) const;
   const HcalMCParams * theMCParams;
-  std::vector<const CaloVShape *> theShapes;
+  typedef std::map<int, const CaloVShape *> ShapeMap;
+  ShapeMap theShapes;
   HcalShape theHcalShape;
   HFShape theHFShape;
   ZDCShape theZDCShape;
