@@ -29,7 +29,7 @@
 using namespace edm;
 using namespace std;
 
-#include "HepMC/HerwigWrapper6_4.h"
+#include "HepMC/HerwigWrapper.h"
 #include "HepMC/IO_HERWIG.h"
 #include "HepMC/HEPEVT_Wrapper.h"
 

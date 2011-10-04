@@ -2,7 +2,7 @@
 #define gen_Pythia6Declarations_h
 
 
-#include "HepMC/PythiaWrapper6_2.h"
+#include "HepMC/PythiaWrapper6_4.h"
 
 namespace gen
 {

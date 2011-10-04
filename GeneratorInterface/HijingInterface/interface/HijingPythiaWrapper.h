@@ -1,7 +1,7 @@
 #ifndef gen_HijingPythiaWrapper_h
 #define gen_HijingPythiaWrapper_h
 
-#include "HepMC/PythiaWrapper6_2.h"
+#include "HepMC/PythiaWrapper6_4.h"
 
  extern "C"
  {

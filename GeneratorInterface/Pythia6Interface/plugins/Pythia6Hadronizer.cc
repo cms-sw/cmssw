@@ -5,7 +5,7 @@
 
 #include "HepMC/GenEvent.h"
 #include "HepMC/PdfInfo.h"
-#include "HepMC/PythiaWrapper6_2.h"
+#include "HepMC/PythiaWrapper6_4.h"
 #include "HepMC/HEPEVT_Wrapper.h"
 #include "HepMC/IO_HEPEVT.h"
 

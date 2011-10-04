@@ -16,7 +16,7 @@
 #include <HepMC/GenParticle.h>
 #include <HepMC/GenVertex.h>
 #include <HepMC/PdfInfo.h>
-#include <HepMC/HerwigWrapper6_4.h>
+#include <HepMC/HerwigWrapper.h>
 #include <HepMC/HEPEVT_Wrapper.h>
 #include <HepMC/IO_HERWIG.h>
 #include "HepPID/ParticleIDTranslations.hh"

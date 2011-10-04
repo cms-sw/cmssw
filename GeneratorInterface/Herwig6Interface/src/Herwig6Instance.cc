@@ -13,7 +13,7 @@
 
 #include <CLHEP/Random/RandomEngine.h>
 
-#include <HepMC/HerwigWrapper6_4.h>
+#include <HepMC/HerwigWrapper.h>
 
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

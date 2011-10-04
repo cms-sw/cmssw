@@ -3,7 +3,7 @@
 
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "HepMC/PythiaWrapper6_2.h"
+#include "HepMC/PythiaWrapper6_4.h"
 #include <iostream>
 
 using namespace edm;
