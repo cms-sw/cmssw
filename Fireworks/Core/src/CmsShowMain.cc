@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.195 2011/08/30 04:21:14 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.196 2011/09/07 03:26:04 amraktad Exp $
 //
 
 // system include files
@@ -234,7 +234,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       if (access(configFilename(), R_OK) == -1)
       {
          fwLog(fwlog::kError) << "Specified configuration file does not exist. Quitting.\n";
-         exit(1);
+         exit(0);
       }
    } else {
       if (vm.count(kNoConfigFileOpt)) {
