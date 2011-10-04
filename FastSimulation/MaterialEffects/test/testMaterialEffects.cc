@@ -657,7 +657,7 @@ testMaterialEffects::analyze( const edm::Event& iEvent, const edm::EventSetup& i
 	    myGammas.push_back(igamma);
 
 	    h2[ievt]->Fill(myGamma.momentum().e());
-	    h3[ievt]->Fill(myGamma.momentum().e()/theElectron.e());
+	    h3[ievt]->Fill(myGamma.momentum().e()/theFather.e());
 
 	  }
 	  h4[ievt]->Fill(nbrems);
