@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Mon Feb 19 13:25:24 CST 2007
-// $Id: FastL1GlobalAlgo.cc,v 1.41 2009/03/28 14:40:52 chinhan Exp $
+// $Id: FastL1GlobalAlgo.cc,v 1.42 2009/10/22 11:51:03 abdullin Exp $
 //
 
 // No BitInfos for release versions
@@ -548,7 +548,7 @@ FastL1GlobalAlgo::FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& s)
 
   //CaloTowerCollection towers;
   int hEtV  [396][16] = {{0}}; 
-  int hFGV  [396][16] = {{0}};
+  //  int hFGV  [396][16] = {{0}};
   int hiEtaV[396][16] = {{0}};
   int hiPhiV[396][16] = {{0}};
   for (HcalTrigPrimDigiCollection::const_iterator hTP=HTPinput->begin(); 
@@ -586,7 +586,7 @@ FastL1GlobalAlgo::FillL1RegionsTP(edm::Event const& e, const edm::EventSetup& s)
     */
     if(rgnid < 396 && twrid < 16){
       hEtV[rgnid][twrid] = (int)hTP->SOI_compressedEt();
-      hFGV[rgnid][twrid] = (int)hTP->SOI_fineGrain();
+      //      hFGV[rgnid][twrid] = (int)hTP->SOI_fineGrain();
       hiEtaV[rgnid][twrid] = hieta;
       hiPhiV[rgnid][twrid] = hiphi;
     }
@@ -1087,12 +1087,10 @@ FastL1GlobalAlgo::isEMCand(CaloTowerDetId cid, l1extra::L1EmParticle* ph,const e
 
   
   // check if highest et tower
-  bool isHit = false;
-  if ( cenEt > noEt && cenEt >= soEt && cenEt > weEt &&
-       cenEt >= eaEt && cenEt > nwEt && cenEt > neEt &&
-       cenEt >= swEt && cenEt >= seEt ) isHit = true;
-  else 
-    return 0;
+  bool isHit = ( cenEt > noEt && cenEt >= soEt && cenEt > weEt &&
+		 cenEt >= eaEt && cenEt > nwEt && cenEt > neEt &&
+		 cenEt >= swEt && cenEt >= seEt );
+  if (!isHit) return 0;
 
   // find highest neighbour
   double hitEt = cenEt;
