@@ -10,7 +10,7 @@
 */
 //
 //         Created:  2009/07/22
-// $Id: SiStripCMMonitor.cc,v 1.17 2010/04/02 15:41:32 amagnan Exp $
+// $Id: SiStripCMMonitor.cc,v 1.19 2010/04/21 10:40:16 amagnan Exp $
 //
 
 #include <sstream>
@@ -191,7 +191,7 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
 				 const edm::EventSetup& iSetup)
 {
 
-  static bool firstEvent = true;
+  //static bool firstEvent = true;
   //static bool isBeingFilled = false;
   //update cabling
   updateCabling(iSetup);
@@ -355,7 +355,7 @@ SiStripCMMonitorPlugin::analyze(const edm::Event& iEvent,
 
 
   //if (isBeingFilled) 
-  firstEvent = false;
+  //firstEvent = false;
 
   evt_++;
 

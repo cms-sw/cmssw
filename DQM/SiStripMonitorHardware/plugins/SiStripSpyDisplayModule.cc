@@ -370,25 +370,28 @@ SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::EventSetup
         //
         // Zero-Suppressed Digis
         //=======================
-        bool founddigispy = false, founddigimain = false;
+        //bool founddigispy = false, founddigimain = false;
         if (!((inputZeroSuppressedDigiLabel_.label()=="") && (inputZeroSuppressedDigiLabel_.instance()==""))) {
             //cout << "Making ZeroSuppressed histogram!" << endl;
             edm::Handle< edm::DetSetVector< SiStripDigi > > zs_digis;
             iEvent.getByLabel( inputZeroSuppressedDigiLabel_, zs_digis );
-            founddigispy = MakeDigiHist_(zs_digis, *d, detID_dir, ZERO_SUPPRESSED);
+            //founddigispy = 
+	    MakeDigiHist_(zs_digis, *d, detID_dir, ZERO_SUPPRESSED);
         }
         //comparison to mainline data
         if (!((inputCompVirginRawDigiLabel_.label()=="") && (inputCompVirginRawDigiLabel_.instance()==""))) {
             //cout << "Making Mainline VirginRaw histogram!" << endl;
             edm::Handle< edm::DetSetVector< SiStripRawDigi > > cvr_digis;
             iEvent.getByLabel( inputCompVirginRawDigiLabel_, cvr_digis );
-            founddigimain = MakeRawDigiHist_(cvr_digis, *d, detID_dir, VR_COMP);
+            //founddigimain = 
+	    MakeRawDigiHist_(cvr_digis, *d, detID_dir, VR_COMP);
         }
         if (!((inputCompZeroSuppressedDigiLabel_.label()=="") && (inputCompZeroSuppressedDigiLabel_.instance()==""))) {
             //cout << "Making ZeroSuppressed histogram!" << endl;
             edm::Handle< edm::DetSetVector< SiStripDigi > > czs_digis;
             iEvent.getByLabel( inputCompZeroSuppressedDigiLabel_, czs_digis );
-            founddigimain = MakeDigiHist_(czs_digis, *d, detID_dir, ZERO_SUPPRESSED_COMP);
+            //founddigimain = 
+	    MakeDigiHist_(czs_digis, *d, detID_dir, ZERO_SUPPRESSED_COMP);
         }
         //if (founddigimain && founddigispy) cout << "Found digis for both in detid=" << *d << endl;
         
