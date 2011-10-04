@@ -26,16 +26,23 @@
 
 int main(int argc, char** argv) {//main
 
-  if (argc < 4){
+  if (argc < 6){
     std::cout << "Usage: " << argv[0] 
-	      << " <path to file> <number of runs> <run number list>"  
+	      << " <path to file (paths available given in getCommand script)> <first run (0=all)> <last run (0=all)> <total number of runs> <run number list>"  
 	      << std::endl;
     return 0;
   }
 
-
+  std::string lFolder = "run17xyyy";
   unsigned int nRuns;
-  std::istringstream(argv[2])>>nRuns;
+  std::istringstream(argv[4])>>nRuns;
+
+  unsigned int lRunMin=0;
+  unsigned int lRunMax=10000000;
+  std::istringstream(argv[2])>>lRunMin;
+  std::istringstream(argv[3])>>lRunMax;
+
+  if (lRunMax==0) lRunMax=10000000;
 
   std::vector<unsigned int> runs;
   const unsigned int nHistsDetailed = 5;
@@ -59,20 +66,23 @@ int main(int argc, char** argv) {//main
   unsigned int nFileNotFound = 0;
 
   std::ofstream txtoutfile;                                                                                         
-  txtoutfile.open("FEDErrors_16xyyy.dat",std::ios::out);                                                                   
+  txtoutfile.open(("FEDErrors_"+lFolder+".dat").c_str(),std::ios::out);                                                                   
   txtoutfile << "| Error type | run # | fedID | rate of error |" << std::endl;
+    //TString histName  = "APVAddressErrorBits";
+
+  TString histName[nHistsDetailed]  = {"FEMissing","APVAddressErrorBits","APVErrorBits","UnlockedBits","OOSBits"};
+
 
   for (unsigned int r(0); r<nRuns; r++){//loop on runs
 
     unsigned int lRun;
-    std::istringstream(argv[3+r])>>lRun;
+    std::istringstream(argv[5+r])>>lRun;
 
     std::cout << "Processing run " << lRun << std::endl;
 
-    runs.push_back(lRun);
+    if (lRun < lRunMin || lRun > lRunMax) continue;
 
-    //TString histName  = "APVAddressErrorBits";
-    TString histName[nHistsDetailed]  = {"FEMissing","APVAddressErrorBits","APVErrorBits","UnlockedBits","OOSBits"};
+    runs.push_back(lRun);
 
 
     TString fileName = argv[1];
@@ -134,9 +144,10 @@ int main(int argc, char** argv) {//main
 	    
 // 	    f = TFile::Open(fileName);
     if (!f) {
-      std::cout << "Cannot open file " << fileName << " for reading ! Exiting ..." << std::endl;
+      std::cout << "Cannot open file " << fileName << " for reading ! Continue ..." << std::endl;
       nFileNotFound++;
-      return 0;
+      //return 0;
+      continue;
     }
 // 	  }
 // 	}
@@ -204,7 +215,7 @@ int main(int argc, char** argv) {//main
 
     //find out which FEDs are in error, and which error
     //TString lFedName[6] = {"AnyFEDErrors","CorruptBuffers","AnyFEProblems","AnyDAQProblems","DataMissing","BadDAQCRCs"};
-    TString lFedName[4] = {"FED/VsId/AnyFEDErrors","FED/VsId/CorruptBuffers","FED/VsId/AnyFEProblems","FED/VsId/BadDAQCRCs"};
+    TString lFedName[4] = {"FED/VsId/AnyFEDErrors","FED/VsId/CorruptBuffers","FED/VsId/FEMissing","FED/VsId/BadDAQCRCs"};
     TString lFedNameBis[4] = {"FEDLevel/VsFedId/AnyFEDErrors","FEDLevel/VsFedId/CorruptBuffers","FEDLevel/VsFedId/AnyFEProblems","FEDLevel/VsFedId/BadDAQCRCs"};
     TString lFedNameTer[4] = {"AnyFEDErrors","CorruptBuffers","AnyFEProblems","BadDAQCRCs"};
     
@@ -326,16 +337,19 @@ int main(int argc, char** argv) {//main
 
   const unsigned int nErr[nHistsDetailed] = {lMap[0].size(),lMap[1].size(),lMap[2].size(),lMap[3].size(),lMap[4].size()};
 
-  assert (runs.size() == nRuns);
+  //assert (runs.size() == nRuns);
+  nRuns = runs.size();
 
   //std::cout << "Found " << nErr << " APVs with errors in " << nRuns << " runs processed." << std::endl;
-  std::cout << "Found " << nErr << " channels with errors in " << nRuns << " runs processed." << std::endl;
+  for (unsigned int iH(0); iH<nHistsDetailed; ++iH){
+    std::cout << "Found " << nErr[iH] << " channels with errors " << histName[iH] << " in " << nRuns << " runs processed." << std::endl;
+  }
   std::cout << "Number of runs where file was not found : " << nFileNotFound << std::endl;
   std::cout << "Number of runs where folder was not found : " << nDirNotFound << std::endl;
   //std::cout << "Number of runs where cluster folder was not found : " << nClustDirNotFound << std::endl;
 
   //TFile *outfile = TFile::Open("APVAddressErrors.root","RECREATE");
-  TFile *outfile = TFile::Open("MyHDQM_run16xyyy.root","RECREATE");
+  TFile *outfile = TFile::Open(("MyHDQM_"+lFolder+".root").c_str(),"RECREATE");
   outfile->cd();
   
   for (unsigned int iH=0; iH<nHistsDetailed; iH++){
@@ -357,7 +371,7 @@ int main(int argc, char** argv) {//main
 
       std::vector<std::pair<unsigned int,float> > lVec = lIter->second;
       unsigned int nBins = lVec.size();
-
+      
       for (unsigned int b(0); b<nBins; b++){
 	//std::cout <<"Run " << lVec.at(b).first << ", runs[0] = " << runs[0] << ", runs[" << nRuns-1 << "] = " << runs[nRuns-1] << std::endl; 
 
