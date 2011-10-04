@@ -703,7 +703,7 @@ BaseParticlePropagator::propagateToBeamCylinder(const XYZTLorentzVector& v, doub
   // If the two solutions have opposite sign, it means that pT = infinity is a possibility.
   } else if ( solution1*solution2 < 0. ) { 
     pT = 1000.;
-    double norm = pT/std::sqrt(SDxy);
+    double norm = pT/SSDxy;
     setCharge(+1.);
     SetXYZT(dx*norm,dy*norm,dz*norm,0.);
     SetE(std::sqrt(Vect().Mag2()));
@@ -712,15 +712,14 @@ BaseParticlePropagator::propagateToBeamCylinder(const XYZTLorentzVector& v, doub
     if (solution1<0.) { 
       helixR   = solution1;
       helixPhi = phi1;
-      pT = fabs(solution1) * 1e-5 * c_light() *bField;
       setCharge(+1.);
     } else {
       helixR = solution2;
       helixPhi = phi2;
-      pT = fabs(solution2) * 1e-5 * c_light() *bField;
       setCharge(-1.);
     }
-    double norm = pT/std::sqrt(SDxy);
+    pT = fabs(helixR) * 1e-5 * c_light() *bField;
+    double norm = pT/SSDxy;
     SetXYZT(pT*std::cos(helixPhi),pT*std::sin(helixPhi),dz*norm,0.);
     SetE(std::sqrt(Vect().Mag2()));      
   }
