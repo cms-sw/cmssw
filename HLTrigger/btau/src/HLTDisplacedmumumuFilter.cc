@@ -132,9 +132,23 @@ bool HLTDisplacedmumumuFilter::filter(edm::Event& iEvent, const edm::EventSetup&
           trackIt++;
           reco::TrackRef vertextkRef3 =  (*trackIt).castTo<reco::TrackRef>();
           
+	  reco::RecoChargedCandidateCollection::const_iterator cand1;
+	  reco::RecoChargedCandidateCollection::const_iterator cand2;	  
+	  reco::RecoChargedCandidateCollection::const_iterator cand3;	  
+
+	  // first find these two tracks in the muon collection
+	  int iFoundRefs = 0;
+	  for (reco::RecoChargedCandidateCollection::const_iterator cand=mucands->begin(); cand!=mucands->end(); cand++) {
+	    reco::TrackRef tkRef = cand->get<reco::TrackRef>();
+	    if(tkRef == vertextkRef1) {cand1 = cand; iFoundRefs++;}
+	    if(tkRef == vertextkRef2) {cand2 = cand; iFoundRefs++;}
+	    if(tkRef == vertextkRef3) {cand3 = cand; iFoundRefs++;}
+	  }
+	  if(iFoundRefs != 3) throw cms::Exception("BadLogic") << "HLTDisplacedmumumuFilter: ERROR: the Jpsi vertex must have exactly two muons by definition."  << std::endl; 
+
           // calculate two-track transverse momentum
-          math::XYZVector pperp(vertextkRef1->px() + vertextkRef2->px() + vertextkRef3->px(),
-				vertextkRef1->py() + vertextkRef2->py() + vertextkRef3->py(),
+          math::XYZVector pperp(cand1->px() + cand2->px() + cand3->px(),
+				cand1->py() + cand2->py() + cand3->py(),
         			  0.);
           
         
@@ -166,20 +180,6 @@ bool HLTDisplacedmumumuFilter::filter(edm::Event& iEvent, const edm::EventSetup&
  
 	  // now add the muons that passed to the filter object
 	  
-	  reco::RecoChargedCandidateCollection::const_iterator cand1;
-	  reco::RecoChargedCandidateCollection::const_iterator cand2;	  
-	  reco::RecoChargedCandidateCollection::const_iterator cand3;	  
-
-	  // first find these two tracks in the muon collection
-	  int iFoundRefs = 0;
-	  for (reco::RecoChargedCandidateCollection::const_iterator cand=mucands->begin(); cand!=mucands->end(); cand++) {
-	    reco::TrackRef tkRef = cand->get<reco::TrackRef>();
-	    if(tkRef == vertextkRef1) {cand1 = cand; iFoundRefs++;}
-	    if(tkRef == vertextkRef2) {cand2 = cand; iFoundRefs++;}
-	    if(tkRef == vertextkRef3) {cand3 = cand; iFoundRefs++;}
-	  }
-	  if(iFoundRefs != 3) throw cms::Exception("BadLogic") << "HLTDisplacedmumumuFilter: ERROR: the Jpsi vertex must have exactly two muons by definition."  << std::endl; 
-
 	  ref1=reco::RecoChargedCandidateRef( edm::Ref<reco::RecoChargedCandidateCollection> 	(mucands,distance(mucands->begin(), cand1)));
 	  filterobject->addObject(trigger::TriggerMuon,ref1);
 	  
