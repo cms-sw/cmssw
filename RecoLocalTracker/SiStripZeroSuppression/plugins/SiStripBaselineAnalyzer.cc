@@ -13,7 +13,7 @@
 //
 // Original Author:  Ivan Amos Cali
 //         Created:  Mon Jul 28 14:10:52 CEST 2008
-// $Id: SiStripBaselineAnalyzer.cc,v 1.5 2011/10/02 19:58:29 icali Exp $
+// $Id: SiStripBaselineAnalyzer.cc,v 1.6 2011/10/04 19:19:55 icali Exp $
 //
 //
  
@@ -200,6 +200,7 @@ SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& es)
    if(!plotRawDigi_) return;
    subtractorPed_->init(es);
    
+   
  
    edm::Handle< edm::DetSetVector<SiStripRawDigi> > moduleRawDigi;
    e.getByLabel(srcProcessedRawDigi_,moduleRawDigi);
@@ -207,7 +208,7 @@ SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& es)
    edm::Handle<edm::DetSetVector<SiStripProcessedRawDigi> > moduleBaseline;
    if(plotBaseline_) e.getByLabel(srcBaseline_, moduleBaseline); 
    
-    edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusters;
+   edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusters;
    if(plotClusters_){
    	edm::InputTag clusLabel("siStripClusters");
    	e.getByLabel(clusLabel, clusters);
@@ -217,12 +218,14 @@ SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& es)
    char evs[20];
    char runs[20];    
    
+
    TFileDirectory sdProcessedRawDigis_= fs_->mkdir("ProcessedRawDigis");
    TFileDirectory sdBaseline_= fs_->mkdir("Baseline");
    TFileDirectory sdClusters_= fs_->mkdir("Clusters");
    
 
-   edm::DetSetVector<SiStripProcessedRawDigi>::const_iterator itDSBaseline = moduleBaseline->begin();
+   edm::DetSetVector<SiStripProcessedRawDigi>::const_iterator itDSBaseline;
+   if(plotBaseline_) itDSBaseline = moduleBaseline->begin();
    edm::DetSetVector<SiStripRawDigi>::const_iterator itRawDigis = moduleRawDigi->begin();
    
    uint32_t NBabAPVs = moduleRawDigi->size();     
@@ -241,14 +244,13 @@ SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& es)
 	}	  
       }
       
+    
       actualModule_++;
       uint32_t event = e.id().event();
       uint32_t run = e.id().run();
       //std::cout << "processing module N: " << actualModule_<< " detId: " << detId << " event: "<< event << std::endl; 
 	 
-	  
-      edm::DetSet<SiStripProcessedRawDigi>::const_iterator  itBaseline; 
-      std::vector<int16_t>::const_iterator itProcessedRawDigis;
+
 	  
       edm::DetSet<SiStripRawDigi>::const_iterator itRaw = itRawDigis->begin(); 
       bool restAPV[6] = {0,0,0,0,0,0};
@@ -314,9 +316,13 @@ SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& es)
       
       std::vector<int16_t> ProcessedRawDigis(itRawDigis->size());
       subtractorPed_->subtract( *itRawDigis, ProcessedRawDigis);
+
+      edm::DetSet<SiStripProcessedRawDigi>::const_iterator  itBaseline;
+      if(plotBaseline_) itBaseline = itDSBaseline->begin(); 
+      std::vector<int16_t>::const_iterator itProcessedRawDigis;
 	  	  
       strip =0;      
-      for(itProcessedRawDigis = ProcessedRawDigis.begin(), itBaseline = itDSBaseline->begin();itProcessedRawDigis != ProcessedRawDigis.end(); ++itProcessedRawDigis){
+      for(itProcessedRawDigis = ProcessedRawDigis.begin();itProcessedRawDigis != ProcessedRawDigis.end(); ++itProcessedRawDigis){
         //for(itBaseline = itDSBaseline->begin();itBaseline != itDSBaseline->end(); ++itBaseline, ++itRaw){
 		
 		if(restAPV[strip/128]){
