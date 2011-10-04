@@ -526,10 +526,13 @@ CmsShowMainBase::sendVersionInfo()
    }
 
    // send data 
-   char msg[64];
+   SysInfo_t sInfo;
+   gSystem->GetSysInfo(&sInfo);
+
+   char msg[128];
    if (gSystem->Getenv("CMSSW_VERSION"))
    {
-      snprintf(msg, 64,"%s ", gSystem->Getenv("CMSSW_VERSION"));
+      snprintf(msg, 64,"%s %s", gSystem->Getenv("CMSSW_VERSION"), sInfo.fOS.Data());
    }
    else
    {
@@ -539,7 +542,7 @@ CmsShowMainBase::sendVersionInfo()
       TString infoText;
       infoText.ReadLine(fs);
       fs.close();
-      snprintf(msg, 64,"Standalone %s", infoText.Data());
+      snprintf(msg, 64,"Standalone %s %s", infoText.Data(), sInfo.fOS.Data() );
    }
    int flags = 0;
    sendto(sd, msg, strlen(msg), flags, 
