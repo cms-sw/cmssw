@@ -2912,6 +2912,57 @@ class resolutionFunctionType30 : public resolutionFunctionBase<T> {
     std::cout << "setting parameters" << std::endl;
     this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, parSet );
   }
+
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname,
+			     const T & parResol, const std::vector<int> & parResolOrder,
+			     const std::vector<double> & parStep,
+			     const std::vector<double> & parMin,
+			     const std::vector<double> & parMax,
+			     const int muonType)
+  {
+    if( (int(parStep.size()) != this->parNum_) || (int(parMin.size()) != this->parNum_) || (int(parMax.size()) != this->parNum_) ) {
+      std::cout << "Error: par step or min or max do not match with number of parameters" << std::endl;
+      exit(1);
+    }
+    std::vector<ParameterSet> parSet(this->parNum_);
+    // name, step, mini, maxi
+
+    parSet[0]  = ParameterSet( "etaTransition",            parStep[0],  parMin[0],  parMax[0]  );
+    parSet[1]  = ParameterSet( "constantCentral",          parStep[1],  parMin[1],  parMax[1]  );
+    parSet[2]  = ParameterSet( "linearEtaCentral",         parStep[2],  parMin[2],  parMax[2]  );
+    parSet[3]  = ParameterSet( "quadraticEtaCentral",      parStep[3],  parMin[3],  parMax[3]  );
+    parSet[4]  = ParameterSet( "constantForward",          parStep[4],  parMin[4],  parMax[4]  );
+    parSet[5]  = ParameterSet( "linearEtaForward",         parStep[5],  parMin[5],  parMax[5]  );
+    parSet[6]  = ParameterSet( "quadraticEtaForward",      parStep[6],  parMin[6],  parMax[6]  );
+    parSet[7]  = ParameterSet( "vertexForward",            parStep[7],  parMin[7],  parMax[7]  );
+    parSet[8]  = ParameterSet( "cotgThetaConstant",        parStep[8],  parMin[8],  parMax[8]  );
+    parSet[9]  = ParameterSet( "cotgThetaFactor",          parStep[9],  parMin[9],  parMax[9]  );
+    parSet[10] = ParameterSet( "cotgThetaDenominatorTerm", parStep[10], parMin[10], parMax[10] );
+    parSet[11] = ParameterSet( "cotgThetaLinearPt",        parStep[11], parMin[11], parMax[11] );
+    parSet[12] = ParameterSet( "sigmaPhi",                 parStep[12], parMin[12], parMax[12] );
+    parSet[13] = ParameterSet( "barrelLinearPt",           parStep[13], parMin[13], parMax[13] );
+    parSet[14] = ParameterSet( "split",                    parStep[14], parMin[14], parMax[14] );
+    parSet[15] = ParameterSet( "veryForwardSplit",         parStep[15], parMin[15], parMax[15] );
+    parSet[16] = ParameterSet( "constantVeryForward",      parStep[16], parMin[16], parMax[16] );
+    parSet[17] = ParameterSet( "linearEtaVeryForward",     parStep[17], parMin[17], parMax[17] );
+    parSet[18] = ParameterSet( "quadraticEtaVeryForward",  parStep[18], parMin[18], parMax[18] );
+    parSet[19] = ParameterSet( "vertexVeryForward",        parStep[19], parMin[19], parMax[19] );
+    parSet[20] = ParameterSet( "endcapsLinearPt",          parStep[20], parMin[20], parMax[20] );
+    parSet[21] = ParameterSet( "endcapsQuadraticPt",       parStep[21], parMin[21], parMax[21] );
+    parSet[22] = ParameterSet( "veryForwardLinearPt",      parStep[22], parMin[22], parMax[22] );
+    parSet[23] = ParameterSet( "veryForwardQuadraticPt",   parStep[23], parMin[23], parMax[23] );
+    parSet[24] = ParameterSet( "covPt1Pt2Constant",        parStep[24], parMin[24], parMax[24] );
+    parSet[25] = ParameterSet( "covPt1Pt2DeltaPt",         parStep[25], parMin[25], parMax[25] );
+    parSet[26] = ParameterSet( "covPt1Pt2DeltaEta",        parStep[26], parMin[26], parMax[26] );
+
+    std::cout << "setting parameters" << std::endl;
+    for( int i=0; i<this->parNum_; ++i ) {
+      std::cout << "parStep["<<i<<"] = " << parStep[i]
+		<< ", parMin["<<i<<"] = " << parMin[i]
+		<< ", parMax["<<i<<"] = " << parMin[i] << std::endl;
+    }
+    this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, parSet );
+  }
 };
 
 // Daniele's function for Zmumu (36/pb)--------------------
