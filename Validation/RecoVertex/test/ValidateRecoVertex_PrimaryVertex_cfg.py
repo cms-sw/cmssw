@@ -30,7 +30,7 @@ process.simplePersistentVertexAnalysis = cms.EDAnalyzer("PrimaryVertexAnalyzer",
     outputFile = cms.untracked.string('validation.root'),
     verbose = cms.untracked.bool(True),
     vtxSample = cms.untracked.vstring('offlinePrimaryVertices', 
-        'offlinePrimaryVerticesBS'),
+        'offlinePrimaryVerticesWithBS'),
     recoTrackProducer = cms.untracked.string('generalTracks')
 )
 
