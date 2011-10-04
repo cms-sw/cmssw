@@ -15,9 +15,10 @@
     <class name="HepMC::GenCrossSection" ClassVersion="10">
      <version ClassVersion="10" checksum="920043842"/>
     </class>
-	<class name="HepMC::WeightContainer" ClassVersion="10">
+	<class name="HepMC::WeightContainer" ClassVersion="11">
   <version ClassVersion="10" checksum="2163093401"/>
- </class>
+  <version ClassVersion="11" checksum="376377869"/>
+  </class>
 	<class name="HepMC::FourVector" ClassVersion="10">
   <version ClassVersion="10" checksum="3279825169"/>
  </class>
@@ -31,8 +32,9 @@
   <version ClassVersion="10" checksum="3390577269"/>
 		<field name="m_particle_owner" transient="true"/>
 	</class>
-	<class name="HepMC::Polarization" ClassVersion="10">
+	<class name="HepMC::Polarization" ClassVersion="11">
   <version ClassVersion="10" checksum="4158943762"/>
+  <version ClassVersion="11" checksum="418544139"/>
  </class>
 	<class name="HepMC::GenEvent::particle_iterator" ClassVersion="10">
   <version ClassVersion="10" checksum="3507853172"/>
@@ -86,6 +88,7 @@
 	<class name="std::map&lt;int,HepMC::GenParticle*&gt;"/>
 	<class name="std::pair&lt;const int,HepMC::GenParticle*&gt;"/>
 	<class name="std::map&lt;int,HepMC::GenVertex*,std::greater&lt;int&gt; &gt;"/>
+	<class name="std::map&lt;std::string,size_t&gt;"/>
 
 	<!-- Classes shared between different kinds of products -->
 
@@ -143,5 +146,15 @@
  </class>
 	<class name="edm::Wrapper&lt;LHERunInfoProduct&gt;"/>
 	<class name="edm::Wrapper&lt;LHEEventProduct&gt;"/>
+
+<!--needed for backward compatibility between HepMC 2.06.xx and 2.05.yy-->
+<ioread sourceClass = "HepMC::Polarization" version="[1-10]" targetClass="HepMC::Polarization" source = "" target="m_defined">
+   <![CDATA[m_defined=true;
+   ]]>
+</ioread>
+<ioread sourceClass = "HepMC::WeightContainer" source = "std::vector<double> m_weights" version="[1-10]" targetClass="HepMC::WeightContainer" target="m_names" include="iostream">
+   <![CDATA[hepmc_rootio::weightcontainer_set_default_names(onfile.m_weights.size(),m_names);
+   ]]>
+</ioread>        
 
 </lcgdict>

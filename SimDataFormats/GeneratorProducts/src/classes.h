@@ -15,6 +15,8 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 
+#include <HepMC/GenRanges.h>
+
 namespace {
 	struct dictionary {
 		// HepMC externals used in HepMCProduct
@@ -33,6 +35,7 @@ namespace {
 		std::map<int, HepMC::GenVertex*, std::greater<int> > dummy777;
 		std::vector<HepMC::GenParticle*> m_particles_out;
 		std::vector<HepMC::GenParticle*> m_particles_in;
+                std::map<std::string,HepMC::WeightContainer::size_type> m_names;
 
 		// HepMCProduct
 
@@ -59,3 +62,17 @@ namespace {
 		edm::Wrapper<LHEEventProduct>	wevent;
 	};
 }
+
+//needed for backward compatibility between HepMC 2.06.xx and 2.05.yy
+namespace hepmc_rootio {
+  inline void weightcontainer_set_default_names(unsigned int n, std::map<std::string,HepMC::WeightContainer::size_type>& names) {
+      std::ostringstream name;
+      for ( HepMC::WeightContainer::size_type count = 0; count<n; ++count ) 
+      { 
+      name.str(std::string());
+      name << count;
+      names[name.str()] = count;
+      }
+  }
+}
+
