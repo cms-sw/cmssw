@@ -22,7 +22,7 @@ public:
     typedef typename Selection<C,Selector,StoreContainer>::value_type value_type;
     typedef value_type * pointer;
     typedef value_type & reference;
-    typedef ptrdiff_t difference_type;
+    typedef std::ptrdiff_t difference_type;
     typedef typename StoreContainer::const_iterator::iterator_category iterator_category;
     const_iterator(const typename StoreContainer::const_iterator & it) : i(it) { }
     const_iterator(const const_iterator & it) : i(it.i) { }
