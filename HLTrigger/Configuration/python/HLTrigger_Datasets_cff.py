@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V286
+# /dev/CMSSW_4_2_0/GRun/V287
 
 import FWCore.ParameterSet.Config as cms
 
@@ -34,10 +34,14 @@ streamA_datasetCommissioning_selector.triggerConditions = cms.vstring('HLT_Activ
     'HLT_L1SingleEG5_v3', 
     'HLT_L1SingleJet16_v4', 
     'HLT_L1SingleJet36_v4', 
+    'HLT_L1SingleMu10_v4', 
+    'HLT_L1SingleMu20_v4', 
     'HLT_L1SingleMuOpen_DT_v4', 
     'HLT_L1SingleMuOpen_v4', 
     'HLT_L1_Interbunch_BSC_v3', 
     'HLT_L1_PreCollisions_v3', 
+    'HLT_L2Mu10_v6', 
+    'HLT_L2Mu20_v6', 
     'HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v12')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetCosmics_selector
@@ -560,10 +564,6 @@ streamA_datasetSingleMu_selector.triggerConditions = cms.vstring('HLT_IsoMu15_et
     'HLT_IsoMu30_eta2p1_v6', 
     'HLT_IsoMu34_eta2p1_v4', 
     'HLT_IsoMu40_eta2p1_v1', 
-    'HLT_L1SingleMu10_v4', 
-    'HLT_L1SingleMu20_v4', 
-    'HLT_L2Mu10_v6', 
-    'HLT_L2Mu20_v6', 
     'HLT_Mu100_eta2p1_v4', 
     'HLT_Mu12_v11', 
     'HLT_Mu15_v12', 
