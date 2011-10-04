@@ -243,7 +243,7 @@ void SiPixelDataQuality::bookGlobalQualityFlag(DQMStore * bei, bool Tier0Flag, i
    
     SummaryReportMap = bei->get("Pixel/EventInfo/reportSummaryMap");
     if(SummaryReportMap){
-      if(!Tier0Flag) for(int i=1; i!=2001; i++) for(int j=1; j!=41; j++) SummaryReportMap->setBinContent(i,j,-1.);
+      if(!Tier0Flag) for(int i=1; i!=3001; i++) for(int j=1; j!=41; j++) SummaryReportMap->setBinContent(i,j,-1.);
       if(Tier0Flag) for(int i=1; i!=3; i++) for(int j=1; j!=8; j++) SummaryReportMap->setBinContent(i,j,-1.);
     }
     if(!Tier0Flag){
