@@ -4,17 +4,17 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("redoPV")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100))
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10))
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('/store/mc/Spring10/MinBias/GEN-SIM-RECO/START3X_V25B_356ReReco-v1/0004/0E72CE54-F43B-DF11-A06F-0026189438BD.root')
+    fileNames = cms.untracked.vstring()
 )
-
+process.source.fileNames.extend(['/store/relval/CMSSW_4_4_0_pre9/RelValQCD_FlatPt_15_3000_N30/GEN-SIM-RECO/DESIGN44_V4_PU_E7TeV_FIX_1_BX156_N30_special_110831-v1/0035/DEEF96F2-BFD3-E011-BEE1-003048679274.root'])
 
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("Configuration.StandardSequences.Geometry_cff")
-process.GlobalTag.globaltag= "START3X_V25B::All"
+process.GlobalTag.globaltag= "START44_V4::All"
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
 
 #process.load("Configuration.EventContent.EventContent_cff")
@@ -27,8 +27,8 @@ from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import *
 from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesWithBS_cfi import *
 
 # new squence (if needed)
-offlinePrimaryVerticesDA=offlinePrimaryVertices.clone()
-process.vertexreco = cms.Sequence(offlinePrimaryVertices*offlinePrimaryVerticesWithBS*offlinePrimaryVerticesDA)
+process.offlinePrimaryVerticesDA=offlinePrimaryVertices.clone()
+process.vertexreco = cms.Sequence(offlinePrimaryVertices*offlinePrimaryVerticesWithBS*process.offlinePrimaryVerticesDA)
 
 
 # new parameters (if needed)
@@ -36,6 +36,7 @@ process.vertexreco = cms.Sequence(offlinePrimaryVertices*offlinePrimaryVerticesW
 
 # track selection, common for all producers here (doesn't have to be)
 TkFilterParameters=cms.PSet(
+    algorithm=cms.string('filter'),
     minPt = cms.double(0.0),                   # direct pt cut
     maxD0Significance = cms.double(5.0),       # impact parameter significance
     maxNormalizedChi2 = cms.double(5.0),       # loose cut on track chi**2
@@ -64,7 +65,10 @@ process.offlinePrimaryVerticesDA.TkClusParameters=cms.PSet(
     TkDAClusParameters = cms.PSet(
       coolingFactor = cms.double(0.8),  #  slow annealing
       Tmin = cms.double(4.0),           #  freezeout temperature
-      vertexSize = cms.double(0.05)     #  ~ resolution / sqrt(Tmin)
+      vertexSize = cms.double(0.05),    # 
+      d0CutOff = cms.double(3.),        # downweight high IP tracks
+      dzCutOff = cms.double(4.)         # outlier rejection after freeze-out (T<Tmin)
+    )
     )
     
 process.offlinePrimaryVerticesDA.vertexCollections =  cms.VPSet(
