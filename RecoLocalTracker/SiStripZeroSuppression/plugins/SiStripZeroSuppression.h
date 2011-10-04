@@ -40,7 +40,7 @@ class SiStripZeroSuppression : public edm::EDProducer
   typedef std::vector<edm::InputTag>::const_iterator tag_iterator_t;
   std::vector< edm::DetSet<SiStripProcessedRawDigi> > output_apvcm; 
   std::vector< edm::DetSet<SiStripProcessedRawDigi> > output_baseline;
-  std::vector< edm::DetSet<SiStripProcessedRawDigi> > output_baseline_points;
+  std::vector< edm::DetSet<SiStripDigi> > output_baseline_points;
   std::auto_ptr<SiStripRawProcessingAlgorithms> algorithms;
   
   

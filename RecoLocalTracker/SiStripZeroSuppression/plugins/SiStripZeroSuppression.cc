@@ -43,7 +43,7 @@ SiStripZeroSuppression(edm::ParameterSet const& conf)
     produces< edm::DetSetVector<SiStripProcessedRawDigi> > ("BADAPVBASELINE");
 	
   if(produceBaselinePoints) 
-    produces< edm::DetSetVector<SiStripProcessedRawDigi> > ("BADAPVBASELINEPOINTS");
+    produces< edm::DetSetVector<SiStripDigi> > ("BADAPVBASELINEPOINTS");
 	  
   if(storeCM)
     produces< edm::DetSetVector<SiStripProcessedRawDigi> > ("APVCM");
@@ -95,7 +95,7 @@ inline void SiStripZeroSuppression::StandardZeroSuppression(edm::Event& e){
   }
   
   if(produceBaselinePoints){
-    std::auto_ptr< edm::DetSetVector<SiStripProcessedRawDigi> > outputbaselinepoints(new edm::DetSetVector<SiStripProcessedRawDigi>(output_baseline_points) );
+    std::auto_ptr< edm::DetSetVector<SiStripDigi> > outputbaselinepoints(new edm::DetSetVector<SiStripDigi>(output_baseline_points) );
     e.put(outputbaselinepoints, "BADAPVBASELINEPOINTS" );
   }
   
@@ -255,39 +255,17 @@ void SiStripZeroSuppression::storeBaselinePoints(uint32_t id){
 
     std::map< uint16_t, std::map< uint16_t, int16_t> >&  BasPointVec = algorithms->GetSmoothedPoints();
     std::map< uint16_t, std::map< uint16_t, int16_t> >::iterator itBasPointVect = BasPointVec.begin() ;
-    std::vector< std::map< uint16_t, int16_t> >::iterator itBasPointVec;
     std::map< uint16_t, int16_t>::iterator itBaselinePointMap;
     
-    edm::DetSet<SiStripProcessedRawDigi> baspointDetSet(id);
-    /*
-     uint16_t APVn =0; 
-    for(itBasPointVec= BasPointVec.begin();  itBasPointVec != BasPointVec.end();++itBasPointVec){
-    	for(size_t strip=0; strip < 128; ++strip) baspointDetSet.push_back(SiStripProcessedRawDigi(0));
+    edm::DetSet<SiStripDigi> baspointDetSet(id);
           
-        if(itBasPointVec->size()){
-             itBaselinePointMap = itBasPointVec->begin();    
-             for(;itBaselinePointMap != itBasPointVec->end(); ++itBaselinePointMap){
-                  uint16_t bpstrip = (itBaselinePointMap->first) + APVn*128;
-             	  int16_t  bp = itBaselinePointMap->second;
-                  baspointDetSet[bpstrip] = bp;
-               
-             } 
-        }
-      	++APVn; 
-	}    
-    */
-    uint16_t APVn= itBasPointVect->first;
-    for(uint16_t strip=0; strip < APVn*128; ++strip) baspointDetSet.push_back(SiStripProcessedRawDigi(0));
-    		
     for(; itBasPointVect != BasPointVec.end(); ++itBasPointVect){
-        for(uint16_t strip=0; strip < APVn*128; ++strip) baspointDetSet.push_back(SiStripProcessedRawDigi(0));
-        APVn= itBasPointVect->first;
+        uint16_t APVn= itBasPointVect->first;
         itBaselinePointMap =itBasPointVect->second.begin();
-        
-         for(;itBaselinePointMap != itBasPointVec->end(); ++itBaselinePointMap){
+        for(;itBaselinePointMap != itBasPointVect->second.end(); ++itBaselinePointMap){
                   uint16_t bpstrip = (itBaselinePointMap->first) + APVn*128;
              	  int16_t  bp = itBaselinePointMap->second;
-                  baspointDetSet[bpstrip] = bp;
+                  baspointDetSet.push_back(SiStripDigi(bpstrip,bp+128));
                
           } 
       }    

@@ -12,5 +12,6 @@ SiStripBaselineAnalyzer = cms.EDAnalyzer("SiStripBaselineAnalyzer",
     plotClusters = cms.bool(False),
     plotBaseline = cms.bool(True),
     plotRawDigi	= cms.bool(True),
-    plotAPVCM	= cms.bool(True)
+    plotAPVCM	= cms.bool(True),
+    plotPedestals = cms.bool(True)
 )

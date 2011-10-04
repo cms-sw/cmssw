@@ -13,7 +13,7 @@
 //
 // Original Author:  Ivan Amos Cali
 //         Created:  Mon Jul 28 14:10:52 CEST 2008
-// $Id: SiStripBaselineAnalyzer.cc,v 1.4 2011/08/10 13:18:03 vlimant Exp $
+// $Id: SiStripBaselineAnalyzer.cc,v 1.5 2011/10/02 19:58:29 icali Exp $
 //
 //
  
@@ -39,6 +39,9 @@
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "DataFormats/SiStripCluster/interface/SiStripClusterCollection.h"
+
+#include "CondFormats/SiStripObjects/interface/SiStripPedestals.h"
+#include "CondFormats/DataRecord/interface/SiStripPedestalsRcd.h"
 
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripPedestalsSubtractor.h"
 #include "RecoLocalTracker/SiStripZeroSuppression/interface/SiStripCommonModeNoiseSubtractor.h"
@@ -81,12 +84,17 @@ class SiStripBaselineAnalyzer : public edm::EDAnalyzer {
       virtual void endJob() ;
       
 	  std::auto_ptr<SiStripPedestalsSubtractor>   subtractorPed_;
-  bool plotClusters_;
-      bool plotBaseline_;
-      bool plotRawDigi_;
-      bool plotAPVCM_;
+          edm::ESHandle<SiStripPedestals> pedestalsHandle;
+          std::vector<int> pedestals;
+          uint32_t peds_cache_id;
+
+          bool plotClusters_;
+          bool plotBaseline_;
+          bool plotRawDigi_;
+          bool plotAPVCM_;
+          bool plotPedestals_;
 	  
-	  edm::InputTag srcBaseline_;
+          edm::InputTag srcBaseline_;
           edm::InputTag srcAPVCM_;
 	  edm::InputTag srcProcessedRawDigi_;
       
@@ -97,7 +105,8 @@ class SiStripBaselineAnalyzer : public edm::EDAnalyzer {
 	  TH1F* h1ProcessedRawDigis_;
 	  TH1F* h1Baseline_;
 	  TH1F* h1Clusters_;
-          TH1F* h1APVCM_;	  
+          TH1F* h1APVCM_;
+          TH1F* h1Pedestals_;	  
 	  
 	  TCanvas* Canvas_;
 	  std::vector<TH1F> vProcessedRawDigiHisto_;
@@ -120,7 +129,8 @@ SiStripBaselineAnalyzer::SiStripBaselineAnalyzer(const edm::ParameterSet& conf){
   plotBaseline_ = conf.getParameter<bool>( "plotBaseline" );
   plotRawDigi_ = conf.getParameter<bool>( "plotRawDigi" );
   plotAPVCM_ = conf.getParameter<bool>( "plotAPVCM" );
-  
+  plotPedestals_ = conf.getParameter<bool>( "plotPedestals" );
+
   h1BadAPVperEvent_ = fs_->make<TH1F>("BadAPV/Event","BadAPV/Event", 2001, -0.5, 2000.5);
   h1BadAPVperEvent_->SetXTitle("# Modules with Bad APVs");
   h1BadAPVperEvent_->SetYTitle("Entries");
@@ -132,6 +142,14 @@ SiStripBaselineAnalyzer::SiStripBaselineAnalyzer(const edm::ParameterSet& conf){
   h1APVCM_->SetYTitle("Entries");
   h1APVCM_->SetLineWidth(2);
   h1APVCM_->SetLineStyle(2);
+
+  h1Pedestals_ = fs_->make<TH1F>("Pedestals","Pedestals", 2048, -1023.5, 1023.5);
+  h1Pedestals_->SetXTitle("Pedestals [adc]");
+  h1Pedestals_->SetYTitle("Entries");
+  h1Pedestals_->SetLineWidth(2);
+  h1Pedestals_->SetLineStyle(2);
+
+  
  
 }
 
@@ -147,7 +165,26 @@ void
 SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& es)
 {
    using namespace edm;
-   
+   if(plotPedestals_&&actualModule_ ==0){
+      uint32_t p_cache_id = es.get<SiStripPedestalsRcd>().cacheIdentifier();
+      if(p_cache_id != peds_cache_id) {
+	es.get<SiStripPedestalsRcd>().get(pedestalsHandle);
+	peds_cache_id = p_cache_id;
+      }
+      
+      
+      std::vector<uint32_t> detIdV;
+      pedestalsHandle->getDetIds(detIdV);
+      
+      for(uint32_t i=0; i < detIdV.size(); ++i){
+        pedestals.clear();
+        SiStripPedestals::Range pedestalsRange = pedestalsHandle->getRange(detIdV[i]);
+        pedestals.resize((pedestalsRange.second- pedestalsRange.first)*8/10);
+	pedestalsHandle->allPeds(pedestals, pedestalsRange);
+	for(uint32_t it=0; it < pedestals.size(); ++it) h1Pedestals_->Fill(pedestals[it]);
+      }
+   }
+
    if(plotAPVCM_){
      edm::Handle<edm::DetSetVector<SiStripProcessedRawDigi> > moduleCM;
      edm::InputTag CMLabel("siStripZeroSuppression:APVCM");
@@ -323,7 +360,7 @@ void SiStripBaselineAnalyzer::beginJob()
 {
   
   
-  actualModule_ =0;
+actualModule_ =0;  
    
  
 }
