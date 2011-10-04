@@ -60,7 +60,7 @@ class scaleFunctionBase {
 			     const std::vector<double> & parMax,
 			     const int muonType)
   {
-    std::cout << "This method must be implemented" << std::endl;
+    std::cout << "The method setParameters must be implemented for this scale function" << std::endl;
     exit(1);
   }
   virtual int parNum() const { return parNum_; }
@@ -1092,6 +1092,45 @@ public:
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parScale, parScaleOrder, thisStep, thisMini, thisMaxi, thisParName );
     }
   }
+
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname,
+			     const T & parResol, const std::vector<int> & parResolOrder,
+			     const std::vector<double> & parStep,
+			     const std::vector<double> & parMin,
+			     const std::vector<double> & parMax,
+			     const int muonType)
+  {
+    if( (int(parStep.size()) != this->parNum_) || (int(parMin.size()) != this->parNum_) || (int(parMax.size()) != this->parNum_) ) {
+      std::cout << "Error: par step or min or max do not match with number of parameters" << std::endl;
+      std::cout << "parNum = " << this->parNum_ << std::endl;
+      std::cout << "parStep.size() = " << parStep.size() << std::endl;
+      std::cout << "parMin.size() = " << parMin.size() << std::endl;
+      std::cout << "parMax.size() = " << parMax.size() << std::endl;
+      exit(1);
+    }
+    std::vector<ParameterSet> parSet(this->parNum_);
+    // name, step, mini, maxi
+
+    parSet[0]  = ParameterSet( "Phi offset",                   parStep[0],  parMin[0],  parMax[0]  );
+    parSet[1]  = ParameterSet( "amplitude pos charge pos phi", parStep[1],  parMin[1],  parMax[1]  );
+    parSet[2]  = ParameterSet( "phase pos charge pos phi",     parStep[2],  parMin[2],  parMax[2]  );
+    parSet[3]  = ParameterSet( "amplitude pos charge neg phi", parStep[3],  parMin[3],  parMax[3]  );
+    parSet[4]  = ParameterSet( "phase pos charge neg phi",     parStep[4],  parMin[4],  parMax[4]  );
+    parSet[5]  = ParameterSet( "amplitude neg charge pos phi", parStep[5],  parMin[5],  parMax[5]  );
+    parSet[6]  = ParameterSet( "phase neg charge pos phi",     parStep[6],  parMin[6],  parMax[6]  );
+    parSet[7]  = ParameterSet( "amplitude neg charge neg phi", parStep[7],  parMin[7],  parMax[7]  );
+    parSet[8]  = ParameterSet( "phase neg charge neg phi",     parStep[8],  parMin[8],  parMax[8]  );
+    parSet[9]  = ParameterSet( "amplitude of eta correction",  parStep[9],  parMin[9],  parMax[9]  );
+    parSet[10] = ParameterSet( "quadratic eta",                parStep[10], parMin[10], parMax[10] );
+
+    std::cout << "setting parameters" << std::endl;
+    for( int i=0; i<this->parNum_; ++i ) {
+      std::cout << "parStep["<<i<<"] = " << parStep[i]
+		<< ", parMin["<<i<<"] = " << parMin[i]
+		<< ", parMax["<<i<<"] = " << parMin[i] << std::endl;
+    }
+    this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, parSet );
+  }
 };
 
 // Function built to correct STARTUP MC
@@ -1732,7 +1771,7 @@ class resolutionFunctionBase {
 			     const std::vector<double> & parMax,
 			     const int muonType)
   {
-    std::cout << "This method must be implemented" << std::endl;
+    std::cout << "The method setParameters must be implemented for this resolution function" << std::endl;
     exit(1);
   }
   virtual int parNum() const { return parNum_; }
