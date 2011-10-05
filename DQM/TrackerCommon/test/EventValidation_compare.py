@@ -14,6 +14,21 @@
 ###########################################
 
 from ROOT import *
+import re
+
+i=1
+
+file = open('interestingEvents_Mu.txt', 'r')
+events = file.readlines()
+runinfo_reference = ['172268']
+runinfo_interest  = re.split('[:]',str(events[i]))
+
+print "runinfo reference = ", runinfo_reference 
+print "runinfo interest  = ", runinfo_interest 
+
+runnumber_reference  = runinfo_reference[0]
+runnumber_interest   = runinfo_interest[0]
+eventnumber_interest = runinfo_interest[2][:-1]
 
 #################
 ### filenames ###
@@ -24,18 +39,28 @@ from ROOT import *
 #filename_reference = "Playback_V0001_SiStrip_R000172268.root"
 #filename_reference = "/tmp/tdupree/Playback_V0001_Pixel_R000172268.root"
 
-filename_interest  = "DQM_V0001_R000163796__Global__CMSSW_X_Y_Z__RECO.root"
-filename_reference = "DQM_V0001_R000172268__Global__CMSSW_X_Y_Z__RECO.root"
+#165970:168:184216723
+
+filename_interest  = "DQM_V0001_R000"+str(runnumber_interest)+"__Global__CMSSW_X_Y_Z__RECO.root"
+filename_reference = "DQM_V0001_R000"+str(runnumber_reference)+"__Global__CMSSW_X_Y_Z__RECO.root"
 
 print " filename_interest  = ", filename_interest
 print " filename_reference = ", filename_reference
+
+filedir_interest  = "./FinalOutput/Event"+eventnumber_interest+"/"
+filedir_reference = "./reference/"
 
 #################
 ### get files ###
 #################
 
-tfile_interest  = TFile(filename_interest)
-tfile_reference = TFile(filename_reference)
+file_interest  = filedir_interest +filename_interest
+file_reference = filedir_reference+filename_reference
+
+print "getting interesting sample from ... ", file_interest
+tfile_interest  = TFile(file_interest) 
+print "getting reference sample from ... ", file_reference
+tfile_reference = TFile(file_reference)
 
 run_interest  =  filename_interest[14:20]
 run_reference = filename_reference[14:20]
@@ -62,15 +87,23 @@ varNameList = [
     "Strip_StoN_on_TOB"   ,
     "Strip_StoN_detFracMap",
     "Strip_nFED"          ,
+    "Pixel_DigiOccupancy" ,
+#    "Pixel_ErrorRate"     ,
+    "Pixel_nDigis_Barrel" ,
+    "Pixel_ClusCharge_Endcap" ,
+    "Pixel_ClusPosition_Disk" ,
+    "Pixel_ErrorType_vs_FedNr",
+    "Pixel_ClusCharge_OnTrack",
+    "Pixel_ClusSize_OnTrack",
+#    "Pixel_ClusSize_Endcap"
     "Track_GoodTrkNum"    ,
     "Track_GoodTrkEta"    ,
     "Track_GoodTrkPt"     ,
-    "Pixel_DigiOccupancy" ,
-    "Pixel_ErrorRate"     ,
-    "Pixel_nDigis_Barrel" ,
-    "Pixel_ClusCharge_Endcap" ,
-    "Pixel_ClusSize_Endcap"
-               ]
+    "Track_NumberOfBarrelLayersPerTrack",
+    "Track_NumberOfEndcapLayersPerTrack",
+    "Track_NumberOfBarrelLayersPerTrackVsEtaProfile",
+    "Track_NumberOfEndcapLayersPerTrackVsEtaProfile"
+    ]
 
 ####################################
 ### the paths to the observables ###
@@ -99,9 +132,17 @@ stringlist = {
     "Track_GoodTrkPt"         : "/Tracking/Run summary/TrackParameters/GeneralProperties/GoodTrackPt_ImpactPoint_GenTk"               ,
     "Pixel_DigiOccupancy"     : "/Pixel/Run summary/averageDigiOccupancy"                                                             ,
     "Pixel_ErrorRate"         : "/Pixel/Run summary/AdditionalPixelErrors/errorRate"                                                  ,
-    "Pixel_nDigis_Barrel"     : "/Pixel/Run summary/Barrel/SUMOFF_ndigis_Barrel"                                                      ,                      
-    "Pixel_ClusCharge_Endcap" : "/Pixel/Run summary/Endcap/SUMOFF_size_OnTrack_Endcap"                                                        , 
-    "Pixel_ClusSize_Endcap"   : "/Pixel/Run summary/Clusters/SUMCLU_charge_Endcap"                                                  
+    "Pixel_nDigis_Barrel"     : "/Pixel/Run summary/Barrel/SUMOFF_ndigis_Barrel"                                                      ,
+    "Pixel_ErrorType_vs_FedNr": "/Pixel/Run summary/AdditionalPixelErrors/FedETypeNErrArray"                                          ,
+    "Pixel_ClusCharge_OnTrack": "/Pixel/Run summary/Clusters/OnTrack/charge_siPixelClusters"                                          , 
+    "Pixel_ClusSize_OnTrack"  : "/Pixel/Run summary/Clusters/OnTrack/size_siPixelClusters"                                            , 
+    "Track_NumberOfBarrelLayersPerTrack" : "/Tracking/Run summary/TrackParameters/HitProperties/NumberOfPixBarrelLayersPerTrack_GenTk",
+    "Track_NumberOfEndcapLayersPerTrack" : "/Tracking/Run summary/TrackParameters/HitProperties/NumberOfPixEndcapLayersPerTrack_GenTk",
+    "Track_NumberOfBarrelLayersPerTrackVsEtaProfile" :"/Tracking/Run summary/TrackParameters/HitProperties/NumberOfPixBarrelLayersPerTrackVsEtaProfile_GenTk",
+    "Track_NumberOfEndcapLayersPerTrackVsEtaProfile" :"/Tracking/Run summary/TrackParameters/HitProperties/NumberOfPixEndcapLayersPerTrackVsEtaProfile_GenTk",
+    "Pixel_ClusCharge_Endcap" : "/Pixel/Run summary/Endcap/SUMOFF_nclusters_Endcap"                                                   , 
+    "Pixel_ClusPosition_Disk" : "/Pixel/Run summary/Clusters/OnTrack/position_siPixelClusters_mz_Disk_1"                               ,
+#    "Pixel_ClusSize_Endcap"   : "/Pixel/Run summary/Clusters/SUMCLU_charge_Endcap"                                                  
     }
 
 #######################################################
@@ -114,21 +155,26 @@ th1_interest = {}
 th1_reference = {}
 C = {}
 
+gStyle.SetPalette(1)
+
 for var in varNameList: 
     th1_interest[var]  = tfile_interest.Get(  interest_string + stringlist[var] )
     th1_reference[var] = tfile_reference.Get(reference_string + stringlist[var] )
 
-    C[var]=TCanvas("C"+var,"C"+var,1100,400)
-    C[var].Divide(3)
+    print "*** variable = " , var  
+    print "*** path     = " , stringlist[var]  
+
+    C[var]=TCanvas("C"+var,"C"+var,1100,800)
+    C[var].Divide(3,2)
 
     C[var].cd(1)
     th1_reference[var].Draw()
-
+    
     C[var].cd(2)
-    print "*** variable = " , var  
     print "th1_reference[var].GetEntries() = ", th1_reference[var].GetEntries()
     print "th1_interest[var].GetEntries()  = ", th1_interest[var].GetEntries()
-    normfactor = th1_reference[var].GetEntries()/th1_interest[var].GetEntries()
+    normfactor=1
+    if th1_interest[var].GetEntries() : normfactor = th1_reference[var].GetEntries()/th1_interest[var].GetEntries()
     print "normfactor = ", normfactor 
     th1_interest[var].Scale(normfactor)
     th1_interest[var].Draw()
@@ -138,6 +184,12 @@ for var in varNameList:
     th1_reference[var].Draw()
     th1_interest[var].SetLineColor(2)
     th1_interest[var].Draw("same")
+
+    C[var].cd(4)
+    th1_reference[var].Draw("colz")
+    
+    C[var].cd(5)
+    th1_interest[var].Draw("colz")
 
 print "===> now let's have a look at the distributions!!"
 
