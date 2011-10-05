@@ -1,4 +1,4 @@
-# "online" menu
+# "GRun" menu
 HLT_Activity_Ecal_SC7_v*
 HLT_L1SingleJet16_v*
 HLT_L1SingleJet36_v*
@@ -7,8 +7,6 @@ HLT_Jet60_v*
 HLT_Jet110_v*
 HLT_Jet190_v*
 HLT_Jet240_v*
-HLT_Jet240_CentralJet30_BTagIP_v*
-HLT_Jet270_CentralJet30_BTagIP_v*
 HLT_Jet300_v*
 HLT_Jet370_v*
 HLT_Jet370_NoJetID_v*
@@ -28,7 +26,6 @@ HLT_DiJetAve190_v*
 HLT_DiJetAve240_v*
 HLT_DiJetAve300_v*
 HLT_DiJetAve370_v*
-HLT_FatJetMass750_DR1p1_Deta2p0_v*
 HLT_FatJetMass850_DR1p1_Deta2p0_v*
 HLT_DoubleJet30_ForwardBackward_v*
 HLT_DoubleJet60_ForwardBackward_v*
@@ -165,9 +162,7 @@ HLT_Mu12_v*
 HLT_Mu15_v*
 HLT_Mu20_v*
 HLT_Mu24_v*
-HLT_Mu24_eta2p1_v*
 HLT_Mu30_v*
-HLT_Mu30_eta2p1_v*
 HLT_Mu40_v*
 HLT_Mu40_eta2p1_v*
 HLT_Mu50_eta2p1_v*
@@ -176,7 +171,6 @@ HLT_Mu100_eta2p1_v*
 HLT_Mu200_eta2p1_v*
 HLT_IsoMu15_v*
 HLT_IsoMu15_eta2p1_v*
-HLT_IsoMu17_v*
 HLT_IsoMu20_v*
 HLT_IsoMu24_v*
 HLT_IsoMu24_eta2p1_v*
@@ -188,7 +182,6 @@ HLT_L2DoubleMu30_NoVertex_v*
 HLT_L2DoubleMu45_NoVertex_v*
 HLT_DoubleMu3_v*
 HLT_DoubleMu5_v*
-HLT_DoubleMu6_v*
 HLT_DoubleMu7_v*
 HLT_DoubleMu45_v*
 HLT_DoubleMu7_Acoplanarity03_v*
@@ -282,7 +275,6 @@ HLT_Ele32_WP70_v*
 HLT_Ele32_WP70_PFMT50_v*
 HLT_Ele32_CaloIdVL_CaloIsoVL_TrkIdVL_TrkIsoVL_v*
 HLT_Ele32_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_v*
-HLT_Ele32_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_v*
 HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_SC17_v*
 HLT_Ele32_CaloIdT_CaloIsoT_TrkIdT_TrkIsoT_Ele17_v*
 HLT_Ele65_CaloIdVT_TrkIdT_v*
@@ -338,7 +330,6 @@ HLT_Mu17_eta2p1_TriCentralPFJet30_v*
 HLT_Mu17_eta2p1_QuadCentralPFJet30_v*
 HLT_Mu17_Ele8_CaloIdL_v*
 HLT_Mu17_Ele8_CaloIdT_CaloIsoVL_v*
-HLT_Mu12_eta2p1_DiCentralJet30_BTagIP3D_v*
 HLT_Mu12_eta2p1_DiCentralJet20_BTagIP3D1stTrack_v*
 HLT_Mu12_eta2p1_DiCentralJet20_DiBTagIP3D1stTrack_v*
 HLT_Mu40_HT300_v*
@@ -362,7 +353,6 @@ HLT_IsoMu17_eta2p1_DiCentralPFJet25_PFMHT25_v*
 HLT_Mu17_eta2p1_DiPFJet25_Deta3_v*
 HLT_IsoMu17_eta2p1_DiPFJet25_Deta3_v*
 HLT_IsoMu17_eta2p1_DiPFJet25_Deta3_PFJet25_v*
-HLT_IsoMu20_DiCentralJet34_v*
 HLT_DoubleMu5_Mass8_HT150_v*
 HLT_DoubleMu8_Mass8_HT150_v*
 HLT_DoubleMu8_Mass8_HT200_v*
@@ -453,7 +443,6 @@ HLT_L1TrackerCosmics_v*
 HLT_RegionalCosmicTracking_v*
 HLT_LogMonitor_v*
 HLT_DTErrors_v*
-HLT_L1ETM30_v*
 HLT_L1DoubleJet36Central_v*
 HLT_L1MultiJet_v*
 AlCa_EcalPi0_v*
