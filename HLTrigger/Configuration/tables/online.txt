@@ -1,4 +1,4 @@
-# "GRun" menu
+# "online" menu
 HLT_Activity_Ecal_SC7_v*
 HLT_L1SingleJet16_v*
 HLT_L1SingleJet36_v*
