@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: InjectWorker.pl,v 1.73 2011/06/27 15:27:49 babar Exp $
+# $Id: InjectWorker.pl,v 1.76 2011/09/27 16:27:19 babar Exp $
 # --
 # InjectWorker.pl
 # Monitors a directory, and inserts data in the database
@@ -547,23 +547,6 @@ sub update_db {
 
     my $errflag = 0;
     my $rows = $heap->{sths}->{$handler}->execute(@bind_params) or $errflag = 1;
-    if ( $args->{_WheelOffset} ) {
-        my ( $wheelID, $offset ) = @{ $args->{_WheelOffset} };
-        my $current = $heap->{offset}->{$wheelID};
-        if ( $current > $offset ) {
-            my $file = $heap->{watchlist}->{$wheelID};
-            $kernel->post( 'logger',
-                warning =>
-                  "$file was processed backwards: $offset < $current!" );
-        }
-        else {
-            $heap->{offset}->{$wheelID} =
-              $offset;    # File processed up to this offset
-        }
-    }
-    else {
-        $kernel->post( 'logger', warning => "No offset information" );
-    }
 
     $rows = 'undef' unless defined $rows;
     if ($errflag) {
@@ -639,6 +622,23 @@ sub update_db {
                   HLTKEY INDEX STARTTIME STOPTIME )
             )
         );
+    }
+    if ( $args->{_WheelOffset} ) {
+        my ( $wheelID, $offset ) = @{ $args->{_WheelOffset} };
+        my $current = $heap->{offset}->{$wheelID};
+        if ( $current > $offset ) {
+            my $file = $heap->{watchlist}->{$wheelID};
+            $kernel->post( 'logger',
+                warning =>
+                  "$file was processed backwards: $offset < $current!" );
+        }
+        else {
+            $heap->{offset}->{$wheelID} =
+              $offset;    # File processed up to this offset
+        }
+    }
+    else {
+        $kernel->post( 'logger', warning => "No offset information" );
     }
 }
 
