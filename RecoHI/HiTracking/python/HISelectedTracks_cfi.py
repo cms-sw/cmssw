@@ -13,13 +13,14 @@ hiTracksWithLooseQuality = selectHighPurity.clone(
     copyTrajectories = True,             # needed by TrackClusterRemover
 
     useVertices = True,
-    useHICuts = True,    
-
+    useVtxError = True,
+    
     qualityBit = 'loose',                # set to '' if you don't want to set the bit
     
-    min_nhits = cms.int32(10),
+    min_nhits = cms.uint32(10),
     max_relpterr = 0.1,
-    chi2n_par = 0.2,                     # normalizedChi2 < nLayers * chi2n_par
+    chi2n_par = 9999,                     # version with 1D hits modification
+    chi2n_no1Dmod_par = 0.2,                     # normalizedChi2 < nLayers * chi2n_par
     d0_par2 = [8.0, 0.0],              # d0E from tk.d0Error
     dz_par2 = [8.0, 0.0],
     
@@ -42,9 +43,10 @@ hiTracksWithTightQuality = hiTracksWithLooseQuality.clone(
     src = "hiGlobalPrimTracks",
     keepAllTracks = False,
     qualityBit = 'tight',
-    min_nhits = cms.int32(12),
+    min_nhits = cms.uint32(12),
     max_relpterr = 0.05,
-    chi2n_par = 0.15,
+    chi2n_par = 9999,                     # version with 1D hits modification
+    chi2n_no1Dmod_par = 0.15,
     d0_par2 = [5.0, 0.0],
     dz_par2 = [5.0, 0.0]
     )
@@ -54,9 +56,10 @@ hiSelectedTracks = hiTracksWithLooseQuality.clone(
     src = "hiGlobalPrimTracks",
     keepAllTracks = False,
     qualityBit = 'highPurity',
-    min_nhits = cms.int32(13),
+    min_nhits = cms.uint32(13),
     max_relpterr = 0.05,
-    chi2n_par = 0.15,
+    chi2n_par = 9999,                     # version with 1D hits modification
+    chi2n_no1Dmod_par = 0.15,
     d0_par2 = [3.0, 0.0],
     dz_par2 = [3.0, 0.0]
     )
