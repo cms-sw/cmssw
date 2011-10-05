@@ -882,7 +882,6 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
 	std::vector<GflashHit>::const_iterator spotIterEnd = gflashHitList.end();
 
 	Gflash::CalorimeterNumber whichCalor = Gflash::kNULL;
-        bool result;
 
         for( ; spotIter != spotIterEnd; spotIter++){
 
@@ -906,13 +905,13 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack)
             bool statusPad = myGrid.getPads(currentDepth,true);
             if(!statusPad) continue;
             myGrid.setSpotEnergy(1.2*spotIter->getEnergy()/CLHEP::GeV);
-            result = myGrid.addHit(rShower/Gflash::intLength[Gflash::kESPM],azimuthalAngle,0);
+            myGrid.addHit(rShower/Gflash::intLength[Gflash::kESPM],azimuthalAngle,0);
           }
           else if(whichCalor==Gflash::kHB || whichCalor==Gflash::kHE) {
             bool setHDdepth = myHcalHitMaker.setDepth(currentDepth,true);
             if(!setHDdepth) continue;
             myHcalHitMaker.setSpotEnergy(1.4*spotIter->getEnergy()/CLHEP::GeV);
-            result = myHcalHitMaker.addHit(rShower/Gflash::intLength[Gflash::kHB],azimuthalAngle,0);
+            myHcalHitMaker.addHit(rShower/Gflash::intLength[Gflash::kHB],azimuthalAngle,0);
           }
         }
         status = true;
@@ -1040,17 +1039,17 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack)
          << "  phi = " << moment.phi() << std::endl
          << "   et = " << moment.Et()  << std::endl;
 
-  int hit;
+  //  int hit;
   //  int pid = abs(myTrack.type());
 
   XYZTLorentzVector trackPosition;
   if ( myTrack.onEcal() ) {
     trackPosition=myTrack.ecalEntrance().vertex();
-    hit = myTrack.onEcal()-1;                               //
+    //    hit = myTrack.onEcal()-1;                               //
     myPart = myTrack.ecalEntrance();
   } else if ( myTrack.onVFcal()) {
     trackPosition=myTrack.vfcalEntrance().vertex();
-    hit = 2;
+    //    hit = 2;
     myPart = myTrack.vfcalEntrance();
   }
   else
@@ -1120,13 +1119,12 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack)
   
   int ifirstHcal=-1;
   int ilastEcal=-1;
-  EnergyLossSimulator* energyLossECAL = 0;
- //New muon brem effect  in Calorimetry 16th Jan 2011 (Sandro Fonseca de Souza and Andre Sznajder UERJ/Brazil)
-  MuonBremsstrahlungSimulator* muonBremECAL = 0;
  
+  EnergyLossSimulator* energyLossECAL = 0;
   if (theMuonEcalEffects) energyLossECAL = theMuonEcalEffects->energyLossSimulator();
-  // Muon brem in ECAL
-  if (theMuonEcalEffects) muonBremECAL = theMuonEcalEffects->muonBremsstrahlungSimulator();
+  //  // Muon brem in ECAL
+  //  MuonBremsstrahlungSimulator* muonBremECAL = 0;
+  //  if (theMuonEcalEffects) muonBremECAL = theMuonEcalEffects->muonBremsstrahlungSimulator();
 
   for(unsigned iseg=0;iseg<nsegments&&ifirstHcal<0;++iseg)
     {
@@ -1163,67 +1161,49 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack)
 	}
     }
   
-  // Position of Ecal Exit
-  math::XYZVector ecalExit;
-  if(ilastEcal>=0)
-    math::XYZVector ecalExit=segments[ilastEcal].exit();
-  
-  // Position of HCAL entrance
-  math::XYZVector hcalEntrance;
-  if(ifirstHcal>=0)
-    hcalEntrance=segments[ifirstHcal].entrance();
-
-  // dummy HCAL exit, just to test the FSimTrack saving mechanism
-  math::XYZVector hcalExit;
-  if(ifirstHcal>=0)
-    hcalExit=segments[ifirstHcal].exit();
-
 
   // Build the FAMOS HCAL 
   HcalHitMaker myHcalHitMaker(myGrid,(unsigned)2);     
   // float mipenergy=0.1;
   // Create the helix with the stepping helix propagator
   // to add a hit, just do
-  //  myHcalHitMaker.setSpotEnergy(mipenergy);
+  // myHcalHitMaker.setSpotEnergy(mipenergy);
+  // math::XYZVector hcalEntrance;
+  // if(ifirstHcal>=0) hcalEntrance=segments[ifirstHcal].entrance();
   // myHcalHitMaker.addHit(hcalEntrance);
   ///
   /////
   ////// TEMPORARY First attempt to include HCAL (with straight-line extrapolation): 
   int ilastHcal=-1;
   float mipenergy=0.0;
-  EnergyLossSimulator* energyLossHCAL = 0;
-  // Implementation of Muon Brem Effect in HCAL (Sandro Fonseca de Souza and Andre Sznajder UERJ/Brazil)
-  //Date 01/16/2011
-  MuonBremsstrahlungSimulator* muonBremHCAL = 0;
  
+  EnergyLossSimulator* energyLossHCAL = 0;
   if (theMuonHcalEffects) energyLossHCAL = theMuonHcalEffects->energyLossSimulator();
-  // Muon Brem effect
-  if (theMuonHcalEffects) muonBremHCAL = theMuonHcalEffects->muonBremsstrahlungSimulator(); 
+  //  // Muon Brem effect
+  //  MuonBremsstrahlungSimulator* muonBremHCAL = 0;
+  //  if (theMuonHcalEffects) muonBremHCAL = theMuonHcalEffects->muonBremsstrahlungSimulator(); 
  
   if(ifirstHcal>0 && energyLossHCAL){
     for(unsigned iseg=ifirstHcal;iseg<nsegments;++iseg)
       {
 	float segmentSizeinX0=segments[iseg].X0length();
-	if (segmentSizeinX0>0.001 && segments[iseg].material()==CaloSegment::HCAL ) {
-	  // The energy loss simulator
-	  float charge = (float)(myTrack.charge());
-	  ParticlePropagator theMuon(moment,trackPosition,charge,0);
-	  theMuon.setID(-(int)charge*13);
-	  energyLossHCAL->updateState(theMuon, segmentSizeinX0);
-	  mipenergy = energyLossHCAL->deltaMom().E();
-	  moment -= energyLossHCAL->deltaMom();
-	  myHcalHitMaker.setSpotEnergy(mipenergy);
-	  myHcalHitMaker.addHit(segments[iseg].entrance());
-	} 
-	if(segments[iseg].material()==CaloSegment::HCAL)
-	  {
-	    ilastHcal=iseg;
+	if(segments[iseg].material()==CaloSegment::HCAL) {
+	  ilastHcal=iseg;
+	  if (segmentSizeinX0>0.001) {
+	    // The energy loss simulator
+	    float charge = (float)(myTrack.charge());
+	    ParticlePropagator theMuon(moment,trackPosition,charge,0);
+	    theMuon.setID(-(int)charge*13);
+	    energyLossHCAL->updateState(theMuon, segmentSizeinX0);
+	    mipenergy = energyLossHCAL->deltaMom().E();
+	    moment -= energyLossHCAL->deltaMom();
+	    myHcalHitMaker.setSpotEnergy(mipenergy);
+	    myHcalHitMaker.addHit(segments[iseg].entrance());
 	  }
+	} 
       }
   }
-  if(ilastHcal>=0) // Update hcalExit position from 'dummy' HCAL entrance to 'staight line' HCAL exit
-    hcalExit=segments[ilastHcal].exit();
-
+  
   //////
   /////
   ////
@@ -1234,10 +1214,12 @@ void CalorimetryManager::MuonMipSimulation(const FSimTrack& myTrack)
 
   // Copy the muon SimTrack (Only for Energy loss)
   FSimTrack muonTrack(myTrack);
-  if(energyLossHCAL) {
+  if(energyLossHCAL && ilastHcal>=0) {
+    math::XYZVector hcalExit=segments[ilastHcal].exit();
     muonTrack.setTkPosition(hcalExit);
     muonTrack.setTkMomentum(moment);
-  } else if(energyLossECAL) {
+  } else if(energyLossECAL && ilastEcal>=0) {
+    math::XYZVector ecalExit=segments[ilastEcal].exit();
     muonTrack.setTkPosition(ecalExit);
     muonTrack.setTkMomentum(moment);
   } // else just leave tracker surface position and momentum...  
