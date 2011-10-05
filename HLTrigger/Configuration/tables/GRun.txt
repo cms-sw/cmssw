@@ -88,7 +88,6 @@ HLT_HT250_v*
 HLT_HT250_AlphaT0p58_v*
 HLT_HT250_AlphaT0p60_v*
 HLT_HT250_AlphaT0p65_v*
-HLT_HT250_DoubleDisplacedJet60_v*
 HLT_HT250_DoubleDisplacedJet60_PromptTrack_v*
 HLT_HT300_v*
 HLT_HT300_PFMHT55_v*
@@ -249,10 +248,8 @@ HLT_Photon135_v*
 HLT_Photon200_NoHE_v*
 HLT_Photon225_NoHE_v*
 HLT_Photon400_v*
-HLT_DoublePhoton38_HEVT_v*
 HLT_DoublePhoton43_HEVT_v*
 HLT_DoublePhoton48_HEVT_v*
-HLT_DoublePhoton60_v*
 HLT_DoublePhoton70_v*
 HLT_DoublePhoton80_v*
 HLT_DoublePhoton5_IsoVL_CEP_v*
@@ -281,14 +278,12 @@ HLT_Ele65_CaloIdVT_TrkIdT_v*
 HLT_Ele80_CaloIdVT_TrkIdT_v*
 HLT_Ele100_CaloIdVT_TrkIdT_v*
 HLT_DoubleEle8_CaloIdT_TrkIdVL_v*
-HLT_DoubleEle33_CaloIdL_v*
 HLT_DoubleEle33_CaloIdL_CaloIsoT_v*
 HLT_DoubleEle33_CaloIdT_v*
 HLT_DoubleEle45_CaloIdL_v*
 HLT_MediumIsoPFTau35_Trk20_v*
 HLT_MediumIsoPFTau35_Trk20_MET60_v*
 HLT_MediumIsoPFTau35_Trk20_MET70_v*
-HLT_IsoPFTau40_IsoPFTau30_Trk5_eta2p1_v*
 HLT_DoubleIsoPFTau45_Trk5_eta2p1_v*
 HLT_DoubleIsoPFTau55_Trk5_eta2p1_v*
 HLT_HT350_DoubleIsoPFTau10_Trk3_PFMHT45_v*
@@ -298,7 +293,6 @@ HLT_BTagMu_DiJet40_Mu5_v*
 HLT_BTagMu_DiJet70_Mu5_v*
 HLT_BTagMu_DiJet110_Mu5_v*
 HLT_Mu5_Ele8_CaloIdT_CaloIsoVL_v*
-HLT_Mu5_Ele8_CaloIdT_TrkIdVL_HT150_v*
 HLT_Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_HT150_v*
 HLT_Mu8_Ele8_CaloIdT_TrkIdVL_Mass8_HT150_v*
 HLT_Mu8_Ele8_CaloIdT_TrkIdVL_Mass8_HT200_v*
@@ -387,7 +381,6 @@ HLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R025_MR200_v*
 HLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R029_MR200_v*
 HLT_Ele12_CaloIdL_CaloIsoVL_TrkIdVL_TrkIsoVL_R033_MR200_v*
 HLT_Ele18_CaloIdVT_TrkIdT_MediumIsoPFTau20_v*
-HLT_Ele18_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau20_v*
 HLT_Ele20_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau20_v*
 HLT_Ele25_CaloIdVT_CaloIsoT_TrkIdT_TrkIsoT_MediumIsoPFTau25_v*
 HLT_Ele25_CaloIdVT_TrkIdT_CentralPFJet30_v*
@@ -410,7 +403,6 @@ HLT_Ele27_CaloIdVT_TrkIdT_DiPFJet25_Deta3_v*
 HLT_Ele32_WP80_DiPFJet25_Deta3p5_v*
 HLT_Ele32_WP80_DiCentralPFJet25_PFMHT25_v*
 HLT_Photon30_CaloIdVT_CentralJet20_BTagIP_v*
-HLT_DoubleEle8_CaloIdT_TrkIdVL_HT150_v*
 HLT_DoubleEle8_CaloIdT_TrkIdVL_Mass8_HT150_v*
 HLT_DoubleEle8_CaloIdT_TrkIdVL_Mass8_HT200_v*
 HLT_DoubleEle10_CaloIdL_TrkIdVL_Ele10_CaloIdT_TrkIdVL_v*
