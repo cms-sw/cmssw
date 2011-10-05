@@ -150,7 +150,7 @@ helper::ScannerBase::print(const void *ptr) const {
                     char buff[255];
                     int len = sprintf(buff," : % 8.6g",val); // this is usually ok, and should be 3+8 chars long
                     if (len == 3+8) {
-                        printf(buff);
+                        std::cout << buff;
                     } else {
                         if (strchr(buff,'e')) {
                             printf((len == 3+13 ? " :  % .0e" : " : % .1e"),val);
