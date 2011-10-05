@@ -15,6 +15,8 @@ siTrackerGaussianSmearingRecHits = cms.EDProducer("SiTrackerGaussianSmearingRecH
     # matching of 1dim hits in double-sided modules
     # creating 2dim hits
     doRecHitMatching = cms.bool(True),
+    switchDeadChannels = cms.bool(False),  ### Need to be set to TRUE !
+                                                  
     TEC2y = cms.double(3.6662), ## 12.7/sqrt(12.)
 
     TEC2x = cms.double(0.00354),
