@@ -413,12 +413,15 @@ void Combine::run(TString hlfFile, const std::string &dataset, double &limit, do
     if (iToy == -1) {	
         if (newGen_) {
             if (toysFrequentist_) {
+                w->saveSnapshot("reallyClean", w->allVars());
                 if (dobs == 0) throw std::invalid_argument("Frequentist Asimov datasets can't be generated without a real dataset to fit");
                 RooArgSet gobsAsimov;
                 dobs = asimovutils::asimovDatasetWithFit(mc, *dobs, gobsAsimov, expectSignal_, verbose);
                 if (mc->GetGlobalObservables()) {
                     RooArgSet gobs(*mc->GetGlobalObservables());
                     gobs = gobsAsimov;
+                    utils::setAllConstant(*mc->GetParametersOfInterest(), false);
+                    w->saveSnapshot("clean", w->allVars());
                 }
             } else {
                 dobs = newToyMC.generateAsimov(weightVar_); // as simple as that
