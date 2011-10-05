@@ -54,12 +54,10 @@ SiStripZeroSuppression(edm::ParameterSet const& conf)
 void SiStripZeroSuppression::
 produce(edm::Event& e, const edm::EventSetup& es) {
     
-  algorithms->initialize(es);
-  
-   
+  algorithms->initialize(es, e);
+     
   if(mergeCollections){
-    //this->CollectionMergedZeroSuppression(e);
-	this->MergeCollectionsZeroSuppression(e);
+    this->MergeCollectionsZeroSuppression(e);
   }else{ 
     this->StandardZeroSuppression(e);
   }
@@ -80,8 +78,7 @@ inline void SiStripZeroSuppression::StandardZeroSuppression(edm::Event& e){
     
     std::auto_ptr< edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>(output_base) );
     e.put( output, inputTag->instance() );
-    
-	
+    	
     if(produceRawDigis){
       std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > outputraw(new edm::DetSetVector<SiStripRawDigi>(output_base_raw) );
       e.put(outputraw, inputTag->instance() );
@@ -138,23 +135,17 @@ inline
 void SiStripZeroSuppression::
 processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi>& input, std::vector<edm::DetSet<SiStripDigi> >& output, std::vector<edm::DetSet<SiStripRawDigi> >& outputraw) {
 
-  if(storeCM){
-    output_apvcm.clear();
-    output_apvcm.reserve(16000);
-  }
-  
-  if(produceCalculatedBaseline){
-    output_baseline.clear();
-    output_baseline.reserve(16000);
-  }
-  
-  if(produceBaselinePoints){
-    output_baseline_points.clear();
-    output_baseline_points.reserve(16000);
-  }
-  
-  output.reserve(10000);    
-  outputraw.reserve(10000);
+  output_apvcm.clear();
+  output_baseline.clear();
+  output_baseline_points.clear();
+  output.clear(); 
+  outputraw.clear();
+
+  if(storeCM) output_apvcm.reserve(16000);
+  if(produceCalculatedBaseline) output_baseline.reserve(16000);
+  if(produceBaselinePoints) output_baseline_points.reserve(16000);
+  output.reserve(16000);    
+  outputraw.reserve(16000);
   
   
   for ( edm::DetSetVector<SiStripRawDigi>::const_iterator 
@@ -190,18 +181,15 @@ void SiStripZeroSuppression::formatRawDigis(edm::DetSetVector<SiStripRawDigi>::c
      
       const std::vector<bool>& apvf = algorithms->GetAPVFlags();
       edm::DetSet<SiStripRawDigi>::const_iterator itRawDigis = rawDigis->begin(); 
-     
-      // for(uint32_t i=0 ; i < apvf.size(); ++i){
-      //	if(apvf[i]) std::cout << "APV " << i << std::endl;
-      //}
+         
       uint32_t strip=0;
       for (; itRawDigis != rawDigis->end(); ++itRawDigis){
-	uint16_t APVn = strip/128;
-        if(apvf[APVn]) outRawDigis.push_back(itRawDigis[strip]); 
+	int16_t APVn = strip/128;
+        if(apvf[APVn]) outRawDigis.push_back(*itRawDigis); 
         else outRawDigis.push_back(SiStripRawDigi(0));
         ++strip;
        }
-     
+          
 }
 
 
@@ -261,7 +249,6 @@ void SiStripZeroSuppression::storeBaselinePoints(uint32_t id){
                
           } 
       }    
-
 
     
     if(baspointDetSet.size())

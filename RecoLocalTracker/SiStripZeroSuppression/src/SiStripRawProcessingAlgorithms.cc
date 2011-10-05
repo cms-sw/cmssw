@@ -31,23 +31,19 @@ void SiStripRawProcessingAlgorithms::initialize(const edm::EventSetup& es) {
     subtractorCMN->init(es);
     suppressor->init(es);
     if(restorer.get()) restorer->init(es);
-    //if(restorer.get()&&doAPVRestore&&useCMMeanMap) restorer->LoadMeanCMMap(es);
-  } 
+} 
 
-
-
+void SiStripRawProcessingAlgorithms::initialize(const edm::EventSetup& es, const edm::Event& e){
+  this->initialize(es);
+  if(restorer.get()&&doAPVRestore&&useCMMeanMap) restorer->LoadMeanCMMap(e);
+  
+}
 
 int16_t SiStripRawProcessingAlgorithms::SuppressVirginRawData(const uint32_t& id, const uint16_t& firstAPV, std::vector<int16_t>& processedRawDigis , edm::DetSet<SiStripDigi>& suppressedDigis ){
-     
-  //std::vector<int16_t>  processedRawDigisPedSubtracted;
       
       subtractorPed->subtract( id, firstAPV*128,processedRawDigis);
       return this->SuppressProcessedRawData(id, firstAPV, processedRawDigis , suppressedDigis );
-
-      //  if( doAPVRestore ) processedRawDigisPedSubtracted.assign(processedRawDigis.begin(), processedRawDigis.end());
-      //subtractorCMN->subtract(id, firstAPV,  processedRawDigis);
-      //if( doAPVRestore ) nAPVflagged = algorithms->restorer->InspectAndRestore(id, processedRawDigisPedSubtracted, algorithms->subtractorCMN->getAPVsCM(), processedRawDigis);
-      //suppressor->suppress( processedRawDigis, firstAPV,  suppressedDigis );
+ 
 }
 
 int16_t SiStripRawProcessingAlgorithms::SuppressVirginRawData(const edm::DetSet<SiStripRawDigi>& rawDigis, edm::DetSet<SiStripDigi>& suppressedDigis){
@@ -66,7 +62,6 @@ int16_t SiStripRawProcessingAlgorithms::SuppressProcessedRawData(const uint32_t&
       std::vector<int16_t>  processedRawDigisPedSubtracted ;
       
       int16_t nAPVFlagged =0;
-     // transform(rawDigis->begin(), rawDigis->end(), back_inserter(processedRawDigis), boost::bind(&SiStripRawDigi::adc , _1));
       if( doAPVRestore ) processedRawDigisPedSubtracted.assign(processedRawDigis.begin(), processedRawDigis.end());
       subtractorCMN->subtract(id, firstAPV,  processedRawDigis);
       if( doAPVRestore ) nAPVFlagged = restorer->InspectAndRestore(id, firstAPV, processedRawDigisPedSubtracted, processedRawDigis, subtractorCMN->getAPVsCM() );

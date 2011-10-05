@@ -108,9 +108,7 @@ void SiStripAPVRestorer::restore(const uint16_t& firstAPV, std::vector<int16_t>&
     
     if ( algoToUse != ""){
       if(!SelfSelectRestoreAlgo_) algoToUse = RestoreAlgo_;
-     
-   
-  
+ 
       if(algoToUse=="Flat"){
 	this->FlatRestore(APV, firstAPV, digis);
       }else if(algoToUse=="BaselineFollower"){
@@ -133,9 +131,7 @@ inline
 int16_t SiStripAPVRestorer::BaselineFollowerInspect(const uint16_t& firstAPV, std::vector<T>& digis){
   SiStripQuality::Range detQualityRange = qualityHandle->getRange(detId_);
   
-  std::vector<T> singleAPVdigi;
-  singleAPVdigi.clear();
- 
+  std::vector<T> singleAPVdigi;  
   int16_t nAPVflagged = 0;
   
   CMMap::iterator itCMMap;
@@ -144,7 +140,8 @@ int16_t SiStripAPVRestorer::BaselineFollowerInspect(const uint16_t& firstAPV, st
   for(uint16_t APV=firstAPV ; APV< digis.size()/128 + firstAPV; ++APV){
 
     DigiMap smoothedmap;
-    
+    smoothedmap.erase(smoothedmap.begin(), smoothedmap.end());
+
     if(!badAPVs_[APV]){
       float MeanAPVCM = MeanCM_;
       if(useRealMeanCM_&&itCMMap!= MeanCMmap_.end()) MeanAPVCM =(itCMMap->second)[APV];
@@ -153,8 +150,8 @@ int16_t SiStripAPVRestorer::BaselineFollowerInspect(const uint16_t& firstAPV, st
       for(int16_t strip = (APV-firstAPV)*128; strip < (APV-firstAPV+1)*128; ++strip){
         singleAPVdigi.push_back(digis[strip]); 
       }
-    
-    
+   
+   
       float DeltaCM = median_[APV] - MeanAPVCM; 
       
       //std::cout << "Delta CM: " << DeltaCM << " CM: " << median_[APV] << " detId " << (uint32_t) detId_ << std::endl; 	

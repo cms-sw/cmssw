@@ -47,7 +47,7 @@ subtract_(const uint32_t& detId, const uint16_t& firstAPV, std::vector<T>& digis
     {
       if ( !qualityHandle->IsStripBad(detQualityRange,istrip) )
       {
-        std::pair<float,float> pin((float)digis[istrip], (float)noiseHandle->getNoiseFast(istrip,detNoiseRange));
+        std::pair<float,float> pin((float)digis[istrip-firstAPV*128], (float)noiseHandle->getNoiseFast(istrip,detNoiseRange));
         subset.push_back( pin );
       }
     }
@@ -75,8 +75,8 @@ subtract_(const uint32_t& detId, const uint16_t& firstAPV, std::vector<T>& digis
     _vmedians.push_back(std::pair<short,float>(APV,offset));
     
     // remove offset
-    fs = digis.begin()+APV*128;
-    ls = digis.begin()+(APV+1)*128;
+    fs = digis.begin()+(APV-firstAPV)*128;
+    ls = digis.begin()+(APV-firstAPV+1)*128;
     while (fs < ls) {
       *fs = static_cast<T>(*fs-offset);
       fs++;

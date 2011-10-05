@@ -14,6 +14,7 @@ class SiStripRawProcessingAlgorithms {
 
  public: 
   void initialize(const edm::EventSetup&);
+  void initialize(const edm::EventSetup&, const edm::Event&);
   int16_t SuppressVirginRawData(const uint32_t&, const uint16_t&, std::vector<int16_t>&, edm::DetSet<SiStripDigi>&);
   int16_t SuppressVirginRawData(const edm::DetSet<SiStripRawDigi>&, edm::DetSet<SiStripDigi>& );
   
