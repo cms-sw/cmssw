@@ -1,6 +1,7 @@
 import ROOT
 import re, os, os.path
 from sys import stderr, stdout
+from math import *
 ROOFIT_EXPR = "expr"
 N_OBS_MAX   = 10000
 
@@ -108,7 +109,29 @@ class ModelBuilder(ModelBuilderBase):
                 globalobs.append("%s_In" % n)
                 if self.options.bin: self.out.var("%s_In" % n).setConstant(True)
             elif pdf == "gmN":
-                self.doObj("%s_Pdf" % n, "Poisson", "%s_In[%d,0,%d], %s[0,%d]" % (n,args[0],2*args[0]+5,n,2*args[0]+5))
+                if False:
+                    # old version, that creates a poisson with a very large range
+                    self.doObj("%s_Pdf" % n, "Poisson", "%s_In[%d,0,%d], %s[0,%d], 1" % (n,args[0],2*args[0]+5,n,2*args[0]+5))
+                else:
+                    # new version, that creates a poisson with a narrower range (but still +/- 7 sigmas)
+                    #print "Searching for bounds for",n,"poisson with obs",args[0]
+                    minExp = args[0]+1 if args[0] > 0 else 0;
+                    while (ROOT.TMath.Poisson(args[0], minExp) > 1e-12) and minExp > 0: 
+                        #print "Poisson(%d, minExp = %f) = %g > 1e-12" % (args[0], minExp, ROOT.TMath.Poisson(args[0], minExp))
+                        minExp *= 0.8;
+                    maxExp = args[0]+1;
+                    while (ROOT.TMath.Poisson(args[0], maxExp) > 1e-12): 
+                        #print "Poisson(%d, maxExp = %f) = %g > 1e-12" % (args[0], maxExp, ROOT.TMath.Poisson(args[0], maxExp))
+                        maxExp *= 1.2;
+                    minObs = args[0];
+                    while minObs > 0 and (ROOT.TMath.Poisson(minObs, args[0]+1) > 1e-12): 
+                        #print "Poisson(minObs = %d, %f) = %g > 1e-12" % (minObs, args[0]+1, ROOT.TMath.Poisson(minObs, args[0]+1))
+                        minObs -= (sqrt(args[0]) if args[0] > 10 else 1);
+                    maxObs = args[0]+2;
+                    while (ROOT.TMath.Poisson(maxObs, args[0]+1) > 1e-12): 
+                        #print "Poisson(maxObs = %d, %f) = %g > 1e-12" % (maxObs, args[0]+1, ROOT.TMath.Poisson(maxObs, args[0]+1))
+                        maxObs += (sqrt(args[0]) if args[0] > 10 else 2);
+                    self.doObj("%s_Pdf" % n, "Poisson", "%s_In[%d,%f,%f], %s[%f,%f,%f], 1" % (n,args[0],minObs,maxObs,n,args[0]+1,minExp,maxExp))
                 globalobs.append("%s_In" % n)
                 if self.options.bin: self.out.var("%s_In" % n).setConstant(True)
             elif pdf == "trG":
