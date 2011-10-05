@@ -17,14 +17,11 @@ iterativePixelPairSeeds.pTMin = [0.3]
 iterativePixelPairSeeds.maxD0 = [5.]
 iterativePixelPairSeeds.maxZ0 = [50.]
 iterativePixelPairSeeds.numberOfHits = [2]
-#iterativePixelPairSeeds.originRadius = [0.01] # was 0.2
 iterativePixelPairSeeds.originRadius = [0.2]
-iterativePixelPairSeeds.originHalfLength = [17.5] # ?
-#iterativePixelPairSeeds.originHalfLength = [50.] # was 17.5
+iterativePixelPairSeeds.originHalfLength = [17.5] 
 iterativePixelPairSeeds.originpTMin = [0.6]
 iterativePixelPairSeeds.zVertexConstraint = [-1.0]
-#iterativePixelPairSeeds.primaryVertices = ['pixelVertices']
-iterativePixelPairSeeds.primaryVertices = ['none']
+iterativePixelPairSeeds.primaryVertices = ['pixelVertices']
 
 # candidate producer
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
