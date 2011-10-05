@@ -20,11 +20,16 @@ PileUpSubtractor::PileUpSubtractor(const edm::ParameterSet& iConfig) :
   doAreaFastjet_ (iConfig.getParameter<bool>         ("doAreaFastjet")),
   doRhoFastjet_  (iConfig.getParameter<bool>         ("doRhoFastjet")),
   jetPtMin_(iConfig.getParameter<double>       ("jetPtMin")),
-  puPtMin_(iConfig.getParameter<double>       ("puPtMin")),
   nSigmaPU_(iConfig.getParameter<double>("nSigmaPU")),
   radiusPU_(iConfig.getParameter<double>("radiusPU")),
   geo_(0)
 {
+  if (iConfig.exists("puPtMin"))
+    puPtMin_=iConfig.getParameter<double>       ("puPtMin");
+  else{
+    puPtMin_=10;
+    edm::LogWarning("MisConfiguration")<<"the parameter puPtMin is now necessary for PU substraction. setting it to "<<puPtMin_;
+  }
    if ( doAreaFastjet_ || doRhoFastjet_ ) {
       // default Ghost_EtaMax should be 5
       double ghostEtaMax = iConfig.getParameter<double>("Ghost_EtaMax");
