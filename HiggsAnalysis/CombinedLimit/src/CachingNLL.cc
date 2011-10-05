@@ -336,7 +336,8 @@ cacheutils::CachingAddNLL::evaluate() const
         logEvalError("Expected number of events is negative");
         expectedEvents = 1e-6;
     }
-    ret += expectedEvents - UInt_t(sumWeights_) * log(expectedEvents);
+    //ret += expectedEvents - UInt_t(sumWeights_) * log(expectedEvents); // no, doesn't work with Asimov dataset
+    ret += expectedEvents - sumWeights_ * log(expectedEvents);
     // std::cout << "     plus extended term: " << ret << std::endl;
     return ret;
 }
