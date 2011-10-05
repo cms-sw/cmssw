@@ -8,6 +8,9 @@ siStripZeroSuppression = cms.EDProducer("SiStripZeroSuppression",
     RawDigiProducersList = cms.VInputTag( cms.InputTag('simSiStripDigis','VirginRaw'), 
                                           cms.InputTag('simSiStripDigis','ProcessedRaw'),
                                           cms.InputTag('simSiStripDigis','ScopeMode')),
+
+    DigisToMergeZS = cms.InputTag('siStripDigis','ZeroSuppressed'),
+    DigisToMergeVR = cms.InputTag('siStripVRDigis','VirginRaw'),
                                         
     storeCM = cms.bool(False), 
     fixCM= cms.bool(False),                # put -999 into CM collection for "inspected" APV

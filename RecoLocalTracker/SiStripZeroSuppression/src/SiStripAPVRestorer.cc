@@ -74,6 +74,7 @@ int16_t SiStripAPVRestorer::inspect( const uint32_t& detId, const uint16_t& firs
   
   detId_ = detId;
   
+  apvFlagsBool_.clear();
   apvFlags_.clear();
   apvFlags_.insert(apvFlags_.begin(), 6, "");
   median_.clear();

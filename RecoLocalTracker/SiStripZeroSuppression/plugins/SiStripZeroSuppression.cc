@@ -191,6 +191,9 @@ void SiStripZeroSuppression::formatRawDigis(edm::DetSetVector<SiStripRawDigi>::c
       const std::vector<bool>& apvf = algorithms->GetAPVFlags();
       edm::DetSet<SiStripRawDigi>::const_iterator itRawDigis = rawDigis->begin(); 
      
+      // for(uint32_t i=0 ; i < apvf.size(); ++i){
+      //	if(apvf[i]) std::cout << "APV " << i << std::endl;
+      //}
       uint32_t strip=0;
       for (; itRawDigis != rawDigis->end(); ++itRawDigis){
 	uint16_t APVn = strip/128;
@@ -198,16 +201,7 @@ void SiStripZeroSuppression::formatRawDigis(edm::DetSetVector<SiStripRawDigi>::c
         else outRawDigis.push_back(SiStripRawDigi(0));
         ++strip;
        }
-
-      /*
-       for(size_t APVn=0; APVn < apvf.size(); ++APVn){
-	  if(apvf[APVn]==0){
-           for(size_t strip =0; strip < 128; ++strip) outRawDigis.push_back(SiStripRawDigi(0));
-	  } else {
-	   for(size_t strip =0; strip < 128; ++strip) outRawDigis.push_back(itRawDigis[APVn*128+strip]);
-         }
-      }
-      */
+     
 }
 
 
@@ -238,9 +232,7 @@ void SiStripZeroSuppression::storeBaseline(uint32_t id, const std::vector< std::
     if(itBaselineMap==baselinemap.end()){
       for(size_t strip=0; strip < 128; ++strip)  baselineDetSet.push_back(SiStripProcessedRawDigi(median));
     } else {
-      //std::vector< int16_t>::iterator itDigi = itBaselineMap->second; 
-      for(size_t strip=0; strip < 128; ++strip) baselineDetSet.push_back(SiStripProcessedRawDigi((itBaselineMap->second)[strip]));
-      //for(size_t strip=0; strip < 128; ++strip) baselineDetSet.push_back(SiStripProcessedRawDigi(itDigi[strip]));
+       for(size_t strip=0; strip < 128; ++strip) baselineDetSet.push_back(SiStripProcessedRawDigi((itBaselineMap->second)[strip]));
     }
     
   }
@@ -307,8 +299,7 @@ void SiStripZeroSuppression::storeCMN(uint32_t id, const std::vector< std::pair<
     }
     apvNb++;
   }
-  //algorithms->fixAPVsCM( apvDetSet ); 
-  
+   
   if(apvDetSet.size())
     output_apvcm.push_back(apvDetSet);
   

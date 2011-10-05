@@ -13,7 +13,7 @@
 //
 // Original Author:  Ivan Amos Cali
 //         Created:  Mon Jul 28 14:10:52 CEST 2008
-// $Id: SiStripBaselineAnalyzer.cc,v 1.6 2011/10/04 19:19:55 icali Exp $
+// $Id: SiStripBaselineAnalyzer.cc,v 1.7 2011/10/04 20:14:21 icali Exp $
 //
 //
  
@@ -90,11 +90,13 @@ class SiStripBaselineAnalyzer : public edm::EDAnalyzer {
 
           bool plotClusters_;
           bool plotBaseline_;
+          bool plotBaselinePoints_;
           bool plotRawDigi_;
           bool plotAPVCM_;
           bool plotPedestals_;
 	  
           edm::InputTag srcBaseline_;
+          edm::InputTag srcBaselinePoints_;
           edm::InputTag srcAPVCM_;
 	  edm::InputTag srcProcessedRawDigi_;
       
@@ -111,6 +113,7 @@ class SiStripBaselineAnalyzer : public edm::EDAnalyzer {
 	  TCanvas* Canvas_;
 	  std::vector<TH1F> vProcessedRawDigiHisto_;
 	  std::vector<TH1F> vBaselineHisto_;
+          std::vector<TH1F> vBaselinePointsHisto_;
 	  std::vector<TH1F> vClusterHisto_;
 	  
 	  uint16_t nModuletoDisplay_;
@@ -121,12 +124,14 @@ class SiStripBaselineAnalyzer : public edm::EDAnalyzer {
 SiStripBaselineAnalyzer::SiStripBaselineAnalyzer(const edm::ParameterSet& conf){
    
   srcBaseline_ =  conf.getParameter<edm::InputTag>( "srcBaseline" );
+  srcBaselinePoints_ = conf.getParameter<edm::InputTag>( "srcBaselinePoints" );
   srcProcessedRawDigi_ =  conf.getParameter<edm::InputTag>( "srcProcessedRawDigi" );
   srcAPVCM_ =  conf.getParameter<edm::InputTag>( "srcAPVCM" );
   subtractorPed_ = SiStripRawProcessingFactory::create_SubtractorPed(conf.getParameter<edm::ParameterSet>("Algorithms"));
   nModuletoDisplay_ = conf.getParameter<uint32_t>( "nModuletoDisplay" );
   plotClusters_ = conf.getParameter<bool>( "plotClusters" );
   plotBaseline_ = conf.getParameter<bool>( "plotBaseline" );
+  plotBaselinePoints_ = conf.getParameter<bool>( "plotBaselinePoints" );
   plotRawDigi_ = conf.getParameter<bool>( "plotRawDigi" );
   plotAPVCM_ = conf.getParameter<bool>( "plotAPVCM" );
   plotPedestals_ = conf.getParameter<bool>( "plotPedestals" );
@@ -188,7 +193,7 @@ SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& es)
    if(plotAPVCM_){
      edm::Handle<edm::DetSetVector<SiStripProcessedRawDigi> > moduleCM;
      edm::InputTag CMLabel("siStripZeroSuppression:APVCM");
-     e.getByLabel(CMLabel,moduleCM);
+     e.getByLabel(srcAPVCM_,moduleCM);
 
      edm::DetSetVector<SiStripProcessedRawDigi>::const_iterator itCMDetSetV =moduleCM->begin();
      for (; itCMDetSetV != moduleCM->end(); ++itCMDetSetV){  
@@ -207,6 +212,9 @@ SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& es)
  
    edm::Handle<edm::DetSetVector<SiStripProcessedRawDigi> > moduleBaseline;
    if(plotBaseline_) e.getByLabel(srcBaseline_, moduleBaseline); 
+
+   edm::Handle<edm::DetSetVector<SiStripDigi> > moduleBaselinePoints;
+   if(plotBaselinePoints_) e.getByLabel(srcBaseline_, moduleBaselinePoints); 
    
    edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusters;
    if(plotClusters_){
@@ -221,6 +229,7 @@ SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& es)
 
    TFileDirectory sdProcessedRawDigis_= fs_->mkdir("ProcessedRawDigis");
    TFileDirectory sdBaseline_= fs_->mkdir("Baseline");
+   TFileDirectory sdBaselinePoints_= fs_->mkdir("BaselinePoints");
    TFileDirectory sdClusters_= fs_->mkdir("Clusters");
    
 
@@ -323,20 +332,15 @@ SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& es)
 	  	  
       strip =0;      
       for(itProcessedRawDigis = ProcessedRawDigis.begin();itProcessedRawDigis != ProcessedRawDigis.end(); ++itProcessedRawDigis){
-        //for(itBaseline = itDSBaseline->begin();itBaseline != itDSBaseline->end(); ++itBaseline, ++itRaw){
-		
-		if(restAPV[strip/128]){
-			
-			// float adc = itRaw->adc();
-			float adc = *itProcessedRawDigis;       
-			//std::cout << "APV RESTORED!!!! " << adc << std::endl;
-			h1ProcessedRawDigis_->Fill(strip, adc);
-			if(plotBaseline_){
-			  h1Baseline_->Fill(strip, itBaseline->adc()); 
-			  ++itBaseline;
-			}
-	  	}
-		++strip;
+       	if(restAPV[strip/128]){
+	  float adc = *itProcessedRawDigis;       
+	  h1ProcessedRawDigis_->Fill(strip, adc);
+	  if(plotBaseline_){
+	    h1Baseline_->Fill(strip, itBaseline->adc()); 
+	    ++itBaseline;
+	  }
+	 }
+	++strip;
        }	  
        
       if(plotBaseline_) ++itDSBaseline; 
