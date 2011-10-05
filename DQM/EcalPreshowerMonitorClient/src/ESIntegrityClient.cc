@@ -121,12 +121,12 @@ void ESIntegrityClient::setup(void) {
   for (int i=0 ; i<2; ++i) 
     for (int j=0 ; j<2; ++j) {
       int iz = (i==0)? 1:-1;
-      sprintf(histo, "ES Integrity Summary 1 Z %d P %d", iz, j+1);
+      snprintf(histo, 200, "ES Integrity Summary 1 Z %d P %d", iz, j+1);
       meFED_[i][j] = dqmStore_->book2D(histo, histo, 40, 0.5, 40.5, 40, 0.5, 40.5);
       meFED_[i][j]->setAxisTitle("Si X", 1);
       meFED_[i][j]->setAxisTitle("Si Y", 2);
       
-      sprintf(histo, "ES Integrity Summary 2 Z %d P %d", iz, j+1);
+      snprintf(histo, 200, "ES Integrity Summary 2 Z %d P %d", iz, j+1);
       meKCHIP_[i][j] = dqmStore_->book2D(histo, histo, 40, 0.5, 40.5, 40, 0.5, 40.5);
       meKCHIP_[i][j]->setAxisTitle("Si X", 1);
       meKCHIP_[i][j]->setAxisTitle("Si Y", 2);
@@ -141,27 +141,21 @@ void ESIntegrityClient::cleanup(void) {
 
 void ESIntegrityClient::analyze(void) {
 
-  char histo[200];
-
   double nDI_FedErr[56];
   for (int i=0; i<56; ++i) nDI_FedErr[i] = 0;
 
   MonitorElement* me = 0;
   
-  sprintf(histo, (prefixME_ + "/ESIntegrityTask/ES FEDs used for data taking").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get(prefixME_ + "/ESIntegrityTask/ES FEDs used for data taking");
   hFED_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hFED_ ); 
 
-  sprintf(histo, (prefixME_ + "/ESIntegrityTask/ES Fiber Off").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get(prefixME_ + "/ESIntegrityTask/ES Fiber Off");
   hFiberOff_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hFiberOff_ ); 
 
-  sprintf(histo, (prefixME_ + "/ESIntegrityTask/ES Fiber Bad Status").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get(prefixME_ + "/ESIntegrityTask/ES Fiber Bad Status");
   hFiberBadStatus_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hFiberBadStatus_ ); 
 
-  sprintf(histo, (prefixME_ + "/ESIntegrityTask/ES SLink CRC Errors").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get(prefixME_ + "/ESIntegrityTask/ES SLink CRC Errors");
   hSLinkCRCErr_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hSLinkCRCErr_ ); 
 
   int xval = 0;
@@ -197,16 +191,13 @@ void ESIntegrityClient::analyze(void) {
   }
 
   // obtain MEs from ESRawDataTask
-  sprintf(histo, (prefixME_ + "/ESRawDataTask/ES L1A DCC errors").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get(prefixME_ + "/ESRawDataTask/ES L1A DCC errors");
   hL1ADiff_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hL1ADiff_ ); 
 
-  sprintf(histo, (prefixME_ + "/ESRawDataTask/ES BX DCC errors").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get(prefixME_ + "/ESRawDataTask/ES BX DCC errors");
   hBXDiff_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hBXDiff_ ); 
 
-  sprintf(histo, (prefixME_ + "/ESRawDataTask/ES Orbit Number DCC errors").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get(prefixME_ + "/ESRawDataTask/ES Orbit Number DCC errors");
   hOrbitNumberDiff_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hOrbitNumberDiff_ ); 
 
   for (int i=1; i<=56; ++i) {
@@ -221,20 +212,16 @@ void ESIntegrityClient::analyze(void) {
   }
 
   // KCHIP integrity
-  sprintf(histo, (prefixME_ + "/ESIntegrityTask/ES KChip Flag 1 Error codes").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get(prefixME_ + "/ESIntegrityTask/ES KChip Flag 1 Error codes");
   hKF1_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hKF1_ ); 
 
-  sprintf(histo, (prefixME_ + "/ESIntegrityTask/ES KChip Flag 2 Error codes").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get(prefixME_ + "/ESIntegrityTask/ES KChip Flag 2 Error codes");
   hKF2_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hKF2_ ); 
 
-  sprintf(histo, (prefixME_ + "/ESIntegrityTask/ES KChip BC mismatch with OptoRX").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get(prefixME_ + "/ESIntegrityTask/ES KChip BC mismatch with OptoRX");
   hKBC_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hKBC_ ); 
 
-  sprintf(histo, (prefixME_ + "/ESIntegrityTask/ES KChip EC mismatch with OptoRX").c_str());
-  me = dqmStore_->get(histo);
+  me = dqmStore_->get(prefixME_ + "/ESIntegrityTask/ES KChip EC mismatch with OptoRX");
   hKEC_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hKEC_ ); 
 
   Int_t kchip_xval[1550];
