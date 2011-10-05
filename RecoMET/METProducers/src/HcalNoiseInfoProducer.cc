@@ -54,7 +54,12 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
   minHighHitE_       = iConfig.getParameter<double>("minHighHitE");
 
   HcalAcceptSeverityLevel_ = iConfig.getParameter<uint32_t>("HcalAcceptSeverityLevel");
-  HcalRecHitFlagsToBeExcluded_ = iConfig.getParameter<std::vector<int> >("HcalRecHitFlagsToBeExcluded");
+  if (iConfig.exists("HcalRecHitFlagsToBeExcluded"))
+      HcalRecHitFlagsToBeExcluded_ = iConfig.getParameter<std::vector<int> >("HcalRecHitFlagsToBeExcluded");
+  else{
+    edm::LogWarning("MisConfiguration")<<"the module is missing the parameter HcalAcceptSeverityLevel. created empty.";
+    HcalRecHitFlagsToBeExcluded_.resize(0);
+  }
 
   TS4TS5EnergyThreshold_ = iConfig.getParameter<double>("TS4TS5EnergyThreshold");
 
