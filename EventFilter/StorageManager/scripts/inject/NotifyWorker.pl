@@ -1,5 +1,5 @@
 #!/usr/bin/env perl
-# $Id: NotifyWorker.pl,v 1.6 2010/09/01 22:12:44 babar Exp $
+# $Id: NotifyWorker.pl,v 1.7 2011/02/04 13:35:05 babar Exp $
 # --
 # NotifyWoker.pl
 # Monitors a directory, and sends notifications to Tier0
@@ -77,6 +77,7 @@ POE::Session->create(
         heartbeat        => \&heartbeat,
         setup_lock       => \&setup_lock,
         sig_child        => \&sig_child,
+        sig_abort        => \&sig_abort,
         _stop            => \&shutdown,
         _default         => \&handle_default,
     },
@@ -137,7 +138,8 @@ sub setup_lock {
         }
         elsif ($process) {
             die
-"Error: Lock \"$lockfile\" exists, pid $pid (running: $process). Stale lock file?";
+              "Error: Lock \"$lockfile\" exists, pid $pid (running: $process)."
+              . " Stale lock file?";
         }
         else {
             $kernel->post( 'logger',
@@ -149,20 +151,17 @@ sub setup_lock {
     open my $fh, '>', $lockfile or die "Cannot create $lockfile: $!";
     print $fh "$$\n";    # Fill it with pid
     close $fh;
+    $heap->{LockFile} = $lockfile;
     $kernel->post( 'logger', info => "Set lock to $lockfile for $$" );
 
-    # Cleanup at the end
-    END {
-        unlink $lockfile if $lockfile;
-    }
-    $SIG{TERM} = $SIG{INT} = $SIG{QUIT} = $SIG{HUP} = sub {
-        print STDERR "Caught a SIG$_[0] -- Shutting down\n";
-        exit 0;          # Ensure END block is called
-    };
+    $kernel->sig( INT  => 'sig_abort' );
+    $kernel->sig( TERM => 'sig_abort' );
+    $kernel->sig( QUIT => 'sig_abort' );
 }
 
 sub notify_tier0 {
-    my ( $kernel, $heap, $args ) = @_[ KERNEL, HEAP, ARG0 ];
+    my ( $kernel, $heap, $args, $wheelID, $offset ) =
+      @_[ KERNEL, HEAP, ARG0 .. ARG2 ];
     my $t0script = $ENV{'SM_NOTIFYSCRIPT'};
     unless ( defined $t0script ) {
         $t0script =
@@ -173,27 +172,51 @@ sub notify_tier0 {
 
     # XXX: Use a wheel, or even better, integrate the perl code here
     system($notify );
+
+    # Update offset, file has been processed
+    if ( defined $wheelID && defined $offset ) {
+        my $current = $heap->{offset}->{$wheelID};
+        if ( $current > $offset ) {
+            my $file = $heap->{watchlist}->{$wheelID};
+            $kernel->post( 'logger',
+                warning =>
+                  "$file was processed backwards: $offset < $current!" );
+        }
+        else {
+            $heap->{offset}->{$wheelID} =
+              $offset;    # File processed up to this offset
+        }
+    }
+    else {
+        $kernel->post( 'logger', warning => "No offset information" );
+    }
 }
 
 # Parse lines like
 #[Some data] INFO closeFile.pl  --FILENAME Data.00133697.0135.Express.storageManager.00.0000.dat --FILECOUNTER 0 --NEVENTS 21 --FILESIZE 1508412 --STARTTIME 1271857503 --STOPTIME 1271857518 --STATUS closed --RUNNUMBER 133697 --LUMISECTION 135 --PATHNAME /store/global//02/closed/ --HOSTNAME srv-C2C06-12 --SETUPLABEL Data --STREAM Express --INSTANCE 0 --SAFETY 0 --APPVERSION CMSSW_3_5_4_onlpatch3_ONLINE --APPNAME CMSSW --TYPE streamer --DEBUGCLOSE 1 --CHECKSUM c8b5a624 --CHECKSUMIND 8912d364
 sub parse_line {
-    my ( $kernel, $heap, $line, $postback ) = @_[ KERNEL, HEAP, ARG0, ARG1 ];
+    my ( $kernel, $heap, $callback, $line, $wheelID, $offset ) =
+      @_[ KERNEL, HEAP, ARG0 .. ARG3 ];
+    my @args = split / +/, $line;
+    my $kind = shift @args;
     return
       unless $line =~ s/^\[[^\]]*] INFO (?:closeFile|notifyTier0)\.pl //
     ;    # Remove [date] INFO notifyTier0.pl
     $line =~ s/(START|STOP)TIME/${1}_TIME/g;
     $line =~ s/APP(VERSION|NAME)/APP_$1/g;
-    $kernel->yield( $postback => $line );
+    $kernel->yield( $callback => $line, $wheelID => $offset );
 }
 
 sub got_log_line {
-    my ( $kernel, $session, $heap, $line, $wheelID ) =
-      @_[ KERNEL, SESSION, HEAP, ARG0, ARG1 ];
-    my $file = $heap->{watchlist}->{$wheelID};
+    my ( $kernel, $heap, $line, $wheelID ) = @_[ KERNEL, HEAP, ARG0, ARG1 ];
+    my $file   = $heap->{watchlist}->{$wheelID};
+    my $offset = $heap->{watchlist}->{$file}->tell();
     $kernel->post( 'logger', debug => "In $file, got line: $line" );
     if ( $line =~ /(?:closeFile|notifyTier0)/i ) {
-        $kernel->yield( parse_line => $line, "notify_tier0" );
+        $kernel->yield(
+            parse_line => notify_tier0 => $line,
+            $wheelID   => $offset
+        );
     }
 }
 
@@ -207,14 +230,14 @@ sub got_log_rollover {
 sub read_changes {
     my ( $kernel, $heap, $file ) = @_[ KERNEL, HEAP, ARG0 ];
 
+    # XXX Would be great not to use a FollowTail wheel, but to use inotify
     return if $heap->{watchlist}->{$file};    # File is already monitored
-    my $seek = $heap->{offsets}->{$file} || 0;
+    my $seek = $heap->{offset}->{$file} || 0;
     my $size = ( stat $file )[7];
     if ( $seek > $size ) {
         $kernel->post( 'logger',
-            warning =>
-"Saved seek ($seek) is greater than current filesize ($size) for $file"
-        );
+            warning => "Saved seek ($seek) is greater than"
+              . " current filesize ($size) for $file" );
         $seek = 0;
     }
     $kernel->post( 'logger', info => "Watching $file, starting at $seek" );
@@ -224,14 +247,25 @@ sub read_changes {
         ResetEvent => "got_log_rollover",
         Seek       => $seek,
     );
-    $heap->{watchlist}->{ $wheel->ID } = $file;
-    $heap->{watchlist}->{$file} = $wheel;
+    $heap->{offset}->{ $wheel->ID }    = $seek;     # Save offset per wheel ID
+    $heap->{watchlist}->{ $wheel->ID } = $file;     # Map wheel ID => file
+    $heap->{watchlist}->{$file}        = $wheel;    # Map file => wheel object
+}
+
+# Some terminal signal got received
+sub sig_abort {
+    my ( $kernel, $heap, $signal ) = @_[ KERNEL, HEAP, ARG0 ];
+    $kernel->post( 'logger', info => "Shutting down on signal SIG$signal" );
+    $kernel->yield('save_offsets');
+    $kernel->yield('shutdown');
+    $kernel->sig_handled;
 }
 
 # Clean shutdown
 sub shutdown {
-    my ( $kernel, $heap, $session ) = @_[ KERNEL, HEAP, SESSION ];
-    $kernel->call( $session => 'save_offsets' );
+    my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
+    my $lockfile = $heap->{LockFile};
+    unlink $lockfile if $lockfile;
     die "Shutting down!";
 }
 
@@ -258,22 +292,27 @@ sub watch_hdlr {
 # Save the offset for each file so processing can be resumed at any time
 sub save_offsets {
     my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
-    $kernel->post( 'logger', debug => "Saving offsets" );
-    $kernel->alarm( save_offsets => time() + $savedelay );
+    my %offset;
+
+    # Call, otherwise log is lost during shutdown
+    $kernel->call( 'logger', info => "Saving offsets" );
+    $kernel->delay( save_offsets => $savedelay );
+
+    # First ensure all tailors have offset sets
     for my $tailor ( grep { /^[0-9]+$/ } keys %{ $heap->{watchlist} } ) {
-        my $file   = $heap->{watchlist}->{$tailor};
-        my $wheel  = $heap->{watchlist}->{$file};
-        my $offset = $wheel->tell;
-        $heap->{offsets}->{$file} = $offset;
+        my $file  = $heap->{watchlist}->{$tailor};
+        my $wheel = $heap->{watchlist}->{$file};
+        $offset{$file} = $heap->{offset}->{$tailor} || $wheel->tell;
     }
 
-    # XXX Use a ReadWrite wheel
-    return unless keys %{ $heap->{offsets} };
+    return unless keys %offset;    # Nothing to do
+
+    # Loop over offsets, saving them to disk
     open my $save, '>', $offsetfile or die "Can't open $offsetfile: $!";
-    for my $file ( sort keys %{ $heap->{offsets} } ) {
-        my $offset = $heap->{offsets}->{$file};
-        $kernel->post( 'logger',
-            debug => "Saving session information for $file: $offset" );
+    for my $file ( sort keys %offset ) {
+        my $offset = $offset{$file};
+        $kernel->call( 'logger',
+            debug => "Saving offset information for $file: $offset" );
         print $save "$file $offset\n";
     }
     close $save;
@@ -286,8 +325,6 @@ sub read_offsets {
     return unless -s $offsetfile;
     $kernel->post( 'logger', debug => "Reading offset file $offsetfile..." );
 
-# XXX Use a ReadWrite wheel like on
-# http://github.com/bingos/poe/raw/22d59d963996d83a93fcb292c269ffbedd0d0965/docs/small-programs/reading-filehandle.pl
     open my $save, '<', $offsetfile or die "Can't open $offsetfile: $!";
     while (<$save>) {
         next unless /^(\S+) ([0-9]+)$/;
@@ -300,13 +337,13 @@ sub read_offsets {
                       "File $file has a different size: $offset != $fsize" );
                 $kernel->yield( read_changes => $file );
             }
-            $heap->{offsets}->{$file} = $offset;
+            $heap->{offset}->{$file} = $offset;
             $kernel->post( 'logger',
-                debug => "Setting session information for $file: $offset" );
+                debug => "Setting offset information for $file: $offset" );
         }
         else {
             $kernel->post( 'logger',
-                debug => "Discarding session information"
+                debug => "Discarding offset information"
                   . " for non-existing $file: $offset" );
         }
     }
@@ -316,8 +353,11 @@ sub read_offsets {
 # Print some heartbeat at fixed interval
 sub heartbeat {
     my ( $kernel, $heap ) = @_[ KERNEL, HEAP ];
-    $kernel->post( 'logger', info => "Still alive in main loop" );
-    $kernel->alarm( heartbeat => time() + $heartbeat );
+    my $message = gettimestamp( time() ) . ' Still alive in main loop.';
+    $message .=
+      ' Kernel has ' . $kernel->get_event_count() . ' events to process';
+    $kernel->post( 'logger', info => $message );
+    $kernel->delay( heartbeat => +$heartbeat );
 }
 
 # Do something with all POE events which are not caught
