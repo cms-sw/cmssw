@@ -6,9 +6,9 @@
  * 
  * \author David Lange
  *
- * \version $Revision: 1.3 $
+ * \version $Revision: 1.6 $
  *
- * $Id: MultiTrackSelector.h,v 1.3 2011/08/09 22:41:09 edelmaie Exp $
+ * $Id: MultiTrackSelector.h,v 1.6 2011/09/29 19:07:40 sungho Exp $
  *
  */
 
@@ -52,14 +52,19 @@ namespace reco { namespace modules {
             bool select (unsigned tsNum,
 			 const reco::BeamSpot &vertexBeamSpot, 
 			 const reco::Track &tk, 
-			 const std::vector<Point> &points);
+			 const std::vector<Point> &points,
+			 std::vector<double> &vterr,
+			 std::vector<double> &vzerr);
             void selectVertices ( unsigned int tsNum,
 				  const reco::VertexCollection &vtxs, 
-				  std::vector<Point> &points);
+				  std::vector<Point> &points,
+				  std::vector<double> &vterr,
+				  std::vector<double> &vzerr);
             /// source collection label
             edm::InputTag src_;
             edm::InputTag beamspot_;
             bool          useVertices_;
+            bool          useVtxError_;
             edm::InputTag vertices_;
             
             /// do I have to set a quality bit?
@@ -73,6 +78,7 @@ namespace reco { namespace modules {
 	    //  parameters for adapted optimal cuts on chi2 and primary vertex compatibility
 	    std::vector< std::vector<double> > res_par_;
 	    std::vector< double > chi2n_par_;
+	    std::vector< double > chi2n_no1Dmod_par_;
 	    std::vector< std::vector<double> > d0_par1_;
 	    std::vector< std::vector<double> > dz_par1_;
 	    std::vector< std::vector<double> > d0_par2_;

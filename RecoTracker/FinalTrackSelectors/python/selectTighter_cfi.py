@@ -7,6 +7,7 @@ selectTight = cms.EDProducer("AnalyticalTrackSelector",
 
     # vertex selection
     useVertices = cms.bool(True),
+    useVtxError = cms.bool(False),
     vertices = cms.InputTag("pixelVertices"),
     vtxNumber = cms.int32(-1),
     vertexCut = cms.string('ndof>=2&!isFake'),
@@ -18,6 +19,7 @@ selectTight = cms.EDProducer("AnalyticalTrackSelector",
 
     # parameters for adapted optimal cuts on chi2 and primary vertex compatibility
     chi2n_par = cms.double(0.7),
+    chi2n_no1Dmod_par = cms.double(9999.),
     res_par = cms.vdouble(0.003, 0.001),
     d0_par1 = cms.vdouble(0.3, 4.0),
     dz_par1 = cms.vdouble(0.35, 4.0),
@@ -40,7 +42,7 @@ selectTight = cms.EDProducer("AnalyticalTrackSelector",
     applyAbsCutsIfNoPV = cms.bool(False),
 
     # parameters for cutting on pterror/pt and number of valid hits
-    min_relpterr = cms.double(9999.),
+    max_relpterr = cms.double(9999.),
     min_nhits = cms.uint32(0)
                              
 

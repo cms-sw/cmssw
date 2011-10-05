@@ -16,6 +16,7 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     vertexCut_.reserve(1);
     res_par_.reserve(1);
     chi2n_par_.reserve(1);
+    chi2n_no1Dmod_par_.reserve(1);
     d0_par1_.reserve(1);
     dz_par1_.reserve(1);
     d0_par2_.reserve(1);
@@ -37,6 +38,7 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     src_ = cfg.getParameter<edm::InputTag>( "src" );
     beamspot_ = cfg.getParameter<edm::InputTag>( "beamspot" );
     useVertices_ = cfg.getParameter<bool>( "useVertices" );
+    useVtxError_ = cfg.getParameter<bool>( "useVtxError" );
     vertices_ = useVertices_ ? cfg.getParameter<edm::InputTag>( "vertices" ) : edm::InputTag("NONE");
     copyExtras_ = cfg.getUntrackedParameter<bool>("copyExtras", false);
     copyTrajectories_ = cfg.getUntrackedParameter<bool>("copyTrajectories", false);
@@ -48,6 +50,7 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     //  parameters for adapted optimal cuts on chi2 and primary vertex compatibility
     res_par_.push_back(cfg.getParameter< std::vector<double> >("res_par") );
     chi2n_par_.push_back( cfg.getParameter<double>("chi2n_par") );
+    chi2n_no1Dmod_par_.push_back( cfg.getParameter<double>("chi2n_no1Dmod_par") );
     d0_par1_.push_back(cfg.getParameter< std::vector<double> >("d0_par1"));
     dz_par1_.push_back(cfg.getParameter< std::vector<double> >("dz_par1"));
     d0_par2_.push_back(cfg.getParameter< std::vector<double> >("d0_par2"));
@@ -64,7 +67,7 @@ AnalyticalTrackSelector::AnalyticalTrackSelector( const edm::ParameterSet & cfg 
     min_3Dlayers_.push_back(cfg.getParameter<uint32_t>("minNumber3DLayers") );
     max_lostLayers_.push_back(cfg.getParameter<uint32_t>("maxNumberLostLayers"));
     max_relpterr_.push_back(cfg.getParameter<double>("max_relpterr"));
-    min_nhits_.push_back(cfg.getParameter<int32_t>("min_nhits"));
+    min_nhits_.push_back(cfg.getParameter<uint32_t>("min_nhits"));
 
     // Flag to apply absolute cuts if no PV passes the selection
     applyAbsCutsIfNoPV_.push_back(cfg.getParameter<bool>("applyAbsCutsIfNoPV"));
@@ -137,9 +140,10 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
   // Select good primary vertices for use in subsequent track selection
   edm::Handle<reco::VertexCollection> hVtx;
   std::vector<Point> points;
+  std::vector<double> vterr, vzerr;
   if (useVertices_) {
       evt.getByLabel(vertices_, hVtx);
-      selectVertices(0,*hVtx, points);
+      selectVertices(0,*hVtx, points, vterr, vzerr);
       // Debug 
       LogDebug("SelectVertex") << points.size() << " good pixel vertices";
   }
@@ -166,7 +170,7 @@ void AnalyticalTrackSelector::produce( edm::Event& evt, const edm::EventSetup& e
 
     LogTrace("TrackSelection") << "ready to check track with pt="<< trk.pt() ;
 
-    bool ok = select(0,vertexBeamSpot, trk, points);
+    bool ok = select(0,vertexBeamSpot, trk, points, vterr, vzerr);
     if (!ok) {
 
       LogTrace("TrackSelection") << "track with pt="<< trk.pt() << " NOT selected";
