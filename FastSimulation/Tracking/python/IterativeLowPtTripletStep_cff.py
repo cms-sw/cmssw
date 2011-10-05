@@ -3,7 +3,6 @@ import FWCore.ParameterSet.Config as cms
 # step 0.5
 
 # seeding
-#from FastSimulation.Tracking.IterativeSecondSeedProducer_cff import *
 import FastSimulation.Tracking.TrajectorySeedProducer_cfi
 iterativeLowPtTripletSeeds = FastSimulation.Tracking.TrajectorySeedProducer_cfi.trajectorySeedProducer.clone()
 iterativeLowPtTripletSeeds.firstHitSubDetectorNumber = [1]
@@ -14,18 +13,17 @@ iterativeLowPtTripletSeeds.thirdHitSubDetectorNumber = [2]
 iterativeLowPtTripletSeeds.thirdHitSubDetectors = [1, 2]
 iterativeLowPtTripletSeeds.seedingAlgo = ['LowPtPixelTriplets']
 iterativeLowPtTripletSeeds.minRecHits = [3]
-iterativeLowPtTripletSeeds.pTMin = [0.1] 
+iterativeLowPtTripletSeeds.pTMin = [0.25] 
 iterativeLowPtTripletSeeds.maxD0 = [5.]
 iterativeLowPtTripletSeeds.maxZ0 = [50.]
 iterativeLowPtTripletSeeds.numberOfHits = [3]
 iterativeLowPtTripletSeeds.originRadius = [0.03]
 iterativeLowPtTripletSeeds.originHalfLength = [17.5] # ?
-iterativeLowPtTripletSeeds.originpTMin = [0.2]
+iterativeLowPtTripletSeeds.originpTMin = [0.35]
 iterativeLowPtTripletSeeds.zVertexConstraint = [-1.0]
 iterativeLowPtTripletSeeds.primaryVertices = ['none']
 
 # candidate producer
-#from FastSimulation.Tracking.IterativeLowPtTripletCandidateProducer_cff import *
 import FastSimulation.Tracking.TrackCandidateProducer_cfi
 iterativeLowPtTripletTrackCandidatesWithTriplets = FastSimulation.Tracking.TrackCandidateProducer_cfi.trackCandidateProducer.clone()
 iterativeLowPtTripletTrackCandidates = cms.Sequence(iterativeLowPtTripletTrackCandidatesWithTriplets)
@@ -35,18 +33,15 @@ iterativeLowPtTripletTrackCandidatesWithTriplets.KeepFittedTracks = False
 iterativeLowPtTripletTrackCandidatesWithTriplets.MinNumberOfCrossedLayers = 3
 
 # track producer
-#from FastSimulation.Tracking.IterativeLowPtTripletTrackProducer_cff import *
 import RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi
 iterativeLowPtTripletTracksWithTriplets = RecoTracker.TrackProducer.CTFFinalFitWithMaterial_cfi.ctfWithMaterialTracks.clone()
 iterativeLowPtTripletTracks = cms.Sequence(iterativeLowPtTripletTracksWithTriplets)
 iterativeLowPtTripletTracksWithTriplets.src = 'iterativeLowPtTripletTrackCandidatesWithTriplets'
 iterativeLowPtTripletTracksWithTriplets.TTRHBuilder = 'WithoutRefit'
-#iterativeLowPtTripletTracksWithTriplets.Fitter = 'KFFittingSmootherWithOutlierRejection'
 iterativeLowPtTripletTracksWithTriplets.Fitter = 'KFFittingSmootherSecond'
 iterativeLowPtTripletTracksWithTriplets.Propagator = 'PropagatorWithMaterial'
 
 # track merger
-#from FastSimulation.Tracking.IterativeLowPtTripletTrackMerger_cfi import *
 lowPtTripletStepTracks = cms.EDProducer("FastTrackMerger",
                                         TrackProducers = cms.VInputTag(cms.InputTag("iterativeLowPtTripletTrackCandidatesWithTriplets"),
                                                                        cms.InputTag("iterativeLowPtTripletTracksWithTriplets")),
