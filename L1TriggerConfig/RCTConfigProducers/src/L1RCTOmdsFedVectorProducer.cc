@@ -13,7 +13,7 @@
 //
 // Original Author:  Jessica Lynn Leonard,32 4-C20,+41227674522,
 //         Created:  Fri Sep  9 11:19:20 CEST 2011
-// $Id$
+// $Id: L1RCTOmdsFedVectorProducer.cc,v 1.1 2011/09/30 14:42:47 jleonard Exp $
 //
 //
 
@@ -113,127 +113,98 @@ L1RCTOmdsFedVectorProducer::~L1RCTOmdsFedVectorProducer()
 L1RCTOmdsFedVectorProducer::ReturnType
 L1RCTOmdsFedVectorProducer::produce(const RunInfoRcd& iRecord)
 {
-  std::cout << "ENTERING L1RCTOmdsFedVectorProducer::produce()" << std::endl;
+  //  std::cout << "ENTERING L1RCTOmdsFedVectorProducer::produce()" << std::endl;
 
-   using namespace edm::es;
-   boost::shared_ptr<RunInfo> pRunInfo ;
+  using namespace edm::es;
+  boost::shared_ptr<RunInfo> pRunInfo ;
 
-   // here is where the OMDS is read
+  //  std::cout << "GETTING FED VECTOR FROM OMDS" << std::endl;
+  
+  // GETTING ALREADY-EXISTING RUNINFO OUT OF ES TO FIND OUT RUN NUMBER
+  edm::ESHandle<RunInfo> sum;
+  iRecord.get(sum);
+  const RunInfo* summary=sum.product();
+  int runNumber = summary->m_run; 
+  
+  // CREATING NEW RUNINFO WHICH WILL GET NEW FED VECTOR AND BE RETURNED
+  pRunInfo = boost::shared_ptr<RunInfo>( new RunInfo() ); 
+  
+  
+  // DO THE DATABASE STUFF
+  
+  //make connection object
+  cond::DbConnection         connection;
+  
+  //set in configuration object authentication path
+  connection.configuration().setAuthenticationPath(authpath);
+  connection.configure();
+  
+  //create session object from connection
+  cond::DbSession session = connection.createSession();
+  
+  session.open(connectionString,true);
 
-   //  std::cout << "GETTING FED VECTOR FROM OMDS" << std::endl;
+  session.transaction().start(true); // (true=readOnly)
 
-   // Testing out this OMDS stuff online
-   // hodge-podged together from http://cmslxr.fnal.gov/lxr/source/CondTools/RunInfo/src/RunInfoRead.cc#191
+  coral::ISchema& schema = session.schema("CMS_RUNINFO");
 
-   //   // NEED VALUES FOR: (keep these things hard-coded?)  NO, authentication details should be configurable
-   //   std::string connectionString = "oracle://cms_orcoff_prod/CMS_RUNINFO"; // from Salvatore Di Guida
-   //   std::string authpath = "/afs/cern.ch/cms/DB/conddb";
-   //   std::string tableToRead = "RUNSESSION_PARAMETER"; // this can maybe be hard-coded, but should possibly be configurable also (since it's configurable in the RunInfoRead code)
-
-   // GETTING ALREADY-EXISTING RUNINFO OUT OF ES TO FIND OUT RUN NUMBER
-   edm::ESHandle<RunInfo> sum;
-//    eventSetup.get<RunInfoRcd>().get(sum);
-   iRecord.get(sum);
-   const RunInfo* summary=sum.product();
-   int runNumber = summary->m_run; // I THINK m_run IS REAL DEAL
-
-   // CREATING NEW RUNINFO WHICH WILL GET NEW FED VECTOR AND BE RETURNED
-   pRunInfo = boost::shared_ptr<RunInfo>( new RunInfo() ); // like in L1SubsystemKeysOnlineProd.cc
-   //   const std::vector<int> fedvector = summary->m_fed_in;
-
-
-   // DO THE DATABASE STUFF
-
-   //make connection object
-   cond::DbConnection         connection;
-
-   //set in configuration object authentication path
-   connection.configuration().setAuthenticationPath(authpath);
-   connection.configure();
-
-   //create session object from connection
-   cond::DbSession session = connection.createSession();
-
-   session.open(connectionString,true);
-
-   //   try{ // LAST I HEARD WE ARE NOT SUPPOSED TO BE CATCHING EXCEPTIONS
-
-   session.transaction().start(true); // (true=readOnly)
-
-   coral::ISchema& schema = session.schema("CMS_RUNINFO");
-
-   //condition
-   coral::AttributeList conditionData;
-   conditionData.extend<int>( "n_run" );
-   conditionData[0].data<int>() = runNumber;
-
-   std::string columnToRead_val = "VALUE";
-
-   std::string tableToRead_fed = "RUNSESSION_STRING";
-   coral::IQuery* queryV = schema.newQuery();
-   queryV->addToTableList(tableToRead);
-   queryV->addToTableList(tableToRead_fed);
-   queryV->addToOutputList(tableToRead_fed + "." + columnToRead_val, columnToRead_val);
-   //queryV->addToOutputList(tableToRead + "." + columnToRead, columnToRead);
-   //condition
-   std::string condition = tableToRead + ".RUNNUMBER=:n_run AND " + tableToRead + ".NAME='CMS.LVL0:FED_ENABLE_MASK' AND RUNSESSION_PARAMETER.ID = RUNSESSION_STRING.RUNSESSION_PARAMETER_ID";
-   //std::string condition = tableToRead + ".runnumber=:n_run AND " + tableToRead + ".name='CMS.LVL0:FED_ENABLE_MASK'";
-   queryV->setCondition(condition, conditionData);
-   coral::ICursor& cursorV = queryV->execute();
-   std::string fed;
-   if ( cursorV.next() ) {
-     //cursorV.currentRow().toOutputStream(std::cout) << std::endl;
-     const coral::AttributeList& row = cursorV.currentRow();
-     fed = row[columnToRead_val].data<std::string>();
-   }
-   else {
-     fed="null";
-   }
-   //std::cout << "string fed emask == " << fed << std::endl;
-   delete queryV;
-
-   std::replace(fed.begin(), fed.end(), '%', ' ');
-   std::stringstream stream(fed);
-   for(;;)
-     {
-       std::string word;
-       if ( !(stream >> word) ){break;}
-       std::replace(word.begin(), word.end(), '&', ' ');
-       std::stringstream ss(word);
-       int fedNumber;
-       int val;
-       ss >> fedNumber >> val;
-       //std::cout << "fed:: " << fed << "--> val:: " << val << std::endl;
-       //val bit 0 represents the status of the SLINK, but 5 and 7 means the SLINK/TTS is ON but NA or BROKEN (see mail of alex....)
-       if( (val & 0001) == 1 && (val != 5) && (val != 7) )
-	 pRunInfo->m_fed_in.push_back(fedNumber);
-     }
-   //   std::cout << "feds in run:--> ";
-   //   std::copy(pRunInfo->m_fed_in.begin(), pRunInfo->m_fed_in.end(), std::ostream_iterator<int>(std::cout, ", "));
-   //   std::cout << std::endl;
-   /*
+  //condition
+  coral::AttributeList conditionData;
+  conditionData.extend<int>( "n_run" );
+  conditionData[0].data<int>() = runNumber;
+  
+  std::string columnToRead_val = "VALUE";
+  
+  std::string tableToRead_fed = "RUNSESSION_STRING";
+  coral::IQuery* queryV = schema.newQuery();
+  queryV->addToTableList(tableToRead);
+  queryV->addToTableList(tableToRead_fed);
+  queryV->addToOutputList(tableToRead_fed + "." + columnToRead_val, columnToRead_val);
+  //queryV->addToOutputList(tableToRead + "." + columnToRead, columnToRead);
+  //condition
+  std::string condition = tableToRead + ".RUNNUMBER=:n_run AND " + tableToRead + ".NAME='CMS.LVL0:FED_ENABLE_MASK' AND RUNSESSION_PARAMETER.ID = RUNSESSION_STRING.RUNSESSION_PARAMETER_ID";
+  //std::string condition = tableToRead + ".runnumber=:n_run AND " + tableToRead + ".name='CMS.LVL0:FED_ENABLE_MASK'";
+  queryV->setCondition(condition, conditionData);
+  coral::ICursor& cursorV = queryV->execute();
+  std::string fed;
+  if ( cursorV.next() ) {
+    //cursorV.currentRow().toOutputStream(std::cout) << std::endl;
+    const coral::AttributeList& row = cursorV.currentRow();
+    fed = row[columnToRead_val].data<std::string>();
+  }
+  else {
+    fed="null";
+  }
+  //std::cout << "string fed emask == " << fed << std::endl;
+  delete queryV;
+  
+  std::replace(fed.begin(), fed.end(), '%', ' ');
+  std::stringstream stream(fed);
+  for(;;)
+    {
+      std::string word;
+      if ( !(stream >> word) ){break;}
+      std::replace(word.begin(), word.end(), '&', ' ');
+      std::stringstream ss(word);
+      int fedNumber;
+      int val;
+      ss >> fedNumber >> val;
+      //std::cout << "fed:: " << fed << "--> val:: " << val << std::endl;
+      //val bit 0 represents the status of the SLINK, but 5 and 7 means the SLINK/TTS is ON but NA or BROKEN (see mail of alex....)
+      if( (val & 0001) == 1 && (val != 5) && (val != 7) )
+	pRunInfo->m_fed_in.push_back(fedNumber);
+    }
+  //   std::cout << "feds in run:--> ";
+  //   std::copy(pRunInfo->m_fed_in.begin(), pRunInfo->m_fed_in.end(), std::ostream_iterator<int>(std::cout, ", "));
+  //   std::cout << std::endl;
+  /*
     for (size_t i =0; i<pRunInfo->m_fed_in.size() ; ++i)
     {
     std::cout << "fed in run:--> " << pRunInfo->m_fed_in[i] << std::endl;
     }
-   */
-
-   // WE ARE NOT SUPPOSED TO BE CATCHING EXCEPTIONS
-   //   }
-   //   catch (const std::exception& e) {
-   //     std::cout << "Exception: " << e.what() << std::endl;
-   //   }
-
-   //   delete session;
-
-   //   const std::vector<int> fedvector = pRunInfo->m_fed_in;
-
-   //   return fedvector;
-
-   // End testing OMDS stuff
-
-
-   return pRunInfo ;
+  */
+  
+  return pRunInfo ;
 }
 
 //define this as a plug-in
