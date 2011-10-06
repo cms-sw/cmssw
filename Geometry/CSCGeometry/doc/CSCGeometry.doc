@@ -91,13 +91,14 @@ Abstract class describing the wire group structure of a CSC wire plane - how the
 \subsection modules Modules
 <!-- Describe modules implemented in this package and their parameter set -->
 
-I don even know what a module is so I don't think there are any.
+I don't even know what a 'module' is, so I don't think there are any.
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
 
-None of those left since they were never properly supported. There are 7 types of stand-alone test program
-in the test directory.
+No cppunit tests left since they were never properly supported or particularly useful. 
+But there are 7 types of stand-alone test program in the test directory which are extremely useful
+for examining what's in the CSCGeometry hierarchy.
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
