@@ -25,7 +25,7 @@ double Asymptotic::rRelAccuracy_ = 0.005;
 std::string Asymptotic::what_ = "both"; 
 bool  Asymptotic::qtilde_ = true; 
 bool  Asymptotic::picky_ = false; 
-bool  Asymptotic::noMinos_ = false; 
+std::string Asymptotic::minosAlgo_ = "minos"; 
 std::string Asymptotic::minimizerAlgo_ = "Minuit2";
 float       Asymptotic::minimizerTolerance_ = 0.1;
 int         Asymptotic::minimizerStrategy_  = 0;
@@ -44,7 +44,7 @@ LimitAlgo("Asymptotic specific options") {
         ("minimizerStrategy",  boost::program_options::value<int>(&minimizerStrategy_)->default_value(minimizerStrategy_),      "Stragegy for minimizer")
         ("qtilde", boost::program_options::value<bool>(&qtilde_)->default_value(qtilde_),  "Allow only non-negative signal strengths (default is true).")
         ("picky", "Abort on fit failures")
-        ("noMinos", "Don't use minos to determine the sigma for the expected limits")
+        ("minosAlgo", boost::program_options::value<std::string>(&minosAlgo_)->default_value(minosAlgo_), "Algorithm to use to get the median expected limit: 'minos' (default, fastest), 'bisection', 'stepping' (most robust)")
     ;
 }
 
@@ -57,7 +57,6 @@ void Asymptotic::applyOptions(const boost::program_options::variables_map &vm) {
             throw std::invalid_argument("Asymptotic: option 'run' can only be 'observed', 'expected' or 'both' (the default)");
     }
     picky_ = vm.count("picky");
-    noMinos_ = vm.count("noMinos");
 }
 
 void Asymptotic::applyDefaultOptions() { 
@@ -69,8 +68,8 @@ bool Asymptotic::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::Mod
     ProfileLikelihood::MinimizerSentry minimizerConfig(minimizerAlgo_, minimizerTolerance_);
     if (verbose > 0) std::cout << "Will compute " << what_ << " limit(s) using minimizer " << minimizerAlgo_ 
                         << " with strategy " << minimizerStrategy_ << " and tolerance " << minimizerTolerance_ << std::endl;
- 
-    bool ret = false;
+    
+    bool ret = false; 
     std::vector<std::pair<float,float> > expected;
     if (what_ == "both" || what_ == "expected") expected = runLimitExpected(w, mc_s, mc_b, data, limit, limitErr, hint);
     if (what_ != "expected") ret = runLimit(w, mc_s, mc_b, data, limit, limitErr, hint);
@@ -88,6 +87,8 @@ bool Asymptotic::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::Mod
         }
         std::cout << std::endl;
     }
+
+    // note that for expected we have to return FALSE even if we succeed because otherwise it goes into the observed limit as well
     return ret;
 }
 
@@ -178,7 +179,7 @@ double Asymptotic::getCLs(RooRealVar &r, double rVal) {
   r.setMax(1.1 * rVal);
   r.setConstant(true);
 
-  CloseCoutSentry sentry(verbose < 2);
+  CloseCoutSentry sentry(verbose < 3);
   RooMinimizer minimD(*nllD_), minimA(*nllA_);
   minimD.setStrategy(minimizerStrategy_); minimD.setPrintLevel(-1); 
   minimA.setStrategy(minimizerStrategy_); minimA.setPrintLevel(-1);
@@ -207,13 +208,13 @@ double Asymptotic::getCLs(RooRealVar &r, double rVal) {
 
   double CLsb = ROOT::Math::normal_cdf_c(sqrt(qmu));
   double CLb  = ROOT::Math::normal_cdf(sqrt(qA)-sqrt(qmu));
-  double CLs  = (CLb == 0 ? 0 : CLsb/CLb);
   if (qtilde_ && qmu > qA) {
     // In this region, things are tricky
-    double mos = sqrt(2*qA); // mu/sigma
+    double mos = sqrt(qA); // mu/sigma
     CLsb = ROOT::Math::normal_cdf_c( (qmu + qA)/(2*mos) );
-    CLb  = ROOT::Math::normal_cdf  ( (qmu - qA)/(2*mos) );
+    CLb  = ROOT::Math::normal_cdf_c( (qmu - qA)/(2*mos) );
   }
+  double CLs  = (CLb == 0 ? 0 : CLsb/CLb);
   sentry.clear();
   if (verbose > 0) printf("At %s = %f:\tq_mu = %.5f\tq_A  = %.5f\tCLsb = %7.5f\tCLb  = %7.5f\tCLs  = %7.5f\n", r.GetName(), rVal, qmu, qA, CLsb, CLb, CLs);
   return CLs; 
@@ -244,6 +245,8 @@ std::vector<std::pair<float,float> > Asymptotic::runLimitExpected(RooWorkspace *
 
     // 3) solve for q_mu
     r->setConstant(false);
+    r->setMin(0);
+    r->setVal(0.01*r->getMax());
     
     std::auto_ptr<RooAbsReal> nll(mc_s->GetPdf()->createNLL(*asimov, RooFit::Constrain(*mc_s->GetNuisanceParameters())));
     RooMinimizer minim(*nll);
@@ -251,12 +254,17 @@ std::vector<std::pair<float,float> > Asymptotic::runLimitExpected(RooWorkspace *
     minim.setPrintLevel(-1);
     minim.setErrorLevel(0.5*pow(ROOT::Math::normal_quantile(1-0.5*(1-cl),1.0), 2)); // the 0.5 is because qmu is -2*NLL
                         // eventually if cl = 0.95 this is the usual 1.92!
-    CloseCoutSentry sentry(verbose < 2);
+    CloseCoutSentry sentry(verbose < 3);    
     nllutils::robustMinimize(*nll, minim, verbose-1);
     sentry.clear();
+    if (verbose > 1) {
+        std::cout << "Fit to asimov dataset:" << std::endl;
+        std::auto_ptr<RooFitResult> res(minim.save());
+        res->Print("V");
+    }
     int minosStat = -1;
-    if (!noMinos_) {
-        CloseCoutSentry sentry2(verbose < 2);
+    if (minosAlgo_ == "minos") {
+        CloseCoutSentry sentry2(verbose < 3);
         for (int tries = 0; tries < 3; ++tries) {
             minosStat = minim.minos(RooArgSet(*r));
             if (minosStat != -1) break;
@@ -270,27 +278,58 @@ std::vector<std::pair<float,float> > Asymptotic::runLimitExpected(RooWorkspace *
             }
         }
     } else {
+        if (r->getVal()/r->getMax() > 1e-3) {
+            if (verbose) printf("WARNING: Best fit of asimov dataset is at %s = %f (%f times %sMax), while it should be at zero\n",
+                                    r->GetName(), r->getVal(), r->getVal()/r->getMax(), r->GetName());
+        }
         double nll0 = nll->getVal();
         double threshold = nll->getVal() + 0.5*pow(ROOT::Math::normal_quantile(1-0.5*(1-cl),1.0), 2);
-        double rMin = 0, rMax = r->getMax();
+        double rMin = r->getVal(), rMax = r->getMax();
         double rCross = 0.5*(rMin+rMax), rErr = 0.5*(rMax-rMin);
         r->setVal(rCross); r->setConstant(true);
         RooMinimizer minim2(*nll);
         minim2.setStrategy(minimizerStrategy_);
         minim2.setPrintLevel(-1);
-        while (rErr < std::max(rRelAccuracy_*rCross, rAbsAccuracy_)) {
-            bool ok = true;
-            { 
-                CloseCoutSentry sentry2(verbose < 2);
-                ok = nllutils::robustMinimize(*nll, minim2, verbose-1);
+        if (minosAlgo_ == "bisection") {
+            if (verbose > 1) printf("Will search for NLL crossing by bisection\n");
+            while (rErr > std::max(rRelAccuracy_*rCross, rAbsAccuracy_)) {
+                bool ok = true;
+                { 
+                    CloseCoutSentry sentry2(verbose < 3);
+                    ok = nllutils::robustMinimize(*nll, minim2, verbose-1);
+                }
+                if (!ok && picky_) break; else minosStat = 0;
+                double here = nll->getVal();
+                if (verbose > 1) printf("At %s = %f:\tdelta(nll) = %.5f\n", r->GetName(), rCross, here-nll0);
+                if (fabs(here - threshold) < 0.05*minimizerTolerance_) break;
+                if (here < threshold) rMin = rCross; else rMax = rCross;
+                rCross = 0.5*(rMin+rMax); rErr = 0.5*(rMax-rMin);
+            } 
+        } else if (minosAlgo_ == "stepping") {
+            if (verbose > 1) printf("Will search for NLL crossing by stepping.\n");
+            rCross = 0.05 * rMax; rErr = rMax; 
+            double stride = rCross; bool overstepped = false;
+            while (rErr > std::max(rRelAccuracy_*rCross, rAbsAccuracy_)) {
+                r->setVal(rCross);
+                bool ok = true;
+                { 
+                    CloseCoutSentry sentry2(verbose < 3);
+                    ok = nllutils::robustMinimize(*nll, minim2, verbose-1);
+                }
+                if (!ok && picky_) break; else minosStat = 0;
+                double here = nll->getVal();
+                if (verbose > 1) printf("At %s = %f:\tdelta(nll) = %.5f\n", r->GetName(), rCross, here-nll0);
+                if (fabs(here - threshold) < 0.05*minimizerTolerance_) break;
+                if (here < threshold) { 
+                    if (overstepped) stride *= 0.5;
+                    rCross += stride; 
+                } else { 
+                    stride *= 0.5; overstepped = true;
+                    rCross -= stride;
+                }
+                if (overstepped) rErr = stride;
             }
-            if (!ok && picky_) break; else minosStat = 0;
-            double here = nll->getVal();
-            if (verbose > 1) printf("At %s = %f:\tdelta(nll) = %.5f\n", r->GetName(), rCross, here-nll0);
-            if (fabs(here - threshold) < 0.05*minimizerTolerance_) break;
-            if (here < threshold) rMin = rCross; else rMax = rCross;
-            rCross = 0.5*(rMin+rMax); rErr = 0.5*(rMax-rMin);
-        } 
+        }
         r->setAsymError(0,rCross);
     }
     if (minosStat == -1) {
