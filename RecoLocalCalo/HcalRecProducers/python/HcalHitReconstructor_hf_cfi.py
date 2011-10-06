@@ -3,7 +3,7 @@ import string # use for setting flag masks based on boolean bits
 
 hfreco = cms.EDProducer("HcalHitReconstructor",
                         correctForPhaseContainment = cms.bool(False),
-                        correctionPhaseNS = cms.double(16.0), 
+                        correctionPhaseNS = cms.double(13.0), 
                         digiLabel = cms.InputTag("hcalDigis"),
                         Subdetector = cms.string('HF'),
                         correctForTimeslew = cms.bool(False),
