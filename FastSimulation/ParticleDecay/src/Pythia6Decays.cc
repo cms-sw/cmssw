@@ -1,5 +1,5 @@
 // HepMC Headers
-#include "HepMC/PythiaWrapper6_2.h"
+#include "HepMC/PythiaWrapper6_4.h"
 
 // Pythia6 framework integration service Headers
 #include "GeneratorInterface/Pythia6Interface/interface/Pythia6Service.h"
