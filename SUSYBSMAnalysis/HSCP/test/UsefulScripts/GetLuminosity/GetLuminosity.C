@@ -44,7 +44,7 @@ void RemoveRunsAfter(unsigned int RunMax, const std::vector<stRun*>& RunMap, std
 void GetLuminosity()
 {
   //std::string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_08_03/";
-   std::string BaseDirectory = "/uscmst1b_scratch/lpc1/lpcphys/jchen/HSCPEDM_08_02_11/";
+   std::string BaseDirectory = "/uscmst1b_scratch/lpc1/lpcphys/jchen/HSCPEDM_09_13_11/";
    vector<string> inputFiles;
    inputFiles.push_back(BaseDirectory + "Data_RunA_160404_163869.root");
    inputFiles.push_back(BaseDirectory + "Data_RunA_165001_166033.root");
@@ -59,11 +59,12 @@ void GetLuminosity()
    inputFiles.push_back(BaseDirectory + "Data_RunA_172803_172900.root");
    inputFiles.push_back(BaseDirectory + "Data_RunA_172901_173243.root");
    inputFiles.push_back(BaseDirectory + "Data_RunA_173244_173692.root");
-   inputFiles.push_back(TempDirectory + "Data_RunA_175860_176099.root");
-   inputFiles.push_back(TempDirectory + "Data_RunA_176100_176309.root");
    inputFiles.push_back(BaseDirectory + "Data_RunA_175860_176099.root");
    inputFiles.push_back(BaseDirectory + "Data_RunA_176100_176309.root");
-
+   inputFiles.push_back(BaseDirectory + "Data_RunA_175860_176099.root");
+   inputFiles.push_back(BaseDirectory + "Data_RunA_176100_176309.root");
+   inputFiles.push_back(BaseDirectory + "Data_RunA_176467_176800.root");
+   inputFiles.push_back(BaseDirectory + "Data_RunA_176801_177053.root");
    std::vector<stRun*> RunMap;
    GetLumiBlocks_Core(inputFiles, RunMap);
    DumpJson(RunMap, "out.json");
