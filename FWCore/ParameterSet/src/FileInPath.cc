@@ -271,7 +271,8 @@ namespace edm
 	throw edm::Exception(edm::errors::FileInPathError)
 	  << "Environment Variable " 
 	  << LOCALTOP
-	  << " is not set.\n";
+	  << " is not set.\n"
+	  << "Trying to read Local file: " << canFilename << ".\n";
       }
 #if 1
       // This #if needed for backward compatibility
@@ -329,10 +330,9 @@ namespace edm
       if (!envstring(LOCALTOP, releaseTop_)) {
         releaseTop_.clear();
       }
-    } else {
-      if (!envstring(LOCALTOP, localTop_)) {
-        localTop_.clear();
-      }
+    }
+    if (!envstring(LOCALTOP, localTop_)) {
+      localTop_.clear();
     }
     if (!envstring(DATATOP, dataTop_)) {
       dataTop_.clear();
