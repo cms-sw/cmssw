@@ -116,7 +116,7 @@ HLTMuonTrimuonL3Filter::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<bool>("saveTags",false);
   desc.add<double>("MaxDCAMuMu",99999.9);
   desc.add<double>("MaxRapidityTriplet",999999.0);
-  descriptions.add("hltMuonDimuonL3Filter",desc);
+  descriptions.add("hltMuonTrimuonL3Filter",desc);
 }
 
 //
