@@ -95,7 +95,6 @@ HLTMuonTrimuonL3Filter::fillDescriptions(edm::ConfigurationDescriptions& descrip
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("BeamSpotTag",edm::InputTag("hltOfflineBeamSpot"));
   desc.add<edm::InputTag>("CandTag",edm::InputTag("hltL3MuonCandidates"));
-  //  desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag("hltDiMuonL2PreFiltered0"));
   desc.add<edm::InputTag>("PreviousCandTag",edm::InputTag(""));
   desc.add<bool>("FastAccept",false);
   desc.add<double>("MaxEta",2.5);
