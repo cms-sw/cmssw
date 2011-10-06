@@ -17,15 +17,15 @@ class RestrictInputToAOD(ConfigToolBase):
 
     def getDefaultParameters(self):
         return self._defaultParameters
-  
+
     def __call__(self,process,
                  names     = None) :
         if  names is None:
             names=self._defaultParameters['names'].value
         self.setParameter('names',names)
-        self.apply(process) 
-        
-    def toolCode(self, process):        
+        self.apply(process)
+
+    def toolCode(self, process):
         names=self._parameters['names'].value
         for obj in range(len(names)):
             print "---------------------------------------------------------------------"
@@ -34,17 +34,17 @@ class RestrictInputToAOD(ConfigToolBase):
             if( names[obj] == 'Photons' or names[obj] == 'All' ):
                 print "          * nothing needs to be done for Photons"
             if( names[obj] == 'Electrons' or names[obj] == 'All' ):
-                print "          * nothing needs to be done for Electrons"            
+                print "          * nothing needs to be done for Electrons"
             if( names[obj] == 'Muons' or names[obj] == 'All' ):
-                print "          * nothing needs to be done for Muons"            
+                print "          * nothing needs to be done for Muons"
             if( names[obj] == 'Taus' or names[obj] == 'All' ):
-                print "          * nothing needs to be done for Taus"            
+                print "          * nothing needs to be done for Taus"
             if( names[obj] == 'Jets' or names[obj] == 'All' ):
-                print "          * nothing needs to be done for Jets"            
+                print "          * nothing needs to be done for Jets"
             if( names[obj] == 'METs' or names[obj] == 'All' ):
-                print "          * nothing needs to be done for METs"            
+                print "          * nothing needs to be done for METs"
         print "---------------------------------------------------------------------"
-       
+
 restrictInputToAOD=RestrictInputToAOD()
 
 
@@ -82,14 +82,14 @@ class RunOnData(ConfigToolBase):
             outputModules=self._defaultParameters['outputModules'].value
         self.setParameter('names',names)
         self.setParameter('postfix',postfix)
-        self.setParameter('outputModules',outputModules)        
-        self.apply(process) 
-        
-    def toolCode(self, process):        
+        self.setParameter('outputModules',outputModules)
+        self.apply(process)
+
+    def toolCode(self, process):
         names=self._parameters['names'].value
         postfix=self._parameters['postfix'].value
         outputModules=self._parameters['outputModules'].value
-        
+
         print '******************* RunOnData *******************'
         removeMCMatching(process, names=names, postfix=postfix, outputModules=outputModules)
         for mod in getattr(process,'patDefaultSequence'+postfix).moduleNames():
@@ -97,7 +97,7 @@ class RunOnData(ConfigToolBase):
                 prefix = getattr(process, mod).payload.pythonValue().replace("'","")
                 if 'L3Absolute' in getattr(process,mod).levels:
                     if not 'L2L3Residual' in getattr(process,mod).levels:
-                        getattr(process,mod).levels.insert(getattr(process,mod).levels.index('L3Absolute')+1, 'L2L3Residual') 
+                        getattr(process,mod).levels.insert(getattr(process,mod).levels.index('L3Absolute')+1, 'L2L3Residual')
                         print 'adding L2L3Residual JEC for:', getattr(process,mod).label_()
                 if hasattr(process, prefix+'CombinedCorrector'+postfix):
                     if prefix+'L3Absolute' in getattr(process,prefix+'CombinedCorrector'+postfix).correctors:
@@ -140,28 +140,28 @@ class RemoveMCMatching(ConfigToolBase):
         if postfix  is None:
             postfix=self._defaultParameters['postfix'].value
         if  outputModules is None:
-            outputModules=self._defaultParameters['outputModules'].value            
+            outputModules=self._defaultParameters['outputModules'].value
         self.setParameter('names',names)
         self.setParameter('postfix',postfix)
         self.setParameter('outputModules',outputModules)
-        self.apply(process) 
-        
-    def toolCode(self, process):        
+        self.apply(process)
+
+    def toolCode(self, process):
         names=self._parameters['names'].value
         postfix=self._parameters['postfix'].value
         outputModules=self._parameters['outputModules'].value
-        
+
         print "************** MC dependence removal ************"
-        for obj in range(len(names)):    
+        for obj in range(len(names)):
             if( names[obj] == 'Photons'   or names[obj] == 'All' ):
                 print "removing MC dependencies for photons"
-                _removeMCMatchingForPATObject(process, 'photonMatch', 'patPhotons', postfix) 
+                _removeMCMatchingForPATObject(process, 'photonMatch', 'patPhotons', postfix)
             if( names[obj] == 'Electrons' or names[obj] == 'All' ):
                 print "removing MC dependencies for electrons"
-                _removeMCMatchingForPATObject(process, 'electronMatch', 'patElectrons', postfix) 
+                _removeMCMatchingForPATObject(process, 'electronMatch', 'patElectrons', postfix)
             if( names[obj] == 'Muons'     or names[obj] == 'All' ):
                 print "removing MC dependencies for muons"
-                _removeMCMatchingForPATObject(process, 'muonMatch', 'patMuons', postfix) 
+                _removeMCMatchingForPATObject(process, 'muonMatch', 'patMuons', postfix)
             if( names[obj] == 'Taus'      or names[obj] == 'All' ):
                 print "removing MC dependencies for taus"
                 _removeMCMatchingForPATObject(process, 'tauMatch', 'patTaus', postfix)
@@ -173,7 +173,7 @@ class RemoveMCMatching(ConfigToolBase):
                 tauProducer = getattr(process,'patTaus'+postfix)
                 tauProducer.addGenJetMatch   = False
                 tauProducer.embedGenJetMatch = False
-                tauProducer.genJetMatch      = ''         
+                tauProducer.genJetMatch      = ''
             if( names[obj] == 'Jets'      or names[obj] == 'All' ):
                 print "removing MC dependencies for jets"
                 ## there may be multiple jet collection, therefore all jet collections
@@ -202,13 +202,13 @@ class RemoveMCMatching(ConfigToolBase):
                         getattr(process,outMod).outputCommands.append("drop *_selectedPatJets*_genJets_*")
                     else:
                         raise KeyError, "process has no OutModule named", outMod
-                
+
             if( names[obj] == 'METs'      or names[obj] == 'All' ):
                 ## remove mc extra configs for jets
-                metProducer = getattr(process, 'patMETs'+postfix)        
+                metProducer = getattr(process, 'patMETs'+postfix)
                 metProducer.addGenMET           = False
                 metProducer.genMETSource        = ''
-            
+
 removeMCMatching=RemoveMCMatching()
 
 def _removeMCMatchingForPATObject(process, matcherName, producerName, postfix=""):
@@ -225,8 +225,8 @@ def _removeMCMatchingForPATObject(process, matcherName, producerName, postfix=""
     objectProducer.addGenMatch      = False
     objectProducer.embedGenMatch    = False
     objectProducer.genParticleMatch = ''
-    
-    
+
+
 class RemoveAllPATObjectsBut(ConfigToolBase):
 
     """ Remove all PAT objects from the default sequence but a specific one
@@ -256,17 +256,17 @@ class RemoveAllPATObjectsBut(ConfigToolBase):
             outputModules=self._defaultParameters['outputModules'].value
         self.setParameter('names',names)
         self.setParameter('outputModules',outputModules)
-        self.apply(process) 
-        
-    def toolCode(self, process):        
+        self.apply(process)
+
+    def toolCode(self, process):
         names=self._parameters['names'].value
         outputModules=self._parameters['outputModules'].value
 
         removeTheseObjectCollections = ['Photons', 'Electrons', 'Muons', 'Taus', 'Jets', 'METs']
         for obj in range(len(names)):
             removeTheseObjectCollections.remove(names[obj])
-        removeSpecificPATObjects(process, removeTheseObjectCollections, outputModules)
-       
+        removeSpecificPATObjects(process, removeTheseObjectCollections, outputModules = outputModules)
+
 removeAllPATObjectsBut=RemoveAllPATObjectsBut()
 
 
@@ -304,7 +304,7 @@ class RemoveSpecificPATObjects(ConfigToolBase):
         self.setParameter('names',names)
         self.setParameter('outputModules',outputModules)
         self.setParameter('postfix',postfix)
-        self.apply(process) 
+        self.apply(process)
 
     def toolCode(self, process):
         names=self._parameters['names'].value
@@ -341,8 +341,8 @@ class RemoveSpecificPATObjects(ConfigToolBase):
                 removeIfInSequence(process, 'patJetFlavourId', "patDefaultSequence", postfix)
             if( names[obj] == 'METs' ):
                 removeIfInSequence(process, 'patMETCorrections', "patDefaultSequence", postfix)
-        
-            ## remove object production steps from the default sequence    
+
+            ## remove object production steps from the default sequence
             if( names[obj] == 'METs' ):
                 process.patDefaultSequence.remove( getattr(process, 'pat'+names[obj]) )
             else:
@@ -354,11 +354,11 @@ class RemoveSpecificPATObjects(ConfigToolBase):
                     applyPostfix(process,"patDefaultSequence",postfix).remove(
                         getattr(process, jetCollectionString('count')+postfix) )
                 else:
-                    applyPostfix(process,"patDefaultSequence",postfix).remove( 
+                    applyPostfix(process,"patDefaultSequence",postfix).remove(
                         getattr(process, 'pat'+names[obj]+postfix) )
-                    applyPostfix(process,"patDefaultSequence",postfix).remove( 
+                    applyPostfix(process,"patDefaultSequence",postfix).remove(
                         getattr(process, 'selectedPat'+names[obj]+postfix) )
-                    applyPostfix(process,"patDefaultSequence",postfix).remove( 
+                    applyPostfix(process,"patDefaultSequence",postfix).remove(
                         getattr(process, 'countPat'+names[obj]+postfix) )
             ## in the case of leptons, the lepton counter must be modified as well
             if( names[obj] == 'Electrons' ):
@@ -376,11 +376,11 @@ class RemoveSpecificPATObjects(ConfigToolBase):
                     cms.InputTag('pat'+names[obj]+postfix) )
             else:
                 if( names[obj] == 'Jets' ):
-                    applyPostfix(process,"patCandidateSummary",postfix).candidates.remove( 
+                    applyPostfix(process,"patCandidateSummary",postfix).candidates.remove(
                         cms.InputTag(jetCollectionString()+postfix) )
-                    applyPostfix(process,"selectedPatCandidateSummary",postfix).candidates.remove( 
+                    applyPostfix(process,"selectedPatCandidateSummary",postfix).candidates.remove(
                         cms.InputTag(jetCollectionString('selected')+postfix) )
-                    applyPostfix(process,"cleanPatCandidateSummary",postfix).candidates.remove( 
+                    applyPostfix(process,"cleanPatCandidateSummary",postfix).candidates.remove(
                         cms.InputTag(jetCollectionString('clean')+postfix) )
                 else:
                     ## check whether module is in sequence or not
@@ -390,7 +390,7 @@ class RemoveSpecificPATObjects(ConfigToolBase):
                         applyPostfix(process,"patCandidateSummary",postfix).candidates.remove(
                             cms.InputTag('pat'+names[obj]+postfix) )
                     if applyPostfix(process,"selectedPatCandidateSummary",postfix) in result :
-                        applyPostfix(process,"selectedPatCandidateSummary",postfix).candidates.remove( 
+                        applyPostfix(process,"selectedPatCandidateSummary",postfix).candidates.remove(
                             cms.InputTag('selectedPat'+names[obj]+postfix) )
                     if applyPostfix(process,"cleanPatCandidateSummary",postfix) in result :
                         applyPostfix(process,"cleanPatCandidateSummary",postfix).candidates.remove(
@@ -404,7 +404,7 @@ class RemoveSpecificPATObjects(ConfigToolBase):
             print "         sense now. If you still want to keep object collection cross"
             print "         cleaning within PAT you need to run and configure it by hand"
             removeCleaning(process,outputModules=outputModules,postfix=postfix)
-    
+
 removeSpecificPATObjects=RemoveSpecificPATObjects()
 
 
@@ -439,9 +439,9 @@ class RemoveCleaning(ConfigToolBase):
         self.setParameter('outputModules',outputModules)
         self.setParameter('postfix',postfix)
 
-        self.apply(process) 
-        
-    def toolCode(self, process):        
+        self.apply(process)
+
+    def toolCode(self, process):
         outputModules=self._parameters['outputModules'].value
         postfix=self._parameters['postfix'].value
 
@@ -496,11 +496,11 @@ class AddCleaning(ConfigToolBase):
             depricatedOptionOutputInProcess(self)
         if  outputModules is None:
             outputModules=self._defaultParameters['outputModules'].value
-        
+
         self.setParameter('outputModules',outputModules)
-        self.apply(process) 
-        
-    def toolCode(self, process):        
+        self.apply(process)
+
+    def toolCode(self, process):
         outputModules=self._parameters['outputModules'].value
 
         ## adapt single object counters
