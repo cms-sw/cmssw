@@ -53,8 +53,6 @@
 
 */
 #include <string>
-using namespace std;
-
 
 enum EPNamesInd {
                  EvtPlaneFromTracksMidEta,    EvtPTracksPosEtaGap,    EvtPTracksNegEtaGap,        
@@ -102,7 +100,7 @@ const int RCMate2[] = {
 		EPTracksPos6,               EPTracksMid6,             etHFp6,      
                 etEcalM,                    etEcalP };
 
-const string EPNames[]={
+const std::string EPNames[]={
                  "EvtPlaneFromTracksMidEta",    "EvtPTracksPosEtaGap",    "EvtPTracksNegEtaGap",        
 		 "EPTracksMid3",                "EPTracksPos3",           "EPTracksNeg3",                
                  "EPTracksMid4",                "EPTracksPos4",           "EPTracksNeg4",    

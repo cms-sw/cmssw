@@ -10,7 +10,7 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Mon Jun  7 14:40:12 EDT 2010
-// $Id: HiEvtPlaneFlattenGen.h,v 1.1 2011/09/24 14:10:40 ssanders Exp $
+// $Id: HiEvtPlaneFlatten.h,v 1.1 2011/09/29 22:23:07 ssanders Exp $
 //
 //
 
@@ -47,7 +47,6 @@
 
 #define MAXCUT 5000
 
-using namespace std;
 //
 // class declaration
 //
@@ -67,7 +66,7 @@ public:
     hOrder = 20;
     vorder = 2;    //sets order of event plane
   }
-  void Init(int order, int ncentbins,const int centbinCompression, string tag, int vord)
+  void Init(int order, int ncentbins,const int centbinCompression, std::string tag, int vord)
   {
     hOrder = order;  //order of flattening
     vorder = vord;   //1(v1), 2(v2), 3(v3), 4(v4)	
@@ -76,7 +75,7 @@ public:
     if(hcentbins<=0) hcentbins = 1;
     hbins = hcentbins*nvtxbins*hOrder;
     if(hbins>MAXCUT) {
-      cout<<"Too many cuts for flattening calculation.  RESET to deaults"<<endl;
+      std::cout<<"Too many cuts for flattening calculation.  RESET to deaults"<<std::endl;
       hcentbins = 1;
       hOrder = 21;
     }
