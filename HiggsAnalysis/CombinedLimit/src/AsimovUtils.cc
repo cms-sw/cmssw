@@ -1,9 +1,12 @@
 #include "../interface/AsimovUtils.h"
 
 #include <memory>
+#include <stdexcept>
 #include <TIterator.h>
 #include <RooAbsData.h>
 #include <RooArgSet.h>
+#include <RooProdPdf.h>
+#include <RooUniform.h>
 #include "../interface/utils.h"
 #include "../interface/ToyMCSamplerOpt.h"
 #include "../interface/CloseCoutSentry.h"
@@ -57,34 +60,47 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
             utils::setAllConstant(gobs, true);
             gobs.snapshot(snapGlobalObsData);
 
-            // now get the ones for the asimov dataset.
-            // we do this by fitting the nuisance pdf with floating global observables but fixed nuisances (which we call observables)
-            // part 1: create the nuisance pdf
-            std::auto_ptr<RooAbsPdf> nuispdf(utils::makeNuisancePdf(*mc));
-            // part 2: create the dataset containing the nuisances
             RooArgSet nuis(*mc->GetNuisanceParameters());
-            RooDataSet nuisdata("nuisData","nuisData", nuis);
-            nuisdata.add(nuis);
-            // part 3: make everything constant except the global observables which have to be floating
-            //         remember what done, to be able to undo it afterwards
-            RooArgSet paramsSetToConstants;
-            std::auto_ptr<RooArgSet> nuispdfparams(nuispdf->getParameters(nuisdata)); 
-            std::auto_ptr<TIterator> iter(nuispdfparams->createIterator());
+            std::auto_ptr<RooAbsPdf> nuispdf(utils::makeNuisancePdf(*mc));
+            RooProdPdf *prod = dynamic_cast<RooProdPdf *>(nuispdf.get());
+            if (prod == 0) throw std::runtime_error("AsimovUtils: the nuisance pdf is not a RooProdPdf!");
+            std::auto_ptr<TIterator> iter(prod->pdfList().createIterator());
             for (RooAbsArg *a = (RooAbsArg *) iter->Next(); a != 0; a = (RooAbsArg *) iter->Next()) {
-                RooRealVar *rrv = dynamic_cast<RooRealVar *>(a);
-                if (rrv) {
-                    if (gobs.find(rrv->GetName())) {
-                        rrv->setConstant(false);
-                    } else {
-                        if (!rrv->isConstant()) paramsSetToConstants.add(*rrv);
-                        rrv->setConstant(true);
+                RooAbsPdf *cterm = dynamic_cast<RooAbsPdf *>(a); 
+                if (!cterm) throw std::logic_error("AsimovUtils: a factor of the nuisance pdf is not a Pdf!");
+                if (!cterm->dependsOn(nuis)) continue; // dummy constraints
+                if (typeid(*cterm) == typeid(RooUniform)) continue;
+                std::auto_ptr<RooArgSet> cpars(cterm->getParameters(&gobs));
+                std::auto_ptr<RooArgSet> cgobs(cterm->getObservables(&gobs));
+                if (cgobs->getSize() != 1) {
+                    throw std::runtime_error(Form("AsimovUtils: constraint term %s has multiple global observables", cterm->GetName()));
+                }
+                RooRealVar &rrv = dynamic_cast<RooRealVar &>(*cgobs->first());
+
+                RooAbsReal *match = 0;
+                if (cpars->getSize() == 1) {
+                    match = dynamic_cast<RooAbsReal *>(cpars->first());
+                } else {
+                    std::auto_ptr<TIterator> iter2(cpars->createIterator());
+                    for (RooAbsArg *a2 = (RooAbsArg *) iter2->Next(); a2 != 0; a2 = (RooAbsArg *) iter2->Next()) {
+                        RooRealVar *rrv2 = dynamic_cast<RooRealVar *>(a2); 
+                        if (rrv2 != 0 && !rrv2->isConstant()) {
+                            if (match != 0) throw std::runtime_error(Form("AsimovUtils: constraint term %s has multiple floating params", cterm->GetName()));
+                            match = rrv2;
+                        }
                     }
                 }
+                if (match == 0) {   
+                    std::cerr << "ERROR: AsimovUtils: can't find nuisance for constraint term " << cterm->GetName() << std::endl;
+                    std::cerr << "Parameters: " << std::endl;
+                    cpars->Print("V");
+                    std::cerr << "Observables: " << std::endl;
+                    cgobs->Print("V");
+                    throw std::runtime_error(Form("AsimovUtils: can't find nuisance for constraint term %s", cterm->GetName()));
+                }
+                rrv.setVal(match->getVal());
             }
-            {
-                CloseCoutSentry sentry(verbose < 3);
-                nuispdf->fitTo(nuisdata, RooFit::Minimizer("Minuit2","minimize"), RooFit::Strategy(1));
-            }
+
             // snapshot
             snapshot.removeAll();
             utils::setAllConstant(gobs, true);
@@ -92,7 +108,13 @@ RooAbsData *asimovutils::asimovDatasetWithFit(RooStats::ModelConfig *mc, RooAbsD
 
             // revert things to normal
             gobs = snapGlobalObsData;
-            utils::setAllConstant(paramsSetToConstants, false);
+    
+            if (verbose > 1) {
+                std::cout << "Global observables for data: " << std::endl;
+                snapGlobalObsData.Print("V");
+                std::cout << "Global observables for asimov: " << std::endl;
+                snapshot.Print("V");
+            }
         }
 
         return asimov;
