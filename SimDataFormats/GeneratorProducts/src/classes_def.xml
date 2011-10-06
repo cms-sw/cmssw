@@ -17,7 +17,7 @@
     </class>
 	<class name="HepMC::WeightContainer" ClassVersion="11">
   <version ClassVersion="10" checksum="2163093401"/>
-  <version ClassVersion="11" checksum="376377869"/>
+  <version ClassVersion="11" checksum="1795594901"/>
   </class>
 	<class name="HepMC::FourVector" ClassVersion="10">
   <version ClassVersion="10" checksum="3279825169"/>
@@ -88,7 +88,6 @@
 	<class name="std::map&lt;int,HepMC::GenParticle*&gt;"/>
 	<class name="std::pair&lt;const int,HepMC::GenParticle*&gt;"/>
 	<class name="std::map&lt;int,HepMC::GenVertex*,std::greater&lt;int&gt; &gt;"/>
-	<class name="std::map&lt;std::string,size_t&gt;"/>
 
 	<!-- Classes shared between different kinds of products -->
 

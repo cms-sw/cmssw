@@ -35,7 +35,6 @@ namespace {
 		std::map<int, HepMC::GenVertex*, std::greater<int> > dummy777;
 		std::vector<HepMC::GenParticle*> m_particles_out;
 		std::vector<HepMC::GenParticle*> m_particles_in;
-                std::map<std::string,HepMC::WeightContainer::size_type> m_names;
 
 		// HepMCProduct
 
