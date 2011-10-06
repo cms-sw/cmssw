@@ -25,12 +25,12 @@ create(const edm::ParameterSet& conf) {
 
 bool SiStripRawProcessingFactory::create_doAPVRestorer(const edm::ParameterSet& conf){
    bool doAPVRestore = conf.getParameter<bool>("doAPVRestore");
-   return new bool(doAPVRestore); 
+   return doAPVRestore; 
 }
   
 bool SiStripRawProcessingFactory::create_useCMMeanMap(const edm::ParameterSet&conf){
    bool useCMMeanMap = conf.getParameter<bool>("useCMMeanMap");
-   return new bool(useCMMeanMap); 
+   return useCMMeanMap; 
 }
 
 std::auto_ptr<SiStripPedestalsSubtractor> SiStripRawProcessingFactory::
