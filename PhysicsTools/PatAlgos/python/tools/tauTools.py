@@ -100,7 +100,7 @@ def switchToCaloTau(process,
     applyPostfix(process, "patTaus" + patTauLabel, postfix).userIsolation = cms.PSet()
 
     ## no tau-jet energy corrections determined for CaloTaus yet
-    applyPostfix(process, "patTauJetCorrFactors" + patTauLabel, postfix).src = caloTauLabel
+    # applyPostfix(process, "patTauJetCorrFactors" + patTauLabel, postfix).src = caloTauLabel
     applyPostfix(process, "patTaus" + patTauLabel, postfix).addTauJetCorrFactors = cms.bool(False)
 
     ## adapt cleanPatTaus
@@ -139,12 +139,12 @@ def _switchToPFTau(process,
     applyPostfix(process, "tauIsoDepositPFGammas" + patTauLabel, postfix).src = pfTauLabelNew
     applyPostfix(process, "tauIsoDepositPFGammas" + patTauLabel, postfix).ExtractorPSet.tauSource = pfTauLabelNew
 
-    applyPostfix(process, "patTauJetCorrFactors" + patTauLabel, postfix).src = pfTauLabelNew
-    if len(jecLevels) > 0:
-        applyPostfix(process, "patTaus" + patTauLabel, postfix).addTauJetCorrFactors = cms.bool(True)
-        applyPostfix(process, "patTauJetCorrFactors" + patTauLabel, postfix).parameters = jecPayloadMapping
-    else:
-        applyPostfix(process, "patTaus" + patTauLabel, postfix).addTauJetCorrFactors = cms.bool(False)
+    #applyPostfix(process, "patTauJetCorrFactors" + patTauLabel, postfix).src = pfTauLabelNew
+    #if len(jecLevels) > 0:
+    #    applyPostfix(process, "patTaus" + patTauLabel, postfix).addTauJetCorrFactors = cms.bool(True)
+    #    applyPostfix(process, "patTauJetCorrFactors" + patTauLabel, postfix).parameters = jecPayloadMapping
+    #else:
+    #    applyPostfix(process, "patTaus" + patTauLabel, postfix).addTauJetCorrFactors = cms.bool(False)
     
     applyPostfix(process, "patTaus" + patTauLabel, postfix).tauSource = pfTauLabelNew
     applyPostfix(process, "patTaus" + patTauLabel, postfix).tauIDSources = _buildIDSourcePSet(pfTauType, idSources, postfix)
@@ -502,11 +502,11 @@ class AddTauCollection(ConfigToolBase):
             addPFIsoDepositClone('tauIsoDepositPFNeutralHadrons', src = tauCollection)
             addPFIsoDepositClone('tauIsoDepositPFGammas', src = tauCollection)
 
-        if jetCorrLabel:
-            addClone('patTauJetCorrFactors', src = tauCollection)
-            getattr(process,newLabel('patTauJetCorrFactors')).payload = jetCorrLabel[0]
-            getattr(process,newLabel('patTauJetCorrFactors')).levels = jetCorrLabel[1]
-            getattr(process, newLabel('patTaus')).tauJetCorrFactorsSource = cms.VInputTag(cms.InputTag(newLabel('patTauJetCorrFactors')))
+        #if jetCorrLabel:
+        #    addClone('patTauJetCorrFactors', src = tauCollection)
+        #    getattr(process,newLabel('patTauJetCorrFactors')).payload = jetCorrLabel[0]
+        #    getattr(process,newLabel('patTauJetCorrFactors')).levels = jetCorrLabel[1]
+        #    getattr(process, newLabel('patTaus')).tauJetCorrFactorsSource = cms.VInputTag(cms.InputTag(newLabel('patTauJetCorrFactors')))
                 
         ## fix label for input tag
         def fixInputTag(x): x.setModuleLabel(newLabel(x.moduleLabel))
