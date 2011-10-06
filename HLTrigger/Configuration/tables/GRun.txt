@@ -43,7 +43,6 @@ HLT_DiCentralJet20_MET80_v*
 HLT_DiCentralJet20_BTagIP_MET65_v*
 HLT_DiCentralJet36_BTagIP3DLoose_v*
 HLT_CentralJet46_CentralJet38_DiBTagIP3D_v*
-HLT_CentralJet46_CentralJet38_CentralJet20_DiBTagIP3D_v*
 HLT_CentralJet60_CentralJet53_DiBTagIP3D_v*
 HLT_QuadJet40_v*
 HLT_QuadJet40_L1FastJet_v*                                                                      #   added in 5e33 menu (L1FastJet testing)
@@ -52,8 +51,6 @@ HLT_QuadJet45_DiJet40_v*
 HLT_QuadJet45_DiJet40_L1FastJet_v*                                                              #   added in 5e33 menu (L1FastJet testing)
 HLT_QuadJet45_IsoPFTau45_v*
 HLT_QuadJet50_IsoPFTau50_v*
-HLT_QuadJet50_Jet40_Jet30_v*
-HLT_QuadJet50_Jet40_Jet30_L1FastJet_v*                                                          #   added in 5e33 menu (L1FastJet testing)
 HLT_QuadJet50_DiJet40_v*
 HLT_QuadJet50_DiJet40_L1FastJet_v*                                                              #   added in 5e33 menu (L1FastJet testing)
 HLT_QuadJet70_v*
@@ -88,7 +85,6 @@ HLT_HT250_v*
 HLT_HT250_AlphaT0p58_v*
 HLT_HT250_AlphaT0p60_v*
 HLT_HT250_AlphaT0p65_v*
-HLT_HT250_DoubleDisplacedJet60_PromptTrack_v*
 HLT_HT300_v*
 HLT_HT300_PFMHT55_v*
 HLT_HT300_PFMHT65_v*
@@ -278,6 +274,7 @@ HLT_Ele65_CaloIdVT_TrkIdT_v*
 HLT_Ele80_CaloIdVT_TrkIdT_v*
 HLT_Ele100_CaloIdVT_TrkIdT_v*
 HLT_DoubleEle8_CaloIdT_TrkIdVL_v*
+HLT_DoubleEle33_CaloIdL_v*
 HLT_DoubleEle33_CaloIdL_CaloIsoT_v*
 HLT_DoubleEle33_CaloIdT_v*
 HLT_DoubleEle45_CaloIdL_v*
@@ -422,6 +419,8 @@ HLT_HcalNZS_v*
 HLT_GlobalRunHPDNoise_v*
 HLT_L1Tech_HBHEHO_totalOR_v*
 HLT_L1Tech_HCAL_HF_single_channel_v*
+HLT_L1Tech_CASTOR_HaloMuon_v*                                                                   # only in 'GRun' and 'cosmics', not in 'online'
+HLT_L1Tech_DT_GlobalOR_v*                                                                       # only in 'GRun' and 'cosmics', not in 'online'
 HLT_ZeroBias_v*
 HLT_Physics_v*
 DST_Physics_v*
@@ -433,10 +432,10 @@ HLT_Random_v*
 HLT_L1SingleMuOpen_AntiBPTX_v*
 HLT_L1TrackerCosmics_v*
 HLT_RegionalCosmicTracking_v*
+HLT_L3MuonsCosmicTracking_v*                                                                    # only in 'GRun' and 'cosmics', not in 'online'
 HLT_LogMonitor_v*
 HLT_DTErrors_v*
 HLT_L1DoubleJet36Central_v*
-HLT_L1MultiJet_v*
 AlCa_EcalPi0_v*
 AlCa_EcalEta_v*
 AlCa_EcalPhiSym_v*
@@ -445,9 +444,9 @@ AlCa_RPCMuonNoHits_v*
 AlCa_RPCMuonNormalisation_v*
 AlCa_LumiPixels_v*
 DQM_FEDIntegrity_v*
-HLTriggerFirstPath # only in GRun, not in online
+HLTriggerFirstPath                                                                              # only in 'GRun', not in 'online'
 HLTriggerFinalPath
-HLTAnalyzerEndpath # only in GRun, not in online
+HLTAnalyzerEndpath                                                                              # only in 'GRun', not in 'online'
 AOutput
 ALCAP0Output
 ALCAPHISYMOutput
@@ -456,6 +455,7 @@ CalibrationOutput
 DQMOutput
 EcalCalibrationOutput
 ExpressOutput
+ExpressCosmicsOutput                                                                            # only in 'GRun' and 'cosmics', not in 'online'
 HLTDQMOutput
 HLTDQMResultsOutput
 HLTMONOutput
