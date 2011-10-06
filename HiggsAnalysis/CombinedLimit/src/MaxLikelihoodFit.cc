@@ -204,8 +204,10 @@ bool MaxLikelihoodFit::run(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStat
       double maxError = std::max<double>(std::max<double>(-rf->getAsymErrorLo(), rf->getAsymErrorHi()), rf->getError());
       bool hasLoErr = fabs(rf->getAsymErrorLo()) > 0.001*maxError;
       bool hasHiErr  = fabs(rf->getAsymErrorHi()) > 0.001*maxError;
+      bool hasSymErr  = fabs(rf->getError()) > 0.001*maxError;
       double loErr = (hasLoErr ? -rf->getAsymErrorLo() : +bestFitVal - rf->getMin());
-      double hiErr = (hasHiErr ? +rf->getAsymErrorHi() : -bestFitVal + rf->getMax());
+      if (r->getMin() < 0) {  if (!hasLoErr && hasSymErr) loErr = rf->getError();  }
+      double hiErr = (hasHiErr ? +rf->getAsymErrorHi() : (hasSymErr ? rf->getError() : -bestFitVal + rf->getMax()));
       limit = bestFitVal - loErr; limitErr = 0;
       Combine::commitPoint(/*expected=*/true, /*quantile=*/0.16);
       limit = bestFitVal + hiErr; limitErr = 0;
