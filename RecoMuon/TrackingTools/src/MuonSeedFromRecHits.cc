@@ -2,8 +2,8 @@
  *  See header file for a description of this class.
  *
  *
- *  $Date: 2011/03/20 11:15:20 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/06/11 18:28:49 $
+ *  $Revision: 1.1 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -89,18 +89,15 @@ TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
   // Create the TrajectoryStateOnSurface
   TrajectoryStateOnSurface tsos(param, error, last->det()->surface(), theField);
 
-  // The following LogTraces must be moved somewhere else (StandAloneTrajectoryBuilder)
-  // Here the TSOS does not have the magnetic field set, so dumpTSOS causes a crash
-  // (when LogTrace/LogDebug is activated)
-  //LogTrace(metname) << "Trajectory State on Surface before the extrapolation"<<endl;
-  //LogTrace(metname) << debug.dumpTSOS(tsos);
+  LogTrace(metname) << "Trajectory State on Surface before the extrapolation"<<endl;
+  LogTrace(metname) << debug.dumpTSOS(tsos);
   
   // Take the DetLayer on which relies the rechit
   DetId id = last->geographicalId();
   // Segment layer
-  //LogTrace(metname) << "The RecSegment relies on: "<<endl;
-  //LogTrace(metname) << debug.dumpMuonId(id);
-  //LogTrace(metname) << debug.dumpTSOS(tsos);
+  LogTrace(metname) << "The RecSegment relies on: "<<endl;
+  LogTrace(metname) << debug.dumpMuonId(id);
+  LogTrace(metname) << debug.dumpTSOS(tsos);
 
   // Transform it in a TrajectoryStateOnSurface
   TrajectoryStateTransform tsTransform;

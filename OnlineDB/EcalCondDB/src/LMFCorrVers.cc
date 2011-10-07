@@ -32,8 +32,7 @@ std::string LMFCorrVers::fetchIdSql(Statement *stmt) {
 
 std::string LMFCorrVers::setByIDSql(Statement *stmt, int id) 
 {
-  std::string sql = "SELECT DESCR FROM "
-    "CMS_ECAL_LASER_COND.LMF_CORR_VERS "
+  std::string sql = "SELECT DESCR FROM LMF_CORR_VERS "
     "WHERE VERS = :1";
   stmt->setSQL(sql);
   stmt->setInt(1, id);
@@ -51,7 +50,7 @@ LMFUnique * LMFCorrVers::createObject() const {
 }
 
 std::string LMFCorrVers::fetchAllSql(Statement *stmt) const {
-  std::string sql = "SELECT VERS FROM CMS_ECAL_LASER_COND.LMF_CORR_VERS";
+  std::string sql = "SELECT VERS FROM LMF_CORR_VERS";
   stmt->setSQL(sql);
   return sql;
 }

@@ -523,18 +523,19 @@ bool PFElecTkProducer::isFifthStep(reco::PFRecTrackRef pfKfTrack) {
   case TrackBase::ctf:
   case TrackBase::iter0:
   case TrackBase::iter1:
+  case TrackBase::iter2:
     Algo = 0;
     break;
-  case TrackBase::iter2:
+  case TrackBase::iter3:
     Algo = 1;
     break;
-  case TrackBase::iter3:
+  case TrackBase::iter4:
     Algo = 2;
     break;
-  case TrackBase::iter4:
+  case TrackBase::iter5:
     Algo = 3;
     break;
-  case TrackBase::iter5:
+  case TrackBase::iter6:
     Algo = 4;
     break;
   default:

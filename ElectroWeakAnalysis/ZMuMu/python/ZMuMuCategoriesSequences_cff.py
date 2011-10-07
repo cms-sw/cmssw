@@ -1,10 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-
-
 # reorganization of Z->mumu categories sequence, to run after the ZMuMu(Sub)Skim (i.d. supposing dimuons, dimuonsGlobal, dimuonsOneTrack and dimuonsOneStndAloneMuon categories has been built)
-
-
 
 
 ### parameter set to be overloaded in the configuration file 
@@ -32,39 +28,15 @@ zmumuSaMassHistogram = cms.EDAnalyzer(
 
 ### Primary vertex info
 
-
-
-
-
 eventVtxInfoNtuple = cms.EDProducer(
-        "EventVtxInfoNtupleDumper",
-            primaryVertices=cms.InputTag("offlinePrimaryVertices")
-        )
+    "EventVtxInfoNtupleDumper",
+    primaryVertices=cms.InputTag("offlinePrimaryVertices")
+)
 
-
-eventVtxInfoNtuple.setLabel("eventVtxInfoNtuple")
-
-eventNjetsAndMetInfoNtuple = cms.EDProducer(
-        "EventNjetAndMetInfoNtupleDumper",
-       #     MuonTag = cms.untracked.InputTag("muons"),
-            METTag = cms.untracked.InputTag("pfMet"),
-            JetTag = cms.untracked.InputTag("cleanPatJets"),
-            EJetMin = cms.untracked.double(25.)
-        )
-
-
-# path for dumping vtx info, njets and met info in the ntuple
+# path for dumping vtx info in the ntuple
 generalEventInfoPath = cms.Path(
-            eventVtxInfoNtuple +
-            eventNjetsAndMetInfoNtuple
-            )
-
-
-
-
-
-
-
+    eventVtxInfoNtuple
+    )
 
 
 ### paths for loose cuts, not notIso ones, not 1HLT and 2HLT: only ZGolden, zMuSta, zMuTk, zMuTrackerMuon and ZGoldenSameCharge..
@@ -208,14 +180,6 @@ globalMuQualityCutsAnalysisAAsta= cms.EDAnalyzer(
     chi2Cut = cms.untracked.double("10"),
     nHitCut = cms.untracked.int32(10)
  )
-
-
-eventVtxInfoNtuple = cms.EDProducer(
-            "EventVtxInfoNtupleDumper",
-                        primaryVertices=cms.InputTag("offlinePrimaryVertices")
-                    )
-
-
 
 
 initialGoodZToMuMuPath = cms.Path( 

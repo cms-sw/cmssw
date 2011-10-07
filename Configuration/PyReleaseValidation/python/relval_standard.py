@@ -46,7 +46,9 @@ workflows[4.22] = ['', ['RunCosmics2011A','RECOCOSD','ALCACOSD','SKIMCOSD']]
 #workflows[4.27] = ['',['ZElSkim2011A','RECOSKIM']]
 #workflows[4.28] = ['',['HighMet2011A','RECOSKIM']]
 
-workflows[4.51] = ['',['RunHI2010','RECOHID']]
+workflows[4.51] = ['',['RunHI2010','REPACKHID','RECOHID11St3']]
+workflows[4.52] = ['',['RunHI2010','RECOHID10','RECOHIR10D11']]
+workflows[4.53] = ['',['RunHI2011','RECOHID11']]
 
 ### fastsim ###
 #workflows[5.1] = ['TTbar', ['TTbarFS1']]
@@ -80,7 +82,7 @@ workflows[9]  = ['', ['Higgs200ChargedTaus','DIGI','RECO']]
 workflows[13] = ['', ['QCD_Pt_3000_3500','DIGI','RECO']]
 workflows[23] = ['', ['JpsiMM','DIGI','RECO']]
 workflows[25] = ['', ['TTbar','DIGI','RECO','ALCATT2']]
-workflows[26] = ['', ['WE','DIGI','RECO','HARVEST2']]
+workflows[26] = ['', ['WE','DIGI','RECO','HARVEST']]
 workflows[29] = ['', ['ZEE','DIGI','RECO','ALCAELE']]
 workflows[31] = ['', ['ZTT','DIGI','RECO']]
 workflows[32] = ['', ['H130GGgluonfusion','DIGI','RECO']]
@@ -98,5 +100,6 @@ workflows[30] = ['', ['ZMM','DIGI','RECOMU']]
 ### HI test ###
 workflows[40] = ['',['HydjetQ_MinBias_2760GeV','DIGIHI','RECOHI']]
 workflows[41] = ['',['HydjetQ_B0_2760GeV','DIGIHI','RECOHI']]
+workflows[42] = ['',['HydjetQ_B8_2760GeV','DIGIHI','RECOHI']]
 
 

@@ -2,26 +2,17 @@
 
 # A Pyrelval Wrapper
 
-
-
-from threading import Thread
-
-class forkit(Thread):
-    def __init__(self):
-        Thread.__init__(self)
-    def run(self):
+def run():
         import sys
         import os
         import Configuration.PyReleaseValidation
         from Configuration.PyReleaseValidation.ConfigBuilder import ConfigBuilder
         from Configuration.PyReleaseValidation.cmsDriverOptions import OptionsFromCommandLine
-
         options = OptionsFromCommandLine()
         
         # after cleanup of all config parameters pass it to the ConfigBuilder
         configBuilder = ConfigBuilder(options, with_output = True, with_input = True)
         configBuilder.prepare()
-        
         # fetch the results and write it to file
         config = file(options.python_filename,"w")
         config.write(configBuilder.pythonCfgCode)
@@ -49,10 +40,7 @@ class forkit(Thread):
             os.execvpe(commands[0],commands+[options.python_filename],os.environ)
             sys.exit()
 
-import os
-current = forkit()
-current.start()
-    
+run()
 
 
     

@@ -1,4 +1,4 @@
-// Last commit: $Id: ConstantsForDqm.h,v 1.13 2010/01/04 18:44:33 lowette Exp $
+// Last commit: $Id: ConstantsForDqm.h,v 1.12 2009/10/22 15:57:40 lowette Exp $
 
 #ifndef DataFormats_SiStripCommon_ConstantsForDqm_H
 #define DataFormats_SiStripCommon_ConstantsForDqm_H
@@ -50,8 +50,6 @@ namespace sistrip {
     static const char roughPedestals_[] = "RoughPedestals";
     static const char noiseProfile_[]   = "NoiseProfile";
     static const char noise2D_[]        = "Noise2D";
-    static const char isDead_[]        	= "IsDead";
-    static const char isNoisy_[]        	= "IsNoisy";
     
     static const char pedsAndRawNoise_[]   = "PedsAndRawNoise";          //@@ LEGACY
     static const char residualsAndNoise_[] = "ResidualsAndNoise";        //@@ LEGACY

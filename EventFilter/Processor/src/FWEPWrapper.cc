@@ -889,7 +889,7 @@ namespace evf{
     for(unsigned int i=0; i<tr.endPathSummaries.size(); i++) {
       std::string olab = trh_.findLabelOfModuleTypeInEndPath(tr,descs_,
 							     i,"ShmStreamConsumer");
-      edm::FUShmOutputModule *o = sor->get(olab);
+      evf::OutputModule *o = sor->get(olab);
       *out << "  <tr>" << std::endl;
       *out << "    <td>"<< tr.endPathSummaries[i].name << "</td>"		<< std::endl;
       *out << "    <td>" << tr.endPathSummaries[i].timesRun << "</td>"		<< std::endl;

@@ -18,7 +18,7 @@ particleFlowDisplacedVertex = cms.EDProducer("PFDisplacedVertexProducer",
 
     # minimal radius below which we do not reconstruct interactions
     # typically the position of the first Pixel layer or beam pipe
-    primaryVertexCut = cms.double(2.9),
+    primaryVertexCut = cms.double(2.7),
 
     # radius below which we don't wamt to reconstruct displaced
     # vertices
@@ -33,7 +33,10 @@ particleFlowDisplacedVertex = cms.EDProducer("PFDisplacedVertexProducer",
     # this correspond to the sigmacut of 6
     minAdaptWeight = cms.double(0.5),
 
-                                             
+    # this flag is designed to reduce the timing of the algorithm in the high pile-up conditions. 2 tracks
+    # vertices are the most sensitives to the pile-ups.
+    switchOff2TrackVertex = cms.untracked.bool(True),
+
     # ------------ Paramemeters for the track selection ------------
 
     # Primary vertex information used for dxy calculation

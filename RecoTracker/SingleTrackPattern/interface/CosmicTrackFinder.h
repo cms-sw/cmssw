@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "RecoTracker/SingleTrackPattern/interface/CosmicTrajectoryBuilder.h"
 #include "RecoTracker/SingleTrackPattern/interface/CRackTrajectoryBuilder.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -83,7 +84,7 @@ namespace cms
     edm::ParameterSet conf_;
     std::string geometry;
     bool trinevents;
-    bool useHitsSplitting_;
+    //bool useHitsSplitting_;
   };
 }
 

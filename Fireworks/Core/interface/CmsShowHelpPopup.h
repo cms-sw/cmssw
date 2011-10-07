@@ -16,7 +16,7 @@
 //
 // Original Author:
 //         Created:  Fri Jun 27 11:23:31 EDT 2008
-// $Id: CmsShowHelpPopup.h,v 1.4 2009/01/23 21:35:40 amraktad Exp $
+// $Id: CmsShowHelpPopup.h,v 1.5 2009/05/20 16:33:39 amraktad Exp $
 //
 
 // system include files
@@ -35,8 +35,7 @@ public:
    virtual ~CmsShowHelpPopup();
    virtual void CloseWindow() { UnmapWindow(); }
 
-   static std::string helpFileName (const std::string &);
-
+ 
 protected:
    TGHtml     *m_helpHtml;
 };

@@ -458,7 +458,8 @@ LinkByRecHit::testECALAndPSByRecHit( const reco::PFCluster& clusterECAL,
   if( linkedbyrechit ) {
     if( debug ) std::cout << "Cluster PS and Cluster ECAL LINKED BY RECHIT" << std::endl;
     double dist = computeDist( xECAL/1000.,yECAL/1000.,
-			       xPS/1000.  ,yPS/1000);    
+			       xPS/1000.  ,yPS/1000, 
+			       false);    
     return dist;
   } else { 
     return -1.;
@@ -496,9 +497,10 @@ LinkByRecHit::testHFEMAndHFHADByRecHit(const reco::PFCluster& clusterHFEM,
 
 double
 LinkByRecHit::computeDist( double eta1, double phi1, 
-			  double eta2, double phi2 )  {
+			   double eta2, double phi2,
+			   bool etaPhi )  {
   
-  double phicor = normalizedPhi(phi1 - phi2);
+  double phicor = etaPhi ? normalizedPhi(phi1 - phi2) : phi1 - phi2;
   
   // double chi2 =  
   //  (eta1 - eta2)*(eta1 - eta2) / ( reta1*reta1+ reta2*reta2 ) +

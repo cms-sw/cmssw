@@ -6,19 +6,10 @@ from CommonTools.ParticleFlow.ParticleSelectors.pfAllPhotons_cfi import *
 from CommonTools.ParticleFlow.ParticleSelectors.pfAllMuons_cfi import *
 from CommonTools.ParticleFlow.ParticleSelectors.pfAllElectrons_cfi import *
 
-from CommonTools.ParticleFlow.ParticleSelectors.pfAllChargedParticles_cfi import *
-
-pfPileUpAllChargedParticles = pfAllChargedParticles.clone( src = 'pfPileUp' )
-
-
 pfSortByTypeSequence = cms.Sequence(
     pfAllNeutralHadrons+
     pfAllChargedHadrons+
-    pfAllPhotons+
-    # charged hadrons + electrons + muons
-    pfAllChargedParticles+
-    # same, but from pile up
-    pfPileUpAllChargedParticles
+    pfAllPhotons
 #    +
 #    pfAllElectrons+
 #    pfAllMuons

@@ -1257,6 +1257,10 @@ int main(int, char**) {
     assert(psetDesc.anythingAllowed());
 
     psetDesc.validate(params);
+
+    psetDesc.add<int>("testInt", 11);
+    psetDesc.validate(params);
+    assert(params.exists("testInt"));
   }
 
   {
