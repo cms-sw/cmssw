@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V296 (CMSSW_4_2_0_HLT30)
+# /dev/CMSSW_4_2_0/HIon/V297 (CMSSW_4_2_0_HLT33)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V296')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V297')
 )
 
 process.streams = cms.PSet( 
@@ -4688,7 +4688,8 @@ process.hltStoppedHSCPIterativeCone5CaloJets = cms.EDProducer( "FastjetJetProduc
     voronoiRfact = cms.double( -9.0 ),
     useDeterministicSeed = cms.bool( False ),
     minSeed = cms.uint32( 0 ),
-    Rho_EtaMax = cms.double( 4.4 )
+    Rho_EtaMax = cms.double( 4.4 ),
+    puPtMin = cms.double( 10.0 )
 )
 process.hltStoppedHSCP1CaloJetEnergy35 = cms.EDFilter( "HLT1CaloJetEnergy",
     inputTag = cms.InputTag( "hltStoppedHSCPIterativeCone5CaloJets" ),
