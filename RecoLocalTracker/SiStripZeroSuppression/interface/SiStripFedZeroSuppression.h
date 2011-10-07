@@ -33,8 +33,6 @@ class SiStripFedZeroSuppression {
   void suppress(const edm::DetSet<SiStripRawDigi>&,edm::DetSet<SiStripDigi>&);
   void suppress(const std::vector<int16_t>&,const uint16_t&, edm::DetSet<SiStripDigi>&);
   
-  void suppress(const std::vector<int16_t>&, edm::DetSet<SiStripDigi>&);
-  
   bool IsAValidDigi();
   
  private:

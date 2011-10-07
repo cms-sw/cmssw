@@ -23,9 +23,6 @@ void TT6CMNSubtractor::init(const edm::EventSetup& es){
 void TT6CMNSubtractor::subtract(const uint32_t& detId, const uint16_t& firstAPV,  std::vector<int16_t>& digis){ subtract_(detId, firstAPV, digis);}
 void TT6CMNSubtractor::subtract(const uint32_t& detId, const uint16_t& firstAPV, std::vector<float>& digis){ subtract_(detId,firstAPV, digis);}
 
-void TT6CMNSubtractor::subtract(const uint32_t& detId,  std::vector<int16_t>& digis){ subtract_(detId, 0, digis);}
-void TT6CMNSubtractor::subtract(const uint32_t& detId,  std::vector<float>& digis){ subtract_(detId,0, digis);}
-
 template<typename T>
 inline
 void TT6CMNSubtractor::

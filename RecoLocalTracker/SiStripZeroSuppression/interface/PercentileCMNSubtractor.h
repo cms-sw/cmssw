@@ -11,8 +11,6 @@ class PercentileCMNSubtractor : public SiStripCommonModeNoiseSubtractor {
   void subtract(const uint32_t&,const uint16_t& firstAPV, std::vector<int16_t>&);
   void subtract(const uint32_t&,const uint16_t& firstAPV, std::vector<float>&);
   
-  void subtract(const uint32_t&, std::vector<int16_t>&);
-  void subtract(const uint32_t&, std::vector<float>&);
  private:
   
   template<typename T> float percentile(std::vector<T>&, double);
