@@ -16,7 +16,10 @@ class SiStripCommonModeNoiseSubtractor {
   virtual void init(const edm::EventSetup& es) {};
   virtual void subtract(const uint32_t&, const uint16_t&, std::vector<int16_t>&) = 0;
   virtual void subtract(const uint32_t&, const uint16_t&, std::vector<float>&) = 0;
-  
+
+  virtual void subtract(const uint32_t&, std::vector<int16_t>&) = 0;
+  virtual void subtract(const uint32_t&, std::vector<float>&) = 0;  
+
   const std::vector< std::pair<short,float> >& getAPVsCM(){return _vmedians;}
   
  protected:

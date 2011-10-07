@@ -10,6 +10,9 @@ class MedianCMNSubtractor : public SiStripCommonModeNoiseSubtractor {
   
   void subtract(const uint32_t&,const uint16_t&, std::vector<int16_t>&);
   void subtract(const uint32_t&,const uint16_t&,std::vector<float>&);
+
+  void subtract(const uint32_t&, std::vector<int16_t>&);
+  void subtract(const uint32_t&, std::vector<float>&);
   
  private:
   

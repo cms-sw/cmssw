@@ -243,6 +243,8 @@ void SiStripFedZeroSuppression::fillThresholds_(const uint32_t detID, size_t siz
   } 
 }
 
+void SiStripFedZeroSuppression::suppress(const std::vector<int16_t>& in, edm::DetSet<SiStripDigi>& out){suppress(in,0, out);}
+
 void SiStripFedZeroSuppression::suppress(const std::vector<int16_t>& in, const uint16_t& firstAPV,  edm::DetSet<SiStripDigi>& out){
 
   const uint32_t detID = out.id;

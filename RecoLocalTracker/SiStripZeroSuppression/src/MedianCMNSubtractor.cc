@@ -3,6 +3,9 @@
 void MedianCMNSubtractor::subtract(const uint32_t& detId,const uint16_t& firstAPV, std::vector<int16_t>& digis) {subtract_(detId,firstAPV,digis);}
 void MedianCMNSubtractor::subtract(const uint32_t& detId,const uint16_t& firstAPV, std::vector<float>& digis) {subtract_(detId,firstAPV, digis);}
 
+void MedianCMNSubtractor::subtract(const uint32_t& detId, std::vector<int16_t>& digis) {subtract_(detId,0,digis);}
+void MedianCMNSubtractor::subtract(const uint32_t& detId, std::vector<float>& digis) {subtract_(detId,0, digis);}
+
 template<typename T> 
 inline
 void MedianCMNSubtractor::
