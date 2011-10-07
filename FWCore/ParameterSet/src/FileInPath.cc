@@ -315,6 +315,64 @@ namespace edm
     }
   }
 
+  void
+  FileInPath::readFromParameterSetBlob(std::istream& is)
+  {
+    std::string vsn;
+    std::string relname;
+    std::string canFilename;
+    is >> vsn;
+    if (!is) return;
+    bool oldFormat = (version != vsn);
+    if (oldFormat) {
+      relname = vsn;
+      bool local;
+      is >> local;
+      location_ = (local ? Local : Release);
+      is >> canFilename;
+    } else {
+      // Current format
+      int loc;
+      is >> relname >> loc;
+      location_ = static_cast<FileInPath::LocationCode>(loc);
+      if (location_ != Unknown) is >> canFilename;
+    }
+    if (!is) return;
+    relativePath_ = relname;
+    if (location_ == Local) {
+      if (localTop_.empty()) {
+	localTop_ = "@LOCAL";
+      }
+      if (oldFormat) {
+        canonicalFilename_ = canFilename;
+      } else
+      canonicalFilename_ = localTop_ + canFilename;
+    } else if (location_ == Release) {
+      if (releaseTop_.empty()) {
+	releaseTop_="@RELEASE";
+      }
+      if (oldFormat) {
+         std::string::size_type pos = canFilename.find(BASE);
+        if (pos == 0) {
+          // Replace the placehoder with the path to the base release (site dependent).
+          canonicalFilename_ = releaseTop_ + canFilename.substr(BASE.size());
+        } else {
+          // Needed for files written before CMSSW_1_2_0_pre2.
+          canonicalFilename_ = canFilename;
+        }
+      } else
+      canonicalFilename_ = releaseTop_ + canFilename;
+    } else if (location_ == Data) {
+      if (dataTop_.empty()) {
+	throw edm::Exception(edm::errors::FileInPathError)
+	  << "Environment Variable " 
+	  << DATATOP
+	  << " is not set.\n";
+      }
+      canonicalFilename_ = dataTop_ + canFilename;
+    }
+  }
+
   //------------------------------------------------------------
 
 
@@ -330,9 +388,10 @@ namespace edm
       if (!envstring(LOCALTOP, releaseTop_)) {
         releaseTop_.clear();
       }
-    }
-    if (!envstring(LOCALTOP, localTop_)) {
-      localTop_.clear();
+    } else {
+      if (!envstring(LOCALTOP, localTop_)) {
+	localTop_.clear();
+      }
     }
     if (!envstring(DATATOP, dataTop_)) {
       dataTop_.clear();
