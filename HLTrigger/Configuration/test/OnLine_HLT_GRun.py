@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V298 (CMSSW_4_2_0_HLT33)
+# /dev/CMSSW_4_2_0/GRun/V300 (CMSSW_4_2_0_HLT33)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V298')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V300')
 )
 
 process.streams = cms.PSet( 
@@ -6338,7 +6338,9 @@ process.hltSiStripRawToClustersFacility = cms.EDProducer( "SiStripRawToClusters"
       SiStripFedZeroSuppressionMode = cms.uint32( 4 ),
       CommonModeNoiseSubtractionMode = cms.string( "Median" ),
       PedestalSubtractionFedMode = cms.bool( True ),
-      TruncateInSuppressor = cms.bool( True )
+      TruncateInSuppressor = cms.bool( True ),
+      doAPVRestore = cms.bool( True ),
+      useCMMeanMap = cms.bool( False )
     )
 )
 process.hltSiStripClusters = cms.EDProducer( "MeasurementTrackerSiStripRefGetterProducer",
