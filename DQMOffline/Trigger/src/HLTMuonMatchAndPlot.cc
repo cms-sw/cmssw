@@ -1,8 +1,8 @@
  /** \file DQMOffline/Trigger/HLTMuonMatchAndPlot.cc
  *
  *  $Author: klukas $
- *  $Date: 2011/03/21 20:10:41 $
- *  $Revision: 1.22 $
+ *  $Date: 2011/06/29 16:37:15 $
+ *  $Revision: 1.28 $
  */
 
 
@@ -48,7 +48,15 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot(const ParameterSet & pset,
   targetParams_(pset.getParameterSet("targetParams")),
   probeParams_(pset.getParameterSet("probeParams")),
   hltPath_(hltPath),
-  moduleLabels_(moduleLabels)
+  moduleLabels_(moduleLabels),
+  hasTargetRecoCuts(targetParams_.exists("recoCuts")),
+  hasProbeRecoCuts(probeParams_.exists("recoCuts")),
+  targetMuonSelector_(targetParams_.getUntrackedParameter<string>("recoCuts", "")),
+  targetZ0Cut_(targetParams_.getUntrackedParameter<double>("z0Cut",0.)),
+  targetD0Cut_(targetParams_.getUntrackedParameter<double>("d0Cut",0.)),
+  probeMuonSelector_(probeParams_.getUntrackedParameter<string>("recoCuts", "")),
+  probeZ0Cut_(probeParams_.getUntrackedParameter<double>("z0Cut",0.)),                                                                                                                                                                                                        
+  probeD0Cut_(probeParams_.getUntrackedParameter<double>("d0Cut",0.))
 {
 
   // Create std::map<string, T> from ParameterSets. 
@@ -66,9 +74,27 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot(const ParameterSet & pset,
   dbe_ = edm::Service<DQMStore>().operator->();
   dbe_->setVerbose(0);
 
+  // Get the trigger level.
+  triggerLevel_ = "L3";
+  TPRegexp levelRegexp("L[1-3]");
+  size_t nModules = moduleLabels_.size();
+  TObjArray * levelArray = levelRegexp.MatchS(moduleLabels_[nModules - 1]);
+  if (levelArray->GetEntriesFast() > 0) {
+    triggerLevel_ = ((TObjString *)levelArray->At(0))->GetString();
+  }
+  delete levelArray;
+
+  // Get the pT cut by parsing the name of the HLT path.
+  cutMinPt_ = 3;
+  TPRegexp ptRegexp("Mu([0-9]*)");
+  TObjArray * objArray = ptRegexp.MatchS(hltPath_);
+  if (objArray->GetEntriesFast() >= 2) {
+    TObjString * ptCutString = (TObjString *)objArray->At(1);
+    cutMinPt_ = atoi(ptCutString->GetString());
+    cutMinPt_ = ceil(cutMinPt_ * plotCuts_["minPtFactor"]);
+  }
+  delete objArray;
 }
-
-
 
 void HLTMuonMatchAndPlot::beginRun(const edm::Run& iRun, 
                                    const edm::EventSetup& iSetup)
@@ -78,7 +104,10 @@ void HLTMuonMatchAndPlot::beginRun(const edm::Run& iRun,
 
   string baseDir = destination_;
   if (baseDir[baseDir.size() - 1] != '/') baseDir += '/';
-  dbe_->setCurrentFolder(baseDir + hltPath_);
+  string pathSansSuffix = hltPath_;
+  if (hltPath_.rfind("_v") < hltPath_.length())
+    pathSansSuffix = hltPath_.substr(0, hltPath_.rfind("_v"));
+  dbe_->setCurrentFolder(baseDir + pathSansSuffix);
 
   // Form is book1D(name, binningType, title) where 'binningType' is used 
   // to fetch the bin settings from binParams_.
@@ -132,25 +161,6 @@ void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
 
 {
 
-  // Get the trigger level.
-  string triggerLevel = "L3";
-  TPRegexp levelRegexp("L[1-3]");
-  size_t nModules = moduleLabels_.size();
-  TObjArray * levelArray = levelRegexp.MatchS(moduleLabels_[nModules - 1]);
-  if (levelArray->GetEntriesFast() > 0) {
-    triggerLevel = ((TObjString *)levelArray->At(0))->GetString();
-  }
-
-  // Get the pT cut by parsing the name of the HLT path.
-  unsigned int cutMinPt = 3;
-  TPRegexp ptRegexp("Mu([0-9]*)");
-  TObjArray * objArray = ptRegexp.MatchS(hltPath_);
-  if (objArray->GetEntriesFast() >= 2) {
-    TObjString * ptCutString = (TObjString *)objArray->At(1);
-    cutMinPt = atoi(ptCutString->GetString());
-    cutMinPt = ceil(cutMinPt * plotCuts_["minPtFactor"]);
-  }
-
   // Get objects from the event.
   Handle<MuonCollection> allMuons;
   iEvent.getByLabel(inputTags_["recoMuon"], allMuons);
@@ -159,8 +169,17 @@ void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
   Handle<TriggerEvent> triggerSummary;
   iEvent.getByLabel(inputTags_["triggerSummary"], triggerSummary);
   Handle<TriggerResults> triggerResults;
+  if(!triggerSummary.isValid()) 
+  {
+    edm::LogError("HLTMuonMatchAndPlot")<<"Missing triggerSummary with label " << inputTags_["triggerSummary"] <<std::endl;
+    return;
+  }
   iEvent.getByLabel(inputTags_["triggerResults"], triggerResults);
-
+  if(!triggerResults.isValid()) 
+  {
+    edm::LogError("HLTMuonMatchAndPlot")<<"Missing triggerResults with label " << inputTags_["triggerResults"] <<std::endl;
+    return;
+  }
   // Throw out this event if it doesn't pass the required triggers.
   for (size_t i = 0; i < requiredTriggers_.size(); i++) {
     unsigned int triggerIndex = triggerResults->find(requiredTriggers_[i]);
@@ -170,17 +189,15 @@ void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
   }
 
   // Select objects based on the configuration.
-  MuonCollection targetMuons = selectedMuons(* allMuons, * beamSpot,
-                                             targetParams_);
-  MuonCollection probeMuons = selectedMuons(* allMuons, * beamSpot,
-                                            probeParams_);
+  MuonCollection targetMuons = selectedMuons(* allMuons, * beamSpot, hasTargetRecoCuts, targetMuonSelector_, targetD0Cut_, targetZ0Cut_);
+  MuonCollection probeMuons = selectedMuons(* allMuons, * beamSpot, hasProbeRecoCuts, probeMuonSelector_, probeD0Cut_, probeZ0Cut_);
   TriggerObjectCollection allTriggerObjects = triggerSummary->getObjects();
   TriggerObjectCollection hltMuons = 
     selectedTriggerObjects(allTriggerObjects, * triggerSummary, targetParams_);
 
   // Find the best trigger object matches for the targetMuons.
   vector<size_t> matches = matchByDeltaR(targetMuons, hltMuons, 
-                                         plotCuts_[triggerLevel + "DeltaR"]);
+                                         plotCuts_[triggerLevel_ + "DeltaR"]);
 
   // Fill plots for matched muons.
   for (size_t i = 0; i < targetMuons.size(); i++) {
@@ -207,7 +224,7 @@ void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
       // If no match was found, then the numerator plots don't get filled.
       if (suffix == "numer" && matches[i] >= targetMuons.size()) continue;
 
-      if (muon.pt() > cutMinPt) {
+      if (muon.pt() > cutMinPt_) {
         hists_["efficiencyEta_" + suffix]->Fill(muon.eta());
         hists_["efficiencyPhiVsEta_" + suffix]->Fill(muon.eta(), muon.phi());
       }
@@ -216,7 +233,7 @@ void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
         hists_["efficiencyTurnOn_" + suffix]->Fill(muon.pt());
       }
       
-      if (muon.pt() > cutMinPt && fabs(muon.eta()) < plotCuts_["maxEta"]) {
+      if (muon.pt() > cutMinPt_ && fabs(muon.eta()) < plotCuts_["maxEta"]) {
         const Track * track = 0;
         if (muon.isTrackerMuon()) track = & * muon.innerTrack();
         else if (muon.isStandAloneMuon()) track = & * muon.outerTrack();
@@ -245,7 +262,7 @@ void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
 
   // Plot fake rates (efficiency for HLT objects to not get matched to RECO).
   vector<size_t> hltMatches = matchByDeltaR(hltMuons, targetMuons,
-                                            plotCuts_[triggerLevel + "DeltaR"]);
+                                            plotCuts_[triggerLevel_ + "DeltaR"]);
   for (size_t i = 0; i < hltMuons.size(); i++) {
     TriggerObject & hltMuon = hltMuons[i];
     bool isFake = hltMatches[i] > hltMuons.size();
@@ -329,7 +346,7 @@ template <class T1, class T2>
 vector<size_t> 
 HLTMuonMatchAndPlot::matchByDeltaR(const vector<T1> & collection1, 
                                    const vector<T2> & collection2,
-                                   const double maxDeltaR = NOMATCH) {
+                                   const double maxDeltaR) {
 
   const size_t n1 = collection1.size();
   const size_t n2 = collection2.size();
@@ -373,17 +390,13 @@ HLTMuonMatchAndPlot::matchByDeltaR(const vector<T1> & collection1,
 MuonCollection
 HLTMuonMatchAndPlot::selectedMuons(const MuonCollection & allMuons, 
                                    const BeamSpot & beamSpot,
-                                   const ParameterSet & pset) 
+                                   bool hasRecoCuts,
+                                   const StringCutObjectSelector<reco::Muon> &selector,
+                                   double d0Cut, double z0Cut)
 {
-
-  // If pset is empty, return an empty collection.
-  if (!pset.exists("recoCuts"))
+  // If there is no selector (recoCuts does not exists), return an empty collection. 
+  if (!hasRecoCuts)
     return MuonCollection();
-
-  StringCutObjectSelector<Muon> selector
-    (pset.getUntrackedParameter<string>("recoCuts"));
-  double z0Cut = pset.getUntrackedParameter<double>("z0Cut");
-  double d0Cut = pset.getUntrackedParameter<double>("d0Cut");
 
   MuonCollection reducedMuons(allMuons);
   MuonCollection::iterator iter = reducedMuons.begin();

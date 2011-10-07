@@ -38,6 +38,7 @@
 HBHENoiseFilter::HBHENoiseFilter(const edm::ParameterSet& iConfig)
 {
   //now do what ever initialization is needed
+  label_ = iConfig.getParameter<edm::InputTag>("label");
   minRatio_ = iConfig.getParameter<double>("minRatio");
   maxRatio_ = iConfig.getParameter<double>("maxRatio");
   minHPDHits_ = iConfig.getParameter<int>("minHPDHits");
@@ -50,6 +51,7 @@ HBHENoiseFilter::HBHENoiseFilter(const edm::ParameterSet& iConfig)
   minNumIsolatedNoiseChannels_ = iConfig.getParameter<int>("minNumIsolatedNoiseChannels");
   minIsolatedNoiseSumE_ = iConfig.getParameter<double>("minIsolatedNoiseSumE");
   minIsolatedNoiseSumEt_ = iConfig.getParameter<double>("minIsolatedNoiseSumEt");  
+  useTS4TS5_ = iConfig.getParameter<bool>("useTS4TS5");
 }
 
 
@@ -71,13 +73,16 @@ HBHENoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // get the Noise summary object
   edm::Handle<HcalNoiseSummary> summary_h;
-  iEvent.getByType(summary_h);
+  iEvent.getByLabel(label_, summary_h);
   if(!summary_h.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound) << " could not find HcalNoiseSummary.\n";
     return true;
   }
   const HcalNoiseSummary summary = *summary_h;
 
+  //  if(summary.HasBadRBXTS4TS5() == true) std::cout << "TS4TS5 rejection!" << std::endl;
+  //  else                                  std::cout << "TS4TS5 passing!" << std::endl;
+  
   if(summary.minE2Over10TS()<minRatio_) return false;
   if(summary.maxE2Over10TS()>maxRatio_) return false;
   if(summary.maxHPDHits()>=minHPDHits_) return false;
@@ -90,6 +95,7 @@ HBHENoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   if(summary.numIsolatedNoiseChannels()>=minNumIsolatedNoiseChannels_) return false;
   if(summary.isolatedNoiseSumE()>=minIsolatedNoiseSumE_) return false;
   if(summary.isolatedNoiseSumEt()>=minIsolatedNoiseSumEt_) return false;
+  if(useTS4TS5_ == true && summary.HasBadRBXTS4TS5() == true) return false;
 
   return true;
 }

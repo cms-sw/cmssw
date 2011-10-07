@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/12/04 00:52:25 $
- *  $Revision: 1.38 $
+ *  $Date: 2011/04/11 13:49:33 $
+ *  $Revision: 1.38.6.2 $
  *  \author A.Apresyan - Caltech
  *          K.Hatakeyama - Baylor
  */
@@ -432,6 +432,9 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
   _trig_MinBias=0;
   _trig_HighMET=0;
   _trig_LowMET=0;
+  _trig_Ele=0;
+  _trig_Muon=0;
+  _trig_PhysDec=0;
   if(&triggerResults) {   
 
     /////////// Analyzing HLT Trigger Results (TriggerResults) //////////
@@ -844,13 +847,21 @@ void METAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
   if (DirName.find("All")) bLumiSecPlot=true;
 
   if (_trig_JetMB) fillMonitorElement(iEvent,DirName,"",met, bLumiSecPlot);
-  if (_hlt_HighPtJet.size() && _trig_HighPtJet) fillMonitorElement(iEvent,DirName,"HighPtJet",met,false);
-  if (_hlt_LowPtJet.size() && _trig_LowPtJet) fillMonitorElement(iEvent,DirName,"LowPtJet",met,false);
-  if (_hlt_MinBias.size() && _trig_MinBias) fillMonitorElement(iEvent,DirName,"MinBias",met,false);
-  if (_hlt_HighMET.size() && _trig_HighMET) fillMonitorElement(iEvent,DirName,"HighMET",met,false);
-  if (_hlt_LowMET.size() && _trig_LowMET) fillMonitorElement(iEvent,DirName,"LowMET",met,false);
-  if (_hlt_Ele.size() && _trig_Ele) fillMonitorElement(iEvent,DirName,"Ele",met,false);
-  if (_hlt_Muon.size() && _trig_Muon) fillMonitorElement(iEvent,DirName,"Muon",met,false);
+  if (_trig_HighPtJet)
+    fillMonitorElement(iEvent,DirName,"HighPtJet",met,false);
+  if (_trig_LowPtJet)
+    fillMonitorElement(iEvent,DirName,"LowPtJet",met,false);
+  if (_trig_MinBias)
+    fillMonitorElement(iEvent,DirName,"MinBias",met,false);
+  if (_trig_HighMET)
+    fillMonitorElement(iEvent,DirName,"HighMET",met,false);
+  if (_trig_LowMET)
+    fillMonitorElement(iEvent,DirName,"LowMET",met,false);
+  if (_trig_Ele)
+    fillMonitorElement(iEvent,DirName,"Ele",met,false);
+  if (_trig_Muon)
+    fillMonitorElement(iEvent,DirName,"Muon",met,false);
+
 }
 
 // ***********************************************************

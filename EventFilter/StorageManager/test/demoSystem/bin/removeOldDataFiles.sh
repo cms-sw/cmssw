@@ -9,4 +9,4 @@ date
 echo "Removing data files older than ${cutoffMinutes} minutes..."
 cd $STMGR_DIR/db
 
-find mbox open closed -type f -mmin +${cutoffMinutes} -exec rm -f '{}' \; &
+find open closed -type f -mmin +${cutoffMinutes} -exec rm -f '{}' \; &

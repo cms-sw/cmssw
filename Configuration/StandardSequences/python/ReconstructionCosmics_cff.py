@@ -62,6 +62,7 @@ reconstructionCosmics         = cms.Sequence(localReconstructionCosmics*
                                              beamhaloTracksSeq*
                                              jetsCosmics*
                                              muonsCosmics*
+                                             regionalTrackerCosmic*
                                              metrecoCosmics*
                                              egammaCosmics*
                                              logErrorHarvester)
@@ -69,11 +70,13 @@ reconstructionCosmics_HcalNZS = cms.Sequence(localReconstructionCosmics_HcalNZS*
                                              beamhaloTracksSeq*
                                              jetsCosmics*
                                              muonsCosmics*
+                                             regionalTrackerCosmic*
                                              metrecoCosmics*
                                              egammaCosmics*
                                              logErrorHarvester)
 reconstructionCosmics_woTkBHM = cms.Sequence(localReconstructionCosmics*
                                              jetsCosmics*
                                              muonsCosmics*
+                                             regionalTrackerCosmic*
                                              metrecoCosmics*
                                              egammaCosmics)

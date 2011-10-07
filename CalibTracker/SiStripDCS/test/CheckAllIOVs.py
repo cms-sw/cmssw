@@ -2,12 +2,11 @@
 #GBenelli Added the /env above to use the python version of CMSSW and run without having to do python <SCRIPT NAME>
 
 """ This script does the following:
-1- reads the list of iovs (by timestamp) in a sqlite file or in the Offline DB
+1- reads the list of iovs (by timestamp) in a sqlite file
 2- creates a cfg for each iov and runs them
-3- creates 2 log files per IOV (Summary/Debug) with all the SiStripDetVOff information in ASCII format
+3- takes the output of each job and builds a single output with the content of each iov
 It is recommended to redirect the output to a file.
 """
-#3- takes the output of each job and builds a single output with the content of each iov
 
 import os
 import re
@@ -63,24 +62,17 @@ def timeStamptoDate(i):
 
 # The first parameter is the name of the script
 if len(sys.argv) < 3:
-    print "Please provide the name of the sqlite file and the tag as in: "
-    print "./CheckAllIOVs.py dbfile.db SiStripDetVOff_Fake_31X"
-    print "OR to access directly the Offline DB with a time bracket:"
-    print "./CheckAllIOVs.py CMS_COND_31X_STRIP SiStripDetVOff_v1_offline DD/MM/YYYY HH:MM:SS DD/MM/YYYY HH:MM:SS"
+    print "Please provide the name of the sqlite file and the tag as in: ",
+    print "./CheckAllIOVs.py Example1a.db SiStripDetVOff_Fake_31X"
     sys.exit(1)
 
 print "Reading all IOVs"
 
-database= sys.argv[1]
-#Offline DB case (e.g. user would write ./CheckAllIOVs.py CMS_COND_31X_STRIP SiStripDetVOff_v1_offline):
-if "COND" in database and "STRIP" in database:
-    DBConnection="frontier://PromptProd/"+database
-#SQLite DB case (e.g. user would write ./CheckAllIOVs.py dbfile.db SiStripDetVOff_Fake_31X):
-else:
-    DBConnection="sqlite_file:"+database
+# Example1a.db
+# SiStripDetVOff_Fake_31X
 
-tag=sys.argv[2]
-    
+database = sys.argv[1]
+
 #GBenelli commit code from Marco to run check on a time interval:
 startFrom = 0
 if len(sys.argv) > 3:
@@ -88,21 +80,20 @@ if len(sys.argv) > 3:
 endAt = 0
 if len(sys.argv) > 4:
     endAt = packFromString(sys.argv[4])
-#TODO:
-#Should use subprocess.Popen...
-#Use cmscond_list_iov command to get the full list of IOVs available in the DB
-iovs = os.popen("cmscond_list_iov -c "+DBConnection+" -t "+tag)
-cmscond_list_iov_output = iovs.readlines()
-for line in cmscond_list_iov_output:
-    print line
-    if "[DB=" in line:
-        (start,end)=line.split()[0:2]
-        if long(startFrom) > long(start):
-            print "Skipping IOV =", start, " before requested =", startFrom
-            continue
-        if (endAt != 0) and (long(endAt) < long(end)):
-            print "Skipping IOV =", end, " after requested =", endAt
-            continue
+    
+iovs = os.popen("cmscond_list_iov -c sqlite_file:"+database+" -t "+sys.argv[2])
+iovsList = iovs.read()
+splittedList = re.split("payloadToken",iovsList)
+splittedList = re.split("Total",splittedList[1])
+splittedList = re.split("\[DB|\]\[.*\]\[.*\]\[.*\]\[.*\]", splittedList[0])
+# Loop on even numbers
+for i in range(0, len(splittedList), 2):
+    # print splittedList[i]
+    iov = re.split(" ", splittedList[i])
+    if len(iov) > 1:
+        start = iov[0].strip("\n")
+        end = iov[2].strip("\n")
+        # print "iov = ", iov
         # print "start =", start,
         # print ", end =", end
 
@@ -127,29 +118,18 @@ for line in cmscond_list_iov_output:
         print ", end date = ", endDate
         fullDates="_FROM_"+startDate.replace(" ", "_").replace(":", "_")+"_TO_"+endDate.replace(" ", "_").replace(":", "_")
         fileName="DetVOffPrint"+fullDates+"_cfg.py"
-        CfgFile=open(fileName,"w")
-        #Until the tag is in the release, CMSSW_RELEASE_BASE should be replaced by CMSSW_BASE...
-        for cfgline in open(os.path.join(os.getenv("CMSSW_RELEASE_BASE"),"src/CalibTracker/SiStripDCS/test","templateCheckAllIOVs_cfg.py"),"r"):
-            #Do the template replacements for the relevant variables:
-            if "STARTTIME" in cfgline:
-                cfgline=cfgline.replace("STARTTIME",start)
-            elif "ENDTIME" in cfgline:
-                cfgline=cfgline.replace("ENDTIME",end)
-            elif "DATE" in cfgline:
-                cfgline=cfgline.replace("DATE",fullDates)
-            elif "DATABASECONNECTION" in cfgline:
-                cfgline=cfgline.replace("DATABASECONNECTION",DBConnection)
-            elif "TAG" in cfgline:
-                cfgline=cfgline.replace("TAG",tag)
-            #Write the line from the template into the cloned cfg.py file:
-            CfgFile.write(cfgline)
-        CfgFile.close()
-
-        #Comment this line if you are debuggin and don't want cmsRun to run!
+        os.system("cat templateCheckAllIOVs_cfg.py | sed -e \"s/STARTTIME/"+start+"/g\" | sed -e \"s/ENDTIME/"+end+"/g\" | sed -e \"s/DATE/"+fullDates+"/g\" | sed -e \"s/DATABASE/sqlite_file:"+database+"/g\" > "+fileName)
+        # run = os.popen("cmsRun "+fileName+" > /dev/null")
         os.system("cmsRun "+fileName+" > /dev/null")
 
-        for logline in open("DetVOffReaderDebug_"+fullDates+".log", "r"):
-            if "IOV" in logline or "OFF" in logline or "ON" in logline:
-                print logline.strip("\n")
-    else:
-        print line
+        for line in open("DetVOffReaderDebug_"+fullDates+".log", "r"):
+            if "IOV" in line or "OFF" in line or "ON" in line:
+                print line.strip("\n")
+
+# # Do it afterwards because popen does not wait for the end of the job.
+# for i in range(0, len(splittedList), 2):
+#     iov = re.split(" ", splittedList[i])
+#     if len(iov) > 1:
+#         for line in open("DetVOffReaderDebug_"+fullDates+".log", "r"):
+#             if "IOV" in line or "OFF" in line or "ON" in line:
+#                 print line.strip("\n")

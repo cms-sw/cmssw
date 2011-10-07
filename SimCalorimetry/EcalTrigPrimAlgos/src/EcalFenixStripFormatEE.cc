@@ -1,6 +1,5 @@
 #include <SimCalorimetry/EcalTrigPrimAlgos/interface/EcalFenixStripFormatEE.h>
 #include <CondFormats/EcalObjects/interface/EcalTPGSlidingWindow.h>
-#include <CondFormats/EcalObjects/interface/EcalTPGStripStatus.h>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
@@ -28,18 +27,15 @@ int EcalFenixStripFormatEE::setInput(int input, int inputPeak, int fgvb ) {
 //-----------------------------------------------------------------------------------------
   
 int EcalFenixStripFormatEE::process(){
-  // Bad strip - zero everything
-  if(stripStatus_ != 0) return 0;
-
-  // Peak not found - only return fgvb
-  if(inputPeak_==0) return ((fgvb_ & 0x1) << 12);
+  if(inputPeak_==0) return 0;
+  //  buffer_=input_>>shift_;
     
+  //  int output=buffer_;
   int output=input_>>shift_;
-
-  //barrel saturates at 12 bits, endcap at 10!
-  // Pascal: finally no,endcap has 12 bits as in EB (bug in FENIX!!!!)
+//barrel saturates at 12 bits, endcap at 10!
+// Pascal: finally no,endcap has 12 bits as in EB (bug in FENIX!!!!)
   if(output>0XFFF) output=0XFFF; 
-  output=output|((fgvb_ & 0x1) << 12); //Pascal (was 10)
+  output=output|(fgvb_<<12); //Pascal (was 10)
 
   return output;    
 } 
@@ -59,22 +55,11 @@ void EcalFenixStripFormatEE::process(std::vector<int> &fgvbout,std::vector<int> 
 }
 //-----------------------------------------------------------------------------------------
 
-void EcalFenixStripFormatEE::setParameters(uint32_t id,const EcalTPGSlidingWindow*& slWin,const EcalTPGStripStatus *stripStatus){
+void EcalFenixStripFormatEE::setParameters(uint32_t id,const EcalTPGSlidingWindow*& slWin){
 
   const EcalTPGSlidingWindowMap &slwinmap = slWin -> getMap();
   EcalTPGSlidingWindowMapIterator it=slwinmap.find(id);
   if (it!=slwinmap.end()) shift_=(*it).second;
   else edm::LogWarning("EcalTPG")<<" could not find EcalTPGSlidingWindowMap entry for "<<id;
-
-  const EcalTPGStripStatusMap &statusMap = stripStatus->getMap();
-  EcalTPGStripStatusMapIterator sit = statusMap.find(id);
-  if(sit != statusMap.end())
-  {
-    stripStatus_ = (*sit).second;
-  }
-  else
-  {
-    stripStatus_ = 0; // Assume strip OK
-  }
 }
 //-----------------------------------------------------------------------------------------

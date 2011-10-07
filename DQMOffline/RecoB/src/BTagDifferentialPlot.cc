@@ -1,7 +1,6 @@
 #include "DQMOffline/RecoB/interface/BTagDifferentialPlot.h"
 #include "DQMOffline/RecoB/interface/EffPurFromHistos.h"
 #include "DQMOffline/RecoB/interface/Tools.h"
-#include "FWCore/Utilities/interface/CodedException.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TF1.h"
 

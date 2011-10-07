@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2011/01/21 10:21:39 $
- * $Revision: 1.86 $
+ * $Date: 2011/08/30 09:28:42 $
+ * $Revision: 1.89 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -219,214 +219,214 @@ void EEOccupancyTask::setup(void){
 
   init_ = true;
 
-  char histo[200];
+  std::string name;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EEOccupancyTask");
 
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EEOT digi occupancy %s", Numbers::sEE(i+1).c_str());
-      meOccupancy_[i] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
+      name = "EEOT digi occupancy " + Numbers::sEE(i+1);
+      meOccupancy_[i] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50.);
       meOccupancy_[i]->setAxisTitle("ix", 1);
       if ( i+1 >= 1 && i+1 <= 9 ) meOccupancy_[i]->setAxisTitle("101-ix", 1);
       meOccupancy_[i]->setAxisTitle("iy", 2);
       dqmStore_->tag(meOccupancy_[i], i+1);
 
-      sprintf(histo, "EEOT MEM digi occupancy %s", Numbers::sEE(i+1).c_str());
-      meOccupancyMem_[i] = dqmStore_->book2D(histo, histo, 10, 0., 10., 5, 0., 5.);
+      name = "EEOT MEM digi occupancy " + Numbers::sEE(i+1);
+      meOccupancyMem_[i] = dqmStore_->book2D(name, name, 10, 0., 10., 5, 0., 5.);
       meOccupancyMem_[i]->setAxisTitle("pseudo-strip", 1);
       meOccupancyMem_[i]->setAxisTitle("channel", 2);
       dqmStore_->tag(meOccupancyMem_[i], i+1);
 
-      sprintf(histo, "EEOT rec hit energy %s", Numbers::sEE(i+1).c_str());
-      meEERecHitEnergy_[i] = dqmStore_->bookProfile2D(histo, histo, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
+      name = "EEOT rec hit energy " + Numbers::sEE(i+1);
+      meEERecHitEnergy_[i] = dqmStore_->bookProfile2D(name, name, 50, Numbers::ix0EE(i+1)+0., Numbers::ix0EE(i+1)+50., 50, Numbers::iy0EE(i+1)+0., Numbers::iy0EE(i+1)+50., 4096, 0., 4096., "s");
       meEERecHitEnergy_[i]->setAxisTitle("ix", 1);
       if ( i+1 >= 1 && i+1 <= 9 ) meEERecHitEnergy_[i]->setAxisTitle("101-ix", 1);
       meEERecHitEnergy_[i]->setAxisTitle("iy", 2);
       meEERecHitEnergy_[i]->setAxisTitle("energy (GeV)", 3);
       dqmStore_->tag(meEERecHitEnergy_[i], i+1);
 
-      sprintf(histo, "EEOT energy spectrum %s", Numbers::sEE(i+1).c_str());
-      meSpectrum_[i] = dqmStore_->book1D(histo, histo, 100, 0., 1.5);
+      name = "EEOT energy spectrum " + Numbers::sEE(i+1);
+      meSpectrum_[i] = dqmStore_->book1D(name, name, 100, 0., 1.5);
       meSpectrum_[i]->setAxisTitle("energy (GeV)", 1);
       dqmStore_->tag(meSpectrum_[i], i+1);
     }
 
-    sprintf(histo, "EEOT rec hit spectrum EE -");
-    meEERecHitSpectrum_[0] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+    name = "EEOT rec hit spectrum EE -";
+    meEERecHitSpectrum_[0] = dqmStore_->book1D(name, name, 100, 0., 10.);
     meEERecHitSpectrum_[0]->setAxisTitle("energy (GeV)", 1);
 
-    sprintf(histo, "EEOT rec hit spectrum EE +");
-    meEERecHitSpectrum_[1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+    name = "EEOT rec hit spectrum EE +";
+    meEERecHitSpectrum_[1] = dqmStore_->book1D(name, name, 100, 0., 10.);
     meEERecHitSpectrum_[1]->setAxisTitle("energy (GeV)", 1);
 
-    sprintf(histo, "EEOT digi occupancy EE -");
-    meEEDigiOccupancy_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    name = "EEOT digi occupancy EE -";
+    meEEDigiOccupancy_[0] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     meEEDigiOccupancy_[0]->setAxisTitle("jx", 1);
     meEEDigiOccupancy_[0]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT digi occupancy EE - projection eta");
-    meEEDigiOccupancyProEta_[0] = dqmStore_->book1DD(histo, histo, 22, -3.0, -1.479);
+    name = "EEOT digi occupancy EE - projection eta";
+    meEEDigiOccupancyProEta_[0] = dqmStore_->book1DD(name, name, 22, -3.0, -1.479);
     meEEDigiOccupancyProEta_[0]->setAxisTitle("eta", 1);
     meEEDigiOccupancyProEta_[0]->setAxisTitle("number of digis", 2);
-    sprintf(histo, "EEOT digi occupancy EE - projection phi");
-    meEEDigiOccupancyProPhi_[0] = dqmStore_->book1DD(histo, histo, 50, -M_PI, M_PI);
+    name = "EEOT digi occupancy EE - projection phi";
+    meEEDigiOccupancyProPhi_[0] = dqmStore_->book1DD(name, name, 50, -M_PI, M_PI);
     meEEDigiOccupancyProPhi_[0]->setAxisTitle("phi", 1);
     meEEDigiOccupancyProPhi_[0]->setAxisTitle("number of digis", 2);
 
-    sprintf(histo, "EEOT digi occupancy EE +");
-    meEEDigiOccupancy_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    name = "EEOT digi occupancy EE +";
+    meEEDigiOccupancy_[1] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     meEEDigiOccupancy_[1]->setAxisTitle("jx", 1);
     meEEDigiOccupancy_[1]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT digi occupancy EE + projection eta");
-    meEEDigiOccupancyProEta_[1] = dqmStore_->book1DD(histo, histo, 22, 1.479, 3.0);
+    name = "EEOT digi occupancy EE + projection eta";
+    meEEDigiOccupancyProEta_[1] = dqmStore_->book1DD(name, name, 22, 1.479, 3.0);
     meEEDigiOccupancyProEta_[1]->setAxisTitle("eta", 1);
     meEEDigiOccupancyProEta_[1]->setAxisTitle("number of digis", 2);
-    sprintf(histo, "EEOT digi occupancy EE + projection phi");
-    meEEDigiOccupancyProPhi_[1] = dqmStore_->book1DD(histo, histo, 50, -M_PI, M_PI);
+    name = "EEOT digi occupancy EE + projection phi";
+    meEEDigiOccupancyProPhi_[1] = dqmStore_->book1DD(name, name, 50, -M_PI, M_PI);
     meEEDigiOccupancyProPhi_[1]->setAxisTitle("phi", 1);
     meEEDigiOccupancyProPhi_[1]->setAxisTitle("number of digis", 2);
 
-    sprintf(histo, "EEOT rec hit occupancy EE -");
-    meEERecHitOccupancy_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    name = "EEOT rec hit occupancy EE -";
+    meEERecHitOccupancy_[0] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     meEERecHitOccupancy_[0]->setAxisTitle("jx", 1);
     meEERecHitOccupancy_[0]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT rec hit occupancy EE - projection eta");
-    meEERecHitOccupancyProEta_[0] = dqmStore_->book1DD(histo, histo, 22, -3.0, -1.479);
+    name = "EEOT rec hit occupancy EE - projection eta";
+    meEERecHitOccupancyProEta_[0] = dqmStore_->book1DD(name, name, 22, -3.0, -1.479);
     meEERecHitOccupancyProEta_[0]->setAxisTitle("eta", 1);
     meEERecHitOccupancyProEta_[0]->setAxisTitle("number of hits", 2);
-    sprintf(histo, "EEOT rec hit occupancy EE - projection phi");
-    meEERecHitOccupancyProPhi_[0] = dqmStore_->book1DD(histo, histo, 50, -M_PI, M_PI);
+    name = "EEOT rec hit occupancy EE - projection phi";
+    meEERecHitOccupancyProPhi_[0] = dqmStore_->book1DD(name, name, 50, -M_PI, M_PI);
     meEERecHitOccupancyProPhi_[0]->setAxisTitle("phi", 1);
     meEERecHitOccupancyProPhi_[0]->setAxisTitle("number of hits", 2);
 
-    sprintf(histo, "EEOT rec hit occupancy EE +");
-    meEERecHitOccupancy_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    name = "EEOT rec hit occupancy EE +";
+    meEERecHitOccupancy_[1] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     meEERecHitOccupancy_[1]->setAxisTitle("jx", 1);
     meEERecHitOccupancy_[1]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT rec hit occupancy EE + projection eta");
-    meEERecHitOccupancyProEta_[1] = dqmStore_->book1DD(histo, histo, 22, 1.479, 3.0);
+    name = "EEOT rec hit occupancy EE + projection eta";
+    meEERecHitOccupancyProEta_[1] = dqmStore_->book1DD(name, name, 22, 1.479, 3.0);
     meEERecHitOccupancyProEta_[1]->setAxisTitle("eta", 1);
     meEERecHitOccupancyProEta_[1]->setAxisTitle("number of hits", 2);
-    sprintf(histo, "EEOT rec hit occupancy EE + projection phi");
-    meEERecHitOccupancyProPhi_[1] = dqmStore_->book1DD(histo, histo, 50, -M_PI, M_PI);
+    name = "EEOT rec hit occupancy EE + projection phi";
+    meEERecHitOccupancyProPhi_[1] = dqmStore_->book1DD(name, name, 50, -M_PI, M_PI);
     meEERecHitOccupancyProPhi_[1]->setAxisTitle("phi", 1);
     meEERecHitOccupancyProPhi_[1]->setAxisTitle("number of hits", 2);
 
-    sprintf(histo, "EEOT rec hit thr occupancy EE -");
-    meEERecHitOccupancyThr_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    name = "EEOT rec hit thr occupancy EE -";
+    meEERecHitOccupancyThr_[0] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     meEERecHitOccupancyThr_[0]->setAxisTitle("jx", 1);
     meEERecHitOccupancyThr_[0]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT rec hit thr occupancy EE - projection eta");
-    meEERecHitOccupancyProEtaThr_[0] = dqmStore_->book1DD(histo, histo, 22, -3.0, -1.479);
+    name = "EEOT rec hit thr occupancy EE - projection eta";
+    meEERecHitOccupancyProEtaThr_[0] = dqmStore_->book1DD(name, name, 22, -3.0, -1.479);
     meEERecHitOccupancyProEtaThr_[0]->setAxisTitle("eta", 1);
     meEERecHitOccupancyProEtaThr_[0]->setAxisTitle("number of hits", 2);
-    sprintf(histo, "EEOT rec hit thr occupancy EE - projection phi");
-    meEERecHitOccupancyProPhiThr_[0] = dqmStore_->book1DD(histo, histo, 50, -M_PI, M_PI);
+    name = "EEOT rec hit thr occupancy EE - projection phi";
+    meEERecHitOccupancyProPhiThr_[0] = dqmStore_->book1DD(name, name, 50, -M_PI, M_PI);
     meEERecHitOccupancyProPhiThr_[0]->setAxisTitle("phi", 1);
     meEERecHitOccupancyProPhiThr_[0]->setAxisTitle("number of hits", 2);
 
-    sprintf(histo, "EEOT rec hit thr occupancy EE +");
-    meEERecHitOccupancyThr_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    name = "EEOT rec hit thr occupancy EE +";
+    meEERecHitOccupancyThr_[1] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     meEERecHitOccupancyThr_[1]->setAxisTitle("jx", 1);
     meEERecHitOccupancyThr_[1]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT rec hit thr occupancy EE + projection eta");
-    meEERecHitOccupancyProEtaThr_[1] = dqmStore_->book1DD(histo, histo, 22, 1.479, 3.0);
+    name = "EEOT rec hit thr occupancy EE + projection eta";
+    meEERecHitOccupancyProEtaThr_[1] = dqmStore_->book1DD(name, name, 22, 1.479, 3.0);
     meEERecHitOccupancyProEtaThr_[1]->setAxisTitle("eta", 1);
     meEERecHitOccupancyProEtaThr_[1]->setAxisTitle("number of hits", 2);
-    sprintf(histo, "EEOT rec hit thr occupancy EE + projection phi");
-    meEERecHitOccupancyProPhiThr_[1] = dqmStore_->book1DD(histo, histo, 50, -M_PI, M_PI);
+    name = "EEOT rec hit thr occupancy EE + projection phi";
+    meEERecHitOccupancyProPhiThr_[1] = dqmStore_->book1DD(name, name, 50, -M_PI, M_PI);
     meEERecHitOccupancyProPhiThr_[1]->setAxisTitle("phi", 1);
     meEERecHitOccupancyProPhiThr_[1]->setAxisTitle("number of hits", 2);
 
-    sprintf(histo, "EEOT TP digi occupancy EE -");
-    meEETrigPrimDigiOccupancy_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    name = "EEOT TP digi occupancy EE -";
+    meEETrigPrimDigiOccupancy_[0] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     meEETrigPrimDigiOccupancy_[0]->setAxisTitle("jx", 1);
     meEETrigPrimDigiOccupancy_[0]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT TP digi occupancy EE - projection eta");
-    meEETrigPrimDigiOccupancyProEta_[0] = dqmStore_->book1DD(histo, histo, 22, -3.0, -1.479);
+    name = "EEOT TP digi occupancy EE - projection eta";
+    meEETrigPrimDigiOccupancyProEta_[0] = dqmStore_->book1DD(name, name, 22, -3.0, -1.479);
     meEETrigPrimDigiOccupancyProEta_[0]->setAxisTitle("eta", 1);
     meEETrigPrimDigiOccupancyProEta_[0]->setAxisTitle("number of TP digis", 2);
-    sprintf(histo, "EEOT TP digi occupancy EE - projection phi");
-    meEETrigPrimDigiOccupancyProPhi_[0] = dqmStore_->book1DD(histo, histo, 50, -M_PI, M_PI);
+    name = "EEOT TP digi occupancy EE - projection phi";
+    meEETrigPrimDigiOccupancyProPhi_[0] = dqmStore_->book1DD(name, name, 50, -M_PI, M_PI);
     meEETrigPrimDigiOccupancyProPhi_[0]->setAxisTitle("phi", 1);
     meEETrigPrimDigiOccupancyProPhi_[0]->setAxisTitle("number of TP digis", 2);
 
-    sprintf(histo, "EEOT TP digi occupancy EE +");
-    meEETrigPrimDigiOccupancy_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    name = "EEOT TP digi occupancy EE +";
+    meEETrigPrimDigiOccupancy_[1] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     meEETrigPrimDigiOccupancy_[1]->setAxisTitle("jx", 1);
     meEETrigPrimDigiOccupancy_[1]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT TP digi occupancy EE + projection eta");
-    meEETrigPrimDigiOccupancyProEta_[1] = dqmStore_->book1DD(histo, histo, 22, 1.479, 3.0);
+    name = "EEOT TP digi occupancy EE + projection eta";
+    meEETrigPrimDigiOccupancyProEta_[1] = dqmStore_->book1DD(name, name, 22, 1.479, 3.0);
     meEETrigPrimDigiOccupancyProEta_[1]->setAxisTitle("eta", 1);
     meEETrigPrimDigiOccupancyProEta_[1]->setAxisTitle("number of TP digis", 2);
-    sprintf(histo, "EEOT TP digi occupancy EE + projection phi");
-    meEETrigPrimDigiOccupancyProPhi_[1] = dqmStore_->book1DD(histo, histo, 50, -M_PI, M_PI);
+    name = "EEOT TP digi occupancy EE + projection phi";
+    meEETrigPrimDigiOccupancyProPhi_[1] = dqmStore_->book1DD(name, name, 50, -M_PI, M_PI);
     meEETrigPrimDigiOccupancyProPhi_[1]->setAxisTitle("phi", 1);
     meEETrigPrimDigiOccupancyProPhi_[1]->setAxisTitle("number of TP digis", 2);
 
-    sprintf(histo, "EEOT TP digi thr occupancy EE -");
-    meEETrigPrimDigiOccupancyThr_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    name = "EEOT TP digi thr occupancy EE -";
+    meEETrigPrimDigiOccupancyThr_[0] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     meEETrigPrimDigiOccupancyThr_[0]->setAxisTitle("jx", 1);
     meEETrigPrimDigiOccupancyThr_[0]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT TP digi thr occupancy EE - projection eta");
-    meEETrigPrimDigiOccupancyProEtaThr_[0] = dqmStore_->book1DD(histo, histo, 22, -3.0, -1.479);
+    name = "EEOT TP digi thr occupancy EE - projection eta";
+    meEETrigPrimDigiOccupancyProEtaThr_[0] = dqmStore_->book1DD(name, name, 22, -3.0, -1.479);
     meEETrigPrimDigiOccupancyProEtaThr_[0]->setAxisTitle("eta", 1);
     meEETrigPrimDigiOccupancyProEtaThr_[0]->setAxisTitle("number of TP digis", 2);
-    sprintf(histo, "EEOT TP digi thr occupancy EE - projection phi");
-    meEETrigPrimDigiOccupancyProPhiThr_[0] = dqmStore_->book1DD(histo, histo, 50, -M_PI, M_PI);
+    name = "EEOT TP digi thr occupancy EE - projection phi";
+    meEETrigPrimDigiOccupancyProPhiThr_[0] = dqmStore_->book1DD(name, name, 50, -M_PI, M_PI);
     meEETrigPrimDigiOccupancyProPhiThr_[0]->setAxisTitle("phi", 1);
     meEETrigPrimDigiOccupancyProPhiThr_[0]->setAxisTitle("number of TP digis", 2);
 
-    sprintf(histo, "EEOT TP digi thr occupancy EE +");
-    meEETrigPrimDigiOccupancyThr_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    name = "EEOT TP digi thr occupancy EE +";
+    meEETrigPrimDigiOccupancyThr_[1] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     meEETrigPrimDigiOccupancyThr_[1]->setAxisTitle("jx", 1);
     meEETrigPrimDigiOccupancyThr_[1]->setAxisTitle("jy", 2);
-    sprintf(histo, "EEOT TP digi thr occupancy EE + projection eta");
-    meEETrigPrimDigiOccupancyProEtaThr_[1] = dqmStore_->book1DD(histo, histo, 22, 1.479, 3.0);
+    name = "EEOT TP digi thr occupancy EE + projection eta";
+    meEETrigPrimDigiOccupancyProEtaThr_[1] = dqmStore_->book1DD(name, name, 22, 1.479, 3.0);
     meEETrigPrimDigiOccupancyProEtaThr_[1]->setAxisTitle("eta", 1);
     meEETrigPrimDigiOccupancyProEtaThr_[1]->setAxisTitle("number of TP digis", 2);
-    sprintf(histo, "EEOT TP digi thr occupancy EE + projection phi");
-    meEETrigPrimDigiOccupancyProPhiThr_[1] = dqmStore_->book1DD(histo, histo, 50, -M_PI, M_PI);
+    name = "EEOT TP digi thr occupancy EE + projection phi";
+    meEETrigPrimDigiOccupancyProPhiThr_[1] = dqmStore_->book1DD(name, name, 50, -M_PI, M_PI);
     meEETrigPrimDigiOccupancyProPhiThr_[1]->setAxisTitle("phi", 1);
     meEETrigPrimDigiOccupancyProPhiThr_[1]->setAxisTitle("number of TP digis", 2);
 
-    sprintf(histo, "EEOT test pulse digi occupancy EE -");
-    meEETestPulseDigiOccupancy_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    name = "EEOT test pulse digi occupancy EE -";
+    meEETestPulseDigiOccupancy_[0] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     meEETestPulseDigiOccupancy_[0]->setAxisTitle("jx", 1);
     meEETestPulseDigiOccupancy_[0]->setAxisTitle("jy", 2);
 
-    sprintf(histo, "EEOT test pulse digi occupancy EE +");
-    meEETestPulseDigiOccupancy_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    name = "EEOT test pulse digi occupancy EE +";
+    meEETestPulseDigiOccupancy_[1] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     meEETestPulseDigiOccupancy_[1]->setAxisTitle("jx", 1);
     meEETestPulseDigiOccupancy_[1]->setAxisTitle("jy", 2);
 
-    sprintf(histo, "EEOT led digi occupancy EE -");
-    meEELedDigiOccupancy_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    name = "EEOT led digi occupancy EE -";
+    meEELedDigiOccupancy_[0] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     meEELedDigiOccupancy_[0]->setAxisTitle("jx", 1);
     meEELedDigiOccupancy_[0]->setAxisTitle("jy", 2);
 
-    sprintf(histo, "EEOT led digi occupancy EE +");
-    meEELedDigiOccupancy_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    name = "EEOT led digi occupancy EE +";
+    meEELedDigiOccupancy_[1] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     meEELedDigiOccupancy_[1]->setAxisTitle("jx", 1);
     meEELedDigiOccupancy_[1]->setAxisTitle("jy", 2);
 
-    sprintf(histo, "EEOT laser digi occupancy EE -");
-    meEELaserDigiOccupancy_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    name = "EEOT laser digi occupancy EE -";
+    meEELaserDigiOccupancy_[0] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     meEELaserDigiOccupancy_[0]->setAxisTitle("jx", 1);
     meEELaserDigiOccupancy_[0]->setAxisTitle("jy", 2);
 
-    sprintf(histo, "EEOT laser digi occupancy EE +");
-    meEELaserDigiOccupancy_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    name = "EEOT laser digi occupancy EE +";
+    meEELaserDigiOccupancy_[1] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     meEELaserDigiOccupancy_[1]->setAxisTitle("jx", 1);
     meEELaserDigiOccupancy_[1]->setAxisTitle("jy", 2);
 
-    sprintf(histo, "EEOT pedestal digi occupancy EE -");
-    meEEPedestalDigiOccupancy_[0] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    name = "EEOT pedestal digi occupancy EE -";
+    meEEPedestalDigiOccupancy_[0] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     meEEPedestalDigiOccupancy_[0]->setAxisTitle("jx", 1);
     meEEPedestalDigiOccupancy_[0]->setAxisTitle("jy", 2);
 
-    sprintf(histo, "EEOT pedestal digi occupancy EE +");
-    meEEPedestalDigiOccupancy_[1] = dqmStore_->book2D(histo, histo, 100, 0., 100., 100, 0., 100.);
+    name = "EEOT pedestal digi occupancy EE +";
+    meEEPedestalDigiOccupancy_[1] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
     meEEPedestalDigiOccupancy_[1]->setAxisTitle("jx", 1);
     meEEPedestalDigiOccupancy_[1]->setAxisTitle("jy", 2);
 
