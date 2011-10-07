@@ -186,7 +186,7 @@ namespace {
   edm::ValueMap<pat::JetCorrFactors> vm_jcf;
   edm::Wrapper<edm::ValueMap<pat::JetCorrFactors> >  w_vm_jcf;
   //std::vector<pat::TauJetCorrFactors::CorrectionFactor> v_tjcfcf;
-  edm::Wrapper<std::vector<pat::TauJetCorrFactors::CorrectionFactor> > w_v_tjcfcf;
+  //edm::Wrapper<std::vector<pat::TauJetCorrFactors::CorrectionFactor> > w_v_tjcfcf;
   std::vector<pat::TauJetCorrFactors> v_tjcf;
   edm::Wrapper<std::vector<pat::TauJetCorrFactors> >  w_v_tjcf;
   edm::ValueMap<pat::TauJetCorrFactors> vm_tjcf;

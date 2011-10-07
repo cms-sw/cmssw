@@ -5,6 +5,7 @@
 #include <list>
 #include <deque>
 #include <set>
+#include <string>
 
 namespace {
   struct dictionary {
@@ -28,6 +29,7 @@ namespace {
   edm::Wrapper<std::vector<unsigned long long> > dummy14;
   edm::Wrapper<std::vector<long long> > dummy15;
   edm::Wrapper<std::vector<std::pair<std::basic_string<char>,double> > > dummy16;
+  edm::Wrapper<std::vector<std::pair<std::basic_string<char>,float> > > dummy16_0;
   edm::Wrapper<std::vector<std::pair<unsigned int,double> > > dummy16_1;
   edm::Wrapper<std::list<int> > dummy17;
 
