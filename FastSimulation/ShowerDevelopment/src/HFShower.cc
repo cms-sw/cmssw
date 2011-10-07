@@ -563,7 +563,7 @@ bool HFShower::compute() {
       double eremaining = eStep[i];
       bool converged    = false;
 
-      while (eremaining > 0. && !converged && count<infinity ) {
+      while (eremaining > 0. && !converged && count<inf ) {
 
 	++count;
 
