@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HLT/V971 (CMSSW_4_2_0_HLT33)
+# /dev/CMSSW_4_2_0/HLT/V972 (CMSSW_4_2_0_HLT33)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V971')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V972')
 )
 
 streams = cms.PSet( 
@@ -4098,7 +4098,7 @@ hltHbhereco = cms.EDProducer( "HcalHitReconstructor",
 hltHfreco = cms.EDProducer( "HcalHitReconstructor",
     correctForTimeslew = cms.bool( False ),
     correctForPhaseContainment = cms.bool( False ),
-    correctionPhaseNS = cms.double( 0.0 ),
+    correctionPhaseNS = cms.double( 13.0 ),
     digiLabel = cms.InputTag( "hltHcalDigis" ),
     correctTiming = cms.bool( False ),
     setNoiseFlags = cms.bool( True ),
