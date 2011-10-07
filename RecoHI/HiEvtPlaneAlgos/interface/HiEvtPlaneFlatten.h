@@ -10,7 +10,7 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Mon Jun  7 14:40:12 EDT 2010
-// $Id: HiEvtPlaneFlatten.h,v 1.1 2011/09/29 22:23:07 ssanders Exp $
+// $Id: HiEvtPlaneFlatten.h,v 1.2 2011/10/06 22:41:20 yilmaz Exp $
 //
 //
 
@@ -30,19 +30,10 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/HeavyIonEvent/interface/Centrality.h"
-#include "DataFormats/HeavyIonEvent/interface/CentralityBins.h"
 
 #include "DataFormats/HeavyIonEvent/interface/EvtPlane.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CommonTools/UtilAlgos/interface/TFileService.h"
-
-#include <time.h>
-#include <cstdlib>
+#include "TMath.h"
 #include <vector>
 
 #define MAXCUT 5000
@@ -50,21 +41,19 @@
 //
 // class declaration
 //
-static const double pi = 3.14159265358979312;
-static const double pi2 = 1.57079632679489656;
-static const int nvtxbins = 10;
-static const double minvtx = -25;
-static const double delvtx = 5;
-//static const int NumCentBins = 12; 
-//const double  wcent[] = {0,5,10,15,20,30,40,50,60,70,80,90,100}; 
 
 class HiEvtPlaneFlatten {
 public:
+
   explicit HiEvtPlaneFlatten()
   {
+    pi = TMath::Pi();
     hcentbins = 1;
     hOrder = 20;
     vorder = 2;    //sets order of event plane
+    minvtx = -25;
+    delvtx = 5;
+    nvtxbins = 10;
   }
   void Init(int order, int ncentbins,const int centbinCompression, std::string tag, int vord)
   {
@@ -139,7 +128,7 @@ public:
     return ang;
   }
   Double_t bounds2(Double_t ang) {
-    double range = TMath::Pi()/(double) vorder;
+    double range = pi/(double) vorder;
     if(ang<-range) ang+=2*range;
     if(ang>range)  ang-=2*range;
     return ang;
@@ -155,6 +144,12 @@ private:
   int centbinComp;
   int hbins;
   int vorder; //order of flattened event plane
+  double pi;
+
+  int nvtxbins;
+  double minvtx;
+  double delvtx;
+
 };
 
 

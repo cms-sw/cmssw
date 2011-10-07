@@ -14,7 +14,7 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Sat Jun 26 16:04:04 EDT 2010
-// $Id: HiEvtPlaneFlatCalib.cc,v 1.2 2011/09/29 22:23:09 ssanders Exp $
+// $Id: HiEvtPlaneFlatCalib.cc,v 1.3 2011/09/30 12:14:04 yilmaz Exp $
 //
 //
 
@@ -31,13 +31,6 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/HeavyIonEvent/interface/CentralityProvider.h"
-//#include "DataFormats/HeavyIonEvent/interface/Centrality.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/HeavyIon.h"
-#include "HepMC/SimpleVector.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "Math/Vector3D.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -52,28 +45,15 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "SimDataFormats/Track/interface/SimTrack.h"
-#include "SimDataFormats/Track/interface/SimTrackContainer.h"
-#include "SimDataFormats/Track/interface/CoreSimTrack.h"
-#include "SimDataFormats/EncodedEventId/interface/EncodedEventId.h"
-#include "SimDataFormats/Vertex/interface/SimVertex.h"
-#include "SimDataFormats/Vertex/interface/SimVertexContainer.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHit.h"
-#include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
-#include "SimDataFormats/TrackingHit/interface/UpdatablePSimHit.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticleFwd.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingVertexContainer.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "CondFormats/DataRecord/interface/HeavyIonRPRcd.h"
 #include "CondFormats/HIObjects/interface/CentralityTable.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/HIObjects/interface/RPFlatParams.h"
 
 #include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneFlatten.h"
-#include "TROOT.h"
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2D.h"
@@ -85,16 +65,12 @@
 #include "TString.h"
 #include <time.h>
 #include <cstdlib>
+#include <vector>
 
 #include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneList.h"
 
 using namespace std;
-#include <vector>
-using std::vector;
-using std::rand;
-
-static const  int NumCentBins=9;
-static const  double wcent[] ={0,5,10,20,30,40,50,60,70,100};
+using namespace hi;
 
 //
 // class declaration
@@ -118,13 +94,14 @@ class HiEvtPlaneFlatCalib : public edm::EDAnalyzer {
   float vzr_sell;
   float vzErr_sell;
 
- 
+  static const  int NumCentBins=9;
+  double wcent[10];
+
   TH1D * hcent;
   TH1D * hvtx;
   TH1D * flatXhist[NumEPNames];
   TH1D * flatYhist[NumEPNames];
   TH1D * flatCnthist[NumEPNames];
-
 
   TH1D * flatXDBhist[NumEPNames];
   TH1D * flatYDBhist[NumEPNames];
@@ -144,9 +121,6 @@ class HiEvtPlaneFlatCalib : public edm::EDAnalyzer {
 //
 // constants, enums and typedefs
 //
-typedef std::vector<TrackingParticle>                   TrackingParticleCollection;
-typedef TrackingParticleRefVector::iterator               tp_iterator;
-
 
 //
 // static data member definitions
@@ -159,7 +133,19 @@ HiEvtPlaneFlatCalib::HiEvtPlaneFlatCalib(const edm::ParameterSet& iConfig)
 {
   genFlatPsi_ = iConfig.getUntrackedParameter<bool>("genFlatPsi_",true);
 
-   //now do what ever other initialization is needed
+  //  NumCentBins=9;
+  wcent[0] = 0;
+  wcent[1] = 5;
+  wcent[2] = 10;
+  wcent[3] = 20;
+  wcent[4] = 30;
+  wcent[5] = 40;
+  wcent[6] = 50;
+  wcent[7] = 60;
+  wcent[8] = 70;
+  wcent[9] = 100;
+
+  //now do what ever other initialization is needed
   //  cbins_ = 0;
   centrality_ = 0;
   hcent = fs->make<TH1D>("cent","cent",41,0,40);
@@ -215,10 +201,8 @@ HiEvtPlaneFlatCalib::~HiEvtPlaneFlatCalib()
 void
 HiEvtPlaneFlatCalib::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-   using namespace edm;
-  using namespace std;
+  using namespace edm;
   using namespace reco;
-  using namespace HepMC;
   //
   //Get Centrality
   //

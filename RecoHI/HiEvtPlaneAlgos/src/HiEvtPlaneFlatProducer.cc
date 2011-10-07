@@ -14,7 +14,7 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Sat Jun 26 16:04:04 EDT 2010
-// $Id: HiEvtPlaneFlatProducer.cc,v 1.7 2011/09/30 19:23:09 yilmaz Exp $
+// $Id: HiEvtPlaneFlatProducer.cc,v 1.8 2011/10/02 12:25:30 yilmaz Exp $
 //
 //
 
@@ -30,14 +30,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "DataFormats/HeavyIonEvent/interface/CentralityProvider.h"
-//#include "DataFormats/HeavyIonEvent/interface/Centrality.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
-#include "HepMC/GenVertex.h"
-#include "HepMC/HeavyIon.h"
-#include "HepMC/SimpleVector.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "Math/Vector3D.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -66,7 +58,6 @@
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
-#include "SimGeneral/HepPDTRecord/interface/ParticleDataTable.h"
 #include "CondFormats/DataRecord/interface/HeavyIonRPRcd.h"
 #include "CondFormats/HIObjects/interface/CentralityTable.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
@@ -81,6 +72,8 @@
 #include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneList.h"
 
 using namespace std;
+using namespace hi;
+
 #include <vector>
 using std::vector;
 
@@ -176,7 +169,7 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   using namespace edm;
   using namespace std;
   using namespace reco;
-  using namespace HepMC;
+
   //
   //Get Centrality
   //

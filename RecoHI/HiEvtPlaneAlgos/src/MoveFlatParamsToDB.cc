@@ -13,7 +13,7 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Fri Jun 11 12:56:15 EDT 2010
-// $Id: MoveFlatParamsToDB.cc,v 1.4 2011/09/20 18:07:31 ssanders Exp $
+// $Id: MoveFlatParamsToDB.cc,v 1.1 2011/09/24 14:02:09 ssanders Exp $
 //
 //
 
@@ -49,7 +49,6 @@
 #include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneList.h"
 
 #include "CondFormats/HIObjects/interface/RPFlatParams.h"
-#include "TROOT.h"
 #include "TFile.h"
 #include "TH1.h"
 #include "TH2D.h"
@@ -62,12 +61,9 @@
 #include <time.h>
 #include <cstdlib>
 #include <iostream>
-
-
-using namespace std;
 #include <vector>
-using std::vector;
-using std::rand;
+using namespace std;
+using namespace hi;
 
 //
 // class declaration

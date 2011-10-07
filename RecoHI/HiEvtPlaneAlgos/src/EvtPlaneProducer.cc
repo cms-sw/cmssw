@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Sergey Petrushanko
 //         Created:  Fri Jul 11 10:05:00 2008
-// $Id: EvtPlaneProducer.cc,v 1.16 2011/09/30 12:20:30 yilmaz Exp $
+// $Id: EvtPlaneProducer.cc,v 1.17 2011/09/30 18:06:41 yilmaz Exp $
 //
 //
 #define TRACKCOLLECTION 1
@@ -45,10 +45,6 @@ Implementation:
 #include "DataFormats/Common/interface/EDProduct.h"
 #include "DataFormats/Common/interface/Ref.h"
 
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "HepMC/GenEvent.h"
-#include "HepMC/GenParticle.h"
-
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 
@@ -60,9 +56,10 @@ Implementation:
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include <cstdlib>
-using namespace std;
-
 #include "RecoHI/HiEvtPlaneAlgos/interface/HiEvtPlaneList.h"
+
+using namespace std;
+using namespace hi;
 
 //
 // class decleration
@@ -216,7 +213,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
   using namespace reco;
-  using namespace HepMC;
+
   int vs_sell;
   float vzr_sell;
   float vzErr_sell;

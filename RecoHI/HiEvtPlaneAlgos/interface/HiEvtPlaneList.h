@@ -53,7 +53,7 @@
 
 */
 #include <string>
-
+namespace hi{
 enum EPNamesInd {
                  EvtPlaneFromTracksMidEta,    EvtPTracksPosEtaGap,    EvtPTracksNegEtaGap,        
 		 EPTracksMid3,                EPTracksPos3,           EPTracksNeg3,                
@@ -196,3 +196,4 @@ const double EPEtaMax2[] = {
 };
 
 static const int NumEPNames = 38;
+}
