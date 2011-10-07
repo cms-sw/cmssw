@@ -16,7 +16,7 @@
 //         Created:  Wed Jul 30 11:37:24 CET 2007
 //         Working:  Fri Nov  9 09:39:33 CST 2007
 //
-// $Id: MuonSimHitProducer.cc,v 1.34 2010/07/26 14:07:00 aperrott Exp $
+// $Id: MuonSimHitProducer.cc,v 1.35 2011/03/01 16:52:12 aperrott Exp $
 //
 //
 
@@ -376,7 +376,7 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
 	    if ( ! det->surface().bounds().inside(lpos) ) continue;
 	    const DTTopology& dtTopo = layer[ilayer]->specificTopology();
             int wire = dtTopo.channel(lpos);
-	    if (wire < dtTopo.firstChannel() || wire > dtTopo.lastChannel()) continue;
+	    if (wire - dtTopo.firstChannel() < 0 || wire - dtTopo.lastChannel() > 0 ) continue;
 	    // no drift cell here (on the chamber edge or just outside)
             // this hit would otherwise be discarded downstream in the digitizer
 
