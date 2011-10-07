@@ -22,5 +22,8 @@
 #pragma link C++ class MELeafPanel+;
 #pragma link C++ class MEMultiVarPanel+;
 #pragma link C++ class METwoVarPanel+;
+#pragma link C++ class MENormManager+;
+#pragma link C++ class MENLS+;
+#pragma link C++ class MECLSManager+;
 
 #endif

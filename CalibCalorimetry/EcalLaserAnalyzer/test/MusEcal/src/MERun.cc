@@ -6,8 +6,8 @@
 using namespace std;
 
 #include "MERun.hh"
+#include "MENLS.hh"
 #include "../../interface/MELaserPrim.h"
-#include "../../interface/MENLS.h"
 #include "../../interface/MEGeom.h"
 
 ClassImp( MERun )
@@ -19,8 +19,11 @@ MERun::MERun( ME::Header header, ME::Settings settings, TString fname )
   _type = _settings.type;
   _color = _settings.wavelength;
 
+  if( _type ==ME::iTestPulse ) _color=0;
+
   if( settings.type== ME::iLaser ) _fnlsname = ME::rootNLSFileName( header, settings );
  
+  // cout<<" Inside MERun "<< endl;
 }
 
 MERun::~MERun()
@@ -76,6 +79,11 @@ MERun::APDHist( int var )
       table = ME::iLmfTestPulsePrim;
       varName = ME::TPAPDPrimVar[var];
     }
+  else if( _type==ME::iLED )
+    {
+      table = ME::iLmfLEDPrim;
+      varName = ME::APDPrimVar[var];
+    }
 
   TH2* h(0);
 
@@ -83,7 +91,7 @@ MERun::APDHist( int var )
   
   if( f==0 ) return h;
   
-  TString histName = MELaserPrim::lmfLaserName( table, _type, _settings.wavelength );
+  TString histName = MELaserPrim::lmfLaserName( table, _type, _color );
   histName += MELaserPrim::separator;
   histName += varName;
   if( _h.count(varName)==0 )
@@ -135,15 +143,20 @@ MERun::PNTable()
       table = ME::iLmfTestPulsePnPrim;
       size_ = ME::iSizeTPPN;
     }
+  else if( _type==ME::iLaser )
+    {
+      table = ME::iLmfLEDPnPrim;
+      size_ = ME::iSizePN;
+    }
 
-  TString tableName = MELaserPrim::lmfLaserName( table, _type, _settings.wavelength );
+  TString tableName = MELaserPrim::lmfLaserName( table, _type, _color );
   // don't cache the pn_t pointer, it's dangerous
   pn_i.clear();
   pn_d.clear();
  
   pn_t = (TTree*) f->Get(tableName);
   if( pn_t==0){
-    cout<<" PNTABLENAME: " <<tableName<< endl;
+    cout<<" PNTABLENAME: " <<tableName<<" "<<table<<" "<<_type<<" "<< _settings.wavelength<< endl;
     f->ls();
     cout<<" filename: " << f->GetName()<< endl;
   }
@@ -165,7 +178,7 @@ MERun::MTQTable()
   TFile* f = laserPrimFile();
   if( f==0 ) return 0;
   int table = ME::iLmfLaserPulse;
-  TString tableName = MELaserPrim::lmfLaserName( table, _type, _settings.wavelength );
+  TString tableName = MELaserPrim::lmfLaserName( table, _type, _color );
   // don't cache the mtq_t pointer, it's dangerous
   mtq_i.clear();
   mtq_d.clear();
@@ -185,7 +198,7 @@ MERun::NLSFile( bool& doesExist , bool refresh )
 {
   doesExist=true;
 
-  //  cout << "MERun -- Entering NLSFile ... "<<doesExist<<" "<< refresh<< " "<<_fnlsname<<endl;
+  // cout << "MERun -- Entering NLSFile ... "<<doesExist<<" "<< refresh<< " "<<_fnlsname<<endl;
 
   if( refresh )
     closeNLSFile();
@@ -202,7 +215,7 @@ MERun::NLSFile( bool& doesExist , bool refresh )
 	  doesExist=false;
 	}
     }
-  //  cout << "MERun -- Quitting NLSFile ... "<< doesExist<< endl;
+  //cout << "MERun -- Quitting NLSFile ... "<< doesExist<<"  " << _fnlsname<< endl;
   return _nlsfile;
 }
 void
@@ -363,7 +376,7 @@ double
 MERun::getVal( int table, int var, int i1, int i2 )
 {
 
-  if( table==ME::iLmfLaserPrim || table==ME::iLmfTestPulsePrim )
+  if( table==ME::iLmfLaserPrim || table==ME::iLmfTestPulsePrim || table==ME::iLmfLEDPrim )
     {
       int ix = i1;
       int iy = i2;
@@ -376,7 +389,7 @@ MERun::getVal( int table, int var, int i1, int i2 )
       double val =  (double) h_->GetCellContent( binx, biny );
       return val;  
     }
-  else if( table==ME::iLmfLaserPnPrim || table==ME::iLmfTestPulsePnPrim )
+  else if( table==ME::iLmfLaserPnPrim || table==ME::iLmfTestPulsePnPrim|| table==ME::iLmfLEDPnPrim )
     {
 
       int ilm = i1;
@@ -394,7 +407,7 @@ MERun::getVal( int table, int var, int i1, int i2 )
       
       if( isBarrel ){
 	assert( ilm>=1 && ilm<=9 );
-	p_= MEEBGeom::pn(ilm);
+	p_= MEEBGeom::pn(ilm, idcc);
       }else {
 	int dee=MEEEGeom::dee( ilmr );
 	p_= MEEEGeom::pn( dee, ilm );

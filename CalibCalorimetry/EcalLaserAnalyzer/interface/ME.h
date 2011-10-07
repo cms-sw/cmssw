@@ -67,8 +67,8 @@ public:
   // Super-Module name from ECAL Region and Super-Module
   static TString smName( int ireg, int ism );
   
-  enum RunType    { iLaser=0, iTestPulse, iSizeT };  
-  enum Color      { iBlue=0, iGreen, iRed, iIRed, iLED1, iLED2, iSizeC };   
+  enum RunType    { iLaser=0, iTestPulse, iLED, iSizeT };  
+  enum Color      { iBlue=0, iGreen, iRed, iIRed, iSizeC };   
   enum Gain       { iVfeGain12=1, iVfeGain6, iVfeGain1, iSizeVfeGain };  
   enum PNGain     { iPnGain1=0, iPnGain16, iSizePnGain };  
 
@@ -98,6 +98,9 @@ public:
 	 iLmfTestPulseConfig,  
 	 iLmfTestPulsePrim,   
 	 iLmfTestPulsePnPrim,
+	 iLmfLEDRun,
+	 iLmfLEDPrim,   
+	 iLmfLEDPnPrim,
 	 iLmfNLSRun,  
 	 iLmfNLS,   
 	 iLmfNLSRef,   
@@ -114,12 +117,12 @@ public:
 	 iAPD_OVER_PNCOR_MEAN, iAPD_OVER_PNCOR_RMS, iAPD_OVER_PNCOR_M3, iAPD_OVER_PNCOR_NEVT,	
 	 iAPD_OVER_APDA_MEAN, iAPD_OVER_APDA_RMS, iAPD_OVER_APDA_M3, iAPD_OVER_APDA_NEVT, // JM
 	 iAPD_OVER_APDB_MEAN, iAPD_OVER_APDB_RMS, iAPD_OVER_APDB_M3, iAPD_OVER_APDB_NEVT, // JM
-	 iAPDABFIT_OVER_PNACOR_MEAN, iAPDABFIT_OVER_PNACOR_RMS, iAPDABFIT_OVER_PNACOR_M3, iAPDABFIT_OVER_PNACOR_NEVT, 
-	 iAPDABFIT_OVER_PNBCOR_MEAN, iAPDABFIT_OVER_PNBCOR_RMS, iAPDABFIT_OVER_PNBCOR_M3, iAPDABFIT_OVER_PNBCOR_NEVT,
-	 iAPDABFIT_OVER_PNCOR_MEAN, iAPDABFIT_OVER_PNCOR_RMS, iAPDABFIT_OVER_PNCOR_M3, iAPDABFIT_OVER_PNCOR_NEVT,
-	 iAPDABFIX_OVER_PNACOR_MEAN, iAPDABFIX_OVER_PNACOR_RMS, iAPDABFIX_OVER_PNACOR_M3, iAPDABFIX_OVER_PNACOR_NEVT, 
-	 iAPDABFIX_OVER_PNBCOR_MEAN, iAPDABFIX_OVER_PNBCOR_RMS, iAPDABFIX_OVER_PNBCOR_M3, iAPDABFIX_OVER_PNBCOR_NEVT,
-	 iAPDABFIX_OVER_PNCOR_MEAN, iAPDABFIX_OVER_PNCOR_RMS, iAPDABFIX_OVER_PNCOR_M3, iAPDABFIX_OVER_PNCOR_NEVT,
+	 //iAPDABFIT_OVER_PNACOR_MEAN, iAPDABFIT_OVER_PNACOR_RMS, iAPDABFIT_OVER_PNACOR_M3, iAPDABFIT_OVER_PNACOR_NEVT, 
+	 //iAPDABFIT_OVER_PNBCOR_MEAN, iAPDABFIT_OVER_PNBCOR_RMS, iAPDABFIT_OVER_PNBCOR_M3, iAPDABFIT_OVER_PNBCOR_NEVT,
+	 //iAPDABFIT_OVER_PNCOR_MEAN, iAPDABFIT_OVER_PNCOR_RMS, iAPDABFIT_OVER_PNCOR_M3, iAPDABFIT_OVER_PNCOR_NEVT,
+	 //iAPDABFIX_OVER_PNACOR_MEAN, iAPDABFIX_OVER_PNACOR_RMS, iAPDABFIX_OVER_PNACOR_M3, iAPDABFIX_OVER_PNACOR_NEVT, 
+	 //iAPDABFIX_OVER_PNBCOR_MEAN, iAPDABFIX_OVER_PNBCOR_RMS, iAPDABFIX_OVER_PNBCOR_M3, iAPDABFIX_OVER_PNBCOR_NEVT,
+	 //iAPDABFIX_OVER_PNCOR_MEAN, iAPDABFIX_OVER_PNCOR_RMS, iAPDABFIX_OVER_PNCOR_M3, iAPDABFIX_OVER_PNCOR_NEVT,
 	 iAPD_SHAPE_COR, iAPD_ALPHA, iAPD_BETA,
 	 iAPD_TIME_MEAN, iAPD_TIME_RMS, iAPD_TIME_M3, iAPD_TIME_NEVT,
 	 iSizeAPD };
@@ -200,7 +203,9 @@ public:
   static TString lmdataPath(  int lmr ); // where the LM data are
   static TString rootFileName( ME::Header header, ME::Settings settings );
   static TString rootNLSFileName( ME::Header header, ME::Settings settings );
+  static TString rootNormFileName( ME::Header header, ME::Settings settings );
   static TString runListName( int lmr, int type, int color );
+  static TString runListNLSName( int lmr );
 
   virtual ~ME() {}
 

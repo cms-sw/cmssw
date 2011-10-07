@@ -1,7 +1,7 @@
 /* 
  *  \class EcalCalibAnalyzer
  *
- *  $Date: 2009/06/02 12:55:19 $
+ *  $Date: 2010/04/09 13:48:04 $
  *  primary author: Julie Malcles - CEA/Saclay
  *  author: Gautier Hamel De Monchenault - CEA/Saclay
  */
@@ -719,11 +719,6 @@ void EcalCalibAnalyzer:: analyze( const edm::Event & e, const  edm::EventSetup& 
 	}
       }
   
-      if(isFirstChanModFilled[module-1]==0) {
-	firstChanMod[module-1]=channel;
-	isFirstChanModFilled[module-1]=1;
-      } 
-  
       iEta[channel]=eta;
       iPhi[channel]=phi;
       iModule[channel]= module ;
@@ -858,10 +853,6 @@ void EcalCalibAnalyzer:: analyze( const edm::Event & e, const  edm::EventSetup& 
 	}
       }
       
-      if(isFirstChanModFilled[module-1]==0) {
-	firstChanMod[module-1]=channel;
-	isFirstChanModFilled[module-1]=1;
-      } 
       
       iEta[channel]=eta;
       iPhi[channel]=phi;
@@ -1227,10 +1218,10 @@ void EcalCalibAnalyzer::endJobLight() {
       if(ADCTrees[iCry]->GetEntries(cut.str().c_str())<10) isThereDataADC[iCry][icol]=0;  
       
     }
-
     unsigned int iMod=iModule[iCry]-1;
     
     
+
     // Initialize Pulse Fit 
     //======================
 
@@ -1264,7 +1255,13 @@ void EcalCalibAnalyzer::endJobLight() {
 	}
       }
       
-    
+      
+      if( isThereDataADC[iCry][iCol]==1 && isFirstChanModFilled[iMod]==0 ){ 
+	firstChanMod[iMod]=iCry;
+	isFirstChanModFilled[iMod]=1;
+	if ( _debug == 4 ) cout <<"-- debug EcalLightAnalyzer -- endJobLight - filling firstChanMod :"<<iMod<<" "<< iCry<< endl;
+      }
+      
     // Initialize Pulse Fit 
     //======================
 
@@ -1321,8 +1318,7 @@ void EcalCalibAnalyzer::endJobLight() {
       
       // Fill PN stuff
       //===============
-      
-      if( firstChanMod[iMod]==iCry && isThereDataADC[iCry][iCol]==1 ){ 
+      if( firstChanMod[iMod]==iCry && isFirstChanModFilled[iMod]==1 ){ 
 	for (unsigned int ichan=0;ichan<nPNPerMod;ichan++){
 	  PNFirstAnal[iMod][ichan][iCol]->addEntry(pn0,pn1);
 	}
@@ -1520,7 +1516,7 @@ void EcalCalibAnalyzer::endJobLight() {
       // Fill PN stuff
       //===============
       
-      if( firstChanMod[iMod]==iCry && isThereDataADC[iCry][iCol]==1 ){ 
+      if( firstChanMod[iMod]==iCry && isFirstChanModFilled[iMod]==1 ){ 
 	for (unsigned int ichan=0;ichan<nPNPerMod;ichan++){
 	  PNAnal[iMod][ichan][iCol]->addEntry(pn0,pn1);
 	}

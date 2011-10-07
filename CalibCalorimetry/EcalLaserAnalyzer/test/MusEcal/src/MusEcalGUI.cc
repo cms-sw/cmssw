@@ -484,87 +484,88 @@ MusEcalGUI::getHistoryVector( vector< ME::Time >& time,
 	      maxy = hist_max(str_);
 	    }
 
-	} else if( _var==MusEcal::iAPDABFIToPNACOR )
-	{
-	  apdVector_->getValAndFlag( ME::iAPDABFIT_OVER_PNACOR_MEAN, time, val, flag );
-	  apdVector_->getValAndFlag( ME::iAPDABFIT_OVER_PNACOR_RMS,  time, rms, flag );
-	  apdVector_->getValAndFlag( ME::iAPDABFIT_OVER_PNACOR_NEVT,  time, nevt, flag_ ); 
-	  TString str_=str0_+ME::APDPrimVar[ME::iAPD_OVER_PN_MEAN];
-	  if( hist_nbin(str_)!=0 ) 
-	    {
-	      b_ = false;
-	      miny = hist_min(str_);
-	      maxy = hist_max(str_);
-	    }
 	}
-      else if( _var==MusEcal::iAPDABFIToPNBCOR )
-	{
-	  apdVector_->getValAndFlag( ME::iAPDABFIT_OVER_PNBCOR_MEAN, time, val, flag );
-	  apdVector_->getValAndFlag( ME::iAPDABFIT_OVER_PNBCOR_RMS,  time, rms, flag );
-	  apdVector_->getValAndFlag( ME::iAPDABFIT_OVER_PNBCOR_NEVT, time, nevt, flag_ ); 
-	  TString str_=str0_+ME::APDPrimVar[ME::iAPD_OVER_PN_MEAN];
-	  if( hist_nbin(str_)!=0 ) 
-	    {
-	      b_ = false;
-	      miny = hist_min(str_);
-	      maxy = hist_max(str_);
-	    }
-	}
-      else if( _var==MusEcal::iAPDABFIToPNCOR )
-	{
-	  apdVector_->getValAndFlag( ME::iAPDABFIT_OVER_PNCOR_MEAN, time, val, flag );
-	  apdVector_->getValAndFlag( ME::iAPDABFIT_OVER_PNCOR_RMS,  time, rms, flag );
-	  apdVector_->getValAndFlag( ME::iAPDABFIT_OVER_PNCOR_NEVT, time, nevt, flag_ ); 
+     //  else if( _var==MusEcal::iAPDABFIToPNACOR )
+// 	{
+// 	  apdVector_->getValAndFlag( ME::iAPDABFIT_OVER_PNACOR_MEAN, time, val, flag );
+// 	  apdVector_->getValAndFlag( ME::iAPDABFIT_OVER_PNACOR_RMS,  time, rms, flag );
+// 	  apdVector_->getValAndFlag( ME::iAPDABFIT_OVER_PNACOR_NEVT,  time, nevt, flag_ ); 
+// 	  TString str_=str0_+ME::APDPrimVar[ME::iAPD_OVER_PN_MEAN];
+// 	  if( hist_nbin(str_)!=0 ) 
+// 	    {
+// 	      b_ = false;
+// 	      miny = hist_min(str_);
+// 	      maxy = hist_max(str_);
+// 	    }
+// 	}
+//       else if( _var==MusEcal::iAPDABFIToPNBCOR )
+// 	{
+// 	  apdVector_->getValAndFlag( ME::iAPDABFIT_OVER_PNBCOR_MEAN, time, val, flag );
+// 	  apdVector_->getValAndFlag( ME::iAPDABFIT_OVER_PNBCOR_RMS,  time, rms, flag );
+// 	  apdVector_->getValAndFlag( ME::iAPDABFIT_OVER_PNBCOR_NEVT, time, nevt, flag_ ); 
+// 	  TString str_=str0_+ME::APDPrimVar[ME::iAPD_OVER_PN_MEAN];
+// 	  if( hist_nbin(str_)!=0 ) 
+// 	    {
+// 	      b_ = false;
+// 	      miny = hist_min(str_);
+// 	      maxy = hist_max(str_);
+// 	    }
+// 	}
+//       else if( _var==MusEcal::iAPDABFIToPNCOR )
+// 	{
+// 	  apdVector_->getValAndFlag( ME::iAPDABFIT_OVER_PNCOR_MEAN, time, val, flag );
+// 	  apdVector_->getValAndFlag( ME::iAPDABFIT_OVER_PNCOR_RMS,  time, rms, flag );
+// 	  apdVector_->getValAndFlag( ME::iAPDABFIT_OVER_PNCOR_NEVT, time, nevt, flag_ ); 
 	  
-	  TString str_=str0_+ME::APDPrimVar[ME::iAPD_OVER_PN_MEAN];
-	  if( hist_nbin(str_)!=0 ) 
-	    {
-	      b_ = false;
-	      miny = hist_min(str_);
-	      maxy = hist_max(str_);
-	    }
+// 	  TString str_=str0_+ME::APDPrimVar[ME::iAPD_OVER_PN_MEAN];
+// 	  if( hist_nbin(str_)!=0 ) 
+// 	    {
+// 	      b_ = false;
+// 	      miny = hist_min(str_);
+// 	      maxy = hist_max(str_);
+// 	    }
 
-	}else if( _var==MusEcal::iAPDABFIXoPNACOR )
-	{
-	  apdVector_->getValAndFlag( ME::iAPDABFIX_OVER_PNACOR_MEAN, time, val, flag );
-	  apdVector_->getValAndFlag( ME::iAPDABFIX_OVER_PNACOR_RMS,  time, rms, flag );
-	  apdVector_->getValAndFlag( ME::iAPDABFIX_OVER_PNACOR_NEVT,  time, nevt, flag_ ); 
-	  TString str_=str0_+ME::APDPrimVar[ME::iAPD_OVER_PN_MEAN];
-	  if( hist_nbin(str_)!=0 ) 
-	    {
-	      b_ = false;
-	      miny = hist_min(str_);
-	      maxy = hist_max(str_);
-	    }
-	}
-      else if( _var==MusEcal::iAPDABFIXoPNBCOR )
-	{
-	  apdVector_->getValAndFlag( ME::iAPDABFIX_OVER_PNBCOR_MEAN, time, val, flag );
-	  apdVector_->getValAndFlag( ME::iAPDABFIX_OVER_PNBCOR_RMS,  time, rms, flag );
-	  apdVector_->getValAndFlag( ME::iAPDABFIX_OVER_PNBCOR_NEVT, time, nevt, flag_ ); 
-	  TString str_=str0_+ME::APDPrimVar[ME::iAPD_OVER_PN_MEAN];
-	  if( hist_nbin(str_)!=0 ) 
-	    {
-	      b_ = false;
-	      miny = hist_min(str_);
-	      maxy = hist_max(str_);
-	    }
-	}
-      else if( _var==MusEcal::iAPDABFIXoPNCOR )
-	{
-	  apdVector_->getValAndFlag( ME::iAPDABFIX_OVER_PNCOR_MEAN, time, val, flag );
-	  apdVector_->getValAndFlag( ME::iAPDABFIX_OVER_PNCOR_RMS,  time, rms, flag );
-	  apdVector_->getValAndFlag( ME::iAPDABFIX_OVER_PNCOR_NEVT, time, nevt, flag_ ); 
+// 	}else if( _var==MusEcal::iAPDABFIXoPNACOR )
+// 	{
+// 	  apdVector_->getValAndFlag( ME::iAPDABFIX_OVER_PNACOR_MEAN, time, val, flag );
+// 	  apdVector_->getValAndFlag( ME::iAPDABFIX_OVER_PNACOR_RMS,  time, rms, flag );
+// 	  apdVector_->getValAndFlag( ME::iAPDABFIX_OVER_PNACOR_NEVT,  time, nevt, flag_ ); 
+// 	  TString str_=str0_+ME::APDPrimVar[ME::iAPD_OVER_PN_MEAN];
+// 	  if( hist_nbin(str_)!=0 ) 
+// 	    {
+// 	      b_ = false;
+// 	      miny = hist_min(str_);
+// 	      maxy = hist_max(str_);
+// 	    }
+// 	}
+//       else if( _var==MusEcal::iAPDABFIXoPNBCOR )
+// 	{
+// 	  apdVector_->getValAndFlag( ME::iAPDABFIX_OVER_PNBCOR_MEAN, time, val, flag );
+// 	  apdVector_->getValAndFlag( ME::iAPDABFIX_OVER_PNBCOR_RMS,  time, rms, flag );
+// 	  apdVector_->getValAndFlag( ME::iAPDABFIX_OVER_PNBCOR_NEVT, time, nevt, flag_ ); 
+// 	  TString str_=str0_+ME::APDPrimVar[ME::iAPD_OVER_PN_MEAN];
+// 	  if( hist_nbin(str_)!=0 ) 
+// 	    {
+// 	      b_ = false;
+// 	      miny = hist_min(str_);
+// 	      maxy = hist_max(str_);
+// 	    }
+// 	}
+//       else if( _var==MusEcal::iAPDABFIXoPNCOR )
+// 	{
+// 	  apdVector_->getValAndFlag( ME::iAPDABFIX_OVER_PNCOR_MEAN, time, val, flag );
+// 	  apdVector_->getValAndFlag( ME::iAPDABFIX_OVER_PNCOR_RMS,  time, rms, flag );
+// 	  apdVector_->getValAndFlag( ME::iAPDABFIX_OVER_PNCOR_NEVT, time, nevt, flag_ ); 
 	  
-	  TString str_=str0_+ME::APDPrimVar[ME::iAPD_OVER_PN_MEAN];
-	  if( hist_nbin(str_)!=0 ) 
-	    {
-	      b_ = false;
-	      miny = hist_min(str_);
-	      maxy = hist_max(str_);
-	    }
+// 	  TString str_=str0_+ME::APDPrimVar[ME::iAPD_OVER_PN_MEAN];
+// 	  if( hist_nbin(str_)!=0 ) 
+// 	    {
+// 	      b_ = false;
+// 	      miny = hist_min(str_);
+// 	      maxy = hist_max(str_);
+// 	    }
 
-	}
+// 	}
       else if( _var==MusEcal::iAPDoPNANevt )
 	{
 	  apdVector_->getValAndFlag( ME::iAPD_OVER_PNA_NEVT,  time, val, flag ); 
@@ -843,27 +844,27 @@ MusEcalGUI::getHistoryVector( vector< ME::Time >& time,
 	      maxy = hist_max(str_);
 	    }
 	}
-      else if( _var==MusEcal::iAlphaBeta )
-	{
-	  vector< float > alpha_, beta_;
-	  vector< bool > flaga_, flagb_;
-	  apdVector_->getValAndFlag( ME::iAPD_ALPHA, time, alpha_, flaga_ );
-	  apdVector_->getValAndFlag( ME::iAPD_BETA,  time, beta_, flagb_ );
-	  double findmean=0.0;
-	  int cmean=0;
-	  for( unsigned int iab=0; iab<time.size(); iab++ )
-	    {
-	      val.push_back( alpha_[iab]*beta_[iab] );
-	      findmean+=alpha_[iab]*beta_[iab];
-	      cmean++;
-	      flag.push_back( flaga_[iab]&&flagb_[iab] );
-	    }
-	  if (cmean!=0) findmean/=double(cmean);
+      // else if( _var==MusEcal::iAlphaBeta )
+// 	{
+// 	  vector< float > alpha_, beta_;
+// 	  vector< bool > flaga_, flagb_;
+// 	  apdVector_->getValAndFlag( ME::iAPD_ALPHA, time, alpha_, flaga_ );
+// 	  apdVector_->getValAndFlag( ME::iAPD_BETA,  time, beta_, flagb_ );
+// 	  double findmean=0.0;
+// 	  int cmean=0;
+// 	  for( unsigned int iab=0; iab<time.size(); iab++ )
+// 	    {
+// 	      val.push_back( alpha_[iab]*beta_[iab] );
+// 	      findmean+=alpha_[iab]*beta_[iab];
+// 	      cmean++;
+// 	      flag.push_back( flaga_[iab]&&flagb_[iab] );
+// 	    }
+// 	  if (cmean!=0) findmean/=double(cmean);
 	  
-	  b_ = false;
-	  miny = 0.0;
-	  maxy = findmean*1.2;
-	}
+// 	  b_ = false;
+// 	  miny = 0.0;
+// 	  maxy = findmean*1.2;
+// 	}
       else if( _var==MusEcal::iMTQTrise )
 	{
 	  
@@ -970,7 +971,7 @@ MusEcalGUI::getHistoryVector( vector< ME::Time >& time,
 	{ 
 	  pnaVector_->getValAndFlag( ME::iTPPN_RMS,        time, rms, flag_ );
  	  pnaVector_->getValAndFlag( ME::iTPPN_MEAN,       time, val, flag );
- 	  apdVector_->getValAndFlag( ME::iTPAPD_NEVT,       time, nevt, flag ); 
+ 	  apdVector_->getValAndFlag( ME::iTPAPD_NEVT,       time, nevt, flag_ ); 
  	  str_=str0_+ME::PNPrimVar[ME::iTPPN_MEAN];
  	  
 	  if( hist_nbin(str_)!=0 ) 
@@ -1242,7 +1243,7 @@ MusEcalGUI::historyPlot( int opt )
 	  
 	  // JM: don't draw bad runs
 	  //if(markers[ii]->GetMarkerStyle()==20){
-	    markers[ii]->Draw();
+	  markers[ii]->Draw();
 	    //}
 	  
 	}  

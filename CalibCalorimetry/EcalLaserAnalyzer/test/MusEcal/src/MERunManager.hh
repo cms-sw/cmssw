@@ -81,6 +81,7 @@ public:
   // set good/bad flags
   void setFlags();
   void setLaserFlags();
+  void setLEDFlags();
   void setTestPulseFlags();
 
   // get the vectors

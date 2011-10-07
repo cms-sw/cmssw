@@ -6,6 +6,7 @@
 #include <TGListBox.h>
 
 #include <vector>
+using namespace std;
 
 class MusEcalGUI;
 

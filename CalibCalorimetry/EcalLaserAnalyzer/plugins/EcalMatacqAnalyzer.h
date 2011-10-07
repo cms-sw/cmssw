@@ -13,6 +13,9 @@ class TH1;
 #define N_channels 1
 #define NSIDES     2     // Number of sides
 #define NCOL       2     // Number of sides
+#define FFT2_SIZE   2048  // Number of bins used for FFT
+#define FFT_SIZE   1048  // Number of bins used for FFT
+#define FFT_START  850   // Keep signal starting at 850 ns
 
 class EcalMatacqAnalyzer: public edm::EDAnalyzer{  
 
@@ -75,8 +78,8 @@ class EcalMatacqAnalyzer: public edm::EDAnalyzer{
   int  fedID;
 
   // Count Laser Events
-  int laserEvents;
-  int matacqEvents;
+  int laserEvents[2];
+  int matacqEvents[2];
   bool isThereMatacq;
 
   //Declaration of leaves types

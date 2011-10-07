@@ -27,6 +27,7 @@ public:
   bool getValByTime( ME::Time time, int ii, 
 		     float& val, bool& flag );
   
+ 
   // get times in interval
   void getTime(	std::vector< ME::Time >& time,
 		const METimeInterval* timeInterval=0 );
@@ -70,6 +71,10 @@ public:
 			  std::vector< double >&  enorm,
 			  std::vector< bool >&  normflag);
   
+  void getClosestValid( ME::Time timeref, int ii,  vector< ME::Time >& time, float &val, bool &flag );
+  void getClosestValidInPast( ME::Time timeref, int ii,   ME::Time& time, float &val, bool &flag );
+  void getClosestValidInFuture( ME::Time timeref, int ii,   ME::Time& time, float &val, bool &flag );
+
 private:
 
   int _size;

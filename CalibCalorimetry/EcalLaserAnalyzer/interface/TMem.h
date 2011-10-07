@@ -2,6 +2,7 @@
 #define TMem_H
 
 #include<vector>
+using namespace std;
 
 class TMem 
 {
@@ -9,7 +10,7 @@ class TMem
  private:
 
   int _fedid;
-  std::vector <int> _memFromDcc;
+  vector <int> _memFromDcc;
   
   void init(int);
 

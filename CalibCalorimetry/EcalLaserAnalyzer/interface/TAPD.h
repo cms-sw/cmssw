@@ -2,6 +2,7 @@
 #define TAPD_H
 
 #include <vector>
+using namespace std;
 
 #define VARSIZE 6
 
@@ -60,18 +61,18 @@ class TAPD
   
   void set2DTimeCut(std::vector<double>,std::vector<double> );
   
-  std::vector<double> get(int);
-  std::vector<double> getAPD();
-  std::vector<double> getAPDoPN();
-  std::vector<double> getAPDoPN0();
-  std::vector<double> getAPDoPN1();
-  std::vector<double> getAPDoAPD();
-  std::vector<double> getAPDoAPD0();
-  std::vector<double> getAPDoAPD1();
-  std::vector<double> getTime();
-  std::vector<double> getAPDoPNCor();
-  std::vector<double> getAPDoPN0Cor();
-  std::vector<double> getAPDoPN1Cor();
+  vector<double> get(int);
+  vector<double> getAPD();
+  vector<double> getAPDoPN();
+  vector<double> getAPDoPN0();
+  vector<double> getAPDoPN1();
+  vector<double> getAPDoAPD();
+  vector<double> getAPDoAPD0();
+  vector<double> getAPDoAPD1();
+  vector<double> getTime();
+  vector<double> getAPDoPNCor();
+  vector<double> getAPDoPN0Cor();
+  vector<double> getAPDoPN1Cor();
  
   // double* get2(int ivar);
   // double* getAPD2( );

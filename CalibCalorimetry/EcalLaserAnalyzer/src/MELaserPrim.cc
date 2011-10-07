@@ -40,7 +40,11 @@ MELaserPrim::MELaserPrim(  ME::Header header, ME::Settings settings,
 			   const char* inpath, const char* outfile )
 : init_ok(false), _isBarrel(true), _inpath(inpath), _outfile(outfile)
 {
+  //  cout<<" entering MELaserPrim constructor"<< endl;// TESTJULIE
+
   apdpn_file =0;
+  apdpnabfit_file =0;
+  apdpnabfix_file =0;
   ab_file    =0;
   mtq_file   =0;
   tpapd_file =0;
@@ -78,6 +82,8 @@ MELaserPrim::MELaserPrim(  ME::Header header, ME::Settings settings,
   _mgpagain = settings.mgpagain; 
   _memgain  = settings.memgain; 
 
+  //  cout<<" type="<<_type<<" color="<< _color<< endl;// TESTJULIE
+  //  cout<<" type="<<ME::type[_type]<<" color="<<ME::color[_color]<< endl;// TESTJULIE
   if( _type==ME::iLaser )
     {
       _primStr     = lmfLaserName( ME::iLmfLaserPrim,   _type, _color )+separator;
@@ -89,6 +95,12 @@ MELaserPrim::MELaserPrim(  ME::Header header, ME::Settings settings,
       _tpPrimStr    = lmfLaserName( ME::iLmfTestPulsePrim, _type   )+separator;
       _tpPnPrimStr  = lmfLaserName( ME::iLmfTestPulsePnPrim, _type )+separator;
     }
+  else if( _type==ME::iLED )
+    {
+      _LEDprimStr     = lmfLaserName( ME::iLmfLEDPrim,   _type, _color )+separator;
+      _LEDpnPrimStr   = lmfLaserName( ME::iLmfLEDPnPrim, _type, _color )+separator; 
+      //      cout<<" primstr "<<_LEDprimStr <<"  " <<_LEDpnPrimStr<< endl;// TESTJULIE
+    }
 
   _lmr = ME::lmr( _dcc, _side );
   ME::regionAndSector( _lmr, _reg, _sm, _dcc, _side );    
@@ -97,8 +109,11 @@ MELaserPrim::MELaserPrim(  ME::Header header, ME::Settings settings,
   _regionStr  = _sectorStr;
   _regionStr += "_"; _regionStr  += _side;
 
+  //  cout<<" before init()"<< endl;// TESTJULIE
   init();
+  //  cout<<" after init()"<< endl;// TESTJULIE
   bookHistograms();
+  //  cout<<" after bookHistograms()"<< endl;// TESTJULIE
   //fillHistograms();
   //writeHistograms();
 }
@@ -144,11 +159,13 @@ MELaserPrim::getViewIds( int logic_id, int& channelView, int& id1, int& id2 )
 void 
 MELaserPrim::init()
 {
+
+ 
   bool verbose_ = true;
 
   if( _inpath=="0" )
     {
-      if( verbose_ ) std::cout << "no input file" << std::endl;
+      if( verbose_ ) cout << "no input file" << endl;
       init_ok = true;
       return; // GHM
     }
@@ -223,9 +240,9 @@ MELaserPrim::init()
       
       if( verbose_ )
 	{
-	  std::cout << _APDPN_fname << " ok=" << apdpn_ok << std::endl;
-	  std::cout << _AB_fname    << " ok=" << ab_ok    << std::endl;
-	  std::cout << _MTQ_fname   << " ok=" << mtq_ok    << std::endl;
+	  cout << _APDPN_fname << " ok=" << apdpn_ok << endl;
+	  cout << _AB_fname    << " ok=" << ab_ok    << endl;
+	  cout << _MTQ_fname   << " ok=" << mtq_ok    << endl;
 	}
       if (! apdpn_ok || ! pn_ok ) return; 
   
@@ -263,7 +280,7 @@ MELaserPrim::init()
       }
 
       if( _color != ME::iIRed && _color != ME::iBlue ){ 
-	std::cout << "MELaserPrim::init() -- Fatal Error -- Wrong Laser Color : " << _color << " ---- Abort " << std::endl;
+	cout << "MELaserPrim::init() -- Fatal Error -- Wrong Laser Color : " << _color << " ---- Abort " << endl;
 	return;
       }
       
@@ -380,14 +397,14 @@ MELaserPrim::init()
 
       if(tpapd_ok){
 	tpapd_file = TFile::Open( _TPAPD_fname );
-	if (tpapd_file->IsZombie()){
+	if (tpapd_file->IsZombie() || !tpapd_file ){
 	  tpapd_ok=false;
 	  tppn_ok=false;
 	}
       }
       if( verbose_ )
 	{
-	  std::cout << _TPAPD_fname << " apd ok=" << tpapd_ok << " pn ok=" << tppn_ok << std::endl;
+	  cout << _TPAPD_fname << " apd ok=" << tpapd_ok << " pn ok=" << tppn_ok << endl;
 	}
       if (!tpapd_ok || !tppn_ok ) return;
   
@@ -430,6 +447,83 @@ MELaserPrim::init()
       tppn_tree->SetBranchAddress( "gain",     &tppn_gain,     &b_tppn_gain     );
       tppn_tree->SetBranchAddress( "PN",        tppn_PN,       &b_tppn_PN       );
     }
+  else if( _type==ME::iLED )
+    {
+      TString _APDPN_fname =cur; _APDPN_fname += "APDPN_LED.root";
+      
+      bool apdpn_ok, pn_ok;
+      apdpn_ok=false; pn_ok=false; 
+
+      FILE *test; 
+      test = fopen( _APDPN_fname,"r");  
+      if (test) {
+	apdpn_ok = true;
+	pn_ok = true;
+	fclose( test );
+      }
+      
+
+      if(apdpn_ok){
+	apdpn_file = TFile::Open( _APDPN_fname ); 
+	if (apdpn_file->IsZombie()) apdpn_ok=false;
+      } 
+     
+      if( verbose_ )
+	{
+	  cout << _APDPN_fname << " ok=" << apdpn_ok << endl;
+	}
+      if (! apdpn_ok || ! pn_ok ) return; 
+  
+      TString apdpn_tree_name;
+      TString    pn_tree_name;
+
+      apdpn_tree_name = "APDCol";
+      pn_tree_name    = "PNCol";   
+  
+      apdpn_tree_name += _color;
+      pn_tree_name    += _color;
+
+
+      if( _color != ME::iRed && _color != ME::iBlue ){ 
+	cout << "MELaserPrim::init() -- Fatal Error -- Wrong LED Color : " << _color << " ---- Abort " << endl;
+	return;
+      }
+      
+      apdpn_tree = (TTree*) apdpn_file->Get(apdpn_tree_name);
+      assert( apdpn_tree!=0 );
+      apdpn_tree->SetMakeClass(1);
+      apdpn_tree->SetBranchAddress("dccID", &apdpn_dccID, &b_apdpn_dccID);
+      apdpn_tree->SetBranchAddress("towerID", &apdpn_towerID, &b_apdpn_towerID);
+      apdpn_tree->SetBranchAddress("channelID", &apdpn_channelID, &b_apdpn_channelID);
+      apdpn_tree->SetBranchAddress("moduleID", &apdpn_moduleID, &b_apdpn_moduleID);
+      apdpn_tree->SetBranchAddress("side", &apdpn_side, &b_apdpn_side);
+      apdpn_tree->SetBranchAddress("ieta", &apdpn_ieta, &b_apdpn_ieta);
+      apdpn_tree->SetBranchAddress("iphi", &apdpn_iphi, &b_apdpn_iphi);
+      apdpn_tree->SetBranchAddress("flag", &apdpn_flag, &b_apdpn_flag);
+      if( apdpn_tree->GetBranchStatus("shapeCorAPD")) apdpn_tree->SetBranchAddress("shapeCorAPD", &apdpn_shapeCorAPD, &b_apdpn_shapeCorAPD);
+      else apdpn_shapeCorAPD = 0.0;
+      for( int jj=0; jj<iSizeArray_apdpn; jj++ )
+	{
+	  TString name_ = apdpn_arrayName[jj];
+	  apdpn_tree->SetBranchAddress(name_, apdpn_apdpn[jj], &b_apdpn_apdpn[jj]);
+	}
+  
+      pn_tree = (TTree*) apdpn_file->Get(pn_tree_name);
+      assert( pn_tree!=0 );
+      pn_tree->SetMakeClass(1);
+      pn_tree->SetBranchAddress( "side",       &pn_side,       &b_pn_side       );
+      pn_tree->SetBranchAddress( "pnID",       &pn_pnID,       &b_pn_pnID       );
+      pn_tree->SetBranchAddress( "moduleID",   &pn_moduleID,   &b_pn_moduleID   );
+      pn_tree->SetBranchAddress( "PN",          pn_PN,         &b_pn_PN         );
+      pn_tree->SetBranchAddress( "PNoPN",       pn_PNoPN,      &b_pn_PNoPN      );
+      pn_tree->SetBranchAddress( "PNoPNA",      pn_PNoPNA,     &b_pn_PNoPNA     );
+      pn_tree->SetBranchAddress( "PNoPNB",      pn_PNoPNB,     &b_pn_PNoPNB     );
+      pn_tree->SetBranchAddress( "shapeCorPN", &pn_shapeCorPN, &b_pn_shapeCorPN );
+
+     
+    }
+
+
   init_ok = true;
 }
 
@@ -542,32 +636,32 @@ MELaserPrim::bookHistograms()
       bookHistoF( _primStr, "APD_OVER_APDB_M3" );
       bookHistoF( _primStr, "APD_OVER_APDB_NEVT" );
       bookHistoF( _primStr, "SHAPE_COR_APD" );
-      bookHistoF( _primStr, "ALPHA" );
-      bookHistoF( _primStr, "BETA" );
-      bookHistoF( _primStr, "APD_OVER_PNACORABFIT_MEAN" );
-      bookHistoF( _primStr, "APD_OVER_PNACORABFIT_RMS" );
-      bookHistoF( _primStr, "APD_OVER_PNACORABFIT_M3" );
-      bookHistoF( _primStr, "APD_OVER_PNACORABFIT_NEVT" );
-      bookHistoF( _primStr, "APD_OVER_PNBCORABFIT_MEAN" );
-      bookHistoF( _primStr, "APD_OVER_PNBCORABFIT_RMS" );
-      bookHistoF( _primStr, "APD_OVER_PNBCORABFIT_M3" );
-      bookHistoF( _primStr, "APD_OVER_PNBCORABFIT_NEVT" );
-      bookHistoF( _primStr, "APD_OVER_PNCORABFIT_MEAN" );
-      bookHistoF( _primStr, "APD_OVER_PNCORABFIT_RMS" );
-      bookHistoF( _primStr, "APD_OVER_PNCORABFIT_M3" );
-      bookHistoF( _primStr, "APD_OVER_PNCORABFIT_NEVT" );
-      bookHistoF( _primStr, "APD_OVER_PNACORABFIX_MEAN" );
-      bookHistoF( _primStr, "APD_OVER_PNACORABFIX_RMS" );
-      bookHistoF( _primStr, "APD_OVER_PNACORABFIX_M3" );
-      bookHistoF( _primStr, "APD_OVER_PNACORABFIX_NEVT" );
-      bookHistoF( _primStr, "APD_OVER_PNBCORABFIX_MEAN" );
-      bookHistoF( _primStr, "APD_OVER_PNBCORABFIX_RMS" );
-      bookHistoF( _primStr, "APD_OVER_PNBCORABFIX_M3" );
-      bookHistoF( _primStr, "APD_OVER_PNBCORABFIX_NEVT" );
-      bookHistoF( _primStr, "APD_OVER_PNCORABFIX_MEAN" );
-      bookHistoF( _primStr, "APD_OVER_PNCORABFIX_RMS" );
-      bookHistoF( _primStr, "APD_OVER_PNCORABFIX_M3" );
-      bookHistoF( _primStr, "APD_OVER_PNCORABFIX_NEVT" );
+      //    bookHistoF( _primStr, "ALPHA" );
+      // bookHistoF( _primStr, "BETA" );
+     //  bookHistoF( _primStr, "APD_OVER_PNACORABFIT_MEAN" );
+//       bookHistoF( _primStr, "APD_OVER_PNACORABFIT_RMS" );
+//       bookHistoF( _primStr, "APD_OVER_PNACORABFIT_M3" );
+//       bookHistoF( _primStr, "APD_OVER_PNACORABFIT_NEVT" );
+//       bookHistoF( _primStr, "APD_OVER_PNBCORABFIT_MEAN" );
+//       bookHistoF( _primStr, "APD_OVER_PNBCORABFIT_RMS" );
+//       bookHistoF( _primStr, "APD_OVER_PNBCORABFIT_M3" );
+//       bookHistoF( _primStr, "APD_OVER_PNBCORABFIT_NEVT" );
+//       bookHistoF( _primStr, "APD_OVER_PNCORABFIT_MEAN" );
+//       bookHistoF( _primStr, "APD_OVER_PNCORABFIT_RMS" );
+//       bookHistoF( _primStr, "APD_OVER_PNCORABFIT_M3" );
+//       bookHistoF( _primStr, "APD_OVER_PNCORABFIT_NEVT" );
+//       bookHistoF( _primStr, "APD_OVER_PNACORABFIX_MEAN" );
+//       bookHistoF( _primStr, "APD_OVER_PNACORABFIX_RMS" );
+//       bookHistoF( _primStr, "APD_OVER_PNACORABFIX_M3" );
+//       bookHistoF( _primStr, "APD_OVER_PNACORABFIX_NEVT" );
+//       bookHistoF( _primStr, "APD_OVER_PNBCORABFIX_MEAN" );
+//       bookHistoF( _primStr, "APD_OVER_PNBCORABFIX_RMS" );
+//       bookHistoF( _primStr, "APD_OVER_PNBCORABFIX_M3" );
+//       bookHistoF( _primStr, "APD_OVER_PNBCORABFIX_NEVT" );
+//       bookHistoF( _primStr, "APD_OVER_PNCORABFIX_MEAN" );
+//       bookHistoF( _primStr, "APD_OVER_PNCORABFIX_RMS" );
+//       bookHistoF( _primStr, "APD_OVER_PNCORABFIX_M3" );
+//       bookHistoF( _primStr, "APD_OVER_PNCORABFIX_NEVT" );
 
 
       // NEW GHM 08/06 --> SCHEMA MODIFIED?
@@ -659,6 +753,78 @@ MELaserPrim::bookHistograms()
       addBranchI( t_name, "VFE_GAIN"       );
       addBranchI( t_name, "PN_GAIN"        );
     }
+  else if( _type==ME::iLED )
+    {  
+      //
+      // Laser ADC Primitives
+      //
+      bookHistoI( _LEDprimStr, "LOGIC_ID" );
+      bookHistoI( _LEDprimStr, "FLAG" );
+      bookHistoF( _LEDprimStr, "MEAN" );
+      bookHistoF( _LEDprimStr, "RMS" );
+      bookHistoF( _LEDprimStr, "M3" );
+      bookHistoF( _LEDprimStr, "NEVT" );
+      bookHistoF( _LEDprimStr, "APD_OVER_PNA_MEAN" );
+      bookHistoF( _LEDprimStr, "APD_OVER_PNA_RMS" );
+      bookHistoF( _LEDprimStr, "APD_OVER_PNA_M3" );
+      bookHistoF( _LEDprimStr, "APD_OVER_PNA_NEVT" );
+      bookHistoF( _LEDprimStr, "APD_OVER_PNB_MEAN" );
+      bookHistoF( _LEDprimStr, "APD_OVER_PNB_RMS" );
+      bookHistoF( _LEDprimStr, "APD_OVER_PNB_M3" );
+      bookHistoF( _LEDprimStr, "APD_OVER_PNB_NEVT" );
+      bookHistoF( _LEDprimStr, "APD_OVER_PN_MEAN" );
+      bookHistoF( _LEDprimStr, "APD_OVER_PN_RMS" );
+      bookHistoF( _LEDprimStr, "APD_OVER_PN_M3" );
+      bookHistoF( _LEDprimStr, "APD_OVER_PN_NEVT" );
+      bookHistoF( _LEDprimStr, "APD_OVER_PNACOR_MEAN" );
+      bookHistoF( _LEDprimStr, "APD_OVER_PNACOR_RMS" );
+      bookHistoF( _LEDprimStr, "APD_OVER_PNACOR_M3" );
+      bookHistoF( _LEDprimStr, "APD_OVER_PNACOR_NEVT" );
+      bookHistoF( _LEDprimStr, "APD_OVER_PNBCOR_MEAN" );
+      bookHistoF( _LEDprimStr, "APD_OVER_PNBCOR_RMS" );
+      bookHistoF( _LEDprimStr, "APD_OVER_PNBCOR_M3" );
+      bookHistoF( _LEDprimStr, "APD_OVER_PNBCOR_NEVT" );
+      bookHistoF( _LEDprimStr, "APD_OVER_PNCOR_MEAN" );
+      bookHistoF( _LEDprimStr, "APD_OVER_PNCOR_RMS" );
+      bookHistoF( _LEDprimStr, "APD_OVER_PNCOR_M3" );
+      bookHistoF( _LEDprimStr, "APD_OVER_PNCOR_NEVT" );
+      bookHistoF( _LEDprimStr, "APD_OVER_APD_MEAN" );
+      bookHistoF( _LEDprimStr, "APD_OVER_APD_RMS" );
+      bookHistoF( _LEDprimStr, "APD_OVER_APD_M3" );
+      bookHistoF( _LEDprimStr, "APD_OVER_APD_NEVT" );
+      bookHistoF( _LEDprimStr, "APD_OVER_APDA_MEAN" );
+      bookHistoF( _LEDprimStr, "APD_OVER_APDA_RMS" );
+      bookHistoF( _LEDprimStr, "APD_OVER_APDA_M3" );
+      bookHistoF( _LEDprimStr, "APD_OVER_APDA_NEVT" );
+      bookHistoF( _LEDprimStr, "APD_OVER_APDB_MEAN" );
+      bookHistoF( _LEDprimStr, "APD_OVER_APDB_RMS" );
+      bookHistoF( _LEDprimStr, "APD_OVER_APDB_M3" );
+      bookHistoF( _LEDprimStr, "APD_OVER_APDB_NEVT" );
+      bookHistoF( _LEDprimStr, "SHAPE_COR_APD" );
+     
+      // NEW GHM 08/06 --> SCHEMA MODIFIED?
+      bookHistoF( _LEDprimStr, "TIME_MEAN" ); 
+      bookHistoF( _LEDprimStr, "TIME_RMS"  );
+      bookHistoF( _LEDprimStr, "TIME_M3"   );  
+      bookHistoF( _LEDprimStr, "TIME_NEVT" );
+
+      //
+      // Laser PN Primitives
+      //
+      t_name = lmfLaserName( ME::iLmfLEDPnPrim, _type, _color );
+      addBranchI( t_name, "LOGIC_ID" );
+      addBranchI( t_name, "FLAG"     );
+      addBranchF( t_name, "MEAN"     );
+      addBranchF( t_name, "RMS"      );
+      addBranchF( t_name, "M3"     );
+      addBranchF( t_name, "NEVT"     );
+      addBranchF( t_name, "PNA_OVER_PNB_MEAN"     );
+      addBranchF( t_name, "PNA_OVER_PNB_RMS"      );
+      addBranchF( t_name, "PNA_OVER_PNB_M3"       );
+      addBranchF( t_name, "SHAPE_COR_PN"          );
+
+    }
+
 }
 
 void
@@ -865,18 +1031,18 @@ MELaserPrim::fillHistograms()
 	  
 	  //int flag = apdpnabfit_flag;
 	  
-	  setVal( "APD_OVER_PNACORABFIT_MEAN",  ix, iy,  apdpn_apdpnabfit[iAPDoPNACorabfit][iMean] );
-	  setVal( "APD_OVER_PNACORABFIT_RMS",   ix, iy,  apdpn_apdpnabfit[iAPDoPNACorabfit][iRMS] );
-	  setVal( "APD_OVER_PNACORABFIT_M3",    ix, iy,  apdpn_apdpnabfit[iAPDoPNACorabfit][iM3] );  
-	  setVal( "APD_OVER_PNACORABFIT_NEVT",  ix, iy,  apdpn_apdpnabfit[iAPDoPNACorabfit][iNevt] );
-	  setVal( "APD_OVER_PNBCORABFIT_MEAN",  ix, iy,  apdpn_apdpnabfit[iAPDoPNBCorabfit][iMean] );
-	  setVal( "APD_OVER_PNBCORABFIT_RMS",   ix, iy,  apdpn_apdpnabfit[iAPDoPNBCorabfit][iRMS] );
-	  setVal( "APD_OVER_PNBCORABFIT_M3",    ix, iy,  apdpn_apdpnabfit[iAPDoPNBCorabfit][iM3] );  
-	  setVal( "APD_OVER_PNBCORABFIT_NEVT",  ix, iy,  apdpn_apdpnabfit[iAPDoPNBCorabfit][iNevt] );
-	  setVal( "APD_OVER_PNCORABFIT_MEAN",   ix, iy,  apdpn_apdpnabfit[iAPDoPNCorabfit][iMean] );
-	  setVal( "APD_OVER_PNCORABFIT_RMS",    ix, iy,  apdpn_apdpnabfit[iAPDoPNCorabfit][iRMS] );
-	  setVal( "APD_OVER_PNCORABFIT_M3",     ix, iy,  apdpn_apdpnabfit[iAPDoPNCorabfit][iM3] );  
-	  setVal( "APD_OVER_PNCORABFIT_NEVT",   ix, iy,  apdpn_apdpnabfit[iAPDoPNCorabfit][iNevt] );
+// 	  setVal( "APD_OVER_PNACORABFIT_MEAN",  ix, iy,  apdpn_apdpnabfit[iAPDoPNACorabfit][iMean] );
+// 	  setVal( "APD_OVER_PNACORABFIT_RMS",   ix, iy,  apdpn_apdpnabfit[iAPDoPNACorabfit][iRMS] );
+// 	  setVal( "APD_OVER_PNACORABFIT_M3",    ix, iy,  apdpn_apdpnabfit[iAPDoPNACorabfit][iM3] );  
+// 	  setVal( "APD_OVER_PNACORABFIT_NEVT",  ix, iy,  apdpn_apdpnabfit[iAPDoPNACorabfit][iNevt] );
+// 	  setVal( "APD_OVER_PNBCORABFIT_MEAN",  ix, iy,  apdpn_apdpnabfit[iAPDoPNBCorabfit][iMean] );
+// 	  setVal( "APD_OVER_PNBCORABFIT_RMS",   ix, iy,  apdpn_apdpnabfit[iAPDoPNBCorabfit][iRMS] );
+// 	  setVal( "APD_OVER_PNBCORABFIT_M3",    ix, iy,  apdpn_apdpnabfit[iAPDoPNBCorabfit][iM3] );  
+// 	  setVal( "APD_OVER_PNBCORABFIT_NEVT",  ix, iy,  apdpn_apdpnabfit[iAPDoPNBCorabfit][iNevt] );
+// 	  setVal( "APD_OVER_PNCORABFIT_MEAN",   ix, iy,  apdpn_apdpnabfit[iAPDoPNCorabfit][iMean] );
+// 	  setVal( "APD_OVER_PNCORABFIT_RMS",    ix, iy,  apdpn_apdpnabfit[iAPDoPNCorabfit][iRMS] );
+// 	  setVal( "APD_OVER_PNCORABFIT_M3",     ix, iy,  apdpn_apdpnabfit[iAPDoPNCorabfit][iM3] );  
+// 	  setVal( "APD_OVER_PNCORABFIT_NEVT",   ix, iy,  apdpn_apdpnabfit[iAPDoPNCorabfit][iNevt] );
 	  
 	    }
 	}
@@ -924,18 +1090,18 @@ MELaserPrim::fillHistograms()
 	  
 	  //int flag = apdpnabfix_flag;
 	  
-	  setVal( "APD_OVER_PNACORABFIX_MEAN",  ix, iy,  apdpn_apdpnabfix[iAPDoPNACorabfix][iMean] );
-	  setVal( "APD_OVER_PNACORABFIX_RMS",   ix, iy,  apdpn_apdpnabfix[iAPDoPNACorabfix][iRMS] );
-	  setVal( "APD_OVER_PNACORABFIX_M3",    ix, iy,  apdpn_apdpnabfix[iAPDoPNACorabfix][iM3] );  
-	  setVal( "APD_OVER_PNACORABFIX_NEVT",  ix, iy,  apdpn_apdpnabfix[iAPDoPNACorabfix][iNevt] );
-	  setVal( "APD_OVER_PNBCORABFIX_MEAN",  ix, iy,  apdpn_apdpnabfix[iAPDoPNBCorabfix][iMean] );
-	  setVal( "APD_OVER_PNBCORABFIX_RMS",   ix, iy,  apdpn_apdpnabfix[iAPDoPNBCorabfix][iRMS] );
-	  setVal( "APD_OVER_PNBCORABFIX_M3",    ix, iy,  apdpn_apdpnabfix[iAPDoPNBCorabfix][iM3] );  
-	  setVal( "APD_OVER_PNBCORABFIX_NEVT",  ix, iy,  apdpn_apdpnabfix[iAPDoPNBCorabfix][iNevt] );
-	  setVal( "APD_OVER_PNCORABFIX_MEAN",   ix, iy,  apdpn_apdpnabfix[iAPDoPNCorabfix][iMean] );
-	  setVal( "APD_OVER_PNCORABFIX_RMS",    ix, iy,  apdpn_apdpnabfix[iAPDoPNCorabfix][iRMS] );
-	  setVal( "APD_OVER_PNCORABFIX_M3",     ix, iy,  apdpn_apdpnabfix[iAPDoPNCorabfix][iM3] );  
-	  setVal( "APD_OVER_PNCORABFIX_NEVT",   ix, iy,  apdpn_apdpnabfix[iAPDoPNCorabfix][iNevt] );
+	 //  setVal( "APD_OVER_PNACORABFIX_MEAN",  ix, iy,  apdpn_apdpnabfix[iAPDoPNACorabfix][iMean] );
+// 	  setVal( "APD_OVER_PNACORABFIX_RMS",   ix, iy,  apdpn_apdpnabfix[iAPDoPNACorabfix][iRMS] );
+// 	  setVal( "APD_OVER_PNACORABFIX_M3",    ix, iy,  apdpn_apdpnabfix[iAPDoPNACorabfix][iM3] );  
+// 	  setVal( "APD_OVER_PNACORABFIX_NEVT",  ix, iy,  apdpn_apdpnabfix[iAPDoPNACorabfix][iNevt] );
+// 	  setVal( "APD_OVER_PNBCORABFIX_MEAN",  ix, iy,  apdpn_apdpnabfix[iAPDoPNBCorabfix][iMean] );
+// 	  setVal( "APD_OVER_PNBCORABFIX_RMS",   ix, iy,  apdpn_apdpnabfix[iAPDoPNBCorabfix][iRMS] );
+// 	  setVal( "APD_OVER_PNBCORABFIX_M3",    ix, iy,  apdpn_apdpnabfix[iAPDoPNBCorabfix][iM3] );  
+// 	  setVal( "APD_OVER_PNBCORABFIX_NEVT",  ix, iy,  apdpn_apdpnabfix[iAPDoPNBCorabfix][iNevt] );
+// 	  setVal( "APD_OVER_PNCORABFIX_MEAN",   ix, iy,  apdpn_apdpnabfix[iAPDoPNCorabfix][iMean] );
+// 	  setVal( "APD_OVER_PNCORABFIX_RMS",    ix, iy,  apdpn_apdpnabfix[iAPDoPNCorabfix][iRMS] );
+// 	  setVal( "APD_OVER_PNCORABFIX_M3",     ix, iy,  apdpn_apdpnabfix[iAPDoPNCorabfix][iM3] );  
+// 	  setVal( "APD_OVER_PNCORABFIX_NEVT",   ix, iy,  apdpn_apdpnabfix[iAPDoPNCorabfix][iNevt] );
 	  
 	    }
 	}
@@ -975,7 +1141,7 @@ MELaserPrim::fillHistograms()
 	      assert( pn_pnID==jj );
 	      
 	      // get the PN number
-	      std::pair<int,int> memPn_ = ME::pn( _lmr, module_, (ME::PN)jj );
+	      pair<int,int> memPn_ = ME::pn( _lmr, module_, (ME::PN)jj );
 	      if( _isBarrel )
 		{
 		  id1_ = _sm;
@@ -1000,9 +1166,11 @@ MELaserPrim::fillHistograms()
 		  channelView_ = iEE_LM_PN;
 		}
 	      logic_id_ = logicId( channelView_, id1_, id2_ );
-	      
+	      int pnflag=0;
+	      if(pn_PN[iMean]>200. &&pn_PN[iMean]<5000.) pnflag=1;
 	      i_t[t_name+separator+"LOGIC_ID"] = logic_id_;
 	      f_t[t_name+separator+"MEAN"]  = pn_PN[iMean];
+	      i_t[t_name+separator+"FLAG"]  = pnflag;
 	      f_t[t_name+separator+"RMS"]   = pn_PN[iRMS];
 	      f_t[t_name+separator+"M3"]  = pn_PN[iM3];   
 	      f_t[t_name+separator+"NEVT"]  = pn_PN[iNevt];    
@@ -1015,7 +1183,7 @@ MELaserPrim::fillHistograms()
 	      t_t[t_name]->Fill();
 	      
 	    }
-	  //      std::cout << "Module=" << module_ << "\tPNA=" << pn_[0] << "\tPNB=" << pn_[1] << std::endl;
+	  //      cout << "Module=" << module_ << "\tPNA=" << pn_[0] << "\tPNB=" << pn_[1] << endl;
 	  
 	  // 	  if( _isBarrel )
 	  // 	    jentry += 4;
@@ -1076,7 +1244,7 @@ MELaserPrim::fillHistograms()
       // Laser Run
       //
       t_name = lmfLaserName( ME::iLmfLaserRun, _type );
-      //std::cout << "Fill "<< t_name << std::endl;
+      //cout << "Fill "<< t_name << endl;
       i_t[t_name+separator+"LOGIC_ID"]       = logic_id_; 
       i_t[t_name+separator+"NEVENTS"]        =  _events;
       i_t[t_name+separator+"QUALITY_FLAG"]   = 1;                // fixme
@@ -1086,7 +1254,7 @@ MELaserPrim::fillHistograms()
       // Laser Config
       //
       t_name = lmfLaserName( ME::iLmfLaserConfig, _type );
-      //std::cout << "Fill "<< t_name << std::endl;
+      //cout << "Fill "<< t_name << endl;
       i_t[t_name+separator+"LOGIC_ID"]        = logic_id_;
       i_t[t_name+separator+"WAVELENGTH"]      = _color;
       i_t[t_name+separator+"VFE_GAIN"]        = _mgpagain; // fixme 
@@ -1263,12 +1431,219 @@ MELaserPrim::fillHistograms()
       i_t[t_name+separator+"PN_GAIN"]         = _memgain;  // fixme
       t_t[t_name]->Fill();
     }
+  else if( _type==ME::iLED )
+    {
+      
+      //      cout<< "Inside LED fill histograms "<< endl ; //TESTJULIE
+
+      // Get APD/PN Results first
+      //==========================
+
+      nentries = apdpn_tree->GetEntriesFast();
+      for( Long64_t jentry=0; jentry<nentries; jentry++ ) 
+	{      
+	  ientry = apdpn_tree->LoadTree( jentry );
+	  assert( ientry>=0 );
+	  nb     = apdpn_tree->GetEntry( jentry );
+
+
+	  if( apdpn_iphi<0 ) continue;      
+
+	  int ix(0);
+	  int iy(0);
+	  if( _isBarrel )
+	    {
+	      // Barrel, global coordinates
+	      id1_ = _sm;   
+	      if ( apdpn_side != _side ) continue; 
+	      int ieta=apdpn_ieta;
+	      int iphi=apdpn_iphi;
+	      MEEBGeom::XYCoord xy_ = MEEBGeom::localCoord( ieta, iphi );
+	      ix = xy_.first;
+	      iy = xy_.second;
+	      id2_ = MEEBGeom::crystal_channel( ix, iy ); 
+	      channelView_ = iEB_crystal_number;
+	    }
+	  else
+	    {
+	      // EndCaps, global coordinates  //NEW CHANGED...
+	      id1_ = apdpn_ieta;
+	      id2_ = apdpn_iphi; 
+	      ix = id1_;
+	      iy = id2_;
+	      channelView_ = iEE_crystal_number;
+	    }
+
+	  logic_id_ = logicId( channelView_, id1_, id2_ );
+
+	  int flag = apdpn_flag;
+
+	  setInt( "LOGIC_ID",           ix, iy,  logic_id_ );
+	  setInt( "FLAG",               ix, iy,  flag );
+	  setVal( "MEAN",               ix, iy,  apdpn_apdpn[iAPD][iMean] );
+	  setVal( "RMS",                ix, iy,  apdpn_apdpn[iAPD][iRMS] );
+	  setVal( "M3",                 ix, iy,  apdpn_apdpn[iAPD][iM3] );  
+	  setVal( "NEVT",               ix, iy,  apdpn_apdpn[iAPD][iNevt] );  
+	  setVal( "APD_OVER_PNA_MEAN",  ix, iy,  apdpn_apdpn[iAPDoPNA][iMean] );
+	  setVal( "APD_OVER_PNA_RMS",   ix, iy,  apdpn_apdpn[iAPDoPNA][iRMS] );
+	  setVal( "APD_OVER_PNA_M3",    ix, iy,  apdpn_apdpn[iAPDoPNA][iM3] );
+	  setVal( "APD_OVER_PNA_NEVT",  ix, iy,  apdpn_apdpn[iAPDoPNA][iNevt] ); 
+	  setVal( "APD_OVER_PNB_MEAN",  ix, iy,  apdpn_apdpn[iAPDoPNB][iMean] );
+	  setVal( "APD_OVER_PNB_RMS",   ix, iy,  apdpn_apdpn[iAPDoPNB][iRMS] );
+	  setVal( "APD_OVER_PNB_M3",    ix, iy,  apdpn_apdpn[iAPDoPNB][iM3] );  
+	  setVal( "APD_OVER_PNB_NEVT",  ix, iy,  apdpn_apdpn[iAPDoPNB][iNevt] );
+	  setVal( "APD_OVER_PN_MEAN",   ix, iy,  apdpn_apdpn[iAPDoPN][iMean] );
+	  setVal( "APD_OVER_PN_RMS",    ix, iy,  apdpn_apdpn[iAPDoPN][iRMS] );
+	  setVal( "APD_OVER_PN_M3",     ix, iy,  apdpn_apdpn[iAPDoPN][iM3] );  
+	  setVal( "APD_OVER_PN_NEVT",   ix, iy,  apdpn_apdpn[iAPDoPN][iNevt] );
+	 
+	  setVal( "APD_OVER_PNACOR_MEAN",  ix, iy,  apdpn_apdpn[iAPDoPNACor][iMean] );
+	  setVal( "APD_OVER_PNACOR_RMS",   ix, iy,  apdpn_apdpn[iAPDoPNACor][iRMS] );
+	  setVal( "APD_OVER_PNACOR_M3",    ix, iy,  apdpn_apdpn[iAPDoPNACor][iM3] );  
+	  setVal( "APD_OVER_PNACOR_NEVT",  ix, iy,  apdpn_apdpn[iAPDoPNACor][iNevt] );
+	  setVal( "APD_OVER_PNBCOR_MEAN",  ix, iy,  apdpn_apdpn[iAPDoPNBCor][iMean] );
+	  setVal( "APD_OVER_PNBCOR_RMS",   ix, iy,  apdpn_apdpn[iAPDoPNBCor][iRMS] );
+	  setVal( "APD_OVER_PNBCOR_M3",    ix, iy,  apdpn_apdpn[iAPDoPNBCor][iM3] );  
+	  setVal( "APD_OVER_PNBCOR_NEVT",  ix, iy,  apdpn_apdpn[iAPDoPNBCor][iNevt] );
+	  setVal( "APD_OVER_PNCOR_MEAN",   ix, iy,  apdpn_apdpn[iAPDoPNCor][iMean] );
+	  setVal( "APD_OVER_PNCOR_RMS",    ix, iy,  apdpn_apdpn[iAPDoPNCor][iRMS] );
+	  setVal( "APD_OVER_PNCOR_M3",     ix, iy,  apdpn_apdpn[iAPDoPNCor][iM3] );  
+	  setVal( "APD_OVER_PNCOR_NEVT",   ix, iy,  apdpn_apdpn[iAPDoPNCor][iNevt] );
+
+	  setVal( "APD_OVER_APD_MEAN", ix, iy,  apdpn_apdpn[iAPDoAPD][iMean] );
+	  setVal( "APD_OVER_APD_RMS",  ix, iy,  apdpn_apdpn[iAPDoAPD][iRMS] );
+	  setVal( "APD_OVER_APD_M3",   ix, iy,  apdpn_apdpn[iAPDoAPD][iM3] );  
+	  setVal( "APD_OVER_APD_NEVT",  ix, iy,  apdpn_apdpn[iAPDoAPD][iNevt] );
+	  setVal( "APD_OVER_APDA_MEAN", ix, iy,  apdpn_apdpn[iAPDoAPDA][iMean] );
+	  setVal( "APD_OVER_APDA_RMS",  ix, iy,  apdpn_apdpn[iAPDoAPDA][iRMS] );
+	  setVal( "APD_OVER_APDA_M3",   ix, iy,  apdpn_apdpn[iAPDoAPDA][iM3] ); 
+	  setVal( "APD_OVER_APDA_NEVT",  ix, iy,  apdpn_apdpn[iAPDoAPDA][iNevt] );
+	  setVal( "APD_OVER_APDB_MEAN", ix, iy,  apdpn_apdpn[iAPDoAPDB][iMean] );
+	  setVal( "APD_OVER_APDB_RMS",   ix, iy,  apdpn_apdpn[iAPDoAPDB][iRMS] );
+	  setVal( "APD_OVER_APDB_M3",    ix, iy,  apdpn_apdpn[iAPDoAPDB][iM3] );  
+	  setVal( "APD_OVER_APDB_NEVT",  ix, iy,  apdpn_apdpn[iAPDoAPDB][iNevt] );
+	  // JM
+	  setVal( "SHAPE_COR_APD",          ix, iy,  apdpn_shapeCorAPD );
+	
+	  // NEW GHM 08/06
+	  setVal( "TIME_MEAN",          ix, iy,  apdpn_apdpn[iTime][iMean] );
+	  setVal( "TIME_RMS",           ix, iy,  apdpn_apdpn[iTime][iRMS]  );
+	  setVal( "TIME_M3",            ix, iy,  apdpn_apdpn[iTime][iM3]   );
+	  setVal( "TIME_NEVT",          ix, iy,  apdpn_apdpn[iTime][iNevt] );
+
+	}
+    
+      //      cout<< "LED APD FILLED "<< endl ; //TESTJULIE
+     
+      //
+      // PN primitives
+      //
+      t_name = lmfLaserName( ME::iLmfLEDPnPrim, _type, _color );
+
+      nentries = pn_tree->GetEntriesFast();
+      assert( nentries%2==0 );
+      int module_(0);
+      id1_=_sm; id2_=0;
+  
+      Long64_t jentry=0;
+
+      while( jentry<nentries ) 
+	{      
+	  for( int jj=0; jj<2; jj++ )
+	    {
+	      // jj=0 --> PNA
+	      // jj=1 --> PNB
+	      
+	      int zentry = jentry+jj;
+	      assert( zentry<nentries );
+	      
+	      ientry = pn_tree->LoadTree( zentry );
+	      assert( ientry>=0 );
+	      nb     = pn_tree->GetEntry( zentry );
+	      
+	      if( _side!=pn_side ) break;
+		  
+	      //if( jj==1 ) assert( pn_moduleID==module_ ); what is this for?
+	      module_ = pn_moduleID;
+	      assert( pn_pnID==jj );
+	      
+	      // get the PN number
+	      pair<int,int> memPn_ = ME::pn( _lmr, module_, (ME::PN)jj );
+	      if( _isBarrel )
+		{
+		  id1_ = _sm;
+		  id2_ = memPn_.second;
+		}
+	      else
+		{
+		  int dee_ = MEEEGeom::dee( _lmr );
+
+		  id1_ = dee_;
+		  id2_ = (jj+1)*100+memPn_.second;
+		}
+	      
+	      //	      cout <<"  pn prim " <<id1_<<"  " <<id2_<<"  " <<_lmr<<"  " <<module_<<"  " << jj<< endl; // TESTJULIE
+
+	      if( _isBarrel )
+		{
+		  channelView_ = iEB_LM_PN;
+		}
+	      else
+		{
+		  channelView_ = iEE_LM_PN;
+		}
+	      logic_id_ = logicId( channelView_, id1_, id2_ );
+	      int pnflag=0;
+	      if(pn_PN[iMean]>200. &&pn_PN[iMean]<5000.) pnflag=1;
+	      i_t[t_name+separator+"LOGIC_ID"] = logic_id_;
+	      f_t[t_name+separator+"MEAN"]  = pn_PN[iMean];
+	      i_t[t_name+separator+"FLAG"]  = pnflag;
+	      f_t[t_name+separator+"RMS"]   = pn_PN[iRMS];
+	      f_t[t_name+separator+"M3"]  = pn_PN[iM3];   
+	      f_t[t_name+separator+"NEVT"]  = pn_PN[iNevt];    
+	      f_t[t_name+separator+"PNA_OVER_PNB_MEAN"]  = (jj==0) ? pn_PNoPNB[iMean] : pn_PNoPNA[iMean];
+	      f_t[t_name+separator+"PNA_OVER_PNB_RMS" ]  = (jj==0) ? pn_PNoPNB[iRMS]  : pn_PNoPNA[iRMS];
+	      f_t[t_name+separator+"PNA_OVER_PNB_M3"]  = (jj==0) ? pn_PNoPNB[iM3] : pn_PNoPNA[iM3];
+	      f_t[t_name+separator+"SHAPE_COR_PN"]  = pn_shapeCorPN;   
+
+	      
+	      t_t[t_name]->Fill();
+	      
+	    }
+	  //      cout << "Module=" << module_ << "\tPNA=" << pn_[0] << "\tPNB=" << pn_[1] << endl;
+	  
+	  // 	  if( _isBarrel )
+	  // 	    jentry += 4;
+	  // 	  else
+	  // 	    jentry += 2;
+	  jentry += 2;
+	}
+      
+      logic_id_  = logicId( iECAL_LMR, _lmr );
+
+      
+
+      //      cout<< "LED PN FILLED "<< endl ; //TESTJULIE
+     
+      //
+      // Laser Run
+      //
+      t_name = lmfLaserName( ME::iLmfLEDRun, _type );
+      //cout << "Fill "<< t_name << endl;
+      i_t[t_name+separator+"LOGIC_ID"]       = logic_id_; 
+      i_t[t_name+separator+"NEVENTS"]        =  _events;
+      i_t[t_name+separator+"QUALITY_FLAG"]   = 1;                // fixme
+      t_t[t_name]->Fill();
+  
+
+      //      cout<< "LED RUN FILLED "<< endl ; //TESTJULIE
+    }
 
   //
   // Laser Run IOV
   //
   t_name = "LMF_RUN_IOV";
-  //std::cout << "Fill "<< t_name << std::endl;
+  //cout << "Fill "<< t_name << endl;
   i_t[t_name+separator+"TAG_ID"]        = 0;       // fixme
   i_t[t_name+separator+"SUB_RUN_NUM"]   = _run;      // fixme
   i_t[t_name+separator+"SUB_RUN_START_LOW" ] = ME::time_low( _ts_beg );
@@ -1277,7 +1652,7 @@ MELaserPrim::fillHistograms()
   i_t[t_name+separator+"SUB_RUN_END_HIGH"  ] = ME::time_high( _ts_end );
   i_t[t_name+separator+"DB_TIMESTAMP_LOW"  ] = ME::time_low( _ts ); 
   i_t[t_name+separator+"DB_TIMESTAMP_HIGH" ] = ME::time_high( _ts );
-  c_t[t_name+separator+"SUB_RUN_TYPE"]  = "LASER TEST CRUZET"; //fixme
+  c_t[t_name+separator+"SUB_RUN_TYPE"]  = "LASER BEAM"; //fixme
   t_t[t_name]->Fill();
 
 }
@@ -1290,7 +1665,7 @@ MELaserPrim::writeHistograms()
   out_file = new TFile( _outfile, "RECREATE" );
   //  out_file->cd();
 
-  std::map< TString, TH2* >::iterator it;
+  map< TString, TH2* >::iterator it;
 
   for( it=i_h.begin(); it!=i_h.end(); it++ )
     {
@@ -1298,20 +1673,20 @@ MELaserPrim::writeHistograms()
       delete it->second;
     }
 
-  for( it=f_h.begin(); it!=f_h.end(); it++ )
+   for( it=f_h.begin(); it!=f_h.end(); it++ )
     {
       it->second->Write();
       delete it->second;
     }
 
-  std::map< TString, TTree* >::iterator it_t;
+  map< TString, TTree* >::iterator it_t;
   for( it_t=t_t.begin(); it_t!=t_t.end(); it_t++ )
     {
       it_t->second->Write();
       delete it_t->second;
     }
 
-  //  std::cout << "Closing " << _outfile << std::endl;
+  cout << "Closing " << _outfile << endl;
   out_file->Close();
   delete out_file;
   out_file=0;
@@ -1329,43 +1704,52 @@ MELaserPrim::~MELaserPrim()
   if( _type==ME::iLaser ){
     if( apdpn_file!=0 )
       {
-	//cout << "Closing apdpn_file " << endl;
+	cout << "Closing apdpn_file " << endl;
 	apdpn_file->Close();
 	delete apdpn_file;
 	apdpn_file = 0;
       }
-    if( apdpnabfit_file!=0 )
+    if( apdpnabfit_file!=0)
       {
-	//	cout << "Closing apdpn_file " << endl;
+	cout << "Closing apdpn_file " << endl;
 	apdpnabfit_file->Close();
 	delete apdpnabfit_file;
 	apdpnabfit_file = 0;
       }
     if( apdpnabfix_file!=0 )
       {
-	//	cout << "Closing apdpn_file " << endl;
+	cout << "Closing apdpn_file " << endl;
 	apdpnabfix_file->Close();
 	delete apdpnabfix_file;
 	apdpnabfix_file = 0;
       }
     if( ab_file!=0 )
       {
-	//	cout << "Closing ab_file " << endl;
+	cout << "Closing ab_file " << endl;
 	ab_file->Close();
 	delete ab_file;
 	ab_file = 0;
       }
     if( mtq_file!=0 )
       {
-	//	cout << "Closing mtq_file " << endl;
+	cout << "Closing mtq_file " << endl;
 	mtq_file->Close();
 	delete mtq_file;
 	mtq_file = 0;
       }
-  }else{
+  } else if( _type==ME::iLED ){
+    if( apdpn_file!=0 )
+      {
+	cout << "Closing apdpn_file " << endl;
+	apdpn_file->Close();
+	delete apdpn_file;
+	apdpn_file = 0;
+      }
+  }
+  else{
     if( tpapd_file!=0 )
       {
-	//	cout << "Closing tpapd_file " << endl;
+	cout << "Closing tpapd_file " << endl;
 	tpapd_file->Close();
 	delete tpapd_file;
 	tpapd_file = 0;
@@ -1377,7 +1761,7 @@ void
 MELaserPrim::print( ostream& o )
 {
   o << "DCC/SM/side/type/color/run/ts " << _dcc << "/" << _sm << "/" << _side << "/" 
-    << _type << "/" << _color << "/" << _run << "/" << _ts << std::endl;
+    << _type << "/" << _color << "/" << _run << "/" << _ts << endl;
   
 //   for( int ix=ixmin; ix<ixmax; ix++ )
 //     {
@@ -1431,6 +1815,26 @@ MELaserPrim::lmfLaserName( int table, int type, int color )
 	case ME::iLmfTestPulsePrim:    str += "_PRIM";      break;	  
 	case ME::iLmfTestPulsePnPrim:  str += "_PN_PRIM";   break;
 	default: abort();
+	}
+    }
+  else if( type==ME::iLED )
+    {
+      TString colstr;
+      switch( color )
+	{
+	case ME::iBlue:   colstr = "_BLUE"; break;
+	case ME::iGreen:  colstr = "_GREEN"; break;
+	case ME::iRed:    colstr = "_RED";  break;
+	case ME::iIRed:   colstr = "_IRED";  break;
+	default:  abort();
+	}
+      str = "LMF_LED";
+      switch( table )
+	{
+	case ME::iLmfLEDRun:      str  = "LMF_RUN";                 break; 
+	case ME::iLmfLEDPrim:     str += colstr; str += "_PRIM";    break; 
+	case ME::iLmfLEDPnPrim:   str += colstr; str += "_PN_PRIM"; break; 
+	default:  abort();
 	}
     }
   str += "_DAT";
@@ -1492,6 +1896,7 @@ MELaserPrim::setInt( const char* name, int ix, int iy, int ival )
   TString name_;
   if( _type==ME::iLaser ) name_=_primStr+name;
   else if( _type==ME::iTestPulse ) name_=_tpPrimStr+name;
+  else if ( _type==ME::iLED ) name_=_LEDprimStr+name;
  
   int _ival = getInt( name_, ix, iy );
   assert( _ival!=-99 );
@@ -1510,6 +1915,7 @@ MELaserPrim::setVal( const char* name, int ix, int iy, float val )
   TString name_;
   if( _type==ME::iLaser ) name_=_primStr+name;
   else if( _type==ME::iTestPulse ) name_=_tpPrimStr+name;
+  else if ( _type==ME::iLED ) name_=_LEDprimStr+name;
  
   float _val = getVal( name_, ix, iy );
   assert( _val!=-99 );
@@ -1570,7 +1976,7 @@ MELaserPrim::setVal( const char* tname, const char* vname, float val )
   // ghm
   if( f_t.count(key_)!=1 )
     {
-      std::cout << key_ << std::endl;
+      cout << key_ << endl;
     }
   assert( f_t.count(key_)==1 );
   f_t[key_]  = val;
@@ -1617,7 +2023,7 @@ MELaserPrim::setHistoStyle( TH1* h )
 void
 MELaserPrim::refresh()
 {
-  std::map< TString, TH2* >::iterator it;
+  map< TString, TH2* >::iterator it;
 
   for( it=i_h.begin(); it!=i_h.end(); it++ )
     {
@@ -1633,7 +2039,7 @@ MELaserPrim::refresh()
     }
   f_h.clear();
 
-  std::map< TString, TTree* >::iterator it_t;
+  map< TString, TTree* >::iterator it_t;
   for( it_t=t_t.begin(); it_t!=t_t.end(); it_t++ )
     {
       delete it_t->second;

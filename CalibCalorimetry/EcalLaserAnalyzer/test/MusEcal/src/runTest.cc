@@ -30,6 +30,7 @@ using namespace std;
 #include "MEPlotWindow.hh"
 #include "../../interface/MEChannel.h" 
 #include "MERunManager.hh"
+#include "MENormManager.hh"
 
 
 void setTDRStyle(int isIt1D) {
@@ -180,54 +181,14 @@ int main(int argc, char **argv)
 	  break;
 	}
     }
+ 
 
-  string period(getenv("MEPERIOD"));
+  for (int ilmr=1;ilmr<93;ilmr++){
   
-  int debug = 0;
-  int iLMR  = 1;
+    MENormManager test(ilmr);
+    
+  }
 
-  MusEcal::firstRun = first;
-  MusEcal::lastRun  = last;
-  MusEcal::fillNLS  = false;
-  MusEcal::LMR      = iLMR;
-
-  // Get back settings and header for current Run
-  //==============================================
-  
-  
-  cout<< "*** Creating MusEcal Blue: "<< endl ;
-  MusEcal *MusEcalBlue = new MusEcal(ME::iLaser, ME::iBlue);
-  cout<< "***              ... done "<< endl ;
-// //   cout<< "*** Creating MusEcal Red: "<< endl ;
-// //   MusEcal *MusEcalRed  = new MusEcal(ME::iLaser, ME::iIRed);
-// //   cout<< "***              ... done "<< endl ;
-
-  cout << "*** Setting LMR to :"<<iLMR<< endl;
-  MusEcalBlue->setLMRegion(iLMR);
-  //MusEcalRed->setLMRegion(iLMR);
-  cout<< "***              ... done "<< endl ;
-  
-  vector< MEChannel* > vecBlue;
-  //  vector< MEChannel* > vecRed;
-  
-  vecBlue.clear();
-  //  vecRed.clear();
-  
-  MusEcalBlue->curMgr()->tree()->getListOfChannels( vecBlue );
-  //  MusEcalRed->curMgr()->tree()->getListOfChannels( vecRed );
-  
-  int nChanBlue=vecBlue.size();
-  //  int nChanRed=vecRed.size();
-  
-  
-  TH2* mytesthist=MusEcalBlue->getEBExtraHistogram(ME::iMID_MEAN);
-
-  setTDRStyle(0);
-
-  TCanvas *can = new TCanvas("can","can", 450, 700 );
-  mytesthist->Draw("COLZ");
-  MEEBDisplay::drawEBGlobal();
-  can->Print("mytesthist.gif","gif");
 
   //  cout<< "nChannels blue: "<<nChanBlue<<" red:"<<nChanRed<< endl;
   

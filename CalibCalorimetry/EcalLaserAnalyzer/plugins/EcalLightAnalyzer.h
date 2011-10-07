@@ -169,9 +169,7 @@ class EcalLightAnalyzer: public edm::EDAnalyzer{
   // LASER/LED: SHAPES
 
   vector<  double > shapesAPD[nColor][NSIDES];
-  void getLaserShapeForPN( int icol, int iside );
-  double lasShapesForPN[nColor][NSIDES][NSAMPPN]; // FIXME: size for endcap
-  bool gotLasShapeForPN[nColor][NSIDES];
+  int las_imax[nColor][NSIDES], las_ifirst[nColor][NSIDES]; // Needed to take only signal during convolution, not pedestal
 
   double _corrPNEB[NPN][nColor][NSIDES];
   double _corrPNEE[NPN][NMEM][nColor][NSIDES];

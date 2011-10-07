@@ -459,7 +459,7 @@ MEEEGeom::smFromDcc( int idcc )
 TGraph*
 MEEEGeom::getGraphBoundary(  int type, int num, int iz, int xside )
 {
-  std::list< std::pair< float, float > > l;
+  list< pair< float, float > > l;
   getBoundary( l, type, num, iz, xside );
   int n = l.size();
   if( n==0 ) return 0;
@@ -470,10 +470,10 @@ MEEEGeom::getGraphBoundary(  int type, int num, int iz, int xside )
   assert( n<1000 );
 
   int ii=0;
-  std::list< std::pair< float, float > >::const_iterator l_it;      
+  list< pair< float, float > >::const_iterator l_it;      
   for( l_it=l.begin(); l_it!=l.end(); l_it++ )
     {
-      //      std::cout << "[" << l_it->first << "," << l_it->second << "]" << std::endl;
+      //      cout << "[" << l_it->first << "," << l_it->second << "]" << endl;
       ix[ii] = l_it->first;
       iy[ii] = l_it->second;
       ii++;
@@ -483,10 +483,10 @@ MEEEGeom::getGraphBoundary(  int type, int num, int iz, int xside )
 }
 
 void
-MEEEGeom::getBoundary(  std::list< std::pair< float, float > >& l, int type, int num, int iz, int xside )
+MEEEGeom::getBoundary(  list< pair< float, float > >& l, int type, int num, int iz, int xside )
 {
   // for each iy, get first and last ix for <whatever>
-  std::multimap< int, std::pair< int, int > > map_;
+  multimap< int, pair< int, int > > map_;
 
   int iymin=1;
   int iymax=100;
@@ -553,35 +553,35 @@ MEEEGeom::getBoundary(  std::list< std::pair< float, float > >& l, int type, int
 	  else if(  in && !ok )
 	    {
 	      in = false;
-	      map_.insert( std::pair< int, std::pair<int, int> >( iy, std::pair<int,int>( firstix, lastix ) ) );
+	      map_.insert( pair< int, pair<int, int> >( iy, pair<int,int>( firstix, lastix ) ) );
 	    }
 	}
-      if( in ) map_.insert( std::pair< int, std::pair<int, int> >( iy, std::pair<int,int>( firstix, lastix ) ) );
+      if( in ) map_.insert( pair< int, pair<int, int> >( iy, pair<int,int>( firstix, lastix ) ) );
 	
     }
 
   // clean the list
   l.clear();
 
-  std::multimap< int, std::pair< int, int > >::const_iterator it;
-  std::multimap< int, std::pair< int, int > >::const_iterator lastelement;
-  std::list< std::pair< float, float > > rightl;
+  multimap< int, pair< int, int > >::const_iterator it;
+  multimap< int, pair< int, int > >::const_iterator lastelement;
+  list< pair< float, float > > rightl;
   for( int iy=1; iy<=100; iy++ )
     {
       it = map_.find(iy);
       if( it==map_.end() ) continue;
       int n_ =  map_.count( iy );
-      //      std::cout << "n[" << iy << "]=" << n_ << std::endl;
+      //      cout << "n[" << iy << "]=" << n_ << endl;
       assert( n_==1 );  // fixme !
       
       lastelement = map_.upper_bound(iy);
       for( ; it!=lastelement; ++it )
 	{
-	  std::pair<float,float> p_ = it->second;
-	  l.push_back(   std::pair<float,float>(   p_.first-0.5, iy-0.5 ) );
-	  l.push_back(   std::pair<float,float>(   p_.first-0.5, iy+0.5 )   );
-	  rightl.push_back( std::pair<float,float>(   p_.second+0.5, iy-0.5 )   );
-	  rightl.push_back( std::pair<float,float>(   p_.second+0.5, iy+0.5 )     );
+	  pair<float,float> p_ = it->second;
+	  l.push_back(   pair<float,float>(   p_.first-0.5, iy-0.5 ) );
+	  l.push_back(   pair<float,float>(   p_.first-0.5, iy+0.5 )   );
+	  rightl.push_back( pair<float,float>(   p_.second+0.5, iy-0.5 )   );
+	  rightl.push_back( pair<float,float>(   p_.second+0.5, iy+0.5 )     );
 	  
 	}
     }
@@ -589,10 +589,10 @@ MEEEGeom::getBoundary(  std::list< std::pair< float, float > >& l, int type, int
   rightl.unique();
   rightl.reverse();
 
-  std::list< std::pair< float, float > >::const_iterator rightl_it;  
+  list< pair< float, float > >::const_iterator rightl_it;  
   for( rightl_it=rightl.begin(); rightl_it!=rightl.end(); rightl_it++ )
     {
-      l.push_back( std::pair<float,float>( rightl_it->first, rightl_it->second ) );
+      l.push_back( pair<float,float>( rightl_it->first, rightl_it->second ) );
     }
   l.push_back( *l.begin() );
 
@@ -611,7 +611,7 @@ MEEEGeom::deeFromMem( int imem )
   return dee_;
 }
 
-std::pair< int, int > 
+pair< int, int > 
 MEEEGeom::pn( int dee, int ilmmod )
 {
   // table below
@@ -719,7 +719,7 @@ MEEEGeom::pn( int dee, int ilmmod )
   if( ilmmod==20 ) ilmmod=18;
   if( ilmmod==21 ) ilmmod=19;
 
-  std::pair<int,int> pns(0,0);
+  pair<int,int> pns(0,0);
 
   if( pnTheory )
     {
@@ -894,16 +894,16 @@ MEEEGeom::dee( int ilmr )
   }
   if( dee_==0 )
     {
-      std::cout << "ilmr=" << ilmr << std::endl;
+      cout << "ilmr=" << ilmr << endl;
     }
   assert( dee_!=0 );
   return dee_;
 }
 
-std::pair< int, int >
+pair< int, int >
 MEEEGeom::memFromLmr( int ilmr )
 {
-  std::pair< int, int > out_;
+  pair< int, int > out_;
   int dee_ = dee( ilmr );
   if( dee_==1 )    // EE+F
     {
@@ -946,13 +946,13 @@ MEEEGeom::side( SuperCrysCoord iX, SuperCrysCoord iY, int iz )
 }
 
 
-std::vector<int>
+vector<int>
 MEEEGeom::lmmodFromLmr( int ilmr )
 {
  
-  std::vector<int> vec;
+  vector<int> vec;
  
-  std::pair<int, int> dccAndSide_ = ME::dccAndSide( ilmr );
+  pair<int, int> dccAndSide_ = ME::dccAndSide( ilmr );
   int idcc  = dccAndSide_.first;
   int iside = dccAndSide_.second;
   bool near_ = near(ilmr);
@@ -963,7 +963,7 @@ MEEEGeom::lmmodFromLmr( int ilmr )
     {}
   else
     {
-      std::cout << "ism/near " <<  ism << "/" << near_ << std::endl;
+      cout << "ism/near " <<  ism << "/" << near_ << endl;
     }
 
   if( ism==1 || ism==9 )
@@ -1134,3 +1134,31 @@ MEEEGeom::apdRefChannels( int ilmmod )
   return vec;
 }
 
+int 
+MEEEGeom::referenceNormalization( int ilmr, int ilmmod ){
+
+  // FIXME: code here prefered normalization
+
+  //En fait il semble que pour ces PN (45, 48, 51, autre ?)
+  //la shape en laser est différente de la shape en TP. 
+
+  // Bad PN from marc
+
+  // 601 13
+  // 646 57
+  // 646 77
+  
+  int iNorm=ME::iPNNORM;
+
+  
+  //if(ilmr==51 || ilmr==52) iNorm=ME::iPNBNORM;
+
+  if( ilmr==85 && ilmmod ==4 )  iNorm=ME::iPNBNORM;
+  if( ilmr==84 && ilmmod ==8 )  iNorm=ME::iPNBNORM;
+  if( ilmr==78 && ilmmod ==11 ) iNorm=ME::iPNBNORM;
+  if( ilmr==73 && ilmmod ==11 ) iNorm=ME::iPNBNORM;
+
+
+  return iNorm;
+
+}

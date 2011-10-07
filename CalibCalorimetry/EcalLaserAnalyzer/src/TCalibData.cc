@@ -1,8 +1,8 @@
 /* 
  *  \class TCalibData
  *
- *  $Date: 2010/04/12 08:38:39 $
- *  \author: Patrice Verrecchia - CEA/Saclay
+ *  $Date: 2010/04/12 14:17:12 $
+ *  \author: Julie Malclès - CEA/Saclay
  */
 
 
@@ -10,7 +10,9 @@
 #include <sstream>
 #include <cassert>
 #include <TFile.h>
+#include <TCanvas.h>
 #include <TH2D.h>
+#include <TH2F.h>
 #include <TTree.h>
 #include <TBranch.h>
 #include <TMath.h>
@@ -45,6 +47,7 @@ TCalibData::TCalibData(int fed, string path , string alphapath )
   _ABfile=ABFile.str();
   _ABFileSet=setABFile(_ABfile);
 
+  
 }
 // Destructor
 TCalibData::~TCalibData()
@@ -63,7 +66,7 @@ TCalibData::~TCalibData()
 // Initialize...
 void TCalibData::init(int fed, string path )
 { 
-  _debug=false;
+  _debug=true;
   _newLinType=true;
   _isBarrel=false;
 
@@ -72,7 +75,8 @@ void TCalibData::init(int fed, string path )
 
   if(_fed<600) _fed+=600;
 
-  stringstream sprAPDfile, sprPNfile, ABfile, linPNfile, EENumfile;
+
+  stringstream sprAPDfile, sprPNfile, ABfile, linPNfile, EENumfile, channelFlagFile;
   stringstream nameEENum;
   
   if(_fed!=608 && _fed!=653) _nmemEE=2;
@@ -98,30 +102,36 @@ void TCalibData::init(int fed, string path )
   }
 
   ABfile<<path<<"/alphabeta/AB"<<_fed<<"_LASER.root";
+
+  channelFlagFile<<path<<"/badchannels/badchannels.root"; 
+  
   if(_isBarrel){
-    if(!_newLinType) linPNfile<<path<<"/pnlincor/"<<_fed<<"/corlin_pn.data";
+    
+      if(!_newLinType) linPNfile<<path<<"/pnlincor/"<<_fed<<"/corlin_pn.data";
     else linPNfile<<path<<"/pnlincor2/"<<_fed<<"/corlin_pn.p5.data";
   }else{
     if(!_newLinType) linPNfile<<path<<"/pnlincor/corlin_pn.EE.data";
-    else linPNfile<<path<<"/pnlincor2/corlin_pn.EE.p5.data";
+    else linPNfile<<path<<"/pnlincor2/corlin_pn.EE.p5.data"; 
   }
+  
+  
+  
   _sprAPDfile=sprAPDfile.str();
   _sprPNfile=sprPNfile.str();
   _ABfile=ABfile.str();
   _linPNfile=linPNfile.str();
+  _channelFlagFile=channelFlagFile.str();
 
+  
   if(_debug){
     cout<< "TCalibData::init Files: "<<endl;
     cout<< "                    AB: "<<_ABfile<<endl;
     cout<< "                    PN: "<<_sprPNfile<<endl;
     cout<< "                   APD: "<<_sprAPDfile<<endl;
     cout<< "                 PNLin: "<<_linPNfile<<endl;
+    cout<< "           channelFlag: "<<_channelFlagFile<< endl;
   }
 
-  if(_fed>609 && _fed <646){
-    _isBarrel=true;
-    _sprPNfile=_sprAPDfile;
-  }
 
   
   _tauRead=false;
@@ -130,9 +140,11 @@ void TCalibData::init(int fed, string path )
   _ABRead[0]=false;
   _ABRead[3]=false;
 
+  //  if( isBarrel)
+  
   _ABFileSet=setABFile(_ABfile);
+  _channelFlagFileSet=setChannelFlagFile(_channelFlagFile);
 
-  if(_debug) cout<< "TCalibData::init setABFile result: "<<_ABFileSet<< endl;
 }
 
 bool TCalibData::setABFile(string alphafile){
@@ -156,6 +168,45 @@ bool TCalibData::setABFile(string alphafile){
   return ok;
 
 }
+
+bool TCalibData::setChannelFlagFile(string channelfile){
+  
+  if(_debug) cout<< "TCalibData::setChannelFlagFile "<<channelfile<< endl;
+  bool ok=false; 
+  _channelFlagFile=channelfile;  
+  
+  FILE *test; 
+  test = fopen(_channelFlagFile.c_str(),"r");
+  if (test){ 
+    ok=true;
+    fclose(test);
+  }
+  if(ok){
+    if(_debug) cout<< "TCalibData::setChannelFlagFile File Exists"<< endl;
+    readCan = new TCanvas("readcan","readcan");// fix root bug
+    channelFlagFile= new TFile(_channelFlagFile.c_str());
+    if(channelFlagFile) ok=true;
+    
+    if(ok){
+      
+      if(_isBarrel){
+	channelFlagHist = (TH2F*)  channelFlagFile->Get("EB");
+      }else{
+	
+	if(_fed<=609){
+	  channelFlagHist = (TH2F*)  channelFlagFile->Get("EE-");
+	}else{
+	  channelFlagHist = (TH2F*)  channelFlagFile->Get("EE+");
+	} 
+      }
+    }
+    delete readCan;
+
+  }  
+  return ok;
+  
+}
+
 bool TCalibData::readTaus(){
 
   bool ok=false;
@@ -276,6 +327,7 @@ bool TCalibData::readTaus(){
   return ok;
 
 }
+
 
 bool TCalibData::readLinPN( ){
   
@@ -758,3 +810,57 @@ pair < double, double> TCalibData::AB( int channel , int color, int& ieta, int& 
   }    
   return ab;
 }
+
+int TCalibData::channelFlag(int ieta, int iphi){
+
+
+  int ixbin=1;
+  int iybin=1;
+  int val=0;
+  
+
+  
+  //  if(_debug) cout<< "TCalibData:: got back axis :" <<_xxaxis->GetXmin()<<" " <<_xxaxis->GetXmax()<<" " << _yyaxis->GetXmin()<<" " <<_yyaxis->GetXmax()<<"  " <<double(ieta)<<"  " <<double(iphi)<< endl;
+  
+
+  if(_isBarrel){
+    
+    assert(ieta<=85 && ieta>=-85 && iphi<=360 && iphi>0 && ieta!=0 );
+    float ietaf=float(ieta)-0.5;
+    if(ietaf<0.) ietaf+=1.;
+    float iphif=iphi-0.5;
+
+    ixbin=channelFlagHist->FindBin(iphif,ietaf);  
+    val=channelFlagHist->GetBinContent(ixbin);
+ 
+  }else{
+    
+    assert(iphi<=100 && iphi>=-100 && ieta<=100 && ieta>=0);
+    
+    float ietaf=float(ieta)-0.5;
+    float iphif=iphi-0.5;
+    if(iphif<0.) iphif+=1.;
+
+    ixbin=channelFlagHist->FindBin(ietaf,iphif);
+    val=channelFlagHist->GetBinContent(ixbin);
+  }
+ 
+  if(_debug) cout<< "TCalibData::channelFlag:"<<ieta<<"  " <<iphi<<"  " <<ixbin<<"  " <<iybin<<"  " <<val<<endl;
+ 
+ return (val);
+
+}
+
+bool TCalibData::channelStatus(int ieta, int iphi){
+
+  bool status=true;
+
+  int flag=channelFlag(ieta,iphi);
+
+  if(flag>=8) status=false;
+
+  return (status);
+
+}
+
+

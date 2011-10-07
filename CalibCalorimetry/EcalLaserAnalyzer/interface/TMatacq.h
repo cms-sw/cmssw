@@ -4,9 +4,15 @@
 #define NMAXSAMP 100
 #define NSAMP 2560
 #define NSPARAB  16
+#define MATACQ_LENGTH_MAX 2560
+#define FFT2_SIZE   2048  // Number of bins used for FFT
+#define FFT_SIZE   1048  // Number of bins used for FFT
+#define FFT_START  850   // Keep signal starting at 850 ns
+
+
 class TH1D;
 class TF1;
-
+class TVirtualFFT;
 class TMatacq
 {
 
@@ -39,10 +45,20 @@ class TMatacq
   double laser_tmax;
   int laser_imax;
   double* ped_cyc;
+  double* ped_cycprim;
 
   TF1  *flandau;
   TF1  *flc;
   TH1D *htmp;
+  
+  TF1 *fg1;
+  TF1 *fexp;
+  TF1 *fpol1;
+  TF1 *fpol2;
+  TH1D *hdph;
+  TH1D *hmod;
+  TVirtualFFT *fft_f;
+  TVirtualFFT *fft_b;
 
   double interpolate(double);
 

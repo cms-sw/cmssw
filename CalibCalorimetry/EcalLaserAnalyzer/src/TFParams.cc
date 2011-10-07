@@ -11,6 +11,7 @@
 
 
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TFParams.h>
+#include <malloc.h>
 #include "TMatrixD.h"
 #include "TMath.h"
 
@@ -240,12 +241,12 @@ double TFParams::fitpj(double **adcval , double *parout , double **db_i, double 
 
         // start with degree 3 polynomial .... 
 	//fit3 =polfit(ns ,imax[nk] ,par3degre ,errpj ,amplu ) ;
-	//	std::cout << "Poly Fit Param  :"<< par3degre[0] <<" "<< par3degre[1]<< std::endl; 
+	//	cout << "Poly Fit Param  :"<< par3degre[0] <<" "<< par3degre[1]<< endl; 
         
 	// start with parabol
 	//fit3 = parab(amplu,4,12,par3degre) ;
 	fit3 = parab(amplu,2,9,par3degre) ;
-	//std::cout << "Parab Fit Param :"<< par3degre[0] <<" "<< par3degre[1]<< std::endl; 
+	//cout << "Parab Fit Param :"<< par3degre[0] <<" "<< par3degre[1]<< endl; 
 
 
 	// start with basic initial values
@@ -442,9 +443,9 @@ double TFParams::fitpj(double **adcval , double *parout , double **db_i, double 
 
       if (debug==1){
 	if (nevt==198 || nevt==199){
-	  std::cout << "adc123 pour l'evt " << nevt <<" = "<<adcval[nevt][nborn_min]<<" = "<<adcval[nevt][imax[nevt]]<<" = "<<adcval[nevt][nborn_max]<<std::endl;
-	  std::cout << "chi2s  pour l'evt " << nevt <<" = "<< chi2s<<" "<< chi2<<" "<< ns<<"  "<<iter<<std::endl;
-	  std::cout << "chi2tot           " << nevt <<" = "<< chi2tot<<"  "<<iter<<std::endl;
+	  cout << "adc123 pour l'evt " << nevt <<" = "<<adcval[nevt][nborn_min]<<" = "<<adcval[nevt][imax[nevt]]<<" = "<<adcval[nevt][nborn_max]<<endl;
+	  cout << "chi2s  pour l'evt " << nevt <<" = "<< chi2s<<" "<< chi2<<" "<< ns<<"  "<<iter<<endl;
+	  cout << "chi2tot           " << nevt <<" = "<< chi2tot<<"  "<<iter<<endl;
 	}
       }
       
@@ -568,8 +569,8 @@ double TFParams::fitpj(double **adcval , double *parout , double **db_i, double 
   }
 
   if (debug==1){
-    std::cout << " Final chi2 / NDOF  :  "<< chi2tot/nevtmax << std::endl;
-    std::cout << " Final (alpha,beta) : ("<< a1<<","<<a2<<")"<< std::endl;
+    cout << " Final chi2 / NDOF  :  "<< chi2tot/nevtmax << endl;
+    cout << " Final (alpha,beta) : ("<< a1<<","<<a2<<")"<< endl;
   }
   
   // testé

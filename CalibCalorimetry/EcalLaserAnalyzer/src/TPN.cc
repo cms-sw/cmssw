@@ -84,9 +84,9 @@ void  TPN::setPNoPN0Cut(double mean, double sig){setCut(TPN::iPNoPN0,mean,sig);}
 void  TPN::setPNoPN1Cut(double mean, double sig){setCut(TPN::iPNoPN1,mean,sig);}
 
 
-std::vector<double> TPN::get(int ivar){ 
+vector<double> TPN::get(int ivar){ 
   
-  std::vector<double> res;
+  vector<double> res;
   
   if(ivar<nOutVar){
     
@@ -102,8 +102,8 @@ std::vector<double> TPN::get(int ivar){
   
 }
 
-std::vector<double>   TPN::getPN(){vector <double> x= get(TPN::iPN); return x;}
-std::vector<double>   TPN::getPNoPN(){vector <double> x= get(TPN::iPNoPN); return x;}
-std::vector<double>   TPN::getPNoPN0(){vector <double> x= get(TPN::iPNoPN0); return x;}
-std::vector<double>   TPN::getPNoPN1(){vector <double> x= get(TPN::iPNoPN1); return x;}
+vector<double> TPN::getPN(){vector <double> x= get(TPN::iPN); return x;}
+vector<double> TPN::getPNoPN(){vector <double> x= get(TPN::iPNoPN); return x;}
+vector<double> TPN::getPNoPN0(){vector <double> x= get(TPN::iPNoPN0); return x;}
+vector<double> TPN::getPNoPN1(){vector <double> x= get(TPN::iPNoPN1); return x;}
 

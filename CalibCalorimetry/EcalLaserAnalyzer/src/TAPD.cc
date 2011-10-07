@@ -267,9 +267,9 @@ void  TAPD::set2DTimeCut(std::vector<double> lowCut,std::vector<double> highCut)
 
 
 
-std::vector<double> TAPD::get(int ivar){ 
+vector<double> TAPD::get(int ivar){ 
 
-  std::vector<double> res;
+  vector<double> res;
   
   if(ivar<nOutVar){
 
@@ -282,24 +282,24 @@ std::vector<double> TAPD::get(int ivar){
 
   }
 
-  //  std::cout << "In get: ivar="<< ivar << ", mean="<< mom[ivar]->getMean()<<" res size="<< res.size()<< std::endl;
+  //  cout << "In get: ivar="<< ivar << ", mean="<< mom[ivar]->getMean()<<" res size="<< res.size()<< endl;
 
   return res;
 
 }
 
-std::vector<double>   TAPD::getAPD(){std::vector<double> x=get(TAPD::iAPD); return x;}
-std::vector<double>   TAPD::getAPDoPN(){std::vector<double> x=get(TAPD::iAPDoPN); return x;}
-std::vector<double>   TAPD::getAPDoPN0(){std::vector<double> x=get(TAPD::iAPDoPN0); return x;}
-std::vector<double>   TAPD::getAPDoPN1(){std::vector<double> x=get(TAPD::iAPDoPN1); return x;}
-std::vector<double>   TAPD::getTime(){std::vector<double> x=get(TAPD::iTime); return x;}
-std::vector<double>   TAPD::getAPDoAPD0(){std::vector<double> x=get(TAPD::iAPDoAPD0); return x;}
-std::vector<double>   TAPD::getAPDoAPD1(){std::vector<double> x=get(TAPD::iAPDoAPD1); return x;}
-std::vector<double>   TAPD::getAPDoAPD(){std::vector<double> x=get(TAPD::iAPDoAPD); return x;}
+vector<double>   TAPD::getAPD(){vector<double> x=get(TAPD::iAPD); return x;}
+vector<double>   TAPD::getAPDoPN(){vector<double> x=get(TAPD::iAPDoPN); return x;}
+vector<double>   TAPD::getAPDoPN0(){vector<double> x=get(TAPD::iAPDoPN0); return x;}
+vector<double>   TAPD::getAPDoPN1(){vector<double> x=get(TAPD::iAPDoPN1); return x;}
+vector<double>   TAPD::getTime(){vector<double> x=get(TAPD::iTime); return x;}
+vector<double>   TAPD::getAPDoAPD0(){vector<double> x=get(TAPD::iAPDoAPD0); return x;}
+vector<double>   TAPD::getAPDoAPD1(){vector<double> x=get(TAPD::iAPDoAPD1); return x;}
+vector<double>   TAPD::getAPDoAPD(){vector<double> x=get(TAPD::iAPDoAPD); return x;}
 
-std::vector<double>   TAPD::getAPDoPNCor(){std::vector<double> x=get(TAPD::iAPDoPNCor); return x;}
-std::vector<double>   TAPD::getAPDoPN0Cor(){std::vector<double> x=get(TAPD::iAPDoPN0Cor); return x;}
-std::vector<double>   TAPD::getAPDoPN1Cor(){std::vector<double> x=get(TAPD::iAPDoPN1Cor); return x;}
+vector<double>   TAPD::getAPDoPNCor(){vector<double> x=get(TAPD::iAPDoPNCor); return x;}
+vector<double>   TAPD::getAPDoPN0Cor(){vector<double> x=get(TAPD::iAPDoPN0Cor); return x;}
+vector<double>   TAPD::getAPDoPN1Cor(){vector<double> x=get(TAPD::iAPDoPN1Cor); return x;}
 
 
 // double*  TAPD::getAPD2(){

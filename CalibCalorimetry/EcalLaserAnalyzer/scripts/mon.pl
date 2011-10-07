@@ -28,8 +28,8 @@ if( ${cfgfile} eq ""){
 $runMon  = 0;
 $runPrim = 0;
 
-$machine=`uname -n`;
-$machine=~ s/\s+//;
+$machineu=`uname -n`;
+$machineu=~ s/\s+//;
 
 do "/nfshome0/ecallaser/config/readconfig.pl";
 readconfig(${cfgfile});
@@ -38,7 +38,7 @@ readconfig(${cfgfile});
 # ===========================
 
 $firstRunDef         = "120000"; 
-$lastRunDef          = "200000";
+$lastRunDef          = "900000";
 
 if( ${MON_FIRST_RUN} eq ""){
     $firstRun=$firstRunDef;
@@ -54,6 +54,13 @@ $firstRun=~ s/\s+//;
 $lastRun=~ s/\s+//;
 $firstRun=$firstRun+0;
 $lastRun=$lastRun+0;
+
+${MON_USEALSOAB}=~ s/\s+//;
+${MON_CMSSW_CODE_DIR}=~ s/\s+//;
+$scriptdir    = "${MON_CMSSW_CODE_DIR}/scripts";
+do "${scriptdir}/monitoringFunctions.pl";
+
+$machine=VirtualMachineName($machineu);
 
 # define user from cfg:
 # =====================
@@ -99,6 +106,9 @@ $mon_host_ebeven=~ s/\s+//;
 $mon_host_ebodd=~ s/\s+//;
 $mon_host_ee=~ s/\s+//;
 $mon_host_prim=~ s/\s+//;
+
+
+
 
 $ecalPart            = "";
 
@@ -163,14 +173,14 @@ print " release dir         = ${reldir}   \n ";
 
 }
 
-if($runPrim==1){
+#if($runPrim==1){
     
-    print color("red"), "\n\n***** You are about to generate primitives with the following parameters: *****\n\n", color("reset");
+#    print color("red"), "\n\n***** You are about to generate primitives with the following parameters: *****\n\n", color("reset");
     
-    print "  machine             = ${machine} \n ";
-    print "  period           = ${linkName} \n ";
+#    print "  machine             = ${machine} \n ";
+#    print "  period              = ${linkName} \n ";
     
-}
+#}
 
  
 $proddir      = "${localdir}/${linkName}";
@@ -195,30 +205,32 @@ while( $isAnswerCorrect == 0 ){
 
     if ( $answer =~ /yes/ ){
 	
-	print "... Proceeding \n";
+	print "... Proceeding runMon=${runMon} ${ecalPart} ${firstRun} ${lastRun} ${user} ${nmaxjobs} ${cfgfile} \n";
 	
 	my $curtime=time();
 	
 	if( $runMon==1 ){
 
 	    my $log="${logdir}/analyze_${ecalPart}_${curtime}.log";
-	    my $command = "nohup ${scriptdir}/analyze.pl ${firstRun} ${lastRun} ${user} ${nmaxjobs} ${cfgfile} ${ecalPart} ${debug}  ${usealsoab} > ${log} &";
-	    system $command;
+	    my $command = "nohup ${scriptdir}/analyze.pl ${firstRun} ${lastRun} ${user} ${nmaxjobs} ${cfgfile} ${ecalPart} ${debug} ${usealsoab} >& ${log} &";
+	    print "$command \n";
 
-
-
+	    system ${command};
+     
 	    my $log2="${logdir}/check_${ecalPart}_${curtime}.log";
-	    my $command3 = "nohup ${scriptdir}/check.pl ${firstRun} ${lastRun}  ${user} ${nmaxjobs} ${cfgfile} ${ecalPart} ${debug} ${usealsoab} > ${log2} &";
-	    system $command3;
+	    my $command3 = "nohup ${scriptdir}/check.pl ${firstRun} ${lastRun}  ${user} ${nmaxjobs} ${cfgfile} ${ecalPart} ${debug} ${usealsoab} >& ${log2} &";
+	    print "$command3 \n";
+
+	    system ${command3};
 
 	}
 	
-	if( $runPrim==1 ){
-	    
-	    my $log="${logdir}/Prim_${curtime}.log";
-	    my $command = "nohup ${musecaldir}/generatePrim.pl ${cfgfile} > ${log} &";
-	    system $command;   
-	}
+#	if( $runPrim==1 ){
+#	    
+#	    my $log="${logdir}/Prim_${curtime}.log";
+#	    my $command = "nohup ${musecaldir}/generatePrim.pl ${cfgfile} > ${log} &";
+#	    system $command;   
+#	}
 	
 	$isAnswerCorrect=1;
     }elsif ( $answer =~ /no/ ){ 
@@ -227,6 +239,8 @@ while( $isAnswerCorrect == 0 ){
     }else{
 	print "... Unknown answer \n";
     }
+
+    sleep 3;
 }
 
 exit;

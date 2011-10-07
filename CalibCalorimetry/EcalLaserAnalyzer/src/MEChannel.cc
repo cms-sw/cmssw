@@ -66,7 +66,7 @@ MEChannel::id() const
 }
 
 bool
-MEChannel::getListOfChannels( std::vector< MEChannel* >& vec )
+MEChannel::getListOfChannels( vector< MEChannel* >& vec )
 {
   if( n()==0 ) 
     {
@@ -82,7 +82,7 @@ MEChannel::getListOfChannels( std::vector< MEChannel* >& vec )
 }
 
 bool
-MEChannel::getListOfAncestors( std::vector< MEChannel* >& vec )
+MEChannel::getListOfAncestors( vector< MEChannel* >& vec )
 {
   MEChannel* mother = this->m();
   if( mother!=0 )
@@ -109,7 +109,7 @@ MEChannel::getAncestor( int g )
 }
 
 bool
-MEChannel::getListOfDescendants( std::vector< MEChannel* >& vec )
+MEChannel::getListOfDescendants( vector< MEChannel* >& vec )
 {
   for( unsigned ii=0; ii<n(); ii++ )
     {
@@ -120,21 +120,25 @@ MEChannel::getListOfDescendants( std::vector< MEChannel* >& vec )
 }
 
 bool
-MEChannel::getListOfDescendants( int ig, std::vector< MEChannel* >& vec )
+MEChannel::getListOfDescendants( int ig, vector< MEChannel* >& vec )
 {
+
+ 
   for( unsigned ii=0; ii<n(); ii++ )
     {
+           
       MEChannel* curLeaf = _d[ii];
       if( curLeaf->_ig==ig ) vec.push_back(curLeaf);
       curLeaf->getListOfDescendants( ig, vec ); 
     }
+  
   return true;
 }
 
 MEChannel*
 MEChannel::getDescendant( int ig, int id_ )
 {
-  std::vector< MEChannel* > vec;
+  vector< MEChannel* > vec;
   bool OK = getListOfDescendants( ig, vec );
   if( !OK ) return 0;
   MEChannel* leaf(0);
@@ -149,7 +153,7 @@ MEChannel::getDescendant( int ig, int id_ )
 MEChannel*
 MEChannel::getFirstDescendant( int ig )
 {
-  std::vector< MEChannel* > vec;
+  vector< MEChannel* > vec;
   bool OK = getListOfDescendants( ig, vec );
   if( !OK ) return 0;
   return vec[0];
@@ -205,7 +209,7 @@ MEChannel::print( ostream& o, bool recursif ) const
     {
       o << "ix=" << _ix << " iy=" << _iy << " " ;
     }
-  o << std::endl;
+  o << endl;
   if( recursif )
     {
       for( unsigned jj=0; jj<n(); jj++ )
@@ -228,7 +232,7 @@ MEChannel::oneLine( int ig )
       return out;
     }
   int lmr_ = _id[ME::iLMRegion];
-  std::pair<int,int> p_ = ME::dccAndSide( lmr_ );
+  pair<int,int> p_ = ME::dccAndSide( lmr_ );
   out+= ME::granularity[ME::iLMRegion]; 
   out+="=";out += lmr_;
   int dcc_=p_.first; 
@@ -278,7 +282,7 @@ MEChannel::oneLine( int ig )
     }
   if( ig<ME::iCrystal )
     {
-      std::vector< MEChannel* > _channels;
+      vector< MEChannel* > _channels;
       getListOfChannels( _channels );
       int nchan = _channels.size();
       if( nchan>1 )

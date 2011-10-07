@@ -6,6 +6,7 @@
 #define PulseFitWithShape_H
 #include<vector>
 #include "CalibCalorimetry/EcalLaserAnalyzer/interface/PulseFits.h"
+using namespace std;
 
 class PulseFitWithShape: public PulseFits
 {
@@ -17,7 +18,7 @@ class PulseFitWithShape: public PulseFits
   virtual ~PulseFitWithShape() ;
 
   // Initialize 
-  virtual void init(int,int,int,int,int,int,std::vector <double>,double) ;
+  virtual void init(int,int,int,int,int,int,vector <double>,double) ;
 
   // Compute amplitude of a channel
 
@@ -40,8 +41,8 @@ class PulseFitWithShape: public PulseFits
   bool fFitPed;
   bool debug;
 
-  std::vector < double > pshape;  
-  std::vector < double > dshape; 
+  vector < double > pshape;  
+  vector < double > dshape; 
 
   int     fNb_iter ; // maximum number of iterations
   int     fNum_samp_bef_max  ; // number of samples before maximum sample

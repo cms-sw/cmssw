@@ -11,10 +11,18 @@
 #define NTAUS       2 
 #define NGAIN       2 
 #define NMEMEE      4
+#define NETAEB    170
+#define NPHIEB    360
+#define NETAEE    100
+#define NPHIEE    100
+
+
 using namespace std;
 
 class TFile;
+class TCanvas;
 class TH2D;
+class TH2F;
 class TTree;
 class TBranch;
 class TCalibData
@@ -28,6 +36,7 @@ class TCalibData
   string _sprPNfile;
   string _ABfile;
   string _linPNfile;
+  string _channelFlagFile;
   string _EENumfile;
   bool   _newLinType;
 
@@ -36,6 +45,7 @@ class TCalibData
   bool _linPNRead;
   map < int, bool> _ABRead;
   bool _ABFileSet;
+  bool _channelFlagFileSet;
   bool _matacqRead;
   bool _isBarrel;
 
@@ -47,6 +57,10 @@ class TCalibData
  
   double _qmaxPNEB[NPN];
   double _qmaxPNEE[NPN][NMEMEE];
+
+  TCanvas *readCan;
+  TFile  * channelFlagFile;
+  TH2F   * channelFlagHist;
 
 
 
@@ -85,8 +99,10 @@ class TCalibData
   // bool readMat();
 
   bool setABFile(string alphafile);
+  bool setChannelFlagFile(string channelfile);
   vector<double> linPN( int, int ); 
-  vector<double> linPN( int, int, int ); 
+  vector<double> linPN( int, int, int );
+  
 
   pair<double,double> tauAPD( int );
   pair<double,double> tauAPD( int, int );
@@ -102,6 +118,10 @@ class TCalibData
 
   int PNOffset( int );
   int EEchannel(int , int );
+  
+  int channelFlag( int ieta, int iphi);
+  bool channelStatus(int ieta, int iphi);
+
 
 
   //  ClassDef(TCalibData,1)

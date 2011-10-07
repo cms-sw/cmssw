@@ -158,6 +158,7 @@ public:
   METimeInterval* pnIntervals( std::vector<int>& iapdopn , MEChannel* leaf);
   MEIntervals* mtqIntervals( bool createcor , MEChannel* leaf);
   MEIntervals* tpIntervals( MEChannel* leaf );
+  std::vector < std::pair<ME::Time, ME::Time> > tpFlagIntervals( MEChannel *leaf, int pnNum, double cutStep, double cutSlope );
   MEIntervals* intervals( MEChannel* leaf );
 
   MEVarVector* chooseNormalization( MEChannel* leaf_ );

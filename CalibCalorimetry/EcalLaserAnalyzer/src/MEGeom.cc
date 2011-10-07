@@ -39,7 +39,7 @@ MEGeom::getHist( int ilmr, int unit )
   int side;
   ME::regionAndSector( ilmr, ireg, ism, idcc, side );
 
-  std::cout << "LM region=" << ilmr << " reg/sm/dcc/side " << ireg << "/" << ism << "/" << idcc << "/" << side << std::endl;
+  cout << "LM region=" << ilmr << " reg/sm/dcc/side " << ireg << "/" << ism << "/" << idcc << "/" << side << endl;
 
   TString hname = "LMR="; hname += ilmr; hname += " ";
   if( ireg==ME::iEEM || ireg==ME::iEEP )
@@ -267,24 +267,24 @@ MEGeom::drawGlobalBoundaries( int lineColor )
       TGraph* grm = (TGraph*) gr->Clone();
       TGraph* grp = (TGraph*) gr->Clone();
       int n = gr->GetN();
-      //      std::cout << std::endl;
+      //      cout << endl;
       for( int ii=0; ii<n; ii++ )
 	{
 	  double x_, y_;
 	  gr->GetPoint( ii, x_, y_ );
-	  //	  std::cout << isec << " " << ii << " x=" << x_ << " y=" << y_ << std::endl;
+	  //	  cout << isec << " " << ii << " x=" << x_ << " y=" << y_ << endl;
 
 	  double xx_, yy_;
 
 	  xx_ = -85-x_;
 	  yy_ = 231-y_;
-	  //	  std::cout << isec << " " << 0 << " x=" << xx_ << " y=" << yy_ << std::endl;
+	  //	  cout << isec << " " << 0 << " x=" << xx_ << " y=" << yy_ << endl;
 
 	  grm->SetPoint( ii, xx_, yy_ );
 
 	  xx_ =  85+x_;
 	  yy_ =  231-y_;
-	  //	  std::cout << isec << " " << 1 << " x=" << xx_ << " y=" << yy_ << std::endl;
+	  //	  cout << isec << " " << 1 << " x=" << xx_ << " y=" << yy_ << endl;
 	  grp->SetPoint( ii, xx_, yy_ );
 	}
       grm->SetLineColor( lineColor );

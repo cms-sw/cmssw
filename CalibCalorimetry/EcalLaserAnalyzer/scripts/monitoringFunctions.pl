@@ -18,6 +18,33 @@ $lastecal     = 654;
 
 $debugMF=0;
 
+sub RealMachineName{
+
+    my $virtual    = shift;
+    my $realName="";
+    my $realNameBase="srv-C2F38-";
+    if( $virtual=~ /srv-ecal-laser-(\d*)/ ){
+	my $end=$1;
+	$realName=$realNameBase.$end;
+	
+    }else{
+	print "Unknown name : $virtual \n";
+    }
+    return $realName;
+    
+}
+sub VirtualMachineName{
+
+    my $real    = shift;
+    my $virtual="";
+    my $virtualBase="srv-ecal-laser-";
+    if( $real=~ /srv-C2F38-(\d*)/ ){
+	my $end=$1;
+	$virtual=$virtualBase.$end;
+    }
+    return $virtual;
+}
+
 sub getSMname
 {
 
@@ -561,6 +588,23 @@ sub rootNLSFileName
     
     my $smname=getSMname($fed);
     my $filename="${path}/${smname}/LMF_${smname}_${side}_NLS_BlueLaser_Run${run}_LB${lb}_TS${ts}.root";
+    return $filename;
+    
+}
+
+
+sub rootLaserPrimFileName
+{
+    
+    my $fed=$_[0];
+    my $side=$_[1];
+    my $ts=$_[2];
+    my $run=$_[3];
+    my $lb=$_[4];
+    my $path=$_[5];
+    
+    my $smname=getSMname($fed);
+    my $filename="${path}/${smname}/LMF_${smname}_${side}_BlueLaser_Run${run}_LB${lb}_TS${ts}.root";
     return $filename;
     
 }

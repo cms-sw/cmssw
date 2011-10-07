@@ -1,7 +1,7 @@
 /* 
  *  \class PulseFitWithShape
  *
- *  $Date: 2010/11/10 14:23:32 $
+ *  $Date: 2010/04/12 14:17:11 $
  *  \author: Julie Malcles - CEA/Saclay
  */
 
@@ -12,7 +12,6 @@
 
 #include <iostream>
 #include "TMath.h"
-#include <cmath>
 
 //ClassImp(PulseFitWithShape)
 
@@ -37,7 +36,7 @@ PulseFitWithShape::~PulseFitWithShape()
 
 // Initialisation
 
-void PulseFitWithShape::init(int n_samples,int samplb,int sampla,int niter,int n_samplesShape,int n_presample, std::vector<double> shape, double nois)
+void PulseFitWithShape::init(int n_samples,int samplb,int sampla,int niter,int n_samplesShape,int n_presample, vector<double> shape, double nois)
 {
  
   fNsamples   = n_samples ;
@@ -48,7 +47,7 @@ void PulseFitWithShape::init(int n_samples,int samplb,int sampla,int niter,int n
   fNum_presample = n_presample;
 
   if( fNsamplesShape < fNum_samp_bef_max+fNum_samp_after_max+1){
-    std::cout<<"PulseFitWithShape::init: Error! Configuration samples in fit greater than total number of samples!" << std::endl;
+    cout<<"PulseFitWithShape::init: Error! Configuration samples in fit greater than total number of samples!" << endl;
   }
 
   for(int i=0;i<fNsamplesShape;i++){
@@ -163,7 +162,7 @@ double PulseFitWithShape::doFit(double *adc, double *cova)
   
   for(int is=0; is<nsamplef; is++){
 
-    if(std::fabs(adc[is+nsampleo]) > std::fabs(qm) ){
+    if(fabs(adc[is+nsampleo]) > fabs(qm) ){
       qm=adc[is+nsampleo];
       im=nsampleo+is;
     }
@@ -171,8 +170,9 @@ double PulseFitWithShape::doFit(double *adc, double *cova)
 
   if(debug) printf("opt_shape : entrance : %d %d %d\n",fNsamples,nsamplef,nsampleo);
 
+  if(fabs(qm)<5.*noise)nsampleo=5;
   double tm=0.;
-  if(qm > 5.*noise){
+  if(qm > 3.*noise){
     if(im >= nsamplef+nsampleo) im=nsampleo+nsamplef-1;
     double q1=adc[im-1];
     double q2=adc[im];
@@ -183,6 +183,13 @@ double PulseFitWithShape::doFit(double *adc, double *cova)
     tm=-y1/2./y2;
     xpar[0]=y0+y1*tm+y2*tm*tm;
     xpar[2]=(double)ims/25.-tm;
+    if(xpar[2]>2.)xpar[2]=2.;
+    if(xpar[2]<-3.)xpar[2]=-3.;
+  }
+  else
+  {
+    xpar[0]=qm;
+    xpar[2]=1.5;
   }
 
   if(debug) {
@@ -203,7 +210,7 @@ double PulseFitWithShape::doFit(double *adc, double *cova)
   resi= new double[fNsamples];  
   for (int j=0;j<fNsamples;j++) resi[j]=0;
 
-  while(std::fabs(chi2old-chi2) > 0.1 && iloop < nloop)
+  while(fabs(chi2old-chi2) > 0.1 && iloop < nloop)
     {
       iloop++;
       chi2old=chi2;
@@ -328,7 +335,7 @@ double PulseFitWithShape::doFit(double *adc, double *cova)
 	  if(qm > 5.*noise ) deltat=(y*u-v*x)/(z*v-w*y)/xpar[0];
 	  if(deltat>1.)deltat=1.;
 	  if(deltat<-1.)deltat=-1.;
-	  //if(std::fabs(xpar[2]+deltat-tdc_f)>1.5)
+	  //if(fabs(xpar[2]+deltat-tdc_f)>1.5)
 	  //{
 	  //  fittdc=0;
 	  //  xpar[2]=tdc_f;

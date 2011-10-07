@@ -25,6 +25,7 @@
 #include "CalibCalorimetry/EcalLaserAnalyzer/interface/PulseFits.h"
 #include <string>
 
+using namespace std;
 class TFParams;
 class PulseFitWithFunction: public PulseFits 
 {

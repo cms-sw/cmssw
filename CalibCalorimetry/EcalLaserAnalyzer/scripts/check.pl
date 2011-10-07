@@ -91,12 +91,6 @@ sub doCheck
 	my $shortjobdir="${ecalmod}/Runs/${dirname}";
 	my $procfile="${proddir}/${ecalmod}/Runs/${dirname}/nproc";
 	
-	my $nproc=0;
-	if( -e $procfile) {
-	    $nproc=`tail -1 $procfile`;
-	    $nproc=$nproc+0;
-	}
-	my $failed=0;
 	
 	next unless( $ecalmod =~ /EE(\d*)/ || $ecalmod =~ /EB(\d*)/ );
 	next unless( $dirname =~ /Run(\d*)_LB(\d*)/ );
@@ -104,12 +98,12 @@ sub doCheck
 	my $run    = $1;
 	my $lb     = $2;
 	
+	next unless ( $run >= $firstRun && $run <= $lastRun ) ;
+
 	my $fed=getFedNumber($ecalmod);
  
 	next unless( doProcessFed($fed, $ecalPart) == 1 );
 
-
-	next unless ( $run >= $firstRun && $run <= $lastRun ) ;
 	
 	if( $debug == 1 ) {
 	    print "$ecalmod $fed $dirname $run $lb \n";
@@ -131,45 +125,53 @@ sub doCheck
     
 	my $mydate = `date +%s`;
 
-	print " Run ${run} and LB ${lb} found for fed ${fed} (${ecalmod}) at: ${mydate} ${shortjobdir}\n";
-
 	
         # skip if already analyzed
 	
 	next if(-e "${analyzeddir}/${dirname}");
+	next if(-e "${faileddir}/${dirname}"); # dont reprocess failed jobs for now
 	next unless(-e "${jobdir}");
 
-	# proceed differently if already processed and failed
+	print " Run ${run} and LB ${lb} found for fed ${fed} (${ecalmod}) at: ${mydate} ${shortjobdir}\n";
 
-	if( -e "${faileddir}/${dirname}" ){
-	    
-	    my $lastfailedline = `grep  '${shortjobdir}' ${globalstatusfile} | tail -1`;
-	    next unless ( $lastfailedline=~ /NPROC=(\d{1})/ );
-	    my $nprocfromstat=$1;
-	    	    
+	my $nproc=0;
+	if( -e $procfile) {
+	    $nproc=`tail -1 $procfile`;
 	    $nproc=$nproc+0;
-	    $nprocfromstat=$nprocfromstat+0;
+	}
+	my $failed=0;
+
+	# proceed differently if already processed and failed # dont reprocess failed jobs for now
+
+	#if( -e "${faileddir}/${dirname}" ){
+	    
+	#    my $lastfailedline = `grep  '${shortjobdir}' ${globalstatusfile} | tail -1`;
+	#    next unless ( $lastfailedline=~ /NPROC=(\d{1})/ );
+	#    my $nprocfromstat=$1;
+	    	    
+	#    $nproc=$nproc+0;
+	#    $nprocfromstat=$nprocfromstat+0;
 	    
 	    # skip if already checked
 
-	    next if( ${nprocfromstat} == ${nproc} );
-	    next if( ${nprocdone} == ${nprocfromstat} );
-	    next unless (${nprocdone} == ${nproc} );
+	#    next if( ${nprocfromstat} == ${nproc} );
+	#    next if( ${nprocdone} == ${nprocfromstat} );
+	#    next unless (${nprocdone} == ${nproc} );
 
 	    # otherwise, remove failed link
 	    
-	    system "rm -f ${faileddir}/${dirname}";   
+	#    system "rm -f ${faileddir}/${dirname}";   
 
-	    if( -e "${laserdir}/Analyzed/Failed/${dirname}" ){
-		system "rm -f ${laserdir}/Analyzed/Failed/${dirname}";   
-	    }
-	    if( -e "${testpulsedir}/Analyzed/Failed/${dirname}" ){
-		system "rm -f ${testpulsedir}/Analyzed/Failed/${dirname}";   
-	    }
-	    if( -e "${leddir}/Analyzed/Failed/${dirname}" ){
-		system "rm -f ${leddir}/Analyzed/Failed/${dirname}";   
-	    }	    
-	}
+	#    if( -e "${laserdir}/Analyzed/Failed/${dirname}" ){
+	#	system "rm -f ${laserdir}/Analyzed/Failed/${dirname}";   
+	#    }
+	#    if( -e "${testpulsedir}/Analyzed/Failed/${dirname}" ){
+	#	system "rm -f ${testpulsedir}/Analyzed/Failed/${dirname}";   
+	#    }
+	#    if( -e "${leddir}/Analyzed/Failed/${dirname}" ){
+	#	system "rm -f ${leddir}/Analyzed/Failed/${dirname}";   
+	#    }	    
+	#}
 	
 	
 	my @reshead=readHeader(${jobdir},${fed});

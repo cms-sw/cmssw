@@ -584,7 +584,7 @@ MusEcal::setLMRegion( int lmr )
   // Update TCalibData
   //===================
   
-  //if(_calibData !=0 ) delete _calibData;
+  if(_calibData !=0 ) delete _calibData;
   
   string calibpath(getenv("MECALIB"));
   string alphapath(getenv("MEAB"));
@@ -810,7 +810,7 @@ MusEcal::setChannel( int ig, int ix, int iy, bool useGlobal )
 	}
 
       // FIXME: ONLY BARREL FOR THE MOMENT
-      assert( ix!=0 && std::abs(ix)<=85 );
+      assert( ix!=0 && abs(ix)<=85 );
       assert( iy>=1 && iy<=360 );
       if( ix<0 ) reg_ = ME::iEBM;
       if( ix>0 ) reg_ = ME::iEBP;
@@ -2267,6 +2267,73 @@ MusEcal::tpIntervals( MEChannel *leaf )
   return _intervals[_color][_type][leaf];
 }
 
+std::vector< std::pair<ME::Time, ME::Time> >
+MusEcal::tpFlagIntervals( MEChannel *leaf, int pnNum, double cutStep, double cutSlope )
+{
+  
+  std::vector< std::pair<ME::Time, ME::Time> > myBadTPIntervals;
+  
+  if(_debug) cout<< "Entering tpFlagIntervals"<< endl;
+
+  if( leaf->ig()<ME::iLMModule )
+    {
+      cout << "Leaf must be at least with module granularity" << endl;
+      assert( leaf->ig()==ME::iLMModule );
+    } 
+  
+  if(  _type != ME::iTestPulse  )
+    {
+      cout << "TP Validity Intervals have not been set for LASER data" << endl;
+      assert( _type == ME::iTestPulse  );
+    }
+  
+  MEVarVector* pnaVector = curMgr()->pnVector(leaf, pnNum);
+
+  vector< bool  > flagPN; 
+  vector< float > valPN;
+
+  vector< ME::Time > time; 
+  pnaVector->getTime( time );
+  pnaVector->getValAndFlag( ME::iTPPN_MEAN, time, valPN, flagPN );
+
+  int n=8;
+
+  ME::Time time0=time[0];
+
+
+  for (unsigned int i=0;i<valPN.size()-n;i++){
+
+    std::pair<ME::Time, ME::Time> badInt;
+    vector<float> delta8;
+    vector<ME::Time> time8;
+    double slopes=0;
+    bool fourneg=true;
+
+    for (int j=0;j<n;j++){
+      int k=i+j;
+      delta8.push_back( 2.0*(valPN[k+1]-valPN[k])/ (valPN[k+1]+valPN[k]) );
+      time8.push_back(time[k]);
+      if(j>0){
+	slopes+=0.5*(valPN[k+1]-valPN[k])/(valPN[k+1]+valPN[k]);
+	if(valPN[k+1]-valPN[k]>0) fourneg=false;
+      }
+    } 
+
+
+    if( delta8[0] > cutStep && TMath::Abs(slopes)>cutSlope ){
+      
+      badInt.first=time[i];
+      if(i+n<valPN.size()) badInt.second=time[i+n];
+      else badInt.second=time[time.size()-1];      
+      myBadTPIntervals.push_back(badInt);
+      cout<< "First: "<<ME::timeDiff( badInt.first,time0 )<< "   Last: "<<ME::timeDiff( badInt.second,time0 )<< endl;
+      i+=n-1;      
+    }
+    
+  }  
+  return myBadTPIntervals;
+}
+
 // void 
 // MusEcal::setTPIntervals( MEChannel *leaf, MEIntervals* intervals ){
   
@@ -2448,7 +2515,7 @@ MusEcal::buildPNIntervals( std::vector<int>& iapdopn , MEChannel *leaf )
   pnaVector_->getValAndFlag( ME::iPN_RMS, time, rmsPNA, flagPNA );
   pnbVector_->getValAndFlag( ME::iPN_RMS, time, rmsPNB, flagPNB );
   pnaVector_->getValAndFlag( ME::iPN_MEAN, time, valPNA, flagPNA );
-  pnbVector_->getValAndFlag( ME::iPN_MEAN, time, valPNB, flagPNB );
+   pnbVector_->getValAndFlag( ME::iPN_MEAN, time, valPNB, flagPNB );
   pnaVector_->getValAndFlag( ME::iPNA_OVER_PNB_MEAN, time, valPNoPN, flagPNoPN );
 
   assert(rmsPNA.size()==rmsPNB.size());
@@ -2537,7 +2604,7 @@ void
 MusEcal::buildTPIntervals(MEChannel *leaf)
 {
   if(_debug) cout<< "Entering buildTPIntervals"<< endl;
-
+ 
   MEVarVector* tpVector_ = curMgr()->apdVector(leaf); 
   
   ME::Time firstKey = curMgr()->firstKey();
@@ -4378,7 +4445,7 @@ MusEcal::getEBExtraHistogram(int ivar)
 	  run_= mgr_->curRun();
 	  if( run_==0 ) continue;
 
-	  cout <<"here ok ism " <<ism<<" side "<<side<<endl;
+	  //cout <<"here ok ism " <<ism<<" side "<<side<<endl;
 	  vec.clear();
 	  mgr_->tree()->getListOfChannels( vec );
 	  ME::Time curtime= run_->time();

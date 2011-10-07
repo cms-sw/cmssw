@@ -69,6 +69,152 @@ MEVarVector::getTime( vector< ME::Time >& time,
 }
 
 void
+MEVarVector::getClosestValid( ME::Time timeref, int ii,  vector< ME::Time >& time, float &val, bool &flag )
+{
+  time.clear();
+  val=0.;
+  flag=false;
+
+  // cout<<" === > Inside getClosestValid "<< endl;
+  ME::Time previousValidKey, nextValidKey;
+  float minPrev=99999999.;
+  float minNext=99999999.;
+  bool prevFound=false;
+  bool nextFound=false;
+  float prevVal=0;float nextVal=0;
+  float prevDiff=0;float nextDiff=0;
+
+  for( MusEcal::VarVecTimeMap::iterator it=_map.begin(); 
+       it!=_map.end(); it++ )
+    {
+      ME::Time t_ = it->first;
+      float v; bool f;
+
+      getValByTime( t_, ii, v, f );
+      float diff=ME::timeDiff( t_, timeref, ME::iMinute );
+
+      //  cout<<" === > diff: "<<diff<< " "<< minPrev<<" "<<minNext<<" "<<prevDiff<<" "<<nextDiff<<endl;
+      if(f && diff<0. && TMath::Abs(diff)<minPrev){
+	prevVal=v;
+	minPrev=diff;
+	previousValidKey=t_;
+	prevFound=true;
+	prevDiff=TMath::Abs(diff);
+      }
+      if(f && diff>=0. && TMath::Abs(diff)<minNext){
+	nextVal=v;
+	minNext=diff;
+	nextValidKey=t_;
+	nextFound=true;
+	nextDiff=TMath::Abs(diff);
+      }
+    }
+
+  if( prevFound && nextFound ){
+    flag=true;
+    val=prevVal+((nextVal-prevVal)/(prevDiff+nextDiff))*prevDiff;
+    time.push_back(previousValidKey);
+    time.push_back(nextValidKey);
+  }else if( prevFound && prevDiff<400.){
+    flag=true;
+    val=prevVal;  
+    time.push_back(previousValidKey);
+    time.push_back(previousValidKey);
+  }else if( nextFound && nextDiff<400.){
+    flag=true;
+    val=nextVal;  
+    time.push_back(nextValidKey);
+    time.push_back(nextValidKey);
+  }else{
+    flag=false;
+    val=0.;
+    time.push_back(timeref);
+    time.push_back(timeref);
+  }
+  
+  // cout<<" === > ... done "<< val<<" "<< flag<<" "<< time[0]<<" "<< time[1]<<endl;
+}
+
+void
+MEVarVector::getClosestValidInFuture( ME::Time timeref, int ii,   ME::Time& time, float &val, bool &flag )
+{
+  val=0.;
+  flag=false;
+  time=0.;
+  
+  ME::Time nextValidKey;
+  float minNext=99999999.;
+  bool  nextFound=false;
+  float nextDiff=0;
+  float nextVal=0;
+
+  for( MusEcal::VarVecTimeMap::iterator it=_map.begin(); 
+       it!=_map.end(); it++ )
+    {
+      ME::Time t_ = it->first;
+      float v; bool f;
+
+      getValByTime( t_, ii, v, f );
+      float diff=ME::timeDiff( t_, timeref, ME::iMinute );
+
+      if(f && diff>0 && TMath::Abs(diff)<minNext){
+	nextVal=v;
+	minNext=diff;
+	nextValidKey=t_;
+	nextFound=true;
+	nextDiff=TMath::Abs(diff);
+      }
+    }
+
+  if( nextFound ){
+    flag=true;
+    val=nextVal;
+    time=nextValidKey;
+  }
+  
+  
+}
+void
+MEVarVector::getClosestValidInPast( ME::Time timeref, int ii,   ME::Time& time, float &val, bool &flag )
+{
+  val=0.;
+  flag=false;
+  time=0.;
+  
+  ME::Time previousValidKey;
+  float minPrevious=99999999.;
+  bool  prevFound=false;
+  float prevDiff=0;
+  float prevVal=0;
+
+  for( MusEcal::VarVecTimeMap::iterator it=_map.begin(); 
+       it!=_map.end(); it++ )
+    {
+      ME::Time t_ = it->first;
+      float v; bool f;
+
+      getValByTime( t_, ii, v, f );
+      float diff=ME::timeDiff( t_, timeref, ME::iMinute );
+
+      if(f && diff<0 && TMath::Abs(diff)<minPrevious){
+	prevVal=v;
+	minPrevious=diff;
+	previousValidKey=t_;
+	prevFound=true;
+	prevDiff=TMath::Abs(diff);
+      }
+    }
+
+  if( prevFound ){
+    flag=true;
+    val=prevVal;
+    time=previousValidKey;
+  }
+  
+  
+}
+
+void
 MEVarVector::getValAndFlag( int ii, 
 			    const vector< ME::Time >& time, 
 			    vector< float >& val,

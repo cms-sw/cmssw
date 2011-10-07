@@ -6,6 +6,8 @@
 #include <vector>
 #include <map>
 
+using namespace std;
+
 #include <TROOT.h>
 #include <TChain.h>
 #include <TH2I.h>
@@ -52,7 +54,7 @@ public:
   void bookHistograms();
   void fillHistograms();
   void writeHistograms();
-  void print(std::ostream& o );
+  void print( ostream& o );
 
   // name of tables
   static TString lmfLaserName( int table, int type,  
@@ -104,7 +106,7 @@ private:
   // useful 
   int  _ecal_region;
   int  _sm;
-  //  std::map< int, std::pair<int, int> > _pn;  // association module -> pair of PN diodes
+  //  map< int, pair<int, int> > _pn;  // association module -> pair of PN diodes
 
   TString _sectorStr;
   TString _regionStr;
@@ -113,6 +115,8 @@ private:
   TString _pulseStr;
   TString _tpPrimStr;
   TString _tpPnPrimStr;
+  TString _LEDprimStr;
+  TString _LEDpnPrimStr;
 
   // root files
   TFile* apdpn_file;
@@ -149,14 +153,14 @@ private:
   int iymax;
 
   // 2D-histograms
-  std::map< TString, TH2* > i_h;    // integer quantities
-  std::map< TString, TH2* > f_h;    // floating point quantities
+  map< TString, TH2* > i_h;    // integer quantities
+  map< TString, TH2* > f_h;    // floating point quantities
 
   // trees
-  std::map< TString, TTree* >  t_t;  // map of trees
-  std::map< TString, int >     i_t;  // integer values
-  std::map< TString, float >   f_t;  // float values
-  std::map< TString, const char* > c_t;  // string values
+  map< TString, TTree* >  t_t;  // map of trees
+  map< TString, int >     i_t;  // integer values
+  map< TString, float >   f_t;  // float values
+  map< TString, const char* > c_t;  // string values
   
   // leaves for the APDPN ntuple
   Int_t           apdpn_dccID;

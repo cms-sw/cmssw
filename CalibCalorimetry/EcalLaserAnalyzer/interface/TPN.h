@@ -2,6 +2,7 @@
 #define TPN_H
 
 #include <vector>
+using namespace std;
 
 class TMom;
 
@@ -33,11 +34,11 @@ class TPN
 
   void  addEntry( double, double);
 
-  std::vector<double> get(int);
-  std::vector<double> getPN();
-  std::vector<double> getPNoPN();
-  std::vector<double> getPNoPN0();
-  std::vector<double> getPNoPN1();
+  vector<double> get(int);
+  vector<double> getPN();
+  vector<double> getPNoPN();
+  vector<double> getPNoPN0();
+  vector<double> getPNoPN1();
 
   
   

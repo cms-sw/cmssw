@@ -11,6 +11,7 @@
 #include "TVectorD.h"
 #include "TF1.h"
 #include "TH1D.h"
+#include "TVirtualFFT.h"
 
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TMarkov.h>
 
@@ -57,10 +58,19 @@ TMatacq::TMatacq(int Ntot, int Nsamp1, int Nsamp2, int cut, int Nbef, int Naft, 
   
   double max=double(NSAMP);
   double min=0.0;
+  double fmax=1000.; // freq max = 1GHz when sampling at 1ns
   flandau = new TF1("flandau","landau",min,max);
-  
+  fg1     = new TF1("fg1","[0]*exp(-(x-[1])*(x-[1])/2./[2]/[2])",0.,fmax);
+  fexp    = new TF1("fexp","expo",0.,MATACQ_LENGTH_MAX);
+  fpol1   = new TF1("fpol1","pol1",0.,fmax);
+  fpol2   = new TF1("fpol2","[0]+[1]*(x-[2])*(x-[2])",0.,MATACQ_LENGTH_MAX);
+  hdph    = new TH1D("hdph","hdph",FFT_SIZE-1,0.,fmax);
+  hmod    = new TH1D("hmod","hmod",FFT_SIZE-1,0.,fmax);
   htmp = new TH1D("htmp","htmp",NSAMP, min, max);
-
+  int size = FFT_SIZE;
+  fft_f = TVirtualFFT::FFT(1, &size, "C2CF M K");
+  fft_b = TVirtualFFT::FFT(1, &size, "C2CB M K");
+  
 }
 
 // Destructor
@@ -72,32 +82,50 @@ int TMatacq::rawPulseAnalysis(int Nsamp, double *adc)  // GHM
 {
   using namespace std;
 
-  //  std::cout << "Entering rawPulseAnalysis" << std::endl;
+  double adcprim[NSAMP];
+  //  cout << "Entering rawPulseAnalysis" << endl;
 
   int k,ithr;
   double dsum=0.,dsum2=0.;
   double dtest=0., dtest2=0.;
 
-  //  std::cout << "calling init" << std::endl;
+  //  cout << "calling init" << endl;
   init();
-  //  std::cout << ".......done" << std::endl;
+  //  cout << ".......done" << endl;
 
   if(Nsamp != fNsamples) {
       printf("found different number of samples fNsamples=%d Nsamp=%d\n",fNsamples,Nsamp);
       return 100;
   }
   ped_cyc=new double[20];
+  ped_cycprim=new double[20];
+  
+  int is=(2559-440);
+  for(int i=0; i<fNsamples; i++){
+    adcprim[is]=adc[i];
+    if(++is>=MATACQ_LENGTH_MAX)is-=MATACQ_LENGTH_MAX;  
+  }
 
   // Compute cyclic pedestals on first 200 samples :
-
-  for(int i=0; i<20; i++)ped_cyc[i]=0.;
-  for(int i=100; i<300; i++)ped_cyc[i%20]+=adc[i];
-  for(int i=0; i<20; i++)ped_cyc[i]/=10.;
-
   
-  // Remove cyclic pedestal:
+  for(int i=0; i<20; i++)ped_cycprim[i]=0.;
+  for(int i=100; i<300; i++) ped_cycprim[i%20]+=adcprim[i];
+  for(int i=0; i<20; i++)ped_cycprim[i]/=10.;
+
+  is=(2559-440);
+  for(int i=0; i<20; i++){
+    int iprim=i+is;
+    iprim=iprim%20;
+    ped_cyc[i]=ped_cycprim[iprim];
+  }  
+
+  laser_qmax=0.;
+  
+  // Remove cyclic pedestal: 
+ 
   for(int i=0; i<fNsamples; i++){ 
-    fadc[i]=adc[i]-ped_cyc[i%20];
+    fadc[i]=adc[i]-ped_cyc[i%20]; 
+    
     if(i<presample){ 
       dsum+= ped_cyc[i%20];
       dsum2+= ped_cyc[i%20]*ped_cyc[i%20];
@@ -106,10 +134,14 @@ int TMatacq::rawPulseAnalysis(int Nsamp, double *adc)  // GHM
     }
     if(fabs(fadc[i])>fabs(laser_qmax))
       {
-        laser_qmax=fadc[i];
-        laser_imax=i;
+	laser_qmax=fadc[i];
+	laser_imax=i;
       }
-    
+    if(fabs(laser_qmax)<1. || laser_imax<FFT_START)
+      {    
+	laser_qmax=1000.;
+	laser_imax=1450;
+      }     
   }
   
   //bl=dsum/((double) presample);
@@ -122,13 +154,17 @@ int TMatacq::rawPulseAnalysis(int Nsamp, double *adc)  // GHM
   sigbl=sqrt(ss);
 
   for(ithr=0,k=presample;k<endsample;k++) {
+    //cout<<" ithr="<<ithr<<" k="<< k<<" fadc[k]="<<fadc[k]<< "  "<<nsigcut*sigbl<<" "<<presample<<" "<< endsample<< endl;
+    
     if(fadc[k] > nsigcut*sigbl && ithr == 0) {
       ithr=1; firstsample=k;
     }
   }
   
-  if(ithr == 0) return 101;
-  
+  if(ithr == 0){
+    //cout<<" Bad RawPulseAnalysis 101"<< endl;
+    return 101;
+  }
   for(ithr=0,k=firstsample;k<Nsamp;k++) {
     if(fadc[k] < nsigcut*sigbl && ithr == 0) {
       ithr=1; lastsample=k;
@@ -145,9 +181,18 @@ int TMatacq::rawPulseAnalysis(int Nsamp, double *adc)  // GHM
       val_max= bong[is-firstsample]; samplemax=is;
     }
   }
-  if(samplemax == 0) return 103;
-  if(samplemax > lastsample) return 104;
-  if(samplemax < firstsample) return 105;
+  if(samplemax == 0){
+    //    cout<<" Bad RawPulseAnalysis 103"<< endl;
+    return 103;
+  }
+  if(samplemax > lastsample){
+    //    cout<<" Bad RawPulseAnalysis 104 "<<lastsample<<" " <<firstsample<< endl;
+    return 104;
+  }
+  if(samplemax < firstsample){
+    //    cout<<" Bad RawPulseAnalysis 105 "<<lastsample<<" " <<firstsample<< endl;
+    return 105;
+  }
   
   
   int endslide=samplemax -nslide;
@@ -191,6 +236,7 @@ int TMatacq::findPeak()
    pkval= 0.;
    sigpkval=0.5;
    if(nbsup == nbinf) {
+     //     cout<< " Bad Peak 301: "<<nbsup<<" "<<nbinf<< endl;
        return 301;
    } else {
        if(nbinf > 4) nbinf-=3;
@@ -207,8 +253,11 @@ int TMatacq::findPeak()
 	    if(bong[k] > 0.) jfind++;
        }
        if(jfind == 0) {
+	 
+	 //	 cout<< " Bad Peak 302 "<<endl;
 	    return 302;
        } else if(jfind == 1) {
+	 //	 cout<< " Bad Peak 303 "<<endl;
 	    return 303;
        } else {
 
@@ -239,6 +288,8 @@ int TMatacq::findPeak()
 
 int TMatacq::doFit()
 {
+ 
+
   int testneg=0;
   ampl=0.; timeatmax=0.; 
   int heresamplemax= samplemax-firstsample;
@@ -368,40 +419,146 @@ int TMatacq::doFit()
 
 int TMatacq::doFit2()
 {
-  ampl=0.; timeatmax=0.; 
+  ampl=0.; timeatmax=0.;  
+  double rex[FFT_SIZE],imx[FFT_SIZE],rey[FFT_SIZE],imy[FFT_SIZE];
+  double mod[FFT_SIZE],phase[FFT_SIZE];
+  double pi=asin(1.)*2.;
+  float fadc2[MATACQ_LENGTH_MAX];
+  float fadcprim[MATACQ_LENGTH_MAX];
+  
+  int is=(2559-440);
+  for(int i=0; i<MATACQ_LENGTH_MAX;i++){
+    fadcprim[is]=fadc[i];
+    if(++is>=MATACQ_LENGTH_MAX)is-=MATACQ_LENGTH_MAX;
+  }
 
-  // Landau Fit
-  //=============
+  // Remove noise in the frequency domain : apply FFT, clean and reverse FFT
+  //=======================================
+
   htmp->Reset();
 
-  for(int i=0; i<fNsamples;i++) htmp->SetBinContent(i+1,fadc[i]);
+  for(int i=0; i<fNsamples;i++){
+    htmp->SetBinContent(i+1,fadcprim[i]);
+    // cout<<" Begin loop TMatacq : " << i<<"  " <<fadc[i]<< endl;
+  }
 
-  flandau->SetParameter(0,laser_qmax*5.);
-  flandau->SetParameter(1,(double)laser_imax);
-  flandau->SetParameter(2,10.);
-  laser_tmax=(double) laser_imax;
-  double fit_window=15.;
+  htmp->Fit(fexp,"NQ","W",2000.,2500.);
+ 
+
+  for(int i=0; i<FFT_SIZE; i++) 
+  {    
+    if(i+FFT_START<2300)
+      rex[i]=fadcprim[FFT_START+i];
+    else 
+      rex[i]=fexp->Eval((double)(i+FFT_START));
+    imx[i]=0.;
+    rey[i]=0.;
+    imy[i]=0.;
+  }    
+  fft_f->SetPointsComplex(rex, imx);
+  fft_f->Transform();
+  fft_f->GetPointsComplex(rey, imy);
+  for(int i=0; i<FFT_SIZE; i++) 
+  {    
+    rey[i]/=FFT_SIZE;
+    imy[i]/=FFT_SIZE;
+    mod[i]=sqrt(rey[i]*rey[i]+imy[i]*imy[i]);
+    phase[i]=atan2(imy[i],rey[i]);
+  }    
+
+// Extrapolate the frequency spectrum from a region where we have no (not yet) noise f<19 MHz)
+// The modulus seems to have a gaussian shape and the phase increase linearly.
+
+
+  hmod->Reset();
+  for(int i=1; i<=FFT_SIZE/2.; i++) hmod->SetBinContent(i-1+1,mod[i]); // In the FFT output array, the first bin has a special meaning (DC content)
+  fg1->SetParameter(0,mod[1]*2.);                                      // So, start at 1 and shift all indices accordingly
+  fg1->SetParameter(1,-10.);
+  fg1->SetParameter(2,20.);
+  hmod->Fit(fg1,"NQ","W",8.,19.);
+
+  double ph_old=phase[0];
+  hdph->Reset();
+  for(int i=1; i<=FFT_SIZE/2; i++)
+  {
+    int j=i-1;
+    double ph=phase[i];
+    double dph=ph_old-ph;
+    if(dph<0.)dph+=2*pi;
+    if(dph>2.*pi)dph-=2*pi;
+    ph_old=ph;
+    hdph->SetBinContent(j+1,dph);
+  }
+
+  hdph->Fit(fpol1,"NQ","W",5.,19.); 
   
-  // cout<<"CHECK INIT VAL: "<< laser_qmax<<" "<<laser_imax<< endl;
-  htmp->Fit(flandau,"Q0","",laser_tmax-fit_window,laser_tmax+fit_window);
-  laser_tmax=flandau->GetMaximumX();
-  laser_qmax=flandau->GetMaximum();
-  //cout<<"CHECK AFTER 1 FIT: "<< laser_qmax<<" "<<laser_tmax<< endl;
-  htmp->Fit(flandau,"Q0","",laser_tmax-fit_window,laser_tmax+fit_window);
-  laser_tmax=flandau->GetMaximumX();
-  laser_qmax=flandau->GetMaximum();
-  //cout<<"CHECK AFTER 2 FITS: "<< laser_qmax<<" "<<laser_tmax<< endl;
-  htmp->Fit(flandau,"Q0","",laser_tmax-fit_window,laser_tmax+fit_window);
-  laser_tmax=flandau->GetMaximumX();
-  laser_qmax=flandau->GetMaximum();
-  //cout<<"CHECK AFTER 3 FITS: "<< laser_qmax<<" "<<laser_tmax<< endl;
+  // printf("Fit phase step : %f rad/MHz + %f rad/MHz2\n",fpol1->GetParameter(0),fpol1->GetParameter(1));
+
+  double ph_step=fpol1->Eval(20.);
+  //printf("Average phase step : %f rad/MHz\n",ph_step);
+
+  double cor_ref=-1.;
+  for(int i=0; i<=FFT_SIZE/2; i++)
+  {
+    int j=i-1;
+    double freq=hmod->GetBinCenter(j+1);
+    
+    if(freq>=19.)
+    {
+      double cor_mod=fg1->Eval(freq);
+      //cout <<"freq="<< freq<<" cor_mod="<< cor_mod<<" cor_ref=" << cor_ref<< endl;
+      if(cor_ref<0.)cor_ref=mod[i]/cor_mod;
+      mod[i]=cor_mod*cor_ref;
+      phase[i]=phase[i-1]-ph_step;
+      if(phase[i]<-pi)phase[i]+=2*pi;
+      if(phase[i]>+pi)phase[i]-=2*pi;
+      rey[i]=mod[i]*cos(phase[i]);
+      imy[i]=mod[i]*sin(phase[i]);
+      mod[FFT_SIZE-i]=mod[i];
+      phase[FFT_SIZE-i]=-phase[i];
+      rey[FFT_SIZE-i]=rey[i];
+      imy[FFT_SIZE-i]=-imy[i];
+    }
+  }
+  fft_b->SetPointsComplex(rey, imy);
+  fft_b->Transform();
+  fft_b->GetPointsComplex(rex, imx);
+
+// Overwrite pulse with filtered one :
   
-  double landau_tmax=laser_tmax;
-  double landau_qmax=laser_qmax;
-  
+  for(int i=0; i<MATACQ_LENGTH_MAX;i++)fadc2[i]=fadcprim[i];
+  for(int i=0; i<FFT_SIZE && i<MATACQ_LENGTH_MAX; i++) fadc2[FFT_START+i]=rex[i];
+  for(int i=0; i<FFT_SIZE && i<MATACQ_LENGTH_MAX; i++) htmp->SetBinContent(FFT_START+i+1,rex[i]);
+
+//Recompute maximum and max position :
+  laser_qmax=0.;
+  for(int i=0; i<MATACQ_LENGTH_MAX; i++)
+  {
+    if(fabs(fadc2[i])>fabs(laser_qmax))
+    {
+      laser_qmax=fadc2[i];
+      laser_imax=i;
+    }
+  }
+  if(fabs(laser_qmax)<1. || laser_imax<FFT_START)
+  {
+    laser_qmax=1000.;
+    laser_imax=1450;
+  }
+
+// Try a pol2 fit on max +-5 samples :
+  laser_tmax=laser_imax;
+  double fit_window=5.;
+  fpol2->SetParameter(0,(double)laser_qmax);
+  fpol2->SetParameter(1,0.);
+  fpol2->SetParameter(2,(double)laser_tmax);
+  htmp->Fit(fpol2,"Q","",laser_tmax-fit_window,laser_tmax+fit_window+1.); 
+  laser_tmax=fpol2->GetParameter(2);
+  laser_qmax=fpol2->GetParameter(0);
+
   // Compute w80, w20 and w50 :
   //=========================
-  
+ 
   int nbin=fNsamples;
   int imin50=0;
   int imin80=0;
@@ -412,35 +569,39 @@ int TMatacq::doFit2()
 
   for(int i=0;i<nbin;i++)
     {
-      if(fabs(fadc[i])>fabs(landau_qmax)*0.50 && imin50==0) imin50=i;
-      if(fabs(fadc[i])>fabs(landau_qmax)*level3 && imin80==0) imin80=i;
-      if(fabs(fadc[i])>fabs(landau_qmax)*level2 && imin20==0) imin20=i;
-      if(fabs(fadc[i])<fabs(landau_qmax)*0.50 && imin50!=0 && imax50==0) imax50=i;
-      if(fabs(fadc[i])<fabs(landau_qmax)*level3 && imin80!=0 && imax80==0) imax80=i;
-      if(fabs(fadc[i])<fabs(landau_qmax)*level2 && imin20!=0 && imax20==0) imax20=i;
+      if(fabs(fadc2[i])>fabs(laser_qmax)*0.50 && imin50==0) imin50=i;
+      if(fabs(fadc2[i])>fabs(laser_qmax)*level3 && imin80==0) imin80=i;
+      if(fabs(fadc2[i])>fabs(laser_qmax)*level2 && imin20==0) imin20=i;
+      if(fabs(fadc2[i])<fabs(laser_qmax)*0.50 && imin50!=0 && imax50==0) imax50=i;
+      if(fabs(fadc2[i])<fabs(laser_qmax)*level3 && imin80!=0 && imax80==0) imax80=i;
+      if(fabs(fadc2[i])<fabs(laser_qmax)*level2 && imin20!=0 && imax20==0) imax20=i;
     }
   
   double f20=0., f80=0., f50=0.;
-  if(imin20>0)f20=(double)imin20-(fadc[imin20]-level2*landau_qmax)/
-		(fadc[imin20]-fadc[imin20-1]);
-  if(imin80>0)f80=(double)imin80-(fadc[imin80]-level3*landau_qmax)/
-		(fadc[imin80]-fadc[imin80-1]);
-  if(imin50>0)f50=(double)imin50-(fadc[imin50]-0.50*landau_qmax)/
-		(fadc[imin50]-fadc[imin50-1]);
+  if(imin20>0)f20=(double)imin20-(fadc2[imin20]-level2*laser_qmax)/
+		(fadc2[imin20]-fadc2[imin20-1]);
+  if(imin80>0)f80=(double)imin80-(fadc2[imin80]-level3*laser_qmax)/
+		(fadc2[imin80]-fadc2[imin80-1]);
+  if(imin50>0)f50=(double)imin50-(fadc2[imin50]-0.50*laser_qmax)/
+		(fadc2[imin50]-fadc2[imin50-1]);
   
   double g20=(double)nbin, g80=(double)nbin, g50=(double)nbin;
-  if(imax20<nbin)g20=(double)imax20-(fadc[imax20]-level2*landau_qmax)/
-		   (fadc[imax20]-fadc[imax20-1]);
-  if(imax80<nbin)g80=(double)imax80-(fadc[imax80]-level3*landau_qmax)/
-		   (fadc[imax80]-fadc[imax80-1]);
-  if(imax50<nbin)g50=(double)imax50-(fadc[imax50]-0.50*landau_qmax)/
-		   (fadc[imax50]-fadc[imax50-1]);
+  if(imax20<nbin)g20=(double)imax20-(fadc2[imax20]-level2*laser_qmax)/
+		   (fadc2[imax20]-fadc2[imax20-1]);
+  if(imax80<nbin)g80=(double)imax80-(fadc2[imax80]-level3*laser_qmax)/
+		   (fadc2[imax80]-fadc2[imax80-1]);
+  if(imax50<nbin)g50=(double)imax50-(fadc2[imax50]-0.50*laser_qmax)/
+		   (fadc2[imax50]-fadc2[imax50-1]);
 
+  is=(2559-440);
+  ampl=laser_qmax;
+  timeatmax=laser_tmax-double(is);
 
-
-  ampl=landau_qmax;
-  timeatmax=landau_tmax;
-  if(fabs(ampl)<50.)
+  // FIXME: check this...
+  if(timeatmax<0) timeatmax+=double(MATACQ_LENGTH_MAX);
+  if(timeatmax>=MATACQ_LENGTH_MAX) timeatmax-=double(MATACQ_LENGTH_MAX);
+  
+  if(fabs(ampl)<10.)
     {
       //printf("Laser amplitude too low, skip event\n");
       return(-1);

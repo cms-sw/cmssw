@@ -13,11 +13,14 @@
 #include "../../interface/ME.h"
 #include "../../interface/MEEBGeom.h"
 #include "../../interface/MEEEGeom.h"
+//#include "../../interface/MENLS.h"
 
 class MERun 
 {
   // only a run manager can create one of those
   friend class MERunManager;
+  friend class MECLSManager;
+  friend class MENLS;
 
   MERun( ME::Header header, ME::Settings settings, TString fname );
 

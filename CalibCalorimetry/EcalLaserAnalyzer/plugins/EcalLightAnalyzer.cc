@@ -1,7 +1,7 @@
 /* 
  *  \class EcalLightAnalyzer
  *
- *  $Date: 2010/04/09 13:48:04 $
+ *  $Date: 2010/04/12 14:30:53 $
  *  primary author: Julie Malcles - CEA/Saclay
  *  author: Gautier Hamel De Monchenault - CEA/Saclay
  */
@@ -181,7 +181,6 @@ nGainAPD(                                                                     NG
 
   for(int icc=0;icc<nColor;icc++){
     for(int iss=0;iss<NSIDES;iss++){      
-      gotLasShapeForPN[icc][iss]=false;
       for(unsigned int j=0;j<NPN;j++){
 	_corrPNEB[j][icc][iss]=-1.;
 	for(unsigned int i=0;i<NMEM;i++){
@@ -305,9 +304,11 @@ void EcalLightAnalyzer::beginJob() {
     ADCTrees[i]->SetBranchAddress( "pnGain",      &pnGain      );    
  
   } 
- 
-  if ( _debug == 1 ) cout << "-- debug EcalLightAnalyzer --  beginJob - _type = "<<_type<<" _typefit = "<<_typefit<< endl;
+
   
+  if ( _debug != 0 ) cout << "-- debug EcalLightAnalyzer --  beginJob - _type = "<<_type<<" _typefit = "<<_typefit<<" debug="<< _debug<< endl;
+  
+
   // Get Shapes Anyway:
   //=====================
   calibData= new TCalibData( _fedid, calibpath_ );
@@ -647,10 +648,6 @@ void EcalLightAnalyzer:: analyze( const edm::Event & e, const  edm::EventSetup& 
 	}
       }
   
-      if(isFirstChanModFilled[module-1]==0) {
-	firstChanMod[module-1]=channel;
-	isFirstChanModFilled[module-1]=1;
-      } 
       if ( _debug == 2 ) cout << "-- debug EcalLightAnalyzer -- analyze: in EBDigi - towerID:"<< towerID<<
 		       " channelID:" <<channelID<<" module:"<< module<<
 		       " modules:"<<modules.size()<< endl;
@@ -787,12 +784,6 @@ void EcalLightAnalyzer:: analyze( const edm::Event & e, const  edm::EventSetup& 
 	   && apdRefMap[iref].count(module)==0){
 	  apdRefMap[iref][module]=channel;
 	}
-      }
-      
-      if(isFirstChanModFilled[module-1]==0) {
-	firstChanMod[module-1]=channel;
-	isFirstChanModFilled[module-1]=1;
-	if ( _debug == 2 ) cout << "-- debug EcalLightAnalyzer -- analyze: filling first chan mod: " << module<<"  " << channel<<"  " <<eta<<"  " << phi<< endl;
       }
       
       assert ( channel < nCrys );
@@ -1183,7 +1174,12 @@ void EcalLightAnalyzer::endJob() {
 	iMod--;
 	// FIXME test this	
       }
-
+            
+      if( isThereDataADC[iCry][iCol]==1 && isFirstChanModFilled[iMod]==0 ){ 
+	firstChanMod[iMod]=iCry;
+	isFirstChanModFilled[iMod]=1;
+	 if ( _debug == 4 ) cout <<"-- debug EcalLightAnalyzer -- endJobLight - filling firstChanMod :"<<iMod<<" "<< iCry<< endl;
+      }
 
       // Initialize Pulse Fit With Shape
       //================================
@@ -1196,7 +1192,7 @@ void EcalLightAnalyzer::endJob() {
 	
 	if( convolutionOK ){
 	  
-	  ((PulseFitWithShape*) psfit) -> init(_nsamples,_firstsample,_lastsample,_niter, _nsamplesshapes,_presample, shapesAPD[iCol][side], _noise );
+	  ((PulseFitWithShape*) psfit) -> init(_nsamples,_firstsample,_lastsample,_niter, NSAMPAPD*25,_presample, shapesAPD[iCol][side], _noise );
 	  pulseFitInit[iCol]=true;	  
 	  
 	}else{
@@ -1278,11 +1274,10 @@ void EcalLightAnalyzer::endJob() {
       // Fill PN stuff
       //===============
       
-      if( firstChanMod[iMod]==iCry && isThereDataADC[iCry][iCol]==1 ){ 
+      if( firstChanMod[iMod]==iCry && isFirstChanModFilled[iMod]==1 ){ 
 	for (unsigned int ichan=0;ichan<nPNPerMod;ichan++){
 	  PNFirstAnal[iMod][ichan][iCol]->addEntry(pn0,pn1);
-
-	  if ( _debug == 2 ) cout <<"-- debug EcalLightAnalyzer -- endJobLight - Adding to iMod:"<<iMod<<"  " <<ichan<<"  " <<iCol<< endl;
+	  if ( _debug == 2 ) cout <<"-- debug EcalLightAnalyzer -- endJobLight - Adding to iMod:"<<iMod<<"  " <<iCry<<"  " <<iCol<< endl;
 	}
       }
     
@@ -1509,11 +1504,11 @@ void EcalLightAnalyzer::endJob() {
       
       // Fill PN stuff
       //===============
-      
-      if( firstChanMod[iMod]==iCry && isThereDataADC[iCry][iCol]==1 ){ 
+    
+      if( firstChanMod[iMod]==iCry && isFirstChanModFilled[iMod]==1){ 
 	for (unsigned int ichan=0;ichan<nPNPerMod;ichan++){
 	  PNAnal[iMod][ichan][iCol]->addEntry(pn0,pn1);
-	  if ( _debug == 2 ) cout <<"-- debug EcalLightAnalyzer -- endJobLight - Adding2 to iMod:"<<iMod<<"  " <<ichan<<"  " <<iCol<<" " <<pn0<<"  " <<pn1<< endl;
+	  if ( _debug == 2 ) cout <<"-- debug EcalLightAnalyzer -- endJobLight - Adding2 to iMod:"<<iMod<<"  " <<iCry<<"  " <<iCol<<" " <<pn0<<"  " <<pn1<< endl;
 	}
       }
       
@@ -1627,12 +1622,14 @@ void EcalLightAnalyzer::endJob() {
 	  PNoPNA[i]=pnopn0vec[i];
 	  PNoPNB[i]=pnopn1vec[i];
 	}
-
+      
 	
 	if(_debug==2) cout<<" getConvolutionPN " <<mempn.second<<"  " <<mempn.first<<"  " <<iColor<<"  " <<side<< endl;
 
+
 	shapeCorPN=getConvolutionPN( mempn.second, mempn.first, iColor, side );
 	
+	if(_debug==2) cout<<" shapeCorPN:"<<shapeCorPN<< endl;
 
 	// Fill PN results trees
 	//========================
@@ -1642,7 +1639,8 @@ void EcalLightAnalyzer::endJob() {
     }
   }
  
-  
+  if(_debug==2) cout<<" Save results "<< endl;
+
   // Save results 
   //===============
 
@@ -1653,6 +1651,8 @@ void EcalLightAnalyzer::endJob() {
   
   resFile->Close(); 
    
+  if(_debug==2) cout<<" Remove Tmp Files "<< endl;
+
   // Remove temporary files
   //========================
   if(!_saveallevents){
@@ -1722,6 +1722,8 @@ bool EcalLightAnalyzer::getMatacq() {
 	  nphot+=shapeval[is];	  
 	}
 	if(nphot>0) pulseShape[icol][iside]->Scale(1.0/nphot);
+        las_imax[icol][iside]=(int)t0;
+        las_ifirst[icol][iside]=0;
       }
     }
     doesMatFileExist=1;
@@ -1739,22 +1741,38 @@ bool EcalLightAnalyzer::getMatacq() {
 	  stringstream nameshape;
 	  stringstream nameshape2;
 	  
-	  nameshape<<"LaserCol"<<colors[icol]<<"Side"<<iside;
-	  laserShape[icol][iside]= (TH1D*) matShapeFile->Get(nameshape.str().c_str());
-	  
 	  nameshape2<<"LaserMarcCol"<<colors[icol]<<"Side"<<iside;
 	  pulseShape[icol][iside]= (TH1D*) matShapeFile->Get(nameshape2.str().c_str());
+          unsigned int nBins=int(pulseShape[icol][iside]->GetNbinsX());
 	  
-	  if(laserShape[icol][iside]){
-	    
+	  if(pulseShape[icol][iside]){
 	    doesMatShapeExist=1;
+            int imax=0, ifirst=0;
+            double qmax=0.;
+	    for(unsigned int is=0; is<nBins; is++)
+            {
+              if(pulseShape[icol][iside]->GetBinContent(is+1)>qmax)
+              {
+                qmax=pulseShape[icol][iside]->GetBinContent(is+1);
+                imax=is;
+              }
+            }
+	    for(ifirst=imax; ifirst>=3 && pulseShape[icol][iside]->GetBinContent(ifirst+1)>qmax/100.;ifirst--);
+
+	    //cout<<" LASER ifirst:"<< ifirst<< " imax:"<<imax<<endl;
+            las_imax[icol][iside]=imax;
+            las_ifirst[icol][iside]=ifirst-3;
 	    
-	    double nphot=0.;
-	    for(unsigned int is=0; is<_nsamplesshapes; is++) nphot+=laserShape[icol][iside]->GetBinContent(is+1);
-	    if(nphot>0) laserShape[icol][iside]->Scale(1.0/nphot);
-	  }
+	    //cout<<" LASER las_ifirst:"<< las_ifirst[icol][iside]<<endl;
+
+// Normalize pulse to number of photons. Compute on a limited window of NSAMPSHAPES samples (normally 250 ns):
+            double nphot=0.;
+	    for(int is=las_ifirst[icol][iside]; is<las_ifirst[icol][iside]+NSAMPSHAPES; is++)
+              nphot+=pulseShape[icol][iside]->GetBinContent(is+1);
+            if(nphot>1.)pulseShape[icol][iside]->Scale(1./nphot);
+	    //cout<<" LASER  iside:"<<iside<<" icol:"<< icol<<" nhot:"<< nphot <<endl;
+          }
 	}
-	
       }
     }else{
       cout <<" ERROR! Matacq shape file not found ! ==> return "<< endl;
@@ -1802,31 +1820,24 @@ bool EcalLightAnalyzer::getShapeCor(int ieta, int iphi, int icol, double &shapeC
   if(isMatacqOK){
     
     unsigned int nBins=int(pulseShape[icol][iside]->GetNbinsX());
-    assert( _nsamplesshapes <= nBins);    
 
-    double sprAPD_jj, laser_iiMinusjj;
     double sum_jj;
     
     double sprAPD_val[NSAMPSHAPES]; double sprAPD_max=0;
-    for(unsigned int i=0; i<_nsamplesshapes; i++){
+    for(unsigned int i=0; i<NSAMPAPD*25; i++){
       sprAPD_val[i]=sprval(double(i+1), t0, tau1, tau2, 1.0, _fedid );
       if(sprAPD_val[i]>sprAPD_max) sprAPD_max=sprAPD_val[i];
     }
     
-    for(unsigned int i=0; i<_nsamplesshapes; i++) {
-      sprAPD_val[i]/=sprAPD_max;
-    }
+    for(unsigned int i=0; i<NSAMPAPD*25; i++) sprAPD_val[i]/=sprAPD_max;
     
     double shapecor=0.;
-    for(unsigned int ii=0;ii<_nsamplesshapes;ii++){
+    for(unsigned int ii=0;ii<NSAMPAPD*25;ii++){
       sum_jj=0.0;
-      for(unsigned int jj=0;jj<=ii;jj++){
-	
-	sprAPD_jj=sprAPD_val[jj];
-	laser_iiMinusjj=pulseShape[icol][iside]->GetBinContent(ii-jj+1); 
-	
-	sum_jj+=sprAPD_jj*laser_iiMinusjj;
-      }
+      for(unsigned int jj=0;jj<=ii;jj++)
+	{
+	  if(jj<NSAMPSHAPES && jj+las_ifirst[icol][iside]<nBins) sum_jj+=sprAPD_val[ii-jj]*pulseShape[icol][iside]->GetBinContent(las_ifirst[icol][iside]+jj+1); 
+	}
       if(sum_jj>shapecor)shapecor=sum_jj;
     }
     shapeCor=shapecor;
@@ -1869,29 +1880,26 @@ bool EcalLightAnalyzer::getConvolution(int ieta, int iphi, int icol) {
   if(isMatacqOK){
     
     unsigned int nBins=int(pulseShape[icol][iside]->GetNbinsX());
-    assert( _nsamplesshapes <= nBins);    
     
-    double sprAPD_jj, laser_iiMinusjj;
     double sum_jj;
     
     if(_debug==2 ) cout <<"tau1="<< tau1<<" tau2="<<tau2<< endl;
 
-    double sprAPD_val[NSAMPSHAPES]; double sprAPD_max=0;
-    for(unsigned int i=0; i<_nsamplesshapes; i++){
+    double sprAPD_val[NSAMPAPD*25]; double sprAPD_max=0;
+    for(unsigned int i=0; i<NSAMPAPD*25; i++){
       sprAPD_val[i]=sprval(double(i+1), t0, tau1, tau2, 1.0, _fedid );
       //      cout<< " sprval: " <<i<<"  " <<sprAPD_val[i]<<endl;
       if(sprAPD_val[i]>sprAPD_max) sprAPD_max=sprAPD_val[i];
     }
     //    cout<< " sprAPD_max " <<sprAPD_max<< endl;
+    for(unsigned int ii=0;ii<NSAMPAPD*25;ii++) sprAPD_val[ii]/=sprAPD_max;
     
     double maxShape=0.0; int iMaxShape=0;
     
-    for(unsigned int ii=0;ii<_nsamplesshapes;ii++){
+    for(unsigned int ii=0;ii<NSAMPAPD*25;ii++){
       sum_jj=0.0;
       for(unsigned int jj=0;jj<=ii;jj++){
-	sprAPD_jj=sprAPD_val[jj]/sprAPD_max;
-	laser_iiMinusjj=pulseShape[icol][iside]->GetBinContent(ii-jj+1);
-	sum_jj+=sprAPD_jj*laser_iiMinusjj;
+	if(jj<NSAMPSHAPES && jj+las_ifirst[icol][iside]<nBins) sum_jj+=sprAPD_val[ii-jj]*pulseShape[icol][iside]->GetBinContent(las_ifirst[icol][iside]+jj+1);
       }
       if(sum_jj>maxShape) {
 	maxShape=sum_jj;
@@ -1903,7 +1911,7 @@ bool EcalLightAnalyzer::getConvolution(int ieta, int iphi, int icol) {
     if(_debug==2 ) cout<<" Getting convolution maxShape: "<< maxShape << " "<<iMaxShape<<endl;
     
     if(maxShape!=0.) {
-      for(unsigned int ii=0;ii<_nsamplesshapes;ii++){
+      for(unsigned int ii=0;ii<NSAMPAPD*25;ii++){
 	shapesAPD[icol][iside].push_back(shapes[ii]/maxShape);
       }
       ok=true;
@@ -1978,20 +1986,6 @@ TF1* EcalLightAnalyzer::spr( double t0, double t1, double t2, double tau1,
 
 }
 
-void EcalLightAnalyzer::getLaserShapeForPN(int icol, int iside ) {
-  
-  if( isMatacqOK ){
-    
-    // For PNs, step is 25 ns :
-    for(int is=0; is<50; is++) lasShapesForPN[icol][iside][is]=0.;
-    for(int is=0; is<10; is++)
-      {
-        for(int i=0; i<25; i++) lasShapesForPN[icol][iside][is]+=(pulseShape[icol][iside]->GetBinContent(is*25+i));	
-      }
-  }
-  gotLasShapeForPN[icol][iside]=true;
-}
-
 double EcalLightAnalyzer::getConvolutionPN(int iPN, int imem, int icol, int iside ) {
 
   int jmem=0;  
@@ -2007,11 +2001,7 @@ double EcalLightAnalyzer::getConvolutionPN(int iPN, int imem, int icol, int isid
     if( _corrPNEE[iPN][jmem][icol][iside]>0.0 ) return _corrPNEE[iPN][jmem][icol][iside];
   }
 
-  if(!gotLasShapeForPN[icol][iside]){
-    getLaserShapeForPN(icol,iside);
-  }
-  
-  double sprPN_val[NSAMPPN];
+  double sprPN_val[NSAMPPN*25];
   pair<double,double> tauspn=calibData->tauPN( iPN, imem );
   //double qmaxshape=calibData->qmaxPN( iPN, imem );
   double tau1=tauspn.first;
@@ -2019,9 +2009,9 @@ double EcalLightAnalyzer::getConvolutionPN(int iPN, int imem, int icol, int isid
   double a=tau2/(tau2-tau1);
   //double a=tau2/(qmaxshape*(tau2-tau1));
   
-  for(int i=0; i<NSAMPPN; i++)
+  for(int i=0; i<NSAMPPN*25; i++)
     {
-      double t=(double)i;
+      double t=(double)i/25.;
       double t0=1.;
       sprPN_val[i]=0.;
       if(t>t0)sprPN_val[i]=(a*(1.-a)*(exp(-(t-t0)/tau1)-exp(-(t-t0)/tau2))+
@@ -2029,17 +2019,19 @@ double EcalLightAnalyzer::getConvolutionPN(int iPN, int imem, int icol, int isid
       
     }
   double sprPN_max=0.;
-  for(int i=0; i<NSAMPPN; i++) if(sprPN_val[i]>sprPN_max)sprPN_max=sprPN_val[i];
-  for(int i=0; i<NSAMPPN; i++) sprPN_val[i]/=sprPN_max;
+  for(int i=0; i<NSAMPPN*25; i++) if(sprPN_val[i]>sprPN_max)sprPN_max=sprPN_val[i];
+  for(int i=0; i<NSAMPPN*25; i++) sprPN_val[i]/=sprPN_max;
   
+  unsigned int nBins=int(pulseShape[icol][iside]->GetNbinsX());
   int imax=0;
   double qmax=0.;
-  for(int i=0; i<NSAMPPN; i++)
+  for(unsigned int i=0; i<NSAMPPN*25; i++)
     {
       double pn_shape=0.;
-      for(int j=0; j<=i; j++)
+      
+      for(unsigned int j=0; j<=i; j++)
 	{
-	  pn_shape+=sprPN_val[j]*lasShapesForPN[icol][iside][i-j];
+	  if(j<NSAMPSHAPES && j+las_ifirst[icol][iside]<nBins)pn_shape+=sprPN_val[i-j]*pulseShape[icol][iside]->GetBinContent(las_ifirst[icol][iside]+j+1);
 	}
       if(pn_shape>qmax)
 	{
