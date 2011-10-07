@@ -1,8 +1,8 @@
 /*
  * \file EELedClient.cc
  *
- * $Date: 2011/08/30 09:29:45 $
- * $Revision: 1.128 $
+ * $Date: 2011/09/02 13:55:02 $
+ * $Revision: 1.129 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -932,7 +932,7 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
         if ( update01 ) {
 
-          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
+          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             if ( verbose_ ) {
               std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
@@ -953,7 +953,7 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
           status = status && UtilsClient::getBinQuality(meg01_[ism-1], ix, iy);
 
-          int ic = Numbers::indexEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, jx, jy);
 
           if ( ic == -1 ) continue;
 
@@ -966,7 +966,7 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
         if ( update02 ) {
 
-          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
+          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             if ( verbose_ ) {
               std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
@@ -987,7 +987,7 @@ bool EELedClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIOV*
 
           status = status && UtilsClient::getBinQuality(meg02_[ism-1], ix, iy);
 
-          int ic = Numbers::indexEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, jx, jy);
 
           if ( ic == -1 ) continue;
 

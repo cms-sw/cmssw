@@ -1,8 +1,8 @@
 /*
  * \file EELaserClient.cc
  *
- * $Date: 2011/08/30 09:29:44 $
- * $Revision: 1.141 $
+ * $Date: 2011/09/02 13:55:02 $
+ * $Revision: 1.142 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -1425,7 +1425,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( update01 ) {
 
-          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
+          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             if ( verbose_ ) {
               std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
@@ -1446,7 +1446,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQuality(meg01_[ism-1], ix, iy);
 
-          int ic = Numbers::indexEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, jx, jy);
 
           if ( ic == -1 ) continue;
 
@@ -1459,7 +1459,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( update02 ) {
 
-          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
+          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             if ( verbose_ ) {
               std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
@@ -1480,7 +1480,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQuality(meg02_[ism-1], ix, iy);
 
-          int ic = Numbers::indexEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, jx, jy);
 
           if ( ic == -1 ) continue;
 
@@ -1493,7 +1493,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( update03 ) {
 
-          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
+          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             if ( verbose_ ) {
               std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
@@ -1514,7 +1514,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQuality(meg03_[ism-1], ix, iy);
 
-          int ic = Numbers::indexEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, jx, jy);
 
           if ( ic == -1 ) continue;
 
@@ -1527,7 +1527,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
         if ( update04 ) {
 
-          if ( Numbers::icEE(ism, ix, iy) == 1 ) {
+          if ( Numbers::icEE(ism, jx, jy) == 1 ) {
 
             if ( verbose_ ) {
               std::cout << "Preparing dataset for " << Numbers::sEE(ism) << " (ism=" << ism << ")" << std::endl;
@@ -1548,7 +1548,7 @@ bool EELaserClient::writeDb(EcalCondDBInterface* econn, RunIOV* runiov, MonRunIO
 
           status = status && UtilsClient::getBinQuality(meg04_[ism-1], ix, iy);
 
-          int ic = Numbers::indexEE(ism, ix, iy);
+          int ic = Numbers::indexEE(ism, jx, jy);
 
           if ( ic == -1 ) continue;
 
