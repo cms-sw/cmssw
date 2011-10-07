@@ -7,7 +7,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include <cmath>
+#include <cstdlib>
 
 template<class Item>
 class HcalCondObjectContainer
@@ -117,7 +117,7 @@ HcalCondObjectContainer<Item>::getValues(DetId fId) const
 
   int index = myId.hashedId(h2mode_);
   //  std::cout << "::::: getting values at index " << index  << ", DetId " << myId << std::endl;
-  unsigned int index1 = std::abs(index); // b/c I'm fed up with compiler warnings about comparison betw. signed and unsigned int
+  unsigned int index1 = abs(index); // b/c I'm fed up with compiler warnings about comparison betw. signed and unsigned int
 
   const Item* cell = NULL;
   if (index >= 0)
@@ -173,7 +173,7 @@ HcalCondObjectContainer<Item>::exists(DetId fId) const
 
   int index = myId.hashedId(h2mode_);
   if (index < 0) return false;
-  unsigned int index1 = std::abs(index); // b/c I'm fed up with compiler warnings about comparison betw. signed and unsigned int
+  unsigned int index1 = abs(index); // b/c I'm fed up with compiler warnings about comparison betw. signed and unsigned int
   const Item* cell = NULL;
   switch (myId.genericSubdet() ) {
   case HcalGenericDetId::HcalGenBarrel: 
@@ -220,7 +220,7 @@ HcalCondObjectContainer<Item>::addValues(const Item& myItem, bool h2mode_)
   int index = myId.hashedId(h2mode_);
   bool success = false;
   if (index < 0) success = false;
-  unsigned int index1 = std::abs(index); // b/c I'm fed up with compiler warnings about comparison betw. signed and unsigned int
+  unsigned int index1 = abs(index); // b/c I'm fed up with compiler warnings about comparison betw. signed and unsigned int
 
   switch (myId.genericSubdet() ) {
   case HcalGenericDetId::HcalGenBarrel:
