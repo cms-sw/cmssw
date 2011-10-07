@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V295
+# /dev/CMSSW_4_2_0/GRun/V296
 
 import FWCore.ParameterSet.Config as cms
 
@@ -11,14 +11,7 @@ streamA_datasetBTag_selector.throw      = cms.bool(False)
 streamA_datasetBTag_selector.triggerConditions = cms.vstring('HLT_BTagMu_DiJet110_Mu5_v12', 
     'HLT_BTagMu_DiJet20_Mu5_v12', 
     'HLT_BTagMu_DiJet40_Mu5_v12', 
-    'HLT_BTagMu_DiJet70_Mu5_v12', 
-    'HLT_R014_MR200_CentralJet40_BTagIP_v2', 
-    'HLT_R014_MR400_CentralJet40_BTagIP_v2', 
-    'HLT_R014_MR450_CentralJet40_BTagIP_v2', 
-    'HLT_R020_MR300_CentralJet40_BTagIP_v2', 
-    'HLT_R020_MR350_CentralJet40_BTagIP_v2', 
-    'HLT_R030_MR200_CentralJet40_BTagIP_v2', 
-    'HLT_R030_MR250_CentralJet40_BTagIP_v2')
+    'HLT_BTagMu_DiJet70_Mu5_v12')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetCommissioning_selector
 streamA_datasetCommissioning_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -192,9 +185,13 @@ streamA_datasetHT_selector.triggerConditions = cms.vstring('HLT_DiJet130_PT130_v
     'HLT_HT550_v10', 
     'HLT_HT600_v3', 
     'HLT_HT650_v3', 
+    'HLT_HT700_v2', 
     'HLT_HT750_L1FastJet_v2', 
     'HLT_HT750_v2', 
+    'HLT_R014_MR150_v9', 
+    'HLT_R020_MR150_v9', 
     'HLT_R020_MR550_v9', 
+    'HLT_R025_MR150_v9', 
     'HLT_R025_MR450_v9', 
     'HLT_R033_MR350_v9', 
     'HLT_R038_MR250_v9', 
@@ -280,7 +277,14 @@ streamA_datasetMET_selector.triggerConditions = cms.vstring('HLT_CentralJet80_ME
     'HLT_MET200_v7', 
     'HLT_MET400_v2', 
     'HLT_Mu15_L1ETM20_v3', 
-    'HLT_PFMHT150_v15')
+    'HLT_PFMHT150_v15', 
+    'HLT_R014_MR200_CentralJet40_BTagIP_v2', 
+    'HLT_R014_MR400_CentralJet40_BTagIP_v2', 
+    'HLT_R014_MR450_CentralJet40_BTagIP_v2', 
+    'HLT_R020_MR300_CentralJet40_BTagIP_v2', 
+    'HLT_R020_MR350_CentralJet40_BTagIP_v2', 
+    'HLT_R030_MR200_CentralJet40_BTagIP_v2', 
+    'HLT_R030_MR250_CentralJet40_BTagIP_v2')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMinimumBias_selector
 streamA_datasetMinimumBias_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
@@ -351,10 +355,7 @@ streamA_datasetMuHad_selector.triggerConditions = cms.vstring('HLT_DoubleMu5_Mas
     'HLT_Mu17_eta2p1_QuadCentralPFJet30_v1', 
     'HLT_Mu17_eta2p1_TriCentralPFJet30_v1', 
     'HLT_Mu40_HT300_v3', 
-    'HLT_Mu5_DiJet30_v4', 
     'HLT_Mu5_Ele8_CaloIdT_TrkIdVL_Mass8_HT150_v3', 
-    'HLT_Mu5_QuadJet30_v4', 
-    'HLT_Mu5_TriJet30_v4', 
     'HLT_Mu60_HT300_v3', 
     'HLT_Mu8_Ele8_CaloIdT_TrkIdVL_Mass8_HT150_v3', 
     'HLT_Mu8_Ele8_CaloIdT_TrkIdVL_Mass8_HT200_v3', 
