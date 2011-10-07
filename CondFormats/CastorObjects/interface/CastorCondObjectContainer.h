@@ -8,6 +8,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include <cstdlib>
 
 template<class Item>
 class CastorCondObjectContainer
