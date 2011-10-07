@@ -2,7 +2,7 @@
 link=$1
 first=$2
 last=$3
-color=$4
+color=$4 
 type=$5
 #save=$4
 arg1=''
@@ -13,7 +13,7 @@ arg4=''
 export HERE=${PWD}
 # argument is config file
 source $1
-source ~cmssw2/scripts/setup.sh
+source ~cmssw/scripts/setup.sh
 cd ${MON_CMSSW_REL_DIR}
 eval `scramv1 runtime -sh`
 cd $HERE
