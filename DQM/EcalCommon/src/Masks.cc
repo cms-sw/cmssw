@@ -1,11 +1,11 @@
-// $Id: Masks.cc,v 1.13 2010/08/09 09:00:15 dellaric Exp $
+// $Id: Masks.cc,v 1.14 2010/08/19 07:12:42 dellaric Exp $
 
 /*!
   \file Masks.cc
   \brief channel masking
   \author G. Della Ricca
-  \version $Revision: 1.13 $
-  \date $Date: 2010/08/09 09:00:15 $
+  \version $Revision: 1.14 $
+  \date $Date: 2010/08/19 07:12:42 $
 */
 
 #include <sstream>
@@ -117,9 +117,11 @@ bool Masks::maskPn( int ism, int i1, uint32_t bits, const EcalSubdetector subdet
 
     // EB-03
     if ( ism ==  3 && i1 ==  1 && (bits & (1 << EcalDQMStatusHelper::LASER_MEAN_ERROR)) ) mask = true;
+    if ( ism ==  3 && i1 ==  1 && (bits & (1 << EcalDQMStatusHelper::TESTPULSE_HIGH_GAIN_MEAN_ERROR)) ) mask = true;
 
     // EB-07
     if ( ism ==  7 && i1 ==  4 && (bits & (1 << EcalDQMStatusHelper::LASER_MEAN_ERROR)) ) mask = true;
+    if ( ism ==  7 && i1 ==  4 && (bits & (1 << EcalDQMStatusHelper::TESTPULSE_HIGH_GAIN_MEAN_ERROR)) ) mask = true;
 
     // EB-15
     if ( ism == 15 && i1 ==  6 && (bits & (1 << EcalDQMStatusHelper::TT_SIZE_ERROR)) ) mask = true;
@@ -148,37 +150,48 @@ bool Masks::maskPn( int ism, int i1, uint32_t bits, const EcalSubdetector subdet
     if ( ism == 15 && i1 == 10 && (bits & (1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR)) ) mask = true;
     if ( ism == 15 && i1 == 10 && (bits & (1 << EcalDQMStatusHelper::LASER_MEAN_ERROR)) ) mask = true;
 
+    // EB+06
+    if ( ism == 24 &&             (bits & (1 << EcalDQMStatusHelper::TESTPULSE_HIGH_GAIN_MEAN_ERROR)) ) mask = true;
+
     // EB+07
     if ( ism == 25 && i1 ==  4 && (bits & (1 << EcalDQMStatusHelper::LASER_MEAN_ERROR)) ) mask = true;
+    if ( ism == 25 && i1 ==  4 && (bits & (1 << EcalDQMStatusHelper::TESTPULSE_HIGH_GAIN_MEAN_ERROR)) ) mask = true;
 
     // EB+12
     if ( ism == 30 && i1 ==  9 && (bits & (1 << EcalDQMStatusHelper::LASER_MEAN_ERROR)) ) mask = true;
+    if ( ism == 30 && i1 ==  9 && (bits & (1 << EcalDQMStatusHelper::TESTPULSE_HIGH_GAIN_MEAN_ERROR)) ) mask = true;
+
+    // EB+15
+    if ( ism == 15 && i1 ==  3 && (bits & (1 << EcalDQMStatusHelper::TESTPULSE_HIGH_GAIN_MEAN_ERROR)) ) mask = true;
+    if ( ism == 15 && i1 ==  4 && (bits & (1 << EcalDQMStatusHelper::TESTPULSE_HIGH_GAIN_MEAN_ERROR)) ) mask = true;
+    if ( ism == 15 && i1 ==  5 && (bits & (1 << EcalDQMStatusHelper::TESTPULSE_HIGH_GAIN_MEAN_ERROR)) ) mask = true;
 
   } else if ( subdet == EcalEndcap ) {
 
     // EE-02
-    if ( ism == 5 && i1 ==  3 && (bits & (1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR)) ) mask = true;
-    if ( ism == 5 && i1 ==  3 && (bits & (1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR)) ) mask = true;
-    if ( ism == 5 && i1 == 10 && (bits & (1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR)) ) mask = true;
-    if ( ism == 5 && i1 == 10 && (bits & (1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR)) ) mask = true;
+    if ( ism == 5 && i1 ==  3 && (bits & (1 << EcalDQMStatusHelper::LASER_MEAN_ERROR)) ) mask = true;
+    if ( ism == 5 && i1 ==  3 && (bits & (1 << EcalDQMStatusHelper::LED_MEAN_ERROR)) ) mask = true;
+    if ( ism == 5 && i1 == 10 && (bits & (1 << EcalDQMStatusHelper::LASER_MEAN_ERROR)) ) mask = true;
+    if ( ism == 5 && i1 == 10 && (bits & (1 << EcalDQMStatusHelper::LED_MEAN_ERROR)) ) mask = true;
 
     // EE-03
-    if ( ism == 6 && i1 ==  5 && (bits & (1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR)) ) mask = true;
-    if ( ism == 6 && i1 ==  5 && (bits & (1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR)) ) mask = true;
+    if ( ism == 6 && i1 ==  5 && (bits & (1 << EcalDQMStatusHelper::LASER_MEAN_ERROR)) ) mask = true;
+    if ( ism == 6 && i1 ==  5 && (bits & (1 << EcalDQMStatusHelper::LED_MEAN_ERROR)) ) mask = true;
 
     // EE-07
-    if ( ism == 1 && i1 ==  4 && (bits & (1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR)) ) mask = true;
-    if ( ism == 1 && i1 ==  4 && (bits & (1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR)) ) mask = true;
-    if ( ism == 1 && i1 == 10 && (bits & (1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR)) ) mask = true;
-    if ( ism == 1 && i1 == 10 && (bits & (1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR)) ) mask = true;
+    if ( ism == 1 && i1 ==  4 && (bits & (1 << EcalDQMStatusHelper::LASER_MEAN_ERROR)) ) mask = true;
+    if ( ism == 1 && i1 ==  4 && (bits & (1 << EcalDQMStatusHelper::LED_MEAN_ERROR)) ) mask = true;
+    if ( ism == 1 && i1 == 10 && (bits & (1 << EcalDQMStatusHelper::LASER_MEAN_ERROR)) ) mask = true;
+    if ( ism == 1 && i1 == 10 && (bits & (1 << EcalDQMStatusHelper::LED_MEAN_ERROR)) ) mask = true;
 
     // EE-08
-    if ( ism == 2 && i1 ==  1 && (bits & (1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR)) ) mask = true;
-    if ( ism == 2 && i1 ==  1 && (bits & (1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR)) ) mask = true;
-    if ( ism == 2 && i1 ==  4 && (bits & (1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR)) ) mask = true;
-    if ( ism == 2 && i1 ==  4 && (bits & (1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR)) ) mask = true;
-    if ( ism == 2 && i1 == 10 && (bits & (1 << EcalDQMStatusHelper::PEDESTAL_LOW_GAIN_MEAN_ERROR)) ) mask = true;
-    if ( ism == 2 && i1 == 10 && (bits & (1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR)) ) mask = true;
+    if ( ism == 2 && i1 ==  1 && (bits & (1 << EcalDQMStatusHelper::LASER_MEAN_ERROR)) ) mask = true;
+    if ( ism == 2 && i1 ==  1 && (bits & (1 << EcalDQMStatusHelper::LED_MEAN_ERROR)) ) mask = true;
+    if ( ism == 2 && i1 ==  4 && (bits & (1 << EcalDQMStatusHelper::LASER_MEAN_ERROR)) ) mask = true;
+    if ( ism == 2 && i1 ==  4 && (bits & (1 << EcalDQMStatusHelper::LED_MEAN_ERROR)) ) mask = true;
+    if ( ism == 2 && i1 ==  4 && (bits & (1 << EcalDQMStatusHelper::TESTPULSE_HIGH_GAIN_MEAN_ERROR)) ) mask = true;
+    if ( ism == 2 && i1 == 10 && (bits & (1 << EcalDQMStatusHelper::LASER_MEAN_ERROR)) ) mask = true;
+    if ( ism == 2 && i1 == 10 && (bits & (1 << EcalDQMStatusHelper::LED_MEAN_ERROR)) ) mask = true;
 
   } else {
 
