@@ -228,7 +228,7 @@
   <class name="edm::Wrapper<edm::ValueMap<pat::JetCorrFactors> >" />
   <class name="std::vector<pat::TauJetCorrFactors::CorrectionFactor>" />
   <class name="edm::Wrapper<std::vector<pat::TauJetCorrFactors::CorrectionFactor> >" />
-  <class name="pat::TauJetCorrFactors" />
+  <!-- <class name="pat::TauJetCorrFactors" /> -->
   <class name="std::vector<pat::TauJetCorrFactors>" />
   <class name="edm::ValueMap<pat::TauJetCorrFactors>" />
   <class name="edm::Wrapper<edm::ValueMap<pat::TauJetCorrFactors> >" />
