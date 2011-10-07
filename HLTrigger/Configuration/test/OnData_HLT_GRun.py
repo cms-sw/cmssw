@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V294 (CMSSW_4_2_0_HLT30)
+# /dev/CMSSW_4_2_0/GRun/V295 (CMSSW_4_2_0_HLT30)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V294')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V295')
 )
 
 process.streams = cms.PSet( 
@@ -3954,6 +3954,9 @@ process.PrescaleService = cms.Service( "PrescaleService",
       cms.PSet(  pathName = cms.string( "HLT_HT250_v10" ),
         prescales = cms.vuint32( 7000, 2100, 2000, 2000, 1, 1 )
       ),
+      cms.PSet(  pathName = cms.string( "HLT_HT250_AlphaT0p58_v2" ),
+        prescales = cms.vuint32( 0, 0, 1, 1, 1, 1 )
+      ),
       cms.PSet(  pathName = cms.string( "HLT_HT250_AlphaT0p60_v2" ),
         prescales = cms.vuint32( 20, 1, 1, 1, 1, 1 )
       ),
@@ -3972,6 +3975,9 @@ process.PrescaleService = cms.Service( "PrescaleService",
       cms.PSet(  pathName = cms.string( "HLT_HT300_CentralJet30_BTagIP_PFMHT55_v11" ),
         prescales = cms.vuint32( 10, 1, 1, 1, 1, 1 )
       ),
+      cms.PSet(  pathName = cms.string( "HLT_HT300_AlphaT0p54_v4" ),
+        prescales = cms.vuint32( 0, 0, 1, 1, 1, 1 )
+      ),
       cms.PSet(  pathName = cms.string( "HLT_HT300_AlphaT0p55_v2" ),
         prescales = cms.vuint32( 20, 1, 1, 1, 1, 1 )
       ),
@@ -3982,7 +3988,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 20, 1, 1, 1, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HT350_L1FastJet_v2" ),
-        prescales = cms.vuint32( 350, 280, 210, 210, 1, 1 )
+        prescales = cms.vuint32( 4000, 600, 600, 600, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HT400_v10" ),
         prescales = cms.vuint32( 1000, 400, 400, 400, 1, 1 )
@@ -3991,7 +3997,10 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 20, 1, 1, 1, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HT400_L1FastJet_v2" ),
-        prescales = cms.vuint32( 175, 140, 100, 100, 1, 1 )
+        prescales = cms.vuint32( 1000, 400, 400, 400, 1, 1 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_HT400_AlphaT0p51_v9" ),
+        prescales = cms.vuint32( 0, 0, 1, 1, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HT450_v10" ),
         prescales = cms.vuint32( 500, 200, 200, 200, 1, 1 )
@@ -4102,13 +4111,13 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 0, 0, 1, 1, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Dimuon0_Jpsi_v9" ),
-        prescales = cms.vuint32( 240, 160, 120, 30, 1, 1 )
+        prescales = cms.vuint32( 200, 160, 120, 30, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Dimuon0_Jpsi_NoVertexing_v6" ),
-        prescales = cms.vuint32( 240, 240, 180, 180, 1, 1 )
+        prescales = cms.vuint32( 200, 160, 120, 30, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Dimuon0_Upsilon_v9" ),
-        prescales = cms.vuint32( 240, 160, 120, 120, 1, 1 )
+        prescales = cms.vuint32( 200, 160, 120, 120, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Dimuon6_LowMass_v4" ),
         prescales = cms.vuint32( 1, 5, 3, 3, 1, 1 )
