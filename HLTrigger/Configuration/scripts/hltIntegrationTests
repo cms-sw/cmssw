@@ -196,6 +196,8 @@ TRIGGERS=$(hltListPaths -p "$MENU" | grep -v HLTriggerFinalPath)
 # print some info
 if [ "$SELECTION" == "complex" ]; then
   log "Will run $(echo $TRIGGERS | wc -w) HLT paths over $(echo $EVENTS | tr ',' '\n' | wc -l) events, with $JOBS jobs in parallel"
+elif [ "$SIZE" == "-1" ]; then
+  log "Will run $(echo $TRIGGERS | wc -w) HLT paths over all events, with $JOBS jobs in parallel"
 else
   log "Will run $(echo $TRIGGERS | wc -w) HLT paths over $SIZE events, with $JOBS jobs in parallel"
 fi
