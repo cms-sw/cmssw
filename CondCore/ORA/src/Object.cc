@@ -63,7 +63,7 @@ void* ora::Object::cast( const std::type_info& typeInfo ) const{
 void ora::Object::destruct() {
   if( ! m_type ){
     throwException( "Object input class has not been found in the dictionary.",
-                    "Object::cast" );
+                    "Object::destruct" );
     
   }
   if( m_ptr ){

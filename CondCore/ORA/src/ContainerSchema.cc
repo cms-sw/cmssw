@@ -225,6 +225,9 @@ ora::MappingTree& ora::ContainerSchema::mapping( bool writeEnabled ){
       // if enabled, invoke the evolution
       if( writeEnabled && m_session.configuration().properties().getFlag( Configuration::automaticSchemaEvolution() )){
         evolve();
+      } else {
+	throwException( "No mapping available for the current class version.",
+			"ContainerSchema::mapping");
       }
     } else {
       m_loaded = true;
