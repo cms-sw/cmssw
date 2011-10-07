@@ -16,7 +16,7 @@
 from ROOT import *
 import re
 
-i=1
+i=16
 
 file = open('interestingEvents_Mu.txt', 'r')
 events = file.readlines()
@@ -85,24 +85,26 @@ varNameList = [
     "Strip_StoN_on_TID2"  ,
     "Strip_StoN_on_TIB"   ,
     "Strip_StoN_on_TOB"   ,
-    "Strip_StoN_detFracMap",
+    "Strip_nBadActiveChannel",
     "Strip_nFED"          ,
+    "Strip_StoN_detFracMap",
     "Pixel_DigiOccupancy" ,
-#    "Pixel_ErrorRate"     ,
     "Pixel_nDigis_Barrel" ,
     "Pixel_ClusCharge_Endcap" ,
     "Pixel_ClusPosition_Disk" ,
-    "Pixel_ErrorType_vs_FedNr",
     "Pixel_ClusCharge_OnTrack",
     "Pixel_ClusSize_OnTrack",
-#    "Pixel_ClusSize_Endcap"
-    "Track_GoodTrkNum"    ,
-    "Track_GoodTrkEta"    ,
-    "Track_GoodTrkPt"     ,
+    "Pixel_ErrorType_vs_FedNr",
     "Track_NumberOfBarrelLayersPerTrack",
     "Track_NumberOfEndcapLayersPerTrack",
     "Track_NumberOfBarrelLayersPerTrackVsEtaProfile",
-    "Track_NumberOfEndcapLayersPerTrackVsEtaProfile"
+    "Track_NumberOfEndcapLayersPerTrackVsEtaProfile",
+    "Track_GoodTrkNum"    ,
+    "Track_GoodTrkEta"    ,
+    "Track_GoodTrkPt"     ,
+    "Track_nRecHitsPerTrack",
+    "Track_GoodTrkChi2oNDF",
+   
     ]
 
 ####################################
@@ -114,6 +116,7 @@ reference_string = "DQMData/Run " + run_reference
 
 stringlist = {
     "Strip_nFED"              : "/SiStrip/Run summary/ReadoutView/FedMonitoringSummary/nFEDErrors"                                    ,
+    "Strip_nBadActiveChannel" : "/SiStrip/Run summary/ReadoutView/FedMonitoringSummary/BadActiveChannelStatusBits"        ,
     "Strip_StoN_on_TEC1"      : "/SiStrip/Run summary/MechanicalView/TEC/side_1/Summary_ClusterStoNCorr_OnTrack__TEC__side__1"        ,
     "Strip_StoN_on_TEC2"      : "/SiStrip/Run summary/MechanicalView/TEC/side_2/Summary_ClusterStoNCorr_OnTrack__TEC__side__2"        ,
     "Strip_StoN_on_TID1"      : "/SiStrip/Run summary/MechanicalView/TID/side_1/Summary_ClusterStoNCorr_OnTrack__TID__side__1"        ,
@@ -127,9 +130,8 @@ stringlist = {
     "Strip_StoN_off_TIB"      : "/SiStrip/Run summary/MechanicalView/TIB/Summary_TotalNumberOfClusters_OffTrack__TIB"                 ,
     "Strip_StoN_off_TOB"      : "/SiStrip/Run summary/MechanicalView/TOB/Summary_TotalNumberOfClusters_OffTrack__TOB"                 ,
     "Strip_StoN_detFracMap"   : "/SiStrip/Run summary/MechanicalView/detFractionReportMap"                                            ,
-    "Track_GoodTrkNum"        : "/Tracking/Run summary/TrackParameters/GeneralProperties/NumberOfGoodTracks_GenTk"                    ,
-    "Track_GoodTrkEta"        : "/Tracking/Run summary/TrackParameters/GeneralProperties/GoodTrackEta_ImpactPoint_GenTk"              ,
-    "Track_GoodTrkPt"         : "/Tracking/Run summary/TrackParameters/GeneralProperties/GoodTrackPt_ImpactPoint_GenTk"               ,
+    "Track_nRecHitsPerTrack"  : "/Tracking/Run summary/TrackParameters/HitProperties/GoodTrackNumberOfRecHitsPerTrack_GenTk"          ,
+    "Track_GoodTrkChi2oNDF"   : "/Tracking/Run summary/TrackParameters/GeneralProperties/GoodTrackChi2oNDF_GenTk"                     ,
     "Pixel_DigiOccupancy"     : "/Pixel/Run summary/averageDigiOccupancy"                                                             ,
     "Pixel_ErrorRate"         : "/Pixel/Run summary/AdditionalPixelErrors/errorRate"                                                  ,
     "Pixel_nDigis_Barrel"     : "/Pixel/Run summary/Barrel/SUMOFF_ndigis_Barrel"                                                      ,
@@ -140,6 +142,9 @@ stringlist = {
     "Track_NumberOfEndcapLayersPerTrack" : "/Tracking/Run summary/TrackParameters/HitProperties/NumberOfPixEndcapLayersPerTrack_GenTk",
     "Track_NumberOfBarrelLayersPerTrackVsEtaProfile" :"/Tracking/Run summary/TrackParameters/HitProperties/NumberOfPixBarrelLayersPerTrackVsEtaProfile_GenTk",
     "Track_NumberOfEndcapLayersPerTrackVsEtaProfile" :"/Tracking/Run summary/TrackParameters/HitProperties/NumberOfPixEndcapLayersPerTrackVsEtaProfile_GenTk",
+    "Track_GoodTrkNum"        : "/Tracking/Run summary/TrackParameters/GeneralProperties/NumberOfGoodTracks_GenTk"                    ,
+    "Track_GoodTrkEta"        : "/Tracking/Run summary/TrackParameters/GeneralProperties/GoodTrackEta_ImpactPoint_GenTk"              ,
+    "Track_GoodTrkPt"         : "/Tracking/Run summary/TrackParameters/GeneralProperties/GoodTrackPt_ImpactPoint_GenTk"               ,
     "Pixel_ClusCharge_Endcap" : "/Pixel/Run summary/Endcap/SUMOFF_nclusters_Endcap"                                                   , 
     "Pixel_ClusPosition_Disk" : "/Pixel/Run summary/Clusters/OnTrack/position_siPixelClusters_mz_Disk_1"                               ,
 #    "Pixel_ClusSize_Endcap"   : "/Pixel/Run summary/Clusters/SUMCLU_charge_Endcap"                                                  
@@ -156,6 +161,10 @@ th1_reference = {}
 C = {}
 
 gStyle.SetPalette(1)
+
+
+myf = TFile(runnumber_interest+"_"+eventnumber_interest+".root",
+            "RECREATE")
 
 for var in varNameList: 
     th1_interest[var]  = tfile_interest.Get(  interest_string + stringlist[var] )
@@ -190,6 +199,13 @@ for var in varNameList:
     
     C[var].cd(5)
     th1_interest[var].Draw("colz")
+
+    C[var].Write("C"+var)
+    th1_interest[var].Write(  "th1_interest_"  + stringlist[var])
+    th1_reference[var].Write( "th1_reference_" + stringlist[var])
+    
+myf.Close()
+myf.Write()
 
 print "===> now let's have a look at the distributions!!"
 
