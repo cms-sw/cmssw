@@ -9,6 +9,7 @@
 
 #include <cstdlib>
 #include <vector>
+#include "boost/version.hpp"
 #include "boost/filesystem/path.hpp"
 #include "boost/filesystem/operations.hpp"
 
@@ -69,13 +70,13 @@ namespace
     if (bf::is_directory(p))
       throw edm::Exception(edm::errors::FileInPathError)
 	<< "Path " 
-	<< p.native_directory_string()
+	<< p.string()
 	<< " is a directory, not a file\n";
 
     if (bf::symbolic_link_exists(p))
       throw edm::Exception(edm::errors::FileInPathError)
 	<< "Path " 
-	<< p.native_file_string()
+	<< p.string()
 	<< " is a symbolic link, not a file\n";
 
     return true;    
@@ -270,7 +271,8 @@ namespace edm
 	throw edm::Exception(edm::errors::FileInPathError)
 	  << "Environment Variable " 
 	  << LOCALTOP
-	  << " is not set.\n";
+	  << " is not set.\n"
+	  << "Trying to read Local file: " << canFilename << ".\n";
       }
 #if 1
       // This #if needed for backward compatibility
@@ -313,69 +315,65 @@ namespace edm
     }
   }
 
- 
+  void
+  FileInPath::readFromParameterSetBlob(std::istream& is)
+  {
+    std::string vsn;
+    std::string relname;
+    std::string canFilename;
+    is >> vsn;
+    if (!is) return;
+    bool oldFormat = (version != vsn);
+    if (oldFormat) {
+      relname = vsn;
+      bool local;
+      is >> local;
+      location_ = (local ? Local : Release);
+      is >> canFilename;
+    } else {
+      // Current format
+      int loc;
+      is >> relname >> loc;
+      location_ = static_cast<FileInPath::LocationCode>(loc);
+      if (location_ != Unknown) is >> canFilename;
+    }
+    if (!is) return;
+    relativePath_ = relname;
+    if (location_ == Local) {
+      if (localTop_.empty()) {
+	localTop_ = "@LOCAL";
+      }
+      if (oldFormat) {
+        canonicalFilename_ = canFilename;
+      } else
+      canonicalFilename_ = localTop_ + canFilename;
+    } else if (location_ == Release) {
+      if (releaseTop_.empty()) {
+	releaseTop_="@RELEASE";
+      }
+      if (oldFormat) {
+         std::string::size_type pos = canFilename.find(BASE);
+        if (pos == 0) {
+          // Replace the placehoder with the path to the base release (site dependent).
+          canonicalFilename_ = releaseTop_ + canFilename.substr(BASE.size());
+        } else {
+          // Needed for files written before CMSSW_1_2_0_pre2.
+          canonicalFilename_ = canFilename;
+        }
+      } else
+      canonicalFilename_ = releaseTop_ + canFilename;
+    } else if (location_ == Data) {
+      if (dataTop_.empty()) {
+	throw edm::Exception(edm::errors::FileInPathError)
+	  << "Environment Variable " 
+	  << DATATOP
+	  << " is not set.\n";
+      }
+      canonicalFilename_ = dataTop_ + canFilename;
+    }
+  }
 
-     void
-   FileInPath::readFromParameterSetBlob(std::istream& is)
-   {
-     std::string vsn;
-     std::string relname;
-     std::string canFilename;
-     is >> vsn;
-     if (!is) return;
-     bool oldFormat = (version != vsn);
-     if (oldFormat) {
-       relname = vsn;
-       bool local;
-       is >> local;
-       location_ = (local ? Local : Release);
-       is >> canFilename;
-     } else {
-       // Current format
-       int loc;
-       is >> relname >> loc;
-       location_ = static_cast<FileInPath::LocationCode>(loc);
-       if (location_ != Unknown) is >> canFilename;
-     }
-     if (!is) return;
-     relativePath_ = relname;
-     if (location_ == Local) {
-       if (localTop_.empty()) {
-       localTop_ = "@LOCAL";
-       }
-       if (oldFormat) {
-         canonicalFilename_ = canFilename;
-       } else
-       canonicalFilename_ = localTop_ + canFilename;
-     } else if (location_ == Release) {
-       if (releaseTop_.empty()) {
-       releaseTop_="@RELEASE";
-       }
-       if (oldFormat) {
-          std::string::size_type pos = canFilename.find(BASE);
-         if (pos == 0) {
-           // Replace the placehoder with the path to the base release (site dependent).
-           canonicalFilename_ = releaseTop_ + canFilename.substr(BASE.size());
-         } else {
-           // Needed for files written before CMSSW_1_2_0_pre2.
-           canonicalFilename_ = canFilename;
-         }
-       } else
-       canonicalFilename_ = releaseTop_ + canFilename;
-     } else if (location_ == Data) {
-       if (dataTop_.empty()) {
-       throw edm::Exception(edm::errors::FileInPathError)
-         << "Environment Variable "
-         << DATATOP
-         << " is not set.\n";
-       }
-       canonicalFilename_ = dataTop_ + canFilename;
-     }
-   }
-	
-
-  // -----------------------------------------------------------------
-
+  //------------------------------------------------------------
 
 
   void 
@@ -392,7 +390,7 @@ namespace edm
       }
     } else {
       if (!envstring(LOCALTOP, localTop_)) {
-        localTop_.clear();
+	localTop_.clear();
       }
     }
     if (!envstring(DATATOP, dataTop_)) {
@@ -420,17 +418,22 @@ namespace edm
     while (it != end) {
       // Set the boost::fs path to the current element of
       // CMSSW_SEARCH_PATH:
-      bf::path pathPrefix(*it, bf::no_check);
+      bf::path pathPrefix(*it);
 
       // Does the a file exist? locateFile throws is it finds
       // something goofy.
       if (locateFile(pathPrefix, relativePath_)) {
 	// Convert relative path to canonical form, and save it.
-	relativePath_ = bf::path(relativePath_, bf::no_check).normalize().string();
+	relativePath_ = bf::path(relativePath_).normalize().string();
 	  
 	// Save the absolute path.
-	canonicalFilename_ = bf::complete(relativePath_, 
+#if ((BOOST_VERSION / 100000) >= 1) && (((BOOST_VERSION / 100) % 1000) >= 47)
+	canonicalFilename_ = bf::absolute(relativePath_, 
 					  pathPrefix).string();
+#else
+        canonicalFilename_ = bf::complete(relativePath_, 
+                                          pathPrefix).string();
+#endif
 	if (canonicalFilename_.empty())
 	  throw edm::Exception(edm::errors::FileInPathError)
 	    << "fullPath is empty"
@@ -444,7 +447,7 @@ namespace edm
 
 	  if (!localTop_.empty()) {
 	    // Create a path object for our local path LOCALTOP:
-	    bf::path local_(localTop_, bf::no_check);
+	    bf::path local_(localTop_);
 	    // If the branch path matches the local path, the file was found locally:
 	    if (br == local_) {
 	      location_ = Local;
@@ -454,7 +457,7 @@ namespace edm
 
 	  if (!releaseTop_.empty()) {
 	    // Create a path object for our release path RELEASETOP:
-	    bf::path release_(releaseTop_, bf::no_check);
+	    bf::path release_(releaseTop_);
 	    // If the branch path matches the release path, the file was found in the release:
 	    if (br == release_) {
 	      location_ = Release;
@@ -464,7 +467,7 @@ namespace edm
 
 	  if (!dataTop_.empty()) {
 	    // Create a path object for our data path DATATOP:
-	    bf::path data_(dataTop_, bf::no_check);
+	    bf::path data_(dataTop_);
 	    // If the branch path matches the data path, the file was found in the data area:
 	    if (br == data_) {
 	      location_ = Data;
