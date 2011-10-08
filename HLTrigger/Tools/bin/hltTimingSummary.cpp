@@ -649,7 +649,7 @@ int main(int argc, char ** argv) {
   bool takeCPUtime = false ;
   
   int LogYScale = 0;
-  int LinYScale = 0;
+//  int LinYScale = 0;
   double userMaxTime = -1. ;
   double userBinWidth = -1. ; 
   bool skipFirstEvent = false ;
