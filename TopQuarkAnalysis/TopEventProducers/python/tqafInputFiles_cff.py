@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 from PhysicsTools.PatAlgos.tools.cmsswVersionTools import pickRelValInputFiles
-relValTTbar = pickRelValInputFiles(cmsswVersion  = 'CMSSW_4_2_0_pre8',
+relValTTbar = pickRelValInputFiles(cmsswVersion  = 'CMSSW_4_4_0',
                                    relVal        = 'RelValTTbar',
-                                   globalTag     = 'MC_42_V7'
+                                   globalTag     = 'START44_V5'
                                    )
 
