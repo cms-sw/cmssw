@@ -316,11 +316,11 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  
 	  // Fill Histograms                                                                                                                                                                                                   
           hCT_Occ_ieta_iphi->Fill(Tower_ieta,Tower_iphi);
-          if (calotower->emEt() > 0 && calowtower->emEt() + calotower->hadEt() > 0.3)
+          if (calotower->emEt() > 0 && calotower->emEt() + calotower->hadEt() > 0.3)
             hCT_Occ_EM_Et_ieta_iphi->Fill(Tower_ieta,Tower_iphi);
-          if (calotower->hadEt() > 0 && calowtower->emEt() + calotower->hadEt() > 0.3)
+          if (calotower->hadEt() > 0 && calotower->emEt() + calotower->hadEt() > 0.3)
             hCT_Occ_HAD_Et_ieta_iphi->Fill(Tower_ieta,Tower_iphi);
-          if (calotower->outerEt() > 0 && calowtower->emEt() + calotower->hadEt() > 0.3)
+          if (calotower->outerEt() > 0 && calotower->emEt() + calotower->hadEt() > 0.3)
             hCT_Occ_Outer_Et_ieta_iphi->Fill(Tower_ieta,Tower_iphi);
 
 	  hCT_et_ieta_iphi->Fill(Tower_ieta,Tower_iphi,Tower_ET);
