@@ -27,8 +27,9 @@ process.load('Configuration.StandardSequences.Reconstruction_cff')
 process.load('Configuration.StandardSequences.EndOfProcess_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 
-from Configuration.AlCa.autoCond import autoCond
-process.GlobalTag.globaltag = autoCond['mc']
+#from Configuration.AlCa.autoCond import autoCond
+#process.GlobalTag.globaltag = autoCond['mc']
+process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']+'::All'
 
 process.load("Validation.RecoEgamma.electronIsoFromDeps_cff")
 process.load("Validation.RecoEgamma.ElectronMcFakeValidator_cfi")
@@ -36,5 +37,6 @@ process.load("Validation.RecoEgamma.ElectronMcFakeValidator_cfi")
 process.electronMcFakeValidator.OutputFile = cms.string(os.environ['TEST_HISTOS_FILE'])
 
 process.p = cms.Path(process.electronIsoFromDeps*process.electronMcFakeValidator*process.dqmStoreStats)
+#process.p = cms.Path(process.electronMcFakeValidator*process.dqmStoreStats)
 
 
