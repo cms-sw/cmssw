@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for MET (Mu corrected/TcMET)
  *
- *  $Date: 2010/09/22 19:40:34 $
- *  $Revision: 1.21 $
+ *  $Date: 2011/07/20 13:59:25 $
+ *  $Revision: 1.22 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -143,6 +143,14 @@ class METAnalyzer : public METAnalyzerBase {
   std::string _hlt_LowMET;
   std::string _hlt_Ele;
   std::string _hlt_Muon;
+
+  std::vector<std::string> highPtJetExpr_;
+  std::vector<std::string> lowPtJetExpr_;
+  std::vector<std::string> highMETExpr_;
+  std::vector<std::string> lowMETExpr_;
+  std::vector<std::string> muonExpr_;
+  std::vector<std::string> elecExpr_;
+  std::vector<std::string> minbiasExpr_;
 
   edm::ParameterSet theCleaningParameters;
   std::string _hlt_PhysDec;

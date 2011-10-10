@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for PFMET
  *
- *  $Date: 2010/09/23 20:39:01 $
- *  $Revision: 1.21 $
+ *  $Date: 2011/07/20 13:59:25 $
+ *  $Revision: 1.22 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech 
  */
@@ -133,6 +133,14 @@ class PFMETAnalyzer : public PFMETAnalyzerBase {
   std::string _hlt_LowMET;
   std::string _hlt_Ele;
   std::string _hlt_Muon;
+
+  std::vector<std::string> highPtJetExpr_;
+  std::vector<std::string> lowPtJetExpr_;
+  std::vector<std::string> highMETExpr_;
+  std::vector<std::string> lowMETExpr_;
+  std::vector<std::string> muonExpr_;
+  std::vector<std::string> elecExpr_;
+  std::vector<std::string> minbiasExpr_;
 
   edm::ParameterSet theCleaningParameters;
   std::string _hlt_PhysDec;

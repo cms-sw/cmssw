@@ -86,8 +86,15 @@ process.load("Configuration/StandardSequences/FrontierConditions_GlobalTag_cff")
 #process.GlobalTag.globaltag ='GR_R_38X_V13A::All'
 
 #process.GlobalTag.globaltag ='GR_P_V14::All'
-process.GlobalTag.globaltag ='GR_R_42_V19::All'
+process.GlobalTag.globaltag ='GR_R_44_V6A::All'
 
+##process.GlobalTag.toGet = cms.VPSet(
+##    cms.PSet(record = cms.string("AlCaRecoTriggerBitsRcd"),
+##        tag = cms.string("AlcaRecoTriggerBits_JetMET_DQM_v0_hlt"),
+##        connect = cms.untracked.string( 'frontier://FrontierProd/CMS_COND_42X_DQM' )
+##        #connect = cms.untracked.string("sqlite_file:/tmp/sturdy/CMSSW_4_2_X_2011-09-30-1000/src/GenericTriggerEventFlag_JetMET_DQM_HLT_v0.db")
+##    )
+##)
 # the task - JetMET objects
 if iscosmics =="True":
   process.load("DQMOffline.JetMET.jetMETDQMOfflineSourceCosmic_cff")

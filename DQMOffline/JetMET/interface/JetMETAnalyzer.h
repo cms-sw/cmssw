@@ -6,8 +6,8 @@
  *
  *  DQM jetMET analysis monitoring
  *
- *  $Date: 2011/07/20 13:59:25 $
- *  $Revision: 1.26 $
+ *  $Date: 2011/08/12 15:37:33 $
+ *  $Revision: 1.27 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -130,6 +130,9 @@ class JetMETAnalyzer : public edm::EDAnalyzer {
   std::string LoJetTrigger;
   std::string HiJetTrigger;
   
+  std::vector<std::string> highPtJetExpr_;
+  std::vector<std::string> lowPtJetExpr_;
+
   bool theJetAnalyzerFlag;  
   bool theIConeJetAnalyzerFlag;
   bool theSConeJetAnalyzerFlag;
