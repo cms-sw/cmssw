@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V300
+# /dev/CMSSW_4_2_0/GRun/V302
 
 import FWCore.ParameterSet.Config as cms
 
@@ -145,7 +145,9 @@ from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter a
 streamA_datasetHT_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')
 streamA_datasetHT_selector.l1tResults = cms.InputTag('')
 streamA_datasetHT_selector.throw      = cms.bool(False)
-streamA_datasetHT_selector.triggerConditions = cms.vstring('HLT_DiJet130_PT130_v9', 
+streamA_datasetHT_selector.triggerConditions = cms.vstring('HLT_DiCentralPFJet30_PFMHT80_v1', 
+    'HLT_DiCentralPFJet50_PFMHT80_v1', 
+    'HLT_DiJet130_PT130_v9', 
     'HLT_DiJet160_PT160_v9', 
     'HLT_FatJetMass850_DR1p1_Deta2p0_v5', 
     'HLT_HT150_v11', 
@@ -188,6 +190,11 @@ streamA_datasetHT_selector.triggerConditions = cms.vstring('HLT_DiJet130_PT130_v
     'HLT_HT700_v2', 
     'HLT_HT750_L1FastJet_v3', 
     'HLT_HT750_v3', 
+    'HLT_PFHT350_PFMHT100_v1', 
+    'HLT_PFHT350_PFMHT90_v1', 
+    'HLT_PFHT400_PFMHT80_v1', 
+    'HLT_PFHT400_PFMHT90_v1', 
+    'HLT_PFHT650_v1', 
     'HLT_R014_MR150_v10', 
     'HLT_R020_MR150_v10', 
     'HLT_R020_MR550_v10', 
@@ -387,7 +394,8 @@ streamA_datasetMuOnia_selector.triggerConditions = cms.vstring('HLT_Dimuon0_Jpsi
     'HLT_DoubleMu5_LowMass_Displaced_v4', 
     'HLT_Mu5_L2Mu2_Jpsi_v12', 
     'HLT_Mu5_Track2_Jpsi_v12', 
-    'HLT_Mu7_Track7_Jpsi_v13')
+    'HLT_Mu7_Track7_Jpsi_v13', 
+    'HLT_TripleMu0_TauTo3Mu_v1')
 
 from HLTrigger.HLTfilters.triggerResultsFilter_cfi import triggerResultsFilter as streamA_datasetMultiJet_selector
 streamA_datasetMultiJet_selector.hltResults = cms.InputTag('TriggerResults', '', 'HLT')

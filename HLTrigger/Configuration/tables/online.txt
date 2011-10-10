@@ -111,7 +111,14 @@ HLT_HT400_L1FastJet_v*
 HLT_HT400_L1FastJet_MHT90_v*
 HLT_HT400_L1FastJet_MHT100_v*
 HLT_HT750_L1FastJet_v*
+HLT_PFHT650_v*
+HLT_PFHT350_PFMHT90_v*
+HLT_PFHT350_PFMHT100_v*
+HLT_PFHT400_PFMHT80_v*
+HLT_PFHT400_PFMHT90_v*
 HLT_PFMHT150_v*
+HLT_DiCentralPFJet30_PFMHT80_v*
+HLT_DiCentralPFJet50_PFMHT80_v*                                                                                                                                                                                                  
 HLT_MET120_v*
 HLT_MET200_v*
 HLT_MET120_HBHENoiseFiltered_v*
@@ -194,6 +201,7 @@ HLT_Dimuon11_PsiPrime_v*
 HLT_Mu13_Mu8_v*
 HLT_Mu17_Mu8_v*
 HLT_Mu17_TkMu8_v*
+HLT_TripleMu0_TauTo3Mu_v*                                                                                                                                                                                                        
 HLT_TripleMu5_v*
 HLT_DoubleMu5_IsoMu5_v*
 HLT_Mu5_TkMu0_OST_Jpsi_Tight_B5Q7_v*
