@@ -8,7 +8,6 @@
 
 #include "HepMC/GenEvent.h"
 #include "HepMC/GenParticle.h"
-#include "HepMC/ParticleDataTable.h"
 
 #include "DataFormats/Math/interface/LorentzVector.h"
 

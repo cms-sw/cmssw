@@ -69,7 +69,7 @@ void Generator::HepMC2G4(const HepMC::GenEvent * evt_orig, G4Event * g4evt)
   if ( evt->weights().size() > 0 )
     {
       weight_ = evt->weights()[0] ;
-      for ( int iw=1; iw<evt->weights().size(); iw++ )
+      for ( unsigned int iw=1; iw<evt->weights().size(); iw++ )
         {
           // terminate if the versot of weights contains a zero-weight
           if ( evt->weights()[iw] <= 0 ) break;
