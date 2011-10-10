@@ -37,8 +37,8 @@ process.GlobalTag.globaltag = os.environ['TEST_GLOBAL_TAG']+'::All'
 process.load("Validation.RecoEgamma.electronIsoFromDeps_cff")
 process.load("Validation.RecoEgamma.ElectronMcSignalValidator_cfi")
 
-#process.electronMcSignalValidator.OutputFile = cms.string(os.environ['TEST_HISTOS_FILE'])
-process.electronMcSignalValidator.OutputFolderName = cms.string("Run 1/EgammaV/Run summary/ElectronMcSignalValidator")
+process.electronMcSignalValidator.OutputFile = cms.string(os.environ['TEST_HISTOS_FILE'])
+#process.electronMcSignalValidator.OutputFolderName = cms.string("Run 1/EgammaV/Run summary/ElectronMcSignalValidator")
 
 #process.p = cms.Path(process.electronMcSignalValidator*process.dqmStoreStats)
 process.p = cms.Path(process.electronIsoFromDeps*process.electronMcSignalValidator*process.dqmStoreStats)
