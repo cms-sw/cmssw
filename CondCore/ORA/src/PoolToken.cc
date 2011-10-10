@@ -11,7 +11,6 @@ namespace cond {
   
   static const char* fmt_tech = "[TECH=%08X]";
   static const char* fmt_oid  = "[OID=%08X-%08X]";
-  static const char* guid_null = "00000000-0000-0000-0000-000000000000";
     
   std::pair<std::string,int> parseToken( const std::string& source ){
     if( source.empty() ) ora::throwException("Provided token is empty.","PoolToken::parseToken");
@@ -74,7 +73,7 @@ namespace cond {
     }
     int tech = 0xB01;
     char text[128];
-    std::string str = "[DB="+std::string(guid_null)+"][CNT=" + containerName + "][CLID="+clguid+"]";
+    std::string str = "[DB="+Guid::null()+"][CNT=" + containerName + "][CLID="+clguid+"]";
     ::sprintf(text, fmt_tech, tech);
     str += text;
     return str;

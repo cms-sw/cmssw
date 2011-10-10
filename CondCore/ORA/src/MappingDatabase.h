@@ -84,7 +84,6 @@ namespace ora {
     NamedSequence m_mappingSequence;
     std::set<std::string> m_versions;
     bool m_isLoaded;
-    bool m_writingEnabled;
 
   };
 

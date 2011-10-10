@@ -1,35 +1,8 @@
 #include "CondCore/ORA/interface/Monitoring.h"
-// externals
-#include "uuid/uuid.h"
+#include "CondCore/ORA/interface/Guid.h"
 //
-#include <string.h>
 #include <cstdlib>
 #include <fstream>
-
-namespace ora {
-  static char const* fmt_Guid = 
-    "%08lX-%04hX-%04hX-%02hhX%02hhX-%02hhX%02hhX%02hhX%02hhX%02hhX%02hhX";  
-
-  std::string guidFromTime(){
-    uuid_t me_;
-    ::uuid_generate_time(me_);
-    unsigned int*  tmp = reinterpret_cast<unsigned int*>(me_);
-    unsigned int d1 = *tmp;
-    unsigned short d2 = *reinterpret_cast<unsigned short*>(me_+4);
-    unsigned short d3 = *reinterpret_cast<unsigned short*>(me_+6);
-    unsigned char  d4[8];
-    for (int i = 0; i < 8; ++i){
-      d4[i]=me_[i+8];
-    }
-    
-    char text[128];
-    ::sprintf(text, fmt_Guid,
-	      d1, d2, d3, 
-              d4[0], d4[1], d4[2], d4[3], 
-	      d4[4], d4[5], d4[6], d4[7]);
-    return std::string(text);
-  }
-}
 
 ora::TransactionMonitoringData::TransactionMonitoringData( boost::posix_time::ptime start ):
   m_start(start),

@@ -18,16 +18,6 @@
 
 int main (int argc, char** argv)
 {
-  edmplugin::PluginManager::Config config;
-  edmplugin::PluginManager::configure(edmplugin::standard::config());
-  
-  std::vector<edm::ParameterSet> psets;
-  edm::ParameterSet pSet;
-  pSet.addParameter("@service_type",std::string("SiteLocalConfigService"));
-  psets.push_back(pSet);
-  static edm::ServiceToken services(edm::ServiceRegistry::createSet(psets));
-  static edm::ServiceRegistry::Operate operate(services);
-
   std::vector<coral::Option> secondaryOptions;
   //
   coral::Option csPar("conn_string");
@@ -145,6 +135,16 @@ int main (int argc, char** argv)
   mainSet.push_back(dumpMapp);
   //
   try{
+    edmplugin::PluginManager::Config config;
+    edmplugin::PluginManager::configure(edmplugin::standard::config());
+  
+    std::vector<edm::ParameterSet> psets;
+    edm::ParameterSet pSet;
+    pSet.addParameter("@service_type",std::string("SiteLocalConfigService"));
+    psets.push_back(pSet);
+    static edm::ServiceToken services(edm::ServiceRegistry::createSet(psets));
+    static edm::ServiceRegistry::Operate operate(services);
+
     std::string connectionString("");
     std::string authenticationPath("CORAL_AUTH_PATH=");
     std::string containerName("");

@@ -1,50 +1,38 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 
-#include <boost/program_options.hpp>
+#include "CondCore/Utilities/interface/Utilities.h"
 #include <iostream>
 
-int main( int argc, char** argv ){
-  boost::program_options::options_description desc("options");
-  boost::program_options::options_description visible("Usage: cmscond_to_lumiid [options] \n");
-  visible.add_options()
-    ("runnumber,r",boost::program_options::value<unsigned int>(),"run number(required)")
-    ("lumiblocknumber,l",boost::program_options::value<unsigned int>(),"lumi block number(required)")
-    ("debug","switch on debug mode")
-    ("help,h", "help message")
-    ;
-  desc.add(visible);
-  bool debug=false;
-  unsigned int runnumber;
-  unsigned int lumiblockid;
+namespace cond {
+  class ToLumiIdUtilities : public Utilities {
+    public:
+      ToLumiIdUtilities();
+      ~ToLumiIdUtilities();
+      int execute();
+  };
+}
 
-  boost::program_options::variables_map vm;
-  try{
-    boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(desc).run(), vm);
-    if (vm.count("help")) {
-      std::cout << visible <<std::endl;;
-      return 0;
-    }
-    if( vm.count("runnumber") ){
-      runnumber=vm["runnumber"].as<unsigned int>();
-    }else{
-      std::cout<<"option --runnumber or -r is required"<<std::endl;
-      return -1;
-    }
-    if( vm.count("lumiblocknumber")){
-      lumiblockid=vm["lumiblocknumber"].as<unsigned int>();
-    }else{
-      std::cout<<"option --lumiblocknumber or -l is required"<<std::endl;
-      return -1;
-    }
-    if(vm.count("debug")){
-      debug=true;
-    }
-    boost::program_options::notify(vm);
-  }catch(const boost::program_options::error& er) {
-    std::cerr << er.what()<<std::endl;
+cond::ToLumiIdUtilities::ToLumiIdUtilities():Utilities("cmscond_to_lumiid"){
+  addOption<unsigned int>("runnumber","r","run number(required)");
+  addOption<unsigned int>("lumiblocknumber","l","lumi block number(required)");
+}
+
+cond::ToLumiIdUtilities::~ToLumiIdUtilities() {}
+
+int cond::ToLumiIdUtilities::execute() {
+  if( !hasOptionValue("runnumber") ){
+    std::cout <<"ERROR: Missing mandatory option \"runnumber\"."<<std::endl;
     return 1;
   }
+  unsigned int runnumber = getOptionValue<unsigned int>("runnumber");
+  if( !hasOptionValue("lumiblocknumber") ){
+    std::cout <<"ERROR: Missing mandatory option \"lumiblocknumber\"."<<std::endl;
+    return 1;
+  }
+  unsigned int lumiblockid = getOptionValue<unsigned int>("lumiblocknumber");
+  bool debug = hasDebug();
+
   edm::LuminosityBlockID lumiid(runnumber,lumiblockid);
  
   if(lumiid.value()<edm::LuminosityBlockID::firstValidLuminosityBlock().value()){
@@ -61,4 +49,9 @@ int main( int argc, char** argv ){
     std::cout<<"maxLuminosityBlockID:\t"<<edm::LuminosityBlockID(edm::RunID::maxRunNumber(),edm::LuminosityBlockID::maxLuminosityBlockNumber()).value()<<std::endl;
   }
   return 0;
+}
+
+int main( int argc, char** argv ){
+  cond::ToLumiIdUtilities utilities;
+  return utilities.run(argc,argv);
 }

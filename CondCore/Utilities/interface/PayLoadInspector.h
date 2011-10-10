@@ -68,7 +68,7 @@ namespace cond {
     typedef DataT Class;
     typedef ValueExtractor<DataT> Extractor;
     
-    PayLoadInspector() {}
+    PayLoadInspector(): m_since(0) {}
     
     ~PayLoadInspector() {
       if(m_object.address()) m_object.destruct();

@@ -90,7 +90,9 @@ namespace popcon {
     };
     
     
-    PopConSourceHandler(){}
+    PopConSourceHandler():
+      m_tagInfo(0),
+      m_logDBEntry(0){}
     
     virtual ~PopConSourceHandler(){
     }

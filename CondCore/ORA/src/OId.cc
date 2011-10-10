@@ -57,7 +57,7 @@ int ora::OId::itemId() const{
 
 std::string ora::OId::toString() const {
   char text[OIDSIZ];
-  ::sprintf(text, OIDFMT, m_containerId, m_itemId );
+  ::snprintf(text, OIDSIZ, OIDFMT, m_containerId, m_itemId );
   return std::string(text);
 }
 

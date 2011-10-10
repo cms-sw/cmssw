@@ -3,79 +3,52 @@
 #include "CondCore/DBCommon/interface/DecodingKey.h"
 #include "CondCore/DBCommon/interface/Exception.h"
 
-#include <boost/program_options.hpp>
 #include <fstream>
 #include <iostream>
+#include "CondCore/Utilities/interface/Utilities.h"
 
+namespace cond {
+  class EncodeDbFileUtilities : public Utilities {
+    public:
+      EncodeDbFileUtilities();
+      ~EncodeDbFileUtilities();
+      int execute();
+  };
+}
 
-int main( int argc, char** argv ){
+cond::EncodeDbFileUtilities::EncodeDbFileUtilities():Utilities("cmscond_encode_db_file"){
+  addOption<std::string>("inputFileName","i","input filename (optional, def=authentication.xml)");
+  addOption<std::string>("outputFileName","o","output filename (required)");
+  addOption<std::string>("encodingKey","k","encoding password (required)");
+  addOption<bool>("decode","d","decode (optional)");
+}
 
-  boost::program_options::options_description desc("options");
-  boost::program_options::options_description visible("Usage: cmscond_encode_db_file [options] \n");
-  visible.add_options()
-    ("inputFileName,i",boost::program_options::value<std::string>(),"input filename (optional, def=authentication.xml)")
-    ("outputFileName,o",boost::program_options::value<std::string>(),"output filename (required)")
-    ("encodingKey,k",boost::program_options::value<std::string>(),"encoding password (required)")
-    ("decode,d","decode (optional)")
-    ("debug","switch on debug mode")
-    ("help,h", "help message")
-    ;
-  desc.add(visible);
+cond::EncodeDbFileUtilities::~EncodeDbFileUtilities() {}
+
+int cond::EncodeDbFileUtilities::execute() {
   std::string inputFileName("authentication.xml");
-  std::string outputFileName("");
-  std::string key("");
-  bool decode=false;
-  bool debug=false;
-
-  boost::program_options::variables_map vm;
-  try{
-    boost::program_options::store(boost::program_options::command_line_parser(argc, argv).options(desc).run(), vm);
-    if (vm.count("help")) {
-      std::cout << visible <<std::endl;;
-      return 0;
-    }
-    if( vm.count("inputFileName") ){
-      inputFileName=vm["inputFileName"].as<std::string>();
-    }
-    if( vm.count("outputFileName")){
-      outputFileName=vm["outputFileName"].as<std::string>();
-    }
-    if(outputFileName.empty()){
-      std::cerr <<"[Error] no outputFileName[o] option given \n";
-      std::cerr<<" please do "<<argv[0]<<" --help \n";
-      return 1;
-    }
-    if(vm.count("encodingKey")){
-      key=vm["encodingKey"].as<std::string>();
-    }
-    if(key.empty()){
-      std::cerr <<"[Error] no encodingKey[k] option given \n";
-      std::cerr<<" please do "<<argv[0]<<" --help \n";
-      return 1;
-    }
-    if(vm.count("decode")){
-      decode=true;
-    }
-    if(vm.count("debug")){
-      debug=true;
-    }
-    boost::program_options::notify(vm);
-  }catch(const boost::program_options::error& er) {
-    std::cerr << er.what()<<std::endl;
+  if( hasOptionValue("inputFileName") ){
+    inputFileName = getOptionValue<std::string>("inputFileName");
+  }
+  if( !hasOptionValue("outputFileName") ){
+    std::cout <<"ERROR: Missing mandatory option \"outputFileName\"."<<std::endl;
     return 1;
   }
+  std::string outputFileName = getOptionValue<std::string>("outputFileName");
+  if( !hasOptionValue("encodingKey") ){
+    std::cout <<"ERROR: Missing mandatory option \"encodingKey\"."<<std::endl;
+    return 1;
+  }
+  std::string key = getOptionValue<std::string>("encodingKey");
+  bool decode = hasOptionValue("decode");
+  bool debug = hasDebug();
 
   cond::FileReader inputFile;
   std::string cont("");
-  try{
-    inputFile.read(inputFileName);
-    cont = inputFile.content();
-    cond::DecodingKey::validateKey(key);
-  } catch (const cond::Exception& exc){
-    std::cerr << exc.what()<<std::endl;
-    return 1;
-  }
 
+  inputFile.read(inputFileName);
+  cont = inputFile.content();
+  cond::DecodingKey::validateKey(key);
   std::string outputData =(decode? coral::Cipher::decode(cont,key): coral::Cipher::encode(cont,key));
   if(debug){
     std::cout << "inputFileName=\""<<inputFileName<<"\""<<std::endl;
@@ -102,18 +75,18 @@ int main( int argc, char** argv ){
   if(debug && !decode){
     cond::FileReader filer;
     std::string outCont("");
-    try{
-      filer.read(outputFileName);
-      outCont = filer.content();
-    } catch (const cond::Exception& exc){
-      std::cerr << exc.what()<<std::endl;
-      return 1;
-    }
+    filer.read(outputFileName);
+    outCont = filer.content();
     std::string decodedData = coral::Cipher::decode(outCont,key);
     std::cout << "Decoded output file content:"<<std::endl;
     std::cout << decodedData << std::endl;
   }
-  
-  
+
   return 0;
+}
+
+int main( int argc, char** argv ){
+
+  cond::EncodeDbFileUtilities utilities;
+  return utilities.run(argc,argv);
 }
