@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/07/20 13:58:38 $
- *  $Revision: 1.38 $
+ *  $Date: 2011/10/10 13:45:50 $
+ *  $Revision: 1.39 $
  *  \author K. Hatakeyama - Rockefeller University
  *          A.Apresyan - Caltech
  */
@@ -46,14 +46,6 @@ PFMETAnalyzer::PFMETAnalyzer(const edm::ParameterSet& pSet) {
   edm::ParameterSet eleparms       = parameters.getParameter<edm::ParameterSet>("eleTrigger"      );
   edm::ParameterSet muonparms      = parameters.getParameter<edm::ParameterSet>("muonTrigger"     );
 
-  _hlt_HighPtJet = highptjetparms.getParameter<std::string>("hltDBKey");
-  _hlt_LowPtJet  = lowptjetparms .getParameter<std::string>("hltDBKey");
-  _hlt_MinBias   = minbiasparms  .getParameter<std::string>("hltDBKey");
-  _hlt_HighMET   = highmetparms  .getParameter<std::string>("hltDBKey");
-  _hlt_LowMET    = lowmetparms   .getParameter<std::string>("hltDBKey");
-  _hlt_Ele       = eleparms      .getParameter<std::string>("hltDBKey");
-  _hlt_Muon      = muonparms     .getParameter<std::string>("hltDBKey");
-
   //genericTriggerEventFlag_( new GenericTriggerEventFlag( conf_ ) );
   _HighPtJetEventFlag = new GenericTriggerEventFlag( highptjetparms );
   _LowPtJetEventFlag  = new GenericTriggerEventFlag( lowptjetparms  );
@@ -65,11 +57,11 @@ PFMETAnalyzer::PFMETAnalyzer(const edm::ParameterSet& pSet) {
 
   highPtJetExpr_ = highptjetparms.getParameter<std::vector<std::string> >("hltPaths");
   lowPtJetExpr_  = lowptjetparms .getParameter<std::vector<std::string> >("hltPaths");
-  highMETExpr_   = minbiasparms  .getParameter<std::vector<std::string> >("hltPaths");
-  lowMETExpr_    = highmetparms  .getParameter<std::vector<std::string> >("hltPaths");
-  muonExpr_      = lowmetparms   .getParameter<std::vector<std::string> >("hltPaths");
+  highMETExpr_   = highmetparms  .getParameter<std::vector<std::string> >("hltPaths");
+  lowMETExpr_    = lowmetparms   .getParameter<std::vector<std::string> >("hltPaths");
+  muonExpr_      = muonparms     .getParameter<std::vector<std::string> >("hltPaths");
   elecExpr_      = eleparms      .getParameter<std::vector<std::string> >("hltPaths");
-  minbiasExpr_   = muonparms     .getParameter<std::vector<std::string> >("hltPaths");
+  minbiasExpr_   = minbiasparms  .getParameter<std::vector<std::string> >("hltPaths");
 
 }
 
@@ -217,37 +209,40 @@ void PFMETAnalyzer::bookMESet(std::string DirName)
 
   if ( _HighPtJetEventFlag->on() ) {
     bookMonitorElement(DirName+"/"+"HighPtJet",false);
-    meTriggerName_HighPtJet = _dbe->bookString("triggerName_HighPtJet", _hlt_HighPtJet);
+    meTriggerName_HighPtJet = _dbe->bookString("triggerName_HighPtJet", highPtJetExpr_[0]);
   }  
 
   if ( _LowPtJetEventFlag->on() ) {
     bookMonitorElement(DirName+"/"+"LowPtJet",false);
-    meTriggerName_LowPtJet = _dbe->bookString("triggerName_LowPtJet", _hlt_LowPtJet);
+    meTriggerName_LowPtJet = _dbe->bookString("triggerName_LowPtJet", lowPtJetExpr_[0]);
   }
 
   if ( _MinBiasEventFlag->on() ) {
     bookMonitorElement(DirName+"/"+"MinBias",false);
-    meTriggerName_MinBias = _dbe->bookString("triggerName_MinBias", _hlt_MinBias);
+    meTriggerName_MinBias = _dbe->bookString("triggerName_MinBias", minbiasExpr_[0]);
+    if (_verbose) std::cout << "_MinBiasEventFlag is on, folder created\n";
   }
 
   if ( _HighMETEventFlag->on() ) {
     bookMonitorElement(DirName+"/"+"HighMET",false);
-    meTriggerName_HighMET = _dbe->bookString("triggerName_HighMET", _hlt_HighMET);
+    meTriggerName_HighMET = _dbe->bookString("triggerName_HighMET", highMETExpr_[0]);
   }
 
   if ( _LowMETEventFlag->on() ) {
     bookMonitorElement(DirName+"/"+"LowMET",false);
-    meTriggerName_LowMET = _dbe->bookString("triggerName_LowMET", _hlt_LowMET);
+    meTriggerName_LowMET = _dbe->bookString("triggerName_LowMET", lowMETExpr_[0]);
   }
 
   if ( _EleEventFlag->on() ) {
     bookMonitorElement(DirName+"/"+"Ele",false);
-    meTriggerName_Ele = _dbe->bookString("triggerName_Ele", _hlt_Ele);
+    meTriggerName_Ele = _dbe->bookString("triggerName_Ele", elecExpr_[0]);
+    if (_verbose) std::cout << "_EleEventFlag is on, folder created\n";
   }
 
   if ( _MuonEventFlag->on() ) {
     bookMonitorElement(DirName+"/"+"Muon",false);
-    meTriggerName_Muon = _dbe->bookString("triggerName_Muon", _hlt_Muon);
+    meTriggerName_Muon = _dbe->bookString("triggerName_Muon", muonExpr_[0]);
+    if (_verbose) std::cout << "_MuonEventFlag is on, folder created\n";
   }
 }
 
@@ -493,16 +488,6 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
     //
     /*
-      if (_verbose) std::cout << "triggerNames size" << " " << triggerNames.size() << std::endl;
-      if (_verbose) std::cout << _hlt_HighPtJet << " " << triggerNames.triggerIndex(_hlt_HighPtJet) << std::endl;
-      if (_verbose) std::cout << _hlt_LowPtJet  << " " << triggerNames.triggerIndex(_hlt_LowPtJet)  << std::endl;
-      if (_verbose) std::cout << _hlt_MinBias   << " " << triggerNames.triggerIndex(_hlt_MinBias)   << std::endl;
-      if (_verbose) std::cout << _hlt_HighMET   << " " << triggerNames.triggerIndex(_hlt_HighMET)   << std::endl;
-      if (_verbose) std::cout << _hlt_LowMET    << " " << triggerNames.triggerIndex(_hlt_LowMET)    << std::endl;
-      if (_verbose) std::cout << _hlt_Ele       << " " << triggerNames.triggerIndex(_hlt_Ele)       << std::endl;
-      if (_verbose) std::cout << _hlt_Muon      << " " << triggerNames.triggerIndex(_hlt_Muon)      << std::endl;
-      if (_verbose) std::cout << _hlt_PhysDec   << " " << triggerNames.triggerIndex(_hlt_PhysDec)   << std::endl;
-      
       if ( _HighPtJetEventFlag->on() && _HighPtJetEventFlag->accept( iEvent, iSetup) )
       _trig_HighPtJet=1;
       
@@ -523,10 +508,10 @@ void PFMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       
       if ( _MuonEventFlag->on() && _MuonEventFlag->accept( iEvent, iSetup) )
       _trig_Muon=1;
-      
-      if (triggerNames.triggerIndex(_hlt_PhysDec)   != triggerNames.size() &&
-      triggerResults.accept(triggerNames.triggerIndex(_hlt_PhysDec)))   _trig_PhysDec=1;
     */
+    
+    if (triggerNames.triggerIndex(_hlt_PhysDec)   != triggerNames.size() &&
+	triggerResults.accept(triggerNames.triggerIndex(_hlt_PhysDec)))   _trig_PhysDec=1;
   } else {
 
     edm::LogInfo("PFMetAnalyzer") << "TriggerResults::HLT not found, "

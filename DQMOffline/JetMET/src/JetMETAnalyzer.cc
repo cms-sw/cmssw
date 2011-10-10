@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/08/12 15:37:21 $
- *  $Revision: 1.74 $
+ *  $Date: 2011/10/10 13:45:50 $
+ *  $Revision: 1.75 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -162,9 +162,6 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   //Trigger selectoin
   edm::ParameterSet highptjetparms = parameters.getParameter<edm::ParameterSet>("highPtJetTrigger");
   edm::ParameterSet lowptjetparms  = parameters.getParameter<edm::ParameterSet>("lowPtJetTrigger" );
-
-  LoJetTrigger = highptjetparms.getParameter<std::string>("hltDBKey");
-  HiJetTrigger = lowptjetparms .getParameter<std::string>("hltDBKey");
 
   _HighPtJetEventFlag = new GenericTriggerEventFlag( highptjetparms );
   _LowPtJetEventFlag  = new GenericTriggerEventFlag( lowptjetparms  );
@@ -494,32 +491,6 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
     JetLoPass=1;
   */
   
-  //if (triggerResults.isValid()) {
-  //
-  //  if (DEBUG) std::cout << "trigger valid " << std::endl;
-  //  const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
-  //  unsigned int n = triggerResults->size();
-  //  for (unsigned int i=0; i!=n; i++) {
-  //
-  //    if ( triggerNames.triggerName(i) == LoJetTrigger ) {
-  //	JetLoPass =  triggerResults->accept(i);
-  //	if (DEBUG) std::cout << "Found  HLT_Jet30" << std::endl;
-  //    }
-  //    if ( triggerNames.triggerName(i) == HiJetTrigger ) {
-  //	JetHiPass =  triggerResults->accept(i);
-  //    }
-  //  }
-  //
-  //} else {
-  //
-  //  //
-  //  triggerResults = edm::Handle<TriggerResults>(); 
-  //
-  //  if (DEBUG) std::cout << "trigger not valid " << std::endl;
-  //  edm::LogInfo("JetMETAnalyzer") << "TriggerResults::HLT not found, "
-  //    "automatically select events";
-  //
-  //}
   if (DEBUG) {
     std::cout << ">>> Trigger  Lo = " <<  JetLoPass
 	      <<             " Hi = " <<  JetHiPass

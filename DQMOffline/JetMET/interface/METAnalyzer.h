@@ -6,8 +6,8 @@
  *
  *  DQM monitoring source for MET (Mu corrected/TcMET)
  *
- *  $Date: 2011/07/20 13:59:25 $
- *  $Revision: 1.22 $
+ *  $Date: 2011/10/10 13:45:58 $
+ *  $Revision: 1.23 $
  *  \author A.Apresyan - Caltech
  */
 
@@ -135,14 +135,6 @@ class METAnalyzer : public METAnalyzerBase {
   GenericTriggerEventFlag * _LowMETEventFlag;
   GenericTriggerEventFlag * _EleEventFlag;
   GenericTriggerEventFlag * _MuonEventFlag;
-
-  std::string _hlt_HighPtJet;
-  std::string _hlt_LowPtJet;
-  std::string _hlt_MinBias;
-  std::string _hlt_HighMET;
-  std::string _hlt_LowMET;
-  std::string _hlt_Ele;
-  std::string _hlt_Muon;
 
   std::vector<std::string> highPtJetExpr_;
   std::vector<std::string> lowPtJetExpr_;
