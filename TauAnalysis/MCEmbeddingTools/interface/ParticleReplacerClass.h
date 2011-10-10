@@ -96,7 +96,9 @@ private:
 
 	bool printEvent_;
 
-	double minVisibleTransverseMomentum_;
+	struct MinVisPtCut { enum { ELEC, MU, HAD, TAU } type_; unsigned int index_; double pt_; };
+	std::vector<std::vector<MinVisPtCut> > minVisPtCuts_;
+//	double minVisibleTransverseMomentum_;
 	
 	double targetParticleMass_;
 	int targetParticlePdgID_;

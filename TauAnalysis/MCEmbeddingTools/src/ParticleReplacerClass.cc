@@ -79,7 +79,58 @@ ParticleReplacerClass::ParticleReplacerClass(const edm::ParameterSet& pset, bool
 	motherParticleID_ = pset.getUntrackedParameter<int>("motherParticleID",23);
 
 	// requires the visible decay products of a tau to have a sum transverse momentum
-	minVisibleTransverseMomentum_ = pset.getUntrackedParameter<double>("minVisibleTransverseMomentum",10.);
+	std::string minVisibleTransverseMomentumLine = pset.getUntrackedParameter<std::string>("minVisibleTransverseMomentum","");
+
+  // fallback for backwards compatibility: If it's a single number then use this as a threshold for both particles
+  const char* startptr = minVisibleTransverseMomentumLine.c_str();
+  char* endptr;
+  double d = strtod(startptr, &endptr);
+  if(*endptr == '\0' && endptr != startptr)
+  {
+		MinVisPtCut cuts[2];
+		cuts[0].type_ = cuts[1].type_ = MinVisPtCut::TAU;
+    cuts[0].pt_ = cuts[1].pt_ = d;
+		cuts[0].index_ = 0; cuts[1].index_ = 1;
+		minVisPtCuts_.push_back(std::vector<MinVisPtCut>(cuts, cuts+2));
+  }
+  else
+  {
+	  // string has new format: parse the minvistransversemomentum string
+		for(std::string::size_type prev = 0, pos = 0; prev < minVisibleTransverseMomentumLine.length(); prev = pos + 1)
+		{
+			pos = minVisibleTransverseMomentumLine.find(';', prev);
+			if(pos == std::string::npos) pos = minVisibleTransverseMomentumLine.length();
+
+			std::string sub = minVisibleTransverseMomentumLine.substr(prev, pos - prev);
+			std::vector<MinVisPtCut> cuts;
+			const char* sub_c = sub.c_str();
+			while(*sub_c != '\0')
+			{
+				const char* sep = std::strchr(sub_c, '_');
+				if(sep == NULL) throw cms::Exception("Configuration") << "Minimum transverse parameter string must contain an underscore to separate type from pt threshold" << std::endl;
+				std::string type(sub_c, sep);
+
+				MinVisPtCut cut;
+				if(type == "elec1") { cut.type_ = MinVisPtCut::ELEC; cut.index_ = 0; }
+				else if(type == "mu1") { cut.type_ = MinVisPtCut::MU; cut.index_ = 0; }
+				else if(type == "had1") { cut.type_ = MinVisPtCut::HAD; cut.index_ = 0; }
+				else if(type == "tau1") { cut.type_ = MinVisPtCut::TAU; cut.index_ = 0; }
+				else if(type == "elec2") { cut.type_ = MinVisPtCut::ELEC; cut.index_ = 1; }
+				else if(type == "mu2") { cut.type_ = MinVisPtCut::MU; cut.index_ = 1; }
+				else if(type == "had2") { cut.type_ = MinVisPtCut::HAD; cut.index_ = 1; }
+				else if(type == "tau2") { cut.type_ = MinVisPtCut::TAU; cut.index_ = 1; }
+				else throw cms::Exception("Configuration") << "'" << type << "' is not a valid type. Allowed values are elec1,mu1,had1,tau1,elec2,mu2,had2,tau2" << std::endl;
+
+				char* endptr;
+				cut.pt_ = strtod(sep + 1, &endptr);
+				if(endptr == sep + 1) throw cms::Exception("Configuration") << "No pt threshold given" << std::endl;
+
+				cuts.push_back(cut);
+				sub_c = endptr;
+			}
+		minVisPtCuts_.push_back(cuts);
+		}
+  }
 
 	edm::Service<TFileService> fileService_;
         if(fileService_.isAvailable()) {
@@ -355,10 +406,10 @@ std::auto_ptr<HepMC::GenEvent> ParticleReplacerClass::produce(const reco::MuonCo
                 }
 	}
 	eventWeight = (double)cntVisPt_pass / (double)cntVisPt_all;
-	std::cout << minVisibleTransverseMomentum_ << " " << cntVisPt_pass << "\t" << cntVisPt_all << "\n";
+	std::cout << /*minVisibleTransverseMomentum_ <<*/ " " << cntVisPt_pass << "\t" << cntVisPt_all << "\n";
 	if (!retevt)
 	{
-		LogError("Replacer") << "failed to create an event where the visible momenta exceed "<< minVisibleTransverseMomentum_ << " GeV ";
+		LogError("Replacer") << "failed to create an event which satisfies the minimum visible transverse momentum cuts ";
 		attempts=-1;
 		eventWeight=0;
                 if(outTree) outTree->Fill();
@@ -409,9 +460,14 @@ bool ParticleReplacerClass::testEvent(HepMC::GenEvent * evt)
 	using namespace HepMC;
         using namespace edm;
 	
-	if (minVisibleTransverseMomentum_<=0)
+	if (minVisPtCuts_.empty()) //ibleTransverseMomentum_<=0)
 		return true;
-		
+
+  std::vector<double> mus;
+  std::vector<double> elecs;
+  std::vector<double> hads;
+  std::vector<double> taus;
+
   for (GenEvent::particle_iterator it=evt->particles_begin();it!=evt->particles_end();it++)
 	{
 		if (abs((*it)->pdg_id())==15 && (*it)->end_vertex())
@@ -421,6 +477,7 @@ bool ParticleReplacerClass::testEvent(HepMC::GenEvent * evt)
     	std::queue<const GenParticle *> decaying_particles;
 			decaying_particles.push(*it);
 			int t=0;
+      enum { ELEC, MU, HAD } type = HAD;
 			while(!decaying_particles.empty() && (++t < 30))
 			{
 				const GenParticle * front = decaying_particles.front();
@@ -431,6 +488,9 @@ bool ParticleReplacerClass::testEvent(HepMC::GenEvent * evt)
 					int pdgId=abs(front->pdg_id());
 					if (pdgId>10 && pdgId!=12 && pdgId!=14 && pdgId!=16)
 						visible_momentum+=(math::PtEtaPhiMLorentzVector)front->momentum();
+
+          if(pdgId == 11) type = ELEC;
+          if(pdgId == 13) type = MU;
 				}
 				else
 				{
@@ -438,17 +498,48 @@ bool ParticleReplacerClass::testEvent(HepMC::GenEvent * evt)
 					for (GenVertex::particles_out_const_iterator it2=temp_vert->particles_out_const_begin();it2!=temp_vert->particles_out_const_end();it2++)
 						decaying_particles.push((*it2));
 				}
+    	}
 
-    		//delete temp_vert;
-    	}
-    	if (visible_momentum.pt()<minVisibleTransverseMomentum_)
-    	{
-	   		LogInfo("Replacer") << "refusing the event as the sum of the visible transverse momenta is too small: " << visible_momentum.pt() << "\n";
-    		return false;
-    	}
+      double vis_pt = visible_momentum.pt();
+      taus.push_back(vis_pt);
+      if(type == MU) mus.push_back(vis_pt);
+      if(type == ELEC) elecs.push_back(vis_pt);
+      if(type == HAD) hads.push_back(vis_pt);
 		}
 	}
-	return true;
+
+  std::sort(taus.begin(), taus.end(), std::greater<double>());
+  std::sort(elecs.begin(), elecs.end(), std::greater<double>());
+  std::sort(mus.begin(), mus.end(), std::greater<double>());
+  std::sort(hads.begin(), hads.end(), std::greater<double>());
+
+  for(std::vector<std::vector<MinVisPtCut> >::const_iterator iter = minVisPtCuts_.begin(); iter != minVisPtCuts_.end(); ++iter)
+  {
+    std::vector<MinVisPtCut>::const_iterator iter2;
+    for(iter2 = iter->begin(); iter2 != iter->end(); ++iter2)
+    {
+      std::vector<double>* collection;
+      switch(iter2->type_)
+      {
+      case MinVisPtCut::ELEC: collection = &elecs; break;
+      case MinVisPtCut::MU: collection = &mus; break;
+      case MinVisPtCut::HAD: collection = &hads; break;
+      case MinVisPtCut::TAU: collection = &taus; break;
+      default: assert(false); break;
+      }
+
+      // subcut fail
+      if(iter2->index_ >= collection->size() || (*collection)[iter2->index_] < iter2->pt_)
+        break;
+    }
+
+    // no subcut failed: This cut passed
+    if(iter2 == iter->end())
+      return true;
+  }
+
+  LogInfo("Replacer") << "refusing the event as the sum of the visible transverse momenta is too small\n";
+ 	return false;
 }
 
 void ParticleReplacerClass::cleanEvent(HepMC::GenEvent * evt, HepMC::GenVertex * vtx)

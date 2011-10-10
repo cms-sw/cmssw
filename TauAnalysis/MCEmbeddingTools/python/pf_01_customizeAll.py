@@ -135,10 +135,10 @@ def customise(process):
                     "transformation mode. 0=mumu->mumu, 1=mumu->tautau")
 
   options.register ('minVisibleTransverseMomentum',
-                    0, #default value
+                    "", #default value
                     VarParsing.VarParsing.multiplicity.singleton,
-                    VarParsing.VarParsing.varType.int, # double??
-                    "generator level cut on visible transverse momentum")
+                    VarParsing.VarParsing.varType.string,
+                    "generator level cut on visible transverse momentum (typeN:pT,[...];[...])")
 
   options.register ('useJson',
                     0, # default value, false
@@ -171,8 +171,8 @@ def customise(process):
   process.newSource.ParticleGun.ExternalDecays.Tauola.InputCards.mdtau = options.mdtau 
 
   print "Setting minVisibleTransverseMomentum to ", options.minVisibleTransverseMomentum
-  process.newSource.ZTauTau.minVisibleTransverseMomentum = cms.untracked.double(options.minVisibleTransverseMomentum)
-  process.generator.ZTauTau.minVisibleTransverseMomentum = cms.untracked.double(options.minVisibleTransverseMomentum)
+  process.newSource.ZTauTau.minVisibleTransverseMomentum = cms.untracked.string(options.minVisibleTransverseMomentum)
+  process.generator.ZTauTau.minVisibleTransverseMomentum = cms.untracked.string(options.minVisibleTransverseMomentum)
 
   print "Setting transformationMode to ", options.transformationMode
   process.generator.ZTauTau.transformationMode = cms.untracked.int32(options.transformationMode)
