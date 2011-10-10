@@ -122,7 +122,7 @@ TEcnaHistos::TEcnaHistos(TEcnaObject* pObjectManager, const TString SubDet)
 
   //............................ fCnaParCout
   fCnaParCout = 0;
-  Int_t iCnaParCout = pObjectManager->GetPointerValue("TEcnaParCout");
+  Long_t iCnaParCout = pObjectManager->GetPointerValue("TEcnaParCout");
   if( iCnaParCout == 0 )
     {fCnaParCout = new TEcnaParCout(pObjectManager); /*fCnew++*/}
   else
@@ -130,7 +130,7 @@ TEcnaHistos::TEcnaHistos(TEcnaObject* pObjectManager, const TString SubDet)
 
   //............................ fCnaParPaths
   fCnaParPaths = 0;
-  Int_t iCnaParPaths = pObjectManager->GetPointerValue("TEcnaParPaths");
+  Long_t iCnaParPaths = pObjectManager->GetPointerValue("TEcnaParPaths");
   if( iCnaParPaths == 0 )
     {fCnaParPaths = new TEcnaParPaths(pObjectManager); /*fCnew++*/}
   else
@@ -141,7 +141,7 @@ TEcnaHistos::TEcnaHistos(TEcnaObject* pObjectManager, const TString SubDet)
 
   //............................ fEcal  => to be changed in fParEcal
   fEcal = 0;
-  Int_t iParEcal = pObjectManager->GetPointerValue("TEcnaParEcal");
+  Long_t iParEcal = pObjectManager->GetPointerValue("TEcnaParEcal");
   if( iParEcal == 0 )
     {fEcal = new TEcnaParEcal(pObjectManager, SubDet.Data()); /*fCnew++*/}
   else
@@ -149,7 +149,7 @@ TEcnaHistos::TEcnaHistos(TEcnaObject* pObjectManager, const TString SubDet)
 
   //............................ fEcalNumbering
   fEcalNumbering = 0;
-  Int_t iEcalNumbering = pObjectManager->GetPointerValue("TEcnaNumbering");
+  Long_t iEcalNumbering = pObjectManager->GetPointerValue("TEcnaNumbering");
   if( iEcalNumbering == 0 )
     {fEcalNumbering = new TEcnaNumbering(pObjectManager, SubDet.Data()); /*fCnew++*/}
   else
@@ -157,7 +157,7 @@ TEcnaHistos::TEcnaHistos(TEcnaObject* pObjectManager, const TString SubDet)
 
   //............................ fCnaParHistos
   fCnaParHistos = 0;
-  Int_t iCnaParHistos = pObjectManager->GetPointerValue("TEcnaParHistos");
+  Long_t iCnaParHistos = pObjectManager->GetPointerValue("TEcnaParHistos");
   if( iCnaParHistos == 0 )
     {fCnaParHistos = new TEcnaParHistos(pObjectManager, SubDet.Data()); /*fCnew++*/}
   else
@@ -165,7 +165,7 @@ TEcnaHistos::TEcnaHistos(TEcnaObject* pObjectManager, const TString SubDet)
 
   //............................ fCnaWrite
   fCnaWrite = 0;
-  Int_t iCnaWrite = pObjectManager->GetPointerValue("TEcnaWrite");
+  Long_t iCnaWrite = pObjectManager->GetPointerValue("TEcnaWrite");
   if( iCnaWrite == 0 )
     {fCnaWrite = new TEcnaWrite(pObjectManager, SubDet.Data()); /*fCnew++*/}
   else
@@ -173,7 +173,7 @@ TEcnaHistos::TEcnaHistos(TEcnaObject* pObjectManager, const TString SubDet)
 
   //............................ fMyRootFile
   fMyRootFile = 0;
-  Int_t iMyRootFile = pObjectManager->GetPointerValue("TEcnaRead");
+  Long_t iMyRootFile = pObjectManager->GetPointerValue("TEcnaRead");
   if( iMyRootFile == 0 )
     {fMyRootFile = new TEcnaRead(pObjectManager, SubDet.Data()); /*fCnew++*/}
   else
@@ -1473,8 +1473,8 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 		      ( (BetweenWhat == fBetweenSamples) && (i0StinEcha >= 0) && (i0StinEcha < fEcal->MaxCrysInStin()) ) )
 		    {
 		      TMatrixD read_matrix(ReadMatSize, ReadMatSize);
-		      for(Int_t i=0; i<ReadMatSize; i++)
-			{for(Int_t j=0; j<ReadMatSize; j++){read_matrix(i,j)=(Double_t)0.;}}
+		      for(Int_t i=0; i-ReadMatSize<0; i++)
+			{for(Int_t j=0; j-ReadMatSize<0; j++){read_matrix(i,j)=(Double_t)0.;}}
 		 
 		      Bool_t OKData = kFALSE;
 		      if( arg_AlreadyRead == fTobeRead )
@@ -1650,7 +1650,7 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 				}
 			      else
 				{
-				  for(Int_t i = 0 ; i < ReadMatSize ; i++)
+				  for(Int_t i = 0 ; i - ReadMatSize < 0 ; i++)
 				    {
 				      Double_t xi = (Double_t)i;
 				      for(Int_t j = 0 ; j < ReadMatSize ; j++)
@@ -1692,16 +1692,14 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 			      if( fFlagUserHistoMax == "AUTO" )
 				{SetYmaxMemoFromValue(quantity_code, h_fbid0->GetMaximum()); fFlagUserHistoMax = "OFF";}
 			      //...................................... histo set ymin and ymax  (ViewMatrix)	
-			      Int_t  xFlagAutoYsupMargin = 0;
-			  
 			      if( CorOrCov == fCorrelationMatrix )
 				{
 				  if(BetweenWhat == fBetweenSamples)
-				    {xFlagAutoYsupMargin = SetHistoFrameYminYmaxFromMemo((TH1D*)h_fbid0, "D_MCs_ChNb");}
+				    {SetHistoFrameYminYmaxFromMemo((TH1D*)h_fbid0, "D_MCs_ChNb");}
 				  if( BetweenWhat == fLFBetweenStins  || BetweenWhat == fLFBetweenChannels  )
-				    {xFlagAutoYsupMargin = SetHistoFrameYminYmaxFromMemo((TH1D*)h_fbid0, "H2LFccMosMatrix");}
+				    {SetHistoFrameYminYmaxFromMemo((TH1D*)h_fbid0, "H2LFccMosMatrix");}
 				  if( BetweenWhat == fHFBetweenStins || BetweenWhat == fHFBetweenChannels )
-				    {xFlagAutoYsupMargin = SetHistoFrameYminYmaxFromMemo((TH1D*)h_fbid0, "H2HFccMosMatrix");}
+				    {SetHistoFrameYminYmaxFromMemo((TH1D*)h_fbid0, "H2HFccMosMatrix");}
 				  //************************** A GARDER EN RESERVE ******************************
 				  //............. special contour level for correlations (square root wise scale)
 				  // Int_t nb_niv  = 9;
@@ -1716,10 +1714,10 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 				  if (BetweenWhat == fBetweenSamples)
 				    {SetYminMemoFromPreviousMemo("D_TNo_ChNb");   // covariance => same level as sigmas
 				    SetYmaxMemoFromPreviousMemo("D_TNo_ChNb");
-				    xFlagAutoYsupMargin = SetHistoFrameYminYmaxFromMemo((TH1D*)h_fbid0, "D_TNo_ChNb");}
+				    SetHistoFrameYminYmaxFromMemo((TH1D*)h_fbid0, "D_TNo_ChNb");}
 				  if ( BetweenWhat == fLFBetweenStins || BetweenWhat == fHFBetweenStins ||
 				       BetweenWhat == fLFBetweenChannels || BetweenWhat == fHFBetweenChannels )
-				    {xFlagAutoYsupMargin = SetHistoFrameYminYmaxFromMemo((TH1D*)h_fbid0, "H2HFccMosMatrix");}
+				    {SetHistoFrameYminYmaxFromMemo((TH1D*)h_fbid0, "H2HFccMosMatrix");}
 				}
 			  
 			      // ----------------------------------------------- P L O T S  (ViewMatrix)
@@ -2088,10 +2086,10 @@ void TEcnaHistos::ViewStin(const Int_t& cStexStin, const TString CorOrCov)
 		  //======================================================== (ViewStin)
 	  
 		  //----------------------------------------------- Geographical bidim filling
-		  Int_t  ReadMatSize = fFapNbOfSamples;
-		  Int_t  MatSize     = fEcal->MaxSampADC();
+		  Int_t ReadMatSize = fFapNbOfSamples;
+		  Int_t MatSize     = fEcal->MaxSampADC();
 		  TMatrixD read_matrix(ReadMatSize, ReadMatSize);
-		  for(Int_t i=0; i<ReadMatSize; i++){for(Int_t j=0; j<ReadMatSize; j++)
+		  for(Int_t i=0; i-ReadMatSize < 0; i++){for(Int_t j=0; j-ReadMatSize < 0; j++)
 		    {read_matrix(i,j)=(Double_t)0.;}}
 
 		  Int_t i_data_exist = 0;
@@ -2149,9 +2147,8 @@ void TEcnaHistos::ViewStin(const Int_t& cStexStin, const TString CorOrCov)
 		  if( fFlagUserHistoMax == "AUTO" )
 		    {SetYmaxMemoFromValue(quantity_code, h_geo_bid->GetMaximum()); fFlagUserHistoMax = "OFF";}
 		  //...................................... histo set ymin and ymax   (ViewStin)
-		  Int_t  xFlagAutoYsupMargin = 0; 
 		  if ( CorOrCov == fCorrelationMatrix )
-		    {xFlagAutoYsupMargin = SetHistoFrameYminYmaxFromMemo((TH1D*)h_geo_bid, "D_MCs_ChNb");
+		    {SetHistoFrameYminYmaxFromMemo((TH1D*)h_geo_bid, "D_MCs_ChNb");
 		
 		    // ************************** A GARDER EN RESERVE *******************************
 		    //............. special  contour level for correlations (square root wise scale)
@@ -2163,7 +2160,7 @@ void TEcnaHistos::ViewStin(const Int_t& cStexStin, const TString CorOrCov)
 		    // ******************************** (FIN RESERVE) *******************************
 		    }
 		  if ( CorOrCov == fCovarianceMatrix )
-		    {xFlagAutoYsupMargin = SetHistoFrameYminYmaxFromMemo((TH1D*)h_geo_bid, "D_TNo_ChNb");}
+		    {SetHistoFrameYminYmaxFromMemo((TH1D*)h_geo_bid, "D_TNo_ChNb");}
 
 		  // =================================== P L O T S ========================  (ViewStin)
 		  if( i_data_exist > 0 )
@@ -2791,7 +2788,7 @@ void TEcnaHistos::ViewTowerGrid(const Int_t&  SMNumber,
   Float_t tit_off_x = fCnaParHistos->AxisTitleOffset("Towx");
   Float_t lab_off_x = fCnaParHistos->AxisLabelOffset("Towx");
   
-  TF1 *f1 = new TF1("f1", x_direction.Data(), eta_min, eta_max);                fCnewRoot++;
+  new TF1("f1", x_direction.Data(), eta_min, eta_max);                fCnewRoot++;
 
   TGaxis* sup_axis_x = 0;
 
@@ -2811,7 +2808,6 @@ void TEcnaHistos::ViewTowerGrid(const Int_t&  SMNumber,
   sup_axis_x->SetLabelOffset(lab_off_x);
   sup_axis_x->SetTickSize(tic_siz_x);
   sup_axis_x->Draw("SAME");
-  f1 = 0;
 
   //...................................................... Axe phi (y right)  (ViewTowerGrid)
   Float_t tit_siz_y = fCnaParHistos->AxisTitleSize();
@@ -2828,7 +2824,7 @@ void TEcnaHistos::ViewTowerGrid(const Int_t&  SMNumber,
       TString  y_var_name  = GetEtaPhiAxisTitle("phi");
       TString  y_direction = fEcalNumbering->GetYDirectionEB(SMNumber);
   
-      TF1 *f2 = new TF1("f2", y_direction.Data(), phi_min, phi_max);               fCnewRoot++;
+      new TF1("f2", y_direction.Data(), phi_min, phi_max);               fCnewRoot++;
       TGaxis* sup_axis_y = 0;
       
       if ( y_direction == "-x" )  // ALWAYS IN THIS CASE: ymin->ymax <=> top->bottom ("-x") direction
@@ -2847,7 +2843,6 @@ void TEcnaHistos::ViewTowerGrid(const Int_t&  SMNumber,
       sup_axis_y->SetLabelOffset(lab_off_y);
       sup_axis_y->SetTickSize(tic_siz_y);
       sup_axis_y->Draw("SAME");
-      f2 = 0;
     }
   //...................................................... Axe j(phi) (y left)  (ViewTowerGrid)
 
@@ -2857,7 +2852,7 @@ void TEcnaHistos::ViewTowerGrid(const Int_t&  SMNumber,
   TString  jy_var_name  = GetEtaPhiAxisTitle("jphiTow");
   TString  jy_direction = fEcalNumbering->GetJYDirectionEB(SMNumber);
 
-  TF1 *f3 = new TF1("f3", jy_direction.Data(), j_phi_min, j_phi_max);               fCnewRoot++;
+  new TF1("f3", jy_direction.Data(), j_phi_min, j_phi_max);               fCnewRoot++;
   TGaxis* sup_axis_jy = 0;
 
   sup_axis_jy = new TGaxis( (Float_t)0., (Float_t)0.,
@@ -2871,8 +2866,6 @@ void TEcnaHistos::ViewTowerGrid(const Int_t&  SMNumber,
   sup_axis_jy->SetLabelOffset(lab_off_y);
   sup_axis_jy->SetTickSize(tic_siz_y);
   sup_axis_jy->Draw("SAME");
-  f3 = 0;
-
 } // end of ViewTowerGrid
 
 //===============================================================================
@@ -2973,7 +2966,7 @@ void TEcnaHistos::ViewSCGrid(const Int_t& DeeNumber, const Int_t&  n1DeeSCEcna,
       IX_values_min = -IX_min ;   IX_values_max = -IX_max; axis_chopt = "CS";
     }
 
-  TF1 *f1 = new TF1("f1", x_direction.Data(), IX_values_min, IX_values_max);    fCnewRoot++;
+  new TF1("f1", x_direction.Data(), IX_values_min, IX_values_max);    fCnewRoot++;
   sup_axis_x = new TGaxis( axis_x_inf, axis_y_inf, axis_x_sup, axis_y_sup,
 			   "f1", axis_nb_div, axis_chopt , 0.);   fCnewRoot++;
 
@@ -2984,7 +2977,6 @@ void TEcnaHistos::ViewSCGrid(const Int_t& DeeNumber, const Int_t&  n1DeeSCEcna,
   sup_axis_x->SetLabelOffset(lab_off_x);
   sup_axis_x->SetTickSize(tic_siz_x);     // <===== NE MARCHE QU'AVEC L'OPTION "S"
   sup_axis_x->Draw("SAME");
-  f1 = 0;
 
   //...................................................... Axe j(IY) (ViewSCGrid)
 
@@ -3000,7 +2992,7 @@ void TEcnaHistos::ViewSCGrid(const Int_t& DeeNumber, const Int_t&  n1DeeSCEcna,
   TString  jy_var_name  = GetIXIYAxisTitle("jIYSC");
   TString  jy_direction = fEcalNumbering->GetJYDirectionEE(DeeNumber);
 
-  TF1 *f2 = new TF1("f2", jy_direction.Data(), j_IY_min, j_IY_max);             fCnewRoot++;
+  new TF1("f2", jy_direction.Data(), j_IY_min, j_IY_max);             fCnewRoot++;
 
   TGaxis* sup_axis_jy = new TGaxis( (Float_t)0., (Float_t)0.,
 			    (Float_t)0., (Float_t)(size_IY*MatSize),
@@ -3013,7 +3005,6 @@ void TEcnaHistos::ViewSCGrid(const Int_t& DeeNumber, const Int_t&  n1DeeSCEcna,
   sup_axis_jy->SetLabelOffset(lab_off_y);
   sup_axis_jy->SetTickSize(tic_siz_y);     // <===== NE MARCHE QU'AVEC L'OPTION "S"
   sup_axis_jy->Draw();
-  f2 = 0;
 
 } // end of ViewSCGrid
 
@@ -3189,8 +3180,7 @@ void TEcnaHistos::ViewStex(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 	  if( fFlagUserHistoMax == "AUTO" )
 	    {SetYmaxMemoFromValue(HistoCode.Data(), h_geo_bid->GetMaximum()); fFlagUserHistoMax = "OFF";}
 	  //...................................... histo set ymin and ymax
-	  Int_t  xFlagAutoYsupMargin = 0;      
-	  xFlagAutoYsupMargin = SetHistoFrameYminYmaxFromMemo((TH1D*)h_geo_bid, HistoCode);
+	  SetHistoFrameYminYmaxFromMemo((TH1D*)h_geo_bid, HistoCode);
 	  
 	  // ************************** A GARDER EN RESERVE *******************************
 	  //............. special contour level for correlations (square root wise scale)
@@ -3455,8 +3445,7 @@ void TEcnaHistos::StexHocoVecoLHFCorcc(const TString Freq)
 	      if( fFlagUserHistoMax == "AUTO" )
 		{SetYmaxMemoFromValue(HistoCode.Data(), h_geo_bid->GetMaximum()); fFlagUserHistoMax = "OFF";}
 	      //...................................... histo set ymin and ymax
-	      Int_t  xFlagAutoYsupMargin = 0;      
-	      xFlagAutoYsupMargin = SetHistoFrameYminYmaxFromMemo((TH1D*)h_geo_bid, HistoCode);
+	      SetHistoFrameYminYmaxFromMemo((TH1D*)h_geo_bid, HistoCode);
 	      
 	      // ----------------------------------- P L O T S   (StexHocoVecoLHFCorcc)
 	      
@@ -4011,7 +4000,7 @@ void TEcnaHistos::ViewSMGrid(const Int_t& SMNumber, const TString c_option)
   Float_t tit_off_x = fCnaParHistos->AxisTitleOffset("SMx");
   Float_t lab_off_x = fCnaParHistos->AxisLabelOffset("SMx");
 
-  TF1 *f1 = new TF1("f1", x_direction.Data(), eta_min, eta_max);          fCnewRoot++;
+  new TF1("f1", x_direction.Data(), eta_min, eta_max);          fCnewRoot++;
     TGaxis* sup_axis_x = 0;
 
   if( x_direction == "-x" ) // NEVER  IN THIS CASE: xmin->xmax <=> right->left ("-x") direction
@@ -4043,7 +4032,7 @@ void TEcnaHistos::ViewSMGrid(const Int_t& SMNumber, const TString c_option)
   Float_t tit_off_y = fCnaParHistos->AxisTitleOffset("SMy");
   Float_t lab_off_y = fCnaParHistos->AxisLabelOffset("SMy");
 
-  TF1 *f2 = new TF1("f2", y_direction.Data(), phi_min, phi_max);           fCnewRoot++;
+  new TF1("f2", y_direction.Data(), phi_min, phi_max);           fCnewRoot++;
   TGaxis* sup_axis_y = 0;
   
   if ( y_direction == "-x" ) // ALWAYS IN THIS CASE: ymin->ymax <=> top->bottom ("-x") direction
@@ -4071,7 +4060,7 @@ void TEcnaHistos::ViewSMGrid(const Int_t& SMNumber, const TString c_option)
   TString  jy_var_name  = " ";
   TString  jy_direction = fEcalNumbering->GetJYDirectionEB(SMNumber);
 
-  TF1 *f3 = new TF1("f3", jy_direction.Data(), jphi_min, jphi_max);           fCnewRoot++;
+  new TF1("f3", jy_direction.Data(), jphi_min, jphi_max);           fCnewRoot++;
   TGaxis* sup_axis_jy = 0;
   
   //............; essai
@@ -4097,10 +4086,6 @@ void TEcnaHistos::ViewSMGrid(const Int_t& SMNumber, const TString c_option)
 
   //--------------------------- ViewSMGrid
 	  
-  f1 = 0;
-  f2 = 0;
-  f3 = 0;
-
   gStyle->SetTextColor(fCnaParHistos->ColorDefinition("noir"));
 
 } // end of ViewSMGrid
@@ -5048,8 +5033,7 @@ void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_Alre
       if( fFlagUserHistoMax == "AUTO" )
 	{SetYmaxMemoFromValue(HistoCode.Data(), h_geo_bid->GetMaximum()); fFlagUserHistoMax = "OFF";}
       //...................................... histo set ymin and ymax
-      Int_t  xFlagAutoYsupMargin = 0;      
-      xFlagAutoYsupMargin = SetHistoFrameYminYmaxFromMemo((TH1D*)h_geo_bid, HistoCode);
+      SetHistoFrameYminYmaxFromMemo((TH1D*)h_geo_bid, HistoCode);
 	  
       // ************************** A GARDER EN RESERVE *******************************
       //............. special contour level for correlations (square root wise scale)
@@ -5335,7 +5319,7 @@ void TEcnaHistos::ViewEBGrid()
   TString  x_var_name  = GetHocoVecoAxisTitle("iphiEB");;
   TString  x_direction = fEcalNumbering->GetXDirectionEB(SMNumber);
 
-  TF1 *f1 = new TF1("f1", x_direction.Data(), phi_min, phi_max);          fCnewRoot++;
+  new TF1("f1", x_direction.Data(), phi_min, phi_max);          fCnewRoot++;
     TGaxis* sup_axis_x = 0;
 
   if( x_direction == "-x" ) // NEVER  IN THIS CASE: xmin->xmax <=> right->left ("-x") direction
@@ -5359,8 +5343,6 @@ void TEcnaHistos::ViewEBGrid()
   sup_axis_x->SetLabelOffset(lab_off_x);
   sup_axis_x->SetTickSize(tic_siz_x);
   sup_axis_x->Draw("SAME");
-
-  f1 = 0;
 
   //...................................................... Axe eta (y) ViewEBGrid
   MatSize = fEcal->MaxTowEtaInSM();

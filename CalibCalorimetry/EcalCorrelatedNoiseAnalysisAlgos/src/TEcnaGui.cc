@@ -641,7 +641,7 @@ TGMainFrame(p, w, h)
 
   //............................ fCnaParCout
   fCnaParCout = 0;
-  Int_t iCnaParCout = pObjectManager->GetPointerValue("TEcnaParCout");
+  Long_t iCnaParCout = pObjectManager->GetPointerValue("TEcnaParCout");
   if( iCnaParCout == 0 )
     {fCnaParCout = new TEcnaParCout(pObjectManager); /*fCnew++*/}
   else
@@ -655,7 +655,7 @@ TGMainFrame(p, w, h)
 
   //............................ fCnaParPaths
   fCnaParPaths = 0;
-  Int_t iCnaParPaths = pObjectManager->GetPointerValue("TEcnaParPaths");
+  Long_t iCnaParPaths = pObjectManager->GetPointerValue("TEcnaParPaths");
   if( iCnaParPaths == 0 )
     {fCnaParPaths = new TEcnaParPaths(pObjectManager); /*fCnew++*/}
   else
@@ -666,7 +666,7 @@ TGMainFrame(p, w, h)
 
   //............................ fEcal  => to be changed in fParEcal
   fEcal = 0;
-  Int_t iParEcal = pObjectManager->GetPointerValue("TEcnaParEcal");
+  Long_t iParEcal = pObjectManager->GetPointerValue("TEcnaParEcal");
   if( iParEcal == 0 )
     {fEcal = new TEcnaParEcal(pObjectManager, SubDet.Data()); /*fCnew++*/}
   else
@@ -674,7 +674,7 @@ TGMainFrame(p, w, h)
 
   //............................ fEcalNumbering
   fEcalNumbering = 0;
-  Int_t iEcalNumbering = pObjectManager->GetPointerValue("TEcnaNumbering");
+  Long_t iEcalNumbering = pObjectManager->GetPointerValue("TEcnaNumbering");
   if( iEcalNumbering == 0 )
     {fEcalNumbering = new TEcnaNumbering(pObjectManager, SubDet.Data()); /*fCnew++*/}
   else
@@ -682,7 +682,7 @@ TGMainFrame(p, w, h)
 
   //............................ fCnaParHistos
   fCnaParHistos = 0;
-  Int_t iCnaParHistos = pObjectManager->GetPointerValue("TEcnaParHistos");
+  Long_t iCnaParHistos = pObjectManager->GetPointerValue("TEcnaParHistos");
   if( iCnaParHistos == 0 )
     {fCnaParHistos = new TEcnaParHistos(pObjectManager, SubDet.Data()); /*fCnew++*/}
   else
@@ -690,7 +690,7 @@ TGMainFrame(p, w, h)
 
   //............................ fCnaWrite
   fCnaWrite = 0;
-  Int_t iCnaWrite = pObjectManager->GetPointerValue("TEcnaWrite");
+  Long_t iCnaWrite = pObjectManager->GetPointerValue("TEcnaWrite");
   if( iCnaWrite == 0 )
     {fCnaWrite = new TEcnaWrite(pObjectManager, SubDet.Data()); /*fCnew++*/}
   else
@@ -702,7 +702,7 @@ TGMainFrame(p, w, h)
   //		              fEcal, fCnaParHistos, fEcalNumbering, fCnaWrite);       fCnew++;
 
   fHistos = 0;
-  Int_t iHistos = pObjectManager->GetPointerValue("TEcnaHistos");
+  Long_t iHistos = pObjectManager->GetPointerValue("TEcnaHistos");
   if( iHistos == 0 )
     {fHistos = new TEcnaHistos(pObjectManager, SubDet.Data()); /*fCnew++*/}
   else
@@ -3480,17 +3480,16 @@ void TEcnaGui::DoButtonStex()
       //................... Update of SC Button Text according to the Dee Number
       TString xStinAButText = "?";
       TString xStinBButText = "?";
-      Int_t Stin_buf_lenght = 10;
       if ( fSubDet == "EE" && ( fKeyStexNumber == 1 || fKeyStexNumber == 3 ) )
 	{xStinAButText = "SC for const. [150,298] "; xStinBButText  = "SC' for const. [150,298] ";
-	Stin_buf_lenght =  50; fStinABut->SetText(xStinAButText); fStinBBut->SetText(xStinBButText);}
+	fStinABut->SetText(xStinAButText); fStinBBut->SetText(xStinBButText);}
       if ( fSubDet == "EE" && ( fKeyStexNumber == 2 || fKeyStexNumber == 4 ) )
 	{xStinAButText = "SC for const. [  1,149] "; xStinBButText  = "SC' for const. [  1,149] ";
-	Stin_buf_lenght =  50; fStinABut->SetText(xStinAButText); fStinBBut->SetText(xStinBButText);}
+	fStinABut->SetText(xStinAButText); fStinBBut->SetText(xStinBButText);}
 
       if ( fSubDet == "EE" && ( fKeyStexNumber == 0 ) )
 	{xStinAButText = "SC for const.           "; xStinBButText  = "SC' for const.           ";
-	Stin_buf_lenght =  50; fStinABut->SetText(xStinAButText); fStinBBut->SetText(xStinBButText);}
+	fStinABut->SetText(xStinAButText); fStinBBut->SetText(xStinBButText);}
       
       //................... Update of SC widget according to the Dee Number
       if( fKeyStexNumber > 0 )

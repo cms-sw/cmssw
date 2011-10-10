@@ -36,7 +36,7 @@ TEcnaRun::TEcnaRun(TEcnaObject* pObjectManager, const TString SubDet)
 
   //............................ fCnaParCout
   fCnaParCout = 0;
-  Int_t iCnaParCout = pObjectManager->GetPointerValue("TEcnaParCout");
+  Long_t iCnaParCout = pObjectManager->GetPointerValue("TEcnaParCout");
   if( iCnaParCout == 0 )
     {fCnaParCout = new TEcnaParCout(pObjectManager); /*fCnew++*/}
   else
@@ -44,7 +44,7 @@ TEcnaRun::TEcnaRun(TEcnaObject* pObjectManager, const TString SubDet)
 
   //............................ fCnaParPaths
   fCnaParPaths = 0;
-  Int_t iCnaParPaths = pObjectManager->GetPointerValue("TEcnaParPaths");
+  Long_t iCnaParPaths = pObjectManager->GetPointerValue("TEcnaParPaths");
   if( iCnaParPaths == 0 )
     {fCnaParPaths = new TEcnaParPaths(pObjectManager); /*fCnew++*/}
   else
@@ -64,7 +64,7 @@ TEcnaRun::TEcnaRun(TEcnaObject* pObjectManager, const TString SubDet)
 
   fFileHeader = 0;
   //Int_t iFileHeader = pObjectManager->GetPointerValue("TEcnaHeader");
-  Int_t iFileHeader = 0;  // one TEcnaHeader object for each file since they can be open simultaneously 
+  Long_t iFileHeader = 0;  // one TEcnaHeader object for each file since they can be open simultaneously 
   if( iFileHeader == 0 )
     {fFileHeader = new TEcnaHeader(pObjectManager, h_name, h_title); /*fCnew++*/}
   else
@@ -86,7 +86,7 @@ TEcnaRun::TEcnaRun(TEcnaObject* pObjectManager, const TString SubDet, const Int_
 
   //............................ fCnaParCout
   fCnaParCout = 0;
-  Int_t iCnaParCout = pObjectManager->GetPointerValue("TEcnaParCout");
+  Long_t iCnaParCout = pObjectManager->GetPointerValue("TEcnaParCout");
   if( iCnaParCout == 0 )
     {fCnaParCout = new TEcnaParCout(pObjectManager); /*fCnew++*/}
   else
@@ -94,7 +94,7 @@ TEcnaRun::TEcnaRun(TEcnaObject* pObjectManager, const TString SubDet, const Int_
 
   //............................ fCnaParPaths
   fCnaParPaths = 0;
-  Int_t iCnaParPaths = pObjectManager->GetPointerValue("TEcnaParPaths");
+  Long_t iCnaParPaths = pObjectManager->GetPointerValue("TEcnaParPaths");
   if( iCnaParPaths == 0 )
     {fCnaParPaths = new TEcnaParPaths(pObjectManager); /*fCnew++*/}
   else
@@ -108,8 +108,8 @@ TEcnaRun::TEcnaRun(TEcnaObject* pObjectManager, const TString SubDet, const Int_
   const Text_t *h_title = "CnaHeader";  //==> voir cette question avec FXG
 
   fFileHeader = 0;
-  //Int_t iFileHeader = pObjectManager->GetPointerValue("TEcnaHeader");
-  Int_t iFileHeader = 0;  // one TEcnaHeader object for each file since they can be open simultaneously 
+  //Long_t iFileHeader = pObjectManager->GetPointerValue("TEcnaHeader");
+  Long_t iFileHeader = 0;  // one TEcnaHeader object for each file since they can be open simultaneously 
   if( iFileHeader == 0 )
     {fFileHeader = new TEcnaHeader(pObjectManager, h_name, h_title); /*fCnew++*/}
   else
@@ -541,8 +541,6 @@ void TEcnaRun::GetReadyToReadData( TString       typ_ana, const Int_t& run_numbe
 
     }
   
-  Int_t ifirst  = nfirst - 1;
-
   //............. allocation for counters
   fMiscDiag = new Int_t[fNbOfMiscDiagCounters];       fCnew++;
   for (Int_t iz=0; iz<fNbOfMiscDiagCounters; iz++){fMiscDiag[iz] = (Int_t)0;}
@@ -787,7 +785,6 @@ void TEcnaRun::GetReadyToReadData( TString       typ_ana, const Int_t& run_numbe
 		cout << "!TEcnaRun::GetReadyToReadData(...) > WARNING/CORRECTION:" << endl
 		     << "! The fisrt requested event number is not positive (nfirst = " << nfirst << ") "
 		     << fTTBELL << endl;}
-	      ifirst = 0;
 	    }
 	}
       else
@@ -1092,7 +1089,7 @@ Bool_t TEcnaRun::ReadSampleAdcValues(const Int_t& nb_samp_for_calc)
       cout << "*TEcnaRun::ReadSampleAdcValues> Reading sample ADC values from file: " << endl
 	   << "           " << fRootFileName << endl;
       
-      Int_t i_no_data = 0;
+      size_t i_no_data = 0;
 
       //.......... Read the StinNumbers in the old file                     (ReadSampleAdcValues)
       TVectorD vec(fEcal->MaxStinEcnaInStex());
@@ -1162,7 +1159,7 @@ Bool_t TEcnaRun::ReadSampleAdcValues(const Int_t& nb_samp_for_calc)
 	{
 	  i_no_data++;
 	}
-      if( i_no_data != 0 )
+      if(i_no_data)
 	{
 	  cout << "!TEcnaRun::ReadSampleAdcValues(...)> *ERROR* =====> "
 	       << " Read failure. i_no_data = " << i_no_data << fTTBELL << endl;  
@@ -2938,7 +2935,7 @@ Bool_t TEcnaRun::OpenRootFile(const Text_t *name, TString status) {
   
   //gCnaRootFile = new TEcnaRootFile(fObjectManager, s_name.Data(), status);     fCnew++;
 
-      Int_t iCnaRootFile = fObjectManager->GetPointerValue("TEcnaRootFile");
+      Long_t iCnaRootFile = fObjectManager->GetPointerValue("TEcnaRootFile");
       if( iCnaRootFile == 0 )
 	{
 	  gCnaRootFile = new TEcnaRootFile(fObjectManager, s_name.Data(), status); /* Anew("gCnaRootFile");*/
@@ -3114,7 +3111,6 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 
   const Text_t* file_name = name;
 
-  Bool_t ok_open  = kFALSE;
   Bool_t ok_write = kFALSE;
 
   if ( fOpenRootFile )
@@ -3169,7 +3165,7 @@ Bool_t TEcnaRun::WriteRootFile(const Text_t* name, Int_t& argNbSampWrite)
 
       //......................................................................................................
 
-      ok_open = OpenRootFile(file_name, "RECREATE");
+      OpenRootFile(file_name, "RECREATE");
 
       TString typ_name = "?";
       Int_t v_nb_times = 0;

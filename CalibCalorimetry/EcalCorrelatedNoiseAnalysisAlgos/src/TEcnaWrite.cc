@@ -49,7 +49,7 @@ TEcnaWrite::TEcnaWrite(TEcnaObject* pObjectManager, const TString SubDet)
 
   //............................ fCnaParCout
   fCnaParCout = 0;
-  Int_t iCnaParCout = pObjectManager->GetPointerValue("TEcnaParCout");
+  Long_t iCnaParCout = pObjectManager->GetPointerValue("TEcnaParCout");
   if( iCnaParCout == 0 )
     {fCnaParCout = new TEcnaParCout(pObjectManager); /*fCnew++*/}
   else
@@ -57,7 +57,7 @@ TEcnaWrite::TEcnaWrite(TEcnaObject* pObjectManager, const TString SubDet)
 
   //............................ fCnaParPaths
   fCnaParPaths = 0;
-  Int_t iCnaParPaths = pObjectManager->GetPointerValue("TEcnaParPaths");
+  Long_t iCnaParPaths = pObjectManager->GetPointerValue("TEcnaParPaths");
   if( iCnaParPaths == 0 )
     {fCnaParPaths = new TEcnaParPaths(pObjectManager); /*fCnew++*/}
   else
@@ -71,7 +71,7 @@ TEcnaWrite::TEcnaWrite(TEcnaObject* pObjectManager, const TString SubDet)
 
   //............................ fEcal  => to be changed in fParEcal
   fEcal = 0;
-  Int_t iParEcal = pObjectManager->GetPointerValue("TEcnaParEcal");
+  Long_t iParEcal = pObjectManager->GetPointerValue("TEcnaParEcal");
   if( iParEcal == 0 )
     {fEcal = new TEcnaParEcal(pObjectManager, SubDet.Data()); /*fCnew++*/}
   else
@@ -79,7 +79,7 @@ TEcnaWrite::TEcnaWrite(TEcnaObject* pObjectManager, const TString SubDet)
 
   //............................ fEcalNumbering
   fEcalNumbering = 0;
-  Int_t iEcalNumbering = pObjectManager->GetPointerValue("TEcnaNumbering");
+  Long_t iEcalNumbering = pObjectManager->GetPointerValue("TEcnaNumbering");
   if( iEcalNumbering == 0 )
     {fEcalNumbering = new TEcnaNumbering(pObjectManager, SubDet.Data()); /*fCnew++*/}
   else

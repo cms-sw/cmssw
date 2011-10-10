@@ -50,7 +50,7 @@ TEcnaNumbering::TEcnaNumbering(TEcnaObject* pObjectManager, const TString SubDet
 
   //............................ fEcal  => to be changed in fParEcal
   fEcal = 0;
-  Int_t iParEcal = pObjectManager->GetPointerValue("TEcnaParEcal");
+  Long_t iParEcal = pObjectManager->GetPointerValue("TEcnaParEcal");
   if( iParEcal == 0 )
     {fEcal = new TEcnaParEcal(pObjectManager, SubDet.Data()); /*fCnew++*/}
   else

@@ -32,7 +32,7 @@ TEcnaRead::TEcnaRead(TEcnaObject* pObjectManager, const TString SubDet)
  //----------------------- Object management
   //............................ fCnaParCout
   fCnaParCout = 0;
-  Int_t iCnaParCout = pObjectManager->GetPointerValue("TEcnaParCout");
+  Long_t iCnaParCout = pObjectManager->GetPointerValue("TEcnaParCout");
   if( iCnaParCout == 0 )
     {fCnaParCout = new TEcnaParCout(pObjectManager); /*fCnew++*/}
   else
@@ -40,7 +40,7 @@ TEcnaRead::TEcnaRead(TEcnaObject* pObjectManager, const TString SubDet)
 
   //............................ fCnaParPaths
   fCnaParPaths = 0;
-  Int_t iCnaParPaths = pObjectManager->GetPointerValue("TEcnaParPaths");
+  Long_t iCnaParPaths = pObjectManager->GetPointerValue("TEcnaParPaths");
   if( iCnaParPaths == 0 )
     {fCnaParPaths = new TEcnaParPaths(pObjectManager); /*fCnew++*/}
   else
@@ -48,7 +48,7 @@ TEcnaRead::TEcnaRead(TEcnaObject* pObjectManager, const TString SubDet)
 
   //............................ fEcalNumbering
   fEcalNumbering = 0;
-  Int_t iEcalNumbering = pObjectManager->GetPointerValue("TEcnaNumbering");
+  Long_t iEcalNumbering = pObjectManager->GetPointerValue("TEcnaNumbering");
   if( iEcalNumbering == 0 )
     {fEcalNumbering = new TEcnaNumbering(pObjectManager, SubDet.Data()); /*fCnew++*/}
   else
@@ -56,7 +56,7 @@ TEcnaRead::TEcnaRead(TEcnaObject* pObjectManager, const TString SubDet)
 
   //............................ fCnaParHistos
   fCnaParHistos = 0;
-  Int_t iCnaParHistos = pObjectManager->GetPointerValue("TEcnaParHistos");
+  Long_t iCnaParHistos = pObjectManager->GetPointerValue("TEcnaParHistos");
   if( iCnaParHistos == 0 )
     {fCnaParHistos = new TEcnaParHistos(pObjectManager, SubDet.Data()); /*fCnew++*/}
   else
@@ -64,7 +64,7 @@ TEcnaRead::TEcnaRead(TEcnaObject* pObjectManager, const TString SubDet)
 
   //............................ fCnaWrite
   fCnaWrite = 0;
-  Int_t iCnaWrite = pObjectManager->GetPointerValue("TEcnaWrite");
+  Long_t iCnaWrite = pObjectManager->GetPointerValue("TEcnaWrite");
   if( iCnaWrite == 0 )
     {fCnaWrite = new TEcnaWrite(pObjectManager, SubDet.Data()); /*fCnew++*/}
   else
@@ -73,7 +73,7 @@ TEcnaRead::TEcnaRead(TEcnaObject* pObjectManager, const TString SubDet)
   // fEcal = 0; fEcal = new TEcnaParEcal(SubDet.Data());            // Anew("fEcal");
   //............................ fEcal  => to be changed in fParEcal
   fEcal = 0;
-  Int_t iParEcal = pObjectManager->GetPointerValue("TEcnaParEcal");
+  Long_t iParEcal = pObjectManager->GetPointerValue("TEcnaParEcal");
   if( iParEcal == 0 )
     {fEcal = new TEcnaParEcal(pObjectManager, SubDet.Data()); /*fCnew++*/}
   else
@@ -95,7 +95,7 @@ TEcnaRead::TEcnaRead(TEcnaObject* pObjectManager, const TString SubDet)
   //
 
   fFileHeader = 0;
-  Int_t iFileHeader = pObjectManager->GetPointerValue("TEcnaHeader");
+  Long_t iFileHeader = pObjectManager->GetPointerValue("TEcnaHeader");
   if( iFileHeader == 0 )
     {fFileHeader = new TEcnaHeader(pObjectManager, h_name, h_title); /*fCnew++*/}
   else
@@ -555,8 +555,8 @@ TMatrixD TEcnaRead::ReadMatrix(const Int_t& MatDim,   const TString UserMatrixTy
     }
   else
     {
-      for(Int_t i=0; i<MatDim; i++)
-	{for(Int_t j=0; j<MatDim; j++)
+      for(Int_t i=0; i-MatDim<0; i++)
+	{for(Int_t j=0; j-MatDim<0; j++)
 	    {mat(i,j) = (double_t)0.;}}
       cout <<"!TEcnaRead::ReadMatrix(...)> UserMatrixType = " << UserMatrixType
 	   << ", UserBetweenWhat = " << UserBetweenWhat
@@ -600,8 +600,8 @@ TMatrixD TEcnaRead::ReadMatrix(const Int_t& MatDim, const TString UserMatrixType
   }
   else
     {
-      for(Int_t i=0; i<MatDim; i++)
-	{for(Int_t j=0; j<MatDim; j++)
+      for(Int_t i=0; i-MatDim<0; i++)
+	{for(Int_t j=0; j-MatDim<0; j++)
 	    {mat(i,j) = (double_t)0.;}}
       cout <<"!TEcnaRead::ReadMatrix(...)> UserMatrixType = " << UserMatrixType
 	   << ", UserBetweenWhat = " << UserBetweenWhat
@@ -840,7 +840,7 @@ Bool_t TEcnaRead::OpenRootFile(const Text_t *name, TString status) {
   //  {
       // gCnaRootFile = new TEcnaRootFile(fObjectManager, s_name.Data(), status);  Anew("gCnaRootFile");
 
-      Int_t iCnaRootFile = fObjectManager->GetPointerValue("TEcnaRootFile");
+      Long_t iCnaRootFile = fObjectManager->GetPointerValue("TEcnaRootFile");
       if( iCnaRootFile == 0 )
 	{
 	  gCnaRootFile = new TEcnaRootFile(fObjectManager, s_name.Data(), status); /* Anew("gCnaRootFile");*/
@@ -1746,8 +1746,8 @@ TMatrixD TEcnaRead::ReadNumberOfEventsForSamples(const Int_t& n1StexStin,
 
 
   TMatrixD mat(MatDimX, MatDimY);
-  for(Int_t i=0; i<MatDimX; i++)
-    {for(Int_t j=0; j<MatDimY; j++){mat(i,j)=(Double_t)0.;}}
+  for(Int_t i=0; i-MatDimX<0; i++)
+    {for(Int_t j=0; j-MatDimY<0; j++){mat(i,j)=(Double_t)0.;}}
 
   Int_t Stin_index = GetStinIndex(n1StexStin);
   if( Stin_index >= 0 )
@@ -1799,10 +1799,10 @@ TMatrixD TEcnaRead::ReadNumberOfEventsForSamples(const Int_t& n1StexStin,
 	      if ( ok_read == kTRUE )
 		{
 		  fDataExist = kTRUE;
-		  for (Int_t i_crys=0; i_crys<MatDimX; i_crys++)
+		  for (Int_t i_crys=0; i_crys-MatDimX<0; i_crys++)
 		    {		      
 		      Int_t j_cna_chan = Stin_index*MatDimX + i_crys;
-		      for ( Int_t i_samp=0; i_samp<MatDimY; i_samp++)
+		      for ( Int_t i_samp=0; i_samp-MatDimY<0; i_samp++)
 			{
 			  mat(i_crys, i_samp) = gCnaRootFile->fCnaIndivResult->fMatHis(j_cna_chan, i_samp);
 			}
@@ -2908,8 +2908,8 @@ TMatrixD TEcnaRead::ReadCovariancesBetweenSamples(const Int_t & n1StexStin, cons
   Int_t i0StexEcha = fEcalNumbering->Get0StexEchaFrom1StexStinAnd0StinEcha(n1StexStin, i0StinEcha);
 
   TMatrixD mat(MatDim, MatDim);
-  for(Int_t i=0; i<MatDim; i++)
-    {for(Int_t j=0; j<MatDim; j++){mat(i,j)=(Double_t)0.;}}
+  for(Int_t i=0; i-MatDim<0; i++)
+    {for(Int_t j=0; j-MatDim<0; j++){mat(i,j)=(Double_t)0.;}}
   
   CnaResultTyp typ = cTypCovCss;
 
@@ -2957,9 +2957,9 @@ TMatrixD TEcnaRead::ReadCovariancesBetweenSamples(const Int_t & n1StexStin, cons
       if ( ok_read == kTRUE )
 	{
 	  fDataExist = kTRUE;
-	  for( Int_t i_samp = 0; i_samp < MatDim; i_samp++ )
+	  for( Int_t i_samp = 0; i_samp - MatDim < 0; i_samp++ )
 	    {
-	      for ( Int_t j_samp = 0; j_samp < MatDim; j_samp++)
+	      for ( Int_t j_samp = 0; j_samp - MatDim < 0; j_samp++)
 		{
 		 mat(i_samp, j_samp) = gCnaRootFile->fCnaIndivResult->fMatMat(i_samp,j_samp);
 		}
@@ -2996,8 +2996,8 @@ TMatrixD TEcnaRead::ReadCorrelationsBetweenSamples(const Int_t & n1StexStin, con
 
   Int_t i0StexEcha = fEcalNumbering->Get0StexEchaFrom1StexStinAnd0StinEcha(n1StexStin, i0StinEcha);
   TMatrixD mat(MatDim, MatDim);
-  for(Int_t i=0; i<MatDim; i++)
-    {for(Int_t j=0; j<MatDim; j++){mat(i,j)=(Double_t)0.;}}
+  for(Int_t i=0; i- MatDim <0; i++)
+    {for(Int_t j=0; j-MatDim<0; j++){mat(i,j)=(Double_t)0.;}}
 
   CnaResultTyp typ = cTypCorCss;
   const Text_t *file_name = (const Text_t *)fCnaWrite->fRootFileNameShort.Data();
@@ -3044,8 +3044,8 @@ TMatrixD TEcnaRead::ReadCorrelationsBetweenSamples(const Int_t & n1StexStin, con
       if ( ok_read == kTRUE )
 	{
 	  fDataExist = kTRUE;
-	  for ( Int_t i_samp = 0; i_samp < MatDim; i_samp++){
-	    for ( Int_t j_samp = 0; j_samp < MatDim; j_samp++){
+	  for ( Int_t i_samp = 0; i_samp - MatDim < 0; i_samp++){
+	    for ( Int_t j_samp = 0; j_samp - MatDim < 0; j_samp++){
 	      mat(i_samp, j_samp) = gCnaRootFile->fCnaIndivResult->fMatMat(i_samp,j_samp);}}
 	}
       else
@@ -3169,8 +3169,8 @@ TMatrixD TEcnaRead::ReadLowFrequencyCovariancesBetweenChannels(const Int_t& n1St
   Int_t   index_Stin_b = GetStinIndex(n1StexStin_b);
 
   TMatrixD mat(MatDim, MatDim);
-  for(Int_t i=0; i<MatDim; i++)
-    {for(Int_t j=0; j<MatDim; j++){mat(i,j)=(Double_t)0.;}}
+  for(Int_t i=0; i-MatDim<0; i++)
+    {for(Int_t j=0; j-MatDim<0; j++){mat(i,j)=(Double_t)0.;}}
   
   CnaResultTyp typ = cTypLfCov;
 
@@ -3219,10 +3219,10 @@ TMatrixD TEcnaRead::ReadLowFrequencyCovariancesBetweenChannels(const Int_t& n1St
       if ( ok_read == kTRUE )
 	{
 	  fDataExist = kTRUE;
-	  for ( Int_t i_crys = 0; i_crys < MatDim; i_crys++)
+	  for ( Int_t i_crys = 0; i_crys - MatDim < 0; i_crys++)
 	    {
 	      Int_t i_cna_chan = index_Stin_a*MatDim + i_crys;
-	      for ( Int_t j_crys = 0; j_crys < MatDim; j_crys++)
+	      for ( Int_t j_crys = 0; j_crys - MatDim<0; j_crys++)
 		{
 		  Int_t j_cna_chan = index_Stin_b*MatDim + j_crys;
 		  mat(i_crys, j_crys) = gCnaRootFile->fCnaIndivResult->fMatMat(i_cna_chan,j_cna_chan);
@@ -3264,8 +3264,8 @@ TMatrixD TEcnaRead::ReadLowFrequencyCorrelationsBetweenChannels(const Int_t & n1
   Int_t   index_Stin_b = GetStinIndex(n1StexStin_b);
 
   TMatrixD mat(MatDim, MatDim);
-  for(Int_t i=0; i<MatDim; i++)
-    {for(Int_t j=0; j<MatDim; j++){mat(i,j)=(Double_t)0.;}}
+  for(Int_t i=0; i-MatDim<0; i++)
+    {for(Int_t j=0; j-MatDim<0; j++){mat(i,j)=(Double_t)0.;}}
   
   CnaResultTyp typ = cTypLfCor;
 
@@ -3315,10 +3315,10 @@ TMatrixD TEcnaRead::ReadLowFrequencyCorrelationsBetweenChannels(const Int_t & n1
       if ( ok_read == kTRUE )
 	{
 	  fDataExist = kTRUE;
-	  for ( Int_t i_crys = 0; i_crys < MatDim; i_crys++)
+	  for ( Int_t i_crys = 0; i_crys - MatDim<0; i_crys++)
 	    {
 	      Int_t i_cna_chan = index_Stin_a*MatDim + i_crys;
-	      for ( Int_t j_crys = 0; j_crys < MatDim; j_crys++)
+	      for ( Int_t j_crys = 0; j_crys - MatDim<0; j_crys++)
 		{
 		  Int_t j_cna_chan = index_Stin_b*MatDim + j_crys;
 		  mat(i_crys, j_crys) = gCnaRootFile->fCnaIndivResult->fMatMat(i_cna_chan,j_cna_chan);
@@ -3361,8 +3361,8 @@ TMatrixD TEcnaRead::ReadHighFrequencyCovariancesBetweenChannels(const Int_t & n1
   Int_t   index_Stin_b = GetStinIndex(n1StexStin_b);
 
   TMatrixD mat(MatDim, MatDim);
-  for(Int_t i=0; i<MatDim; i++)
-    {for(Int_t j=0; j<MatDim; j++){mat(i,j)=(Double_t)0.;}}
+  for(Int_t i=0; i-MatDim<0; i++)
+    {for(Int_t j=0; j-MatDim<0; j++){mat(i,j)=(Double_t)0.;}}
   
   CnaResultTyp typ = cTypHfCov;
 
@@ -3411,10 +3411,10 @@ TMatrixD TEcnaRead::ReadHighFrequencyCovariancesBetweenChannels(const Int_t & n1
       if ( ok_read == kTRUE )
 	{
 	  fDataExist = kTRUE;
-	  for ( Int_t i_crys = 0; i_crys < MatDim; i_crys++)
+	  for ( Int_t i_crys = 0; i_crys - MatDim<0; i_crys++)
 	    {
 	      Int_t i_cna_chan = index_Stin_a*MatDim + i_crys;
-	      for ( Int_t j_crys = 0; j_crys < MatDim; j_crys++)
+	      for ( Int_t j_crys = 0; j_crys - MatDim<0; j_crys++)
 		{
 		  Int_t j_cna_chan = index_Stin_b*MatDim + j_crys;
 		  mat(i_crys, j_crys) = gCnaRootFile->fCnaIndivResult->fMatMat(i_cna_chan,j_cna_chan);
@@ -3457,8 +3457,8 @@ TMatrixD TEcnaRead::ReadHighFrequencyCorrelationsBetweenChannels(const Int_t & n
   Int_t   index_Stin_b = GetStinIndex(n1StexStin_b);
 
   TMatrixD mat(MatDim, MatDim);
-  for(Int_t i=0; i<MatDim; i++)
-    {for(Int_t j=0; j<MatDim; j++){mat(i,j)=(Double_t)0.;}}
+  for(Int_t i=0; i-MatDim<0; i++)
+    {for(Int_t j=0; j-MatDim<0; j++){mat(i,j)=(Double_t)0.;}}
   
   CnaResultTyp typ = cTypHfCor;
 
@@ -3508,10 +3508,10 @@ TMatrixD TEcnaRead::ReadHighFrequencyCorrelationsBetweenChannels(const Int_t & n
       if ( ok_read == kTRUE )
 	{
 	  fDataExist = kTRUE;
-	  for ( Int_t i_crys = 0; i_crys < MatDim; i_crys++)
+	  for ( Int_t i_crys = 0; i_crys - MatDim<0; i_crys++)
 	    {
 	      Int_t i_cna_chan = index_Stin_a*MatDim + i_crys;
-	      for ( Int_t j_crys = 0; j_crys < MatDim; j_crys++)
+	      for ( Int_t j_crys = 0; j_crys - MatDim<0; j_crys++)
 		{
 		  Int_t j_cna_chan = index_Stin_b*MatDim + j_crys;
 		  mat(i_crys, j_crys) = gCnaRootFile->fCnaIndivResult->fMatMat(i_cna_chan,j_cna_chan);
@@ -3550,7 +3550,7 @@ TMatrixD TEcnaRead::ReadLowFrequencyCovariancesBetweenChannels(const Int_t& MatD
 
   //=====> WARNING: BIG MATRIX (1700x1700)
   TMatrixD mat(MatDim, MatDim);
-  for(Int_t i=0; i<MatDim; i++){for(Int_t j=0; j<MatDim; j++){mat(i,j)=(Double_t)0.;}}
+  for(Int_t i=0; i-MatDim<0; i++){for(Int_t j=0; j-MatDim<0; j++){mat(i,j)=(Double_t)0.;}}
 
   TVectorD vec(fEcal->MaxStinEcnaInStex());
   for(Int_t i=0; i<fEcal->MaxStinEcnaInStex(); i++){vec(i)=(Double_t)0.;}
@@ -3660,7 +3660,7 @@ TMatrixD TEcnaRead::ReadLowFrequencyCorrelationsBetweenChannels(const Int_t& Mat
 
   //=====> WARNING: BIG MATRIX (1700x1700)
   TMatrixD mat(MatDim, MatDim);
-  for(Int_t i=0; i<MatDim; i++){for(Int_t j=0; j<MatDim; j++){mat(i,j)=(Double_t)0.;}}
+  for(Int_t i=0; i-MatDim<0; i++){for(Int_t j=0; j-MatDim<0; j++){mat(i,j)=(Double_t)0.;}}
 
   TVectorD vec(fEcal->MaxStinEcnaInStex());
   for(Int_t i=0; i<fEcal->MaxStinEcnaInStex(); i++){vec(i)=(Double_t)0.;}
@@ -3770,7 +3770,7 @@ TMatrixD TEcnaRead::ReadHighFrequencyCovariancesBetweenChannels(const Int_t& Mat
 
   //=====> WARNING: BIG MATRIX (1700x1700)
   TMatrixD mat(MatDim, MatDim);
-  for(Int_t i=0; i<MatDim; i++){for(Int_t j=0; j<MatDim; j++){mat(i,j)=(Double_t)0.;}}
+  for(Int_t i=0; i-MatDim<0; i++){for(Int_t j=0; j-MatDim<0; j++){mat(i,j)=(Double_t)0.;}}
 
   TVectorD vec(fEcal->MaxStinEcnaInStex());
   for(Int_t i=0; i<fEcal->MaxStinEcnaInStex(); i++){vec(i)=(Double_t)0.;}
@@ -3880,7 +3880,7 @@ TMatrixD TEcnaRead::ReadHighFrequencyCorrelationsBetweenChannels(const Int_t& Ma
 
   //=====> WARNING: BIG MATRIX (1700x1700)
   TMatrixD mat(MatDim, MatDim);
-  for(Int_t i=0; i<MatDim; i++){for(Int_t j=0; j<MatDim; j++){mat(i,j)=(Double_t)0.;}}
+  for(Int_t i=0; i-MatDim<0; i++){for(Int_t j=0; j-MatDim<0; j++){mat(i,j)=(Double_t)0.;}}
 
   TVectorD vec(fEcal->MaxStinEcnaInStex());
   for(Int_t i=0; i<fEcal->MaxStinEcnaInStex(); i++){vec(i)=(Double_t)0.;}
@@ -3990,8 +3990,8 @@ TMatrixD TEcnaRead::ReadLowFrequencyMeanCorrelationsBetweenStins(const Int_t& Ma
 		 fEcal->MaxStinEcnaInStex(), MatDim);
 
   TMatrixD mat(MatDim, MatDim);
-  for(Int_t i=0; i<MatDim; i++)
-    {for(Int_t j=0; j<MatDim; j++){mat(i,j)=(Double_t)0.;}}
+  for(Int_t i=0; i-MatDim<0; i++)
+    {for(Int_t j=0; j-MatDim<0; j++){mat(i,j)=(Double_t)0.;}}
 
   TVectorD vec(fEcal->MaxStinEcnaInStex());
   for(Int_t i=0; i<fEcal->MaxStinEcnaInStex(); i++){vec(i)=(Double_t)0.;}
@@ -4044,9 +4044,9 @@ TMatrixD TEcnaRead::ReadLowFrequencyMeanCorrelationsBetweenStins(const Int_t& Ma
       if( ok_read == kTRUE )
 	{
 	  fDataExist = kTRUE;
-	  for(Int_t index_Stin_a = 0; index_Stin_a < MatDim; index_Stin_a++)
+	  for(Int_t index_Stin_a = 0; index_Stin_a - MatDim < 0; index_Stin_a++)
 	    {
-	      for(Int_t index_Stin_b = 0; index_Stin_b < MatDim; index_Stin_b++)   
+	      for(Int_t index_Stin_b = 0; index_Stin_b - MatDim < 0; index_Stin_b++)   
 		{
 		  if( vec(index_Stin_a) > 0 && vec(index_Stin_a) <= MatDim)
 		    {
@@ -4092,8 +4092,8 @@ TMatrixD TEcnaRead::ReadHighFrequencyMeanCorrelationsBetweenStins(const Int_t& M
 		 fEcal->MaxStinEcnaInStex(), MatDim);
 
   TMatrixD mat(MatDim, MatDim);
-  for(Int_t i=0; i<MatDim; i++)
-    {for(Int_t j=0; j<MatDim; j++){mat(i,j)=(Double_t)0.;}}
+  for(Int_t i=0; i-MatDim<0; i++)
+    {for(Int_t j=0; j-MatDim<0; j++){mat(i,j)=(Double_t)0.;}}
 
   TVectorD vec(fEcal->MaxStinEcnaInStex());
   for(Int_t i=0; i<fEcal->MaxStinEcnaInStex(); i++){vec(i)=(Double_t)0.;}
@@ -4146,9 +4146,9 @@ TMatrixD TEcnaRead::ReadHighFrequencyMeanCorrelationsBetweenStins(const Int_t& M
       if( ok_read == kTRUE )
 	{
 	  fDataExist = kTRUE;
-	  for(Int_t index_Stin_a = 0; index_Stin_a < MatDim; index_Stin_a++)
+	  for(Int_t index_Stin_a = 0; index_Stin_a - MatDim<0; index_Stin_a++)
 	    {
-	      for(Int_t index_Stin_b = 0; index_Stin_b < MatDim; index_Stin_b++)   
+	      for(Int_t index_Stin_b = 0; index_Stin_b - MatDim<0; index_Stin_b++)   
 		{
 		  if( vec(index_Stin_a) > 0 && vec(index_Stin_a) <= MatDim)
 		    {

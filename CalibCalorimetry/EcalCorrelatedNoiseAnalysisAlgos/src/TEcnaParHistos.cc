@@ -51,7 +51,7 @@ TEcnaParHistos::TEcnaParHistos(TEcnaObject* pObjectManager, const TString SubDet
 
   //............................ fEcal  => to be changed in fParEcal
   fEcal = 0;
-  Int_t iParEcal = pObjectManager->GetPointerValue("TEcnaParEcal");
+  Long_t iParEcal = pObjectManager->GetPointerValue("TEcnaParEcal");
   if( iParEcal == 0 )
     {fEcal = new TEcnaParEcal(pObjectManager, SubDet.Data()); /*fCnew++*/}
   else
@@ -59,7 +59,7 @@ TEcnaParHistos::TEcnaParHistos(TEcnaObject* pObjectManager, const TString SubDet
 
   //............................ fEcalNumbering
   fEcalNumbering = 0;
-  Int_t iEcalNumbering = pObjectManager->GetPointerValue("TEcnaNumbering");
+  Long_t iEcalNumbering = pObjectManager->GetPointerValue("TEcnaNumbering");
   if( iEcalNumbering == 0 )
     {fEcalNumbering = new TEcnaNumbering(pObjectManager, SubDet.Data()); /*fCnew++*/}
   else
