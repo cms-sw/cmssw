@@ -191,7 +191,7 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
 
   for(EcalRawDataCollection::const_iterator headerItr= DCCHeaders->begin();headerItr != DCCHeaders->end(); 
       ++headerItr) {
-    EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr->getEventSettings();
+    headerItr->getEventSettings();
     int myorbit = headerItr->getOrbit();
     int mybx = headerItr->getBX();
     int myRunType = headerItr->getRunType();
@@ -353,7 +353,6 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
      TH2F* timingHistVsAmp = FEDsAndTimingVsAmpHists_[FEDid];
      TH2F* E2vsE1uRecHist = FEDsAndE2vsE1Hists_[FEDid];
      TH2F* energyvsE1uRecHist = FEDsAndenergyvsE1Hists_[FEDid];
-     TH1F* numXtalInClusterHist = FEDsAndNumXtalsInClusterHists_[FEDid];    
      TH2F* occupHist = FEDsAndOccupancyHists_[FEDid];
      TH2F* timingHistVsPhi = FEDsAndTimingVsPhiHists_[FEDid];
      TH2F* timingHistVsModule = FEDsAndTimingVsModuleHists_[FEDid];
@@ -372,7 +371,6 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
 	 ietaProfileHist = FEDsAndiEtaProfileHists_[FEDid];
 	 E2vsE1uRecHist = FEDsAndE2vsE1Hists_[FEDid];
 	 energyvsE1uRecHist = FEDsAndenergyvsE1Hists_[FEDid];
-	 numXtalInClusterHist = FEDsAndNumXtalsInClusterHists_[FEDid];
 	 occupHist = FEDsAndOccupancyHists_[FEDid];
 	 timingHistVsPhi = FEDsAndTimingVsPhiHists_[FEDid];
 	 timingHistVsModule = FEDsAndTimingVsModuleHists_[FEDid];
@@ -643,7 +641,7 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
       
       float E2 = ampli + secondMin;
       
-      EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId((EEDetId) maxDet);      
+      ecalElectronicsMap_->getElectronicsId((EEDetId) maxDet);      
       //int FEDid = 600+elecId.dccId();           
 
       //Set some more values
@@ -1058,7 +1056,7 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
 	  EcalRecHitCollection::const_iterator thishit = hits->find(ebDetId);
 	  if (thishit == hits->end()) continue;
 	  
-	  EcalRecHit myhit = (*thishit);	 
+	  //EcalRecHit myhit = (*thishit);	 
 	  //double thisamp = myhit.energy();
 	  //std::cout << " Crossed energy: " << thisamp << " : nCross " << info.crossedEcalIds.size() << std::endl;	  
 	}

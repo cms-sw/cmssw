@@ -3,8 +3,8 @@
  * dummy module  for the test of  DaqFileInputService
  *   
  * 
- * $Date: 2008/04/10 18:18:08 $
- * $Revision: 1.2 $
+ * $Date: 2010/01/04 15:07:39 $
+ * $Revision: 1.3 $
  * \author Keti Kaadze
  * \author G. Franzoni
  *
@@ -59,14 +59,12 @@ EcalDigiDisplay::EcalDigiDisplay(const edm::ParameterSet& ps) {
   std::vector<std::string> ebDefaults;
   ebDefaults.push_back("none");
   requestedEbs_  = ps.getUntrackedParameter<std::vector<std::string> >("requestedEbs",ebDefaults);
-  bool ebIsGiven  = false;  
   // FEDs and EBs
   if ( requestedFeds_[0] != -1 ) {
     edm::LogInfo("EcalDigiDisplay") << "FED id is given! Goining to beginRun! ";
     fedIsGiven = true;
   }else {
     if ( requestedEbs_[0] !="none" ) {
-      ebIsGiven = true;
       //EB id is given and convert to FED id
       requestedFeds_.clear();
       fedMap = new EcalFedMap();

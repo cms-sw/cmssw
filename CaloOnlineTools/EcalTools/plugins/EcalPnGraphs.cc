@@ -2,8 +2,8 @@
  * module dumping TGraph with 50 data frames from Pn Diodes
  *   
  * 
- * $Date: 2008/05/05 13:24:15 $
- * $Revision: 1.2 $
+ * $Date: 2010/01/04 15:07:40 $
+ * $Revision: 1.3 $
  * \author K. Kaadze
  * \author G. Franzoni 
  *
@@ -49,7 +49,6 @@ EcalPnGraphs::EcalPnGraphs(const edm::ParameterSet& ps){
   std::vector<std::string> ebDefaults;
   ebDefaults.push_back("none");
   ebs_  = ps.getUntrackedParameter<std::vector<std::string> >("requestedEbs",ebDefaults);
-  bool ebIsGiven  = false;  
 
   //FEDs and EBs
   if ( feds_[0] != -1 ) {
@@ -58,7 +57,6 @@ EcalPnGraphs::EcalPnGraphs(const edm::ParameterSet& ps){
   }else {
     feds_.clear();
     if ( ebs_[0] !="none" ) {
-      ebIsGiven = true;
       //EB id is given and convert to FED id
       fedMap = new EcalFedMap(); 
       for (std::vector<std::string>::const_iterator ebItr = ebs_.begin(); 
@@ -134,12 +132,10 @@ void EcalPnGraphs::analyze( const edm::Event & e, const  edm::EventSetup& c){
   eventCounter++;
   if (!inputIsOk) return;
 
-  bool pnDigisFound = true;
   // retrieving crystal PN diodes from Event
   edm::Handle<EcalPnDiodeDigiCollection>  pn_digis;
   try {
     e.getByLabel(digiProducer_, pn_digis);
-    pnDigisFound = true;
   } catch (cms::Exception& ex) {
     edm::LogError("EcalPnGraphs") << "PNs were not found!";
   }

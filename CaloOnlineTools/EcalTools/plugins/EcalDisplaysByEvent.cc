@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth COOPER
 //         Created:  Th Aug 28 5:46:22 CEST 2007
-// $Id: EcalDisplaysByEvent.cc,v 1.4 2010/10/15 12:18:41 elmer Exp $
+// $Id: EcalDisplaysByEvent.cc,v 1.5 2010/10/20 10:01:59 elmer Exp $
 //
 //
 
@@ -413,13 +413,10 @@ void EcalDisplaysByEvent::makeHistos(Handle<EEDigiCollection> eeDigiHandle) {
    for(EEDigiCollection::const_iterator digiItr = eeDigis->begin(); digiItr != eeDigis->end(); ++digiItr) {
       DetId det = digiItr->id();
       EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(det);
-      int FEDid = 600+elecId.dccId();
+      size_t FEDid = 600+elecId.dccId();
       bool isEEM = false;
-      if(FEDid < 610 || FEDid > 645)
-      {
-	 if(FEDid < 610)
-	    isEEM = true;
-      }
+      if(FEDid < 610)
+	isEEM = true;
       EEDetId digiId = digiItr->id();
       int ieta = digiId.iy();
       int iphi = digiId.ix();
@@ -844,7 +841,6 @@ TH3F* EcalDisplaysByEvent::init3DEcalHist(std::string histTypeName, int subDet) 
    double ttPhiBins[73];
    double modPhiBins[19];
    double timingBins[79];
-   double highEBins[11];
    for (int i = 0; i < 79; ++i)
    {
       timingBins[i]= 6 - 7. + double(i) * 14. / 78.;
@@ -854,10 +850,6 @@ TH3F* EcalDisplaysByEvent::init3DEcalHist(std::string histTypeName, int subDet) 
 	 if ( i < 19) 
 	 {       
 	    modPhiBins[i]=1+20*i;
-	    if (i < 11)
-	    {       
-	       highEBins[i]=10.+double(i)*20.;
-	    }       
 	 }       
       }       
 
