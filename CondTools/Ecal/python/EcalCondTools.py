@@ -1,7 +1,7 @@
 #
 # Misc functions to manipulate Ecal records
 # author: Stefano Argiro
-# id: $Id: EcalCondTools.py,v 1.8 2009/07/16 08:25:49 argiro Exp $
+# id: $Id: EcalCondTools.py,v 1.12 2009/11/03 17:40:07 yma Exp $
 #
 #
 # WARNING: we assume that the list of iovs for a given tag
@@ -17,9 +17,14 @@ from math import sqrt
 
 def listTags(db):
     '''List all available tags for a given db '''
-    tags=db.allTags()
-    for tag in tags.split():
-        print tag
+    try:
+        db.startTransaction()
+        tags = db.allTags()
+        db.commitTransaction()
+        for tag in tags.split():
+            print tag
+    except:
+        return ""
 
 def listIovs(db,tag):
     '''List all available iovs for a given tag'''
@@ -32,39 +37,59 @@ def listIovs(db,tag):
            print "  Since " , p[1], " Till " , p[2]
      
     except Exception,er :
-        print er 
+        print " listIovs exception ",er 
 
 def dumpXML(db,tag,since,filename='dump.xml'):
     '''Dump record in XML format for a given tag '''
     try :
        iov = inspect.Iov(db,tag)
-       token = getToken(db,tag,since)       
-       payload=inspect.PayLoad(db,token)
+       db.startTransaction()
+       Plug = __import__(str(db.payloadModules(tag)[0]))
+       payload = Plug.Object(db)
+       listOfIovElem= [iovElem for iovElem in db.iov(tag).elements]
+       inst = 0
+       for elem in db.iov(tag).elements :
+           inst = inst + 1
+           if str(elem.since())==str(since):
+               found = inst
+               break
+       db.commitTransaction()
+       payload = inspect.PayLoad(db, tag, elem)
        out = open(filename,'w')
        print >> out, payload
       
     except Exception,er :
-        print er
+        print " dumpXML exception ",er
 
 def plot (db, tag,since,filename='plot.root'):
     '''Invoke the plot function from the wrapper and save to the specified \
        file. The file format will reflect the extension given.'''
-    
+   
     try :
-        iov = inspect.Iov(db,tag)
-        iovlist = iov.list()
-        token = getToken(db,tag,since)       
-        payload=inspect.PayLoad(db,token)
-        payload.plot(filename,"",[],[])
+       iov = inspect.Iov(db,tag)
+       db.startTransaction()
+       Plug = __import__(str(db.payloadModules(tag)[0]))
+       payload = Plug.Object(db)
+       listOfIovElem= [iovElem for iovElem in db.iov(tag).elements]
+       inst = 0
+       for elem in db.iov(tag).elements :
+           inst = inst + 1
+           if str(elem.since())==str(since):
+               found = inst
+               break
+       db.commitTransaction()
+       payload = inspect.PayLoad(db, tag, elem)
+       payload.plot(filename,"",[],[])
             
     except Exception,er :
-        print er
+        print " plot exception ",er
         
 
 def compare(tag1,db1,since1,
             tag2,db2,since2,filename='compare.root'):
   '''Produce comparison plots for two records. Save plots to file \
      according to format. tag can be an xml file'''
+  print "EcalCondTools.py compare tag1 ", tag1, "since1 : ", since1, " tag2 ", tag2," s2 ", since2
 
   coeff_1_b=[]
   coeff_2_b=[]
@@ -73,44 +98,69 @@ def compare(tag1,db1,since1,
   coeff_2_e=[]
   
   if  tag1.find(".xml") < 0:
+      found=0
       try:
-        exec('import '+db1.moduleName(tag1)+' as Plug')  
+        db1.startTransaction()
+        Plug = __import__(str(db1.payloadModules(tag1)[0]))
+        payload = Plug.Object(db1)
+        listOfIovElem= [iovElem for iovElem in db1.iov(tag1).elements]
         what = {'how':'barrel'}
         w = inspect.setWhat(Plug.What(),what)
-        ex = Plug.Extractor(w)
-        p = getObject(db1,tag1,since1)
-        p.extract(ex)
-        coeff_1_b = [i for i in ex.values()]# first set of coefficients
+        exb = Plug.Extractor(w)
         what = {'how':'endcap'}
         w = inspect.setWhat(Plug.What(),what)
-        ex = Plug.Extractor(w)
-        p.extract(ex)
-        coeff_1_e = [i for i in ex.values()]# first set of coefficients
-
+        exe = Plug.Extractor(w)
+#        p = getObject(db1,tag1,since1,ex)
+#        p.extract(ex)
+        print " before loop"
+        for elem in db1.iov(tag1).elements :       
+          if str(elem.since())==str(since1):
+            found=1
+            payload.load(elem)
+            payload.extract(exb)
+            coeff_1_b = [i for i in exb.values()]# first set of coefficients
+            payload.extract(exe)
+            coeff_1_e = [i for i in exe.values()]
+        db1.commitTransaction()
 
       except Exception,er :
-          print er
+        print " compare first set exception ",er
+      if not found :
+        print "Could not retrieve payload for tag: " , tag1, " since: ", since1
+        sys.exit(0)
+
   else:
       coeff_1_b,coeff_1_e = EcalPyUtils.fromXML(tag1)
 
   if  tag2.find(".xml")<0:
+      found=0
       try:  
-        exec('import '+db2.moduleName(tag2)+' as Plug')
+        db2.startTransaction()
+        Plug = __import__(str(db2.payloadModules(tag2)[0]))
         what = {'how':'barrel'}
         w = inspect.setWhat(Plug.What(),what)
-        ex = Plug.Extractor(w)
-        p = getObject(db2,tag2,since2)
-        p.extract(ex)
-        coeff_2_b = [i for i in ex.values()]# 2nd set of coefficients
+        exb = Plug.Extractor(w)
         what = {'how':'endcap'}
         w = inspect.setWhat(Plug.What(),what)
-        ex = Plug.Extractor(w)
-        p.extract(ex)
-        coeff_2_e = [i for i in ex.values()]# first set of coefficients
-
-        
+        exe = Plug.Extractor(w)
+#        p = getObject(db2,tag2,since2)
+#        p.extract(ex)
+        for elem in db2.iov(tag2).elements :       
+          if str(elem.since())==str(since2):
+            found=1
+            payload.load(elem)
+            payload.extract(exb)
+            coeff_2_b = [i for i in exb.values()]# second set of coefficients
+            payload.extract(exe)
+            coeff_2_e = [i for i in exe.values()]
+        db2.commitTransaction()
+     
       except Exception, er :
-          print er
+          print " compare second set exception ",er
+      if not found :
+        print "Could not retrieve payload for tag: " , tag2, " since: ", since2
+        sys.exit(0)
+
   else:
       coeff_2_b,coeff_2_e = EcalPyUtils.fromXML(tag2)
 
@@ -121,40 +171,37 @@ def compare(tag1,db1,since1,
   ebhisto,ebmap, profx, profy= compareBarrel(coeff_1_b,coeff_2_b)
   eephisto,eepmap,eemhisto,eemmap=compareEndcap(coeff_1_e,coeff_2_e)
 
-#make more canvas
+#make more canvas (suppressed : use a root file)
 
+#  cEBdiff = TCanvas("EBdiff","EBdiff")
+#  cEBdiff.Divide(2,2)
 
+#  cEBdiff.cd(1)
+#  ebhisto.Draw()
+#  cEBdiff.cd(2)
+#  ebmap.Draw("colz")
+#  cEBdiff.cd(3)
+#  profx.Draw()
+#  cEBdiff.cd(4)
+#  profy.Draw()
 
-  diff_distro_can = TCanvas("EBdiff","EBdiff")
-  diff_distro_can.Divide(2,2)
+#  EBfilename = "EB_"+filename
+#  cEBdiff.SaveAs(EBfilename)
 
-  diff_distro_can.cd(1)
-  ebhisto.Draw()
-  diff_distro_can.cd(2)
-  ebmap.Draw("colz")
-  diff_distro_can.cd(3)
-  profx.Draw()
-  diff_distro_can.cd(4)
-  profy.Draw()
-
-#  diff_distro_can.SaveAs(filename)
-
-  c2 = TCanvas("EEdiff","EEdiff")
-  c2.Divide(2,2)
+#  cEEdiff = TCanvas("EEdiff","EEdiff")
+#  cEEdiff.Divide(2,2)
   
-  c2.cd(1)
-  eephisto.Draw()
-  c2.cd(2)
-  eepmap.Draw("colz")
-  c2.cd(3)
-  eemhisto.Draw()
-  c2.cd(4)
-  eemmap.Draw("colz")
+#  cEEdiff.cd(1)
+#  eephisto.Draw()
+#  cEEdiff.cd(2)
+#  eepmap.Draw("colz")
+#  cEEdiff.cd(3)
+#  eemhisto.Draw()
+#  cEEdiff.cd(4)
+#  eemmap.Draw("colz")
 
-  EEfilename = "EE_"+filename
-
-#  c2.SaveAs(EEfilename)
-
+#  EEfilename = "EE_"+filename
+#  cEEdiff.SaveAs(EEfilename)
 
 
   eeborderphisto,eeborderpmap,eebordermhisto,eebordermmap=compareEndcapBorder(coeff_1_e,coeff_2_e)
@@ -192,35 +239,41 @@ def histo (db, tag,since,filename='histo.root'):
     coeff_endc=[]
     
     if  tag.find(".xml")< 0:
-        try:  
-          exec('import '+db.moduleName(tag)+' as Plug')
+      found=0
+      try:  
+#          exec('import '+db.moduleName(tag)+' as Plug')
+        db.startTransaction()
+        Plug = __import__(str(db.payloadModules(tag)[0]))
+        payload = Plug.Object(db)
+        listOfIovElem= [iovElem for iovElem in db.iov(tag).elements]
+        what = {'how':'barrel'}
+        w = inspect.setWhat(Plug.What(),what)
+        exb = Plug.Extractor(w)
+        what = {'how':'endcap'}
+        w = inspect.setWhat(Plug.What(),what)
+        exe = Plug.Extractor(w)
+        for elem in db.iov(tag).elements :       
+          if str(elem.since())==str(since):
+            found=1
+            payload.load(elem)
+            payload.extract(exb)
+            coeff_barl = [i for i in exb.values()]
+            payload.extract(exe)
+            coeff_endc = [i for i in exe.values()]
+        db.commitTransaction()
 
-          what = {'how':'barrel'}
-          w = inspect.setWhat(Plug.What(),what)
-          ex = Plug.Extractor(w)
-          p=getObject(db,tag,since)
-          p.extract(ex)
-          coeff_barl = [i for i in ex.values()]
-
-
-          what = {'how':'endcap'}
-          w = inspect.setWhat(Plug.What(),what)
-          ex = Plug.Extractor(w)
-          p.extract(ex)
-          coeff_endc = [i for i in ex.values()]     
-
-        except Exception, er :
-          print er 
+      except Exception, er :
+          print " histo exception ",er
+      if not found :
+        print "Could not retrieve payload for tag: " , tag, " since: ", since
+        sys.exit(0)
 
     else :
-        coeff_barl,coeff_endc=EcalPyUtils.fromXML(tag)
-
+      coeff_barl,coeff_endc=EcalPyUtils.fromXML(tag)
 
     savefile = TFile(filename,"RECREATE")
 
     ebmap, ebeta, ebphi, eePmap, ebdist, eeMmap, prof_eePL, prof_eePR, prof_eeML, prof_eeMR, ebBorderdist = makedist(coeff_barl, coeff_endc)
-
-
 
     gStyle.SetPalette(1)
 
@@ -296,14 +349,23 @@ def getObject(db,tag,since):
     ''' Return payload object for a given iov, tag, db'''
     found=0
     try:
-       exec('import '+db.moduleName(tag)+' as Plug')  
+#       exec('import '+db.moduleName(tag)+' as Plug')  
+       db.startReadOnlyTransaction()
+       Plug = __import__(str(db.payloadModules(tag)[0]))
+       print " getObject Plug"
+       payload = Plug.Object(db)
+       db.commitTransaction()
+       listOfIovElem= [iovElem for iovElem in db.iov(tag).elements]
+       print " getObject before loop"
        for elem in db.iov(tag).elements :       
            if str(elem.since())==str(since):
                found=1
-               return Plug.Object(elem)
+               print " getObject found ", elem.since()
+#               return Plug.Object(elem)
+               return elem
            
     except Exception, er :
-        print er
+        print " getObject exception ",er
 
     if not found :
         print "Could not retrieve payload for tag: " , tag, " since: ", since
