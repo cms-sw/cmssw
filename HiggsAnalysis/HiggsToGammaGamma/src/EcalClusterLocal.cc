@@ -19,7 +19,7 @@ EcalClusterLocal::EcalClusterLocal()
 EcalClusterLocal::~EcalClusterLocal()
 {}
 
-void EcalClusterLocal::localCoordsEB( const reco::BasicCluster &bclus, const edm::EventSetup &es, float &etacry, float &phicry, int &ieta, int &iphi) const
+void EcalClusterLocal::localCoordsEB( const reco::BasicCluster &bclus, const edm::EventSetup &es, float &etacry, float &phicry, int &ieta, int &iphi, float &thetatilt, float &phitilt) const
 {
   
   assert(TMath::Abs(bclus.eta()) < 1.48 );
@@ -41,7 +41,6 @@ void EcalClusterLocal::localCoordsEB( const reco::BasicCluster &bclus, const edm
   
   //find max energy crystal
   std::vector< std::pair<DetId, float> > crystals_vector = bclus.hitsAndFractions();
-  float emax = -99.;
   float drmin = 999.;
   EBDetId crystalseed;
   //printf("starting loop over crystals, etot = %5f:\n",bclus.energy());
@@ -60,16 +59,6 @@ void EcalClusterLocal::localCoordsEB( const reco::BasicCluster &bclus, const edm
       crystalseed = crystal;
     }
     
-//     //float energy = crystals_vector[icry].second;
-//     float energy = rechits->find(crystal)->energy();
-//     if (energy>emax) {
-//       emax = energy;
-//       //EBDetId crystal(crystals_vector[icry].first);
-//       crystalseed = crystal;
-//     }
-//     
-//     printf("dr = %5f, energy = %5f\n",dr,energy);
-    
   }
   
   ieta = crystalseed.ieta();
@@ -77,7 +66,12 @@ void EcalClusterLocal::localCoordsEB( const reco::BasicCluster &bclus, const edm
   
   // Get center cell position from shower depth
   const CaloCellGeometry* cell=geom->getGeometry(crystalseed);
-  GlobalPoint center_pos = (dynamic_cast<const TruncatedPyramid*>(cell))->getPosition(depth);
+  const TruncatedPyramid *cpyr = dynamic_cast<const TruncatedPyramid*>(cell);
+
+  thetatilt = cpyr->getThetaAxis();
+  phitilt = cpyr->getPhiAxis();
+
+  GlobalPoint center_pos = cpyr->getPosition(depth);
   
   double PhiCentr = TVector2::Phi_mpi_pi(center_pos.phi());
   double PhiWidth = (TMath::Pi()/180.);
@@ -95,7 +89,7 @@ void EcalClusterLocal::localCoordsEB( const reco::BasicCluster &bclus, const edm
 
 }
 
-void EcalClusterLocal::localCoordsEE( const reco::BasicCluster &bclus, const edm::EventSetup &es, float &xcry, float &ycry, int &ix, int &iy) const
+void EcalClusterLocal::localCoordsEE( const reco::BasicCluster &bclus, const edm::EventSetup &es, float &xcry, float &ycry, int &ix, int &iy, float &thetatilt, float &phitilt) const
 {
   
   assert(TMath::Abs(bclus.eta()) > 1.48 );
@@ -106,7 +100,7 @@ void EcalClusterLocal::localCoordsEE( const reco::BasicCluster &bclus, const edm
   const CaloSubdetectorGeometry* geom=pG->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);//EcalBarrel = 1
   
   const math::XYZPoint position_ = bclus.position(); 
-  double Theta = -position_.theta()+0.5*TMath::Pi();
+  //double Theta = -position_.theta()+0.5*TMath::Pi();
   double Eta = position_.eta();
   double Phi = TVector2::Phi_mpi_pi(position_.phi());
   double X = position_.x();
@@ -115,13 +109,13 @@ void EcalClusterLocal::localCoordsEE( const reco::BasicCluster &bclus, const edm
   //Calculate expected depth of the maximum shower from energy (like in PositionCalc::Calculate_Location()):
   // The parameters X0 and T0 are hardcoded here because these values were used to calculate the corrections:
   const float X0 = 0.89; float T0 = 1.2;
+  //different T0 value if outside of preshower coverage
   if (TMath::Abs(bclus.eta())<1.653) T0 = 3.1;
   
   double depth = X0 * (T0 + log(bclus.energy()));
   
   //find max energy crystal
   std::vector< std::pair<DetId, float> > crystals_vector = bclus.hitsAndFractions();
-  float emax = -99.;
   float drmin = 999.;
   EEDetId crystalseed;
   //printf("starting loop over crystals, etot = %5f:\n",bclus.energy());
@@ -147,7 +141,12 @@ void EcalClusterLocal::localCoordsEE( const reco::BasicCluster &bclus, const edm
   
   // Get center cell position from shower depth
   const CaloCellGeometry* cell=geom->getGeometry(crystalseed);
-  GlobalPoint center_pos = (dynamic_cast<const TruncatedPyramid*>(cell))->getPosition(depth);
+  const TruncatedPyramid *cpyr = dynamic_cast<const TruncatedPyramid*>(cell);
+
+  thetatilt = cpyr->getThetaAxis();
+  phitilt = cpyr->getPhiAxis();
+
+  GlobalPoint center_pos = cpyr->getPosition(depth);
   
   double XCentr = center_pos.x();
   double XWidth = 2.59;
