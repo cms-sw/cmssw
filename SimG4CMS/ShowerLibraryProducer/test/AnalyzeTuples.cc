@@ -157,7 +157,6 @@ void AnalyzeTuples::loadEventInfo(TBranch* branch) {
 void AnalyzeTuples::getRecord(int type, int record) {
 
   int nrc     = record-1;
-  int nPhoton = 0;
   photon.clear();
   if (type > 0) {
     hadBranch->SetAddress(&photon);
@@ -166,8 +165,8 @@ void AnalyzeTuples::getRecord(int type, int record) {
     emBranch->SetAddress(&photon);
     emBranch->GetEntry(nrc);
   }
-  nPhoton = photon.size();
 #ifdef DebugLog
+  int nPhoton = photon.size();
   LogDebug("HFShower") << "HFShowerLibrary::getRecord: Record " << record
 		       << " of type " << type << " with " << nPhoton 
 		       << " photons";
