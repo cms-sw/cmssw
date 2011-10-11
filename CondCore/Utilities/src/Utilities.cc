@@ -102,14 +102,14 @@ int cond::Utilities::run( int argc, char** argv ){
 
 void 
 cond::Utilities::addAuthenticationOptions(){
-  addOption<std::string>("authPath","P","path to authentication xml(default .)");
-  addOption<std::string>("user","u","user name (default \"\")");
-  addOption<std::string>("pass","p","password (default \"\")");
+  addOption<std::string>("authPath","P","path to authentication xml");
+  addOption<std::string>("user","u","user name");
+  addOption<std::string>("pass","p","password");
 }
 
 void
 cond::Utilities::addConnectOption(){
-  addOption<std::string>("connect","c","connection string(required)");
+  addOption<std::string>("connect","c","connection string (required)");
   m_dbSessions.insert("connect");
 }
 

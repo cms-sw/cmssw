@@ -17,7 +17,7 @@ namespace cond {
 cond::SchemaLogDbUtilities::SchemaLogDbUtilities():Utilities("cmscond_schema_logdb"){
   addConnectOption();
   addAuthenticationOptions();
-  addOption<bool>("create","","create LOG DB schema");
+  addOption<bool>("create","","create logdb schema");
 }
 
 cond::SchemaLogDbUtilities::~SchemaLogDbUtilities(){
