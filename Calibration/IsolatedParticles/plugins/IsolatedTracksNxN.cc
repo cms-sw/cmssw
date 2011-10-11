@@ -432,7 +432,6 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   edm::Handle<edm::SimVertexContainer> SimVtx;
   if (doMC) iEvent.getByLabel("g4SimHits",SimVtx);
-  edm::SimVertexContainer::const_iterator vtxItr = SimVtx->begin();
 
   //get Handles to PCaloHitContainers of eb/ee/hbhe
   edm::Handle<edm::PCaloHitContainer> pcaloeb;

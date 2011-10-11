@@ -43,13 +43,13 @@ namespace spr{
 
   // Energy in NxN crystal matrix
   template< typename T>
-    double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, const EcalSeverityLevelAlgo* sevlv,int ieta, int iphi, double ebThr=-100, double eeThr=-100, double tMin=-500, double tMax=500,  bool debug=false);
+    double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, double ebThr=-100, double eeThr=-100, double tMin=-500, double tMax=500,  bool debug=false);
 
   template< typename T>
-    double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, const EcalSeverityLevelAlgo* sevlv, const EcalTrigTowerConstituentsMap& ttMap, int ieta, int iphi, double ebThr=-100, double eeThr=-100, double tMin=-500, double tMax=500, bool debug=false);
+    double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, const EcalTrigTowerConstituentsMap& ttMap, int ieta, int iphi, double ebThr=-100, double eeThr=-100, double tMin=-500, double tMax=500, bool debug=false);
 
   template< typename T>
-  double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, const EcalSeverityLevelAlgo* sevlv, int ietaE, int ietaW, int iphiN, int iphiS, double ebThr=-100, double eeThr=-100, double tMin=-500, double tMax=500,bool debug=false);
+  double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ietaE, int ietaW, int iphiN, int iphiS, double ebThr=-100, double eeThr=-100, double tMin=-500, double tMax=500,bool debug=false);
 
   std::pair <double,bool> eECALmatrix(const DetId& detId, edm::Handle<EcalRecHitCollection>& hitsEB, edm::Handle<EcalRecHitCollection>& hitsEE, const EcalChannelStatus& chStatus, const CaloGeometry* geo, const CaloTopology* caloTopology, const EcalSeverityLevelAlgo* sevlv,int ieta, int iphi, double ebThr=-100, double eeThr=-100, double tMin=-500, double tMax=500,  bool debug=false);
 

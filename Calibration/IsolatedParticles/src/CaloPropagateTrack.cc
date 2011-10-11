@@ -299,6 +299,67 @@ namespace spr{
     return trkDir;
   }
 
+  spr::propagatedTrackDirection propagateCALO(unsigned int thisTrk, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const CaloGeometry* geo, const MagneticField* bField, bool debug) {
+
+    const EcalBarrelGeometry *barrelGeom = (dynamic_cast< const EcalBarrelGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel)));
+    const EcalEndcapGeometry *endcapGeom = (dynamic_cast< const EcalEndcapGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap)));
+    const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
+
+    spr::trackAtOrigin   trk = spr::simTrackAtOrigin(thisTrk, SimTk, SimVtx, debug);
+    spr::propagatedTrackDirection trkD;
+    trkD.ok     = trk.ok;
+    trkD.detIdECAL = DetId(0);
+    trkD.detIdHCAL = DetId(0);
+    trkD.detIdEHCAL= DetId(0);
+    if (debug) std::cout << "Propagate track " << thisTrk << " charge " << trk.charge << " position " << trk.position << " p " << trk.momentum << " Flag " << trkD.ok << std::endl;
+
+    if (trkD.ok) {
+      spr::propagatedTrack info = spr::propagateCalo (trk.position, trk.momentum, trk.charge, bField, 319.2, 129.4, 1.479, debug);
+      GlobalPoint point(info.point.x(),info.point.y(),info.point.z());
+      trkD.okECAL        = info.ok;
+      trkD.pointECAL     = point;
+      trkD.directionECAL = info.direction;
+      if (trkD.okECAL) {
+	if (std::abs(info.point.eta())<1.479) {
+	  trkD.detIdECAL = barrelGeom->getClosestCell(point);
+	} else {
+	  trkD.detIdECAL = endcapGeom->getClosestCell(point);
+	}
+	trkD.detIdEHCAL = gHB->getClosestCell(point);
+      }
+
+      info = spr::propagateCalo (trk.position, trk.momentum, trk.charge, bField, 402.7, 180.7, 1.392, debug);
+      point = GlobalPoint(info.point.x(),info.point.y(),info.point.z());
+      trkD.okHCAL        = info.ok;
+      trkD.pointHCAL     = point;
+      trkD.directionHCAL = info.direction;
+      if (trkD.okHCAL) {
+	trkD.detIdHCAL = gHB->getClosestCell(point);
+      }
+    }
+
+    if (debug) {
+      std::cout << "propagateCALO:: for track [" << thisTrk << "] Flag: " << trkD.ok << " ECAL (" << trkD.okECAL << ") HCAL (" << trkD.okHCAL << ")" << std::endl;
+      if (trkD.okECAL) {
+	std::cout << "ECAL point " << trkD.pointECAL << " direction "
+		  << trkD.directionECAL << " "; 
+	if (trkD.detIdECAL.subdetId() == EcalBarrel) {
+	  std::cout << (EBDetId)(trkD.detIdECAL);
+	} else {
+	  std::cout << (EEDetId)(trkD.detIdECAL); 
+	}
+      }
+      if (trkD.okHCAL) {
+	std::cout << " HCAL point " << trkD.pointHCAL << " direction "
+		  << trkD.directionHCAL << " " << (HcalDetId)(trkD.detIdHCAL); 
+      }
+      if (trkD.okECAL) std::cout << " Or " << (HcalDetId)(trkD.detIdEHCAL);
+      std::cout << std::endl;
+    }
+
+    return trkD;
+  }
+
   propagatedTrack propagateTrackToECAL(const reco::Track *track, const MagneticField* bfield, bool debug) {
     GlobalPoint  vertex (track->vx(), track->vy(), track->vz());
     GlobalVector momentum (track->px(), track->py(), track->pz());
@@ -307,6 +368,7 @@ namespace spr{
   }
 
   propagatedTrack propagateTrackToECAL(unsigned int thisTrk, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const MagneticField* bfield, bool debug) {
+
     spr::trackAtOrigin   trk = spr::simTrackAtOrigin(thisTrk, SimTk, SimVtx, debug);
     spr::propagatedTrack ptrk;
     if (trk.ok) 

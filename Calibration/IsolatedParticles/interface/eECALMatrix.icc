@@ -5,21 +5,34 @@
 namespace spr{
 
   template< typename T>
-  double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, const EcalSeverityLevelAlgo* sevlv, int ieta, int iphi, double ebThr, double eeThr, double tMin, double tMax, bool debug) {
+  double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, double ebThr, double eeThr, double tMin, double tMax, bool debug) {
 
     std::vector<DetId> vdets; 
-    spr::matrixECALIds(detId, ieta, iphi, geo, caloTopology, vdets, debug);
+    spr::matrixECALIds(detId, ieta, iphi, geo, caloTopology, vdets, false);
 
     if (debug) {
       std::cout << "Inside eECALmatrix " << 2*ieta+1 << "X" << 2*iphi+1
                 << " nXtals " << vdets.size() << std::endl;
-   }
+      for (unsigned int i=0; i<vdets.size(); ++i) {
+        std::cout << "Cell [" << i << "] 0x";
+        if (vdets[i].subdetId() == EcalBarrel) {
+	  EBDetId id = vdets[i];
+          std::cout << std::hex << vdets[i]() << std::dec << " " << id;
+        } else if (vdets[i].subdetId() == EcalEndcap) {
+          EEDetId id = vdets[i];
+          std::cout << std::hex << vdets[i]() << std::dec << " " << id;
+        } else {
+	  std::cout << std::hex << vdets[i]() << std::dec << " Unknown Type";
+        }	
+        std::cout << std::endl;
+      }
+    }
 
-   return spr::energyECAL(vdets, hitsEB,hitsEE, ebThr,eeThr, tMin,tMax, debug);
+    return spr::energyECAL(vdets, hitsEB,hitsEE, ebThr,eeThr, tMin,tMax,debug);
   }
 
   template< typename T>
-  double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, const EcalSeverityLevelAlgo* sevlv, const EcalTrigTowerConstituentsMap& ttMap, int ieta, int iphi, double ebThr, double eeThr, double tMin, double tMax, bool debug) {
+  double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, const EcalTrigTowerConstituentsMap& ttMap, int ieta, int iphi, double ebThr, double eeThr, double tMin, double tMax, bool debug) {
 
     std::vector<DetId> vdets; 
     spr::matrixECALIds(detId, ieta, iphi, geo, caloTopology, vdets, debug);
@@ -33,7 +46,7 @@ namespace spr{
   }
 
   template< typename T>
-  double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, const EcalSeverityLevelAlgo* sevlv, int ietaE, int ietaW, int iphiN, int iphiS, double ebThr, double eeThr, double tMin, double tMax, bool debug) {
+  double eECALmatrix(const DetId& detId, edm::Handle<T>& hitsEB, edm::Handle<T>& hitsEE, const CaloGeometry* geo, const CaloTopology* caloTopology, int ietaE, int ietaW, int iphiN, int iphiS, double ebThr, double eeThr, double tMin, double tMax, bool debug) {
 
     std::vector<DetId> vdets; 
     spr::matrixECALIds(detId, ietaE, ietaW, iphiN, iphiS, geo, caloTopology, vdets, debug);

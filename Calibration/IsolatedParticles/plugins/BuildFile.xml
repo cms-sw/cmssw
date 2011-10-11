@@ -43,3 +43,5 @@
 </library>
 <library   name="CalibrationIsolatedGenParticles" file="IsolatedGenParticles.cc">
 </library>
+<library   name="CalibrationElectronStudy" file="ElectronStudy.cc">
+</library>

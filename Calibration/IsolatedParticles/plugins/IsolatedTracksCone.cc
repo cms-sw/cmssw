@@ -30,6 +30,7 @@
 #include "DataFormats/HLTReco/interface/TriggerEvent.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 
+#include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
@@ -152,11 +153,11 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
   ////////////////////////////
   // Break now if L1Pass is false
   ////////////////////////////
-  //   if (!L1Pass) {
-  //     nEVT_failL1++;
+  if (!L1Pass) {
+    nEVT_failL1++;
   //     //    std::cout << "L1Pass is false : " << L1Pass << std::endl;
   //     return;  
-  //   }
+  }
   
   ///////////////////////////////////////////////
   // Get the collection handles
@@ -189,6 +190,11 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
   edm::Handle<EcalRecHitCollection> endcapRecHitsHandle;
   iEvent.getByLabel("ecalRecHit","EcalRecHitsEB",barrelRecHitsHandle);
   iEvent.getByLabel("ecalRecHit","EcalRecHitsEE",endcapRecHitsHandle);
+
+  // Retrieve the good/bad ECAL channels from the DB
+  edm::ESHandle<EcalChannelStatus> ecalChStatus;
+  iSetup.get<EcalChannelStatusRcd>().get(ecalChStatus);
+  const EcalChannelStatus* theEcalChStatus = ecalChStatus.product();
   
   edm::Handle<HBHERecHitCollection> hbhe;
   iEvent.getByLabel("hbhereco",hbhe);
@@ -212,7 +218,6 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
 
   edm::Handle<edm::SimVertexContainer> SimVtx;
   if (doMC) iEvent.getByLabel("g4SimHits",SimVtx);
-  edm::SimVertexContainer::const_iterator vtxItr = SimVtx->begin();
 
   //get Handles to PCaloHitContainers of eb/ee/hbhe
   edm::Handle<edm::PCaloHitContainer> pcaloeb;
@@ -458,11 +463,11 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
 
     if(std::abs(point1.eta())<1.479) {
       const DetId isoCell = gEB->getClosestCell(point1);
-      e3x3   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology, sevlv.product(),1,1);  
+      e3x3   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology, sevlv.product(),1,1).first;  
       trkEcalEne   = spr::eCaloSimInfo(iEvent, geo, pcaloeb, pcaloee, SimTk, SimVtx, pTrack, *associate);
     } else {
       const DetId isoCell = gEE->getClosestCell(point1);
-      e3x3   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, geo, caloTopology, sevlv.product(),1,1);
+      e3x3   = spr::eECALmatrix(isoCell,barrelRecHitsHandle,endcapRecHitsHandle, *theEcalChStatus, geo, caloTopology, sevlv.product(),1,1).first;
       trkEcalEne   = spr::eCaloSimInfo(iEvent, geo, pcaloeb, pcaloee, SimTk, SimVtx, pTrack, *associate);
     }
 
@@ -909,7 +914,7 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
     
   } // Loop over track collection
   
-    //  std::cout << "nEVT = " << nEVT << std::endl;
+    //  std::cout << "nEVT= " << nEVT << std::endl;
   
   ntp->Fill();
   nEVT++;
@@ -1225,7 +1230,8 @@ void IsolatedTracksCone::clearTrackVectors() {
 // ----- method called once each job just after ending the event loop ----
 void IsolatedTracksCone::endJob() {
 
-  std::cout << "Number of Events Processed " << nEVT << std::endl;
+  std::cout << "Number of Events Processed " << nEVT << " failed L1 "
+	    << nEVT_failL1 << std::endl;
   
 }
 
