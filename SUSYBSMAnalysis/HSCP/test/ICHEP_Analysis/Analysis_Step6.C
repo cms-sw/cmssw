@@ -128,7 +128,10 @@ double FindIntersection(TGraph* obs, TGraph* th, double Min, double Max, double 
 int ReadXSection(string InputFile, double* Mass, double* XSec, double* Low, double* High,  double* ErrLow, double* ErrHigh);
 TCutG* GetErrorBand(string name, int N, double* Mass, double* Low, double* High);
 void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern);
-void DrawModelLimtWithBand(string InputPattern, string inputmodel);
+void DrawModelLimitWithBand(string InputPattern, string inputmodel);
+std::vector<string> GetModels(string inputmodel);
+string GetModelName(string inputmodel);
+void DrawRatioBands(string InputPattern, string inputmodel);
 
 //double PlotMinScale = 0.1;
 //double PlotMaxScale = 50000;
@@ -196,6 +199,23 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
       return;
    }
    
+   string MuPattern  = "Results/dedxASmi/combined/Eta15/PtMin45/Type2/";
+   string TkPattern  = "Results/dedxASmi/combined/Eta15/PtMin45/Type0/";
+
+   string outpath = string("Results/EXCLUSION/");
+   MakeDirectories(outpath);
+
+   std::vector<string> ModelNames;
+//    ModelNames.push_back("Hyperk");
+   ModelNames.push_back("All");
+
+   for(int i=0;i<ModelNames.size();i++){
+      DrawRatioBands(TkPattern,ModelNames[i]);      
+      DrawRatioBands(MuPattern,ModelNames[i] );
+
+   }
+
+
    std::vector<string> Models;
    Models.push_back("Gluinof1");
    Models.push_back("Gluinof5");
@@ -208,19 +228,13 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    Models.push_back("DCRho12");
    Models.push_back("DCRho16");
 
-   TCanvas* c1;
-
-   string MuPattern  = "Results/dedxASmi/combined/Eta15/PtMin45/Type2/";
-   string TkPattern  = "Results/dedxASmi/combined/Eta15/PtMin45/Type0/";
-
-   string outpath = string("Results/EXCLUSION/");
-   MakeDirectories(outpath);
-
    for(int i=0;i<Models.size();i++){
-      DrawModelLimtWithBand(MuPattern, Models[i]);
-      DrawModelLimtWithBand(TkPattern, Models[i]);
+//      DrawModelLimitWithBand(MuPattern, Models[i]);
+//      DrawModelLimitWithBand(TkPattern, Models[i]);
    }
 
+
+   TCanvas* c1;
 
    FILE* pFile = fopen((string("Analysis_Step6_Result") + syst + ".txt").c_str(),"w");
 
@@ -653,9 +667,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    LEGDCMu->SetHeader("Tk + TOF");
    LEGDCMu->SetFillColor(0); 
    LEGDCMu->SetBorderSize(0);
-   LEGDCMu->AddEntry(Mu_Obs_DCRho08HyperK   , "DiChamp #tilde{#rho} = 0.8 TeV"       ,"LP");
-   LEGDCMu->AddEntry(Mu_Obs_DCRho12HyperK   , "DiChamp #tilde{#rho} = 1.2 TeV"       ,"LP");
-   LEGDCMu->AddEntry(Mu_Obs_DCRho16HyperK   , "DiChamp #tilde{#rho} = 1.6 TeV"       ,"LP");
+   LEGDCMu->AddEntry(Mu_Obs_DCRho08HyperK   , "Hyperk #tilde{#rho} = 0.8 TeV"       ,"LP");
+   LEGDCMu->AddEntry(Mu_Obs_DCRho12HyperK   , "Hyperk #tilde{#rho} = 1.2 TeV"       ,"LP");
+   LEGDCMu->AddEntry(Mu_Obs_DCRho16HyperK   , "Hyperk #tilde{#rho} = 1.6 TeV"       ,"LP");
    LEGDCMu->Draw();
 
    TLegend* LEGDCTh = new TLegend(0.15,0.70,0.50,0.90);
@@ -664,13 +678,13 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    LEGDCTh->SetBorderSize(0);
    TGraph* DCRho08HyperKThLeg = (TGraph*) DCRho08HyperKXSec->Clone("DCRho08HyperKThLeg");
    DCRho08HyperKThLeg->SetFillColor(GluinoXSecErr->GetFillColor());
-   LEGDCTh->AddEntry(DCRho08HyperKThLeg   ,"DiChamp #tilde{#rho} = 0.8 TeV   (LO)" ,"L");
+   LEGDCTh->AddEntry(DCRho08HyperKThLeg   ,"Hyperk #tilde{#rho} = 0.8 TeV   (LO)" ,"L");
    TGraph* DCRho12HyperKThLeg = (TGraph*) DCRho12HyperKXSec->Clone("DCRho12HyperKThLeg");
    DCRho12HyperKThLeg->SetFillColor(GluinoXSecErr->GetFillColor());
-   LEGDCTh->AddEntry(DCRho12HyperKThLeg   ,"DiChamp #tilde{#rho} = 1.2 TeV   (LO)" ,"L");
+   LEGDCTh->AddEntry(DCRho12HyperKThLeg   ,"Hyperk #tilde{#rho} = 1.2 TeV   (LO)" ,"L");
    TGraph* DCRho16HyperKThLeg = (TGraph*) DCRho16HyperKXSec->Clone("DCRho16HyperKThLeg");
    DCRho16HyperKThLeg->SetFillColor(GluinoXSecErr->GetFillColor());
-   LEGDCTh->AddEntry(DCRho16HyperKThLeg   ,"DiChamp #tilde{#rho} = 1.6 TeV   (LO)" ,"L");
+   LEGDCTh->AddEntry(DCRho16HyperKThLeg   ,"Hyperk #tilde{#rho} = 1.6 TeV   (LO)" ,"L");
    LEGDCTh->Draw();
    SaveCanvas(c1, outpath, string("MuDCExclusion"));
    c1->SetLogy(true);
@@ -702,9 +716,9 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    LEGDCTk->SetHeader("Tk + only");
    LEGDCTk->SetFillColor(0); 
    LEGDCTk->SetBorderSize(0);
-   LEGDCTk->AddEntry(Tk_Obs_DCRho08HyperK   , "DiChamp #tilde{#rho} = 0.8 TeV"       ,"LP");
-   LEGDCTk->AddEntry(Tk_Obs_DCRho12HyperK   , "DiChamp #tilde{#rho} = 1.2 TeV"       ,"LP");
-   LEGDCTk->AddEntry(Tk_Obs_DCRho16HyperK   , "DiChamp #tilde{#rho} = 1.6 TeV"       ,"LP");
+   LEGDCTk->AddEntry(Tk_Obs_DCRho08HyperK   , "Hyperk #tilde{#rho} = 0.8 TeV"       ,"LP");
+   LEGDCTk->AddEntry(Tk_Obs_DCRho12HyperK   , "Hyperk #tilde{#rho} = 1.2 TeV"       ,"LP");
+   LEGDCTk->AddEntry(Tk_Obs_DCRho16HyperK   , "Hyperk #tilde{#rho} = 1.6 TeV"       ,"LP");
    LEGDCTk->Draw();
 
    LEGDCTh->Draw();
@@ -1415,7 +1429,7 @@ TCutG* GetErrorBand(string name, int N, double* Mass, double* Low, double* High)
    return cutg;
 }
 
-void DrawModelLimtWithBand(string InputPattern, string inputmodel)
+void DrawModelLimitWithBand(string InputPattern, string inputmodel)
 {
    std::vector<string> Models;
    string modelname;
@@ -1510,7 +1524,7 @@ void DrawModelLimtWithBand(string InputPattern, string inputmodel)
       Models.push_back("DCRho08HyperK410");
       Models.push_back("DCRho08HyperK420");
       Models.push_back("DCRho08HyperK500");
-      modelname="DiChamp #tilde{#rho} = 0.8 TeV (LO)";
+      modelname="Hyperk #tilde{#rho} = 0.8 TeV (LO)";
    }
    else if(inputmodel == "DCRho12"){
       Models.push_back("DCRho12HyperK100"); 
@@ -1525,7 +1539,7 @@ void DrawModelLimtWithBand(string InputPattern, string inputmodel)
       Models.push_back("DCRho12HyperK610");
       Models.push_back("DCRho12HyperK620");
       Models.push_back("DCRho12HyperK700");
-      modelname="DiChamp #tilde{#rho} = 1.2 TeV (LO)";
+      modelname="Hyperk #tilde{#rho} = 1.2 TeV (LO)";
    }
    else if(inputmodel == "DCRho16"){
       Models.push_back("DCRho16HyperK100");
@@ -1540,7 +1554,7 @@ void DrawModelLimtWithBand(string InputPattern, string inputmodel)
       Models.push_back("DCRho16HyperK800");
       Models.push_back("DCRho16HyperK820");
       Models.push_back("DCRho16HyperK900");
-      modelname="DiChamp #tilde{#rho} = 1.6 TeV (LO)";
+      modelname="Hyperk #tilde{#rho} = 1.6 TeV (LO)";
    }
    else{cout<<"no model specified"<<endl;}
 
@@ -1624,3 +1638,368 @@ void DrawModelLimtWithBand(string InputPattern, string inputmodel)
 
 
 }
+std::vector<string> GetModels(string inputmodel)
+{
+   std::vector<string> Models;
+   string modelname;
+   if(inputmodel == "Gluinof1"){
+      Models.push_back("Gluino300_f1");
+      Models.push_back("Gluino400_f1");
+      Models.push_back("Gluino500_f1");
+      Models.push_back("Gluino600_f1");
+      Models.push_back("Gluino700_f1");
+      Models.push_back("Gluino800_f1");
+      Models.push_back("Gluino900_f1");
+      Models.push_back("Gluino1000_f1");
+//      Models.push_back("Gluino1100_f1");
+      modelname="gluino; 10% #tilde{g}g (NLO+NLL)";
+   }
+   else if(inputmodel == "Gluinof5"){
+      Models.push_back("Gluino300_f5");
+      Models.push_back("Gluino400_f5");
+      Models.push_back("Gluino500_f5");
+      Models.push_back("Gluino600_f5");
+      Models.push_back("Gluino700_f5");
+      Models.push_back("Gluino800_f5");
+      Models.push_back("Gluino900_f5");
+      Models.push_back("Gluino1000_f5");
+//      Models.push_back("Gluino1100_f5");
+     modelname="gluino; 50% #tilde{g}g (NLO+NLL)";
+   }
+   else if(inputmodel == "GluinoN"){
+      Models.push_back("Gluino300N_f1");
+      Models.push_back("Gluino400N_f1");
+      Models.push_back("Gluino500N_f1");
+      Models.push_back("Gluino600N_f1");
+      Models.push_back("Gluino700N_f1");
+      Models.push_back("Gluino800N_f1");
+      Models.push_back("Gluino900N_f1");
+      Models.push_back("Gluino1000N_f1");
+//      Models.push_back("Gluino1100N_f1");
+      modelname="gluino; 10% #tilde{g}g; ch. suppr.(NLO+NLL)";
+   }
+   else if(inputmodel == "Stop"){
+      Models.push_back("Stop130");
+      Models.push_back("Stop200");
+      Models.push_back("Stop300");
+      Models.push_back("Stop400");
+      Models.push_back("Stop500");
+      Models.push_back("Stop600");
+      Models.push_back("Stop700");
+      Models.push_back("Stop800");
+      modelname="stop (NLO+NLL)";
+   }
+   else if(inputmodel == "StopN"){
+      Models.push_back("Stop130N");
+      Models.push_back("Stop200N");
+      Models.push_back("Stop300N");
+      Models.push_back("Stop400N");
+      Models.push_back("Stop500N");
+      Models.push_back("Stop600N");
+      Models.push_back("Stop700N");
+      Models.push_back("Stop800N");
+      modelname="stop;ch. suppr. (NLO+NLL)";
+  }
+   else if(inputmodel == "GMStau"){
+      Models.push_back("GMStau100");
+      Models.push_back("GMStau126");
+      Models.push_back("GMStau156");
+      Models.push_back("GMStau200");
+      Models.push_back("GMStau247");
+      Models.push_back("GMStau308");
+      Models.push_back("GMStau370"); 
+      Models.push_back("GMStau432"); 
+      Models.push_back("GMStau494");
+      modelname="GMSB stau (NLO)";
+  }
+   else if(inputmodel == "PPStau"){
+      Models.push_back("PPStau100");
+      Models.push_back("PPStau126"); 
+      Models.push_back("PPStau156"); 
+      Models.push_back("PPStau200"); 
+      Models.push_back("PPStau247");
+      Models.push_back("PPStau308");
+      modelname="Pair Prod. stau (NLO)";
+   }
+   else if(inputmodel == "DCRho08"){
+      Models.push_back("DCRho08HyperK100");
+      Models.push_back("DCRho08HyperK121"); 
+      Models.push_back("DCRho08HyperK182"); 
+      Models.push_back("DCRho08HyperK242"); 
+      Models.push_back("DCRho08HyperK302");  
+      Models.push_back("DCRho08HyperK350");
+      Models.push_back("DCRho08HyperK370");
+      Models.push_back("DCRho08HyperK390");  
+      Models.push_back("DCRho08HyperK395"); 
+      Models.push_back("DCRho08HyperK400");
+      Models.push_back("DCRho08HyperK410");
+      Models.push_back("DCRho08HyperK420");
+      Models.push_back("DCRho08HyperK500");
+      modelname="Hyperk #tilde{#rho} = 0.8 TeV (LO)";
+   }
+   else if(inputmodel == "DCRho12"){
+      Models.push_back("DCRho12HyperK100"); 
+      Models.push_back("DCRho12HyperK182");
+      Models.push_back("DCRho12HyperK302");
+      Models.push_back("DCRho12HyperK500"); 
+      Models.push_back("DCRho12HyperK530"); 
+      Models.push_back("DCRho12HyperK570");
+      Models.push_back("DCRho12HyperK590"); 
+      Models.push_back("DCRho12HyperK595");
+      Models.push_back("DCRho12HyperK600");
+      Models.push_back("DCRho12HyperK610");
+      Models.push_back("DCRho12HyperK620");
+      Models.push_back("DCRho12HyperK700");
+      modelname="Hyperk #tilde{#rho} = 1.2 TeV (LO)";
+   }
+   else if(inputmodel == "DCRho16"){
+      Models.push_back("DCRho16HyperK100");
+      Models.push_back("DCRho16HyperK182"); 
+      Models.push_back("DCRho16HyperK302");
+      Models.push_back("DCRho16HyperK500");
+      Models.push_back("DCRho16HyperK700"); 
+      Models.push_back("DCRho16HyperK730"); 
+      Models.push_back("DCRho16HyperK770");
+      Models.push_back("DCRho16HyperK790");
+      Models.push_back("DCRho16HyperK795");
+      Models.push_back("DCRho16HyperK800");
+      Models.push_back("DCRho16HyperK820");
+      Models.push_back("DCRho16HyperK900");
+      modelname="Hyperk #tilde{#rho} = 1.6 TeV (LO)";
+   }
+   else{cout<<"no model specified"<<endl;}
+   return Models;
+
+}
+string GetModelName(string inputmodel)
+{
+   string modelname;
+   if(inputmodel == "Gluinof1"){
+      modelname="gluino; 10% #tilde{g}g";
+   }
+   else if(inputmodel == "Gluinof5"){
+     modelname="gluino; 50% #tilde{g}g";
+   }
+   else if(inputmodel == "GluinoN"){
+      modelname="gluino; 10% #tilde{g}g; ch. suppr.";
+   }
+   else if(inputmodel == "Stop"){
+      modelname="stop";
+   }
+   else if(inputmodel == "StopN"){
+      modelname="stop;ch. suppr.";
+  }
+   else if(inputmodel == "GMStau"){
+      modelname="GMSB stau";
+  }
+   else if(inputmodel == "PPStau"){
+      modelname="Pair Prod. stau";
+   }
+   else if(inputmodel == "DCRho08"){
+      modelname="Hyperk #tilde{#rho} = 0.8 TeV";
+   }
+   else if(inputmodel == "DCRho12"){
+      modelname="Hyperk #tilde{#rho} = 1.2 TeV";
+   }
+   else if(inputmodel == "DCRho16"){
+      modelname="Hyperk #tilde{#rho} = 1.6 TeV";
+   }
+   else{cout<<"no model specified"<<endl;}
+   return modelname;
+
+
+}
+
+
+void DrawRatioBands(string InputPattern, string inputmodel)
+{
+   bool IsTkOnly = (InputPattern.find("Type0",0)<std::string::npos);
+   string prefix = "Mu"; 
+   if(IsTkOnly) prefix ="Tk";
+
+   std::vector<string> TModels;
+   if(inputmodel == "Gluino"){
+      TModels.push_back("Gluinof1");
+      TModels.push_back("Gluinof5");
+      if(IsTkOnly) TModels.push_back("GluinoN");
+   }
+
+   else if(inputmodel == "Stop"){
+      TModels.push_back("Stop");
+      if(IsTkOnly) TModels.push_back("StopN");
+   }
+
+   else if(inputmodel == "Stau"){
+      TModels.push_back("GMStau");
+      TModels.push_back("PPStau");
+   }
+   else if(inputmodel == "Hyperk"){
+      TModels.push_back("DCRho08");
+      TModels.push_back("DCRho12");
+      TModels.push_back("DCRho16");
+   }
+   else if(inputmodel == "All"){
+      TModels.push_back("Gluinof1");
+      TModels.push_back("Gluinof5");
+      if(IsTkOnly) TModels.push_back("GluinoN");
+      TModels.push_back("Stop");
+      if(IsTkOnly) TModels.push_back("StopN");
+      TModels.push_back("GMStau");
+      TModels.push_back("PPStau");
+      TModels.push_back("DCRho08");
+      TModels.push_back("DCRho12");
+      TModels.push_back("DCRho16");
+   }
+
+
+   else {
+      cout<<"no model specified"<<endl;
+      return;
+   }
+
+
+
+
+   TCanvas* c1 = new TCanvas("c1", "c1",600,600);
+
+   TGraph** graphAtheory = new TGraph*[TModels.size()];
+   TGraph** graphAobs =  new TGraph*[TModels.size()];
+   TGraph** graphAexp =  new TGraph*[TModels.size()];
+   TCutG**  ExpAErr = new TCutG*[TModels.size()];
+   TCutG**  Exp2SigmaAErr= new TCutG*[TModels.size()];
+   TPad** padA= new  TPad*[TModels.size()+1];
+   string  ModelNames[TModels.size()];
+   double step= 1.0/(TModels.size()+2);
+   for(int k=0;k<TModels.size();k++){
+      TPad* pad = new TPad(Form("pad%i",k),Form("ExpErr%i",k),0.1,1-(k+2)*step,0.9,1-step*(k+1));//lower left x, y, topright x, y
+      if(k<(TModels.size()-1)) pad->SetBottomMargin(0.);
+      pad->SetLeftMargin(0.1);
+      pad->SetRightMargin(0.);
+      pad->SetTopMargin(0.);
+      padA[k] = pad;  
+      padA[k]->Draw();
+   }
+
+   for(int k=0;k<TModels.size();k++){
+      std::vector<string> Models = GetModels(TModels[k]);
+      ModelNames[k]=GetModelName(TModels[k]);
+
+      TMultiGraph* MG = new TMultiGraph();
+      unsigned int N = Models.size();
+      stAllInfo Infos;double Mass[N], XSecTh[N], XSecExp[N],XSecObs[N], XSecExpUp[N],XSecExpDown[N],XSecExp2Up[N],XSecExp2Down[N];
+      for(int i=0;i<N;i++){
+         Infos = stAllInfo(InputPattern+"EXCLUSION/" + Models[i] +".txt");
+         Mass[i]=Infos.Mass;
+         XSecTh [i]=Infos.XSec_Th;
+         XSecObs[i]=Infos.XSec_Obs/Infos.XSec_Exp;
+         XSecExp[i]=1.;
+         XSecExpUp[i]=Infos.XSec_ExpUp/Infos.XSec_Exp;
+         XSecExpDown[i]=Infos.XSec_ExpDown/Infos.XSec_Exp;
+         XSecExp2Up[i]=Infos.XSec_Exp2Up/Infos.XSec_Exp;
+         XSecExp2Down[i]=Infos.XSec_Exp2Down/Infos.XSec_Exp;
+      }
+
+      TGraph* graphtheory= new TGraph(N,Mass,XSecTh);
+      TGraph* graphobs = new TGraph(N,Mass,XSecObs);
+      TGraph* graphexp = new TGraph(N,Mass,XSecExp);
+       TCutG*  ExpErr = GetErrorBand(Form("ExpErr%i",k),N,Mass,XSecExpDown,XSecExpUp);
+       TCutG*  Exp2SigmaErr = GetErrorBand(Form("Exp2SigmaErr%i",k),N,Mass,XSecExp2Down,XSecExp2Up);
+
+      graphAtheory[k] = graphtheory;      
+      graphAobs[k] =graphobs;
+      graphAexp[k] =graphexp;
+      ExpAErr[k] = ExpErr;
+
+      Exp2SigmaAErr[k] = Exp2SigmaErr;
+      graphAtheory[k]->SetLineStyle(3);
+      graphAexp[k]->SetLineStyle(4); 
+      graphAexp[k]->SetLineColor(kRed);
+      graphAexp[k]->SetMarkerStyle(); 
+      graphAexp[k]->SetMarkerSize(0.); 
+      Exp2SigmaAErr[k]->SetFillColor(kYellow);
+      Exp2SigmaAErr[k]->SetLineColor(kWhite);
+      ExpAErr[k]->SetFillColor(kGreen);
+      ExpAErr[k]->SetLineColor(kWhite);
+      graphAobs[k]->SetLineColor(kBlack);
+      graphAobs[k]->SetLineWidth(2);
+      graphAobs[k]->SetMarkerColor(kBlack);
+      graphAobs[k]->SetMarkerStyle(23);
+
+
+      padA[k]->cd();
+
+      int masst[2] = {50,1050};
+      int xsect[2] = {2, 1};
+      TGraph* graph = new TGraph(2,masst,xsect); //fake graph to set xaxis right
+      graph->SetMarkerSize(0.);
+      MG->Add(graph      ,"P");
+      MG->Add(graphAobs[k]      ,"LP");
+      MG->Draw("A");
+      if(k==0){
+         TLegend* LEG = new TLegend(0.11,0.01,0.7,0.99);
+         string headerstr;
+         headerstr = " Tk + TOF";
+         if(IsTkOnly) headerstr = " Tk + only";
+         LEG->SetHeader(headerstr.c_str());
+         LEG->SetFillColor(0); 
+         LEG->SetBorderSize(0);
+         LEG->AddEntry(ExpAErr[0], "Expected #pm 1#sigma","F");
+         LEG->AddEntry(Exp2SigmaAErr[0], "Expected #pm 2#sigma "       ,"F");
+         LEG->AddEntry(graphAobs[0],"Observed" ,"LP");
+         LEG->SetMargin(0.1);
+         LEG->Draw();
+      }  
+
+      Exp2SigmaAErr[k]->Draw("f");
+      ExpAErr[k]  ->Draw("f");
+      MG->Draw("same");
+      MG->SetTitle("");
+      if(k==TModels.size()-1) {
+         MG->GetXaxis()->SetTitle("Mass (GeV/c^{2})");
+         MG->GetXaxis()->SetTitleSize(0.4);
+         MG->GetXaxis()->SetLabelSize(0.4);
+      }
+
+      TPaveText *pt = new TPaveText(0.65, 0.6, 0.95, 0.9,"LBNDC");
+      pt->SetBorderSize(0);
+      pt->SetLineWidth(0);
+      pt->SetFillColor(kWhite);
+      TText *text = pt->AddText(ModelNames[k].c_str()); 
+      text ->SetTextAlign(11);
+      text ->SetTextSize(0.3);
+      pt->Draw();
+      
+      MG->GetXaxis()->SetRangeUser(50,1050);    
+      MG->GetXaxis()->SetNdivisions(506,"Z");
+
+      MG->GetYaxis()->SetRangeUser(0.5,2.5);
+      MG->GetYaxis()->SetNdivisions(202,"Z");
+      MG->GetYaxis()->SetLabelSize(0.2);
+ 
+
+   }
+   c1->cd();
+   DrawPreliminary(IntegratedLuminosity);
+
+   TPaveText *pt = new TPaveText(0.1, 0.01, 0.15, 0.85,"NDC");
+   string tmp = "95% C.L. Limits (Relative to Expected Limit)";
+   TText *text = pt->AddText(tmp.c_str()); 
+   text ->SetTextAlign(11);
+   text ->SetTextAngle(90);
+   text ->SetTextSize(0.025);
+   pt->SetBorderSize(0);
+   pt->SetFillColor(0);
+   pt->Draw();
+
+
+
+   if(IsTkOnly)   SaveCanvas(c1,"Results/EXCLUSION/", string("Tk"+ inputmodel + "LimitsRatio"));
+   else    SaveCanvas(c1,"Results/EXCLUSION/", string("Mu"+ inputmodel + "LimitsRatio"));
+
+   delete c1;
+
+
+}
+
+
+
