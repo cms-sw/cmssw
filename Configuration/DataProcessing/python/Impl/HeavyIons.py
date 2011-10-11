@@ -91,10 +91,8 @@ class HeavyIons(Scenario):
         options.step = 'RAW2DIGI,L1Reco,RECO'+step+',L1HwVal,DQM,ENDJOB'
         options.isMC = False
         options.isData = True
-#        options.isRepacked = True
+        options.isRepacked = True
         options.beamspot = None
-#         options.eventcontent = ','.join(writeTiers)
-#         options.datatier = ','.join(writeTiers)
         options.eventcontent = None
         options.magField = 'AutoFromDBCurrent'
         options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
