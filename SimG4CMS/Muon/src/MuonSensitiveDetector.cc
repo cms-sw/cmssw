@@ -234,7 +234,6 @@ void MuonSensitiveDetector::createHit(G4Step * aStep){
 
   Global3DPoint theGlobalPos;
   if (printHits) {   
-    const G4RotationMatrix * theGlobalRot;
     Local3DPoint theGlobalHelp = InitialStepPosition(aStep,WorldCoordinates);
     theGlobalEntry = toOrcaUnits(Global3DPoint (theGlobalHelp.x(),theGlobalHelp.y(),theGlobalHelp.z()));
 
@@ -243,7 +242,7 @@ void MuonSensitiveDetector::createHit(G4Step * aStep){
                                       (preStepPoint->GetTouchable());
     theGlobalHelp=ConvertToLocal3DPoint(theTouchable->GetTranslation());
     theGlobalPos = toOrcaUnits(Global3DPoint (theGlobalHelp.x(),theGlobalHelp.y(),theGlobalHelp.z()));
-    theGlobalRot = theTouchable->GetRotation();
+    //    const G4RotationMatrix * theGlobalRot = theTouchable->GetRotation();
   }
   
   LogDebug("MuonSimDebug") << "MuonSensitiveDetector::createHit UpdatablePSimHit"<<std::endl;
