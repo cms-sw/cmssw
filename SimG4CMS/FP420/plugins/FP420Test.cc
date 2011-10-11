@@ -996,12 +996,12 @@ void FP420Test::update(const EndOfEvent * evt) {
 //      inline G4PrimaryParticle * GetDaughter() const
 
 // prim.vertex
-      int ivert = 0 ;
-      G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(ivert);
-      G4double vx=0.,vy=0.,vz=0.;
-      vx = avertex->GetX0();
-      vy = avertex->GetY0();
-      vz = avertex->GetZ0();
+      //int ivert = 0 ;
+      //G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(ivert);
+      //G4double vx=0.,vy=0.,vz=0.;
+      //vx = avertex->GetX0();
+      //vy = avertex->GetY0();
+      //vz = avertex->GetZ0();
 
   //
       // number of secondary particles deposited their energy along primary track
@@ -1470,7 +1470,8 @@ void FP420Test::update(const EndOfEvent * evt) {
     int nhitsecX = 0, nhitsecY = 0;
     for (int zmodule=1; zmodule<11; zmodule++) {
       for (int zside=1; zside<3; zside++) {
-	int det= 1, nhit = 0;
+	int det= 1;
+//      int nhit = 0;
 //	int sScale = 20;
 	int index = FP420NumberingScheme::packFP420Index(det, zside, sector, zmodule);
 	double   theTotalEnergy = themap[index];
@@ -1480,7 +1481,7 @@ void FP420Test::update(const EndOfEvent * evt) {
 	  if(theTotalEnergy > 0.00003) {
 	    nhitsX += 1;
 //	    nhitsecX += themap1[index];
-	    nhit=1;
+//	    nhit=1;
 	  }
 	}
 	//   Y planes
@@ -1489,7 +1490,7 @@ void FP420Test::update(const EndOfEvent * evt) {
 	  if(theTotalEnergy > 0.00005) {
 	    nhitsY += 1;
 //	    nhitsecY += themap1[index];
-	    nhit=1;
+//	    nhit=1;
 	  }
 	}
         // intindex is a continues numbering of FP420
