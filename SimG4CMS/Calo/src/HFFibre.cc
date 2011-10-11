@@ -140,26 +140,27 @@ double HFFibre::tShift(G4ThreeVector point, int depth, int fromEndAbs) {
   return time;
 }
 
-double HFFibre::zShift(G4ThreeVector point, int depth, int fromEndAbs) // point is z-local
-{
+double HFFibre::zShift(G4ThreeVector point, int depth, int fromEndAbs) { // point is z-local
+
   double zFibre = 0;
   double hR     = sqrt((point.x())*(point.x())+(point.y())*(point.y()));
   int    ieta   = 0;
   double length = 250*cm;
-  if (fromEndAbs < 0)   zFibre = 0.5*gpar[1] - point.z(); // Never, as fromEndAbs=0 (?)
-  else
-  {
+  if (fromEndAbs < 0) {
+    zFibre = 0.5*gpar[1] - point.z(); // Never, as fromEndAbs=0 (?)
+  } else {
     // Defines the Radius bin by radial subdivision
     for (int i = nBinR-1; i > 0; --i) if (hR < radius[i]) ieta = nBinR - i - 1;
     // define the length of the fibre
-    if (depth == 2)
-    {
+    if (depth == 2) {
       if ((int)(shortFL.size()) > ieta) length = shortFL[ieta];
-    } else if ((int)(longFL.size())  > ieta) length = longFL[ieta];
+    } else {
+      if ((int)(longFL.size())  > ieta) length = longFL[ieta];
+    }
     zFibre = length;
-    if (fromEndAbs > 0) zFibre   -= gpar[1]; // Never, as fromEndAbs=0 (M.K. ?)
-    else
-    {
+    if (fromEndAbs > 0) {
+      zFibre   -= gpar[1]; // Never, as fromEndAbs=0 (M.K. ?)
+    } else  {
       double zz = 0.5*gpar[1] + point.z();
       zFibre   -= zz;
     }

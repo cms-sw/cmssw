@@ -18,8 +18,8 @@ class G4Step;
 
 #include <vector>
  
-class HFShower
-{
+class HFShower {
+
 public:    
 
   HFShower(std::string & name, const DDCompactView & cpv, 
@@ -28,8 +28,7 @@ public:
 
 public:
 
-  struct Hit
-  {
+  struct Hit {
     Hit() {}
     int               depth;
     double            time;

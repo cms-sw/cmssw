@@ -501,6 +501,7 @@ void HcalTestAnalysis::qieAnalysis() {
     int phic = (centralTower%100);
 
     for (int layr=0; layr<nGroup; layr++) {
+      /*
       int layx, layy=20;
       for (int i=0; i<20; i++) 
 	if (group_[i] == layr+1 && i < layy) layy = i+1;
@@ -513,7 +514,7 @@ void HcalTestAnalysis::qieAnalysis() {
 	if      (layy < 2)    layx = 0;
 	else                  layx = 1;
       }
-
+      */
       for (int it=0; it<nTower; it++) {
 	int    nhit = 0;
 	double esim = 0;

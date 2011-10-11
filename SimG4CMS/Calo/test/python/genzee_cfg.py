@@ -6,7 +6,7 @@ process.load("SimG4CMS.Calo.PythiaZee_cfi")
 process.source = cms.Source("EmptySource")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(50)
+    input = cms.untracked.int32(500)
 )
 
 process.MessageLogger = cms.Service("MessageLogger",

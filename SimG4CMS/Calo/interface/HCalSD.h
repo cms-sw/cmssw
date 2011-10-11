@@ -28,8 +28,8 @@ class G4LogicalVolume;
 class G4Material;
 class G4Step;
 
-class HCalSD : public CaloSD
-{
+class HCalSD : public CaloSD {
+
 public:    
 
   HCalSD(G4String , const DDCompactView &, SensitiveDetectorCatalog &,

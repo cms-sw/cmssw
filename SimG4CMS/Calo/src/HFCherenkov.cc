@@ -54,23 +54,18 @@ int HFCherenkov::computeNPhTrapped(double pBeta,
   if (nbOfPhotons < 0) {
     return 0;
   } else if (nbOfPhotons > 0) {
-    double u_ph, v_ph, w_ph=0;
+    double w_ph=0;
     for (int i = 0; i < nbOfPhotons; i++) {
       double rand     = G4UniformRand();
       double theta_C  = acos(1./(pBeta*ref_index));
       double phi_C    = 2*M_PI*rand;
       double sinTheta = sin(theta_C);
       double cosTheta = cos(theta_C);
-      double sinPhi   = sin(phi_C);
       double cosPhi   = cos(phi_C);
       //photon momentum
       if (uv < 0.001) { // aligned with z-axis
-	u_ph = sinTheta * cosPhi;
-	v_ph = sinTheta * sinPhi;
 	w_ph = cosTheta;
       } else { // general case
-	u_ph = u * cosTheta  + sinTheta * (v*sinPhi + u*w*cosPhi)/ uv;
-	v_ph = v * cosTheta  + sinTheta * (-u*sinPhi + v*w*cosPhi)/ uv;
 	w_ph = w * cosTheta  - sinTheta * cosPhi * uv;
       }
       if (w_ph > apertureTrap) { // phton trapped inside fiber
@@ -109,23 +104,18 @@ int HFCherenkov::computeNPE(G4ParticleDefinition* pDef, double pBeta,
   if (nbOfPhotons < 0) {
     return 0;
   } else if (nbOfPhotons > 0) {
-    double u_ph, v_ph, w_ph=0;
+    double w_ph=0;
     for (int i = 0; i < nbOfPhotons; i++) {
       double rand     = G4UniformRand();
       double theta_C  = acos(1./(pBeta*ref_index));
       double phi_C    = 2*M_PI*rand;
       double sinTheta = sin(theta_C);
       double cosTheta = cos(theta_C);
-      double sinPhi   = sin(phi_C);
       double cosPhi   = cos(phi_C);
       //photon momentum
       if (uv < 0.001) { // aligned with z-axis
-	u_ph = sinTheta * cosPhi;
-	v_ph = sinTheta * sinPhi;
 	w_ph = cosTheta;
       } else { // general case
-	u_ph = u * cosTheta  + sinTheta * (v*sinPhi + u*w*cosPhi)/ uv;
-	v_ph = v * cosTheta  + sinTheta * (-u*sinPhi + v*w*cosPhi)/ uv;
 	w_ph = w * cosTheta - sinTheta * cosPhi * uv;
       }
       double r_lambda = G4UniformRand();
@@ -216,23 +206,18 @@ int HFCherenkov::computeNPEinPMT(G4ParticleDefinition* pDef, double pBeta,
   if (nbOfPhotons < 0) {
     return 0;
   } else if (nbOfPhotons > 0) {
-    double u_ph, v_ph, w_ph=0;
+    double w_ph=0;
     for (int i = 0; i < nbOfPhotons; i++) {
       double rand     = G4UniformRand();
       double theta_C  = acos(1./(pBeta*ref_index));
       double phi_C    = 2*M_PI*rand;
       double sinTheta = sin(theta_C);
       double cosTheta = cos(theta_C);
-      double sinPhi   = sin(phi_C);
       double cosPhi   = cos(phi_C); 
       //photon momentum
       if (uv < 0.001) { // aligned with z-axis
-	u_ph = sinTheta * cosPhi;
-	v_ph = sinTheta * sinPhi;
 	w_ph = cosTheta;
       } else { // general case
-	u_ph = u * cosTheta  + sinTheta * (v*sinPhi + u*w*cosPhi)/ uv;
-	v_ph = v * cosTheta  + sinTheta * (-u*sinPhi + v*w*cosPhi)/ uv;
 	w_ph = w * cosTheta - sinTheta * cosPhi * uv;
       }
       double r_lambda = G4UniformRand();

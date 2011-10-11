@@ -45,14 +45,14 @@ class CaloSD : public SensitiveCaloDetector,
                public Observer<const BeginOfEvent *>,
                public Observer<const BeginOfTrack *>,
                public Observer<const EndOfTrack *>,
-               public Observer<const EndOfEvent *>
-{
+               public Observer<const EndOfEvent *> {
+
 public:    
   
   CaloSD(G4String  aSDname, const DDCompactView & cpv,
          SensitiveDetectorCatalog & clg, 
          edm::ParameterSet const & p, const SimTrackManager*,
-  int tSlice=1, bool ignoreTkID=false);
+	 int tSlice=1, bool ignoreTkID=false);
   virtual ~CaloSD();
   virtual bool     ProcessHits(G4Step * step,G4TouchableHistory * tHistory);
   virtual bool     ProcessHits(G4GFlashSpot*aSpot,G4TouchableHistory*);
