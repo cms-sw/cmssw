@@ -12,8 +12,7 @@ cmsRun ${LOCAL_TEST_DIR}/ttDecaySelection_cfg.py || die 'Failure using ttDecaySe
 
 cmsRun ${LOCAL_TEST_DIR}/ttFullHadEvtBuilder_cfg.py || die 'Failure using ttFullHadEvtBuilder_cfg.py' $?
 
-## commented until the reasons for remaining crashes are resolved
-#cmsRun ${LOCAL_TEST_DIR}/ttFullLepEvtBuilder_cfg.py || die 'Failure using ttFullLepEvtBuilder_cfg.py' $?
+cmsRun ${LOCAL_TEST_DIR}/ttFullLepEvtBuilder_cfg.py || die 'Failure using ttFullLepEvtBuilder_cfg.py' $?
 
 cmsRun ${LOCAL_TEST_DIR}/ttSemiLepEvtBuilder_cfg.py || die 'Failure using ttSemiLepEvtBuilder_cfg.py' $?
 
