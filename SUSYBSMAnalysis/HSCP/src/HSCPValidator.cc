@@ -13,7 +13,7 @@
 //
 // Original Author:  Seth Cooper,27 1-024,+41227672342,
 //         Created:  Wed Apr 14 14:27:52 CEST 2010
-// $Id: HSCPValidator.cc,v 1.7 2011/04/08 23:20:41 gowdy Exp $
+// $Id: HSCPValidator.cc,v 1.8 2011/09/19 22:58:29 jiechen Exp $
 //
 //
 
@@ -76,7 +76,8 @@
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 #include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
-
+#include "DataFormats/TrackReco/interface/DeDxData.h"
+#include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 
 #include "TH1.h"
 #include "TGraph.h"
@@ -135,7 +136,10 @@ HSCPValidator::HSCPValidator(const edm::ParameterSet& iConfig) :
   simTrackParticlePHist_ = fileService->make<TH1F>("simTrackParticleP","Momentum of simTrackParticle",500,0,2000);
   simTrackParticlePtHist_ = fileService->make<TH1F>("simTrackParticlePt","P_{T} of simTrackParticle",500,0,2000);
   simTrackParticleBetaHist_ = fileService->make<TH1F>("simTrackParticleBeta","Beta of simTrackParticle",100,0,1);
+//reco track Info
 
+  RecoHSCPPtVsGenPt= fileService->make<TH2F>("Recovsgenpt","RecovsGen",100,0,1000,100,0,1000);
+  dedxVsp = fileService->make<TH2F>("dedxvsp","dedxvsp",100,0,1000,100,0,10);
 //HLT Info
   hltmet = fileService->make<TH1F>("HLT_MET","MET",3,-1,2);
   hltjet = fileService->make<TH1F>("HLT_JET","JET",3,-1,2);
@@ -229,6 +233,9 @@ HSCPValidator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   if(doHLTPlots_){
     makeHLTPlots(iEvent);
+  }
+  if(doRecoPlots_){
+     makeRecoPlots(iEvent);
   }
 }
 
@@ -658,6 +665,61 @@ void HSCPValidator::makeSimDigiPlotsECAL(const edm::Event& iEvent)
   }
   simHitsEcalNumHistEE_->Fill(numMatchedSimHitsEventEE);
   digisEcalNumHistEE_->Fill(numMatchedDigisEventEE);
+
+}
+// ------------- Make Reco plots ---------------------------------------------------------
+void HSCPValidator::makeRecoPlots(const edm::Event& iEvent)
+{
+  using namespace edm;
+   using namespace reco;
+
+  Handle<HepMCProduct> evt;
+  iEvent.getByLabel(label_, evt);
+
+  Handle<TrackCollection> tkTracks;
+  iEvent.getByLabel("generalTracks",tkTracks);
+  const reco::TrackCollection tkTC = *(tkTracks.product());
+  
+  Handle<ValueMap<DeDxData> >          dEdxTrackHandle;
+  iEvent.getByLabel("dedxHarmonic2", dEdxTrackHandle);
+  const ValueMap<DeDxData> dEdxTrack = *dEdxTrackHandle.product();
+  
+  for(size_t i=0; i<tkTracks->size(); i++){
+     
+     reco::TrackRef trkRef = reco::TrackRef(tkTracks, i);
+        
+     if(trkRef->pt()<5 || trkRef->normalizedChi2()>10) continue;
+ 
+     double minR= 999;
+     double hscpgenPt =-1;
+     
+     HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
+     for(HepMC::GenEvent::particle_iterator p = myGenEvent->particles_begin();
+         p != myGenEvent->particles_end(); ++p )
+     {
+        
+        if((*p)->status() != particleStatus_)
+           continue;
+        // Check if the particleId is in our R-hadron list
+        std::vector<int>::const_iterator partIdItr = find(particleIds_.begin(),particleIds_.end(),(*p)->pdg_id());
+        if(partIdItr!=particleIds_.end()){
+           
+           //calculate DeltaR
+           double distance =pow((*p)->momentum().eta()-trkRef->eta(),2)+pow((*p)->momentum().phi()-trkRef->phi(),2);
+           distance =sqrt(distance);
+           if(distance <minR ){
+              minR = distance;
+              hscpgenPt= (*p)->momentum().perp();
+           }
+        }
+     }
+     RecoHSCPPtVsGenPt->Fill(trkRef->pt(),hscpgenPt);
+ 
+     delete myGenEvent;     
+     double dedx = dEdxTrack[trkRef].dEdx();
+     dedxVsp->Fill( trkRef->p(),dedx);
+       
+  }  
 
 }
 
