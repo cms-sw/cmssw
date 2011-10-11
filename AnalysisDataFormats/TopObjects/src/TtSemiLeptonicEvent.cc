@@ -63,6 +63,7 @@ TtSemiLeptonicEvent::print(const int verbosity) const
     case kGenMatch          : log << " GenMatch"         ; break;
     case kMVADisc           : log << " MVADisc"          ; break;
     case kKinFit            : log << " KinFit"           ; break;
+    case kHitFit            : log << " HitFit"           ; break;
     default                 : log << " Unknown";
     }
     log << "-Hypothesis: \n";
@@ -91,12 +92,16 @@ TtSemiLeptonicEvent::print(const int verbosity) const
 	log << "\n";
 	// specialties for some hypotheses
 	switch(hypKey) {
-	case kGenMatch : log << " * Sum(DeltaR) : " << this->genMatchSumDR(cmb) << " \n"
-			     << " * Sum(DeltaPt): " << this->genMatchSumPt(cmb) << " \n"; break;
-	case kMVADisc  : log << " * Method  : "     << this->mvaMethod()        << " \n"
-			     << " * Discrim.: "     << this->mvaDisc(cmb)       << " \n"; break;
-	case kKinFit   : log << " * Chi^2      : "  << this->fitChi2(cmb)       << " \n"
-			     << " * Prob(Chi^2): "  << this->fitProb(cmb)       << " \n"; break;
+	case kGenMatch : log << " * Sum(DeltaR) : "   << this->genMatchSumDR(cmb) << " \n"
+			     << " * Sum(DeltaPt): "   << this->genMatchSumPt(cmb) << " \n"; break;
+	case kMVADisc  : log << " * Method  : "       << this->mvaMethod()        << " \n"
+			     << " * Discrim.: "       << this->mvaDisc(cmb)       << " \n"; break;
+	case kKinFit   : log << " * Chi^2      : "    << this->fitChi2(cmb)       << " \n"
+			     << " * Prob(Chi^2): "    << this->fitProb(cmb)       << " \n"; break;
+	case kHitFit   : log << " * Chi^2        : "  << this->hitFitChi2(cmb)    << " \n"
+			     << " * Prob(Chi^2)  : "  << this->hitFitProb(cmb)    << " \n"
+			     << " * Top mass     : "  << this->hitFitMT(cmb)      << " \n"
+			     << " * Top mass sig.: "  << this->hitFitSigMT(cmb)   << " \n"; break;
 	default        : break;
 	}
 	// kinematic quantities of particles (if last digit of verbosity level > 1)
@@ -121,5 +126,5 @@ TtSemiLeptonicEvent::print(const int verbosity) const
     }
   }
 
-  log << "++++++++++++++++++++++++++++++++++++++++++++++++++";  
+  log << "++++++++++++++++++++++++++++++++++++++++++++++++++";
 }
