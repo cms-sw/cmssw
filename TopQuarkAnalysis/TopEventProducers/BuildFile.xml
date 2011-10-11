@@ -8,7 +8,6 @@
 <use   name="TopQuarkAnalysis/TopHitFit"/>
 <use   name="TopQuarkAnalysis/TopJetCombination"/>
 <use   name="TopQuarkAnalysis/TopEventSelection"/>
-<flags   EDM_PLUGIN="1"/>
 <export>
   <lib   name="1"/>
 </export>
