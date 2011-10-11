@@ -4,8 +4,6 @@
 <use   name="Alignment/CocoaDaq"/>
 <use   name="CondFormats/OptAlignObjects"/>
 <use   name="FWCore/ParameterSet"/>
-<use   name="meschach"/>
-
 <export>
   <lib   name="1"/>
 </export>

@@ -36,6 +36,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     recjets                         = cms.InputTag("ak5CaloJets"),
     reccorjets                      = cms.InputTag("ak5CaloCorJets"),
     recmet                          = cms.InputTag("hltMet"),
+    pfmet                           = cms.InputTag("pfMet"),
     ht                              = cms.InputTag("hltJet40Ht"),
     recoPFJets                      = cms.InputTag("ak5PFJets"),
     calotowers                      = cms.InputTag("hltTowerMakerForAll"),
@@ -48,6 +49,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     MuCandTag3                      = cms.InputTag("hltL3MuonCandidates"),
     MuIsolTag3                      = cms.InputTag("hltL3MuonIsolations"),
     MuIsolTag2                      = cms.InputTag("hltL2MuonIsolations"),
+    MuTrkIsolTag3                   = cms.InputTag("hltL3MuonTkIsolations10"),
     MuNoVtxCandTag2                 = cms.InputTag("hltL2MuonCandidatesNoVtx"),
     OniaPixelTag                    = cms.InputTag("hltMuTrackJpsiPixelTrackCands"),
     OniaTrackTag                    = cms.InputTag("hltMuTrackJpsiCtfTrackCands"),
@@ -75,7 +77,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     ECALActivity                        = cms.InputTag("hltRecoEcalSuperClusterActivityCandidate"),
     ActivityEcalIso                 = cms.InputTag("hltActivityPhotonEcalIsol"),
     ActivityHcalIso                 = cms.InputTag("hltActivityPhotonHcalIsol"),
-    ActivityTrackIso                = cms.InputTag("hltActivityPhotonHollowTrackIsol"),
+    ActivityTrackIso                = cms.InputTag("hltActivityPhotonHollowTrackIsolWithId"),
     ActivityR9                      = cms.InputTag("hltUnseededR9shape"), # spike cleaning
     ActivityR9ID                    = cms.InputTag("hltActivityR9ID"),
     ActivityHcalForHoverE           = cms.InputTag("hltActivityPhotonHcalForHE"),
@@ -132,7 +134,9 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
 
     ### Track settings
     PixelTracksL3               = cms.InputTag("hltPixelCandsForMinBias"),                         
-
+    PixelFEDSize                = cms.InputTag("rawDataCollector"),
+    PixelClusters               = cms.InputTag("hltSiPixelClusters"),
+                             
     ### Calo tower settings
     caloTowerThreshold          = cms.double( 2.0 ),
 

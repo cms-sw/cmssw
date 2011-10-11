@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Feb 22 10:13:37 CST 2009
-// $Id$
+// $Id: FWCollectionSummaryTableManager.h,v 1.1 2009/03/04 16:40:51 chrjones Exp $
 //
 
 // system include files
@@ -30,7 +30,7 @@
 
 // forward declarations
 class FWEventItem;
-class FWItemValueGetter;
+//class FWItemValueGetter;
 class FWCollectionSummaryWidget;
 
 class FWCollectionSummaryTableManager : public FWTableManagerBase {
@@ -66,7 +66,6 @@ private:
    // ---------- member data --------------------------------
    FWEventItem* m_collection;
    std::vector<int> m_sortedToUnsortedIndicies;
-   std::vector<boost::shared_ptr<FWItemValueGetter> > m_valueGetters;
    
    mutable FWCollectionSummaryModelCellRenderer m_renderer;
    mutable FWTextTableCellRenderer m_bodyRenderer;

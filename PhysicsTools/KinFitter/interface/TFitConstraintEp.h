@@ -19,10 +19,6 @@ public :
 
   TFitConstraintEp( );
 
-  TFitConstraintEp(  const TString &name, const TString &title,
-                     TFitConstraintEp::component thecomponent,
-                     Double_t constraint = 0.);
-
   TFitConstraintEp(  std::vector<TAbsFitParticle*>* particles, 
 		     TFitConstraintEp::component thecomponent, 
 		     Double_t constraint = 0.);

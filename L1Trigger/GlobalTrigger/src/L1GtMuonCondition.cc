@@ -128,7 +128,7 @@ const bool L1GtMuonCondition::evaluateCondition() const {
     const std::vector<const L1MuGMTCand*>* candVec = m_gtGTL->getCandL1Mu();
 
     int numberObjects = candVec->size();
-    //LogTrace("L1GlobalTrigger") << "  numberObjects: " << numberObjects
+    //LogTrace("L1GtCaloCondition") << "  numberObjects: " << numberObjects
     //    << std::endl;
     if (numberObjects < nObjInCond) {
         return false;
@@ -157,7 +157,7 @@ const bool L1GtMuonCondition::evaluateCondition() const {
     objectsInComb.reserve(nObjInCond);
 
     // clear the m_combinationsInCond vector
-    (combinationsInCond()).clear();
+    (*m_combinationsInCond).clear();
 
     do {
 
@@ -273,7 +273,7 @@ const bool L1GtMuonCondition::evaluateCondition() const {
             const int ObjInWscComb = 2;
             if (nObjInCond != ObjInWscComb) {
 
-                edm::LogError("L1GlobalTrigger") << "\n  Error: "
+                edm::LogError("L1GtMuonCondition") << "\n  Error: "
                     << "number of particles in condition with spatial correlation = " << nObjInCond
                     << "\n  it must be = " << ObjInWscComb << std::endl;
                 // TODO Perhaps I should throw here an exception,
@@ -327,7 +327,7 @@ const bool L1GtMuonCondition::evaluateCondition() const {
 
                 // candDeltaPhi > 180 ==> take 360 - candDeltaPhi
                 candDeltaPhi = (corrPar.deltaPhiMaxbits - 1)*2 - candDeltaPhi;
-                LogTrace("L1GlobalTrigger") << "  candDeltaPhi rescaled to: " << candDeltaPhi
+                LogTrace("L1GtMuonCondition") << "  candDeltaPhi rescaled to: " << candDeltaPhi
                     << std::endl;
             }
 
@@ -350,11 +350,11 @@ const bool L1GtMuonCondition::evaluateCondition() const {
 
         condResult = true;
         passLoops++;
-        (combinationsInCond()).push_back(objectsInComb);
+        (*m_combinationsInCond).push_back(objectsInComb);
 
     } while (std::next_permutation(index.begin(), index.end()) );
 
-    //LogTrace("L1GlobalTrigger")
+    //LogTrace("L1GtMuonCondition")
     //    << "\n  L1GtMuonCondition: total number of permutations found:          " << totalLoops
     //    << "\n  L1GtMuonCondition: number of permutations passing requirements: " << passLoops
     //    << "\n" << std::endl;
@@ -504,7 +504,7 @@ const bool L1GtMuonCondition::checkObjectParameter(const int iCondition, const L
     }
 
     // particle matches if we get here
-    //LogTrace("L1GlobalTrigger")
+    //LogTrace("L1GtMuonCondition")
     //    << "  checkObjectParameter: muon object OK, passes all requirements\n" << std::endl;
 
     return true;

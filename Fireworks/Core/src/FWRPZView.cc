@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:25 EST 2008
-// $Id: FWRPZView.cc,v 1.43 2011/03/25 18:02:46 amraktad Exp $
+// $Id: FWRPZView.cc,v 1.44 2011/03/26 10:15:10 amraktad Exp $
 //
 
 // system include files
@@ -188,6 +188,13 @@ FWRPZView::eventBegin()
          cam.SetCenterVec(b.x0(), b.y0(), b.z0());
       }
    }
+}
+
+void
+FWRPZView::eventEnd()
+{
+   FWEveView::eventEnd();
+   viewerGL()->RequestDraw();
 }
 
 void

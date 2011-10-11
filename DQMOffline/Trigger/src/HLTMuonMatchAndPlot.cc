@@ -1,8 +1,8 @@
  /** \file DQMOffline/Trigger/HLTMuonMatchAndPlot.cc
  *
- *  $Author: eulisse $
- *  $Date: 2011/05/27 13:38:19 $
- *  $Revision: 1.27 $
+ *  $Author: klukas $
+ *  $Date: 2011/06/29 16:37:15 $
+ *  $Revision: 1.28 $
  */
 
 
@@ -169,8 +169,17 @@ void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
   Handle<TriggerEvent> triggerSummary;
   iEvent.getByLabel(inputTags_["triggerSummary"], triggerSummary);
   Handle<TriggerResults> triggerResults;
+  if(!triggerSummary.isValid()) 
+  {
+    edm::LogError("HLTMuonMatchAndPlot")<<"Missing triggerSummary with label " << inputTags_["triggerSummary"] <<std::endl;
+    return;
+  }
   iEvent.getByLabel(inputTags_["triggerResults"], triggerResults);
-
+  if(!triggerResults.isValid()) 
+  {
+    edm::LogError("HLTMuonMatchAndPlot")<<"Missing triggerResults with label " << inputTags_["triggerResults"] <<std::endl;
+    return;
+  }
   // Throw out this event if it doesn't pass the required triggers.
   for (size_t i = 0; i < requiredTriggers_.size(); i++) {
     unsigned int triggerIndex = triggerResults->find(requiredTriggers_[i]);

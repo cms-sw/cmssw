@@ -1,21 +1,21 @@
 #include "EventFilter/Utilities/interface/ShmOutputModuleRegistry.h"
-#include "EventFilter/Modules/src/FUShmOutputModule.h"
 
+#include <iostream>
 
 namespace evf{
 
   ShmOutputModuleRegistry::ShmOutputModuleRegistry(const edm::ParameterSet &ps){
   }
 
-  void ShmOutputModuleRegistry::registerModule(std::string &name, edm::FUShmOutputModule *op)
+  void ShmOutputModuleRegistry::registerModule(std::string &name, OutputModule *op)
   {
-    clm_.insert(std::pair<std::string, edm::FUShmOutputModule*>(name,op));
+    clm_.insert(std::pair<std::string, OutputModule*>(name,op));
   }
   
 
-  edm::FUShmOutputModule* ShmOutputModuleRegistry::get(std::string &name)
+  OutputModule* ShmOutputModuleRegistry::get(std::string &name)
   {
-    edm::FUShmOutputModule* retval = 0;
+    OutputModule* retval = 0;
     idct it= clm_.find(name);
     if(it!=clm_.end())
       retval = (it->second);

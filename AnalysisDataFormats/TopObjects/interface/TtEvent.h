@@ -28,7 +28,7 @@ class TtEvent {
 
  public:
   /// supported classes of event hypotheses
-  enum HypoClassKey {kGeom, kWMassMaxSumPt, kMaxSumPtWMass, kGenMatch, kMVADisc, kKinFit, kKinSolution, kWMassDeltaTopMass, kHitFit};
+  enum HypoClassKey {kGeom, kWMassMaxSumPt, kMaxSumPtWMass, kGenMatch, kMVADisc, kKinFit, kKinSolution, kWMassDeltaTopMass};
   /// pair of hypothesis and lepton jet combinatorics for a given hypothesis
   typedef std::pair<reco::CompositeCandidate, std::vector<int> > HypoCombPair;
 
@@ -82,18 +82,10 @@ class TtEvent {
   std::string mvaMethod() const { return mvaMethod_; }
   /// return the mva discriminant value of hypothesis 'cmb' if available; -1 else
   double mvaDisc(const unsigned& cmb=0) const { return (cmb<mvaDisc_.size() ? mvaDisc_[cmb] : -1.); }
-  /// return the chi2 of the kinematic fit of hypothesis 'cmb' if available; -1 else
+  /// return the chi2 of the kinemtaic fit of hypothesis 'cmb' if available; -1 else
   double fitChi2(const unsigned& cmb=0) const { return (cmb<fitChi2_.size() ? fitChi2_[cmb] : -1.); }
-  /// return the hitfit chi2 of hypothesis 'cmb' if available; -1 else
-  double hitFitChi2(const unsigned& cmb=0) const { return (cmb<hitFitChi2_.size() ? hitFitChi2_[cmb] : -1.); }
   /// return the fit probability of hypothesis 'cmb' if available; -1 else
   double fitProb(const unsigned& cmb=0) const { return (cmb<fitProb_.size() ? fitProb_[cmb] : -1.); }
-  /// return the hitfit probability of hypothesis 'cmb' if available; -1 else
-  double hitFitProb(const unsigned& cmb=0) const { return (cmb<hitFitProb_.size() ? hitFitProb_[cmb] : -1.); }
-  /// return the hitfit top mass of hypothesis 'cmb' if available; -1 else
-  double hitFitMT(const unsigned& cmb=0) const { return (cmb<hitFitMT_.size() ? hitFitMT_[cmb] : -1.); }
-  /// return the hitfit top mass uncertainty of hypothesis 'cmb' if available; -1 else
-  double hitFitSigMT(const unsigned& cmb=0) const { return (cmb<hitFitSigMT_.size() ? hitFitSigMT_[cmb] : -1.); }
   /// return the hypothesis in hypothesis class 'key2', which corresponds to hypothesis 'hyp1' in hypothesis class 'key1'
   int correspondingHypo(const std::string& key1, const unsigned& hyp1, const std::string& key2) const { return correspondingHypo(hypoClassKeyFromString(key1), hyp1, hypoClassKeyFromString(key2) ); };
   /// return the hypothesis in hypothesis class 'key2', which corresponds to hypothesis 'hyp1' in hypothesis class 'key1'
@@ -118,16 +110,8 @@ class TtEvent {
   void setMvaDiscriminators(const std::vector<double>& val) { mvaDisc_=val; };
   /// set chi2 of kKinFit hypothesis
   void setFitChi2(const std::vector<double>& val) { fitChi2_=val; };
-  /// set chi2 of kHitFit hypothesis
-  void setHitFitChi2(const std::vector<double>& val) { hitFitChi2_=val; };
   /// set fit probability of kKinFit hypothesis
   void setFitProb(const std::vector<double>& val) { fitProb_=val; };
-  /// set fit probability of kHitFit hypothesis
-  void setHitFitProb(const std::vector<double>& val) { hitFitProb_=val; };
-  /// set fitted top mass of kHitFit hypothesis
-  void setHitFitMT(const std::vector<double>& val) { hitFitMT_=val; };
-  /// set fitted top mass uncertainty of kHitFit hypothesis
-  void setHitFitSigMT(const std::vector<double>& val) { hitFitSigMT_=val; };
   
  protected:
 
@@ -141,13 +125,8 @@ class TtEvent {
   
   /// result of kinematic fit
   std::vector<double> fitChi2_;        
-  std::vector<double> hitFitChi2_;
   /// result of kinematic fit
   std::vector<double> fitProb_; 
-  std::vector<double> hitFitProb_;
-  /// result of hitfit
-  std::vector<double> hitFitMT_; 
-  std::vector<double> hitFitSigMT_; 
   /// result of gen match
   std::vector<double> genMatchSumPt_;  
   /// result of gen match

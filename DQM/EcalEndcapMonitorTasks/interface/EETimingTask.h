@@ -4,8 +4,8 @@
 /*
  * \file EETimingTask.h
  *
- * $Date: 2011/06/27 09:44:05 $
- * $Revision: 1.18 $
+ * $Date: 2011/06/27 10:33:50 $
+ * $Revision: 1.17.4.2 $
  * \author G. Della Ricca
  *
 */
@@ -73,6 +73,8 @@ bool enableCleanup_;
 
 bool mergeRuns_;
 
+float energyThreshold_;
+
 edm::InputTag EcalRawDataCollection_;
 edm::InputTag EcalRecHitCollection_;
 
@@ -82,7 +84,7 @@ MonitorElement* meTimeAmpli_[18];
 
 MonitorElement* meTimeAmpliSummary_[2];
 MonitorElement* meTimeSummary1D_[2];
-MonitorElement* meTimeSummaryMap_[2], *meTimeSummaryMapProjEta_[2], *meTimeSummaryMapProjPhi_[2];
+ MonitorElement* meTimeSummaryMap_[2];
 MonitorElement* meTimeDelta_, *meTimeDelta2D_;
 
 edm::ESHandle<CaloGeometry> pGeometry_;

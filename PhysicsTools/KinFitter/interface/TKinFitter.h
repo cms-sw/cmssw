@@ -4,12 +4,10 @@
 #include <vector>
 #include "TMatrixD.h"
 #include "TNamed.h"
-#include "PhysicsTools/KinFitter/interface/TAbsFitParticle.h"
 
-//class TAbsFitParticle;
+class TAbsFitParticle;
 class TAbsFitConstraint;
 class TH1D;
-class TLorentzVector;
 
 class TKinFitter : public TNamed {
 
@@ -54,13 +52,6 @@ public :
 
   Int_t nbMeasParticles() { return _measParticles.size(); }
   const TAbsFitParticle* getMeasParticle( Int_t index ) { return _measParticles[index]; }
-
-  const TLorentzVector* Get4vec( Int_t index ) { 
-
-    //TAbsFitParticle *tmp = _measParticles[index];
-    return (_measParticles[index])->getCurr4Vec(); 
-  }
-
   Int_t nbUnmeasParticles() { return _unmeasParticles.size(); }
   const TAbsFitParticle* getUnmeasParticle( Int_t index ) { return _unmeasParticles[index]; }
   Int_t nbConstraints() { return _constraints.size(); }

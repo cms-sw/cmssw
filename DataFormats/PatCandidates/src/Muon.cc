@@ -1,5 +1,5 @@
 //
-// $Id: Muon.cc,v 1.28 2010/09/29 13:24:25 wreece Exp $
+// $Id: Muon.cc,v 1.29 2011/06/08 20:40:19 rwolf Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -21,8 +21,7 @@ Muon::Muon() :
     embeddedCaloMETMuonCorrs_(false),
     embeddedPickyMuon_(false),
     embeddedTpfmsMuon_(false),
-    pickyMuonRef_(),
-    tpfmsMuonRef_(),
+    embeddedDytMuon_(false),
     embeddedPFCandidate_(false),
     pfCandidateRef_(),
     cachedNormChi2_(false),
@@ -46,8 +45,7 @@ Muon::Muon(const reco::Muon & aMuon) :
     embeddedCaloMETMuonCorrs_(false),
     embeddedPickyMuon_(false),
     embeddedTpfmsMuon_(false),
-    pickyMuonRef_(),
-    tpfmsMuonRef_(),
+    embeddedDytMuon_(false),
     embeddedPFCandidate_(false),
     pfCandidateRef_(),
     cachedNormChi2_(false),
@@ -71,8 +69,7 @@ Muon::Muon(const edm::RefToBase<reco::Muon> & aMuonRef) :
     embeddedCaloMETMuonCorrs_(false),
     embeddedPickyMuon_(false),
     embeddedTpfmsMuon_(false),
-    pickyMuonRef_(),
-    tpfmsMuonRef_(),
+    embeddedDytMuon_(false),
     embeddedPFCandidate_(false),
     pfCandidateRef_(),
     cachedNormChi2_(false),
@@ -96,8 +93,7 @@ Muon::Muon(const edm::Ptr<reco::Muon> & aMuonRef) :
     embeddedCaloMETMuonCorrs_(false),
     embeddedPickyMuon_(false),
     embeddedTpfmsMuon_(false),
-    pickyMuonRef_(),
-    tpfmsMuonRef_(),
+    embeddedDytMuon_(false),
     embeddedPFCandidate_(false),
     pfCandidateRef_(),
     cachedNormChi2_(false),
@@ -172,20 +168,29 @@ reco::TrackRef Muon::combinedMuon() const {
 }
 
 /// reference to Track reconstructed using hits in the tracker + "good" muon hits
-reco::TrackRef Muon::pickyMuon() const {
+reco::TrackRef Muon::pickyTrack() const {
   if (embeddedPickyMuon_) {
     return reco::TrackRef(&pickyMuon_, 0);
   } else {
-    return pickyMuonRef_;
+    return reco::Muon::pickyTrack();
   }
 }
 
 /// reference to Track reconstructed using hits in the tracker + info from the first muon station that has hits
-reco::TrackRef Muon::tpfmsMuon() const {
+reco::TrackRef Muon::tpfmsTrack() const {
   if (embeddedTpfmsMuon_) {
     return reco::TrackRef(&tpfmsMuon_, 0);
   } else {
-    return tpfmsMuonRef_;
+    return reco::Muon::tpfmsTrack();
+  }
+}
+
+/// reference to Track reconstructed using hits in the tracker + info from the first muon station that has hits
+reco::TrackRef Muon::dytTrack() const {
+  if (embeddedDytMuon_) {
+    return reco::TrackRef(&dytMuon_, 0);
+  } else {
+    return reco::Muon::dytTrack();
   }
 }
 
@@ -253,18 +258,30 @@ void Muon::embedTcMETMuonCorrs(const reco::MuonMETCorrectionData& t) {
 /// embed the picky Track
 void Muon::embedPickyMuon() {
   pickyMuon_.clear();
-  if (pickyMuonRef_.isNonnull()) {
-      pickyMuon_.push_back(*pickyMuonRef_);
-      embeddedPickyMuon_ = true;
+  reco::TrackRef tk = reco::Muon::pickyTrack();
+  if (tk.isNonnull()) {
+    pickyMuon_.push_back(*tk);
+    embeddedPickyMuon_ = true;
   }
 }
 
 /// embed the tpfms Track
 void Muon::embedTpfmsMuon() {
   tpfmsMuon_.clear();
-  if (tpfmsMuonRef_.isNonnull()) {
-      tpfmsMuon_.push_back(*tpfmsMuonRef_);
-      embeddedTpfmsMuon_ = true;
+  reco::TrackRef tk = reco::Muon::tpfmsTrack();
+  if (tk.isNonnull()) {
+    tpfmsMuon_.push_back(*tk);
+    embeddedTpfmsMuon_ = true;
+  }
+}
+
+/// embed the dyt Track
+void Muon::embedDytMuon() {
+  dytMuon_.clear();
+  reco::TrackRef tk = reco::Muon::dytTrack();
+  if (tk.isNonnull()) {
+    dytMuon_.push_back(*tk);
+    embeddedDytMuon_ = true;
   }
 }
 

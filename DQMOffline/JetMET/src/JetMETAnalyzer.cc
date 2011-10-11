@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/05/24 14:21:27 $
- *  $Revision: 1.72 $
+ *  $Date: 2011/07/20 13:58:38 $
+ *  $Revision: 1.73 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -73,6 +73,7 @@ JetMETAnalyzer::JetMETAnalyzer(const edm::ParameterSet& pSet) {
   DCSFilterCalo = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilterCalo"));
   DCSFilterPF   = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilterPF"));
   DCSFilterJPT  = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilterJPT"));
+  DCSFilterAll  = new JetMETDQMDCSFilter(parameters.getParameter<ParameterSet>("DCSFilterAll"));
   // Used for Jet DQM - For MET DQM, DCS selection applied in ***METAnalyzer
 
   // --- do the analysis on the Jets
@@ -275,6 +276,7 @@ JetMETAnalyzer::~JetMETAnalyzer() {
   delete DCSFilterCalo;
   delete DCSFilterPF;
   delete DCSFilterJPT;
+  delete DCSFilterAll;
 
 }
 
@@ -332,6 +334,16 @@ void JetMETAnalyzer::beginJob(void) {
   
   dbe->setCurrentFolder("JetMET");
   lumisecME = dbe->book1D("lumisec", "lumisec", 500, 0., 500.);
+  cleanupME = dbe->book1D("cleanup", "cleanup", 10, 0., 10.);
+  cleanupME->setBinLabel(1,"Primary Vertex");
+  cleanupME->setBinLabel(2,"DCS::Pixel");
+  cleanupME->setBinLabel(3,"DCS::SiStrip");
+  cleanupME->setBinLabel(4,"DCS::ECAL");
+  cleanupME->setBinLabel(5,"DCS::ES");
+  cleanupME->setBinLabel(6,"DCS::HBHE");
+  cleanupME->setBinLabel(7,"DCS::HF");
+  cleanupME->setBinLabel(8,"DCS::HO");
+  cleanupME->setBinLabel(9,"DCS::Muon");
 
 }
 
@@ -585,7 +597,17 @@ void JetMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   bTechTriggers = bTechTriggersAND && bTechTriggersOR && !bTechTriggersNOT;
     
   bool bJetCleanup = bTechTriggers && bPrimaryVertex && bPhysicsDeclared;
-
+  
+  DCSFilterAll->filter(iEvent, iSetup);
+  if (bPrimaryVertex) cleanupME->Fill(0.5);
+  if ( DCSFilterAll->passPIX      ) cleanupME->Fill(1.5);
+  if ( DCSFilterAll->passSiStrip  ) cleanupME->Fill(2.5);
+  if ( DCSFilterAll->passECAL     ) cleanupME->Fill(3.5);
+  if ( DCSFilterAll->passES       ) cleanupME->Fill(4.5);
+  if ( DCSFilterAll->passHBHE     ) cleanupME->Fill(5.5);
+  if ( DCSFilterAll->passHF       ) cleanupME->Fill(6.5);
+  if ( DCSFilterAll->passHO       ) cleanupME->Fill(7.5);
+  if ( DCSFilterAll->passMuon     ) cleanupME->Fill(8.5);
 
   // **** Get the Calo Jet container
   edm::Handle<reco::CaloJetCollection> caloJets;

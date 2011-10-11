@@ -1,12 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 hiPixelAdaptiveVertex = cms.EDProducer("PrimaryVertexProducer",
-    PVSelParameters = cms.PSet(
-        maxDistanceToBeam = cms.double(0.1)    ## 1 mm
-    ),
     verbose = cms.untracked.bool(False),
-    algorithm = cms.string('AdaptiveVertexFitter'),
-    minNdof  = cms.double(0.0),
     TkFilterParameters = cms.PSet(
         algorithm = cms.string('filterWithThreshold'),
         maxNormalizedChi2 = cms.double(5.0),
@@ -20,13 +15,21 @@ hiPixelAdaptiveVertex = cms.EDProducer("PrimaryVertexProducer",
     beamSpotLabel = cms.InputTag("offlineBeamSpot"),
     # label of tracks to be used
     TrackLabel = cms.InputTag("hiSelectedProtoTracks"),
-    useBeamConstraint = cms.bool(True),
     # clustering
     TkClusParameters = cms.PSet(
         algorithm = cms.string("gap"),
         TkGapClusParameters = cms.PSet(
             zSeparation = cms.double(1.0)        ## 1 cm max separation between clusters
         )
-    )
+    ),
+    vertexCollections = cms.VPSet(
+      cms.PSet(
+        label = cms.string(''),
+        algorithm = cms.string('AdaptiveVertexFitter'),
+        useBeamConstraint = cms.bool(False),
+        maxDistanceToBeam = cms.double(0.1),
+        minNdof  = cms.double(0.0)
+        )
+      )
 )
 

@@ -91,6 +91,7 @@ namespace edmNew {
     
     struct IterHelp {
       typedef DetSet result_type;
+      IterHelp() : v(0){}
       IterHelp(DetSetVector<T> const & iv) : v(&iv){}
       
        result_type & operator()(Item const& item) const {

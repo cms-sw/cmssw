@@ -1,8 +1,8 @@
 /** \class MuonProducer
  *  See header file.
  *
- *  $Date: 2011/06/20 14:09:09 $
- *  $Revision: 1.12 $
+ *  $Date: 2011/07/19 17:00:19 $
+ *  $Revision: 1.13 $
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>
  */
 
@@ -47,62 +47,83 @@ namespace reco {
 
 /// Constructor
 MuonProducer::MuonProducer(const edm::ParameterSet& pSet):debug_(pSet.getUntrackedParameter<bool>("ActivateDebug",false)){
-
+  
   setAlias(pSet.getParameter<std::string>("@module_label"));
-
+  
   fastLabelling_ = pSet.getUntrackedParameter<bool>("FastLabelling",true);
 
-
+  
   theMuonsCollectionLabel = pSet.getParameter<edm::InputTag>("InputMuons");
   thePFCandLabel = pSet.getParameter<edm::InputTag>("PFCandidates");
-
-
+  
+  
   // Variables to switch on-off the differnt parts
   fillSelectors_ =  pSet.getParameter<bool>("FillSelectorMaps");
   fillCosmicsIdMap_ =  pSet.getParameter<bool>("FillCosmicsIdMap");
   fillPFMomentum_ =  pSet.getParameter<bool>("FillPFMomentumAndAssociation");
   fillPFIsolation_ =  pSet.getParameter<bool>("FillPFIsolation");
-
+  
   produces<reco::MuonCollection>();
   produces<reco::MuonTimeExtraMap>("combined");
   produces<reco::MuonTimeExtraMap>("dt");
   produces<reco::MuonTimeExtraMap>("csc");
   
   //  if (fillIsolation_ && writeIsoDeposits_){
-    theTrackDepositName = pSet.getParameter<edm::InputTag>("TrackIsoDeposits");
-    produces<reco::IsoDepositMap>(labelOrInstance(theTrackDepositName));
-    theJetDepositName = pSet.getParameter<edm::InputTag>("JetIsoDeposits");
-    produces<reco::IsoDepositMap>(labelOrInstance(theJetDepositName));
-    theEcalDepositName = pSet.getParameter<edm::InputTag>("EcalIsoDeposits");
-    produces<reco::IsoDepositMap>(theEcalDepositName.instance());
-    theHcalDepositName = pSet.getParameter<edm::InputTag>("HcalIsoDeposits");
-    produces<reco::IsoDepositMap>(theHcalDepositName.instance());
-    theHoDepositName = pSet.getParameter<edm::InputTag>("HoIsoDeposits");
-    produces<reco::IsoDepositMap>(theHoDepositName.instance());
-    //  }
+  theTrackDepositName = pSet.getParameter<edm::InputTag>("TrackIsoDeposits");
+  produces<reco::IsoDepositMap>(labelOrInstance(theTrackDepositName));
+  theJetDepositName = pSet.getParameter<edm::InputTag>("JetIsoDeposits");
+  produces<reco::IsoDepositMap>(labelOrInstance(theJetDepositName));
+  theEcalDepositName = pSet.getParameter<edm::InputTag>("EcalIsoDeposits");
+  produces<reco::IsoDepositMap>(theEcalDepositName.instance());
+  theHcalDepositName = pSet.getParameter<edm::InputTag>("HcalIsoDeposits");
+  produces<reco::IsoDepositMap>(theHcalDepositName.instance());
+  theHoDepositName = pSet.getParameter<edm::InputTag>("HoIsoDeposits");
+  produces<reco::IsoDepositMap>(theHoDepositName.instance());
+  //  }
+  
+  if(fillSelectors_){
+    theSelectorMapNames = pSet.getParameter<InputTags>("SelectorMaps");
     
-    if(fillSelectors_){
-      theSelectorMapNames = pSet.getParameter<InputTags>("SelectorMaps");
-      
-      for(InputTags::const_iterator tag = theSelectorMapNames.begin(); tag != theSelectorMapNames.end(); ++tag)
-	produces<edm::ValueMap<bool> >(labelOrInstance(*tag));
-    }
+    for(InputTags::const_iterator tag = theSelectorMapNames.begin(); tag != theSelectorMapNames.end(); ++tag)
+      produces<edm::ValueMap<bool> >(labelOrInstance(*tag));
+  }
+  
+  theShowerMapName = pSet.getParameter<edm::InputTag>("ShowerInfoMap");
+  produces<edm::ValueMap<reco::MuonShower> >(labelOrInstance(theShowerMapName));
+  
+  if(fillCosmicsIdMap_){
+    theCosmicCompMapName = pSet.getParameter<edm::InputTag>("CosmicIdMap");
+    produces<edm::ValueMap<reco::MuonCosmicCompatibility> >(labelOrInstance(theCosmicCompMapName));
+    produces<edm::ValueMap<unsigned int> >(labelOrInstance(theCosmicCompMapName));
+  }
+  
+  theMuToMuMapName = theMuonsCollectionLabel.label()+"2"+theAlias+"sMap";
+  produces<edm::ValueMap<reco::MuonRef> >(theMuToMuMapName);
+  
+  if(fillPFIsolation_){
+    edm::ParameterSet pfIsoPSet = pSet.getParameter<edm::ParameterSet>("PFIsolation");
+    thePFIsoHelper = new MuPFIsoHelper(pfIsoPSet);
+    edm::ParameterSet isoCfg03 = pfIsoPSet.getParameter<edm::ParameterSet>("isolationR03");
+    edm::ParameterSet isoCfg04 = pfIsoPSet.getParameter<edm::ParameterSet>("isolationR04");
 
-    theShowerMapName = pSet.getParameter<edm::InputTag>("ShowerInfoMap");
-    produces<edm::ValueMap<reco::MuonShower> >(labelOrInstance(theShowerMapName));
+    theIsoPF03MapNames["chargedParticle"] = isoCfg03.getParameter<edm::InputTag>("chargedParticle");
+    theIsoPF03MapNames["chargedHadron"]   = isoCfg03.getParameter<edm::InputTag>("chargedHadron");
+    theIsoPF03MapNames["neutralHadron"]   = isoCfg03.getParameter<edm::InputTag>("neutralHadron");
+    theIsoPF03MapNames["photon"]          = isoCfg03.getParameter<edm::InputTag>("photon");
+    theIsoPF03MapNames["pu"]              = isoCfg03.getParameter<edm::InputTag>("pu");
 
-    if(fillCosmicsIdMap_){
-      theCosmicCompMapName = pSet.getParameter<edm::InputTag>("CosmicIdMap");
-      produces<edm::ValueMap<reco::MuonCosmicCompatibility> >(labelOrInstance(theCosmicCompMapName));
-      produces<edm::ValueMap<unsigned int> >(labelOrInstance(theCosmicCompMapName));
-    }
-
-    theMuToMuMapName = theMuonsCollectionLabel.label()+"2"+theAlias+"sMap";
-    produces<edm::ValueMap<reco::MuonRef> >(theMuToMuMapName);
-
-    if(fillPFIsolation_)
-      thePFIsoHelper = new MuPFIsoHelper(pSet.getParameter<edm::ParameterSet>("PFIsolation"));
-
+    theIsoPF04MapNames["chargedParticle"] = isoCfg04.getParameter<edm::InputTag>("chargedParticle");
+    theIsoPF04MapNames["chargedHadron"]   = isoCfg04.getParameter<edm::InputTag>("chargedHadron");
+    theIsoPF04MapNames["neutralHadron"]   = isoCfg04.getParameter<edm::InputTag>("neutralHadron");
+    theIsoPF04MapNames["photon"]          = isoCfg04.getParameter<edm::InputTag>("photon");
+    theIsoPF04MapNames["pu"]              = isoCfg04.getParameter<edm::InputTag>("pu");
+    
+    for(std::map<std::string,edm::InputTag>::const_iterator map = theIsoPF03MapNames.begin(); map != theIsoPF03MapNames.end(); ++map)
+      produces<edm::ValueMap<double> >(labelOrInstance(map->second));
+    
+    for(std::map<std::string,edm::InputTag>::const_iterator map = theIsoPF04MapNames.begin(); map != theIsoPF04MapNames.end(); ++map)
+      produces<edm::ValueMap<double> >(labelOrInstance(map->second));
+  }
 }
 
 /// Destructor
@@ -169,6 +190,22 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
    event.getByLabel(theHoDepositName,hoIsoDepMap);
    event.getByLabel(theJetDepositName,jetIsoDepMap);
 
+
+   std::map<std::string,edm::Handle<edm::ValueMap<double> > >  pfIso03Maps; 
+   std::map<std::string,std::vector<double> > pfIso03MapVals;
+   std::map<std::string,edm::Handle<edm::ValueMap<double> > >  pfIso04Maps; 
+   std::map<std::string,std::vector<double> > pfIso04MapVals;
+
+   if(fillPFIsolation_){
+     for(std::map<std::string,edm::InputTag>::const_iterator map = theIsoPF03MapNames.begin(); map != theIsoPF03MapNames.end(); ++map){
+       event.getByLabel(map->second,pfIso03Maps[map->first]);
+       pfIso03MapVals[map->first].resize(nMuons);
+     }
+     for(std::map<std::string,edm::InputTag>::const_iterator map = theIsoPF04MapNames.begin(); map != theIsoPF04MapNames.end(); ++map){
+       event.getByLabel(map->second,pfIso04Maps[map->first]);
+       pfIso04MapVals[map->first].resize(nMuons);
+     }
+   }
    
    std::vector<edm::Handle<edm::ValueMap<bool> > >  selectorMaps(fillSelectors_ ? theSelectorMapNames.size() : 0); 
    std::vector<std::vector<bool> > selectorMapResults(fillSelectors_ ? theSelectorMapNames.size() : 0);
@@ -229,6 +266,13 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
 
      fillMuonMap<reco::MuonRef>(event,inputMuonsOH, muonRefColl, theMuToMuMapName);
 
+     if(fillPFIsolation_){
+       for(std::map<std::string,edm::InputTag>::const_iterator map = theIsoPF03MapNames.begin(); map != theIsoPF03MapNames.end(); ++map)
+	 fillMuonMap<double>(event, muonHandle, pfIso03MapVals[map->first], labelOrInstance(map->second));
+       for(std::map<std::string,edm::InputTag>::const_iterator map = theIsoPF04MapNames.begin(); map != theIsoPF04MapNames.end(); ++map)
+	 fillMuonMap<double>(event, muonHandle, pfIso04MapVals[map->first], labelOrInstance(map->second));
+     }
+
      return;
    }
    
@@ -280,8 +324,13 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
      }
 
      // Add PF isolation info
-     if(fillPFIsolation_) thePFIsoHelper->embedPFIsolation(outMuon,muRef);
-
+     if(fillPFIsolation_){
+       thePFIsoHelper->embedPFIsolation(outMuon,muRef);
+       for(std::map<std::string,edm::InputTag>::const_iterator map = theIsoPF03MapNames.begin(); map != theIsoPF03MapNames.end(); ++map)
+	 pfIso03MapVals[map->first][i] = (*pfIso03Maps[map->first])[muRef];
+       for(std::map<std::string,edm::InputTag>::const_iterator map = theIsoPF04MapNames.begin(); map != theIsoPF04MapNames.end(); ++map)
+	 pfIso04MapVals[map->first][i] = (*pfIso04Maps[map->first])[muRef];
+     }
 
      
      // Fill timing information   
@@ -291,9 +340,6 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
      cscTimeColl[i] = (*timeMapCSC)[muRef];
           
 
-
-     // FIXME: Fill iso quantities too!
-     
      trackDepColl[i] = (*trackIsoDepMap)[muRef];
      ecalDepColl[i]  = (*ecalIsoDepMap)[muRef];
      hcalDepColl[i]  = (*hcalIsoDepMap)[muRef];
@@ -332,6 +378,13 @@ void MuonProducer::produce(edm::Event& event, const edm::EventSetup& eventSetup)
    fillMuonMap<reco::IsoDeposit>(event, muonHandle, ecalDepColl,  theEcalDepositName.instance());
    fillMuonMap<reco::IsoDeposit>(event, muonHandle, hcalDepColl,  theHcalDepositName.instance());
    fillMuonMap<reco::IsoDeposit>(event, muonHandle, hoDepColl,    theHoDepositName.instance());
+
+   if(fillPFIsolation_){
+     for(std::map<std::string,edm::InputTag>::const_iterator map = theIsoPF03MapNames.begin(); map != theIsoPF03MapNames.end(); ++map)
+       fillMuonMap<double>(event, muonHandle, pfIso03MapVals[map->first], labelOrInstance(map->second));
+     for(std::map<std::string,edm::InputTag>::const_iterator map = theIsoPF04MapNames.begin(); map != theIsoPF04MapNames.end(); ++map)
+       fillMuonMap<double>(event, muonHandle, pfIso04MapVals[map->first], labelOrInstance(map->second));
+   }   
 
    if(fillSelectors_){
      unsigned int s = 0;

@@ -6,6 +6,7 @@
 //#include "FWCore/Framework/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
+#include "DataFormats/Common/interface/EDProduct.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoRomanPot/RecoFP420/interface/FP420RecoMain.h"
@@ -44,6 +45,7 @@ namespace cms
 
     FP420RecoMain* sFP420RecoMain_;
     int verbosity;
+    int VtxFlag;
     std::string m_genReadoutName;
 
   };

@@ -94,7 +94,7 @@ void L1GtBptxCondition::setGtBptxTemplate(
 const bool L1GtBptxCondition::evaluateCondition() const {
 
     // clear the m_combinationsInCond vector
-    (combinationsInCond()).clear();
+    (*m_combinationsInCond).clear();
 
     //
     return m_conditionResult;

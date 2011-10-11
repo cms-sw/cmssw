@@ -1,21 +1,12 @@
 #!/bin/bash
 
-# argument = cfgFile
+# argument = linkName
 
-source $1
 export HERE=${PWD}
-
-export MEPERIOD=$LMF_LASER_PERIOD
-echo $MEPERIOD
-
-export MUSECAL=${MON_MUSECAL_DIR}
+export MEPERIOD=$1
+export LINK=${HERE}/${MEPERIOD}
+export MUSECAL=${LINK}/musecal
 echo   MUSECAL=${MUSECAL}
-
-export MECALIB=${MON_CALIB_PATH}
-export MEAB=${MON_AB_PATH}
-
-echo "MECALIB ="$MECALIB
-echo "MEAB    ="$MEAB
 
 export PATH=$ROOTSYS/bin:$PATH
 export LD_LIBRARY_PATH=$ROOTSYS/lib:$LD_LIBRARY_PATH
@@ -34,13 +25,9 @@ fi
 #
 
 export MEPSDIR=${HERE}/ps
-export MELMDAT=${MON_OUTPUT_DIR}/$MEPERIOD
-export MELPRIM=${LMF_LASER_PRIM_DIR}/$MEPERIOD
-
-# FIXME
-
-export MESTORE=$MELPRIM
-export MENLSSTORE=${LMF_NLS_DIR}/$MEPERIOD
+export MELMDAT=${LINK}
+export MELPRIM=${LINK}/primitives
+export MESTORE=/nfshome0/ecallaser/LaserPrim/${MEPERIOD}
 
 echo 'Laser Monitoring Directory: ' 
 echo MELMDAT=$MELMDAT
@@ -67,22 +54,6 @@ else
     fi
 fi
 
-echo 'MusEcal NLS Directory for the Period: ' 
-
-echo MENLSSTORE=$MENLSSTORE
-if [ -d $MENLSSTORE ]; then
-    echo '... OK'
-else
-    echo '... directory does not exist -- create'
-    mkdir $MENLSSTORE
-    if [ -d $MENLSSTORE ]; then
-	echo '... OK'
-    else
-	echo '...creation failed'
-	return
-    fi
-fi
-
 echo 'MusEcal Laser Primitive Directory: ' 
 echo MELPRIM=$MELPRIM
 if [ -d $MELPRIM ]; then
@@ -99,7 +70,7 @@ else
 fi
 
 
-export MECONFIG=${MELMDAT}/meconfig
+export MECONFIG=${LINK}/meconfig
 
 #fi 
 

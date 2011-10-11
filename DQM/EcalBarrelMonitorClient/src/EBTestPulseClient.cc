@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2010/08/30 13:14:07 $
- * $Revision: 1.233 $
+ * $Date: 2011/08/30 09:33:51 $
+ * $Revision: 1.235 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -17,6 +17,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/MonTestPulseDat.h"
@@ -171,7 +172,7 @@ void EBTestPulseClient::endRun(void) {
 
 void EBTestPulseClient::setup(void) {
 
-  char histo[200];
+  std::string name;
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EBTestPulseClient" );
 
@@ -181,94 +182,94 @@ void EBTestPulseClient::setup(void) {
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
       if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
-      sprintf(histo, "EBTPT test pulse quality G01 %s", Numbers::sEB(ism).c_str());
-      meg01_[ism-1] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      name = "EBTPT test pulse quality G01 " + Numbers::sEB(ism);
+      meg01_[ism-1] = dqmStore_->book2D(name, name, 85, 0., 85., 20, 0., 20.);
       meg01_[ism-1]->setAxisTitle("ieta", 1);
       meg01_[ism-1]->setAxisTitle("iphi", 2);
     }
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
       if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
-      sprintf(histo, "EBTPT test pulse quality G06 %s", Numbers::sEB(ism).c_str());
-      meg02_[ism-1] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      name = "EBTPT test pulse quality G06 " + Numbers::sEB(ism);
+      meg02_[ism-1] = dqmStore_->book2D(name, name, 85, 0., 85., 20, 0., 20.);
       meg02_[ism-1]->setAxisTitle("ieta", 1);
       meg02_[ism-1]->setAxisTitle("iphi", 2);
     }
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
       if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getName() );
-      sprintf(histo, "EBTPT test pulse quality G12 %s", Numbers::sEB(ism).c_str());
-      meg03_[ism-1] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+      name = "EBTPT test pulse quality G12 " + Numbers::sEB(ism);
+      meg03_[ism-1] = dqmStore_->book2D(name, name, 85, 0., 85., 20, 0., 20.);
       meg03_[ism-1]->setAxisTitle("ieta", 1);
       meg03_[ism-1]->setAxisTitle("iphi", 2);
     }
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
       if ( meg04_[ism-1] ) dqmStore_->removeElement( meg04_[ism-1]->getName() );
-      sprintf(histo, "EBTPT test pulse quality PNs G01 %s", Numbers::sEB(ism).c_str());
-      meg04_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+      name = "EBTPT test pulse quality PNs G01 " + Numbers::sEB(ism);
+      meg04_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg04_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg04_[ism-1]->setAxisTitle("channel", 2);
     }
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
       if ( meg05_[ism-1] ) dqmStore_->removeElement( meg05_[ism-1]->getName() );
-      sprintf(histo, "EBTPT test pulse quality PNs G16 %s", Numbers::sEB(ism).c_str());
-      meg05_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+      name = "EBTPT test pulse quality PNs G16 " + Numbers::sEB(ism);
+      meg05_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg05_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg05_[ism-1]->setAxisTitle("channel", 2);
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
       if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );
-      sprintf(histo, "EBTPT test pulse amplitude G01 %s", Numbers::sEB(ism).c_str());
-      mea01_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
+      name = "EBTPT test pulse amplitude G01 " + Numbers::sEB(ism);
+      mea01_[ism-1] = dqmStore_->book1D(name, name, 1700, 0., 1700.);
       mea01_[ism-1]->setAxisTitle("channel", 1);
       mea01_[ism-1]->setAxisTitle("amplitude", 2);
     }
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
       if ( mea02_[ism-1] ) dqmStore_->removeElement( mea02_[ism-1]->getName() );
-      sprintf(histo, "EBTPT test pulse amplitude G06 %s", Numbers::sEB(ism).c_str());
-      mea02_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
+      name = "EBTPT test pulse amplitude G06 " + Numbers::sEB(ism);
+      mea02_[ism-1] = dqmStore_->book1D(name, name, 1700, 0., 1700.);
       mea02_[ism-1]->setAxisTitle("channel", 1);
       mea02_[ism-1]->setAxisTitle("amplitude", 2);
     }
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
       if ( mea03_[ism-1] ) dqmStore_->removeElement( mea03_[ism-1]->getName() );
-      sprintf(histo, "EBTPT test pulse amplitude G12 %s", Numbers::sEB(ism).c_str());
-      mea03_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
+      name = "EBTPT test pulse amplitude G12 " + Numbers::sEB(ism);
+      mea03_[ism-1] = dqmStore_->book1D(name, name, 1700, 0., 1700.);
       mea03_[ism-1]->setAxisTitle("channel", 1);
       mea03_[ism-1]->setAxisTitle("amplitude", 2);
     }
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
       if ( mer04_[ism-1] ) dqmStore_->removeElement( mer04_[ism-1]->getName() );
-      sprintf(histo, "EBTPT PNs pedestal rms %s G01", Numbers::sEB(ism).c_str());
-      mer04_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+      name = "EBTPT PNs pedestal rms " + Numbers::sEB(ism) + " G01";
+      mer04_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mer04_[ism-1]->setAxisTitle("rms", 1);
     }
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
       if ( mer05_[ism-1] ) dqmStore_->removeElement( mer05_[ism-1]->getName() );
-      sprintf(histo, "EBTPT PNs pedestal rms %s G16", Numbers::sEB(ism).c_str());
-      mer05_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+      name = "EBTPT PNs pedestal rms " + Numbers::sEB(ism) + " G16";
+      mer05_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mer05_[ism-1]->setAxisTitle("rms", 1);
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
       if ( me_hs01_[ism-1] ) dqmStore_->removeElement( me_hs01_[ism-1]->getName() );
-      sprintf(histo, "EBTPT test pulse shape G01 %s", Numbers::sEB(ism).c_str());
-      me_hs01_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
+      name = "EBTPT test pulse shape G01 " + Numbers::sEB(ism);
+      me_hs01_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
       me_hs01_[ism-1]->setAxisTitle("sample", 1);
       me_hs01_[ism-1]->setAxisTitle("amplitude", 2);
     }
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
       if ( me_hs02_[ism-1] ) dqmStore_->removeElement( me_hs02_[ism-1]->getName() );
-      sprintf(histo, "EBTPT test pulse shape G06 %s", Numbers::sEB(ism).c_str());
-      me_hs02_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
+      name = "EBTPT test pulse shape G06 " + Numbers::sEB(ism);
+      me_hs02_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
       me_hs02_[ism-1]->setAxisTitle("sample", 1);
       me_hs02_[ism-1]->setAxisTitle("amplitude", 2);
     }
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
       if ( me_hs03_[ism-1] ) dqmStore_->removeElement( me_hs03_[ism-1]->getName() );
-      sprintf(histo, "EBTPT test pulse shape G12 %s", Numbers::sEB(ism).c_str());
-      me_hs03_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
+      name = "EBTPT test pulse shape G12 " + Numbers::sEB(ism);
+      me_hs03_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
       me_hs03_[ism-1]->setAxisTitle("sample", 1);
       me_hs03_[ism-1]->setAxisTitle("amplitude", 2);
     }
@@ -690,7 +691,6 @@ void EBTestPulseClient::analyze(void) {
   bits05 |= 1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR;
   bits05 |= 1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_RMS_ERROR;
 
-  char histo[200];
 
   MonitorElement* me;
 
@@ -700,82 +700,72 @@ void EBTestPulseClient::analyze(void) {
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBTestPulseTask/Gain01/EBTPT amplitude %s G01").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
-      ha01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, ha01_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EBTestPulseTask/Gain01/EBTPT amplitude " + Numbers::sEB(ism) + " G01" );
+      ha01_[ism-1] = UtilsClient::getHisto( me, cloneME_, ha01_[ism-1] );
 
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBTestPulseTask/Gain06/EBTPT amplitude %s G06").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
-      ha02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, ha02_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EBTestPulseTask/Gain06/EBTPT amplitude " + Numbers::sEB(ism) + " G06" );
+      ha02_[ism-1] = UtilsClient::getHisto( me, cloneME_, ha02_[ism-1] );
 
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBTestPulseTask/Gain12/EBTPT amplitude %s G12").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
-      ha03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, ha03_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EBTestPulseTask/Gain12/EBTPT amplitude " + Numbers::sEB(ism) + " G12" );
+      ha03_[ism-1] = UtilsClient::getHisto( me, cloneME_, ha03_[ism-1] );
 
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBTestPulseTask/Gain01/EBTPT shape %s G01").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
-      hs01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs01_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EBTestPulseTask/Gain01/EBTPT shape " + Numbers::sEB(ism) + " G01" );
+      hs01_[ism-1] = UtilsClient::getHisto( me, cloneME_, hs01_[ism-1] );
 
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBTestPulseTask/Gain06/EBTPT shape %s G06").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
-      hs02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs02_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EBTestPulseTask/Gain06/EBTPT shape " + Numbers::sEB(ism) + " G06" );
+      hs02_[ism-1] = UtilsClient::getHisto( me, cloneME_, hs02_[ism-1] );
 
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBTestPulseTask/Gain12/EBTPT shape %s G12").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
-      hs03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs03_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EBTestPulseTask/Gain12/EBTPT shape " + Numbers::sEB(ism) + " G12" );
+      hs03_[ism-1] = UtilsClient::getHisto( me, cloneME_, hs03_[ism-1] );
 
     }
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBTestPulseTask/PN/Gain01/EBTPT PNs amplitude %s G01").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
-      i01_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i01_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EBTestPulseTask/PN/Gain01/EBTPT PNs amplitude " + Numbers::sEB(ism) + " G01" );
+      i01_[ism-1] = UtilsClient::getHisto( me, cloneME_, i01_[ism-1] );
 
     }
 
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBTestPulseTask/PN/Gain16/EBTPT PNs amplitude %s G16").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
-      i02_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i02_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EBTestPulseTask/PN/Gain16/EBTPT PNs amplitude " + Numbers::sEB(ism) + " G16" );
+      i02_[ism-1] = UtilsClient::getHisto( me, cloneME_, i02_[ism-1] );
 
     }
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBTestPulseTask/PN/Gain01/EBTPT PNs pedestal %s G01").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
-      i03_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i03_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EBTestPulseTask/PN/Gain01/EBTPT PNs pedestal " + Numbers::sEB(ism) + " G01" );
+      i03_[ism-1] = UtilsClient::getHisto( me, cloneME_, i03_[ism-1] );
 
     }
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
 
-      sprintf(histo, (prefixME_ + "/EBTestPulseTask/PN/Gain16/EBTPT PNs pedestal %s G16").c_str(), Numbers::sEB(ism).c_str());
-      me = dqmStore_->get(histo);
-      i04_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i04_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EBTestPulseTask/PN/Gain16/EBTPT PNs pedestal " + Numbers::sEB(ism) + " G16" );
+      i04_[ism-1] = UtilsClient::getHisto( me, cloneME_, i04_[ism-1] );
 
     }
 

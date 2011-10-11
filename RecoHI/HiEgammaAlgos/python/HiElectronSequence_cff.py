@@ -6,17 +6,16 @@ ecalDrivenElectronSeeds.SeedConfiguration.initialSeeds = "hiPixelTrackSeeds"
 electronCkfTrackCandidates.src = "ecalDrivenElectronSeeds"
 
 electronGsfTrackingHi = cms.Sequence(ecalDrivenElectronSeeds *
-                                     electronCkfTrackCandidates *
-                                     electronGsfTracks)
+                                                                          electronCkfTrackCandidates *
+                                                                          electronGsfTracks)
 
-# run the supercluster(EE+EB)-GSF track association ==> output: recoGsfElectrons_gsfElectrons__RECO  
+# run the supercluster(EE+EB)-GSF track association ==> output: recoGsfElectrons_gsfElectrons__RECO
 from RecoEgamma.EgammaElectronProducers.gsfElectronSequence_cff import *
 from RecoParticleFlow.PFProducer.pfElectronTranslator_cff import *
-gsfElectrons.ctfTracksTag     = cms.InputTag("hiGlobalPrimTracks")
-ecalDrivenGsfElectrons.ctfTracksTag = cms.InputTag("hiGlobalPrimTracks")
+gsfElectrons.ctfTracks     = cms.InputTag("hiGlobalPrimTracks")
 gsfElectronCores.ctfTracks = cms.InputTag("hiGlobalPrimTracks")
-ecalDrivenGsfElectronCores.ctfTracks = cms.InputTag("hiGlobalPrimTracks")
+pfElectronTranslator.emptyIsOk = cms.bool(True)
 
-hiElectronSequence = cms.Sequence(electronGsfTrackingHi * 
-			          pfElectronTranslator * 
-                                  gsfElectronSequence)
+hiElectronSequence = cms.Sequence(electronGsfTrackingHi *
+                                            pfElectronTranslator *
+                                                                    gsfElectronSequence)
