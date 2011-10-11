@@ -40,7 +40,8 @@ class HeavyIons(Scenario):
         skims = ['SiStripCalZeroBias',
                  'SiStripCalMinBias',
                  'TkAlMinBiasHI',
-                 'HcalCalMinBias']
+                 'HcalCalMinBias',
+                 'DtCalibHI']
         step = stepALCAPRODUCER(skims)
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
@@ -90,8 +91,10 @@ class HeavyIons(Scenario):
         options.step = 'RAW2DIGI,L1Reco,RECO'+step+',L1HwVal,DQM,ENDJOB'
         options.isMC = False
         options.isData = True
-        options.isRepacked = True
+#        options.isRepacked = True
         options.beamspot = None
+#         options.eventcontent = ','.join(writeTiers)
+#         options.datatier = ','.join(writeTiers)
         options.eventcontent = None
         options.magField = 'AutoFromDBCurrent'
         options.conditions = "FrontierConditions_GlobalTag,%s" % globalTag
@@ -108,7 +111,7 @@ class HeavyIons(Scenario):
 
         for tier in writeTiers: 
           addOutputModule(process, tier, tier)
-          
+
         #add the former top level patches here
         customiseExpressHI(process)
         
@@ -214,7 +217,7 @@ class HeavyIons(Scenario):
         return process
 
 
-    def alcaHarvesting(self, globalTag, **args):
+    def alcaHarvesting(self, globalTag, datasetName, **args):
         """
         _alcaHarvesting_
 
@@ -223,7 +226,7 @@ class HeavyIons(Scenario):
         """
         options = defaultOptions
         options.scenario = "HeavyIons"
-        options.step = "ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi+SiStripQuality"
+        options.step = "ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi"
         options.isMC = False
         options.isData = True
         options.beamspot = None
