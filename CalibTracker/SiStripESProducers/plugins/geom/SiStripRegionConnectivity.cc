@@ -33,7 +33,7 @@ std::auto_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCabl
   
   //Construct region cabling object
   SiStripRegionCabling* RegionConnections = new SiStripRegionCabling(etadivisions_,phidivisions_,etamax_);
-  
+
   //Construct region cabling map
   SiStripRegionCabling::Cabling regioncabling(etadivisions_*phidivisions_,SiStripRegionCabling::RegionCabling(SiStripRegionCabling::ALLSUBDETS,SiStripRegionCabling::WedgeCabling(SiStripRegionCabling::ALLLAYERS,SiStripRegionCabling::ElementCabling())));
   
@@ -66,13 +66,12 @@ std::auto_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCabl
     //Update region cabling map
     regioncabling[reg][subdet][layer][idet->first].resize(conns.size());
     for ( ; iconn != jconn; ++iconn ) {
-      if ( (*iconn)->apvPairNumber() < conns.size() ) { 
+      if ( ((*iconn) != 0) && ((*iconn)->apvPairNumber() < conns.size()) ) { 
 	regioncabling[reg][subdet][layer][idet->first][(*iconn)->apvPairNumber()] = **iconn;
       }
     }
-    
   }
-  
+
   //Add map to region cabling object
   RegionConnections->setRegionCabling(regioncabling);
   
