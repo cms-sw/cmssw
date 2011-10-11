@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Tue May 16 10:14:34 CEST 2006
-// $Id: HcalTB04Analysis.cc,v 1.9 2009/04/01 22:55:21 sunanda Exp $
+// $Id: HcalTB04Analysis.cc,v 1.10 2009/05/24 15:31:15 fabiocos Exp $
 //
   
 // system include files
@@ -274,7 +274,7 @@ void HcalTB04Analysis::update(const G4Step * aStep) {
       // look for DeltaE > 10% kinEnergy of particle, or particle death - Ek=0
       if (trackID == 1 && parentID == 0 && 
 	  ((kinEnergy == 0.) || (fabs (stepDeltaEnergy / kinEnergy) > 0.1))) {
-	int pvType = -1;
+	pvType = -1;
 	if (kinEnergy == 0.) {
 	  pvType = 0;
 	} else {
