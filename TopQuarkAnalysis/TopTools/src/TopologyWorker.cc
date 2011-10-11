@@ -708,8 +708,8 @@ void TopologyWorker::sanda() {
 
 
 void TopologyWorker::planes_sphe(double& pnorm, double& p2, double& p3) {
-      float SPH=-1;
-      float APL=-1;
+  //float SPH=-1;
+  //float APL=-1;
 // C...Calculate matrix to be diagonalized.
       float P[1000][6];
       double SM[4][4],SV[4][4];
@@ -758,8 +758,8 @@ void TopologyWorker::planes_sphe(double& pnorm, double& p2, double& p3) {
        } //140
 // C...Very low multiplicities (0 or 1) not considered.
       if(NP<2) {
-        SPH=-1.;
-        APL=-1.;
+        //SPH=-1.;
+        //APL=-1.;
 	return;	
       }
       for (J1=1;J1<4;J1++) { // 160
@@ -836,8 +836,8 @@ void TopologyWorker::planes_sphe(double& pnorm, double& p2, double& p3) {
       P[N+2][3]=SGN*(P[N+1][1]*P[N+3][2]-P[N+1][2]*P[N+3][1]);
  
 // C...Calculate sphericity and aplanarity. Select storing option.
-      SPH=1.5*(P[N+2][4]+P[N+3][4]);
-      APL=1.5*P[N+3][4];
+      //SPH=1.5*(P[N+2][4]+P[N+3][4]);
+      //APL=1.5*P[N+3][4];
 
       } // check 1
 
@@ -940,8 +940,8 @@ void TopologyWorker::planes_sphe(double& pnorm, double& p2, double& p3) {
 
 
 void TopologyWorker::planes_sphe_wei(double& pnorm, double& p2, double& p3) {
-      float SPH=-1;
-      float APL=-1;
+      //float SPH=-1;
+      //float APL=-1;
 // C...Calculate matrix to be diagonalized.
       float P[1000][6];
       double SM[4][4],SV[4][4];
@@ -990,8 +990,8 @@ void TopologyWorker::planes_sphe_wei(double& pnorm, double& p2, double& p3) {
        } //140
 // C...Very low multiplicities (0 or 1) not considered.
       if(NP<2) {
-        SPH=-1.;
-        APL=-1.;
+        //SPH=-1.;
+        //APL=-1.;
 	return;	
       }
       for (J1=1;J1<4;J1++) { // 160
@@ -1068,8 +1068,8 @@ void TopologyWorker::planes_sphe_wei(double& pnorm, double& p2, double& p3) {
       P[N+2][3]=SGN*(P[N+1][1]*P[N+3][2]-P[N+1][2]*P[N+3][1]);
  
 // C...Calculate sphericity and aplanarity. Select storing option.
-      SPH=1.5*(P[N+2][4]+P[N+3][4]);
-      APL=1.5*P[N+3][4];
+      //SPH=1.5*(P[N+2][4]+P[N+3][4]);
+      //APL=1.5*P[N+3][4];
 
       } // check 1
 
