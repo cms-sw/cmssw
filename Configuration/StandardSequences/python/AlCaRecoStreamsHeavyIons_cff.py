@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-# last update: $Date: 2011/07/01 09:42:52 $ by $Author: mussgill $
+# last update: $Date: 2011/10/11 12:42:35 $ by $Author: cerminar $
 
 # AlCaReco sequence definitions:
 
@@ -88,7 +88,7 @@ from Alignment.CommonAlignmentProducer.ALCARECOMuAlBeamHaloOverlaps_cff import *
 ###############################################################
 # stream for prompt-calibration @ Tier0
 ###############################################################
-from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProd_cff import *
+from Calibration.TkAlCaRecoProducers.ALCARECOPromptCalibProdHI_cff import *
 
 
 
