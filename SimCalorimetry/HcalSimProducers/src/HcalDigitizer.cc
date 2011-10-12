@@ -450,12 +450,12 @@ void HcalDigitizer::checkGeometry(const edm::EventSetup & eventSetup) {
   if(&*geometry != theGeometry)
   {
     theGeometry = &*geometry;
-    updateGeometry();
+    updateGeometry(eventSetup);
   }
 }
 
 
-void  HcalDigitizer::updateGeometry()
+void  HcalDigitizer::updateGeometry(const edm::EventSetup & eventSetup)
 {
   if(theHBHEResponse) theHBHEResponse->setGeometry(theGeometry);
   if(theHBHESiPMResponse) theHBHESiPMResponse->setGeometry(theGeometry);
@@ -484,13 +484,13 @@ void  HcalDigitizer::updateGeometry()
 
   HcalDigitizerImpl::fillCells(theHBHEDetIds, theHBHEDigitizer, theHBHESiPMDigitizer);
   //HcalDigitizerImpl::fillCells(hoCells, theHODigitizer, theHOSiPMDigitizer);
-  buildHOSiPMCells(hoCells);
+  buildHOSiPMCells(hoCells, eventSetup);
   theHFDigitizer->setDetIds(hfCells);
   theZDCDigitizer->setDetIds(zdcCells); 
 }
 
 
-void HcalDigitizer::buildHOSiPMCells(const std::vector<DetId>& allCells)
+void HcalDigitizer::buildHOSiPMCells(const std::vector<DetId>& allCells, const edm::EventSetup & eventSetup)
 {
   // all HPD
   if(theHOSiPMCode == 0)
@@ -504,21 +504,20 @@ void HcalDigitizer::buildHOSiPMCells(const std::vector<DetId>& allCells)
   } 
   else if(theHOSiPMCode == 2)// hardcode which are SiPM 
   {
-    std::vector<HcalDetId> zecotekDetIds;
-    std::vector<HcalDetId> hamamatsuDetIds;
+    std::vector<HcalDetId> zecotekDetIds, hamamatsuDetIds;
+    edm::ESHandle<HcalMCParams> p;
+    eventSetup.get<HcalMCParamsRcd>().get(p);
+    HcalMCParams mcParams(*p.product());
     for(std::vector<DetId>::const_iterator detItr = allCells.begin();
         detItr != allCells.end(); ++detItr)
     {
       HcalDetId hcalId(*detItr);
-      int ieta = hcalId.ieta();
-      int iphi = hcalId.iphi(); 
-      if ((ieta>=5 && ieta <= 10 )  && (iphi >=47 && iphi <=52))
-      {
+      int shapeType = mcParams.getValues(*detItr)->signalShape();
+      if(shapeType == HcalShapes::ZECOTEK) {
         zecotekDetIds.push_back(hcalId);
         theHOSiPMDetIds.push_back(*detItr);
-      } 
-      else if(((ieta>=5 && ieta <= 10 ) && (iphi >=53 && iphi <=58))
-           || ((ieta>=11 && ieta <= 15 )  && (iphi >=59 && iphi <=70))){
+      }
+      else if(shapeType == HcalShapes::HAMAMATSU) {
         hamamatsuDetIds.push_back(hcalId);
         theHOSiPMDetIds.push_back(*detItr);
       }
@@ -526,6 +525,7 @@ void HcalDigitizer::buildHOSiPMCells(const std::vector<DetId>& allCells)
         theHOHPDDetIds.push_back(*detItr);
       }
     }
+
     assert(theHODigitizer);
     assert(theHOSiPMDigitizer);
     theHODigitizer->setDetIds(theHOHPDDetIds);

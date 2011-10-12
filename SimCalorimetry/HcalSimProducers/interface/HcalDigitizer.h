@@ -47,9 +47,9 @@ private:
   /// exist in the geometry
   void checkGeometry(const edm::EventSetup& eventSetup);
   const CaloGeometry * theGeometry;
-  void updateGeometry();
+  void updateGeometry(const edm::EventSetup& eventSetup);
 
-  void buildHOSiPMCells(const std::vector<DetId>& allCells);
+  void buildHOSiPMCells(const std::vector<DetId>& allCells, const edm::EventSetup& eventSetup);
 
   /** Reconstruction algorithm*/
   typedef CaloTDigitizer<HBHEDigitizerTraits> HBHEDigitizer;
