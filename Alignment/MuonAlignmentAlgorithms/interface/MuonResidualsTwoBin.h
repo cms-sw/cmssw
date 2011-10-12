@@ -2,8 +2,8 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsTwoBin_H
 
 /** \class MuonResidualsTwoBin
- *  $Date: 2009/10/26 02:06:13 $
- *  $Revision: 1.9 $
+ *  $Date: 2011/04/15 21:51:13 $
+ *  $Revision: 1.10 $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -26,6 +26,7 @@ public:
   int npar() { assert(m_pos->npar() == m_neg->npar());  return m_pos->npar(); };
   int ndata() { assert(m_pos->ndata() == m_neg->ndata());  return m_pos->ndata(); };
   int type() const { assert(m_pos->type() == m_neg->type());  return m_pos->type(); };
+  int useRes() const { return m_pos->useRes(); };
 
   void fix(int parNum, bool value=true) {
     m_pos->fix(parNum, value);
@@ -233,10 +234,32 @@ public:
     }
   }
   
+  void correctBField()
+  {
+    m_pos->correctBField();
+    //if (m_twoBin) m_neg->correctBField();
+  };
+
+  void eraseNotSelectedResiduals()
+  {
+    if (m_twoBin) {
+      m_pos->eraseNotSelectedResiduals();
+      m_neg->eraseNotSelectedResiduals();
+    }
+    else {
+      m_pos->eraseNotSelectedResiduals();
+    }
+  }
+
   std::vector<double*>::const_iterator residualsPos_begin() const { return m_pos->residuals_begin(); };
   std::vector<double*>::const_iterator residualsPos_end() const { return m_pos->residuals_end(); };
   std::vector<double*>::const_iterator residualsNeg_begin() const { return m_neg->residuals_begin(); };
   std::vector<double*>::const_iterator residualsNeg_end() const { return m_neg->residuals_end(); };
+
+  std::vector<bool>::const_iterator residualsPos_ok_begin() const { return m_pos->selectedResidualsFlags().begin(); };
+  std::vector<bool>::const_iterator residualsPos_ok_end() const { return m_pos->selectedResidualsFlags().end(); };
+  std::vector<bool>::const_iterator residualsNeg_ok_begin() const { return m_neg->selectedResidualsFlags().begin(); };
+  std::vector<bool>::const_iterator residualsNeg_ok_end() const { return m_neg->selectedResidualsFlags().end(); };
 
 protected:
   bool m_twoBin;
