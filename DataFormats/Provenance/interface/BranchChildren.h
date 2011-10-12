@@ -16,6 +16,7 @@ namespace edm {
   class BranchChildren {
   private:
     typedef std::set<BranchID> BranchIDSet;
+    typedef std::map<BranchID, BranchIDSet> map_t;
   public:
 
     // Clear all information.
@@ -32,8 +33,13 @@ namespace edm {
     // it only appends *new* elements to the collection.
     void appendToDescendants(BranchID parent, BranchIDSet& descendants) const;
 
+    // const accessor for the data
+    map_t const&
+    childLookup() const {
+      return childLookup_;
+    }
+
   private:
-    typedef std::map<BranchID, BranchIDSet> map_t;
     map_t childLookup_;
 
     void append_(map_t const& lookup, BranchID item, BranchIDSet& itemSet) const;
