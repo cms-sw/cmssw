@@ -146,8 +146,9 @@ namespace rpcdqm{
     }
 
 
-    void dolabeling () {
-      
+    void dolabeling (bool useRollInfo) {
+
+      if(useRollInfo){
       ylabel[1] = "RB1in_B";
       ylabel[2] = "RB1in_F";
       ylabel[3] = "RB1out_B";
@@ -172,10 +173,41 @@ namespace rpcdqm{
       ylabel[19] = "RB4--_F";
       ylabel[20] = "RB4++_B";
       ylabel[21] = "RB4++_F";
+      }else{
+	ylabel[1] = "RB1in";
+	ylabel[2] = "";
+	ylabel[3] = "RB1out";
+	ylabel[4] = "";
+	ylabel[5] = "RB2in";
+	ylabel[6] = "";
+	
+	ylabel[7] = "";
+	ylabel[0] = "";
+	
+	ylabel[8] = "RB2out";
+	ylabel[9] = "";
+	ylabel[10] = "RB3-";
+	ylabel[11] = "";
+	ylabel[12] = "RB3+";
+	ylabel[13] = "";
+	ylabel[14] = "RB4,-";
+	ylabel[15] = "";
+	ylabel[16] = "RB4+";
+	ylabel[17] = "";
+	ylabel[18] = "RB4--";
+	ylabel[19] = "";
+	ylabel[20] = "RB4++";
+	ylabel[21] = "";
+      }
+
+
+
+
+
     }
 
 
-    void doEndcapLabeling(){          
+    void doEndcapLabeling(bool useRollInfo){          
 
       std::string rolls[3];
       rolls[0]="A";
@@ -236,7 +268,7 @@ namespace rpcdqm{
 
 
     //use only with RollvsSector MEs
-    void labelYAxisRoll(MonitorElement * myMe, int region, int ring){
+    void labelYAxisRoll(MonitorElement * myMe, int region, int ring, bool useRollInfo){
   
       //before do some checks
       if (!myMe) return;
@@ -245,7 +277,7 @@ namespace rpcdqm{
       if(region == 0){
   
 	//initialize label vector
-	this->dolabeling();  
+	this->dolabeling(useRollInfo);  
 	if(ring == -2 || ring == 2) ylabel[7]=ylabel[0];
   
 	for(int y = 1; y<= myMe->getNbinsY() && y<22; y++)	  
@@ -253,7 +285,7 @@ namespace rpcdqm{
 	
       }else{//Endcap
    
-	this->doEndcapLabeling();
+	this->doEndcapLabeling(useRollInfo);
    
   	for(int y = 1; y<= myMe->getNbinsY() && y<(int)endcapYLabels_.size(); y++)	  
 	  myMe->setBinLabel(y, endcapYLabels_[y], 2);
@@ -263,18 +295,41 @@ namespace rpcdqm{
 
 
   //use only with RingvsSegment MEs
-    void labelYAxisRing(MonitorElement * myMe, int numberOfRings){
+    void labelYAxisRing(MonitorElement * myMe, int numberOfRings, bool useRollInfo){
   
       //before do some checks
       if (!myMe) return;
-
-      std::string labels[9]= {"C", "Ring1 B", "A","C", "Ring2 B", "A","C", "Ring3 B", "A"};
-      int startBin ;
-      (numberOfRings == 2 ? startBin = 3: startBin = 0);
- 
-      //set bin labels
-      for(int y =1 ;y<= myMe->getNbinsY() && y<=9; y++ )
-	myMe->setBinLabel(y,labels[y-1+startBin],2);
+      std::string labels[9];
+      if(useRollInfo){
+	labels[0]= "C";
+	labels[1]= "Ring1 B";
+	labels[2]= "A";
+	labels[3]= "C";
+	labels[4]= "Ring2 B";
+	labels[5]= "A";
+	labels[6]= "C";
+	labels[7]= "Ring3 B";
+	labels[8]= "A";
+      }else{
+	labels[0]= "";
+	labels[1]= "Ring1";
+	labels[2]= "";
+	labels[3]= "";
+	labels[4]= "Ring2";
+	labels[5]= "";
+	labels[6]= "";
+	labels[7]= "Ring3";
+	labels[8]= "";
+	
+      }
+	int startBin ;
+	(numberOfRings == 2 ? startBin = 3: startBin = 0);
+	
+	//set bin labels
+	for(int y =1 ;y<= myMe->getNbinsY() && y<=9; y++ ){
+	  myMe->setBinLabel(y,labels[y-1+startBin],2);
+	  
+	}
     }
 
 

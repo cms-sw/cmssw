@@ -38,7 +38,7 @@ RPCMonitorDigi::RPCMonitorDigi( const edm::ParameterSet& pset ):counter(0){
   numberOfDisks_ = pset.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
   numberOfInnerRings_ = pset.getUntrackedParameter<int>("NumberOfInnermostEndcapRings", 2);
 
-  noiseFolder_ = pset.getUntrackedParameter<std::string>("NoiseFolder", "Noise");
+  noiseFolder_ = pset.getUntrackedParameter<std::string>("NoiseFolder", "AllHits");
   muonFolder_ = pset.getUntrackedParameter<std::string>("MuonFolder", "Muon");
 
 }
@@ -54,11 +54,6 @@ void RPCMonitorDigi::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
   dbe = edm::Service<DQMStore>().operator->();
 
   //Book 
-
-  //regionNoiseCollection = this->bookRegionME(noiseFolder_);
-  //sectorRingNoiseCollection = this->bookSectorRingME(noiseFolder_);
-  //wheelDiskNoiseCollection = this->bookWheelDiskME(noiseFolder_);
-  
   this->bookRegionME(noiseFolder_, regionNoiseCollection);
   this->bookSectorRingME(noiseFolder_, sectorRingNoiseCollection);
   this->bookWheelDiskME(noiseFolder_, wheelDiskNoiseCollection);
@@ -74,9 +69,6 @@ void RPCMonitorDigi::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
   
   
   if(useMuonDigis_ ){
-  //   regionMuonCollection = this->bookRegionME(muonFolder_);
-//     sectorRingMuonCollection = this->bookSectorRingME(muonFolder_);
-//     wheelDiskMuonCollection = this->bookWheelDiskME(muonFolder_);
     this->bookRegionME(muonFolder_, regionMuonCollection);
     this->bookSectorRingME(muonFolder_, sectorRingMuonCollection);
     this->bookWheelDiskME(muonFolder_, wheelDiskMuonCollection);
@@ -115,9 +107,6 @@ void RPCMonitorDigi::beginRun(const edm::Run& r, const edm::EventSetup& iSetup){
 	  std::string nameID = rpcsrv.name();
 	  if(useMuonDigis_) bookRollME(rpcId ,iSetup, muonFolder_, meMuonCollection[nameID]);
 	  bookRollME(rpcId, iSetup, noiseFolder_, meNoiseCollection[nameID]);
-	  
-	  // 	if(useMuonDigis_) meMuonCollection[(uint32_t)rpcId] = bookRollME(rpcId,iSetup,  muonFolder_);
-	  // 	meNoiseCollection[(uint32_t)rpcId] = bookRollME(rpcId,iSetup,  noiseFolder_);
 	}
       }else{
 	RPCDetId rpcId = roles[0]->id(); //any roll would do - here I just take the first one

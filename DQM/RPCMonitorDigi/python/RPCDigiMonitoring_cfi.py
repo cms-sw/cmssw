@@ -13,7 +13,7 @@ rpcdigidqm = cms.EDAnalyzer("RPCMonitorDigi",
                             RecHitLabel = cms.InputTag("rpcRecHits"),
                             NumberOfEndcapDisks = cms.untracked.int32(3),
                             NumberOfInnermostEndcapRings = cms.untracked.int32(2),
-                            NoiseFolder  = cms.untracked.string("Noise"),
+                            NoiseFolder  = cms.untracked.string("AllHits"),
                             MuonFolder = cms.untracked.string("Muon")
                             )
 
