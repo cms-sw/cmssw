@@ -588,6 +588,8 @@ def toCSVLumiByLSXing(lumidata,scalefactor,filename):
             continue
         for lsdata in rundata:
             cmslsnum=lsdata[1]
+            if cmslsnum==0:
+                continue
             deliveredlumi=lsdata[5]
             recordedlumi=lsdata[6]
             (bxidxlist,bxvaluelist,bxerrorlist)=lsdata[8]
