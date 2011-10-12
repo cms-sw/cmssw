@@ -2,8 +2,7 @@
 #define Alignment_MuonAlignmentAlgorithms_MuonResidualsFromTrack_H
 
 /** \class MuonResidualsFromTrack
- *  $Date: 2009/02/27 18:58:29 $
- *  $Revision: 1.2 $
+ *  $Id: $
  *  \author J. Pivarski - Texas A&M University <pivarski@physics.tamu.edu>
  */
 
@@ -18,45 +17,54 @@
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+
+#include "TMatrixDSym.h"
+#include "TMatrixD.h"
+
 #include <vector>
 #include <map>
 
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonChamberResidual.h"
-#include "Alignment/MuonAlignmentAlgorithms/interface/MuonDT13ChamberResidual.h"
-#include "Alignment/MuonAlignmentAlgorithms/interface/MuonDT2ChamberResidual.h"
-#include "Alignment/MuonAlignmentAlgorithms/interface/MuonCSCChamberResidual.h"
 
-class MuonResidualsFromTrack {
+class MuonResidualsFromTrack
+{
 public:
-  MuonResidualsFromTrack(edm::ESHandle<GlobalTrackingGeometry> globalGeometry, const Trajectory *traj, AlignableNavigator *navigator, double maxResidual);
+  // residuals from global muon trajectories
+  MuonResidualsFromTrack(edm::ESHandle<GlobalTrackingGeometry> globalGeometry,
+                         const Trajectory *traj,
+                         const reco::Track* trk,
+                         AlignableNavigator *navigator, double maxResidual);
+
+  // residuals from tracker muons
+  MuonResidualsFromTrack(edm::ESHandle<GlobalTrackingGeometry> globalGeometry,
+                         const reco::Muon *mu,
+                         AlignableNavigator *navigator,
+                         double maxResidual);
+
   ~MuonResidualsFromTrack();
+  
+  void clear();
 
-  int trackerNumHits() const { return m_tracker_numHits; };
-  double trackerChi2() const { return m_tracker_chi2; };
-  double trackerRedChi2() const {
-    if (m_tracker_numHits > 5) return m_tracker_chi2 / double(m_tracker_numHits - 5);
-    else return -1.;
-  };
+  const reco::Track *getTrack() { return track; }
 
-  bool contains_TIDTEC() const { return m_contains_TIDTEC; };
+  int trackerNumHits() const { return m_tracker_numHits; }
 
-  const std::vector<DetId> chamberIds() const { return m_chamberIds; };
+  double trackerChi2() const { return m_tracker_chi2; }
+  double trackerRedChi2() const;
+  double normalizedChi2() const;
 
-  MuonChamberResidual *chamberResidual(DetId chamberId, int type) {
-    if (type == MuonChamberResidual::kDT13) {
-      if (m_dt13.find(chamberId) == m_dt13.end()) return NULL;
-      return m_dt13[chamberId];
-    }
-    else if (type == MuonChamberResidual::kDT2) {
-      if (m_dt2.find(chamberId) == m_dt2.end()) return NULL;
-      return m_dt2[chamberId];
-    }
-    else if (type == MuonChamberResidual::kCSC) {
-      if (m_csc.find(chamberId) == m_csc.end()) return NULL;
-      return m_csc[chamberId];
-    }
-    else return NULL;
-  };
+  bool contains_TIDTEC() const { return m_contains_TIDTEC; }
+
+  const std::vector<DetId> chamberIds() const { return m_chamberIds; }
+
+  MuonChamberResidual *chamberResidual(DetId chamberId, int type);
+  
+  TMatrixDSym covMatrix(DetId chamberId);
+  TMatrixDSym corrMatrix(DetId chamberId);
+  TMatrixD choleskyCorrMatrix(DetId chamberId);
 
 private:
   TrajectoryStateCombiner m_tsoscomb;
@@ -67,6 +75,15 @@ private:
 
   std::vector<DetId> m_chamberIds;
   std::map<DetId,MuonChamberResidual*> m_dt13, m_dt2, m_csc;
+  std::map<DetId,TMatrixDSym> m_trkCovMatrix;
+
+  void addTrkCovMatrix(DetId, TrajectoryStateOnSurface &);
+
+  // pointer to its track
+  const reco::Track *track;
+
+  // track muon
+  const reco::Muon *muon;
 };
 
 #endif // Alignment_MuonAlignmentAlgorithms_MuonResidualsFromTrack_H
