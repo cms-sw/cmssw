@@ -17,7 +17,7 @@ siTrackerGaussianSmearingRecHits = cms.EDProducer("SiTrackerGaussianSmearingRecH
     doRecHitMatching = cms.bool(True),
 
     # Set to (True) for taking the existence of dead modules into account:
-    switchDeadChannels = cms.bool(True),
+    killDeadChannels = cms.bool(True),
                                                   
     TEC2y = cms.double(3.6662), ## 12.7/sqrt(12.)
 

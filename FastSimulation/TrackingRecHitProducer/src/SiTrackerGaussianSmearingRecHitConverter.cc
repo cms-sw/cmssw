@@ -121,7 +121,7 @@ SiTrackerGaussianSmearingRecHitConverter::SiTrackerGaussianSmearingRecHitConvert
   doMatching = conf.getParameter<bool>("doRecHitMatching");
 
   // disable/enable dead channels
-  doDisableChannels = conf.getParameter<bool>("switchDeadChannels");
+  doDisableChannels = conf.getParameter<bool>("killDeadChannels");
 
   // Switch between old (ORCA) and new (CMSSW) pixel parameterization
   useCMSSWPixelParameterization = conf.getParameter<bool>("UseCMSSWPixelParametrization");
