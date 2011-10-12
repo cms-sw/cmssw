@@ -138,7 +138,7 @@
     G4ParticleDefinition *aKaonZeroL = G4KaonZeroLong::KaonZeroLong();
 
     G4int i, l;
-    G4double forVeryForward = 0.;
+    //    G4double forVeryForward = 0.;
     G4bool veryForward = false;
     
     const G4double ekOriginal = modifiedOriginal.GetKineticEnergy()/GeV;
@@ -183,7 +183,7 @@
       targetHasChanged = true;
       currentParticle.SetKineticEnergy( ek );
       currentParticle.SetMomentum( m );
-      forVeryForward = aProton->GetPDGMass();
+      //      forVeryForward = aProton->GetPDGMass();
       veryForward = true;
     }
     const G4double atomicWeight = targetNucleus.GetN();
@@ -3238,8 +3238,8 @@
     G4ParticleDefinition *anAlpha = G4Alpha::Alpha();
     
     const G4double ekOriginal = modifiedOriginal.GetKineticEnergy()/MeV;
-    const G4double atomicWeight = targetNucleus.GetN();
-    const G4double atomicNumber = targetNucleus.GetZ();
+    G4double atomicWeight = targetNucleus.GetN();
+    G4double atomicNumber = targetNucleus.GetZ();
     
     const G4double ika1 = 3.6;
     const G4double ika2 = 35.56;

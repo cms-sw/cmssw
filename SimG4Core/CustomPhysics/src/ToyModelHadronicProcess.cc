@@ -274,7 +274,7 @@ G4VParticleChange* ToyModelHadronicProcess::PostStepDoIt(const G4Track& track,
     m_particleChange.ProposeTrackStatus(fStopAndKill);
     if(m_verboseLevel >= 3) std::cout  << "Incident does not survive: stopAndKill + set num secondaries to " << numberOfSecondaries << std::endl;
   }  
-  double e_kin;
+  //  double e_kin;
 
   for (int ip=0; ip <numberOfSecondaries;ip++)
     {
@@ -289,8 +289,8 @@ G4VParticleChange* ToyModelHadronicProcess::PostStepDoIt(const G4Track& track,
 	      G4LorentzVector p4_new = gluinoMomentum+fourMomenta[ip];
 	      G4ThreeVector momentum = p4_new.vect();
 	      double rhMass=newParticlesRHadron[ip]->GetPDGMass() ;
-	      e_kin = sqrt(momentum.mag()*momentum.mag()+rhMass*rhMass)-rhMass;
-	      //	  fourMomenta[ip]=G4LorentzVector(momentum,sqrt(momentum.mag2()+rhMass*rhMass));
+	      //	      e_kin = sqrt(momentum.mag()*momentum.mag()+rhMass*rhMass)-rhMass;
+	      //	      fourMomenta[ip]=G4LorentzVector(momentum,sqrt(momentum.mag2()+rhMass*rhMass));
 	      fourMomenta[ip].setVectM(momentum,rhMass);
 
 //	      double virt=(p4_new-fourMomenta[ip]).m()/MeV;
