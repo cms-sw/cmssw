@@ -502,7 +502,7 @@ void HcalDigitizer::buildHOSiPMCells(const std::vector<DetId>& allCells, const e
     theHOSiPMDigitizer->setDetIds(allCells);
     // FIXME pick Zecotek or hamamatsu?
   } 
-  else if(theHOSiPMCode == 2)// hardcode which are SiPM 
+  else if(theHOSiPMCode == 2)
   {
     std::vector<HcalDetId> zecotekDetIds, hamamatsuDetIds;
     edm::ESHandle<HcalMCParams> p;

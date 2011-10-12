@@ -43,7 +43,7 @@ hcalSimParameters = cms.PSet(
         syncPhase = cms.bool(True),
         timePhase = cms.double(5.0),
         timeSmearing = cms.bool(False),
-        # 0 is HPD, 1 is SiPM, 2, is hardcoded combination 
+        # 0 is HPD, 1 is SiPM, 2 fetches HPD/Zecotek/Hamamatsufrom DB
         siPMCode = cms.int32(2)
     ),
     hb = cms.PSet(
