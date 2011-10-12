@@ -12,8 +12,6 @@ namespace Rivet {
 
  
   private:
-
-    // Initialize a histogram:
     BinnedHistogram<double> _hist_sigma;
 
   public:
@@ -22,7 +20,6 @@ namespace Rivet {
 
     // Constructor
     CMS_2011_S9086218()
-    // This name must be the same as the one you cal in rivet_cfg.py
       : Analysis("CMS_2011_S9086218") {
       setBeams(PROTON, PROTON);
       setNeedsCrossSection(true);
@@ -50,15 +47,8 @@ namespace Rivet {
     // Analysis
     void analyze(const Event &event) {
 
-      // for most generators weight = 1, but in some cases it might be different.
-      const double weight = event.weight();
-      
-      // Apply the projection:
-      const FastJets &fj = applyProjection<FastJets>(event,"Jets");
-      
-      // Get the jets out with 18 GeV < p_T < 1100 GeV and |y| < 4.7.
-      // Note that FastJets.jets by default uses ETA, but it can also be
-      // changed to RAPIDITY.
+      const double weight = event.weight();      
+      const FastJets &fj = applyProjection<FastJets>(event,"Jets");      
       const Jets& jets = fj.jets(18*GeV, 1100*GeV, -4.7, 4.7, RAPIDITY);
 
       // Fill the relevant histograms:
@@ -70,7 +60,6 @@ namespace Rivet {
     // Finalize
     void finalize() {
 
-      // Normalize to the width of etabin:
       _hist_sigma.scale(crossSection()/sumOfWeights()/0.5/2, this);
     }
     //@}

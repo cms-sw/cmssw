@@ -27,15 +27,12 @@ namespace Rivet {
      FinalState fs;
      FastJets akt(fs, FastJets::ANTIKT, 0.5);
      addProjection(akt, "antikT");
-
-       
+     
      if(fuzzyEquals(sqrtS(), 7000*GeV, 1E-3)){ 
 
-       // don't forget to name the histograms
        _h_dijet.reset (new LWH::Histogram1D(binEdges(1,1,1)));
        _h_trijet.reset(new LWH::Histogram1D(binEdges(1,1,1)));
        _h_r32 = bookDataPointSet(1, 1, 1); 
-
 
      }
    }
@@ -71,9 +68,6 @@ namespace Rivet {
 // ======================================================== finalize 
  
    void finalize() {
-     //AIDA::IHistogramFactory& hf = histogramFactory();
-     //const string dir = histoDir();
-     //hf.divide(dir + "/d03-x01-y01",*_h_trijet, *_h_dijet);
      vector<double> yval_R32, yerr_R32;
      for (size_t i = 0;  i < 30; ++i) {
         const double yval = _h_trijet->binHeight(i) / _h_dijet->binHeight(i);
@@ -87,17 +81,14 @@ namespace Rivet {
  
 
 
- 
-   private:
-
+    private:
 
     shared_ptr<LWH::IHistogram1D> _h_dijet, _h_trijet;
     AIDA::IDataPointSet* _h_r32;
 
 
  }; 
- 
- 
+  
    // This global object acts as a hook for the plugin system
    AnalysisBuilder<CMS_2011_S9088458> plugin_CMS_2011_S9088458;
  

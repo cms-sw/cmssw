@@ -26,11 +26,9 @@ namespace Rivet {
       FinalState fs;
       FastJets akt(fs, FastJets::ANTIKT, 0.5);
       addProjection(akt, "antikT");
-      //addProjection(Beam(), "Beam");  			
       
       if(fuzzyEquals(sqrtS(), 7000*GeV, 1E-3)){ 
         
-        // don't forget to name the histograms
         _h_dPhi_pT1 = bookHistogram1D(1, 1, 1);
         _h_dPhi_pT2 = bookHistogram1D(2, 1, 1);
         _h_dPhi_pT3 = bookHistogram1D(3, 1, 1);
