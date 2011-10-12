@@ -1,4 +1,4 @@
-// $Id: Thrust.cc,v 1.13 2006/05/03 06:56:00 llista Exp $
+// $Id: Thrust.cc,v 1.14 2008/03/13 13:28:00 llista Exp $
 #include "PhysicsTools/CandUtils/interface/Thrust.h"
 #include <cmath>
 using namespace reco;
@@ -63,7 +63,7 @@ Thrust::ThetaPhi Thrust::initialAxis() const {
 
 Thrust::ThetaPhi Thrust::finalAxis(ThetaPhi best) const {
   static const double epsilon = 0.0001;
-  double maxChange1, maxChange2, a, b, c, thr;
+  double maxChange1=0.0, maxChange2=0.0, a=0.0, b=0.0, c=0.0, thr=0.0;
   int mandCt = 3, maxCt = 1000;
   bool done;
   do { 
