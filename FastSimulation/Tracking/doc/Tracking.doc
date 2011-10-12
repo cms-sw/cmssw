@@ -15,12 +15,16 @@
 \section desc Description
 <!-- Short description of what this package is supposed to provide -->
 
-(THE PACKAGE ADMINISTATOR SHOULD REPLACE THIS SENTENCE WITH HAND-WRITTEN DOCUMENTATION SAYING WHAT THE PACKAGE DOES.)
+The package deals with the interface between the Fast Simulation and the reco::Tracking package in the Full Reconstruction.<br>
+In FastSim a fast tracking is implemented, in which only the RecHits produced by a given simTrack are fitted, so that the time-expensive pattern recognition step can be avoided. <br>
+For the track fit, however, the same Iterative Tracking procedure as in the Full Reconstruction is implemented: the configurations in the /python directory are used to steed the customized Iterative Tracking for FastSim.
+
 
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
 
-- TrackerRecHit
+- TrackerRecHit <br>
+A class that gives some properties of the Tracker Layers in the Fast Simulation
 
 
 \subsection pluginai Plugins
