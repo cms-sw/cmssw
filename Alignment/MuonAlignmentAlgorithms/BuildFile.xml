@@ -11,6 +11,7 @@
 <use   name="Alignment/CommonAlignment"/>
 <use   name="RecoMuon/TransientTrackingRecHit"/>
 <use   name="clhep"/>
+<use   name="root"/>
 <use   name="rootcore"/>
 <use   name="rootminuit"/>
 <export>
