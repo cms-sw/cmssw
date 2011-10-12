@@ -59,8 +59,8 @@ def plot(fileName,sl,ymin=300,ymax=360,option="HISTOP",draw=True):
 
 def compare(fileNames,sl,ymin=300,ymax=360):
     option = "HISTOP"
-    colors = (2,4,12,44,55)
-    markers = (24,25,26,27)
+    colors = (2,4,12,44,55,38,27,46)
+    markers = (24,25,26,27,28,30,32,5)
     
     idx = 0
     canvas = None
@@ -71,10 +71,11 @@ def compare(fileNames,sl,ymin=300,ymax=360):
         if not idx: draw = True
 
         objs = plot(fileName,sl,ymin,ymax,option,draw)
+        histos.append(objs[1])
+        histos[-1].SetName( "%s_%d" % (histos[-1].GetName(),idx) )
         if not idx:
             canvas = objs[0]
             objects = objs[2]
-        histos.append(objs[1])
 
         canvas.cd()
         if idx:
@@ -87,3 +88,71 @@ def compare(fileNames,sl,ymin=300,ymax=360):
         idx += 1
     
     return (canvas,histos,objects)
+
+def compareDiff(fileNames,sl,ymin=-15.,ymax=15.):
+    option = "HISTOP"
+    colors = (2,4,9,12,38,44,46,55)
+    markers = (24,25,26,27,28,30,32,5)
+    
+    idx = 0
+    canvases = [None,None]
+    objects = None
+    histoRef = None
+    histos = []
+    histosDist = []
+    for fileName in fileNames:
+        objs = plot(fileName,sl,300,360,'',False)
+        histos.append( objs[1].Clone(objs[1].GetName() + "_diff") )
+        histos[-1].SetName( "%s_%d" % (histos[-1].GetName(),idx) )
+        if not idx:
+            histoRef = objs[1]
+            histos[-1].Reset()
+        else:
+            histos[-1].Add(histoRef,-1.) 
+       
+        draw = False
+        if not idx: draw = True
+
+        objs = drawHisto(histos[-1],
+                         title="t_{Trig} difference (ns)",
+                         ymin=ymin,ymax=ymax,option=option,draw=draw)
+
+        if not idx: 
+            canvases[0] = objs[0]
+            objects = objs[2]
+            
+        if idx:
+            canvases[0].cd()
+            histos[-1].SetLineColor(colors[ (idx - 1) % len(colors) ])
+            histos[-1].SetMarkerColor(colors[ (idx - 1) % len(colors) ])
+            histos[-1].SetMarkerStyle(markers[ (idx - 1) % len(markers) ])
+
+            histos[-1].Draw(option + "SAME")
+
+            histosDist.append( ROOT.TH1F(histos[-1].GetName() + "_dist","tTrig distribution",200,ymin,ymax) )
+            for ibin in range(1,histos[-1].GetNbinsX()+1):
+                histosDist[-1].Fill( histos[-1].GetBinContent(ibin) )
+
+            histosDist[-1].SetLineColor(colors[ (idx - 1) % len(colors) ])
+            histosDist[-1].SetMarkerColor(colors[ (idx - 1) % len(colors) ])
+            histosDist[-1].SetMarkerStyle(markers[ (idx - 1) % len(markers) ])
+
+        idx += 1
+    
+    
+    canvases[1] = ROOT.TCanvas("c_tTrigDist")
+    canvases[1].SetGridy()
+    canvases[1].SetFillColor(0)
+    canvases[1].cd()
+    option = "HISTO"
+    idx = 0
+    for histo in histosDist:
+        if not idx:
+            histo.GetXaxis().SetTitle("t_{Trig} difference (ns)")
+            histo.GetYaxis().SetTitle("Number of chambers")
+            histo.Draw(option)
+        else:
+            histo.Draw(option + "SAME") 
+        idx += 1
+
+    return (canvases,histos,histosDist,objects)
