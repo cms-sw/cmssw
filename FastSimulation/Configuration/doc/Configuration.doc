@@ -15,7 +15,32 @@
 \section desc Description
 <!-- Short description of what this package is supposed to provide -->
 
-(THE PACKAGE ADMINISTATOR SHOULD REPLACE THIS SENTENCE WITH HAND-WRITTEN DOCUMENTATION SAYING WHAT THE PACKAGE DOES.)
+This is the main steering area for FastSimulation. The following configurations can be relevant for the user:
+
+- FamosSequences_cff.py <br>
+It includes all the FastSim specific sequences for simulation and reconstruction
+
+- EventContent_cff.py <br>
+FastSim specific customizations of the usual event contents are defined here
+
+- HLT_GRun_cff.py <br>
+As the corresponding one in HLTrigger/Configuration, but with the FastSim specific HLT menus
+
+- Validation_cff.py and Harvesting_cff.py <br>
+FastSim specific sequnces for release validation and harvesting
+
+- RandomServiceInitialization_cff.py <br>
+Initialization of random numbers used in FastSim
+
+- Geometries_cff.py <br>
+Detector geometries and parameters used in FastSim are listed here;
+in particular, Geometries_START_cff.py and Geometries_MC_cff.py customize, respectively, the parameters for the
+STARTUP and MC detector conditions
+
+- mixFastSimObjects_cfi.py and mixNoPU_cfi.py <br>
+Deal with mixing module
+
+ 
 
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
@@ -34,7 +59,8 @@
 
 \subsection tests Unit tests and examples
 <!-- Describe cppunit tests and example configuration files -->
-Unknown
+In the /test repository there are several maintained configurations for running FastSim under a few common
+general assumptions (although the preferred way of producing FastSim events is through normal cmsDriver commands)
 
 \section status Status and planned development
 <!-- e.g. completed, stable, missing features -->
