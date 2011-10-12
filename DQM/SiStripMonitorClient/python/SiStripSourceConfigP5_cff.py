@@ -18,6 +18,8 @@ SiStripMonitorDigi.TH1ADCsHottestStrip.moduleswitchon = False
 SiStripMonitorDigi.TH1DigiADCs.moduleswitchon = False
 SiStripMonitorDigi.TH1StripOccupancy.moduleswitchon = False
 
+from DQM.SiStripMonitorDigi.SiStripBaselineValidator_cfi import *
+
 # SiStripMonitorCluster ####
 import DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi
 SiStripMonitorClusterReal = DQM.SiStripMonitorCluster.SiStripMonitorCluster_cfi.SiStripMonitorCluster.clone()
