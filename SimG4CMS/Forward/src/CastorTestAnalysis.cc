@@ -128,7 +128,7 @@ void CastorTestAnalysis::update(const G4Step * aStep) {
   G4Track * theTrack    = aStep->GetTrack();
   G4int theTrackID      = theTrack->GetTrackID();
   G4double theCharge    = theTrack->GetDynamicParticle()->GetCharge();
-  G4String particleType = theTrack->GetDefinition()->GetParticleName();
+  //  G4String particleType = theTrack->GetDefinition()->GetParticleName();
   G4int pdgcode		= theTrack->GetDefinition()->GetPDGEncoding();
 
   G4ThreeVector vert_mom = theTrack->GetVertexMomentumDirection();
@@ -141,7 +141,7 @@ void CastorTestAnalysis::update(const G4Step * aStep) {
   G4ThreeVector hitPoint = preStepPoint->GetPosition();
 
    // Fill-in ntuple
-//  castorsteparray[ntcastors_evt] = (*evt)()->GetEventID();
+  //  castorsteparray[ntcastors_evt] = (*evt)()->GetEventID();
   castorsteparray[ntcastors_evt] = (float)eventIndex;
   castorsteparray[ntcastors_trackid] = (float)theTrackID;
   castorsteparray[ntcastors_charge] = theCharge;
@@ -184,9 +184,9 @@ void CastorTestAnalysis::update(const G4Step * aStep) {
 
 #ifdef DebugLog
   if ( theTrack->GetNextVolume() != 0 )
-      LogDebug("ForwardSim") << " NextVolume: " << theTrack->GetNextVolume()->GetName() ;
+    LogDebug("ForwardSim") << " NextVolume: " << theTrack->GetNextVolume()->GetName() ;
   else 
-      LogDebug("ForwardSim") << " NextVolume: OutOfWorld" ;
+    LogDebug("ForwardSim") << " NextVolume: OutOfWorld" ;
 #endif
 
  
@@ -232,7 +232,7 @@ void CastorTestAnalysis::update(const EndOfEvent * evt) {
     //  Check FI TBranch for Hits
     if (theCAFI->entries() > 0) getCastorBranchData(theCAFI) ;
     
-// Find Primary info:
+    // Find Primary info:
       int trackID = 0;
       int particleType = 0;
       G4PrimaryParticle* thePrim=0;
@@ -251,8 +251,8 @@ void CastorTestAnalysis::update(const EndOfEvent * evt) {
         if (thePrim==0) thePrim=avertex->GetPrimary(trackID);
       }
     
-      double px=0.,py=0.,pz=0.;
-      double eta = 0., phi = 0., pInit = 0.;
+      double px=0.,py=0.,pz=0., pInit=0;
+      double eta = 0., phi = 0.;
     
       if (thePrim != 0) {
         px = thePrim->GetPx();
@@ -268,12 +268,14 @@ void CastorTestAnalysis::update(const EndOfEvent * evt) {
 
 	  if (px != 0) phi = atan(py/px);  
         }
-        particleType	= thePrim->GetPDGcode();
+	particleType	= thePrim->GetPDGcode();
       } else {
         std::cout << "CASTORTest End Of Event ERR: could not find primary "
 		  << std::endl;
       }
-    
+      LogDebug("ForwardSim") << "CastorTestAnalysis: Particle Type " 
+			     << particleType << " p/eta/phi " << pInit << ", "
+			     << eta << ", " << phi;
   }
 
   int iEvt = (*evt)()->GetEventID();

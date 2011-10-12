@@ -650,7 +650,7 @@ void BscTest::update(const EndOfEvent * evt) {
     //      inline G4ParticleDefinition * GetG4code() const
     //      inline G4PrimaryParticle * GetNext() const
     //      inline G4PrimaryParticle * GetDaughter() const
-
+    /*
     // prim.vertex
     int ivert = 0 ;
     G4PrimaryVertex* avertex = (*evt)()->GetPrimaryVertex(ivert);
@@ -658,7 +658,7 @@ void BscTest::update(const EndOfEvent * evt) {
     vx = avertex->GetX0();
     vy = avertex->GetY0();
     vz = avertex->GetZ0();
-
+    */
     //
     // number of secondary particles deposited their energy along primary track
     //UserNtuples->fillg518(numofpart,1.);
@@ -898,7 +898,7 @@ void BscTest::update(const EndOfEvent * evt) {
 	int nhitsecX = 0, nhitsecY = 0;
 	for (int zmodule=1; zmodule<11; zmodule++) {
 	  for (int zside=1; zside<3; zside++) {
-	    int det= 1, nhit = 0;
+	    int det= 1;// nhit = 0;
 	    //	int sScale = 20;
 	    int index = BscNumberingScheme::packBscIndex(det, zside, sector);
 	    double   theTotalEnergy = themap[index];
@@ -907,8 +907,8 @@ void BscTest::update(const EndOfEvent * evt) {
 	      //UserNtuples->fillg47(theTotalEnergy,1.); 
 	      if(theTotalEnergy > 0.00003) {
 		nhitsX += 1;
-		//	    nhitsecX += themap1[index];
-		nhit=1;
+		//		nhitsecX += themap1[index];
+		//		nhit=1;
 	      }
 	    }
 	    //   Y planes
@@ -916,8 +916,8 @@ void BscTest::update(const EndOfEvent * evt) {
 	      //UserNtuples->fillg49(theTotalEnergy,1.);
 	      if(theTotalEnergy > 0.00005) {
 		nhitsY += 1;
-		//	    nhitsecY += themap1[index];
-		nhit=1;
+		//		nhitsecY += themap1[index];
+		//		nhit=1;
 	      }
 	    }
 

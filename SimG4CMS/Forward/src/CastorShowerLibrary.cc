@@ -285,7 +285,6 @@ void CastorShowerLibrary::getRecord(int type, int record) {
   LogDebug("CastorShower") << "CastorShowerLibrary::getRecord: ";
 #endif  
   int nrc  = record;
-  int nHit = 0;
   showerEvent = new CastorShowerEvent();
   if (type > 0) {
     hadBranch->SetAddress(&showerEvent);
@@ -294,9 +293,9 @@ void CastorShowerLibrary::getRecord(int type, int record) {
     emBranch->SetAddress(&showerEvent);
     emBranch->GetEntry(nrc);
   }
-  nHit = showerEvent->getNhit();
 
 #ifdef DebugLog
+  int nHit = showerEvent->getNhit();
   LogDebug("CastorShower") << "CastorShowerLibrary::getRecord: Record " << record
 		           << " of type " << type << " with " << nHit 
 		           << " CastorShowerHits";

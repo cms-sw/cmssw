@@ -150,10 +150,10 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 				   << "\n  TRACKINFO2: " 
 				   << theTrack->GetCurrentStepNumber() 
 				   << " , " 
-				 << theTrack->GetTrackID() 
-				 << " , "
-				 << theTrack->GetDefinition()->GetParticleName() 
-				 << " , "
+				   << theTrack->GetTrackID() 
+				   << " , "
+				   << theTrack->GetDefinition()->GetParticleName() 
+				   << " , "
 				   << theTrack->GetVertexPosition() 
 				   << " , "
 				   << theTrack->GetLogicalVolumeAtVertex()->GetName() 
@@ -346,14 +346,24 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 
 	// define losses d_qz in cone of full reflection inside quartz direction
 	float d_qz;
+#ifdef debugLog
 	float variant;
-
-	if(DelFibPart > (thFullReflRad + thcher) ) {d_qz = 0.; variant=0.;}
+#endif
+	if(DelFibPart > (thFullReflRad + thcher) ) {
+	  d_qz = 0.; 
+#ifdef debugLog
+	  variant=0.;
+#endif
+	}
 	// if(d > (r+a) ) {d_qz = 0.; variant=0.;}
 	else {
 	  if((th + thcher) < (thFibDirRad+thFullReflRad) && 
-	     (th - thcher) > (thFibDirRad-thFullReflRad) 
-	     ) {d_qz = 1.; variant=1.;}
+	     (th - thcher) > (thFibDirRad-thFullReflRad)) {
+	    d_qz = 1.; 
+#ifdef debugLog
+	    variant=1.;
+#endif
+	  }
 	  // if((DelFibPart + thcher) < thFullReflRad ) {d_qz = 1.; variant=1.;}
 	  // if((d+r) < a ) {d_qz = 1.; variant=1.;}
 	  else {
@@ -361,14 +371,18 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
 	       (thFibDirRad - thFullReflRad) > (th - thcher) ) {
 	      // if((thcher - DelFibPart ) > thFullReflRad ) 
 	      // if((r-d ) > a ) 
-	      d_qz = 0.; variant=2.;
-
+	      d_qz = 0.; 
+#ifdef debugLog
+	      variant=2.;
+#endif
 	    } else {
 	      // if((thcher + DelFibPart ) > thFullReflRad && 
 	      //    thcher < (DelFibPart+thFullReflRad) ) 
 	      //      {
-	      d_qz = 0.; variant=3.;
-
+	      d_qz = 0.; 
+#ifdef debugLog
+	      variant=3.;
+#endif
 
 	      // use crossed length of circles(cone projection)
 	      // dC1/dC2 : 
@@ -691,7 +705,7 @@ void CastorSD::getFromLibrary (G4Step* aStep) {
     
     // Get hit position and time
     double                time = hits.getTime(i);
-    math::XYZPoint    position = hits.getHitPosition(i);
+    //    math::XYZPoint    position = hits.getHitPosition(i);
     
     // Get hit detID
     unsigned int        unitID = hits.getDetID(i);
