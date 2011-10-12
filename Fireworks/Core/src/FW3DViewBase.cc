@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:41 EST 2008
-// $Id: FW3DViewBase.cc,v 1.22 2011/09/27 03:03:21 amraktad Exp $
+// $Id: FW3DViewBase.cc,v 1.23 2011/09/27 04:27:08 amraktad Exp $
 //
 #include <boost/bind.hpp>
 
@@ -50,8 +50,8 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId):
    m_showPixelEndcap(this, "Show Pixel Endcap", false),
    m_showTrackerBarrel(this, "Show Tracker Barrel", false ),
    m_showTrackerEndcap(this, "Show Tracker Endcap", false),
-   m_showWireFrame(this, "Show Wire Frame", true),
-   m_selectable(this, "Set Selectable", false)
+   m_rnrStyle(this, "Render Style", 0l, 0l, 2l),
+   m_selectable(this, "Enable Tooltips", false)
 {
    viewerGL()->SetCurrentCamera(TGLViewer::kCameraPerspXOZ);
 
@@ -59,7 +59,12 @@ FW3DViewBase::FW3DViewBase(TEveWindowSlot* iParent, FWViewType::EType typeId):
    m_showMuonBarrel.addEntry(1, "Simplified");
    m_showMuonBarrel.addEntry(2, "Full");
    m_showMuonBarrel.changed_.connect(boost::bind(&FW3DViewBase::showMuonBarrel,this,_1));
-   m_showWireFrame.changed_.connect(boost::bind(&FW3DViewBase::showWireFrame,this, _1));
+
+   m_rnrStyle.addEntry(TGLRnrCtx::kFill, "Fill");
+   m_rnrStyle.addEntry(TGLRnrCtx::kOutline, "Outline");
+   m_rnrStyle.addEntry(TGLRnrCtx::kWireFrame, "WireFrame");
+   m_rnrStyle.changed_.connect(boost::bind(&FW3DViewBase::rnrStyle,this, _1));
+
    m_selectable.changed_.connect(boost::bind(&FW3DViewBase::selectable,this, _1));
 }
 
@@ -92,9 +97,9 @@ void FW3DViewBase::showMuonBarrel(long x)
 }
 
 void
-FW3DViewBase::showWireFrame( bool x)
+FW3DViewBase::rnrStyle( long x)
 {
-   geoScene()->GetGLScene()->SetStyle(x ? TGLRnrCtx::kWireFrame : TGLRnrCtx::kFill);  
+   geoScene()->GetGLScene()->SetStyle(x);  
    viewerGL()->Changed();
    gEve->Redraw3D();
 }
@@ -151,7 +156,7 @@ FW3DViewBase::populateController(ViewerParameterGUI& gui) const
       addParam(&m_showPixelBarrel).
       addParam(&m_showPixelEndcap).  
       separator().
-      addParam(&m_showWireFrame).
+      addParam(&m_rnrStyle).
       addParam(&m_selectable);
 
 

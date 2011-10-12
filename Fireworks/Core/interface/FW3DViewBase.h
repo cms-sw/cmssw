@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Feb 21 11:22:37 EST 2008
-// $Id: FW3DViewBase.h,v 1.10 2011/09/27 03:03:21 amraktad Exp $
+// $Id: FW3DViewBase.h,v 1.11 2011/09/27 04:27:08 amraktad Exp $
 //
 
 // system include files
@@ -70,12 +70,12 @@ private:
    FWBoolParameter m_showPixelEndcap;
    FWBoolParameter m_showTrackerBarrel;
    FWBoolParameter m_showTrackerEndcap;
-   FWBoolParameter m_showWireFrame;
+   FWEnumParameter m_rnrStyle;
    FWBoolParameter m_selectable;
 
    
    void selectable( bool );
-   void showWireFrame( bool );
+   void rnrStyle(long);
    void showMuonBarrel( long );
 };
 
