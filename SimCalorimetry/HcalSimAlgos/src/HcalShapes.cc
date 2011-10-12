@@ -25,20 +25,20 @@ HcalShapes::HcalShapes()
         301 - regular HF PMT shape
         401 - regular ZDC shape
   */
-  theShapes[101] = new CaloCachedShapeIntegrator(&theHcalShape);
-  theShapes[102] = theShapes[101];
-  theShapes[201] = new CaloCachedShapeIntegrator(&theSiPMShape);
-  theShapes[202] = theShapes[201];
-  theShapes[301] = new CaloCachedShapeIntegrator(&theHFShape);
-  theShapes[401] = new CaloCachedShapeIntegrator(&theZDCShape);
+  theShapes[HPD] = new CaloCachedShapeIntegrator(&theHcalShape);
+  theShapes[LONG] = theShapes[HPD];
+  theShapes[ZECOTEK] = new CaloCachedShapeIntegrator(&theSiPMShape);
+  theShapes[HAMAMATSU] = theShapes[HAMAMATSU];
+  theShapes[HF] = new CaloCachedShapeIntegrator(&theHFShape);
+  theShapes[ZDC] = new CaloCachedShapeIntegrator(&theZDCShape);
 
   // backward-compatibility with old scheme
-  theShapes[0] = theShapes[101];
+  theShapes[0] = theShapes[HPD];
   //FIXME "special" HB
-  theShapes[1] = theShapes[101];
-  theShapes[2] = theShapes[201];
-  theShapes[3] = theShapes[301];
-  theShapes[4] = theShapes[401];
+  theShapes[1] = theShapes[LONG];
+  theShapes[2] = theShapes[ZECOTEK];
+  theShapes[3] = theShapes[HF];
+  theShapes[4] = theShapes[ZDC];
 }
 
 
