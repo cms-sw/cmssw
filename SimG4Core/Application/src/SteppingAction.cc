@@ -277,7 +277,7 @@ bool SteppingAction::isThisVolume(const G4VTouchable* touch,
 
   int level = ((touch->GetHistoryDepth())+1);
   if (level > 0 && level >= 3) {
-    int ii = level - 3;
+    unsigned int ii = (unsigned int)(level - 3);
     return (touch->GetVolume(ii) == pv);
   }
   return false;

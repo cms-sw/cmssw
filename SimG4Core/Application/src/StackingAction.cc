@@ -191,7 +191,7 @@ bool StackingAction::isThisVolume(const G4VTouchable* touch,
   if (lvs.size() > 0 && touch !=0) {
     int level = ((touch->GetHistoryDepth())+1);
     if (level >= 3) {
-      int  ii = level - 3;
+      unsigned int  ii = (unsigned int)(level - 3);
       flag    = (std::count(lvs.begin(),lvs.end(),(touch->GetVolume(ii)->GetLogicalVolume())) != 0);
     }
   }
