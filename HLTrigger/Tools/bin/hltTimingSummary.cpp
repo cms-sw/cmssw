@@ -240,6 +240,7 @@ bool isFilterModule(HLTPerformanceInfo::Module module,
   return false ;
 }
 
+/*
 void plot1D(TH1D* histo, TCanvas* canvas, bool doPlot, int YScale) {
 
   // Standard 1D defaults
@@ -527,7 +528,7 @@ void plotModuleInPath(std::vector< std::vector<TH1D*> > histo, TCanvas* canvas,
     for (unsigned int j=0; j<unsigned(nMiPs.at(i)); j++)
       plot1D(histo.at(i).at(j),canvas,doPlot, scale) ;
 }
-
+*/
 void slowestModules(TH1D* histo,
                     std::vector<std::string>* mods,
                     std::vector<double>* time,
@@ -648,7 +649,7 @@ int main(int argc, char ** argv) {
   bool writeSummary = false ;
   bool takeCPUtime = false ;
   
-  int LogYScale = 0;
+//  int LogYScale = 0;
 //  int LinYScale = 0;
   double userMaxTime = -1. ;
   double userBinWidth = -1. ; 
@@ -680,8 +681,8 @@ int main(int argc, char ** argv) {
        "Bin size (in msec) for relevant timing histograms, specified by the user")
       ("noFirst,f",
        "Skip ANY event where a module is run for the first time (By default, run over all events)") 
-      ("logY,y",
-       "plot log scale y-axis for those plots that have events as entries") 
+      //("logY,y",
+      // "plot log scale y-axis for those plots that have events as entries") 
       ("recalc,r", boost::program_options::value<std::string>(),
        "Recalculate rejection factor starting from specified list of filters/modules")
       ("excludeMod,e",   boost::program_options::value<std::string>(),
@@ -763,9 +764,9 @@ int main(int argc, char ** argv) {
   if (vmap.count("noFirst")) {
     skipFirstEvent = true ; 
   }
-  if (vmap.count("logY")) {
-    LogYScale = 1 ;
-  }
+//if (vmap.count("logY")) {
+//  LogYScale = 1 ;
+//}
   if (vmap.count("recalc")) {
 
     startHere = vmap["recalc"].as<std::string>() ; 
