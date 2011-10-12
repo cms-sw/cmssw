@@ -1,6 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 AlignmentMonitorMuonVsCurvature = cms.untracked.PSet(
+    muonCollectionTag = cms.InputTag(""),
+    beamSpotTag = cms.untracked.InputTag("offlineBeamSpot"),
     minTrackPt = cms.double(20.),
     minTrackP = cms.double(0.),
     minTrackerHits = cms.int32(10),
