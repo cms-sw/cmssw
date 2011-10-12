@@ -62,6 +62,18 @@ parser.add_option("-r", "--runNumber",
   default=1,
   dest="runNumber")
 
+parser.add_option("--gprcdconnect",
+  help="connect string for GlobalPositionRcd (frontier://... or sqlite_file:...). The defailt is a trivial/inert GPR",
+  type="string",
+  default="sqlite_file:inertGlobalPositionRcd.db",
+  dest="gprcdconnect")
+
+parser.add_option("--gprcd",
+  help="name of GlobalPositionRcd tag",
+  type="string",
+  default="inertGlobalPositionRcd",
+  dest="gprcd")
+
 
 options, args = parser.parse_args(sys.argv[3:])
 
@@ -76,6 +88,8 @@ relativeTo=options.relativeTo
 if options.ringsOnly: relativeTo="none"
 
 runNumber = options.runNumber
+gprcdconnect = options.gprcdconnect
+gprcd = options.gprcd
 
 theInputFile = sys.argv[1]
 theOutputFile = sys.argv[2]
@@ -88,6 +102,8 @@ if theInputFile[-4:]==".xml" and theOutputFile[-3:]==".db":
 from Alignment.MuonAlignment.convertXMLtoSQLite_cfg import *
 process.MuonGeometryDBConverter.fileName = "%(theInputFile)s"
 process.PoolDBOutputService.connect = "sqlite_file:%(theOutputFile)s"
+process.inertGlobalPositionRcd.connect = "%(gprcdconnect)s"
+process.inertGlobalPositionRcd.toGet =  cms.VPSet(cms.PSet(record = cms.string('GlobalPositionRcd'), tag = cms.string('%(gprcd)s')))
 
 """ % vars())
 
@@ -100,6 +116,9 @@ process.source = cms.Source("EmptySource",
     numberEventsInRun = cms.untracked.uint32(1),
     firstRun = cms.untracked.uint32(%(runNumber)d)
 )
+
+process.inertGlobalPositionRcd.connect = "%(gprcdconnect)s"
+process.inertGlobalPositionRcd.toGet =  cms.VPSet(cms.PSet(record = cms.string('GlobalPositionRcd'), tag = cms.string('%(gprcd)s')))
 
 process.PoolDBESSource.connect = "sqlite_file:%(theInputFile)s"
 process.MuonGeometryDBConverter.outputXML.fileName = "%(theOutputFile)s"
