@@ -28,7 +28,7 @@ HcalShapes::HcalShapes()
   theShapes[HPD] = new CaloCachedShapeIntegrator(&theHcalShape);
   theShapes[LONG] = theShapes[HPD];
   theShapes[ZECOTEK] = new CaloCachedShapeIntegrator(&theSiPMShape);
-  theShapes[HAMAMATSU] = theShapes[HAMAMATSU];
+  theShapes[HAMAMATSU] = theShapes[ZECOTEK];
   theShapes[HF] = new CaloCachedShapeIntegrator(&theHFShape);
   theShapes[ZDC] = new CaloCachedShapeIntegrator(&theZDCShape);
 
