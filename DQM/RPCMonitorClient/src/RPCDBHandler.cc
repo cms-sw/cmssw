@@ -1,4 +1,4 @@
-#include "../interface/RPCDBHandler.h"
+#include "DQM/RPCMonitorClient/interface/RPCDBHandler.h"
 
 RPCDBHandler::RPCDBHandler(const edm::ParameterSet& iConfig) : 
  m_name(iConfig.getUntrackedParameter<std::string>("name","RPCDBHandler")), 

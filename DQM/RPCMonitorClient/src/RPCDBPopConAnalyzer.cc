@@ -7,8 +7,6 @@
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
-#include <Geometry/DTGeometry/interface/DTGeometry.h>
-#include <Geometry/CSCGeometry/interface/CSCGeometry.h>
 #include "CondFormats/RPCObjects/interface/RPCDQMObject.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "DQM/RPCMonitorDigi/interface/utils.h"
