@@ -77,7 +77,7 @@ parser.add_option("--gprcdconnect",
 parser.add_option("--gprcd",
                   help="name of GlobalPositionRcd tag",
                   type="string",
-                  default="SurveyGeometry",
+                  default="GlobalPosition",
                   dest="gprcd")
 parser.add_option("--iscosmics",
                   help="if invoked, use cosmic track refitter instead of the standard one",
@@ -116,7 +116,7 @@ parser.add_option("--minTrackP",
 parser.add_option("--maxTrackP",
                   help="maximum allowed track momentum (in GeV)",
                   type="string",
-                  default="1000",
+                  default="10000",
                   dest="maxTrackP")
 parser.add_option("--minTrackerHits",
                   help="minimum number of tracker hits",
@@ -128,10 +128,10 @@ parser.add_option("--maxTrackerRedChi2",
                   type="string",
                   default="10",
                   dest="maxTrackerRedChi2")
-parser.add_option("--allowTIDTEC",
-                  help="if invoked, allow tracks that pass through the tracker's !TID/!TEC region (recommended)",
+parser.add_option("--notAllowTIDTEC",
+                  help="if invoked, do not allow tracks that pass through the tracker's TID||TEC region (not recommended)",
                   action="store_true",
-                  dest="allowTIDTEC")
+                  dest="notAllowTIDTEC")
 parser.add_option("--twoBin",
                   help="if invoked, apply the \"two-bin method\" to control charge-antisymmetric errors",
                   action="store_true",
@@ -145,10 +145,10 @@ parser.add_option("--minAlignmentSegments",
                   type="int",
                   default=5,
                   dest="minAlignmentHits")
-parser.add_option("--combineME11",
-                  help="treat ME1/1a and ME1/1b as the same objects",
+parser.add_option("--notCombineME11",
+                  help="if invoked, treat ME1/1a and ME1/1b as separate objects",
                   action="store_true",
-                  dest="combineME11")
+                  dest="notCombineME11")
 parser.add_option("--maxEvents",
                   help="maximum number of events",
                   type="string",
@@ -169,7 +169,7 @@ parser.add_option("--ring2only",
                   action="store_true",
                   dest="ring2only")
 parser.add_option("--createMapNtuple",
-                  help="if invoked while mapplots are turned on, a special ntuple would be created",
+                  help="if invoked while mapplots are switched on, a special ntuple would be created",
                   action="store_true",
                   dest="createMapNtuple")
 parser.add_option("--inputInBlocks",
@@ -178,10 +178,33 @@ parser.add_option("--inputInBlocks",
                   dest="inputInBlocks")
 parser.add_option("--json",
                   help="If present with JSON file as argument, use JSON file for good lumi mask. "+\
-                  "The latest JSON file is available at /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions10/7TeV/StreamExpress/",
+                  "The latest JSON file is available at /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions11/7TeV/Prompt/",
                   type="string",
                   default="",
                   dest="json")
+parser.add_option("--preFilter",
+                  help="if invoked, MuonAlignmentPreFilter module would be invoked in the Path's beginning. Can significantly speed up gather jobs.",
+                  action="store_true",
+                  dest="preFilter")
+parser.add_option("--useTrackerMuons",
+                  help="use tracker muons approach instead of the default global muons tracks based one",
+                  action="store_true",
+                  dest="useTrackerMuons")
+parser.add_option("--muonCollectionTag",
+                  help="InputTag of muons collection to use in tracker muons based approach",
+                  type="string",
+                  default="newmuons",
+                  dest="muonCollectionTag")
+parser.add_option("--maxDxy",
+                  help="maximum track impact parameter with relation to beamline",
+                  type="string",
+                  default="1000.",
+                  dest="maxDxy")
+parser.add_option("--minNCrossedChambers",
+                  help="minimum number of muon chambers that a track is required to cross",
+                  type="string",
+                  default="2",
+                  dest="minNCrossedChambers")
 
 if len(sys.argv) < 5:
     raise SystemError, "Too few arguments.\n\n"+parser.format_help()
@@ -203,21 +226,26 @@ iscosmics = str(options.iscosmics)
 station123params = options.station123params
 station4params = options.station4params
 cscparams = options.cscparams
+muonCollectionTag = options.muonCollectionTag
 minTrackPt = options.minTrackPt
 maxTrackPt = options.maxTrackPt
 minTrackP = options.minTrackP
 maxTrackP = options.maxTrackP
+maxDxy = options.maxDxy
 minTrackerHits = str(options.minTrackerHits)
 maxTrackerRedChi2 = options.maxTrackerRedChi2
-allowTIDTEC = str(options.allowTIDTEC)
+minNCrossedChambers = options.minNCrossedChambers
+allowTIDTEC = str(not options.notAllowTIDTEC)
 twoBin = str(options.twoBin)
 weightAlignment = str(options.weightAlignment)
 minAlignmentHits = str(options.minAlignmentHits)
-combineME11 = str(options.combineME11)
+combineME11 = str(not options.notCombineME11)
 maxEvents = options.maxEvents
 skipEvents = options.skipEvents
 validationLabel = options.validationLabel
 maxResSlopeY = options.maxResSlopeY
+preFilter = not not options.preFilter
+useTrackerMuons = options.useTrackerMuons
 
 createMapNtuple=False
 if options.createMapNtuple: createMapNtuple=True
@@ -226,6 +254,7 @@ ring2only = ""
 if options.ring2only: ring2only = "--ring2only"
 inputInBlocks = ""
 if options.inputInBlocks: inputInBlocks = "--inputInBlocks"
+
 json_file = options.json
 
 if validationLabel == '':
@@ -328,12 +357,15 @@ export ALIGNMENT_ISCOSMICS=%(iscosmics)s
 export ALIGNMENT_STATION123PARAMS=%(station123params)s
 export ALIGNMENT_STATION4PARAMS=%(station4params)s
 export ALIGNMENT_CSCPARAMS=%(cscparams)s
+export ALIGNMENT_MUONCOLLECTIONTAG=%(muonCollectionTag)s
 export ALIGNMENT_MINTRACKPT=%(minTrackPt)s
 export ALIGNMENT_MAXTRACKPT=%(maxTrackPt)s
 export ALIGNMENT_MINTRACKP=%(minTrackP)s
 export ALIGNMENT_MAXTRACKP=%(maxTrackP)s
+export ALIGNMENT_MAXDXY=%(maxDxy)s
 export ALIGNMENT_MINTRACKERHITS=%(minTrackerHits)s
 export ALIGNMENT_MAXTRACKERREDCHI2=%(maxTrackerRedChi2)s
+export ALIGNMENT_MINNCROSSEDCHAMBERS=%(minNCrossedChambers)s
 export ALIGNMENT_ALLOWTIDTEC=%(allowTIDTEC)s
 export ALIGNMENT_TWOBIN=%(twoBin)s
 export ALIGNMENT_WEIGHTALIGNMENT=%(weightAlignment)s
@@ -346,6 +378,8 @@ export ALIGNMENT_DO_DT='False'
 export ALIGNMENT_DO_CSC='True'
 export ALIGNMENT_JSON=%(json_file)s
 export ALIGNMENT_CREATEMAPNTUPLE=%(createMapNtuple)s
+export ALIGNMENT_PREFILTER=%(preFilter)s
+export ALIGNMENT_USETRACKERMUONS=%(useTrackerMuons)s
 
 if [ \"zzz$ALIGNMENT_JSON\" != \"zzz\" ]; then
   cp -f $ALIGNMENT_JSON $ALIGNMENT_CAFDIR/
