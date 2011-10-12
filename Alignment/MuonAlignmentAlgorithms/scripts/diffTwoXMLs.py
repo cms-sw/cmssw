@@ -1,11 +1,11 @@
 #! /usr/bin/env python
 
-import sys
+import sys, ROOT
+ROOT.gROOT.SetBatch(1)
 
 execfile("geometryXMLparser.py")
 execfile("plotscripts.py")
 
-ROOT.gROOT.SetBatch(1)
 
 cargs = sys.argv[:]
 
@@ -29,11 +29,13 @@ def ALL(dt, wheel, station, sector): return True
 def ALL(csc, endcap, station, ring, chamber): return True
 
 def DT(dt, wheel, station, sector): return dt == "DT"
+def DT_st1(dt, wheel, station, sector): return dt == "DT" and station == 1
+def DT_st2(dt, wheel, station, sector): return dt == "DT" and station == 2
+def DT_st3(dt, wheel, station, sector): return dt == "DT" and station == 3
+def DT_st4(dt, wheel, station, sector): return dt == "DT" and station == 4
 
 def CSC(csc, endcap, station, ring, chamber): return csc == "CSC"
-
 def CSCE1(csc, endcap, station, ring, chamber): return csc == "CSC" and endcap==1
-
 def CSCE2(csc, endcap, station, ring, chamber): return csc == "CSC" and endcap==2
 
 
@@ -73,9 +75,9 @@ c1 = ROOT.TCanvas("c1","c1",1000,600)
 
 if not diffReport: 
   # normal XML diff mode
-  ranges = "window=25"
+  ranges = "window=10"
   #if selection=="DT": ranges = "windows=[25.,5,1.,1.,5.,5.]"
-  eval("DBdiff(g2, g1, r2, r1, %s, selection=%s, phi=False, bins=601)" % (ranges, selection))
+  eval("DBdiff(g2, g1, r2, r1, %s, selection=%s, phi=False, bins=251)" % (ranges, selection))
 
 else:
   # Special consistency test mode with respect to corrections in the report:
