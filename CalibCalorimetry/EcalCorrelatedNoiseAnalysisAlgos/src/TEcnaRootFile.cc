@@ -1,6 +1,6 @@
 //----------Author's Names: FX Gentit, B.Fabbro  DSM/IRFU/SPP CEA-Saclay
 //----------Copyright:Those valid for CEA sofware
-//----------Modified:24/03/2011
+//----------Modified:30/09/2011
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaRootFile.h"
 #include "Riostream.h"
@@ -83,8 +83,11 @@ TEcnaRootFile::~TEcnaRootFile() {
 void TEcnaRootFile::Init()
 {
 //Set default values in all variables
-  fRootFileName           = "";
-  fRootFileStatus         = "";
+
+  TString sEmpty = "";
+  fRootFileName   = sEmpty.Data();
+  fRootFileStatus = sEmpty.Data();
+
   fRootFile               = 0;
   fCounterBytesCnaResults = 0;
   fNbEntries              = 0;
