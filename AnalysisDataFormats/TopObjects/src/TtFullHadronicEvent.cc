@@ -25,7 +25,7 @@ TtFullHadronicEvent::print(const int verbosity) const
   }
   // get number of available hypothesis classes
   log << " Number of available event hypothesis classes: " << this->numberOfAvailableHypoClasses() << " \n";
-  
+
   // create a legend for the jetLepComb
   log << " - JetCombi    : ";
   for(unsigned idx = 0; idx < 6; idx++) {
@@ -39,7 +39,7 @@ TtFullHadronicEvent::print(const int verbosity) const
     }
   }
   log << "\n";
-  
+
 
   // get details from the hypotheses
   typedef std::map<HypoClassKey, std::vector<HypoCombPair> >::const_iterator EventHypo;
@@ -48,20 +48,23 @@ TtFullHadronicEvent::print(const int verbosity) const
     // header for each hypothesis
     log << "---------------------------------------------------------------------------- \n";
     switch(hypKey) {
-    case kGeom          : log << " Geom"         ; break;
-    case kWMassMaxSumPt : log << " WMassMaxSumPt"; break;
-    case kMaxSumPtWMass : log << " MaxSumPtWMass"; break;
-    case kGenMatch      : log << " GenMatch"     ; break;
-    case kMVADisc       : log << " MVADisc"      ; break;
-    case kKinFit        : log << " KinFit"       ; break;
-    default             : log << " Unknown";
+    case kGeom              : log << " Geom not applicable to TtSemiLepEvtPartons -- skipping"             ; continue;
+    case kWMassMaxSumPt     : log << " WMassMaxSumPt not applicable to TtSemiLepEvtPartons -- skipping"    ; continue;
+    case kMaxSumPtWMass     : log << " MaxSumPtWMass not applicable to TtSemiLepEvtPartons -- skipping"    ; continue;
+    case kGenMatch          : log << " GenMatch"                                                           ; break;
+    case kMVADisc           : log << " MVADisc"                                                            ; break;
+    case kKinFit            : log << " KinFit"                                                             ; break;
+    case kKinSolution       : log << " KinSolution not applicable to TtSemiLepEvtPartons -- skipping"      ; continue;
+    case kWMassDeltaTopMass : log << " WMassDeltaTopMass not applicable to TtSemiLepEvtPartons -- skipping"; continue;
+    case kHitFit            : log << " HitFit not applicable to TtSemiLepEvtPartons -- skipping"           ; continue;
+    default                 : log << " Unknown TtEvent::HypoClassKey provided --> skipping"                ; continue;
     }
     log << "-Hypothesis: \n";
     unsigned nOfHyp = this->numberOfAvailableHypos(hypKey);
     if( nOfHyp > 1 ) {
       log << " * Number of available jet combinations: " << nOfHyp << " \n";
       if(verbosity < 10) log << " The following was found to be the best one: \n";
-    } 
+    }
     // if verbosity level is smaller than 10, never show more than the best jet combination
     if(verbosity < 10)
       nOfHyp = 1;
@@ -81,7 +84,7 @@ TtFullHadronicEvent::print(const int verbosity) const
 	// specialties for some hypotheses
 	switch(hypKey) {
 	case kGenMatch : log << " * Sum(DeltaR) : " << this->genMatchSumDR(cmb) << " \n"
-			     << " * Sum(DeltaPt): " << this->genMatchSumPt(cmb) << " \n"; break;      
+			     << " * Sum(DeltaPt): " << this->genMatchSumPt(cmb) << " \n"; break;
 	case kMVADisc  : log << " * Method      : " << this->mvaMethod()        << " \n"
 			     << " * Discrim.    : " << this->mvaDisc(cmb)       << " \n"; break;
 	case kKinFit   : log << " * Chi^2       : " << this->fitChi2(cmb)       << " \n"

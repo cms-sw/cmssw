@@ -20,33 +20,33 @@ TtFullLeptonicEvent::print(const int verbosity) const
   else if( this->genEvent()->isSemiLeptonic() ) log << "Semi-leptonic TtBar";
   else if( this->genEvent()->isFullLeptonic() ) {
     log << "Fully Leptonic TtBar, ";
-    switch( this->genEvent()->fullLeptonicChannel().first ) {     
+    switch( this->genEvent()->fullLeptonicChannel().first ) {
     case WDecay::kElec : log << "Electron-"; break;
     case WDecay::kMuon : log << "Muon-"    ; break;
     case WDecay::kTau  : log << "Tau-"     ; break;
     default            : log << "Unknown-" ; break;
     }
-    switch( this->genEvent()->fullLeptonicChannel().second ) {     
+    switch( this->genEvent()->fullLeptonicChannel().second ) {
     case WDecay::kElec : log << "Electron-"; break;
     case WDecay::kMuon : log << "Muon-"    ; break;
     case WDecay::kTau  : log << "Tau-"     ; break;
     default            : log << "Unknown-" ; break;
-    }        
-    log << "Channel";        
+    }
+    log << "Channel";
   }
   log << "\n";
-  
+
   // get number of available hypothesis classes
   log << " Number of available event hypothesis classes: " << this->numberOfAvailableHypoClasses() << " \n";
 
   // create a legend for the jetLepComb
   log << " - JetLepComb: ";
-  log << "  b    ";         
+  log << "  b    ";
   log << " bbar  ";
-  log << " e1(+) ";  
-  log << " e2(-) ";  
-  log << " mu1(+)";    
-  log << " mu2(-)";      
+  log << " e1(+) ";
+  log << " e2(-) ";
+  log << " mu1(+)";
+  log << " mu2(-)";
   log << "\n";
 
   // get details from the hypotheses
@@ -56,14 +56,16 @@ TtFullLeptonicEvent::print(const int verbosity) const
     // header for each hypothesis
     log << "------------------------------------------------------------ \n";
     switch(hypKey) {
-    case kGeom          : log << " Geom"         ; break;
-    case kWMassMaxSumPt : log << " WMassMaxSumPt"; break;
-    case kMaxSumPtWMass : log << " MaxSumPtWMass"; break;
-    case kGenMatch      : log << " GenMatch"     ; break;
-    case kMVADisc       : log << " MVADisc"      ; break;
-    case kKinFit        : log << " KinFit"       ; break;
-    case kKinSolution   : log << " KinSolution"  ; break;    
-    default             : log << " Unknown";
+    case kGeom              : log << " Geom not applicable to TtFullLepEvtPartons -- skipping"             ; continue;
+    case kWMassMaxSumPt     : log << " WMassMaxSumPt not applicable to TtFullLepEvtPartons -- skipping"    ; continue;
+    case kMaxSumPtWMass     : log << " MaxSumPtWMass not applicable to TtFullLepEvtPartons -- skipping"    ; continue;
+    case kGenMatch          : log << " GenMatch"                                                           ; break;
+    case kMVADisc           : log << " MVADisc not applicable to TtFullLepEvtPartons -- skipping"          ; continue;
+    case kKinFit            : log << " KinFit not applicable to TtFullLepEvtPartons -- skipping"           ; continue;
+    case kKinSolution       : log << " KinSolution"                                                        ; break;
+    case kWMassDeltaTopMass : log << " WMassDeltaTopMass not applicable to TtFullLepEvtPartons -- skipping"; continue;
+    case kHitFit            : log << " HitFit not applicable to TtFullLepEvtPartons -- skipping"           ; continue;
+    default                 : log << " Unknown TtEvent::HypoClassKey provided --> skipping"                ; continue;
     }
     log << "-Hypothesis: \n";
     unsigned nOfHyp = this->numberOfAvailableHypos(hypKey);
@@ -91,7 +93,7 @@ TtFullLeptonicEvent::print(const int verbosity) const
 	// specialties for some hypotheses
 	switch(hypKey) {
 	case kGenMatch : log << " * Sum(DeltaR) : "     << this->genMatchSumDR(cmb) << " \n"
-			     << " * Sum(DeltaPt): "     << this->genMatchSumPt(cmb) << " \n"; break;      
+			     << " * Sum(DeltaPt): "     << this->genMatchSumPt(cmb) << " \n"; break;
 	case kKinSolution : log << " * Weight      : "  << this->solWeight(cmb)     << " \n"
 				<< " * isWrongCharge: " << this->isWrongCharge()    << " \n"; break;
 	default        : break;
@@ -118,5 +120,5 @@ TtFullLeptonicEvent::print(const int verbosity) const
     }
   }
 
-  log << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++";  
+  log << "+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++";
 }
