@@ -36,15 +36,15 @@ public:
 
   explicit TestAlign( const edm::ParameterSet& );
 
-  ~TestAlign();
+  virtual ~TestAlign();
 
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
 
 
 private:
 
-  typedef Surface::RotationType    RotationType;
-  typedef Surface::PositionType    PositionType;
+  //typedef Surface::RotationType    RotationType;
+  //typedef Surface::PositionType    PositionType;
 
 };
 
@@ -89,24 +89,24 @@ TestAlign::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   for ( std::vector<Alignable*>::iterator iter = theDTAlignables.begin();
 		                          iter != theDTAlignables.end(); iter++ ){ 
 
-          // Print inital position/orientation
-    	  GlobalPoint  pos_i  = (*iter)->globalPosition();
-          RotationType dir_i  = (*iter)->globalRotation();          
+    // Print inital position/orientation
+    align::GlobalPoint  pos_i  = (*iter)->globalPosition();
+    align::RotationType dir_i  = (*iter)->globalRotation();
 
-	  std::cout << "Initial pos: x=" << pos_i.x() << ",  y=" << pos_i.y() << ",  z=" << pos_i.z() << std::endl; 
-	  std::cout << "Initial ori: x=" << dir_i.xx() << ",  y=" << dir_i.yy() << ",  z=" << dir_i.zz() << std::endl; 
+    std::cout << "Initial pos: x=" << pos_i.x() << ",  y=" << pos_i.y() << ",  z=" << pos_i.z() << std::endl;
+    std::cout << "Initial ori: x=" << dir_i.xx() << ",  y=" << dir_i.yy() << ",  z=" << dir_i.zz() << std::endl;
 
-          // Move DT chamber
-	  DetId detid = (*iter)->geomDetId();
-	  align.moveAlignableGlobalCoord( detid , displacement , rotation );
+    // Move DT chamber
+    DetId detid = (*iter)->geomDetId();
+    align.moveAlignableGlobalCoord( detid , displacement , rotation );
 
-          // Print final position/orientation
-          GlobalPoint  pos_f  = (*iter)->globalPosition();
-          RotationType dir_f = (*iter)->globalRotation();
+    // Print final position/orientation
+    align::GlobalPoint  pos_f  = (*iter)->globalPosition();
+    align::RotationType dir_f = (*iter)->globalRotation();
 
-          std::cout << "Final pos: x=" << pos_f.x() << ",  y=" << pos_f.y() << ",  z=" << pos_f.z()  << std::endl ;
-	  std::cout << "Final ori: x=" << dir_f.xx() << ",  y=" << dir_f.yy() << ",  z=" << dir_f.zz() << std::endl; 
-	  std::cout << "------------------------" << std::endl;
+    std::cout << "Final pos: x=" << pos_f.x() << ",  y=" << pos_f.y() << ",  z=" << pos_f.z()  << std::endl ;
+    std::cout << "Final ori: x=" << dir_f.xx() << ",  y=" << dir_f.yy() << ",  z=" << dir_f.zz() << std::endl;
+    std::cout << "------------------------" << std::endl;
  
   }
 

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Sat Jul  3 13:33:13 CDT 2010
-// $Id: MuonGeometrySanityCheck.cc,v 1.1 2010/07/10 00:24:50 pivarski Exp $
+// $Id: MuonGeometrySanityCheck.cc,v 1.2 2010/07/10 03:21:26 pivarski Exp $
 //
 //
 
@@ -602,8 +602,8 @@ MuonGeometrySanityCheck::analyze(const edm::Event &iEvent, const edm::EventSetup
       }
 
       else if (point->frame == MuonGeometrySanityCheckPoint::kCustom) {
-	 GlobalPoint transformed = point->customFrame->transform(point->displacement);
-	 result = GlobalPoint(chamberPos.x() + transformed.x(), chamberPos.y() + transformed.y(), chamberPos.z() + transformed.z());
+        GlobalPoint transformed = point->customFrame->transform(point->displacement);
+        result = GlobalPoint(chamberPos.x() + transformed.x(), chamberPos.y() + transformed.y(), chamberPos.z() + transformed.z());
       }
 
       else { assert(false); }
@@ -612,10 +612,10 @@ MuonGeometrySanityCheck::analyze(const edm::Event &iEvent, const edm::EventSetup
       if (point->outputFrame == MuonGeometrySanityCheckPoint::kGlobal) { }
 
       else if (point->outputFrame == MuonGeometrySanityCheckPoint::kLocal) {
-	 LocalPoint transformed;
-	 if (dt) transformed = dtGeometry->idToDet(point->detector)->surface().toLocal(result);
-	 else transformed = cscGeometry->idToDet(point->detector)->surface().toLocal(result);
-	 result = GlobalPoint(transformed.x(), transformed.y(), transformed.z());
+        LocalPoint transformed;
+        if (dt) transformed = dtGeometry->idToDet(point->detector)->surface().toLocal(result);
+        else transformed = cscGeometry->idToDet(point->detector)->surface().toLocal(result);
+        result = GlobalPoint(transformed.x(), transformed.y(), transformed.z());
       }
 
       else if (point->outputFrame == MuonGeometrySanityCheckPoint::kChamber) {

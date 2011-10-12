@@ -1,7 +1,7 @@
 /** \file
  *
- *  $Date: 2009/09/15 17:09:59 $
- *  $Revision: 1.8 $
+ *  $Date: 2011/06/07 19:38:24 $
+ *  $Revision: 1.9 $
  *  \author Andre Sznajder - UERJ(Brazil)
  */
  
@@ -36,7 +36,6 @@ MuonScenarioBuilder::MuonScenarioBuilder( Alignable* alignable )
 //__________________________________________________________________________________________________
 void MuonScenarioBuilder::applyScenario( const edm::ParameterSet& scenario )
 {
-
   // Apply the scenario to all main components of Muon.
   theScenario = scenario;
   theModifierCounter = 0;
@@ -62,13 +61,12 @@ void MuonScenarioBuilder::applyScenario( const edm::ParameterSet& scenario )
   
   edm::LogInfo("TrackerScenarioBuilder") 
 	<< "Applied modifications to " << theModifierCounter << " alignables";
-
 }
 
 
 
-align::Scalars MuonScenarioBuilder::extractParameters(const edm::ParameterSet& pSet, const char *blockId) {
-  
+align::Scalars MuonScenarioBuilder::extractParameters(const edm::ParameterSet& pSet, const char *blockId)
+{
   double scale_ = 0, scaleError_ = 0, phiX_ = 0, phiY_ = 0, phiZ_ = 0;
   double dX_ = 0, dY_ = 0, dZ_ = 0;
   std::string distribution_;
@@ -107,8 +105,8 @@ align::Scalars MuonScenarioBuilder::extractParameters(const edm::ParameterSet& p
 }
 
 //_____________________________________________________________________________________________________
-void MuonScenarioBuilder::moveDTSectors(const edm::ParameterSet& pSet) {
-  
+void MuonScenarioBuilder::moveDTSectors(const edm::ParameterSet& pSet)
+{
   std::vector<Alignable *> DTchambers = theAlignableMuon->DTChambers();
   //Take parameters
   align::Scalars param = this->extractParameters(pSet, "DTSectors");
@@ -169,8 +167,8 @@ void MuonScenarioBuilder::moveDTSectors(const edm::ParameterSet& pSet) {
 
 
 //______________________________________________________________________________________________________
-void MuonScenarioBuilder::moveCSCSectors(const edm::ParameterSet& pSet) {
-  
+void MuonScenarioBuilder::moveCSCSectors(const edm::ParameterSet& pSet)
+{
   std::vector<Alignable *> CSCchambers = theAlignableMuon->CSCChambers();
   //Take Parameters
   align::Scalars param = this->extractParameters(pSet, "CSCSectors");
@@ -253,8 +251,8 @@ void MuonScenarioBuilder::moveCSCSectors(const edm::ParameterSet& pSet) {
 
 
 //______________________________________________________________________________________________________
-void MuonScenarioBuilder::moveMuon(const edm::ParameterSet& pSet) {
-
+void MuonScenarioBuilder::moveMuon(const edm::ParameterSet& pSet)
+{
   std::vector<Alignable *> DTbarrel = theAlignableMuon->DTBarrel();	
   std::vector<Alignable *> CSCendcaps = theAlignableMuon->CSCEndcaps();  
   //Take Parameters
@@ -300,18 +298,17 @@ void MuonScenarioBuilder::moveMuon(const edm::ParameterSet& pSet) {
 
 
 //______________________________________________________________________________________________________
-void MuonScenarioBuilder::moveChamberInSector(Alignable *chamber, align::Scalars disp, align::Scalars rotation, align::Scalars dispError, align::Scalars rotationError) {
-   
+void MuonScenarioBuilder::moveChamberInSector(Alignable *chamber, align::Scalars disp, align::Scalars rotation, align::Scalars dispError, align::Scalars rotationError)
+{
     align::RotationType rotx( Basic3DVector<double>(1.0, 0.0, 0.0), rotation[0] );
     align::RotationType roty( Basic3DVector<double>(0.0, 1.0, 0.0), rotation[1] );
     align::RotationType rotz( Basic3DVector<double>(0.0, 0.0, 1.0), rotation[2] );
     align::RotationType rot = rotz * roty * rotx;
-    GlobalPoint pos = chamber->globalPosition();
-    GlobalPoint dispRot(pos.basicVector()-rot*pos.basicVector());
+    align::GlobalPoint pos = chamber->globalPosition();
+    align::GlobalPoint dispRot(pos.basicVector()-rot*pos.basicVector());
     disp[0] += dispRot.x(); disp[1] += dispRot.y(); disp[2] += dispRot.z();
     theMuonModifier.moveAlignable( chamber, false, true, disp[0], disp[1], disp[2] );
     theMuonModifier.rotateAlignable( chamber, false, true, rotation[0],  rotation[1], rotation[2] );
     theMuonModifier.addAlignmentPositionError( chamber, dispError[0], dispError[1], dispError[2] );
     theMuonModifier.addAlignmentPositionErrorFromRotation( chamber,  rotationError[0], rotationError[1], rotationError[2] );
 }
-

@@ -819,8 +819,8 @@ void MuonGeometryArrange::fillTree(Alignable *refAli, AlgebraicVector diff){
 
 //	if(refAli->alignableObjectId() == align::AlignableDetUnit){
 	 align::GlobalVector dV(_dxVal, _dyVal, _dzVal); 
-    	 LocalVector pointL = refAli->surface().toLocal(dV);
-    	 //LocalVector pointL = (refAli->mother())->surface().toLocal(dV);
+	 align::LocalVector pointL = refAli->surface().toLocal(dV);
+    	 //align::LocalVector pointL = (refAli->mother())->surface().toLocal(dV);
 	 _ldxVal=pointL.x(); _ldyVal=pointL.y(); _ldzVal=pointL.z();
 	 _ldphiVal=pointL.phi(); _ldrVal=pointL.perp();
 //	}
