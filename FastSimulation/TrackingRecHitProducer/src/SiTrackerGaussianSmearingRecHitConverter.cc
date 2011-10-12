@@ -1,4 +1,3 @@
-
 /** SiTrackerGaussianSmearingRecHitConverter.cc
  * --------------------------------------------------------------
  * Description:  see SiTrackerGaussianSmearingRecHitConverter.h
@@ -542,7 +541,24 @@ SiTrackerGaussianSmearingRecHitConverter::beginRun(edm::Run & run, const edm::Ev
   if (doDisableChannels) {
     disabledModules = new std::vector<SiPixelQuality::disabledModuleType> ( siPixelBadModule->getBadComponentList() );
     numberOfDisabledModules = disabledModules->size();
+    size_t numberOfRecoverableModules = 0;
+    for (size_t id=0;id<numberOfDisabledModules;id++) {
+      //////////////////////////////////////
+      //  errortype "whole" = int 0 in DB //
+      //  errortype "tbmA" = int 1 in DB  //
+      //  errortype "tbmB" = int 2 in DB  //
+      //  errortype "none" = int 3 in DB  //
+      //////////////////////////////////////
+      if ( (*disabledModules)[id-numberOfRecoverableModules].errorType != 0 ){
+	// Disable only the modules  totally in error:
+	disabledModules->erase(disabledModules->begin()+id-numberOfRecoverableModules);
+	numberOfRecoverableModules++;
+      }
+    }
+    numberOfDisabledModules = disabledModules->size();
   }
+  
+
 
 #ifdef FAMOS_DEBUG
   std::cout << "Pixel multiplicity data are taken from file " << thePixelMultiplicityFileName << std::endl;
@@ -675,6 +691,7 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(MixCollection<PSimHit>&
   int recHitCounter = 0;
   
   // loop on PSimHits
+
   for ( ; isim != lastSimHit; ++isim ) {
     ++simHitCounter;
     
@@ -698,7 +715,9 @@ void SiTrackerGaussianSmearingRecHitConverter::smearHits(MixCollection<PSimHit>&
     unsigned int geoId  = det.rawId();
     for (size_t id=0;id<numberOfDisabledModules;id++) {
       if(geoId==(*disabledModules)[id].DetID){
-	if((*disabledModules)[id].errorType == 0) isBad = true;
+	//  Already selected in the beginRun() the ones with errorType = 0
+	//	if((*disabledModules)[id].errorType == 0) isBad = true;
+	isBad = true;
 	break;
       }
     }    
