@@ -262,7 +262,7 @@ void DDTECModuleAlgo::execute(DDCompactView& cpv) {
   //declarations
   double tmp;
   double dxdif, dzdif;
-  double dxbot, dxtop, topfr;
+  double dxbot, dxtop; // topfr;
   //positions
   double xpos, ypos, zpos;
   //dimensons
@@ -291,11 +291,11 @@ void DDTECModuleAlgo::execute(DDCompactView& cpv) {
   
   dxbot = 0.5*dlBottom + frameWidth - frameOver;
   dxtop = 0.5*dlHybrid + frameWidth - frameOver;
-  topfr = 0.5*dlBottom * sin(detTilt);
-  if(isRing6){
+  //  topfr = 0.5*dlBottom * sin(detTilt);
+  if (isRing6) {
     dxbot = dxtop;
     dxtop = 0.5*dlTop    + frameWidth - frameOver;
-    topfr = 0.5*dlTop    * sin(detTilt);
+    //    topfr = 0.5*dlTop    * sin(detTilt);
   }
   dxdif = dxtop - dxbot;
 
