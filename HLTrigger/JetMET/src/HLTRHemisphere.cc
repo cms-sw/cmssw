@@ -99,7 +99,7 @@ HLTRHemisphere::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.put(Hemispheres);
     return accNJJets_; // 
   }
-   int N_comb(1); // compute the number of combinations of jets possible
+  unsigned int N_comb(1); // compute the number of combinations of jets possible
   for(unsigned int i = 0; i < JETS.size(); i++){
     N_comb *= 2;                
   }
@@ -107,10 +107,10 @@ HLTRHemisphere::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   XYZTLorentzVector j1R(0.1, 0., 0., 0.1);
   XYZTLorentzVector j2R(0.1, 0., 0., 0.1);
   double M_minR = 9999999999.0;
-  int j_count;
-  for (int i = 0; i < N_comb; i++) {       
+  unsigned int j_count;
+  for (unsigned int i = 0; i < N_comb; i++) {       
     XYZTLorentzVector j_temp1, j_temp2;
-    int itemp = i;
+    unsigned int itemp = i;
     j_count = N_comb/2;
     int count = 0;
     while (j_count > 0) {
