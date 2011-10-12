@@ -59,8 +59,8 @@ class GsfElectronAlgo {
       edm::InputTag barrelSuperClusters ;
       edm::InputTag endcapSuperClusters ;
       //edm::InputTag tracks ;
-      edm::InputTag reducedBarrelRecHitCollection ;
-      edm::InputTag reducedEndcapRecHitCollection ;
+      edm::InputTag barrelRecHitCollection ;
+      edm::InputTag endcapRecHitCollection ;
       edm::InputTag pfMVA ;
       edm::InputTag seedsTag ;
       edm::InputTag ctfTracks ;

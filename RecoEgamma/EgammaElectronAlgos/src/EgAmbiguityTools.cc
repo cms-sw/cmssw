@@ -156,8 +156,8 @@ int sharedDets(const GsfTrackRef& gsfTrackRef1, const
 }
 
 float sharedEnergy(const CaloCluster *clu1, const CaloCluster *clu2,
-       edm::Handle<EcalRecHitCollection> & reducedEBRecHits,
-       edm::Handle<EcalRecHitCollection> & reducedEERecHits ) {
+       edm::Handle<EcalRecHitCollection> & barrelRecHits,
+       edm::Handle<EcalRecHitCollection> & endcapRecHits ) {
 
   double fractionShared = 0;
 
@@ -175,10 +175,10 @@ float sharedEnergy(const CaloCluster *clu1, const CaloCluster *clu2,
       // here we have common Xtal id
       EcalRecHitCollection::const_iterator itt;
       if ((*ih1).first.subdetId() == EcalBarrel) {
-	if ((itt=reducedEBRecHits->find((*ih1).first))!=reducedEBRecHits->end())
+	if ((itt=barrelRecHits->find((*ih1).first))!=barrelRecHits->end())
 	fractionShared += itt->energy();
       } else if ((*ih1).first.subdetId() == EcalEndcap) {
-	if ((itt=reducedEERecHits->find((*ih1).first))!=reducedEERecHits->end())
+	if ((itt=endcapRecHits->find((*ih1).first))!=endcapRecHits->end())
 	fractionShared += itt->energy();
       }
 
@@ -191,13 +191,13 @@ float sharedEnergy(const CaloCluster *clu1, const CaloCluster *clu2,
 }
 
 float sharedEnergy(const SuperClusterRef& sc1, const SuperClusterRef& sc2,
-       edm::Handle<EcalRecHitCollection> & reducedEBRecHits,
-       edm::Handle<EcalRecHitCollection> & reducedEERecHits ) {
+       edm::Handle<EcalRecHitCollection> & barrelRecHits,
+       edm::Handle<EcalRecHitCollection> & endcapRecHits ) {
 
   double energyShared = 0;
   for(CaloCluster_iterator icl1=sc1->clustersBegin();icl1!=sc1->clustersEnd(); icl1++) {
     for(CaloCluster_iterator icl2=sc2->clustersBegin();icl2!=sc2->clustersEnd(); icl2++) {
-      energyShared += sharedEnergy(&(**icl1),&(**icl2),reducedEBRecHits,reducedEERecHits );
+      energyShared += sharedEnergy(&(**icl1),&(**icl2),barrelRecHits,endcapRecHits );
     }
   }
   return energyShared;
