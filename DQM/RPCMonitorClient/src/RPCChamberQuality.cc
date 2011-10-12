@@ -16,7 +16,7 @@ RPCChamberQuality::RPCChamberQuality(const edm::ParameterSet& ps ){
   prescaleFactor_ =  ps.getUntrackedParameter<int>("PrescaleFactor", 5);
 
   std::string subsystemFolder = ps.getUntrackedParameter<std::string>("RPCFolder", "RPC");
-  std::string recHitTypeFolder = ps.getUntrackedParameter<std::string>("RecHitTypeFolder", "Noise");
+  std::string recHitTypeFolder = ps.getUntrackedParameter<std::string>("RecHitTypeFolder", "AllHits");
   std::string summaryFolder = ps.getUntrackedParameter<std::string>("SummaryFolder", "SummaryHistograms");
 
   summaryDir_ =  subsystemFolder +"/"+  recHitTypeFolder +"/"+ summaryFolder ;
@@ -26,7 +26,7 @@ RPCChamberQuality::RPCChamberQuality(const edm::ParameterSet& ps ){
 
   minEvents = ps.getUntrackedParameter<int>("MinimumRPCEvents", 10000);
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
-
+  useRollInfo_ = ps.getUntrackedParameter<bool> ("UseRollInfo",false); 
   offlineDQM_ = ps.getUntrackedParameter<bool> ("OfflineDQM",true); 
 }
 
@@ -88,7 +88,7 @@ void RPCChamberQuality::beginRun(const edm::Run& r, const edm::EventSetup& c){
     me = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),  12, 0.5, 12.5, 21, 0.5, 21.5);
 
     rpcUtils.labelXAxisSector( me);
-    rpcUtils.labelYAxisRoll(me, 0, w);
+    rpcUtils.labelYAxisRoll(me, 0, w, useRollInfo_ );
 
     histoName.str("");
     histoName<<"RPCChamberQuality_Distribution_Wheel"<<w;    
@@ -111,7 +111,7 @@ void RPCChamberQuality::beginRun(const edm::Run& r, const edm::EventSetup& c){
       }
       me = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),  36, 0.5, 36.5, 6, 0.5, 6.5);
       rpcUtils.labelXAxisSegment(me);
-      rpcUtils.labelYAxisRing(me, 2);
+      rpcUtils.labelYAxisRing(me, 2, useRollInfo_ );
 
       histoName.str("");
       histoName<<"RPCChamberQuality_Distribution_Disk"<<d;    
@@ -144,7 +144,7 @@ void RPCChamberQuality::fillMonitorElements() {
   int rpcEvents=minEvents;
   RpcEvents = dbe_->get(meName.str());
   
-  if(RpcEvents) rpcEvents= (int)RpcEvents->getEntries();
+  if(RpcEvents) rpcEvents= (int)RpcEvents->getBinContent(1);
   
   if(rpcEvents >= minEvents){
 

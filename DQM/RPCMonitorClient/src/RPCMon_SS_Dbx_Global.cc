@@ -113,7 +113,7 @@ void RPCMon_SS_Dbx_Global::analyze(const edm::Event& iEvent, const edm::EventSet
 	       me = dbe_->book2D (tag.str(),name.str(),36,0.5,36.5, 3*numberOfRings_, 0.0, 3*numberOfRings_);
 	       
 	       rpcUtils.labelXAxisSegment(me);
-	       rpcUtils.labelYAxisRing(me, numberOfRings_);
+	       rpcUtils.labelYAxisRing(me, numberOfRings_, true);
 	       
 	     }
 	     int yBin;
@@ -129,7 +129,7 @@ void RPCMon_SS_Dbx_Global::analyze(const edm::Event& iEvent, const edm::EventSet
 	     if (!me){
 	       me = dbe_->book2D (tag.str(),name.str(),12,0.5,12.5,21,0.5,21.5);
 	       rpcUtils.labelXAxisSector( me);
-	       rpcUtils.labelYAxisRoll(me, 0, id.ring());
+	       rpcUtils.labelYAxisRoll(me, 0, id.ring(), true);
 	     }
 	     me->Fill(id.sector(),nr);
 	   }//Barrel

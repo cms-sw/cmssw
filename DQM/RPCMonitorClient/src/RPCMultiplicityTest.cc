@@ -15,7 +15,7 @@
 
 RPCMultiplicityTest::RPCMultiplicityTest(const edm::ParameterSet& ps ){
   edm::LogVerbatim ("multiplicity") << "[RPCMultiplicityTest]: Constructor";
-
+  useRollInfo_ = ps.getUntrackedParameter<bool>("UseRollInfo", false);
   prescaleFactor_ = ps.getUntrackedParameter<int>("DiagnosticPrescale", 1);
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
   numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
@@ -105,7 +105,7 @@ void RPCMultiplicityTest::beginRun(const edm::Run& r, const edm::EventSetup& c){
     MULTWheel[i+2] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 12, 0.5, 12.5, 21, 0.5, 21.5);
     
     rpcUtils.labelXAxisSector( MULTWheel[i+2]);
-    rpcUtils.labelYAxisRoll( MULTWheel[i+2], 0, i);
+    rpcUtils.labelYAxisRoll( MULTWheel[i+2], 0, i,useRollInfo_ );
     
     if(testMode_){
       histoName.str("");
@@ -136,7 +136,7 @@ void RPCMultiplicityTest::beginRun(const edm::Run& r, const edm::EventSetup& c){
     }
     MULTDisk[d+offset]   = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
     rpcUtils.labelXAxisSegment(MULTDisk[d+offset]);
-    rpcUtils.labelYAxisRing(MULTDisk[d+offset], numberOfRings_);
+    rpcUtils.labelYAxisRing(MULTDisk[d+offset], numberOfRings_,useRollInfo_ );
     
     if(testMode_){
       histoName.str("");

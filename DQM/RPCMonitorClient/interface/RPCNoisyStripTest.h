@@ -37,7 +37,7 @@ public:
  
   std::vector<MonitorElement *>  myOccupancyMe_;
   std::vector<RPCDetId>   myDetIds_;
-  
+  bool useRollInfo_;
   MonitorElement * NOISEWheel[5];
   MonitorElement * NOISEDWheel[5];
   MonitorElement * DEVDWheel[5]; 

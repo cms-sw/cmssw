@@ -52,7 +52,7 @@ public:
   std::string globalFolder_;
   int numberOfDisks_;
   int   numberOfRings_;
- 
+  bool useRollInfo_  ;
   std::vector<MonitorElement *>  myNumDigiMe_;
   std::vector<RPCDetId>   myDetIds_;
   bool testMode_;

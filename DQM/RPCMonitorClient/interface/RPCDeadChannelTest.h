@@ -52,7 +52,7 @@ public:
   std::string globalFolder_;
   std::vector<MonitorElement *>  myOccupancyMe_;
   std::vector<RPCDetId>   myDetIds_;
- 
+  bool useRollInfo_;
   DQMStore* dbe_;
  
  

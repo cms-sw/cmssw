@@ -16,9 +16,10 @@ RPCOccupancyTest::RPCOccupancyTest(const edm::ParameterSet& ps ){
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
   numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
   testMode_ = ps.getUntrackedParameter<bool>("testMode", false);
+  useRollInfo_ = ps.getUntrackedParameter<bool>("useRollInfo_", false);
 
   std::string subsystemFolder = ps.getUntrackedParameter<std::string>("RPCFolder", "RPC");
-  std::string recHitTypeFolder= ps.getUntrackedParameter<std::string>("RecHitTypeFolder", "Noise");
+  std::string recHitTypeFolder= ps.getUntrackedParameter<std::string>("RecHitTypeFolder", "AllHits");
    
   prefixDir_ =   subsystemFolder+ "/"+ recHitTypeFolder;
  
@@ -150,7 +151,7 @@ void RPCOccupancyTest::beginRun(const edm:: Run& r, const edm::EventSetup& c) {
     AsyMeWheel[w+2] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),  12, 0.5, 12.5, 21, 0.5, 21.5);
     
     rpcUtils.labelXAxisSector(AsyMeWheel[w+2]);
-    rpcUtils.labelYAxisRoll(AsyMeWheel[w+2], 0, w);
+    rpcUtils.labelYAxisRoll(AsyMeWheel[w+2], 0, w,  useRollInfo_);
   
     
     if(testMode_){
@@ -166,7 +167,7 @@ void RPCOccupancyTest::beginRun(const edm:: Run& r, const edm::EventSetup& c) {
       NormOccupWheel[w+2] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),  12, 0.5, 12.5, 21, 0.5, 21.5);
       
       rpcUtils.labelXAxisSector(  NormOccupWheel[w+2]);
-      rpcUtils.labelYAxisRoll(  NormOccupWheel[w+2], 0, w);
+      rpcUtils.labelYAxisRoll(  NormOccupWheel[w+2], 0, w,  useRollInfo_);
       
       
       histoName.str("");
@@ -207,7 +208,7 @@ void RPCOccupancyTest::beginRun(const edm:: Run& r, const edm::EventSetup& c) {
     AsyMeDisk[d+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
     
     rpcUtils.labelXAxisSegment(AsyMeDisk[d+offset]);
-    rpcUtils.labelYAxisRing(AsyMeDisk[d+offset], numberOfRings_);
+    rpcUtils.labelYAxisRing(AsyMeDisk[d+offset], numberOfRings_,  useRollInfo_);
     
    
     
@@ -224,7 +225,7 @@ void RPCOccupancyTest::beginRun(const edm:: Run& r, const edm::EventSetup& c) {
       NormOccupDisk[d+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
       
       rpcUtils.labelXAxisSegment(NormOccupDisk[d+offset]);
-      rpcUtils.labelYAxisRing( NormOccupDisk[d+offset],numberOfRings_);
+      rpcUtils.labelYAxisRing( NormOccupDisk[d+offset],numberOfRings_,  useRollInfo_);
       
       histoName.str("");
       histoName<<"AsymmetryLeftRight_Distribution_Disk"<<d;      

@@ -9,11 +9,6 @@ camilo.carrilloATcern.ch
 #include "DQM/RPCMonitorClient/interface/RPCEfficiencySecond.h"
 #include "DQM/RPCMonitorDigi/interface/RPCBookFolderStructure.h"
 
-// #include <memory>
-// #include <string>
-// #include <fstream>
-// #include <iostream>
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -21,18 +16,10 @@ camilo.carrilloATcern.ch
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
 #include <Geometry/RPCGeometry/interface/RPCGeomServ.h>
 #include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include <Geometry/Records/interface/MuonGeometryRecord.h>
-
-// #include <DataFormats/MuonDetId/interface/RPCDetId.h>
-
-// #include "DQMServices/Core/interface/MonitorElement.h"
-
-//#include "TH1F.h"
-
 
 RPCEfficiencySecond::RPCEfficiencySecond(const edm::ParameterSet& iConfig){
   SaveFile  = iConfig.getUntrackedParameter<bool>("SaveFile", false); 
@@ -282,19 +269,19 @@ void RPCEfficiencySecond::beginRun(const edm::Run&, const edm::EventSetup& iSetu
 
   rpcdqm::utils rpcUtils;
   rpcUtils.labelXAxisSector( Wheel2Summary );
-  rpcUtils.labelYAxisRoll( Wheel2Summary, 0, 2);
+  rpcUtils.labelYAxisRoll( Wheel2Summary, 0, 2, true);
 
   rpcUtils.labelXAxisSector( Wheel1Summary );
-  rpcUtils.labelYAxisRoll( Wheel1Summary, 0, 1);
+  rpcUtils.labelYAxisRoll( Wheel1Summary, 0, 1, true);
 
   rpcUtils.labelXAxisSector( Wheel0Summary );
-  rpcUtils.labelYAxisRoll( Wheel0Summary, 0, 0);
+  rpcUtils.labelYAxisRoll( Wheel0Summary, 0, 0, true);
 
   rpcUtils.labelXAxisSector( Wheelm1Summary );
-  rpcUtils.labelYAxisRoll( Wheelm1Summary, 0, -1);
+  rpcUtils.labelYAxisRoll( Wheelm1Summary, 0, -1, true);
 
   rpcUtils.labelXAxisSector( Wheelm2Summary );
-  rpcUtils.labelYAxisRoll( Wheelm2Summary, 0, -2);
+  rpcUtils.labelYAxisRoll( Wheelm2Summary, 0, -2, true);
 
   os="Efficiency_Roll_vs_Segment_Disk_-3";
   Diskm3Summary = dbe->book2D(os,os,36,0.5,36.5,6,0.5,6.5);
@@ -310,22 +297,22 @@ void RPCEfficiencySecond::beginRun(const edm::Run&, const edm::EventSetup& iSetu
   Disk3Summary = dbe->book2D(os,os,36,0.5,36.5,6,0.5,6.5);
 
   rpcUtils.labelXAxisSegment(Diskm3Summary);
-  rpcUtils.labelYAxisRing(Diskm3Summary, 2);
+  rpcUtils.labelYAxisRing(Diskm3Summary, 2, true);
 
   rpcUtils.labelXAxisSegment(Diskm2Summary);
-  rpcUtils.labelYAxisRing(Diskm2Summary, 2);
+  rpcUtils.labelYAxisRing(Diskm2Summary, 2, true);
 
   rpcUtils.labelXAxisSegment(Diskm1Summary);
-  rpcUtils.labelYAxisRing(Diskm1Summary, 2);
+  rpcUtils.labelYAxisRing(Diskm1Summary, 2, true);
 
   rpcUtils.labelXAxisSegment(Disk1Summary);
-  rpcUtils.labelYAxisRing(Disk1Summary, 2);
+  rpcUtils.labelYAxisRing(Disk1Summary, 2, true);
 
   rpcUtils.labelXAxisSegment(Disk2Summary);
-  rpcUtils.labelYAxisRing(Disk2Summary, 2);
+  rpcUtils.labelYAxisRing(Disk2Summary, 2, true);
 
   rpcUtils.labelXAxisSegment(Disk3Summary);
-  rpcUtils.labelYAxisRing(Disk3Summary, 2);
+  rpcUtils.labelYAxisRing(Disk3Summary, 2, true);
   
   //Azimutal Histograms
 

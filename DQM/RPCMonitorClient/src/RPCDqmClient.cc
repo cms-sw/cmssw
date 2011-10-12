@@ -31,7 +31,7 @@ RPCDqmClient::RPCDqmClient(const edm::ParameterSet& iConfig){
   minimumEvents_= parameters_.getUntrackedParameter<int>("MinimumRPCEvents", 10000);
 
   std::string subsystemFolder = parameters_.getUntrackedParameter<std::string>("RPCFolder", "RPC");
-  std::string recHitTypeFolder= parameters_.getUntrackedParameter<std::string>("RecHitTypeFolder", "Noise");
+  std::string recHitTypeFolder= parameters_.getUntrackedParameter<std::string>("RecHitTypeFolder", "AllHits");
   std::string summaryFolder = parameters_.getUntrackedParameter<std::string>("SummaryFolder", "SummaryHistograms");
   
   prefixDir_ =   subsystemFolder+ "/"+ recHitTypeFolder;

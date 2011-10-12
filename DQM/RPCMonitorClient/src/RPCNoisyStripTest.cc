@@ -18,7 +18,7 @@ RPCNoisyStripTest::RPCNoisyStripTest(const edm::ParameterSet& ps ){
   prescaleFactor_ = ps.getUntrackedParameter<int>("DiagnosticPrescale", 1);
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
   numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
-
+  useRollInfo_ = ps.getUntrackedParameter<bool>("UseRollInfo", false);
   testMode_ = ps.getUntrackedParameter<bool>("testMode", false);
 
 }
@@ -97,7 +97,7 @@ void  RPCNoisyStripTest::beginRun(const edm::Run& r, const edm::EventSetup& c){
    
    NOISEWheel[w+2] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str() , 12, 0.5, 12.5, 21, 0.5, 21.5);
    rpcUtils.labelXAxisSector(NOISEWheel[w+2]);
-   rpcUtils.labelYAxisRoll(NOISEWheel[w+2], 0, w);
+   rpcUtils.labelYAxisRoll(NOISEWheel[w+2], 0, w, useRollInfo_);
  }
 
  
@@ -140,7 +140,7 @@ void  RPCNoisyStripTest::beginRun(const edm::Run& r, const edm::EventSetup& c){
    
    NOISEDisk[d+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str() , 36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
    rpcUtils.labelXAxisSegment(NOISEDisk[d+offset]);
-   rpcUtils.labelYAxisRing(NOISEDisk[d+offset], numberOfRings_);
+   rpcUtils.labelYAxisRing(NOISEDisk[d+offset], numberOfRings_, useRollInfo_);
 
  }
    

@@ -22,7 +22,7 @@ RPCEventSummary::RPCEventSummary(const edm::ParameterSet& ps ){
 
 
   std::string subsystemFolder = ps.getUntrackedParameter<std::string>("RPCFolder", "RPC");
-  std::string recHitTypeFolder = ps.getUntrackedParameter<std::string>("RecHitTypeFolder", "Noise");
+  std::string recHitTypeFolder = ps.getUntrackedParameter<std::string>("RecHitTypeFolder", "AllHits");
   std::string summaryFolder = ps.getUntrackedParameter<std::string>("SummaryFolder", "SummaryHistograms");
 
   globalFolder_  =  subsystemFolder +"/"+  recHitTypeFolder +"/"+ summaryFolder ;
@@ -214,7 +214,7 @@ void RPCEventSummary::clientOperation(){
   RPCEvents = dbe_->get( prefixFolder_  +"/RPCEvents");  
 
   if(RPCEvents) {
-    rpcevents = RPCEvents -> getEntries();
+    rpcevents = RPCEvents ->getBinContent(1);
   }
   
 

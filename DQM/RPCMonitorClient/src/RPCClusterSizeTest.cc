@@ -15,7 +15,7 @@ RPCClusterSizeTest::RPCClusterSizeTest(const edm::ParameterSet& ps ){
   numberOfDisks_ = ps.getUntrackedParameter<int>("NumberOfEndcapDisks", 3);
   numberOfRings_ = ps.getUntrackedParameter<int>("NumberOfEndcapRings", 2);
   testMode_ = ps.getUntrackedParameter<bool>("testMode", false);
- 
+  useRollInfo_ = ps.getUntrackedParameter<bool>("useRollInfo", false);
 }
 
 RPCClusterSizeTest::~RPCClusterSizeTest(){ dbe_=0;}
@@ -177,7 +177,7 @@ void  RPCClusterSizeTest::beginRun(const edm::Run& r, const edm::EventSetup& c) 
     
     CLSWheel[w+2] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),  12, 0.5, 12.5, 21, 0.5, 21.5);
     rpcUtils.labelXAxisSector(  CLSWheel[w+2]);
-    rpcUtils.labelYAxisRoll(   CLSWheel[w+2], 0, w);
+    rpcUtils.labelYAxisRoll(   CLSWheel[w+2], 0, w ,useRollInfo_);
     
     
     histoName.str("");
@@ -191,7 +191,7 @@ void  RPCClusterSizeTest::beginRun(const edm::Run& r, const edm::EventSetup& c) 
     MEANWheel[w+2] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),  12, 0.5, 12.5, 21, 0.5, 21.5);
     
     rpcUtils.labelXAxisSector(  MEANWheel[w+2]);
-    rpcUtils.labelYAxisRoll(MEANWheel[w+2], 0, w);
+    rpcUtils.labelYAxisRoll(MEANWheel[w+2], 0, w,useRollInfo_ );
     
     if(testMode_){
       histoName.str("");
@@ -232,7 +232,7 @@ void  RPCClusterSizeTest::beginRun(const edm::Run& r, const edm::EventSetup& c) 
     
     CLSDisk[d+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(),36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5); 
     rpcUtils.labelXAxisSegment(CLSDisk[d+offset]);
-    rpcUtils.labelYAxisRing(CLSDisk[d+offset], numberOfRings_);
+    rpcUtils.labelYAxisRing(CLSDisk[d+offset], numberOfRings_,useRollInfo_ );
    
     if(testMode_){
       histoName.str("");
@@ -265,7 +265,7 @@ void  RPCClusterSizeTest::beginRun(const edm::Run& r, const edm::EventSetup& c) 
     
     MEANDisk[d+offset] = dbe_->book2D(histoName.str().c_str(), histoName.str().c_str(), 36, 0.5, 36.5, 3*numberOfRings_, 0.5,3*numberOfRings_+ 0.5);
     rpcUtils.labelXAxisSegment(MEANDisk[d+offset]);
-    rpcUtils.labelYAxisRing(MEANDisk[d+offset], numberOfRings_);
+    rpcUtils.labelYAxisRing(MEANDisk[d+offset], numberOfRings_ ,useRollInfo_);
  
  }
 

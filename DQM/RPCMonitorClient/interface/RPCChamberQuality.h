@@ -41,7 +41,7 @@ public:
   std::string prefixDir_, summaryDir_;
   static const std::string xLabels_[7];
   static const std::string regions_[3];
-
+  bool useRollInfo_;
   int prescaleFactor_;
   int numberOfDisks_;
 
