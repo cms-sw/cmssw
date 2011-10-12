@@ -2,7 +2,7 @@
 // Author:  Jan Heyninck
 // Created: Tue Apr  3 17:33:23 PDT 2007
 //
-// $Id: TtSemiLRJetCombObservables.cc,v 1.14 2009/07/03 12:27:53 snaumann Exp $
+// $Id: TtSemiLRJetCombObservables.cc,v 1.15 2010/03/25 09:22:18 snaumann Exp $
 //
 #include "TopQuarkAnalysis/TopJetCombination/interface/TtSemiLRJetCombObservables.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
@@ -27,10 +27,10 @@ TtSemiLRJetCombObservables::operator() (TtSemiEvtSolution &solution, const edm::
   evtselectVarMatch.clear();
  
   // Check whether the objects are matched:
-  bool matchHadt = false;
-  bool matchLept = false;
-  bool matchHadW = false;
-  bool matchLepW = false;
+//  bool matchHadt = false; //commented out since gcc461 complained that this variable was set but unused
+//  bool matchLept = false; //commented out since gcc461 complained that this variable was set but unused
+//  bool matchHadW = false; //commented out since gcc461 complained that this variable was set but unused
+//  bool matchLepW = false; //commented out since gcc461 complained that this variable was set but unused
   bool matchHadb = false;
   bool matchLepb = false;
   bool matchHadp = false;
@@ -45,7 +45,7 @@ TtSemiLRJetCombObservables::operator() (TtSemiEvtSolution &solution, const edm::
   try {
     
     if(debug) std::cout << "== start trying " << std::endl;
-    double drLepl=0, drLepn=0, drHadb=0, drLepb=0, drHadp=0, drHadq=0, drHadpq=0, drHadqp=0, drHadt=0, drLept=0, drLepW=0, drHadW=0;
+    double drLepl=0, drLepn=0, drHadb=0, drLepb=0, drHadp=0, drHadq=0, drHadpq=0, drHadqp=0; // drHadt=0, drLept=0, drLepW=0, drHadW=0;
     
     edm::Handle<TtGenEvent> genEvent;
     iEvent.getByLabel ("genEvt",genEvent);
@@ -96,6 +96,8 @@ TtSemiLRJetCombObservables::operator() (TtSemiEvtSolution &solution, const edm::
       drHadqp = DeltaR<pat::Jet, reco::GenParticle>()(solution.getRecHadq(), *(solution.getGenHadp()));
       matchHadqp = (drHadqp < 0.3);  
 
+      //commented out since gcc461 complained that these variables were set but unused!
+      /*
       // Match the hadronic W by deltaR
       drHadW = DeltaR<reco::Particle, reco::GenParticle>()(solution.getRecHadW(), *(solution.getGenHadW()));
       matchHadW = (drHadW < 0.3);    
@@ -111,6 +113,7 @@ TtSemiLRJetCombObservables::operator() (TtSemiEvtSolution &solution, const edm::
       // Match the leptonic t by deltaR
       drLept = DeltaR<reco::Particle, reco::GenParticle>()(solution.getRecLept(), *(solution.getGenLept()));
       matchLept = (drLept < 0.3);   
+      */
     }
   } catch (...){std::cout << "Exception\n";}
 
