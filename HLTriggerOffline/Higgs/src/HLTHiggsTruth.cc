@@ -282,10 +282,10 @@ const reco::GsfElectronCollection& electronHandle, TTree* HltTree) {
  
       ///////   4 lepton selection
        
-       int posEle=0;
-       int negEle=0;
-       int posMu=0;
-       int negMu=0;
+       size_t posEle=0;
+       size_t negEle=0;
+       size_t posMu=0;
+       size_t negMu=0;
        
                        
        for (size_t k=0; k<selected_muons.size();k++){    
