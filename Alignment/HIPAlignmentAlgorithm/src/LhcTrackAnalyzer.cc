@@ -130,17 +130,13 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     cout<<"LhcTrackAnalyzer::analyze() looping over "<< trackCollectionHandle->size()<< "tracks." << endl;    
   
   // unsigned int i = 0;   
-  bool toomanytracks=false;
   for(TrackCollection::const_iterator track = trackCollectionHandle->begin(); track!= trackCollectionHandle->end(); ++track)
     {
-      //if(!toomanytracks){
       if ( nTracks_ >= nMaxtracks_ ) {
 	std::cout << " LhcTrackAnalyzer::analyze() : Warning - Run "<< run_<<" Event "<< event_<<"\tNumber of tracks: " <<  trackCollectionHandle->size()<< " , greater than " << nMaxtracks_ << std::endl;
-	  toomanytracks=true;
 	  continue;
 	 
 	}
-	//	else{
 	  pt_[nTracks_]       = track->pt();
 	  eta_[nTracks_]      = track->eta();
 	  phi_[nTracks_]      = track->phi();
@@ -193,9 +189,6 @@ LhcTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 	
 
-	  //      }//end if not too many tracks
-   
-      
      
     }//end loop on tracks
 

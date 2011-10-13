@@ -882,11 +882,10 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
       Alignable* ali = aap.alignableFromAlignableDet(alidet);
       
       if (ali!=0) {
-	bool processHitReturnValue;
 	if (nhitDim==1) {
-	  processHitReturnValue = processHit1D(alidet, ali, *itsos, *ihit);
+	  processHit1D(alidet, ali, *itsos, *ihit);
 	} else if (nhitDim==2) {
-	  processHitReturnValue = processHit2D(alidet, ali, *itsos, *ihit);
+	  processHit2D(alidet, ali, *itsos, *ihit);
 	}
       }
 			
