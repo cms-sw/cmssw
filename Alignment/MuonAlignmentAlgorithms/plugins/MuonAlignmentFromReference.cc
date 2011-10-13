@@ -13,13 +13,15 @@
 //
 // Original Author:  Jim Pivarski,,,
 //         Created:  Sat Jan 24 16:20:28 CST 2009
-// $Id: $
+// $Id: MuonAlignmentFromReference.cc,v 1.38 2011/04/15 22:23:19 khotilov Exp $
 
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentAlgorithmBase.h"
 
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
@@ -32,6 +34,7 @@
 #include "DataFormats/MuonDetId/interface/DTChamberId.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
 #include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 
@@ -66,22 +69,28 @@
 class MuonAlignmentFromReference : public AlignmentAlgorithmBase
 {
 public:
+
   MuonAlignmentFromReference(const edm::ParameterSet& cfg);
-  ~MuonAlignmentFromReference();
+  virtual ~MuonAlignmentFromReference();
   
   void initialize(const edm::EventSetup& iSetup,
       AlignableTracker* alignableTracker,
       AlignableMuon* alignableMuon,
       AlignableExtras* extras,
       AlignmentParameterStore* alignmentParameterStore);
-  void startNewLoop();
+
+  void startNewLoop() {};
+
   void run(const edm::EventSetup& iSetup, const EventInfo &eventInfo);
+
+  void processMuonResidualsFromTrack(MuonResidualsFromTrack &mrft);
 
   void terminate();
 
 private:
   bool numeric(std::string s);
   int number(std::string s);
+  std::string chamberPrettyNameFromId(unsigned int idx);
 
   void parseReference(std::vector<Alignable*> &reference, 
       std::vector<Alignable*> &all_DT_chambers, 
@@ -90,15 +99,21 @@ private:
   void fitAndAlign();
   void readTmpFiles();
   void writeTmpFiles();
+
   void selectResidualsPeaks();
+  void correctBField();
+  void eraseNotSelectedResiduals();
+
   void fillNtuple();
 
   // configutarion paramenters:
+  edm::InputTag m_muonCollectionTag;
   std::vector<std::string> m_reference;
   double m_minTrackPt;
   double m_maxTrackPt;
   double m_minTrackP;
   double m_maxTrackP;
+  double m_maxDxy;
   int m_minTrackerHits;
   double m_maxTrackerRedChi2;
   bool m_allowTIDTEC;
@@ -119,8 +134,10 @@ private:
   double m_maxResSlopeY;
   bool m_createNtuple;
   double m_peakNSigma;
+  int m_BFieldCorrection;
   bool m_doDT;
   bool m_doCSC;
+  std::string m_useResiduals; 
   
   // utility objects
   AlignableNavigator *m_alignableNavigator;
@@ -134,8 +151,8 @@ private:
   // counters
   long m_counter_events;
   long m_counter_tracks;
-  long m_counter_trackpt;
-  long m_counter_trackp;
+  long m_counter_trackmomentum;
+  long m_counter_trackdxy;
   long m_counter_trackerhits;
   long m_counter_trackerchi2;
   long m_counter_trackertidtec;
@@ -159,57 +176,19 @@ private:
   // debug ntuple
   void bookNtuple();
   TTree * m_ttree;
-  struct TreeRow
-  {
-    Bool_t is_plus; // for +- endcap
-    Bool_t is_dt; // DT or CSC
-    UChar_t station; // 8bit uint
-    Char_t ring_wheel;
-    UChar_t sector;
-    Float_t res_x;
-    Float_t res_y;
-    Float_t res_slope_x;
-    Float_t res_slope_y;
-    Float_t pos_x;
-    Float_t pos_y;
-    Float_t angle_x;
-    Float_t angle_y;
-    Float_t p;
-  };
-  TreeRow m_tree_row;
+  MuonResidualsFitter::MuonAlignmentTreeRow m_tree_row;
 };
-
-
-void  MuonAlignmentFromReference::bookNtuple()
-{
-  edm::Service<TFileService> fs;
-  m_ttree = fs->make<TTree>("mual_ttree", "mual_ttree");
-  m_ttree->Branch("is_plus", &m_tree_row.is_plus, "is_plus/O");
-  m_ttree->Branch("is_dt", &m_tree_row.is_dt, "is_dt/O");
-  m_ttree->Branch("station", &m_tree_row.station, "station/b");
-  m_ttree->Branch("ring_wheel", &m_tree_row.ring_wheel, "ring_wheel/B");
-  m_ttree->Branch("sector", &m_tree_row.sector, "sector/b");
-  m_ttree->Branch("res_x", &m_tree_row.res_x, "res_x/F");
-  m_ttree->Branch("res_y", &m_tree_row.res_y, "res_y/F");
-  m_ttree->Branch("res_slope_x", &m_tree_row.res_slope_x, "res_slope_x/F");
-  m_ttree->Branch("res_slope_y", &m_tree_row.res_slope_y, "res_slope_y/F");
-  m_ttree->Branch("pos_x",&m_tree_row.pos_x, "pos_x/F");
-  m_ttree->Branch("pos_y",&m_tree_row.pos_y, "pos_y/F");
-  m_ttree->Branch("angle_x",&m_tree_row.angle_x, "angle_x/F");
-  m_ttree->Branch("angle_y",&m_tree_row.angle_y,"angle_y/F");
-  m_ttree->Branch("p",&m_tree_row.p,"p/F");
-  //m_ttree->Branch("",&m_tree_row.,"/");
-
-}
 
 
 MuonAlignmentFromReference::MuonAlignmentFromReference(const edm::ParameterSet &cfg)
   : AlignmentAlgorithmBase(cfg)
+  , m_muonCollectionTag(cfg.getParameter<edm::InputTag>("muonCollectionTag"))
   , m_reference(cfg.getParameter<std::vector<std::string> >("reference"))
   , m_minTrackPt(cfg.getParameter<double>("minTrackPt"))
   , m_maxTrackPt(cfg.getParameter<double>("maxTrackPt"))
   , m_minTrackP(cfg.getParameter<double>("minTrackP"))
   , m_maxTrackP(cfg.getParameter<double>("maxTrackP"))
+  , m_maxDxy(cfg.getParameter<double>("maxDxy"))
   , m_minTrackerHits(cfg.getParameter<int>("minTrackerHits"))
   , m_maxTrackerRedChi2(cfg.getParameter<double>("maxTrackerRedChi2"))
   , m_allowTIDTEC(cfg.getParameter<bool>("allowTIDTEC"))
@@ -230,8 +209,10 @@ MuonAlignmentFromReference::MuonAlignmentFromReference(const edm::ParameterSet &
   , m_maxResSlopeY(cfg.getParameter<double>("maxResSlopeY"))
   , m_createNtuple(cfg.getParameter<bool>("createNtuple"))
   , m_peakNSigma(cfg.getParameter<double>("peakNSigma"))
+  , m_BFieldCorrection(cfg.getParameter<int>("bFieldCorrection"))
   , m_doDT(cfg.getParameter<bool>("doDT"))
   , m_doCSC(cfg.getParameter<bool>("doCSC"))
+  , m_useResiduals(cfg.getParameter<std::string>("useResiduals"))
 {
   // alignment requires a TFile to provide plots to check the fit output
   // just filling the residuals lists does not
@@ -247,8 +228,8 @@ MuonAlignmentFromReference::MuonAlignmentFromReference(const edm::ParameterSet &
 
   m_counter_events = 0;
   m_counter_tracks = 0;
-  m_counter_trackpt = 0;
-  m_counter_trackp = 0;
+  m_counter_trackmomentum = 0;
+  m_counter_trackdxy = 0;
   m_counter_trackerhits = 0;
   m_counter_trackerchi2 = 0;
   m_counter_trackertidtec = 0;
@@ -274,6 +255,32 @@ MuonAlignmentFromReference::MuonAlignmentFromReference(const edm::ParameterSet &
 MuonAlignmentFromReference::~MuonAlignmentFromReference()
 {
   delete m_alignableNavigator;
+}
+
+
+void  MuonAlignmentFromReference::bookNtuple()
+{
+  edm::Service<TFileService> fs;
+  m_ttree = fs->make<TTree>("mual_ttree", "mual_ttree");
+  m_ttree->Branch("is_plus", &m_tree_row.is_plus, "is_plus/O");
+  m_ttree->Branch("is_dt", &m_tree_row.is_dt, "is_dt/O");
+  m_ttree->Branch("station", &m_tree_row.station, "station/b");
+  m_ttree->Branch("ring_wheel", &m_tree_row.ring_wheel, "ring_wheel/B");
+  m_ttree->Branch("sector", &m_tree_row.sector, "sector/b");
+  m_ttree->Branch("res_x", &m_tree_row.res_x, "res_x/F");
+  m_ttree->Branch("res_y", &m_tree_row.res_y, "res_y/F");
+  m_ttree->Branch("res_slope_x", &m_tree_row.res_slope_x, "res_slope_x/F");
+  m_ttree->Branch("res_slope_y", &m_tree_row.res_slope_y, "res_slope_y/F");
+  m_ttree->Branch("pos_x",&m_tree_row.pos_x, "pos_x/F");
+  m_ttree->Branch("pos_y",&m_tree_row.pos_y, "pos_y/F");
+  m_ttree->Branch("angle_x",&m_tree_row.angle_x, "angle_x/F");
+  m_ttree->Branch("angle_y",&m_tree_row.angle_y,"angle_y/F");
+  m_ttree->Branch("pz",&m_tree_row.pz,"pz/F");
+  m_ttree->Branch("pt",&m_tree_row.pt,"pt/F");
+  m_ttree->Branch("q",&m_tree_row.q,"q/B");
+  m_ttree->Branch("select", &m_tree_row.select, "select/O");
+  //m_ttree->Branch("",&m_tree_row.,"/");
+
 }
 
 
@@ -305,10 +312,19 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup,
 
    int residualsModel;
    if      (m_residualsModel == std::string("pureGaussian"))    residualsModel = MuonResidualsFitter::kPureGaussian;
+   else if (m_residualsModel == std::string("pureGaussian2D"))  residualsModel = MuonResidualsFitter::kPureGaussian2D;
    else if (m_residualsModel == std::string("powerLawTails"))   residualsModel = MuonResidualsFitter::kPowerLawTails;
    else if (m_residualsModel == std::string("ROOTVoigt"))       residualsModel = MuonResidualsFitter::kROOTVoigt;
    else if (m_residualsModel == std::string("GaussPowerTails")) residualsModel = MuonResidualsFitter::kGaussPowerTails;
    else throw cms::Exception("MuonAlignmentFromReference") << "unrecognized residualsModel: \"" << m_residualsModel << "\"" << std::endl;
+
+   int useResiduals;
+   if      (m_useResiduals == std::string("1111")) useResiduals = MuonResidualsFitter::k1111;
+   else if (m_useResiduals == std::string("1110")) useResiduals = MuonResidualsFitter::k1110;
+   else if (m_useResiduals == std::string("1100")) useResiduals = MuonResidualsFitter::k1100;
+   else if (m_useResiduals == std::string("1010")) useResiduals = MuonResidualsFitter::k1010;
+   else if (m_useResiduals == std::string("0010")) useResiduals = MuonResidualsFitter::k0010;
+   else throw cms::Exception("MuonAlignmentFromReference") << "unrecognized useResiduals: \"" << m_useResiduals << "\"" << std::endl;
 
    edm::ESHandle<CSCGeometry> cscGeometry;
    iSetup.get<MuonGeometryRecord>().get(cscGeometry);
@@ -323,6 +339,7 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup,
    {
      bool made_fitter = false;
 
+     // fitters for DT
      if ((*ali)->alignableObjectId() == align::AlignableDTChamber)
      {
        DTChamberId id( (*ali)->geomDetId().rawId() );
@@ -330,24 +347,26 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup,
        if (id.station() == 4)
        {
          m_fitters[*ali] =
-             new MuonResidualsTwoBin(m_twoBin, new MuonResiduals5DOFFitter(residualsModel, m_minAlignmentHits, m_weightAlignment),
-                                               new MuonResiduals5DOFFitter(residualsModel, m_minAlignmentHits, m_weightAlignment));
+             new MuonResidualsTwoBin(m_twoBin, new MuonResiduals5DOFFitter(residualsModel, m_minAlignmentHits, useResiduals, m_weightAlignment),
+                                               new MuonResiduals5DOFFitter(residualsModel, m_minAlignmentHits, useResiduals, m_weightAlignment));
          made_fitter = true;
        }
        else
        {
          m_fitters[*ali] =
-             new MuonResidualsTwoBin(m_twoBin, new MuonResiduals6DOFFitter(residualsModel, m_minAlignmentHits, m_weightAlignment),
-                                               new MuonResiduals6DOFFitter(residualsModel, m_minAlignmentHits, m_weightAlignment));
+             new MuonResidualsTwoBin(m_twoBin, new MuonResiduals6DOFFitter(residualsModel, m_minAlignmentHits, useResiduals, m_weightAlignment),
+                                               new MuonResiduals6DOFFitter(residualsModel, m_minAlignmentHits, useResiduals, m_weightAlignment));
          made_fitter = true;
        }
      }
 
+     // fitters for CSC
      else if ((*ali)->alignableObjectId() == align::AlignableCSCChamber)
      {
        Alignable *thisali = *ali;
        CSCDetId id( (*ali)->geomDetId().rawId() );
 
+       // take care of ME1/1a
        if (m_combineME11  &&  id.station() == 1  &&  id.ring() == 4)
        {
          CSCDetId pairid(id.endcap(), 1, 1, id.chamber());
@@ -366,8 +385,8 @@ void MuonAlignmentFromReference::initialize(const edm::EventSetup& iSetup,
        if (thisali == *ali)   // don't make fitters for ME1/4; they get taken care of in ME1/1
        {
          m_fitters[*ali] =
-             new MuonResidualsTwoBin(m_twoBin, new MuonResiduals6DOFrphiFitter(residualsModel, m_minAlignmentHits, &(*cscGeometry), m_weightAlignment),
-                                               new MuonResiduals6DOFrphiFitter(residualsModel, m_minAlignmentHits, &(*cscGeometry), m_weightAlignment));
+             new MuonResidualsTwoBin(m_twoBin, new MuonResiduals6DOFrphiFitter(residualsModel, m_minAlignmentHits, useResiduals, &(*cscGeometry), m_weightAlignment),
+                                               new MuonResiduals6DOFrphiFitter(residualsModel, m_minAlignmentHits, useResiduals, &(*cscGeometry), m_weightAlignment));
          made_fitter = true;
        }
      }
@@ -599,186 +618,227 @@ void MuonAlignmentFromReference::parseReference(
 }
 
 
-void MuonAlignmentFromReference::startNewLoop() {}
-
-
 void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const EventInfo &eventInfo)
 {
-   m_counter_events++;
+  m_counter_events++;
 
   edm::ESHandle<GlobalTrackingGeometry> globalGeometry;
   iSetup.get<GlobalTrackingGeometryRecord>().get(globalGeometry);
 
-  const ConstTrajTrackPairCollection &trajtracks = eventInfo.trajTrackPairs_;
-  for (ConstTrajTrackPairCollection::const_iterator trajtrack = trajtracks.begin();  trajtrack != trajtracks.end();  ++trajtrack)
+  if (m_muonCollectionTag.label().empty()) // use trajectories
   {
-     m_counter_tracks++;
-
-    const Trajectory* traj = (*trajtrack).first;
-    const reco::Track* track = (*trajtrack).second;
-
-    if (m_minTrackPt < track->pt()  &&  track->pt() < m_maxTrackPt)
+    const ConstTrajTrackPairCollection &trajtracks = eventInfo.trajTrackPairs_;
+    for (ConstTrajTrackPairCollection::const_iterator trajtrack = trajtracks.begin();  trajtrack != trajtracks.end();  ++trajtrack)
     {
-       m_counter_trackpt++;
-    if (m_minTrackP < track->p()  &&  track->p() < m_maxTrackP)
-    {
-       m_counter_trackp++;
+      m_counter_tracks++;
 
-      char charge = (track->charge() > 0 ? 1 : -1);
-      // double qoverpt = track->charge() / track->pt();
-      // double qoverpz = track->charge() / track->pz();
-      //std::cout<<"DT13DUMP> p="<<track->p()<<" pt="<<track->pt()<<std::endl;
-      MuonResidualsFromTrack muonResidualsFromTrack(globalGeometry, traj, m_alignableNavigator, 1000.);
-      
-      if (muonResidualsFromTrack.trackerNumHits() >= m_minTrackerHits)
+      const Trajectory* traj = (*trajtrack).first;
+      const reco::Track* track = (*trajtrack).second;
+
+      if (m_minTrackPt < track->pt()  &&  track->pt() < m_maxTrackPt && m_minTrackP < track->p()  &&  track->p() < m_maxTrackP)
       {
-        m_counter_trackerhits++;
-        if (muonResidualsFromTrack.trackerRedChi2() < m_maxTrackerRedChi2)
+        m_counter_trackmomentum++;
+
+        if ( fabs(track->dxy(eventInfo.beamSpot_.position())) < m_maxDxy )
         {
-          m_counter_trackerchi2++;
-          if (m_allowTIDTEC  ||  !muonResidualsFromTrack.contains_TIDTEC())
+          m_counter_trackdxy++;
+
+          MuonResidualsFromTrack muonResidualsFromTrack(globalGeometry, traj, track, m_alignableNavigator, 1000.);
+
+          processMuonResidualsFromTrack(muonResidualsFromTrack);
+        }
+      } // end if track p is within range
+    } // end if track pT is within range
+  }
+  else // use muons
+  {
+    /*
+    for (reco::MuonCollection::const_iterator muon = eventInfo.muonCollection_->begin();  muon != eventInfo.muonCollection_->end();  ++muon)
+    {
+      if ( !(muon->isTrackerMuon() && muon->innerTrack().isNonnull() ) ) continue;
+
+      m_counter_tracks++;
+
+      if (m_minTrackPt < muon->pt()  &&  muon->pt() < m_maxTrackPt && m_minTrackP < muon->p()  &&  muon->p() < m_maxTrackP)
+      {
+        m_counter_trackmomentum++;
+
+        if (fabs(muon->innerTrack()->dxy(eventInfo.beamSpot_.position())) < m_maxDxy)
+        {
+          m_counter_trackdxy++;
+
+          //std::cout<<"    *** will make MuonResidualsFromTrack ***"<<std::endl;
+          MuonResidualsFromTrack muonResidualsFromTrack(globalGeometry, &(*muon), m_alignableNavigator, 100.);
+          //std::cout<<"    *** have made MuonResidualsFromTrack ***"<<std::endl;
+
+          //std::cout<<" trk eta="<<muon->eta()<<" ndof="<<muon->innerTrack()->ndof()<<" nchi2="<<muon->innerTrack()->normalizedChi2()
+          //         <<" muresnchi2="<<muonResidualsFromTrack.normalizedChi2()<<" muresnhits="<<muonResidualsFromTrack.trackerNumHits()<<std::endl;
+
+          processMuonResidualsFromTrack(muonResidualsFromTrack);
+        } // end if track p is within range
+      } // end if track pT is within range
+    } // end loop over tracks
+    */
+  }
+}
+
+
+void MuonAlignmentFromReference::processMuonResidualsFromTrack(MuonResidualsFromTrack &mrft)
+{
+  if (mrft.trackerNumHits() >= m_minTrackerHits)
+  {
+    m_counter_trackerhits++;
+    if (mrft.normalizedChi2() < m_maxTrackerRedChi2)
+    {
+      m_counter_trackerchi2++;
+      if (m_allowTIDTEC  ||  !mrft.contains_TIDTEC())
+      {
+        m_counter_trackertidtec++;
+
+        std::vector<DetId> chamberIds = mrft.chamberIds();
+
+        if ((int)chamberIds.size() >= m_minNCrossedChambers)
+        {
+          m_counter_minchambers++;
+
+          char charge = (mrft.getTrack()->charge() > 0 ? 1 : -1);
+
+          for (std::vector<DetId>::const_iterator chamberId = chamberIds.begin();  chamberId != chamberIds.end();  ++chamberId)
           {
-            m_counter_trackertidtec++;
-            
-          std::vector<DetId> chamberIds = muonResidualsFromTrack.chamberIds();
-          
-          int nMuChambers = 0;
-          for (unsigned ch=0; ch<chamberIds.size(); ch++)  if (chamberIds[ch].det() == DetId::Muon)  nMuChambers++;
-          
-          if (nMuChambers >= m_minNCrossedChambers)
-          {
-            m_counter_minchambers++;
-            
-            for (std::vector<DetId>::const_iterator chamberId = chamberIds.begin();  chamberId != chamberIds.end();  ++chamberId)
+            if (chamberId->det() != DetId::Muon) continue;
+            m_counter_totchambers++;
+
+            // DT station 1,2,3
+            if (m_doDT &&
+                chamberId->subdetId() == MuonSubdetId::DT  &&
+                DTChamberId(chamberId->rawId()).station() != 4)
             {
-              if (chamberId->det() != DetId::Muon) continue;
-              m_counter_totchambers++;
-              
-              // DT station 1,2,3
-              if (m_doDT &&
-                  chamberId->subdetId() == MuonSubdetId::DT  &&  
-                  DTChamberId(chamberId->rawId()).station() != 4)
+              MuonChamberResidual *dt13 = mrft.chamberResidual(*chamberId, MuonChamberResidual::kDT13);
+              MuonChamberResidual *dt2 = mrft.chamberResidual(*chamberId, MuonChamberResidual::kDT2);
+
+              m_counter_station123++;
+              if (dt13 != NULL  &&  dt2 != NULL)
               {
-                MuonChamberResidual *dt13 = muonResidualsFromTrack.chamberResidual(*chamberId, MuonChamberResidual::kDT13);
-                MuonChamberResidual *dt2 = muonResidualsFromTrack.chamberResidual(*chamberId, MuonChamberResidual::kDT2);
-                
-                m_counter_station123++;
-                if (dt13 != NULL  &&  dt2 != NULL)
+                m_counter_station123valid++;
+                if (dt13->numHits() >= m_minDT13Hits)
                 {
-                  m_counter_station123valid++;
-                  if (dt13->numHits() >= m_minDT13Hits)
+                  m_counter_station123dt13hits++;
+                  if (dt2->numHits() >= m_minDT2Hits)
                   {
-                    m_counter_station123dt13hits++;
-                    if (dt2->numHits() >= m_minDT2Hits)
+                    m_counter_station123dt2hits++;
+                    std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator fitter = m_fitters.find(dt13->chamberAlignable());
+                    if (fitter != m_fitters.end())
                     {
-                      m_counter_station123dt2hits++;
-                      std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator fitter = m_fitters.find(dt13->chamberAlignable());
-                      if (fitter != m_fitters.end())
+                      m_counter_station123aligning++;
+                      if (fabs(dt2->resslope()) < m_maxResSlopeY)
                       {
-                        m_counter_station123aligning++;
-                        if (fabs(dt2->resslope()) < m_maxResSlopeY)
-                        {
-                          m_counter_resslopey++;
-                          double *residdata = new double[MuonResiduals6DOFFitter::kNData];
-                          residdata[MuonResiduals6DOFFitter::kResidX] = dt13->residual();
-                          residdata[MuonResiduals6DOFFitter::kResidY] = dt2->residual();
-                          residdata[MuonResiduals6DOFFitter::kResSlopeX] = dt13->resslope();
-                          residdata[MuonResiduals6DOFFitter::kResSlopeY] = dt2->resslope();
-                          residdata[MuonResiduals6DOFFitter::kPositionX] = dt13->trackx();
-                          residdata[MuonResiduals6DOFFitter::kPositionY] = dt13->tracky();
-                          residdata[MuonResiduals6DOFFitter::kAngleX] = dt13->trackdxdz();
-                          residdata[MuonResiduals6DOFFitter::kAngleY] = dt13->trackdydz();
-                          residdata[MuonResiduals6DOFFitter::kRedChi2] = (dt13->chi2() + dt2->chi2()) / double(dt13->ndof() + dt2->ndof());
-                          residdata[MuonResiduals6DOFFitter::kP] = track->p();
-                          fitter->second->fill(charge, residdata);
-                          // the MuonResidualsFitter will delete the array when it is destroyed
-                        }
+                        m_counter_resslopey++;
+                        double *residdata = new double[MuonResiduals6DOFFitter::kNData];
+                        residdata[MuonResiduals6DOFFitter::kResidX] = dt13->residual();
+                        residdata[MuonResiduals6DOFFitter::kResidY] = dt2->residual();
+                        residdata[MuonResiduals6DOFFitter::kResSlopeX] = dt13->resslope();
+                        residdata[MuonResiduals6DOFFitter::kResSlopeY] = dt2->resslope();
+                        residdata[MuonResiduals6DOFFitter::kPositionX] = dt13->trackx();
+                        residdata[MuonResiduals6DOFFitter::kPositionY] = dt13->tracky();
+                        residdata[MuonResiduals6DOFFitter::kAngleX] = dt13->trackdxdz();
+                        residdata[MuonResiduals6DOFFitter::kAngleY] = dt13->trackdydz();
+                        residdata[MuonResiduals6DOFFitter::kRedChi2] = (dt13->chi2() + dt2->chi2()) / double(dt13->ndof() + dt2->ndof());
+                        residdata[MuonResiduals6DOFFitter::kPz] = mrft.getTrack()->pz();
+                        residdata[MuonResiduals6DOFFitter::kPt] = mrft.getTrack()->pt();
+                        residdata[MuonResiduals6DOFFitter::kCharge] = mrft.getTrack()->charge();
+                        fitter->second->fill(charge, residdata);
+                        // the MuonResidualsFitter will delete the array when it is destroyed
                       }
                     }
                   }
                 }
               }
+            }
 
-              // DT 4th station
-              else if (m_doDT && 
-                       chamberId->subdetId() == MuonSubdetId::DT  &&  
-                       DTChamberId(chamberId->rawId()).station() == 4)
+            // DT 4th station
+            else if (m_doDT &&
+                     chamberId->subdetId() == MuonSubdetId::DT  &&
+                     DTChamberId(chamberId->rawId()).station() == 4)
+            {
+              MuonChamberResidual *dt13 = mrft.chamberResidual(*chamberId, MuonChamberResidual::kDT13);
+
+              m_counter_station4++;
+              if (dt13 != NULL)
               {
-                MuonChamberResidual *dt13 = muonResidualsFromTrack.chamberResidual(*chamberId, MuonChamberResidual::kDT13);
-
-                m_counter_station4++;
-                if (dt13 != NULL)
+                m_counter_station4valid++;
+                if (dt13->numHits() >= m_minDT13Hits)
                 {
-                  m_counter_station4valid++;
-                  if (dt13->numHits() >= m_minDT13Hits)
+                  m_counter_station4hits++;
+
+                  std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator fitter = m_fitters.find(dt13->chamberAlignable());
+                  if (fitter != m_fitters.end())
                   {
-                    m_counter_station4hits++;
+                    m_counter_station4aligning++;
 
-                    std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator fitter = m_fitters.find(dt13->chamberAlignable());
-                    if (fitter != m_fitters.end())
-                    {
-                      m_counter_station4aligning++;
-
-                      double *residdata = new double[MuonResiduals5DOFFitter::kNData];
-                      residdata[MuonResiduals5DOFFitter::kResid] = dt13->residual();
-                      residdata[MuonResiduals5DOFFitter::kResSlope] = dt13->resslope();
-                      residdata[MuonResiduals5DOFFitter::kPositionX] = dt13->trackx();
-                      residdata[MuonResiduals5DOFFitter::kPositionY] = dt13->tracky();
-                      residdata[MuonResiduals5DOFFitter::kAngleX] = dt13->trackdxdz();
-                      residdata[MuonResiduals5DOFFitter::kAngleY] = dt13->trackdydz();
-                      residdata[MuonResiduals5DOFFitter::kRedChi2] = dt13->chi2() / double(dt13->ndof());
-                      residdata[MuonResiduals5DOFFitter::kP] = track->p();
-                      fitter->second->fill(charge, residdata);
-                      // the MuonResidualsFitter will delete the array when it is destroyed
-                    }
+                    double *residdata = new double[MuonResiduals5DOFFitter::kNData];
+                    residdata[MuonResiduals5DOFFitter::kResid] = dt13->residual();
+                    residdata[MuonResiduals5DOFFitter::kResSlope] = dt13->resslope();
+                    residdata[MuonResiduals5DOFFitter::kPositionX] = dt13->trackx();
+                    residdata[MuonResiduals5DOFFitter::kPositionY] = dt13->tracky();
+                    residdata[MuonResiduals5DOFFitter::kAngleX] = dt13->trackdxdz();
+                    residdata[MuonResiduals5DOFFitter::kAngleY] = dt13->trackdydz();
+                    residdata[MuonResiduals5DOFFitter::kRedChi2] = dt13->chi2() / double(dt13->ndof());
+                    residdata[MuonResiduals5DOFFitter::kPz] = mrft.getTrack()->pz();
+                    residdata[MuonResiduals5DOFFitter::kPt] = mrft.getTrack()->pt();
+                    residdata[MuonResiduals5DOFFitter::kCharge] = mrft.getTrack()->charge();		
+                    fitter->second->fill(charge, residdata);
+                    // the MuonResidualsFitter will delete the array when it is destroyed
                   }
                 }
-              } // end DT 4th station
+              }
+            } // end DT 4th station
 
-              // CSC
-              else if (m_doCSC  && 
-                       chamberId->subdetId() == MuonSubdetId::CSC)
+            // CSC
+            else if (m_doCSC  &&
+                     chamberId->subdetId() == MuonSubdetId::CSC)
+            {
+              MuonChamberResidual *csc = mrft.chamberResidual(*chamberId, MuonChamberResidual::kCSC);
+              m_counter_csc++;
+              if (csc != NULL)
               {
-                MuonChamberResidual *csc = muonResidualsFromTrack.chamberResidual(*chamberId, MuonChamberResidual::kCSC);
-                m_counter_csc++;
-                if (csc != NULL)
+                m_counter_cscvalid++;
+                if (csc->numHits() >= m_minCSCHits)
                 {
-                  m_counter_cscvalid++;
-                  if (csc->numHits() >= m_minCSCHits)
+                  m_counter_cschits++;
+                  Alignable *ali = csc->chamberAlignable();
+
+                  CSCDetId id(ali->geomDetId().rawId());
+                  if (m_combineME11  &&  id.station() == 1  &&  id.ring() == 4)  ali = m_me11map[ali];
+
+                  std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator fitter = m_fitters.find(ali);
+                  if (fitter != m_fitters.end())
                   {
-                    m_counter_cschits++;
-                    Alignable *ali = csc->chamberAlignable();
-                    
-                    CSCDetId id(ali->geomDetId().rawId());
-                    if (m_combineME11  &&  id.station() == 1  &&  id.ring() == 4)  ali = m_me11map[ali];
-                    
-                    std::map<Alignable*,MuonResidualsTwoBin*>::const_iterator fitter = m_fitters.find(ali);
-                    if (fitter != m_fitters.end())
-                    {
-                      m_counter_cscaligning++;
-                      double *residdata = new double[MuonResiduals6DOFrphiFitter::kNData];
-                      residdata[MuonResiduals6DOFrphiFitter::kResid] = csc->residual();
-                      residdata[MuonResiduals6DOFrphiFitter::kResSlope] = csc->resslope();
-                      residdata[MuonResiduals6DOFrphiFitter::kPositionX] = csc->trackx();
-                      residdata[MuonResiduals6DOFrphiFitter::kPositionY] = csc->tracky();
-                      residdata[MuonResiduals6DOFrphiFitter::kAngleX] = csc->trackdxdz();
-                      residdata[MuonResiduals6DOFrphiFitter::kAngleY] = csc->trackdydz();
-                      residdata[MuonResiduals6DOFrphiFitter::kRedChi2] = csc->chi2() / double(csc->ndof());
-                      residdata[MuonResiduals6DOFrphiFitter::kP] = track->p();
-                      fitter->second->fill(charge, residdata);
-                      // the MuonResidualsFitter will delete the array when it is destroyed
-                    }
+                    m_counter_cscaligning++;
+                    double *residdata = new double[MuonResiduals6DOFrphiFitter::kNData];
+                    residdata[MuonResiduals6DOFrphiFitter::kResid] = csc->residual();
+                    residdata[MuonResiduals6DOFrphiFitter::kResSlope] = csc->resslope();
+                    residdata[MuonResiduals6DOFrphiFitter::kPositionX] = csc->trackx();
+                    residdata[MuonResiduals6DOFrphiFitter::kPositionY] = csc->tracky();
+                    residdata[MuonResiduals6DOFrphiFitter::kAngleX] = csc->trackdxdz();
+                    residdata[MuonResiduals6DOFrphiFitter::kAngleY] = csc->trackdydz();
+                    residdata[MuonResiduals6DOFrphiFitter::kRedChi2] = csc->chi2() / double(csc->ndof());
+                    residdata[MuonResiduals6DOFrphiFitter::kPz] = mrft.getTrack()->pz();
+                    residdata[MuonResiduals6DOFrphiFitter::kPt] = mrft.getTrack()->pt();
+                    residdata[MuonResiduals6DOFrphiFitter::kCharge] = mrft.getTrack()->charge();
+                    fitter->second->fill(charge, residdata);
+                    // the MuonResidualsFitter will delete the array when it is destroyed
                   }
                 }
-              } // end CSC
+              }
+            } // end CSC
 
-              else assert(false);
+            else if (m_doDT && m_doCSC) assert(false);
 
-            } // end loop over chamberIds
-          }}}} // end if refit is okay
-      } // end if track p is within range
-    } // end if track pT is within range
-  } // end loop over tracks
+          } // end loop over chamberIds
+        } // # crossed muon chambers ok
+      } // endcap tracker ok
+    } // chi2 ok
+  } // trackerNumHits ok
 }
 
 
@@ -788,8 +848,8 @@ void MuonAlignmentFromReference::terminate()
   std::cout << "Counters:" << std::endl
 	    << "COUNT{ events: " << m_counter_events << " }" << std::endl
 	    << "COUNT{  tracks: " << m_counter_tracks << " }" << std::endl
-	    << "COUNT{   trackpt: " << m_counter_trackpt << " }" << std::endl
-	    << "COUNT{    trackp: " << m_counter_trackp << " }" << std::endl
+	    << "COUNT{   trackppt: " << m_counter_trackmomentum << " }" << std::endl
+	    << "COUNT{    trackdxy: " << m_counter_trackdxy << " }" << std::endl
 	    << "COUNT{     trackerhits: " << m_counter_trackerhits << " }" << std::endl
 	    << "COUNT{      trackerchi2: " << m_counter_trackerchi2 << " }" << std::endl
 	    << "COUNT{       trackertidtec: " << m_counter_trackertidtec << " }" << std::endl
@@ -822,7 +882,7 @@ void MuonAlignmentFromReference::terminate()
     stop_watch.Stop();
   }
   
-  // select residuals peaks and discard tails if peakNSigma>0 only while doing alignment 
+  // select residuals peaks and discard tails if peakNSigma>0 (only while doing alignment)
   if (m_peakNSigma > 0. && m_doAlignment) 
   {
     stop_watch.Start();
@@ -830,7 +890,32 @@ void MuonAlignmentFromReference::terminate()
     std::cout <<"selectResidualsPeaks took "<< stop_watch.CpuTime() << " sec" << std::endl;
     stop_watch.Stop();
   }
-  
+
+  if (m_BFieldCorrection > 0 && m_doAlignment)
+  {
+    stop_watch.Start();
+    correctBField();
+    std::cout <<"correctBField took "<< stop_watch.CpuTime() << " sec" << std::endl;
+    stop_watch.Stop();
+  }
+
+  // optionally, create an nutuple for easy debugging
+  if (m_createNtuple)
+  {
+    stop_watch.Start();
+    fillNtuple();
+    std::cout <<"fillNtuple took "<< stop_watch.CpuTime() << " sec" << std::endl;
+    stop_watch.Stop();
+  }
+
+  if (m_doAlignment)
+  {
+    stop_watch.Start();
+    eraseNotSelectedResiduals();
+    std::cout <<"eraseNotSelectedResiduals took "<< stop_watch.CpuTime() << " sec" << std::endl;
+    stop_watch.Stop();
+  }
+
   // fit and align (time-consuming, so the user can turn it off if in a residuals-gathering job)
   if (m_doAlignment) 
   {
@@ -842,9 +927,6 @@ void MuonAlignmentFromReference::terminate()
 
   // write out the pseudontuples for a later job to collect
   if (m_writeTemporaryFile != std::string("")) writeTmpFiles();
-
-  // optionally, create an nutuple for easy debugging
-  if (m_createNtuple) fillNtuple();
 }
 
 
@@ -927,7 +1009,7 @@ void MuonAlignmentFromReference::fitAndAlign()
 
     char cname[40];
     char wheel_label[][2]={"A","B","C","D","E"};
-
+    
     if (id.subdetId() == MuonSubdetId::DT)
     {
       DTChamberId chamberId(id.rawId());
@@ -955,6 +1037,8 @@ void MuonAlignmentFromReference::fitAndAlign()
             << "), \"" << cname << "\"))" << std::endl;
       }
     }
+
+    //if(! ( strcmp(cname,"MBwhCst3sec12")==0 || strcmp(cname,"MBwhCst3sec06")==0)) continue;
 
     std::map<Alignable*, MuonResidualsTwoBin*>::const_iterator fitter = m_fitters.find(thisali);
 
@@ -1049,6 +1133,7 @@ void MuonAlignmentFromReference::fitAndAlign()
           gammaresid_value = gammaresid_error = gammaresid_antisym = gammaresslope_value = gammaresslope_error = gammaresslope_antisym = 0.;
 
           if (fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian &&
+              fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian2D &&
               fitter->second->residualsModel() != MuonResidualsFitter::kGaussPowerTails)
           {
             gammaresid_value = fitter->second->value(MuonResiduals5DOFFitter::kResidGamma);
@@ -1073,6 +1158,7 @@ void MuonAlignmentFromReference::fitAndAlign()
             report << "reports[-1].sigmaresid = ValErr(" << sigmaresid_value << ", " << sigmaresid_error << ", "  << sigmaresid_antisym << ")" << std::endl;
             report << "reports[-1].sigmaresslope = ValErr(" << sigmaresslope_value << ", " << sigmaresslope_error << ", " << sigmaresslope_antisym << ")" << std::endl;
             if (fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian &&
+                fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian2D &&
                 fitter->second->residualsModel() != MuonResidualsFitter::kGaussPowerTails)
             {
               report << "reports[-1].gammaresid = ValErr(" << gammaresid_value << ", " << gammaresid_error << ", " << gammaresid_antisym << ")" << std::endl;
@@ -1164,6 +1250,7 @@ void MuonAlignmentFromReference::fitAndAlign()
           gammax_value = gammax_error = gammax_antisym = gammay_value = gammay_error = gammay_antisym = gammadxdz_value
               = gammadxdz_error = gammadxdz_antisym = gammadydz_value = gammadydz_error = gammadydz_antisym = 0.;
           if (fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian &&
+              fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian2D &&
               fitter->second->residualsModel() != MuonResidualsFitter::kGaussPowerTails)
           {
             gammax_value = fitter->second->value(MuonResiduals6DOFFitter::kResidXGamma);
@@ -1198,6 +1285,7 @@ void MuonAlignmentFromReference::fitAndAlign()
             report << "reports[-1].sigmadxdz = ValErr(" << sigmadxdz_value << ", " << sigmadxdz_error << ", "<< sigmadxdz_antisym << ")" << std::endl;
             report << "reports[-1].sigmadydz = ValErr(" << sigmadydz_value << ", " << sigmadydz_error << ", "<< sigmadydz_antisym << ")" << std::endl;
             if (fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian &&
+                fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian2D &&
                 fitter->second->residualsModel() != MuonResidualsFitter::kGaussPowerTails)
             {
               report << "reports[-1].gammax = ValErr(" << gammax_value << ", " << gammax_error << ", " << gammax_antisym << ")" << std::endl;
@@ -1306,6 +1394,7 @@ void MuonAlignmentFromReference::fitAndAlign()
           double gammaresid_value, gammaresid_error, gammaresid_antisym, gammaresslope_value, gammaresslope_error, gammaresslope_antisym;
           gammaresid_value = gammaresid_error = gammaresid_antisym = gammaresslope_value = gammaresslope_error = gammaresslope_antisym = 0.;
           if (fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian &&
+              fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian2D &&
               fitter->second->residualsModel() != MuonResidualsFitter::kGaussPowerTails)
           {
             gammaresid_value = fitter->second->value(MuonResiduals6DOFrphiFitter::kResidGamma);
@@ -1330,6 +1419,7 @@ void MuonAlignmentFromReference::fitAndAlign()
             report << "reports[-1].sigmaresid = ValErr(" << sigmaresid_value << ", " << sigmaresid_error << ", " << sigmaresid_antisym << ")" << std::endl;
             report << "reports[-1].sigmaresslope = ValErr(" << sigmaresslope_value << ", " << sigmaresslope_error << ", " << sigmaresslope_antisym << ")" << std::endl;
             if (fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian &&
+                fitter->second->residualsModel() != MuonResidualsFitter::kPureGaussian2D &&
                 fitter->second->residualsModel() != MuonResidualsFitter::kGaussPowerTails)
             {
               report << "reports[-1].gammaresid = ValErr(" << gammaresid_value << ", " << gammaresid_error << ", " << gammaresid_antisym << ")" << std::endl;
@@ -1481,6 +1571,27 @@ void MuonAlignmentFromReference::writeTmpFiles()
   fclose(file);
 }
 
+void MuonAlignmentFromReference::correctBField()
+{
+  for (std::vector<unsigned int>::const_iterator index = m_indexes.begin();  index != m_indexes.end();  ++index)
+  {
+    std::cout<<"correcting B in "<<chamberPrettyNameFromId(*index)<<std::endl;
+    MuonResidualsTwoBin *fitter = m_fitterOrder[*index];
+    fitter->correctBField();
+  }
+}
+
+
+void MuonAlignmentFromReference::eraseNotSelectedResiduals()
+{
+  for (std::vector<unsigned int>::const_iterator index = m_indexes.begin();  index != m_indexes.end();  ++index)
+  {
+    std::cout<<"erasing in "<<chamberPrettyNameFromId(*index)<<std::endl;
+    MuonResidualsTwoBin *fitter = m_fitterOrder[*index];
+    fitter->eraseNotSelectedResiduals();
+  }
+}
+
 
 void MuonAlignmentFromReference::selectResidualsPeaks()
 {
@@ -1495,42 +1606,90 @@ void MuonAlignmentFromReference::selectResidualsPeaks()
     int vars_index[10] = {0,1};
     if (fitter->type() == MuonResidualsFitter::k5DOF)
     {
-      nvar = 2;
-      vars_index[0] = MuonResiduals5DOFFitter::kResid;
-      vars_index[1] = MuonResiduals5DOFFitter::kResSlope;
+      if (fitter->useRes() == MuonResidualsFitter::k1111 || fitter->useRes() == MuonResidualsFitter::k1110 || fitter->useRes() == MuonResidualsFitter::k1010) {
+        nvar = 2;
+        vars_index[0] = MuonResiduals5DOFFitter::kResid;
+        vars_index[1] = MuonResiduals5DOFFitter::kResSlope;
+      }
+      else if (fitter->useRes() == MuonResidualsFitter::k1100) {
+        nvar = 1;
+        vars_index[0] = MuonResiduals5DOFFitter::kResid;
+      }
+      else if (fitter->useRes() == MuonResidualsFitter::k0010) {
+        nvar = 1;
+        vars_index[0] = MuonResiduals5DOFFitter::kResSlope;
+      }
     }
     else if (fitter->type() == MuonResidualsFitter::k6DOF)
     {
-      nvar = 4;
-      vars_index[0] = MuonResiduals6DOFFitter::kResidX;
-      vars_index[1] = MuonResiduals6DOFFitter::kResidY;
-      vars_index[2] = MuonResiduals6DOFFitter::kResSlopeX;
-      vars_index[3] = MuonResiduals6DOFFitter::kResSlopeY;
+      if (fitter->useRes() == MuonResidualsFitter::k1111) {
+        nvar = 4;
+        vars_index[0] = MuonResiduals6DOFFitter::kResidX;
+        vars_index[1] = MuonResiduals6DOFFitter::kResidY;
+        vars_index[2] = MuonResiduals6DOFFitter::kResSlopeX;
+        vars_index[3] = MuonResiduals6DOFFitter::kResSlopeY;
+      }
+      else if (fitter->useRes() == MuonResidualsFitter::k1110) {
+        nvar = 3;
+        vars_index[0] = MuonResiduals6DOFFitter::kResidX;
+        vars_index[1] = MuonResiduals6DOFFitter::kResidY;
+        vars_index[2] = MuonResiduals6DOFFitter::kResSlopeX;
+      }
+      else if (fitter->useRes() == MuonResidualsFitter::k1010) {
+        nvar = 2;
+        vars_index[0] = MuonResiduals6DOFFitter::kResidX;
+        vars_index[2] = MuonResiduals6DOFFitter::kResSlopeX;
+      }
+      else if (fitter->useRes() == MuonResidualsFitter::k1100) {
+        nvar = 2;
+        vars_index[0] = MuonResiduals6DOFFitter::kResidX;
+        vars_index[1] = MuonResiduals6DOFFitter::kResidY;
+      }
+      else if (fitter->useRes() == MuonResidualsFitter::k0010) {
+        nvar = 1;
+        vars_index[0] = MuonResiduals6DOFFitter::kResSlopeX;
+      }
     }
     else if (fitter->type() == MuonResidualsFitter::k6DOFrphi)
     {
-      nvar = 2;
-      vars_index[0] = MuonResiduals6DOFrphiFitter::kResid;
-      vars_index[1] = MuonResiduals6DOFrphiFitter::kResSlope;
+      if (fitter->useRes() == MuonResidualsFitter::k1111 || fitter->useRes() == MuonResidualsFitter::k1110 || fitter->useRes() == MuonResidualsFitter::k1010) {
+        nvar = 2;
+        vars_index[0] = MuonResiduals6DOFrphiFitter::kResid;
+        vars_index[1] = MuonResiduals6DOFrphiFitter::kResSlope;
+      }
+      else if (fitter->useRes() == MuonResidualsFitter::k1100) {
+        nvar = 1;
+        vars_index[0] = MuonResiduals6DOFrphiFitter::kResid;
+      }
+      else if (fitter->useRes() == MuonResidualsFitter::k0010) {
+        nvar = 1;
+        vars_index[0] = MuonResiduals6DOFrphiFitter::kResSlope;
+      }
     }
     else assert(false);
 
-    DetId id(*index);
-    char cname[40];
-    if (id.subdetId() == MuonSubdetId::DT)
-    {
-      DTChamberId chamberId(id.rawId());
-      sprintf(cname, "MB%+d/%d/%02d", chamberId.wheel(), chamberId.station(), chamberId.sector());
-    }
-    else if (id.subdetId() == MuonSubdetId::CSC)
-    {
-      CSCDetId chamberId(id.rawId());
-      sprintf(cname, "ME%s%d/%d/%02d", (chamberId.endcap() == 1 ? "+" : "-"), chamberId.station(), chamberId.ring(), chamberId.chamber());
-    }
-    std::cout<<"selecting in "<<cname<<std::endl;
+    std::cout<<"selecting in "<<chamberPrettyNameFromId(*index)<<std::endl;
     
     fitter->selectPeakResiduals(m_peakNSigma, nvar, vars_index);
   }
+}
+
+
+std::string MuonAlignmentFromReference::chamberPrettyNameFromId(unsigned int idx)
+{
+   DetId id(idx); 
+   char cname[40];
+   if (id.subdetId() == MuonSubdetId::DT)
+   {
+     DTChamberId chamberId(id.rawId());
+     sprintf(cname, "MB%+d/%d/%02d", chamberId.wheel(), chamberId.station(), chamberId.sector());
+   }
+   else if (id.subdetId() == MuonSubdetId::CSC)
+   {
+     CSCDetId chamberId(id.rawId());
+     sprintf(cname, "ME%s%d/%d/%02d", (chamberId.endcap() == 1 ? "+" : "-"), chamberId.station(), chamberId.ring(), chamberId.chamber());
+   }
+   return std::string(cname);
 }
 
 
@@ -1564,7 +1723,9 @@ void MuonAlignmentFromReference::fillNtuple()
 
     MuonResidualsTwoBin *fitter = m_fitterOrder[*index];
 
-    for (std::vector<double*>::const_iterator residual = fitter->residualsPos_begin();  residual != fitter->residualsPos_end();  ++residual)
+    std::vector<double*>::const_iterator residual = fitter->residualsPos_begin();
+    std::vector<bool>::const_iterator residual_ok = fitter->residualsPos_ok_begin();
+    for (;  residual != fitter->residualsPos_end();  ++residual, ++residual_ok)
     {
       if (fitter->type() == MuonResidualsFitter::k5DOF || fitter->type() == MuonResidualsFitter::k6DOFrphi)
       {
@@ -1576,7 +1737,10 @@ void MuonAlignmentFromReference::fillNtuple()
         m_tree_row.pos_y       = (Float_t) (*residual)[MuonResiduals5DOFFitter::kPositionY];
         m_tree_row.angle_x     = (Float_t) (*residual)[MuonResiduals5DOFFitter::kAngleX];
         m_tree_row.angle_y     = (Float_t) (*residual)[MuonResiduals5DOFFitter::kAngleY];
-        m_tree_row.p           = (Float_t) (*residual)[MuonResiduals5DOFFitter::kP];
+        m_tree_row.pz          = (Float_t) (*residual)[MuonResiduals5DOFFitter::kPz];
+        m_tree_row.pt          = (Float_t) (*residual)[MuonResiduals5DOFFitter::kPt];
+        m_tree_row.q           = (Char_t) (*residual)[MuonResiduals5DOFFitter::kCharge];
+        m_tree_row.select      = (Bool_t) *residual_ok;
       }
       else if (fitter->type() == MuonResidualsFitter::k6DOF)
       {
@@ -1588,7 +1752,10 @@ void MuonAlignmentFromReference::fillNtuple()
         m_tree_row.pos_y       = (Float_t) (*residual)[MuonResiduals6DOFFitter::kPositionY];
         m_tree_row.angle_x     = (Float_t) (*residual)[MuonResiduals6DOFFitter::kAngleX];
         m_tree_row.angle_y     = (Float_t) (*residual)[MuonResiduals6DOFFitter::kAngleY];
-        m_tree_row.p           = (Float_t) (*residual)[MuonResiduals6DOFFitter::kP];
+        m_tree_row.pz          = (Float_t) (*residual)[MuonResiduals6DOFFitter::kPz];
+        m_tree_row.pt          = (Float_t) (*residual)[MuonResiduals6DOFFitter::kPt];
+        m_tree_row.q           = (Char_t) (*residual)[MuonResiduals6DOFFitter::kCharge];
+        m_tree_row.select      = (Bool_t) *residual_ok;
       }
       else assert(false);
 
