@@ -61,13 +61,13 @@ void BTagDifferentialPlot::plot (TCanvas & thePlotCanvas ) {
   gPad->SetGridx ( 1 ) ;
   gPad->SetGridy ( 1 ) ;
 
-  int col_b   ;
+//  int col_b   ;
   int col_c   ;
   int col_g   ;
   int col_dus ;
   int col_ni  ;
 
-  int mStyle_b   ;
+//  int mStyle_b   ;
   int mStyle_c   ;
   int mStyle_g   ;
   int mStyle_dus ;
@@ -77,24 +77,24 @@ void BTagDifferentialPlot::plot (TCanvas & thePlotCanvas ) {
   float mSize = 1.5 ;
 
   if ( btppColour ) {
-    col_b    = 2 ;
+//    col_b    = 2 ;
     col_c    = 6 ;
     col_g    = 3 ;
     col_dus  = 4 ;
     col_ni   = 5 ;
-    mStyle_b   = 20 ;
+//    mStyle_b   = 20 ;
     mStyle_c   = 20 ;
     mStyle_g   = 20 ;
     mStyle_dus = 20 ;
     mStyle_ni  = 20 ;
   }
   else {
-    col_b    = 1 ;
+//    col_b    = 1 ;
     col_c    = 1 ;
     col_g    = 1 ;
     col_dus  = 1 ;
     col_ni   = 1 ;
-    mStyle_b   = 12 ;
+//    mStyle_b   = 12 ;
     mStyle_c   = 22 ;
     mStyle_g   = 29 ;
     mStyle_dus = 20 ;
