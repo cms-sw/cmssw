@@ -63,6 +63,7 @@ namespace edm {
       hasNewlyDroppedBranch_(),
       fileName_(),
       branchListIndexesUnchanged_(false),
+      modifiedIDs_(false),
       branchChildren_(new BranchChildren) {}
 
     FileBlock(FileFormatVersion const& version,
@@ -73,6 +74,7 @@ namespace edm {
               boost::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch,
               std::string const& fileName,
               bool branchListIndexesUnchanged,
+              bool modifiedIDs,
               boost::shared_ptr<BranchChildren> branchChildren) :
       fileFormatVersion_(version),
       tree_(const_cast<TTree*>(ev)),
@@ -85,6 +87,7 @@ namespace edm {
       hasNewlyDroppedBranch_(hasNewlyDroppedBranch),
       fileName_(fileName),
       branchListIndexesUnchanged_(branchListIndexesUnchanged),
+      modifiedIDs_(modifiedIDs),
       branchChildren_(branchChildren) {}
 
     ~FileBlock() {}
@@ -101,6 +104,7 @@ namespace edm {
     boost::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
     std::string const& fileName() const {return fileName_;}
     bool branchListIndexesUnchanged() const {return branchListIndexesUnchanged_;}
+    bool modifiedIDs() const {return modifiedIDs_;}
 
     void setNotFastClonable(WhyNotFastClonable const& why) {
       whyNotFastClonable_ |= why;
@@ -121,6 +125,7 @@ namespace edm {
     boost::array<bool, NumBranchTypes> hasNewlyDroppedBranch_;
     std::string fileName_;
     bool branchListIndexesUnchanged_;
+    bool modifiedIDs_;
     boost::shared_ptr<BranchChildren> branchChildren_;
   };
 }
