@@ -91,7 +91,8 @@ def transposed(lists, defaultval=None):
     from http://code.activestate.com/recipes/410687-transposing-a-list-of-lists-with-different-lengths/
     """
     if not lists: return []
-    return map(lambda *row: [elem or defaultval for elem in row], *lists)
+    #return map(lambda *row: [elem or defaultval for elem in row], *lists)
+    return map(lambda *row: [elem for elem in row or defaultval], *lists)
 def pack(high,low):
     """pack high,low 32bit unsigned int to one unsigned 64bit long long
        Note:the print value of result number may appear signed, if the sign bit is used.
