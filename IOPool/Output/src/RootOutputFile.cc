@@ -333,6 +333,8 @@ namespace edm {
       // We can do so only if we can otherwise fast copy,
       // the input file has the current format (these branches are in the Events Tree),
       // there are no newly dropped or produced products,
+      // no metadata has been dropped,
+      // ID's have not been modified,
       // and the branch list indexes do not need modification.
       Service<ConstProductRegistry> reg;
       canFastCloneAux_ = (whyNotFastClonable_ == FileBlock::CanFastClone) &&
@@ -341,6 +343,7 @@ namespace edm {
                           !fb.hasNewlyDroppedBranch()[InEvent] &&
                           om_->dropMetaData() == PoolOutputModule::DropNone &&
                           !reg->anyProductProduced() &&
+                          !fb.modifiedIDs() &&
                           fb.branchListIndexesUnchanged();
 
       // Report the fast copying status.
