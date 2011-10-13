@@ -27,21 +27,25 @@ class HLTMhtHtFilter : public HLTFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&);
 
    private:
-      edm::InputTag inputJetTag_; // input tag identifying jets
-      bool saveTags_;              // whether to save this tag
-      double minMht_;
-      std::vector<double> minPtJet_;
-      int minNJet_;
-      int mode_;
-      std::vector<double> etaJet_;
-      bool usePt_;
-      double minPT12_;
-      double minMeff_;
-      double meffSlope_;
-      double minHt_;
-      double minAlphaT_;
-      bool useTracks_;
-      edm::InputTag inputTracksTag_;
+      const edm::InputTag       inputJetTag_;   // input tag identifying jets
+      const edm::InputTag       inputTracksTag_;
+      const std::vector<double> minPtJet_;
+      const std::vector<double> etaJet_;
+      const double              minPT12_;
+      const double              minHt_;
+      const double              minMht_;
+      const double              minAlphaT_;
+      const double              minMeff_;
+      const double              meffSlope_;
+      const int                 minNJet_;
+      const int                 mode_;          //----mode = 1 for MHT only
+                                                //----mode = 2 for Meff
+                                                //----mode = 3 for PT12
+                                                //----mode = 4 for HT only
+                                                //----mode = 5 for HT and AlphaT cross trigger (ALWAYS uses jet ET, not pT)
+      const bool                usePt_;
+      const bool                useTracks_;
+      const bool                saveTags_;      // whether to save this tag
 };
 
 #endif //HLTMhtHtFilter_h

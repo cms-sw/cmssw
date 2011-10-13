@@ -31,35 +31,33 @@
 //
 // constructors and destructor
 //
-HLTMhtHtFilter::HLTMhtHtFilter(const edm::ParameterSet& iConfig)
-{
-  inputJetTag_ = iConfig.getParameter< edm::InputTag > ("inputJetTag");
-  saveTags_     = iConfig.getParameter<bool>("saveTags");
-  minMht_= iConfig.getParameter<double> ("minMht");
-  minPtJet_= iConfig.getParameter<std::vector<double> > ("minPtJet");
-  minNJet_= iConfig.getParameter<int> ("minNJet");
-  mode_= iConfig.getParameter<int>("mode");
+HLTMhtHtFilter::HLTMhtHtFilter(const edm::ParameterSet& iConfig) :
+  inputJetTag_    ( iConfig.getParameter<edm::InputTag>("inputJetTag") ),
+  inputTracksTag_ ( iConfig.getParameter<edm::InputTag>("inputTracksTag") ),
+  minPtJet_       ( iConfig.getParameter<std::vector<double> >("minPtJet") ),
+  etaJet_         ( iConfig.getParameter<std::vector<double> > ("etaJet") ),
+  minPT12_        ( iConfig.getParameter<double>("minPT12") ),
+  minHt_          ( iConfig.getParameter<double>("minHt") ),
+  minMht_         ( iConfig.getParameter<double>("minMht") ),
+  minAlphaT_      ( iConfig.getParameter<double>("minAlphaT") ),
+  minMeff_        ( iConfig.getParameter<double>("minMeff") ),
+  meffSlope_      ( iConfig.getParameter<double>("meffSlope") ),
+  minNJet_        ( iConfig.getParameter<int>("minNJet") ),
+  mode_           ( iConfig.getParameter<int>("mode") ),
   //----mode=1 for MHT only
   //----mode=2 for Meff
   //----mode=3 for PT12
   //----mode=4 for HT only
   //----mode=5 for HT and AlphaT cross trigger (ALWAYS uses jet ET, not pT)
-  etaJet_= iConfig.getParameter<std::vector<double> > ("etaJet");
-  usePt_= iConfig.getParameter<bool>("usePt");
-  minPT12_= iConfig.getParameter<double> ("minPT12");
-  minMeff_= iConfig.getParameter<double> ("minMeff");
-  meffSlope_ = iConfig.getParameter<double> ("meffSlope");
-  minHt_= iConfig.getParameter<double> ("minHt");
-  minAlphaT_= iConfig.getParameter<double> ("minAlphaT");
-
-  useTracks_ = iConfig.getParameter<bool> ("useTracks");
-  inputTracksTag_ = iConfig.getParameter< edm::InputTag > ("inputTracksTag");
-
+  usePt_          ( iConfig.getParameter<bool>("usePt") ),
+  useTracks_      ( iConfig.getParameter<bool>("useTracks") ),
+  saveTags_       ( iConfig.getParameter<bool>("saveTags") )
+{
   // sanity checks
   if (       (minPtJet_.size()    !=  etaJet_.size())
-       || (  (minPtJet_.size()<1) || (etaJet_.size()<1) )
-       || ( ((minPtJet_.size()<2) || (etaJet_.size()<2))
-      && ( (mode_==1) || (mode_==2) || (mode_ == 5))) ) {
+       or (  (minPtJet_.size()<1) || (etaJet_.size()<1) )
+       or ( ((minPtJet_.size()<2) || (etaJet_.size()<2)) and ( (mode_==1) or (mode_==2) or (mode_ == 5))) 
+  ) {
     edm::LogError("HLTMhtHtFilter") << "inconsistent module configuration!";
   }
 
