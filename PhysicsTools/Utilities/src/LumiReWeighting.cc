@@ -17,10 +17,14 @@
   \author Salvatore Rappoccio, modified by Mike Hildreth
   
 */
-
+#include "TRandom1.h"
+#include "TRandom2.h"
+#include "TRandom3.h"
+#include "TStopwatch.h"
 #include "TH1.h"
 #include "TFile.h"
 #include <string>
+#include <algorithm>
 #include <boost/shared_ptr.hpp>
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" 
 #include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
@@ -43,18 +47,23 @@ LumiReWeighting::LumiReWeighting( std::string generatedFile,
 	generatedFile_ = boost::shared_ptr<TFile>( new TFile(generatedFileName_.c_str()) ); //MC distribution
 	dataFile_      = boost::shared_ptr<TFile>( new TFile(dataFileName_.c_str()) );      //Data distribution
 
-	weights_ = boost::shared_ptr<TH1>(  (static_cast<TH1*>(dataFile_->Get( DataHistName_.c_str() )->Clone() )) );
+	Data_distr_ = boost::shared_ptr<TH1>(  (static_cast<TH1*>(dataFile_->Get( DataHistName_.c_str() )->Clone() )) );
+	MC_distr_ = boost::shared_ptr<TH1>(  (static_cast<TH1*>(generatedFile_->Get( GenHistName_.c_str() )->Clone() )) );
 
 	// MC * data/MC = data, so the weights are data/MC:
 
 	// normalize both histograms first
 
-	weights_->Scale( 1.0/ weights_->Integral() );
+	Data_distr_->Scale( 1.0/ Data_distr_->Integral() );
+	MC_distr_->Scale( 1.0/ MC_distr_->Integral() );
+
+	weights_ = boost::shared_ptr<TH1>( static_cast<TH1*>(Data_distr_->Clone()) );
+
 	weights_->SetName("lumiWeights");
 
-	TH1* den = dynamic_cast<TH1*>(generatedFile_->Get( GenHistName_.c_str() ));
+	TH1* den = dynamic_cast<TH1*>(MC_distr_->Clone());
 
-	den->Scale(1.0/ den->Integral());
+	//den->Scale(1.0/ den->Integral());
 
 	weights_->Divide( den );  // so now the average weight should be 1.0
 
@@ -89,12 +98,17 @@ LumiReWeighting::LumiReWeighting( std::vector< float > MC_distr, std::vector< fl
 
   Int_t NBins = MC_distr.size();
 
+  MC_distr_ = boost::shared_ptr<TH1> ( new TH1F("MC_distr","MC dist",NBins,-0.5, float(NBins)-0.5) );
+  Data_distr_ = boost::shared_ptr<TH1> ( new TH1F("Data_distr","Data dist",NBins,-0.5, float(NBins)-0.5) );
+
   weights_ = boost::shared_ptr<TH1> ( new TH1F("luminumer","luminumer",NBins,-0.5, float(NBins)-0.5) );
   TH1* den = new TH1F("lumidenom","lumidenom",NBins,-0.5, float(NBins)-0.5) ;
 
   for(int ibin = 1; ibin<NBins+1; ++ibin ) {
     weights_->SetBinContent(ibin, Lumi_distr[ibin-1]);
+    Data_distr_->SetBinContent(ibin, Lumi_distr[ibin-1]);
     den->SetBinContent(ibin,MC_distr[ibin-1]);
+    MC_distr_->SetBinContent(ibin,MC_distr[ibin-1]);
   }
 
   // check integrals, make sure things are normalized
@@ -102,10 +116,12 @@ LumiReWeighting::LumiReWeighting( std::vector< float > MC_distr, std::vector< fl
   float deltaH = weights_->Integral();
   if(fabs(1.0 - deltaH) > 0.02 ) { //*OOPS*...
     weights_->Scale( 1.0/ weights_->Integral() );
+    Data_distr_->Scale( 1.0/ Data_distr_->Integral() );
   }
   float deltaMC = den->Integral();
   if(fabs(1.0 - deltaMC) > 0.02 ) {
     den->Scale(1.0/ den->Integral());
+    MC_distr_->Scale(1.0/ MC_distr_->Integral());
   }
 
   weights_->Divide( den );  // so now the average weight should be 1.0    
@@ -130,6 +146,18 @@ double LumiReWeighting::weight( int npv ) {
 double LumiReWeighting::weight3BX( float ave_npv ) {
   int bin = weights_->GetXaxis()->FindBin( ave_npv );
   return weights_->GetBinContent( bin );
+}
+
+double LumiReWeighting::weight3D( int pv1, int pv2, int pv3 ) {
+
+  using std::min;
+
+  int npm1 = min(pv1,34);
+  int np0 = min(pv2,34);
+  int npp1 = min(pv3,34);
+
+  return Weight3D_[npm1][np0][npp1];
+
 }
 
 
@@ -215,6 +243,130 @@ double LumiReWeighting::weight3BX( const edm::EventBase &e ) {
  
 }
 
+double LumiReWeighting::weight3D( const edm::EventBase &e ) {
+
+  using std::min;
+
+  // get pileup summary information
+
+  Handle<std::vector< PileupSummaryInfo > >  PupInfo;
+  e.getByLabel(edm::InputTag("addPileupInfo"), PupInfo);
+
+  std::vector<PileupSummaryInfo>::const_iterator PVI;
+
+  int npm1=-1;
+  int np0=-1;
+  int npp1=-1;
+ 
+  for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
+
+    int BX = PVI->getBunchCrossing();
+
+    if(BX == -1) { 
+      npm1 = PVI->getPU_NumInteractions();
+    }
+    if(BX == 0) { 
+      np0 = PVI->getPU_NumInteractions();
+    }
+    if(BX == 1) { 
+      npp1 = PVI->getPU_NumInteractions();
+    }
+
+  }
+
+  npm1 = min(npm1,34);
+  np0 = min(np0,34);
+  npp1 = min(npp1,34);
+
+
+  return Weight3D_[npm1][np0][npp1];
+ 
+}
+
+
+void LumiReWeighting::weight3D_init() { 
+
+  using std::min;
+
+  int Npoints = 100000000;
+
+  if( MC_distr_->GetEntries() == 0 ) {
+    std::cout << " MC and Data distributions are not initialized! You must call the LumiReWeighting constructor. " << std::endl;
+  }
+
+  // arrays for storing number of interactions
+
+  double MC_ints[35][35][35];
+  double Data_ints[35][35][35];
+
+  for (int i=0; i<35; i++) {
+    for(int j=0; j<35; j++) {
+      for(int k=0; k<35; k++) {
+	MC_ints[i][j][k] = 0.;
+	Data_ints[i][j][k] = 0.;
+      }
+    }
+  }
+
+  // initialize random numbers
+
+  TRandom *r1 = new TRandom1();
+
+  double x,y;
+  double xint, yint;
+  int xi;
+
+  // Get entries randomly for Data, MC, fill arrays:
+
+  for (int j=0;j<Npoints;j++) {       
+    x =  MC_distr_->GetRandom();
+
+    //for Summer 11, we have this int feature that generates the spike at zero int.
+    xi = int(x);
+    xint = r1->Poisson(xi);
+
+    int x0 = min(int(xint),34);
+    xint = r1->Poisson(xi);
+    int x1 = min(int(xint),34);
+    xint = r1->Poisson(xi);
+    int x2 = min(int(xint),34);
+     
+    // cout << x0 << "  " << x1 << " " << x2 << endl;
+
+    MC_ints[x0][x1][x2] =  MC_ints[x0][x1][x2]+1.0;
+
+    y =  Data_distr_->GetRandom();
+
+    yint = r1->Poisson(y);
+
+    int y0 = min(int(yint),34);
+    yint = r1->Poisson(y);
+    int y1 = min(int(yint),34);
+    yint = r1->Poisson(y);
+    int y2 = min(int(yint),34);
+
+    Data_ints[y0][y1][y2] = Data_ints[y0][y1][y2]+1.0;
+  }
+
+  for (int i=0; i<35; i++) {  
+    for(int j=0; j<35; j++) {
+      for(int k=0; k<35; k++) {
+	if( (MC_ints[i][j][k])>0.) {
+	  Weight3D_[i][j][k]  =  Data_ints[i][j][k]/MC_ints[i][j][k];
+	}
+	else {
+	  Weight3D_[i][j][k]  = 0.;
+	}
+      }
+    }
+  }
+
+  std::cout << " 3D Weight Matrix initialized! " << std::endl;
+
+  return;
+
+
+}
 
 
 void LumiReWeighting::weightOOT_init() {

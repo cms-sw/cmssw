@@ -237,11 +237,17 @@ namespace edm {
 
     double weight3BX( float npv ) ;
 
+    double weight3D( int ibx_1, int ibx0, int ibx1);
+
     double weight( const edm::EventBase &e ) ;
 
     double weight3BX( const edm::EventBase &e ) ;
 
     double weightOOT( const edm::EventBase &e ) ;
+
+    double weight3D( const edm::EventBase &e );
+
+    void weight3D_init();
 
     void weightOOT_init(); 
 
@@ -255,11 +261,20 @@ namespace edm {
     boost::shared_ptr<TFile>     dataFile_;
     boost::shared_ptr<TH1>      weights_;
 
+    //keep copies of normalized distributions:
+
+    boost::shared_ptr<TH1>      MC_distr_;
+    boost::shared_ptr<TH1>      Data_distr_;
+
     double WeightOOTPU_[25][25];
+
+    double Weight3D_[35][35][35];
 
     int  OldLumiSection_;
     bool Reweight_4_2_2p2_;
     bool FirstWarning_;
+
+    bool Init3DWeights_;
 
   };
 }
