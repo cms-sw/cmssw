@@ -204,7 +204,8 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 
   //go through clusters to write out global position of good clusters for the layer understudy for comparison
   // Loop through clusters just to print out locations
-
+  // Commented out to avoid discussion, should really be deleted.
+  /*
   for (edmNew::DetSetVector<SiStripCluster>::const_iterator DSViter = input.begin(); DSViter != input.end(); DSViter++) {
     // DSViter is a vector of SiStripClusters located on a single module
     unsigned int ClusterId = DSViter->id();
@@ -221,10 +222,11 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
       surface = &(tracker->idToDet(ClusterDetId)->surface());
       LocalPoint lp = parameters.first;
       GlobalPoint gp = surface->toGlobal(lp);
-      //unsigned int layer = checkLayer(ClusterId);
-      //      if(DEBUG) cout << "Found hit in cluster collection layer = " << layer << " with id = " << ClusterId << "   local X position = " << lp.x() << " +- " << sqrt(parameters.second.xx()) << "   matched/stereo/rphi = " << ((ClusterId & 0x3)==0) << "/" << ((ClusterId & 0x3)==1) << "/" << ((ClusterId & 0x3)==2) << endl;
+      unsigned int layer = checkLayer(ClusterId);
+            if(DEBUG) cout << "Found hit in cluster collection layer = " << layer << " with id = " << ClusterId << "   local X position = " << lp.x() << " +- " << sqrt(parameters.second.xx()) << "   matched/stereo/rphi = " << ((ClusterId & 0x3)==0) << "/" << ((ClusterId & 0x3)==1) << "/" << ((ClusterId & 0x3)==2) << endl;
     }
   }
+  */
   
   // Tracking 
   const   reco::TrackCollection *tracksCKF=trackCollectionCKF.product();
@@ -305,7 +307,6 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 	
 	unsigned int iidd = theInHit->geographicalId().rawId();
 	
-	StripSubdetector strip=StripSubdetector(iidd);
 	unsigned int TKlayers = checkLayer(iidd);
 	if (DEBUG)	cout << "TKlayer from trajectory: " << TKlayers << "  from module = " << iidd <<  "   matched/stereo/rphi = " << ((iidd & 0x3)==0) << "/" << ((iidd & 0x3)==1) << "/" << ((iidd & 0x3)==2) << endl;
 
