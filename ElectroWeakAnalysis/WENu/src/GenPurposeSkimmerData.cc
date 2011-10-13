@@ -40,7 +40,7 @@
 //
 // Original Author:  Nikolaos Rompotis
 //         Created:  Thu Oct 16 17:11:55 CEST 2008
-// $Id: GenPurposeSkimmerData.cc,v 1.2 2010/01/07 13:58:07 hegner Exp $
+// $Id: GenPurposeSkimmerData.cc,v 1.3 2010/02/17 22:59:14 wdd Exp $
 //
 //
 
@@ -626,7 +626,6 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
 	elec = electrons->begin(); elec != electrons->end();++elec) {
     const pat::ElectronRef  electronRef(pElectrons, index);
     //Remove duplicate electrons which share a supercluster
-    bool duplicate = false;
     pat::ElectronCollection::const_iterator BestDuplicate = elec;
     int index2 = 0;
     for(pat::ElectronCollection::const_iterator
@@ -637,7 +636,6 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
 	  {
 	    if( elec->superCluster() == elec2->superCluster())
 	      {
-		duplicate = true;
 		if(fabs(BestDuplicate->eSuperClusterOverP()-1.)
 		   >= fabs(elec2->eSuperClusterOverP()-1.))
 		  {
