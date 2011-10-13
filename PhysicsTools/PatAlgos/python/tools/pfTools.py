@@ -6,6 +6,8 @@ from PhysicsTools.PatAlgos.tools.tauTools import *
 
 from PhysicsTools.PatAlgos.tools.helpers import listModules, applyPostfix
 
+from copy import deepcopy
+
 #def applyPostfix(process, label, postfix):
 #    ''' If a module is in patDefaultSequence use the cloned module.
 #    Will crash if patDefaultSequence has not been cloned with 'postfix' beforehand'''
@@ -404,7 +406,7 @@ def adaptPVs(process, pvCollection=cms.InputTag('offlinePrimaryVertices'), postf
                         interPostFixFlag = True
                         break
                 if not interPostFixFlag:
-                    setattr(getattr(process,m),namePvSrc,pvCollection)
+                    setattr(getattr(process,m),namePvSrc,deepcopy(pvCollection))
 
 
 def usePF2PAT(process, runPF2PAT=True, jetAlgo='AK5', runOnMC=True, postfix="", jetCorrections=('AK5PFchs', ['L1FastJet','L2Relative','L3Absolute']), pvCollection=cms.InputTag('offlinePrimaryVertices'), typeIMetCorrections=False, outputModules=['out']):
