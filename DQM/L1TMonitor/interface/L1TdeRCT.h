@@ -7,11 +7,14 @@
  *
  * Version 0.0. A.Savin 2008/04/26
  *
- * $Date: 2010/03/25 13:46:02 $
- * $Revision: 1.12 $
+ * $Date: 2010/09/30 22:26:45 $
+ * $Revision: 1.13 $
  * \author P. Wittich
- * $Id: L1TdeRCT.h,v 1.12 2010/03/25 13:46:02 weinberg Exp $
+ * $Id: L1TdeRCT.h,v 1.13 2010/09/30 22:26:45 bachtis Exp $
  * $Log: L1TdeRCT.h,v $
+ * Revision 1.13  2010/09/30 22:26:45  bachtis
+ * Add RCT FED vector monitoring
+ *
  * Revision 1.12  2010/03/25 13:46:02  weinberg
  * removed quiet bit information
  *
@@ -69,6 +72,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <bitset>
 
 
 // user include files
@@ -163,6 +167,10 @@ private:
   MonitorElement *rctRegSpEff2D_;
   MonitorElement *rctRegSpIneff2D_;
 
+  MonitorElement* rctRegBitOn_ ;
+  MonitorElement* rctRegBitOff_ ;
+  MonitorElement* rctRegBitDiff_ ;
+
   // end region information
 
   // begin bit information
@@ -242,6 +250,10 @@ private:
   MonitorElement* rctIsoEmIneff1D_ ;
   MonitorElement* rctIsoEmOvereff1D_ ;
 
+  MonitorElement* rctIsoEmBitOn_ ;
+  MonitorElement* rctIsoEmBitOff_ ;
+  MonitorElement* rctIsoEmBitDiff_ ;
+
   MonitorElement* rctNisoEmDataOcc_ ;
   MonitorElement* rctNisoEmEmulOcc_ ;
   MonitorElement* rctNisoEmEff1Occ_ ;
@@ -267,6 +279,10 @@ private:
   MonitorElement* rctNisoEmIneff2oneD_ ;
   MonitorElement* rctNisoEmIneff1D_ ;
   MonitorElement* rctNisoEmOvereff1D_ ;
+
+  MonitorElement* rctNIsoEmBitOn_ ;
+  MonitorElement* rctNIsoEmBitOff_ ;
+  MonitorElement* rctNIsoEmBitDiff_ ;
 
   MonitorElement*  rctIsoEffChannel_[396] ;
   MonitorElement*  rctIsoIneffChannel_[396] ;
