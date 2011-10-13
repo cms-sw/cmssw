@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2011/06/21 19:31:28 $
- *  $Revision: 1.52 $
+ *  $Date: 2011/08/10 20:32:45 $
+ *  $Revision: 1.53 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -17,13 +17,18 @@
 #include "DataFormats/Provenance/interface/Timestamp.h" 
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
-#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
+#include "DataFormats/Provenance/interface/ProcessHistory.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/GetPassID.h"
+#include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include <string>
 #include <iostream>
@@ -66,6 +71,7 @@ namespace edm {
     , fakeLSid_(lumiSegmentSizeInEvents_ != 0)
     , runNumber_(RunID::firstValidRun().run())
     , luminosityBlockNumber_(LuminosityBlockID::firstValidLuminosityBlock().luminosityBlock())
+    , daqProvenanceHelper_()
     , noMoreEvents_(false)
     , newRun_(true)
     , newLumi_(true)
@@ -80,7 +86,8 @@ namespace edm {
     pthread_mutex_init(&mutex_,0);
     pthread_mutex_init(&signal_lock_,0);
     pthread_cond_init(&cond_,0);
-    produces<FEDRawDataCollection>();
+
+
     setTimestamp(Timestamp::beginOfTime());
     
     // Instantiate the requested data source
@@ -102,6 +109,25 @@ namespace edm {
         throw;
       }
     }
+
+    // Now we need to set all the metadata
+    // Add the product to the product registry  
+    ConstBranchDescription const& cbd = daqProvenanceHelper_.constBranchDescription_;
+    productRegistryUpdate().copyProduct(cbd.me());
+
+    // Insert an entry for this process in the process configuration registry
+    ProcessConfiguration pc(cbd.processName(), daqProvenanceHelper_.processParameterSet_.id(), getReleaseVersion(), getPassID());
+    ProcessConfigurationRegistry::instance()->insertMapped(pc);
+
+    // Insert an entry for this process in the process history registry
+    ProcessHistory ph;
+    ph.push_back(pc);
+    ProcessHistoryRegistry::instance()->insertMapped(ph);
+
+    // Save the process history ID for use every event.
+    phid_ = ph.id();
+
+
   }
   
   //______________________________________________________________________________
@@ -151,6 +177,7 @@ namespace edm {
       if (!luminosityBlockAuxiliary() || luminosityBlockAuxiliary()->luminosityBlock() != luminosityBlockNumber_) {
 	setLuminosityBlockAuxiliary(new LuminosityBlockAuxiliary(
 								 runNumber_, luminosityBlockNumber_, timestamp(), Timestamp::invalidTimestamp()));
+       luminosityBlockAuxiliary()->setProcessHistoryID(phid_);
 	
 	//      std::cout << "nextItemType: dealt with new lumi block principal, retval is " << retval << std::endl;
       }
@@ -328,6 +355,7 @@ namespace edm {
       newLumi_ = true;
       setLuminosityBlockAuxiliary(new LuminosityBlockAuxiliary(
 	runNumber_, luminosityBlockNumber_, timestamp(), Timestamp::invalidTimestamp()));
+      luminosityBlockAuxiliary()->setProcessHistoryID(phid_);
 
       //      std::cout << "nextItemType: dealt with new lumi block principal, retval is " << retval << std::endl;
     }
@@ -347,17 +375,23 @@ namespace edm {
 			    bunchCrossing,
 			    EventAuxiliary::invalidStoreNumber,
 			    orbitNumber);
+    eventAux.setProcessHistoryID(phid_);
     eventPrincipalCache()->fillEventPrincipal(eventAux, boost::shared_ptr<LuminosityBlockPrincipal>());
     eventCached_ = true;
     
     // have fedCollection managed by a std::auto_ptr<>
     std::auto_ptr<FEDRawDataCollection> bare_product(fedCollection);
 
-    Event e(*eventPrincipalCache(), moduleDescription());
+    WrapperOwningHolder edp(new Wrapper<FEDRawDataCollection>(bare_product), Wrapper<FEDRawDataCollection>::getInterface());
+    eventPrincipalCache()->put(daqProvenanceHelper_.constBranchDescription_, edp, daqProvenanceHelper_.dummyProvenance_);
+
+/*
+    Event e(*eventPrincipalCache(), md_);
     // put the fed collection into the transient event store
     e.put(bare_product);
     // The commit is needed to complete the "put" transaction.
     e.commit_();
+*/
     if (newLumi_) {
       return IsLumi;
     }
@@ -380,7 +414,9 @@ namespace edm {
     assert(newRun_);
     assert(!noMoreEvents_);
     newRun_ = false;
-    return boost::shared_ptr<RunAuxiliary>(new RunAuxiliary(runNumber_, timestamp(), Timestamp::invalidTimestamp()));
+    boost::shared_ptr<RunAuxiliary> ra(new RunAuxiliary(runNumber_, timestamp(), Timestamp::invalidTimestamp()));
+    ra->setProcessHistoryID(phid_);
+    return ra;
   }
 
   boost::shared_ptr<LuminosityBlockAuxiliary>

@@ -5,15 +5,19 @@
  *  An input service for raw data. 
  *  The actual source can be the real DAQ, a file, a random generator, etc.
  *
- *  $Date: 2011/03/21 12:26:39 $
- *  $Revision: 1.17 $
+ *  $Date: 2011/05/11 09:46:12 $
+ *  $Revision: 1.18 $
  *  \author N. Amapane - S. Argiro'
  */
 
 #include <memory>
 #include "boost/shared_ptr.hpp"
+#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
+#include "DataFormats/Provenance/interface/ProcessHistoryID.h"
+#include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Sources/interface/DaqProvenanceHelper.h"
 #include "EventFilter/Utilities/interface/ModuleWeb.h"
 
 #include "xdata/UnsignedInteger32.h"
@@ -67,6 +71,8 @@ namespace edm {
   
     RunNumber_t runNumber_;
     LuminosityBlockNumber_t luminosityBlockNumber_;
+    DaqProvenanceHelper daqProvenanceHelper_;
+    ProcessHistoryID phid_;
     bool noMoreEvents_;
     bool newRun_;
     bool newLumi_;
