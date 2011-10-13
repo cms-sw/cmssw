@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.50 2011/03/28 20:04:52 depasse Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.51 2011/04/22 18:05:48 depasse Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -2149,8 +2149,6 @@ EcalTrivialConditionRetriever::getIntercalibConstantsFromConfiguration
             << str.str () << std::endl ;
 
   float calib[1700]={1} ;
-  float calib_rms[1700]={0} ;
-  int calib_nevents[1700]={0} ;
   int calib_status[1700]={0} ;
 
   int ii = 0 ;
@@ -2169,15 +2167,13 @@ EcalTrivialConditionRetriever::getIntercalibConstantsFromConfiguration
       assert (dmy_num >= 1) ;
       assert (dmy_num <= 1700) ;
       calib[dmy_num-1] = dmy_calib ; 
-      calib_rms[dmy_num-1] = dmy_RMS  ;
-      calib_nevents[dmy_num-1] = dmy_events ;
       calib_status[dmy_num-1] = dmy_status ;
 
 //       edm::LogInfo ("EcalTrivialConditionRetriever")
 //                 << "[PIETRO] cry = " << dmy_num 
 //                 << " calib = " << calib[dmy_num-1] 
-//                 << " RMS = " << calib_rms[dmy_num-1] 
-//                 << " events = " << calib_nevents[dmy_num-1] 
+//                 << " RMS = " << dmy_RMS
+//                 << " events = " << dmy_events
 //                 << " status = " << calib_status[dmy_num-1] 
 //                 << std::endl ;
     }
@@ -2267,8 +2263,6 @@ EcalTrivialConditionRetriever::getIntercalibErrorsFromConfiguration
             << str.str () << std::endl ;
 
   float calib[1700]={1} ;
-  float calib_rms[1700]={0} ;
-  int calib_nevents[1700]={0} ;
   int calib_status[1700]={0} ;
 
   int ii = 0 ;
@@ -2287,15 +2281,13 @@ EcalTrivialConditionRetriever::getIntercalibErrorsFromConfiguration
       assert (dmy_num >= 1) ;
       assert (dmy_num <= 1700) ;
       calib[dmy_num-1] = dmy_calib ; 
-      calib_rms[dmy_num-1] = dmy_RMS  ;
-      calib_nevents[dmy_num-1] = dmy_events ;
       calib_status[dmy_num-1] = dmy_status ;
 
 //       edm::LogInfo ("EcalTrivialConditionRetriever")
 //                 << "[PIETRO] cry = " << dmy_num 
 //                 << " calib = " << calib[dmy_num-1] 
-//                 << " RMS = " << calib_rms[dmy_num-1] 
-//                 << " events = " << calib_nevents[dmy_num-1] 
+//                 << " RMS = " << dmy_RMS
+//                 << " events = " << dmy_events
 //                 << " status = " << calib_status[dmy_num-1] 
 //                 << std::endl ;
     }
@@ -2387,8 +2379,6 @@ EcalTrivialConditionRetriever::getTimeCalibConstantsFromConfiguration
             << str.str () << std::endl ;
 
   float calib[1700]={1} ;
-  float calib_rms[1700]={0} ;
-  int calib_nevents[1700]={0} ;
   int calib_status[1700]={0} ;
 
   int ii = 0 ;
@@ -2407,15 +2397,13 @@ EcalTrivialConditionRetriever::getTimeCalibConstantsFromConfiguration
       assert (dmy_num >= 1) ;
       assert (dmy_num <= 1700) ;
       calib[dmy_num-1] = dmy_calib ; 
-      calib_rms[dmy_num-1] = dmy_RMS  ;
-      calib_nevents[dmy_num-1] = dmy_events ;
       calib_status[dmy_num-1] = dmy_status ;
 
 //       edm::LogInfo ("EcalTrivialConditionRetriever")
 //                 << "[PIETRO] cry = " << dmy_num 
 //                 << " calib = " << calib[dmy_num-1] 
-//                 << " RMS = " << calib_rms[dmy_num-1] 
-//                 << " events = " << calib_nevents[dmy_num-1] 
+//                 << " RMS = " << dmy_RMS
+//                 << " events = " << dmy_events
 //                 << " status = " << calib_status[dmy_num-1] 
 //                 << std::endl ;
     }
@@ -2505,8 +2493,6 @@ EcalTrivialConditionRetriever::getTimeCalibErrorsFromConfiguration
             << str.str () << std::endl ;
 
   float calib[1700]={1} ;
-  float calib_rms[1700]={0} ;
-  int calib_nevents[1700]={0} ;
   int calib_status[1700]={0} ;
 
   int ii = 0 ;
@@ -2525,15 +2511,13 @@ EcalTrivialConditionRetriever::getTimeCalibErrorsFromConfiguration
       assert (dmy_num >= 1) ;
       assert (dmy_num <= 1700) ;
       calib[dmy_num-1] = dmy_calib ; 
-      calib_rms[dmy_num-1] = dmy_RMS  ;
-      calib_nevents[dmy_num-1] = dmy_events ;
       calib_status[dmy_num-1] = dmy_status ;
 
 //       edm::LogInfo ("EcalTrivialConditionRetriever")
 //                 << "[PIETRO] cry = " << dmy_num 
 //                 << " calib = " << calib[dmy_num-1] 
-//                 << " RMS = " << calib_rms[dmy_num-1] 
-//                 << " events = " << calib_nevents[dmy_num-1] 
+//                 << " RMS = " << dmy_RMS
+//                 << " events = " << dmy_events
 //                 << " status = " << calib_status[dmy_num-1] 
 //                 << std::endl ;
     }
