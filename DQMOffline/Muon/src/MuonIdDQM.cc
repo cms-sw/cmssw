@@ -181,8 +181,6 @@ MuonIdDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       LocalVector segmentLocalDirection      = segment->localDirection();
       LocalError  segmentLocalPositionError  = segment->localPositionError();
       LocalError  segmentLocalDirectionError = segment->localDirectionError();
-      const GeomDet* segmentGeomDet = geometry_->idToDet(segment->geographicalId());
-      GlobalPoint segmentGlobalPosition = segmentGeomDet->toGlobal(segment->localPosition());
       bool segmentFound = false;
 
       for(MuonCollection::const_iterator muon = muonCollectionH_->begin();
@@ -227,8 +225,6 @@ MuonIdDQM::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       LocalVector segmentLocalDirection      = segment->localDirection();
       LocalError  segmentLocalPositionError  = segment->localPositionError();
       LocalError  segmentLocalDirectionError = segment->localDirectionError();
-      const GeomDet* segmentGeomDet = geometry_->idToDet(segment->geographicalId());
-      GlobalPoint segmentGlobalPosition = segmentGeomDet->toGlobal(segment->localPosition());
       bool segmentFound = false;
 
       for(MuonCollection::const_iterator muon = muonCollectionH_->begin();
