@@ -137,8 +137,10 @@ bool PassingTrigger(const fwlite::ChainEvent& ev, const std::string& TriggerName
 
 
 
-void StabilityCheck()
+void StabilityCheck(string MODE="COMPILE")
 {
+  if(MODE=="COMPILE") return;
+
    Event_Weight = 1;
    MaxEntry = -1;
 
@@ -202,6 +204,9 @@ void StabilityCheck()
    TProfile** TOFProf   = new TProfile*[triggers.size()];
    TProfile** TOFDTProf   = new TProfile*[triggers.size()];
    TProfile** TOFCSCProf   = new TProfile*[triggers.size()];
+   TProfile** TOFOverMinProf   = new TProfile*[triggers.size()];
+   TProfile** TOFDTOverMinProf   = new TProfile*[triggers.size()];
+   TProfile** TOFCSCOverMinProf   = new TProfile*[triggers.size()];
    TH1D**     Count    = new TH1D*    [triggers.size()];
    TH1D**     CountMu  = new TH1D*    [triggers.size()];
    TH1D**     HdEdx    = new TH1D*    [triggers.size()];
@@ -211,7 +216,8 @@ void StabilityCheck()
 
 
    system("mkdir pictures/");
-   TFile* OutputHisto = new TFile((string("pictures/") + "/Histos.root").c_str(),"RECREATE");
+   //TFile* OutputHisto = new TFile((string("pictures/") + "/Histos.root").c_str(),"RECREATE");
+   TFile* OutputHisto = new TFile((string("") + "/Histos.root").c_str(),"RECREATE");
    for(unsigned int i=0;i<triggers.size();i++){
       NVertProf[i] = new TProfile((triggers[i] + "NVertProf").c_str(), "NVertProf", 10000 ,0, 10000);
       dEdxProf[i] = new TProfile((triggers[i] + "dEdxProf").c_str(), "dEdxProf", 10000 ,0, 10000);
@@ -228,6 +234,10 @@ void StabilityCheck()
       TOFDTProf  [i] = new TProfile((triggers[i] + "TOFDTProf"  ).c_str(), "TOFDTProf"  , 10000 ,0, 10000);
       TOFCSCProf  [i] = new TProfile((triggers[i] + "TOFCSCProf"  ).c_str(), "TOFCSCProf"  , 10000 ,0, 10000);
 
+      TOFOverMinProf  [i] = new TProfile((triggers[i] + "TOFOverMinProf"  ).c_str(), "TOFOverMinProf"  , 10000 ,0, 10000);
+      TOFDTOverMinProf  [i] = new TProfile((triggers[i] + "TOFDTOverMinProf"  ).c_str(), "TOFDTOverMinProf"  , 10000 ,0, 10000);
+      TOFCSCOverMinProf  [i] = new TProfile((triggers[i] + "TOFCSCOverMinProf"  ).c_str(), "TOFCSCOverMinProf"  , 10000 ,0, 10000);
+
       Count   [i] = new TH1D(    (triggers[i] + "Count"   ).c_str(), "Count"   , 10000 ,0, 10000);  Count  [i]->Sumw2();
       CountMu [i] = new TH1D(    (triggers[i] + "CountMu" ).c_str(), "CountMu" , 10000 ,0, 10000);  CountMu[i]->Sumw2();
       HdEdx   [i] = new TH1D(    (triggers[i] + "HdEdx"   ).c_str(), "HdEdx"   , 10000 ,0, 10000);  HdEdx  [i]->Sumw2();
@@ -242,7 +252,7 @@ void StabilityCheck()
    printf("Looping on Tree              :");
    int TreeStep = tree.size()/50;if(TreeStep==0)TreeStep=1;
    for(Long64_t e=0;e<tree.size();e++){
-//      if(e>100000)break;
+//      if(e>10)break;
       tree.to(e); 
       if(e%TreeStep==0){printf(".");fflush(stdout);}
 //      if(!PassTrigger(tree))continue;
@@ -269,6 +279,9 @@ void StabilityCheck()
             TOFProf[i]->GetXaxis()->SetBinLabel(Bin, Label);
             TOFDTProf[i]->GetXaxis()->SetBinLabel(Bin, Label);
             TOFCSCProf[i]->GetXaxis()->SetBinLabel(Bin, Label);
+            TOFOverMinProf[i]->GetXaxis()->SetBinLabel(Bin, Label);
+            TOFDTOverMinProf[i]->GetXaxis()->SetBinLabel(Bin, Label);
+            TOFCSCOverMinProf[i]->GetXaxis()->SetBinLabel(Bin, Label);
          }
          NextIndex++;
       }
@@ -339,14 +352,17 @@ void StabilityCheck()
 
             if(tof && tof->nDof()>=GlobalMinNDOF && (dttof->nDof()>=GlobalMinNDOFDT || csctof->nDof()>=GlobalMinNDOFCSC) && tof->inverseBetaErr()<=GlobalMaxTOFErr){
                if(tof->inverseBeta()>=GlobalMinTOF)CountMu[i]->Fill(CurrentRunIndex);
-               if(tof->inverseBeta()>=GlobalMinTOF)TOFProf[i]->Fill(CurrentRunIndex, tof->inverseBeta());
-               if(dttof->inverseBeta()>=GlobalMinTOF)TOFDTProf[i]->Fill(CurrentRunIndex, dttof->inverseBeta());
-               if(csctof->inverseBeta()>=GlobalMinTOF)TOFCSCProf[i]->Fill(CurrentRunIndex, csctof->inverseBeta());
+               if(tof->inverseBeta()>=GlobalMinTOF)TOFOverMinProf[i]->Fill(CurrentRunIndex, tof->inverseBeta());
+               if(dttof->inverseBeta()>=GlobalMinTOF)TOFDTOverMinProf[i]->Fill(CurrentRunIndex, dttof->inverseBeta());
+               if(csctof->inverseBeta()>=GlobalMinTOF)TOFCSCOverMinProf[i]->Fill(CurrentRunIndex, csctof->inverseBeta());
+               TOFProf[i]->Fill(CurrentRunIndex, tof->inverseBeta());
+               if(dttof->nDof()>=GlobalMinNDOFDT) TOFDTProf[i]->Fill(CurrentRunIndex, dttof->inverseBeta());
+               if(csctof->nDof()>=GlobalMinNDOFCSC) TOFCSCProf[i]->Fill(CurrentRunIndex, csctof->inverseBeta());
                if(tof->inverseBeta() > 1.1 ) HTOF[i]->Fill(CurrentRunIndex);            
             }
 
-            if(hscp.trackRef()->pt() > 30 ) HPt[i]->Fill(CurrentRunIndex);
-            if(dedxSObj.dEdx() > 0.10 ) HdEdx[i]->Fill(CurrentRunIndex);
+            if(hscp.trackRef()->pt() >60 ) HPt[i]->Fill(CurrentRunIndex);
+            if(dedxSObj.dEdx() > 0.15 ) HdEdx[i]->Fill(CurrentRunIndex);
             Count[i]->Fill(CurrentRunIndex);
 
             dEdxProf[i]->Fill(CurrentRunIndex, dedxSObj.dEdx());
@@ -392,7 +408,7 @@ void StabilityCheck()
    leg = new TLegend(0.55,0.86,0.79,0.93,NULL,"brNDC");
    leg->SetBorderSize(0);
    leg->SetFillColor(0);
-   leg->AddEntry(HdEdx[i],"I_{as} > 0.10","P");
+   leg->AddEntry(HdEdx[i],"I_{as} > 0.15","P");
    leg->Draw();
 
    c1->Modified();
@@ -422,7 +438,7 @@ void StabilityCheck()
    leg = new TLegend(0.55,0.86,0.79,0.93,NULL,"brNDC");
    leg->SetBorderSize(0);
    leg->SetFillColor(0);
-   leg->AddEntry(HPt[i],"p_{T} > 30 GeV/c","P");
+   leg->AddEntry(HPt[i],"p_{T} > 60 GeV/c","P");
    leg->Draw();
    c1->Modified();
    c1->SetGridx(true);
@@ -778,7 +794,75 @@ void StabilityCheck()
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,string("pictures/") + triggers[i],"Profile_TOFCSC");
    delete c1;
+
+   c1 = new TCanvas("c1","c1",600,600);
+   TOFOverMinProf[i]->LabelsDeflate("X");
+   TOFOverMinProf[i]->LabelsOption("av","X");
+   TOFOverMinProf[i]->GetXaxis()->SetNdivisions(505);
+   TOFOverMinProf[i]->SetTitle("");
+   TOFOverMinProf[i]->SetStats(kFALSE);
+   TOFOverMinProf[i]->GetXaxis()->SetTitle("");
+   TOFOverMinProf[i]->GetYaxis()->SetTitle("1/#beta");
+   TOFOverMinProf[i]->GetYaxis()->SetTitleOffset(0.9);
+   TOFOverMinProf[i]->GetXaxis()->SetLabelSize(0.04);
+   TOFOverMinProf[i]->SetLineColor(Color[0]);
+   TOFOverMinProf[i]->SetFillColor(Color[0]);
+   TOFOverMinProf[i]->SetMarkerSize(0.4);
+   TOFOverMinProf[i]->SetMarkerStyle(Marker[0]);
+   TOFOverMinProf[i]->SetMarkerColor(Color[0]);
+   TOFOverMinProf[i]->Draw("E1");
+   c1->Modified();
+   c1->SetGridx(true);
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,string("pictures/") + triggers[i],"Profile_TOFOverMin");
+   delete c1;
+
+
+   c1 = new TCanvas("c1","c1",600,600);
+   TOFDTOverMinProf[i]->LabelsDeflate("X");
+   TOFDTOverMinProf[i]->LabelsOption("av","X");
+   TOFDTOverMinProf[i]->GetXaxis()->SetNdivisions(505);
+   TOFDTOverMinProf[i]->SetTitle("");
+   TOFDTOverMinProf[i]->SetStats(kFALSE);
+   TOFDTOverMinProf[i]->GetXaxis()->SetTitle("");
+   TOFDTOverMinProf[i]->GetYaxis()->SetTitle("1/#beta");
+   TOFDTOverMinProf[i]->GetYaxis()->SetTitleOffset(0.9);
+   TOFDTOverMinProf[i]->GetXaxis()->SetLabelSize(0.04);
+   TOFDTOverMinProf[i]->SetLineColor(Color[0]);
+   TOFDTOverMinProf[i]->SetFillColor(Color[0]);
+   TOFDTOverMinProf[i]->SetMarkerSize(0.4);
+   TOFDTOverMinProf[i]->SetMarkerStyle(Marker[0]);
+   TOFDTOverMinProf[i]->SetMarkerColor(Color[0]);
+   TOFDTOverMinProf[i]->Draw("E1");
+   c1->Modified();
+   c1->SetGridx(true);
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,string("pictures/") + triggers[i],"Profile_TOFDTOverMin");
+   delete c1;
+
+   c1 = new TCanvas("c1","c1",600,600);
+   TOFCSCOverMinProf[i]->LabelsDeflate("X");
+   TOFCSCOverMinProf[i]->LabelsOption("av","X");
+   TOFCSCOverMinProf[i]->GetXaxis()->SetNdivisions(505);
+   TOFCSCOverMinProf[i]->SetTitle("");
+   TOFCSCOverMinProf[i]->SetStats(kFALSE);
+   TOFCSCOverMinProf[i]->GetXaxis()->SetTitle("");
+   TOFCSCOverMinProf[i]->GetYaxis()->SetTitle("1/#beta");
+   TOFCSCOverMinProf[i]->GetYaxis()->SetTitleOffset(0.9);
+   TOFCSCOverMinProf[i]->GetXaxis()->SetLabelSize(0.04);
+   TOFCSCOverMinProf[i]->SetLineColor(Color[0]);
+   TOFCSCOverMinProf[i]->SetFillColor(Color[0]);
+   TOFCSCOverMinProf[i]->SetMarkerSize(0.4);
+   TOFCSCOverMinProf[i]->SetMarkerStyle(Marker[0]);
+   TOFCSCOverMinProf[i]->SetMarkerColor(Color[0]);
+   TOFCSCOverMinProf[i]->Draw("E1");
+   c1->Modified();
+   c1->SetGridx(true);
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,string("pictures/") + triggers[i],"Profile_TOFCSCOverMin");
+   delete c1;
    }
+
 
    OutputHisto->Write();
    OutputHisto->Close();  
