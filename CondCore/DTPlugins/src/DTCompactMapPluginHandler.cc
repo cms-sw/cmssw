@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/02/11 08:00:09 $
- *  $Revision: 1.2 $
+ *  $Date: 2011/06/27 17:38:56 $
+ *  $Revision: 1.3 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -91,7 +91,6 @@ DTReadOutMapping* DTCompactMapPluginHandler::expandMap( const DTReadOutMapping& 
   std::vector<DTReadOutGeometryLink>::const_iterator iend = entryList.end();
   std::vector<DTReadOutGeometryLink>::const_iterator iros = entryList.end();
   std::vector<DTReadOutGeometryLink>::const_iterator irob = entryList.end();
-  std::vector<DTReadOutGeometryLink>::const_iterator itdc = entryList.end();
   while ( iter != iend ) {
     const DTReadOutGeometryLink& rosEntry( *iter++ );
     if ( rosEntry.dduId > 0x3fffffff ) continue;
