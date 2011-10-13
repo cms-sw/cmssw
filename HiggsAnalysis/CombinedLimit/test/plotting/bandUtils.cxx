@@ -648,4 +648,12 @@ void importBands(TDirectory *bands, TString name, const char *fileName, bool has
     fclose(in);
 }
 
-void bandUtils() {}
+void array_sort(double *begin, double *end) { std::sort(begin, end); }
+void array_sort(float *begin, float *end) { std::sort(begin, end); }
+void array_sort(int *begin, int *end) { std::sort(begin, end); }
+void array_sort(double &begin, double &end) { std::sort(&begin, &end); }
+void array_sort(float &begin, float &end) { std::sort(&begin, &end); }
+void array_sort(int &begin, int &end) { std::sort(&begin, &end); }
+
+void bandUtils() {
+}
