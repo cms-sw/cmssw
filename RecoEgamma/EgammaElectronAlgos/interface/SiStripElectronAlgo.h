@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri May 26 16:11:58 EDT 2006
-// $Id: SiStripElectronAlgo.h,v 1.16 2008/10/31 15:54:17 nancy Exp $
+// $Id: SiStripElectronAlgo.h,v 1.15 2007/03/08 18:34:11 futyand Exp $
 //
 
 // system include files
@@ -50,6 +50,8 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "DataFormats/RoadSearchCloud/interface/RoadSearchCloud.h"
+#include "DataFormats/RoadSearchCloud/interface/RoadSearchCloudCollection.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
 

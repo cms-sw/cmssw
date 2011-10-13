@@ -30,17 +30,6 @@
   <class name="std::vector<PSimHit>::const_iterator" />
   <class name="std::vector<PSimHit>::iterator" />
  
-  <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<TrackingParticle> >,edm::RefToBaseProd<reco::Track> >" />
-  <class name="edm::helpers::KeyVal<edm::RefToBaseProd<reco::Track>,edm::RefProd<std::vector<TrackingParticle> > >" />
-  <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,std::vector<std::pair<edm::RefToBase<reco::Track>,double> > > >" />
-  <class name="std::map<unsigned int,edm::helpers::KeyVal<edm::RefToBase<reco::Track>,std::vector<std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double> > > >" />
-
-  <class name="edm::helpers::KeyVal<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,std::vector<std::pair<edm::RefToBase<reco::Track>,double> > >" />
-  <class name="edm::helpers::KeyVal<edm::RefToBase<reco::Track>,std::vector<std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double> > >" />
-
-  <class name="std::vector<std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double> >" />
-  <class name="std::pair<edm::Ref<std::vector<TrackingParticle>,TrackingParticle,edm::refhelper::FindUsingAdvance<std::vector<TrackingParticle>,TrackingParticle> >,double>" />
-
   <class pattern="edm::Wrapper<edm::RefVector<std::vector<TrackingParticle>,*> >" />
 
 </lcgdict>

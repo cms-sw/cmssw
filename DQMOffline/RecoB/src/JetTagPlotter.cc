@@ -54,7 +54,7 @@ JetTagPlotter::JetTagPlotter (const std::string & tagName, const EtaPtBin & etaP
 
     // Discriminator: again with reasonable binning
   dDiscriminator = new FlavourHistograms<double>
-	("discr" + es, "Discriminator", 50, discrStart_, discrEnd_,
+	("discr" + es, "Discriminator", 100, discrStart_, discrEnd_,
 	false, true, true, "b", update,jetTagDir, mcPlots_);
   dDiscriminator->settitle("Discriminant");
     // reconstructed jet momentum

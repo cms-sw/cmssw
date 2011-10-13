@@ -48,13 +48,13 @@ namespace evf{
       void packTriggerReport(edm::TriggerReport &, ShmOutputModuleRegistry *);
       void sumAndPackTriggerReport(MsgBuf &);
       void resetPackedTriggerReport();
-      void adjustLsIndexForRestart(){adjustLsIndex_ = true; lumiSectionIndex_--;}
+      void adjustLsIndexForRestart(){adjustLsIndex_ = true; if(lumiSectionIndex_>1) lumiSectionIndex_--;}
       void resetTriggerReport();
       evf::MsgBuf & getPackedTriggerReport(){return cache_;}
       TriggerReportStatic *getPackedTriggerReportAsStruct(){return (TriggerReportStatic *)cache_->mtext;}
       xdata::String *getPathLegenda(){return &pathLegenda_;}
       void resetLumiSectionReferenceIndex(){lumiSectionIndex_=0;}
-      void withdrawLumiSectionIncrement(){lumiSectionIndex_--;}
+      void withdrawLumiSectionIncrement(){if(lumiSectionIndex_>0) lumiSectionIndex_--;}
       unsigned int getLumiSectionReferenceIndex(){return lumiSectionIndex_;}
       std::string findLabelOfModuleTypeInEndPath(edm::TriggerReport &, 
 						 std::vector<edm::ModuleDescription const*>&,

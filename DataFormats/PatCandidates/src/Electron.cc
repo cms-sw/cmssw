@@ -1,5 +1,5 @@
 //
-// $Id: Electron.cc,v 1.24 2011/02/08 09:10:10 chamont Exp $
+// $Id: Electron.cc,v 1.25 2011/03/31 10:13:26 namapane Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -25,8 +25,6 @@ Electron::Electron() :
   initImpactParameters();
 }
 
-
-
 /// constructor from reco::GsfElectron
 Electron::Electron(const reco::GsfElectron & anElectron) :
     Lepton<reco::GsfElectron>(anElectron),
@@ -42,7 +40,6 @@ Electron::Electron(const reco::GsfElectron & anElectron) :
 {
   initImpactParameters();
 }
-
 
 /// constructor from ref to reco::GsfElectron
 Electron::Electron(const edm::RefToBase<reco::GsfElectron> & anElectronRef) :
@@ -76,11 +73,26 @@ Electron::Electron(const edm::Ptr<reco::GsfElectron> & anElectronRef) :
   initImpactParameters();
 }
 
-
 /// destructor
 Electron::~Electron() {
 }
 
+std::ostream& 
+reco::operator<<(std::ostream& out, const pat::Electron& obj) 
+{
+  if(!out) return out;
+  
+  out << "\tpat::Electron: ";
+  out << std::setiosflags(std::ios::right);
+  out << std::setiosflags(std::ios::fixed);
+  out << std::setprecision(3);
+  out << " E/pT/eta/phi " 
+      << obj.energy()<<"/"
+      << obj.pt()<<"/"
+      << obj.eta()<<"/"
+      << obj.phi();
+  return out; 
+}
 
 // initialize impact parameter container vars
 void Electron::initImpactParameters() {

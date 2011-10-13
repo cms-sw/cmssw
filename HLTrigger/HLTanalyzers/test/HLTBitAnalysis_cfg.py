@@ -4,7 +4,7 @@ import FWCore.ParameterSet.Config as cms
 
 # useful options
 gtDigisExist=0  # =1 use existing gtDigis on the input file, =0 extract gtDigis from the RAW data collection
-isData=0 # =1 running on real data, =1 running on MC
+isData=1 # =1 running on real data, =1 running on MC
 
 OUTPUT_HIST='hltbits.root'
 NEVTS=1000
@@ -22,7 +22,9 @@ process.options = cms.untracked.PSet(
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
-         '/store/relval/CMSSW_4_2_0_pre8/RelValWE/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V7-v1/0045/167F1B19-E956-E011-BD41-002618943969.root'
+        '/store/data/Commissioning10/MinimumBias/RAW/v4/000/132/605/FE898634-7D40-DF11-8454-001617E30CC2.root'
+    #    '/store/express/BeamCommissioning09/OfflineMonitor/FEVTHLTALL/v2/000/122/314/F8F49C1B-60D8-DE11-AB34-001D09F28F0C.root' # file from run 122314    
+    #'/store/relval/CMSSW_3_3_2/RelValZTT/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP31X_V8-v2/0000/CC203608-59C8-DE11-B1E6-0018F3D096EA.root' # MC TTBAR
     )
 )
 
@@ -46,14 +48,15 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #   tag names to allow append IOV, and DT cabling map corresponding to 2009 configuration (10 FEDs).
 # Meanwhile...:
 #process.GlobalTag.globaltag = 'MC_31X_V9::All'
-process.GlobalTag.globaltag = 'START42_V9::All'
+process.GlobalTag.globaltag = 'GR10_H_V4::All'
 process.GlobalTag.pfnPrefix=cms.untracked.string('frontier://FrontierProd/')
+
 
 process.load('Configuration/StandardSequences/SimL1Emulator_cff')
 
 # OpenHLT specificss
 # Define the HLT reco paths
-process.load("HLTrigger.HLTanalyzers.HLT_FULL_cff")
+process.load("HLTrigger.Configuration.HLT_FULL_cff")
 # Remove the PrescaleService which, in 31X, it is expected once HLT_XXX_cff is imported
 
 process.DQM = cms.Service( "DQM",)

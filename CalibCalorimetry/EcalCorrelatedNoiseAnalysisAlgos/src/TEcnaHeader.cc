@@ -1,32 +1,22 @@
 //----------Author's Name:FX Gentit and B.Fabbro  DSM/IRFU/SPP CEA-Saclay
 //----------Copyright:Those valid for CEA software
-//----------Modified:24/03/2011
+//----------Modified:17/03/2010
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaHeader.h"
 
-//--------------------------------------
-//  TEcnaHeader.cc
-//  Class creation: 03 Dec 2002
-//  Documentation: see TEcnaHeader.h
-//--------------------------------------
-
 ClassImp(TEcnaHeader)
-//____________________________________________________________________________
-  
-TEcnaHeader::TEcnaHeader(){Init();} // constructor without arguments
+  //____________________________________________________________________________
 
-TEcnaHeader::TEcnaHeader(TEcnaObject* pObjectManager, const Text_t* name, const Text_t* title):TNamed(name,title)
+  TEcnaHeader::TEcnaHeader(){Init();} // constructor without arguments
+TEcnaHeader::TEcnaHeader(const Text_t* name, const Text_t* title):TNamed(name,title)
 {
   // Constructor with arguments for reading ROOT file.
-  // Called in FileParameters(...) of TEcnaRead
+  // Called in GetReadyToReadRootFile(...) of TEcnaRead
   // Please give a name and a title containing info about what
   // you are doing and saving in the ROOT file
-
   // cout << "[Info Management] CLASS: TEcnaHeader.        CREATE OBJECT: this = " << this << endl;
   
   Init();
-  Long_t i_this = (Long_t)this;
-  pObjectManager->RegisterPointer("TEcnaHeader", i_this);
 }
 
 TEcnaHeader::~TEcnaHeader() {
@@ -109,8 +99,6 @@ void TEcnaHeader::HeaderParameters(TString      typ_ana,           const Int_t& 
  
  // cout << "[Info Management] CLASS: TEcnaHeader.        CREATE OBJECT: this = " << this << endl;
 
-  Init();
-
   fTypAna            = typ_ana;
   fRunNumber         = run_number;
   fNbOfSamples       = nb_of_samples;
@@ -119,7 +107,7 @@ void TEcnaHeader::HeaderParameters(TString      typ_ana,           const Int_t& 
   fReqNbOfEvts       = aReqNbOfEvts;
   fStex              = Stex;
 
-  fRunType           = run_type;
+  fRunType     = run_type;
 }
 //------------------------------------------------------------------------------
 
@@ -130,7 +118,6 @@ void TEcnaHeader::HeaderParameters(TString      typ_ana,           const Int_t& 
  {
  // cout << "[Info Management] CLASS: TEcnaHeader.        CREATE OBJECT: this = " << this << endl;
 
-  Init();
 
   fTypAna            = typ_ana;
   fRunNumber         = run_number;
@@ -150,7 +137,7 @@ void TEcnaHeader::Print() {
   cout << "First requested event number : " << fFirstReqEvtNumber << endl;
   cout << "Last requested event number  : " << fLastReqEvtNumber  << endl;
   cout << "Requested number of events   : " << fReqNbOfEvts       << endl;
-  cout << "SM or Dee number             : " << fStex              << endl;
+  cout << "Stex number                  : " << fStex              << endl;
   cout << "Time first event             : " << fStartTime         << endl;
   cout << "Time last event              : " << fStopTime          << endl;
   cout << "Date first event             : " << fStartDate.Data()  << endl;
@@ -169,11 +156,11 @@ void TEcnaHeader::Print() {
        << fMSpCalc    << endl;
   cout << "Variances histogram                          : "
        << fSSpCalc   << endl;
-  cout << "Average total noise                         : "
+  cout << "Averaged total noise                         : "
        << fAvTnoCalc  << endl;
-  cout << "Average low frequency noise                 : "
+  cout << "Averaged low frequency noise                 : "
        << fAvLfnCalc  << endl;
-  cout << "Average high frequency noise                : "
+  cout << "Averaged high frequency noise                : "
        << fAvHfnCalc  << endl;
 
   cout << "Nb of (sample,sample) covariance  matrices   : "
@@ -207,11 +194,11 @@ void TEcnaHeader::Print() {
   cout << "Sigmas of the (samp,samp) correlations       : "
        << fSigCorssCalc     << endl;
 
-  cout << "Average pedestals                           : "
+  cout << "Averaged pedestals                           : "
        << fAvPedCalc  << endl;
-  cout << "Average mean cor(s,s)                    : "
+  cout << "Averaged Mean of Cor(s,s)                    : "
        << fAvMeanCorssCalc << endl;
-  cout << "Average sigma of Cor(s,s)                   : "
+  cout << "Averaged sigma of Cor(s,s)                   : "
        << fAvSigCorssCalc << endl;
   cout << endl;
 }

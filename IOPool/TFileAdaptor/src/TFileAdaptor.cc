@@ -144,6 +144,7 @@
     if (!native("gsidcap"))   addType(mgr, "^gsidcap:");
     if (!native("storm"))     addType(mgr, "^storm:");
     if (!native("storm-lcg")) addType(mgr, "^storm-lcg:");
+    if (!native("lstore"))    addType(mgr, "^lstore:");
   }
 
   void

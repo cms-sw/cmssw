@@ -4,8 +4,8 @@
 /*
  * \file EEPedestalOnlineClient.h
  *
- * $Date: 2010/02/14 14:35:46 $
- * $Revision: 1.29 $
+ * $Date: 2011/05/23 13:27:28 $
+ * $Revision: 1.31 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -102,7 +102,7 @@ MonitorElement* mer03_[18];
 
 float expectedMean_;
 float discrepancyMean_;
-float RMSThreshold_;
+float RMSThreshold_, RMSThresholdInternal_;
 
 };
 

@@ -1,3 +1,37 @@
+2011-06-08  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-16-11
+	* fix bug in discard at end of run
+
+2011-05-20  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-16-10
+	* ooops
+	
+2011-05-20  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-16-09
+	* fix small event state inconsistency appearing as rare 
+	assert failure in "STOPPING"
+	
+2011-05-11  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-16-08
+	* added USEDLS to tag discarded EOL events
+	* added counters to monitor EOL messages
+	* out of sequence EOL messages generate warning
+	* large skipped EOL interval bring to failed state
+
+2011-04-15  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-16-07
+	* include LUMISECTION in state chart
+	
+2011-04-13  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-16-06
+	* fix stopping when all clients are dead
+
 2011-04-01  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-16-05

@@ -50,8 +50,7 @@ L1RCTSaveInput::L1RCTSaveInput(const edm::ParameterSet& conf) :
   useHcal(conf.getParameter<bool>("useHcal")),
   ecalDigisLabel(conf.getParameter<edm::InputTag>("ecalDigisLabel")),
   hcalDigisLabel(conf.getParameter<edm::InputTag>("hcalDigisLabel")),
-  useDebugTpgScales(conf.getParameter<bool>("useDebugTpgScales")),
-  digiFile(conf.getUntrackedParameter<bool>("digiFile",false))
+  useDebugTpgScales(conf.getParameter<bool>("useDebugTpgScales"))
 {
   ofs.open(fileName.c_str(), std::ios::app);
   if(!ofs)
@@ -71,7 +70,6 @@ void
 L1RCTSaveInput::analyze(const edm::Event& event,
 			const edm::EventSetup& eventSetup)
 {
-  //cout << "save input analyze " << endl;
   edm::ESHandle<L1RCTParameters> rctParameters;
   eventSetup.get<L1RCTParametersRcd>().get(rctParameters);
   const L1RCTParameters* r = rctParameters.product();
@@ -85,7 +83,7 @@ L1RCTSaveInput::analyze(const edm::Event& event,
   rctLookupTables->setRCTParameters(r);
   rctLookupTables->setChannelMask(c);
   rctLookupTables->setL1CaloEtScale(s);
-                                               
+
   // use dummies to get delete right when creating new scales from old
   L1CaloEcalScale* dummyE(0);
   L1CaloHcalScale* dummyH(0);
@@ -105,12 +103,12 @@ L1RCTSaveInput::analyze(const edm::Event& event,
 
       // create input scales, werner's code
       // ECAL
-      //std::cout << "ECAL Pos " << L1CaloEcalScale::nBinRank << std::endl ;
+      std::cout << "ECAL Pos " << L1CaloEcalScale::nBinRank << std::endl ;
       for( unsigned short ieta = 1 ; ieta <= L1CaloEcalScale::nBinEta; ++ieta )
         {
           for( unsigned short irank = 0 ; irank < L1CaloEcalScale::nBinRank; ++irank )
             {
-              //std::cout << ieta << " " << irank ;
+              std::cout << ieta << " " << irank ;
               EcalSubdetector subdet = ( ieta <= 17 ) ? EcalBarrel : EcalEndcap ;
               double etGeVPos =
                 e_tpg->getTPGInGeV
@@ -119,20 +117,20 @@ L1RCTSaveInput::analyze(const edm::Event& event,
                                             ieta,
                                             1 )); // dummy phi value
               ecalScale->setBin( irank, ieta, 1, etGeVPos ) ;
-	      //std::cout << etGeVPos << ", " ;
+	      std::cout << etGeVPos << ", " ;
             }
-	  //std::cout << std::endl ;
+	  std::cout << std::endl ;
         }
-      //std::cout << std::endl ;
+      std::cout << std::endl ;
 
-      //std::cout << "ECAL Neg" << std::endl ;
+      std::cout << "ECAL Neg" << std::endl ;
       for( unsigned short ieta = 1 ; ieta <= L1CaloEcalScale::nBinEta; ++ieta )
         {
           for( unsigned short irank = 0 ; irank < L1CaloEcalScale::nBinRank; ++irank )
             {
               EcalSubdetector subdet = ( ieta <= 17 ) ? EcalBarrel : EcalEndcap ;
 
-	      //std::cout << ieta << " " << irank ;
+	      std::cout << ieta << " " << irank ;
               double etGeVNeg =
                 e_tpg->getTPGInGeV
                 ( irank,
@@ -141,14 +139,14 @@ L1RCTSaveInput::analyze(const edm::Event& event,
                                      ieta,
                                      2 )); // dummy phi value
               ecalScale->setBin( irank, ieta, -1, etGeVNeg ) ;
-	      //std::cout << etGeVNeg << ", " ;
+	      std::cout << etGeVNeg << ", " ;
             }
-	  //std::cout << std::endl ;
+	  std::cout << std::endl ;
         }
-      //std::cout << std::endl ;
+      std::cout << std::endl ;
 
       // HCAL
-      //std::cout << "HCAL" << std::endl ;
+      std::cout << "HCAL" << std::endl ;
       for( unsigned short ieta = 1 ; ieta <= L1CaloHcalScale::nBinEta; ++ieta )
         {
           for( unsigned short irank = 0 ; irank < L1CaloHcalScale::nBinRank; ++irank )
@@ -157,10 +155,10 @@ L1RCTSaveInput::analyze(const edm::Event& event,
 
               hcalScale->setBin( irank, ieta, 1, etGeV ) ;
               hcalScale->setBin( irank, ieta, -1, etGeV ) ;
-	      //std::cout << etGeV << ", " ;
-	      //std::cout << std::endl ;
+	      std::cout << etGeV << ", " ;
+	      std::cout << std::endl ;
 	    }
-	  //std::cout << std::endl ;
+	  std::cout << std::endl ;
 	}
 
       // set the input scales
@@ -197,11 +195,6 @@ L1RCTSaveInput::analyze(const edm::Event& event,
   if (hcal.isValid()) { hcalColl = *hcal; }
   rct->digiInput(ecalColl, hcalColl);
   static int nEvents = 0;
-  if(digiFile && nEvents==0)
-    nEvents++;//static int nEvents = 1;
-  //else
-  //  static int nEvents = 0;
-  //cout << "n event is " << nEvents << endl;
   if(nEvents == 0)
     {
       ofs
@@ -240,32 +233,12 @@ L1RCTSaveInput::analyze(const edm::Event& event,
 		    << iCrate << "\t"
 		    << iCard << "\t"
 		    << iTower << "\t"
-		    << ecal + fgbit << "\t"
-		    << hcal + mubit << "\t"
+		    << ecal * 2 + fgbit << "\t"
+		    << hcal * 2 + mubit << "\t"
 		    << lutOutput
 		    << std::dec 
 		    << std::endl;
 		}
-	    }
-	}      
-      for (int i = 0; i < 18; i++) //Crate
-        {	  
-          for (int j = 0; j < 8; j++) //HF "tower"
-            {
-	      unsigned short hf = rct->hfCompressedET(i,j);
-	      unsigned short hfFG = rct->hfFineGrainBit(i,j);
-	      unsigned long lutOutput = rctLookupTables->lookup(hf,i,999,j);
-	      ofs
-		<< std::hex 
-		<< nEvents << "\t"
-		<< i << "\t"
-		<< "999" << "\t"
-		<< j << "\t"
-		<< "0" << "\t"
-		<< hf*2+hfFG<< "\t"
-		<< lutOutput // << "Wha happen'd"
-		<< std::dec 
-		<< std::endl;
 	    }
 	}
     }

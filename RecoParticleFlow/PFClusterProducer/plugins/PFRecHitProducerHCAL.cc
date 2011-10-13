@@ -1234,7 +1234,6 @@ PFRecHitProducerHCAL::findRecHitNeighboursCT
   CaloTowerDetId northeast2;
   
   // for north and south, there is no ambiguity : 1 or 0 neighbours
-  stringstream err("PFRecHitProducerHCAL::findRecHitNeighboursCT : incorrect number of neighbours "); 
   
   switch( northids.size() ) {
   case 0: 
@@ -1243,7 +1242,8 @@ PFRecHitProducerHCAL::findRecHitNeighboursCT
     north = northids[0];
     break;
   default:
-    err<<"north: "<<northids.size();
+  stringstream err("PFRecHitProducerHCAL::findRecHitNeighboursCT : incorrect number of neighbours north: "); 
+    err<<northids.size();
     throw( err.str() ); 
   }
 
@@ -1254,7 +1254,8 @@ PFRecHitProducerHCAL::findRecHitNeighboursCT
     south = southids[0];
     break;
   default:
-    err<<"south: "<<southids.size();
+  stringstream err("PFRecHitProducerHCAL::findRecHitNeighboursCT : incorrect number of neighbours south: "); 
+    err<<southids.size();
     throw( err.str() ); 
   }
   
@@ -1279,7 +1280,8 @@ PFRecHitProducerHCAL::findRecHitNeighboursCT
     southeast2 = getSouth(southeast, topology);    
     break;
   default:
-    err<<"eastids: "<<eastids.size();
+  stringstream err("PFRecHitProducerHCAL::findRecHitNeighboursCT : incorrect number of neighbours eastids: "); 
+    err<<eastids.size();
     throw( err.str() ); 
   }
   
@@ -1302,7 +1304,8 @@ PFRecHitProducerHCAL::findRecHitNeighboursCT
     southwest2 = getSouth(southwest, topology );    
     break;
   default:
-    err<<"westids: "<< westids.size();
+  stringstream err("PFRecHitProducerHCAL::findRecHitNeighboursCT : incorrect number of neighbours westids: "); 
+    err<< westids.size();
     throw( err.str() ); 
   }
 

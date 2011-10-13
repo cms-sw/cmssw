@@ -7,10 +7,8 @@ MuonAlignmentFromReference = cms.PSet(
     reference = cms.vstring(),
 
     # which tracks/hits to accept
-    minTrackPt = cms.double(0.),
-    maxTrackPt = cms.double(1000.),
-    minTrackP = cms.double(0.),
-    maxTrackP = cms.double(1000.),
+    minTrackPt = cms.double(20.),
+    maxTrackPt = cms.double(100.),
     minTrackerHits = cms.int32(10),
     maxTrackerRedChi2 = cms.double(10.),
     allowTIDTEC = cms.bool(True),

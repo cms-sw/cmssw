@@ -1,12 +1,19 @@
 #include "OutputDDToDDL.h"
 
+#include <FWCore/ServiceRegistry/interface/Service.h>
 #include <FWCore/Framework/interface/ESTransientHandle.h>
 
+#include <DetectorDescription/Core/interface/DDLogicalPart.h>
 #include <DetectorDescription/Core/interface/DDSpecifics.h>
+#include <DetectorDescription/Core/interface/DDRoot.h>
 #include <DetectorDescription/Core/interface/DDName.h>
 #include <DetectorDescription/Core/interface/DDPosData.h>
+#include <DetectorDescription/Core/interface/DDPartSelection.h>
 #include <DetectorDescription/OfflineDBLoader/interface/DDCoreToDDXMLOutput.h>
 #include <Geometry/Records/interface/IdealGeometryRecord.h>
+
+// for clhep stuff..
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <iostream>
 #include <fstream>

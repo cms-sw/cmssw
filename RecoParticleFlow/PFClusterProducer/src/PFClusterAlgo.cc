@@ -64,49 +64,92 @@ PFClusterAlgo::write() {
 
 
 void PFClusterAlgo::doClustering( const PFRecHitHandle& rechitsHandle ) {
+  const reco::PFRecHitCollection& rechits = * rechitsHandle;
+
+  // cache the Handle to the rechits
   rechitsHandle_ = rechitsHandle;
-  doClustering( *rechitsHandle );
+
+  // clear rechits mask
+  mask_.clear();
+  mask_.resize( rechits.size(), true );
+
+  // perform clustering
+  doClusteringWorker( rechits );
+}
+
+void PFClusterAlgo::doClustering( const PFRecHitHandle& rechitsHandle, const std::vector<bool> & mask ) {
+  const reco::PFRecHitCollection& rechits = * rechitsHandle;
+
+  // cache the Handle to the rechits
+  rechitsHandle_ = rechitsHandle;
+
+  // use the specified mask, unless it doesn't match with the rechits
+  mask_.clear();
+  if (mask.size() == rechits.size()) {
+      mask_.insert( mask_.end(), mask.begin(), mask.end() );
+  } else {
+      edm::LogError("PClusterAlgo::doClustering") << "map size should be " << rechits.size() << ". Will be reinitialized.";
+      mask_.resize( rechits.size(), true );
+  }
+
+  // perform clustering
+  doClusteringWorker( rechits );
 }
 
 void PFClusterAlgo::doClustering( const reco::PFRecHitCollection& rechits ) {
+  // using rechits without a Handle, clear to avoid a stale member
+  rechitsHandle_.clear();
+
+  // clear rechits mask
+  mask_.clear();
+  mask_.resize( rechits.size(), true );
+
+  // perform clustering
+  doClusteringWorker( rechits );
+}
+
+void PFClusterAlgo::doClustering( const reco::PFRecHitCollection& rechits, const std::vector<bool> & mask ) {
+  // using rechits without a Handle, clear to avoid a stale member
+  rechitsHandle_.clear();
+
+  // use the specified mask, unless it doesn't match with the rechits
+  mask_.clear();
+  if (mask.size() == rechits.size()) {
+      mask_.insert( mask_.end(), mask.begin(), mask.end() );
+  } else {
+      edm::LogError("PClusterAlgo::doClustering") << "map size should be " << rechits.size() << ". Will be reinitialized.";
+      mask_.resize( rechits.size(), true );
+  }
+
+  // perform clustering
+  doClusteringWorker( rechits );
+}
 
 
-  if(pfClusters_.get() ) pfClusters_->clear();
+void PFClusterAlgo::doClusteringWorker( const reco::PFRecHitCollection& rechits ) {
+
+  if ( pfClusters_.get() )
+    pfClusters_->clear();
   else 
     pfClusters_.reset( new std::vector<reco::PFCluster> );
 
-  if(pfRecHitsCleaned_.get() ) pfRecHitsCleaned_->clear();
+  if ( pfRecHitsCleaned_.get() )
+    pfRecHitsCleaned_->clear();
   else 
     pfRecHitsCleaned_.reset( new std::vector<reco::PFRecHit> );
 
-
   eRecHits_.clear();
-
-  bool initMask = false;
-  if( mask_.size() != rechits.size() ) {
-    initMask = true;
-    mask_.clear();
-    mask_.reserve( rechits.size() );
-
-    if( ! mask_.empty() ) 
-      cerr<<"PClusterAlgo::doClustering: map size should be "<<mask_.size()
-	  <<". Will be reinitialized."<<endl;    
-  }
-  
-  color_.clear(); 
-  color_.reserve( rechits.size() );
-  seedStates_.clear();
-  seedStates_.reserve( rechits.size() );
-  usedInTopo_.clear();
-  usedInTopo_.reserve( rechits.size() );
-  
-  for ( unsigned i = 0; i < rechits.size(); i++ ) {
+  for ( unsigned i = 0; i < rechits.size(); i++ )
     eRecHits_.insert( make_pair( rechit(i, rechits).energy(), i) );
-    if(initMask) mask_.push_back( true );
-    color_.push_back( 0 );     
-    seedStates_.push_back( UNKNOWN ); 
-    usedInTopo_.push_back( false ); 
-  }  
+
+  color_.clear(); 
+  color_.resize( rechits.size(), 0 );
+
+  seedStates_.clear();
+  seedStates_.resize( rechits.size(), UNKNOWN );
+
+  usedInTopo_.clear();
+  usedInTopo_.resize( rechits.size(), false );
 
   if ( cleanRBXandHPDs_ ) cleanRBXAndHPD( rechits);
 
@@ -123,13 +166,6 @@ void PFClusterAlgo::doClustering( const reco::PFRecHitCollection& rechits ) {
     buildPFClusters( topocluster, rechits ); 
   }
 }
-
-
-void PFClusterAlgo::setMask( const std::vector<bool>& mask ) {
-  mask_ = mask;
-}
-
-
 
 
 double PFClusterAlgo::parameter( Parameter paramtype, 
