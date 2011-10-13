@@ -14,7 +14,7 @@
 //
 // Original Author:  Bernard Fabbro
 //         Created:  Fri Jun  2 10:27:01 CEST 2006
-// $Id: EcnaAnalyzer.cc,v 1.1 2010/04/09 08:57:35 fabbro Exp $
+// $Id: EcnaAnalyzer.cc,v 1.2 2011/03/21 14:57:41 fabbro Exp $
 //
 //          Update: 02/03/2011  
 
@@ -1444,10 +1444,6 @@ void EcnaAnalyzer::CheckMsg(const Int_t& MsgNum, const Int_t& i0Stex)
 	  
 	  for(Int_t j0Stex=fStexIndexBegin; j0Stex<fStexIndexStop; j0Stex++)
 	    {
-	      Int_t nStexNbOfTreatedEvents = fStexNbOfTreatedEvents[j0Stex];
-	      if( fStexStatus[j0Stex] == 1 ){nStexNbOfTreatedEvents = fStexNbOfTreatedEvents[j0Stex];}
-	      if( fStexStatus[j0Stex] == 2 ){nStexNbOfTreatedEvents = fStexNbOfTreatedEvents[j0Stex];}
-	      
 	      std::cout << fStexName << setw(3) << j0Stex+1 << ": "
 			<< setw(5) << fNbOfTreatedFedsInStex[j0Stex] << " analyzed Fed(s). "
 			<< fStexName << " status: " << fStexStatus[j0Stex];
