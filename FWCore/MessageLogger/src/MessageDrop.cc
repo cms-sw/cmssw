@@ -8,7 +8,7 @@
 //
 // Original Author:  M. Fischler and Jim Kowalkowsi
 //         Created:  Tues Feb 14 16:38:19 CST 2006
-// $Id: MessageDrop.cc,v 1.12 2010/12/07 22:56:35 fischler Exp $
+// $Id: MessageDrop.cc,v 1.13 2011/06/07 22:24:31 fwyzard Exp $
 //
 
 // system include files
@@ -91,10 +91,17 @@ class StringProducerWithPhase : public StringProducer
     : name_initial_value_  (" ")			// change log 4
     , label_initial_value_ (" ")			
     , name_                (&name_initial_value_)
-    , label_    	   (&label_initial_value_)
-    , phasePtr_ 	   ("(Startup)")
+    , label_               (&label_initial_value_)
+    , phasePtr_            ("(Startup)")
     , moduleID_            (0)
-    {}
+    , cache_               ()
+    , nameLabelMap_        ()
+    , snapshot_name_       ()
+    , snapshot_label_      ()
+    , snapshot_phase_      () {
+      memset(snapshot_phase_, '\0', sizeof(snapshot_phase_));
+    }
+
     virtual std::string theContext() const {
       if (cache_.empty()) {
 	if (moduleID_ != 0) {
@@ -154,7 +161,11 @@ class StringProducerPath : public StringProducer{
   public:
     StringProducerPath() 
     : typePtr_("PathNotYetEstablished") 		// change log 4
-    , path_ (" ") {}
+    , path_ (" ")
+    , cache_()
+    , snapshot_type_() {
+      memset(snapshot_type_, '\0', sizeof(snapshot_type_));
+    }
      virtual std::string theContext() const {
       if ( cache_.empty() ) {
 	cache_.assign(typePtr_);
@@ -185,7 +196,11 @@ class StringProducerPath : public StringProducer{
   
 class StringProducerSinglet : public StringProducer{
   public:
-    StringProducerSinglet() : singlet_("(NoModuleName)") {}
+    StringProducerSinglet()
+    : singlet_("(NoModuleName)")
+    , snapshot_singlet_() {
+      memset(snapshot_singlet_, '\0', sizeof(snapshot_singlet_));
+    }
     virtual std::string theContext() const {
       return singlet_;
     }

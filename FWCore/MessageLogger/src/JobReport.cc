@@ -445,6 +445,7 @@ namespace edm {
   namespace {
     void
     toFileName(std::string const& jobReportFile, unsigned int childIndex, unsigned int numberOfChildren, std::ostringstream& ofilename) {
+      char filler = ofilename.fill();
       unsigned int numberOfDigitsInIndex = 0U;
       while (numberOfChildren != 0) {
         ++numberOfDigitsInIndex;
@@ -456,10 +457,10 @@ namespace edm {
       std::string::size_type offset = jobReportFile.rfind('.');
       if(offset == std::string::npos) {
         ofilename << jobReportFile;
-        ofilename << '_' << std::setw(numberOfDigitsInIndex) << std::setfill('0') << childIndex;
+        ofilename << '_' << std::setw(numberOfDigitsInIndex) << std::setfill('0') << childIndex << std::setfill(filler);
       } else {
         ofilename << jobReportFile.substr(0, offset);
-        ofilename << '_' << std::setw(numberOfDigitsInIndex) << std::setfill('0') << childIndex;
+        ofilename << '_' << std::setw(numberOfDigitsInIndex) << std::setfill('0') << childIndex << std::setfill(filler);
         ofilename << jobReportFile.substr(offset);
       }
     }
