@@ -378,7 +378,7 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   // starting with the JetComb having the smallest chi2
   // -----------------------------------------------------
 
-  if( FitResultList.size() < 1 ) { // in case no fit results were stored in the list (all fits aborted)
+  if( ((unsigned)FitResultList.size())<1 ) { // in case no fit results were stored in the list (all fits aborted)
     pPartonsHadP->push_back( pat::Particle() );
     pPartonsHadQ->push_back( pat::Particle() );
     pPartonsHadB->push_back( pat::Particle() );
