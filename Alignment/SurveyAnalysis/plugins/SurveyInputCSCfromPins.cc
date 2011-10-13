@@ -201,7 +201,7 @@ void SurveyInputCSCfromPins::analyze(const edm::Event&, const edm::EventSetup& i
 		orient(LC1, LC2, a, b, T, dx, dy, dz, PhX, PhZ);	
    
  		GlobalPoint PG1 = chamberAli->surface().toGlobal(LocalPoint(LC1.x(), LC1.y() + a, LC1.z() + b));
- 		GlobalPoint PG2 = chamberAli->surface().toGlobal(LocalPoint(LC2.x(), LC2.y() - a, LC2.z() + b));
+ 		chamberAli->surface().toGlobal(LocalPoint(LC2.x(), LC2.y() - a, LC2.z() + b));
  
 	
  		LocalVector lvector( dx, dy, dz);
