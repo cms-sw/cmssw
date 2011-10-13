@@ -180,29 +180,23 @@ DTTSPhi::loadTSPhi() {
 void
 DTTSPhi::addTracoT(int step, const DTTracoTrigData* tracotrig, int ifs) {
   if(step<DTConfigTSPhi::NSTEPF||step>DTConfigTSPhi::NSTEPL){
-    if(config()->debug()) {
-      std::cout << "DTTSPhi::addTracoT: step out of range: " << step;
-      std::cout << " trigger not added!" << std::endl;
-    }
+    std::cout << "DTTSPhi::addTracoT: step out of range: " << step;
+    std::cout << " trigger not added!" << std::endl;
     return;
   }
   // Check that a preview is present and code is not zero
   if(!tracotrig->pvCode() || !tracotrig->code() ) {
-    if(config()->debug()) {
-      std::cout << "DTTSPhi::addTracoT: preview not present in TRACO trigger or its code=0 ";
-      std::cout << " trigger not added!" << std::endl;
-    }
+    std::cout << "DTTSPhi::addTracoT: preview not present in TRACO trigger or its code=0 ";
+    std::cout << " trigger not added!" << std::endl;
     return;
   }
   
   // Get the appropriate TSS
   int itss = (tracotrig->tracoNumber() -1 ) / DTConfigTSPhi::NTCTSS + 1;
   if(itss<1 || itss>DTConfigTSPhi::NTSSTSM) {
-    if(config()->debug()) {
-      std::cout << "DTTSPhi::addTracoT: wrong TRACO number: ";
-      std::cout << tracotrig->tracoNumber();
-      std::cout << " trigger not added!" << std::endl;
-    }
+    std::cout << "DTTSPhi::addTracoT: wrong TRACO number: ";
+    std::cout << tracotrig->tracoNumber();
+    std::cout << " trigger not added!" << std::endl;
     return;
   }
   
@@ -267,10 +261,8 @@ DTTSPhi::runTSPhi() {
 	    if (bkmod==0) {    // we are in back-up mode
 	      int my_itss = (*p)->number();   // metodo di DTTSS che ritorna itss
 	      int ntsstsmd = config()->TSSinTSMD(station(),sector());
-	      if(ntsstsmd<2 || ntsstsmd>DTConfigTSPhi::NTSSTSMD) {
-		if(config()->debug()) {
-		  std::cout << " DTTSPhi::addTracoT - wrong TSMD: " << ntsstsmd << std::endl;
-		}
+	      if(ntsstsmd<2 || ntsstsmd>DTConfigTSPhi::NTSSTSMD) {                 
+		std::cout << " DTTSPhi::addTracoT - wrong TSMD: " << ntsstsmd << std::endl;
 	      }
   
 	      // Get the appropriate TSMD
@@ -282,11 +274,7 @@ DTTSPhi::runTSPhi() {
             else if(bkmod==1) {
 	      itsmd = 1;  // initialize it to 1, default value if not in back up mode
 	    }
-	    if(itsmd>2) {
-	      if(config()->debug()) {
-		std::cout << "****** >DTTSPhi::RunTSPhi wrong  itsmd = " << itsmd << std::endl;
-	      }
-	    } 
+	    if(itsmd>2) std::cout << "****** >DTTSPhi::RunTSPhi wrong  itsmd = " << itsmd << std::endl; 
             DTTSM* tsm = getDTTSM(is,itsmd); 
             tsm->addCand((*p)->getTrack(it));
           }
@@ -442,18 +430,14 @@ DTTSPhi::ignoreSecondTrack(int step, int tracon) {
   int itsmd = 1; // initialize it to default
   
   if(step<DTConfigTSPhi::NSTEPF||step>DTConfigTSPhi::NSTEPL){
-    if(config()->debug()) {
-      std::cout << "DTTSPhi::ignoreSecondTrack: step out of range: " << step;
-      std::cout << " no flag set!" << std::endl;
-    }
+    std::cout << "DTTSPhi::ignoreSecondTrack: step out of range: " << step;
+    std::cout << " no flag set!" << std::endl;
     return;
   }
   int itss = (tracon-1 ) / DTConfigTSPhi::NTCTSS + 1;
   if(itss<1 || itss>DTConfigTSPhi::NTSSTSM) {
-    if(config()->debug()) {
-      std::cout << "DTTSPhi::ignoreSecondTrack: wrong TRACO number: " << tracon;
-      std::cout << " no flag set!" << std::endl;
-    }
+    std::cout << "DTTSPhi::ignoreSecondTrack: wrong TRACO number: " << tracon;
+    std::cout << " no flag set!" << std::endl;
     return;
   }
   DTTSS* tss = getDTTSS(step,itss);
@@ -538,9 +522,7 @@ DTTSPhi::localPosition(const DTTrigData* tr) const {
   //sm DTChambPhSegm* trig = dynamic_cast<DTChambPhSegm*>(const_cast<DTTrigData*>(tr));
     const DTChambPhSegm* trig = dynamic_cast<const DTChambPhSegm*>(tr);
   if(!trig) {
-    if(config()->debug()) {
-      std::cout << "DTTSPhi::LocalPosition called with wrong argument!" << std::endl;
-    }
+    std::cout << "DTTSPhi::LocalPosition called with wrong argument!" << std::endl;
     return LocalPoint(0,0,0);
   }
      return _tracocard->localPosition(trig->tracoTrig());
@@ -551,9 +533,7 @@ DTTSPhi::localDirection(const DTTrigData* tr) const  {
   DTChambPhSegm* trig = dynamic_cast<DTChambPhSegm*>(const_cast<DTTrigData*>(tr));
   //  const DTChambPhSegm* trig = dynamic_cast<const DTChambPhSegm*>(tr);
   if(!trig) {
-    if(config()->debug()) {
-      std::cout << "DTTSPhi::LocalDirection called with wrong argument!" << std::endl;
-    }
+    std::cout << "DTTSPhi::LocalDirection called with wrong argument!" << std::endl;
     return LocalVector(0,0,0);
   }
     return _tracocard->localDirection(trig->tracoTrig());

@@ -81,7 +81,7 @@ int LMFIOV::getVmax() const {
 }
 
 std::string LMFIOV::fetchIdSql(Statement *stmt) {
-  std::string sql = "SELECT IOV_ID FROM CMS_ECAL_LASER_COND.LMF_IOV "
+  std::string sql = "SELECT IOV_ID FROM LMF_IOV "
     "WHERE IOV_START = :1 AND IOV_STOP = :2 AND "
     "VMIN = :3 AND VMIN = :4";
   DateHandler dm(m_env, m_conn);
@@ -95,8 +95,7 @@ std::string LMFIOV::fetchIdSql(Statement *stmt) {
 
 std::string LMFIOV::setByIDSql(Statement *stmt, int id) 
 {
-  std::string sql = "SELECT IOV_START, IOV_STOP, VMIN, VMAX FROM "
-    "CMS_ECAL_LASER_COND.LMF_IOV "
+  std::string sql = "SELECT IOV_START, IOV_STOP, VMIN, VMAX FROM LMF_IOV "
     "WHERE IOV_ID = :1";
   stmt->setSQL(sql);
   stmt->setInt(1, id);

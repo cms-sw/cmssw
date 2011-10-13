@@ -53,7 +53,8 @@ process.display = cms.OutputModule("PoolOutputModule",
 process.localReReco = cms.Sequence(process.siPixelRecHits+
                                    process.siStripMatchedRecHits+
                                    #process.hbhereflag+
-                                   process.particleFlowCluster)
+                                   process.particleFlowCluster+
+                                   process.ecalClusters)
 
 # Track re-reco
 process.globalReReco =  cms.Sequence(process.offlineBeamSpot+
@@ -72,6 +73,8 @@ process.globalReReco =  cms.Sequence(process.offlineBeamSpot+
 
 # Particle Flow re-processing
 process.pfReReco = cms.Sequence(process.particleFlowReco+
+                                process.egammaHighLevelRecoPostPF+
+                                process.muonshighlevelreco+
                                 process.particleFlowLinks+
                                 process.recoPFJets+
                                 process.recoPFMET+

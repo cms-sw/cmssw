@@ -4,8 +4,8 @@
 /** \class MultiTrackValidatorBase
  *  Base class for analyzers that produces histrograms to validate Track Reconstruction performances
  *
- *  $Date: 2010/09/13 14:56:48 $
- *  $Revision: 1.28 $
+ *  $Date: 2010/03/23 16:33:29 $
+ *  $Revision: 1.27 $
  *  \author cerati
  */
 
@@ -52,8 +52,6 @@ class MultiTrackValidatorBase {
   std::vector<std::string> associators;
   edm::InputTag label_tp_effic;
   edm::InputTag label_tp_fake;
-  edm::InputTag label_tv;
-  edm::InputTag label_pileupinfo;
   std::string sim;
   std::string parametersDefiner;
 

@@ -19,7 +19,6 @@
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/PatCandidates/interface/Photon.h"
 
 #define PI 3.141592653
 
@@ -27,7 +26,7 @@ class dRxyCalculator
 {
 public:  
    dRxyCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel);
-   double getDRxy(const reco::Photon cluster, double x, double y);
+   double getDRxy(const reco::SuperClusterRef cluster, double x, double y);
 
 private:
    double dRDistance(double eta1,double phi1,double eta2,double phi2)

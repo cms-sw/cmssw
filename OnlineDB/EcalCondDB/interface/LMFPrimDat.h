@@ -76,23 +76,6 @@ class LMFPrimDat : public LMFColoredTable {
   float getBeta(EcalLogicID &id);
   float getShapeCorr(EcalLogicID &id);
 
-  float getMean(int id);
-  float getRMS(int id);
-  float getM3(int id);
-  int   getFlag(int id);
-  float getAPDoverAMean(int id);
-  float getAPDoverARMS(int id);
-  float getAPDoverAM3(int id);
-  float getAPDoverBMean(int id);
-  float getAPDoverBRMS(int id);
-  float getAPDoverBM3(int id);
-  float getAPDoverPnMean(int id);
-  float getAPDoverPnRMS(int id);
-  float getAPDoverPnM3(int id);
-  float getAlpha(int id);
-  float getBeta(int id);
-  float getShapeCorr(int id);
-
   bool isValid();
   // to do: complete list of set/get methods
 

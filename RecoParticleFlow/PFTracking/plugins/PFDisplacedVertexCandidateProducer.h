@@ -40,6 +40,10 @@ class PFDisplacedVertexCandidateProducer : public edm::EDProducer {
   /// Reco Tracks used to spot the nuclear interactions
   edm::InputTag   inputTagTracks_;
  
+  /// Input tag for main vertex to cut of dxy of secondary tracks
+  edm::InputTag   inputTagMainVertex_; 
+  edm::InputTag   inputTagBeamSpot_;
+  
   /// verbose ?
   bool   verbose_;
 

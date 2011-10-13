@@ -38,7 +38,7 @@ trueElecronicTaus = cms.EDFilter(
 )
 
 tauTruthSequence = cms.Sequence(
-    #genParticles *
+    genParticles *
     genParticlesForJets *
     ak5GenJets *
     tauGenJets *

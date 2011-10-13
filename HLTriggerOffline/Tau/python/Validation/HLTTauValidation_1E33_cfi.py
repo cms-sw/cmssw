@@ -6,6 +6,7 @@ hltTauValidationFolder_PF_IDEAL =  'HLT/TauRelVal/PF_1E33/'
 hltTauValIdealMonitorMC1E33 = cms.EDAnalyzer("HLTTauDQMOfflineSource",
     MonitorSetup = cms.VPSet(
         cms.PSet(
+            ConfigType            = cms.untracked.string("Path"),
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauValidationProcess_IDEAL),
             DQMFolder             = cms.untracked.string(hltTauValidationFolder_MC_IDEAL+'DoubleTau'),
             Filter                = cms.untracked.VInputTag(
@@ -22,6 +23,7 @@ hltTauValIdealMonitorMC1E33 = cms.EDAnalyzer("HLTTauDQMOfflineSource",
             LeptonType            = cms.untracked.vint32(0,0,0,0,0)                            
         ),
         cms.PSet(
+            ConfigType            = cms.untracked.string("Path"),
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauValidationProcess_IDEAL),
             DQMFolder             = cms.untracked.string(hltTauValidationFolder_MC_IDEAL+'EleTau'),
             Filter                = cms.untracked.VInputTag(
@@ -39,6 +41,7 @@ hltTauValIdealMonitorMC1E33 = cms.EDAnalyzer("HLTTauDQMOfflineSource",
             LeptonType            = cms.untracked.vint32(-83,82,0,0,0,82)                            
         ),
         cms.PSet(
+            ConfigType            = cms.untracked.string("Path"),
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauValidationProcess_IDEAL),
             DQMFolder             = cms.untracked.string(hltTauValidationFolder_MC_IDEAL+'MuLooseTau'),
             Filter                = cms.untracked.VInputTag(
@@ -56,6 +59,7 @@ hltTauValIdealMonitorMC1E33 = cms.EDAnalyzer("HLTTauDQMOfflineSource",
             LeptonType            = cms.untracked.vint32(-81,83,0,0,0,83)                            
         ),
         cms.PSet(
+            ConfigType            = cms.untracked.string("Path"),
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauValidationProcess_IDEAL),
             DQMFolder             = cms.untracked.string(hltTauValidationFolder_MC_IDEAL+'MuTightTau'),
             Filter                = cms.untracked.VInputTag(
@@ -73,6 +77,7 @@ hltTauValIdealMonitorMC1E33 = cms.EDAnalyzer("HLTTauDQMOfflineSource",
             LeptonType            = cms.untracked.vint32(-81,83,0,0,0,83)                            
         ),
        cms.PSet(
+            ConfigType            = cms.untracked.string("LitePath"),
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryAOD","",hltTauValidationProcess_IDEAL),
             DQMFolder             = cms.untracked.string(hltTauValidationFolder_MC_IDEAL+'Summary'),
             Filter                = cms.untracked.VInputTag(
@@ -93,6 +98,7 @@ hltTauValIdealMonitorMC1E33 = cms.EDAnalyzer("HLTTauDQMOfflineSource",
             LeptonType            = cms.untracked.vint32(0,11,13,0)                            
         ),
         cms.PSet(
+            ConfigType            = cms.untracked.string("Path"),
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauValidationProcess_IDEAL),
             DQMFolder             = cms.untracked.string(hltTauValidationFolder_MC_IDEAL+'SingleTau'),
             Filter                = cms.untracked.VInputTag(
@@ -110,6 +116,7 @@ hltTauValIdealMonitorMC1E33 = cms.EDAnalyzer("HLTTauDQMOfflineSource",
             LeptonType            = cms.untracked.vint32(0,0,0,0,0,0)                            
         ),
         cms.PSet(
+            ConfigType            = cms.untracked.string("L1"),
             DQMFolder              = cms.string(hltTauValidationFolder_MC_IDEAL+'L1'),
             L1Taus                 = cms.InputTag("hltL1extraParticles","Tau"),
             L1Jets                 = cms.InputTag("hltL1extraParticles","Central"),
@@ -119,15 +126,6 @@ hltTauValIdealMonitorMC1E33 = cms.EDAnalyzer("HLTTauDQMOfflineSource",
 
         
    ),
-    ConfigType = cms.vstring(
-        "Path",
-        "Path",
-        "Path",
-        "Path",
-        "LitePath",
-        "Path",
-        "L1",
-    ),
     
    doMatching = cms.bool(True),
       refObjects = cms.untracked.VInputTag(
@@ -141,6 +139,7 @@ hltTauValIdealMonitorMC1E33 = cms.EDAnalyzer("HLTTauDQMOfflineSource",
 hltTauValIdealMonitorPF1E33 = cms.EDAnalyzer("HLTTauDQMOfflineSource",
     MonitorSetup = cms.VPSet(
         cms.PSet(
+            ConfigType            = cms.untracked.string("Path"),
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauValidationProcess_IDEAL),
             DQMFolder             = cms.untracked.string(hltTauValidationFolder_PF_IDEAL+'DoubleTau'),
             Filter                = cms.untracked.VInputTag(
@@ -158,6 +157,7 @@ hltTauValIdealMonitorPF1E33 = cms.EDAnalyzer("HLTTauDQMOfflineSource",
         ),
         
         cms.PSet(
+            ConfigType            = cms.untracked.string("Path"),
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauValidationProcess_IDEAL),
             DQMFolder             = cms.untracked.string(hltTauValidationFolder_PF_IDEAL+'EleTau'),
             Filter                = cms.untracked.VInputTag(
@@ -176,6 +176,7 @@ hltTauValIdealMonitorPF1E33 = cms.EDAnalyzer("HLTTauDQMOfflineSource",
         ),
         
         cms.PSet(
+            ConfigType            = cms.untracked.string("Path"),
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauValidationProcess_IDEAL),
             DQMFolder             = cms.untracked.string(hltTauValidationFolder_PF_IDEAL+'MuLooseTau'),
             Filter                = cms.untracked.VInputTag(
@@ -193,6 +194,7 @@ hltTauValIdealMonitorPF1E33 = cms.EDAnalyzer("HLTTauDQMOfflineSource",
             LeptonType            = cms.untracked.vint32(-81,83,0,0,0,83)                            
         ),
         cms.PSet(
+            ConfigType            = cms.untracked.string("Path"),
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauValidationProcess_IDEAL),
             DQMFolder             = cms.untracked.string(hltTauValidationFolder_PF_IDEAL+'MuTightTau'),
             Filter                = cms.untracked.VInputTag(
@@ -210,6 +212,7 @@ hltTauValIdealMonitorPF1E33 = cms.EDAnalyzer("HLTTauDQMOfflineSource",
             LeptonType            = cms.untracked.vint32(-81,83,0,0,0,83)                            
         ),   
         cms.PSet(
+            ConfigType            = cms.untracked.string("LitePath"),
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryAOD","",hltTauValidationProcess_IDEAL),
             DQMFolder             = cms.untracked.string(hltTauValidationFolder_PF_IDEAL+'Summary'),
             Filter                = cms.untracked.VInputTag(
@@ -231,6 +234,7 @@ hltTauValIdealMonitorPF1E33 = cms.EDAnalyzer("HLTTauDQMOfflineSource",
         ),
              
         cms.PSet(
+            ConfigType            = cms.untracked.string("Path"),
             triggerEventObject    = cms.untracked.InputTag("hltTriggerSummaryRAW","",hltTauValidationProcess_IDEAL),
             DQMFolder             = cms.untracked.string(hltTauValidationFolder_PF_IDEAL+'SingleTau'),
             Filter                = cms.untracked.VInputTag(
@@ -248,6 +252,7 @@ hltTauValIdealMonitorPF1E33 = cms.EDAnalyzer("HLTTauDQMOfflineSource",
             LeptonType            = cms.untracked.vint32(0,0,0,0,0,0)                         
         ),
         cms.PSet(
+            ConfigType            = cms.untracked.string("L1"),
             DQMFolder              = cms.string(hltTauValidationFolder_PF_IDEAL+'L1'),
             L1Taus                 = cms.InputTag("hltL1extraParticles","Tau"),
             L1Jets                 = cms.InputTag("hltL1extraParticles","Central"),
@@ -256,15 +261,6 @@ hltTauValIdealMonitorPF1E33 = cms.EDAnalyzer("HLTTauDQMOfflineSource",
         ),
 
    ),
-    ConfigType = cms.vstring(
-        "Path",
-        "Path",
-        "Path",
-        "Path",
-        "LitePath",
-        "Path",
-        "L1",
-    ),
     
    doMatching = cms.bool(True),
       refObjects = cms.untracked.VInputTag(

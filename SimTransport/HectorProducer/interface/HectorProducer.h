@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/Common/interface/EDProduct.h"
 
 class HectorManager;
 
@@ -32,7 +33,6 @@ class HectorProducer : public edm::EDProducer
   std::string m_InTag;
   bool m_verbosity;
   bool m_FP420Transport;
-  bool m_HPS240Transport;
   bool m_ZDCTransport;
 };
 

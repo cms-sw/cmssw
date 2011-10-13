@@ -1,8 +1,8 @@
 /*
  * \file EEDaqInfoTask.cc
  *
- * $Date: 2010/08/11 14:57:34 $
- * $Revision: 1.13 $
+ * $Date: 2011/06/27 12:16:03 $
+ * $Revision: 1.13.4.1 $
  * \author E. Di Marco
  *
 */
@@ -55,26 +55,24 @@ EEDaqInfoTask::~EEDaqInfoTask() {
 
 void EEDaqInfoTask::beginJob(void){
 
-  char histo[200];
-
   if ( dqmStore_ ) {
+
+    std::string name;
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo");
 
-    sprintf(histo, "DAQSummary");
-    meEEDaqFraction_ = dqmStore_->bookFloat(histo);
+    meEEDaqFraction_ = dqmStore_->bookFloat( "DAQSummary" );
     meEEDaqFraction_->Fill(0.0);
 
-    sprintf(histo, "DAQSummaryMap");
-    meEEDaqActiveMap_ = dqmStore_->book2D(histo,histo, 40, 0., 200., 20, 0., 100.);
+    name = "DAQSummaryMap";
+    meEEDaqActiveMap_ = dqmStore_->book2D(name, name, 40, 0., 200., 20, 0., 100.);
     meEEDaqActiveMap_->setAxisTitle("ix / ix+100", 1);
     meEEDaqActiveMap_->setAxisTitle("iy", 2);
 
     dqmStore_->setCurrentFolder(prefixME_ + "/EventInfo/DAQContents");
 
     for (int i = 0; i < 18; i++) {
-      sprintf(histo, "EcalEndcap_%s", Numbers::sEE(i+1).c_str());
-      meEEDaqActive_[i] = dqmStore_->bookFloat(histo);
+      meEEDaqActive_[i] = dqmStore_->bookFloat( "EcalEndcap_" + Numbers::sEE(i+1) );
       meEEDaqActive_[i]->Fill(0.0);
     }
 

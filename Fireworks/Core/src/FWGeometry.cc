@@ -26,7 +26,7 @@ TFile*
 FWGeometry::findFile( const char* fileName )
 {
    TString file;
-   if( fileName[0] == '/' )
+   if( fileName[0] == '/' || ( fileName[0] == '.' &&  fileName[1] == '/' ))
    {
       file = fileName;
    }

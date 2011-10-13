@@ -20,19 +20,15 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-#include "DataFormats/PatCandidates/interface/Photon.h"
-
 #define PI 3.141592653
 
 class TxyCalculator
 {
 public:  
    TxyCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, edm::InputTag trackLabel);
-   double getTxy(const reco::Photon p, double x, double y);
-   double getHollSxy(const reco::Photon p, double thePtCut, double outerR, double innerR);
+   double getTxy(const reco::SuperClusterRef p, double x, double y);
    int getNumAllTracks(double ptCut);
-   int getNumLocalTracks(const reco::Photon p, double detaCut, double ptCut);
-
+   int getNumLocalTracks(const reco::SuperClusterRef p, double detaCut, double ptCut);
    
 private:
 

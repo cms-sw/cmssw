@@ -25,8 +25,8 @@ int main(Int_t argc, Char_t *argv[]) {
   const char *name          = argv[3];
   const char *DRCut         = argv[4];
   double totalTracks        = atof(argv[5]);
-  const int iRange        = atoi(argv[6]);
-  const int fRange        = atoi(argv[7]);
+  const int iRange          = atoi(argv[6]);
+  const int fRange          = atoi(argv[7]);
   
   // Reading Tree                                                                                   
   std::cout << "---------------------" << std::endl;

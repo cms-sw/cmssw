@@ -266,6 +266,11 @@ jetMETAnalyzer = cms.EDAnalyzer("JetMETAnalyzer",
       DetectorTypes = cms.untracked.string("ecal:hbhe:hf:pixel:sistrip:es:muon"),
       #DebugOn = cms.untracked.bool(True),
       Filter = cms.untracked.bool(True)
+    ),
+    DCSFilterAll = cms.PSet(
+      DetectorTypes = cms.untracked.string("ecal:hbhe:hf:ho:pixel:sistrip:es:muon"),
+      #DebugOn = cms.untracked.bool(True),
+      Filter = cms.untracked.bool(True)
     )
 
 )

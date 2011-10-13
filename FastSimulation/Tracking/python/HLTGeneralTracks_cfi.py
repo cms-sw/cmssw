@@ -7,10 +7,12 @@ HLTgeneralTracks = cms.EDProducer("FastTrackMerger",
     promoteTrackQuality = cms.untracked.bool(True),
     TrackProducers = cms.VInputTag(
        cms.InputTag("zeroStepFilter"),
+       cms.InputTag("zerofivefilter"),
        cms.InputTag("firstfilter"),
        cms.InputTag("secfilter"),
        cms.InputTag("thfilter"),
        cms.InputTag("foufilter"),
+       cms.InputTag("fifthfilter"),
     )
 )
 
