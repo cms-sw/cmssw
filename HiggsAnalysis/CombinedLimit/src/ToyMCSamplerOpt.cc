@@ -3,6 +3,8 @@
 #include <memory>
 #include <stdexcept>
 #include <TH1.h>
+#include <TH2.h>
+#include <TH3.h>
 #include <RooSimultaneous.h>
 #include <RooRealVar.h>
 #include <RooProdPdf.h>
@@ -102,17 +104,51 @@ RooDataSet *
 toymcoptutils::SinglePdfGenInfo::generateAsimov(RooRealVar *&weightVar) 
 {
     if (mode_ == Counting) return generateCountingAsimov();
-    if (observables_.getSize() > 1) throw std::invalid_argument(std::string("ERROR in SinglePdfGenInfo::generateAsimov for ") + pdf_->GetName() + ", more than 1 observable");
-    RooRealVar &x = (RooRealVar&)*observables_.first();
+    if (observables_.getSize() > 3) throw std::invalid_argument(std::string("ERROR in SinglePdfGenInfo::generateAsimov for ") + pdf_->GetName() + ", more than 3 observable");
+    RooArgList obs(observables_);
+    RooRealVar *x = (RooRealVar*)obs.at(0);
+    RooRealVar *y = obs.getSize() > 1 ? (RooRealVar*)obs.at(1) : 0;
+    RooRealVar *z = obs.getSize() > 2 ? (RooRealVar*)obs.at(2) : 0;
     if (weightVar == 0) weightVar = new RooRealVar("_weight_","",1.0);
-    std::auto_ptr<TH1> hist(pdf_->createHistogram("htemp", x));
+
+    RooCmdArg ay = (y ? RooFit::YVar(*y) : RooCmdArg::none());
+    RooCmdArg az = (z ? RooFit::YVar(*z) : RooCmdArg::none());
+    std::auto_ptr<TH1> hist(pdf_->createHistogram("htemp", *x, ay, az));
+
     double expectedEvents = pdf_->expectedEvents(observables_);
     hist->Scale(expectedEvents/ hist->Integral()); 
-    RooArgSet obsPlusW(x, weightVar);
+    RooArgSet obsPlusW(obs); obsPlusW.add(*weightVar);
     RooDataSet *data = new RooDataSet(TString::Format("%sData", pdf_->GetName()), "", obsPlusW, weightVar->GetName());
-    for (int i = 1, n = hist->GetNbinsX(); i <= n; ++i) {
-        x.setVal(hist->GetXaxis()->GetBinCenter(i));
-        data->add(observables_, hist->GetBinContent(i));
+    switch (obs.getSize()) {
+        case 1:
+            for (int i = 1, n = hist->GetNbinsX(); i <= n; ++i) {
+                x->setVal(hist->GetXaxis()->GetBinCenter(i));
+                data->add(observables_, hist->GetBinContent(i));
+            }
+            break;
+        case 2:
+            {
+            TH2& h2 = dynamic_cast<TH2&>(*hist);
+            for (int ix = 1, nx = h2.GetNbinsX(); ix <= nx; ++ix) {
+            for (int iy = 1, ny = h2.GetNbinsY(); iy <= ny; ++iy) {
+                x->setVal(h2.GetXaxis()->GetBinCenter(ix));
+                y->setVal(h2.GetYaxis()->GetBinCenter(iy));
+                data->add(observables_, h2.GetBinContent(ix,iy));
+            } }
+            }
+            break;
+        case 3:
+            {
+            TH3& h3 = dynamic_cast<TH3&>(*hist);
+            for (int ix = 1, nx = h3.GetNbinsX(); ix <= nx; ++ix) {
+            for (int iy = 1, ny = h3.GetNbinsY(); iy <= ny; ++iy) {
+            for (int iz = 1, nz = h3.GetNbinsZ(); iz <= nz; ++iz) {
+                x->setVal(h3.GetXaxis()->GetBinCenter(ix));
+                y->setVal(h3.GetYaxis()->GetBinCenter(iy));
+                z->setVal(h3.GetYaxis()->GetBinCenter(iz));
+                data->add(observables_, h3.GetBinContent(ix,iy,iz));
+            } } }
+            }
     }
     //std::cout << "Asimov dataset generated from " << pdf_->GetName() << " (sumw? " << data->sumEntries() << ", expected events " << expectedEvents << ")" << std::endl;
     //utils::printRDH(data);
