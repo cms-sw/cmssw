@@ -1,3 +1,11 @@
+2011-10-13  William Tanenbaum <wmtan@fnal.gov>
+
+	* tag V01-10-00
+	* Use "rawDataCollector" as module label of raw data
+	* (instead of "source") to be consistent with MC
+	* Use "LHC" as process name to avoid ambiguity.
+	* Details in new DaqProvenanceHelper class in the framework.
+
 2011-08-10  David Dagenhart <wdd@fnal.gov>
 
 	* tag V01-09-21
