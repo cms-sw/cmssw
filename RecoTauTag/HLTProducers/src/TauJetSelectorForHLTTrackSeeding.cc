@@ -1,5 +1,6 @@
 #include "RecoTauTag/HLTProducers/interface/TauJetSelectorForHLTTrackSeeding.h"
 
+#include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/JetReco/interface/TrackJet.h"
@@ -44,17 +45,15 @@ TauJetSelectorForHLTTrackSeeding::~TauJetSelectorForHLTTrackSeeding()
 void
 TauJetSelectorForHLTTrackSeeding::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-
-  std::auto_ptr< reco::TrackJetCollection > augmentedTrackJets (new reco::TrackJetCollection);
+   std::auto_ptr< reco::TrackJetCollection > augmentedTrackJets (new reco::TrackJetCollection);
 
    edm::Handle<reco::TrackJetCollection> trackjets;
-   iEvent.getByLabel(inputTrackJetTag_,trackjets);
+   iEvent.getByLabel(inputTrackJetTag_, trackjets);
 
    for (reco::TrackJetCollection::const_iterator trackjet = trackjets->begin();
 	  trackjet != trackjets->end(); trackjet++) {
      augmentedTrackJets->push_back(*trackjet);
    }
-
 
    edm::Handle<reco::TrackCollection> tracks;
    iEvent.getByLabel(inputTrackTag_,tracks);
@@ -71,12 +70,12 @@ TauJetSelectorForHLTTrackSeeding::produce(edm::Event& iEvent, const edm::EventSe
      if ( etaJet < etaMinCaloJet_ ) continue;
      if ( etaJet > etaMaxCaloJet_ ) continue;
 
-     std::vector <CaloTowerPtr> theTowers = calojet->getCaloConstituents();
+     std::vector <CaloTowerPtr> const & theTowers = calojet->getCaloConstituents();
      double ptIn = 0.;
      double ptOut = 0.;
      for ( unsigned int itwr = 0; itwr < theTowers.size(); ++itwr ) { 
        double etaTwr = theTowers[itwr]->eta() - etaJet;
-       double phiTwr = theTowers[itwr]->phi() - phiJet;
+       double phiTwr = deltaPhi(theTowers[itwr]->phi(), phiJet);
        double deltaR = sqrt( etaTwr*etaTwr + phiTwr*phiTwr );
        //std::cout << "Tower eta/phi/et : " << etaTwr << " " << phiTwr << " " << theTowers[itwr]->pt() << std::endl;
        if ( deltaR < tauConeSize_ ) { 
@@ -99,7 +98,7 @@ TauJetSelectorForHLTTrackSeeding::produce(edm::Event& iEvent, const edm::EventSe
        for (unsigned itr=0; itr<trackjet->numberOfTracks(); ++itr) { 
 	 edm::Ptr<reco::Track> track = trackjet->track(itr);
 	 double trackEta = track->eta() - etaJet;
-	 double trackPhi = track->phi() - phiJet;
+	 double trackPhi = deltaPhi(track->phi(), phiJet);
 	 double deltaR = sqrt( trackEta*trackEta + trackPhi*trackPhi );
 	 if ( deltaR < isolationConeSize_ ) { 
 	   ntrk++; 
@@ -117,7 +116,7 @@ TauJetSelectorForHLTTrackSeeding::produce(edm::Event& iEvent, const edm::EventSe
      for (reco::TrackCollection::const_iterator track = tracks->begin();
 	  track != tracks->end(); track++) {
        double trackEta = track->eta() - etaJet;
-       double trackPhi = track->phi() - phiJet;
+       double trackPhi = deltaPhi(track->phi(), phiJet);
        double deltaR = sqrt( trackEta*trackEta + trackPhi*trackPhi );
        if ( deltaR < isolationConeSize_ ) { 
 	 ntrk2++; 

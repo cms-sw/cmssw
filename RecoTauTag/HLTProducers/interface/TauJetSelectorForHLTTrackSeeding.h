@@ -30,18 +30,18 @@ private:
 
   // ----------member data ---------------------------
 
-  edm::InputTag inputTrackJetTag_;
-  edm::InputTag inputCaloJetTag_;
-  edm::InputTag inputTrackTag_;
-  double ptMinCaloJet_;
-  double etaMinCaloJet_;
-  double etaMaxCaloJet_;
-  double tauConeSize_;
-  double isolationConeSize_;
-  double fractionMinCaloInTauCone_;
-  double fractionMaxChargedPUInCaloCone_;
-  double ptTrkMaxInCaloCone_;
-  int nTrkMaxInCaloCone_;
+  const edm::InputTag inputTrackJetTag_;
+  const edm::InputTag inputCaloJetTag_;
+  const edm::InputTag inputTrackTag_;
+  const double ptMinCaloJet_;
+  const double etaMinCaloJet_;
+  const double etaMaxCaloJet_;
+  const double tauConeSize_;
+  const double isolationConeSize_;
+  const double fractionMinCaloInTauCone_;
+  const double fractionMaxChargedPUInCaloCone_;
+  const double ptTrkMaxInCaloCone_;
+  const int nTrkMaxInCaloCone_;
 };
 #endif
 
