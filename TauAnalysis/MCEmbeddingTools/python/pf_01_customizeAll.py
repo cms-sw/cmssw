@@ -161,8 +161,8 @@ def customise(process):
 
 
   import sys
-  if hasattr(sys, "argv") == True:
-    options.parseArguments()
+  #if hasattr(sys, "argv") == True:
+  #  options.parseArguments()
 
   print "Setting mdtau to ", options.mdtau
   process.generator.ZTauTau.TauolaOptions.InputCards.mdtau = options.mdtau 
@@ -307,6 +307,25 @@ def customise(process):
   process.pfSelectedElectrons.src = cms.InputTag("particleFlowORG")
   process.pfSelectedPhotons.src   = cms.InputTag("particleFlowORG")
 
+
+  #'''
+  process.gsfElectronsORG = process.gsfElectrons.clone()
+  #print dir(process)
+  #for p in dir(process):
+
+  for p in process.paths:
+    pth = getattr(process,p)
+    #if hasattr(pth,"gsfElectrons"):
+    if "gsfElectrons" in pth.moduleNames():
+      pth.replace(process.gsfElectrons, process.gsfElectronsORG*process.gsfElectrons)
+      #print p, dir(pth.moduleNames())
+
+
+  process.gsfElectrons = cms.EDProducer("GSFElectronsMixer",
+      col1 = cms.InputTag("gsfElectronsORG"),
+      col2 = cms.InputTag("gsfElectrons","","RECO"),
+  )
+  #'''
   process.schedule.remove(process.DQM_FEDIntegrity_v3)
 
 
