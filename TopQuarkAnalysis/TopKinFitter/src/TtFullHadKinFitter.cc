@@ -567,7 +567,7 @@ TtFullHadKinFitter::KinFit::fit(const std::vector<pat::Jet>& jets){
      JetComb having the smallest chi2
   **/
 
-  if( fitResults.size() < 1 ) { 
+  if( (unsigned)fitResults.size() < 1 ) { 
     // in case no fit results were stored in the list (i.e. when all fits were aborted)
 
     KinFitResult result;
