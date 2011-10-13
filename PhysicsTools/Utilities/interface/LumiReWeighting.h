@@ -249,6 +249,8 @@ namespace edm {
 
     void weight3D_init();
 
+    void weight3D_init( std::string WeightFileName );  // initialize from root file
+
     void weightOOT_init(); 
 
   protected:

@@ -22,6 +22,7 @@
 #include "TRandom3.h"
 #include "TStopwatch.h"
 #include "TH1.h"
+#include "TH3.h"
 #include "TFile.h"
 #include <string>
 #include <algorithm>
@@ -278,6 +279,7 @@ double LumiReWeighting::weight3D( const edm::EventBase &e ) {
   np0 = min(np0,34);
   npp1 = min(npp1,34);
 
+  //  std::cout << " vertices " << npm1 << " " << np0 << " " << npp1 << std::endl; 
 
   return Weight3D_[npm1][np0][npp1];
  
@@ -286,6 +288,11 @@ double LumiReWeighting::weight3D( const edm::EventBase &e ) {
 
 void LumiReWeighting::weight3D_init() { 
 
+  //create histogram to write output weights, save pain of generating them again...
+
+  TH3D* WHist = new TH3D("WHist","3D weights",35,-.5,34.5,35,-.5,34.5,35,-.5,34.5 );
+
+
   using std::min;
 
   int Npoints = 100000000;
@@ -293,6 +300,8 @@ void LumiReWeighting::weight3D_init() {
   if( MC_distr_->GetEntries() == 0 ) {
     std::cout << " MC and Data distributions are not initialized! You must call the LumiReWeighting constructor. " << std::endl;
   }
+
+  std::cout << " Generating 100M 3-D Weights.  This will take a while..." << std::endl;
 
   // arrays for storing number of interactions
 
@@ -319,6 +328,9 @@ void LumiReWeighting::weight3D_init() {
   // Get entries randomly for Data, MC, fill arrays:
 
   for (int j=0;j<Npoints;j++) {       
+
+    if(j%1000000==0) std::cout << " ." << std::endl;
+
     x =  MC_distr_->GetRandom();
 
     //for Summer 11, we have this int feature that generates the spike at zero int.
@@ -357,6 +369,42 @@ void LumiReWeighting::weight3D_init() {
 	else {
 	  Weight3D_[i][j][k]  = 0.;
 	}
+	WHist->SetBinContent( i,j,k,Weight3D_[i][j][k] );
+      }
+    }
+  }
+
+  std::cout << " 3D Weight Matrix initialized! " << std::endl;
+  std::cout << " Writing weights to file Weight3D.root for re-use...  " << std::endl;
+
+  TFile * outfile = new TFile("Weight3D.root","RECREATE");
+  WHist->Write();
+  outfile->Write();
+  outfile->Close();
+  outfile->Delete();              
+
+
+  return;
+
+
+}
+
+
+void LumiReWeighting::weight3D_init( std::string WeightFileName ) { 
+
+  TFile *infile = new TFile(WeightFileName.c_str());
+  TH1F *WHist = (TH1F*)infile->Get("WHist");
+
+  // Check if the histogram exists           
+  if (!WHist) {
+    throw cms::Exception("HistogramNotFound") << " Could not find the histogram WHist in the file "
+					      << "in the file " << WeightFileName << "." << std::endl;
+  }
+
+  for (int i=0; i<35; i++) {  
+    for(int j=0; j<35; j++) {
+      for(int k=0; k<35; k++) {
+	Weight3D_[i][j][k] = WHist->GetBinContent(i,j,k);
       }
     }
   }
