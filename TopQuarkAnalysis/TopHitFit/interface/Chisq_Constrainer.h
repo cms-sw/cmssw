@@ -1,5 +1,5 @@
 //
-// $Id: Chisq_Constrainer.h,v 1.6 2011/04/29 15:04:48 haryo Exp $
+// $Id: Chisq_Constrainer.h,v 1.1 2011/05/26 09:46:52 mseidel Exp $
 //
 // File: hitfit/Chisq_Constrainer.h
 // Purpose: Minimize a chisq subject to a set of constraints.
@@ -153,12 +153,12 @@ public:
   /**
      Return the <i>maxit</i> parameter.
    */
-  int  maxit () const;
+  unsigned  maxit () const;
 
   /**
      Return the <i>max_cut</i> parameter.
    */
-  int  max_cut () const;
+  unsigned  max_cut () const;
 
   /**
      Return the <i>cutsize</i> parameter.

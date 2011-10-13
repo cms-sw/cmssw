@@ -1,5 +1,5 @@
 //
-// $Id: Chisq_Constrainer.cc,v 1.6 2010/09/05 17:22:25 haryo Exp $
+// $Id: Chisq_Constrainer.cc,v 1.1 2011/05/26 09:46:59 mseidel Exp $
 //
 // File: src/Chisq_Constrainer.cc
 // Purpose: Minimize a chisq subject to a set of constraints.
@@ -120,7 +120,7 @@ double Chisq_Constrainer_Args::chisq_diff_eps () const
 }
 
 
-int  Chisq_Constrainer_Args::maxit () const
+unsigned  Chisq_Constrainer_Args::maxit () const
 //
 // Purpose: Return the maxit parameter.
 //          See the header for documentation.
@@ -130,7 +130,7 @@ int  Chisq_Constrainer_Args::maxit () const
 }
 
 
-int  Chisq_Constrainer_Args::max_cut () const
+unsigned  Chisq_Constrainer_Args::max_cut () const
 //
 // Purpose: Return the max_cut parameter.
 //          See the header for documentation.
@@ -401,7 +401,7 @@ double Chisq_Constrainer::fit (Constraint_Calculator& constraint_calculator,
   bool near_convergence = false;
   double last_step_cutsize = 1;
 
-  int nit = 0;
+  unsigned nit = 0;
 
   // Initialize the displacement vectors c and d.
   Column_Vector c = x - xm;
@@ -446,7 +446,7 @@ double Chisq_Constrainer::fit (Constraint_Calculator& constraint_calculator,
     Row_Vector save_negF = - F;
     double this_step_cutsize = 1;
     double constraint_sum = -1;
-    int ncut = 0;
+    unsigned ncut = 0;
 
     // (10) Evaluate the constraints at the new point.
     // If the point is rejected, we have to try to cut the step.
