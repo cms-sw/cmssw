@@ -63,7 +63,7 @@ class ApvAnalysisFactory
   float getCommonModeSlope(uint32_t det_id, int apvNumber);
 
   void update(uint32_t det_id, const edm::DetSet<SiStripRawDigi>& in);
-  void updatePair(uint32_t det_id, int apvPair, const edm::DetSet<SiStripRawDigi>& in);
+  void updatePair(uint32_t det_id, size_t apvPair, const edm::DetSet<SiStripRawDigi>& in);
 
   std::string getStatus(uint32_t det_id);
 

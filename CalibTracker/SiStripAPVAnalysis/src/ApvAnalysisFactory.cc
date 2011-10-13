@@ -154,12 +154,12 @@ void ApvAnalysisFactory::constructAuxiliaryApvClasses( ApvAnalysis* theAPV,
 }
 
 
-void ApvAnalysisFactory::updatePair(uint32_t detId, int pairNumber, const edm::DetSet<SiStripRawDigi>& in)
+void ApvAnalysisFactory::updatePair(uint32_t detId, size_t pairNumber, const edm::DetSet<SiStripRawDigi>& in)
 {
   map<uint32_t, vector<ApvAnalysis*> >::const_iterator apvAnalysisIt = apvMap_.find(detId);
   if(apvAnalysisIt != apvMap_.end())
     {
-      int iter=0;
+      size_t iter=0;
 
       for(vector<ApvAnalysis*>::const_iterator apvIt = (apvAnalysisIt->second).begin(); apvIt != (apvAnalysisIt->second).end(); apvIt++)
   {
@@ -172,12 +172,12 @@ void ApvAnalysisFactory::updatePair(uint32_t detId, int pairNumber, const edm::D
       edm::DetSet<SiStripRawDigi> tmpRawDigi;
       tmpRawDigi.data.reserve(128);
 
-      int startStrip = 128*(iter%2);
-      int stopStrip = startStrip + 128;
+      size_t startStrip = 128*(iter%2);
+      size_t stopStrip = startStrip + 128;
  
-      for( int istrip = startStrip; istrip < stopStrip;istrip++)
+      for( size_t istrip = startStrip; istrip < stopStrip;istrip++)
       {
-        if( static_cast<int>( in.data.size()) <= istrip) tmpRawDigi.data.push_back( 0);
+        if(in.data.size() <= istrip) tmpRawDigi.data.push_back( 0);
         else tmpRawDigi.data.push_back(in.data[istrip]); //maybe dangerous
       }
       
@@ -201,18 +201,18 @@ void ApvAnalysisFactory::update(uint32_t detId, const edm::DetSet<SiStripRawDigi
   map<uint32_t, vector<ApvAnalysis*> >::const_iterator apvAnalysisIt = apvMap_.find(detId);
   if(apvAnalysisIt != apvMap_.end())
     {
-      int i=0;
+      size_t i=0;
        for(vector<ApvAnalysis*>::const_iterator apvIt = (apvAnalysisIt->second).begin(); apvIt != (apvAnalysisIt->second).end(); apvIt++)
    {
      edm::DetSet<SiStripRawDigi> tmpRawDigi;
      //it is missing the detId ...
      tmpRawDigi.data.reserve(128);
-     int startStrip = 128*i;
-     int stopStrip = startStrip + 128;
+     size_t startStrip = 128*i;
+     size_t stopStrip = startStrip + 128;
      
-     for( int istrip = startStrip; istrip < stopStrip;istrip++)
+     for( size_t istrip = startStrip; istrip < stopStrip;istrip++)
      {
-       if( static_cast<int>( in.data.size()) <= istrip) tmpRawDigi.data.push_back(0);
+       if( in.data.size() <= istrip) tmpRawDigi.data.push_back(0);
        else tmpRawDigi.data.push_back(in.data[istrip]); //maybe dangerous
      }
 
