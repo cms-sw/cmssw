@@ -1,5 +1,5 @@
 //################## EcnaHistosExample1.cc ####################
-// B. Fabbro      17/02/2011
+// B. Fabbro      06/07/2011
 //
 //   Drawing histos with TEcnaHistos
 //   with and without direct calls to TEcnaRead methods
@@ -79,7 +79,8 @@ int main ( int argc, char **argv )
 
       //............................. Pedestals
       MyHistosEB->SetHistoMin(0.); MyHistosEB->SetHistoMax();
-      MyHistosEB->Plot1DHisto("Crystal#", "Ped", "SM");
+      //MyHistosEB->Plot1DHisto("Crystal#", "Ped", "SM");
+      MyHistosEB->Plot1DHisto("Crystal#", "Pedd", "SMod");
 
       //............................. 
       fKeyAnaType    = "StdPeg12";
@@ -88,7 +89,8 @@ int main ( int argc, char **argv )
       fKeySuMoNumber =     11;
 
       //.................................... EtaPhiSuperModuleMeanCorss (EB)
-      MyHistosEB->PlotDetector("MCs", "SM");
+      //MyHistosEB->PlotDetector("MCs", "SM");
+      MyHistosEB->PlotDetector("MCsxxx", "Dee");
 
 #define FPLO
 #ifdef FPLO
@@ -112,7 +114,8 @@ int main ( int argc, char **argv )
       fKeySuMoNumber = 4;
       MyHistosEB->FileParameters("StdPeg12", fKeyNbOfSamples,
 				 fKeyRunNumber, fKeyFirstEvt, fKeyLastEvt, fKeyNbOfEvts, fKeySuMoNumber);
-      MyHistosEB->Plot1DHisto("LowFrequencyNoise", "NbOfXtals", "SM", "SAME");
+      //MyHistosEB->Plot1DHisto("LowFrequencyNoise", "NbOfXtals", "SM", "SAME");
+      MyHistosEB->Plot1DHisto("LowFrequencyNois", "NbOfXtal", "SMccc", "SAMEvv");
       //.................................
       fKeySuMoNumber = 5;
       MyHistosEB->FileParameters("StdPeg12", fKeyNbOfSamples,
@@ -178,7 +181,8 @@ int main ( int argc, char **argv )
       TowEcha = 15;
       MyHistosEB->Plot1DHisto("SampleSigma", "NOS", SMtower, TowEcha, "SAME");
       TowEcha = 16;
-      MyHistosEB->Plot1DHisto("SampleSigma", "NOS", SMtower, TowEcha, "SAME");
+      //MyHistosEB->Plot1DHisto("SampleSigma", "NOS", SMtower, TowEcha, "SAME");
+      MyHistosEB->Plot1DHisto("SampleSig", "NO", SMtower, TowEcha, "SAM");
 #endif // SIGM
 
 
@@ -209,7 +213,7 @@ int main ( int argc, char **argv )
       MyHistosEB->FileParameters(fKeyAnaType.Data(), fKeyNbOfSamples, 0,
 				 fKeyFirstEvt, fKeyLastEvt, fKeyNbOfEvts, fKeySuMoNumber);
 
-      TString run_par_file_name = "Ecna_132440_147995";
+      TString run_par_file_name = "Ecna_132440_137033";
 
       MyHistosEB->SetHistoMin(0.15);  MyHistosEB->SetHistoMax(0.8);
       MyHistosEB->PlotHistory("Time", "MCs", run_par_file_name, SMtower, TowEcha);
@@ -223,7 +227,8 @@ int main ( int argc, char **argv )
       MyHistosEB->PlotHistory("Time", "LFN", run_par_file_name, SMtower, TowEcha, "SAME n");
       MyHistosEB->PlotHistory("Time", "HFN", run_par_file_name, SMtower, TowEcha, "SAME n");
       MyHistosEB->PlotHistory("Time", "MeanCorss", run_par_file_name, SMtower, TowEcha, "SAME n");
-      MyHistosEB->PlotHistory("Time", "SigCorss", run_par_file_name, SMtower, TowEcha, "SAME n");
+      //MyHistosEB->PlotHistory("Time", "SigCorss", run_par_file_name, SMtower, TowEcha, "SAME n");
+      MyHistosEB->PlotHistory("Tim", "SigCors", run_par_file_name, SMtower, TowEcha, "SAME b");
 #endif // SIGS
 
 #define SIGE
@@ -264,10 +269,18 @@ int main ( int argc, char **argv )
 #endif // SIGE
       //.......................................................................
 
+      cout << "*H4Cna(main)> End of the example. You can quit ROOT (.q)"  << endl;
+
+      Bool_t retVal = kTRUE;
+      theApp.Run(retVal);
+      cout << endl
+	   << "*EcnaHistosExample> Terminating ROOT session." << endl;
+      theApp.Terminate(0);
+      cout << "*EcnaHistosExample> Exiting main program." << endl;
+      exit(0);
+
       delete MyHistosEB;                          xCdelete++;
       delete MyHistosEE;                          xCdelete++;
-
-      cout << "*H4Cna(main)> End of the example. You can quit ROOT (.q)"  << endl;
 
       if ( xCnew != xCdelete )
 	{
@@ -279,13 +292,5 @@ int main ( int argc, char **argv )
 	  //  cout << "*H4Cna(main)> BRAVO! GOOD MANAGEMENT OF ALLOCATIONS: xCnew = "
 	  //      << xCnew << ", xCdelete = " << xCdelete << endl;
 	}
-
-      Bool_t retVal = kTRUE;
-      theApp.Run(retVal);
-      cout << endl
-	   << "*EcnaHistosExample> Terminating ROOT session." << endl;
-      theApp.Terminate(0);
-      cout << "*EcnaHistosExample> Exiting main program." << endl;
-      exit(0);
     }
 }

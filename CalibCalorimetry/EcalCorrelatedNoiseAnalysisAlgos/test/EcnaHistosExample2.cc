@@ -1,5 +1,5 @@
 //################## EcnaHistosExample2.cc ####################
-// B. Fabbro      17/02/2011
+// B. Fabbro      04/07/2011
 //
 //   Drawing Histos with and without TEcnaRead and calls to ViewHisto(...)
 
@@ -50,11 +50,20 @@ int main ( int argc, char **argv )
   Int_t xAlreadyRead = 1;
   
   //========================================================================
+
   TEcnaObject* myTEcnaManagerEB = new TEcnaObject();
   TEcnaParPaths* fEcnaParPathsEB = new TEcnaParPaths(myTEcnaManagerEB);
 
-  if( fEcnaParPathsEB->GetPaths() != kTRUE )
+  TEcnaObject* myTEcnaManagerEE = new TEcnaObject();
+  TEcnaParPaths* fEcnaParPathsEE = new TEcnaParPaths(myTEcnaManagerEE);
+
+  if( fEcnaParPathsEB->GetPaths() == kTRUE && fEcnaParPathsEE->GetPaths() == kTRUE )
     {
+      //=====================================================================
+      //
+      //                TEST TEcnaRead and TEcnaHistos for EB
+      //
+      //=====================================================================
       Int_t SMtower  = 1;
       Int_t TowEcha  = 0;
       Int_t n1Sample = 4;
@@ -64,17 +73,13 @@ int main ( int argc, char **argv )
 
       fKeyAnaType     = "StdPeg12"; 
       fKeyNbOfSamples =        10;  
-      fKeyRunNumber   =    147995; 
+      fKeyRunNumber   =    136098; 
       fKeyFirstEvt    =         1; 
       fKeyLastEvt     =         0;
       fKeyNbOfEvts    =       150;
       fKeySuMoNumber  =        32;
 
-      //=====================================================================
-      //
-      //                TEST TEcnaRead and TEcnaHistos for EB
-      //
-      //=====================================================================
+
       TEcnaParEcal* fEcalParEB    = new TEcnaParEcal(myTEcnaManagerEB, "EB");
       TEcnaRead*    fMyRootFileEB = new TEcnaRead(myTEcnaManagerEB, "EB");
 
@@ -173,7 +178,7 @@ int main ( int argc, char **argv )
 #define HBAS
 #ifdef HBAS
 
-      fKeyRunNumber   =    147995; 
+      fKeyRunNumber   =    136098; 
       //==================================================== Test Plot1DHisto samples
       fMyRootFileEB->FileParameters(fKeyAnaType,     fKeyNbOfSamples,
 				    fKeyRunNumber,   fKeyFirstEvt,
@@ -393,25 +398,20 @@ int main ( int argc, char **argv )
 	  MyHistosEB->Plot1DHisto("Tow", "TNo", "EB");
 	}
 #endif // VSTS
-      
-      delete MyHistosEB;
-    }
-  
+
   //=====================================================================
   //
   //                TEST TEcnaHistos for EE
   //
   //=====================================================================
-  TEcnaObject* myTEcnaManagerEE = new TEcnaObject();
-  TEcnaParPaths* fEcnaParPathsEE = new TEcnaParPaths(myTEcnaManagerEE);
-  if( fEcnaParPathsEE->GetPaths() == kTRUE )
-    {
+    
       TEcnaParEcal* fEcalParEE    = new TEcnaParEcal(myTEcnaManagerEE, "EE");
       TEcnaRead*    fMyRootFileEE = new TEcnaRead(myTEcnaManagerEE, "EE");
       
       TEcnaHistos*  MyHistosEE    = new TEcnaHistos(myTEcnaManagerEE, "EE");
       
       fKeyDeeNumber = 1;
+      fKeyRunNumber = 161311;
 
       xAlreadyRead = 1;
       if( xAlreadyRead == 1 )
@@ -428,7 +428,7 @@ int main ( int argc, char **argv )
 
 	      MyHistosEE->SetHistoMax(3.5);  MyHistosEE->SetHistoScaleY("LIN");
 #define HSAA
-#ifndef HSAA
+#ifdef HSAA
 	      MyHistosEE->NewCanvas("SAME n");
 	      read_ee_histo = fMyRootFileEE->Read1DHisto(fEcalParEE->MaxSCInEE(), "TNo", "EE");
 	      MyHistosEE->Plot1DHisto(read_ee_histo, "SC", "TNo", "EE", "SAME n");
@@ -460,7 +460,7 @@ int main ( int argc, char **argv )
 	  MyHistosEE->SetHistoMax(3.5);  MyHistosEE->SetHistoScaleY("LIN");
 
 #define HSAB
-#ifndef HSAB
+#ifdef HSAB
 	  MyHistosEE->NewCanvas("SAME n");
 	  MyHistosEE->Plot1DHisto("SC", "TNo", "EE", "SAME n"); 
 	  MyHistosEE->Plot1DHisto("SC", "LFN", "EE", "SAME n");
@@ -470,8 +470,7 @@ int main ( int argc, char **argv )
 	  MyHistosEE->Plot1DHisto("SC", "TNo", "EE"); 
 	  MyHistosEE->PlotDetector("TotalNoise", "EE");
 	}
-      delete MyHistosEE;
-      
+
       //=====================================================================
       //
       //                            END OF  TEST 
@@ -487,5 +486,8 @@ int main ( int argc, char **argv )
       theApp.Terminate(0);
       cout << "*EcalCorrelatedNoiseExampleHistos> Exiting main program." << endl;
       exit(0);
+      
+      delete MyHistosEB;  // always after exit(0) (because of TEcnaHistos::DoCanvasClosed())
+      delete MyHistosEE;  // always after exit(0) (because of TEcnaHistos::DoCanvasClosed())
     }
 }
