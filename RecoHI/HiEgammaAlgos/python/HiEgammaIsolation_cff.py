@@ -18,6 +18,6 @@ gamIsoDepositEcalFromHits.ExtractorPSet.endcapEcalHits = cms.InputTag("reducedEc
 gamIsoDepositTk.ExtractorPSet.inputTrackCollection = isolationInputParameters.track
 
 hiEgammaIsolationSequenceAll = cms.Sequence(hiCaloIsolationAll+hiTrackerIsolation)
-hiEgammaIsolationSequence = cms.Sequence(hiCaloIsolationBckSubtracted+hiTrackerIsolation+photonIDSequence+reducedRecHitsSequence*gamIsolationSequence)
+hiEgammaIsolationSequence = cms.Sequence(hiCaloIsolationBckSubtracted+hiTrackerIsolation+photonIDSequence+reducedEcalRecHitsSequence*gamIsolationSequence)
 
 

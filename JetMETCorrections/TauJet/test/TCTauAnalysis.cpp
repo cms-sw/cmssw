@@ -45,7 +45,7 @@ class TCTauAnalysis : public edm::EDAnalyzer {
   private:
 	void resetNtuple();
 
-//        void fillCaloTau(CaloTauRef);
+        void fillCaloTau(CaloTauRef);
         void fillTCTau(CaloTauRef);
         void fillPFTau(PFTauRef);
 
@@ -54,22 +54,21 @@ class TCTauAnalysis : public edm::EDAnalyzer {
 
 	float MCTau_pt,MCTau_eta,MCTau_phi;
 	float PFTau_pt,PFTau_eta,PFTau_phi,PFTau_nProngs,PFTau_ltrackPt,PFTau_d_isol,PFTau_d_1,PFTau_d_2;
-	float CaloTau_pt,CaloTau_eta,CaloTau_phi,CaloTau_nProngs,CaloTau_ltrackPt,CaloTau_d_isol,CaloTau_d_1,CaloTau_d_2,CaloTau_tcalgo;
+	float CaloTau_pt,CaloTau_eta,CaloTau_phi,CaloTau_nProngs,CaloTau_ltrackPt,CaloTau_d_isol,CaloTau_d_1,CaloTau_d_2;
 	float JPTTau_pt,JPTTau_eta,JPTTau_phi;
-//	float TCTau_pt,TCTau_eta,TCTau_phi,TCTau_nProngs,TCTau_ltrackPt,TCTau_d_isol,TCTau_d_1,TCTau_d_2,TCTau_algo;
-//        float TCTau_pt_raw,TCTau_eta_raw,TCTau_phi_raw;
-	float CaloTau_pt_raw,CaloTau_eta_raw,CaloTau_phi_raw;
+	float TCTau_pt,TCTau_eta,TCTau_phi,TCTau_nProngs,TCTau_ltrackPt,TCTau_d_isol,TCTau_d_1,TCTau_d_2,TCTau_algo;
+        float TCTau_pt_raw,TCTau_eta_raw,TCTau_phi_raw;
 
 	int nMCTaus,
             nCaloTaus,
-//            nTCTaus,
+            nTCTaus,
 	    nPFTaus;
 
 	double tauEtCut,tauEtaCut;
 	bool useMCInfo;
 
 	edm::InputTag CaloTaus;
-//	edm::InputTag TCTaus;
+	edm::InputTag TCTaus;
 	edm::InputTag PFTaus;
 	edm::InputTag MCTaus;
 	edm::InputTag Discriminator;
@@ -85,7 +84,7 @@ class TCTauAnalysis : public edm::EDAnalyzer {
         edm::Handle<CaloTauCollection>    theCaloTauHandle;
         edm::Handle<CaloTauDiscriminator> theCaloTauDiscriminatorHandle;
 
-//        edm::Handle<CaloTauCollection>    theTCTauHandle;
+        edm::Handle<CaloTauCollection>    theTCTauHandle;
         edm::Handle<CaloTauDiscriminator> theTCTauDiscriminatorHandle;
 	edm::Handle<CaloTauDiscriminator> theTCTauAlgoHandle;
 
@@ -98,7 +97,7 @@ TCTauAnalysis::TCTauAnalysis(const edm::ParameterSet& iConfig){
         tauEtCut        = iConfig.getParameter<double>("TauJetEt");
         tauEtaCut       = iConfig.getParameter<double>("TauJetEta");
         CaloTaus        = iConfig.getParameter<edm::InputTag>("CaloTauCollection");
-//        TCTaus          = iConfig.getParameter<edm::InputTag>("TCTauCollection");
+        TCTaus          = iConfig.getParameter<edm::InputTag>("TCTauCollection");
         PFTaus          = iConfig.getParameter<edm::InputTag>("PFTauCollection");
         MCTaus          = iConfig.getParameter<edm::InputTag>("MCTauCollection");
         Discriminator   = iConfig.getParameter<edm::InputTag>("Discriminator");
@@ -118,7 +117,7 @@ TCTauAnalysis::TCTauAnalysis(const edm::ParameterSet& iConfig){
 
 	nMCTaus   = 0;
 	nCaloTaus = 0;
-//	nTCTaus   = 0;
+	nTCTaus   = 0;
 	nPFTaus   = 0;
 
 	if(useMCInfo){
@@ -144,15 +143,11 @@ TCTauAnalysis::TCTauAnalysis(const edm::ParameterSet& iConfig){
 	CaloTau_d_isol = 0;   tauTree->Branch("CaloTau_d_isol",  &CaloTau_d_isol,  "CaloTau_d_isol/F");
         CaloTau_d_1 = 0;      tauTree->Branch("CaloTau_d_1",  &CaloTau_d_1,  "CaloTau_d_1/F");
         CaloTau_d_2 = 0;      tauTree->Branch("CaloTau_d_2",  &CaloTau_d_2,  "CaloTau_d_2/F");
-        CaloTau_tcalgo = 0;   tauTree->Branch("CaloTau_tcalgo",  &CaloTau_tcalgo,  "CaloTau_tcalgo/F");
-        CaloTau_pt_raw  = 0;  tauTree->Branch("CaloTau_pt_raw",  &CaloTau_pt_raw,  "CaloTau_pt_raw/F");
-        CaloTau_eta_raw = 0;  tauTree->Branch("CaloTau_eta_raw", &CaloTau_eta_raw, "CaloTau_eta_raw/F");
-        CaloTau_phi_raw = 0;  tauTree->Branch("CaloTau_phi_raw", &CaloTau_phi_raw, "CaloTau_phi_raw/F");
 
         JPTTau_pt  = 0;      tauTree->Branch("JPTTau_pt",  &JPTTau_pt,  "JPTTau_pt/F");
         JPTTau_eta = 0;      tauTree->Branch("JPTTau_eta", &JPTTau_eta, "JPTTau_eta/F");
         JPTTau_phi = 0;      tauTree->Branch("JPTTau_phi", &JPTTau_phi, "JPTTau_phi/F");
-/*
+
         TCTau_pt  = 0;      tauTree->Branch("TCTau_pt",  &TCTau_pt,  "TCTau_pt/F");
         TCTau_eta = 0;      tauTree->Branch("TCTau_eta", &TCTau_eta, "TCTau_eta/F");
         TCTau_phi = 0;      tauTree->Branch("TCTau_phi", &TCTau_phi, "TCTau_phi/F");
@@ -165,7 +160,6 @@ TCTauAnalysis::TCTauAnalysis(const edm::ParameterSet& iConfig){
         TCTau_pt_raw  = 0;  tauTree->Branch("TCTau_pt_raw",  &TCTau_pt_raw,  "TCTau_pt_raw/F");
         TCTau_eta_raw = 0;  tauTree->Branch("TCTau_eta_raw", &TCTau_eta_raw, "TCTau_eta_raw/F");
         TCTau_phi_raw = 0;  tauTree->Branch("TCTau_phi_raw", &TCTau_phi_raw, "TCTau_phi_raw/F");
-*/
 }
 
 TCTauAnalysis::~TCTauAnalysis(){
@@ -174,7 +168,7 @@ TCTauAnalysis::~TCTauAnalysis(){
 	if(useMCInfo)
         cout << "MCTaus     " << nMCTaus << endl;
         cout << "CaloTaus   " << nCaloTaus << endl;
-//        cout << "TCTaus     " << nTCTaus << endl;
+        cout << "TCTaus     " << nTCTaus << endl;
         cout << "PFTaus     " << nPFTaus << endl;
 
 	outFile->cd();
@@ -206,11 +200,7 @@ void TCTauAnalysis::resetNtuple(){
         CaloTau_d_isol   = 0;
         CaloTau_d_1      = 0;
         CaloTau_d_2      = 0;
-        CaloTau_tcalgo   = 0;
-        CaloTau_pt_raw   = 0;
-        CaloTau_eta_raw  = 0;
-        CaloTau_phi_raw  = 0;
-/*
+
         TCTau_pt       = 0;
         TCTau_eta      = 0;
         TCTau_phi      = 0;
@@ -223,7 +213,6 @@ void TCTauAnalysis::resetNtuple(){
         TCTau_pt_raw   = 0;
         TCTau_eta_raw  = 0;
         TCTau_phi_raw  = 0;
-*/
 }
 
 void TCTauAnalysis::beginJob(){}
@@ -233,9 +222,8 @@ void TCTauAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	iEvent.getByLabel(CaloTaus,theCaloTauHandle);
         iEvent.getByLabel(edm::InputTag("caloRecoTau"+Discriminator.label(),"",CaloTaus.process()),
                           theCaloTauDiscriminatorHandle);
-/*
+
         iEvent.getByLabel(TCTaus,theTCTauHandle);
-*/
         iEvent.getByLabel(edm::InputTag("caloRecoTau"+Discriminator.label()),
                           theTCTauDiscriminatorHandle);
 	iEvent.getByLabel("tcRecoTauDiscriminationAlgoComponent",theTCTauAlgoHandle);
@@ -271,7 +259,7 @@ void TCTauAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
                   for(unsigned int iTau = 0; iTau < theCaloTauHandle->size(); ++iTau){
                         CaloTauRef theTau(theCaloTauHandle,iTau);
-/*
+
 			double DR = ROOT::Math::VectorUtil::DeltaR(*i, theTau->p4());
 
 			if(DR > 0.5) continue;
@@ -285,7 +273,7 @@ void TCTauAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
                   for(unsigned int iTau = 0; iTau < theTCTauHandle->size(); ++iTau){
                         CaloTauRef theTau(theTCTauHandle,iTau);
-*/
+
                         double DR = ROOT::Math::VectorUtil::DeltaR(*i, theTau->p4());
 
                         if(DR > 0.5) continue;
@@ -320,8 +308,6 @@ void TCTauAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 		if(caloTau->pt() < tauEtCut || fabs(caloTau->eta()) > tauEtaCut) continue;
 
-		fillTCTau(caloTau);
-/*
                 fillCaloTau(caloTau);
 
                 if(theTCTauHandle.isValid()){
@@ -335,7 +321,6 @@ void TCTauAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
                         fillTCTau(tcTau);
                   }
                 }
-*/
                 if(thePFTauHandle.isValid()){
                   for(unsigned int iPFTau = 0; iPFTau < thePFTauHandle->size(); ++iPFTau){
                         PFTauRef pfTau(thePFTauHandle,iPFTau);
@@ -353,13 +338,13 @@ void TCTauAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
           }
       }
 }
-/*
+
 void TCTauAnalysis::fillCaloTau(CaloTauRef theTau){
 
 	if(theTau->pt() == 0) return;
 
         CaloTau theCaloTau = *theTau;
-
+/*
 cout << "check TCTauAnalysis::fillCaloTau 1.1"<< endl;
         CaloTauElementsOperators op(theCaloTau);
 cout << "check TCTauAnalysis::fillCaloTau 1.2"<< endl;
@@ -377,7 +362,7 @@ cout << "check TCTauAnalysis::fillCaloTau 1.2"<< endl;
 
 cout << "check TCTauAnalysis::fillCaloTau 2"<< endl;
         const TrackRef leadingTrack =op.leadTk(metric,matchingConeSize,ptLeadingTrackMin);
-
+*/
 	double theDiscriminator = (*theCaloTauDiscriminatorHandle)[theTau];
 
 	cout << "CaloTau Et = " << theCaloTau.pt() <<endl;
@@ -390,15 +375,15 @@ cout << "check TCTauAnalysis::fillCaloTau 2"<< endl;
 	CaloTau_d_isol   = theDiscriminator;
 ////	CaloTau_d_1	 = d_trackIsolation;
 
-
+/*
 	if(leadingTrack.isNonnull()) {
 		const TrackRefVector signalTracks = op.tracksInCone(leadingTrack->momentum(),metric,signalConeSize,ptOtherTracksMin);
 		CaloTau_nProngs  = signalTracks.size();
 		CaloTau_ltrackPt = leadingTrack->pt();
 	}
-
-}
 */
+}
+
 void TCTauAnalysis::fillTCTau(CaloTauRef theTau){
 
 	if(theTau->pt() == 0) return;
@@ -418,32 +403,32 @@ void TCTauAnalysis::fillTCTau(CaloTauRef theTau){
 
         const TrackRef leadingTrack =op.leadTk(metric,matchingConeSize,ptLeadingTrackMin);
 
-        double theDiscriminator = (*theCaloTauDiscriminatorHandle)[theTau];
+        double theDiscriminator = (*theTCTauDiscriminatorHandle)[theTau];
 
 	double theAlgo          = (*theTCTauAlgoHandle)[theTau];
 
         cout << "CaloTau+JPT+TCTau Et = " << jptTCTauCorrected.pt() <<endl;
 
-        nCaloTaus++;
+        nTCTaus++;
 
 	JPTTau_pt  = jptTCTauCorrected.caloTauTagInfoRef()->jetRef()->pt();
 	JPTTau_eta = jptTCTauCorrected.caloTauTagInfoRef()->jetRef()->eta();
 	JPTTau_phi = jptTCTauCorrected.caloTauTagInfoRef()->jetRef()->phi();
 
-        CaloTau_pt       = jptTCTauCorrected.pt();
-        CaloTau_eta      = jptTCTauCorrected.eta();
-        CaloTau_phi      = jptTCTauCorrected.phi();
-        CaloTau_d_isol   = theDiscriminator;
-        CaloTau_d_1      = d_trackIsolation;
-	CaloTau_tcalgo   = theAlgo;
+        TCTau_pt       = jptTCTauCorrected.pt();
+        TCTau_eta      = jptTCTauCorrected.eta();
+        TCTau_phi      = jptTCTauCorrected.phi();
+        TCTau_d_isol   = theDiscriminator;
+        TCTau_d_1      = d_trackIsolation;
+	TCTau_algo     = theAlgo;
 
-        CaloTau_pt_raw   = jptTCTauCorrected.rawJetRef()->et();
-	cout << "TCTau Raw Et         = " << CaloTau_pt_raw << endl;
+        TCTau_pt_raw   = jptTCTauCorrected.rawJetRef()->et();
+	cout << "TCTau Raw Et         = " << TCTau_pt_raw << endl;
 
         if(leadingTrack.isNonnull()) {
                 const TrackRefVector signalTracks = op.tracksInCone(leadingTrack->momentum(),metric,signalConeSize,ptOtherTracksMin);
-                CaloTau_nProngs  = signalTracks.size();
-                CaloTau_ltrackPt = leadingTrack->pt();
+                TCTau_nProngs  = signalTracks.size();
+                TCTau_ltrackPt = leadingTrack->pt();
         }
 }
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  M. Fischler and Jim Kowalkowsi
 //         Created:  Tues Feb 14 16:38:19 CST 2006
-// $Id: MessageDrop.cc,v 1.11 2010/11/30 23:12:52 fischler Exp $
+// $Id: MessageDrop.cc,v 1.12 2010/12/07 22:56:35 fischler Exp $
 //
 
 // system include files
@@ -42,6 +42,9 @@
 // 6  mf 12/7/10	Fix in snapshot method to avoid strncpy from
 //			a string to the identical address, which valgrind
 // 			reports as an overlap problem.
+//
+// 7  fwyzard 7/6/11    Add support for discarding LogError-level messages
+//                      on a per-module basis (needed at HLT)
 
 using namespace edm;
 
@@ -49,6 +52,7 @@ edm::Exception * MessageDrop::ex_p = 0;
 bool MessageDrop::debugEnabled=true;
 bool MessageDrop::infoEnabled=true;
 bool MessageDrop::warningEnabled=true;
+bool MessageDrop::errorEnabled=true;
 // The following are false at initialization (in case configure is not done)
 // and are set true at the start of configure_ordinary_destinations, 
 // but are set false once a destination is thresholded to react to the 

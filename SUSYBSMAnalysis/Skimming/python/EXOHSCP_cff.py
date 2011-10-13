@@ -6,7 +6,7 @@ import Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi
 generalTracksSkim = Alignment.CommonAlignmentProducer.AlignmentTrackSelector_cfi.AlignmentTrackSelector.clone(
     src = 'generalTracks',
 #	src = 'TrackRefitter',
-    filter = True,
+    filter = False,
     applyBasicCuts = True,
     ptMin = TRACK_PT,
     nHitMin = 5,
@@ -17,11 +17,13 @@ trackerSeq = cms.Sequence( generalTracksSkim)
 
 from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 from RecoTracker.TrackProducer.TrackRefitters_cff import *
-TrackRefitter.src = "generalTracksSkim"
+TrackRefitterSkim = TrackRefitter.clone()
+TrackRefitterSkim.src = "generalTracksSkim"
 
-dedxNPHarm2 = cms.EDProducer("DeDxEstimatorProducer",
-    tracks                     = cms.InputTag("TrackRefitter"),
-    trajectoryTrackAssociation = cms.InputTag("TrackRefitter"),
+
+dedxSkimNPHarm2 = cms.EDProducer("DeDxEstimatorProducer",
+    tracks                     = cms.InputTag("TrackRefitterSkim"),
+    trajectoryTrackAssociation = cms.InputTag("TrackRefitterSkim"),
 
     estimator      = cms.string('generic'),
     exponent       = cms.double(-2.0),
@@ -41,21 +43,24 @@ dedxNPHarm2 = cms.EDProducer("DeDxEstimatorProducer",
 
 
 DedxFilter = cms.EDFilter("HSCPFilter",
-	 inputTrackCollection = cms.InputTag("TrackRefitter"),
-	 inputDedxCollection =  cms.InputTag("dedxNPHarm2"),
+     inputMuonCollection = cms.InputTag("muons"),
+	 inputTrackCollection = cms.InputTag("TrackRefitterSkim"),
+	 inputDedxCollection =  cms.InputTag("dedxSkimNPHarm2"),
+     SAMuPtMin = cms.double(60),
 	 trkPtMin = cms.double(TRACK_PT),
-	 dedxMin =cms.double(3.2),
+	 dedxMin =cms.double(3.0),
      dedxMaxLeft =cms.double(2.8),
      ndedxHits = cms.int32(5),
      etaMin= cms.double(-2.4),
      etaMax= cms.double(2.4),
      chi2nMax = cms.double(10),
      dxyMax = cms.double(0.5),
-     dzMax = cms.double(5)
-						  
+     dzMax = cms.double(5),
+     filter = cms.bool(True)
+
 )
 
-dedxSeq = cms.Sequence(offlineBeamSpot + TrackRefitter + dedxNPHarm2+DedxFilter)
+dedxSeq = cms.Sequence(offlineBeamSpot + TrackRefitterSkim + dedxSkimNPHarm2+DedxFilter)
 
 
 from TrackingTools.TrackAssociator.DetIdAssociatorESProducer_cff import *
@@ -172,9 +177,45 @@ exoticaRecoIsoPhotonSeq = cms.EDFilter("MonoPhotonSkimmer",
 )
 
 
-exoticaHSCPSeq = cms.Sequence( trackerSeq + dedxSeq+ecalSeq+hcalSeq+muonSeq+HSCPIsolation01+HSCPIsolation03+HSCPIsolation05)
+exoticaHSCPSeq = cms.Sequence(trackerSeq+dedxSeq+ecalSeq+hcalSeq+muonSeq+HSCPIsolation01+HSCPIsolation03+HSCPIsolation05)
 exoticaHSCPIsoPhotonSeq = cms.Sequence(exoticaRecoIsoPhotonSeq + trackerSeq+ecalSeq+hcalSeq+muonSeq+HSCPIsolation01+HSCPIsolation03+HSCPIsolation05)
 
+EXOHSCPSkim_EventContent=cms.PSet(
+    outputCommands = cms.untracked.vstring(
+      "drop *",
+      "keep GenEventInfoProduct_generator_*_*",
+      "keep L1GlobalTriggerReadoutRecord_*_*_*",
+      "keep recoVertexs_offlinePrimaryVertices_*_*",
+      "keep recoMuons_muonsSkim_*_*",
+      "keep SiStripClusteredmNewDetSetVector_generalTracksSkim_*_*",
+      "keep SiPixelClusteredmNewDetSetVector_generalTracksSkim_*_*",
+      "keep recoTracks_generalTracksSkim_*_*",
+      "keep recoTrackExtras_generalTracksSkim_*_*",
+      "keep TrackingRecHitsOwned_generalTracksSkim_*_*",
+      'keep *_dt1DRecHits_*_*',
+      'keep *_dt4DSegments_*_*',
+      'keep *_csc2DRecHits_*_*',
+      'keep *_cscSegments_*_*',
+      'keep *_rpcRecHits_*_*',
+      'keep recoTracks_standAloneMuons_*_*',
+      'keep recoTrackExtras_standAloneMuons_*_*',
+      'keep TrackingRecHitsOwned_standAloneMuons_*_*',
+      'keep recoTracks_globalMuons_*_*',
+      'keep recoTrackExtras_globalMuons_*_*',
+      'keep TrackingRecHitsOwned_globalMuons_*_*',
+      'keep EcalRecHitsSorted_reducedHSCPEcalRecHitsEB_*_*',
+      'keep EcalRecHitsSorted_reducedHSCPEcalRecHitsEE_*_*',
+      'keep HBHERecHitsSorted_reducedHSCPhbhereco__*',
+      'keep edmTriggerResults_TriggerResults__*',
+      'keep *_hltTriggerSummaryAOD_*_*',
+      'keep *_HSCPIsolation01__*',
+      'keep *_HSCPIsolation03__*',
+      'keep *_HSCPIsolation05__*',
+      'keep recoPFJets_ak5PFJets__*', 
+      'keep recoPFMETs_pfMet__*',
+      'keep recoBeamSpot_offlineBeamSpot__*',
+      )
+    )
 
 
 

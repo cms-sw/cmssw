@@ -9,7 +9,7 @@ process.load("DQMServices.Components.DQMEnvironment_cfi")
 process.load("DQMServices.Components.EDMtoMEConverter_cff")
 
 process.load("DQMOffline.Trigger.EgHLTOfflineClient_cfi")
-process.load("DQMOffline.Trigger.TopElectronHLTOfflineClient_cfi")
+#process.load("DQMOffline.Trigger.TopElectronHLTOfflineClient_cfi")
 process.load("DQMOffline.Trigger.EgHLTOfflineSummaryClient_cfi")
 #process.load("Configuration.StandardSequences.Geometry_cff")
 #process.load("Geometry.CaloEventSetup.CaloGeometry_cfi")
@@ -19,7 +19,7 @@ process.load("DQMOffline.Trigger.EgHLTOfflineSummaryClient_cfi")
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(1)
+    input = cms.untracked.int32(-1)
 )
 
 # initialize MessageLogger and output report
@@ -38,8 +38,19 @@ process.MessageLogger.cerr.FwkReport = cms.untracked.PSet(
 process.source = cms.Source("PoolSource",
                             fileNames = cms.untracked.vstring(),
                             processingMode = cms.untracked.string("RunsLumisAndEvents"),
-)
-process.source.fileNames=cms.untracked.vstring('file:test/relVal_350pre2Test.root')
+                            )
+process.source.fileNames=cms.untracked.vstring(
+  #  'file:/data/ndpc3/c/dmorse/HLTDQMrootFiles/May18/SourceTest_420.root',
+
+  #  'file:/data/ndpc3/c/dmorse/HLTDQMrootFiles/May18/SourceTest_420_2.root',
+  #  'rfio:/castor/cern.ch/user/d/dmorse/DQMOfflineSource/DQMOfflineSource_1_1_vMy.root'
+   
+    )
+process.source.fileNames.extend(
+[
+    
+]
+    )
 #process.source.processingMode = cms.untracked.string("RunsLumisAndEvents"),
 
 #process.source.processingMode = cms.untracked.string("RunsAndLumis")
@@ -59,14 +70,15 @@ process.DQMStore.collateHistograms = True
 process.EDMtoMEConverter.convertOnEndLumi = False
 process.EDMtoMEConverter.convertOnEndRun = True
 
-process.p1 = cms.Path(process.EDMtoMEConverter*process.egHLTOffDQMClient*process.topElectronHLTOffDQMClient*process.qTester*process.egHLTOffDQMSummaryClient*process.dqmSaver)
+#process.p1 = cms.Path(process.EDMtoMEConverter*process.egHLTOffDQMClient*process.topElectronHLTOffDQMClient*process.qTester*process.egHLTOffDQMSummaryClient*process.dqmSaver)
+process.p1 = cms.Path(process.EDMtoMEConverter*process.egHLTOffDQMClient*process.egHLTOffDQMSummaryClient*process.dqmSaver)
 
 
 process.DQMStore.verbose = 1
 process.DQM.collectorHost = ''
 process.dqmSaver.convention = cms.untracked.string('Offline')
-process.dqmSaver.saveByRun = cms.untracked.int32(1)
-process.dqmSaver.saveAtJobEnd = cms.untracked.bool(False)
-process.dqmSaver.workflow = cms.untracked.string('/BeamData09/MinBias/RECO')
+process.dqmSaver.saveByRun = cms.untracked.int32(-1)
+process.dqmSaver.saveAtJobEnd = cms.untracked.bool(True)
+process.dqmSaver.workflow = cms.untracked.string('/Run2011A/SingleElectron/RECORuns172620-173692EtCut35')
 process.dqmSaver.forceRunNumber = cms.untracked.int32(1)
-
+process.dqmSaver.dirName = '/data/ndpc3/c/dmorse/HLTDQMrootFiles'

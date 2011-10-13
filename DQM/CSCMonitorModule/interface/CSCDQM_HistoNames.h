@@ -220,6 +220,7 @@ namespace h {
   (( EMU_CSC_ALCT_CLCT_MATCH_RMS, "CSC_ALCT_CLCT_Match_rms" )) \
   (( EMU_CSC_ALCT_PLANES_WITH_HITS, "CSC_ALCT_Planes_with_Hits" )) \
   (( EMU_CSC_CLCT0_BXN_MEAN, "CSC_CLCT0_BXN_mean" )) \
+  (( EMU_CSC_CLCT0_BXN_RMS, "CSC_CLCT0_BXN_rms" )) \
   (( EMU_CSC_CLCT0_QUALITY, "CSC_CLCT0_Quality" )) \
   (( EMU_CSC_CLCT_PLANES_WITH_HITS, "CSC_CLCT_Planes_with_Hits" )) \
   (( EMU_CSC_DMB_INPUT_FIFO_FULL, "CSC_DMB_input_fifo_full" )) \

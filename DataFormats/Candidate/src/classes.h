@@ -112,7 +112,6 @@ namespace {
     edm::reftobase::RefHolder<reco::NamedCompositeCandidateRef> hcc10;
     edm::reftobase::VectorHolder<reco::Candidate, reco::NamedCompositeCandidateRefVector> hcc11;
     edm::reftobase::RefVectorHolder<reco::NamedCompositeCandidateRefVector> hcc12;
-    std::vector<edm::Ref<std::vector<reco::CompositeCandidate> > > vrcc1;
     reco::CandViewCandViewAssociation tpa1;
     edm::Wrapper<reco::CandViewCandViewAssociation> tpw1;
 

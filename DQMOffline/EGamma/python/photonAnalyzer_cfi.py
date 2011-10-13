@@ -76,11 +76,11 @@ photonAnalysis = cms.EDAnalyzer("PhotonAnalyzer",
     numberMin = cms.double(0),                               
     numberMax = cms.double(10), 
 
-    xBin = cms.int32(600),
+    xBin = cms.int32(300),
     xMin = cms.double(-60),                               
     xMax = cms.double(60),
                                 
-    yBin = cms.int32(600),
+    yBin = cms.int32(300),
     yMin = cms.double(-60),                               
     yMax = cms.double(60),
                                 

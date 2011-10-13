@@ -4,8 +4,8 @@
 /*
  * \file HcalMonitorClient.h
  * 
- * $Date: 2010/03/25 11:17:14 $
- * $Revision: 1.47 $
+ * $Date: 2010/05/07 18:04:59 $
+ * $Revision: 1.48 $
  * \author J. Temple
  * 
  */
@@ -108,6 +108,7 @@ private:
   int htmlcounter_;
 
   bool saveByLumiSection_;  //produces separate LS certification values when enabled
+  bool Online_;  // fix to April 2011 problem where online DQM client crashes in endJob.  Is endRun perhaps not called?
 
   // time parameters
   time_t current_time_;

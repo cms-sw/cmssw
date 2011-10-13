@@ -1,6 +1,10 @@
-<use   name="clhep"/>
-<use   name="rootmath"/>
-<use   name="boost"/>
+<use name="clhep"/>
+<use name="rootmath"/>
+<use name="boost"/>
+<use name="SimDataFormats/TrackingHit"/>
+<use name="Geometry/CommonDetUnit"/>
+<use name="TrackingTools/TrajectoryParametrization"/>
+<use name="TrackingTools/TrajectoryState"/>
 <export>
   <lib   name="1"/>
 </export>

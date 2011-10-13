@@ -12,4 +12,10 @@
     </class>
     <class name="std::vector<VertexCategories>" persistent="false"/>
 
+    <!-- Dictionary for the association in SVTagInfoProxy-->
+    <class name="edm::helpers::KeyVal<edm::RefProd<std::vector<reco::SecondaryVertexTagInfo> >, edm::RefProd<std::vector<reco::Vertex> > >" persistent="false"/>
+    <class name="edm::AssociationMap<edm::OneToMany<std::vector<reco::SecondaryVertexTagInfo>, std::vector<reco::Vertex>, unsigned int > >" persistent="false">
+        <field name="transientMap_" transient="true" />
+    </class>
+
 </lcgdict>

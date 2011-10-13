@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/02/16 16:06:23 $
- *  $Revision: 1.22 $
+ *  $Date: 2011/02/17 14:29:53 $
+ *  $Revision: 1.23 $
  *  \author Suchandra Dutta , Giorgia Mila
  */
 
@@ -206,21 +206,14 @@ void TrackingMonitor::beginJob(void)
       theTrackAnalyzer->setLumiFlag();    
     }
     if (doTrackerSpecific_) {
+
       int    NClusPxBin  = conf_.getParameter<int>(   "NClusPxBin");
       double NClusPxMin  = conf_.getParameter<double>("NClusPxMin");
       double NClusPxMax = conf_.getParameter<double>("NClusPxMax");
 
-
       int    NClusStrBin = conf_.getParameter<int>(   "NClusStrBin");
       double NClusStrMin = conf_.getParameter<double>("NClusStrMin");
       double NClusStrMax = conf_.getParameter<double>("NClusStrMax");
-
-      int    NClus2DStrBin = conf_.getParameter<int>(   "NClus2DStrBin");
-      double NClus2DStrMin = conf_.getParameter<double>("NClus2DStrMin");
-      double NClus2DStrMax = conf_.getParameter<double>("NClus2DStrMax");
-      int    NClus2DPxBin  = conf_.getParameter<int>(   "NClus2DPxBin");
-      double NClus2DPxMin  = conf_.getParameter<double>("NClus2DPxMin");
-      double NClus2DPxMax  = conf_.getParameter<double>("NClus2DPxMax");
 
       int    NClus2DTotBin = conf_.getParameter<int>(   "NClus2DTotBin");
       double NClus2DTotMin = conf_.getParameter<double>("NClus2DTotMin");
@@ -230,21 +223,16 @@ void TrackingMonitor::beginJob(void)
       double NTrk2DMax     = conf_.getParameter<double>("NTrk2DMax");
 
       dqmStore_->setCurrentFolder(MEFolderName+"/HitProperties");
+
       histname = "NumberOfClustersInPixel_" + CatagoryName; 
       NumberOfPixelClus = dqmStore_->book1D(histname, histname, NClusPxBin, NClusPxMin, NClusPxMax);
       NumberOfPixelClus->setAxisTitle("# of Clusters in Pixel", 1);
       NumberOfPixelClus->setAxisTitle("Number of Events", 2);
-      
+
       histname = "NumberOfClustersInStrip_" + CatagoryName; 
       NumberOfStripClus = dqmStore_->book1D(histname, histname, NClusStrBin, NClusStrMin, NClusStrMax);
       NumberOfStripClus->setAxisTitle("# of Clusters in Strip Detectors", 1);
       NumberOfStripClus->setAxisTitle("Number of Events", 2);
-
-      histname = "PixelClustersVsStripClusters_" + CatagoryName; 
-      NumberOfStripVsStripClus = dqmStore_->book2D(histname, histname, NClus2DStrBin, NClus2DStrMin, NClus2DStrMax,
-                                                                NClus2DPxBin, NClus2DPxMin,  NClus2DPxMax);
-      NumberOfStripVsStripClus->setAxisTitle("# of Clusters in Strip Detectors", 1);
-      NumberOfStripVsStripClus->setAxisTitle("# of Clusters in Pixel Detectors", 2);
 
       histname = "RatioOfPixelAndStripClusters_" + CatagoryName; 
       RatioOfPixelAndStripClus = dqmStore_->book1D(histname, histname, 100, 0.0, 1.6);
@@ -437,9 +425,8 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
                 double ratio = 0.0;
                 if ( ncluster_pix > 0) ratio = atan(ncluster_pix*1.0/ncluster_strip);
 
-                NumberOfStripClus->Fill(ncluster_strip);
+		NumberOfStripClus->Fill(ncluster_strip);
 		NumberOfPixelClus->Fill(ncluster_pix);
-                NumberOfStripVsStripClus->Fill(ncluster_strip,ncluster_pix);
 		RatioOfPixelAndStripClus->Fill(ratio);
 		NumberOfTrkVsClus->Fill(totalNumTracks, ncluster_strip+ncluster_pix);
               }

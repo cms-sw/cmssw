@@ -1,7 +1,6 @@
 #include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
-#include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/GeometrySurface/interface/Line.h"
 #include "DataFormats/GeometryVector/interface/Pi.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
@@ -26,7 +25,6 @@ double TrackAssociatorByChi2::compareTracksParam ( TrackCollection::const_iterat
     TrackBase::ParameterVector rParameters = rt->parameters();
 
     TrackBase::ParameterVector diffParameters = rParameters - sParameters;
-    diffParameters[2] = reco::deltaPhi(diffParameters[2],0.f);
     double chi2 = ROOT::Math::Dot(diffParameters * invertedCovariance, diffParameters);
     
     return chi2;
@@ -69,7 +67,6 @@ TrackAssociatorByChi2::compareTracksParam(const TrackCollection& rtColl,
 	TrackBase::ParameterVector sParameters = params.second;
       
 	TrackBase::ParameterVector diffParameters = rParameters - sParameters;
-        diffParameters[2] = reco::deltaPhi(diffParameters[2],0.f);
 	double chi2 = ROOT::Math::Dot(diffParameters * recoTrackCovMatrix, diffParameters);
 	chi2/=5;
 	if (chi2<chi2cut) outMap[chi2]=*st;
@@ -107,7 +104,6 @@ double TrackAssociatorByChi2::associateRecoToSim( TrackCollection::const_iterato
     TrackBase::ParameterVector sParameters=params.second;
     
     TrackBase::ParameterVector diffParameters = rParameters - sParameters;
-    diffParameters[2] = reco::deltaPhi(diffParameters[2],0.f);
     chi2 = ROOT::Math::Dot(diffParameters * recoTrackCovMatrix, diffParameters);
     chi2 /= 5;
     
@@ -208,7 +204,6 @@ RecoToSimCollection TrackAssociatorByChi2::associateRecoToSim(const edm::RefToBa
 	TrackBase::ParameterVector sParameters=params.second;
 	
 	TrackBase::ParameterVector diffParameters = rParameters - sParameters;
-        diffParameters[2] = reco::deltaPhi(diffParameters[2],0.f);
 	
 	chi2 = ROOT::Math::Similarity(diffParameters, recoTrackCovMatrix);
 	chi2 /= 5;
@@ -290,7 +285,6 @@ SimToRecoCollection TrackAssociatorByChi2::associateSimToReco(const edm::RefToBa
 	recoTrackCovMatrix.Invert();
 	
 	TrackBase::ParameterVector diffParameters = rParameters - sParameters;
-        diffParameters[2] = reco::deltaPhi(diffParameters[2],0.f);
 	
 	chi2 = ROOT::Math::Similarity(recoTrackCovMatrix, diffParameters);
 	chi2 /= 5;

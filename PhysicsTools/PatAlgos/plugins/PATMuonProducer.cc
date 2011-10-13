@@ -1,5 +1,5 @@
 //
-// $Id: PATMuonProducer.cc,v 1.41 2010/09/14 15:20:20 kukartse Exp $
+// $Id: PATMuonProducer.cc,v 1.43 2011/06/27 15:57:48 bellan Exp $
 //
 
 #include "PhysicsTools/PatAlgos/plugins/PATMuonProducer.h"
@@ -62,6 +62,7 @@ PATMuonProducer::PATMuonProducer(const edm::ParameterSet & iConfig) : useUserDat
 
   // pflow specific configurables
   useParticleFlow_  = iConfig.getParameter<bool>( "useParticleFlow" );
+  linkToPFSource_   = iConfig.getParameter<edm::InputTag>( "linkToPFSource" );  //SAK
   embedPFCandidate_ = iConfig.getParameter<bool>( "embedPFCandidate" );
   pfMuonSrc_ = iConfig.getParameter<edm::InputTag>( "pfMuonSource" );
 
@@ -153,7 +154,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
   for (size_t j = 0; j<isolationValueLabels_.size(); ++j) {
     iEvent.getByLabel(isolationValueLabels_[j].second, isolationValues[j]);
   }  
-  
+
   // prepare the MC matching
   GenAssociations  genMatches(genMatchSrc_.size());
   if (addGenMatch_) {
@@ -186,7 +187,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 	<< "No beam spot available from EventSetup, not adding high level selection \n";
     }
     beamPoint = reco::TrackBase::Point ( beamSpot.x0(), beamSpot.y0(), beamSpot.z0() );
-    if( pvHandle.isValid() ) {
+    if( pvHandle.isValid() && !pvHandle->empty() ) {
       primaryVertex = pvHandle->at(0);
       primaryVertexIsValid = true;
     } else {
@@ -204,6 +205,11 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
     // get the PFCandidates of type muons 
     edm::Handle< reco::PFCandidateCollection >  pfMuons;
     iEvent.getByLabel(pfMuonSrc_, pfMuons);
+    //-- SAK ------------------------------------------------------------------
+    edm::Handle< reco::PFCandidateCollection >  pfForLinking;
+    if (linkToPFSource_.label().length())
+      iEvent.getByLabel(linkToPFSource_, pfForLinking);
+    //-- SAK ------------------------------------------------------------------
 
     unsigned index=0;
     for( reco::PFCandidateConstIterator i = pfMuons->begin(); i != pfMuons->end(); ++i, ++index) {
@@ -211,7 +217,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       //const reco::IsolaPFCandidate& pfmu = *i;
       const reco::MuonRef& muonRef = pfmu.muonRef();
       assert( muonRef.isNonnull() );
-      
+
       MuonBaseRef muonBaseRef(muonRef);
       Muon aMuon(muonBaseRef);
 
@@ -255,14 +261,25 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
 	  aMuon.setNormChi2( norm_chi2 );
 	}
       }
-
       reco::PFCandidateRef pfRef(pfMuons,index);
       //reco::PFCandidatePtr ptrToMother(pfMuons,index);
       reco::CandidateBaseRef pfBaseRef( pfRef ); 
-      
+
       aMuon.setPFCandidateRef( pfRef  );     
       if( embedPFCandidate_ ) aMuon.embedPFCandidate();
       fillMuon( aMuon, muonBaseRef, pfBaseRef, genMatches, deposits, isolationValues );
+
+      //-- SAK ----------------------------------------------------------------
+      if (linkToPFSource_.label().length() && aMuon.pfCandidateRef().id() != pfForLinking.id()) {
+        reco::CandidatePtr  source  = aMuon.pfCandidateRef()->sourceCandidatePtr(0);
+        while (source.id() != pfForLinking.id()) {
+          source  = source->sourceCandidatePtr(0);
+          if (source.isNull())
+            throw cms::Exception("InputSource", "Object in "+pfMuonSrc_.encode()+" does not link back to "+linkToPFSource_.encode());
+        } // end loop over inheritance chain
+        aMuon.setPFCandidateRef(reco::PFCandidateRef(pfForLinking, source.key()));
+      }
+      //-- SAK ----------------------------------------------------------------
       patMuons->push_back(aMuon); 
     } 
   }
@@ -276,7 +293,7 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       iEvent.getByLabel(pickySrc_, pickyMap);
       iEvent.getByLabel(tpfmsSrc_, tpfmsMap);
     }
-    
+
     // embedding of muon MET corrections
     edm::Handle<edm::ValueMap<reco::MuonMETCorrectionData> > caloMETMuonCorrs;
     //edm::ValueMap<reco::MuonMETCorrectionData> caloMETmuCorValueMap;
@@ -290,7 +307,6 @@ void PATMuonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetu
       iEvent.getByLabel(tcMETMuonCorrs_, tcMETMuonCorrs);
       //tcMETmuCorValueMap  = *tcMETmuCorValueMap_h;
     }
-
     for (edm::View<reco::Muon>::const_iterator itMuon = muons->begin(); itMuon != muons->end(); ++itMuon) {
       // construct the Muon from the ref -> save ref to original object
       unsigned int idx = itMuon - muons->begin();
@@ -408,11 +424,10 @@ void PATMuonProducer::fillMuon( Muon& aMuon, const MuonBaseRef& muonRef, const r
   // as the pat::Muon momentum
   if (useParticleFlow_) 
     aMuon.setP4( aMuon.pfCandidateRef()->p4() );
-
   if (embedTrack_) aMuon.embedTrack();
   if (embedStandAloneMuon_) aMuon.embedStandAloneMuon();
   if (embedCombinedMuon_) aMuon.embedCombinedMuon();
-  
+
   // store the match to the generated final state muons
   if (addGenMatch_) {
     for(size_t i = 0, n = genMatches.size(); i < n; ++i) {      
@@ -421,25 +436,32 @@ void PATMuonProducer::fillMuon( Muon& aMuon, const MuonBaseRef& muonRef, const r
     }
     if (embedGenMatch_) aMuon.embedGenParticle();
   }
-  
   if (efficiencyLoader_.enabled()) {
     efficiencyLoader_.setEfficiencies( aMuon, muonRef );
   }
 
   for (size_t j = 0, nd = deposits.size(); j < nd; ++j) {
     if(useParticleFlow_) {
-      reco::CandidatePtr source = aMuon.pfCandidateRef()->sourceCandidatePtr(0);      
-      aMuon.setIsoDeposit(isoDepositLabels_[j].first, (*deposits[j])[source]);
+      if (deposits[j]->contains(baseRef.id()))
+	aMuon.setIsoDeposit(isoDepositLabels_[j].first, (*deposits[j])[baseRef]);
+      else {
+	reco::CandidatePtr source = aMuon.pfCandidateRef()->sourceCandidatePtr(0); 
+	aMuon.setIsoDeposit(isoDepositLabels_[j].first, (*deposits[j])[source]);
+      }
     }
     else{
       aMuon.setIsoDeposit(isoDepositLabels_[j].first, (*deposits[j])[muonRef]);
     }
   }
-
+  
   for (size_t j = 0; j<isolationValues.size(); ++j) {
     if(useParticleFlow_) {
-      reco::CandidatePtr source = aMuon.pfCandidateRef()->sourceCandidatePtr(0);      
-      aMuon.setIsolation(isolationValueLabels_[j].first, (*isolationValues[j])[source]);
+      if (isolationValues[j]->contains(baseRef.id()))
+	aMuon.setIsolation(isolationValueLabels_[j].first, (*isolationValues[j])[baseRef]);
+      else {
+	reco::CandidatePtr source = aMuon.pfCandidateRef()->sourceCandidatePtr(0);      
+	aMuon.setIsolation(isolationValueLabels_[j].first, (*isolationValues[j])[source]);
+      }
     }
     else{
       aMuon.setIsolation(isolationValueLabels_[j].first, (*isolationValues[j])[muonRef]);
@@ -476,6 +498,7 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
   // pf specific parameters
   iDesc.add<edm::InputTag>("pfMuonSource", edm::InputTag("pfMuons"))->setComment("particle flow input collection");
   iDesc.add<bool>("useParticleFlow", false)->setComment("whether to use particle flow or not");
+  iDesc.add<edm::InputTag>("linkToPFSource", edm::InputTag())->setComment("alternative PF collection to link to (pfCandidateRef) -- traverses inheritance chain up to this");
   iDesc.add<bool>("embedPFCandidate", false)->setComment("embed external particle flow object");
 
   // TeV refit 

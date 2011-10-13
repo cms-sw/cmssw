@@ -4,8 +4,8 @@
 /*
  * \file EETriggerTowerTask.h
  *
- * $Date: 2009/10/26 17:33:51 $
- * $Revision: 1.24 $
+ * $Date: 2010/02/17 22:46:52 $
+ * $Revision: 1.25 $
  *
 */
 
@@ -86,8 +86,8 @@ class EETriggerTowerTask : public edm::EDAnalyzer {
 
 
   /// book monitor elements for real, or emulated digis
-  void setup( const char* nameext,
-	      const char* folder, 
+  void setup( std::string const &nameext,
+	      std::string const &folder, 
 	      bool emulated);
   
 

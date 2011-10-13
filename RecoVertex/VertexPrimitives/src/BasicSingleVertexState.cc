@@ -101,7 +101,7 @@ void BasicSingleVertexState::computeError() const
 {
   if (!valid) throw VertexException("BasicSingleVertexState::invalid");
   int ifail;
-  theErr = weight().matrix().Inverse(ifail);
+  theErr = weight().matrix().inverse(ifail);
   if (ifail != 0) throw VertexException("BasicSingleVertexState::could not invert weight matrix");
   theErrAvailable = true;
 }
@@ -111,7 +111,7 @@ void BasicSingleVertexState::computeWeight() const
 {
   if (!valid) throw VertexException("BasicSingleVertexState::invalid");
   int ifail;
-  theWeight = error().matrix().Inverse(ifail);
+  theWeight = error().matrix().inverse(ifail);
   if (ifail != 0) throw VertexException("BasicSingleVertexState::could not invert error matrix");
   theWeightAvailable = true;
 }
