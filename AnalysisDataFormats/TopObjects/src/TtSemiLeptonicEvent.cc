@@ -56,16 +56,16 @@ TtSemiLeptonicEvent::print(const int verbosity) const
     // header for each hypothesis
     log << "-------------------------------------------------- \n";
     switch(hypKey) {
-    case kGeom              : log << " Geom"                                                         ; break;
-    case kWMassMaxSumPt     : log << " WMassMaxSumPt"                                                ; break;
-    case kMaxSumPtWMass     : log << " MaxSumPtWMass"                                                ; break;
-    case kGenMatch          : log << " GenMatch"                                                     ; break;
-    case kMVADisc           : log << " MVADisc"                                                      ; break;
-    case kKinFit            : log << " KinFit"                                                       ; break;
-    case kKinSolution       : log << " KinSolution not applicable to TtSemiLepEvtPartons -- skipping"; continue;
-    case kWMassDeltaTopMass : log << " WMassDeltaTopMass"                                            ; break;
-    case kHitFit            : log << " HitFit"                                                       ; break;
-    default                 : log << " Unknown TtEvent::HypoClassKey provided --> skipping"          ; continue;
+    case kGeom              : log << " Geom"                                                                ; break;
+    case kWMassMaxSumPt     : log << " WMassMaxSumPt"                                                       ; break;
+    case kMaxSumPtWMass     : log << " MaxSumPtWMass"                                                       ; break;
+    case kGenMatch          : log << " GenMatch"                                                            ; break;
+    case kMVADisc           : log << " MVADisc"                                                             ; break;
+    case kKinFit            : log << " KinFit"                                                              ; break;
+    case kKinSolution       : log << " KinSolution not (yet) applicable to TtSemiLeptonicEvent --> skipping"; continue;
+    case kWMassDeltaTopMass : log << " WMassDeltaTopMass"                                                   ; break;
+    case kHitFit            : log << " HitFit"                                                              ; break;
+    default                 : log << " Unknown TtEvent::HypoClassKey provided --> skipping"                 ; continue;
     }
     log << "-Hypothesis: \n";
     log << " * Number of real neutrino solutions: " << this->numberOfRealNeutrinoSolutions(hypKey) << "\n";
@@ -93,16 +93,15 @@ TtSemiLeptonicEvent::print(const int verbosity) const
 	log << "\n";
 	// specialties for some hypotheses
 	switch(hypKey) {
-	case kGenMatch : log << " * Sum(DeltaR) : "   << this->genMatchSumDR(cmb) << " \n"
-			     << " * Sum(DeltaPt): "   << this->genMatchSumPt(cmb) << " \n"; break;
-	case kMVADisc  : log << " * Method  : "       << this->mvaMethod()        << " \n"
-			     << " * Discrim.: "       << this->mvaDisc(cmb)       << " \n"; break;
-	case kKinFit   : log << " * Chi^2      : "    << this->fitChi2(cmb)       << " \n"
-			     << " * Prob(Chi^2): "    << this->fitProb(cmb)       << " \n"; break;
-	case kHitFit   : log << " * Chi^2        : "  << this->hitFitChi2(cmb)    << " \n"
-			     << " * Prob(Chi^2)  : "  << this->hitFitProb(cmb)    << " \n"
-			     << " * Top mass     : "  << this->hitFitMT(cmb)      << " \n"
-			     << " * Top mass sig.: "  << this->hitFitSigMT(cmb)   << " \n"; break;
+	case kGenMatch : log << " * Sum(DeltaR) : " << this->genMatchSumDR(cmb) << " \n"
+			     << " * Sum(DeltaPt): " << this->genMatchSumPt(cmb) << " \n"; break;
+	case kMVADisc  : log << " * Method  : "     << this->mvaMethod()        << " \n"
+			     << " * Discrim.: "     << this->mvaDisc(cmb)       << " \n"; break;
+	case kKinFit   : log << " * Chi^2      : "  << this->fitChi2(cmb)       << " \n"
+			     << " * Prob(Chi^2): "  << this->fitProb(cmb)       << " \n"; break;
+	case kHitFit   : log << " * Chi^2      : "  << this->hitFitChi2(cmb)    << " \n"
+			     << " * Prob(Chi^2): "  << this->hitFitProb(cmb)    << " \n"
+			     << " * Top mass   : "  << this->hitFitMT(cmb)      << " +/- " << this->hitFitSigMT(cmb) << " \n"; break;
 	default        : break;
 	}
 	// kinematic quantities of particles (if last digit of verbosity level > 1)

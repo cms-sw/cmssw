@@ -48,16 +48,16 @@ TtFullHadronicEvent::print(const int verbosity) const
     // header for each hypothesis
     log << "---------------------------------------------------------------------------- \n";
     switch(hypKey) {
-    case kGeom              : log << " Geom not applicable to TtSemiLepEvtPartons -- skipping"             ; continue;
-    case kWMassMaxSumPt     : log << " WMassMaxSumPt not applicable to TtSemiLepEvtPartons -- skipping"    ; continue;
-    case kMaxSumPtWMass     : log << " MaxSumPtWMass not applicable to TtSemiLepEvtPartons -- skipping"    ; continue;
-    case kGenMatch          : log << " GenMatch"                                                           ; break;
-    case kMVADisc           : log << " MVADisc"                                                            ; break;
-    case kKinFit            : log << " KinFit"                                                             ; break;
-    case kKinSolution       : log << " KinSolution not applicable to TtSemiLepEvtPartons -- skipping"      ; continue;
-    case kWMassDeltaTopMass : log << " WMassDeltaTopMass not applicable to TtSemiLepEvtPartons -- skipping"; continue;
-    case kHitFit            : log << " HitFit not applicable to TtSemiLepEvtPartons -- skipping"           ; continue;
-    default                 : log << " Unknown TtEvent::HypoClassKey provided --> skipping"                ; continue;
+    case kGeom              : log << " Geom not (yet) applicable to TtFullHadronicEvent --> skipping"             ; continue;
+    case kWMassMaxSumPt     : log << " WMassMaxSumPt not (yet) applicable to TtFullHadronicEvent --> skipping"    ; continue;
+    case kMaxSumPtWMass     : log << " MaxSumPtWMass not (yet) applicable to TtFullHadronicEvent --> skipping"    ; continue;
+    case kGenMatch          : log << " GenMatch"                                                                  ; break;
+    case kMVADisc           : log << " MVADisc"                                                                   ; break;
+    case kKinFit            : log << " KinFit"                                                                    ; break;
+    case kKinSolution       : log << " KinSolution not (yet) applicable to TtFullHadronicEvent --> skipping"      ; continue;
+    case kWMassDeltaTopMass : log << " WMassDeltaTopMass not (yet) applicable to TtFullHadronicEvent --> skipping"; continue;
+    case kHitFit            : log << " HitFit not (yet) applicable to TtFullHadronicEvent --> skipping"           ; continue;
+    default                 : log << " Unknown TtEvent::HypoClassKey provided --> skipping"                       ; continue;
     }
     log << "-Hypothesis: \n";
     unsigned nOfHyp = this->numberOfAvailableHypos(hypKey);

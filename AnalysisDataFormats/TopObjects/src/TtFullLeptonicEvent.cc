@@ -56,16 +56,16 @@ TtFullLeptonicEvent::print(const int verbosity) const
     // header for each hypothesis
     log << "------------------------------------------------------------ \n";
     switch(hypKey) {
-    case kGeom              : log << " Geom not applicable to TtFullLepEvtPartons -- skipping"             ; continue;
-    case kWMassMaxSumPt     : log << " WMassMaxSumPt not applicable to TtFullLepEvtPartons -- skipping"    ; continue;
-    case kMaxSumPtWMass     : log << " MaxSumPtWMass not applicable to TtFullLepEvtPartons -- skipping"    ; continue;
-    case kGenMatch          : log << " GenMatch"                                                           ; break;
-    case kMVADisc           : log << " MVADisc not applicable to TtFullLepEvtPartons -- skipping"          ; continue;
-    case kKinFit            : log << " KinFit not applicable to TtFullLepEvtPartons -- skipping"           ; continue;
-    case kKinSolution       : log << " KinSolution"                                                        ; break;
-    case kWMassDeltaTopMass : log << " WMassDeltaTopMass not applicable to TtFullLepEvtPartons -- skipping"; continue;
-    case kHitFit            : log << " HitFit not applicable to TtFullLepEvtPartons -- skipping"           ; continue;
-    default                 : log << " Unknown TtEvent::HypoClassKey provided --> skipping"                ; continue;
+    case kGeom              : log << " Geom not (yet) applicable to TtFullLeptonicEvent --> skipping"             ; continue;
+    case kWMassMaxSumPt     : log << " WMassMaxSumPt not (yet) applicable to TtFullLeptonicEvent --> skipping"    ; continue;
+    case kMaxSumPtWMass     : log << " MaxSumPtWMass not (yet) applicable to TtFullLeptonicEvent --> skipping"    ; continue;
+    case kGenMatch          : log << " GenMatch"                                                                  ; break;
+    case kMVADisc           : log << " MVADisc not (yet) applicable to TtFullLeptonicEvent --> skipping"          ; continue;
+    case kKinFit            : log << " KinFit not (yet) applicable to TtFullLeptonicEvent --> skipping"           ; continue;
+    case kKinSolution       : log << " KinSolution"                                                               ; break;
+    case kWMassDeltaTopMass : log << " WMassDeltaTopMass not (yet) applicable to TtFullLeptonicEvent --> skipping"; continue;
+    case kHitFit            : log << " HitFit not (yet) applicable to TtFullLeptonicEvent --> skipping"           ; continue;
+    default                 : log << " Unknown TtEvent::HypoClassKey provided --> skipping"                       ; continue;
     }
     log << "-Hypothesis: \n";
     unsigned nOfHyp = this->numberOfAvailableHypos(hypKey);
