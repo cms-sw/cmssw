@@ -5,14 +5,7 @@ process = cms.Process("TEST")
 ## add message logger
 process.load("FWCore.MessageLogger.MessageLogger_cfi")
 process.MessageLogger.cerr.threshold = 'INFO'
-process.MessageLogger.categories.append('TtSemiLepHitFit')
-process.MessageLogger.categories.append('HitFit')
-process.MessageLogger.cerr.TtSemiLepHitFit = cms.untracked.PSet(
-    limit = cms.untracked.int32(-1)
-)
-process.MessageLogger.cerr.HitFit = cms.untracked.PSet(
-    limit = cms.untracked.int32(-1)
-)
+process.MessageLogger.categories.append('TopHitFit')
 
 ## define input
 from TopQuarkAnalysis.TopEventProducers.tqafInputFiles_cff import relValTTbar
@@ -41,10 +34,6 @@ process.GlobalTag.globaltag = autoCond['mc']
 
 ## std sequence for pat
 process.load("PhysicsTools.PatAlgos.patSequences_cff")
-
-## the resolutions in HitFit are currently only provided for |eta|<3!
-## an object collection with appropriate cuts has to used (the module will run into exceptions otherwise)
-process.selectedPatJets.cut = 'abs(eta) < 3.0'
 
 ## std sequence to produce the kinematic fit for semi-leptonic events
 process.load("TopQuarkAnalysis.TopHitFit.TtSemiLepHitFitProducer_Muons_cfi")
