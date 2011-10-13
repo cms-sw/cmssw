@@ -14,6 +14,10 @@
 
 #include "GeneratorInterface/Pythia8Interface/interface/UserHooks.h"
 
+// PS matchning prototype
+//
+#include "GeneratorInterface/Pythia8Interface/interface/JetMatchingHook.h"
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -89,7 +93,11 @@ class Pythia8Hadronizer : public BaseHadronizer {
 	double fBeam2PZ;
 
         UserHooks* UserHookPointer;
-
+        
+	// PS matching protot6ype
+	//
+	JetMatchingHook* fJetMatchingHook;
+	
 };
 
 
@@ -103,7 +111,8 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
     LHEInputFileName(params.getUntrackedParameter<string>("LHEInputFileName","")),
     useUserHook(false),
     fInitialState(PP),
-    UserHookPointer(0)
+    UserHookPointer(0),
+    fJetMatchingHook(0)
 {
     if( params.exists( "useUserHook" ) )
       useUserHook = params.getParameter<bool>("useUserHook");
@@ -162,16 +171,30 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
 
     pythia->setRndmEnginePtr(RP8);
     decayer->setRndmEnginePtr(RP8);
+    
+    // PS matching prototype
+    //
+   if ( params.exists("jetMatching") )
+   {
+      edm::ParameterSet jmParams =
+			params.getUntrackedParameter<edm::ParameterSet>(
+								"jetMatching");
+      fJetMatchingHook = new JetMatchingHook( jmParams, &pythia->info );
+      pythia->setUserHooksPtr( fJetMatchingHook );
+   }
 
 }
 
 Pythia8Hadronizer::~Pythia8Hadronizer()
 {
+
+// do we need to delete UserHooks/JetMatchingHook here ???
+
 }
 
 bool Pythia8Hadronizer::readSettings( int )
 {
-    if(useUserHook) {
+    if(useUserHook && !fJetMatchingHook) { // yes, JetMatching takes over other "hooks" !!!
       UserHookPointer = new PtHatReweightUserHook();
       pythia->setUserHooksPtr(UserHookPointer);
     }
@@ -287,6 +310,16 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
 
     }
 
+    // PS matching prototype
+    //
+    if ( fJetMatchingHook ) 
+    {
+       // matcher will be init as well, inside init(...)
+       //
+       fJetMatchingHook->init ( lheRunInfo() );
+    }
+
+
     return true;
 }
 
@@ -373,8 +406,20 @@ bool Pythia8Hadronizer::hadronize()
       //cout << "finish loading event" << endl;
     }
 
-    if (!pythia->next())
-        return false;
+    if ( fJetMatchingHook ) 
+    {
+       fJetMatchingHook->resetMatchingStatus(); 
+       fJetMatchingHook->beforeHadronization( lheEvent() );
+    }
+
+    bool py8next = pythia->next();
+    // if (!pythia->next())
+    if (!py8next)
+    {
+        lheEvent()->count( lhef::LHERunInfo::kSelected );
+	event().reset();
+	return false;
+    }
 
     // update LHE matching statistics
     //

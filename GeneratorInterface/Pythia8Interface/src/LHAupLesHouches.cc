@@ -37,7 +37,14 @@ bool LHAupLesHouches::setEvent(int inProcId)
 {
 	if (!event)
 		return false;
+	
+	
+	if ( event->getReadAttempts() > 0 ) return false; // record already tried
+	
 	const lhef::HEPEUP &hepeup = *event->getHEPEUP();
+	
+	if ( !hepeup.NUP )
+	   return false;	
 
 	setProcess(hepeup.IDPRUP, hepeup.XWGTUP, hepeup.SCALUP,
 	           hepeup.AQEDUP, hepeup.AQCDUP);
@@ -68,5 +75,8 @@ bool LHAupLesHouches::setEvent(int inProcId)
 //	hadronisation->onBeforeHadronisation().emit();
 
 //	event.reset();
+
+        event->attempted();
+
 	return true;
 }
