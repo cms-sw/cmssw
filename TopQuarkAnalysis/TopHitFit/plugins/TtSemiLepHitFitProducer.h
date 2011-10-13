@@ -37,6 +37,13 @@ class TtSemiLepHitFitProducer : public edm::EDProducer {
   /// maximal number of combinations to be written to the event
   int maxNComb_;
   
+  /// maximum eta value for muons, needed to limited range in which resolutions are provided
+  double maxEtaMu_;
+  /// maximum eta value for electrons, needed to limited range in which resolutions are provided
+  double maxEtaEle_;
+  /// maximum eta value for jets, needed to limited range in which resolutions are provided
+  double maxEtaJet_;
+
   /// input tag for b-tagging algorithm
   std::string bTagAlgo_;
   /// min value of bTag for a b-jet
@@ -140,6 +147,23 @@ TtSemiLepHitFitProducer<LeptonCollection>::TtSemiLepHitFitProducer(const edm::Pa
                          mW_,
                          mTop_);
 
+  maxEtaMu_  = 2.4;
+  maxEtaEle_ = 2.5;
+  maxEtaJet_ = 3.0;
+
+  edm::LogVerbatim( "TopHitFit" ) 
+    << "\n"
+    << "+++++++++++ TtSemiLepHitFitProducer ++++++++++++ \n"
+    << " Due to the eta ranges for which resolutions     \n" 
+    << " are provided in                                 \n"
+    << " TopQuarkAnalysis/TopHitFit/data/resolution/     \n" 
+    << " so far, the following cuts are currently        \n" 
+    << " implemented in the TtSemiLepHitFitProducer:     \n" 
+    << " |eta(muons    )| <= " << maxEtaMu_  <<        " \n"
+    << " |eta(electrons)| <= " << maxEtaEle_ <<        " \n"
+    << " |eta(jets     )| <= " << maxEtaJet_ <<        " \n"
+    << "++++++++++++++++++++++++++++++++++++++++++++++++ \n";
+
   produces< std::vector<pat::Particle> >("PartonsHadP");
   produces< std::vector<pat::Particle> >("PartonsHadQ");
   produces< std::vector<pat::Particle> >("PartonsHadB");
@@ -194,32 +218,15 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   
   const unsigned int nPartons = 4;
 
-  const double maxEtaMu  = 2.4;
-  const double maxEtaEle = 2.5;
-  const double maxEtaJet = 3.0;
-
-  edm::LogVerbatim( "TopHitFit" ) 
-    << "\n"
-    << "+++++++++++ TtSemiLepHitFitProducer ++++++++++++ \n"
-    << " Due to the eta ranges for which resolutions     \n" 
-    << " are provided in                                 \n"
-    << " TopQuarkAnalysis/TopHitFit/data/resolution/     \n" 
-    << " so far, the following cuts are currently        \n" 
-    << " implemted in the TtSemiLepHitFitProducer:       \n" 
-    << " |eta(muons    )| <= " << maxEtaMu  <<         " \n"
-    << " |eta(electrons)| <= " << maxEtaEle <<         " \n"
-    << " |eta(jets     )| <= " << maxEtaJet <<         " \n"
-    << "+++++++++++++++++++++++++++++++++++++++++++++++++ \n";
-
   // Clear the internal state
   HitFit->clear();
 
   // Add lepton into HitFit
   bool foundLepton = false;
   if(!leps->empty()) {
-    double maxEtaLep = maxEtaMu;
+    double maxEtaLep = maxEtaMu_;
     if( !dynamic_cast<const reco::Muon*>(&((*leps)[0])) ) // assume electron if it is not a muon
-      maxEtaLep = maxEtaEle;
+      maxEtaLep = maxEtaEle_;
     for(unsigned iLep=0; iLep<(*leps).size() && !foundLepton; ++iLep) {
       if(std::abs((*leps)[iLep].eta()) <= maxEtaLep) {
 	HitFit->AddLepton((*leps)[iLep]);
@@ -231,7 +238,7 @@ void TtSemiLepHitFitProducer<LeptonCollection>::produce(edm::Event& evt, const e
   // Add jets into HitFit
   int nJetsFound = 0;
   for(unsigned iJet=0; iJet<(*jets).size() && nJetsFound!=maxNJets_; ++iJet) {
-    if(std::abs((*jets)[iJet].eta()) <= maxEtaJet) {
+    if(std::abs((*jets)[iJet].eta()) <= maxEtaJet_) {
       HitFit->AddJet((*jets)[iJet]);
       nJetsFound++;
     }
