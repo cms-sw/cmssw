@@ -35,7 +35,7 @@ bool VolumeGridTester::testInside() const
   cout << "Grid has " << 3 << " dimensions " 
        << " number of nodes is " << sizes.w << " " << sizes.h << " " << sizes.d << endl;
 
-  int dumpCount = 0;
+  size_t dumpCount = 0;
   for (int j=0; j < sizes.h; j++) {
     for (int k=0; k < sizes.d; k++) {
       for (int i=0; i < sizes.w; i++) {

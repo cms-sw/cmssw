@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/10/13 15:30:50 $
- *  $Revision: 1.29 $
+ *  $Date: 2011/04/16 12:56:32 $
+ *  $Revision: 1.30 $
  *  \author N. Amapane - INFN Torino
  */
 
@@ -573,7 +573,7 @@ void MagGeoBuilderFromDDD::buildInterpolator(const volumeHandle * vol, map<strin
 	const double tolerance = 0.03;
 
 
-	int dumpCount = 0;
+	size_t dumpCount = 0;
 	for (int j=0; j < sizes.h; j++) {
 	  for (int k=0; k < sizes.d; k++) {
 	    for (int i=0; i < sizes.w; i++) {
