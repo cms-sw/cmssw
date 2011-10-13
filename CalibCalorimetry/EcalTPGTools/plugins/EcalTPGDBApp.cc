@@ -122,23 +122,14 @@ void EcalTPGDBApp::readFromConfDB_TPGPedestals(int iconf_req ) {
   EcalLogicID ecid_xt;
   FEConfigPedDat  rd_ped;
   
-  float ped_m12[61200];
-  float ped_m6[61200];
-  float ped_m1[61200];
-  for (int i=0; i<61200; i++){
-    ped_m12[i]=0;
-    ped_m6[i]=0;
-    ped_m1[i]=0;
-  }
-  
   for (CIfeped p = dataset_ped.begin(); p != dataset_ped.end(); p++) {
     ecid_xt = p->first;
     rd_ped  = p->second;
     //int sm_num=ecid_xt.getID1();
-    int xt_num=ecid_xt.getID2();
-    ped_m12[xt_num]=rd_ped.getPedMeanG12();
-    ped_m6[xt_num]=rd_ped.getPedMeanG6();
-    ped_m1[xt_num]=rd_ped.getPedMeanG1();
+    ecid_xt.getID2();
+    rd_ped.getPedMeanG12();
+    rd_ped.getPedMeanG6();
+    rd_ped.getPedMeanG1();
   }
   
   cout << "*****************************************" << endl;
