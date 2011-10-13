@@ -207,6 +207,9 @@ void StabilityCheck(string MODE="COMPILE")
    TProfile** TOFOverMinProf   = new TProfile*[triggers.size()];
    TProfile** TOFDTOverMinProf   = new TProfile*[triggers.size()];
    TProfile** TOFCSCOverMinProf   = new TProfile*[triggers.size()];
+   TProfile** VertexProf   = new TProfile*[triggers.size()];
+   TProfile** VertexDTProf   = new TProfile*[triggers.size()];
+   TProfile** VertexCSCProf   = new TProfile*[triggers.size()];
    TH1D**     Count    = new TH1D*    [triggers.size()];
    TH1D**     CountMu  = new TH1D*    [triggers.size()];
    TH1D**     HdEdx    = new TH1D*    [triggers.size()];
@@ -216,8 +219,7 @@ void StabilityCheck(string MODE="COMPILE")
 
 
    system("mkdir pictures/");
-   //TFile* OutputHisto = new TFile((string("pictures/") + "/Histos.root").c_str(),"RECREATE");
-   TFile* OutputHisto = new TFile((string("") + "/Histos.root").c_str(),"RECREATE");
+   TFile* OutputHisto = new TFile((string("pictures/") + "/Histos.root").c_str(),"RECREATE");
    for(unsigned int i=0;i<triggers.size();i++){
       NVertProf[i] = new TProfile((triggers[i] + "NVertProf").c_str(), "NVertProf", 10000 ,0, 10000);
       dEdxProf[i] = new TProfile((triggers[i] + "dEdxProf").c_str(), "dEdxProf", 10000 ,0, 10000);
@@ -237,6 +239,10 @@ void StabilityCheck(string MODE="COMPILE")
       TOFOverMinProf  [i] = new TProfile((triggers[i] + "TOFOverMinProf"  ).c_str(), "TOFOverMinProf"  , 10000 ,0, 10000);
       TOFDTOverMinProf  [i] = new TProfile((triggers[i] + "TOFDTOverMinProf"  ).c_str(), "TOFDTOverMinProf"  , 10000 ,0, 10000);
       TOFCSCOverMinProf  [i] = new TProfile((triggers[i] + "TOFCSCOverMinProf"  ).c_str(), "TOFCSCOverMinProf"  , 10000 ,0, 10000);
+
+      VertexProf  [i] = new TProfile((triggers[i] + "TOFProf"  ).c_str(), "TOFProf"  , 10000 ,0, 10000);
+      VertexDTProf  [i] = new TProfile((triggers[i] + "TOFDTProf"  ).c_str(), "TOFDTProf"  , 10000 ,0, 10000);
+      VertexCSCProf  [i] = new TProfile((triggers[i] + "TOFCSCProf"  ).c_str(), "TOFCSCProf"  , 10000 ,0, 10000);
 
       Count   [i] = new TH1D(    (triggers[i] + "Count"   ).c_str(), "Count"   , 10000 ,0, 10000);  Count  [i]->Sumw2();
       CountMu [i] = new TH1D(    (triggers[i] + "CountMu" ).c_str(), "CountMu" , 10000 ,0, 10000);  CountMu[i]->Sumw2();
@@ -282,6 +288,9 @@ void StabilityCheck(string MODE="COMPILE")
             TOFOverMinProf[i]->GetXaxis()->SetBinLabel(Bin, Label);
             TOFDTOverMinProf[i]->GetXaxis()->SetBinLabel(Bin, Label);
             TOFCSCOverMinProf[i]->GetXaxis()->SetBinLabel(Bin, Label);
+            VertexProf[i]->GetXaxis()->SetBinLabel(Bin, Label);
+            VertexDTProf[i]->GetXaxis()->SetBinLabel(Bin, Label);
+            VertexCSCProf[i]->GetXaxis()->SetBinLabel(Bin, Label);
          }
          NextIndex++;
       }
@@ -359,6 +368,9 @@ void StabilityCheck(string MODE="COMPILE")
                if(dttof->nDof()>=GlobalMinNDOFDT) TOFDTProf[i]->Fill(CurrentRunIndex, dttof->inverseBeta());
                if(csctof->nDof()>=GlobalMinNDOFCSC) TOFCSCProf[i]->Fill(CurrentRunIndex, csctof->inverseBeta());
                if(tof->inverseBeta() > 1.1 ) HTOF[i]->Fill(CurrentRunIndex);            
+               VertexProf[i]->Fill(CurrentRunIndex, tof->inverseBeta());
+               if(dttof->nDof()>=GlobalMinNDOFDT) VertexDTProf[i]->Fill(CurrentRunIndex, dttof->inverseBeta());
+               if(csctof->nDof()>=GlobalMinNDOFCSC) VertexCSCProf[i]->Fill(CurrentRunIndex, csctof->inverseBeta());
             }
 
             if(hscp.trackRef()->pt() >60 ) HPt[i]->Fill(CurrentRunIndex);
