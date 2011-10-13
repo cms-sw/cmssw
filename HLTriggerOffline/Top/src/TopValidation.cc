@@ -13,7 +13,7 @@
 //
 // Original Author:  Patricia LOBELLE PARDO ()
 //         Created:  Tue Sep 23 11:06:32 CEST 2008
-// $Id: TopValidation.cc,v 1.10 2010/02/17 19:31:05 wdd Exp $
+// $Id: TopValidation.cc,v 1.11 2010/05/28 14:14:13 olzem Exp $
 //
 //
 
@@ -101,7 +101,7 @@ TopValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   //   generation  info                                     
   /////////////////////////////////
   
-  bool topevent = false;
+  //bool topevent = false;
  
   int ntop     = 0;
   int ngenel   = 0;
@@ -137,7 +137,7 @@ TopValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
   }
   
-  if (ntop == 2) topevent = true; 
+  // if (ntop == 2) topevent = true; 
   
  
 
