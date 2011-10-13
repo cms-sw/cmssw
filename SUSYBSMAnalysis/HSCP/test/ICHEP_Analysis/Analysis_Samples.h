@@ -1,4 +1,3 @@
-
 #ifndef HSCP_ANALYSIS_SAMPLE
 #define HSCP_ANALYSIS_SAMPLE
 
@@ -91,8 +90,8 @@
 
 
 int                  RunningPeriods = 2;
-double               IntegratedLuminosity = 2884; //2410;//2125; //2080; //1912; //1947; //1631; //976.204518023; //705.273820; //342.603275; //204.160928; //191.04;
-double               IntegratedLuminosityBeforeTriggerChange = 355.173 //353.494; // Total luminosity taken before RPC L1 trigger change (went into effect on run 165970)
+double               IntegratedLuminosity = 3168; //2410;//2125; //2080; //1912; //1947; //1631; //976.204518023; //705.273820; //342.603275; //204.160928; //191.04;
+double               IntegratedLuminosityBeforeTriggerChange = 355.173; //353.494; // Total luminosity taken before RPC L1 trigger change (went into effect on run 165970)
 float                Event_Weight = 1;
 int                  MaxEntry = -1;
 
@@ -272,7 +271,7 @@ void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName,
 //   std::string BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/jchen/11_09_13_HSCP2011EDM/";
    std::string BaseDirectory = "/uscmst1b_scratch/lpc1/lpcphys/jchen/HSCPEDM_09_13_11/";
    if(SampleName=="Data"){
-     inputFiles.push_back(BaseDirectory + "Data_RunA_160404_163869.root");
+    inputFiles.push_back(BaseDirectory + "Data_RunA_160404_163869.root");
      inputFiles.push_back(BaseDirectory + "Data_RunA_165001_166033.root");
      inputFiles.push_back(BaseDirectory + "Data_RunA_166034_166500.root");
      inputFiles.push_back(BaseDirectory + "Data_RunA_166501_166893.root");
@@ -289,6 +288,7 @@ void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName,
      inputFiles.push_back(BaseDirectory + "Data_RunA_176100_176309.root");
      inputFiles.push_back(BaseDirectory + "Data_RunA_176467_176800.root");
      inputFiles.push_back(BaseDirectory + "Data_RunA_176801_177053.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_177074_177452.root");
    }else if(SampleName.find("MC_",0)<std::string::npos){
      inputFiles.push_back(BaseDirectory + SampleName + ".root");
    }else{

@@ -65,6 +65,7 @@ void GetLuminosity()
    inputFiles.push_back(BaseDirectory + "Data_RunA_176100_176309.root");
    inputFiles.push_back(BaseDirectory + "Data_RunA_176467_176800.root");
    inputFiles.push_back(BaseDirectory + "Data_RunA_176801_177053.root");
+   inputFiles.push_back(BaseDirectory + "Data_RunA_177074_177452.root");
    std::vector<stRun*> RunMap;
    GetLumiBlocks_Core(inputFiles, RunMap);
    DumpJson(RunMap, "out.json");
