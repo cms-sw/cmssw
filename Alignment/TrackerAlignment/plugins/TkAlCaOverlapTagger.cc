@@ -96,7 +96,6 @@ void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSe
     //loop over traj meas
     const TrajectoryMeasurement* previousTM(0);
     DetId previousId(0);
-    int previousLayer(-1);
 
     for(std::vector<TrajectoryMeasurement>::const_iterator itTrajMeas = tmColl.begin(); itTrajMeas!=tmColl.end(); ++itTrajMeas){
       hitcnt++;
@@ -215,7 +214,6 @@ void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 
       previousTM = &(* itTrajMeas);
       previousId = detid;
-      previousLayer = layer;
     }//end loop over traj meas
     //std::cout<<"Found "<<nOverlaps<<" overlaps in this trajectory"<<std::endl; 
 
