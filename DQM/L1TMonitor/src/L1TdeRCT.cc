@@ -31,12 +31,14 @@
 #include "TF2.h"
 
 #include <iostream>
+#include <bitset>
 
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
 
 
 using namespace edm;
+using namespace std;
 
 const unsigned int PHIBINS = 18;
 const float PHIMIN = -0.5;
@@ -45,6 +47,18 @@ const float PHIMAX = 17.5;
 const unsigned int ETABINS = 22;
 const float ETAMIN = -0.5;
 const float ETAMAX = 21.5;
+
+const unsigned int BITETABINS = 44;
+const float BITETAMIN = 0;
+const float BITETAMAX = 22;
+
+const unsigned int BITPHIBINS = 72;
+const float BITPHIMIN = 0;
+const float BITPHIMAX = 18;
+
+const unsigned int BITRPHIBINS = 90;
+const float BITRPHIMIN = 0;
+const float BITRPHIMAX = 18;
 
 const unsigned int TPGPHIBINS = 72;
 const float TPGPHIMIN = -0.5;
@@ -57,7 +71,6 @@ const float TPGETAMAX = 32.;
 const unsigned int TPGRANK = 256;
 const float TPGRANKMIN = -.5;
 const float TPGRANKMAX = 255.5;
-
 
 const unsigned int DEBINS = 127;
 const float DEMIN = -63.5;
@@ -687,6 +700,43 @@ void L1TdeRCT::beginJob(void)
     rctBitUnmatchedDataHfPlusTau2D_ =
       dbe->book2D("rctBitUnmatchedDataHfPlusTau2D", "2D HfPlusTau bit for unmatched hardware hits",
       ETABINS, ETAMIN, ETAMAX, PHIBINS, PHIMIN, PHIMAX);
+ 
+    dbe->setCurrentFolder(histFolder_+"/BitMon");
+    rctRegBitOn_ = 
+      dbe->book2D("rctRegBitOn", "Monitoring for Bits Stuck On",
+      BITETABINS, BITETAMIN, BITETAMAX, BITRPHIBINS, BITRPHIMIN, BITRPHIMAX);
+
+    rctRegBitOff_ = 
+      dbe->book2D("rctRegBitOff", "Monitoring for Bits Stuck Off",
+      BITETABINS, BITETAMIN, BITETAMAX, BITRPHIBINS, BITRPHIMIN, BITRPHIMAX);
+
+    rctRegBitDiff_ = 
+      dbe->book2D("rctRegBitDiff", "Monitoring for Bits Difference",
+      BITETABINS, BITETAMIN, BITETAMAX, BITRPHIBINS, BITRPHIMIN, BITRPHIMAX);
+
+    rctIsoEmBitOn_ = 
+      dbe->book2D("rctIsoEmBitOn", "Monitoring for Bits Stuck On",
+      BITETABINS, BITETAMIN, BITETAMAX, BITPHIBINS, BITPHIMIN, BITPHIMAX);
+
+    rctIsoEmBitOff_ = 
+      dbe->book2D("rctIsoEmBitOff", "Monitoring for Bits Stuck Off",
+      BITETABINS, BITETAMIN, BITETAMAX, BITPHIBINS, BITPHIMIN, BITPHIMAX);
+
+    rctIsoEmBitDiff_ = 
+      dbe->book2D("rctIsoEmBitDiff", "Monitoring for Bits Difference",
+      BITETABINS, BITETAMIN, BITETAMAX, BITPHIBINS, BITPHIMIN, BITPHIMAX);
+
+    rctNIsoEmBitOn_ = 
+      dbe->book2D("rctNIsoEmBitOn", "Monitoring for Bits Stuck On",
+      BITETABINS, BITETAMIN, BITETAMAX, BITPHIBINS, BITPHIMIN, BITPHIMAX);
+
+    rctNIsoEmBitOff_ = 
+      dbe->book2D("rctNIsoEmBitOff", "Monitoring for Bits Stuck Off",
+      BITETABINS, BITETAMIN, BITETAMAX, BITPHIBINS, BITPHIMIN, BITPHIMAX);
+
+    rctNIsoEmBitDiff_ = 
+      dbe->book2D("rctNIsoEmBitDiff", "Monitoring for Bits Difference",
+      BITETABINS, BITETAMIN, BITETAMAX, BITPHIBINS, BITPHIMIN, BITPHIMAX);
 
 
     dbe->setCurrentFolder(histFolder_+"DBData");
@@ -1363,7 +1413,7 @@ if(first)
               energy_difference=(electronEmulRank[k][i] - electronDataRank[k][j]);
               rctIsoEffChannel_[chnl]->Fill(energy_difference);
             }
-
+	    
             if(electronEmulRank[k][i]==electronDataRank[k][j])
             {
               rctIsoEmEff2Occ1D_->Fill(chnl);
@@ -1378,6 +1428,14 @@ if(first)
             {
               rctIsoEmIneff2Occ1D_->Fill(chnl);
               rctIsoEmIneff2Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.9801);
+	      //Check for the bit that is different and store it
+	      bitset<8> bitDifference( electronEmulRank[k][i]^electronDataRank[k][j] );
+	      for( size_t n=0; n < bitDifference.size(); n++){
+		if( bitDifference[n] ){
+		  if( n < 4 ){ rctIsoEmBitDiff_->Fill( electronEmulEta[k][i], electronEmulPhi[k][i]+n*0.25, 1 ); }
+		  if( n >= 4 ){ rctIsoEmBitDiff_->Fill( electronEmulEta[k][i]+0.5, electronEmulPhi[k][i]+(n-4)*0.25, 1 ); }
+		}
+	      }
             }
           }
 
@@ -1398,6 +1456,7 @@ if(first)
               rctNisoEffChannel_[chnl]->Fill(energy_difference) ;
             }
 
+
             if(electronEmulRank[k][i]==electronDataRank[k][j])
             {
               rctNisoEmEff2Occ1D_->Fill(chnl);
@@ -1411,6 +1470,14 @@ if(first)
             {
               rctNisoEmIneff2Occ1D_->Fill(chnl);
               rctNisoEmIneff2Occ_->Fill(electronEmulEta[k][i], electronEmulPhi[k][i], 0.9801);
+	      //Check for the bit that is different and store it
+	      bitset<8> bitDifference( electronEmulRank[k][i]^electronDataRank[k][j] );
+	      for( size_t n=0; n < bitDifference.size(); n++){
+		if( bitDifference[n] ){
+		  if( n < 4 ){ rctNIsoEmBitDiff_->Fill( electronEmulEta[k][i], electronEmulPhi[k][i]+n*0.25, 1 ); }
+		  if( n >= 4 ){ rctNIsoEmBitDiff_->Fill( electronEmulEta[k][i]+0.5, electronEmulPhi[k][i]+(n-4)*0.25, 1 ); }
+		}
+	      }
             }
           }
 
@@ -1426,6 +1493,13 @@ if(first)
           // Weight is for ROOT; when added to initial weight of 0.01, should equal 0.99
 
           int chnl;
+
+	  //Store the bit map for the emulator
+	  bitset<8> bit( electronEmulRank[k][i] );
+	  for( size_t n=0; n < bit.size(); n++){
+	     if( n < 4 ){ rctIsoEmBitOff_->Fill( electronEmulEta[k][i], electronEmulPhi[k][i]+n*0.25, 1 ); }
+	     if( n >= 4 ){ rctIsoEmBitOff_->Fill( electronEmulEta[k][i]+0.5, electronEmulPhi[k][i]+(n-4)*0.25, 1 ); }
+	  }
 
           chnl=PHIBINS*electronEmulEta[k][i]+electronEmulPhi[k][i];
           rctIsoEmIneffOcc1D_->Fill(chnl);
@@ -1444,6 +1518,14 @@ if(first)
 
           chnl=PHIBINS*electronEmulEta[k][i]+electronEmulPhi[k][i];
           rctNisoEmIneffOcc1D_->Fill(chnl);
+
+	  //Store the bit map for the emulator
+	  bitset<8> bit( electronEmulRank[k][i] );
+	  for( size_t n=0; n < bit.size(); n++){
+	     if( n < 4 ){ rctNIsoEmBitOff_->Fill( electronEmulEta[k][i], electronEmulPhi[k][i]+n*0.25, 1 ); }
+	     if( n >= 4 ){ rctNIsoEmBitOff_->Fill( electronEmulEta[k][i]+0.5, electronEmulPhi[k][i]+(n-4)*0.25, 1 ); }
+	  }
+
           if(singlechannelhistos_)
           {
             rctNisoIneffChannel_[chnl]->Fill(electronEmulRank[k][i]);
@@ -1511,6 +1593,13 @@ if(first)
 
           int chnl;
 
+	  //Store the bit map for the emulator
+	  bitset<8> bit( electronDataRank[k][i] );
+	  for( size_t n=0; n < bit.size(); n++){
+	     if( n < 4 ){ rctIsoEmBitOn_->Fill( electronDataEta[k][i], electronDataPhi[k][i]+n*0.25, 1 ); }
+	     if( n >= 4 ){ rctIsoEmBitOn_->Fill( electronDataEta[k][i]+0.5, electronDataPhi[k][i]+(n-4)*0.25, 1 ); }
+	  }
+
           chnl=PHIBINS*electronDataEta[k][i]+electronDataPhi[k][i];
           rctIsoEmOvereffOcc1D_->Fill(chnl);
 
@@ -1526,6 +1615,13 @@ if(first)
           // Weight is for ROOT; when added to initial weight of 0.01, should equal 0.99
 
           int chnl;
+
+	  //Store the bit map for the emulator
+	  bitset<8> bit( electronDataRank[k][i] );
+	  for( size_t n=0; n < bit.size(); n++){
+	     if( n < 4 ){ rctNIsoEmBitOn_->Fill( electronDataEta[k][i], electronDataPhi[k][i]+n*0.25, 1 ); }
+	     if( n >= 4 ){ rctNIsoEmBitOn_->Fill( electronDataEta[k][i]+0.5, electronDataPhi[k][i]+(n-4)*0.25, 1 ); }
+	  }
 
           chnl=PHIBINS*electronDataEta[k][i]+electronDataPhi[k][i];
           rctNisoEmOvereffOcc1D_->Fill(chnl) ;
@@ -1586,6 +1682,15 @@ if(first)
              {
              rctRegSpIneffOcc1D_->Fill(chnl);
              rctRegSpIneffOcc2D_->Fill(regionEmulEta[i], regionEmulPhi[i], 0.9801);
+
+	      bitset<10> bitDifference( regionEmulRank[i]^regionDataRank[i] );
+	      for( size_t n=0; n < bitDifference.size(); n++){
+		if( bitDifference[n] ){
+		  if( n < 5 ){ rctRegBitDiff_->Fill( regionEmulEta[i], regionEmulPhi[i]+n*0.2, 1 ); }
+		  if( n >= 5 ){ rctRegBitDiff_->Fill( regionEmulEta[i]+0.5, regionEmulPhi[i]+(n-5)*0.2, 1 ); }
+		}
+	      }
+
              }
             // Weight is for ROOT; should just exceed 0.99
             // NOTE: Weight is different for eff 2 because this isn't filled initially
@@ -1631,6 +1736,12 @@ if(first)
       if(regFound == kFALSE && regionEmulRank[i] >= 1 )
       {
         int chnl;
+
+	bitset<10> bit( regionEmulRank[i] );
+	for( size_t n=0; n < bit.size(); n++){
+	   if( n < 5 ){ rctRegBitOff_->Fill( regionEmulEta[i], regionEmulPhi[i]+n*0.2, 1 ); }
+	   if( n >= 5 ){ rctRegBitOff_->Fill( regionEmulEta[i]+0.5, regionEmulPhi[i]+(n-5)*0.2, 1 ); }
+	}
 
         chnl = PHIBINS*regionEmulEta[i] + regionEmulPhi[i];
         rctRegUnmatchedEmulOcc1D_->Fill(chnl);
@@ -1734,6 +1845,13 @@ if(first)
       if(regFound == kFALSE && regionDataRank[i] >= 1)
       {
         int chnl;
+
+	bitset<10> bit( regionDataRank[i] );
+	for( size_t n=0; n < bit.size(); n++){
+	    if( n < 5 ){ rctRegBitOn_->Fill( regionDataEta[i], regionDataPhi[i]+n*0.2, 1 ); }
+	    if( n >= 5 ){ rctRegBitOn_->Fill( regionDataEta[i]+0.5, regionDataPhi[i]+(n-5)*0.2, 1 ); }
+	}
+
 
         chnl = PHIBINS*regionDataEta[i] + regionDataPhi[i];
         rctRegUnmatchedDataOcc1D_->Fill(chnl);
