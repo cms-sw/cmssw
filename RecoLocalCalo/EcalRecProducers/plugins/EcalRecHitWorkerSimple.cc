@@ -9,7 +9,6 @@
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet&ps) :
@@ -20,7 +19,10 @@ EcalRecHitWorkerSimple::EcalRecHitWorkerSimple(const edm::ParameterSet&ps) :
         v_DB_reco_flags_ = ps.getParameter<std::vector<int> >("flagsMapDBReco");
         killDeadChannels_ = ps.getParameter<bool>("killDeadChannels");
         laserCorrection_ = ps.getParameter<bool>("laserCorrection");
+	EBLaserMIN_ = ps.getParameter<double>("EBLaserMIN");
+	EELaserMIN_ = ps.getParameter<double>("EELaserMIN");
 }
+
 
 
 void EcalRecHitWorkerSimple::set(const edm::EventSetup& es)
@@ -65,7 +67,7 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
         uint16_t statusCode = chStatusCode.getStatusCode() & 0x001F;
         if ( statusCode < v_DB_reco_flags_.size() ) {
                 // not very nice...
-                recoFlag = v_DB_reco_flags_[ statusCode ];
+                recoFlag = v_DB_reco_flags_[ statusCode ];  
         } else {
                 edm::LogError("EcalRecHitError") << "Flag " << statusCode 
                         << " in DB exceed the allowed range of " << v_DB_reco_flags_.size();
@@ -94,7 +96,8 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
 
         // get laser coefficient
         float lasercalib = 1.;
-        if ( laserCorrection_ ) lasercalib = laser->getLaserCorrection( detid, evt.time());
+        if ( laserCorrection_ )	lasercalib = laser->getLaserCorrection( detid, evt.time());
+	
 
         // get time calibration coefficient
         const EcalTimeCalibConstantMap & itimeMap = itime->getMap();  
@@ -108,11 +111,14 @@ EcalRecHitWorkerSimple::run( const edm::Event & evt,
                         << "! something wrong with EcalTimeCalibConstants in your DB? ";
         }
 
-	
         // make the rechit and put in the output collection
-        if ( recoFlag <= EcalRecHit::kLeadingEdgeRecovered || !killDeadChannels_ ) {
-	  result.push_back(EcalRecHit( rechitMaker_->makeRecHit(uncalibRH, icalconst * lasercalib, (itimeconst + offsetTime), recoFlag) ));
+        if (recoFlag <= EcalRecHit::kLeadingEdgeRecovered || !killDeadChannels_) {
+          EcalRecHit myrechit( rechitMaker_->makeRecHit(uncalibRH, icalconst * lasercalib, (itimeconst + offsetTime), recoFlag) );	
+	  if (detid.subdetId() == EcalBarrel && lasercalib < EBLaserMIN_) myrechit.setFlag(EcalRecHit::kPoorCalib);
+	  if (detid.subdetId() == EcalEndcap && lasercalib < EELaserMIN_) myrechit.setFlag(EcalRecHit::kPoorCalib);
+	  result.push_back(myrechit);
 	}
+
         return true;
 }
 
