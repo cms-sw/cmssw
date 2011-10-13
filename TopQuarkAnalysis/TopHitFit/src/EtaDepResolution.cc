@@ -1,5 +1,5 @@
 //
-//     $Id: EtaDepResolution.cc,v 1.11 2010/04/13 19:17:36 haryo Exp $
+//     $Id: EtaDepResolution.cc,v 1.1 2011/05/26 09:47:00 mseidel Exp $
 //
 // File   : src/EtaDepResolution.cc
 // Author : Haryo Sumowidagdo <Suharyo.Sumowidagdo@cern.ch>
@@ -179,13 +179,14 @@ Vector_Resolution
 EtaDepResolution::GetResolution(double& eta) const
 {
 
-    if (FindResolution(eta) != _EtaDepResElement.end()) {
-        return FindResolution(eta)->GetResolution();
+    std::vector<EtaDepResElement>::const_iterator etaDepResEleVecIter = FindResolution(eta);
+    if (etaDepResEleVecIter != _EtaDepResElement.end()) {
+        return etaDepResEleVecIter->GetResolution();
     }
 
     std::stringstream message;
     message << "Error, the given eta value : "
-            << eta << " is not inside the valid eta range !" ;
+            << eta << " is not inside the valid eta range!" ;
 
     throw std::runtime_error(message.str());
 }
