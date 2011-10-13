@@ -169,6 +169,8 @@ void HybridNew::validateOptions() {
         CLs_ = true;
     } else if (rule_ == "CLsplusb") {
         CLs_ = false;
+    } else if (rule_ == "FC") {
+        CLs_ = false;
     } else {
         throw std::invalid_argument("HybridNew: Rule must be either 'CLs' or 'CLsplusb'");
     }
@@ -176,14 +178,16 @@ void HybridNew::validateOptions() {
     if (testStat_ == "RatioOfProfiledLikelihoods" || testStat_ == "ROPL") { testStat_ = "TEV";     }
     if (testStat_ == "ProfileLikelihood"          || testStat_ == "PL")   { testStat_ = "Profile"; }
     if (testStat_ == "ModifiedProfileLikelihood"  || testStat_ == "MPL")  { testStat_ = "LHC";     }
+    if (testStat_ == "SignFlipProfileLikelihood"  || testStat_ == "SFPL") { testStat_ = "LHCFC";   }
     if (testStat_ == "Atlas") { testStat_ = "LHC"; std::cout << "Note: the Atlas test statistics is now known as LHC test statistics.\n" << std::endl; }
-    if (testStat_ != "LEP" && testStat_ != "TEV" && testStat_ != "LHC" && testStat_ != "Profile") {
+    if (testStat_ != "LEP" && testStat_ != "TEV" && testStat_ != "LHC"  && testStat_ != "LHCFC" && testStat_ != "Profile") {
         throw std::invalid_argument("HybridNew: Test statistics should be one of 'LEP' or 'TEV' or 'LHC' (previously known as 'Atlas') or 'Profile'");
     }
     if (verbose) {
         if (testStat_ == "LEP")     std::cout << ">>> using the Simple Likelihood Ratio test statistics (Q_LEP)" << std::endl;
         if (testStat_ == "TEV")     std::cout << ">>> using the Ratio of Profiled Likelihoods test statistics (Q_TEV)" << std::endl;
         if (testStat_ == "LHC")     std::cout << ">>> using the Profile Likelihood test statistics modified for upper limits (Q_LHC)" << std::endl;
+        if (testStat_ == "LHCFC")   std::cout << ">>> using the Profile Likelihood test statistics modified for upper limits and Feldman-Cousins (Q_LHCFC)" << std::endl;
         if (testStat_ == "Profile") std::cout << ">>> using the Profile Likelihood test statistics not modified for upper limits (Q_Profile)" << std::endl;
     }
     if (readHybridResults_ || workingMode_ == MakeTestStatistics || workingMode_ == MakeSignificanceTestStatistics) {
@@ -230,7 +234,7 @@ bool HybridNew::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
         writeToysHere->WriteTObject(new HypoTestResult(*hcResult), name);
         if (verbose) std::cout << "Hybrid result saved as " << name << " in " << writeToysHere->GetFile()->GetName() << " : " << writeToysHere->GetPath() << std::endl;
     }
-    if (testStat_ == "LHC" || testStat_ == "Profile") {
+    if (testStat_ == "LHC" || testStat_ == "LHCFC"  || testStat_ == "Profile") {
         // I don't need to flip the P-values for significances, only for limits
         // hcResult->SetPValueIsRightTail(!hcResult->GetPValueIsRightTail());
         hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()-EPS); // issue with < vs <= in discrete models
@@ -251,8 +255,8 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
   w->loadSnapshot("clean");
 
   if ((hint != 0) && (*hint > r->getMin())) {
-    r->setMax(std::min<double>(3.0 * (*hint), r->getMax()));
-    r->setMin(std::max<double>(0.3 * (*hint), r->getMin()));
+      r->setMax(std::min<double>(3.0 * (*hint), r->getMax()));
+      r->setMin(std::max<double>(0.3 * (*hint), r->getMin()));
   }
   
   typedef std::pair<double,double> CLs_t;
@@ -310,6 +314,7 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
       if (verbose > 0) std::cout << "Search for upper limit to the limit" << std::endl;
       for (int tries = 0; tries < 6; ++tries) {
           clsMax = eval(w, mc_s, mc_b, data, rMax);
+          if (lowerLimit_) break; // we can't search for lower limits this way
           if (clsMax.first == 0 || clsMax.first + 3 * fabs(clsMax.second) < clsTarget ) break;
           rMax += rMax;
           if (tries == 5) { 
@@ -319,7 +324,7 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
       }
       if (verbose > 0) std::cout << "Search for lower limit to the limit" << std::endl;
       clsMin = (CLs_ && rMin == 0 ? CLs_t(1,0) : eval(w, mc_s, mc_b, data, rMin));
-      if (clsMin.first != 1 && clsMin.first - 3 * fabs(clsMin.second) < clsTarget) {
+      if (!lowerLimit_ && clsMin.first != 1 && clsMin.first - 3 * fabs(clsMin.second) < clsTarget) {
           if (CLs_) { 
               rMin = 0;
               clsMin = CLs_t(1,0); // this is always true for CLs
@@ -341,7 +346,7 @@ bool HybridNew::runLimit(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats:
       do {
           // determine point by bisection or interpolation
           limit = 0.5*(rMin+rMax); limitErr = 0.5*(rMax-rMin);
-          if (algo_ == "logSecant" && clsMax.first != 0) {
+          if (algo_ == "logSecant" && clsMax.first != 0 && clsMin.first != 0) {
               double logMin = log(clsMin.first), logMax = log(clsMax.first), logTarget = log(clsTarget);
               limit = rMin + (rMax-rMin) * (logTarget - logMin)/(logMax - logMin);
               if (clsMax.second != 0 && clsMin.second != 0) {
@@ -475,9 +480,9 @@ bool HybridNew::runTestStatistics(RooWorkspace *w, RooStats::ModelConfig *mc_s, 
     HybridNew::Setup setup;
     std::auto_ptr<RooStats::HybridCalculator> hc(create(w, mc_s, mc_b, data, rValue_, setup));
     RooArgSet nullPOI(*setup.modelConfig_bonly.GetSnapshot());
-    if (testStat_ == "LHC" || testStat_ == "Profile") nullPOI.setRealValue(r->GetName(), rValue_);
+    if (testStat_ == "LHC" || testStat_ == "LHCFC" || testStat_ == "Profile") nullPOI.setRealValue(r->GetName(), rValue_);
     limit = -2 * setup.qvar->Evaluate(data, nullPOI);
-    if (testStat_ == "LHC" || testStat_ == "Profile") limit = -limit; // there's a sign flip for these two
+    if (testStat_ == "LHC" || testStat_ == "LHCFC" || testStat_ == "Profile") limit = -limit; // there's a sign flip for these two
     std::cout << "\n -- Hybrid New -- \n";
     std::cout << "-2 ln Q_{"<< testStat_<<"} = " << limit << std::endl;
     return true;
@@ -491,8 +496,7 @@ std::pair<double, double> HybridNew::eval(RooWorkspace *w, RooStats::ModelConfig
             std::cerr << "HypoTestResults for r = " << rVal << " not found in file" << std::endl;
         } else {
             if (expectedFromGrid_) applyExpectedQuantile(*result);
-            ret.first  = CLs_ ? result->CLs()      : result->CLsplusb();
-            ret.second = CLs_ ? result->CLsError() : result->CLsplusbError();
+            ret = eval(*result);
         }
         return ret;
     }
@@ -662,14 +666,20 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
           setup.qvar.reset(new RatioOfProfiledLikelihoodsTestStat(*mc_s->GetPdf(), *mc_s->GetPdf(), setup.modelConfig.GetSnapshot()));
           ((RatioOfProfiledLikelihoodsTestStat&)*setup.qvar).SetSubtractMLE(false);
       }
-  } else if (testStat_ == "LHC" || testStat_ == "Profile") {
-    setup.qvar.reset(new ProfileLikelihoodTestStat(*mc_s->GetPdf()));
-    if (testStat_ == "LHC") {
-       ((ProfileLikelihoodTestStat&)*setup.qvar).SetOneSided(true);
-        if (optimizeTestStatistics_) {
-            setup.qvar.reset(new ProfiledLikelihoodTestStatOpt(*mc_s->GetObservables(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(),  *setup.modelConfig.GetSnapshot(),gobsParams,gobs, verbose));
-        }
-    }
+  } else if (testStat_ == "LHC" || testStat_ == "LHCFC" || testStat_ == "Profile") {
+      if (optimizeTestStatistics_) {
+          ProfiledLikelihoodTestStatOpt::OneSidedness side = ProfiledLikelihoodTestStatOpt::oneSidedDef;
+          if (testStat_ == "LHCFC")   side = ProfiledLikelihoodTestStatOpt::signFlipDef;
+          if (testStat_ == "Profile") side = ProfiledLikelihoodTestStatOpt::twoSidedDef;
+          setup.qvar.reset(new ProfiledLikelihoodTestStatOpt(*mc_s->GetObservables(), *mc_s->GetPdf(), mc_s->GetNuisanceParameters(),  *setup.modelConfig.GetSnapshot(),gobsParams,gobs, verbose, side));
+      } else {
+          setup.qvar.reset(new ProfileLikelihoodTestStat(*mc_s->GetPdf()));
+          if (testStat_ == "LHC") {
+              ((ProfileLikelihoodTestStat&)*setup.qvar).SetOneSided(true);
+          } else if (testStat_ == "LHCFC") {
+              throw std::invalid_argument("Test statistics LHCFC is not supported without optimization");
+          }
+      }
   }
 
   RooAbsPdf *nuisancePdf = 0;
@@ -760,16 +770,15 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
         std::cerr << "Hypotest failed" << std::endl;
         return std::pair<double, double>(-1,-1);
     }
-    if (testStat_ == "LHC" || testStat_ == "Profile") {
+    if (testStat_ == "LHC" || testStat_ == "LHCFC" || testStat_ == "Profile") {
         // I need to flip the P-values
         hcResult->SetPValueIsRightTail(!hcResult->GetPValueIsRightTail());
         hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()-EPS); // issue with < vs <= in discrete models
     } else {
         hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()+EPS); // issue with < vs <= in discrete models
     }
-    double clsMid    = (CLs_ ? hcResult->CLs()      : hcResult->CLsplusb());
-    double clsMidErr = (CLs_ ? hcResult->CLsError() : hcResult->CLsplusbError());
-    if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << clsMid << " +/- " << clsMidErr << std::endl;
+    std::pair<double,double> cls = eval(*hcResult);
+    if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << cls.first << " +/- " << cls.second << std::endl;
     if (adaptive) {
         if (CLs_) {
           hc.SetToys(int(0.25*nToys_ + 1), nToys_);
@@ -781,26 +790,25 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
         if (expectedFromGrid_ && (fabs(0.5-quantileForExpectedFromGrid_)>=0.4) ) {
           hc.SetToys(nToys_, nToys_);
         }
-        while (clsMidErr >= clsAccuracy_ && (clsTarget == -1 || fabs(clsMid-clsTarget) < 3*clsMidErr) ) {
+        while (cls.second >= clsAccuracy_ && (clsTarget == -1 || fabs(cls.first-clsTarget) < 3*cls.second) ) {
             std::auto_ptr<HypoTestResult> more(evalGeneric(hc));
-            if (testStat_ == "LHC" || testStat_ == "Profile") more->SetPValueIsRightTail(!more->GetPValueIsRightTail());
+            if (testStat_ == "LHC" || testStat_ == "LHCFC"  || testStat_ == "Profile") more->SetPValueIsRightTail(!more->GetPValueIsRightTail());
             hcResult->Append(more.get());
             if (expectedFromGrid_) applyExpectedQuantile(*hcResult);
-            clsMid    = (CLs_ ? hcResult->CLs()      : hcResult->CLsplusb());
-            clsMidErr = (CLs_ ? hcResult->CLsError() : hcResult->CLsplusbError());
-            if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << clsMid << " +/- " << clsMidErr << std::endl;
+            cls = eval(*hcResult);
+            if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << cls.first << " +/- " << cls.second << std::endl;
         }
     } else if (iterations_ > 1) {
         for (unsigned int i = 1; i < iterations_; ++i) {
             std::auto_ptr<HypoTestResult> more(evalGeneric(hc));
-            if (testStat_ == "LHC" || testStat_ == "Profile") more->SetPValueIsRightTail(!more->GetPValueIsRightTail());
+            if (testStat_ == "LHC" || testStat_ == "LHCFC"  || testStat_ == "Profile") more->SetPValueIsRightTail(!more->GetPValueIsRightTail());
             hcResult->Append(more.get());
             if (expectedFromGrid_) applyExpectedQuantile(*hcResult);
-            clsMid    = (CLs_ ? hcResult->CLs()      : hcResult->CLsplusb());
-            clsMidErr = (CLs_ ? hcResult->CLsError() : hcResult->CLsplusbError());
-            if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << clsMid << " +/- " << clsMidErr << std::endl;
+            cls = eval(*hcResult);
+            if (verbose) std::cout << (CLs_ ? "\tCLs = " : "\tCLsplusb = ") << cls.first << " +/- " << cls.second << std::endl;
         }
     }
+
     if (verbose > 0) {
         std::cout <<
             "\tCLs      = " << hcResult->CLs()      << " +/- " << hcResult->CLsError()      << "\n" <<
@@ -808,6 +816,7 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
             "\tCLsplusb = " << hcResult->CLsplusb() << " +/- " << hcResult->CLsplusbError() << "\n" <<
             std::endl;
     }
+
     perf_totalToysRun_ += (hcResult->GetAltDistribution()->GetSize() + hcResult->GetNullDistribution()->GetSize());
 
     if (!plot_.empty() && workingMode_ != MakeLimit) {
@@ -823,8 +832,43 @@ HybridNew::eval(RooStats::HybridCalculator &hc, double rVal, bool adaptive, doub
         if (verbose) std::cout << "Hybrid result saved as " << name << " in " << writeToysHere->GetFile()->GetName() << " : " << writeToysHere->GetPath() << std::endl;
     }
 
-    return std::pair<double, double>(clsMid, clsMidErr);
+    return cls;
 } 
+
+std::pair<double,double> HybridNew::eval(RooStats::HypoTestResult &hcres) 
+{
+    if (testStat_ == "LHCFC") {
+        RooStats::SamplingDistribution * bDistribution = hcres.GetNullDistribution(), * sDistribution = hcres.GetAltDistribution();
+        const std::vector<Double_t> & bdist   = bDistribution->GetSamplingDistribution();
+        const std::vector<Double_t> & bweight = bDistribution->GetSampleWeights();
+        const std::vector<Double_t> & sdist   = sDistribution->GetSamplingDistribution();
+        const std::vector<Double_t> & sweight = sDistribution->GetSampleWeights();
+        Double_t data =  hcres.GetTestStatisticData();
+        std::vector<Double_t> absbdist(bdist.size()), abssdist(sdist.size());
+        std::vector<Double_t> absbweight(bweight), abssweight(sweight);
+        Double_t absdata;
+        if (rule_ == "FC") {
+            for (int i = 0, n = absbdist.size(); i < n; ++i) absbdist[i] = fabs(bdist[i]);
+            for (int i = 0, n = abssdist.size(); i < n; ++i) abssdist[i] = fabs(sdist[i]);
+            absdata = fabs(data);
+        } else {
+            for (int i = 0, n = absbdist.size(); i < n; ++i) absbdist[i] = max(0., bdist[i]);
+            for (int i = 0, n = abssdist.size(); i < n; ++i) abssdist[i] = max(0., sdist[i]);
+            absdata = max(0., data);
+        }
+        RooStats::SamplingDistribution *abssDist = new RooStats::SamplingDistribution("s","s",abssdist,abssweight);
+        RooStats::SamplingDistribution *absbDist = new RooStats::SamplingDistribution("b","b",absbdist,absbweight);
+        hcres.SetNullDistribution(absbDist);
+        hcres.SetAltDistribution(abssDist);
+        hcres.SetTestStatisticData(absdata);
+    } 
+    if (CLs_) {
+        return std::pair<double,double>(hcres.CLs(), hcres.CLsError());
+    } else {
+        return std::pair<double,double>(hcres.CLsplusb(), hcres.CLsplusbError());
+    }
+
+}
 
 void HybridNew::applyExpectedQuantile(RooStats::HypoTestResult &hcres) {
   if (expectedFromGrid_) {
@@ -1176,7 +1220,7 @@ void HybridNew::updateGridData(RooWorkspace *w, RooStats::ModelConfig *mc_s, Roo
 }
 std::pair<double,double> HybridNew::updateGridPoint(RooWorkspace *w, RooStats::ModelConfig *mc_s, RooStats::ModelConfig *mc_b, RooAbsData &data, std::map<double, RooStats::HypoTestResult *>::iterator point) {
     typedef std::pair<double,double> CLs_t;
-    bool isProfile = (testStat_ == "LHC" || testStat_ == "Profile");
+    bool isProfile = (testStat_ == "LHC" || testStat_ == "LHCFC"  || testStat_ == "Profile");
     if (point->first == 0 && CLs_) return std::pair<double,double>(1,0);
     RooArgSet  poi(*mc_s->GetParametersOfInterest());
     RooRealVar *r = dynamic_cast<RooRealVar *>(poi.first());
@@ -1200,7 +1244,8 @@ std::pair<double,double> HybridNew::updateGridPoint(RooWorkspace *w, RooStats::M
             "\tCLsplusb = " << point->second->CLsplusb() << " +/- " << point->second->CLsplusbError() << "\n" <<
             std::endl;
     }
-    return CLs_ ? CLs_t(point->second->CLs(), point->second->CLsError()) : CLs_t(point->second->CLsplusb(), point->second->CLsplusbError());
+    
+    return eval(*point->second);
 }
 void HybridNew::useGrid() {
     typedef std::pair<double,double> CLs_t;
@@ -1210,9 +1255,9 @@ void HybridNew::useGrid() {
         if (itg->second->TestBit(1)) continue;
         CLs_t val(1,0);
         if (CLs_) {
-            if (itg->first > 0) val =CLs_t(itg->second->CLs(), itg->second->CLsError());
+            if (itg->first > 0) val = eval(*itg->second);
         } else {
-            val = CLs_t(itg->second->CLsplusb(), itg->second->CLsplusbError());
+            val = eval(*itg->second);
         }
         if (val.first == -1) continue;
         if (val.first != 1 and val.second == 0) continue;

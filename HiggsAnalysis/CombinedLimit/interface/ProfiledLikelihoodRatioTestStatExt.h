@@ -48,10 +48,12 @@ class ProfiledLikelihoodRatioTestStatOpt : public RooStats::TestStatistic {
 
 class ProfiledLikelihoodTestStatOpt : public RooStats::TestStatistic {
     public:
+        enum OneSidedness { twoSidedDef = 0, oneSidedDef = 1, signFlipDef = 2 };
+
         ProfiledLikelihoodTestStatOpt(const RooArgSet & observables,
                 RooAbsPdf &pdf, 
                 const RooArgSet *nuisances, 
-                const RooArgSet & params, const RooArgList &gobsParams, const RooArgList &gobs, int verbosity=0) ; 
+                const RooArgSet & params, const RooArgList &gobsParams, const RooArgList &gobs, int verbosity=0, OneSidedness oneSided = oneSidedDef) ; 
 
         virtual Double_t Evaluate(RooAbsData& data, RooArgSet& nullPOI) ;
 
@@ -60,13 +62,16 @@ class ProfiledLikelihoodTestStatOpt : public RooStats::TestStatistic {
         // Verbosity (default: 0)
         void setPrintLevel(Int_t level) { verbosity_ = level; }
 
+        void SetOneSided(OneSidedness oneSided) { oneSided_ = oneSided; }
     private:
+
         RooAbsPdf *pdf_;
         RooArgSet snap_, poi_, nuisances_; 
         std::auto_ptr<RooArgSet> params_;
         std::auto_ptr<RooAbsReal> nll_;
         RooArgList gobsParams_, gobs_;
         Int_t verbosity_;
+        OneSidedness oneSided_;
 
         // create NLL. if returns true, it can be kept, if false it should be deleted at the end of Evaluate
         bool createNLL(RooAbsPdf &pdf, RooAbsData &data) ;

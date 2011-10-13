@@ -50,6 +50,8 @@ ProfiledLikelihoodRatioTestStatOpt::ProfiledLikelihoodRatioTestStatOpt(
 {
     snapNull_.addClone(paramsNull);
     snapAlt_.addClone(paramsAlt);
+    DBG(DBG_TestStat_params, (std::cout << "Null snapshot" << pdfNull_->GetName())) DBG(DBG_TestStat_params, (snapNull_.Print("V")))
+    DBG(DBG_TestStat_params, (std::cout << "Alt  snapshot" << pdfAlt_->GetName()))  DBG(DBG_TestStat_params, (snapAlt_.Print("V")))
     if (nuisances) nuisances_.addClone(*nuisances);
 }
 
@@ -118,12 +120,14 @@ ProfiledLikelihoodTestStatOpt::ProfiledLikelihoodTestStatOpt(
     const RooArgSet & params,
     const RooArgList &gobsParams,
     const RooArgList &gobs,
-    int verbosity)
+    int verbosity, 
+    OneSidedness oneSided)
 :
     pdf_(&pdf),
     gobsParams_(gobsParams),
     gobs_(gobs),
-    verbosity_(verbosity)
+    verbosity_(verbosity),
+    oneSided_(oneSided)
 {
     DBG(DBG_PLTestStat_main, (std::cout << "Created for " << pdf.GetName() << "." << std::endl))
 
@@ -169,7 +173,7 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
     double initialR = rIn->getVal();
 
     // Perform unconstrained minimization (denominator)
-    r->setMin(0); if (initialR == 0) r->removeMax(); else r->setMax(1.1*initialR); 
+    r->setMin(0); if (initialR == 0 || (oneSided_ != oneSidedDef)) r->removeMax(); else r->setMax(1.1*initialR); 
     r->setVal(initialR == 0 ? 0.5 : 0.5*initialR); //best guess
     r->setConstant(false);
     DBG(DBG_PLTestStat_pars, (std::cout << "r In: ")) DBG(DBG_PLTestStat_pars, (rIn->Print(""))) DBG(DBG_PLTestStat_pars, std::cout << std::endl)
@@ -186,7 +190,7 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
     r->setVal(initialR); 
     r->setConstant(true);
     double thisNLL = nullNLL;
-    if (initialR == 0 || bestFitR < initialR) { 
+    if (initialR == 0 || oneSided_ != oneSidedDef || bestFitR < initialR) { 
         // must do constrained fit (if there's something to fit besides XS)
         thisNLL = (nuisances_.getSize() > 0 ? minNLL() : nll_->getVal());
         if (thisNLL - nullNLL < -0.02) { 
@@ -194,10 +198,14 @@ Double_t ProfiledLikelihoodTestStatOpt::Evaluate(RooAbsData& data, RooArgSet& /*
             r->setConstant(false);
             nullNLL = minNLL();
             bestFitR = r->getVal();
-            if (bestFitR > initialR) {
+            if (bestFitR > initialR && oneSided_ == oneSidedDef) {
                 DBG(DBG_PLTestStat_main, (printf("   after re-fit, signal %7.4f > %7.4f, test statistics will be zero.\n", bestFitR, initialR)))
                 thisNLL = nullNLL;
             }
+        }
+        if (bestFitR > initialR && oneSided_ == signFlipDef) {
+            DBG(DBG_PLTestStat_main, (printf("   fitted signal %7.4f > %7.4f, test statistics will be negative.\n", bestFitR, initialR)))
+            std::swap(thisNLL, nullNLL);
         }
     } else {
         DBG(DBG_PLTestStat_main, (printf("   signal fit %7.4f > %7.4f: don't need to compute numerator\n", bestFitR, initialR)))
