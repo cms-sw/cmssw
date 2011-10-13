@@ -13,6 +13,11 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     # avoid propagation of dead channels other than after recovery
     killDeadChannels = cms.bool(True),
     algo = cms.string("EcalRecHitWorkerSimple"),
+    # define maximal and minimal values for the laser corrections
+    
+    EBLaserMIN = cms.double(0.5),
+    EELaserMIN = cms.double(0.5),
+
     # apply laser corrections
     laserCorrection = cms.bool(True),
     # reco flags association to DB flag
@@ -54,4 +59,5 @@ ecalRecHit = cms.EDProducer("EcalRecHitProducer",
     singleChannelRecoveryThreshold = cms.double(8),
     triggerPrimitiveDigiCollection = cms.InputTag("ecalDigis:EcalTriggerPrimitives"),
     cleaningConfig=cleaningAlgoConfig,
-)
+
+    )
