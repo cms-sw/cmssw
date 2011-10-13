@@ -10,7 +10,7 @@
 
 ///-----------------------------------------------------------
 ///   TEcnaNumbering.h
-///   Update: 16/02/2011
+///   Update: 30/06/2011
 ///   Author:    B.Fabbro (bernard.fabbro@cea.fr)
 ///              DSM/IRFU/SPP CEA-Saclay
 ///   Copyright: Those valid for CEA sofware
@@ -148,6 +148,8 @@ public:
   TString GetStinLvrbType(const Int_t&);
 
   TString GetSMHalfBarrel(const Int_t&);
+
+  Int_t   PlusMinusSMNumber(const Int_t&);
 
   //================================== ENDCAP
 

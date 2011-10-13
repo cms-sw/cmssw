@@ -2,21 +2,22 @@
 #define ZTR_TEcnaHistos
 
 #include "TObject.h"
+#include <TQObject.h>
+#include <RQ_OBJECT.h>
 #include <Riostream.h>
 #include "TSystem.h"
 #include <time.h>
+#include "TString.h"
 
 #include "TROOT.h"
 #include "TStyle.h"
 #include "TGraph.h"
 #include "TCanvas.h"
-#include "TRootCanvas.h"
 #include "TVectorD.h"
 #include "TH1.h"
 #include "TH2D.h"
 #include "TF1.h"
 #include "TPaveText.h"
-#include "TString.h"
 #include "TColor.h"
 #include "TGaxis.h"
 
@@ -31,7 +32,7 @@
 
 ///-----------------------------------------------------------
 ///   TEcnaHistos.h
-///   Update: 14/02/2011
+///   Update: 05/07/2011
 ///   Author:    B.Fabbro (bernard.fabbro@cea.fr)
 ///              DSM/IRFU/SPP CEA-Saclay
 ///   Copyright: Those valid for CEA sofware
@@ -91,6 +92,18 @@
 ///      Int_t TowEcha = 21;     // (Electronic channel number in tower)
 ///      MyHistosEB->PlotMatrix("Cor", "Mss", SMTow, TowEcha, "SURF1Z"); // correlations between samples
 ///
+///    // - - - - - -   SYNTAX FOR ARGUMENTS CODES ("Cor", "Mss", ...):
+///
+///      Multi-syntax codes are available, for example:
+///
+///      "Cor", "correl", "correlations", "Correlations"
+///
+///      "Mss", "ss", "samp", "Samp", "BetweenSamples", "Between samples", "between samples", "Samples","samples"
+///
+///      If a wrong code is used a message "code not found" is displayed
+///      and information on available codes is given.
+///
+///
 ///   // (D) -->  O T H E R   E X A M P L E S
 ///
 ///    //--> Plot Pedestals as a function of SC number for Dee 4 
@@ -124,7 +137,7 @@
 ///
 ///   //.......... SYNTAX OF THE FILE "HistoryRunList_SM6.ascii" ("runlist history plot" file):
 ///
-///   HistoryRunList_SM6.ascii  <- 1rst line: comment (name of the file, for example)
+///   HistoryRunList_132440_132665.ascii  <- 1rst line: comment (name of the file, for example)
 ///
 ///   132440                <- other lines: run numbers
 ///   132442
@@ -326,6 +339,8 @@
 //
 
 class TEcnaHistos : public TObject {
+
+  RQ_OBJECT("TEcnaHistos")
 
  private:
 
@@ -791,6 +806,43 @@ class TEcnaHistos : public TObject {
   TCanvas*  fCanvH_LFN_RuDs;
   TCanvas*  fCanvH_HFN_RuDs;
   TCanvas*  fCanvH_SCs_RuDs;
+
+  Bool_t  fClosedH1SamePlus;
+  Bool_t  fClosedD_NOE_ChNb;
+  Bool_t  fClosedD_NOE_ChDs;
+  Bool_t  fClosedD_Ped_ChNb;
+  Bool_t  fClosedD_Ped_ChDs;
+  Bool_t  fClosedD_TNo_ChNb;
+  Bool_t  fClosedD_TNo_ChDs;
+  Bool_t  fClosedD_MCs_ChNb;
+  Bool_t  fClosedD_MCs_ChDs;
+  Bool_t  fClosedD_LFN_ChNb;
+  Bool_t  fClosedD_LFN_ChDs;
+  Bool_t  fClosedD_HFN_ChNb; 
+  Bool_t  fClosedD_HFN_ChDs;
+  Bool_t  fClosedD_SCs_ChNb;
+  Bool_t  fClosedD_SCs_ChDs;
+  Bool_t  fClosedD_MSp_SpNb;
+  Bool_t  fClosedD_MSp_SpDs;
+  Bool_t  fClosedD_SSp_SpNb;
+  Bool_t  fClosedD_SSp_SpDs;    
+  Bool_t  fClosedD_Adc_EvNb; 
+  Bool_t  fClosedD_Adc_EvDs;  
+  Bool_t  fClosedH_Ped_Date;
+  Bool_t  fClosedH_TNo_Date;
+  Bool_t  fClosedH_MCs_Date;
+  Bool_t  fClosedH_LFN_Date;
+  Bool_t  fClosedH_HFN_Date;
+  Bool_t  fClosedH_SCs_Date;
+  Bool_t  fClosedH_Ped_RuDs;
+  Bool_t  fClosedH_TNo_RuDs;
+  Bool_t  fClosedH_MCs_RuDs;
+  Bool_t  fClosedH_LFN_RuDs;
+  Bool_t  fClosedH_HFN_RuDs;
+  Bool_t  fClosedH_SCs_RuDs;
+
+  TString fCurrentHistoCode;
+  TString fCurrentOptPlot;
 
   TVirtualPad*  fCurrentPad;
 
@@ -1259,6 +1311,7 @@ class TEcnaHistos : public TObject {
 
   TVirtualPad* ActivePad(const TString, const TString);
   TPaveText*   ActivePavTxt(const TString, const TString);
+  void         DoCanvasClosed();
 
   void SetHistoPresentation(TH1D*,   const TString);
   void SetHistoPresentation(TH1D*,   const TString, const TString);

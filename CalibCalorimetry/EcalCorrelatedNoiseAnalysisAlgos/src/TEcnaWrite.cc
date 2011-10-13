@@ -1,6 +1,6 @@
 //----------Author's Name: B.Fabbro DSM/IRFU/SPP CEA-Saclay
 //----------Copyright: Those valid for CEA sofware
-//----------Modified: 24/03/2011
+//----------Modified: 30/06/2011
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaWrite.h"
 
@@ -69,7 +69,7 @@ TEcnaWrite::TEcnaWrite(TEcnaObject* pObjectManager, const TString SubDet)
   fCnaParPaths->GetPathForResultsRootFiles();
   fCnaParPaths->GetPathForResultsAsciiFiles();
 
-  //............................ fEcal  => to be changed in fParEcal
+  //............................ fEcal  => should be changed in fParEcal
   fEcal = 0;
   Long_t iParEcal = pObjectManager->GetPointerValue("TEcnaParEcal");
   if( iParEcal == 0 )
@@ -134,6 +134,7 @@ TEcnaWrite::TEcnaWrite(const TString SubDet,
 void  TEcnaWrite::Init()
 {
   //----------------------------- Parameters values
+  fTTBELL = '\007';
 
   fgMaxCar = (Int_t)512;              // max number of characters in TStrings
   fCodeHeaderAscii =  0;
@@ -389,54 +390,55 @@ Int_t   TEcnaWrite::GetFirstReqEvtNumber(){return fFirstReqEvtNumber;}
 Int_t   TEcnaWrite::GetReqNbOfEvts()      {return fReqNbOfEvts;}
 Int_t   TEcnaWrite::GetStexNumber()       {return fStexNumber;}
 
-//----------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------
 //
-//    NumberOfEventsAnalysis(...) : Analyses the number of events found in data
-//                                  channel by channel OR sample by sample
-//                                  and output ERROR message if differences are detected
+//  NumberOfEventsAnalysis(...) : Analyses the number of events found in data
+//                                channel by channel OR sample by sample
+//                                an output ERROR message is delivered if differences are detected
 //
-//              channel by channel: called by TEcnaRead object (3 arguments)
-//              sample  by sample : called by TEcnaRun  object (4 arguments)
+//            channel by channel: called by TEcnaRead object (3 arguments)
+//            sample  by sample : called by TEcnaRun  object (4 arguments)
 //
 //    This method must be a TEcnaWrite method since it can be called by objects
 //    of class TEcnaRead OR TEcnaRun
 //
-//----------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------------
 //.............................................................................................
-Int_t TEcnaWrite::NumberOfEventsAnalysis(Int_t* ArrayNbOfEvts,
-					 const Int_t& MaxArray,  const Int_t& NbOfReqEvts)
+Int_t TEcnaWrite::NumberOfEventsAnalysis(Int_t*       ArrayNbOfEvts, const Int_t& MaxArray,
+					 const Int_t& NbOfReqEvts,   const Int_t& StexNumber)
 {
   //  CHECK THE NUMBER OF FOUND EVENTS, return rNumberOfEvents (NumberOfEvents())
   //  (number used to compute the average values over the events)
   //
-  //  3 arguments: called by TEcnaRead object
+  //  1D array: called by TEcnaRead object
 
   Int_t rNumberOfEvents = 0;
   Int_t PresentNumber   = 0;
-  Int_t DifferentValue  = 0;
   Int_t EmptyChannel    = 0;
+  Int_t DifferentMinusValue = 0;
+  Int_t DifferentPlusValue  = 0;
 
   //........................................................ i_SSoSE = StexStin or StinEcha
-  for(Int_t i_SSoSE=0 ; i_SSoSE<MaxArray ; i_SSoSE++)
+  for(Int_t i_SSoSE=0; i_SSoSE<MaxArray; i_SSoSE++)
     {
       Int_t NbOfEvts = ArrayNbOfEvts[i_SSoSE];
 
       if( NbOfEvts > 0 )
 	{
-	  if( PresentNumber == 0 )
+	  if( PresentNumber == 0 )   // first channel
 	    {
 	      PresentNumber = NbOfEvts;
 	    }
-	  else
+	  else                      // current channel
 	    {
-	      if( NbOfEvts > PresentNumber )
+	      if( NbOfEvts > PresentNumber )   // warning
 		{ 
 		  PresentNumber = NbOfEvts;
-		  DifferentValue++;
+		  DifferentPlusValue++;
 		}
-	      if( NbOfEvts < PresentNumber )
+	      if( NbOfEvts < PresentNumber )   // warning
 		{
-		  DifferentValue++;
+		  DifferentMinusValue++;
 		}
 	    }
 	}
@@ -450,27 +452,54 @@ Int_t TEcnaWrite::NumberOfEventsAnalysis(Int_t* ArrayNbOfEvts,
 
   if( EmptyChannel > 0 )
     {
-      if(fFlagPrint == fCodePrintAllComments)
+      if( MaxArray == fEcal->MaxCrysInSM() )  // (EB)
 	{
-	  cout << "*TEcnaWrite::NumberOfEventsAnalysis()> *** WARNING *** " << EmptyChannel
-	       << " empty channels found." << endl;
+	  cout << "!TEcnaWrite::NumberOfEventsAnalysis()> *** WARNING *** "
+	       << EmptyChannel << " empty channels detected in SM " << StexNumber
+	       << " (EB " << fEcalNumbering->PlusMinusSMNumber(StexNumber) << ")" << endl;
+	}
+      if( MaxArray == fEcal->MaxCrysEcnaInDee() )  // (EE)
+	{
+	  EmptyChannel -= fEcal->EmptyChannelsInDeeMatrixIncompleteSCIncluded();
+	  if( EmptyChannel > 0 )
+	    {
+	      cout << "!TEcnaWrite::NumberOfEventsAnalysis()> *** WARNING *** "
+		   << EmptyChannel << " empty channels detected in Dee " << StexNumber << endl;
+	    }
 	}
     }
 
-  if( DifferentValue > 0 )
+  if( DifferentMinusValue > 0 || DifferentPlusValue > 0 )
     {
-      cout << "!TEcnaWrite::NumberOfEventsAnalysis()> *************************** W A R N I N G ***********************" << endl
-	   << "                               NUMBER OF EVENTS NOT CONSTANT !" << endl
-	   << "  The number of events is not the same for some channels (empty channels not included)" << endl
-	   << "  Number of differences = " << DifferentValue << " (channels)" << endl
-	   << "  Result ROOT file: " << fRootFileName << endl	   
-	   << "  The maximum number (" << rNumberOfEvents << ") is considered as the number"
-	   << " of events for calculations of pedestals, noises and correlations." << endl
+      cout << "!TEcnaWrite::NumberOfEventsAnalysis()> " << endl;
+
+      if( MaxArray == fEcal->MaxCrysInSM() )  // (EB)
+	{
+	  cout << "************** W A R N I N G  :  NUMBER OF EVENTS NOT CONSTANT FOR SM " << StexNumber
+	       << " (EB " << fEcalNumbering->PlusMinusSMNumber(StexNumber) << ")  *********************";
+	}
+
+      if( MaxArray == fEcal->MaxCrysEcnaInDee() )  // (EE)
+	{
+	  cout << "****************** W A R N I N G  :  NUMBER OF EVENTS NOT CONSTANT FOR Dee " << StexNumber
+	       << " **************************";
+	}
+
+      cout << endl
+	   << "  Result ROOT file: " << fRootFileName << endl
+	   << "  The number of events is not the same for all the non-empty channels." << endl	   
+	   << "  The maximum number (" << rNumberOfEvents << ") is considered as the number of events for calculations "
+	   << endl	
+	   << "  of pedestals, noises and correlations." << endl
+	   << "  Number of channels with 0 < nb of evts < " << rNumberOfEvents << " : " << DifferentMinusValue
+	   << endl
+	// << "  Number of channels with nb of evts > " << rNumberOfEvents << " = " << DifferentPlusValue  << endl
+	   << "  Number of empty channels : " << EmptyChannel << endl
 	   << "  Some values of pedestals, noises and correlations may be wrong for channels" << endl
 	   << "  with number of events different from " << rNumberOfEvents << "." << endl
 	   << "  Please, check the histogram 'Numbers of events'." << endl
 	   << "*******************************************************************************************************"
-	   << fTTBELL << endl;
+	   << endl;
     }
   else
     {
@@ -493,11 +522,12 @@ Int_t TEcnaWrite::NumberOfEventsAnalysis(Int_t**      T2d_NbOfEvts,   const Int_
   //  CHECK OF THE NUMBER OF FOUND EVENTS, return rNumberOfEvents (NumberOfEvents())
   //       (number used to compute the average values over the events)
   //
-  //  4 arguments: called by TEcnaRun object
+  //  2D array: called by TEcnaRun object
 
   Int_t rNumberOfEvents = 0;
   Int_t PresentNumber   = 0;
-  Int_t DifferentValue  = 0;
+  Int_t DifferentMinusValue  = 0;
+  Int_t DifferentPlusValue  = 0;
 
   for(Int_t i0StexEcha = 0 ; i0StexEcha < MaxCrysEcnaInStex ; i0StexEcha++)
     {
@@ -516,11 +546,11 @@ Int_t TEcnaWrite::NumberOfEventsAnalysis(Int_t**      T2d_NbOfEvts,   const Int_
 		  if( NbOfEvts > PresentNumber )
 		    { 
 		      PresentNumber = NbOfEvts;
-		      DifferentValue++;
+		      DifferentPlusValue++;
 		    }
 		  if( NbOfEvts < PresentNumber )
 		    {
-		      DifferentValue++;
+		      DifferentMinusValue++;
 		    }
 		}
 	    }
@@ -529,20 +559,23 @@ Int_t TEcnaWrite::NumberOfEventsAnalysis(Int_t**      T2d_NbOfEvts,   const Int_
   //.............................................................  (NumberOfEvents())
   rNumberOfEvents = PresentNumber;
 
-  if( DifferentValue > 0 )
+  if( DifferentMinusValue > 0 || DifferentPlusValue > 0 )
     {
-      cout << "!TEcnaWrite::NumberOfEventsAnalysis()> *************************** W A R N I N G ***********************" << endl
-	   << "                               NUMBER OF EVENTS NOT CONSTANT !" << endl
-	   << "  The number of events is not the same for some channels and samples (empty channels not included)" << endl
-	   << "  Number of differences = " << DifferentValue << " (samples)" << endl
+      cout << "!TEcnaWrite::NumberOfEventsAnalysis()> " << endl
+	   << "****************** W A R N I N G  :  NUMBER OF EVENTS NOT CONSTANT !  *********************************"
+	   << endl
 	   << "  Result ROOT file: " << fRootFileName << endl
-	   << "  The maximum number (" << rNumberOfEvents << ") is considered as the number"
-	   << " of events for calculations of pedestals, noises and correlations." << endl
+	   << "  The number of events is not the same for all the non-empty channels" << endl	   
+	   << "  The maximum number (" << rNumberOfEvents << ") is considered as the number of events " << endl	
+	   << "  for calculations of pedestals, noises and correlations." << endl
+	   << "  Number of channels with 0 < nb of evts < " << rNumberOfEvents << " : " << DifferentMinusValue << endl
+	// << "  Number of channels with nb of evts > " << rNumberOfEvents << " : " << DifferentPlusValue  << endl
+	// << "  Number of empty channels : " << EmptyChannel << endl
 	   << "  Some values of pedestals, noises and correlations may be wrong for channels" << endl
 	   << "  with number of events different from " << rNumberOfEvents << "." << endl
 	   << "  Please, check the histogram 'Numbers of events'." << endl
 	   << "*******************************************************************************************************"
-	   << fTTBELL << endl;
+	   << endl;
     }
   else
     {

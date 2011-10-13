@@ -11,7 +11,7 @@
 
 ///-----------------------------------------------------------
 ///   TEcnaRootFile.h
-///   Update: 16/02/2011
+///   Update: 30/09/2011
 ///   Authors:   FX Gentit, B.Fabbro (bernard.fabbro@cea.fr)
 ///              DSM/IRFU/SPP CEA-Saclay
 ///   Copyright: Those valid for CEA sofware
@@ -32,7 +32,9 @@ public:
 
   TString     fRootFileName;            // Treename of fRootFile
   TString     fRootFileStatus;          // Status of fRootFile
-  TFile      *fRootFile;                // Root file for CNA
+
+  TFile      *fRootFile;                // Root file for ECNA
+
   Int_t       fCounterBytesCnaResults;  // Counter of bytes in fCnaResultsTree
   Int_t       fNbEntries;               // Nb of entries in fCnaResultsTree
   TTree      *fCnaResultsTree;    // Tree containing the individual results

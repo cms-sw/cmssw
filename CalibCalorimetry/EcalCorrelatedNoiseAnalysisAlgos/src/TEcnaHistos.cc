@@ -1,6 +1,6 @@
 //---------Author's Name: B.Fabbro DSM/IRFU/SPP CEA-Saclay
 //---------Copyright: Those valid for CEA sofware
-//---------Modified: 24/03/2011
+//---------Modified: 04/07/2011
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaHistos.h"
 
@@ -249,6 +249,7 @@ void TEcnaHistos::Init()
   fMemoColorH_Ped_RuDs = 0; fMemoColorH_TNo_RuDs = 0;
   fMemoColorH_MCs_RuDs = 0; fMemoColorH_LFN_RuDs = 0;
   fMemoColorH_HFN_RuDs = 0; fMemoColorH_SCs_RuDs = 0;
+
   //.......... init counter Same canvas
   fCanvSameH1SamePlus = 0;
   fCanvSameD_NOE_ChNb = 0; fCanvSameD_NOE_ChDs = 0;
@@ -469,6 +470,41 @@ void TEcnaHistos::Init()
   fCanvH_HFN_RuDs = 0;
   fCanvH_SCs_RuDs = 0;
   
+
+  fClosedH1SamePlus = kFALSE;    // (Canvas Closed SIGNAL)
+  fClosedD_NOE_ChNb = kFALSE;
+  fClosedD_NOE_ChDs = kFALSE;
+  fClosedD_Ped_ChNb = kFALSE;
+  fClosedD_Ped_ChDs = kFALSE;
+  fClosedD_TNo_ChNb = kFALSE; 
+  fClosedD_TNo_ChDs = kFALSE; 
+  fClosedD_MCs_ChNb = kFALSE; 
+  fClosedD_MCs_ChDs = kFALSE;
+  fClosedD_LFN_ChNb = kFALSE;
+  fClosedD_LFN_ChDs = kFALSE; 
+  fClosedD_HFN_ChNb = kFALSE; 
+  fClosedD_HFN_ChDs = kFALSE; 
+  fClosedD_SCs_ChNb = kFALSE; 
+  fClosedD_SCs_ChDs = kFALSE; 
+  fClosedD_MSp_SpNb = kFALSE; 
+  fClosedD_MSp_SpDs = kFALSE;
+  fClosedD_SSp_SpNb = kFALSE;
+  fClosedD_SSp_SpDs = kFALSE;  
+  fClosedD_Adc_EvDs = kFALSE;   
+  fClosedD_Adc_EvNb = kFALSE;
+  fClosedH_Ped_Date = kFALSE;
+  fClosedH_TNo_Date = kFALSE;
+  fClosedH_MCs_Date = kFALSE;
+  fClosedH_LFN_Date = kFALSE;
+  fClosedH_HFN_Date = kFALSE;
+  fClosedH_SCs_Date = kFALSE;
+  fClosedH_Ped_RuDs = kFALSE;
+  fClosedH_TNo_RuDs = kFALSE;
+  fClosedH_MCs_RuDs = kFALSE;
+  fClosedH_LFN_RuDs = kFALSE;
+  fClosedH_HFN_RuDs = kFALSE;
+  fClosedH_SCs_RuDs = kFALSE;
+
   fCurrentPad = 0;                                    //   (Init)
 
   fPadH1SamePlus = 0;
@@ -747,7 +783,7 @@ void TEcnaHistos::FileParameters(TEcnaRead* MyRootFile)
   fStopDate  = MyRootFile->GetStopDate();
   fRunType   = MyRootFile->GetRunType();
 
-  fFapNbOfEvts = MyRootFile->GetNumberOfEvents(fFapReqNbOfEvts);
+  fFapNbOfEvts = MyRootFile->GetNumberOfEvents(fFapReqNbOfEvts, fFapStexNumber);
 }
 
 //=============================================================================================
@@ -864,8 +900,8 @@ void TEcnaHistos::PlotMatrix(const TMatrixD& read_matrix_corcc,
 
   TString StandardPlotOption = fCnaParHistos->BuildStandardPlotOption(CallingMethod, UserPlotOption); 
 
-  TString BetweenWhat = fCnaParHistos->BuildStandardHistoCode(CallingMethod, UserBetweenWhat);
-  TString CorOrCov = fCnaParHistos->BuildStandardHistoCode(CallingMethod, UserCorOrCov);
+  TString BetweenWhat = fCnaParHistos->BuildStandardBetweenWhatCode(CallingMethod, UserBetweenWhat);
+  TString CorOrCov = fCnaParHistos->BuildStandardCovOrCorCode(CallingMethod, UserCorOrCov);
   
   if( BetweenWhat != "?" && CorOrCov != "?" )
     {
@@ -893,8 +929,8 @@ void TEcnaHistos::PlotMatrix(const TString UserCorOrCov, const TString UserBetwe
 
   TString StandardPlotOption = fCnaParHistos->BuildStandardPlotOption(CallingMethod, UserPlotOption); 
 
-  TString BetweenWhat = fCnaParHistos->BuildStandardHistoCode(CallingMethod, UserBetweenWhat);
-  TString CorOrCov = fCnaParHistos->BuildStandardHistoCode(CallingMethod, UserCorOrCov);
+  TString BetweenWhat = fCnaParHistos->BuildStandardBetweenWhatCode(CallingMethod, UserBetweenWhat);
+  TString CorOrCov = fCnaParHistos->BuildStandardCovOrCorCode(CallingMethod, UserCorOrCov);
 
   if( BetweenWhat != "?" && CorOrCov != "?" )
     {
@@ -927,8 +963,8 @@ void TEcnaHistos::PlotMatrix(const TMatrixD& read_matrix,
 
   TString StandardPlotOption = fCnaParHistos->BuildStandardPlotOption(CallingMethod, UserPlotOption); 
 
-  TString BetweenWhat = fCnaParHistos->BuildStandardHistoCode(CallingMethod, UserBetweenWhat);
-  TString CorOrCov    = fCnaParHistos->BuildStandardHistoCode(CallingMethod, UserCorOrCov);
+  TString BetweenWhat = fCnaParHistos->BuildStandardBetweenWhatCode(CallingMethod, UserBetweenWhat);
+  TString CorOrCov    = fCnaParHistos->BuildStandardCovOrCorCode(CallingMethod, UserCorOrCov);
 
   if( BetweenWhat != "?" && CorOrCov != "?" )
     {
@@ -968,8 +1004,8 @@ void TEcnaHistos::PlotMatrix(const TString UserCorOrCov, const TString UserBetwe
 
   TString StandardPlotOption = fCnaParHistos->BuildStandardPlotOption(CallingMethod, UserPlotOption); 
 
-  TString StandardBetweenWhat = fCnaParHistos->BuildStandardHistoCode(CallingMethod, UserBetweenWhat);
-  TString StandardCorOrCov = fCnaParHistos->BuildStandardHistoCode(CallingMethod, UserCorOrCov);
+  TString StandardBetweenWhat = fCnaParHistos->BuildStandardBetweenWhatCode(CallingMethod, UserBetweenWhat);
+  TString StandardCorOrCov = fCnaParHistos->BuildStandardCovOrCorCode(CallingMethod, UserCorOrCov);
 
   if( StandardBetweenWhat != "?" && StandardCorOrCov != "?" )
     {
@@ -1006,7 +1042,7 @@ void TEcnaHistos::PlotDetector(const TString UserHistoCode, const TString UserDe
 {
   TString CallingMethod = "2DS";
 
-  TString StandardHistoCode = fCnaParHistos->BuildStandardHistoCode(CallingMethod, UserHistoCode);
+  TString StandardHistoCode = fCnaParHistos->BuildStandard1DHistoCodeY(CallingMethod, UserHistoCode);
   if( StandardHistoCode != "?" )
     {
       TString TechHistoCode = fCnaParHistos->GetTechHistoCode(StandardHistoCode);
@@ -1036,7 +1072,7 @@ void TEcnaHistos::PlotDetector(const TVectorD& read_histo, const TString UserHis
 {
   TString CallingMethod = "2DS";
 
-  TString StandardHistoCode = fCnaParHistos->BuildStandardHistoCode(CallingMethod, UserHistoCode);
+  TString StandardHistoCode = fCnaParHistos->BuildStandard1DHistoCodeY(CallingMethod, UserHistoCode);
   if( StandardHistoCode != "?" )
     {
       TString TechHistoCode = fCnaParHistos->GetTechHistoCode(StandardHistoCode);
@@ -1083,8 +1119,8 @@ void TEcnaHistos::Plot1DHisto(const TVectorD& InputHisto,
 
   TString StandardPlotOption = fCnaParHistos->BuildStandardPlotOption(CallingMethod, UserPlotOption); 
 
-  TString Standard_X_Quantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, User_X_Quantity);
-  TString Standard_Y_Quantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, User_Y_Quantity);
+  TString Standard_X_Quantity = fCnaParHistos->BuildStandard1DHistoCodeX(CallingMethod, User_X_Quantity);
+  TString Standard_Y_Quantity = fCnaParHistos->BuildStandard1DHistoCodeY(CallingMethod, User_Y_Quantity);
   
   if( Standard_X_Quantity != "?" && Standard_Y_Quantity != "?" )
     {  
@@ -1116,8 +1152,8 @@ void TEcnaHistos::Plot1DHisto(const TString User_X_Quantity, const TString User_
 
   TString StandardPlotOption = fCnaParHistos->BuildStandardPlotOption(CallingMethod, UserPlotOption); 
 
-  TString Standard_X_Quantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, User_X_Quantity);
-  TString Standard_Y_Quantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, User_Y_Quantity);
+  TString Standard_X_Quantity = fCnaParHistos->BuildStandard1DHistoCodeX(CallingMethod, User_X_Quantity);
+  TString Standard_Y_Quantity = fCnaParHistos->BuildStandard1DHistoCodeY(CallingMethod, User_Y_Quantity);
   
   if( Standard_X_Quantity != "?" && Standard_Y_Quantity != "?" )
     {
@@ -1172,8 +1208,8 @@ void TEcnaHistos::Plot1DHisto(const TVectorD& InputHisto,
 {
   TString CallingMethod = "1D";
   TString StandardPlotOption  = fCnaParHistos->BuildStandardPlotOption(CallingMethod, UserPlotOption); 
-  TString Standard_X_Quantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, User_X_Quantity);
-  TString Standard_Y_Quantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, User_Y_Quantity);
+  TString Standard_X_Quantity = fCnaParHistos->BuildStandard1DHistoCodeX(CallingMethod, User_X_Quantity);
+  TString Standard_Y_Quantity = fCnaParHistos->BuildStandard1DHistoCodeY(CallingMethod, User_Y_Quantity);
   
   TString TechHistoCode = fCnaParHistos->GetTechHistoCode(Standard_X_Quantity, Standard_Y_Quantity);
   
@@ -1214,8 +1250,8 @@ void TEcnaHistos::Plot1DHisto(const TString User_X_Quantity, const TString User_
   
   TString StandardPlotOption = fCnaParHistos->BuildStandardPlotOption(CallingMethod, UserPlotOption); 
   
-  TString Standard_X_Quantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, User_X_Quantity);
-  TString Standard_Y_Quantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, User_Y_Quantity);
+  TString Standard_X_Quantity = fCnaParHistos->BuildStandard1DHistoCodeX(CallingMethod, User_X_Quantity);
+  TString Standard_Y_Quantity = fCnaParHistos->BuildStandard1DHistoCodeY(CallingMethod, User_Y_Quantity);
   
   if( Standard_X_Quantity != "?" && Standard_Y_Quantity != "?" )
     {  
@@ -1255,8 +1291,8 @@ void TEcnaHistos::Plot1DHisto(const TVectorD& InputHisto,
 
   TString StandardPlotOption = fCnaParHistos->BuildStandardPlotOption(CallingMethod, UserPlotOption); 
 
-  TString Standard_X_Quantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, User_X_Quantity);
-  TString Standard_Y_Quantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, User_Y_Quantity);
+  TString Standard_X_Quantity = fCnaParHistos->BuildStandard1DHistoCodeX(CallingMethod, User_X_Quantity);
+  TString Standard_Y_Quantity = fCnaParHistos->BuildStandard1DHistoCodeY(CallingMethod, User_Y_Quantity);
   
   TString TechHistoCode = fCnaParHistos->GetTechHistoCode(Standard_X_Quantity, Standard_Y_Quantity);
   
@@ -1283,8 +1319,8 @@ void TEcnaHistos::Plot1DHisto(const TString User_X_Quantity, const TString User_
 
   TString StandardPlotOption = fCnaParHistos->BuildStandardPlotOption(CallingMethod, UserPlotOption); 
 
-  TString Standard_X_Quantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, User_X_Quantity);
-  TString Standard_Y_Quantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, User_Y_Quantity);
+  TString Standard_X_Quantity = fCnaParHistos->BuildStandard1DHistoCodeX(CallingMethod, User_X_Quantity);
+  TString Standard_Y_Quantity = fCnaParHistos->BuildStandard1DHistoCodeY(CallingMethod, User_Y_Quantity);
   
   Int_t i0Sample = n1Sample-1;
   
@@ -1317,8 +1353,8 @@ void TEcnaHistos::PlotHistory(const TString User_X_Quantity, const TString User_
 
   TString StandardPlotOption = fCnaParHistos->BuildStandardPlotOption(CallingMethod, UserPlotOption); 
 
-  TString Standard_X_Quantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, User_X_Quantity);
-  TString Standard_Y_Quantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, User_Y_Quantity);
+  TString Standard_X_Quantity = fCnaParHistos->BuildStandard1DHistoCodeX(CallingMethod, User_X_Quantity);
+  TString Standard_Y_Quantity = fCnaParHistos->BuildStandard1DHistoCodeY(CallingMethod, User_Y_Quantity);
 
   if( Standard_X_Quantity != "?" && Standard_Y_Quantity != "?" )
     { 
@@ -1397,7 +1433,7 @@ void TEcnaHistos::ViewMatrix(const TMatrixD& arg_read_matrix, const Int_t&  arg_
 	  OKArray = fMyRootFile->LookAtRootFile();
 	  if( OKArray == kTRUE )
 	    {
-	      fFapNbOfEvts = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts);
+	      fFapNbOfEvts = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts, fFapStexNumber);
 	      TString fp_name_short = fMyRootFile->GetRootFileNameShort();
 	      // cout << "*TEcnaHistos::ViewMatrix(...)> Data are analyzed from file ----> "
 	      //      << fp_name_short << endl;
@@ -2030,7 +2066,7 @@ void TEcnaHistos::ViewStin(const Int_t& cStexStin, const TString CorOrCov)
 	{
 	  fStatusFileFound = kTRUE;
 
-	  fFapNbOfEvts = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts);
+	  fFapNbOfEvts = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts, fFapStexNumber);
 	  TString fp_name_short = fMyRootFile->GetRootFileNameShort(); 
 	  // cout << "*TEcnaHistos::ViewStin(...)> Data are analyzed from file ----> "
 	  //      << fp_name_short << endl;
@@ -3044,7 +3080,7 @@ void TEcnaHistos::ViewStex(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 
       if( OKFileExists == kTRUE )
 	{
-	  fFapNbOfEvts = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts);
+	  fFapNbOfEvts = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts, fFapStexNumber);
 	  TString fp_name_short = fMyRootFile->GetRootFileNameShort();
 	  // cout << "*TEcnaHistos::ViewStex(...)> Data are analyzed from file ----> "
 	  //      << fp_name_short << endl;
@@ -3324,7 +3360,7 @@ void TEcnaHistos::StexHocoVecoLHFCorcc(const TString Freq)
     {
       fStatusFileFound = kTRUE;
 
-      fFapNbOfEvts = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts);
+      fFapNbOfEvts = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts, fFapStexNumber);
       TString fp_name_short = fMyRootFile->GetRootFileNameShort(); 
       //cout << "*TEcnaHistos::StexHocoVecoLHFCorcc(...)> Data are analyzed from file ----> "
       //     << fp_name_short << endl;
@@ -4362,7 +4398,7 @@ void TEcnaHistos::ViewDeeSCNumberingPad(const Int_t&   DeeNumber)
 	    }
 	  if( i_DeeSCCons == 112 && n1DeeSCEcna == 165 )
 	    {
-	      sprintf(f_in, "14a");
+	      sprintf(f_in, "14b");
 	      text_DSSC_num->DrawText(x_from_IX, y_from_IYp, f_in);
 	      sprintf(f_in, "112b");
 	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IYm, f_in);
@@ -4461,7 +4497,7 @@ void TEcnaHistos::ViewDeeSCNumberingPad(const Int_t&   DeeNumber)
 	    }
 	  if( i_DeeSCCons == 261 && n1DeeSCEcna == 144 )
 	    {
-	      sprintf(f_in, "14a");
+	      sprintf(f_in, "14c");
 	      text_DSSC_num->DrawText(x_from_IX, y_from_IYp, f_in);
 	      sprintf(f_in, "261c");
 	      text_DeeSCCons_num->DrawText(x_from_IX, y_from_IYm, f_in);
@@ -4855,7 +4891,7 @@ void TEcnaHistos::ViewStas(const TVectorD& arg_read_histo, const Int_t& arg_Alre
 
 	  if( OKFileExists == kTRUE )
 	    {
-	      xFapNbOfEvts[iStasStex] = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts);
+	      xFapNbOfEvts[iStasStex] = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts, n1StasStex);
 	      TString fp_name_short = fMyRootFile->GetRootFileNameShort();
 	      // cout << "*TEcnaHistos::ViewStas(...)> Data are analyzed from file ----> "
 	      //      << fp_name_short << endl;
@@ -6433,8 +6469,6 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
     {
       TVirtualPad* main_subpad = 0; 
       //---------------- Call to ActivePad
-      //if( (TRootCanvas*)fCanv<HISTOCODE>->GetCanvasImp() == fImp<HISTOCODE> ){
-      // main_subpad = fPad<HISTOCODE>;} (return main_subpad)
       main_subpad = ActivePad(HistoCode.Data(), opt_plot.Data());  // => return 0 if canvas has been closed
       if( main_subpad == 0 )
 	{
@@ -6604,7 +6638,7 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 		      if( fMyRootFile->LookAtRootFile() == kTRUE ){OKFileExists = kTRUE;}            //   (ViewHisto, Stas)
 		      if( OKFileExists == kTRUE )
 			{
-			  xFapNbOfEvts[iStasStex] = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts);
+			  xFapNbOfEvts[iStasStex] = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts, n1StasStex);
 			  fp_name_short = fMyRootFile->GetRootFileNameShort();
 			  // cout << "*TEcnaHistos::ViewHisto(...)> Data are analyzed from file ----> "
 			  //      << fp_name_short << endl;
@@ -6908,7 +6942,7 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 		  
 		  if( OKFileExists == kTRUE )
 		    {
-		      fFapNbOfEvts = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts);
+		      fFapNbOfEvts = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts, fFapStexNumber);
 		      fp_name_short = fMyRootFile->GetRootFileNameShort();
 		      // cout << "*TEcnaHistos::ViewHisto(...)> Data are analyzed from file ----> "
 		      //      << fp_name_short << endl;
@@ -7131,7 +7165,7 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 					      fFapLastReqEvtNumber, fFapReqNbOfEvts,
 					      fFapStexNumber,       fCfgResultsRootFilePath.Data());
 		  OKFileExists = fMyRootFile->LookAtRootFile();
-		  if( OKFileExists == kTRUE ){fFapNbOfEvts = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts);}
+		  if( OKFileExists == kTRUE ){fFapNbOfEvts = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts, fFapStexNumber);}
 		}
 	      else
 		{
@@ -7148,7 +7182,7 @@ void TEcnaHistos::ViewHisto(const TVectorD& arg_read_histo, const Int_t&  arg_Al
 						  SizeForPlot, SizeForRead,
 						  StexStin_A, i0StinEcha, i0Sample, i_data_exist);
 
-		  fFapNbOfEvts = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts);
+		  fFapNbOfEvts = fMyRootFile->GetNumberOfEvents(fFapReqNbOfEvts, fFapStexNumber);
 		  fStartDate = fMyRootFile->GetStartDate();
 		  fStopDate  = fMyRootFile->GetStopDate();
 		  fRunType   = fMyRootFile->GetRunType();
@@ -7916,8 +7950,6 @@ void TEcnaHistos::ViewHistime(const TString list_of_run_file_name,
     {
       TVirtualPad* main_subpad = 0; 
       //---------------- Call to ActivePad
-      //if( (TRootCanvas*)fCanv<HISTOCODE>->GetCanvasImp() == fImp<HISTOCODE> ){
-      // main_subpad = fPad<HISTOCODE>;} (return main_subpad)
       main_subpad = ActivePad(HistoCode.Data(), opt_plot.Data());  // => return 0 if canvas has been closed
       if( main_subpad == 0 )
 	{
@@ -9333,7 +9365,7 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
 			  fFapFirstReqEvtNumber, fFapLastReqEvtNumber, fFapReqNbOfEvts, sFapStexNumber.Data(), 
 			  Stex_StinCons, n1StexCrys, i0StinEcha);
 		}
-	    }
+	    } 
 	  
 	  TText* tt = main_pavtxt->AddText(f_in);
 	  tt->SetTextColor(GetViewHistoColor(HistoCode, opt_plot));
@@ -9346,7 +9378,7 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
 	  if( HistoType == "EvolProj" ){fPavComEvolRuns->Draw();}
 
 	  //---------------- Call to SetParametersCanvas
-	  //fImp<HISTOCODE> = (TRootCanvas*)fCanv<HISTOCODE>->GetCanvasImp();
+	  //fImp<HISTOCODE> = (TCanvasImp*)fCanv<HISTOCODE>->GetCanvasImp();
 	  //fCanv<HISTOCODE>->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
 	  //fPad<HISTOCODE> = gPad;
 	  //fMemoPlot<HISTOCODE> = 1;          =======>  set MemoFlag to "Buzy"
@@ -9355,8 +9387,8 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
 
 	  //---------------- Set xMemoPlotSame to 0
 	  xMemoPlotSame = 0;
-	}
-      //-------- end of if( GetMemoFlag(HistoCode, opt_plot) == "Free" ) ----------  (HistoPlot)
+	} // end of if( GetMemoFlag(HistoCode, opt_plot) == "Free" )    (HistoPlot)
+
       //.......... First and further calls in options SAME and SAME n (fMemoPlot<HISTOCODE> = 1)
       if(GetMemoFlag(HistoCode, opt_plot) == "Busy")
 	{
@@ -9365,15 +9397,12 @@ void TEcnaHistos::HistoPlot(TH1D* h_his0,               const Int_t&   HisSize,
 	  main_pavtxt = ActivePavTxt(HistoCode.Data(), opt_plot.Data());
 	  
 	  //---------------- Call to ActivePad
-	  //if( (TRootCanvas*)fCanv<HISTOCODE>->GetCanvasImp() == fImp<HISTOCODE> ){
-	  // main_subpad = fPad<HISTOCODE>;} (return main_subpad)
 	  main_subpad = ActivePad(HistoCode.Data(), opt_plot.Data());  // => return 0 if canvas has been closed
 
 	  //---------------- Recover pointer to the current canvas
 	  MainCanvas = GetCurrentCanvas(HistoCode.Data(), opt_plot.Data());
 	}
     } // end of if( (opt_plot == fSeveralPlot) || (opt_plot == fSameOnePlot) )
-
 
 
   //============================================================================= (HistoPlot)
@@ -10209,7 +10238,7 @@ void TEcnaHistos::HistimePlot(TGraph*       g_graph0,
 	  main_pavtxt->Draw();
 
 	  //---------------- Call to SetParametersCanvas
-	  //fImp<HISTOCODE> = (TRootCanvas*)fCanv<HISTOCODE>->GetCanvasImp();
+	  //fImp<HISTOCODE> = (TCanvasImp*)fCanv<HISTOCODE>->GetCanvasImp();
 	  //fCanv<HISTOCODE>->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
 	  //fPad<HISTOCODE> = gPad;
 	  //fMemoPlot<HISTOCODE> = 1;          =======>  set MemoFlag to "Buzy"
@@ -10228,8 +10257,6 @@ void TEcnaHistos::HistimePlot(TGraph*       g_graph0,
 	  main_pavtxt = ActivePavTxt(HistoCode.Data(), opt_plot.Data());
 	  
 	  //---------------- Call to ActivePad
-	  //if( (TRootCanvas*)fCanv<HISTOCODE>->GetCanvasImp() == fImp<HISTOCODE> ){
-	  // main_subpad = fPad<HISTOCODE>;} (return main_subpad)
 	  main_subpad = ActivePad(HistoCode.Data(), opt_plot.Data());  // => return 0 if canvas has been closed
 
 	  //---------------- Recover pointer to the current canvas
@@ -12330,7 +12357,7 @@ TString TEcnaHistos::GetMemoFlag(const TString HistoCode, const TString opt_plot
 }
 
 TCanvas* TEcnaHistos::CreateCanvas(const TString HistoCode, const TString opt_plot, const TString canvas_name,
-				 UInt_t canv_w, UInt_t canv_h)
+				   UInt_t canv_w, UInt_t canv_h)
 {
 // Create canvas according to HistoCode
 
@@ -12458,9 +12485,9 @@ void TEcnaHistos::SetParametersCanvas(const TString HistoCode, const TString opt
 
   if( opt_plot == fSameOnePlot )
     {
-      fImpH1SamePlus = (TRootCanvas*)fCanvH1SamePlus->GetCanvasImp();
+      fImpH1SamePlus = (TCanvasImp*)fCanvH1SamePlus->GetCanvasImp();
       fCanvH1SamePlus->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-      fPadH1SamePlus = gPad;
+      fPadH1SamePlus = gPad;   fClosedH1SamePlus = kFALSE;
       fMemoPlotH1SamePlus = 1; fMemoColorH1SamePlus = 0;
     }
 
@@ -12468,249 +12495,249 @@ void TEcnaHistos::SetParametersCanvas(const TString HistoCode, const TString opt
     {
       if(HistoCode == "D_NOE_ChNb")
 	{
-	  fImpD_NOE_ChNb = (TRootCanvas*)fCanvD_NOE_ChNb->GetCanvasImp();
+	  fImpD_NOE_ChNb = (TCanvasImp*)fCanvD_NOE_ChNb->GetCanvasImp();
 	  fCanvD_NOE_ChNb->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadD_NOE_ChNb = gPad;
+	  fPadD_NOE_ChNb = gPad;   fClosedD_NOE_ChNb = kFALSE;
 	  fMemoPlotD_NOE_ChNb = 1; fMemoColorD_NOE_ChNb = 0;
 	}
       
       if(HistoCode == "D_NOE_ChDs")                                               // (SetParametersCanvas)
 	{
-	  fImpD_NOE_ChDs = (TRootCanvas*)fCanvD_NOE_ChDs->GetCanvasImp();
+	  fImpD_NOE_ChDs = (TCanvasImp*)fCanvD_NOE_ChDs->GetCanvasImp();
 	  fCanvD_NOE_ChDs->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadD_NOE_ChDs = gPad;
+	  fPadD_NOE_ChDs = gPad;   fClosedD_NOE_ChDs = kFALSE;
 	  fMemoPlotD_NOE_ChDs = 1; fMemoColorD_NOE_ChDs = 0;
 	}
       
       if(HistoCode == "D_Ped_ChNb")
 	{
-	  fImpD_Ped_ChNb = (TRootCanvas*)fCanvD_Ped_ChNb->GetCanvasImp();
+	  fImpD_Ped_ChNb = (TCanvasImp*)fCanvD_Ped_ChNb->GetCanvasImp();
 	  fCanvD_Ped_ChNb->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadD_Ped_ChNb = gPad;
+	  fPadD_Ped_ChNb = gPad;   fClosedD_Ped_ChNb = kFALSE;
 	  fMemoPlotD_Ped_ChNb = 1; fMemoColorD_Ped_ChNb = 0;
 	}
       
       if(HistoCode == "D_Ped_ChDs")
 	{
-	  fImpD_Ped_ChDs = (TRootCanvas*)fCanvD_Ped_ChDs->GetCanvasImp();
+	  fImpD_Ped_ChDs = (TCanvasImp*)fCanvD_Ped_ChDs->GetCanvasImp();
 	  fCanvD_Ped_ChDs->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadD_Ped_ChDs = gPad;
+	  fPadD_Ped_ChDs = gPad;   fClosedD_Ped_ChDs = kFALSE;
 	  fMemoPlotD_Ped_ChDs = 1; fMemoColorD_Ped_ChDs = 0;
 	}
       
       if(HistoCode == "D_TNo_ChNb")
 	{
-	  fImpD_TNo_ChNb = (TRootCanvas*)fCanvD_TNo_ChNb->GetCanvasImp();
+	  fImpD_TNo_ChNb = (TCanvasImp*)fCanvD_TNo_ChNb->GetCanvasImp();
 	  fCanvD_TNo_ChNb->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadD_TNo_ChNb = gPad; 
+	  fPadD_TNo_ChNb = gPad;   fClosedD_TNo_ChNb = kFALSE;
 	  fMemoPlotD_TNo_ChNb = 1; fMemoColorD_TNo_ChNb = 0;
 	}
       
       if(HistoCode == "D_TNo_ChDs")                                               // (SetParametersCanvas)
 	{
-	  fImpD_TNo_ChDs = (TRootCanvas*)fCanvD_TNo_ChDs->GetCanvasImp();
+	  fImpD_TNo_ChDs = (TCanvasImp*)fCanvD_TNo_ChDs->GetCanvasImp();
 	  fCanvD_TNo_ChDs->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadD_TNo_ChDs = gPad;
+	  fPadD_TNo_ChDs = gPad;   fClosedD_TNo_ChDs = kFALSE;
 	  fMemoPlotD_TNo_ChDs = 1; fMemoColorD_TNo_ChDs = 0;
 	}
       
       if(HistoCode == "D_MCs_ChNb")
 	{
-	  fImpD_MCs_ChNb = (TRootCanvas*)fCanvD_MCs_ChNb->GetCanvasImp();
+	  fImpD_MCs_ChNb = (TCanvasImp*)fCanvD_MCs_ChNb->GetCanvasImp();
 	  fCanvD_MCs_ChNb->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadD_MCs_ChNb = gPad;
+	  fPadD_MCs_ChNb = gPad;   fClosedD_MCs_ChNb = kFALSE;
 	  fMemoPlotD_MCs_ChNb = 1; fMemoColorD_MCs_ChNb = 0;
 	}
       
       if(HistoCode == "D_MCs_ChDs")
 	{
-	  fImpD_MCs_ChDs = (TRootCanvas*)fCanvD_MCs_ChDs->GetCanvasImp();
+	  fImpD_MCs_ChDs = (TCanvasImp*)fCanvD_MCs_ChDs->GetCanvasImp();
 	  fCanvD_MCs_ChDs->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadD_MCs_ChDs = gPad;
+	  fPadD_MCs_ChDs = gPad;   fClosedD_MCs_ChDs = kFALSE;
 	  fMemoPlotD_MCs_ChDs = 1; fMemoColorD_MCs_ChDs = 0;
 	}
       
       if(HistoCode == "D_LFN_ChNb")                                               // (SetParametersCanvas)
 	{
-	  fImpD_LFN_ChNb = (TRootCanvas*)fCanvD_LFN_ChNb->GetCanvasImp();
+	  fImpD_LFN_ChNb = (TCanvasImp*)fCanvD_LFN_ChNb->GetCanvasImp();
 	  fCanvD_LFN_ChNb->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadD_LFN_ChNb = gPad;
+	  fPadD_LFN_ChNb = gPad;   fClosedD_LFN_ChNb = kFALSE;
 	  fMemoPlotD_LFN_ChNb = 1; fMemoColorD_LFN_ChNb = 0;
 	}
       
       if(HistoCode == "D_LFN_ChDs")
 	{
-	  fImpD_LFN_ChDs = (TRootCanvas*)fCanvD_LFN_ChDs->GetCanvasImp();
+	  fImpD_LFN_ChDs = (TCanvasImp*)fCanvD_LFN_ChDs->GetCanvasImp();
 	  fCanvD_LFN_ChDs->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadD_LFN_ChDs = gPad;
+	  fPadD_LFN_ChDs = gPad;   fClosedD_LFN_ChDs = kFALSE;
 	  fMemoPlotD_LFN_ChDs = 1; fMemoColorD_LFN_ChDs = 0;
 	}
       
       if(HistoCode == "D_HFN_ChNb")
 	{
-	  fImpD_HFN_ChNb = (TRootCanvas*)fCanvD_HFN_ChNb->GetCanvasImp();
+	  fImpD_HFN_ChNb = (TCanvasImp*)fCanvD_HFN_ChNb->GetCanvasImp();
 	  fCanvD_HFN_ChNb->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadD_HFN_ChNb = gPad;
+	  fPadD_HFN_ChNb = gPad;   fClosedD_HFN_ChNb = kFALSE;
 	  fMemoPlotD_HFN_ChNb = 1; fMemoColorD_HFN_ChNb = 0;
 	}
       
       if(HistoCode == "D_HFN_ChDs")
 	{
-	  fImpD_HFN_ChDs = (TRootCanvas*)fCanvD_HFN_ChDs->GetCanvasImp();
+	  fImpD_HFN_ChDs = (TCanvasImp*)fCanvD_HFN_ChDs->GetCanvasImp();
 	  fCanvD_HFN_ChDs->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadD_HFN_ChDs = gPad;
+	  fPadD_HFN_ChDs = gPad;   fClosedD_HFN_ChDs = kFALSE;
 	  fMemoPlotD_HFN_ChDs = 1; fMemoColorD_HFN_ChDs = 0;
 	}
       
       if(HistoCode == "D_SCs_ChNb")                                               // (SetParametersCanvas)
 	{
-	  fImpD_SCs_ChNb = (TRootCanvas*)fCanvD_SCs_ChNb->GetCanvasImp();
+	  fImpD_SCs_ChNb = (TCanvasImp*)fCanvD_SCs_ChNb->GetCanvasImp();
 	  fCanvD_SCs_ChNb->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadD_SCs_ChNb = gPad;
+	  fPadD_SCs_ChNb = gPad;   fClosedD_SCs_ChNb = kFALSE;
 	  fMemoPlotD_SCs_ChNb = 1; fMemoColorD_SCs_ChNb = 0;
 	}
       
       if(HistoCode == "D_SCs_ChDs")
 	{
-	  fImpD_SCs_ChDs = (TRootCanvas*)fCanvD_SCs_ChDs->GetCanvasImp();
+	  fImpD_SCs_ChDs = (TCanvasImp*)fCanvD_SCs_ChDs->GetCanvasImp();
 	  fCanvD_SCs_ChDs->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadD_SCs_ChDs = gPad;
+	  fPadD_SCs_ChDs = gPad;   fClosedD_SCs_ChDs = kFALSE;
 	  fMemoPlotD_SCs_ChDs = 1; fMemoColorD_SCs_ChDs = 0;
 	}
       
       if(HistoCode == "D_MSp_SpNb")
 	{
-	  fImpD_MSp_SpNb = (TRootCanvas*)fCanvD_MSp_SpNb->GetCanvasImp();
+	  fImpD_MSp_SpNb = (TCanvasImp*)fCanvD_MSp_SpNb->GetCanvasImp();
 	  fCanvD_MSp_SpNb->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadD_MSp_SpNb = gPad;
+	  fPadD_MSp_SpNb = gPad;   fClosedD_MSp_SpNb = kFALSE;
 	  fMemoPlotD_MSp_SpNb = 1; fMemoColorD_MSp_SpNb = 0;
 	}
       
       if(HistoCode == "D_MSp_SpDs")
 	{
-	  fImpD_MSp_SpDs = (TRootCanvas*)fCanvD_MSp_SpDs->GetCanvasImp();
+	  fImpD_MSp_SpDs = (TCanvasImp*)fCanvD_MSp_SpDs->GetCanvasImp();
 	  fCanvD_MSp_SpDs->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadD_MSp_SpDs = gPad;
+	  fPadD_MSp_SpDs = gPad;   fClosedD_MSp_SpDs = kFALSE;
 	  fMemoPlotD_MSp_SpDs = 1; fMemoColorD_MSp_SpDs = 0;
 	}
       
       if(HistoCode == "D_SSp_SpNb")                                               // (SetParametersCanvas)
 	{
-	  fImpD_SSp_SpNb = (TRootCanvas*)fCanvD_SSp_SpNb->GetCanvasImp();
+	  fImpD_SSp_SpNb = (TCanvasImp*)fCanvD_SSp_SpNb->GetCanvasImp();
 	  fCanvD_SSp_SpNb->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadD_SSp_SpNb = gPad;
+	  fPadD_SSp_SpNb = gPad;   fClosedD_SSp_SpNb = kFALSE;
 	  fMemoPlotD_SSp_SpNb = 1; fMemoColorD_SSp_SpNb = 0;
 	}
       
       if(HistoCode == "D_SSp_SpDs")                                               // (SetParametersCanvas)
 	{
-	  fImpD_SSp_SpDs = (TRootCanvas*)fCanvD_SSp_SpDs->GetCanvasImp();
+	  fImpD_SSp_SpDs = (TCanvasImp*)fCanvD_SSp_SpDs->GetCanvasImp();
 	  fCanvD_SSp_SpDs->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadD_SSp_SpDs = gPad;
+	  fPadD_SSp_SpDs = gPad;   fClosedD_SSp_SpDs = kFALSE;
 	  fMemoPlotD_SSp_SpDs = 1; fMemoColorD_SSp_SpDs = 0;
 	}
       
       if(HistoCode == "D_Adc_EvDs")
 	{
-	  fImpD_Adc_EvDs = (TRootCanvas*)fCanvD_Adc_EvDs->GetCanvasImp();
+	  fImpD_Adc_EvDs = (TCanvasImp*)fCanvD_Adc_EvDs->GetCanvasImp();
 	  fCanvD_Adc_EvDs->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadD_Adc_EvDs = gPad;
+	  fPadD_Adc_EvDs = gPad;   fClosedD_Adc_EvDs = kFALSE;
 	  fMemoPlotD_Adc_EvDs = 1; fMemoColorD_Adc_EvDs = 0;		  
 	}
       
       if(HistoCode == "D_Adc_EvNb")
 	{
-	  fImpD_Adc_EvNb = (TRootCanvas*)fCanvD_Adc_EvNb->GetCanvasImp();
+	  fImpD_Adc_EvNb = (TCanvasImp*)fCanvD_Adc_EvNb->GetCanvasImp();
 	  fCanvD_Adc_EvNb->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadD_Adc_EvNb = gPad;
+	  fPadD_Adc_EvNb = gPad;   fClosedD_Adc_EvNb = kFALSE;
 	  fMemoPlotD_Adc_EvNb = 1; fMemoColorD_Adc_EvNb = 0;
 	}
       
       if(HistoCode == "H_Ped_Date")                                               // (SetParametersCanvas)
 	{
-	  fImpH_Ped_Date = (TRootCanvas*)fCanvH_Ped_Date->GetCanvasImp();
+	  fImpH_Ped_Date = (TCanvasImp*)fCanvH_Ped_Date->GetCanvasImp();
 	  fCanvH_Ped_Date->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadH_Ped_Date = gPad;
+	  fPadH_Ped_Date = gPad;   fClosedH_Ped_Date = kFALSE;
 	  fMemoPlotH_Ped_Date = 1; fMemoColorH_Ped_Date = 0;
 	}
       if(HistoCode == "H_TNo_Date")
 	{
-	  fImpH_TNo_Date = (TRootCanvas*)fCanvH_TNo_Date->GetCanvasImp();
+	  fImpH_TNo_Date = (TCanvasImp*)fCanvH_TNo_Date->GetCanvasImp();
 	  fCanvH_TNo_Date->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadH_TNo_Date = gPad;
+	  fPadH_TNo_Date = gPad;   fClosedH_TNo_Date = kFALSE;
 	  fMemoPlotH_TNo_Date = 1; fMemoColorH_TNo_Date = 0;
 	}
       if(HistoCode == "H_MCs_Date")
 	{
-	  fImpH_MCs_Date = (TRootCanvas*)fCanvH_MCs_Date->GetCanvasImp();
+	  fImpH_MCs_Date = (TCanvasImp*)fCanvH_MCs_Date->GetCanvasImp();
 	  fCanvH_MCs_Date->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadH_MCs_Date = gPad;
+	  fPadH_MCs_Date = gPad;   fClosedH_MCs_Date = kFALSE;
 	  fMemoPlotH_MCs_Date = 1; fMemoColorH_MCs_Date = 0;
 	}
 
       if(HistoCode == "H_LFN_Date")                                               // (SetParametersCanvas)
 	{
-	  fImpH_LFN_Date = (TRootCanvas*)fCanvH_LFN_Date->GetCanvasImp();
+	  fImpH_LFN_Date = (TCanvasImp*)fCanvH_LFN_Date->GetCanvasImp();
 	  fCanvH_LFN_Date->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadH_LFN_Date = gPad;
+	  fPadH_LFN_Date = gPad;   fClosedH_LFN_Date = kFALSE;
 	  fMemoPlotH_LFN_Date = 1; fMemoColorH_LFN_Date = 0;
 	}
       if(HistoCode == "H_HFN_Date")
 	{
-	  fImpH_HFN_Date = (TRootCanvas*)fCanvH_HFN_Date->GetCanvasImp();
+	  fImpH_HFN_Date = (TCanvasImp*)fCanvH_HFN_Date->GetCanvasImp();
 	  fCanvH_HFN_Date->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadH_HFN_Date = gPad;
+	  fPadH_HFN_Date = gPad;   fClosedH_HFN_Date = kFALSE;
 	  fMemoPlotH_HFN_Date = 1; fMemoColorH_HFN_Date = 0;
 	}
       if(HistoCode == "H_SCs_Date")
 	{
-	  fImpH_SCs_Date = (TRootCanvas*)fCanvH_SCs_Date->GetCanvasImp();
+	  fImpH_SCs_Date = (TCanvasImp*)fCanvH_SCs_Date->GetCanvasImp();
 	  fCanvH_SCs_Date->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadH_SCs_Date = gPad;
+	  fPadH_SCs_Date = gPad;   fClosedH_SCs_Date = kFALSE;
 	  fMemoPlotH_SCs_Date = 1; fMemoColorH_SCs_Date = 0;
 	}
 
       if(HistoCode == "H_Ped_RuDs")                                               // (SetParametersCanvas)
 	{
-	  fImpH_Ped_RuDs = (TRootCanvas*)fCanvH_Ped_RuDs->GetCanvasImp();
+	  fImpH_Ped_RuDs = (TCanvasImp*)fCanvH_Ped_RuDs->GetCanvasImp();
 	  fCanvH_Ped_RuDs->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadH_Ped_RuDs = gPad;
+	  fPadH_Ped_RuDs = gPad;   fClosedH_Ped_RuDs = kFALSE;
 	  fMemoPlotH_Ped_RuDs = 1; fMemoColorH_Ped_RuDs = 0;
 	}
       if(HistoCode == "H_TNo_RuDs")
 	{
-	  fImpH_TNo_RuDs = (TRootCanvas*)fCanvH_TNo_RuDs->GetCanvasImp();
+	  fImpH_TNo_RuDs = (TCanvasImp*)fCanvH_TNo_RuDs->GetCanvasImp();
 	  fCanvH_TNo_RuDs->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadH_TNo_RuDs = gPad;
+	  fPadH_TNo_RuDs = gPad;   fClosedH_TNo_RuDs = kFALSE;
 	  fMemoPlotH_TNo_RuDs = 1; fMemoColorH_TNo_RuDs = 0;
 	}
       if(HistoCode == "H_MCs_RuDs")
 	{
-	  fImpH_MCs_RuDs = (TRootCanvas*)fCanvH_MCs_RuDs->GetCanvasImp();
+	  fImpH_MCs_RuDs = (TCanvasImp*)fCanvH_MCs_RuDs->GetCanvasImp();
 	  fCanvH_MCs_RuDs->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadH_MCs_RuDs = gPad;
+	  fPadH_MCs_RuDs = gPad;   fClosedH_MCs_RuDs = kFALSE;
 	  fMemoPlotH_MCs_RuDs = 1; fMemoColorH_MCs_RuDs = 0;
 	}
 
       if(HistoCode == "H_LFN_RuDs")                                               // (SetParametersCanvas)
 	{
-	  fImpH_LFN_RuDs = (TRootCanvas*)fCanvH_LFN_RuDs->GetCanvasImp();
+	  fImpH_LFN_RuDs = (TCanvasImp*)fCanvH_LFN_RuDs->GetCanvasImp();
 	  fCanvH_LFN_RuDs->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadH_LFN_RuDs = gPad;
+	  fPadH_LFN_RuDs = gPad;   fClosedH_LFN_RuDs = kFALSE;
 	  fMemoPlotH_LFN_RuDs = 1; fMemoColorH_LFN_RuDs = 0;
 	}
       if(HistoCode == "H_HFN_RuDs")
 	{
-	  fImpH_HFN_RuDs = (TRootCanvas*)fCanvH_HFN_RuDs->GetCanvasImp();
+	  fImpH_HFN_RuDs = (TCanvasImp*)fCanvH_HFN_RuDs->GetCanvasImp();
 	  fCanvH_HFN_RuDs->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadH_HFN_RuDs = gPad;
+	  fPadH_HFN_RuDs = gPad;   fClosedH_HFN_RuDs = kFALSE;
 	  fMemoPlotH_HFN_RuDs = 1; fMemoColorH_HFN_RuDs = 0;
 	}
       if(HistoCode == "H_SCs_RuDs")
 	{
-	  fImpH_SCs_RuDs = (TRootCanvas*)fCanvH_SCs_RuDs->GetCanvasImp();
+	  fImpH_SCs_RuDs = (TCanvasImp*)fCanvH_SCs_RuDs->GetCanvasImp();
 	  fCanvH_SCs_RuDs->Divide(1, 1, x_margin_factor , y_margin_factor); gPad->cd(1);
-	  fPadH_SCs_RuDs = gPad;
+	  fPadH_SCs_RuDs = gPad;   fClosedH_SCs_RuDs = kFALSE;
 	  fMemoPlotH_SCs_RuDs = 1; fMemoColorH_SCs_RuDs = 0;
 	}
     }
@@ -12769,7 +12796,7 @@ void TEcnaHistos::PlotCloneOfCurrentCanvas()
 {
   if( fCurrentCanvas != 0)
     {
-      if( (TRootCanvas*)fCurrentCanvas->GetCanvasImp() != 0 )
+      if( (TCanvasImp*)fCurrentCanvas->GetCanvasImp() != 0 )
 	{
 	  (TCanvas*)fCurrentCanvas->DrawClone();
 	}
@@ -12794,141 +12821,145 @@ TVirtualPad* TEcnaHistos::ActivePad(const TString HistoCode, const TString opt_p
 
   TVirtualPad* main_subpad = 0;
 
+  fCurrentHistoCode = HistoCode;
+  fCurrentOptPlot   = opt_plot;
+
   if( opt_plot == fSameOnePlot )
     {
-      if( (TRootCanvas*)fCanvH1SamePlus->GetCanvasImp() == fImpH1SamePlus ){
-	main_subpad = fPadH1SamePlus;}
+      fCanvH1SamePlus->
+	Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+      if( fClosedH1SamePlus == kFALSE ){main_subpad = fPadH1SamePlus;}   
     }
 
-  if( opt_plot == fOnlyOnePlot || opt_plot == fSeveralPlot)
+  if( opt_plot == fOnlyOnePlot || opt_plot == fSeveralPlot )
     {
       if(HistoCode == "D_NOE_ChNb"){
-	if( (TRootCanvas*)fCanvD_NOE_ChNb->GetCanvasImp() == fImpD_NOE_ChNb ){
-	  main_subpad = fPadD_NOE_ChNb;}}
+	fCanvD_NOE_ChNb->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedD_NOE_ChNb == kFALSE ){main_subpad = fPadD_NOE_ChNb;}}
       
       if(HistoCode == "D_NOE_ChDs"){
-	if( (TRootCanvas*)fCanvD_NOE_ChDs->GetCanvasImp() == fImpD_NOE_ChDs ){
-	  main_subpad = fPadD_NOE_ChDs;}}
+	fCanvD_NOE_ChDs->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedD_NOE_ChDs == kFALSE ){main_subpad = fPadD_NOE_ChDs;}}
       
       if(HistoCode == "D_Ped_ChNb"){
-	if( (TRootCanvas*)fCanvD_Ped_ChNb->GetCanvasImp() == fImpD_Ped_ChNb ){
-	  main_subpad = fPadD_Ped_ChNb;}}
-
+	fCanvD_Ped_ChNb->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedD_Ped_ChNb == kFALSE ){main_subpad = fPadD_Ped_ChNb;}}
+      
       if(HistoCode == "D_Ped_ChDs"){
-	if( (TRootCanvas*)fCanvD_Ped_ChDs->GetCanvasImp() == fImpD_Ped_ChDs ){
-	  main_subpad = fPadD_Ped_ChDs;}}
+	fCanvD_Ped_ChDs->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedD_Ped_ChDs == kFALSE ){main_subpad = fPadD_Ped_ChDs;}}
       
       if(HistoCode == "D_TNo_ChNb"){
-	if((TRootCanvas*)fCanvD_TNo_ChNb->GetCanvasImp() == fImpD_TNo_ChNb){
-	  main_subpad = fPadD_TNo_ChNb;}}
+	fCanvD_TNo_ChNb->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedD_TNo_ChNb == kFALSE ){main_subpad = fPadD_TNo_ChNb;}}
 
       if(HistoCode == "D_TNo_ChDs"){
-	if( (TRootCanvas*)fCanvD_TNo_ChDs->GetCanvasImp() == fImpD_TNo_ChDs ){
-	  main_subpad = fPadD_TNo_ChDs;}}
+	fCanvD_TNo_ChDs->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedD_TNo_ChDs == kFALSE ){main_subpad = fPadD_TNo_ChDs;}}
       
       if(HistoCode == "D_MCs_ChNb"){
-	if( (TRootCanvas*)fCanvD_MCs_ChNb->GetCanvasImp() == fImpD_MCs_ChNb ){
-	  main_subpad = fPadD_MCs_ChNb;}}
+	fCanvD_MCs_ChNb->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedD_MCs_ChNb == kFALSE ){main_subpad = fPadD_MCs_ChNb;}}
       
       if(HistoCode == "D_MCs_ChDs"){
-	if( (TRootCanvas*)fCanvD_MCs_ChDs->GetCanvasImp() == fImpD_MCs_ChDs ){
-	  main_subpad = fPadD_MCs_ChDs;}}
-      
+	fCanvD_MCs_ChDs->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedD_MCs_ChDs == kFALSE ){main_subpad = fPadD_MCs_ChDs;}}
+
       if(HistoCode == "D_LFN_ChNb"){
-	if( (TRootCanvas*)fCanvD_LFN_ChNb->GetCanvasImp() == fImpD_LFN_ChNb ){
-	  main_subpad = fPadD_LFN_ChNb;}}
+	fCanvD_LFN_ChNb->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedD_LFN_ChNb == kFALSE ){main_subpad = fPadD_LFN_ChNb;}}
       
       if(HistoCode == "D_LFN_ChDs"){
-	if( (TRootCanvas*)fCanvD_LFN_ChDs->GetCanvasImp() == fImpD_LFN_ChDs ){
-	  main_subpad = fPadD_LFN_ChDs;}}
+	fCanvD_LFN_ChDs->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedD_LFN_ChDs == kFALSE ){main_subpad = fPadD_LFN_ChDs;}}
       
       if(HistoCode == "D_HFN_ChNb"){
-	if( (TRootCanvas*)fCanvD_HFN_ChNb->GetCanvasImp() == fImpD_HFN_ChNb ){
-	  main_subpad = fPadD_HFN_ChNb;}}
+	fCanvD_HFN_ChNb->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedD_HFN_ChNb == kFALSE ){main_subpad = fPadD_HFN_ChNb;}}
       
       if(HistoCode == "D_HFN_ChDs"){
-	if( (TRootCanvas*)fCanvD_HFN_ChDs->GetCanvasImp() == fImpD_HFN_ChDs ){
-	  main_subpad = fPadD_HFN_ChDs;}}
+	fCanvD_HFN_ChDs->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedD_HFN_ChDs == kFALSE ){main_subpad = fPadD_HFN_ChDs;}}
       
       if(HistoCode == "D_SCs_ChNb"){
-	if( (TRootCanvas*)fCanvD_SCs_ChNb->GetCanvasImp() == fImpD_SCs_ChNb ){
-	  main_subpad = fPadD_SCs_ChNb;}}
+	fCanvD_SCs_ChNb->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedD_SCs_ChNb == kFALSE ){main_subpad = fPadD_SCs_ChNb;}}
       
       if(HistoCode == "D_SCs_ChDs"){
-	if( (TRootCanvas*)fCanvD_SCs_ChDs->GetCanvasImp() == fImpD_SCs_ChDs ){
-	  main_subpad = fPadD_SCs_ChDs;}}
+	  fCanvD_SCs_ChDs->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedD_SCs_ChDs == kFALSE ){main_subpad = fPadD_SCs_ChDs;}}
       
-      if(HistoCode == "D_MSp_SpNb"        ){
-	if( (TRootCanvas*)fCanvD_MSp_SpNb->GetCanvasImp() == fImpD_MSp_SpNb ){
-	  main_subpad = fPadD_MSp_SpNb;}}
+      if(HistoCode == "D_MSp_SpNb"){
+	  fCanvD_MSp_SpNb->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedD_MSp_SpNb == kFALSE ){main_subpad = fPadD_MSp_SpNb;}}
       
-      if(HistoCode == "D_MSp_SpDs"        ){
-	if( (TRootCanvas*)fCanvD_MSp_SpDs->GetCanvasImp() == fImpD_MSp_SpDs ){
-	  main_subpad = fPadD_MSp_SpDs;}}
-      
-      if(HistoCode == "D_SSp_SpNb"     ){
-	if( (TRootCanvas*)fCanvD_SSp_SpNb->GetCanvasImp() == fImpD_SSp_SpNb ){
-	  main_subpad = fPadD_SSp_SpNb;}}
+      if(HistoCode == "D_MSp_SpDs"){
+	fCanvD_MSp_SpDs->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedD_MSp_SpDs == kFALSE ){main_subpad = fPadD_MSp_SpDs;}}
+
+      if(HistoCode == "D_SSp_SpNb"){
+	fCanvD_SSp_SpNb->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedD_SSp_SpNb == kFALSE ){main_subpad = fPadD_SSp_SpNb;}}
   
-      if(HistoCode == "D_SSp_SpDs"     ){
-	if( (TRootCanvas*)fCanvD_SSp_SpDs->GetCanvasImp() == fImpD_SSp_SpDs ){
-	  main_subpad = fPadD_SSp_SpDs;}}
+      if(HistoCode == "D_SSp_SpDs"){
+	fCanvD_SSp_SpDs->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedD_SSp_SpDs == kFALSE ){main_subpad = fPadD_SSp_SpDs;}}
 
       if(HistoCode == "D_Adc_EvNb"){
-	if( (TRootCanvas*)fCanvD_Adc_EvNb->GetCanvasImp() == fImpD_Adc_EvNb ){
-	  main_subpad = fPadD_Adc_EvNb;}}
+	fCanvD_Adc_EvNb->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedD_Adc_EvNb == kFALSE ){main_subpad = fPadD_Adc_EvNb;}}
       
       if(HistoCode == "D_Adc_EvDs"){
-	if( (TRootCanvas*)fCanvD_Adc_EvDs->GetCanvasImp() == fImpD_Adc_EvDs ){
-	  main_subpad = fPadD_Adc_EvDs;}}
-      
+	fCanvD_Adc_EvDs->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedD_Adc_EvDs == kFALSE ){main_subpad = fPadD_Adc_EvDs;}}
+
       if(HistoCode == "H_Ped_Date"){
-	if( (TRootCanvas*)fCanvH_Ped_Date->GetCanvasImp() == fImpH_Ped_Date ){
-	  main_subpad = fPadH_Ped_Date;}}
+	fCanvH_Ped_Date->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedH_Ped_Date == kFALSE ){main_subpad = fPadH_Ped_Date;}}
 
       if(HistoCode == "H_TNo_Date"){
-	if( (TRootCanvas*)fCanvH_TNo_Date->GetCanvasImp() == fImpH_TNo_Date ){
-	  main_subpad = fPadH_TNo_Date;}}
+	fCanvH_TNo_Date->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedH_TNo_Date == kFALSE ){main_subpad = fPadH_TNo_Date;}}
       
       if(HistoCode == "H_MCs_Date"){
-	if( (TRootCanvas*)fCanvH_MCs_Date->GetCanvasImp() == fImpH_MCs_Date ){
-	  main_subpad = fPadH_MCs_Date;}}
+	fCanvH_MCs_Date->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedH_MCs_Date == kFALSE ){main_subpad = fPadH_MCs_Date;}}
 
       if(HistoCode == "H_LFN_Date"){
-	if( (TRootCanvas*)fCanvH_LFN_Date->GetCanvasImp() == fImpH_LFN_Date ){
-	  main_subpad = fPadH_LFN_Date;}}
+	fCanvH_LFN_Date->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedH_LFN_Date == kFALSE ){main_subpad = fPadH_LFN_Date;}}
       
       if(HistoCode == "H_HFN_Date"){
-	if( (TRootCanvas*)fCanvH_HFN_Date->GetCanvasImp() == fImpH_HFN_Date ){
-	  main_subpad = fPadH_HFN_Date;}}
+	fCanvH_HFN_Date->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedH_HFN_Date == kFALSE ){main_subpad = fPadH_HFN_Date;}}
       
       if(HistoCode == "H_SCs_Date"){
-	if( (TRootCanvas*)fCanvH_SCs_Date->GetCanvasImp() == fImpH_SCs_Date ){
-	  main_subpad = fPadH_SCs_Date;}}
+	fCanvH_SCs_Date->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedH_SCs_Date == kFALSE ){main_subpad = fPadH_SCs_Date;}}
 
       if(HistoCode == "H_Ped_RuDs"){
-	if( (TRootCanvas*)fCanvH_Ped_RuDs->GetCanvasImp() == fImpH_Ped_RuDs ){
-	  main_subpad = fPadH_Ped_RuDs;}}
+	fCanvH_Ped_RuDs->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedH_Ped_RuDs == kFALSE ){main_subpad = fPadH_Ped_RuDs;}}
       
       if(HistoCode == "H_TNo_RuDs"){
-	if( (TRootCanvas*)fCanvH_TNo_RuDs->GetCanvasImp() == fImpH_TNo_RuDs ){
-	  main_subpad = fPadH_TNo_RuDs;}}
+	fCanvH_TNo_RuDs->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedH_TNo_RuDs == kFALSE ){main_subpad = fPadH_TNo_RuDs;}}
       
       if(HistoCode == "H_MCs_RuDs"){
-	if( (TRootCanvas*)fCanvH_MCs_RuDs->GetCanvasImp() == fImpH_MCs_RuDs ){
-	  main_subpad = fPadH_MCs_RuDs;}}
+	fCanvH_MCs_RuDs->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedH_MCs_RuDs == kFALSE ){main_subpad = fPadH_MCs_RuDs;}}
 
       if(HistoCode == "H_LFN_RuDs"){
-	if( (TRootCanvas*)fCanvH_LFN_RuDs->GetCanvasImp() == fImpH_LFN_RuDs ){
-	  main_subpad = fPadH_LFN_RuDs;}}
+	fCanvH_LFN_RuDs->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedH_LFN_RuDs == kFALSE ){main_subpad = fPadH_LFN_RuDs;}}
       
       if(HistoCode == "H_HFN_RuDs"){
-	if( (TRootCanvas*)fCanvH_HFN_RuDs->GetCanvasImp() == fImpH_HFN_RuDs ){
-	  main_subpad = fPadH_HFN_RuDs;}}
+	fCanvH_HFN_RuDs->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedH_HFN_RuDs == kFALSE ){main_subpad = fPadH_HFN_RuDs;}}
       
       if(HistoCode == "H_SCs_RuDs"){
-	if( (TRootCanvas*)fCanvH_SCs_RuDs->GetCanvasImp() == fImpH_SCs_RuDs ){
-	  main_subpad = fPadH_SCs_RuDs;}}
+	fCanvH_SCs_RuDs->Connect("Closed()","TEcnaHistos",this,"DoCanvasClosed()");
+	if( fClosedH_SCs_RuDs == kFALSE ){main_subpad = fPadH_SCs_RuDs;}}
     }
     
   if( main_subpad == 0 )
@@ -12938,6 +12969,51 @@ TVirtualPad* TEcnaHistos::ActivePad(const TString HistoCode, const TString opt_p
   return main_subpad;
 }
 // end of ActivePad
+
+void TEcnaHistos::DoCanvasClosed()
+{  
+  if( fCurrentOptPlot == fSameOnePlot ){fClosedH1SamePlus = kTRUE;}
+  if( fCurrentOptPlot == fOnlyOnePlot || fCurrentOptPlot == fSeveralPlot )
+    {
+      if(fCurrentHistoCode == "D_NOE_ChNb"){fClosedD_NOE_ChNb = kTRUE;}
+      if(fCurrentHistoCode == "D_NOE_ChDs"){fClosedD_NOE_ChDs = kTRUE;}
+      if(fCurrentHistoCode == "D_Ped_ChNb"){fClosedD_Ped_ChNb = kTRUE;}
+      if(fCurrentHistoCode == "D_Ped_ChDs"){fClosedD_Ped_ChDs = kTRUE;}
+      if(fCurrentHistoCode == "D_TNo_ChNb"){fClosedD_TNo_ChNb = kTRUE;}
+      if(fCurrentHistoCode == "D_TNo_ChDs"){fClosedD_TNo_ChDs = kTRUE;}
+      if(fCurrentHistoCode == "D_MCs_ChNb"){fClosedD_MCs_ChNb = kTRUE;}
+      if(fCurrentHistoCode == "D_MCs_ChDs"){fClosedD_MCs_ChDs = kTRUE;}
+      if(fCurrentHistoCode == "D_LFN_ChNb"){fClosedD_LFN_ChNb = kTRUE;}
+      if(fCurrentHistoCode == "D_LFN_ChDs"){fClosedD_LFN_ChDs = kTRUE;}
+      if(fCurrentHistoCode == "D_HFN_ChNb"){fClosedD_HFN_ChNb = kTRUE;}
+      if(fCurrentHistoCode == "D_HFN_ChDs"){fClosedD_HFN_ChDs = kTRUE;}
+      if(fCurrentHistoCode == "D_SCs_ChNb"){fClosedD_SCs_ChNb = kTRUE;}
+      if(fCurrentHistoCode == "D_SCs_ChDs"){fClosedD_SCs_ChDs = kTRUE;}
+      if(fCurrentHistoCode == "D_MSp_SpNb"){fClosedD_MSp_SpNb = kTRUE;}
+      if(fCurrentHistoCode == "D_MSp_SpDs"){fClosedD_MSp_SpDs = kTRUE;}
+      if(fCurrentHistoCode == "D_SSp_SpNb"){fClosedD_SSp_SpNb = kTRUE;}
+      if(fCurrentHistoCode == "D_SSp_SpDs"){fClosedD_SSp_SpDs = kTRUE;}
+      if(fCurrentHistoCode == "D_Adc_EvNb"){fClosedD_Adc_EvNb = kTRUE;}
+      if(fCurrentHistoCode == "D_Adc_EvDs"){fClosedD_Adc_EvDs = kTRUE;}
+      if(fCurrentHistoCode == "H_Ped_Date"){fClosedH_Ped_Date = kTRUE;}
+      if(fCurrentHistoCode == "H_TNo_Date"){fClosedH_TNo_Date = kTRUE;}
+      if(fCurrentHistoCode == "H_MCs_Date"){fClosedH_MCs_Date = kTRUE;}
+      if(fCurrentHistoCode == "H_LFN_Date"){fClosedH_LFN_Date = kTRUE;}
+      if(fCurrentHistoCode == "H_HFN_Date"){fClosedH_HFN_Date = kTRUE;}
+      if(fCurrentHistoCode == "H_SCs_Date"){fClosedH_SCs_Date = kTRUE;}
+      if(fCurrentHistoCode == "H_Ped_RuDs"){fClosedH_Ped_RuDs = kTRUE;}
+      if(fCurrentHistoCode == "H_TNo_RuDs"){fClosedH_TNo_RuDs = kTRUE;}
+      if(fCurrentHistoCode == "H_MCs_RuDs"){fClosedH_MCs_RuDs = kTRUE;}
+      if(fCurrentHistoCode == "H_LFN_RuDs"){fClosedH_LFN_RuDs = kTRUE;}
+      if(fCurrentHistoCode == "H_HFN_RuDs"){fClosedH_HFN_RuDs = kTRUE;}
+      if(fCurrentHistoCode == "H_SCs_RuDs"){fClosedH_SCs_RuDs = kTRUE;}
+    }
+
+  fCurrentOptPlot = "NADA";  // to avoid fClosed... = kTRUE if other canvas than those above Closed (i.e. 2D plots)
+  fCurrentHistoCode = "NADA";
+
+  cout << "!TEcnaHistos::DoCanvasClosed(...)> WARNING: canvas has been closed." << endl;
+}
 
 void TEcnaHistos::SetParametersPavTxt(const TString HistoCode, const TString opt_plot)
 {
@@ -12990,11 +13066,7 @@ TPaveText* TEcnaHistos::ActivePavTxt(const TString HistoCode, const TString opt_
 
   TPaveText* main_pavtxt = 0;
   
-  if( opt_plot == fSameOnePlot )
-    {
-      //if( (TRootCanvas*)fCanvH1SamePlus->GetCanvasImp() == fImpH1SamePlus )
-      {main_pavtxt = fPavTxtH1SamePlus;}
-    }
+  if( opt_plot == fSameOnePlot ){main_pavtxt = fPavTxtH1SamePlus;}
   
   if( opt_plot == fOnlyOnePlot || opt_plot == fSeveralPlot)
     {
@@ -13566,7 +13638,7 @@ void TEcnaHistos::NewCanvas(const TString opt_plot)
       fImpH1SamePlus = 0;       fCanvH1SamePlus = 0;
       fPadH1SamePlus = 0;       fMemoPlotH1SamePlus = 0;
       fMemoColorH1SamePlus = 0; fCanvSameH1SamePlus++;
-      fPavTxtH1SamePlus = 0;
+      fPavTxtH1SamePlus = 0;    fClosedH1SamePlus = kFALSE;
     }
   else
     {
@@ -13585,7 +13657,7 @@ void TEcnaHistos::ReInitCanvas(const TString HistoCode, const TString opt_plot)
       fImpH1SamePlus = 0;       fCanvH1SamePlus = 0;
       fPadH1SamePlus = 0;       fMemoPlotH1SamePlus = 0;
       fMemoColorH1SamePlus = 0; fCanvSameH1SamePlus++;
-      fPavTxtH1SamePlus = 0;
+      fPavTxtH1SamePlus = 0;    fClosedH1SamePlus = kFALSE;
     }
 
   if( opt_plot == fOnlyOnePlot ||  opt_plot == fSeveralPlot)
@@ -13595,7 +13667,7 @@ void TEcnaHistos::ReInitCanvas(const TString HistoCode, const TString opt_plot)
 	  fImpD_NOE_ChNb = 0;       fCanvD_NOE_ChNb = 0;
 	  fPadD_NOE_ChNb = 0;       fMemoPlotD_NOE_ChNb = 0;
 	  fMemoColorD_NOE_ChNb = 0; fCanvSameD_NOE_ChNb++;
-	  fPavTxtD_NOE_ChNb = 0; 
+	  fPavTxtD_NOE_ChNb = 0;    fClosedD_NOE_ChNb = kFALSE;
 	}
       
       if(HistoCode == "D_NOE_ChDs")
@@ -13603,7 +13675,7 @@ void TEcnaHistos::ReInitCanvas(const TString HistoCode, const TString opt_plot)
 	  fImpD_NOE_ChDs = 0;       fCanvD_NOE_ChDs = 0;
 	  fPadD_NOE_ChDs = 0;       fMemoPlotD_NOE_ChDs = 0;
 	  fMemoColorD_NOE_ChDs = 0; fCanvSameD_NOE_ChDs++;
-	  fPavTxtD_NOE_ChDs = 0;
+	  fPavTxtD_NOE_ChDs = 0;    fClosedD_NOE_ChDs = kFALSE;
 	}
       
       if(HistoCode == "D_Ped_ChNb")                            // (ReInitCanvas)
@@ -13611,7 +13683,7 @@ void TEcnaHistos::ReInitCanvas(const TString HistoCode, const TString opt_plot)
 	  fImpD_Ped_ChNb = 0;       fCanvD_Ped_ChNb = 0;
 	  fPadD_Ped_ChNb = 0;       fMemoPlotD_Ped_ChNb = 0;
 	  fMemoColorD_Ped_ChNb = 0; fCanvSameD_Ped_ChNb++;
-	  fPavTxtD_Ped_ChNb = 0;   
+	  fPavTxtD_Ped_ChNb = 0;    fClosedD_Ped_ChNb = kFALSE;
 	}
       
       if(HistoCode == "D_Ped_ChDs")
@@ -13619,7 +13691,7 @@ void TEcnaHistos::ReInitCanvas(const TString HistoCode, const TString opt_plot)
 	  fImpD_Ped_ChDs = 0;       fCanvD_Ped_ChDs = 0;
 	  fPadD_Ped_ChDs = 0;       fMemoPlotD_Ped_ChDs = 0;
 	  fMemoColorD_Ped_ChDs = 0; fCanvSameD_Ped_ChDs++;
-	  fPavTxtD_Ped_ChDs = 0; 
+	  fPavTxtD_Ped_ChDs = 0;    fClosedD_Ped_ChDs = kFALSE;
 	}
       
       if(HistoCode == "D_TNo_ChNb")
@@ -13627,7 +13699,7 @@ void TEcnaHistos::ReInitCanvas(const TString HistoCode, const TString opt_plot)
 	  fImpD_TNo_ChNb = 0;       fCanvD_TNo_ChNb = 0;
 	  fPadD_TNo_ChNb = 0;       fMemoPlotD_TNo_ChNb = 0;
 	  fMemoColorD_TNo_ChNb = 0; fCanvSameD_TNo_ChNb++;
-	  fPavTxtD_TNo_ChNb = 0; 
+	  fPavTxtD_TNo_ChNb = 0;    fClosedD_TNo_ChNb = kFALSE;
 	}
       
       if(HistoCode == "D_TNo_ChDs") 
@@ -13635,7 +13707,7 @@ void TEcnaHistos::ReInitCanvas(const TString HistoCode, const TString opt_plot)
 	  fImpD_TNo_ChDs = 0;       fCanvD_TNo_ChDs = 0;
 	  fPadD_TNo_ChDs = 0;       fMemoPlotD_TNo_ChDs = 0;
 	  fMemoColorD_TNo_ChDs = 0; fCanvSameD_TNo_ChDs++;
-	  fPavTxtD_TNo_ChDs = 0;
+	  fPavTxtD_TNo_ChDs = 0;    fClosedD_TNo_ChDs = kFALSE;
 	}
       
       if(HistoCode == "D_MCs_ChNb")                           // (ReInitCanvas)
@@ -13643,7 +13715,7 @@ void TEcnaHistos::ReInitCanvas(const TString HistoCode, const TString opt_plot)
 	  fImpD_MCs_ChNb = 0;       fCanvD_MCs_ChNb = 0;
 	  fPadD_MCs_ChNb = 0;       fMemoPlotD_MCs_ChNb = 0;
 	  fMemoColorD_MCs_ChNb = 0; fCanvSameD_MCs_ChNb++;
-	  fPavTxtD_MCs_ChNb = 0;
+	  fPavTxtD_MCs_ChNb = 0;    fClosedD_MCs_ChNb = kFALSE;
 	}
       
       if(HistoCode == "D_MCs_ChDs")
@@ -13651,15 +13723,15 @@ void TEcnaHistos::ReInitCanvas(const TString HistoCode, const TString opt_plot)
 	  fImpD_MCs_ChDs = 0;       fCanvD_MCs_ChDs = 0;
 	  fPadD_MCs_ChDs = 0;       fMemoPlotD_MCs_ChDs = 0;
 	  fMemoColorD_MCs_ChDs = 0; fCanvSameD_MCs_ChDs++;
-	  fPavTxtD_MCs_ChDs = 0;
+	  fPavTxtD_MCs_ChDs = 0;    fClosedD_MCs_ChDs = kFALSE;
 	}
-      
+
       if(HistoCode == "D_LFN_ChNb")
 	{	      
 	  fImpD_LFN_ChNb = 0;       fCanvD_LFN_ChNb = 0;
 	  fPadD_LFN_ChNb = 0;       fMemoPlotD_LFN_ChNb = 0;
 	  fMemoColorD_LFN_ChNb = 0; fCanvSameD_LFN_ChNb++;
-	  fPavTxtD_LFN_ChNb = 0;
+	  fPavTxtD_LFN_ChNb = 0;    fClosedD_LFN_ChNb = kFALSE;
 	}
       
       if(HistoCode == "D_LFN_ChDs")                            // (ReInitCanvas)
@@ -13667,7 +13739,7 @@ void TEcnaHistos::ReInitCanvas(const TString HistoCode, const TString opt_plot)
 	  fImpD_LFN_ChDs = 0;       fCanvD_LFN_ChDs = 0;
 	  fPadD_LFN_ChDs= 0;        fMemoPlotD_LFN_ChDs = 0;
 	  fMemoColorD_LFN_ChDs = 0; fCanvSameD_LFN_ChDs++;
-	  fPavTxtD_LFN_ChDs= 0;
+	  fPavTxtD_LFN_ChDs= 0;     fClosedD_LFN_ChDs = kFALSE;
 	}
       
       if(HistoCode == "D_HFN_ChNb")
@@ -13675,7 +13747,7 @@ void TEcnaHistos::ReInitCanvas(const TString HistoCode, const TString opt_plot)
 	  fImpD_HFN_ChNb = 0;       fCanvD_HFN_ChNb = 0;
 	  fPadD_HFN_ChNb = 0;       fMemoPlotD_HFN_ChNb = 0;
 	  fMemoColorD_HFN_ChNb = 0; fCanvSameD_HFN_ChNb++;
-	  fPavTxtD_HFN_ChNb = 0;
+	  fPavTxtD_HFN_ChNb = 0;    fClosedD_HFN_ChNb = kFALSE;
 	}
       
       if(HistoCode == "D_HFN_ChDs")
@@ -13683,7 +13755,7 @@ void TEcnaHistos::ReInitCanvas(const TString HistoCode, const TString opt_plot)
 	  fImpD_HFN_ChDs = 0;       fCanvD_HFN_ChDs = 0;
 	  fPadD_HFN_ChDs = 0;       fMemoPlotD_HFN_ChDs = 0;
 	  fMemoColorD_HFN_ChDs = 0; fCanvSameD_HFN_ChDs++;
-	  fPavTxtD_HFN_ChDs = 0;
+	  fPavTxtD_HFN_ChDs = 0;    fClosedD_HFN_ChDs = kFALSE;
 	}
       
       if(HistoCode == "D_SCs_ChNb")
@@ -13691,7 +13763,7 @@ void TEcnaHistos::ReInitCanvas(const TString HistoCode, const TString opt_plot)
 	  fImpD_SCs_ChNb = 0;       fCanvD_SCs_ChNb = 0;
 	  fPadD_SCs_ChNb = 0;       fMemoPlotD_SCs_ChNb = 0;
 	  fMemoColorD_SCs_ChNb = 0; fCanvSameD_SCs_ChNb++;
-	  fPavTxtD_SCs_ChNb = 0;
+	  fPavTxtD_SCs_ChNb = 0;    fClosedD_SCs_ChNb = kFALSE;
 	}
       
       if(HistoCode == "D_SCs_ChDs")                            // (ReInitCanvas)
@@ -13699,7 +13771,7 @@ void TEcnaHistos::ReInitCanvas(const TString HistoCode, const TString opt_plot)
 	  fImpD_SCs_ChDs = 0;       fCanvD_SCs_ChDs = 0;
 	  fPadD_SCs_ChDs = 0;       fMemoPlotD_SCs_ChDs = 0;
 	  fMemoColorD_SCs_ChDs = 0; fCanvSameD_SCs_ChDs++;
-	  fPavTxtD_SCs_ChDs = 0;
+	  fPavTxtD_SCs_ChDs = 0;    fClosedD_SCs_ChDs = kFALSE;
 	}
       
       if(HistoCode == "D_MSp_SpNb")
@@ -13707,7 +13779,7 @@ void TEcnaHistos::ReInitCanvas(const TString HistoCode, const TString opt_plot)
 	  fImpD_MSp_SpNb = 0;       fCanvD_MSp_SpNb = 0;
 	  fPadD_MSp_SpNb = 0;       fMemoPlotD_MSp_SpNb = 0; 
 	  fMemoColorD_MSp_SpNb = 0; fCanvSameD_MSp_SpNb++;
-	  fPavTxtD_MSp_SpNb = 0;
+	  fPavTxtD_MSp_SpNb = 0;    fClosedD_MSp_SpNb = kFALSE;
 	}
             
       if(HistoCode == "D_MSp_SpDs")
@@ -13715,7 +13787,7 @@ void TEcnaHistos::ReInitCanvas(const TString HistoCode, const TString opt_plot)
 	  fImpD_MSp_SpDs = 0;       fCanvD_MSp_SpDs = 0;
 	  fPadD_MSp_SpDs = 0;       fMemoPlotD_MSp_SpDs = 0; 
 	  fMemoColorD_MSp_SpDs = 0; fCanvSameD_MSp_SpDs++;
-	  fPavTxtD_MSp_SpDs = 0;
+	  fPavTxtD_MSp_SpDs = 0;    fClosedD_MSp_SpDs = kFALSE;
 	}
       
       if(HistoCode == "D_SSp_SpNb")
@@ -13723,7 +13795,7 @@ void TEcnaHistos::ReInitCanvas(const TString HistoCode, const TString opt_plot)
 	  fImpD_SSp_SpNb = 0;       fCanvD_SSp_SpNb = 0;
 	  fPadD_SSp_SpNb = 0;       fMemoPlotD_SSp_SpNb= 0;
 	  fMemoColorD_SSp_SpNb = 0; fCanvSameD_SSp_SpNb++;
-	  fPavTxtD_SSp_SpNb = 0;
+	  fPavTxtD_SSp_SpNb = 0;    fClosedD_SSp_SpNb = kFALSE;
 	}
 
       if(HistoCode == "D_SSp_SpDs")
@@ -13731,7 +13803,7 @@ void TEcnaHistos::ReInitCanvas(const TString HistoCode, const TString opt_plot)
 	  fImpD_SSp_SpDs = 0;       fCanvD_SSp_SpDs = 0;
 	  fPadD_SSp_SpDs = 0;       fMemoPlotD_SSp_SpDs= 0;
 	  fMemoColorD_SSp_SpDs = 0; fCanvSameD_SSp_SpDs++;
-	  fPavTxtD_SSp_SpDs = 0;
+	  fPavTxtD_SSp_SpDs = 0;    fClosedD_SSp_SpDs = kFALSE;
 	}
 
       if(HistoCode == "D_Adc_EvNb")                            // (ReInitCanvas)
@@ -13739,7 +13811,7 @@ void TEcnaHistos::ReInitCanvas(const TString HistoCode, const TString opt_plot)
 	  fImpD_Adc_EvNb = 0;       fCanvD_Adc_EvNb = 0;
 	  fPadD_Adc_EvNb = 0;       fMemoPlotD_Adc_EvNb = 0;
 	  fMemoColorD_Adc_EvNb = 0; fCanvSameD_Adc_EvNb++;
-	  fPavTxtD_Adc_EvNb = 0;
+	  fPavTxtD_Adc_EvNb = 0;    fClosedD_Adc_EvNb = kFALSE;
 	}
        
       if(HistoCode == "D_Adc_EvDs")
@@ -13747,105 +13819,106 @@ void TEcnaHistos::ReInitCanvas(const TString HistoCode, const TString opt_plot)
 	  fImpD_Adc_EvDs = 0;       fCanvD_Adc_EvDs = 0;
 	  fPadD_Adc_EvDs = 0;       fMemoPlotD_Adc_EvDs = 0;
 	  fMemoColorD_Adc_EvDs = 0; fCanvSameD_Adc_EvDs++;
-	  fPavTxtD_Adc_EvDs = 0;
+	  fPavTxtD_Adc_EvDs = 0;    fClosedD_Adc_EvDs = kFALSE;
 	}
-           
+          
+ 
       if(HistoCode == "H_Ped_Date")
 	{	      
-	  fImpH_Ped_Date = 0;       fCanvH_Ped_Date = 0;
-	  fPadH_Ped_Date = 0;       fMemoPlotH_Ped_Date = 0;
-	  fMemoColorH_Ped_Date = 0; fCanvSameH_Ped_Date++;
-	  fNbOfListFileH_Ped_Date = 0;
+	  fImpH_Ped_Date = 0;         fCanvH_Ped_Date = 0;
+	  fPadH_Ped_Date = 0;         fMemoPlotH_Ped_Date = 0;
+	  fMemoColorH_Ped_Date = 0;   fCanvSameH_Ped_Date++;
+	  fNbOfListFileH_Ped_Date = 0;fClosedH_Ped_Date = kFALSE;
 	}
 
       if(HistoCode == "H_TNo_Date")
 	{	      
-	  fImpH_TNo_Date = 0;       fCanvH_TNo_Date = 0;
-	  fPadH_TNo_Date = 0;       fMemoPlotH_TNo_Date = 0;
-	  fMemoColorH_TNo_Date = 0; fCanvSameH_TNo_Date++;
-	  fNbOfListFileH_TNo_Date = 0;
+	  fImpH_TNo_Date = 0;          fCanvH_TNo_Date = 0;
+	  fPadH_TNo_Date = 0;          fMemoPlotH_TNo_Date = 0;
+	  fMemoColorH_TNo_Date = 0;    fCanvSameH_TNo_Date++;
+	  fNbOfListFileH_TNo_Date = 0; fClosedH_TNo_Date = kFALSE;
 	}
 
       if(HistoCode == "H_MCs_Date")                            // (ReInitCanvas)
 	{	      
-	  fImpH_MCs_Date = 0;       fCanvH_MCs_Date = 0;
-	  fPadH_MCs_Date = 0;       fMemoPlotH_MCs_Date = 0;
-	  fMemoColorH_MCs_Date = 0; fCanvSameH_MCs_Date++;
-	  fNbOfListFileH_MCs_Date = 0;
+	  fImpH_MCs_Date = 0;          fCanvH_MCs_Date = 0;
+	  fPadH_MCs_Date = 0;          fMemoPlotH_MCs_Date = 0;
+	  fMemoColorH_MCs_Date = 0;    fCanvSameH_MCs_Date++;
+	  fNbOfListFileH_MCs_Date = 0; fClosedH_MCs_Date = kFALSE;
 	}
 
       
       if(HistoCode == "H_LFN_Date")
 	{	      
-	  fImpH_LFN_Date = 0;       fCanvH_LFN_Date = 0;
-	  fPadH_LFN_Date = 0;       fMemoPlotH_LFN_Date = 0;
-	  fMemoColorH_LFN_Date = 0; fCanvSameH_LFN_Date++;
-	  fNbOfListFileH_LFN_Date = 0;
+	  fImpH_LFN_Date = 0;          fCanvH_LFN_Date = 0;
+	  fPadH_LFN_Date = 0;          fMemoPlotH_LFN_Date = 0;
+	  fMemoColorH_LFN_Date = 0;    fCanvSameH_LFN_Date++;
+	  fNbOfListFileH_LFN_Date = 0; fClosedH_LFN_Date = kFALSE;
 	}
 
       if(HistoCode == "H_HFN_Date")
 	{	      
-	  fImpH_HFN_Date = 0;       fCanvH_HFN_Date = 0;
-	  fPadH_HFN_Date = 0;       fMemoPlotH_HFN_Date = 0;
-	  fMemoColorH_HFN_Date = 0; fCanvSameH_HFN_Date++;
-	  fNbOfListFileH_HFN_Date = 0;
+	  fImpH_HFN_Date = 0;          fCanvH_HFN_Date = 0;
+	  fPadH_HFN_Date = 0;          fMemoPlotH_HFN_Date = 0;
+	  fMemoColorH_HFN_Date = 0;    fCanvSameH_HFN_Date++;
+	  fNbOfListFileH_HFN_Date = 0; fClosedH_HFN_Date = kFALSE;
 	}
 
       if(HistoCode == "H_SCs_Date")
 	{	      
-	  fImpH_SCs_Date = 0;       fCanvH_SCs_Date = 0;
-	  fPadH_SCs_Date = 0;       fMemoPlotH_SCs_Date = 0;
-	  fMemoColorH_SCs_Date = 0; fCanvSameH_SCs_Date++;
-	  fNbOfListFileH_SCs_Date = 0;
+	  fImpH_SCs_Date = 0;          fCanvH_SCs_Date = 0;
+	  fPadH_SCs_Date = 0;          fMemoPlotH_SCs_Date = 0;
+	  fMemoColorH_SCs_Date = 0;    fCanvSameH_SCs_Date++;
+	  fNbOfListFileH_SCs_Date = 0; fClosedH_SCs_Date = kFALSE;
 	}
 
       if(HistoCode == "H_Ped_RuDs")
 	{	      
-	  fImpH_Ped_RuDs = 0;       fCanvH_Ped_RuDs = 0;
-	  fPadH_Ped_RuDs = 0;       fMemoPlotH_Ped_RuDs = 0;
-	  fMemoColorH_Ped_RuDs = 0; fCanvSameH_Ped_RuDs++;
-	  fNbOfListFileH_Ped_RuDs = 0;
+	  fImpH_Ped_RuDs = 0;          fCanvH_Ped_RuDs = 0;
+	  fPadH_Ped_RuDs = 0;          fMemoPlotH_Ped_RuDs = 0;
+	  fMemoColorH_Ped_RuDs = 0;    fCanvSameH_Ped_RuDs++;
+	  fNbOfListFileH_Ped_RuDs = 0; fClosedH_Ped_RuDs = kFALSE;
 	}
 
       if(HistoCode == "H_TNo_RuDs")
 	{	      
-	  fImpH_TNo_RuDs = 0;       fCanvH_TNo_RuDs = 0;
-	  fPadH_TNo_RuDs = 0;       fMemoPlotH_TNo_RuDs = 0;
-	  fMemoColorH_TNo_RuDs = 0; fCanvSameH_TNo_RuDs++;
-	  fNbOfListFileH_TNo_RuDs = 0;
+	  fImpH_TNo_RuDs = 0;          fCanvH_TNo_RuDs = 0;
+	  fPadH_TNo_RuDs = 0;          fMemoPlotH_TNo_RuDs = 0;
+	  fMemoColorH_TNo_RuDs = 0;    fCanvSameH_TNo_RuDs++;
+	  fNbOfListFileH_TNo_RuDs = 0; fClosedH_TNo_RuDs = kFALSE;
 	}
 
       if(HistoCode == "H_MCs_RuDs")                            // (ReInitCanvas)
 	{	      
-	  fImpH_MCs_RuDs = 0;       fCanvH_MCs_RuDs = 0;
-	  fPadH_MCs_RuDs = 0;       fMemoPlotH_MCs_RuDs = 0;
-	  fMemoColorH_MCs_RuDs = 0; fCanvSameH_MCs_RuDs++;
-	  fNbOfListFileH_MCs_RuDs = 0;
+	  fImpH_MCs_RuDs = 0;          fCanvH_MCs_RuDs = 0;
+	  fPadH_MCs_RuDs = 0;          fMemoPlotH_MCs_RuDs = 0;
+	  fMemoColorH_MCs_RuDs = 0;    fCanvSameH_MCs_RuDs++;
+	  fNbOfListFileH_MCs_RuDs = 0; fClosedH_MCs_RuDs = kFALSE;
 	}
 
       
       if(HistoCode == "H_LFN_RuDs")
 	{	      
-	  fImpH_LFN_RuDs = 0;       fCanvH_LFN_RuDs = 0;
-	  fPadH_LFN_RuDs = 0;       fMemoPlotH_LFN_RuDs = 0;
-	  fMemoColorH_LFN_RuDs = 0; fCanvSameH_LFN_RuDs++;
-	  fNbOfListFileH_LFN_RuDs = 0;
+	  fImpH_LFN_RuDs = 0;          fCanvH_LFN_RuDs = 0;
+	  fPadH_LFN_RuDs = 0;          fMemoPlotH_LFN_RuDs = 0;
+	  fMemoColorH_LFN_RuDs = 0;    fCanvSameH_LFN_RuDs++;
+	  fNbOfListFileH_LFN_RuDs = 0; fClosedH_LFN_RuDs = kFALSE;
 	}
 
       if(HistoCode == "H_HFN_RuDs")
 	{	      
-	  fImpH_HFN_RuDs = 0;       fCanvH_HFN_RuDs = 0;
-	  fPadH_HFN_RuDs = 0;       fMemoPlotH_HFN_RuDs = 0;
-	  fMemoColorH_HFN_RuDs = 0; fCanvSameH_HFN_RuDs++;
-	  fNbOfListFileH_HFN_RuDs = 0;
+	  fImpH_HFN_RuDs = 0;          fCanvH_HFN_RuDs = 0;
+	  fPadH_HFN_RuDs = 0;          fMemoPlotH_HFN_RuDs = 0;
+	  fMemoColorH_HFN_RuDs = 0;    fCanvSameH_HFN_RuDs++;
+	  fNbOfListFileH_HFN_RuDs = 0; fClosedH_HFN_RuDs = kFALSE;
 	}
 
       if(HistoCode == "H_SCs_RuDs")
 	{	      
-	  fImpH_SCs_RuDs = 0;       fCanvH_SCs_RuDs = 0;
-	  fPadH_SCs_RuDs = 0;       fMemoPlotH_SCs_RuDs = 0;
-	  fMemoColorH_SCs_RuDs = 0; fCanvSameH_SCs_RuDs++;
-	  fNbOfListFileH_SCs_RuDs = 0;
+	  fImpH_SCs_RuDs = 0;          fCanvH_SCs_RuDs = 0;
+	  fPadH_SCs_RuDs = 0;          fMemoPlotH_SCs_RuDs = 0;
+	  fMemoColorH_SCs_RuDs = 0;    fCanvSameH_SCs_RuDs++;
+	  fNbOfListFileH_SCs_RuDs = 0; fClosedH_SCs_RuDs = kFALSE;
 	}
     }
 } 

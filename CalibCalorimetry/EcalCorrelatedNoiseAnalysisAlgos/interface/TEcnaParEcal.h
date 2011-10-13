@@ -8,7 +8,7 @@
 
 ///-----------------------------------------------------------
 ///   TEcnaParEcal.h
-///   Update: 15/02/2011
+///   Update: 06/04/2011
 ///   Author:    B.Fabbro (bernard.fabbro@cea.fr)
 ///              DSM/IRFU/SPP CEA-Saclay
 ///   Copyright: Those valid for CEA sofware
@@ -118,6 +118,10 @@ private:
                                // ( = fMaxSCEcnaInDee*fMaxCrysInSC )
   Int_t fMaxCrysForConsInDee;  // Maximum number of crystals for construction in Dee
                                // ( = fMaxSCForConsInDee*fMaxCrysInSC )
+
+  Int_t fEmptyChannelsForIncompleteSCInDee; // Total number of empty channels for the incomplete SCs
+  Int_t fEmptyChannelsInDeeMatrixIncompleteSCIncluded; // Total number of empty channels in Dee "Ecna" matrix
+                                                       // (incomplete SCs included)
 
   Int_t fMaxDSInEEPlus;       // Maximum number of Data Sectors in EE+
   Int_t fMaxDSInEEMinus;      // Maximum number of Data Sectors in EE-
@@ -241,6 +245,7 @@ private:
   Int_t MaxCrysEcnaInDee();  // default for MaxCrysInDee()
   Int_t MaxCrysInDee();
   Int_t MaxCrysForConsInDee();
+  Int_t EmptyChannelsInDeeMatrixIncompleteSCIncluded();
 
   Int_t MaxDSInEE();
 
@@ -249,7 +254,6 @@ private:
 
   //............................. Current subdetector (Stin-Stex-Stas)
   Int_t MaxSampADC();
-  //  Int_t MaxEvtsInBurstPedRun();
 
   Int_t MaxStexHocoInStas();
   Int_t MaxStexVecoInStas();

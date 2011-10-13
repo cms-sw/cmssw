@@ -1,6 +1,6 @@
 //----------Author's Name:FX Gentit and B.Fabbro  DSM/IRFU/SPP CEA-Saclay
 //----------Copyright:Those valid for CEA software
-//----------Modified:24/03/2011
+//----------Modified:06/04/2011
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParEcal.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaNumbering.h"
@@ -114,6 +114,8 @@ void TEcnaParEcal::Init()
   fMaxCrysIXInSC          = (Int_t)5;   // Maximum number of crystals in IX in a super-crystal
   fMaxCrysIYInSC          = (Int_t)5;   // Maximum number of crystals in IY in a super-crystal
 
+  fEmptyChannelsForIncompleteSCInDee = (Int_t)63; // Total number of empty channels for the incomplete SCs
+
   fMaxDSInEEPlus          = (Int_t)9;  // Maximum number of Data Sectors in EE+
   fMaxDSInEEMinus         = (Int_t)9;  // Maximum number of Data Sectors in EE-
 
@@ -136,6 +138,9 @@ void TEcnaParEcal::Init()
   fMaxCrysInSC         = fMaxCrysIXInSC*fMaxCrysIYInSC;   // Max nb of crystals in a super-crystal 
   fMaxCrysEcnaInDee    = fMaxSCEcnaInDee*fMaxCrysInSC;    // Max nb of crystals in the Dee matrix
   fMaxCrysForConsInDee = fMaxSCForConsInDee*fMaxCrysInSC; // Max nb of crystals for construction in Dee
+
+  fEmptyChannelsInDeeMatrixIncompleteSCIncluded =
+    fMaxCrysEcnaInDee - fMaxCrysForConsInDee + fEmptyChannelsForIncompleteSCInDee; // (5000 - 3725 + 63 = 1338)
 
   fMaxDSInEE = fMaxDSInEEPlus + fMaxDSInEEMinus;          // Maximum number of Data Sectors in EE
 
@@ -346,6 +351,7 @@ Int_t TEcnaParEcal::MaxCrysIYInDee()     {return fMaxCrysIYInDee;}  // max nb of
 Int_t TEcnaParEcal::MaxCrysEcnaInDee()   {return fMaxCrysEcnaInDee;}// max nb of crystals in Dee matrix(default for MaxCrysInDee())
 Int_t TEcnaParEcal::MaxCrysInDee()       {return fMaxCrysEcnaInDee;}// max nb of crystals in Dee matrix
 Int_t TEcnaParEcal::MaxCrysForConsInDee(){return fMaxCrysForConsInDee;} // max nb of crystals for construction in Dee
+Int_t TEcnaParEcal::EmptyChannelsInDeeMatrixIncompleteSCIncluded(){return fEmptyChannelsInDeeMatrixIncompleteSCIncluded;}
 //------------------------------------------- Max DS in EE
 Int_t TEcnaParEcal::MaxDSInEE(){return fMaxDSInEE;}
 //------------------------------------------- Not connected and not complete SCs

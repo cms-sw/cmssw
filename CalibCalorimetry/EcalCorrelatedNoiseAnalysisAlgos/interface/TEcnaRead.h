@@ -551,7 +551,7 @@ class TEcnaRead: public TObject {
 
   Double_t*** ReadSampleAdcValuesSameFile(const Int_t&, const Int_t&, const Int_t&); 
 
-  Int_t   GetNumberOfEvents(const Int_t&);
+  Int_t   GetNumberOfEvents(const Int_t&, const Int_t&);
   Int_t   GetNumberOfBinsSampleAsFunctionOfTime();
 
   TString GetTypeOfQuantity(const CnaResultTyp);

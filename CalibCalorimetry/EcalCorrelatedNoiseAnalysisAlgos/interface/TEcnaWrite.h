@@ -21,7 +21,7 @@
 
 ///-----------------------------------------------------------
 ///   TEcnaWrite.h
-///   Update: 15/02/2011
+///   Update: 06/04/2011
 ///   Authors:   B.Fabbro (bernard.fabbro@cea.fr), FX Gentit
 ///              DSM/IRFU/SPP CEA-Saclay
 ///   Copyright: Those valid for CEA sofware
@@ -182,8 +182,8 @@ class TEcnaWrite : public TObject {
   Int_t GetReqNbOfEvts();
   Int_t GetStexNumber();
 
-  Int_t NumberOfEventsAnalysis(Int_t**, const Int_t&, const Int_t&, const Int_t&);
-  Int_t NumberOfEventsAnalysis(Int_t*,  const Int_t&, const Int_t&);
+  Int_t NumberOfEventsAnalysis(Int_t**, const Int_t&, const Int_t&, const Int_t&); // Called by TEcnaRun
+  Int_t NumberOfEventsAnalysis(Int_t*,  const Int_t&, const Int_t&, const Int_t&); // Called by TEcnaRead
 
   void RegisterFileParameters(const TString, const Int_t&, const Int_t&, const Int_t&,
 			      const Int_t&,  const Int_t&, const Int_t&, const TString, const TString,

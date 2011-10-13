@@ -24,7 +24,7 @@
 
 ///-----------------------------------------------------------
 ///   TEcnaParHistos.h
-///   Update: 15/02/2011
+///   Update: 05/07/2011
 ///   Author:    B.Fabbro (bernard.fabbro@cea.fr)
 ///              DSM/IRFU/SPP CEA-Saclay
 ///   Copyright: Those valid for CEA sofware
@@ -172,7 +172,14 @@ class TEcnaParHistos : public TObject {
   //...............................................................
   TString BuildStandardDetectorCode(const TString);
   TString BuildStandardPlotOption(const TString, const TString);
-  TString BuildStandardHistoCode(const TString, const TString);
+  TString BuildStandard1DHistoCodeX(const TString, const TString);
+  TString BuildStandard1DHistoCodeY(const TString, const TString);
+  TString BuildStandard1DHistoCodeXY(const TString);
+  TString BuildStandardCovOrCorCode(const TString, const TString);
+  TString BuildStandardBetweenWhatCode(const TString, const TString);
+
+  void    ListOfStandardCodes(const TString);
+
   TString GetTechHistoCode(const TString);
   TString GetTechHistoCode(const TString, const TString);
 

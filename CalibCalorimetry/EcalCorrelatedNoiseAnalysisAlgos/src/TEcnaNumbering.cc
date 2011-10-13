@@ -1,6 +1,6 @@
 //----------Author's Name: B.Fabbro, F.X.Gentit + EB table from P.Jarry  DSM/IRFU/SPP CEA-Saclay
 //----------Copyright:Those valid for CEA software
-//----------Modified:24/03/2011
+//----------Modified:30/06/2011
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaNumbering.h"
 
@@ -948,6 +948,12 @@ TString  TEcnaNumbering::GetSMHalfBarrel(const Int_t& SMNumber)
   return type;
 }
 
+Int_t TEcnaNumbering::PlusMinusSMNumber(const Int_t& PlusSMNumber)
+{
+  Int_t PMSMNumber = PlusSMNumber;
+  if( PlusSMNumber > fEcal->MaxSMPhiInEB() ){PMSMNumber = - PlusSMNumber + fEcal->MaxSMPhiInEB();}
+  return PMSMNumber;
+}
 //====================================================================================================
 //
 //

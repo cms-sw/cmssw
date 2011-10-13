@@ -1,6 +1,6 @@
 //----------Author's Name: B.Fabbro DSM/IRFU/SPP CEA-Saclay
 //----------Copyright: Those valid for CEA sofware
-//----------Modified: 24/03/2011
+//----------Modified: 13/04/2011
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaGui.h"
 #include <cstdlib>
@@ -5027,12 +5027,13 @@ void TEcnaGui::Calculations(const TString calc_code)
        << endl;
 
   //===== Check if Analysis name is right 
-  if( fKeyAnaType == "AdcPed1"   || fKeyAnaType == "AdcSPed1"  ||   
-      fKeyAnaType == "AdcPed6"   || fKeyAnaType == "AdcSPed6"  || 
-      fKeyAnaType == "AdcPed12"  || fKeyAnaType == "AdcSPed12" || 
-      fKeyAnaType == "AdcPeg12"  || fKeyAnaType == "AdcSPeg12" ||
-      fKeyAnaType == "AdcLaser"  || fKeyAnaType == "AdcSLaser" || 
-      fKeyAnaType == "AdcPes12"  || fKeyAnaType == "AdcSPes12"  )
+  if( fKeyAnaType == "AdcPed1"  || fKeyAnaType == "AdcSPed1"  ||   
+      fKeyAnaType == "AdcPed6"  || fKeyAnaType == "AdcSPed6"  || 
+      fKeyAnaType == "AdcPed12" || fKeyAnaType == "AdcSPed12" || 
+      fKeyAnaType == "AdcPeg12" || fKeyAnaType == "AdcSPeg12" ||
+      fKeyAnaType == "AdcLaser" || fKeyAnaType == "AdcSLaser" || 
+      fKeyAnaType == "AdcPes12" || fKeyAnaType == "AdcSPes12" || 
+      fKeyAnaType == "AdcPhys"  || fKeyAnaType == "AdcAny" )
     {
       //------------ Check if Std or (Scc or Stt)-Confirmed
       if( calc_code == "Std" || ( ( calc_code == "Scc" || calc_code == "Stt" ) && fConfirmCalcScc == 1 ) )
@@ -5117,6 +5118,10 @@ void TEcnaGui::Calculations(const TString calc_code)
 			  if( fKeyAnaType == "AdcSPeg12" ){calc_file_name = "StdSPeg12";}
 			  if( fKeyAnaType == "AdcSLaser" ){calc_file_name = "StdSLaser";}
 			  if( fKeyAnaType == "AdcSPes12" ){calc_file_name = "StdSPes12";}
+
+			  if( fKeyAnaType == "AdcPhys"   ){calc_file_name = "StdPhys";}
+			  if( fKeyAnaType == "AdcAny"    ){calc_file_name = "StdAny";}
+
 			}
 		      if( calc_code == "Scc" )
 			{
@@ -5133,6 +5138,9 @@ void TEcnaGui::Calculations(const TString calc_code)
 			  if( fKeyAnaType == "AdcSPeg12" ){calc_file_name = "SccSPeg12";}
 			  if( fKeyAnaType == "AdcSLaser" ){calc_file_name = "SccSLaser";}
 			  if( fKeyAnaType == "AdcSPes12" ){calc_file_name = "SccSPes12";}
+
+			  if( fKeyAnaType == "AdcPhys"   ){calc_file_name = "SccPhys";}
+			  if( fKeyAnaType == "AdcAny"    ){calc_file_name = "SccAny";}
 			}
 
 		      if( calc_code == "Stt" )
@@ -5150,6 +5158,9 @@ void TEcnaGui::Calculations(const TString calc_code)
 			  if( fKeyAnaType == "AdcSPeg12" ){calc_file_name = "SttSPeg12";}
 			  if( fKeyAnaType == "AdcSLaser" ){calc_file_name = "SttSLaser";}
 			  if( fKeyAnaType == "AdcSPes12" ){calc_file_name = "SttSPes12";}
+
+			  if( fKeyAnaType == "AdcPhys"   ){calc_file_name = "SttPhys";}
+			  if( fKeyAnaType == "AdcAny"    ){calc_file_name = "SttAny";}
 			}
 
 		      if( MyRun->WriteNewRootFile(calc_file_name.Data()) == kTRUE )
@@ -5192,11 +5203,12 @@ void TEcnaGui::Calculations(const TString calc_code)
   else
     {
       cout << "!TEcnaGui::Calculations> fKeyAnaType = " << fKeyAnaType
-	   << "  : wrong code in analysis name. Code should be 'Adc'" << endl
+	   << "  : wrong code in analysis name." << endl
 	   << "                        List of available standard analysis names for calculations: " << endl
 	   << "                        AdcPed1,  AdcPed6,  AdcPed12,  AdcPeg12,  AdcLaser,  AdcPes12," << endl
-	   << "                        AdcSPed1, AdcSPed6, AdcSPed12, AdcSPeg12, AdcSLaser, AdcSPes12."
-	   << fTTBELL << endl;
+	   << "                        AdcSPed1, AdcSPed6, AdcSPed12, AdcSPeg12, AdcSLaser, AdcSPes12," << endl
+	   << "                        AdcPhys,  AdcAny (all names must begin with 'Adc')."
+	   << fTTBELL << endl; 
     }
 }
 //==========================================================================

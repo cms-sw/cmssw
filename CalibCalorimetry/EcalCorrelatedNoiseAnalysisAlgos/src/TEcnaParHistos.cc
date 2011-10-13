@@ -1,6 +1,6 @@
 //----------Author's Name: B.Fabbro DSM/IRFU/SPP CEA-Saclay
 //----------Copyright: Those valid for CEA sofware
-//----------Modified:24/03/201&
+//----------Modified:10/10/2011
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaParHistos.h"
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaNumbering.h"
@@ -1197,7 +1197,12 @@ TPaveText* TEcnaParHistos::SetPaveGeneralComment(const TString comment)
       
       TString tit_gen = comment.Data();
       
+      //<<<<<<< TEcnaParHistos.cc
+      //sprintf( f_in, tit_gen.Data());
+      //title_g1->AddText(f_in);
+      //=======
       title_g1->AddText(tit_gen);
+      //>>>>>>> 1.5
 
       //   1 = left adjusted, 2 = vertically centered      
       Int_t    cTextPaveAlign   = 12;    title_g1->SetTextAlign(cTextPaveAlign);
@@ -2433,7 +2438,8 @@ Double_t TEcnaParHistos::GetYmaxDefaultValue(const TString chqcode)
 //---------------------------------------------------------------------------------------
 //
 //             BuildStandardDetectorCode, BuildStandardPlotOption,
-//             BuildStandardHistoCode,    GetTechHistoCode
+//             BuildStandard1DHistoCodeX, BuildStandard1DHistoCodeY,
+//             BuildStandardCovOrCorCode, BuildStandardBetweenWhatCode,
 //
 //---------------------------------------------------------------------------------------
 //----------------------- BuildStandardDetectorCode
@@ -2442,7 +2448,8 @@ TString TEcnaParHistos::BuildStandardDetectorCode(const TString UserDetector)
   TString StandardDetectorCode = "?";
 
   if( UserDetector == "Super-module" || UserDetector == "SuperModule" ||
-      UserDetector == "super-module" || UserDetector == "SM" )
+      UserDetector == "super-module" || UserDetector == "SM" ||
+      UserDetector == " " || UserDetector == "" )  // (default)
     {StandardDetectorCode = "SM";}
 
    if( UserDetector == "DEE" || UserDetector == "Dee" )
@@ -2461,8 +2468,10 @@ TString TEcnaParHistos::BuildStandardDetectorCode(const TString UserDetector)
    if( StandardDetectorCode == "?" )
     {
       cout << "*TEcnaParHistos::BuildStandardDetectorCode(...)> UserDetector = " << UserDetector
-	   << " : code not found (NB: relevant codes can be added in method TEcnaParHistos::BuildStandardDetectorCode)."
+	   << " : code not found."
 	   << fTTBELL << endl;
+
+      ListOfStandardCodes("DetectorCode");
     }
   return StandardDetectorCode;
 }
@@ -2474,10 +2483,10 @@ TString TEcnaParHistos::BuildStandardPlotOption(const TString CallingMethod, con
 
   if( CallingMethod == "1D" || CallingMethod == "2DS" || CallingMethod == "Time" )
     {
-      if( UserPlotOption ==  "ONLY ONE" || UserPlotOption ==  "ONLY ONE" ||
-	  UserPlotOption ==  "Only one" || UserPlotOption ==  "OnlyOne"  ||
-	  UserPlotOption ==  ""         || UserPlotOption ==  " "        ||
-	  UserPlotOption ==  "ONLYONE"  || UserPlotOption == fOnlyOnePlot )
+      if( UserPlotOption == "ONLY ONE" || UserPlotOption == "only one"   || UserPlotOption == "onlyone" ||
+	  UserPlotOption == "Only one" || UserPlotOption == "OnlyOne"    ||
+	  UserPlotOption == "ONLYONE"  || UserPlotOption == fOnlyOnePlot ||
+	  UserPlotOption == " " || UserPlotOption ==  "" )  // (default)
 	{StandardPlotOption = fOnlyOnePlot;}
 
       if( UserPlotOption == "SAME" || UserPlotOption ==  "Same" || UserPlotOption == fSeveralPlot )
@@ -2503,148 +2512,48 @@ TString TEcnaParHistos::BuildStandardPlotOption(const TString CallingMethod, con
 	  UserPlotOption == "SAME IN SC"         || UserPlotOption == "SameInSC"  ||
 	  UserPlotOption == "Same in tower"      || UserPlotOption == "Same in tow" ||
 	  UserPlotOption == "Same in SC"         || UserPlotOption == "SameInSC" ||
-	  UserPlotOption ==  ""                  || UserPlotOption ==  " " ||
-	  UserPlotOption == fAllXtalsInStinPlot )
+	  UserPlotOption == fAllXtalsInStinPlot  ||
+	  UserPlotOption == " " || UserPlotOption == "" ) // (default)
 	{StandardPlotOption = fAllXtalsInStinPlot;}
     }
 
   if( CallingMethod == "2D" )
     {
-      if( UserPlotOption ==  "COLZ" ||
-	  UserPlotOption ==  ""     ||
-	  UserPlotOption ==  " "      ){StandardPlotOption = "COLZ";}
-      if( UserPlotOption ==  "BOX"    ){StandardPlotOption = "BOX";}
-      if( UserPlotOption ==  "TEXT"   ){StandardPlotOption = "TEXT";}
-      if( UserPlotOption ==  "CONTZ"  ){StandardPlotOption = "CONTZ";}
-      if( UserPlotOption ==  "LEGO2Z" ){StandardPlotOption = "LEGO2Z";}
-      if( UserPlotOption ==  "SURF1Z" ){StandardPlotOption = "SURF1Z";}
-      if( UserPlotOption ==  "SURF2Z" ){StandardPlotOption = "SURF2Z";}
-      if( UserPlotOption ==  "SURF3Z" ){StandardPlotOption = "SURF3Z";}
-      if( UserPlotOption ==  "SURF4"  ){StandardPlotOption = "SURF4";}
-      if( UserPlotOption ==  "ASCII"  ){StandardPlotOption = "ASCII";}
+      if( UserPlotOption == "COLZ" ||
+	  UserPlotOption == " " || UserPlotOption == "" ) // (default)
+	{StandardPlotOption = "COLZ";}
+      if( UserPlotOption == "BOX"    ){StandardPlotOption = "BOX";}
+      if( UserPlotOption == "TEXT"   ){StandardPlotOption = "TEXT";}
+      if( UserPlotOption == "CONTZ"  ){StandardPlotOption = "CONTZ";}
+      if( UserPlotOption == "LEGO2Z" ){StandardPlotOption = "LEGO2Z";}
+      if( UserPlotOption == "SURF1Z" ){StandardPlotOption = "SURF1Z";}
+      if( UserPlotOption == "SURF2Z" ){StandardPlotOption = "SURF2Z";}
+      if( UserPlotOption == "SURF3Z" ){StandardPlotOption = "SURF3Z";}
+      if( UserPlotOption == "SURF4"  ){StandardPlotOption = "SURF4";}
+      if( UserPlotOption == "ASCII"  ){StandardPlotOption = "ASCII";}
     }
 
   //...................................................
   if( StandardPlotOption == "?" )
     {
       cout << "*TEcnaParHistos::BuildStandardPlotOption(...)> UserPlotOption = " << UserPlotOption
-	   << " : code not found (NB: relevant codes can be added in method TEcnaParHistos::BuildStandardPlotOption)."
+	   << " : code not found."
 	   << fTTBELL << endl;
+
+      ListOfStandardCodes("PlotOption");
     }
   return StandardPlotOption;
 }
 
-//----------------------- BuildStandardHistoCode
-TString TEcnaParHistos::BuildStandardHistoCode(const TString CallingMethod, const TString UserHistoCode)
+
+//----------------------- BuildStandard1DHistoCodeX
+TString TEcnaParHistos::BuildStandard1DHistoCodeX(const TString CallingMethod, const TString UserHistoCode)
 {
   //........................... user code -> standard code
   TString StandardHistoCode = "?";
-
   if( CallingMethod == "1D" || CallingMethod == "2DS" || CallingMethod == "Time" )
     {
-      //======================================== Histos
-      if( UserHistoCode == "Number of events" || UserHistoCode == "Nb of evts" || 
-	  UserHistoCode == "NumberbOfEvents"  || UserHistoCode == "NbOfEvts"   ||
-	  UserHistoCode == "number of events" || UserHistoCode == "noe" ||
-	  UserHistoCode == "NOE" )
-	{StandardHistoCode = "NOE";}
- 
-      if( UserHistoCode == "Pedestals" || UserHistoCode == "Pedestal" ||
-	  UserHistoCode == "pedestals" || UserHistoCode == "pedestal" ||
-	  UserHistoCode == "ped"       || UserHistoCode == "Ped" )
-	{StandardHistoCode = "Ped";}
-
-      if( UserHistoCode == "Total noise" || UserHistoCode == "TotalNoise" ||
-	  UserHistoCode == "total noise" || UserHistoCode == "TN" ||
-	  UserHistoCode == "tn"          || UserHistoCode == "TNo" )
-	{StandardHistoCode = "TNo";}
-
-      if( UserHistoCode == "Low frequency noise" || UserHistoCode == "LowFrequencyNoise" ||
-	  UserHistoCode == "LF noise"            || UserHistoCode == "LFNoise" || 
-	  UserHistoCode == "low frequency noise" || UserHistoCode == "lfn" ||
-	  UserHistoCode == "LFN")
-	{StandardHistoCode = "LFN";}
-
-      if( UserHistoCode == "High frequency noise" || UserHistoCode == "HighFrequencyNoise" ||
-	  UserHistoCode == "HF noise"             || UserHistoCode == "HFNoise" || 
-	  UserHistoCode == "high frequency noise" ||
-	  UserHistoCode == "hfn" || UserHistoCode == "HFN")
-	{StandardHistoCode = "HFN";}
-
-      if( UserHistoCode == "Mean correlations between samples" ||  
-	  UserHistoCode == "MeanCorrelationsBetweenSamples" || 
-	  UserHistoCode == "Correlations between samples" ||  
-	  UserHistoCode == "CorrelationsBetweenSamples" || 
-	  UserHistoCode == "Mean corss" || UserHistoCode == "MeanCorss" ||   
-	  UserHistoCode == "Corss" || UserHistoCode == "corss" ||   
-	  UserHistoCode == "Css"   || UserHistoCode == "css" ||
-	  UserHistoCode == "mean correlations between samples" ||
-	  UserHistoCode == "mcs" || UserHistoCode == "MCs" )
-	{StandardHistoCode = "MCs";}
-
-      if( UserHistoCode == "Sigma of correlations between samples" ||  
-	  UserHistoCode == "SigmaOfCorrelationsBetweenSamples" || 
-	  UserHistoCode == "Sigma corss" || UserHistoCode == "SigmaCorss" ||   
-	  UserHistoCode == "SigCorss" || UserHistoCode == "sigcorss" ||   
-	  UserHistoCode == "SCss"   || UserHistoCode == "scss" ||
-	  UserHistoCode == "sigma of correlations between samples" ||
-	  UserHistoCode == "scs" || UserHistoCode == "SCs")
-	{StandardHistoCode = "SCs";}
-
-      if( UserHistoCode == "Number of crystals" || UserHistoCode == "NumberOfCrystals" ||
-	  UserHistoCode == "Nb of crystals" || UserHistoCode == "NbOfCrystals" ||
-	  UserHistoCode == "Number of xtals" || UserHistoCode == "NumberOfXtals" ||
-	  UserHistoCode == "Nb of xtals" || UserHistoCode == "NbOfXtals" ||
-	  UserHistoCode == "nox" || UserHistoCode == "NOX" )
-	{StandardHistoCode = "NOX";}
-
-      if( UserHistoCode == "Number of samples" || UserHistoCode == "NumberOfSamples" ||
-	  UserHistoCode == "Nb of samples" || UserHistoCode == "NbOfSamples" ||
-	  UserHistoCode == "nos" || UserHistoCode == "NOS" )
-	{StandardHistoCode = "NOS";}
-
-      if( UserHistoCode == "Sample number" || UserHistoCode == "SampleNumber" ||
-	  UserHistoCode == "Sample#" || UserHistoCode == "Samp#" ||
-	  UserHistoCode == "Sample" || UserHistoCode == "sample" ||
-	  UserHistoCode == "Smp" )
-	{StandardHistoCode = "Smp";}
-
-      if( UserHistoCode == "Sample mean" || UserHistoCode == "SampleMean" ||
-	  UserHistoCode == "Sample average" || UserHistoCode == "SampleAverage" || 
-	  UserHistoCode == "SampMean" || UserHistoCode == "SampAverage" ||
-	  UserHistoCode == "MSp" )
-	{StandardHistoCode = "MSp";}
-
-      if( UserHistoCode == "Sample sigma"      || UserHistoCode == "SampleSigma" ||
-	  UserHistoCode == "Sigma of samples"  || UserHistoCode == "SigmaOfSamples" ||
-	  UserHistoCode == "SampSigma"         || 
-	  UserHistoCode == "SSp"      )
-	{StandardHistoCode = "SSp";}
-
-      if( UserHistoCode == "Event" || UserHistoCode == "event" ||
-	  UserHistoCode == "Event number" || UserHistoCode == "event number" || 
-	  UserHistoCode == "EventNumber"  || UserHistoCode == "Event#" || 
-	  UserHistoCode == "EvtNumber"    || UserHistoCode == "Evt#" ||
-	  UserHistoCode == "Evt number"   || UserHistoCode == "evt number" ||
-	  UserHistoCode == "Evt" )
-	{StandardHistoCode = "Evt";}
-
-      if( UserHistoCode == "ADC value" || UserHistoCode == "ADCValue" || 
-	  UserHistoCode == "Adc value" || UserHistoCode == "AdcValue" ||
-	  UserHistoCode == "Sample ADC" || UserHistoCode == "SampleAdc" || 
-	  UserHistoCode == "ADC" || UserHistoCode == "Adc"  )
-	{StandardHistoCode = "Adc";}
-
-      if( UserHistoCode == "date" || UserHistoCode == "Date" || UserHistoCode == "time" ||
-	  UserHistoCode == "Time" )
-	{StandardHistoCode = "Time";}
-
-      if( UserHistoCode == "Number of runs" || UserHistoCode == "NumberOfRuns" ||
-	  UserHistoCode == "Nb of runs" || UserHistoCode == "NbOfRuns" ||
-	  UserHistoCode == "nor" || UserHistoCode == "NOR" )
-	{StandardHistoCode = "NOR";}
-
-      //======================================== X_Quantity as number of xtal, tower, SC
+      //======================================== Only X Quantity for 1D Histos
       if( UserHistoCode == "Tower" || UserHistoCode == "tower" || UserHistoCode == "tow" ||
 	  UserHistoCode == "Tower number" || UserHistoCode == "tower number" || UserHistoCode == "tow nb" ||
 	  UserHistoCode == "Tower#" || UserHistoCode == "tower#" || UserHistoCode == "tow#" ||
@@ -2660,22 +2569,195 @@ TString TEcnaParHistos::BuildStandardHistoCode(const TString CallingMethod, cons
 	{StandardHistoCode = "SC";}
 
       if( UserHistoCode == "Crystal" || UserHistoCode == "crystal" || UserHistoCode == "Xtal" || 
-	  UserHistoCode == "Crystal number" || UserHistoCode == "crystal number" || UserHistoCode == "Xtal number" || 
+	  UserHistoCode == "Crystal number" || UserHistoCode == "crystal number" ||
+	  UserHistoCode == "Xtal number" || 
 	  UserHistoCode == "Crystal#" || UserHistoCode == "crystal#" || UserHistoCode == "Xtal#" ||
 	  UserHistoCode == "Xtal" )
 	{StandardHistoCode = "Xtal";}
 
       if( StandardHistoCode == "Tow" || StandardHistoCode == "SC" || StandardHistoCode == "Xtal" )
 	{StandardHistoCode = "XtalORStin";} // management by means of fFapStexNumber ( >0 => Xtal ; =0 => Tow .OR. SC )
-    }
 
+      if( UserHistoCode == "Sample number" || UserHistoCode == "SampleNumber" ||
+	  UserHistoCode == "Sample#" || UserHistoCode == "Samp#" ||
+	  UserHistoCode == "Sample" || UserHistoCode == "sample" ||
+	  UserHistoCode == "Smp" )
+	{StandardHistoCode = "Smp";}
+
+      if( UserHistoCode == "Event" || UserHistoCode == "event" ||
+	  UserHistoCode == "Event number" || UserHistoCode == "event number" || 
+	  UserHistoCode == "EventNumber"  || UserHistoCode == "Event#" || 
+	  UserHistoCode == "EvtNumber"    || UserHistoCode == "Evt#" ||
+	  UserHistoCode == "Evt number"   || UserHistoCode == "evt number" ||
+	  UserHistoCode == "Evt" )
+	{StandardHistoCode = "Evt";}
+      
+      //======================================== X or Y Quantity for 1D Histos
+      if( StandardHistoCode == "?" )
+	{
+	  StandardHistoCode = BuildStandard1DHistoCodeXY(UserHistoCode);
+	} 
+    }
+  
+  //---------------------------------------------
+  if( StandardHistoCode == "?" )
+    {
+      cout << "*TEcnaParHistos::BuildStandard1DHistoCodeX(...)> UserHistoCode = " << UserHistoCode
+	   << " : code not found."
+	   << fTTBELL << endl;
+
+      ListOfStandardCodes("1DHistoCodeX");
+    }
+  return StandardHistoCode;
+}
+
+//----------------------- BuildStandard1DHistoCodeY
+TString TEcnaParHistos::BuildStandard1DHistoCodeY(const TString CallingMethod, const TString UserHistoCode)
+{
+  //........................... user code -> standard code
+  TString StandardHistoCode = "?";
+
+  if( CallingMethod == "1D" || CallingMethod == "2DS" || CallingMethod == "Time" )
+    {
+      //======================================== Only Y Quantity for 1D Histos
+      if( UserHistoCode == "Number of crystals" || UserHistoCode == "NumberOfCrystals" ||
+	  UserHistoCode == "Nb of crystals" || UserHistoCode == "NbOfCrystals" ||
+	  UserHistoCode == "Number of xtals" || UserHistoCode == "NumberOfXtals" ||
+	  UserHistoCode == "Nb of xtals" || UserHistoCode == "NbOfXtals" ||
+	  UserHistoCode == "nox" || UserHistoCode == "NOX" )
+	{StandardHistoCode = "NOX";}
+
+      if( UserHistoCode == "Number of samples" || UserHistoCode == "NumberOfSamples" ||
+	  UserHistoCode == "Nb of samples" || UserHistoCode == "NbOfSamples" ||
+	  UserHistoCode == "nos" || UserHistoCode == "NOS" )
+	{StandardHistoCode = "NOS";}
+
+      if( UserHistoCode == "Number of runs" || UserHistoCode == "NumberOfRuns" ||
+	  UserHistoCode == "Nb of runs" || UserHistoCode == "NbOfRuns" ||
+	  UserHistoCode == "nor" || UserHistoCode == "NOR" )
+	{StandardHistoCode = "NOR";}
+      
+      //======================================== X or Y Quantity for 1D Histos
+      if( StandardHistoCode == "?" )
+	{
+	  StandardHistoCode = BuildStandard1DHistoCodeXY(UserHistoCode);
+	}
+    }
+  //---------------------------------------------
+  if( StandardHistoCode == "?" )
+    {
+      cout << "*TEcnaParHistos::BuildStandard1DHistoCodeY(...)> UserHistoCode = " << UserHistoCode
+	   << " : code not found."
+	   << fTTBELL << endl;
+
+      ListOfStandardCodes("1DHistoCodeY");
+    }
+  return StandardHistoCode;
+}
+
+//----------------------- BuildStandard1DHistoCodeXY
+TString TEcnaParHistos::BuildStandard1DHistoCodeXY(const TString UserHistoCode)
+{
+  //........................... user code -> standard code
+  TString StandardHistoCode = "?";
+
+  //======================================== X or Y Quantity for 1D Histos
+  if( UserHistoCode == "Number of events" || UserHistoCode == "Nb of evts" || 
+      UserHistoCode == "NumberbOfEvents"  || UserHistoCode == "NbOfEvts"   ||
+      UserHistoCode == "number of events" ||
+      UserHistoCode == "noe"              || UserHistoCode == "NOE" || 
+      UserHistoCode == " " || UserHistoCode == "" ) // (default)
+    {StandardHistoCode = "NOE";}
+ 
+  if( UserHistoCode == "Pedestals" || UserHistoCode == "Pedestal" ||
+      UserHistoCode == "pedestals" || UserHistoCode == "pedestal" ||
+      UserHistoCode == "ped"       || UserHistoCode == "Ped" )
+    {StandardHistoCode = "Ped";}
+
+  if( UserHistoCode == "Total noise" || UserHistoCode == "TotalNoise" ||
+      UserHistoCode == "total noise" || UserHistoCode == "TN" ||
+      UserHistoCode == "tn"          || UserHistoCode == "TNo" )
+    {StandardHistoCode = "TNo";}
+
+  if( UserHistoCode == "Low frequency noise" || UserHistoCode == "LowFrequencyNoise" ||
+      UserHistoCode == "LF noise"            || UserHistoCode == "LFNoise" || 
+      UserHistoCode == "low frequency noise" || UserHistoCode == "lfn" ||
+      UserHistoCode == "LFN")
+    {StandardHistoCode = "LFN";}
+
+  if( UserHistoCode == "High frequency noise" || UserHistoCode == "HighFrequencyNoise" ||
+      UserHistoCode == "HF noise"             || UserHistoCode == "HFNoise" || 
+      UserHistoCode == "high frequency noise" ||
+      UserHistoCode == "hfn" || UserHistoCode == "HFN")
+    {StandardHistoCode = "HFN";}
+
+  if( UserHistoCode == "Mean correlations between samples" ||  
+      UserHistoCode == "MeanCorrelationsBetweenSamples" || 
+      UserHistoCode == "Correlations between samples" ||  
+      UserHistoCode == "CorrelationsBetweenSamples" || 
+      UserHistoCode == "Mean corss" || UserHistoCode == "MeanCorss" ||   
+      UserHistoCode == "Corss" || UserHistoCode == "corss" ||   
+      UserHistoCode == "Css"   || UserHistoCode == "css" ||
+      UserHistoCode == "mean correlations between samples" ||
+      UserHistoCode == "mcs" || UserHistoCode == "MCs" )
+    {StandardHistoCode = "MCs";}
+
+  if( UserHistoCode == "Sigma of correlations between samples" ||  
+      UserHistoCode == "SigmaOfCorrelationsBetweenSamples" || 
+      UserHistoCode == "Sigma corss" || UserHistoCode == "SigmaCorss" ||   
+      UserHistoCode == "SigCorss" || UserHistoCode == "sigcorss" ||   
+      UserHistoCode == "SCss"   || UserHistoCode == "scss" ||
+      UserHistoCode == "sigma of correlations between samples" ||
+      UserHistoCode == "scs" || UserHistoCode == "SCs")
+    {StandardHistoCode = "SCs";}
+
+  if( UserHistoCode == "Sample mean" || UserHistoCode == "SampleMean" ||
+      UserHistoCode == "Sample average" || UserHistoCode == "SampleAverage" || 
+      UserHistoCode == "SampMean" || UserHistoCode == "SampAverage" ||
+      UserHistoCode == "MSp" )
+    {StandardHistoCode = "MSp";}
+
+  if( UserHistoCode == "Sample sigma"      || UserHistoCode == "SampleSigma" ||
+      UserHistoCode == "Sigma of samples"  || UserHistoCode == "SigmaOfSamples" ||
+      UserHistoCode == "SampSigma"         || 
+      UserHistoCode == "SSp"      )
+    {StandardHistoCode = "SSp";}
+
+  if( UserHistoCode == "date" || UserHistoCode == "Date" || UserHistoCode == "time" ||
+      UserHistoCode == "Time" )
+    {StandardHistoCode = "Time";}
+
+  if( UserHistoCode == "ADC value" || UserHistoCode == "ADCValue" || 
+      UserHistoCode == "Adc value" || UserHistoCode == "AdcValue" ||
+      UserHistoCode == "Sample ADC" || UserHistoCode == "SampleAdc" || 
+      UserHistoCode == "ADC" || UserHistoCode == "Adc"  )
+    {StandardHistoCode = "Adc";}
+
+  //---------------------------------------------
+  if( StandardHistoCode == "?" )
+    {
+      cout << "*TEcnaParHistos::BuildStandard1DHistoCodeXY(...)> UserHistoCode = " << UserHistoCode
+	   << " : code not found."
+	   << fTTBELL << endl;
+
+      ListOfStandardCodes("1DHistoCodeXY");
+    }
+  return StandardHistoCode;
+}
+
+//----------------------- BuildStandardCovOrCorCode
+TString TEcnaParHistos::BuildStandardCovOrCorCode(const TString CallingMethod, const TString UserHistoCode)
+{
+  //........................... user code -> standard code
+  TString StandardHistoCode = "?";
   if( CallingMethod == "2D" )
     {
       //======================================== Correlation or covariance (CorOrCov)
       if( UserHistoCode == "Correlation" || UserHistoCode == "Correlations" ||
 	  UserHistoCode == "correlation" || UserHistoCode == "correlations" ||
 	  UserHistoCode == "Correl"      || UserHistoCode == "correl" ||
-	  UserHistoCode == "cor"         || UserHistoCode == "Cor" )
+	  UserHistoCode == "cor"         || UserHistoCode == "Cor"  || 
+	  UserHistoCode == " " || UserHistoCode == "" ) // (default)
 	{StandardHistoCode = "Cor";}
 
       if( UserHistoCode == "Covariance" || UserHistoCode == "Covariances" ||
@@ -2683,8 +2765,46 @@ TString TEcnaParHistos::BuildStandardHistoCode(const TString CallingMethod, cons
 	  UserHistoCode == "Covar"      || UserHistoCode == "covar" ||
 	  UserHistoCode == "cov"        || UserHistoCode == "Cov" )
 	{StandardHistoCode = "Cov";}
+    }
+  //---------------------------------------------
+  if( StandardHistoCode == "?" )
+    {
+      cout << "*TEcnaParHistos::BuildStandardCovOrCorCode(...)> UserHistoCode = " << UserHistoCode
+	   << " : code not found."
+	   << fTTBELL << endl;
 
+      ListOfStandardCodes("CovOrCorCode");
+    }
+  return StandardHistoCode;
+}
+
+//----------------------- BuildStandardBetweenWhatCode
+TString TEcnaParHistos::BuildStandardBetweenWhatCode(const TString CallingMethod, const TString UserHistoCode)
+{
+  //........................... user code -> standard code
+  TString StandardHistoCode = "?";
+  if( CallingMethod == "2D" )
+    {
       //======================================== Quantity for correlations (BetweenWhat)
+      if( UserHistoCode == "Samples" || UserHistoCode == "Between samples" || 
+	  UserHistoCode == "samples" || UserHistoCode == "between samples" ||
+	  UserHistoCode == "BetweenSamples" ||
+	  UserHistoCode == "Samp" || UserHistoCode == "samp" ||
+	  UserHistoCode == "ss" || UserHistoCode == "Mss" )
+	{StandardHistoCode = "Mss";}
+
+      if( UserHistoCode == "LF channels" || UserHistoCode == "LF between channels" ||
+	  UserHistoCode == "LFChannels"  || UserHistoCode == "LFBetweenChannels" ||
+	  UserHistoCode == "LFChan"      || UserHistoCode == "lfchan" || 
+	  UserHistoCode == "LFcc"        || UserHistoCode == "lfcc"   || UserHistoCode == "MccLF" )
+	{StandardHistoCode = "MccLF";}
+
+      if( UserHistoCode == "HF channels" || UserHistoCode == "HF between channels" ||
+	  UserHistoCode == "HFChannels"  || UserHistoCode == "HFBetweenChannels" ||
+	  UserHistoCode == "HFChan"      || UserHistoCode == "hfchan" || 
+	  UserHistoCode == "HFcc"        || UserHistoCode == "hfcc"   || UserHistoCode == "MccHF" )
+	{StandardHistoCode = "MccHF";}
+
       if( UserHistoCode == "LF towers"    || UserHistoCode == "LF between towers" ||
 	  UserHistoCode == "LFTowers"     || UserHistoCode == "LFBetweenTowers" ||
 	  UserHistoCode == "LFTow"        || UserHistoCode == "lftow" ||
@@ -2706,38 +2826,119 @@ TString TEcnaParHistos::BuildStandardHistoCode(const TString CallingMethod, cons
 	  UserHistoCode == "HFSC"         || UserHistoCode == "hfsx" ||
 	  UserHistoCode == "MttHF" )
 	{StandardHistoCode = "MttHF";}
-
-      if( UserHistoCode == "LF channels" || UserHistoCode == "LF between channels" ||
-	  UserHistoCode == "LFChannels"  || UserHistoCode == "LFBetweenChannels" ||
-	  UserHistoCode == "LFChan"      || UserHistoCode == "lfchan" || 
-	  UserHistoCode == "LFcc"        || UserHistoCode == "lfcc"   || UserHistoCode == "MccLF" )
-	{StandardHistoCode = "MccLF";}
-
-      if( UserHistoCode == "HF channels" || UserHistoCode == "HF between channels" ||
-	  UserHistoCode == "HFChannels"  || UserHistoCode == "HFBetweenChannels" ||
-	  UserHistoCode == "HFChan"      || UserHistoCode == "hfchan" || 
-	  UserHistoCode == "HFcc"        || UserHistoCode == "hfcc"   || UserHistoCode == "MccHF" )
-	{StandardHistoCode = "MccHF";}
-
-      if( UserHistoCode == "Samples" || UserHistoCode == "Between samples" || 
-	  UserHistoCode == "samples" || UserHistoCode == "between samples" ||
-	  UserHistoCode == "BetweenSamples" ||
-	  UserHistoCode == "Samp" || UserHistoCode == "samp" ||
-	  UserHistoCode == "ss" || UserHistoCode == "Mss" )
-	{StandardHistoCode = "Mss";}
     }
 
   //---------------------------------------------
   if( StandardHistoCode == "?" )
     {
-      cout << "*TEcnaParHistos::BuildStandardHistoCode(...)> UserHistoCode = " << UserHistoCode
-	   << " : code not found (NB: relevant codes can be added in method TEcnaParHistos::BuildStandardHistoCode)."
+      cout << "*TEcnaParHistos::BuildStandardBetweenWhatCode(...)> UserHistoCode = " << UserHistoCode
+	   << " : code not found."
 	   << fTTBELL << endl;
+
+      ListOfStandardCodes("BetweenWhatCode");
     }
   return StandardHistoCode;
 }
 
-//.......................................................................
+//========================== ListOfStandardCodes ==========================
+
+void TEcnaParHistos::ListOfStandardCodes(const TString TypeOfCode)
+{
+  //------ Lists of Standard codes for Plot Histos methods
+
+  if(TypeOfCode == "DetectorCode")
+    {
+      cout << "*--------------------------------------- Standard detector codes:" << endl;
+      cout << "    EB   (ECAL Barrel) " << endl;
+      cout << "    EE   (ECAL Endcap) " << endl;
+      cout << "    SM   (Barrel Super Module) " << endl;
+      cout << "    Dee  (Encap Dee) " << endl;
+      cout << " Other codes are available" << endl;
+      cout << " See source file: TEcnaParHistos::BuildStandardDetectorCode(...)." << endl;
+      cout << "*----------------------------------------------------------------" << endl;
+    }
+
+  if(TypeOfCode == "PlotOption")
+    {
+      cout << "*--------------------------------------- Standard plot options:" << endl;
+      cout << "    All ROOT DRAW options and: " << endl;
+      cout << "   (nothing) " << endl;
+      cout << "    SAME n   " << endl;
+      cout << "    ASCII    " << endl;
+      cout << " Other codes are available" << endl;
+      cout << " See source file: TEcnaParHistos::BuildStandardPlotOption(...)." << endl;
+      cout << "*--------------------------------------------------------------" << endl;
+    }
+
+  if(TypeOfCode == "1DHistoCodeX")
+    {
+      cout << "*---------------------- Standard 1D histo codes for X coordinate:" << endl;
+      cout << "    Tow  (SM tower) " << endl;
+      cout << "    SC   (Dee super crystal) " << endl;
+      cout << "    Xtal (crystal) " << endl;
+      cout << "    Smp  (Adc sample) " << endl;
+      cout << "    Evt  (event) " << endl;
+      cout << " Other codes are available" << endl;
+      cout << " See source file: TEcnaParHistos::BuildStandard1DHistoCodeX(...)." << endl;
+      cout << "*----------------------------------------------------------------" << endl;
+    }
+
+  if(TypeOfCode == "1DHistoCodeY")
+    {
+      cout << "*---------------------- Standard 1D histo codes for Y coordinate;" << endl;
+      cout << "    NOX  (number of crystals) " << endl;
+      cout << "    NOS  (number of samples) " << endl;
+      cout << "    NOR  (number of runs) " << endl;
+      cout << " Other codes are available" << endl;
+      cout << " See source file: TEcnaParHistos::BuildStandard1DHistoCodeY(...)." << endl;
+      cout << "*----------------------------------------------------------------" << endl;
+    }
+
+  if(TypeOfCode == "1DHistoCodeXY")
+    {
+      cout << "*------------------ Standard 1D histo codes for X or Y coordinate;" << endl;
+      cout << "    NOE  (number of events) " << endl;
+      cout << "    Ped  (pedestal) " << endl;
+      cout << "    TNo  (total noise) " << endl;
+      cout << "    LFN  (low frequency noise) " << endl;
+      cout << "    HFN  (high frequency noise) " << endl;
+      cout << "    MCs  (mean correlation between samples) " << endl;
+      cout << "    SCs  (sigma of correlations between samples) " << endl;
+      cout << "    MSp  (sample mean) " << endl;
+      cout << "    SSp  (sample sigma) " << endl;
+      cout << "    Time (time, date) " << endl;
+      cout << "    Adc  (ADC sample value) " << endl;
+      cout << " Other codes are available" << endl;
+      cout << " See source file: TEcnaParHistos::BuildStandard1DHistoCodeXY(...)." << endl;
+      cout << "*-----------------------------------------------------------------" << endl;
+    }
+
+  if(TypeOfCode == "CovOrCorCode")
+    {
+      cout << "*-------- Standard codes for matrix type (correlation or covariance);" << endl;
+      cout << "    Cor  (correlation) " << endl;
+      cout << "    cov  (covariance) " << endl;
+      cout << " Other codes are available" << endl;
+      cout << " See source file: TEcnaParHistos::BuildStandardCovOrCorCode(...)." << endl;
+      cout << "*--------------------------------------------------------------------" << endl;
+    }
+
+  if(TypeOfCode == "BetweenWhatCode")
+    {
+      cout << "*-------- Standard codes for quantities in correlation or covariance;" << endl;
+      cout << "    Mss    (between samples) " << endl;
+      cout << "    MccLF  (low  frequency between channels) " << endl;
+      cout << "    MccHF  (high frequency between channels) " << endl;
+      cout << "    MttLF  (low  frequency between towers [if EB] or SC [if EE]) " << endl;
+      cout << "    MttLF  (high frequency between towers [if EB] or SC [if EE]) " << endl;
+      cout << " Other codes are available" << endl;
+      cout << " See source file: TEcnaParHistos::BuildStandardBetweenWhatCode(...)." << endl;
+      cout << "*--------------------------------------------------------------------" << endl;
+    }
+}
+
+//========================== GetTechHistoCode ==========================
+
 TString TEcnaParHistos::GetTechHistoCode(const TString StandardHistoCode)
 {
   TString TechHistoCode = "?";
@@ -2758,7 +2959,6 @@ TString TEcnaParHistos::GetTechHistoCode(const TString StandardHistoCode)
     }
   return TechHistoCode;
 }
-
 //.......................................................................................................
 TString TEcnaParHistos::GetTechHistoCode(const TString X_Quantity, const TString Y_Quantity)
 {

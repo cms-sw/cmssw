@@ -1,6 +1,6 @@
 //----------Author's Name: B.Fabbro, FX Gentit DSM/IRFU/SPP CEA-Saclay
 //----------Copyright: Those valid for CEA sofware
-//----------Modified: 24/03/2011
+//----------Modified: 04/07/2011
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaRead.h"
 
@@ -320,7 +320,7 @@ TVectorD TEcnaRead::Read1DHisto(const Int_t& VecDim,     const TString UserQuant
       TVectorD vec(VecDim);
 
       TString CallingMethod = "1D";
-      TString StandardQuantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, UserQuantity);
+      TString StandardQuantity = fCnaParHistos->BuildStandard1DHistoCodeY(CallingMethod, UserQuantity);
 
       if( StandardQuantity == "Adc" )
 	{
@@ -354,7 +354,7 @@ TVectorD TEcnaRead::Read1DHisto(const Int_t& VecDim, const TString UserQuantity,
       TVectorD vec(VecDim);
       
       TString CallingMethod = "1D";
-      TString StandardQuantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, UserQuantity);
+      TString StandardQuantity = fCnaParHistos->BuildStandard1DHistoCodeY(CallingMethod, UserQuantity);
       
       if( StandardQuantity == "MSp" || StandardQuantity == "SSp" )
 	{
@@ -396,7 +396,7 @@ TVectorD TEcnaRead::Read1DHisto(const Int_t& VecDim, const TString UserQuantity,
 
       TString CallingMethod = "1D";
       TString StandardQuantity = "?";
-      StandardQuantity = fCnaParHistos->BuildStandardHistoCode(CallingMethod, UserQuantity);
+      StandardQuantity = fCnaParHistos->BuildStandard1DHistoCodeY(CallingMethod, UserQuantity);
       TString rTechReadCode = GetTechReadCode(StandardQuantity, StandardDetector);
 
       if( rTechReadCode != "?" )
@@ -465,18 +465,6 @@ TVectorD TEcnaRead::Read1DHisto(const Int_t& VecDim, const TString UserQuantity,
 
 		      fFileHeader->fStartDate = xStartDate;
 		      fFileHeader->fStopDate  = xStopDate;
-
-		      cout << "-------------------------------------------------------------" << endl;
-		      cout << "*TEcnaRead::Read1DHisto(...)> CONTROLE 1a. i0Stex = " << i0Stex
-			   << ", cStartDate = " << cStartDate
-			   << ", xStartDate = " << xStartDate
-			   << ", fFileHeader->fStartDate = " << fFileHeader->fStartDate << endl;
-		      cout << "............................................................." << endl;
-		      cout << "*TEcnaRead::Read1DHisto(...)> CONTROLE 1b. i0Stex = " << i0Stex
-			   << ", cStopDate = "  << cStopDate 
-			   << ", xStopDate  = " << xStopDate
-			   << ", fFileHeader->fStopDate = " << fFileHeader->fStopDate << endl;
-		      cout << "-------------------------------------------------------------" << endl;
 		    }
 		  else
 		    {
@@ -510,7 +498,7 @@ TVectorD TEcnaRead::Read1DHisto(const Int_t& VecDim, const TString UserQuantity,
 //                       2 D   H I S T O S 
 //
 //============================================================================
-TMatrixD TEcnaRead::ReadMatrix(const Int_t& MatDim,   const TString UserMatrixType, const TString UserBetweenWhat,
+TMatrixD TEcnaRead::ReadMatrix(const Int_t& MatDim,   const TString UserCorOrCov, const TString UserBetweenWhat,
 			       const Int_t& nb_arg_1, const Int_t&  nb_arg_2)
 {
   TMatrixD mat(MatDim, MatDim);
@@ -518,8 +506,8 @@ TMatrixD TEcnaRead::ReadMatrix(const Int_t& MatDim,   const TString UserMatrixTy
   TString StandardMatrixType  = "?";
   TString StandardBetweenWhat = "?";
 
-  StandardMatrixType  = fCnaParHistos->BuildStandardHistoCode(CallingMethod, UserMatrixType);
-  StandardBetweenWhat = fCnaParHistos->BuildStandardHistoCode(CallingMethod, UserBetweenWhat);
+  StandardMatrixType  = fCnaParHistos->BuildStandardCovOrCorCode(CallingMethod, UserCorOrCov);
+  StandardBetweenWhat = fCnaParHistos->BuildStandardBetweenWhatCode(CallingMethod, UserBetweenWhat);
 
   if( StandardMatrixType != "?" && StandardBetweenWhat != "?" )
     {
@@ -558,14 +546,14 @@ TMatrixD TEcnaRead::ReadMatrix(const Int_t& MatDim,   const TString UserMatrixTy
       for(Int_t i=0; i-MatDim<0; i++)
 	{for(Int_t j=0; j-MatDim<0; j++)
 	    {mat(i,j) = (double_t)0.;}}
-      cout <<"!TEcnaRead::ReadMatrix(...)> UserMatrixType = " << UserMatrixType
+      cout <<"!TEcnaRead::ReadMatrix(...)> UserCorOrCov = " << UserCorOrCov
 	   << ", UserBetweenWhat = " << UserBetweenWhat
 	   << ". Wrong code(s), no file reading." << fTTBELL << endl;
     }
   return mat;
 }
 
-TMatrixD TEcnaRead::ReadMatrix(const Int_t& MatDim, const TString UserMatrixType, const TString UserBetweenWhat)
+TMatrixD TEcnaRead::ReadMatrix(const Int_t& MatDim, const TString UserCorOrCov, const TString UserBetweenWhat)
 {
   //------------------- (BIG MATRIX 1700x1700 for barrel, 5000x5000 for endcap) ------------------
   TMatrixD mat(MatDim, MatDim);
@@ -573,8 +561,8 @@ TMatrixD TEcnaRead::ReadMatrix(const Int_t& MatDim, const TString UserMatrixType
   TString StandardMatrixType  = "?";
   TString StandardBetweenWhat = "?";
 
-  StandardMatrixType  = fCnaParHistos->BuildStandardHistoCode(CallingMethod, UserMatrixType);
-  StandardBetweenWhat = fCnaParHistos->BuildStandardHistoCode(CallingMethod, UserBetweenWhat);
+  StandardMatrixType  = fCnaParHistos->BuildStandardCovOrCorCode(CallingMethod, UserCorOrCov);
+  StandardBetweenWhat = fCnaParHistos->BuildStandardBetweenWhatCode(CallingMethod, UserBetweenWhat);
 
   if( StandardMatrixType != "?" && StandardBetweenWhat != "?" )
     {
@@ -603,7 +591,7 @@ TMatrixD TEcnaRead::ReadMatrix(const Int_t& MatDim, const TString UserMatrixType
       for(Int_t i=0; i-MatDim<0; i++)
 	{for(Int_t j=0; j-MatDim<0; j++)
 	    {mat(i,j) = (double_t)0.;}}
-      cout <<"!TEcnaRead::ReadMatrix(...)> UserMatrixType = " << UserMatrixType
+      cout <<"!TEcnaRead::ReadMatrix(...)> UserCorOrCov = " << UserCorOrCov
 	   << ", UserBetweenWhat = " << UserBetweenWhat
 	   << ". Wrong code(s), no file reading." << fTTBELL << endl;
     }
@@ -4303,7 +4291,7 @@ Double_t*** TEcnaRead::ReadSampleAdcValuesSameFile(const Int_t& DimX, const Int_
 //          M I S C E L L A N E O U S    G E T    M E T H O D S   
 //
 //=========================================================================
-Int_t TEcnaRead::GetNumberOfEvents(const Int_t& xFapNbOfReqEvts)
+Int_t TEcnaRead::GetNumberOfEvents(const Int_t& xFapNbOfReqEvts, const Int_t& xStexNumber)
 {
   //...... Calculate the number of found events  (file existence already tested in calling method)
   Int_t xFapNbOfEvts = 0; 
@@ -4317,7 +4305,8 @@ Int_t TEcnaRead::GetNumberOfEvents(const Int_t& xFapNbOfReqEvts)
   Int_t* NOFE_int = new Int_t[fEcal->MaxCrysEcnaInStex()];   fCnew++;
   for(Int_t i=0; i<fEcal->MaxCrysEcnaInStex(); i++){NOFE_int[i]=(Int_t)NOFE_histp(i);}
 
-  xFapNbOfEvts = fCnaWrite->NumberOfEventsAnalysis(NOFE_int, fEcal->MaxCrysEcnaInStex(), xFapNbOfReqEvts);
+  xFapNbOfEvts =
+    fCnaWrite->NumberOfEventsAnalysis(NOFE_int, fEcal->MaxCrysEcnaInStex(), xFapNbOfReqEvts, xStexNumber);
 
   delete [] NOFE_int; NOFE_int = 0;                          fCdelete++;
 
