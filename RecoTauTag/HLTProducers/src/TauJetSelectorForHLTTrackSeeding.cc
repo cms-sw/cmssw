@@ -61,6 +61,9 @@ TauJetSelectorForHLTTrackSeeding::produce(edm::Event& iEvent, const edm::EventSe
    edm::Handle<reco::CaloJetCollection> calojets;
    iEvent.getByLabel(inputCaloJetTag_,calojets);
 
+   const double tauConeSize2       = tauConeSize_ * tauConeSize_;
+   const double isolationConeSize2 = isolationConeSize_ * isolationConeSize_;
+
    for (reco::CaloJetCollection::const_iterator calojet = calojets->begin();
 	  calojet != calojets->end(); calojet++) {
 
@@ -76,11 +79,11 @@ TauJetSelectorForHLTTrackSeeding::produce(edm::Event& iEvent, const edm::EventSe
      for ( unsigned int itwr = 0; itwr < theTowers.size(); ++itwr ) { 
        double etaTwr = theTowers[itwr]->eta() - etaJet;
        double phiTwr = deltaPhi(theTowers[itwr]->phi(), phiJet);
-       double deltaR = sqrt( etaTwr*etaTwr + phiTwr*phiTwr );
+       double deltaR2 = etaTwr*etaTwr + phiTwr*phiTwr;
        //std::cout << "Tower eta/phi/et : " << etaTwr << " " << phiTwr << " " << theTowers[itwr]->pt() << std::endl;
-       if ( deltaR < tauConeSize_ ) { 
+       if ( deltaR2 < tauConeSize2 ) { 
 	 ptIn += theTowers[itwr]->pt(); 
-       } else if ( deltaR < isolationConeSize_ ) { 
+       } else if ( deltaR2 < isolationConeSize2 ) { 
 	 ptOut += theTowers[itwr]->pt(); 
        }
      }
@@ -99,8 +102,8 @@ TauJetSelectorForHLTTrackSeeding::produce(edm::Event& iEvent, const edm::EventSe
 	 edm::Ptr<reco::Track> track = trackjet->track(itr);
 	 double trackEta = track->eta() - etaJet;
 	 double trackPhi = deltaPhi(track->phi(), phiJet);
-	 double deltaR = sqrt( trackEta*trackEta + trackPhi*trackPhi );
-	 if ( deltaR < isolationConeSize_ ) { 
+	 double deltaR2 = trackEta*trackEta + trackPhi*trackPhi;
+	 if ( deltaR2 < isolationConeSize2 ) { 
 	   ntrk++; 
 	   ptTrk += track->pt();
 	 }
@@ -117,8 +120,8 @@ TauJetSelectorForHLTTrackSeeding::produce(edm::Event& iEvent, const edm::EventSe
 	  track != tracks->end(); track++) {
        double trackEta = track->eta() - etaJet;
        double trackPhi = deltaPhi(track->phi(), phiJet);
-       double deltaR = sqrt( trackEta*trackEta + trackPhi*trackPhi );
-       if ( deltaR < isolationConeSize_ ) { 
+       double deltaR2 = trackEta*trackEta + trackPhi*trackPhi;
+       if ( deltaR2 < isolationConeSize2 ) { 
 	 ntrk2++; 
 	 ptTrk2 += track->pt();
        }
