@@ -13,7 +13,7 @@
 //
 // Original Author:  Filippo Ambroglini
 //         Created:  Tue Jul 26 08:47:57 CEST 2005
-// $Id: TrackerMapTool.cc,v 1.7 2009/08/26 21:18:55 case Exp $
+// $Id: TrackerMapTool.cc,v 1.8 2009/08/27 17:19:50 case Exp $
 //
 //
 
@@ -133,9 +133,7 @@ TrackerMapTool::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
   int layer,subdet,leftright=0,ringno,petalno,moduleno,isStereo,pixel_strip,barrel_forward;
   std::string name0,name1,name2,name3,name4,name5;
   int ring = 0;
-  int forback;
   int nmod = 0;
-  int idmod = 0;
   int ntotmod = 0;
   float r;
   int bar_fow = 1;
@@ -153,7 +151,6 @@ TrackerMapTool::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
   for ( ; begin != end; ++begin) {
     ntotmod++;
     subdet = (*begin)->geographicalId().subdetId();
-    idmod = (*begin)->geographicalId().rawId();
     if(subdet==1||subdet==3||subdet==5){//barrel 
       layer = ((*begin)->geographicalId().rawId()>>16)&0xF;
       leftright=0;
@@ -184,9 +181,8 @@ TrackerMapTool::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     if(subdet==6){name3=" forward ";if((((*begin)->geographicalId().rawId()>>4)&0x1)==1)name3=" backward "; }
     if(subdet==2){name3=" forward ";if((((*begin)->geographicalId().rawId()>>4)&0x1)==1)name3=" backward "; }
     name5 = " ";
-    forback=0;
-    if(subdet==6){name5=" forward ";if((((*begin)->geographicalId().rawId()>>15)&0x1)==1){name5=" backward ";forback=1; }}
-    if(subdet==2){name5=" left ";if((((*begin)->geographicalId().rawId()>>14)&0x1)==1){name5=" right ";forback=1; }}
+    if(subdet==6){name5=" forward ";if((((*begin)->geographicalId().rawId()>>15)&0x1)==1){name5=" backward "; }}
+    if(subdet==2){name5=" left ";if((((*begin)->geographicalId().rawId()>>14)&0x1)==1){name5=" right "; }}
     if(subdet==3){name2=" neg ";if((((*begin)->geographicalId().rawId()>>15)&0x1)==1)name2=" pos "; }
     if(subdet==5){name2=" neg ";if((((*begin)->geographicalId().rawId()>>15)&0x1)==1)name2=" pos "; }
     if(subdet==3){name3=" internal ";if((((*begin)->geographicalId().rawId()>>14)&0x1)==1)name3=" external "; }
