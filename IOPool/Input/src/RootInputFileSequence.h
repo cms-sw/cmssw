@@ -107,6 +107,7 @@ namespace edm {
     GroupSelectorRules groupSelectorRules_;
     boost::shared_ptr<DuplicateChecker> duplicateChecker_;
     bool dropDescendants_;
+    bool labelRawDataLikeMC_;
     bool usingGoToEvent_;
   }; // class RootInputFileSequence
 }

@@ -37,6 +37,7 @@ namespace edm {
   // Class RootFile: supports file reading.
 
   class BranchMapper;
+  class DaqProvenanceHelper;
   class DuplicateChecker;
   class EventSkipperByID;
   class GroupSelectorRules;
@@ -46,7 +47,7 @@ namespace edm {
 
   class MakeProvenanceReader {
   public:
-    virtual std::auto_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree) const = 0;
+    virtual std::auto_ptr<ProvenanceReaderBase> makeReader(RootTree& eventTree, DaqProvenanceHelper const* daqProvenanceHelper) const = 0;
   };
 
   class RootFile : private boost::noncopyable {
@@ -72,6 +73,7 @@ namespace edm {
              std::vector<boost::shared_ptr<IndexIntoFile> > const& indexesIntoFiles,
              std::vector<boost::shared_ptr<IndexIntoFile> >::size_type currentIndexIntoFile,
              std::vector<ProcessHistoryID>& orderedProcessHistoryIDs,
+             bool labelRawDataLikeMC,
              bool usingGoToEvent);
     ~RootFile();
     void reportOpened(std::string const& inputType);
@@ -102,6 +104,7 @@ namespace edm {
     int whyNotFastClonable() const {return whyNotFastClonable_;}
     boost::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
     bool branchListIndexesUnchanged() const {return branchListIndexesUnchanged_;}
+    bool modifiedIDs() const {return daqProvenanceHelper_.get() != 0;}
     boost::shared_ptr<FileBlock> createFileBlock() const;
     bool setEntryAtItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) {
       return event ? setEntryAtEvent(run, lumi, event) : (lumi ? setEntryAtLumi(run, lumi) : setEntryAtRun(run));
@@ -209,6 +212,7 @@ namespace edm {
     mutable boost::scoped_ptr<EventPrincipal> secondaryEventPrincipal_;
     mutable boost::shared_ptr<BranchMapper> eventBranchMapper_;
     std::vector<ParentageID> parentageIDLookup_;
+    boost::scoped_ptr<DaqProvenanceHelper> daqProvenanceHelper_;
   }; // class RootFile
 
 }
