@@ -23,7 +23,6 @@ public:
 private:
   static float toysFactor_;
   static float rAbsAccuracy_, rRelAccuracy_;
-  static bool lowerLimit_;
 };
 
 #endif
