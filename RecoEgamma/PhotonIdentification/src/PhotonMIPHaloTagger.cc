@@ -402,9 +402,7 @@ void PhotonMIPHaloTagger::GetSeedHighestE(const reco::Photon* photon,
 
        if(debug_)std::cout<<"Inside GetSeed"<<std::endl;
         //Get the Seed
-        double SeedTime = -999.;
         double SeedE    = -999.;
-        Int_t  crysIdx  = -1;
 
         //initilaze them here
         seedIeta   = -999;
@@ -436,11 +434,9 @@ void PhotonMIPHaloTagger::GetSeedHighestE(const reco::Photon* photon,
 
              if (crysE > SeedE)
              {SeedE = crysE;                     
-              SeedTime    = thishit->time();
               seedIeta    = detId.ieta();
               seedIphi    = (detId.iphi());
               seedEnergy  = SeedE;
-              crysIdx     = ncrys;
 
              if(debug_)std::cout<<"Current max Seed = "<<SeedE<<"   seedIphi = "<<seedIphi<<"  ieta= "<<seedIeta<<std::endl;
 
