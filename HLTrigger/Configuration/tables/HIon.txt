@@ -12,6 +12,8 @@ HLT_HIMinBiasZDC_Calo_v*
 HLT_HIMinBiasZDC_Calo_PlusOrMinus_v*
 HLT_HIMinBiasZDC_Scint_v*
 HLT_HIMinBiasZDCPixel_SingleTrack_v*
+HLT_HICaloTower4_MinBias_v*      #  added for 2011 (sr #123853)
+HLT_HIPixelTrack10_MinBias_v*    #  added for 2011 (sr #123853)
 HLT_HIBptxXOR_v*
 HLT_HIL1Algo_BptxXOR_BSC_OR_v*
 HLT_HIL1SingleMu3_v*
@@ -44,6 +46,14 @@ HLT_HIActivityHF_Coincidence3_v*
 HLT_HIActivityHF_Single3_v*
 HLT_HIClusterVertexCompatibility_v*
 HLT_HICentralityVeto_v*
+HLT_HIFullTrack12_L1ETT100_v*           #  added for 2011 (sr #123853)
+# HLT_HIFullTrack12_AntiL1ETT140_L1Jet16Central_v* #  added for 2011 (sr #123853) need new L1 menu
+HLT_HIFullTrack14_L1ETT100_v*           #  added for 2011 (sr #123853)
+# HLT_HIFullTrack14_AntiL1ETT140_L1Jet16Central_v* #  added for 2011 (sr #123853) need new L1 menu
+HLT_HIFullTrack20_L1ETT100_v*           #  added for 2011 (sr #123853)
+# HLT_HIFullTrack20_AntiL1ETT140_L1Jet16Central_v* #  added for 2011 (sr #123853) need new L1 menu
+HLT_HIFullTrack20_L1ETT100_v*           #  added for 2011 (sr #123853)
+# HLT_HIFullTrack20_AntiL1ETT140_L1Jet16Central_v* #  added for 2011 (sr #123853) need new L1 menu
 HLT_HIRandom_v*
 # HLT_HIUCC010_v*      #   added for 2011 (sr #123637) need new L1 menu
 # HLT_HIUCC015_v*      #   added for 2011 (sr #123637) need new L1 menu

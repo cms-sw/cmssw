@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_2_0/GRun/V305
+# /dev/CMSSW_4_2_0/GRun/V306
 
 import FWCore.ParameterSet.Config as cms
 
