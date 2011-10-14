@@ -1,4 +1,8 @@
+<<<<<<< HLTrigger_Datasets_cff.py
+# /dev/CMSSW_4_2_0/GRun/V310
+=======
 # /dev/CMSSW_4_2_0/GRun/V309
+>>>>>>> 1.433
 
 import FWCore.ParameterSet.Config as cms
 
@@ -81,8 +85,8 @@ streamA_datasetDoubleMu_selector.triggerConditions = cms.vstring('HLT_DoubleMu3_
     'HLT_L1DoubleMu0_v4', 
     'HLT_L2DoubleMu0_v7', 
     'HLT_L2DoubleMu23_NoVertex_v8', 
+    'HLT_L2DoubleMu30_NoVertex_dPhi2p5_v1', 
     'HLT_L2DoubleMu30_NoVertex_v4', 
-    'HLT_L2DoubleMu45_NoVertex_v1', 
     'HLT_Mu13_Mu8_v11', 
     'HLT_Mu17_Mu8_v11', 
     'HLT_Mu17_TkMu8_v4', 

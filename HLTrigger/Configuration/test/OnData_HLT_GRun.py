@@ -1,11 +1,19 @@
+<<<<<<< OnData_HLT_GRun.py
+# /dev/CMSSW_4_2_0/GRun/V310 (CMSSW_4_2_0_HLT33)
+=======
 # /dev/CMSSW_4_2_0/GRun/V309 (CMSSW_4_2_0_HLT33)
+>>>>>>> 1.559
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
+<<<<<<< OnData_HLT_GRun.py
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V310')
+=======
   tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V309')
+>>>>>>> 1.559
 )
 
 process.streams = cms.PSet( 
@@ -108,8 +116,8 @@ process.datasets = cms.PSet(
     'HLT_L1DoubleMu0_v4',
     'HLT_L2DoubleMu0_v7',
     'HLT_L2DoubleMu23_NoVertex_v8',
+    'HLT_L2DoubleMu30_NoVertex_dPhi2p5_v1',
     'HLT_L2DoubleMu30_NoVertex_v4',
-    'HLT_L2DoubleMu45_NoVertex_v1',
     'HLT_Mu13_Mu8_v11',
     'HLT_Mu17_Mu8_v11',
     'HLT_Mu17_TkMu8_v4',
@@ -673,8 +681,8 @@ process.datasets = cms.PSet(
     'HLT_L1_PreCollisions_v3',
     'HLT_L2DoubleMu0_v7',
     'HLT_L2DoubleMu23_NoVertex_v8',
+    'HLT_L2DoubleMu30_NoVertex_dPhi2p5_v1',
     'HLT_L2DoubleMu30_NoVertex_v4',
-    'HLT_L2DoubleMu45_NoVertex_v1',
     'HLT_L2Mu10_v6',
     'HLT_L2Mu20_v6',
     'HLT_L2Mu60_1Hit_MET40_v6',
@@ -1101,8 +1109,8 @@ process.datasets = cms.PSet(
     'HLT_L1_PreCollisions_v3',
     'HLT_L2DoubleMu0_v7',
     'HLT_L2DoubleMu23_NoVertex_v8',
+    'HLT_L2DoubleMu30_NoVertex_dPhi2p5_v1',
     'HLT_L2DoubleMu30_NoVertex_v4',
-    'HLT_L2DoubleMu45_NoVertex_v1',
     'HLT_L2Mu10_v6',
     'HLT_L2Mu20_v6',
     'HLT_L2Mu60_1Hit_MET40_v6',
@@ -1526,8 +1534,8 @@ process.datasets = cms.PSet(
     'HLT_L1_PreCollisions_v3',
     'HLT_L2DoubleMu0_v7',
     'HLT_L2DoubleMu23_NoVertex_v8',
+    'HLT_L2DoubleMu30_NoVertex_dPhi2p5_v1',
     'HLT_L2DoubleMu30_NoVertex_v4',
-    'HLT_L2DoubleMu45_NoVertex_v1',
     'HLT_L2Mu10_v6',
     'HLT_L2Mu20_v6',
     'HLT_L2Mu60_1Hit_MET40_v6',
@@ -2891,7 +2899,7 @@ process.hltESPMeasurementTrackerForHI = cms.ESProducer( "MeasurementTrackerESPro
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
   appendToDataLabel = cms.string( "" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
-  inactiveStripDetectorLabels = cms.VInputTag( 'hltSiStripRawToDigi' ),
+  inactiveStripDetectorLabels = cms.VInputTag( 'hltSiStripExcludedFEDListProducer' ),
   badStripCuts = cms.PSet( 
     TOB = cms.PSet( 
       maxConsecutiveBad = cms.uint32( 2 ),
@@ -3472,7 +3480,7 @@ process.hltIter1ESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESPro
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
   appendToDataLabel = cms.string( "" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
-  inactiveStripDetectorLabels = cms.VInputTag(  ),
+  inactiveStripDetectorLabels = cms.VInputTag( 'hltSiStripExcludedFEDListProducer' ),
   badStripCuts = cms.PSet( 
     TOB = cms.PSet( 
       maxConsecutiveBad = cms.uint32( 9999 ),
@@ -3577,7 +3585,7 @@ process.hltIter2ESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESPro
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
   appendToDataLabel = cms.string( "" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
-  inactiveStripDetectorLabels = cms.VInputTag(  ),
+  inactiveStripDetectorLabels = cms.VInputTag( 'hltSiStripExcludedFEDListProducer' ),
   badStripCuts = cms.PSet( 
     TOB = cms.PSet( 
       maxConsecutiveBad = cms.uint32( 9999 ),
@@ -3736,7 +3744,7 @@ process.hltIter3ESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESPro
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
   appendToDataLabel = cms.string( "" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
-  inactiveStripDetectorLabels = cms.VInputTag(  ),
+  inactiveStripDetectorLabels = cms.VInputTag( 'hltSiStripExcludedFEDListProducer' ),
   badStripCuts = cms.PSet( 
     TOB = cms.PSet( 
       maxConsecutiveBad = cms.uint32( 9999 ),
@@ -3812,7 +3820,7 @@ process.hltIter4ESPMeasurementTracker = cms.ESProducer( "MeasurementTrackerESPro
   stripLazyGetterProducer = cms.string( "hltSiStripRawToClustersFacility" ),
   appendToDataLabel = cms.string( "" ),
   inactivePixelDetectorLabels = cms.VInputTag(  ),
-  inactiveStripDetectorLabels = cms.VInputTag(  ),
+  inactiveStripDetectorLabels = cms.VInputTag( 'hltSiStripExcludedFEDListProducer' ),
   badStripCuts = cms.PSet( 
     TOB = cms.PSet( 
       maxConsecutiveBad = cms.uint32( 9999 ),
@@ -13099,25 +13107,32 @@ process.hltL2DoubleMu30NoVertexL2PreFiltered = cms.EDFilter( "HLTMuonL2PreFilter
     MinNstations = cms.vint32( 0 ),
     MinNhits = cms.vint32( 1 )
 )
-process.hltPreL2DoubleMu45NoVertex = cms.EDFilter( "HLTPrescaler",
+process.hltPreL2DoubleMu30NoVertexdPhi2p5 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-process.hltL2DoubleMu45NoVertexL2PreFiltered = cms.EDFilter( "HLTMuonL2PreFilter",
+process.hltL2DoubleMu30NoVertexL2FilteredPhi25 = cms.EDFilter( "HLTMuonDimuonL2Filter",
     BeamSpotTag = cms.InputTag( "hltOnlineBeamSpot" ),
     CandTag = cms.InputTag( "hltL2MuonCandidatesNoVtx" ),
     PreviousCandTag = cms.InputTag( "hltL1DoubleMuon3p5L1Filtered0" ),
     SeedMapTag = cms.InputTag( "hltL2Muons" ),
-    MinN = cms.int32( 2 ),
+    FastAccept = cms.bool( False ),
     MaxEta = cms.double( 3.0 ),
-    MaxDr = cms.double( 9999.0 ),
+    MinNhits = cms.int32( 1 ),
+    MaxDr = cms.double( 100.0 ),
     MaxDz = cms.double( 9999.0 ),
-    MinPt = cms.double( 45.0 ),
+    ChargeOpt = cms.int32( 0 ),
+    MinPtPair = cms.double( 0.0 ),
+    MinPtMax = cms.double( 30.0 ),
+    MinPtMin = cms.double( 30.0 ),
+    MinInvMass = cms.double( 0.0 ),
+    MaxInvMass = cms.double( 9999.0 ),
+    MinAcop = cms.double( 0.64 ),
+    MaxAcop = cms.double( 3.15 ),
+    MinPtBalance = cms.double( -1.0 ),
+    MaxPtBalance = cms.double( 999999.0 ),
     NSigmaPt = cms.double( 0.0 ),
-    saveTags = cms.bool( True ),
-    AbsEtaBins = cms.vdouble( 5.0 ),
-    MinNstations = cms.vint32( 0 ),
-    MinNhits = cms.vint32( 1 )
+    saveTags = cms.bool( True )
 )
 process.hltPreDoubleMu3 = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -32967,7 +32982,7 @@ process.hltPreDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_IsoMu40_eta2p1_v2',
       'HLT_L2DoubleMu23_NoVertex_v8',
       'HLT_L2DoubleMu30_NoVertex_v4',
-      'HLT_L2DoubleMu45_NoVertex_v1',
+      'HLT_L2DoubleMu30_NoVertex_dPhi2p5_v1',
       'HLT_DoubleMu3_v14',
       'HLT_DoubleMu5_v5',
       'HLT_DoubleMu7_v12',
@@ -33457,7 +33472,7 @@ process.hltPreHLTDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_IsoMu40_eta2p1_v2',
       'HLT_L2DoubleMu23_NoVertex_v8',
       'HLT_L2DoubleMu30_NoVertex_v4',
-      'HLT_L2DoubleMu45_NoVertex_v1',
+      'HLT_L2DoubleMu30_NoVertex_dPhi2p5_v1',
       'HLT_DoubleMu3_v14',
       'HLT_DoubleMu5_v5',
       'HLT_DoubleMu7_v12',
@@ -33910,7 +33925,7 @@ process.hltPreHLTMONOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_IsoMu40_eta2p1_v2',
       'HLT_L2DoubleMu23_NoVertex_v8',
       'HLT_L2DoubleMu30_NoVertex_v4',
-      'HLT_L2DoubleMu45_NoVertex_v1',
+      'HLT_L2DoubleMu30_NoVertex_dPhi2p5_v1',
       'HLT_DoubleMu3_v14',
       'HLT_DoubleMu5_v5',
       'HLT_DoubleMu7_v12',
@@ -34455,8 +34470,8 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_L1_PreCollisions_v3',
   'HLT_L2DoubleMu0_v7',
   'HLT_L2DoubleMu23_NoVertex_v8',
+  'HLT_L2DoubleMu30_NoVertex_dPhi2p5_v1',
   'HLT_L2DoubleMu30_NoVertex_v4',
-  'HLT_L2DoubleMu45_NoVertex_v1',
   'HLT_L2Mu10_v6',
   'HLT_L2Mu20_v6',
   'HLT_L2Mu60_1Hit_MET40_v6',
@@ -34931,8 +34946,8 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_L1_PreCollisions_v3',
   'HLT_L2DoubleMu0_v7',
   'HLT_L2DoubleMu23_NoVertex_v8',
+  'HLT_L2DoubleMu30_NoVertex_dPhi2p5_v1',
   'HLT_L2DoubleMu30_NoVertex_v4',
-  'HLT_L2DoubleMu45_NoVertex_v1',
   'HLT_L2Mu10_v6',
   'HLT_L2Mu20_v6',
   'HLT_L2Mu60_1Hit_MET40_v6',
@@ -35426,8 +35441,8 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_L1_PreCollisions_v3',
   'HLT_L2DoubleMu0_v7',
   'HLT_L2DoubleMu23_NoVertex_v8',
+  'HLT_L2DoubleMu30_NoVertex_dPhi2p5_v1',
   'HLT_L2DoubleMu30_NoVertex_v4',
-  'HLT_L2DoubleMu45_NoVertex_v1',
   'HLT_L2Mu10_v6',
   'HLT_L2Mu20_v6',
   'HLT_L2Mu60_1Hit_MET40_v6',
@@ -36030,8 +36045,8 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_L1_PreCollisions_v3',
   'HLT_L2DoubleMu0_v7',
   'HLT_L2DoubleMu23_NoVertex_v8',
+  'HLT_L2DoubleMu30_NoVertex_dPhi2p5_v1',
   'HLT_L2DoubleMu30_NoVertex_v4',
-  'HLT_L2DoubleMu45_NoVertex_v1',
   'HLT_L2Mu10_v6',
   'HLT_L2Mu20_v6',
   'HLT_L2Mu60_1Hit_MET40_v6',
@@ -36734,7 +36749,7 @@ process.HLT_IsoMu34_eta2p1_v5 = cms.Path( process.HLTBeginSequence + process.hlt
 process.HLT_IsoMu40_eta2p1_v2 = cms.Path( process.HLTBeginSequence + process.hltL1sMu16Eta2p1 + process.hltPreIsoMu40eta2p1 + process.hltL1fL1sMu16Eta2p1L1Filtered0 + process.HLTL2muonrecoSequence + process.hltL2fL1sMu16Eta2p1L1f0L2Filtered16Q + process.HLTL2muonisorecoSequence + process.hltL2IsoL1sMu16Eta2p1L1f0L2f16QL2IsoFiltered + process.HLTL3muonrecoSequence + process.hltL3fL1sMu16Eta2p1L1f0L2f16QL2IsoL3Filtered40 + process.HLTL3muonisorecoSequence + process.hltL3IsoL1sMu16Eta2p1L1f0L2f16QL2IsoL3f40L3IsoFiltered + process.HLTEndSequence )
 process.HLT_L2DoubleMu23_NoVertex_v8 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMu3p5 + process.hltPreL2DoubleMu23NoVertex + process.hltL1DoubleMuon3p5L1Filtered0 + process.HLTL2muonrecoSequenceNoVtx + process.hltL2DoubleMu23NoVertexL2PreFiltered + process.HLTEndSequence )
 process.HLT_L2DoubleMu30_NoVertex_v4 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMu3p5 + process.hltPreL2DoubleMu30NoVertex + process.hltL1DoubleMuon3p5L1Filtered0 + process.HLTL2muonrecoSequenceNoVtx + process.hltL2DoubleMu30NoVertexL2PreFiltered + process.HLTEndSequence )
-process.HLT_L2DoubleMu45_NoVertex_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMu3p5 + process.hltPreL2DoubleMu45NoVertex + process.hltL1DoubleMuon3p5L1Filtered0 + process.HLTL2muonrecoSequenceNoVtx + process.hltL2DoubleMu45NoVertexL2PreFiltered + process.HLTEndSequence )
+process.HLT_L2DoubleMu30_NoVertex_dPhi2p5_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMu3p5 + process.hltPreL2DoubleMu30NoVertexdPhi2p5 + process.hltL1DoubleMuon3p5L1Filtered0 + process.HLTL2muonrecoSequenceNoVtx + process.hltL2DoubleMu30NoVertexL2FilteredPhi25 + process.HLTEndSequence )
 process.HLT_DoubleMu3_v14 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMu0 + process.hltPreDoubleMu3 + process.hltDiMuonL1Filtered0 + process.HLTL2muonrecoSequence + process.hltDiMuonL2PreFiltered0 + process.HLTL3muonrecoSequence + process.hltDiMuonL3PreFiltered3 + process.HLTEndSequence )
 process.HLT_DoubleMu5_v5 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMu0 + process.hltPreDoubleMu5 + process.hltDiMuonL1Filtered0 + process.HLTL2muonrecoSequence + process.hltDiMuonL2PreFiltered0 + process.HLTL3muonrecoSequence + process.hltDiMuonL3PreFiltered5 + process.HLTEndSequence )
 process.HLT_DoubleMu7_v12 = cms.Path( process.HLTBeginSequence + process.hltL1sL1DoubleMu3 + process.hltPreDoubleMu7 + process.hltL1DoubleMuon3L1Filtered0 + process.HLTL2muonrecoSequence + process.hltDiMuon3L2PreFiltered0 + process.HLTL3muonrecoSequence + process.hltDiMuonL3PreFiltered7 + process.HLTEndSequence )
