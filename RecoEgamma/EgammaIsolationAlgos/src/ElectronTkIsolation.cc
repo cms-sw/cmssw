@@ -67,8 +67,6 @@ std::pair<int,double> ElectronTkIsolation::getIso(const reco::GsfElectron* elect
 	itrTr != (*trackCollection_).end()   ; 
 	++itrTr ) {
 
-    math::XYZVector tmpTrackMomentumAtVtx = (*itrTr).momentum () ; 
-
     double this_pt  = (*itrTr).pt();
     if ( this_pt < ptLow_ ) continue;
 
