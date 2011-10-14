@@ -295,6 +295,9 @@ void popcon::EcalLaserHandler::getNewObjects()
       std::cout << "tmax is  " << tmax.microsTime() << " ns" << std::endl;
     }
   } else {
+    if (m_debug) {
+      std::cout << "Setting t_max to " << m_maxtime << std::endl; 
+    }
     tmax.setToString(m_maxtime);
   }
   //  Tm tmin = Tm((t_min.value() >> 32)*1000000);
