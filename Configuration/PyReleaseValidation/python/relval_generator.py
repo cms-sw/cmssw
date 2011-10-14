@@ -47,4 +47,5 @@ workflows[535]=['',['Z0Jets_Pt-0To100_TuneZ2_7TeV_alpgen_tauola','HARVGEN']]
 workflows[536]=['',['Z1Jets_Pt-0To100_TuneZ2_7TeV_alpgen_tauola','HARVGEN']]
 workflows[537]=['',['Z2Jets_Pt-0To100_TuneZ2_7TeV_alpgen_tauola','HARVGEN']]
 workflows[538]=['',['Z3Jets-Pt_0To100_TuneZ2_7TeV_alpgen_tauola','HARVGEN']]
+workflows[539]=['',['ZJetsLNu_Tune4C_7TeV_madgraph-pythia8','HARVGEN']]
 
