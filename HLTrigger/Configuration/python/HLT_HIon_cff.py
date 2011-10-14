@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HIon/V307 (CMSSW_4_2_0_HLT33)
+# /dev/CMSSW_4_2_0/HIon/V309 (CMSSW_4_2_0_HLT33)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V307')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V309')
 )
 
 streams = cms.PSet( 
@@ -426,7 +426,7 @@ PixelCPEGenericESProducer = cms.ESProducer( "PixelCPEGenericESProducer",
   ClusterProbComputationFlag = cms.int32( 0 )
 )
 PixelCPETemplateRecoESProducer = cms.ESProducer( "PixelCPETemplateRecoESProducer",
-  ComponentName = cms.string( "PixelCPETemplateReco" ),
+  ComponentName = cms.string( "PixelCPETemplateRecoHI" ),
   DoCosmics = cms.bool( False ),
   LoadTemplatesFromDB = cms.bool( True ),
   speed = cms.int32( -2 ),
@@ -489,7 +489,7 @@ SteppingHelixPropagatorAny = cms.ESProducer( "SteppingHelixPropagatorESProducer"
 TTRHBuilderAngleAndTemplate = cms.ESProducer( "TkTransientTrackingRecHitBuilderESProducer",
   ComponentName = cms.string( "WithAngleAndTemplate" ),
   StripCPE = cms.string( "StripCPEfromTrackAngle" ),
-  PixelCPE = cms.string( "PixelCPETemplateReco" ),
+  PixelCPE = cms.string( "PixelCPETemplateRecoHI" ),
   Matcher = cms.string( "StandardMatcher" ),
   ComputeCoarseLocalPositionFromDisk = cms.bool( False ),
   appendToDataLabel = cms.string( "" )
