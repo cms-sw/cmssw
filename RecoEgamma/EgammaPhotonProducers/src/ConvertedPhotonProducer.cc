@@ -239,22 +239,18 @@ void ConvertedPhotonProducer::produce(edm::Event& theEvent, const edm::EventSetu
   
 
   // Get the basic cluster collection in the Barrel 
-  bool validBarrelBCHandle=true;
   edm::Handle<edm::View<reco::CaloCluster> > bcBarrelHandle;
   theEvent.getByLabel( bcBarrelCollection_, bcBarrelHandle);
   if (!bcBarrelHandle.isValid()) {
     edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<bcBarrelCollection_.label();
-     validBarrelBCHandle=false;
   }
 
     
   // Get the basic cluster collection in the Endcap 
-  bool validEndcapBCHandle=true;
   edm::Handle<edm::View<reco::CaloCluster> > bcEndcapHandle;
   theEvent.getByLabel( bcEndcapCollection_, bcEndcapHandle);
   if (!bcEndcapHandle.isValid()) {
     edm::LogError("ConvertedPhotonProducer") << "Error! Can't get the product "<<bcEndcapCollection_.label();
-    validEndcapBCHandle=true;
   }
  
 
