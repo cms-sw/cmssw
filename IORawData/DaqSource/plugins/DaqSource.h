@@ -5,16 +5,14 @@
  *  An input service for raw data. 
  *  The actual source can be the real DAQ, a file, a random generator, etc.
  *
- *  $Date: 2011/05/11 09:46:12 $
- *  $Revision: 1.18 $
+ *  $Date: 2011/10/13 19:43:44 $
+ *  $Revision: 1.19 $
  *  \author N. Amapane - S. Argiro'
  */
 
 #include <memory>
 #include "boost/shared_ptr.hpp"
-#include "DataFormats/Provenance/interface/ConstBranchDescription.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryID.h"
-#include "DataFormats/Provenance/interface/ProductProvenance.h"
 #include "FWCore/Framework/interface/InputSource.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Sources/interface/DaqProvenanceHelper.h"

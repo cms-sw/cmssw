@@ -1,7 +1,7 @@
 /** \file 
  *
- *  $Date: 2011/08/10 20:32:45 $
- *  $Revision: 1.53 $
+ *  $Date: 2011/10/13 19:43:44 $
+ *  $Revision: 1.54 $
  *  \author N. Amapane - S. Argiro'
  */
 
@@ -22,13 +22,7 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/EventID.h"
-#include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
-#include "DataFormats/Provenance/interface/ProcessHistory.h"
-#include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
-#include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Utilities/interface/GetPassID.h"
-#include "FWCore/Version/interface/GetReleaseVersion.h"
 
 #include <string>
 #include <iostream>
@@ -71,7 +65,7 @@ namespace edm {
     , fakeLSid_(lumiSegmentSizeInEvents_ != 0)
     , runNumber_(RunID::firstValidRun().run())
     , luminosityBlockNumber_(LuminosityBlockID::firstValidLuminosityBlock().luminosityBlock())
-    , daqProvenanceHelper_()
+    , daqProvenanceHelper_(TypeID(typeid(FEDRawDataCollection)))
     , noMoreEvents_(false)
     , newRun_(true)
     , newLumi_(true)
@@ -110,23 +104,8 @@ namespace edm {
       }
     }
 
-    // Now we need to set all the metadata
-    // Add the product to the product registry  
-    ConstBranchDescription const& cbd = daqProvenanceHelper_.constBranchDescription_;
-    productRegistryUpdate().copyProduct(cbd.me());
-
-    // Insert an entry for this process in the process configuration registry
-    ProcessConfiguration pc(cbd.processName(), daqProvenanceHelper_.processParameterSet_.id(), getReleaseVersion(), getPassID());
-    ProcessConfigurationRegistry::instance()->insertMapped(pc);
-
-    // Insert an entry for this process in the process history registry
-    ProcessHistory ph;
-    ph.push_back(pc);
-    ProcessHistoryRegistry::instance()->insertMapped(ph);
-
-    // Save the process history ID for use every event.
-    phid_ = ph.id();
-
+   // Initialize metadata, and save the process history ID for use every event.
+   phid_ = daqProvenanceHelper_.daqInit(productRegistryUpdate());
 
   }
   
@@ -366,7 +345,7 @@ namespace edm {
       if(newLumi_) return IsLumi; else return getNextItemType();
     }
 
-    // make a brand new event
+    // make a brand new event principal
     eventId = EventID(runNumber_,thisEventLSid+1, eventId.event());
     EventAuxiliary eventAux(eventId, processGUID(),
 			    timestamp(),

@@ -1,6 +1,7 @@
-2011-10-13  William Tanenbaum <wmtan@fnal.gov>
+2011-10-14  William Tanenbaum <wmtan@fnal.gov>
 
-	* tag V01-10-00
+	* tag V01-10-01
+	* (also used V01-10-00)
 	* Use "rawDataCollector" as module label of raw data
 	* (instead of "source") to be consistent with MC
 	* Use "LHC" as process name to avoid ambiguity.
