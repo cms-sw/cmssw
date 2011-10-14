@@ -23,8 +23,6 @@ int main () {
   std::string tag_pedestalws = "HCAL_PEDESTAL_WIDTHS_TB06_V2";
   std::string dbcon = "oracle://cmsr/CMS_ECALHCAL_H2_COND";
   ::setenv ("POOL_CATALOG", "relationalcatalog_oracle://cmsr/CMS_ECALHCAL_H2_COND", 1);
-  ::setenv ("CORAL_AUTH_USER", "CMS_ECALHCAL_H2_COND", 1);
-  ::setenv ("CORAL_AUTH_PASSWORD", "echc2006", 1);
 
   HcalDbTool db (dbcon);
 
