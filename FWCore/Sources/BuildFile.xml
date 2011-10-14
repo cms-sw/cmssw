@@ -1,4 +1,3 @@
-<use   name="DataFormats/FEDRawData"/>
 <use   name="DataFormats/Provenance"/>
 <use   name="FWCore/Catalog"/>
 <use   name="FWCore/Framework"/>

@@ -3,16 +3,18 @@
 
 #include "FWCore/Sources/interface/DaqProvenanceHelper.h"
 
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/Provenance/interface/BranchChildren.h"
 #include "DataFormats/Provenance/interface/BranchIDList.h"
 #include "DataFormats/Provenance/interface/ProcessConfigurationRegistry.h"
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
-#include "FWCore/ParameterSet//interface/ParameterSet.h"
+#include "DataFormats/Provenance/interface/ProductRegistry.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/GetPassID.h"
+#include "FWCore/Version/interface/GetReleaseVersion.h"
 
 namespace edm {
-  DaqProvenanceHelper::DaqProvenanceHelper()
+  DaqProvenanceHelper::DaqProvenanceHelper(TypeID const& rawDataType)
         : constBranchDescription_(BranchDescription(InEvent
                                                   , "rawDataCollector"
                                                   //, "source"
@@ -23,7 +25,7 @@ namespace edm {
                                                   , ""
                                                   , "DaqSource"
                                                   , ParameterSetID()
-                                                  , TypeID(typeid(FEDRawDataCollection))
+                                                  , rawDataType
                                                   , false))
         , dummyProvenance_(constBranchDescription_.branchID())
         , processParameterSet_()
@@ -71,6 +73,25 @@ namespace edm {
     //std::cerr << processParameterSet_.dump() << std::endl;
   }
 
+  ProcessHistoryID
+  DaqProvenanceHelper::daqInit(ProductRegistry& productRegistry) const {
+    // Now we need to set all the metadata
+    // Add the product to the product registry  
+    productRegistry.copyProduct(constBranchDescription_.me());
+
+    // Insert an entry for this process in the process configuration registry
+    ProcessConfiguration pc(constBranchDescription_.processName(), processParameterSet_.id(), getReleaseVersion(), getPassID());
+    ProcessConfigurationRegistry::instance()->insertMapped(pc);
+
+    // Insert an entry for this process in the process history registry
+    ProcessHistory ph;
+    ph.push_back(pc);
+    ProcessHistoryRegistry::instance()->insertMapped(ph);
+
+    // Save the process history ID for use every event.
+    return ph.id();
+  }
+
   void
   DaqProvenanceHelper::fixMetaData(std::vector<ProcessConfiguration>& pcv) {
     bool found = false;
@@ -89,20 +110,15 @@ namespace edm {
 
   void
   DaqProvenanceHelper::fixMetaData(std::vector<ProcessHistory>& phv) {
-    std::vector<ProcessHistory> newProcessHistories(phv.size() + 1);
-    size_t i = 1;
-    for(std::vector<ProcessHistory>::iterator it = phv.begin(), itEnd = phv.end(); it != itEnd; ++it, ++i) {
-      ProcessHistory const& oldPH = *it;
-      ProcessHistory& newPH = newProcessHistories[i];
-      newPH.reserve(oldPH.size() + 1);
-      newPH.push_back(processConfiguration_);
-      for(ProcessHistory::const_iterator jt = oldPH.begin(), jtEnd = oldPH.end(); jt != jtEnd; ++jt) {
-        newPH.push_back(*jt);
-      }
-      phidMap_.insert(std::make_pair(oldPH.id(), newPH.id()));
+    phv.reserve(phv.size() + 1);
+    phv.push_back(ProcessHistory()); // For new processHistory, containing only processConfiguration_.
+    for(std::vector<ProcessHistory>::iterator it = phv.begin(), itEnd = phv.end(); it != itEnd; ++it) {
+      ProcessHistoryID oldPHID = it->id();
+      std::vector<ProcessConfiguration>& pcv = const_cast<std::vector<ProcessConfiguration>&>(it->data());
+      pcv.insert(pcv.begin(), processConfiguration_);
+      ProcessHistoryID newPHID = it->id();
+      phidMap_.insert(std::make_pair(oldPHID, newPHID));
     }
-    newProcessHistories[0].push_back(processConfiguration_);
-    phv.swap(newProcessHistories);
   }
 
   void
