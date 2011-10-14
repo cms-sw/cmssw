@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V306 (CMSSW_4_2_0_HLT33)
+# /dev/CMSSW_4_2_0/HIon/V307 (CMSSW_4_2_0_HLT33)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V306')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V307')
 )
 
 process.streams = cms.PSet( 
@@ -43,6 +43,7 @@ process.datasets = cms.PSet(
     'HLT_HIFullTrack12_L1ETT100_v1',
     'HLT_HIFullTrack14_L1ETT100_v1',
     'HLT_HIFullTrack20_L1ETT100_v1',
+    'HLT_HIFullTrack25_L1ETT100_v1',
     'HLT_HIPhoton15_v1',
     'HLT_HIPhoton20_v1',
     'HLT_HIPhoton30_v1',
@@ -89,6 +90,7 @@ process.datasets = cms.PSet(
     'HLT_HIFullTrack12_L1ETT100_v1',
     'HLT_HIFullTrack14_L1ETT100_v1',
     'HLT_HIFullTrack20_L1ETT100_v1',
+    'HLT_HIFullTrack25_L1ETT100_v1',
     'HLT_HIL1Algo_BptxXOR_BSC_OR_v1',
     'HLT_HIL1DoubleMuOpen_v1',
     'HLT_HIL1SingleMu3_v1',
@@ -137,6 +139,7 @@ process.datasets = cms.PSet(
     'HLT_HIFullTrack12_L1ETT100_v1',
     'HLT_HIFullTrack14_L1ETT100_v1',
     'HLT_HIFullTrack20_L1ETT100_v1',
+    'HLT_HIFullTrack25_L1ETT100_v1',
     'HLT_HIL1Algo_BptxXOR_BSC_OR_v1',
     'HLT_HIL1DoubleMuOpen_v1',
     'HLT_HIL1SingleMu3_v1',
@@ -190,6 +193,7 @@ process.datasets = cms.PSet(
     'HLT_HIFullTrack12_L1ETT100_v1',
     'HLT_HIFullTrack14_L1ETT100_v1',
     'HLT_HIFullTrack20_L1ETT100_v1',
+    'HLT_HIFullTrack25_L1ETT100_v1',
     'HLT_HIL1Algo_BptxXOR_BSC_OR_v1',
     'HLT_HIL1DoubleMuOpen_v1',
     'HLT_HIL1SingleMu3_v1',
@@ -5339,6 +5343,20 @@ process.hltHISingleFullTrackFilter20 = cms.EDFilter( "HLTSingleVertexPixelTrackF
     MinTrks = cms.int32( 1 ),
     MinSep = cms.double( 0.2 )
 )
+process.hltPreHIL1ETT100FullTrack25 = cms.EDFilter( "HLTPrescaler",
+    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
+    offset = cms.uint32( 0 )
+)
+process.hltHISingleFullTrackFilter25 = cms.EDFilter( "HLTSingleVertexPixelTrackFilter",
+    vertexCollection = cms.InputTag( "hltHISelectedVertex" ),
+    trackCollection = cms.InputTag( "hltHIFullTrackCandsForHITrackTrigger" ),
+    MinPt = cms.double( 25.0 ),
+    MaxPt = cms.double( 10000.0 ),
+    MaxEta = cms.double( 2.4 ),
+    MaxVz = cms.double( 15.0 ),
+    MinTrks = cms.int32( 1 ),
+    MinSep = cms.double( 0.2 )
+)
 process.hltRandomEventsFilter = cms.EDFilter( "HLTTriggerTypeFilter",
     SelectedTriggerType = cms.int32( 3 )
 )
@@ -5508,6 +5526,7 @@ process.hltPreDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_HIFullTrack12_L1ETT100_v1',
       'HLT_HIFullTrack14_L1ETT100_v1',
       'HLT_HIFullTrack20_L1ETT100_v1',
+      'HLT_HIFullTrack25_L1ETT100_v1',
       'HLT_HIPixelTrack10_MinBias_v1',
       'HLT_HIUPCNeuEG2Pixel_SingleTrack_v1',
       'HLT_HIUPCNeuEG5Pixel_SingleTrack_v1',
@@ -5549,6 +5568,7 @@ process.hltPreHLTDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_HIFullTrack12_L1ETT100_v1',
       'HLT_HIFullTrack14_L1ETT100_v1',
       'HLT_HIFullTrack20_L1ETT100_v1',
+      'HLT_HIFullTrack25_L1ETT100_v1',
       'HLT_HIPixelTrack10_MinBias_v1',
       'HLT_HIUPCNeuEG2Pixel_SingleTrack_v1',
       'HLT_HIUPCNeuEG5Pixel_SingleTrack_v1',
@@ -5587,6 +5607,7 @@ process.hltPreHLTMONOutputSmart = cms.EDFilter( "TriggerResultsFilter",
       'HLT_HIFullTrack12_L1ETT100_v1',
       'HLT_HIFullTrack14_L1ETT100_v1',
       'HLT_HIFullTrack20_L1ETT100_v1',
+      'HLT_HIFullTrack25_L1ETT100_v1',
       'HLT_HIPixelTrack10_MinBias_v1',
       'HLT_HIUPCNeuEG2Pixel_SingleTrack_v1',
       'HLT_HIUPCNeuEG5Pixel_SingleTrack_v1',
@@ -5627,6 +5648,7 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_HIFullTrack12_L1ETT100_v1',
   'HLT_HIFullTrack14_L1ETT100_v1',
   'HLT_HIFullTrack20_L1ETT100_v1',
+  'HLT_HIFullTrack25_L1ETT100_v1',
   'HLT_HIL1Algo_BptxXOR_BSC_OR_v1',
   'HLT_HIL1DoubleMuOpen_v1',
   'HLT_HIL1SingleMu3_v1',
@@ -5700,6 +5722,7 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_HIFullTrack12_L1ETT100_v1',
   'HLT_HIFullTrack14_L1ETT100_v1',
   'HLT_HIFullTrack20_L1ETT100_v1',
+  'HLT_HIFullTrack25_L1ETT100_v1',
   'HLT_HIL1Algo_BptxXOR_BSC_OR_v1',
   'HLT_HIL1DoubleMuOpen_v1',
   'HLT_HIL1SingleMu3_v1',
@@ -5783,6 +5806,7 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_HIFullTrack12_L1ETT100_v1',
   'HLT_HIFullTrack14_L1ETT100_v1',
   'HLT_HIFullTrack20_L1ETT100_v1',
+  'HLT_HIFullTrack25_L1ETT100_v1',
   'HLT_HIL1Algo_BptxXOR_BSC_OR_v1',
   'HLT_HIL1DoubleMuOpen_v1',
   'HLT_HIL1SingleMu3_v1',
@@ -6006,6 +6030,7 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
   'HLT_HIFullTrack12_L1ETT100_v1',
   'HLT_HIFullTrack14_L1ETT100_v1',
   'HLT_HIFullTrack20_L1ETT100_v1',
+  'HLT_HIFullTrack25_L1ETT100_v1',
   'HLT_HIL1Algo_BptxXOR_BSC_OR_v1',
   'HLT_HIL1DoubleMuOpen_v1',
   'HLT_HIL1SingleMu3_v1',
@@ -6257,6 +6282,7 @@ process.HLT_HICentralityVeto_v1 = cms.Path( process.HLTBeginSequence + process.h
 process.HLT_HIFullTrack12_L1ETT100_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sETT100 + process.hltPreHIL1ETT100FullTrack12 + process.HLTDoCaloSequence + process.hltHICaloTowerFilter4 + process.HLTDoHILocalPixelSequence + process.HLTPixelSeedingForHITrackTrigger + process.hltHISinglePixelTrackFilter10 + process.HLTDoHILocalStripSequenceNonRegional + process.HLTFullTrackingForHITrackTrigger + process.hltHISingleFullTrackFilter12 + process.HLTEndSequence )
 process.HLT_HIFullTrack14_L1ETT100_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sETT100 + process.hltPreHIL1ETT100FullTrack14 + process.HLTDoCaloSequence + process.hltHICaloTowerFilter4 + process.HLTDoHILocalPixelSequence + process.HLTPixelSeedingForHITrackTrigger + process.hltHISinglePixelTrackFilter10 + process.HLTDoHILocalStripSequenceNonRegional + process.HLTFullTrackingForHITrackTrigger + process.hltHISingleFullTrackFilter14 + process.HLTEndSequence )
 process.HLT_HIFullTrack20_L1ETT100_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sETT100 + process.hltPreHIL1ETT100FullTrack20 + process.HLTDoCaloSequence + process.hltHICaloTowerFilter4 + process.HLTDoHILocalPixelSequence + process.HLTPixelSeedingForHITrackTrigger + process.hltHISinglePixelTrackFilter10 + process.HLTDoHILocalStripSequenceNonRegional + process.HLTFullTrackingForHITrackTrigger + process.hltHISingleFullTrackFilter20 + process.HLTEndSequence )
+process.HLT_HIFullTrack25_L1ETT100_v1 = cms.Path( process.HLTBeginSequenceBPTX + process.hltL1sETT100 + process.hltPreHIL1ETT100FullTrack25 + process.HLTDoCaloSequence + process.hltHICaloTowerFilter4 + process.HLTDoHILocalPixelSequence + process.HLTPixelSeedingForHITrackTrigger + process.hltHISinglePixelTrackFilter10 + process.HLTDoHILocalStripSequenceNonRegional + process.HLTFullTrackingForHITrackTrigger + process.hltHISingleFullTrackFilter25 + process.HLTEndSequence )
 process.HLT_HIRandom_v1 = cms.Path( process.hltRandomEventsFilter + process.HLTL1UnpackerSequence + process.hltPreHIRandom + process.HLTEndSequence )
 process.HLT_HIUPCNeuMuPixel_SingleTrack_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sHIUPCNeuMu + process.hltPreHIUPCNeuMuPixelSingleTrack + process.HLTDoHILocalPixelSequence + process.HLTPixelTrackingForHITrackTrigger + process.hltHISinglePixelTrackFilter + process.HLTEndSequence )
 process.HLT_HIUPCNeuEG2Pixel_SingleTrack_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sHIUPCNeuEG2 + process.hltPreHIUPCNeuEG2PixelSingleTrack + process.HLTDoHILocalPixelSequence + process.HLTPixelTrackingForHITrackTrigger + process.hltHISinglePixelTrackFilter + process.HLTEndSequence )

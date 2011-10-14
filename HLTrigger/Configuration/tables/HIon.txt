@@ -52,8 +52,8 @@ HLT_HIFullTrack14_L1ETT100_v*           #  added for 2011 (sr #123853)
 # HLT_HIFullTrack14_AntiL1ETT140_L1Jet16Central_v* #  added for 2011 (sr #123853) need new L1 menu
 HLT_HIFullTrack20_L1ETT100_v*           #  added for 2011 (sr #123853)
 # HLT_HIFullTrack20_AntiL1ETT140_L1Jet16Central_v* #  added for 2011 (sr #123853) need new L1 menu
-HLT_HIFullTrack20_L1ETT100_v*           #  added for 2011 (sr #123853)
-# HLT_HIFullTrack20_AntiL1ETT140_L1Jet16Central_v* #  added for 2011 (sr #123853) need new L1 menu
+HLT_HIFullTrack25_L1ETT100_v*           #  added for 2011 (sr #123853)
+# HLT_HIFullTrack25_AntiL1ETT140_L1Jet16Central_v* #  added for 2011 (sr #123853) need new L1 menu
 HLT_HIRandom_v*
 # HLT_HIUCC010_v*      #   added for 2011 (sr #123637) need new L1 menu
 # HLT_HIUCC015_v*      #   added for 2011 (sr #123637) need new L1 menu
