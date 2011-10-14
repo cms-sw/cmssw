@@ -18,10 +18,16 @@
 */
 
 #include "TH1.h"
+#include "TH3.h"
 #include "TFile.h"
+#include "TRandom1.h"
+#include "TRandom2.h"
+#include "TRandom3.h"
+#include "TStopwatch.h"
 #include <string>
 #include <vector>
 #include <cmath>
+#include <algorithm>
 
 namespace reweight {
 
@@ -235,18 +241,21 @@ namespace reweight {
 	  generatedFile_ = new TFile( generatedFileName_.c_str() ) ; //MC distribution
 	  dataFile_      = new TFile( dataFileName_.c_str() );       //Data distribution
 
-	  weights_ = new TH1( *(static_cast<TH1*>(dataFile_->Get( DataHistName_.c_str() )->Clone() ))) ;
+	  Data_distr_ = new TH1(  *(static_cast<TH1*>(dataFile_->Get( DataHistName_.c_str() )->Clone() )) );
+	  MC_distr_ = new TH1(  *(static_cast<TH1*>(generatedFile_->Get( GenHistName_.c_str() )->Clone() )) );
+
+	  // normalize both histograms first                                                                            
+
+	  Data_distr_->Scale( 1.0/ Data_distr_->Integral() );
+	  MC_distr_->Scale( 1.0/ MC_distr_->Integral() );
+
+	  weights_ = new TH1( *(Data_distr_)) ;
 
 	  // MC * data/MC = data, so the weights are data/MC:
 
-	  // normalize both histograms first
-
-	  weights_->Scale( 1.0/ weights_->Integral() );
 	  weights_->SetName("lumiWeights");
 
-	  TH1* den = dynamic_cast<TH1*>(generatedFile_->Get( GenHistName_.c_str() ));
-
-	  den->Scale(1.0/ den->Integral());
+	  TH1* den = new TH1(*(MC_distr_));
 
 	  weights_->Divide( den );  // so now the average weight should be 1.0
 
@@ -281,23 +290,30 @@ namespace reweight {
 
 	Int_t NBins = MC_distr.size();
 
+	MC_distr_ = new TH1F("MC_distr","MC dist",NBins,-0.5, float(NBins)-0.5);
+	Data_distr_ = new TH1F("Data_distr","Data dist",NBins,-0.5, float(NBins)-0.5);
+
 	weights_ = new TH1F("luminumer","luminumer",NBins,-0.5, float(NBins)-0.5);
 	TH1* den = new TH1F("lumidenom","lumidenom",NBins,-0.5, float(NBins)-0.5);
 
 	for(int ibin = 1; ibin<NBins+1; ++ibin ) {
 	  weights_->SetBinContent(ibin, Lumi_distr[ibin-1]);
+	  Data_distr_->SetBinContent(ibin, Lumi_distr[ibin-1]);
 	  den->SetBinContent(ibin,MC_distr[ibin-1]);
+	  MC_distr_->SetBinContent(ibin,MC_distr[ibin-1]);
 	}
 
 	// check integrals, make sure things are normalized
 
 	float deltaH = weights_->Integral();
 	if(fabs(1.0 - deltaH) > 0.02 ) { //*OOPS*...
-	  weights_->Scale( 1.0/ weights_->Integral() );
+	  weights_->Scale( 1.0/ deltaH );
+	  Data_distr_->Scale( 1.0/ deltaH );
 	}
 	float deltaMC = den->Integral();
 	if(fabs(1.0 - deltaMC) > 0.02 ) {
-	  den->Scale(1.0/ den->Integral());
+	  den->Scale(1.0/ deltaMC );
+	  MC_distr_->Scale(1.0/ deltaMC );
 	}
 
 	weights_->Divide( den );  // so now the average weight should be 1.0    
@@ -313,6 +329,138 @@ namespace reweight {
 	FirstWarning_ = true;
 
       }
+
+      void weight3D_init() { 
+
+	//create histogram to write output weights, save pain of generating them again...
+
+	TH3D* WHist = new TH3D("WHist","3D weights",35,-.5,34.5,35,-.5,34.5,35,-.5,34.5 );
+
+
+	using std::min;
+
+	int Npoints = 100000000;
+
+	if( MC_distr_->GetEntries() == 0 ) {
+	  std::cout << " MC and Data distributions are not initialized! You must call the LumiReWeighting constructor. " << std::endl;
+	}
+
+	std::cout << " Generating 100M 3-D Weights.  This will take a while..." << std::endl;
+
+	// arrays for storing number of interactions
+
+	double MC_ints[35][35][35];
+	double Data_ints[35][35][35];
+
+	for (int i=0; i<35; i++) {
+	  for(int j=0; j<35; j++) {
+	    for(int k=0; k<35; k++) {
+	      MC_ints[i][j][k] = 0.;
+	      Data_ints[i][j][k] = 0.;
+	    }
+	  }
+	}
+
+	// initialize random numbers
+
+	TRandom *r1 = new TRandom1();
+
+	double x,y;
+	double xint, yint;
+	int xi;
+
+	// Get entries randomly for Data, MC, fill arrays:
+
+	for (int j=0;j<Npoints;j++) {       
+
+	  if(j%1000000==0) std::cout << " ." << std::endl;
+
+	  x =  MC_distr_->GetRandom();
+
+	  //for Summer 11, we have this int feature that generates the spike at zero int.
+	  xi = int(x);
+	  xint = r1->Poisson(xi);
+
+	  int x0 = min(int(xint),34);
+	  xint = r1->Poisson(xi);
+	  int x1 = min(int(xint),34);
+	  xint = r1->Poisson(xi);
+	  int x2 = min(int(xint),34);
+     
+	  // cout << x0 << "  " << x1 << " " << x2 << endl;
+
+	  MC_ints[x0][x1][x2] =  MC_ints[x0][x1][x2]+1.0;
+
+	  y =  Data_distr_->GetRandom();
+
+	  yint = r1->Poisson(y);
+
+	  int y0 = min(int(yint),34);
+	  yint = r1->Poisson(y);
+	  int y1 = min(int(yint),34);
+	  yint = r1->Poisson(y);
+	  int y2 = min(int(yint),34);
+
+	  Data_ints[y0][y1][y2] = Data_ints[y0][y1][y2]+1.0;
+	}
+
+	for (int i=0; i<35; i++) {  
+	  for(int j=0; j<35; j++) {
+	    for(int k=0; k<35; k++) {
+	      if( (MC_ints[i][j][k])>0.) {
+		Weight3D_[i][j][k]  =  Data_ints[i][j][k]/MC_ints[i][j][k];
+	      }
+	      else {
+		Weight3D_[i][j][k]  = 0.;
+	      }
+	      WHist->SetBinContent( i,j,k,Weight3D_[i][j][k] );
+	    }
+	  }
+	}
+
+	std::cout << " 3D Weight Matrix initialized! " << std::endl;
+	std::cout << " Writing weights to file Weight3D.root for re-use...  " << std::endl;
+
+	TFile * outfile = new TFile("Weight3D.root","RECREATE");
+	WHist->Write();
+	outfile->Write();
+	outfile->Close();
+	outfile->Delete();              
+
+
+	return;
+
+
+      }
+
+      void weight3D_init( std::string WeightFileName ) { 
+
+	TFile *infile = new TFile(WeightFileName.c_str());
+	TH1F *WHist = (TH1F*)infile->Get("WHist");
+
+	// Check if the histogram exists           
+	if (!WHist) {
+	  std::cout << " Could not find the histogram WHist in the file "
+						    << "in the file " << WeightFileName << "." << std::endl;
+	  return;
+	}
+
+	for (int i=0; i<35; i++) {  
+	  for(int j=0; j<35; j++) {
+	    for(int k=0; k<35; k++) {
+	      Weight3D_[i][j][k] = WHist->GetBinContent(i,j,k);
+	    }
+	  }
+	}
+
+	std::cout << " 3D Weight Matrix initialized! " << std::endl;
+
+	return;
+
+
+      }
+
+
 
       void weightOOT_init() {
 
@@ -1083,89 +1231,109 @@ namespace reweight {
 	return weights_->GetBinContent( bin );
       }
 
-  double weightOOT( int npv_in_time, int npv_m50nsBX ){
+      double weight3D( int pv1, int pv2, int pv3 ) {
 
-    static double Correct_Weights2011[25] = { // residual correction to match lumi spectrum
-      5.30031,
-      2.07903,
-      1.40729,
-      1.27687,
-      1.0702,
-      0.902094,
-      0.902345,
-      0.931449,
-      0.78202,
-      0.824686,
-      0.837735,
-      0.910261,
-      1.01394,
-      1.1599,
-      1.12778,
-      1.58423,
-      1.78868,
-      1.58296,
-      2.3291,
-      3.86641,
-      0,
-      0,
-      0,
-      0,
-      0
-    };                        
+	using std::min;
+
+	int npm1 = min(pv1,34);
+	int np0 = min(pv2,34);
+	int npp1 = min(pv3,34);
+
+	return Weight3D_[npm1][np0][npp1];
+
+      }
 
 
-    if(FirstWarning_) {
 
-      std::cout << " **** Warning: Out-of-time pileup reweighting appropriate only for PU_S3 **** " << std::endl;
-      std::cout << " ****                          will be applied                           **** " << std::endl;
+      double weightOOT( int npv_in_time, int npv_m50nsBX ){
 
-      FirstWarning_ = false;
-
-    }
-
-
-    // Note: for the "uncorrelated" out-of-time pileup, reweighting is only done on the 50ns
-    // "late" bunch (BX=+1), since that is basically the only one that matters in terms of 
-    // energy deposition.  
-
-    if(npv_in_time < 0) {
-      std::cerr << " no in-time beam crossing found\n! " ;
-      std::cerr << " Returning event weight=0\n! ";
-      return 0.;
-    }
-    if(npv_m50nsBX < 0) {
-      std::cerr << " no out-of-time beam crossing found\n! " ;
-      std::cerr << " Returning event weight=0\n! ";
-      return 0.;
-    }
-
-    int bin = weights_->GetXaxis()->FindBin( npv_in_time );
-
-    double inTimeWeight = weights_->GetBinContent( bin );
-
-    double TotalWeight = 1.0;
-
-
-    TotalWeight = inTimeWeight * WeightOOTPU_[bin-1][npv_m50nsBX] * Correct_Weights2011[bin-1];
+	static double Correct_Weights2011[25] = { // residual correction to match lumi spectrum
+	  5.30031,
+	  2.07903,
+	  1.40729,
+	  1.27687,
+	  1.0702,
+	  0.902094,
+	  0.902345,
+	  0.931449,
+	  0.78202,
+	  0.824686,
+	  0.837735,
+	  0.910261,
+	  1.01394,
+	  1.1599,
+	  1.12778,
+	  1.58423,
+	  1.78868,
+	  1.58296,
+	  2.3291,
+	  3.86641,
+	  0,
+	  0,
+	  0,
+	  0,
+	  0
+	};                        
 
 
-    return TotalWeight;
+	if(FirstWarning_) {
+
+	  std::cout << " **** Warning: Out-of-time pileup reweighting appropriate only for PU_S3 **** " << std::endl;
+	  std::cout << " ****                          will be applied                           **** " << std::endl;
+
+	  FirstWarning_ = false;
+
+	}
+
+
+	// Note: for the "uncorrelated" out-of-time pileup, reweighting is only done on the 50ns
+	// "late" bunch (BX=+1), since that is basically the only one that matters in terms of 
+	// energy deposition.  
+
+	if(npv_in_time < 0) {
+	  std::cerr << " no in-time beam crossing found\n! " ;
+	  std::cerr << " Returning event weight=0\n! ";
+	  return 0.;
+	}
+	if(npv_m50nsBX < 0) {
+	  std::cerr << " no out-of-time beam crossing found\n! " ;
+	  std::cerr << " Returning event weight=0\n! ";
+	  return 0.;
+	}
+
+	int bin = weights_->GetXaxis()->FindBin( npv_in_time );
+
+	double inTimeWeight = weights_->GetBinContent( bin );
+
+	double TotalWeight = 1.0;
+
+
+	TotalWeight = inTimeWeight * WeightOOTPU_[bin-1][npv_m50nsBX] * Correct_Weights2011[bin-1];
+
+
+	return TotalWeight;
  
-  }
+      }
 
   protected:
 
-    std::string generatedFileName_;
-    std::string dataFileName_;
-    std::string GenHistName_;
-    std::string DataHistName_;
-    TFile *generatedFile_;
-    TFile *dataFile_;
-    TH1  *weights_;
+      std::string generatedFileName_;
+      std::string dataFileName_;
+      std::string GenHistName_;
+      std::string DataHistName_;
+      TFile *generatedFile_;
+      TFile *dataFile_;
+      TH1  *weights_;
 
-    double WeightOOTPU_[25][25];
+      //keep copies of normalized distributions:                                                                                  
+      TH1*      MC_distr_;
+      TH1*      Data_distr_;
 
-    bool FirstWarning_;
+      double WeightOOTPU_[25][25];
+      double Weight3D_[35][35][35];
+
+
+      bool FirstWarning_;
 
 
   };

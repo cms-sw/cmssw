@@ -276,7 +276,6 @@ namespace edm {
     bool Reweight_4_2_2p2_;
     bool FirstWarning_;
 
-    bool Init3DWeights_;
 
   };
 }
