@@ -10,9 +10,9 @@
  *          Florent Lacroix, University of Illinois at Chicago
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.00 $
+ * \version $Revision: 1.1 $
  *
- * $Id: PFCandMETcorrInputProducer.h,v 1.18 2011/05/30 15:19:41 veelken Exp $
+ * $Id: PFCandMETcorrInputProducer.h,v 1.1 2011/09/13 14:35:34 veelken Exp $
  *
  */
 
@@ -21,6 +21,11 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+
+#include "DataFormats/METReco/interface/CorrMETData.h"
+
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 #include <string>
 
@@ -37,7 +42,27 @@ class PFCandMETcorrInputProducer : public edm::EDProducer
 
   std::string moduleLabel_;
 
-  edm::InputTag src_; // PFJet input collection
+  edm::InputTag src_; // PFCandidate input collection
+
+  struct binningEntryType
+  {
+    binningEntryType()
+      : binLabel_(""),
+        binSelection_(0)
+    {}
+    binningEntryType(const edm::ParameterSet& cfg)
+    : binLabel_(cfg.getParameter<std::string>("binLabel")),
+      binSelection_(new StringCutObjectSelector<reco::Candidate::LorentzVector>(cfg.getParameter<std::string>("binSelection")))
+    {}
+    ~binningEntryType() 
+    {
+      delete binSelection_;
+    }
+    std::string binLabel_;
+    StringCutObjectSelector<reco::Candidate::LorentzVector>* binSelection_;
+    CorrMETData binUnclEnergySum_;
+  };
+  std::vector<binningEntryType*> binning_;
 };
 
 #endif

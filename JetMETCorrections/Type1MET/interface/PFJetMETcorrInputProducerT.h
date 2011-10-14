@@ -12,9 +12,9 @@
  *          Florent Lacroix, University of Illinois at Chicago
  *          Christian Veelken, LLR
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: PFJetMETcorrInputProducerT.h,v 1.2 2011/09/30 08:10:55 veelken Exp $
+ * $Id: PFJetMETcorrInputProducerT.h,v 1.3 2011/09/30 10:56:07 veelken Exp $
  *
  */
 
@@ -92,14 +92,33 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
       std::string skipMuonSelection_string = cfg.getParameter<std::string>("skipMuonSelection");
       skipMuonSelection_ = new StringCutObjectSelector<reco::Muon>(skipMuonSelection_string);
     }
-    
+
+    if ( cfg.exists("type2Binning") ) {
+      typedef std::vector<edm::ParameterSet> vParameterSet;
+      vParameterSet cfgType2Binning = cfg.getParameter<vParameterSet>("type2Binning");
+      for ( vParameterSet::const_iterator cfgType2BinningEntry = cfgType2Binning.begin();
+	    cfgType2BinningEntry != cfgType2Binning.end(); ++cfgType2BinningEntry ) {
+	type2Binning_.push_back(new type2BinningEntryType(*cfgType2BinningEntry));
+      }
+    } else {
+      type2Binning_.push_back(new type2BinningEntryType());
+    }
+
     produces<CorrMETData>("type1");
-    produces<CorrMETData>("type2");
-    produces<CorrMETData>("offset");
+    for ( typename std::vector<type2BinningEntryType*>::const_iterator type2BinningEntry = type2Binning_.begin();
+	  type2BinningEntry != type2Binning_.end(); ++type2BinningEntry ) {   
+      produces<CorrMETData>((*type2BinningEntry)->getInstanceLabel_full("type2"));
+      produces<CorrMETData>((*type2BinningEntry)->getInstanceLabel_full("offset"));
+    }
   }
   ~PFJetMETcorrInputProducerT()
   {
     delete skipMuonSelection_;
+
+    for ( typename std::vector<type2BinningEntryType*>::const_iterator it = type2Binning_.begin();
+	  it != type2Binning_.end(); ++it ) {
+      delete (*it);
+    }
   }
     
  private:
@@ -107,8 +126,11 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
   void produce(edm::Event& evt, const edm::EventSetup& es)
   {
     std::auto_ptr<CorrMETData> type1Correction(new CorrMETData());
-    std::auto_ptr<CorrMETData> unclEnergySum(new CorrMETData());
-    std::auto_ptr<CorrMETData> offsetEnergySum(new CorrMETData());
+    for ( typename std::vector<type2BinningEntryType*>::iterator type2BinningEntry = type2Binning_.begin();
+	  type2BinningEntry != type2Binning_.end(); ++type2BinningEntry ) {
+      (*type2BinningEntry)->binUnclEnergySum_   = CorrMETData();
+      (*type2BinningEntry)->binOffsetEnergySum_ = CorrMETData();
+    }
 
     typedef std::vector<T> JetCollection;
     edm::Handle<JetCollection> jets;
@@ -147,9 +169,14 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
 	  rawJetP4offsetCorr = jetCorrExtractor_(rawJet, offsetCorrLabel_, 
 						 &evt, &es, &rawJetRef, jetCorrEtaMax_, &rawJetP4);
 	  
-	  offsetEnergySum->mex   += (rawJetP4.px() - rawJetP4offsetCorr.px());
-	  offsetEnergySum->mey   += (rawJetP4.py() - rawJetP4offsetCorr.py());
-	  offsetEnergySum->sumet += (rawJetP4.Et() - rawJetP4offsetCorr.Et());
+	  for ( typename std::vector<type2BinningEntryType*>::iterator type2BinningEntry = type2Binning_.begin();
+		type2BinningEntry != type2Binning_.end(); ++type2BinningEntry ) {
+	    if ( !(*type2BinningEntry)->binSelection_ || (*(*type2BinningEntry)->binSelection_)(corrJetP4) ) {
+	      (*type2BinningEntry)->binOffsetEnergySum_.mex   += (rawJetP4.px() - rawJetP4offsetCorr.px());
+	      (*type2BinningEntry)->binOffsetEnergySum_.mey   += (rawJetP4.py() - rawJetP4offsetCorr.py());
+	      (*type2BinningEntry)->binOffsetEnergySum_.sumet += (rawJetP4.Et() - rawJetP4offsetCorr.Et());
+	    }
+	  }
 	}
 
 //--- MET balances momentum of reconstructed particles,
@@ -158,9 +185,14 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
 	type1Correction->mey   -= (corrJetP4.py() - rawJetP4offsetCorr.py());
 	type1Correction->sumet += (corrJetP4.Et() - rawJetP4offsetCorr.Et());
       } else {
-	unclEnergySum->mex     += rawJetP4.px();
-	unclEnergySum->mey     += rawJetP4.py();
-	unclEnergySum->sumet   += rawJetP4.Et();
+	for ( typename std::vector<type2BinningEntryType*>::iterator type2BinningEntry = type2Binning_.begin();
+	      type2BinningEntry != type2Binning_.end(); ++type2BinningEntry ) {
+	  if ( !(*type2BinningEntry)->binSelection_ || (*(*type2BinningEntry)->binSelection_)(corrJetP4) ) {
+	    (*type2BinningEntry)->binUnclEnergySum_.mex   += rawJetP4.px();
+	    (*type2BinningEntry)->binUnclEnergySum_.mey   += rawJetP4.py();
+	    (*type2BinningEntry)->binUnclEnergySum_.sumet += rawJetP4.Et();
+	  }
+	}
       }
     }
 
@@ -170,8 +202,11 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
 //     o momentum sum of "offset energy"      (sum of energy attributed to pile-up/underlying event)
 //    to the event
     evt.put(type1Correction, "type1");
-    evt.put(unclEnergySum,   "type2");
-    evt.put(offsetEnergySum, "offset");
+    for ( typename std::vector<type2BinningEntryType*>::const_iterator type2BinningEntry = type2Binning_.begin();
+	  type2BinningEntry != type2Binning_.end(); ++type2BinningEntry ) {
+      evt.put(std::auto_ptr<CorrMETData>(new CorrMETData((*type2BinningEntry)->binUnclEnergySum_)), (*type2BinningEntry)->getInstanceLabel_full("type2"));
+      evt.put(std::auto_ptr<CorrMETData>(new CorrMETData((*type2BinningEntry)->binOffsetEnergySum_)), (*type2BinningEntry)->getInstanceLabel_full("offset"));
+    }
   }
 
   std::string moduleLabel_;
@@ -199,6 +234,34 @@ class PFJetMETcorrInputProducerT : public edm::EDProducer
   bool skipMuons_; // flag to subtract momentum of muons (provided muons pass selection cuts) which are within jets
                    // from jet energy before compute JECs/propagating JECs to Type 1 + 2 MET corrections
   StringCutObjectSelector<reco::Muon>* skipMuonSelection_;
+
+  struct type2BinningEntryType
+  {
+    type2BinningEntryType()
+      : binLabel_(""),
+        binSelection_(0)
+    {}
+    type2BinningEntryType(const edm::ParameterSet& cfg)
+      : binLabel_(cfg.getParameter<std::string>("binLabel")),
+        binSelection_(new StringCutObjectSelector<reco::Candidate::LorentzVector>(cfg.getParameter<std::string>("binSelection")))
+    {}
+    ~type2BinningEntryType() 
+    {
+      delete binSelection_;
+    }
+    std::string getInstanceLabel_full(const std::string& instanceLabel)
+    {
+      std::string retVal = instanceLabel;
+      if ( instanceLabel != "" && binLabel_ != "" ) retVal.append("#");
+      retVal.append(binLabel_);
+      return retVal;
+    }
+    std::string binLabel_;
+    StringCutObjectSelector<reco::Candidate::LorentzVector>* binSelection_;
+    CorrMETData binUnclEnergySum_;
+    CorrMETData binOffsetEnergySum_;
+  };
+  std::vector<type2BinningEntryType*> type2Binning_;
 };
 
 #endif

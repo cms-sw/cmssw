@@ -6,10 +6,7 @@
 
 #include <string>
 
-typedef std::vector<std::string> vstring;
-
 METCorrectionAlgorithm::METCorrectionAlgorithm(const edm::ParameterSet& cfg)
-  : type2CorrFormula_(0)
 {
   applyType1Corrections_ = cfg.getParameter<bool>("applyType1Corrections");
   if ( applyType1Corrections_ ) {
@@ -18,42 +15,29 @@ METCorrectionAlgorithm::METCorrectionAlgorithm(const edm::ParameterSet& cfg)
   
   applyType2Corrections_ = cfg.getParameter<bool>("applyType2Corrections");
   if ( applyType2Corrections_ ) {
-    srcUnclEnergySums_ = cfg.getParameter<vInputTag>("srcUnclEnergySums");
+    vInputTag srcUnclEnergySums = cfg.getParameter<vInputTag>("srcUnclEnergySums");
     
-    TString formula_string = cfg.getParameter<std::string>("type2CorrFormula").data();
-    
-    edm::ParameterSet cfgParameter = cfg.getParameter<edm::ParameterSet>("type2CorrParameter");
-    vstring parNames = cfgParameter.getParameterNamesForType<double>();
-    int numParameter = parNames.size();
-    type2CorrParameter_.resize(numParameter);    
-    for ( int parIndex = 0; parIndex < numParameter; ++parIndex ) {
-      const std::string& parName = parNames[parIndex].data();
-
-      double parValue = cfgParameter.getParameter<double>(parName);
-      type2CorrParameter_[parIndex] = parValue;
-
-      TString parName_internal = Form("[%i]", parIndex);
-      formula_string = formula_string.ReplaceAll(parName.data(), parName_internal);
-    }
-
-    type2CorrFormula_ = new TFormula("type2CorrFormula", formula_string);
-
-//--- check that syntax of formula string is valid 
-//   (i.e. that TFormula "compiled" without errors)
-    if ( !(type2CorrFormula_->GetNdim() <= 1 && type2CorrFormula_->GetNpar() == numParameter) ) 
-      throw cms::Exception("METCorrectionAlgorithm") 
-	<< "Formula for Type 2 correction has invalid syntax = " << formula_string << " !!\n";
-
-    for ( int parIndex = 0; parIndex < numParameter; ++parIndex ) {
-      type2CorrFormula_->SetParameter(parIndex, type2CorrParameter_[parIndex]);
-      type2CorrFormula_->SetParName(parIndex, parNames[parIndex].data());
+    if ( cfg.exists("type2Binning") ) {
+      typedef std::vector<edm::ParameterSet> vParameterSet;
+      vParameterSet cfgType2Binning = cfg.getParameter<vParameterSet>("type2Binning");
+      for ( vParameterSet::const_iterator cfgType2BinningEntry = cfgType2Binning.begin();
+	    cfgType2BinningEntry != cfgType2Binning.end(); ++cfgType2BinningEntry ) {
+	type2Binning_.push_back(new type2BinningEntryType(*cfgType2BinningEntry, srcUnclEnergySums));
+      }
+    } else {
+      std::string type2CorrFormula = cfg.getParameter<std::string>("type2CorrFormula").data();
+      edm::ParameterSet type2CorrParameter = cfg.getParameter<edm::ParameterSet>("type2CorrParameter");
+      type2Binning_.push_back(new type2BinningEntryType(type2CorrFormula, type2CorrParameter, srcUnclEnergySums));
     }
   }
 }
 
 METCorrectionAlgorithm::~METCorrectionAlgorithm()
 {
-  delete type2CorrFormula_;
+  for ( std::vector<type2BinningEntryType*>::const_iterator it = type2Binning_.begin();
+	it != type2Binning_.end(); ++it ) {
+    delete (*it);
+  }
 }
 
 CorrMETData METCorrectionAlgorithm::compMETCorrection(edm::Event& evt, const edm::EventSetup& es)
@@ -78,26 +62,33 @@ CorrMETData METCorrectionAlgorithm::compMETCorrection(edm::Event& evt, const edm
 
   if ( applyType2Corrections_ ) {
 //--- compute momentum sum of all "unclustered energy" in the event
-    CorrMETData unclEnergySum;
-    for ( vInputTag::const_iterator srcUnclEnergySum = srcUnclEnergySums_.begin();
-	  srcUnclEnergySum != srcUnclEnergySums_.end(); ++srcUnclEnergySum ) {
-      edm::Handle<CorrMETData> unclEnergySummand;
-      evt.getByLabel(*srcUnclEnergySum, unclEnergySummand);
-
-      unclEnergySum.mex   += unclEnergySummand->mex;
-      unclEnergySum.mey   += unclEnergySummand->mey;
-      unclEnergySum.sumet += unclEnergySummand->sumet;
-    }
+//
+//    NOTE: calibration factors/formulas for Type 2 MET correction may depend on eta
+//         (like the jet energy correction factors do)
+//
+    for ( std::vector<type2BinningEntryType*>::const_iterator type2BinningEntry = type2Binning_.begin();
+	  type2BinningEntry != type2Binning_.end(); ++type2BinningEntry ) {
+      CorrMETData unclEnergySum;
+      for ( vInputTag::const_iterator srcUnclEnergySum = (*type2BinningEntry)->srcUnclEnergySums_.begin();
+	    srcUnclEnergySum != (*type2BinningEntry)->srcUnclEnergySums_.end(); ++srcUnclEnergySum ) {
+	edm::Handle<CorrMETData> unclEnergySummand;
+	evt.getByLabel(*srcUnclEnergySum, unclEnergySummand);
+	
+	unclEnergySum.mex   += unclEnergySummand->mex;
+	unclEnergySum.mey   += unclEnergySummand->mey;
+	unclEnergySum.sumet += unclEnergySummand->sumet;
+      }
 
 //--- calibrate "unclustered energy"
-    double unclEnergySumPt = sqrt(unclEnergySum.mex*unclEnergySum.mex + unclEnergySum.mey*unclEnergySum.mey);
-    double unclEnergyScaleFactor = type2CorrFormula_->Eval(unclEnergySumPt);
+      double unclEnergySumPt = sqrt(unclEnergySum.mex*unclEnergySum.mex + unclEnergySum.mey*unclEnergySum.mey);
+      double unclEnergyScaleFactor = (*type2BinningEntry)->binCorrFormula_->Eval(unclEnergySumPt);
 
 //--- MET balances momentum of reconstructed particles,
 //    hence correction to "unclustered energy" and corresponding Type 2 MET correction are of opposite sign
-    metCorr.mex   -= (unclEnergyScaleFactor - 1.)*unclEnergySum.mex;
-    metCorr.mey   -= (unclEnergyScaleFactor - 1.)*unclEnergySum.mey;
-    metCorr.sumet += (unclEnergyScaleFactor - 1.)*unclEnergySum.sumet;
+      metCorr.mex   -= (unclEnergyScaleFactor - 1.)*unclEnergySum.mex;
+      metCorr.mey   -= (unclEnergyScaleFactor - 1.)*unclEnergySum.mey;
+      metCorr.sumet += (unclEnergyScaleFactor - 1.)*unclEnergySum.sumet;
+    }
   }
 
   return metCorr;
