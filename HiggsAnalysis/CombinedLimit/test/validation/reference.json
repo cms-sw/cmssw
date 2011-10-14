@@ -1251,12 +1251,12 @@
     "Summer11_HTT_125_Asymptotic": {
         "comment": "", 
         "results": {
-            "comb_htt.txt E025": { "comment": "", "limit": 5.4231824366915866, "limitErr": 0, "status": "done", "t_real": 0 }, 
-            "comb_htt.txt E159": { "comment": "", "limit": 7.2136774804627786, "limitErr": 0, "status": "done", "t_real": 0 }, 
-            "comb_htt.txt E500": { "comment": "", "limit": 9.9957379889729872, "limitErr": 0, "status": "done", "t_real": 0 }, 
-            "comb_htt.txt E839": { "comment": "", "limit": 13.884091597868574, "limitErr": 0, "status": "done", "t_real": 0 }, 
-            "comb_htt.txt E975": { "comment": "", "limit": 18.446863443294379, "limitErr": 0, "status": "done", "t_real": 0 }, 
-            "comb_htt.txt Obs": { "comment": "", "limit": 10.565061441736027, "limitErr": 0.027293956719500301, "status": "done", "t_real": 0.10544841736555099 }
+            "comb_htt.txt E025": { "comment": "", "limit": 3.8062502817737736, "limitErr": 0, "status": "done", "t_real": 0 }, 
+            "comb_htt.txt E159": { "comment": "", "limit": 5.0629058238702296, "limitErr": 0, "status": "done", "t_real": 0 }, 
+            "comb_htt.txt E500": { "comment": "", "limit": 7.015489702071573, "limitErr": 0, "status": "done", "t_real": 0 }, 
+            "comb_htt.txt E839": { "comment": "", "limit": 9.7445232893177476, "limitErr": 0, "status": "done", "t_real": 0 }, 
+            "comb_htt.txt E975": { "comment": "", "limit": 12.946896033561289, "limitErr": 0, "status": "done", "t_real": 0 }, 
+            "comb_htt.txt Obs": { "comment": "",  "limit": 9.2957897034783059, "limitErr": 0.027293956719500301, "status": "done", "t_real": 0.10544841736555099 }
         }, 
         "status": "done"
     }, 
@@ -1275,12 +1275,12 @@
     "Summer11_HWWC_170_EXT_Asymptotic": {
         "comment": "", 
         "results": {
-            "comb_hww_ext.txt E025": { "comment": "", "limit": 0.14196448237117162, "limitErr": 0, "status": "done", "t_real": 0 }, 
-            "comb_hww_ext.txt E159": { "comment": "", "limit": 0.18883487720749065, "limitErr": 0, "status": "done", "t_real": 0 }, 
-            "comb_hww_ext.txt E500": { "comment": "", "limit": 0.26166181685528755, "limitErr": 0, "status": "done", "t_real": 0 }, 
-            "comb_hww_ext.txt E839": { "comment": "", "limit": 0.36344856546772991, "limitErr": 0, "status": "done", "t_real": 0 }, 
-            "comb_hww_ext.txt E975": { "comment": "", "limit": 0.48288978854574066, "limitErr": 0, "status": "done", "t_real": 0 }, 
-            "comb_hww_ext.txt Obs": { "comment": "", "limit": 0.39200605301408598, "limitErr": 0.0016832933888549506, "status": "done", "t_real": 0.10487868636846542 }
+            "comb_hww_ext.txt E025": { "comment": "", "limit": 0.16459540133749154, "limitErr": 0, "status": "done", "t_real": 0 }, 
+            "comb_hww_ext.txt E159": { "comment": "", "limit": 0.21893752494528501, "limitErr": 0, "status": "done", "t_real": 0 }, 
+            "comb_hww_ext.txt E500": { "comment": "", "limit": 0.30337399214677829, "limitErr": 0, "status": "done", "t_real": 0 }, 
+            "comb_hww_ext.txt E839": { "comment": "", "limit": 0.42138682506720054, "limitErr": 0, "status": "done", "t_real": 0 }, 
+            "comb_hww_ext.txt E975": { "comment": "", "limit": 0.55986847710017584, "limitErr": 0, "status": "done", "t_real": 0 }, 
+            "comb_hww_ext.txt Obs": { "comment": "", "limit": 0.40212783779517963, "limitErr": 0.0016834126656907755, "status": "done", "t_real": 0.15245796740055084 }
         }, 
         "status": "done"
     }, 
@@ -1323,12 +1323,12 @@
     "Summer11_HZZ4L_145_Asymptotic": {
         "comment": "", 
         "results": {
-            "comb_hzz4l.txt E025": { "comment": "", "limit": 0.33235042485400257, "limitErr": 0, "status": "done", "t_real": 0 }, 
-            "comb_hzz4l.txt E159": { "comment": "", "limit": 0.44207783960410729, "limitErr": 0, "status": "done", "t_real": 0 }, 
-            "comb_hzz4l.txt E500": { "comment": "", "limit": 0.61257164149379151, "limitErr": 0, "status": "done", "t_real": 0 }, 
-            "comb_hzz4l.txt E839": { "comment": "", "limit": 0.85086271670375768, "limitErr": 0, "status": "done", "t_real": 0 }, 
-            "comb_hzz4l.txt E975": { "comment": "", "limit": 1.1304843556660367, "limitErr": 0, "status": "done", "t_real": 0 }, 
-            "comb_hzz4l.txt Obs": { "comment": "", "limit": 2.0116517731150685, "limitErr": 0.0068701755595230729, "status": "done", "t_real": 0.10684145241975784 }
+            "comb_hzz4l.txt E025": { "comment": "", "limit": 0.61139018888352037, "limitErr": 0, "status": "done", "t_real": 0 }, 
+            "comb_hzz4l.txt E159": { "comment": "", "limit": 0.81324419541664605, "limitErr": 0, "status": "done", "t_real": 0 }, 
+            "comb_hzz4l.txt E500": { "comment": "", "limit": 1.1268837455589216, "limitErr": 0, "status": "done", "t_real": 0 }, 
+            "comb_hzz4l.txt E839": { "comment": "", "limit": 1.5652428225659019, "limitErr": 0, "status": "done", "t_real": 0 }, 
+            "comb_hzz4l.txt E975": { "comment": "", "limit": 2.0796333991272742, "limitErr": 0, "status": "done", "t_real": 0 }, 
+            "comb_hzz4l.txt Obs": { "comment": "", "limit":  2.0772306329700854, "limitErr": 0.0068701755595230729, "status": "done", "t_real": 0.10684145241975784 }
         }, 
         "status": "done"
     },
