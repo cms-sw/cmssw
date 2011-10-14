@@ -28,7 +28,7 @@ hcalSimBlock = cms.PSet(
     #   HPDName = cms.untracked.string("HPD")
     #),
     doTimeSlew = cms.bool(True),
-    doHFWindow = cms.bool(True),
+    doHFWindow = cms.bool(False),
     hitsProducer = cms.string('g4SimHits'),
     injectTestHits = cms.bool(False)
 )
