@@ -56,6 +56,7 @@ HcalNumberingFromDDD::HcalID HcalNumberingFromDDD::unitID(int det,
     etaR    = heta;
     if (det == 3) {
       hsubdet = static_cast<int>(HcalBarrel);
+      if (zho.size() > 4) etaR = getEtaHO(heta,hx,hy,hz);
     } else {
       hsubdet = static_cast<int>(HcalEndcap);
     }
@@ -818,7 +819,6 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
 
   bool dodet=true, hf=false;
   std::vector<double> rb(20,0.0), ze(20,0.0), thkb(20,-1.0), thke(20,-1.0);
-  std::vector<double> zho;
   std::vector<int>    ib(20,0),   ie(20,0);
   std::vector<int>    izb, phib, ize, phie, izf, phif;
   std::vector<double> rxb;
@@ -928,7 +928,9 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
 	    zho.push_back(z1);
 	    zho.push_back(z2);
 	  }
+#ifdef DebugLog
 	  LogDebug("HCalGeom") << "Detector " << idet << " Lay " << lay << " fi " << ifi << " " << ich << " z " << z1 << " " << z2;
+#endif
 	}
       }
     } else if (idet == 4) {
@@ -1088,22 +1090,32 @@ void HcalNumberingFromDDD::loadGeometry(DDFilteredView fv) {
     LogDebug("HCalGeom") << "Module " << i << " Copy number " << phie[i];
 #endif
 
+#ifdef DebugLog
   LogDebug("HCalGeom") << "HO has Z of size " << zho.size();
   for (unsigned int kk=0; kk<zho.size(); kk++)
     LogDebug("HCalGeom") << "ZHO[" << kk << "] = " << zho[kk];
-  if (ibmx > 17 && zho.size() > 2) {
+#endif
+  if (ibmx > 17 && zho.size() > 4) {
+    rminHO   = rHB[17]-100.0;
     etaHO[0] = getEta(0.5*(rHB[17]+rHB[18]), zho[1]);
     etaHO[1] = getEta(rHB[18]+drHB[18], zho[2]);
     etaHO[2] = getEta(rHB[18]-drHB[18], zho[3]);
     etaHO[3] = getEta(rHB[18]+drHB[18], zho[4]);
   } else {
+    rminHO   =-1.0;
     etaHO[0] = etaTable[4];
     etaHO[1] = etaTable[4];
     etaHO[2] = etaTable[10];
     etaHO[3] = etaTable[10];
   }
+#ifdef DebugLog
   LogDebug("HCalGeom") << "HO Eta boundaries " << etaHO[0] << " " << etaHO[1]
 		       << " " << etaHO[2] << " " << etaHO[3];
+  std::cout << "HO Parameters " << rminHO << " " << zho.size();
+  for (int i=0; i<4; ++i) std::cout << " eta[" << i << "] = " << etaHO[i];
+  for (unsigned int i=0; i<zho.size(); ++i) std::cout << " zho[" << i << "] = " << zho[i];
+  std::cout << std::endl;
+#endif
 }
 
 std::vector<double> HcalNumberingFromDDD::getDDDArray(const std::string & str, 
@@ -1294,4 +1306,23 @@ void HcalNumberingFromDDD::tileHE(int eta, int depth) {
       }
     }
   }
+}
+
+double HcalNumberingFromDDD::getEtaHO(double& etaR, double& x, double& y, 
+				      double& z) const {
+
+  double eta  = fabs(etaR);
+  double r    = std::sqrt(x*x+y*y);
+  if (r > rminHO) {
+    double zz = fabs(z);
+    if (zz > zho[3]) {
+      if (eta <= etaTable[10]) eta = etaTable[10]+0.001;
+    } else if (zz > zho[1]) {
+      if (eta <=  etaTable[4]) eta = etaTable[4]+0.001;
+    }
+  }
+  eta = (z >= 0. ? eta : -eta);
+  //  std::cout << "R " << r << " Z " << z << " eta " << etaR << ":" << eta <<"\n";
+  //  if (eta != etaR) std::cout << "**** Check *****\n";
+  return eta;
 }
