@@ -117,6 +117,9 @@ struct stGraph{
    TCutG*  StopThErr;
 };
 
+double PlotMinScale = 0.0005;
+double PlotMaxScale = 6;
+
 TGraph* MakePlot(FILE* pFile, FILE* talkFile, string InputPattern, string syst, string ModelName, int XSectionType=2, string Mass0="", string Mass1="", string Mass2="", string Mass3="", string Mass4="", string Mass5="", string Mass6="", string Mass7="", string Mass8="", string Mass9="",string Mass10="", string Mass11="", string Mass12="", string Mass13="");
 
 
@@ -126,23 +129,12 @@ int      JobIdToIndex(string JobId);
 void GetSignalMeanHSCPPerEvent(string InputPattern, unsigned int CutIndex, double MinRange, double MaxRange);
 double FindIntersection(TGraph* obs, TGraph* th, double Min, double Max, double Step, double ThUncertainty=0, bool debug=false);
 int ReadXSection(string InputFile, double* Mass, double* XSec, double* Low, double* High,  double* ErrLow, double* ErrHigh);
-TCutG* GetErrorBand(string name, int N, double* Mass, double* Low, double* High);
+TCutG* GetErrorBand(string name, int N, double* Mass, double* Low, double* High, double MinLow=PlotMinScale, double MaxHigh=PlotMaxScale);
 void CheckSignalUncertainty(FILE* pFile, FILE* talkFile, string InputPattern);
 void DrawModelLimitWithBand(string InputPattern, string inputmodel);
 std::vector<string> GetModels(string inputmodel);
 string GetModelName(string inputmodel);
 void DrawRatioBands(string InputPattern, string inputmodel);
-
-//double PlotMinScale = 0.1;
-//double PlotMaxScale = 50000;
-
-//double PlotMinScale = 2;
-//double PlotMaxScale = 800;
-
-double PlotMinScale = 0.001;
-double PlotMaxScale = 60;
-
-
 
 double MinRange = 0;
 double MaxRange = 1999;
@@ -564,7 +556,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    LEGMu->AddEntry(Mu_Obs_GMStau   , "GMSB stau"       ,"LP");
    LEGMu->Draw();
 
-   TLegend* LEGTh = new TLegend(0.15,0.70,0.50,0.90);
+   TLegend* LEGTh = new TLegend(0.15,0.73,0.50,0.93);
    LEGTh->SetHeader("Theoretical Prediction");
    LEGTh->SetFillColor(0);
    LEGTh->SetBorderSize(0);
@@ -672,7 +664,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    LEGDCMu->AddEntry(Mu_Obs_DCRho16HyperK   , "Hyperk #tilde{#rho} = 1.6 TeV"       ,"LP");
    LEGDCMu->Draw();
 
-   TLegend* LEGDCTh = new TLegend(0.15,0.70,0.50,0.90);
+   TLegend* LEGDCTh = new TLegend(0.15,0.73,0.50,0.93);
    LEGDCTh->SetHeader("Theoretical Prediction");
    LEGDCTh->SetFillColor(0);
    LEGDCTh->SetBorderSize(0);
@@ -1218,7 +1210,7 @@ stAllInfo Exclusion(string pattern, string modelName, string signal, double Rati
    double Eff=toReturn.Eff;
    double NData=toReturn.NData;
 
-   CLMResults =  roostats_limit(IntegratedLuminosity, IntegratedLuminosity*0.06, Eff, Eff*signalUncertainty,NPred, NPredErr, NData, false, 0, "cls", "", 12345);
+   CLMResults =  roostats_limit(IntegratedLuminosity, IntegratedLuminosity*0.06, Eff, Eff*signalUncertainty,NPred, NPredErr, NData, false, 1, "cls", "", 12345);
 
    double ExpLimit=CLMResults.GetExpectedLimit();
    double ExpLimitup    = CLMResults.GetOneSigmaHighRange();
@@ -1414,16 +1406,16 @@ int ReadXSection(string InputFile, double* Mass, double* XSec, double* Low, doub
 }
 
 
-TCutG* GetErrorBand(string name, int N, double* Mass, double* Low, double* High)
+TCutG* GetErrorBand(string name, int N, double* Mass, double* Low, double* High, double MinLow, double MaxHigh)
 {
    TCutG* cutg = new TCutG(name.c_str(),2*N);
    cutg->SetFillColor(kGreen-7);
    for(int i=0;i<N;i++){
-      double Min = std::max(Low[i],PlotMinScale);
+      double Min = std::max(Low[i],MinLow);
       cutg->SetPoint( i,Mass[i], Min);
    }
    for(int i=0;i<N;i++){
-      double Max = std::min(High[N-1-i],PlotMaxScale);
+      double Max = std::min(High[N-1-i],MaxHigh);
       cutg->SetPoint(N+i,Mass[N-1-i], Max);
    }
    return cutg;
@@ -1902,8 +1894,8 @@ void DrawRatioBands(string InputPattern, string inputmodel)
       TGraph* graphtheory= new TGraph(N,Mass,XSecTh);
       TGraph* graphobs = new TGraph(N,Mass,XSecObs);
       TGraph* graphexp = new TGraph(N,Mass,XSecExp);
-       TCutG*  ExpErr = GetErrorBand(Form("ExpErr%i",k),N,Mass,XSecExpDown,XSecExpUp);
-       TCutG*  Exp2SigmaErr = GetErrorBand(Form("Exp2SigmaErr%i",k),N,Mass,XSecExp2Down,XSecExp2Up);
+      TCutG*  ExpErr = GetErrorBand(Form("ExpErr%i",k),N,Mass,XSecExpDown,XSecExpUp,0.5, 2.5);
+      TCutG*  Exp2SigmaErr = GetErrorBand(Form("Exp2SigmaErr%i",k),N,Mass,XSecExp2Down,XSecExp2Up, 0.5, 2.5);
 
       graphAtheory[k] = graphtheory;      
       graphAobs[k] =graphobs;
