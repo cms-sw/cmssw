@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRPZView.h,v 1.22 2011/03/26 10:15:10 amraktad Exp $
+// $Id: FWRPZView.h,v 1.23 2011/09/08 02:18:01 amraktad Exp $
 //
 
 // system include files
@@ -79,16 +79,22 @@ private:
    void projectionAxesLabelSize( );
 
    // ---------- member data --------------------------------
-   static FWRPZViewGeometry* s_geometryList;
    const  static float s_distortF;
    const  static float s_distortFInv;
 
+   FWRPZViewGeometry* m_geometryList;
    TEveProjectionManager* m_projMgr;
    TEveProjectionAxes*    m_axes;
    TEveCalo2D*            m_calo;
 
 
    // parameters
+
+   FWBoolParameter m_showPixelBarrel;
+   FWBoolParameter m_showPixelEndcap;
+   FWBoolParameter m_showTrackerBarrel;
+   FWBoolParameter m_showTrackerEndcap;
+
    FWBoolParameter    m_shiftOrigin;
    FWDoubleParameter  m_fishEyeDistortion;
    FWDoubleParameter  m_fishEyeR;
