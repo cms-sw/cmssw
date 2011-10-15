@@ -54,7 +54,7 @@ hiTracksWithTightQuality = hiTracksWithLooseQuality.clone(
 #highPurity
 hiSelectedTracks = hiTracksWithLooseQuality.clone(
     src = "hiGlobalPrimTracks",
-    keepAllTracks = False,
+    keepAllTracks = True,
     qualityBit = 'highPurity',
     min_nhits = cms.uint32(13),
     max_relpterr = 0.05,
