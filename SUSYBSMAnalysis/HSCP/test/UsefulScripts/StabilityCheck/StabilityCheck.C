@@ -240,9 +240,9 @@ void StabilityCheck(string MODE="COMPILE")
       TOFDTOverMinProf  [i] = new TProfile((triggers[i] + "TOFDTOverMinProf"  ).c_str(), "TOFDTOverMinProf"  , 10000 ,0, 10000);
       TOFCSCOverMinProf  [i] = new TProfile((triggers[i] + "TOFCSCOverMinProf"  ).c_str(), "TOFCSCOverMinProf"  , 10000 ,0, 10000);
 
-      VertexProf  [i] = new TProfile((triggers[i] + "TOFProf"  ).c_str(), "TOFProf"  , 10000 ,0, 10000);
-      VertexDTProf  [i] = new TProfile((triggers[i] + "TOFDTProf"  ).c_str(), "TOFDTProf"  , 10000 ,0, 10000);
-      VertexCSCProf  [i] = new TProfile((triggers[i] + "TOFCSCProf"  ).c_str(), "TOFCSCProf"  , 10000 ,0, 10000);
+      VertexProf  [i] = new TProfile((triggers[i] + "VertexProf"  ).c_str(), "VertexProf"  , 10000 ,0, 10000);
+      VertexDTProf  [i] = new TProfile((triggers[i] + "VertexDTProf"  ).c_str(), "VertexDTProf"  , 10000 ,0, 10000);
+      VertexCSCProf  [i] = new TProfile((triggers[i] + "VertexCSCProf"  ).c_str(), "VertexCSCProf"  , 10000 ,0, 10000);
 
       Count   [i] = new TH1D(    (triggers[i] + "Count"   ).c_str(), "Count"   , 10000 ,0, 10000);  Count  [i]->Sumw2();
       CountMu [i] = new TH1D(    (triggers[i] + "CountMu" ).c_str(), "CountMu" , 10000 ,0, 10000);  CountMu[i]->Sumw2();
@@ -368,9 +368,9 @@ void StabilityCheck(string MODE="COMPILE")
                if(dttof->nDof()>=GlobalMinNDOFDT) TOFDTProf[i]->Fill(CurrentRunIndex, dttof->inverseBeta());
                if(csctof->nDof()>=GlobalMinNDOFCSC) TOFCSCProf[i]->Fill(CurrentRunIndex, csctof->inverseBeta());
                if(tof->inverseBeta() > 1.1 ) HTOF[i]->Fill(CurrentRunIndex);            
-               VertexProf[i]->Fill(CurrentRunIndex, tof->inverseBeta());
-               if(dttof->nDof()>=GlobalMinNDOFDT) VertexDTProf[i]->Fill(CurrentRunIndex, dttof->inverseBeta());
-               if(csctof->nDof()>=GlobalMinNDOFCSC) VertexCSCProf[i]->Fill(CurrentRunIndex, csctof->inverseBeta());
+               VertexProf[i]->Fill(CurrentRunIndex, tof->timeAtIpInOut());
+               if(dttof->nDof()>=GlobalMinNDOFDT) VertexDTProf[i]->Fill(CurrentRunIndex, dttof->timeAtIpInOut());
+               if(csctof->nDof()>=GlobalMinNDOFCSC) VertexCSCProf[i]->Fill(CurrentRunIndex, csctof->timeAtIpInOut());
             }
 
             if(hscp.trackRef()->pt() >60 ) HPt[i]->Fill(CurrentRunIndex);
@@ -872,6 +872,74 @@ void StabilityCheck(string MODE="COMPILE")
    c1->SetGridx(true);
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,string("pictures/") + triggers[i],"Profile_TOFCSCOverMin");
+   delete c1;
+
+
+   c1 = new TCanvas("c1","c1",600,600);
+   VertexProf[i]->LabelsDeflate("X");
+   VertexProf[i]->LabelsOption("av","X");
+   VertexProf[i]->GetXaxis()->SetNdivisions(505);
+   VertexProf[i]->SetTitle("");
+   VertexProf[i]->SetStats(kFALSE);
+   VertexProf[i]->GetXaxis()->SetTitle("");
+   VertexProf[i]->GetYaxis()->SetTitle("1/#beta");
+   VertexProf[i]->GetYaxis()->SetTitleOffset(0.9);
+   VertexProf[i]->GetXaxis()->SetLabelSize(0.04);
+   VertexProf[i]->SetLineColor(Color[0]);
+   VertexProf[i]->SetFillColor(Color[0]);
+   VertexProf[i]->SetMarkerSize(0.4);
+   VertexProf[i]->SetMarkerStyle(Marker[0]);
+   VertexProf[i]->SetMarkerColor(Color[0]);
+   VertexProf[i]->Draw("E1");
+   c1->Modified();
+   c1->SetGridx(true);
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,string("pictures/") + triggers[i],"Profile_Vertex");
+   delete c1;
+
+
+   c1 = new TCanvas("c1","c1",600,600);
+   VertexDTProf[i]->LabelsDeflate("X");
+   VertexDTProf[i]->LabelsOption("av","X");
+   VertexDTProf[i]->GetXaxis()->SetNdivisions(505);
+   VertexDTProf[i]->SetTitle("");
+   VertexDTProf[i]->SetStats(kFALSE);
+   VertexDTProf[i]->GetXaxis()->SetTitle("");
+   VertexDTProf[i]->GetYaxis()->SetTitle("1/#beta");
+   VertexDTProf[i]->GetYaxis()->SetTitleOffset(0.9);
+   VertexDTProf[i]->GetXaxis()->SetLabelSize(0.04);
+   VertexDTProf[i]->SetLineColor(Color[0]);
+   VertexDTProf[i]->SetFillColor(Color[0]);
+   VertexDTProf[i]->SetMarkerSize(0.4);
+   VertexDTProf[i]->SetMarkerStyle(Marker[0]);
+   VertexDTProf[i]->SetMarkerColor(Color[0]);
+   VertexDTProf[i]->Draw("E1");
+   c1->Modified();
+   c1->SetGridx(true);
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,string("pictures/") + triggers[i],"Profile_VertexDT");
+   delete c1;
+
+   c1 = new TCanvas("c1","c1",600,600);
+   VertexCSCProf[i]->LabelsDeflate("X");
+   VertexCSCProf[i]->LabelsOption("av","X");
+   VertexCSCProf[i]->GetXaxis()->SetNdivisions(505);
+   VertexCSCProf[i]->SetTitle("");
+   VertexCSCProf[i]->SetStats(kFALSE);
+   VertexCSCProf[i]->GetXaxis()->SetTitle("");
+   VertexCSCProf[i]->GetYaxis()->SetTitle("1/#beta");
+   VertexCSCProf[i]->GetYaxis()->SetTitleOffset(0.9);
+   VertexCSCProf[i]->GetXaxis()->SetLabelSize(0.04);
+   VertexCSCProf[i]->SetLineColor(Color[0]);
+   VertexCSCProf[i]->SetFillColor(Color[0]);
+   VertexCSCProf[i]->SetMarkerSize(0.4);
+   VertexCSCProf[i]->SetMarkerStyle(Marker[0]);
+   VertexCSCProf[i]->SetMarkerColor(Color[0]);
+   VertexCSCProf[i]->Draw("E1");
+   c1->Modified();
+   c1->SetGridx(true);
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,string("pictures/") + triggers[i],"Profile_VertexCSC");
    delete c1;
    }
 

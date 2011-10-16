@@ -277,6 +277,18 @@ void MakePlot()
    TProfile* SingleMu_TOFCSCProf       = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMuTOFCSCProf");
    TProfile* PFMet_TOFCSCProf          = (TProfile*)GetObjectFromPath(InputFile, "HscpPathPFMetTOFCSCProf");
 
+   TProfile* Any_VertexProf               = (TProfile*)GetObjectFromPath(InputFile, "AnyVertexProf");
+   TProfile* SingleMu_VertexProf          = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMuVertexProf");
+   TProfile* PFMet_VertexProf             = (TProfile*)GetObjectFromPath(InputFile, "HscpPathPFMetVertexProf");
+
+   TProfile* Any_VertexDTProf             = (TProfile*)GetObjectFromPath(InputFile, "AnyVertexDTProf");
+   TProfile* SingleMu_VertexDTProf        = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMuVertexDTProf");
+   TProfile* PFMet_VertexDTProf           = (TProfile*)GetObjectFromPath(InputFile, "HscpPathPFMetVertexDTProf");
+
+   TProfile* Any_VertexCSCProf            = (TProfile*)GetObjectFromPath(InputFile, "AnyVertexCSCProf");
+   TProfile* SingleMu_VertexCSCProf       = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMuVertexCSCProf");
+   TProfile* PFMet_VertexCSCProf          = (TProfile*)GetObjectFromPath(InputFile, "HscpPathPFMetVertexCSCProf");
+
    TProfile* Any_HdEdx                 = (TProfile*)GetObjectFromPath(InputFile, "AnyHdEdx");
    TProfile* SingleMu_HdEdx          = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMuHdEdx");
    TProfile* PFMet_HdEdx             = (TProfile*)GetObjectFromPath(InputFile, "HscpPathPFMetHdEdx");
@@ -338,6 +350,18 @@ void MakePlot()
       Any_TOFCSCProf     ->GetXaxis()->SetBinLabel(i,"");
       SingleMu_TOFCSCProf->GetXaxis()->SetBinLabel(i,"");
       PFMet_TOFCSCProf   ->GetXaxis()->SetBinLabel(i,"");
+
+      Any_VertexProf        ->GetXaxis()->SetBinLabel(i,"");
+      SingleMu_VertexProf   ->GetXaxis()->SetBinLabel(i,"");
+      PFMet_VertexProf      ->GetXaxis()->SetBinLabel(i,"");
+
+      Any_VertexDTProf      ->GetXaxis()->SetBinLabel(i,"");
+      SingleMu_VertexDTProf ->GetXaxis()->SetBinLabel(i,"");
+      PFMet_VertexDTProf    ->GetXaxis()->SetBinLabel(i,"");
+
+      Any_VertexCSCProf     ->GetXaxis()->SetBinLabel(i,"");
+      SingleMu_VertexCSCProf->GetXaxis()->SetBinLabel(i,"");
+      PFMet_VertexCSCProf   ->GetXaxis()->SetBinLabel(i,"");
 
       Any_HdEdx          ->GetXaxis()->SetBinLabel(i,"");
       SingleMu_HdEdx     ->GetXaxis()->SetBinLabel(i,"");
@@ -497,6 +521,42 @@ void MakePlot()
    //DrawLegend(Histos,legend,"","P");
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,"pictures/","Summary_Profile_TOFCSC");
+   delete c1;
+
+   c1 = new TCanvas("c1","c1,",1200,600);          legend.clear();
+   Histos[0] = Any_VertexProf;                        legend.push_back("Any");
+   //Histos[1] = SingleMu_VertexProf;                   legend.push_back("SingleMu40");
+   //Histos[2] = PFMet_VertexProf;                      legend.push_back("PFMHT150");
+   
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "Vertex time [ns]", 0,0, -2,2);
+   for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
+   //DrawLegend(Histos,legend,"","P");
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,"pictures/","Summary_Profile_Vertex");
+   delete c1;
+
+   c1 = new TCanvas("c1","c1,",1200,600);          legend.clear();
+   Histos[0] = Any_VertexDTProf;                        legend.push_back("Any");
+   //Histos[1] = SingleMu_VertexDTProf;                   legend.push_back("SingleMu40");
+   //Histos[2] = PFMet_VertexDTProf;                      legend.push_back("PFMHT150");
+
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "Vertex Time DT [ns]", 0,0, -2,2);
+   for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
+   //DrawLegend(Histos,legend,"","P");
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,"pictures/","Summary_Profile_VertexDT");
+   delete c1;
+
+   c1 = new TCanvas("c1","c1,",1200,600);          legend.clear();
+   Histos[0] = Any_VertexCSCProf;                        legend.push_back("Any");
+   //Histos[1] = SingleMu_VertexCSCProf;                   legend.push_back("SingleMu40");
+   //Histos[2] = PFMet_VertexCSCProf;                      legend.push_back("PFMHT150");
+
+   DrawSuperposedHistos((TH1**)Histos, legend, "E1",  "", "Vertex Time CSC [ns]", 0,0, -2,2);
+   for(unsigned int i=0;i<legend.size();i++){((TProfile*)Histos[i])->SetMarkerSize(0.5);           ((TProfile*)Histos[i])->GetYaxis()->SetTitleOffset(0.9);}
+   //DrawLegend(Histos,legend,"","P");
+   DrawPreliminary(IntegratedLuminosity);
+   SaveCanvas(c1,"pictures/","Summary_Profile_VertexCSC");
    delete c1;
 
    c1 = new TCanvas("c1","c1,",1200,600);          legend.clear();
