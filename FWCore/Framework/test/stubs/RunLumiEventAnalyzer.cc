@@ -49,9 +49,12 @@ namespace edmtest {
     }
 
     if((index_ + 2U) < expectedRunLumisEvents_->size()) {
-      assert(expectedRunLumisEvents_->at(index_++) == event.run());
-      assert(expectedRunLumisEvents_->at(index_++) == event.luminosityBlock());
-      assert(expectedRunLumisEvents_->at(index_++) == event.id().event());
+      assert(expectedRunLumisEvents_->at(index_) == event.run());
+      ++index_;
+      assert(expectedRunLumisEvents_->at(index_) == event.luminosityBlock());
+      ++index_;
+      assert(expectedRunLumisEvents_->at(index_) == event.id().event());
+      ++index_;
     }
   }
 
@@ -65,9 +68,12 @@ namespace edmtest {
     }
 
     if((index_ + 2U) < expectedRunLumisEvents_->size()) {
-      assert(expectedRunLumisEvents_->at(index_++) == run.run());
-      assert(expectedRunLumisEvents_->at(index_++) == 0);
-      assert(expectedRunLumisEvents_->at(index_++) == 0);
+      assert(expectedRunLumisEvents_->at(index_) == run.run());
+      ++index_;
+      assert(expectedRunLumisEvents_->at(index_) == 0);
+      ++index_;
+      assert(expectedRunLumisEvents_->at(index_) == 0);
+      ++index_;
     }
   }
 
@@ -81,15 +87,18 @@ namespace edmtest {
     }
 
     if((index_ + 2U) < expectedRunLumisEvents_->size()) {
-      if(!(expectedRunLumisEvents_->at(index_++) == run.run())) {
+      if(!(expectedRunLumisEvents_->at(index_) == run.run())) {
         throw cms::Exception("UnexpectedRun", "RunLumiEventAnalyzer::endRun unexpected run");
       }
-      if(!(expectedRunLumisEvents_->at(index_++) == 0)) {
+      ++index_;
+      if(!(expectedRunLumisEvents_->at(index_) == 0)) {
         throw cms::Exception("UnexpectedLumi", "RunLumiEventAnalyzer::endRun unexpected lumi");
       }
-      if(!(expectedRunLumisEvents_->at(index_++) == 0)) {
+      ++index_;
+      if(!(expectedRunLumisEvents_->at(index_) == 0)) {
         throw cms::Exception("UnexpectedEvent", "RunLumiEventAnalyzer::endRun unexpected event");
       }
+      ++index_;
     }
   }
 
@@ -103,9 +112,12 @@ namespace edmtest {
     }
 
     if((index_ + 2U) < expectedRunLumisEvents_->size()) {
-      assert(expectedRunLumisEvents_->at(index_++) == lumi.run());
-      assert(expectedRunLumisEvents_->at(index_++) == lumi.luminosityBlock());
-      assert(expectedRunLumisEvents_->at(index_++) == 0);
+      assert(expectedRunLumisEvents_->at(index_) == lumi.run());
+      ++index_;
+      assert(expectedRunLumisEvents_->at(index_) == lumi.luminosityBlock());
+      ++index_;
+      assert(expectedRunLumisEvents_->at(index_) == 0);
+      ++index_;
     }
   }
 
@@ -119,15 +131,18 @@ namespace edmtest {
     }
 
     if((index_ + 2U) < expectedRunLumisEvents_->size()) {
-      if(!(expectedRunLumisEvents_->at(index_++) == lumi.run())) {
+      if(!(expectedRunLumisEvents_->at(index_) == lumi.run())) {
         throw cms::Exception("UnexpectedRun", "RunLumiEventAnalyzer::endLuminosityBlock unexpected run");
       }
-      if(!(expectedRunLumisEvents_->at(index_++) == lumi.luminosityBlock())) {
+      ++index_;
+      if(!(expectedRunLumisEvents_->at(index_) == lumi.luminosityBlock())) {
         throw cms::Exception("UnexpectedLumi", "RunLumiEventAnalyzer::endLuminosityBlock unexpected lumi");
       }
-      if(!(expectedRunLumisEvents_->at(index_++) == 0)) {
+      ++index_;
+      if(!(expectedRunLumisEvents_->at(index_) == 0)) {
         throw cms::Exception("UnexpectedEvent", "RunLumiEventAnalyzer::endLuminosityBlock unexpected event");
       }
+      ++index_;
     }
   }
 
