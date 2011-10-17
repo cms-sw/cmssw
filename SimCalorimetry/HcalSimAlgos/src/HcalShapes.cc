@@ -85,7 +85,6 @@ const CaloVShape * HcalShapes::shape(const DetId & detId) const
 
 const CaloVShape * HcalShapes::defaultShape(const DetId & detId) const
 {
-  edm::LogWarning("HcalShapes") << "Cannot find HCAL MC Params ";
   // try to figure the appropriate shape
   const CaloVShape * result;
   HcalGenericDetId::HcalGenericSubdetector subdet 
@@ -96,5 +95,15 @@ const CaloVShape * HcalShapes::defaultShape(const DetId & detId) const
   else if(subdet == HcalGenericDetId::HcalGenForward) result = theShapes.find(3)->second;
   else if(subdet == HcalGenericDetId::HcalGenZDC) result = theShapes.find(3)->second;
   else result = 0;
+
+  // some debugging stuff 
+
+  HcalDetId cell(detId);	  
+  int depth   = cell.depth();
+  int inteta  = cell.ieta();
+  int intphi  = cell.iphi();
+  
+  edm::LogWarning("HcalShapes") << "Cannot find HCAL MC Params, so the defalut one is taken for  subdet, ieta, iphi, depth = " << subdet << ",  " << inteta << ",  " << intphi << ",  " << depth;  
+
   return result;
 }
