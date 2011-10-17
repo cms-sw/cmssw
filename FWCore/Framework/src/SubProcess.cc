@@ -335,7 +335,7 @@ namespace edm {
           ProductData& thisData = const_cast<ProductData&>(group->productData());
           thisData.swap(parentData);
           // Sets unavailable flag, if known that product is not available
-          group->productUnavailable();
+          (void)group->productUnavailable();
         }
       }
     }
