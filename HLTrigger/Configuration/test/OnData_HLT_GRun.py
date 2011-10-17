@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V313 (CMSSW_4_2_0_HLT33)
+# /dev/CMSSW_4_2_0/GRun/V314 (CMSSW_4_2_0_HLT33)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V313')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V314')
 )
 
 process.streams = cms.PSet( 
@@ -4058,9 +4058,6 @@ process.PrescaleService = cms.Service( "PrescaleService",
       cms.PSet(  pathName = cms.string( "HLT_EightJet35_v3" ),
         prescales = cms.vuint32( 50, 40, 10, 10, 1, 1 )
       ),
-      cms.PSet(  pathName = cms.string( "HLT_EightJet35_L1FastJet_v2" ),
-        prescales = cms.vuint32( 20, 1, 1, 1, 1, 1 )
-      ),
       cms.PSet(  pathName = cms.string( "HLT_70Jet10_v4" ),
         prescales = cms.vuint32( 0, 50000, 250, 250, 1, 1 )
       ),
@@ -4434,7 +4431,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 2300, 2300, 2300, 2300, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Mu15_L1ETM20_v4" ),
-        prescales = cms.vuint32( 10, 8, 6, 6, 1, 1 )
+        prescales = cms.vuint32( 40, 40, 30, 30, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Mu15_Photon20_CaloIdL_v14" ),
         prescales = cms.vuint32( 20, 20, 20, 20, 1, 1 )
@@ -4461,7 +4458,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 0, 0, 2, 2, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Mu12_eta2p1_DiCentralJet20_BTagIP3D1stTrack_v6" ),
-        prescales = cms.vuint32( 250, 200, 150, 150, 1, 1 )
+        prescales = cms.vuint32( 250, 200, 50, 50, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_IsoMu17_eta2p1_CentralJet30_v6" ),
         prescales = cms.vuint32( 150, 40, 30, 30, 1, 1 )
@@ -4506,7 +4503,7 @@ process.PrescaleService = cms.Service( "PrescaleService",
         prescales = cms.vuint32( 10, 8, 1, 1, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Ele18_CaloIdVT_TrkIdT_MediumIsoPFTau20_v6" ),
-        prescales = cms.vuint32( 4, 4, 4, 4, 1, 1 )
+        prescales = cms.vuint32( 1, 1, 10, 10, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_Ele25_CaloIdVT_TrkIdT_CentralJet30_BTagIP_v13" ),
         prescales = cms.vuint32( 10, 10, 10, 10, 1, 1 )
@@ -7524,7 +7521,8 @@ process.hltL3MuonsOIState = cms.EDProducer( "L3MuonProducer",
         RefitRPCHits = cms.bool( True ),
         SkipStation = cms.int32( -1 ),
         Propagator = cms.string( "hltESPSmartPropagatorAny" ),
-        TrackerSkipSystem = cms.int32( -1 )
+        TrackerSkipSystem = cms.int32( -1 ),
+        DYTthrs = cms.vint32( 30, 15 )
       ),
       ScaleTECxFactor = cms.double( -1.0 ),
       TrackerRecHitBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
@@ -7778,7 +7776,8 @@ process.hltL3MuonsOIHit = cms.EDProducer( "L3MuonProducer",
         RefitRPCHits = cms.bool( True ),
         SkipStation = cms.int32( -1 ),
         Propagator = cms.string( "hltESPSmartPropagatorAny" ),
-        TrackerSkipSystem = cms.int32( -1 )
+        TrackerSkipSystem = cms.int32( -1 ),
+        DYTthrs = cms.vint32( 30, 15 )
       ),
       ScaleTECxFactor = cms.double( -1.0 ),
       TrackerRecHitBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
@@ -8024,7 +8023,8 @@ process.hltL3MuonsIOHit = cms.EDProducer( "L3MuonProducer",
         RefitRPCHits = cms.bool( True ),
         SkipStation = cms.int32( -1 ),
         Propagator = cms.string( "hltESPSmartPropagatorAny" ),
-        TrackerSkipSystem = cms.int32( -1 )
+        TrackerSkipSystem = cms.int32( -1 ),
+        DYTthrs = cms.vint32( 30, 15 )
       ),
       ScaleTECxFactor = cms.double( -1.0 ),
       TrackerRecHitBuilder = cms.string( "hltESPTTRHBWithTrackAngle" ),
