@@ -22,7 +22,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec 30 10:08:24 CST 2010
-// $Id$
 //
 
 // system include files
@@ -38,7 +37,9 @@ namespace edm {
          
       public:
          MessageForSource():
-          mtype(MessageForSource::messageType()) {}
+          mtype(MessageForSource::messageType()),
+          startIndex(0),
+          nIndices(0) {}
          
          //virtual ~MessageForSource();
          
