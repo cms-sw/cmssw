@@ -15,7 +15,7 @@ Test of the statemachine classes.
 #include <fstream>
 
 
-int main(int argc, char* argv[]) {
+int main(int argc, char* argv[]) try {
   using namespace statemachine;
   std::cout << "Running test in statemachine_t.cc\n";
 
@@ -98,6 +98,8 @@ int main(int argc, char* argv[]) {
       mockEventProcessor.runToCompletion(onlineStateTransitions);
     }
   }
-
   return 0;
+} catch(std::exception const& e) {
+  std::cerr << e.what() << std::endl;
+  return 1;
 }

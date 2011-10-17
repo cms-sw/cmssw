@@ -6,6 +6,7 @@
 #include "FWCore/ServiceRegistry/interface/ServiceWrapper.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "boost/array.hpp"
 #include "boost/shared_ptr.hpp"
@@ -168,7 +169,7 @@ void testall(const Strings& paths,
 
 
 int main()
-{
+try {
 
   // Name all our paths. We have as many paths as there are trigger
   // bits.
@@ -462,4 +463,10 @@ int main()
 
   testall(paths, patterns, testmasks, ans);
   return 0;
+} catch(cms::Exception const& e) {
+  std::cerr << e.explainSelf() << std::endl;
+  return 1;
+} catch(std::exception const& e) {
+  std::cerr << e.what() << std::endl;
+  return 1;
 }

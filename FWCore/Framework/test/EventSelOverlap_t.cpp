@@ -11,6 +11,7 @@
 #include "FWCore/ServiceRegistry/interface/ServiceWrapper.h"
 #include "FWCore/ServiceRegistry/interface/ServiceRegistry.h"
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 #include "boost/array.hpp"
 #include "boost/shared_ptr.hpp"
@@ -195,7 +196,7 @@ void maskTest ( PathSpecifiers const & ps,
 
 
 int main()
-{
+try {
 
  // We want to create the TriggerNamesService because it is used in 
   // the tests.  We do that here, but first we need to build a minimal
@@ -281,9 +282,11 @@ int main()
       abort();
   }
   
-  
-  
-  
-
   return 0;
+} catch(cms::Exception const& e) {
+  std::cerr << e.explainSelf() << std::endl;
+  return 1;
+} catch(std::exception const& e) {
+  std::cerr << e.what() << std::endl;
+  return 1;
 }
