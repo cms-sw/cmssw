@@ -101,10 +101,11 @@ DataKey::makeCopyOfMemory()
    // where an exception is thrown
    ArrayHolder pNameHolder;
    if(kBlank[0] != name().value()[0]) {
-      pName = new char[ std::strlen(name().value()) + 1];
+      size_t const nBytes = std::strlen(name().value()) + 1;
+      pName = new char[nBytes];
       ArrayHolder t(pName);
       pNameHolder.swap(t);
-      std::strcpy(pName, name().value());
+      std::strncpy(pName, name().value(), nBytes);
    }
    name_ = NameTag(pName);
    ownMemory_ = true;
