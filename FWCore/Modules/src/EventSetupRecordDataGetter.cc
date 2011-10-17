@@ -175,6 +175,7 @@ private:
                 itRKey != itRKeyEnd;
                 ++itRKey) {               
                eventsetup::EventSetupRecord const* record = iSetup.find(*itRKey);
+               assert(record != 0);
                dataKeys.clear();
                record->fillRegisteredDataKeys(dataKeys);
                recordToDataKeys_.insert(std::make_pair(*itRKey, dataKeys));
