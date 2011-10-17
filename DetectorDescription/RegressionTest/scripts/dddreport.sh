@@ -10,7 +10,14 @@ echo '<Root fileName="cms.xml" logicalPartName="OCMS"/>'  >> $CMSSW_BASE/src/ddd
 echo '<Schema schemaLocation="http://www.cern.ch/cms/DDL  ../../Schema/DDLSchema.xsd" validation="false"/>'  >> $CMSSW_BASE/src/dddreportconfig.xml
 echo '</Configuration>'  >> $CMSSW_BASE/src/dddreportconfig.xml
 cd $CMSSW_RELEASE_BASE/src
-DDErrorReport dddreportconfig.xml
 
+set script=$CMSSW_BASE/test/$SCRAM_ARCH/DDErrorReport 
+if ( ! -f $script ) then
+ set script=$CMSSW_RELEASE_BASE/test/$SCRAM_ARCH/DDErrorReport
+endif
+
+echo $script;
+
+$script dddreportconfig.xml
 
 
