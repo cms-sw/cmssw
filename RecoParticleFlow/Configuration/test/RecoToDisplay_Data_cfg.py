@@ -15,7 +15,7 @@ process.GlobalTag.globaltag = cms.string( autoCond[ 'com10' ] )
 
 
 # Other statements for 39X (UPDATE FOR LATER CMSSW VERSIONS)
-#from Configuration.GlobalRuns.reco_TLR_42X import customisePPData
+#from Configuration.GlobalRuns.reco_TLR_44X import customisePPData
 #customisePPData(process)
 
 ## particle flow HF cleaning
@@ -28,7 +28,7 @@ process.GlobalTag.globaltag = cms.string( autoCond[ 'com10' ] )
 process.source = cms.Source(
     "PoolSource",
     fileNames = cms.untracked.vstring(
-      'file:jordan.root',
+      'file:highMet.root',
       ),
     #eventsToProcess = cms.untracked.VEventRange('143827:62146418-143827:62146418'),
     )
@@ -62,7 +62,7 @@ process.dump = cms.EDAnalyzer("EventContentAnalyzer")
 process.load("RecoParticleFlow.Configuration.ReDisplay_EventContent_cff")
 process.display = cms.OutputModule("PoolOutputModule",
                                    process.DisplayEventContent,
-                                   fileName = cms.untracked.string('jordan.root'),
+                                   fileName = cms.untracked.string('display.root'),
                                    SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('p'))
 )
 
@@ -89,15 +89,13 @@ process.rereco = cms.OutputModule("PoolOutputModule",
 process.localReReco = cms.Sequence(process.siPixelRecHits+
                                    process.siStripMatchedRecHits+
                                    #process.hbhereflag+
-                                   process.particleFlowCluster)
+                                   process.particleFlowCluster+
+                                   process.ecalClusters)
 
 # Track re-reco
 process.globalReReco =  cms.Sequence(process.offlineBeamSpot+
                                      process.recopixelvertexing+
                                      process.ckftracks+
-                                     process.ctfTracksPixelLess+
-                                     process.offlinePrimaryVertices +
-                                     process.offlinePrimaryVerticesWithBS +
                                      process.caloTowersRec+
                                      process.vertexreco+
                                      process.recoJets+
@@ -109,17 +107,14 @@ process.globalReReco =  cms.Sequence(process.offlineBeamSpot+
                                      process.muoncosmichighlevelreco+
                                      process.metreco)
 
-
 # Particle Flow re-processing
 process.pfReReco = cms.Sequence(process.particleFlowReco+
                                 process.egammaHighLevelRecoPostPF+
+                                process.muonshighlevelreco+
                                 process.particleFlowLinks+
                                 process.recoPFJets+
                                 process.recoPFMET+
-                                process.PFTau#+
-#                                process.particleFlowDisplacedVertexCandidate+
-#                                process.particleFlowDisplacedVertex
-                                )
+                                process.PFTau)
                                 
 # Gen Info re-processing
 process.load("PhysicsTools.HepMCCandAlgos.genParticles_cfi")
@@ -149,8 +144,8 @@ process.p = cms.Path(process.scrapping+
 # Write out only filtered events
 process.display.SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('p') )
 process.rereco.SelectEvents = cms.untracked.PSet( SelectEvents = cms.vstring('p') )
-#process.outpath = cms.EndPath(process.rereco+process.display)
-process.outpath = cms.EndPath(process.display)
+process.outpath = cms.EndPath(process.rereco+process.display)
+#process.outpath = cms.EndPath(process.display)
 
 
 # Schedule the paths
