@@ -182,7 +182,7 @@ namespace edm {
 
     /// Return whether each output module has reached its maximum count.
     /// If there is a subprocess, get this information from the subprocess.
-    bool const terminate() const {
+    bool terminate() const {
       ServiceRegistry::Operate operate(serviceToken_);
       return subProcess_.get() ? subProcess_->terminate() : schedule_->terminate();
     }

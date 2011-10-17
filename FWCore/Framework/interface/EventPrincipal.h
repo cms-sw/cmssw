@@ -82,7 +82,7 @@ namespace edm {
       return aux().time();
     }
 
-    bool const isReal() const {
+    bool isReal() const {
       return aux().isRealData();
     }
 
@@ -90,11 +90,11 @@ namespace edm {
       return aux().experimentType();
     }
 
-    int const bunchCrossing() const {
+    int bunchCrossing() const {
       return aux().bunchCrossing();
     }
 
-    int const storeNumber() const {
+    int storeNumber() const {
       return aux().storeNumber();
     }
 

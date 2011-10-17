@@ -148,9 +148,9 @@ namespace edm {
 
     void maybeFlushCache(TypeID const& tid, InputTag const& tag) const;
 
-    ConstGroupPtr const getGroup(BranchID const& oid,
-                                       bool resolveProd,
-                                       bool fillOnDemand) const;
+    ConstGroupPtr getGroup(BranchID const& oid,
+                           bool resolveProd,
+                           bool fillOnDemand) const;
 
     ProductData const* findGroupByTag(TypeID const& typeID, InputTag const& tag) const;
 
@@ -164,9 +164,9 @@ namespace edm {
     Group* getExistingGroup(BranchID const& branchID);
     Group* getExistingGroup(Group const& g);
 
-    ConstGroupPtr const getGroupByIndex(ProductTransientIndex const& oid,
-                                              bool resolveProd,
-                                              bool fillOnDemand) const;
+    ConstGroupPtr getGroupByIndex(ProductTransientIndex const& oid,
+                                  bool resolveProd,
+                                  bool fillOnDemand) const;
 
     // Make my DelayedReader get the EDProduct for a Group or
     // trigger unscheduled execution if required.  The Group is

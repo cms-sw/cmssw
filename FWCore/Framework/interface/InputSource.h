@@ -191,7 +191,7 @@ namespace edm {
     ProcessConfiguration const& processConfiguration() const {return moduleDescription().processConfiguration();}
 
     /// Accessor for primary input source flag
-    bool const primary() const {return primary_;}
+    bool primary() const {return primary_;}
 
     /// Accessor for global process identifier
     std::string const& processGUID() const {return processGUID_;}
@@ -315,7 +315,7 @@ namespace edm {
       doneReadAhead_ = false;
       state_ = IsInvalid;
     }
-    EventPrincipal* const eventPrincipalCache();
+    EventPrincipal* eventPrincipalCache();
     PrincipalCache const& principalCache() const {return *principalCache_;}
     PrincipalCache& principalCache() {return *principalCache_;}
     boost::shared_ptr<LuminosityBlockPrincipal> const luminosityBlockPrincipal() const;

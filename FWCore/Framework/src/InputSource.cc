@@ -129,7 +129,7 @@ namespace edm {
     desc.addUntracked<bool>("writeStatusFile", false)->setComment("Write a status file. Intended for use by workflow management.");
   }
 
-  EventPrincipal* const
+  EventPrincipal*
   InputSource::eventPrincipalCache() {
     return &principalCache().eventPrincipal();
   }

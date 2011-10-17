@@ -210,7 +210,7 @@ namespace edm {
     void getTriggerReport(TriggerReport& rep) const;
 
     /// Return whether each output module has reached its maximum count.
-    bool const terminate() const;
+    bool terminate() const;
 
     ///  Clear all the counters in the trigger report.
     void clearCounters();

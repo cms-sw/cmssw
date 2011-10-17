@@ -93,12 +93,12 @@ namespace edm {
     ~FileBlock() {}
 
     FileFormatVersion const& fileFormatVersion() const {return fileFormatVersion_;}
-    TTree* const tree() const {return tree_;}
-    TTree* const metaTree() const {return metaTree_;}
-    TTree* const lumiTree() const {return lumiTree_;}
-    TTree* const lumiMetaTree() const {return lumiMetaTree_;}
-    TTree* const runTree() const {return runTree_;}
-    TTree* const runMetaTree() const {return runMetaTree_;}
+    TTree* tree() const {return tree_;}
+    TTree* metaTree() const {return metaTree_;}
+    TTree* lumiTree() const {return lumiTree_;}
+    TTree* lumiMetaTree() const {return lumiMetaTree_;}
+    TTree* runTree() const {return runTree_;}
+    TTree* runMetaTree() const {return runMetaTree_;}
 
     int whyNotFastClonable() const {return whyNotFastClonable_;}
     boost::array<bool, NumBranchTypes> const& hasNewlyDroppedBranch() const {return hasNewlyDroppedBranch_;}
