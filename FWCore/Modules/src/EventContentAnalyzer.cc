@@ -126,7 +126,6 @@ namespace edm {
              iObject.Address() == 0) {
              return;
           }
-          return;
 
           //have the code that follows print the contents of the data to which the pointer points
           objectToPrint = Reflex::Object(pointedType, iObject.Address());
