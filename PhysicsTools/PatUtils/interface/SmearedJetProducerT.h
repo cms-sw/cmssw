@@ -13,7 +13,7 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: SmearedJetProducerT.h,v 1.1 2011/09/30 12:29:05 veelken Exp $
+ * $Id: SmearedJetProducerT.h,v 1.1 2011/10/14 11:18:24 veelken Exp $
  *
  */
 
@@ -33,8 +33,6 @@
 #include "DataFormats/JetReco/interface/GenJet.h"
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/Math/interface/deltaR.h"
-
-#include "TauAnalysis/CandidateTools/interface/generalAuxFunctions.h"
 
 #include <TMath.h>
 
