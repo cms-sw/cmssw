@@ -12,6 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include <cassert>
@@ -1228,7 +1229,7 @@ namespace testParameterSetDescription {
 
 }
 
-int main(int, char**) {
+int main(int, char**) try {
 
   std::cout << "Running TestFWCoreParameterSetDescription from parameterSetDescription_t.cc" << std::endl;
 
@@ -1614,4 +1615,10 @@ int main(int, char**) {
   testParameterSetDescription::testWrongType();
 
   return 0;
+} catch(cms::Exception const& e) {
+  std::cerr << e.explainSelf() << std::endl;
+  return 1;
+} catch(std::exception const& e) {
+  std::cerr << e.what() << std::endl;
+  return 1;
 }

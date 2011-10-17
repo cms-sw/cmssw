@@ -166,7 +166,7 @@ namespace {
 // ---------------------------------------------------------------------------------
 
 int main (int argc, char **argv)
-{
+try {
   // Process the command line arguments
   std::string descString(argv[0]);
   descString += " option [options]\n\n";
@@ -383,4 +383,10 @@ int main (int argc, char **argv)
   }
 
   return 0;
+} catch(cms::Exception const& e) {
+  std::cerr << e.explainSelf() << std::endl;
+  return 1;
+} catch(std::exception const& e) {
+  std::cerr << e.what() << std::endl;
+  return 1;
 }
