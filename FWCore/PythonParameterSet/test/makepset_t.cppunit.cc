@@ -377,7 +377,7 @@ void testmakepset::typesTest() {
    CPPUNIT_ASSERT(vui == test.getParameter<std::vector<unsigned int> >("vui"));
 
    static int const via[] = {1,-2};
-   static std::vector<int> const vi(via, via+sizeof(vuia)/sizeof(unsigned int));
+   static std::vector<int> const vi(via, via+sizeof(via)/sizeof(int));
    test.getParameter<std::vector<int> >("vi");
    CPPUNIT_ASSERT(true == test.getUntrackedParameter<bool>("b", false));
    CPPUNIT_ASSERT(test.retrieve("vi").isTracked());
