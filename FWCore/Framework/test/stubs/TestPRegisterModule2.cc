@@ -42,11 +42,13 @@ TestPRegisterModule2::TestPRegisterModule2(edm::ParameterSet const&){
      ++pd;
      CPPUNIT_ASSERT(pd != plist.end());
      
-     edmtest::DoubleProduct dprod;
-     edm::TypeID dID(dprod);
-     CPPUNIT_ASSERT(dID.friendlyClassName() == 
+     if(pd != plist.end()) {
+       edmtest::DoubleProduct dprod;
+       edm::TypeID dID(dprod);
+       CPPUNIT_ASSERT(dID.friendlyClassName() == 
                     (*pd)->friendlyClassName());
-     CPPUNIT_ASSERT((*pd)->moduleLabel()=="m2");
+       CPPUNIT_ASSERT((*pd)->moduleLabel()=="m2");
+     }
      
     Handle<edmtest::StringProduct> stringp;
     e.getByLabel("m2",stringp);
