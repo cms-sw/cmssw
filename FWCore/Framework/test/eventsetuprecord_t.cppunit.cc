@@ -354,6 +354,7 @@ void testEventsetupRecord::proxyResetTest()
   
   EventSetupRecordProviderTemplate<DummyRecord>* prov= dynamic_cast<EventSetupRecordProviderTemplate<DummyRecord>*>(&(*dummyProvider)); 
   CPPUNIT_ASSERT(0 !=prov);
+  if(prov == 0) return;
   const EventSetupRecordProviderTemplate<DummyRecord>* constProv = prov;
    
   const EventSetupRecord& dummyRecord = constProv->record();
@@ -366,6 +367,8 @@ void testEventsetupRecord::proxyResetTest()
                                "");
 
   boost::shared_ptr<WorkingDummyProvider> wdProv( new WorkingDummyProvider(workingDataKey, workingProxy) );
+  CPPUNIT_ASSERT(0 != wdProv.get());
+  if(wdProv.get() == 0) return;
   prov->add( wdProv );
 
   //this causes the proxies to actually be placed in the Record
