@@ -86,8 +86,8 @@ namespace edm {
                        BranchType bt,
                        HistoryAppender* historyAppender) :
     EDProductGetter(),
-    processHistoryPtr_(new ProcessHistory),
-    processHistoryID_(processHistoryPtr_->id()),
+    processHistoryPtr_(0),
+    processHistoryID_(),
     processConfiguration_(&pc),
     groups_(reg->constProductList().size(), SharedGroupPtr()),
     preg_(reg),
@@ -283,7 +283,7 @@ namespace edm {
     addGroup_(group);
   }
 
-  Principal::ConstGroupPtr const
+  Principal::ConstGroupPtr
   Principal::getGroup(BranchID const& bid, bool resolveProd, bool fillOnDemand) const {
     ProductTransientIndex index = preg_->indexFrom(bid);
     if(index == ProductRegistry::kInvalidIndex){
@@ -292,7 +292,7 @@ namespace edm {
     return getGroupByIndex(index, resolveProd, fillOnDemand);
   }
 
-  Principal::ConstGroupPtr const
+  Principal::ConstGroupPtr
   Principal::getGroupByIndex(ProductTransientIndex const& index, bool resolveProd, bool fillOnDemand) const {
 
     ConstGroupPtr const g = groups_[index].get();
