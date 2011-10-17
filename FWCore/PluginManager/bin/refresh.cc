@@ -70,7 +70,7 @@ namespace {
     NameAndTypes nameAndTypes_;
   };
 }
-int main (int argc, char **argv) {
+int main (int argc, char **argv) try {
   using namespace boost::program_options;
 
   static char const* const kPathsOpt = "paths";
@@ -338,4 +338,7 @@ int main (int argc, char **argv) {
   }
 
   return returnValue;
+} catch(std::exception const& iException) {
+  std::cerr << iException.what() << std::endl;
+  return 1;
 }
