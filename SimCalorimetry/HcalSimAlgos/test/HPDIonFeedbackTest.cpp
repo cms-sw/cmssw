@@ -8,10 +8,13 @@
 int main()
 {
   edm::ParameterSet pset;
-  HcalShapes theShapes;
-  HPDIonFeedbackSim feedbackSim(pset, &theShapes);
+
+  HcalShapes* theShapes = new HcalShapes();
+  HPDIonFeedbackSim* feedbackSim = new HPDIonFeedbackSim(pset, theShapes);
+
+  //  HPDIonFeedbackSim feedbackSim(pset, theShapes);
   CLHEP::HepJamesRandom engine;
-  feedbackSim.setRandomEngine(engine);
+  feedbackSim->setRandomEngine(engine);
   HcalDetId detId(HcalBarrel, 1, 1, 1);
 
   int nRuns = 1000;
@@ -22,8 +25,9 @@ int main()
     double chargeSum = 0;
     for(int i = 0; i < nRuns; ++i)
     {
-      chargeSum += feedbackSim.getIonFeedback(detId, originalCharge, 0., true, false);
+      chargeSum += feedbackSim->getIonFeedback(detId, originalCharge, 0., true, false);
     }
+    if(e > 1.e-20)
     std::cout << "ENERGY " << e << " FACTOR " << chargeSum/nRuns/6/e*100 << "%" << std::endl;
   }
 
@@ -32,8 +36,8 @@ int main()
   for(int i = 0; i < 100; ++i)
   {
     CaloSamples samples(detId, 10);
-    feedbackSim.addThermalNoise(samples);
-    if(samples[7] > 0.) std::cout << samples << std::endl; 
+    feedbackSim->addThermalNoise(samples);
+    if(samples[7] > 1.e-20) std::cout << samples << std::endl; 
   }
     
 }
