@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HIon/V312 (CMSSW_4_2_0_HLT33)
+# /dev/CMSSW_4_2_0/HIon/V313 (CMSSW_4_2_0_HLT33)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V312')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V313')
 )
 
 streams = cms.PSet( 
@@ -4653,7 +4653,11 @@ hltSiStripZeroSuppression = cms.EDProducer( "SiStripZeroSuppression",
       distortionThreshold = cms.uint32( 20 ),
       Iterations = cms.int32( 3 ),
       nSmooth = cms.uint32( 9 ),
-      SelfSelectRestoreAlgo = cms.bool( False )
+      SelfSelectRestoreAlgo = cms.bool( False ),
+      doAPVRestore = cms.bool( True ),
+      useCMMeanMap = cms.bool( False ),
+      ApplyBaselineCleaner = cms.bool( True ),
+      MeanCM = cms.int32( 0 )
     ),
     storeCM = cms.bool( False ),
     produceRawDigis = cms.bool( True ),
