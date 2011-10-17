@@ -210,20 +210,21 @@ namespace edm {
       os << "\n";
     }
 
-    char oldFill = os.fill();
     if (descriptions_.empty() && !defaultDescDefined_) {
+      char oldFill = os.fill();
       indentation += DocFormatHelper::offsetModuleLabel();
       os << std::setfill(' ') << std::setw(indentation) << "";
       os << "There are no PSet descriptions defined for this plugin.\n";
       os << std::setfill(' ') << std::setw(indentation) << "";
       os << "PSets will not be validated and no cfi files will be generated.\n";
       if (!brief) os << "\n";
-      os.fill(oldFill);
+      os << std::setfill(oldFill);
       return;
     }
 
     if (descriptions_.empty() && defaultDescDefined_ && defaultDesc_.isUnknown()) {
       indentation += DocFormatHelper::offsetModuleLabel();
+      char oldFill = os.fill();
       os << std::setfill(' ') << std::setw(indentation) << "";
       os << "This plugin has not implemented the function which defines its\n";
       os << std::setfill(' ') << std::setw(indentation) << "";
@@ -231,7 +232,7 @@ namespace edm {
       os << std::setfill(' ') << std::setw(indentation) << "";
       os << "Its PSets will not be validated, and no cfi files will be generated.\n";
       if (!brief) os << "\n";
-      os.fill(oldFill);
+      os << std::setfill(oldFill);
       return;
     }
 
@@ -340,8 +341,7 @@ namespace edm {
     std::string section = ss.str();
 
     char oldFill = os.fill();
-    os << std::setfill(' ') << std::setw(indentation) << "";
-    os.fill(oldFill);
+    os << std::setfill(' ') << std::setw(indentation) << "" << std::setfill(oldFill);
     os << section << " ";
     if (label == std::string("@default")) {
       os << "description without a module label\n";
