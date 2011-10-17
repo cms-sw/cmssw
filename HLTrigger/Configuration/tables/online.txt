@@ -23,6 +23,8 @@ HLT_DiJetAve190_v*
 HLT_DiJetAve240_v*
 HLT_DiJetAve300_v*
 HLT_DiJetAve370_v*
+HLT_FatJetMass300_DR1p1_Deta2p0_v*
+HLT_FatJetMass400_DR1p1_Deta2p0_RunPF_v*
 HLT_FatJetMass850_DR1p1_Deta2p0_v*
 HLT_DoubleJet30_ForwardBackward_v*
 HLT_DoubleJet60_ForwardBackward_v*
@@ -82,6 +84,7 @@ HLT_HT300_AlphaT0p54_v*
 HLT_HT300_AlphaT0p55_v*
 HLT_HT300_AlphaT0p60_v*
 HLT_HT350_v*
+HLT_HT350_RunPF_v*
 HLT_HT350_MHT100_v*
 HLT_HT350_MHT110_v*
 HLT_HT350_AlphaT0p53_v*
@@ -168,8 +171,8 @@ HLT_IsoMu34_eta2p1_v*
 HLT_IsoMu40_eta2p1_v*
 HLT_L2DoubleMu23_NoVertex_v*
 HLT_L2DoubleMu30_NoVertex_v*
-HLT_L2DoubleMu30_NoVertex_dPhi2p5_v*                                                    #added in "5e33" menu (sr #124053)
-#HLT_L2DoubleMu45_NoVertex_v*                                                           #removed in "5e33" menu (sr #124053)
+HLT_L2DoubleMu30_NoVertex_dPhi2p5_v*							#added in "5e33" menu (sr #124053)
+#HLT_L2DoubleMu45_NoVertex_v*								#removed in "5e33" menu (sr #124053)
 HLT_DoubleMu3_v*
 HLT_DoubleMu5_v*
 HLT_DoubleMu7_v*
@@ -444,5 +447,6 @@ HLTDQMOutput
 HLTDQMResultsOutput
 HLTMONOutput
 NanoDSTOutput
+PhysicsDSTOutput
 RPCMONOutput
 TrackerCalibrationOutput
