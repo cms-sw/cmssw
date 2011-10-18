@@ -16,10 +16,11 @@ except:
 cvsBaseUrl = "http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW"     # NO SLASH IN THE END
 
 refmanfiles = {}
+packageDocLinks = []
 
 ## Prepate dictionary of doxygen generated html files
-def prepareRefManFiles(SRC_DIR):    
-    output = os.popen("find "+SRC_DIR+" -wholename '*/class*.html' -not \( -name '*-members.html' \) -print")
+def prepareRefManFiles(DOC_DIR):    
+    output = os.popen("find "+DOC_DIR+" -wholename '*/class*.html' -not \( -name '*-members.html' \) -print")
     lines = output.read().split("\n")
     output.close()
     
@@ -27,10 +28,27 @@ def prepareRefManFiles(SRC_DIR):
         (head, tail) = os.path.split(line)
         refmanfiles[tail.replace("class","").replace(".html","")] = line
 
+## Extract links to package documentation
+def preparePackageDocumentationLinks(DOC_DIR):
+    source = open(DOC_DIR+"/pages.html", "r")
+    lines = source.read().split("\n")
+    source.close()
+    
+    for line in lines:
+        if (line.find("li><a class=\"el\" href=\"") != -1):
+            packageDocLinks.append(line.split("\"")[3])
+
 ## Format CVS link
 def formatCVSLink(package, subpackage):
-    cvsLink = "["+"<a target=\"_blank\" href=\""+cvsBaseUrl+"/"+package+"/"+subpackage+"\">cvs</a>]"
+    cvsLink = "[ <a target=\"_blank\" href=\""+cvsBaseUrl+"/"+package+"/"+subpackage+"\">cvs</a> ]"
     return cvsLink
+
+def formatPackageDocumentationLink(package, subpackage):    
+    for link in packageDocLinks:
+        if (link.find(package+"_"+subpackage+".html") != -1):
+            return "[ <a target=\"_blank\" href=\"../"+link+"\">pd</a> ]"
+    
+    return ""
 
 ## Fetches information about Subsystems/Packages/Subpackages from TagCollector
 def generateTree(release):
@@ -78,7 +96,7 @@ def generateBranchHTML(SRC_DIR, tree, branch):
         branchHTML += "<li><span><strong>"+package+"</strong></span><ul>"
         
         for subpackage in subpackages:
-            branchHTML += "<li>"+subpackage + " "+ formatCVSLink(package, subpackage)
+            branchHTML += "<li>"+subpackage + " "+ formatCVSLink(package, subpackage) + " " + formatPackageDocumentationLink(package, subpackage)
             branchHTML += generateLeavesHTML(SRC_DIR, package, subpackage)
             branchHTML+="</li>"
             
@@ -118,6 +136,7 @@ try:
 # Tree Preparation
     (treeTemplateHTML, indexPageTemplate) = loadTemplates()
     prepareRefManFiles(PROJECT_LOCATION+"/doc/html")
+    preparePackageDocumentationLinks(PROJECT_LOCATION+"/doc/html")
     (tree, subsystems) = generateTree(CMSSW_VERSION)
 
     ## Index Page Preparations
