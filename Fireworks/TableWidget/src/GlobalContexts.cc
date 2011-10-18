@@ -14,8 +14,8 @@ const TGGC& boldGC()
    static TGGC s_boldGC(*gClient->GetResourcePool()->GetFrameGC());
  
    TGFontPool *pool = gClient->GetFontPool();
-   TGFont *font = pool->FindFontByHandle(s_boldGC.GetFont());
-   FontAttributes_t attributes = font->GetFontAttributes();
+   //TGFont *font = pool->FindFontByHandle(s_boldGC.GetFont());
+   //FontAttributes_t attributes = font->GetFontAttributes();
   
    /*
      This doesn't seem to work:
