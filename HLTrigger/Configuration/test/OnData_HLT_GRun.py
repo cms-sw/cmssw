@@ -36870,7 +36870,7 @@ if 'PrescaleService' in process.__dict__:
     process.PrescaleService.lvl1Labels       = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
     process.PrescaleService.prescaleTable    = cms.VPSet( )
 
-# Disable HF Noise filters in HIon menu
+# En-able HF Noise filters in GRun menu
 if 'hltHfreco' in process.__dict__:
     process.hltHfreco.setNoiseFlags = cms.bool( True )
 
