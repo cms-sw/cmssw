@@ -331,15 +331,6 @@ if cmsswVersion > "CMSSW_4_3":
       # manual override some Heavy Ion parameters
       if self.config.type in ('HIon', ):
         self.data += """
-# HIon paths in smart prescalers
-if 'hltPreDQMOutputSmart' in %(dict)s:
-    %(process)shltPreDQMOutputSmart.throw     = cms.bool( False )
-if 'hltPreExpressOutputSmart' in %(dict)s:
-    %(process)shltPreExpressOutputSmart.throw = cms.bool( False )
-if 'hltPreHLTDQMOutputSmart' in %(dict)s:
-    %(process)shltPreHLTDQMOutputSmart.throw  = cms.bool( False )
-if 'hltPreHLTMONOutputSmart' in %(dict)s:
-    %(process)shltPreHLTMONOutputSmart.throw  = cms.bool( False )
 # Disable HF Noise filters in HIon menu
 if 'hltHfreco' in %(dict)s:
     %(process)shltHfreco.setNoiseFlags = cms.bool( False )
@@ -367,15 +358,6 @@ if 'hltHfreco' in %(dict)s:
       # manual override some Heavy Ion parameters
       if self.config.type in ('HIon', ):
         self.data += """
-# HIon paths in smart prescalers
-if 'hltPreDQMOutputSmart' in %(dict)s:
-    %(process)shltPreDQMOutputSmart.throw     = cms.bool( False )
-if 'hltPreExpressOutputSmart' in %(dict)s:
-    %(process)shltPreExpressOutputSmart.throw = cms.bool( False )
-if 'hltPreHLTDQMOutputSmart' in %(dict)s:
-    %(process)shltPreHLTDQMOutputSmart.throw  = cms.bool( False )
-if 'hltPreHLTMONOutputSmart' in %(dict)s:
-    %(process)shltPreHLTMONOutputSmart.throw  = cms.bool( False )
 # Disable HF Noise filters in HIon menu
 if 'hltHfreco' in %(dict)s:
     %(process)shltHfreco.setNoiseFlags = cms.bool( False )
