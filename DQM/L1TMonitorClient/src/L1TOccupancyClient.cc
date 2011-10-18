@@ -40,9 +40,6 @@ L1TOccupancyClient::L1TOccupancyClient(const edm::ParameterSet& ps){
   // Get back-end interface
   dbe_      = Service<DQMStore>().operator->();   
 
-  // Get a service instance
-  hservice_ = new L1TOccupancyClientHistogramService(parameters_,dbe_,verbose_); 
-
 }
 
 //____________________________________________________________________________
@@ -52,7 +49,6 @@ L1TOccupancyClient::L1TOccupancyClient(const edm::ParameterSet& ps){
 L1TOccupancyClient::~L1TOccupancyClient(){
   if(verbose_){cout << "[L1TOccupancyClient:] Called destructor" << endl;}
 }
-
 
 //____________________________________________________________________________
 // Function: beginJob
@@ -75,7 +71,11 @@ void L1TOccupancyClient::beginJob(void){
 // Function: endJob
 // Description: This will be run at the end of each job
 //____________________________________________________________________________
-void L1TOccupancyClient::endJob(){}
+void L1TOccupancyClient::endJob(){
+
+  if(verbose_){cout << "[L1TOccupancyClient:] Called endJob" << endl;}
+  
+}
 
 //____________________________________________________________________________
 // Function: beginRun
@@ -86,6 +86,8 @@ void L1TOccupancyClient::endJob(){}
 //____________________________________________________________________________
 void L1TOccupancyClient::beginRun(const Run& r, const EventSetup& context){
 
+  hservice_ = new L1TOccupancyClientHistogramService(parameters_,dbe_,verbose_); 
+  
   if(verbose_){
     cout << "[L1TOccupancyClient:] Called beginRun" << endl;
 
@@ -99,7 +101,7 @@ void L1TOccupancyClient::beginRun(const Run& r, const EventSetup& context){
   dbe_->setCurrentFolder("L1T/L1TOccupancy/Certification");
   
   // Loop over all tests in defined 
-  for (vector<ParameterSet>::const_iterator it = tests_.begin(); it != tests_.end(); it++) {
+  for (vector<ParameterSet>::iterator it = tests_.begin(); it != tests_.end(); it++) {
 
     // If the test algorithm is XYSymmetry we create the necessary histograms 
     if((*it).getUntrackedParameter<string>("algoName","XYSymmetry")=="XYSymmetry") {
@@ -122,13 +124,13 @@ void L1TOccupancyClient::beginRun(const Run& r, const EventSetup& context){
         sub = td->mkdir((testName+"_Histos_AllLS").c_str(),(testName+"_Histos_AllLS").c_str());
       }
       
-      testLSs_[testName] = 0;
-      
       // Load histograms in service instance
-      hservice_->loadHisto(testName,histPath); 
+      if(hservice_->loadHisto(testName,histPath)){
 
-      // Mask channels specified in python file
-      hservice_->setMarkedChannels(testName,algoParameters.getParameter<vector<ParameterSet> >("maskedAreas")); 
+      
+      
+        // Mask channels specified in python file
+        hservice_->setMaskedBins(testName,algoParameters.getParameter<vector<ParameterSet> >("maskedAreas")); 
 
       // Book MonitorElements
       // * Test results
@@ -153,6 +155,10 @@ void L1TOccupancyClient::beginRun(const Run& r, const EventSetup& context){
       m = dbe_->book1D(title.c_str(),title.c_str(),2500,-.5,2500.-.5);
       m->setTitle(title.c_str());
       meCertification[title] = m;
+   
+        mValidTests.push_back(&(*it));
+	
+      }
       
     }
   }
@@ -166,10 +172,106 @@ void L1TOccupancyClient::beginRun(const Run& r, const EventSetup& context){
 // * const EventSetup& context = Event Setup information
 //____________________________________________________________________________
 void L1TOccupancyClient::endRun(const Run& r, const EventSetup& context){
-  if(verbose_){
-    cout << "[L1TOccupancyClient:] Called endRun()" << endl;
-    file_->Close(); 
+
+  if(verbose_){cout << "[L1TOccupancyClient:] Called endRun()" << endl;}
+
+  // Loop over every test in python
+  for (std::vector<ParameterSet*>::iterator it = mValidTests.begin(); it != mValidTests.end(); it++) {
+
+    ParameterSet &test     = (**it);
+    string       algo_name = test.getUntrackedParameter<string>("algoName","XYSymmetry");
+    string       test_name = test.getParameter         <string>("testName");
+    
+    if(verbose_) {cout << "[L1TOccupancyClient:] Starting calculations for: " << algo_name << " on: " << test_name << endl;}
+    
+    if(algo_name == "XYSymmetry") {
+
+      ParameterSet ps       = (**it).getParameter<ParameterSet>("algoParams");
+      string       histPath = ps.getParameter<string>("histPath");
+
+      vector<pair<int,double> > deadChannels;
+      vector<pair<int,double> > statDev;
+      bool enoughStats = false;
+
+      // Make final block
+      hservice_->updateHistogramEndRun(test_name);
+
+      // Perform the test
+      double dead = xySymmetry(ps,test_name,deadChannels,statDev,enoughStats);
+      stringstream str;
+      str << test_name << "_cumu_LS_EndRun";
+
+      if(verbose_) {
+        TH2F* cumulative_save = (TH2F*) hservice_->getDifferentialHistogram(test_name)->Clone(str.str().c_str());
+
+        cumulative_save->SetTitle(str.str().c_str());
+
+        TDirectory* td = file_->GetDirectory(test_name.c_str());
+
+        td->cd(string(test_name+"_Histos_AllLS").c_str());
+
+        cumulative_save->Write();
+      }
+      // If we have enough statistics, we can write test result 
+      if(enoughStats) {
+
+	// Make the result histogram
+        printDeadChannels(deadChannels,meResults[test_name]->getTH2F(),statDev,test_name);
+	
+	if(verbose_) {
+          TH2F* cumulative_save = (TH2F*) hservice_->getDifferentialHistogram(test_name)->Clone(str.str().c_str());
+          cumulative_save->SetTitle(str.str().c_str());
+          TDirectory* td = file_->GetDirectory(("DQM_L1TOccupancyClient_Snapshots_LS.root:/"+test_name).c_str());
+          td->cd(string(test_name+"_Histos").c_str());
+          cumulative_save->Write();
+
+          // save the result histo
+          TH2F* h2f = meResults[test_name]->getTH2F();
+          stringstream str2;
+          str2 << test_name << "_result_LS_EndRun";
+          TH2F* dead_save = (TH2F*) h2f->Clone(str2.str().c_str());
+        
+          td->cd(string(test_name+"_Results").c_str());
+          dead_save->SetTitle(str2.str().c_str());
+          dead_save->Write();
+        }
+        
+        // Updating test results
+        meDifferential[test_name]->Reset();
+        meDifferential[test_name]->getTH2F()->Add(hservice_->getDifferentialHistogram(test_name));
+        
+        vector<int> lsCertification = hservice_->getLSCertification(test_name);
+
+        // Fill fraction of dead channels
+        for(uint i=0;i<lsCertification.size();i++){
+          int bin = meCertification[test_name]->getTH1()->FindBin(lsCertification[i]);
+          meCertification[test_name]->getTH1()->SetBinContent(bin,1-dead);
+        }
+        
+        // Reset differential histo
+        hservice_->resetHisto(test_name);
+
+        if(verbose_) {cout << "Now we have enough statstics for " << test_name << endl;}
+
+      }else{
+        if(verbose_){cout << "we don't have enough statstics for " << test_name << endl;}
+        
+        // Getting LS which this test monitored
+        vector<int> lsCertification = hservice_->getLSCertification(test_name);
+
+        // Fill fraction of dead channels
+        for(uint i=0;i<lsCertification.size();i++){
+          int bin = meCertification[test_name]->getTH1()->FindBin(lsCertification[i]);
+          meCertification[test_name]->getTH1()->SetBinContent(bin,-1);
+        }
+      }
+    }else {if(verbose_){cout << "No valid algorithm" << std::endl;}}
   }
+
+  if(verbose_){file_->Close();}
+ 
+  delete hservice_;
+
 }
 
 //____________________________________________________________________________
@@ -193,7 +295,7 @@ void L1TOccupancyClient::beginLuminosityBlock(const LuminosityBlock& lumiSeg, co
 void L1TOccupancyClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
                                             const edm::EventSetup& c){
   
-  unsigned int eventLS = lumiSeg.id().luminosityBlock();
+  int eventLS = lumiSeg.id().luminosityBlock();
 
   if(verbose_) {
     cout << "[L1TOccupancyClient:] Called endLuminosityBlock()" << endl;
@@ -201,38 +303,38 @@ void L1TOccupancyClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   }
   
   // Loop over every test in python
-  for (std::vector<ParameterSet>::const_iterator it = tests_.begin(); it != tests_.end(); it++) {
+  for (std::vector<ParameterSet*>::const_iterator it = mValidTests.begin(); it != mValidTests.end(); it++) {
     
-    ParameterSet test      = (*it);
+    ParameterSet &test     = (**it);
     string       algo_name = test.getUntrackedParameter<string>("algoName","XYSymmetry");
     string       test_name = test.getParameter         <string>("testName");
-    
+
+    if(verbose_) {cout << "[L1TOccupancyClient:] Starting calculations for " << algo_name << " on:" << test_name << endl;}
+   
     if(algo_name == "XYSymmetry") {
-      
-      ParameterSet ps       = (*it).getParameter<ParameterSet>("algoParams");
+
+      ParameterSet ps       = (**it).getParameter<ParameterSet>("algoParams");
       string       histPath = ps.getParameter<string>("histPath");
       
       vector<pair<int,double> > deadChannels;
       vector<pair<int,double> > statDev;
       bool enoughStats = false;
-      
+
       // Update histo's data with data of this LS
-      hservice_->updateHisto(test_name,histPath);
+      hservice_->updateHistogramEndLS(test_name,histPath,eventLS);
 
       // Perform the test
       double dead = xySymmetry(ps,test_name,deadChannels,statDev,enoughStats);
       stringstream str;
       str << test_name << "_cumu_LS_" << eventLS;
-      
+
       if(verbose_) {
         TH2F* cumulative_save = (TH2F*) hservice_->getDifferentialHistogram(test_name)->Clone(str.str().c_str());
         cumulative_save->SetTitle(str.str().c_str());
-        TDirectory* td = file_->GetDirectory(("DQM_L1TOccupancyClient_Snapshots_LS.root:/"+test_name).c_str());
+        TDirectory* td = file_->GetDirectory(test_name.c_str());
         td->cd(string(test_name+"_Histos_AllLS").c_str());
         cumulative_save->Write();
       }
-      
-      testLSs_[test_name] = testLSs_[test_name] + 1;
       
       // If we have enough statistics, we can write test result 
       if(enoughStats) {
@@ -262,16 +364,19 @@ void L1TOccupancyClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
         meDifferential[test_name]->Reset();
         meDifferential[test_name]->getTH2F()->Add(hservice_->getDifferentialHistogram(test_name));
         
+        vector<int> lsCertification = hservice_->getLSCertification(test_name);
+
         // Fill fraction of dead channels
-        for(int i=0;i<testLSs_[test_name];i++){meCertification[test_name]->Fill(eventLS-i,1-dead);}
-        
-        testLSs_[test_name] = 0;
-        
-        if(verbose_) {cout << "Now we have enough statstics for " << test_name << endl;}
-        
+        for(uint i=0;i<lsCertification.size();i++){
+	  int bin = meCertification[test_name]->getTH1()->FindBin(lsCertification[i]);
+	  meCertification[test_name]->getTH1()->SetBinContent(bin,1-dead);  
+	}
+	        
         // Reset differential histo
         hservice_->resetHisto(test_name);
-	
+
+        if(verbose_) {cout << "Now we have enough statstics for " << test_name << endl;}
+
       }else{if(verbose_){cout << "we don't have enough statstics for " << test_name << endl;}}
     }else {if(verbose_){cout << "No valid algorithm" << std::endl;}}
   }
@@ -314,7 +419,7 @@ double L1TOccupancyClient::xySymmetry(ParameterSet                ps,
   int    nBins              = 0;
   
   // Axis==1 : Means symmetry axis is vertical
-  if(pAxis==1) {
+  if(pAxis==1){
     
     int maxBinStrip, centralBinStrip; // x-coordinate of strips
     
@@ -475,10 +580,8 @@ double L1TOccupancyClient::xySymmetry(ParameterSet                ps,
     }
   }
   else {if(verbose_){cout << "Invalid axis" << endl;}}
-  
-  //dbe_->setCurrentFolder(saveDir);  //restore path
-  
-  return (deadChannels.size()-hservice_->getNMarkedChannels(iTestName))*1.0/hservice_->getNbinsHisto(iTestName);
+    
+  return (deadChannels.size()-hservice_->getNBinsMasked(iTestName))*1.0/hservice_->getNbinsHisto(iTestName);
 }
 
 //____________________________________________________________________________
@@ -510,13 +613,14 @@ double L1TOccupancyClient::getAvrg(TH2F* iHist, string iTestName, int iAxis, int
 
       // arithmetic average
       case 1: 
-        marked = hservice_->markChannels(iTestName,histo,iBinStrip,iAxis);
+        marked = hservice_->maskBins(iTestName,histo,iBinStrip,iAxis);
         proj   = histo->ProjectionX();
         avg    = proj->GetBinContent(iBinStrip)/(iNBins-marked);
         break;
 
       // median
-      case 2: marked = hservice_->markChannels(iTestName,histo,iBinStrip,iAxis);
+      case 2:
+	marked = hservice_->maskBins(iTestName,histo,iBinStrip,iAxis);
         proj = histo->ProjectionY("_py",iBinStrip,iBinStrip);
         for(int i=0;i<iNBins;i++) {
           values.push_back(proj->GetBinContent(i+1));
@@ -532,12 +636,14 @@ double L1TOccupancyClient::getAvrg(TH2F* iHist, string iTestName, int iAxis, int
 
     switch(iAvgMode) {
       // arithmetic average
-      case 1: marked = hservice_->markChannels(iTestName,histo,iBinStrip,iAxis);
+      case 1:
+	marked = hservice_->maskBins(iTestName,histo,iBinStrip,iAxis);
         proj = histo->ProjectionY();
         avg = proj->GetBinContent(iBinStrip)/(iNBins-marked);
         break;
       // median
-      case 2: marked = hservice_->markChannels(iTestName,histo,iBinStrip,iAxis);
+      case 2:
+	marked = hservice_->maskBins(iTestName,histo,iBinStrip,iAxis);
         proj = histo->ProjectionX("_px",iBinStrip,iBinStrip);
         for(int i=0;i<iNBins;i++) {
           values.push_back(proj->GetBinContent(i+1));
@@ -600,7 +706,7 @@ void L1TOccupancyClient::printDeadChannels(vector< pair<int,double> > iDeadChann
   //put total chi2 in float
 
   if(verbose_) {
-   cout << "total number of suspect channels: " << (iDeadChannels.size()-(hservice_->getNMarkedChannels(iTestName))) << endl;
+   cout << "total number of suspect channels: " << (iDeadChannels.size()-(hservice_->getNBinsMasked(iTestName))) << endl;
   }
 }
 

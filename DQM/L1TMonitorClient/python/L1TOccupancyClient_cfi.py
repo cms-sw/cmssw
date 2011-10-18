@@ -28,7 +28,7 @@ l1tOccupancyClient = cms.EDAnalyzer("L1TOccupancyClient",
         #params_chi2_low = chi2_x0p1,                   #parameters for determination of chi2-threshold
         #params_chi2_up  = chi2_x2,                     #parameters for determination of chi2-threshold
         #markers         = cms.VPSet(
-          #1...units of histogram, 2...x-/y-internal coordinates (starting with 1,1)
+          #0=Histogram Units, 1=Bin Units (starting with 1,1)
           #cms.PSet(kind=cms.int32(2),xmin=cms.double(1), xmax=cms.double(4), ymin=cms.double(1),ymax=cms.double(18)),
           #cms.PSet(kind=cms.int32(2),xmin=cms.double(19),xmax=cms.double(22),ymin=cms.double(1),ymax=cms.double(18))
         #)
@@ -39,8 +39,8 @@ l1tOccupancyClient = cms.EDAnalyzer("L1TOccupancyClient",
       algoParams = cms.PSet(
         histPath        = cms.string('L1T/L1TGCT/TauJetsOccEtaPhi'),
         maskedAreas = cms.VPSet(
-          cms.PSet(kind=cms.int32(2),xmin=cms.double(1),xmax=cms.double(4),ymin=cms.double(1),ymax=cms.double(18)),
-          cms.PSet(kind=cms.int32(2),xmin=cms.double(19),xmax=cms.double(22),ymin=cms.double(1),ymax=cms.double(18))
+          cms.PSet(kind=cms.int32(1),xmin=cms.double(1) ,xmax=cms.double(4) ,ymin=cms.double(1),ymax=cms.double(18)),
+          cms.PSet(kind=cms.int32(1),xmin=cms.double(19),xmax=cms.double(22),ymin=cms.double(1),ymax=cms.double(18))
         )
       )
     ),
@@ -63,8 +63,8 @@ l1tOccupancyClient = cms.EDAnalyzer("L1TOccupancyClient",
       algoParams = cms.PSet(
         histPath        = cms.string('L1T/L1TRCT/RctEmIsoEmOccEtaPhi'),
         maskedAreas = cms.VPSet(
-          cms.PSet(kind=cms.int32(2),xmin=cms.double(1),xmax=cms.double(4),ymin=cms.double(1),ymax=cms.double(18)),
-          cms.PSet(kind=cms.int32(2),xmin=cms.double(19),xmax=cms.double(22),ymin=cms.double(1),ymax=cms.double(18))
+          cms.PSet(kind=cms.int32(1),xmin=cms.double(1), xmax=cms.double(4), ymin=cms.double(1),ymax=cms.double(18)),
+          cms.PSet(kind=cms.int32(1),xmin=cms.double(19),xmax=cms.double(22),ymin=cms.double(1),ymax=cms.double(18))
         )
       )
     ),
@@ -73,8 +73,8 @@ l1tOccupancyClient = cms.EDAnalyzer("L1TOccupancyClient",
       algoParams = cms.PSet(
         histPath        = cms.string('L1T/L1TRCT/RctEmNonIsoEmOccEtaPhi'),
         maskedAreas = cms.VPSet(
-          cms.PSet(kind=cms.int32(2),xmin=cms.double(1),xmax=cms.double(4),ymin=cms.double(1),ymax=cms.double(18)),
-          cms.PSet(kind=cms.int32(2),xmin=cms.double(19),xmax=cms.double(22),ymin=cms.double(1),ymax=cms.double(18))
+          cms.PSet(kind=cms.int32(1),xmin=cms.double(1), xmax=cms.double(4), ymin=cms.double(1),ymax=cms.double(18)),
+          cms.PSet(kind=cms.int32(1),xmin=cms.double(19),xmax=cms.double(22),ymin=cms.double(1),ymax=cms.double(18))
         )
       )
     ),
@@ -83,8 +83,8 @@ l1tOccupancyClient = cms.EDAnalyzer("L1TOccupancyClient",
       algoParams = cms.PSet(
         histPath        = cms.string('L1T/L1TGCT/NonIsoEmOccEtaPhi'),
         maskedAreas = cms.VPSet(
-          cms.PSet(kind=cms.int32(2),xmin=cms.double(1),xmax=cms.double(4),ymin=cms.double(1),ymax=cms.double(18)),
-          cms.PSet(kind=cms.int32(2),xmin=cms.double(19),xmax=cms.double(22),ymin=cms.double(1),ymax=cms.double(18))
+          cms.PSet(kind=cms.int32(1),xmin=cms.double(1), xmax=cms.double(4), ymin=cms.double(1),ymax=cms.double(18)),
+          cms.PSet(kind=cms.int32(1),xmin=cms.double(19),xmax=cms.double(22),ymin=cms.double(1),ymax=cms.double(18))
         )
       )
     ),
@@ -93,8 +93,8 @@ l1tOccupancyClient = cms.EDAnalyzer("L1TOccupancyClient",
       algoParams = cms.PSet(
         histPath        = cms.string('L1T/L1TGCT/IsoEmOccEtaPhi'),
         maskedAreas = cms.VPSet(
-          cms.PSet(kind=cms.int32(2),xmin=cms.double(1),xmax=cms.double(4),ymin=cms.double(1),ymax=cms.double(18)),
-          cms.PSet(kind=cms.int32(2),xmin=cms.double(19),xmax=cms.double(22),ymin=cms.double(1),ymax=cms.double(18))
+          cms.PSet(kind=cms.int32(1),xmin=cms.double(1), xmax=cms.double(4), ymin=cms.double(1),ymax=cms.double(18)),
+          cms.PSet(kind=cms.int32(1),xmin=cms.double(19),xmax=cms.double(22),ymin=cms.double(1),ymax=cms.double(18))
         )
       )
     )
@@ -117,8 +117,8 @@ l1tOccupancyClient = cms.EDAnalyzer("L1TOccupancyClient",
         #rebinFactorY = cms.int32(12),# Rebin factor (Y Axis) to apply over tested histogram
         #maskedAreas  = cms.VPSet(
           #1...units of histogram, 2...x-/y-internal coordinates (starting with 1,1) (rebinned!)
-          #cms.PSet(kind=cms.int32(2),xmin=cms.double(1), xmax=cms.double(4), ymin=cms.double(1),ymax=cms.double(12)),
-          #cms.PSet(kind=cms.int32(2),xmin=cms.double(30),xmax=cms.double(33),ymin=cms.double(1),ymax=cms.double(12))
+          #cms.PSet(kind=cms.int32(1),xmin=cms.double(1), xmax=cms.double(4), ymin=cms.double(1),ymax=cms.double(12)),
+          #cms.PSet(kind=cms.int32(1),xmin=cms.double(30),xmax=cms.double(33),ymin=cms.double(1),ymax=cms.double(12))
         #)
       #)
     #),
@@ -129,14 +129,14 @@ l1tOccupancyClient = cms.EDAnalyzer("L1TOccupancyClient",
         #axis        = cms.int32(2), #which axis should be checked? 1=eta, 2=phi
         #maskedAreas = cms.VPSet(
           #1...units of histogram, 2...x-/y-internal coordinates (starting with 1,1)
-          #cms.PSet(kind=cms.int32(2),xmin=cms.double(4), xmax=cms.double(9), ymin=cms.double(1), ymax=cms.double(1)),
-          #cms.PSet(kind=cms.int32(2),xmin=cms.double(4), xmax=cms.double(9), ymin=cms.double(10),ymax=cms.double(10)),
-          #cms.PSet(kind=cms.int32(2),xmin=cms.double(22),xmax=cms.double(27),ymin=cms.double(1), ymax=cms.double(1)),
-          #cms.PSet(kind=cms.int32(2),xmin=cms.double(22),xmax=cms.double(27),ymin=cms.double(10),ymax=cms.double(10)),
-          #cms.PSet(kind=cms.int32(2),xmin=cms.double(40),xmax=cms.double(45),ymin=cms.double(1), ymax=cms.double(1)),
-          #cms.PSet(kind=cms.int32(2),xmin=cms.double(40),xmax=cms.double(45),ymin=cms.double(10),ymax=cms.double(10)),
-          #cms.PSet(kind=cms.int32(2),xmin=cms.double(49),xmax=cms.double(54),ymin=cms.double(1), ymax=cms.double(1)),
-          #cms.PSet(kind=cms.int32(2),xmin=cms.double(49),xmax=cms.double(54),ymin=cms.double(10),ymax=cms.double(10))
+          #cms.PSet(kind=cms.int32(1),xmin=cms.double(4), xmax=cms.double(9), ymin=cms.double(1), ymax=cms.double(1)),
+          #cms.PSet(kind=cms.int32(1),xmin=cms.double(4), xmax=cms.double(9), ymin=cms.double(10),ymax=cms.double(10)),
+          #cms.PSet(kind=cms.int32(1),xmin=cms.double(22),xmax=cms.double(27),ymin=cms.double(1), ymax=cms.double(1)),
+          #cms.PSet(kind=cms.int32(1),xmin=cms.double(22),xmax=cms.double(27),ymin=cms.double(10),ymax=cms.double(10)),
+          #cms.PSet(kind=cms.int32(1),xmin=cms.double(40),xmax=cms.double(45),ymin=cms.double(1), ymax=cms.double(1)),
+          #cms.PSet(kind=cms.int32(1),xmin=cms.double(40),xmax=cms.double(45),ymin=cms.double(10),ymax=cms.double(10)),
+          #cms.PSet(kind=cms.int32(1),xmin=cms.double(49),xmax=cms.double(54),ymin=cms.double(1), ymax=cms.double(1)),
+          #cms.PSet(kind=cms.int32(1),xmin=cms.double(49),xmax=cms.double(54),ymin=cms.double(10),ymax=cms.double(10))
         #)
       #)
     #),

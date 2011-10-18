@@ -70,13 +70,12 @@ class L1TOccupancyClient: public edm::EDAnalyzer {
     bool verbose_;    //verbose mode
 
     // vector
-    std::vector<edm::ParameterSet> tests_; //all tests defined in python file
-
+    std::vector<edm::ParameterSet>        tests_;      // all tests defined in python file
+    std::vector<edm::ParameterSet*> mValidTests; // Valid tests
     // map
     std::map<std::string,MonitorElement*> meResults;      
     std::map<std::string,MonitorElement*> meDifferential; 
     std::map<std::string,MonitorElement*> meCertification;
-std::map<std::string,int> testLSs_;             //how many LSs in the past are to be certified for current block?
 
   private:
 
