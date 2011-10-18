@@ -1,13 +1,15 @@
 import re
 import subprocess
 
-file = open('interestingEvents_Mu.txt', 'r')
+channel = "El"
+
+file = open('interestingEvents_'+channel+'.txt', 'r')
 events = file.readlines()
 
 runnumber_interest = {}
 eventnumber_interest = {}
 
-command = "hadd Zmumubb_DQM.root "
+command = "hadd Z"+channel+channel+"bb_DQM.root "
 
 for i in range (1,len(events)): 
 
@@ -25,5 +27,6 @@ for i in range (1,len(events)):
 
 print "command = ", command
 
+#subprocess.Popen("python -i getEventsAndProcess.py", shell=True)
 subprocess.Popen(command, shell=True)
 

@@ -4,7 +4,7 @@ import sys
 import re
 import time
 
-file = open('interestingEvents_HSCP.txt', 'r')
+file = open('interestingEvents_El.txt', 'r')
 ##firstline could be primary dataset.
 myPD = file.readline() ##DoubleMu
 #rd   = subprocess.Popen("rm -rf FinalOutput", shell=True)
@@ -13,6 +13,21 @@ myPD = file.readline() ##DoubleMu
 #nd.wait()
 
 events = file.readlines()
+
+for i in range(0,len(events)):
+    print "################################################################################################"
+    print "***> Interesting event #", i , " : " + events[i]
+    pickEvents = "edmPickEvents.py *"+ str(myPD[:-1])+"*RAW " + str(events[i][:-1])
+    print "***> To pick events :", pickEvents
+    pickEventOutput = os.popen(pickEvents).readlines()
+
+    runinfo = re.split('[:]',str(events[i]))
+    pickEventOutput[1] = pickEventOutput[1][:-9]+"_run"+runinfo[0]+"_event"+runinfo[2][:-1]+".root "
+    print "***> To pick and copy :", pickEventOutput[1]
+    prestage = "stager_get -M /castor/cern.ch/cms/"+(pickEventOutput[3])[14:]
+    print "prestage = ",  prestage 
+    os.popen(prestage)
+
 for i in range(0,len(events)):
     print "################################################################################################"
     print "***> Interesting event #", i , " : " + events[i]

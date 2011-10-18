@@ -13,20 +13,23 @@
 ###                                     ###
 ###########################################
 
+channel = "El"
+
 from ROOT import *
 import re
 
-i=16
+i=11
 
-file = open('interestingEvents_Mu.txt', 'r')
+file = open('interestingEvents_'+channel+'.txt', 'r')
 events = file.readlines()
-runinfo_reference = ['172268']
+runinfo_reference = { "Mu": '172268_Mu',
+                      "El": '172268_El'}
 runinfo_interest  = re.split('[:]',str(events[i]))
 
 print "runinfo reference = ", runinfo_reference 
 print "runinfo interest  = ", runinfo_interest 
 
-runnumber_reference  = runinfo_reference[0]
+runnumber_reference  = runinfo_reference[channel]
 runnumber_interest   = runinfo_interest[0]
 eventnumber_interest = runinfo_interest[2][:-1]
 
