@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Haiyun Teng
 //         Created:  Wed Feb 25 18:09:15 CET 2009
-// $Id: RPCCSC.cc,v 1.5 2009/11/13 13:36:49 fambrogl Exp $
+// $Id: RPCCSC.cc,v 1.6 2011/09/27 09:13:43 yana Exp $
 //
 //
 
@@ -265,7 +265,7 @@ RPCCSC::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
       GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0,0,0));
       GlobalPoint CenterPointCSCGlobal = TheChamber->toGlobal(LocalPoint(0,0,0));
       
-      LocalPoint CenterRollinCSCFrame = TheChamber->toLocal(CenterPointRollGlobal);
+      //LocalPoint CenterRollinCSCFrame = TheChamber->toLocal(CenterPointRollGlobal);
 
       float rpcphi=0;
       float cscphi=0;

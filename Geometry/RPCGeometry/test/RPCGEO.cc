@@ -13,7 +13,7 @@
 //
 // Original Author:  pts/91
 //         Created:  Wed Sep 26 17:08:29 CEST 2007
-// $Id: RPCGEO.cc,v 1.6 2010/02/07 11:14:02 carrillo Exp $
+// $Id: RPCGEO.cc,v 1.7 2011/09/27 09:13:43 yana Exp $
 //
 //
 
@@ -392,9 +392,9 @@ RPCGEO::analyze(const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup)
 
 	 	 
 	 for(int strip=1;strip<=stripsinthisroll;++strip){
-	   LocalPoint lCentre=(*r)->centreOfStrip(strip);
-	   const BoundSurface& bSurface = (*r)->surface();
-	   GlobalPoint gCentre = bSurface.toGlobal(lCentre);
+	   //LocalPoint lCentre=(*r)->centreOfStrip(strip);
+	   //const BoundSurface& bSurface = (*r)->surface();
+	   //GlobalPoint gCentre = bSurface.toGlobal(lCentre);
 	   //std::cout<<"Strip="<<strip<<" "<<gCentre.x()<<" "<<gCentre.y()<<" "<<gCentre.z()<<std::endl;
 	   StripsInCMS++;
 	   if(rpcId.region()==0) counterstripsBarrel++;

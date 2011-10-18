@@ -93,7 +93,7 @@ RPCSectorAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup&
       RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
       
       
-      RPCDetId detId=ch->id();
+      //RPCDetId detId=ch->id();
       
       std::vector< const RPCRoll*> rolls = (ch->rolls());
       for(std::vector<const RPCRoll*>::iterator r = rolls.begin();

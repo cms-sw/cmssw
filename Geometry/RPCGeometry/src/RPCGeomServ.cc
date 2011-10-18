@@ -466,11 +466,14 @@ RPCGeomServ::chambernr()
 int 
 RPCGeomServ::segment(){
   int seg=0;
-  int nsec=36;
+  //int nsec=36;
   int nsub=6;
+  // Ring id: Wheel number in Barrel (from -2 to +2) Ring Number in Endcap (from 1 to 3)
+  // Station id : For Barrel: the four groups of chambers at same r (distance from beam axis) and increasing phi
+  //              For Endcap: the three groups of chambers at same z (distance from interaction point), i.e. the disk
   if ( _id->ring()==1 &&  _id->station() > 1) {
     nsub=3;
-    nsec=18;
+    //nsec=18;
   }
   seg =_id->subsector()+nsub*(_id->sector()-1);//+1;
   //  if(seg==nsec+1)seg=1;
