@@ -98,10 +98,12 @@ EERecoSummary::EERecoSummary(const edm::ParameterSet& ps)
   // ... endcap +
   h_recHits_EEP_energyMax     = dqmStore_->book1D("recHits_EEP_energyMax","recHitsEEP_energyMax",110,-10,100);
   h_recHits_EEP_Chi2          = dqmStore_->book1D("recHits_EEP_Chi2","recHits_EEP_Chi2",200,0,100);
+  h_recHits_EEP_time          = dqmStore_->book1D("recHits_EEP_time","recHits_EEP_time",200,-50,50);
 
   // ... endcap -
   h_recHits_EEM_energyMax     = dqmStore_->book1D("recHits_EEM_energyMax","recHits_EEM_energyMax",110,-10,100);
   h_recHits_EEM_Chi2          = dqmStore_->book1D("recHits_EEM_Chi2","recHits_EEM_Chi2",200,0,100);
+  h_recHits_EEM_time          = dqmStore_->book1D("recHits_EEM_time","recHits_EEM_time",200,-50,50);
 
   // Basic Clusters ----------------------------------------------    
   // ... associated endcap rec hits
@@ -200,6 +202,7 @@ void EERecoSummary::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
 	// only channels above noise
 	if (  itr -> energy() > ethrEE_ ){
 	  h_recHits_EEP_Chi2          -> Fill( itr -> chi2() );
+          h_recHits_EEP_time          -> Fill( itr -> time() );
 	}
       }
       
@@ -217,7 +220,7 @@ void EERecoSummary::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
 	// only channels above noise
 	if (  itr -> energy() > ethrEE_ ) {
 	  h_recHits_EEM_Chi2          -> Fill( itr -> chi2() );
-
+          h_recHits_EEM_time          -> Fill( itr -> time() );
 	}
 
       }

@@ -72,6 +72,7 @@ class EBRecoSummary : public edm::EDAnalyzer {
       // ... barrel 
       MonitorElement* h_recHits_EB_energyMax;
       MonitorElement* h_recHits_EB_Chi2;
+      MonitorElement* h_recHits_EB_time;
       MonitorElement* h_recHits_EB_E1oE4; 
       MonitorElement* h_recHits_EB_recoFlag;
       

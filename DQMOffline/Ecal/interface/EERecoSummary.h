@@ -69,9 +69,11 @@ class EERecoSummary : public edm::EDAnalyzer {
       // ... endcap +
       MonitorElement* h_recHits_EEP_energyMax;
       MonitorElement* h_recHits_EEP_Chi2;
+      MonitorElement* h_recHits_EEP_time;
       // ... endcap -
       MonitorElement* h_recHits_EEM_energyMax;
       MonitorElement* h_recHits_EEM_Chi2;
+      MonitorElement* h_recHits_EEM_time;
 
       // Basic Clusters ----------------------------------------------
       MonitorElement* h_basicClusters_recHits_EE_recoFlag;

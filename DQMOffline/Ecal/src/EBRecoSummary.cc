@@ -94,6 +94,7 @@ EBRecoSummary::EBRecoSummary(const edm::ParameterSet& ps)
   // ... barrel
   h_recHits_EB_energyMax     = dqmStore_->book1D("recHits_EB_energyMax","recHitsEB_energyMax",110,-10,100);
   h_recHits_EB_Chi2          = dqmStore_->book1D("recHits_EB_Chi2","recHits_EB_Chi2",200,0,100);
+  h_recHits_EB_time          = dqmStore_->book1D("recHits_EB_time","recHits_EB_time",200,-50,50);
   h_recHits_EB_E1oE4         = dqmStore_->book1D("recHits_EB_E1oE4","recHitsEB_E1oE4",150, 0, 1.5);
   h_recHits_EB_recoFlag      = dqmStore_->book1D("recHits_EB_recoFlag","recHits_EB_recoFlag",16,-0.5,15.5);  
 
@@ -188,6 +189,7 @@ void EBRecoSummary::analyze(const edm::Event& ev, const edm::EventSetup& iSetup)
 
       if ( itr -> energy() > ethrEB_ ){
 	h_recHits_EB_Chi2          -> Fill( itr -> chi2() );
+        h_recHits_EB_time          -> Fill( itr -> time() );
       }
 
       float R4 = EcalTools::swissCross( ebid, *theBarrelEcalRecHits, 0. );
