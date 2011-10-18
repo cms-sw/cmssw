@@ -331,7 +331,7 @@ if cmsswVersion > "CMSSW_4_3":
       # manual override some parameters
       if self.config.type in ('GRun', ):
         self.data += """
-# Disable HF Noise filters in HIon menu
+# En-able HF Noise filters in GRun menu
 if 'hltHfreco' in %(dict)s:
     %(process)shltHfreco.setNoiseFlags = cms.bool( True )
 """
@@ -364,7 +364,7 @@ if 'hltHfreco' in %(dict)s:
       # manual override some parameters
       if self.config.type in ('GRun', ):
         self.data += """
-# Disable HF Noise filters in HIon menu
+# En-able HF Noise filters in GRun menu
 if 'hltHfreco' in %(dict)s:
     %(process)shltHfreco.setNoiseFlags = cms.bool( True )
 """
