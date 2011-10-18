@@ -11,6 +11,7 @@ pixelTripletSeedsForMinBias = FastSimulation.Tracking.TrajectorySeedProducer_cfi
 import FastSimulation.Tracking.HLTPixelTracksProducer_cfi
 hltPixelTracksForMinBias = FastSimulation.Tracking.HLTPixelTracksProducer_cfi.hltPixelTracks.clone()
 hltPixelTracksForHighMult = FastSimulation.Tracking.HLTPixelTracksProducer_cfi.hltPixelTracks.clone()
+hltPixelTracksForHighMult.RegionFactoryPSet.originRadius = cms.double(0.0015)
 from FastSimulation.Tracking.PixelTracksProducer_cfi import *
 #import HLTrigger.HLTfilters.hltBool_cfi
 #hltFilterTriggerType = HLTrigger.HLTfilters.hltBool_cfi.hltBool.clone()
