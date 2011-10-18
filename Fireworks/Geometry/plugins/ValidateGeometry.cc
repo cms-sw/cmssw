@@ -1,6 +1,6 @@
 // -*- C++ -*-
 //
-// $Id: ValidateGeometry.cc,v 1.33 2011/01/12 07:59:26 yana Exp $
+// $Id: ValidateGeometry.cc,v 1.34 2011/01/25 09:40:07 yana Exp $
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -485,7 +485,7 @@ ValidateGeometry::validateDTLayerGeometry()
       int nChannels = parameters[5];
       assert(nChannels == (lastChannel-firstChannel)+1);
 
-      for ( int wireN = firstChannel; wireN <= lastChannel; ++wireN )
+      for ( int wireN = firstChannel; wireN - lastChannel <= 0; ++wireN )
       {
         double localX1 = layer->specificTopology().wirePosition(wireN);
         double localX2 = (wireN -(firstChannel-1)-0.5)*parameters[0] - nChannels/2.0*parameters[0];
@@ -737,7 +737,7 @@ ValidateGeometry::validateCSCLayerGeometry(const int endcap, const char* detname
         double ydiff_local = yOfWire1 - yOfWire2; 
         wire_positions.push_back(ydiff_local);
 
-        GlobalPoint globalPoint = layer->surface().toGlobal(LocalPoint(0.0,yOfWire1,0.0));
+        //GlobalPoint globalPoint = layer->surface().toGlobal(LocalPoint(0.0,yOfWire1,0.0));
 
         /*
         float fwLocalPoint[3] = 
@@ -1132,17 +1132,12 @@ ValidateGeometry::compareShape(const GeomDet* det, const float* shape)
   double shape_length;
   double shape_thickness;
 
-  bool tgeotrap = false;
-  bool tgeobbox = false;
-
   if ( shape[0] == 1 )
   {
     shape_topWidth = shape[2];
     shape_bottomWidth = shape[1];
     shape_length = shape[4];
     shape_thickness = shape[3];
-
-    tgeotrap = true;
   }
   
   else if ( shape[0] == 2 )
@@ -1151,8 +1146,6 @@ ValidateGeometry::compareShape(const GeomDet* det, const float* shape)
     shape_bottomWidth = shape[1];
     shape_length = shape[2];
     shape_thickness = shape[3];
-
-    tgeobbox = true;
   }
   
   else
@@ -1163,9 +1156,6 @@ ValidateGeometry::compareShape(const GeomDet* det, const float* shape)
 
   double topWidth, bottomWidth;
   double length, thickness;
-
-  bool trapezoid = false;
-  bool rectangle = false;
 
   const Bounds* bounds = &(det->surface().bounds());
  
@@ -1179,8 +1169,6 @@ ValidateGeometry::compareShape(const GeomDet* det, const float* shape)
     topWidth = ps[1];
     thickness = ps[2];
     length = ps[3];
-
-    trapezoid = true;
   }
 
   else if ( (dynamic_cast<const RectangularPlaneBounds*>(bounds)) )
@@ -1189,8 +1177,6 @@ ValidateGeometry::compareShape(const GeomDet* det, const float* shape)
     topWidth = det->surface().bounds().width()*0.5;
     bottomWidth = topWidth;
     thickness = det->surface().bounds().thickness()*0.5;
-
-    rectangle = true;
   }
   
   else
