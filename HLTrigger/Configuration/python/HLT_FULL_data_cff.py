@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HLT/V1011 (CMSSW_4_2_0_HLT33)
+# /dev/CMSSW_4_2_0/HLT/V1014 (CMSSW_4_2_0_HLT33)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V1011')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V1014')
 )
 
 streams = cms.PSet( 
@@ -254,9 +254,7 @@ datasets = cms.PSet(
     'HLT_HIZeroBiasPixel_SingleTrack_v1',
     'HLT_HIZeroBiasXOR_v1',
     'HLT_HIZeroBias_v1' ),
-  HT = cms.vstring( 'HLT_DiCentralPFJet30_PFMHT80_v1',
-    'HLT_DiCentralPFJet50_PFMHT80_v1',
-    'HLT_DiJet130_PT130_v9',
+  HT = cms.vstring( 'HLT_DiJet130_PT130_v9',
     'HLT_DiJet160_PT160_v9',
     'HLT_FatJetMass850_DR1p1_Deta2p0_v5',
     'HLT_HT150_v11',
@@ -354,6 +352,8 @@ datasets = cms.PSet(
     'HLT_DiCentralJet20_BTagIP_MET65_v11',
     'HLT_DiCentralJet20_MET100_HBHENoiseFiltered_v4',
     'HLT_DiCentralJet20_MET80_v8',
+    'HLT_DiCentralPFJet30_PFMHT80_v1',
+    'HLT_DiCentralPFJet50_PFMHT80_v1',
     'HLT_DiJet60_MET45_v10',
     'HLT_IsoMu15_L1ETM20_v4',
     'HLT_L2Mu60_1Hit_MET40_v6',
@@ -5172,7 +5172,7 @@ hltAntiKT5CaloJetsSelected = cms.EDFilter( "CaloJetSelector",
     filter = cms.bool( False ),
     cut = cms.string( "pt > 10.0 & abs(eta) < 3" )
 )
-hltPreDSTFatJetaMass400DR1p1Deta2p0RunPF = cms.EDFilter( "HLTPrescaler",
+hltPreDSTFatJetMass400DR1p1Deta2p0RunPF = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -34113,7 +34113,7 @@ HLT_DiJetAve240_v9 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet92 + hltPreDi
 HLT_DiJetAve300_v10 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet128 + hltPreDiJetAve300 + HLTRecoJetSequenceAK5Corrected + hltDiJetAve300 + HLTEndSequence )
 HLT_DiJetAve370_v10 = cms.Path( HLTBeginSequence + hltL1sL1SingleJet128 + hltPreDiJetAve370 + HLTRecoJetSequenceAK5Corrected + hltDiJetAve370 + HLTEndSequence )
 DST_FatJetMass300_DR1p1_Deta2p0_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT100 + hltPreDSTFatJetMass300DR1p1Deta2p0 + HLTRecoJetSequenceAK5Corrected + hltDoubleJet30Central + hltCaloJetCorrectedSelected + hltFatJetMass300DR1p1DEta2p0 + hltAntiKT5CaloJetsSelected + HLTEndSequence )
-DST_FatJetMass400_DR1p1_Deta2p0_RunPF_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT100 + hltPreDSTFatJetaMass400DR1p1Deta2p0RunPF + HLTRecoJetSequenceAK5Corrected + hltDoubleJet30Central + hltCaloJetCorrectedSelected + hltFatJetMass400DR1p1DEta2p0 + hltAntiKT5CaloJetsSelected + HLTPFReconstructionSequence + HLTEndSequence )
+DST_FatJetMass400_DR1p1_Deta2p0_RunPF_v1 = cms.Path( HLTBeginSequence + hltL1sL1HTT100 + hltPreDSTFatJetMass400DR1p1Deta2p0RunPF + HLTRecoJetSequenceAK5Corrected + hltDoubleJet30Central + hltCaloJetCorrectedSelected + hltFatJetMass400DR1p1DEta2p0 + hltAntiKT5CaloJetsSelected + HLTPFReconstructionSequence + HLTEndSequence )
 HLT_FatJetMass850_DR1p1_Deta2p0_v5 = cms.Path( HLTBeginSequence + hltL1sL1HTT100 + hltPreFatJetMass850DR1p1Deta2p0 + HLTRecoJetSequenceAK5Corrected + hltDoubleJet30Central + hltFatJetMass850DR1p1DEta2p0 + HLTEndSequence )
 HLT_DoubleJet30_ForwardBackward_v10 = cms.Path( HLTBeginSequence + hltL1sL1DoubleForJet32EtaOpp + hltPreDoubleJet30ForwardBackward + HLTRecoJetSequenceAK5Corrected + hltDoubleJet30ForwardBackward + HLTEndSequence )
 HLT_DoubleJet60_ForwardBackward_v10 = cms.Path( HLTBeginSequence + hltL1sL1DoubleForJet32EtaOpp + hltPreDoubleJet60ForwardBackward + HLTRecoJetSequenceAK5Corrected + hltDoubleJet60ForwardBackward + HLTEndSequence )

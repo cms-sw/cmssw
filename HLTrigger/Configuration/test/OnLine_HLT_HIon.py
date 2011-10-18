@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V316 (CMSSW_4_2_0_HLT33)
+# /dev/CMSSW_4_2_0/HIon/V317 (CMSSW_4_2_0_HLT33)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V316')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V317')
 )
 
 process.streams = cms.PSet( 
@@ -6298,15 +6298,9 @@ if 'PrescaleService' in process.__dict__:
     process.PrescaleService.lvl1Labels       = cms.vstring( '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' )
     process.PrescaleService.prescaleTable    = cms.VPSet( )
 
-# HIon paths in smart prescalers
-if 'hltPreDQMOutputSmart' in process.__dict__:
-    process.hltPreDQMOutputSmart.throw     = cms.bool( False )
-if 'hltPreExpressOutputSmart' in process.__dict__:
-    process.hltPreExpressOutputSmart.throw = cms.bool( False )
-if 'hltPreHLTDQMOutputSmart' in process.__dict__:
-    process.hltPreHLTDQMOutputSmart.throw  = cms.bool( False )
-if 'hltPreHLTMONOutputSmart' in process.__dict__:
-    process.hltPreHLTMONOutputSmart.throw  = cms.bool( False )
+# Disable HF Noise filters in HIon menu
+if 'hltHfreco' in process.__dict__:
+    process.hltHfreco.setNoiseFlags = cms.bool( False )
 
 # limit the number of events to be processed
 process.maxEvents = cms.untracked.PSet(
