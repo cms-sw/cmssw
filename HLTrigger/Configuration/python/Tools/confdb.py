@@ -328,7 +328,13 @@ if cmsswVersion > "CMSSW_4_3":
       # if requested, override all ED/HLTfilters to always pass ("open" mode)
       self.instrumentOpenMode()
 
-      # manual override some Heavy Ion parameters
+      # manual override some parameters
+      if self.config.type in ('GRun', ):
+        self.data += """
+# Disable HF Noise filters in HIon menu
+if 'hltHfreco' in %(dict)s:
+    %(process)shltHfreco.setNoiseFlags = cms.bool( True )
+"""
       if self.config.type in ('HIon', ):
         self.data += """
 # Disable HF Noise filters in HIon menu
@@ -355,7 +361,13 @@ if 'hltHfreco' in %(dict)s:
       # if requested, override all ED/HLTfilters to always pass ("open" mode)
       self.instrumentOpenMode()
 
-      # manual override some Heavy Ion parameters
+      # manual override some parameters
+      if self.config.type in ('GRun', ):
+        self.data += """
+# Disable HF Noise filters in HIon menu
+if 'hltHfreco' in %(dict)s:
+    %(process)shltHfreco.setNoiseFlags = cms.bool( True )
+"""
       if self.config.type in ('HIon', ):
         self.data += """
 # Disable HF Noise filters in HIon menu
