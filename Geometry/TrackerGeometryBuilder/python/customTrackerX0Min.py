@@ -3,8 +3,8 @@ def customise(process):
     process.XMLFromDBSource.label='ExtendedX0Min'
     process.GlobalTag.toGet = cms.VPSet(
         cms.PSet(record = cms.string("GeometryFileRcd"),
-                 tag = cms.string("XMLFILE_Geometry_ExtendedX0Min_38YV0"),
-                 connect = cms.untracked.string("frontier://FrontierPrep/CMS_COND_GEOMETRY"),
+                 tag = cms.string("XMLFILE_Geometry_311YV1_ExtendedX0Min_mc"),
+                 connect = cms.untracked.string("frontier://FrontierProd/CMS_COND_34X_GEOMETRY"),
                  label = cms.untracked.string("ExtendedX0Min")
                  )
         )
