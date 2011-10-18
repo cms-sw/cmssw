@@ -99,9 +99,7 @@ namespace edm {
     entry.setOptional(optional);
     entry.setWriteToCfi(writeToCfi);
     entries_.push_back(entry);
-    ParameterDescriptionNode* returnValue = node.get();
-    entries_.back().setNode(node);
-    return returnValue;
+    return entries_.back().setNode(node);
   }
 
   void

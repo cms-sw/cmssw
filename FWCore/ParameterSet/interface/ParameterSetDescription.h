@@ -56,7 +56,7 @@ namespace edm {
       edm::value_ptr<ParameterDescriptionNode> const& node() const { return node_; }
       void setOptional(bool value) { optional_ = value; }
       void setWriteToCfi(bool value) { writeToCfi_ = value; }
-      void setNode(std::auto_ptr<ParameterDescriptionNode> node) { node_ = node; }
+      ParameterDescriptionNode* setNode(std::auto_ptr<ParameterDescriptionNode> node) { node_ = node; return node_.operator->(); }
     private:
       bool optional_;
       bool writeToCfi_;
@@ -418,24 +418,18 @@ namespace edm {
   ParameterDescriptionBase*
   ParameterSetDescription::add(U const& iLabel, T const& value, bool isTracked, bool isOptional, bool writeToCfi) {
 
-    std::auto_ptr<ParameterDescriptionBase> pdbase(new ParameterDescription<T>(iLabel, value, isTracked));
-    ParameterDescriptionBase* pdReturn = pdbase.get();
-    std::auto_ptr<ParameterDescriptionNode> node(pdbase);
-    addNode(node, isOptional, writeToCfi);
-
-    return pdReturn;
+    std::auto_ptr<ParameterDescriptionNode> node(new ParameterDescription<T>(iLabel, value, isTracked));
+    ParameterDescriptionNode* pnode = addNode(node, isOptional, writeToCfi);
+    return static_cast<ParameterDescriptionBase*>(pnode);
   }
 
   template<typename T, typename U>
   ParameterDescriptionBase*
   ParameterSetDescription::add(U const& iLabel, bool isTracked, bool isOptional, bool writeToCfi) {
 
-    std::auto_ptr<ParameterDescriptionBase> pdbase(new ParameterDescription<T>(iLabel, isTracked));
-    ParameterDescriptionBase* pdReturn = pdbase.get();
-    std::auto_ptr<ParameterDescriptionNode> node(pdbase);
-    addNode(node, isOptional, writeToCfi);
-
-    return pdReturn;
+    std::auto_ptr<ParameterDescriptionNode> node(new ParameterDescription<T>(iLabel, isTracked));
+    ParameterDescriptionNode* pnode = addNode(node, isOptional, writeToCfi);
+    return static_cast<ParameterDescriptionBase*>(pnode);
   }
 
   template<typename U>
@@ -444,14 +438,10 @@ namespace edm {
                                     ParameterSetDescription const& validator,
                                     std::vector<ParameterSet> const& defaults,
                                     bool isTracked, bool isOptional, bool writeToCfi) {
-    std::auto_ptr<ParameterDescriptionBase> pdbase(
+    std::auto_ptr<ParameterDescriptionNode> node(
         new ParameterDescription<std::vector<ParameterSet> >(iLabel, validator, isTracked, defaults));
-
-    ParameterDescriptionBase* pdReturn = pdbase.get();
-    std::auto_ptr<ParameterDescriptionNode> node(pdbase);
-    addNode(node, isOptional, writeToCfi);
-
-    return pdReturn;
+    ParameterDescriptionNode* pnode = addNode(node, isOptional, writeToCfi);
+    return static_cast<ParameterDescriptionBase*>(pnode);
   }
 
   template<typename U>
@@ -459,26 +449,19 @@ namespace edm {
   ParameterSetDescription::addVPSet(U const& iLabel,
                                     ParameterSetDescription const& validator,
                                     bool isTracked, bool isOptional, bool writeToCfi) {
-    std::auto_ptr<ParameterDescriptionBase> pdbase(
+    std::auto_ptr<ParameterDescriptionNode> node(
         new ParameterDescription<std::vector<ParameterSet> >(iLabel, validator, isTracked));
-
-    ParameterDescriptionBase* pdReturn = pdbase.get();
-    std::auto_ptr<ParameterDescriptionNode> node(pdbase);
-    addNode(node, isOptional, writeToCfi);
-
-    return pdReturn;
+    ParameterDescriptionNode* pnode = addNode(node, isOptional, writeToCfi);
+    return static_cast<ParameterDescriptionBase*>(pnode);
   }
 
   template<typename T, typename U>
   ParameterWildcardBase*
   ParameterSetDescription::addWildcard(U const& pattern, bool isTracked) {
     
-    std::auto_ptr<ParameterWildcardBase> pdbase(new ParameterWildcard<T>(pattern, RequireZeroOrMore, isTracked));
-    ParameterWildcardBase * pdReturn = pdbase.get();
-    std::auto_ptr<ParameterDescriptionNode> node(pdbase);
-    addNode(node, true, false);
-
-    return pdReturn;
+    std::auto_ptr<ParameterDescriptionNode> node(new ParameterWildcard<T>(pattern, RequireZeroOrMore, isTracked));
+    ParameterDescriptionNode* pnode = addNode(node, true, false);
+    return static_cast<ParameterWildcardBase*>(pnode);
   }
 
   template <typename T>
