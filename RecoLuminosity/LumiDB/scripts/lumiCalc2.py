@@ -223,10 +223,9 @@ if __name__ == '__main__':
     else:
         reqTrg=False
         reqHlt=False
-        if options.action!='delivered' and  options.action!='status':
+        if options.action=='recorded':
             reqTrg=True
-            if options.action=='recorded':
-                reqHlt=True
+            reqHlt=True
         session.transaction().start(True)
         schema=session.nominalSchema()
         runlist=lumiCalcAPI.runList(schema,options.fillnum,runmin=None,runmax=None,startT=options.begin,stopT=options.end,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
