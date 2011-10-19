@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V317 (CMSSW_4_2_0_HLT33)
+# /dev/CMSSW_4_2_0/HIon/V318 (CMSSW_4_2_0_HLT34)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V317')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V318')
 )
 
 process.streams = cms.PSet( 
@@ -5600,6 +5600,10 @@ process.hltPreTrackerCalibrationOutput = cms.EDFilter( "HLTPrescaler",
 process.hltOutputA = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputA.root" ),
     fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_HIActivityHF_Coincidence3_v1',
   'HLT_HIActivityHF_Single3_v1',
   'HLT_HIBptxXOR_v1',
@@ -5659,6 +5663,10 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
 process.hltOutputCalibration = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputCalibration.root" ),
     fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_DTCalibration_v1',
   'HLT_EcalCalibration_v2',
   'HLT_HcalCalibration_v2' ) ),
@@ -5672,6 +5680,10 @@ process.hltOutputCalibration = cms.OutputModule( "PoolOutputModule",
 process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputDQM.root" ),
     fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_DTCalibration_v1',
   'HLT_EcalCalibration_v2',
   'HLT_HIActivityHF_Coincidence3_v1',
@@ -5737,6 +5749,10 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
 process.hltOutputEcalCalibration = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputEcalCalibration.root" ),
     fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_EcalCalibration_v2' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep *_hltEcalCalibrationRaw_*_*',
@@ -5746,6 +5762,10 @@ process.hltOutputEcalCalibration = cms.OutputModule( "PoolOutputModule",
 process.hltOutputExpress = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputExpress.root" ),
     fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_HIL2DoubleMu3_v1',
   'HLT_HIMinBiasHfOrBSC_v1' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
@@ -5758,6 +5778,10 @@ process.hltOutputExpress = cms.OutputModule( "PoolOutputModule",
 process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputHLTDQM.root" ),
     fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_HIActivityHF_Coincidence3_v1',
   'HLT_HIActivityHF_Single3_v1',
   'HLT_HIBptxXOR_v1',
@@ -5973,6 +5997,10 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
 process.hltOutputHLTDQMResults = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputHLTDQMResults.root" ),
     fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLTriggerFinalPath' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
@@ -5982,6 +6010,10 @@ process.hltOutputHLTDQMResults = cms.OutputModule( "PoolOutputModule",
 process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputHLTMON.root" ),
     fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_HIActivityHF_Coincidence3_v1',
   'HLT_HIActivityHF_Single3_v1',
   'HLT_HIBptxXOR_v1',
@@ -6166,6 +6198,10 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
 process.hltOutputTrackerCalibration = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputTrackerCalibration.root" ),
     fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_TrackerCalibration_v2' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep *_hltTrackerCalibrationRaw_*_*',

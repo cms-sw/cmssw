@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HLT/V1014 (CMSSW_4_2_0_HLT33)
+# /dev/CMSSW_4_2_0/HLT/V1015 (CMSSW_4_2_0_HLT34)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V1014')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V1015')
 )
 
 streams = cms.PSet( 
@@ -7728,10 +7728,6 @@ hltParticleFlowRecHitECAL = cms.EDProducer( "PFRecHitProducerECAL",
     thresh_Endcap = cms.double( 0.3 )
 )
 hltParticleFlowRecHitHCAL = cms.EDProducer( "PFRecHitProducerHCAL",
-    HcalMaxAllowedHFLongShortSev = cms.int32(9),
-    HcalMaxAllowedHFDigiTimeSev = cms.int32(9),
-    HcalMaxAllowedHFInTimeWindowSev = cms.int32(9),
-    HcalMaxAllowedChannelStatusSev = cms.int32(9),
     hcalRecHitsHBHE = cms.InputTag( "hltHbhereco" ),
     hcalRecHitsHF = cms.InputTag( "hltHfreco" ),
     caloTowers = cms.InputTag( "hltTowerMakerForPF" ),
@@ -7755,6 +7751,10 @@ hltParticleFlowRecHitHCAL = cms.EDProducer( "PFRecHitProducerHCAL",
     MaxLongTiming_Cut = cms.double( 5.0 ),
     ApplyTimeDPG = cms.bool( False ),
     ApplyPulseDPG = cms.bool( True ),
+    HcalMaxAllowedHFLongShortSev = cms.int32( 9 ),
+    HcalMaxAllowedHFDigiTimeSev = cms.int32( 9 ),
+    HcalMaxAllowedHFInTimeWindowSev = cms.int32( 9 ),
+    HcalMaxAllowedChannelStatusSev = cms.int32( 9 ),
     ECAL_Compensate = cms.bool( False ),
     ECAL_Threshold = cms.double( 10.0 ),
     ECAL_Compensation = cms.double( 0.5 ),

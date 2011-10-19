@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V317 (CMSSW_4_2_0_HLT33)
+# /dev/CMSSW_4_2_0/GRun/V318 (CMSSW_4_2_0_HLT34)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V317')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V318')
 )
 
 process.streams = cms.PSet( 
@@ -8491,10 +8491,6 @@ process.hltParticleFlowRecHitECAL = cms.EDProducer( "PFRecHitProducerECAL",
     thresh_Endcap = cms.double( 0.3 )
 )
 process.hltParticleFlowRecHitHCAL = cms.EDProducer( "PFRecHitProducerHCAL",
-    HcalMaxAllowedHFLongShortSev = cms.int32(9),
-    HcalMaxAllowedHFDigiTimeSev = cms.int32(9),
-    HcalMaxAllowedHFInTimeWindowSev = cms.int32(9),
-    HcalMaxAllowedChannelStatusSev = cms.int32(9),
     hcalRecHitsHBHE = cms.InputTag( "hltHbhereco" ),
     hcalRecHitsHF = cms.InputTag( "hltHfreco" ),
     caloTowers = cms.InputTag( "hltTowerMakerForPF" ),
@@ -8518,6 +8514,10 @@ process.hltParticleFlowRecHitHCAL = cms.EDProducer( "PFRecHitProducerHCAL",
     MaxLongTiming_Cut = cms.double( 5.0 ),
     ApplyTimeDPG = cms.bool( False ),
     ApplyPulseDPG = cms.bool( True ),
+    HcalMaxAllowedHFLongShortSev = cms.int32( 9 ),
+    HcalMaxAllowedHFDigiTimeSev = cms.int32( 9 ),
+    HcalMaxAllowedHFInTimeWindowSev = cms.int32( 9 ),
+    HcalMaxAllowedChannelStatusSev = cms.int32( 9 ),
     ECAL_Compensate = cms.bool( False ),
     ECAL_Threshold = cms.double( 10.0 ),
     ECAL_Compensation = cms.double( 0.5 ),
@@ -34007,6 +34007,10 @@ process.hltPreTrackerCalibrationOutput = cms.EDFilter( "HLTPrescaler",
 process.hltOutputA = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputA.root" ),
     fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = ( cms.vstring( 'HLT_300Tower0p5_v1',
   'HLT_300Tower0p6_v1',
   'HLT_300Tower0p7_v1',
@@ -34437,6 +34441,10 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
 process.hltOutputALCAP0 = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputALCAP0.root" ),
     fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'AlCa_EcalEta_v9',
   'AlCa_EcalPi0_v10' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
@@ -34448,6 +34456,10 @@ process.hltOutputALCAP0 = cms.OutputModule( "PoolOutputModule",
 process.hltOutputALCAPHISYM = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputALCAPHISYM.root" ),
     fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'AlCa_EcalPhiSym_v7' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep *_hltAlCaPhiSymStream_*_*',
@@ -34458,6 +34470,10 @@ process.hltOutputALCAPHISYM = cms.OutputModule( "PoolOutputModule",
 process.hltOutputALCALUMIPIXELS = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputALCALUMIPIXELS.root" ),
     fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'AlCa_LumiPixels_v2' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep *_hltFEDSelectorLumiPixels_*_*',
@@ -34466,6 +34482,10 @@ process.hltOutputALCALUMIPIXELS = cms.OutputModule( "PoolOutputModule",
 process.hltOutputCalibration = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputCalibration.root" ),
     fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_DTCalibration_v1',
   'HLT_EcalCalibration_v2',
   'HLT_HcalCalibration_v2' ) ),
@@ -34479,6 +34499,10 @@ process.hltOutputCalibration = cms.OutputModule( "PoolOutputModule",
 process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputDQM.root" ),
     fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = ( cms.vstring( 'HLT_300Tower0p5_v1',
   'HLT_300Tower0p6_v1',
   'HLT_300Tower0p7_v1',
@@ -34915,6 +34939,10 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
 process.hltOutputEcalCalibration = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputEcalCalibration.root" ),
     fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_EcalCalibration_v2' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep *_hltEcalCalibrationRaw_*_*',
@@ -34924,6 +34952,10 @@ process.hltOutputEcalCalibration = cms.OutputModule( "PoolOutputModule",
 process.hltOutputExpress = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputExpress.root" ),
     fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_DoubleEle45_CaloIdL_v6',
   'HLT_DoubleMu45_v10',
   'HLT_DoublePhoton80_v2',
@@ -34953,6 +34985,10 @@ process.hltOutputExpress = cms.OutputModule( "PoolOutputModule",
 process.hltOutputExpressCosmics = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputExpressCosmics.root" ),
     fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_L1SingleEG5_v3',
   'HLT_L1SingleMuOpen_AntiBPTX_v3',
   'HLT_L1SingleMuOpen_DT_v4',
@@ -34969,6 +35005,10 @@ process.hltOutputExpressCosmics = cms.OutputModule( "PoolOutputModule",
 process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputHLTDQM.root" ),
     fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = ( cms.vstring( 'AlCa_EcalEta_v9',
   'AlCa_EcalPhiSym_v7',
   'AlCa_EcalPi0_v10',
@@ -35562,6 +35602,10 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
 process.hltOutputHLTDQMResults = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputHLTDQMResults.root" ),
     fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLTriggerFinalPath' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep L1GlobalTriggerReadoutRecord_hltGtDigis_*_*',
@@ -35571,6 +35615,10 @@ process.hltOutputHLTDQMResults = cms.OutputModule( "PoolOutputModule",
 process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputHLTMON.root" ),
     fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = ( cms.vstring( 'AlCa_EcalEta_v9',
   'AlCa_EcalPhiSym_v7',
   'AlCa_EcalPi0_v10',
@@ -36133,6 +36181,10 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
 process.hltOutputNanoDST = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputNanoDST.root" ),
     fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'DST_Physics_v2' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep *_hltFEDSelector_*_*',
@@ -36143,6 +36195,10 @@ process.hltOutputNanoDST = cms.OutputModule( "PoolOutputModule",
 process.hltOutputPhysicsDST = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputPhysicsDST.root" ),
     fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'DST_FatJetMass300_DR1p1_Deta2p0_v1',
   'DST_FatJetMass400_DR1p1_Deta2p0_RunPF_v1',
   'DST_HT350_RunPF_v1' ) ),
@@ -36157,6 +36213,10 @@ process.hltOutputPhysicsDST = cms.OutputModule( "PoolOutputModule",
 process.hltOutputRPCMON = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputRPCMON.root" ),
     fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'AlCa_RPCMuonNoHits_v6',
   'AlCa_RPCMuonNoTriggers_v6',
   'AlCa_RPCMuonNormalisation_v6' ) ),
@@ -36177,6 +36237,10 @@ process.hltOutputRPCMON = cms.OutputModule( "PoolOutputModule",
 process.hltOutputTrackerCalibration = cms.OutputModule( "PoolOutputModule",
     fileName = cms.untracked.string( "outputTrackerCalibration.root" ),
     fastCloning = cms.untracked.bool( False ),
+    dataset = cms.untracked.PSet(
+        filterName = cms.untracked.string( "" ),
+        dataTier = cms.untracked.string( "RAW" )
+    ),
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_TrackerCalibration_v2' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep *_hltTrackerCalibrationRaw_*_*',
