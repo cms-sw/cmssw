@@ -1,13 +1,13 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2011/03/16 16:53:49 $
- * $Revision: 1.73 $
+ * $Date: 2011/06/10 13:23:26 $
+ * $Revision: 1.74 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino), G. Cerminara (INFN Torino)
  *
  */
 
-#include <DQM/DTMonitorModule/interface/DTDataIntegrityTask.h>
+#include "DQM/DTMonitorModule/interface/DTDataIntegrityTask.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -16,9 +16,10 @@
 #include "EventFilter/DTRawToDigi/interface/DTDDUWords.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include <DQM/DTMonitorModule/interface/DTTimeEvolutionHisto.h>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <DataFormats/FEDRawData/interface/FEDNumbering.h>
+#include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 #include <math.h>
@@ -37,6 +38,9 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps,edm::Activi
 
   // Register the methods that we want to schedule
   //   reg.watchPostEndJob(this,&DTDataIntegrityTask::postEndJob);
+  reg.watchPreBeginLumi(this,&DTDataIntegrityTask::preBeginLumi);
+  reg.watchPreEndLumi(this,&DTDataIntegrityTask::preEndLumi);
+  
   reg.watchPostBeginJob(this,&DTDataIntegrityTask::postBeginJob);
   reg.watchPreProcessEvent(this,&DTDataIntegrityTask::preProcessEvent);
   
@@ -172,6 +176,11 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     histoTitle = "Event Lenght (Bytes) FED " +  dduID_s.str();
     (dduHistos[histoType])[code.getDDUID()] = dbe->book1D(histoName,histoTitle,501,0,16032);
 
+    histoType = "FEDAvgEvLenghtvsLumi";
+    histoName = "FED" + dduID_s.str() + "_" + histoType;
+    histoTitle = "Avg Event Lenght (Bytes) vs LumiSec FED " +  dduID_s.str();
+    dduTimeHistos[histoType][code.getDDUID()] = new DTTimeEvolutionHisto(dbe,histoName,histoTitle,200,10,true,0);
+
     if(mode > 2) return;
 
     histoType = "ROSStatus";
@@ -246,12 +255,10 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     histo->setBinLabel(2,"Almost Full",2);	
     histo->setBinLabel(3,"Not Full",2);	
 
-
     histoType = "BXID";
     histoName = "FED" + dduID_s.str() + "_BXID";
     histoTitle = "Distrib. BX ID (FED" + dduID_s.str() + ")";
     (dduHistos[histoType])[code.getDDUID()] = dbe->book1D(histoName,histoTitle,3600,0,3600);
-
 
   }
 
@@ -370,6 +377,10 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     histoTitle = "Event Lenght (Bytes) FED " +  dduID_s.str() + " ROS " + rosID_s.str();
     (rosHistos[histoType])[code.getROSID()] = dbe->book1D(histoName,histoTitle,101,0,1616);
 
+    histoType = "ROSAvgEventLenghtvsLumi";
+    histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + histoType;
+    histoTitle = "Event Lenght (Bytes) FED " +  dduID_s.str() + " ROS " + rosID_s.str();
+    rosTimeHistos[histoType][code.getROSID()] = new DTTimeEvolutionHisto(dbe,histoName,histoTitle,200,10,true,0);
 
     histoType = "TDCError";
     histoName = "FED" + dduID_s.str() + "_" + folder + rosID_s.str() + "_TDCError";
@@ -435,8 +446,6 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     (rosHistos[histoType])[code.getROSID()] = dbe->book2D(histoName,histoName,25,0,25,100,0,100);
     (rosHistos[histoType])[code.getROSID()]->setAxisTitle("ROB #",1);
     (rosHistos[histoType])[code.getROSID()]->setAxisTitle("ROB wordcounts",2);
-
-    
 
 //     histoType = "Trigger_frequency";                
 //     histoName =  "FED" + dduID_s.str() + "_Trigger_frequency"; 
@@ -721,6 +730,8 @@ void DTDataIntegrityTask::processROS25(DTROS25Data & data, int ddu, int ros) {
 
     // Plot the event lenght //NOHLT
     int rosEventLenght = data.getROSTrailer().EventWordCount()*4;
+    rosTimeHistos["ROSAvgEventLenghtvsLumi"][code.getROSID()]->accumulateValueTimeSlot(rosEventLenght);
+
     if(rosEventLenght > 1600) rosEventLenght = 1600;
     rosHistos["ROSEventLenght"][code.getROSID()]->Fill(rosEventLenght);
   }
@@ -1061,6 +1072,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
   int fedEvtLenght = trailer.lenght()*8;
   //   if(fedEvtLenght > 16000) fedEvtLenght = 16000; // overflow bin
   dduHistos["EventLenght"][code.getDDUID()]->Fill(fedEvtLenght);
+  dduTimeHistos["FEDAvgEvLenghtvsLumi"][code.getDDUID()]->accumulateValueTimeSlot(fedEvtLenght);
 
   if(mode > 1) return;
 
@@ -1187,7 +1199,9 @@ void DTDataIntegrityTask::channelsInROS(int cerosMask, vector<int>& channels){
 void DTDataIntegrityTask::preProcessEvent(const edm::EventID& iEvtid, const edm::Timestamp& iTime) {
 
   nevents++;
-  nEventMonitor->Fill(nevents);
+  nEventMonitor->Fill(nevents);  
+
+  nEventsLS++;
 
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask") << "[DTDataIntegrityTask]: preProcessEvent" <<endl;
   // clear the set of BXids from the ROSs
@@ -1208,7 +1222,37 @@ void DTDataIntegrityTask::preProcessEvent(const edm::EventID& iEvtid, const edm:
 
 }
 
+void DTDataIntegrityTask::preBeginLumi(const edm::LuminosityBlockID& ls, const edm::Timestamp& iTime) {
 
+  nEventsLS = 0;
+
+}
+
+void DTDataIntegrityTask::preEndLumi(const edm::LuminosityBlockID& ls, const edm::Timestamp& iTime) {
+
+  int lumiBlock = ls.luminosityBlock();
+
+  map<std::string, map<int, DTTimeEvolutionHisto*> >::iterator dduIt  = dduTimeHistos.begin();
+  map<std::string, map<int, DTTimeEvolutionHisto*> >::iterator dduEnd = dduTimeHistos.end();
+  for(; dduIt!=dduEnd; ++dduIt) {
+    map<int, DTTimeEvolutionHisto*>::iterator histoIt  = dduIt->second.begin();
+    map<int, DTTimeEvolutionHisto*>::iterator histoEnd = dduIt->second.end();
+    for(; histoIt!=histoEnd; ++histoIt) {
+      histoIt->second->updateTimeSlot(lumiBlock,nEventsLS);
+    }
+  }
+
+  map<std::string, map<int, DTTimeEvolutionHisto*> >::iterator rosIt  = rosTimeHistos.begin();
+  map<std::string, map<int, DTTimeEvolutionHisto*> >::iterator rosEnd = rosTimeHistos.end();
+  for(; rosIt!=rosEnd; ++rosIt) {
+    map<int, DTTimeEvolutionHisto*>::iterator histoIt  = rosIt->second.begin();
+    map<int, DTTimeEvolutionHisto*>::iterator histoEnd = rosIt->second.end();
+    for(; histoIt!=histoEnd; ++histoIt) {
+      histoIt->second->updateTimeSlot(lumiBlock,nEventsLS);
+    }
+  }
+
+}
 
 void DTDataIntegrityTask::postBeginJob() {
   LogTrace("DTRawToDigi|DTDQM|DTMonitorModule|DTDataIntegrityTask") << "[DTDataIntegrityTask]: postBeginJob" <<endl;

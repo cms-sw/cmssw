@@ -5,8 +5,8 @@
  *
  * Class for DT Data Integrity.
  *  
- *  $Date: 2011/03/02 11:28:32 $
- *  $Revision: 1.29 $
+ *  $Date: 2011/06/10 13:23:25 $
+ *  $Revision: 1.30 $
  *
  * \author Marco Zanetti (INFN Padova), Gianluca Cerminara (INFN Torino)
  *
@@ -33,6 +33,7 @@
 
 class DTROS25Data;
 class DTDDUData;
+class DTTimeEvolutionHisto;
 
 
 class DTDataIntegrityTask : public DTDataMonitorInterface {
@@ -59,6 +60,9 @@ public:
   void postBeginJob();
   void postEndJob();
   void preProcessEvent(const edm::EventID& iEvtid, const edm::Timestamp& iTime);
+
+  void preBeginLumi(const edm::LuminosityBlockID& ls, const edm::Timestamp& iTime);
+  void preEndLumi(const edm::LuminosityBlockID& ls, const edm::Timestamp& iTime);
 
 private:
 
@@ -107,6 +111,12 @@ private:
 
   // one for all FEDS
   MonitorElement* hTTSSummary;
+
+  //time histos for DDU/ROS
+  std::map<std::string, std::map<int, DTTimeEvolutionHisto*> > dduTimeHistos;
+  std::map<std::string, std::map<int, DTTimeEvolutionHisto*> > rosTimeHistos;
+
+  int nEventsLS;
 
   int neventsDDU;
   int neventsROS25;
