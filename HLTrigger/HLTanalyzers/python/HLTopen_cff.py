@@ -130,7 +130,7 @@ DoHLTElectron = cms.Path(
     hltL1IsoElectronTrackIsol + 
     hltL1NonIsoElectronTrackIsol +
     hltHFEMClusters +
-    hltHFRecoEcalCandidate
+    hltHFRecoEcalTightCandidate
 )
 
 
