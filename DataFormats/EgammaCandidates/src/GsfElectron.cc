@@ -43,7 +43,7 @@ GsfElectron::GsfElectron
   setCharge(charge) ;
   setVertex(math::XYZPoint(te.positionAtVtx.x(),te.positionAtVtx.y(),te.positionAtVtx.z())) ;
   setPdgId(-11*charge) ;
-  /*if (ecalDrivenSeed())*/ corrections_.ecalEnergy = superCluster()->energy() ;
+  /*if (ecalDrivenSeed())*/ corrections_.correctedEcalEnergy = superCluster()->energy() ;
   assert(ctfInfo.ctfTrack==(GsfElectron::core()->ctfTrack())) ;
   assert(ctfInfo.shFracInnerHits==(GsfElectron::core()->ctfGsfOverlap())) ;
  }
@@ -156,21 +156,21 @@ bool GsfElectron::ecalDriven() const
   return (ecalDrivenSeed()&&passingCutBasedPreselection()) ;
  }
 
-void GsfElectron::setEcalEnergyError( float energyError )
- { corrections_.ecalEnergyError = energyError ; }
+void GsfElectron::setCorrectedEcalEnergyError( float energyError )
+ { corrections_.correctedEcalEnergyError = energyError ; }
 
 void GsfElectron::setCorrectedEcalEnergy( float newEnergy )
  {
   math::XYZTLorentzVectorD momentum = p4() ;
   momentum *= newEnergy/momentum.e() ;
   setP4(momentum) ;
-  showerShape_.hcalDepth1OverEcal *= corrections_.ecalEnergy/newEnergy ;
-  showerShape_.hcalDepth2OverEcal *= corrections_.ecalEnergy/newEnergy ;
-  trackClusterMatching_.eSuperClusterOverP *= newEnergy/corrections_.ecalEnergy ;
-  trackClusterMatching_.eSeedClusterOverP *= newEnergy/corrections_.ecalEnergy ;
-  trackClusterMatching_.eEleClusterOverPout *= newEnergy/corrections_.ecalEnergy ;
-  corrections_.ecalEnergyError *= newEnergy/corrections_.ecalEnergy ;
-  corrections_.ecalEnergy = newEnergy ;
+  showerShape_.hcalDepth1OverEcal *= corrections_.correctedEcalEnergy/newEnergy ;
+  showerShape_.hcalDepth2OverEcal *= corrections_.correctedEcalEnergy/newEnergy ;
+  trackClusterMatching_.eSuperClusterOverP *= newEnergy/corrections_.correctedEcalEnergy ;
+  trackClusterMatching_.eSeedClusterOverP *= newEnergy/corrections_.correctedEcalEnergy ;
+  trackClusterMatching_.eEleClusterOverPout *= newEnergy/corrections_.correctedEcalEnergy ;
+  corrections_.correctedEcalEnergyError *= newEnergy/corrections_.correctedEcalEnergy ;
+  corrections_.correctedEcalEnergy = newEnergy ;
   corrections_.isEcalEnergyCorrected = true ;
  }
 

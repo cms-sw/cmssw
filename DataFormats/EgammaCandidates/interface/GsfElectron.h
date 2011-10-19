@@ -656,11 +656,11 @@ class GsfElectron : public RecoCandidate
 
     struct Corrections
      {
-      bool isEcalEnergyCorrected ;  // true if ecal energy has been corrected
-      float ecalEnergy ;            // ecal corrected energy (if !isEcalEnergyCorrected this value is identical to the supercluster energy)
-      float ecalEnergyError ;       // error on correctedCaloEnergy
-      //bool isMomentumCorrected ;    // DEPRECATED
-      float trackMomentumError ;    // track momentum error from gsf fit
+      bool  isEcalEnergyCorrected ;    // true if ecal energy has been corrected
+      float correctedEcalEnergy ;      // corrected energy (if !isEcalEnergyCorrected this value is identical to the supercluster energy)
+      float correctedEcalEnergyError ; // error on energy
+      //bool isMomentumCorrected ;     // DEPRECATED
+      float trackMomentumError ;       // track momentum error from gsf fit
       //
       LorentzVector fromSuperClusterP4 ; // for P4_FROM_SUPER_CLUSTER
       float fromSuperClusterP4Error ;    // for P4_FROM_SUPER_CLUSTER
@@ -671,7 +671,7 @@ class GsfElectron : public RecoCandidate
       P4Kind candidateP4Kind ;  // say which momentum has been stored in reco::Candidate
       //
       Corrections()
-       : isEcalEnergyCorrected(false), ecalEnergy(0.), ecalEnergyError(999.),
+       : isEcalEnergyCorrected(false), correctedEcalEnergy(0.), correctedEcalEnergyError(999.),
   	     /*isMomentumCorrected(false),*/ trackMomentumError(999.),
   	     fromSuperClusterP4Error(999.), combinedP4Error(999.), pflowP4Error(999.),
   	     candidateP4Kind(P4_UNKNOWN)
@@ -679,7 +679,7 @@ class GsfElectron : public RecoCandidate
      } ;
 
     // setters
-    void setEcalEnergyError( float energyError ) ;
+    void setCorrectedEcalEnergyError( float newEnergyError ) ;
     void setCorrectedEcalEnergy( float newEnergy ) ;
     void setTrackMomentumError( float trackMomentumError ) ;
     void setP4( P4Kind kind, const LorentzVector & p4, float p4Error, bool setCandidate ) ;
@@ -687,8 +687,8 @@ class GsfElectron : public RecoCandidate
 
     // accessors
     bool isEcalEnergyCorrected() const { return corrections_.isEcalEnergyCorrected ; }
-    float ecalEnergy() const { return corrections_.ecalEnergy ; }
-    float ecalEnergyError() const { return corrections_.ecalEnergyError ; }
+    float correctedEcalEnergy() const { return corrections_.correctedEcalEnergy ; }
+    float correctedEcalEnergyError() const { return corrections_.correctedEcalEnergyError ; }
     float trackMomentumError() const { return corrections_.trackMomentumError ; }
     const LorentzVector & p4( P4Kind kind ) const ;
     using RecoCandidate::p4 ;
@@ -697,11 +697,12 @@ class GsfElectron : public RecoCandidate
     const Corrections & corrections() const { return corrections_ ; }
 
     // for backward compatibility
+    void setEcalEnergyError( float energyError ) { setCorrectedEcalEnergyError(energyError) ; }
+    float ecalEnergy() const { return correctedEcalEnergy() ; }
+    float ecalEnergyError() const { return correctedEcalEnergyError() ; }
     //bool isMomentumCorrected() const { return corrections_.isMomentumCorrected ; }
-    float caloEnergy() const
-     { return ecalEnergy() ; }
-    bool isEnergyScaleCorrected() const
-     { return isEcalEnergyCorrected() ; }
+    float caloEnergy() const { return correctedEcalEnergy() ; }
+    bool isEnergyScaleCorrected() const { return isEcalEnergyCorrected() ; }
     void correctEcalEnergy( float newEnergy, float newEnergyError )
      {
       setCorrectedEcalEnergy(newEnergy) ;

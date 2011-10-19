@@ -118,8 +118,8 @@
   <class name="reco::GsfElectron::ConversionRejection" ClassVersion="10">
    <version ClassVersion="10" checksum="190549577"/>
   </class>
-  <class name="reco::GsfElectron::Corrections" ClassVersion="10">
-   <version ClassVersion="10" checksum="3532356763"/>
+  <class name="reco::GsfElectron::Corrections" ClassVersion="11">
+   <version ClassVersion="11" checksum="4279379731"/>
   </class>
   <class name="reco::GsfElectron::ChargeInfo" ClassVersion="10">
    <version ClassVersion="10" checksum="1415326811"/>
