@@ -39,12 +39,12 @@ namespace EgAmbiguityTools
   // for clusters
   float sharedEnergy
    ( const reco::CaloCluster *, const reco::CaloCluster *,
-	 edm::Handle<EcalRecHitCollection> & reducedEBRecHits,
-	 edm::Handle<EcalRecHitCollection> & reducedEERecHits ) ;
+	   edm::Handle<EcalRecHitCollection> & barrelRecHits,
+	   edm::Handle<EcalRecHitCollection> & endcapRecHits ) ;
   float sharedEnergy
    ( const reco::SuperClusterRef &, const reco::SuperClusterRef &,
-	 edm::Handle<EcalRecHitCollection> & reducedEBRecHits,
-	 edm::Handle<EcalRecHitCollection> & reducedEERecHits ) ;
+	   edm::Handle<EcalRecHitCollection> & barrelRecHits,
+	   edm::Handle<EcalRecHitCollection> & endcapRecHits ) ;
 
   // for tracks
   int sharedHits( const reco::GsfTrackRef &, const reco::GsfTrackRef & ) ;

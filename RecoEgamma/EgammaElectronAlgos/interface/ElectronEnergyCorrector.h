@@ -6,29 +6,29 @@
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
 class ElectronEnergyCorrector
-{
- public:
+ {
+  public:
 
-  ElectronEnergyCorrector()
-   {}
+    ElectronEnergyCorrector()
+     {}
 
-  void correct( reco::GsfElectron &, const reco::BeamSpot & bs, bool applyEtaCorrection = true ) ;
-  void setEcalEnergyError( reco::GsfElectron & ) ;
+    void correct( reco::GsfElectron &, const reco::BeamSpot & bs, bool applyEcalEnergyCorrection = true ) ;
+    void setCorrectedEcalEnergyError( reco::GsfElectron & ) ;
 
- private:
+  private:
 
-  //void computeNewEnergy( const reco::GsfElectron &, bool applyEtaCorrection = true ) ;
+    //void computeNewEnergy( const reco::GsfElectron &, bool applyEcalEnergyCorrection = true ) ;
 
-  double fEtaBarrelBad( double scEta ) const ;
-  double fEtaBarrelGood( double scEta ) const ;
-  double fEtaEndcapBad( double scEta ) const ;
-  double fEtaEndcapGood( double scEta ) const ;
+    double fEtaBarrelBad( double scEta ) const ;
+    double fEtaBarrelGood( double scEta ) const ;
+    double fEtaEndcapBad( double scEta ) const ;
+    double fEtaEndcapGood( double scEta ) const ;
 
-//  EcalClusterFunctionBaseClass * ff_ ;
-//  float newEnergy_ ;
-//  float newEnergyError_ ;
+  //  EcalClusterFunctionBaseClass * ff_ ;
+  //  float newEnergy_ ;
+  //  float newEnergyError_ ;
 
-};
+ } ;
 
 #endif
 

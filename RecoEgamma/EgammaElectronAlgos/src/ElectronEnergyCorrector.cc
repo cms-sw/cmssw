@@ -11,7 +11,7 @@
  * \author Ivica Puljak - FESB, Split
  * \author Stephanie Baffioni - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: ElectronEnergyCorrector.cc,v 1.11 2010/09/21 17:06:14 chamont Exp $
+ * \version $Id: ElectronEnergyCorrector.cc,v 1.12 2011/07/07 21:24:14 chamont Exp $
  *
  ****************************************************************************/
 
@@ -47,23 +47,23 @@ float endcapEnergyError( float E, int elClass )
   return energyError(E,parEE[elClass]) ;
  }
 
-void ElectronEnergyCorrector::setEcalEnergyError( reco::GsfElectron & electron )
+void ElectronEnergyCorrector::setCorrectedEcalEnergyError( reco::GsfElectron & electron )
  {
-  double ecalEnergyError = 999. ;
+  double energyError = 999. ;
   double scEnergy = electron.superCluster()->energy() ;
   int eleClass = electron.classification() ;
   if (electron.isEB())
-   { ecalEnergyError =  scEnergy*barrelEnergyError(scEnergy,eleClass) ; }
+   { energyError =  scEnergy*barrelEnergyError(scEnergy,eleClass) ; }
   else if (electron.isEE())
-   { ecalEnergyError =  scEnergy*endcapEnergyError(scEnergy,eleClass) ; }
+   { energyError =  scEnergy*endcapEnergyError(scEnergy,eleClass) ; }
   else
-   { edm::LogWarning("ElectronEnergyCorrector::setEcalEnergyError")<<"nor barrel neither endcap electron !" ; }
-  ecalEnergyError *= (electron.ecalEnergy()/scEnergy) ;
-  electron.setEcalEnergyError(ecalEnergyError) ;
+   { edm::LogWarning("ElectronEnergyCorrector::setEnergyError")<<"nor barrel neither endcap electron !" ; }
+  energyError *= (electron.correctedEcalEnergy()/scEnergy) ;
+  electron.setCorrectedEcalEnergyError(energyError) ;
  }
 
 void ElectronEnergyCorrector::correct
- ( reco::GsfElectron & electron, const reco::BeamSpot & bs, bool applyEtaCorrection )
+ ( reco::GsfElectron & electron, const reco::BeamSpot & bs, bool applyEcalEnergyCorrection )
  {
   if (electron.isEcalEnergyCorrected())
    {
@@ -80,7 +80,7 @@ void ElectronEnergyCorrector::correct
    }
 
   // If not gap, f(eta) correction ;
-  if ( (!applyEtaCorrection) || (electron.isGap()) )
+  if ( (!applyEcalEnergyCorrection) || (electron.isGap()) )
    { return ; }
 
   double scEnergy = electron.superCluster()->energy() ;

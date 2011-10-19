@@ -32,8 +32,8 @@ void GsfElectronBaseProducer::fillDescription( edm::ParameterSetDescription & de
   desc.add<edm::InputTag>("pflowGsfElectronsTag",edm::InputTag("pflowGsfElectrons")) ;
   desc.add<edm::InputTag>("gsfElectronCoresTag",edm::InputTag("gsfElectronCores")) ;
   desc.add<edm::InputTag>("hcalTowers",edm::InputTag("towerMaker")) ;
-  desc.add<edm::InputTag>("reducedBarrelRecHitCollectionTag",edm::InputTag("ecalRecHit","EcalRecHitsEB")) ;
-  desc.add<edm::InputTag>("reducedEndcapRecHitCollectionTag",edm::InputTag("ecalRecHit","EcalRecHitsEE")) ;
+  desc.add<edm::InputTag>("barrelRecHitCollectionTag",edm::InputTag("ecalRecHit","EcalRecHitsEB")) ;
+  desc.add<edm::InputTag>("endcapRecHitCollectionTag",edm::InputTag("ecalRecHit","EcalRecHitsEE")) ;
   //desc.add<edm::InputTag>("pfMvaTag",edm::InputTag("pfElectronTranslator:pf")) ;
   desc.add<edm::InputTag>("seedsTag",edm::InputTag("ecalDrivenElectronSeeds")) ;
   desc.add<edm::InputTag>("beamSpotTag",edm::InputTag("offlineBeamSpot")) ;
@@ -46,7 +46,7 @@ void GsfElectronBaseProducer::fillDescription( edm::ParameterSetDescription & de
   // steering
   desc.add<bool>("useGsfPfRecTracks",true) ;
   desc.add<bool>("applyPreselection",false) ;
-  desc.add<bool>("applyEtaCorrection",false) ;
+  desc.add<bool>("applyEcalEnergyCorrection",false) ;
   desc.add<bool>("applyAmbResolution",false) ;
   desc.add<unsigned>("ambSortingStrategy",1) ;
   desc.add<unsigned>("ambClustersOverlapStrategy",1) ;
@@ -151,8 +151,8 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
   inputCfg_.gsfElectronCores = cfg.getParameter<edm::InputTag>("gsfElectronCoresTag");
   inputCfg_.hcalTowersTag = cfg.getParameter<edm::InputTag>("hcalTowers") ;
   //inputCfg_.tracks_ = cfg.getParameter<edm::InputTag>("tracks");
-  inputCfg_.reducedBarrelRecHitCollection = cfg.getParameter<edm::InputTag>("reducedBarrelRecHitCollectionTag") ;
-  inputCfg_.reducedEndcapRecHitCollection = cfg.getParameter<edm::InputTag>("reducedEndcapRecHitCollectionTag") ;
+  inputCfg_.barrelRecHitCollection = cfg.getParameter<edm::InputTag>("barrelRecHitCollectionTag") ;
+  inputCfg_.endcapRecHitCollection = cfg.getParameter<edm::InputTag>("endcapRecHitCollectionTag") ;
   inputCfg_.pfMVA = cfg.getParameter<edm::InputTag>("pfMvaTag") ;
   inputCfg_.ctfTracks = cfg.getParameter<edm::InputTag>("ctfTracksTag");
   inputCfg_.seedsTag = cfg.getParameter<edm::InputTag>("seedsTag"); // used to check config consistency with seeding
@@ -161,7 +161,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
 
   strategyCfg_.useGsfPfRecTracks = cfg.getParameter<bool>("useGsfPfRecTracks") ;
   strategyCfg_.applyPreselection = cfg.getParameter<bool>("applyPreselection") ;
-  strategyCfg_.applyEtaCorrection = cfg.getParameter<bool>("applyEtaCorrection") ;
+  strategyCfg_.applyEcalEnergyCorrection = cfg.getParameter<bool>("applyEcalEnergyCorrection") ;
   strategyCfg_.applyAmbResolution = cfg.getParameter<bool>("applyAmbResolution") ;
   strategyCfg_.ambSortingStrategy = cfg.getParameter<unsigned>("ambSortingStrategy") ;
   strategyCfg_.ambClustersOverlapStrategy = cfg.getParameter<unsigned>("ambClustersOverlapStrategy") ;
@@ -183,10 +183,6 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
 
   cutsCfg_.maxDeltaEtaBarrel = cfg.getParameter<double>("maxDeltaEtaBarrel") ;
   cutsCfg_.maxDeltaEtaEndcaps = cfg.getParameter<double>("maxDeltaEtaEndcaps") ;
-  cutsCfg_.maxDeltaPhiBarrel = cfg.getParameter<double>("maxDeltaPhiBarrel") ;
-  cutsCfg_.maxDeltaPhiEndcaps = cfg.getParameter<double>("maxDeltaPhiEndcaps") ;
-  cutsCfg_.maxDeltaPhiBarrel = cfg.getParameter<double>("maxDeltaPhiBarrel") ;
-  cutsCfg_.maxDeltaPhiEndcaps = cfg.getParameter<double>("maxDeltaPhiEndcaps") ;
   cutsCfg_.maxDeltaPhiBarrel = cfg.getParameter<double>("maxDeltaPhiBarrel") ;
   cutsCfg_.maxDeltaPhiEndcaps = cfg.getParameter<double>("maxDeltaPhiEndcaps") ;
   cutsCfg_.maxSigmaIetaIetaBarrel = cfg.getParameter<double>("maxSigmaIetaIetaBarrel") ;
@@ -284,8 +280,8 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
 //    edm::LogWarning("GsfElectronAlgo|SpikeRemovalForIsolation")
 //      << "Cannot find the requested method. kSwissCross set instead." ;
 //   }
-  
-  const std::vector<std::string> flagnames = 
+
+  const std::vector<std::string> flagnames =
     cfg.getParameter<std::vector<std::string> >("recHitFlagsToBeExcluded");
   spikeCfg.recHitFlagsToBeExcluded = StringToEnumValue<EcalRecHit::Flags>(flagnames);
 
