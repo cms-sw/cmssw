@@ -1,8 +1,8 @@
  /** \file DQMOffline/Trigger/HLTMuonMatchAndPlot.cc
  *
- *  $Author: klukas $
- *  $Date: 2011/06/29 16:37:15 $
- *  $Revision: 1.28 $
+ *  $Author: rovere $
+ *  $Date: 2011/10/07 09:32:10 $
+ *  $Revision: 1.29 $
  */
 
 
@@ -112,11 +112,12 @@ void HLTMuonMatchAndPlot::beginRun(const edm::Run& iRun,
   // Form is book1D(name, binningType, title) where 'binningType' is used 
   // to fetch the bin settings from binParams_.
   book1D("deltaR", "deltaR", ";#Deltar(reco, HLT);");
-  book1D("resolutionEta", "resolution", 
-         ";(#eta^{reco}-#eta^{HLT})/|#eta^{reco}|;");
-  book1D("resolutionPhi", "resolution", 
-         ";(#phi^{reco}-#phi^{HLT})/|#phi^{reco}|;");
-  book1D("resolutionPt", "resolution", 
+  book1D("hltPt", "pt", ";p_{T} of HLT object");
+  book1D("hltEta", "eta", ";#eta of HLT object");
+  book1D("hltPhi", "phi", ";#phi of HLT object");
+  book1D("resolutionEta", "resolutionEta", ";#eta^{reco}-#eta^{HLT};");
+  book1D("resolutionPhi", "resolutionPhi", ";#phi^{reco}-#phi^{HLT};");
+  book1D("resolutionPt", "resolutionRel", 
          ";(p_{T}^{reco}-p_{T}^{HLT})/|p_{T}^{reco}|;");
 
   for (size_t i = 0; i < 2; i++) {
@@ -140,7 +141,8 @@ void HLTMuonMatchAndPlot::beginRun(const edm::Run& iRun,
  
     // Book histograms for tag and probe
     if (probeParams_.exists("recoCuts")) {
-      book2D("massVsEta_" + suffix, "zMass", "etaCoarse", ";m_{#mu#mu};#eta");
+      book2D("massVsEtaZ_" + suffix, "zMass", "etaCoarse", ";m_{#mu#mu};#eta");
+      book2D("massVsEtaJpsi_" + suffix, "jpsiMass", "etaCoarse", ";m_{#mu#mu};#eta");
     }
 
   }
@@ -195,6 +197,13 @@ void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
   TriggerObjectCollection hltMuons = 
     selectedTriggerObjects(allTriggerObjects, * triggerSummary, targetParams_);
 
+  // Fill plots for HLT muons.
+  for (size_t i = 0; i < hltMuons.size(); i++) {
+    hists_["hltPt"]->Fill(hltMuons[i].pt());
+    hists_["hltEta"]->Fill(hltMuons[i].eta());
+    hists_["hltPhi"]->Fill(hltMuons[i].phi());
+  }
+
   // Find the best trigger object matches for the targetMuons.
   vector<size_t> matches = matchByDeltaR(targetMuons, hltMuons, 
                                          plotCuts_[triggerLevel_ + "DeltaR"]);
@@ -208,8 +217,8 @@ void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
     if (matches[i] < targetMuons.size()) {
       TriggerObject & hltMuon = hltMuons[matches[i]];
       double ptRes = (muon.pt() - hltMuon.pt()) / muon.pt();
-      double etaRes = (muon.eta() - hltMuon.eta()) / fabs(muon.eta());
-      double phiRes = (muon.phi() - hltMuon.phi()) / fabs(muon.phi());
+      double etaRes = muon.eta() - hltMuon.eta();
+      double phiRes = muon.phi() - hltMuon.phi();
       hists_["resolutionEta"]->Fill(etaRes);
       hists_["resolutionPhi"]->Fill(phiRes);
       hists_["resolutionPt"]->Fill(ptRes);
@@ -252,7 +261,8 @@ void HLTMuonMatchAndPlot::analyze(const Event & iEvent,
         Muon & probe = targetMuons[k];
         if (muon.charge() != probe.charge()) {
           double mass = (muon.p4() + probe.p4()).M();
-          hists_["massVsEta_" + suffix]->Fill(mass, muon.eta());
+          hists_["massVsEtaZ_" + suffix]->Fill(mass, muon.eta());
+          hists_["massVsEtaJpsi_" + suffix]->Fill(mass, muon.eta());
         }
       }
 
