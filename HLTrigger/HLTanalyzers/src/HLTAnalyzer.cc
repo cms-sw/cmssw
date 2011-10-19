@@ -32,6 +32,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
 
     hltjets_          = conf.getParameter<edm::InputTag> ("hltjets");
     hltcorjets_       = conf.getParameter<edm::InputTag> ("hltcorjets");    
+    hltcorL1L2L3jets_ = conf.getParameter<edm::InputTag> ("hltcorL1L2L3jets");    
     recjets_          = conf.getParameter<edm::InputTag> ("recjets");
     reccorjets_       = conf.getParameter<edm::InputTag> ("reccorjets");
     genjets_          = conf.getParameter<edm::InputTag> ("genjets");
@@ -230,6 +231,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     // to retrieve from event "iEvent".
     edm::Handle<reco::CaloJetCollection>              hltjets;
     edm::Handle<reco::CaloJetCollection>              hltcorjets;
+    edm::Handle<reco::CaloJetCollection>              hltcorL1L2L3jets;
     edm::Handle<reco::CaloJetCollection>              recjets;
     edm::Handle<reco::CaloJetCollection>              reccorjets;
     edm::Handle<reco::GenJetCollection>               genjets;
@@ -385,6 +387,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     
     getCollection( iEvent, missing, hltjets,         hltjets_,           kHLTjets );
     getCollection( iEvent, missing, hltcorjets,      hltcorjets_,        kHLTCorjets );
+    getCollection( iEvent, missing, hltcorL1L2L3jets,hltcorL1L2L3jets_,  kHLTCorL1L2L3jets );
     getCollection( iEvent, missing, recjets,         recjets_,           kRecjets );
     getCollection( iEvent, missing, reccorjets,      reccorjets_,        kRecCorjets );
     getCollection( iEvent, missing, genjets,         genjets_,           kGenjets );
@@ -528,6 +531,7 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
     jet_analysis_.analyze(iEvent,
 			  hltjets,
 			  hltcorjets,
+                    	  hltcorL1L2L3jets,
                           recjets,
                           reccorjets,
                           genjets,

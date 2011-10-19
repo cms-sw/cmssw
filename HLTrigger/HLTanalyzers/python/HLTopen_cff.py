@@ -36,6 +36,7 @@ HLTEgammaR9ShapeSequence = cms.Sequence( hltL1IsoR9shape + hltL1NonIsoR9shape )
 DoHLTJets = cms.Path(HLTBeginSequence + 
     HLTBeginSequence +
     HLTRecoJetSequenceAK5Corrected +
+    HLTRecoJetSequenceAK5L1FastJetCorrected +
     HLTRecoMETSequence +
     HLTDoLocalHcalWithoutHOSequence                  
 )

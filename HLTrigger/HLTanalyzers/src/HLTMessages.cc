@@ -3,6 +3,7 @@
 const char * kSubEventMap                 = "subevent map";
 const char * kHLTjets                     = "uncorrected HLT jets";
 const char * kHLTCorjets                  = "corrected HLT jets";
+const char * kHLTCorL1L2L3jets            = "corrected, L1L2L3, HLT jets";
 const char * kRecjets                     = "uncorrected reconstructed jets";
 const char * kRecCorjets                  = "corrected reconstructed jets";
 const char * kGenjets                     = "generator jets";

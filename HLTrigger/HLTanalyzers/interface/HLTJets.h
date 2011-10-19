@@ -74,6 +74,7 @@ public:
     void analyze(edm::Event const& iEvent,
 		 const edm::Handle<reco::CaloJetCollection>      & ohjets,
                  const edm::Handle<reco::CaloJetCollection>      & ohcorjets,
+		 const edm::Handle<reco::CaloJetCollection>      & ohcorL1L2L3jets,
 		 const edm::Handle<reco::CaloJetCollection>      & recojets,
 		 const edm::Handle<reco::CaloJetCollection>      & recocorjets,
                  const edm::Handle<reco::GenJetCollection>       & gjets,
@@ -105,6 +106,7 @@ private:
     // Tree variables
     float *jhcalpt, *jhcalphi, *jhcaleta, *jhcale, *jhcalemf, *jhcaln90, *jhcaln90hits;
     float *jhcorcalpt, *jhcorcalphi, *jhcorcaleta, *jhcorcale, *jhcorcalemf, *jhcorcaln90, *jhcorcaln90hits;
+    float *jhcorL1L2L3calpt, *jhcorL1L2L3calphi, *jhcorL1L2L3caleta, *jhcorL1L2L3cale, *jhcorL1L2L3calemf, *jhcorL1L2L3caln90, *jhcorL1L2L3caln90hits;
 
     float *jrcalpt, *jrcalphi, *jrcaleta, *jrcale, *jrcalemf, *jrcaln90, *jrcaln90hits;
     float *jrcorcalpt, *jrcorcalphi, *jrcorcaleta, *jrcorcale, *jrcorcalemf, *jrcorcaln90, *jrcorcaln90hits;
@@ -118,7 +120,7 @@ private:
     float pfmet,pfsumet,pfmetphi; 
 
     int njetgen,ntowcal;
-    int nhjetcal,nhcorjetcal;
+    int nhjetcal,nhcorjetcal,nhcorL1L2L3jetcal;
     int nrjetcal,nrcorjetcal;
     
     // Taus
