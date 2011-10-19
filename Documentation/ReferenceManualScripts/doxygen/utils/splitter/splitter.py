@@ -1,5 +1,6 @@
 '''
 Created on Nov 9, 2010
+Updated on Oct 19, 2011
 
 @author: Mantas Stankevicius
 '''
@@ -80,18 +81,32 @@ def extractLinks():
     lines = content.split("\n")
     for line in lines:
         if (line.find("<tr>") != -1):
-            index = line.rfind(".html\">")
-            # First letter of link
-            letter = line[index+7]
-            letter = letter.upper()
-            if (not INDEX.has_key(letter)):
-                subList = [letter, line]
-                LINKS.append(subList)
-                INDEX[letter] = letter
-            else:
-                for l in LINKS:
-                    if l[0] == letter:
-                        l.append(line)
+            
+            indexFrom = line.rfind(".html\">") + 7
+            indexTo = line.rfind("</a>")
+            linkText = line[indexFrom:indexTo]
+            
+            linkTextParts = linkText.split("::")
+            
+            if len(linkTextParts) == 2:
+                tmpLine = line.replace(linkText, linkTextParts[1])
+                letter = linkTextParts[1][0].upper()
+                appendLinkToList(tmpLine, letter)
+
+            letter = linkText[0].upper()
+            appendLinkToList(line, letter)
+            
+
+def appendLinkToList(line, letter):
+    if (not INDEX.has_key(letter)):
+        subList = [letter, line]
+        LINKS.append(subList)
+        INDEX[letter] = letter
+    else:
+        for l in LINKS:
+            if l[0] == letter:
+                l.append(line)
+    
 
 def createMenu(letter):
     html  = "<div class=\"tabs3\">\n"
