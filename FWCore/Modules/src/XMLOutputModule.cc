@@ -242,12 +242,14 @@ namespace edm {
         if(Reflex::Type::ByName("void") == pointedType || pointedType.IsPointer() || iObject.Address()==0) {
           return;
         }
-
+        return;
+        /*
         //have the code that follows print the contents of the data to which the pointer points
         objectToPrint = Reflex::Object(pointedType, iObject.Address());
         //try to convert it to its actual type (assuming the original type was a base class)
         objectToPrint = Reflex::Object(objectToPrint.CastObject(objectToPrint.DynamicType()));
         indent +=iIndentDelta;
+        */
       }
       std::string typeName(objectToPrint.TypeOf().Name(Reflex::SCOPED));
       if(typeName.empty()){
