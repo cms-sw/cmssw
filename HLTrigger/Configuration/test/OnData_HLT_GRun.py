@@ -8491,6 +8491,10 @@ process.hltParticleFlowRecHitECAL = cms.EDProducer( "PFRecHitProducerECAL",
     thresh_Endcap = cms.double( 0.3 )
 )
 process.hltParticleFlowRecHitHCAL = cms.EDProducer( "PFRecHitProducerHCAL",
+    HcalMaxAllowedHFLongShortSev = cms.int32(9),
+    HcalMaxAllowedHFDigiTimeSev = cms.int32(9),
+    HcalMaxAllowedHFInTimeWindowSev = cms.int32(9),
+    HcalMaxAllowedChannelStatusSev = cms.int32(9),
     hcalRecHitsHBHE = cms.InputTag( "hltHbhereco" ),
     hcalRecHitsHF = cms.InputTag( "hltHfreco" ),
     caloTowers = cms.InputTag( "hltTowerMakerForPF" ),
