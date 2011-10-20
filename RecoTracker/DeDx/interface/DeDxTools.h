@@ -6,6 +6,13 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
+#include "DataFormats/TrackReco/interface/DeDxHit.h"
 
 namespace DeDxTools  {
  
@@ -17,6 +24,8 @@ namespace DeDxTools  {
     int   NSaturating;
   };
 
+   const SiStripCluster* GetCluster(const SiStripRecHit2D* hit);
+   const SiStripCluster* GetCluster(const SiStripRecHit1D* hit);
    void   trajectoryRawHits(const edm::Ref<std::vector<Trajectory> >& trajectory, std::vector<RawHits>& hits, bool usePixel, bool useStrip);
    double genericAverage   (const reco::DeDxHitCollection &, float expo = 1.);
    bool shapeSelection(const std::vector<uint8_t> & ampls);

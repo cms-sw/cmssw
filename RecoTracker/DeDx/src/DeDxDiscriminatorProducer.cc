@@ -15,7 +15,7 @@
 //         Created:  Thu May 31 14:09:02 CEST 2007
 //    Code Updates:  loic Quertenmont (querten)
 //         Created:  Thu May 10 14:09:02 CEST 2008
-// $Id: DeDxDiscriminatorProducer.cc,v 1.20 2011/05/06 06:51:52 querten Exp $
+// $Id: DeDxDiscriminatorProducer.cc,v 1.21 2011/07/28 14:22:55 vlimant Exp $
 //
 //
 
@@ -271,27 +271,27 @@ void DeDxDiscriminatorProducer::produce(edm::Event& iEvent, const edm::EventSetu
 	 
 	 double Prob;
          if(sistripsimplehit){
-       		Prob = GetProbability((sistripsimplehit->cluster()).get(), trajState,sistripsimplehit->geographicalId());	    
-	        if(shapetest && !(DeDxTools::shapeSelection(((sistripsimplehit->cluster()).get())->amplitudes()))) Prob=-1.0;
+       		Prob = GetProbability(DeDxTools::GetCluster(sistripsimplehit), trajState,sistripsimplehit->geographicalId());	    
+	        if(shapetest && !(DeDxTools::shapeSelection(DeDxTools::GetCluster(sistripsimplehit)->amplitudes()))) Prob=-1.0;
                 if(Prob>=0) vect_probs.push_back(Prob);             
             
-		if(ClusterSaturatingStrip((sistripsimplehit->cluster()).get(),sistripsimplehit->geographicalId())>0)NClusterSaturating++;
+		if(ClusterSaturatingStrip(DeDxTools::GetCluster(sistripsimplehit),sistripsimplehit->geographicalId())>0)NClusterSaturating++;
 
          }else if(sistripmatchedhit){
-	        Prob = GetProbability((sistripmatchedhit->monoHit()->cluster()).get(), trajState, sistripmatchedhit->monoHit()->geographicalId());
-	        if(shapetest && !(DeDxTools::shapeSelection(((sistripmatchedhit->monoHit()->cluster()).get())->amplitudes()))) Prob=-1.0;
+	        Prob = GetProbability(DeDxTools::GetCluster(sistripmatchedhit->monoHit()), trajState, sistripmatchedhit->monoHit()->geographicalId());
+	        if(shapetest && !(DeDxTools::shapeSelection(DeDxTools::GetCluster(sistripmatchedhit->monoHit())->amplitudes()))) Prob=-1.0;
                 if(Prob>=0) vect_probs.push_back(Prob);
            
-                Prob = GetProbability((sistripmatchedhit->stereoHit()->cluster()).get(), trajState,sistripmatchedhit->stereoHit()->geographicalId());
+                Prob = GetProbability(DeDxTools::GetCluster(sistripmatchedhit->stereoHit()), trajState,sistripmatchedhit->stereoHit()->geographicalId());
                 if(Prob>=0) vect_probs.push_back(Prob);
             
-		if(ClusterSaturatingStrip((sistripmatchedhit->monoHit()->cluster()).get(),sistripmatchedhit->monoHit()->geographicalId())  >0)NClusterSaturating++;
-		if(ClusterSaturatingStrip((sistripmatchedhit->stereoHit()->cluster()).get(),sistripmatchedhit->stereoHit()->geographicalId())>0)NClusterSaturating++;
+		if(ClusterSaturatingStrip(DeDxTools::GetCluster(sistripmatchedhit->monoHit()),sistripmatchedhit->monoHit()->geographicalId())  >0)NClusterSaturating++;
+		if(ClusterSaturatingStrip(DeDxTools::GetCluster(sistripmatchedhit->stereoHit()),sistripmatchedhit->stereoHit()->geographicalId())>0)NClusterSaturating++;
          }else if(sistripsimple1dhit){ 
-	        Prob = GetProbability((sistripsimple1dhit->cluster()).get(), trajState, sistripsimple1dhit->geographicalId());
-	        if(shapetest && !(DeDxTools::shapeSelection(((sistripsimple1dhit->cluster()).get())->amplitudes()))) Prob=-1.0;
+	        Prob = GetProbability(DeDxTools::GetCluster(sistripsimple1dhit), trajState, sistripsimple1dhit->geographicalId());
+	        if(shapetest && !(DeDxTools::shapeSelection(DeDxTools::GetCluster(sistripsimple1dhit)->amplitudes()))) Prob=-1.0;
                 if(Prob>=0) vect_probs.push_back(Prob);
-		if(ClusterSaturatingStrip((sistripsimple1dhit->cluster()).get(),sistripsimple1dhit->geographicalId())>0)NClusterSaturating++;
+		if(ClusterSaturatingStrip(DeDxTools::GetCluster(sistripsimple1dhit),sistripsimple1dhit->geographicalId())>0)NClusterSaturating++;
          }else{
          }
       }

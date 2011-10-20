@@ -1,17 +1,24 @@
 #include "RecoTracker/DeDx/interface/DeDxTools.h"
 #include <vector>
-#include "TrackingTools/PatternTools/interface/Trajectory.h"
-#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "DataFormats/TrackReco/interface/DeDxHit.h"
 
 #include <numeric>
 namespace DeDxTools {
 using namespace std;
 using namespace reco;
+
+
+   const SiStripCluster* GetCluster(const SiStripRecHit2D* hit){
+     if(hit->cluster         ().isNonnull())return hit->cluster().get();
+     if(hit->cluster_regional().isNonnull())return hit->cluster_regional().get();
+     return NULL;
+   }
+
+   const SiStripCluster* GetCluster(const SiStripRecHit1D* hit){
+     if(hit->cluster         ().isNonnull())return hit->cluster().get();
+     if(hit->cluster_regional().isNonnull())return hit->cluster_regional().get();
+     return NULL;
+   }
+
 
                    
   void trajectoryRawHits(const edm::Ref<std::vector<Trajectory> >& trajectory, vector<RawHits>& hits, bool usePixel, bool useStrip)
