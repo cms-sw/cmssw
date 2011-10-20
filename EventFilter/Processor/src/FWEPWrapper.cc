@@ -61,7 +61,7 @@ namespace evf{
     , hasServiceWebRegistry_(false)
     , monitorInfoSpace_(0) 
     , monitorInfoSpaceLegend_(0) 
-    , timeoutOnStop_(10)
+    , timeoutOnStop_(3)
     , monSleepSec_(1)
     , nbProcessed_(0)
     , nbAccepted_(0)

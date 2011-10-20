@@ -352,6 +352,8 @@ bool FUEventProcessor::configuring(toolbox::task::WorkLoop* wl)
 	evtProcessor_->beginJob(); 
 	if(cpustat_) {delete cpustat_; cpustat_=0;}
 	cpustat_ = new CPUStat(evtProcessor_.getNumberOfMicrostates(),
+			       nbSubProcesses_.value_,
+			       instance_.value_,
 			       iDieUrl_.value_);
 	if(ratestat_) {delete ratestat_; ratestat_=0;}
 	ratestat_ = new RateStat(iDieUrl_.value_);
@@ -431,23 +433,32 @@ bool FUEventProcessor::enabling(toolbox::task::WorkLoop* wl)
     evtProcessor_->beginJob(); 
     if(cpustat_) {delete cpustat_; cpustat_=0;}
     cpustat_ = new CPUStat(evtProcessor_.getNumberOfMicrostates(),
+			   nbSubProcesses_.value_,
+			   instance_.value_,
 			   iDieUrl_.value_);
-    if(iDieStatisticsGathering_.value_){
-      try{
-	cpustat_->sendLegenda(evtProcessor_.getmicromap());
-	xdata::Serializable *legenda = scalersInfoSpace_->find("scalersLegenda");
-	if(legenda !=0){
-	  std::string slegenda = ((xdata::String*)legenda)->value_;
-	  ratestat_->sendLegenda(slegenda);
-       }
-      }
-      catch(evf::Exception &e){
-	LOG4CPLUS_INFO(getApplicationLogger(),"coud not send legenda"
-		       << e.what());
-      }
-    }
     if(ratestat_) {delete ratestat_; ratestat_=0;}
     ratestat_ = new RateStat(iDieUrl_.value_);
+    if(iDieStatisticsGathering_.value_){
+      try
+	{
+	cpustat_->sendLegenda(evtProcessor_.getmicromap());
+	xdata::Serializable *legenda = scalersLegendaInfoSpace_->find("scalersLegenda");
+	if(legenda !=0)
+	  {
+	    std::string slegenda = ((xdata::String*)legenda)->value_;
+	    ratestat_->sendLegenda(slegenda);
+	  }
+	}
+      catch(evf::Exception &e)
+	{
+	  LOG4CPLUS_INFO(getApplicationLogger(),"could not send legenda"
+			 << e.what());
+	}
+      catch (xcept::Exception& e) {
+	LOG4CPLUS_ERROR(getApplicationLogger(),"Failed to get or send legenda."
+			<< e.what());
+      }
+    }
     epInitialized_ = true;
   }
   configuration_ = evtProcessor_.configuration(); // get it again after init has been carried out...
@@ -605,9 +616,9 @@ void FUEventProcessor::subWeb(xgi::Input  *in, xgi::Output *out)
 	*out << "ERROR 405 : Process " << pid << " Not Alive !" << std::endl;
 	return;
       }
-      MsgBuf msg1(meth.length()+ost.str().length(),MSQM_MESSAGE_TYPE_WEB);
-      strcpy(msg1->mtext,meth.c_str());
-      strcpy(msg1->mtext+meth.length(),ost.str().c_str());
+      MsgBuf msg1(meth.length()+ost.str().length()+1,MSQM_MESSAGE_TYPE_WEB);
+      strncpy(msg1->mtext,meth.c_str(),meth.length());
+      strncpy(msg1->mtext+meth.length(),ost.str().c_str(),ost.str().length());
       subs_[i].post(msg1,true);
       unsigned int keep_supersleep_original_value = superSleepSec_.value_;
       superSleepSec_.value_=10*keep_supersleep_original_value;
@@ -920,7 +931,7 @@ bool FUEventProcessor::receiving(toolbox::task::WorkLoop *)
 	pthread_mutex_unlock(&stop_lock_);
 	fclose(stdout);
 	fclose(stderr);
-	exit(EXIT_SUCCESS);
+	_exit(EXIT_SUCCESS);
       }
     if(msg->mtype==MSQM_MESSAGE_TYPE_FSTOP)
       _exit(EXIT_SUCCESS);
@@ -1049,8 +1060,6 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
     }
   xdata::Serializable *lsid = 0; 
   xdata::Serializable *psid = 0;
-  xdata::Serializable *epMAltState = 0; 
-  xdata::Serializable *epmAltState = 0;
   xdata::Serializable *dqmp = 0;
   xdata::UnsignedInteger32 *dqm = 0;
 
@@ -1062,8 +1071,6 @@ bool FUEventProcessor::supervisor(toolbox::task::WorkLoop *)
       psid = applicationInfoSpace_->find("prescaleSetIndex");
       nbProcessed = monitorInfoSpace_->find("nbProcessed");
       nbAccepted  = monitorInfoSpace_->find("nbAccepted");
-      epMAltState = monitorInfoSpace_->find("epSPMacroStateInt");
-      epmAltState = monitorInfoSpace_->find("epSPMicroStateInt");
       dqmp = applicationInfoSpace_-> find("nbDqmUpdates");      
     }
     catch(xdata::exception::Exception e){
@@ -1327,6 +1334,8 @@ bool FUEventProcessor::summarize(toolbox::task::WorkLoop* wl)
     }
   if(atLeastOneProcessUpdatedSuccessfully){
     nbSubProcessesReporting_.value_ = msgCount;
+    evtProcessor_.getPackedTriggerReportAsStruct()->nbExpected = nbSubProcesses_.value_;
+    evtProcessor_.getPackedTriggerReportAsStruct()->nbReporting = nbSubProcessesReporting_.value_;
     evtProcessor_.updateRollingReport();
     evtProcessor_.fireScalersUpdate();
   }
@@ -1343,8 +1352,10 @@ bool FUEventProcessor::summarize(toolbox::task::WorkLoop* wl)
   //  cpustat_->printStat();
   if(iDieStatisticsGathering_.value_){
     try{
+      TriggerReportStatic *trsp = evtProcessor_.getPackedTriggerReportAsStruct();
+      cpustat_ ->setNproc(trsp->eventSummary.totalEvents);
       cpustat_ ->sendStat(evtProcessor_.getLumiSectionReferenceIndex());
-      ratestat_->sendStat((unsigned char*)(evtProcessor_.getPackedTriggerReportAsStruct()),
+      ratestat_->sendStat((unsigned char*)trsp,
 			  sizeof(TriggerReportStatic),
 			  evtProcessor_.getLumiSectionReferenceIndex());
     }catch(evf::Exception &e){
@@ -1482,10 +1493,10 @@ bool FUEventProcessor::receivingAndMonitor(toolbox::task::WorkLoop *)
 	    }
 	  while(bytesToSend !=0){
 	    unsigned int msgSize = bytesToSend>MAX_PIPE_BUFFER_SIZE ? MAX_PIPE_BUFFER_SIZE : bytesToSend;
-	    snprintf(msg1->mtext, NUMERIC_MESSAGE_SIZE, "%d", msgSize);
 	    write(anonymousPipe_[PIPE_WRITE],
 		  out.str().c_str()+MAX_PIPE_BUFFER_SIZE*cycle,
 		  msgSize);
+	    snprintf(msg1->mtext, NUMERIC_MESSAGE_SIZE, "%d", msgSize);
 	    myProcess_->postSlave(msg1,true);
 	    bytesToSend -= msgSize;
 	    cycle++;
@@ -1675,7 +1686,8 @@ void FUEventProcessor::stopSlavesAndAcknowledge()
 	  LOG4CPLUS_ERROR(getApplicationLogger(),reasonForFailedState_);
 	  //	  fsm_.fireFailed(reasonForFailedState_,this);
 	  localLog(reasonForFailedState_);
-	  break;
+	  pthread_mutex_unlock(&stop_lock_);
+	  continue;
 	}
       }
       else {
@@ -1890,7 +1902,7 @@ void FUEventProcessor::makeStaticInfo()
   using namespace utils;
   std::ostringstream ost;
   mDiv(&ost,"ve");
-  ost<< "$Revision: 1.132 $ (" << edm::getReleaseVersion() <<")";
+  ost<< "$Revision: 1.133 $ (" << edm::getReleaseVersion() <<")";
   cDiv(&ost);
   mDiv(&ost,"ou",outPut_.toString());
   mDiv(&ost,"sh",hasShMem_.toString());
