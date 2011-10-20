@@ -55,14 +55,14 @@ HLT_HIActivityHF_Coincidence3_v*
 HLT_HIActivityHF_Single3_v*
 HLT_HIClusterVertexCompatibility_v*
 HLT_HICentralityVeto_v*
-HLT_HIFullTrack12_L1ETT_v*   #  added for 2011 (sr #123853)
-# HLT_HIFullTrack12_L1Jet_v* #  added for 2011 (sr #123853) need new L1 menu
-HLT_HIFullTrack14_L1ETT_v*   #  added for 2011 (sr #123853)
-# HLT_HIFullTrack14_L1Jet_v* #  added for 2011 (sr #123853) need new L1 menu
-HLT_HIFullTrack20_L1ETT_v*   #  added for 2011 (sr #123853)
-# HLT_HIFullTrack20_L1Jet_v* #  added for 2011 (sr #123853) need new L1 menu
-HLT_HIFullTrack25_L1ETT_v*   #  added for 2011 (sr #123853)
-# HLT_HIFullTrack25_L1Jet_v* #  added for 2011 (sr #123853) need new L1 menu
+HLT_HIFullTrack12_L1Central_v*      #  added for 2011 (sr #123853)
+# HLT_HIFullTrack12_L1Peripheral_v* #  added for 2011 (sr #123853) need new L1 menu
+HLT_HIFullTrack14_L1Central_v*      #  added for 2011 (sr #123853)
+# HLT_HIFullTrack14_L1Peripheral_v* #  added for 2011 (sr #123853) need new L1 menu
+HLT_HIFullTrack20_L1Central_v*      #  added for 2011 (sr #123853)
+# HLT_HIFullTrack20_L1Peripheral_v* #  added for 2011 (sr #123853) need new L1 menu
+HLT_HIFullTrack25_L1Central_v*      #  added for 2011 (sr #123853)
+# HLT_HIFullTrack25_L1Peripheral_v* #  added for 2011 (sr #123853) need new L1 menu
 HLT_HIRandom_v*
 # HLT_HIUCC010_v*      #   added for 2011 (sr #123637) need new L1 menu
 # HLT_HIUCC015_v*      #   added for 2011 (sr #123637) need new L1 menu
