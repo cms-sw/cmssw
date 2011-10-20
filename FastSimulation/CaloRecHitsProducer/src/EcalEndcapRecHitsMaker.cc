@@ -20,7 +20,8 @@
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsMCRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
-
+#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 
 #include "CLHEP/GenericFunctions/Erf.hh"
@@ -127,9 +128,13 @@ void EcalEndcapRecHitsMaker::loadEcalEndcapRecHits(edm::Event &iEvent,EERecHitCo
 	   EEDataFrame myDataFrame( ecalDigis.back() );
 	   // myDataFrame.setSize(1); // now useless - by construction fixed at 1 frame - FIXME
 	   //  The real work is in the following line
-	   geVtoGainAdc(theCalorimeterHits_[icell],gain,adc);
-	   myDataFrame.setSample(0,EcalMGPASample(adc,gain));
-	   //ecalDigis.push_back(myDataFrame);
+	  // put the pedestal in sample 0
+	  geVtoGainAdc(0,icell,gain,adc);
+	  myDataFrame.setSample(0,EcalMGPASample(adc,gain));
+	  // put energy +pedestal in sample 1
+	  geVtoGainAdc(theCalorimeterHits_[icell],icell,gain,adc);
+	  myDataFrame.setSample(1,EcalMGPASample(adc,gain));
+
 	}
 
       // If the energy+noise is below the threshold, a hit is nevertheless created, otherwise, there is a risk that a "noisy" hit 
@@ -357,6 +362,11 @@ void EcalEndcapRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
   edm::ESHandle<EcalADCToGeVConstant> agc;
   es.get<EcalADCToGeVConstantRcd>().get(agc);
 
+  edm::ESHandle<EcalPedestals> theEcalPedestals_handle;
+  es.get<EcalPedestalsRcd>().get(theEcalPedestals_handle);
+  const EcalPedestals * pedestals = theEcalPedestals_handle.product();
+  thePedestals_ = &(pedestals->endcapItems());
+
   adcToGeV_=   agc->getEEValue() ; // ~0.06 
   minAdc_ = 200;
   maxAdc_ = 4085;
@@ -516,8 +526,9 @@ void EcalEndcapRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
 }
 
 
-void EcalEndcapRecHitsMaker::geVtoGainAdc(float e,unsigned & gain, unsigned &adc) const
+void EcalEndcapRecHitsMaker::geVtoGainAdc(float e,unsigned index,unsigned & gain, unsigned &adc) const
 {
+  if (e<0.) e=0.;
   if(e<t1_)
     {
       gain = 1; // x1 

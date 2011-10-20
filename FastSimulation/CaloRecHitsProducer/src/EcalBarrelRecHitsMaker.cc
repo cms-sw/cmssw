@@ -19,6 +19,8 @@
 #include "CondFormats/DataRecord/interface/EcalADCToGeVConstantRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstantsMC.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsMCRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalPedestals.h"
+#include "CondFormats/DataRecord/interface/EcalPedestalsRcd.h"
 #include "Geometry/CaloTopology/interface/EcalTrigTowerConstituentsMap.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -142,17 +144,21 @@ void EcalBarrelRecHitsMaker::loadEcalBarrelRecHits(edm::Event &iEvent,EBRecHitCo
       EBDetId myDetId(barrelRawId_[icell]);
       EcalTrigTowerDetId towid= eTTmap_->towerOf(myDetId);
       int TThashedindex=towid.hashedIndex();      
-
       if(doDigis_)
 	{
           ecalDigis.push_back( myDetId );
 	  EBDataFrame myDataFrame( ecalDigis.back() );
-	  // myDataFrame.setSize(1);  // now useless - by construction fixed at 1 frame - FIXME
+	  //	  myDataFrame.setSize(2);  // now useless - by construction fixed at 1 frame - FIXME
 	  //  The real work is in the following line
-	  geVtoGainAdc(theCalorimeterHits_[icell],gain,adc);
+	  // put the pedestal in sample 0
+	  geVtoGainAdc(0,icell,gain,adc);
 	  myDataFrame.setSample(0,EcalMGPASample(adc,gain));
-	  
-	  //      std::cout << "myDataFrame" << myDataFrame.sample(0).raw() << std::endl;
+	  // put energy +pedestal in sample 1
+	  geVtoGainAdc(theCalorimeterHits_[icell],icell,gain,adc);
+	  myDataFrame.setSample(1,EcalMGPASample(adc,gain));
+	  //	  std::cout << " myDataFrame " << myDataFrame.size() << std::endl;
+	  //  std::cout << " myDataFrame " << myDataFrame.sample(0).adc() << std::endl;
+	  //std::cout << " after push_back " << EBDataFrame(ecalDigis.back()).sample(0).adc() << std::endl;
 	  //ecalDigis.push_back(myDataFrame);
 	}
       
@@ -396,6 +402,11 @@ void EcalBarrelRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
   edm::ESHandle<EcalADCToGeVConstant> agc;
   es.get<EcalADCToGeVConstantRcd>().get(agc);
 
+  edm::ESHandle<EcalPedestals> theEcalPedestals_handle;
+  es.get<EcalPedestalsRcd>().get(theEcalPedestals_handle);
+  const EcalPedestals * pedestals = theEcalPedestals_handle.product();
+  thePedestals_ = &(pedestals->barrelItems());
+
   adcToGeV_= agc->getEBValue();// 0.035 ;
   minAdc_ = 200;
   maxAdc_ = 4085;
@@ -556,24 +567,27 @@ void EcalBarrelRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool do
     }  
 }
 
-void EcalBarrelRecHitsMaker::geVtoGainAdc(float e,unsigned & gain, unsigned &adc) const
+void EcalBarrelRecHitsMaker::geVtoGainAdc(float e,unsigned index, unsigned & gain, unsigned &adc) const
 {
+  // no negative ?
+  if(e<0.) e=0.;
+
   if(e<t1_)
     {
       gain = 1; // x1 
       //      std::cout << " E " << e << std::endl;
-      adc = minAdc_ + (unsigned)(e*geVToAdc1_);
+      adc = (*thePedestals_)[index].mean_x1 + (unsigned)(e*geVToAdc1_);
       //      std::cout << " e*geVtoAdc1_ " << e*geVToAdc1_ << " " <<(unsigned)(e*geVToAdc1_) << std::endl;
     } 
   else if (e<t2_)
     {
       gain = 2; 
-      adc = minAdc_ + (unsigned)(e*geVToAdc2_);
+      adc = (*thePedestals_)[index].mean_x6 + (unsigned)(e*geVToAdc2_);
     }
   else 
     {
       gain = 3; 
-      adc = std::min(minAdc_+(unsigned)(e*geVToAdc3_),maxAdc_);
+      adc = std::min(((int)(*thePedestals_)[index].mean_x12+(unsigned)(e*geVToAdc3_)),maxAdc_);
     }
 }
 
