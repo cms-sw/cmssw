@@ -76,8 +76,23 @@
 	</Definition>
 
 	<!-- HISTOGRAMS -->
-	
-	<!-- FED Data Integrity Histograms -->
+
+        <!-- FED Data Integrity Histograms -->
+
+	<Histogram>
+                <Prefix>EMU</Prefix>
+                <SetOption>bar1</SetOption>
+                <SetOptStat>emro</SetOptStat>
+                <Title>FED/DCC Buffer Size</Title>
+                <Type>h1</Type>
+                <XBins>128</XBins>
+                <XMax>65536</XMax>
+                <XMin>0</XMin>
+                <XTitle>Buffer Size in bytes</XTitle>
+                <YTitle># of Events</YTitle>
+                <Name>FEDBufferSize</Name>
+        </Histogram>
+
 
 	<Histogram ref="FEDIntegrityMap">
 		<Title>CSC FED Entries</Title>
