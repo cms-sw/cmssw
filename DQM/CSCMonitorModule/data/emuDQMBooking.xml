@@ -69,7 +69,7 @@
 		<SetStats>0</SetStats>
 		<Type>h1</Type>
 		<XBins>8</XBins>
-		<XMax>757</XMax>
+		<XMax>758</XMax>
 		<XMin>750</XMin>
 		<XTitle>FED ID</XTitle>
 		<YTitle># of Events</YTitle>
