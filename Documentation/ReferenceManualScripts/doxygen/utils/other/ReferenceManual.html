@@ -35,27 +35,20 @@
 <div style="margin:10px">
 <h1>The Reference Manual </h1>
 This is the CMSSW Reference Manual, the reference documentation of all classes and packages in CMSSW.<p>
-This page explains how <a class="el" href="d2/ded/classto.html" title="DQM summary informations.">to</a> write the documentation for your code.
+This page explains how to write the documentation for your code.
 
 <h2>Class Documentation</h2>
 
 Classes and methods are documented with properly formatted <a class="el" href="d3/d88/namespacecomments.html">comments</a> in the code.<p>
-Here is a template of a documented <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Documentation/CodingRules/Template.h?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>">.h file</a>, and of a <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Documentation/CodingRules/Template.cc?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup>">.cc file</a>. The resulting doxygen page is <a class="el" href="d6/d3e/classTemplate.html">here</a>.
+Here is a template of a documented <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Documentation/CodingRules/Template.h?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup">.h file</a>, and of a <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Documentation/CodingRules/Template.cc?rev=HEAD&cvsroot=CMSSW&content-type=text/vnd.viewcvs-markup">.cc file</a>. The resulting doxygen page is <a class="el" href="d6/d3e/classTemplate.html">here</a>.
 
 <h2>Package Documentation</h2>
 
-Each package should contain a very brief description of its content and purpose. Remember that this is a reference, and not a user's guide: tutorials, howtos, etc. are best documented in the <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuide>">CMS Offline Guide</a> and in the <a href="https://twiki.cern.ch/twiki/bin/view/CMS/WorkBook>">WorkBook</a>. Cross links between the CMS Offline Guide and the WorkBook and this manual are a good way <a class="el" href="d2/ded/classto.html" title="DQM summary informations.">to</a> avoid duplication of content.<p>
-This documentation should be written in a file [Package]/doc/[Package].doc, according <a class="el" href="d2/ded/classto.html" title="DQM summary informations.">to</a> the template 
-<a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW/Documentation/ReferenceManualPages/template/Package.doc.template?revision=HEAD&view=markup">Documentation/ReferenceManualPages/template/Package.doc</a>. The simplest way of doing this is <a class="el" href="d2/ded/classto.html" title="DQM summary informations.">to</a> go <a class="el" href="d2/ded/classto.html" title="DQM summary informations.">to</a> the doc/ directory in your package and then run the script  
+Each package should contain a very brief description of its content and purpose. Remember that this is a reference, and not a user's guide: tutorials, howtos, etc. are best documented in the <a href="https://twiki.cern.ch/twiki/bin/view/CMS/SWGuide>">CMS Offline Guide</a> and in the <a href="https://twiki.cern.ch/twiki/bin/view/CMS/WorkBook>">WorkBook</a>. Cross links between the CMS Offline Guide and the WorkBook and this manual are a good way to avoid duplication of content.<p>
+This documentation should be written in a file [Package]/doc/[Package].doc. The simplest way of doing this is to go to the doc/ directory in your package and then run the script  
 <a href="http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/*checkout*/CMSSW/Documentation/ReferenceManualScripts/scripts/makePackageDoc?rev=HEAD&cvsroot=CMSSW">makePackageDoc</a>,
- which is available in your PATH, once you have done eval `scramv1 runtime -csh`. This script creates the file [Package].doc according <a class="el" href="d2/ded/classto.html" title="DQM summary informations.">to</a> the above template, and automatically includes inside it a list of the classes and modules <a class="el" href="d2/ded/classto.html" title="DQM summary informations.">to</a> be documented.<p>
-Documentation on modules can include <b>.cfi</b> files as follows:  
+ which is available in your PATH.
 
- <pre> \htmlinclude myfile.cfi  </pre>
-
-<h2>Domain Documentation</h2>
-
-"Domains", either for subdetectors (Muons, Tracker...) or from a functional point of view (Simulation, Reconstruction...) can be documented in a page directly linked <a class="el" href="d2/ded/classto.html" title="DQM summary informations.">to</a> mainpage. These domain pages should be put in Documentation/ReferenceManualPages.
 <h2> How to generate your documentation locally </h2>
 One you have updated your documentation, you can look at how it displays in the following way:
 
