@@ -56,7 +56,7 @@ void HLTDeDxFilter::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<double>("maxETA",5.5);
   desc.add<edm::InputTag>("inputTracksTag",edm::InputTag("hltL3Mouns"));
   desc.add<edm::InputTag>("inputDeDxTag",edm::InputTag("HLTdedxHarm2"));
-  descriptions.add("hltDedxFilter",desc);
+  descriptions.add("hltDeDxFilter",desc);
 }
 
 
