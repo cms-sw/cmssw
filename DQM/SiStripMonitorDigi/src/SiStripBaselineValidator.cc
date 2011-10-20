@@ -1,6 +1,6 @@
 // Original Author:  Ivan Amos Cali
 //         Created:  Mon Jul 28 14:10:52 CEST 2008
-// $Id: SiStripBaselineValidator.cc,v 1.1 2011/07/25 13:56:39 icali Exp $
+// $Id: SiStripBaselineValidator.cc,v 1.1 2011/10/12 16:24:30 pkurt Exp $
 //
 //
  
@@ -102,7 +102,7 @@ void SiStripBaselineValidator::analyze(const edm::Event& e, const edm::EventSetu
   e.getByLabel(srcProcessedRawDigi_,moduleRawDigi);
   edm::DetSetVector<SiStripRawDigi>::const_iterator itRawDigis = moduleRawDigi->begin();
  
-  uint32_t Nmodule = moduleRawDigi->size();     
+  //  uint32_t Nmodule = moduleRawDigi->size();     
 
    int NumResAPVs=0;
    for (; itRawDigis != moduleRawDigi->end(); ++itRawDigis) {   ///loop over modules
