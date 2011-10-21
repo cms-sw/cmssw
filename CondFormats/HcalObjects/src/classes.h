@@ -80,6 +80,8 @@ namespace {
     HcalFlagHFDigiTimeParams myHcalFlagHFDigiTimeParams;
     std::vector<HcalFlagHFDigiTimeParam> myHcalFlagHFDigiTimeParamVec;
 
+    HcalTimingParams myTimingParams;
+    std::vector<HcalTimingParam> myTimingParamVec;
   };
 }
 
