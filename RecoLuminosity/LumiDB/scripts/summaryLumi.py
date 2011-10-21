@@ -27,7 +27,7 @@ if __name__ == '__main__':
     parser.add_argument('-i',dest='inputdir',action='store',required=False,help='output dir',default='.')
     parser.add_argument('-o',dest='outputdir',action='store',required=False,help='output dir',default='.')
     parser.add_argument('-f',dest='fillnum',action='store',required=False,help='specific fill',default=None)
-    parser.add_argument('-norm',dest='norm',action='store',required=False,help='norm',default=None)
+    parser.add_argument('-norm',dest='norm',action='store',required=False,help='norm',default='pp7TeV')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     parser.add_argument('--with-correction',dest='withFineCorrection',action='store_true',required=False,help='with fine correction',default=None)
     options=parser.parse_args()
@@ -73,6 +73,7 @@ if __name__ == '__main__':
     import commands,os,RecoLuminosity.LumiDB.lumiTime,datetime,time
     for fillnum in fillstoprocess:
         clineElements=['lumiCalc2.py','lumibyls','-b stable','-c',dbname,'-P',authdir,'-f',str(fillnum),'-o','tmp.out']
+        clineElements.append('-norm '+options.norm)
         (exestat,resultStr)=commands.getstatusoutput(' '.join(clineElements))
         if exestat!=0:
             print 'lumiCalc2.py execution error ',resultStr
@@ -102,12 +103,18 @@ if __name__ == '__main__':
             if bstatus=='STABLE BEAMS':
                 stablefillmap[runnum][0].append(unixts)
                 stablefillmap[runnum][1].append(deliveredintl)
-        summaryfilename=os.path.join(options.outputdir,str(fillnum)+summaryfilename)
+        filloutdir=os.path.join(options.outputdir,str(fillnum))
+        if not os.path.exists(filloutdir):
+            os.mkdir(filloutdir)
+        summaryfilename=os.path.join(options.outputdir,str(fillnum),str(fillnum)+summaryfilename)
         print summaryfilename
         ofile=open(summaryfilename,'w')
-        for r in sorted(stablefillmap):
-            rundata=stablefillmap[r]
-            print >>ofile,'%d\t%d\t%.6e\t%.6e'%(min(rundata[0]),max(rundata[0]), max(rundata[1])/lslength,sum(rundata[1]))
+        if len(stablefillmap)==0:
+            print >>ofile,'%s'%('#no stable beams')
+        else:
+            for r in sorted(stablefillmap):
+                rundata=stablefillmap[r]
+                print >>ofile,'%d\t%d\t%.6e\t%.6e'%(min(rundata[0]),max(rundata[0]), max(rundata[1])/lslength,sum(rundata[1]))
         ofile.close()
         os.remove('tmp.out')
         f.close()
