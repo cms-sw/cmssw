@@ -386,10 +386,12 @@ def toScreenLSEffective(lumidata,resultlines,scalefactor,isverbose):
             totOldSelectedLS+=1
         myrecorded=rline[6]
         if myrecorded!='n/a':
-            totOldRecorded+=myrecorded
+            totOldRecorded+=float(myrecorded)
+            rline[6]='%.2f'%float(myrecorded)
         myeff=rline[7]
         if myeff!='n/a':
-            totOldEffective+=myeff
+            totOldEffective+=float(myeff)
+            rline[7]='%.2f'%float(myeff)
         result.append(rline)
         
     totrecordedlumi=0.0
@@ -445,6 +447,9 @@ def toCSVLSEffective(lumidata,filename,resultlines,scalefactor,isverbose):
     input:  {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),{hltpath:[l1name,l1prescale,hltprescale,efflumi]},bxdata,beamdata]}
     '''
     result=[]#[run,ls,hltpath,l1bitname,hltpresc,l1presc,efflumi]
+    for rline in resultlines:
+        result.append(rline)
+         
     for run in sorted(lumidata):#loop over runs
         rundata=lumidata[run]
         if rundata is None:
