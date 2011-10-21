@@ -37,7 +37,8 @@ public :
   void addParticles( TAbsFitParticle* p1, TAbsFitParticle* p2 = 0, TAbsFitParticle* p3 = 0, TAbsFitParticle* p4 = 0,
 		     TAbsFitParticle* p5 = 0, TAbsFitParticle* p6 = 0, TAbsFitParticle* p7 = 0, TAbsFitParticle* p8 = 0,
 		     TAbsFitParticle* p9 = 0, TAbsFitParticle* p10 = 0);
-    
+  void setConstraint(Double_t constraint){_constraint = constraint;};
+
   // returns derivative df/dP with P=(p,E) and f the constraint f=0.
   // The matrix contains one row (df/dp, df/dE).
   virtual TMatrixD* getDerivative( TAbsFitParticle* particle );
