@@ -4,8 +4,8 @@
 /*
  * \file DTTriggerEfficiencyTask.h
  *
- * $Date: 2010/01/05 10:14:40 $
- * $Revision: 1.2 $
+ * $Date: 2011/09/29 10:29:46 $
+ * $Revision: 1.3 $
  * \author C. Battilana - CIEMAT
  *
 */
@@ -83,12 +83,16 @@ class DTTriggerEfficiencyTask: public edm::EDAnalyzer{
   
   int nevents;
 
+  std::string SegmArbitration;
+
   bool processDCC, processDDU, detailedPlots;
   std::vector<std::string> processTags;
   int minBXDDU, maxBXDDU;
 
   float phiAccRange;
   int nMinHitsPhi;
+
+  edm::InputTag inputTagMuons;
 
   edm::InputTag inputTagDCC;
   edm::InputTag inputTagDDU;
