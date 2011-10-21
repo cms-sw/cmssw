@@ -1,3 +1,4 @@
+#include "PhysicsTools/KinFitter/interface/TFitConstraintEp.h"
 #include "PhysicsTools/KinFitter/interface/TFitConstraintM.h"
 #include "PhysicsTools/KinFitter/interface/TAbsFitParticle.h"
 #include "PhysicsTools/KinFitter/interface/TFitParticleEMomDev.h"
@@ -40,6 +41,8 @@ TtSemiLepKinFitter::~TtSemiLepKinFitter()
   delete neutrino_;
   for(std::map<Constraint, TFitConstraintM*>::iterator it = massConstr_.begin(); it != massConstr_.end(); ++it)
     delete it->second;
+  delete sumPxConstr_;
+  delete sumPyConstr_;
 }
 
 void TtSemiLepKinFitter::printSetup() const
@@ -53,6 +56,7 @@ void TtSemiLepKinFitter::printSetup() const
     case kTopLepMass     : constr << "    * leptonic t-mass (" << mTop_ << " GeV) \n"; break;
     case kNeutrinoMass   : constr << "    * neutrino   mass (0 GeV) \n"; break;
     case kEqualTopMasses : constr << "    * equal    t-masses \n"; break;
+    case kSumPt          : constr << "    * summed transverse momentum \n"; break;
     }
   }
   edm::LogVerbatim( "TtSemiLepKinFitter" ) 
@@ -119,6 +123,8 @@ void TtSemiLepKinFitter::setupConstraints()
   massConstr_[kTopLepMass    ] = new TFitConstraintM("TopMassLep",    "TopMassLep",    0, 0, mTop_);
   massConstr_[kNeutrinoMass  ] = new TFitConstraintM("NeutrinoMass",  "NeutrinoMass",  0, 0,    0.);
   massConstr_[kEqualTopMasses] = new TFitConstraintM("EqualTopMasses","EqualTopMasses",0, 0,    0.);
+  sumPxConstr_                 = new TFitConstraintEp("SumPx",        "SumPx", 0, TFitConstraintEp::pX, 0.);
+  sumPyConstr_                 = new TFitConstraintEp("SumPy",        "SumPy", 0, TFitConstraintEp::pY, 0.);
 
   massConstr_[kWHadMass      ]->addParticles1(hadP_,   hadQ_    );
   massConstr_[kWLepMass      ]->addParticles1(lepton_, neutrino_);
@@ -127,6 +133,12 @@ void TtSemiLepKinFitter::setupConstraints()
   massConstr_[kNeutrinoMass  ]->addParticle1 (neutrino_);
   massConstr_[kEqualTopMasses]->addParticles1(hadP_, hadQ_, hadB_);
   massConstr_[kEqualTopMasses]->addParticles2(lepton_, neutrino_, lepB_);
+  sumPxConstr_->addParticles(lepton_, neutrino_, hadP_, hadQ_, hadB_, lepB_);
+  sumPyConstr_->addParticles(lepton_, neutrino_, hadP_, hadQ_, hadB_, lepB_);
+
+  if(std::find(constrList_.begin(), constrList_.end(), kSumPt)!=constrList_.end())
+    constrainSumPt_ = true;
+  constrainSumPt_ = false;
 }
 
 void TtSemiLepKinFitter::setupFitter() 
@@ -147,7 +159,12 @@ void TtSemiLepKinFitter::setupFitter()
 
   // add constraints
   for(unsigned int i=0; i<constrList_.size(); i++){
-    fitter_->addConstraint(massConstr_[constrList_[i]]);
+    if(constrList_[i]!=kSumPt)
+      fitter_->addConstraint(massConstr_[constrList_[i]]);
+  }
+  if(constrainSumPt_) {
+    fitter_->addConstraint(sumPxConstr_);
+    fitter_->addConstraint(sumPyConstr_);
   }
 }
 
@@ -170,6 +187,12 @@ int TtSemiLepKinFitter::fit(const std::vector<pat::Jet>& jets, const pat::Lepton
   TLorentzVector p4LepB( lepB.px(), lepB.py(), lepB.pz(), lepB.energy() );
   TLorentzVector p4Lepton  ( lepton.px(), lepton.py(), lepton.pz(), lepton.energy() );
   TLorentzVector p4Neutrino( neutrino.px(), neutrino.py(), 0, neutrino.et() );
+
+  //setup Px and Py constraint for curent event configuration so that sum Pt will be conserved
+  if(constrainSumPt_){
+    sumPxConstr_->setConstraint( hadP.px() + hadQ.px() + hadB.px() + lepB.px() + lepton.px() + neutrino.px() );
+    sumPyConstr_->setConstraint( hadP.py() + hadQ.py() + hadB.py() + lepB.py() + lepton.py() + neutrino.py() );
+  }
 
   // initialize covariance matrices
   CovarianceMatrix covM;

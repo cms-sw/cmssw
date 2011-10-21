@@ -43,6 +43,7 @@ process.load("PhysicsTools.PatAlgos.patSequences_cff")
 
 ## std sequence to produce the kinematic fit for semi-leptonic events
 process.load("TopQuarkAnalysis.TopKinFitter.TtSemiLepKinFitProducer_Muons_cfi")
+process.kinFitTtSemiLepEvent.constraints = [1,2]
 
 ## process path
 process.p = cms.Path(process.patDefaultSequence *

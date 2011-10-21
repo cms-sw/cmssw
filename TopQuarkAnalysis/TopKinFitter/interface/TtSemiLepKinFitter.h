@@ -13,6 +13,7 @@
 
 class TAbsFitParticle;
 class TFitConstraintM;
+class TFitConstraintEp;
 
 /*
   \class   TtSemiLepKinFitter TtSemiLepKinFitter.h "TopQuarkAnalysis/TopKinFitter/interface/TtSemiLepKinFitter.h"
@@ -28,7 +29,7 @@ class TtSemiLepKinFitter : public TopKinFitter {
  public:
   
   /// supported constraints
-  enum Constraint { kWHadMass = 1, kWLepMass, kTopHadMass, kTopLepMass, kNeutrinoMass, kEqualTopMasses };
+  enum Constraint { kWHadMass = 1, kWLepMass, kTopHadMass, kTopLepMass, kNeutrinoMass, kEqualTopMasses, kSumPt };
 
  public:
   /// default constructor
@@ -78,6 +79,8 @@ class TtSemiLepKinFitter : public TopKinFitter {
   TAbsFitParticle* neutrino_;
   // supported constraints
   std::map<Constraint, TFitConstraintM*> massConstr_;
+  TFitConstraintEp* sumPxConstr_;
+  TFitConstraintEp* sumPyConstr_;
   // output particles
   pat::Particle fittedHadB_;
   pat::Particle fittedHadP_;
@@ -92,7 +95,9 @@ class TtSemiLepKinFitter : public TopKinFitter {
   /// met parametrization
   Param metParam_;
   /// vector of constraints to be used
-  std::vector<Constraint> constrList_;  
+  std::vector<Constraint> constrList_;
+  /// internally use simple boolean for this constraint to reduce the per-event computing time
+  bool constrainSumPt_;
 };
 
 #endif

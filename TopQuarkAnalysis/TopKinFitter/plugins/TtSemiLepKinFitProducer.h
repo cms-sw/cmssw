@@ -384,6 +384,7 @@ TtSemiLepKinFitter::Constraint TtSemiLepKinFitProducer<LeptonCollection>::constr
   case TtSemiLepKinFitter::kTopLepMass     : result=TtSemiLepKinFitter::kTopLepMass;     break;
   case TtSemiLepKinFitter::kNeutrinoMass   : result=TtSemiLepKinFitter::kNeutrinoMass;   break;
   case TtSemiLepKinFitter::kEqualTopMasses : result=TtSemiLepKinFitter::kEqualTopMasses; break;
+  case TtSemiLepKinFitter::kSumPt          : result=TtSemiLepKinFitter::kSumPt;          break;
   default: 
     throw cms::Exception("WrongConfig") 
       << "Chosen fit constraint is not supported: " << val << "\n";
