@@ -369,6 +369,32 @@ def toScreenLSEffective(lumidata,resultlines,scalefactor,isverbose):
     input:  {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),{hltpath:[l1name,l1prescale,hltprescale,efflumi]},bxdata,beamdata]}
     '''
     result=[]#[run,ls,hltpath,l1bitname,hltpresc,l1presc,efflumi]
+    totalrow=[]
+    totSelectedLS=0
+    totRecorded=0.0
+    recordedlumiunit='/ub'
+    totEffective=0
+    efflumiunit='/ub'
+
+    totOldSelectedLS=0
+    totOldRecorded=0.0
+    totOldEffective=0.0
+    
+    for rline in resultlines:
+        myls=rline[1]
+        if myls!='n/a':
+            totOldSelectedLS+=1
+        myrecorded=rline[6]
+        if myrecorded!='n/a':
+            totOldRecorded+=myrecorded
+        myeff=rline[7]
+        if myeff!='n/a':
+            totOldEffective+=myeff
+        result.append(rline)
+        
+    totrecordedlumi=0.0
+    totefflumi=0.0
+ 
     for run in sorted(lumidata):#loop over runs
         rundata=lumidata[run]
         if rundata is None:
@@ -380,8 +406,10 @@ def toScreenLSEffective(lumidata,resultlines,scalefactor,isverbose):
                 continue
             cmslsnum=lsdata[1]
             recorded=lsdata[6]
+            totSelectedLS+=1
             if not recorded:
                 recorded=0.0
+            totRecorded+=recorded
             for hltpathname in sorted(efflumiDict):
                 pathdata=efflumiDict[hltpathname]
                 l1name=pathdata[0]
@@ -394,13 +422,24 @@ def toScreenLSEffective(lumidata,resultlines,scalefactor,isverbose):
                 lumival=pathdata[3]
                 if lumival is not None:
                     result.append([str(run),str(cmslsnum),hltpathname,l1name,str(hltprescale),str(l1prescale),'%.2f'%(recorded*scalefactor),'%.2f'%(lumival*scalefactor)])
+                    totEffective+=lumival
                 else:
                     result.append([str(run),str(cmslsnum),hltpathname,l1name,str(hltprescale),str(l1prescale),'%.2f'%(recorded*scalefactor),'n/a'])
+    (totrecordedlumi,recordedlumiunit)=CommonUtil.guessUnit(totRecorded+totOldRecorded)
+    (totefflumi,efflumiunit)=CommonUtil.guessUnit(totEffective+totOldEffective)
+
     labels = [('Run','LS','HLTpath','L1bit','HLTpresc','L1presc','Recorded(/ub)','Effective(/ub)')]
     print ' ==  = '
     print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
                                prefix = '| ', postfix = ' |', justify = 'right',
-                               delim = ' | ', wrapfunc = lambda x: wrap_onspace_strict(x,22) )
+                               delim = ' | ', wrapfunc = lambda x: wrap_onspace_strict(x,25) )
+    totalrow.append([str(totSelectedLS+totOldSelectedLS),'%.3f'%(totrecordedlumi*scalefactor),'%.3f'%(totefflumi*scalefactor)])
+    lastrowlabels = [ ('Selected LS','Recorded('+recordedlumiunit+')','Effective('+efflumiunit+')')]
+    print ' ==  =  Total : '
+    print tablePrinter.indent (lastrowlabels+totalrow, hasHeader = True, separateRows = False, prefix = '| ',
+                               postfix = ' |', justify = 'right', delim = ' | ',
+                               wrapfunc = lambda x: wrap_onspace (x, 20))    
+
 def toCSVLSEffective(lumidata,filename,resultlines,scalefactor,isverbose):
     '''
     input:  {run:[lumilsnum(0),cmslsnum(1),timestamp(2),beamstatus(3),beamenergy(4),deliveredlumi(5),recordedlumi(6),calibratedlumierror(7),{hltpath:[l1name,l1prescale,hltprescale,efflumi]},bxdata,beamdata]}
@@ -483,7 +522,10 @@ def toScreenTotEffective(lumidata,resultlines,scalefactor,isverbose):
                 lumival=pathdata[3]
                 if not totdict.has_key(hltpathname):
                     totdict[hltpathname]=[0,0.0]
-                if l1presc and hltpresc and l1presc*hltpresc!=0:
+                if l1presc is None and hltpresc is None:#if found all null prescales and if it is in the selectedcmsls, remove it because incomplete
+                    if cmslsnum in selectedcmsls:
+                        selectedcmsls.remove(cmslsnum)
+                else:
                     if not hprescdict.has_key(hltpathname):
                         hprescdict[hltpathname]=[]
                     hprescdict[hltpathname].append(hltpresc)
@@ -495,9 +537,6 @@ def toScreenTotEffective(lumidata,resultlines,scalefactor,isverbose):
                         totdict[hltpathname][1]+=lumival
                         totefflumiDict[hltpathname]+=lumival
                         pathmap[hltpathname]=l1name
-                else:
-                    if cmslsnum in selectedcmsls:
-                        selectedcmsls.remove(cmslsnum)
         if len(selectedcmsls)==0:
             selectedlsStr='n/a'
         else:
@@ -527,7 +566,7 @@ def toScreenTotEffective(lumidata,resultlines,scalefactor,isverbose):
         hdata=totdict[hname]
         totnls=hdata[0]
         (toteffval,toteffunit)=CommonUtil.guessUnit(hdata[1])
-        totresult.append([hname,str(totnls),'%.2f'%(alltotrecval*scalefactor)+'('+alltotrecunit+')','%.2f'%(toteffval*scalefactor)+'('+toteffunit+')'])
+        totresult.append([hname,str(totnls),'%.3f'%(alltotrecval*scalefactor)+'('+alltotrecunit+')','%.3f'%(toteffval*scalefactor)+'('+toteffunit+')'])
     print tablePrinter.indent (lastrowlabels+totresult, hasHeader = True, separateRows = False,
                                prefix = '| ', postfix = ' |', justify = 'right',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace (x,20) )
