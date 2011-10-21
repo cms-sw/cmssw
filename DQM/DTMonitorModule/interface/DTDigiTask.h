@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2010/02/11 00:10:54 $
- * $Revision: 1.32 $
+ * $Date: 2011/06/10 13:23:25 $
+ * $Revision: 1.33 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -17,6 +17,8 @@
 #include <FWCore/Framework/interface/Event.h>
 #include <FWCore/Framework/interface/MakerMacros.h>
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "CondFormats/DTObjects/interface/DTReadOutMapping.h"
 
 #include "DataFormats/LTCDigi/interface/LTCDigi.h"
 
@@ -103,6 +105,7 @@ private:
   DQMStore* dbe;
 
   edm::ESHandle<DTGeometry> muonGeom;
+  edm::ESHandle<DTReadOutMapping> mapping;
 
   edm::ESHandle<DTTtrig> tTrigMap;
   edm::ESHandle<DTT0> t0Map;
