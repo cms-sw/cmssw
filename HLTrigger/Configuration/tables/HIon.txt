@@ -16,15 +16,27 @@ HLT_HIMinBiasZDCPixel_SingleTrack_v*
 # HLT_HIPixelTrack10_MinBias_v*    #  added and removed for 2011 (sr #123853)
 HLT_HIBptxXOR_v*
 HLT_HIL1Algo_BptxXOR_BSC_OR_v*
-HLT_HIL1SingleMu3_v*
-HLT_HIL1SingleMu5_v*
-HLT_HIL1SingleMu7_v*
-HLT_HIL1DoubleMuOpen_v*
-HLT_HIL2Mu3_v*
-HLT_HIL2Mu5Tight_v*
-HLT_HIL2Mu20_v*
-HLT_HIL2DoubleMu0_v*
-HLT_HIL2DoubleMu3_v*
+# HLT_HIL1SingleMu3_v*       # removed for 2011 (sr #123854)
+# HLT_HIL1SingleMu5_v*       # removed for 2011 (sr #123854)
+# HLT_HIL1SingleMu7_v*       # removed for 2011 (sr #123854)
+# HLT_HIL1DoubleMuOpen_v*    # need new L1
+# HLT_HIL1DoubleMu0_HighQ_v* #   added for 2011 (sr #123854) need new L1
+# HLT_HIL2Mu3_v*             # need new L1
+# HLT_HIL2Mu3_NHitQ_v*       #   added for 2011 (sr #123854) need new L1
+# HLT_HIL2Mu7_v*             #   added for 2011 (sr #123854) need new L1
+# HLT_HIL2Mu15_v*            #   added for 2011 (sr #123854) need new L1
+# HLT_HIL2Mu5Tight_v*        # removed for 2011 (sr #123854)
+# HLT_HIL2Mu20_v*            # removed for 2011 (sr #123854)
+# HLT_HIL2DoubleMu0_v*                     # need new L1
+# HLT_HIL2DoubleMu0_NHitQ_v*               #   added for 2011 (sr #123854) need new L1
+# HLT_HIL2DoubleMu0_L1HighQL2NHitQ_v*      #   added for 2011 (sr #123854) need new L1
+# HLT_HIL2DoubleMu3_v*                     # need new L1
+# HLT_HIL3Mu3_v*                           #   added for 2011 (sr #123854) need new L1
+# HLT_HIL3DoubleMuOpen_v*                  #   added for 2011 (sr #123854) need new L1
+# HLT_HIL3DoubleMuOpen_Mgt2_v*             #   added for 2011 (sr #123854) need new L1
+# HLT_HIL3DoubleMuOpen_Mgt2_SS_v*          #   added for 2011 (sr #123854) need new L1
+# HLT_HIL3DoubleMuOpen_Mgt2_OS_v*          #   added for 2011 (sr #123854) need new L1
+# HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v* #   added for 2011 (sr #123854) need new L1
 HLT_HIUpcEcal_v*
 HLT_HIUpcMu_v*
 # HLT_HIPhoton15_v*        # removed for 2011 (sr #123856)
