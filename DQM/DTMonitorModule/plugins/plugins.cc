@@ -24,6 +24,9 @@ DEFINE_FWK_MODULE(DTChamberEfficiencyTask);
 #include <DQM/DTMonitorModule/src/DTChamberEfficiency.h>
 DEFINE_FWK_MODULE(DTChamberEfficiency);
 
+#include <DQM/DTMonitorModule/src/DTRunConditionVar.h>
+DEFINE_FWK_MODULE(DTRunConditionVar);
+
 #include "DQM/DTMonitorModule/interface/DTTriggerCheck.h"
 DEFINE_FWK_MODULE(DTTriggerCheck);
 
@@ -53,6 +56,9 @@ DEFINE_FWK_MODULE(DTLocalTriggerLutTask);
 
 #include <DQM/DTMonitorModule/src/DTLocalTriggerBaseTask.h>
 DEFINE_FWK_MODULE(DTLocalTriggerBaseTask);
+
+#include <DQM/DTMonitorModule/src/DTScalerInfoTask.h>
+DEFINE_FWK_MODULE(DTScalerInfoTask);
 
 #include <DQM/DTMonitorModule/src/DTDCSByLumiTask.h>
 DEFINE_FWK_MODULE(DTDCSByLumiTask);
