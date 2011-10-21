@@ -707,10 +707,14 @@ def effectiveLumiForRange(schema,inputRange,hltpathname=None,hltpathpattern=None
                                 if l1bitname :
                                     l1prescale=trgprescalemap[l1bitname]#need to match double quoted string!
                             except KeyError:
-                                l1prescale=None
-                        if l1prescale and thisprescale:
+                                l1prescale=None                           
+                        if l1prescale and thisprescale :#normal both prescaled
                             efflumi=recordedlumi/(float(l1prescale)*float(thisprescale))
                             efflumidict[thispathname]=[l1bitname,l1prescale,thisprescale,efflumi]
+                        elif l1prescale and thisprescale==0: #hltpath in menu but masked
+                            efflumi=0.0
+                            efflumidict[thispathname]=[l1bitname,l1prescale,thisprescale,efflumi]
+                
             bxvaluelist=[]
             bxerrorlist=[]
             bxdata=None
