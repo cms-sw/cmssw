@@ -402,9 +402,12 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
       const HcalDetId& detid  = theDetIds_[cellhashedindex];
       unsigned subdet=(detid.subdet()==HcalBarrel) ? 0: 1;	
 
-      // Check if it is above the threshold
-      if(hcalRecHits_[cellhashedindex]<threshold_[subdet]) continue; 
       float energy=hcalRecHits_[cellhashedindex];
+      // Check if it is above the threshold
+      if(energy<threshold_[subdet]) continue; 
+      // apply ToF correction
+      int time_slice=0; // temporary
+      energy *= fractionOOT(time_slice);
       // apply RespCorr only to the RecHit
       energy *= myRespCorr->getValues(theDetIds_[cellhashedindex])->getValue();
       // poor man saturation
@@ -733,4 +736,22 @@ double HcalRecHitsMaker::noiseInfCfromDB(const HcalDbService * conditions,const 
   //  const HcalGain*  gain = conditions->getGain(detId); 
   //  double noise_rms_GeV = noise_rms_fC * gain->getValue(0); // Noise RMS (GeV) for detId channel
   return noise_rms_fC;
+}
+
+// fraction of energy collected as a function of ToF (for out-of-time particles; use case is out-of-time pileup)
+double HcalRecHitsMaker::fractionOOT(int time_slice)// in units of 25 ns; 0 means in-time
+{
+  if (abs(time_slice)>=5) return 0.;
+  double f[5]={0.7, 0.18, 0.06, 0.04, 0.02}; // numbers provided by Salavat
+  double fraction_observed=0.;
+  if (time_slice>=0) {
+    for(int i=time_slice; i<5; i++) fraction_observed+=f[i];
+  } else {
+    for(int i=0; i<5+time_slice; i++) fraction_observed+=f[i];
+  }
+  return fraction_observed;
+
+  // Note (by Andrea G): actually one can just tabulate these numbers instead of doing sums
+  // but this is error-prone and I prefer to delay that until the next update, after some validation.
+  // (one can put the tabulation macro in /test, in order to recalculate the scaling factors quickly in case the TS fractions change)
 }
