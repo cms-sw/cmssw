@@ -5,14 +5,14 @@
 #include <RooRealVar.h>
 #include <RooArgSet.h>
 #include <RooDataSet.h>
-#include <RooKeysPdf.h>
+#include <RooNDKeysPdf.h>
 
 class TH1Keys : public TH1 {
     public:
        TH1Keys();
-       TH1Keys(const char *name,const char *title,Int_t nbinsx,Double_t xlow,Double_t xup, RooKeysPdf::Mirror mirror = RooKeysPdf::NoMirror, Double_t rho = 1);
-       TH1Keys(const char *name,const char *title,Int_t nbinsx,const Float_t  *xbins, RooKeysPdf::Mirror mirror = RooKeysPdf::NoMirror, Double_t rho = 1) ;
-       TH1Keys(const char *name,const char *title,Int_t nbinsx,const Double_t *xbins, RooKeysPdf::Mirror mirror = RooKeysPdf::NoMirror, Double_t rho = 1) ;
+       TH1Keys(const char *name,const char *title,Int_t nbinsx,Double_t xlow,Double_t xup, TString options = "a", Double_t rho = 1.5);
+       TH1Keys(const char *name,const char *title,Int_t nbinsx,const Float_t  *xbins, TString options = "a", Double_t rho = 1.5) ;
+       TH1Keys(const char *name,const char *title,Int_t nbinsx,const Double_t *xbins, TString options = "a", Double_t rho = 1.5) ;
        TH1Keys(const TH1Keys &other);
        virtual ~TH1Keys();
 
@@ -55,7 +55,7 @@ class TH1Keys : public TH1 {
         Double_t    underflow_, overflow_;
         Double_t    globalScale_;
 
-        RooKeysPdf::Mirror mirror_;
+	TString          options_;
         Double_t           rho_;
 
         mutable TH1 *cache_;

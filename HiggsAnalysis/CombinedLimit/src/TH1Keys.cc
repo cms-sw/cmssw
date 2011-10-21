@@ -15,7 +15,7 @@ TH1Keys::TH1Keys() :
 {
 }
 
-TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,Double_t xlow,Double_t xup, RooKeysPdf::Mirror mirror, Double_t rho) :
+TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,Double_t xlow,Double_t xup, TString options, Double_t rho) :
     TH1(name,title,nbinsx,xlow,xup),
     min_(xlow), max_(xup),
     x_(new RooRealVar("x", "x", min_, max_)),
@@ -24,7 +24,7 @@ TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,Double_t xlow,D
     dataset_(new RooDataSet(name, title, RooArgSet(*x_, *w_), "w")),
     underflow_(0.0), overflow_(0.0),
     globalScale_(1.0),
-    mirror_(mirror),
+    options_(options),
     rho_(rho),
     cache_(new TH1F("",title,nbinsx,xlow,xup)),
     isCacheGood_(true)
@@ -34,7 +34,7 @@ TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,Double_t xlow,D
     x_->setBins(nbinsx);
 }
 
-TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,const Float_t  *xbins, RooKeysPdf::Mirror mirror, Double_t rho) :
+TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,const Float_t  *xbins, TString options, Double_t rho) :
     TH1(name,title,nbinsx,xbins),
     min_(xbins[0]), max_(xbins[nbinsx]),
     x_(new RooRealVar("x", "x", min_, max_)),
@@ -43,7 +43,7 @@ TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,const Float_t  
     dataset_(new RooDataSet(name, title, RooArgSet(*x_, *w_), "w")),
     underflow_(0.0), overflow_(0.0),
     globalScale_(1.0),
-    mirror_(mirror),
+    options_(options),
     rho_(rho),
     cache_(new TH1F("",title,nbinsx,xbins)),
     isCacheGood_(true)
@@ -55,7 +55,7 @@ TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,const Float_t  
     x_->setBinning(RooBinning(nbinsx, &boundaries[0]));
 }
 
-TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,const Double_t *xbins, RooKeysPdf::Mirror mirror, Double_t rho) :
+TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,const Double_t *xbins, TString options, Double_t rho) :
     TH1(name,title,nbinsx,xbins),
     min_(xbins[0]), max_(xbins[nbinsx]),
     x_(new RooRealVar("x", "x", min_, max_)),
@@ -64,7 +64,7 @@ TH1Keys::TH1Keys(const char *name,const char *title,Int_t nbinsx,const Double_t 
     dataset_(new RooDataSet(name, title, RooArgSet(*x_, *w_), "w")),
     underflow_(0.0), overflow_(0.0),
     globalScale_(1.0),
-    mirror_(mirror),
+    options_(options),
     rho_(rho),
     cache_(new TH1F("",title,nbinsx,xbins)),
     isCacheGood_(true)
@@ -84,7 +84,7 @@ TH1Keys::TH1Keys(const TH1Keys &other)  :
     dataset_(new RooDataSet(other.GetName(), other.GetTitle(), RooArgSet(*x_, *w_), "w")),
     underflow_(other.underflow_), overflow_(other.overflow_),
     globalScale_(other.globalScale_),
-    mirror_(other.mirror_),
+    options_(other.options_),
     rho_(other.rho_),
     cache_((TH1*)other.cache_->Clone()),
     isCacheGood_(other.isCacheGood_)
@@ -155,7 +155,7 @@ void TH1Keys::FillH1() const
         RooFit::MsgLevel gKill = RooMsgService::instance().globalKillBelow();
         RooMsgService::instance().setGlobalKillBelow(RooFit::FATAL);
         delete cache_;
-        RooKeysPdf pdf("","",*x_,*dataset_,mirror_,rho_);
+        RooNDKeysPdf pdf("","",*x_,*dataset_,options_,rho_);
         cache_ = pdf.createHistogram(GetName(), *x_);
         if (cache_->Integral()) cache_->Scale(1.0/cache_->Integral());
         cache_->SetBinContent(0,                     underflow_);
