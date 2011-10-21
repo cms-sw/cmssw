@@ -19,11 +19,14 @@ import EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi
 gtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
 gtDigis.DaqGtInputTag = 'source'
 
+
 # filter on L1 trigger bits:
 # select only events triggered by muon L1A
 from L1Trigger.Skimmer.l1Filter_cfi import *
 l1Filter.algorithms = cms.vstring('L1_SingleMuOpen', 'L1_SingleMu0', 'L1_SingleMu3', 'L1_SingleMu5', 'L1_SingleMu7', 'L1_SingleMu10', 'L1_SingleMu14', 'L1_SingleMu20', 'L1_DoubleMuOpen', 'L1_DoubleMu3')
 
+# Scalers info
+from EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi import *
 
 # DT digitization and reconstruction
 from EventFilter.DTTFRawToDigi.dttfunpacker_cfi import *
@@ -34,7 +37,7 @@ dtunpacker.readOutParameters.performDataIntegrityMonitor = True
 dtunpacker.readOutParameters.rosParameters.performDataIntegrityMonitor = True
 dtunpacker.readOutParameters.debug = False
 dtunpacker.readOutParameters.rosParameters.debug = False
-
+dtunpacker.fedbyType = False
 
 from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
 dt1DRecHits.dtDigiLabel = 'dtunpacker'
@@ -59,7 +62,10 @@ from DQM.DTMonitorModule.dtTriggerBaseTask_cfi import *
 from DQM.DTMonitorModule.dtTriggerLutTask_cfi import *
 from DQM.DTMonitorClient.dtLocalTriggerTest_cfi import *
 from DQM.DTMonitorClient.dtTriggerLutTest_cfi import *
-    
+
+# scaler task
+from DQM.DTMonitorModule.dtScalerInfoTask_cfi import *
+
 # segment reco task
 from DQM.DTMonitorModule.dtSegmentTask_cfi import *
 from DQM.DTMonitorClient.dtSegmentAnalysisTest_cfi import *
@@ -97,7 +103,7 @@ from DQM.DTMonitorModule.dtTriggerTask_TP_cfi import *
 from DQM.DTMonitorClient.dtLocalTriggerTest_TP_cfi import *
 
 
-unpackers = cms.Sequence(dtunpacker + dttfunpacker)
+unpackers = cms.Sequence(dtunpacker + dttfunpacker + scalersRawToDigi)
 
 reco = cms.Sequence(dt1DRecHits + dt4DSegments)
 
@@ -111,4 +117,4 @@ dtDQMTest = cms.Sequence(dataIntegrityTest + blockedROChannelTest + triggerLutTe
 dtDQMCalib = cms.Sequence(dtTPmonitor + dtTPTriggerMonitor + dtTPmonitorTest + dtTPTriggerTest)
 
 # sequence to be run on physics events (includes filters, reco and DQM)
-dtDQMPhysSequence = cms.Sequence(gtDigis + l1Filter * reco + dtDQMTask + dtDQMTest)
+dtDQMPhysSequence = cms.Sequence(dtScalerInfoMonitor + gtDigis + l1Filter * reco + dtDQMTask + dtDQMTest)
