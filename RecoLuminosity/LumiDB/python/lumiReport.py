@@ -371,13 +371,13 @@ def toScreenLSEffective(lumidata,resultlines,scalefactor,isverbose):
     result=[]#[run,ls,hltpath,l1bitname,hltpresc,l1presc,efflumi]
     totalrow=[]
     totSelectedLS=0
-    totRecorded=0.0
+    #totRecorded=0.0
     recordedlumiunit='/ub'
     totEffective=0
     efflumiunit='/ub'
 
     totOldSelectedLS=0
-    totOldRecorded=0.0
+    #totOldRecorded=0.0
     totOldEffective=0.0
     
     for rline in resultlines:
@@ -386,7 +386,7 @@ def toScreenLSEffective(lumidata,resultlines,scalefactor,isverbose):
             totOldSelectedLS+=1
         myrecorded=rline[6]
         if myrecorded!='n/a':
-            totOldRecorded+=float(myrecorded)
+        #    totOldRecorded+=float(myrecorded)
             rline[6]='%.2f'%float(myrecorded)
         myeff=rline[7]
         if myeff!='n/a':
@@ -411,7 +411,7 @@ def toScreenLSEffective(lumidata,resultlines,scalefactor,isverbose):
             totSelectedLS+=1
             if not recorded:
                 recorded=0.0
-            totRecorded+=recorded
+            #totRecorded+=recorded
             for hltpathname in sorted(efflumiDict):
                 pathdata=efflumiDict[hltpathname]
                 l1name=pathdata[0]
@@ -427,7 +427,7 @@ def toScreenLSEffective(lumidata,resultlines,scalefactor,isverbose):
                     totEffective+=lumival
                 else:
                     result.append([str(run),str(cmslsnum),hltpathname,l1name,str(hltprescale),str(l1prescale),'%.2f'%(recorded*scalefactor),'n/a'])
-    (totrecordedlumi,recordedlumiunit)=CommonUtil.guessUnit(totRecorded+totOldRecorded)
+    #(totrecordedlumi,recordedlumiunit)=CommonUtil.guessUnit(totRecorded+totOldRecorded)
     (totefflumi,efflumiunit)=CommonUtil.guessUnit(totEffective+totOldEffective)
 
     labels = [('Run','LS','HLTpath','L1bit','HLTpresc','L1presc','Recorded(/ub)','Effective(/ub)')]
@@ -435,8 +435,8 @@ def toScreenLSEffective(lumidata,resultlines,scalefactor,isverbose):
     print tablePrinter.indent (labels+result, hasHeader = True, separateRows = False,
                                prefix = '| ', postfix = ' |', justify = 'right',
                                delim = ' | ', wrapfunc = lambda x: wrap_onspace_strict(x,25) )
-    totalrow.append([str(totSelectedLS+totOldSelectedLS),'%.3f'%(totrecordedlumi*scalefactor),'%.3f'%(totefflumi*scalefactor)])
-    lastrowlabels = [ ('Selected LS','Recorded('+recordedlumiunit+')','Effective('+efflumiunit+')')]
+    totalrow.append([str(totSelectedLS+totOldSelectedLS),'%.3f'%(totefflumi*scalefactor)])
+    lastrowlabels = [ ('Selected LS','Effective('+efflumiunit+')')]
     print ' ==  =  Total : '
     print tablePrinter.indent (lastrowlabels+totalrow, hasHeader = True, separateRows = False, prefix = '| ',
                                postfix = ' |', justify = 'right', delim = ' | ',
