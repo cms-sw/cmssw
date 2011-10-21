@@ -21,6 +21,8 @@
 #include <iomanip>
 #include <unistd.h>
 
+#include <sys/types.h>
+#include <signal.h>
 
 using namespace evf;
 using namespace std;
@@ -468,6 +470,7 @@ bool FUResourceTable::buildResource(MemRef_t* bufRef)
   // allocate resource
   if (!resource->fatalError()&&!resource->isAllocated()) {
     FUShmRawCell* cell=shmBuffer_->rawCellToWrite();
+    if(cell==0){bufRef->release(); return eventComplete;}
     resource->allocate(cell);
     timeval now;
     gettimeofday(&now,0);
@@ -706,6 +709,43 @@ void FUResourceTable::shutDownClients()
     shmBuffer_->scheduleRawEmptyCellForDiscard();
   }
   else {
+    int checks=0;
+
+    while(shmBuffer_->nbRawCellsToWrite()<nbClients() && nbClients()!=0)
+      {
+	checks++;
+	vector<pid_t> prcids=clientPrcIds();
+	for (UInt_t i=0;i<prcids.size();i++) {
+	  pid_t pid   =prcids[i];
+	  int   status=kill(pid,0);
+	  if (status!=0) {
+	    LOG4CPLUS_ERROR(log_,"EP prc "<<pid<<" completed with error.");
+	    handleCrashedEP(runNumber_,pid);
+	  }
+	}
+  
+	LOG4CPLUS_WARN(log_,"no cell to write stop " << shmBuffer_->nbRawCellsToWrite() 
+		       << " nClients " << nbClients());
+	if(checks>10){
+	  string msg = "No Raw Cell to Write STOP messages";
+	  XCEPT_RAISE(evf::Exception,msg);
+	}
+	::usleep(500000);
+      }
+    nbClientsToShutDown_ = nbClients();
+    if(nbClientsToShutDown_==0){
+      UInt_t n=nbResources();
+      for (UInt_t i=0;i<n;i++) {
+	evt::State_t state=shmBuffer_->evtState(i);
+	if (state!=evt::EMPTY){
+	  LOG4CPLUS_WARN(log_,"Schedule discard at STOP for orphaned event in state " 
+			 << state);
+	  shmBuffer_->setEvtDiscard(i,1);
+	  shmBuffer_->scheduleRawCellForDiscardServerSide(i);
+	}
+      }
+      shmBuffer_->scheduleRawEmptyCellForDiscard();
+    }
     UInt_t n=nbClientsToShutDown_;
     for (UInt_t i=0;i<n;++i) shmBuffer_->writeRawEmptyEvent();
   }
@@ -1076,4 +1116,6 @@ void FUResourceTable::lastResort()
     shmBuffer_->scheduleRawCellForDiscardServerSide(newCell->index());
     std::cout << "lastResort: schedule raw cell for discard" << std::endl;
   }
+  //trigger the shutdown (again?)
+  shmBuffer_->scheduleRawEmptyCellForDiscard();
 }
