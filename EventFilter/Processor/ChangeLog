@@ -1,3 +1,8 @@
+2011-10-21 Emilio Meschi <emilio.meschi@cern.ch>
+
+	* tag V02-04-17
+	* fix compiler warning 
+	
 2011-10-20 Emilio Meschi <emilio.meschi@cern.ch>
 
 	* tag V02-04-16
