@@ -16,6 +16,7 @@ namespace evf{
       
     }
     void flip(unsigned int ind, float x){
+      if(ind==1){for(unsigned int i = 0; i < roll_.size(); i++) roll_[i]=0.;}
       if(ind<roll_.size())roll_[ind]=x;
       else{
 	roll_.pop_front();

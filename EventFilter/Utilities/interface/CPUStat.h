@@ -12,12 +12,15 @@ namespace evf{
 
   class CPUStat{
   public:
-    CPUStat(unsigned int nstates, std::string iDieUrl);
+    CPUStat(unsigned int nstates, unsigned int nproc, unsigned int instance, std::string iDieUrl);
     ~CPUStat();
     void addEntry(int sta)
     {
       mstat_[sta]++;
       entries_++;
+    }
+    void setNproc(int nproc){
+      mstat_[nstates_+2]=nproc;
     }
     void reset()
     {
@@ -38,6 +41,8 @@ namespace evf{
     std::string iDieUrl_;
     CurlPoster *poster_;
     int nstates_;
+    int nproc_;
+    int instance_;
     int entries_;
     int *mstat_;
     AsciiRollingChart chart_;
