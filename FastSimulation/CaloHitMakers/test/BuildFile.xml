@@ -1,0 +1,16 @@
+<use   name="rootgraphics"/>
+<use   name="Geometry/CaloGeometry"/>
+<use   name="Geometry/EcalAlgo"/>
+<use   name="Geometry/CaloTopology"/>
+<use   name="DataFormats/HcalDetId"/>
+<use   name="DataFormats/EcalDetId"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="FWCore/Utilities"/>
+<use   name="FastSimulation/CaloGeometryTools"/>
+<use   name="FastSimulation/CaloHitMakers"/>
+<use   name="FastSimulation/Utilities"/>
+<use   name="FastSimulation/ShowerDevelopment"/>
+<library   file="testEcalHitMaker.cc" name="testEcalHitMaker">
+  <flags   EDM_PLUGIN="1"/>
+</library>
