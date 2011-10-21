@@ -63,6 +63,7 @@ class SiStripAPVRestorer {
   template<typename T >int16_t BaselineAndSaturationInspect(const uint16_t&, std::vector<T>&);
 
   void FlatRestore(const uint16_t&, const uint16_t&, std::vector<int16_t>& );
+  bool CheckBaseline(const std::vector<int16_t> &) const;
   void BaselineFollowerRestore(const uint16_t&, const uint16_t&, const float&, std::vector<int16_t>& );
   
   void BaselineFollower(DigiMap&, std::vector<int16_t>&, const float&);
@@ -86,6 +87,7 @@ class SiStripAPVRestorer {
   
   std::vector<std::string> apvFlags_;
   std::vector<bool> apvFlagsBool_;
+  std::vector<bool> apvFlagsBoolOverride_;
   std::vector<float> median_;
   std::vector<bool> badAPVs_;
   std::map<uint16_t, DigiMap> SmoothedMaps_;
@@ -122,6 +124,7 @@ class SiStripAPVRestorer {
   double   CutToAvoidSignal_;	       // for iterative median implementation internal to APV restorer
   uint32_t nSaturatedStrip_;           // for BaselineAndSaturation inspect
   bool ApplyBaselineCleaner_;
+  bool ApplyBaselineRejection_;
   int32_t MeanCM_;
                     
 };

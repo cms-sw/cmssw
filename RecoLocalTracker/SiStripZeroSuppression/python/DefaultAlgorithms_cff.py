@@ -38,6 +38,7 @@ DefaultAlgorithms = cms.PSet(
     nSmooth = cms.uint32(9),                 # for smoothing and local minimum determination (odd number)
     minStripsToFit = cms.uint32(4),          # minimum strips to try spline algo (otherwise default to median)
     ApplyBaselineCleaner = cms.bool(True),
+    ApplyBaselineRejection = cms.bool(True),
     MeanCM = cms.int32(0),
     
     ## Zero suppression --------------------
