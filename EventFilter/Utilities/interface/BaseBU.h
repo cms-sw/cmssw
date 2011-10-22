@@ -9,7 +9,7 @@
 #define BASEBU_H_
 
 #include "xdaq/Application.h"
-#include "EventFilter/BUFUInterface/interface/BUFUTypes.h"
+#include "EventFilter/Utilities/interface/BUFUTypes.h"
 
 namespace evf {
 

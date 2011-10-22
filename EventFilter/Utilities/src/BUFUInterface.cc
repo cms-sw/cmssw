@@ -5,7 +5,7 @@
  *      Author: aspataru
  */
 
-#include "EventFilter/BUFUInterface/interface/BUFUInterface.h"
+#include "EventFilter/Utilities/interface/BUFUInterface.h"
 
 #define BUFU_VERBOSE
 //#define BUFU_DEBUG
