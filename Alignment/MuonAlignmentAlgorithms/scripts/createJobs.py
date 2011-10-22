@@ -615,7 +615,7 @@ if [ $ALIGNMENT_EXTRAPLOTS == \"True\" ]; then
   fi
   cp $ALIGNMENT_AFSDIR/inertGlobalPositionRcd.db .
   ./convertSQLiteXML.py $ALIGNMENT_AFSDIR/%(INITIALGEOM)s g0.xml --noLayers  --gprcdconnect $ALIGNMENT_GPRCDCONNECT --gprcd $ALIGNMENT_GPRCD
-  ./wrapperExtraPlots.sh -n $ALIGNMENT_ITERATION -i $ALIGNMENT_AFSDIR -0 g0.xml -z %(dir_no_)s -w %(station123params)s
+  ./wrapperExtraPlots.sh -n $ALIGNMENT_ITERATION -i $ALIGNMENT_AFSDIR -0 g0.xml -z -w %(station123params)s %(dir_no_)s
   mkdir out/extra
   cd %(dir_no_)s
   mv MB ../out/extra/
