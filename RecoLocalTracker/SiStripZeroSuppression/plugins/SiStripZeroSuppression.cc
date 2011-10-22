@@ -35,19 +35,14 @@ SiStripZeroSuppression(edm::ParameterSet const& conf)
   
   for(tag_iterator_t inputTag = inputTags.begin(); inputTag != inputTags.end(); ++inputTag ){
     produces< edm::DetSetVector<SiStripDigi> > (inputTag->instance());
-    if(produceRawDigis)
-      produces< edm::DetSetVector<SiStripRawDigi> > (inputTag->instance());
+    if(produceRawDigis) produces< edm::DetSetVector<SiStripRawDigi> > (inputTag->instance());
+    if(produceCalculatedBaseline) produces< edm::DetSetVector<SiStripProcessedRawDigi> > ("BADAPVBASELINE"+inputTag->instance());
+    if(produceBaselinePoints) produces< edm::DetSetVector<SiStripDigi> > ("BADAPVBASELINEPOINTS"+inputTag->instance());
+    if(storeCM) produces< edm::DetSetVector<SiStripProcessedRawDigi> > ("APVCM"+inputTag->instance());
   } 
   
 
-  if(produceCalculatedBaseline) 
-    produces< edm::DetSetVector<SiStripProcessedRawDigi> > ("BADAPVBASELINE");
-	
-  if(produceBaselinePoints) 
-    produces< edm::DetSetVector<SiStripDigi> > ("BADAPVBASELINEPOINTS");
-	  
-  if(storeCM)
-    produces< edm::DetSetVector<SiStripProcessedRawDigi> > ("APVCM");
+  
   
   
 }
@@ -71,34 +66,33 @@ inline void SiStripZeroSuppression::StandardZeroSuppression(edm::Event& e){
     edm::Handle< edm::DetSetVector<SiStripRawDigi> > input;
     e.getByLabel(*inputTag,input);
 
-    if (input->size()) 
-    processRaw(*inputTag, *input);
+    if (input->size()){ 
+      processRaw(*inputTag, *input);
     
-    std::auto_ptr< edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>(output_base) );
-    e.put( output, inputTag->instance() );
+      std::auto_ptr< edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>(output_base) );
+      e.put( output, inputTag->instance() );
     	
-    if(produceRawDigis){
-      std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > outputraw(new edm::DetSetVector<SiStripRawDigi>(output_base_raw) );
-      e.put(outputraw, inputTag->instance() );
+      if(produceRawDigis){
+	std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > outputraw(new edm::DetSetVector<SiStripRawDigi>(output_base_raw) );
+	e.put(outputraw, inputTag->instance() );
+      }
+    
+      if(produceCalculatedBaseline){
+	std::auto_ptr< edm::DetSetVector<SiStripProcessedRawDigi> > outputbaseline(new edm::DetSetVector<SiStripProcessedRawDigi>(output_baseline) );
+	e.put(outputbaseline, "BADAPVBASELINE"+inputTag->instance() );
+      }
+  
+      if(produceBaselinePoints){
+	std::auto_ptr< edm::DetSetVector<SiStripDigi> > outputbaselinepoints(new edm::DetSetVector<SiStripDigi>(output_baseline_points) );
+	e.put(outputbaselinepoints, "BADAPVBASELINEPOINTS"+inputTag->instance() );
+      }
+  
+      if(storeCM){
+	std::auto_ptr< edm::DetSetVector<SiStripProcessedRawDigi> > outputAPVCM(new edm::DetSetVector<SiStripProcessedRawDigi>(output_apvcm) );
+	e.put( outputAPVCM,"APVCM"+inputTag->instance());
+      }
     }
   }
-
- 
-  
-  if(produceCalculatedBaseline){
-    std::auto_ptr< edm::DetSetVector<SiStripProcessedRawDigi> > outputbaseline(new edm::DetSetVector<SiStripProcessedRawDigi>(output_baseline) );
-    e.put(outputbaseline, "BADAPVBASELINE" );
-  }
-  
-  if(produceBaselinePoints){
-    std::auto_ptr< edm::DetSetVector<SiStripDigi> > outputbaselinepoints(new edm::DetSetVector<SiStripDigi>(output_baseline_points) );
-    e.put(outputbaselinepoints, "BADAPVBASELINEPOINTS" );
-  }
-  
-  if(storeCM){
-    std::auto_ptr< edm::DetSetVector<SiStripProcessedRawDigi> > outputAPVCM(new edm::DetSetVector<SiStripProcessedRawDigi>(output_apvcm) );
-    e.put( outputAPVCM,"APVCM");
-  }  
 }
 
 
