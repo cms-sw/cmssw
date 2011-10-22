@@ -1,5 +1,5 @@
 //
-// $Id: Electron.h,v 1.34 2011/06/08 20:40:18 rwolf Exp $
+// $Id: Electron.h,v 1.35 2011/09/09 10:03:18 sprenger Exp $
 //
 
 #ifndef DataFormats_PatCandidates_Electron_h
@@ -16,7 +16,7 @@
    https://hypernews.cern.ch/HyperNews/CMS/get/physTools.html
 
   \author   Steven Lowette, Giovanni Petrucciani, Frederic Ronga
-  \version  $Id: Electron.h,v 1.34 2011/06/08 20:40:18 rwolf Exp $
+  \version  $Id: Electron.h,v 1.35 2011/09/09 10:03:18 sprenger Exp $
 */
 
 
@@ -55,11 +55,11 @@ namespace pat {
 
       /// default constructor
       Electron();
-      /// constructor from a reco electron
+      /// constructor from reco::GsfElectron
       Electron(const reco::GsfElectron & anElectron);
-      /// constructor from a RefToBase to a reco electron (to be superseded by Ptr counterpart)
+      /// constructor from a RefToBase to a reco::GsfElectron (to be superseded by Ptr counterpart)
       Electron(const edm::RefToBase<reco::GsfElectron> & anElectronRef);
-      /// constructor from a Ptr to a reco electron
+      /// constructor from a Ptr to a reco::GsfElectron
       Electron(const edm::Ptr<reco::GsfElectron> & anElectronRef);
       /// destructor
       virtual ~Electron();
@@ -88,19 +88,19 @@ namespace pat {
 
       // ---- methods for electron ID ----
       /// Returns a specific electron ID associated to the pat::Electron given its name
-      /// For cut-based IDs, the value map has the following meaning:
-      /// 0: fails
-      /// 1: passes electron ID only
-      /// 2: passes electron Isolation only
-      /// 3: passes electron ID and Isolation only
-      /// 4: passes conversion rejection
-      /// 5: passes conversion rejection and ID
-      /// 6: passes conversion rejection and Isolation
-      /// 7: passes the whole selection
-      /// For more details have a look at:
-      /// https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
-      /// https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideCategoryBasedElectronID
-      /// Note: an exception is thrown if the specified ID is not available
+      // For cut-based IDs, the value map has the following meaning:
+      // 0: fails,
+      // 1: passes electron ID only,
+      // 2: passes electron Isolation only,
+      // 3: passes electron ID and Isolation only,
+      // 4: passes conversion rejection,
+      // 5: passes conversion rejection and ID,
+      // 6: passes conversion rejection and Isolation,
+      // 7: passes the whole selection.
+      // For more details have a look at:
+      // https://twiki.cern.ch/twiki/bin/view/CMS/SimpleCutBasedEleID
+      // https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideCategoryBasedElectronID
+      // Note: an exception is thrown if the specified ID is not available
       float electronID(const std::string & name) const;
       /// Returns true if a specific ID is available in this pat::Electron
       bool isElectronIDAvailable(const std::string & name) const;
@@ -132,28 +132,10 @@ namespace pat {
       size_t numberOfSourceCandidatePtrs() const {
         return pfCandidateRef_.isNonnull() ? 1 : 0;
       }
-      /// get the candidate pointer with index i
+      /// get the source candidate pointer with index i
       reco::CandidatePtr sourceCandidatePtr( size_type i ) const;
 
       // ---- embed various impact parameters with errors ----
-      //
-      // example:
-      //
-      //    // this will return the muon inner track
-      //    // transverse impact parameter
-      //    // relative to the primary vertex
-      //    muon->dB(pat::Muon::PV2D);
-      //
-      //    // this will return the uncertainty
-      //    // on the muon inner track
-      //    // transverse impact parameter
-      //    // relative to the primary vertex
-      //    // or -1.0 if there is no valid PV in the event
-      //    muon->edB(pat::Muon::PV2D);
-      //
-      // IpType defines the type of the impact parameter
-      // None is default and reverts to old behavior controlled by 
-      // patMuons.usePV = True/False
       typedef enum IPTYPE { None = 0, PV2D = 1, PV3D = 2, BS2D = 3, BS3D = 4 } IpType;
       /// Impact parameter wrt primary vertex or beamspot
       double dB(IpType type = None) const;
@@ -170,7 +152,8 @@ namespace pat {
       friend std::ostream& reco::operator<<(std::ostream& out, const pat::Electron& obj);
 
     protected:
-      void initImpactParameters(); // init IP defaults in a constructor
+      /// init impact parameter defaults (for use in a constructor)
+      void initImpactParameters();
 
       // ---- for content embedding ----
       /// True if electron's gsfElectronCore is stored internally
@@ -197,11 +180,9 @@ namespace pat {
       // ---- PF specific members ----
       /// true if the IsolatedPFCandidate is embedded
       bool embeddedPFCandidate_;
-      /// if embeddedPFCandidate_, a copy of the source IsolatedPFCandidate
-      /// is stored in this vector
+      /// A copy of the source IsolatedPFCandidate is stored in this vector if embeddedPFCandidate_ if True
       reco::PFCandidateCollection pfCandidate_;
-      /// reference to the IsolatedPFCandidate this has been built from
-      /// null if this has been built from a standard electron
+      /// reference to the IsolatedPFCandidate this has been built from; null if this has been built from a standard electron
       reco::PFCandidateRef pfCandidateRef_;
 
       // ---- specific members : Momentum estimates ----
@@ -209,7 +190,7 @@ namespace pat {
       LorentzVector ecalDrivenMomentum_;
 
       // V+Jets group selection variables.
-      // True if impact parameter has been cached
+      /// True if impact parameter has been cached
       bool    cachedDB_;
       /// Impact parameter at the primary vertex
       double  dB_;
@@ -217,10 +198,12 @@ namespace pat {
       double  edB_;
 
       // ---- cached impact parameters ----
-      std::vector<bool>    cachedIP_;  // has the IP (former dB) been cached?
-      std::vector<double>  ip_;        // dB and edB are the impact parameter at the primary vertex,
-      std::vector<double>  eip_;       // and its uncertainty as recommended by the tracking group
-      
+      /// True if the IP (former dB) has been cached
+      std::vector<bool>    cachedIP_;  
+      /// Impact parameter at the primary vertex,
+      std::vector<double>  ip_;        
+      /// Impact parameter uncertainty as recommended by the tracking group
+      std::vector<double>  eip_;
   };
 }
 
