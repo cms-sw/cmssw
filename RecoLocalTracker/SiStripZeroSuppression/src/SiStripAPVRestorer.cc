@@ -478,6 +478,8 @@ void inline SiStripAPVRestorer::BaselineCleaner(const std::vector<int16_t>& adcs
 	
    	DigiMapIter itSmoothedpoints, itSmoothedpointsNext, itSmoothedpointsBegin, itSmoothedpointsEnd;
 	
+        //Removing points with high slope
+	//--------------------------------------------------------------------------------------------------
 	itSmoothedpoints=smoothedpoints.begin();
 	while ( itSmoothedpoints != --(smoothedpoints.end()) ) { //while we are not at the last point
 	    if(smoothedpoints.size() <2) break;

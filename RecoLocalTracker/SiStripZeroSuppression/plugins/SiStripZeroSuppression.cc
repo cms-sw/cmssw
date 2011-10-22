@@ -20,7 +20,6 @@ SiStripZeroSuppression(edm::ParameterSet const& conf)
 {
    
     produceRawDigis = conf.getParameter<bool>("produceRawDigis");
-    produceGoodRawDigis = false; // produceGoodRawDigis = conf.getParameter<bool>("produceGoodRawDigis");
     produceCalculatedBaseline = conf.getParameter<bool>("produceCalculatedBaseline");
     produceBaselinePoints = conf.getParameter<bool>("produceBaselinePoints");
     storeInZScollBadAPV = conf.getParameter<bool>("storeInZScollBadAPV");
@@ -29,7 +28,6 @@ SiStripZeroSuppression(edm::ParameterSet const& conf)
   if(mergeCollections){
     storeCM = false;
     produceRawDigis = false;
-    produceGoodRawDigis = false;
     DigisToMergeZS = conf.getParameter<edm::InputTag>("DigisToMergeZS");
     DigisToMergeVR = conf.getParameter<edm::InputTag>("DigisToMergeVR");
     produces< edm::DetSetVector<SiStripDigi> > ("ZeroSuppressed");
@@ -41,7 +39,6 @@ SiStripZeroSuppression(edm::ParameterSet const& conf)
       produces< edm::DetSetVector<SiStripRawDigi> > (inputTag->instance());
   } 
   
-  if(produceRawDigis)  produces< edm::DetSetVector<SiStripRawDigi> > ("GOODAPVS");
 
   if(produceCalculatedBaseline) 
     produces< edm::DetSetVector<SiStripProcessedRawDigi> > ("BADAPVBASELINE");
@@ -74,12 +71,8 @@ inline void SiStripZeroSuppression::StandardZeroSuppression(edm::Event& e){
     edm::Handle< edm::DetSetVector<SiStripRawDigi> > input;
     e.getByLabel(*inputTag,input);
 
-    std::vector<edm::DetSet<SiStripDigi> > output_base; 
-    std::vector<edm::DetSet<SiStripRawDigi> > output_base_raw; 
-    
-    
     if (input->size()) 
-      processRaw(*inputTag, *input, output_base, output_base_raw, output_base_raw_good  );
+    processRaw(*inputTag, *input);
     
     std::auto_ptr< edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>(output_base) );
     e.put( output, inputTag->instance() );
@@ -90,10 +83,7 @@ inline void SiStripZeroSuppression::StandardZeroSuppression(edm::Event& e){
     }
   }
 
-  if(produceGoodRawDigis){
-      std::auto_ptr< edm::DetSetVector<SiStripRawDigi> > outputrawgood(new edm::DetSetVector<SiStripRawDigi>(output_base_raw_good) );
-      e.put(outputrawgood, "GOODAPVS");
-  }
+ 
   
   if(produceCalculatedBaseline){
     std::auto_ptr< edm::DetSetVector<SiStripProcessedRawDigi> > outputbaseline(new edm::DetSetVector<SiStripProcessedRawDigi>(output_baseline) );
@@ -113,52 +103,23 @@ inline void SiStripZeroSuppression::StandardZeroSuppression(edm::Event& e){
 
 
 
-inline void SiStripZeroSuppression::CollectionMergedZeroSuppression(edm::Event& e){
-
-  for(tag_iterator_t inputTag = inputTags.begin(); inputTag != inputTags.end(); ++inputTag ) {
-
-    edm::Handle< edm::DetSetVector<SiStripDigi> > inputdigi;
-    edm::Handle< edm::DetSetVector<SiStripRawDigi> > inputraw;
-    e.getByLabel(*inputTag,inputdigi);
-    e.getByLabel(*inputTag,inputraw);
-	
-    std::vector<edm::DetSet<SiStripDigi> > outputdigi; 
-    std::vector<edm::DetSet<SiStripRawDigi> > outputraw;  
-    std::vector<edm::DetSet<SiStripRawDigi> > output_base_raw_good;   
-	
-    if (inputraw->size())	
-      processRaw(*inputTag, *inputraw, outputdigi, outputraw, output_base_raw_good );
-    
-	
-    for ( std::vector<edm::DetSet<SiStripDigi> >::const_iterator itinputdigi = inputdigi->begin(); itinputdigi !=inputdigi->end(); ++itinputdigi) {
-      outputdigi.push_back(*itinputdigi);	
-    }
-	
-    std::auto_ptr< edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>(outputdigi) );
-    e.put( output, inputTag->instance() );
-  	
-  }
-
-}
 
 inline
 void SiStripZeroSuppression::
-processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi>& input, std::vector<edm::DetSet<SiStripDigi> >& output, std::vector<edm::DetSet<SiStripRawDigi> >& outputraw, std::vector<edm::DetSet<SiStripRawDigi> >& outputrawgood ) {
+processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi>& input ) {
 
   output_apvcm.clear();
   output_baseline.clear();
   output_baseline_points.clear();
-  output.clear(); 
-  outputraw.clear();
-  outputrawgood.clear();
+  output_base.clear(); 
+  output_base_raw.clear();
 
   if(storeCM) output_apvcm.reserve(16000);
   if(produceCalculatedBaseline) output_baseline.reserve(16000);
   if(produceBaselinePoints) output_baseline_points.reserve(16000);
-  output.reserve(16000);    
-  outputraw.reserve(16000);
-  outputrawgood.reserve(16000);
-  
+  if(produceRawDigis) output_base_raw.reserve(16000);
+  output_base.reserve(16000);    
+ 
   
   for ( edm::DetSetVector<SiStripRawDigi>::const_iterator 
       rawDigis = input.begin(); rawDigis != input.end(); ++rawDigis) {
@@ -175,17 +136,13 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
       //here storing the output
       this->storeExtraOutput(rawDigis->id, nAPVflagged);
       if (suppressedDigis.size() && (storeInZScollBadAPV || nAPVflagged ==0)) 
-	output.push_back(suppressedDigis); 
+	output_base.push_back(suppressedDigis); 
          
       if (produceRawDigis && nAPVflagged > 0){  
 	edm::DetSet<SiStripRawDigi> outRawDigis(rawDigis->id);
-	this->formatRawDigis(rawDigis, outRawDigis, true);
-	outputraw.push_back(outRawDigis);
-      }else if(produceGoodRawDigis){
-        edm::DetSet<SiStripRawDigi> outGoodRawDigis(rawDigis->id);
-	this->formatRawDigis(rawDigis, outGoodRawDigis, false);
-	outputraw.push_back(outGoodRawDigis);
-      } 
+	this->formatRawDigis(rawDigis, outRawDigis);
+	output_base_raw.push_back(outRawDigis);
+      }
          
   }
   
@@ -193,7 +150,7 @@ processRaw(const edm::InputTag& inputTag, const edm::DetSetVector<SiStripRawDigi
 
 inline 
 void SiStripZeroSuppression::formatRawDigis(edm::DetSetVector<SiStripRawDigi>::const_iterator 
-					    rawDigis, edm::DetSet<SiStripRawDigi>& outRawDigis, bool badAPV = true){
+					    rawDigis, edm::DetSet<SiStripRawDigi>& outRawDigis){
      
       const std::vector<bool>& apvf = algorithms->GetAPVFlags();
       edm::DetSet<SiStripRawDigi>::const_iterator itRawDigis = rawDigis->begin(); 
@@ -201,7 +158,7 @@ void SiStripZeroSuppression::formatRawDigis(edm::DetSetVector<SiStripRawDigi>::c
       uint32_t strip=0;
       for (; itRawDigis != rawDigis->end(); ++itRawDigis){
 	int16_t APVn = strip/128;
-        if(badAPV xor apvf[APVn]) outRawDigis.push_back(*itRawDigis); 
+        if(apvf[APVn]) outRawDigis.push_back(*itRawDigis); 
         else outRawDigis.push_back(SiStripRawDigi(0));
         ++strip;
        }
@@ -457,4 +414,32 @@ inline void SiStripZeroSuppression::MergeCollectionsZeroSuppression(edm::Event& 
 
 
    
+}
+
+inline void SiStripZeroSuppression::CollectionMergedZeroSuppression(edm::Event& e){
+
+  for(tag_iterator_t inputTag = inputTags.begin(); inputTag != inputTags.end(); ++inputTag ) {
+
+    edm::Handle< edm::DetSetVector<SiStripDigi> > inputdigi;
+    edm::Handle< edm::DetSetVector<SiStripRawDigi> > inputraw;
+    e.getByLabel(*inputTag,inputdigi);
+    e.getByLabel(*inputTag,inputraw);
+	
+    std::vector<edm::DetSet<SiStripDigi> > outputdigi; 
+    std::vector<edm::DetSet<SiStripRawDigi> > outputraw;  
+       
+	
+    if (inputraw->size())	
+      processRaw(*inputTag, *inputraw);
+    
+	
+    for ( std::vector<edm::DetSet<SiStripDigi> >::const_iterator itinputdigi = inputdigi->begin(); itinputdigi !=inputdigi->end(); ++itinputdigi) {
+      output_base.push_back(*itinputdigi);	
+    }
+	
+    std::auto_ptr< edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>(output_base) );
+    e.put( output, inputTag->instance() );
+  	
+  }
+
 }
