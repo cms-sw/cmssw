@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.23 2011/08/10 20:32:40 wdd Exp $
+// $Id: DQMRootSource.cc,v 1.24 2011/10/11 17:39:28 chrjones Exp $
 //
 
 // system include files
@@ -593,8 +593,15 @@ DQMRootSource::closeFile_() {
   // 'endRun' or 'endLumi' until it looks to see if the other file contains
   // a new run or lumi. If the other file doesn't then  
   if(not m_doNotReadRemainingPartsOfFileSinceFrameworkTerminating) {
+    std::list<unsigned int>::iterator lastItr;
     while(m_presentIndexItr != m_orderedIndices.end()) {
+      //if the last item in the file has no entries then readElement
+      // will not advance so we have to do it ourselves
+      lastItr = m_presentIndexItr;
       readElements();
+      if(lastItr == m_presentIndexItr) {
+	++m_presentIndexItr;
+      }
     }
   }
   edm::Service<edm::JobReport> jr;
