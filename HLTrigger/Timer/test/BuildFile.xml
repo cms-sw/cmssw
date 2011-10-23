@@ -6,3 +6,8 @@
   <use   name="rootcintex"/>
   <use   name="root"/>
 </bin>
+
+<bin   name="timer_test" file="timer.cc">
+  <lib name="rt"/>
+  <flags NO_TESTRUN="1"/>
+</bin>
