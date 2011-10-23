@@ -23,8 +23,7 @@ Original Author:  Christos Leonidopoulos, March 2007
 
 class TimerService {
  public:
-  explicit TimerService(const edm::ParameterSet&,
-			   edm::ActivityRegistry& iAR);
+  TimerService(const edm::ParameterSet&, edm::ActivityRegistry& iAR);
   ~TimerService();
   // signal with module-description and processing time (in secs)
   sigc::signal<void, const edm::ModuleDescription&, double> newMeasurementSignal;
@@ -35,11 +34,10 @@ class TimerService {
   void postModule(const edm::ModuleDescription& iMod);
 
  private:
-  // cpu-timer
-  static edm::CPUTimer * cpu_timer; // Chris J's CPUTimer
   // whether to use CPU-time (default) or wall-clock time
   bool useCPUtime;
-
+  // cpu-timer
+  edm::CPUTimer cpu_timer; // Chris J's CPUTimer
 };
 
 #endif // #define Timer_Service_
