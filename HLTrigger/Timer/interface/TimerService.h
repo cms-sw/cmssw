@@ -82,6 +82,9 @@ class TimerService {
 
   // cpu-timer
   hlt::CPUTimer cpu_timer;
+
+  // true is the process is bound to a single CPU
+  bool is_bound_;
 };
 
 #endif // #define Timer_Service_
