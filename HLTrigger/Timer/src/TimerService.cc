@@ -20,18 +20,11 @@ TimerService::TimerService(const edm::ParameterSet& ps,
 TimerService::~TimerService()
 {
   if(cpu_timer){
-    using namespace std;
-
-    string longLine("=========================================================="); 
-    cout << longLine << endl;
-    cout << " TimerService Info:\n";
-    
-    if(useCPUtime)
-      cout << " Used CPU-time ";
-    else
-      cout << " Used wall-clock-time ";
-    cout << "for timing information " << endl;
-    cout << longLine << endl;
+    std::cout << "==========================================================\n";
+    std::cout << " TimerService Info:\n";
+    std::cout << " Used " << (useCPUtime ? "CPU" : "wall-clock") << "time for timing information\n";
+    std::cout << "==========================================================\n";
+    std::cout << std::flush;
     
     delete cpu_timer; cpu_timer = 0;
   }
