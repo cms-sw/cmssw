@@ -3,8 +3,8 @@
 
 TimerService::TimerService(const edm::ParameterSet& ps, 
 				 edm::ActivityRegistry& iAR) :
-  useCPUtime(ps.getUntrackedParameter<bool>("useCPUtime", true)),
-  cpu_timer()
+  useCPUtime( ps.getUntrackedParameter<bool>("useCPUtime", true) ),
+  cpu_timer( useCPUtime )
 {
   iAR.watchPreModule(this, &TimerService::preModule);
   iAR.watchPostModule(this, &TimerService::postModule);
@@ -30,12 +30,6 @@ void TimerService::preModule(const edm::ModuleDescription& iMod)
 void TimerService::postModule(const edm::ModuleDescription& iMod)
 {
   cpu_timer.stop();
-
-  double time = -999; // in secs
-  if(useCPUtime)
-    time = cpu_timer.cpuTime();
-  else
-    time = cpu_timer.realTime();
-
+  double time = cpu_timer.delta();  // in secs
   newMeasurementSignal(iMod, time);
 }
