@@ -3,11 +3,9 @@
 
 TimerService::TimerService(const edm::ParameterSet& ps, 
 				 edm::ActivityRegistry& iAR) :
+  useCPUtime(ps.getUntrackedParameter<bool>("useCPUtime", true)),
   cpu_timer()
 {
-  // whether to use CPU-time (default) or wall-clock time
-  useCPUtime = ps.getUntrackedParameter<bool>("useCPUtime", true);
-
   iAR.watchPreModule(this, &TimerService::preModule);
   iAR.watchPostModule(this, &TimerService::postModule);
 }
