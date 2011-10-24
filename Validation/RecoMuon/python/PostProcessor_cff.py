@@ -95,8 +95,8 @@ postProcessorRecoMuon = cms.EDAnalyzer("DQMGenericClient",
 
     resolution = cms.vstring("ErrP_vs_P      '#sigma(p) vs p'           ErrP_vs_P     ",
                              "ErrP_vs_Eta    '#sigma(p) vs #eta'        ErrP_vs_Eta   ",
-                             "ErrPt_vs_Pt    '#sigma(p_{T}) vs p_{T}'       ErrPt_vs_Pt   ",
-                             "ErrPt_vs_Eta   '#sigma(p_{T}) vs #eta'        ErrPt_vs_Eta  ",
+                             "ErrPt_vs_Pt    '#sigma(p_{T}) vs p_{T}'   ErrPt_vs_Pt   ",
+                             "ErrPt_vs_Eta   '#sigma(p_{T}) vs #eta'    ErrPt_vs_Eta  ",
                              "ErrEta_vs_Eta  '#sigma(#eta) vs #eta '    ErrEta_vs_Eta ",
                              "ErrQPt_vs_Pt   '#sigma(q/p_{T}) vs p_{T}' ErrQPt_vs_Pt  ",
                              "ErrQPt_vs_Eta  '#sigma(q/p_{T}) vs #eta'  ErrQPt_vs_Eta ",
@@ -119,6 +119,9 @@ postProcessorRecoMuon_Trk.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoM
 postProcessorRecoMuon_Sta = postProcessorRecoMuon.clone()
 postProcessorRecoMuon_Sta.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_Sta")
 
+postProcessorRecoMuon_Tgt = postProcessorRecoMuon.clone()
+postProcessorRecoMuon_Tgt.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_Tgt")
+
 postProcessorRecoMuon_GlbPF = postProcessorRecoMuon.clone()
 postProcessorRecoMuon_GlbPF.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_GlbPF")
 
@@ -137,6 +140,9 @@ postProcessorRecoMuon_TrkFS.subDirs = cms.untracked.vstring("Muons/RecoMuonV/Rec
 
 postProcessorRecoMuon_StaFS = postProcessorRecoMuon.clone()
 postProcessorRecoMuon_StaFS.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_StaFS")
+
+postProcessorRecoMuon_TgtFS = postProcessorRecoMuon.clone()
+postProcessorRecoMuon_TgtFS.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_Tgt")
 
 postProcessorRecoMuon_GlbPFFS = postProcessorRecoMuon.clone()
 postProcessorRecoMuon_GlbPFFS.subDirs = cms.untracked.vstring("Muons/RecoMuonV/RecoMuon_MuonAssoc_GlbPFFS")
@@ -157,6 +163,10 @@ postProcessorRecoMuonComp = cms.EDAnalyzer(
     "Eff_GlbSta_P 'Eff_{GLB,TK} vs p' RecoMuon_MuonAssoc_Glb/EffP RecoMuon_MuonAssoc_Sta/EffP",
     "Eff_GlbSta_Phi 'Eff_{GLB,TK} vs #phi' RecoMuon_MuonAssoc_Glb/EffPhi RecoMuon_MuonAssoc_Sta/EffPhi",
     "Eff_GlbSta_Pt 'Eff_{GLB,TK} vs p_{T}' RecoMuon_MuonAssoc_Glb/EffPt RecoMuon_MuonAssoc_Sta/EffPt",
+    "Eff_TgtGlb_Eta 'Eff_{GLB,TK} vs #eta' RecoMuon_MuonAssoc_Tgt/EffEta RecoMuon_MuonAssoc_Glb/EffEta",
+    "Eff_TgtGlb_P 'Eff_{GLB,TK} vs p' RecoMuon_MuonAssoc_Tgt/EffP RecoMuon_MuonAssoc_Glb/EffP",
+    "Eff_TgtGlb_Phi 'Eff_{GLB,TK} vs #phi' RecoMuon_MuonAssoc_Tgt/EffPhi RecoMuon_MuonAssoc_Glb/EffPhi",
+    "Eff_TgtGlb_Pt 'Eff_{GLB,TK} vs p_{T}' RecoMuon_MuonAssoc_Tgt/EffPt RecoMuon_MuonAssoc_Glb/EffPt",
     ),
     resolution = cms.vstring(""),
     outputFileName = cms.untracked.string("")
