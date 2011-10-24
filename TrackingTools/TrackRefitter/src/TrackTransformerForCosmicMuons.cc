@@ -364,7 +364,7 @@ bool TrackTransformerForCosmicMuons::SlopeSum(TransientTrackingRecHit::ConstRecH
 
 	std::vector<float> py;
 	std::vector<float> pz;
-	int quadrant = -1;
+//	int quadrant = -1;
 	
 	float sumdy = 0;
 	float sumdz = 0;
@@ -382,10 +382,10 @@ bool TrackTransformerForCosmicMuons::SlopeSum(TransientTrackingRecHit::ConstRecH
 		float dy = y2 - y1;
 		float dz = z2 - z1;
 
-		if (y2 > 0 && z2 > 0) quadrant = 1;
-		else if (y2 > 0 && z2 < 0) quadrant = 2;
-		else if (y2 < 0 && z2 < 0) quadrant = 3;
-		else if (y2 < 0 && z2 > 0) quadrant = 4;
+//		if (y2 > 0 && z2 > 0) quadrant = 1;
+//		else if (y2 > 0 && z2 < 0) quadrant = 2;
+//		else if (y2 < 0 && z2 < 0) quadrant = 3;
+//		else if (y2 < 0 && z2 > 0) quadrant = 4;
 
 
 		if (fabs(dz) > 1e-3) dslope = dy / dz;
@@ -424,7 +424,7 @@ float TrackTransformerForCosmicMuons::SumDy(TransientTrackingRecHit::ConstRecHit
 
 	std::vector<float> py;
 	std::vector<float> pz;
-	int quadrant = -1;
+//	int quadrant = -1;
 	
 	float sumdy = 0;
 	float sumdz = 0;
@@ -444,10 +444,10 @@ float TrackTransformerForCosmicMuons::SumDy(TransientTrackingRecHit::ConstRecHit
 		float dy = y2 - y1;
 		float dz = z2 - z1;
 
-		if (y2 > 0 && z2 > 0) quadrant = 1;
-		else if (y2 > 0 && z2 < 0) quadrant = 2;
-		else if (y2 < 0 && z2 < 0) quadrant = 3;
-		else if (y2 < 0 && z2 > 0) quadrant = 4;
+//		if (y2 > 0 && z2 > 0) quadrant = 1;
+//		else if (y2 > 0 && z2 < 0) quadrant = 2;
+//		else if (y2 < 0 && z2 < 0) quadrant = 3;
+//		else if (y2 < 0 && z2 > 0) quadrant = 4;
 
 
 		if (fabs(dz) > 1e-3) dslope = dy / dz;
