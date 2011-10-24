@@ -7,11 +7,14 @@
  *
  * Version 0.0. A.Savin 2008/04/26
  *
- * $Date: 2010/09/30 22:26:45 $
- * $Revision: 1.13 $
+ * $Date: 2011/10/13 09:29:16 $
+ * $Revision: 1.14 $
  * \author P. Wittich
- * $Id: L1TdeRCT.h,v 1.13 2010/09/30 22:26:45 bachtis Exp $
+ * $Id: L1TdeRCT.h,v 1.14 2011/10/13 09:29:16 swanson Exp $
  * $Log: L1TdeRCT.h,v $
+ * Revision 1.14  2011/10/13 09:29:16  swanson
+ * Added exper bit monitoring
+ *
  * Revision 1.13  2010/09/30 22:26:45  bachtis
  * Add RCT FED vector monitoring
  *
@@ -219,6 +222,7 @@ private:
   // end bit information
 
   MonitorElement* rctInputTPGEcalOcc_ ;
+  MonitorElement* rctInputTPGEcalOccNoCut_ ;
   MonitorElement* rctInputTPGEcalRank_ ;
   MonitorElement* rctInputTPGHcalOcc_ ;
   MonitorElement* rctInputTPGHcalRank_ ;
