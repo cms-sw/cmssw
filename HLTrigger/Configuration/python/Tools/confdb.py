@@ -576,12 +576,33 @@ if 'GlobalTag' in %%(dict)s:
   def overrideL1Menu(self):
     # if requested, override the L1 menu from the GlobalTag (using the same connect as the GlobalTag itself)
     if self.config.l1.override:
-      self.config.l1.record = 'L1GtTriggerMenuRcd'
-      self.config.l1.label  = ''
-      self.config.l1.tag    = self.config.l1.override
-      if not self.config.l1.connect:
-        self.config.l1.connect = '%(connect)s/CMS_COND_31X_L1T'
-      self.loadAdditionalConditions( 'override the L1 menu', self.config.l1.__dict__ )
+      if self.config.l1.override.endswith('.xml'):
+        xmloverride = dict()
+        if '/' in self.config.l1.override:
+          xmloverride['folder'], xmloverride['file'] = self.config.l1.override.split('/')
+        else:
+          xmloverride['folder'], xmloverride['file'] = 'startup', self.config.l1.override
+        self.data += """
+# override the L1 menu 
+%%(process)sL1GtTriggerMenuRcdSource = cms.ESSource("EmptyESSource",
+    recordName = cms.string( 'L1GtTriggerMenuRcd' ),
+    iovIsRunNotTime = cms.bool( True ),
+    firstValid = cms.vuint32( 1 )
+)
+%%(process)sl1GtTriggerMenuXml = cms.ESProducer("L1GtTriggerMenuXmlProducer",
+    TriggerMenuLuminosity = cms.string( '%(folder)s' ),
+    DefXmlFile = cms.string( '%(file)s' ),
+    VmeXmlFile = cms.string( '' )
+)
+%%(process)ses_prefer_l1GtParameters = cms.ESPrefer( 'L1GtTriggerMenuXmlProducer', 'l1GtTriggerMenuXml' )
+""" % xmloverride
+      else:
+        self.config.l1.record = 'L1GtTriggerMenuRcd'
+        self.config.l1.label  = ''
+        self.config.l1.tag    = self.config.l1.override
+        if not self.config.l1.connect:
+          self.config.l1.connect = '%(connect)s/CMS_COND_31X_L1T'
+        self.loadAdditionalConditions( 'override the L1 menu', self.config.l1.__dict__ )
 
 
   def runL1Emulator(self):
