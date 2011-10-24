@@ -1,5 +1,5 @@
-// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.23 2011/09/19 08:32:24 demattia Exp $
-// Latest tag:  $Name: V05-01-01 $
+// Last commit: $Id: SiStripCondObjBuilderFromDb.cc,v 1.24 2011/09/19 13:50:13 demattia Exp $
+// Latest tag:  $Name: V05-01-02 $
 
 #include "OnlineDB/SiStripESSources/interface/SiStripCondObjBuilderFromDb.h"
 #include "OnlineDB/SiStripESSources/interface/SiStripFedCablingBuilderFromDb.h"
@@ -302,8 +302,7 @@ bool SiStripCondObjBuilderFromDb::setValuesApvTiming(SiStripConfigDb* const db, 
 /** */
 bool SiStripCondObjBuilderFromDb::setValuesApvLatency(SiStripLatency & latency_, SiStripConfigDb* const db, FedChannelConnection &ipair, uint32_t detid, uint16_t apvnr, SiStripConfigDb::DeviceDescriptionsRange apvs  ){
 SiStripDetInfoFileReader * fr=edm::Service<SiStripDetInfoFileReader>().operator->();
- uint16_t nApvPairs;
- nApvPairs=fr->getNumberOfApvsAndStripLength(detid).first/2;
+ fr->getNumberOfApvsAndStripLength(detid).first/2;
  
  SiStripConfigDb::DeviceDescriptionsV::const_iterator iapv = apvs.begin();
  SiStripConfigDb::DeviceDescriptionsV::const_iterator japv = apvs.end();
