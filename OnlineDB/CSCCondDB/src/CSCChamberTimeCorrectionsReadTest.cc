@@ -6,10 +6,6 @@ CSCChamberTimeCorrectionsReadTest::~CSCChamberTimeCorrectionsReadTest(){}
 
 void CSCChamberTimeCorrectionsReadTest::analyze (const edm::Event&, const edm::EventSetup&)
 {
-
-  int i;
-
-  i=system("date");
   csccableread *cable = new csccableread ();
   std::cout << " Connected cscr for cables ... " << std::endl;
 

@@ -251,7 +251,7 @@ void condbon::cdbon_last_record (std::string obj_name, int *record)
                                 CSCobject *obj)
 {
   int i,len;
-  int map_id=0, map_index=0, layer_id=0;
+  int map_id=0, layer_id=0;
   std::string tab, tab_map, tab_data;
   tab=obj_name;
   tab_map=obj_name+"_map";
@@ -296,7 +296,7 @@ sqlStmt = "SELECT map_id,map_index,layer_id from "+tab_map+" where record_id="+s
   //  try{
     while (rset->next ())
     {map_id = rset->getInt (1);
-     map_index = rset->getInt (2);
+     rset->getInt (2);
      layer_id = rset->getInt (3);
      ss<<map_id;
      sqlStmt1 = "SELECT * from "+tab_data+" where map_id="+ss.str()+" order by vec_index";

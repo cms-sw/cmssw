@@ -253,8 +253,8 @@ void CSCAFEBThrAnalysis::done() {
   std::cout<<"Events no anodes "<<nmbev_no_wire<<std::endl<<std::endl;
 
   std::cout<<"DAC occupancy"<<std::endl;
-  int ndacsize=EndDac-BegDac+1;
-  for(int i=0;i<ndacsize;i++) std::cout
+  size_t ndacsize=EndDac-BegDac+1;
+  for(size_t i=0;i<ndacsize;i++) std::cout
                                        <<" "<<vecDacOccup[i];
   std::cout<<"\n\n"<<std::endl; 
 

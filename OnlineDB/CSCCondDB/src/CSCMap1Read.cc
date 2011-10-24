@@ -8,9 +8,6 @@ void CSCMap1Read::analyze (const edm::Event&, const edm::EventSetup&)
 {
 
   CSCMapItem::MapItem item;
-  int i;
-
-  i=system("date");
   cscmap1 *map = new cscmap1 ();
   std::cout << " Connected cscmap ... " << std::endl;
 
