@@ -3,7 +3,7 @@
 // Package:    TrackAssociator
 // Class:      CachedTrajectory
 // 
-// $Id: CachedTrajectory.cc,v 1.27 2011/04/21 06:58:12 innocent Exp $
+// $Id: CachedTrajectory.cc,v 1.28 2011/04/21 07:02:42 innocent Exp $
 //
 //
 
@@ -551,10 +551,9 @@ CachedTrajectory::getWideTrajectory(const std::vector<SteppingHelixStateInfo>& s
       float yy = localErr.yy();
 
       float denom = yy - xx;
-      float phi = 0., phi_temp=0.;
+      float phi = 0.;
       if(xy == 0 && denom==0) phi = M_PI_4;
       else phi = 0.5 * atan2(2.*xy,denom); // angle of MAJOR axis
-      phi_temp = phi;
       // Unrotate the error ellipse to get the semimajor and minor axes. Then place points on
       // the endpoints of semiminor an seminajor axes on original(rotated) error ellipse.
       LocalError rotErr = localErr.rotate(-phi); // xy covariance of rotErr should be zero
