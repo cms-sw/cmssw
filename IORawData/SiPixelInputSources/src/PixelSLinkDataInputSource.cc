@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Freya Blekman
 //         Created:  Fri Sep  7 15:46:34 CEST 2007
-// $Id: PixelSLinkDataInputSource.cc,v 1.18 2008/09/22 15:45:15 fblekman Exp $
+// $Id: PixelSLinkDataInputSource.cc,v 1.19 2010/01/26 14:22:14 elmer Exp $
 //
 //
 
@@ -177,7 +177,6 @@ PixelSLinkDataInputSource::~PixelSLinkDataInputSource() {
 }
 // produce() method. This is the worker method that is called every event.
 bool PixelSLinkDataInputSource::produce(edm::Event& event) {
-  bool lastevent=false;
   Storage & m_file = *storage;
 
   // create product (raw data)
@@ -256,7 +255,6 @@ bool PixelSLinkDataInputSource::produce(edm::Event& event) {
     int n =m_file.read((char*)&m_data,8);
     if (n==0) {
       edm::LogInfo("") << "End of input file" ;
-      lastevent=true;
     }
     m_currenteventnumber = (m_data >> 32)&0x00ffffff ;
     if(m_currenteventnumber<eventnumber)
@@ -268,8 +266,6 @@ bool PixelSLinkDataInputSource::produce(edm::Event& event) {
   uint32_t realeventno = synchronizeEvents();
   setEventNumber(realeventno);
   event.put(buffers);
-  //  if(lastevent)
-  //    return true;
   return true;
 }
 
