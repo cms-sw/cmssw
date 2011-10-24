@@ -676,9 +676,9 @@ void SiPixelDigitizerAlgorithm::fluctuateEloss(int pid, float particleMomentum,
 				      int NumberOfSegs,float elossVector[]) {
 
   // Get dedx for this track
-  float dedx;
-  if( length > 0.) dedx = eloss/length;
-  else dedx = eloss;
+  //float dedx;
+  //if( length > 0.) dedx = eloss/length;
+  //else dedx = eloss;
 
   double particleMass = 139.6; // Mass in MeV, Assume pion
   pid = abs(pid);
