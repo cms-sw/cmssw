@@ -123,10 +123,10 @@ CSCRecHit2D CSCMake2DRecHit::hitFromStripAndWire(const CSCDetId& id, const CSCLa
       adc2.push_back(adc[t+iStrip*4]);
       adc2Raw.push_back(adcRaw[t+iStrip*4]);
     }
-    // OLD: Rechit takes _calibrated_ adc values
-    // adcMap.put( strips[iStrip], adc2.begin(), adc2.end() ); 
-    // NEW: Rechit takes _raw_ adc values
-    adcMap.put( strips[iStrip], adc2Raw.begin(), adc2Raw.end() ); 
+    //After CMSSW_5_0: ADC value is pedestal-subtracted and electronics-gain corrected
+    adcMap.put( strips[iStrip], adc2.begin(), adc2.end() ); 
+    // Up to CMSSW_5_0, Rechit takes _raw_ adc values
+    // adcMap.put( strips[iStrip], adc2Raw.begin(), adc2Raw.end() ); 
 
     LogTrace("CSCRecHit") << "CSCMake2DRecHit: strip = " << strips[iStrip] << 
       " adcs= " << adc2Raw[0] << " " << adc2Raw[1] << " " << adc2Raw[2] << " " << adc2Raw[3];
