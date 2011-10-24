@@ -11,7 +11,7 @@
 //
 // Original Author:  Ursula Berthon
 //         Created:  Wed Oct 15  11:38:38 CEST 2008
-// $Id: EcalTPCondAnalyzer.cc,v 1.4 2011/03/09 13:10:32 ebecheva Exp $
+// $Id: EcalTPCondAnalyzer.cc,v 1.5 2011/07/05 13:53:08 ebecheva Exp $
 //
 //
 //
@@ -424,9 +424,9 @@ void EcalTPCondAnalyzer::printTOWEREB(const EcalTPGSpike *ecaltpgSpikeTh, const 
       std::cout <<"TOWER_EB "<<std::dec<<(*it).first<<std::endl;
       lutGroupId=lutMap.find((*it).first);
       itSpikeTh=spikeThMap.find((*it).first);
-      std::cout <<std::hex<<" "<<(*it).second<<std::endl;
-      std::cout <<std::hex<<" "<<(*lutGroupId).second<<std::endl;
-      std::cout <<std::dec<<" "<<(*itSpikeTh).second<<std::endl; 
+      std::cout <<" "<<(*it).second<<std::endl;
+      std::cout <<" "<<(*lutGroupId).second<<std::endl;
+      std::cout <<" "<<(*itSpikeTh).second<<std::endl; 
     }
 }
 
