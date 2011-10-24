@@ -92,10 +92,12 @@ HLT_LogMonitor_v*
 HLTriggerFirstPath
 HLTriggerFinalPath
 HLTAnalyzerEndpath
-AOutput
+# AOutput
+AForHIOutput
 # AlCaHIOutput
 ALCAP0Output
 ALCAPHISYMOutput
+ALCALUMIPIXELSOutput
 CalibrationOutput
 DQMOutput
 EcalCalibrationOutput
@@ -104,5 +106,6 @@ HLTDQMOutput
 HLTDQMResultsOutput
 HLTMONOutput
 NanoDSTOutput
+# PhysicsDSTOutput
 RPCMONOutput
 TrackerCalibrationOutput
