@@ -68,7 +68,12 @@ class SiStripAPVRestorer {
   
   void BaselineFollower(DigiMap&, std::vector<int16_t>&, const float&);
   bool FlatRegionsFinder(const std::vector<int16_t>&, DigiMap&, const uint16_t&);
+
   void BaselineCleaner(const std::vector<int16_t>&, DigiMap&, const uint16_t& );
+  void Cleaner_MonotonyChecker(DigiMap&);
+  void Cleaner_HighSlopeChecker(DigiMap&);
+  void Cleaner_LocalMinimumAdder(const std::vector<int16_t>&, DigiMap&, const uint16_t& );
+
 
   void CreateCMMapRealPed(const edm::DetSetVector<SiStripRawDigi>& );
   void CreateCMMapCMstored(const edm::DetSetVector<SiStripProcessedRawDigi>& );
@@ -124,8 +129,11 @@ class SiStripAPVRestorer {
   double   CutToAvoidSignal_;	       // for iterative median implementation internal to APV restorer
   uint32_t nSaturatedStrip_;           // for BaselineAndSaturation inspect
   bool ApplyBaselineCleaner_;
+  uint32_t CleaningSequence_;
   bool ApplyBaselineRejection_;
   int32_t MeanCM_;
+  double  filteredBaselineMax_;
+  double filteredBaselineDerivativeSumSquare_;
                     
 };
 
