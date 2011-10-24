@@ -29,7 +29,7 @@ TSiPixelRecHit::TSiPixelRecHit(const GeomDet * geom, const SiPixelRecHit* rh,
 			       const PixelClusterParameterEstimator* cpe,
 			       float weight, float annealing,
 			       bool computeCoarseLocalPosition) : 
-  TransientTrackingRecHit(geom, *rh, weight, annealing), theCPE(cpe), theHitData(*rh) 
+  TransientTrackingRecHit(geom, *rh, weight, annealing), theHitData(*rh), theCPE(cpe)
 {
   if (! (rh->hasPositionAndError() || !computeCoarseLocalPosition)) {
     const GeomDetUnit* gdu = dynamic_cast<const GeomDetUnit*>(geom);
