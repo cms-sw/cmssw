@@ -5,5 +5,3 @@
 <use   name="DataFormats/FEDRawData"/>
 <use   name="Utilities/StorageFactory"/>
 <flags   EDM_PLUGIN="1"/>
-<export>
-</export>
