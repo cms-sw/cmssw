@@ -55,6 +55,9 @@
 #include "FWCore/Utilities/interface/UnixSignalHandlers.h"
 #include "FWCore/Utilities/interface/ExceptionCollector.h"
 
+#include "MessageForSource.h"
+#include "MessageForParent.h"
+
 #include "boost/bind.hpp"
 #include "boost/thread/xtime.hpp"
 
@@ -70,6 +73,9 @@
 //Used for forking
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/socket.h>
+#include <sys/select.h>
+#include <sys/fcntl.h>
 #include <unistd.h>
 
 //Used for CPU affinity
@@ -821,9 +827,12 @@ namespace edm {
 
   //Setup signal handler to listen for when forked children stop
   namespace {
+    //These are volatile since the compiler can not be allowed to optimize them
+    // since they can be modified in the signaller handler
     volatile bool child_failed = false;
     volatile unsigned int num_children_done = 0;
     volatile int child_fail_exit_status = 0;
+    volatile int child_fail_signal = 0;
 
     extern "C" {
       void ep_sigchld(int, siginfo_t*, void*) {
@@ -836,12 +845,13 @@ namespace edm {
           if(WIFEXITED(stat_loc)) {
             ++num_children_done;
             if(0 != WEXITSTATUS(stat_loc)) {
-              child_failed = true;
               child_fail_exit_status = WEXITSTATUS(stat_loc);
+              child_failed = true;
             }
           }
           if(WIFSIGNALED(stat_loc)) {
             ++num_children_done;
+            child_fail_signal = WTERMSIG(stat_loc);
             child_failed = true;
           }
           p = waitpid(-1, &stat_loc, WNOHANG);
@@ -873,36 +883,116 @@ namespace edm {
 
     class MessageSenderToSource {
     public:
-      MessageSenderToSource(int iQueueID, long iNEventsToProcess):
-      m_queueID(iQueueID),
-      m_nEventsToProcess(iNEventsToProcess) {}
-      void operator()() {
-        std::cout << "I am controller" << std::endl;
-        //this is the first child and therefore the controller
-
-        multicore::MessageForSource sndmsg;
-        sndmsg.startIndex = 0;
-        sndmsg.nIndices = m_nEventsToProcess;
-        if(m_nEventsToProcess > 0 && m_nEventsToProcess < m_nEventsToProcess) {
-          sndmsg.nIndices = m_nEventsToProcess;
-        }
-        int value = 0;
-        do {
-          value = msgsnd(m_queueID, &sndmsg, multicore::MessageForSource::sizeForBuffer(), 0);
-          //std::cerr << "worker asked for work" << std::endl;
-          sndmsg.startIndex += sndmsg.nIndices;
-        } while(value == 0);
-        if(errno != EIDRM and errno != EINVAL) {
-          //NOTE: on Linux we sometimes get EINVAL after the queue was removed rather than EIDRM
-          perror("message queue send failed");
-        }
-        return;
-      }
+      MessageSenderToSource(std::vector<int> const& childrenSockets, std::vector<int> const& childrenPipes, long iNEventsToProcess);
+      void operator()();
 
     private:
-      int const m_queueID;
+      const std::vector<int>& m_childrenPipes;
       long const m_nEventsToProcess;
+      fd_set m_socketSet;
+      unsigned int m_aliveChildren;
+      int m_maxFd;
     };
+    
+    MessageSenderToSource::MessageSenderToSource(std::vector<int> const& childrenSockets,
+                                                 std::vector<int> const& childrenPipes,
+                                                 long iNEventsToProcess):
+    m_childrenPipes(childrenPipes),
+    m_nEventsToProcess(iNEventsToProcess),
+    m_aliveChildren(childrenSockets.size()),
+    m_maxFd(0)
+    {
+      FD_ZERO(&m_socketSet);
+      for (std::vector<int>::const_iterator it = childrenSockets.begin(), itEnd = childrenSockets.end();
+           it != itEnd; it++) {
+        FD_SET(*it, &m_socketSet);
+        if (*it > m_maxFd) {
+          m_maxFd = *it;
+        }
+      }
+      for (std::vector<int>::const_iterator it = childrenPipes.begin(), itEnd = childrenPipes.end();
+           it != itEnd; ++it) {
+        FD_SET(*it, &m_socketSet);
+        if (*it > m_maxFd) {
+          m_maxFd = *it;
+        }
+      }
+      m_maxFd++; // select reads [0,m_maxFd).
+    }
+    
+    void
+    MessageSenderToSource::operator()() {
+      multicore::MessageForParent childMsg;
+      std::cout << "I am controller" << std::endl;
+      //this is the master and therefore the controller
+      
+      multicore::MessageForSource sndmsg;
+      sndmsg.startIndex = 0;
+      sndmsg.nIndices = m_nEventsToProcess;
+      do {
+        
+        fd_set readSockets, errorSockets;
+        // Wait for a request from a child for events.
+        memcpy(&readSockets, &m_socketSet, sizeof(m_socketSet));
+        memcpy(&errorSockets, &m_socketSet, sizeof(m_socketSet));
+        // Note that we don't timeout; may be reconsidered in the future.
+        ssize_t rc;
+        while (((rc = select(m_maxFd, &readSockets, NULL, &errorSockets, NULL)) < 0) && (errno == EINTR)) {}
+        if (rc < 0) {
+          // TODO: Ask Chris how to kill off the other threads.
+          break;
+        }
+        
+        // Read the message from the child.
+        // On error, set child_fail = true
+        for (int idx=0; idx<m_maxFd; idx++) {
+
+          // Handle errors
+          if (FD_ISSET(idx, &errorSockets)) {
+            FD_CLR(idx, &m_socketSet);
+            close(idx);
+            // See if it was the watchdog pipe that died.
+            for (std::vector<int>::const_iterator it = m_childrenPipes.begin(); it != m_childrenPipes.end(); it++) {
+              if (*it == idx) {
+                m_aliveChildren--;
+              }
+            }
+            continue;
+          }
+          
+          if (!FD_ISSET(idx, &readSockets)) {
+            continue;
+          }
+          while (((rc = recv(idx, reinterpret_cast<char*>(&childMsg),childMsg.sizeForBuffer() , 0)) < 0) && (errno == EINTR)) {}
+          if (rc < 0) {
+            FD_CLR(idx, &m_socketSet);
+            close(idx);
+            // See if it was the watchdog pipe that died.
+            for (std::vector<int>::const_iterator it = m_childrenPipes.begin(), itEnd = m_childrenPipes.end(); it != itEnd; it++) {
+              if (*it == idx) {
+                m_aliveChildren--;
+              }
+            }
+            continue;
+          }
+          
+          // Tell the child what events to process.
+          // On error, set child_fail = true
+          while (((rc = send(idx, (char *)(&sndmsg), multicore::MessageForSource::sizeForBuffer(), 0)) < 0) && (errno == EINTR)) {}
+          if (rc < 0) {
+            FD_CLR(idx, &m_socketSet);
+            close(idx);
+            continue;
+          }
+          //std::cout << "Sent chunk starting at " << sndmsg.startIndex << " to child, length " << sndmsg.nIndices << std::endl;
+          sndmsg.startIndex += sndmsg.nIndices;
+        }
+      
+      } while (m_aliveChildren > 0);
+      
+      return;
+    }
+
   }
 
   bool
@@ -970,39 +1060,67 @@ namespace edm {
       }
     }
     std::cout << "  done prefetching" << std::endl;
-{
-    // make the services available
-    ServiceRegistry::Operate operate(serviceToken_);
-    Service<JobReport> jobReport;
-    jobReport->parentBeforeFork(jobReportFile, numberOfForkedChildren_);
+    {
+      // make the services available
+      ServiceRegistry::Operate operate(serviceToken_);
+      Service<JobReport> jobReport;
+      jobReport->parentBeforeFork(jobReportFile, numberOfForkedChildren_);
 
-    //Now actually do the forking
-    actReg_->preForkReleaseResourcesSignal_();
-    input_->doPreForkReleaseResources();
-    schedule_->preForkReleaseResources();
-}
+      //Now actually do the forking
+      actReg_->preForkReleaseResourcesSignal_();
+      input_->doPreForkReleaseResources();
+      schedule_->preForkReleaseResources();
+    }
     installCustomHandler(SIGCHLD, ep_sigchld);
 
-    //Create a message queue used to set what events each child processes
-    int queueID;
-    if(-1 == (queueID = msgget(IPC_PRIVATE, IPC_CREAT|0660))) {
-      printf("Error obtaining message queue\n");
-      exit(EXIT_FAILURE);
-    }
 
     unsigned int childIndex = 0;
     unsigned int const kMaxChildren = numberOfForkedChildren_;
     unsigned int const numberOfDigitsInIndex = numberOfDigitsInChildIndex(kMaxChildren);
     std::vector<pid_t> childrenIds;
     childrenIds.reserve(kMaxChildren);
+    std::vector<int> childrenSockets;
+    childrenSockets.reserve(kMaxChildren);
+    std::vector<int> childrenPipes;
+    childrenPipes.reserve(kMaxChildren);
+
 {
     // make the services available
     ServiceRegistry::Operate operate(serviceToken_);
     Service<JobReport> jobReport;
+    int sockets[2], fd_flags, pipes[2];
     for(; childIndex < kMaxChildren; ++childIndex) {
+      // Create a UNIX_DGRAM socket pair
+      if (socketpair(AF_UNIX, SOCK_DGRAM, 0, sockets)) {
+        printf("Error creating communication socket (errno=%d, %s)\n", errno, strerror(errno));
+        exit(EXIT_FAILURE);
+      }
+      if (pipe(pipes)) {
+        printf("Error creating communication pipes (errno=%d, %s)\n", errno, strerror(errno));
+        exit(EXIT_FAILURE);
+      }
+      // set CLOEXEC so the socket/pipe doesn't get leaked if the child exec's.
+      if ((fd_flags = fcntl(sockets[1], F_GETFD, NULL)) == -1) {
+        printf("Failed to get fd flags: %d %s\n", errno, strerror(errno));
+        exit(EXIT_FAILURE);
+      }
+      if (fcntl(sockets[1], F_SETFD, fd_flags | FD_CLOEXEC) == -1) {
+        printf("Failed to set new fd flags: %d %s\n", errno, strerror(errno));
+        exit(EXIT_FAILURE);
+      }
+      if ((fd_flags = fcntl(pipes[1], F_GETFD, NULL)) == -1) {
+        printf("Failed to get fd flags: %d %s\n", errno, strerror(errno));
+        exit(EXIT_FAILURE);
+      }
+      if (fcntl(pipes[1], F_SETFD, fd_flags | FD_CLOEXEC) == -1) {
+        printf("Failed to set new fd flags: %d %s\n", errno, strerror(errno));
+        exit(EXIT_FAILURE);
+      }
+
       pid_t value = fork();
       if(value == 0) {
         // this is the child process, redirect stdout and stderr to a log file
+        close(pipes[0]);
         fflush(stdout);
         fflush(stderr);
         std::stringstream stout;
@@ -1038,22 +1156,24 @@ namespace edm {
 #endif
         }
         break;
+      } else {
+        //this is the parent
+        close(pipes[1]);
       }
       if(value < 0) {
         std::cerr << "failed to create a child" << std::endl;
-        //message queue is a system resource so must be cleaned up
-        // before parent goes away
-        msgctl(queueID, IPC_RMID, 0);
         exit(-1);
       }
       childrenIds.push_back(value);
+      childrenSockets.push_back(sockets[0]);
+      childrenPipes.push_back(pipes[0]);
     }
 
     if(childIndex < kMaxChildren) {
       jobReport->childAfterFork(jobReportFile, childIndex, kMaxChildren);
       actReg_->postForkReacquireResourcesSignal_(childIndex, kMaxChildren);
 
-      boost::shared_ptr<multicore::MessageReceiverForSource> receiver(new multicore::MessageReceiverForSource(queueID));
+      boost::shared_ptr<multicore::MessageReceiverForSource> receiver(new multicore::MessageReceiverForSource(sockets[1]));
       input_->doPostForkReacquireResources(receiver);
       schedule_->postForkReacquireResources(childIndex, kMaxChildren);
       //NOTE: sources have to reset themselves by listening to the post fork message
@@ -1086,7 +1206,7 @@ namespace edm {
     //create a thread that sends the units of work to workers
     // we create it after all signals were blocked so that this
     // thread is never interupted by a signal
-    MessageSenderToSource sender(queueID, numberOfSequentialEventsPerChild_);
+    MessageSenderToSource sender(childrenSockets, childrenPipes, numberOfSequentialEventsPerChild_);
     boost::thread senderThread(sender);
 
     while(!shutdown_flag && !child_failed && (childrenIds.size() != num_children_done)) {
@@ -1115,14 +1235,16 @@ namespace edm {
       }
       pthread_sigmask(SIG_SETMASK, &oldSigSet, NULL);
     }
-    //remove message queue, this will cause the message thread to terminate
-    // kill it now since all children already stopped
-    msgctl(queueID, IPC_RMID, 0);
-    //now wait for the sender thread to finish. This should be quick since
-    // we killed the message queue
+    // The senderThread will notice the sockets die off, one by one.  Once all children are gone, it will exit.
     senderThread.join();
     if(child_failed) {
-      throw cms::Exception("ForkedChildFailed") << "child process ended abnormally with exit code " << child_fail_exit_status;
+      if (child_fail_signal) {
+        throw cms::Exception("ForkedChildFailed") << "child process ended abnormally with signal " << child_fail_signal;
+      } else if (child_fail_exit_status) {
+        throw cms::Exception("ForkedChildFailed") << "child process ended abnormally with exit code " << child_fail_exit_status;
+      } else {
+        throw cms::Exception("ForkedChildFailed") << "child process ended abnormally for unknown reason";
+      }
     }
     return false;
   }

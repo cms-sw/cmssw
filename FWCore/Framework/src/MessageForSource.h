@@ -11,7 +11,7 @@
 
  Usage:
     This class is an internal detail of how the parent process communicates to child processes.
- It is used with the posix message queue to send what events child processes should handle. The
+ It is used with the posix sockets to send what events child processes should handle. The
  events are designated as a 'block' where we give the index to the first event in the block and
  then the number of consecutive events to process in the block.
 
@@ -37,7 +37,6 @@ namespace edm {
          
       public:
          MessageForSource():
-          mtype(MessageForSource::messageType()),
           startIndex(0),
           nIndices(0) {}
          
@@ -47,11 +46,8 @@ namespace edm {
          
          // ---------- static member functions --------------------
          static size_t sizeForBuffer() {
-            //posix message queue needs to know how much information to
-            //send excluding the manditory 'type' (which must be a long).
-            return sizeof(MessageForSource)-sizeof(long);
+            return sizeof(MessageForSource);
          }
-         static long messageType() { return 1;}
          
          // ---------- member functions ---------------------------
          
@@ -61,7 +57,6 @@ namespace edm {
          //const MessageForSource& operator=(const MessageForSource&); // allow default
          
          // ---------- member data --------------------------------
-         long mtype; //posixs requires the first member data be a long which holds the 'type'
          unsigned long startIndex; //which event index to start processing for this 'block'
          unsigned long nIndices; //number of consecutive indicies in the block
 

@@ -14,12 +14,15 @@
 #include <sys/types.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
+#include <sys/socket.h>
 #include <errno.h>
 #include <string.h>
 
 // user include files
 #include "FWCore/Framework/interface/MessageReceiverForSource.h"
 #include "FWCore/Utilities/interface/Exception.h"
+#include "MessageForSource.h"
+#include "MessageForParent.h"
 
 using namespace edm::multicore;
 //
@@ -33,24 +36,13 @@ using namespace edm::multicore;
 //
 // constructors and destructor
 //
-MessageReceiverForSource::MessageReceiverForSource(int iQueueID):
-m_queueID(iQueueID),
+MessageReceiverForSource::MessageReceiverForSource(int parentSocket):
+m_parentSocket(parentSocket),
 m_startIndex(0),
 m_numberOfConsecutiveIndices(0),
 m_numberToSkip(0)
 {
 }
-/*
-MessageReceiverForSource::MessageReceiverForSource(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialEvents):
-m_startIndex(0),
-m_numberOfConsecutiveIndices(0),
-m_numberToSkip(0),
-m_forkedChildIndex(iChildIndex),
-m_numberOfIndicesToSkip(iNumberOfSequentialEvents*(iNumberOfChildren-1)),
-m_originalConsecutiveIndices(iNumberOfSequentialEvents)
-{
-}
- */
 
 // MessageReceiverForSource::MessageReceiverForSource(const MessageReceiverForSource& rhs)
 // {
@@ -81,24 +73,43 @@ MessageReceiverForSource::receive()
 {
    unsigned long previousStartIndex = m_startIndex;
    unsigned long previousConsecutiveIndices = m_numberOfConsecutiveIndices;
-   /*
-   //DUMMY
-   if (m_originalConsecutiveIndices != m_numberOfConsecutiveIndices) {
-      m_numberOfConsecutiveIndices = m_originalConsecutiveIndices;
-      m_startIndex = m_numberOfConsecutiveIndices*m_forkedChildIndex;
-   } else {
-      m_startIndex += m_numberOfConsecutiveIndices+m_numberOfIndicesToSkip;
-   }*/
+  
+   //request more work from the parent
+   ssize_t rc;
+   MessageForParent parentMessage;
+   if ((rc = send(m_parentSocket, reinterpret_cast<char *>(&parentMessage), parentMessage.sizeForBuffer(), 0)) != static_cast<int>(parentMessage.sizeForBuffer())) {
+     m_numberOfConsecutiveIndices=0;
+     m_startIndex=0;
+     if (rc == -1) {
+       throw cms::Exception("MulticoreCommunicationFailure") << "failed to send data to controller: errno=" << errno << " : " << strerror(errno);
+     }
+     throw cms::Exception("MulticoreCommunicationFailure") << "Unable to write full message to controller (" << rc << " of " << parentMessage.sizeForBuffer() << " byte written)";
+   }
+  
    MessageForSource message;
    errno = 0;
-   int value = msgrcv(m_queueID, &message, MessageForSource::sizeForBuffer(), MessageForSource::messageType(), 0);
+   rc = recv(m_parentSocket, &message, MessageForSource::sizeForBuffer(), 0);
+   if (rc < 0) {
+     m_numberOfConsecutiveIndices=0;
+     m_startIndex=0;
+     throw cms::Exception("MulticoreCommunicationFailure")<<"failed to receive data from controller: errno="<<errno<<" : "<<strerror(errno);
+   }
+
+   /*int value = msgrcv(m_queueID, &message, MessageForSource::sizeForBuffer(), MessageForSource::messageType(), 0);
    if (value < 0) {
       m_numberOfConsecutiveIndices=0;
       throw cms::Exception("MulticoreCommunicationFailure")<<"failed to receive data from controller: errno="<<errno<<" : "<<strerror(errno);
    }
+    */
+  
+   if (rc != (int)MessageForSource::sizeForBuffer()) {
+      m_numberOfConsecutiveIndices=0;
+      m_startIndex=0;
+      throw cms::Exception("MulticoreCommunicationFailure")<<"Incorrect number of bytes received from controller (got " << rc << ", expected " << MessageForSource::sizeForBuffer() << ")";
+   }
+
    m_startIndex = message.startIndex;
-   m_numberOfConsecutiveIndices = message.nIndices;
-   
+   m_numberOfConsecutiveIndices = message.nIndices;   
    m_numberToSkip = m_startIndex-previousStartIndex-previousConsecutiveIndices;
    return;
 }

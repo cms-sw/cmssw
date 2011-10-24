@@ -16,13 +16,12 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Dec 30 10:09:44 CST 2010
-// $Id: MessageReceiverForSource.h,v 1.1 2011/01/02 19:50:59 chrjones Exp $
+// $Id: MessageReceiverForSource.h,v 1.2 2011/01/03 21:05:00 chrjones Exp $
 //
 
 // system include files
 
 // user include files
-#include "FWCore/Framework/src/MessageForSource.h"
 
 // forward declarations
 namespace edm {
@@ -31,10 +30,8 @@ namespace edm {
       {
          
       public:
-         ///Takes the ID of the posix message queue used for the messages
-         MessageReceiverForSource(int iQueueID);
-         //MessageReceiverForSource(unsigned int iChildIndex, unsigned int iNumberOfChildren, unsigned int iNumberOfSequentialEvents);
-         //virtual ~MessageReceiverForSource();
+         ///Takes the fd of the read and write socket for communication with parent
+         MessageReceiverForSource(int parentSocket);
          
          // ---------- const member functions ---------------------
          
@@ -67,7 +64,7 @@ namespace edm {
          const MessageReceiverForSource& operator=(const MessageReceiverForSource&); // stop default
          
          // ---------- member data --------------------------------
-         int m_queueID;
+         int m_parentSocket;
          unsigned long m_startIndex;
          unsigned long m_numberOfConsecutiveIndices;
          unsigned long m_numberToSkip;
