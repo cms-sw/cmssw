@@ -102,7 +102,7 @@ void SoftElectronProducer::produce(edm::Event &iEvent,
   
 
   double hcalEnergy, clusEnergy, trkP;
-  double x[2], y[2], z[2], eta[2], phi[2];
+  double x[2], y[2], z[2];
   double covEtaEta, covEtaPhi, covPhiPhi, emFraction, deltaE;
   double eMax, e2x2, e3x3, e5x5, v1, v2, v3, v4;
   double value, dist, distMin;
@@ -157,8 +157,6 @@ void SoftElectronProducer::produce(edm::Event &iEvent,
     x[0] = info.trkGlobPosAtEcal.x();
     y[0] = info.trkGlobPosAtEcal.y();
     z[0] = info.trkGlobPosAtEcal.z();
-    eta[0] = info.trkGlobPosAtEcal.eta();
-    phi[0] = info.trkGlobPosAtEcal.phi();
 
     // analyse only tracks passing quality cuts
     if(track->numberOfValidHits() >= 8 && track->pt() > 2.0 &&
@@ -174,10 +172,6 @@ void SoftElectronProducer::produce(edm::Event &iEvent,
         x[1] = itCluster->x();
         y[1] = itCluster->y();
         z[1] = itCluster->z();
-
-        eta[1] = itCluster->eta();
-        phi[1] = itCluster->phi();
-
 
         dist = hypot(x[0] - x[1], y[0] - y[1]);
         dist = hypot(dist, z[0] - z[1]);
