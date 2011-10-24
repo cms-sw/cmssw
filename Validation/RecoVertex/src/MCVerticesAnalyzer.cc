@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Thu Dec 16 16:32:56 CEST 2010
-// $Id: MCVerticesAnalyzer.cc,v 1.2 2011/03/08 19:12:39 venturia Exp $
+// $Id: MCVerticesAnalyzer.cc,v 1.3 2011/07/22 09:46:20 venturia Exp $
 //
 //
 
@@ -203,16 +203,19 @@ MCVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    Handle< HepMCProduct > EvtHandle ;
    iEvent.getByLabel(m_mctruthcollection, EvtHandle ) ;
 
-   const HepMC::GenEvent* Evt = EvtHandle->GetEvent();
+   if(EvtHandle.isValid()) {
+
+     const HepMC::GenEvent* Evt = EvtHandle->GetEvent();
 
    // get the first vertex
+     
+     if(Evt->vertices_begin() != Evt->vertices_end()) {
 
-   if(Evt->vertices_begin() != Evt->vertices_end()) {
+       m_hmainvtxx->Fill((*Evt->vertices_begin())->point3d().x()/10.,weight);
+       m_hmainvtxy->Fill((*Evt->vertices_begin())->point3d().y()/10.,weight);
+       m_hmainvtxz->Fill((*Evt->vertices_begin())->point3d().z()/10.,weight);
 
-     m_hmainvtxx->Fill((*Evt->vertices_begin())->point3d().x()/10.,weight);
-     m_hmainvtxy->Fill((*Evt->vertices_begin())->point3d().y()/10.,weight);
-     m_hmainvtxz->Fill((*Evt->vertices_begin())->point3d().z()/10.,weight);
-
+     }
    }
 }
 
