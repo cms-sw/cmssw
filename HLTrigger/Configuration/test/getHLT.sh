@@ -65,7 +65,7 @@ function getConfigForOnline() {
 # local L1T="tag[,connect]" - record is hardwired as L1GtTriggerMenuRcd
 # local L1TPP="L1GtTriggerMenu_L1Menu_Collisions2011_v6_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2011_v6/sqlFile/L1Menu_Collisions2011_v6_mc.db"
   local L1TPP="L1GtTriggerMenu_L1Menu_Collisions2011_v6_mc"
-  local L1THI="startup/L1Menu_CollisionsHeavyIons2011_v0_L1T_Scales_20101224_Imp0_0x1026.xml"
+  local L1THI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2010_v2_mc"
 
 
   log "    dumping full HLT for $NAME"
