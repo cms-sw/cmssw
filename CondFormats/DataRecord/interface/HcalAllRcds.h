@@ -25,5 +25,5 @@
 #include "CondFormats/DataRecord/interface/HcalLongRecoParamsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalMCParamsRcd.h"
 #include "CondFormats/DataRecord/interface/HcalFlagHFDigiTimeParamsRcd.h"
-
+#include "CondFormats/DataRecord/interface/HcalTimingParamsRcd.h"
 #endif
