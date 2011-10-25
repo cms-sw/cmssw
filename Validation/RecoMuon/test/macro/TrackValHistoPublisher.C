@@ -1688,7 +1688,7 @@ void setStats(TH1* s,TH1* r, double startingY, double startingX = .1,bool fit){
     TPaveStats* st1 = (TPaveStats*) s->GetListOfFunctions()->FindObject("stats");
     if (st1) {
       //      if (fit) {st1->SetOptFit(0010);    st1->SetOptStat(1001);}
-      if (fit) {st1->SetOptFit(0010);    st1->SetOptStat(111111);}
+      if (fit) {st1->SetOptFit(0010);    st1->SetOptStat(111110);}
       st1->SetX1NDC(startingX);
       st1->SetX2NDC(startingX+0.30);
       st1->SetY1NDC(startingY+0.20);
@@ -1709,7 +1709,7 @@ void setStats(TH1* s,TH1* r, double startingY, double startingX = .1,bool fit){
     TPaveStats* st2 = (TPaveStats*) r->GetListOfFunctions()->FindObject("stats");
     if (st2) {
       //      if (fit) {st2->SetOptFit(0010);    st2->SetOptStat(1001);}
-      if (fit) {st2->SetOptFit(0010);    st2->SetOptStat(111111);}
+      if (fit) {st2->SetOptFit(0010);    st2->SetOptStat(111110);}
       st2->SetX1NDC(startingX);
       st2->SetX2NDC(startingX+0.30);
       st2->SetY1NDC(startingY);
