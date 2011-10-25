@@ -58,6 +58,19 @@ DoHltMuon = cms.Path(
     HLTMuTrackJpsiPixelRecoSequence + 
     HLTMuTrackJpsiTrackRecoSequence +
 ##    HLTDisplacemumuSequence +
+
+    HLTDoLocalPixelSequence +
+    hltPixelTracks +
+    HLTDoLocalStripSequence +
+    hltMuTrackSeeds +
+    hltMuCkfTrackCandidates +
+    hltMuCtfTracks +
+    hltDiMuonMerging +
+    HLTL3muonrecoNocandSequence +
+    hltDiMuonLinks +
+    hltGlbTrkMuons +
+    hltGlbTrkMuonCands +
+    
     HLTEndSequence )
 
 # create the Egamma HLT reco paths

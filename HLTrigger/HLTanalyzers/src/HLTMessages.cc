@@ -52,6 +52,7 @@ const char * kMulinks                     = "L3 muon link";
 const char * kOniaPixelCands              = "Pixel track candidates in resonance with a L3 muon";
 const char * kOniaTrackCands              = "Strip track candidates in resonance with a L3 muon";
 const char * kDimuvtxcands3               = "L3 dimuon vertex";
+const char * kTrkMucands                  = "Unseeded trackerMuons";  
 
 const char * kBTagJets                    = "L2 b-jet collection";
 const char * kBTagCorrectedJets           = "L2 calibrated b-jet collection";

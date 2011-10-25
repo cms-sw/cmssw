@@ -54,6 +54,7 @@ hltanalysis = cms.EDAnalyzer("HLTAnalyzer",
     MuNoVtxCandTag2                 = cms.InputTag("hltL2MuonCandidatesNoVtx"),
     OniaPixelTag                    = cms.InputTag("hltMuTrackJpsiPixelTrackCands"),
     OniaTrackTag                    = cms.InputTag("hltMuTrackJpsiCtfTrackCands"),
+    TrackerMuonTag                  = cms.InputTag("hltGlbTrkMuons"),
     DiMuVtx                         = cms.InputTag("hltDisplacedmumuVtxProducerLowMass"),
 
     ### egamma OpenHLT objects                             

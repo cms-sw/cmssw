@@ -76,6 +76,12 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   muonl3ntrackerhits = new int[kMaxMuonL3];
   muonl3nmuonhits = new int[kMaxMuonL3];
   muonl32idx = new int[kMaxMuonL3];
+  const int kMaxTrackerMuon = 500;
+  trackermuonpt = new float[kMaxTrackerMuon];
+  trackermuonphi = new float[kMaxTrackerMuon];
+  trackermuoneta = new float[kMaxTrackerMuon];
+  trackermuonchg = new int[kMaxTrackerMuon];
+  trackermuonnhits = new int[kMaxTrackerMuon];
   const int kMaxOniaPixel = 500;
   oniaPixelpt = new float[kMaxOniaPixel];
   oniaPixelphi = new float[kMaxOniaPixel];
@@ -214,7 +220,12 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
   HltTree->Branch("ohDiMuVtxMu2DIpMin",dimuvtxmu2dipmin,"ohDiMuVtxMu2DIpMin[NohDiMuVtx]/F");    
   HltTree->Branch("ohDiMuVtxMu2DIpSigMax",dimuvtxmu2dipsigmax,"ohDiMuVtxMu2DIpSigMax[NohDiMuVtx]/F");    
   HltTree->Branch("ohDiMuVtxMu2DIpSigMin",dimuvtxmu2dipsigmin,"ohDiMuVtxMu2DIpSigMin[NohDiMuVtx]/F");    
-
+  HltTree->Branch("NohTrackerMuon",&ntrackermuoncand,"NohTrackerMuon/I");
+  HltTree->Branch("ohTrackerMuonPt",trackermuonpt,"ohTrackerMuonPt[NohTrackerMuon]/F");
+  HltTree->Branch("ohTrackerMuonPhi",trackermuonphi,"ohTrackerMuonPhi[NohTrackerMuon]/F");
+  HltTree->Branch("ohTrackerMuonEta",trackermuoneta,"ohTrackerMuonEta[NohTrackerMuon]/F");
+  HltTree->Branch("ohTrackerMuonChg",trackermuonchg,"ohTrackerMuonChg[NohTrackerMuon]/I");
+  HltTree->Branch("ohTrackerMuonNhits",trackermuonnhits,"ohTrackerMuonNhits[NohTrackerMuon]/I");
 }
 
 /* **Analyze the event** */
@@ -229,6 +240,7 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
 		      const edm::Handle<reco::RecoChargedCandidateCollection> & oniaTrackCands,
 		      const edm::Handle<reco::VertexCollection> & DiMuVtxCands3,
 		      const edm::Handle<reco::RecoChargedCandidateCollection> & MuNoVtxCands2, 
+		      const edm::Handle<reco::MuonCollection>                 & trkmucands,
 		      const edm::ESHandle<MagneticField> & theMagField,
 		      const edm::Handle<reco::BeamSpot> & recoBeamSpotHandle,
 		      TTree* HltTree) {
@@ -656,6 +668,27 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
     }
   }
   else {nOniaTrackCand = 0;}
+
+
+  // Dealing with trackerMuons
+  if(trkmucands.isValid()) {
+    int itrackermuc=0;
+    for ( unsigned int i=0; i<trkmucands->size(); ++i ){
+      const reco::Muon& muon(trkmucands->at(i));
+      if (muon.isTrackerMuon()) {
+	trackermuonpt[itrackermuc] = muon.pt();
+	trackermuoneta[itrackermuc] = muon.eta();
+	trackermuonphi[itrackermuc] = muon.phi();
+	trackermuonchg[itrackermuc] = muon.charge();
+	if ( !muon.innerTrack().isNull() ){
+	  trackermuonnhits[itrackermuc] = muon.innerTrack()->numberOfValidHits();
+	}
+	itrackermuc++;
+      }
+    }
+    ntrackermuoncand=itrackermuc;
+  }
+  else {ntrackermuoncand = 0;}
 
   //////////////////////////////////////////////////////////////////////////////
 }
