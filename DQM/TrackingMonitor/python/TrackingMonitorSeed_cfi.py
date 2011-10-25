@@ -19,6 +19,8 @@ TrackMonSeed.doBeamSpotPlots       = cms.bool(False)
 TrackMonSeed.doSeedParameterHistos = cms.bool(False)
 TrackMonSeed.doLumiAnalysis        = cms.bool(False)
 TrackMonSeed.doMeasurementStatePlots = cms.bool(False)
+TrackMonSeed.doRecHitVsPhiVsEtaPerTrack = cms.bool(False)
+TrackMonSeed.doGoodTrackRecHitVsPhiVsEtaPerTrack = cms.bool(False)
 #
 # plot on Seed (total number, pt, seed # vs cluster)
 #

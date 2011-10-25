@@ -37,6 +37,8 @@ TrackMon = cms.EDAnalyzer("TrackingMonitor",
     doGoodTrackPlots           = cms.bool(False),
     doMeasurementStatePlots    = cms.bool(True),
     doProfilesVsLS             = cms.bool(False),
+    doRecHitVsPhiVsEtaPerTrack = cms.bool(False),
+    doGoodTrackRecHitVsPhiVsEtaPerTrack = cms.bool(False),                          
 
     #which seed plots to do
     doSeedNumberHisto = cms.bool(False),

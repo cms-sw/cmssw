@@ -12,10 +12,10 @@ TrackMonStep0.TCProducer    = cms.InputTag("initialStepTrackCandidates")
 TrackMonStep0.AlgoName      = cms.string('iter0')
 
 TrackMonStep0.TkSeedSizeBin = cms.int32(100)
-TrackMonStep0.TkSeedSizeMax = cms.double(20000)                         
+TrackMonStep0.TkSeedSizeMax = cms.double(5000)                         
 TrackMonStep0.TkSeedSizeMin = cms.double(0)
 TrackMonStep0.NClusPxBin = cms.int32(100)
-TrackMonStep0.NClusPxMax = cms.double(5000)
+TrackMonStep0.NClusPxMax = cms.double(20000)
 TrackMonStep0.ClusterLabels = cms.vstring('Pix')
 
 TrackMonStep1 = DQM.TrackingMonitor.TrackingMonitorSeed_cfi.TrackMonSeed.clone()
