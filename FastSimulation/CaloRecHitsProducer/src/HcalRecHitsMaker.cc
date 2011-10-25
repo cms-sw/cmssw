@@ -348,29 +348,36 @@ void HcalRecHitsMaker::loadPCaloHits(const edm::Event & iEvent)
     {
       HcalDetId detid(it->id());
       int hashedindex=detid.hashed_index();
+
+      // apply ToF correction
+      int time_slice=0; // temporary
+      double fTOF=1.;
+      if (detid.subdet()==HcalForward) fTOF = (time_slice==0) ? 1. : 0.;	
+      else fTOF = fractionOOT(time_slice);
+
       switch(detid.subdet())
 	{
 	case HcalBarrel: 
 	  {
 	    if(det_==4)
-	      Fill(hashedindex,it->energy(),firedCells_,noise_[0]);
+	      Fill(hashedindex,fTOF*(it->energy()),firedCells_,noise_[0]);
 	  }
 	  break;
 	case HcalEndcap: 
 	  {	  
 	    if(det_==4)
-	      Fill(hashedindex,it->energy(),firedCells_,noise_[1]);
+	      Fill(hashedindex,fTOF*(it->energy()),firedCells_,noise_[1]);
 	  }
 	  break;
 	case HcalOuter: 
 	  {
 	    if(det_==5)
-	      Fill(hashedindex,it->energy(),firedCells_,noise_[0]);
+	      Fill(hashedindex,fTOF*(it->energy()),firedCells_,noise_[0]);
 	  }
 	  break;		     
 	case HcalForward: 
 	  {
-	    if(det_==6)
+	    if(det_==6 && time_slice==0) // skip the HF hit if out-of-time
 	      Fill(hashedindex,it->energy(),firedCells_,noise_[0]);
 	  }
 	  break;
@@ -405,9 +412,6 @@ void HcalRecHitsMaker::loadHcalRecHits(edm::Event &iEvent,HBHERecHitCollection& 
       float energy=hcalRecHits_[cellhashedindex];
       // Check if it is above the threshold
       if(energy<threshold_[subdet]) continue; 
-      // apply ToF correction
-      int time_slice=0; // temporary
-      energy *= fractionOOT(time_slice);
       // apply RespCorr only to the RecHit
       energy *= myRespCorr->getValues(theDetIds_[cellhashedindex])->getValue();
       // poor man saturation
