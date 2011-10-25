@@ -51,13 +51,11 @@ workflows[4.52] = ['',['RunHI2010','RECOHID10','RECOHIR10D11']]
 workflows[4.53] = ['',['RunHI2011','RECOHID11']]
 
 ### fastsim ###
-#workflows[5.1] = ['TTbar', ['TTbarFS1']]
-workflows[6.3] = ['TTbar', ['TTbarFS']]
+workflows[5.1] = ['TTbar', ['TTbarFS']]
 workflows[5.2] = ['SingleMuPt10', ['SingleMuPt10FS']]
 workflows[5.3] = ['SingleMuPt100', ['SingleMuPt100FS']]
-#workflows[6.1] = ['ZEE', ['ZEEFS1']]
-workflows[6.2] = ['ZEE', ['ZEEFS']]
-workflows[6.3] = ['ZTT',['ZTTFS']]
+workflows[5.4] = ['ZEE', ['ZEEFS']]
+workflows[5.5] = ['ZTT',['ZTTFS']]
 
 workflows[39]  = ['QCDFlatPt153000', ['QCDFlatPt153000FS']]
 workflows[6.4] = ['H130GGgluonfusion', ['H130GGgluonfusionFS']]
