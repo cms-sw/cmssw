@@ -17,10 +17,11 @@
 //
 // Original Author:  Brian Bockelman
 //         Created:  Sat Oct 22 10:34:00 CEST 2011
-// $Id: MessageForSource.h,v 1.1 2011/01/02 19:50:58 chrjones Exp $
+// $Id: MessageForParent.h,v 1.1 2011/10/24 22:27:16 chrjones Exp $
 //
 
 // system include files
+#include <stddef.h>
 
 // user include files
 

@@ -880,7 +880,9 @@ namespace edm {
       }
       return n;
     }
-
+    
+    /*This class embodied the thread which is used to listen to the forked children and
+     then tell them which events they should process */
     class MessageSenderToSource {
     public:
       MessageSenderToSource(std::vector<int> const& childrenSockets, std::vector<int> const& childrenPipes, long iNEventsToProcess);
@@ -939,7 +941,8 @@ namespace edm {
         ssize_t rc;
         while (((rc = select(m_maxFd, &readSockets, NULL, &errorSockets, NULL)) < 0) && (errno == EINTR)) {}
         if (rc < 0) {
-          // TODO: Ask Chris how to kill off the other threads.
+          std::cerr << "select failed; should be impossible due to preconditions." << std::endl;
+          abort();
           break;
         }
         
@@ -1083,12 +1086,13 @@ namespace edm {
     childrenSockets.reserve(kMaxChildren);
     std::vector<int> childrenPipes;
     childrenPipes.reserve(kMaxChildren);
+    int pipes[2];
 
 {
     // make the services available
     ServiceRegistry::Operate operate(serviceToken_);
     Service<JobReport> jobReport;
-    int sockets[2], fd_flags, pipes[2];
+    int sockets[2], fd_flags;
     for(; childIndex < kMaxChildren; ++childIndex) {
       // Create a UNIX_DGRAM socket pair
       if (socketpair(AF_UNIX, SOCK_DGRAM, 0, sockets)) {
@@ -1203,13 +1207,21 @@ namespace edm {
     sigdelset(&unblockingSigSet, SIGINT);
     pthread_sigmask(SIG_BLOCK, &blockingSigSet, &oldSigSet);
 
+    // If there are too many fd's (unlikely, but possible) for select, denote this 
+    // because the sender will fail.
+    bool too_many_fds = false;
+    if (pipes[1]+1 > FD_SETSIZE) {
+      std::cerr << "too many file descriptors for multicore job" << std::endl;
+      too_many_fds = true;
+    }
+
     //create a thread that sends the units of work to workers
     // we create it after all signals were blocked so that this
     // thread is never interupted by a signal
     MessageSenderToSource sender(childrenSockets, childrenPipes, numberOfSequentialEventsPerChild_);
     boost::thread senderThread(sender);
 
-    while(!shutdown_flag && !child_failed && (childrenIds.size() != num_children_done)) {
+    while(!too_many_fds && !shutdown_flag && !child_failed && (childrenIds.size() != num_children_done)) {
       sigsuspend(&unblockingSigSet);
       std::cout << "woke from sigwait" << std::endl;
     }
@@ -1223,7 +1235,7 @@ namespace edm {
       std::cout << "asked to shutdown" << std::endl;
     }
 
-    if(shutdown_flag || (child_failed && (num_children_done != childrenIds.size()))) {
+    if(too_many_fds || shutdown_flag || (child_failed && (num_children_done != childrenIds.size()))) {
       std::cout << "must stop children" << std::endl;
       for(std::vector<pid_t>::iterator it = childrenIds.begin(), itEnd = childrenIds.end();
           it != itEnd; ++it) {
@@ -1235,7 +1247,7 @@ namespace edm {
       }
       pthread_sigmask(SIG_SETMASK, &oldSigSet, NULL);
     }
-    // The senderThread will notice the sockets die off, one by one.  Once all children are gone, it will exit.
+    // The senderThread will notice the pipes die off, one by one.  Once all children are gone, it will exit.
     senderThread.join();
     if(child_failed) {
       if (child_fail_signal) {
@@ -1245,6 +1257,9 @@ namespace edm {
       } else {
         throw cms::Exception("ForkedChildFailed") << "child process ended abnormally for unknown reason";
       }
+    }
+    if(too_many_fds) {
+      throw cms::Exception("ForkedParentFailed") << "hit select limit for number of fds";
     }
     return false;
   }
