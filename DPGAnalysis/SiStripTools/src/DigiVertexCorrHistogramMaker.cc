@@ -58,7 +58,7 @@ void DigiVertexCorrHistogramMaker::book(const std::string dirname) {
   SiStripTKNumbers trnumb;
   
   edm::LogInfo("NumberOfBins") << "Number of Bins: " << m_nbins;
-  edm::LogInfo("ScaleFactors") << "x-axis range scale factor: " << m_scalefact;
+  edm::LogInfo("ScaleFactors") << "y-axis range scale factor: " << m_scalefact;
   edm::LogInfo("BinMaxValue") << "Setting bin max values";
 
   for(std::map<unsigned int,std::string>::const_iterator lab=m_labels.begin();lab!=m_labels.end();lab++) {
@@ -87,7 +87,7 @@ void DigiVertexCorrHistogramMaker::book(const std::string dirname) {
     if(m_subdirs[i]) {
       sprintf(name,"n%sdigivsnvtx",slab.c_str());
       sprintf(title,"%s %s multiplicity vs Nvtx",slab.c_str(),m_hitname.c_str());
-      m_nmultvsnvtx[i] = m_subdirs[i]->make<TH2F>(name,title,40,-0.5,39.5,m_nbins,0.,m_binmax[i]/(m_scalefact*m_nbins)*m_nbins);
+      m_nmultvsnvtx[i] = m_subdirs[i]->make<TH2F>(name,title,60,-0.5,59.5,m_nbins,0.,m_binmax[i]/(m_scalefact*m_nbins)*m_nbins);
       m_nmultvsnvtx[i]->GetXaxis()->SetTitle("Number of Vertices");    m_nmultvsnvtx[i]->GetYaxis()->SetTitle("Number of Hits");
       
     }

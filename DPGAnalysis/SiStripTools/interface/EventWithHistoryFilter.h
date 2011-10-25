@@ -35,20 +35,23 @@ class EventWithHistoryFilter {
   const bool isInRange(const long long bx, const std::vector<int>& range, const bool extra) const;
   void printConfig() const;
 
-  edm::InputTag _historyProduct;
-  std::string _partition;
-  std::string _APVPhaseLabel;
-  std::vector<int> _apvmodes;
-  std::vector<int> _dbxrange;
-  std::vector<int> _dbxrangelat;
-  std::vector<int> _bxrange;
-  std::vector<int> _bxrangelat;
-  std::vector<int> _bxcyclerange;
-  std::vector<int> _bxcyclerangelat;
-  std::vector<int> _dbxcyclerange;
-  std::vector<int> _dbxcyclerangelat;
-  std::vector<int> _dbxtrpltrange;
-  bool _noAPVPhase;
+  edm::InputTag m_historyProduct;
+  std::string m_partition;
+  std::string m_APVPhaseLabel;
+  std::vector<int> m_apvmodes;
+  std::vector<int> m_dbxrange;
+  std::vector<int> m_dbxrangelat;
+  std::vector<int> m_bxrange;
+  std::vector<int> m_bxrangelat;
+  std::vector<int> m_bxcyclerange;
+  std::vector<int> m_bxcyclerangelat;
+  std::vector<int> m_dbxcyclerange;
+  std::vector<int> m_dbxcyclerangelat;
+  std::vector<int> m_dbxtrpltrange;
+  std::vector<int> m_dbxgenericrange;
+  unsigned int m_dbxgenericfirst;
+  unsigned int m_dbxgenericlast;
+  bool m_noAPVPhase;
 
 };
 

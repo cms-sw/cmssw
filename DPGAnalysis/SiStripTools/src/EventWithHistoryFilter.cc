@@ -15,56 +15,64 @@
 
 
 EventWithHistoryFilter::EventWithHistoryFilter():
-  _historyProduct(),
-  _partition(), 
-  _APVPhaseLabel(),
-  _apvmodes(),
-  _dbxrange(), _dbxrangelat(),
-  _bxrange(), _bxrangelat(),
-  _bxcyclerange(), _bxcyclerangelat(),
-  _dbxcyclerange(), _dbxcyclerangelat(),
-  _dbxtrpltrange(),
-  _noAPVPhase(true) 
+  m_historyProduct(),
+  m_partition(), 
+  m_APVPhaseLabel(),
+  m_apvmodes(),
+  m_dbxrange(), m_dbxrangelat(),
+  m_bxrange(), m_bxrangelat(),
+  m_bxcyclerange(), m_bxcyclerangelat(),
+  m_dbxcyclerange(), m_dbxcyclerangelat(),
+  m_dbxtrpltrange(),
+  m_dbxgenericrange(),m_dbxgenericfirst(0),m_dbxgenericlast(1),
+  m_noAPVPhase(true) 
 {
   printConfig();
 }
 
 EventWithHistoryFilter::EventWithHistoryFilter(const edm::ParameterSet& iConfig):
-  _historyProduct(iConfig.getUntrackedParameter<edm::InputTag>("historyProduct",edm::InputTag("consecutiveHEs"))),
-  _partition(iConfig.getUntrackedParameter<std::string>("partitionName","Any")),
-  _APVPhaseLabel(iConfig.getUntrackedParameter<std::string>("APVPhaseLabel","APVPhases")),
-  _apvmodes(iConfig.getUntrackedParameter<std::vector<int> >("apvModes",std::vector<int>())),
-  _dbxrange(iConfig.getUntrackedParameter<std::vector<int> >("dbxRange",std::vector<int>())),
-  _dbxrangelat(iConfig.getUntrackedParameter<std::vector<int> >("dbxRangeLtcyAware",std::vector<int>())),
-  _bxrange(iConfig.getUntrackedParameter<std::vector<int> >("absBXRange",std::vector<int>())),
-  _bxrangelat(iConfig.getUntrackedParameter<std::vector<int> >("absBXRangeLtcyAware",std::vector<int>())),
-  _bxcyclerange(iConfig.getUntrackedParameter<std::vector<int> >("absBXInCycleRange",std::vector<int>())),
-  _bxcyclerangelat(iConfig.getUntrackedParameter<std::vector<int> >("absBXInCycleRangeLtcyAware",std::vector<int>())),
-  _dbxcyclerange(iConfig.getUntrackedParameter<std::vector<int> >("dbxInCycleRange",std::vector<int>())),
-  _dbxcyclerangelat(iConfig.getUntrackedParameter<std::vector<int> >("dbxInCycleRangeLtcyAware",std::vector<int>())),
-  _dbxtrpltrange(iConfig.getUntrackedParameter<std::vector<int> >("dbxTripletRange",std::vector<int>())) 
+  m_historyProduct(iConfig.getUntrackedParameter<edm::InputTag>("historyProduct",edm::InputTag("consecutiveHEs"))),
+  m_partition(iConfig.getUntrackedParameter<std::string>("partitionName","Any")),
+  m_APVPhaseLabel(iConfig.getUntrackedParameter<std::string>("APVPhaseLabel","APVPhases")),
+  m_apvmodes(iConfig.getUntrackedParameter<std::vector<int> >("apvModes",std::vector<int>())),
+  m_dbxrange(iConfig.getUntrackedParameter<std::vector<int> >("dbxRange",std::vector<int>())),
+  m_dbxrangelat(iConfig.getUntrackedParameter<std::vector<int> >("dbxRangeLtcyAware",std::vector<int>())),
+  m_bxrange(iConfig.getUntrackedParameter<std::vector<int> >("absBXRange",std::vector<int>())),
+  m_bxrangelat(iConfig.getUntrackedParameter<std::vector<int> >("absBXRangeLtcyAware",std::vector<int>())),
+  m_bxcyclerange(iConfig.getUntrackedParameter<std::vector<int> >("absBXInCycleRange",std::vector<int>())),
+  m_bxcyclerangelat(iConfig.getUntrackedParameter<std::vector<int> >("absBXInCycleRangeLtcyAware",std::vector<int>())),
+  m_dbxcyclerange(iConfig.getUntrackedParameter<std::vector<int> >("dbxInCycleRange",std::vector<int>())),
+  m_dbxcyclerangelat(iConfig.getUntrackedParameter<std::vector<int> >("dbxInCycleRangeLtcyAware",std::vector<int>())),
+  m_dbxtrpltrange(iConfig.getUntrackedParameter<std::vector<int> >("dbxTripletRange",std::vector<int>())), 
+  m_dbxgenericrange(iConfig.getUntrackedParameter<std::vector<int> >("dbxGenericRange",std::vector<int>())), 
+  m_dbxgenericfirst(iConfig.getUntrackedParameter<unsigned int>("dbxGenericFirst",0)),
+  m_dbxgenericlast(iConfig.getUntrackedParameter<unsigned int>("dbxGenericLast",1))
+
 {
-  _noAPVPhase = isAPVPhaseNotNeeded();
+  m_noAPVPhase = isAPVPhaseNotNeeded();
   printConfig();
 }
 
 void EventWithHistoryFilter::set(const edm::ParameterSet& iConfig) {
 
 
-  _historyProduct = iConfig.getUntrackedParameter<edm::InputTag>("historyProduct",edm::InputTag("consecutiveHEs"));
-  _partition = iConfig.getUntrackedParameter<std::string>("partitionName","Any");
-  _APVPhaseLabel = iConfig.getUntrackedParameter<std::string>("APVPhaseLabel","APVPhases");
-  _dbxrange = iConfig.getUntrackedParameter<std::vector<int> >("dbxRange",std::vector<int>());
-  _dbxrangelat = iConfig.getUntrackedParameter<std::vector<int> >("dbxRangeLtcyAware",std::vector<int>());
-  _bxrange = iConfig.getUntrackedParameter<std::vector<int> >("absBXRange",std::vector<int>());
-  _bxrangelat = iConfig.getUntrackedParameter<std::vector<int> >("absBXRangeLtcyAware",std::vector<int>());
-  _bxcyclerange = iConfig.getUntrackedParameter<std::vector<int> >("absBXInCycleRange",std::vector<int>());
-  _bxcyclerangelat = iConfig.getUntrackedParameter<std::vector<int> >("absBXInCycleRangeLtcyAware",std::vector<int>());
-  _dbxcyclerange = iConfig.getUntrackedParameter<std::vector<int> >("dbxInCycleRange",std::vector<int>());
-  _dbxcyclerangelat = iConfig.getUntrackedParameter<std::vector<int> >("dbxInCycleRangeLtcyAware",std::vector<int>());
-  _dbxtrpltrange = iConfig.getUntrackedParameter<std::vector<int> >("dbxTripletRange",std::vector<int>());
+  m_historyProduct = iConfig.getUntrackedParameter<edm::InputTag>("historyProduct",edm::InputTag("consecutiveHEs"));
+  m_partition = iConfig.getUntrackedParameter<std::string>("partitionName","Any");
+  m_APVPhaseLabel = iConfig.getUntrackedParameter<std::string>("APVPhaseLabel","APVPhases");
+  m_dbxrange = iConfig.getUntrackedParameter<std::vector<int> >("dbxRange",std::vector<int>());
+  m_dbxrangelat = iConfig.getUntrackedParameter<std::vector<int> >("dbxRangeLtcyAware",std::vector<int>());
+  m_bxrange = iConfig.getUntrackedParameter<std::vector<int> >("absBXRange",std::vector<int>());
+  m_bxrangelat = iConfig.getUntrackedParameter<std::vector<int> >("absBXRangeLtcyAware",std::vector<int>());
+  m_bxcyclerange = iConfig.getUntrackedParameter<std::vector<int> >("absBXInCycleRange",std::vector<int>());
+  m_bxcyclerangelat = iConfig.getUntrackedParameter<std::vector<int> >("absBXInCycleRangeLtcyAware",std::vector<int>());
+  m_dbxcyclerange = iConfig.getUntrackedParameter<std::vector<int> >("dbxInCycleRange",std::vector<int>());
+  m_dbxcyclerangelat = iConfig.getUntrackedParameter<std::vector<int> >("dbxInCycleRangeLtcyAware",std::vector<int>());
+  m_dbxtrpltrange = iConfig.getUntrackedParameter<std::vector<int> >("dbxTripletRange",std::vector<int>());
+  m_dbxgenericrange = iConfig.getUntrackedParameter<std::vector<int> >("dbxGenericRange",std::vector<int>()); 
+  m_dbxgenericfirst = iConfig.getUntrackedParameter<int>("dbxGenericFirst",0);
+  m_dbxgenericlast = iConfig.getUntrackedParameter<int>("dbxGenericLast",1);
 
-  _noAPVPhase = isAPVPhaseNotNeeded();
+  m_noAPVPhase = isAPVPhaseNotNeeded();
   printConfig();
  
 }
@@ -88,7 +96,7 @@ const bool EventWithHistoryFilter::selected(const edm::Event& event, const edm::
   const std::vector<int> apvphases = getAPVPhase(event);
 
   edm::Handle<EventWithHistory> hEvent;
-  event.getByLabel(_historyProduct,hEvent);
+  event.getByLabel(m_historyProduct,hEvent);
 
   return is_selected(*hEvent,iSetup,apvphases);
 
@@ -106,57 +114,60 @@ const bool EventWithHistoryFilter::is_selected(const EventWithHistory& he, const
   if(!isAPVModeNotNeeded()) {
     const int apvmode = getAPVMode(iSetup);
     bool modeok = false;
-    for(std::vector<int>::const_iterator wantedmode =_apvmodes.begin();wantedmode!=_apvmodes.end();++wantedmode) {
+    for(std::vector<int>::const_iterator wantedmode =m_apvmodes.begin();wantedmode!=m_apvmodes.end();++wantedmode) {
       modeok = modeok || (apvmode == *wantedmode);
     }
     if(!modeok) return false;
   }
 
-  selected = selected && (isCutInactive(_dbxrange) || isInRange(he.deltaBX(),_dbxrange,he.depth()!=0));
+  selected = selected && (isCutInactive(m_dbxrange) || isInRange(he.deltaBX(),m_dbxrange,he.depth()!=0));
 
-  selected = selected && (isCutInactive(_dbxrangelat) || 
-			  isInRange(he.deltaBX()-latency,_dbxrangelat,he.depth()!=0 && latency>=0));
+  selected = selected && (isCutInactive(m_dbxrangelat) || 
+			  isInRange(he.deltaBX()-latency,m_dbxrangelat,he.depth()!=0 && latency>=0));
 
-  selected = selected && (isCutInactive(_bxrange) || isInRange(he.absoluteBX()%70,_bxrange,1));
+  selected = selected && (isCutInactive(m_bxrange) || isInRange(he.absoluteBX()%70,m_bxrange,1));
   
-  selected = selected && (isCutInactive(_bxrangelat) || 
-			  isInRange((he.absoluteBX()-latency)%70,_bxrangelat,latency>=0));
+  selected = selected && (isCutInactive(m_bxrangelat) || 
+			  isInRange((he.absoluteBX()-latency)%70,m_bxrangelat,latency>=0));
 
   // loop on all the phases and require that the cut is fulfilled for at least one of them
 
   
   bool phaseselected;
 
-  phaseselected = isCutInactive(_bxcyclerange);
+  phaseselected = isCutInactive(m_bxcyclerange);
   for(std::vector<int>::const_iterator phase=apvphases.begin();phase!=apvphases.end();++phase) {
-    phaseselected = phaseselected || isInRange(he.absoluteBXinCycle(*phase)%70,_bxcyclerange,*phase>0);
+    phaseselected = phaseselected || isInRange(he.absoluteBXinCycle(*phase)%70,m_bxcyclerange,*phase>0);
   }
   selected = selected && phaseselected;
     
-  phaseselected = isCutInactive(_bxcyclerangelat);
+  phaseselected = isCutInactive(m_bxcyclerangelat);
   for(std::vector<int>::const_iterator phase=apvphases.begin();phase!=apvphases.end();++phase) {
-    phaseselected = phaseselected || isInRange((he.absoluteBXinCycle(*phase)-latency)%70,_bxcyclerangelat,
+    phaseselected = phaseselected || isInRange((he.absoluteBXinCycle(*phase)-latency)%70,m_bxcyclerangelat,
 					       *phase>=0 && latency>=0);
   }
   selected = selected && phaseselected;
     
-  phaseselected = isCutInactive(_dbxcyclerange);
+  phaseselected = isCutInactive(m_dbxcyclerange);
   for(std::vector<int>::const_iterator phase=apvphases.begin();phase!=apvphases.end();++phase) {
-    phaseselected = phaseselected || isInRange(he.deltaBXinCycle(*phase),_dbxcyclerange,he.depth()!=0 && *phase>=0);
+    phaseselected = phaseselected || isInRange(he.deltaBXinCycle(*phase),m_dbxcyclerange,he.depth()!=0 && *phase>=0);
   }
   selected = selected && phaseselected;
     
-  phaseselected = isCutInactive(_dbxcyclerangelat);
+  phaseselected = isCutInactive(m_dbxcyclerangelat);
   for(std::vector<int>::const_iterator phase=apvphases.begin();phase!=apvphases.end();++phase) {
-    phaseselected = phaseselected || isInRange(he.deltaBXinCycle(*phase)-latency,_dbxcyclerangelat,
+    phaseselected = phaseselected || isInRange(he.deltaBXinCycle(*phase)-latency,m_dbxcyclerangelat,
 					       he.depth()!=0 && *phase>=0 && latency>=0);
   }
   selected = selected && phaseselected;
     
   // end of phase-dependent cuts
 
-  selected = selected && (isCutInactive(_dbxtrpltrange) ||
-			  isInRange(he.deltaBX(1,2),_dbxtrpltrange,he.depth()>1));
+  selected = selected && (isCutInactive(m_dbxtrpltrange) ||
+			  isInRange(he.deltaBX(1,2),m_dbxtrpltrange,he.depth()>1));
+
+  selected = selected && (isCutInactive(m_dbxgenericrange) ||
+			  isInRange(he.deltaBX(m_dbxgenericfirst,m_dbxgenericlast),m_dbxgenericrange,he.depth()>=m_dbxgenericlast));
 
   return selected;
 
@@ -202,20 +213,20 @@ const int EventWithHistoryFilter::getAPVMode(const edm::EventSetup& iSetup) cons
 
 const std::vector<int> EventWithHistoryFilter::getAPVPhase(const edm::Event& iEvent) const {
 
-  if(_noAPVPhase) {
+  if(m_noAPVPhase) {
     const std::vector<int> dummy;
     return dummy;
   }
 
   edm::Handle<APVCyclePhaseCollection> apvPhases;
-  iEvent.getByLabel(_APVPhaseLabel,apvPhases);
+  iEvent.getByLabel(m_APVPhaseLabel,apvPhases);
 
-  const std::vector<int> phases = apvPhases->getPhases(_partition.c_str());
+  const std::vector<int> phases = apvPhases->getPhases(m_partition.c_str());
 
   /*
-  if(!_noAPVPhase) {
+  if(!m_noAPVPhase) {
     if(phases.size()==0) throw cms::Exception("NoPartitionAPVPhase") 
-      << " No APV phase for partition " << _partition.c_str() << " : check if a proper partition has been chosen ";
+      << " No APV phase for partition " << m_partition.c_str() << " : check if a proper partition has been chosen ";
   }
   */
 
@@ -225,26 +236,26 @@ const std::vector<int> EventWithHistoryFilter::getAPVPhase(const edm::Event& iEv
 const bool EventWithHistoryFilter::isAPVLatencyNotNeeded() const {
 
   return 
-    isCutInactive(_bxrangelat) &&
-    isCutInactive(_dbxrangelat) &&
-    isCutInactive(_bxcyclerangelat) &&
-    isCutInactive(_dbxcyclerangelat);
+    isCutInactive(m_bxrangelat) &&
+    isCutInactive(m_dbxrangelat) &&
+    isCutInactive(m_bxcyclerangelat) &&
+    isCutInactive(m_dbxcyclerangelat);
   
 }
 
 const bool EventWithHistoryFilter::isAPVPhaseNotNeeded() const {
 
   return 
-    isCutInactive(_bxcyclerange) &&
-    isCutInactive(_dbxcyclerange) &&
-    isCutInactive(_bxcyclerangelat) &&
-    isCutInactive(_dbxcyclerangelat);
+    isCutInactive(m_bxcyclerange) &&
+    isCutInactive(m_dbxcyclerange) &&
+    isCutInactive(m_bxcyclerangelat) &&
+    isCutInactive(m_dbxcyclerangelat);
   
 }
 
 const bool EventWithHistoryFilter::isAPVModeNotNeeded() const {
 
-  return (_apvmodes.size()==0) ;
+  return (m_apvmodes.size()==0) ;
   
 }
 
@@ -275,96 +286,106 @@ void EventWithHistoryFilter::printConfig() const {
   std::string msgcategory = "EventWithHistoryFilterConfiguration";
 
   if(!(
-       isCutInactive(_bxrange) &&
-       isCutInactive(_bxrangelat) &&
-       isCutInactive(_bxcyclerange) &&
-       isCutInactive(_bxcyclerangelat) &&
-       isCutInactive(_dbxrange) &&
-       isCutInactive(_dbxrangelat) &&
-       isCutInactive(_dbxcyclerange) &&
-       isCutInactive(_dbxcyclerangelat) &&
-       isCutInactive(_dbxtrpltrange)
+       isCutInactive(m_bxrange) &&
+       isCutInactive(m_bxrangelat) &&
+       isCutInactive(m_bxcyclerange) &&
+       isCutInactive(m_bxcyclerangelat) &&
+       isCutInactive(m_dbxrange) &&
+       isCutInactive(m_dbxrangelat) &&
+       isCutInactive(m_dbxcyclerange) &&
+       isCutInactive(m_dbxcyclerangelat) &&
+       isCutInactive(m_dbxtrpltrange) &&
+       isCutInactive(m_dbxgenericrange)
        )) {
 
     edm::LogInfo(msgcategory.c_str()) << "historyProduct: " 
-							<< _historyProduct.label() << " " 
-							<< _historyProduct.instance() << " " 
-							<< _historyProduct.process() << " " 
+							<< m_historyProduct.label() << " " 
+							<< m_historyProduct.instance() << " " 
+							<< m_historyProduct.process() << " " 
 							<< " APVCyclePhase: " 
-							<< _APVPhaseLabel;
+							<< m_APVPhaseLabel;
     
     edm::LogVerbatim(msgcategory.c_str()) << "-----------------------";
     edm::LogVerbatim(msgcategory.c_str()) << "List of active cuts:";
-    if(!isCutInactive(_bxrange)) {
+    if(!isCutInactive(m_bxrange)) {
       edm::LogVerbatim(msgcategory.c_str()) << "......................";
-      if(_bxrange.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBX lower limit " << _bxrange[0];
-      if(_bxrange.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBX upper limit " << _bxrange[1];
-      edm::LogVerbatim(msgcategory.c_str()) << "......................";
-    }
-    if(!isCutInactive(_bxrangelat)) {
-      edm::LogVerbatim(msgcategory.c_str()) << "......................";
-      if(_bxrangelat.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBXLtcyAware lower limit " 
-									<< _bxrangelat[0];
-      if(_bxrangelat.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBXLtcyAware upper limit " 
-									<< _bxrangelat[1];
+      if(m_bxrange.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBX lower limit " << m_bxrange[0];
+      if(m_bxrange.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBX upper limit " << m_bxrange[1];
       edm::LogVerbatim(msgcategory.c_str()) << "......................";
     }
-    if(!isCutInactive(_bxcyclerange)) {
+    if(!isCutInactive(m_bxrangelat)) {
       edm::LogVerbatim(msgcategory.c_str()) << "......................";
-      edm::LogVerbatim(msgcategory.c_str()) <<"absoluteBXinCycle partition: " << _partition;
-      if(_bxcyclerange.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBXinCycle lower limit " 
-									<< _bxcyclerange[0];
-      if(_bxcyclerange.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBXinCycle upper limit " 
-									<< _bxcyclerange[1];
-      edm::LogVerbatim(msgcategory.c_str()) << "......................";
-    }
-    if(!isCutInactive(_bxcyclerangelat)) {
-      edm::LogVerbatim(msgcategory.c_str()) << "......................";
-      edm::LogVerbatim(msgcategory.c_str()) <<"absoluteBXinCycleLtcyAware partition: " << _partition;
-      if(_bxcyclerangelat.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBXinCycleLtcyAware lower limit " 
-										    << _bxcyclerangelat[0];
-      if(_bxcyclerangelat.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBXinCycleLtcyAware upper limit " 
-										    << _bxcyclerangelat[1];
+      if(m_bxrangelat.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBXLtcyAware lower limit " 
+									<< m_bxrangelat[0];
+      if(m_bxrangelat.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBXLtcyAware upper limit " 
+									<< m_bxrangelat[1];
       edm::LogVerbatim(msgcategory.c_str()) << "......................";
     }
-    if(!isCutInactive(_dbxrange)) {
+    if(!isCutInactive(m_bxcyclerange)) {
       edm::LogVerbatim(msgcategory.c_str()) << "......................";
-      if(_dbxrange.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "deltaBX lower limit " << _dbxrange[0];
-      if(_dbxrange.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "deltaBX upper limit " << _dbxrange[1];
-      edm::LogVerbatim(msgcategory.c_str()) << "......................";
-    }
-    if(!isCutInactive(_dbxrangelat)) {
-      edm::LogVerbatim(msgcategory.c_str()) << "......................";
-      if(_dbxrangelat.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "deltaBXLtcyAware lower limit " 
-								      << _dbxrangelat[0];
-      if(_dbxrangelat.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "deltaBXLtcyAware upper limit " 
-								      << _dbxrangelat[1];
+      edm::LogVerbatim(msgcategory.c_str()) <<"absoluteBXinCycle partition: " << m_partition;
+      if(m_bxcyclerange.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBXinCycle lower limit " 
+									<< m_bxcyclerange[0];
+      if(m_bxcyclerange.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBXinCycle upper limit " 
+									<< m_bxcyclerange[1];
       edm::LogVerbatim(msgcategory.c_str()) << "......................";
     }
-    if(!isCutInactive(_dbxcyclerange)) {
+    if(!isCutInactive(m_bxcyclerangelat)) {
       edm::LogVerbatim(msgcategory.c_str()) << "......................";
-      edm::LogVerbatim(msgcategory.c_str()) <<"deltaBXinCycle partition: " << _partition;
-      if(_dbxcyclerange.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "deltaBXinCycle lower limit " 
-								      << _dbxcyclerange[0];
-      if(_dbxcyclerange.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "deltaBXinCycle upper limit " 
-								      << _dbxcyclerange[1];
-      edm::LogVerbatim(msgcategory.c_str()) << "......................";
-    }
-    if(!isCutInactive(_dbxcyclerangelat)) {
-      edm::LogVerbatim(msgcategory.c_str()) << "......................";
-      edm::LogVerbatim(msgcategory.c_str()) <<"deltaBXinCycleLtcyAware partition: " << _partition;
-      if(_dbxcyclerangelat.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "deltaBXinCycleLtcyAware lower limit " 
-										  << _dbxcyclerangelat[0];
-      if(_dbxcyclerangelat.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "deltaBXinCycleLtcyAware upper limit " 
-										  << _dbxcyclerangelat[1];
+      edm::LogVerbatim(msgcategory.c_str()) <<"absoluteBXinCycleLtcyAware partition: " << m_partition;
+      if(m_bxcyclerangelat.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBXinCycleLtcyAware lower limit " 
+										    << m_bxcyclerangelat[0];
+      if(m_bxcyclerangelat.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "absoluteBXinCycleLtcyAware upper limit " 
+										    << m_bxcyclerangelat[1];
       edm::LogVerbatim(msgcategory.c_str()) << "......................";
     }
-    if(!isCutInactive(_dbxtrpltrange)) {
+    if(!isCutInactive(m_dbxrange)) {
       edm::LogVerbatim(msgcategory.c_str()) << "......................";
-      if(_dbxtrpltrange.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "TripletIsolation lower limit " 
-									<< _dbxtrpltrange[0];
-      if(_dbxtrpltrange.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "TripletIsolation upper limit " 
-									<< _dbxtrpltrange[1];
+      if(m_dbxrange.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "deltaBX lower limit " << m_dbxrange[0];
+      if(m_dbxrange.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "deltaBX upper limit " << m_dbxrange[1];
+      edm::LogVerbatim(msgcategory.c_str()) << "......................";
+    }
+    if(!isCutInactive(m_dbxrangelat)) {
+      edm::LogVerbatim(msgcategory.c_str()) << "......................";
+      if(m_dbxrangelat.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "deltaBXLtcyAware lower limit " 
+								      << m_dbxrangelat[0];
+      if(m_dbxrangelat.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "deltaBXLtcyAware upper limit " 
+								      << m_dbxrangelat[1];
+      edm::LogVerbatim(msgcategory.c_str()) << "......................";
+    }
+    if(!isCutInactive(m_dbxcyclerange)) {
+      edm::LogVerbatim(msgcategory.c_str()) << "......................";
+      edm::LogVerbatim(msgcategory.c_str()) <<"deltaBXinCycle partition: " << m_partition;
+      if(m_dbxcyclerange.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "deltaBXinCycle lower limit " 
+								      << m_dbxcyclerange[0];
+      if(m_dbxcyclerange.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "deltaBXinCycle upper limit " 
+								      << m_dbxcyclerange[1];
+      edm::LogVerbatim(msgcategory.c_str()) << "......................";
+    }
+    if(!isCutInactive(m_dbxcyclerangelat)) {
+      edm::LogVerbatim(msgcategory.c_str()) << "......................";
+      edm::LogVerbatim(msgcategory.c_str()) <<"deltaBXinCycleLtcyAware partition: " << m_partition;
+      if(m_dbxcyclerangelat.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "deltaBXinCycleLtcyAware lower limit " 
+										  << m_dbxcyclerangelat[0];
+      if(m_dbxcyclerangelat.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "deltaBXinCycleLtcyAware upper limit " 
+										  << m_dbxcyclerangelat[1];
+      edm::LogVerbatim(msgcategory.c_str()) << "......................";
+    }
+    if(!isCutInactive(m_dbxtrpltrange)) {
+      edm::LogVerbatim(msgcategory.c_str()) << "......................";
+      if(m_dbxtrpltrange.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "TripletIsolation lower limit " 
+									<< m_dbxtrpltrange[0];
+      if(m_dbxtrpltrange.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "TripletIsolation upper limit " 
+									<< m_dbxtrpltrange[1];
+      edm::LogVerbatim(msgcategory.c_str()) << "......................";
+    }
+    if(!isCutInactive(m_dbxgenericrange)) {
+      edm::LogVerbatim(msgcategory.c_str()) << "......................";
+      edm::LogVerbatim(msgcategory.c_str()) << "Generic DBX computed between n-" << m_dbxgenericfirst << " and n-"<<m_dbxgenericlast << " trigger";
+      if(m_dbxgenericrange.size()>=1) edm::LogVerbatim(msgcategory.c_str()) << "Generic DBX cut lower limit " 
+									<< m_dbxgenericrange[0];
+      if(m_dbxgenericrange.size()>=2) edm::LogVerbatim(msgcategory.c_str()) << "Generic DBX upper limit " 
+									<< m_dbxgenericrange[1];
       edm::LogVerbatim(msgcategory.c_str()) << "......................";
     }
     edm::LogVerbatim(msgcategory.c_str()) << "-----------------------";

@@ -11,7 +11,9 @@ heFilter = cms.EDFilter('EventWithHistoryEDFilter',
                                     absBXInCycleRangeLtcyAware = cms.untracked.vint32(-1,-1),
                                     dbxInCycleRange = cms.untracked.vint32(-1,-1),
                                     dbxInCycleRangeLtcyAware = cms.untracked.vint32(-1,-1),
-                                    dbxTripletRange = cms.untracked.vint32(-1,-1)
+                                    dbxTripletRange = cms.untracked.vint32(-1,-1),
+                                    dbxGenericRange = cms.untracked.vint32(-1,-1),
+                                    dbxGenericFirst = cms.untracked.uint32(0),dbxGenericLast = cms.untracked.uint32(1)
                                     )
                            )
                         )
