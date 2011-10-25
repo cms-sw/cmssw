@@ -230,6 +230,13 @@ struct RecoMuonValidator::MuonME {
     hNTrackerHits_vs_Eta_ = dqm->book2D("NTrackerHits_vs_Eta", "Number of valid tracker hits vs #eta",
                                         hDim.nBinEta, hDim.minEta, hDim.maxEta, nTrackerHits/4+1, -0.25, nTrackerHits+0.25);
 
+    const int nMuonHits = 60;
+    hNMuonHits_ = dqm->book1D("NMuonHits", "Number of valid muon hits", nMuonHits+1, -0.5, nMuonHits+0.5);
+    hNMuonHits_vs_Pt_  = dqm->book2D("NMuonHits_vs_Pt", "Number of valid muon hits vs p_{T}",
+                                     hDim.nBinPt, hDim.minPt, hDim.maxPt, nMuonHits/4+1, -0.25, nMuonHits+0.25);
+    hNMuonHits_vs_Eta_ = dqm->book2D("NMuonHits_vs_Eta", "Number of valid muon hits vs #eta",
+                                     hDim.nBinEta, hDim.minEta, hDim.maxEta, nMuonHits/4+1, -0.25, nMuonHits+0.25);
+
     hNDof_ = dqm->book1D("NDof", "Number of DoF", hDim.nDof+1, -0.5, hDim.nDof+0.5);
     hChi2_ = dqm->book1D("Chi2", "#Chi^{2}", hDim.nBinErr, 0, 200);
     hChi2Norm_ = dqm->book1D("Chi2Norm", "Normalized #Chi^{2}", hDim.nBinErr, 0, 50);
