@@ -1088,104 +1088,104 @@ namespace edm {
     childrenPipes.reserve(kMaxChildren);
     int pipes[2];
 
-{
-    // make the services available
-    ServiceRegistry::Operate operate(serviceToken_);
-    Service<JobReport> jobReport;
-    int sockets[2], fd_flags;
-    for(; childIndex < kMaxChildren; ++childIndex) {
-      // Create a UNIX_DGRAM socket pair
-      if (socketpair(AF_UNIX, SOCK_DGRAM, 0, sockets)) {
-        printf("Error creating communication socket (errno=%d, %s)\n", errno, strerror(errno));
-        exit(EXIT_FAILURE);
-      }
-      if (pipe(pipes)) {
-        printf("Error creating communication pipes (errno=%d, %s)\n", errno, strerror(errno));
-        exit(EXIT_FAILURE);
-      }
-      // set CLOEXEC so the socket/pipe doesn't get leaked if the child exec's.
-      if ((fd_flags = fcntl(sockets[1], F_GETFD, NULL)) == -1) {
-        printf("Failed to get fd flags: %d %s\n", errno, strerror(errno));
-        exit(EXIT_FAILURE);
-      }
-      if (fcntl(sockets[1], F_SETFD, fd_flags | FD_CLOEXEC) == -1) {
-        printf("Failed to set new fd flags: %d %s\n", errno, strerror(errno));
-        exit(EXIT_FAILURE);
-      }
-      if ((fd_flags = fcntl(pipes[1], F_GETFD, NULL)) == -1) {
-        printf("Failed to get fd flags: %d %s\n", errno, strerror(errno));
-        exit(EXIT_FAILURE);
-      }
-      if (fcntl(pipes[1], F_SETFD, fd_flags | FD_CLOEXEC) == -1) {
-        printf("Failed to set new fd flags: %d %s\n", errno, strerror(errno));
-        exit(EXIT_FAILURE);
-      }
-
-      pid_t value = fork();
-      if(value == 0) {
-        // this is the child process, redirect stdout and stderr to a log file
-        close(pipes[0]);
-        fflush(stdout);
-        fflush(stderr);
-        std::stringstream stout;
-        stout << "redirectout_" << getpgrp() << "_" << std::setw(numberOfDigitsInIndex) << std::setfill('0') << childIndex << ".log";
-        if(0 == freopen(stout.str().c_str(), "w", stdout)) {
-          std::cerr << "Error during freopen of child process "
-          << childIndex << std::endl;
+    {
+      // make the services available
+      ServiceRegistry::Operate operate(serviceToken_);
+      Service<JobReport> jobReport;
+      int sockets[2], fd_flags;
+      for(; childIndex < kMaxChildren; ++childIndex) {
+        // Create a UNIX_DGRAM socket pair
+        if (socketpair(AF_UNIX, SOCK_DGRAM, 0, sockets)) {
+          printf("Error creating communication socket (errno=%d, %s)\n", errno, strerror(errno));
+          exit(EXIT_FAILURE);
         }
-        if(dup2(fileno(stdout), fileno(stderr)) < 0) {
-          std::cerr << "Error during dup2 of child process"
-          << childIndex << std::endl;
+        if (pipe(pipes)) {
+          printf("Error creating communication pipes (errno=%d, %s)\n", errno, strerror(errno));
+          exit(EXIT_FAILURE);
+        }
+        // set CLOEXEC so the socket/pipe doesn't get leaked if the child exec's.
+        if ((fd_flags = fcntl(sockets[1], F_GETFD, NULL)) == -1) {
+          printf("Failed to get fd flags: %d %s\n", errno, strerror(errno));
+          exit(EXIT_FAILURE);
+        }
+        if (fcntl(sockets[1], F_SETFD, fd_flags | FD_CLOEXEC) == -1) {
+          printf("Failed to set new fd flags: %d %s\n", errno, strerror(errno));
+          exit(EXIT_FAILURE);
+        }
+        if ((fd_flags = fcntl(pipes[1], F_GETFD, NULL)) == -1) {
+          printf("Failed to get fd flags: %d %s\n", errno, strerror(errno));
+          exit(EXIT_FAILURE);
+        }
+        if (fcntl(pipes[1], F_SETFD, fd_flags | FD_CLOEXEC) == -1) {
+          printf("Failed to set new fd flags: %d %s\n", errno, strerror(errno));
+          exit(EXIT_FAILURE);
         }
 
-        std::cout << "I am child " << childIndex << " with pgid " << getpgrp() << std::endl;
-        if(setCpuAffinity_) {
-          // CPU affinity is handled differently on macosx.
-          // We disable it and print a message until someone reads:
-          //
-          // http://developer.apple.com/mac/library/releasenotes/Performance/RN-AffinityAPI/index.html
-          //
-          // and implements it.
-#ifdef __APPLE__
-          std::cout << "Architecture support for CPU affinity not implemented." << std::endl;
-#else
-          std::cout << "Setting CPU affinity, setting this child to cpu " << childIndex << std::endl;
-          cpu_set_t mask;
-          CPU_ZERO(&mask);
-          CPU_SET(childIndex, &mask);
-          if(sched_setaffinity(0, sizeof(mask), &mask) != 0) {
-            std::cerr << "Failed to set the cpu affinity, errno " << errno << std::endl;
-            exit(-1);
+        pid_t value = fork();
+        if(value == 0) {
+          // this is the child process, redirect stdout and stderr to a log file
+          close(pipes[0]);
+          fflush(stdout);
+          fflush(stderr);
+          std::stringstream stout;
+          stout << "redirectout_" << getpgrp() << "_" << std::setw(numberOfDigitsInIndex) << std::setfill('0') << childIndex << ".log";
+          if(0 == freopen(stout.str().c_str(), "w", stdout)) {
+            std::cerr << "Error during freopen of child process "
+            << childIndex << std::endl;
           }
+          if(dup2(fileno(stdout), fileno(stderr)) < 0) {
+            std::cerr << "Error during dup2 of child process"
+            << childIndex << std::endl;
+          }
+
+          std::cout << "I am child " << childIndex << " with pgid " << getpgrp() << std::endl;
+          if(setCpuAffinity_) {
+            // CPU affinity is handled differently on macosx.
+            // We disable it and print a message until someone reads:
+            //
+            // http://developer.apple.com/mac/library/releasenotes/Performance/RN-AffinityAPI/index.html
+            //
+            // and implements it.
+#ifdef __APPLE__
+            std::cout << "Architecture support for CPU affinity not implemented." << std::endl;
+#else
+            std::cout << "Setting CPU affinity, setting this child to cpu " << childIndex << std::endl;
+            cpu_set_t mask;
+            CPU_ZERO(&mask);
+            CPU_SET(childIndex, &mask);
+            if(sched_setaffinity(0, sizeof(mask), &mask) != 0) {
+              std::cerr << "Failed to set the cpu affinity, errno " << errno << std::endl;
+              exit(-1);
+            }
 #endif
+          }
+          break;
+        } else {
+          //this is the parent
+          close(pipes[1]);
         }
-        break;
-      } else {
-        //this is the parent
-        close(pipes[1]);
+        if(value < 0) {
+          std::cerr << "failed to create a child" << std::endl;
+          exit(-1);
+        }
+        childrenIds.push_back(value);
+        childrenSockets.push_back(sockets[0]);
+        childrenPipes.push_back(pipes[0]);
       }
-      if(value < 0) {
-        std::cerr << "failed to create a child" << std::endl;
-        exit(-1);
+
+      if(childIndex < kMaxChildren) {
+        jobReport->childAfterFork(jobReportFile, childIndex, kMaxChildren);
+        actReg_->postForkReacquireResourcesSignal_(childIndex, kMaxChildren);
+
+        boost::shared_ptr<multicore::MessageReceiverForSource> receiver(new multicore::MessageReceiverForSource(sockets[1]));
+        input_->doPostForkReacquireResources(receiver);
+        schedule_->postForkReacquireResources(childIndex, kMaxChildren);
+        //NOTE: sources have to reset themselves by listening to the post fork message
+        //rewindInput();
+        return true;
       }
-      childrenIds.push_back(value);
-      childrenSockets.push_back(sockets[0]);
-      childrenPipes.push_back(pipes[0]);
+      jobReport->parentAfterFork(jobReportFile);
     }
-
-    if(childIndex < kMaxChildren) {
-      jobReport->childAfterFork(jobReportFile, childIndex, kMaxChildren);
-      actReg_->postForkReacquireResourcesSignal_(childIndex, kMaxChildren);
-
-      boost::shared_ptr<multicore::MessageReceiverForSource> receiver(new multicore::MessageReceiverForSource(sockets[1]));
-      input_->doPostForkReacquireResources(receiver);
-      schedule_->postForkReacquireResources(childIndex, kMaxChildren);
-      //NOTE: sources have to reset themselves by listening to the post fork message
-      //rewindInput();
-      return true;
-    }
-    jobReport->parentAfterFork(jobReportFile);
-}
 
     //this is the original, which is now the master for all the children
 
