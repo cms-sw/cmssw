@@ -98,8 +98,8 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
     int nWords = length / 8;
     int nBytesExtra = 0;
 
-    const ScalersEventRecordRaw_v5 * raw 
-	     = (struct ScalersEventRecordRaw_v5 *)fedData.data();
+    const ScalersEventRecordRaw_v6 * raw 
+	     = (struct ScalersEventRecordRaw_v6 *)fedData.data();
     if ( ( raw->version == 1 ) || ( raw->version == 2 ) )
     {
       L1TriggerScalers oldTriggerScalers(fedData.data());
@@ -110,7 +110,14 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
     {
       Level1TriggerScalers triggerScalers(fedData.data());
       pTrigger->push_back(triggerScalers);
-      nBytesExtra = ScalersRaw::N_BX_v2 * sizeof(unsigned long long);
+      if ( raw->version >= 6 )
+      {
+	nBytesExtra = ScalersRaw::N_BX_v6 * sizeof(unsigned long long);
+      }
+      else
+      {
+	nBytesExtra = ScalersRaw::N_BX_v2 * sizeof(unsigned long long);
+      }
     }
 
     LumiScalers      lumiScalers(fedData.data());
@@ -124,7 +131,7 @@ void ScalersRawToDigi::produce(edm::Event& iEvent,
       int nWordsExtra = nBytesExtra / 8;
       for ( int i=0; i<nWordsExtra; i++)
       {
-	int index = nWords - 5 + i;
+	int index = nWords - (nWordsExtra + 1) + i;
 	L1AcceptBunchCrossing bc(i,data[index]);
 	pBunch->push_back(bc);
       }
