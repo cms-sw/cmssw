@@ -21,7 +21,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Sun Jun 20 14:32:36 CDT 2010
-// $Id: FFTJetProducer.h,v 1.5 2011/06/29 02:45:33 igv Exp $
+// $Id: FFTJetProducer.h,v 1.7 2011/07/11 19:45:59 igv Exp $
 //
 //
 
@@ -173,6 +173,8 @@ private:
     template<class Real>
     void loadSparseTreeData(const edm::Event&);
 
+    void removeFakePreclusters();
+
     // The following methods do most of the work.
     // The following function tells us if the grid was rebuilt.
     static bool loadEnergyFlow(
@@ -184,7 +186,8 @@ private:
                           std::vector<RecoFFTJet>& thisIterResult);
     void determineGriddedConstituents();
     void determineVectorConstituents();
-    void saveResults(edm::Event& iEvent, const edm::EventSetup&);
+    void saveResults(edm::Event& iEvent, const edm::EventSetup&,
+                     unsigned nPreclustersFound);
 
     template <typename Jet>
     void writeJets(edm::Event& iEvent, const edm::EventSetup&);

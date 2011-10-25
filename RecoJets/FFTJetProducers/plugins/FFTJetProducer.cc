@@ -13,7 +13,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Sun Jun 20 14:32:36 CDT 2010
-// $Id: FFTJetProducer.cc,v 1.8 2011/07/11 19:45:59 igv Exp $
+// $Id: FFTJetProducer.cc,v 1.9 2011/07/18 17:08:24 igv Exp $
 //
 //
 
@@ -49,6 +49,9 @@
 
 #include "RecoJets/FFTJetAlgorithms/interface/clusteringTreeConverters.h"
 #include "RecoJets/FFTJetAlgorithms/interface/jetConverters.h"
+#include "RecoJets/FFTJetAlgorithms/interface/matchOneToOne.h"
+#include "RecoJets/FFTJetAlgorithms/interface/JetToPeakDistance.h"
+
 #include "DataFormats/JetReco/interface/DiscretizedEnergyFlow.h"
 
 #include "RecoJets/JetProducers/interface/JetSpecific.h"
@@ -653,7 +656,8 @@ void FFTJetProducer::writeJets(edm::Event& iEvent,
 }
 
 
-void FFTJetProducer::saveResults(edm::Event& ev, const edm::EventSetup& iSetup)
+void FFTJetProducer::saveResults(edm::Event& ev, const edm::EventSetup& iSetup,
+                                 const unsigned nPreclustersFound)
 {
     // Write recombined jets
     jet_type_switch(writeJets, ev, iSetup);
@@ -680,7 +684,7 @@ void FFTJetProducer::saveResults(edm::Event& ev, const edm::EventSetup& iSetup)
             thresholds, occupancy, unclusE,
             constituents[0], unused,
             minScale, maxScale, scaleUsed,
-            preclusters.size(), iterationsPerformed,
+            nPreclustersFound, iterationsPerformed,
             iterationsPerformed == 1U ||
             iterationsPerformed <= maxIterations));
     ev.put(summary, outputLabel);
@@ -728,6 +732,13 @@ void FFTJetProducer::produce(edm::Event& iEvent,
     // function will be used for every cluster.
     assignMembershipFunctions(&preclusters);
 
+    // Count the preclusters going in
+    unsigned nPreclustersFound = 0U;
+    const unsigned npre = preclusters.size();
+    for (unsigned i=0; i<npre; ++i)
+        if (preclusters[i].membershipFactor() > 0.0)
+            ++nPreclustersFound;
+
     // Run the recombination algorithm once
     int status = 0;
     if (useGriddedAlgorithm)
@@ -743,7 +754,20 @@ void FFTJetProducer::produce(edm::Event& iEvent,
 
     // If requested, iterate the jet recombination procedure
     if (maxIterations > 1U && !recoJets.empty())
+    {
+        // It is possible to have a smaller number of jets than we had
+        // preclusters. Fake preclusters are possible, but for a good
+        // choice of pattern recognition kernel their presence should
+        // be infrequent. However, any fake preclusters will throw the
+        // iterative reconstruction off balance. Deal with the problem now.
+        const unsigned nJets = recoJets.size();
+        if (preclusters.size() != nJets)
+        {
+            assert(nJets < preclusters.size());
+            removeFakePreclusters();
+        }
         iterationsPerformed = iterateJetReconstruction();
+    }
     else
         iterationsPerformed = 1U;
 
@@ -771,7 +795,7 @@ void FFTJetProducer::produce(edm::Event& iEvent,
     }
 
     // Write out the results
-    saveResults(iEvent, iSetup);
+    saveResults(iEvent, iSetup, nPreclustersFound);
 }
 
 
@@ -959,6 +983,32 @@ void FFTJetProducer::beginJob()
         checkConfig(memberFactorCalcJet, "invalid spec for the "
                     "jet distance calculator");
     }
+}
+
+
+void FFTJetProducer::removeFakePreclusters()
+{
+    // There are two possible reasons for fake preclusters:
+    // 1. Membership factor was set to 0
+    // 2. Genuine problem with pattern recognition
+    //
+    // Anyway, we need to match jets to preclusters and keep
+    // only those preclusters that have been matched
+    //
+    std::vector<int> matchTable;
+    const unsigned nmatched = matchOneToOne(
+        recoJets, preclusters, JetToPeakDistance(), &matchTable);
+
+    // Ensure that all jets have been matched.
+    // If not, we must have a bug somewhere.
+    assert(nmatched == recoJets.size());
+
+    // Collect all matched preclusters
+    iterPreclusters.clear();
+    iterPreclusters.reserve(nmatched);
+    for (unsigned i=0; i<nmatched; ++i)
+        iterPreclusters.push_back(preclusters[matchTable[i]]);
+    iterPreclusters.swap(preclusters);
 }
 
 
