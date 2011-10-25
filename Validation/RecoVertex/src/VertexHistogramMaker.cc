@@ -51,16 +51,16 @@ void VertexHistogramMaker::book(const std::string dirname) {
 
   edm::LogInfo("HistogramBooking") << "Vertex histogram booking in directory " << dirname;
 
-  m_hnvtx = currdir->make<TH1F>("nvtx","Number of Vertices",40,-0.5,39.5);
+  m_hnvtx = currdir->make<TH1F>("nvtx","Number of Vertices",60,-0.5,59.5);
   m_hnvtx->GetXaxis()->SetTitle("vertices");   m_hnvtx->GetYaxis()->SetTitle("Events"); 
 
-  m_hntruevtx = currdir->make<TH1F>("ntruevtx","Number of True Vertices",40,-0.5,39.5);
+  m_hntruevtx = currdir->make<TH1F>("ntruevtx","Number of True Vertices",60,-0.5,59.5);
   m_hntruevtx->GetXaxis()->SetTitle("vertices");   m_hntruevtx->GetYaxis()->SetTitle("Events"); 
 
-  m_hntruevtxvslumi = currdir->make<TProfile>("ntruevtxvslumi","Number of True Vertices vs BX lumi",125,-0.,5.);
+  m_hntruevtxvslumi = currdir->make<TProfile>("ntruevtxvslumi","Number of True Vertices vs BX lumi",250,-0.,10.);
   m_hntruevtxvslumi->GetXaxis()->SetTitle("BX lumi [*10^30 cm-2s-1]");   m_hntruevtxvslumi->GetYaxis()->SetTitle("Vertices"); 
 
-  m_hntruevtxvslumi2D = currdir->make<TH2D>("ntruevtxvslumi2D","Number of True Vertices vs BX lumi",125,0.,5.,100,-0.5,99.5);
+  m_hntruevtxvslumi2D = currdir->make<TH2D>("ntruevtxvslumi2D","Number of True Vertices vs BX lumi",250,0.,10.,100,-0.5,99.5);
   m_hntruevtxvslumi2D->GetXaxis()->SetTitle("BX lumi [*10^30 cm-2s-1]");   m_hntruevtxvslumi2D->GetYaxis()->SetTitle("Vertices"); 
 
   m_hntracks = currdir->make<TH1F>("ntracks","Number of Tracks",200,-0.5,199.5);
