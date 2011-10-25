@@ -925,7 +925,7 @@ namespace edm {
     void
     MessageSenderToSource::operator()() {
       multicore::MessageForParent childMsg;
-      std::cout << "I am controller" << std::endl;
+      LogInfo("ForkingController") << "I am controller";
       //this is the master and therefore the controller
       
       multicore::MessageForSource sndmsg;
@@ -941,7 +941,7 @@ namespace edm {
         ssize_t rc;
         while (((rc = select(m_maxFd, &readSockets, NULL, &errorSockets, NULL)) < 0) && (errno == EINTR)) {}
         if (rc < 0) {
-          std::cerr << "select failed; should be impossible due to preconditions." << std::endl;
+          std::cerr << "select failed; should be impossible due to preconditions.";
           abort();
           break;
         }
@@ -1019,7 +1019,7 @@ namespace edm {
       itemType = input_->nextItemType();
       assert(itemType == InputSource::IsRun);
 
-      std::cout << " prefetching for run " << input_->runAuxiliary()->run() << std::endl;
+      LogSystem("ForkingEventSetupPreFetching") << " prefetching for run " << input_->runAuxiliary()->run();
       IOVSyncValue ts(EventID(input_->runAuxiliary()->run(), 0, 0),
                       input_->runAuxiliary()->beginTime());
       EventSetup const& es = esp_->eventSetupForInstance(ts);
@@ -1050,19 +1050,19 @@ namespace edm {
               ++itDataKey) {
             //std::cout << "  " << itDataKey->type().name() << " " << itDataKey->name().value() << std::endl;
             if(0 != excludedData && excludedData->find(std::make_pair(itDataKey->type().name(), itDataKey->name().value())) != excludedData->end()) {
-              std::cout << "   excluding:" << itDataKey->type().name() << " " << itDataKey->name().value() << std::endl;
+              LogInfo("ForkingEventSetupPreFetching") << "   excluding:" << itDataKey->type().name() << " " << itDataKey->name().value() << std::endl;
               continue;
             }
             try {
               recordPtr->doGet(*itDataKey);
             } catch(cms::Exception& e) {
-             LogWarning("EventSetupPreFetching") << e.what();
+             LogWarning("ForkingEventSetupPreFetching") << e.what();
             }
           }
         }
       }
     }
-    std::cout << "  done prefetching" << std::endl;
+    LogSystem("ForkingEventSetupPreFetching") <<"  done prefetching";
     {
       // make the services available
       ServiceRegistry::Operate operate(serviceToken_);
@@ -1130,15 +1130,13 @@ namespace edm {
           std::stringstream stout;
           stout << "redirectout_" << getpgrp() << "_" << std::setw(numberOfDigitsInIndex) << std::setfill('0') << childIndex << ".log";
           if(0 == freopen(stout.str().c_str(), "w", stdout)) {
-            std::cerr << "Error during freopen of child process "
-            << childIndex << std::endl;
+            LogError("ForkingStdOutRedirect") << "Error during freopen of child process "<< childIndex;
           }
           if(dup2(fileno(stdout), fileno(stderr)) < 0) {
-            std::cerr << "Error during dup2 of child process"
-            << childIndex << std::endl;
+            LogError("ForkingStdOutRedirect") << "Error during dup2 of child process"<< childIndex;
           }
 
-          std::cout << "I am child " << childIndex << " with pgid " << getpgrp() << std::endl;
+          LogInfo("ForkingChild") << "I am child " << childIndex << " with pgid " << getpgrp();
           if(setCpuAffinity_) {
             // CPU affinity is handled differently on macosx.
             // We disable it and print a message until someone reads:
@@ -1147,14 +1145,14 @@ namespace edm {
             //
             // and implements it.
 #ifdef __APPLE__
-            std::cout << "Architecture support for CPU affinity not implemented." << std::endl;
+            LogInfo("ForkingChildAffinity") << "Architecture support for CPU affinity not implemented.";
 #else
-            std::cout << "Setting CPU affinity, setting this child to cpu " << childIndex << std::endl;
+            LogInfo("ForkingChildAffinity") << "Setting CPU affinity, setting this child to cpu " << childIndex;
             cpu_set_t mask;
             CPU_ZERO(&mask);
             CPU_SET(childIndex, &mask);
             if(sched_setaffinity(0, sizeof(mask), &mask) != 0) {
-              std::cerr << "Failed to set the cpu affinity, errno " << errno << std::endl;
+              LogError("ForkingChildAffinity") << "Failed to set the cpu affinity, errno " << errno;
               exit(-1);
             }
 #endif
@@ -1165,7 +1163,7 @@ namespace edm {
           close(pipes[1]);
         }
         if(value < 0) {
-          std::cerr << "failed to create a child" << std::endl;
+          LogError("ForkingChild") << "failed to create a child";
           exit(-1);
         }
         childrenIds.push_back(value);
@@ -1211,7 +1209,7 @@ namespace edm {
     // because the sender will fail.
     bool too_many_fds = false;
     if (pipes[1]+1 > FD_SETSIZE) {
-      std::cerr << "too many file descriptors for multicore job" << std::endl;
+      LogError("ForkingFileDescriptors") << "too many file descriptors for multicore job";
       too_many_fds = true;
     }
 
@@ -1223,20 +1221,20 @@ namespace edm {
 
     while(!too_many_fds && !shutdown_flag && !child_failed && (childrenIds.size() != num_children_done)) {
       sigsuspend(&unblockingSigSet);
-      std::cout << "woke from sigwait" << std::endl;
+      LogInfo("ForkingAwake") << "woke from sigwait" << std::endl;
     }
     pthread_sigmask(SIG_SETMASK, &oldSigSet, NULL);
 
-    std::cout << "num children who have already stopped " << num_children_done << std::endl;
+    LogInfo("ForkingStopping") << "num children who have already stopped " << num_children_done;
     if(child_failed) {
-      std::cout << "child failed" << std::endl;
+      LogError("ForkingStopping") << "child failed";
     }
     if(shutdown_flag) {
-      std::cout << "asked to shutdown" << std::endl;
+      LogSystem("ForkingStopping") << "asked to shutdown";
     }
 
     if(too_many_fds || shutdown_flag || (child_failed && (num_children_done != childrenIds.size()))) {
-      std::cout << "must stop children" << std::endl;
+      LogInfo("ForkingStopping") << "must stop children" << std::endl;
       for(std::vector<pid_t>::iterator it = childrenIds.begin(), itEnd = childrenIds.end();
           it != itEnd; ++it) {
         /* int result = */ kill(*it, SIGUSR2);
