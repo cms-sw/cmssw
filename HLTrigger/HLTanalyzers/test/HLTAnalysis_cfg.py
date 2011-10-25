@@ -31,7 +31,7 @@ if (isData):
 # Which AlCa condition for what. 
 
 if (isData):
-    GLOBAL_TAG='GR_H_V20::All' # 2011 Collisions data, CMSSW_4_2_X
+    GLOBAL_TAG='GR_H_V22::All' # 2011 Collisions data, CMSSW_4_2_X
 else:
     GLOBAL_TAG='START42_V12::All' # CMSSW_4_2_X MC, STARTUP Conditions
     
