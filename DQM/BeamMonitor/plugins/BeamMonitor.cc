@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2011/03/13 20:33:36 $
- * $Revision: 1.71 $
+ * $Date: 2011/05/12 11:46:55 $
+ * $Revision: 1.72 $
  */
 
 
@@ -374,7 +374,7 @@ void BeamMonitor::beginJob() {
   if (reportSummary) dbe_->removeElement(reportSummary->getName());
 
   reportSummary = dbe_->bookFloat("reportSummary");
-  if(reportSummary) reportSummary->Fill(0./0.);
+  if(reportSummary) reportSummary->Fill(std::numeric_limits<double>::quiet_NaN());
 
   char histo[20];
   dbe_->setCurrentFolder(monitorName_+"EventInfo/reportSummaryContents");
@@ -389,7 +389,7 @@ void BeamMonitor::beginJob() {
 
   for (int i = 0; i < nFitElements_; i++) {
     summaryContent_[i] = 0.;
-    reportSummaryContents[i]->Fill(0./0.);
+    reportSummaryContents[i]->Fill(std::numeric_limits<double>::quiet_NaN());
   }
 
   dbe_->setCurrentFolder(monitorName_+"EventInfo");
@@ -708,13 +708,10 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
 
       if(StartAverage_)
       {
-      size_t SizeToRemovePV=0;
-      std::map<int, std::size_t>::iterator rmlspv = mapLSPVStoreSize.begin();
-      SizeToRemovePV= rmlspv->second;
-      int changedAfterThisPV=0;
-      for(std::map<int, std::size_t>::iterator rmLSPV = mapLSPVStoreSize.begin(); rmLSPV!=mapLSPVStoreSize.end(); ++rmLSPV, ++changedAfterThisPV){
-         if(changedAfterThisPV > 0 ){ (rmLSPV->second)  =  (rmLSPV->second)-SizeToRemovePV;}
-                               }
+        std::map<int, std::size_t>::iterator rmLSPVi = mapLSPVStoreSize.begin();
+        size_t SizeToRemovePV= rmLSPVi->second;
+        for(std::map<int, std::size_t>::iterator rmLSPVe = mapLSPVStoreSize.end(); ++rmLSPVi != rmLSPVe;)
+          rmLSPVi->second  -= SizeToRemovePV;
 
       theBeamFitter->resizePVvector(SizeToRemovePV);
 
