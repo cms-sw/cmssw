@@ -65,7 +65,9 @@ function getConfigForOnline() {
 # local L1T="tag[,connect]" - record is hardwired as L1GtTriggerMenuRcd
 # local L1TPP="L1GtTriggerMenu_L1Menu_Collisions2011_v6_mc,sqlite_file:/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2011_v6/sqlFile/L1Menu_Collisions2011_v6_mc.db"
   local L1TPP="L1GtTriggerMenu_L1Menu_Collisions2011_v6_mc"
-  local L1THI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2010_v2_mc"
+# local L1THI="L1GtTriggerMenu_L1Menu_CollisionsHeavyIons2010_v2_mc"
+# need 2011 L1 menu as basis for 2011 HIon xml override
+  local L1THI="L1GtTriggerMenu_L1Menu_Collisions2011_v6_mc"
 
 
   log "    dumping full HLT for $NAME"
@@ -75,7 +77,7 @@ function getConfigForOnline() {
     hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1TPP --globaltag auto:startup       > OnLine_HLT_$NAME.py 
   elif [ "$NAME" == "HIon" ]; then
     hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI --globaltag auto:hltonline     > OnData_HLT_$NAME.py
-    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI --globaltag auto:starthi       > OnLine_HLT_$NAME.py
+    hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME --l1 $L1THI --globaltag auto:startup       > OnLine_HLT_$NAME.py
   else
     hltGetConfiguration --full --offline --data $CONFIG --type $NAME --unprescale --process HLT$NAME             --globaltag auto:hltonline     > OnData_HLT_$NAME.py
     hltGetConfiguration --full --offline --mc   $CONFIG --type $NAME --unprescale --process HLT$NAME                                            > OnLine_HLT_$NAME.py
