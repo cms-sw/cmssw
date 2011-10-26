@@ -39,6 +39,10 @@ parser.add_option("-b", "--big",
                   help="if invoked, subjobs will also be run on cmscaf1nd",
                   action="store_true",
                   dest="big")
+parser.add_option("-u", "--user_mail",
+                  help="if invoked, send mail to a specified email destination. If \"-u\" is not present, the default destination LSB_MAILTO in lsf.conf will be used",
+                  type="string",
+                  dest="user_mail")
 parser.add_option("--mapplots",
                   help="if invoked, draw \"map plots\"",
                   action="store_true",
@@ -269,6 +273,7 @@ INITIALGEOM = sys.argv[3]
 INPUTFILES = sys.argv[4]
 
 options, args = parser.parse_args(sys.argv[5:])
+user_mail = options.user_mail
 mapplots_ingeneral = options.mapplots
 segdiffplots_ingeneral = options.segdiffplots
 curvatureplots_ingeneral = options.curvatureplots
@@ -698,7 +703,8 @@ for iteration in range(1, ITERATIONS+1):
             if options.big: queue = "cmscaf1nd"
             else: queue = "cmscaf1nh"
 
-            bsubfile.append("bsub -R \"type==SLC5_64\" -q %s -J \"%s_gather%03d\" %s gather%03d.sh" % (queue, director, jobnumber, waiter, jobnumber))
+            if user_mail: bsubfile.append("bsub -R \"type==SLC5_64\" -q %s -J \"%s_gather%03d\" -u %s %s gather%03d.sh" % (queue, director, jobnumber, user_mail, waiter, jobnumber))
+	    else: bsubfile.append("bsub -R \"type==SLC5_64\" -q %s -J \"%s_gather%03d\" %s gather%03d.sh" % (queue, director, jobnumber, waiter, jobnumber))
 
             bsubnames.append("ended(%s_gather%03d)" % (director, jobnumber))
 
@@ -721,7 +727,9 @@ for iteration in range(1, ITERATIONS+1):
     os.system("chmod +x %salign.sh" % directory)
 
     bsubfile.append("echo %salign.sh" % directory)
-    bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_align\" -w \"%s\" align.sh" % (director, " && ".join(bsubnames)))
+    if user_mail: bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_align\" -u %s -w \"%s\" align.sh" % (director, user_mail, " && ".join(bsubnames)))
+    else: bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_align\" -w \"%s\" align.sh" % (director, " && ".join(bsubnames)))
+    
     #bsubfile.append("cd ..")
     bsubnames = []
     last_align = "%s_align" % director
@@ -737,7 +745,8 @@ for iteration in range(1, ITERATIONS+1):
         os.system("chmod +x %svalidation.sh" % directory)
         
         bsubfile.append("echo %svalidation.sh" % directory)
-        bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_validation\" -w \"ended(%s)\" validation.sh" % (director, last_align))
+        if user_mail: bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_validation\" -u %s -w \"ended(%s)\" validation.sh" % (director, user_mail, last_align))
+	else: bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_validation\" -w \"ended(%s)\" validation.sh" % (director, last_align))
 
     bsubfile.append("cd ..")
     bsubfile.append("")
