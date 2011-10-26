@@ -13,7 +13,7 @@
 //
 // Original Author:  Jason Michael Slaunwhite,512 1-008,`+41227670494,
 //         Created:  Fri Aug  5 10:34:47 CEST 2011
-// $Id: OccupancyPlotter.cc,v 1.6 2011/09/21 13:54:48 abrinke1 Exp $
+// $Id: OccupancyPlotter.cc,v 1.7 2011/09/26 10:15:04 abrinke1 Exp $
 //
 //
 
@@ -342,17 +342,19 @@ h_name_1dEta = "HLT_"+label+"_1dEta";
 h_name_1dPhi = "HLT_"+label+"_1dPhi";
 h_title_1dEta = label+" Occupancy Vs Eta";
 h_title_1dPhi = label+" Occupancy Vs Phi";
-Int_t numBinsEta = 28;
+Int_t numBinsEta = 12;
 Int_t numBinsPhi = 8;
-Int_t numBinsEtaFine = 60;
-Int_t numBinsPhiFine = 64;
+Int_t numBinsEtaFine = 30;
+Int_t numBinsPhiFine = 34;
 Double_t EtaMax = 2.610;
-Double_t eta_bins[] = {-2.610,-2.349,-2.088,-1.827,-1.740,-1.653,-1.566,-1.479,-1.392,-1.305,-1.044,-0.783,-0.522,-0.261,0,0.261,0.522,0.783,1.044,1.305,1.392,1.479,1.566,1.653,1.740,1.827,2.088,2.349,2.610}; //Has narrower bins in Barrel/Endcap border region
+Double_t PhiMax = 17.0*TMath::Pi()/16.0;
+  //Double_t eta_bins[] = {-2.610,-2.349,-2.088,-1.827,-1.740,-1.653,-1.566,-1.479,-1.392,-1.305,-1.044,-0.783,-0.522,-0.261,0,0.261,0.522,0.783,1.044,1.305,1.392,1.479,1.566,1.653,1.740,1.827,2.088,2.349,2.610}; //Has narrower bins in Barrel/Endcap border region
+Double_t eta_bins[] = {-2.610,-2.175,-1.740,-1.305,-0.870,-0.435,0,0.435,0.870,1.305,1.740,2.175,2.610};
 Double_t phi_bins[] = {-TMath::Pi(),-3*TMath::Pi()/4,-TMath::Pi()/2,-TMath::Pi()/4,0,TMath::Pi()/4,TMath::Pi()/2,3*TMath::Pi()/4,TMath::Pi()};
 
  TH2F * hist_EtaVsPhi = new TH2F(h_name.c_str(),h_title.c_str(),numBinsEta,eta_bins,numBinsPhi,phi_bins);
  TH1F * hist_1dEta = new TH1F(h_name_1dEta.c_str(),h_title_1dEta.c_str(),numBinsEtaFine,-EtaMax,EtaMax);
- TH1F * hist_1dPhi = new TH1F(h_name_1dPhi.c_str(),h_title_1dPhi.c_str(),numBinsPhiFine,-EtaMax,EtaMax);
+ TH1F * hist_1dPhi = new TH1F(h_name_1dPhi.c_str(),h_title_1dPhi.c_str(),numBinsPhiFine,-PhiMax,PhiMax);
 
  hist_EtaVsPhi->SetMinimum(0);
  hist_1dEta->SetMinimum(0);
@@ -372,7 +374,7 @@ MonitorElement * ME_1dPhi = dbe->book1D(h_name_1dPhi.c_str(),hist_1dPhi);
     dbe->setCurrentFolder(Path_Folder.c_str());
 
     MonitorElement * ME_1dEta = dbe->book1D(h_name_1dEtaPath.c_str(),h_title_1dEtaPath.c_str(),numBinsEtaFine,-EtaMax,EtaMax);
-    MonitorElement * ME_1dPhi = dbe->book1D(h_name_1dPhiPath.c_str(),h_title_1dPhiPath.c_str(),numBinsPhiFine,-EtaMax,EtaMax);
+    MonitorElement * ME_1dPhi = dbe->book1D(h_name_1dPhiPath.c_str(),h_title_1dPhiPath.c_str(),numBinsPhiFine,-PhiMax,PhiMax);
   
     if (debugPrint) std::cout << "book1D for " << pathName << std::endl;
   }
