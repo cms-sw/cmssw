@@ -1081,6 +1081,13 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  (*pfCandidates_)[tmpe].setPs2Energy( ps2Ene[0] );
 	  (*pfCandidates_)[tmpe].addElementInBlock( blockref, index );
 	  (*pfCandidates_)[tmpe].addElementInBlock( blockref, assTracks.begin()->second );
+	  // Check that there is at least one track
+	  if(assTracks.size()) {
+	  // Assign the position of the track at the ECAL entrance
+	      const math::XYZPointF& chargedPosition = 
+		dynamic_cast<const reco::PFBlockElementTrack*>(&elements[assTracks.begin()->second])->positionAtECALEntrance();
+	      (*pfCandidates_)[tmpe].setPositionAtECALEntrance(chargedPosition);
+	    }
 	  break;
 	}
 
@@ -2297,6 +2304,11 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	for ( unsigned ich=0; ich<chargedHadronsInBlock.size(); ++ich) { 
 	  unsigned iTrack = chargedHadronsInBlock[ich];
 	  (*pfCandidates_)[tmpi].addElementInBlock( blockref, iTrack );
+	  // Assign the position of the track at the ECAL entrance
+	  const math::XYZPointF& chargedPosition = 
+	    dynamic_cast<const reco::PFBlockElementTrack*>(&elements[iTrack])->positionAtECALEntrance();
+	  (*pfCandidates_)[tmpi].setPositionAtECALEntrance(chargedPosition);
+
 	  std::pair<II,II> myEcals = associatedEcals.equal_range(iTrack);
 	  for (II ii=myEcals.first; ii!=myEcals.second; ++ii ) { 
 	    unsigned iEcal = ii->second.second;
