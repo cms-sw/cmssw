@@ -4,7 +4,6 @@
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "DataFormats/Common/interface/ClonePolicy.h"
 #include "DataFormats/Common/interface/fillPtrVector.h"
-#include "DataFormats/Common/interface/PostReadFixupTrait.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/setPtr.h"
 #include "DataFormats/Common/interface/traits.h"
@@ -182,9 +181,6 @@ namespace edm {
       return Ordering<O>(comp);
     }
     base data_;
-    typename helpers::PostReadFixupTrait<T>::type fixup_;
-    inline void fixup() const { fixup_(data_); }
-    inline void touch() { fixup_.touch(); }
   };
 
   template<typename T, typename P>
@@ -200,14 +196,12 @@ namespace edm {
     size_type current = 0;
     for (const_iterator i = o.begin(), e = o.end(); i != e; ++i,++current)
       data_[current] = policy_type::clone(*i);
-    fixup_ = o.fixup_;
   }
 
 #if defined(__GXX_EXPERIMENTAL_CXX0X__)
   template<typename T, typename P>
   inline OwnVector<T, P>::OwnVector(OwnVector<T, P>&& o)  {
     data_.swap(o.data_);
-    fixup_ = o.fixup_;
   }
 #endif
 
@@ -227,7 +221,6 @@ namespace edm {
   template<typename T, typename P>
   inline OwnVector<T, P>& OwnVector<T, P>::operator=(OwnVector<T, P>&& o) {
     data_.swap(o.data_);
-    fixup_ = o.fixup_;
     return *this;
   }
 #endif
@@ -235,27 +228,21 @@ namespace edm {
 
   template<typename T, typename P>
   inline typename OwnVector<T, P>::iterator OwnVector<T, P>::begin() {
-    fixup();
-    touch();
     return iterator(data_.begin());
   }
 
   template<typename T, typename P>
   inline typename OwnVector<T, P>::iterator OwnVector<T, P>::end() {
-    fixup();
-    touch();
     return iterator(data_.end());
   }
 
   template<typename T, typename P>
   inline typename OwnVector<T, P>::const_iterator OwnVector<T, P>::begin() const {
-    fixup();
     return const_iterator(data_.begin());
   }
 
   template<typename T, typename P>
   inline typename OwnVector<T, P>::const_iterator OwnVector<T, P>::end() const {
-    fixup();
     return const_iterator(data_.end());
   }
 
@@ -271,13 +258,11 @@ namespace edm {
 
   template<typename T, typename P>
   inline typename OwnVector<T, P>::reference OwnVector<T, P>::operator[](size_type n) {
-    fixup();
     return *data_[n];
   }
 
   template<typename T, typename P>
   inline typename OwnVector<T, P>::const_reference OwnVector<T, P>::operator[](size_type n) const {
-    fixup();
     return *data_[n];
   }
 
@@ -294,7 +279,6 @@ namespace edm {
     // This should be called only for lvalues.
     data_.push_back(d);
     d = 0;
-    touch();
   }
 
   template<typename T, typename P>
@@ -306,7 +290,6 @@ namespace edm {
     // does not require an lvalue->rvalue conversion). Thus this
     // signature should only be chosen for rvalues.
     data_.push_back(d);
-    touch();
   }
 
 
@@ -314,14 +297,12 @@ namespace edm {
   template<typename D>
   inline void OwnVector<T, P>::push_back(std::auto_ptr<D> d) {
     data_.push_back(d.release());
-    touch();
   }
 
 
   template<typename T, typename P>
   inline void OwnVector<T, P>::push_back(T const& d) {
     data_.push_back(policy_type::clone(d));
-    touch();
   }
 
 
@@ -331,7 +312,6 @@ namespace edm {
     // out of the vector...
     delete data_.back();
     data_.pop_back();
-    touch();
   }
 
   template <typename T, typename P>
@@ -350,8 +330,6 @@ namespace edm {
         "if you wish to avoid this exception.\n"
         "Consider using OwnVector::is_back_safe()\n");
     }
-    fixup();
-    touch();
     return *data_.back();
   }
 
@@ -366,20 +344,16 @@ namespace edm {
         "if you wish to avoid this exception.\n"
         "Consider using OwnVector::is_back_safe()\n");
     }
-    fixup();
     return *data_.back();
   }
 
   template<typename T, typename P>
   inline typename OwnVector<T, P>::reference OwnVector<T, P>::front() {
-    fixup();
-    touch();
     return *data_.front();
   }
 
   template<typename T, typename P>
   inline typename OwnVector<T, P>::const_reference OwnVector<T, P>::front() const {
-    fixup();
     return *data_.front();
   }
 
@@ -392,7 +366,6 @@ namespace edm {
 
   template<typename T, typename P>
   inline typename OwnVector<T, P>::base const& OwnVector<T, P>::data() const {
-    fixup();
     return data_;
   }
 
@@ -404,16 +377,12 @@ namespace edm {
 
   template<typename T, typename P>
   typename OwnVector<T, P>::iterator OwnVector<T, P>::erase(iterator pos) {
-    fixup();
-    touch();
     delete * pos.i;
     return iterator(data_.erase(pos.i));
   }
 
   template<typename T, typename P>
   typename OwnVector<T, P>::iterator OwnVector<T, P>::erase(iterator first, iterator last) {
-    fixup();
-    touch();
     typename base::iterator b = first.i, e = last.i;
     for(typename base::iterator i = b; i != e; ++ i)
       delete * i;
@@ -433,7 +402,6 @@ namespace edm {
   template<typename T, typename P>
   inline void OwnVector<T, P>::swap(OwnVector<T, P>& other) {
     data_.swap(other.data_);
-    std::swap(fixup_, other.fixup_);
   }
 
   template<typename T, typename P>
