@@ -32,8 +32,15 @@ int main(int argc, char** argv) {//main
 	      << std::endl;
     return 0;
   }
+  std::string lPath = argv[1];
+  
+  std::string lFolder = lPath.substr(lPath.find("xxxx")-5,9);
+  std::cout << " -- Folder = " << lFolder << std::endl;
+  
+  bool lAfsFiles = true;
 
-  std::string lFolder = "run17xyyy";
+  if (lPath.find("/afs") == lPath.npos) lAfsFiles = false;
+
   unsigned int nRuns;
   std::istringstream(argv[4])>>nRuns;
 
@@ -49,6 +56,8 @@ int main(int argc, char** argv) {//main
 
   std::map<unsigned int,std::vector<std::pair<unsigned int,float> > > lMap[nHistsDetailed];
   std::pair<std::map<unsigned int,std::vector<std::pair<unsigned int,float> > >::iterator,bool> lMapIter;
+  std::map<unsigned int,std::vector<std::pair<unsigned int,float> > > lMapRun[nHistsDetailed];
+  std::pair<std::map<unsigned int,std::vector<std::pair<unsigned int,float> > >::iterator,bool> lMapRunIter;
 
   std::map<unsigned int,double> lMapFED; 
   std::map<unsigned int,std::pair<double,double> > lMapFEDChannels; 
@@ -65,8 +74,12 @@ int main(int argc, char** argv) {//main
   //unsigned int nClustDirNotFound = 0;
   unsigned int nFileNotFound = 0;
 
-  std::ofstream txtoutfile;                                                                                         
-  txtoutfile.open(("FEDErrors_"+lFolder+".dat").c_str(),std::ios::out);                                                                   
+  std::ofstream txtoutfile;
+  std::ostringstream txtname;
+  txtname << "FEDErrors_" << lFolder << "_" << lRunMin << "_" << lRunMax << ".dat";
+
+  txtoutfile.open(txtname.str().c_str(),std::ios::out);
+
   txtoutfile << "| Error type | run # | fedID | rate of error |" << std::endl;
     //TString histName  = "APVAddressErrorBits";
 
@@ -85,7 +98,7 @@ int main(int argc, char** argv) {//main
     runs.push_back(lRun);
 
 
-    TString fileName = argv[1];
+    TString fileName = lPath;
 
     //     fileName += "/";
     //     fileName += static_cast<unsigned int>(lRun/1000.);
@@ -97,9 +110,12 @@ int main(int argc, char** argv) {//main
     unsigned int lSubFolder = static_cast<unsigned int>(lRun/100.);
 
     TString baseName = fileName;
-    fileName += "/000";
-    fileName += lSubFolder;
-    fileName += "xx/DQM_V0001_SiStrip_R000";
+    if (lAfsFiles) {
+      fileName += "/000";
+      fileName += lSubFolder;
+      fileName += "xx";
+    }
+    fileName += "/DQM_V0001_SiStrip_R000";
     fileName += lRun;
     fileName += ".root";
 
@@ -170,9 +186,10 @@ int main(int argc, char** argv) {//main
     TString normDir = dirName;
     normDir += "FedMonitoringSummary/";
     if (!f->cd(normDir)) {
-      std::cerr << "Folder " << normDir << " not found, please modify source code " << __FILE__ << ", line " << __LINE__ << std::endl;
+      std::cerr << "Folder " << normDir << " not found, continuing... " << __FILE__ << ", line " << __LINE__ << std::endl;
       nDirNotFound++;
-      return 0;
+      //return 0;
+      continue;
     };
 
   
@@ -249,7 +266,7 @@ int main(int argc, char** argv) {//main
 
       if (!f->cd(fedDir)) continue;
       else {
-	std::cout << " - Errors detected for FED " << ifed << std::endl;
+	//std::cout << " - Errors detected for FED " << ifed << std::endl;
       }
       
       TDirectory *current = gDirectory;
@@ -263,7 +280,7 @@ int main(int argc, char** argv) {//main
 	TH1F *obj = (TH1F*)current->Get(objName);
 	
 	if (!obj) {
-	  std::cout << "Error, histogram " << objName << " not found. Next ..." << std::endl;
+	  //std::cout << "Error, histogram " << objName << " not found. Next ..." << std::endl;
 	  continue;//return 0;
 	}
 	else {
@@ -278,9 +295,13 @@ int main(int argc, char** argv) {//main
 		float lStat = obj->GetBinContent(bin)/norm*1.;
 		std::vector<std::pair<unsigned int, float> > lVec;
 		lVec.push_back(std::pair<unsigned int, float>(lRun,lStat));
+		std::vector<std::pair<unsigned int, float> > lVecRun;
+		lVecRun.push_back(std::pair<unsigned int, float>(96*ifed+iCh,lStat));
 		//lMapIter = lMap.insert(std::pair<unsigned int,std::vector<std::pair<unsigned int,float> > >(192*ifed+iAPV,lVec));
 		lMapIter = lMap[iH].insert(std::pair<unsigned int,std::vector<std::pair<unsigned int,float> > >(96*ifed+iCh,lVec));
 		if (!lMapIter.second) ((lMapIter.first)->second).push_back(std::pair<unsigned int, float>(lRun,lStat));
+		lMapRunIter = lMapRun[iH].insert(std::pair<unsigned int,std::vector<std::pair<unsigned int,float> > >(lRun,lVecRun));
+		if (!lMapRunIter.second) ((lMapRunIter.first)->second).push_back(std::pair<unsigned int, float>(96*ifed+iCh,lStat));
 
 
 	      }
@@ -332,7 +353,7 @@ int main(int argc, char** argv) {//main
 
 
 
-
+    f->Close();
   }//loop on runs
 
   const unsigned int nErr[nHistsDetailed] = {lMap[0].size(),lMap[1].size(),lMap[2].size(),lMap[3].size(),lMap[4].size()};
@@ -342,47 +363,78 @@ int main(int argc, char** argv) {//main
 
   //std::cout << "Found " << nErr << " APVs with errors in " << nRuns << " runs processed." << std::endl;
   for (unsigned int iH(0); iH<nHistsDetailed; ++iH){
-    std::cout << "Found " << nErr[iH] << " channels with errors " << histName[iH] << " in " << nRuns << " runs processed." << std::endl;
+    std::cout << "Found " << nErr[iH] << " channels with errors " << histName[iH] << " in " << lMapRun[iH].size() << " runs with this type of errors." << std::endl;
   }
   std::cout << "Number of runs where file was not found : " << nFileNotFound << std::endl;
   std::cout << "Number of runs where folder was not found : " << nDirNotFound << std::endl;
   //std::cout << "Number of runs where cluster folder was not found : " << nClustDirNotFound << std::endl;
 
   //TFile *outfile = TFile::Open("APVAddressErrors.root","RECREATE");
-  TFile *outfile = TFile::Open(("MyHDQM_"+lFolder+".root").c_str(),"RECREATE");
+
+  std::ostringstream lrootname;
+  lrootname << "MyHDQM_" << lFolder << "_" << runs[0] << "_" << runs[nRuns-1] << ".root";
+
+  TFile *outfile = TFile::Open(lrootname.str().c_str(),"RECREATE");
   outfile->cd();
   
-  for (unsigned int iH=0; iH<nHistsDetailed; iH++){
+  for (unsigned int iH=0; iH<nHistsDetailed; iH++){//loop on histos
 
     TH1F *h[nErr[iH]];
     std::map<unsigned int,std::vector<std::pair<unsigned int,float> > >::iterator lIter = lMap[iH].begin();
+    std::ostringstream lNameRun;
+    lNameRun << "Number_" << histName[iH] << "_vsRun";
+    TH1F *hRun = new TH1F(lNameRun.str().c_str(),"Number of channel with Error vs run; run #",runs[nRuns-1]-runs[0]+1,runs[0],runs[nRuns-1]+1);
+    lNameRun.str("");
+    lNameRun << "FEDS_" << histName[iH] << "_vsRun";
+    TH2F *hFEDRun = new TH2F(lNameRun.str().c_str(),"Number of runs with FED channels with Errors; FED id ; ch id",440,50,490,96,0,96);
+    lNameRun.str("");
+    lNameRun << "FEDS_" << histName[iH] << "_vsRate";
+    TH2F *hFEDRate = new TH2F(lNameRun.str().c_str(),"Mean rate of errors of FED channels with Errors; FED id ; ch id",440,50,490,96,0,96);
+    std::map<unsigned int,std::vector<std::pair<unsigned int,float> > >::iterator lIterRun = lMapRun[iH].begin();
 
-    unsigned int e = 0;
+    for (;lIterRun!=lMapRun[iH].end(); ++lIterRun){//loop on elements
 
-    for (;lIter!=lMap[iH].end(); lIter++,e++){
-
-      unsigned int lCh = lIter->first;
-      std::ostringstream lName;
-      //lName << "ErrorFed" << static_cast<unsigned int>(lCh/192.) << "Ch" << static_cast<unsigned int>(lCh%192/2.) << "APV" << lCh%2;
-      lName << "Hist" << iH << "ErrorFed" << static_cast<unsigned int>(lCh/96.) << "Ch" << static_cast<unsigned int>(lCh%96) ;//<< "APV" << lCh%2;
-
-      //h[e] = new TH1F(lName.str().c_str(),"rate of APVAddressError vs run",runs[nRuns-1]-runs[0]+1,runs[0],runs[nRuns-1]+1);
-      h[e] = new TH1F(lName.str().c_str(),"rate of Error vs run; run #",runs[nRuns-1]-runs[0]+1,runs[0],runs[nRuns-1]+1);
-
-      std::vector<std::pair<unsigned int,float> > lVec = lIter->second;
-      unsigned int nBins = lVec.size();
-      
-      for (unsigned int b(0); b<nBins; b++){
-	//std::cout <<"Run " << lVec.at(b).first << ", runs[0] = " << runs[0] << ", runs[" << nRuns-1 << "] = " << runs[nRuns-1] << std::endl; 
-
-	h[e]->SetBinContent(lVec.at(b).first-runs[0]+1,lVec.at(b).second);
-	//std::cout << "Setting bin " << lVec.at(b).first-runs[0]+1 << " content to " << lVec.at(b).second << std::endl;
+      std::vector<std::pair<unsigned int,float> > lVec = lIterRun->second;
+      hRun->Fill(lIterRun->first,lVec.size());
+      for (unsigned int ele(0);ele<lVec.size();++ele){
+	unsigned int lCh = lVec[ele].first;
+	unsigned int lElements = lMap[iH][lCh].size();
+	std::cout << "Run " << lIterRun->first << " fed " 
+		  << static_cast<unsigned int>(lCh/96.) << " ch " 
+		  << static_cast<unsigned int>(lCh%96) 
+		  << " rate " << lVec[ele].second 
+		  << " nRuns " << lElements
+		  << std::endl;
+	hFEDRun->Fill(static_cast<unsigned int>(lCh/96.),static_cast<unsigned int>(lCh%96));
+	hFEDRate->Fill(static_cast<unsigned int>(lCh/96.),static_cast<unsigned int>(lCh%96),lVec[ele].second/lElements);
       }
+    }//loop on elements
 
-      //h[e]->Write();
+//     unsigned int e = 0;
+//     for (;lIter!=lMap[iH].end(); lIter++,e++){//loop on elements
 
-    }
-  }
+//       unsigned int lCh = lIter->first;
+//       std::ostringstream lName;
+//       //lName << "ErrorFed" << static_cast<unsigned int>(lCh/192.) << "Ch" << static_cast<unsigned int>(lCh%192/2.) << "APV" << lCh%2;
+//       lName << "Hist" << iH << "ErrorFed" << static_cast<unsigned int>(lCh/96.) << "Ch" << static_cast<unsigned int>(lCh%96) ;//<< "APV" << lCh%2;
+
+//       //h[e] = new TH1F(lName.str().c_str(),"rate of APVAddressError vs run",runs[nRuns-1]-runs[0]+1,runs[0],runs[nRuns-1]+1);
+//       h[e] = new TH1F(lName.str().c_str(),"rate of Error vs run; run #",runs[nRuns-1]-runs[0]+1,runs[0],runs[nRuns-1]+1);
+
+//       std::vector<std::pair<unsigned int,float> > lVec = lIter->second;
+//       unsigned int nBins = lVec.size();
+      
+//       for (unsigned int b(0); b<nBins; b++){
+// 	//std::cout <<"Run " << lVec.at(b).first << ", runs[0] = " << runs[0] << ", runs[" << nRuns-1 << "] = " << runs[nRuns-1] << std::endl; 
+
+// 	h[e]->SetBinContent(lVec.at(b).first-runs[0]+1,lVec.at(b).second);
+// 	//std::cout << "Setting bin " << lVec.at(b).first-runs[0]+1 << " content to " << lVec.at(b).second << std::endl;
+//       }
+
+//       //h[e]->Write();
+
+//     }//loop on elements
+  }//loop on histos
 
   TH1F *hRate = new TH1F("hRate",";run #",runs[nRuns-1]-runs[0]+1,runs[0],runs[nRuns-1]+1);
   std::map<unsigned int,double>::iterator lIterFED = lMapFED.begin();
