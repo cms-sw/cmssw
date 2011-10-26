@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalHardcodeCalibrations.cc,v 1.26 2011/06/24 22:15:53 temple Exp $
+// $Id: HcalHardcodeCalibrations.cc,v 1.27 2011/07/21 16:58:17 temple Exp $
 //
 //
 
@@ -382,7 +382,16 @@ std::auto_ptr<HcalRecoParams> HcalHardcodeCalibrations::produceRecoParams (const
   }
   return result;
 }
-
+std::auto_ptr<HcalTimingParams> HcalHardcodeCalibrations::produceTimingParams (const HcalTimingParamsRcd&) {
+  edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceTimingParams-> ...";
+  std::auto_ptr<HcalTimingParams> result (new HcalTimingParams ());
+  std::vector <HcalGenericDetId> cells = allCells(h2mode_);
+  for (std::vector <HcalGenericDetId>::const_iterator cell = cells.begin (); cell != cells.end (); cell++) {
+    HcalTimingParam item = HcalDbHardcode::makeTimingParam (*cell);
+    result->addValues(item,h2mode_);
+  }
+  return result;
+}
 std::auto_ptr<HcalLongRecoParams> HcalHardcodeCalibrations::produceLongRecoParams (const HcalLongRecoParamsRcd&) {
   edm::LogInfo("HCAL") << "HcalHardcodeCalibrations::produceLongRecoParams-> ...";
   std::auto_ptr<HcalLongRecoParams> result (new HcalLongRecoParams ());

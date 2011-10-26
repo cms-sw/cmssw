@@ -1,6 +1,6 @@
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbHardcode.cc,v 1.23 2010/02/22 20:55:51 kukartse Exp $
+// $Id: HcalDbHardcode.cc,v 1.24 2011/02/15 10:41:15 rofierzy Exp $
 //
 #include <vector>
 #include <string>
@@ -49,6 +49,18 @@ HcalRecoParam HcalDbHardcode::makeRecoParam (HcalGenericDetId fId) {
   else if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter) {first = 4; add = 4;}
   else if (fId.genericSubdet() == HcalGenericDetId::HcalGenForward) {first = 4; add = 2;}
   HcalRecoParam result(fId.rawId(), first, add);
+
+  return result;
+}
+HcalTimingParam HcalDbHardcode::makeTimingParam (HcalGenericDetId fId) {
+  int nhits = 0;
+  float phase = 0.0;
+  float rms = 0.0;
+  if (fId.genericSubdet() == HcalGenericDetId::HcalGenBarrel) {nhits=4; phase = 4.5; rms = 6.5;}
+  else if (fId.genericSubdet() == HcalGenericDetId::HcalGenEndcap) {nhits=4;phase = 9.3; rms = 7.8;}
+  else if (fId.genericSubdet() == HcalGenericDetId::HcalGenOuter) {nhits=4;phase = 8.6; rms = 2.3;}
+  else if (fId.genericSubdet() == HcalGenericDetId::HcalGenForward) {nhits=4;phase = 12.4; rms = 12.29;}
+  HcalTimingParam result(fId.rawId(), nhits,phase, rms);
 
   return result;
 }

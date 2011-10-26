@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Oct 21, 2005
-// $Id: HcalTextCalibrations.h,v 1.13 2011/02/15 10:41:19 rofierzy Exp $
+// $Id: HcalTextCalibrations.h,v 1.14 2011/06/24 22:15:53 temple Exp $
 //
 //
 #include <map>
@@ -36,6 +36,7 @@ class HcalRecoParamsRcd;
 class HcalLongRecoParamsRcd;
 class HcalMCParamsRcd;
 class HcalFlagHFDigiTimeParamsRcd;
+class HcalTimingParamsRcd;
 
 class HcalTextCalibrations : public edm::ESProducer,
 		       public edm::EventSetupRecordIntervalFinder
@@ -77,7 +78,8 @@ protected:
   std::auto_ptr<HcalDcsMap> produceDcsMap (const HcalDcsMapRcd& rcd);
   std::auto_ptr<HcalCholeskyMatrices> produceCholeskyMatrices (const HcalCholeskyMatricesRcd& rcd);
   std::auto_ptr<HcalCovarianceMatrices> produceCovarianceMatrices (const HcalCovarianceMatricesRcd& rcd);
-
+  
+  std::auto_ptr<HcalTimingParams> produceTimingParams (const HcalTimingParamsRcd& rcd);
  private:
   std::map <std::string, std::string> mInputs;
 };

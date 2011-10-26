@@ -73,7 +73,7 @@ namespace edmtest
     std::cout << "HcalDumpConditions: ---- Dumping " << name.c_str() << " ----" << std::endl;
     HcalDbASCIIIO::dumpObject (outStream, (*myobject) );
 
-    if ( context.get<HcalPedestalsRcd>().validityInterval().first() == edm::IOVSyncValue::invalidIOVSyncValue() )
+    if ( context.get<SRcd>().validityInterval().first() == edm::IOVSyncValue::invalidIOVSyncValue() )
       std::cout << "error: invalid IOV sync value !" << std::endl;
 
   }
@@ -86,7 +86,6 @@ namespace edmtest
     std::cout <<"HcalDumpConditions::analyze-> I AM IN RUN NUMBER "<<e.id().run() <<std::endl;
 
     if (mDumpRequest.empty()) return;
-
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("ElectronicsMap")) != mDumpRequest.end())
       dumpIt(new HcalElectronicsMap, new HcalElectronicsMapRcd, e,context,"ElectronicsMap");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("QIEData")) != mDumpRequest.end())
@@ -125,6 +124,8 @@ namespace edmtest
       dumpIt(new HcalCholeskyMatrices, new HcalCholeskyMatricesRcd, e,context,"CholeskyMatrices");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("RecoParams")) != mDumpRequest.end())
       dumpIt(new HcalRecoParams, new HcalRecoParamsRcd, e,context,"RecoParams");
+    if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("TimingParams")) != mDumpRequest.end())
+      dumpIt(new HcalTimingParams, new HcalTimingParamsRcd, e,context,"TimingParams");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("LongRecoParams")) != mDumpRequest.end())
       dumpIt(new HcalLongRecoParams, new HcalLongRecoParamsRcd, e,context,"LongRecoParams");
     if (std::find (mDumpRequest.begin(), mDumpRequest.end(), std::string ("MCParams")) != mDumpRequest.end())

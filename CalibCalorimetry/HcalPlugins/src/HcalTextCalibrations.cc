@@ -1,6 +1,6 @@
 // -*- C++ -*-
 // Original Author:  Fedor Ratnikov
-// $Id: HcalTextCalibrations.cc,v 1.19 2011/02/15 10:41:18 rofierzy Exp $
+// $Id: HcalTextCalibrations.cc,v 1.20 2011/06/24 22:15:53 temple Exp $
 //
 //
 
@@ -113,6 +113,10 @@ HcalTextCalibrations::HcalTextCalibrations ( const edm::ParameterSet& iConfig )
     else if (objectName == "RecoParams") {
       setWhatProduced (this, &HcalTextCalibrations::produceRecoParams);
       findingRecord <HcalRecoParamsRcd> ();
+    }
+    else if (objectName == "TimingParams") {
+      setWhatProduced (this, &HcalTextCalibrations::produceTimingParams);
+      findingRecord <HcalTimingParamsRcd> ();
     }
     else if (objectName == "LongRecoParams") {
       setWhatProduced (this, &HcalTextCalibrations::produceLongRecoParams);
@@ -256,7 +260,9 @@ std::auto_ptr<HcalRecoParams> HcalTextCalibrations::produceRecoParams (const Hca
 std::auto_ptr<HcalLongRecoParams> HcalTextCalibrations::produceLongRecoParams (const HcalLongRecoParamsRcd&) {
   return produce_impl<HcalLongRecoParams> (mInputs ["LongRecoParams"]);
 }
-
+std::auto_ptr<HcalTimingParams> HcalTextCalibrations::produceTimingParams (const HcalTimingParamsRcd&) {
+  return produce_impl<HcalTimingParams> (mInputs ["TimingParams"]);
+}
 std::auto_ptr<HcalMCParams> HcalTextCalibrations::produceMCParams (const HcalMCParamsRcd&) {
   return produce_impl<HcalMCParams> (mInputs ["MCParams"]);
 }

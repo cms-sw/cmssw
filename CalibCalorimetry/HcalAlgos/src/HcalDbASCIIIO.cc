@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.61 2011/07/21 15:32:54 temple Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.62 2011/07/21 16:58:16 temple Exp $
 //
 #include <vector>
 #include <string>
@@ -444,6 +444,52 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalLongRecoParams* fObject
   }
   return true;
 }
+bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalTimingParams* fObject)
+{
+  if (!fObject) fObject = new HcalTimingParams();
+  char buffer [1024];
+  while (fInput.getline(buffer, 1024)) {
+    if (buffer [0] == '#') continue; //ignore comment
+    std::vector <std::string> items = splitString (std::string (buffer));
+    if (items.size()==0) continue; // blank line
+    if (items.size () < 7) {
+      edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 7 items: eta, phi, depth, subdet, nhit, phase, rms,detid" << std::endl;
+      continue;
+    }
+    //std::cout<<"items[3] "<<items [3]<<std::endl;
+    //std::cout<<"items[0] "<<items [0]<<std::endl;
+    //std::cout<<"items[1] "<<items [1]<<std::endl;
+    //std::cout<<"items[2] "<<items [2]<<std::endl;
+
+    //std::cout<<"items[4] "<<items [4]<<std::endl;
+    //std::cout<<"items[5] "<<items [5]<<std::endl;
+    //std::cout<<"items[6] "<<items [6]<<std::endl;
+    DetId id = HcalDbASCIIIO::getId (items);
+    //std::cout<<"calculated id "<<id.rawId()<<std::endl;
+    HcalTimingParam* fCondObject = new HcalTimingParam(id, atoi (items [4].c_str()), atof (items [5].c_str()), atof (items [6].c_str()));
+    fObject->addValues(*fCondObject);
+    delete fCondObject;
+  }
+  return true;
+}
+bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalTimingParams& fObject)
+{
+  char buffer [1024];
+  sprintf (buffer, "# %15s %15s %15s %15s %15s %15s %15s %15s\n", "eta", "phi", "dep", "det", "nhit", "mean","rms" ,"DetId");
+  fOutput << buffer;
+  std::vector<DetId> channels = fObject.getAllChannels ();
+  std::sort (channels.begin(), channels.end(), DetIdLess ());
+  for (std::vector<DetId>::iterator channel = channels.begin ();
+       channel !=  channels.end ();
+       channel++) {
+    HcalDbASCIIIO::dumpId (fOutput, *channel);
+    sprintf (buffer, " %15d %8.5f %8.5f %16X\n",
+	     fObject.getValues (*channel)->nhits(), fObject.getValues (*channel)->phase(),fObject.getValues(*channel)->rms(),channel->rawId ());
+    fOutput << buffer;
+  }
+  return true;
+}
+
 bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalLongRecoParams& fObject)
 {
   char buffer [1024];

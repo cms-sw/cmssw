@@ -13,7 +13,7 @@
    \class HcalDbASCIIIO
    \brief IO for ASCII instances of Hcal Calibrations
    \author Fedor Ratnikov Oct. 28, 2005
-   $Id: HcalDbASCIIIO.h,v 1.18 2011/02/15 10:41:09 rofierzy Exp $
+   $Id: HcalDbASCIIIO.h,v 1.19 2011/06/24 22:13:34 temple Exp $
    
 Text file formats for different data types is as following:
 - # in first column comments the line
@@ -79,6 +79,10 @@ namespace HcalDbASCIIIO {
   bool dumpObject (std::ostream& fOutput, const HcalRecoParams& fObject);
   bool getObject (std::istream& fInput, HcalLongRecoParams* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalLongRecoParams& fObject);
+
+  bool getObject (std::istream& fInput, HcalTimingParams* fObject);
+  bool dumpObject (std::ostream& fOutput, const HcalTimingParams& fObject);
+
   bool getObject (std::istream& fInput, HcalMCParams* fObject);
   bool dumpObject (std::ostream& fOutput, const HcalMCParams& fObject);
 

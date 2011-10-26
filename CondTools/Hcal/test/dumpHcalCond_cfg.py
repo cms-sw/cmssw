@@ -31,11 +31,12 @@ process.prod = cms.EDAnalyzer("HcalDumpConditions",
 #        ,'LutMetadata'
 #        ,'DcsValues'
 #        ,'DcsMap'
-    'RecoParams'
-    ,'LongRecoParams'
-    ,'MCParams'
-    ,'FlagHFDigiTimeParams'
-                                 ),
+        'TimingParams'
+#    'RecoParams'
+#    ,'LongRecoParams'
+#    ,'MCParams'
+#    ,'FlagHFDigiTimeParams'
+        ),
     outFilePrefix = cms.untracked.string('DumpCond')
 )
 
@@ -95,23 +96,27 @@ process.es_pool = cms.ESSource("PoolDBESSource",
 #        cms.PSet(
 #            record = cms.string('HcalDcsMapRcd'),
 #            tag = cms.string('HcalDcsMap_v1.00_test')
-#        ) 
+#        )
         cms.PSet(
-            record = cms.string('HcalRecoParamsRcd'),
-            tag = cms.string('hcal_recoparams_v1.00_test')
-        ), 
-        cms.PSet(
-            record = cms.string('HcalLongRecoParamsRcd'),
-            tag = cms.string('hcal_longrecoparams_v1.00_test')
-        ), 
-        cms.PSet(
-            record = cms.string('HcalMCParamsRcd'),
-            tag = cms.string('hcal_mcparams_v1.00_test')
-        ),
-        cms.PSet(
-    record = cms.string('HcalFlagHFDigiTimeParamsRcd'),
-    tag = cms.string('hcal_flaghfdigitimeparams_v1.00_test')
-    ),
+            record = cms.string('HcalTimingParamsRcd'),
+            tag = cms.string('hcal_timingparams_v1.00_test')
+        )    
+#        cms.PSet(
+#            record = cms.string('HcalRecoParamsRcd'),
+#            tag = cms.string('hcal_recoparams_v1.00_test')
+#        ), 
+#        cms.PSet(
+#            record = cms.string('HcalLongRecoParamsRcd'),
+#            tag = cms.string('hcal_longrecoparams_v1.00_test')
+#        ), 
+#        cms.PSet(
+#            record = cms.string('HcalMCParamsRcd'),
+#            tag = cms.string('hcal_mcparams_v1.00_test')
+#        ),
+#        cms.PSet(
+#    record = cms.string('HcalFlagHFDigiTimeParamsRcd'),
+#    tag = cms.string('hcal_flaghfdigitimeparams_v1.00_test')
+#    ),
         
         
 )
@@ -160,23 +165,24 @@ process.es_pool = cms.ESSource("PoolDBESSource",
 
 process.es_hardcode = cms.ESSource("HcalHardcodeCalibrations",
      toGet = cms.untracked.vstring(
-        'Pedestals'
-        ,'PedestalWidths' 
-        ,'Gains' 
-        ,'QIEData' 
-        ,'ElectronicsMap'
-        ,'ChannelQuality' 
-        ,'GainWidths' 
-        ,'RespCorrs' 
-        ,'TimeCorrs'
-        ,'LUTCorrs'
-        ,'PFCorrs'
-        ,'L1TriggerObjects'
-        ,'ZSThresholds'
-        ,'ValidationCorrs' 
-        ,'LutMetadata'
-        ,'DcsValues'
-        ,'DcsMap'
+#        'Pedestals'
+#        ,'PedestalWidths' 
+#        ,'Gains' 
+#        ,'QIEData' 
+#        ,'ElectronicsMap'
+#        ,'ChannelQuality' 
+#        ,'GainWidths' 
+#        ,'RespCorrs' 
+#        ,'TimeCorrs'
+#        ,'LUTCorrs'
+#        ,'PFCorrs'
+#        ,'L1TriggerObjects'
+#        ,'ZSThresholds'
+#        ,'ValidationCorrs' 
+#        ,'LutMetadata'
+#        ,'DcsValues'
+#        ,'DcsMap'
+        'TimingParams'
 #        ,'RecoParams'
 #        ,'LongRecoParams'
 #        ,'MCParams'

@@ -1,6 +1,6 @@
 //
 // Original Author:  Fedor Ratnikov Oct 21, 2005
-// $Id: HcalHardcodeCalibrations.h,v 1.16 2011/02/15 10:41:17 rofierzy Exp $
+// $Id: HcalHardcodeCalibrations.h,v 1.17 2011/06/24 22:15:53 temple Exp $
 //
 // ESSource to generate default HCAL calibration objects 
 //
@@ -35,6 +35,7 @@ class HcalRecoParamsRcd;
 class HcalLongRecoParamsRcd;
 class HcalMCParamsRcd;
 class HcalFlagHFDigiTimeParamsRcd;
+class HcalTimingParamsRcd;
 
 class HcalHardcodeCalibrations : public edm::ESProducer,
 		       public edm::EventSetupRecordIntervalFinder
@@ -71,6 +72,7 @@ protected:
   std::auto_ptr<HcalDcsMap> produceDcsMap (const HcalDcsMapRcd& rcd);
 
   std::auto_ptr<HcalRecoParams> produceRecoParams (const HcalRecoParamsRcd& rcd);
+  std::auto_ptr<HcalTimingParams> produceTimingParams (const HcalTimingParamsRcd& rcd);
   std::auto_ptr<HcalLongRecoParams> produceLongRecoParams (const HcalLongRecoParamsRcd& rcd);
   std::auto_ptr<HcalMCParams> produceMCParams (const HcalMCParamsRcd& rcd);
   std::auto_ptr<HcalFlagHFDigiTimeParams> produceFlagHFDigiTimeParams (const HcalFlagHFDigiTimeParamsRcd& rcd);
