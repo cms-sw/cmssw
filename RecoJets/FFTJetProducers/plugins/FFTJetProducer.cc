@@ -13,7 +13,7 @@
 //
 // Original Author:  Igor Volobouev
 //         Created:  Sun Jun 20 14:32:36 CDT 2010
-// $Id: FFTJetProducer.cc,v 1.9 2011/07/18 17:08:24 igv Exp $
+// $Id: FFTJetProducer.cc,v 1.10 2011/10/25 00:23:52 igv Exp $
 //
 //
 
@@ -430,6 +430,9 @@ bool FFTJetProducer::checkConvergence(const std::vector<RecoFFTJet>& previous,
         distanceCalc(*jetDistanceCalc);
 
     const unsigned nJets = previous.size();
+    if (nJets != nextSet.size())
+        return false;
+
     const RecoFFTJet* prev = &previous[0];
     RecoFFTJet* next = &nextSet[0];
 
@@ -453,8 +456,7 @@ unsigned FFTJetProducer::iterateJetReconstruction()
     fftjet::Functor1<double,RecoFFTJet>& ratioCalc(*recoScaleRatioCalcJet);
     fftjet::Functor1<double,RecoFFTJet>& factorCalc(*memberFactorCalcJet);
 
-    const unsigned nJets = recoJets.size();
-
+    unsigned nJets = recoJets.size();
     unsigned iterNum = 1U;
     bool converged = false;
     for (; iterNum<maxIterations && !converged; ++iterNum)
@@ -486,17 +488,27 @@ unsigned FFTJetProducer::iterateJetReconstruction()
         if (status)
             throw cms::Exception("FFTJetInterface")
                 << "FFTJet algorithm failed" << std::endl;
-        assert(iterJets.size() == nJets);
+
+        // As it turns out, it is possible, in very rare cases,
+        // to have iterJets.size() != nJets at this point
 
         // Figure out if the iterations have converged
         converged = checkConvergence(recoJets, iterJets);
 
         // Prepare for the next cycle
         iterJets.swap(recoJets);
+	nJets = recoJets.size();
+    }
+
+    // Check that we have the correct number of preclusters
+    if (preclusters.size() != nJets)
+    {
+	assert(nJets < preclusters.size());
+	removeFakePreclusters();
+        assert(preclusters.size() == nJets);
     }
 
     // Plug in the original precluster coordinates into the result
-    assert(preclusters.size() == nJets);
     RecoFFTJet* jets = &recoJets[0];
     for (unsigned i=0; i<nJets; ++i)
     {
