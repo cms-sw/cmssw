@@ -111,10 +111,8 @@ bool PythiaFilterGammaJetIsoPi0::filter(edm::Event& iEvent, const edm::EventSetu
   HepMC::GenParticle* particle8 = (*ppp);
 
   int photon_id = 7;
-  int jet_id = 8;
   if(particle8->pdg_id() == 22) { 
     photon_id = 8;
-    jet_id = 7;
   }
 
   if(pi0_seeds.size() == 1) {
