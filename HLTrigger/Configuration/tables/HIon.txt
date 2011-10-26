@@ -56,12 +56,12 @@ HLT_HIDoublePhoton20_v*                   #   added for 2011 (sr #123856)
 # HLT_HIJet50U_v*                         # removed for 2011 (sr #123637)
 # HLT_HIJet75U_v*                         # removed for 2011 (sr #123637)
 # HLT_HIJet90U_v*                         # removed for 2011 (sr #123637)
-# HLT_HIJet55_v*                          #   added for 2011 (sr #123637) L1 broken
-# HLT_HIJet65_v*                          #   added for 2011 (sr #123637) L1 broken
-# HLT_HIJet80_v*                          #   added for 2011 (sr #123637) L1 broken
-# HLT_HIJet95_v*                          #   added for 2011 (sr #123637) L1 broken
-# HLT_HIDiJet55_v*                        #   added for 2011 (sr #123637) L1 brojen
-# HLT_HIJet65_Jet55_v*                    #   added for 2011 (sr #123637) L1 broken
+HLT_HIJet55_v*                            #   added for 2011 (sr #123637)
+HLT_HIJet65_v*                            #   added for 2011 (sr #123637)
+HLT_HIJet80_v*                            #   added for 2011 (sr #123637)
+HLT_HIJet95_v*                            #   added for 2011 (sr #123637)
+HLT_HIDiJet55_v*                          #   added for 2011 (sr #123637)
+HLT_HIJet65_Jet55_v*                      #   added for 2011 (sr #123637)
 # HLT_HIStoppedHSCP35_v*                  # L1 broken
 HLT_HIActivityHF_Coincidence3_v*
 HLT_HIActivityHF_Single3_v*
