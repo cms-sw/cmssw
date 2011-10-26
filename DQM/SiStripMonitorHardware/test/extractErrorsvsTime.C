@@ -34,13 +34,14 @@ int main(int argc, char** argv) {//main
   }
   std::string lPath = argv[1];
   
-  std::string lFolder = lPath.substr(lPath.find("xxxx")-5,9);
-  std::cout << " -- Folder = " << lFolder << std::endl;
-  
   bool lAfsFiles = true;
 
   if (lPath.find("/afs") == lPath.npos) lAfsFiles = false;
 
+  std::string lFolder = lPath.substr(lPath.find("xxxx")-5,9);
+  if (lAfsFiles) lFolder += "_afs";
+  std::cout << " -- Folder = " << lFolder << std::endl;
+  
   unsigned int nRuns;
   std::istringstream(argv[4])>>nRuns;
 
@@ -85,9 +86,9 @@ int main(int argc, char** argv) {//main
 
   TString histName[nHistsDetailed]  = {"FEMissing","APVAddressErrorBits","APVErrorBits","UnlockedBits","OOSBits"};
 
-
-  for (unsigned int r(0); r<nRuns; r++){//loop on runs
-
+  std::vector<double> lNormVal[nHistsDetailed];
+  for (unsigned int r(0); r<nRuns; ++r){//loop on runs
+    
     unsigned int lRun;
     std::istringstream(argv[5+r])>>lRun;
 
@@ -111,6 +112,7 @@ int main(int argc, char** argv) {//main
 
     TString baseName = fileName;
     if (lAfsFiles) {
+      std::cout << " Reading files from afs..." << std::endl;
       fileName += "/000";
       fileName += lSubFolder;
       fileName += "xx";
@@ -232,14 +234,17 @@ int main(int argc, char** argv) {//main
 
     //find out which FEDs are in error, and which error
     //TString lFedName[6] = {"AnyFEDErrors","CorruptBuffers","AnyFEProblems","AnyDAQProblems","DataMissing","BadDAQCRCs"};
-    TString lFedName[4] = {"FED/VsId/AnyFEDErrors","FED/VsId/CorruptBuffers","FED/VsId/FEMissing","FED/VsId/BadDAQCRCs"};
-    TString lFedNameBis[4] = {"FEDLevel/VsFedId/AnyFEDErrors","FEDLevel/VsFedId/CorruptBuffers","FEDLevel/VsFedId/AnyFEProblems","FEDLevel/VsFedId/BadDAQCRCs"};
-    TString lFedNameTer[4] = {"AnyFEDErrors","CorruptBuffers","AnyFEProblems","BadDAQCRCs"};
+
+    const unsigned int nHistos = 5;
+
+    std::string lFedName[nHistos] = {"FED/VsId/AnyFEDErrors","FED/VsId/CorruptBuffers","FE/VsId/AnyFEProblems","FED/VsId/BadDAQCRCs","FED/VsId/DataMissing"};
+    std::string lFedNameBis[nHistos] = {"FEDLevel/VsFedId/AnyFEDErrors","FEDLevel/VsFedId/CorruptBuffers","FrontEndLevel/VsFedId/AnyFEProblems","FEDLevel/VsFedId/BadDAQCRCs","FEDLevel/VsFedId/DataMissing"};
+    std::string lFedNameTer[nHistos] = {"AnyFEDErrors","CorruptBuffers","AnyFEProblems","BadDAQCRCs","DataMissing"};
     
-    for (unsigned int iH(0); iH<4; iH++){                                                                           
-      TH1F *FEDobj = (TH1F*)gDirectory->Get(lFedName[iH]);
-      if (!FEDobj) FEDobj = (TH1F*)gDirectory->Get(lFedNameBis[iH]);
-      if (!FEDobj) FEDobj = (TH1F*)gDirectory->Get(lFedNameTer[iH]);
+    for (unsigned int iH(0); iH<nHistos; ++iH){                                                                           
+      TH1F *FEDobj = (TH1F*)gDirectory->Get(lFedName[iH].c_str());
+      if (!FEDobj) FEDobj = (TH1F*)gDirectory->Get(lFedNameBis[iH].c_str());
+      if (!FEDobj) FEDobj = (TH1F*)gDirectory->Get(lFedNameTer[iH].c_str());
 
       if (!FEDobj) { 
 	std::cout << "Error, histogram " << lFedName[iH] << " not found. Continue..." << std::endl;
@@ -247,18 +252,30 @@ int main(int argc, char** argv) {//main
       }
       else { 
 	if (FEDobj->GetEntries() != 0) {
-	  for (int bin(1); bin<FEDobj->GetNbinsX()+1; bin++){
+	  unsigned int nFeds = 0;
+	  for (int bin(1); bin<FEDobj->GetNbinsX()+1; ++bin){
+	    if (FEDobj->GetBinContent(bin)>0){
+	      ++nFeds;
+	    }
+	  }
+	  for (int bin(1); bin<FEDobj->GetNbinsX()+1; ++bin){
 	    if (FEDobj->GetBinContent(bin)>0){
 	      unsigned int iFed = bin+49;
 	      float lStat = FEDobj->GetBinContent(bin)/norm*1.;
-	      txtoutfile << lFedName[iH] << " " << lRun << " " << iFed << " " << lStat << std::endl;
+	      if (nFeds < 90) {// lesss than any entire partition....
+		txtoutfile << lFedName[iH] << " " << lRun << " " << iFed << " " << lStat << std::endl;
+	      }
+	      else {
+		txtoutfile << lFedName[iH] << " " << lRun << " " << nFeds << " FEDs with rate: " << lStat << std::endl;
+		break;
+	      }
 	    }
 	  }
 	}
       }
     }
 
-    for (unsigned int ifed(50); ifed<500;ifed++){//loop on FEDs
+    for (unsigned int ifed(50); ifed<500;++ifed){//loop on FEDs
 
       TString fedDir = dirName;
       fedDir += "FrontEndDriver";
@@ -272,7 +289,7 @@ int main(int argc, char** argv) {//main
       TDirectory *current = gDirectory;
 
       //channel histos
-      for (unsigned int iH(0); iH<nHistsDetailed; iH++){                                                                           
+      for (unsigned int iH(0); iH<nHistsDetailed; ++iH){                                                                           
  
 	TString objName = histName[iH];
 	objName += "ForFED";
@@ -286,24 +303,31 @@ int main(int argc, char** argv) {//main
 	else {
 	  std::cout << "Processing histogram " << objName << ", nentries = " << obj->GetEntries() << std::endl;
 	  if (obj->GetEntries() != 0) {
-	    for (int bin(1); bin<obj->GetNbinsX()+1; bin++){
+	    for (int bin(1); bin<obj->GetNbinsX()+1; ++bin){
 	      if (obj->GetBinContent(bin)>0){ 
 		//unsigned int iCh = static_cast<int>((bin-1)/2.);
 		//unsigned int iAPV = (bin-1);//%2;
 		unsigned int iCh = bin-1;
-		if (iH==0) iCh = iCh*12;
+		if (iH==0) iCh = iCh*12;//fe level
+		unsigned int iAPV = 0;
+		if (iH==1 || iH==2) {
+		  iAPV = iCh%2;
+		  iCh = static_cast<unsigned int>(iCh/2.);
+		}
 		float lStat = obj->GetBinContent(bin)/norm*1.;
 		std::vector<std::pair<unsigned int, float> > lVec;
 		lVec.push_back(std::pair<unsigned int, float>(lRun,lStat));
 		std::vector<std::pair<unsigned int, float> > lVecRun;
-		lVecRun.push_back(std::pair<unsigned int, float>(96*ifed+iCh,lStat));
+		unsigned int lChIdx = 2*96*ifed+2*iCh+iAPV;
+		lVecRun.push_back(std::pair<unsigned int, float>(lChIdx,lStat));
 		//lMapIter = lMap.insert(std::pair<unsigned int,std::vector<std::pair<unsigned int,float> > >(192*ifed+iAPV,lVec));
-		lMapIter = lMap[iH].insert(std::pair<unsigned int,std::vector<std::pair<unsigned int,float> > >(96*ifed+iCh,lVec));
+		lMapIter = lMap[iH].insert(std::pair<unsigned int,std::vector<std::pair<unsigned int,float> > >(lChIdx,lVec));
 		if (!lMapIter.second) ((lMapIter.first)->second).push_back(std::pair<unsigned int, float>(lRun,lStat));
 		lMapRunIter = lMapRun[iH].insert(std::pair<unsigned int,std::vector<std::pair<unsigned int,float> > >(lRun,lVecRun));
-		if (!lMapRunIter.second) ((lMapRunIter.first)->second).push_back(std::pair<unsigned int, float>(96*ifed+iCh,lStat));
-
-
+		if (!lMapRunIter.second) ((lMapRunIter.first)->second).push_back(std::pair<unsigned int, float>(lChIdx,lStat));
+		else {
+		  lNormVal[iH].push_back(norm);
+		}
 	      }
 	    }
 	  }
@@ -363,7 +387,7 @@ int main(int argc, char** argv) {//main
 
   //std::cout << "Found " << nErr << " APVs with errors in " << nRuns << " runs processed." << std::endl;
   for (unsigned int iH(0); iH<nHistsDetailed; ++iH){
-    std::cout << "Found " << nErr[iH] << " channels with errors " << histName[iH] << " in " << lMapRun[iH].size() << " runs with this type of errors." << std::endl;
+    txtoutfile << "Found " << nErr[iH] << " channels with errors " << histName[iH] << " in " << lMapRun[iH].size() << " runs with this type of errors." << std::endl;
   }
   std::cout << "Number of runs where file was not found : " << nFileNotFound << std::endl;
   std::cout << "Number of runs where folder was not found : " << nDirNotFound << std::endl;
@@ -376,8 +400,18 @@ int main(int argc, char** argv) {//main
 
   TFile *outfile = TFile::Open(lrootname.str().c_str(),"RECREATE");
   outfile->cd();
+
+
+  txtoutfile << " ****************************************** " 
+	     << std::endl
+	     << " ** Summary of errors per FED/CH per run ** " 
+	     << std::endl
+	     << " ***** for rate < 1% and nRuns < 5 ******** "
+	     << std::endl
+	     << " ****************************************** " 
+	     <<std::endl;
   
-  for (unsigned int iH=0; iH<nHistsDetailed; iH++){//loop on histos
+  for (unsigned int iH=0; iH<nHistsDetailed; ++iH){//loop on histos
 
     TH1F *h[nErr[iH]];
     std::map<unsigned int,std::vector<std::pair<unsigned int,float> > >::iterator lIter = lMap[iH].begin();
@@ -386,29 +420,48 @@ int main(int argc, char** argv) {//main
     TH1F *hRun = new TH1F(lNameRun.str().c_str(),"Number of channel with Error vs run; run #",runs[nRuns-1]-runs[0]+1,runs[0],runs[nRuns-1]+1);
     lNameRun.str("");
     lNameRun << "FEDS_" << histName[iH] << "_vsRun";
-    TH2F *hFEDRun = new TH2F(lNameRun.str().c_str(),"Number of runs with FED channels with Errors; FED id ; ch id",440,50,490,96,0,96);
+    TH2F *hFEDRun_apv0 = new TH2F((lNameRun.str()+"_apv0").c_str(),"Number of runs with FED channels APV0 with Errors; FED id ; ch id",440,50,490,96,0,96);
+    TH2F *hFEDRun_apv1 = new TH2F((lNameRun.str()+"_apv1").c_str(),"Number of runs with FED channels APV1 with Errors; FED id ; ch id",440,50,490,96,0,96);
     lNameRun.str("");
     lNameRun << "FEDS_" << histName[iH] << "_vsRate";
-    TH2F *hFEDRate = new TH2F(lNameRun.str().c_str(),"Mean rate of errors of FED channels with Errors; FED id ; ch id",440,50,490,96,0,96);
+    TH2F *hFEDRate_apv0 = new TH2F((lNameRun.str()+"_apv0").c_str(),"Mean rate of errors of FED channels APV0 with Errors; FED id ; ch id",440,50,490,96,0,96);
+    TH2F *hFEDRate_apv1 = new TH2F((lNameRun.str()+"_apv1").c_str(),"Mean rate of errors of FED channels APV1 with Errors; FED id ; ch id",440,50,490,96,0,96);
     std::map<unsigned int,std::vector<std::pair<unsigned int,float> > >::iterator lIterRun = lMapRun[iH].begin();
 
-    for (;lIterRun!=lMapRun[iH].end(); ++lIterRun){//loop on elements
+    assert(lNormVal[iH].size() == lMapRun[iH].size());
+    unsigned int lIdx = 0;
+    for (;lIterRun!=lMapRun[iH].end(); ++lIterRun,++lIdx){//loop on elements
 
       std::vector<std::pair<unsigned int,float> > lVec = lIterRun->second;
       hRun->Fill(lIterRun->first,lVec.size());
       for (unsigned int ele(0);ele<lVec.size();++ele){
 	unsigned int lCh = lVec[ele].first;
 	unsigned int lElements = lMap[iH][lCh].size();
-	std::cout << "Run " << lIterRun->first << " fed " 
-		  << static_cast<unsigned int>(lCh/96.) << " ch " 
-		  << static_cast<unsigned int>(lCh%96) 
-		  << " rate " << lVec[ele].second 
-		  << " nRuns " << lElements
-		  << std::endl;
-	hFEDRun->Fill(static_cast<unsigned int>(lCh/96.),static_cast<unsigned int>(lCh%96));
-	hFEDRate->Fill(static_cast<unsigned int>(lCh/96.),static_cast<unsigned int>(lCh%96),lVec[ele].second/lElements);
+	unsigned int lApv = static_cast<unsigned int>(lCh%2);
+	if (lElements<5 && lVec[ele].second < 0.01) {
+	  txtoutfile << histName[iH] 
+		     << " Run " << lIterRun->first << " fed " 
+		     << static_cast<unsigned int>(lCh/192.) << " ch " 
+		     << static_cast<unsigned int>((lCh%192)/2.) << " apv "
+		     << lApv
+		     << " rate " << lVec[ele].second 
+		     << " (" << 1/lNormVal[iH][lIdx] << ")"
+		     << " nRuns " << lElements
+		     << std::endl;
+	}
+	if (lApv==0) {
+	  hFEDRun_apv0->Fill(static_cast<unsigned int>(lCh/192.),static_cast<unsigned int>((lCh%192)/2.));
+	  hFEDRate_apv0->Fill(static_cast<unsigned int>(lCh/192.),static_cast<unsigned int>((lCh%192)/2.),lVec[ele].second/lElements);
+	}
+	else {
+	  hFEDRun_apv1->Fill(static_cast<unsigned int>(lCh/192.),static_cast<unsigned int>((lCh%192)/2.));
+	  hFEDRate_apv1->Fill(static_cast<unsigned int>(lCh/192.),static_cast<unsigned int>((lCh%192)/2.),lVec[ele].second/lElements);
+	}
       }
     }//loop on elements
+
+
+
 
 //     unsigned int e = 0;
 //     for (;lIter!=lMap[iH].end(); lIter++,e++){//loop on elements
@@ -438,28 +491,28 @@ int main(int argc, char** argv) {//main
 
   TH1F *hRate = new TH1F("hRate",";run #",runs[nRuns-1]-runs[0]+1,runs[0],runs[nRuns-1]+1);
   std::map<unsigned int,double>::iterator lIterFED = lMapFED.begin();
-  for (;lIterFED!=lMapFED.end(); lIterFED++){
+  for (;lIterFED!=lMapFED.end(); ++lIterFED){
     hRate->SetBinContent(lIterFED->first-runs[0]+1,lIterFED->second);
   }
 
 
   TH1F *hRateFEDChannels = new TH1F("hRateFEDChannels",";run #",runs[nRuns-1]-runs[0]+1,runs[0],runs[nRuns-1]+1);
   std::map<unsigned int,std::pair<double,double> >::iterator lIterFEDCh = lMapFEDChannels.begin();
-  for (;lIterFEDCh!=lMapFEDChannels.end(); lIterFEDCh++){
+  for (;lIterFEDCh!=lMapFEDChannels.end(); ++lIterFEDCh){
     hRateFEDChannels->SetBinContent(lIterFEDCh->first-runs[0]+1,lIterFEDCh->second.first/36392.*100);
     hRateFEDChannels->SetBinError(lIterFEDCh->first-runs[0]+1,lIterFEDCh->second.second/36392.*100);
   }
 
   TH1F *hRateChannels = new TH1F("hRateChannels",";run #",runs[nRuns-1]-runs[0]+1,runs[0],runs[nRuns-1]+1);
   std::map<unsigned int,std::pair<double,double> >::iterator lIterCh = lMapChannels.begin();
-  for (;lIterCh!=lMapChannels.end(); lIterCh++){
+  for (;lIterCh!=lMapChannels.end(); ++lIterCh){
     hRateChannels->SetBinContent(lIterCh->first-runs[0]+1,lIterCh->second.first/36392.*100);
     hRateChannels->SetBinError(lIterCh->first-runs[0]+1,lIterCh->second.second/36392.*100);
   }
 
   TH1F *hRateAll = new TH1F("hRateAll",";run #",runs[nRuns-1]-runs[0]+1,runs[0],runs[nRuns-1]+1);
   std::map<unsigned int,std::pair<double,double> >::iterator lIterAll = lMapAll.begin();
-  for (;lIterAll!=lMapAll.end(); lIterAll++){
+  for (;lIterAll!=lMapAll.end(); ++lIterAll){
     hRateAll->SetBinContent(lIterAll->first-runs[0]+1,lIterAll->second.first/36392.*100);
     hRateAll->SetBinError(lIterAll->first-runs[0]+1,lIterAll->second.second/36392.*100);
   }
