@@ -25,9 +25,6 @@ process.GlobalTag.globaltag = autoCond['mc']
 
 
 process.ecalRecHit.doMiscalib = True
-process.hbhereco.doMiscalib = True
-process.horeco.doMiscalib = True
-process.hfreco.doMiscalib = True 
 
 process.famosSimHits.SimulateCalorimetry = True
 process.famosSimHits.SimulateTracking = True
