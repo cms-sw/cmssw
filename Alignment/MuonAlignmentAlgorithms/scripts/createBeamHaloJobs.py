@@ -38,10 +38,14 @@ parser.add_option("-b", "--big",
                   help="if invoked, subjobs will also be run on cmscaf1nd",
                   action="store_true",
                   dest="big")
+parser.add_option("-u", "--user_mail",
+                  help="if invoked, send mail to a specified email destination. If \"-u\" is not present, the default destination LSB_MAILTO in lsf.conf will be used",
+                  type="string",
+                  dest="user_mail")		  
 parser.add_option("--globalTag",
                   help="GlobalTag for calibration conditions",
                   type="string",
-                  default="GR_R_35X_V8A::All",
+                  default="GR_R_42_V14::All",
                   dest="globaltag")
 parser.add_option("--photogrammetry",
                   help="if invoked, alignment will be constrained to photogrammetry",
@@ -137,6 +141,16 @@ parser.add_option("--minStationsInTrackRefits",
                   type="string",
                   default="2",
                   dest="minStationsInTrackRefits")
+parser.add_option("--inputInBlocks",
+                  help="if invoked, assume that INPUTFILES provides a list of files already groupped into job blocks, -j has no effect in that case",
+                  action="store_true",
+                  dest="inputInBlocks")
+parser.add_option("--json",
+                  help="If present with JSON file as argument, use JSON file for good lumi mask. "+\
+                  "The latest JSON file is available at /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/Collisions10/7TeV/StreamExpress/",
+                  type="string",
+                  default="",
+                  dest="json")
 
 if len(sys.argv) < 5:
     raise SystemError, "Too few arguments.\n\n"+parser.format_help()
@@ -147,6 +161,7 @@ INITIALGEOM = sys.argv[3]
 INPUTFILES = sys.argv[4]
 
 options, args = parser.parse_args(sys.argv[5:])
+user_mail = options.user_mail
 globaltag = options.globaltag
 photogrammetry = options.photogrammetry
 photogrammetryOnlyholes = options.photogrammetryOnlyholes
@@ -170,7 +185,20 @@ minTracksPerOverlap = options.minTracksPerOverlap
 slopeFromTrackRefit = options.slopeFromTrackRefit
 minStationsInTrackRefits = options.minStationsInTrackRefits
 
+if options.inputInBlocks: inputInBlocks = "--inputInBlocks"
+json_file = options.json
+
+
+fileNames=[]
+fileNamesBlocks=[]
 execfile(INPUTFILES)
+njobs = options.subjobs
+if (options.inputInBlocks):
+  njobs = len(fileNamesBlocks)
+  if njobs==0:
+    print "while --inputInBlocks is specified, the INPUTFILES has no blocks!"
+    sys.exit()
+
 stepsize = int(math.ceil(1.*len(fileNames)/options.subjobs))
 pwd = str(os.getcwdu())
 
@@ -243,9 +271,12 @@ cmsRun $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/python/convertToXML_g
 python $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/scripts/relativeConstraints.py %(inputdb)s_global.xml $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/data/CollisionsOct2010_ME11holes.%(mode)s TKFrame --scaleErrors 1. %(diskswitch)s>> constraints_cff.py
 """ % vars()
 
-    for jobnumber in range(options.subjobs):
+    for jobnumber in range(njobs):
         gather_fileName = "%sgather%03d.sh" % (directory, jobnumber)
-        inputfiles = " ".join(fileNames[jobnumber*stepsize:(jobnumber+1)*stepsize])
+        if not options.inputInBlocks:
+          inputfiles = " ".join(fileNames[jobnumber*stepsize:(jobnumber+1)*stepsize])
+        else:
+          inputfiles = " ".join(fileNamesBlocks[jobnumber])
 
         if len(inputfiles) > 0:
             file(gather_fileName, "w").write("""#/bin/sh
@@ -254,7 +285,17 @@ python $ALIGNMENT_AFSDIR/Alignment/MuonAlignmentAlgorithms/scripts/relativeConst
 export ALIGNMENT_CAFDIR=`pwd`
 
 cd %(pwd)s
+
+export SCRAM_ARCH=slc5_amd64_gcc434
+echo INFO: SCRAM_ARCH $SCRAM_ARCH
+
 eval `scramv1 run -sh`
+
+source /afs/cern.ch/cms/caf/setup.sh
+echo INFO: CMS_PATH $CMS_PATH
+echo INFO: STAGE_SVCCLASS $STAGE_SVCCLASS
+echo INFO: STAGER_TRACE $STAGER_TRACE
+
 export ALIGNMENT_AFSDIR=`pwd`
 
 export ALIGNMENT_INPUTFILES='%(inputfiles)s'
@@ -300,8 +341,9 @@ cp -f *.tmp *.root $ALIGNMENT_AFSDIR/%(directory)s
             if options.big: queue = "cmscaf1nd"
             else: queue = "cmscaf1nh"
             
-            bsubfile.append("bsub -R \"type==SLC5_64\" -q %s -J \"%s_gather%03d\" %s gather%03d.sh" % (queue, director, jobnumber, waiter, jobnumber))
-
+	    if user_mail: bsubfile.append("bsub -R \"type==SLC5_64\" -q %s -J \"%s_gather%03d\" -u %s %s gather%03d.sh" % (queue, director, jobnumber, user_mail, waiter, jobnumber))
+            else: bsubfile.append("bsub -R \"type==SLC5_64\" -q %s -J \"%s_gather%03d\" %s gather%03d.sh" % (queue, director, jobnumber, waiter, jobnumber))
+	    
             bsubnames.append("ended(%s_gather%03d)" % (director, jobnumber))
 
     file("%sconvert-db-to-xml_cfg.py" % directory, "w").write("""from Alignment.MuonAlignment.convertSQLitetoXML_cfg import *
@@ -331,7 +373,17 @@ process.PoolDBESSource.toGet = cms.VPSet(
 export ALIGNMENT_CAFDIR=`pwd`
 
 cd %(pwd)s
+
+export SCRAM_ARCH=slc5_amd64_gcc434
+echo INFO: SCRAM_ARCH $SCRAM_ARCH
+
 eval `scramv1 run -sh`
+
+source /afs/cern.ch/cms/caf/setup.sh
+echo INFO: CMS_PATH $CMS_PATH
+echo INFO: STAGE_SVCCLASS $STAGE_SVCCLASS
+echo INFO: STAGER_TRACE $STAGER_TRACE
+
 export ALIGNMENT_AFSDIR=`pwd`
 
 export ALIGNMENT_ITERATION=%(iteration)d
@@ -371,11 +423,21 @@ cp -f plotting.root $ALIGNMENT_AFSDIR/%(directory)s%(director)s.root
 
 cd $ALIGNMENT_AFSDIR
 cmsRun %(directory)sconvert-db-to-xml_cfg.py
+
+export ALIGNMENT_PLOTTINGTMP=`ls %(directory)splotting0*.root 2> /dev/null`
+if [ \"zzz$ALIGNMENT_PLOTTINGTMP\" != \"zzz\" ]; then
+  hadd -f1 %(directory)s%(director)s_plotting.root %(directory)splotting0*.root
+  #if [ $? == 0 ] && [ \"$ALIGNMENT_CLEANUP\" == \"True\" ]; then rm %(directory)splotting0*.root; fi
+fi
+
 """ % vars())
     os.system("chmod +x %salign.sh" % directory)
 
     bsubfile.append("echo %salign.sh" % directory)
-    bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_align\" -w \"%s\" align.sh" % (director, " && ".join(bsubnames)))
+    
+    if user_mail: bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_align\" -u %s -w \"%s\" align.sh" % (director, user_mail, " && ".join(bsubnames)))
+    else: bsubfile.append("bsub -R \"type==SLC5_64\" -q cmscaf1nd -J \"%s_align\" -w \"%s\" align.sh" % (director, " && ".join(bsubnames)))
+    
     bsubfile.append("cd ..")
     bsubnames = []
     last_align = "%s_align" % director
