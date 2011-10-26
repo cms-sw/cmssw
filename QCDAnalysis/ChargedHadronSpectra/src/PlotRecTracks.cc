@@ -235,15 +235,6 @@ cerr << " track[" << i << "] " << recTrack->chi2() << " " << it->chiSquared() <<
 */
 //theFitter->fit(*it);
 
-    int algo;
-    switch(recTrack->algo())
-    {
-      case reco::TrackBase::iter1: algo = 0; break;
-      case reco::TrackBase::iter2: algo = 1; break;
-      case reco::TrackBase::iter3: algo = 2; break;
-      default: algo = 0;
-    }
-
     ostringstream o; o << i;
 
     ostringstream d; d << fixed << std::setprecision(2)
@@ -262,8 +253,6 @@ cerr << " track[" << i << "] " << recTrack->chi2() << " " << it->chiSquared() <<
     if(recHit->isValid())
     {
       DetId id = recHit->geographicalId();
-      LocalPoint lpos = recHit->localPosition();
-      GlobalPoint p = theTracker->idToDet(id)->toGlobal(lpos);
 
       if(theTracker->idToDet(id)->subDetector() ==
            GeomDetEnumerators::PixelBarrel ||

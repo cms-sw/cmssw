@@ -39,7 +39,7 @@ void PlotUtils::printHelix
 
     outFile << ", Line[{{"<<P0.x()<<","<<P0.y()<<",("<<P0.z()<<"-zs)*mz}" ;
 
-    for(int i = 0; i < nstep; i++)
+    for(int i = 0; i - nstep < 0; i++)
     {
       double a = -charge * (i+1)*dphi;
       double z = p1.z() + (i+1)*dz;

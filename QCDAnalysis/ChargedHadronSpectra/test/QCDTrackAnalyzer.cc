@@ -517,9 +517,6 @@ cerr << " simtrack"
     // rec
     int nRec = 0;
 
-    float charge = -9999; float eta    = -9999;
-    float pt     = -9999; float dxy    = -9999;
-
     if(simTrack->charge() != 0)
     {
       edm::RefToBase<reco::Track> aRecTrack = 
@@ -527,11 +524,6 @@ cerr << " simtrack"
 
       if(nRec > 0)
       {
-        charge = aRecTrack->charge();
-        eta    = aRecTrack->eta();
-        pt     = aRecTrack->pt();
-        dxy    = aRecTrack->dxy(theBeamSpot->position());
-
 /*
 if(nRec == 1)
 {
@@ -592,14 +584,6 @@ if(0)
              &(*(edm::RefToBase<reco::Track>(vZero->negativeDaughter()))) == 
                                                 &(*negRecTrack)) 
           {
-            charge = 0.;
-
-            GlobalVector momentum =  vZero->momenta().first +
-                                     vZero->momenta().second;
-          
-            eta    = momentum.eta();
-            pt     = momentum.perp();
-            dxy    = vZero->impactMother();
             nRec++;
           }
         }  
