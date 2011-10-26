@@ -67,7 +67,8 @@ void PFCheckHitPattern::init(edm::ESHandle<TrackerGeometry> tkerGeomHandle_) {
     rangeRorZ_[detInfo] = pair<double, double>(minRZ, maxRZ);
   }
 
-#ifdef DEBUG_CHECKHITPATTERN
+#if 0
+  //def DEBUG_CHECKHITPATTERN
   RZrangeMap::const_iterator d;
   for (d = rangeRorZ_.begin(); d != rangeRorZ_.end(); d++) {
     DetInfo detInfo = d->first;

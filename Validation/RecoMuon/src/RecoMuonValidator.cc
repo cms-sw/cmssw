@@ -691,8 +691,8 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
 */
   }
 
-    int glbNTrackerHits = 0; int trkNTrackerHits = 0; int staNTrackerHits = 0;
-    int glbNMuonHits = 0; int trkNMuonHits = 0; int staNMuonHits = 0;
+    int glbNTrackerHits = 0; int trkNTrackerHits = 0;
+    int glbNMuonHits = 0; int staNMuonHits = 0;
     int NTrackerHits = 0; int NMuonHits = 0;
 
   // Analyzer reco::Muon  
@@ -728,11 +728,8 @@ void RecoMuonValidator::analyze(const Event& event, const EventSetup& eventSetup
     } else if (iMuon->isTrackerMuon()) {
           Track = iMuon->track();
           trkNTrackerHits = countTrackerHits(*Track);
-          trkNMuonHits = countMuonHits(*Track);
     } else {
           Track = iMuon->standAloneMuon();
-          staNTrackerHits = countTrackerHits(*Track);
-          staNMuonHits = countMuonHits(*Track);
     } 
 
     NTrackerHits = countTrackerHits(*Track);

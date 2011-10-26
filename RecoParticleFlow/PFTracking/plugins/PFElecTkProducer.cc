@@ -848,7 +848,6 @@ float
 PFElecTkProducer::minTangDist(const reco::GsfPFRecTrack& primGsf,
 			      const reco::GsfPFRecTrack& secGsf) {
 
-  float minDeta = 1000.; 
   float minDphi = 1000.; 
 
 
@@ -862,7 +861,6 @@ PFElecTkProducer::minTangDist(const reco::GsfPFRecTrack& primGsf,
     const reco::PFTrajectoryPoint& atSecECAL 
       = secPFBrem[isbrem].extrapolatedPoint( reco::PFTrajectoryPoint::ECALEntrance );
     if( ! atSecECAL.isValid() ) continue;
-    float secEta = atSecECAL.positionREP().Eta();
     float secPhi  = atSecECAL.positionREP().Phi();
 
     unsigned int sbrem = 0;
@@ -873,14 +871,11 @@ PFElecTkProducer::minTangDist(const reco::GsfPFRecTrack& primGsf,
       if( ! atPrimECAL.isValid() ) continue;
       sbrem++;
       if(sbrem <= 3) {
-	float primEta = atPrimECAL.positionREP().Eta();
 	float primPhi = atPrimECAL.positionREP().Phi();
 	
-	float deta = fabs(primEta - secEta);
 	float dphi = fabs(primPhi - secPhi);
 	if (dphi>TMath::Pi()) dphi-= TMath::TwoPi();     
 	if(fabs(dphi) < minDphi) {	   
-	  minDeta = deta;
 	  minDphi = fabs(dphi);
 	}
       }

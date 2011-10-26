@@ -677,7 +677,8 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
 	  double dxySim    = (-vertexTP.x()*sin(momentumTP.phi())+vertexTP.y()*cos(momentumTP.phi()));
 	  double dzSim     = vertexTP.z() - (vertexTP.x()*momentumTP.x()+vertexTP.y()*momentumTP.y())/sqrt(momentumTP.perp2()) * momentumTP.z()/sqrt(momentumTP.perp2());
 	  
-	  TrackBase::ParameterVector rParameters = track->parameters();
+	  // removed unused variable, left this in case it has side effects
+	  track->parameters();
 
 	  double qoverpRec(0);
 	  double qoverpErrorRec(0); 

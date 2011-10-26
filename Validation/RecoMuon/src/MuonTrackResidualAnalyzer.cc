@@ -178,9 +178,6 @@ void MuonTrackResidualAnalyzer::analyze(const edm::Event & event, const edm::Eve
 
     TransientTrackingRecHit::ConstRecHitContainer result;
     
-    trackingRecHit_iterator rhend = track.recHitsBegin()-1;
-    trackingRecHit_iterator rhbegin = track.recHitsEnd()-2;
-    
     // SimHit Energy loss analysis  
     double momAtEntry = -150., momAtExit = -150.;
 

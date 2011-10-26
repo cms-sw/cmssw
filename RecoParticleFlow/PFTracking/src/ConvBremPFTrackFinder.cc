@@ -292,7 +292,8 @@ ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& the
       for (PFClusterCollection::const_iterator clus = theEClus.begin();
 	   clus != theEClus.end();
 	   clus++ ) {
-	const math::XYZPoint gp_Clus = clus->position();
+	// Removed unusd variable, left this in case it has side effects
+	clus->position();
 	double dist = -1.;
 	PFCluster clust = *clus;
 	clust.calculatePositionREP();
