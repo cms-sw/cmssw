@@ -39,6 +39,3 @@
 <use   name="CommonTools/UtilAlgos"/>
 <use   name="hepmc"/>
 <flags   EDM_PLUGIN="1"/>
-<export>
-  <lib   name="1"/>
-</export>
