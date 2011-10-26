@@ -112,13 +112,6 @@
  <class name="edm::DoNotRecordParents" ClassVersion="10">
   <version ClassVersion="10" checksum="2234517662"/>
  </class>
- <class name="edm::helpers::DoNoPostReadFixup" ClassVersion="10">
-  <version ClassVersion="10" checksum="724444167"/>
- </class>
- <class name="edm::helpers::PostReadFixup" ClassVersion="10">
-  <version ClassVersion="10" checksum="3252059443"/>
-   <field name="fixed_" transient="true"/>
- </class>
  <class name="edm::RangeMap<int,std::vector<float>,edm::CopyPolicy<float> >"/>
  <class name="edm::ValueMap<int>" />
  <class name="edm::ValueMap<unsigned int>" />
