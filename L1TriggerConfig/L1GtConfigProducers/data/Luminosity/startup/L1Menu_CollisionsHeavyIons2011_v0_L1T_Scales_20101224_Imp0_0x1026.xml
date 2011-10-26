@@ -5,7 +5,7 @@
     <MenuInterface_CreationDate></MenuInterface_CreationDate>
     <MenuInterface_CreationAuthor>V. M. Ghete</MenuInterface_CreationAuthor>
     <MenuInterface_Description>L1 menu for heavy ion data taking 2011</MenuInterface_Description>
-    <Menu_CreationDate>2011-10-24</Menu_CreationDate>
+    <Menu_CreationDate>2011-10-26</Menu_CreationDate>
     <Menu_CreationAuthor>V. M. Ghete</Menu_CreationAuthor>
     <Menu_Description>L1 menu for heavy ion data taking 2011</Menu_Description>
     <AlgImplementation>Imp0</AlgImplementation>
@@ -93,6 +93,14 @@
         ( SingleCenJet_0x20 OR SingleTauJet_0x20 ) AND BPTX_plus_AND_minus.v0
         <output_pin nr="5" pin="a" />
       </L1_SingleJet128_Central_BptxAND>
+      <L1_SingleJet20_Central_NotBptxOR_NotMuBeamHalo algAlias="L1_SingleJet20_Central_NotBptxOR_NotMuBeamHalo">
+        ( SingleCenJet_0x05 OR SingleTauJet_0x05 ) AND ( NOT ( BPTX_plus.v0 OR BPTX_minus.v0 ) ) AND ( NOT SingleMu_0x01_BeamHalo )
+        <output_pin nr="6" pin="a" />
+      </L1_SingleJet20_Central_NotBptxOR_NotMuBeamHalo>
+      <L1_SingleJet32_Central_NotBptxOR_NotMuBeamHalo algAlias="L1_SingleJet32_Central_NotBptxOR_NotMuBeamHalo">
+        ( SingleCenJet_0x08 OR SingleTauJet_0x08 ) AND ( NOT ( BPTX_plus.v0 OR BPTX_minus.v0 ) ) AND ( NOT SingleMu_0x01_BeamHalo )
+        <output_pin nr="7" pin="a" />
+      </L1_SingleJet32_Central_NotBptxOR_NotMuBeamHalo>
     </prealgos>
     <conditions>
     <DoubleForJet_0x08_EtaOpp condition="calo" particle="fwdjet" type="2_s">
@@ -517,6 +525,46 @@
       </value>
       </phi>
     </DoubleNoIsoEG_0x0A>
+    <SingleCenJet_0x05 condition="calo" particle="jet" type="1_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        05
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </SingleCenJet_0x05>
+    <SingleCenJet_0x08 condition="calo" particle="jet" type="1_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        08
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </SingleCenJet_0x08>
     <SingleCenJet_0x20 condition="calo" particle="jet" type="1_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -637,6 +685,49 @@
       </value>
       </phi>
     </SingleIsoEG_0x0A>
+    <SingleMu_0x01_BeamHalo condition="muon" particle="muon" type="1_s">
+      <pt_h_threshold max="1f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        01
+      </value>
+      </pt_h_threshold>
+      <pt_l_threshold max="1f" min="00">
+      <value>01<en_mip mode="bit">0</en_mip>
+            <en_iso mode="bit">
+        0
+      </en_iso>
+      <request_iso mode="bit">
+        0
+      </request_iso>
+      </value>
+      </pt_l_threshold>
+            <eta max="ffffffffffffffff" min="0000000000000000">
+      <value>
+        FFFFFFFFFFFFFFFF
+      </value>
+      </eta>
+            <phi_h max="8f" min="00">
+      <value>
+        8f
+      </value>
+      </phi_h>
+            <phi_l max="ffffffffffffffff" min="0000000000000000">
+      <value>
+        00
+      </value>
+      </phi_l>
+      <charge_correlation max="7" min="1">
+      1
+      </charge_correlation>
+            <quality max="ff" min="00">
+      <value>
+        02
+      </value>
+      </quality>
+    </SingleMu_0x01_BeamHalo>
     <SingleNoIsoEG_0x03 condition="calo" particle="eg" type="1_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -717,6 +808,46 @@
       </value>
       </phi>
     </SingleNoIsoEG_0x0A>
+    <SingleTauJet_0x05 condition="calo" particle="tau" type="1_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        05
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </SingleTauJet_0x05>
+    <SingleTauJet_0x08 condition="calo" particle="tau" type="1_s">
+      <et_threshold max="3f" min="00">
+      <ge_eq mode="bit">
+        1
+      </ge_eq>
+      <value>
+        08
+      </value>
+      </et_threshold>
+      <eta max="7F7F" min="0000">
+      <value>
+        7F7F
+      </value>
+      </eta>
+      <phi max="3ffff" min="00000">
+      <value>
+        3ffff
+      </value>
+      </phi>
+    </SingleTauJet_0x08>
     <SingleTauJet_0x20 condition="calo" particle="tau" type="1_s">
       <et_threshold max="3f" min="00">
       <ge_eq mode="bit">
@@ -1238,7 +1369,7 @@
       </et_threshold>
             <phi max="ffffffffffffffffff" min="000000000000000000">
       <value>
-        10c484000ff9c9ab05b38d809e4c8c8
+        00
       </value>
       </phi>
     </ETT_0x1B8>
@@ -2833,6 +2964,8 @@ DoubleNoIsoEG_0x0A:DoubleNoIsoEG_0x0A
 ETM_0x03C:ETM_0x03C
 ETM_0x064:ETM_0x064
 SingleCenJet_0x04:SingleCenJet_0x04
+SingleCenJet_0x05:SingleCenJet_0x05
+SingleCenJet_0x08:SingleCenJet_0x08
 SingleCenJet_0x11:SingleCenJet_0x11
 SingleCenJet_0x14:SingleCenJet_0x14
 SingleCenJet_0x17:SingleCenJet_0x17
@@ -2850,6 +2983,7 @@ SingleIsoEG_0x12:SingleIsoEG_0x12
 SingleIsoEG_0x14:SingleIsoEG_0x14
 SingleIsoEG_0x16:SingleIsoEG_0x16
 SingleIsoEG_0x1E:SingleIsoEG_0x1E
+SingleMu_0x01_BeamHalo:SingleMu_0x01_BeamHalo
 SingleNoIsoEG_0x03:SingleNoIsoEG_0x03
 SingleNoIsoEG_0x08:SingleNoIsoEG_0x08
 SingleNoIsoEG_0x0A:SingleNoIsoEG_0x0A
@@ -2860,6 +2994,8 @@ SingleNoIsoEG_0x14:SingleNoIsoEG_0x14
 SingleNoIsoEG_0x16:SingleNoIsoEG_0x16
 SingleNoIsoEG_0x1E:SingleNoIsoEG_0x1E
 SingleTauJet_0x04:SingleTauJet_0x04
+SingleTauJet_0x05:SingleTauJet_0x05
+SingleTauJet_0x08:SingleTauJet_0x08
 SingleTauJet_0x11:SingleTauJet_0x11
 SingleTauJet_0x14:SingleTauJet_0x14
 SingleTauJet_0x17:SingleTauJet_0x17
