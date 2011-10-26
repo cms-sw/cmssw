@@ -33,6 +33,15 @@ process.load("EventFilter.CSCTFRawToDigi.csctfunpacker_cfi")
 process.load("EventFilter.CSCRawToDigi.cscUnpacker_cfi")
 process.GlobalTag.globaltag ='GR_R_43_V3::All'
 
+# HLT Trigger Filter
+
+process.load("HLTrigger.HLTfilters.hltHighLevel_cfi")
+# change algorithms to the HLT trigger(s) you want to filter by
+# Examples
+# "HLT_L2Mu11","HLT_Mu9","HLT_DoubleMu3","HLT_IsoMu3","HLT_MET100","HLT_Jet50U","HLT_QuadJet15U"
+process.hltHighLevel.HLTPaths = cms.vstring("HLT_L1SingleMu3_v1")
+process.hltHighLevel.andOr = cms.bool(False) # False Only takes events with all triggers at same time.
+
 # LCT Occupancies Analyzer
 
 process.lctOccupanciesCSCTF = cms.EDAnalyzer('LCTOccupancies',
@@ -48,4 +57,4 @@ process.TFileService = cms.Service("TFileService",
 ))
 
 #This path is for Real Data
-process.p = cms.Path(process.csctfunpacker*process.muonCSCDigis*process.lctOccupanciesCSC*process.lctOccupanciesCSCTF)
+process.p = cms.Path(process.hltHighLevel*process.csctfunpacker*process.muonCSCDigis*process.lctOccupanciesCSC*process.lctOccupanciesCSCTF)
