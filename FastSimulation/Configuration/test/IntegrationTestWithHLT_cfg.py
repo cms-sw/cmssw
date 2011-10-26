@@ -78,11 +78,8 @@ process.famosPileUp.PileUpSimulator.averageNumber = 0.0
 from Configuration.AlCa.autoCond import autoCond
 process.GlobalTag.globaltag = autoCond['startup']
 
-# Apply ECAL and HCAL miscalibration 
+# Apply ECAL miscalibration 
 process.ecalRecHit.doMiscalib = True
-process.hbhereco.doMiscalib = True
-process.horeco.doMiscalib = True
-process.hfreco.doMiscalib = True
 
 # Apply Tracker misalignment
 process.famosSimHits.ApplyAlignment = True
