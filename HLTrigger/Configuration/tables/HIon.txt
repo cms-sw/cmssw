@@ -62,7 +62,9 @@ HLT_HIJet80_v*                            #   added for 2011 (sr #123637)
 HLT_HIJet95_v*                            #   added for 2011 (sr #123637)
 HLT_HIDiJet55_v*                          #   added for 2011 (sr #123637)
 HLT_HIJet65_Jet55_v*                      #   added for 2011 (sr #123637)
-# HLT_HIStoppedHSCP35_v*                  # L1 broken
+# HLT_HIStoppedHSCP35_v*                  # removed for 2011
+HLT_HIJetE30_NoBPTX_v*                    #   added for 2011
+HLT_HIJetE50_NoBPTX3BX_NoHalo_v*          #   added for 2011
 HLT_HIActivityHF_Coincidence3_v*
 HLT_HIActivityHF_Single3_v*
 HLT_HIClusterVertexCompatibility_v*
