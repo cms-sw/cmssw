@@ -1,4 +1,4 @@
-// $Id: TrigResRateMon.cc,v 1.21 2011/09/14 16:34:56 lwming Exp $
+// $Id: TrigResRateMon.cc,v 1.22 2011/09/21 16:51:07 lwming Exp $
 // See header file for information. 
 #include "TMath.h"
 #include "TString.h"
@@ -1894,11 +1894,16 @@ void TrigResRateMon::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, con
   //if (jmsDebug) printCountsPerPathThisLumi();
   if (jmsDebug) printCountsPerPathThisLumi();
   if (jmsDebug) std::cout << "Average lumi is " << averageInstLumi << std::endl;
-  fillXsecPerDataset(lumi);
 
-  filltestHisto(lumi);  //Robin
-
-
+  if (averageInstLumi > 500) {
+//     MonitorElement* reportSumME = dbe_->get("Info/EventInfo/reportSummaryMap" );
+//       TH2F * reportSum = reportSumME->getTH2F();
+//       float physDecl = reportSum->GetBinContent(lumi,26);
+      
+	fillXsecPerDataset(lumi);
+	
+	filltestHisto(lumi);  //Robin
+  }
   //Robin-------Diagnostic plots--------
 //   TH1F* tempXsecPerLS = meXsecPerLS->getTH1F();
 //   double xsec = 1.0;
@@ -1924,7 +1929,7 @@ void TrigResRateMon::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, con
   tempCountsStreamPerLS->SetBinContent(lumi, nStream_);
 
   // dropped events
-  MonitorElement* tempDroppedEvents = dbe_->get("SM_SMPS_Stats/droppedEventsCount_HLTTrigerResults" );
+  MonitorElement* tempDroppedEvents = dbe_->get("SM_SMPS_Stats/droppedEventsCount_HLTTrigerResults DQM Consumer" );
   if (tempDroppedEvents) {
     TH1F* tempDiagnostic = meDiagnostic->getTH1F();
     if (tempDroppedEvents->kind() == MonitorElement::DQM_KIND_INT){
