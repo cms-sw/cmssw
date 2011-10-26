@@ -182,7 +182,7 @@ private:
 
 CPPUNIT_TEST_SUITE_REGISTRATION(testKinResolutions);
 
-template<typename Func> 
+template<typename Func>
 bool
 testKinResolutions::testIfThrows(Parametrization p, Func f) {
     srand(37);
@@ -194,7 +194,7 @@ testKinResolutions::testIfThrows(Parametrization p, Func f) {
 
 using pat::helper::ParametrizationHelper::name;
 
-template<typename Func> 
+template<typename Func>
 bool
 testKinResolutions::testTrivialMatrix(Parametrization p, Func f, int index, int tries) {
     srand(37);
@@ -213,24 +213,24 @@ testKinResolutions::testTrivialMatrix(Parametrization p, Func f, int index, int 
     return true;
 }
 
-template<typename Func> 
+template<typename Func>
 bool testKinResolutions::testIsIndependent(Parametrization par, Func f, int index, int tries) {
     double delta = 0.001;
-    using namespace pat::helper::ParametrizationHelper;    
-    srand(37);    
-    for (int i = 0; i < tries; ++i) {    
-        P4P p1 = r4(isAlwaysMassless(par) ? 0 :     
-                    (isAlwaysMassive(par) ? r(.1,30) :    
-                     (r() > .3 ? r(.1,30) : 0) ) );    
-        V4  v1  = parametersFromP4(par, p1), v2;    
-        M4  mat;     
-        mat(index,index) = delta*delta;    
-        double exp = f(par,mat,P4C(p1));    
-        if (exp != 0) return false; 
-    } 
-    return true; 
+    using namespace pat::helper::ParametrizationHelper;
+    srand(37);
+    for (int i = 0; i < tries; ++i) {
+        P4P p1 = r4(isAlwaysMassless(par) ? 0 :
+                    (isAlwaysMassive(par) ? r(.1,30) :
+                     (r() > .3 ? r(.1,30) : 0) ) );
+//         V4  v1  = parametersFromP4(par, p1), v2; // warning from gcc461: variable 'v1' set but not used [-Wunused-but-set-variable]
+        M4  mat;
+        mat(index,index) = delta*delta;
+        double exp = f(par,mat,P4C(p1));
+        if (exp != 0) return false;
+    }
+    return true;
 }
-template<typename Func> 
+template<typename Func>
 bool testKinResolutions::testFullyIndependent(Parametrization par, Func f, int self, int tries) {
     for (int i = 0; i <= 3; ++i) {
         if (i == self) continue;
@@ -274,7 +274,7 @@ testKinResolutions::testDiagonalDerivative ## VAR (Parametrization par, int inde
         	   "Unphysical momenta " << skips << " over " << tries << std::endl;                                                            \
    }    	                                                                                                                        	\
    return (double(skips)/tries < 0.1);                                                                                               		\
-}    		
+}
 IMPL_testDiagonalDerivative(M    )
 IMPL_testDiagonalDerivative(Eta  )
 IMPL_testDiagonalDerivative(Theta)
@@ -336,7 +336,7 @@ testKinResolutions::testOffDiagonalDerivative ## VAR (Parametrization par, int i
         	   "Unphysical momenta " << skips << " over " << tries << std::endl;                                                            \
    }    	                                                                                                                        	\
    return (double(skips)/tries < 0.1);                                                                                               		\
-}    		
+}
 IMPL_testOffDiagonalDerivative(M    )
 IMPL_testOffDiagonalDerivative(Eta  )
 IMPL_testOffDiagonalDerivative(Theta)
@@ -370,7 +370,7 @@ if (!testFullyIndependent(pat::CandKinResolution::PARAM, RESOL , INDEX)) { \
 
 // Derivatives must not throw exceptions
 #define ASSERT_HAS_DERIVATIVE(PARAM,RESOL) \
-   CPPUNIT_ASSERT_NO_THROW(testIfThrows(pat::CandKinResolution::PARAM, RESOL)); 
+   CPPUNIT_ASSERT_NO_THROW(testIfThrows(pat::CandKinResolution::PARAM, RESOL));
 // And we can check their independence from some coordinate
 #define ASSERT_HAS_INDEP_DERIVATIVE(PARAM,RESOL,INDEX)                  \
   if (!testIsIndependent(pat::CandKinResolution::PARAM, RESOL , INDEX)) {  \
@@ -385,14 +385,14 @@ if (!testFullyIndependent(pat::CandKinResolution::PARAM, RESOL , INDEX)) { \
                                   " for Parametrization " # PARAM                 \
                                   " has wrong derivative w.r.t. " #INDEX,         \
                                   CPPUNIT_SOURCELINE());                          \
-  }                                                                                
+  }
 #define ASSERT_CHECK_DERIVATIVE2(PARAM,VAR,I,J)                                   \
   if (!testOffDiagonalDerivative ## VAR(pat::CandKinResolution::PARAM,I,J)) {     \
        CPPUNIT_NS::Asserter::fail("Resolution on " # VAR                          \
                                   " for Parametrization " # PARAM                 \
                                   " has wrong derivative w.r.t. " #I "," # J,     \
                                   CPPUNIT_SOURCELINE());                          \
-  }                                                                                
+  }
 
 
 #define ASSERT_CHECK_DERIVATIVES(PARAM,VAR)                       \
@@ -432,10 +432,10 @@ do {                                                                    \
 using namespace pat::helper::ResolutionHelper;
 using pat::helper::ParametrizationHelper::dimension;
 
-void testKinResolutions::testTrivialMatrix_Cart() { 
-    ASSERT_DIAGONAL(Cart, getResolPx     , 0); 
-    ASSERT_DIAGONAL(Cart, getResolPy     , 1); 
-    ASSERT_DIAGONAL(Cart, getResolPz     , 2); 
+void testKinResolutions::testTrivialMatrix_Cart() {
+    ASSERT_DIAGONAL(Cart, getResolPx     , 0);
+    ASSERT_DIAGONAL(Cart, getResolPy     , 1);
+    ASSERT_DIAGONAL(Cart, getResolPz     , 2);
     ASSERT_DIAGONAL(Cart, getResolM      , 3);
     ASSERT_HAS_DERIVATIVE(Cart, getResolEta);
     ASSERT_HAS_DERIVATIVE(Cart, getResolTheta);
@@ -446,10 +446,10 @@ void testKinResolutions::testTrivialMatrix_Cart() {
     ASSERT_HAS_DERIVATIVE(Cart, getResolPt);
     ASSERT_HAS_DERIVATIVE(Cart, getResolPInv);
 }
-void testKinResolutions::testTrivialMatrix_ECart() { 
-    ASSERT_DIAGONAL(ECart, getResolPx     , 0); 
-    ASSERT_DIAGONAL(ECart, getResolPy     , 1); 
-    ASSERT_DIAGONAL(ECart, getResolPz     , 2); 
+void testKinResolutions::testTrivialMatrix_ECart() {
+    ASSERT_DIAGONAL(ECart, getResolPx     , 0);
+    ASSERT_DIAGONAL(ECart, getResolPy     , 1);
+    ASSERT_DIAGONAL(ECart, getResolPz     , 2);
     ASSERT_DIAGONAL(ECart, getResolE      , 3);
     ASSERT_HAS_DERIVATIVE(ECart, getResolEta);
     ASSERT_HAS_DERIVATIVE(ECart, getResolTheta);
@@ -461,10 +461,10 @@ void testKinResolutions::testTrivialMatrix_ECart() {
     ASSERT_HAS_DERIVATIVE(ECart, getResolPInv);
 }
 
-void testKinResolutions::testTrivialMatrix_Spher() { 
-    ASSERT_DIAGONAL(Spher, getResolP      , 0); 
-    ASSERT_DIAGONAL(Spher, getResolTheta  , 1); 
-    ASSERT_DIAGONAL(Spher, getResolPhi    , 2); 
+void testKinResolutions::testTrivialMatrix_Spher() {
+    ASSERT_DIAGONAL(Spher, getResolP      , 0);
+    ASSERT_DIAGONAL(Spher, getResolTheta  , 1);
+    ASSERT_DIAGONAL(Spher, getResolPhi    , 2);
     ASSERT_DIAGONAL(Spher, getResolM      , 3);
     ASSERT_HAS_DERIVATIVE(Spher, getResolEta);
     ASSERT_HAS_DERIVATIVE(Spher, getResolEt);
@@ -476,10 +476,10 @@ void testKinResolutions::testTrivialMatrix_Spher() {
     ASSERT_HAS_DERIVATIVE(Spher, getResolPz);
 }
 
-void testKinResolutions::testTrivialMatrix_ESpher() { 
-    ASSERT_DIAGONAL(ESpher, getResolP      , 0); 
-    ASSERT_DIAGONAL(ESpher, getResolTheta  , 1); 
-    ASSERT_DIAGONAL(ESpher, getResolPhi    , 2); 
+void testKinResolutions::testTrivialMatrix_ESpher() {
+    ASSERT_DIAGONAL(ESpher, getResolP      , 0);
+    ASSERT_DIAGONAL(ESpher, getResolTheta  , 1);
+    ASSERT_DIAGONAL(ESpher, getResolPhi    , 2);
     ASSERT_DIAGONAL(ESpher, getResolE      , 3);
     ASSERT_HAS_DERIVATIVE(ESpher, getResolEta);
     ASSERT_HAS_DERIVATIVE(ESpher, getResolEt);
@@ -491,7 +491,7 @@ void testKinResolutions::testTrivialMatrix_ESpher() {
     ASSERT_HAS_DERIVATIVE(ESpher, getResolPz);
 }
 
-void testKinResolutions::testTrivialMatrix_MomDev() { 
+void testKinResolutions::testTrivialMatrix_MomDev() {
     ASSERT_NOT_IMPLEMENTED(MomDev, getResolEta);
     ASSERT_NOT_IMPLEMENTED(MomDev, getResolTheta);
     ASSERT_NOT_IMPLEMENTED(MomDev, getResolPhi);
@@ -506,7 +506,7 @@ void testKinResolutions::testTrivialMatrix_MomDev() {
     ASSERT_NOT_IMPLEMENTED(MomDev, getResolM);
 }
 
-void testKinResolutions::testTrivialMatrix_EMomDev() { 
+void testKinResolutions::testTrivialMatrix_EMomDev() {
     ASSERT_NOT_IMPLEMENTED(EMomDev, getResolEta);
     ASSERT_NOT_IMPLEMENTED(EMomDev, getResolTheta);
     ASSERT_NOT_IMPLEMENTED(EMomDev, getResolPhi);
@@ -521,10 +521,10 @@ void testKinResolutions::testTrivialMatrix_EMomDev() {
     ASSERT_NOT_IMPLEMENTED(EMomDev, getResolM);
 }
 
-void testKinResolutions::testTrivialMatrix_MCCart() { 
-    ASSERT_DIAGONAL(MCCart, getResolPx     , 0); 
-    ASSERT_DIAGONAL(MCCart, getResolPy     , 1); 
-    ASSERT_DIAGONAL(MCCart, getResolPz     , 2); 
+void testKinResolutions::testTrivialMatrix_MCCart() {
+    ASSERT_DIAGONAL(MCCart, getResolPx     , 0);
+    ASSERT_DIAGONAL(MCCart, getResolPy     , 1);
+    ASSERT_DIAGONAL(MCCart, getResolPz     , 2);
     ASSERT_HAS_DERIVATIVE(MCCart, getResolEta);
     ASSERT_HAS_DERIVATIVE(MCCart, getResolTheta);
     ASSERT_HAS_DERIVATIVE(MCCart, getResolPhi);
@@ -535,10 +535,10 @@ void testKinResolutions::testTrivialMatrix_MCCart() {
     ASSERT_HAS_DERIVATIVE(MCCart, getResolPInv);
 }
 
-void testKinResolutions::testTrivialMatrix_MCSpher() { 
-    ASSERT_DIAGONAL(MCSpher, getResolP      , 0); 
-    ASSERT_DIAGONAL(MCSpher, getResolTheta  , 1); 
-    ASSERT_DIAGONAL(MCSpher, getResolPhi    , 2); 
+void testKinResolutions::testTrivialMatrix_MCSpher() {
+    ASSERT_DIAGONAL(MCSpher, getResolP      , 0);
+    ASSERT_DIAGONAL(MCSpher, getResolTheta  , 1);
+    ASSERT_DIAGONAL(MCSpher, getResolPhi    , 2);
     ASSERT_HAS_DERIVATIVE(MCSpher, getResolEta);
     ASSERT_HAS_DERIVATIVE(MCSpher, getResolEt);
     ASSERT_HAS_DERIVATIVE(MCSpher, getResolE);
@@ -549,10 +549,10 @@ void testKinResolutions::testTrivialMatrix_MCSpher() {
     ASSERT_HAS_DERIVATIVE(MCSpher, getResolPz);
 }
 
-void testKinResolutions::testTrivialMatrix_MCPInvSpher() { 
-    ASSERT_DIAGONAL(MCPInvSpher, getResolPInv   , 0); 
-    ASSERT_DIAGONAL(MCPInvSpher, getResolTheta  , 1); 
-    ASSERT_DIAGONAL(MCPInvSpher, getResolPhi    , 2); 
+void testKinResolutions::testTrivialMatrix_MCPInvSpher() {
+    ASSERT_DIAGONAL(MCPInvSpher, getResolPInv   , 0);
+    ASSERT_DIAGONAL(MCPInvSpher, getResolTheta  , 1);
+    ASSERT_DIAGONAL(MCPInvSpher, getResolPhi    , 2);
     ASSERT_HAS_DERIVATIVE(MCPInvSpher, getResolEta);
     ASSERT_HAS_DERIVATIVE(MCPInvSpher, getResolEt);
     ASSERT_HAS_DERIVATIVE(MCPInvSpher, getResolE);
@@ -563,11 +563,11 @@ void testKinResolutions::testTrivialMatrix_MCPInvSpher() {
     ASSERT_HAS_DERIVATIVE(MCPInvSpher, getResolPz);
 }
 
-void testKinResolutions::testTrivialMatrix_EtEtaPhi() { 
-    ASSERT_DIAGONAL(EtEtaPhi, getResolEt     , 0); 
+void testKinResolutions::testTrivialMatrix_EtEtaPhi() {
+    ASSERT_DIAGONAL(EtEtaPhi, getResolEt     , 0);
     ASSERT_DIAGONAL(EtEtaPhi, getResolPt     , 0); // Et == Pt
-    ASSERT_DIAGONAL(EtEtaPhi, getResolEta    , 1); 
-    ASSERT_DIAGONAL(EtEtaPhi, getResolPhi    , 2); 
+    ASSERT_DIAGONAL(EtEtaPhi, getResolEta    , 1);
+    ASSERT_DIAGONAL(EtEtaPhi, getResolPhi    , 2);
     ASSERT_HAS_DERIVATIVE(EtEtaPhi, getResolTheta);
     ASSERT_HAS_DERIVATIVE(EtEtaPhi, getResolE);
     ASSERT_HAS_DERIVATIVE(EtEtaPhi, getResolP);
@@ -577,11 +577,11 @@ void testKinResolutions::testTrivialMatrix_EtEtaPhi() {
     ASSERT_HAS_DERIVATIVE(EtEtaPhi, getResolPz);
 }
 
-void testKinResolutions::testTrivialMatrix_EtThetaPhi() { 
-    ASSERT_DIAGONAL(EtThetaPhi, getResolEt     , 0); 
+void testKinResolutions::testTrivialMatrix_EtThetaPhi() {
+    ASSERT_DIAGONAL(EtThetaPhi, getResolEt     , 0);
     ASSERT_DIAGONAL(EtThetaPhi, getResolPt     , 0); // Et == Pt
-    ASSERT_DIAGONAL(EtThetaPhi, getResolTheta  , 1); 
-    ASSERT_DIAGONAL(EtThetaPhi, getResolPhi    , 2); 
+    ASSERT_DIAGONAL(EtThetaPhi, getResolTheta  , 1);
+    ASSERT_DIAGONAL(EtThetaPhi, getResolPhi    , 2);
     ASSERT_HAS_DERIVATIVE(EtThetaPhi, getResolEta);
     ASSERT_HAS_DERIVATIVE(EtThetaPhi, getResolE);
     ASSERT_HAS_DERIVATIVE(EtThetaPhi, getResolP);
@@ -591,7 +591,7 @@ void testKinResolutions::testTrivialMatrix_EtThetaPhi() {
     ASSERT_HAS_DERIVATIVE(EtThetaPhi, getResolPz);
 }
 
-void testKinResolutions::testTrivialMatrix_MCMomDev() { 
+void testKinResolutions::testTrivialMatrix_MCMomDev() {
     ASSERT_NOT_IMPLEMENTED(MCMomDev, getResolEta);
     ASSERT_NOT_IMPLEMENTED(MCMomDev, getResolTheta);
     ASSERT_NOT_IMPLEMENTED(MCMomDev, getResolPhi);
@@ -605,7 +605,7 @@ void testKinResolutions::testTrivialMatrix_MCMomDev() {
     ASSERT_NOT_IMPLEMENTED(MCMomDev, getResolPz);
 }
 
-void testKinResolutions::testTrivialMatrix_EScaledMomDev() { 
+void testKinResolutions::testTrivialMatrix_EScaledMomDev() {
     ASSERT_NOT_IMPLEMENTED(EScaledMomDev, getResolEta);
     ASSERT_NOT_IMPLEMENTED(EScaledMomDev, getResolTheta);
     ASSERT_NOT_IMPLEMENTED(EScaledMomDev, getResolPhi);
@@ -621,32 +621,32 @@ void testKinResolutions::testTrivialMatrix_EScaledMomDev() {
 }
 
 
-void testKinResolutions::testIndependentVars_Cart() { 
-    ASSERT_FULLY_INDEPENDENT(Cart, getResolPx     , 0); 
-    ASSERT_FULLY_INDEPENDENT(Cart, getResolPy     , 1); 
-    ASSERT_FULLY_INDEPENDENT(Cart, getResolPz     , 2); 
+void testKinResolutions::testIndependentVars_Cart() {
+    ASSERT_FULLY_INDEPENDENT(Cart, getResolPx     , 0);
+    ASSERT_FULLY_INDEPENDENT(Cart, getResolPy     , 1);
+    ASSERT_FULLY_INDEPENDENT(Cart, getResolPz     , 2);
     ASSERT_FULLY_INDEPENDENT(Cart, getResolM      , 3);
     ASSERT_HAS_INDEP_DERIVATIVE(Cart, getResolEta,   3); // Angles Don't
-    ASSERT_HAS_INDEP_DERIVATIVE(Cart, getResolTheta, 3); // depend on 
+    ASSERT_HAS_INDEP_DERIVATIVE(Cart, getResolTheta, 3); // depend on
     ASSERT_HAS_INDEP_DERIVATIVE(Cart, getResolPhi,   3); // the mass
 }
-void testKinResolutions::testIndependentVars_ECart() { 
-    ASSERT_FULLY_INDEPENDENT(ECart, getResolPx     , 0); 
-    ASSERT_FULLY_INDEPENDENT(ECart, getResolPy     , 1); 
-    ASSERT_FULLY_INDEPENDENT(ECart, getResolPz     , 2); 
+void testKinResolutions::testIndependentVars_ECart() {
+    ASSERT_FULLY_INDEPENDENT(ECart, getResolPx     , 0);
+    ASSERT_FULLY_INDEPENDENT(ECart, getResolPy     , 1);
+    ASSERT_FULLY_INDEPENDENT(ECart, getResolPz     , 2);
     ASSERT_FULLY_INDEPENDENT(ECart, getResolE      , 3);
     ASSERT_HAS_INDEP_DERIVATIVE(ECart, getResolEta,   3); // Angles
     ASSERT_HAS_INDEP_DERIVATIVE(ECart, getResolTheta, 3); // Don't depend
     ASSERT_HAS_INDEP_DERIVATIVE(ECart, getResolPhi,   3); // on the energy
 }
 
-void testKinResolutions::testIndependentVars_Spher() { 
-    ASSERT_FULLY_INDEPENDENT(Spher, getResolP      , 0); 
-    ASSERT_FULLY_INDEPENDENT(Spher, getResolTheta  , 1); 
-    ASSERT_FULLY_INDEPENDENT(Spher, getResolPhi    , 2); 
+void testKinResolutions::testIndependentVars_Spher() {
+    ASSERT_FULLY_INDEPENDENT(Spher, getResolP      , 0);
+    ASSERT_FULLY_INDEPENDENT(Spher, getResolTheta  , 1);
+    ASSERT_FULLY_INDEPENDENT(Spher, getResolPhi    , 2);
     ASSERT_FULLY_INDEPENDENT(Spher, getResolM      , 3);
 
-    ASSERT_HAS_INDEP_DERIVATIVE(Spher, getResolEta, 0); // Eta 
+    ASSERT_HAS_INDEP_DERIVATIVE(Spher, getResolEta, 0); // Eta
     ASSERT_HAS_INDEP_DERIVATIVE(Spher, getResolEta, 2); // Depends
     ASSERT_HAS_INDEP_DERIVATIVE(Spher, getResolEta, 3); // Only On Theta
 
@@ -666,13 +666,13 @@ void testKinResolutions::testIndependentVars_Spher() {
     ASSERT_HAS_INDEP_DERIVATIVE(Spher, getResolPz, 3); // Pz also on Phi
 }
 
-void testKinResolutions::testIndependentVars_ESpher() { 
-    ASSERT_FULLY_INDEPENDENT(ESpher, getResolP      , 0); 
-    ASSERT_FULLY_INDEPENDENT(ESpher, getResolTheta  , 1); 
-    ASSERT_FULLY_INDEPENDENT(ESpher, getResolPhi    , 2); 
+void testKinResolutions::testIndependentVars_ESpher() {
+    ASSERT_FULLY_INDEPENDENT(ESpher, getResolP      , 0);
+    ASSERT_FULLY_INDEPENDENT(ESpher, getResolTheta  , 1);
+    ASSERT_FULLY_INDEPENDENT(ESpher, getResolPhi    , 2);
     ASSERT_FULLY_INDEPENDENT(ESpher, getResolE      , 3);
 
-    ASSERT_HAS_INDEP_DERIVATIVE(ESpher, getResolEta, 0); // Eta 
+    ASSERT_HAS_INDEP_DERIVATIVE(ESpher, getResolEta, 0); // Eta
     ASSERT_HAS_INDEP_DERIVATIVE(ESpher, getResolEta, 2); // Depends
     ASSERT_HAS_INDEP_DERIVATIVE(ESpher, getResolEta, 3); // Only On Theta
 
@@ -695,7 +695,7 @@ void testKinResolutions::testIndependentVars_ESpher() {
     ASSERT_HAS_INDEP_DERIVATIVE(ESpher, getResolPz, 3); // Pz also on Phi
 }
 
-void testKinResolutions::testIndependentVars_MomDev() { 
+void testKinResolutions::testIndependentVars_MomDev() {
     ASSERT_NOT_IMPLEMENTED(MomDev, getResolEta);
     ASSERT_NOT_IMPLEMENTED(MomDev, getResolTheta);
     ASSERT_NOT_IMPLEMENTED(MomDev, getResolPhi);
@@ -710,7 +710,7 @@ void testKinResolutions::testIndependentVars_MomDev() {
     ASSERT_NOT_IMPLEMENTED(MomDev, getResolM);
 }
 
-void testKinResolutions::testIndependentVars_EMomDev() { 
+void testKinResolutions::testIndependentVars_EMomDev() {
     ASSERT_NOT_IMPLEMENTED(EMomDev, getResolEta);
     ASSERT_NOT_IMPLEMENTED(EMomDev, getResolTheta);
     ASSERT_NOT_IMPLEMENTED(EMomDev, getResolPhi);
@@ -725,15 +725,15 @@ void testKinResolutions::testIndependentVars_EMomDev() {
     ASSERT_NOT_IMPLEMENTED(EMomDev, getResolM);
 }
 
-void testKinResolutions::testIndependentVars_MCCart() { 
-    ASSERT_FULLY_INDEPENDENT(MCCart, getResolPx     , 0); 
-    ASSERT_FULLY_INDEPENDENT(MCCart, getResolPy     , 1); 
-    ASSERT_FULLY_INDEPENDENT(MCCart, getResolPz     , 2); 
+void testKinResolutions::testIndependentVars_MCCart() {
+    ASSERT_FULLY_INDEPENDENT(MCCart, getResolPx     , 0);
+    ASSERT_FULLY_INDEPENDENT(MCCart, getResolPy     , 1);
+    ASSERT_FULLY_INDEPENDENT(MCCart, getResolPz     , 2);
 
     ASSERT_HAS_INDEP_DERIVATIVE(MCCart, getResolPhi,   2); // Phi doesn't depend on Pz
 
     ASSERT_HAS_INDEP_DERIVATIVE(MCCart, getResolEta,   3); // nothing
-    ASSERT_HAS_INDEP_DERIVATIVE(MCCart, getResolTheta, 3); // depends 
+    ASSERT_HAS_INDEP_DERIVATIVE(MCCart, getResolTheta, 3); // depends
     ASSERT_HAS_INDEP_DERIVATIVE(MCCart, getResolPhi,   3); // on M
     ASSERT_HAS_INDEP_DERIVATIVE(MCCart, getResolEt,    3);
     ASSERT_HAS_INDEP_DERIVATIVE(MCCart, getResolE,     3);
@@ -742,10 +742,10 @@ void testKinResolutions::testIndependentVars_MCCart() {
     ASSERT_HAS_INDEP_DERIVATIVE(MCCart, getResolPInv,  3);
 }
 
-void testKinResolutions::testIndependentVars_MCSpher() { 
-    ASSERT_FULLY_INDEPENDENT(MCSpher, getResolP      , 0); 
-    ASSERT_FULLY_INDEPENDENT(MCSpher, getResolTheta  , 1); 
-    ASSERT_FULLY_INDEPENDENT(MCSpher, getResolPhi    , 2); 
+void testKinResolutions::testIndependentVars_MCSpher() {
+    ASSERT_FULLY_INDEPENDENT(MCSpher, getResolP      , 0);
+    ASSERT_FULLY_INDEPENDENT(MCSpher, getResolTheta  , 1);
+    ASSERT_FULLY_INDEPENDENT(MCSpher, getResolPhi    , 2);
 
     ASSERT_HAS_INDEP_DERIVATIVE(MCSpher, getResolEta,  3); // everything
     ASSERT_HAS_INDEP_DERIVATIVE(MCSpher, getResolEt,   3); // indep from
@@ -767,10 +767,10 @@ void testKinResolutions::testIndependentVars_MCSpher() {
     ASSERT_HAS_INDEP_DERIVATIVE(MCSpher, getResolPInv, 1); // dep only on P
 }
 
-void testKinResolutions::testIndependentVars_MCPInvSpher() { 
-    ASSERT_FULLY_INDEPENDENT(MCPInvSpher, getResolPInv   , 0); 
-    ASSERT_FULLY_INDEPENDENT(MCPInvSpher, getResolTheta  , 1); 
-    ASSERT_FULLY_INDEPENDENT(MCPInvSpher, getResolPhi    , 2); 
+void testKinResolutions::testIndependentVars_MCPInvSpher() {
+    ASSERT_FULLY_INDEPENDENT(MCPInvSpher, getResolPInv   , 0);
+    ASSERT_FULLY_INDEPENDENT(MCPInvSpher, getResolTheta  , 1);
+    ASSERT_FULLY_INDEPENDENT(MCPInvSpher, getResolPhi    , 2);
 
     ASSERT_HAS_INDEP_DERIVATIVE(MCSpher, getResolEta,  3); // everything
     ASSERT_HAS_INDEP_DERIVATIVE(MCSpher, getResolEt,   3); // indep from
@@ -792,15 +792,15 @@ void testKinResolutions::testIndependentVars_MCPInvSpher() {
     ASSERT_HAS_INDEP_DERIVATIVE(MCSpher, getResolP,    1); // dep only on 1/P
 }
 
-void testKinResolutions::testIndependentVars_EtEtaPhi() { 
-    ASSERT_FULLY_INDEPENDENT(EtEtaPhi, getResolEt     , 0); 
+void testKinResolutions::testIndependentVars_EtEtaPhi() {
+    ASSERT_FULLY_INDEPENDENT(EtEtaPhi, getResolEt     , 0);
     ASSERT_FULLY_INDEPENDENT(EtEtaPhi, getResolPt     , 0); // Et == Pt
-    ASSERT_FULLY_INDEPENDENT(EtEtaPhi, getResolEta    , 1); 
-    ASSERT_FULLY_INDEPENDENT(EtEtaPhi, getResolPhi    , 2); 
+    ASSERT_FULLY_INDEPENDENT(EtEtaPhi, getResolEta    , 1);
+    ASSERT_FULLY_INDEPENDENT(EtEtaPhi, getResolPhi    , 2);
 
     ASSERT_HAS_INDEP_DERIVATIVE(EtEtaPhi, getResolTheta, 3); // All indep
     ASSERT_HAS_INDEP_DERIVATIVE(EtEtaPhi, getResolE,     3); // From the mass
-    ASSERT_HAS_INDEP_DERIVATIVE(EtEtaPhi, getResolP,     3); // (which is also 
+    ASSERT_HAS_INDEP_DERIVATIVE(EtEtaPhi, getResolP,     3); // (which is also
     ASSERT_HAS_INDEP_DERIVATIVE(EtEtaPhi, getResolPInv,  3); // always zero)
     ASSERT_HAS_INDEP_DERIVATIVE(EtEtaPhi, getResolPx,    3);
     ASSERT_HAS_INDEP_DERIVATIVE(EtEtaPhi, getResolPy,    3);
@@ -818,15 +818,15 @@ void testKinResolutions::testIndependentVars_EtEtaPhi() {
     ASSERT_HAS_INDEP_DERIVATIVE(EtEtaPhi, getResolTheta, 0); // Theta indep from Et
 }
 
-void testKinResolutions::testIndependentVars_EtThetaPhi() { 
-    ASSERT_FULLY_INDEPENDENT(EtThetaPhi, getResolEt     , 0); 
+void testKinResolutions::testIndependentVars_EtThetaPhi() {
+    ASSERT_FULLY_INDEPENDENT(EtThetaPhi, getResolEt     , 0);
     ASSERT_FULLY_INDEPENDENT(EtThetaPhi, getResolPt     , 0); // Et == Pt
-    ASSERT_FULLY_INDEPENDENT(EtThetaPhi, getResolTheta  , 1); 
-    ASSERT_FULLY_INDEPENDENT(EtThetaPhi, getResolPhi    , 2); 
+    ASSERT_FULLY_INDEPENDENT(EtThetaPhi, getResolTheta  , 1);
+    ASSERT_FULLY_INDEPENDENT(EtThetaPhi, getResolPhi    , 2);
 
     ASSERT_HAS_INDEP_DERIVATIVE(EtEtaPhi, getResolEta,   3); // All indep
     ASSERT_HAS_INDEP_DERIVATIVE(EtEtaPhi, getResolE,     3); // From the mass
-    ASSERT_HAS_INDEP_DERIVATIVE(EtEtaPhi, getResolP,     3); // (which is also 
+    ASSERT_HAS_INDEP_DERIVATIVE(EtEtaPhi, getResolP,     3); // (which is also
     ASSERT_HAS_INDEP_DERIVATIVE(EtEtaPhi, getResolPInv,  3); // always zero)
     ASSERT_HAS_INDEP_DERIVATIVE(EtEtaPhi, getResolPx,    3);
     ASSERT_HAS_INDEP_DERIVATIVE(EtEtaPhi, getResolPy,    3);
@@ -844,7 +844,7 @@ void testKinResolutions::testIndependentVars_EtThetaPhi() {
     ASSERT_HAS_INDEP_DERIVATIVE(EtEtaPhi, getResolEta,   0); // Eta indep from Et
 }
 
-void testKinResolutions::testIndependentVars_MCMomDev() { 
+void testKinResolutions::testIndependentVars_MCMomDev() {
     ASSERT_NOT_IMPLEMENTED(MCMomDev, getResolEta);
     ASSERT_NOT_IMPLEMENTED(MCMomDev, getResolTheta);
     ASSERT_NOT_IMPLEMENTED(MCMomDev, getResolPhi);
@@ -858,7 +858,7 @@ void testKinResolutions::testIndependentVars_MCMomDev() {
     ASSERT_NOT_IMPLEMENTED(MCMomDev, getResolPz);
 }
 
-void testKinResolutions::testIndependentVars_EScaledMomDev() { 
+void testKinResolutions::testIndependentVars_EScaledMomDev() {
     ASSERT_NOT_IMPLEMENTED(EScaledMomDev, getResolEta);
     ASSERT_NOT_IMPLEMENTED(EScaledMomDev, getResolTheta);
     ASSERT_NOT_IMPLEMENTED(EScaledMomDev, getResolPhi);
