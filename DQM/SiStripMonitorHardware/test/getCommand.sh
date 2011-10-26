@@ -5,7 +5,7 @@ ls /afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/data/OnlineData/original/
 
 if (( "$#" != "5" ))
     then
-    echo "Input parameters needed: <runs folder (among given above)> <runMin> <runMax> <file field number for awk (13 for afs)> <execute=0 or 1>";
+    echo "Input parameters needed: <full path to runs folder (for afs among given above)> <runMin> <runMax> <file field number for awk (13 for afs)> <execute=0 or 1>";
     exit;
 fi
 
@@ -19,6 +19,11 @@ FILEFIELD=$4
 EXECSCRIPT=$5
 
 ls $BASEDIR/DQM_V0001_SiStrip_* > lsafs.dat
+if (( "$?" != "0" ))
+    then
+    ls $BASEDIR/*/DQM_V0001_SiStrip_* > lsafs.dat
+fi
+
 awk -v var=$FILEFIELD 'BEGIN { FS = "/" } ; { print $var }' lsafs.dat > lsfiles.dat
 rm lsafs.dat
 sed 's/DQM_V0001_SiStrip_R000//' lsfiles.dat > lsruns
