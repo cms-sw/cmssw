@@ -90,8 +90,6 @@ void BetaCalculatorECAL::addInfoToCandidate(HSCParticle& candidate, edm::Handle<
          & (*theCaloTopology),
          neckLace);
    }
-   int numCrysCrossed = -1;
-   numCrysCrossed = trackCrossedXtalCurvedMap.size();
 
    // Make weighted sum of times
    float sumWeightedTime = 0;
@@ -244,7 +242,6 @@ int BetaCalculatorECAL::getDetailedTrackLengthInXtals(std::map<int,GlobalPoint>&
    for(std::vector<SteppingHelixStateInfo>::const_iterator itr = (neckLace.begin() + 1); itr != neckLace.end(); ++itr)
    {
      GlobalPoint probe_gp = (*itr).position();
-     GlobalVector probe_gv = (*itr).momentum();
      std::vector<DetId> surroundingMatrix;
 
      EBDetId closestBarrelDetIdToProbe = ((theBarrelSubdetGeometry -> getClosestCell(probe_gp)).rawId());

@@ -159,7 +159,7 @@ void BetaCalculatorRPC::addInfoToCandidate(HSCParticle& candidate, const edm::Ev
     int clusterS=0;
     for(recHitC = recHitCollection.first; recHitC != recHitCollection.second ; recHitC++) {
       clusterS=(*recHitC).clusterSize();
-      RPCDetId rollId = (RPCDetId)(*recHitC).geographicalId();
+//      RPCDetId rollId = (RPCDetId)(*recHitC).geographicalId();
 //      std::cout<<"\t \t \t \t"<<rollId<<" bx "<<(*recHitC).BunchX()<<std::endl;
       size++;
     }
