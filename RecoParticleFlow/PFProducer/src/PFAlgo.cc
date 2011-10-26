@@ -1080,14 +1080,15 @@ void PFAlgo::processBlock( const reco::PFBlockRef& blockref,
 	  (*pfCandidates_)[tmpe].setPs1Energy( ps1Ene[0] );
 	  (*pfCandidates_)[tmpe].setPs2Energy( ps2Ene[0] );
 	  (*pfCandidates_)[tmpe].addElementInBlock( blockref, index );
-	  (*pfCandidates_)[tmpe].addElementInBlock( blockref, assTracks.begin()->second );
 	  // Check that there is at least one track
 	  if(assTracks.size()) {
-	  // Assign the position of the track at the ECAL entrance
-	      const math::XYZPointF& chargedPosition = 
-		dynamic_cast<const reco::PFBlockElementTrack*>(&elements[assTracks.begin()->second])->positionAtECALEntrance();
-	      (*pfCandidates_)[tmpe].setPositionAtECALEntrance(chargedPosition);
-	    }
+	    (*pfCandidates_)[tmpe].addElementInBlock( blockref, assTracks.begin()->second );
+	    
+	    // Assign the position of the track at the ECAL entrance
+	    const math::XYZPointF& chargedPosition = 
+	      dynamic_cast<const reco::PFBlockElementTrack*>(&elements[assTracks.begin()->second])->positionAtECALEntrance();
+	    (*pfCandidates_)[tmpe].setPositionAtECALEntrance(chargedPosition);
+	  }
 	  break;
 	}
 
