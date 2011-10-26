@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V339 (CMSSW_4_2_0_HLT34)
+# /dev/CMSSW_4_2_0/GRun/V340 (CMSSW_4_2_0_HLT34)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V339')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V340')
 )
 
 process.streams = cms.PSet( 
@@ -5105,7 +5105,7 @@ process.hltL1sL1SingleJet36 = cms.EDFilter( "HLTLevel1GTSeed",
     L1NrBxInEvent = cms.int32( 3 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet36_BptxAND" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet36" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
@@ -5830,7 +5830,7 @@ process.hltL1sL1SingleJet68 = cms.EDFilter( "HLTLevel1GTSeed",
     L1NrBxInEvent = cms.int32( 3 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet68_BptxAND" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet68" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),

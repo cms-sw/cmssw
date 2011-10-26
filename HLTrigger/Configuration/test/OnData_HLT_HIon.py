@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V339 (CMSSW_4_2_0_HLT34)
+# /dev/CMSSW_4_2_0/HIon/V340 (CMSSW_4_2_0_HLT34)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V339')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V340')
 )
 
 process.streams = cms.PSet( 
@@ -5409,7 +5409,7 @@ process.hltHIDoublePhoton20 = cms.EDFilter( "HLT1Photon",
     MaxEta = cms.double( 2.0 ),
     MinN = cms.int32( 2 )
 )
-process.hltL1sL1SingleJet36 = cms.EDFilter( "HLTLevel1GTSeed",
+process.hltL1sL1SingleJet36BptxAND = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
     L1NrBxInEvent = cms.int32( 3 ),
     L1TechTriggerSeeding = cms.bool( False ),
@@ -5503,7 +5503,7 @@ process.hltHI1jet65 = cms.EDFilter( "HLT1CaloJet",
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 1 )
 )
-process.hltL1sL1SingleJet52 = cms.EDFilter( "HLTLevel1GTSeed",
+process.hltL1sL1SingleJet52BptxAND = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
     L1NrBxInEvent = cms.int32( 3 ),
     L1TechTriggerSeeding = cms.bool( False ),
@@ -5526,12 +5526,12 @@ process.hltHI1jet80 = cms.EDFilter( "HLT1CaloJet",
     MaxEta = cms.double( 5.0 ),
     MinN = cms.int32( 1 )
 )
-process.hltL1sL1SingleJet68 = cms.EDFilter( "HLTLevel1GTSeed",
+process.hltL1sL1SingleJet68BptxAND = cms.EDFilter( "HLTLevel1GTSeed",
     L1UseL1TriggerObjectMaps = cms.bool( True ),
     L1NrBxInEvent = cms.int32( 3 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_SingleJet68_BptxAND" ),
+    L1SeedsLogicalExpression = cms.string( "L1_SingleJet52_BptxAND" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),
@@ -7211,12 +7211,12 @@ process.HLT_HIPhoton15_Photon20_v1 = cms.Path( process.HLTBeginSequence + proces
 process.HLT_HIDoublePhoton10_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG5BptxAND + process.hltPreHIDoublePhoton10 + process.HLTDoCaloSequence + process.HLTDoHIEcalClusWithCleaningSequence + process.hltHIDoublePhoton10 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
 process.HLT_HIDoublePhoton15_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG5BptxAND + process.hltPreHIDoublePhoton15 + process.HLTDoCaloSequence + process.HLTDoHIEcalClusWithCleaningSequence + process.hltHIDoublePhoton15 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
 process.HLT_HIDoublePhoton20_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleEG5BptxAND + process.hltPreHIDoublePhoton20 + process.HLTDoCaloSequence + process.HLTDoHIEcalClusWithCleaningSequence + process.hltHIDoublePhoton20 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
-process.HLT_HIJet55_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet36 + process.hltPreHIJet55 + process.HLTHIRecoJetSequenceIC5Corrected + process.hltHI1jet55 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
-process.HLT_HIJet65_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet36 + process.hltPreHIJet65 + process.HLTHIRecoJetSequenceIC5Corrected + process.hltHI1jet65 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
-process.HLT_HIJet80_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet52 + process.hltPreHIJet80 + process.HLTHIRecoJetSequenceIC5Corrected + process.hltHI1jet80 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
-process.HLT_HIJet95_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet68 + process.hltPreHIJet95 + process.HLTHIRecoJetSequenceIC5Corrected + process.hltHI1jet95 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
-process.HLT_HIDiJet55_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet36 + process.hltPreHIDiJet55and55 + process.HLTHIRecoJetSequenceIC5Corrected + process.hltHIDiJet55and55 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
-process.HLT_HIJet65_Jet55_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet36 + process.hltPreHIDiJet65and55 + process.HLTHIRecoJetSequenceIC5Corrected + process.hltHIDiJet55and55 + process.hltHI1jet65 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
+process.HLT_HIJet55_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet36BptxAND + process.hltPreHIJet55 + process.HLTHIRecoJetSequenceIC5Corrected + process.hltHI1jet55 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
+process.HLT_HIJet65_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet36BptxAND + process.hltPreHIJet65 + process.HLTHIRecoJetSequenceIC5Corrected + process.hltHI1jet65 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
+process.HLT_HIJet80_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet52BptxAND + process.hltPreHIJet80 + process.HLTHIRecoJetSequenceIC5Corrected + process.hltHI1jet80 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
+process.HLT_HIJet95_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet68BptxAND + process.hltPreHIJet95 + process.HLTHIRecoJetSequenceIC5Corrected + process.hltHI1jet95 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
+process.HLT_HIDiJet55_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet36BptxAND + process.hltPreHIDiJet55and55 + process.HLTHIRecoJetSequenceIC5Corrected + process.hltHIDiJet55and55 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
+process.HLT_HIJet65_Jet55_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1SingleJet36BptxAND + process.hltPreHIDiJet65and55 + process.HLTHIRecoJetSequenceIC5Corrected + process.hltHIDiJet55and55 + process.hltHI1jet65 + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
 process.HLT_HIActivityHF_Coincidence3_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1GlobalDecision + process.hltPreHIActivityHFCoincidence3 + process.hltHcalDigis + process.hltHfreco + process.hltHcalSimpleRecHitFilterCoincidence + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
 process.HLT_HIActivityHF_Single3_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1GlobalDecision + process.hltPreHIActivityHFSingle3 + process.hltHcalDigis + process.hltHfreco + process.hltHcalSimpleRecHitFilter + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
 process.HLT_HIClusterVertexCompatibility_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1GlobalDecision + process.hltPreHIClusterVertexCompatibility + process.HLTDoHILocalPixelSequence + process.hltHIPixelClusterShapeFilter + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
