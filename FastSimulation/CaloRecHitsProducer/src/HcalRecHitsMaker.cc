@@ -172,9 +172,10 @@ void HcalRecHitsMaker::init(const edm::EventSetup &es,bool doDigis,bool doMiscal
 
       edm::FileInPath hcalfiletmp("CalibCalorimetry/CaloMiscalibTools/data/"+hcalfileinpath_);      
       std::string hcalfile=hcalfiletmp.fullPath();            
-      MiscalibReaderFromXMLHcal hcalreader_(mapHcal);
       if(doMiscalib_ && !hcalfile.empty()) 
 	{
+	  MiscalibReaderFromXMLHcal hcalreader_(mapHcal);
+
 	  hcalreader_.parseXMLMiscalibFile(hcalfile);
 	  //	  mapHcal.print();
 	  std::map<uint32_t,float>::const_iterator it=mapHcal.get().begin();
