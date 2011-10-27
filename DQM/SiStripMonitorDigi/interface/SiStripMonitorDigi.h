@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.27 2011/03/03 08:21:15 borrell Exp $
+// $Id: SiStripMonitorDigi.h,v 1.28 2011/10/27 09:30:13 fiori Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -78,7 +78,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
     MonitorElement* SubDetChargeMedianApvShotsTH1;
     MonitorElement* SubDetNStripsApvShotsTH1;
     MonitorElement* SubDetNApvShotsProf; 
-
+    MonitorElement* SubDetNApvShotsNApvTH1;
   };
 
   struct DigiFailureMEs{
@@ -133,12 +133,14 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
   std::vector<uint32_t> ModulesToBeExcluded_;
 
-  MonitorElement* NApvShotsGlobal;
+  //Global MEs to monitor APV Shots properties
+  MonitorElement *NApvShotsGlobal, *NApvShotsGlobalProf, *MedianChargeApvShotsGlobal, *NApvApvShotsGlobal, *StripMultiplicityApvShotsGlobal, *ShotsVsTimeApvShotsGlobal;
 
   TkHistoMap* tkmapdigi, *tkmapNApvshots, *tkmapNstripApvshot, *tkmapMedianChargeApvshots;  
 
   int runNb, eventNb;
   int firstEvent;
+  int TotalNShots;
 
   bool globalsummaryapvshotson;
   
@@ -169,6 +171,14 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   bool subdetswitchnstripsapvshotson;
   bool subdetswitchapvshotsonprof;
   bool subdetswitchchargemedianapvshotson;
+  bool subdetswitchapvshotsApvon;
+
+  bool globalswitchnapvshotson;
+  bool globalswitchnstripsapvshotson;
+  bool globalswitchapvshotsonprof;
+  bool globalswitchchargemedianapvshotson;
+  bool globalswitchapvshotsApvon;
+
 
   int xLumiProf;
 

@@ -11,11 +11,12 @@ process.source = cms.Source("PoolSource",
 #       '/store/data/Commissioning08/Cosmics/RAW/v1/000/067/647/22CBBD11-07A3-DD11-9DFB-001D09F2447F.root'
 #        '/store/data/Commissioning08/Cosmics/RAW/v1/000/066/668/ECBAB6B1-519C-DD11-BBB5-000423D94E70.root'
 	"file:/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/DQMTest/MinimumBias__RAW__v1__165633__1CC420EE-B686-E011-A788-0030487CD6E8.root"
+#"file:/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/DQMTest/Cosmics__RAW__v1__142560__026275A7-81A3-DF11-BDEE-001617C3B5D8.root"
 )
 )
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(100)
 )
 
 #-------------------------------------------------
@@ -65,23 +66,34 @@ process.load("DQM.SiStripMonitorDigi.SiStripMonitorDigi_cfi")
 
 process.SiStripMonitorDigi.CreateTrendMEs = True
 
-process.SiStripMonitorDigi.TkHistoMapDigi_On = True
+process.SiStripMonitorDigi.TkHistoMap_On = True
 process.SiStripMonitorDigi.TkHistoMapNApvShots_On = True
 process.SiStripMonitorDigi.TkHistoMapNStripApvShots_On= True
 process.SiStripMonitorDigi.TkHistoMapMedianChargeApvShots_On= True
 
+
 process.SiStripMonitorDigi.OutputMEsInRootFile = True
+
 process.SiStripMonitorDigi.TH1NApvShots.subdetswitchon = True
+process.SiStripMonitorDigi.TH1NApvShots.globalswitchon = True
 
 process.SiStripMonitorDigi.TH1ChargeMedianApvShots.subdetswitchon = True
+process.SiStripMonitorDigi.TH1ChargeMedianApvShots.globalswitchon = True
+
 process.SiStripMonitorDigi.TH1NStripsApvShots.subdetswitchon = True
+process.SiStripMonitorDigi.TH1NStripsApvShots.globalswitchon = True
+
+process.SiStripMonitorDigi.TH1ApvNumApvShots.subdetswitchon = True
+process.SiStripMonitorDigi.TH1ApvNumApvShots.globalswitchon = True
 
 process.SiStripMonitorDigi.TProfNShotsVsTime.subdetswitchon = True
+process.SiStripMonitorDigi.TProfNShotsVsTime.globalswitchon = True
+
 process.SiStripMonitorDigi.TProfTotalNumberOfDigis.subdetswitchon = True
 process.SiStripMonitorDigi.TProfDigiApvCycle.subdetswitchon = True
 
-process.SiStripMonitorDigi.TH2DigiApvCycle.subdetswitchon = True
-process.SiStripMonitorDigi.TH2DigiApvCycle.yfactor = 0.005
+#process.SiStripMonitorDigi.TH2DigiApvCycle.subdetswitchon = True
+#process.SiStripMonitorDigi.TH2DigiApvCycle.yfactor = 0.005
 
 process.SiStripMonitorDigi.OutputFileName = 'SiStripMonitorDigi_RealData.root'
 
