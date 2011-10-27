@@ -868,7 +868,7 @@ void PFPhotonAlgo::EarlyConversion(
   int count=0;
   for ( std::vector<reco::PFCandidate>::const_iterator ec=tempElectronCandidates.begin();   ec != tempElectronCandidates.end(); ++ec ) 
     {
-      bool matched=false;
+      //      bool matched=false;
       int mh=ec->gsfTrackRef()->trackerExpectedHitsInner().numberOfLostHits();
       if(mh==0)continue;//Case where missing hits greater than zero
       
@@ -889,7 +889,7 @@ void PFPhotonAlgo::EarlyConversion(
 		if(PhotscRef==ElecscRef)
 		  {
 		    match_ind.push_back(count);
-		    matched=true; 
+		    //  matched=true; 
 		    //cout<<"Matched Electron with Index "<<count<<" This is the electron "<<*ec<<endl;
 		    //find that they have the same SC footprint start to collect Clusters and tracks and these will be passed to PFPhoton
 		    reco::PFCandidate::ElementsInBlocks eleInBlocks = ec->elementsInBlocks();
