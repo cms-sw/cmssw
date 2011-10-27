@@ -4,11 +4,11 @@ import FWCore.ParameterSet.Config as cms
 import HLTrigger.HLTfilters.hltHighLevel_cfi as hlt
 exoticaDiMuonHLT = hlt.hltHighLevel.clone()
 exoticaDiMuonHLT.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT") 
-exoticaDiMuonHLT.HLTPaths = cms.vstring('HLT_L2DoubleMu23_NoVertex_v*')
+exoticaDiMuonHLT.HLTPaths = cms.vstring('HLT_L2DoubleMu*_NoVertex_v*')
 
 exoticaDiElectronHLT = hlt.hltHighLevel.clone()
 exoticaDiElectronHLT.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")
-exoticaDiElectronHLT.HLTPaths = cms.vstring('HLT_DoubleEle10_CaloIdL_TrkIdVL_Ele10_v*')
+exoticaDiElectronHLT.HLTPaths = cms.vstring('HLT_DoubleEle*_CaloIdL_TrkIdVL_Ele*_v*')
 
 exoticaDiEMuHLT = hlt.hltHighLevel.clone()
 exoticaDiEMuHLT.TriggerResultsTag = cms.InputTag("TriggerResults","","HLT")

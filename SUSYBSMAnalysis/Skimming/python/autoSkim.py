@@ -21,7 +21,7 @@ autoSkim = {
     'METBTag': 'HighMET+LogError',
     'MET': 'HighMET+LogError',
 
-    'HT': 'HighMET+LogError',
+    'HT': 'HighMET+EXOHT+LogError',
 
     'Tau': 'LogError',
     'PhotonHad': 'LogError',
@@ -33,15 +33,51 @@ autoSkim = {
     
     }
 
+## autoSkimEXO = {
+##     'BTag' : 'EXOHSCP+LogError',
+##     'DoubleElectron' : 'EXOHPTE+EXOTriEle+EXODiEle+HWW+HZZ+LogError',
+##     'DoubleMu' : 'EXOLongLivedMu+EXOHSCP+EXOTriMu+EXODiMu+HWW+HZZ+LogError',
+##     'HT': 'EXOHT+LogError',
+##     'MET': 'EXOHSCP+EXOSingleJet+LogError',
+##     'METBTag': 'EXOHSCP+EXOSingleJet+LogError',
+##     'MuEG' : 'EXO1E2Mu+HWW+HZZ+LogError',
+##     'Photon': 'EXOLongLivedPhoton+DoublePhoton+LogError',
+##     'SingleElectron' : 'EXOEle+EXOHPTE+HWW+HZZ+LogError',
+##     'SingleMu' : 'EXOHSCP+EXOMu+HWW+HZZ+LogError',
+##     }
+
+
 autoSkimEXO = {
-    'SingleMu' : 'WMu+ZMu+LogError+HWW+EXOLLRes',
-    'DoubleMu' : 'WMu+ZMu+LogError+HWW+EXOLLRes+EXOLongLivedMu',
-    'DoubleElectron' : 'ZElectron+LogError+HWW+EXOLLRes',
-    'MuEG' : 'LogError+HWW+EXOLLRes',
-    'METBTag': 'EXOSingleJet+LogError',
+##    'BTag' : 'EXOHSCP+LogError',
+    'DoubleElectron' : 'EXOTriEle+EXODiEle+HWW+HZZ+LogError',
+    'DoubleMu' : 'EXOTriMu+EXODiMu+HWW+HZZ+LogError',
+    'HT': 'EXOHT+LogError',
     'MET': 'EXOSingleJet+LogError',
-    'Photon': 'EXOLongLivedPhoton+LogError',
+    'METBTag': 'EXOSingleJet+LogError',
+    'MuEG' : 'EXO1E2Mu+HWW+HZZ+LogError',
+    'Photon': 'DoublePhoton+EXOHPTE+LogError',
+    'SingleElectron' : 'EXOEle+HWW+HZZ+LogError',
+    'SingleMu' : 'EXOMu+HWW+HZZ+LogError',
     }
+
+## autoSkimEXO = {
+##     'EXOTriEle' : 'EXOTriEle',
+##     'EXODiEle' : 'EXODiEle',
+##     'EXOLongLivedMu' : 'EXOLongLivedMu',
+##     'EXOTriMu' : 'EXOTriMu',
+##     'EXODiMu' : 'EXODiMu',
+##     'EXOHT' : 'EXOHT',
+##     'EXOSingleJet' : 'EXOSingleJet',
+##     'EXO1E2Mu' : 'EXO1E2Mu',
+##     'EXOLongLivedPhoton' : 'EXOLongLivedPhoton',
+##     'EXOEle' : 'EXOEle',
+##     'EXOMu' : 'EXOMu',
+##     'HWW' : 'HWW',
+##     'HZZ' : 'HZZ',
+##     'EXOHSCP' : 'EXOHSCP',
+##     'DoublePhoton' : 'DoublePhoton',
+##     'EXOHPTE' : 'EXOHPTE',
+##     }
 
 autoSkimPDWG = {
     
