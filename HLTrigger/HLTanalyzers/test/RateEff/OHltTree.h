@@ -15640,9 +15640,13 @@ public:
          int Njetthreshjold);
    
    int OpenHltSumCorHTPassed(double sumHTthreshold, double jetthreshold = 40., double etathreshold=3.0);
+
+   int OpenHltSumCorPFHTPassed(double sumPFHTthreshold, double jetthreshold = 40., double etathreshold=3.0);
    
-   int OpenHltMHT(double MHTthreshold, double jetthreshold, double etathreshold=3.0);
+   int OpenHltMHT(double MHTthreshold, double jetthreshold = 30.0, double etathreshold=999.0);
    
+   int OpenHltPFMHT(double PFMHTthreshold, double jetthreshold = 30.0, double etathreshold=999.0);
+
    int OpenHltMHTU(double MHTthreshold, double jetthreshold, double etathreshold=3.0);
    
    int OpenHltMeffU(double Meffthreshold, double jetthreshold, double etathreshold=3.0);
@@ -15868,6 +15872,8 @@ public:
 				   double lxysig);
 
     bool OpenHltNJetPtPassed(int N, const double& pt);
+
+    bool OpenHltNPFJetPassed(const int N, const double& pt, const double& eta);
 
     bool OpenHltNTowCalEtPassed(int N, const double& Et);
 

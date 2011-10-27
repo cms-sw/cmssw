@@ -703,6 +703,70 @@ bool isHTX_MHTXTrigger(TString triggerName, vector<double> &thresholds)
     return false;
 }
 
+bool isPFHTXTrigger(TString triggerName, vector<double> &thresholds)
+{
+	
+  TString pattern = "(OpenHLT_PFHT([0-9]+))$";
+  TPRegexp matchThreshold(pattern);
+	
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdPFHT  = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      thresholds.push_back(thresholdPFHT);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
+
+bool isDiCentralPFJetX_PFMHTXTrigger(TString triggerName, vector<double> &thresholds)
+{
+	
+  TString pattern = "(OpenHLT_DiCentralPFJet([0-9]+)_PFMHT([0-9]+))$";
+  TPRegexp matchThreshold(pattern);
+	
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdPFJet  = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdPFMHT  = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      thresholds.push_back(thresholdPFJet);
+      thresholds.push_back(thresholdPFMHT);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
+
+bool isPFHTX_PFMHTX_OrHTX_OrMHTXTrigger(TString triggerName, vector<double> &thresholds)
+{
+	
+  TString pattern = "(OpenHLT_PFHT([0-9]+)_PFMHT([0-9]+)_OrHT([0-9]+)_OrMHT([0-9]+))$";
+  TPRegexp matchThreshold(pattern);
+	
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdPFHT  = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdPFMHT = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      double thresholdHT    = (((TObjString *)subStrL->At(4))->GetString()).Atof();
+      double thresholdMHT   = (((TObjString *)subStrL->At(5))->GetString()).Atof();
+      thresholds.push_back(thresholdPFHT);
+      thresholds.push_back(thresholdPFMHT);
+      thresholds.push_back(thresholdHT);
+      thresholds.push_back(thresholdMHT);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
+
+
+
 bool isAlphaTTrigger(TString triggerName, vector<double> &thresholds)
 {
 	
@@ -13067,6 +13131,66 @@ else if (triggerName.CompareTo("OpenHLT_Ele32_WP70_PFMT50_v1")  == 0)
 	    }
 	}
     }
+
+ else if (isDiCentralPFJetX_PFMHTXTrigger(triggerName, thresholds))
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+
+	      if  ( OpenHltNPFJetPassed(2, thresholds[0], 2.6) && OpenHltPFMHT(thresholds[1], 0.)==1)
+		  
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
+
+
+
+ else if (isPFHTX_PFMHTX_OrHTX_OrMHTXTrigger(triggerName, thresholds))
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+
+	      if (
+		  (OpenHltMHT(thresholds[1], 30.)==1 && OpenHltSumCorHTPassed(thresholds[0], 40.) == 1)
+		  &&( 
+		     (OpenHltPFMHT(thresholds[1], 30.)==1 && OpenHltSumCorPFHTPassed(thresholds[0], 40.) == 1)
+		     || 
+		     (OpenHltSumCorHTPassed(thresholds[2], 40.) && OpenHltMHT(thresholds[3], 30.)==1  )
+		     )
+		  )
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
+
+  else if (isPFHTXTrigger(triggerName, thresholds))
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+
+	      if (
+		  (OpenHltSumCorHTPassed(thresholds[0], 40.) == 1)
+		  && OpenHltSumCorPFHTPassed(thresholds[0], 40.) == 1)
+		   
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
+	
+	
 	
   /*****HTX_AlphaT0pX*******/
   else if (isAlphaTTrigger(triggerName, thresholds))
@@ -20409,6 +20533,29 @@ int OHltTree::OpenHltMHT(double MHTthreshold, double jetthreshold, double etathr
   //std::cout << "sqrt(mhtx*mhtx+mhty*mhty) = " << sqrt(mhtx*mhtx+mhty*mhty) << std::endl;
   return rc;
 }
+
+
+int OHltTree::OpenHltPFMHT(double PFMHTthreshold, double jetthreshold, double etathreshold)
+{
+  int rc = 0;
+  double mhtx=0., mhty=0.;
+  for (int i=0; i<NohPFJet; ++i)
+    {
+      if (pfJetPt[i] >= jetthreshold && fabs(pfJetEta[i]) < etathreshold)
+	{
+	  mhtx-=pfJetPt[i]*cos(pfJetPhi[i]);
+	  mhty-=pfJetPt[i]*sin(pfJetPhi[i]);
+	}
+    }
+  if (sqrt(mhtx*mhtx+mhty*mhty)>PFMHTthreshold)
+    rc = 1;
+  else
+    rc = 0;
+  //std::cout << "sqrt(mhtx*mhtx+mhty*mhty) = " << sqrt(mhtx*mhtx+mhty*mhty) << std::endl;
+  return rc;
+}
+
+
 int OHltTree::OpenHltMHTU(double MHTthreshold, double jetthreshold, double etathreshold)
 {
   int rc = 0;
@@ -20510,15 +20657,37 @@ int OHltTree::OpenHltSumCorHTPassed(double sumHTthreshold, double jetthreshold, 
   // Loop over all oh jets, sum up the energy  
   for (int i=0; i<NohJetCorCal; ++i)
     {
-      if (OpenJetID(i) && ohJetCorCalPt[i] >= jetthreshold && fabs(ohJetCorCalEta[i]) < etathreshold)
+      if (ohJetCorCalPt[i] >= jetthreshold && fabs(ohJetCorCalEta[i]) < etathreshold)
 	{
 	  //sumHT+=recoJetCorCorCalPt[i];
-	  //sumHT+=ohJetCorCalPt[i];
-	  sumHT+=(ohJetCorCalE[i]/cosh(ohJetCorCalEta[i]));
+	  sumHT+=ohJetCorCalPt[i];
+	  //sumHT+=(ohJetCorCalE[i]/cosh(ohJetCorCalEta[i]));
 	}
     }
 	
   if (sumHT >= sumHTthreshold)
+    rc = 1;
+	
+  return rc;
+}
+
+int OHltTree::OpenHltSumCorPFHTPassed(double sumPFHTthreshold, double jetthreshold, double etathreshold)
+{
+  int rc = 0;
+  double sumPFHT = 0.;
+	
+  // Loop over all oh jets, sum up the energy  
+  for (int i=0; i<NohPFJet; ++i)
+    {
+      if (pfJetPt[i] >= jetthreshold && fabs(pfJetEta[i]) < etathreshold)
+	{
+	  //sumHT+=recoJetCorCorCalPt[i];
+	  sumPFHT+=pfJetPt[i];
+	  //sumHT+=(ohJetCorCalE[i]/cosh(ohJetCorCalEta[i]));
+	}
+    }
+	
+  if (sumPFHT >= sumPFHTthreshold)
     rc = 1;
 	
   return rc;
@@ -22239,6 +22408,18 @@ bool OHltTree::OpenHltNJetPtPassed(int N, const double& pt)
     return NpassPt >= N;
 }
 
+bool OHltTree::OpenHltNPFJetPassed(const int N, const double& pt, const double& eta)
+{
+    Int_t Npass= 0;
+    for (int i= 0; i < NohPFJet; ++i)
+    {
+      if (pfJetPt[i] >= pt && abs(pfJetEta[i]) < eta) 
+	Npass++;
+      if (Npass >= N)
+	break;
+    }
+    return Npass >= N;
+}
 
 bool OHltTree::OpenHltNTowCalEtPassed(int N, const double& Et)
 {
