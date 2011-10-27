@@ -10,14 +10,13 @@
  Description: ROOT safe cache of a pointer
 
  Usage:
-We define an external TStreamer for this class in order to guarantee that ptr_
+We define schema evolution rules for this class in order to guarantee that ptr_
 is always reset to 0 when ever a new instance of this class is read from a file
 
 */
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Aug 18 17:30:04 EDT 2007
-// $Id$
 //
 
 // system include files

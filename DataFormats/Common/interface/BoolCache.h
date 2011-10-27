@@ -10,14 +10,13 @@
  Description: ROOT safe cache flag
 
  Usage:
-    We define an external TStreamer for this class in order to guarantee that isCached_
+    We define schema evolution rules for this class in order to guarantee that isCached_
     is always reset to false when ever a new instance of this class is read from a file
 
 */
 //
 // Original Author:  Chris Jones
 //         Created:  Sat Aug 18 17:30:08 EDT 2007
-// $Id: BoolCache.h,v 1.1 2007/08/20 13:55:58 chrjones Exp $
 //
 
 // system include files
