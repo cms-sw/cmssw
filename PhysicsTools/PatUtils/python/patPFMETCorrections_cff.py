@@ -79,7 +79,7 @@ patType1p2CorrectedPFMet = cms.EDProducer("CorrectedPATMETProducer",
     ),                              
     type2CorrFormula = cms.string("A"),
     type2CorrParameter = cms.PSet(
-        A = cms.double(1.2)
+        A = cms.double(1.4)
     )
 )   
 #--------------------------------------------------------------------------------

@@ -77,7 +77,7 @@ pfType1p2CorrectedMet = cms.EDProducer("CorrectedPFMETProducer",
     ),                              
     type2CorrFormula = cms.string("A"),
     type2CorrParameter = cms.PSet(
-        A = cms.double(1.2)
+        A = cms.double(1.4)
     )
 )   
 #--------------------------------------------------------------------------------
