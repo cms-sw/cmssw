@@ -1431,11 +1431,11 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
     float Ene_ecalbrem = 0.;
     float Ene_extraecalgsf = 0.;
     bool LateBrem = false;
-    bool EarlyBrem = false;
+    // bool EarlyBrem = false;
     int FirstBrem = 1000;
     unsigned int ecalGsf_index = 100000;
     unsigned int kf_index = 100000;
-    unsigned int nhits_gsf = 0;
+    // unsigned int nhits_gsf = 0;
     int NumBrem = 0;
     reco::TrackRef RefKF;  
     double posX=0.;
@@ -1451,7 +1451,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
       float m_el=0.00051;
       Ein_gsf =sqrt(RefGSF->pMode()*
 		    RefGSF->pMode()+m_el*m_el);
-      nhits_gsf = RefGSF->hitPattern().trackerLayersWithMeasurement();
+      // nhits_gsf = RefGSF->hitPattern().trackerLayersWithMeasurement();
     }
     float Eout_gsf = GsfEl->Pout().t();
     float Etaout_gsf = GsfEl->positionAtECALEntrance().eta();
@@ -1553,7 +1553,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 	const reco::PFBlockElementBrem * BremEl  =  
 	  dynamic_cast<const reco::PFBlockElementBrem*>((&elements[brem_index]));
 	int TrajPos = (BremEl->indTrajPoint())-2;
-	if (TrajPos <= 3) EarlyBrem = true;
+	//if (TrajPos <= 3) EarlyBrem = true;
 	if (TrajPos < FirstBrem) FirstBrem = TrajPos;
 
 	vector<unsigned int> assobrem_index = associatedToBrems_.find(brem_index)->second;
@@ -1911,9 +1911,9 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
     int eecal=0;
     int hcal=0;
     int charge =0; 
-    bool goodphi=true;
+    // bool goodphi=true;
     math::XYZTLorentzVector momentum_kf,momentum_gsf,momentum,momentum_mean;
-    float dpt=0; float dpt_kf=0; float dpt_gsf=0; float dpt_mean=0;
+    float dpt=0; float dpt_gsf=0;
     float Eene=0; float dene=0; float Hene=0.;
     float RawEene = 0.;
     double posX=0.;
@@ -1968,8 +1968,8 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
       float ENEm=sqrt(RefGSF->p()*
 		      RefGSF->p()+m_el*m_el);
       momentum_mean.SetE(ENEm);       
-      dpt_mean=RefGSF->ptError()*
-	(RefGSF->p()/RefGSF->pt());  
+      //       dpt_mean=RefGSF->ptError()*
+      // 	(RefGSF->p()/RefGSF->pt());  
     }
     else {
       if( DebugIDCandidates ) 
@@ -1993,7 +1993,7 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	RefKF = KfTk->trackRef();
 	if (RefKF.isNonnull()) {
 	  has_kf = true;
-	  dpt_kf=(RefKF->ptError()*RefKF->ptError());
+	  // dpt_kf=(RefKF->ptError()*RefKF->ptError());
 	  nhit_kf=RefKF->hitPattern().trackerLayersWithMeasurement();
 	  momentum_kf.SetPx(RefKF->px());
 	  momentum_kf.SetPy(RefKF->py());
@@ -2059,12 +2059,16 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 	float ceta=cl.position().eta();
 	float cphi=cl.position().phi();
 	
-	float mphi=-2.97025;
-	if (ceta<0) mphi+=0.00638;
-	for (int ip=1; ip<19; ip++){
+	/*
+	  float mphi=-2.97025;
+	  if (ceta<0) mphi+=0.00638;
+	  
+	  for (int ip=1; ip<19; ip++){
 	  float df= cphi - (mphi+(ip*6.283185/18));
 	  if (fabs(df)<0.01) goodphi=false;
-	}
+	  }
+	*/
+
 	float dE=pfresol_.getEnergyResolutionEm(EE,cl.position().eta());
 	if( DebugIDCandidates ) 
 	  cout << "SetCandidates:: EcalCluster: EneNoCalib " << clust->clusterRef()->energy()  
