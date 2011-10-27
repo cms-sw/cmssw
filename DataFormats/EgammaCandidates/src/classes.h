@@ -1,5 +1,5 @@
 //
-// $Id: classes.h,v 1.38 2011/07/09 12:01:44 chamont Exp $
+// $Id: classes.h,v 1.39 2011/07/20 18:03:14 vlimant Exp $
 //
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -111,6 +111,7 @@ namespace {
     reco::GsfElectron::PflowIsolationVariables gepiv ;
     reco::GsfElectron::MvaInput gemi ;
     reco::GsfElectron::MvaOutput gemo ;
+    reco::GsfElectron::ClassificationVariables gecv ;
 
     edm::RefToBase<reco::GsfElectron> rtbg;
     edm::reftobase::IndirectHolder<reco::GsfElectron> ihg;

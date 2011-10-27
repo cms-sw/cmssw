@@ -12,7 +12,6 @@ void GsfElectron::init()
   passCutBasedPreselection_ = false ;
   passMvaPreslection_ = false ;
   ambiguous_ = true ;
-  fbrem_ = 0 ;
   class_ = UNKNOWN ;
  }
 
@@ -29,8 +28,7 @@ GsfElectron::GsfElectron
    const TrackClusterMatching & tcm, const TrackExtrapolations & te,
    const ClosestCtfTrack & ctfInfo,
    const FiducialFlags & ff, const ShowerShape & ss,
-   const ConversionRejection & crv,
-   float fbrem
+   const ConversionRejection & crv
  )
  : chargeInfo_(chargeInfo),
    core_(core),
@@ -39,7 +37,6 @@ GsfElectron::GsfElectron
    fiducialFlags_(ff), showerShape_(ss), conversionRejection_(crv)
  {
   init() ;
-  fbrem_ = fbrem ;
   setCharge(charge) ;
   setVertex(math::XYZPoint(te.positionAtVtx.x(),te.positionAtVtx.y(),te.positionAtVtx.z())) ;
   setPdgId(-11*charge) ;
@@ -69,8 +66,7 @@ GsfElectron::GsfElectron
    passMvaPreslection_(electron.passMvaPreslection_),
    ambiguous_(electron.ambiguous_),
    ambiguousGsfTracks_(electron.ambiguousGsfTracks_),
-   //mva_(electron.mva_),
-   fbrem_(electron.fbrem_),
+   classVariables_(electron.classVariables_),
    class_(electron.class_),
    corrections_(electron.corrections_)
  {
@@ -104,7 +100,7 @@ GsfElectron::GsfElectron
    ambiguous_(electron.ambiguous_),
    ambiguousGsfTracks_(ambiguousTracks),
    //mva_(electron.mva_),
-   fbrem_(electron.fbrem_),
+   classVariables_(electron.classVariables_),
    class_(electron.class_),
    corrections_(electron.corrections_)
  {

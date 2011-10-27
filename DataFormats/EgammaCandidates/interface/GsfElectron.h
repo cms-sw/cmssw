@@ -57,6 +57,7 @@ class GsfElectron : public RecoCandidate
     struct ShowerShape ;
     struct IsolationVariables ;
     struct ConversionRejection ;
+    struct ClassificationVariables ;
 
     GsfElectron() ;
     GsfElectron( const GsfElectronCoreRef & ) ;
@@ -84,8 +85,7 @@ class GsfElectron : public RecoCandidate
       const ClosestCtfTrack &,
       const FiducialFlags &,
       const ShowerShape &,
-      const ConversionRejection &,
-      float fbrem
+      const ConversionRejection &
      ) ;
     GsfElectron * clone() const ;
     GsfElectron * clone
@@ -605,27 +605,44 @@ class GsfElectron : public RecoCandidate
 
 
   //=======================================================
-  // Brem Fraction and Classification
-  // * fbrem given to the GsfElectron constructor
-  // * classification computed later
+  // Brem Fractions and Classification
   //=======================================================
 
   public :
 
-    enum Classification { UNKNOWN=-1, GOLDEN=0, BIGBREM=1, OLDNARROW=2, SHOWERING=3, GAP=4 } ;
+    struct ClassificationVariables
+      {
+       float trackFbrem  ;       // the brem fraction from gsf fit: (track momentum in - track momentum out) / track momentum in
+       float superClusterFbrem ; // the brem fraction from supercluster: (supercluster energy - electron cluster energy) / supercluster energy
+       float pfSuperClusterFbrem ; // the brem fraction from pflow supercluster
+       ClassificationVariables()
+        : trackFbrem(-1.e30), superClusterFbrem(-1.e30), pfSuperClusterFbrem(-1.e30)
+        {}
+      } ;
+    enum Classification { UNKNOWN=-1, GOLDEN=0, BIGBREM=1, BADTRACK=2, SHOWERING=3, GAP=4 } ;
 
     // accessors
-    float fbrem() const { return fbrem_ ; }
-    int numberOfBrems() const { return basicClustersSize()-1 ; }
+    float trackFbrem() const { return classVariables_.trackFbrem ; }
+    float superClusterFbrem() const { return classVariables_.superClusterFbrem ; }
+    float pfSuperClusterFbrem() const { return classVariables_.pfSuperClusterFbrem ; }
+    const ClassificationVariables & classificationVariables() const { return classVariables_ ; }
     Classification classification() const { return class_ ; }
 
+    // utilities
+    int numberOfBrems() const { return basicClustersSize()-1 ; }
+    float fbrem() const { return trackFbrem() ; }
+
     // setters
-    void classifyElectron( Classification myclass ) { class_ = myclass ; }
+    void setTrackFbrem( float fbrem ) { classVariables_.trackFbrem = fbrem ; }
+    void setSuperClusterFbrem( float fbrem ) { classVariables_.superClusterFbrem = fbrem ; }
+    void setPfSuperClusterFbrem( float fbrem ) { classVariables_.pfSuperClusterFbrem = fbrem ; }
+    void setClassificationVariables( const ClassificationVariables & cv ) { classVariables_ = cv ; }
+    void setClassification( Classification myclass ) { class_ = myclass ; }
 
   private:
 
     // attributes
-    float fbrem_ ; // the brem fraction from gsf fit: (track momentum in - track momentum out) / track momentum in
+    ClassificationVariables classVariables_ ;
     Classification class_ ; // fbrem and number of clusters based electron classification
 
 

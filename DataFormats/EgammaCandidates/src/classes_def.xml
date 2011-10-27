@@ -133,9 +133,11 @@
   <class name="reco::GsfElectron::MvaOutput" ClassVersion="10">
    <version ClassVersion="10" checksum="2145829729"/>
   </class>
-  
-  <class name="reco::GsfElectron" ClassVersion="10">
-   <version ClassVersion="10" checksum="3805055219"/>
+  <class name="reco::GsfElectron::ClassificationVariables" ClassVersion="11">
+   <version ClassVersion="11" checksum="2094185381"/>
+  </class>
+  <class name="reco::GsfElectron" ClassVersion="11">
+   <version ClassVersion="11" checksum="1755683850"/>
   </class>
   <class name="std::vector<reco::GsfElectron>"/>  
   <class name="edm::RefToBase<reco::GsfElectron>" />
