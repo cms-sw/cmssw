@@ -10,6 +10,8 @@ ckfTrajectories = cms.EDProducer("CkfTrajectoryMaker",
     #string RedundantSeedCleaner  = "none"
     useHitsSplitting = cms.bool(False),
     doSeedingRegionRebuilding = cms.bool(False),
+    ## reverse trajectories after pattern-reco creating new seed on last hit
+    reverseTrajectories       = cms.bool(False),
     trackCandidateAlso = cms.bool(False),
     #bool   seedCleaning         = false
     src = cms.InputTag('globalMixedSeeds'),

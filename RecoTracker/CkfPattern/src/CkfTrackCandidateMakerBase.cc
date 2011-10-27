@@ -48,6 +48,7 @@ namespace cms{
     useSplitting(conf.getParameter<bool>("useHitsSplitting")),
     doSeedingRegionRebuilding(conf.getParameter<bool>("doSeedingRegionRebuilding")),
     cleanTrajectoryAfterInOut(conf.getParameter<bool>("cleanTrajectoryAfterInOut")),
+    reverseTrajectories(conf.existsAs<bool>("reverseTrajectories") && conf.getParameter<bool>("reverseTrajectories")),
     theMaxNSeeds(conf.getParameter<unsigned int>("maxNSeeds")),
     theTrajectoryBuilderName(conf.getParameter<std::string>("TrajectoryBuilder")), 
     theTrajectoryBuilder(0),
@@ -266,6 +267,43 @@ namespace cms{
 					    std::not1(std::mem_fun_ref(&Trajectory::isValid))),
 			     unsmoothedResult.end());
       
+      // If requested, reverse the trajectories creating a new 1-hit seed on the last measurement of the track
+      if (reverseTrajectories) {
+        vector<Trajectory> reversed; 
+        reversed.reserve(unsmoothedResult.size());
+        for (vector<Trajectory>::const_iterator it = unsmoothedResult.begin(), ed = unsmoothedResult.end(); it != ed; ++it) {
+          // reverse the trajectory only if it has valid hit on the last measurement (should happen)
+          if (it->lastMeasurement().updatedState().isValid() && 
+              it->lastMeasurement().recHit().get() != 0     &&
+              it->lastMeasurement().recHit()->isValid()) {
+            // I can't use reverse in place, because I want to change the seed
+            // 1) reverse propagation direction
+            PropagationDirection direction = it->direction();
+            if (direction == alongMomentum)           direction = oppositeToMomentum;
+            else if (direction == oppositeToMomentum) direction = alongMomentum;
+            // 2) make a seed
+            TrajectoryStateOnSurface initState = it->lastMeasurement().updatedState();
+            DetId                    initDetId = it->lastMeasurement().recHit()->geographicalId();
+            std::auto_ptr<PTrajectoryStateOnDet> state(TrajectoryStateTransform().persistentState( initState, initDetId.rawId()));
+            TrajectorySeed::recHitContainer hits; 
+            hits.push_back(*it->lastMeasurement().recHit()->hit());
+            boost::shared_ptr<const TrajectorySeed> seed(new TrajectorySeed(*state, hits, direction));
+            // 3) make a trajectory
+            Trajectory trajectory(seed, direction);
+            trajectory.setSeedRef(it->seedRef());
+            // 4) push states in reversed order
+            const Trajectory::DataContainer &meas = it->measurements();
+            for (Trajectory::DataContainer::const_reverse_iterator itmeas = meas.rbegin(), endmeas = meas.rend(); itmeas != endmeas; ++itmeas) {
+              trajectory.push(*itmeas);
+            } 
+            reversed.push_back(trajectory);
+          } else {
+            edm::LogWarning("CkfPattern_InvalidLastMeasurement") << "Last measurement of the trajectory is invalid, cannot reverse it";
+            reversed.push_back(*it);
+          }     
+        }
+        unsmoothedResult.swap(reversed);
+      }
 
       //      for (vector<Trajectory>::const_iterator itraw = rawResult.begin();
       //	   itraw != rawResult.end(); itraw++) {
@@ -278,7 +316,7 @@ namespace cms{
 	// Step F: Convert to TrackCandidates
        output->reserve(unsmoothedResult.size());
        for (vector<Trajectory>::const_iterator it = unsmoothedResult.begin();
-	    it != unsmoothedResult.end(); it++) {
+	    it != unsmoothedResult.end(); ++it) {
 	
 	 Trajectory::RecHitContainer thits;
 	 //it->recHitsV(thits);
@@ -288,12 +326,12 @@ namespace cms{
 	 recHits.reserve(thits.size());
 	 LogDebug("CkfPattern") << "cloning hits into new collection.";
 	 for (Trajectory::RecHitContainer::const_iterator hitIt = thits.begin();
-	      hitIt != thits.end(); hitIt++) {
+	      hitIt != thits.end(); ++hitIt) {
 	   recHits.push_back( (**hitIt).hit()->clone());
 	 }
 
 	 LogDebug("CkfPattern") << "getting initial state.";
-	 const bool doBackFit = !doSeedingRegionRebuilding;
+	 const bool doBackFit = !doSeedingRegionRebuilding && !reverseTrajectories;
 	 std::pair<TrajectoryStateOnSurface, const GeomDet*> initState = 
 	   theInitialState->innerState( *it , doBackFit);
 
@@ -314,7 +352,6 @@ namespace cms{
 	 
 	 if(!state) state = TrajectoryStateTransform().persistentState( initState.first,
 									initState.second->geographicalId().rawId());
-	 
 	 LogDebug("CkfPattern") << "pushing a TrackCandidate.";
 	 output->push_back(TrackCandidate(recHits,it->seed(),*state,it->seedRef() ) );
 	 

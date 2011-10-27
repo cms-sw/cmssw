@@ -44,6 +44,7 @@ namespace cms
     bool useSplitting;
     bool doSeedingRegionRebuilding;
     bool cleanTrajectoryAfterInOut;
+    bool reverseTrajectories;
 
     unsigned int theMaxNSeeds;
 
