@@ -53,8 +53,6 @@ CSCSegAlgoPreClustering::clusterHits( const CSCChamber* aChamber, ChamberHitCont
 
   std::vector<ChamberHitContainer> rechits_clusters; // this is a collection of groups of rechits
 
-  float dXclus = 0.0;
-  float dYclus = 0.0;
   float dXclus_box = 0.0;
   float dYclus_box = 0.0;
 
@@ -104,10 +102,6 @@ CSCSegAlgoPreClustering::clusterHits( const CSCChamber* aChamber, ChamberHitCont
 	    continue; //skip seeds that have been used 
 	  }
 	  
-	  // calculate cut criteria for simple running mean distance cut:
-	  dXclus = fabs(running_meanX[NNN] - running_meanX[MMM]);
-	  dYclus = fabs(running_meanY[NNN] - running_meanY[MMM]);
-
 	  // calculate minmal distance between precluster boxes containing the hits:
 	  if ( running_meanX[NNN] > running_meanX[MMM] ) dXclus_box = seed_minX[NNN] - seed_maxX[MMM];
 	  else                                           dXclus_box = seed_minX[MMM] - seed_maxX[NNN];
