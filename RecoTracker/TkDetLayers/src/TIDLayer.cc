@@ -302,7 +302,7 @@ TIDLayer::findClosest(const GlobalPoint ringCrossing[3] ) const
     float ringR = 0.5*( theRing.innerRadius() + 
 			theRing.outerRadius());
     float testDiff = fabs( ringCrossing[i].perp() - ringR);
-    if ( theBin<0 || testDiff<rDiff ) {
+    if ( testDiff<rDiff ) {
       rDiff = testDiff;
       theBin = i;
     }
