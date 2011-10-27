@@ -13,75 +13,45 @@
 
 using namespace reco;
 
-void ElectronClassification::correct(GsfElectron &electron) {
-  classify(electron);
-  //  electron.classifyElectron(this);
-  electron.classifyElectron(electronClass_);
-}
-
-void ElectronClassification::classify(const GsfElectron &electron)
+void ElectronClassification::classify( GsfElectron & electron )
  {
-  electronClass_ = GsfElectron::UNKNOWN ;
-
-
-   reco::SuperClusterRef sclRef=electron.superCluster();
-
-  // use supercluster energy including f(Ncry) correction
-  float scEnergy=sclRef->energy();
-
-  // first look whether it's in crack, barrel or endcap
   if ((!electron.isEB())&&(!electron.isEE()))
    {
-    edm::LogWarning("") << "ElectronClassification::init(): Undefined electron, eta = " <<
-      electron.eta() << "!!!!" ;
+    edm::LogWarning("")
+      << "ElectronClassification::init(): Undefined electron, eta = "
+      << electron.eta() << "!!!!" ;
+    electron.setClassification(GsfElectron::UNKNOWN) ;
     return ;
    }
 
-  if (electron.isEBEEGap() || electron.isEBEtaGap() || electron.isEERingGap())
+  if ( electron.isEBEEGap() || electron.isEBEtaGap() || electron.isEERingGap() )
    {
-	electronClass_ = GsfElectron::GAP ;
-	return ;
+    electron.setClassification(GsfElectron::GAP) ;
+    return ;
    }
 
-  float pin  = electron.trackMomentumAtVtx().R() ;
-  float fbrem = electron.fbrem() ;
+  //float pin  = electron.trackMomentumAtVtx().R() ;
+  float fbrem = electron.trackFbrem() ;
   int nbrem = electron.numberOfBrems() ;
 
-  // golden
-  if (nbrem == 0 && (pin - scEnergy)/pin < 0.1 && fbrem < 0.5) {
-	  electronClass_ = GsfElectron::GOLDEN ;
-  }
-  
-  // big brem
-  else if (nbrem == 0 && (pin - scEnergy)/pin < 0.1 && fbrem > 0.5) {
-	  electronClass_ = GsfElectron::BIGBREM ;
-  }
-  
-  // showering
-  else 
-          electronClass_ = GsfElectron::SHOWERING ;
+  if (nbrem == 0 && fbrem < 0.5) // part (pin - scEnergy)/pin < 0.1 removed - M.D.
+   { electron.setClassification(GsfElectron::GOLDEN) ; }
+  else if (nbrem == 0 && fbrem >= 0.5) // part (pin - scEnergy)/pin < 0.1 removed - M.D.
+   { electron.setClassification(GsfElectron::BIGBREM) ; }
+  else
+   { electron.setClassification(GsfElectron::SHOWERING) ; }
 
-}
+ }
 
-/*
-bool ElectronClassification::isInCrack(float eta) const{
+void ElectronClassification::refineWithPflow( GsfElectron & electron )
+ {
+  if ((!electron.isEB())&&(!electron.isEE()))
+   { return ; }
 
-  return (eta>1.460 && eta<1.558);
+  if ( electron.isEBEEGap() || electron.isEBEtaGap() || electron.isEERingGap() )
+   { return ; }
 
-}
+  if ((electron.pfSuperClusterFbrem()-electron.trackFbrem())>=0.15)
+   { electron.setClassification(GsfElectron::BADTRACK) ; }
+ }
 
-bool ElectronClassification::isInEtaGaps(float eta) const{
-
-  return (eta < 0.018 ||
-	  (eta>0.423 && eta<0.461) ||
-	  (eta>0.770 && eta<0.806) ||
-	  (eta>1.127 && eta<1.163));
-
-}
-
-bool ElectronClassification::isInPhiGaps(float phi) const{
-
-  return false;
-
-}
-*/

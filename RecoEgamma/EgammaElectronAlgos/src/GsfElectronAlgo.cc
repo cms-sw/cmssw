@@ -865,7 +865,23 @@ void GsfElectronAlgo::addPflowInfo()
       (*el)->setPfShowerShape(pflowShowerShape) ;
      }
     else if ((*el)->passingMvaPreselection())
-    { edm::LogError("GsfElectronCoreProducer")<<"Preselected tracker driven GsfTrack with no associated pflow SuperCluster." ; }
+     { edm::LogError("GsfElectronCoreProducer")<<"Preselected tracker driven GsfTrack with no associated pflow SuperCluster." ; }
+
+    // PfBrem
+    SuperClusterRef sc = (*el)->pflowSuperCluster() ;
+    if (!(sc.isNull()))
+     {
+
+      if (sc->clustersSize()>1)
+       {
+        CaloCluster_iterator first = sc->clustersBegin() ;
+        (*el)->setPfSuperClusterFbrem((sc->energy()-(*first)->energy())/sc->energy()) ;
+       }
+      else
+       { (*el)->setPfSuperClusterFbrem(0.) ; }
+      ElectronClassification theClassifier ;
+      theClassifier.refineWithPflow(**el) ;
+     }
    }
  }
 
@@ -1139,13 +1155,6 @@ void GsfElectronAlgo::createElectron()
 
 
   //====================================================
-  // brems fraction
-  //====================================================
-
-  float fbrem = (electronData_->outMom.mag()>0.)?((electronData_->innMom.mag()-electronData_->outMom.mag())/electronData_->innMom.mag()):1.e30 ;
-
-
-  //====================================================
   // Go !
   //====================================================
 
@@ -1154,13 +1163,34 @@ void GsfElectronAlgo::createElectron()
      ( eleCharge,eleChargeInfo,electronData_->coreRef,
        tcMatching, tkExtra, ctfInfo,
        fiducialFlags,showerShape,
-       conversionVars,
-       fbrem) ;
+       conversionVars) ;
   ele->setP4(GsfElectron::P4_FROM_SUPER_CLUSTER,momentum,0,true) ;
 
+
+  //====================================================
+  // brems fractions
+  //====================================================
+
+  if (electronData_->innMom.mag()>0.)
+   { ele->setTrackFbrem((electronData_->innMom.mag()-electronData_->outMom.mag())/electronData_->innMom.mag()) ; }
+
+  SuperClusterRef sc = ele->superCluster() ;
+  if (!(sc.isNull()))
+   {
+    CaloClusterPtr cl = ele->electronCluster() ;
+    if (sc->clustersSize()>1)
+     { ele->setSuperClusterFbrem( ( sc->energy() - cl->energy() ) / sc->energy() ) ; }
+    else
+     { ele->setSuperClusterFbrem(0) ; }
+   }
+
+
+  //====================================================
   // classification and corrections
+  //====================================================
+
   ElectronClassification theClassifier;
-  theClassifier.correct(*ele);
+  theClassifier.classify(*ele);
   ElectronEnergyCorrector theEnCorrector ;
   if (!generalData_->superClusterErrorFunction)
    { theEnCorrector.setCorrectedEcalEnergyError(*ele) ; }
@@ -1173,7 +1203,11 @@ void GsfElectronAlgo::createElectron()
     theMomCorrector.correct(*ele,electronData_->vtxTSOS);
    }
 
+
+  //====================================================
   // now isolation variables
+  //====================================================
+
   reco::GsfElectron::IsolationVariables dr03, dr04 ;
   dr03.tkSumPt = eventData_->tkIsolation03->getPtTracks(ele);
   dr03.hcalDepth1TowerSumEt = eventData_->hadDepth1Isolation03->getTowerEtSum(ele) ;
@@ -1190,7 +1224,11 @@ void GsfElectronAlgo::createElectron()
   ele->setIsolation03(dr03);
   ele->setIsolation04(dr04);
 
+
+  //====================================================
   // preselection flag
+  //====================================================
+
   setCutBasedPreselectionFlag(ele,*eventData_->beamspot) ;
 
   LogTrace("GsfElectronAlgo")<<"Constructed new electron with energy  "<< ele->p4().e() ;

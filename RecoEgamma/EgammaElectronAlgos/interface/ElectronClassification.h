@@ -15,21 +15,20 @@ class ElectronClassification
 {
  public:
 
-  ElectronClassification(){electronClass_=reco::GsfElectron::UNKNOWN;}
+  ElectronClassification(){}
 
-  reco::GsfElectron::Classification getClass() const {return electronClass_;}
-
-  virtual void correct(reco::GsfElectron &);
+  void classify( reco::GsfElectron & ) ;
+  void refineWithPflow( reco::GsfElectron & ) ;
 
  private:
 
-  void classify(const reco::GsfElectron &);
+//  void classify(const reco::GsfElectron &);
 
 //  bool isInCrack(float eta) const;
 //  bool isInEtaGaps(float eta) const;
 //  bool isInPhiGaps(float phi) const;
 
-  reco::GsfElectron::Classification electronClass_;
+//  reco::GsfElectron::Classification electronClass_;
 
 };
 
