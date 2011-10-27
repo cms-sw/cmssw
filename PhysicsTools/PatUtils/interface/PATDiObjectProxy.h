@@ -2,7 +2,6 @@
 #define PhysicsTools_PatUtils_interface_PATDiObjectProxy_h
 
 #include "DataFormats/Math/interface/deltaR.h"
-#include "DataFormats/Common/interface/BoolCache.h"
 #include "Utilities/General/interface/ClassName.h"
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
@@ -21,11 +20,11 @@ class DiObjectProxy {
 
    public: 
         /// Default constructor, requested by ROOT. NEVER use a default constructed item!
-        DiObjectProxy() : cand1_(0), cand2_(0), type1_(0), type2_(0) {}
+        DiObjectProxy() : cand1_(0), cand2_(0), type1_(0), type2_(0), totalP4ok_(false), totalP4_()  {}
         /// Constructor of the pair from two Candidates
         /// Note: the Proxy MUST NOT outlive the Candidates, otherwise you get dangling pointers
         DiObjectProxy(const reco::Candidate &c1, const reco::Candidate &c2) :
-            cand1_(&c1), cand2_(&c2), type1_(&typeid(c1)), type2_(&typeid(c2)) {}
+            cand1_(&c1), cand2_(&c2), type1_(&typeid(c1)), type2_(&typeid(c2)), totalP4ok_(false), totalP4_() {}
         
         /// Gets the first Candidate
         const reco::Candidate & cand1() const { return *cand1_; }
@@ -136,7 +135,7 @@ class DiObjectProxy {
        const reco::Candidate  *cand1_, *cand2_;
        const std::type_info   *type1_, *type2_;
 
-       mutable edm::BoolCache totalP4ok_;
+       mutable bool totalP4ok_;
        mutable reco::Candidate::LorentzVector totalP4_;
        
 

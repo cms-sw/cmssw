@@ -1,11 +1,21 @@
 <lcgdict>
 
-  <class name="ParticleBase" ClassVersion="10">
+  <class name="ParticleBase" ClassVersion="11">
+   <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" />
+   <field name="p4Polar_" transient="true" />
+   <field name="p4Cartesian_" transient="true" />
+   <field name="p4PolarFixed_" transient="true" />
+   <field name="p4CartesianFixed_" transient="true" />
+   <version ClassVersion="11" checksum="3838809954"/>
    <version ClassVersion="10" checksum="1390413442"/>
-    <field name="vertex_" iotype="ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<Double32_t>,ROOT::Math::DefaultCoordinateSystemTag>" />
-    <field name="p4Polar_" transient="true" />
-    <field name="p4Cartesian_" transient="true" />
   </class>
+  <ioread sourceClass = "ParticleBase" version="[1-]" targetClass="ParticleBase" source = "" target="cachePolarFixed_">
+    <![CDATA[cachePolarFixed_ = false;]]>
+  </ioread>
+  <ioread sourceClass = "ParticleBase" version="[1-]" targetClass="ParticleBase" source = "" target="cacheCartesianFixed_">
+    <![CDATA[cacheCartesianFixed_ = false;]]>
+  </ioread>
+
   <class name="std::vector<ParticleBase>" />
   <class name="edm::Wrapper<std::vector<ParticleBase> >" />
 

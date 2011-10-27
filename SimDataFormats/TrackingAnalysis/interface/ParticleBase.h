@@ -7,13 +7,12 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: ParticleBase.h,v 1.2 2008/11/21 15:28:44 bazterra Exp $
+ * \version $Id: ParticleBase.h,v 1.3 2008/11/26 17:46:46 bazterra Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/Common/interface/BoolCache.h"
 #include "Rtypes.h"
 
 class ParticleBase
@@ -30,7 +29,7 @@ public:
     /// point in the space
     typedef math::XYZVectorD Vector;
     /// default constructor
-    ParticleBase() : cachePolarFixed_( false ) { }
+    ParticleBase() : cachePolarFixed_( false ), cacheCartesianFixed_( false ) { }
     /// constructor from values
     ParticleBase( Charge q, const LorentzVector & p4, const Point & vertex = Point( 0, 0, 0 ),
                   int pdgId = 0, int status = 0, bool integerCharge = true ) :
@@ -299,7 +298,7 @@ protected:
     /// internal cache for p4
     mutable LorentzVector p4Cartesian_;
     /// has cache been set?
-    mutable  edm::BoolCache cachePolarFixed_, cacheCartesianFixed_;
+    mutable bool cachePolarFixed_, cacheCartesianFixed_;
     /// set internal cache
     inline void cachePolar() const
     {

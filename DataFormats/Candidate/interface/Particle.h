@@ -7,13 +7,12 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: Particle.h,v 1.27 2008/02/21 09:04:06 llista Exp $
+ * \version $Id: Particle.h,v 1.28 2009/09/21 08:15:50 llista Exp $
  *
  */
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/Common/interface/BoolCache.h"
 #include "Rtypes.h"
 
 namespace reco {
@@ -178,7 +177,7 @@ namespace reco {
     /// internal cache for p4
     mutable LorentzVector p4Cartesian_;
     /// has cache been set?
-    mutable  edm::BoolCache cachePolarFixed_, cacheCartesianFixed_;
+    mutable  bool cachePolarFixed_, cacheCartesianFixed_;
     /// set internal cache
     inline void cachePolar() const { 
       if ( cachePolarFixed_ ) return;

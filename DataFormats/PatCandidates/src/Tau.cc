@@ -1,5 +1,5 @@
 //
-// $Id: Tau.cc,v 1.20 2011/09/29 08:42:45 veelken Exp $
+// $Id: Tau.cc,v 1.21 2011/09/29 16:34:57 veelken Exp $
 //
 
 #include "DataFormats/PatCandidates/interface/Tau.h"
@@ -11,41 +11,61 @@ using namespace pat;
 
 /// default constructor
 Tau::Tau() :
-    Lepton<reco::BaseTau>(),
-    embeddedIsolationTracks_(false),
-    embeddedLeadTrack_(false),
-    embeddedSignalTracks_(false)
+    Lepton<reco::BaseTau>()
+    ,embeddedIsolationTracks_(false)
+    ,isolationTracksTransientRefVectorFixed_(false)
+    ,embeddedLeadTrack_(false)
+    ,embeddedSignalTracks_(false)
+    ,signalTracksTransientRefVectorFixed_(false)
     ,embeddedLeadPFCand_(false)
     ,embeddedLeadPFChargedHadrCand_(false)
     ,embeddedLeadPFNeutralCand_(false)
     ,embeddedSignalPFCands_(false)
+    ,signalPFCandsRefVectorFixed_(false)
     ,embeddedSignalPFChargedHadrCands_(false)
+    ,signalPFChargedHadrCandsRefVectorFixed_(false)
     ,embeddedSignalPFNeutralHadrCands_(false)
+    ,signalPFNeutralHadrCandsRefVectorFixed_(false)
     ,embeddedSignalPFGammaCands_(false)
+    ,signalPFGammaCandsRefVectorFixed_(false)
     ,embeddedIsolationPFCands_(false)
+    ,isolationPFCandsRefVectorFixed_(false)
     ,embeddedIsolationPFChargedHadrCands_(false)
+    ,isolationPFChargedHadrCandsRefVectorFixed_(false)
     ,embeddedIsolationPFNeutralHadrCands_(false)
+    ,isolationPFNeutralHadrCandsRefVectorFixed_(false)
     ,embeddedIsolationPFGammaCands_(false)
+    ,isolationPFGammaCandsRefVectorFixed_(false)
 {
 }
 
 /// constructor from reco::BaseTau
 Tau::Tau(const reco::BaseTau & aTau) :
-    Lepton<reco::BaseTau>(aTau),
-    embeddedIsolationTracks_(false),
-    embeddedLeadTrack_(false),
-    embeddedSignalTracks_(false)
+    Lepton<reco::BaseTau>(aTau)
+    ,embeddedIsolationTracks_(false)
+    ,isolationTracksTransientRefVectorFixed_(false)
+    ,embeddedLeadTrack_(false)
+    ,embeddedSignalTracks_(false)
+    ,signalTracksTransientRefVectorFixed_(false)
     ,embeddedLeadPFCand_(false)
     ,embeddedLeadPFChargedHadrCand_(false)
     ,embeddedLeadPFNeutralCand_(false)
     ,embeddedSignalPFCands_(false)
+    ,signalPFCandsRefVectorFixed_(false)
     ,embeddedSignalPFChargedHadrCands_(false)
+    ,signalPFChargedHadrCandsRefVectorFixed_(false)
     ,embeddedSignalPFNeutralHadrCands_(false)
+    ,signalPFNeutralHadrCandsRefVectorFixed_(false)
     ,embeddedSignalPFGammaCands_(false)
+    ,signalPFGammaCandsRefVectorFixed_(false)
     ,embeddedIsolationPFCands_(false)
+    ,isolationPFCandsRefVectorFixed_(false)
     ,embeddedIsolationPFChargedHadrCands_(false)
+    ,isolationPFChargedHadrCandsRefVectorFixed_(false)
     ,embeddedIsolationPFNeutralHadrCands_(false)
+    ,isolationPFNeutralHadrCandsRefVectorFixed_(false)
     ,embeddedIsolationPFGammaCands_(false)
+    ,isolationPFGammaCandsRefVectorFixed_(false)
 {
     const reco::PFTau * pfTau = dynamic_cast<const reco::PFTau *>(&aTau);
     if (pfTau != 0) pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
@@ -55,21 +75,31 @@ Tau::Tau(const reco::BaseTau & aTau) :
 
 /// constructor from ref to reco::BaseTau
 Tau::Tau(const edm::RefToBase<reco::BaseTau> & aTauRef) :
-    Lepton<reco::BaseTau>(aTauRef),
-    embeddedIsolationTracks_(false),
-    embeddedLeadTrack_(false),
-    embeddedSignalTracks_(false)
+    Lepton<reco::BaseTau>(aTauRef)
+    ,embeddedIsolationTracks_(false)
+    ,isolationTracksTransientRefVectorFixed_(false)
+    ,embeddedLeadTrack_(false)
+    ,embeddedSignalTracks_(false)
+    ,signalTracksTransientRefVectorFixed_(false)
     ,embeddedLeadPFCand_(false)
     ,embeddedLeadPFChargedHadrCand_(false)
     ,embeddedLeadPFNeutralCand_(false)
     ,embeddedSignalPFCands_(false)
+    ,signalPFCandsRefVectorFixed_(false)
     ,embeddedSignalPFChargedHadrCands_(false)
+    ,signalPFChargedHadrCandsRefVectorFixed_(false)
     ,embeddedSignalPFNeutralHadrCands_(false)
+    ,signalPFNeutralHadrCandsRefVectorFixed_(false)
     ,embeddedSignalPFGammaCands_(false)
+    ,signalPFGammaCandsRefVectorFixed_(false)
     ,embeddedIsolationPFCands_(false)
+    ,isolationPFCandsRefVectorFixed_(false)
     ,embeddedIsolationPFChargedHadrCands_(false)
+    ,isolationPFChargedHadrCandsRefVectorFixed_(false)
     ,embeddedIsolationPFNeutralHadrCands_(false)
+    ,isolationPFNeutralHadrCandsRefVectorFixed_(false)
     ,embeddedIsolationPFGammaCands_(false)
+    ,isolationPFGammaCandsRefVectorFixed_(false)
 {
     const reco::PFTau * pfTau = dynamic_cast<const reco::PFTau *>(aTauRef.get());
     if (pfTau != 0) pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
@@ -79,21 +109,31 @@ Tau::Tau(const edm::RefToBase<reco::BaseTau> & aTauRef) :
 
 /// constructor from ref to reco::BaseTau
 Tau::Tau(const edm::Ptr<reco::BaseTau> & aTauRef) :
-    Lepton<reco::BaseTau>(aTauRef),
-    embeddedIsolationTracks_(false),
-    embeddedLeadTrack_(false),
-    embeddedSignalTracks_(false)
+    Lepton<reco::BaseTau>(aTauRef)
+    ,embeddedIsolationTracks_(false)
+    ,isolationTracksTransientRefVectorFixed_(false)
+    ,embeddedLeadTrack_(false)
+    ,embeddedSignalTracks_(false)
+    ,signalTracksTransientRefVectorFixed_(false)
     ,embeddedLeadPFCand_(false)
     ,embeddedLeadPFChargedHadrCand_(false)
     ,embeddedLeadPFNeutralCand_(false)
     ,embeddedSignalPFCands_(false)
+    ,signalPFCandsRefVectorFixed_(false)
     ,embeddedSignalPFChargedHadrCands_(false)
+    ,signalPFChargedHadrCandsRefVectorFixed_(false)
     ,embeddedSignalPFNeutralHadrCands_(false)
+    ,signalPFNeutralHadrCandsRefVectorFixed_(false)
     ,embeddedSignalPFGammaCands_(false)
+    ,signalPFGammaCandsRefVectorFixed_(false)
     ,embeddedIsolationPFCands_(false)
+    ,isolationPFCandsRefVectorFixed_(false)
     ,embeddedIsolationPFChargedHadrCands_(false)
+    ,isolationPFChargedHadrCandsRefVectorFixed_(false)
     ,embeddedIsolationPFNeutralHadrCands_(false)
+    ,isolationPFNeutralHadrCandsRefVectorFixed_(false)
     ,embeddedIsolationPFGammaCands_(false)
+    ,isolationPFGammaCandsRefVectorFixed_(false)
 {
     const reco::PFTau * pfTau = dynamic_cast<const reco::PFTau *>(aTauRef.get());
     if (pfTau != 0) pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));

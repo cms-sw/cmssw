@@ -25,32 +25,63 @@
   </class>
   <class name="pat::Muon"  ClassVersion="11">
    <version ClassVersion="11" checksum="489577659"/>
+   <version ClassVersion="10" checksum="2367573922"/>
   </class>
   <class name="pat::Tau"  ClassVersion="12">
+   <field name="isolationTracksTransientRefVector_" transient="true"/>
+   <field name="isolationTracksTransientRefVectorFixed_" transient="true"/>
+   <field name="signalTracksTransientRefVector_" transient="true"/>
+   <field name="signalTracksTransientRefVectorFixed_" transient="true"/>
+   <field name="signalPFCandsTransientRefVector_" transient="true"/>
+   <field name="signalPFCandsRefVectorFixed_" transient="true"/>
+   <field name="signalPFChargedHadrCandsTransientRefVector_" transient="true"/>
+   <field name="signalPFChargedHadrCandsRefVectorFixed_" transient="true"/>
+   <field name="signalPFNeutralHadrCandsTransientRefVector_" transient="true"/>
+   <field name="signalPFNeutralHadrCandsRefVectorFixed_" transient="true"/>
+   <field name="signalPFGammaCandsTransientRefVector_" transient="true"/>
+   <field name="signalPFGammaCandsRefVectorFixed_" transient="true"/>
+   <field name="isolationPFCandsTransientRefVector_" transient="true"/>
+   <field name="isolationPFCandsRefVectorFixed_" transient="true"/>
+   <field name="isolationPFChargedHadrCandsTransientRefVector_" transient="true"/>
+   <field name="isolationPFChargedHadrCandsRefVectorFixed_" transient="true"/>
+   <field name="isolationPFNeutralHadrCandsTransientRefVector_" transient="true"/>
+   <field name="isolationPFNeutralHadrCandsRefVectorFixed_" transient="true"/>
+   <field name="isolationPFGammaCandsTransientRefVector_" transient="true"/>
+   <field name="isolationPFGammaCandsRefVectorFixed_" transient="true"/>
    <version ClassVersion="12" checksum="2900944238"/>
    <version ClassVersion="11" checksum="3100353428"/>
    <version ClassVersion="10" checksum="2244564938"/>
-    <field name="isolationTracksTransientRefVector_" transient="true"/>
-    <field name="isolationTracksTransientRefVectorFixed_" transient="true"/>
-    <field name="signalTracksTransientRefVector_" transient="true"/>
-    <field name="signalTracksTransientRefVectorFixed_" transient="true"/>
-    <field name="signalPFCandsTransientRefVector_" transient="true"/>
-    <field name="signalPFCandsRefVectorFixed_" transient="true"/>
-    <field name="signalPFChargedHadrCandsTransientRefVector_" transient="true"/>
-    <field name="signalPFChargedHadrCandsRefVectorFixed_" transient="true"/>
-    <field name="signalPFNeutralHadrCandsTransientRefVector_" transient="true"/>
-    <field name="signalPFNeutralHadrCandsRefVectorFixed_" transient="true"/>
-    <field name="signalPFGammaCandsTransientRefVector_" transient="true"/>
-    <field name="signalPFGammaCandsRefVectorFixed_" transient="true"/>
-    <field name="isolationPFCandsTransientRefVector_" transient="true"/>
-    <field name="isolationPFCandsRefVectorFixed_" transient="true"/>
-    <field name="isolationPFChargedHadrCandsTransientRefVector_" transient="true"/>
-    <field name="isolationPFChargedHadrCandsRefVectorFixed_" transient="true"/>
-    <field name="isolationPFNeutralHadrCandsTransientRefVector_" transient="true"/>
-    <field name="isolationPFNeutralHadrCandsRefVectorFixed_" transient="true"/>
-    <field name="isolationPFGammaCandsTransientRefVector_" transient="true"/>
-    <field name="isolationPFGammaCandsRefVectorFixed_" transient="true"/>
   </class>
+  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationTracksTransientRefVectorFixed_">
+  <![CDATA[isolationTracksTransientRefVectorFixed_=false;]]>
+  </ioread>
+  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="signalTracksTransientRefVectorFixed_">
+  <![CDATA[signalTracksTransientRefVectorFixed_=false;]]>
+  </ioread>
+  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="signalPFCandsRefVectorFixed_">
+  <![CDATA[signalPFCandsRefVectorFixed_=false;]]>
+  </ioread>
+  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="signalPFChargedHadrCandsRefVectorFixed_">
+  <![CDATA[signalPFChargedHadrCandsRefVectorFixed_=false;]]>
+  </ioread>
+  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="signalPFNeutralHadrCandsRefVectorFixed_">
+  <![CDATA[signalPFNeutralHadrCandsRefVectorFixed_=false;]]>
+  </ioread>
+  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="signalPFGammaCandsRefVectorFixed_">
+  <![CDATA[signalPFGammaCandsRefVectorFixed_=false;]]>
+  </ioread>
+  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationPFCandsRefVectorFixed_">
+  <![CDATA[isolationPFCandsRefVectorFixed_=false;]]>
+  </ioread>
+  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationPFChargedHadrCandsRefVectorFixed_">
+  <![CDATA[isolationPFChargedHadrCandsRefVectorFixed_=false;]]>
+  </ioread>
+  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationPFNeutralHadrCandsRefVectorFixed_">
+  <![CDATA[isolationPFNeutralHadrCandsRefVectorFixed_=false;]]>
+  </ioread>
+  <ioread sourceClass="pat::Tau" targetClass="pat::Tau" version="[1-]" source="" target="isolationPFGammaCandsRefVectorFixed_">
+  <![CDATA[isolationPFGammaCandsRefVectorFixed_=false;]]>
+  </ioread>
   <class name="pat::tau::TauPFSpecific"  ClassVersion="12">
    <version ClassVersion="12" checksum="941745608"/>
    <version ClassVersion="11" checksum="3975939304"/>
@@ -372,10 +403,15 @@
   <class name="edm::ValueMap<pat::LookupTableRecord>" />
   <class name="edm::Wrapper<edm::ValueMap<pat::LookupTableRecord> >" />
 
-  <class name="pat::CandKinResolution"  ClassVersion="10">
+  <class name="pat::CandKinResolution"  ClassVersion="11">
+   <field name="covariance_" transient="true"/>
+   <field name="hasMatrix_" transient="true"/>
+   <version ClassVersion="11" checksum="3628324235"/>
    <version ClassVersion="10" checksum="932672721"/>
-     <field name="covariance_" transient="true"/>
   </class>
+  <ioread sourceClass="pat::CandKinResolution" targetClass="pat::CandKinResolution" version="[1-]" source="" target="hasMatrix_">
+  <![CDATA[hasMatrix_ = false;]]>
+  </ioread>
   <class name="std::vector<pat::CandKinResolution>" />
   <class name="pat::CandKinResolutionValueMap" />
   <class name="edm::Wrapper<pat::CandKinResolutionValueMap>" />

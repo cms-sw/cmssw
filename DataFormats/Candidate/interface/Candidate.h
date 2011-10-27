@@ -18,7 +18,6 @@
 #include "DataFormats/Math/interface/Point3D.h"
 #include "DataFormats/Math/interface/Vector3D.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
-#include "DataFormats/Common/interface/BoolCache.h"
 #include "Rtypes.h"
 
 #include "DataFormats/Candidate/interface/Particle.h"
