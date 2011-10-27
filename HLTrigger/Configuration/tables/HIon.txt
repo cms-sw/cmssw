@@ -12,6 +12,7 @@ HLT_HIMinBiasZDC_Calo_v*
 HLT_HIMinBiasZDC_Calo_PlusOrMinus_v*
 # HLT_HIMinBiasZDC_Scint_v*               # removed for 2011
 HLT_HIMinBiasZDCPixel_SingleTrack_v*
+HLT_HIMinBiasZDC_PlusOrMinusPixel_SingleTrack_v* # added for 2011 (sr #124297)
 # HLT_HICaloTower4_MinBias_v*             #  added and removed for 2011 (sr #123853)
 # HLT_HIPixelTrack10_MinBias_v*           #  added and removed for 2011 (sr #123853)
 HLT_HIBptxXOR_v*
@@ -80,6 +81,7 @@ HLT_HIFullTrack25_L1Peripheral_v*         #   added for 2011 (sr #123853)
 HLT_HIRandom_v*
 HLT_HIUCC010_v*                           #   added for 2011 (sr #123637)
 HLT_HIUCC015_v*                           #   added for 2011 (sr #123637)
+HLT_HICentral10_v*                        #   added for 2011 (sr #124298)
 HLT_HIUPCNeuMuPixel_SingleTrack_v*        #   added for 2011 (sr #123637)
 HLT_HIUPCNeuEG2Pixel_SingleTrack_v*       #   added for 2011 (sr #123637)
 HLT_HIUPCNeuEG5Pixel_SingleTrack_v*       #   added for 2011 (sr #123637)

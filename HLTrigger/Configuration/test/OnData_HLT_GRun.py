@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/GRun/V341 (CMSSW_4_2_0_HLT34)
+# /dev/CMSSW_4_2_0/GRun/V342 (CMSSW_4_2_0_HLT34)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V341')
+  tableName = cms.string('/dev/CMSSW_4_2_0/GRun/V342')
 )
 
 process.streams = cms.PSet( 
@@ -4760,6 +4760,9 @@ process.PrescaleService = cms.Service( "PrescaleService",
       ),
       cms.PSet(  pathName = cms.string( "DQM_FEDIntegrity_v5" ),
         prescales = cms.vuint32( 10, 10, 10, 10, 10, 10 )
+      ),
+      cms.PSet(  pathName = cms.string( "ExpressOutput" ),
+        prescales = cms.vuint32( 5, 5, 5, 5, 5, 5 )
       ),
       cms.PSet(  pathName = cms.string( "HLTMONOutput" ),
         prescales = cms.vuint32( 100, 100, 100, 100, 100, 100 )
