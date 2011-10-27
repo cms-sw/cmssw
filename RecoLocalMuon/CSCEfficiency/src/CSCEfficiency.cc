@@ -507,10 +507,10 @@ bool CSCEfficiency::filter(Event & event, const EventSetup& eventSetup){
 		// angle cuts applied (if configured)
 		bool angle_flag = true; angle_flag = efficienciesPerChamber(theCSCId, cscChamber, ftsStart);  
 		if(useDigis && angle_flag){
-		  bool stripANDwire_flag; stripANDwire_flag = stripWire_Efficiencies(theCSCId, ftsStart);
+		  stripWire_Efficiencies(theCSCId, ftsStart);
 		}
                 if(angle_flag){
-		  bool recHitANDsegment_flag; recHitANDsegment_flag = recHitSegment_Efficiencies(theCSCId, cscChamber, ftsStart);
+		  recHitSegment_Efficiencies(theCSCId, cscChamber, ftsStart);
 		  if(!isData){
 		    recSimHitEfficiency(theCSCId, ftsStart);
 		  }
@@ -810,31 +810,25 @@ void CSCEfficiency::fillStrips_info(edm::Handle<CSCStripDigiCollection> &strips)
   for (CSCStripDigiCollection::DigiRangeIterator j=strips->begin(); j!=strips->end(); j++) {
     CSCDetId id = (CSCDetId)(*j).first;
     int largestADCValue = -1;
-    int largestStrip = -1;
     std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
     std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
     for( ; digiItr != last; ++digiItr) {
       int maxADC=largestADCValue;
       int myStrip = digiItr->getStrip();
       std::vector<int> myADCVals = digiItr->getADCCounts();
-      bool thisStripFired = false;
       float thisPedestal = 0.5*(float)(myADCVals[0]+myADCVals[1]);
       float threshold = 13.3 ;
       float diff = 0.;
       float peakADC  = -1000.;
-      int peakTime = -1;
       for (unsigned int iCount = 0; iCount < myADCVals.size(); iCount++) {
 	diff = (float)myADCVals[iCount]-thisPedestal;
 	if (diff > threshold) { 
-	  thisStripFired = true; 
 	  if (myADCVals[iCount] > largestADCValue) {
 	    largestADCValue = myADCVals[iCount];
-	    largestStrip = myStrip;
 	  }
 	}
 	if (diff > threshold && diff > peakADC) {
 	  peakADC  = diff;
-	  peakTime = iCount;
 	}
       }
       if(largestADCValue>maxADC){// FIX IT!!!
@@ -953,7 +947,7 @@ void CSCEfficiency::fillRechitsSegments_info(edm::Handle<CSCRecHit2DCollection> 
       for(size_t jRH = 0; 
 	  jRH<allRechits[idRH.endcap()-1][idRH.station()-1][idRH.ring()-1][idRH.chamber()-FirstCh][idRH.layer()-1].size();
 	  ++jRH){
-	LocalPoint lp = allRechits[idRH.endcap()-1][idRH.station()-1][idRH.ring()-1][idRH.chamber()-FirstCh][idRH.layer()-1][jRH].first;
+	allRechits[idRH.endcap()-1][idRH.station()-1][idRH.ring()-1][idRH.chamber()-FirstCh][idRH.layer()-1][jRH].first;
 	float xDiff = iRH->localPosition().x() - 
 	  allRechits[idRH.endcap()-1][idRH.station()-1][idRH.ring()-1][idRH.chamber()-FirstCh][idRH.layer()-1][jRH].first.x();
 	float yDiff = iRH->localPosition().y() - 
@@ -1102,8 +1096,6 @@ bool CSCEfficiency::efficienciesPerChamber(CSCDetId & id, const CSCChamber* cscC
     } 
   }
 
-  bool missingALCT = false;
-  bool missingCLCT = false;
   if(useDigis){
     // ALCTs
     firstCondition = allALCT[ec][st][rg][ch];
@@ -1122,7 +1114,6 @@ bool CSCEfficiency::efficienciesPerChamber(CSCDetId & id, const CSCChamber* cscC
       }
     }
     else{
-      missingALCT = true; 
       if(out){
 	ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(2);
       }
@@ -1152,7 +1143,6 @@ bool CSCEfficiency::efficienciesPerChamber(CSCDetId & id, const CSCChamber* cscC
       }
     }
     else{
-      missingCLCT = true;
       if(out){
 	ChHist[ec][st][rg][ch].digiAppearanceCount->Fill(4);
       }
