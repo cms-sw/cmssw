@@ -2,6 +2,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 namespace muon {
 SelectionType selectionTypeFromString( const std::string &label )
@@ -702,4 +703,18 @@ bool muon::overlap( const reco::Muon& muon1, const reco::Muon& muon2,
 	}
       }
   return false;
+}
+
+
+bool muon::isTightMuon(const reco::Muon& muon, const reco::Vertex& vtx){
+
+  bool muID = isGoodMuon(muon,GlobalMuonPromptTight) && isGoodMuon(muon,TrackerMuonArbitrated);
+  
+  bool hits = muon.innerTrack()->numberOfValidHits() > 10 &&
+    muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0 &&
+    muon.numberOfMatchedStations() > 1;
+  
+  bool ip = fabs(muon.innerTrack()->dxy(vtx.position())) < 0.2;
+  
+  return muID && hits && ip;
 }
