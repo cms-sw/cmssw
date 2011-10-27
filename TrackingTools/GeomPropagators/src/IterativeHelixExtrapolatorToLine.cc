@@ -69,7 +69,7 @@ IterativeHelixExtrapolatorToLine::genericPathLength (const T& object) const {
   //
   // Prepare iterations: count and total pathlength
   //
-  int iteration(maxIterations);
+  unsigned int iteration(maxIterations+1);
   double dSTotal(0.);
   //
   // Convergence criterion: maximal lateral displacement in a step < 1um
@@ -81,7 +81,7 @@ IterativeHelixExtrapolatorToLine::genericPathLength (const T& object) const {
     //
     // return empty solution vector if no convergence after maxIterations iterations
     //
-    if ( --iteration<0 ) {
+    if ( --iteration == 0 ) {
       return std::pair<bool,double>(false,0);
     }
     //

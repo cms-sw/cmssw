@@ -89,12 +89,12 @@ HelixExtrapolatorToLine2Order::pathLengthFromCoefficients (const double ceq[4]) 
   // Solution of 3rd order equation
   //
   double solutions[3];
-  int nRaw = solve3rdOrder(ceq,solutions);
+  unsigned int nRaw = solve3rdOrder(ceq,solutions);
   //
   // check compatibility with propagation direction
   //
-  int nDir(0);
-  for ( int i=0; i<nRaw; i++ ) {
+  unsigned int nDir(0);
+  for ( unsigned int i=0; i<nRaw; i++ ) {
     if ( thePropDir==anyDirection ||
 	 (solutions[i]>=0&&thePropDir==alongMomentum) ||
 	 (solutions[i]<=0&&thePropDir==oppositeToMomentum) )
@@ -104,8 +104,8 @@ HelixExtrapolatorToLine2Order::pathLengthFromCoefficients (const double ceq[4]) 
   //
   // check 2nd derivative
   //
-  int nMin(0);
-  for ( int i=0; i<nDir; i++ ) {
+  unsigned int nMin(0);
+  for ( unsigned int i=0; i<nDir; i++ ) {
     double st = solutions[i];
     double deri2 = (3*ceq[3]*st+2*ceq[2])*st+ceq[1];
     if ( deri2>0. )  solutions[nMin++] = st;
@@ -115,7 +115,7 @@ HelixExtrapolatorToLine2Order::pathLengthFromCoefficients (const double ceq[4]) 
   // choose smallest path length
   //
   double dSt = solutions[0];
-  for ( int i=1; i<nMin; i++ ) {
+  for ( unsigned int i=1; i<nMin; i++ ) {
     if ( fabs(solutions[i])<fabs(dSt) )  dSt = solutions[i];
   }
 

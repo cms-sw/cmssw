@@ -59,7 +59,7 @@ HelixArbitraryPlaneCrossing::pathLength(const Plane& plane) {
   //
   // Prepare iterations: count and total pathlength
   //
-  int iteration(maxIterations);
+  unsigned int iteration(maxIterations+1);
   double dSTotal(0.);
   //
   bool first = true;
@@ -67,7 +67,7 @@ HelixArbitraryPlaneCrossing::pathLength(const Plane& plane) {
     //
     // return empty solution vector if no convergence after maxIterations iterations
     //
-    if unlikely( --iteration<0 ) {
+    if unlikely( --iteration == 0 ) {
       edm::LogInfo("HelixArbitraryPlaneCrossing") << "pathLength : no convergence";
       return std::pair<bool,double>(false,0);
     }
