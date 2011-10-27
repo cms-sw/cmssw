@@ -7,12 +7,14 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: LeafRefCandidateT.h,v 1.22 2009/09/21 08:15:50 llista Exp $
+ * \version $Id: LeafRefCandidateT.h,v 1.1 2009/11/24 03:15:57 srappocc Exp $
  *
  */
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 #include "DataFormats/Candidate/interface/iterator_imp_specific.h"
+
+#include "DataFormats/Common/interface/BoolCache.h"
 
 namespace reco {
   
