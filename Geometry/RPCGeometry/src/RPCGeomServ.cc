@@ -3,291 +3,292 @@
 #include <sstream>
 #include <iomanip>
 
-RPCGeomServ::RPCGeomServ::RPCGeomServ(const RPCDetId& id) : 
-  _id(&id), _n(""), _sn(""), _t(-99), _z(true), _a(true)
+RPCGeomServ::RPCGeomServ::RPCGeomServ( const RPCDetId& id )
+  : _id( &id ),
+    _n( "" ),
+    _sn( "" ),
+    _t( -99 ),
+    _z( true ),
+    _a( true )
 {}
 
-
-RPCGeomServ::~RPCGeomServ()
+RPCGeomServ::~RPCGeomServ( void )
 {}
  
 std::string 
-RPCGeomServ::name()
+RPCGeomServ::name( void )
 {
-  if (_n.size()<1){
-    std::string buf;
-    
-    if (_id->region()==0){
-      buf="W";
-      {
-	std::stringstream os;
-	os << std::setw(2)<<std::setfill('+')<<_id->ring()
-	   <<std::setfill(' ')<<"_";
-	buf += os.str();
-      }
-      
-      {
-	std::stringstream os;
-	os <<"RB"<<_id->station();
-	if (_id->station()<=2) {
-	  if (_id->layer()==1)
-	    os<<"in";
-	  else
-	    os<<"out";
-	}
-	//os<<"_";
-	buf += os.str();
-      }
-      
-      
-      {
-	std::stringstream os;
-	//	os <<"S"<<std::setw(2)<<std::setfill('0')
-	//   <<_id->sector()<<std::setfill(' ');
-	if (_id->station()>2){
-	  if (_id->sector()== 4 && _id->station()==4){
-	    if ( _id->subsector()==1){
-	      os<<"--";
-	    }
-	    else if ( _id->subsector()==2){
-	      os <<"-";
-	    }
-	    else if ( _id->subsector()==3){
-	      os <<"+";
-	    }
-	    else if ( _id->subsector()==4){
-	      os <<"++";
-	    }
-	  }
-	  
-	  if(_id->station()==3){
-	    if (_id->subsector()==1)
-	      os <<"-";
-	    else
-	      os <<"+";
-	  }else if(_id->station()==4 && _id->sector()!=9 && _id->sector()!=11 && _id->sector()!=4){
-	    if (_id->subsector()==1)
-	      os <<"-";
-	    else
-	      os <<"+";
-	  }
-	}
-	
-	os<<"_";
-	os <<"S"<<std::setw(2)<<std::setfill('0')
-	   <<_id->sector()<<std::setfill(' ');
-	buf += os.str();
-      }
-      {
-	std::stringstream os;
-	if (_id->roll()==1)
-	  os<<"_Backward";
-	else if (_id->roll() == 3)
-	  os<<"_Forward";
-	else if (_id->roll() == 2)
-	os <<"_Middle";
-	buf += os.str();
-      }
-    }
-    else {
-      buf="RE";
-      
-      {
-	std::stringstream os;
-	os << std::setw(2)<<std::setfill('+')<<_id->station()*_id->region()
-	   <<std::setfill(' ')<<"_";
-	buf += os.str();    
-      }
-      
-      {
-	std::stringstream os;
-	os <<"R"<<_id->ring();
-	os <<"_CH"<<std::setw(2)<<std::setfill('0')<<this->segment();
-	buf += os.str();
-      } 
+  if( _n.size() < 1 )
+  {
+    int station = _id->station();
+    int region = _id->region();
+    int roll = _id->roll();
+    int ring = _id->ring();
+    int layer = _id->layer();
+    int sector = _id->sector();
+    int subsector = _id->subsector();
 
+    std::stringstream os;
+    
+    if( region == 0 )
+    {
+      os << "W";
+      os << std::setw(2) << std::setfill('+') << ring
+	 << std::setfill(' ') << "_";
+
+      os << "RB" << station;
+      ( station <= 2 && layer == 1 ) ? os << "in" : os << "out";
+	
+      if( station > 2 )
       {
-	std::stringstream os;
-	if (_id->roll()==1)
-	  os<<"_A";
-	else if (_id->roll() == 2)
-	  os<<"_B";
-	else if (_id->roll() == 3)
-	  os <<"_C";
-	else if (_id->roll() == 4)
-	  os <<"_D";
-	buf += os.str();
+	if( sector == 4 && station == 4 )
+	{
+	  if( subsector == 1 )
+	  {
+	    os << "--";
+	  }
+	  else if( subsector == 2 )
+	  {
+	    os << "-";
+	  }
+	  else if( subsector == 3 )
+	  {
+	    os << "+";
+	  }
+	  else if( subsector == 4 )
+	  {
+	    os << "++";
+	  }
+	}
+	  
+	if( station == 3 )
+	{
+	  if( subsector == 1 )
+	    os << "-";
+	  else
+	    os << "+";
+	}	
+	else if( station == 4
+		 && sector != 9
+		 && sector !=11
+		 && sector != 4 )
+	{
+	  if( subsector == 1 )
+	    os << "-";
+	  else
+	    os << "+";
+	}
       }
+	
+      os << "_";
+      os << "S" << std::setw(2) << std::setfill('0')
+	 << sector << std::setfill(' ');
+      if( roll == 1 )
+	os << "_Backward";
+      else if( roll == 3 )
+	os << "_Forward";
+      else if( roll == 2 )
+	os << "_Middle";
     }
-    _n=buf;
+    else
+    {
+      os << "RE";
+
+      os << std::setw(2) << std::setfill('+') << station * region
+	 << std::setfill(' ') << "_";
+
+      os << "R" << ring;
+      os << "_CH" << std::setw(2) << std::setfill('0') << this->segment();
+
+      if( roll == 1 )
+	os << "_A";
+      else if( roll == 2 )
+	os << "_B";
+      else if( roll == 3 )
+	os << "_C";
+      else if( roll == 4 )
+	os << "_D";
+    }
+    _n = os.str();
   }
   return _n;
 }
- 
 
 std::string 
 RPCGeomServ::chambername()
 {
-  if (_n.size()<1){
-    std::string buf;
-    
-    if (_id->region()==0){
-      buf="W";
-      {
-	std::stringstream os;
-	os << std::setw(2)<<std::setfill('+')<<_id->ring()
-	   <<std::setfill(' ')<<"_";
-	buf += os.str();
-      }
-      
-      {
-	std::stringstream os;
-	os <<"RB"<<_id->station();
-	if (_id->station()<=2) {
-	  if (_id->layer()==1)
-	    os<<"in";
-	  else
-	    os<<"out";
-	}
-	//os<<"_";
-	buf += os.str();
-      }
-      
-      
-      {
-	std::stringstream os;
-	//	os <<"S"<<std::setw(2)<<std::setfill('0')
-	//   <<_id->sector()<<std::setfill(' ');
-	if (_id->station()>2){
-	  if (_id->sector()== 4 && _id->station()==4){
-	    if ( _id->subsector()==1){
-	      os<<"--";
-	    }
-	    else if ( _id->subsector()==2){
-	      os <<"-";
-	    }
-	    else if ( _id->subsector()==3){
-	      os <<"+";
-	    }
-	    else if ( _id->subsector()==4){
-	      os <<"++";
-	    }
-	  }
-	  
-	  if(_id->station()==3){
-	    if (_id->subsector()==1)
-	      os <<"-";
-	    else
-	      os <<"+";
-	  }else if(_id->station()==4 && _id->sector()!=9 && _id->sector()!=11 && _id->sector()!=4){
-	    if (_id->subsector()==1)
-	      os <<"-";
-	    else
-	      os <<"+";
-	  }
-	}
-	
-	os<<"_";
-	os <<"S"<<std::setw(2)<<std::setfill('0')
-	   <<_id->sector()<<std::setfill(' ');
-	buf += os.str();
-      }
-      
-    }
-    else {
-      buf="RE";
-      
-      {
-	std::stringstream os;
-	os << std::setw(2)<<std::setfill('+')<<_id->station()*_id->region()
-	   <<std::setfill(' ')<<"_";
-	buf += os.str();    
-      }
-      
-      {
-	std::stringstream os;
-	os <<"R"<<_id->ring();
-	os <<"_CH"<<std::setw(2)<<std::setfill('0')<<this->segment();
-	buf += os.str();
-      } 
+  if( _n.size() < 1 )
+  {
+    int station = _id->station();
+    int region = _id->region();
+    int ring = _id->ring();
+    int layer = _id->layer();
+    int sector = _id->sector();
+    int subsector = _id->subsector();
 
-      
+    std::stringstream os;
+    
+    if( region == 0 )
+    {
+      os << "W";
+
+      os << std::setw(2) << std::setfill('+') << ring
+	 << std::setfill(' ') << "_";
+
+      os << "RB" << station;
+      ( station <= 2 && layer == 1 ) ? os << "in" : os << "out";
+	
+      if( station > 2 )
+      {
+	if( sector == 4 && station == 4 )
+	{
+	  if( subsector == 1 )
+	  {
+	    os << "--";
+	  }
+	  else if( subsector == 2 )
+	  {
+	    os << "-";
+	  }
+	  else if( subsector == 3 )
+	  {
+	    os << "+";
+	  }
+	  else if( subsector == 4 )
+	  {
+	    os <<"++";
+	  }
+	}
+	  
+	if( station == 3 )
+	{
+	  if( subsector == 1 )
+	    os << "-";
+	  else
+	    os << "+";
+	}
+	else if( station == 4
+		 && sector != 9
+		 && sector != 11
+		 && sector != 4 )
+	{
+	  if( subsector == 1 )
+	    os << "-";
+	  else
+	    os << "+";
+	}
+      }
+	
+      os << "_";
+      os << "S" << std::setw(2) << std::setfill('0')
+	 << sector << std::setfill(' ');
     }
-    _n=buf;
+    else
+    {
+      os << "RE"; 
+    
+      os << std::setw(2) << std::setfill('+') << station * region
+	 << std::setfill(' ') << "_";
+
+      os << "R" << ring;
+      os << "_CH" << std::setw(2) << std::setfill('0') << this->segment();
+    }
+    _n = os.str();
   }
   return _n;
 }
 
 std::string 
-RPCGeomServ::shortname()
+RPCGeomServ::shortname( void )
 {
-  if (_sn.size()<1)
-    {
-    std::string buf;
+  if( _sn.size() < 1 )
+  {
+    int station = _id->station();
+    int region = _id->region();
+    int roll = _id->roll();
+    int ring = _id->ring();
+    int layer = _id->layer();
+    int sector = _id->sector();
+    int subsector = _id->subsector();
 
-    if (_id->region()==0){
-      std::stringstream os;
-      os <<"RB"<<_id->station();
-      if (_id->station()<=2){
-	if (_id->layer()==1){
-	  os<<"in";
-	}else{
-	  os<<"out";
+    std::stringstream os;
+
+    if( region == 0 )
+    {
+      os << "RB" << station;
+      if( station <= 2 )
+      {
+	if( layer == 1 ){
+	  os << "in";
 	}
-      }else{
-	if (_id->sector()== 4 && _id->station()==4){
-	  if ( _id->subsector()==1){
-	    os<<"--";
-	  }
-	  else if ( _id->subsector()==2){
-	    os <<",-";
-	  }
-	  else if ( _id->subsector()==3){
-	    os <<"+";
-	  }
-	  else if ( _id->subsector()==4){
-	    os <<"++";
-	  }
-	}else{
-	  if (_id->subsector()==1)
-	    os <<",-";
-	  else
-	    os <<"+";
+	else
+	{
+	  os << "out";
 	}
       }
-      if (_id->roll()==1)
-	os<<" B";
-      else if (_id->roll() == 3)
-	os<<" F";
-      else if (_id->roll() == 2)
-	os<<" M";
-      buf += os.str();
+      else
+      {
+	if( sector == 4 && station == 4 )
+	{
+	  if( subsector == 1 )
+	  {
+	    os << "--";
+	  }
+	  else if( subsector == 2 )
+	  {
+	    os << ",-";
+	  }
+	  else if( subsector == 3 )
+	  {
+	    os << "+";
+	  }
+	  else if( subsector == 4 )
+	  {
+	    os << "++";
+	  }
+	}
+	else
+	{
+	  if( subsector == 1 )
+	    os << ",-";
+	  else
+	    os << "+";
+	}
+      }
+      if( roll == 1 )
+	os << " B";
+      else if( roll == 3 )
+	os << " F";
+      else if( roll == 2 )
+	os << " M";
     }
-    else {
-      std::stringstream os;
-      os <<"Ri"<<_id->ring()<<" Su"<<_id->subsector();
-      buf += os.str();
+    else
+    {
+      os << "Ri" << ring << " Su" << subsector;
     }
-    _sn=buf;
+    _sn = os.str();
   }
   return _sn;
 }
 
-//returns a vector with number of channels for each chip in each FEB
-std::vector<int> RPCGeomServ::channelInChip(){
-
+// returns a vector with number of channels for each chip in each FEB
+std::vector<int>
+RPCGeomServ::channelInChip( void )
+{
   std::vector<int> chipCh(4,8);//Endcap
   
   if(_id->region()==0){//Barrel
     chipCh.clear();
 
-    if (_id->station()<3 && _id->layer()==1){ // i.e. RB1in ||RB2in  
+    int station = _id->station();
+  
+    if (station<3 && _id->layer()==1){ // i.e. RB1in ||RB2in  
       chipCh.push_back(7);
       chipCh.push_back(8);
-    }else if (_id->station() == 1 || _id->station() == 3){//i.e. RB1out || RB3 
+    }else if (station == 1 || station == 3){//i.e. RB1out || RB3 
       chipCh.push_back(7);
       chipCh.push_back(7);
-    }else if (_id->station() == 2){// i.e. RB2out
+    }else if (station == 2){// i.e. RB2out
       chipCh.push_back(6);
       chipCh.push_back(8);
     }else if (_id->sector() == 4 || _id->sector()==10 ||(_id->sector() == 8 &&  _id->subsector()!=1) || (_id->sector() == 12  &&  _id->subsector()==1)){
@@ -464,20 +465,14 @@ RPCGeomServ::chambernr()
 }
 
 int 
-RPCGeomServ::segment(){
-  int seg=0;
-  //int nsec=36;
-  int nsub=6;
-  // Ring id: Wheel number in Barrel (from -2 to +2) Ring Number in Endcap (from 1 to 3)
-  // Station id : For Barrel: the four groups of chambers at same r (distance from beam axis) and increasing phi
-  //              For Endcap: the three groups of chambers at same z (distance from interaction point), i.e. the disk
-  if ( _id->ring()==1 &&  _id->station() > 1) {
-    nsub=3;
-    //nsec=18;
-  }
-  seg =_id->subsector()+nsub*(_id->sector()-1);//+1;
-  //  if(seg==nsec+1)seg=1;
-  return seg;
+RPCGeomServ::segment( void )
+{
+  int nsub = 6;
+  int station = _id->station();
+  int ring = _id->ring();
+  ( ring == 1 && station > 1 ) ? nsub = 3 : nsub = 6;
+
+  return( _id->subsector() + nsub * ( _id->sector() - 1 ));
 }
 
 bool
@@ -532,10 +527,6 @@ RPCGeomServ::aclockwise()
   }
   return _a;
 }
-
-
-
-
 
 RPCGeomServ::RPCGeomServ() : _id(0), _n(""), _sn(""), _t (-99), _z(false), _a(false)
 {} 
