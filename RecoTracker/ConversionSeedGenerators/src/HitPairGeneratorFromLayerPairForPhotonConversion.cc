@@ -93,9 +93,9 @@ void HitPairGeneratorFromLayerPairForPhotonConversion::hitPairs(const Conversion
   /* loop on outer hits*/
   for (vector<RecHitsSortedInPhi::Hit>::const_iterator oh = outerHits.begin(); oh!= outerHits.end(); ++oh) { 
     RecHitsSortedInPhi::Hit ohit = (*oh);
+#ifdef mydebug_Seed
     GlobalPoint oPos = ohit->globalPosition();  
     
-#ifdef mydebug_Seed
     (*ss) << "\toPos " << oPos << " r " << oPos.perp() << " phi " << oPos.phi() <<  " cotTheta " << oPos.z()/oPos.perp() << std::endl;
 #endif
 

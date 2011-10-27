@@ -64,16 +64,16 @@ const TrajectorySeed * SeedForPhotonConversionFromQuadruplets::trajectorySeed(
   vHit[1]=ptth1->globalPosition();
   vHit[2]=mtth1->globalPosition();
   vHit[3]=mtth2->globalPosition();
-  double zErr2[4];
-  zErr2[0]=ptth2->globalPositionError().czz();
-  zErr2[1]=ptth1->globalPositionError().czz();
-  zErr2[2]=mtth1->globalPositionError().czz();
-  zErr2[3]=mtth2->globalPositionError().czz();
-  double perpErr2[4];
-  perpErr2[0]=ptth2->globalPositionError().rerr(ptth2->globalPosition());
-  perpErr2[1]=ptth1->globalPositionError().rerr(ptth1->globalPosition());
-  perpErr2[2]=mtth1->globalPositionError().rerr(mtth1->globalPosition());
-  perpErr2[3]=mtth2->globalPositionError().rerr(mtth2->globalPosition());
+  //double zErr2[4];
+  //zErr2[0]=ptth2->globalPositionError().czz();
+  //zErr2[1]=ptth1->globalPositionError().czz();
+  //zErr2[2]=mtth1->globalPositionError().czz();
+  //zErr2[3]=mtth2->globalPositionError().czz();
+  //double perpErr2[4];
+  //perpErr2[0]=ptth2->globalPositionError().rerr(ptth2->globalPosition());
+  //perpErr2[1]=ptth1->globalPositionError().rerr(ptth1->globalPosition());
+  //perpErr2[2]=mtth1->globalPositionError().rerr(mtth1->globalPosition());
+  //perpErr2[3]=mtth2->globalPositionError().rerr(mtth2->globalPosition());
 
   //Photon source vertex primary vertex
   GlobalPoint vgPhotVertex=region.origin();

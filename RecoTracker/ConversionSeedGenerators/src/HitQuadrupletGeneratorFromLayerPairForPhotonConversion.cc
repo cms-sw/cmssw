@@ -135,9 +135,9 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
     vector<RecHitsSortedInPhi::Hit>::const_iterator ieh = innerHits.end();
     for ( vector<RecHitsSortedInPhi::Hit>::const_iterator ih=innerHits.begin(); ih < ieh; ++ih) {  
       RecHitsSortedInPhi::Hit ihit = *ih;
-      GlobalPoint innPos = (*ih)->globalPosition();
       
 #ifdef mydebug_QSeed
+      GlobalPoint innPos = (*ih)->globalPosition();
       (*ss) << "\toPos " << oPos << " r " << oPos.perp() << " phi " << oPos.phi() <<  " cotTheta " << oPos.z()/oPos.perp() << std::endl;
       (*ss) << "\tnoPos " << noPos << " r " << noPos.perp() << " phi " << noPos.phi() <<  " cotTheta " << noPos.z()/noPos.perp() << std::endl;
       (*ss) << "\tinnPos " << innPos <<  " r " << innPos.perp() << " phi " << innPos.phi() << " cotTheta " << innPos.z()/innPos.perp() <<  std::endl;
@@ -153,10 +153,10 @@ void HitQuadrupletGeneratorFromLayerPairForPhotonConversion::hitPairs(const Trac
       
       for ( vector<RecHitsSortedInPhi::Hit>::const_iterator nextih=ih+1; nextih != ieh; ++nextih) {  
 	RecHitsSortedInPhi::Hit nihit = *nextih;
-	GlobalPoint ninnPos = (*nextih)->globalPosition();
 
 
 #ifdef mydebug_QSeed
+	GlobalPoint ninnPos = (*nextih)->globalPosition();
 	(*ss) << "\toPos " << oPos << " r " << oPos.perp() << " phi " << oPos.phi() <<  " cotTheta " << oPos.z()/oPos.perp() << std::endl;
 	(*ss) << "\tnoPos " << noPos << " r " << noPos.perp() << " phi " << noPos.phi() <<  " cotTheta " << noPos.z()/noPos.perp() << std::endl;
 	(*ss) << "\tinnPos " << innPos <<  " r " << innPos.perp() << " phi " << innPos.phi() << " cotTheta " << innPos.z()/innPos.perp() <<  std::endl;
