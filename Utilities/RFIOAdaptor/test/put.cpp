@@ -6,15 +6,20 @@
 #include <pwd.h>
 #include <iostream>
 #include <iomanip>
+#include <string>
 
-int main (int, char **)
+int main (int argc, char *argv[])
 {
   try
   {
     struct passwd *info = getpwuid (getuid());
     std::string	user (info && info->pw_name ? info->pw_name : "unknown");
     std::string	path (std::string ("/castor/cern.ch/user/")
-    	       	      + user[0] + "/" + user + "/rfiotest");
+    	       	      + user[0] + "/" + user + "/rfiotestput");
+    if (argc > 1) {
+      std::string scramArch(argv[1]);
+      path += scramArch;
+    }
     std::cout << "copying /etc/motd to " << path << "\n";
 
     File	input ("/etc/profile");

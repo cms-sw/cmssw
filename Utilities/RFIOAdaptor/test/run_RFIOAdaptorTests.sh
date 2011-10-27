@@ -16,7 +16,7 @@ pushd ${LOCAL_TMP_DIR}
     exit 0
   fi
 
-  ${LOCAL_TOP_DIR}/test/${SCRAM_ARCH}/test_RFIOAdaptor_put || die "test_RFIOAdaptor_put" $?
+  ${LOCAL_TOP_DIR}/test/${SCRAM_ARCH}/test_RFIOAdaptor_put ${SCRAM_ARCH} || die "test_RFIOAdaptor_put" $?
 
 popd
 exit 0

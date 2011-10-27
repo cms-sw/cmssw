@@ -22,7 +22,7 @@ pushd ${LOCAL_TMP_DIR}
 
   echo " "
   echo Running test_StorageFactory_Write ----------------------------------------------------------
-  ${LOCAL_TOP_DIR}/test/${SCRAM_ARCH}/test_StorageFactory_Write || die "test_StorageFactory_Write" $?
+  ${LOCAL_TOP_DIR}/test/${SCRAM_ARCH}/test_StorageFactory_Write ${SCRAM_ARCH} || die "test_StorageFactory_Write" $?
 
 popd
 exit 0

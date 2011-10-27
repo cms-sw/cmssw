@@ -4,8 +4,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 #include <pwd.h>
+#include <string>
 
-int main (int, char **/*argv*/)
+int main (int argc, char *argv[])
 {
   initTest();
 
@@ -15,6 +16,10 @@ int main (int, char **/*argv*/)
     std::string user (info && info->pw_name ? info->pw_name : "unknown");
     std::string	path (std::string ("rfio:/castor/cern.ch/user/")
     	       	      + user[0] + "/" + user + "/rfiotest");
+    if (argc > 1) {
+      std::string scramArch(argv[1]);
+      path += scramArch;
+    }
     std::cout << "copying /etc/profile to " << path << "\n";
 
     IOSize		bytes;
