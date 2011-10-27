@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HIon/V342 (CMSSW_4_2_0_HLT34)
+# /dev/CMSSW_4_2_0/HIon/V343 (CMSSW_4_2_0_HLT34)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V342')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V343')
 )
 
 streams = cms.PSet( 
@@ -41,12 +41,8 @@ datasets = cms.PSet(
     'HLT_HIL3DoubleMuOpen_Mgt2_v1',
     'HLT_HIL3DoubleMuOpen_v1',
     'HLT_HIL3Mu3_v1' ),
-  HIExpressPhysics = cms.vstring( 'HLT_HIActivityHF_Coincidence3_v1',
-    'HLT_HIActivityHF_Single3_v1',
-    'HLT_HIBptxXOR_v1',
+  HIExpressPhysics = cms.vstring( 'HLT_HIBptxXOR_v1',
     'HLT_HICentral10_v1',
-    'HLT_HICentralityVeto_v1',
-    'HLT_HIClusterVertexCompatibility_v1',
     'HLT_HIDiJet55_v1',
     'HLT_HIDoublePhoton10_v1',
     'HLT_HIDoublePhoton15_v1',
@@ -136,12 +132,8 @@ datasets = cms.PSet(
     'HLT_HISinglePhoton20_v1',
     'HLT_HISinglePhoton30_v1',
     'HLT_HISinglePhoton40_v1' ),
-  HIMinBiasUPC = cms.vstring( 'HLT_HIActivityHF_Coincidence3_v1',
-    'HLT_HIActivityHF_Single3_v1',
-    'HLT_HIBptxXOR_v1',
+  HIMinBiasUPC = cms.vstring( 'HLT_HIBptxXOR_v1',
     'HLT_HICentral10_v1',
-    'HLT_HICentralityVeto_v1',
-    'HLT_HIClusterVertexCompatibility_v1',
     'HLT_HIL1Algo_BptxXOR_BSC_OR_v1',
     'HLT_HIMinBiasBSC_OR_v1',
     'HLT_HIMinBiasBSC_v1',
