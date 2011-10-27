@@ -26,6 +26,8 @@ SiStripAPVRestorer::SiStripAPVRestorer(const edm::ParameterSet& conf):
   nSaturatedStrip_(conf.getParameter<uint32_t>("nSaturatedStrip")),
   ApplyBaselineCleaner_(conf.getParameter<bool>("ApplyBaselineCleaner")),
   CleaningSequence_(conf.getParameter<uint32_t>("CleaningSequence")),
+  slopeX_(conf.getParameter<int32_t>("slopeX")),
+  slopeY_(conf.getParameter<int32_t>("slopeY")),
   ApplyBaselineRejection_(conf.getParameter<bool>("ApplyBaselineRejection")),
   MeanCM_(conf.getParameter<int32_t>("MeanCM")),
   filteredBaselineMax_(conf.getParameter<double>("filteredBaselineMax")),
@@ -482,6 +484,11 @@ void inline SiStripAPVRestorer::BaselineCleaner(const std::vector<int16_t>& adcs
     this->Cleaner_LocalMinimumAdder(adcs, smoothedpoints, APVn);
     this->Cleaner_HighSlopeChecker(smoothedpoints);
     this->Cleaner_MonotonyChecker(smoothedpoints);
+  }else if(CleaningSequence_==2){
+    this->Cleaner_HighSlopeChecker(smoothedpoints);
+  }else if(CleaningSequence_==3){
+    this->Cleaner_LocalMinimumAdder(adcs, smoothedpoints, APVn);
+    this->Cleaner_HighSlopeChecker(smoothedpoints);    
   }else{
     this->Cleaner_HighSlopeChecker(smoothedpoints);
     this->Cleaner_LocalMinimumAdder(adcs, smoothedpoints, APVn);
@@ -536,8 +543,8 @@ void inline SiStripAPVRestorer::Cleaner_LocalMinimumAdder(const std::vector<int1
       		float adc2 = itSmoothedpointsNext->second;
 	  	float m = (adc2 -adc1)/(strip2 -strip1);
     
-        
-        	if((strip2 - strip1) >3 && abs(adc1 -adc2) >4){
+		//2,4
+        	if((strip2 - strip1) >slopeX_ && abs(adc1 -adc2) >slopeY_){
 		       	float itStrip = 1;
         		float strip = itStrip + strip1;
  			while(strip < strip2){

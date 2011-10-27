@@ -66,7 +66,7 @@ inline void SiStripZeroSuppression::StandardZeroSuppression(edm::Event& e){
     edm::Handle< edm::DetSetVector<SiStripRawDigi> > input;
     e.getByLabel(*inputTag,input);
 
-    if (input->size()){ 
+    if (input->size())
       processRaw(*inputTag, *input);
     
       std::auto_ptr< edm::DetSetVector<SiStripDigi> > output(new edm::DetSetVector<SiStripDigi>(output_base) );
@@ -91,7 +91,7 @@ inline void SiStripZeroSuppression::StandardZeroSuppression(edm::Event& e){
 	std::auto_ptr< edm::DetSetVector<SiStripProcessedRawDigi> > outputAPVCM(new edm::DetSetVector<SiStripProcessedRawDigi>(output_apvcm) );
 	e.put( outputAPVCM,"APVCM"+inputTag->instance());
       }
-    }
+    
   }
 }
 

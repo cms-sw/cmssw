@@ -129,6 +129,8 @@ class SiStripAPVRestorer {
   double   CutToAvoidSignal_;	       // for iterative median implementation internal to APV restorer
   uint32_t nSaturatedStrip_;           // for BaselineAndSaturation inspect
   bool ApplyBaselineCleaner_;
+  int32_t slopeX_;
+  int32_t slopeY_;
   uint32_t CleaningSequence_;
   bool ApplyBaselineRejection_;
   int32_t MeanCM_;

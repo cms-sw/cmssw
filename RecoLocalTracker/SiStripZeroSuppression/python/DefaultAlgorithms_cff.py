@@ -39,6 +39,8 @@ DefaultAlgorithms = cms.PSet(
     minStripsToFit = cms.uint32(4),          # minimum strips to try spline algo (otherwise default to median)
     ApplyBaselineCleaner = cms.bool(True),
     CleaningSequence = cms.uint32(1),
+    slopeX=cms.int32(3),
+    slopeY=cms.int32(4),
     ApplyBaselineRejection = cms.bool(True),
     MeanCM = cms.int32(0),
 
