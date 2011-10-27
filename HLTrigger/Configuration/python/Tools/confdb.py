@@ -340,18 +340,19 @@ if 'hltHfreco' in %(dict)s:
 # Disable HF Noise filters in HIon menu
 if 'hltHfreco' in %(dict)s:
     %(process)shltHfreco.setNoiseFlags = cms.bool( False )
-# Use L1 menu from xml file
-%(process)sl1GtTriggerMenuXml = cms.ESProducer("L1GtTriggerMenuXmlProducer",
-    TriggerMenuLuminosity = cms.string('startup'),
-    DefXmlFile = cms.string('L1Menu_CollisionsHeavyIons2011_v0_L1T_Scales_20101224_Imp0_0x1026.xml'),
-    VmeXmlFile = cms.string('')
-)
-%(process)sL1GtTriggerMenuRcdSource = cms.ESSource("EmptyESSource",
-    recordName = cms.string('L1GtTriggerMenuRcd'),
-    iovIsRunNotTime = cms.bool(True),
-    firstValid = cms.vuint32(1)
-)
 """
+## Use L1 menu from xml file
+#  ...removed in favor of sqlite file    
+#%(process)sl1GtTriggerMenuXml = cms.ESProducer("L1GtTriggerMenuXmlProducer",
+#    TriggerMenuLuminosity = cms.string('startup'),
+#    DefXmlFile = cms.string('L1Menu_CollisionsHeavyIons2011_v0_L1T_Scales_20101224_Imp0_0x1026.xml'),
+#    VmeXmlFile = cms.string('')
+#)
+#%(process)sL1GtTriggerMenuRcdSource = cms.ESSource("EmptyESSource",
+#    recordName = cms.string('L1GtTriggerMenuRcd'),
+#    iovIsRunNotTime = cms.bool(True),
+#    firstValid = cms.vuint32(1)
+#)
 
       # if requested, instrument the self with the modules and EndPath needed for timing studies
       self.instrumentTiming()
@@ -384,18 +385,19 @@ if 'hltHfreco' in %(dict)s:
 # Disable HF Noise filters in HIon menu
 if 'hltHfreco' in %(dict)s:
     %(process)shltHfreco.setNoiseFlags = cms.bool( False )
-# Use L1 menu from xml file
-%(process)sl1GtTriggerMenuXml = cms.ESProducer("L1GtTriggerMenuXmlProducer",
-    TriggerMenuLuminosity = cms.string('startup'),
-    DefXmlFile = cms.string('L1Menu_CollisionsHeavyIons2011_v0_L1T_Scales_20101224_Imp0_0x1026.xml'),
-    VmeXmlFile = cms.string('')
-)
-%(process)sL1GtTriggerMenuRcdSource = cms.ESSource("EmptyESSource",
-    recordName = cms.string('L1GtTriggerMenuRcd'),
-    iovIsRunNotTime = cms.bool(True),
-    firstValid = cms.vuint32(1)
-)
 """
+## Use L1 menu from xml file
+#  ...removed in favor of sqlite file    
+#%(process)sl1GtTriggerMenuXml = cms.ESProducer("L1GtTriggerMenuXmlProducer",
+#    TriggerMenuLuminosity = cms.string('startup'),
+#    DefXmlFile = cms.string('L1Menu_CollisionsHeavyIons2011_v0_L1T_Scales_20101224_Imp0_0x1026.xml'),
+#    VmeXmlFile = cms.string('')
+#)
+#%(process)sL1GtTriggerMenuRcdSource = cms.ESSource("EmptyESSource",
+#    recordName = cms.string('L1GtTriggerMenuRcd'),
+#    iovIsRunNotTime = cms.bool(True),
+#    firstValid = cms.vuint32(1)
+#)
 
       # override the output modules to output root files
       self.overrideOutput()

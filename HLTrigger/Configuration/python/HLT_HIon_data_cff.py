@@ -6068,17 +6068,6 @@ HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_DTCalibration_v1, HLT_Ecal
 # Disable HF Noise filters in HIon menu
 if 'hltHfreco' in locals():
     hltHfreco.setNoiseFlags = cms.bool( False )
-# Use L1 menu from xml file
-l1GtTriggerMenuXml = cms.ESProducer("L1GtTriggerMenuXmlProducer",
-    TriggerMenuLuminosity = cms.string('startup'),
-    DefXmlFile = cms.string('L1Menu_CollisionsHeavyIons2011_v0_L1T_Scales_20101224_Imp0_0x1026.xml'),
-    VmeXmlFile = cms.string('')
-)
-L1GtTriggerMenuRcdSource = cms.ESSource("EmptyESSource",
-    recordName = cms.string('L1GtTriggerMenuRcd'),
-    iovIsRunNotTime = cms.bool(True),
-    firstValid = cms.vuint32(1)
-)
 
 # version specific customizations
 import os
