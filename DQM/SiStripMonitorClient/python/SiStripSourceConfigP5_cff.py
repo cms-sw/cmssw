@@ -12,6 +12,29 @@ SiStripMonitorDigi.TProfDigiApvCycle.subdetswitchon = True
 SiStripMonitorDigi.TProfTotalNumberOfDigisVsLS.subdetswitchon = True
 SiStripMonitorDigi.TotalNumberOfDigisFailure.subdetswitchon = True
 SiStripMonitorDigi.xLumiProf = 3
+
+# APV shots monitoring
+SiStripMonitorDigi.TkHistoMapNApvShots_On = True 
+SiStripMonitorDigi.TkHistoMapNStripApvShots_On= True
+SiStripMonitorDigi.TkHistoMapMedianChargeApvShots_On= True
+
+SiStripMonitorDigi.TH1NApvShots.subdetswitchon = True
+SiStripMonitorDigi.TH1NApvShots.globalswitchon = True
+
+SiStripMonitorDigi.TH1ChargeMedianApvShots.subdetswitchon = True
+SiStripMonitorDigi.TH1ChargeMedianApvShots.globalswitchon = True
+
+SiStripMonitorDigi.TH1NStripsApvShots.subdetswitchon = True
+SiStripMonitorDigi.TH1NStripsApvShots.globalswitchon = True
+
+SiStripMonitorDigi.TH1ApvNumApvShots.subdetswitchon = True
+SiStripMonitorDigi.TH1ApvNumApvShots.globalswitchon = True
+
+SiStripMonitorDigi.TProfNShotsVsTime.subdetswitchon = True
+SiStripMonitorDigi.TProfNShotsVsTime.globalswitchon = True
+
+SiStripMonitorDigi.TProfGlobalNShots.globalswitchon = True
+
 # removing some histograms
 SiStripMonitorDigi.TH1ADCsCoolestStrip.moduleswitchon = False
 SiStripMonitorDigi.TH1ADCsHottestStrip.moduleswitchon = False
