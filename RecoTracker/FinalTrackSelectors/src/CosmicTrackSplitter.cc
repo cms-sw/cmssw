@@ -260,7 +260,6 @@ namespace reco { namespace modules {
 			LogDebug("CosmicTrackSplitter") << "ntracks: " << tracks->size();
 			
 			// try to find distance of closest approach
-			math::XYZPoint refPoint = itt->referencePoint();
 			GlobalPoint v( itt->vx(), itt->vy(), itt->vz() );
 			
 			//checks on impact parameter

@@ -339,7 +339,7 @@ bool SimpleCosmicBONSeeder::checkCharge(const SiStripRecHit2D &hit, int subdetid
 void SimpleCosmicBONSeeder::checkNoisyModules(const std::vector<TransientTrackingRecHit::RecHitPointer> &hits, std::vector<bool> &oks) const {
     typedef TransientTrackingRecHit::RecHitPointer TTRH;
     std::vector<TTRH>::const_iterator it = hits.begin(),  start = it,   end = hits.end();
-    std::vector<bool>::iterator       ok = oks.begin(), okStart = ok, okEnd = oks.end();
+    std::vector<bool>::iterator       ok = oks.begin(), okStart = ok;
     while (start < end) {
         DetId lastid = (*start)->geographicalId();
         for (it = start + 1; (it < end) && ((*it)->geographicalId() == lastid); ++it) {

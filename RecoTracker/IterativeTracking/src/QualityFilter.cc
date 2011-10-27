@@ -67,14 +67,6 @@ QualityFilter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   Handle<std::vector<Trajectory> > TrajectoryCollection;
   Handle<TrajTrackAssociationCollection> assoMap;
   
-  Handle<TrackCollection> tkCollection;  
-  iEvent.getByLabel( tkTag, tkCollection);
-  const reco::TrackCollection*  tC = tkCollection.product();
-  TrackCollection::const_iterator itxc;
-  TrackCollection::const_iterator firstTrack = tC->begin();
-  TrackCollection::const_iterator lastTrack = tC->end();
-
-    
   iEvent.getByLabel(tkTag,TrajectoryCollection);
   iEvent.getByLabel(tkTag,assoMap);
 

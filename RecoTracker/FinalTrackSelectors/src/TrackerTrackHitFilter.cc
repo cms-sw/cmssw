@@ -604,7 +604,7 @@ void TrackerTrackHitFilter::produceFromTrajectory(const edm::EventSetup &iSetup,
   //---OverlapBegin needed eventually for overlaps, but I must create them here in any case
   const TrajectoryMeasurement* previousTM(0);
   DetId previousId(0);
-  int previousLayer(-1);
+  //int previousLayer(-1);
   ///---OverlapEnd   
 
   int constrhits=0;
@@ -674,7 +674,7 @@ void TrackerTrackHitFilter::produceFromTrajectory(const edm::EventSetup &iSetup,
 
 	    previousTM = &(* itTrajMeas);
 	    previousId = detid;
-	    previousLayer = layer;
+	    //previousLayer = layer;
 	}//end if look for overlaps
 	///---OverlapEnd
 

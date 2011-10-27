@@ -233,11 +233,11 @@ GSUtilities::maxWeight () const
 {
   // Look for the highest weight component
   //
-  int iwMax(-1);
+  //int iwMax(-1);
   float wMax(0.);
   for ( unsigned i=0; i<theNComp; i++ ) {
     if ( theWeights[i]>wMax ) {
-      iwMax = i;
+      //iwMax = i;
       wMax = theWeights[i];
     }
   }

@@ -444,11 +444,10 @@ bool TrackingTruthProducer::isBremsstrahlungVertex(
     if ( std::abs( tPC->at(parents.begin()->key()).pdgId() ) != 11 )
         return false;
 
-    int nElectrons = 0;
-    int nPhotons = 0;
-    int nOthers = 0;
+    unsigned int nElectrons = 0;
+    unsigned int nOthers = 0;
 
-    // Loop over the daughter particles and counts the number of |electrons|, photons or others
+    // Loop over the daughter particles and counts the number of |electrons|, others (non photons)
     for ( TrackingVertex::tp_iterator it = vertex.daughterTracks_begin(); it != vertex.daughterTracks_end(); ++it )
     {
         // Stronger rejection for looping particles
@@ -457,14 +456,12 @@ bool TrackingTruthProducer::isBremsstrahlungVertex(
 
         if ( std::abs( tPC->at(it->key()).pdgId() ) == 11 )
             nElectrons++;
-        else if ( tPC->at(it->key()).pdgId() == 22 )
-            nPhotons++;
-        else
+        else if ( tPC->at(it->key()).pdgId() != 22 )
             nOthers++;
     }
 
     // Condition to be a Bremsstrahlung Vertex
-    if (nElectrons == 1 && nPhotons >= 0 && nOthers == 0)
+    if (nElectrons == 1 && nOthers == 0)
         return true;
 
     return false;

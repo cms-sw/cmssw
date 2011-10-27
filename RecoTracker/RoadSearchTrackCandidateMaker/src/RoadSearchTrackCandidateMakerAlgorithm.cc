@@ -10,8 +10,8 @@
 // Created:         Wed Mar 15 13:00:00 UTC 2006
 //
 // $Author: elmer $
-// $Date: 2010/10/03 20:54:08 $
-// $Revision: 1.67 $
+// $Date: 2010/10/04 17:34:58 $
+// $Revision: 1.68 $
 //
 
 #include <vector>
@@ -168,12 +168,10 @@ void RoadSearchTrackCandidateMakerAlgorithm::run(const RoadSearchCloudCollection
 			<< "*** NEW EVENT: Clean Clouds input size: " << input->size() << std::endl;
   
   int i_c = 0;
-  int nchit = 0;
   for ( RoadSearchCloudCollection::const_iterator cloud = input->begin(); cloud != input->end(); ++cloud ) {
     
     // fill rechits from cloud into new
     RoadSearchCloud::RecHitVector recHits = cloud->recHits();
-    nchit = recHits.size();
     
     std::vector<Trajectory> CloudTrajectories;
     

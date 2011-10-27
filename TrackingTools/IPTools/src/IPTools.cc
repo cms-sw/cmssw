@@ -147,7 +147,7 @@ namespace IPTools
 
 
     GlobalVector ipDirection = impactParameter.unit();
-    GlobalPoint closestPoint = closestToJetState.globalPosition();
+    //GlobalPoint closestPoint = closestToJetState.globalPosition();
     GlobalVector momentumAtClosestPoint = closestToJetState.globalMomentum(); 
     GlobalVector momentumDir = momentumAtClosestPoint.unit();
     

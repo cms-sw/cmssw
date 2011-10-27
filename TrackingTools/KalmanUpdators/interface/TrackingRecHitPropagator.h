@@ -58,10 +58,10 @@ class TrackingRecHitPropagator {
 		LocalPoint p = projected_hit_state.localPosition();
 		LocalError e = projected_hit_state.localError().positionError();
 		//		LogTrace("SiTrackerMultiRecHitUpdator") << "position: "<<p<<" error: "<<e<<std::endl;
-		AlgebraicSymMatrix55 projm=projected_hit_state.localError().matrix();	  
+		//AlgebraicSymMatrix55 projm=projected_hit_state.localError().matrix();	  
 		//		for(int i=0;i<5;i++){
 		//		LogTrace("SiTrackerMultiRecHitUpdator") <<"cov matrix: "<<projm<<std::endl;
-		  //		}
+		//		}
 		return ResultingHit::build(p, e, &det, updatedOriginal->det(), updatedOriginal, this);
 	}
 	

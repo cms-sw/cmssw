@@ -91,7 +91,7 @@ void PixelTrackTest::analyze(
   const reco::TrackCollection tracks = *(trackCollection.product());
   cout << "Number of tracks: "<< tracks.size() << " tracks" << std::endl;
   for (IT it=tracks.begin(); it!=tracks.end(); it++) {
-    math::XYZVector mom_rec = (*it).momentum();
+    //math::XYZVector mom_rec = (*it).momentum();
     float pt_rec = (*it).pt();
     myprint(*it);
     static_cast<TH1*>(hList.FindObject("h_Pt"))->Fill((pt_gen - pt_rec)/pt_gen);

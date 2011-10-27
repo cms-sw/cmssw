@@ -238,7 +238,6 @@ void MultiTrackSelector::produce( edm::Event& evt, const edm::EventSetup& es )
   int count1dhits = 0;
   for (trackingRecHit_iterator ith = tk.recHitsBegin(), edh = tk.recHitsEnd(); ith != edh; ++ith) {
     const TrackingRecHit * hit = ith->get();
-    DetId detid = hit->geographicalId();
     if (hit->isValid()) {
       if (typeid(*hit) == typeid(SiStripRecHit1D)) ++count1dhits;
     }

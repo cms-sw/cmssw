@@ -4,8 +4,8 @@
  *
  * \author Yanyan Gao, FNAL
  *
- *  $Date: 2009/09/02 22:39:13 $
- *  $Revision: 1.1 $
+ *  $Date: 2010/02/11 00:10:48 $
+ *  $Revision: 1.2 $
  *
  */
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
@@ -73,12 +73,12 @@ public:
     // Operator() performs the selection: e.g. if (tPSelector(tp, bs, event, evtsetup)) {...
     bool operator()( const TrackingParticle & tp, const reco::BeamSpot* bs, const edm::Event &iEvent, const edm::EventSetup& iSetup ) const { 
       if (chargedOnly_ && tp.charge()==0) return false;//select only if charge!=0
-      bool testId = false;
-      unsigned int idSize = pdgId_.size();
-      if (idSize==0) testId = true;
-      else for (unsigned int it=0;it!=idSize;++it){
-	if (tp.pdgId()==pdgId_[it]) testId = true;
-      }
+      //bool testId = false;
+      //unsigned int idSize = pdgId_.size();
+      //if (idSize==0) testId = true;
+      //else for (unsigned int it=0;it!=idSize;++it){
+	//if (tp.pdgId()==pdgId_[it]) testId = true;
+      //}
       
       edm::ESHandle<TrackerGeometry> tracker;
       iSetup.get<TrackerDigiGeometryRecord>().get(tracker);

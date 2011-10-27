@@ -210,9 +210,9 @@ TracksWithRecHits TrackCleaner::cleanTracks
     // Skip if 'i' already removed
     if(!keep[i]) continue;
 
-    bool addedNewHit = false;
-
 /*
+
+    bool addedNewHit = false;
     do
     {
 */
@@ -266,7 +266,7 @@ TracksWithRecHits TrackCleaner::cleanTracks
                      tracks[i].second.end(),
                      HitComparatorByRadius());
 
-                addedNewHit = true;
+                //addedNewHit = true;
               }
             }
 

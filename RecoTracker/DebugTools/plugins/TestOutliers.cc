@@ -13,7 +13,7 @@
 //
 // Original Author:  Giuseppe Cerati
 //         Created:  Mon Sep 17 10:31:30 CEST 2007
-// $Id: TestOutliers.cc,v 1.11 2010/10/15 12:22:09 elmer Exp $
+// $Id: TestOutliers.cc,v 1.12 2011/03/20 18:36:42 innocent Exp $
 //
 //
 
@@ -329,8 +329,6 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
     tracks->Fill(0);//FIXME
 
-    bool hasOut = false;
-
     TrackingParticleRef tpr;
     TrackingParticleRef tprOut;
     TrackingParticleRef tprOld;
@@ -378,7 +376,6 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	   !trackOut->recHitsBegin()->get()->sharesInput(trackOld->recHitsBegin()->get(),TrackingRecHit::some) ||
 	   !(trackOut->recHitsEnd()-1)->get()->sharesInput((trackOld->recHitsEnd()-1)->get(),TrackingRecHit::some)  ) 
 	{ //there are outliers if the number of valid hits is != or if the first and last hit does not match
-	hasOut=true;
 	LogTrace("TestOutliers") << "outliers for track with #hits=" << trackOut->numberOfValidHits();
 	tracks->Fill(1);
 	LogTrace("TestOutliers") << "Out->pt=" << trackOut->pt() << " Old->pt=" << trackOld->pt() 

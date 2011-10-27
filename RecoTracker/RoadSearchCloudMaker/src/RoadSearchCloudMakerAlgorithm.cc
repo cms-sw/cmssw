@@ -48,8 +48,8 @@
 // Created:         Sat Jan 14 22:00:00 UTC 2006
 //
 // $Author: gpetrucc $
-// $Date: 2008/10/31 16:02:33 $
-// $Revision: 1.56 $
+// $Date: 2010/12/13 17:33:48 $
+// $Revision: 1.57 $
 //
 
 #include <vector>
@@ -510,8 +510,6 @@ unsigned int RoadSearchCloudMakerAlgorithm::FillRecHitsIntoCloudGeneral(DetId id
       const SiStripRecHit2D *recHit = (SiStripRecHit2D*)(*recHitIterator);
       DetId hitId = recHit->geographicalId();
 
-      GlobalPoint ghit = tracker->idToDet(recHit->geographicalId())->surface().toGlobal(recHit->localPosition());
-      //LogDebug("RoadSearch") << "    Testing hit at (x/y/z): " << ghit.x() << " / " << ghit.y() << " / " << ghit.z();
       LogDebug("RoadSearch") << "    Testing hit at (x/y/z): " 
 			     << tracker->idToDet(recHit->geographicalId())->surface().toGlobal(recHit->localPosition()).x() << " / " 
 			     << tracker->idToDet(recHit->geographicalId())->surface().toGlobal(recHit->localPosition()).y() << " / " 
@@ -1253,7 +1251,7 @@ SiStripMatchedRecHit2D* RoadSearchCloudMakerAlgorithm::CorrectMatchedHit(const T
              
             const GeomDetUnit* theMonoDet = theGluedDet->monoDet();
             const SiStripRecHit2D* theMonoHit   = theRH->monoHit();
-            GlobalPoint monoRHpos = (theMonoDet->surface()).toGlobal(theMonoHit->localPosition());
+            //GlobalPoint monoRHpos = (theMonoDet->surface()).toGlobal(theMonoHit->localPosition());
              
             GlobalPoint gcenterofstrip=(theMonoDet->surface()).toGlobal(theMonoHit->localPosition());
              
@@ -1264,7 +1262,7 @@ SiStripMatchedRecHit2D* RoadSearchCloudMakerAlgorithm::CorrectMatchedHit(const T
                                       sin(gtrackangle_xy)*sin(rzangle),
                                       cos(rzangle));
             LocalVector trackdirection2=((tracker->idToDet(theRH->geographicalId()))->surface()).toLocal(gtrackangle2);
-            GlobalVector gdir = theMonoDet->surface().toGlobal(trackdirection2);
+            //GlobalVector gdir = theMonoDet->surface().toGlobal(trackdirection2);
  
             SiStripMatchedRecHit2D* theCorrectedHit = theHitMatcher->match(theRH,theGluedDet,trackdirection2);
             if (theCorrectedHit!=0) return theCorrectedHit;

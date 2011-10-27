@@ -106,8 +106,6 @@ vector<GlobalPoint> LowPtClusterShapeSeedComparitor::getGlobalPoss
       recHit!= thits.end();
       recHit++)
   {
-    DetId detId = (*recHit)->hit()->geographicalId();
-
     GlobalPoint gpos = (*recHit)->globalPosition();
 
     globalPoss.push_back(gpos);
