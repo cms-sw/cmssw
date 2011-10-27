@@ -70,11 +70,24 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 						      iEvent );
   std::map<reco::GsfElectronRef,reco::PFCandidatePtr> electronCandidateMap;  
 
+  if(!status) {
+    std::ostringstream err;
+    err << " Problem in PFLinker: no electron collection called " << inputTagGsfElectrons_ << std::endl;
+    edm::LogError("PFLinker") << err.str();
+  }
+
 
   edm::Handle<reco::PhotonCollection> photons;
   status=fetchCollection<reco::PhotonCollection>(photons,
 						 inputTagPhotons_,
 						 iEvent );
+  if(!status) {
+    std::ostringstream err;
+    err << " Problem in PFLinker: no photon collection called " << inputTagPhotons_ << std::endl;
+    edm::LogError("PFLinker") << err.str();
+  }
+
+
   std::map<reco::PhotonRef,reco::PFCandidatePtr> photonCandidateMap;
 
 
@@ -86,6 +99,14 @@ void PFLinker::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   std::map<reco::MuonRef,reco::PFCandidatePtr> muonCandidateMap;
   
   unsigned nColPF=inputTagPFCandidates_.size();
+  
+  if(!status) {
+    std::ostringstream err;
+    err << " Problem in PFLinker: no muon collection called " << inputTagMuons_ << std::endl;
+    edm::LogError("PFLinker") << err.str();
+  }
+
+  
   edm::Handle<reco::PFCandidateCollection> pfCandidates;
   for(unsigned icol=0;icol<nColPF;++icol) {
     
