@@ -613,7 +613,7 @@ void DAFValidator::fillMultiHitHistosPartiallyUnmatched(const vector<pair<float,
   for (imap = map.begin(); imap != map.end(); imap++){
     //weight_partially_unmatched->Fill(imap->first);
     //weight_vs_type_partially_unmatched->Fill(getType(imap->second), imap->first);
-    GlobalPoint global = getGlobalPosition(imap->second, geom);			
+    //GlobalPoint global = getGlobalPosition(imap->second, geom);			
     //weight_vs_r_partially_unmatched->Fill(global.perp(), imap->first);
     //weight_vs_eta_partially_unmatched->Fill(global.eta(), imap->first);
   }
@@ -624,7 +624,7 @@ void DAFValidator::fillMultiHitHistosTotallyUnmatched(const vector<pair<float,co
   for (imap = map.begin(); imap != map.end(); imap++){
     //weight_totally_unmatched->Fill(imap->first);
     //weight_vs_type_totally_unmatched->Fill(getType(imap->second), imap->first);
-    GlobalPoint global = getGlobalPosition(imap->second, geom);
+    //GlobalPoint global = getGlobalPosition(imap->second, geom);
     //weight_vs_r_totally_unmatched->Fill(global.perp(), imap->first);
     //weight_vs_eta_totally_unmatched->Fill(global.eta(), imap->first);
   }
