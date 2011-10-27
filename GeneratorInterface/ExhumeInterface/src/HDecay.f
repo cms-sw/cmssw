@@ -105,26 +105,8 @@ C =====================================================================
       IMPLICIT DOUBLE PRECISION (A-H,O-Z)
       DOUBLE PRECISION LAMB
       DIMENSION XX(4),YY(4)
-      DIMENSION AMCHAR(2),AMNEUT(4),XMNEUT(4),
-     .          AC1(2,2),AC2(2,2),AC3(2,2),
-     .          AN1(4,4),AN2(4,4),AN3(4,4),
-     .          ACNL(2,4),ACNR(2,4),
-     .          AMST(2),AMSB(2),AMSL(2),
-     .          AMSU(2),AMSD(2),AMSE(2),AMSN(2),
-     .          GLTT(2,2),GLBB(2,2),GLEE(2,2),
-     .          GHTT(2,2),GHBB(2,2),GHEE(2,2),
-     .          GCTB(2,2),GCEN(2,2)
-      DIMENSION GMST(2),GMSB(2),GMSL(2),GMSU(2),GMSD(2),GMSE(2),
-     .          GMSN(2)
-      DIMENSION HLBRSC(2,2),HLBRSN(4,4),HHBRSC(2,2),
-     .          HHBRSN(4,4),HABRSC(2,2),HABRSN(4,4),HCBRSU(2,4),
-     .          HHBRST(2,2),HHBRSB(2,2),HCBRSTB(2,2) 
       COMPLEX*16 CF,CG,CI1,CI2,CA,CB,CTT,CTB,CTC,CTW,CLT,CLB,CLW,
-     .           CAT,CAB,CAC,CAW,CAH,CTH,CLH,CX1,CX2,CAX1,CAX2,CTL,CAL,
-     .           CSL,CSQ,CSB1,CSB2,CST1,CST2,CSL1,CSL2,
-     .           CXL,CXQ,CXB1,CXB2,CXT1,CXT2,CXL1,CXL2
-      COMPLEX*16 CSEL,CSER,CSUL,CSUR,CSDL,CSDR,
-     .           CXEL,CXER,CXUL,CXUR,CXDL,CXDR
+     .           CAT,CAB,CAC,CAW,CTL,CAL
       COMMON/HMASS/AMSM,AMA,AML,AMH,AMCH
       COMMON/MASSES/AMS,AMC,AMB,AMT
       COMMON/ALS/XLAMBDA,AMC0,AMB0,AMT0,N0

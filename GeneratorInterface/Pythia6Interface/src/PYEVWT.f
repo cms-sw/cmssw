@@ -14,7 +14,6 @@ C...physics.
 C...Double precision and integer declarations.
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
       IMPLICIT INTEGER(I-N)
-      INTEGER PYK,PYCHGE,PYCOMP
 C...Commonblocks.
       COMMON/PYDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
       COMMON/PYPARS/MSTP(200),PARP(200),MSTI(200),PARI(200)

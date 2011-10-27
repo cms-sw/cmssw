@@ -10,7 +10,6 @@ C...flavour-content-based ones.
  
 C...Double precision and integer declarations.
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      INTEGER PYK,PYCHGE,PYCOMP
 C...Parameter statement to help give large particle numbers
 C...(left- and righthanded SUSY, excited fermions).
       PARAMETER (KSUSY1=1000000,KSUSY2=2000000,KEXCIT=4000000)
@@ -75,7 +74,6 @@ C...either by producing a new g-g pair or two new q-qbar ones.
  
 C...Double precision and integer declarations.
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
-      INTEGER PYK,PYCHGE,PYCOMP
 C...Parameter statement to help give large particle numbers
 C...(left- and righthanded SUSY, excited fermions).
       PARAMETER (KSUSY1=1000000,KSUSY2=2000000,KEXCIT=4000000)

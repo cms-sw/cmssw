@@ -105,7 +105,6 @@ void TauPhotonTester::analyze( const Event& e, const EventSetup& )
    //
    bool tau_in_vtx_flag = false;
    bool tau_out_vtx_flag = false;
-   bool tau_gamma_vtx_flag = false;
    
    vector<double> PhotonE;
    vector<double> PhotonPt;
@@ -116,7 +115,6 @@ void TauPhotonTester::analyze( const Event& e, const EventSetup& )
       
       tau_in_vtx_flag = false;
       tau_out_vtx_flag = false;
-      tau_gamma_vtx_flag = false;
             
       if ( (*vtx)->particles_in_size() == 1 && 
 	         abs((*((*vtx)->particles_in_const_begin()))->pdg_id()) == 15 )
@@ -162,7 +160,6 @@ void TauPhotonTester::analyze( const Event& e, const EventSetup& )
       if ( tau_in_vtx_flag && tau_out_vtx_flag && NGammaInVtx > 0 )
       {
          if ( fVerbosity > 0 ) (*vtx)->print();
-	 tau_gamma_vtx_flag = true;
 	 fTauPhotonVtxCounter++;
 	 fTauPhotonCounter += NGammaInVtx;
 	 for ( int i1=0; i1<NGammaInVtx; i1++ )

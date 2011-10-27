@@ -10,7 +10,6 @@ C...the standard event record commonblock.
 C...Double precision and integer declarations.
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
       IMPLICIT INTEGER(I-N)
-      INTEGER PYK,PYCHGE,PYCOMP
 C...Commonblocks.
       COMMON/PYJETS/N,NPAD,K(4000,5),P(4000,5),V(4000,5)
       COMMON/PYDAT1/MSTU(200),PARU(200),MSTJ(200),PARJ(200)
