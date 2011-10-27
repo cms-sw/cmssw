@@ -8,7 +8,7 @@
 */
 // Original Author:  dkcira
 //         Created:  Sat Feb  4 20:49:51 CET 2006
-// $Id: SiStripMonitorDigi.h,v 1.26 2010/05/06 08:23:14 dutta Exp $
+// $Id: SiStripMonitorDigi.h,v 1.27 2011/03/03 08:21:15 borrell Exp $
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
@@ -18,6 +18,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "DQM/SiStripCommon/interface/TkHistoMap.h"
+#include "DPGAnalysis/SiStripTools/interface/APVShotFinder.h"
+#include "DPGAnalysis/SiStripTools/interface/APVShot.h"
 
 class DQMStore;
 class SiStripDCSStatus;
@@ -34,6 +36,7 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   virtual void endRun(const edm::Run&, const edm::EventSetup&);
   virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
   virtual void endLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&);
+ 
 
   struct ModMEs{
 	
@@ -63,10 +66,19 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   };
 
   struct SubDetMEs{
+
     int totNDigis;
     MonitorElement* SubDetTotDigiProf;
     MonitorElement* SubDetDigiApvProf;
     MonitorElement* SubDetDigiApvTH2;
+
+    //int totApvShots;
+    std::vector<APVShot> SubDetApvShots;
+    MonitorElement* SubDetNApvShotsTH1;
+    MonitorElement* SubDetChargeMedianApvShotsTH1;
+    MonitorElement* SubDetNStripsApvShotsTH1;
+    MonitorElement* SubDetNApvShotsProf; 
+
   };
 
   struct DigiFailureMEs{
@@ -94,8 +106,12 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   void createSubDetMEs(std::string label);
   void createSubDetTH2(std::string label);
   int getDigiSourceIndex(uint32_t id);
-      
+  void AddApvShotsToSubDet(const std::vector<APVShot> &, std::vector<APVShot> &);
+  void FillApvShotsMap(TkHistoMap*, const std::vector<APVShot> &, uint32_t id ,int);
+   
  private:
+  
+
   DQMStore* dqmStore_;
   edm::ParameterSet conf_;
   std::vector<edm::InputTag> digiProducerList;
@@ -117,11 +133,15 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   edm::ESHandle<SiStripDetCabling> SiStripDetCabling_;
   std::vector<uint32_t> ModulesToBeExcluded_;
 
-  TkHistoMap* tkmapdigi;  
+  MonitorElement* NApvShotsGlobal;
+
+  TkHistoMap* tkmapdigi, *tkmapNApvshots, *tkmapNstripApvshot, *tkmapMedianChargeApvshots;  
 
   int runNb, eventNb;
   int firstEvent;
 
+  bool globalsummaryapvshotson;
+  
   bool layerswitchnumdigison;
   bool layerswitchnumdigisapvon;
   bool layerswitchadchotteston;
@@ -145,11 +165,20 @@ class SiStripMonitorDigi : public edm::EDAnalyzer {
   bool subdetswitchtotdigiproflson;
   bool subdetswitchtotdigifailureon;
 
+  bool subdetswitchnapvshotson;
+  bool subdetswitchnstripsapvshotson;
+  bool subdetswitchapvshotsonprof;
+  bool subdetswitchchargemedianapvshotson;
+
   int xLumiProf;
 
   bool Mod_On_;
 
   bool digitkhistomapon;
+  bool shotshistomapon;
+  bool shotsstripshistomapon;
+  bool shotschargehistomapon;
+  
   bool createTrendMEs;
 
   std::string topDir;
