@@ -1,6 +1,5 @@
 #include "FWCore/Services/src/InitRootHandlers.h"
 
-#include "DataFormats/Common/interface/CacheStreamers.h"
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
 #include "DataFormats/Streamer/interface/StreamedProductStreamer.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
@@ -234,7 +233,6 @@ namespace edm {
       G__SetCatchException(0);
 
       // Set custom streamers
-      setCacheStreamers();
       setRefCoreStreamer();
       setStreamedProductStreamer();
 
