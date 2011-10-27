@@ -1,0 +1,86 @@
+#ifndef MuonRecoOneHLT_H
+#define MuonRecoOneHLT_H
+
+
+#include <memory>
+#include <fstream>
+#include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DQMOffline/Muon/src/MuonAnalyzerBase.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+
+#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
+
+class MuonRecoOneHLT : public MuonAnalyzerBase {
+ public:
+
+  /// Constructor
+  MuonRecoOneHLT(const edm::ParameterSet&, MuonServiceProxy *theService);
+  
+  /// Destructor
+  virtual ~MuonRecoOneHLT();
+
+  /// Inizialize parameters for histo binning
+  void beginJob(DQMStore *dbe);
+  void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
+  
+  /// Get the analysis
+  void analyze(const edm::Event&, const edm::EventSetup&, const reco::Muon& recoMu);
+
+  //calculate residual & pull:
+  void GetRes( reco::TrackRef t1, reco::TrackRef t2, std::string par, float &res, float &pull);
+
+ private:
+  // ----------member data ---------------------------
+  edm::ParameterSet parameters;
+  // Switch for verbosity
+  std::string metname;
+  // STA Label
+  edm::InputTag theSTACollectionLabel;
+
+  GenericTriggerEventFlag *_MuonEventFlag;
+  
+  //histo binning parameters
+  int ptBin;
+  float ptMin;
+  float ptMax;
+
+  int etaBin;
+  float etaMin;
+  float etaMax;
+
+  int phiBin;
+  float phiMin;
+  float phiMax;
+
+  int chi2Bin;
+  float chi2Min;
+  float chi2Max;
+
+  //the histos
+  MonitorElement* muReco;
+  
+  // global muon
+  std::vector<MonitorElement*> etaGlbTrack;
+  std::vector<MonitorElement*> phiGlbTrack;
+  std::vector<MonitorElement*> chi2OvDFGlbTrack;
+  std::vector<MonitorElement*> ptGlbTrack;
+
+  // tracker muon
+  MonitorElement* etaTrack;
+  MonitorElement* phiTrack;
+  MonitorElement* chi2OvDFTrack;
+  MonitorElement* ptTrack;
+  // sta muon
+  MonitorElement* etaStaTrack;
+  MonitorElement* phiStaTrack;
+  MonitorElement* chi2OvDFStaTrack;
+  MonitorElement* ptStaTrack;
+
+};
+#endif

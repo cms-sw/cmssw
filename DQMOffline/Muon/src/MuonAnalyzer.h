@@ -6,8 +6,8 @@
  *
  *  DQM muon analysis monitoring
  *
- *  $Date: 2010/07/19 22:17:37 $
- *  $Revision: 1.16 $
+ *  $Date: 2011/05/22 18:17:21 $
+ *  $Revision: 1.17 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -26,6 +26,7 @@ class MuonKinVsEtaAnalyzer;
 class DiMuonHistograms;
 class DQMStore;
 class MuonServiceProxy;
+class MuonRecoOneHLT;
 
 class MuonAnalyzer : public edm::EDAnalyzer {
  public:
@@ -38,16 +39,16 @@ class MuonAnalyzer : public edm::EDAnalyzer {
   
   /// Inizialize parameters for histo binning
   void beginJob(void);
+  void beginRun(const edm::Run&, const edm::EventSetup&);
 
   /// Get the analysis
   void analyze(const edm::Event&, const edm::EventSetup&);
 
   /// Save the histos
   void endJob(void);
-
+  
  private:
   // ----------member data ---------------------------
-  
   DQMStore* theDbe;
   edm::ParameterSet parameters;
   MuonServiceProxy *theService;
@@ -69,20 +70,16 @@ class MuonAnalyzer : public edm::EDAnalyzer {
   bool theMuonKinVsEtaAnalyzerFlag;
   bool theMuonSegmentsAnalyzerFlag;
   bool theDiMuonHistogramsFlag;
-  // the muon energy analyzer
-  MuonEnergyDepositAnalyzer * theMuEnergyAnalyzer;
-  // the seeds analyzer
-  MuonSeedsAnalyzer * theSeedsAnalyzer;
-  // the muon reco analyzer
-  MuonRecoAnalyzer * theMuonRecoAnalyzer;
-  // the muon kin vs eta analyzer
-  MuonKinVsEtaAnalyzer * theMuonKinVsEtaAnalyzer;
-  // the track segments analyzer for glb muons
-  SegmentTrackAnalyzer * theGlbMuonSegmentsAnalyzer;
-  // the track segments analyzer for sta muons
-  SegmentTrackAnalyzer * theStaMuonSegmentsAnalyzer;
-  // The dimuon histograms
-  DiMuonHistograms * theDiMuonHistograms;
+  bool theMuonRecoOneHLTAnalyzerFlag;
   
+  // Define Analysis Modules
+  MuonEnergyDepositAnalyzer* theMuEnergyAnalyzer;
+  MuonSeedsAnalyzer*         theSeedsAnalyzer;
+  MuonRecoAnalyzer*          theMuonRecoAnalyzer;
+  MuonKinVsEtaAnalyzer*      theMuonKinVsEtaAnalyzer;
+  SegmentTrackAnalyzer*      theGlbMuonSegmentsAnalyzer;
+  SegmentTrackAnalyzer*      theStaMuonSegmentsAnalyzer;
+  DiMuonHistograms*          theDiMuonHistograms;
+  MuonRecoOneHLT*            theMuonRecoOneHLTAnalyzer;
 };
 #endif  
