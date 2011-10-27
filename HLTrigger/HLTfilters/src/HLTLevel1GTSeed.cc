@@ -1019,7 +1019,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     //
 
     // muon
-    if (listMuon.size()) {
+    if (!listMuon.empty()) {
 
         edm::Handle<l1extra::L1MuonParticleCollection> l1Muon;
         iEvent.getByLabel(m_l1MuonTag, l1Muon);
@@ -1043,7 +1043,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     }
 
     // EG (isolated)
-    if (listIsoEG.size()) {
+    if (!listIsoEG.empty()) {
         edm::Handle<l1extra::L1EmParticleCollection> l1IsoEG;
         iEvent.getByLabel(m_l1IsoEGTag, l1IsoEG);
 
@@ -1064,7 +1064,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     }
 
     // EG (no isolation)
-    if (listNoIsoEG.size()) {
+    if (!listNoIsoEG.empty()) {
         edm::Handle<l1extra::L1EmParticleCollection> l1NoIsoEG;
         iEvent.getByLabel(m_l1NoIsoEGTag, l1NoIsoEG);
 
@@ -1086,7 +1086,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     }
 
     // central jets
-    if (listCenJet.size()) {
+    if (!listCenJet.empty()) {
         edm::Handle<l1extra::L1JetParticleCollection> l1CenJet;
         iEvent.getByLabel(m_l1CenJetTag, l1CenJet);
 
@@ -1108,7 +1108,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     }
 
     // forward jets
-    if (listForJet.size()) {
+    if (!listForJet.empty()) {
         edm::Handle<l1extra::L1JetParticleCollection> l1ForJet;
         iEvent.getByLabel(m_l1ForJetTag, l1ForJet);
 
@@ -1130,7 +1130,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     }
 
     // tau jets
-    if (listTauJet.size()) {
+    if (!listTauJet.empty()) {
         edm::Handle<l1extra::L1JetParticleCollection> l1TauJet;
         iEvent.getByLabel(m_l1TauJetTag, l1TauJet);
 
@@ -1152,7 +1152,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     }
 
     // energy sums
-    if (listETM.size()) {
+    if (!listETM.empty()) {
         edm::Handle<l1extra::L1EtMissParticleCollection> l1EnergySums;
         iEvent.getByLabel(m_l1EtMissMET, l1EnergySums);
 
@@ -1180,7 +1180,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
     }
 
-    if (listETT.size()) {
+    if (!listETT.empty()) {
         edm::Handle<l1extra::L1EtMissParticleCollection> l1EnergySums;
         iEvent.getByLabel(m_l1EtMissMET, l1EnergySums);
 
@@ -1208,7 +1208,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
 
     }
 
-    if (listHTT.size()) {
+    if (!listHTT.empty()) {
         edm::Handle<l1extra::L1EtMissParticleCollection> l1EnergySums;
         iEvent.getByLabel(m_l1EtMissMHT, l1EnergySums);
 
@@ -1236,7 +1236,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
         }
     }
 
-    if (listHTM.size()) {
+    if (!listHTM.empty()) {
         edm::Handle<l1extra::L1EtMissParticleCollection> l1EnergySums;
         iEvent.getByLabel(m_l1EtMissMHT, l1EnergySums);
 
@@ -1266,7 +1266,7 @@ bool HLTLevel1GTSeed::seedsL1TriggerObjectMaps(edm::Event& iEvent,
     // TODO FIXME uncomment if block when JetCounts implemented
 
     //    // jet counts
-    //    if (listJetCounts.size()) {
+    //    if (!listJetCounts.empty()) {
     //        edm::Handle<l1extra::L1JetCounts> l1JetCounts;
     //        iEvent.getByLabel(m_l1CollectionsTag.label(), l1JetCounts);
     //
