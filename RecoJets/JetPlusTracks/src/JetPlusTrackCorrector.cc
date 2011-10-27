@@ -771,7 +771,7 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::jetDirFromTracks( const P4& cor
   // Correction to be applied to jet 4-momentum
   P4 corr;
   
-  bool tracks_present = false;
+//  bool tracks_present = false;
   bool tracks_present_inin = false; 
  
   // Correct using pions in-cone at vertex
@@ -781,7 +781,7 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::jetDirFromTracks( const P4& cor
     TrackRefs::iterator jtrk = pions.inVertexInCalo_.end();
     for ( ; itrk != jtrk; ++itrk ) {
       corr += PtEtaPhiM( (*itrk)->pt(), (*itrk)->eta(), (*itrk)->phi(), 0. );
-      tracks_present = true;
+//      tracks_present = true;
       tracks_present_inin = true;
     }
   }
@@ -791,7 +791,7 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::jetDirFromTracks( const P4& cor
     TrackRefs::iterator jtrk = pions.inVertexOutOfCalo_.end();
     for ( ; itrk != jtrk; ++itrk ) {
       corr += PtEtaPhiM( (*itrk)->pt(), (*itrk)->eta(), (*itrk)->phi(), 0. );
-      tracks_present = true;
+//      tracks_present = true;
     }
   }
 
@@ -802,7 +802,7 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::jetDirFromTracks( const P4& cor
     TrackRefs::iterator jtrk = muons.inVertexInCalo_.end();
     for ( ; itrk != jtrk; ++itrk ) {
       corr += PtEtaPhiM( (*itrk)->pt(), (*itrk)->eta(), (*itrk)->phi(), 0. );
-      tracks_present = true;
+//      tracks_present = true;
     }
   }
 
@@ -811,7 +811,7 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::jetDirFromTracks( const P4& cor
     TrackRefs::iterator jtrk = muons.inVertexOutOfCalo_.end();
     for ( ; itrk != jtrk; ++itrk ) {
       corr += PtEtaPhiM( (*itrk)->pt(), (*itrk)->eta(), (*itrk)->phi(), 0. );
-      tracks_present = true;
+//      tracks_present = true;
     }
   }
 
@@ -822,7 +822,7 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::jetDirFromTracks( const P4& cor
     TrackRefs::iterator jtrk = elecs.inVertexInCalo_.end();
     for ( ; itrk != jtrk; ++itrk ) {
       corr += PtEtaPhiM( (*itrk)->pt(), (*itrk)->eta(), (*itrk)->phi(), 0. );
-      tracks_present = true;
+//      tracks_present = true;
     }
   }
   
@@ -831,11 +831,11 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::jetDirFromTracks( const P4& cor
     TrackRefs::iterator jtrk = elecs.inVertexOutOfCalo_.end();
     for ( ; itrk != jtrk; ++itrk ) {
       corr += PtEtaPhiM( (*itrk)->pt(), (*itrk)->eta(), (*itrk)->phi(), 0. );
-      tracks_present = true;
+//      tracks_present = true;
     }
   }
   
-  // Adjust direction if tracks are present
+  // Adjust direction if in cone tracks are present
   
   if ( !tracks_present_inin  ) { corr = corrected; }
   else { 
