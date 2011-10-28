@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V346 (CMSSW_4_2_0_HLT34)
+# /dev/CMSSW_4_2_0/HIon/V347 (CMSSW_4_2_0_HLT34)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V346')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V347')
 )
 
 process.streams = cms.PSet( 
@@ -2737,6 +2737,9 @@ process.PrescaleService = cms.Service( "PrescaleService",
       cms.PSet(  pathName = cms.string( "HLT_HIMinBiasZDCPixel_SingleTrack_v1" ),
         prescales = cms.vuint32( 1, 1, 1, 1, 2791, 1, 1 )
       ),
+      cms.PSet(  pathName = cms.string( "HLT_HIMinBiasZDC_PlusOrMinusPixel_SingleTrack_v1" ),
+        prescales = cms.vuint32( 1, 1, 1, 1, 3000, 1, 1 )
+      ),
       cms.PSet(  pathName = cms.string( "HLT_HIBptxXOR_v1" ),
         prescales = cms.vuint32( 1, 1, 1, 1, 0, 1, 1 )
       ),
@@ -2799,6 +2802,9 @@ process.PrescaleService = cms.Service( "PrescaleService",
       ),
       cms.PSet(  pathName = cms.string( "HLT_HIUCC015_v1" ),
         prescales = cms.vuint32( 1, 1, 1, 1, 3, 1, 1 )
+      ),
+      cms.PSet(  pathName = cms.string( "HLT_HICentral10_v1" ),
+        prescales = cms.vuint32( 1, 1, 1, 1, 30, 1, 1 )
       ),
       cms.PSet(  pathName = cms.string( "HLT_HIUPCNeuHcalHfMuPixel_SingleTrack_v1" ),
         prescales = cms.vuint32( 1, 1, 1, 1, 4, 1, 1 )
