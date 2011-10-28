@@ -183,7 +183,7 @@ double MuonResiduals5DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
   TH1F *hist_residual_raw = dir->make<TH1F>(name_residual_raw.str().c_str(), "", 100, min_residual, max_residual);
   TH1F *hist_resslope_raw = dir->make<TH1F>(name_resslope_raw.str().c_str(), "", 100, min_resslope, max_resslope);
   TH1F *hist_residual_cut = dir->make<TH1F>(name_residual_cut.str().c_str(), "", 100, min_residual, max_residual);
-  TH2F *hist_alpha = dir->make<TH2F>(name_alpha.str().c_str(), "", 50, min_resslope, max_resslope, 50, -50., 50.);
+  TH2F *hist_alpha = dir->make<TH2F>(name_alpha.str().c_str(), "", 40, min_resslope, max_resslope, 40, -20., 20.);
   TProfile *hist_residual_trackx = dir->make<TProfile>(name_residual_trackx.str().c_str(), "", 100, min_trackx, max_trackx, min_residual, max_residual);
   TProfile *hist_resslope_trackx = dir->make<TProfile>(name_resslope_trackx.str().c_str(), "", 100, min_trackx, max_trackx, min_resslope, max_resslope);
   TProfile *hist_residual_tracky = dir->make<TProfile>(name_residual_tracky.str().c_str(), "", 100, min_tracky, max_tracky, min_residual, max_residual);

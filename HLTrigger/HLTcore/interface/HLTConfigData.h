@@ -6,8 +6,8 @@
  *  
  *  This class provides access routines to get hold of the HLT Configuration
  *
- *  $Date: 2011/05/01 09:25:29 $
- *  $Revision: 1.12 $
+ *  $Date: 2011/05/01 10:32:13 $
+ *  $Revision: 1.13 $
  *
  *  \author Martin Grunewald
  *
@@ -85,7 +85,7 @@ class HLTConfigData {
   const edm::ParameterSet& modulePSet(const std::string& module) const;
 
   /// Is module an L3 filter (ie, tracked saveTags=true)
-  const bool saveTags(const std::string& module) const;
+  bool saveTags(const std::string& module) const;
 
 
   /// HLTLevel1GTSeed module

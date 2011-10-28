@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue May  3 11:13:47 CDT 2011
-// $Id: DQMRootSource.cc,v 1.21 2011/07/07 16:46:53 chrjones Exp $
+// $Id: DQMRootSource.cc,v 1.24 2011/10/11 17:39:28 chrjones Exp $
 //
 
 // system include files
@@ -33,6 +33,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 //#include "FWCore/Utilities/interface/GlobalIdentifier.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 
 #include "FWCore/Framework/interface/RunPrincipal.h"
 #include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
@@ -47,6 +48,7 @@
 #include "FWCore/Framework/interface/FileBlock.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Utilities/interface/TimeOfDay.h"
 
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/ProcessHistoryRegistry.h"
@@ -315,6 +317,8 @@ class DQMRootSource : public edm::InputSource
       virtual boost::shared_ptr<edm::FileBlock> readFile_();
       virtual void closeFile_();
       
+      void logFileAction(char const* msg, char const* fileName) const;
+      
       void readNextItemType();
       void setupFile(unsigned int iIndex);
       void readElements();
@@ -328,6 +332,7 @@ class DQMRootSource : public edm::InputSource
       edm::InputSource::ItemType m_nextItemType;
 
       size_t m_fileIndex;
+      size_t m_presentlyOpenFileIndex;
       std::list<unsigned int>::iterator m_nextIndexItr;
       std::list<unsigned int>::iterator m_presentIndexItr;
       std::vector<RunLumiToRange> m_runlumiToRange;
@@ -372,6 +377,7 @@ m_catalog(iPSet.getUntrackedParameter<std::vector<std::string> >("fileNames"),
           iPSet.getUntrackedParameter<std::string>("overrideCatalog")),
 m_nextItemType(edm::InputSource::IsFile),
 m_fileIndex(0),
+m_presentlyOpenFileIndex(0),
 m_trees(kNIndicies,static_cast<TTree*>(0)),
 m_treeReaders(kNIndicies,boost::shared_ptr<TreeReaderBase>()),
 m_lastSeenRun(0),
@@ -404,6 +410,10 @@ m_doNotReadRemainingPartsOfFileSinceFrameworkTerminating(false)
 
 DQMRootSource::~DQMRootSource()
 {
+  if(m_file.get() != 0 && m_file->IsOpen()) {
+    m_file->Close();
+    logFileAction("  Closed file ", m_catalog.fileNames()[m_presentlyOpenFileIndex].c_str());
+  }
 }
 
 //
@@ -500,8 +510,6 @@ DQMRootSource::readRun_(boost::shared_ptr<edm::RunPrincipal> rpCache)
     }
   }
 
-  rpCache->addToProcessHistory();
-
   if(m_presentIndexItr != m_orderedIndices.end()) {
     RunLumiToRange runLumiRange = m_runlumiToRange[*m_presentIndexItr];
     //NOTE: it is possible to have an Run when all we have stored is lumis
@@ -513,6 +521,8 @@ DQMRootSource::readRun_(boost::shared_ptr<edm::RunPrincipal> rpCache)
   
   edm::Service<edm::JobReport> jr;
   jr->reportInputRunNumber(rpCache->id().run());
+
+  rpCache->fillRunPrincipal();
   return rpCache;
 }
 boost::shared_ptr<edm::LuminosityBlockPrincipal> 
@@ -535,7 +545,8 @@ DQMRootSource::readLuminosityBlock_( boost::shared_ptr<edm::LuminosityBlockPrinc
   
   edm::Service<edm::JobReport> jr;
   jr->reportInputLumiSection(lbCache->id().run(),lbCache->id().luminosityBlock());
-  
+
+  lbCache->fillLuminosityBlockPrincipal();
   return lbCache;
 }
 
@@ -582,8 +593,15 @@ DQMRootSource::closeFile_() {
   // 'endRun' or 'endLumi' until it looks to see if the other file contains
   // a new run or lumi. If the other file doesn't then  
   if(not m_doNotReadRemainingPartsOfFileSinceFrameworkTerminating) {
+    std::list<unsigned int>::iterator lastItr;
     while(m_presentIndexItr != m_orderedIndices.end()) {
+      //if the last item in the file has no entries then readElement
+      // will not advance so we have to do it ourselves
+      lastItr = m_presentIndexItr;
       readElements();
+      if(lastItr == m_presentIndexItr) {
+	++m_presentIndexItr;
+      }
     }
   }
   edm::Service<edm::JobReport> jr;
@@ -695,18 +713,42 @@ DQMRootSource::readNextItemType()
   }
 }
 
+namespace {
+     std::string const streamerInfo = std::string("StreamerInfo");
+}
+
 void 
 DQMRootSource::setupFile(unsigned int iIndex)
 {
-  
-  m_file = std::auto_ptr<TFile>(TFile::Open(m_catalog.fileNames()[iIndex].c_str()));
-  
+  if(m_file.get() != 0 && iIndex > 0) {
+    m_file->Close();
+    logFileAction("  Closed file ", m_catalog.fileNames()[iIndex-1].c_str());
+  }
+  logFileAction("  Initiating request to open file ", m_catalog.fileNames()[iIndex].c_str());
+  m_presentlyOpenFileIndex = iIndex;
+  try {
+    m_file = std::auto_ptr<TFile>(TFile::Open(m_catalog.fileNames()[iIndex].c_str()));
+  } catch(cms::Exception const& e) {
+    edm::Exception ex(edm::errors::FileOpenError,"",e);
+    ex.addContext("Opening DQM Root file");
+    ex <<"Input file " << m_catalog.fileNames()[iIndex] << " was not found, could not be opened, or is corrupted.\n";
+  }
+  if(not m_file->IsZombie()) {  
+    logFileAction("  Successfully opened file ", m_catalog.fileNames()[iIndex].c_str());
+  } else {
+    throw edm::Exception(edm::errors::FileReadError)<<"Input file "<<m_catalog.fileNames()[iIndex].c_str() <<" could not be opened.\n";
+  }
   //Check file format version, which is encoded in the Title of the TFile
-  assert(0==strcmp(m_file->GetTitle(),"1"));
+  if(0 != strcmp(m_file->GetTitle(),"1")) {
+    throw edm::Exception(edm::errors::FileReadError)<<"Input file "<<m_catalog.fileNames()[iIndex].c_str() <<" does not appear to be a DQM Root file.\n";
+  }
   
   //Get meta Data
   TDirectory* metaDir = m_file->GetDirectory(kMetaDataDirectoryAbsolute);
-  assert(0!=metaDir);
+  if(0==metaDir) {
+    throw edm::Exception(edm::errors::FileReadError)<<"Input file "<<m_catalog.fileNames()[iIndex].c_str() <<" appears to be corrupted since it does not have the proper internal structure.\n"
+      " Check to see if the file was closed properly.\n";    
+  }
   TTree* parameterSetTree = dynamic_cast<TTree*>(metaDir->Get(kParameterSetTree));
   assert(0!=parameterSetTree);
   
@@ -872,6 +914,12 @@ DQMRootSource::setupFile(unsigned int iIndex)
   //After a file open, the framework expects to see a new 'IsRun'
   //m_lastSeenRun = 0;
   m_justOpenedFileSoNeedToGenerateRunTransition=true;
+}
+
+void
+DQMRootSource::logFileAction(char const* msg, char const* fileName) const {
+  edm::LogAbsolute("fileAction") << std::setprecision(0) << edm::TimeOfDay() << msg << fileName;
+  edm::FlushMessageLog();
 }
 
 //

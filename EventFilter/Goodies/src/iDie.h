@@ -27,6 +27,9 @@
 
 #include <sys/time.h>
 
+#include "TFile.h"
+#include "TTree.h"
+
 
 namespace evf {
 
@@ -39,6 +42,25 @@ namespace evf {
       std::vector<std::string> signals;
       std::vector<std::string> stacktraces;
     };
+   struct rate{
+     int nproc;
+     int nsub;
+     int nrep;
+     int npath;
+     int nendpath;
+     int ptimesRun[evf::max_paths];
+     int ptimesPassedPs[evf::max_paths];
+     int ptimesPassedL1[evf::max_paths];
+     int ptimesPassed[evf::max_paths];
+     int ptimesFailed[evf::max_paths];
+     int ptimesExcept[evf::max_paths];
+     int etimesRun[evf::max_endpaths];
+     int etimesPassedPs[evf::max_endpaths];
+     int etimesPassedL1[evf::max_endpaths];
+     int etimesPassed[evf::max_endpaths];
+     int etimesFailed[evf::max_endpaths];
+     int etimesExcept[evf::max_endpaths];
+   };
   }
   typedef std::map<std::string,internal::fu> fmap;
   typedef fmap::iterator ifmap;
@@ -72,6 +94,8 @@ namespace evf {
     void iChoke(xgi::Input *in,xgi::Output *out)
       throw (xgi::exception::Exception);
     void iChokeMiniInterface(xgi::Input *in,xgi::Output *out)
+      throw (xgi::exception::Exception);
+    void spotlight(xgi::Input *in,xgi::Output *out)
       throw (xgi::exception::Exception);
     //AI
     void postEntry(xgi::Input*in,xgi::Output*out)
@@ -141,6 +165,30 @@ namespace evf {
     std::vector<TriggerReportStatic>trp_;
     std::vector<int>                trpentries_;
     std::vector<std::string>        mappath_;
+    //root stuff
+    TFile                          *f_;
+    TTree                          *t_;
+    TBranch                        *b_;
+    TBranch                        *b1_;
+    TBranch                        *b2_;
+    TBranch                        *b3_;
+    TBranch                        *b4_;
+    int                            *datap_;
+    TriggerReportStatic            *trppriv_;
+    internal::rate                  r_;
+
+    //message statistics 
+    int                             nModuleLegendaMessageReceived_;
+    int                             nPathLegendaMessageReceived_;
+    int                             nModuleLegendaMessageWithDataReceived_;
+    int                             nPathLegendaMessageWithDataReceived_;
+    int                             nModuleHistoMessageReceived_;
+    int                             nPathHistoMessageReceived_;
+    timeval                         runStartDetectedTimeStamp_;
+    timeval                         lastModuleLegendaMessageTimeStamp_;
+    timeval                         lastPathLegendaMessageTimeStamp_;
+    
+
   }; // class iDie
 
 

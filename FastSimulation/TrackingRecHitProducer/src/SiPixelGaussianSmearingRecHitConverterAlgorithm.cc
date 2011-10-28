@@ -288,7 +288,7 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   }
 
   bool edge, edgex, edgey;
-  bool bigx, bigy;
+  //  bool bigx, bigy;
   unsigned int clslenx = offsetX1 + offsetX2 + 1;
   unsigned int clsleny = offsetY1 + offsetY2 + 1;
 
@@ -308,8 +308,8 @@ void SiPixelGaussianSmearingRecHitConverterAlgorithm::smearHit(
   edgey = rectPixelTopology.isItEdgePixelInY( firstPixelInY ) || rectPixelTopology.isItEdgePixelInY( lastPixelInY );
   edge = edgex || edgey;
 
-  bigx = rectPixelTopology.isItBigPixelInX( firstPixelInX ) || rectPixelTopology.isItBigPixelInX( lastPixelInX );
-  bigy = rectPixelTopology.isItBigPixelInY( firstPixelInY ) || rectPixelTopology.isItBigPixelInY( lastPixelInY );
+  //  bigx = rectPixelTopology.isItBigPixelInX( firstPixelInX ) || rectPixelTopology.isItBigPixelInX( lastPixelInX );
+  //  bigy = rectPixelTopology.isItBigPixelInY( firstPixelInY ) || rectPixelTopology.isItBigPixelInY( lastPixelInY );
   bool hasBigPixelInX = rectPixelTopology.containsBigPixelInX( firstPixelInX, lastPixelInX );
   bool hasBigPixelInY = rectPixelTopology.containsBigPixelInY( firstPixelInY, lastPixelInY );
 

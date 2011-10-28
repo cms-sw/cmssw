@@ -208,7 +208,7 @@ RPCSimAverageNoiseEffCls::simulate(const RPCRoll* roll,
 
   RPCDetId rpcId = roll->id();
   RPCGeomServ RPCname(rpcId);
-  //std::string nameRoll = RPCname.name();
+  std::string nameRoll = RPCname.name();
 
   const Topology& topology=roll->specs()->topology();
 
@@ -297,7 +297,7 @@ void RPCSimAverageNoiseEffCls::simulateNoise(const RPCRoll* roll)
   RPCDetId rpcId = roll->id();
 
   RPCGeomServ RPCname(rpcId);
-  //std::string nameRoll = RPCname.name();
+  std::string nameRoll = RPCname.name();
 
   std::vector<float> vnoise = (getRPCSimSetUp())->getNoise(rpcId.rawId());
   std::vector<float> veff = (getRPCSimSetUp())->getEff(rpcId.rawId());

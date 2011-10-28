@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2010/08/30 13:14:08 $
- * $Revision: 1.123 $
+ * $Date: 2011/08/30 09:29:45 $
+ * $Revision: 1.125 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -17,6 +17,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/MonTestPulseDat.h"
@@ -172,7 +173,7 @@ void EETestPulseClient::endRun(void) {
 
 void EETestPulseClient::setup(void) {
 
-  char histo[200];
+  std::string name;
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EETestPulseClient" );
 
@@ -182,24 +183,24 @@ void EETestPulseClient::setup(void) {
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
       if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
-      sprintf(histo, "EETPT test pulse quality G01 %s", Numbers::sEE(ism).c_str());
-      meg01_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+      name = "EETPT test pulse quality G01 " + Numbers::sEE(ism);
+      meg01_[ism-1] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
       meg01_[ism-1]->setAxisTitle("ix", 1);
       if ( ism >= 1 && ism <= 9 ) meg01_[ism-1]->setAxisTitle("101-ix", 1);
       meg01_[ism-1]->setAxisTitle("iy", 2);
     }
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
       if ( meg02_[ism-1] ) dqmStore_->removeElement( meg02_[ism-1]->getName() );
-      sprintf(histo, "EETPT test pulse quality G06 %s", Numbers::sEE(ism).c_str());
-      meg02_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+      name = "EETPT test pulse quality G06 " + Numbers::sEE(ism);
+      meg02_[ism-1] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
       meg02_[ism-1]->setAxisTitle("ix", 1);
       if ( ism >= 1 && ism <= 9 ) meg02_[ism-1]->setAxisTitle("101-ix", 1);
       meg02_[ism-1]->setAxisTitle("iy", 2);
     }
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
       if ( meg03_[ism-1] ) dqmStore_->removeElement( meg03_[ism-1]->getName() );
-      sprintf(histo, "EETPT test pulse quality G12 %s", Numbers::sEE(ism).c_str());
-      meg03_[ism-1] = dqmStore_->book2D(histo, histo, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
+      name = "EETPT test pulse quality G12 " + Numbers::sEE(ism);
+      meg03_[ism-1] = dqmStore_->book2D(name, name, 50, Numbers::ix0EE(ism)+0., Numbers::ix0EE(ism)+50., 50, Numbers::iy0EE(ism)+0., Numbers::iy0EE(ism)+50.);
       meg03_[ism-1]->setAxisTitle("ix", 1);
       if ( ism >= 1 && ism <= 9 ) meg03_[ism-1]->setAxisTitle("101-ix", 1);
       meg03_[ism-1]->setAxisTitle("iy", 2);
@@ -207,72 +208,72 @@ void EETestPulseClient::setup(void) {
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
       if ( meg04_[ism-1] ) dqmStore_->removeElement( meg04_[ism-1]->getName() );
-      sprintf(histo, "EETPT test pulse quality PNs G01 %s", Numbers::sEE(ism).c_str());
-      meg04_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+      name = "EETPT test pulse quality PNs G01 " + Numbers::sEE(ism);
+      meg04_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg04_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg04_[ism-1]->setAxisTitle("channel", 2);
     }
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
       if ( meg05_[ism-1] ) dqmStore_->removeElement( meg05_[ism-1]->getName() );
-      sprintf(histo, "EETPT test pulse quality PNs G16 %s", Numbers::sEE(ism).c_str());
-      meg05_[ism-1] = dqmStore_->book2D(histo, histo, 10, 0., 10., 1, 0., 5.);
+      name = "EETPT test pulse quality PNs G16 " + Numbers::sEE(ism);
+      meg05_[ism-1] = dqmStore_->book2D(name, name, 10, 0., 10., 1, 0., 5.);
       meg05_[ism-1]->setAxisTitle("pseudo-strip", 1);
       meg05_[ism-1]->setAxisTitle("channel", 2);
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
       if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );
-      sprintf(histo, "EETPT test pulse amplitude G01 %s", Numbers::sEE(ism).c_str());
-      mea01_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+      name = "EETPT test pulse amplitude G01 " + Numbers::sEE(ism);
+      mea01_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
       mea01_[ism-1]->setAxisTitle("channel", 1);
       mea01_[ism-1]->setAxisTitle("amplitude", 2);
     }
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
       if ( mea02_[ism-1] ) dqmStore_->removeElement( mea02_[ism-1]->getName() );
-      sprintf(histo, "EETPT test pulse amplitude G06 %s", Numbers::sEE(ism).c_str());
-      mea02_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+      name = "EETPT test pulse amplitude G06 " + Numbers::sEE(ism);
+      mea02_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
       mea02_[ism-1]->setAxisTitle("channel", 1);
       mea02_[ism-1]->setAxisTitle("amplitude", 2);
     }
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
       if ( mea03_[ism-1] ) dqmStore_->removeElement( mea03_[ism-1]->getName() );
-      sprintf(histo, "EETPT test pulse amplitude G12 %s", Numbers::sEE(ism).c_str());
-      mea03_[ism-1] = dqmStore_->book1D(histo, histo, 850, 0., 850.);
+      name = "EETPT test pulse amplitude G12 " + Numbers::sEE(ism);
+      mea03_[ism-1] = dqmStore_->book1D(name, name, 850, 0., 850.);
       mea03_[ism-1]->setAxisTitle("channel", 1);
       mea03_[ism-1]->setAxisTitle("amplitude", 2);
     }
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
       if ( mer04_[ism-1] ) dqmStore_->removeElement( mer04_[ism-1]->getName() );
-      sprintf(histo, "EETPT PNs pedestal rms %s G01", Numbers::sEE(ism).c_str());
-      mer04_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+      name = "EETPT PNs pedestal rms " + Numbers::sEE(ism) + " G01";
+      mer04_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mer04_[ism-1]->setAxisTitle("rms", 1);
     }
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
       if ( mer05_[ism-1] ) dqmStore_->removeElement( mer05_[ism-1]->getName() );
-      sprintf(histo, "EETPT PNs pedestal rms %s G16", Numbers::sEE(ism).c_str());
-      mer05_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0., 10.);
+      name = "EETPT PNs pedestal rms " + Numbers::sEE(ism) + " G16";
+      mer05_[ism-1] = dqmStore_->book1D(name, name, 100, 0., 10.);
       mer05_[ism-1]->setAxisTitle("rms", 1);
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
       if ( me_hs01_[ism-1] ) dqmStore_->removeElement( me_hs01_[ism-1]->getName() );
-      sprintf(histo, "EETPT test pulse shape G01 %s", Numbers::sEE(ism).c_str());
-      me_hs01_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
+      name = "EETPT test pulse shape G01 " + Numbers::sEE(ism);
+      me_hs01_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
       me_hs01_[ism-1]->setAxisTitle("sample", 1);
       me_hs01_[ism-1]->setAxisTitle("amplitude", 2);
     }
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
       if ( me_hs02_[ism-1] ) dqmStore_->removeElement( me_hs02_[ism-1]->getName() );
-      sprintf(histo, "EETPT test pulse shape G06 %s", Numbers::sEE(ism).c_str());
-      me_hs02_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
+      name = "EETPT test pulse shape G06 " + Numbers::sEE(ism);
+      me_hs02_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
       me_hs02_[ism-1]->setAxisTitle("sample", 1);
       me_hs02_[ism-1]->setAxisTitle("amplitude", 2);
     }
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
       if ( me_hs03_[ism-1] ) dqmStore_->removeElement( me_hs03_[ism-1]->getName() );
-      sprintf(histo, "EETPT test pulse shape G12 %s", Numbers::sEE(ism).c_str());
-      me_hs03_[ism-1] = dqmStore_->book1D(histo, histo, 10, 0., 10.);
+      name = "EETPT test pulse shape G12 " + Numbers::sEE(ism);
+      me_hs03_[ism-1] = dqmStore_->book1D(name, name, 10, 0., 10.);
       me_hs03_[ism-1]->setAxisTitle("sample", 1);
       me_hs03_[ism-1]->setAxisTitle("amplitude", 2);
     }
@@ -721,8 +722,6 @@ void EETestPulseClient::analyze(void) {
   bits05 |= 1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_MEAN_ERROR;
   bits05 |= 1 << EcalDQMStatusHelper::PEDESTAL_HIGH_GAIN_RMS_ERROR;
 
-  char histo[200];
-
   MonitorElement* me;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
@@ -730,63 +729,53 @@ void EETestPulseClient::analyze(void) {
     int ism = superModules_[i];
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
-      sprintf(histo, (prefixME_ + "/EETestPulseTask/Gain01/EETPT amplitude %s G01").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      ha01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, ha01_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EETestPulseTask/Gain01/EETPT amplitude " + Numbers::sEE(ism) + " G01" );
+      ha01_[ism-1] = UtilsClient::getHisto( me, cloneME_, ha01_[ism-1] );
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
-      sprintf(histo, (prefixME_ + "/EETestPulseTask/Gain06/EETPT amplitude %s G06").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      ha02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, ha02_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EETestPulseTask/Gain06/EETPT amplitude " + Numbers::sEE(ism) + " G06" );
+      ha02_[ism-1] = UtilsClient::getHisto( me, cloneME_, ha02_[ism-1] );
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
-      sprintf(histo, (prefixME_ + "/EETestPulseTask/Gain12/EETPT amplitude %s G12").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      ha03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, ha03_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EETestPulseTask/Gain12/EETPT amplitude " + Numbers::sEE(ism) + " G12" );
+      ha03_[ism-1] = UtilsClient::getHisto( me, cloneME_, ha03_[ism-1] );
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
-      sprintf(histo, (prefixME_ + "/EETestPulseTask/Gain01/EETPT shape %s G01").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      hs01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs01_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EETestPulseTask/Gain01/EETPT shape " + Numbers::sEE(ism) + " G01" );
+      hs01_[ism-1] = UtilsClient::getHisto( me, cloneME_, hs01_[ism-1] );
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
-      sprintf(histo, (prefixME_ + "/EETestPulseTask/Gain06/EETPT shape %s G06").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      hs02_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs02_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EETestPulseTask/Gain06/EETPT shape " + Numbers::sEE(ism) + " G06" );
+      hs02_[ism-1] = UtilsClient::getHisto( me, cloneME_, hs02_[ism-1] );
     }
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
-      sprintf(histo, (prefixME_ + "/EETestPulseTask/Gain12/EETPT shape %s G12").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      hs03_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, hs03_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EETestPulseTask/Gain12/EETPT shape " + Numbers::sEE(ism) + " G12" );
+      hs03_[ism-1] = UtilsClient::getHisto( me, cloneME_, hs03_[ism-1] );
     }
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
-      sprintf(histo, (prefixME_ + "/EETestPulseTask/PN/Gain01/EETPT PNs amplitude %s G01").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      i01_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i01_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EETestPulseTask/PN/Gain01/EETPT PNs amplitude " + Numbers::sEE(ism) + " G01" );
+      i01_[ism-1] = UtilsClient::getHisto( me, cloneME_, i01_[ism-1] );
     }
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
-      sprintf(histo, (prefixME_ + "/EETestPulseTask/PN/Gain16/EETPT PNs amplitude %s G16").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      i02_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i02_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EETestPulseTask/PN/Gain16/EETPT PNs amplitude " + Numbers::sEE(ism) + " G16" );
+      i02_[ism-1] = UtilsClient::getHisto( me, cloneME_, i02_[ism-1] );
     }
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
-      sprintf(histo, (prefixME_ + "/EETestPulseTask/PN/Gain01/EETPT PNs pedestal %s G01").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      i03_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i03_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EETestPulseTask/PN/Gain01/EETPT PNs pedestal " + Numbers::sEE(ism) + " G01" );
+      i03_[ism-1] = UtilsClient::getHisto( me, cloneME_, i03_[ism-1] );
     }
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
-      sprintf(histo, (prefixME_ + "/EETestPulseTask/PN/Gain16/EETPT PNs pedestal %s G16").c_str(), Numbers::sEE(ism).c_str());
-      me = dqmStore_->get(histo);
-      i04_[ism-1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, i04_[ism-1] );
+      me = dqmStore_->get( prefixME_ + "/EETestPulseTask/PN/Gain16/EETPT PNs pedestal " + Numbers::sEE(ism) + " G16" );
+      i04_[ism-1] = UtilsClient::getHisto( me, cloneME_, i04_[ism-1] );
     }
 
     if ( meg01_[ism-1] ) meg01_[ism-1]->Reset();

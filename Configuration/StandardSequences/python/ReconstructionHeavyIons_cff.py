@@ -28,6 +28,7 @@ from RecoLuminosity.LumiProducer.lumiProducer_cff import *
 from RecoHI.Configuration.Reconstruction_HI_cff import *
 from RecoHI.Configuration.Reconstruction_hiPF_cff import *
 from RecoLocalCalo.Castor.Castor_cff import *
+from RecoHI.HiEgammaAlgos.HiElectronSequence_cff import *
 
 #--------------------------------------------------------------------------
 
@@ -51,9 +52,11 @@ reconstructionHeavyIons = cms.Sequence(reconstruct_PbPb)
 reconstructionHeavyIons_HcalNZS = cms.Sequence(localReco_HcalNZS*globalRecoPbPb)
 
 reconstructionHeavyIons_withPF = cms.Sequence(reconstructionHeavyIons)
-reconstructionHeavyIons_withPF *= HiParticleFlowReco
-
 reconstructionHeavyIons_HcalNZS_withPF = cms.Sequence(reconstructionHeavyIons_HcalNZS)
-reconstructionHeavyIons_HcalNZS_withPF *= HiParticleFlowReco
+
+reconstructionHeavyIons_withPF *= hiElectronSequence*HiParticleFlowReco
+reconstructionHeavyIons_HcalNZS_withPF *= hiElectronSequence*HiParticleFlowReco
+
+
 
 #--------------------------------------------------------------------------

@@ -61,13 +61,6 @@ class TtEvtBuilder : public edm::EDProducer {
   edm::ParameterSet kinFit_;
   edm::InputTag fitChi2_;
   edm::InputTag fitProb_;
-  /// input parameters for the kHitFit
-  /// hypothesis class extras
-  edm::ParameterSet hitFit_;
-  edm::InputTag hitFitChi2_;
-  edm::InputTag hitFitProb_;
-  edm::InputTag hitFitMT_;
-  edm::InputTag hitFitSigMT_;
   /// input parameters for the kKinSolution
   /// hypothesis class extras
   edm::ParameterSet kinSolution_;
@@ -98,14 +91,6 @@ TtEvtBuilder<C>::TtEvtBuilder(const edm::ParameterSet& cfg) :
     kinFit_  = cfg.getParameter<edm::ParameterSet>("kinFit");
     fitChi2_ = kinFit_.getParameter<edm::InputTag>("chi2");
     fitProb_ = kinFit_.getParameter<edm::InputTag>("prob");
-  }
-  // parameter subsets for kHitFit
-  if( cfg.exists("hitFit") ) {
-    hitFit_  = cfg.getParameter<edm::ParameterSet>("hitFit");
-    hitFitChi2_ = hitFit_.getParameter<edm::InputTag>("chi2");
-    hitFitProb_ = hitFit_.getParameter<edm::InputTag>("prob");
-    hitFitMT_ = hitFit_.getParameter<edm::InputTag>("mt");
-    hitFitSigMT_ = hitFit_.getParameter<edm::InputTag>("sigmt");
   }
   // parameter subsets for kKinSolution
   if( cfg.exists("kinSolution") ) {
@@ -172,25 +157,6 @@ TtEvtBuilder<C>::produce(edm::Event& evt, const edm::EventSetup& setup)
     edm::Handle<std::vector<double> > fitProb;
     evt.getByLabel(fitProb_, fitProb);
     ttEvent.setFitProb( *fitProb );
-  }
-
-  // set kHitFit extras
-  if( ttEvent.isHypoAvailable(TtEvent::kHitFit) ) {
-    edm::Handle<std::vector<double> > hitFitChi2;
-    evt.getByLabel(hitFitChi2_, hitFitChi2);
-    ttEvent.setHitFitChi2( *hitFitChi2 );
-    
-    edm::Handle<std::vector<double> > hitFitProb;
-    evt.getByLabel(hitFitProb_, hitFitProb);
-    ttEvent.setHitFitProb( *hitFitProb );
-    
-    edm::Handle<std::vector<double> > hitFitMT;
-    evt.getByLabel(hitFitMT_, hitFitMT);
-    ttEvent.setHitFitMT( *hitFitMT );
-    
-    edm::Handle<std::vector<double> > hitFitSigMT;
-    evt.getByLabel(hitFitSigMT_, hitFitSigMT);
-    ttEvent.setHitFitSigMT( *hitFitSigMT );
   }
 
   // set kGenMatch extras

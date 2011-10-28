@@ -31,6 +31,7 @@ typedef std::vector<edm::RefVector<std::vector<reco::CaloJet>,reco::CaloJet,edm:
 //
 HLTJetCollectionsFilter::HLTJetCollectionsFilter(const edm::ParameterSet& iConfig):
   inputTag_(iConfig.getParameter< edm::InputTag > ("inputTag")),
+  originalTag_(iConfig.getParameter< edm::InputTag > ("originalTag")),
   saveTags_(iConfig.getParameter<bool>("saveTags")),
   minJetPt_(iConfig.getParameter<double> ("MinJetPt")),
   maxAbsJetEta_(iConfig.getParameter<double> ("MaxAbsJetEta")),
@@ -45,6 +46,7 @@ void
 HLTJetCollectionsFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<edm::InputTag>("inputTag",edm::InputTag("hltIterativeCone5CaloJets"));
+  desc.add<edm::InputTag>("originalTag",edm::InputTag("hltIterativeCone5CaloJets"));
   desc.add<bool>("saveTags",false);
   desc.add<double>("MinJetPt",30.0);
   desc.add<double>("MaxAbsJetEta",2.6);
@@ -62,7 +64,7 @@ HLTJetCollectionsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   using namespace trigger;
   // The filter object
   auto_ptr < trigger::TriggerFilterObjectWithRefs > filterobject(new trigger::TriggerFilterObjectWithRefs(path(), module()));
-  if (saveTags_) filterobject->addCollectionTag(inputTag_);
+  if (saveTags_) filterobject->addCollectionTag(originalTag_);
 
   Handle < JetCollectionVector > theCaloJetCollectionsHandle;
   iEvent.getByLabel(inputTag_, theCaloJetCollectionsHandle);

@@ -49,6 +49,5 @@ ALCARECOTkAlZMuMu.TwoBodyDecaySelector.daughterMass = 0.105 ##GeV (Muons)
 ALCARECOTkAlZMuMu.TwoBodyDecaySelector.applyChargeFilter = True
 ALCARECOTkAlZMuMu.TwoBodyDecaySelector.charge = 0
 ALCARECOTkAlZMuMu.TwoBodyDecaySelector.applyAcoplanarityFilter = False
-ALCARECOTkAlZMuMu.TwoBodyDecaySelector.numberOfCandidates = 1
 
 seqALCARECOTkAlZMuMu = cms.Sequence(ALCARECOTkAlZMuMuHLT+ALCARECOTkAlZMuMuDCSFilter+ALCARECOTkAlZMuMuGoodMuons+ALCARECOTkAlZMuMuRelCombIsoMuons+ALCARECOTkAlZMuMu)

@@ -23,7 +23,6 @@
 #include "TDirectory.h"
 
 
-class SiStripCluster;
 namespace reco    { class Vertex; class Track; class GenParticle; class DeDxData; class MuonTimeExtra;}
 namespace susybsm { class HSCParticle; class HSCPIsolation;}
 namespace fwlite  { class ChainEvent;}
@@ -47,12 +46,6 @@ namespace edm     {class TriggerResults; class TriggerResultsByName; class Input
 #include "DataFormats/HLTReco/interface/TriggerObject.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
-
 using namespace fwlite;
 using namespace reco;
 using namespace susybsm;
@@ -72,176 +65,10 @@ using namespace trigger;
 std::vector<stSignal> signals;
 std::vector<stMC>     MCsample;
 std::vector<string>   DataFileName;
-double CutMass;
 
 double CutPt;
 double CutI;
 double CutTOF;
-
-bool shapeSelection(const std::vector<unsigned char> & ampls)
-{
-  // ----------------  COMPTAGE DU NOMBRE DE MAXIMA   --------------------------
-  //----------------------------------------------------------------------------
-//	printf("ShapeTest \n");
-	 Int_t NofMax=0; Int_t recur255=1; Int_t recur254=1;
-	 bool MaxOnStart=false;bool MaxInMiddle=false, MaxOnEnd =false;
-	 Int_t MaxPos=0;
-	// Début avec max
-      	 if(ampls.size()!=1 && ((ampls[0]>ampls[1])
-	    || (ampls.size()>2 && ampls[0]==ampls[1] && ampls[1]>ampls[2] && ampls[0]!=254 && ampls[0]!=255) 
-	    || (ampls.size()==2 && ampls[0]==ampls[1] && ampls[0]!=254 && ampls[0]!=255)) ){
- 	  NofMax=NofMax+1;  MaxOnStart=true;  }
-
-	// Maximum entouré
-         if(ampls.size()>2){
-          for (unsigned int i =1; i < ampls.size()-1; i++) {
-                if( (ampls[i]>ampls[i-1] && ampls[i]>ampls[i+1]) 
-		    || (ampls.size()>3 && i>0 && i<ampls.size()-2 && ampls[i]==ampls[i+1] && ampls[i]>ampls[i-1] && ampls[i]>ampls[i+2] && ampls[i]!=254 && ampls[i]!=255) ){ 
-		 NofMax=NofMax+1; MaxInMiddle=true;  MaxPos=i; 
-		}
-		if(ampls[i]==255 && ampls[i]==ampls[i-1]) {
-			recur255=recur255+1;
-			MaxPos=i-(recur255/2);
-		 	if(ampls[i]>ampls[i+1]){NofMax=NofMax+1;MaxInMiddle=true;}
-		}
-		if(ampls[i]==254 && ampls[i]==ampls[i-1]) {
-			recur254=recur254+1;
-			MaxPos=i-(recur254/2);
-		 	if(ampls[i]>ampls[i+1]){NofMax=NofMax+1;MaxInMiddle=true;}
-		}
-          }
-	 }
-	// Fin avec un max
-         if(ampls.size()>1){
-          if(ampls[ampls.size()-1]>ampls[ampls.size()-2]
-	     || (ampls.size()>2 && ampls[ampls.size()-1]==ampls[ampls.size()-2] && ampls[ampls.size()-2]>ampls[ampls.size()-3] ) 
-	     ||  ampls[ampls.size()-1]==255){
-	   NofMax=NofMax+1;  MaxOnEnd=true;   }
-         }
-	// Si une seule strip touchée
-	if(ampls.size()==1){	NofMax=1;}
-
-  // ---  SELECTION EN FONCTION DE LA FORME POUR LES MAXIMA UNIQUES ---------
-  //------------------------------------------------------------------------
-  /*
-               ____
-              |    |____
-          ____|    |    |
-         |    |    |    |____
-     ____|    |    |    |    |
-    |    |    |    |    |    |____
-  __|____|____|____|____|____|____|__
-    C_Mnn C_Mn C_M  C_D  C_Dn C_Dnn
-  */
-//   bool shapetest=true;
-   bool shapecdtn=false;
-
-//	Float_t C_M;	Float_t C_D;	Float_t C_Mn;	Float_t C_Dn;	Float_t C_Mnn;	Float_t C_Dnn;
-	Float_t C_M=0.0;	Float_t C_D=0.0;	Float_t C_Mn=10000;	Float_t C_Dn=10000;	Float_t C_Mnn=10000;	Float_t C_Dnn=10000;
-	Int_t CDPos;
-	Float_t coeff1=1.7;	Float_t coeff2=2.0;
-	Float_t coeffn=0.10;	Float_t coeffnn=0.02; Float_t noise=4.0;
-
-        if(NofMax==1){
-
-                if(MaxOnStart==true){
-                        C_M=(Float_t)ampls[0]; C_D=(Float_t)ampls[1];
-                                if(ampls.size()<3) shapecdtn=true ;
-                                else if(ampls.size()==3){C_Dn=(Float_t)ampls[2] ; if(C_Dn<=coeff1*coeffn*C_D+coeff2*coeffnn*C_M+2*noise || C_D==255) shapecdtn=true;}
-                                else if(ampls.size()>3){ C_Dn=(Float_t)ampls[2];  C_Dnn=(Float_t)ampls[3] ;
-                                                        if((C_Dn<=coeff1*coeffn*C_D+coeff2*coeffnn*C_M+2*noise || C_D==255)
-                                                           && C_Dnn<=coeff1*coeffn*C_Dn+coeff2*coeffnn*C_D+2*noise){
-                                                         shapecdtn=true;}
-                                }
-                }
-
-                if(MaxOnEnd==true){
-                        C_M=(Float_t)ampls[ampls.size()-1]; C_D=(Float_t)ampls[ampls.size()-2];
-                                if(ampls.size()<3) shapecdtn=true ;
-                                else if(ampls.size()==3){C_Dn=(Float_t)ampls[0] ; if(C_Dn<=coeff1*coeffn*C_D+coeff2*coeffnn*C_M+2*noise || C_D==255) shapecdtn=true;}
-                                else if(ampls.size()>3){C_Dn=(Float_t)ampls[ampls.size()-3] ; C_Dnn=(Float_t)ampls[ampls.size()-4] ;
-                                                        if((C_Dn<=coeff1*coeffn*C_D+coeff2*coeffnn*C_M+2*noise || C_D==255)
-                                                           && C_Dnn<=coeff1*coeffn*C_Dn+coeff2*coeffnn*C_D+2*noise){
-                                                         shapecdtn=true;}
-                                }
-                }
-                if(MaxInMiddle==true){
-                        C_M=(Float_t)ampls[MaxPos];
-                        int LeftOfMaxPos=MaxPos-1;if(LeftOfMaxPos<=0)LeftOfMaxPos=0;
-                        int RightOfMaxPos=MaxPos+1;if(RightOfMaxPos>=(int)ampls.size())RightOfMaxPos=ampls.size()-1;
-                        //int after = RightOfMaxPos; int before = LeftOfMaxPos; if (after>=(int)ampls.size() ||  before<0)  std::cout<<"invalid read MaxPos:"<<MaxPos <<"size:"<<ampls.size() <<std::endl; 
-                        if(ampls[LeftOfMaxPos]<ampls[RightOfMaxPos]){ C_D=(Float_t)ampls[RightOfMaxPos]; C_Mn=(Float_t)ampls[LeftOfMaxPos];CDPos=RightOfMaxPos;} else{ C_D=(Float_t)ampls[LeftOfMaxPos]; C_Mn=(Float_t)ampls[RightOfMaxPos];CDPos=LeftOfMaxPos;}
-                        if(C_Mn<coeff1*coeffn*C_M+coeff2*coeffnn*C_D+2*noise || C_M==255){
-                                if(ampls.size()==3) shapecdtn=true ;
-                                else if(ampls.size()>3){
-                                        if(CDPos>MaxPos){
-                                                if(ampls.size()-CDPos-1==0){
-                                                        C_Dn=0; C_Dnn=0;
-                                                }
-                                                if(ampls.size()-CDPos-1==1){
-                                                        C_Dn=(Float_t)ampls[CDPos+1];
-                                                        C_Dnn=0;
-                                                }
-                                                if(ampls.size()-CDPos-1>1){
-                                                        C_Dn=(Float_t)ampls[CDPos+1];
-                                                        C_Dnn=(Float_t)ampls[CDPos+2];
-                                                }
-                                                if(MaxPos>=2){
-                                                        C_Mnn=(Float_t)ampls[MaxPos-2];
-                                                }
-                                                else if(MaxPos<2) C_Mnn=0;
-                                        }
-                                        if(CDPos<MaxPos){
-                                                if(CDPos==0){
-                                                        C_Dn=0; C_Dnn=0;
-                                                }
-                                                if(CDPos==1){
-                                                        C_Dn=(Float_t)ampls[0];
-                                                        C_Dnn=0;
-                                                }
-                                                if(CDPos>1){
-                                                        C_Dn=(Float_t)ampls[CDPos-1];
-                                                        C_Dnn=(Float_t)ampls[CDPos-2];
-                                                }
-                                                if(ampls.size()-LeftOfMaxPos>1 && MaxPos+2<(int)(ampls.size())-1){
-                                                        C_Mnn=(Float_t)ampls[MaxPos+2];
-                                                }else C_Mnn=0;
-                                        }
-                                        if((C_Dn<=coeff1*coeffn*C_D+coeff2*coeffnn*C_M+2*noise || C_D==255)
-                                           && C_Mnn<=coeff1*coeffn*C_Mn+coeff2*coeffnn*C_M+2*noise
-                                           && C_Dnn<=coeff1*coeffn*C_Dn+coeff2*coeffnn*C_D+2*noise) {
-                                                shapecdtn=true;
-                                        }
-
-                                }
-                        }
-                }
-        }
-	if(ampls.size()==1){shapecdtn=true;}
-
-   return shapecdtn;
-} 
-
-
-void printCluster(FILE* pFile, const SiStripCluster*   Cluster)
-{
-//        const vector<uint8_t>&  Ampls       = Cluster->amplitudes();
-        const vector<unsigned char>&  Ampls       = Cluster->amplitudes();
-        uint32_t                DetId       = Cluster->geographicalId();
-
-        int Charge=0;
-        for(unsigned int i=0;i<Ampls.size();i++){Charge+=Ampls[i];}
-
-        fprintf(pFile,"DetId = %7i --> %4i = %3i ",DetId,Charge,Ampls[0]);
-        for(unsigned int i=1;i<Ampls.size();i++){
-           fprintf(pFile,"%3i ",Ampls[i]);
-        }
-        bool isGood = true;
-        if(!shapeSelection(Ampls)){isGood=false;}
-           if(!isGood)fprintf(pFile,"   X");
-           fprintf(pFile,"\n");
-}
-
 
 void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEvent& ev, FILE* pFile)
 {
@@ -266,10 +93,6 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
    if(!dEdxMCollH.isValid()){printf("Invalid dEdx Mass collection\n");return;}
    DeDxData dedxMObj  = dEdxMCollH->get(track.key());
 
-   fwlite::Handle<DeDxDataValueMap> dEdxMNPCollH;
-   dEdxMNPCollH.getByLabel(ev, "dedxNPHarm2");
-   if(!dEdxMNPCollH.isValid()){printf("Invalid dEdx Mass collection\n");return;}
-   DeDxData dedxMNPObj  = dEdxMNPCollH->get(track.key());
 
    fwlite::Handle<MuonTimeExtraMap> TOFDTCollH;
    TOFDTCollH.getByLabel(ev, "muontiming","dt");
@@ -289,51 +112,23 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
    if(track->pt()<=CutPt || dedxSObj.dEdx()<=CutI)return;
    if(CutTOF>-1 && tof && tof->inverseBeta()<=CutTOF)return;
 
-   double Mass = GetMass(track->p(),dedxMObj.dEdx());   
-   if(Mass<CutMass)return;
 
+   double Mass = GetMass(track->p(),dedxMObj.dEdx());   
    double dz  = track->dz (vertex.position());
    double dxy = track->dxy(vertex.position());
-   for(unsigned int i=1;i<vertexColl.size();i++){
-      if(fabs(track->dz (vertexColl[i].position())) < fabs(dz) ){
-         dz  = track->dz (vertexColl[i].position());
-         dxy = track->dxy(vertexColl[i].position());
-      }
-   }
-   double v3d = sqrt(dz*dz+dxy*dxy);
 
    fprintf(pFile,"\n");
    fprintf(pFile,"---------------------------------------------------------------------------------------------------\n");
    fprintf(pFile,"Candidate Type = %i --> Mass : %7.2f\n",hscp.type(),Mass);
    fprintf(pFile,"------------------------------------------ EVENT INFO ---------------------------------------------\n");
    fprintf(pFile,"Run=%i Lumi=%i Event=%i BX=%i  Orbit=%i Store=%i\n",ev.eventAuxiliary().run(),ev.eventAuxiliary().luminosityBlock(),ev.eventAuxiliary().event(),ev.eventAuxiliary().luminosityBlock(),ev.eventAuxiliary().orbitNumber(),ev.eventAuxiliary().storeNumber());
-   //edm::TriggerResultsByName tr = ev.triggerResultsByName("Merge");
-   //fprintf(pFile,"Trigger: SingleMu=%i  DoubleMu=%i  PFMHT=%i (CaloMET=%i)\n",(int)tr.accept(tr.triggerIndex("HscpPathSingleMu")), (int)tr.accept(tr.triggerIndex("HscpPathDoubleMu")), (int)tr.accept(tr.triggerIndex("HscpPathPFMet")), (int)tr.accept(tr.triggerIndex("HscpPathCaloMet")));
    fprintf(pFile,"------------------------------------------ INNER TRACKER ------------------------------------------\n");
-   fprintf(pFile,"Quality = %i Chi2/NDF=%6.2f dz=+%6.2f dxy=%+6.2f V3D=%+6.2f charge:%+i\n",track->qualityMask(), track->chi2()/track->ndof(), dz, dxy, v3d, track->charge());
+   fprintf(pFile,"Quality = %i Chi2/NDF=%6.2f dz=+%6.2f dxy=%+6.2f charge:%+i\n",track->qualityMask(), track->chi2()/track->ndof(), dz, dxy, track->charge());
    fprintf(pFile,"P=%7.2f  Pt=%7.2f+-%6.2f (Cut=%6.2f) Eta=%+6.2f  Phi=%+6.2f  NOH=%2i\n",track->p(),track->pt(), track->ptError(), CutPt, track->eta(), track->phi(), track->found() );
 
    fprintf(pFile,"------------------------------------------ DEDX INFO ----------------------------------------------\n");
-   fprintf(pFile,"dEdx for selection     :%6.2f (Cut=%6.2f) NOM %2i NOS %2i\n",dedxSObj.dEdx(),CutI,dedxSObj.numberOfMeasurements(),dedxSObj.numberOfSaturatedMeasurements());
-   fprintf(pFile,"dEdx for mass reco     :%6.2f             NOM %2i NOS %2i  --> Beta dEdx = %6.2f\n",dedxMObj.dEdx(),dedxMObj.numberOfMeasurements(),dedxMObj.numberOfSaturatedMeasurements(), GetIBeta(dedxMObj.dEdx()) );
-   fprintf(pFile,"dEdx for mass reco (NP):%6.2f             NOM %2i NOS %2i  --> Beta dEdx = %6.2f\n",dedxMNPObj.dEdx(),dedxMNPObj.numberOfMeasurements(),dedxMNPObj.numberOfSaturatedMeasurements(), GetIBeta(dedxMNPObj.dEdx()) );
-
-   fprintf(pFile,"dEdx mass error     :%6.2f (1Sigma dEdx) or %6.2f (1Sigma P)\n",  GetMass(track->p(),0.95*dedxMObj.dEdx()),  GetMass(track->p()*(1-track->ptError()/track->pt()),dedxMObj.dEdx()) );
-
-   for(unsigned int h=0;h<track->recHitsSize();h++){
-        TrackingRecHit* recHit = (track->recHit(h))->clone();
-        if(const SiStripMatchedRecHit2D* matchedHit=dynamic_cast<const SiStripMatchedRecHit2D*>(recHit)){
-           fprintf(pFile,"Mono  Hit "); printCluster(pFile,(matchedHit->monoHit()->cluster()).get());
-           fprintf(pFile,"StereoHit ");printCluster(pFile,(matchedHit->stereoHit()->cluster()).get());
-       }else if(const SiStripRecHit2D* singleHit=dynamic_cast<const SiStripRecHit2D*>(recHit)){
-           fprintf(pFile,"2D    Hit ");printCluster(pFile,(singleHit->cluster()).get());
-       }else if(const SiStripRecHit1D* single1DHit=dynamic_cast<const SiStripRecHit1D*>(recHit)){
-           fprintf(pFile,"1D    Hit ");printCluster(pFile,(single1DHit->cluster()).get());
-       }else if(const SiPixelRecHit* pixelHit=dynamic_cast<const SiPixelRecHit*>(recHit)){
-           fprintf(pFile,"Pixel Hit  --> Charge = %i\n",(int)pixelHit->cluster()->charge());
-      }
-   }
-
+   fprintf(pFile,"dEdx for selection:%6.2f (Cut=%6.2f) NOM %2i NOS %2i\n",dedxSObj.dEdx(),CutI,dedxSObj.numberOfMeasurements(),dedxSObj.numberOfSaturatedMeasurements());
+   fprintf(pFile,"dEdx for mass reco:%6.2f             NOM %2i NOS %2i\n",dedxMObj.dEdx(),dedxMObj.numberOfMeasurements(),dedxMObj.numberOfSaturatedMeasurements());
    if(!muon.isNull()){
       fprintf(pFile,"------------------------------------------ MUON INFO ----------------------------------------------\n");
       MuonTimeExtra tofDT      = TOFDTCollH->get(hscp.muonRef().key());
@@ -357,7 +152,6 @@ void DumpCandidateInfo(const susybsm::HSCParticle& hscp, const fwlite::ChainEven
       fprintf(pFile,"ECAL: E=%6.2f E3x3=%6.2f E5x5=%6.2f\n"           ,hscp.caloInfoRef()->ecalCrossedEnergy,hscp.caloInfoRef()->ecal3by3dir, hscp.caloInfoRef()->ecal5by5dir);
       fprintf(pFile,"ECAL: time=%6.2f beta=%6.2f trkisodr=%6.2f\n"    ,hscp.caloInfoRef()->ecalTime  ,hscp.caloInfoRef()->ecalBeta   , hscp.caloInfoRef()->trkIsoDr);
    }
-
    fprintf(pFile,"------------------------------------------ ISOL INFO ----------------------------------------------\n");
    fwlite::Handle<HSCPIsolationValueMap> IsolationH05;
    IsolationH05.getByLabel(ev, "HSCPIsolation05");
@@ -393,11 +187,8 @@ bool PassTrigger(const fwlite::ChainEvent& ev)
 }
 
 
-void DumpInfo(string Pattern, int CutIndex=0, double MassMin=0)
+void DumpInfo(string Pattern, int CutIndex=0)
 {
-   CutMass = MassMin;
-
-
    setTDRStyle();
    gStyle->SetPadTopMargin   (0.05);
    gStyle->SetPadBottomMargin(0.10);
@@ -415,7 +206,7 @@ void DumpInfo(string Pattern, int CutIndex=0, double MassMin=0)
    GetMCDefinition(MCsample);
    GetInputFiles(DataFileName, "Data");
 
-   TFile* InputFile      = new TFile((Pattern + "/Histos_Data.root").c_str());
+   TFile* InputFile      = new TFile((Pattern + "/Histos.root").c_str());
    TH1D*  HCuts_Pt       = (TH1D*)GetObjectFromPath(InputFile, "HCuts_Pt");
    TH1D*  HCuts_I        = (TH1D*)GetObjectFromPath(InputFile, "HCuts_I");
    TH1D*  HCuts_TOF      = (TH1D*)GetObjectFromPath(InputFile, "HCuts_TOF");

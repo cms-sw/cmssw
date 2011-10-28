@@ -1,15 +1,16 @@
 /*
  * \file EBBeamHodoTask.cc
  *
- * $Date: 2010/03/27 20:07:58 $
- * $Revision: 1.63 $
+ * $Date: 2011/08/23 00:25:30 $
+ * $Revision: 1.64.4.1 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
  */
 
 #include <iostream>
-#include <fstream>
+#include <sstream>
+#include <iomanip>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -151,110 +152,112 @@ void EBBeamHodoTask::setup(void){
 
   smId =1;
 
-  char histo[200];
-
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EBBeamHodoTask");
+
+    std::stringstream ss;
+    std::string name;
 
     // following ME (type I):
     //  *** do not need to be ever reset
     //  *** can be filled regardless of the moving/notMoving status of the table
 
     for (int i=0; i<4; i++) {
-      sprintf(histo, "EBBHT occup %s %02d", Numbers::sEB(smId).c_str(), i+1);
-      meHodoOcc_[i] = dqmStore_->book1D(histo, histo, 30, 0., 30.);
+      ss << std::setw(2) << std::setfill('0') << i+1;
+      name = "EBBHT occup " + Numbers::sEB(smId) + " " + ss.str();
+      meHodoOcc_[i] = dqmStore_->book1D(name, name, 30, 0., 30.);
       meHodoOcc_[i]->setAxisTitle("hits per event", 1);
-      sprintf(histo, "EBBHT raw %s %02d", Numbers::sEB(smId).c_str(), i+1);
-      meHodoRaw_[i] = dqmStore_->book1D(histo, histo, 64, 0., 64.);
+      name = "EBBHT raw " + Numbers::sEB(smId) + " " + ss.str();
+      meHodoRaw_[i] = dqmStore_->book1D(name, name, 64, 0., 64.);
       meHodoRaw_[i]->setAxisTitle("hodo fiber number", 1);
     }
 
-    sprintf(histo, "EBBHT PosX rec %s", Numbers::sEB(smId).c_str());
-    meHodoPosRecX_ = dqmStore_->book1D(histo, histo, 100, -20, 20);
+    name = "EBBHT PosX rec " + Numbers::sEB(smId);
+    meHodoPosRecX_ = dqmStore_->book1D(name, name, 100, -20, 20);
     meHodoPosRecX_->setAxisTitle("reconstructed position    (mm)", 1);
 
-    sprintf(histo, "EBBHT PosY rec %s", Numbers::sEB(smId).c_str());
-    meHodoPosRecY_ = dqmStore_->book1D(histo, histo, 100, -20, 20);
+    name = "EBBHT PosY rec " + Numbers::sEB(smId);
+    meHodoPosRecY_ = dqmStore_->book1D(name, name, 100, -20, 20);
     meHodoPosRecY_->setAxisTitle("reconstructed position    (mm)", 1);
 
-    sprintf(histo, "EBBHT PosYX rec %s", Numbers::sEB(smId).c_str());
-    meHodoPosRecXY_ = dqmStore_->book2D(histo, histo, 100, -20, 20,100, -20, 20);
+    name = "EBBHT PosYX rec " + Numbers::sEB(smId);
+    meHodoPosRecXY_ = dqmStore_->book2D(name, name, 100, -20, 20,100, -20, 20);
     meHodoPosRecXY_->setAxisTitle("reconstructed X position    (mm)", 1);
     meHodoPosRecXY_->setAxisTitle("reconstructed Y position    (mm)", 2);
 
-    sprintf(histo, "EBBHT SloX %s", Numbers::sEB(smId).c_str());
-    meHodoSloXRec_ = dqmStore_->book1D(histo, histo, 50, -0.005, 0.005);
+    name = "EBBHT SloX " + Numbers::sEB(smId);
+    meHodoSloXRec_ = dqmStore_->book1D(name, name, 50, -0.005, 0.005);
     meHodoSloXRec_->setAxisTitle("reconstructed track slope", 1);
 
-    sprintf(histo, "EBBHT SloY %s", Numbers::sEB(smId).c_str());
-    meHodoSloYRec_ = dqmStore_->book1D(histo, histo, 50, -0.005, 0.005);
+    name = "EBBHT SloY " + Numbers::sEB(smId);
+    meHodoSloYRec_ = dqmStore_->book1D(name, name, 50, -0.005, 0.005);
     meHodoSloYRec_->setAxisTitle("reconstructed track slope", 1);
 
-    sprintf(histo, "EBBHT QualX %s", Numbers::sEB(smId).c_str());
-    meHodoQuaXRec_ = dqmStore_->book1D(histo, histo, 50, 0, 5);
+    name = "EBBHT QualX " + Numbers::sEB(smId);
+    meHodoQuaXRec_ = dqmStore_->book1D(name, name, 50, 0, 5);
     meHodoQuaXRec_->setAxisTitle("track fit quality", 1);
 
-    sprintf(histo, "EBBHT QualY %s", Numbers::sEB(smId).c_str());
-    meHodoQuaYRec_ = dqmStore_->book1D(histo, histo, 50, 0, 5);
+    name = "EBBHT QualY " + Numbers::sEB(smId);
+    meHodoQuaYRec_ = dqmStore_->book1D(name, name, 50, 0, 5);
     meHodoQuaYRec_->setAxisTitle("track fit quality", 1);
 
-    sprintf(histo, "EBBHT TDC rec %s", Numbers::sEB(smId).c_str());
-    meTDCRec_  = dqmStore_->book1D(histo, histo, 25, 0, 1);
+    name = "EBBHT TDC rec " + Numbers::sEB(smId);
+    meTDCRec_  = dqmStore_->book1D(name, name, 25, 0, 1);
     meTDCRec_->setAxisTitle("offset", 1);
 
-    sprintf(histo, "EBBHT Hodo-Calo X vs Cry %s", Numbers::sEB(smId).c_str());
-    meHodoPosXMinusCaloPosXVsCry_  = dqmStore_->book1D(histo, histo, 50, 0, 50);
+    name = "EBBHT Hodo-Calo X vs Cry " + Numbers::sEB(smId);
+    meHodoPosXMinusCaloPosXVsCry_  = dqmStore_->book1D(name, name, 50, 0, 50);
     meHodoPosXMinusCaloPosXVsCry_->setAxisTitle("scan step number", 1);
     meHodoPosXMinusCaloPosXVsCry_->setAxisTitle("PosX_{hodo} - PosX_{calo}    (mm)", 2);
 
-    sprintf(histo, "EBBHT Hodo-Calo Y vs Cry %s", Numbers::sEB(smId).c_str());
-    meHodoPosYMinusCaloPosYVsCry_  = dqmStore_->book1D(histo, histo, 50, 0, 50);
+    name = "EBBHT Hodo-Calo Y vs Cry " + Numbers::sEB(smId);
+    meHodoPosYMinusCaloPosYVsCry_  = dqmStore_->book1D(name, name, 50, 0, 50);
     meHodoPosYMinusCaloPosYVsCry_->setAxisTitle("scan step number", 1);
     meHodoPosYMinusCaloPosYVsCry_->setAxisTitle("PosY_{hodo} - PosY_{calo}    (mm)", 2);
 
-    sprintf(histo, "EBBHT TDC-Calo vs Cry %s", Numbers::sEB(smId).c_str());
-    meTDCTimeMinusCaloTimeVsCry_  = dqmStore_->book1D(histo, histo, 50, 0, 50);
+    name = "EBBHT TDC-Calo vs Cry " + Numbers::sEB(smId);
+    meTDCTimeMinusCaloTimeVsCry_  = dqmStore_->book1D(name, name, 50, 0, 50);
     meTDCTimeMinusCaloTimeVsCry_->setAxisTitle("scan step number", 1);
     meTDCTimeMinusCaloTimeVsCry_->setAxisTitle("Time_{TDC} - Time_{calo}    (sample)", 2);
 
-    sprintf(histo, "EBBHT Missing Collections %s", Numbers::sEB(smId).c_str());
-    meMissingCollections_ = dqmStore_->book1D(histo, histo, 7, 0, 7);
+    name = "EBBHT Missing Collections " + Numbers::sEB(smId);
+    meMissingCollections_ = dqmStore_->book1D(name, name, 7, 0, 7);
     meMissingCollections_->setAxisTitle("missing collection", 1);
 
     // following ME (type II):
     //  *** can be filled only when table is **not** moving
     //  *** need to be reset once table goes from 'moving'->notMoving
 
-    sprintf(histo, "EBBHT prof E1 vs X %s", Numbers::sEB(smId).c_str());
-    meEvsXRecProf_    = dqmStore_-> bookProfile(histo, histo, 100, -20, 20, 500, 0, 5000, "s");
+    name = "EBBHT prof E1 vs X " + Numbers::sEB(smId);
+    meEvsXRecProf_    = dqmStore_-> bookProfile(name, name, 100, -20, 20, 500, 0, 5000, "s");
     meEvsXRecProf_->setAxisTitle("PosX    (mm)", 1);
     meEvsXRecProf_->setAxisTitle("E1 (ADC)", 2);
 
-    sprintf(histo, "EBBHT prof E1 vs Y %s", Numbers::sEB(smId).c_str());
-    meEvsYRecProf_    = dqmStore_-> bookProfile(histo, histo, 100, -20, 20, 500, 0, 5000, "s");
+    name = "EBBHT prof E1 vs Y " + Numbers::sEB(smId);
+    meEvsYRecProf_    = dqmStore_-> bookProfile(name, name, 100, -20, 20, 500, 0, 5000, "s");
     meEvsYRecProf_->setAxisTitle("PosY    (mm)", 1);
     meEvsYRecProf_->setAxisTitle("E1 (ADC)", 2);
 
-    sprintf(histo, "EBBHT his E1 vs X %s", Numbers::sEB(smId).c_str());
-    meEvsXRecHis_    = dqmStore_-> book2D(histo, histo, 100, -20, 20, 500, 0, 5000);
+    name = "EBBHT his E1 vs X " + Numbers::sEB(smId);
+    meEvsXRecHis_    = dqmStore_-> book2D(name, name, 100, -20, 20, 500, 0, 5000);
     meEvsXRecHis_->setAxisTitle("PosX    (mm)", 1);
     meEvsXRecHis_->setAxisTitle("E1 (ADC)", 2);
 
-    sprintf(histo, "EBBHT his E1 vs Y %s", Numbers::sEB(smId).c_str());
-    meEvsYRecHis_    = dqmStore_-> book2D(histo, histo, 100, -20, 20, 500, 0, 5000);
+    name = "EBBHT his E1 vs Y " + Numbers::sEB(smId);
+    meEvsYRecHis_    = dqmStore_-> book2D(name, name, 100, -20, 20, 500, 0, 5000);
     meEvsYRecHis_->setAxisTitle("PosY    (mm)", 1);
     meEvsYRecHis_->setAxisTitle("E1 (ADC)", 2);
 
-    sprintf(histo, "EBBHT PosX Hodo-Calo %s", Numbers::sEB(smId).c_str());
-    meCaloVsHodoXPos_   = dqmStore_->book1D(histo, histo, 40, -20, 20);
+    name = "EBBHT PosX Hodo-Calo " + Numbers::sEB(smId);
+    meCaloVsHodoXPos_   = dqmStore_->book1D(name, name, 40, -20, 20);
     meCaloVsHodoXPos_->setAxisTitle("PosX_{hodo} - PosX_{calo}     (mm)", 1);
 
-    sprintf(histo, "EBBHT PosY Hodo-Calo %s", Numbers::sEB(smId).c_str());
-    meCaloVsHodoYPos_   = dqmStore_->book1D(histo, histo, 40, -20, 20);
+    name = "EBBHT PosY Hodo-Calo " + Numbers::sEB(smId);
+    meCaloVsHodoYPos_   = dqmStore_->book1D(name, name, 40, -20, 20);
     meCaloVsHodoYPos_->setAxisTitle("PosY_{hodo} - PosY_{calo}     (mm)", 1);
 
-    sprintf(histo, "EBBHT TimeMax TDC-Calo %s", Numbers::sEB(smId).c_str());
-    meCaloVsTDCTime_  = dqmStore_->book1D(histo, histo, 100, -1, 1);//tentative
+    name = "EBBHT TimeMax TDC-Calo " + Numbers::sEB(smId);
+    meCaloVsTDCTime_  = dqmStore_->book1D(name, name, 100, -1, 1);//tentative
     meCaloVsTDCTime_->setAxisTitle("Time_{TDC} - Time_{calo} (samples)", 1);
 
   }

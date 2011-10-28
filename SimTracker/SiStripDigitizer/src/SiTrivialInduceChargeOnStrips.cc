@@ -48,7 +48,7 @@ SiTrivialInduceChargeOnStrips(const edm::ParameterSet& conf,double g)
 
 void 
 SiTrivialInduceChargeOnStrips::
-induce(SiChargeCollectionDrifter::collection_type * collection_points, 
+induce(SiChargeCollectionDrifter::collection_type collection_points, 
        const StripGeomDetUnit& det, 
        std::vector<double>& localAmplitudes, 
        size_t& recordMinAffectedStrip, 
@@ -59,49 +59,37 @@ induce(SiChargeCollectionDrifter::collection_type * collection_points,
   size_t Nstrips =  topology.nstrips();
 
   for (SiChargeCollectionDrifter::collection_type::const_iterator 
-	 signalpoint = collection_points->begin();  signalpoint != collection_points->end();  signalpoint++ ) {
+	 signalpoint = collection_points.begin();  signalpoint != collection_points.end();  signalpoint++ ) {
     
     //In strip coordinates:
     double chargePosition = topology.strip(signalpoint->position());
     double chargeSpread = signalpoint->sigma() / topology.localPitch(signalpoint->position());
-    double amplitude = signalpoint->amplitude();
     
-    size_t fromStrip  = size_t(std::max( 0,          int(chargePosition - Nsigma*chargeSpread)));
+    size_t fromStrip  = size_t(std::max( 0,          int(std::floor( chargePosition - Nsigma*chargeSpread))));
     size_t untilStrip = size_t(std::min( Nstrips, size_t(std::ceil( chargePosition + Nsigma*chargeSpread) )));
+    for (size_t strip = fromStrip;  strip < untilStrip; strip++) {
 
-    if ((untilStrip - fromStrip) == 1) {  // avoid expensive CDF call...
-	double chargeDepositedOnStrip =  amplitude / geVperElectron;
-	
-	size_t affectedFromStrip  = size_t(std::max( 0, int(fromStrip - coupling.size() + 1)));
-	size_t affectedUntilStrip = size_t(std::min( Nstrips, fromStrip + coupling.size())   );  
-	
-	for (size_t affectedStrip = affectedFromStrip;  affectedStrip < affectedUntilStrip;  affectedStrip++) {
-	  localAmplitudes.at( affectedStrip ) += chargeDepositedOnStrip * coupling.at(abs( affectedStrip - fromStrip )) ;
-	}
-	
-	if( affectedFromStrip  < recordMinAffectedStrip ) recordMinAffectedStrip = affectedFromStrip;
-	if( affectedUntilStrip > recordMaxAffectedStrip ) recordMaxAffectedStrip = affectedUntilStrip;
-    } else {
-      double integralUpToStrip = (fromStrip == 0)         ? 0. : ( ROOT::Math::normal_cdf(fromStrip, chargeSpread, chargePosition) );
-      
-      for (size_t strip = fromStrip;  strip < untilStrip; strip++) {
-	double integralUpToNext  = (strip+1 == Nstrips) ? 1. : ( ROOT::Math::normal_cdf( strip+1, chargeSpread, chargePosition) );
-	double percentOfSignal = integralUpToNext - integralUpToStrip;
-	integralUpToStrip = integralUpToNext;
-	
-	double chargeDepositedOnStrip =  percentOfSignal * amplitude / geVperElectron;
-	
-	size_t affectedFromStrip  = size_t(std::max( 0, int(strip - coupling.size() + 1)));
-	size_t affectedUntilStrip = size_t(std::min( Nstrips, strip + coupling.size())   );  
-	
-	for (size_t affectedStrip = affectedFromStrip;  affectedStrip < affectedUntilStrip;  affectedStrip++) {
-	  localAmplitudes.at( affectedStrip ) += chargeDepositedOnStrip * coupling.at(abs( affectedStrip - strip )) ;
-	}
-	
-	if( affectedFromStrip  < recordMinAffectedStrip ) recordMinAffectedStrip = affectedFromStrip;
-	if( affectedUntilStrip > recordMaxAffectedStrip ) recordMaxAffectedStrip = affectedUntilStrip;
+      double chargeDepositedOnStrip = chargeDeposited( strip, Nstrips, signalpoint->amplitude(), chargeSpread, chargePosition);
+
+      size_t affectedFromStrip  = size_t(std::max( 0, int(strip - coupling.size() + 1)));
+      size_t affectedUntilStrip = size_t(std::min( Nstrips, strip + coupling.size())   );  
+      for (size_t affectedStrip = affectedFromStrip;  affectedStrip < affectedUntilStrip;  affectedStrip++) {
+	localAmplitudes.at( affectedStrip ) += chargeDepositedOnStrip * coupling.at(abs( affectedStrip - strip )) ;
       }
+
+      if( affectedFromStrip  < recordMinAffectedStrip ) recordMinAffectedStrip = affectedFromStrip;
+      if( affectedUntilStrip > recordMaxAffectedStrip ) recordMaxAffectedStrip = affectedUntilStrip;
     }
   }
   return;
+}
+
+inline double
+SiTrivialInduceChargeOnStrips::
+chargeDeposited(size_t strip, size_t Nstrips, double amplitude, double chargeSpread, double chargePosition) const {
+  double integralUpToStrip = (strip == 0)         ? 0. : ( ROOT::Math::normal_cdf(   strip, chargeSpread, chargePosition) );
+  double integralUpToNext  = (strip+1 == Nstrips) ? 1. : ( ROOT::Math::normal_cdf( strip+1, chargeSpread, chargePosition) );
+  double percentOfSignal = integralUpToNext - integralUpToStrip;
+  
+  return percentOfSignal * amplitude / geVperElectron;
 }

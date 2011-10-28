@@ -71,7 +71,7 @@ namespace evf{
     typedef long long int num;
 
     num pid;
-    char tcomm[PATH_MAX];
+    char tcomm[FILENAME_MAX];
     char state;
     
     num ppid;

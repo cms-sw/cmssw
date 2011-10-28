@@ -72,11 +72,12 @@ public:
 
   /** Analyze the Data */
   void analyze(const edm::Handle<reco::MuonCollection>                 & muon,
-               const edm::Handle<l1extra::L1MuonParticleCollection>   & mucands1, 
+               const edm::Handle<l1extra::L1MuonParticleCollection>    & mucands1, 
 	       const edm::Handle<reco::RecoChargedCandidateCollection> & mucands2,
-	       const edm::Handle<edm::ValueMap<bool> >           & isoMap2,
+	       const edm::Handle<edm::ValueMap<bool> >                 & isoMap2,
 	       const edm::Handle<reco::RecoChargedCandidateCollection> & mucands3,
-	       const edm::Handle<edm::ValueMap<bool> >           & isoMap3,
+	       const edm::Handle<edm::ValueMap<bool> >                 & isoMap3,
+	       const edm::Handle<edm::ValueMap<bool> >                 & isoTrk10Map3,
                const edm::Handle<reco::RecoChargedCandidateCollection> & oniaPixelCands,
                const edm::Handle<reco::RecoChargedCandidateCollection> & oniaTrackCands,
 	       const edm::Handle<reco::VertexCollection> & dimuvtxcands3,
@@ -99,7 +100,7 @@ private:
   float *muonl2pterr, *muonl3pterr, *muonl2novtxpterr;
   int nmuon, nmu2cand, nmu3cand, nmu2novtxcand;
   int *muonl2chg, *muonl2iso, *muonl2nhits,*muonl2nstat, *muonl3chg, *muonl3iso, *muonl32idx, *muonl3nhits, *muonl21idx, *muonl2novtxchg, *muonl2novtxiso, *muonl2novtx1idx, *muonl2novtxnhits;
-  int *muonl3ntrackerhits, *muonl3nmuonhits;
+  int *muonl3ntrackerhits, *muonl3nmuonhits, *muonl3trk10iso;
 
   int nOniaPixelCand, nOniaTrackCand;
   float *oniaPixelpt, *oniaPixeleta, *oniaPixelphi, *oniaPixeldr, *oniaPixeldz, *oniaPixelNormChi2;
@@ -117,7 +118,7 @@ private:
 
   int evtCounter;
 
-  const float etaBarrel() {return 1.4;}
+  static float etaBarrel() { return 1.4; }
 
 };
 

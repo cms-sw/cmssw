@@ -91,21 +91,21 @@ simulationTtbar = cms.untracked.vstring(
 
 
 ttbarRECO = cms.untracked.vstring(
-   pickRelValInputFiles( cmsswVersion  = 'CMSSW_4_1_3'
-                       , relVal        = 'RelValZTT'
-                       , globalTag     = 'START311_V2'
-                       , numberOfFiles = 0 )
+    pickRelValInputFiles( cmsswVersion  = 'CMSSW_4_2_8'
+                        , relVal        = 'RelValZTT'
+                        , globalTag     = 'START42_V12'
+                        )
 )
 
 ttbarJets  = cms.untracked.vstring(
-    'rfio:///castor/cern.ch/user/c/cmssup/patTuple_ttbar_jets.root'
+     'rfio:///castor/cern.ch/user/c/cmssup/patTuple_ttbar_jets.root'
 )
 
 zjetsRECO = cms.untracked.vstring(
-   pickRelValInputFiles( cmsswVersion  = 'CMSSW_4_1_3'
-                       , relVal        = 'RelValZMM'
-                       , globalTag     = 'START311_V2'
-                       , numberOfFiles = 0 )
+    pickRelValInputFiles( cmsswVersion  = 'CMSSW_4_2_8'
+                        , relVal        = 'RelValZMM'
+                        , globalTag     = 'START42_V12'
+                        )
 )
 
 zjetsTracks  = cms.untracked.vstring(
