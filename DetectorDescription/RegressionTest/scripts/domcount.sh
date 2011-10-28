@@ -17,11 +17,17 @@ cd $CMSSW_RELEASE_BASE/src
 set paths=$CMSSW_SEARCH_PATH
 set hms = `echo $paths | awk 'BEGIN{FS=":"}{for (i=1; i<=NF; i++) print $i}'`
 
+set tmpFile=/tmp/tmpcmsswdddxmlfileslistvalid
+
+if( -f  $tmpFile ) then
+ rm -f $tmpFile
+endif
+
 foreach line( "`cat /tmp/tmpcmsswdddxmlfileslist`" )
  set fileFound=0
  foreach path( $hms )
-  set file=$path/$line
   if( ! $fileFound ) then
+   set file=$path/$line
    if( -f $file ) then
     echo $file >> /tmp/tmpcmsswdddxmlfileslistvalid
     set fileFound=1
@@ -34,7 +40,5 @@ set script=$CMSSW_BASE/bin/$SCRAM_ARCH/DOMCount
 if ( ! -f $script ) then
  set script=$CMSSW_RELEASE_BASE/bin/$SCRAM_ARCH/DOMCount
 endif
-
-echo $script;
 
 $script -v=always -n -s -f -l /tmp/tmpcmsswdddxmlfileslistvalid
