@@ -2318,6 +2318,45 @@ class resolutionFunctionType12 : public resolutionFunctionBase<T> {
       this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, thisStep, thisMini, thisMaxi, thisParName );
     }
   }
+
+  virtual void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname,
+			     const T & parResol, const std::vector<int> & parResolOrder,
+			     const std::vector<double> & parStep,
+			     const std::vector<double> & parMin,
+			     const std::vector<double> & parMax,
+			     const int muonType)
+  {
+    if( (int(parStep.size()) != this->parNum_) || (int(parMin.size()) != this->parNum_) || (int(parMax.size()) != this->parNum_) ) {
+      std::cout << "Error: par step or min or max do not match with number of parameters" << std::endl;
+      exit(1);
+    }
+    std::vector<ParameterSet> parSet(this->parNum_);
+    // name, step, mini, maxi
+
+    parSet[0]  = ParameterSet( "etaTransition",            parStep[0],  parMin[0],  parMax[0]  );
+    parSet[1]  = ParameterSet( "offsetEtaHigh",            parStep[1],  parMin[1],  parMax[1]  );
+    parSet[2]  = ParameterSet( "coeffOverPt",              parStep[2],  parMin[2],  parMax[2]  );
+    parSet[3]  = ParameterSet( "coeffHighPt",              parStep[3],  parMin[3],  parMax[3]  );
+    parSet[4]  = ParameterSet( "linearEtaCentral",         parStep[4],  parMin[4],  parMax[4]  );
+    parSet[5]  = ParameterSet( "parabEtaCentral",          parStep[5],  parMin[5],  parMax[5]  );
+    parSet[6]  = ParameterSet( "linearEtaHigh",            parStep[6],  parMin[6],  parMax[6]  );
+    parSet[7]  = ParameterSet( "parabEtaHigh",             parStep[7],  parMin[7],  parMax[7]  );
+    parSet[8]  = ParameterSet( "secondParabolaCenter",     parStep[8],  parMin[8],  parMax[8]  );
+    parSet[9]  = ParameterSet( "linearPt",                 parStep[9],  parMin[9],  parMax[9]  );
+    parSet[10] = ParameterSet( "quadraticPt",              parStep[10], parMin[10], parMax[10] );
+    parSet[11] = ParameterSet( "Cth res. sc.",             parStep[11], parMin[11], parMax[11] );
+    parSet[12] = ParameterSet( "Cth res. 1/Pt sc.",        parStep[12], parMin[12], parMax[12] );
+    parSet[13] = ParameterSet( "Cth res. Eta sc.",         parStep[13], parMin[13], parMax[13] );
+    parSet[14] = ParameterSet( "Cth res. Eta^2 sc.",       parStep[14], parMin[14], parMax[14] );
+
+    std::cout << "setting parameters" << std::endl;
+    for( int i=0; i<this->parNum_; ++i ) {
+      std::cout << "parStep["<<i<<"] = " << parStep[i]
+		<< ", parMin["<<i<<"] = " << parMin[i]
+		<< ", parMax["<<i<<"] = " << parMin[i] << std::endl;
+    }
+    this->setPar( Start, Step, Mini, Maxi, ind, parname, parResol, parResolOrder, parSet );
+  }
 };
 
 /**
