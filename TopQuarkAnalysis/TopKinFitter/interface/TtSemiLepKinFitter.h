@@ -40,19 +40,26 @@ class TtSemiLepKinFitter : public TopKinFitter {
   /// default destructor
   ~TtSemiLepKinFitter();
 
-  /// kinematic fit interface
-  template <class LeptonType> int fit(const std::vector<pat::Jet>& jets, const pat::Lepton<LeptonType>& leps, const pat::MET& met, const double jetResolutionSmearFactor);
-  // return hadronic b quark candidate
+  /// kinematic fit interface for PAT objects
+  template <class LeptonType> int fit(const std::vector<pat::Jet>& jets, const pat::Lepton<LeptonType>& leps, const pat::MET& met,
+				      const double jetResolutionSmearFactor);
+  /// basic fit interface
+  int fit(const TLorentzVector& p4HadP, const TLorentzVector& p4HadQ, const TLorentzVector& p4HadB, const TLorentzVector& p4LepB,
+	  const TLorentzVector& p4Lepton, const TLorentzVector& p4Neutrino,
+	  const TMatrixD& covHadP, const TMatrixD& covHadQ, const TMatrixD& covHadB, const TMatrixD& covLepB,
+	  const TMatrixD& covLepton, const TMatrixD& covNeutrino,
+	  const int leptonCharge);
+  /// return hadronic b quark candidate
   const pat::Particle fittedHadB() const { return (fitter_->getStatus()==0 ? fittedHadB_ : pat::Particle()); };
-  // return hadronic light quark candidate
+  /// return hadronic light quark candidate
   const pat::Particle fittedHadP() const { return (fitter_->getStatus()==0 ? fittedHadP_ : pat::Particle()); };
-  // return hadronic light quark candidate
+  /// return hadronic light quark candidate
   const pat::Particle fittedHadQ() const { return (fitter_->getStatus()==0 ? fittedHadQ_ : pat::Particle()); };
-  // return leptonic b quark candidate
+  /// return leptonic b quark candidate
   const pat::Particle fittedLepB() const { return (fitter_->getStatus()==0 ? fittedLepB_ : pat::Particle()); };
-  // return lepton candidate
+  /// return lepton candidate
   const pat::Particle fittedLepton() const { return (fitter_->getStatus()==0 ? fittedLepton_ : pat::Particle()); };
-  // return neutrino candidate
+  /// return neutrino candidate
   const pat::Particle fittedNeutrino() const { return (fitter_->getStatus()==0 ? fittedNeutrino_ : pat::Particle()); };
   /// add kin fit information to the old event solution (in for legacy reasons)
   TtSemiEvtSolution addKinFitInfo(TtSemiEvtSolution* asol, const double jetResolutionSmearFactor=1.);
@@ -70,18 +77,18 @@ class TtSemiLepKinFitter : public TopKinFitter {
   void setupConstraints();
   
  private:
-  // input particles
+  /// input particles
   TAbsFitParticle* hadB_;
   TAbsFitParticle* hadP_;
   TAbsFitParticle* hadQ_;
   TAbsFitParticle* lepB_;
   TAbsFitParticle* lepton_;
   TAbsFitParticle* neutrino_;
-  // supported constraints
+  /// supported constraints
   std::map<Constraint, TFitConstraintM*> massConstr_;
   TFitConstraintEp* sumPxConstr_;
   TFitConstraintEp* sumPyConstr_;
-  // output particles
+  /// output particles
   pat::Particle fittedHadB_;
   pat::Particle fittedHadP_;
   pat::Particle fittedHadQ_;

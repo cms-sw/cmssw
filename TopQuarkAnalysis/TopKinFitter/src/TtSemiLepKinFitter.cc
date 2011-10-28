@@ -175,42 +175,47 @@ int TtSemiLepKinFitter::fit(const std::vector<pat::Jet>& jets, const pat::Lepton
     throw edm::Exception( edm::errors::Configuration, "Cannot run the TtSemiLepKinFitter with less than 4 jets" );
 
   // get jets in right order
-  pat::Jet hadP = jets[TtSemiLepEvtPartons::LightQ   ];
-  pat::Jet hadQ = jets[TtSemiLepEvtPartons::LightQBar];
-  pat::Jet hadB = jets[TtSemiLepEvtPartons::HadB     ];
-  pat::Jet lepB = jets[TtSemiLepEvtPartons::LepB     ];
+  const pat::Jet hadP = jets[TtSemiLepEvtPartons::LightQ   ];
+  const pat::Jet hadQ = jets[TtSemiLepEvtPartons::LightQBar];
+  const pat::Jet hadB = jets[TtSemiLepEvtPartons::HadB     ];
+  const pat::Jet lepB = jets[TtSemiLepEvtPartons::LepB     ];
  
   // initialize particles
-  TLorentzVector p4HadP( hadP.px(), hadP.py(), hadP.pz(), hadP.energy() );
-  TLorentzVector p4HadQ( hadQ.px(), hadQ.py(), hadQ.pz(), hadQ.energy() );
-  TLorentzVector p4HadB( hadB.px(), hadB.py(), hadB.pz(), hadB.energy() );
-  TLorentzVector p4LepB( lepB.px(), lepB.py(), lepB.pz(), lepB.energy() );
-  TLorentzVector p4Lepton  ( lepton.px(), lepton.py(), lepton.pz(), lepton.energy() );
-  TLorentzVector p4Neutrino( neutrino.px(), neutrino.py(), 0, neutrino.et() );
-
-  //setup Px and Py constraint for curent event configuration so that sum Pt will be conserved
-  if(constrainSumPt_){
-    sumPxConstr_->setConstraint( hadP.px() + hadQ.px() + hadB.px() + lepB.px() + lepton.px() + neutrino.px() );
-    sumPyConstr_->setConstraint( hadP.py() + hadQ.py() + hadB.py() + lepB.py() + lepton.py() + neutrino.py() );
-  }
+  const TLorentzVector p4HadP( hadP.px(), hadP.py(), hadP.pz(), hadP.energy() );
+  const TLorentzVector p4HadQ( hadQ.px(), hadQ.py(), hadQ.pz(), hadQ.energy() );
+  const TLorentzVector p4HadB( hadB.px(), hadB.py(), hadB.pz(), hadB.energy() );
+  const TLorentzVector p4LepB( lepB.px(), lepB.py(), lepB.pz(), lepB.energy() );
+  const TLorentzVector p4Lepton  ( lepton.px(), lepton.py(), lepton.pz(), lepton.energy() );
+  const TLorentzVector p4Neutrino( neutrino.px(), neutrino.py(), 0, neutrino.et() );
 
   // initialize covariance matrices
   CovarianceMatrix covM;
-  TMatrixD m1 = covM.setupMatrix(hadP, jetParam_);
-  TMatrixD m2 = covM.setupMatrix(hadQ, jetParam_);
-  TMatrixD m3 = covM.setupMatrix(hadB, jetParam_, "bjets");
-  TMatrixD m4 = covM.setupMatrix(lepB, jetParam_, "bjets");
-  TMatrixD m5 = covM.setupMatrix(lepton  , lepParam_);
-  TMatrixD m6 = covM.setupMatrix(neutrino, metParam_);
+  TMatrixD covHadP = covM.setupMatrix(hadP, jetParam_);
+  TMatrixD covHadQ = covM.setupMatrix(hadQ, jetParam_);
+  TMatrixD covHadB = covM.setupMatrix(hadB, jetParam_, "bjets");
+  TMatrixD covLepB = covM.setupMatrix(lepB, jetParam_, "bjets");
+  TMatrixD covLepton   = covM.setupMatrix(lepton  , lepParam_);
+  TMatrixD covNeutrino = covM.setupMatrix(neutrino, metParam_);
 
   // as covM contains resolution^2
   // the correction of jet energy resolutions
   // is just *jetEnergyResolutionSmearFactor^2
-  m1(0,0)*=jetEnergyResolutionSmearFactor * jetEnergyResolutionSmearFactor; 
-  m2(0,0)*=jetEnergyResolutionSmearFactor * jetEnergyResolutionSmearFactor; 
-  m3(0,0)*=jetEnergyResolutionSmearFactor * jetEnergyResolutionSmearFactor; 
-  m4(0,0)*=jetEnergyResolutionSmearFactor * jetEnergyResolutionSmearFactor; 
+  covHadP(0,0) *= jetEnergyResolutionSmearFactor * jetEnergyResolutionSmearFactor; 
+  covHadQ(0,0) *= jetEnergyResolutionSmearFactor * jetEnergyResolutionSmearFactor; 
+  covHadB(0,0) *= jetEnergyResolutionSmearFactor * jetEnergyResolutionSmearFactor; 
+  covLepB(0,0) *= jetEnergyResolutionSmearFactor * jetEnergyResolutionSmearFactor; 
 
+  // now do the part that is fully independent of PAT features
+  return fit(p4HadP, p4HadQ, p4HadB, p4LepB, p4Lepton, p4Neutrino,
+	     covHadP, covHadQ, covHadB, covLepB, covLepton, covNeutrino,
+	     lepton.charge());
+}
+
+int TtSemiLepKinFitter::fit(const TLorentzVector& p4HadP, const TLorentzVector& p4HadQ, const TLorentzVector& p4HadB, const TLorentzVector& p4LepB,
+			    const TLorentzVector& p4Lepton, const TLorentzVector& p4Neutrino,
+			    const TMatrixD& covHadP, const TMatrixD& covHadQ, const TMatrixD& covHadB, const TMatrixD& covLepB,
+			    const TMatrixD& covLepton, const TMatrixD& covNeutrino, const int leptonCharge)
+{
   // set the kinematics of the objects to be fitted
   hadP_->setIni4Vec( &p4HadP );
   hadQ_->setIni4Vec( &p4HadQ );
@@ -219,12 +224,18 @@ int TtSemiLepKinFitter::fit(const std::vector<pat::Jet>& jets, const pat::Lepton
   lepton_->setIni4Vec( &p4Lepton );
   neutrino_->setIni4Vec( &p4Neutrino );
 
-  hadP_->setCovMatrix( &m1 );
-  hadQ_->setCovMatrix( &m2 );
-  hadB_->setCovMatrix( &m3 );
-  lepB_->setCovMatrix( &m4 );
-  lepton_->setCovMatrix( &m5 );
-  neutrino_->setCovMatrix( &m6 );
+  hadP_->setCovMatrix( &covHadP );
+  hadQ_->setCovMatrix( &covHadQ );
+  hadB_->setCovMatrix( &covHadB );
+  lepB_->setCovMatrix( &covLepB );
+  lepton_  ->setCovMatrix( &covLepton   );
+  neutrino_->setCovMatrix( &covNeutrino );
+
+  if(constrainSumPt_){
+    // setup Px and Py constraint for curent event configuration so that sum Pt will be conserved
+    sumPxConstr_->setConstraint( p4HadP.Px() + p4HadQ.Px() + p4HadB.Px() + p4LepB.Px() + p4Lepton.Px() + p4Neutrino.Px() );
+    sumPyConstr_->setConstraint( p4HadP.Py() + p4HadQ.Py() + p4HadB.Py() + p4LepB.Py() + p4Lepton.Py() + p4Neutrino.Py() );
+  }
 
   // now do the fit
   fitter_->fit();
@@ -242,7 +253,7 @@ int TtSemiLepKinFitter::fit(const std::vector<pat::Jet>& jets, const pat::Lepton
 			       lepB_->getCurr4Vec()->Y(), lepB_->getCurr4Vec()->Z(), lepB_->getCurr4Vec()->E()), math::XYZPoint()));
 
     // read back lepton kinematics
-    fittedLepton_= pat::Particle(reco::LeafCandidate(lepton.charge(), math::XYZTLorentzVector(lepton_->getCurr4Vec()->X(),
+    fittedLepton_= pat::Particle(reco::LeafCandidate(leptonCharge, math::XYZTLorentzVector(lepton_->getCurr4Vec()->X(),
 				 lepton_->getCurr4Vec()->Y(), lepton_->getCurr4Vec()->Z(), lepton_->getCurr4Vec()->E()), math::XYZPoint()));
 
     // read back the MET kinematics
