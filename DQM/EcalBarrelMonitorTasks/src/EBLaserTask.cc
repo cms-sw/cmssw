@@ -1,8 +1,8 @@
 /*
  * \file EBLaserTask.cc
  *
- * $Date: 2011/08/30 09:30:32 $
- * $Revision: 1.134 $
+ * $Date: 2011/09/15 20:59:51 $
+ * $Revision: 1.135 $
  * \author G. Della Ricca
  *
 */
@@ -727,13 +727,8 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       for (int i = 0; i < 10; i++) {
 
         int adc = dataframe.sample(i).adc();
-        float gain = 1.;
 
         MonitorElement* meShapeMap = 0;
-
-        if ( dataframe.sample(i).gainId() == 1 ) gain = 1./12.;
-        if ( dataframe.sample(i).gainId() == 2 ) gain = 1./ 6.;
-        if ( dataframe.sample(i).gainId() == 3 ) gain = 1./ 1.;
 
         if ( rtHalf[ism-1] == 0 || rtHalf[ism-1] == 1 ) {
 
@@ -748,7 +743,6 @@ void EBLaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
         }
 
-//        float xval = float(adc) * gain;
         float xval = float(adc);
 
         if ( meShapeMap ) meShapeMap->Fill(ic - 0.5, i + 0.5, xval);

@@ -1,8 +1,8 @@
 /*
  * \file EELaserTask.cc
  *
- * $Date: 2011/08/30 09:28:42 $
- * $Revision: 1.76 $
+ * $Date: 2011/09/15 21:03:25 $
+ * $Revision: 1.77 $
  * \author G. Della Ricca
  *
 */
@@ -802,13 +802,8 @@ void EELaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       for (int i = 0; i < 10; i++) {
 
         int adc = dataframe.sample(i).adc();
-        float gain = 1.;
 
         MonitorElement* meShapeMap = 0;
-
-        if ( dataframe.sample(i).gainId() == 1 ) gain = 1./12.;
-        if ( dataframe.sample(i).gainId() == 2 ) gain = 1./ 6.;
-        if ( dataframe.sample(i).gainId() == 3 ) gain = 1./ 1.;
 
         if ( rtHalf[ism-1] == 0 || rtHalf[ism-1] == 1 ) {
 
@@ -823,7 +818,6 @@ void EELaserTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
         }
 
-//        float xval = float(adc) * gain;
         float xval = float(adc);
 
         if ( meShapeMap ) meShapeMap->Fill(ic - 0.5, i + 0.5, xval);

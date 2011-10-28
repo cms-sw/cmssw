@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseClient.cc
  *
- * $Date: 2011/08/30 09:33:51 $
- * $Revision: 1.235 $
+ * $Date: 2011/09/02 13:55:01 $
+ * $Revision: 1.236 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -838,12 +838,6 @@ void EBTestPulseClient::analyze(void) {
         if ( meg01_[ism-1] ) meg01_[ism-1]->setBinContent( ie, ip, 2. );
         if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ie, ip, 2. );
         if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ie, ip, 2. );
-
-        float numEventsinCry[3] = {0., 0., 0.};
-
-        if ( ha01_[ism-1] ) numEventsinCry[0] = ha01_[ism-1]->GetBinEntries(ha01_[ism-1]->GetBin(ie, ip));
-        if ( ha02_[ism-1] ) numEventsinCry[1] = ha02_[ism-1]->GetBinEntries(ha02_[ism-1]->GetBin(ie, ip));
-        if ( ha03_[ism-1] ) numEventsinCry[2] = ha03_[ism-1]->GetBinEntries(ha03_[ism-1]->GetBin(ie, ip));
 
         bool update01;
         bool update02;

@@ -1,8 +1,8 @@
 /*
  * \file EESelectiveReadoutTask.cc
  *
- * $Date: 2011/03/03 22:12:47 $
- * $Revision: 1.60 $
+ * $Date: 2011/08/30 09:28:42 $
+ * $Revision: 1.61 $
  * \author P. Gras
  * \author E. Di Marco
  *
@@ -1185,11 +1185,10 @@ EESelectiveReadoutTask::dccZsFIR(const EcalDataFrame& frame,
   int acc = 0;
   bool gain12saturated = false;
   const int gain12 = 0x01;
-  const int lastFIRSample = firstFIRSample + nFIRTaps - 1;
-  //LogDebug("DccFir") << "DCC FIR operation: ";
+
   int iWeight = 0;
-  for(int iSample=firstFIRSample-1;
-      iSample<lastFIRSample; ++iSample, ++iWeight){
+  for(int i = -1; i < nFIRTaps - 1; ++i, ++iWeight){
+    int iSample(firstFIRSample + i);
     if(iSample>=0 && iSample < frame.size()){
       EcalMGPASample sample(frame[iSample]);
       if(sample.gainId()!=gain12) gain12saturated = true;

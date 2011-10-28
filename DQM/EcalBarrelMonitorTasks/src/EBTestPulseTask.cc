@@ -1,8 +1,8 @@
 /*
  * \file EBTestPulseTask.cc
  *
- * $Date: 2011/08/23 00:30:59 $
- * $Revision: 1.116.4.2 $
+ * $Date: 2011/08/30 09:30:33 $
+ * $Revision: 1.117 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -410,19 +410,13 @@ void EBTestPulseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       for (int i = 0; i < 10; i++) {
 
         int adc = dataframe.sample(i).adc();
-        float gain = 1.;
 
         MonitorElement* meShapeMap = 0;
-
-        if ( dataframe.sample(i).gainId() == 1 ) gain = 1./12.;
-        if ( dataframe.sample(i).gainId() == 2 ) gain = 1./ 6.;
-        if ( dataframe.sample(i).gainId() == 3 ) gain = 1./ 1.;
 
         if ( mgpaGain[ism-1] == 3 ) meShapeMap = meShapeMapG01_[ism-1];
         if ( mgpaGain[ism-1] == 2 ) meShapeMap = meShapeMapG06_[ism-1];
         if ( mgpaGain[ism-1] == 1 ) meShapeMap = meShapeMapG12_[ism-1];
 
-//        float xval = float(adc) * gain;
         float xval = float(adc);
 
         if ( meShapeMap ) meShapeMap->Fill(ic - 0.5, i + 0.5, xval);

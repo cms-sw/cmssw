@@ -1,8 +1,8 @@
 /*
  * \file EELedTask.cc
  *
- * $Date: 2011/08/30 09:28:42 $
- * $Revision: 1.66 $
+ * $Date: 2011/09/15 21:03:25 $
+ * $Revision: 1.67 $
  * \author G. Della Ricca
  *
 */
@@ -474,13 +474,8 @@ void EELedTask::analyze(const edm::Event& e, const edm::EventSetup& c){
       for (int i = 0; i < 10; i++) {
 
         int adc = dataframe.sample(i).adc();
-        float gain = 1.;
 
         MonitorElement* meShapeMap = 0;
-
-        if ( dataframe.sample(i).gainId() == 1 ) gain = 1./12.;
-        if ( dataframe.sample(i).gainId() == 2 ) gain = 1./ 6.;
-        if ( dataframe.sample(i).gainId() == 3 ) gain = 1./ 1.;
 
         if ( Numbers::RtHalf(id) == 0 || Numbers::RtHalf(id) == 1 ) {
 
@@ -493,7 +488,6 @@ void EELedTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
         }
 
-//        float xval = float(adc) * gain;
         float xval = float(adc);
 
         if ( meShapeMap ) meShapeMap->Fill(ic - 0.5, i + 0.5, xval);

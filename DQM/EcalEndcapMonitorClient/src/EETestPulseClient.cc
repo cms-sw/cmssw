@@ -1,8 +1,8 @@
 /*
  * \file EETestPulseClient.cc
  *
- * $Date: 2011/08/30 09:29:45 $
- * $Revision: 1.125 $
+ * $Date: 2011/09/02 13:55:02 $
+ * $Revision: 1.126 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -858,12 +858,6 @@ void EETestPulseClient::analyze(void) {
           if ( meg02_[ism-1] ) meg02_[ism-1]->setBinContent( ix, iy, 2. );
           if ( meg03_[ism-1] ) meg03_[ism-1]->setBinContent( ix, iy, 2. );
         }
-
-        float numEventsinCry[3] = {0., 0., 0.};
-
-        if ( ha01_[ism-1] ) numEventsinCry[0] = ha01_[ism-1]->GetBinEntries(ha01_[ism-1]->GetBin(ix, iy));
-        if ( ha02_[ism-1] ) numEventsinCry[1] = ha02_[ism-1]->GetBinEntries(ha02_[ism-1]->GetBin(ix, iy));
-        if ( ha03_[ism-1] ) numEventsinCry[2] = ha03_[ism-1]->GetBinEntries(ha03_[ism-1]->GetBin(ix, iy));
 
         bool update01;
         bool update02;

@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2011/08/23 00:30:59 $
- * $Revision: 1.104.4.3 $
+ * $Date: 2011/08/30 09:30:33 $
+ * $Revision: 1.106 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -150,11 +150,9 @@ void EBTriggerTowerTask::setup( std::string const &nameext,
                                 bool emulated ) {
 
   array1*  meEtMap = &meEtMapReal_;
-  array1*  meVeto = &meVetoReal_;
 
   if ( emulated ) {
     meEtMap = &meEtMapEmul_;
-    meVeto = &meVetoEmul_;
   }
 
   dqmStore_->setCurrentFolder(folder);
