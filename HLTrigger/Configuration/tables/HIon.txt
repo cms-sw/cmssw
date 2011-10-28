@@ -105,7 +105,7 @@ ALCALUMIPIXELSOutput
 CalibrationOutput
 DQMOutput
 EcalCalibrationOutput
-ExpressOutput
+ExpressForHIOutput
 HLTDQMOutput
 HLTDQMResultsOutput
 HLTMONOutput

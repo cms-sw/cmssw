@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_2_0/HLT/V1068 (CMSSW_4_2_0_HLT34)
+# /dev/CMSSW_4_2_0/HLT/V1072 (CMSSW_4_2_0_HLT35)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V1068')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HLT/V1072')
 )
 
 streams = cms.PSet( 
@@ -44,9 +44,9 @@ streams = cms.PSet(
   DQM = cms.vstring( 'OnlineMonitor',
     'OnlineMonitorHI' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
-  Express = cms.vstring( 'ExpressPhysics',
-    'HIExpressPhysics' ),
+  Express = cms.vstring( 'ExpressPhysics' ),
   ExpressCosmics = cms.vstring( 'ExpressCosmics' ),
+  ExpressForHI = cms.vstring( 'HIExpressPhysics' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitor',
     'OnlineHltMonitorHI' ),
   HLTDQMResults = cms.vstring( 'OnlineHltResults' ),
@@ -2260,6 +2260,7 @@ hltESSHcalSeverityLevel = cms.ESSource( "EmptyESSource",
   firstValid = cms.vuint32( 1 )
 )
 hltESSL1FastJetCorrectionService = cms.ESSource( "L1FastjetCorrectionService",
+  appendToDataLabel = cms.string( "" ),
   era = cms.string( "Jec10V1" ),
   level = cms.string( "L1FastJet" ),
   algorithm = cms.string( "AK5Calo" ),
