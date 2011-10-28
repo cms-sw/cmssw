@@ -33,6 +33,7 @@ namespace edm {
     void reportInputRunNumber(unsigned int run) const;
     void reportInputLumiSection(unsigned int run, unsigned int lumi) const;
     static void reportSkippedFile(std::string const& fileName, std::string const& logicalFileName);
+    static void reportFallbackAttempt(std::string const& pfn, std::string const& logicalFileName, std::string const& errorMessage);
 
     TObject* Get(char const* name) {return file_->Get(name);}
     TFileCacheRead* GetCacheRead() const {return file_->GetCacheRead();}

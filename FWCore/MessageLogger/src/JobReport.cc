@@ -731,6 +731,20 @@ namespace edm {
   }
 
   void
+  JobReport::reportFallbackAttempt(std::string const& pfn, std::string const& lfn, std::string const& err) {
+    if(impl_->ost_) {
+      std::ostream& msg = *(impl_->ost_);
+      TiXmlElement fallback("FallbackAttempt");
+      fallback.SetAttribute("Pfn", pfn);
+      fallback.SetAttribute("Lfn", lfn);
+      msg << fallback << "\n";
+      msg << "<![CDATA[\n" << err << "\n]]>\n";
+      msg << std::flush;
+      //LogInfo("FwkJob") << msg.str();
+    }
+  }
+
+  void
   JobReport::reportMemoryInfo(std::vector<std::string> const& memoryData) {
     if(impl_->ost_) {
       std::ostream& msg = *(impl_->ost_);

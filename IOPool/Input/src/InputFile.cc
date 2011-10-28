@@ -68,6 +68,12 @@ namespace edm {
     Service<JobReport> reportSvc;
     reportSvc->reportSkippedFile(fileName, logicalFileName);
   }
+ 
+  void
+  InputFile::reportFallbackAttempt(std::string const& pfn, std::string const& logicalFileName, std::string const& errorMessage) {
+    Service<JobReport> reportSvc;
+    reportSvc->reportFallbackAttempt(pfn, logicalFileName, errorMessage);
+  }
 
   void
   InputFile::Close() {

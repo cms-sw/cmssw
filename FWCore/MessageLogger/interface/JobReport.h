@@ -346,6 +346,8 @@ namespace edm {
       /// found.
       void reportSkippedFile(std::string const& pfn, std::string const& lfn);
 
+      void reportFallbackAttempt(std::string const& pfn, std::string const& lfn, std::string const& err);
+
       void reportAnalysisFile(std::string const& fileName,
                               std::map<std::string, std::string> const& fileData) ;
 

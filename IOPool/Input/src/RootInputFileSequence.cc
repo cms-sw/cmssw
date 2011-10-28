@@ -190,13 +190,19 @@ namespace edm {
       filePtr.reset(new InputFile(gSystem->ExpandPathName(fileIter_->fileName().c_str()), "  Initiating request to open file "));
     }
     catch (cms::Exception const& e) {
-      if(!skipBadFiles && !hasFallbackUrl) {
-        InputFile::reportSkippedFile(fileIter_->fileName(), fileIter_->logicalFileName());
-        Exception ex(errors::FileOpenError, "", e);
-        ex.addContext("Calling RootInputFileSequence::initFile()");
-        //ex.clearMessage();
-        ex << "Input file " << fileIter_->fileName() << " was not found, could not be opened, or is corrupted.\n";
-        throw ex;
+      if(!skipBadFiles) {
+        if(hasFallbackUrl) {
+          std::ostringstream out;
+          out << "Input file " << fileIter_->fileName() << " was not found, could not be opened, or is corrupted.\n";
+          std::string pfn(gSystem->ExpandPathName(fallbackName.c_str()));
+          InputFile::reportFallbackAttempt(pfn, fileIter_->logicalFileName(), out.str());
+        } else {
+          InputFile::reportSkippedFile(fileIter_->fileName(), fileIter_->logicalFileName());
+          Exception ex(errors::FileOpenError, "", e);
+          ex.addContext("Calling RootInputFileSequence::initFile()");
+          ex << "Input file " << fileIter_->fileName() << " was not found, could not be opened, or is corrupted.\n";
+          throw ex;
+        }
       }
     }
     if(!filePtr && (hasFallbackUrl)) {
@@ -208,9 +214,8 @@ namespace edm {
       catch (cms::Exception const& e) {
         if(!skipBadFiles) {
           InputFile::reportSkippedFile(fileIter_->fileName(), fileIter_->logicalFileName());
-          Exception ex(errors::FileOpenError, "", e);
+          Exception ex(errors::FallbackFileOpenError, "", e);
           ex.addContext("Calling RootInputFileSequence::initFile()");
-          //ex.clearMessage();
           ex << "Input file " << fileIter_->fileName() << " was not found, could not be opened, or is corrupted.\n";
           ex << "Fallback Input file " << fallbackName << " also was not found, could not be opened, or is corrupted.\n";
           throw ex;
