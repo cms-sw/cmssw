@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_2_0/HIon/V343 (CMSSW_4_2_0_HLT34)
+# /dev/CMSSW_4_2_0/HIon/V346 (CMSSW_4_2_0_HLT34)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V343')
+  tableName = cms.string('/dev/CMSSW_4_2_0/HIon/V346')
 )
 
 process.streams = cms.PSet( 
@@ -3013,7 +3013,13 @@ process.hltSiStripZeroSuppression = cms.EDProducer( "SiStripZeroSuppression",
       doAPVRestore = cms.bool( True ),
       useCMMeanMap = cms.bool( False ),
       ApplyBaselineCleaner = cms.bool( True ),
-      MeanCM = cms.int32( 0 )
+      MeanCM = cms.int32( 0 ),
+      CleaningSequence = cms.uint32( 1 ),
+      slopeX = cms.int32( 3 ),
+      slopeY = cms.int32( 4 ),
+      ApplyBaselineRejection = cms.bool( True ),
+      filteredBaselineMax = cms.double( 6.0 ),
+      filteredBaselineDerivativeSumSquare = cms.double( 30.0 )
     ),
     storeCM = cms.bool( False ),
     produceRawDigis = cms.bool( True ),
@@ -3952,7 +3958,13 @@ process.hltHISiStripRawToClustersFacility = cms.EDProducer( "SiStripRawToCluster
       nSmooth = cms.uint32( 9 ),
       minStripsToFit = cms.uint32( 4 ),
       ApplyBaselineCleaner = cms.bool( True ),
-      MeanCM = cms.int32( 0 )
+      MeanCM = cms.int32( 0 ),
+      slopeX = cms.int32( 3 ),
+      slopeY = cms.int32( 4 ),
+      ApplyBaselineRejection = cms.bool( True ),
+      filteredBaselineMax = cms.double( 6.0 ),
+      filteredBaselineDerivativeSumSquare = cms.double( 30.0 ),
+      CleaningSequence = cms.uint32( 1 )
     )
 )
 process.hltHISiStripClusters = cms.EDProducer( "MeasurementTrackerSiStripRefGetterProducer",
