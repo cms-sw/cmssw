@@ -59,7 +59,6 @@ c      program bcvegpy
 	implicit integer(i-n)
 
 c...three pythia functions return integers, so need declaring.
-      integer pyk,pychge,pycomp
       external pydata
 
 c...pythia common block.

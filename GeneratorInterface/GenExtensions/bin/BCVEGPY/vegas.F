@@ -41,7 +41,6 @@ c...user process event common block.
      &	smin,smax,ymin,ymax,psetamin,psetamax
 	common/vegcross/vegsec,vegerr,iveggrade
 
-	character*8 begin_time,end_time
 
       dimension x(10),xin(NVEGBIN),r(NVEGBIN),ia(10),d(NVEGBIN,10)
 c      data alph/1.5d0/
@@ -148,8 +147,8 @@ c		write(*,'(a)') end_time
 c		write(3,'(a)') end_time
 	  end if
 
-778     format('integral value =',g10.4,'+/-',
-     &   g10.4,3x,' chi**2=',g10.4, /' ')
+c778     format('integral value =',g10.4,'+/-',
+c     &   g10.4,3x,' chi**2=',g10.4, /' ')
 201     format('iter.no',i3,' acc.result(pb)==>',g14.5,'+/-',g10.4,
      .   '... % err=',g10.2)
 c===============================================================

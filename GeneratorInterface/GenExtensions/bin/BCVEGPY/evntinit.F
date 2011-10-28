@@ -9,7 +9,7 @@ c*******************************************************
 #include "bcvegpy_set_par.inc"
 
 c...three pythia functions return integers, so need declaring.
-      integer pyk,pychge,pycomp
+      integer pycomp
 c...external statement.
       external pydata,totfun
 

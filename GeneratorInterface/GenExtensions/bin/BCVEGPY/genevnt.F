@@ -56,9 +56,6 @@ c...transform some variables
 
 C...Lines to read in assumed never longer than 200 characters. 
       PARAMETER (MAXLEN=200)
-      CHARACTER*(MAXLEN) STRING
-
-      CHARACTER*6 STRFMT
 
 
 
@@ -149,9 +146,6 @@ c...user process event common block.
 
 C...Lines to read in assumed never longer than 200 characters. 
       PARAMETER (MAXLEN=200)
-      CHARACTER*(MAXLEN) STRING
-
-      CHARACTER*6 STRFMT
 
 #include "invegas.h"
 #include "bcvegpy_set_par.inc"
@@ -245,7 +239,6 @@ C...Les Houches event record.
 C...Double precision and integer declarations.
       IMPLICIT DOUBLE PRECISION(A-H, O-Z)
       IMPLICIT INTEGER(I-N)
-      INTEGER PYK,PYCHGE,PYCOMP
  
 C...Commonblocks.
       COMMON/PYJETS/N,NPAD,K(4000,5),P(4000,5),V(4000,5)
