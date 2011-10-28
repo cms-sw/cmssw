@@ -37,21 +37,21 @@ class L1TOccupancyClientHistogramService {
     //resets the cumulative histo (after performing the test in L1TOccupancyClient)
     void  resetHisto(std::string test);  
 
-    //marks channels of histo in specific strip to perform L1TOccupancyClient::getAvrg()
+    // Masks channels of histo in specific strip to perform L1TOccupancyClient::getAvrg()
     int  maskBins(std::string test, TH2F* histo, int strip, int axis);  
 
-    bool isWholeStripMarked(std::string test, int binStrip, int axis); //checks if a whole strip is masked
-    bool isMarked(std::string test, int x, int y); //checks if cells is masked
+    bool isMasked     (std::string test, int x, int y);           //checks if cells is masked
+    bool isStripMasked(std::string test, int binStrip, int axis); //checks if a whole strip is masked
 
-    void setMaskedBins(std::string test, std::vector<edm::ParameterSet> mark); //set masked channels specified in python
+    void setMaskedBins(std::string test, std::vector<edm::ParameterSet> mask); //set masked channels specified in python
+    std::vector<std::pair<int,int> > getMaskedBins(std::string test);          //returns masked channels of test
 
-    unsigned int getNbinsHisto(std::string test);  //returns actual number of bins in a histo (i.e. nBins-nMaskedBins)
-    std::vector<std::pair<int,int> > getMarkedChannels(std::string test);  //returns masked channels of test
-    TH2F* getDifferentialHistogram(std::string test); //returns cumulative histogram
-    uint  getNBinsMasked(std::string test); //returns number of masked channels in histo
-    TH2F* getRebinnedHisto(std::string iHistName, std::string histo);  //returns a rebinned version of the histo
+    uint  getNBinsMasked   (std::string test);        // Get number of masked bins in test
+    uint  getNBinsHistogram(std::string test);        // Get actual number of bins in test (i.e. nBins-nMaskedBins)
+    TH2F* getDifferentialHistogram(std::string test); // Get cumulative histogram
+    TH2F* getRebinnedHistogram(std::string iHistName, std::string iHistLocation); // Get rebinned version of the hist
 
-    std::vector<int> getLSCertification(std::string iHistName);
+    std::vector<int> getLSCertification(std::string iHistName); // Get list of tested LS for test iHistName
     
   private:
 
@@ -60,15 +60,12 @@ class L1TOccupancyClientHistogramService {
     edm::ParameterSet mParameters; // Copy of the parameters
 
     // Maps
-    std::map< std::string,bool > mHistValid; //
-
-    std::map< std::string,std::vector<int> > lsListDiff;       // LS list this block (current)
-    std::map< std::string,std::vector<int> > lsListDiffMinus1; // LS list this block (-1 block)
-
-    // Maps
-    std::map<std::string,std::pair<TH2F*,TH2F*> >            mHistograms;    // 
-    std::map<std::string,std::vector<std::pair<int,int> >* > mMaskedBins;    // marked channels
-    std::map<std::string,TH2F*>                              histDiffMinus1; // To store last already closed LS Block Histogram Diff
+    std::map<std::string,bool>                               mHistValid;        // Map of valid histograms (i.e. that exist)
+    std::map<std::string,std::pair<TH2F*,TH2F*> >            mHistograms;       // The cumulative histograms
+    std::map<std::string,std::vector<std::pair<int,int> >* > mMaskedBins;       // Marked Bins
+    std::map<std::string,TH2F*>                              mHistDiffMinus1;   // Last already closed LS Block Histogram Diff
+    std::map<std::string,std::vector<int> >                  mLSListDiff;       // LS list of current block
+    std::map<std::string,std::vector<int> >                  mLSListDiffMinus1; // LS list of block -1
 
 };
 

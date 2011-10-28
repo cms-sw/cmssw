@@ -34,7 +34,7 @@ L1TOccupancyClientHistogramService::L1TOccupancyClientHistogramService(Parameter
 }
 
 //___________________________________________________________________________
-// Function: getNbinsHisto
+// Function: getNBinsHistogram
 // Description: Returns the number of tested bin (i.e.: not masked) of the 
 //              histogram with name test. 
 // Inputs: 
@@ -42,7 +42,7 @@ L1TOccupancyClientHistogramService::L1TOccupancyClientHistogramService(Parameter
 // Outputs:
 //   * uint = Total number un-masked bins of histogram iHistName 
 //____________________________________________________________________________
-uint L1TOccupancyClientHistogramService::getNbinsHisto(string iHistName) {
+uint L1TOccupancyClientHistogramService::getNBinsHistogram(string iHistName) {
 
   TH2F* pHistogram  = getDifferentialHistogram(iHistName);
   int   nBinsX      = pHistogram->GetNbinsX();
@@ -140,14 +140,14 @@ void L1TOccupancyClientHistogramService::setMaskedBins(string iHistName, vector<
 }
 
 //____________________________________________________________________________
-// Function: getMarkedChannels
+// Function: getMaskedBins
 // Description: Returns the vector of masked channels
 // Inputs: 
 // * string iHistName = Name of the histogram
 // Outputs:
 // * vector<pair<int,int> > = Vector of masked bin coordinates (x,y) 
 //____________________________________________________________________________
-vector<pair<int,int> > L1TOccupancyClientHistogramService::getMarkedChannels(string iHistName) {
+vector<pair<int,int> > L1TOccupancyClientHistogramService::getMaskedBins(string iHistName) {
   return (*mMaskedBins[iHistName]);
 }
 
@@ -208,7 +208,7 @@ int L1TOccupancyClientHistogramService::maskBins(string iHistName, TH2F* oHist, 
 }
 
 //____________________________________________________________________________
-// Function: isMarked
+// Function: isMasked
 // Description: Returns if bin (iBinX,iBinY) of histogram iHistName is masked
 // Inputs: 
 // * string iHistName = Name of the histogram to be tested
@@ -217,7 +217,7 @@ int L1TOccupancyClientHistogramService::maskBins(string iHistName, TH2F* oHist, 
 // Outputs:
 // * uint = Total number of masked bins
 //____________________________________________________________________________
-bool L1TOccupancyClientHistogramService::isMarked(string iHistName, int iBinX, int iBinY) {
+bool L1TOccupancyClientHistogramService::isMasked(string iHistName, int iBinX, int iBinY) {
 
   vector<pair<int,int> > *thisHistMaskedBins = mMaskedBins[iHistName];
 
@@ -235,7 +235,7 @@ bool L1TOccupancyClientHistogramService::isMarked(string iHistName, int iBinX, i
 }
 
 //____________________________________________________________________________
-// Function: isWholeStripMarked
+// Function: isStripMasked
 // Description: Returns if a whole strip is masked 
 // Inputs:
 // * string iHistName = Name of the histogram to be tested
@@ -244,7 +244,7 @@ bool L1TOccupancyClientHistogramService::isMarked(string iHistName, int iBinX, i
 // Outputs:
 // * bool = Returns is all bins in a strip are masked
 //____________________________________________________________________________
-bool L1TOccupancyClientHistogramService::isWholeStripMarked(string iHistName, int iBinStrip, int iAxis) {
+bool L1TOccupancyClientHistogramService::isStripMasked(string iHistName, int iBinStrip, int iAxis) {
 
   bool stripIsMasked = true;
   vector<pair<int,int> > *thisHistMaskedBins = mMaskedBins[iHistName];
@@ -284,7 +284,7 @@ TH2F* L1TOccupancyClientHistogramService::loadHisto(string iHistName, string iHi
   pair<TH2F*,TH2F*> histPair; 
 
   // Histogram to be monitored should be loaded  in the begining of the run
-  TH2F* pHist = getRebinnedHisto(iHistName,iHistLocation);
+  TH2F* pHist = getRebinnedHistogram(iHistName,iHistLocation);
   
   if(mHistValid[iHistName]){
   
@@ -297,7 +297,7 @@ TH2F* L1TOccupancyClientHistogramService::loadHisto(string iHistName, string iHi
     mHistograms[iHistName]=histPair;
   
     // Stating the previous closed LS Block Histogram Diff 
-    histDiffMinus1[iHistName]=new TH2F(*histDiff);
+    mHistDiffMinus1[iHistName]=new TH2F(*histDiff);
     
   }
     
@@ -306,7 +306,7 @@ TH2F* L1TOccupancyClientHistogramService::loadHisto(string iHistName, string iHi
 }
 
 //____________________________________________________________________________
-// Function: getRebinnedHisto
+// Function: getRebinnedHistogram
 // Description: Get an histogram from iHistLocation and rebins it
 // Inputs: 
 // * string iHistName     = Name of the histogram to be tested
@@ -314,7 +314,7 @@ TH2F* L1TOccupancyClientHistogramService::loadHisto(string iHistName, string iHi
 // Outputs:
 // * TH2F* = Returns a pointer the differential histogram
 //____________________________________________________________________________
-TH2F* L1TOccupancyClientHistogramService::getRebinnedHisto(string iHistName, string iHistLocation) {
+TH2F* L1TOccupancyClientHistogramService::getRebinnedHistogram(string iHistName, string iHistLocation) {
   
   MonitorElement* me = mDBE->get(iHistLocation);
 
@@ -363,12 +363,12 @@ void L1TOccupancyClientHistogramService::updateHistogramEndLS(string iHistName,s
     
   if(mHistValid[iHistName]){
   
-    TH2F* histo_curr = getRebinnedHisto(iHistLocation,iHistLocation); // Get the rebinned histogram current cumulative iHistLocation
+    TH2F* histo_curr = getRebinnedHistogram(iHistLocation,iHistLocation); // Get the rebinned histogram current cumulative iHistLocation
 
     TH2F* histo_old = new TH2F(*histo_curr);            // Clonecout <<"WP01"<<end; 
     histo_curr->Add(mHistograms[iHistName].first,-1.0); //calculate the difference to previous cumulative histo
 
-    lsListDiff[iHistName].push_back(iLS);
+    mLSListDiff[iHistName].push_back(iLS);
 
     delete mHistograms[iHistName].first;            //delete old cumulateive histo 
     mHistograms[iHistName].first=histo_old;         //save old as new
@@ -387,10 +387,10 @@ void L1TOccupancyClientHistogramService::updateHistogramEndRun(string iHistName)
   
   if(mHistValid[iHistName]){
   
-    mHistograms[iHistName].second->Add(histDiffMinus1[iHistName]);
-    lsListDiff[iHistName].insert(lsListDiff      [iHistName].end(), 
-                               lsListDiffMinus1[iHistName].begin(),
-                               lsListDiffMinus1[iHistName].end());
+    mHistograms[iHistName].second->Add(mHistDiffMinus1[iHistName]);
+    mLSListDiff[iHistName].insert(mLSListDiff      [iHistName].end(), 
+                                  mLSListDiffMinus1[iHistName].begin(),
+                                  mLSListDiffMinus1[iHistName].end());
   }
 }
 
@@ -404,29 +404,30 @@ void L1TOccupancyClientHistogramService::resetHisto(string iHistName){
   
   if(mHistValid[iHistName]){
   
-    // Replacing histDiffMinus1
-    delete histDiffMinus1[iHistName];
-    histDiffMinus1[iHistName] = new TH2F(*mHistograms[iHistName].second);  
+    // Replacing mHistDiffMinus1
+    delete mHistDiffMinus1[iHistName];
+    mHistDiffMinus1[iHistName] = new TH2F(*mHistograms[iHistName].second);  
 
     // Resetting
     mHistograms[iHistName].second->Reset();
 
     // LS Accounting  
-    lsListDiffMinus1[iHistName] = lsListDiff[iHistName]; // Replacing
-    lsListDiff      [iHistName].clear();                 // Resetting
+    mLSListDiffMinus1[iHistName] = mLSListDiff[iHistName]; // Replacing
+    mLSListDiff      [iHistName].clear();                 // Resetting
     
   }
 }
 
 //____________________________________________________________________________
-// Function: resetHisto
-// Description: Resets a differential histogram by iHistName
+// Function: getLSCertification
+// Description: Get the list of LS used for this test differential statistics
+//              which in turn are the ones being certified
 // Inputs: 
 // * string iHistName = Name of the histogram to be tested
 // Output:
 // vector<int> = List of LS analysed
 //____________________________________________________________________________
-vector<int> L1TOccupancyClientHistogramService::getLSCertification(string iHistName){return lsListDiff[iHistName];}
+vector<int> L1TOccupancyClientHistogramService::getLSCertification(string iHistName){return mLSListDiff[iHistName];}
 
 //____________________________________________________________________________
 // Function: getDifferentialHistogram

@@ -141,7 +141,7 @@ void L1TOccupancyClient::beginRun(const Run& r, const EventSetup& context){
       m->Reset();
       meResults[title] = m; 
 
-      // * Which cells are marked as bad
+      // * Which cells are masked as bad
       dbe_->setCurrentFolder("L1T/L1TOccupancy/HistogramDiff");
       title = testName;
       m = dbe_->book2D(title.c_str(),hservice_->getDifferentialHistogram(testName));
@@ -449,7 +449,7 @@ double L1TOccupancyClient::xySymmetry(ParameterSet                ps,
       double avg2 = getAvrg(diffHist,iTestName,pAxis,nBinsY,k,pAverageMode);
       
       // Protection for when both strips are masked
-      if(!hservice_->isWholeStripMarked(iTestName,j,pAxis) && !hservice_->isWholeStripMarked(iTestName,k,pAxis)) {
+      if(!hservice_->isStripMasked(iTestName,j,pAxis) && !hservice_->isStripMasked(iTestName,k,pAxis)) {
         maxAvgs[i] = TMath::Max(avg1,avg2);
         nActualStrips++;
       }
@@ -464,7 +464,7 @@ double L1TOccupancyClient::xySymmetry(ParameterSet                ps,
     TF1* tf = new TF1("myFunc","[0]*(TMath::Log(x*[1]+[2]))+[3]",10.,11000.);
     vector<double> params = ps.getUntrackedParameter< vector<double> >("params_mu0_up",defaultMu0up);
     for(uint i=0;i<params.size();i++) {tf->SetParameter(i,params[i]);}
-    int statsup = (int)tf->Eval(hservice_->getNbinsHisto(iTestName));
+    int statsup = (int)tf->Eval(hservice_->getNBinsHistogram(iTestName));
 
     vector<double> defaultMu0low;
     defaultMu0low.push_back(2.19664);
@@ -474,16 +474,16 @@ double L1TOccupancyClient::xySymmetry(ParameterSet                ps,
     
     params = ps.getUntrackedParameter<vector<double> >("params_mu0_low",defaultMu0low);
     for(uint i=0;i<params.size();i++) {tf->SetParameter(i,params[i]);}
-    int statslow = (int)tf->Eval(hservice_->getNbinsHisto(iTestName));
+    int statslow = (int)tf->Eval(hservice_->getNBinsHistogram(iTestName));
     
     if(verbose_) {
-      cout << "nbins: "   << hservice_->getNbinsHisto(iTestName) << endl;
+      cout << "nbins: "   << hservice_->getNBinsHistogram(iTestName) << endl;
       cout << "statsup= " << statsup << ", statslow= " << statslow << endl;
     }
     
     enoughStats = TMath::MinElement(nActualStrips,maxAvgs)>TMath::Max(statsup,statslow);
     if(verbose_) {
-      cout << "stats: " << TMath::MinElement(nActualStrips,maxAvgs) << ", statsAvg: " << diffHist->GetEntries()/hservice_->getNbinsHisto(iTestName) << ", threshold: " << TMath::Max(statsup,statslow) << endl;
+      cout << "stats: " << TMath::MinElement(nActualStrips,maxAvgs) << ", statsAvg: " << diffHist->GetEntries()/hservice_->getNBinsHistogram(iTestName) << ", threshold: " << TMath::Max(statsup,statslow) << endl;
     }
     
     //if enough statistics
@@ -529,7 +529,7 @@ double L1TOccupancyClient::xySymmetry(ParameterSet                ps,
     for(int i=0, j=upBinStrip, k=lowBinStrip;j<=maxBinStrip;i++,j++,k--) {
       double avg1 = getAvrg(diffHist, iTestName, pAxis, nBinsX, j, pAverageMode);
       double avg2 = getAvrg(diffHist, iTestName, pAxis, nBinsX, k, pAverageMode);
-      if(!hservice_->isWholeStripMarked(iTestName,j,pAxis) && !hservice_->isWholeStripMarked(iTestName,k,pAxis)) {
+      if(!hservice_->isStripMasked(iTestName,j,pAxis) && !hservice_->isStripMasked(iTestName,k,pAxis)) {
         maxAvgs[i] = TMath::Max(avg1,avg2);
         nActualStrips++;
       }
@@ -546,7 +546,7 @@ double L1TOccupancyClient::xySymmetry(ParameterSet                ps,
     for(uint i=0;i<params.size();i++) {
       tf->SetParameter(i,params[i]);
     }
-    int statsup = (int)tf->Eval(hservice_->getNbinsHisto(iTestName));
+    int statsup = (int)tf->Eval(hservice_->getNBinsHistogram(iTestName));
     
     vector<double> defaultMu0low;
     defaultMu0low.push_back(2.19664);
@@ -558,13 +558,13 @@ double L1TOccupancyClient::xySymmetry(ParameterSet                ps,
     for(uint i=0;i<params.size();i++) {
       tf->SetParameter(i,params[i]);
     }
-    int statslow = (int)tf->Eval(hservice_->getNbinsHisto(iTestName));
+    int statslow = (int)tf->Eval(hservice_->getNBinsHistogram(iTestName));
     if(verbose_) {
       cout << "statsup= " << statsup << ", statslow= " << statslow << endl;
     }
     enoughStats = TMath::MinElement(nActualStrips,maxAvgs)>TMath::Max(statsup,statslow);
     if(verbose_) {
-      cout << "stats: " << TMath::MinElement(nActualStrips,maxAvgs) << ", statsAvg: " << diffHist->GetEntries()/hservice_->getNbinsHisto(iTestName) << ", threshold: " << TMath::Max(statsup,statslow) << endl;
+      cout << "stats: " << TMath::MinElement(nActualStrips,maxAvgs) << ", statsAvg: " << diffHist->GetEntries()/hservice_->getNBinsHistogram(iTestName) << ", threshold: " << TMath::Max(statsup,statslow) << endl;
     }
     
     //if we have enough statistics
@@ -581,7 +581,7 @@ double L1TOccupancyClient::xySymmetry(ParameterSet                ps,
   }
   else {if(verbose_){cout << "Invalid axis" << endl;}}
     
-  return (deadChannels.size()-hservice_->getNBinsMasked(iTestName))*1.0/hservice_->getNbinsHisto(iTestName);
+  return (deadChannels.size()-hservice_->getNBinsMasked(iTestName))*1.0/hservice_->getNBinsHistogram(iTestName);
 }
 
 //____________________________________________________________________________
@@ -688,7 +688,7 @@ void L1TOccupancyClient::printDeadChannels(vector< pair<int,double> > iDeadChann
     int bin = (*it).first;
     oHistDeadChannels->GetBinXYZ(bin,x,y,z);
 
-    if(hservice_->isMarked(iTestName,x,y)){
+    if(hservice_->isMasked(iTestName,x,y)){
       oHistDeadChannels->SetBinContent(bin,-1); 
       if(verbose_){printf("(%4i,%4i) Masked\n",x,y);}
     }
@@ -775,7 +775,7 @@ int L1TOccupancyClient::compareWithStrip(TH2F* iHist, string iTestName, int iBin
       double mulow = fmulow->Eval(iHist->GetBinContent(iBinStrip,i));
       
       // If channel is masked -> set it to value -1
-      if(hservice_->isMarked(iTestName,iBinStrip,i)) {
+      if(hservice_->isMasked(iTestName,iBinStrip,i)) {
         oChannels.push_back(pair<int,double>(iHist->GetBin(iBinStrip,i),-1.0));
       }
       //else perform test
@@ -834,7 +834,7 @@ int L1TOccupancyClient::compareWithStrip(TH2F* iHist, string iTestName, int iBin
       double mulow = fmulow->Eval(iHist->GetBinContent(i,iBinStrip));
       
       //if channel is masked -> set it to value -1
-      if(hservice_->isMarked(iTestName,i,iBinStrip)) {
+      if(hservice_->isMasked(iTestName,i,iBinStrip)) {
         oChannels.push_back(pair<int,double>(iHist->GetBin(iBinStrip,i),-1.0));
       }
       //else perform test

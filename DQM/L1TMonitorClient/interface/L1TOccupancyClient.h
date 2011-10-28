@@ -44,7 +44,7 @@ class L1TOccupancyClient: public edm::EDAnalyzer {
 
     /// BeginRun
     void beginRun(const edm::Run& r, const edm::EventSetup& c);
-    void endRun(const edm::Run& r, const edm::EventSetup& c);
+    void endRun  (const edm::Run& r, const edm::EventSetup& c);
 
     void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& context);
     void endLuminosityBlock  (const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c);       // DQM Client Diagnostic
