@@ -83,29 +83,37 @@ HLTJetMETValidation::beginRun(const edm::Run & iRun, const edm::EventSetup & iSe
   for (size_t it=0;it<hltTrgMet.size();it++) {
     if (TString(hltTrgMet[it]).Contains("PF")) {
       if (TString(hltTrgMet[it]).Contains("MHT")) {
-	if (itpmh==0 && foundMuTrg) hltTrgMetLow.push_back(trgMuNm);
-	if (itpmh==0 && !foundMuTrg) hltTrgMetLow.push_back(hltTrgMet[it]);
-	if (itpmh!=0) hltTrgMetLow.push_back(hltTrgMet[it-1]);
+	if( 0 == itpmh ) {
+	  if( foundMuTrg ) hltTrgMetLow.push_back(trgMuNm);
+	  else hltTrgMetLow.push_back(hltTrgMet[it]);
+	}
+	else hltTrgMetLow.push_back(hltTrgMet[it-1]);
 	itpmh++;
       }
       if (TString(hltTrgMet[it]).Contains("MET")) {
-	if (itpm==0 && foundMuTrg) hltTrgMetLow.push_back(trgMuNm);
-	if (itpm==0 && !foundMuTrg) hltTrgMetLow.push_back(hltTrgMet[it]);
-	if (itpm!=0) hltTrgMetLow.push_back(hltTrgMet[it-1]);
+	if( 0 == itpm ) {
+	  if( foundMuTrg ) hltTrgMetLow.push_back(trgMuNm);
+	  else hltTrgMetLow.push_back(hltTrgMet[it]);
+	}
+	else hltTrgMetLow.push_back(hltTrgMet[it-1]);
 	itpm++;
       }
     }
     else {
       if (TString(hltTrgMet[it]).Contains("MHT")) {
-	if (itmh==0 && foundMuTrg) hltTrgMetLow.push_back(trgMuNm);
-	if (itmh==0 && !foundMuTrg) hltTrgMetLow.push_back(hltTrgMet[it]);
-	if (itmh!=0) hltTrgMetLow.push_back(hltTrgMet[it-1]);
+	if( 0 == itmh ) {
+	  if( foundMuTrg ) hltTrgMetLow.push_back(trgMuNm);
+	  else hltTrgMetLow.push_back(hltTrgMet[it]);
+	}
+	else hltTrgMetLow.push_back(hltTrgMet[it-1]);
 	itmh++;
       }
       if (TString(hltTrgMet[it]).Contains("MET")) {
-	if (itm==0 && foundMuTrg) hltTrgMetLow.push_back(trgMuNm);
-	if (itm==0 && !foundMuTrg) hltTrgMetLow.push_back(hltTrgMet[it]);
-	if (itm!=0) hltTrgMetLow.push_back(hltTrgMet[it-1]);
+	if( 0 == itm ) {
+	  if( foundMuTrg ) hltTrgMetLow.push_back(trgMuNm);
+	  else hltTrgMetLow.push_back(hltTrgMet[it]);
+	}
+	else hltTrgMetLow.push_back(hltTrgMet[it-1]);
 	itm++;
       }
     }
