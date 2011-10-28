@@ -70,7 +70,7 @@ l1tSync = cms.EDAnalyzer("L1TSync",
         CertMinEvents   = cms.int32(20),
       ),
       TauJet = cms.PSet(
-        monitor         = cms.bool(True),
+        monitor         = cms.bool(False),
         doAutoSelection = cms.bool(True),
         algo            = cms.string(""),
         CertMinEvents   = cms.int32(20),

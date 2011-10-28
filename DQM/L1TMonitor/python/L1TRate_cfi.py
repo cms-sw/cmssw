@@ -4,6 +4,18 @@ from DQM.L1TMonitor.L1TRateParams_cff import RateParams
 
 l1tRate = cms.EDAnalyzer("L1TRate",
 
+  #-------------------------------------------------------
+  #-------------------- ATTENTION-------------------------
+  #-------------------------------------------------------
+  # The parameter lsShiftGTRates shifts the LS number for 
+  # the GT Rates taken from SCAL by a value defined by the
+  # user. Right now it is set to -1 to compensate a bug 
+  # in SCAL that is described in:
+  # https://savannah.cern.ch/support/?122368
+  # As soon as this bug is corrected this value MUST be
+  # set to 0 again.
+  lsShiftGTRates             = cms.untracked.int32(-1),
+
   verbose                    = cms.untracked.bool(False),
   dqmStore                   = cms.untracked.bool(True),
   disableROOToutput          = cms.untracked.bool(True),
@@ -28,9 +40,9 @@ l1tRate = cms.EDAnalyzer("L1TRate",
       EG     = cms.untracked.bool(True),
       IsoEG  = cms.untracked.bool(True),
       Jet    = cms.untracked.bool(True),
-      CenJet = cms.untracked.bool(False),
-      ForJet = cms.untracked.bool(False),
-      TauJet = cms.untracked.bool(True),
+      CenJet = cms.untracked.bool(False), # Currently there is no unmasked trigger in this category
+      ForJet = cms.untracked.bool(False), # Currently there is no unmasked trigger in this category
+      TauJet = cms.untracked.bool(False), # Currently there is no unmasked trigger in this category
       ETM    = cms.untracked.bool(True),
       ETT    = cms.untracked.bool(True),
       HTT    = cms.untracked.bool(True),

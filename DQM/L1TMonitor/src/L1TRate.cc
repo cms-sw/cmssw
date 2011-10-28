@@ -1,8 +1,8 @@
 /*
  * \file L1TRate.cc
  *
- * $Date: 2011/07/28 16:03:54 $
- * $Revision: 1.7 $
+ * $Date: 2011/08/04 12:33:59 $
+ * $Revision: 1.8 $
  * \author J. Pela, P. Musella
  *
  */
@@ -42,17 +42,15 @@ using namespace std;
 //_____________________________________________________________________
 L1TRate::L1TRate(const ParameterSet & ps){
 
-  // Maximum LS for each run (for binning purposes)
-  m_maxNbins = 2501;
-
+  m_maxNbins   = 2500; // Maximum LS for each run (for binning purposes)
   m_parameters = ps;
 
   // Mapping parameter input variables
   m_scalersSource       = m_parameters.getParameter         <InputTag>("inputTagScalersResults");
   m_l1GtDataDaqInputTag = m_parameters.getParameter         <InputTag>("inputTagL1GtDataDaq");
   m_verbose             = m_parameters.getUntrackedParameter<bool>    ("verbose",false);
-  m_testEventScalLS     = m_parameters.getUntrackedParameter<bool>    ("testEventScalLS",false);
   m_refPrescaleSet      = m_parameters.getParameter         <int>     ("refPrescaleSet");  
+  m_lsShiftGTRates      = m_parameters.getUntrackedParameter<int>     ("lsShiftGTRates",0);
   
   // Getting which categories to monitor
   ParameterSet Categories     = ps.getParameter<ParameterSet>("categories");  
@@ -69,18 +67,18 @@ L1TRate::L1TRate(const ParameterSet & ps){
   m_inputCategories["HTM"]    = Categories.getUntrackedParameter<bool>("HTM"); 
 
   // Inicializing Variables
-  dbe         = NULL;
-  m_currentLS = 0;
+  dbe = NULL;
 
   if (ps.getUntrackedParameter < bool > ("dqmStore", false)) {
     dbe = Service < DQMStore > ().operator->();
     dbe->setVerbose(0);
   }
   
+  // What to do if we want our output to be saved to a external file
   m_outputFile = ps.getUntrackedParameter < string > ("outputFile", "");
   
   if (m_outputFile.size() != 0) {
-    cout << "L1T Monitoring histograms will be saved to " <<	m_outputFile.c_str() << endl;
+    cout << "L1T Monitoring histograms will be saved to " << m_outputFile.c_str() << endl;
   }
   
   bool disable = ps.getUntrackedParameter < bool > ("disableROOToutput", false);
@@ -139,9 +137,9 @@ void L1TRate::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
   // Initializing DQM Monitor Elements
   dbe->setCurrentFolder("L1T/L1TRate");
   m_ErrorMonitor = dbe->book1D("ErrorMonitor", "ErrorMonitor",5,0,5);
-  m_ErrorMonitor->setBinLabel(1,"WARNING_DB_CONN_FAILED");            // Errors from L1TOMDSHelper
-  m_ErrorMonitor->setBinLabel(2,"WARNING_DB_QUERY_FAILED");           // Errors from L1TOMDSHelper
-  m_ErrorMonitor->setBinLabel(3,"WARNING_DB_INCORRECT_NBUNCHES");     // Errors from L1TOMDSHelper
+  m_ErrorMonitor->setBinLabel(1,"WARNING_DB_CONN_FAILED");        // Errors from L1TOMDSHelper
+  m_ErrorMonitor->setBinLabel(2,"WARNING_DB_QUERY_FAILED");       // Errors from L1TOMDSHelper
+  m_ErrorMonitor->setBinLabel(3,"WARNING_DB_INCORRECT_NBUNCHES"); // Errors from L1TOMDSHelper
   m_ErrorMonitor->setBinLabel(4,"WARNING_PY_MISSING_FIT");
   m_ErrorMonitor->setBinLabel(5,"UNKNOWN");
 
@@ -160,10 +158,6 @@ void L1TRate::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
   for (CItAlgo algo = menu->gtAlgorithmMap().begin(); algo!=menu->gtAlgorithmMap().end(); ++algo){
     m_algoBit[(algo->second).algoAlias()] = (algo->second).algoBitNumber();    
   }
-
-  // Initializing record of which LS were already processed
-  m_processedLS = new bool[m_maxNbins];
-  for(int i=0 ; i<m_maxNbins ; i++){m_processedLS[i]=false;}
 
   double minInstantLuminosity = m_parameters.getParameter<double>("minInstantLuminosity");
   double maxInstantLuminosity = m_parameters.getParameter<double>("maxInstantLuminosity");
@@ -245,53 +239,101 @@ void L1TRate::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
 
 //_____________________________________________________________________
 void L1TRate::endRun(const edm::Run& run, const edm::EventSetup& iSetup){
-
   if (m_verbose) {cout << "[L1TRate:] Called endRun." << endl;}
-
-  delete[] m_processedLS;
-
 }
 
 //_____________________________________________________________________
 void L1TRate::beginLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
 
-  if (m_verbose) {cout << "[L1TRate:] Called beginLuminosityBlock." << endl;}
+  if (m_verbose) {cout << "[L1TRate:] Called beginLuminosityBlock at LS=" << lumiBlock.id().luminosityBlock() << endl;}
 
 }
 
 //_____________________________________________________________________
 void L1TRate::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup const& c) {
 
-  if (m_verbose) {cout << "[L1TRate:] Called endLuminosityBlock." << endl;}
+  int eventLS = lumiBlock.id().luminosityBlock();  
+  if (m_verbose) {cout << "[L1TRate:] Called endLuminosityBlock at LS=" << eventLS << endl;}
 
+  // We can certify LS -1 since we should have available:
+  // gt rates: (current LS)-1
+  // prescale: current LS
+  // lumi    : current LS
+  //eventLS--;
+  
+  // Checking if all necessary quantities are defined for our calculations
+  bool isDefRate,isDefLumi,isDefPrescaleIndex;
+  map<TString,double>* rates=0;
+  double               lumi=0;
+  int                  prescalesIndex=0;
+
+  // Reseting MonitorElements so we can refill them
   for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
-
-    string tTrigger = (*i).second;
-    TF1* tTestFunction = (TF1*) m_xSecVsInstLumi[tTrigger]->getTProfile()->GetListOfFunctions()->First();
-
-    // If trigger name is defined we get the rate fit parameters 
-    if(tTrigger != "Undefined" && m_bufferInstLumi > 0){
-
-      if(m_bufferInstLumi>0){
-
-        double AlgoXSec              = m_bufferRate[tTrigger]/m_bufferInstLumi;
-        double TemplateFunctionValue = tTestFunction->Eval(m_bufferInstLumi);
-
-        // Checking against Template function
-        int ibin = m_xSecObservedToExpected[tTrigger]->getTH1()->FindBin(m_currentLS);
-        m_xSecObservedToExpected[tTrigger]->setBinContent(ibin,AlgoXSec/TemplateFunctionValue);
-        m_xSecVsInstLumi        [tTrigger]->Fill(m_bufferInstLumi,AlgoXSec);
-
-      }
-    }
+    string tTrigger      = (*i).second;
+    m_xSecObservedToExpected[tTrigger]->getTH1()->Reset("ICE");
+    m_xSecVsInstLumi        [tTrigger]->getTH1()->Reset("ICE");
   }
+    
+  for(map<int,map<TString,double> >::iterator i=m_lsRates.begin() ; i!=m_lsRates.end() ; i++){
 
+    uint ls =  (*i).first;
+    rates   = &(*i).second;
+    isDefRate=true;
+
+    if(m_lsLuminosity.find(ls)==m_lsLuminosity.end()){isDefLumi=false;}
+    else{
+      isDefLumi=true;
+      lumi=m_lsLuminosity[ls];
+    }
+  
+    if(m_lsPrescaleIndex.find(ls)==m_lsPrescaleIndex.end()){isDefPrescaleIndex=false;}
+    else{
+      isDefPrescaleIndex=true;
+      prescalesIndex=m_lsPrescaleIndex[ls];
+    }
+    
+    if(isDefRate && isDefLumi && isDefPrescaleIndex){
+    
+      const vector<int>& currentPrescaleFactors = (*m_listsPrescaleFactors).at(prescalesIndex);
+     
+      for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
+
+        string tTrigger      = (*i).second;
+        TF1*   tTestFunction = (TF1*) m_xSecVsInstLumi[tTrigger]->getTProfile()->GetListOfFunctions()->First();
+
+        // If trigger name is defined we get the rate fit parameters 
+        if(tTrigger != "Undefined"){
+
+          uint   trigBit      = m_algoBit[tTrigger];
+          double trigPrescale = currentPrescaleFactors[trigBit];
+          double trigRate     = (*rates)[tTrigger];
+
+          if(lumi!=0 && trigPrescale!=0 && trigRate!=0){
+
+            double AlgoXSec              = (trigPrescale*trigRate)/lumi;
+            double TemplateFunctionValue = tTestFunction->Eval(lumi);
+
+            // Checking against Template function
+            int ibin = m_xSecObservedToExpected[tTrigger]->getTH1()->FindBin(ls);
+            m_xSecObservedToExpected[tTrigger]->setBinContent(ibin,AlgoXSec/TemplateFunctionValue);
+            m_xSecVsInstLumi        [tTrigger]->Fill(lumi,AlgoXSec);
+  
+            if(m_verbose){cout<<"[L1TRate:] ls="<<ls<<" Algo="<<tTrigger<<" XSec="<<AlgoXSec<<" Test="<<AlgoXSec/TemplateFunctionValue<<endl;}
+
+          }
+          else{
+            int ibin = m_xSecObservedToExpected[tTrigger]->getTH1()->FindBin(ls);
+            m_xSecObservedToExpected[tTrigger]->setBinContent(ibin,0.000001);
+            if(m_verbose){cout << "[L1TRate:] Algo="<< tTrigger<< " XSec=Failed" << endl;}
+          }
+        }
+      }  
+    }    
+  }
 }
 
 //_____________________________________________________________________
 void L1TRate::analyze(const Event & iEvent, const EventSetup & eventSetup){
-
-  if (m_verbose) {cout << "[L1TRate] Called analyze" << endl;}
 
   edm::Handle<L1GlobalTriggerReadoutRecord>   gtReadoutRecordData;
   edm::Handle<Level1TriggerScalersCollection> triggerScalers;
@@ -301,73 +343,157 @@ void L1TRate::analyze(const Event & iEvent, const EventSetup & eventSetup){
   iEvent.getByLabel(m_scalersSource      , colLScal);
   iEvent.getByLabel(m_scalersSource      , triggerScalers);
 
-  Level1TriggerScalersCollection::const_iterator itL1TScalers = triggerScalers->begin();
-  LumiScalersCollection         ::const_iterator itLScal      = colLScal->begin();
-
   // Integers
-  int EventRun = iEvent.id().run();
+  int  EventRun = iEvent.id().run();
+  uint eventLS  = iEvent.id().luminosityBlock();
 
+  // Getting the trigger trigger rates from GT and buffering it
+  if(triggerScalers.isValid()){
+    
+    Level1TriggerScalersCollection::const_iterator itL1TScalers = triggerScalers->begin();
+    Level1TriggerRates trigRates(*itL1TScalers,EventRun);
+    
+    int gtLS = (*itL1TScalers).lumiSegmentNr()+m_lsShiftGTRates;
+    
+    // If we haven't got the data from this LS yet get it
+    if(m_lsRates.find(gtLS)==m_lsRates.end()){
+    
+      if (m_verbose) {cout << "[L1TRate:] Buffering GT Rates for LS=" << gtLS << endl;}
+      map<TString,double> bufferRate;
+      
+      // Buffer the rate informations for all selected bits
+      for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
+
+        string tTrigger = (*i).second;
+
+        // If trigger name is defined we store the rate
+        if(tTrigger != "Undefined"){
+
+          L1GtUtils gtUtils;
+          gtUtils.retrieveL1GtTriggerMenuLite(iEvent);
+
+          uint   trigBit  = m_algoBit[tTrigger];
+          double trigRate = trigRates.gtAlgoCountsRate()[trigBit]; 
+  
+          bufferRate[tTrigger] = trigRate;
+        }
+      }
+      m_lsRates[gtLS] = bufferRate;
+    }
+  }
+  
+  // Getting from the SCAL the luminosity information and buffering it
+  if(colLScal.isValid() && colLScal->size()){
+    
+    LumiScalersCollection::const_iterator itLScal = colLScal->begin();
+    uint scalLS  = itLScal->sectionNumber();
+    
+    // If we haven't got the data from this SCAL LS yet get it
+    if(m_lsLuminosity.find(scalLS)==m_lsLuminosity.end()){
+    
+      if (m_verbose) {cout << "[L1TRate:] Buffering SCAL-HF Lumi for LS=" << scalLS << endl;}
+      double instLumi       = itLScal->instantLumi();           // Getting Instant Lumi from HF (via SCAL)   
+      double deadTimeNormHF = itLScal->deadTimeNormalization(); // Getting Dead Time Normalization from HF (via SCAL)
+       
+      // If HF Dead Time Corrections is requested we apply it
+      // NOTE: By default this is assumed false since for now WbM fits do NOT assume this correction
+      if(m_parameters.getUntrackedParameter<bool>("useHFDeadTimeNormalization",false)){
+
+        // Protecting for deadtime = 0
+        if(deadTimeNormHF==0){instLumi = 0;}
+        else                 {instLumi = instLumi/deadTimeNormHF;}
+      }
+      // Buffering the luminosity information
+      m_lsLuminosity[scalLS]=instLumi;
+    }
+  }
+
+  // Getting the prescale index used when this event was triggered
+  if(gtReadoutRecordData.isValid()){
+    
+    // If we haven't got the data from this LS yet get it
+    if(m_lsPrescaleIndex.find(eventLS)==m_lsPrescaleIndex.end()){
+      
+      if (m_verbose) {cout << "[L1TRate:] Buffering Prescale Index for LS=" << eventLS << endl;}
+
+      // Getting Final Decision Logic (FDL) Data from GT
+      const vector<L1GtFdlWord>& gtFdlVectorData = gtReadoutRecordData->gtFdlVector();
+
+      // Getting the index for the fdl data for this event
+      int indexFDL=0;
+      for(uint i=0; i<gtFdlVectorData.size(); i++){
+        if(gtFdlVectorData[i].bxInEvent()==0){indexFDL=i; break;}
+      }
+      
+      int CurrentPrescalesIndex  = gtFdlVectorData[indexFDL].gtPrescaleFactorIndexAlgo();
+      m_lsPrescaleIndex[eventLS] = CurrentPrescalesIndex;   
+    }    
+  }
+  
+  
+/*
   // Testing validity of handles
   if(gtReadoutRecordData.isValid() && 
      triggerScalers     .isValid() &&
      colLScal           .isValid()){
 
-     // --> Accessing Instant Luminosity via LScal
-     if(colLScal->size()){ 
+    // --> Accessing Instant Luminosity via LScal
+    if(colLScal->size()){ 
 
-       unsigned int scalLS  = itLScal->sectionNumber();
-       unsigned int eventLS = iEvent.id().luminosityBlock();
+      unsigned int scalLS  = itLScal->sectionNumber();
+      unsigned int eventLS = iEvent.id().luminosityBlock();
     
-       bool testEventScalLS; // Checks if the SCAL LS is the same as Event LS 
+      bool testEventScalLS; // Checks if the SCAL LS is the same as Event LS 
      
-       if(m_testEventScalLS){testEventScalLS = scalLS == eventLS-1;}
-       else                 {testEventScalLS = true;}
+      if(m_testEventScalLS){testEventScalLS = scalLS == eventLS-1;}
+      else                 {testEventScalLS = true;}
      
-       // We only run this code once per LS
-       if(testEventScalLS && m_currentLS != scalLS && !m_processedLS[scalLS]){
+      // We only run this code once per LS
+      if(testEventScalLS && m_currentLS != scalLS && !m_processedLS[scalLS]){
 
-         Level1TriggerRates trigRates(*itL1TScalers,EventRun);
+        Level1TriggerRates trigRates(*itL1TScalers,EventRun);
 
-         if (m_verbose) {
-           cout << "Event LS="         << iEvent.id().luminosityBlock() << endl;
-           cout << "GT    LS="         << (*triggerScalers)[0].lumiSegmentNr() << endl;
-           cout << "      deadtime()=" << trigRates.deadtimeBeamActivePercent()/100 << endl;      
-           cout << "HF    LS=" << itLScal->sectionNumber() << endl;
-           cout << "      instantLumi()          =" << itLScal->instantLumi() << endl;
-           cout << "      normalization()        =" << itLScal->normalization() << endl;    
-           cout << "      deadTimeNormalization()=" << itLScal->deadTimeNormalization() << endl;
-         }
+        if (m_verbose) {
+          cout << "Event LS="         << iEvent.id().luminosityBlock() << endl;
+          cout << "GT    LS="         << (*triggerScalers)[0].lumiSegmentNr() << endl;
+          cout << "      deadtime()=" << trigRates.deadtimeBeamActivePercent()/100 << endl;      
+          cout << "HF    LS=" << itLScal->sectionNumber() << endl;
+          cout << "      instantLumi()          =" << itLScal->instantLumi() << endl;
+          cout << "      normalization()        =" << itLScal->normalization() << endl;    
+          cout << "      deadTimeNormalization()=" << itLScal->deadTimeNormalization() << endl;
+        }
 
-         m_currentLS                = scalLS;                    // Updating current LS
-         m_processedLS[m_currentLS] = true;                      // Current LS as processed 
+        m_currentLS                = scalLS; // Updating current LS
+        m_processedLS[m_currentLS] = true;   // Current LS as processed 
 
-         //-> Buffering Intantaneous Luminosity 
-         m_bufferInstLumi           = itLScal->instantLumi();           // Getting Instant Lumi from HF (via SCAL)   
-         double m_deadTimeNormHF    = itLScal->deadTimeNormalization(); // Getting Dead Time Normalization from HF (via SCAL)
+        //-> Buffering Intantaneous Luminosity 
+        m_bufferInstLumi           = itLScal->instantLumi();           // Getting Instant Lumi from HF (via SCAL)   
+        double m_deadTimeNormHF    = itLScal->deadTimeNormalization(); // Getting Dead Time Normalization from HF (via SCAL)
        
-         // If HF Dead Time Corrections is requested we apply it
-         // NOTE: By default this is assumed false since for now WbM fits do NOT assume this correction
-	 if(m_parameters.getUntrackedParameter<bool>("useHFDeadTimeNormalization",false)){
+        // If HF Dead Time Corrections is requested we apply it
+        // NOTE: By default this is assumed false since for now WbM fits do NOT assume this correction
+        if(m_parameters.getUntrackedParameter<bool>("useHFDeadTimeNormalization",false)){
 
-	   // Protecting for deadtime = 0
-	   if(m_deadTimeNormHF == 0){m_bufferInstLumi = 0;}
-	   else                     {m_bufferInstLumi = m_bufferInstLumi/(m_deadTimeNormHF);}
+          // Protecting for deadtime = 0
+          if(m_deadTimeNormHF == 0){m_bufferInstLumi = 0;}
+          else                     {m_bufferInstLumi = m_bufferInstLumi/(m_deadTimeNormHF);}
 
-         }
+        }
 
-         if(m_bufferInstLumi > 0){
+        if(m_bufferInstLumi > 0){
 
-           // --> Getting current L1 prescales
-           // Getting Final Decision Logic (FDL) Data from GT
-           const vector<L1GtFdlWord>& gtFdlVectorData = gtReadoutRecordData->gtFdlVector();
+          // --> Getting current L1 prescales
+          // Getting Final Decision Logic (FDL) Data from GT
+          const vector<L1GtFdlWord>& gtFdlVectorData = gtReadoutRecordData->gtFdlVector();
 
-           // Getting vector mid-entry and accessing CurrentPrescalesIndex
-           // NOTE: This gets the middle L1GtFdlWord from the vector (we assume vector is ordered by time)
-           int FdlVectorCurrentEvent = gtFdlVectorData.size()/2;
-           int CurrentPrescalesIndex = gtFdlVectorData[FdlVectorCurrentEvent].gtPrescaleFactorIndexAlgo();
-
+          // Getting vector mid-entry and accessing CurrentPrescalesIndex
+          // NOTE: This gets the middle L1GtFdlWord from the vector (we assume vector is ordered by time)
+          int FdlVectorCurrentEvent  = gtFdlVectorData.size()/2;
+          int CurrentPrescalesIndex  = gtFdlVectorData[FdlVectorCurrentEvent].gtPrescaleFactorIndexAlgo();
+          m_lsPrescaleIndex[eventLS] = CurrentPrescalesIndex;
+   
           const vector<int>& CurrentPrescaleFactors = (*m_listsPrescaleFactors).at(CurrentPrescalesIndex);
-	  
+  
           // Buffer the rate informations for all selected bits
           for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
 
@@ -375,7 +501,7 @@ void L1TRate::analyze(const Event & iEvent, const EventSetup & eventSetup){
 
             // If trigger name is defined we store the rate
             if(tTrigger != "Undefined"){
-		  
+	  
               L1GtUtils gtUtils;
               gtUtils.retrieveL1GtTriggerMenuLite(iEvent);
 
@@ -389,9 +515,9 @@ void L1TRate::analyze(const Event & iEvent, const EventSetup & eventSetup){
         }
       }
     }
-
   }
-
+  
+  */
 }
 
 //_____________________________________________________________________

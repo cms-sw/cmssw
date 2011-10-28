@@ -2,8 +2,8 @@
 /*
  * \file L1TMenuHelper.cc
  *
- * $Date: 2011/05/12 13:50:40 $
- * $Revision: 1.3 $
+ * $Date: 2011/07/28 16:03:54 $
+ * $Revision: 1.4 $
  * \author J. Pela, P. Musella
  *
 */
@@ -258,7 +258,10 @@ map<string,string> L1TMenuHelper::getLUSOTrigger(map<string,bool> iCategories, i
 
       // If the trigger matched one of the pre-defined categories it is added to
       // the corresponding trigger vector
-      if     (nCond==1 && isMu     ==true)                                    {m_vTrigMu    .push_back(tTrigger);}
+      if     (nCond==1 && isMu     ==true){
+	//TODO: tTrigger.etaRange
+	m_vTrigMu    .push_back(tTrigger);
+      }
       else if(nCond==2 && isNoIsoEG==true && isIsoEG ==true)                  {m_vTrigEG    .push_back(tTrigger);}
       else if(nCond==1 && isIsoEG  ==true)                                    {m_vTrigIsoEG .push_back(tTrigger);}
       else if(nCond==3 && isCenJet ==true && isForJet==true && isTauJet==true){m_vTrigJet   .push_back(tTrigger);}

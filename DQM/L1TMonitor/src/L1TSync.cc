@@ -1,8 +1,8 @@
 /*
  * \file L1TSync.cc
  *
- * $Date: 2011/07/28 16:03:54 $
- * $Revision: 1.7 $
+ * $Date: 2011/08/02 15:49:48 $
+ * $Revision: 1.8 $
  * \author J. Pela, P. Musella
  *
  */
@@ -660,6 +660,10 @@ void L1TSync::doFractionInSync(bool iForce,bool iBad){
           // Calculating fraction of in time 
           double fraction = 0;
           if(CountAll >0){fraction = CountSync/CountAll;}
+
+          // This is to avoid having an entry equal to zero and thus
+          // disregarded by the automatic tests
+          if(fraction==0){fraction=0.000001;}
         
           certifyLSBlock(theTriggerAlias,fLS,lLS,fraction);
           m_certFirstLS[theTriggerAlias] = 0;

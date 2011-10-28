@@ -4,8 +4,8 @@
 /*
  * \file L1TRate.h
  *
- * $Date: 2011/05/12 13:50:40 $
- * $Revision: 1.2 $
+ * $Date: 2011/07/28 16:03:54 $
+ * $Revision: 1.3 $
  * \author J. Pela
  *
 */
@@ -55,51 +55,54 @@ class L1TRate : public edm::EDAnalyzer {
     void endRun  (const edm::Run& run, const edm::EventSetup& iSetup);
 
     virtual void beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
-    virtual void endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
+    virtual void endLuminosityBlock  (edm::LuminosityBlock const& lumiBlock, edm::EventSetup const& c);
 
+  // Private methods
   private:
 
-    // Methods
     bool getXSexFitsOMDS  (const edm::ParameterSet& ps); 
     bool getXSexFitsPython(const edm::ParameterSet& ps);
 
-    edm::ParameterSet                      m_parameters;
-
-    DQMStore*                              dbe;                      // The DQM Service Handle
-
-    std::string                            m_outputFile;             // file name for ROOT ouput
+  // Private variables
+  private:
 
     // bool
-    bool                                   m_testEventScalLS;
-    bool                                   m_verbose;
-    bool*                                  m_processedLS;            // Lists already processed LS
+    bool  m_verbose;
+    
+    // int
+    int  m_refPrescaleSet; // What is the reference prescale index to use for trigger choice
+    int  m_maxNbins;       // Maximum number of bins for MonitorElement
+    int  m_lsShiftGTRates; // What shift (if any) to be applied to GT Rates LS number
 
-    // Int
-    int                                    m_refPrescaleSet;
-    int                                    m_maxNbins;
-    unsigned int                           m_currentLS;              // Current Luminosity Section
-
-    // Double
-    double                                 m_bufferInstLumi;         // 
-
+    // string
+    std::string  m_outputFile; // External output file name (for testiting)
+    
     // Vectors
-    const std::vector< std::vector<int> >* m_listsPrescaleFactors;   // Collection os all sets of prescales
+    const std::vector< std::vector<int> >* m_listsPrescaleFactors; // Collection os all sets of prescales
 
     // Maps
-    std::map<TString,int>                  m_algoBit;                // Map of bit associated with a L1 Algo alias
-    std::map<std::string,bool>             m_inputCategories;        // Map of categories to monitor
-    std::map<std::string,std::string>      m_selectedTriggers;       // Map of what trigger to monitor for each category
-    std::map<TString,MonitorElement*>      m_xSecObservedToExpected; // Monitor Elements for Observed to Expected Algo XSec 
-    std::map<TString,MonitorElement*>      m_xSecVsInstLumi;         // Monitor Elements for Algo XSec vs Instant Luminosity
-    std::map<TString,TF1*>                 m_templateFunctions;      // For each trigger template f(InstLumi)=XSec
-    std::map<TString,double>               m_bufferRate;
-
-    // MonitorElement
-    MonitorElement*                        m_ErrorMonitor;
+    std::map<int,int>                       m_lsPrescaleIndex;        // Map of precale index for each LS
+    std::map<int,double>                    m_lsLuminosity;           // Map of luminosity recorded for each LS
+    std::map<int,std::map<TString,double> > m_lsRates;                // Map of rates (by bit) recorded for each LS
+    std::map<TString,int>                   m_algoBit;                // Map of bit associated with a L1 Algo alias
+    std::map<std::string,bool>              m_inputCategories;        // Map of categories to monitor
+    std::map<std::string,std::string>       m_selectedTriggers;       // Map of what trigger to monitor for each category
+    std::map<TString,MonitorElement*>       m_xSecObservedToExpected; // Monitor Elements for Observed to Expected Algo XSec 
+    std::map<TString,MonitorElement*>       m_xSecVsInstLumi;         // Monitor Elements for Algo XSec vs Instant Luminosity
+    std::map<TString,TF1*>                  m_templateFunctions;      // For each trigger template f(InstLumi)=XSec
 
     // Input tags
-    edm::InputTag                          m_scalersSource;          // Where to get L1 Scalers
-    edm::InputTag                          m_l1GtDataDaqInputTag;    // Where to get L1 GT Data DAQ
+    edm::InputTag m_scalersSource;       // Where to get L1 Scalers
+    edm::InputTag m_l1GtDataDaqInputTag; // Where to get L1 GT Data DAQ
+
+    // ParameterSet
+    edm::ParameterSet m_parameters;
+    
+    // MonitorElement
+    MonitorElement* m_ErrorMonitor;
+    
+    // Others
+    DQMStore* dbe;  // The DQM Service Handle
 
 };
 

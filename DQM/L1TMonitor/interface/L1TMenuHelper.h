@@ -4,8 +4,8 @@
 /*
  * \file L1TMenuHelper.h
  *
- * $Date: 2011/05/12 13:50:40 $
- * $Revision: 1.3 $
+ * $Date: 2011/07/28 16:03:54 $
+ * $Revision: 1.4 $
  * \author J. Pela
  *
 */
@@ -40,22 +40,22 @@ struct SingleObjectCondition{
   L1GtConditionCategory conditionCategory;
   L1GtConditionType     conditionType;
   L1GtObject            object;
-  unsigned int          quality;
-  unsigned int          etaRange;
-  unsigned int          threshold;
+  uint                  quality;
+  uint                  etaRange;
+  uint                  threshold;
 
 };
 
 // Simplified structure for single object conditions information
 struct SingleObjectTrigger{
 
-  L1GtObject   object;
-  std::string  alias;
-  unsigned int bit;
-  int          prescale;
-  unsigned int threshold; //
-  unsigned int quality;   // Only aplicable to Muons
-  unsigned int etaRange;  // Only aplicable to Muons
+  L1GtObject  object;
+  std::string alias;
+  uint        bit;
+  int         prescale;
+  uint        threshold; //
+  uint        quality;   // Only aplicable to Muons
+  uint        etaRange;  // Only aplicable to Muons
 
   bool operator< (const SingleObjectTrigger &iSOT) const{
      
