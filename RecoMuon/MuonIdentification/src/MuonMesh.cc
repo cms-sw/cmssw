@@ -189,7 +189,7 @@ void MuonMesh::pruneMesh() {
 
 	  if(j->second.second->cscSegmentRef.isNonnull() && segmentIter1->cscSegmentRef.isNonnull()) {
 	    
-	    bool me1a(false), overlap(false), cluster(false);
+	    //UNUSED:	    bool me1a(false), overlap(false), cluster(false);
 
 	    // remove physical overlap duplicates first
 	    if( doOverlaps &&
@@ -202,7 +202,7 @@ void MuonMesh::pruneMesh() {
 		segmentIter1->setMask(reco::MuonSegmentMatch::BelongsToTrackByOvlClean);
 		segmentIter1->setMask(reco::MuonSegmentMatch::BelongsToTrackByCleaning);
 		
-		overlap = true;
+		//UNUSED:		overlap = true;
 	      } else if ( i->first->numberOfMatches((reco::Muon::ArbitrationType)0x1e0000) ==
 			  j->first->numberOfMatches((reco::Muon::ArbitrationType)0x1e0000) ) { // muon with more matched stations wins
 		
@@ -211,7 +211,7 @@ void MuonMesh::pruneMesh() {
 		  segmentIter1->setMask(reco::MuonSegmentMatch::BelongsToTrackByOvlClean);
 		  segmentIter1->setMask(reco::MuonSegmentMatch::BelongsToTrackByCleaning);
 		  
-		  overlap = true;				   
+		  //UNUSED:		  overlap = true;				   
 		} else { // ??
 		  // leave this available for later
 		}		 
@@ -240,7 +240,7 @@ void MuonMesh::pruneMesh() {
 		    }		
 		}  
 
-		me1a = true;
+		//UNUSED:		me1a = true;
 	      } else if ( j->first->numberOfMatches((reco::Muon::ArbitrationType)0x1e0000) == 
 			  i->first->numberOfMatches((reco::Muon::ArbitrationType)0x1e0000) ) { // muon with best arbitration wins
 						
@@ -271,7 +271,7 @@ void MuonMesh::pruneMesh() {
 		  }
 		  
 		}	 
-		me1a = true;				
+		//UNUSED		me1a = true;				
 
 	      } // ME1/a duplicate resolution	      	      
 	    } // is ME1/aduplicate?
@@ -286,14 +286,14 @@ void MuonMesh::pruneMesh() {
 		 segmentIter1->setMask(reco::MuonSegmentMatch::BelongsToTrackByClusClean);
 		 segmentIter1->setMask(reco::MuonSegmentMatch::BelongsToTrackByCleaning);
 
-		 cluster = true;
+		 //UNUSED:		 cluster = true;
 	      } else if (i->first->numberOfMatches((reco::Muon::ArbitrationType)0x1e0000) <
 			 j->first->numberOfMatches((reco::Muon::ArbitrationType)0x1e0000)) {
 
 		j->second.second->setMask(reco::MuonSegmentMatch::BelongsToTrackByClusClean);
 		j->second.second->setMask(reco::MuonSegmentMatch::BelongsToTrackByCleaning);
 		
-		cluster = true;
+		//UNUSED:		cluster = true;
 	      } else { // muon with more matched stations wins
 		 
 		 if((segmentIter1->mask & 0x1e0000) > (j->second.second->mask & 0x1e0000)) { // segment with better match wins 
@@ -301,13 +301,13 @@ void MuonMesh::pruneMesh() {
 		   segmentIter1->setMask(reco::MuonSegmentMatch::BelongsToTrackByClusClean);
 		   segmentIter1->setMask(reco::MuonSegmentMatch::BelongsToTrackByCleaning);
 		   
-		   cluster = true;				   
+		   //UNUSED:		   cluster = true;				   
 		 } else if ((segmentIter1->mask & 0x1e0000) < (j->second.second->mask & 0x1e0000)){ //
 		   
 		   j->second.second->setMask(reco::MuonSegmentMatch::BelongsToTrackByClusClean);
 		   j->second.second->setMask(reco::MuonSegmentMatch::BelongsToTrackByCleaning);
 		   
-		   cluster = true;				   
+		   //UNUSED:		   cluster = true;				   
 		 } else {
 		 }
 	       } // cluster sharing resolution

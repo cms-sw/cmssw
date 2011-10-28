@@ -229,11 +229,12 @@ void MuonCSCSeedFromRecHits::makeDefaultSeed(TrajectorySeed & seed) const
 {
   //Search ME1  ...
   ConstMuonRecHitPointer me1= bestEndcapHit(theRhits);
-  bool good=false;
+  //  bool good=false;
 
   if(me1 && me1->isValid() )
   {
-    good = createDefaultEndcapSeed(me1, seed); 
+    //revert if a LogTrace or smth is necessary    good = 
+    createDefaultEndcapSeed(me1, seed); 
   }
 }
 

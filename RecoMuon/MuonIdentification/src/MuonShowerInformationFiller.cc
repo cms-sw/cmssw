@@ -3,8 +3,8 @@
  *  \class: MuonShowerInformationFiller
  *  Description: class for muon shower identification
  *
- *  $Date: 2011/01/15 12:44:08 $
- *  $Revision: 1.3 $
+ *  $Date: 2011/03/21 22:41:25 $
+ *  $Revision: 1.5 $
  
  *
  *  \author: A. Svyatkovskiy, Purdue University
@@ -246,14 +246,14 @@ MuonShowerInformationFiller::hitsFromSegments(const GeomDet* geomDet,
          ihit1 != hits1.end(); ++ihit1 ) {
 
       bool usedbefore = false;       
-      DetId thisID = (*ihit1)->geographicalId();
+      //unused      DetId thisID = (*ihit1)->geographicalId();
       //LocalPoint lp1dinsegHit = (*ihit1)->localPosition();
       GlobalPoint gp1dinsegHit = (*ihit1)->globalPosition();
 
       for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator ihit2 = allhitscorrelated.begin();
            ihit2 != allhitscorrelated.end(); ++ihit2 ) {
 
-        DetId thisID2 = (*ihit2)->geographicalId();
+	//unused        DetId thisID2 = (*ihit2)->geographicalId();
         //LocalPoint lp1dinsegHit2 = (*ihit2)->localPosition();
         GlobalPoint gp1dinsegHit2 = (*ihit2)->globalPosition();
 

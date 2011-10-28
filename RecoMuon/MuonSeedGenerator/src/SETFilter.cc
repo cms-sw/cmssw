@@ -320,7 +320,7 @@ double SETFilter::findChi2(double pX, double pY, double pZ,
 
     getFromFTS(ftsStart, p3_propagated, r3_propagated, charge, cov_propagated);
 
-    GlobalPoint globPos = muonRecHit->globalPosition();
+    //    GlobalPoint globPos = muonRecHit->globalPosition();
     LocalPoint locHitPos = muonRecHit->localPosition();
     LocalError locHitErr = muonRecHit->localPositionError();
     const GlobalPoint globPropPos(r3_propagated.x(), r3_propagated.y(), r3_propagated.z());

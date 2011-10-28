@@ -665,7 +665,7 @@ TrajectorySeed SETSeedFinder::makeSeed(const TrajectoryStateOnSurface & firstTSO
   PTrajectoryStateOnDet *seedTSOS =
   tsTransform.persistentState( firstTSOS, hits.at(0)->geographicalId().rawId());
   TrajectorySeed seed(*seedTSOS,recHitsContainer,dir);
-  TrajectorySeed::range range = seed.recHits();
+  //unused  TrajectorySeed::range range = seed.recHits();
 
   //MuonPatternRecoDumper debug;
   //std::cout<<" firstTSOS = "<<debug.dumpTSOS(firstTSOS)<<std::endl;

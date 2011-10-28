@@ -4,8 +4,8 @@
  *
  *  Description: class for cosmic muon identification
  *
- *  $Date: 2010/09/03 14:00:46 $
- *  $Revision: 2.0 $
+ *  $Date: 2010/09/27 17:02:00 $
+ *  $Revision: 1.3 $
  *
  *  \author: A. Everett, Purdue University
  *  \author: A. Svyatkovskiy, Purdue University
@@ -314,9 +314,10 @@ MuonCosmicCompatibilityFiller::isOverlappingMuon(const edm::Event& iEvent, const
       if( costrack.isNonnull() ) {
 	int nhitsUp = 0;
 	int nhitsDown = 0;
-	bool isCosmic1Leg = false;
-	bool isCloseIP = false;
-	bool isCloseRef = false;
+	// unused
+	//	bool isCosmic1Leg = false;
+	//	bool isCloseIP = false;
+	//	bool isCloseRef = false;
 
 	for( trackingRecHit_iterator coshit = costrack->recHitsBegin(); coshit != costrack->recHitsEnd(); coshit++ ) {
 	  if( (*coshit)->isValid() ) {
@@ -330,21 +331,21 @@ MuonCosmicCompatibilityFiller::isOverlappingMuon(const edm::Event& iEvent, const
 	  }
 	}
 	// step1
-	if( nhitsUp > 0 && nhitsDown > 0 ) isCosmic1Leg = true;
+	//UNUSED:	if( nhitsUp > 0 && nhitsDown > 0 ) isCosmic1Leg = true;
 	//if( !isCosmic1Leg ) continue;
 	
 	if( outertrack.isNonnull() ) {
 	  // step2
-          const double ipErr = (double)outertrack->d0Error();
-          double ipThreshold  = max(ipThreshold_, ipErr);
-	  if( fabs(outertrack->dxy(RefVtx) + costrack->dxy(RefVtx)) < ipThreshold ) isCloseIP = true;
+	  //UNUSED:          const double ipErr = (double)outertrack->d0Error();
+	  //UNUSED:          double ipThreshold  = max(ipThreshold_, ipErr);
+	  //UNUSED:	  if( fabs(outertrack->dxy(RefVtx) + costrack->dxy(RefVtx)) < ipThreshold ) isCloseIP = true;
 	  //if( !isCloseIP ) continue;
 
 	  // step3
 	  GlobalPoint muonRefVtx( outertrack->vx(), outertrack->vy(), outertrack->vz() );
 	  GlobalPoint cosmicRefVtx( costrack->vx(), costrack->vy(), costrack->vz() );
-	  float dist = (muonRefVtx - cosmicRefVtx).mag();
-	  if( dist < 0.1 ) isCloseRef = true;
+	  //UNUSED:	  float dist = (muonRefVtx - cosmicRefVtx).mag();
+	  //UNUSED:	  if( dist < 0.1 ) isCloseRef = true;
 	  //if( !isCloseRef ) continue;
 
 	  for( trackingRecHit_iterator trkhit = outertrack->recHitsBegin(); trkhit != outertrack->recHitsEnd(); trkhit++ ) {

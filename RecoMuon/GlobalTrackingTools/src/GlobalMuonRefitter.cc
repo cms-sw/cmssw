@@ -4,8 +4,8 @@
  *  Description:
  *
  *
- *  $Date: 2011/06/07 15:34:27 $
- *  $Revision: 1.16 $
+ *  $Date: 2011/06/15 10:16:32 $
+ *  $Revision: 1.17 $
  *
  *  Authors :
  *  P. Traczyk, SINS Warsaw
@@ -544,7 +544,7 @@ vector<Trajectory> GlobalMuonRefitter::transform(const reco::Track& newTrack,
   // culprit). Use the global positions of the states and the desired
   // refit direction to find the starting TSOS.
   TrajectoryStateOnSurface firstTSOS, lastTSOS;
-  unsigned int innerId, outerId;
+  unsigned int innerId; //UNUSED: outerId;
   bool order_swapped = track.outermostMeasurementState().globalPosition().mag() < track.innermostMeasurementState().globalPosition().mag();
   bool inner_is_first;
   LogTrace(theCategory) << "order swapped? " << order_swapped;
@@ -552,14 +552,14 @@ vector<Trajectory> GlobalMuonRefitter::transform(const reco::Track& newTrack,
   // Fill the starting state, depending on the ordering above.
   if ((theRefitDirection == insideOut && !order_swapped) || (theRefitDirection == outsideIn && order_swapped)) {
     innerId   = newTrack.innerDetId();
-    outerId   = newTrack.outerDetId();
+    //UNUSED:    outerId   = newTrack.outerDetId();
     firstTSOS = track.innermostMeasurementState();
     lastTSOS  = track.outermostMeasurementState();
     inner_is_first = true;
   }
   else {
     innerId   = newTrack.outerDetId();
-    outerId   = newTrack.innerDetId();
+    //UNUSED:    outerId   = newTrack.innerDetId();
     firstTSOS = track.outermostMeasurementState();
     lastTSOS  = track.innermostMeasurementState();
     inner_is_first = false;
@@ -720,11 +720,11 @@ GlobalMuonRefitter::ConstRecHitContainer GlobalMuonRefitter::getRidOfSelectStati
 
     if (id.det() == DetId::Muon && theSkipStation) {
       int station = -999;
-      int wheel = -999;
+      //UNUSED:      int wheel = -999;
       if ( id.subdetId() == MuonSubdetId::DT ) {
 	DTChamberId did(id.rawId());
 	station = did.station();
-	wheel = did.wheel();
+	//UNUSED:	wheel = did.wheel();
       } else if ( id.subdetId() == MuonSubdetId::CSC ) {
 	CSCDetId did(id.rawId());
 	station = did.station();

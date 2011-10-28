@@ -2,8 +2,8 @@
 /**
  *  CosmicMuonSeedGenerator
  *
- *  $Date: 2009/04/20 10:19:10 $
- *  $Revision: 1.4 $
+ *  $Date: 2011/03/21 13:39:43 $
+ *  $Revision: 1.5 $
  *
  *  \author Chang Liu - Purdue University 
  *
@@ -242,15 +242,15 @@ MuonRecHitContainer CosmicMuonSeedGenerator::selectSegments(const MuonRecHitCont
     if (*hit == 0) continue;
     if ( !(*hit)->isValid() ) continue;
     bool good = true;
-    GlobalVector dir1 = (*hit)->globalDirection();
-    GlobalPoint pos1 = (*hit)->globalPosition();
+    //UNUSED:    GlobalVector dir1 = (*hit)->globalDirection();
+    //UNUSED:    GlobalPoint pos1 = (*hit)->globalPosition();
     for (MuonRecHitContainer::iterator hit2 = hit + 1; hit2 != result.end(); hit2++) {
         if (*hit2 == 0) continue;
         if ( !(*hit2)->isValid() ) continue;
 
           //compare direction and position
-        GlobalVector dir2 = (*hit2)->globalDirection();
-        GlobalPoint pos2 = (*hit2)->globalPosition();
+	//UNUSED:        GlobalVector dir2 = (*hit2)->globalDirection();
+	//UNUSED:        GlobalPoint pos2 = (*hit2)->globalPosition();
         if ( !areCorrelated((*hit),(*hit2)) ) continue;
 
         if ( !leftIsBetter((*hit),(*hit2)) ) { 

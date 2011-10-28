@@ -5,7 +5,7 @@
 //
 //
 // Original Author:  Adam Everett
-// $Id: GlobalTrackQualityProducer.cc,v 1.5 2010/05/17 09:44:30 aeverett Exp $
+// $Id: GlobalTrackQualityProducer.cc,v 1.6 2010/06/08 19:27:08 aeverett Exp $
 //
 //
 
@@ -263,16 +263,16 @@ std::pair<double,double> GlobalTrackQualityProducer::newChi2(Trajectory& muon) c
     }
     
     //LogTrace(theCategory) << "estimate " << estimate << " TM.est " << m->estimate();
-    double tkDiff = 0.0;
-    double staDiff = 0.0;
+    //UNUSED:    double tkDiff = 0.0;
+    //UNUSED:    double staDiff = 0.0;
     if ( hit->isValid() &&  (hit->geographicalId().det()) == DetId::Tracker ) {
       tkChi2 += estimate;
-      tkDiff = estimate - m->estimate();
+      //UNUSED:      tkDiff = estimate - m->estimate();
       tkNdof += hit->dimension();
     }
     if ( hit->isValid() &&  (hit->geographicalId().det()) == DetId::Muon ) {
       muChi2 += estimate;
-      staDiff = estimate - m->estimate();
+      //UNUSED      staDiff = estimate - m->estimate();
       muNdof += hit->dimension();
     }
   }

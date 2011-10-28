@@ -1,8 +1,8 @@
 /**
  *  A selector for muon tracks
  *
- *  $Date: 2010/05/03 15:22:29 $
- *  $Revision: 1.30 $
+ *  $Date: 2011/03/12 07:01:42 $
+ *  $Revision: 1.31 $
  *  \author R.Bellan - INFN Torino
  */
 #include "RecoMuon/TrackingTools/interface/MuonTrajectoryCleaner.h"
@@ -232,7 +232,7 @@ void MuonTrajectoryCleaner::clean(CandidateContainer& candC){
 
   int i(0), j(0);
   int match(0);
-  bool directionMatch = false;
+  //unused  bool directionMatch = false;
 
   // CAVEAT: vector<bool> is not a vector, its elements are not addressable!
   // This is fine as long as only operator [] is used as in this case.
@@ -262,7 +262,7 @@ void MuonTrajectoryCleaner::clean(CandidateContainer& candC){
 
     for ( jter = iter+1; jter != candC.end(); jter++ ) {
       if ( !mask[j] ) { j++; continue; }
-      directionMatch = false;
+      //UNUSED:      directionMatch = false;
       const Trajectory::DataContainer& meas2 = (*jter)->trajectory()->measurements();
       match = 0;
       for ( m1 = meas1.begin(); m1 != meas1.end(); m1++ ) {
@@ -295,7 +295,7 @@ void MuonTrajectoryCleaner::clean(CandidateContainer& candC){
       float dphi(fabs(Geom::Phi<float>(phi1)-Geom::Phi<float>(phi2)));
       float dpt(fabs(pt1-pt2));
       if ( dpt < deltaPt && deta < deltaEta && dphi < deltaPhi ) {
-        directionMatch = true;
+	//UNUSED:        directionMatch = true;
         LogTrace(metname)
         << " MuonTrajectoryCleaner: candC " << i<<" and "<<j<< " direction matched: "
         <<innerTSOS.globalMomentum()<<" and " <<innerTSOS2.globalMomentum();

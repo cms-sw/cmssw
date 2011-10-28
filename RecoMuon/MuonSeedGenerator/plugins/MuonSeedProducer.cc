@@ -82,8 +82,9 @@ void MuonSeedProducer::produce(edm::Event& event, const edm::EventSetup& eSetup)
 
   std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection() );
 
-  int nSeeds = 0;
-  nSeeds = muonSeedBuilder_->build( event, eSetup, *output);
+  //UNUED:  int nSeeds = 0;
+  //UNUSED: nSeeds = 
+  muonSeedBuilder_->build( event, eSetup, *output);
 
   // Append muon seed collection to event
   event.put( output );

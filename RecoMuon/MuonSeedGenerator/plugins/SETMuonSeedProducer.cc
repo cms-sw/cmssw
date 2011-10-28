@@ -199,7 +199,7 @@ void SETMuonSeedProducer::produce(edm::Event& event, const edm::EventSetup& even
 	std::auto_ptr<PTrajectoryStateOnDet> 
 	   seedTSOS(tsTransform.persistentState( firstTSOS, hitContainer.at(0)->geographicalId().rawId()));  
 	TrajectorySeed seed(*seedTSOS,recHitsContainer,dir);
-	TrajectorySeed::range range = seed.recHits();
+	//UNUSED:	TrajectorySeed::range range = seed.recHits();
 	
 	//MuonPatternRecoDumper debug;
 	//std::cout<<"  firstTSOS (not IP) = "<<debug.dumpTSOS(firstTSOS)<<std::endl;

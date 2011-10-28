@@ -12,10 +12,10 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2011/03/11 20:41:45 $
- *  $Revision: 1.51 $
- *  $Date: 2011/03/11 20:41:45 $
- *  $Revision: 1.51 $
+ *  $Date: 2011/08/03 13:27:05 $
+ *  $Revision: 1.53 $
+ *  $Date: 2011/08/03 13:27:05 $
+ *  $Revision: 1.53 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -299,8 +299,8 @@ GlobalTrajectoryBuilderBase::chooseRegionalTrackerTracks(const TrackCand& staCan
   RectangularEtaPhiTrackingRegion regionOfInterest = defineRegionOfInterest(staCand.second);
   
   // get region's etaRange and phiMargin
-  PixelRecoRange<float> etaRange = regionOfInterest.etaRange();
-  TkTrackingRegionsMargin<float> phiMargin = regionOfInterest.phiMargin();
+  //UNUSED:  PixelRecoRange<float> etaRange = regionOfInterest.etaRange();
+  //UNUSED:  TkTrackingRegionsMargin<float> phiMargin = regionOfInterest.phiMargin();
 
   vector<TrackCand> result;
 

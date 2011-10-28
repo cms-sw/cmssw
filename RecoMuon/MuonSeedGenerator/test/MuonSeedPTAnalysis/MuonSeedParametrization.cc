@@ -302,12 +302,14 @@ void MuonSeedParametrization::analyze(const Event& event, const EventSetup& even
      //}
   }
 
-  // flag the overlap case
-  bool overlap = false;
-  if ( (dtseg_stat[0] != 0)&&(cscseg_stat[0] != 0) ){
-     overlap = true;
-  }
-
+  /*
+    NOT USED
+    // flag the overlap case
+    bool overlap = false;
+    if ( (dtseg_stat[0] != 0)&&(cscseg_stat[0] != 0) ){
+    overlap = true;
+    }
+  */
 
   // 4. the simulated segments statistic
   int simcscseg[6] = {0};
@@ -648,7 +650,7 @@ void MuonSeedParametrization::FromCSCSeg( std::vector<CSCSegment> cscSeg, ESHand
                                            std::vector<SimSegment> seg) {
      
      /// get the global dphi from recHits for CSC
-     double Theta[2][5] ;
+  //unused     double Theta[2][5] ;
      for (int l=0; l<10; l++) {
         int i = l/2; // 0 0 1 1 2 2 3 3 4 4 
         int k = l%2; // 0 1 0 1 0 1 0 1 0 1
@@ -656,7 +658,7 @@ void MuonSeedParametrization::FromCSCSeg( std::vector<CSCSegment> cscSeg, ESHand
 	EtaV1[k][i]=99.;
 	PhiP1[k][i]=99.;
 	EtaP1[k][i]=99.;
-        Theta[k][i]=99.;
+	//unused        Theta[k][i]=99.;
         chi2_dof1[i]= -1.0;
         for (int j=0; j<5; j++) {
             dPhiV1[k][i][j]=99.;
@@ -681,7 +683,7 @@ void MuonSeedParametrization::FromCSCSeg( std::vector<CSCSegment> cscSeg, ESHand
             EtaV1[1][0] = gv.eta();
             PhiP1[1][0] = gp.phi();
             EtaP1[1][0] = gp.eta();
-            Theta[1][0] = gp.theta();
+	    //unused            Theta[1][0] = gp.theta();
             layer[0] =true;
             chi2_dof1[st] = (*it).chi2() / static_cast<double>((*it).degreesOfFreedom()); 
          }
@@ -690,7 +692,7 @@ void MuonSeedParametrization::FromCSCSeg( std::vector<CSCSegment> cscSeg, ESHand
             EtaV1[1][st] = gv.eta();
             PhiP1[1][st] = gp.phi();
             EtaP1[1][st] = gp.eta();
-            Theta[1][st] = gp.theta();
+	    //unused            Theta[1][st] = gp.theta();
             layer[st]=true;
             chi2_dof1[st] = (*it).chi2() / static_cast<double>((*it).degreesOfFreedom()); 
          }
@@ -707,14 +709,14 @@ void MuonSeedParametrization::FromCSCSeg( std::vector<CSCSegment> cscSeg, ESHand
             EtaV1[0][0] = gv.eta();
             PhiP1[0][0] = gp.phi();
             EtaP1[0][0] = gp.eta();
-            Theta[0][0] = gp.theta();
+	    //unused            Theta[0][0] = gp.theta();
          }
          else {
             PhiV1[0][st] = gv.phi();
             EtaV1[0][st] = gv.eta();
             PhiP1[0][st] = gp.phi();
             EtaP1[0][st] = gp.eta();
-            Theta[0][st] = gp.theta();
+	    //unused            Theta[0][st] = gp.theta();
          }
      }
      
