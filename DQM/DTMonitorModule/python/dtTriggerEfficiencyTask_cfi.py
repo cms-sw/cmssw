@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 dtTriggerEfficiencyMonitor = cms.EDAnalyzer("DTTriggerEfficiencyTask",
-    # label of muon
+    # label for muons
     inputTagMuons = cms.untracked.InputTag('muons'),
 
     SegmArbitration = cms.untracked.string("SegmentAndTrackArbitration"),
