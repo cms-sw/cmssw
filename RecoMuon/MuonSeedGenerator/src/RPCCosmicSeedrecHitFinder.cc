@@ -327,7 +327,7 @@ bool RPCCosmicSeedrecHitFinder::iscorssEdge(const MuonRecHitPointer& lastrecHitR
         RPCDetId currentRPCId(currentId.rawId());
         int currentRegion = currentRPCId.region();
         // Check if 2 recHits from different regions
-        if((lastRegion - currentRegion) != 0)
+        if(lastRegion != currentRegion)
             iscorss = true;
     }
 

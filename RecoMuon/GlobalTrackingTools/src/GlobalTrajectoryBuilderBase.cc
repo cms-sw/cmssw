@@ -12,10 +12,10 @@
  *   in the muon system and the tracker.
  *
  *
- *  $Date: 2011/08/03 13:27:05 $
- *  $Revision: 1.53 $
- *  $Date: 2011/08/03 13:27:05 $
- *  $Revision: 1.53 $
+ *  $Date: 2011/10/28 22:10:34 $
+ *  $Revision: 1.54 $
+ *  $Date: 2011/10/28 22:10:34 $
+ *  $Revision: 1.54 $
  *
  *  \author N. Neumeister        Purdue University
  *  \author C. Liu               Purdue University
@@ -476,9 +476,10 @@ void GlobalTrajectoryBuilderBase::fixTEC(ConstRecHitContainer& all,
     if (nTEC > 1) break;
   }
   
+  int hitDet = (*lone_tec)->hit()->geographicalId().det();
+  int hitSubDet = (*lone_tec)->hit()->geographicalId().subdetId();
   if ( nTEC == 1 && (*lone_tec)->hit()->isValid() &&
-       (*lone_tec)->hit()->geographicalId().det() == DetId::Tracker &&
-       (*lone_tec)->hit()->geographicalId().subdetId() == StripSubdetector::TEC) {
+       hitDet == DetId::Tracker && hitSubDet == StripSubdetector::TEC) {
     
     // rescale the TEC rechit error matrix in its rotated frame
     const SiStripRecHit2D* strip = dynamic_cast<const SiStripRecHit2D*>((*lone_tec)->hit());

@@ -2,8 +2,8 @@
 
 /** \file RecoMuon/
  *
- *  $Date: 2008/03/20 09:52:16 $
- *  $Revision: 1.2 $
+ *  $Date: 2010/09/10 21:44:37 $
+ *  $Revision: 1.3 $
  *  \author Adam Evertt, Jean-Roch Vlimant
  */
 
@@ -353,7 +353,7 @@ void MuonRoadTrajectoryBuilder::makeTrajectories_0(const TrajectorySeed & seed, 
 				      <<Nhits<<" hits in the road for this seed \n"
 				      << Trajectories.head().size()<<" possible trajectory(ies)";
   
-  if (Trajectories.head().size() == 0) /*abort*/{edm::LogError(theCategory)<<" no possible trajectory found"; return;}
+  if (Trajectories.head().empty()) /*abort*/{edm::LogError(theCategory)<<" no possible trajectory found"; return;}
   
   //order the list to put the best in front
   Trajectories.head().sort(trajectoryOrder);
@@ -587,7 +587,7 @@ int  MuonRoadTrajectoryBuilder::GatherHits( const TrajectoryStateOnSurface & ste
       
       //discard previous list of trajectories
       //if something as been done of course
-      if (Trajectories.tail().size()!=0) 
+      if (!Trajectories.tail().empty()) 
 	{
 	  //if this is not the first "layer" of detector, set updated trajectories as new seed trajectories
 	  //will branch on every single rechit uncountered for first "layer"

@@ -1,8 +1,8 @@
 /**
  *  See header file for a description of this class.
  *
- *  $Date: 2010/08/10 20:08:37 $
- *  $Revision: 1.31 $
+ *  $Date: 2010/12/11 08:10:27 $
+ *  $Revision: 1.32 $
  *  \author A. Vitelli - INFN Torino, V.Palichik
  *  \author porting  R. Bellan
  *
@@ -51,7 +51,7 @@ void MuonSeedFinder::seeds(const MuonTransientTrackingRecHit::MuonRecHitContaine
 
   //  MuonDumper debug;
 
-  int num_bar = 0;
+  unsigned int num_bar = 0;
   for ( MuonRecHitContainer::const_iterator iter = hits.begin(); iter!= hits.end(); iter++ ){
     if ( (*iter)->isDT() ) {
       theBarrel.add(*iter);
@@ -60,7 +60,7 @@ void MuonSeedFinder::seeds(const MuonTransientTrackingRecHit::MuonRecHitContaine
     }
   }
 
-  int num_endcap = 0;
+  unsigned int num_endcap = 0;
   for ( MuonRecHitContainer::const_iterator iter = hits.begin(); iter!= hits.end(); iter++ ){
     if ( (*iter)->isCSC() )
     {

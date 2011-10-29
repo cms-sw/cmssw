@@ -345,8 +345,10 @@ bool MuonRPCDetLayerGeometryBuilder::isFront(const RPCDetId & rpcId)
   //  if(rpcId.station() == 1 && rpcId.ring() == 2)  return false;
 
   bool result = false;
+  int ring = rpcId.ring();
+  int station = rpcId.station();
   // 20 degree rings are a little weird! not anymore from 17x
-  if(rpcId.ring() == 1 && rpcId.station() > 1)
+  if(ring == 1 && station > 1)
   {
     // RE2/1 RE3/1  Upscope Geometry
     /* goes (sector) (subsector)            1/3

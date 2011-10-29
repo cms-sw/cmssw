@@ -62,7 +62,8 @@ void SETPatternRecognition::produce(const edm::Event& event, const edm::EventSet
   for (DTRecSegment4DCollection::const_iterator rechit = dtRecHits->begin(); rechit!=dtRecHits->end();++rechit) {
     bool insert = true;
     for(chIt_DT=chambers_DT.begin(); chIt_DT != chambers_DT.end(); ++chIt_DT){
-      if (((*rechit).chamberId().wheel() == (*chIt_DT).wheel()) &&
+      if (
+	  ((*rechit).chamberId().wheel()) == ((*chIt_DT).wheel()) &&
 	  ((*rechit).chamberId().station() == (*chIt_DT).station()) &&
 	  ((*rechit).chamberId().sector() == (*chIt_DT).sector())){
 	insert = false;

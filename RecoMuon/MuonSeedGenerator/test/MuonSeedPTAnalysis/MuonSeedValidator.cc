@@ -358,24 +358,26 @@ void MuonSeedValidator::analyze(const Event& event, const EventSetup& eventSetup
   // look at those un-associated seeds and sta
   histo5 = h_UnRel;
   for (size_t i=0; i < seeds_simtrk.size(); i++ ) {
+    if (seeds_simtrk[i] != -1) continue;
       // un-related !
-      if ( seeds_simtrk[i]== -1 && seed_Evt != 0) { 
+      if ( seed_Evt != 0) { 
            histo5->Fill5a( seed_gp[i].eta(), seed_mT[i] );
       }
       // Orphan
-      if ( seeds_simtrk[i]== -1 && seed_Evt == 0 ) {
+      else  {
          for (size_t j=0; j < theta_p.size(); j++ ) { 
              histo5->Fill5b( seed_gp[i].eta(), getEta(theta_p[j]), seed_mT[i] );
          }
       }
   }
   for (size_t i=0; i < sta_simtrk.size(); i++ ) {
+    if (sta_simtrk[i] != -1) continue;
       // un-related !
-      if ( sta_simtrk[i]== -1 && sta_Evt != 0 ) {
+      if ( sta_Evt != 0 ) {
            histo5->Fill5c( getEta(sta_thetaV[i]), sta_mT[i] );
       }
       // Orphan
-      if ( sta_simtrk[i]== -1 && sta_Evt == 0 ) {
+      else {
          for (unsigned int j=0; j < theta_p.size(); j++ ) { 
              histo5->Fill5d( getEta(sta_thetaV[i]), getEta(theta_p[j]), sta_mT[i], sta_phiV[i], phi_v[j]  );
          }
