@@ -187,16 +187,27 @@ class RunMEtUncertainties(ConfigToolBase):
 
         # produce collection of jets not overlapping with reconstructed
         # electrons/photons, muons and tau-jet candidates
-        collectionsForJetCleaning = []
-        for collection in [ electronCollection, photonCollection, muonCollection, tauCollection ]:
-            if collection is not None:
-                collectionsForJetCleaning.append(collection)
-        jetsAntiOverlapWithLeptonsForMEtUncertainty = cms.EDFilter("PATJetAntiOverlapSelector",
-            src = jetCollection,                                                         
-            srcNotToBeFiltered = cms.VInputTag(collectionsForJetCleaning),
-            dRmin = cms.double(dRjetCleaning),
-            filter = cms.bool(False)                                           
+        jetsAntiOverlapWithLeptonsForMEtUncertainty = cms.EDProducer("PATJetCleaner",
+            src = jetCollection,
+            preselection = cms.string(''),
+            checkOverlaps = cms.PSet(),
+            finalCut = cms.string('')
         )
+        for collection in [
+            [ 'electrons', electronCollection ],
+            [ 'photons',   photonCollection   ],
+            [ 'muons',     muonCollection     ],
+            [ 'taus',      tauCollection      ] ]:
+            if collection[1] is not None:
+                setattr(jetsAntiOverlapWithLeptonsForMEtUncertainty.checkOverlaps, collection[0], cms.PSet(
+                    src                 = collection[1],
+                    algorithm           = cms.string("byDeltaR"),
+                    preselection        = cms.string(""),
+                    deltaR              = cms.double(0.5),
+                    checkRecoComponents = cms.bool(False), 
+                    pairCut             = cms.string(""),
+                    requireNoOverlaps   = cms.bool(True),
+                ))
         lastJetCollection = \
           self._addModuleToSequence(process, jetsAntiOverlapWithLeptonsForMEtUncertainty, [ jetCollection.value(), "AntiOverlapWithLeptonsForMEtUncertainty" ], process.metUncertaintySequence) 
 
