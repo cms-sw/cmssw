@@ -18,6 +18,10 @@
 //
 #include "GeneratorInterface/Pythia8Interface/interface/JetMatchingHook.h"
 
+// Emission Veto Hook
+//
+#include "GeneratorInterface/Pythia8Interface/interface/EmissionVetoHook.h"
+
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
@@ -98,6 +102,10 @@ class Pythia8Hadronizer : public BaseHadronizer {
 	//
 	JetMatchingHook* fJetMatchingHook;
 	
+        // Emission Veto Hook
+        //
+        EmissionVetoHook* fEmissionVetoHook;
+
 };
 
 
@@ -112,7 +120,8 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
     useUserHook(false),
     fInitialState(PP),
     UserHookPointer(0),
-    fJetMatchingHook(0)
+    fJetMatchingHook(0),
+    fEmissionVetoHook(0)
 {
     if( params.exists( "useUserHook" ) )
       useUserHook = params.getParameter<bool>("useUserHook");
@@ -182,6 +191,14 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
       fJetMatchingHook = new JetMatchingHook( jmParams, &pythia->info );
       pythia->setUserHooksPtr( fJetMatchingHook );
    }
+
+    // Emission veto
+    //
+   if ( params.exists("emissionVeto") )
+   {   
+      fEmissionVetoHook = new EmissionVetoHook();
+      pythia->setUserHooksPtr( fEmissionVetoHook );
+   }  
 
 }
 
