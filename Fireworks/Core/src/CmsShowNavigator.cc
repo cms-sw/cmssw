@@ -2,7 +2,7 @@
 //
 // Package:     newVersion
 // Class  :     CmsShowNavigator
-// $Id: CmsShowNavigator.cc,v 1.110 2011/08/10 14:27:02 yana Exp $
+// $Id: CmsShowNavigator.cc,v 1.111 2011/09/12 20:30:58 amraktad Exp $
 //
 
 #include "DataFormats/FWLite/interface/Event.h"
@@ -89,7 +89,7 @@ CmsShowNavigator::openFile(const std::string& fileName)
    try 
    {
       // delete all previous files
-      while ( m_files.size() > 0 )
+      while ( !m_files.empty() )
       {
          FWFileEntry* file = m_files.front();
          m_files.pop_front();
