@@ -152,6 +152,10 @@ void
 PFAlgo::setPFPhotonParameters(bool usePFPhotons,  
 			      std::string mvaWeightFileConvID, 
 			      double mvaConvCut,
+			      bool useReg,
+			      std::string mvaWeightFilePFClusCorr, 
+			      std::string mvaWeightFilePFPhoCorr, 
+			      std::string X0_Map,
 			      const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
 			      double sumPtTrackIsoForPhoton,
 			      double sumPtTrackIsoSlopeForPhoton)
@@ -187,14 +191,18 @@ PFAlgo::setPFPhotonParameters(bool usePFPhotons,
     throw invalid_argument( err );  
   }  
    
-   
+  
   pfpho_ = new PFPhotonAlgo(mvaWeightFileConvID, 
 			    mvaConvCut, 
+			    useReg,
+			    mvaWeightFilePFClusCorr, 
+			    mvaWeightFilePFPhoCorr, 
+			    X0_Map,  
 			    *pv,
 			    thePFEnergyCalibration,
                             sumPtTrackIsoForPhoton,
                             sumPtTrackIsoSlopeForPhoton
-);
+			    );
   return;
 }
 

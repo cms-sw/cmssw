@@ -27,9 +27,12 @@ particleFlowTmp = cms.EDProducer("PFProducer",
 
     # Use Photon identification in PFAlgo (for now this has NO impact, algo is swicthed off hard-coded
     usePFPhotons = cms.bool(True),
-    pf_convID_mvaWeightFile = cms.string('RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionAug0411.txt'),    
-    #pf_convID_mvaWeightFile = cms.string('RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionFeb2311.txt'),    
-    pf_conv_mvaCut=cms.double(0.0),
+    useReg=cms.bool(False),
+    pf_convID_mvaWeightFile = cms.string('RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionAug0411.txt'),        
+    pf_conv_mvaCut=cms.double(0.0),                                 
+    pf_locC_mvaWeightFile=cms.string('/afs/cern.ch/user/r/rpatel/public/TMVARegression_BDTG_PFClusterCorr.weights.xml'),
+    pf_GlobC_mvaWeightFile=cms.string('/afs/cern.ch/user/r/rpatel/public/TMVARegression_BDTG_PFGlobalCorr.weights.xml'),
+    X0_Map=cms.string('/afs/cern.ch/user/r/rpatel/public/allX0histos.root'),
     sumPtTrackIsoForPhoton=cms.double(2.0),
     sumPtTrackIsoSlopeForPhoton=cms.double(0.001),
 

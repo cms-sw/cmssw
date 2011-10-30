@@ -8,6 +8,7 @@
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/VertexReco"/>
 <use   name="DataFormats/MuonReco"/>
+<use   name="DataFormats/EcalDetId"/>
 <use   name="RecoParticleFlow/PFClusterTools"/>
 <use   name="boost"/>
 <use   name="clhep"/>

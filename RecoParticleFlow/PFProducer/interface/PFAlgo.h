@@ -104,6 +104,10 @@ class PFAlgo {
   void setPFPhotonParameters(bool usePFPhoton,
 			     std::string mvaWeightFileConvID,
 			     double mvaConvCut,
+			     bool useReg,
+			     std::string mvaWeightFilePFClusCorr, 
+			     std::string mvaWeightFilePFPhoCorr, 
+			     std::string X0_Map,
 			     const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
 			     double sumPtTrackIsoForPhoton,
 			     double sumPtTrackIsoSlopeForPhoton

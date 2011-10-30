@@ -16,7 +16,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "TMVA/Reader.h"
 #include <iostream>
-
+#include <TH2D.h>
 
 class PFEnergyCalibration;
 
@@ -31,6 +31,10 @@ class PFPhotonAlgo {
   //constructor
   PFPhotonAlgo(std::string mvaweightfile,  
 	       double mvaConvCut, 
+	       bool useReg, 
+	       std::string mvaWeightFilePFClusCorr, 
+	       std::string mvaWeightFilePFPhoCorr, 
+	       std::string X0_Map,
 	       const reco::Vertex& primary,
 	       const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
                double sumPtTrackIsoForPhoton,
@@ -38,7 +42,7 @@ class PFPhotonAlgo {
 ); 
 
   //destructor
-  ~PFPhotonAlgo(){delete tmvaReader_;};
+  ~PFPhotonAlgo(){delete tmvaReader_;   };
   
   //check candidate validity
   bool isPhotonValidCandidate(const reco::PFBlockRef&  blockRef,
@@ -106,8 +110,11 @@ private:
                                               */ 
   //FOR SINGLE LEG MVA:					      
   double MVACUT;
+  bool useReg_;
   reco::Vertex       primaryVertex_;
   TMVA::Reader *tmvaReader_;
+  TMVA::Reader *tmvaLCRegReader_;
+  TMVA::Reader *tmvaGCRegReader_;
   boost::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration_;
   double sumPtTrackIsoForPhoton_;
   double sumPtTrackIsoSlopeForPhoton_;
@@ -118,6 +125,25 @@ private:
   float nlost, nlayers;
   float chi2, STIP, del_phi,HoverPt, EoverPt, track_pt;
   double mvaValue;
+    //for Cluster Shape Calculations:
+  float e5x5Map[5][5];
+  
+  //For Local Containment Corrections:
+  float CrysPhi_, CrysEta_, CrysIPhi_, CrysIEta_, VtxZ_, ClusPhi_, ClusEta_, 
+    ClusR9_, Clus5x5ratio_, PFCrysPhiCrack_, PFCrysEtaCrack_, logPFClusE_, e3x3_;
+  float EB;
+  //For Global Corrections:
+  float PFPhoEta_, PFPhoPhi_, PFPhoR9_, SCPhiWidth_, SCEtaWidth_, PFPhoEt_, RConv_;
+  float dEta_, dPhi_, LowClusE_, nPFClus_;
+  //for Material Map
+  TH2D* X0_sum;
+  TH2D* X0_inner;
+  TH2D* X0_middle;
+  TH2D* X0_outer;
+  float x0inner_, x0middle_, x0outer_;
+  //for PileUP
+  float excluded_, Mustache_EtRatio_;
+  
   std::vector<unsigned int> AddFromElectron_;  
   void RunPFPhoton(const reco::PFBlockRef&  blockRef,
 		   std::vector< bool >& active,
@@ -136,6 +162,11 @@ private:
 			    unsigned int track_index);
   
 
+  void GetCrysCoordinates(reco::PFClusterRef clusterRef);
+  void fill5x5Map(reco::PFClusterRef clusterRef);
+  float EvaluateLCorrMVA(reco::PFClusterRef clusterRef );
+  float EvaluateGCorrMVA(reco::PFCandidate);
+  std::vector<int> getPFMustacheClus(int nClust, std::vector<float>& ClustEt, std::vector<float>& ClustEta, std::vector<float>& ClustPhi);
   void EarlyConversion(
 		       //std::auto_ptr< reco::PFCandidateCollection > 
 		       //&pfElectronCandidates_,
