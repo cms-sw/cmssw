@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2011/08/30 09:30:32 $
- * $Revision: 1.96 $
+ * $Date: 2011/10/30 15:01:26 $
+ * $Revision: 1.97 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -26,9 +26,6 @@
 #include "DataFormats/EcalRecHit/interface/EcalUncalibratedRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
-
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
 #include "DQM/EcalCommon/interface/Numbers.h"
 
@@ -496,9 +493,6 @@ void EBOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 
   }
 
-  edm::ESHandle<EcalSeverityLevelAlgo> sevlv;
-  c.get<EcalSeverityLevelAlgoRcd>().get(sevlv);
-
   edm::Handle<EcalRecHitCollection> rechits;
 
   if ( e.getByLabel(EcalRecHitCollection_, rechits) ) {
@@ -533,19 +527,16 @@ void EBOccupancyTask::analyze(const edm::Event& e, const edm::EventSetup& c){
         if ( meEBRecHitOccupancyProjEta_ ) meEBRecHitOccupancyProjEta_->Fill( xebeta );
         if ( meEBRecHitOccupancyProjPhi_ ) meEBRecHitOccupancyProjPhi_->Fill( xebphi );
 
-        uint32_t flag = rechitItr->recoFlag();
-	
-        uint32_t sev = sevlv->severityLevel( id, *rechits);
+	// it's no use to use severitylevel to detect spikes (SeverityLevelAlgo simply uses RecHit flag for spikes)
+	uint32_t mask = 0xffffffff ^ ((0x1 << EcalRecHit::kGood));
 
-        if ( rechitItr->energy() > recHitEnergyMin_ && flag == EcalRecHit::kGood && sev == EcalSeverityLevel::kGood ) {
+	if( !rechitItr->checkFlagMask(mask) ){
+	  if ( rechitItr->energy() > recHitEnergyMin_ ){
+	    if ( meEBRecHitOccupancyThr_ ) meEBRecHitOccupancyThr_->Fill( xebphi, xebeta );
+	    if ( meEBRecHitOccupancyProjEtaThr_ ) meEBRecHitOccupancyProjEtaThr_->Fill( xebeta );
+	    if ( meEBRecHitOccupancyProjPhiThr_ ) meEBRecHitOccupancyProjPhiThr_->Fill( xebphi );
+	  }
 
-          if ( meEBRecHitOccupancyThr_ ) meEBRecHitOccupancyThr_->Fill( xebphi, xebeta );
-          if ( meEBRecHitOccupancyProjEtaThr_ ) meEBRecHitOccupancyProjEtaThr_->Fill( xebeta );
-          if ( meEBRecHitOccupancyProjPhiThr_ ) meEBRecHitOccupancyProjPhiThr_->Fill( xebphi );
-
-        }
-
-        if ( flag == EcalRecHit::kGood && sev == EcalSeverityLevel::kGood ) {
           if ( meEBRecHitEnergy_[ism-1] ) meEBRecHitEnergy_[ism-1]->Fill( xie, xip, rechitItr->energy() );
           if ( meSpectrum_[ism-1] ) meSpectrum_[ism-1]->Fill( rechitItr->energy() );
           if ( meEBRecHitSpectrum_ ) meEBRecHitSpectrum_->Fill( rechitItr->energy() );
