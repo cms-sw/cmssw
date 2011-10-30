@@ -156,11 +156,11 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
                                                     chi2Max = cms.double(50),
                                                     
                                                     muonTrigger = cms.PSet(
-                                                             andOr         = cms.bool( True ),
-                                                             dbLabel        = cms.string(""),
-#                                                            hltDBKey       = cms.string("")
+                                                             andOr         = cms.bool( False ),
+                                                             dbLabel        = cms.string( "MuonDQMTrigger_V00_00_01"),
                                                              hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
-                                                             hltPaths       = cms.vstring( 'HLT_IsoMu30_eta2p1_v7'),
+                                                             hltDBKey       = cms.string("SingleMu"),
+                                                             hltPaths       = cms.vstring( "HLT_IsoMu30_eta2p1_v" ),
                                                              andOrHlt       = cms.bool( True ),
                                                              errorReplyHlt  = cms.bool( False ),
                                                              )
