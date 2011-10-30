@@ -5,8 +5,8 @@
  *  
  *  Class to fill Event Generator dqm monitor elements; works on HepMCProduct
  *
- *  $Date: 2011/04/06 14:35:06 $
- *  $Revision: 1.3 $
+ *  $Date: 2011/09/22 09:52:34 $
+ *  $Revision: 1.4 $
  *
  */
 
@@ -101,6 +101,8 @@ class BasicHepMCValidation : public edm::EDAnalyzer
 	MonitorElement *stablePtclCharge;
 	MonitorElement *stablePtclp;
 	MonitorElement *stablePtclpT;
+	MonitorElement *partonNumber;
+	MonitorElement *partonpT;
 	MonitorElement *outVrtxStablePtclNumber;
 	//
 	MonitorElement *vrtxZ;

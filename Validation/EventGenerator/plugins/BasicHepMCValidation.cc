@@ -2,8 +2,8 @@
  *  
  *  Class to fill dqm monitor elements from existing EDM file
  *
- *  $Date: 2011/09/22 12:01:43 $
- *  $Revision: 1.5 $
+ *  $Date: 2011/09/29 09:14:42 $
+ *  $Revision: 1.6 $
  */
  
 #include "Validation/EventGenerator/interface/BasicHepMCValidation.h"
@@ -165,6 +165,8 @@ void BasicHepMCValidation::beginJob()
 	stableChaNumber= dbe->book1D("stableChaNumber", "Log10(No. stable charged particles)", 50, 0, 5); //Log
 	stablePtclp = dbe->book1D("stablePtclp", "Log10(p) stable ptcl p", 80, -4, 4); //Log
 	stablePtclpT = dbe->book1D("stablePtclpT", "Log10(pT) stable ptcl pT", 80, -4, 4); //Log
+        partonNumber = dbe->book1D("partonNumber", "number of partons", 100, 0, 100);
+	partonpT = dbe->book1D("partonpT", "Log10(pT) parton pT", 80, -4, 4); //Log
 	outVrtxStablePtclNumber = dbe->book1D("outVrtxStablePtclNumber", "No. outgoing stable ptcls from vrtx", 10, 0, 10); 
 	//
 	outVrtxPtclNumber = dbe->book1D("outVrtxPtclNumber", "No. outgoing ptcls from vrtx", 30, 0, 30);
@@ -211,6 +213,7 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
   ///counters to zero for every event
   int uNum = 0; int dNum = 0; int sNum = 0; int cNum = 0; int bNum = 0; int tNum = 0;
   int ubarNum = 0; int dbarNum = 0; int sbarNum = 0; int cbarNum = 0; int bbarNum = 0; int tbarNum = 0;
+  int partonNum = 0;
   //
   int eminusNum = 0; int nueNum = 0; int muminusNum = 0; int numuNum = 0; int tauminusNum = 0; int nutauNum = 0;
   int eplusNum = 0; int nuebarNum = 0; int muplusNum = 0; int numubarNum = 0; int tauplusNum = 0; int nutaubarNum = 0;
@@ -322,7 +325,11 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
         pytotal += ptcl->momentum().py(); 
         pztotal += ptcl->momentum().pz(); 
       }
-	
+
+      if (abs(Id) < 6 || abs(Id) == 22){
+        ++partonNum; partonpT->Fill(Log_p);
+      }
+
       ///counting multiplicities and filling momentum distributions
       switch(abs(Id)){
 
@@ -561,7 +568,8 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
   unknownPDTNumber->Fill(log10(unknownPDTNum+0.1));
   //
   dNumber->Fill(dNum); uNumber->Fill(uNum); sNumber->Fill(sNum); cNumber->Fill(cNum); bNumber->Fill(bNum); tNumber->Fill(tNum);  
-  dbarNumber->Fill(dbarNum); ubarNumber->Fill(ubarNum); sbarNumber->Fill(sbarNum); cbarNumber->Fill(cbarNum); bbarNumber->Fill(bbarNum); tbarNumber->Fill(tbarNum);  
+  dbarNumber->Fill(dbarNum); ubarNumber->Fill(ubarNum); sbarNumber->Fill(sbarNum); cbarNumber->Fill(cbarNum); bbarNumber->Fill(bbarNum); tbarNumber->Fill(tbarNum); 
+  partonNumber->Fill(partonNum);
   //
   eminusNumber->Fill(eminusNum); nueNumber->Fill(nueNum); muminusNumber->Fill(muminusNum); numuNumber->Fill(numuNum); tauminusNumber->Fill(tauminusNum); nutauNumber->Fill(nutauNum);  
   eplusNumber->Fill(eplusNum); nuebarNumber->Fill(nuebarNum); muplusNumber->Fill(muplusNum); numubarNumber->Fill(numubarNum); tauplusNumber->Fill(tauplusNum); nutaubarNumber->Fill(nutaubarNum);  
