@@ -7,7 +7,7 @@
  *  Description:
  *  utility classes for the dynamical truncation algorithm
  *
- *  $Date: 2010/05/10 14:23:50 $
+ *  $Date: 2010/06/14 11:01:53 $
  *  $Revision: 1.1 $
  *
  *  Authors :
@@ -86,19 +86,34 @@ class StateSegmentMatcher {
   StateSegmentMatcher(TrajectoryStateOnSurface*, CSCSegment*);
 
   // Perform the matching between a track state and a DT segment
-  StateSegmentMatcher(TrajectoryStateOnSurface*, DTRecSegment4D*);
+  StateSegmentMatcher(TrajectoryStateOnSurface*, DTRecSegment4D*, LocalError*);
 
   // Returns the estimator value 
   double value();
 
  private:
-
+  
   AlgebraicVector4 v1, v2;
-  AlgebraicSymMatrix44 m1, m2;
+  AlgebraicSymMatrix44 m1, m2, ape;
   AlgebraicVector2 v1_2d, v2_2d;
-  AlgebraicSymMatrix22 m1_2d, m2_2d;
+  AlgebraicSymMatrix22 m1_2d, m2_2d, ape_2d;
   bool match2D;
   double estValue;
+
+  void setAPE4d(LocalError &apeLoc) {
+    ape[0][0] = 0; //sigma (dx/dz) 
+    ape[1][1] = 0; //sigma (dy/dz)
+    ape[2][2] = apeLoc.xx(); //sigma (x)  
+    ape[3][3] = apeLoc.yy(); //sigma (y)
+    ape[0][2] = 0; //cov(dx/dz,x) 
+    ape[1][3] = 0; //cov(dy/dz,y)
+  };
+
+  void setAPE2d(LocalError &apeLoc) {
+    ape_2d[0][0] = 0; //sigma (dx/dz)
+    ape_2d[1][1] = apeLoc.xx(); //sigma (x)
+    ape_2d[0][1] = 0; //cov(dx/dz,x) 
+  };
 };
 
 

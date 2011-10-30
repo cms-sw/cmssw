@@ -4,7 +4,7 @@
  *  Description:
  *  utility classes for the dynamical truncation algorithm
  *
- *  $Date: 2010/05/10 14:23:50 $
+ *  $Date: 2010/06/14 11:02:56 $
  *  $Revision: 1.1 $
  *
  *  Authors :
@@ -18,10 +18,12 @@ using namespace std;
 
 
 
-StateSegmentMatcher::StateSegmentMatcher(TrajectoryStateOnSurface* tsos, DTRecSegment4D* dtseg4d)
+StateSegmentMatcher::StateSegmentMatcher(TrajectoryStateOnSurface* tsos, DTRecSegment4D* dtseg4d, LocalError* apeLoc)
 {
   if (dtseg4d->hasPhi() && dtseg4d->hasZed()) {
     
+    setAPE4d(*apeLoc);
+
     match2D = false;
     AlgebraicVector dtseg       = dtseg4d->parameters();                                                         
     v1[0]       = dtseg[0]; 
@@ -40,6 +42,8 @@ StateSegmentMatcher::StateSegmentMatcher(TrajectoryStateOnSurface* tsos, DTRecSe
     m2 = tsos4d.errorMatrix();  
     
   } else {
+
+    setAPE2d(*apeLoc);
 
     match2D = true;
     AlgebraicVector dtseg       = dtseg4d->parameters();
@@ -94,7 +98,7 @@ double StateSegmentMatcher::value()
 {
   if (match2D) {
     AlgebraicVector2 v3(v1_2d - v2_2d);
-    AlgebraicSymMatrix22 m3(m1_2d + m2_2d);
+    AlgebraicSymMatrix22 m3(m1_2d + m2_2d + ape_2d);
     bool m3i = !m3.Invert();
     if ( m3i ) {
       return 1e7;
@@ -104,7 +108,7 @@ double StateSegmentMatcher::value()
     
   } else {
     AlgebraicVector4 v3(v1 - v2);
-    AlgebraicSymMatrix44 m3(m1 + m2);
+    AlgebraicSymMatrix44 m3(m1 + m2 + ape);
     bool m3i = !m3.Invert();
     if ( m3i ) {
       return 1e7;

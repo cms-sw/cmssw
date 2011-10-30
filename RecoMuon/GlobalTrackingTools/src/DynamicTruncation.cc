@@ -6,8 +6,8 @@
  *  compatibility degree between the extrapolated track
  *  state and the reconstructed segment in the muon chambers
  *
- *  $Date: 2011/04/21 01:45:09 $
- *  $Revision: 1.6 $
+ *  $Date: 2011/06/08 09:43:35 $
+ *  $Revision: 1.7 $
  *
  *  Authors :
  *  D. Pagano & G. Bruno - UCL Louvain
@@ -30,6 +30,8 @@
 #include "RecoMuon/TrackingTools/interface/MuonPatternRecoDumper.h"
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackPropagation/SteppingHelixPropagator/interface/SteppingHelixPropagator.h"
+#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
 
 
 #define MAX_THR 1e7
@@ -90,7 +92,7 @@ TransientTrackingRecHit::ConstRecHitContainer DynamicTruncation::filter(const Tr
   
   // selects the muon hits for the final refit
   filteringAlgo(detMap);
-
+  
   return result;
 }
 
@@ -127,7 +129,19 @@ double DynamicTruncation::getBest(std::vector<DTRecSegment4D>& segs, TrajectoryS
   double val = MAX_THR;
   std::vector<DTRecSegment4D>::size_type sz = segs.size();
   for (i=0; i<sz; i++) {
-    StateSegmentMatcher estim(&tsos, &segs[i]); 
+    AlignmentPositionError* apeObj = theG->idToDet(segs[i].chamberId())->alignmentPositionError();
+    const GlobalError apeGlob = apeObj->globalError(); 
+    LocalError apeLoc = ErrorFrameTransformer().transform(apeGlob, theG->idToDet(segs[i].chamberId())->surface());
+
+    // mat[0][0]=sigma (dx/dz)
+    // mat[1][1]=sigma (dy/dz)
+    // mat[2][2]=sigma (x)
+    // mat[3][3]=sigma (y)
+    // mat[0][2]=cov(dx/dz,x)
+    // mat[1][3]=cov(dy/dz,y)
+    
+
+    StateSegmentMatcher estim(&tsos, &segs[i], &apeLoc); 
     double tmp = estim.value();                                                                                                                                              
     if (tmp < val) {
       bestDTSeg = segs[i];
@@ -177,8 +191,9 @@ void DynamicTruncation::filteringAlgo(map<int, std::vector<DetId> >& detMap) {
       
       if (id.det() == DetId::Muon && id.subdetId() == MuonSubdetId::DT) {
         isDTorCSC = true;
-	DTChamberId DTid(id);
 	
+	DTChamberId DTid(id);
+
 	std::vector<DTRecSegment4D> allDTsegs;
 	std::map<int, std::vector<DTRecSegment4D> >::const_iterator dtIter = getSegs.getDTlist().find(DTid.station());
 	if (dtIter != getSegs.getDTlist().end()){
