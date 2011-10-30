@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_4_2/GRun/V3 (CMSSW_4_4_0_HLT8)
+# /dev/CMSSW_4_4_2/GRun/V4 (CMSSW_4_4_0_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/GRun/V3')
+  tableName = cms.string('/dev/CMSSW_4_4_2/GRun/V4')
 )
 
 streams = cms.PSet( 
@@ -31654,6 +31654,7 @@ hltESFEDIntegrityTask = cms.EDAnalyzer( "ESFEDIntegrityTask",
 )
 hltHcalDataIntegrityMonitor = cms.EDAnalyzer( "HcalDataIntegrityTask",
     TaskFolder = cms.untracked.string( "FEDIntegrity_EvF" ),
+    RawDataLabel = cms.untracked.InputTag( "rawDataCollector" ),
     UnpackerReportLabel = cms.untracked.InputTag( "hltHcalDigis" ),
     AllowedCalibTypes = cms.untracked.vint32( 0, 1, 2, 3, 4, 5, 6, 7 )
 )
@@ -32352,10 +32353,6 @@ HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_Activity_Ecal_SC7_v8, HLT_
 # En-able HF Noise filters in GRun menu
 if 'hltHfreco' in locals():
     hltHfreco.setNoiseFlags = cms.bool( True )
-
-    # untracked parameter with no default in the code
-if 'hltHcalDataIntegrityMonitor' in locals():
-    hltHcalDataIntegrityMonitor.RawDataLabel = cms.untracked.InputTag("rawDataCollector")
 
 # version specific customizations
 import os

@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_4_2/HIon/V3 (CMSSW_4_4_0_HLT8)
+# /dev/CMSSW_4_4_2/HIon/V4 (CMSSW_4_4_0_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V3')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V4')
 )
 
 process.streams = cms.PSet( 
@@ -7714,10 +7714,6 @@ process.TrackerCalibrationOutput = cms.EndPath( process.hltPreTrackerCalibration
 # Disable HF Noise filters in HIon menu
 if 'hltHfreco' in process.__dict__:
     process.hltHfreco.setNoiseFlags = cms.bool( False )
-
-    # untracked parameter with no default in the code
-if 'hltHcalDataIntegrityMonitor' in process.__dict__:
-    process.hltHcalDataIntegrityMonitor.RawDataLabel = cms.untracked.InputTag("rawDataCollector")
 
 # override the process name
 process.setName_('HLTHIon')

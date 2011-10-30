@@ -213,13 +213,13 @@ if 'hltHfreco' in %(dict)s:
 #    firstValid = cms.vuint32(1)
 #)
 
-    # untracked parameter with no default in the code
-    if not self.config.data:
-      self.data += """
-    # untracked parameter with no default in the code
-if 'hltHcalDataIntegrityMonitor' in %(dict)s:
-    %(process)shltHcalDataIntegrityMonitor.RawDataLabel = cms.untracked.InputTag("rawDataCollector")
-"""
+#    # untracked parameter with no default in the code
+#    if not self.config.data:
+#      self.data += """
+## untracked parameter with no default in the code
+#if 'hltHcalDataIntegrityMonitor' in %(dict)s:
+#    %(process)shltHcalDataIntegrityMonitor.RawDataLabel = cms.untracked.InputTag("rawDataCollector")
+#"""
 
     if self.config.fragment:
       # if running on MC, adapt the configuration accordingly

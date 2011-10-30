@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_4_2/GRun/V3 (CMSSW_4_4_0_HLT8)
+# /dev/CMSSW_4_4_2/GRun/V4 (CMSSW_4_4_0_HLT8)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/GRun/V3')
+  tableName = cms.string('/dev/CMSSW_4_4_2/GRun/V4')
 )
 
 process.streams = cms.PSet( 
@@ -32713,6 +32713,7 @@ process.hltESFEDIntegrityTask = cms.EDAnalyzer( "ESFEDIntegrityTask",
 )
 process.hltHcalDataIntegrityMonitor = cms.EDAnalyzer( "HcalDataIntegrityTask",
     TaskFolder = cms.untracked.string( "FEDIntegrity_EvF" ),
+    RawDataLabel = cms.untracked.InputTag( "source" ),
     UnpackerReportLabel = cms.untracked.InputTag( "hltHcalDigis" ),
     AllowedCalibTypes = cms.untracked.vint32( 0, 1, 2, 3, 4, 5, 6, 7 )
 )
