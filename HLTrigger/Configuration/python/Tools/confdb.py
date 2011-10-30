@@ -183,137 +183,49 @@ import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 """
 
-    # from CMSSW_4_4_0 / CMSSW_5_0_0_pre1: change input label for V00-04-17-00 RecoVertex/BeamSpotProducer
-    if not self.config.fastsim:
-      self.data += """
-# from CMSSW_4_4_0 / CMSSW_5_0_0_pre1: change input label for V00-04-17-00 RecoVertex/BeamSpotProducer
-if cmsswVersion > "CMSSW_4_4":
-    if 'hltOnlineBeamSpot' in %(dict)s:
-        %(process)shltOnlineBeamSpot.src = %(process)shltOnlineBeamSpot.label
-        del %(process)shltOnlineBeamSpot.label
-"""
-
-    # from CMSSW_4_4_0_pre8: update HF configuration for V00-09-18 RecoLocalCalo/HcalRecProducers
-    if not self.config.fastsim:
-      self.data += """
-# from CMSSW_4_4_0_pre8: update HF configuration for V00-09-18 RecoLocalCalo/HcalRecProducers
-if cmsswVersion > "CMSSW_4_4":
-    if 'hltHfreco' in %(dict)s:
-        %(process)shltHfreco.digiTimeFromDB = cms.bool( False )
-        %(process)shltHfreco.digistat.HFdigiflagCoef = cms.vdouble(
-            %(process)shltHfreco.digistat.HFdigiflagCoef0.value(),
-            %(process)shltHfreco.digistat.HFdigiflagCoef1.value(),
-            %(process)shltHfreco.digistat.HFdigiflagCoef2.value()
-        )
-        del %(process)shltHfreco.digistat.HFdigiflagCoef0
-        del %(process)shltHfreco.digistat.HFdigiflagCoef1
-        del %(process)shltHfreco.digistat.HFdigiflagCoef2
-"""
-
-    # from CMSSW_4_4_0_pre6: updated configuration for the HybridClusterProducer's and EgammaHLTHybridClusterProducer's
-    self.data += """
-# from CMSSW_4_4_0_pre6: updated configuration for the HybridClusterProducer's and EgammaHLTHybridClusterProducer's
-if cmsswVersion > "CMSSW_4_4":
-    if 'hltHybridSuperClustersActivity' in %(dict)s:
-        %(process)shltHybridSuperClustersActivity.xi               = cms.double( 0.0 )
-        %(process)shltHybridSuperClustersActivity.useEtForXi       = cms.bool( False )
-    if 'hltHybridSuperClustersL1Isolated' in %(dict)s:
-        %(process)shltHybridSuperClustersL1Isolated.xi             = cms.double( 0.0 )
-        %(process)shltHybridSuperClustersL1Isolated.useEtForXi     = cms.bool( False )
-    if 'hltHybridSuperClustersL1NonIsolated' in %(dict)s:
-        %(process)shltHybridSuperClustersL1NonIsolated.xi          = cms.double( 0.0 )
-        %(process)shltHybridSuperClustersL1NonIsolated.useEtForXi  = cms.bool( False )
-"""
-
-    # from CMSSW_4_4_0_pre5: updated configuration for the PFRecoTauDiscriminationByIsolation producers
-    self.data += """
-# from CMSSW_4_4_0_pre5: updated configuration for the PFRecoTauDiscriminationByIsolation producers
-if cmsswVersion > "CMSSW_4_4":
-    if 'hltPFTauTightIsoIsolationDiscriminator' in %(dict)s:
-        %(process)shltPFTauTightIsoIsolationDiscriminator.qualityCuts.primaryVertexSrc = %(process)shltPFTauTightIsoIsolationDiscriminator.PVProducer
-        %(process)shltPFTauTightIsoIsolationDiscriminator.qualityCuts.pvFindingAlgo    = cms.string('highestPtInEvent')
-        del %(process)shltPFTauTightIsoIsolationDiscriminator.PVProducer
-    if 'hltPFTauLooseIsolationDiscriminator' in %(dict)s:
-        %(process)shltPFTauLooseIsolationDiscriminator.qualityCuts.primaryVertexSrc = %(process)shltPFTauLooseIsolationDiscriminator.PVProducer
-        %(process)shltPFTauLooseIsolationDiscriminator.qualityCuts.pvFindingAlgo    = cms.string('highestPtInEvent')
-        del %(process)shltPFTauLooseIsolationDiscriminator.PVProducer
-"""
-
-    # from CMSSW_4_4_0_pre5: updated configuration for the EcalSeverityLevelESProducer
-    self.data += """
-# from CMSSW_4_4_0_pre5: updated configuration for the EcalSeverityLevelESProducer
-if cmsswVersion > "CMSSW_4_4":
-    %(process)secalSeverityLevel = cms.ESProducer("EcalSeverityLevelESProducer",
-        appendToDataLabel = cms.string(''),
-        dbstatusMask=cms.PSet(
-            kGood        = cms.vuint32(0),
-            kProblematic = cms.vuint32(1, 2, 3, 4, 5, 6, 7, 8, 9, 10),
-            kRecovered   = cms.vuint32(),
-            kTime        = cms.vuint32(),
-            kWeird       = cms.vuint32(),
-            kBad         = cms.vuint32(11, 12, 13, 14, 15, 16)
-        ),
-        flagMask = cms.PSet (
-            kGood        = cms.vstring('kGood'),
-            kProblematic = cms.vstring('kPoorReco', 'kPoorCalib', 'kNoisy', 'kSaturated'),
-            kRecovered   = cms.vstring('kLeadingEdgeRecovered', 'kTowerRecovered'),
-            kTime        = cms.vstring('kOutOfTime'),
-            kWeird       = cms.vstring('kWeird', 'kDiWeird'),
-            kBad         = cms.vstring('kFaultyHardware', 'kDead', 'kKilled')
-        ),
-        timeThresh = cms.double(2.0)
-    )
-"""
-
-    # from CMSSW_4_4_0_pre3: additional ESProducer in cfg files
-    if not self.config.fragment:
-      self.data += """
-# from CMSSW_4_4_0_pre3: additional ESProducer in cfg files
-if cmsswVersion > "CMSSW_4_4":
-    %(process)shltSiPixelQualityESProducer = cms.ESProducer("SiPixelQualityESProducer",
-        ListOfRecordToMerge = cms.VPSet(
-            cms.PSet( record = cms.string("SiPixelQualityFromDbRcd"),
-                      tag    = cms.string("")
-                    ),
-            cms.PSet( record = cms.string("SiPixelDetVOffRcd"),
-                      tag    = cms.string("")
-                    )
-        )
-    )
-"""
-
-    # from CMSSW_4_3_0_pre6: additional ESProducer in cfg files
-    if not self.config.fragment:
-      self.data += """
-# from CMSSW_4_3_0_pre6: additional ESProducer in cfg files
-if cmsswVersion > "CMSSW_4_3":
-    %(process)shltESPStripLorentzAngleDep = cms.ESProducer("SiStripLorentzAngleDepESProducer",
-        LatencyRecord = cms.PSet(
-            record = cms.string('SiStripLatencyRcd'),
-            label = cms.untracked.string('')
-        ),
-        LorentzAngleDeconvMode = cms.PSet(
-            record = cms.string('SiStripLorentzAngleRcd'),
-            label = cms.untracked.string('deconvolution')
-        ),
-        LorentzAnglePeakMode = cms.PSet(
-            record = cms.string('SiStripLorentzAngleRcd'),
-            label = cms.untracked.string('peak')
-        )
-    )
-"""
-
-    # from CMSSW_4_3_0_pre6: ECAL severity flags migration
-    self.data += """
-# from CMSSW_4_3_0_pre6: ECAL severity flags migration
-if cmsswVersion > "CMSSW_4_3":
-  import HLTrigger.Configuration.Tools.updateEcalSeverityFlags
-  HLTrigger.Configuration.Tools.updateEcalSeverityFlags.update( %(dict)s )
-"""
-
-
   # customize the configuration according to the options
   def customize(self):
+
+    # manual override some parameters
+    if self.config.type in ('GRun', ):
+      self.data += """
+# En-able HF Noise filters in GRun menu
+if 'hltHfreco' in %(dict)s:
+    %(process)shltHfreco.setNoiseFlags = cms.bool( True )
+"""
+    if self.config.type in ('HIon', ):
+      self.data += """
+# Disable HF Noise filters in HIon menu
+if 'hltHfreco' in %(dict)s:
+    %(process)shltHfreco.setNoiseFlags = cms.bool( False )
+"""
+
+## Use L1 menu from xml file
+#  ...removed in favor of sqlite file    
+#%(process)sl1GtTriggerMenuXml = cms.ESProducer("L1GtTriggerMenuXmlProducer",
+#    TriggerMenuLuminosity = cms.string('startup'),
+#    DefXmlFile = cms.string('L1Menu_CollisionsHeavyIons2011_v0_L1T_Scales_20101224_Imp0_0x1026.xml'),
+#    VmeXmlFile = cms.string('')
+#)
+#%(process)sL1GtTriggerMenuRcdSource = cms.ESSource("EmptyESSource",
+#    recordName = cms.string('L1GtTriggerMenuRcd'),
+#    iovIsRunNotTime = cms.bool(True),
+#    firstValid = cms.vuint32(1)
+#)
+
+    # untracked parameter with no default in the code
+    if self.config.data:
+      self.data += """
+    # untracked parameter with no default in the code
+if 'hltHcalDataIntegrityMonitor' in %(dict)s:
+    %(process)shltHcalDataIntegrityMonitor.RawDataLabel = cms.untracked.InputTag("source")
+"""
+    else:
+      self.data += """
+    # untracked parameter with no default in the code
+if 'hltHcalDataIntegrityMonitor' in %(dict)s:
+    %(process)shltHcalDataIntegrityMonitor.RawDataLabel = cms.untracked.InputTag("rawDataCollector")
+"""
 
     if self.config.fragment:
       # if running on MC, adapt the configuration accordingly
@@ -327,32 +239,6 @@ if cmsswVersion > "CMSSW_4_3":
 
       # if requested, override all ED/HLTfilters to always pass ("open" mode)
       self.instrumentOpenMode()
-
-      # manual override some parameters
-      if self.config.type in ('GRun', ):
-        self.data += """
-# En-able HF Noise filters in GRun menu
-if 'hltHfreco' in %(dict)s:
-    %(process)shltHfreco.setNoiseFlags = cms.bool( True )
-"""
-      if self.config.type in ('HIon', ):
-        self.data += """
-# Disable HF Noise filters in HIon menu
-if 'hltHfreco' in %(dict)s:
-    %(process)shltHfreco.setNoiseFlags = cms.bool( False )
-"""
-## Use L1 menu from xml file
-#  ...removed in favor of sqlite file    
-#%(process)sl1GtTriggerMenuXml = cms.ESProducer("L1GtTriggerMenuXmlProducer",
-#    TriggerMenuLuminosity = cms.string('startup'),
-#    DefXmlFile = cms.string('L1Menu_CollisionsHeavyIons2011_v0_L1T_Scales_20101224_Imp0_0x1026.xml'),
-#    VmeXmlFile = cms.string('')
-#)
-#%(process)sL1GtTriggerMenuRcdSource = cms.ESSource("EmptyESSource",
-#    recordName = cms.string('L1GtTriggerMenuRcd'),
-#    iovIsRunNotTime = cms.bool(True),
-#    firstValid = cms.vuint32(1)
-#)
 
       # if requested, instrument the self with the modules and EndPath needed for timing studies
       self.instrumentTiming()
@@ -372,32 +258,6 @@ if 'hltHfreco' in %(dict)s:
 
       # if requested, override all ED/HLTfilters to always pass ("open" mode)
       self.instrumentOpenMode()
-
-      # manual override some parameters
-      if self.config.type in ('GRun', ):
-        self.data += """
-# En-able HF Noise filters in GRun menu
-if 'hltHfreco' in %(dict)s:
-    %(process)shltHfreco.setNoiseFlags = cms.bool( True )
-"""
-      if self.config.type in ('HIon', ):
-        self.data += """
-# Disable HF Noise filters in HIon menu
-if 'hltHfreco' in %(dict)s:
-    %(process)shltHfreco.setNoiseFlags = cms.bool( False )
-"""
-## Use L1 menu from xml file
-#  ...removed in favor of sqlite file    
-#%(process)sl1GtTriggerMenuXml = cms.ESProducer("L1GtTriggerMenuXmlProducer",
-#    TriggerMenuLuminosity = cms.string('startup'),
-#    DefXmlFile = cms.string('L1Menu_CollisionsHeavyIons2011_v0_L1T_Scales_20101224_Imp0_0x1026.xml'),
-#    VmeXmlFile = cms.string('')
-#)
-#%(process)sL1GtTriggerMenuRcdSource = cms.ESSource("EmptyESSource",
-#    recordName = cms.string('L1GtTriggerMenuRcd'),
-#    iovIsRunNotTime = cms.bool(True),
-#    firstValid = cms.vuint32(1)
-#)
 
       # override the output modules to output root files
       self.overrideOutput()
