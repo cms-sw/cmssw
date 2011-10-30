@@ -7,8 +7,8 @@
  *  Description:
  *  utility classes for the dynamical truncation algorithm
  *
- *  $Date: 2010/06/14 11:01:53 $
- *  $Revision: 1.1 $
+ *  $Date: 2011/10/30 12:28:53 $
+ *  $Revision: 1.2 $
  *
  *  Authors :
  *  D. Pagano & G. Bruno - UCL Louvain
@@ -83,7 +83,7 @@ class StateSegmentMatcher {
  public:
   
   // Perform the matching between a track state and a CSC segment
-  StateSegmentMatcher(TrajectoryStateOnSurface*, CSCSegment*);
+  StateSegmentMatcher(TrajectoryStateOnSurface*, CSCSegment*, LocalError*);
 
   // Perform the matching between a track state and a DT segment
   StateSegmentMatcher(TrajectoryStateOnSurface*, DTRecSegment4D*, LocalError*);

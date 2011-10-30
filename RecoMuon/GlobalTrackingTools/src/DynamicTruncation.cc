@@ -6,8 +6,8 @@
  *  compatibility degree between the extrapolated track
  *  state and the reconstructed segment in the muon chambers
  *
- *  $Date: 2011/06/08 09:43:35 $
- *  $Revision: 1.7 $
+ *  $Date: 2011/10/30 12:28:09 $
+ *  $Revision: 1.8 $
  *
  *  Authors :
  *  D. Pagano & G. Bruno - UCL Louvain
@@ -112,7 +112,10 @@ double DynamicTruncation::getBest(std::vector<CSCSegment>& segs, TrajectoryState
   double val = MAX_THR;
   std::vector<CSCSegment>::size_type sz = segs.size();
   for (i=0; i<sz; i++) {
-    StateSegmentMatcher estim(&tsos, &segs[i]);
+    AlignmentPositionError* apeObj = theG->idToDet(segs[i].cscDetId())->alignmentPositionError();
+    const GlobalError apeGlob = apeObj->globalError();
+    LocalError apeLoc = ErrorFrameTransformer().transform(apeGlob, theG->idToDet(segs[i].cscDetId())->surface());
+    StateSegmentMatcher estim(&tsos, &segs[i], &apeLoc);
     double tmp = estim.value();
     if (tmp < val) {
       bestCSCSeg = segs[i];
@@ -132,15 +135,6 @@ double DynamicTruncation::getBest(std::vector<DTRecSegment4D>& segs, TrajectoryS
     AlignmentPositionError* apeObj = theG->idToDet(segs[i].chamberId())->alignmentPositionError();
     const GlobalError apeGlob = apeObj->globalError(); 
     LocalError apeLoc = ErrorFrameTransformer().transform(apeGlob, theG->idToDet(segs[i].chamberId())->surface());
-
-    // mat[0][0]=sigma (dx/dz)
-    // mat[1][1]=sigma (dy/dz)
-    // mat[2][2]=sigma (x)
-    // mat[3][3]=sigma (y)
-    // mat[0][2]=cov(dx/dz,x)
-    // mat[1][3]=cov(dy/dz,y)
-    
-
     StateSegmentMatcher estim(&tsos, &segs[i], &apeLoc); 
     double tmp = estim.value();                                                                                                                                              
     if (tmp < val) {

@@ -4,8 +4,8 @@
  *  Description:
  *  utility classes for the dynamical truncation algorithm
  *
- *  $Date: 2010/06/14 11:02:56 $
- *  $Revision: 1.1 $
+ *  $Date: 2011/10/30 12:28:32 $
+ *  $Revision: 1.2 $
  *
  *  Authors :
  *  D. Pagano & G. Bruno - UCL Louvain
@@ -71,8 +71,10 @@ StateSegmentMatcher::StateSegmentMatcher(TrajectoryStateOnSurface* tsos, DTRecSe
 
 
 
-StateSegmentMatcher::StateSegmentMatcher(TrajectoryStateOnSurface* tsos, CSCSegment* cscseg4d)
+StateSegmentMatcher::StateSegmentMatcher(TrajectoryStateOnSurface* tsos, CSCSegment* cscseg4d, LocalError* apeLoc)
 {
+  setAPE4d(*apeLoc);
+
   match2D = false;
   AlgebraicVector cscseg = cscseg4d->parameters();
   v1[0] = cscseg[0];
