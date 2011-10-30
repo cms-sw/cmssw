@@ -1,8 +1,8 @@
 /*
  * \file EBOccupancyTask.cc
  *
- * $Date: 2011/08/23 00:25:31 $
- * $Revision: 1.94.2.1 $
+ * $Date: 2011/08/30 09:30:32 $
+ * $Revision: 1.96 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -86,7 +86,7 @@ EBOccupancyTask::EBOccupancyTask(const edm::ParameterSet& ps){
   meEBPedestalDigiOccupancy_ = 0;
 
   recHitEnergyMin_ = 0.300; // GeV
-  trigPrimEtMin_ = 4.; // 4 ADCs == 1 GeV
+  trigPrimEtMin_ = 4.; // 2 ADCs == 1 GeV
 
 }
 

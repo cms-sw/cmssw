@@ -4,8 +4,8 @@
 /*
  * \file EETimingClient.h
  *
- * $Date: 2011/08/30 09:30:03 $
- * $Revision: 1.31 $
+ * $Date: 2011/09/15 21:02:09 $
+ * $Revision: 1.32 $
  * \author G. Della Ricca
  *
 */
@@ -114,10 +114,10 @@ MonitorElement* mer01_[18];
 
 // Quality check on crystals, one per each gain
 
+float nHitThreshold_;
 float expectedMean_;
-float discrepancyMean_;
-float RMSThresholdLowEta_;
-float RMSThresholdHighEta_;
+ float meanThreshold_;
+float rmsThreshold_;
 
 };
 

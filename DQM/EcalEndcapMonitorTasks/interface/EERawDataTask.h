@@ -4,8 +4,8 @@
 /*
  * \file EERawDataTask.h
  *
- * $Date: 2009/10/26 17:33:50 $
- * $Revision: 1.7 $
+ * $Date: 2010/08/06 17:35:41 $
+ * $Revision: 1.8 $
  * \author E. Di Marco
  *
 */
@@ -84,7 +84,7 @@ MonitorElement* meEETriggerTypeErrors_;
 MonitorElement* meEECalibrationEventErrors_;
 MonitorElement* meEEL1ADCCErrors_;
 MonitorElement* meEEBunchCrossingDCCErrors_;
-MonitorElement* meEEL1AFEErrors_;
+MonitorElement* meEEL1AFEErrors_[2];
 MonitorElement* meEEBunchCrossingFEErrors_;
 MonitorElement* meEEL1ATCCErrors_;
 MonitorElement* meEEBunchCrossingTCCErrors_;

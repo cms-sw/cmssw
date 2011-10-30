@@ -1,8 +1,8 @@
 /*
  * \file EEOccupancyTask.cc
  *
- * $Date: 2011/02/14 08:01:29 $
- * $Revision: 1.87 $
+ * $Date: 2011/08/30 09:28:42 $
+ * $Revision: 1.89 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -113,7 +113,7 @@ EEOccupancyTask::EEOccupancyTask(const edm::ParameterSet& ps){
   meEEPedestalDigiOccupancy_[1] = 0;
 
   recHitEnergyMin_ = 0.500; // GeV
-  trigPrimEtMin_ = 4.; // 4 ADCs == 1 GeV
+  trigPrimEtMin_ = 4.; // 2 ADCs == 1 GeV
 
   for (int i = 0; i < EEDetId::kSizeForDenseIndexing; i++) {
     geometryEE[i][0] = 0;

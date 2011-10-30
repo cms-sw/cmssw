@@ -7,6 +7,7 @@ ecalBarrelTimingTask = cms.EDAnalyzer("EBTimingTask",
     useBeamStatus = cms.untracked.bool(False),
     EcalRawDataCollection = cms.InputTag("ecalEBunpacker"),
     EcalRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
-    L1GtEvmReadoutRecord = cms.InputTag("l1GtEvmUnpack")
+    L1GtEvmReadoutRecord = cms.InputTag("l1GtEvmUnpack"),
+    energyThreshold = cms.untracked.double(1.0)
 )
 

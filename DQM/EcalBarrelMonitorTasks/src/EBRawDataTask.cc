@@ -1,8 +1,8 @@
 /*
  * \file EBRawDataTask.cc
  *
- * $Date: 2010/08/11 14:57:34 $
- * $Revision: 1.39 $
+ * $Date: 2011/08/30 09:30:32 $
+ * $Revision: 1.40 $
  * \author E. Di Marco
  *
 */
@@ -253,11 +253,9 @@ void EBRawDataTask::setup(void){
       meEBBunchCrossingDCCErrors_->setBinLabel(i+1, Numbers::sEB(i+1), 1);
     }
 
+    // important - used in the global summary
     name = "EBRDT L1A FE errors";
-    meEBL1AFEErrors_ = dqmStore_->book1D(name, name, 36, 1, 37);
-    for (int i = 0; i < 36; i++) {
-      meEBL1AFEErrors_->setBinLabel(i+1, Numbers::sEB(i+1), 1);
-    }
+    meEBL1AFEErrors_ = dqmStore_->book2D(name, name, 72, 0., 360., 34, -85., 85.);
 
     name = "EBRDT bunch crossing FE errors";
     meEBBunchCrossingFEErrors_ = dqmStore_->book1D(name, name, 36, 1, 37);
@@ -588,7 +586,9 @@ void EBRawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
         // do not consider desynch errors if the DCC detected them
         if( ( status[fe] == 9 || status[fe] == 11 )) continue;
         if(feLv1[fe]+feLv1Offset != ECALDCC_L1A_12bit && feLv1[fe] != -1 && ECALDCC_L1A_12bit - 1 != -1) {
-          meEBL1AFEErrors_->Fill( xism, 1/(float)feLv1.size() );
+	  // assuming a simple mapping between fe number and the TT position as done in EBStatusFlagTask
+	  float eta = ((fe - 1) / 4 + 0.5) * 5. * (-1. + 2. * ((ism - 1) / 18));
+	  meEBL1AFEErrors_->Fill(((fe-1)%4 + 0.5)*5. + ((ism-1)%18)*20, eta);
           meEBSynchronizationErrorsByLumi_->Fill( xism, 1/(float)feLv1.size() );
         } else if( BxSynchStatus[fe]==0 ) meEBSynchronizationErrorsByLumi_->Fill( xism, 1/(float)feLv1.size() );
       }
