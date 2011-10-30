@@ -32353,10 +32353,6 @@ HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_Activity_Ecal_SC7_v8, HLT_
 if 'hltHfreco' in locals():
     hltHfreco.setNoiseFlags = cms.bool( True )
 
-    # untracked parameter with no default in the code
-if 'hltHcalDataIntegrityMonitor' in locals():
-    hltHcalDataIntegrityMonitor.RawDataLabel = cms.untracked.InputTag("source")
-
 # version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']

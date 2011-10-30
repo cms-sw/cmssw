@@ -37106,10 +37106,6 @@ process.TrackerCalibrationOutput = cms.EndPath( process.hltPreTrackerCalibration
 if 'hltHfreco' in process.__dict__:
     process.hltHfreco.setNoiseFlags = cms.bool( True )
 
-    # untracked parameter with no default in the code
-if 'hltHcalDataIntegrityMonitor' in process.__dict__:
-    process.hltHcalDataIntegrityMonitor.RawDataLabel = cms.untracked.InputTag("source")
-
 # override the process name
 process.setName_('HLTGRun')
 

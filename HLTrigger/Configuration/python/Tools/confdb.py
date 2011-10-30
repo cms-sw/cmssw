@@ -214,13 +214,7 @@ if 'hltHfreco' in %(dict)s:
 #)
 
     # untracked parameter with no default in the code
-    if self.config.data:
-      self.data += """
-    # untracked parameter with no default in the code
-if 'hltHcalDataIntegrityMonitor' in %(dict)s:
-    %(process)shltHcalDataIntegrityMonitor.RawDataLabel = cms.untracked.InputTag("source")
-"""
-    else:
+    if not self.config.data:
       self.data += """
     # untracked parameter with no default in the code
 if 'hltHcalDataIntegrityMonitor' in %(dict)s:
