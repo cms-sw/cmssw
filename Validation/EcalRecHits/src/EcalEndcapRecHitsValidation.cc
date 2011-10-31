@@ -1,7 +1,7 @@
 /*
  * \file EcalEndcapRecHitsValidation.cc
  *
- * $Date: 2009/07/28 09:32:01 $
+ * $Date: 2009/12/14 22:24:44 $
  * \author C. Rovelli
  *
  */
@@ -184,7 +184,7 @@ void EcalEndcapRecHitsValidation::analyze(const Event& e, const EventSetup& c){
       if ( ! skipDigis ) {
         // Find the rechit corresponding digi
         EEDigiCollection::const_iterator myDigi = EEDigi->find(EEid);
-        int sMax    = -1;
+        // int sMax    = -1; // UNUSED
         double eMax = 0.;
         if (myDigi != EEDigi->end()){ 
           for (unsigned int sample = 0 ; sample < myDigi->size(); ++sample){
@@ -192,7 +192,7 @@ void EcalEndcapRecHitsValidation::analyze(const Event& e, const EventSetup& c){
             double analogSample = thisSample.adc();
             if ( eMax < analogSample ){ 
               eMax = analogSample;
-              sMax = sample;
+              // sMax = sample; // UNUSED
             }
           }
         }

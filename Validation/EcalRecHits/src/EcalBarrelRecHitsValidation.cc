@@ -1,7 +1,7 @@
 /*
  * \file EcalBarrelRecHitsValidation.cc
  *
- * $Date: 2009/07/28 09:32:01 $
+ * $Date: 2009/12/14 22:24:44 $
  * \author C. Rovelli
  *
  */
@@ -196,7 +196,7 @@ void EcalBarrelRecHitsValidation::analyze(const Event& e, const EventSetup& c){
       if ( ! skipDigis ) { 
         // find the rechit corresponding digi and the max sample
         EBDigiCollection::const_iterator myDigi = EBDigi->find(EBid);
-        int sMax = -1;
+        // int sMax = -1; // UNUSED
         double eMax = 0.;
         if (myDigi != EBDigi->end()){
           for (unsigned int sample = 0 ; sample < myDigi->size(); ++sample){
@@ -204,7 +204,7 @@ void EcalBarrelRecHitsValidation::analyze(const Event& e, const EventSetup& c){
             double analogSample = thisSample.adc();
             if ( eMax < analogSample ){
               eMax = analogSample;
-              sMax = sample;
+              // sMax = sample; // UNUSED
             }
           }
         }

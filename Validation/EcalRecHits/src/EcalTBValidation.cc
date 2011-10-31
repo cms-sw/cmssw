@@ -240,7 +240,7 @@ void EcalTBValidation::analyze( const edm::Event& event, const edm::EventSetup& 
   double sampleSave[10];
   for(int ii=0; ii < 10; ++ii){ sampleSave[ii] = 0.0; }
   EBDigiCollection::const_iterator thisDigi = theDigis->find(xtalInBeamId);
-  int sMax = -1;
+  // int sMax = -1; // UNUSED
   double eMax = 0.;
   if (thisDigi != theDigis->end()){
     EBDataFrame myDigi = (*thisDigi);
@@ -249,7 +249,7 @@ void EcalTBValidation::analyze( const edm::Event& event, const edm::EventSetup& 
       sampleSave[sample]  = analogSample;
       if ( eMax < analogSample ) {
 	eMax = analogSample;
-	sMax = sample;
+	// sMax = sample; // UNUSED
       }
     }
   }
