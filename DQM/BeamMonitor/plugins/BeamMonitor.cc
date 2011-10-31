@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2011/05/12 11:46:55 $
- * $Revision: 1.72 $
+ * $Date: 2011/10/25 08:18:51 $
+ * $Revision: 1.73 $
  */
 
 
@@ -317,11 +317,11 @@ void BeamMonitor::beginJob() {
   // Histos of PrimaryVertices:
   dbe_->setCurrentFolder(monitorName_+"PrimaryVertex");
 
-  h_nVtx = dbe_->book1D("vtxNbr","Reconstructed Vertices(non-fake) in all Event",20,-0.5,19.5);
+  h_nVtx = dbe_->book1D("vtxNbr","Reconstructed Vertices(non-fake) in all Event",30,-0.5,29.5);
   h_nVtx->setAxisTitle("Num. of reco. vertices",1);
   
   //For one Trigger only
-  h_nVtx_st = dbe_->book1D("vtxNbr_SelectedTriggers","Reconstructed Vertices(non-fake) in Events",20,-0.5,19.5);
+  h_nVtx_st = dbe_->book1D("vtxNbr_SelectedTriggers","Reconstructed Vertices(non-fake) in Events",30,-0.5,29.5);
   //h_nVtx_st->setAxisTitle("Num. of reco. vertices for Un-Prescaled Jet Trigger",1);
 
   // Monitor only the PV with highest sum pt of assoc. trks:
@@ -647,11 +647,11 @@ void BeamMonitor::analyze(const Event& iEvent,
     }//loop over pvs
 
 
-    if (nPVcount> 0 )h_nVtx->Fill(nPVcount*1.); //no need to change it for average BS
+    if (nPVcount >= 0 )h_nVtx->Fill(nPVcount*1.); //no need to change it for average BS
 
     mapNPV[countLumi_].push_back((nPVcount_ST));
 
-    if(!StartAverage_){ if (nPVcount_ST>0 ) h_nVtx_st->Fill(nPVcount_ST*1.);}
+    if(!StartAverage_){ if (nPVcount_ST >= 0 ) h_nVtx_st->Fill(nPVcount_ST*1.);}
 
   }//if pv collection is availaable
 
