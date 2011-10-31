@@ -67,14 +67,13 @@ process.phystrigger = cms.Sequence(
                                     #  *process.gtDigis*process.hltLevel1GTSeed
                               )
 
-from DQM.Integration.test.environment_cfi import runType, runTypes
 
 
 #----------------------------
 # Proton-Proton Running Stuff
 #----------------------------
 
-if (runType == runTypes.pp_run):
+if (process.runType.getRunType() == process.runType.pp_run or process.runType.getRunType() == process.runType.cosmic_run):
     print "Running pp "
 
     process.EventStreamHttpReader.SelectEvents = cms.untracked.PSet(SelectEvents = cms.vstring('HLT_L1*',
@@ -132,7 +131,7 @@ if (runType == runTypes.pp_run):
 # Heavy Ion Specific Part
 #--------------------------------------------------
 
-if (runType == runTypes.hi_run):
+if (process.runType.getRunType() == process.runType.hi_run):
     
     print "Running HI "
     process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
@@ -188,7 +187,7 @@ if (runType == runTypes.hi_run):
     #----------------------------
     # Pixel-Tracks Configuration
     #----------------------------
-    process.PixelTrackReconstructionBlock.RegionFactoryPSet.ComponentName = "GlobalRegionProducer"
+    #process.PixelTrackReconstructionBlock.RegionFactoryPSet.ComponentName = "GlobalRegionProducer"
 
 
     #----------------------------

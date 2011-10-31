@@ -75,13 +75,12 @@ process.dqmcommon = cms.Sequence(process.dqmEnv
 process.monitor = cms.Sequence(process.dqmBeamMonitor)
 
 
-from DQM.Integration.test.environment_cfi import runType, runTypes
 
 #--------------------------
 # Proton-Proton Stuff
 #--------------------------
 
-if (runType == runTypes.pp_run):
+if (process.runType.getRunType() == process.runType.pp_run or process.runType.getRunType() == process.runType.cosmic_run):
 
     print "Running pp"
     process.EventStreamHttpReader.SelectEvents = cms.untracked.PSet(
@@ -91,7 +90,7 @@ if (runType == runTypes.pp_run):
                                         'HLT_HT*',
                                         'HLT_MinBias_*',
                                         'HLT_Physics*',
-                                        'HLT_ZeroBias_v2')
+                                        'HLT_ZeroBias_v*')
                                       )
 
     process.load("Configuration.StandardSequences.Reconstruction_cff")
@@ -165,7 +164,7 @@ if (runType == runTypes.pp_run):
 # Heavy Ion Stuff
 #--------------------------------------------------
 
-if (runType == runTypes.hi_run):
+if (process.runType.getRunType() == process.runType.hi_run):
 
     print "Running HI"
     process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
@@ -192,8 +191,8 @@ if (runType == runTypes.hi_run):
                                      )
 
     process.dqmBeamMonitor.OnlineMode = True                  ## in MC the LS are not ordered??
-    process.dqmBeamMonitor.resetEveryNLumi = 5
-    process.dqmBeamMonitor.resetPVEveryNLumi = 5
+    process.dqmBeamMonitor.resetEveryNLumi = 10
+    process.dqmBeamMonitor.resetPVEveryNLumi = 10
     process.dqmBeamMonitor.BeamFitter.MinimumTotalLayers = 3   ## using pixel triplets
     process.dqmBeamMonitor.PVFitter.minNrVerticesForFit = 20
 
@@ -239,9 +238,9 @@ if (runType == runTypes.hi_run):
     process.hiPixel3ProtoTracks.RegionFactoryPSet.RegionPSet.fixedError = 0.5
     process.hiSelectedProtoTracks.maxD0Significance = 100
     process.hiPixelAdaptiveVertex.TkFilterParameters.maxD0Significance = 100
-    process.hiPixelAdaptiveVertex.useBeamConstraint = False
+    process.hiPixelAdaptiveVertex.vertexCollections.useBeamConstraint = False
     #not working due to wrong tag of reco
-    #process.hiPixelAdaptiveVertex.vertexCollections.maxDistanceToBeam = 1.0
+    process.hiPixelAdaptiveVertex.vertexCollections.maxDistanceToBeam = 1.0
 
 
 
