@@ -1,8 +1,8 @@
 /** \file LaserAlignment.cc
  *  LAS reconstruction module
  *
- *  $Date: 2010/01/06 09:38:00 $
- *  $Revision: 1.40 $
+ *  $Date: 2011/09/16 07:45:48 $
+ *  $Revision: 1.41 $
  *  \author Maarten Thomas
  *  \author Jan Olzem
  */
@@ -1043,7 +1043,6 @@ void LaserAlignment::fillDataProfiles( edm::Event const& theEvent, edm::EventSet
 
 	// fill the digis to the profiles
 	edm::DetSet<SiStripDigi>::const_iterator digiRangeIterator = detSetIter->data.begin(); // for the loop
-	edm::DetSet<SiStripDigi>::const_iterator digiRangeStart = digiRangeIterator; // save starting positions
 	
 	for(; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator ) {
 	  const SiStripDigi& digi = *digiRangeIterator;
@@ -1102,7 +1101,6 @@ void LaserAlignment::fillDataProfiles( edm::Event const& theEvent, edm::EventSet
 
 	// fill the digis to the profiles
 	edm::DetSet<SiStripDigi>::const_iterator digiRangeIterator = detSetIter->data.begin(); // for the loop
-	edm::DetSet<SiStripDigi>::const_iterator digiRangeStart = digiRangeIterator; // save starting positions
 	
 	for(; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator ) {
 	  const SiStripDigi& digi = *digiRangeIterator;
@@ -1158,7 +1156,6 @@ void LaserAlignment::fillDataProfiles( edm::Event const& theEvent, edm::EventSet
       
 	// fill the digis to the profiles
 	edm::DetSet<SiStripDigi>::const_iterator digiRangeIterator = detSetIter->data.begin(); // for the loop
-	edm::DetSet<SiStripDigi>::const_iterator digiRangeStart = digiRangeIterator; // save starting positions
       
 	for(; digiRangeIterator != detSetIter->data.end(); ++digiRangeIterator ) {
 	  const SiStripDigi& digi = *digiRangeIterator;
