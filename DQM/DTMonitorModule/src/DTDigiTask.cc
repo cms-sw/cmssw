@@ -1,8 +1,8 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2011/06/14 08:53:04 $
- * $Revision: 1.65 $
+ * $Date: 2011/10/21 18:29:19 $
+ * $Revision: 1.66 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -164,8 +164,11 @@ void DTDigiTask::beginRun(const edm::Run& run, const edm::EventSetup& context) {
           const  DTChamberId dtChId(wh,st,sect);
 
           // Occupancies 
-          if (doAllHitsOccupancies) 
+          if (doAllHitsOccupancies) { 
             bookHistos(dtChId,string("Occupancies"),"OccupancyAllHits_perCh");
+            // set channel mapping
+            channelsMap(dtChId, "OccupancyAllHits_perCh");
+          }
           if(doNoiseOccupancies) 
             bookHistos(dtChId,string("Occupancies"),"OccupancyNoise_perCh");
           if(doInTimeOccupancies)
@@ -212,6 +215,17 @@ void DTDigiTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup
       map<uint32_t,MonitorElement*>::const_iterator histoIt  = (*histosIt).second.begin();
       map<uint32_t,MonitorElement*>::const_iterator histoEnd = (*histosIt).second.end();
       for(;histoIt != histoEnd; ++histoIt) { (*histoIt).second->Reset(); }
+    }
+
+    // re-set mapping for not real channels in the occupancyHits per chamber
+    for(int wh=-2; wh<=2; wh++) {
+      for(int sect=1; sect<=14; sect++) {
+        for(int st=1; st<=4; st++) {
+          if( (sect == 13 || sect == 14) && st != 4 ) {continue;}
+           const DTChamberId dtChId(wh,st,sect);
+           channelsMap(dtChId, "OccupancyAllHits_perCh");
+        }
+      }
     }
 
     // loop over wheel summaries
@@ -375,25 +389,6 @@ void DTDigiTask::bookHistos(const DTChamberId& dtCh, string folder, string histo
         histoTitle = title.str();
       }
       (digiHistos[histoTag])[dtCh.rawId()] = dbe->book2D(histoName,histoTitle,nWires_max,1,nWires_max+1,12,0,12);
-
-      // set bin content = -1 for each not real channel. For visualization purposes
-      for(int sl=1; sl<=3; sl++) {
-        for(int ly=1; ly<=4; ly++) {
-          for(int ch=1; ch<=nWires_max; ch++) {
-            
-            int dduId = -1, rosId = -1, robId = -1, tdcId = -1, channelId = -1;
-            int realCh = mapping->geometryToReadOut(dtCh.wheel(),dtCh.station(),dtCh.sector(),sl,ly,ch,dduId,rosId,robId,tdcId,channelId);
-
-            if( !realCh ) {
-             
-             int lybin = (4*sl - 4) + ly;
-             (digiHistos[histoTag])[dtCh.rawId()] -> setBinContent(ch,lybin,-1.);
-
-            } 
-
-          }
-        }
-      }
 
       for(int i=1;i<=12;i++) { 
         if(i<5){
@@ -820,5 +815,32 @@ void DTDigiTask::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const e
   // 								  (double)nSynchNoiseEvents[chId]/(double)nevents); 
   //    }
   //  }
+
+}
+
+void DTDigiTask::channelsMap(const DTChamberId &dtCh, string histoTag) {
+
+      // n max channels
+      int nWires_max = (digiHistos[histoTag])[dtCh.rawId()] -> getNbinsX();
+
+      // set bin content = -1 for each not real channel. For visualization purposes
+      for(int sl=1; sl<=3; sl++) {
+        for(int ly=1; ly<=4; ly++) {
+          for(int ch=1; ch<=nWires_max; ch++) {
+
+            int dduId = -1, rosId = -1, robId = -1, tdcId = -1, channelId = -1;
+            int realCh = mapping->geometryToReadOut(dtCh.wheel(),dtCh.station(),dtCh.sector(),sl,ly,ch,dduId,rosId,robId,tdcId,channelId);
+
+            // realCh = 0 if the channel exists, while realCh = 1 if it does not exist
+            if( realCh ) {
+
+              int lybin = (4*sl - 4) + ly;
+              (digiHistos[histoTag])[dtCh.rawId()] -> setBinContent(ch,lybin,-1.);
+
+            } 
+
+          }
+        }
+      }
 
 }

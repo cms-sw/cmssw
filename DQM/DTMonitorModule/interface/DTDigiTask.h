@@ -4,8 +4,8 @@
 /*
  * \file DTDigiTask.h
  *
- * $Date: 2011/06/10 13:23:25 $
- * $Revision: 1.33 $
+ * $Date: 2011/10/21 18:29:20 $
+ * $Revision: 1.34 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -67,6 +67,9 @@ protected:
   /// To reset the MEs
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& setup);
+
+  /// To map real channels
+  void channelsMap(const DTChamberId& dtCh, std::string histoTag);
 
   /// Analyze
   void analyze(const edm::Event& e, const edm::EventSetup& c);

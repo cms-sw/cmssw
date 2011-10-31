@@ -25,6 +25,7 @@
 
 #include "DataFormats/DTRecHit/interface/DTRecSegment4D.h"
 #include "DataFormats/MuonDetId/interface/MuonSubdetId.h"
+#include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
@@ -77,8 +78,8 @@ void DTRunConditionVar::beginJob() {
     for(int sec=1; sec<=14; sec++) {
       for(int stat=1; stat<=4; stat++) {
 
-        bookChamberHistos(DTChamberId(wheel,stat,sec),"VDrift_FromSegm",50,25.,75.);
-        bookChamberHistos(DTChamberId(wheel,stat,sec),"T0_FromSegm",75,-75.,75.);
+        bookChamberHistos(DTChamberId(wheel,stat,sec),"VDrift_FromSegm",100,0.0043,0.0065);
+        bookChamberHistos(DTChamberId(wheel,stat,sec),"T0_FromSegm",100,-25.,25.);
 
       }
     }
@@ -125,6 +126,10 @@ void DTRunConditionVar::analyze(const Event & event,
   ESHandle<DTGeometry> dtGeom;
   eventSetup.get<MuonGeometryRecord>().get(dtGeom);
 
+  // Get the map of vdrift from the setup
+  eventSetup.get<DTMtimeRcd>().get(mTime);
+  mTimeMap_ = &*mTime;
+
   // Get the segment collection from the event
   Handle<DTRecSegment4DCollection> all4DSegments;
   event.getByLabel(thedt4DSegments_, all4DSegments); 
@@ -142,20 +147,37 @@ void DTRunConditionVar::analyze(const Event & event,
 
       int nHitsPhi = (*segment).phiSegment()->degreesOfFreedom()+2;
       double xdir = (*segment).phiSegment()->localDirection().x();      
-      double ydir = (*segment).phiSegment()->localDirection().y();      
       double zdir = (*segment).phiSegment()->localDirection().z();      
 
       double anglePhiSegm = fabs(atan(xdir/zdir))*180./TMath::Pi();
 
-      cout<<sqrt( pow(xdir,2) + pow(ydir,2) + pow(zdir,2) )<<"\t"<<xdir<<"\t"<<ydir<<"\t"<<zdir<<"\t"<<anglePhiSegm<<endl;
-
       if( nHitsPhi >= nMinHitsPhi && anglePhiSegm <= maxAnglePhiSegm ) {
 
         double segmentVDrift = segment->phiSegment()->vDrift();
+
+
+        DTSuperLayerId indexSLPhi1(DTid,1);
+        DTSuperLayerId indexSLPhi2(DTid,3);
+
+        float vDriftPhi1(0.), vDriftPhi2(0.); 
+        float ResPhi1(0.), ResPhi2(0.);
+        int status1 = mTimeMap_->get(indexSLPhi1,vDriftPhi1,ResPhi1,DTVelocityUnits::cm_per_ns); 
+        int status2 = mTimeMap_->get(indexSLPhi2,vDriftPhi2,ResPhi2,DTVelocityUnits::cm_per_ns); 
+
+        if(status1 != 0 || status2 != 0) {
+          DTSuperLayerId sl = (status1 != 0) ? indexSLPhi1 : indexSLPhi2; 
+          throw cms::Exception("DTRunConditionVarClient") << "Could not find vDrift entry in DB for"
+            << sl << endl;
+        }
+
+        float vDriftMed = (vDriftPhi1 + vDriftPhi2) / 2.;
+
+        segmentVDrift = vDriftMed*(1. + segmentVDrift);
+
         double segmentT0 = segment->phiSegment()->t0();
 
-        if(segmentT0 != -999 ) (chamberHistos[indexCh])["T0_FromSegm"]->Fill(segmentT0);
-        if( segmentVDrift > 0.00 ) (chamberHistos[indexCh])["VDrift_FromSegm"]->Fill(segmentVDrift);
+        (chamberHistos[indexCh])["T0_FromSegm"]->Fill(segmentT0);
+        (chamberHistos[indexCh])["VDrift_FromSegm"]->Fill(segmentVDrift);
 
       }
     }

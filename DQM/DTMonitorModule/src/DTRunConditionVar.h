@@ -29,6 +29,7 @@
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "CondFormats/DTObjects/interface/DTMtime.h"
 
 #include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 #include <vector>
@@ -66,6 +67,9 @@ class DTRunConditionVar : public edm::EDAnalyzer
     edm::InputTag thedt4DSegments_;
 
     edm::ESHandle<DTGeometry> dtGeom;
+
+    edm::ESHandle<DTMtime> mTime;
+    const DTMtime* mTimeMap_;
 
     DQMStore* theDbe;
 

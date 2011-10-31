@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2011/06/10 13:23:26 $
- * $Revision: 1.74 $
+ * $Date: 2011/10/19 10:05:54 $
+ * $Revision: 1.75 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino), G. Cerminara (INFN Torino)
  *
  */
@@ -176,11 +176,6 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     histoTitle = "Event Lenght (Bytes) FED " +  dduID_s.str();
     (dduHistos[histoType])[code.getDDUID()] = dbe->book1D(histoName,histoTitle,501,0,16032);
 
-    histoType = "FEDAvgEvLenghtvsLumi";
-    histoName = "FED" + dduID_s.str() + "_" + histoType;
-    histoTitle = "Avg Event Lenght (Bytes) vs LumiSec FED " +  dduID_s.str();
-    dduTimeHistos[histoType][code.getDDUID()] = new DTTimeEvolutionHisto(dbe,histoName,histoTitle,200,10,true,0);
-
     if(mode > 2) return;
 
     histoType = "ROSStatus";
@@ -214,6 +209,11 @@ void DTDataIntegrityTask::bookHistos(string folder, DTROChainCoding code) {
     histo->setBinLabel(12,"ROS 12",2);
 
     if(mode > 1) return;
+
+    histoType = "FEDAvgEvLenghtvsLumi";
+    histoName = "FED" + dduID_s.str() + "_" + histoType;
+    histoTitle = "Avg Event Lenght (Bytes) vs LumiSec FED " +  dduID_s.str();
+    dduTimeHistos[histoType][code.getDDUID()] = new DTTimeEvolutionHisto(dbe,histoName,histoTitle,200,10,true,0);
 
     histoType = "TTSValues";
     histoName = "FED" + dduID_s.str() + "_" + histoType;
@@ -1072,10 +1072,10 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
   int fedEvtLenght = trailer.lenght()*8;
   //   if(fedEvtLenght > 16000) fedEvtLenght = 16000; // overflow bin
   dduHistos["EventLenght"][code.getDDUID()]->Fill(fedEvtLenght);
-  dduTimeHistos["FEDAvgEvLenghtvsLumi"][code.getDDUID()]->accumulateValueTimeSlot(fedEvtLenght);
 
   if(mode > 1) return;
 
+  dduTimeHistos["FEDAvgEvLenghtvsLumi"][code.getDDUID()]->accumulateValueTimeSlot(fedEvtLenght);
 
   // size of the list of ROS in the Read-Out
   dduHistos["ROSList"][code.getDDUID()]->Fill(rosPositions.size());
