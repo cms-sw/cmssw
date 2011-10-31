@@ -43,13 +43,22 @@ public:
 	RooqqZZPdf() {} ;
 	RooqqZZPdf(const char *name, const char *title,
 			   RooAbsReal& _m4l,
+			   RooAbsReal& _a0,
 			   RooAbsReal& _a1,
 			   RooAbsReal& _a2,
 			   RooAbsReal& _a3,
-			   RooAbsReal& _b1,
-			   RooAbsReal& _b2,
-			   RooAbsReal& _b3,
-			   RooAbsReal& _frac);
+			   RooAbsReal& _a4,
+			   RooAbsReal& _a5,
+			   RooAbsReal& _a6,
+			   RooAbsReal& _a7,
+			   RooAbsReal& _a8,
+			   RooAbsReal& _a9,
+			   RooAbsReal& _a10,
+			   RooAbsReal& _a11,
+			   RooAbsReal& _a12,
+			   RooAbsReal& _a13
+			   
+			   );
 	RooqqZZPdf(const RooqqZZPdf& other, const char* name=0) ;
 	virtual TObject* clone(const char* newname) const { return new RooqqZZPdf(*this,newname); }
 	inline virtual ~RooqqZZPdf() { }
@@ -57,13 +66,21 @@ public:
 protected:
 	
 	RooRealProxy m4l ;
+	RooRealProxy a0 ;
 	RooRealProxy a1 ;
 	RooRealProxy a2 ;
 	RooRealProxy a3 ;
-	RooRealProxy b1 ;
-	RooRealProxy b2 ;
-	RooRealProxy b3 ;
-	RooRealProxy frac ;
+	RooRealProxy a4 ;
+	RooRealProxy a5 ;
+	RooRealProxy a6 ;
+	RooRealProxy a7 ;
+	RooRealProxy a8 ;
+	RooRealProxy a9 ;
+	RooRealProxy a10 ;
+	RooRealProxy a11 ;
+	RooRealProxy a12 ;
+	RooRealProxy a13 ;
+	
 	
 	Double_t evaluate() const ;
 	
@@ -79,13 +96,18 @@ public:
 	RooggZZPdf() {} ;
 	RooggZZPdf(const char *name, const char *title,
 			   RooAbsReal& _m4l,
+			   RooAbsReal& _a0,
 			   RooAbsReal& _a1,
 			   RooAbsReal& _a2,
 			   RooAbsReal& _a3,
-			   RooAbsReal& _b1,
-			   RooAbsReal& _b2,
-			   RooAbsReal& _b3,
-			   RooAbsReal& _frac);
+			   RooAbsReal& _a4,
+			   RooAbsReal& _a5,
+			   RooAbsReal& _a6,
+			   RooAbsReal& _a7,
+			   RooAbsReal& _a8,
+			   RooAbsReal& _a9
+			   
+			   );
 	RooggZZPdf(const RooggZZPdf& other, const char* name=0) ;
 	virtual TObject* clone(const char* newname) const { return new RooggZZPdf(*this,newname); }
 	inline virtual ~RooggZZPdf() { }
@@ -93,13 +115,16 @@ public:
 protected:
 	
 	RooRealProxy m4l ;
+	RooRealProxy a0 ;
 	RooRealProxy a1 ;
 	RooRealProxy a2 ;
 	RooRealProxy a3 ;
-	RooRealProxy b1 ;
-	RooRealProxy b2 ;
-	RooRealProxy b3 ;
-	RooRealProxy frac ;
+	RooRealProxy a4 ;
+	RooRealProxy a5 ;
+	RooRealProxy a6 ;
+	RooRealProxy a7 ;
+	RooRealProxy a8 ;
+	RooRealProxy a9 ;
 	
 	Double_t evaluate() const ;
 	
@@ -107,6 +132,7 @@ private:
 	
 	ClassDef(RooggZZPdf,1) // Your description goes here...                                                                                                   
 };
+
 
 
 

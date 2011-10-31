@@ -1350,7 +1350,7 @@ namespace RooFit{
 
 
 /**********RooqqZZPdf*********/
-
+/* OLD VERSION OF THIS PDF
 ClassImp(RooqqZZPdf)
 
 RooqqZZPdf::RooqqZZPdf(const char *name, const char *title,
@@ -1414,6 +1414,80 @@ Double_t RooqqZZPdf::evaluate() const
 	double totalNLO = total*dynamicKqq;
 	return totalNLO ;
 }
+*/
+ClassImp(RooqqZZPdf)
+
+RooqqZZPdf::RooqqZZPdf(const char *name, const char *title,
+					   RooAbsReal& _m4l,
+					   RooAbsReal& _a0,
+					   RooAbsReal& _a1,
+					   RooAbsReal& _a2,
+					   RooAbsReal& _a3,
+					   RooAbsReal& _a4,
+					   RooAbsReal& _a5,
+					   RooAbsReal& _a6,
+					   RooAbsReal& _a7,
+					   RooAbsReal& _a8,
+					   RooAbsReal& _a9,
+					   RooAbsReal& _a10,
+					   RooAbsReal& _a11,
+					   RooAbsReal& _a12,
+					   RooAbsReal& _a13
+					   ) :
+RooAbsPdf(name,title),
+m4l("m4l","m4l",this,_m4l),
+a0("a0","a0",this,_a0),
+a1("a1","a1",this,_a1),
+a2("a2","a2",this,_a2),
+a3("a3","a3",this,_a3),
+a4("a4","a4",this,_a4),
+a5("a5","a5",this,_a5),
+a6("a6","a6",this,_a6),
+a7("a7","a7",this,_a7),
+a8("a8","a8",this,_a8),
+a9("a9","a9",this,_a9),
+a10("a10","a10",this,_a10),
+a11("a11","a11",this,_a11),
+a12("a12","a12",this,_a12),
+a13("a13","a13",this,_a13)
+
+{
+}
+
+
+RooqqZZPdf::RooqqZZPdf(const RooqqZZPdf& other, const char* name) :
+RooAbsPdf(other,name),
+m4l("m4l",this,other.m4l),
+a0("a0",this,other.a0),
+a1("a1",this,other.a1),
+a2("a2",this,other.a2),
+a3("a3",this,other.a3),
+a4("a4",this,other.a4),
+a5("a5",this,other.a5),
+a6("a6",this,other.a6),
+a7("a7",this,other.a7),
+a8("a8",this,other.a8),
+a9("a9",this,other.a9),
+a10("a10",this,other.a10),
+a11("a11",this,other.a11),
+a12("a12",this,other.a12),
+a13("a13",this,other.a13)
+
+{
+}
+
+
+Double_t RooqqZZPdf::evaluate() const
+{
+	
+	double ZZ = (.5+.5*TMath::Erf((m4l-a0)/a1))*(a3/(1+exp((m4l-a0)/a2)))+
+    (.5+.5*TMath::Erf((m4l-a4)/a5))*(a7/(1+exp((m4l-a4)/a6))+a9/(1+exp((m4l-a4)/a8)))
+    +(.5+.5*TMath::Erf((m4l-a10)/a11))*(a13/(1+exp((m4l-a10)/a12)) );
+	
+	return ZZ;
+}
+
+
 
 
 /************RooggZZPdf***********/
@@ -1422,22 +1496,30 @@ ClassImp(RooggZZPdf)
 
 RooggZZPdf::RooggZZPdf(const char *name, const char *title,
 					   RooAbsReal& _m4l,
+					   RooAbsReal& _a0,
 					   RooAbsReal& _a1,
 					   RooAbsReal& _a2,
 					   RooAbsReal& _a3,
-					   RooAbsReal& _b1,
-					   RooAbsReal& _b2,
-					   RooAbsReal& _b3,
-					   RooAbsReal& _frac) :
+					   RooAbsReal& _a4,
+					   RooAbsReal& _a5,
+					   RooAbsReal& _a6,
+					   RooAbsReal& _a7,
+					   RooAbsReal& _a8,
+					   RooAbsReal& _a9
+					   ) :
 RooAbsPdf(name,title),
 m4l("m4l","m4l",this,_m4l),
+a0("a0","a0",this,_a0),
 a1("a1","a1",this,_a1),
 a2("a2","a2",this,_a2),
 a3("a3","a3",this,_a3),
-b1("b1","b1",this,_b1),
-b2("b2","b2",this,_b2),
-b3("b3","b3",this,_b3),
-frac("frac","frac",this,_frac)
+a4("a4","a4",this,_a4),
+a5("a5","a5",this,_a5),
+a6("a6","a6",this,_a6),
+a7("a7","a7",this,_a7),
+a8("a8","a8",this,_a8),
+a9("a9","a9",this,_a9)
+
 {
 }
 
@@ -1445,48 +1527,29 @@ frac("frac","frac",this,_frac)
 RooggZZPdf::RooggZZPdf(const RooggZZPdf& other, const char* name) :
 RooAbsPdf(other,name),
 m4l("m4l",this,other.m4l),
+a0("a0",this,other.a0),
 a1("a1",this,other.a1),
 a2("a2",this,other.a2),
 a3("a3",this,other.a3),
-b1("b1",this,other.b1),
-b2("b2",this,other.b2),
-b3("b3",this,other.b3),
-frac("frac",this,other.frac)
+a4("a4",this,other.a4),
+a5("a5",this,other.a5),
+a6("a6",this,other.a6),
+a7("a7",this,other.a7),
+a8("a8",this,other.a8),
+a9("a9",this,other.a9)
 {
 }
+
 
 Double_t RooggZZPdf::evaluate() const
 {
 	
-	//std::cout << "a1 = " << a1 << ", a2 = " << a2 << ", a3 = " << a3 << std::endl;                                                                    
-	//std::cout << "b1 = " << b1 << ", b2 = " << b2 << ", b3 = " << b3 << std::endl;                                                                    
+	double ZZ = (.5+.5*TMath::Erf((m4l-a0)/a1))*(a3/(1+exp((m4l-a0)/a2)))+
+    (.5+.5*TMath::Erf((m4l-a4)/a5))*(a7/(1+exp((m4l-a4)/a6))+a9/(1+exp((m4l-a4)/a8)));
 	
-	// ENTER EXPRESSION IN TERMS OF VARIABLE ARGUMENTS HERE                                                                                             
-	double signa = 0.;
-	if ((m4l-a1) > 0) { signa = 1.; }
-	else if ((m4l-a1) < 0) { signa = -1.; }
-	else { signa = 0.; }
 	
-	double signb = 0.;
-	if ((m4l-b1) > 0) { signb = 1.; }
-	else if ((m4l-b1) < 0) { signb = -1.; }
-	else { signb = 0.; }
-	
-	double bkglo = (0.5 + 0.5*signa * TMath::Erf(TMath::Abs(m4l-a1)/a2)) * exp(-1.*m4l/a3);
-	double bkghi = (0.5 + 0.5*signb * TMath::Erf(TMath::Abs(m4l-b1)/b2)) * exp(-1.*m4l/b3);
-	double total = bkglo*frac + (1-frac)*bkghi;
-	
-	double m_a = 0.17;
-	double m_b = -2.95e-04;
-	double m_c = 1.55e-07;
-	double m_d = 169.2;
-	double m_e = 45.94;	
-	double dynamicKgg = (m_a + m_b*m4l + m_c*m4l*m4l)*(0.5 + 0.5*TMath::Erf( (m4l-m_d)/m_e ) );
-	double totalNLO = total*dynamicKgg;
-
-	return totalNLO ;
+	return ZZ;
 }
-
 
 /************RooFourMuMassShapePdf2***********/
 
