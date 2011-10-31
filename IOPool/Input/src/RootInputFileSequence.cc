@@ -193,7 +193,7 @@ namespace edm {
       if(!skipBadFiles) {
         if(hasFallbackUrl) {
           std::ostringstream out;
-          out << "Input file " << fileIter_->fileName() << " was not found, could not be opened, or is corrupted.\n";
+          out << e.explainSelf();
           std::string pfn(gSystem->ExpandPathName(fallbackName.c_str()));
           InputFile::reportFallbackAttempt(pfn, fileIter_->logicalFileName(), out.str());
         } else {
