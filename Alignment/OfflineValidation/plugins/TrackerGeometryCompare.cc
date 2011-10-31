@@ -514,7 +514,6 @@ void TrackerGeometryCompare::fillTree(Alignable *refAli, AlgebraicVector diff){
 	_dwVal = diff[8];
 	//...TODO...
 	align::GlobalVector g(_dxVal, _dyVal, _dzVal);
-	align::LocalVector l = refAli->surface().toLocal(g);
 	//getting dR and dPhi
 	align::GlobalVector vRef(_xVal,_yVal,_zVal);
 	align::GlobalVector vCur(_xVal + _dxVal, _yVal + _dyVal, _zVal + _dzVal);

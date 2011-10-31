@@ -144,7 +144,6 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
       
       float length = 0;
       float width = 0;
-      float widthAtHalfLength = 0;
 
       LocalPoint lPModule(0.,0.,0.), lUDirection(1.,0.,0.), lVDirection(0.,1.,0.);
       GlobalPoint gPModule    = surface.toGlobal(lPModule),
@@ -258,7 +257,7 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
 	  hitStruct.inside = trapezoidalBound->inside(lPTrk);
 	  length = trapezoidalBound->length();
 	  width  = trapezoidalBound->width();
-	  widthAtHalfLength = trapezoidalBound->widthAtHalfLength();
+	  //float widthAtHalfLength = trapezoidalBound->widthAtHalfLength();
 
 	  //	int yAxisOrientation=trapezoidalBound->yAxisOrientation(); 
 	  // for trapezoidal shape modules, scale with as function of local y coordinate 

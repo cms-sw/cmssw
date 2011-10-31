@@ -13,7 +13,7 @@
 //
 // Original Author:  Nicola De Filippis
 //         Created:  Thu Dec 14 13:13:32 CET 2006
-// $Id: ValidationMisalignedTracker.cc,v 1.4 2010/03/29 13:18:44 mussgill Exp $
+// $Id: ValidationMisalignedTracker.cc,v 1.5 2010/09/23 12:06:42 mussgill Exp $
 //
 //
 
@@ -255,7 +255,6 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
      edm::Handle<edm::HepMCProduct> evt;
      iEvent.getByLabel("source", evt);
      bool accepted = false;
-     bool skip=false;
      bool foundmuons=false;
      HepMC::GenEvent * myGenEvent = new  HepMC::GenEvent(*(evt->GetEvent()));
      
@@ -310,13 +309,12 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
    // Reset tree variables
    int countpart[2]={0,0},countpartrec[2]={0,0},flag=0,flagrec=0,count=0,countrec=0;
    //int countsim=0;
-   float ene[2][2],p[2][2],px[2][2],py[2][2],pz[2][2],ptmu[2][2];
+   float ene[2][2],px[2][2],py[2][2],pz[2][2],ptmu[2][2];
    float recene[2][2],recp[2][2],recpx[2][2],recpy[2][2],recpz[2][2],recptmu[2][2];
    
    for (int i=0;i<2;i++){
      for (int j=0;j<2;j++){
        ene[i][j]=0.;
-       p[i][j]=0.;
        px[i][j]=0.;
        py[i][j]=0.; 
        pz[i][j]=0.; 
@@ -475,12 +473,12 @@ ValidationMisalignedTracker::analyze(const edm::Event& iEvent, const edm::EventS
 		edm::RefToBase<reco::Track> t = rt.begin()->first;
 		ats++;
 
-		bool flagptused=false;
-		for (unsigned int j=0;j<ptused.size();j++){
-		  if (fabs(t->pt()-ptused[j])<0.001) {
-		    flagptused=true;
-		  }
-		}
+		// bool flagptused=false;
+		// for (unsigned int j=0;j<ptused.size();j++){
+		//   if (fabs(t->pt()-ptused[j])<0.001) {
+		//     flagptused=true;
+		//   }
+		// }
 
 		edm::LogVerbatim("TrackValidator") << "TrackingParticle #" << st << " with pt=" << t->pt() 
 						   << " associated with quality:" << rt.begin()->second <<"\n";
