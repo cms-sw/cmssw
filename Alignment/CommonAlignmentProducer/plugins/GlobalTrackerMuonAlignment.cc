@@ -16,7 +16,7 @@
 // Original Author:  Alexandre Spiridonov
 //         Created:  Fri Oct 16 15:59:05 CEST 2009
 //
-// $Id: GlobalTrackerMuonAlignment.cc,v 1.6 2011/09/04 17:21:57 mussgill Exp $
+// $Id: GlobalTrackerMuonAlignment.cc,v 1.7 2011/09/14 09:03:15 mussgill Exp $
 //
 
 // system include files
@@ -825,10 +825,6 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
 	  tpMuGlobal(refSurface.tangentPlane(innerMuTSOS.globalPosition()));
 	Nl = tpMuGlobal->normalVector();
 
-	Surface* surf = (Surface*)&refSurface;
-	const Plane* refPlane = dynamic_cast<Plane*>(surf); 
-	GlobalVector Nlp = refPlane->normalVector();
-
 	//                          extrapolation to innermost muon hit     
 	extrapolationT = alongSmPr.propagate(outerTrackTSOS, refSurface);
 	//extrapolationT = propagator->propagate(outerTrackTSOS, refSurface);
@@ -1561,10 +1557,6 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
 	ReferenceCountingPointer<TangentPlane> 
 	  tpMuGlobal(refSurface.tangentPlane(innerMuTSOS.globalPosition()));
 	Nl = tpMuGlobal->normalVector();
-
-	Surface* surf = (Surface*)&refSurface;
-	const Plane* refPlane = dynamic_cast<Plane*>(surf); 
-	GlobalVector Nlp = refPlane->normalVector();
 
 	//                          extrapolation to innermost muon hit     
 	//extrapolationT = alongSmPr.propagate(outerTrackTSOS, refSurface);
