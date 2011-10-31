@@ -164,6 +164,16 @@ namespace edm {
     }
     closeFile_();
 
+    if(fileIter_ == fileIterEnd_) {
+      // No files specified
+      // This should be OK, but in some cases it causes an infinite loop, so we throw for now
+      if(inputType_ == InputType::Primary) {
+        throw Exception(errors::Configuration, "RootInputFileSequence::initFile()\n")
+          << "No file names specified for primary input source.\n";
+      }
+      return;
+    }
+
     // Check if the logical file name was found.
     if(fileIter_->fileName().empty()) {
       // LFN not found in catalog.
@@ -262,6 +272,7 @@ namespace edm {
 
   boost::shared_ptr<ProductRegistry const>
   RootInputFileSequence::fileProductRegistry() const {
+    assert(rootFile_);
     return rootFile_->productRegistry();
   }
 
@@ -409,7 +420,7 @@ namespace edm {
   // Rewind to the beginning of the current file
   void
   RootInputFileSequence::rewindFile() {
-    rootFile_->rewind();
+    if(rootFile_) rootFile_->rewind();
   }
 
   void
