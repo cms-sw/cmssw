@@ -376,7 +376,7 @@ void HaloTrigger::analyze(const Event& e, const EventSetup& es)
 			CSCRecHit2DCollection::const_iterator hit = cscRecHits->begin();
 			for(; hit != cscRecHits->end(); hit++)
 			{
-				LocalPoint p = hit->localPosition();
+			        // LocalPoint p = hit->localPosition(); // UNUSED
 				CSCDetId id((hit)->geographicalId().rawId());
 				GlobalPoint gP = m_cscGeometry->idToDet(id)->toGlobal(hit->localPosition());
 				int hitIndex = id.station() + 5*(id.endcap() - 1);
