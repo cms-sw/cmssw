@@ -13,7 +13,7 @@
 //
 // Original Author:  Philip Hebda
 //         Created:  Thu Jun 25 09:34:50 CEST 2009
-// $Id: MuonAnalyzerSBSM.cc,v 1.2 2010/10/15 22:44:32 wmtan Exp $
+// $Id: MuonAnalyzer.cc,v 1.3 2010/12/14 17:20:35 vlimant Exp $
 //
 //
 #include "HLTriggerOffline/SUSYBSM/interface/MuonAnalyzer.h"
@@ -79,8 +79,9 @@ MuonAnalyzerSBSM::FillPlots(const edm::Event& iEvent, const edm::EventSetup& iSe
    //Creating histograms of L3 Muons
    Handle<TriggerEvent> theTriggerCollectionHandle;
    iEvent.getByLabel(triggerTag_,theTriggerCollectionHandle);
-   int indexOfCollection=-1, firstMuon=-1, lastMuon=-2, idOfLeadMuon=-1, indexOfFilter=-1;
-   double LeadL3MuonPt=-1, LeadL3MuonEta=-1, LeadL3MuonPhi=-1;
+   trigger::size_type firstMuon=-1, lastMuon=-2;
+   int indexOfCollection=-1, idOfLeadMuon=-1, indexOfFilter=-1;
+   double LeadL3MuonPt=-1; // , LeadL3MuonEta=-1, LeadL3MuonPhi=-1; // UNUSED
    vector<int> idsOfFilteredMuons;
    bool LeadRecoMuonAssociation=false;
    const string L3MuonCollection = "hltL3MuonCandidates::HLT";
@@ -133,8 +134,8 @@ MuonAnalyzerSBSM::FillPlots(const edm::Event& iEvent, const edm::EventSetup& iSe
 	   //hL3LeadMuonMass->Fill(TO.mass());
 	   //hNumberL3Muons->Fill(lastMuon-firstMuon+1);
 	   LeadL3MuonPt = TO.pt();
-	   LeadL3MuonEta = TO.eta();
-	   LeadL3MuonPhi = TO.phi();
+	   //	   LeadL3MuonEta = TO.eta(); // UNUSED
+	   //	   LeadL3MuonPhi = TO.phi(); // UNUSED
 	 }
        //else
        //hNumberL3Muons->Fill(0);
