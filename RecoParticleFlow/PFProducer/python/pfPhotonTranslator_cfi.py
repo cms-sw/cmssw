@@ -16,9 +16,9 @@ pfPhotonTranslator = cms.EDProducer("PFPhotonTranslator",
                                   
                                     primaryVertexProducer = cms.string("offlinePrimaryVerticesWithBS"),
                                     isolationValues = cms.PSet(
-                                      pfChargedHadrons = cms.InputTag('isoValPhotonWithCharged'),
-                                      pfPhotons = cms.InputTag('isoValPhotonWithPhotons'),
-                                      pfNeutralHadrons= cms.InputTag('isoValPhotonWithNeutral')
+                                      pfChargedHadrons = cms.InputTag('phPFIsoValueCharged04'),
+                                      pfPhotons = cms.InputTag('phPFIsoValueGamma04'),
+                                      pfNeutralHadrons= cms.InputTag('phPFIsoValueNeutral04')
                                       ),
                                     barrelEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
                                     endcapEcalHits = cms.InputTag("ecalRecHit","EcalRecHitsEE"),

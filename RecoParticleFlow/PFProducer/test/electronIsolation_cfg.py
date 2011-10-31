@@ -26,7 +26,7 @@ process.load("RecoParticleFlow.PFProducer.pfLinker_cfi")
 process.pfLinker.ProducePFCandidates = cms.bool(False)
 process.pfLinker.PFCandidate = [cms.InputTag('pfSelectedPhotons'), cms.InputTag('pfSelectedElectrons')]
 process.pfLinker.FillMuonRefs = cms.bool(False)
-process.pfPileUpCandidates.bottomCollection = cms.InputTag('particleFlow')
+#process.pfPileUpCandidates.bottomCollection = cms.InputTag('particleFlow')
 
 process.isoReader = cms.EDAnalyzer("PFIsoReader",
                                    PFCandidates = cms.InputTag('pfSelectedPhotons'),
@@ -35,12 +35,12 @@ process.isoReader = cms.EDAnalyzer("PFIsoReader",
                                    ElectronValueMap=cms.InputTag('pfLinker:electrons'),
                                    PhotonValueMap=cms.InputTag('pfLinker:photons'),
                                    MergedValueMap=cms.InputTag('pfLinker:all'),
-                                   ElectronIsoDeposits = cms.VInputTag(cms.InputTag('isoDepElectronWithCharged'),
-                                                                       cms.InputTag('isoDepElectronWithPhotons'),
-                                                                       cms.InputTag('isoDepElectronWithNeutral')),
-                                   PhotonIsoDeposits = cms.VInputTag(cms.InputTag('isoDepPhotonWithCharged'),
-                                                                     cms.InputTag('isoDepPhotonWithPhotons'),
-                                                                     cms.InputTag('isoDepPhotonWithNeutral')),
+                                   ElectronIsoDeposits = cms.VInputTag(cms.InputTag('elPFIsoDepositCharged'),
+                                                                       cms.InputTag('elPFIsoDepositNeutral'),
+                                                                       cms.InputTag('elPFIsoDepositGamma')),
+                                   PhotonIsoDeposits = cms.VInputTag(cms.InputTag('phPFIsoDepositCharged'),
+                                                                     cms.InputTag('phPFIsoDepositNeutral'),
+                                                                     cms.InputTag('phPFIsoDepositGamma')),
                                    useEGPFValueMaps=cms.bool(True))
                                                           
 

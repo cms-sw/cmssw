@@ -1,8 +1,8 @@
 import FWCore.ParameterSet.Config as cms
 
 from CommonTools.ParticleFlow.pfParticleSelection_cff import *
-from CommonTools.ParticleFlow.Isolation.pfElectronIsolation_cff import *
-from CommonTools.ParticleFlow.Isolation.pfElectronIsolationFromDeposits_cff import *
+from RecoParticleFlow.PFProducer.electronPFIsolationDeposits_cff import *
+from RecoParticleFlow.PFProducer.electronPFIsolationValues_cff import *
 
 pfSelectedElectrons = cms.EDFilter(
     "GenericPFCandidateSelector",
@@ -13,8 +13,8 @@ pfSelectedElectrons = cms.EDFilter(
 pfBasedElectronIsoSequence = cms.Sequence(
     pfParticleSelectionSequence +
     pfSelectedElectrons +
-    pfElectronIsolationSequence+
-    pfElectronIsolationFromDepositsSequence
+    electronPFIsolationDepositsSequence +
+    electronPFIsolationValuesSequence
     )
 
 #COLIN: is this file used in RECO? in PF2PAT? same for photons. 
