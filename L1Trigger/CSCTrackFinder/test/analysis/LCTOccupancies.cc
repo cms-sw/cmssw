@@ -70,6 +70,18 @@ class LCTOccupancies : public edm::EDAnalyzer {
 	TH1F* hOccMax;
 	TH1F* hOccMaxNo0;
 	TH1F* hStubsTotal;
+
+	TH1F* hOccME11a;
+	TH1F* hOccME11b;
+	TH1F* hOccME12;
+	TH1F* hOccME13;
+	TH1F* hOccME21;
+	TH1F* hOccME22;
+	TH1F* hOccME31;
+	TH1F* hOccME32;
+	TH1F* hOccME41;
+	TH1F* hOccME42;
+	TH1F* hOccME42SingleSector;
 };
 //
 // constants, enums and typedefs
@@ -126,12 +138,23 @@ LCTOccupancies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::vector<csctf::TrackStub>::const_iterator ts = trackStubs->begin();
   std::vector<csctf::TrackStub>::const_iterator tsEnd = trackStubs->end();
 
-  std::vector<int> occStation1SubSec1(12,0) ;
-  std::vector<int> occStation1SubSec2(12,0) ;
-  std::vector<int> occStation2(12,0) ;
-  std::vector<int> occStation3(12,0) ;
-  std::vector<int> occStation4(12,0) ;
+  std::vector<int> occStation1SubSec1(12,0);
+  std::vector<int> occStation1SubSec2(12,0);
+  std::vector<int> occStation2(12,0);
+  std::vector<int> occStation3(12,0);
+  std::vector<int> occStation4(12,0);
 
+  std::vector<int> occME11a(24,0);
+  std::vector<int> occME11b(24,0);
+  std::vector<int> occME12(24,0);
+  std::vector<int> occME13(24,0);
+  std::vector<int> occME21(12,0);
+  std::vector<int> occME22(12,0);
+  std::vector<int> occME31(12,0);
+  std::vector<int> occME32(12,0);
+  std::vector<int> occME41(12,0);
+  std::vector<int> occME42(12,0);
+  int occME42SingleSector=0;
 
   for (;ts != tsEnd; ts++)
   {
@@ -159,6 +182,12 @@ LCTOccupancies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	hBx->Fill(ts->BX());
         int station = ts->station();
         int subsector = ts->subsector();
+	//CSCDetId detId(ts->getDetId().rawId());
+	CSCDetId detId(ts->getDetId());
+        int ring = detId.ring();
+	//ME11a ring==4 doesn't work, no ring==4 events ?
+	//std::cout << "station: \t" <<ts->station()<< std::endl;
+	//std::cout << "ring: \t" <<ring<< std::endl << std::endl;
 	if (ts->endcap()==2)
 	{
 	  station = -station;
@@ -171,16 +200,57 @@ LCTOccupancies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	if (station==1)
 	{
 	  if(subsector==1)
+	  {
 		occStation1SubSec1[sector]++;
+		if (ring==4)
+		  occME11a[sector]++;
+		else if (ring==1)
+		  occME11b[sector]++;
+		else if (ring==2)
+		  occME12[sector]++;
+		else if (ring==3)
+		  occME13[sector]++;
+          }
 	  else
+	  {
 		occStation1SubSec2[sector]++;
+		if (ring==4)
+		  occME11a[sector+12]++;
+		else if (ring==1)
+		  occME11b[sector+12]++;
+		else if (ring==2)
+		  occME12[sector+12]++;
+		else if (ring==3)
+		  occME13[sector+12]++;
+          }
 	}
 	if (station==2)
+	{
 		occStation2[sector]++;
+		if (ring==1)
+		  occME21[sector]++;
+		else if (ring==2)
+		  occME22[sector]++;
+	}
 	if (station==3)
+	{
 		occStation3[sector]++;
+		if (ring==1)
+		  occME31[sector]++;
+		else if (ring==2)
+		  occME32[sector]++;
+	}
 	if (station==4)
+	{
 		occStation4[sector]++;
+		if (ring==1)
+		  occME41[sector]++;
+		else if (ring==2)
+		{
+		  occME42[sector]++;
+		  occME42SingleSector++;
+		}
+	}
   }
 
   int maxOcc = 0;
@@ -210,6 +280,23 @@ LCTOccupancies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   hStubsTotal->Fill(trackStubs->size());
 
+  for (unsigned iSector=0; iSector<24; iSector++)
+  {
+    hOccME11a->Fill(occME11a[iSector]);
+    hOccME11b->Fill(occME11b[iSector]);
+    hOccME12->Fill(occME12[iSector]);
+    hOccME13->Fill(occME13[iSector]);
+    if(iSector<12)
+    {
+      hOccME21->Fill(occME21[iSector]);
+      hOccME22->Fill(occME22[iSector]);
+      hOccME31->Fill(occME31[iSector]);
+      hOccME32->Fill(occME32[iSector]);
+      hOccME41->Fill(occME41[iSector]);
+      hOccME42->Fill(occME42[iSector]);
+    }
+  }
+  hOccME42SingleSector->Fill(occME42SingleSector);
 }
 
 
@@ -273,6 +360,41 @@ LCTOccupancies::beginJob()
   hStubsTotal=fs->make<TH1F>("StubsTotal","N Stubs",20,0,20);
   hStubsTotal->GetXaxis()->SetTitle("N Stubs Unpacked in Event");
   hStubsTotal->GetYaxis()->SetTitle("Counts");
+
+  hOccME11a=fs->make<TH1F>("OccME11a","Stub Occupancy, ME11a, Summed over Sectors, Subsectors",5,-0.5,4.5);
+  hOccME11a->GetXaxis()->SetTitle("Stub Occupancy, ME11a, Summed over Sectors, Subsectors");
+  hOccME11a->GetYaxis()->SetTitle("Counts");
+  hOccME11b=fs->make<TH1F>("OccME11b","Stub Occupancy, ME11b, Summed over Sectors, Subsectors",5,-0.5,4.5);
+  hOccME11b->GetXaxis()->SetTitle("Stub Occupancy, ME11b, Summed over Sectors, Subsectors");
+  hOccME11b->GetYaxis()->SetTitle("Counts");
+  hOccME12=fs->make<TH1F>("OccME12","Stub Occupancy, ME12, Summed over Sectors, Subsectors",5,-0.5,4.5);
+  hOccME12->GetXaxis()->SetTitle("Stub Occupancy, ME12, Summed over Sectors, Subsectors");
+  hOccME12->GetYaxis()->SetTitle("Counts");
+  hOccME13=fs->make<TH1F>("OccME13","Stub Occupancy, ME13, Summed over Sectors, Subsectors",5,-0.5,4.5);
+  hOccME13->GetXaxis()->SetTitle("Stub Occupancy, ME13, Summed over Sectors, Subsectors");
+  hOccME13->GetYaxis()->SetTitle("Counts");
+  hOccME21=fs->make<TH1F>("OccME21","Stub Occupancy, ME21, Summed over Sectors",5,-0.5,4.5);
+  hOccME21->GetXaxis()->SetTitle("Stub Occupancy, ME21, Summed over Sectors");
+  hOccME21->GetYaxis()->SetTitle("Counts");
+  hOccME22=fs->make<TH1F>("OccME22","Stub Occupancy, ME22, Summed over Sectors",5,-0.5,4.5);
+  hOccME22->GetXaxis()->SetTitle("Stub Occupancy, ME22, Summed over Sectors");
+  hOccME22->GetYaxis()->SetTitle("Counts");
+  hOccME31=fs->make<TH1F>("OccME31","Stub Occupancy, ME31, Summed over Sectors",5,-0.5,4.5);
+  hOccME31->GetXaxis()->SetTitle("Stub Occupancy, ME31, Summed over Sectors");
+  hOccME31->GetYaxis()->SetTitle("Counts");
+  hOccME32=fs->make<TH1F>("OccME32","Stub Occupancy, ME32, Summed over Sectors",5,-0.5,4.5);
+  hOccME32->GetXaxis()->SetTitle("Stub Occupancy, ME32, Summed over Sectors");
+  hOccME32->GetYaxis()->SetTitle("Counts");
+  hOccME41=fs->make<TH1F>("OccME41","Stub Occupancy, ME41, Summed over Sectors",5,-0.5,4.5);
+  hOccME41->GetXaxis()->SetTitle("Stub Occupancy, ME41, Summed over Sectors");
+  hOccME41->GetYaxis()->SetTitle("Counts");
+  hOccME42=fs->make<TH1F>("OccME42","Stub Occupancy, ME42, Summed over Sectors",5,-0.5,4.5);
+  hOccME42->GetXaxis()->SetTitle("Stub Occupancy, ME42, Summed over Sectors");
+  hOccME42->GetYaxis()->SetTitle("Counts");
+  hOccME42SingleSector=fs->make<TH1F>("OccME42SingleSector","Stub Occupancy, ME42, All Stubs in 1 Sector",5,-0.5,4.5);
+  hOccME42SingleSector->GetXaxis()->SetTitle("Stub Occupancy, ME42");
+  hOccME42SingleSector->GetYaxis()->SetTitle("Counts");
+
 }
 
 // ------------ method called once each job just after ending the event loop  ------------
