@@ -8,13 +8,13 @@ process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 process.GlobalTag.globaltag = 'START42_V9::All'
 
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
-        'file:HSCPgluino_M_600_7TeV_pythia6Z2_cff_py_RAW2DIGI_RECO.root',
+'file:/uscmst1b_scratch/lpc1/lpcphys/jchen/HSCPRawData/STEP2_RAW2DIGI_L1Reco_RECO_PU_50_1_w2Z.root'
    )
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")
@@ -77,7 +77,6 @@ process.dedxNSTru40.MeVperADCStrip = cms.double(3.61e-06*265)
 process.dedxNPProd.MeVperADCStrip = cms.double(3.61e-06*265)  
 process.dedxNPASmi.MeVperADCStrip = cms.double(3.61e-06*265)   
 
-
 process.load("RecoLocalMuon.DTSegment.dt4DSegments_MTPatternReco4D_LinearDriftFromDBLoose_cfi")
 process.dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.AlphaMaxPhi = 1.0
 process.dt4DSegments.Reco4DAlgoConfig.Reco2DAlgoConfig.AlphaMaxTheta = 0.9
@@ -93,7 +92,6 @@ process.muontiming.TimingFillerParameters.DTTimingParameters.RequireBothProjecti
 process.muontiming.TimingFillerParameters.DTTimingParameters.DropTheta = True
 process.muontiming.TimingFillerParameters.DTTimingParameters.DoWireCorr = True
 process.muontiming.TimingFillerParameters.DTTimingParameters.MatchParameters.DTradius = 1.0
-
 
 
 ########################################################################
@@ -112,15 +110,15 @@ process.OUT = cms.OutputModule("PoolOutputModule",
          "keep GenEventInfoProduct_generator_*_*",
          "keep *_offlinePrimaryVertices_*_*",
 #         "keep *_csc2DRecHits_*_*",
-         "keep *_cscSegments_*_*",
+#         "keep *_cscSegments_*_*",
 #         "keep *_dt1DRecHits_*_*",
-         "keep *_rpcRecHits_*_*",
-         "keep *_dt4DSegments_*_*",
+#         "keep *_rpcRecHits_*_*",
+#         "keep *_dt4DSegments_*_*",
          "keep SiStripClusteredmNewDetSetVector_generalTracksSkim_*_*",
          "keep SiPixelClusteredmNewDetSetVector_generalTracksSkim_*_*",
-         "keep *_reducedHSCPhbhereco_*_*",
-         "keep *_reducedHSCPEcalRecHitsEB_*_*",
-         "keep *_reducedHSCPEcalRecHitsEE_*_*",
+#         "keep *_reducedHSCPhbhereco_*_*",
+#         "keep *_reducedHSCPEcalRecHitsEB_*_*",
+#         "keep *_reducedHSCPEcalRecHitsEE_*_*",
          "keep *_TrackRefitter_*_*",
          "drop TrajectorysToOnerecoTracksAssociation_TrackRefitter__",
          "keep *_standAloneMuons_*_*",
@@ -131,13 +129,14 @@ process.OUT = cms.OutputModule("PoolOutputModule",
          "keep edmTriggerResults_TriggerResults_*_*",
          "keep recoPFJets_ak5PFJets__*",
          "keep recoPFMETs_pfMet__*",
-         "keep recoCaloJets_ak5CaloJets__*",
+#         "keep recoCaloJets_ak5CaloJets__*",
          "keep *_HSCParticleProducer_*_*",
          "keep *_HSCPIsolation01__*",
          "keep *_HSCPIsolation03__*",
          "keep *_HSCPIsolation05__*",
          "keep *_dedx*_*_HSCPAnalysis",
          "keep *_muontiming_*_HSCPAnalysis",
+		 "keep *_g4SimHits_StoppedParticles*_*",		 
          "keep triggerTriggerEvent_hltTriggerSummaryAOD_*_*",
          "keep PileupSummaryInfos_addPileupInfo_*_*"
     ),
