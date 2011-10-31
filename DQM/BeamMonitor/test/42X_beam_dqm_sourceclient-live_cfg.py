@@ -77,12 +77,11 @@ process.monitor = cms.Sequence(process.dqmBeamMonitor)
 
 
 
-from DQM.Integration.test.environment_cfi import runType, runTypes
 #--------------------------
 # Proton Proton Stuff
 #--------------------------
 
-if (runType == runTypes.pp_run):
+if (process.runType.getRunType() == process.runType.pp_run or process.runType.getRunType() == process.runType.cosmic_run):
     print "Running pp paths"
 
     process.EventStreamHttpReader.SelectEvents = cms.untracked.PSet(
@@ -92,7 +91,7 @@ if (runType == runTypes.pp_run):
                                          'HLT_HT*',
                                          'HLT_MinBias_*',
                                          'HLT_Physics*',
-                                         'HLT_ZeroBias_v2'))
+                                         'HLT_ZeroBias_v*'))
 
     process.load("Configuration.StandardSequences.Reconstruction_cff")
 
@@ -141,7 +140,7 @@ if (runType == runTypes.pp_run):
 # Heavy Ion Stuff
 #--------------------------------------------------
 
-if (runType == runTypes.hi_run):
+if (process.runType.getRunType() == process.runType.hi_run):
    
     print "Running HI paths"
     process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
@@ -170,8 +169,8 @@ if (runType == runTypes.hi_run):
  
     # Beamspot DQM options
     process.dqmBeamMonitor.OnlineMode = True                  
-    process.dqmBeamMonitor.resetEveryNLumi = 5
-    process.dqmBeamMonitor.resetPVEveryNLumi = 5
+    process.dqmBeamMonitor.resetEveryNLumi = 10
+    process.dqmBeamMonitor.resetPVEveryNLumi = 10
     process.dqmBeamMonitor.PVFitter.minNrVerticesForFit = 20
     process.dqmBeamMonitor.BeamFitter.MinimumTotalLayers = 3   ## using pixel triplets
 

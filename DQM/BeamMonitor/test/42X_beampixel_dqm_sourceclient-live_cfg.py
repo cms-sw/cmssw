@@ -65,17 +65,12 @@ process.phystrigger = cms.Sequence(
        )
 
 
-#-------------------------------
-#--Get the Run Tuype PP or HI
-#-------------------------------
-from DQM.Integration.test.environment_cfi import runType, runTypes
-
 
 
 #----------------------------
 # Proton-Proton Stuff
 #----------------------------
-if (runType == runTypes.pp_run):
+if (process.runType.getRunType() == process.runType.pp_run or process.runType.getRunType() == process.runType.cosmic_run):
     print "Running pp paths"
 
     process.EventStreamHttpReader.consumerName = "Beam Pixel DQM Consumer"
@@ -134,7 +129,7 @@ if (runType == runTypes.pp_run):
 #--------------------------------------------------
 # Heavy Ion Stuff
 #--------------------------------------------------
-if (runType == runTypes.hi_run):
+if (process.runType.getRunType() == process.runType.hi_run):
     
     print "Running HI paths"
     process.castorDigis.InputLabel = cms.InputTag("rawDataRepacker")
