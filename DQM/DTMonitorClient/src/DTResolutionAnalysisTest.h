@@ -6,8 +6,8 @@
  * *
  *  DQM Test Client
  *
- *  $Date: 2010/01/22 15:32:04 $
- *  $Revision: 1.10 $
+ *  $Date: 2011/02/10 11:49:43 $
+ *  $Revision: 1.11 $
  *  \author  G. Mila - INFN Torino
  *   
  */
@@ -75,8 +75,10 @@ private:
   DQMStore* dbe;
 
   // permitted test ranges
-  double permittedMeanRange; 
-  double permittedSigmaRange; 
+  double  maxGoodMeanValue;
+  double  minBadMeanValue;
+  double  maxGoodSigmaValue;
+  double  minBadSigmaValue;
 
   bool doCalibAnalysis;
 
@@ -98,8 +100,8 @@ private:
   // Compute the sl from the bin number of mean and sigma histos
   int slFromBin(int bin) const;
 
-  bool meanInRange(double mean) const;
-  bool sigmaInRange(double sigma) const;
+  double meanInRange(double mean) const;
+  double sigmaInRange(double sigma) const;
 
   MonitorElement* globalResSummary;
   

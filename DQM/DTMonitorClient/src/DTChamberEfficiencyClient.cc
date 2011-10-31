@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/05 10:15:45 $
- *  $Revision: 1.7 $
+ *  $Date: 2010/01/22 15:32:04 $
+ *  $Revision: 1.8 $
  *  \author M. Pelliccioni - INFN Torino
  */
 
@@ -108,9 +108,13 @@ void DTChamberEfficiencyClient::endRun(Run const& run, EventSetup const& context
     MonitorElement* MEExtrap = dbe->get("DT/05-ChamberEff/Task/hExtrapSectVsChamb_W" + wheel_str.str());	
 
     //get the TH2F
+    if(!MECountAll) cout<<"fucking ME is null"<<endl;
+    if(!(MECountAll->getTH2F())) cout<<"fucking puntator is null!"<<endl;
     TH2F* hCountAll = MECountAll->getTH2F();
     TH2F* hCountQual = MECountQual->getTH2F();
     TH2F* hExtrap = MEExtrap->getTH2F();
+
+
 
     const int nBinX = summaryHistos[wheel+2][0]->getNbinsX();
     const int nBinY = summaryHistos[wheel+2][0]->getNbinsY();
@@ -138,6 +142,11 @@ void DTChamberEfficiencyClient::endRun(Run const& run, EventSetup const& context
 
 	  summaryHistos[wheel+2][1]->setBinContent(j,k,effQual);
 	  summaryHistos[wheel+2][1]->setBinError(j,k,eff_error_Qual);
+
+        // Fill 1D eff distributions
+        globalEffDistr -> Fill(effAll);
+        EffDistrPerWh[wheel+2] -> Fill(effAll);
+
 	}
       }
     }
@@ -227,7 +236,8 @@ void DTChamberEfficiencyClient::bookHistos()
   globalEffSummary->setAxisTitle("sector",1);
   globalEffSummary->setAxisTitle("wheel",2);
 
-
+  globalEffDistr = dbe->book1D("TotalEfficiency","Total efficiency",51,0.,1.02);
+  globalEffDistr -> setAxisTitle("Eff",1);
 
   for(int wh=-2; wh<=2; wh++){
     stringstream wheel; wheel << wh;
@@ -237,6 +247,8 @@ void DTChamberEfficiencyClient::bookHistos()
     string histoNameQual =  "EfficiencyMap_Qual_W" + wheel.str();
     string histoTitleQual =  "Efficiency map for quality segments for wheel " + wheel.str();
 
+    string histoNameEff =  "Efficiency_W" + wheel.str();
+    string histoTitleEff =  "Segment efficiency, wheel " + wheel.str();
 
     dbe->setCurrentFolder("DT/05-ChamberEff");
 
@@ -247,6 +259,9 @@ void DTChamberEfficiencyClient::bookHistos()
     summaryHistos[wh+2][0]->setBinLabel(3,"MB3",2);
     summaryHistos[wh+2][0]->setBinLabel(4,"MB4",2);
 
+    EffDistrPerWh[wh+2] = dbe -> book1D(histoNameEff.c_str(),histoTitleEff.c_str(),51,0.,1.02);
+    EffDistrPerWh[wh+2] -> setAxisTitle("Eff",1);
+
     dbe->setCurrentFolder("DT/05-ChamberEff/HighQual");
 
     summaryHistos[wh+2][1] = dbe->book2D(histoNameQual.c_str(),histoTitleQual.c_str(),14,1.,15.,4,1.,5.);
@@ -255,6 +270,7 @@ void DTChamberEfficiencyClient::bookHistos()
     summaryHistos[wh+2][1]->setBinLabel(2,"MB2",2);
     summaryHistos[wh+2][1]->setBinLabel(3,"MB3",2);
     summaryHistos[wh+2][1]->setBinLabel(4,"MB4",2);
+   
   }
 
   return;

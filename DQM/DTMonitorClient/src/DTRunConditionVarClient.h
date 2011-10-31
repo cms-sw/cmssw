@@ -43,56 +43,68 @@ class DTLayerId;
 
 class DTRunConditionVarClient: public edm::EDAnalyzer{
 
-public:
+  public:
 
-  /// Constructor
-  DTRunConditionVarClient(const edm::ParameterSet& ps);
-  
-  /// Destructor
-  virtual ~DTRunConditionVarClient();
+    /// Constructor
+    DTRunConditionVarClient(const edm::ParameterSet& ps);
 
-protected:
+    /// Destructor
+    virtual ~DTRunConditionVarClient();
 
-  void beginJob();
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
-  void endJob();
+  protected:
 
-  /// book the report summary
-  void bookWheelHistos(std::string histoType, std::string subfolder, int wh, int nbins, float min, float max);
-  
-  /// DQM Client Diagnostic
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context);
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
+    void beginJob();
+    void analyze(const edm::Event& e, const edm::EventSetup& c);
+    void endJob();
 
-  void beginRun(const edm::Run& run, const edm::EventSetup& setup);
-  void endRun(edm::Run const& run, edm::EventSetup const& c);
+    /// book the report summary
+    void bookWheelHistos(std::string histoType, std::string subfolder, int wh, int nbins, float min, float max);
 
-  //
-  int varQuality(float var, float maxCut);
+    /// DQM Client Diagnostic
+    void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context);
+    void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
 
-  //
-  void percDevVDrift(DTChamberId indexCh, float meanVD, float sigmaVD, float& devVD, float& errdevVD);
-private:
+    void beginRun(const edm::Run& run, const edm::EventSetup& setup);
+    void endRun(edm::Run const& run, edm::EventSetup const& c);
 
-  MonitorElement* getChamberHistos(const DTChamberId&, std::string);
+    // 
+    float varQuality(float var, float maxGood, float minBad);
 
-  int nevents;      
+    //
+    void percDevVDrift(DTChamberId indexCh, float meanVD, float sigmaVD, float& devVD, float& errdevVD);
 
-  float minRangeVDrift;
-  float maxRangeVDrift; 
-  float minRangeT0;
-  float maxRangeT0;
-  float goodVDriftSigma;
-  float goodT0Sigma;
- 
-  edm::ESHandle<DTMtime> mTime;
-  const DTMtime* mTimeMap_;
+  private:
 
-  DQMStore* theDbe;
+    MonitorElement* getChamberHistos(const DTChamberId&, std::string);
 
-  std::map<int, std::map<std::string, MonitorElement*> > wheelHistos;
-  std::map<std::string, MonitorElement *> summaryHistos;
-  std::map<std::string, MonitorElement *> allwheelHistos;
+    int nevents;      
+
+    float minRangeVDrift;
+    float maxRangeVDrift; 
+    float minRangeT0;
+    float maxRangeT0;
+
+    float maxGoodVDriftDev;
+    float minBadVDriftDev; 
+    float maxGoodT0;       
+    float minBadT0;       
+
+    float maxGoodVDriftSigma;
+    float minBadVDriftSigma;
+    float maxGoodT0Sigma;
+    float minBadT0Sigma;
+
+    edm::ESHandle<DTMtime> mTime;
+    const DTMtime* mTimeMap_;
+
+    DQMStore* theDbe;
+
+    MonitorElement* glbVDriftSummary;
+    MonitorElement* glbT0Summary;
+
+    std::map<int, std::map<std::string, MonitorElement*> > wheelHistos;
+    std::map<std::string, MonitorElement *> summaryHistos;
+    std::map<std::string, MonitorElement *> allwheelHistos;
 
 };
 
