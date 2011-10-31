@@ -11,26 +11,20 @@
 # a subdirectory of a data directory.
 
 eval `scramv1 runtime -csh`
-## grep ".xml" $CMSSW_RELEASE_BASE/src/Geometry/CMSCommonData/python/cmsIdealGeometryXML_cfi.py | sed "{s/'//g}" | sed '{s/,//g}' | sed '{s/ //g}' | sed '{s/\t//g}' | sed '{s/geomXMLFiles=cms.vstring(//g}' | sed '{s/)//g}' | grep -v "#" >! /tmp/tmpcmsswdddxmlfileslist
 grep ".xml" $CMSSW_RELEASE_BASE/src/Geometry/CMSCommonData/python/cmsExtendedGeometryXML_cfi.py | sed "{s/'//g}" | sed '{s/,//g}' | sed '{s/ //g}' | sed '{s/\t//g}' | sed '{s/geomXMLFiles=cms.vstring(//g}' | sed '{s/)//g}' | grep -v "#" >! /tmp/tmpcmsswdddxmlfileslist
 cd $CMSSW_RELEASE_BASE/src
 
-set paths=$CMSSW_SEARCH_PATH
-set hms = `echo $paths | awk 'BEGIN{FS=":"}{for (i=1; i<=NF; i++) print $i}'`
+set hms = `echo $CMSSW_SEARCH_PATH | awk 'BEGIN{FS=":"}{for (i=1; i<=NF; i++) print $i}'`
 
 set tmpFile=/tmp/tmpcmsswdddxmlfileslistvalid
 
-if( -f  $tmpFile ) then
- rm -f $tmpFile
-endif
-
 foreach line( "`cat /tmp/tmpcmsswdddxmlfileslist`" )
  set fileFound=0
- foreach path( $hms )
+ foreach spath( $hms )
   if( ! $fileFound ) then
-   set file=$path/$line
+   set file=$spath/$line
    if( -f $file ) then
-    echo $file >> /tmp/tmpcmsswdddxmlfileslistvalid
+    echo $file >> $tmpFile
     set fileFound=1
    endif
   endif 
@@ -42,4 +36,12 @@ if ( ! -f $script ) then
  set script=$CMSSW_RELEASE_BASE/bin/$SCRAM_ARCH/DOMCount
 endif
 
-$script -v=always -n -s -f -l /tmp/tmpcmsswdddxmlfileslistvalid
+$script -v=always -n -s -f -l $tmpFile
+
+if( -f  $tmpFile ) then
+ rm -f $tmpFile
+endif
+
+if( -f  /tmp/tmpcmsswdddxmlfileslist ) then
+ rm -f /tmp/tmpcmsswdddxmlfileslist
+endif
