@@ -13,7 +13,7 @@
 //
 // Original Author:  Chi Nhan Nguyen
 //         Created:  Fri Feb 22 09:20:55 CST 2008
-// $Id: L1TauAnalyzer.cc,v 1.5 2009/12/18 20:44:55 wmtan Exp $
+// $Id: L1TauAnalyzer.cc,v 1.6 2010/05/03 15:38:25 nuno Exp $
 //
 //
 
@@ -422,8 +422,8 @@ L1TauAnalyzer::getGenObjects(const edm::Event& iEvent, const edm::EventSetup& iS
   _GenTauMuons.clear();
   _GenTauElecs.clear();
 
-  int nTauHads = 0; int nTauMuons = 0;int nTauElecs = 0; //
-  int nfidTauHads = 0; int nfidTauMuons = 0;int nfidTauElecs = 0; // count in fiducial region
+  unsigned int nTauHads = 0; int nTauMuons = 0;int nTauElecs = 0; //
+  unsigned int nfidTauHads = 0; int nfidTauMuons = 0;int nfidTauElecs = 0; // count in fiducial region
   TLorentzVector taunu,tauelec,taumuon;
   GenEvent::particle_iterator p;
 
@@ -781,7 +781,7 @@ L1TauAnalyzer::calcL1MCPFTauMatching() {
   int iSingle = -1;
   int iDouble = -1;
   
-  int nPFMatchGenTauHad = 0;
+  unsigned int nPFMatchGenTauHad = 0;
   
   std::vector<TLorentzVector> PFMatchedGenTauHads;
   PFMatchedGenTauHads.clear();// store PFTau matched gentaus
@@ -909,8 +909,8 @@ L1TauAnalyzer::calcL1MCPFTauMatching() {
     }
   }
   
-  int nfidMCGenTauMuon = 0;
-  int nfidMCGenTauElec = 0;
+  unsigned int nfidMCGenTauMuon = 0;
+  unsigned int nfidMCGenTauElec = 0;
   for (int i = 0; i<(int)_GenTauMuons.size();i++) {
     if (_GenTauMuons[i].Et()>=_MCTauHadMinEt && _GenTauMuons[i].Eta()<=_MCTauHadMaxAbsEta ) {
       nfidMCGenTauMuon++;
