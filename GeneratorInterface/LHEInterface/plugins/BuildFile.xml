@@ -5,7 +5,7 @@
 <use name="GeneratorInterface/LHEInterface"/>
 <use name="GeneratorInterface/Core"/>
 <use name="boost"/>
-<library name="GeneratorInterfaceLHEProducer" file="LHEProducer.cc LHEFilter.cc LHE2HepMCConverter.cc">
+<library name="GeneratorInterfaceLHEProducer" file="LHEProducer.cc LHEFilter.cc LHE2HepMCConverter.cc ExternalLHEProducer.cc ExternalLHEAsciiDumper.cc">
 	<use name="FWCore/Framework"/>
         <use name="SimDataFormats/GeneratorProducts"/>
 	<flags EDM_PLUGIN="1"/>
