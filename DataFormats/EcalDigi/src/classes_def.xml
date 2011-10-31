@@ -70,8 +70,8 @@
     <version ClassVersion="10" checksum="4163430797"/>
    </class>
    <class name="edm::Wrapper<EcalDigiCollection>" splitLevel="0"/>
-   <class name="edm::Wrapper<EBDigiCollection>" splitLevel="0"/>
-   <class name="edm::Wrapper<EEDigiCollection>" splitLevel="0"/>
+   <class name="edm::Wrapper<EBDigiCollection>" />
+   <class name="edm::Wrapper<EEDigiCollection>" />
    <class name="edm::Wrapper<ESDigiCollection>" splitLevel="0"/>
    <class name="edm::Wrapper<EcalTrigPrimCompactColl>" splitLevel="0"/>   
    
