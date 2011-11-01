@@ -12,6 +12,7 @@ Muon::Muon(  Charge q, const LorentzVector & p4, const Point & vtx ) :
      qualityValid_ = false;
      caloCompatibility_ = -9999.;
      type_ = 0;
+     bestTrackType_ = reco::Muon::None;
 }
 
 Muon::Muon() {
@@ -22,6 +23,7 @@ Muon::Muon() {
    qualityValid_ = false;
    caloCompatibility_ = -9999.;
    type_ = 0;
+   bestTrackType_ = reco::Muon::None;
 }
 
 bool Muon::overlap( const Candidate & c ) const {
@@ -769,3 +771,4 @@ void Muon::setMuonTrack(const MuonTrackType& type, const TrackRef& t) {
   }
 
 }
+

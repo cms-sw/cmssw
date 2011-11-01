@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik, Riccardo Bellan, Michalis Bachtis
  *
- * \version $Id: Muon.h,v 1.64 2011/06/20 08:50:06 bellan Exp $
+ * \version $Id: Muon.h,v 1.65 2011/09/21 03:35:04 tucker Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -21,6 +21,8 @@
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"
 #include "DataFormats/MuonReco/interface/MuonTime.h"
 #include "DataFormats/MuonReco/interface/MuonQuality.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
 
 namespace reco {
  
@@ -35,9 +37,9 @@ namespace reco {
     
     
     /// map for Global Muon refitters
-    enum MuonTrackType {InnerTrack, OuterTrack, CombinedTrack, TPFMS, Picky, DYT};
+    enum MuonTrackType {None, InnerTrack, OuterTrack, CombinedTrack, TPFMS, Picky, DYT};
     typedef std::map<MuonTrackType, reco::TrackRef> MuonTrackRefMap;
-    
+    typedef std::pair<TrackRef, Muon::MuonTrackType> MuonTrackTypePair;
 
 
     ///
@@ -58,6 +60,12 @@ namespace reco {
     virtual TrackRef pickyTrack() const { return muonTrackFromMap(Picky);}
     virtual TrackRef dytTrack()   const { return muonTrackFromMap(DYT);}
     
+    virtual const Track * bestTrack() const         {return muonTrackFromMap(bestTrackType_).get();}
+    virtual TrackBaseRef  bestTrackRef() const      {return reco::TrackBaseRef(muonTrackFromMap(bestTrackType_));}
+    virtual TrackRef      muonBestTrack() const     {return muonTrackFromMap(bestTrackType_);}
+    virtual MuonTrackType muonBestTrackType() const {return bestTrackType_;}
+
+
     bool isAValidMuonTrack(const MuonTrackType& type) const;
     TrackRef muonTrack(const MuonTrackType&) const;
 
@@ -78,7 +86,8 @@ namespace reco {
     /// set reference to Track
     virtual void setGlobalTrack( const TrackRef & t );
     virtual void setCombined( const TrackRef & t );
-
+    // set reference to the Best Track
+    virtual void setBestTrack(MuonTrackType muonType) {bestTrackType_ = muonType;}
 
     void setMuonTrack(const MuonTrackType&, const TrackRef&);
 
@@ -209,6 +218,8 @@ namespace reco {
     TrackRef globalTrack_;
     /// reference to the Global Track refitted with dedicated TeV reconstructors
     MuonTrackRefMap refittedTrackMap_;
+    /// reference to the Track chosen to assign the momentum value to the muon 
+    MuonTrackType bestTrackType_;
 
     /// energy deposition 
     MuonEnergy calEnergy_;
