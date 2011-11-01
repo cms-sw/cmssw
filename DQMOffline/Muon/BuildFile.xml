@@ -16,4 +16,5 @@
 <use   name="CondFormats/CSCObjects"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="EventFilter/CSCRawToDigi"/>
+<use   name="CommonTools/TriggerUtils"/>
 <flags   EDM_PLUGIN="1"/>
