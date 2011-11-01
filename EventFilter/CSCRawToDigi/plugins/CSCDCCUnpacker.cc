@@ -207,15 +207,16 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 	examiner->setMask(examinerMask);
 	const short unsigned int *data = (short unsigned int *)fedData.data();
 
-
+        LogTrace("badData") << "Length: "<<  length/2;
 	// Event data hex dump
-	/*short unsigned * buf = (short unsigned int *)fedData.data();
+        /*
+	short unsigned * buf = (short unsigned int *)fedData.data();
 	  std::cout <<std::endl<<length/2<<" words of data:"<<std::endl;
-	  for (int i=0;i<length/2;i++) {
+	  for (short unsigned int i=0;i<length/2;i++) {
 	  printf("%04x %04x %04x %04x\n",buf[i+3],buf[i+2],buf[i+1],buf[i]);
 	  i+=3;
-	  }*/
-
+	  }
+         */
 
         int res = examiner->check(data,long(fedData.size()/2));
 	if( res < 0 )	{
@@ -534,15 +535,15 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c){
 void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort, 
                                  bool fDump, short unsigned int *buf) const {
 
-	LogTrace("badData") << std::endl << std::endl;
-	LogTrace("badData") << "Run: "<< run << " Event: " << event;
-	LogTrace("badData") << std::endl;
+	std::cout << std::endl << std::endl << std::endl;
+	std::cout << "Run: "<< run << " Event: " << event << std::endl;
+	std::cout << std::endl << std::endl;
         if(formatedEventDump)
-           LogTrace("badData") << "FED-" << id << "  " << "(scroll down to see summary)";
+           std::cout << "FED-" << id << "  " << "(scroll down to see summary)" << std::endl;
         else
-	   LogTrace("badData") << "Problem seems in FED-" << id << "  " << "(scroll down to see summary)";
-	LogTrace("badData") <<"********************************************************************************";
-	LogTrace("badData") <<hl<<" words of data:";
+	   std::cout << "Problem seems in FED-" << id << "  " << "(scroll down to see summary)" << std::endl;
+	std::cout <<"********************************************************************************" << std::endl;
+	std::cout << hl <<" words of data:" << std::endl;
 	
 	//================================================
 	// FED codes in DCC
@@ -711,11 +712,13 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 	char dcc_trail2[]="DCC Trailer 2", dcc_trail2_bit[]={'a'};
 	//=========================================================
         
-	for (int i=0;i<hl;i++) {
-	// Auxiliary actions
+	for (int i=0;i < hl; i++) {
 	++word_numbering;
 	  for(int j=-1; j<4; j++){
 	       sprintf(tempbuf_short,"%04x%04x%04x%04x",buf[i+4*(j-1)+3],buf[i+4*(j-1)+2],buf[i+4*(j-1)+1],buf[i+4*(j-1)]);
+
+               // WARNING in 5_0_X for time being
+               ddu_h2_found++; ddu_h2_found--;
 	        
 	        ddu_h2_check[j]=((buf[i+4*(j-1)+1]==0x8000)&&
 		                 (buf[i+4*(j-1)+2]==0x0001)&&(buf[i+4*(j-1)+3]==0x8000));
@@ -804,7 +807,7 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 	        sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s%i %s%s %s %i %s %i",
 		word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],
 	        sign1,ddu_common,ddu_id[kk],ddu_header1,sign1,dmb_common_l1a,ddu_inst_l1a,alct_common_bxn,ddu_inst_bxn);
-		LogTrace("badData") << tempbuf1; w=0; ddu_h1_check=true; ddu_inst_l1a=0; 
+		std::cout << tempbuf1 << std::endl; w=0; ddu_h1_check=true; ddu_inst_l1a=0; 
 		cfeb_sample=0;
 	      }
 	  }
@@ -816,7 +819,7 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 	         sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s%i %s",word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],
 	         sign1,dcc_common,dcc_h1_id,dcc_header1); dcc_h1_check=word_numbering; w=0;
 		 dcc_check=true; 
-		 LogTrace("badData") << tempbuf1;
+		 std::cout << tempbuf1 << std::endl;
 		 } 
 	     }      
 		 
@@ -824,17 +827,17 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 	  if(((word_numbering-1)==dcc_h1_check)&&((buf[i+3]&0xFF00)==0xD900)) {
 	     sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s",word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],
 	     sign1,dcc_header2);
-	     LogTrace("badData") << tempbuf1; w=0; 
+	     std::cout << tempbuf1 << std::endl; w=0; 
 	     }
 	  else if((word_numbering==word_lines-1)&&(tempbuf_short[0]==dcc_trail1_bit[0])){
 	     sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s",word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],
 	     sign1,dcc_trail1);
-	     LogTrace("badData") << tempbuf1; w=0;
+	     std::cout << tempbuf1 << std::endl; w=0;
 	       }
 	  else if((word_numbering==word_lines)&&(tempbuf_short[0]==dcc_trail2_bit[0])){
 	     sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s",word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],
 	     sign1,dcc_trail2);
-	     LogTrace("badData") << tempbuf1; w=0;
+	     std::cout << tempbuf1 << std::endl; w=0;
 	       }
      
 	     // DDU Header 2
@@ -845,7 +848,7 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 	       word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],sign1,ddu_common,
 	       ddu_inst_n, ddu_header2);
 	       ddu_h2_coll.push_back(word_numbering);
-	       LogTrace("badData") << tempbuf1; w=0;
+	       std::cout << tempbuf1 << std::endl; w=0;
 	       ddu_h2_found=1;
 	       }
 	       
@@ -855,7 +858,7 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 	     sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s%i %s",word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],
 	     sign1,ddu_common,ddu_inst_n,ddu_header3);
 	     ddu_h3_coll.push_back(word_numbering);
-	     LogTrace("badData") << tempbuf1; w=0;
+	     std::cout << tempbuf1 << std::endl; w=0;
 	     ddu_h2_found=0;
 	     }
 	     
@@ -874,7 +877,7 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 	       sign1,dmb_common,dmb_header1,sign1,dmb_common_crate,dmb_inst_crate,
 	       dmb_common_slot,dmb_inst_slot,dmb_common_l1a,dmb_inst_l1a);
 	       dmb_h1_coll.push_back(word_numbering);
-	       LogTrace("badData") << tempbuf1; w=0;
+	       std::cout << tempbuf1 << std::endl; w=0;
 	       ddu_h2_found=1;
 	       }
 	       
@@ -887,7 +890,7 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 	       word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],
 	       sign1,dmb_common,dmb_header2,sign1,dmb_common_crate,dmb_inst_crate,
 	       dmb_common_slot,dmb_inst_slot,dmb_common_l1a,dmb_inst_l1a);
-	       LogTrace("badData") << tempbuf1; w=0;
+	       std::cout << tempbuf1 << std::endl; w=0;
 	       ddu_h2_found=1;
 	       }
 	       
@@ -897,7 +900,7 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 		 sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s%i %s",
 	         word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],sign1,ddu_common,ddu_inst_n,ddu_trail1);
 		 ddu_t1_coll.push_back(word_numbering);
-	         LogTrace("badData") << tempbuf1; w=0;
+	         std::cout << tempbuf1 << std::endl; w=0;
 		 }
 
 		 //ALCT Header 1,2		
@@ -909,7 +912,7 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 	         word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],
 		 sign1,alct_common,alct_header1,sign1,dmb_common_l1a,alct_inst_l1a);
 		 alct_h1_coll.push_back(word_numbering);
-	         LogTrace("badData") << tempbuf1; w=0; alct_inst_l1a=0;
+	         std::cout << tempbuf1 << std::endl; w=0; alct_inst_l1a=0;
 		 }
 		 
 	  else if((alct_h1_check[0])&&(alct_h2_check[2])) {
@@ -919,7 +922,7 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 	         word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],
 		 sign1,alct_common,alct_header2,sign1,alct_common_bxn,alct_inst_bxn);
 		 alct_h2_coll.push_back(word_numbering);
-	         LogTrace("badData") << tempbuf1; w=0; alct_inst_bxn=0;
+	         std::cout << tempbuf1 << std::endl; w=0; alct_inst_bxn=0;
 		 } 
 	         
 		 //ALCT Trailer 1
@@ -937,7 +940,7 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 		 sign1,alct_common,alct_tr1,sign1,alct_common_wcnt1,alct_inst_wcnt1,
 		 alct_common_wcnt2,alct_inst_wcnt2);
 		 alct_t1_coll.push_back(word_numbering);
-	         LogTrace("badData") << tempbuf1; w=0; alct_inst_wcnt1=0;
+	         std::cout << tempbuf1 << std::endl; w=0; alct_inst_wcnt1=0;
 		 alct_inst_wcnt2=0;  
 		 }
 		 
@@ -948,7 +951,7 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 		 sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s%i %s",
 	         word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],sign1,ddu_common,ddu_inst_n,ddu_trail3);
 		 ddu_t3_coll.push_back(word_numbering);
-	         LogTrace("badData") << tempbuf1; w=0;
+	         std::cout << tempbuf1 << std::endl; w=0;
 		 }
 		 //DDU Trailer 2
 	  else if((ddu_tr1_check[0])&&(tempbuf_short[0]!=ddu_trailer3_bit[0])){
@@ -957,14 +960,14 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 		 sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s%i %s",
 	         word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],sign1,ddu_common,ddu_inst_n,ddu_trail2);
 		 ddu_t2_coll.push_back(word_numbering);
-	         LogTrace("badData") << tempbuf1; w=0;
+	         std::cout << tempbuf1 << std::endl; w=0;
 		 } 
 	         //DMB Trailer 1,2
          else if(dmb_tr1_check[1]){
 		 sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s %s",
 	         word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],sign1,dmb_common,dmb_tr1);
 		 dmb_t1_coll.push_back(word_numbering);
-	         LogTrace("badData") << tempbuf1; w=0;
+	         std::cout << tempbuf1 << std::endl; w=0;
 		 cfeb_sample=0;
 		 }
 		 
@@ -972,7 +975,7 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 		 sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s %s",
 	         word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],sign1,dmb_common,dmb_tr2);
 		 dmb_t2_coll.push_back(word_numbering);
-	         LogTrace("badData") << tempbuf1; w=0;
+	         std::cout << tempbuf1 << std::endl; w=0;
 		 }	 
 	 // TMB	 
          else if(tmb_h1_check[1]){
@@ -983,7 +986,7 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 	         word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],sign1,tmb_common,tmb_header1,
 		 sign1,dmb_common_l1a,tmb_inst_l1a);
 		 tmb_h1_coll.push_back(word_numbering);
-	         LogTrace("badData") << tempbuf1; w=0; tmb_inst_l1a=0; 
+	         std::cout << tempbuf1 << std::endl; w=0; tmb_inst_l1a=0; 
 		 }
 	 else if(tmb_tr1_check[1]){
 	         tmb_stop=word_numbering;
@@ -998,7 +1001,7 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 		 sign1,tmb_common,tmb_tr1,sign1,alct_common_wcnt1,tmb_inst_wcnt1,
 		 alct_common_wcnt2,tmb_inst_wcnt2);
 		 tmb_t1_coll.push_back(word_numbering);
-	         LogTrace("badData") << tempbuf1; w=0;
+	         std::cout << tempbuf1 << std::endl; w=0;
 		 tmb_inst_wcnt2=0;
 		 }
 	 // CFEB
@@ -1008,12 +1011,12 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 	         word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],
 		 sign1,cfeb_common,cfeb_tr1,sign1,cfeb_common_sample,cfeb_sample);
 		 cfeb_t1_coll.push_back(word_numbering); w=0;
-	         LogTrace("badData") << tempbuf1; w=0;
+	         std::cout << tempbuf1 << std::endl; w=0;
 		 }
 	else if(cfeb_b_check[1]){
 		 sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s %s",
 	         word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],sign1,cfeb_common,cfeb_b);
-	         LogTrace("badData") << tempbuf1; w=0;
+	         std::cout << tempbuf1 << std::endl; w=0;
 		 }	 	  
 	//ERRORS ddu_tr1_bad_check	 
 	else if(ddu_tr1_bad_check[1]){
@@ -1021,159 +1024,201 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
 		 sprintf(tempbuf1,"%6i    %04x %04x %04x %04x%s%s%i %s %s",
 	         word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i],sign1,ddu_common,ddu_inst_n,
 		 ddu_trail1,ddu_tr1_err_common);
-	         LogTrace("badData") << tempbuf1; w=0;
+	         std::cout << tempbuf1 << std::endl; w=0;
 		 }	  
 	
 	 else if(extraction&&(!ddu_h1_check)&&(!dcc_check)){
 	      if(w<3){
 	      sprintf(tempbuf,"%6i    %04x %04x %04x %04x",
 	      word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i]);
-	      LogTrace("badData") << tempbuf; w++;}
+	      std::cout << tempbuf << std::endl; w++;}
 	      if(w==3){
-	      LogTrace("badData") << "..................................................."; w++;}
+	      std::cout << "..................................................." << std::endl; w++;}
 	  }	  
 	  	  
 	  else if((!ddu_h1_check)&&(!dcc_check)){   
 	  sprintf(tempbuf,"%6i    %04x %04x %04x %04x",word_numbering,buf[i+3],buf[i+2],buf[i+1],buf[i]);
-	  LogTrace("badData") << tempbuf;
+	  std::cout << tempbuf << std::endl;
 	  }
 	  
 	  i+=3; ddu_h1_check=false; dcc_check=false; 
       }
-        char sign[30]; 
-	LogTrace("badData") <<"********************************************************************************" <<
-	 std::endl;
+        //char sign[30]; //WARNING 5_0_X 
+	std::cout <<"********************************************************************************" <<
+	 std::endl << std::endl;
 	if(fedshort)
-	LogTrace("badData") << "For complete output turn off VisualFEDShort in muonCSCDigis configuration file.";
-	LogTrace("badData") <<"********************************************************************************" <<
-	 std::endl;
-	LogTrace("badData") << std::endl; 
-	LogTrace("badData") <<"            Summary                ";
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << ddu_h1_coll.size() <<"  "<< ddu_common << "  "<<ddu_header1 << "  "<< "found";
+	std::cout << "For complete output turn off VisualFEDShort in muonCSCDigis configuration file." << std::endl;
+	std::cout <<"********************************************************************************" <<
+	 std::endl << std::endl;
+	std::cout << std::endl << std::endl; 
+	std::cout <<"            Summary                " << std::endl;
+	std::cout << std::endl << std::endl;
+	std::cout << ddu_h1_coll.size() <<"  "<< ddu_common << "  "<<ddu_header1 << "  "<< "found" << std::endl;
+        /*
+        std::cout << ddu_h1_coll.size() << " " << ddu_h1_n_coll.size() << " " << ddu_l1a_coll.size() <<
+        " " << ddu_bxn_coll.size() << std::endl;        
+        */
 	for(unsigned int k=0; k<ddu_h1_coll.size();++k){
+           /*
 	   sprintf(sign,"%s%6i%5s %s%i %s %i %s %i","Line: ",
 	   ddu_h1_coll[k],sign1,ddu_common,ddu_h1_n_coll[k],dmb_common_l1a,ddu_l1a_coll[k],
 	   alct_common_bxn,ddu_bxn_coll[k]);
-	   LogTrace("badData") << sign;
-	}		       
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << "||||||||||||||||||||";
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << ddu_h2_coll.size() <<"  "<< ddu_common << "  "<<ddu_header2 << "  "<< "found";
+           */
+	   std::cout << "Line: " << "    " << ddu_h1_coll[k] << " " << sign1 << " " << 
+           ddu_common << " " << ddu_h1_n_coll[k] << " " << dmb_common_l1a << " " << ddu_l1a_coll[k] << " " << 
+           alct_common_bxn << " " << ddu_bxn_coll[k] << std::endl;
+	}
+
+     		       
+	std::cout << std::endl << std::endl;
+	std::cout << "||||||||||||||||||||" << std::endl;
+	std::cout << std::endl << std::endl;
+	std::cout << ddu_h2_coll.size() <<"  "<< ddu_common << "  "<<ddu_header2 << "  "<< "found" << std::endl;
 	for(unsigned int k=0; k<ddu_h2_coll.size();++k)
-	   LogTrace("badData") << "Line:  " << ddu_h2_coll[k];
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << "||||||||||||||||||||";
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << ddu_h3_coll.size() <<"  "<< ddu_common << "  "<<ddu_header3 << "  "<< "found";
+	   std::cout << "Line:  " << ddu_h2_coll[k] << std::endl;
+	std::cout << std::endl << std::endl;
+	std::cout << "||||||||||||||||||||" << std::endl;
+	std::cout << std::endl << std::endl;
+	std::cout << ddu_h3_coll.size() <<"  "<< ddu_common << "  "<<ddu_header3 << "  "<< "found" << std::endl;
 	for(unsigned int k=0; k<ddu_h3_coll.size();++k)
-	   LogTrace("badData") << "Line:  " << ddu_h3_coll[k];
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << "||||||||||||||||||||";
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << ddu_t1_coll.size() <<"  "<< ddu_common << "  "<<ddu_trail1 << "  "<< "found";
+	   std::cout << "Line:  " << ddu_h3_coll[k] << std::endl;
+	std::cout << std::endl << std::endl;
+	std::cout << "||||||||||||||||||||" << std::endl;
+	std::cout << std::endl << std::endl;
+	std::cout << ddu_t1_coll.size() <<"  "<< ddu_common << "  "<<ddu_trail1 << "  "<< "found" << std::endl;
 	for(unsigned int k=0; k<ddu_t1_coll.size();++k)
-	   LogTrace("badData") << "Line:  " << ddu_t1_coll[k];
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << "||||||||||||||||||||";
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << ddu_t2_coll.size() <<"  "<< ddu_common << "  "<<ddu_trail2 << "  "<< "found";
+	   std::cout << "Line:  " << ddu_t1_coll[k] << std::endl;
+	std::cout << std::endl << std::endl;
+	std::cout << "||||||||||||||||||||" << std::endl;
+	std::cout << std::endl << std::endl;
+	std::cout << ddu_t2_coll.size() <<"  "<< ddu_common << "  "<<ddu_trail2 << "  "<< "found" << std::endl;
 	for(unsigned int k=0; k<ddu_t2_coll.size();++k)
-	   LogTrace("badData") << "Line:  " << ddu_t2_coll[k];
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << "||||||||||||||||||||";
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << ddu_t3_coll.size() <<"  "<< ddu_common << "  "<<ddu_trail3 << "  "<< "found";
+	   std::cout << "Line:  " << ddu_t2_coll[k] << std::endl;
+	std::cout << std::endl << std::endl;
+	std::cout << "||||||||||||||||||||" << std::endl;
+	std::cout << std::endl << std::endl;
+	std::cout << ddu_t3_coll.size() <<"  "<< ddu_common << "  "<<ddu_trail3 << "  "<< "found" << std::endl;
 	for(unsigned int k=0; k<ddu_t3_coll.size();++k)
-	   LogTrace("badData") << "Line:  " << ddu_t3_coll[k];
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << "||||||||||||||||||||";
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << dmb_h1_coll.size() <<"  "<< dmb_common << "  "<<dmb_header1 << "  "<< "found";
+	   std::cout << "Line:  " << ddu_t3_coll[k] << std::endl;
+	std::cout << std::endl << std::endl;
+	std::cout << "||||||||||||||||||||" << std::endl;
+	std::cout << std::endl << std::endl;
+	std::cout << dmb_h1_coll.size() <<"  "<< dmb_common << "  "<<dmb_header1 << "  "<< "found" << std::endl;
+
 	for(unsigned int k=0; k<dmb_h1_coll.size();++k){
+           /*
 	   sprintf(sign,"%s%6i%5s %s %s %i %s %i %s %i","Line: ",
 	   dmb_h1_coll[k],sign1,dmb_common,dmb_common_crate,dmb_crate_coll[k],dmb_common_slot,
 	   dmb_slot_coll[k],dmb_common_l1a,dmb_l1a_coll[k]);
-	   LogTrace("badData") << sign;
+           */
+           std::cout << "Line: " << "    " << dmb_h1_coll[k] << " " << sign1 << dmb_common 
+           << " " << dmb_common_crate << " " << dmb_crate_coll[k] << " " << dmb_common_slot << " " << 
+	   dmb_slot_coll[k] << " " << dmb_common_l1a << " " << dmb_l1a_coll[k] << std::endl;
 	   }
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << "||||||||||||||||||||";
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << dmb_h2_coll.size() <<"  "<< dmb_common << "  "<<dmb_header2 << "  "<< "found";
+	std::cout << std::endl << std::endl;
+	std::cout << "||||||||||||||||||||" << std::endl;
+	std::cout << std::endl << std::endl;
+	std::cout << dmb_h2_coll.size() <<"  "<< dmb_common << "  "<<dmb_header2 << "  "<< "found" << std::endl;
 	for(unsigned int k=0; k<dmb_h2_coll.size();++k)
-	   LogTrace("badData") << "Line:  " << dmb_h2_coll[k];
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << "||||||||||||||||||||";
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << dmb_t1_coll.size() <<"  "<< dmb_common << "  "<<dmb_tr1 << "  "<< "found";
+	   std::cout << "Line:  " << dmb_h2_coll[k] << std::endl;
+	std::cout << std::endl << std::endl;
+	std::cout << "||||||||||||||||||||" << std::endl;
+	std::cout << std::endl << std::endl;
+	std::cout << dmb_t1_coll.size() <<"  "<< dmb_common << "  "<<dmb_tr1 << "  "<< "found" << std::endl;
 	for(unsigned int k=0; k<dmb_t1_coll.size();++k)
-	   LogTrace("badData") << "Line:  " << dmb_t1_coll[k];
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << "||||||||||||||||||||";
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << dmb_t2_coll.size() <<"  "<< dmb_common << "  "<<dmb_tr2 << "  "<< "found";
+	   std::cout << "Line:  " << dmb_t1_coll[k] << std::endl;
+	std::cout << std::endl << std::endl;
+	std::cout << "||||||||||||||||||||" << std::endl;
+	std::cout << std::endl << std::endl;
+	std::cout << dmb_t2_coll.size() <<"  "<< dmb_common << "  "<<dmb_tr2 << "  "<< "found" << std::endl;
 	for(unsigned int k=0; k<dmb_t2_coll.size();++k)
-	   LogTrace("badData") << "Line:  " << dmb_t2_coll[k];
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << "||||||||||||||||||||";
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << alct_h1_coll.size() <<"  "<< alct_common << "  "<<alct_header1 << "  "<< "found";
+	   std::cout << "Line:  " << dmb_t2_coll[k] << std::endl;
+	std::cout << std::endl << std::endl;
+	std::cout << "||||||||||||||||||||" << std::endl;
+	std::cout << std::endl << std::endl;
+	std::cout << alct_h1_coll.size() <<"  "<< alct_common << "  "<<alct_header1 << "  "<< "found" << std::endl;
 	for(unsigned int k=0; k<alct_h1_coll.size();++k){
+           /*
 	   sprintf(sign,"%s%6i%5s %s %s %i","Line: ",
 	   alct_h1_coll[k],sign1,alct_common,
 	   dmb_common_l1a,alct_l1a_coll[k]);
-	   LogTrace("badData") << sign;
+	   std::cout << sign << std::endl;
+           */
+           std::cout << "Line: " << "    " <<
+	   alct_h1_coll[k] << " " << sign1 << " " << alct_common << " " << 
+	   dmb_common_l1a << " " << alct_l1a_coll[k] << std::endl;
 	   }
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << "||||||||||||||||||||";
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << alct_h2_coll.size() <<"  "<< alct_common << "  "<<alct_header2 << "  "<< "found";
+
+	std::cout << std::endl << std::endl;
+	std::cout << "||||||||||||||||||||" << std::endl;
+	std::cout << std::endl << std::endl;
+	std::cout << alct_h2_coll.size() <<"  "<< alct_common << "  "<<alct_header2 << "  "<< "found" << std::endl;
 	for(unsigned int k=0; k<alct_h2_coll.size();++k){
+           /*
 	   sprintf(sign,"%s%6i%5s %s %s %i","Line: ",
 	   alct_h1_coll[k],sign1,alct_common,
 	   alct_common_bxn,alct_bxn_coll[k]);
-	   LogTrace("badData") << sign;
+	   std::cout << sign << std::endl;
+           */
+           std::cout << "Line: " << "    " <<
+	   alct_h1_coll[k] << " " << sign1 << " " << alct_common << " " << 
+	   alct_common_bxn << " " << alct_bxn_coll[k] << std::endl;
 	   }
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << "||||||||||||||||||||";
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << alct_t1_coll.size() <<"  "<< alct_common << "  "<<alct_tr1 << "  "<< "found";
+
+	std::cout << std::endl << std::endl;
+	std::cout << "||||||||||||||||||||" << std::endl;
+	std::cout << std::endl << std::endl;
+	std::cout << alct_t1_coll.size() <<"  "<< alct_common << "  "<<alct_tr1 << "  "<< "found" << std::endl;
 	for(unsigned int k=0; k<alct_t1_coll.size();++k){
+         /*
 	        sprintf(sign,"%s%6i%5s %s %s %i %s %i","Line: ",
 	        alct_t1_coll[k],sign1,alct_common,
 	        alct_common_wcnt1,alct_wcnt1_coll[k],alct_common_wcnt2,alct_wcnt2_coll[k]);
-	                        
-	   LogTrace("badData") << sign;
+	        std::cout << sign << std::endl;
+          */
+           std::cout << "Line: " << "    " << alct_t1_coll[k] << " " << sign1 << " " << alct_common << " " << 
+	        alct_common_wcnt1 << " " << alct_wcnt1_coll[k] << " " << alct_common_wcnt2 << " " << 
+                alct_wcnt2_coll[k] << std::endl;
 	   }
 	   
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << "||||||||||||||||||||";
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << tmb_h1_coll.size() <<"  "<< tmb_common << "  "<<tmb_header1 << "  "<< "found";
+	std::cout << std::endl << std::endl;
+	std::cout << "||||||||||||||||||||" << std::endl;
+	std::cout << std::endl << std::endl;
+	std::cout << tmb_h1_coll.size() <<"  "<< tmb_common << "  "<<tmb_header1 << "  "<< "found" << std::endl;
 	for(unsigned int k=0; k<tmb_h1_coll.size();++k){
+           /*
 	   sprintf(sign,"%s%6i%5s %s %s %i","Line: ",
 	   tmb_h1_coll[k],sign1,tmb_common,
 	   dmb_common_l1a,tmb_l1a_coll[k]);
-	   LogTrace("badData") << sign;
+	   std::cout << sign << std::endl;
+           */
+           std::cout << "Line: " << "    " << tmb_h1_coll[k] << " " << sign1 << " " << tmb_common << " " << 
+	   dmb_common_l1a << " " << tmb_l1a_coll[k] << std::endl;
 	}   
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << "||||||||||||||||||||";
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << tmb_t1_coll.size() <<"  "<< tmb_common << "  "<<tmb_tr1 << "  "<< "found";
+
+	std::cout << std::endl << std::endl;
+	std::cout << "||||||||||||||||||||" << std::endl;
+	std::cout << std::endl << std::endl;
+	std::cout << tmb_t1_coll.size() <<"  "<< tmb_common << "  "<<tmb_tr1 << "  "<< "found" << std::endl;
 	for(unsigned int k=0; k<tmb_t1_coll.size();++k){
+                /*
 	        sprintf(sign,"%s%6i%5s %s %s %i %s %i","Line: ",
 	        tmb_t1_coll[k],sign1,tmb_common,
-	        alct_common_wcnt1,tmb_wcnt1_coll[k],alct_common_wcnt2,tmb_wcnt2_coll[k]);
-	                        
-	   LogTrace("badData") << sign;
+	        alct_common_wcnt1,tmb_wcnt1_coll[k],alct_common_wcnt2,tmb_wcnt2_coll[k]);                
+	   std::cout << sign << std::endl;
+           */
+           std::cout << "Line: " << "    " << tmb_t1_coll[k] << " " << sign1 << " " << tmb_common << " " << 
+	        alct_common_wcnt1 << " " << tmb_wcnt1_coll[k] << " " << alct_common_wcnt2 << " " << tmb_wcnt2_coll[k]
+                << std::endl;
 	   }
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << "||||||||||||||||||||";
-	LogTrace("badData") << std::endl;
-	LogTrace("badData") << cfeb_t1_coll.size() <<"  "<< cfeb_common << "  "<<cfeb_tr1 << "  "<< "found";
+         
+        
+	std::cout << std::endl << std::endl;
+	std::cout << "||||||||||||||||||||" << std::endl;
+	std::cout << std::endl << std::endl;
+	std::cout << cfeb_t1_coll.size() <<"  "<< cfeb_common << "  "<<cfeb_tr1 << "  "<< "found" << std::endl;
 	for(unsigned int k=0; k<cfeb_t1_coll.size();++k)
-	   LogTrace("badData") << "Line:  " << cfeb_t1_coll[k];
-	 LogTrace("badData") <<"********************************************************************************";
+	   std::cout << "Line:  " << cfeb_t1_coll[k] << std::endl;
+	 std::cout <<"********************************************************************************" << std::endl;
 	
 }

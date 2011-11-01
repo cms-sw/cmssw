@@ -221,10 +221,12 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
   bool fTMB_RPC_Start = false;
   bool fTMB_BlockedCFEBs_Start = false;
  
-  bool fTMB_Scope = false;
+  bool fTMB_Scope = false; 
   bool fTMB_MiniScope = false; 
   bool fTMB_RPC = false;
   bool fTMB_BlockedCFEBs = false;
+
+  fTMB_Scope = fTMB_Scope && true; // WARNING in 5_0_X
 
   while( length>0 ){
     // == Store last 4 read buffers in pipeline-like memory (note that memcpy works quite slower!)

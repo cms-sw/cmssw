@@ -13,7 +13,7 @@
 //
 // Original Author:  Lindsey Gray
 //         Created:  Tue Jul 28 18:04:11 CEST 2009
-// $Id: CSCDigiValidator.cc,v 1.1 2009/11/09 20:29:44 lgray Exp $
+// $Id: CSCDigiValidator.cc,v 1.2 2010/07/20 02:58:29 wmtan Exp $
 //
 //
 
@@ -179,6 +179,8 @@ CSCDigiValidator::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      trk = _trk->begin(), strk = _strk->begin();
    std::vector<csctf::TrackStub>::const_iterator
      dt = _dt->get().begin(), sdt = _sdt->get().begin();
+     // WARNING 5_0_X
+     dt++; dt--; sdt++; sdt--;
 
    //per detID, create lists of various digi types
    matchingDetWireCollection wires;
