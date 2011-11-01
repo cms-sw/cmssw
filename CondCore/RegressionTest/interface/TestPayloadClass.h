@@ -1,7 +1,7 @@
-#include "CondCore/DBTest/interface/Includes.h"
-#include "CondCore/DBTest/interface/Primitives.h"
-#include "CondCore/DBTest/interface/DataStructs.h"
-#include "CondCore/DBTest/interface/Inheritances.h"
+#include "CondCore/RegressionTest/interface/Includes.h"
+#include "CondCore/RegressionTest/interface/Primitives.h"
+#include "CondCore/RegressionTest/interface/DataStructs.h"
+#include "CondCore/RegressionTest/interface/Inheritances.h"
 
 class TestPayloadClass
 {	

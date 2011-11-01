@@ -1,4 +1,4 @@
-#include "CondCore/DBTest/interface/TestFunct.h"
+#include "CondCore/RegressionTest/interface/TestFunct.h"
 
 int main(int argc, char **argv)
 {

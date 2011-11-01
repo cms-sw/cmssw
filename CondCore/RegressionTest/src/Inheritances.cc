@@ -1,4 +1,4 @@
-#include "CondCore/DBTest/interface/Inheritances.h"
+#include "CondCore/RegressionTest/interface/Inheritances.h"
 
 TestData::TestData (int payloadID): commonInt(payloadID), commonIntVector2d() 
 {

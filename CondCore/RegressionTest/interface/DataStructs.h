@@ -1,4 +1,4 @@
-#include "CondCore/DBTest/interface/Includes.h"
+#include "CondCore/RegressionTest/interface/Includes.h"
 // namespace __gnu_cxx
 // {
 

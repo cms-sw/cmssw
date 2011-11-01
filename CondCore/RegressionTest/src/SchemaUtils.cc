@@ -1,4 +1,4 @@
-#include "CondCore/DBTest/interface/SchemaUtils.h"
+#include "CondCore/RegressionTest/interface/SchemaUtils.h"
 // externals
 #include "RelationalAccess/ISessionProxy.h"
 #include "RelationalAccess/ITransaction.h"

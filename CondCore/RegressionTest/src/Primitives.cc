@@ -1,4 +1,4 @@
-#include "CondCore/DBTest/interface/Primitives.h"
+#include "CondCore/RegressionTest/interface/Primitives.h"
 Primitives::Primitives(int payloadID) :
 	testInt(payloadID),
 	testLongInt(payloadID),

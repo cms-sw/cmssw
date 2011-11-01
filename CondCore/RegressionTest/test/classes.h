@@ -1,5 +1,5 @@
 
-#include "CondCore/DBTest/interface/TestPayloadClass.h"
+#include "CondCore/RegressionTest/interface/TestPayloadClass.h"
 namespace {
 	struct dictionary {
 	  std::vector<double>::iterator dummy1;

@@ -1,4 +1,4 @@
-#include "CondCore/DBTest/interface/DataStructs.h"
+#include "CondCore/RegressionTest/interface/DataStructs.h"
 DataStructs::DataStructs(int payloadID) :
 	//testCharArray(),
 	//testIntArray(),

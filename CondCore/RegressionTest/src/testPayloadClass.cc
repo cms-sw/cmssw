@@ -1,4 +1,4 @@
-#include "CondCore/DBTest/interface/TestPayloadClass.h"
+#include "CondCore/RegressionTest/interface/TestPayloadClass.h"
 
 TestPayloadClass::TestPayloadClass(int payloadID) :
 	primitives(payloadID),
