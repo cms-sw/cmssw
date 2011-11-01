@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.66 2011/09/22 11:27:37 ptraczyk Exp $
+// $Id: MuonIdProducer.cc,v 1.67 2011/09/23 13:06:53 ptraczyk Exp $
 //
 //
 
@@ -276,7 +276,7 @@ reco::Muon MuonIdProducer::makeMuon( const reco::MuonTrackLinks& links )
    LogTrace("MuonIdentification") << "Creating a muon from a link to tracks object";
 
    reco::Muon aMuon;
-   reco::TrackRef chosenTrack;
+   reco::Muon::MuonTrackTypePair chosenTrack;
    
    if (tpfmsCollectionHandle_.isValid() && !tpfmsCollectionHandle_.failedToGet() && 
        pickyCollectionHandle_.isValid() && !pickyCollectionHandle_.failedToGet()) 
@@ -287,10 +287,11 @@ reco::Muon MuonIdProducer::makeMuon( const reco::MuonTrackLinks& links )
      else chosenTrack = muon::sigmaSwitch( links.globalTrack(), links.trackerTrack(), 
                                            sigmaThresholdToFillCandidateP4WithGlobalFit_,
                                            ptThresholdToFillCandidateP4WithGlobalFit_);
-   aMuon = makeMuon(*chosenTrack);
+   aMuon = makeMuon(*chosenTrack.first);
    aMuon.setInnerTrack( links.trackerTrack() );
    aMuon.setOuterTrack( links.standAloneTrack() );
    aMuon.setGlobalTrack( links.globalTrack() );
+   aMuon.setBestTrack(chosenTrack.second);
 
    if(fillGlobalTrackRefits_){
      if (tpfmsCollectionHandle_.isValid() && !tpfmsCollectionHandle_.failedToGet()) {

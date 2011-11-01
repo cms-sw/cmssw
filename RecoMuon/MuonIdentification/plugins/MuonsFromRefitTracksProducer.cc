@@ -3,7 +3,7 @@
   \brief    Replaces the kinematic information in the input muons with those of the chosen refit tracks.
 
   \author   Jordan Tucker
-  \version  $Id: MuonsFromRefitTracksProducer.cc,v 1.9 2010/03/25 14:08:50 jribnik Exp $
+  \version  $Id: MuonsFromRefitTracksProducer.cc,v 1.10 2010/06/28 08:47:42 dmytro Exp $
 */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -19,8 +19,8 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 
-reco::TrackRef tevOptimizedTMR(const reco::Muon& muon, const reco::TrackToTrackMap& fmsMap,
-			 const double cut) {
+reco::Muon::MuonTrackTypePair tevOptimizedTMR(const reco::Muon& muon, const reco::TrackToTrackMap& fmsMap,
+				const double cut) {
   const reco::TrackRef& combinedTrack = muon.globalTrack();
   const reco::TrackRef& trackerTrack  = muon.innerTrack();
 
@@ -39,29 +39,29 @@ reco::TrackRef tevOptimizedTMR(const reco::Muon& muon, const reco::TrackToTrackM
 
   if (TKok && FMSok) {
     if (probFMS - probTK > cut)
-      return trackerTrack;
+      return make_pair(trackerTrack,reco::Muon::InnerTrack);
     else
-      return fmsTrack->val;
+      return make_pair(fmsTrack->val,reco::Muon::TPFMS);
   }
   else if (FMSok)
-    return fmsTrack->val;
+    return make_pair(fmsTrack->val,reco::Muon::TPFMS);
   else if (TKok)
-    return trackerTrack;
+    return make_pair(trackerTrack,reco::Muon::InnerTrack);
 
-  return combinedTrack;
+  return make_pair(combinedTrack,reco::Muon::CombinedTrack);
 }
 
-reco::TrackRef sigmaSwitch(const reco::Muon& muon, const double nSigma, const double ptThreshold) {
+ reco::Muon::MuonTrackTypePair sigmaSwitch(const reco::Muon& muon, const double nSigma, const double ptThreshold) {
   const reco::TrackRef& combinedTrack = muon.globalTrack();
   const reco::TrackRef& trackerTrack  = muon.innerTrack();
 
   if (combinedTrack->pt() < ptThreshold || trackerTrack->pt() < ptThreshold)
-    return trackerTrack;
+    return make_pair(trackerTrack,reco::Muon::InnerTrack);
 
   double delta = fabs(trackerTrack->qoverp() - combinedTrack->qoverp());
   double threshold = nSigma * trackerTrack->qoverpError();
 
-  return delta > threshold ? trackerTrack : combinedTrack;
+  return delta > threshold ? make_pair(trackerTrack,reco::Muon::InnerTrack) : make_pair(combinedTrack,reco::Muon::CombinedTrack);
 }
 
 class MuonsFromRefitTracksProducer : public edm::EDProducer {
@@ -81,7 +81,7 @@ private:
   // id information such as isolation, calo energy, etc.) and replace
   // its combined muon track with the passed in track.
   reco::Muon* cloneAndSwitchTrack(const reco::Muon& muon,
-			    const reco::TrackRef& newTrack) const;
+				  const reco::Muon::MuonTrackTypePair& newTrack) const;
 
   // The input muons -- i.e. the merged collection of reco::Muons.
   edm::InputTag src;
@@ -171,7 +171,7 @@ bool MuonsFromRefitTracksProducer::storeMatchMaps(const edm::Event& event) {
 }
 
 reco::Muon* MuonsFromRefitTracksProducer::cloneAndSwitchTrack(const reco::Muon& muon,
-							const reco::TrackRef& newTrack) const {
+							      const  reco::Muon::MuonTrackTypePair& newTrack) const {
   // Muon mass to make a four-vector out of the new track.
   static const double muMass = 0.10566;
 
@@ -179,19 +179,20 @@ reco::Muon* MuonsFromRefitTracksProducer::cloneAndSwitchTrack(const reco::Muon& 
   reco::TrackRef muTrack  = muon.outerTrack();
 	  
   // Make up a real Muon from the tracker track.
-  reco::Particle::Point vtx(newTrack->vx(), newTrack->vy(), newTrack->vz());
+  reco::Particle::Point vtx(newTrack.first->vx(), newTrack.first->vy(), newTrack.first->vz());
   reco::Particle::LorentzVector p4;
-  double p = newTrack->p();
-  p4.SetXYZT(newTrack->px(), newTrack->py(), newTrack->pz(),
+  double p = newTrack.first->p();
+  p4.SetXYZT(newTrack.first->px(), newTrack.first->py(), newTrack.first->pz(),
 	     sqrt(p*p + muMass*muMass));
 
   reco::Muon* mu = muon.clone();
-  mu->setCharge(newTrack->charge());
+  mu->setCharge(newTrack.first->charge());
   mu->setP4(p4);
   mu->setVertex(vtx);
-  mu->setGlobalTrack(newTrack);
+  mu->setGlobalTrack(newTrack.first);
   mu->setInnerTrack(tkTrack);
   mu->setOuterTrack(muTrack);
+  mu->setBestTrack(newTrack.second);
   return mu;
 }
 
@@ -226,7 +227,7 @@ void MuonsFromRefitTracksProducer::produce(edm::Event& event, const edm::EventSe
 
       if (fromTeVRefit || fromSigmaSwitch) {
 	// Start out with a null TrackRef.
-    reco::TrackRef tevTk;
+	reco::Muon::MuonTrackTypePair tevTk;
       
 	// If making a cocktail muon, use tevOptimized() to get the track
 	// desired. Otherwise, get the refit track from the desired track
@@ -242,19 +243,19 @@ void MuonsFromRefitTracksProducer::produce(edm::Event& event, const edm::EventSe
         reco::TrackToTrackMap::const_iterator tevTkRef =
 	    trackMap->find(muon->combinedMuon());
 	  if (tevTkRef != trackMap->end())
-	    tevTk = tevTkRef->val;
+	    tevTk = make_pair(tevTkRef->val,reco::Muon::CombinedTrack);
 	}
 	
 	// If the TrackRef is valid, make a new Muon that has the same
 	// tracker and stand-alone tracks, but has the refit track as
 	// its global track.
-	if (tevTk.isNonnull())
+	if (tevTk.first.isNonnull())
 	  cands->push_back(*cloneAndSwitchTrack(*muon, tevTk));
       }
       else if (fromTrackerTrack)
-	cands->push_back(*cloneAndSwitchTrack(*muon, muon->innerTrack()));
+	cands->push_back(*cloneAndSwitchTrack(*muon, make_pair(muon->innerTrack(),reco::Muon::InnerTrack)));
       else if (fromGlobalTrack)
-	cands->push_back(*cloneAndSwitchTrack(*muon, muon->globalTrack()));
+	cands->push_back(*cloneAndSwitchTrack(*muon, make_pair(muon->globalTrack(),reco::Muon::CombinedTrack)));
       else {
 	cands->push_back(*muon->clone());
 

@@ -6,8 +6,8 @@
  *  Set of functions that select among the different track refits
  *  based on the fit quality, in order to achieve optimal resolution.
  *
- *  $Date: 2011/09/22 08:52:47 $
- *  $Revision: 1.3 $
+ *  $Date: 2011/11/01 15:59:24 $
+ *  $Revision: 1.4 $
  *  \author Piotr Traczyk
  */
 
@@ -37,7 +37,7 @@ namespace muon {
 			muon.pickyTrack(),
 			ptThreshold,
 			tune1,
-			tune2);
+			tune2);  
   }
 
   reco::TrackRef getTevRefitTrack(const reco::TrackRef& combinedTrack,

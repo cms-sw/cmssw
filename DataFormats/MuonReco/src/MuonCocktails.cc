@@ -116,7 +116,7 @@ reco::Muon::MuonTrackTypePair muon::TMR(const reco::TrackRef& trackerTrack,
   double probTK  = 0;
   double probFMS = 0;
   
-  if (trackerTrack.isNonnull() && trackerTrack->numberOfValidHits())
+  if (trackerTrack.isNonnull() && trackerTrack->numberOfValidHits())  
     probTK = muon::trackProbability(trackerTrack);
   if (fmsTrack.isNonnull() && fmsTrack->numberOfValidHits())
     probFMS = muon::trackProbability(fmsTrack);
