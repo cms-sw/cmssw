@@ -24,7 +24,7 @@ bool TestFunct::Read (std::string mappingName)
 			refSeed=row[ "SEED" ].data<int>();
 		}
 		std::string readToken = metadata.getToken(mappingName);
-		pool::Ref<TestPayloadClass> readRef0 = s.getTypedObject<TestPayloadClass>( readToken );  //v3	
+		boost::shared_ptr<TestPayloadClass> readRef0 = s.getTypedObject<TestPayloadClass>( readToken ); //v4
 		std::cout << "Object with id="<<readToken<<" has been read"<<std::endl;
 		TestPayloadClass tp = *readRef0;
 		TestPayloadClass tp2(refSeed);
@@ -73,9 +73,9 @@ bool TestFunct::Write (std::string mappingName, int payloadID)
 		dataEditor.rowBuffer( rowBuffer );
 		rowBuffer["NAME"].data<std::string>()=mappingName;
 		rowBuffer["SEED"].data<int>()=payloadID;
-		dataEditor.insertRow( rowBuffer );	
-	    pool::Ref<TestPayloadClass> myRef0 = s.storeObject(new TestPayloadClass(payloadID), "cont1"); //v3
-		tok0 = myRef0.toString(); //v3
+		dataEditor.insertRow( rowBuffer );
+		boost::shared_ptr<TestPayloadClass> myRef0(new TestPayloadClass(payloadID)); //v4
+	    tok0 = s.storeObject( myRef0.get(),"cont1"); //v4
 	    metadata.addMapping(mappingName, tok0);
 	    std::cout << "Stored object with id = "<<tok0<<std::endl;
 	    trans.commit();
