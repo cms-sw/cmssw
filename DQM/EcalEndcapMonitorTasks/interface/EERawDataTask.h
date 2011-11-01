@@ -4,8 +4,8 @@
 /*
  * \file EERawDataTask.h
  *
- * $Date: 2010/08/06 17:35:41 $
- * $Revision: 1.8 $
+ * $Date: 2011/10/30 15:01:27 $
+ * $Revision: 1.9 $
  * \author E. Di Marco
  *
 */
@@ -84,7 +84,9 @@ MonitorElement* meEETriggerTypeErrors_;
 MonitorElement* meEECalibrationEventErrors_;
 MonitorElement* meEEL1ADCCErrors_;
 MonitorElement* meEEBunchCrossingDCCErrors_;
-MonitorElement* meEEL1AFEErrors_[2];
+// temporary measure to avoid dead links in the layout; remove 1d histo once transition is done
+MonitorElement* meEEL1AFEErrors_;
+MonitorElement* meEEL1AFEErrorsMap_[2];
 MonitorElement* meEEBunchCrossingFEErrors_;
 MonitorElement* meEEL1ATCCErrors_;
 MonitorElement* meEEBunchCrossingTCCErrors_;

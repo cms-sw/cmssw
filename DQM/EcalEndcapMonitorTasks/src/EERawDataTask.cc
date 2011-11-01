@@ -1,8 +1,8 @@
 /*
  * \file EERawDataTask.cc
  *
- * $Date: 2011/08/30 09:28:42 $
- * $Revision: 1.38 $
+ * $Date: 2011/10/30 15:01:28 $
+ * $Revision: 1.39 $
  * \author E. Di Marco
  *
 */
@@ -56,7 +56,8 @@ EERawDataTask::EERawDataTask(const edm::ParameterSet& ps) {
   meEECalibrationEventErrors_ = 0;
   meEEL1ADCCErrors_ = 0;
   meEEBunchCrossingDCCErrors_ = 0;
-  for(int i=0; i<2; i++) meEEL1AFEErrors_[i] = 0;
+  meEEL1AFEErrors_ = 0;
+  for(int i=0; i<2; i++) meEEL1AFEErrorsMap_[i] = 0;
   meEEBunchCrossingFEErrors_ = 0;
   meEEL1ATCCErrors_ = 0;
   meEEBunchCrossingTCCErrors_ = 0;
@@ -113,7 +114,8 @@ void EERawDataTask::reset(void) {
   if ( meEECalibrationEventErrors_ ) meEECalibrationEventErrors_->Reset();
   if ( meEEL1ADCCErrors_ ) meEEL1ADCCErrors_->Reset();
   if ( meEEBunchCrossingDCCErrors_ ) meEEBunchCrossingDCCErrors_->Reset();
-  for(int i=0; i<2; i++) if ( meEEL1AFEErrors_[i] ) meEEL1AFEErrors_[i]->Reset();
+  if ( meEEL1AFEErrors_ ) meEEL1AFEErrors_->Reset();
+  for(int i=0; i<2; i++) if ( meEEL1AFEErrorsMap_[i] ) meEEL1AFEErrorsMap_[i]->Reset();
   if ( meEEBunchCrossingFEErrors_ ) meEEBunchCrossingFEErrors_->Reset();
   if ( meEEL1ATCCErrors_ ) meEEL1ATCCErrors_->Reset();
   if ( meEEBunchCrossingTCCErrors_ ) meEEBunchCrossingTCCErrors_->Reset();
@@ -216,87 +218,93 @@ void EERawDataTask::setup(void){
     name = "EERDT CRC errors";
     meEECRCErrors_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
-      meEECRCErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meEECRCErrors_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     name = "EERDT run number errors";
     meEERunNumberErrors_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
-      meEERunNumberErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meEERunNumberErrors_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     name = "EERDT orbit number errors";
     meEEOrbitNumberErrors_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
-      meEEOrbitNumberErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meEEOrbitNumberErrors_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     name = "EERDT trigger type errors";
     meEETriggerTypeErrors_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
-      meEETriggerTypeErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meEETriggerTypeErrors_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     name = "EERDT calibration event errors";
     meEECalibrationEventErrors_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
-      meEECalibrationEventErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meEECalibrationEventErrors_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     name = "EERDT L1A DCC errors";
     meEEL1ADCCErrors_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
-      meEEL1ADCCErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meEEL1ADCCErrors_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     name = "EERDT bunch crossing DCC errors";
     meEEBunchCrossingDCCErrors_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
-      meEEBunchCrossingDCCErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meEEBunchCrossingDCCErrors_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
+    }
+
+    name = "EERDT L1A FE errors";
+    meEEL1AFEErrors_ = dqmStore_->book1D(name, name, 18, 1, 19);
+    for(int i=0; i<18; i++){
+      meEEL1AFEErrors_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     // important - used in the global summary
-    name = "EERDT L1A FE errors EE -";
-    meEEL1AFEErrors_[0] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
+    name = "EERDT L1A FE errors map EE -";
+    meEEL1AFEErrorsMap_[0] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
 
-    name = "EERDT L1A FE errors EE +";
-    meEEL1AFEErrors_[1] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
+    name = "EERDT L1A FE errors map EE +";
+    meEEL1AFEErrorsMap_[1] = dqmStore_->book2D(name, name, 100, 0., 100., 100, 0., 100.);
 
     name = "EERDT bunch crossing FE errors";
     meEEBunchCrossingFEErrors_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
-      meEEBunchCrossingFEErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meEEBunchCrossingFEErrors_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     name = "EERDT L1A TCC errors";
     meEEL1ATCCErrors_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
-      meEEL1ATCCErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meEEL1ATCCErrors_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     name = "EERDT bunch crossing TCC errors";
     meEEBunchCrossingTCCErrors_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
-      meEEBunchCrossingTCCErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meEEBunchCrossingTCCErrors_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     name = "EERDT L1A SRP errors";
     meEEL1ASRPErrors_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
-      meEEL1ASRPErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meEEL1ASRPErrors_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     name = "EERDT bunch crossing SRP errors";
     meEEBunchCrossingSRPErrors_ = dqmStore_->book1D(name, name, 18, 1, 19);
     for (int i = 0; i < 18; i++) {
-      meEEBunchCrossingSRPErrors_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meEEBunchCrossingSRPErrors_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
     name = "EERDT FE synchronization errors by lumi";
     meEESynchronizationErrorsByLumi_ = dqmStore_->book1D(name, name, 18, 1, 19);
     meEESynchronizationErrorsByLumi_->setLumiFlag();
     for (int i = 0; i < 18; i++) {
-      meEESynchronizationErrorsByLumi_->setBinLabel(i+1, Numbers::sEE(i+1).c_str(), 1);
+      meEESynchronizationErrorsByLumi_->setBinLabel(i+1, Numbers::sEE(i+1), 1);
     }
 
   }
@@ -340,9 +348,12 @@ void EERawDataTask::cleanup(void){
     if ( meEEBunchCrossingDCCErrors_ ) dqmStore_->removeElement( meEEBunchCrossingDCCErrors_->getName() );
     meEEBunchCrossingDCCErrors_ = 0;
 
+    if ( meEEL1AFEErrors_ ) dqmStore_->removeElement( meEEL1AFEErrors_->getName() );
+    meEEL1AFEErrors_ = 0;
+
     for(int i=0; i<2; i++){
-      if ( meEEL1AFEErrors_[i] ) dqmStore_->removeElement( meEEL1AFEErrors_[i]->getName() );
-      meEEL1AFEErrors_[i] = 0;
+      if ( meEEL1AFEErrorsMap_[i] ) dqmStore_->removeElement( meEEL1AFEErrorsMap_[i]->getName() );
+      meEEL1AFEErrorsMap_[i] = 0;
     }
 
     if ( meEEBunchCrossingFEErrors_ ) dqmStore_->removeElement( meEEBunchCrossingFEErrors_->getName() );
@@ -603,11 +614,12 @@ void EERawDataTask::analyze(const edm::Event& e, const edm::EventSetup& c){
         // do not consider desynch errors if the DCC detected them
         if( ( status[fe] == 9 || status[fe] == 11 )) continue;
         if(feLv1[fe]+feLv1Offset != ECALDCC_L1A_12bit && feLv1[fe] != -1 && ECALDCC_L1A_12bit - 1 != -1) {
+	  meEEL1AFEErrors_->Fill(xism, 1/(float)feLv1.size());
 	  std::vector<DetId> *crystals = Numbers::crystals(dcchItr->id(), fe);
 	  for(std::vector<DetId>::iterator it = crystals->begin(); it != crystals->end(); ++it){
 	    EEDetId id(*it);
 	    int ind = (ism - 1) / 9;
-	    meEEL1AFEErrors_[ind]->Fill(id.ix() - 0.5, id.iy() - 0.5);
+	    meEEL1AFEErrorsMap_[ind]->Fill(id.ix() - 0.5, id.iy() - 0.5);
 	  }
           meEESynchronizationErrorsByLumi_->Fill( xism, 1/(float)feLv1.size() );
         } else if( BxSynchStatus[fe]==0 ) meEESynchronizationErrorsByLumi_->Fill( xism, 1/(float)feLv1.size() );

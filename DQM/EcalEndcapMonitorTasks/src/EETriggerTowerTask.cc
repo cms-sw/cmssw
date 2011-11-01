@@ -1,8 +1,8 @@
 /*
  * \file EETriggerTowerTask.cc
  *
- * $Date: 2011/08/30 09:28:42 $
- * $Revision: 1.77 $
+ * $Date: 2011/10/28 14:15:47 $
+ * $Revision: 1.78 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -151,10 +151,10 @@ void EETriggerTowerTask::setup(void){
 
   if ( dqmStore_ ) {
     setup( "Real Digis",
-           (prefixME_ + "/EETriggerTowerTask").c_str(), false );
+           prefixME_ + "/EETriggerTowerTask", false );
 
     setup( "Emulated Digis",
-           (prefixME_ + "/EETriggerTowerTask/Emulated").c_str(), true);
+           prefixME_ + "/EETriggerTowerTask/Emulated", true);
   }
   else {
     edm::LogError("EETriggerTowerTask") << "Bad DQMStore, cannot book MonitorElements.";
@@ -324,7 +324,7 @@ void EETriggerTowerTask::cleanup(void) {
 
   if ( dqmStore_ ) {
 
-    if ( !outputFile_.empty() ) dqmStore_->save( outputFile_.c_str() );
+    if ( !outputFile_.empty() ) dqmStore_->save( outputFile_ );
 
     dqmStore_->rmdir( prefixME_ + "/EETriggerTowerTask" );
 

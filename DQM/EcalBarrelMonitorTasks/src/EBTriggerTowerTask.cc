@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerTask.cc
  *
- * $Date: 2011/08/30 09:30:33 $
- * $Revision: 1.106 $
+ * $Date: 2011/10/28 14:15:46 $
+ * $Revision: 1.107 $
  * \author G. Della Ricca
  * \author E. Di Marco
  *
@@ -135,10 +135,10 @@ void EBTriggerTowerTask::setup(void){
 
   if ( dqmStore_ ) {
     setup( "Real Digis",
-           (prefixME_ + "/EBTriggerTowerTask").c_str(), false );
+           prefixME_ + "/EBTriggerTowerTask", false );
 
     setup( "Emulated Digis",
-           (prefixME_ + "/EBTriggerTowerTask/Emulated").c_str(), true);
+           prefixME_ + "/EBTriggerTowerTask/Emulated", true);
   }
   else {
     edm::LogError("EBTriggerTowerTask") << "Bad DQMStore, cannot book MonitorElements.";
@@ -255,7 +255,7 @@ void EBTriggerTowerTask::cleanup(void) {
 
   if ( dqmStore_ ) {
 
-    if ( !outputFile_.empty() ) dqmStore_->save( outputFile_.c_str() );
+    if ( !outputFile_.empty() ) dqmStore_->save( outputFile_ );
 
     dqmStore_->rmdir( prefixME_ + "/EBTriggerTowerTask" );
 
