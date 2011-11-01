@@ -1,42 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-# L1 -----------------------------------
-from DQM.L1TMonitor.L1TGT_readout_cff import *
-from DQM.L1TMonitor.L1TGCT_readout_cff import *
-from DQM.L1TMonitor.L1TFED_cfi import *
-
-l1tgt.gtSource = 'gtDigis::'
-l1tgmt.gmtSource = 'gtDigis::'
-l1tdttf.dttpgSource = 'dttfDigis::'
-l1tdttf.gmtSource = 'gtDigis::'
-l1tdttf.online = cms.untracked.bool(False)
-l1tcsctf.statusProducer = 'csctfDigis::'
-l1tcsctf.lctProducer = 'csctfDigis::'
-l1tcsctf.trackProducer = 'csctfDigis::'
-l1trpctf.rpctfSource = 'gtDigis::'
-l1tgct.gctCentralJetsSource = 'gctDigis:cenJets:'
-l1tgct.gctForwardJetsSource = 'gctDigis:forJets:'
-l1tgct.gctTauJetsSource = 'gctDigis:tauJets:'
-l1tgct.gctEnergySumsSource = 'gctDigis::'
-l1tgct.gctIsoEmSource = 'gctDigis:isoEm:'
-l1tgct.gctNonIsoEmSource = 'gctDigis:nonIsoEm:'
-l1trct.rctSource = 'gctDigis::'
-
-
-import DQMServices.Components.DQMEnvironment_cfi
-dqmEnvL1T = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
-dqmEnvL1T.subSystemFolder = 'L1T'
-
-l1tmonitor = cms.Sequence(l1tgt*l1tgmt*l1trpctf*l1tcsctf*l1tdttf*l1trct*l1tgct*l1tfed*dqmEnvL1T)
-
-# L1 Emulator -----------------------------------
-from DQM.L1TMonitor.L1TDEMON_cfi import *
-
-import DQMServices.Components.DQMEnvironment_cfi
-dqmEnvL1TEmu = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
-dqmEnvL1TEmu.subSystemFolder = 'L1T'
-
-l1temumonitor = cms.Sequence(l1demon*dqmEnvL1TEmu) 
 
 # HLT Online -----------------------------------
 # AlCa
@@ -103,5 +66,5 @@ offlineHLTSource = cms.Sequence(
     #TnPEfficiency *
     dqmEnvHLT)
 
-triggerOfflineDQMSource =  cms.Sequence(l1temumonitor*l1tmonitor*onlineHLTSource*offlineHLTSource)
+triggerOfflineDQMSource =  cms.Sequence(onlineHLTSource*offlineHLTSource)
  
