@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/10/27 08:20:57 $
- *  $Revision: 1.25 $
+ *  $Date: 2011/11/01 11:40:09 $
+ *  $Revision: 1.26 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -61,7 +61,7 @@ MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& pSet) {
   theMuonKinVsEtaAnalyzerFlag   = parameters.getUntrackedParameter<bool>("DoMuonKinVsEtaAnalysis" ,true);
   theDiMuonHistogramsFlag       = parameters.getUntrackedParameter<bool>("DoDiMuonHistograms"     ,true);
   theMuonRecoOneHLTAnalyzerFlag = parameters.getUntrackedParameter<bool>("DoMuonRecoOneHLT"       ,true);
-  theEfficiencyAnalyzerFlag     = parameters.getUntrackedParameter<bool>("DoEfficiencyAnalyzer"   ,true);
+  theEfficiencyAnalyzerFlag     = parameters.getUntrackedParameter<bool>("DoEfficiencyAnalysis"   ,true);
   
   // If the previous are defined... create the analyzer class 
   if(theMuEnergyAnalyzerFlag) 
@@ -87,7 +87,7 @@ MuonAnalyzer::MuonAnalyzer(const edm::ParameterSet& pSet) {
   if (theMuonRecoOneHLTAnalyzerFlag)
     theMuonRecoOneHLTAnalyzer = new MuonRecoOneHLT(parameters.getParameter<ParameterSet>("muonRecoOneHLTAnalysis"),theService);
   if(theEfficiencyAnalyzerFlag)
-    theEfficiencyAnalyzer = new EfficiencyAnalyzer(parameters.getParameter<ParameterSet>("efficiencyAnalyzer"), theService);
+    theEfficiencyAnalyzer = new EfficiencyAnalyzer(parameters.getParameter<ParameterSet>("efficiencyAnalysis"), theService);
 }
 
 MuonAnalyzer::~MuonAnalyzer() {
