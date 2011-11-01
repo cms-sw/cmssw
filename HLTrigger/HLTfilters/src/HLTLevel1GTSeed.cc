@@ -122,10 +122,12 @@ HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) :
             m_l1TauJetTag(edm::InputTag(m_l1CollectionsTag.label(), "Tau")),
             m_l1EtMissMET(edm::InputTag(m_l1CollectionsTag.label(), "MET")),
             m_l1EtMissMHT(edm::InputTag(m_l1CollectionsTag.label(), "MHT")),
+            m_l1GlobalDecision(false),
 
             // save tags to TriggerFilterObjectWithRefs
             saveTags_(parSet.getParameter<bool>("saveTags")),
             m_isDebugEnabled(edm::isDebugEnabled()) {
+
     if (m_l1SeedsLogicalExpression != "L1GlobalDecision") {
 
         // check also the logical expression - add/remove spaces if needed
@@ -140,6 +142,8 @@ HLTLevel1GTSeed::HLTLevel1GTSeed(const edm::ParameterSet& parSet) :
         //
         m_l1AlgoSeedsRpn.reserve(l1AlgoSeedsSize);
         m_l1AlgoSeedsObjType.reserve(l1AlgoSeedsSize);
+    } else {
+        m_l1GlobalDecision = true;
     }
 
     // for seeding via technical triggers, convert the "name" to tokenNumber
@@ -241,7 +245,7 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
     } else {
 
         // by convention, "L1GlobalDecision" logical expression means global decision
-        if (m_l1SeedsLogicalExpression == "L1GlobalDecision") {
+        if (m_l1GlobalDecision) {
 
             // return the full L1GlobalTriggerObjectMapRecord in filter format FIXME
             iEvent.put(filterObject);
