@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_4_2/HIon/V9 (CMSSW_4_4_0_HLT11)
+# /dev/CMSSW_4_4_2/HIon/V10 (CMSSW_4_4_0_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V9')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V10')
 )
 
 process.streams = cms.PSet( 
@@ -6271,8 +6271,8 @@ process.hltHIGoodLooseTracks = cms.EDProducer( "AnalyticalTrackSelector",
     minNumberLayers = cms.uint32( 6 ),
     minNumber3DLayers = cms.uint32( 0 ),
     maxNumberLostLayers = cms.uint32( 999 ),
-    max_relpterr = cms.double( 0.1 ),
-    min_nhits = cms.uint32( 10 ),
+    max_relpterr = cms.double( 0.055 ),
+    min_nhits = cms.uint32( 11 ),
     applyAbsCutsIfNoPV = cms.bool( False ),
     keepAllTracks = cms.bool( False ),
     qualityBit = cms.string( "loose" ),
