@@ -20,9 +20,9 @@ useRelValSample = False
 # Frontier GlobalTag to use for EventSetup, should match source data
 
 if useRelValSample == True :
-    useGlobalTag = "START311_V2"
+    useGlobalTag = "START42_V14A"
 else :
-    useGlobalTag = "GR10_P_V12"
+    useGlobalTag = "GR_P_V22"
     
 
 #l1MenuSource='globalTag'
@@ -35,8 +35,8 @@ if l1MenuSource == 'sqlFile' :
     
     
     # pp menu
-    useSqlFile = '/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2011_v1/sqlFile/L1Menu_Collisions2011_v1_mc.db'
-    menuDbTag = 'L1GtTriggerMenu_L1Menu_Collisions2011_v1_mc'
+    useSqlFile = '/afs/cern.ch/user/g/ghete/public/L1Menu/L1Menu_Collisions2011_v6/sqlFile/L1Menu_Collisions2011_v6_mc.db'
+    menuDbTag = 'L1GtTriggerMenu_L1Menu_Collisions2011_v6_mc'
 
     
     # HI menu
@@ -46,7 +46,7 @@ if l1MenuSource == 'sqlFile' :
 elif l1MenuSource == 'xmlFile' :
     # explicit choice of the L1 menu
     # un-comment the corresponding menu in the list of the menus
-    triggerMenuXml = 'L1Menu_Commissioning2010_v3.xml'
+    triggerMenuXml = 'L1Menu_Commissioning2010_v6.xml'
     print '   Using', triggerMenuXml, ' file to overwrite the L1 menu from the global tag'    
 
 else :
@@ -55,23 +55,25 @@ else :
 # Input files
 if useRelValSample == True :
     dataFiles = [
-       '/store/relval/CMSSW_4_1_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0019/D60EB71B-0345-E011-A1D2-00261894387A.root',
-       '/store/relval/CMSSW_4_1_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0019/D076E11B-0345-E011-A6FB-0026189438B4.root',
-       '/store/relval/CMSSW_4_1_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0019/D0402114-0145-E011-9D3D-002618943930.root',
-       '/store/relval/CMSSW_4_1_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0019/C657678E-0145-E011-B585-0026189438C1.root',
-       '/store/relval/CMSSW_4_1_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0019/BC2EBBEE-2045-E011-B77F-003048678FC6.root',
-       '/store/relval/CMSSW_4_1_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0019/AE716016-0B45-E011-97F2-00304867906C.root',
-       '/store/relval/CMSSW_4_1_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0019/92D6488F-0145-E011-A3CF-0030486792B6.root',
-       '/store/relval/CMSSW_4_1_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0019/825D0C96-0145-E011-BA93-0018F3D09652.root',
-       '/store/relval/CMSSW_4_1_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0019/80759312-0145-E011-960B-002618B27F8A.root',
-       '/store/relval/CMSSW_4_1_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0019/78D79312-0145-E011-9F14-003048679008.root',
-       '/store/relval/CMSSW_4_1_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0019/4ECB0115-0845-E011-B61C-0018F3D0965C.root',
-       '/store/relval/CMSSW_4_1_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0019/4C156416-0245-E011-AF26-002618943879.root',
-       '/store/relval/CMSSW_4_1_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0019/4498FE1E-0245-E011-8455-002354EF3BDA.root',
-       '/store/relval/CMSSW_4_1_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0019/24588390-0245-E011-8B11-0018F3D096B6.root',
-       '/store/relval/CMSSW_4_1_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0019/24172521-0245-E011-8B97-002618943982.root',
-       '/store/relval/CMSSW_4_1_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0019/1C82EC1D-0D45-E011-8962-001A92810AD2.root',
-       '/store/relval/CMSSW_4_1_2/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START311_V2-v1/0019/0416F308-1345-E011-B08E-0026189438F9.root' 
+       '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v2/0068/BC61B16D-647C-E011-9972-0030486791BA.root',
+       '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v2/0063/FE440F3F-847B-E011-8E8F-0018F3D096CA.root',
+       '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v2/0063/E6C3406A-7A7B-E011-AAA5-002618943976.root',
+       '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v2/0063/A692C906-8A7B-E011-8D69-001A92810A9E.root',
+       '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v2/0063/9418B1E7-8E7B-E011-AF41-001A928116C0.root',
+       '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v2/0063/6408FA2B-7E7B-E011-A3C8-001A92971B54.root',
+       '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v2/0063/6271B9A6-917B-E011-AEDC-001A928116AE.root',
+       '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v2/0063/3A5316CD-B37B-E011-8717-00261894383C.root',
+       '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v2/0063/0E53FAD6-7E7B-E011-9514-002618943845.root',
+       '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v2/0062/C0938709-727B-E011-B6EC-001BFCDBD166.root',
+       '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v2/0062/BAE30EC0-767B-E011-BDE5-003048678FC6.root',
+       '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v2/0062/AE2E4428-777B-E011-A75D-001A928116D6.root',
+       '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v2/0062/A89B9E01-787B-E011-9A1D-0018F3D09660.root',
+       '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v2/0062/9C0627FD-717B-E011-A0E2-001A92810A9E.root',
+       '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v2/0062/8E6EE1A8-707B-E011-A251-003048679168.root',
+       '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v2/0062/8A856689-707B-E011-ADBA-003048678DD6.root',
+       '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v2/0062/88FD6678-747B-E011-9163-001A92971B84.root',
+       '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v2/0062/56D4966E-727B-E011-8785-001A928116E0.root',
+       '/store/relval/CMSSW_4_2_3/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v2/0062/0849A316-797B-E011-80B3-0018F3D0962E.root'        
        ]
 
 
@@ -85,14 +87,22 @@ else :
     #        ]
     
     # run 160413
+    #dataFiles = [
+    #        '/store/data/Run2011A/MinimumBias/RAW/v1/000/160/413/FE56EB13-BD4D-E011-B853-0030487C90D4.root',
+    #        '/store/data/Run2011A/MinimumBias/RAW/v1/000/160/413/FCE828F2-AC4D-E011-B38A-0030487CD6B4.root',
+    #        '/store/data/Run2011A/MinimumBias/RAW/v1/000/160/413/FC956724-CB4D-E011-8EC8-0030487CAF5E.root',
+    #        '/store/data/Run2011A/MinimumBias/RAW/v1/000/160/413/FC8C6308-C24D-E011-85E8-0030487C7392.root',
+    #        '/store/data/Run2011A/MinimumBias/RAW/v1/000/160/413/F8D4B148-B34D-E011-83DF-0030487CD812.root',
+    #        '/store/data/Run2011A/MinimumBias/RAW/v1/000/160/413/F6F1F3D7-CB4D-E011-BAA7-0030487A195C.root'
+    #        ]
+
+    # run 165514
     dataFiles = [
-            '/store/data/Run2011A/MinimumBias/RAW/v1/000/160/413/FE56EB13-BD4D-E011-B853-0030487C90D4.root',
-            '/store/data/Run2011A/MinimumBias/RAW/v1/000/160/413/FCE828F2-AC4D-E011-B38A-0030487CD6B4.root',
-            '/store/data/Run2011A/MinimumBias/RAW/v1/000/160/413/FC956724-CB4D-E011-8EC8-0030487CAF5E.root',
-            '/store/data/Run2011A/MinimumBias/RAW/v1/000/160/413/FC8C6308-C24D-E011-85E8-0030487C7392.root',
-            '/store/data/Run2011A/MinimumBias/RAW/v1/000/160/413/F8D4B148-B34D-E011-83DF-0030487CD812.root',
-            '/store/data/Run2011A/MinimumBias/RAW/v1/000/160/413/F6F1F3D7-CB4D-E011-BAA7-0030487A195C.root'
-            ]
+                 '/store/data/Run2011A/MinimumBias/RAW/v1/000/165/514/28C65E11-E584-E011-AED9-0030487CD700.root',
+                 '/store/data/Run2011A/MinimumBias/RAW/v1/000/165/514/44C0FC26-EE84-E011-B657-003048F1C424.root',
+                 '/store/data/Run2011A/MinimumBias/RAW/v1/000/165/514/48379944-F084-E011-8022-0030487CD178.root',
+                 '/store/data/Run2011A/MinimumBias/RAW/v1/000/165/514/4A1297CC-EC84-E011-BCF8-0030487CD6E6.root'
+                 ]
     
     # FEDRawDataCollection label
     fedLabel='source'
@@ -166,6 +176,11 @@ process.gtDigis.ProduceL1GtObjectMapRecord = False
 process.gtDigis.WritePsbL1GtDaqRecord = False
 process.gtDigis.EmulateBxInEvent = -1
 
+# temporary fix for L1 GT emulator configuration in hardware validation
+process.gtDigis.RecordLength = cms.vint32(3, 5)
+process.gtDigis.AlternativeNrBxBoardDaq = 0x101
+process.gtDigis.AlternativeNrBxBoardEvm = 0x2
+
 # explicit choice of the L1 menu, overwriting the Global Tag menu
 
 if l1MenuSource == 'xmlFile' :
@@ -219,8 +234,8 @@ process.MessageLogger = cms.Service("MessageLogger",
          threshold = cms.untracked.string('DEBUG'), ## DEBUG mode 
 
          DEBUG = cms.untracked.PSet( 
-             limit = cms.untracked.int32(-1)          ## DEBUG mode, all messages  
-             #limit = cms.untracked.int32(10)          ## DEBUG mode, max 10 messages 
+             #limit = cms.untracked.int32(-1)          ## DEBUG mode, all messages  
+             limit = cms.untracked.int32(0)          ## DEBUG mode, max 10 messages 
          ),
          INFO = cms.untracked.PSet(
              limit = cms.untracked.int32(-1)

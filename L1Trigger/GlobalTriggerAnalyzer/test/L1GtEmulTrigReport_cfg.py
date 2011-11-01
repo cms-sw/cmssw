@@ -17,6 +17,10 @@ if errorUserOptions == True :
     print '\nError returned by UserOptions_cff\n'
     sys.exit()
 
+# L1 menu selection via L1Trigger_custom
+from L1Trigger.Configuration.L1Trigger_custom import customiseL1Menu
+process=customiseL1Menu(process)
+
 
 # source according to data type
 if dataType == 'StreamFile' :

@@ -3,7 +3,7 @@
 # for release to run, sample and data type to use in
 # a cfg file
 #
-
+ 
 #
 
 import FWCore.ParameterSet.Config as cms
@@ -19,7 +19,7 @@ cmsRunRelease = 'CMSSW_4_2_X'
 #cmsRunRelease = 'CMSSW_3_5_X'
 
 # choose (pre)release used to produce the RelVal samples (data are independent)
-sampleFromRelease = 'CMSSW_4_1_5'
+sampleFromRelease = 'CMSSW_4_2_8'
 #sampleFromRelease = 'CMSSW_3_11_0'
 #sampleFromRelease = 'CMSSW_3_5_6'
 #sampleFromRelease = 'CMSSW_3_5_2'
@@ -93,7 +93,7 @@ maxNumberEvents = 100
 
 ###################### end user choices ###################
 
-
+#
 errorUserOptions = False
 
 # global tags for the release used to run
@@ -444,7 +444,34 @@ if (useRelValSample == True) and (useLocalFiles == False) :
 
     elif useGlobalTag.count('START') :
         
-        if (sampleFromRelease == 'CMSSW_4_1_5') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
+        if (sampleFromRelease == 'CMSSW_4_2_8') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
+
+            dataset = '/RelValTTbar/CMSSW_4_2_8-START42_V12-v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
+            print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', useGlobalTag  
+            
+            readFiles.extend( [
+                '/store/relval/CMSSW_4_2_8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v1/0030/B60C917B-B5BB-E011-85DD-001A92971B7C.root',
+                '/store/relval/CMSSW_4_2_8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v1/0025/FE3842F3-13BB-E011-83DA-0018F3D09624.root',
+                '/store/relval/CMSSW_4_2_8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v1/0025/FC7FCCE4-11BB-E011-8CDB-001A92971B68.root',
+                '/store/relval/CMSSW_4_2_8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v1/0025/E4C8E0DF-12BB-E011-9C31-001A928116F4.root',
+                '/store/relval/CMSSW_4_2_8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v1/0025/B25A1CF2-14BB-E011-B94B-0018F34D0D62.root',
+                '/store/relval/CMSSW_4_2_8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v1/0025/B05DB860-0EBB-E011-9B01-00261894398A.root',
+                '/store/relval/CMSSW_4_2_8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v1/0025/A46C355A-12BB-E011-9CD5-00304867C0EA.root',
+                '/store/relval/CMSSW_4_2_8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v1/0025/A07AD55C-10BB-E011-8636-003048679030.root',
+                '/store/relval/CMSSW_4_2_8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v1/0025/9A328ADE-0EBB-E011-A638-003048678F62.root',
+                '/store/relval/CMSSW_4_2_8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v1/0025/809E2C6A-11BB-E011-9208-003048678F06.root',
+                '/store/relval/CMSSW_4_2_8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v1/0025/7E0A0466-0BBB-E011-B2BD-003048678F26.root',
+                '/store/relval/CMSSW_4_2_8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v1/0025/7A409A6F-0CBB-E011-80A2-0018F3D09600.root',
+                '/store/relval/CMSSW_4_2_8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v1/0025/780BDF62-10BB-E011-9E88-00304867C026.root',
+                '/store/relval/CMSSW_4_2_8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v1/0025/681B6A09-11BB-E011-85CB-0018F3D096D4.root',
+                '/store/relval/CMSSW_4_2_8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v1/0025/4C24F961-14BB-E011-8AD3-00304867BEE4.root',
+                '/store/relval/CMSSW_4_2_8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v1/0025/306737DB-0DBB-E011-AB90-003048678C3A.root',
+                '/store/relval/CMSSW_4_2_8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v1/0025/30278697-15BB-E011-AFA3-001A92971BA0.root',
+                '/store/relval/CMSSW_4_2_8/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/START42_V12-v1/0025/0C4C20FC-10BB-E011-8105-001A92810A98.root' ] );
+
+
+
+        elif (sampleFromRelease == 'CMSSW_4_1_5') and (useSample == 'RelValTTbar') and (dataType == 'RAW') :
 
             dataset = '/RelValTTbar/CMSSW_4_1_5-START311_V2-v1/GEN-SIM-DIGI-RAW-HLTDEBUG'
             print '   Running on dataset', dataset, '\n   produced with', sampleFromRelease, '\n   Global tag used to run:', useGlobalTag  
