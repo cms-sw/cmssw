@@ -5,6 +5,8 @@
 #include "DataFormats/MuonReco/interface/MuonFwd.h" 
 #include "DataFormats/MuonReco/interface/MuonEnergy.h"
 
+#include "FWCore/Common/interface/TriggerNames.h"
+
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
@@ -15,11 +17,17 @@
 using namespace std;
 using namespace edm;
 
+// Uncomment to DEBUG
+//#define DEBUG
+
 MuonRecoOneHLT::MuonRecoOneHLT(const edm::ParameterSet& pSet, MuonServiceProxy *theService):MuonAnalyzerBase(theService) {
   parameters = pSet;
   
   ParameterSet muonparms = parameters.getParameter<edm::ParameterSet>("muonTrigger");
   _MuonEventFlag         = new GenericTriggerEventFlag( muonparms );
+
+  // Trigger Expresions in case de connection to the DB fails
+  muonExpr_             = muonparms.getParameter<std::vector<std::string> >("hltPaths");
 }
 
 
@@ -27,9 +35,9 @@ MuonRecoOneHLT::~MuonRecoOneHLT() {
   delete _MuonEventFlag;
 }
 void MuonRecoOneHLT::beginJob(DQMStore * dbe) {
-  metname = "muRecoOneHLT";
-  
-  LogTrace(metname)<<"[MuonRecoOneHLT] Parameters initialization";
+#ifdef DEBUG
+  cout << "[MuonRecoOneHLT]  beginJob " << endl;
+#endif
   dbe->setCurrentFolder("Muons/MuonRecoOneHLT");
   
   muReco = dbe->book1D("muReco", "Muon Reconstructed Tracks", 6, 1, 7);
@@ -92,14 +100,38 @@ void MuonRecoOneHLT::beginJob(DQMStore * dbe) {
   ptTrack->setAxisTitle("GeV"); 
   ptStaTrack = dbe->book1D("StaMuon_pt", "pt_{STA}", ptBin, ptMin, ptMax);
   ptStaTrack->setAxisTitle("GeV"); 
+
+
 }
 void MuonRecoOneHLT::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
+#ifdef DEBUG
+  cout << "[MuonRecoOneHLT]  beginRun " << endl;
+  cout << "[MuonRecoOneHLT]  Is MuonEventFlag On? "<< _MuonEventFlag->on() << endl;
+#endif
   if ( _MuonEventFlag->on() ) _MuonEventFlag->initRun( iRun, iSetup );
+
+
+  if (_MuonEventFlag->on() && _MuonEventFlag->expressionsFromDB(_MuonEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
+    muonExpr_      = _MuonEventFlag->expressionsFromDB(_MuonEventFlag->hltDBKey(),           iSetup);
 }
-void MuonRecoOneHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Muon& recoMu) {
-  LogTrace(metname)<<"[MuonRecoOneHLT] Analyze the mu";
+void MuonRecoOneHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
+			     const reco::Muon& recoMu, const edm::TriggerResults& triggerResults) {
+#ifdef DEBUG
+  cout << "[MuonRecoOneHLT]  analyze "<< endl;
+#endif
   
-  if (_MuonEventFlag->on() && !_MuonEventFlag->accept(iEvent,iSetup)) return;
+  const edm::TriggerNames& triggerNames = iEvent.triggerNames(triggerResults);
+  const unsigned int nTrig(triggerNames.size());
+  bool _trig_Muon = false;
+  for (unsigned int i=0;i<nTrig;++i){
+    if (triggerNames.triggerName(i).find(muonExpr_[0].substr(0,muonExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults.accept(i))
+      _trig_Muon=true;
+  }
+#ifdef DEBUG
+  cout << "[MuonRecoOneHLT]  Trigger Fired ? "<< _trig_Muon << endl;
+#endif
+  if (!_trig_Muon) return;
+  //  if (_MuonEventFlag->on() && !(_MuonEventFlag->accept(iEvent,iSetup))) return;
   
   // Check if Muon is Global
   if(recoMu.isGlobalMuon()) {

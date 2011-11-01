@@ -14,6 +14,12 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
 
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
 #include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
 class MuonRecoOneHLT : public MuonAnalyzerBase {
@@ -30,10 +36,7 @@ class MuonRecoOneHLT : public MuonAnalyzerBase {
   void beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
   
   /// Get the analysis
-  void analyze(const edm::Event&, const edm::EventSetup&, const reco::Muon& recoMu);
-
-  //calculate residual & pull:
-  void GetRes( reco::TrackRef t1, reco::TrackRef t2, std::string par, float &res, float &pull);
+  void analyze(const edm::Event&, const edm::EventSetup&, const reco::Muon&, const edm::TriggerResults&);
 
  private:
   // ----------member data ---------------------------
@@ -42,7 +45,8 @@ class MuonRecoOneHLT : public MuonAnalyzerBase {
   std::string metname;
   // STA Label
   edm::InputTag theSTACollectionLabel;
-
+  
+  std::vector<std::string> muonExpr_;
   GenericTriggerEventFlag *_MuonEventFlag;
   
   //histo binning parameters
