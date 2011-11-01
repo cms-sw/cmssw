@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/05/28 13:31:22 $
- *  $Revision: 1.63 $
+ *  $Date: 2011/06/01 11:55:01 $
+ *  $Revision: 1.64 $
  *
  *  \author Martin Grunewald
  *
@@ -23,6 +23,9 @@
 #include <boost/regex.hpp> 
 
 typedef edm::detail::ThreadSafeRegistry<edm::ParameterSetID, HLTConfigData> HLTConfigDataRegistry;
+
+static const bool useL1EventSetup(true);
+static const bool useL1GtTriggerMenuLite(false);
 
 // an empty dummy config data used when we fail to initialize 
 static const HLTConfigData* s_dummyHLTConfigData()
@@ -53,8 +56,8 @@ bool HLTConfigProvider::init(const edm::Run& iRun,
 
    init(iRun.processHistory(),processName);
 
-   /// defer iSetup access to when actually needed:
-   /// l1GtUtils_->retrieveL1EventSetup(iSetup);
+   /// L1 GTA V3: https://twiki.cern.ch/twiki/bin/view/CMSPublic/SWGuideL1TriggerL1GtUtils#Version_3
+   l1GtUtils_->getL1GtRunCache(iRun,iSetup,useL1EventSetup,useL1GtTriggerMenuLite);
 
    processName_=processName;
    changed=changed_;
@@ -255,7 +258,7 @@ void HLTConfigProvider::clear()
 
 int HLTConfigProvider::prescaleSet(const edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   // return hltPrescaleTable_.set();
-  l1GtUtils_->retrieveL1EventSetup(iSetup);
+  l1GtUtils_->getL1GtRunCache(iEvent,iSetup,useL1EventSetup,useL1GtTriggerMenuLite);
   int errorTech(0);
   const int psfsiTech(l1GtUtils_->prescaleFactorSetIndex(iEvent,L1GtUtils::TechnicalTrigger,errorTech));
   int errorPhys(0);
@@ -303,7 +306,7 @@ std::pair<int,int>  HLTConfigProvider::prescaleValues(const edm::Event& iEvent, 
     // no L1 seed module on path hence no L1 seed hence formally no L1 prescale
     result.first=1;
   } else if (nL1GTSeedModules==1) {
-    l1GtUtils_->retrieveL1EventSetup(iSetup);
+    l1GtUtils_->getL1GtRunCache(iEvent,iSetup,useL1EventSetup,useL1GtTriggerMenuLite);
     const std::string l1tname(hltL1GTSeeds(trigger).at(0).second);
     int               l1error(0);
     result.first = l1GtUtils_->prescaleFactor(iEvent,l1tname,l1error);
