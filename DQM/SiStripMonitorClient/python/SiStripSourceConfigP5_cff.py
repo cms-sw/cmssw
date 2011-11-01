@@ -50,6 +50,12 @@ SiStripMonitorClusterReal.OutputMEsInRootFile = False
 SiStripMonitorClusterReal.SelectAllDetectors = True
 SiStripMonitorClusterReal.TProfTotalNumberOfClusters.subdetswitchon = True
 SiStripMonitorClusterReal.TProfClustersApvCycle.subdetswitchon = True
+SiStripMonitorCluster.TH2CStripVsCpixel.globalswitchon=True
+SiStripMonitorCluster.TH1MultiplicityRegions.globalswitchon=True
+SiStripMonitorCluster.TH1MainDiagonalPosition.globalswitchon=True
+SiStripMonitorCluster.TH1StripNoise2ApvCycl.globalswitchone=True
+SiStripMonitorCluster.TH1StripNoise3ApvCycle.globalswitchon=True
+
 # removing some histograms
 SiStripMonitorClusterReal.TH1NrOfClusterizedStrips.moduleswitchon = False
 SiStripMonitorClusterReal.TH1ClusterNoise.moduleswitchon = False

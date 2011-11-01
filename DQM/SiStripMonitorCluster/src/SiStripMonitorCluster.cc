@@ -5,7 +5,7 @@
  */
 // Original Author:  Dorian Kcira
 //         Created:  Wed Feb  1 16:42:34 CET 2006
-// $Id: SiStripMonitorCluster.cc,v 1.76 2011/05/22 17:40:22 borrell Exp $
+// $Id: SiStripMonitorCluster.cc,v 1.77 2011/09/28 21:28:17 fiori Exp $
 #include <vector>
 #include <numeric>
 #include <fstream>
@@ -139,6 +139,9 @@ SiStripMonitorCluster::SiStripMonitorCluster(const edm::ParameterSet& iConfig) :
 
   edm::ParameterSet ParametersNoiseStrip3ApvCycle = conf_.getParameter<edm::ParameterSet>("TH1StripNoise3ApvCycle");
   globalswitchstripnoise3apvcycle = ParametersNoiseStrip3ApvCycle.getParameter<bool>("globalswitchon");
+
+  edm::ParameterSet ParametersMainDiagonalPosition = conf_.getParameter<edm::ParameterSet>("TH1MainDiagonalPosition");
+  globalswitchmaindiagonalposition= ParametersMainDiagonalPosition.getParameter<bool>("globalswitchon");
 
   edm::ParameterSet ClusterMultiplicityRegions = conf_.getParameter<edm::ParameterSet>("MultiplicityRegions");
   k0 = ClusterMultiplicityRegions.getParameter<double>("k0");
@@ -342,8 +345,19 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
       PixVsStripMultiplicityRegions->setBinLabel(3,"High Strip Noise");
       PixVsStripMultiplicityRegions->setBinLabel(4,"Beam Background");
       PixVsStripMultiplicityRegions->setBinLabel(5,"No Strip Clusters");
-
     } 
+
+    if (globalswitchmaindiagonalposition){
+      dqmStore_->setCurrentFolder(topFolderName_+"/MechanicalView/");
+      edm::ParameterSet GlobalTH1Parameters =  conf_.getParameter<edm::ParameterSet>("TH1MainDiagonalPosition");
+      std::string HistoName = "MainDiagonal Position";
+      GlobalMainDiagonalPosition = dqmStore_->book1D(HistoName,HistoName,
+					     GlobalTH1Parameters.getParameter<int32_t>("Nbinsx"),
+					     GlobalTH1Parameters.getParameter<double>("xmin"),
+					     GlobalTH1Parameters.getParameter<double>("xmax"));
+      GlobalMainDiagonalPosition->setAxisTitle("atan(NPix/(k*NStrip))");
+    }
+
 
     if (globalswitchstripnoise2apvcycle){
       dqmStore_->setCurrentFolder(topFolderName_+"/MechanicalView/");
@@ -355,6 +369,7 @@ void SiStripMonitorCluster::createMEs(const edm::EventSetup& es){
 					     GlobalTH1Parameters.getParameter<double>("xmax"));
       StripNoise2Cycle->setAxisTitle("APV Cycle");
     }
+
     if (globalswitchstripnoise3apvcycle){
       dqmStore_->setCurrentFolder(topFolderName_+"/MechanicalView/");
       edm::ParameterSet GlobalTH1Parameters =  conf_.getParameter<edm::ParameterSet>("TH1StripNoise3ApvCycle");
@@ -414,6 +429,7 @@ void SiStripMonitorCluster::analyze(const edm::Event& iEvent, const edm::EventSe
     isPixValid=true;
     MultiplicityRegion=FindRegion(NStripClusters,NPixClusters);  
     if (globalswitchcstripvscpix) GlobalCStripVsCpix->Fill(NStripClusters,NPixClusters);
+    if (globalswitchmaindiagonalposition) GlobalMainDiagonalPosition->Fill(atan(NPixClusters/(k0*NStripClusters)));
     if (globalswitchMultiRegions) PixVsStripMultiplicityRegions->Fill(MultiplicityRegion);
     
   }
@@ -897,7 +913,7 @@ void SiStripMonitorCluster::createSubDetMEs(std::string label) {
 						    h2ymax);
     subdetMEs.SubDetClusterApvTH2->setAxisTitle("Apv Cycle (Corrected Absolute Bx % 70))",1);
     subdetMEs.SubDetClusterApvTH2->setAxisTitle("Total # of Clusters",2);
-    
+   
   }
   // Total Number of Cluster vs DeltaBxCycle - Profile
   if(subdetswitchdbxcycleprofon){

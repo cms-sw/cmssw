@@ -217,21 +217,28 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
         Nbinx          = cms.int32(5),
         xmin           = cms.double(0.5),
         xmax           = cms.double(5.5),
-        globalswitchon = cms.bool(True)
+        globalswitchon = cms.bool(False)
         ),                                 
+
+    TH1MainDiagonalPosition= cms.PSet(
+        Nbinsx          = cms.int32(100),
+        xmin           = cms.double(0.),
+        xmax           = cms.double(2.),
+        globalswitchon = cms.bool(False)
+        ),                            
 
     TH1StripNoise2ApvCycle = cms.PSet(
         Nbinsx = cms.int32(70),
         xmin   = cms.double(-0.5),
         xmax   = cms.double(69.5),
-        globalswitchon = cms.bool(True)
+        globalswitchon = cms.bool(False)
         )
                                        ,
     TH1StripNoise3ApvCycle = cms.PSet(
         Nbinsx = cms.int32(70),
         xmin   = cms.double(-0.5),
         xmax   = cms.double(69.5),
-        globalswitchon = cms.bool(True)
+        globalswitchon = cms.bool(False)
         ),
                                        
     Mod_On = cms.bool(True),
