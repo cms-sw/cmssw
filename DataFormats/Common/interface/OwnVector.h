@@ -163,7 +163,7 @@ namespace edm {
 
 
     //Used by ROOT storage
-    CMS_CLASS_VERSION(10)
+    CMS_CLASS_VERSION(11)
 
   private:
     void destroy();
