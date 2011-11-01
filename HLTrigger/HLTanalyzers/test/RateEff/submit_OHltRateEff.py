@@ -50,7 +50,7 @@ doPreScales       = True       # will we do the different prescale loop as well 
 # important for lsf batch submission only
 currentRelease = "CMSSW_4_2_9_HLT1_hltpatch2"
 dirRelease     = "/afs/cern.ch/user/m/mmhl/scratch0/trigger/"
-submitqueue       = "8nh"     # if run in batch, then which q? 8nh is good  or 8nm if testing
+submitqueue    = "8nh"     # if run in batch, then which q? 8nh is good  or 8nm if testing
 
 ## merge prescales? If false, will merge the lumiScaleFactors
 mergePreScale   = False
@@ -64,8 +64,8 @@ PreScaleLumiI   = 0          # which lumi? i.e. in order [0,1,2...], 0 will sele
 simulate          = True      # generates test jobs with 1000ev  per LS NB -- leave true for running locally  (using submit options will override this eventually...)
 
 # one of these should be set to true to run the code
-runlocally        = True     # run all events in series on local computer (makes simulate redundent) ./submit_OHltRateEff.py -d <OHlt_cfgfile>.cfg -r True/False terminal override
-submitjobs        = False      # if both true, it will submit - overriden by -s True 
+runlocally        = False     # run all events in series on local computer (makes simulate redundent) ./submit_OHltRateEff.py -d <OHlt_cfgfile>.cfg -r True/False terminal override
+submitjobs        = True      # if both true, it will submit - overriden by -s True 
 
 
 #############################################################################
@@ -135,7 +135,7 @@ if runcode:
     filecounter=-1
 
     for i in lumiScaleFactor:      
-        psCounter  = 0 # will store the max number of different prescale factors
+        psCounter   = 0 # will store the max number of different prescale factors
         filecounter = filecounter + 1
         tempOhltout = open('./results/'+_dir+'/tempOHlt_cfg_'+str(filecounter)+'_sf_0_psf.cfg','w')
         tempOhltin  = open('./results/'+_dir+'/temporaryOHlt_template.cfg')
@@ -205,8 +205,6 @@ if runcode:
                             line = line[:psBraceCB]+line[psBraceM+1:psBraceE]+line[psBraceCE:]
                 tempOhltoutPS.write(line)
 
-
-                        
         if runlocally or options.runlocally:
             print _legend," running "+str(len(lumiScaleFactor))+" lumiScaleFactors - "+str(filecounter) +"/"+str(len(lumiScaleFactor))
             os.system("./OHltRateEff ./results/"+_dir+"/tempOHlt_cfg_"+str(filecounter)+"_sf_0_psf.cfg > results/"+_dir+"/tempOHlt_log_"+str(filecounter)+"_sf_0_psf.log")
@@ -228,6 +226,7 @@ if runcode:
             tempsubmitfileP = {}
 
             print _legend+" will run n different prescale settings n = "+str(psCounter)
+
             os.system('cp OHltRateEff ./results/'+_dir)
             os.chdir ('./results/'+_dir)
 
@@ -242,7 +241,7 @@ if runcode:
                 tempsubmitfileP[psf].write("./OHltRateEff tempOHlt_cfg_"+str(filecounter)+"_sf_"+str(psf)+"_psf.cfg > tempOHlt_log_"+str(filecounter)+"_sf_"+str(psf)+"_psf.log \n")
                 tempsubmitfileP[psf].write("cp tempOHlt_log_"+str(filecounter)+"_sf_"+str(psf)+"_psf.log  ${CODE_SRC}/src/HLTrigger/HLTanalyzers/test/RateEff/results/"+_dir+"/tempOHlt_log_"+str(filecounter)+"_sf_"+str(psf)+"_psf.log \n")
                 os.system("bsub -q "+submitqueue+" tempSubmit"+str(filecounter)+"_"+str(psf)+".job")
-
+            os.chdir('../../')
                 
                 
 #######################
