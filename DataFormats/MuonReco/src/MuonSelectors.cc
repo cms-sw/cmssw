@@ -714,8 +714,7 @@ bool muon::isTightMuon(const reco::Muon& muon, const reco::Vertex& vtx){
     muon.innerTrack()->hitPattern().numberOfValidPixelHits() > 0 &&
     muon.numberOfMatchedStations() > 1;
   
-  // FIXME: to be made consistent
-  bool ip = fabs(muon.innerTrack()->dxy(vtx.position())) < 0.2;
+  bool ip = fabs(muon.muonBestTrack()->dxy(vtx.position())) < 0.2;
   
   return muID && hits && ip;
 }
