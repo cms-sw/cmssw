@@ -4,14 +4,14 @@ pfIsolatedPhotons  = cms.EDFilter(
     "IsolatedPFCandidateSelector",
     src = cms.InputTag("pfSelectedPhotons"),
     isolationValueMapsCharged = cms.VInputTag(
-        cms.InputTag("isoValPhotonWithCharged"),
+        cms.InputTag("phPFIsoValueCharged04"),
         ),
     isolationValueMapsNeutral = cms.VInputTag(
-        cms.InputTag("isoValPhotonWithNeutral"),
-        cms.InputTag("isoValPhotonWithPhotons")
+        cms.InputTag("phPFIsoValueNeutral04"),
+        cms.InputTag("phPFIsoValueGamma04")
         ),
     doDeltaBetaCorrection = cms.bool(False),
-    deltaBetaIsolationValueMap = cms.InputTag(""),
+    deltaBetaIsolationValueMap = cms.InputTag("phPFIsoValuePU04"),
     deltaBetaFactor = cms.double(-0.5),    
     ## if True isolation is relative to pT
     isRelative = cms.bool(True),

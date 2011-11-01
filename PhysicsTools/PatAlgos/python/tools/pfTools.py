@@ -68,14 +68,16 @@ def adaptPFElectrons(process,module, postfix):
     module.useParticleFlow = True
     module.userIsolation   = cms.PSet()
     module.isoDeposits = cms.PSet(
-        pfChargedHadrons = cms.InputTag("isoDepElectronWithCharged" + postfix),
-        pfNeutralHadrons = cms.InputTag("isoDepElectronWithNeutral" + postfix),
-        pfPhotons = cms.InputTag("isoDepElectronWithPhotons" + postfix)
+        pfChargedHadrons = cms.InputTag("elPFIsoDepositCharged" + postfix),
+        pfPUChargedHadrons = cms.InputTag("elPFIsoDepositPU" + postfix),
+        pfNeutralHadrons = cms.InputTag("elPFIsoDepositNeutral" + postfix),
+        pfPhotons = cms.InputTag("elPFIsoDepositGamma" + postfix)
         )
     module.isolationValues = cms.PSet(
-        pfChargedHadrons = cms.InputTag("isoValElectronWithCharged" + postfix),
-        pfNeutralHadrons = cms.InputTag("isoValElectronWithNeutral" + postfix),
-        pfPhotons = cms.InputTag("isoValElectronWithPhotons" + postfix)
+        pfChargedHadrons = cms.InputTag("elPFIsoValueCharged04"+ postfix),
+        pfPUChargedHadrons = cms.InputTag("elPFIsoValuePU04" + postfix),
+        pfNeutralHadrons = cms.InputTag("elPFIsoValueNeutral04" + postfix),
+        pfPhotons = cms.InputTag("elPFIsoValueGamma04" + postfix)
         )
 
     # COLIN: since we take the egamma momentum for pat Electrons, we must
