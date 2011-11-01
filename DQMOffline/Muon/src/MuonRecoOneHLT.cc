@@ -23,16 +23,20 @@ using namespace edm;
 MuonRecoOneHLT::MuonRecoOneHLT(const edm::ParameterSet& pSet, MuonServiceProxy *theService):MuonAnalyzerBase(theService) {
   parameters = pSet;
   
-  ParameterSet muonparms = parameters.getParameter<edm::ParameterSet>("muonTrigger");
-  _MuonEventFlag         = new GenericTriggerEventFlag( muonparms );
-
+  ParameterSet muonparms   = parameters.getParameter<edm::ParameterSet>("SingleMuonTrigger");
+  ParameterSet dimuonparms = parameters.getParameter<edm::ParameterSet>("DoubleMuonTrigger");
+  _SingleMuonEventFlag     = new GenericTriggerEventFlag( muonparms );
+  _DoubleMuonEventFlag     = new GenericTriggerEventFlag( dimuonparms );
+  
   // Trigger Expresions in case de connection to the DB fails
-  muonExpr_             = muonparms.getParameter<std::vector<std::string> >("hltPaths");
+  singlemuonExpr_          = muonparms.getParameter<std::vector<std::string> >("hltPaths");
+  doublemuonExpr_          = dimuonparms.getParameter<std::vector<std::string> >("hltPaths");
 }
 
 
 MuonRecoOneHLT::~MuonRecoOneHLT() {
-  delete _MuonEventFlag;
+  delete _SingleMuonEventFlag;
+  delete _DoubleMuonEventFlag;
 }
 void MuonRecoOneHLT::beginJob(DQMStore * dbe) {
 #ifdef DEBUG
@@ -106,13 +110,15 @@ void MuonRecoOneHLT::beginJob(DQMStore * dbe) {
 void MuonRecoOneHLT::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
 #ifdef DEBUG
   cout << "[MuonRecoOneHLT]  beginRun " << endl;
-  cout << "[MuonRecoOneHLT]  Is MuonEventFlag On? "<< _MuonEventFlag->on() << endl;
+  cout << "[MuonRecoOneHLT]  Is MuonEventFlag On? "<< _SignleMuonEventFlag->on() << endl;
 #endif
-  if ( _MuonEventFlag->on() ) _MuonEventFlag->initRun( iRun, iSetup );
+  if ( _SingleMuonEventFlag->on() ) _SingleMuonEventFlag->initRun( iRun, iSetup );
+  if ( _DoubleMuonEventFlag->on() ) _DoubleMuonEventFlag->initRun( iRun, iSetup );
 
-
-  if (_MuonEventFlag->on() && _MuonEventFlag->expressionsFromDB(_MuonEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
-    muonExpr_      = _MuonEventFlag->expressionsFromDB(_MuonEventFlag->hltDBKey(),           iSetup);
+  if (_SingleMuonEventFlag->on() && _SingleMuonEventFlag->expressionsFromDB(_SingleMuonEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
+    singlemuonExpr_ = _SingleMuonEventFlag->expressionsFromDB(_SingleMuonEventFlag->hltDBKey(),iSetup);
+  if (_DoubleMuonEventFlag->on() && _DoubleMuonEventFlag->expressionsFromDB(_DoubleMuonEventFlag->hltDBKey(), iSetup)[0] != "CONFIG_ERROR")
+    singlemuonExpr_ = _DoubleMuonEventFlag->expressionsFromDB(_DoubleMuonEventFlag->hltDBKey(),iSetup);
 }
 void MuonRecoOneHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
 			     const reco::Muon& recoMu, const edm::TriggerResults& triggerResults) {
@@ -122,15 +128,19 @@ void MuonRecoOneHLT::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   
   const edm::TriggerNames& triggerNames = iEvent.triggerNames(triggerResults);
   const unsigned int nTrig(triggerNames.size());
-  bool _trig_Muon = false;
+  bool _trig_SingleMu = false;
+  bool _trig_DoubleMu = false;
   for (unsigned int i=0;i<nTrig;++i){
-    if (triggerNames.triggerName(i).find(muonExpr_[0].substr(0,muonExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults.accept(i))
-      _trig_Muon=true;
+    if (triggerNames.triggerName(i).find(singlemuonExpr_[0].substr(0,singlemuonExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults.accept(i))
+      _trig_SingleMu = true;
+    if (triggerNames.triggerName(i).find(doublemuonExpr_[0].substr(0,doublemuonExpr_[0].rfind("_v")+2))!=std::string::npos && triggerResults.accept(i))
+      _trig_DoubleMu = true;
   }
 #ifdef DEBUG
-  cout << "[MuonRecoOneHLT]  Trigger Fired ? "<< _trig_Muon << endl;
+  cout << "[MuonRecoOneHLT]  Trigger Fired ? "<< _trig_SingleMu << endl;
 #endif
-  if (!_trig_Muon) return;
+
+  if (!_trig_SingleMu && !_trig_DoubleMu) return;
   //  if (_MuonEventFlag->on() && !(_MuonEventFlag->accept(iEvent,iSetup))) return;
   
   // Check if Muon is Global

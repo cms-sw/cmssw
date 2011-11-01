@@ -46,8 +46,10 @@ class MuonRecoOneHLT : public MuonAnalyzerBase {
   // STA Label
   edm::InputTag theSTACollectionLabel;
   
-  std::vector<std::string> muonExpr_;
-  GenericTriggerEventFlag *_MuonEventFlag;
+  std::vector<std::string> singlemuonExpr_;
+  std::vector<std::string> doublemuonExpr_;
+  GenericTriggerEventFlag *_SingleMuonEventFlag;
+  GenericTriggerEventFlag *_DoubleMuonEventFlag;
   
   //histo binning parameters
   int ptBin;
