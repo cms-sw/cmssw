@@ -1,8 +1,8 @@
 /*
  * \file EBSummaryClient.cc
  *
- * $Date: 2011/09/02 14:02:36 $
- * $Revision: 1.223 $
+ * $Date: 2011/10/30 15:01:25 $
+ * $Revision: 1.224 $
  * \author G. Della Ricca
  *
 */
@@ -1542,14 +1542,14 @@ void EBSummaryClient::analyze(void) {
 	      }
 
 
-	      update01 |= num > 1.5 * nHitThreshold; // allow 50% outliers
+	      update01 |= num > 1.1 * nHitThreshold; // allow 10% outliers
 
 	      float xval = 2.;
 	      // there is not much point to make both single channel & TT hit threshold configurable
 	      if( update01 ){
 
 		// quality BAD if large mean, large rms, or large outliers (num: # events in +-20ns time window)
-		if( std::abs(mean01) > 2. || rms01 > 6. || num > 1.5 * num01 ) xval = 0.;
+		if( std::abs(mean01) > 2. || rms01 > 6. || num > 1.1 * num01 ) xval = 0.;
 		else xval = 1.;
 
 	      }
