@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_4_2/HIon/V8 (CMSSW_4_4_0_HLT10)
+# /dev/CMSSW_4_4_2/HIon/V9 (CMSSW_4_4_0_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V8')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V9')
 )
 
 streams = cms.PSet( 
@@ -5540,7 +5540,7 @@ hltHIPixelMedianVertex = cms.EDProducer( "HIPixelMedianVtxProducer",
     TrackCollection = cms.InputTag( "hltHIPixel3ProtoTracks" ),
     PtMin = cms.double( 0.075 ),
     PeakFindThreshold = cms.uint32( 100 ),
-    PeakFindMaxZ = cms.double( 15.0 ),
+    PeakFindMaxZ = cms.double( 30.0 ),
     PeakFindBinsPerCm = cms.int32( 10 ),
     FitThreshold = cms.int32( 5 ),
     FitMaxZ = cms.double( 0.1 ),
@@ -5592,6 +5592,7 @@ hltHIBestAdaptiveVertex = cms.EDFilter( "HIBestVertexSelection",
     maxNumber = cms.uint32( 1 )
 )
 hltHISelectedVertex = cms.EDProducer( "HIBestVertexProducer",
+    beamSpotLabel = cms.InputTag( "hltOnlineBeamSpot" ),
     medianVertexCollection = cms.InputTag( "hltHIPixelMedianVertex" ),
     adaptiveVertexCollection = cms.InputTag( "hltHIBestAdaptiveVertex" )
 )
@@ -5737,8 +5738,8 @@ hltHIGoodLooseTracks = cms.EDProducer( "AnalyticalTrackSelector",
     res_par = cms.vdouble( 99999.0, 99999.0 ),
     d0_par1 = cms.vdouble( 9999.0, 0.0 ),
     dz_par1 = cms.vdouble( 9999.0, 0.0 ),
-    d0_par2 = cms.vdouble( 8.0, 0.0 ),
-    dz_par2 = cms.vdouble( 8.0, 0.0 )
+    d0_par2 = cms.vdouble( 5.0, 0.0 ),
+    dz_par2 = cms.vdouble( 5.0, 0.0 )
 )
 hltHIFullTrackCandsForHITrackTrigger = cms.EDProducer( "ConcreteChargedCandidateProducer",
     src = cms.InputTag( "hltHIGoodLooseTracks" ),

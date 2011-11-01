@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_4_2/HIon/V8 (CMSSW_4_4_0_HLT10)
+# /dev/CMSSW_4_4_2/HIon/V9 (CMSSW_4_4_0_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V8')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V9')
 )
 
 process.streams = cms.PSet( 
@@ -393,7 +393,7 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
     connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG" ),
     DumpStat = cms.untracked.bool( False ),
     BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" ),
-    globaltag = cms.string( "GR_H_V23::All" ),
+    globaltag = cms.string( "GR_H_V24::All" ),
     DBParameters = cms.PSet( 
       authenticationPath = cms.untracked.string( "." ),
       connectionRetrialTimeOut = cms.untracked.int32( 60 ),
@@ -6083,7 +6083,7 @@ process.hltHIPixelMedianVertex = cms.EDProducer( "HIPixelMedianVtxProducer",
     TrackCollection = cms.InputTag( "hltHIPixel3ProtoTracks" ),
     PtMin = cms.double( 0.075 ),
     PeakFindThreshold = cms.uint32( 100 ),
-    PeakFindMaxZ = cms.double( 15.0 ),
+    PeakFindMaxZ = cms.double( 30.0 ),
     PeakFindBinsPerCm = cms.int32( 10 ),
     FitThreshold = cms.int32( 5 ),
     FitMaxZ = cms.double( 0.1 ),
@@ -6135,6 +6135,7 @@ process.hltHIBestAdaptiveVertex = cms.EDFilter( "HIBestVertexSelection",
     maxNumber = cms.uint32( 1 )
 )
 process.hltHISelectedVertex = cms.EDProducer( "HIBestVertexProducer",
+    beamSpotLabel = cms.InputTag( "hltOnlineBeamSpot" ),
     medianVertexCollection = cms.InputTag( "hltHIPixelMedianVertex" ),
     adaptiveVertexCollection = cms.InputTag( "hltHIBestAdaptiveVertex" )
 )
@@ -6280,8 +6281,8 @@ process.hltHIGoodLooseTracks = cms.EDProducer( "AnalyticalTrackSelector",
     res_par = cms.vdouble( 99999.0, 99999.0 ),
     d0_par1 = cms.vdouble( 9999.0, 0.0 ),
     dz_par1 = cms.vdouble( 9999.0, 0.0 ),
-    d0_par2 = cms.vdouble( 8.0, 0.0 ),
-    dz_par2 = cms.vdouble( 8.0, 0.0 )
+    d0_par2 = cms.vdouble( 5.0, 0.0 ),
+    dz_par2 = cms.vdouble( 5.0, 0.0 )
 )
 process.hltHIFullTrackCandsForHITrackTrigger = cms.EDProducer( "ConcreteChargedCandidateProducer",
     src = cms.InputTag( "hltHIGoodLooseTracks" ),
