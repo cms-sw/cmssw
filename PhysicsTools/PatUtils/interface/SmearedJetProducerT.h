@@ -11,9 +11,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.1 $
+ * \version $Revision: 1.2 $
  *
- * $Id: SmearedJetProducerT.h,v 1.1 2011/10/14 11:18:24 veelken Exp $
+ * $Id: SmearedJetProducerT.h,v 1.2 2011/10/17 09:00:21 veelken Exp $
  *
  */
 
@@ -110,6 +110,8 @@ class SmearedJetProducerT : public edm::EDProducer
 
     smearBy_ = ( cfg.exists("smearBy") ) ? cfg.getParameter<double>("smearBy") : 1.0;
 
+    shiftBy_ = ( cfg.exists("shiftBy") ) ? cfg.getParameter<double>("shiftBy") : 0.;
+
     produces<JetCollection>();
   }
   ~SmearedJetProducerT()
@@ -139,6 +141,12 @@ class SmearedJetProducerT : public edm::EDProducer
       if ( genJet ) {
 	int binIndex = lut_->FindBin(TMath::Abs(jetP4.eta()), jetP4.pt());
 	double smearFactor = lut_->GetBinContent(binIndex);
+
+	if ( shiftBy_ != 0. ) {
+	  double smearFactorErr = lut_->GetBinError(binIndex);
+	  smearFactor += (shiftBy_*smearFactorErr);
+	}
+
 	smearFactor = TMath::Power(smearFactor, smearBy_);
 
 	reco::Candidate::LorentzVector smearP4 = jet->p4() - genJet->p4();
@@ -169,6 +177,8 @@ class SmearedJetProducerT : public edm::EDProducer
   TH2* lut_;
 
   double smearBy_; // option to "smear" jet energy by N standard-deviations, useful for template morphing
+
+  double shiftBy_; // option to increase/decrease within uncertainties the jet energy resolution used for smearing 
 };
 
 #endif
