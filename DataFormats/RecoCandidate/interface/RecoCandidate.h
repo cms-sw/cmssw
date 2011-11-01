@@ -6,7 +6,7 @@
  *
  * \author Luca Lista, INFN
  *
- * \version $Id: RecoCandidate.h,v 1.25 2008/07/18 15:48:32 gpetrucc Exp $
+ * \version $Id: RecoCandidate.h,v 1.26 2010/10/21 07:54:42 gpetrucc Exp $
  *
  */
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
@@ -54,13 +54,13 @@ namespace reco {
     /// reference to a CaloTower
     virtual CaloTowerRef caloTower() const;
     /// best track pointer
-    const Track * bestTrack() const;
+    virtual const Track * bestTrack() const;
     /// best track RefToBase
-    TrackBaseRef bestTrackRef() const;
+    virtual TrackBaseRef bestTrackRef() const;
     /// track type
     enum TrackType { noTrackType, recoTrackType, gsfTrackType };
     ///track type
-    TrackType bestTrackType() const;
+    virtual TrackType bestTrackType() const;
   protected:
     /// check if two components overlap
     template<typename R>
