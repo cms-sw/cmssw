@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_4_2/HIon/V6 (CMSSW_4_4_0_HLT9)
+# /dev/CMSSW_4_4_2/HIon/V8 (CMSSW_4_4_0_HLT10)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V6')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V8')
 )
 
 process.streams = cms.PSet( 
@@ -393,7 +393,7 @@ process.GlobalTag = cms.ESSource( "PoolDBESSource",
     connect = cms.string( "frontier://(proxyurl=http://localhost:3128)(serverurl=http://localhost:8000/FrontierOnProd)(serverurl=http://localhost:8000/FrontierOnProd)(retrieve-ziplevel=0)/CMS_COND_31X_GLOBALTAG" ),
     DumpStat = cms.untracked.bool( False ),
     BlobStreamerName = cms.untracked.string( "TBufferBlobStreamingService" ),
-    globaltag = cms.string( "GR_H_V22::All" ),
+    globaltag = cms.string( "GR_H_V23::All" ),
     DBParameters = cms.PSet( 
       authenticationPath = cms.untracked.string( "." ),
       connectionRetrialTimeOut = cms.untracked.int32( 60 ),
@@ -2963,6 +2963,11 @@ process.hltL1GtObjectMap = cms.EDProducer( "L1GlobalTrigger",
     AlternativeNrBxBoardDaq = cms.uint32( 0 ),
     AlternativeNrBxBoardEvm = cms.uint32( 0 ),
     BstLengthBytes = cms.int32( -1 ),
+    AlgorithmTriggersUnprescaled = cms.bool( True ),
+    AlgorithmTriggersUnmasked = cms.bool( False ),
+    TechnicalTriggersUnprescaled = cms.bool( True ),
+    TechnicalTriggersUnmasked = cms.bool( False ),
+    TechnicalTriggersVetoUnmasked = cms.bool( True ),
     TechnicalTriggersInputTags = cms.VInputTag( 'simBscDigis' ),
     RecordLength = cms.vint32( 3, 0 )
 )
@@ -5123,7 +5128,7 @@ process.hltHfreco = cms.EDProducer( "HcalHitReconstructor",
     correctionPhaseNS = cms.double( 13.0 ),
     digiLabel = cms.InputTag( "hltHcalDigis" ),
     correctTiming = cms.bool( False ),
-    setNoiseFlags = cms.bool( True ),
+    setNoiseFlags = cms.bool( False ),
     setHSCPFlags = cms.bool( False ),
     setSaturationFlags = cms.bool( False ),
     setTimingTrustFlags = cms.bool( False ),
