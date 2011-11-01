@@ -125,8 +125,10 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
   //===================== save L1 Trigger information =======================
   if( L1TriggerAlgoInfo_ ) {
 
-    m_l1GtUtils.retrieveL1EventSetup(iSetup);
-    m_l1GtUtils.retrieveL1GtTriggerMenuLite(iEvent);
+    bool useL1EventSetup = true;
+    bool useL1GtTriggerMenuLite = true;
+
+    m_l1GtUtils.getL1GtRunCache(iEvent, iSetup, useL1EventSetup, useL1GtTriggerMenuLite);
 
     int iErrorCode = -1;
     int l1ConfCode = -1;
