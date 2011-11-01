@@ -6,8 +6,8 @@
  *
  *  DQM muon analysis monitoring
  *
- *  $Date: 2011/05/22 18:17:21 $
- *  $Revision: 1.17 $
+ *  $Date: 2011/10/27 08:21:05 $
+ *  $Revision: 1.18 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -16,6 +16,14 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/HLTReco/interface/TriggerObject.h"
+#include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+//
+#include "CommonTools/TriggerUtils/interface/GenericTriggerEventFlag.h"
 
 class MuonEnergyDepositAnalyzer;
 class MuonSeedsAnalyzer;
@@ -27,6 +35,7 @@ class DiMuonHistograms;
 class DQMStore;
 class MuonServiceProxy;
 class MuonRecoOneHLT;
+class EfficiencyAnalyzer;
 
 class MuonAnalyzer : public edm::EDAnalyzer {
  public:
@@ -63,7 +72,8 @@ class MuonAnalyzer : public edm::EDAnalyzer {
   edm::InputTag theStaMuTrackCollectionLabel;
   // Seed Label
   edm::InputTag theSeedsCollectionLabel;
-  
+  edm::InputTag theTriggerResultsLabel;
+
   bool theMuEnergyAnalyzerFlag;
   bool theSeedsAnalyzerFlag;
   bool theMuonRecoAnalyzerFlag;
@@ -71,7 +81,8 @@ class MuonAnalyzer : public edm::EDAnalyzer {
   bool theMuonSegmentsAnalyzerFlag;
   bool theDiMuonHistogramsFlag;
   bool theMuonRecoOneHLTAnalyzerFlag;
-  
+  bool theEfficiencyAnalyzerFlag;
+ 
   // Define Analysis Modules
   MuonEnergyDepositAnalyzer* theMuEnergyAnalyzer;
   MuonSeedsAnalyzer*         theSeedsAnalyzer;
@@ -81,5 +92,6 @@ class MuonAnalyzer : public edm::EDAnalyzer {
   SegmentTrackAnalyzer*      theStaMuonSegmentsAnalyzer;
   DiMuonHistograms*          theDiMuonHistograms;
   MuonRecoOneHLT*            theMuonRecoOneHLTAnalyzer;
+  EfficiencyAnalyzer*        theEfficiencyAnalyzer; 
 };
 #endif  
