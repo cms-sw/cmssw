@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ascii"?>
 <xml>
-	<test name="Regress">
+	<test name="ORA_regression">
 		<init>
 			<command exec ="$TTEST/setupDB -c -A $TAUTH -C $TCORALCONNSTR" env ="ref"></command>
 			<command exec ="$TTEST/testCompat -w ref -A $TAUTH -C $TCORALCONNSTR" env ="ref"></command>
@@ -8,23 +8,6 @@
 		<sequence>
 			<command exec ="$TTEST/testCompat -R -A $TAUTH -C $TCORALCONNSTR" Rname = "Cand read Ref" env ="cand"></command>
 			<command exec ="$TTEST/testCompat -w cand -A $TAUTH -C $TCORALCONNSTR" Rname = "Candidate write" env ="cand"></command>
-			<command exec ="$TTEST/testCompat -R -A $TAUTH -C $TCORALCONNSTR" Rname = "Cand read Cand" env ="cand"></command>
-			<command exec ="$TTEST/testCompat -R -A $TAUTH -C $TCORALCONNSTR" Rname = "Ref read Cand" env ="ref"></command>
-			<command exec ="$TTEST/testCompat -R -A $TAUTH -C $TCORALCONNSTR" Rname = "Additional Command1" env ="ref"></command>
-			<command exec ="$TTEST/testCompat -R -A $TAUTH -C $TCORALCONNSTR" Rname = "Additional Command2" env ="ref"></command>
-		</sequence>
-		<final>
-			<command exec ="$TTEST/setupDB -D -A $TAUTH -C $TCORALCONNSTR" env ="ref"></command>
-		</final>
-	</test>
-	<test name="Regression">
-		<init>
-			<command exec ="$TTEST/setupDB -c -A $TAUTH -C $TCORALCONNSTR" env ="ref"></command>
-			<command exec ="$TTEST/testCompat -w $TMAPNAME -A $TAUTH -C $TCORALCONNSTR" env ="ref"></command>
-		</init>
-		<sequence>
-			<command exec ="$TTEST/testCompat -R -A $TAUTH -C $TCORALCONNSTR" Rname = "Cand read Ref" env ="cand"></command>
-			<command exec ="$TTEST/testCompat -w $TMAPNAME -A $TAUTH -C $TCORALCONNSTR" Rname = "Candidate write" env ="cand"></command>
 			<command exec ="$TTEST/testCompat -R -A $TAUTH -C $TCORALCONNSTR" Rname = "Cand read Cand" env ="cand"></command>
 			<command exec ="$TTEST/testCompat -R -A $TAUTH -C $TCORALCONNSTR" Rname = "Ref read Cand" env ="ref"></command>
 		</sequence>

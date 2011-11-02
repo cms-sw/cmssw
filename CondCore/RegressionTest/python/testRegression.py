@@ -272,9 +272,9 @@ def ReadStatusDB():
 	print 'STATUS TABLE READ'
 	print 'ID  RUNID RDATE   LABEL  T_RELEASE     T_ARCH      R_RELEASE     R_ARCH'
 	for row in curs:
-		print row
-		print ReadResultsDB(row[0])
-		#print row[8].read() 
+                print row[0:8]
+                print ReadResultsDB(row[0])
+                print row[8].read() 
 def GetMaxRunIDStatusDB(label):
 	curs = conn.cursor()
 	sqlstr = "SELECT MAX(RUNID) FROM TEST_STATUS WHERE LABEL = :labl"
