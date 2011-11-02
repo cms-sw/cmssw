@@ -412,7 +412,7 @@ particle_flow   usePFPhotons      0
 particle_flow   conv_mvaCut	  0.00
 particle_flow   useReg		  1	
 // Daniele and Rishi: To be changed
-particle_flow   convID_mvaWeightFile    /afs/cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionFeb2311.txt
+particle_flow   convID_mvaWeightFile    /afs/cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionAug0411.txt
 particle_flow mvaWeightFileRegLC	/afs/cern.ch/user/r/rpatel/public/TMVARegression_BDTG_PFClusterCorr.weights.xml
 particle_flow mvaWeightFileRegGC        /afs/cern.ch/user/r/rpatel/public/TMVARegression_BDTG_PFGlobalCorr.weights.xml
 X0Map                                  /afs/cern.ch/user/r/rpatel/public/allX0histos.root
