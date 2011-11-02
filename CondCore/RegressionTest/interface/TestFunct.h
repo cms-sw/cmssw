@@ -1,7 +1,10 @@
 #include <iostream>
 #include <unistd.h>
 
-#include "CondCore/RegressionTest/interface/SchemaUtils.h"
+
+
+
+#include "CondCore/ORA/interface/SchemaUtils.h" //v4
 #include <stdexcept>
 #include "CondCore/ORA/interface/Database.h"
 #include "CondCore/ORA/interface/Container.h"
