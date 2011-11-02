@@ -533,11 +533,15 @@ class GsfElectron : public RecoCandidate
       float sigmaEtaEta ; // Sigma-eta-eta with the PF cluster
       float hadEnergy ; // Associated PF Had Cluster energy
       float deltaEta ; // PF-cluster GSF track delta-eta
+      int nClusterOutsideMustache ; // -2 => unknown, -1 =>could not be evaluated, 0 and more => number of clusters
+      float etOutsideMustache ;
       MvaInput()
        : earlyBrem(-2), lateBrem(-2),
          sigmaEtaEta(std::numeric_limits<float>::infinity()),
          hadEnergy(0.),
-         deltaEta(std::numeric_limits<float>::infinity())
+         deltaEta(std::numeric_limits<float>::infinity()),
+         nClusterOutsideMustache(-2),
+         etOutsideMustache(-std::numeric_limits<float>::infinity())
        {}
      } ;
 

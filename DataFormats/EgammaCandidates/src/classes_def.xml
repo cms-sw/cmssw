@@ -134,8 +134,9 @@
   <class name="reco::GsfElectron::PflowIsolationVariables" ClassVersion="10">
    <version ClassVersion="10" checksum="4270399196"/>
   </class>
-  <class name="reco::GsfElectron::MvaInput" ClassVersion="10">
+  <class name="reco::GsfElectron::MvaInput" ClassVersion="11">
    <version ClassVersion="10" checksum="2786166332"/>
+   <version ClassVersion="11" checksum="2106253688"/>
   </class>
   <class name="reco::GsfElectron::MvaOutput" ClassVersion="10">
    <version ClassVersion="10" checksum="2145829729"/>
