@@ -4,8 +4,8 @@
  *  Description:
  *
  *
- *  $Date: 2011/06/15 10:16:32 $
- *  $Revision: 1.17 $
+ *  $Date: 2011/10/28 22:10:34 $
+ *  $Revision: 1.18 $
  *
  *  Authors :
  *  P. Traczyk, SINS Warsaw
@@ -112,6 +112,14 @@ GlobalMuonRefitter::GlobalMuonRefitter(const edm::ParameterSet& par,
   theRPCInTheFit = par.getParameter<bool>("RefitRPCHits");
 
   theDYTthrs = par.getParameter< std::vector<int> >("DYTthrs");
+
+  if (par.existsAs<double>("RescaleErrorFactor")) {
+    theRescaleErrorFactor = par.getParameter<double>("RescaleErrorFactor");
+    edm::LogWarning("GlobalMuonRefitter") << "using error rescale factor " << theRescaleErrorFactor;
+  }
+  else
+    theRescaleErrorFactor = 1000.;
+  
 
   theCacheId_TRH = 0;
 
@@ -574,7 +582,7 @@ vector<Trajectory> GlobalMuonRefitter::transform(const reco::Track& newTrack,
     return vector<Trajectory>();
   }
 
-  firstTSOS.rescaleError(1000.);
+  firstTSOS.rescaleError(theRescaleErrorFactor);
 
   // This is the only way to get a TrajectorySeed with settable propagation direction
   PTrajectoryStateOnDet garbage1;

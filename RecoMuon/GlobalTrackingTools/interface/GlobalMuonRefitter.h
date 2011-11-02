@@ -4,8 +4,8 @@
 /** \class GlobalMuonRefitter
  *  class to build muon trajectory
  *
- *  $Date: 2011/06/07 15:34:27 $
- *  $Revision: 1.12 $
+ *  $Date: 2011/06/15 10:16:44 $
+ *  $Revision: 1.13 $
  *
  *  \author N. Neumeister 	 Purdue University
  *  \author C. Liu 		 Purdue University
@@ -139,6 +139,8 @@ class GlobalMuonRefitter {
     std::string thePropagatorName;
   
     bool theRPCInTheFit;
+
+    double theRescaleErrorFactor;
 
     RefitDirection theRefitDirection;
 
