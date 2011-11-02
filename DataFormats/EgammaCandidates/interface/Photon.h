@@ -7,7 +7,7 @@
  * stores isolation, shower shape and additional info
  * needed for identification
  * 
- * \version $Id: Photon.h,v 1.41 2011/07/21 12:50:21 nancy Exp $
+ * \version $Id: Photon.h,v 1.42 2011/07/22 14:37:26 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -178,6 +178,55 @@ namespace reco {
     float r2x5 ()           const {return showerShapeBlock_.e2x5/showerShapeBlock_.e5x5;}
     float r9 ()             const {return showerShapeBlock_.e3x3/this->superCluster()->rawEnergy();}  
 
+    //=======================================================
+    // Energy Determinations
+    //=======================================================
+    enum P4type { undefined=-1, e5x5_or_SC=0, ecal_photons=1, regression1=2, regression2= 3 } ;
+
+    struct EnergyCorrections {
+      double scEcalEnergy;
+      double scEcalEnergyError;
+      LorentzVector scEcalP4;
+      double phoEcalEnergy;
+      double phoEcalEnergyError;
+      LorentzVector phoEcalP4;
+      double regression1Energy;
+      double regression1EnergyError;
+      LorentzVector regression1P4;
+      double regression2Energy;
+      double regression2EnergyError;
+      LorentzVector regression2P4;
+      P4type candidateP4type;
+      EnergyCorrections() : 
+	scEcalEnergy(0.), 
+	scEcalEnergyError(999.),
+	scEcalP4(0., 0., 0., 0.),
+	phoEcalEnergy(0.), 
+	phoEcalEnergyError(999.),
+	phoEcalP4(0., 0., 0., 0.),
+	regression1Energy(0.), 
+	regression1EnergyError(999.),
+	regression1P4(0.,0.,0.,0.),  
+	regression2Energy(0.), 
+	regression2EnergyError(999.),
+	regression2P4(0.,0.,0.,0.),
+        candidateP4type(undefined) 
+      {}
+    };
+
+    using RecoCandidate::setP4 ;
+    using RecoCandidate::p4 ;
+
+    //sets both energy and its uncertainty
+    void setCorrectedEnergy( P4type type, double E, double dE, bool toCand=true );        
+    void setP4( P4type type, const LorentzVector & p4, float p4Error, bool setToRecoCandidate ) ;
+    void setEnergyCorrections ( const EnergyCorrections& e) { eCorrections_=e;}
+
+    double getCorrectedEnergy( P4type type) const;
+    double getCorrectedEnergyError( P4type type) const ;
+    P4type getCandidateP4type() const {return eCorrections_.candidateP4type;}
+    const LorentzVector& p4( P4type type ) const ;
+    const EnergyCorrections & energyCorrections() const { return eCorrections_ ; }
 
     //=======================================================
     // MIP Variables
@@ -211,9 +260,7 @@ namespace reco {
     float mipIntercept()    const {return mipVariableBlock_.mipIntercept;}
     int mipNhitCone()     const {return mipVariableBlock_.mipNhitCone;}
     bool  mipIsHalo()       const {return mipVariableBlock_.mipIsHalo;}
-    
-    
-    
+            
     ///set mip Variables
     void setMIPVariables ( const MIPVariables& mipVar) {mipVariableBlock_= mipVar;} 
     
@@ -260,31 +307,9 @@ namespace reco {
       
     };
 
-
-    struct PflowIsolationVariables
-    {
-
-      float chargedHadronIso;
-      float neutralHadronIso;
-      float photonIso ;
-      
-      
-      PflowIsolationVariables():
-	
-	chargedHadronIso(0),
-	neutralHadronIso(0),
-	photonIso(0)
-      		   
-      {}
-      
-      
-    };
-
     
     /// set relevant isolation variables
     void setIsolationVariables ( const IsolationVariables& isolInDr04, const IsolationVariables& isolInDr03) {  isolationR04_ = isolInDr04 ; isolationR03_ = isolInDr03 ;} 
-    /// set isolation variables calculated with Pflow
-    void setPflowIsolationVariables ( const PflowIsolationVariables& pfisol ) {  pfIsolation_ = pfisol;} 
 
     /// Egamma Isolation variables in cone dR=0.4
     ///Ecal isolation sum calculated from recHits
@@ -322,11 +347,59 @@ namespace reco {
     int nTrkHollowConeDR03()             const{return  isolationR03_.nTrkHollowCone;}
 
 
+    //=======================================================
+    // PFlow based Isolation Variables
+    //=======================================================
 
-    /// Particle Flow Isolation variables 
+    struct PflowIsolationVariables
+    {
+
+      float chargedHadronIso;
+      float neutralHadronIso;
+      float photonIso ;
+      float modFrixione ;      
+      
+      PflowIsolationVariables():
+	
+	chargedHadronIso(0),
+	neutralHadronIso(0),
+	photonIso(0),
+        modFrixione(0)
+      		   
+      {}
+      
+      
+    };
+
+    /// Accessors for Particle Flow Isolation variables 
     float chargedHadronIso() const {return  pfIsolation_.chargedHadronIso;}
     float neutralHadronIso() const {return  pfIsolation_.neutralHadronIso;}
     float photonIso() const {return  pfIsolation_.photonIso;}
+
+    /// Set Particle Flow Isolation variables
+    void setPflowIsolationVariables ( const PflowIsolationVariables& pfisol ) {  pfIsolation_ = pfisol;} 
+
+    struct PflowIDVariables
+    {
+
+      int nClusterOutsideMustache;
+      float etOutsideMustache;
+      float mva;
+
+      PflowIDVariables():
+        nClusterOutsideMustache(-1),
+        etOutsideMustache(-999999999),
+        mva(-999999999.)
+      		   
+      {}
+    };
+    
+    // getters
+    int nClusterOutsideMustache() const {return pfID_.nClusterOutsideMustache;}
+    float etOutsideMustache() const {return pfID_.etOutsideMustache;}
+    float pfMVA() const {return pfID_.mva;}
+    // setters
+    void setPflowIDVariables ( const PflowIDVariables& pfid ) {  pfID_ = pfid;}     
 
 
   private:
@@ -343,9 +416,11 @@ namespace reco {
     IsolationVariables isolationR04_;
     IsolationVariables isolationR03_;
     ShowerShape        showerShapeBlock_;
+    EnergyCorrections eCorrections_; 
     MIPVariables        mipVariableBlock_; 
     PflowIsolationVariables pfIsolation_;
- 
+    PflowIDVariables pfID_;
+
 
   };
   
