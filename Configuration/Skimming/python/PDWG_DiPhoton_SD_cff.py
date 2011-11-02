@@ -11,9 +11,11 @@ PHOTON_CALOIDISO_ET_HIGH_CUT_MIN = 26.
 PHOTON_CALOIDISO_ET_LOW_CUT_MIN = 18.
 MASS_DIPHOTON_CALOIDISO_CUT_MIN = 60.
 
-PHOTON_R9ID_ET_HIGH_CUT_MIN = 22.
+PHOTON_R9ID_ET_HIGH_CUT_MIN = 26.
 PHOTON_R9ID_ET_LOW_CUT_MIN = 18.
 MASS_DIPHOTON_R9ID_CUT_MIN = 60.
+
+MASS_DIPHOTON_MIXEDID_CUT_MIN = 60.
 
 #  _____ __  _____            _         _   _
 # |  |  |  ||_   _|   ___ ___| |___ ___| |_|_|___ ___
@@ -79,7 +81,7 @@ TrailingPtR9IdPhotons = TrailingPtCaloIdIsoPhotons.clone(
 
 LeadingPtR9IdPhotons = LeadingPtCaloIdIsoPhotons.clone(
     src = cms.InputTag("hltDiPhotonR9IdObjectProducer"),
-    cut = cms.string('pt > '+str(PHOTON_R9ID_ET_LOW_CUT_MIN))
+    cut = cms.string('pt > '+str(PHOTON_R9ID_ET_HIGH_CUT_MIN))
 )
 
 R9IdPhotonPairs = CaloIdIsoPhotonPairs.clone( 
@@ -92,3 +94,43 @@ R9IdPhotonPairsCounter = CaloIdIsoPhotonPairsCounter.clone(
                                     )
 
 R9IdPhotonPairsFilter = cms.Sequence(DiPhotonHltFilter*hltDiPhotonR9IdObjectProducer*TrailingPtR9IdPhotons*LeadingPtR9IdPhotons*R9IdPhotonPairs*R9IdPhotonPairsCounter)
+
+#  __   __ _ _   _ ____   _    _____     _     _____   _ _____           _____ ___ _____   _ 
+# |  \ /  | | \_/ |  __|_| |  |     |___| |___|     |_| |     |___ ___  | __  | . |     |_| |
+# | | v | | |\ _ /|  __| . |  |   --| .'| | . |-   -| . |-   -|_ -| . | |    -|_  |-   -| . |
+# |_|   |_|_|_/ \_|____|___|  |_____|__,|_|___|_____|___|_____|___|___| |__|__|___|_____|___|
+  
+hltDiPhotonMixedCaloR9IdObjectProducer = hltDiPhotonCaloIdIsoObjectProducer.clone(
+                                             triggerName = cms.string("HLT_Photon.*_CaloId.*_Iso.*_Photon.*_R9Id.*_.*"),
+                                             )
+
+MixedCaloR9IdPhotonPairs = CaloIdIsoPhotonPairs.clone( 
+    decay = cms.string("LeadingPtCaloIdIsoPhotons TrailingPtR9IdPhotons"), # charge coniugate states are implied
+    cut   = cms.string("mass > " + str(MASS_DIPHOTON_MIXEDID_CUT_MIN))
+)
+
+MixedCaloR9IdPhotonPairsCounter = CaloIdIsoPhotonPairsCounter.clone(
+                                    src = cms.InputTag("MixedCaloR9IdPhotonPairs"),
+                                    )
+
+MixedCaloR9IdPhotonPairsFilter = cms.Sequence(DiPhotonHltFilter*hltDiPhotonMixedCaloR9IdObjectProducer*TrailingPtR9IdPhotons*LeadingPtCaloIdIsoPhotons*MixedCaloR9IdPhotonPairs*MixedCaloR9IdPhotonPairsCounter)
+
+#  __   __ _ _   _ ____   _    _____ ___ _____   _   _____     _     _____   _ _____          
+# |  \ /  | | \_/ |  __|_| |  | __  | . |     |_| | |     |___| |___|     |_| |     |___ ___  
+# | | v | | |\ _ /|  __| . |  |    -|_  |-   -| . | |   --| .'| | . |-   -| . |-   -|_ -| . | 
+# |_|   |_|_|_/ \_|____|___|  |__|__|___|_____|___| |_____|__,|_|___|_____|___|_____|___|___| 
+
+hltDiPhotonMixedR9CaloIdObjectProducer = hltDiPhotonCaloIdIsoObjectProducer.clone(
+                                             triggerName = cms.string("HLT_Photon.*_R9Id.*_Photon.*_CaloId.*_Iso.*_.*"),
+                                             )
+
+MixedR9CaloIdPhotonPairs = CaloIdIsoPhotonPairs.clone( 
+    decay = cms.string("LeadingPtR9IdPhotons TrailingPtCaloIdIsoPhotons"), # charge coniugate states are implied
+    cut   = cms.string("mass > " + str(MASS_DIPHOTON_MIXEDID_CUT_MIN))
+)
+
+MixedR9CaloIdPhotonPairsCounter = CaloIdIsoPhotonPairsCounter.clone(
+                                    src = cms.InputTag("MixedR9CaloIdPhotonPairs"),
+                                    )
+
+MixedR9CaloIdPhotonPairsFilter = cms.Sequence(DiPhotonHltFilter*hltDiPhotonMixedR9CaloIdObjectProducer*TrailingPtCaloIdIsoPhotons*LeadingPtR9IdPhotons*MixedR9CaloIdPhotonPairs*MixedR9CaloIdPhotonPairsCounter)

@@ -77,16 +77,16 @@ skimAodContent = AODEventContent.clone()
 skimAodContent.outputCommands.append("drop *_MEtoEDMConverter_*_*")
 skimAodContent.outputCommands.append("drop *_*_*_SKIM")
 
-from Configuration.Skimming.PDWG_DoublePhotonSkim_cff import *
-diphotonSkimPath = cms.Path(diphotonSkimSequence)
-SKIMStreamDoublePhoton = cms.FilteredStream(
-    responsible = 'PDWG',
-    name = 'DoublePhoton',
-    paths = (diphotonSkimPath),
-    content = skimAodContent.outputCommands,
-    selectEvents = cms.untracked.PSet(),
-    dataTier = cms.untracked.string('AOD')
-    )
+#from Configuration.Skimming.PDWG_DoublePhotonSkim_cff import *
+#diphotonSkimPath = cms.Path(diphotonSkimSequence)
+#SKIMStreamDoublePhoton = cms.FilteredStream(
+#    responsible = 'PDWG',
+#    name = 'DoublePhoton',
+#    paths = (diphotonSkimPath),
+#    content = skimAodContent.outputCommands,
+#    selectEvents = cms.untracked.PSet(),
+#    dataTier = cms.untracked.string('AOD')
+#    )
 
 from Configuration.Skimming.PDWG_EXOHSCP_cff import *
 EXOHSCPPath = cms.Path(exoticaHSCPSeq)
