@@ -496,8 +496,6 @@ def toScreenTotEffective(lumidata,resultlines,scalefactor,isverbose):
     '''
     result=[]#[run,selectedlsStr,recorded,hltpath,l1bit,efflumi]
     totdict={}#{hltpath:[nls,toteff]}
-    hprescdict={}
-    lprescdict={}
     selectedcmsls=[]
     alltotrecorded=0.0
     alleffective=0.0
@@ -535,6 +533,8 @@ def toScreenTotEffective(lumidata,resultlines,scalefactor,isverbose):
         result.append(rline)
         
     for run in sorted(lumidata):#loop over runs
+        hprescdict={}
+        lprescdict={}
         rundata=lumidata[run]
         if rundata is None:
             result.append([str(run),'n/a','n/a','n/a','n/a','n/a'])
@@ -621,12 +621,12 @@ def toCSVTotEffective(lumidata,filename,resultlines,scalefactor,isverbose):
     screen Run,SelectedLS,Recorded,HLTPath,L1Bit,Effective
     '''
     result=[]#[run,selectedlsStr,recorded,hltpath,l1bitname,efflumi]
-    hprescdict={}
-    lprescdict={}
     selectedcmsls=[]
     for rline in resultlines:
         result.append(rline)
     for run in sorted(lumidata):#loop over runs
+        hprescdict={}
+        lprescdict={}
         rundata=lumidata[run]
         if rundata is None:
             result.append([str(run),'n/a','n/a','n/a','n/a','n/a'])
