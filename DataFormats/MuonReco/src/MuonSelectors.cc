@@ -708,6 +708,8 @@ bool muon::overlap( const reco::Muon& muon1, const reco::Muon& muon2,
 
 bool muon::isTightMuon(const reco::Muon& muon, const reco::Vertex& vtx){
 
+  if(!muon.isTrackerMuon() || !muon.isGlobalMuon()) return false;
+
   bool muID = isGoodMuon(muon,GlobalMuonPromptTight) && isGoodMuon(muon,TrackerMuonArbitrated);
   
   bool hits = muon.innerTrack()->numberOfValidHits() > 10 &&
