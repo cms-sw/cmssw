@@ -72,20 +72,20 @@ def createHTMLFiles(header, footer, PROJECT_PATH):
             html+="<li>"+SUBSYSTEMS[subsystem][package]+"</li>"
         html+="</ul>"
         
-        output = open(PROJECT_PATH+"/doc/html/packageDocumentation_"+subsystem+".html", "w")
+        output = open(PROJECT_PATH+"packageDocumentation_"+subsystem+".html", "w")
         output.write(html)
         output.close()
         
         
 if len(sys.argv) > 2:
     filename = sys.argv[1]
-    PROJECT_PATH = sys.argv[2]
+    PROJECT_PATH = sys.argv[2]+"doc/html/"
     
-    (header, footer, html) = extractList(PROJECT_PATH+"/"+filename)
+    (header, footer, html) = extractList(PROJECT_PATH+filename)
     createHTMLFiles(header, footer, PROJECT_PATH)
 
     html = addMenuToHeader(html, "")
-    output = open(PROJECT_PATH+"/"+filename, "w")
+    output = open(PROJECT_PATH+filename, "w")
     output.write(html)
     output.close()
 

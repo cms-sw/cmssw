@@ -11,7 +11,9 @@ import sys
 try:
     import urllib2, os, json
 except:
-    errorOnImport = True    
+    errorOnImport = True
+    print "sudo gabalas"
+    sys.exit(1)    
 
 cvsBaseUrl = "http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW"     # NO SLASH IN THE END
 
