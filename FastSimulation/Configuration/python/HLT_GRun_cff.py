@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_4_2/GRun/V6 (CMSSW_4_4_0_HLT9)
+# /dev/CMSSW_4_4_2/GRun/V10 (CMSSW_4_4_0_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 from FastSimulation.HighLevelTrigger.HLTSetup_cff import *
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/GRun/V6')
+  tableName = cms.string('/dev/CMSSW_4_4_2/GRun/V10')
 )
 
 hltESSAK5CaloL1L2L3 = cms.ESSource( "JetCorrectionServiceChain",
