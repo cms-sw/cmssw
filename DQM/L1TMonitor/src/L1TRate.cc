@@ -1,8 +1,8 @@
 /*
  * \file L1TRate.cc
  *
- * $Date: 2011/08/04 12:33:59 $
- * $Revision: 1.8 $
+ * $Date: 2011/10/28 13:24:49 $
+ * $Revision: 1.9 $
  * \author J. Pela, P. Musella
  *
  */
@@ -29,8 +29,6 @@
 #include "CondFormats/DataRecord/interface/L1GtTriggerMaskAlgoTrigRcd.h" // L1Gt - Masks
 #include "CondFormats/DataRecord/interface/L1GtTriggerMenuRcd.h"
 #include "CondFormats/DataRecord/interface/L1GtPrescaleFactorsAlgoTrigRcd.h"
-
-#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
 
 #include "DataFormats/Histograms/interface/MEtoEDMFormat.h"
 
@@ -369,9 +367,6 @@ void L1TRate::analyze(const Event & iEvent, const EventSetup & eventSetup){
         // If trigger name is defined we store the rate
         if(tTrigger != "Undefined"){
 
-          L1GtUtils gtUtils;
-          gtUtils.retrieveL1GtTriggerMenuLite(iEvent);
-
           uint   trigBit  = m_algoBit[tTrigger];
           double trigRate = trigRates.gtAlgoCountsRate()[trigBit]; 
   
@@ -429,95 +424,6 @@ void L1TRate::analyze(const Event & iEvent, const EventSetup & eventSetup){
       m_lsPrescaleIndex[eventLS] = CurrentPrescalesIndex;   
     }    
   }
-  
-  
-/*
-  // Testing validity of handles
-  if(gtReadoutRecordData.isValid() && 
-     triggerScalers     .isValid() &&
-     colLScal           .isValid()){
-
-    // --> Accessing Instant Luminosity via LScal
-    if(colLScal->size()){ 
-
-      unsigned int scalLS  = itLScal->sectionNumber();
-      unsigned int eventLS = iEvent.id().luminosityBlock();
-    
-      bool testEventScalLS; // Checks if the SCAL LS is the same as Event LS 
-     
-      if(m_testEventScalLS){testEventScalLS = scalLS == eventLS-1;}
-      else                 {testEventScalLS = true;}
-     
-      // We only run this code once per LS
-      if(testEventScalLS && m_currentLS != scalLS && !m_processedLS[scalLS]){
-
-        Level1TriggerRates trigRates(*itL1TScalers,EventRun);
-
-        if (m_verbose) {
-          cout << "Event LS="         << iEvent.id().luminosityBlock() << endl;
-          cout << "GT    LS="         << (*triggerScalers)[0].lumiSegmentNr() << endl;
-          cout << "      deadtime()=" << trigRates.deadtimeBeamActivePercent()/100 << endl;      
-          cout << "HF    LS=" << itLScal->sectionNumber() << endl;
-          cout << "      instantLumi()          =" << itLScal->instantLumi() << endl;
-          cout << "      normalization()        =" << itLScal->normalization() << endl;    
-          cout << "      deadTimeNormalization()=" << itLScal->deadTimeNormalization() << endl;
-        }
-
-        m_currentLS                = scalLS; // Updating current LS
-        m_processedLS[m_currentLS] = true;   // Current LS as processed 
-
-        //-> Buffering Intantaneous Luminosity 
-        m_bufferInstLumi           = itLScal->instantLumi();           // Getting Instant Lumi from HF (via SCAL)   
-        double m_deadTimeNormHF    = itLScal->deadTimeNormalization(); // Getting Dead Time Normalization from HF (via SCAL)
-       
-        // If HF Dead Time Corrections is requested we apply it
-        // NOTE: By default this is assumed false since for now WbM fits do NOT assume this correction
-        if(m_parameters.getUntrackedParameter<bool>("useHFDeadTimeNormalization",false)){
-
-          // Protecting for deadtime = 0
-          if(m_deadTimeNormHF == 0){m_bufferInstLumi = 0;}
-          else                     {m_bufferInstLumi = m_bufferInstLumi/(m_deadTimeNormHF);}
-
-        }
-
-        if(m_bufferInstLumi > 0){
-
-          // --> Getting current L1 prescales
-          // Getting Final Decision Logic (FDL) Data from GT
-          const vector<L1GtFdlWord>& gtFdlVectorData = gtReadoutRecordData->gtFdlVector();
-
-          // Getting vector mid-entry and accessing CurrentPrescalesIndex
-          // NOTE: This gets the middle L1GtFdlWord from the vector (we assume vector is ordered by time)
-          int FdlVectorCurrentEvent  = gtFdlVectorData.size()/2;
-          int CurrentPrescalesIndex  = gtFdlVectorData[FdlVectorCurrentEvent].gtPrescaleFactorIndexAlgo();
-          m_lsPrescaleIndex[eventLS] = CurrentPrescalesIndex;
-   
-          const vector<int>& CurrentPrescaleFactors = (*m_listsPrescaleFactors).at(CurrentPrescalesIndex);
-  
-          // Buffer the rate informations for all selected bits
-          for(map<string,string>::const_iterator i=m_selectedTriggers.begin() ; i!=m_selectedTriggers.end() ; i++){
-
-            string tTrigger = (*i).second;
-
-            // If trigger name is defined we store the rate
-            if(tTrigger != "Undefined"){
-	  
-              L1GtUtils gtUtils;
-              gtUtils.retrieveL1GtTriggerMenuLite(iEvent);
-
-	      uint   trigBit                = m_algoBit[tTrigger];
-              double trigRate               = trigRates.gtAlgoCountsRate()[trigBit]; 
-              double trigPrescale           = CurrentPrescaleFactors[trigBit];
-  
-	      m_bufferRate[tTrigger] = (trigPrescale*trigRate);
-            }
-          }
-        }
-      }
-    }
-  }
-  
-  */
 }
 
 //_____________________________________________________________________
