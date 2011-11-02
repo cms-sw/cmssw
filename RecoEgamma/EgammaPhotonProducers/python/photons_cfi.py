@@ -6,11 +6,19 @@ from RecoEgamma.PhotonIdentification.mipVariable_cfi import *
 
 #
 # producer for photons
-# $Id: photons_cfi.py,v 1.37 2011/07/22 00:02:41 nancy Exp $
+# $Id: photons_cfi.py,v 1.38 2011/07/22 14:40:14 nancy Exp $
 #
 photons = cms.EDProducer("PhotonProducer",
     photonCoreProducer = cms.InputTag("photonCore"),
  #   photonCollection = cms.string(''),
+    #energyRegressionWeightsLocation = cms.string('/afs/cern.ch/user/b/bendavid/cmspublic/regweights/gbrph.root'),
+    energyRegressionWeightsLocation = cms.string('none'),
+    superClusterEnergyCorrFunction =  cms.string("EcalClusterEnergyCorrection"),                  
+    superClusterEnergyErrorFunction = cms.string("EcalClusterEnergyUncertainty"),
+    superClusterCrackEnergyCorrFunction =  cms.string("EcalClusterCrackCorrection"),                                       
+    photonEcalEnergyCorrFunction = cms.string("EcalClusterEnergyCorrectionObjectSpecific"),             
+    #candidateP4type = cms.string("fromRegression"),
+    candidateP4type = cms.string("fromEcalEnergy"),                     
     isolationSumsCalculatorSet = cms.PSet(isolationSumsCalculator),
     mipVariableSet = cms.PSet(mipVariable), 
     usePrimaryVertex = cms.bool(True),
