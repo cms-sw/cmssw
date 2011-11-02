@@ -947,7 +947,7 @@ sub scan_binary_for_symbols ()
     while (<NM>) {
         if (/^0*\s+U\s+(\S+)$/) {
 	    $undefs{$1} = 1;
-	} elsif (/^[0-9a-fA-F]+\s+([ACWTDBGRSVts]\*?)\s+(\S+)$/) {
+	} elsif (/^[0-9a-fA-F]+\s+([ACWTDBGRV]\*?)\s+(\S+)$/) {
 	    next if ($is_binary);
 	    my $symclass = &symbol_class($1);
 	    next if (! $symclass);
