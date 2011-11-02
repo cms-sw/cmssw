@@ -53,6 +53,8 @@
 #include "CondFormats/DataRecord/interface/EcalClusterEnergyCorrectionParametersRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalClusterEnergyUncertaintyParameters.h"
 #include "CondFormats/DataRecord/interface/EcalClusterEnergyUncertaintyParametersRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionObjectSpecificParameters.h"
+#include "CondFormats/DataRecord/interface/EcalClusterEnergyCorrectionObjectSpecificParametersRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalClusterLocalContCorrParameters.h"
 #include "CondFormats/DataRecord/interface/EcalClusterLocalContCorrParametersRcd.h"
 
@@ -153,6 +155,8 @@ bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string contain
     cacheID = evtSetup.get<EcalClusterEnergyUncertaintyParametersRcd>().cacheIdentifier();
   } else if (container == "EcalClusterEnergyCorrectionParameters") {
     cacheID = evtSetup.get<EcalClusterEnergyCorrectionParametersRcd>().cacheIdentifier();
+  } else if (container == "EcalClusterEnergyCorrectionObjectSpecificParameters") {
+    cacheID = evtSetup.get<EcalClusterEnergyCorrectionObjectSpecificParametersRcd>().cacheIdentifier();
   } else if (container == "EcalClusterLocalContCorrParameters") {
     cacheID = evtSetup.get<EcalClusterLocalContCorrParametersRcd>().cacheIdentifier();
   } else if (container == "EcalTPGCrystalStatus") {
@@ -351,6 +355,13 @@ else if (container == "EcalIntercalibConstantsMC") {
     const EcalClusterEnergyCorrectionParameters* obj = handle.product();
     std::cout << "tbweight pointer is: "<< obj<< std::endl;
    dbOutput->createNewIOV<const EcalClusterEnergyCorrectionParameters>( new EcalClusterEnergyCorrectionParameters(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
+
+  } else if (container == "EcalClusterEnergyCorrectionObjectSpecificParameters") {
+    edm::ESHandle<EcalClusterEnergyCorrectionObjectSpecificParameters> handle;
+    evtSetup.get<EcalClusterEnergyCorrectionObjectSpecificParametersRcd>().get(handle);
+    const EcalClusterEnergyCorrectionObjectSpecificParameters* obj = handle.product();
+    std::cout << "tbweight pointer is: "<< obj<< std::endl;
+    dbOutput->createNewIOV<const EcalClusterEnergyCorrectionObjectSpecificParameters>( new EcalClusterEnergyCorrectionObjectSpecificParameters(*obj),dbOutput->beginOfTime(), dbOutput->endOfTime(),recordName);
 
 
   } else if (container == "EcalClusterLocalContCorrParameters") {

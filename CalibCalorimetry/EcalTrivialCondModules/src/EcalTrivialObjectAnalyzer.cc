@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialObjectAnalyzer.cc,v 1.22 2009/05/27 11:20:56 fabiocos Exp $
+// $Id: EcalTrivialObjectAnalyzer.cc,v 1.23 2011/04/22 18:09:20 depasse Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -65,6 +65,8 @@
 #include "CondFormats/DataRecord/interface/EcalClusterEnergyCorrectionParametersRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalClusterEnergyUncertaintyParameters.h"
 #include "CondFormats/DataRecord/interface/EcalClusterEnergyUncertaintyParametersRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionObjectSpecificParameters.h"
+#include "CondFormats/DataRecord/interface/EcalClusterEnergyCorrectionObjectSpecificParametersRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalChannelStatus.h"
 #include "CondFormats/DataRecord/interface/EcalChannelStatusRcd.h"
@@ -315,6 +317,14 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
    std::cout << "EnergyCorrectionParameters:";
    for ( EcalFunctionParameters::const_iterator it = paramEnergyUncertainty->params().begin(); it != paramEnergyUncertainty->params().end(); ++it ) {
            std::cout << " " << *it;
+   }
+   std::cout << "\n";
+   edm::ESHandle<EcalClusterEnergyCorrectionObjectSpecificParameters> pEnergyCorrectionObjectSpecific;
+   context.get<EcalClusterEnergyCorrectionObjectSpecificParametersRcd>().get(pEnergyCorrectionObjectSpecific);
+   const EcalClusterEnergyCorrectionObjectSpecificParameters* paramEnergyCorrectionObjectSpecific = pEnergyCorrectionObjectSpecific.product();
+   std::cout << "EnergyCorrectionObjectSpecificParameters:";
+   for ( EcalFunctionParameters::const_iterator it = paramEnergyCorrectionObjectSpecific->params().begin(); it != paramEnergyCorrectionObjectSpecific->params().end(); ++it ) {
+     std::cout << " " << *it;
    }
    std::cout << "\n";
 

@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.29 2011/03/28 20:06:30 depasse Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.30 2011/04/23 08:12:04 depasse Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -76,10 +76,12 @@
 #include "CondFormats/EcalObjects/interface/EcalClusterCrackCorrParameters.h"
 #include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionParameters.h"
 #include "CondFormats/EcalObjects/interface/EcalClusterEnergyUncertaintyParameters.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionObjectSpecificParameters.h"
 #include "CondFormats/DataRecord/interface/EcalClusterLocalContCorrParametersRcd.h"
 #include "CondFormats/DataRecord/interface/EcalClusterCrackCorrParametersRcd.h"
 #include "CondFormats/DataRecord/interface/EcalClusterEnergyCorrectionParametersRcd.h"
 #include "CondFormats/DataRecord/interface/EcalClusterEnergyUncertaintyParametersRcd.h"
+#include "CondFormats/DataRecord/interface/EcalClusterEnergyCorrectionObjectSpecificParametersRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGCrystalStatus.h"
 #include "CondFormats/DataRecord/interface/EcalTPGCrystalStatusRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalMappingElectronics.h"
@@ -131,6 +133,7 @@ public:
   virtual std::auto_ptr<EcalClusterCrackCorrParameters> produceEcalClusterCrackCorrParameters( const EcalClusterCrackCorrParametersRcd& );
   virtual std::auto_ptr<EcalClusterEnergyCorrectionParameters> produceEcalClusterEnergyCorrectionParameters( const EcalClusterEnergyCorrectionParametersRcd& );
   virtual std::auto_ptr<EcalClusterEnergyUncertaintyParameters> produceEcalClusterEnergyUncertaintyParameters( const EcalClusterEnergyUncertaintyParametersRcd& );
+  virtual std::auto_ptr<EcalClusterEnergyCorrectionObjectSpecificParameters> produceEcalClusterEnergyCorrectionObjectSpecificParameters( const EcalClusterEnergyCorrectionObjectSpecificParametersRcd& );
 
   virtual std::auto_ptr<EcalChannelStatus> produceEcalChannelStatus( const EcalChannelStatusRcd& );
   virtual std::auto_ptr<EcalChannelStatus> getChannelStatusFromConfiguration( const EcalChannelStatusRcd& );
@@ -189,6 +192,7 @@ private:
   std::vector<double> crackCorrParameters_;
   std::vector<double> energyCorrectionParameters_;
   std::vector<double> energyUncertaintyParameters_;
+  std::vector<double> energyCorrectionObjectSpecificParameters_;
 
   // laser
   double laserAlphaMean_;  
@@ -276,6 +280,7 @@ private:
   bool producedEcalClusterCrackCorrParameters_;
   bool producedEcalClusterEnergyCorrectionParameters_;
   bool producedEcalClusterEnergyUncertaintyParameters_;
+  bool producedEcalClusterEnergyCorrectionObjectSpecificParameters_;
   bool producedEcalMappingElectronics_;
   bool producedEcalAlignmentEB_;
   bool producedEcalAlignmentEE_;

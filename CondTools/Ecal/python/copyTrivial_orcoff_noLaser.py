@@ -71,6 +71,10 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
             tag = cms.string('EcalClusterEnergyCorrectionParameters_mc')
         ),
         cms.PSet(
+            record = cms.string('EcalClusterEnergyCorrectionObjectSpecificParametersRcd'),
+            tag = cms.string('EcalClusterEnergyCorrectionObjectSpecificParameters_mc')
+        ),
+        cms.PSet(
              record = cms.string('EcalTimeCalibConstantsRcd'),
              tag = cms.string('EcalTimeCalibConstants_mc')
         ),
@@ -125,6 +129,10 @@ process.dbCopy = cms.EDAnalyzer("EcalDBCopy",
         cms.PSet(
             record = cms.string('EcalClusterEnergyCorrectionParametersRcd'),
             container = cms.string('EcalClusterEnergyCorrectionParameters')
+        ),
+        cms.PSet(
+            record = cms.string('EcalClusterEnergyCorrectionObjectSpecificParametersRcd'),
+            container = cms.string('EcalClusterEnergyCorrectionObjectSpecificParameters')
         ),
         cms.PSet(
             record = cms.string('EcalClusterLocalContCorrParametersRcd'),

@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.cc,v 1.51 2011/04/22 18:05:48 depasse Exp $
+// $Id: EcalTrivialConditionRetriever.cc,v 1.52 2011/10/13 09:29:36 eulisse Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -61,6 +61,7 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   crackCorrParameters_ = ps.getUntrackedParameter< std::vector<double> >("crackCorrParameters", std::vector<double>(0) );
   energyCorrectionParameters_ = ps.getUntrackedParameter< std::vector<double> >("energyCorrectionParameters", std::vector<double>(0) );
   energyUncertaintyParameters_ = ps.getUntrackedParameter< std::vector<double> >("energyUncertaintyParameters", std::vector<double>(0) );
+  energyCorrectionObjectSpecificParameters_ = ps.getUntrackedParameter< std::vector<double> >("energyCorrectionObjectSpecificParameters", std::vector<double>(0) );
 
   EBpedMeanX12_ = ps.getUntrackedParameter<double>("EBpedMeanX12", 200.);
   EBpedRMSX12_  = ps.getUntrackedParameter<double>("EBpedRMSX12",  1.10);
@@ -243,10 +244,11 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   }
 
   // cluster corrections
-  producedEcalClusterLocalContCorrParameters_ = ps.getUntrackedParameter<bool>("producedEcalClusterLocalContCorrParameters", true);
-  producedEcalClusterCrackCorrParameters_ = ps.getUntrackedParameter<bool>("producedEcalClusterCrackCorrParameters", true);
-  producedEcalClusterEnergyCorrectionParameters_ = ps.getUntrackedParameter<bool>("producedEcalClusterEnergyCorrectionParameters", true);
-  producedEcalClusterEnergyUncertaintyParameters_ = ps.getUntrackedParameter<bool>("producedEcalClusterEnergyUncertaintyParameters", true);
+  producedEcalClusterLocalContCorrParameters_ = ps.getUntrackedParameter<bool>("producedEcalClusterLocalContCorrParameters", false);
+  producedEcalClusterCrackCorrParameters_ = ps.getUntrackedParameter<bool>("producedEcalClusterCrackCorrParameters", false);
+  producedEcalClusterEnergyCorrectionParameters_ = ps.getUntrackedParameter<bool>("producedEcalClusterEnergyCorrectionParameters", false);
+  producedEcalClusterEnergyUncertaintyParameters_ = ps.getUntrackedParameter<bool>("producedEcalClusterEnergyUncertaintyParameters", false);
+  producedEcalClusterEnergyCorrectionObjectSpecificParameters_ = ps.getUntrackedParameter<bool>("producedEcalClusterEnergyCorrectionObjectSpecificParameters", false);
   if ( producedEcalClusterLocalContCorrParameters_ ) {
           setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalClusterLocalContCorrParameters );
           findingRecord<EcalClusterLocalContCorrParametersRcd>();
@@ -262,6 +264,10 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   if ( producedEcalClusterEnergyUncertaintyParameters_ ) {
           setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalClusterEnergyUncertaintyParameters );
           findingRecord<EcalClusterEnergyUncertaintyParametersRcd>();
+  }
+  if ( producedEcalClusterEnergyCorrectionObjectSpecificParameters_ ) {
+    setWhatProduced( this, &EcalTrivialConditionRetriever::produceEcalClusterEnergyCorrectionObjectSpecificParameters );
+    findingRecord<EcalClusterEnergyCorrectionObjectSpecificParametersRcd>();
   }
 
   // laser correction
@@ -834,6 +840,15 @@ EcalTrivialConditionRetriever::produceEcalClusterEnergyUncertaintyParameters( co
                 ipar->params().push_back( energyUncertaintyParameters_[i] );
         }
         return ipar;
+}
+std::auto_ptr<EcalClusterEnergyCorrectionObjectSpecificParameters>
+EcalTrivialConditionRetriever::produceEcalClusterEnergyCorrectionObjectSpecificParameters( const EcalClusterEnergyCorrectionObjectSpecificParametersRcd &)
+{
+  std::auto_ptr<EcalClusterEnergyCorrectionObjectSpecificParameters> ipar = std::auto_ptr<EcalClusterEnergyCorrectionObjectSpecificParameters>( new EcalClusterEnergyCorrectionObjectSpecificParameters() );
+  for (size_t i = 0; i < energyCorrectionObjectSpecificParameters_.size(); ++i ) {
+    ipar->params().push_back( energyCorrectionObjectSpecificParameters_[i] );
+  }
+  return ipar;
 }
 
 
