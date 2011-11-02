@@ -17,12 +17,9 @@ except ImportError, e:
 resCount = 0
 resNames = []
 mLabel = ''
-DATABASE = "devdb11"
-USERNAME = "ssamaiti"
-AUTH_PATH = "/afs/cern.ch/user/s/ssamaiti/scratch0/Test/authentication.xml"
-#USERNAME = "CMS_COND_WEB"
-#DATABASE = "cms_orcoff_prep"
-#AUTH_PATH = "//afs/cern.ch/cms/DB/conddb/readWritePrep.xml"
+DATABASE = "cms_orcoff_prep"
+USERNAME = "CMS_COND_REGRESSION"
+AUTH_PATH = "/afs/cern.ch/cms/DB/conddb/test/authentication.xml"
 #end
 
 def getText(nodelist):
