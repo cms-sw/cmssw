@@ -12,7 +12,7 @@
  *
  * \version $Revision: 1.1 $
  *
- * $Id: ShiftedParticleProducerT.h,v 1.1 2011/09/13 14:35:34 veelken Exp $
+ * $Id: ShiftedParticleProducerT.h,v 1.1 2011/10/14 11:18:24 veelken Exp $
  *
  */
 
@@ -75,10 +75,8 @@ class ShiftedParticleProducerT : public edm::EDProducer
 
     for ( typename ParticleCollection::const_iterator originalParticle = originalParticles->begin();
 	  originalParticle != originalParticles->end(); ++originalParticle ) {
-      T shiftedParticle(*originalParticle);
 
       double uncertainty = 0.;
-
       for ( typename std::vector<binningEntryType*>::iterator binningEntry = binning_.begin();
 	    binningEntry != binning_.end(); ++binningEntry ) {
 	if ( (!(*binningEntry)->binSelection_) || (*(*binningEntry)->binSelection_)(*originalParticle) ) {
@@ -89,8 +87,11 @@ class ShiftedParticleProducerT : public edm::EDProducer
       
       double shift = shiftBy_*uncertainty;
 
-      reco::Candidate::LorentzVector originalParticleP4 = originalParticle->p4();
-      shiftedParticle.setP4((1. + shift)*originalParticleP4);
+      reco::Candidate::LorentzVector shiftedParticleP4 = originalParticle->p4();
+      shiftedParticleP4 *= (1. + shift);
+
+      T shiftedParticle(*originalParticle);      
+      shiftedParticle.setP4(shiftedParticleP4);
 
       shiftedParticles->push_back(shiftedParticle);
     }

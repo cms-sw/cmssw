@@ -11,9 +11,9 @@
  * 
  * \author Christian Veelken, LLR
  *
- * \version $Revision: 1.2 $
+ * \version $Revision: 1.3 $
  *
- * $Id: SmearedJetProducerT.h,v 1.2 2011/10/17 09:00:21 veelken Exp $
+ * $Id: SmearedJetProducerT.h,v 1.3 2011/11/01 14:11:55 veelken Exp $
  *
  */
 
@@ -34,10 +34,10 @@
 #include "DataFormats/JetReco/interface/GenJetCollection.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
-#include <TMath.h>
-
 #include <TFile.h>
 #include <TH2.h>
+#include <TMath.h>
+#include <TRandom3.h>
 
 namespace SmearedJetProducer_namespace
 {
@@ -81,6 +81,21 @@ namespace SmearedJetProducer_namespace
 
      double dRmaxGenJetMatch_;
   };
+
+  template <typename T>
+  class JetResolutionExtractorT
+  {
+    public:
+
+     JetResolutionExtractorT(const edm::ParameterSet&) {}
+     ~JetResolutionExtractorT() {}
+
+     double operator()(const T&) const
+     {
+       throw cms::Exception("SmearedJetProducer::produce")
+	 << " Jets of type other than PF not supported yet !!\n";       
+     }
+  };
 }
 
 template <typename T>
@@ -92,7 +107,8 @@ class SmearedJetProducerT : public edm::EDProducer
 
   explicit SmearedJetProducerT(const edm::ParameterSet& cfg)
     : moduleLabel_(cfg.getParameter<std::string>("@module_label")),
-      genJetMatcher_(cfg)
+      genJetMatcher_(cfg),
+      jetResolutionExtractor_(cfg.getParameter<edm::ParameterSet>("jetResolutions"))
   {
     src_ = cfg.getParameter<edm::InputTag>("src");
 
@@ -135,26 +151,66 @@ class SmearedJetProducerT : public edm::EDProducer
 	  jet != jets->end(); ++jet ) {
       reco::Candidate::LorentzVector jetP4 = jet->p4();
 
-      T smearedJet = (*jet);
+      //std::cout << "jet: E = " << jet->energy() << "," 
+      //	  << " px = " << jet->px() << ", py = " << jet->py() << ", pz = " << jet->pz() << std::endl;
+      
+      double smearFactor = 1.;
+      
+      double x = TMath::Abs(jetP4.eta());
+      double y = jetP4.pt();
+      if ( x > lut_->GetXaxis()->GetXmin() && x < lut_->GetXaxis()->GetXmax() &&
+	   y > lut_->GetYaxis()->GetXmin() && y < lut_->GetYaxis()->GetXmax() ) {
+	int binIndex = lut_->FindBin(x, y);
 
-      const reco::GenJet* genJet = genJetMatcher_(*jet, &evt);
-      if ( genJet ) {
-	int binIndex = lut_->FindBin(TMath::Abs(jetP4.eta()), jetP4.pt());
-	double smearFactor = lut_->GetBinContent(binIndex);
+	smearFactor = lut_->GetBinContent(binIndex);
+	double smearFactorErr = lut_->GetBinError(binIndex);
 
-	if ( shiftBy_ != 0. ) {
-	  double smearFactorErr = lut_->GetBinError(binIndex);
-	  smearFactor += (shiftBy_*smearFactorErr);
-	}
+	//std::cout << "x = " << x << ", y = " << y << ": smearFactor = " << smearFactor << " +/- " << smearFactorErr << std::endl;
 
+	if ( shiftBy_ != 0. ) smearFactor += (shiftBy_*smearFactorErr);
 	smearFactor = TMath::Power(smearFactor, smearBy_);
-
-	reco::Candidate::LorentzVector smearP4 = jet->p4() - genJet->p4();
-	smearP4 *= smearFactor;
-	
-	smearedJet.setP4(genJet->p4() + smearP4);
+	//std::cout << "smearBy = " << smearBy_ << " --> final smearFactor = " << smearFactor << std::endl;
       }
 
+      double smearedJetEn = jet->energy();
+
+      const reco::GenJet* genJet = genJetMatcher_(*jet, &evt);
+      if ( genJet ) { 
+//--- case 1: reconstructed jet matched to generator level jet, 
+//            smear difference between reconstructed and "true" jet energy
+
+	double dEn = jet->energy() - genJet->energy();
+	//std::cout << " case 1: dEn = " << dEn << std::endl;
+
+	smearedJetEn = genJet->energy() + smearFactor*dEn;
+      } else {
+//--- case 2: reconstructed jet **not** matched to generator level jet, 
+//            smear jet energy using MC resolution functions implemented in PFMEt significance algorithm (CMS AN-10/400)
+
+	if ( smearFactor > 1. ) {
+	  // CV: MC resolution already accounted for in reconstructed jet,
+	  //     add additional Gaussian smearing of width = sqrt(smearFactor^2 - 1) 
+	  //     to account for Data/MC **difference** in jet resolutions
+	  double sigmaEn = jetResolutionExtractor_(*jet)*TMath::Sqrt(smearFactor*smearFactor - 1.);
+	  //std::cout << " case 2: sigmaEn = " << sigmaEn << std::endl;
+
+	  smearedJetEn = jet->energy() + rnd_.Gaus(0., sigmaEn);
+	}
+      }
+	  
+      // CV: keep minimum jet energy, in order not to loose direction information
+      const double minJetEn = 1.e-2; 
+      if ( smearedJetEn < minJetEn ) smearedJetEn = minJetEn;
+	  
+      reco::Candidate::LorentzVector smearedJetP4 = jetP4;
+      smearedJetP4 *= (smearedJetEn/jet->energy());
+	  
+      T smearedJet = (*jet);
+      smearedJet.setP4(smearedJetP4);
+      
+      //std::cout << "smearedJet: E = " << smearedJet.energy() << "," 
+      //	  << " px = " << smearedJet.px() << ", py = " << smearedJet.py() << ", pz = " << smearedJet.pz() << std::endl;
+      
       smearedJets->push_back(smearedJet);
     }
 
@@ -175,6 +231,9 @@ class SmearedJetProducerT : public edm::EDProducer
 
   TFile* inputFile_;
   TH2* lut_;
+
+  SmearedJetProducer_namespace::JetResolutionExtractorT<T> jetResolutionExtractor_;
+  TRandom3 rnd_;
 
   double smearBy_; // option to "smear" jet energy by N standard-deviations, useful for template morphing
 
