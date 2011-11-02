@@ -1,6 +1,6 @@
 // Original Author:  Ivan Amos Cali
 //         Created:  Mon Jul 28 14:10:52 CEST 2008
-// $Id: SiStripBaselineValidator.cc,v 1.1 2011/10/12 16:24:30 pkurt Exp $
+// $Id: SiStripBaselineValidator.cc,v 1.2 2011/10/20 09:48:04 borrell Exp $
 //
 //
  
@@ -109,7 +109,6 @@ void SiStripBaselineValidator::analyze(const edm::Event& e, const edm::EventSetu
      
 
      edm::DetSet<SiStripRawDigi>::const_iterator itRaw = itRawDigis->begin(); 
-     bool restAPV[6] = {0,0,0,0,0,0};
      int strip =0, totADC=0;
 
      for(;itRaw != itRawDigis->end(); ++itRaw, ++strip){  /// loop over strips
@@ -122,9 +121,7 @@ void SiStripBaselineValidator::analyze(const edm::Event& e, const edm::EventSetu
        totADC+= adc;
        
        if(strip%127 ==0){
-	 int APV = strip/128;
 	 if(totADC!= 0){
-	   restAPV[APV] = true;
 	   totADC =0;
 	   
 	   NumResAPVs++;
