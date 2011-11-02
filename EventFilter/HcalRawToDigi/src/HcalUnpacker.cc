@@ -12,6 +12,7 @@ namespace HcalUnpacker_impl {
     // set parameters
     digi.setPresamples(presamples);
     digi.setReadoutIds(eid);
+
     int fiber=startPoint->fiber();
     int fiberchan=startPoint->fiberChan();
     uint32_t zsmask=hhd.zsBunchMask()>>startSample;
@@ -37,6 +38,56 @@ namespace HcalUnpacker_impl {
     digi.setSize(ntaken);
     return qie_work;
   }
+
+
+  template <class DigiClass>
+  const unsigned short* unpack_compact(const unsigned short* startPoint, const unsigned short* limit, DigiClass& digi, 
+				       int presamples, const HcalElectronicsId& eid, int startSample, int endSample, int expectedTime, const HcalHTRData& hhd) {
+    // set parameters
+    digi.setPresamples(presamples);
+    digi.setReadoutIds(eid);
+    int flavor, error_flags, capid0, channelid;
+
+    HcalHTRData::unpack_per_channel_header(*startPoint,flavor,error_flags,capid0,channelid);
+    bool isCapRotating=!(error_flags&0x1);
+    bool fiberErr=(error_flags&0x2);
+    bool dataValid=!(error_flags&0x2);
+    int fiberchan=channelid&0x3;
+    int fiber=((channelid>>2)&0x7)+1;
+
+    uint32_t zsmask=hhd.zsBunchMask()>>startSample;
+    digi.setZSInfo(hhd.isUnsuppressed(),hhd.wasMarkAndPassZS(fiber,fiberchan),zsmask);
+
+    if (expectedTime>=0 && !hhd.isUnsuppressed()) {
+      //      std::cout << hhd.getFibOrbMsgBCN(fiber) << " " << expectedTime << std::endl;
+      digi.setFiberIdleOffset(hhd.getFibOrbMsgBCN(fiber)-expectedTime);
+    }
+
+    // what is my sample number?
+    int ncurr=0,ntaken=0;
+    const unsigned short* qie_work=startPoint;
+    for (qie_work++; qie_work!=limit && !HcalHTRData::is_channel_header(*qie_work); qie_work++) {
+      int capidn=(isCapRotating)?((capid0+ncurr)%4):(capid0);
+      int capidn1=(isCapRotating)?((capid0+ncurr+1)%4):(capid0);
+      // two samples in one...
+      HcalQIESample s0((*qie_work)&0x7F,capidn,fiber,fiberchan,dataValid,fiberErr);
+      HcalQIESample s1(((*qie_work)>>8)&0x7F,capidn1,fiber,fiberchan,dataValid,fiberErr);
+
+      if (ncurr>=startSample && ncurr<=endSample) {
+	digi.setSample(ntaken,s0);
+	++ntaken;
+      }
+      ncurr++;
+      if (ncurr>=startSample && ncurr<=endSample) {
+	digi.setSample(ntaken,s1);
+	++ntaken;
+      }
+      ncurr++;
+    }
+    digi.setSize(ntaken);
+    return qie_work;
+  }
+
 }
 
 static inline bool isTPGSOI(const HcalTriggerPrimitiveSample& s) {
@@ -236,75 +287,151 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 	npre++;
       }
     }
-  
 
-    qie_begin=(HcalQIESample*)daq_first;
-    qie_end=(HcalQIESample*)(daq_last+1); // one beyond last..
+    /// branch point between 2006-2011 data format and 2012+ data format
+    if (htr.getFormatVersion() < HcalHTRData::FORMAT_VERSION_COMPACT_DATA) {
+ 
+      qie_begin=(HcalQIESample*)daq_first;
+      qie_end=(HcalQIESample*)(daq_last+1); // one beyond last..
 
-    /// work through the samples
-    currFiberChan=0x3F; // invalid fiber+channel...
-    ncurr=0;
-    valid=false;
+      /// work through the samples
+      currFiberChan=0x3F; // invalid fiber+channel...
+      ncurr=0;
+      valid=false;
 
     
-    for (qie_work=qie_begin; qie_work!=qie_end; ) {
-      if (qie_work->raw()==0xFFFF) {
-	qie_work++;
-	continue; // filler word
-      }
-      // always at the beginning ...
-      currFiberChan=qie_work->fiberAndChan();
-
-      // lookup the right channel
-      HcalElectronicsId eid(qie_work->fiberChan(),qie_work->fiber(),spigot,dccid);
-      eid.setHTR(htr_cr,htr_slot,htr_tb);
-      DetId did=emap.lookup(eid);
-
-      if (!did.null()) {
-	if (did.det()==DetId::Calo && did.subdetId()==HcalZDCDetId::SubdetectorId) {
-	  colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(did)));
-	  qie_work=HcalUnpacker_impl::unpack<ZDCDataFrame>(qie_work, qie_end, colls.zdcCont->back(), nps, eid, startSample_, endSample_, expectedOrbitMessageTime_, htr); 
-	} else if (did.det()==DetId::Hcal) {
-	  switch (((HcalSubdetector)did.subdetId())) {
-	  case (HcalBarrel):
-	  case (HcalEndcap): {
-	    colls.hbheCont->push_back(HBHEDataFrame(HcalDetId(did)));
-	    qie_work=HcalUnpacker_impl::unpack<HBHEDataFrame>(qie_work, qie_end, colls.hbheCont->back(), nps, eid, startSample_, endSample_, expectedOrbitMessageTime_, htr);
+      for (qie_work=qie_begin; qie_work!=qie_end; ) {
+	if (qie_work->raw()==0xFFFF) {
+	  qie_work++;
+	  continue; // filler word
+	}
+	// always at the beginning ...
+	currFiberChan=qie_work->fiberAndChan();
+	
+	// lookup the right channel
+	HcalElectronicsId eid(qie_work->fiberChan(),qie_work->fiber(),spigot,dccid);
+	eid.setHTR(htr_cr,htr_slot,htr_tb);
+	DetId did=emap.lookup(eid);
+	
+	if (!did.null()) {
+	  if (did.det()==DetId::Calo && did.subdetId()==HcalZDCDetId::SubdetectorId) {
+	    colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(did)));
+	    qie_work=HcalUnpacker_impl::unpack<ZDCDataFrame>(qie_work, qie_end, colls.zdcCont->back(), nps, eid, startSample_, endSample_, expectedOrbitMessageTime_, htr); 
+	  } else if (did.det()==DetId::Hcal) {
+	    switch (((HcalSubdetector)did.subdetId())) {
+	    case (HcalBarrel):
+	    case (HcalEndcap): {
+	      colls.hbheCont->push_back(HBHEDataFrame(HcalDetId(did)));
+	      qie_work=HcalUnpacker_impl::unpack<HBHEDataFrame>(qie_work, qie_end, colls.hbheCont->back(), nps, eid, startSample_, endSample_, expectedOrbitMessageTime_, htr);
+	    } break;
+	    case (HcalOuter): {
+	      colls.hoCont->push_back(HODataFrame(HcalDetId(did)));
+	      qie_work=HcalUnpacker_impl::unpack<HODataFrame>(qie_work, qie_end, colls.hoCont->back(), nps, eid, startSample_, endSample_, expectedOrbitMessageTime_, htr);
 	  } break;
-	  case (HcalOuter): {
-	    colls.hoCont->push_back(HODataFrame(HcalDetId(did)));
-	    qie_work=HcalUnpacker_impl::unpack<HODataFrame>(qie_work, qie_end, colls.hoCont->back(), nps, eid, startSample_, endSample_, expectedOrbitMessageTime_, htr);
-	  } break;
-	  case (HcalForward): {
-	    colls.hfCont->push_back(HFDataFrame(HcalDetId(did)));
-	    qie_work=HcalUnpacker_impl::unpack<HFDataFrame>(qie_work, qie_end, colls.hfCont->back(), nps, eid, startSample_, endSample_, expectedOrbitMessageTime_, htr);
-	  } break;
-	  case (HcalOther) : {
-	    HcalOtherDetId odid(did);
-	    if (odid.subdet()==HcalCalibration) {
-	      colls.calibCont->push_back(HcalCalibDataFrame(HcalCalibDetId(did)));
-	      qie_work=HcalUnpacker_impl::unpack<HcalCalibDataFrame>(qie_work, qie_end, colls.calibCont->back(), nps, eid, startSample_, endSample_, expectedOrbitMessageTime_, htr); 
+	    case (HcalForward): {
+	      colls.hfCont->push_back(HFDataFrame(HcalDetId(did)));
+	      qie_work=HcalUnpacker_impl::unpack<HFDataFrame>(qie_work, qie_end, colls.hfCont->back(), nps, eid, startSample_, endSample_, expectedOrbitMessageTime_, htr);
+	    } break;
+	    case (HcalOther) : {
+	      HcalOtherDetId odid(did);
+	      if (odid.subdet()==HcalCalibration) {
+		colls.calibCont->push_back(HcalCalibDataFrame(HcalCalibDetId(did)));
+		qie_work=HcalUnpacker_impl::unpack<HcalCalibDataFrame>(qie_work, qie_end, colls.calibCont->back(), nps, eid, startSample_, endSample_, expectedOrbitMessageTime_, htr); 
+	      }
+	    } break;
+	    case (HcalEmpty): 
+	    default: {
+	      for (int fiberC=qie_work->fiberAndChan();
+		   qie_work!=qie_end && qie_work->fiberAndChan()==fiberC;
+		   qie_work++);
 	    }
-	  } break;
-	  case (HcalEmpty): 
-	  default: {
-	    for (int fiberC=qie_work->fiberAndChan();
-		 qie_work!=qie_end && qie_work->fiberAndChan()==fiberC;
-		 qie_work++);
+	    break;
+	    }
 	  }
-	  break;
-	  }
+	} else {
+	  report.countUnmappedDigi(eid);
+	  if (unknownIds_.find(eid)==unknownIds_.end()) {
+	    if (!silent) edm::LogWarning("HCAL") << "HcalUnpacker: No match found for electronics id :" << eid;
+	    unknownIds_.insert(eid);
 	}
-      } else {
-	report.countUnmappedDigi(eid);
-	if (unknownIds_.find(eid)==unknownIds_.end()) {
-	  if (!silent) edm::LogWarning("HCAL") << "HcalUnpacker: No match found for electronics id :" << eid;
-	  unknownIds_.insert(eid);
+	  for (int fiberC=qie_work->fiberAndChan();
+	       qie_work!=qie_end && qie_work->fiberAndChan()==fiberC;
+	       qie_work++);
 	}
-	for (int fiberC=qie_work->fiberAndChan();
-	     qie_work!=qie_end && qie_work->fiberAndChan()==fiberC;
-	     qie_work++);
       }
+    } else {
+      // this is the branch for unpacking the compact data format with per-channel headers
+      const unsigned short* ptr_header=daq_first;
+      const unsigned short* ptr_end=daq_last+1;
+      int flavor, error_flags, capid0, channelid;
+
+      while (ptr_header!=ptr_end) {
+	if (*ptr_header==0xFFFF) { // impossible filler word
+	  ptr_header++;
+	  continue;
+	}
+	// unpack the header word
+	bool isheader=HcalHTRData::unpack_per_channel_header(*ptr_header,flavor,error_flags,capid0,channelid);
+	if (!isheader) {
+	  ptr_header++;
+	  continue;
+	}
+
+	int fiberchan=channelid&0x3;
+	int fiber=((channelid>>2)&0x7)+1;
+
+	// lookup the right channel
+	HcalElectronicsId eid(fiberchan,fiber,spigot,dccid);
+	eid.setHTR(htr_cr,htr_slot,htr_tb);
+	DetId did=emap.lookup(eid);
+	
+	if (!did.null()) {
+	  if (did.det()==DetId::Calo && did.subdetId()==HcalZDCDetId::SubdetectorId) {
+	    colls.zdcCont->push_back(ZDCDataFrame(HcalZDCDetId(did)));
+	    ptr_header=HcalUnpacker_impl::unpack_compact<ZDCDataFrame>(ptr_header, ptr_end, colls.zdcCont->back(), nps, eid, startSample_, endSample_, expectedOrbitMessageTime_, htr); 
+	  } else if (did.det()==DetId::Hcal) {
+	    switch (((HcalSubdetector)did.subdetId())) {
+	    case (HcalBarrel):
+	    case (HcalEndcap): {
+	      colls.hbheCont->push_back(HBHEDataFrame(HcalDetId(did)));
+	      ptr_header=HcalUnpacker_impl::unpack_compact<HBHEDataFrame>(ptr_header, ptr_end, colls.hbheCont->back(), nps, eid, startSample_, endSample_, expectedOrbitMessageTime_, htr);
+	    } break;
+	    case (HcalOuter): {
+	      colls.hoCont->push_back(HODataFrame(HcalDetId(did)));
+	      ptr_header=HcalUnpacker_impl::unpack_compact<HODataFrame>(ptr_header, ptr_end, colls.hoCont->back(), nps, eid, startSample_, endSample_, expectedOrbitMessageTime_, htr);
+	  } break;
+	    case (HcalForward): {
+	      colls.hfCont->push_back(HFDataFrame(HcalDetId(did)));
+	      ptr_header=HcalUnpacker_impl::unpack_compact<HFDataFrame>(ptr_header, ptr_end, colls.hfCont->back(), nps, eid, startSample_, endSample_, expectedOrbitMessageTime_, htr);
+	    } break;
+	    case (HcalOther) : {
+	      HcalOtherDetId odid(did);
+	      if (odid.subdet()==HcalCalibration) {
+		colls.calibCont->push_back(HcalCalibDataFrame(HcalCalibDetId(did)));
+		ptr_header=HcalUnpacker_impl::unpack_compact<HcalCalibDataFrame>(ptr_header, ptr_end, colls.calibCont->back(), nps, eid, startSample_, endSample_, expectedOrbitMessageTime_, htr); 
+	      }
+	    } break;
+	    case (HcalEmpty): 
+	    default: {
+	      for (ptr_header++;
+		   ptr_header!=ptr_end && !HcalHTRData::is_channel_header(*ptr_header);
+		   ptr_header++);
+	    }
+	    break;
+	    }
+	  }
+	} else {
+	  report.countUnmappedDigi(eid);
+	  if (unknownIds_.find(eid)==unknownIds_.end()) {
+	    if (!silent) edm::LogWarning("HCAL") << "HcalUnpacker: No match found for electronics id :" << eid;
+	    unknownIds_.insert(eid);
+	  }
+	  for (ptr_header++;
+	       ptr_header!=ptr_end && !HcalHTRData::is_channel_header(*ptr_header);
+	       ptr_header++);
+	}
+      }
+
     }
   }
 }

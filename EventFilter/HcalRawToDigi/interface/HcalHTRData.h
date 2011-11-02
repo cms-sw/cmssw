@@ -10,8 +10,8 @@
  *  Since this class requires external specification of the length of the data, it is implemented
  *  as an interpreter, rather than a cast-able header class.
  *
- *  $Date: 2009/09/14 15:14:52 $
- *  $Revision: 1.15 $
+ *  $Date: 2009/11/05 21:51:15 $
+ *  $Revision: 1.16 $
  *  \author J. Mans - UMD
  */
 
@@ -19,6 +19,7 @@ class HcalHTRData {
  public:
   static const int CHANNELS_PER_SPIGOT         = 24;
   static const int MAXIMUM_SAMPLES_PER_CHANNEL = 20;
+  static const int FORMAT_VERSION_COMPACT_DATA =  6;
   
   HcalHTRData();
   ~HcalHTRData() { if (m_ownData!=0) delete [] m_ownData; }
@@ -76,7 +77,15 @@ class HcalHTRData {
   */
   bool unpackHistogram(int fiber, int fiberchan, int capid, unsigned
 		       short* histogram) const;
+
+  /** \brief Unpack a per-channel header word (compact format)
+   */
+  static bool unpack_per_channel_header(unsigned short, int& flav, int& error_flags, int& capid0, int& channelid);
   
+  /** \brief check top bit to see if this is a compact format channel header word
+   */
+  static bool is_channel_header(unsigned short value) { return (value&0x8000)!=0; }
+
   /** \brief Unpack the HTR data into TP and DAQ data sorted by channel
       \param daq_lengths unsigned char[24] of lengths
       \param daq_samples unsigned short [24*20] of data

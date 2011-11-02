@@ -1,7 +1,7 @@
 //#include "Utilities/Configuration/interface/Architecture.h"
 /*  
- *  $Date: 2010/06/01 05:45:29 $
- *  $Revision: 1.17 $
+ *  $Date: 2011/08/04 01:10:50 $
+ *  $Revision: 1.18 $
  *  \author J. Mans -- UMD
  */
 #ifndef HTBDAQ_DATA_STANDALONE
@@ -405,6 +405,14 @@ bool HcalHTRData::wasHistogramError(int ifiber) const {
     retval=((m_rawConst[7])&(1<<ifiber))!=0;
   }
   return retval;
+}
+
+bool HcalHTRData::unpack_per_channel_header(unsigned short header, int& flav, int& error_flags, int& capid0, int& channelid) {
+  flav=(header>>12)&0x7;
+  error_flags=(header>>10)&0x3;
+  capid0=(header>>8)&0x3;
+  channelid=(header)&0xFF;
+  return (header&0x8000)!=0;
 }
 
 bool HcalHTRData::unpackHistogram(int myfiber, int mysc, int capid, unsigned short* histogram) const {
