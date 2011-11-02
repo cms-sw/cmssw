@@ -1,7 +1,7 @@
 ################################################################################
 # HiggsAnalysis/Combined Limit Makefile                                        #
 #                                                                              #
-# $Author: dpiparo $ - $Date: 2011/05/03 18:25:16 $                                                            #
+# $Author: dpiparo $ - $Date: 2011/06/16 14:29:29 $                                                            #
 #                                                                              #
 # o Automatic compilation of new programs and classes*.                        #
 # o Automatic generation of CINT dictionaries via rootcint.                    #
@@ -12,7 +12,7 @@
 
 
 # Boost
-BOOST_INC = 
+BOOST = /afs/cern.ch/cms/slc5_amd64_gcc434/external/boost/1.47.0
 
 # Compiler and flags -----------------------------------------------------------
 CC = g++
@@ -21,8 +21,8 @@ ROOTCFLAGS = $(shell root-config --cflags)
 ROOTLIBS = $(shell root-config --libs --glibs)
 ROOTINC = $(shell root-config --incdir)
 
-CCFLAGS = -D STANDALONE $(ROOTCFLAGS) $(BOOST_INC) -O -Wall -g -fPIC
-LIBS = $(ROOTLIBS) -l RooFit -lRooFitCore -l RooStats -l Minuit -l Foam -lboost_filesystem -lboost_program_options
+CCFLAGS = -D STANDALONE $(ROOTCFLAGS) -I$(BOOST)/include -O -Wall -g -fPIC
+LIBS = $(ROOTLIBS) -L$(BOOST)/lib -l RooFit -lRooFitCore -l RooStats -l Minuit -l Foam -lboost_filesystem -lboost_program_options -lboost_system
 
 # Library name -----------------------------------------------------------------
 LIBNAME=CombinedLimit
@@ -48,15 +48,19 @@ OBJ_DIR = obj
 # Useful shortcuts -------------------------------------------------------------
 SRCS = $(notdir $(shell ls $(SRC_DIR)/*.cc|grep -v $(DICTNAME) ))
 SRCS += $(DICTNAME).cc
-OBJS = $(SRCS:.cc=.o)
+OBJS = $(SRCS:.cc=.o) 
+OBJS += FlexibleInterpVar.o
 PROGS = $(notdir $(wildcard ${PROG_DIR}/*.cpp)) 
 EXES = $(PROGS:.cpp=)
 
 # Classes with dicts -----------------------------------------------------------
-DICTHDRS= $(notdir $(shell grep -l ClassDef interface/*h))
+DICTHDRS= $(notdir $(shell grep -l ClassDef interface/*h)) 
+# Functions with dicts ---------------------------------------------------------
+DICTHDRS += th1fmorph.h
 
 #Makefile Rules ---------------------------------------------------------------
-.PHONY: clean dirs dict obj lib exe
+.PHONY: clean dirs dict obj lib exe debug
+
 
 all: dirs dict obj lib exe
 
@@ -80,6 +84,13 @@ $(SRC_DIR)/$(DICTNAME).cc : $(SRC_DIR)/LinkDef.h
 obj: dict 
 # 	@echo "\n*** Compiling ..."
 $(OBJ_DIR)/%.o : $(SRC_DIR)/%.cc $(INC_DIR)/%.h
+	$(CC) $(CCFLAGS) -I $(INC_DIR) -c $< -o $@
+
+# this has cxx extension
+$(OBJ_DIR)/FlexibleInterpVar.o: $(SRC_DIR)/FlexibleInterpVar.cxx $(INC_DIR)/FlexibleInterpVar.h
+	$(CC) $(CCFLAGS) -I $(INC_DIR) -c $< -o $@
+# this has no header
+$(OBJ_DIR)/tdrstyle.o: $(SRC_DIR)/tdrstyle.cc
 	$(CC) $(CCFLAGS) -I $(INC_DIR) -c $< -o $@
 
 #---------------------------------------
@@ -108,3 +119,7 @@ clean:
 	@rm -rf $(INC_DIR)/$(DICTNAME).h
 
 #---------------------------------------
+
+debug:
+	@echo "OBJS: $(OBJS)"
+	@echo "SRCS: $(SRCS)"
