@@ -6,6 +6,7 @@ import PhysicsTools.PatAlgos.tools.helpers as configtools
 from PhysicsTools.PatAlgos.tools.trigTools import _addEventContent
 
 from PhysicsTools.PatUtils.patPFMETCorrections_cff import *
+import RecoMET.METProducers.METSigParams_cfi as jetResolutions
  
 class RunMEtUncertainties(ConfigToolBase):
 
@@ -262,7 +263,8 @@ class RunMEtUncertainties(ConfigToolBase):
             smearedJets = cms.EDProducer("SmearedPATJetProducer",
                 src = cms.InputTag(lastJetCollection),
                 inputFileName = cms.FileInPath(jetSmearFileName),
-                lutName = cms.string(jetSmearHistogram)
+                lutName = cms.string(jetSmearHistogram),
+                jetResolutions = jetResolutions.METSignificance_params,                                     
             )
             lastJetCollection = \
               self._addModuleToSequence(process, smearedJets, [ "smeared", jetCollection.value() ], process.metUncertaintySequence)
