@@ -17,8 +17,8 @@
  * The Topology interface is extended with methods relevant for
  * the DT detectors, e.g. wirePosition(int), etc.
  *  
- *  $Date: 2011/09/27 09:23:01 $
- *  $Revision: 1.6 $
+ *  $Date: 2011/09/29 09:47:53 $
+ *  $Revision: 1.7 $
  *
  * \author R. Bellan - INFN Torino
  *
@@ -64,7 +64,7 @@ class DTTopology: public Topology {
   float wirePosition(int wireNumber) const;
   
   //checks if a wire number is valid
-  bool isWireValid(const int wireNumber) const {return (wireNumber - theFirstChannel <= 1 || wireNumber - lastChannel() > 0 ) ? false : true;}
+  bool isWireValid(const int wireNumber) const {return (wireNumber - (theFirstChannel - 1) <= 0 || wireNumber - lastChannel() > 0 ) ? false : true;}
 
   /// Returns the cell width.
   float cellWidth() const {return theWidth;}
