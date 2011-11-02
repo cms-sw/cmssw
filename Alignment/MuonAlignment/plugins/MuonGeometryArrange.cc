@@ -170,9 +170,6 @@ void MuonGeometryArrange::endHist(){
    if(size<=0) return;	// nothing to do here.
    float* xp = new float[size+1];
    float* yp = new float[size+1];
-   float* xxp;
-   float* yyp;
-   xxp=xp; yyp=yp;
    int i;
    float minV, maxV;
    int minI, maxI;

@@ -13,7 +13,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Sat Jul  3 13:33:13 CDT 2010
-// $Id: MuonGeometrySanityCheck.cc,v 1.2 2010/07/10 03:21:26 pivarski Exp $
+// $Id: MuonGeometrySanityCheck.cc,v 1.3 2011/10/12 22:13:00 khotilov Exp $
 //
 //
 
@@ -278,7 +278,6 @@ MuonGeometrySanityCheckPoint::MuonGeometrySanityCheckPoint(const edm::ParameterS
       int superlayer = 0;
       bool superlayer_digit = false;
       int layer = 0;
-      bool layer_digit = false;
       if (detName.substr(index, 1) == std::string("/")) {
 	 index++;
 	 while (!parsing_error  &&  numeric(detName.substr(index, 1))) {
@@ -294,7 +293,6 @@ MuonGeometrySanityCheckPoint::MuonGeometrySanityCheckPoint(const edm::ParameterS
 	    while (!parsing_error  &&  numeric(detName.substr(index, 1))) {
 	       layer *= 10;
 	       layer += number(detName.substr(index, 1));
-	       layer_digit = true;
 	       index++;
 	    }
 	 }
@@ -396,16 +394,13 @@ MuonGeometrySanityCheckPoint::MuonGeometrySanityCheckPoint(const edm::ParameterS
 
       // this is optional
       int layer = 0;
-      bool layer_digit = false;
       if (detName.substr(index, 1) == std::string("/")) {
 	 index++;
 	 while (!parsing_error  &&  numeric(detName.substr(index, 1))) {
 	    layer *= 10;
 	    layer += number(detName.substr(index, 1));
-	    layer_digit = true;
 	    index++;
 	 }
-	 if (!layer_digit) parsing_error = true;
       }
 
       if (!parsing_error) {
