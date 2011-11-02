@@ -38,6 +38,7 @@ HDRShower::HDRShower(const RandomEngine* engine,
   EsCut = 0.050;
   EcalShift = 0.12;
   nthetaStep = 10;
+  thetaStep = 0.5*M_PI/nthetaStep;
 
   if(e < 0) e = 0.;
   setFuncParam(); 
@@ -74,7 +75,6 @@ bool HDRShower::computeShower()
 
   }
 
-  thetaStep = 0.5*M_PI/nthetaStep;
   thetaFunction(nthetaStep);
   int maxLoops = 10000;
   float esum = e;
@@ -137,7 +137,7 @@ float HDRShower::getR() {
 
 void HDRShower::thetaFunction(int nthetaStep)
 {
-  int i = 0; while( EgridTable[i]<e && i<NEnergyScan-1) { i++; }
+  unsigned int i = 0; while( EgridTable[i]<e && i<NEnergyScan-1) { i++; }
 
   float amean, asig, lambda1, lambda1sig,lam21,lam21sig; 
   amean = Theta1amp[i]; asig = Theta1ampSig[i];
@@ -171,23 +171,23 @@ void HDRShower::thetaFunction(int nthetaStep)
   }
   float ntot = e/eHDspot;
   float esum=0;
-  for(int i=0; i<nthetaStep; i++) {
-    float fn = ntot*pdf[i]/sum;
+  for(int it=0; it<nthetaStep; it++) {
+    float fn = ntot*pdf[it]/sum;
     thetaSpots.push_back(int(fn));
     elastspot.push_back((fn - int(fn))*eHDspot);
   }
 
-  for(int i=0; i<nthetaStep; i++)
-    if(elastspot[i] <EsCut) {
-      esum += elastspot[i]; elastspot[i] = 0; }
+  for(int it=0; it<nthetaStep; it++)
+    if(elastspot[it] <EsCut) {
+      esum += elastspot[it]; elastspot[it] = 0; }
 
   float en = esum/EsCut; int n = int(en); 
   en = esum - n*EsCut;
 
-  for(int i=0; i<=n; i++) {
+  for(int ie=0; ie<=n; ie++) {
     int k = int(nthetaStep*random->flatShoot());
     if(k<0 || k>nthetaStep-1) k = k%nthetaStep;
-    if(i == n) elastspot[k] += en;
+    if(ie == n) elastspot[k] += en;
     else elastspot[k] += EsCut;
   }
 }
