@@ -2,6 +2,7 @@
 #include "DataFormats/L1CSCTrackFinder/interface/TrackStub.h"//
 #include "DataFormats/L1CSCTrackFinder/interface/CSCTriggerContainer.h"
 #include "DataFormats/MuonDetId/interface/CSCTriggerNumbering.h"
+#include "DataFormats/MuonDetId/interface/CSCDetId.h"
 #include "L1Trigger/CSCTrackFinder/interface/CSCTrackFinderDataTypes.h"
 
 
@@ -170,10 +171,16 @@ LCTPrinter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   for(stub=stubs.begin(); stub != stubs.end(); stub++)
   {
 	stub->print();
-	std::cout << "Endcap: " << stub->endcap() << " Station:  " << 
-			stub->station() << " Sector: " << stub->sector() <<
-			" SubSector: " << stub->subsector() << " CscId: " << 
-			stub->cscid() << " Bx: " << stub->BX() << std::endl;
+	std::cout << "Endcap: " << stub->endcap() << 
+			" Station:  " << stub->station() << 
+			" Sector: " << stub->sector() <<
+			" Ring: " << CSCDetId(stub->getDetId()).ring() <<
+			" SubSector: " << stub->subsector() << 
+			" CscId: " << stub->cscid() << 
+			" ChamberId: " << CSCDetId(stub->getDetId()).chamber() <<
+			" TriggerChamberId: " << 
+				CSCTriggerNumbering::triggerCscIdFromLabels(stub->getDetId()) <<
+			" Bx: " << stub->BX() << std::endl;
 	std::cout << "Phi Packed: " << stub->phiPacked() << std::endl;
 	std::cout << "Eta Packed: " << stub->etaPacked() << std::endl;
   }
