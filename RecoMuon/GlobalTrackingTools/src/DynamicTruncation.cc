@@ -6,8 +6,8 @@
  *  compatibility degree between the extrapolated track
  *  state and the reconstructed segment in the muon chambers
  *
- *  $Date: 2011/10/30 12:28:09 $
- *  $Revision: 1.8 $
+ *  $Date: 2011/10/30 17:43:02 $
+ *  $Revision: 1.9 $
  *
  *  Authors :
  *  D. Pagano & G. Bruno - UCL Louvain
@@ -113,8 +113,12 @@ double DynamicTruncation::getBest(std::vector<CSCSegment>& segs, TrajectoryState
   std::vector<CSCSegment>::size_type sz = segs.size();
   for (i=0; i<sz; i++) {
     AlignmentPositionError* apeObj = theG->idToDet(segs[i].cscDetId())->alignmentPositionError();
-    const GlobalError apeGlob = apeObj->globalError();
-    LocalError apeLoc = ErrorFrameTransformer().transform(apeGlob, theG->idToDet(segs[i].cscDetId())->surface());
+    LocalError apeLoc; //default constructor is all zeroes, OK
+    //it may be better to make this configurable
+    if (apeObj){
+      const GlobalError apeGlob = apeObj->globalError();
+      apeLoc = ErrorFrameTransformer().transform(apeGlob, theG->idToDet(segs[i].cscDetId())->surface());
+    }
     StateSegmentMatcher estim(&tsos, &segs[i], &apeLoc);
     double tmp = estim.value();
     if (tmp < val) {
@@ -133,8 +137,12 @@ double DynamicTruncation::getBest(std::vector<DTRecSegment4D>& segs, TrajectoryS
   std::vector<DTRecSegment4D>::size_type sz = segs.size();
   for (i=0; i<sz; i++) {
     AlignmentPositionError* apeObj = theG->idToDet(segs[i].chamberId())->alignmentPositionError();
-    const GlobalError apeGlob = apeObj->globalError(); 
-    LocalError apeLoc = ErrorFrameTransformer().transform(apeGlob, theG->idToDet(segs[i].chamberId())->surface());
+    LocalError apeLoc; //default constructor is all zeroes, OK
+    //it may be better to make this configurable
+    if (apeObj){
+      const GlobalError apeGlob = apeObj->globalError(); 
+      apeLoc = ErrorFrameTransformer().transform(apeGlob, theG->idToDet(segs[i].chamberId())->surface());
+    }
     StateSegmentMatcher estim(&tsos, &segs[i], &apeLoc); 
     double tmp = estim.value();                                                                                                                                              
     if (tmp < val) {
