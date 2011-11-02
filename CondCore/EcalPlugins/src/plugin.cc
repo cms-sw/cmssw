@@ -17,6 +17,8 @@
 #include "CondFormats/DataRecord/interface/EcalClusterEnergyCorrectionParametersRcd.h"
 #include "CondFormats/EcalObjects/interface/EcalClusterEnergyUncertaintyParameters.h"
 #include "CondFormats/DataRecord/interface/EcalClusterEnergyUncertaintyParametersRcd.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionObjectSpecificParameters.h"
+#include "CondFormats/DataRecord/interface/EcalClusterEnergyCorrectionObjectSpecificParametersRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
 #include "CondFormats/DataRecord/interface/EcalWeightXtalGroupsRcd.h"
@@ -152,6 +154,7 @@ REGISTER_PLUGIN(EcalClusterCrackCorrParametersRcd,EcalFunParams);
 REGISTER_PLUGIN(EcalClusterLocalContCorrParametersRcd,EcalFunParams);
 REGISTER_PLUGIN(EcalClusterEnergyUncertaintyParametersRcd,EcalFunParams);
 REGISTER_PLUGIN(EcalClusterEnergyCorrectionParametersRcd,EcalFunParams);
+REGISTER_PLUGIN(EcalClusterEnergyCorrectionObjectSpecificParametersRcd,EcalFunParams);
 
 REGISTER_PLUGIN(EcalMappingElectronicsRcd,EcalMappingElectronics);
 
