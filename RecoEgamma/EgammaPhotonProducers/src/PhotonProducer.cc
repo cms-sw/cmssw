@@ -24,7 +24,9 @@
 #include "RecoCaloTools/Selectors/interface/CaloConeSelector.h"
 #include "RecoEgamma/EgammaPhotonProducers/interface/PhotonProducer.h"
 #include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaTowerIsolation.h"
-
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h" 
+#include "RecoEcal/EgammaCoreTools/plugins/EcalClusterCrackCorrection.h"
 
 PhotonProducer::PhotonProducer(const edm::ParameterSet& config) : 
   conf_(config)
@@ -44,6 +46,8 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   minR9Endcap_        = conf_.getParameter<double>("minR9Endcap");
   usePrimaryVertex_   = conf_.getParameter<bool>("usePrimaryVertex");
   runMIPTagger_       = conf_.getParameter<bool>("runMIPTagger");
+
+  candidateP4type_ = config.getParameter<std::string>("candidateP4type") ;
  
   edm::ParameterSet posCalcParameters = 
     config.getParameter<edm::ParameterSet>("posCalcParameters");
@@ -83,7 +87,6 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
   preselCutValuesEndcap_.push_back(conf_.getParameter<double>("trackPtSumHollowConeEndcap"));     
   preselCutValuesEndcap_.push_back(conf_.getParameter<double>("sigmaIetaIetaCutEndcap"));     
   //
-  energyCorrectionF = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyCorrection", conf_);
 
   // Register the product
   produces< reco::PhotonCollection >(PhotonCollection_);
@@ -92,7 +95,7 @@ PhotonProducer::PhotonProducer(const edm::ParameterSet& config) :
 
 PhotonProducer::~PhotonProducer() {
 
-  delete energyCorrectionF;
+  //delete energyCorrectionF;
 
 }
 
@@ -103,13 +106,12 @@ void  PhotonProducer::beginRun (edm::Run& r, edm::EventSetup const & theEventSet
     thePhotonIsolationCalculator_ = new PhotonIsolationCalculator();
     edm::ParameterSet isolationSumsCalculatorSet = conf_.getParameter<edm::ParameterSet>("isolationSumsCalculatorSet"); 
     thePhotonIsolationCalculator_->setup(isolationSumsCalculatorSet);
-
-
    
     thePhotonMIPHaloTagger_ = new PhotonMIPHaloTagger();
     edm::ParameterSet mipVariableSet = conf_.getParameter<edm::ParameterSet>("mipVariableSet"); 
     thePhotonMIPHaloTagger_->setup(mipVariableSet);
 
+    thePhotonEnergyCorrector_ = new PhotonEnergyCorrector(conf_,theEventSetup);
 
 
 }
@@ -118,7 +120,7 @@ void  PhotonProducer::endRun (edm::Run& r, edm::EventSetup const & theEventSetup
 
   delete thePhotonIsolationCalculator_;
   delete thePhotonMIPHaloTagger_;
-
+  delete thePhotonEnergyCorrector_;
 }
 
 
@@ -174,7 +176,7 @@ void PhotonProducer::produce(edm::Event& theEvent, const edm::EventSetup& theEve
 
   //
   // update energy correction function
-  energyCorrectionF->init(theEventSetup);  
+  //  energyCorrectionF->init(theEventSetup);  
 
   edm::ESHandle<CaloTopology> pTopology;
   theEventSetup.get<CaloTopologyRecord>().get(theCaloTopo_);
@@ -241,7 +243,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
 
     reco::PhotonCoreRef coreRef(reco::PhotonCoreRef(photonCoreHandle, lSC));
     reco::SuperClusterRef scRef=coreRef->superCluster();
-    const reco::SuperCluster* pClus=&(*scRef);
+    //    const reco::SuperCluster* pClus=&(*scRef);
     iSC++;
 
     int subdet = scRef->seed()->hitsAndFractions()[0].first.subdetId();
@@ -261,8 +263,8 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
       }
     else
       { edm::LogWarning("")<<"PhotonProducer: do not know if it is a barrel or endcap SuperCluster" ; }
-    
-        
+
+            
     // SC energy preselection
     if (scRef->energy()/cosh(scRef->eta()) <= preselCutValues[0] ) continue;
     // calculate HoE
@@ -271,8 +273,8 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     EgammaTowerIsolation towerIso2(hOverEConeSize_,0.,0.,2,hcalTowersColl) ;  
     double HoE1=towerIso1.getTowerESum(&(*scRef))/scRef->energy();
     double HoE2=towerIso2.getTowerESum(&(*scRef))/scRef->energy(); 
-    //  std::cout << " PhotonProducer " << HoE1  << "  HoE2 " << HoE2 << std::endl;
-    // std::cout << " PhotonProducer calcualtion of HoE1 " << HoE1  << "  HoE2 " << HoE2 << std::endl;
+    //    std::cout << " PhotonProducer " << HoE1  << "  HoE2 " << HoE2 << std::endl;
+    //std::cout << " PhotonProducer calcualtion of HoE1 " << HoE1  << "  HoE2 " << HoE2 << std::endl;
 
     
     // recalculate position of seed BasicCluster taking shower depth for unconverted photon
@@ -289,31 +291,40 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     std::vector<float> locCov =  EcalClusterTools::localCovariances( *(scRef->seed()), &(*hits), &(*topology)); 
     float sigmaIetaIeta = sqrt(locCov[0]);
 
-    float r9 =e3x3/(scRef->rawEnergy());
+
+    //    float r9 =e3x3/(scRef->rawEnergy());
     // compute position of ECAL shower
     math::XYZPoint caloPosition;
-    double photonEnergy=0;
-    if (r9>minR9) {
-      caloPosition = unconvPos;
-      // f(eta) correction to e5x5
-      double deltaE = energyCorrectionF->getValue(*pClus, 1);
-      if (subdet==EcalBarrel) e5x5 = e5x5 * (1.0 +  deltaE/scRef->rawEnergy() );
-      photonEnergy=  e5x5    + scRef->preshowerEnergy() ;
-    } else {
-      caloPosition = scRef->position();
-      photonEnergy=scRef->energy();
-    }
-    
 
-    //std::cout << " dete " << subdet << " r9 " << r9 <<  " uncorrected e5x5 " <<  e5x5uncor << " corrected e5x5 " << e5x5 << " photon energy " << photonEnergy << std::endl;
-    
+    //// energy determination -- Default to create the candidate. Afterwards corrections are applied
+    double photonEnergy=1.;
     // compute momentum vector of photon from primary vertex and cluster position
     math::XYZVector direction = caloPosition - vtx;
-    math::XYZVector momentum = direction.unit() * photonEnergy ;
+    //math::XYZVector momentum = direction.unit() * photonEnergy ;
+    math::XYZVector momentum = direction.unit() ;
 
-    // Create candidate
-    const reco::Particle::LorentzVector  p4(momentum.x(), momentum.y(), momentum.z(), photonEnergy );
+    // Create dummy candidate with unit momentum and zero energy
+    math::XYZTLorentzVectorD p4(momentum.x(), momentum.y(), momentum.z(), photonEnergy );
     reco::Photon newCandidate(p4, caloPosition, coreRef, vtx);
+    //std::cout << " standard p4 before " << newCandidate.p4() << " energy " << newCandidate.energy() <<  std::endl;
+    //std::cout << " type " <<newCandidate.getCandidateP4type() <<  " standard p4 after " << newCandidate.p4() << " energy " << newCandidate.energy() << std::endl;
+
+    /// get ecal photon specific corrected energy 
+    /// plus values from regressions     and store them in the Photon
+    // Photon candidate takes by default (set in photons_cfi.py)  a 4-momentum derived from the ecal photon-specific corrections. 
+    thePhotonEnergyCorrector_->calculate(newCandidate, subdet);
+   
+    if ( candidateP4type_ == "fromEcalEnergy") {
+      //      p4=newCandidate.p4(reco::Photon::ecal_photons);
+      newCandidate.setP4( newCandidate.p4(reco::Photon::ecal_photons) );
+    } else if ( candidateP4type_ == "fromRegression") {
+      // p4 =  newCandidate.p4(reco::Photon::regression1);
+      newCandidate.setP4( newCandidate.p4(reco::Photon::regression1) );
+    }
+
+    //   std::cout << " final p4 " << newCandidate.p4() << " energy " << newCandidate.energy() <<  std::endl;
+
+
 
     // Calculate fiducial flags and isolation variable. Blocked are filled from the isolationCalculator
     reco::Photon::FiducialFlags fiducialFlags;
@@ -321,7 +332,8 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     thePhotonIsolationCalculator_-> calculate ( &newCandidate,evt,es,fiducialFlags,isolVarR04, isolVarR03);
     newCandidate.setFiducialVolumeFlags( fiducialFlags );
     newCandidate.setIsolationVariables(isolVarR04, isolVarR03 );
-  
+
+    
     /// fill shower shape block
     reco::Photon::ShowerShape  showerShape;
     showerShape.e1x5= e1x5;
@@ -346,6 +358,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     }
 
 
+
     /// Pre-selection loose  isolation cuts
     bool isLooseEM=true;
     if ( newCandidate.pt() < highEt_) { 
@@ -360,7 +373,7 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     } 
     
 
-    
+        
     if ( isLooseEM)  
       outputPhotonCollection.push_back(newCandidate);
       
