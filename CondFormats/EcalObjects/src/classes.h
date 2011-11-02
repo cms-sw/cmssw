@@ -45,6 +45,7 @@
 #include "CondFormats/EcalObjects/interface/EcalClusterCrackCorrParameters.h"
 #include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionParameters.h"
 #include "CondFormats/EcalObjects/interface/EcalClusterEnergyUncertaintyParameters.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionObjectSpecificParameters.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGFineGrainEBGroup.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGLutGroup.h"
 #include "CondFormats/EcalObjects/interface/EcalTPGWeightGroup.h"
@@ -128,6 +129,8 @@ namespace{
     EcalClusterEnergyCorrectionParameters clusterEnergyCorrectionParams;
 
     EcalClusterEnergyUncertaintyParameters clusterEnergyUncertaintyParams;
+ 
+    EcalClusterEnergyCorrectionObjectSpecificParameters clusterEnergyCorrectionObjectSpecificParams;
  
     EcalTPGFineGrainEBGroup fgrgroup;
  
