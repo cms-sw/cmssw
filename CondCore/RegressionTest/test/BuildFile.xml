@@ -1,6 +1,6 @@
 <flags   GENREFLEX_ARGS="--"/>
 <use   name="rootrflx"/>
-<use   name="CondCore/DBTest"/>
+<use   name="CondCore/RegressionTest"/>
 <use   name="DataFormats/StdDictionaries"/>
 <use   name="FWCore/PluginManager"/>
 <library   name="testDBDict" file="">
