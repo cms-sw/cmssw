@@ -1,5 +1,5 @@
 //
-// $Id: classes.h,v 1.39 2011/07/20 18:03:14 vlimant Exp $
+// $Id: classes.h,v 1.40 2011/10/27 12:50:19 chamont Exp $
 //
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -73,6 +73,16 @@ namespace {
     edm::Wrapper<edm::RefToBaseVector<reco::Photon> > rtbvp_w;
     edm::reftobase::BaseVectorHolder<reco::Photon> *bvhp_p;
 
+
+    reco::Photon::FiducialFlags pff ;
+    reco::Photon::ShowerShape pss ;
+    reco::Photon::IsolationVariables piv ;
+    reco::Photon::PflowIsolationVariables ppfiv ;
+    reco::Photon::PflowIDVariables ppfid ;
+    reco::Photon::MIPVariables pmv ;
+    reco::Photon::EnergyCorrections pec ;
+
+
     reco::ElectronCollection v2;
     edm::Wrapper<reco::ElectronCollection> w2;
     edm::Ref<reco::ElectronCollection> r2;
@@ -112,6 +122,7 @@ namespace {
     reco::GsfElectron::MvaInput gemi ;
     reco::GsfElectron::MvaOutput gemo ;
     reco::GsfElectron::ClassificationVariables gecv ;
+
 
     edm::RefToBase<reco::GsfElectron> rtbg;
     edm::reftobase::IndirectHolder<reco::GsfElectron> ihg;

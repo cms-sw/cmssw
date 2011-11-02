@@ -3,8 +3,8 @@
   <class name="reco::PhotonCore" ClassVersion="10">
    <version ClassVersion="10" checksum="1420264349"/>
   </class>
-  <class name="reco::Photon" ClassVersion="10">
-   <version ClassVersion="10" checksum="240859851"/>
+  <class name="reco::Photon" ClassVersion="13">
+   <version ClassVersion="13" checksum="2963666409"/>
   </class>
   <class name="reco::Conversion" ClassVersion="10">
    <version ClassVersion="10" checksum="2140222741"/>
@@ -28,9 +28,16 @@
   <class name="reco::Photon::IsolationVariables" ClassVersion="10">
    <version ClassVersion="10" checksum="3308689624"/>
   </class>
-  <class name="reco::Photon::PflowIsolationVariables"  ClassVersion="10">
-   <version ClassVersion="10" checksum="3343347274"/>
+  <class name="reco::Photon::PflowIsolationVariables"  ClassVersion="11">
+   <version ClassVersion="11" checksum="3200292660"/>
   </class>
+  <class name="reco::Photon::PflowIDVariables"  ClassVersion="0">
+   <version ClassVersion="0" checksum="2819734289"/>
+  </class>
+  <class name="reco::Photon::EnergyCorrections"  ClassVersion="14">
+   <version ClassVersion="14" checksum="3357038052"/>
+  </class>
+
  
   <class name="std::vector<reco::PhotonCore>"/>  
   <class name="edm::RefToBase<reco::PhotonCore>" />
