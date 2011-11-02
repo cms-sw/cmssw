@@ -3,6 +3,7 @@
 #include <memory>
 #include <cmath>
 #include <iostream>
+#include <sstream>
 #include <boost/foreach.hpp>
 #define foreach BOOST_FOREACH
 
@@ -82,6 +83,11 @@ class LCTOccupancies : public edm::EDAnalyzer {
 	TH1F* hOccME41;
 	TH1F* hOccME42;
 	TH1F* hOccME42SingleSector;
+
+	std::vector<TH1F*> hOccME1Chambs;
+	std::vector<TH1F*> hOccME2Chambs;
+	std::vector<TH1F*> hOccME3Chambs;
+	std::vector<TH1F*> hOccME4Chambs;
 };
 //
 // constants, enums and typedefs
@@ -156,6 +162,21 @@ LCTOccupancies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   std::vector<int> occME42(12,0);
   int occME42SingleSector=0;
 
+  std::vector< std::vector<int> > occME1Chamber;
+  std::vector< std::vector<int> > occME2Chamber;
+  std::vector< std::vector<int> > occME3Chamber;
+  std::vector< std::vector<int> > occME4Chamber;
+  for(int iSubSectors = 0; iSubSectors<24; iSubSectors++)
+  {
+    occME1Chamber.push_back(std::vector<int>(12,0));
+    if(iSubSectors<12)
+    {
+      occME2Chamber.push_back(std::vector<int>(9,0));
+      occME3Chamber.push_back(std::vector<int>(9,0));
+      occME4Chamber.push_back(std::vector<int>(9,0));
+    }
+  }
+
   for (;ts != tsEnd; ts++)
   {
 	//std::cout << "etaValue: \t" <<ts->etaValue()<< std::endl;
@@ -185,6 +206,7 @@ LCTOccupancies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	//CSCDetId detId(ts->getDetId().rawId());
 	CSCDetId detId(ts->getDetId());
         int ring = detId.ring();
+	int triggerChamber = CSCTriggerNumbering::triggerCscIdFromLabels(detId);
 	//ME11a ring==4 doesn't work, no ring==4 events ?
 	//std::cout << "station: \t" <<ts->station()<< std::endl;
 	//std::cout << "ring: \t" <<ring<< std::endl << std::endl;
@@ -201,6 +223,7 @@ LCTOccupancies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	{
 	  if(subsector==1)
 	  {
+  		occME1Chamber[sector][triggerChamber-1]++;
 		occStation1SubSec1[sector]++;
 		if (ring==4)
 		  occME11a[sector]++;
@@ -213,6 +236,7 @@ LCTOccupancies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
           }
 	  else
 	  {
+  		occME1Chamber[sector+12][triggerChamber-1]++;
 		occStation1SubSec2[sector]++;
 		if (ring==4)
 		  occME11a[sector+12]++;
@@ -226,6 +250,7 @@ LCTOccupancies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
 	if (station==2)
 	{
+	  	occME2Chamber[sector][triggerChamber-1]++;
 		occStation2[sector]++;
 		if (ring==1)
 		  occME21[sector]++;
@@ -234,6 +259,7 @@ LCTOccupancies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
 	if (station==3)
 	{
+	  	occME3Chamber[sector][triggerChamber-1]++;
 		occStation3[sector]++;
 		if (ring==1)
 		  occME31[sector]++;
@@ -242,6 +268,7 @@ LCTOccupancies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
 	if (station==4)
 	{
+	  	occME4Chamber[sector][triggerChamber-1]++;
 		occStation4[sector]++;
 		if (ring==1)
 		  occME41[sector]++;
@@ -297,6 +324,21 @@ LCTOccupancies::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
   }
   hOccME42SingleSector->Fill(occME42SingleSector);
+
+  for (unsigned iChamb=0; iChamb<12;iChamb++)
+  {
+    for (unsigned iSubSector=0; iSubSector<24;iSubSector++)
+    {
+      hOccME1Chambs[iChamb]->Fill(occME1Chamber[iSubSector][iChamb]);
+      if(iChamb<9 && iSubSector<12)
+      {
+        hOccME2Chambs[iChamb]->Fill(occME2Chamber[iSubSector][iChamb]);
+        hOccME3Chambs[iChamb]->Fill(occME3Chamber[iSubSector][iChamb]);
+        hOccME4Chambs[iChamb]->Fill(occME4Chamber[iSubSector][iChamb]);
+      }
+    }
+  }
+
 }
 
 
@@ -394,6 +436,56 @@ LCTOccupancies::beginJob()
   hOccME42SingleSector=fs->make<TH1F>("OccME42SingleSector","Stub Occupancy, ME42, All Stubs in 1 Sector",5,-0.5,4.5);
   hOccME42SingleSector->GetXaxis()->SetTitle("Stub Occupancy, ME42");
   hOccME42SingleSector->GetYaxis()->SetTitle("Counts");
+
+  // Now begin individual chamber modeling
+  TFileDirectory chambsME1Dir = fs->mkdir("chambsME1");
+  TFileDirectory chambsME2Dir = fs->mkdir("chambsME2");
+  TFileDirectory chambsME3Dir = fs->mkdir("chambsME3");
+  TFileDirectory chambsME4Dir = fs->mkdir("chambsME4");
+
+  for(int i=0; i<12;i++)
+  {
+	std::stringstream tmpName;
+	std::stringstream tmpTitle;
+	tmpName << "OccME1Chamb" << i+1;
+	tmpTitle << "Stub Occupancy ME1, Chamber " << i+1 << " Summed Over Sectors, SubSectors";
+	TH1F* tempHist = chambsME1Dir.make<TH1F>(tmpName.str().c_str(),tmpTitle.str().c_str(),3,-0.5,2.5);
+	tempHist->GetXaxis()->SetTitle(tmpTitle.str().c_str());
+	tempHist->GetYaxis()->SetTitle("Counts");
+	hOccME1Chambs.push_back(tempHist);
+  }
+
+  for(int i=0; i<9;i++)
+  {
+    for(int j=2; j<5;j++)
+    {
+	std::stringstream tmpName;
+	std::stringstream tmpTitle;
+	tmpName << "OccME"<<j<<"Chamb" << i+1;
+	tmpTitle << "Stub Occupancy ME"<<j<<", Chamber " << i+1 << " Summed Over Sectors";
+	TH1F* tempHist; 
+	if(j==2)
+	{
+	  tempHist = chambsME2Dir.make<TH1F>(tmpName.str().c_str(),tmpTitle.str().c_str(),3,-0.5,2.5);
+	  hOccME2Chambs.push_back(tempHist);
+	}
+	else if(j==3)
+	{
+	  tempHist = chambsME3Dir.make<TH1F>(tmpName.str().c_str(),tmpTitle.str().c_str(),3,-0.5,2.5);
+	  hOccME3Chambs.push_back(tempHist);
+	}
+	else if(j==4)
+	{
+	  tempHist = chambsME4Dir.make<TH1F>(tmpName.str().c_str(),tmpTitle.str().c_str(),3,-0.5,2.5);
+	  hOccME4Chambs.push_back(tempHist);
+	}
+	else
+	  std::cout << "Warning: problem in initializing Chamber Occ hists!" << std::endl;
+
+	tempHist->GetXaxis()->SetTitle(tmpTitle.str().c_str());
+	tempHist->GetYaxis()->SetTitle("Counts");
+    }
+  }
 
 }
 
