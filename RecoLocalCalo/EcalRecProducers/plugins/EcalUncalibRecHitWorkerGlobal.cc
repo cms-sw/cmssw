@@ -252,7 +252,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                                 sratio = eePulseShape_[5] / eePulseShape_[4];
                         }
 			uncalibRecHit = EcalUncalibratedRecHit( (*itdg).id(), 4095*12*sratio, 0, 0, 0);
-                        uncalibRecHit.setRecoFlag( EcalUncalibratedRecHit::kSaturated );
+                        uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kSaturated );
                 } else {
                         // float clockToNsConstant = 25.;
                         // reconstruct the rechit
@@ -264,7 +264,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                                 // bin is not uset for the moment
                                 leadingEdgeMethod_endcap_.setLeadingEdgeSample( leadingSample );
                                 uncalibRecHit = leadingEdgeMethod_endcap_.makeRecHit(*itdg, pedVec, gainRatios, 0, 0);
-                                uncalibRecHit.setRecoFlag( EcalUncalibratedRecHit::kLeadingEdgeRecovered );
+                                uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kLeadingEdgeRecovered );
                                 leadingEdgeMethod_endcap_.setLeadingEdgeSample( -1 );
                         } else {
                                 leadingEdgeMethod_barrel_.setPulseShape( ebPulseShape_ );
@@ -274,7 +274,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
                                 // bin is not uset for the moment
                                 leadingEdgeMethod_barrel_.setLeadingEdgeSample( leadingSample );
                                 uncalibRecHit = leadingEdgeMethod_barrel_.makeRecHit(*itdg, pedVec, gainRatios, 0, 0);
-                                uncalibRecHit.setRecoFlag( EcalUncalibratedRecHit::kLeadingEdgeRecovered );
+                                uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kLeadingEdgeRecovered );
                                 leadingEdgeMethod_barrel_.setLeadingEdgeSample( -1 );
                         }
                 }
@@ -344,7 +344,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 				  float sigmat        = std::sqrt( nterm*nterm  + cterm*cterm   );
 				  if ( ( correctedTime > sigmat*outOfTimeThreshP )   ||
 				       ( correctedTime < (-1.*sigmat*outOfTimeThreshM) )) 
-				    {  uncalibRecHit.setRecoFlag( EcalUncalibratedRecHit::kOutOfTime ); }
+				    {  uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kOutOfTime ); }
 				}
 				
                 } else {
@@ -388,7 +388,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 				  float sigmat        = std::sqrt( nterm*nterm  + cterm*cterm   );
 				  if ( ( correctedTime > sigmat*outOfTimeThreshP )   ||
 				       ( correctedTime < (-1.*sigmat*outOfTimeThreshM) )) 
-				    {   uncalibRecHit.setRecoFlag( EcalUncalibratedRecHit::kOutOfTime );  }
+				    {   uncalibRecHit.setFlagBit( EcalUncalibratedRecHit::kOutOfTime );  }
 				}
 		}
 
@@ -420,7 +420,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 
                     if(kPoorRecoFlagEE_)
 		    {
-			if(chi2>chi2ThreshEE_)uncalibRecHit.setRecoFlag(EcalUncalibratedRecHit::kPoorReco);
+			if(chi2>chi2ThreshEE_)uncalibRecHit.setFlagBit(EcalUncalibratedRecHit::kPoorReco);
 		    }				
 			
 		} else {
@@ -447,7 +447,7 @@ EcalUncalibRecHitWorkerGlobal::run( const edm::Event & evt,
 
                     if(kPoorRecoFlagEB_)
 		    {
-			if(chi2>chi2ThreshEB_)uncalibRecHit.setRecoFlag(EcalUncalibratedRecHit::kPoorReco);
+			if(chi2>chi2ThreshEB_)uncalibRecHit.setFlagBit(EcalUncalibratedRecHit::kPoorReco);
 		    }				
 		}
         }

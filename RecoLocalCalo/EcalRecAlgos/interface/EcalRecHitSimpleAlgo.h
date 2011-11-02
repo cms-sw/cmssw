@@ -4,9 +4,9 @@
 /** \class EcalRecHitSimpleAlgo
   *  Simple algoritm to make rechits from uncalibrated rechits
   *
-  *  $Id: EcalRecHitSimpleAlgo.h,v 1.13 2011/01/12 13:40:31 argiro Exp $
-  *  $Date: 2011/01/12 13:40:31 $
-  *  $Revision: 1.13 $
+  *  $Id: EcalRecHitSimpleAlgo.h,v 1.14 2011/02/04 13:36:37 argiro Exp $
+  *  $Date: 2011/02/04 13:36:37 $
+  *  $Revision: 1.14 $
   *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
   */
 
@@ -57,11 +57,11 @@ class EcalRecHitSimpleAlgo : public EcalRecHitAbsAlgo {
 
     bool good=true;
     
-    if ( uncalibRH.recoFlag()==EcalUncalibratedRecHit::kLeadingEdgeRecovered ){
+    if ( uncalibRH.checkFlag(EcalUncalibratedRecHit::kLeadingEdgeRecovered) ){
             rh.setFlag(EcalRecHit::kLeadingEdgeRecovered);
             good=false; 
     } 
-    if ( uncalibRH.recoFlag() == EcalUncalibratedRecHit::kSaturated ) { 
+    if ( uncalibRH.checkFlag(EcalUncalibratedRecHit::kSaturated) ) { 
             // leading edge recovery failed - still keep the information 
             // about the saturation and do not flag as dead 
             rh.setFlag(EcalRecHit::kSaturated); 
@@ -71,11 +71,11 @@ class EcalRecHitSimpleAlgo : public EcalRecHitAbsAlgo {
             rh.setFlag(EcalRecHit::kSaturated);
             good=false;
     } 
-    if ( uncalibRH.recoFlag() == EcalUncalibratedRecHit::kOutOfTime ) {
+    if ( uncalibRH.checkFlag(EcalUncalibratedRecHit::kOutOfTime) ) {
             rh.setFlag(EcalRecHit::kOutOfTime) ;
 	    good=false;   
     } 
-    if ( uncalibRH.recoFlag() == EcalUncalibratedRecHit::kPoorReco ) {
+    if ( uncalibRH.checkFlag(EcalUncalibratedRecHit::kPoorReco) ) {
             rh.setFlag(EcalRecHit::kPoorReco);
             good=false;
     }
