@@ -944,8 +944,8 @@ class PickRelValInputFiles( ConfigToolBase ):
                 self.messageEmptyList()
             return filePaths
         if domain[ -2 ] == 'cern' and domain[ -1 ] == 'ch':
-            command = 'nsls'
-            storage = '/castor/cern.ch/cms'
+            command = '/afs/cern.ch/project/eos/installation/pro/bin/eos.select'
+            storage = 'ls /eos/cms'
         elif domain[ -2 ] == 'fnal' and domain[ -1 ] == 'gov':
             command = 'ls'
             storage = '/pnfs/cms/WAX/11'
