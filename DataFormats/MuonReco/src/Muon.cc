@@ -41,6 +41,18 @@ Muon * Muon::clone() const {
   return new Muon( * this );
 }
 
+int Muon::numberOfChambersNoRPC() const
+{
+  int total = 0;
+  int nAll = numberOfChambers();
+  for (int iC = 0; iC < nAll; ++iC){
+    if (matches()[iC].detector() == MuonSubdetId::RPC) continue;
+    total++;
+  }
+
+  return total;
+}
+
 int Muon::numberOfMatches( ArbitrationType type ) const
 {
    int matches(0);

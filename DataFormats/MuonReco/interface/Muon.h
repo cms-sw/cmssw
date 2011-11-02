@@ -10,7 +10,7 @@
  *
  * \author Luca Lista, Claudio Campagnari, Dmytro Kovalskyi, Jake Ribnik, Riccardo Bellan, Michalis Bachtis
  *
- * \version $Id: Muon.h,v 1.65 2011/09/21 03:35:04 tucker Exp $
+ * \version $Id: Muon.h,v 1.66 2011/11/01 15:55:14 bellan Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -171,8 +171,10 @@ namespace reco {
     ///
     /// ====================== USEFUL METHODs ===========================
     ///
-    /// number of chambers
+    /// number of chambers (MuonChamberMatches include RPC rolls)
     int numberOfChambers() const { return muMatches_.size(); }
+    /// number of chambers not including RPC matches (MuonChamberMatches include RPC rolls)
+    int numberOfChambersNoRPC() const;
     /// get number of chambers with matched segments
     int numberOfMatches( ArbitrationType type = SegmentAndTrackArbitration ) const;
     /// get number of stations with matched segments
