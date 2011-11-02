@@ -100,6 +100,27 @@
         }, 
         "status": "done"
     }, 
+    "Counting_BayesianToyMC": {
+        "comment": "As BayesianSimple", 
+        "results": {
+            "counting-B5p5-Obs1-StatOnly.txt": { "comment": "L&S", "limit":3.41831, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs1-Syst30B.txt":  { "comment": "L&S", "limit":3.5089, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs1-Syst30C.txt":  { "comment": "L&S", "limit":5.07665, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs1-Syst30S.txt":  { "comment": "L&S", "limit":3.9136, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs1-Syst30U.txt":  { "comment": "L&S", "limit":4.04075, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs11-StatOnly.txt":{ "comment": "L&S", "limit":12.7319, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs11-Syst30B.txt": { "comment": "L&S", "limit":12.9845, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs11-Syst30C.txt": { "comment": "L&S", "limit":17.8015, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs11-Syst30S.txt": { "comment": "L&S", "limit":15.4327, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs11-Syst30U.txt": { "comment": "L&S", "limit":15.7621, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs6-StatOnly.txt": { "comment": "L&S", "limit":7.0135, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs6-Syst30B.txt":  { "comment": "L&S", "limit":7.40953, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs6-Syst30C.txt":  { "comment": "L&S", "limit":10.1983, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs6-Syst30S.txt":  { "comment": "L&S", "limit":8.18149, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs6-Syst30U.txt":  { "comment": "L&S", "limit":8.69503, "limitErr":0, "status":"done", "t_real":0 }
+        }, 
+        "status": "done"
+    }, 
     "Counting_FeldmanCousins": {
         "comment": "not validated", 
         "status": "done"
@@ -570,9 +591,9 @@
         "comment": "NOTE: for S = 5", 
         "results": {
             "counting-B5p5-Obs6-Syst30B.txt Atlas": {
-                "comment": "", 
-                "limit": 0.14453179190751447, 
-                "limitErr": 0.0077058698511080978, 
+                "comment": "assuming it's the same", 
+                "limit": 0.175, 
+                "limitErr": 0.002, 
                 "status": "done", 
                 "t_real": 0.14051693677902222
             }, 
@@ -638,6 +659,24 @@
         "status": "done"
     }, 
     "Gamma_BayesianSimple": {
+        "comment": "From L&S", 
+        "results": {
+            "counting-B5p5-Obs6-Syst30B-gmM.txt": { "comment": "L&S", "limit":7.65272, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs6-Syst30C-gmM.txt": { "comment": "L&S", "limit":12.9213, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs6-Syst30S-gmM.txt": { "comment": "L&S", "limit":9.26725, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-B5p5-Obs6-Syst30U-gmM.txt": { "comment": "L&S", "limit":10.1169, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-S1-Sideband1-alpha0p3-Obs2.txt": { "comment": "L&S", "limit":5.80744, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-S1-Sideband10-alpha0p2-Obs2.txt": { "comment": "L&S", "limit":4.86674, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-S1-Sideband100-alpha0p05-Obs4.txt": { "comment": "L&S", "limit":5.47368, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-S1-Sideband2-alpha0p3-Obs6.txt": { "comment": "L&S", "limit":11.0042, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-Sideband11-alpha0p5-Obs1.txt": { "comment": "L&S", "limit":3.53229, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-Sideband11-alpha0p5-Obs11.txt": { "comment": "L&S", "limit":12.8474, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-Sideband11-alpha0p5-Obs20.txt": { "comment": "L&S", "limit":23.4879, "limitErr":0, "status":"done", "t_real":0 },
+            "counting-Sideband11-alpha0p5-Obs6.txt": { "comment": "L&S", "limit":7.39906, "limitErr":0, "status":"done", "t_real":0 }
+        }, 
+        "status": "done"
+    }, 
+    "Gamma_BayesianToyMC": {
         "comment": "From L&S", 
         "results": {
             "counting-B5p5-Obs6-Syst30B-gmM.txt": { "comment": "L&S", "limit":7.65272, "limitErr":0, "status":"done", "t_real":0 },
@@ -824,6 +863,14 @@
         "status": "done"
     }, 
     "HWW_MarkovChainMC": {
+        "comment": "Value from validation", 
+        "results": {
+            "hww4ch-1fb-B-mH140.txt": { "comment": "Value from validation", "limit": 1.75, "limitErr": 0.013, "status": "done", "t_real": 0 }, 
+            "hww4ch-1fb-B-mH160.txt": { "comment": "Value from validation", "limit": 0.348, "limitErr": 0.003, "status": "done", "t_real": 0 }
+        }, 
+        "status": "done"
+    }, 
+    "HWW_BayesianToyMC": {
         "comment": "Value from validation", 
         "results": {
             "hww4ch-1fb-B-mH140.txt": { "comment": "Value from validation", "limit": 1.75, "limitErr": 0.013, "status": "done", "t_real": 0 }, 
@@ -1195,28 +1242,56 @@
     "Counting_pValues_Freq_0_CLs_HybridNew": {
         "comment": "", 
         "results": {
-            "counting-B5p5-Obs6-StatOnly.txt": { "comment": "", "limit": 0.14839168826104629, "limitErr": 0.00099948476536987482, "status": "done", "t_real": 5.9700741767883301 }
+            "counting-B5p5-Obs6-StatOnly.txt": { "comment": "note: more toys used here", "limit": 0.14839168826104629, "limitErr": 0.00099948476536987482, "status": "done", "t_real": 5.9700741767883301 }
         }, 
         "status": "done"
     }, 
     "Counting_pValues_Freq_B_CLs_HybridNew": {
         "comment": "", 
         "results": {
-            "counting-B5p5-Obs6-Syst30B.txt": { "comment": "", "limit": 0.15680751640330784, "limitErr": 0.00099924417296433149, "status": "done", "t_real": 13.589875221252441 }
+            "counting-B5p5-Obs6-Syst30B.txt": { "comment": "note: more toys used here", "limit": 0.15680751640330784, "limitErr": 0.00099924417296433149, "status": "done", "t_real": 13.589875221252441 }
         }, 
         "status": "done"
     }, 
     "Counting_pValues_Freq_S_CLs_HybridNew": {
         "comment": "", 
         "results": {
-            "counting-B5p5-Obs6-Syst30S.txt": { "comment": "", "limit": 0.14929606554603703, "limitErr": 0.00099929345575634071, "status": "done", "t_real": 12.275073051452637 }
+            "counting-B5p5-Obs6-Syst30S.txt": { "comment": "note: more toys used here", "limit": 0.14929606554603703, "limitErr": 0.00099929345575634071, "status": "done", "t_real": 12.275073051452637 }
         }, 
         "status": "done"
     }, 
     "Counting_pValues_Freq_U_CLs_HybridNew": {
         "comment": "", 
         "results": {
-            "counting-B5p5-Obs6-Syst30U.txt": { "comment": "", "limit": 0.18626194513172781, "limitErr": 0.00099969395212034704, "status": "done", "t_real": 18.705209732055664 }
+            "counting-B5p5-Obs6-Syst30U.txt": { "comment": "note: more toys used here", "limit": 0.18626194513172781, "limitErr": 0.00099969395212034704, "status": "done", "t_real": 18.705209732055664 }
+        }, 
+        "status": "done"
+    },
+    "Counting_pValues_Freq_0_CLsplusb_HybridNew": {
+        "comment": "", 
+        "results": {
+            "counting-B5p5-Obs6-StatOnly.txt": { "comment": "note: more toys used here", "limit": 0.098489999999999994, "limitErr": 0.00094228297182958796, "status": "done", "t_real": 0.24138765037059784 }
+        }, 
+        "status": "done"
+    }, 
+    "Counting_pValues_Freq_B_CLsplusb_HybridNew": {
+        "comment": "", 
+        "results": {
+            "counting-B5p5-Obs6-Syst30B.txt": { "comment": "note: more toys used here", "limit": 0.093240000000000003, "limitErr": 0.00091949063290497964, "status": "done", "t_real": 1.5756527185440063 }
+        }, 
+        "status": "done"
+    }, 
+    "Counting_pValues_Freq_S_CLsplusb_HybridNew": {
+        "comment": "", 
+        "results": {
+            "counting-B5p5-Obs6-Syst30S.txt": { "comment": "note: more toys used here", "limit": 0.089819999999999997, "limitErr": 0.00090417015876437777, "status": "done", "t_real": 1.5730928182601929 }
+        }, 
+        "status": "done"
+    }, 
+    "Counting_pValues_Freq_U_CLsplusb_HybridNew": {
+        "comment": "", 
+        "results": {
+            "counting-B5p5-Obs6-Syst30U.txt": { "comment": "note: more toys used here", "limit": 0.11123, "limitErr": 0.00099427303644421521, "status": "done", "t_real": 1.7407045364379883 }
         }, 
         "status": "done"
     },
@@ -1236,6 +1311,22 @@
     "Summer11_Sig_HWWS_130_ProfileLikelihood": { "comment": "", "results": { "comb_hww.txt": { "comment": "", "limit": 1.576599387655403, "limitErr": 0.0, "status": "done", "t_real": 0.0048717339523136616 } }, "status": "done" }, 
     "Summer11_Sig_HZZ2L2Q_300_ProfileLikelihood": { "comment": "", "results": { "comb_hzz2l2q.txt": { "comment": "", "limit": 0.55279765177573259, "limitErr": 0.0, "status": "done", "t_real": 0.0083198510110378265 } }, "status": "done" }, 
     "Summer11_Sig_HZZ4L_145_ProfileLikelihood": { "comment": "", "results": { "comb_hzz4l.txt": { "comment": "", "limit": 1.7281445785714229, "limitErr": 0.0, "status": "done", "t_real": 0.0049951155669987202 } }, "status": "done" },
+    "Summer11_HGG_115_PLC_ProfileLikelihood": { "comment": "", "results": { "hgg_8cats.txt": { "comment": "", "limit": 3.3061872652091582, "limitErr": 0.0, "status": "done", "t_real": 0.29577633738517761 } }, "status": "done" }, 
+    "Summer11_HTT_125_PLC_ProfileLikelihood": { "comment": "", "results": { "comb_htt.txt": { "comment": "", "limit": 9.1591652957232963, "limitErr": 0.0, "status": "done", "t_real": 0.030707282945513725 } }, "status": "done" }, 
+    "Summer11_HWWC_170_CNT_PLC_ProfileLikelihood": { "comment": "", "results": { "comb_hww_cnt.txt": { "comment": "", "limit": 0.43711935856669576, "limitErr": 0.0, "status": "done", "t_real": 0.093888647854328156 } }, "status": "done" }, 
+    "Summer11_HWWC_170_EXT_PLC_ProfileLikelihood": { "comment": "", "results": { "comb_hww_ext.txt": { "comment": "", "limit": 0.43711935869636287, "limitErr": 0.0, "status": "done", "t_real": 0.051013335585594177 } }, "status": "done" }, 
+    "Summer11_HWWS_130_0J_PLC_ProfileLikelihood": { "comment": "", "results": { "comb_hww0j.txt": { "comment": "", "limit": 1.7404191952765087, "limitErr": 0.0, "status": "done", "t_real": 0.013702630996704102 } }, "status": "done" }, 
+    "Summer11_HWWS_130_PLC_ProfileLikelihood": { "comment": "", "results": { "comb_hww.txt": { "comment": "", "limit": 1.9381016044763499, "limitErr": 0.0, "status": "done", "t_real": 0.050739750266075134 } }, "status": "done" }, 
+    "Summer11_HZZ2L2Q_300_PLC_ProfileLikelihood": { "comment": "", "results": { "comb_hzz2l2q.txt": { "comment": "", "limit": 2.8318689273995181, "limitErr": 0.0, "status": "done", "t_real": 0.023551631718873978 } }, "status": "done" }, 
+    "Summer11_HZZ4L_145_PLC_ProfileLikelihood": { "comment": "", "results": { "comb_hzz4l.txt": { "comment": "", "limit": 2.3703655165820328, "limitErr": 0.0, "status": "done", "t_real": 0.060150004923343658 } }, "status": "done" },
+    "Summer11_Sig_HGG_115_PLC_ProfileLikelihood": { "comment": "", "results": { "hgg_8cats.txt": { "comment": "", "limit": 0.26261914439245715, "limitErr": 0.0, "status": "done", "t_real": 0.017751336097717285 } }, "status": "done" }, 
+    "Summer11_Sig_HTT_125_PLC_ProfileLikelihood": { "comment": "", "results": { "comb_htt.txt": { "comment": "", "limit": 0.0, "limitErr": 0.0, "status": "done", "t_real": 0.0048355180770158768 } }, "status": "done" }, 
+    "Summer11_Sig_HWWC_170_CNT_PLC_ProfileLikelihood": { "comment": "", "results": { "comb_hww_cnt.txt": { "comment": "", "limit": 0.60010432006114978, "limitErr": 0.0, "status": "done", "t_real": 0.0099295498803257942 } }, "status": "done" }, 
+    "Summer11_Sig_HWWC_170_EXT_PLC_ProfileLikelihood": { "comment": "", "results": { "comb_hww_ext.txt": { "comment": "", "limit": 0.60010432041555428, "limitErr": 0.0, "status": "done", "t_real": 0.0056852181442081928 } }, "status": "done" }, 
+    "Summer11_Sig_HWWS_130_0J_PLC_ProfileLikelihood": { "comment": "", "results": { "comb_hww0j.txt": { "comment": "", "limit": 0.75243868614223908, "limitErr": 0.0, "status": "done", "t_real": 0.0024734656326472759 } }, "status": "done" }, 
+    "Summer11_Sig_HWWS_130_PLC_ProfileLikelihood": { "comment": "", "results": { "comb_hww.txt": { "comment": "", "limit": 1.576599387655403, "limitErr": 0.0, "status": "done", "t_real": 0.0048717339523136616 } }, "status": "done" }, 
+    "Summer11_Sig_HZZ2L2Q_300_PLC_ProfileLikelihood": { "comment": "", "results": { "comb_hzz2l2q.txt": { "comment": "", "limit": 0.55279765177573259, "limitErr": 0.0, "status": "done", "t_real": 0.0083198510110378265 } }, "status": "done" }, 
+    "Summer11_Sig_HZZ4L_145_PLC_ProfileLikelihood": { "comment": "", "results": { "comb_hzz4l.txt": { "comment": "", "limit": 1.7281445785714229, "limitErr": 0.0, "status": "done", "t_real": 0.0049951155669987202 } }, "status": "done" },
     "Summer11_HGG_115_Asymptotic": {
         "comment": "", 
         "results": {
@@ -1332,7 +1423,7 @@
         }, 
         "status": "done"
     },
-        "Summer11_HGG_115_MarkovChainMC": {
+    "Summer11_HGG_115_MarkovChainMC": {
         "comment": "", 
         "results": {
             "hgg_8cats.txt": { "comment": "", "limit": 3.4912756545981503, "limitErr": 0.060137208678673101, "status": "done", "t_real": 6.6273651123046875 } }, 
@@ -1347,13 +1438,13 @@
     "Summer11_HWWC_170_CNT_MarkovChainMC": {
         "comment": "", 
         "results": {
-            "comb_hww_cnt.txt": { "comment": "", "limit": 0.42193403302605326, "limitErr": 0.01183134101763803, "status": "done", "t_real": 8.7153663635253906 } }, 
+            "comb_hww_cnt.txt": { "comment": "from high stat", "limit": 0.396, "limitErr": 0.004, "status": "done", "t_real": 0 } }, 
         "status": "done"
     }, 
     "Summer11_HWWC_170_EXT_MarkovChainMC": {
         "comment": "", 
         "results": {
-            "comb_hww_ext.txt": { "comment": "", "limit": 0.40829885186404169, "limitErr": 0.0095053469924821516, "status": "done", "t_real": 10.307680130004883 } }, 
+            "comb_hww_cnt.txt": { "comment": "from high stat", "limit": 0.396, "limitErr": 0.004, "status": "done", "t_real": 0 } }, 
         "status": "done"
     }, 
     "Summer11_HWWS_130_0J_MarkovChainMC": {
@@ -1380,7 +1471,55 @@
             "comb_hzz4l.txt": { "comment": "", "limit": 2.4357170150180387, "limitErr": 0.0057084908017275187, "status": "done", "t_real": 1.9262540340423584 } }, 
         "status": "done"
     },
-        "Summer11_HGG_115_Freq_HybridNew": {
+    "Summer11_HGG_115_BayesianToyMC": {
+        "comment": "from MCMC", 
+        "results": {
+            "hgg_8cats.txt": { "comment": "from MCMC", "limit": 3.4912756545981503, "limitErr": 0.060137208678673101, "status": "done", "t_real": 6.6273651123046875 } }, 
+        "status": "done"
+    }, 
+    "Summer11_HTT_125_BayesianToyMC": {
+        "comment": "from MCMC", 
+        "results": {
+            "comb_htt.txt": { "comment": "from MCMC", "limit": 9.0161033852401751, "limitErr": 0.2501547148641145, "status": "done", "t_real": 1.4418553113937378 } }, 
+        "status": "done"
+    }, 
+    "Summer11_HWWC_170_CNT_BayesianToyMC": {
+        "comment": "from MCMC", 
+        "results": {
+            "comb_hww_cnt.txt": { "comment": "from high stat", "limit": 0.396, "limitErr": 0.004, "status": "done", "t_real": 0 } }, 
+        "status": "done"
+    }, 
+    "Summer11_HWWC_170_EXT_BayesianToyMC": {
+        "comment": "from MCMC", 
+        "results": {
+            "comb_hww_ext.txt": { "comment": "from high stat", "limit": 0.396, "limitErr": 0.004, "status": "done", "t_real": 0 } }, 
+        "status": "done"
+    }, 
+    "Summer11_HWWS_130_0J_BayesianToyMC": {
+        "comment": "from MCMC", 
+        "results": {
+            "comb_hww0j.txt": { "comment": "from MCMC", "limit": 1.7098314567442188, "limitErr": 0.010117371501077034, "status": "done", "t_real": 3.8799421787261963 } }, 
+        "status": "done"
+    }, 
+    "Summer11_HWWS_130_BayesianToyMC": {
+        "comment": "from MCMC", 
+        "results": {
+            "comb_hww.txt": { "comment": "from MCMC", "limit": 1.7651746905178969, "limitErr": 0.011803401340884348, "status": "done", "t_real": 9.1395549774169922 } }, 
+        "status": "done"
+    }, 
+    "Summer11_HZZ2L2Q_300_BayesianToyMC": {
+        "comment": "from MCMC", 
+        "results": {
+            "comb_hzz2l2q.txt": { "comment": "from MCMC", "limit": 2.7198770048338545, "limitErr": 0.02620244186814108, "status": "done", "t_real": 2.0884568691253662 } }, 
+        "status": "done"
+    }, 
+    "Summer11_HZZ4L_145_BayesianToyMC": {
+        "comment": "from MCMC", 
+        "results": {
+            "comb_hzz4l.txt": { "comment": "from MCMC", "limit": 2.4357170150180387, "limitErr": 0.0057084908017275187, "status": "done", "t_real": 1.9262540340423584 } }, 
+        "status": "done"
+    },
+    "Summer11_HGG_115_Freq_HybridNew": {
         "comment": "", 
         "results": { "hgg_8cats.txt": { "comment": "", "limit": 3.2266269794509448, "limitErr": 0.0702450849898964, "status": "done", "t_real": 85.76336669921875 } }, 
         "status": "done"
