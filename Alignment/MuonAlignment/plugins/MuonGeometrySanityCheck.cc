@@ -394,13 +394,16 @@ MuonGeometrySanityCheckPoint::MuonGeometrySanityCheckPoint(const edm::ParameterS
 
       // this is optional
       int layer = 0;
+      bool layer_digit = false;
       if (detName.substr(index, 1) == std::string("/")) {
 	 index++;
 	 while (!parsing_error  &&  numeric(detName.substr(index, 1))) {
 	    layer *= 10;
 	    layer += number(detName.substr(index, 1));
+	    layer_digit = true;
 	    index++;
 	 }
+	 if (!layer_digit) parsing_error = true;
       }
 
       if (!parsing_error) {
