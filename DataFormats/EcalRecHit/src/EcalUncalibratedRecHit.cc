@@ -21,7 +21,7 @@ EcalUncalibratedRecHit::~EcalUncalibratedRecHit() {
 }
 
 bool EcalUncalibratedRecHit::isSaturated() const {
-  return ( recoFlag() == kSaturated );
+  return EcalUncalibratedRecHit::checkFlag(kSaturated);
 }
 
 float EcalUncalibratedRecHit::outOfTimeEnergy() const
@@ -32,10 +32,12 @@ float EcalUncalibratedRecHit::outOfTimeEnergy() const
         return (float)(significand)*pow10(exponent); //(-5 in the table)
 }
 
+/* obsolete
 void EcalUncalibratedRecHit::setRecoFlag( uint32_t flag )
 {
         flags_ = (~0xF & flags_) | (flag & 0xF);
 }
+*/
 
 void EcalUncalibratedRecHit::setOutOfTimeEnergy( float energy )
 {
@@ -138,3 +140,22 @@ uint8_t EcalUncalibratedRecHit::jitterErrorBits() const
         uint8_t jitterErrorBits = 0xFF & aux_;
         return jitterErrorBits;
 }
+
+
+void EcalUncalibratedRecHit::setFlagBit(EcalUncalibratedRecHit::Flags flag){
+
+       if  (flag == kGood) {
+          //then set all four bits to zero;
+          flags_  = flags_& 0xFFFFFFF0;
+          return;
+      }
+     // else set the flagbit
+     flags_|= 0xF & (0x1 <<  flag); // flag should be masked with 0xF
+}
+
+
+bool EcalUncalibratedRecHit::checkFlag(EcalUncalibratedRecHit::Flags flag) const {
+       if(flag == kGood){ if ( ! (flags_ & 0xF)) return true;else return false;} // if all flags are unset, then hit is good
+       return  flags_ & ( 0x1<<flag);
+}
+
