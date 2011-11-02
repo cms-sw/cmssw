@@ -45,12 +45,16 @@ class MuPFIsoHelper {
   edm::Handle<CandDoubleMap> chargedHadron03_;
   edm::Handle<CandDoubleMap> neutralHadron03_;
   edm::Handle<CandDoubleMap> photon03_;
+  edm::Handle<CandDoubleMap> neutralHadronHighThreshold03_;
+  edm::Handle<CandDoubleMap> photonHighThreshold03_;
   edm::Handle<CandDoubleMap> pu03_;
   ///////////////////////////////////////////////
   edm::Handle<CandDoubleMap> chargedParticle04_;
   edm::Handle<CandDoubleMap> chargedHadron04_;
   edm::Handle<CandDoubleMap> neutralHadron04_;
   edm::Handle<CandDoubleMap> photon04_;
+  edm::Handle<CandDoubleMap> neutralHadronHighThreshold04_;
+  edm::Handle<CandDoubleMap> photonHighThreshold04_;
   edm::Handle<CandDoubleMap> pu04_;
   
 

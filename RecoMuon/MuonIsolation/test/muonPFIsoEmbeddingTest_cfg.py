@@ -29,6 +29,8 @@ process.pfEmbeddedMuons = cms.EDProducer("MuPFIsoEmbedder",
                                              chargedHadron = cms.InputTag("muPFIsoValueCharged03"),
                                              neutralHadron = cms.InputTag("muPFIsoValueNeutral03"),
                                              photon = cms.InputTag("muPFIsoValueGamma03"),
+                                             neutralHadronHighThreshold = cms.InputTag("muPFIsoValueNeutralHighThreshold03"),
+                                             photonHighThreshold = cms.InputTag("muPFIsoValueGammaHighThreshold03"),
                                              pu = cms.InputTag("muPFIsoValuePU03")
                                          ),
                                          isolationR04 = cms.PSet(
@@ -36,6 +38,8 @@ process.pfEmbeddedMuons = cms.EDProducer("MuPFIsoEmbedder",
                                              chargedHadron = cms.InputTag("muPFIsoValueCharged04"),
                                              neutralHadron = cms.InputTag("muPFIsoValueNeutral04"),
                                              photon = cms.InputTag("muPFIsoValueGamma04"),
+                                             neutralHadronHighThreshold = cms.InputTag("muPFIsoValueNeutralHighThreshold04"),
+                                             photonHighThreshold = cms.InputTag("muPFIsoValueGammaHighThreshold04"),
                                              pu = cms.InputTag("muPFIsoValuePU04")
                                          )
 )                                         

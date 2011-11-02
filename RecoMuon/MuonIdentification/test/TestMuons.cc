@@ -6,8 +6,8 @@
  *
  * 
  *
- *  $Date: 2011/06/14 16:36:54 $
- *  $Revision: 1.5 $
+ *  $Date: 2011/06/15 09:44:54 $
+ *  $Revision: 1.6 $
  *  \author Dmytro Kovalskyi, R. Bellan - UCSB <riccardo.bellan@cern.ch> 
  */
 
@@ -118,13 +118,15 @@ void TestMuons::printMuonCollections(const edm::Handle<edm::View<reco::Muon> > &
    
     if(muon->isPFIsolationValid()){
       std::cout << "PF Isolation is Valid." << std::endl 
-		<< "Iso 0.3, (sumChargedHadronPt, sumChargedParticlePt, sumNeutralHadronEt, sumPhotonEt, sumPUPt): "
+		<< "Iso 0.3, (sumChargedHadronPt, sumChargedParticlePt, sumNeutralHadronEt, sumPhotonEt, sumNeutralHadronEtHighThreshold, sumPhotonEtHighThreshold, sumPUPt): "
 		<< muon->pfIsolationR03().sumChargedHadronPt << ", " << muon->pfIsolationR03().sumChargedParticlePt << ", " 
 		<< muon->pfIsolationR03().sumNeutralHadronEt << ", " << muon->pfIsolationR03().sumPhotonEt << ", " 
+		<< muon->pfIsolationR03().sumNeutralHadronEtHighThreshold << ", " << muon->pfIsolationR03().sumPhotonEtHighThreshold << ", " 
 		<< muon->pfIsolationR03().sumPUPt <<std::endl;
-      std::cout << "Iso 0.4, (sumChargedHadronPt, sumChargedParticlePt, sumNeutralHadronEt, sumPhotonEt, sumPUPt): "
+      std::cout << "Iso 0.4, (sumChargedHadronPt, sumChargedParticlePt, sumNeutralHadronEt, sumPhotonEt, sumNeutralHadronEtHighThreshold, sumPhotonEtHighThreshold, sumPUPt): "
 		<< muon->pfIsolationR04().sumChargedHadronPt << ", " << muon->pfIsolationR04().sumChargedParticlePt << ", " 
 		<< muon->pfIsolationR04().sumNeutralHadronEt << ", " << muon->pfIsolationR04().sumPhotonEt << ", " 
+		<< muon->pfIsolationR04().sumNeutralHadronEtHighThreshold << ", " << muon->pfIsolationR04().sumPhotonEtHighThreshold << ", " 
 		<< muon->pfIsolationR04().sumPUPt <<std::endl;
 
 

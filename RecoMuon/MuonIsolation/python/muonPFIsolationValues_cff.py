@@ -54,6 +54,32 @@ muPFIsoValueNeutral03 = cms.EDProducer("CandIsolatorFromDeposits",
  )
 )
 
+muPFIsoValueGammaHighThreshold03 = cms.EDProducer("CandIsolatorFromDeposits",
+    deposits = cms.VPSet(
+            cms.PSet(
+            src = cms.InputTag("muPFIsoDepositGamma"),
+            deltaR = cms.double(0.3),
+            weight = cms.string('1'),
+            vetos = cms.vstring('0.01','Threshold(1.0)'),
+            skipDefaultVeto = cms.bool(True),
+            mode = cms.string('sum')
+      )
+   )
+)
+
+muPFIsoValueNeutralHighThreshold03 = cms.EDProducer("CandIsolatorFromDeposits",
+    deposits = cms.VPSet(
+            cms.PSet(
+            src = cms.InputTag("muPFIsoDepositNeutral"),
+            deltaR = cms.double(0.3),
+            weight = cms.string('1'),
+            vetos = cms.vstring('0.01','Threshold(1.0)'),
+            skipDefaultVeto = cms.bool(True),
+            mode = cms.string('sum')
+    )
+ )
+)
+
 muPFIsoValuePU03 = cms.EDProducer("CandIsolatorFromDeposits",
     deposits = cms.VPSet(
             cms.PSet(
@@ -125,6 +151,33 @@ muPFIsoValueNeutral04 = cms.EDProducer("CandIsolatorFromDeposits",
  )
 
 )
+muPFIsoValueGammaHighThreshold04 = cms.EDProducer("CandIsolatorFromDeposits",
+    deposits = cms.VPSet(
+            cms.PSet(
+            src = cms.InputTag("muPFIsoDepositGamma"),
+            deltaR = cms.double(0.4),
+            weight = cms.string('1'),
+            vetos = cms.vstring('0.01','Threshold(1.0)'),
+            skipDefaultVeto = cms.bool(True),
+            mode = cms.string('sum')
+      )
+   )
+)
+
+
+muPFIsoValueNeutralHighThreshold04 = cms.EDProducer("CandIsolatorFromDeposits",
+    deposits = cms.VPSet(
+            cms.PSet(
+            src = cms.InputTag("muPFIsoDepositNeutral"),
+            deltaR = cms.double(0.4),
+            weight = cms.string('1'),
+            vetos = cms.vstring('0.01','Threshold(1.0)'),
+            skipDefaultVeto = cms.bool(True),
+            mode = cms.string('sum')
+    )
+ )
+
+)
 muPFIsoValuePU04 = cms.EDProducer("CandIsolatorFromDeposits",
     deposits = cms.VPSet(
             cms.PSet(
@@ -143,11 +196,15 @@ muonPFIsolationValuesSequence = (
     muPFIsoValueChargedAll03+
     muPFIsoValueGamma03+
     muPFIsoValueNeutral03+
+    muPFIsoValueGammaHighThreshold03+
+    muPFIsoValueNeutralHighThreshold03+
     muPFIsoValuePU03+
     ############################## 
     muPFIsoValueCharged04+
     muPFIsoValueChargedAll04+
     muPFIsoValueGamma04+
     muPFIsoValueNeutral04+
+    muPFIsoValueGammaHighThreshold04+
+    muPFIsoValueNeutralHighThreshold04+
     muPFIsoValuePU04
     )

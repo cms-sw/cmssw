@@ -39,6 +39,16 @@ int MuPFIsoHelper::embedPFIsolation(reco::Muon& muon,reco::MuonRef& muonRef ) {
   }
   else {    return -1;}
 
+  if(neutralHadronHighThreshold03_.isValid()) {
+       isoR3.sumNeutralHadronEtHighThreshold = (*neutralHadronHighThreshold03_)[muonRef];
+  }
+  else {    return -1;}
+
+  if(photonHighThreshold03_.isValid()) {
+       isoR3.sumPhotonEtHighThreshold = (*photonHighThreshold03_)[muonRef];
+  }
+  else {    return -1;}
+
   if(pu03_.isValid()) {
        isoR3.sumPUPt = (*pu03_)[muonRef];
   }
@@ -67,6 +77,16 @@ int MuPFIsoHelper::embedPFIsolation(reco::Muon& muon,reco::MuonRef& muonRef ) {
   }
   else {    return -1;}
 
+  if(neutralHadronHighThreshold04_.isValid()) {
+       isoR4.sumNeutralHadronEtHighThreshold = (*neutralHadronHighThreshold04_)[muonRef];
+  }
+  else {    return -1;}
+
+  if(photonHighThreshold04_.isValid()) {
+       isoR4.sumPhotonEtHighThreshold = (*photonHighThreshold04_)[muonRef];
+  }
+  else {    return -1;}
+
   if(pu04_.isValid()) {
        isoR4.sumPUPt = (*pu04_)[muonRef];
   }
@@ -86,12 +106,16 @@ void MuPFIsoHelper::beginEvent(const edm::Event& iEvent){
   iEvent.getByLabel(isoCfg03_.getParameter<edm::InputTag>("chargedHadron"),chargedHadron03_);
   iEvent.getByLabel(isoCfg03_.getParameter<edm::InputTag>("neutralHadron"),neutralHadron03_);
   iEvent.getByLabel(isoCfg03_.getParameter<edm::InputTag>("photon"),photon03_);
+  iEvent.getByLabel(isoCfg03_.getParameter<edm::InputTag>("neutralHadronHighThreshold"),neutralHadronHighThreshold03_);
+  iEvent.getByLabel(isoCfg03_.getParameter<edm::InputTag>("photonHighThreshold"),photonHighThreshold03_);
   iEvent.getByLabel(isoCfg03_.getParameter<edm::InputTag>("pu"),pu03_);
 
   iEvent.getByLabel(isoCfg04_.getParameter<edm::InputTag>("chargedParticle"),chargedParticle04_);
   iEvent.getByLabel(isoCfg04_.getParameter<edm::InputTag>("chargedHadron"),chargedHadron04_);
   iEvent.getByLabel(isoCfg04_.getParameter<edm::InputTag>("neutralHadron"),neutralHadron04_);
   iEvent.getByLabel(isoCfg04_.getParameter<edm::InputTag>("photon"),photon04_);
+  iEvent.getByLabel(isoCfg04_.getParameter<edm::InputTag>("neutralHadronHighThreshold"),neutralHadronHighThreshold04_);
+  iEvent.getByLabel(isoCfg04_.getParameter<edm::InputTag>("photonHighThreshold"),photonHighThreshold04_);
   iEvent.getByLabel(isoCfg04_.getParameter<edm::InputTag>("pu"),pu04_);
 
 }
