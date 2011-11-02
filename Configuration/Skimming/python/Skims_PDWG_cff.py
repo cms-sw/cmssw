@@ -99,7 +99,6 @@ SKIMStreamEXOHSCP = cms.FilteredStream(
     dataTier = cms.untracked.string('USER')
     )
 
-
 from Configuration.Skimming.PDWG_HWWSkim_cff import *
 HWWmmPath = cms.Path(diMuonSequence)
 HWWeePath = cms.Path(diElectronSequence)
@@ -126,6 +125,18 @@ SKIMStreamHZZ = cms.FilteredStream(
         selectEvents = cms.untracked.PSet(),
         dataTier = cms.untracked.string('AOD')
         )
+
+
+from Configuration.Skimming.PDWG_EXOHPTE_cff import *
+exoHPTEPath = cms.Path(exoDiHPTESequence)
+SKIMStreamEXOHPTE = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'EXOHPTE',
+    paths = (exoHPTEPath),
+    content = skimAodContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('AOD')
+    )
 
 ## exo skims
 """
