@@ -12,7 +12,7 @@
 
 #include "GeneratorInterface/Pythia8Interface/interface/RandomP8.h"
 
-#include "GeneratorInterface/Pythia8Interface/interface/UserHooks.h"
+#include "GeneratorInterface/Pythia8Interface/interface/ReweightUserHooks.h"
 
 // PS matchning prototype
 //
@@ -80,9 +80,6 @@ class Pythia8Hadronizer : public BaseHadronizer {
 
 	string LHEInputFileName;
 
-	/// Switch User Hook flag
-	bool            useUserHook;
-
 	std::auto_ptr<LHAupLesHouches>      lhaUP;
 
 	std::auto_ptr<Pythia>	pythia;
@@ -96,7 +93,9 @@ class Pythia8Hadronizer : public BaseHadronizer {
 	double fBeam1PZ;
 	double fBeam2PZ;
 
-        UserHooks* UserHookPointer;
+        // Reweight user hook
+        //
+        UserHooks* fReweightUserHook;
         
 	// PS matching protot6ype
 	//
@@ -117,14 +116,11 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
     pythiaHepMCVerbosity(params.getUntrackedParameter<bool>("pythiaHepMCVerbosity", false)),
     maxEventsToPrint(params.getUntrackedParameter<int>("maxEventsToPrint", 0)),
     LHEInputFileName(params.getUntrackedParameter<string>("LHEInputFileName","")),
-    useUserHook(false),
     fInitialState(PP),
-    UserHookPointer(0),
+    fReweightUserHook(0),
     fJetMatchingHook(0),
     fEmissionVetoHook(0)
 {
-    if( params.exists( "useUserHook" ) )
-      useUserHook = params.getParameter<bool>("useUserHook");
     randomEngine = &getEngineReference();
 
     //Old code that used Pythia8 own random engine
@@ -171,7 +167,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
     else if ( params.exists( "ElectronProtonInitialState" ) || params.exists( "PositronProtonInitialState" ) )
     {
       // throw on unknown initial state !
-      throw edm::Exception(edm::errors::Configuration,"Pythia6Interface")
+      throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
         <<" UNKNOWN INITIAL STATE. \n The allowed initial states are: PP, PPbar, ElectronPositron \n";
     }
 
@@ -181,6 +177,12 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
     pythia->setRndmEnginePtr(RP8);
     decayer->setRndmEnginePtr(RP8);
     
+
+    // Reweight user hook
+    //
+   if( params.exists( "reweightGen" ) )
+      fReweightUserHook = new PtHatReweightUserHook();
+
     // PS matching prototype
     //
    if ( params.exists("jetMatching") )
@@ -196,26 +198,33 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
     //
    if ( params.exists("emissionVeto") )
    {   
-      fEmissionVetoHook = new EmissionVetoHook();
+      fEmissionVetoHook = new EmissionVetoHook(0);
       pythia->setUserHooksPtr( fEmissionVetoHook );
    }  
+
+   int NHooks=0;
+   if(fReweightUserHook) NHooks++;
+   if(fJetMatchingHook) NHooks++;
+   if(fEmissionVetoHook) NHooks++;
+   if(NHooks > 1)
+     throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
+       <<" Too many User Hooks. \n Please choose one from: reweightGen, jetMatching, emissionVeto \n";
+
+   if(fReweightUserHook) pythia->setUserHooksPtr(fReweightUserHook);
+   if(fJetMatchingHook) pythia->setUserHooksPtr(fJetMatchingHook);
+   if(fEmissionVetoHook) pythia->setUserHooksPtr(fEmissionVetoHook);
 
 }
 
 Pythia8Hadronizer::~Pythia8Hadronizer()
 {
-
 // do we need to delete UserHooks/JetMatchingHook here ???
 
+  if(fEmissionVetoHook) {delete fEmissionVetoHook; fEmissionVetoHook=0;}
 }
 
 bool Pythia8Hadronizer::readSettings( int )
 {
-    if(useUserHook && !fJetMatchingHook) { // yes, JetMatching takes over other "hooks" !!!
-      UserHookPointer = new PtHatReweightUserHook();
-      pythia->setUserHooksPtr(UserHookPointer);
-    }
-
 	for(ParameterCollector::const_iterator line = parameters.begin();
 	    line != parameters.end(); ++line) {
 		if (line->find("Random:") != std::string::npos)
@@ -535,7 +544,7 @@ void Pythia8Hadronizer::finalizeEvent()
   //cout.precision(10);
   //cout << " pt = " << pythia->info.pTHat() << " weights = "
   //     << pythia->info.weight() << " "
-  //     << UserHookPointer->biasedSelectionWeight() << endl;
+  //     << fReweightUserHook->biasedSelectionWeight() << endl;
 
   if (event()->alphaQED() <= 0)
     event()->set_alphaQED( pythia->info.alphaEM() );

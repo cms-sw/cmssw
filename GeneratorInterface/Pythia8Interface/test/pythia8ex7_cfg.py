@@ -8,6 +8,7 @@ process.load("Configuration.StandardSequences.SimulationRandomNumberGeneratorSee
 process.source = cms.Source("LHESource",
     fileNames = cms.untracked.vstring('file:powheg-hvq.lhe')
 )
+#    fileNames = cms.untracked.vstring('file:powheg-Zee.lhe')
 
 process.generator = cms.EDFilter("Pythia8HadronizerFilter",
     maxEventsToPrint = cms.untracked.int32(1),
@@ -15,7 +16,6 @@ process.generator = cms.EDFilter("Pythia8HadronizerFilter",
     filterEfficiency = cms.untracked.double(1.0),
     pythiaHepMCVerbosity = cms.untracked.bool(False),
     comEnergy = cms.double(7000.),
-    #LHEInputFileName = cms.untracked.string('ttbar.lhe'),
     emissionVeto = cms.untracked.PSet(),
     PythiaParameters = cms.PSet(
         pythia8_example03 = cms.vstring(''),
@@ -52,4 +52,3 @@ process.p = cms.Path(process.generator)
 process.outpath = cms.EndPath(process.GEN)
 
 process.schedule = cms.Schedule(process.p, process.outpath)
-

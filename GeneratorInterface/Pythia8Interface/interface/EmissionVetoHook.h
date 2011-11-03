@@ -4,9 +4,13 @@ class EmissionVetoHook : public Pythia8::UserHooks {
 
 public:
 
-   // Constructor and destructor.
-   EmissionVetoHook() : firstNoRad(true) { }
-  ~EmissionVetoHook() { }
+  // Constructor and destructor.
+  EmissionVetoHook(int Verbosity) : nISRveto(0), nFSRveto(0), 
+    firstNoRad(true) { }
+ ~EmissionVetoHook() {
+    cout << "Number of ISR vetoed = " << nISRveto << endl;
+    cout << "Number of FSR vetoed = " << nFSRveto << endl;
+  }
 
   // Use VetoMIStep to analyse the incoming LHEF event and
   // extract the veto scale
@@ -22,6 +26,8 @@ public:
   bool canVetoFSREmission() { return true; }
   bool doVetoFSREmission(int, const Pythia8::Event &e);
 
+  void fatalEmissionVeto(string message);
+
   // Functions to return information
   double getPTpowheg() { return pTpowheg; }
   double getPTshower() { return pTshower; }
@@ -32,7 +38,6 @@ public:
 private:
       
   double pTveto, pTpowheg, pTshower;
-  int    nISRveto, nFSRveto;
+  int    last, nISRveto, nFSRveto, Verbosity;
   bool   noRad, firstNoRad;
 };
-

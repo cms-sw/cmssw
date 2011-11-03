@@ -16,7 +16,6 @@ process.generator = cms.EDFilter("Pythia8GeneratorFilter",
     comEnergy = cms.double(7000.),
     #PPbarInitialState  = cms.PSet(),
     ElectronPositronInitialState  = cms.PSet(),
-    #useUserHook = cms.bool(True),
     PythiaParameters = cms.PSet(
         pythia8_example06 = cms.vstring('WeakSingleBoson:ffbar2gmZ = on'),
         parameterSets = cms.vstring('pythia8_example06')
