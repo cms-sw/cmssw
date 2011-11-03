@@ -99,7 +99,6 @@ void FastTimerService::postBeginJob() {
       //    HLT/Timer      --> HLT/EventInfo/Timer
       // etc.
 
-      /*
       // assume the path to be relative, and to have at least an item
       boost::filesystem::path::iterator item = m_dqm_path.begin();
       boost::filesystem::path path = * item++;
@@ -107,8 +106,6 @@ void FastTimerService::postBeginJob() {
       while (item != m_dqm_path.end())
         path /= * item++;
       m_dqm_path = path;
-      */
-      m_dqm_path /= "EventInfo";
     }
 
     // book MonitorElement's
