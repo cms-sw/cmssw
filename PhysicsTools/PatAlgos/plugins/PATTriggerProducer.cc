@@ -1,5 +1,5 @@
 //
-// $Id: PATTriggerProducer.cc,v 1.28 2011/06/21 23:27:55 vadler Exp $
+// $Id: PATTriggerProducer.cc,v 1.29 2011/06/22 13:12:32 vadler Exp $
 //
 
 
@@ -38,6 +38,8 @@ using namespace edm;
 const unsigned L1GlobalTriggerReadoutSetup::NumberPhysTriggers;
 const unsigned L1GlobalTriggerReadoutSetup::NumberPhysTriggersExtended;
 const unsigned L1GlobalTriggerReadoutSetup::NumberTechnicalTriggers;
+static const bool useL1EventSetup( true );
+static const bool useL1GtTriggerMenuLite( false );
 
 
 PATTriggerProducer::PATTriggerProducer( const ParameterSet & iConfig ) :
@@ -747,7 +749,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
       mapObjectTypes.insert( std::make_pair( ETM    , trigger::TriggerL1ETM ) );
       mapObjectTypes.insert( std::make_pair( HTM    , trigger::TriggerL1HTM ) );
       // get and cache L1 menu
-      l1GtUtils_.retrieveL1EventSetup( iSetup );
+      l1GtUtils_.getL1GtRunCache( iEvent, iSetup, useL1EventSetup, useL1GtTriggerMenuLite );
       ESHandle< L1GtTriggerMenu > handleL1GtTriggerMenu;
       iSetup.get< L1GtTriggerMenuRcd >().get( handleL1GtTriggerMenu );
       L1GtTriggerMenu l1GtTriggerMenu( *handleL1GtTriggerMenu );
