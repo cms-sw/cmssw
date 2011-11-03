@@ -11,27 +11,20 @@ namespace edm {
   class EDProductGetter;
   class RefCoreStreamer : public TClassStreamer {
   public:
-    explicit RefCoreStreamer(EDProductGetter const* ep) : cl_("edm::RefCore"), prodGetter_(ep) {}
+    explicit RefCoreStreamer() : cl_("edm::RefCore"){}
 
-    EDProductGetter const* setProductGetter(EDProductGetter const* ep) {
-        EDProductGetter const* old = prodGetter_;
-        prodGetter_ = ep;
-        return old;
-    }
     void operator() (TBuffer &R__b, void *objp);
 
   private:
     TClassRef cl_;
-    EDProductGetter const* prodGetter_;
   };
 
-
-  class RefCoreCheckTransientOnWriteStreamer : public TClassStreamer {
+  class RefCoreWithIndexStreamer : public TClassStreamer {
   public:
-    explicit RefCoreCheckTransientOnWriteStreamer() : cl_("edm::RefCore::CheckTransientOnWrite"){}
-
+    explicit RefCoreWithIndexStreamer() : cl_("edm::RefCoreWithIndex"){}
+    
     void operator() (TBuffer &R__b, void *objp);
-
+    
   private:
     TClassRef cl_;
   };
