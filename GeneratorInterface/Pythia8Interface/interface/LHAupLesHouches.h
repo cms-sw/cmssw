@@ -20,26 +20,24 @@
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 
 class LHAupLesHouches : public Pythia8::LHAup {
-    public:
-	LHAupLesHouches() {;}
+  public:
+    LHAupLesHouches() {;}
 
-	//void loadRunInfo(const boost::shared_ptr<lhef::LHERunInfo> &runInfo)
+    //void loadRunInfo(const boost::shared_ptr<lhef::LHERunInfo> &runInfo)
     void loadRunInfo(lhef::LHERunInfo* runInfo)
-	{ this->runInfo = runInfo; }
+      { this->runInfo = runInfo; }
 
-	//void loadEvent(const boost::shared_ptr<lhef::LHEEvent> &event)
+    //void loadEvent(const boost::shared_ptr<lhef::LHEEvent> &event)
     void loadEvent(lhef::LHEEvent* event)
-	{ this->event = event; }
+      { this->event = event; }
 
-    private:
+  private:
 
-	bool setInit();
-	bool setEvent(int idProcIn);
+    bool setInit();
+    bool setEvent(int idProcIn);
 
-//	Hadronisation			*hadronisation;
-	//boost::shared_ptr<lhef::LHERunInfo>	runInfo;
+    //boost::shared_ptr<lhef::LHERunInfo> runInfo;
     lhef::LHERunInfo* runInfo;
-	//boost::shared_ptr<lhef::LHEEvent>	event;
+    //boost::shared_ptr<lhef::LHEEvent>	event;
     lhef::LHEEvent* event;
 };
-
