@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # FastTimerService
-from HLTrigger.Timer.FastTimerService import *
+from HLTrigger.Timer.FastTimerService_cfi import *
 
 # DQM file saver
 dqmFileSaver = cms.EDAnalyzer( "DQMFileSaver",
@@ -14,4 +14,4 @@ dqmFileSaver = cms.EDAnalyzer( "DQMFileSaver",
  #forceRunNumber    = cms.untracked.int32( 999999 )
 )
 
-DQMFileSaverOutput = cms.EndPath( process.dqmFileSaver )
+DQMFileSaverOutput = cms.EndPath( dqmFileSaver )

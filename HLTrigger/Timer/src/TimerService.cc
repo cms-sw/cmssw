@@ -15,7 +15,7 @@ TimerService::TimerService(const edm::ParameterSet& ps,
     is_bound_ = CPUAffinity::bindToCurrentCpu();
     if (is_bound_)
       // the process is (now) bound to a single CPU, the call to clock_gettime(CLOCK_THREAD_CPUTIME_ID, ...) is safe to use
-      edm::LogInfo("TimerService") << "this process is bound to CPU " << sched_getcpu();
+      edm::LogInfo("TimerService") << "this process is bound to CPU " << CPUAffinity::currentCpu();
     else
       // the process is NOT bound to a single CPU
       edm::LogError("TimerService") << "this process is NOT bound to a single CPU, the results of the TimerService may be undefined";
