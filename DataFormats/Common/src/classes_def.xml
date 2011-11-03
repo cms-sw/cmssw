@@ -2,8 +2,9 @@
  <class name="edm::EDProductGetter" ClassVersion="10">
   <version ClassVersion="10" checksum="2702412727"/>
  </class>
- <class name="edm::RefCore" ClassVersion="10">
+ <class name="edm::RefCore" ClassVersion="11">
   <version ClassVersion="10" checksum="641105393"/>
+  <version ClassVersion="11" checksum="3425324092"/>
    <field name="cachePtr_" transient = "true"/>
  </class>
  <ioread sourceClass = "edm::RefCore" version="[1-]" targetClass="edm::RefCore" source="" target="cachePtr_">
@@ -11,19 +12,15 @@
      edm::EDProductGetter::assignEDProductGetter(reinterpret_cast<edm::EDProductGetter const*&>(cachePtr_));
       ]]>
  </ioread>
- <class name="edm::RefCore::CheckTransientOnWrite" ClassVersion="4">
-  <version ClassVersion="4" checksum="797252954"/>
-   <field name="transient_" transient="true"/>
-   <field name="cacheIsProductPtr_" transient="true"/>
- </class>
- <ioread sourceClass = "edm::RefCore::CheckTransientOnWrite" version="[1-]" targetClass="edm::RefCore::CheckTransientOnWrite" source = "" target="transient_">
-    <![CDATA[transient_=false;
+  <class name="edm::RefCoreWithIndex" ClassVersion="11">
+    <version ClassVersion="11" checksum="2602044085"/>
+    <field name="cachePtr_" transient = "true"/>
+  </class>
+  <ioread sourceClass = "edm::RefCoreWithIndex" version="[1-]" targetClass="edm::RefCoreWithIndex" source="" target="cachePtr_">
+    <![CDATA[
+      edm::EDProductGetter::assignEDProductGetter(reinterpret_cast<edm::EDProductGetter const*&>(cachePtr_));
     ]]>
- </ioread>
- <ioread sourceClass = "edm::RefCore::CheckTransientOnWrite" version="[1-]" targetClass="edm::RefCore::CheckTransientOnWrite" source = "" target="cacheIsProductPtr_">
-    <![CDATA[cacheIsProductPtr_=false;
-    ]]>
- </ioread>
+  </ioread>
  <class name="edm::ConstPtrCache" ClassVersion="10">
   <version ClassVersion="10" checksum="2166959629"/>
    <field name="ptr_" transient="true"/>

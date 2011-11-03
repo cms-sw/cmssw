@@ -34,9 +34,15 @@ namespace edm {
   RefCore::RefCore(ProductID const& theId, void const* prodPtr, EDProductGetter const* prodGetter, bool transient) :
       cachePtr_(prodPtr?prodPtr:prodGetter),
       processIndex_(theId.processIndex()),
-      productIndex_(theId.productIndex()),
-      transient_(transient,prodPtr!=0 || prodGetter==0)
-      {}
+      productIndex_(theId.productIndex())
+      {
+        if(transient) {
+          setTransient();
+        }
+        if(prodPtr!=0 || prodGetter==0) {
+          setCacheIsProductPtr();
+        }
+      }
 
   WrapperHolder
   RefCore::getProductPtr(std::type_info const& type) const {
@@ -111,8 +117,17 @@ namespace edm {
   void
   RefCore::setProductGetter(EDProductGetter const* prodGetter) const {
     cachePtr_ = prodGetter;
-    setCacheIsProductPtr(false);
+    unsetCacheIsProductPtr();
   }
+  
+  void 
+  RefCore::setId(ProductID const& iId) {
+    unsigned short head = processIndex_ & (refcoreimpl::kTransientBit | refcoreimpl::kCacheIsProductPtrBit);
+    processIndex_ = iId.processIndex();
+    processIndex_ |= head;
+    productIndex_ = iId.productIndex();
+  }
+
 
   void
   RefCore::pushBackItem(RefCore const& productToBeInserted, bool checkPointer) {

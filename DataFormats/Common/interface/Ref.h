@@ -110,6 +110,7 @@ Ref: A template for a interproduct reference to a member of a product_.
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 #include "DataFormats/Common/interface/RefCore.h"
+#include "DataFormats/Common/interface/RefCoreWithIndex.h"
 #include "DataFormats/Common/interface/TestHandle.h"
 #include "DataFormats/Common/interface/traits.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
@@ -296,6 +297,164 @@ namespace edm {
     key_type index_;
 
   };
+
+  //***************************
+  //Specialization for a vector
+  //***************************
+#define REF_FOR_VECTOR_ARGS std::vector<E>,typename refhelper::ValueTrait<std::vector<E> >::value,typename refhelper::FindTrait<std::vector<E>, typename refhelper::ValueTrait<std::vector<E> >::value>::value
+
+  template <typename E>
+  class Ref<REF_FOR_VECTOR_ARGS> {
+  private:
+    typedef typename refhelper::ValueTrait<std::vector<E> >::value T;
+    typedef typename refhelper::FindTrait<std::vector<E>, typename refhelper::ValueTrait<std::vector<E> >::value>::value F;
+    typedef refhelper::FindRefVectorUsingAdvance<RefVector<std::vector<E>, T, F> > VF;
+    typedef refhelper::FindRefVectorUsingAdvance<RefToBaseVector<T> > VBF;
+    friend class RefVectorIterator<std::vector<E>, T, F>;
+    friend class RefVector<std::vector<E>, T, F>;
+    friend class RefVector<RefVector<std::vector<E>, T, F>, T, VF>;
+    friend class RefVector<RefVector<RefVector<std::vector<E>, T, F>, T, VF>, T, VF>;
+    friend class RefVector<RefVector<std::vector<E>, T, F>, T, VBF>;
+    friend class RefVector<RefVector<RefVector<std::vector<E>, T, F>, T, VBF>, T, VBF>;
+    /// etc. etc.: more nesting levels could be supported ...
+    
+  public:
+    /// for export
+    typedef std::vector<E> product_type;
+    typedef typename refhelper::ValueTrait<std::vector<E> >::value value_type; 
+    typedef value_type const element_type; //used for generic programming
+    typedef typename refhelper::FindTrait<std::vector<E>, typename refhelper::ValueTrait<std::vector<E> >::value>::value finder_type;
+    typedef typename boost::binary_traits<F>::second_argument_type argument_type;
+    typedef unsigned int key_type;   
+    /// C is the type of the collection
+    /// T is the type of a member the collection
+    
+    /// Default constructor needed for reading from persistent store. Not for direct use.
+    Ref() : product_() {}
+    
+    /// General purpose constructor from handle.
+    Ref(Handle<product_type> const& handle, key_type itemKey, bool setNow=true);
+    
+    /// General purpose constructor from orphan handle.
+    Ref(OrphanHandle<product_type> const& handle, key_type itemKey, bool setNow=true);
+    
+    /// Constructor from RefVector and index into collection.
+    //  Note. refvector[index] returns a Ref where index is the index into
+    //  the RefVector. This index argument is the index into the COLLECTION,
+    //  not the index into the RefVector.
+    Ref(RefVector<product_type, T, F> const& refvector, key_type itemKey, bool setNow=true);
+    
+    /// Constructors for ref to object that is not in an event.
+    //  An exception will be thrown if an attempt is made to persistify
+    //  any object containing this Ref.  Also, in the future work will
+    //  be done to throw an exception if an attempt is made to put any object
+    //  containing this Ref into an event(or run or lumi).
+    Ref(product_type const* product, key_type itemKey, bool setNow=true);
+    
+    /// Constructor from test handle.
+    //  An exception will be thrown if an attempt is made to persistify
+    //  any object containing this Ref.  Also, in the future work will
+    Ref(TestHandle<product_type> const& handle, key_type itemKey, bool setNow=true);
+    
+    /// Constructor for those users who do not have a product handle,
+    /// but have a pointer to a product getter (such as the EventPrincipal).
+    /// prodGetter will ususally be a pointer to the event principal.
+    Ref(ProductID const& productID, key_type itemKey, EDProductGetter const* prodGetter) :
+    product_(productID, 0, mustBeNonZero(prodGetter, "Ref", productID), false,itemKey) {
+    }
+    
+    /// Constructor for use in the various X::fillView(...) functions.
+    //  It is an error (not diagnosable at compile- or run-time) to call
+    //  this constructor with a pointer to a T unless the pointed-to T
+    //  object is already in a collection of type C stored in the
+    //  Event. The given ProductID must be the id of the collection in
+    //  the Event.
+    
+    Ref(ProductID const& iProductID, T const* /*item*/, key_type iItemKey, product_type const* iProduct) :
+    product_(iProductID, iProduct, 0, false,iItemKey)
+    { }
+    
+    /// Constructor that creates an invalid ("null") Ref that is
+    /// associated with a given product (denoted by that product's
+    /// ProductID).
+    
+    explicit Ref(ProductID const& iId) :
+    product_(iId, 0, 0, false,key_traits<key_type>::value)
+    { }
+    
+    /// Constructor from RefProd<C> and key
+    Ref(RefProd<product_type> const& refProd, key_type itemKey);
+    
+    /// Destructor
+    ~Ref() {}
+    
+    /// Dereference operator
+    T const&
+    operator*() const;
+    
+    /// Member dereference operator
+    T const*
+    operator->() const;
+    
+    /// Returns C++ pointer to the item
+    T const* get() const {
+      return isNull() ? 0 : this->operator->();
+    }
+    
+    /// Checks for null
+    bool isNull() const {return !isNonnull(); }
+    
+    /// Checks for non-null
+    bool isNonnull() const { return key()!=edm::key_traits<key_type>::value; }
+    
+    /// Checks for null
+    bool operator!() const {return isNull();}
+    
+    /// Accessor for product ID.
+    ProductID id() const {return product_.id();}
+    
+    /// Accessor for product getter.
+    EDProductGetter const* productGetter() const {return product_.productGetter();}
+    
+    /// Accessor for product collection
+    // Accessor must get the product if necessary
+    product_type const* product() const;
+    
+    /// Accessor for product key.
+    key_type key() const {return product_.index();}
+    
+    // This one just for backward compatibility.  Will be removed soon.
+    key_type index() const {return product_.index();}
+    
+    /// Returns true if container referenced by the Ref has been cached
+    bool hasProductCache() const {return product_.productPtr() != 0;}
+    
+    /// Checks if collection is in memory or available
+    /// in the Event. No type checking is done.
+    bool isAvailable() const {return product_.isAvailable();}
+    
+    /// Checks if this ref is transient (i.e. not persistable).
+    bool isTransient() const {return product_.isTransient();}
+    
+    RefCore const& refCore() const {return product_.toRefCore();}
+    
+    //Used by ROOT storage
+    CMS_CLASS_VERSION(11)
+    //  private:
+    // Constructor from member of RefVector
+    Ref(RefCore const& iRefCore, key_type const& iKey) : 
+    product_(iRefCore,iKey) {
+    }
+    
+  private:
+    // Compile time check that the argument is a C* or C const*
+    // or derived from it.
+    void checkTypeAtCompileTime(product_type const*) {}
+    
+    mutable RefCoreWithIndex product_;
+    
+  };
+
 }
 
 #include "DataFormats/Common/interface/RefProd.h"
@@ -314,6 +473,17 @@ namespace edm {
     if (setNow) {getPtr_<C, T, F>(product_, index_);}
   }
 
+  /// General purpose constructor from handle.
+  template <typename E>
+  inline
+  Ref<REF_FOR_VECTOR_ARGS>::Ref(Handle<std::vector<E> > const& handle, key_type itemKey, bool setNow) :
+  product_(handle.id(), handle.product(), 0, false,itemKey){
+    checkTypeAtCompileTime(handle.product());
+    assert(key() == itemKey);
+    
+    if (setNow) {getPtr_<REF_FOR_VECTOR_ARGS>(product_.toRefCore(), index());}
+  }
+
   /// General purpose constructor from orphan handle.
   template <typename C, typename T, typename F>
   inline
@@ -325,6 +495,17 @@ namespace edm {
     if (setNow) {getPtr_<C, T, F>(product_, index_);}
   }
 
+  /// General purpose constructor from orphan handle.
+  template <typename E>
+  inline
+  Ref<REF_FOR_VECTOR_ARGS>::Ref(OrphanHandle<std::vector<E> > const& handle, key_type itemKey, bool setNow) :
+  product_(handle.id(), handle.product(), 0, false,itemKey) {
+    checkTypeAtCompileTime(handle.product());
+    assert(key() == itemKey);
+    
+    if (setNow) {getPtr_<REF_FOR_VECTOR_ARGS>(product_.toRefCore(), key());}
+  }
+  
   /// Constructor from RefVector and index into the collection
   template <typename C, typename T, typename F>
   inline
@@ -336,6 +517,17 @@ namespace edm {
     if (setNow) {getPtr_<C, T, F>(product_, index_);}
   }
 
+  /// Constructor from RefVector and index into the collection
+  template <typename E>
+  inline
+  Ref<REF_FOR_VECTOR_ARGS>::Ref(RefVector<REF_FOR_VECTOR_ARGS> const& refvector, key_type itemKey, bool setNow) :
+  product_(refvector.id(), refvector.product(), 0, refvector.isTransient(),itemKey) {
+    checkTypeAtCompileTime(refvector.product());
+    assert(key() == itemKey);
+    
+    if (setNow) {getPtr_<REF_FOR_VECTOR_ARGS>(product_.toRefCore(), key());}
+  }
+  
   /// Constructor for refs to object that is not in an event.
   //  An exception will be thrown if an attempt is made to persistify
   //  any object containing this Ref.  Also, in the future work will
@@ -353,6 +545,16 @@ namespace edm {
     if (iSetNow && iProduct != 0) {getPtr_<C, T, F>(product_, index_);}
   }
 
+  template <typename E>
+  inline
+  Ref<REF_FOR_VECTOR_ARGS>::Ref(std::vector<E> const* iProduct, key_type iItemKey, bool iSetNow) :
+  product_(ProductID(), iProduct, 0, true,(iProduct != 0 ? iItemKey : key_traits<key_type>::value)) {
+    checkTypeAtCompileTime(iProduct);
+    assert(key() == (iProduct != 0 ? iItemKey : key_traits<key_type>::value));
+    
+    if (iSetNow && iProduct != 0) {getPtr_<REF_FOR_VECTOR_ARGS>(product_.toRefCore(), key());}
+  }
+
   /// constructor from test handle.
   //  An exception will be thrown if an attempt is made to persistify any object containing this Ref.
   template <typename C, typename T, typename F>
@@ -365,6 +567,16 @@ namespace edm {
     if (setNow) {getPtr_<C, T, F>(product_, index_);}
   }
 
+  template <typename E>
+  inline
+  Ref<REF_FOR_VECTOR_ARGS>::Ref(TestHandle<std::vector<E> > const& handle, key_type itemKey, bool setNow) :
+  product_(handle.id(), handle.product(), 0, true,itemKey) {
+    checkTypeAtCompileTime(handle.product());
+    assert(key() == itemKey);
+    
+    if (setNow) {getPtr_<REF_FOR_VECTOR_ARGS>(product_.toRefCore(), key());}
+  }
+
   /// Constructor from RefProd<C> and key
   template <typename C, typename T, typename F>
   inline
@@ -373,6 +585,14 @@ namespace edm {
     assert(index() == itemKey);
   }
 
+  template <typename E>
+  inline
+  Ref<REF_FOR_VECTOR_ARGS>::Ref(RefProd<std::vector<E> > const& refProd, key_type itemKey) :
+  product_(refProd.id(), refProd.refCore().productPtr(), refProd.refCore().productGetter(), refProd.refCore().isTransient(),itemKey) {
+    assert(index() == itemKey);
+  }
+  
+  
   /// Accessor for product collection
   // Accessor must get the product if necessary
   template <typename C, typename T, typename F>
@@ -380,6 +600,12 @@ namespace edm {
   C const*
   Ref<C, T, F>::product() const {
       return isNull() ? 0 : edm::template getProduct<C>(product_);
+  }
+  template <typename E>
+  inline
+  std::vector<E> const*
+  Ref<REF_FOR_VECTOR_ARGS>::product() const {
+    return isNull() ? 0 : edm::template getProduct<std::vector<E> >(product_.toRefCore());
   }
 
   /// Dereference operator
@@ -389,6 +615,12 @@ namespace edm {
   Ref<C, T, F>::operator*() const {
     return *getPtr<C, T, F>(product_, index_);
   }
+  template <typename E>
+  inline
+  typename refhelper::ValueTrait<std::vector<E> >::value const&
+  Ref<REF_FOR_VECTOR_ARGS>::operator*() const {
+    return *getPtr<REF_FOR_VECTOR_ARGS>(product_.toRefCore(), key());
+  }
 
   /// Member dereference operator
   template <typename C, typename T, typename F>
@@ -396,6 +628,12 @@ namespace edm {
   T const*
   Ref<C, T, F>::operator->() const {
     return getPtr<C, T, F>(product_, index_);
+  }
+  template <typename E>
+  inline
+  typename refhelper::ValueTrait<std::vector<E> >::value const*
+  Ref<REF_FOR_VECTOR_ARGS>::operator->() const {
+    return getPtr<REF_FOR_VECTOR_ARGS>(product_.toRefCore(), key());
   }
 
   template <typename C, typename T, typename F>
