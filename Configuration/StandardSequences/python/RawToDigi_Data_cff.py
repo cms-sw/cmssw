@@ -33,29 +33,9 @@ RawToDigi_woGCT = cms.Sequence(csctfDigis
                                +castorDigis
                                +scalersRawToDigi)
 
-
-gtDigis.DaqGtInputTag = 'source'
-gtEvmDigis.EvmGtInputTag = 'source'
-siPixelDigis.InputLabel = 'source'
-siStripDigis.ProductLabel = 'source'
-castorDigis.InputLabel = 'source'
 ecalDigis.DoRegional = False
 
 #set those back to "source"
-scalersRawToDigi.scalersInputTag = 'source'
-csctfDigis.producer = 'source'
-dttfDigis.DTTF_FED_Source = 'source'
-gctDigis.inputLabel = 'source'
-gtDigis.DaqGtInputTag = 'source'
-siPixelDigis.InputLabel = 'source'
 #False by default ecalDigis.DoRegional = False
-ecalDigis.InputLabel = 'source'
-ecalPreshowerDigis.sourceTag = 'source'
-hcalDigis.InputLabel = 'source'
-muonCSCDigis.InputObjects = 'source'
-muonDTDigis.inputLabel = 'source'
-muonRPCDigis.InputLabel = 'source'
-gtEvmDigis.EvmGtInputTag = 'source'
-castorDigis.InputLabel = 'source'
 
 
