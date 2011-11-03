@@ -954,13 +954,14 @@ class PickRelValInputFiles( ConfigToolBase ):
             if debug:
                 self.messageEmptyList()
             return filePaths
-        if debug:
-            print '%s DEBUG: Running at site \'%s.%s\''%( self._label, domain[ -2 ], domain[ -1 ] )
-            print '    using command   \'%s\''%( command )
-            print '    on storage path %s'%( storage )
         rfdirPath    = '/store/relval/%s/%s/%s/%s-v'%( cmsswVersion, relVal, dataTier, globalTag )
         argument     = '%s%s'%( storage, rfdirPath )
         validVersion = 0
+        if debug:
+            print '%s DEBUG: Running at site \'%s.%s\''%( self._label, domain[ -2 ], domain[ -1 ] )
+            print '    using command     \'%s\''%( command )
+            print '    on storage path   \'%s\''%( storage )
+            print '    with logical path \'%s*\''%( rfdirPath )
 
         for version in range( maxVersions, 0, -1 ):
             filePaths = []
@@ -969,6 +970,10 @@ class PickRelValInputFiles( ConfigToolBase ):
                 print '%s DEBUG: Checking directory \'%s%i\''%( self._label, argument, version )
             directories = Popen( [ command, '%s%i'%( argument, version ) ], stdout = PIPE, stderr = PIPE ).communicate()[0]
             for directory in directories.splitlines():
+                if len( directory ) == 0:
+                    continue
+                if debug:
+                    print '%s DEBUG: Checking sub-directory \'%s\''%( self._label, directory )
                 files = Popen( [ command, '%s%i/%s'%( argument, version, directory ) ], stdout = PIPE, stderr = PIPE ).communicate()[0]
                 for file in files.splitlines():
                     if len( file ) > 0 and validVersion != version:
@@ -981,9 +986,9 @@ class PickRelValInputFiles( ConfigToolBase ):
                         if debug:
                             print '%s DEBUG: File \'%s\' found'%( self._label, file )
                         fileCount += 1
-                    if fileCount > skipFiles:
-                        filePath = '%s%i/%s/%s'%( rfdirPath, version, directory, file )
-                        filePaths.append( filePath )
+                        if fileCount > skipFiles:
+                            filePath = '%s%i/%s/%s'%( rfdirPath, version, directory, file )
+                            filePaths.append( filePath )
                     if numberOfFiles > 0 and len( filePaths ) >= numberOfFiles:
                         break
                 if debug:
