@@ -140,16 +140,19 @@ void FastTimerService::postEndJob() {
   // spacing is set to mimic TimeReport
   std::ostringstream out;
   out << std::fixed << std::setprecision(6);
-  out << "FastReport " << std::setw(10) << m_summary_source       / (double) m_summary_events << "                                  source"        << '\n';
-  out << "FastReport " << std::setw(10) << m_summary_event        / (double) m_summary_events << "                                  event"         << '\n';
-  out << "FastReport " << std::setw(10) << m_summary_all_paths    / (double) m_summary_events << "                                  all paths"     << '\n';
-  out << "FastReport " << std::setw(10) << m_summary_all_endpaths / (double) m_summary_events << "                                  all endpaths"  << '\n';
+  out << "FastReport " << std::right << std::setw(10) << (m_timer_id == CLOCK_REALTIME ? "Real" : "CPU") << '\n';
+  out << "FastReport " << std::right << std::setw(10) << m_summary_source       / (double) m_summary_events << "                                  Source"        << '\n';
+  out << "FastReport " << std::right << std::setw(10) << m_summary_event        / (double) m_summary_events << "                                  Event"         << '\n';
+  out << "FastReport " << std::right << std::setw(10) << m_summary_all_paths    / (double) m_summary_events << "                                  all Paths"     << '\n';
+  out << "FastReport " << std::right << std::setw(10) << m_summary_all_endpaths / (double) m_summary_events << "                                  all EndPaths"  << '\n';
   out << '\n';
+  out << "FastReport " << std::right << std::setw(10) << (m_timer_id == CLOCK_REALTIME ? "Real" : "CPU")    << "                                  Path"          << '\n';
   BOOST_FOREACH(std::string const & name, tns.getTrigPaths())
-    out << "FastReport " << std::setw(10) << m_summary_paths[name]  / (double) m_summary_events << "                                  " << name << '\n';
+    out << "FastReport " << std::right << std::setw(10) << m_summary_paths[name]  / (double) m_summary_events << "                                  " << name << '\n';
   out << '\n';
+  out << "FastReport " << std::right << std::setw(10) << (m_timer_id == CLOCK_REALTIME ? "Real" : "CPU")    << "                                  EndPath"       << '\n';
   BOOST_FOREACH(std::string const & name, tns.getEndPaths())
-    out << "FastReport " << std::setw(10) << m_summary_paths[name]  / (double) m_summary_events << "                                  " << name << '\n';
+    out << "FastReport " << std::right << std::setw(10) << m_summary_paths[name]  / (double) m_summary_events << "                                  " << name << '\n';
   edm::LogVerbatim("FastReport") << out.str();
 }
 
