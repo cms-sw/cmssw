@@ -191,6 +191,7 @@ std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber,
 
   int hit_nr = 0;
   int hit_nr_worst = -1;
+  int hit_nr_2ndworst = -1;
   
   for(std::vector<CSCSegment>::iterator it=segments.begin(); it != segments.end(); ++it) {
     
@@ -215,6 +216,7 @@ std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber,
 	// find (rough) "residuals" (NOT excluding the hit from the fit - speed!) of hits on segment
 	std::vector<CSCRecHit2D> theseRecHits = (*it).specificRecHits();
 	std::vector<CSCRecHit2D>::const_iterator iRH_worst;
+	float xdist_local       = -99999.;
 
 	float xdist_local_worst_sig = -99999.;
 	float xdist_local_2ndworst_sig = -99999.;
@@ -222,13 +224,22 @@ std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber,
 
 	hit_nr = 0;
 	hit_nr_worst = -1;
+	hit_nr_2ndworst = -1;
 
 	for ( std::vector<CSCRecHit2D>::const_iterator iRH = theseRecHits.begin(); iRH != theseRecHits.end(); ++iRH) {
 	  //mark "worst" hit:
 	  
+ 	  float z_at_target ;
+	  float radius      ;
 	  float loc_x_at_target ;
+	  float loc_y_at_target ;
+	  float loc_z_at_target ;
 
+	  z_at_target  = 0.;
 	  loc_x_at_target  = 0.;
+	  loc_y_at_target  = 0.;
+	  loc_z_at_target  = 0.;
+	  radius       = 0.;
 	  
 	  // set the z target in CMS global coordinates:
 	  const CSCLayer* csclayerRH = theChamber->layer((*iRH).cscDetId().layer());
@@ -242,22 +253,29 @@ std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber,
 	  
 	  if(target_z > 0.) {
 	    loc_x_at_target = localPos.x() + (segDir.x()/fabs(segDir.z())*( target_z - globZ ));
+	    loc_y_at_target = localPos.y() + (segDir.y()/fabs(segDir.z())*( target_z - globZ ));
+	    loc_z_at_target = target_z;
 	  }
 	  else {
 	    loc_x_at_target = localPos.x() + ((-1)*segDir.x()/fabs(segDir.z())*( target_z - globZ ));
+	    loc_y_at_target = localPos.y() + ((-1)*segDir.y()/fabs(segDir.z())*( target_z - globZ ));
+	    loc_z_at_target = target_z;
 	  }
 	  // have to transform the segments coordinates back to the local frame... how?!!!!!!!!!!!!
 	  
+	  xdist_local  = fabs(localPositionRH.x() - loc_x_at_target);
 	  xdist_local_sig  = fabs((localPositionRH.x() -loc_x_at_target)/(xxerr));
 	  
 	  if( xdist_local_sig > xdist_local_worst_sig ) {
 	    xdist_local_2ndworst_sig = xdist_local_worst_sig;
 	    xdist_local_worst_sig    = xdist_local_sig;
 	    iRH_worst            = iRH;
+	    hit_nr_2ndworst = hit_nr_worst;
 	    hit_nr_worst = hit_nr;
 	  }
 	  else if(xdist_local_sig > xdist_local_2ndworst_sig) {
 	    xdist_local_2ndworst_sig = xdist_local_sig;
+	    hit_nr_2ndworst = hit_nr;
 	  }
 	  ++hit_nr;
 	}
@@ -267,6 +285,7 @@ std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber,
 	// 1.5 better than the worst in terms of sigma:
 	if ( xdist_local_worst_sig / xdist_local_2ndworst_sig < 1.5 ) {
 	  hit_nr_worst    = -1;
+	  hit_nr_2ndworst = -1;
 	}
       }
     }
@@ -376,6 +395,8 @@ std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::clusterHits(const C
   //   const float dXclus_box_cut       = 4.; // seems to work reasonably 070116
   //   const float dYclus_box_cut       = 8.; // seems to work reasonably 070116
 
+  float dXclus = 0.0;
+  float dYclus = 0.0;
   float dXclus_box = 0.0;
   float dYclus_box = 0.0;
 
@@ -430,6 +451,10 @@ std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::clusterHits(const C
 	continue; //skip seeds that have been used 
       }
 	  
+      // calculate cut criteria for simple running mean distance cut:
+      dXclus = fabs(running_meanX[NNN] - running_meanX[MMM]);
+      dYclus = fabs(running_meanY[NNN] - running_meanY[MMM]);
+
       // calculate minmal distance between precluster boxes containing the hits:
       if ( running_meanX[NNN] > running_meanX[MMM] ) dXclus_box = seed_minX[NNN] - seed_maxX[MMM];
       else                                           dXclus_box = seed_minX[MMM] - seed_maxX[NNN];
@@ -642,7 +667,7 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
   // CSC Ring;
   unsigned int thering    = 999;
   unsigned int thestation = 999;
-  // unsigned int thecham    = 999;
+  unsigned int thecham    = 999;
 
   std::vector<int> hits_onLayerNumber(6);
 
@@ -703,8 +728,11 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
   float min_weight_A = 99999.9;
   float min_weight_noLx_A = 99999.9;
 
+  float best_weight_B = -1.;
+  float best_weight_noLx_B = -1.;
 
-  //float best_curv_A = -1.;
+  float best_curv_A = -1.;
+  float best_curv_noLx_A = -1.;
 
   int best_pseg = -1;
   int best_noLx_pseg = -1;
@@ -801,7 +829,7 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
   if( rechits.size() > 0 ) {
     thering = rechits[0]->cscDetId().ring();
     thestation = rechits[0]->cscDetId().station();
-    // thecham = rechits[0]->cscDetId().chamber();
+    thecham = rechits[0]->cscDetId().chamber();
   }
 
   // std::cout<<"We are in Station/ring/chamber: "<<thestation <<" "<< thering<<" "<< thecham<<std::endl;
@@ -1002,6 +1030,8 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
                
               if (weight_A[ pseg_pos ] < min_weight_A ) {
 	        min_weight_A = weight_A[ pseg_pos ];
+                best_weight_B = weight_B[ pseg_pos ];
+                best_curv_A = curv_A[ pseg_pos ];
 	        best_pseg = pseg_pos ;
               }
 
@@ -1057,6 +1087,8 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
 
 		  if (weight_noL1_A[ pseg_noL1_pos ] < min_weight_noLx_A ) {
 		    min_weight_noLx_A = weight_noL1_A[ pseg_noL1_pos ];
+		    best_weight_noLx_B = weight_noL1_B[ pseg_noL1_pos ];
+		    best_curv_noLx_A = curv_noL1_A[ pseg_noL1_pos ];
 		    best_noLx_pseg = pseg_noL1_pos;
                     best_Layer_noLx = 1;
 		  }
@@ -1115,6 +1147,8 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
 
 		  if (weight_noL2_A[ pseg_noL2_pos ] < min_weight_noLx_A ) {
 		    min_weight_noLx_A = weight_noL2_A[ pseg_noL2_pos ];
+		    best_weight_noLx_B = weight_noL2_B[ pseg_noL2_pos ];
+		    best_curv_noLx_A = curv_noL2_A[ pseg_noL2_pos ];
 		    best_noLx_pseg = pseg_noL2_pos;
                     best_Layer_noLx = 2;
 		  }
@@ -1173,6 +1207,9 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
 
 		  if (weight_noL3_A[ pseg_noL3_pos ] < min_weight_noLx_A ) {
 		    min_weight_noLx_A = weight_noL3_A[ pseg_noL3_pos ];
+		    best_weight_noLx_B = weight_noL3_B[ pseg_noL3_pos ];
+		    best_curv_noLx_A = curv_noL3_A[ pseg_noL3_pos ];
+		    best_noLx_pseg = pseg_noL3_pos;
                     best_Layer_noLx = 3;
 		  }
 
@@ -1230,6 +1267,8 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
 
 		  if (weight_noL4_A[ pseg_noL4_pos ] < min_weight_noLx_A ) {
 		    min_weight_noLx_A = weight_noL4_A[ pseg_noL4_pos ];
+		    best_weight_noLx_B = weight_noL4_B[ pseg_noL4_pos ];
+		    best_curv_noLx_A = curv_noL4_A[ pseg_noL4_pos ];
 		    best_noLx_pseg = pseg_noL4_pos;
                     best_Layer_noLx = 4;
 		  }
@@ -1288,6 +1327,8 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
 
 		  if (weight_noL5_A[ pseg_noL5_pos ] < min_weight_noLx_A ) {
 		    min_weight_noLx_A = weight_noL5_A[ pseg_noL5_pos ];
+		    best_weight_noLx_B = weight_noL5_B[ pseg_noL5_pos ];
+		    best_curv_noLx_A = curv_noL5_A[ pseg_noL5_pos ];
 		    best_noLx_pseg = pseg_noL5_pos;
                     best_Layer_noLx = 5;
 		  }
@@ -1346,6 +1387,8 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
 
 		  if (weight_noL6_A[ pseg_noL6_pos ] < min_weight_noLx_A ) {
 		    min_weight_noLx_A = weight_noL6_A[ pseg_noL6_pos ];
+		    best_weight_noLx_B = weight_noL6_B[ pseg_noL6_pos ];
+		    best_curv_noLx_A = curv_noL6_A[ pseg_noL6_pos ];
 		    best_noLx_pseg = pseg_noL6_pos;
                     best_Layer_noLx = 6;
 		  }
@@ -1379,6 +1422,10 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
   // protosegment belongs to!
 
 
+  float chosen_weight = min_weight_A;
+  float chosen_ywgt = best_weight_B;
+  float chosen_curv = best_curv_A;
+  int chosen_nlayers = n_layers_occupied_tot;
   int chosen_pseg = best_pseg;
   if (best_pseg<0) { 
     return segmentInChamber; 
@@ -1477,6 +1524,10 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(ChamberHitContainer rechits)
   
   if( min_weight_A > 0. ) {
     if ( min_weight_noLx_A/min_weight_A < hit_drop_limit ) {
+      chosen_weight = min_weight_noLx_A;
+      chosen_ywgt = best_weight_noLx_B;
+      chosen_curv = best_curv_noLx_A;
+      chosen_nlayers = n_layers_occupied_tot-1;
       chosen_pseg = best_noLx_pseg;
       chosen_Psegments.clear();
       chosen_weight_A.clear();
@@ -2002,6 +2053,7 @@ void CSCSegAlgoST::correctTheCovX(void){
 }
 //
 void CSCSegAlgoST::correctTheCovMatrix(CLHEP::HepMatrix &IC){
+  double condNumberCorr1=0.0;
   double condNumberCorr2=0.0; 
   double detCov=0.0;
   double diag1=0.0;
@@ -2009,6 +2061,7 @@ void CSCSegAlgoST::correctTheCovMatrix(CLHEP::HepMatrix &IC){
   double IC_12_corr=0.0;
   double  IC_11_corr=0.0;
   if(!covToAnyNumberAll_){
+    condNumberCorr1=condSeed1_*IC(2,2);
     condNumberCorr2=condSeed2_*IC(2,2);
     diag1=IC(1,1)*IC(2,2);
     diag2=IC(1,2)*IC(1,2);
