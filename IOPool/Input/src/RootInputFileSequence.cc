@@ -61,7 +61,7 @@ namespace edm {
     groupSelectorRules_(pset, "inputCommands", "InputSource"),
     duplicateChecker_(inputType == InputType::Primary ? new DuplicateChecker(pset) : 0),
     dropDescendants_(pset.getUntrackedParameter<bool>("dropDescendantsOfDroppedBranches", inputType != InputType::SecondarySource)),
-    labelRawDataLikeMC_(pset.getUntrackedParameter<bool>("labelRawDataLikeMC", false)),
+    labelRawDataLikeMC_(pset.getUntrackedParameter<bool>("labelRawDataLikeMC", true)),
     usingGoToEvent_(false) {
 
     //we now allow the site local config to specify what the TTree cache size should be
@@ -697,7 +697,7 @@ namespace edm {
     desc.addUntracked<std::string>("branchesMustMatch", defaultString)
         ->setComment("'strict':     Branches in each input file must match those in the first file.\n"
                      "'permissive': Branches in each input file may be any subset of those in the first file.");
-    desc.addUntracked<bool>("labelRawDataLikeMC", false)
+    desc.addUntracked<bool>("labelRawDataLikeMC", true)
         ->setComment("If True: replace module label for raw data to match MC. Also use 'LHC' as process.");
 
     GroupSelectorRules::fillDescription(desc, "inputCommands");
