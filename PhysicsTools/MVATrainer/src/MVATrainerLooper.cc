@@ -70,7 +70,8 @@ void MVATrainerLooper::TrainerContainer::clear()
 
 // MVATrainerLooper implementation
 
-MVATrainerLooper::MVATrainerLooper(const edm::ParameterSet& iConfig)
+MVATrainerLooper::MVATrainerLooper(const edm::ParameterSet& iConfig) :
+  dataProcessedInLoop(false)
 {
 }
 
@@ -80,6 +81,8 @@ MVATrainerLooper::~MVATrainerLooper()
 
 void MVATrainerLooper::startingNewLoop(unsigned int iteration)
 {
+        dataProcessedInLoop = false; 
+
 	for(TrainerContainer::const_iterator iter = trainers.begin();
 	    iter != trainers.end(); iter++) {
 		Trainer *trainer = *iter;
@@ -93,6 +96,8 @@ edm::EDLooper::Status
 MVATrainerLooper::duringLoop(const edm::Event &event,
                                    const edm::EventSetup &es)
 {
+        dataProcessedInLoop = true;
+
 	if (trainers.empty())
 		return kStop;
 
@@ -108,6 +113,13 @@ MVATrainerLooper::duringLoop(const edm::Event &event,
 edm::EDLooper::Status MVATrainerLooper::endOfLoop(const edm::EventSetup &es,
                                                   unsigned int iteration)
 {
+        if (!dataProcessedInLoop) {
+          cms::Exception ex("MVATrainerLooper");
+          ex << "No data processed during loop\n";
+          ex.addContext("Calling MVATrainerLooper::endOfLoop()");
+          throw ex;
+        }
+
 	if (trainers.empty())
 		return kStop;
 
