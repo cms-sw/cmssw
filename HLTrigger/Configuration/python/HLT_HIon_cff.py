@@ -1,14 +1,14 @@
-# /dev/CMSSW_4_4_2/HIon/V10 (CMSSW_4_4_0_HLT11)
+# /dev/CMSSW_4_4_2/HIon/V11 (CMSSW_4_4_0_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V10')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V11')
 )
 
 streams = cms.PSet( 
-  AForHI = cms.vstring( 'HIDiMuon',
+  A = cms.vstring( 'HIDiMuon',
     'HIHighPt',
     'HIMinBiasUPC' ),
   Calibration = cms.vstring( 'TestEnablesEcalHcalDT' ),

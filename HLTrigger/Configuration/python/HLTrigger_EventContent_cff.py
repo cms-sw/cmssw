@@ -11,10 +11,10 @@ import FWCore.ParameterSet.Config as cms
 HLTriggerRAW  = cms.PSet(
     outputCommands = cms.vstring( *(
         'drop *_hlt*_*_*',
-        'keep *_hltL1GtObjectMap_*_*',
-        'keep FEDRawDataCollection_rawDataCollector_*_*',
-        'keep FEDRawDataCollection_source_*_*',
+        'keep FEDRawDataCollection_hltRawDataRepacker_*_*',
+        'keep FEDRawDataCollection_hltVirginRawDataRepacker_*_*',
         'keep edmTriggerResults_*_*_*',
+        'keep hltL1GtObjectMap_*_*_*',
         'keep triggerTriggerEvent_*_*_*'
     ) )
 )
@@ -22,8 +22,8 @@ HLTriggerRAW  = cms.PSet(
 HLTriggerRECO = cms.PSet(
     outputCommands = cms.vstring( *(
         'drop *_hlt*_*_*',
-        'keep *_hltL1GtObjectMap_*_*',
         'keep edmTriggerResults_*_*_*',
+        'keep hltL1GtObjectMap_*_*_*',
         'keep triggerTriggerEvent_*_*_*'
     ) )
 )
@@ -31,8 +31,8 @@ HLTriggerRECO = cms.PSet(
 HLTriggerAOD  = cms.PSet(
     outputCommands = cms.vstring( *(
         'drop *_hlt*_*_*',
-        'keep *_hltL1GtObjectMap_*_*',
         'keep edmTriggerResults_*_*_*',
+        'keep hltL1GtObjectMap_*_*_*',
         'keep triggerTriggerEvent_*_*_*'
     ) )
 )

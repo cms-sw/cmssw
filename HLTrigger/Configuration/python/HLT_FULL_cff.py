@@ -1,14 +1,17 @@
-# /dev/CMSSW_4_4_2/HLT/V25 (CMSSW_4_4_0_HLT11)
+# /dev/CMSSW_4_4_2/HLT/V30 (CMSSW_4_4_0_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HLT/V25')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HLT/V30')
 )
 
 streams = cms.PSet( 
-  A = cms.vstring( 'BTag',
+  A = cms.vstring( 'HIDiMuon',
+    'HIHighPt',
+    'HIMinBiasUPC' ),
+  AForPP = cms.vstring( 'BTag',
     'Commissioning',
     'Cosmics',
     'DoubleElectron',
@@ -34,9 +37,6 @@ streams = cms.PSet(
     'SingleMu',
     'Tau',
     'TauPlusX' ),
-  AForHI = cms.vstring( 'HIDiMuon',
-    'HIHighPt',
-    'HIMinBiasUPC' ),
   ALCALUMIPIXELS = cms.vstring( 'AlCaLumiPixels' ),
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSym' ),

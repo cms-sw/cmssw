@@ -440,7 +440,7 @@ DQM_FEDIntegrity_v*
 HLTriggerFirstPath                                                                              # only in 'GRun', not in 'online'
 HLTriggerFinalPath
 HLTAnalyzerEndpath                                                                              # only in 'GRun', not in 'online'
-AOutput
+AForPPOutput
 ALCAP0Output
 ALCAPHISYMOutput
 ALCALUMIPIXELSOutput
