@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.340 $"
+__version__ = "$Revision: 1.341 $"
 __source__ = "$Source: /cvs/CMSSW/CMSSW/Configuration/PyReleaseValidation/python/ConfigBuilder.py,v $"
 
 import FWCore.ParameterSet.Config as cms
@@ -133,7 +133,7 @@ def filesFromDBSQuery(query,s=None):
 		print "found parent files:",sec
 	return (prim,sec)
 
-def MassReplaceInputTag(aProcess,oldT="source",newT="rawDataRepacker"):
+def MassReplaceInputTag(aProcess,oldT="rawDataCollector",newT="rawDataRepacker"):
 	from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
 	for s in aProcess.paths_().keys():
 		massSearchReplaceAnyInputTag(getattr(aProcess,s),oldT,newT)
@@ -1432,7 +1432,7 @@ class ConfigBuilder(object):
                     pass
 
     #visit a sequence to repalce all input tags
-    def renameInputTagsInSequence(self,sequence,oldT="source",newT="rawDataRepacker"):
+    def renameInputTagsInSequence(self,sequence,oldT="rawDataCollector",newT="rawDataRepacker"):
 	    print "Replacing all InputTag %s => %s"%(oldT,newT)
 	    from PhysicsTools.PatAlgos.tools.helpers import massSearchReplaceAnyInputTag
 	    massSearchReplaceAnyInputTag(getattr(self.process,sequence),oldT,newT)
@@ -1591,7 +1591,7 @@ class ConfigBuilder(object):
     def build_production_info(self, evt_type, evtnumber):
         """ Add useful info for the production. """
         self.process.configurationMetadata=cms.untracked.PSet\
-                                            (version=cms.untracked.string("$Revision: 1.340 $"),
+                                            (version=cms.untracked.string("$Revision: 1.341 $"),
                                              name=cms.untracked.string("PyReleaseValidation"),
                                              annotation=cms.untracked.string(evt_type+ " nevts:"+str(evtnumber))
                                              )
