@@ -206,7 +206,7 @@ HLTAnalyzer::HLTAnalyzer(edm::ParameterSet const& conf) {
     track_analysis_.setup(conf, HltTree);
     mct_analysis_.setup(conf, HltTree);
     hlt_analysis_.setup(conf, HltTree);
-    //    vrt_analysisHLT_.setup(conf, HltTree, "HLT");
+    vrt_analysisHLT_.setup(conf, HltTree, "HLT");
     vrt_analysisOffline0_.setup(conf, HltTree, "Offline0");
     evt_header_.setup(HltTree);
 }
@@ -667,9 +667,9 @@ void HLTAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetu
                            hPerformanceBJetsL3,
                            HltTree);
 
-    //    vrt_analysisHLT_.analyze(
-    //                          recoVertexsHLT,
-    //			  HltTree);
+    vrt_analysisHLT_.analyze(
+			     recoVertexsHLT,
+			     HltTree);
 
     vrt_analysisOffline0_.analyze(
 			     recoVertexsOffline0,
