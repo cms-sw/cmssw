@@ -122,6 +122,7 @@ private:
 
   // configuration
   const clockid_t                               m_timer_id;             // the default is to use CLOCK_THREAD_CPUTIME_ID, unless useRealTimeClock is set, which will use CLOCK_REALTIME
+  bool                                          m_is_cpu_bound;         // if the process is not bound to a single CPU, per-thread or per-process measuerements may be unreliable
   const bool                                    m_enable_timing_modules;
   const bool                                    m_enable_timing_paths;
   const bool                                    m_enable_timing_summary;

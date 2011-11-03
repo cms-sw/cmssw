@@ -33,6 +33,7 @@
 
 FastTimerService::FastTimerService(const edm::ParameterSet & config, edm::ActivityRegistry & registry) :
   m_timer_id(               config.getUntrackedParameter<bool>(        "useRealTimeClock",     false) ? CLOCK_REALTIME : CLOCK_THREAD_CPUTIME_ID),
+  m_is_cpu_bound(           false ),
   m_enable_timing_modules(  config.getUntrackedParameter<bool>(        "enableTimingModules",  false) ),
   m_enable_timing_paths(    config.getUntrackedParameter<bool>(        "enableTimingPaths",    false) ),
   m_enable_timing_summary(  config.getUntrackedParameter<bool>(        "enableTimingSummary",  false) ), 
@@ -74,6 +75,13 @@ FastTimerService::~FastTimerService()
 }
 
 void FastTimerService::postBeginJob() {
+  // check if the process is bound to a single CPU.
+  // otherwise, the results of the CLOCK_THREAD_CPUTIME_ID timer might be inaccurate
+  m_is_cpu_bound = CPUAffinity::isCpuBound();
+  if ((m_timer_id != CLOCK_REALTIME) and not m_is_cpu_bound)
+    // the process is NOT bound to a single CPU
+    edm::LogError("FastTimerService") << "this process is NOT bound to a single CPU, the results of the FastTimerService may be undefined";
+
   edm::service::TriggerNamesService & tns = * edm::Service<edm::service::TriggerNamesService>();
   BOOST_FOREACH(std::string const & name, tns.getTrigPaths())
     m_paths[name] = 0.;
