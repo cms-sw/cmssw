@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 siStripFEDMonitor = cms.EDAnalyzer("SiStripFEDMonitorPlugin",
   #Raw data collection
-  RawDataTag = cms.untracked.InputTag('source'),
+  RawDataTag = cms.untracked.InputTag('rawDataCollector'),
   #Folder in DQM Store to write global histograms to
   HistogramFolderName = cms.untracked.string('SiStrip/ReadoutView/FedSummary'),
   #Fill all detailed histograms at FED level even if they will be empty (so that files can be merged)

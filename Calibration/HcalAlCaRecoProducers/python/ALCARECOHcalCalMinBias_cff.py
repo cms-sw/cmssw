@@ -32,7 +32,7 @@ gtDigisAlCaMB.DaqGtInputTag = 'source'
 
 hcalDigiAlCaMB.firstSample = 0
 hcalDigiAlCaMB.lastSample = 9
-hcalDigiAlCaMB.InputLabel = 'source'
+hcalDigiAlCaMB.InputLabel = 'rawDataCollector'
 
 hbherecoNoise.firstSample = 0
 hbherecoNoise.samplesToAdd = 4
