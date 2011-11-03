@@ -98,8 +98,9 @@ getConfigForCVS  $MASTER FULL
 getContentForCVS $MASTER
 for TABLE in $TABLES; do
   getConfigForCVS $(eval echo $TARGET) $TABLE
+# getDatasetsForCVS $(eval echo $TARGET) HLTrigger_Datasets_${TABLE}_cff.py
 done
-for TABLE in "GRun"; do
+for TABLE in "HIon"; do
   getDatasetsForCVS $(eval echo $TARGET) HLTrigger_Datasets_cff.py
 done
 log "Done"

@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_4_2/HIon/V11 (CMSSW_4_4_0_HLT11)
+# /dev/CMSSW_4_4_2/HIon/V13 (CMSSW_4_4_0_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V11')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V13')
 )
 
 process.streams = cms.PSet( 
@@ -6907,10 +6907,10 @@ process.hltOutputA = cms.OutputModule( "PoolOutputModule",
   'HLT_HIZeroBiasXOR_v1',
   'HLT_HIZeroBias_v1' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
+      'keep *_hltL1GtObjectMap_*_*',
       'keep FEDRawDataCollection_hltRawDataRepacker_*_*',
       'keep FEDRawDataCollection_hltVirginRawDataRepacker_*_*',
       'keep edmTriggerResults_*_*_*',
-      'keep hltL1GtObjectMap_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
 process.hltOutputCalibration = cms.OutputModule( "PoolOutputModule",
@@ -7108,10 +7108,10 @@ process.hltOutputExpressForHI = cms.OutputModule( "PoolOutputModule",
   'HLT_HIZeroBiasXOR_v1',
   'HLT_HIZeroBias_v1' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
+      'keep *_hltL1GtObjectMap_*_*',
       'keep FEDRawDataCollection_hltRawDataRepacker_*_*',
       'keep FEDRawDataCollection_hltVirginRawDataRepacker_*_*',
       'keep edmTriggerResults_*_*_*',
-      'keep hltL1GtObjectMap_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
 process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
