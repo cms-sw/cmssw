@@ -1,8 +1,8 @@
 /* 
  * class PFRecoTauDiscriminationAgainstMuon
  * created : May 07 2008,
- * revised : ,
- * Authors : Sho Maruyama
+ * revised : always,
+ * Authors : Sho Maruyama,M.Bachtis
  */
 
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
@@ -21,9 +21,11 @@ class PFRecoTauDiscriminationAgainstMuon : public PFTauDiscriminationProducerBas
    public:
       explicit PFRecoTauDiscriminationAgainstMuon(const edm::ParameterSet& iConfig):PFTauDiscriminationProducerBase(iConfig) {   
          discriminatorOption_  = iConfig.getParameter<std::string>("discriminatorOption");  
+         hop_  = iConfig.getParameter<double>("HoPMin");  
          a  = iConfig.getParameter<double>("a");  
          b  = iConfig.getParameter<double>("b");  
          c  = iConfig.getParameter<double>("c");  
+	 
       }
 
       ~PFRecoTauDiscriminationAgainstMuon(){} 
@@ -32,6 +34,7 @@ class PFRecoTauDiscriminationAgainstMuon : public PFTauDiscriminationProducerBas
 
    private:  
       std::string discriminatorOption_;
+      double hop_;
       double a;
       double b;
       double c;
@@ -70,7 +73,7 @@ double PFRecoTauDiscriminationAgainstMuon::discriminate(const PFTauRef& thePFTau
          if(muonref->phi() < 0.1 && muonref->phi() > -0.1) phi_veto = true;
          if( muType != 1 || muonref ->numberOfMatches() > 0 || eta_veto || phi_veto || muonEnergyFraction > 0.9 ) decision = false; // as place holder
       }
-      else if (discriminatorOption_ == "noAllArbitrated") { // One used in H->tautau 2010
+      else if (discriminatorOption_ == "noAllArbitrated" ||discriminatorOption_ == "noAllArbitratedWithHOP" ) { // One used in H->tautau 2010
 	if(muon::isGoodMuon(*muonref,muon::AllArbitrated))
 	  decision = false;
       }
@@ -78,6 +81,16 @@ double PFRecoTauDiscriminationAgainstMuon::discriminate(const PFTauRef& thePFTau
          throw edm::Exception(edm::errors::UnimplementedFeature) << " Invalid Discriminator Option! Please check cfi file \n";
       }
    } // valid muon ref
+
+
+   //Additional : Apply HOP cut for one prongs only
+   if((*thePFTauRef).leadPFChargedHadrCand().isNonnull() && discriminatorOption_ == "noAllArbitratedWithHOP" ) {
+     if(thePFTauRef->decayMode()==0 && (*thePFTauRef).leadPFChargedHadrCand()->hcalEnergy()/(*thePFTauRef).leadPFChargedHadrCand()->p()<hop_)
+       decision=false;
+   }
+
+
+
 
    return (decision ? 1. : 0.);
 } 
