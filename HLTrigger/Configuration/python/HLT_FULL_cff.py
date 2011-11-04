@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_4_2/HLT/V35 (CMSSW_4_4_0_HLT11)
+# /dev/CMSSW_4_4_2/HLT/V36 (CMSSW_4_4_0_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HLT/V35')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HLT/V36')
 )
 
 streams = cms.PSet( 
@@ -35029,7 +35029,7 @@ hltGlobalSumETHfFilter0 = cms.EDFilter( "HLTGlobalSumsCaloMET",
     inputTag = cms.InputTag( "hltMetForHf" ),
     saveTags = cms.bool( False ),
     observable = cms.string( "sumEt" ),
-    Min = cms.double( 0.0 ),
+    Min = cms.double( 2500.0 ),
     Max = cms.double( -1.0 ),
     MinN = cms.int32( 1 )
 )
