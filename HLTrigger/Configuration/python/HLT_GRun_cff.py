@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_4_2/GRun/V16 (CMSSW_4_4_0_HLT11)
+# /dev/CMSSW_4_4_2/GRun/V17 (CMSSW_4_4_0_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/GRun/V16')
+  tableName = cms.string('/dev/CMSSW_4_4_2/GRun/V17')
 )
 
 streams = cms.PSet( 
@@ -38,7 +38,7 @@ streams = cms.PSet(
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSym' ),
   Calibration = cms.vstring( 'TestEnablesEcalHcalDT' ),
-  DQM = cms.vstring( 'OnlineMonitor' ),
+  DQMForPP = cms.vstring( 'OnlineMonitor' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   ExpressCosmics = cms.vstring( 'ExpressCosmics' ),
   ExpressForPP = cms.vstring( 'ExpressPhysics' ),

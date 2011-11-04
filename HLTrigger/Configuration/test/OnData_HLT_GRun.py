@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_4_2/GRun/V16 (CMSSW_4_4_0_HLT11)
+# /dev/CMSSW_4_4_2/GRun/V17 (CMSSW_4_4_0_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/GRun/V16')
+  tableName = cms.string('/dev/CMSSW_4_4_2/GRun/V17')
 )
 
 process.streams = cms.PSet( 
@@ -39,7 +39,7 @@ process.streams = cms.PSet(
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSym' ),
   Calibration = cms.vstring( 'TestEnablesEcalHcalDT' ),
-  DQM = cms.vstring( 'OnlineMonitor' ),
+  DQMForPP = cms.vstring( 'OnlineMonitor' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   ExpressCosmics = cms.vstring( 'ExpressCosmics' ),
   ExpressForPP = cms.vstring( 'ExpressPhysics' ),
@@ -32805,11 +32805,11 @@ process.hltDQMHLTScalers = cms.EDAnalyzer( "HLTScalers",
     processname = cms.string( "HLT" ),
     triggerResults = cms.InputTag( 'TriggerResults','','HLT' )
 )
-process.hltPreDQMOutput = cms.EDFilter( "HLTPrescaler",
+process.hltPreDQMForPPOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
-process.hltPreDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
+process.hltPreDQMForPPOutputSmart = cms.EDFilter( "TriggerResultsFilter",
     triggerConditions = ( cms.vstring( 'HLT_Activity_Ecal_SC7_v8',
       'HLT_L1SingleJet16_v4',
       'HLT_L1SingleJet36_v4',
@@ -34695,8 +34695,8 @@ process.hltOutputCalibration = cms.OutputModule( "PoolOutputModule",
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
-process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputDQM.root" ),
+process.hltOutputDQMForPP = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputDQMForPP.root" ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -37095,7 +37095,7 @@ process.ALCAP0Output = cms.EndPath( process.hltPreALCAP0Output + process.hltOutp
 process.ALCAPHISYMOutput = cms.EndPath( process.hltPreALCAPHISYMOutput + process.hltOutputALCAPHISYM )
 process.ALCALUMIPIXELSOutput = cms.EndPath( process.hltPreALCALUMIPIXELSOutput + process.hltOutputALCALUMIPIXELS )
 process.CalibrationOutput = cms.EndPath( process.hltPreCalibrationOutput + process.hltOutputCalibration )
-process.DQMOutput = cms.EndPath( process.hltDQML1Scalers + process.hltDQML1SeedLogicScalers + process.hltDQMHLTScalers + process.hltPreDQMOutput + process.hltPreDQMOutputSmart + process.hltOutputDQM )
+process.DQMForPPOutput = cms.EndPath( process.hltDQML1Scalers + process.hltDQML1SeedLogicScalers + process.hltDQMHLTScalers + process.hltPreDQMForPPOutput + process.hltPreDQMForPPOutputSmart + process.hltOutputDQMForPP )
 process.EcalCalibrationOutput = cms.EndPath( process.hltPreEcalCalibrationOutput + process.hltOutputEcalCalibration )
 process.ExpressCosmicsOutput = cms.EndPath( process.hltPreExpressCosmicsOutput + process.hltPreExpressCosmicsOutputSmart + process.hltOutputExpressCosmics )
 process.ExpressForPPOutput = cms.EndPath( process.hltPreExpressOutput + process.hltPreExpressOutputSmart + process.hltOutputExpressForPP )

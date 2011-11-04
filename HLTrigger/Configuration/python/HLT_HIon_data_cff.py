@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_4_2/HIon/V16 (CMSSW_4_4_0_HLT11)
+# /dev/CMSSW_4_4_2/HIon/V17 (CMSSW_4_4_0_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V16')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V17')
 )
 
 streams = cms.PSet( 
@@ -12,8 +12,7 @@ streams = cms.PSet(
     'HIHighPt',
     'HIMinBiasUPC' ),
   Calibration = cms.vstring( 'TestEnablesEcalHcalDT' ),
-  DQM = cms.vstring( 'OnlineMonitor',
-    'OnlineMonitorHI' ),
+  DQM = cms.vstring( 'OnlineMonitorHI' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
   Express = cms.vstring( 'HIExpressPhysics' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitor',
@@ -300,10 +299,6 @@ datasets = cms.PSet(
     'HLT_HIZeroBiasXOR_v1',
     'HLT_HIZeroBias_v1' ),
   OnlineHltResults = cms.vstring( 'HLTriggerFinalPath' ),
-  OnlineMonitor = cms.vstring( 'HLT_DTCalibration_v1',
-    'HLT_EcalCalibration_v2',
-    'HLT_HcalCalibration_v2',
-    'HLT_LogMonitor_v1' ),
   OnlineMonitorHI = cms.vstring( 'HLT_HIActivityHF_Coincidence3_v1',
     'HLT_HIActivityHF_Single3_v1',
     'HLT_HIBptxXOR_v1',
