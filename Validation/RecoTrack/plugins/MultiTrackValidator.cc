@@ -329,11 +329,9 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
             }
         }
 
-	if (fabs(dxySim)>0.01 && fabs(dxySim)<0.2 && tp->eventId().bunchCrossing() == 0){   
           histoProducerAlgo_->fill_recoAssociated_simTrack_histos(w,*tp,momentumTP,vertexTP,dxySim,dzSim,nSimHits,matchedTrackPointer,puinfo.getPU_NumInteractions(), vtx_z_PU);
           sts++;
           if (matchedTrackPointer) asts++;
-        }
 
 
 
