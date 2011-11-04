@@ -61,11 +61,13 @@ SKIMStreamHSCPSD = cms.FilteredStream(
 from Configuration.Skimming.PDWG_DiPhoton_SD_cff import *
 CaloIdIsoPhotonPairsPath = cms.Path(CaloIdIsoPhotonPairsFilter)
 R9IdPhotonPairsPath = cms.Path(R9IdPhotonPairsFilter)
+MixedCaloR9IdPhotonPairsPath = cms.Path(MixedCaloR9IdPhotonPairsFilter)
+MixedR9CaloIdPhotonPairsPath = cms.Path(MixedR9CaloIdPhotonPairsFilter)
 
 SKIMStreamDiPhoton = cms.FilteredStream(
     responsible = 'PDWG',
     name = 'DiPhoton',
-    paths = (CaloIdIsoPhotonPairsPath,R9IdPhotonPairsPath),
+    paths = (CaloIdIsoPhotonPairsPath,R9IdPhotonPairsPath,MixedCaloR9IdPhotonPairsPath,MixedR9CaloIdPhotonPairsPath),
     content = skimContent.outputCommands,
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('RAW-RECO')
