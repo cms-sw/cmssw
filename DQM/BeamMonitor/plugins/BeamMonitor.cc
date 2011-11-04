@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2011/10/25 08:18:51 $
- * $Revision: 1.73 $
+ * $Date: 2011/10/31 01:46:06 $
+ * $Revision: 1.74 $
  */
 
 
@@ -647,11 +647,11 @@ void BeamMonitor::analyze(const Event& iEvent,
     }//loop over pvs
 
 
-    if (nPVcount >= 0 )h_nVtx->Fill(nPVcount*1.); //no need to change it for average BS
+    h_nVtx->Fill(nPVcount*1.); //no need to change it for average BS
 
     mapNPV[countLumi_].push_back((nPVcount_ST));
 
-    if(!StartAverage_){ if (nPVcount_ST >= 0 ) h_nVtx_st->Fill(nPVcount_ST*1.);}
+    if(!StartAverage_){ h_nVtx_st->Fill(nPVcount_ST*1.);}
 
   }//if pv collection is availaable
 
