@@ -79,7 +79,7 @@ def createHTMLFiles(header, footer, PROJECT_PATH):
         
 if len(sys.argv) > 2:
     filename = sys.argv[1]
-    PROJECT_PATH = sys.argv[2]+"doc/html/"
+    PROJECT_PATH = sys.argv[2]+"/doc/html/"
     
     (header, footer, html) = extractList(PROJECT_PATH+filename)
     createHTMLFiles(header, footer, PROJECT_PATH)

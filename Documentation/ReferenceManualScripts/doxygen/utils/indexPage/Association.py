@@ -11,9 +11,7 @@ import sys
 try:
     import urllib2, os, json
 except:
-    errorOnImport = True
-    print "sudo gabalas"
-    sys.exit(1)    
+    errorOnImport = True    
 
 cvsBaseUrl = "http://cmssw.cvs.cern.ch/cgi-bin/cmssw.cgi/CMSSW"     # NO SLASH IN THE END
 
@@ -48,7 +46,7 @@ def formatCVSLink(package, subpackage):
 def formatPackageDocumentationLink(package, subpackage):    
     for link in packageDocLinks:
         if (link.find(package+"_"+subpackage+".html") != -1):
-            return "[ <a target=\"_blank\" href=\"../"+link+"\">package doc</a> ]"
+            return "[ <a target=\"_blank\" href=\"../"+link+"\">pd</a> ]"
     
     return ""
 
@@ -78,8 +76,10 @@ def generateLeavesHTML(SRC_DIR, package, subpackage):
         for classfile in dirList:
             if classfile.endswith(".h"):
                 classfile = classfile.replace(".h", "")
-                if refmanfiles.has_key(classfile):   
-                    classfile = "<a target=\"_blank\" href=\""+refmanfiles[classfile]+"\">"+classfile+"</a>"
+		for key in refmanfiles.keys():
+                    if (key.find(classfile) != -1):
+                        classfile = "<a target=\"_blank\" href=\""+refmanfiles[key]+"\">"+classfile+"</a>"
+                        break
                 
                 html += "<li>"+classfile+"</li>"
     except:
