@@ -9,25 +9,49 @@ class Server:
 		res2, stCount = testRegression.WebResultsList(curs[0], label)
 		#print stCount
 		Code ="""
-			<table id="status">
+		        <table id="header" bgcolor="#D8D8D8">
 					<tr>
+					<td colspan = "2">Test Sequence:
+					<b>"""+str(curs[2])+"""</b>&nbsp&nbsp&nbsp&nbsp
+					RunID:
+					"""+str(curs[0])+"""&nbsp&nbsp&nbsp&nbsp
+					Time:
+					"""+str(curs[1])+"""
+					</td>
+					<tr>
+					<td>
+					Candidate:
+					<b>"""+str(curs[3])+"""</b>&nbsp&nbsp&nbsp&nbsp
+					Architecture:
+					<b>"""+str(curs[4])+"""</b>
+					</td>
+					<td class="links"><a href="showLogs?runID="""+str(curs[0])+"""&label="""+label+"""">&gt&gt Logfile</a></td>
+					</tr>
+			</table>
+			<table id="status">
+				        <!--
 					<th>RunID</th>
 					<td>"""+str(curs[0])+"""</td>
 					<th>Time</th>
 					<td>"""+str(curs[1])+"""</td>
+					<th>Test Sequence</th>
+					<td>"""+str(curs[2])+"""</td>
+					</tr>
+					<tr>
 					<th>Candidate release</th>
 					<td>"""+str(curs[3])+"""</td>
 					<th>Candidate architecture</th>
 					<td>"""+str(curs[4])+"""</td>
-			"""
-		Code +="""</tr><tr>
-					<tr>
-						<th rowspan="2" colspan = "2">Reference releases</th>
-						<th rowspan="2" colspan = "2">Reference architectures</th>
-						<td>"""+str(curs[2])+"""</td>
-						<th colspan="""+str(stCount-2)+""">Test Sequence</th>
-						<th class="links"><a href="showLogs?runID="""+str(curs[0])+"""&label="""+label+"""">Logfile</a> </th>
+					<th colspan = "2" class="links"><a href="showLogs?runID="""+str(curs[0])+"""&label="""+label+"""">Logfile</a></th>
 					</tr>
+					-->
+			"""
+		Code +="""
+					<tr>
+						<!--<th rowspan="2" colspan = "2">Reference releases</th>-->
+						<th>Reference release</th>
+						<th>Reference architecture</th>
+					
 		"""
 		for i in range (0, stCount):
 			Code += """<th>"""+str(res2[i][2])+"""</th>
@@ -35,17 +59,17 @@ class Server:
 		Code +="""</tr>"""
 		for rows in res1:
 			Code += """<tr>
-					<td colspan ="2">"""+str(rows[1])+"""</td>
-					<td colspan ="2">"""+str(rows[2])+"""</td>
+					<td align="left" >"""+str(rows[1])+"""</td>
+					<td>"""+str(rows[2])+"""</td>
 			"""
 			for i in range (0, stCount):
 				if(res2[i][1] == 0):
-					Code +="""<td bgcolor ="#A7C942"><b>OK</b></td>
+					Code +="""<td align="center" bgcolor ="#A7C942"><b>OK</b></td>
 					"""
 				else:
 					Code +="""<td bgcolor ="#FF0000"><b>Failure</b></td>
 					"""
-			Code += """</tr>
+			Code += """</tr></tr>
 			"""
 		Code += """</table><hr>
 		"""
@@ -147,21 +171,28 @@ class Server:
 					  -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
 					  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25), inset 0 -1px 0 rgba(0, 0, 0, 0.1);
 					}
-					#status
+					#status, #header
 					{
 						font-family:"Trebuchet MS", Arial, Helvetica, sans-serif;
 						width:100%;
 						border-collapse:collapse;
 					}
-					#status td, #status th 
+					#header td 
 					{
 						font-size:1em;
 						border:1px solid #67645B;
 						padding:3px 7px 2px 7px;
 						text-align:left;
 					}
+					#status td
+					{
+						font-size:1em;
+						border:1px solid #67645B;
+						padding:3px 7px 2px 7px;
+					}
 					#status th 
 					{
+					        border:1px solid #67645B;
 						font-size:1.1em;
 						text-align:center;
 						padding-top:5px;
