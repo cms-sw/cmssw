@@ -1,15 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-l1tGct = cms.EDAnalyzer("L1TGCT",
-    gctCentralJetsSource = cms.InputTag("gctDigis","cenJets","DQM"),
-    gctForwardJetsSource = cms.InputTag("gctDigis","forJets","DQM"),
-    gctTauJetsSource = cms.InputTag("gctDigis","tauJets","DQM"),
-    gctEnergySumsSource = cms.InputTag("gctDigis","","DQM"),
-    gctIsoEmSource = cms.InputTag("gctDigis","isoEm","DQM"),
-    gctNonIsoEmSource = cms.InputTag("gctDigis","nonIsoEm","DQM"),
+l1tgct = cms.EDAnalyzer("L1TGCT",
     verbose = cms.untracked.bool(False),
+    gctCentralJetsSource = cms.InputTag("l1GctHwDigis","cenJets","DQM"),
+    gctNonIsoEmSource = cms.InputTag("l1GctHwDigis","nonIsoEm","DQM"),
     DQMStore = cms.untracked.bool(True),
-    disableROOToutput = cms.untracked.bool(True)
+    gctForwardJetsSource = cms.InputTag("l1GctHwDigis","forJets","DQM"),
+    gctIsoEmSource = cms.InputTag("l1GctHwDigis","isoEm","DQM"),
+    gctEnergySumsSource = cms.InputTag("l1GctHwDigis","","DQM"),
+    disableROOToutput = cms.untracked.bool(True),
+    gctTauJetsSource = cms.InputTag("l1GctHwDigis","tauJets","DQM")
 )
 
 

@@ -8,7 +8,7 @@
 //
 // Original Author:  Alja Mrak-Tadel 
 //         Created:  Tue Sep 14 13:28:13 CEST 2010
-// $Id: FWViewGeometryList.cc,v 1.4 2010/09/20 14:42:47 amraktad Exp $
+// $Id: FWViewGeometryList.cc,v 1.5 2010/09/28 11:39:51 amraktad Exp $
 //
 
 #include <boost/bind.hpp>
@@ -56,7 +56,7 @@ FWViewGeometryList::addToCompound(TEveElement* el, FWGeomColorIndex colIdx ,  bo
    if (applyTransp) 
       el->SetMainTransparency( m_colorComp[colIdx]->GetMainTransparency());  
 
-   el->CSCTakeAnyParentAsMaster();
+   el->SetPickable(true); 
    m_colorComp[colIdx]->AddElement(el);
 }
 

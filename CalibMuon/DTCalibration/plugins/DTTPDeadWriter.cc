@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2008/02/19 15:15:34 $
- *  $Revision: 1.1 $
+ *  $Date: 2008/10/03 08:34:49 $
+ *  $Revision: 1.2 $
  *  \author S. Bolognesi
  */
 
@@ -38,7 +38,7 @@ using namespace edm;
 // Constructor
 DTTPDeadWriter::DTTPDeadWriter(const ParameterSet& pset) {
   // get selected debug option
-  debug = pset.getUntrackedParameter<bool>("debug", "false"); 
+  debug = pset.getUntrackedParameter<bool>("debug", false); 
 
   // Create the object to be written to DB
   tpDeadList = new DTDeadFlag();

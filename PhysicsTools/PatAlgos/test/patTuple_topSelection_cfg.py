@@ -10,10 +10,10 @@ removeMCMatching(process, ['All'])
 
 removeSpecificPATObjects(process,
                          ['Photons'],  # 'Tau' has currently been taken out due to problems with tau discriminators
-                         outputInProcess=False)
+                         outputModules=[])
 
 removeCleaning(process,
-               outputInProcess=False)
+               outputModules=[])
 
 process.patJetCorrFactors.payload = 'AK5Calo'
 # For data:

@@ -40,14 +40,16 @@ class HeavyIons(Scenario):
         skims = ['SiStripCalZeroBias',
                  'SiStripCalMinBias',
                  'TkAlMinBiasHI',
-                 'HcalCalMinBias']
+                 'HcalCalMinBias',
+                 'DtCalibHI']
         step = stepALCAPRODUCER(skims)
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "HeavyIons"
-        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',L1HwVal,DQM'
+        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',L1HwVal,DQM,ENDJOB'
         options.isMC = False
         options.isData = True
+        options.isRepacked = True
         options.beamspot = None
         options.eventcontent = None
         options.magField = 'AutoFromDBCurrent'
@@ -86,9 +88,10 @@ class HeavyIons(Scenario):
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = "HeavyIons"
-        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',L1HwVal,DQM'
+        options.step = 'RAW2DIGI,L1Reco,RECO'+step+',L1HwVal,DQM,ENDJOB'
         options.isMC = False
         options.isData = True
+        options.isRepacked = True
         options.beamspot = None
         options.eventcontent = None
         options.magField = 'AutoFromDBCurrent'
@@ -106,7 +109,7 @@ class HeavyIons(Scenario):
 
         for tier in writeTiers: 
           addOutputModule(process, tier, tier)
-          
+
         #add the former top level patches here
         customiseExpressHI(process)
         
@@ -190,7 +193,10 @@ class HeavyIons(Scenario):
         options.filein = []
  
         process = cms.Process("HARVESTING")
-        process.source = cms.Source("DQMRootSource")
+        if args.get('newDQMIO', False):
+            process.source = cms.Source("DQMRootSource")
+        else:
+            process.source = cms.Source("PoolSource")
         configBuilder = ConfigBuilder(options, process = process)
         configBuilder.prepare()
 
@@ -209,7 +215,7 @@ class HeavyIons(Scenario):
         return process
 
 
-    def alcaHarvesting(self, globalTag, **args):
+    def alcaHarvesting(self, globalTag, datasetName, **args):
         """
         _alcaHarvesting_
 
@@ -218,7 +224,7 @@ class HeavyIons(Scenario):
         """
         options = defaultOptions
         options.scenario = "HeavyIons"
-        options.step = "ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi+SiStripQuality"
+        options.step = "ALCAHARVEST:BeamSpotByRun+BeamSpotByLumi"
         options.isMC = False
         options.isData = True
         options.beamspot = None

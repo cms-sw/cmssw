@@ -16,7 +16,7 @@
 //
 // Original Author:  Lorenzo AGOSTINO
 //         Created:  Mon Jul 17 18:07:01 CEST 2006
-// $Id: CaloMiscalibTools.h,v 1.3 2007/09/11 13:46:07 malgeri Exp $
+// $Id: CaloMiscalibTools.h,v 1.2 2006/11/21 13:13:01 malgeri Exp $
 //
 // Modified       : Luca Malgeri 
 // Date:          : 11/09/2006 
@@ -42,6 +42,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondFormats/DataRecord/interface/EcalIntercalibConstantsRcd.h"
+#include "CalibCalorimetry/CaloMiscalibTools/interface/CaloMiscalibMapEcal.h"
 
 //
 // class decleration
@@ -59,9 +60,11 @@ class CaloMiscalibTools : public edm::ESProducer, public edm::EventSetupRecordIn
       // ----------member data ---------------------------
     void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &, const edm::IOVSyncValue&, edm::ValidityInterval & );
     
-    
-    std::string constantsfile_; 
-    std::string constantsfileinpath_; 
+    CaloMiscalibMapEcal map_;
+    std::string barrelfile_; 
+    std::string endcapfile_; 
+    std::string barrelfileinpath_; 
+    std::string endcapfileinpath_; 
 
 };
 

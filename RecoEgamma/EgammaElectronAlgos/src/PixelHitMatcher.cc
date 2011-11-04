@@ -112,8 +112,12 @@ PixelHitMatcher::compatibleSeeds
 
   for (unsigned int i=0;i<seeds->size();++i)
    {
-    assert((*seeds)[i].nHits()<=8) ;
-    TrajectorySeed::range rhits=(*seeds)[i].recHits();
+    if ((*seeds)[i].nHits()>9)
+     {
+      edm::LogWarning("GsfElectronAlgo|UnexpectedSeed") <<"We cannot deal with seeds having more than 9 hits." ;
+      continue ;
+     }
+    TrajectorySeed::range rhits=(*seeds)[i].recHits() ;
 
     // build all possible pairs
     unsigned char rank1, rank2, hitsMask ;

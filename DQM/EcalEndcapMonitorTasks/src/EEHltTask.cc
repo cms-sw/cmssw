@@ -1,8 +1,8 @@
 /*
  * \file EEHltTask.cc
  *
- * $Date: 2010/08/08 08:46:09 $
- * $Revision: 1.15 $
+ * $Date: 2010/08/11 14:57:35 $
+ * $Revision: 1.16 $
  * \author G. Della Ricca
  *
 */
@@ -104,19 +104,19 @@ void EEHltTask::setup(void){
 
   init_ = true;
 
-  char histo[200];
+  std::string name;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/" + folderName_);
 
-    sprintf(histo, "FEDEntries");
-    meEEFedsOccupancy_ = dqmStore_->book1D(histo, histo, 54, 601, 655);
+    name = "FEDEntries";
+    meEEFedsOccupancy_ = dqmStore_->book1D(name, name, 54, 601, 655);
 
-    sprintf(histo, "FEDFatal");
-    meEEFedsSizeErrors_ = dqmStore_->book1D(histo, histo, 54, 601, 655);
+    name = "FEDFatal";
+    meEEFedsSizeErrors_ = dqmStore_->book1D(name, name, 54, 601, 655);
 
-    sprintf(histo, "FEDNonFatal");
-    meEEFedsIntegrityErrors_ = dqmStore_->book1D(histo, histo, 54, 601, 655);
+    name = "FEDNonFatal";
+    meEEFedsIntegrityErrors_ = dqmStore_->book1D(name, name, 54, 601, 655);
 
   }
 

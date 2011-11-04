@@ -17,6 +17,10 @@ from CommonTools.ParticleFlow.TopProjectors.pfNoTau_cfi import *
 # generator tools
 from CommonTools.ParticleFlow.genForPF2PAT_cff import *
 
+# plugging PF2PAT on the collection of PFCandidates from RECO:
+
+pfPileUp.PFCandidates = 'particleFlow'
+pfNoPileUp.bottomCollection = 'particleFlow'
 
 PF2PAT = cms.Sequence(
     pfParticleSelectionSequence + 

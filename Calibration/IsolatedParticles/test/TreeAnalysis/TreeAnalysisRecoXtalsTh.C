@@ -43,7 +43,7 @@ int main(Int_t argc, Char_t *argv[]) {
   std::cout << "---------------------" << std::endl;
   std::cout << "Reading List of input trees from " << inputFileList << std::endl;
   
-  TChain *chain = new TChain("/isotracksL1/tree");
+  TChain *chain = new TChain("/isolatedTracksNxN/tree");
   if( ! FillChain(chain, inputFileList) ) {
     std::cerr << "Cannot get the tree " << std::endl;
     return(0);

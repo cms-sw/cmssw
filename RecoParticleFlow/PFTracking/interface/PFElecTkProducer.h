@@ -61,8 +61,8 @@ class PFElecTkProducer : public edm::EDProducer {
 			    std::vector<unsigned int> &secondaries,
 			    const reco::PFClusterCollection & theEClus);
 
-      float minTangDist(const reco::GsfPFRecTrack primGsf,
-			const reco::GsfPFRecTrack secGsf); 
+      float minTangDist(const reco::GsfPFRecTrack& primGsf,
+			const reco::GsfPFRecTrack& secGsf); 
       
       bool isSameEgSC(const reco::ElectronSeedRef& nSeedRef,
 		      const reco::ElectronSeedRef& iSeedRef,

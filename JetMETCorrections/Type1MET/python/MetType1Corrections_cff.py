@@ -12,12 +12,14 @@ metJESCorIC5CaloJet = cms.EDProducer("Type1MET",
                                    metType = cms.string('CaloMET'),
                                    jetPTthreshold = cms.double(20.0),
                                    inputUncorMetLabel = cms.string('met'),
-                                   UscaleA = cms.double(1.5),
-                                   UscaleB = cms.double(1.8),
-                                   UscaleC = cms.double(-0.06),
+                                   UscaleA = cms.double(2.0),
+                                   UscaleB = cms.double(1.3),
+                                   UscaleC = cms.double(0.1),
                                    useTypeII = cms.bool(False),
                                    hasMuonsCorr = cms.bool(False),
-                                   corrector = cms.string('ic5CaloL2L3')
+                                   corrector = cms.string('ic5CaloL2L3'),
+                                   refcorrector = cms.string('ic5CaloL1Fastjet'), # used if subtractL1Fast == True
+                                   subtractL1Fast = cms.bool(False)
                                    )
 
 metJESCorAK5PFJet = cms.EDProducer("Type1MET",
@@ -26,12 +28,14 @@ metJESCorAK5PFJet = cms.EDProducer("Type1MET",
                                    metType = cms.string('PFMET'),
                                    jetPTthreshold = cms.double(10.0),
                                    inputUncorMetLabel = cms.string('pfMet'),
-                                   UscaleA = cms.double(1.5),
-                                   UscaleB = cms.double(1.8),
-                                   UscaleC = cms.double(-0.06),
+                                   UscaleA = cms.double(1.5), # type II param
+                                   UscaleB = cms.double(0.0), # type II param
+                                   UscaleC = cms.double(0.0), # type II param
                                    useTypeII = cms.bool(False),
-                                   hasMuonsCorr = cms.bool(False),
-                                   corrector = cms.string('ak5PFL2L3')
+                                   hasMuonsCorr = cms.bool(False), # not read for pfMET
+                                   corrector = cms.string('ak5PFL2L3'),
+                                   refcorrector = cms.string('ak5PFL1Fastjet'), # used if subtractL1Fast == True
+                                   subtractL1Fast = cms.bool(False)
                                    )
 
 

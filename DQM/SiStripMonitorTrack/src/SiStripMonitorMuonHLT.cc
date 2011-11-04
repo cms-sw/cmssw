@@ -13,7 +13,7 @@
 //
 // Original Author:  Eric Chabert
 //         Created:  Wed Sep 23 17:26:42 CEST 2009
-// $Id: SiStripMonitorMuonHLT.cc,v 1.11 2010/04/28 14:22:22 echabert Exp $
+// $Id: SiStripMonitorMuonHLT.cc,v 1.12 2010/07/30 16:55:53 wmtan Exp $
 //
 
 #include "DQM/SiStripMonitorTrack/interface/SiStripMonitorMuonHLT.h"
@@ -690,7 +690,7 @@ SiStripMonitorMuonHLT::GeometryFromTrackGeom (std::vector<DetId> Dets,const Trac
       mylayer = tkdetmap_->FindLayer (detid);
       mylabelHisto = tkdetmap_->getLayerName (mylayer);
 
-      SiStripDetId stripdet = SiStripDetId(detid);
+      //      SiStripDetId stripdet = SiStripDetId(detid);
 
       // INITIALISATION OF m_PhiStripMod_Eta + BOOKING LAYERS
 
@@ -865,13 +865,13 @@ SiStripMonitorMuonHLT::Normalizer (std::vector<DetId> Dets,const TrackerGeometry
         ){
       
       const StripGeomDetUnit *theGeomDet = dynamic_cast < const StripGeomDetUnit * >(theTracker.idToDet (detid));
-      const StripTopology *topol = dynamic_cast < const StripTopology * >(&(theGeomDet->specificTopology ()));
+      //      const StripTopology *topol = dynamic_cast < const StripTopology * >(&(theGeomDet->specificTopology ()));
 
       // Get the eta, phi of modules
       mylayer = tkdetmap_->FindLayer (detid);
       mylabelHisto = tkdetmap_->getLayerName (mylayer);
 
-      SiStripDetId stripdet = SiStripDetId(detid);
+      //      SiStripDetId stripdet = SiStripDetId(detid);
 
       // INITIALISATION OF m_ModNormEta + BOOKING LAYERS
 
@@ -900,16 +900,16 @@ SiStripMonitorMuonHLT::Normalizer (std::vector<DetId> Dets,const TrackerGeometry
       }
 
       // Get the position of the 1st strip in local coordinates (cm) 
-      LocalPoint clustlp_1 = topol->localPosition (1.);
-      GlobalPoint clustgp_1 = theGeomDet->surface ().toGlobal (clustlp_1);
+      //      LocalPoint clustlp_1 = topol->localPosition (1.);
+      //      GlobalPoint clustgp_1 = theGeomDet->surface ().toGlobal (clustlp_1);
 
       // Get the position of the center of the module
       LocalPoint clustlp(0.,0.);
       GlobalPoint clustgp = theGeomDet->surface ().toGlobal (clustlp);
 
       // Get the position of the last strip
-      LocalPoint Border_clustlp = topol->localPosition (topol->nstrips());
-      GlobalPoint Border_clustgp = theGeomDet->surface ().toGlobal (Border_clustlp);
+      //      LocalPoint Border_clustlp = topol->localPosition (topol->nstrips());
+      //      GlobalPoint Border_clustgp = theGeomDet->surface ().toGlobal (Border_clustlp);
 
       //GETTING SURFACE VALUE
       const BoundPlane& GeomDetSurface = GeomDet->surface();

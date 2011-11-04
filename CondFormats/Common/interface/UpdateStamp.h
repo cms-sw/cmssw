@@ -13,8 +13,6 @@ namespace cond {
    */
   class UpdateStamp {
   public:
-    typedef enum { Unknown=-1, Obsolete, Tag, TagInGT, ChildTag, ChildTagInGT } ScopeType;
-  public:
     // constrcutor creates and invalid stamp
     UpdateStamp();
     
@@ -24,23 +22,18 @@ namespace cond {
     
     // stamp and return current revision number;
     int stamp( std::string const & icomment, bool append=false);
-    
+
     int revision() const { return  m_revision;}
     
     cond::Time_t timestamp() const { return m_timestamp;}
     
     std::string const & comment() const  { return m_comment;}
 
-    void setScope( ScopeType type ) { m_scope = type;}
-    ScopeType scope() const { return m_scope;}
- 
   private:
     
     int m_revision;
     cond::Time_t m_timestamp;
     std::string m_comment;
-    ScopeType m_scope;
-    
   };
 
 } // nc cond

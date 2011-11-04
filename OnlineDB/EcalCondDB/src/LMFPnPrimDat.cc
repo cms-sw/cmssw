@@ -155,38 +155,6 @@ LMFPnPrimDat& LMFPnPrimDat::setFlag(EcalLogicID &id, int v) {
   return *this;
 }
 
-float LMFPnPrimDat::getMean(int id) {
-  return getData(id, "MEAN");
-}
-
-float LMFPnPrimDat::getShapeCor(int id) {
-  return getData(id, "SHAPECORRPN");
-}
-
-float LMFPnPrimDat::getRMS(int id) {
-  return getData(id, "RMS");
-}
-
-float LMFPnPrimDat::getM3(int id) {
-  return getData(id, "M3");
-}
-
-float LMFPnPrimDat::getPNAoverBM3(int id) {
-  return getData(id, "PNABM3");
-}
-
-float LMFPnPrimDat::getPNAoverBMean(int id) {
-  return getData(id, "PNABMEAN");
-}
-
-float LMFPnPrimDat::getPNAoverBRMS(int id) {
-  return getData(id, "PNABRMS");
-}
-
-int LMFPnPrimDat::getFlag(int id) {
-  return getData(id, "FLAG");
-}
-
 float LMFPnPrimDat::getMean(EcalLogicID &id) {
   return getData(id, "MEAN");
 }

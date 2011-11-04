@@ -69,6 +69,9 @@ addMixingScenario("E7TeV_FlatDist10_2011EarlyData_25ns_PoissonOOT",{'file': 'Sim
 addMixingScenario("mix_E7TeV_Ave25_50ns_PoissonOOTPU_cfi",{'file': 'SimGeneral.MixingModule.mix_E7TeV_Ave25_50ns_PoissonOOTPU_cfi'})
 addMixingScenario("mix_E7TeV_Ave25_25ns_PoissonOOTPU_cfi",{'file': 'SimGeneral.MixingModule.mix_E7TeV_Ave25_25ns_PoissonOOTPU_cfi'})
 addMixingScenario("mix_E7TeV_Fall2011ReDigi_prelim_50ns_PoissonOOT_cfi",{'file': 'SimGeneral.MixingModule.mix_E7TeV_Fall2011ReDigi_prelim_50ns_PoissonOOT_cfi'})
+addMixingScenario("mix_E7TeV_Fall2011ReDigi_50ns_PoissonOOT_cfi",{'file': 'SimGeneral.MixingModule.mix_E7TeV_Fall2011ReDigi_50ns_PoissonOOT_cfi'})
+addMixingScenario("mix_E7TeV_Fall2011ReDigi_25ns_PoissonOOT_cfi",{'file': 'SimGeneral.MixingModule.mix_E7TeV_Fall2011ReDigi_25ns_PoissonOOT_cfi'})
+addMixingScenario("mix_E7TeV_Fall2011_Reprocess_50ns_PoissonOOTPU_cfi",{'file': 'SimGeneral.MixingModule.mix_E7TeV_Fall2011_Reprocess_50ns_PoissonOOTPU_cfi'})
 addMixingScenario("ProdStep2",{'file': 'SimGeneral.MixingModule.mixProdStep2_cfi'})
 
 ##fastsim section

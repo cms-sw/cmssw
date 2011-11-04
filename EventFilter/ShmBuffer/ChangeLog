@@ -1,3 +1,8 @@
+2011-10-21  Emilio Meschi  <emilio.meschi@cern.ch>
+
+	* tag V00-08-12
+	* return error value when sem_wait fails (e.g. with EINTR)
+
 2011-05-20  Emilio Meschi  <emilio.meschi@cern.ch>
 
 	* tag V00-08-11

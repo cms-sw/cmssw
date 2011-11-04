@@ -10,6 +10,7 @@
 #include <TMath.h>
 
 #include <cassert>
+
 using namespace std;
 
 //ClassImp(TMom)
@@ -121,7 +122,7 @@ void TMom::addEntry(double val, std::vector<double> valcut)
   
   for (int iCut=0;iCut<_dimCut;iCut++){
     int passing;
-    if( valcut[iCut]>_cutLow[iCut] && valcut[iCut] <=_cutHigh[iCut] ){
+    if( valcut.at(iCut)>_cutLow.at(iCut) && valcut.at(iCut) <=_cutHigh.at(iCut) ){
       passing=1;
     }else passing=0;
     passingAllCuts*=passing; 
@@ -196,7 +197,7 @@ std::vector<double> TMom::getPeak(){
     if(wbin <= 0.0)
       bung=1;
     else
-      bung= (int) ((_ampl[i]-min)/wbin)+1;
+      bung= (int) ((_ampl.at(i)-min)/wbin)+1;
     if(1 <= bung && bung <= 100)
       bing[bung]++;
   }

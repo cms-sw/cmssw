@@ -7,12 +7,9 @@ def schemaV2Tables():
 def schemaV1Tables():
        return [ 'LUMISUMMARY','LUMIDETAIL','TRG','HLT']
 def commonTables():
-       return [ 'CMSRUNSUMMARY','TRGHLTMAP','LUMIVALIDATION','FILLSCHEME']
+       return [ 'CMSRUNSUMMARY','TRGHLTMAP','LUMIVALIDATION']
 def revisionTableName():
        return 'REVISIONS'
-
-def fillschemeTableName():
-	return 'FILLSCHEME'
 
 def cmsrunsummaryTableName():
        return 'CMSRUNSUMMARY'

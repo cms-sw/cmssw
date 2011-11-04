@@ -12,7 +12,7 @@
 
 #define MAT_MESCHACH
 #ifdef MAT_MESCHACH
-#include "Alignment/CocoaModel/interface/MatrixMeschach.h"
+#include "Alignment/CocoaFit/interface/MatrixMeschach.h"
 #endif
 
 
@@ -143,7 +143,7 @@ public:
 public:
   // maximum deviation in a Measurent when a parameter is  displaced to get derivative
 
-  static ALIMatrix GetAtWAMatrix(){ 
+  static ALIMatrix* GetAtWAMatrix(){ 
     return AtWAMatrix; }
 
  private:
@@ -157,18 +157,17 @@ private:
   // Only instance of Fit
   static Fit* instance;
 
-  static ALIMatrix AMatrix;
-  static ALIMatrix AtMatrix;
-  static ALIMatrix WMatrix;
-  static ALIMatrix AtWAMatrix;
+  static ALIMatrix* AMatrix;
+  static ALIMatrix* AtMatrix;
+  static ALIMatrix* WMatrix;
+  static ALIMatrix* AtWAMatrix;
   //op  static ALIMatrix* VaMatrix;
-  static ALIMatrix DaMatrix;
+  static ALIMatrix* DaMatrix;
   //op  static ALIMatrix* PDMatrix;
   //-  static ALIMatrix* VyMatrix;
   //op  static ALIMatrix* yMatrix;
   //op  static ALIMatrix* fMatrix;
-  //  static ALIMatrix* yfMatrix;
-  static ALIMatrix yfMatrix;
+  static ALIMatrix* yfMatrix;
   //op  static ALIMatrix* thePropagationMatrix;
   //----- The number of lines and columns of matrix A
   static ALIint _NoLinesA;

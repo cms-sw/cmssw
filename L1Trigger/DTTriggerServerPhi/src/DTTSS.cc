@@ -363,7 +363,7 @@ DTTSS::logWord(int n) const {
     lw = _logWord2; break;
   default:
     std::cout << "DTTSS::logWord: requested track not present: " << n;
-    std::cout << " empty string returned!" << std::endl;    
+    std::cout << " empty string returned!" << std::endl;
   }
   return lw;
 }

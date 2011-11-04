@@ -5,7 +5,7 @@
 // 
 //
 // Original Author:  Dmytro Kovalskyi
-// $Id: MuonIdProducer.cc,v 1.62 2011/06/07 17:59:13 bellan Exp $
+// $Id: MuonIdProducer.cc,v 1.64 2011/08/03 22:44:34 slava77 Exp $
 //
 //
 
@@ -287,15 +287,15 @@ reco::Muon MuonIdProducer::makeMuon( const reco::MuonTrackLinks& links )
    aMuon.setGlobalTrack( links.globalTrack() );
 
    if(fillGlobalTrackRefits_){
-     if (!tpfmsCollectionHandle_.failedToGet()) {
+     if (tpfmsCollectionHandle_.isValid() && !tpfmsCollectionHandle_.failedToGet()) {
        reco::TrackToTrackMap::const_iterator it = tpfmsCollectionHandle_->find(links.globalTrack());
        if (it != tpfmsCollectionHandle_->end()) aMuon.setMuonTrack(reco::Muon::TPFMS, (it->val));
      }
-     if (!pickyCollectionHandle_.failedToGet()) {
+     if (pickyCollectionHandle_.isValid() && !pickyCollectionHandle_.failedToGet()) {
        reco::TrackToTrackMap::const_iterator it = pickyCollectionHandle_->find(links.globalTrack());
        if (it != pickyCollectionHandle_->end()) aMuon.setMuonTrack(reco::Muon::Picky, (it->val));
      }
-     if (!dytCollectionHandle_.failedToGet()) {
+     if (dytCollectionHandle_.isValid() && !dytCollectionHandle_.failedToGet()) {
        reco::TrackToTrackMap::const_iterator it = dytCollectionHandle_->find(links.globalTrack());
        if (it != dytCollectionHandle_->end()) aMuon.setMuonTrack(reco::Muon::DYT, (it->val));
      }
@@ -1148,7 +1148,7 @@ void MuonIdProducer::fillGlbQuality(edm::Event& iEvent, const edm::EventSetup& i
   edm::Handle<edm::ValueMap<reco::MuonQuality> > glbQualH;
   iEvent.getByLabel(globalTrackQualityInputTag_, glbQualH);
 
-  if(aMuon.isGlobalMuon() && !glbQualH.failedToGet()) {
+  if(aMuon.isGlobalMuon() && glbQualH.isValid() && !glbQualH.failedToGet()) {
     aMuon.setCombinedQuality((*glbQualH)[aMuon.combinedMuon()]);
   }
 

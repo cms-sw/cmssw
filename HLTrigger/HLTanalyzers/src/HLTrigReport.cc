@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/03/30 16:17:33 $
- *  $Revision: 1.33 $
+ *  $Date: 2011/07/06 15:08:38 $
+ *  $Revision: 1.34 $
  *
  *  \author Martin Grunewald
  *
@@ -446,6 +446,7 @@ HLTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (reportBy_ == EVERY_EVENT) {
     std::stringstream stream;
     stream << "Summary for Run " << iEvent.run() << ", LumiSection " << iEvent.luminosityBlock() << ", Event " << iEvent.id();
+    dumpReport(stream.str());
   }
   if (serviceBy_ == EVERY_EVENT and edm::Service<HLTrigReportService>()) {
     edm::Service<HLTrigReportService>()->setDatasetCounts(datasetCounts());

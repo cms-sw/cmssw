@@ -14,12 +14,12 @@ p2 = re.compile(r'PRODNAME')
 
 #******************   definitions  **********************************
 jec_type    = 'JetCorrectorParametersCollection'
-ERA         = 'Jec11_V3'
-ALGO_LIST   = [#'IC5Calo','IC5PF',
-               'AK5Calo','AK5PF','AK5PFchs','AK5JPT',#'AK5TRK',
+ERA         = 'Jec10V1'
+ALGO_LIST   = ['IC5Calo','IC5PF',
+               'AK5Calo','AK5PF','AK5JPT','AK5TRK',
                'AK7Calo','AK7PF',
                'KT4Calo','KT4PF',
-               #'KT6Calo','KT6PF'
+               'KT6Calo','KT6PF'
                ]
 #*********************************************************************
 
@@ -44,7 +44,7 @@ for aa in ALGO_LIST: #loop for jet algorithms
 
 
 for ifile in files :
-    s = "./dropBoxOffline.sh "+ERA+".db " + ifile
+    s = "./dropBoxOffline_test.sh "+ERA+".db " + ifile
     print s
-    subprocess.call( ["./dropBoxOffline.sh", ERA+".db", ifile])
+    subprocess.call( ["./dropBoxOffline_test.sh", ERA+".db", ifile])
   

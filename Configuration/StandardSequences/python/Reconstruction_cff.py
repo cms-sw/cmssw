@@ -36,8 +36,8 @@ from RecoVertex.BeamSpotProducer.BeamSpot_cff import *
 
 from RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi import *
 
-localreco = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalreco+castorreco+lumiProducer)
-localreco_HcalNZS = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco+lumiProducer)
+localreco = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalreco+castorreco)
+localreco_HcalNZS = cms.Sequence(trackerlocalreco+muonlocalreco+calolocalrecoNZS+castorreco)
 
 #
 # temporarily switching off recoGenJets; since this are MC and wil be moved to a proper sequence
@@ -113,7 +113,7 @@ modulesToRemove.append(horeco)
 modulesToRemove.append(hcalnoise)
 modulesToRemove.append(zdcreco)
 modulesToRemove.append(castorreco)
-modulesToRemove.append(CSCHaloData)#needs digis
+##it's OK according to Ronny modulesToRemove.append(CSCHaloData)#needs digis
 reconstruction_fromRECO = reconstruction.copyAndExclude(modulesToRemove+noTrackingAndDependent)
 noTrackingAndDependent.append(siPixelRecHits)
 noTrackingAndDependent.append(siStripMatchedRecHits)
