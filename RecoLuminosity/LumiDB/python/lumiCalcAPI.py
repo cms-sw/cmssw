@@ -26,6 +26,12 @@ def _decidenormForRun(schema,run):
     normresult=dataDML.luminormById(schema,normdataid)
     return normresult[2]
 #public functions
+def fillInRange(schema,fillmin=1000,fillmax=9999,amodetag='PROTPHYS',startT=None,stopT=None):
+    '''
+    output [fill]
+    '''
+    fills=dataDML.fillInRange(schema,fillmin,fillmax,amodetag,startT,stopT)
+    return fills
 def fillrunMap(schema,fillnum=None,runmin=None,runmax=None,startT=None,stopT=None,l1keyPattern=None,hltkeyPattern=None,amodetag=None):
     '''
     output: {fill:[runnum,...]}
