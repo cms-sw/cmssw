@@ -66,6 +66,11 @@ class TtSemiLepKinFitProducer : public edm::EDProducer {
   double mTop_;
   /// smear factor for jet resolutions
   double jetEnergyResolutionSmearFactor_;
+  /// config-file-based object resolutions
+  std::vector<edm::ParameterSet> udscResolutions_;
+  std::vector<edm::ParameterSet> bResolutions_;
+  std::vector<edm::ParameterSet> lepResolutions_;
+  std::vector<edm::ParameterSet> metResolutions_;
 
   TtSemiLepKinFitter* fitter;
 
@@ -106,11 +111,21 @@ TtSemiLepKinFitProducer<LeptonCollection>::TtSemiLepKinFitProducer(const edm::Pa
   constraints_             (cfg.getParameter<std::vector<unsigned> >("constraints")),
   mW_                      (cfg.getParameter<double>       ("mW"                  )),
   mTop_                    (cfg.getParameter<double>       ("mTop"                )),
-  jetEnergyResolutionSmearFactor_(cfg.getParameter<double> ("jetEnergyResolutionSmearFactor"))
-
+  jetEnergyResolutionSmearFactor_(cfg.getParameter<double> ("jetEnergyResolutionSmearFactor")),
+  udscResolutions_(0), bResolutions_(0), lepResolutions_(0), metResolutions_(0)
 {
+  if(cfg.exists("udscResolutions") && cfg.exists("bResolutions") && cfg.exists("lepResolutions") && cfg.exists("metResolutions")){
+    udscResolutions_ = cfg.getParameter<std::vector<edm::ParameterSet> >("udscResolutions");
+    bResolutions_    = cfg.getParameter<std::vector<edm::ParameterSet> >("bResolutions"   );
+    lepResolutions_  = cfg.getParameter<std::vector<edm::ParameterSet> >("lepResolutions" );
+    metResolutions_  = cfg.getParameter<std::vector<edm::ParameterSet> >("metResolutions" );
+  }
+  else if(cfg.exists("udscResolutions") || cfg.exists("bResolutions") || cfg.exists("lepResolutions") || cfg.exists("metResolutions") ){
+    throw cms::Exception("WrongConfig") << "Parameters 'udscResolutions', 'bResolutions', 'lepResolutions', 'metResolutions' should be used together.\n";
+  }
+
   fitter = new TtSemiLepKinFitter(param(jetParam_), param(lepParam_), param(metParam_), maxNrIter_, maxDeltaS_, maxF_,
-				  constraints(constraints_), mW_, mTop_);
+				  constraints(constraints_), mW_, mTop_, &udscResolutions_, &bResolutions_, &lepResolutions_, &metResolutions_);
 
   produces< std::vector<pat::Particle> >("PartonsHadP");
   produces< std::vector<pat::Particle> >("PartonsHadQ");

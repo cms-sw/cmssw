@@ -50,6 +50,13 @@ process.p = cms.Path(process.patDefaultSequence *
                      process.kinFitTtSemiLepEvent
                      )
 
+## use object resolutions from a specific config file
+#from TopQuarkAnalysis.TopObjectResolutions.stringResolutions_etEtaPhi_Summer11_cff import *
+#process.kinFitTtSemiLepEvent.udscResolutions = udscResolutionPF.functions
+#process.kinFitTtSemiLepEvent.bResolutions    = bjetResolutionPF.functions
+#process.kinFitTtSemiLepEvent.lepResolutions  = muonResolution  .functions
+#process.kinFitTtSemiLepEvent.metResolutions  = metResolutionPF .functions
+
 ## configure output module
 process.out = cms.OutputModule("PoolOutputModule",
     SelectEvents   = cms.untracked.PSet(SelectEvents = cms.vstring('p') ),                               

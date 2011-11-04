@@ -11,9 +11,12 @@
 
 #include "TopQuarkAnalysis/TopKinFitter/interface/TopKinFitter.h"
 
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+
 class TAbsFitParticle;
 class TFitConstraintM;
 class TFitConstraintEp;
+class CovarianceMatrix;
 
 /*
   \class   TtSemiLepKinFitter TtSemiLepKinFitter.h "TopQuarkAnalysis/TopKinFitter/interface/TtSemiLepKinFitter.h"
@@ -36,7 +39,11 @@ class TtSemiLepKinFitter : public TopKinFitter {
   explicit TtSemiLepKinFitter();
   /// constructor initialized with built-in types and class enum's custom parameters
   explicit TtSemiLepKinFitter(Param jetParam, Param lepParam, Param metParam, int maxNrIter, double maxDeltaS, double maxF,
-			      std::vector<Constraint> constraints, double mW=80.4, double mTop=173.);
+			      const std::vector<Constraint>& constraints, double mW=80.4, double mTop=173.,
+			      const std::vector<edm::ParameterSet>* udscResolutions=0, 
+			      const std::vector<edm::ParameterSet>* bResolutions   =0,
+			      const std::vector<edm::ParameterSet>* lepResolutions =0, 
+			      const std::vector<edm::ParameterSet>* metResolutions =0);
   /// default destructor
   ~TtSemiLepKinFitter();
 
@@ -84,6 +91,13 @@ class TtSemiLepKinFitter : public TopKinFitter {
   TAbsFitParticle* lepB_;
   TAbsFitParticle* lepton_;
   TAbsFitParticle* neutrino_;
+  /// resolutions
+  const std::vector<edm::ParameterSet>* udscResolutions_;
+  const std::vector<edm::ParameterSet>* bResolutions_;
+  const std::vector<edm::ParameterSet>* lepResolutions_;
+  const std::vector<edm::ParameterSet>* metResolutions_;
+  /// object used to construct the covariance matrices for the individual particles
+  CovarianceMatrix* covM_;
   /// supported constraints
   std::map<Constraint, TFitConstraintM*> massConstr_;
   TFitConstraintEp* sumPxConstr_;

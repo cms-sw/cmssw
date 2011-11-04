@@ -16,6 +16,7 @@
 TtSemiLepKinFitter::TtSemiLepKinFitter():
   TopKinFitter(),
   hadB_(0), hadP_(0), hadQ_(0), lepB_(0), lepton_(0), neutrino_(0),
+  udscResolutions_(0), bResolutions_(0), lepResolutions_(0), metResolutions_(0),
   jetParam_(kEMom), lepParam_(kEMom), metParam_(kEMom)
 {
   setupFitter();
@@ -23,9 +24,14 @@ TtSemiLepKinFitter::TtSemiLepKinFitter():
 
 TtSemiLepKinFitter::TtSemiLepKinFitter(Param jetParam, Param lepParam, Param metParam,
 				       int maxNrIter, double maxDeltaS, double maxF,
-				       std::vector<Constraint> constraints, double mW, double mTop):
+				       const std::vector<Constraint>& constraints, double mW, double mTop,
+				       const std::vector<edm::ParameterSet>* udscResolutions, 
+				       const std::vector<edm::ParameterSet>* bResolutions,
+				       const std::vector<edm::ParameterSet>* lepResolutions,
+				       const std::vector<edm::ParameterSet>* metResolutions):
   TopKinFitter(maxNrIter, maxDeltaS, maxF, mW, mTop),
   hadB_(0), hadP_(0), hadQ_(0), lepB_(0), lepton_(0), neutrino_(0),
+  udscResolutions_(udscResolutions), bResolutions_(bResolutions), lepResolutions_(lepResolutions), metResolutions_(metResolutions),
   jetParam_(jetParam), lepParam_(lepParam), metParam_(metParam), constrList_(constraints)
 {
   setupFitter();
@@ -39,6 +45,7 @@ TtSemiLepKinFitter::~TtSemiLepKinFitter()
   delete lepB_; 
   delete lepton_; 
   delete neutrino_;
+  delete covM_;
   for(std::map<Constraint, TFitConstraintM*>::iterator it = massConstr_.begin(); it != massConstr_.end(); ++it)
     delete it->second;
   delete sumPxConstr_;
@@ -166,6 +173,12 @@ void TtSemiLepKinFitter::setupFitter()
     fitter_->addConstraint(sumPxConstr_);
     fitter_->addConstraint(sumPyConstr_);
   }
+
+  // initialize helper class used to bring the resolutions into covariance matrices
+  if(udscResolutions_->size() &&  bResolutions_->size() && lepResolutions_->size() && metResolutions_->size())
+    covM_ = new CovarianceMatrix(*udscResolutions_, *bResolutions_, *lepResolutions_, *metResolutions_);
+  else
+    covM_ = new CovarianceMatrix();
 }
 
 template <class LeptonType>
@@ -189,13 +202,12 @@ int TtSemiLepKinFitter::fit(const std::vector<pat::Jet>& jets, const pat::Lepton
   const TLorentzVector p4Neutrino( neutrino.px(), neutrino.py(), 0, neutrino.et() );
 
   // initialize covariance matrices
-  CovarianceMatrix covM;
-  TMatrixD covHadP = covM.setupMatrix(hadP, jetParam_);
-  TMatrixD covHadQ = covM.setupMatrix(hadQ, jetParam_);
-  TMatrixD covHadB = covM.setupMatrix(hadB, jetParam_, "bjets");
-  TMatrixD covLepB = covM.setupMatrix(lepB, jetParam_, "bjets");
-  TMatrixD covLepton   = covM.setupMatrix(lepton  , lepParam_);
-  TMatrixD covNeutrino = covM.setupMatrix(neutrino, metParam_);
+  TMatrixD covHadP = covM_->setupMatrix(hadP, jetParam_);
+  TMatrixD covHadQ = covM_->setupMatrix(hadQ, jetParam_);
+  TMatrixD covHadB = covM_->setupMatrix(hadB, jetParam_, "bjets");
+  TMatrixD covLepB = covM_->setupMatrix(lepB, jetParam_, "bjets");
+  TMatrixD covLepton   = covM_->setupMatrix(lepton  , lepParam_);
+  TMatrixD covNeutrino = covM_->setupMatrix(neutrino, metParam_);
 
   // as covM contains resolution^2
   // the correction of jet energy resolutions
