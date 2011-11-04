@@ -30,6 +30,13 @@ for ich,fname in enumerate(args):
         bout = label if singlebin else label+b
         obskeyline.append(bout)
         for (p,e) in DC.exp[b].items(): # so that we get only self.DC.processes contributing to this bin
+            if DC.isSignal[p] == False: continue
+            #print "in DC.exp.items:b,p", b,p
+            expline.append("%.4f" % e)
+            keyline.append((bout, p, DC.isSignal[p]))
+        for (p,e) in DC.exp[b].items(): # so that we get only self.DC.processes contributing to this bin
+            if DC.isSignal[p]: continue
+            #print "in DC.exp.items:b,p", b,p
             expline.append("%.4f" % e)
             keyline.append((bout, p, DC.isSignal[p]))
     # systematics
@@ -131,10 +138,14 @@ if obsline:
 print "-" * 130
 
 pidline = []; signals = []; backgrounds = []
+tmpsignals = [];
+for (b,p,s) in keyline:
+    if s:
+        if p not in tmpsignals: tmpsignals.append(p)
 for (b,p,s) in keyline:
     if s:
         if p not in signals: signals.append(p)
-        pidline.append(-signals.index(p))
+        pidline.append(signals.index(p)-len(tmpsignals)+1)
     else:
         if p not in backgrounds: backgrounds.append(p)
         pidline.append(1+backgrounds.index(p))
