@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_4_2/HIon/V15 (CMSSW_4_4_0_HLT11)
+# /dev/CMSSW_4_4_2/HIon/V16 (CMSSW_4_4_0_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V15')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V16')
 )
 
 process.streams = cms.PSet( 
@@ -21,8 +21,7 @@ process.streams = cms.PSet(
     'OnlineHltMonitorHI' ),
   HLTDQMResults = cms.vstring( 'OnlineHltResults' ),
   HLTMON = cms.vstring( 'OfflineMonitor',
-    'OfflineMonitorHI' ),
-  TrackerCalibration = cms.vstring( 'TestEnablesTracker' )
+    'OfflineMonitorHI' )
 )
 process.datasets = cms.PSet( 
   EcalLaser = cms.vstring( 'HLT_EcalCalibration_v2' ),
@@ -305,8 +304,7 @@ process.datasets = cms.PSet(
   OnlineMonitor = cms.vstring( 'HLT_DTCalibration_v1',
     'HLT_EcalCalibration_v2',
     'HLT_HcalCalibration_v2',
-    'HLT_LogMonitor_v1',
-    'HLT_TrackerCalibration_v2' ),
+    'HLT_LogMonitor_v1' ),
   OnlineMonitorHI = cms.vstring( 'HLT_HIActivityHF_Coincidence3_v1',
     'HLT_HIActivityHF_Single3_v1',
     'HLT_HIBptxXOR_v1',
@@ -379,8 +377,7 @@ process.datasets = cms.PSet(
     'HLT_HIZeroBias_v1' ),
   TestEnablesEcalHcalDT = cms.vstring( 'HLT_DTCalibration_v1',
     'HLT_EcalCalibration_v2',
-    'HLT_HcalCalibration_v2' ),
-  TestEnablesTracker = cms.vstring( 'HLT_TrackerCalibration_v2' )
+    'HLT_HcalCalibration_v2' )
 )
 
 process.source = cms.Source( "PoolSource",
@@ -2912,22 +2909,6 @@ process.hltHcalCalibTypeFilter = cms.EDFilter( "HLTHcalCalibTypeFilter",
 process.hltHcalCalibrationRaw = cms.EDProducer( "EvFFEDSelector",
     inputTag = cms.InputTag( "rawDataCollector" ),
     fedList = cms.vuint32( 700, 701, 702, 703, 704, 705, 706, 707, 708, 709, 710, 711, 712, 713, 714, 715, 716, 717, 718, 719, 720, 721, 722, 723, 724, 725, 726, 727, 728, 729, 730, 731 )
-)
-process.hltPreTrackerCalibration = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    offset = cms.uint32( 0 )
-)
-process.hltLaserAlignmentEventFilter = cms.EDFilter( "LaserAlignmentEventFilter",
-    FedInputTag = cms.InputTag( "rawDataCollector" ),
-    SIGNAL_Filter = cms.bool( True ),
-    SINGLE_CHANNEL_THRESH = cms.uint32( 11 ),
-    CHANNEL_COUNT_THRESH = cms.uint32( 8 ),
-    FED_IDs = cms.vint32( 260, 261, 262, 263, 264, 265, 266, 267, 269, 270, 273, 274, 277, 278, 281, 282, 284, 285, 288, 289, 292, 293, 294, 295, 300, 301, 304, 305, 308, 309, 310, 311, 316, 317, 324, 325, 329, 330, 331, 332, 339, 340, 341, 342, 349, 350, 351, 352, 164, 165, 172, 173, 177, 178, 179, 180, 187, 188, 189, 190, 197, 198, 199, 200, 204, 205, 208, 209, 212, 213, 214, 215, 220, 221, 224, 225, 228, 229, 230, 231, 236, 237, 238, 239, 240, 241, 242, 243, 245, 246, 249, 250, 253, 254, 257, 258, 478, 476, 477, 482, 484, 480, 481, 474, 459, 460, 461, 463, 485, 487, 488, 489, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 288, 289, 292, 293, 300, 301, 304, 305, 310, 311, 316, 317, 329, 330, 339, 340, 341, 342, 349, 350, 164, 165, 177, 178, 179, 180, 189, 190, 197, 198, 204, 205, 212, 213, 220, 221, 224, 225, 230, 231 ),
-    SIGNAL_IDs = cms.vint32( 470389128, 470389384, 470389640, 470389896, 470390152, 470390408, 470390664, 470390920, 470389192, 470389448, 470389704, 470389960, 470390216, 470390472, 470390728, 470390984, 470126984, 470127240, 470127496, 470127752, 470128008, 470128264, 470128520, 470128776, 470127048, 470127304, 470127560, 470127816, 470128072, 470128328, 470128584, 470128840, 436232506, 436232826, 436233146, 436233466, 369174604, 369174812, 369175068, 369175292, 470307468, 470307716, 470308236, 470308748, 470308996, 470045316, 470045580, 470046084, 470046596, 470046860 )
-)
-process.hltTrackerCalibrationRaw = cms.EDProducer( "EvFFEDSelector",
-    inputTag = cms.InputTag( "rawDataCollector" ),
-    fedList = cms.vuint32( 260, 261, 262, 263, 264, 265, 266, 267, 269, 270, 273, 274, 277, 278, 281, 282, 284, 285, 288, 289, 292, 293, 294, 295, 300, 301, 304, 305, 308, 309, 310, 311, 316, 317, 324, 325, 329, 330, 331, 332, 339, 340, 341, 342, 349, 350, 351, 352, 164, 165, 172, 173, 177, 178, 179, 180, 187, 188, 189, 190, 197, 198, 199, 200, 204, 205, 208, 209, 212, 213, 214, 215, 220, 221, 224, 225, 228, 229, 230, 231, 236, 237, 238, 239, 240, 241, 242, 243, 245, 246, 249, 250, 253, 254, 257, 258, 478, 476, 477, 482, 484, 480, 481, 474, 459, 460, 461, 463, 485, 487, 488, 489, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 288, 289, 292, 293, 300, 301, 304, 305, 310, 311, 316, 317, 329, 330, 339, 340, 341, 342, 349, 350, 164, 165, 177, 178, 179, 180, 189, 190, 197, 198, 204, 205, 212, 213, 220, 221, 224, 225, 230, 231 )
 )
 process.hltPreLogMonitor = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -6697,7 +6678,6 @@ process.hltPreDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
     triggerConditions = cms.vstring( 'HLT_DTCalibration_v1 / 10',
       'HLT_EcalCalibration_v2 / 10',
       'HLT_HcalCalibration_v2',
-      'HLT_TrackerCalibration_v2',
       'HLT_LogMonitor_v1',
       'HLT_HIJet55_v1',
       'HLT_HIJet65_v1',
@@ -6825,10 +6805,6 @@ process.hltPreNanoDSTOutput = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltPreRPCMONOutput = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    offset = cms.uint32( 0 )
-)
-process.hltPreTrackerCalibrationOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     offset = cms.uint32( 0 )
 )
@@ -7010,8 +6986,7 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_HIZeroBiasXOR_v1',
   'HLT_HIZeroBias_v1',
   'HLT_HcalCalibration_v2',
-  'HLT_LogMonitor_v1',
-  'HLT_TrackerCalibration_v2' ) ),
+  'HLT_LogMonitor_v1' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep *_hltDt4DSegments_*_*',
       'keep *_hltL1GtObjectMap_*_*',
@@ -7578,19 +7553,6 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
       'keep triggerTriggerEventWithRefs_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
-process.hltOutputTrackerCalibration = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputTrackerCalibration.root" ),
-    fastCloning = cms.untracked.bool( False ),
-    dataset = cms.untracked.PSet(
-        filterName = cms.untracked.string( "" ),
-        dataTier = cms.untracked.string( "RAW" )
-    ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_TrackerCalibration_v2' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
-      'keep *_hltTrackerCalibrationRaw_*_*',
-      'keep edmTriggerResults_*_*_*',
-      'keep triggerTriggerEvent_*_*_*' )
-)
 
 process.HLTBeginSequenceCalibration = cms.Sequence( process.hltCalibrationEventsFilter + process.hltGtDigis )
 process.HLTEndSequence = cms.Sequence( process.hltBoolEnd )
@@ -7627,7 +7589,6 @@ process.HLTriggerFirstPath = cms.Path( process.hltGetRaw + process.hltBoolFalse 
 process.HLT_DTCalibration_v1 = cms.Path( process.HLTBeginSequenceCalibration + process.hltPreDTCalibration + process.hltDTCalibrationRaw + process.HLTEndSequence )
 process.HLT_EcalCalibration_v2 = cms.Path( process.HLTBeginSequenceCalibration + process.hltPreEcalCalibration + process.hltEcalCalibrationRaw + process.HLTEndSequence )
 process.HLT_HcalCalibration_v2 = cms.Path( process.HLTBeginSequenceCalibration + process.hltPreHcalCalibration + process.hltHcalCalibTypeFilter + process.hltHcalCalibrationRaw + process.HLTEndSequence )
-process.HLT_TrackerCalibration_v2 = cms.Path( process.HLTBeginSequenceCalibration + process.hltPreTrackerCalibration + process.hltLaserAlignmentEventFilter + process.hltTrackerCalibrationRaw + process.HLTEndSequence )
 process.HLT_LogMonitor_v1 = cms.Path( process.hltGtDigis + process.hltPreLogMonitor + process.hltLogMonitorFilter + process.HLTEndSequence )
 process.HLT_HIZeroBias_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sHIZeroBias + process.hltPreHIZeroBias + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
 process.HLT_HIZeroBiasXOR_v1 = cms.Path( process.HLTBeginSequence + process.hltL1sL1BptxXOR + process.hltPreHIZeroBiasXOR + process.HLTDoHIStripZeroSuppression + process.HLTEndSequence )
@@ -7714,7 +7675,6 @@ process.HLTDQMResultsOutput = cms.EndPath( process.hltPreHLTDQMResultsOutput + p
 process.HLTMONOutput = cms.EndPath( process.hltPreHLTMONOutput + process.hltPreHLTMONOutputSmart + process.hltOutputHLTMON )
 process.NanoDSTOutput = cms.EndPath( process.hltPreNanoDSTOutput )
 process.RPCMONOutput = cms.EndPath( process.hltPreRPCMONOutput )
-process.TrackerCalibrationOutput = cms.EndPath( process.hltPreTrackerCalibrationOutput + process.hltOutputTrackerCalibration )
 
 
 # Disable HF Noise filters in HIon menu

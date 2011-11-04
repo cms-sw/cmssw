@@ -91,7 +91,7 @@ HLT_HIUPCNeuHcalHfEG5Pixel_SingleTrack_v* #   added for 2011 (sr #123637)
 HLT_DTCalibration_v*
 HLT_EcalCalibration_v*
 HLT_HcalCalibration_v*
-HLT_TrackerCalibration_v*
+# HLT_TrackerCalibration_v*               # removed due to virgin raw
 HLT_LogMonitor_v*
 HLTriggerFirstPath
 HLTriggerFinalPath
@@ -112,4 +112,4 @@ HLTMONOutput
 NanoDSTOutput
 # PhysicsDSTOutput
 RPCMONOutput
-TrackerCalibrationOutput
+# TrackerCalibrationOutput                # removed due to virgin raw

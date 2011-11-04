@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_4_2/HIon/V15 (CMSSW_4_4_0_HLT11)
+# /dev/CMSSW_4_4_2/HIon/V16 (CMSSW_4_4_0_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V15')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V16')
 )
 
 streams = cms.PSet( 
@@ -20,8 +20,7 @@ streams = cms.PSet(
     'OnlineHltMonitorHI' ),
   HLTDQMResults = cms.vstring( 'OnlineHltResults' ),
   HLTMON = cms.vstring( 'OfflineMonitor',
-    'OfflineMonitorHI' ),
-  TrackerCalibration = cms.vstring( 'TestEnablesTracker' )
+    'OfflineMonitorHI' )
 )
 datasets = cms.PSet( 
   EcalLaser = cms.vstring( 'HLT_EcalCalibration_v2' ),
@@ -304,8 +303,7 @@ datasets = cms.PSet(
   OnlineMonitor = cms.vstring( 'HLT_DTCalibration_v1',
     'HLT_EcalCalibration_v2',
     'HLT_HcalCalibration_v2',
-    'HLT_LogMonitor_v1',
-    'HLT_TrackerCalibration_v2' ),
+    'HLT_LogMonitor_v1' ),
   OnlineMonitorHI = cms.vstring( 'HLT_HIActivityHF_Coincidence3_v1',
     'HLT_HIActivityHF_Single3_v1',
     'HLT_HIBptxXOR_v1',
@@ -378,8 +376,7 @@ datasets = cms.PSet(
     'HLT_HIZeroBias_v1' ),
   TestEnablesEcalHcalDT = cms.vstring( 'HLT_DTCalibration_v1',
     'HLT_EcalCalibration_v2',
-    'HLT_HcalCalibration_v2' ),
-  TestEnablesTracker = cms.vstring( 'HLT_TrackerCalibration_v2' )
+    'HLT_HcalCalibration_v2' )
 )
 
 hltESSAK5CaloL1L2L3 = cms.ESSource( "JetCorrectionServiceChain",
@@ -2369,22 +2366,6 @@ hltHcalCalibTypeFilter = cms.EDFilter( "HLTHcalCalibTypeFilter",
 hltHcalCalibrationRaw = cms.EDProducer( "EvFFEDSelector",
     inputTag = cms.InputTag( "rawDataCollector" ),
     fedList = cms.vuint32( 700, 701, 702, 703, 704, 705, 706, 707, 708, 709, 710, 711, 712, 713, 714, 715, 716, 717, 718, 719, 720, 721, 722, 723, 724, 725, 726, 727, 728, 729, 730, 731 )
-)
-hltPreTrackerCalibration = cms.EDFilter( "HLTPrescaler",
-    L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
-    offset = cms.uint32( 0 )
-)
-hltLaserAlignmentEventFilter = cms.EDFilter( "LaserAlignmentEventFilter",
-    FedInputTag = cms.InputTag( "rawDataCollector" ),
-    SIGNAL_Filter = cms.bool( True ),
-    SINGLE_CHANNEL_THRESH = cms.uint32( 11 ),
-    CHANNEL_COUNT_THRESH = cms.uint32( 8 ),
-    FED_IDs = cms.vint32( 260, 261, 262, 263, 264, 265, 266, 267, 269, 270, 273, 274, 277, 278, 281, 282, 284, 285, 288, 289, 292, 293, 294, 295, 300, 301, 304, 305, 308, 309, 310, 311, 316, 317, 324, 325, 329, 330, 331, 332, 339, 340, 341, 342, 349, 350, 351, 352, 164, 165, 172, 173, 177, 178, 179, 180, 187, 188, 189, 190, 197, 198, 199, 200, 204, 205, 208, 209, 212, 213, 214, 215, 220, 221, 224, 225, 228, 229, 230, 231, 236, 237, 238, 239, 240, 241, 242, 243, 245, 246, 249, 250, 253, 254, 257, 258, 478, 476, 477, 482, 484, 480, 481, 474, 459, 460, 461, 463, 485, 487, 488, 489, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 288, 289, 292, 293, 300, 301, 304, 305, 310, 311, 316, 317, 329, 330, 339, 340, 341, 342, 349, 350, 164, 165, 177, 178, 179, 180, 189, 190, 197, 198, 204, 205, 212, 213, 220, 221, 224, 225, 230, 231 ),
-    SIGNAL_IDs = cms.vint32( 470389128, 470389384, 470389640, 470389896, 470390152, 470390408, 470390664, 470390920, 470389192, 470389448, 470389704, 470389960, 470390216, 470390472, 470390728, 470390984, 470126984, 470127240, 470127496, 470127752, 470128008, 470128264, 470128520, 470128776, 470127048, 470127304, 470127560, 470127816, 470128072, 470128328, 470128584, 470128840, 436232506, 436232826, 436233146, 436233466, 369174604, 369174812, 369175068, 369175292, 470307468, 470307716, 470308236, 470308748, 470308996, 470045316, 470045580, 470046084, 470046596, 470046860 )
-)
-hltTrackerCalibrationRaw = cms.EDProducer( "EvFFEDSelector",
-    inputTag = cms.InputTag( "rawDataCollector" ),
-    fedList = cms.vuint32( 260, 261, 262, 263, 264, 265, 266, 267, 269, 270, 273, 274, 277, 278, 281, 282, 284, 285, 288, 289, 292, 293, 294, 295, 300, 301, 304, 305, 308, 309, 310, 311, 316, 317, 324, 325, 329, 330, 331, 332, 339, 340, 341, 342, 349, 350, 351, 352, 164, 165, 172, 173, 177, 178, 179, 180, 187, 188, 189, 190, 197, 198, 199, 200, 204, 205, 208, 209, 212, 213, 214, 215, 220, 221, 224, 225, 228, 229, 230, 231, 236, 237, 238, 239, 240, 241, 242, 243, 245, 246, 249, 250, 253, 254, 257, 258, 478, 476, 477, 482, 484, 480, 481, 474, 459, 460, 461, 463, 485, 487, 488, 489, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 288, 289, 292, 293, 300, 301, 304, 305, 310, 311, 316, 317, 329, 330, 339, 340, 341, 342, 349, 350, 164, 165, 177, 178, 179, 180, 189, 190, 197, 198, 204, 205, 212, 213, 220, 221, 224, 225, 230, 231 )
 )
 hltPreLogMonitor = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
@@ -6143,7 +6124,6 @@ HLTriggerFirstPath = cms.Path( hltGetRaw + hltBoolFalse )
 HLT_DTCalibration_v1 = cms.Path( HLTBeginSequenceCalibration + hltPreDTCalibration + hltDTCalibrationRaw + HLTEndSequence )
 HLT_EcalCalibration_v2 = cms.Path( HLTBeginSequenceCalibration + hltPreEcalCalibration + hltEcalCalibrationRaw + HLTEndSequence )
 HLT_HcalCalibration_v2 = cms.Path( HLTBeginSequenceCalibration + hltPreHcalCalibration + hltHcalCalibTypeFilter + hltHcalCalibrationRaw + HLTEndSequence )
-HLT_TrackerCalibration_v2 = cms.Path( HLTBeginSequenceCalibration + hltPreTrackerCalibration + hltLaserAlignmentEventFilter + hltTrackerCalibrationRaw + HLTEndSequence )
 HLT_LogMonitor_v1 = cms.Path( hltGtDigis + hltPreLogMonitor + hltLogMonitorFilter + HLTEndSequence )
 HLT_HIZeroBias_v1 = cms.Path( HLTBeginSequence + hltL1sHIZeroBias + hltPreHIZeroBias + HLTDoHIStripZeroSuppression + HLTEndSequence )
 HLT_HIZeroBiasXOR_v1 = cms.Path( HLTBeginSequence + hltL1sL1BptxXOR + hltPreHIZeroBiasXOR + HLTDoHIStripZeroSuppression + HLTEndSequence )
@@ -6219,7 +6199,7 @@ HLTriggerFinalPath = cms.Path( hltGtDigis + hltScalersRawToDigi + hltFEDSelector
 HLTAnalyzerEndpath = cms.EndPath( hltL1GtTrigReport + hltTrigReport )
 
 
-HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_DTCalibration_v1, HLT_EcalCalibration_v2, HLT_HcalCalibration_v2, HLT_TrackerCalibration_v2, HLT_LogMonitor_v1, HLT_HIZeroBias_v1, HLT_HIZeroBiasXOR_v1, HLT_HIZeroBiasPixel_SingleTrack_v1, HLT_HIMinBiasBSC_v1, HLT_HIMinBiasBSC_OR_v1, HLT_HIMinBiasHF_v1, HLT_HIMinBiasHf_OR_v1, HLT_HIMinBiasHfOrBSC_v1, HLT_HIMinBiasPixel_SingleTrack_v1, HLT_HIMinBiasZDC_Calo_v1, HLT_HIMinBiasZDC_Calo_PlusOrMinus_v1, HLT_HIMinBiasZDCPixel_SingleTrack_v1, HLT_HIMinBiasZDC_PlusOrMinusPixel_SingleTrack_v1, HLT_HIBptxXOR_v1, HLT_HIL1Algo_BptxXOR_BSC_OR_v1, HLT_HIL1DoubleMuOpen_v1, HLT_HIL1DoubleMu0_HighQ_v1, HLT_HIL2Mu3_v1, HLT_HIL2Mu3_NHitQ_v1, HLT_HIL2Mu7_v1, HLT_HIL2Mu15_v1, HLT_HIL2DoubleMu0_v1, HLT_HIL2DoubleMu0_NHitQ_v1, HLT_HIL2DoubleMu0_L1HighQL2NHitQ_v1, HLT_HIL2DoubleMu3_v1, HLT_HIL3Mu3_v1, HLT_HIL3DoubleMuOpen_v1, HLT_HIL3DoubleMuOpen_Mgt2_v1, HLT_HIL3DoubleMuOpen_Mgt2_SS_v1, HLT_HIL3DoubleMuOpen_Mgt2_OS_v1, HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v1, HLT_HISinglePhoton15_v1, HLT_HISinglePhoton20_v1, HLT_HISinglePhoton30_v1, HLT_HISinglePhoton40_v1, HLT_HIPhoton10_Photon15_v1, HLT_HIPhoton15_Photon20_v1, HLT_HIDoublePhoton10_v1, HLT_HIDoublePhoton15_v1, HLT_HIDoublePhoton20_v1, HLT_HIJet55_v1, HLT_HIJet65_v1, HLT_HIJet80_v1, HLT_HIJet95_v1, HLT_HIDiJet55_v1, HLT_HIJet65_Jet55_v1, HLT_HIJetE30_NoBPTX_v1, HLT_HIJetE50_NoBPTX3BX_NoHalo_v1, HLT_HIActivityHF_Coincidence3_v1, HLT_HIActivityHF_Single3_v1, HLT_HIClusterVertexCompatibility_v1, HLT_HICentralityVeto_v1, HLT_HIFullTrack12_L1Central_v1, HLT_HIFullTrack12_L1Peripheral_v1, HLT_HIFullTrack14_L1Central_v1, HLT_HIFullTrack14_L1Peripheral_v1, HLT_HIFullTrack20_L1Central_v1, HLT_HIFullTrack20_L1Peripheral_v1, HLT_HIFullTrack25_L1Central_v1, HLT_HIFullTrack25_L1Peripheral_v1, HLT_HIRandom_v1, HLT_HIUCC010_v1, HLT_HIUCC015_v1, HLT_HICentral10_v1, HLT_HIUPCNeuMuPixel_SingleTrack_v1, HLT_HIUPCNeuEG2Pixel_SingleTrack_v1, HLT_HIUPCNeuEG5Pixel_SingleTrack_v1, HLT_HIUPCNeuHcalHfMuPixel_SingleTrack_v1, HLT_HIUPCNeuHcalHfEG2Pixel_SingleTrack_v1, HLT_HIUPCNeuHcalHfEG5Pixel_SingleTrack_v1, HLTriggerFinalPath, HLTAnalyzerEndpath ))
+HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_DTCalibration_v1, HLT_EcalCalibration_v2, HLT_HcalCalibration_v2, HLT_LogMonitor_v1, HLT_HIZeroBias_v1, HLT_HIZeroBiasXOR_v1, HLT_HIZeroBiasPixel_SingleTrack_v1, HLT_HIMinBiasBSC_v1, HLT_HIMinBiasBSC_OR_v1, HLT_HIMinBiasHF_v1, HLT_HIMinBiasHf_OR_v1, HLT_HIMinBiasHfOrBSC_v1, HLT_HIMinBiasPixel_SingleTrack_v1, HLT_HIMinBiasZDC_Calo_v1, HLT_HIMinBiasZDC_Calo_PlusOrMinus_v1, HLT_HIMinBiasZDCPixel_SingleTrack_v1, HLT_HIMinBiasZDC_PlusOrMinusPixel_SingleTrack_v1, HLT_HIBptxXOR_v1, HLT_HIL1Algo_BptxXOR_BSC_OR_v1, HLT_HIL1DoubleMuOpen_v1, HLT_HIL1DoubleMu0_HighQ_v1, HLT_HIL2Mu3_v1, HLT_HIL2Mu3_NHitQ_v1, HLT_HIL2Mu7_v1, HLT_HIL2Mu15_v1, HLT_HIL2DoubleMu0_v1, HLT_HIL2DoubleMu0_NHitQ_v1, HLT_HIL2DoubleMu0_L1HighQL2NHitQ_v1, HLT_HIL2DoubleMu3_v1, HLT_HIL3Mu3_v1, HLT_HIL3DoubleMuOpen_v1, HLT_HIL3DoubleMuOpen_Mgt2_v1, HLT_HIL3DoubleMuOpen_Mgt2_SS_v1, HLT_HIL3DoubleMuOpen_Mgt2_OS_v1, HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v1, HLT_HISinglePhoton15_v1, HLT_HISinglePhoton20_v1, HLT_HISinglePhoton30_v1, HLT_HISinglePhoton40_v1, HLT_HIPhoton10_Photon15_v1, HLT_HIPhoton15_Photon20_v1, HLT_HIDoublePhoton10_v1, HLT_HIDoublePhoton15_v1, HLT_HIDoublePhoton20_v1, HLT_HIJet55_v1, HLT_HIJet65_v1, HLT_HIJet80_v1, HLT_HIJet95_v1, HLT_HIDiJet55_v1, HLT_HIJet65_Jet55_v1, HLT_HIJetE30_NoBPTX_v1, HLT_HIJetE50_NoBPTX3BX_NoHalo_v1, HLT_HIActivityHF_Coincidence3_v1, HLT_HIActivityHF_Single3_v1, HLT_HIClusterVertexCompatibility_v1, HLT_HICentralityVeto_v1, HLT_HIFullTrack12_L1Central_v1, HLT_HIFullTrack12_L1Peripheral_v1, HLT_HIFullTrack14_L1Central_v1, HLT_HIFullTrack14_L1Peripheral_v1, HLT_HIFullTrack20_L1Central_v1, HLT_HIFullTrack20_L1Peripheral_v1, HLT_HIFullTrack25_L1Central_v1, HLT_HIFullTrack25_L1Peripheral_v1, HLT_HIRandom_v1, HLT_HIUCC010_v1, HLT_HIUCC015_v1, HLT_HICentral10_v1, HLT_HIUPCNeuMuPixel_SingleTrack_v1, HLT_HIUPCNeuEG2Pixel_SingleTrack_v1, HLT_HIUPCNeuEG5Pixel_SingleTrack_v1, HLT_HIUPCNeuHcalHfMuPixel_SingleTrack_v1, HLT_HIUPCNeuHcalHfEG2Pixel_SingleTrack_v1, HLT_HIUPCNeuHcalHfEG5Pixel_SingleTrack_v1, HLTriggerFinalPath, HLTAnalyzerEndpath ))
 
 # Disable HF Noise filters in HIon menu
 if 'hltHfreco' in locals():
