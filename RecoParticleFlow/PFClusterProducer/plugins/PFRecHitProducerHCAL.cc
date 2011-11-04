@@ -439,8 +439,6 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		typedef HFRecHitCollection::const_iterator iHF;
 		iHF theLongHit = hfHandle->find(theLongDetId); 
 		iHF theShortHit = hfHandle->find(theShortDetId); 
-		int theLongFlag = theLongHit->flags();
-		int theShortFlag = theShortHit->flags();
 		// 
 		double theLongHitEnergy = 0.;
 		double theShortHitEnergy = 0.;
@@ -452,6 +450,7 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		bool flagLongPulseDPG = false;
 		//
 		if ( theLongHit != hfHandle->end() ) { 
+		  int theLongFlag = theLongHit->flags();
 		  theLongHitEnergy = theLongHit->energy();
 		  flagLongDPG = applyLongShortDPG_ && ( hcalSevLvlComputer->getSeverityLevel(theLongDetId, theLongFlag & hcalHFLongShortFlagValue_, 0)> HcalMaxAllowedHFLongShortSev_);
 		  flagLongTimeDPG = applyTimeDPG_ && ( hcalSevLvlComputer->getSeverityLevel(theLongDetId, theLongFlag & hcalHFInTimeWindowFlagValue_, 0)> HcalMaxAllowedHFInTimeWindowSev_);
@@ -463,6 +462,7 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		}
 		//
 		if ( theShortHit != hfHandle->end() ) { 
+		  int theShortFlag = theShortHit->flags();
 		  theShortHitEnergy = theShortHit->energy();
 		  flagShortDPG = applyLongShortDPG_ && ( hcalSevLvlComputer->getSeverityLevel(theShortDetId, theShortFlag & hcalHFLongShortFlagValue_, 0)> HcalMaxAllowedHFLongShortSev_);
 		  flagShortTimeDPG = applyTimeDPG_ && ( hcalSevLvlComputer->getSeverityLevel(theShortDetId, theShortFlag & hcalHFInTimeWindowFlagValue_, 0)> HcalMaxAllowedHFInTimeWindowSev_);
@@ -653,8 +653,6 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		  HcalDetId theShortDetId29 (HcalForward, ieta29, iphi, 2);
 		  iHF theLongHit29 = hfHandle->find(theLongDetId29); 
 		  iHF theShortHit29 = hfHandle->find(theShortDetId29); 
-		  int theLongFlag29 = theLongHit29->flags();
-		  int theShortFlag29 = theShortHit29->flags();
 		  // 
 		  double theLongHitEnergy29 = 0.;
 		  double theShortHitEnergy29 = 0.;
@@ -665,7 +663,8 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		  bool flagShortPulseDPG29 = false;
 		  bool flagLongPulseDPG29 = false;
 		  //
-		  if ( theLongHit29 != hfHandle->end() ) { 		    
+		  if ( theLongHit29 != hfHandle->end() ) { 
+		    int theLongFlag29 = theLongHit29->flags();
 		    theLongHitEnergy29 = theLongHit29->energy() ;
 		    flagLongDPG29 = applyLongShortDPG_ && ( hcalSevLvlComputer->getSeverityLevel(theLongDetId29, theLongFlag29 & hcalHFLongShortFlagValue_, 0)> HcalMaxAllowedHFLongShortSev_);
 		    flagLongTimeDPG29 = applyTimeDPG_ && ( hcalSevLvlComputer->getSeverityLevel(theLongDetId29, theLongFlag29 & hcalHFInTimeWindowFlagValue_, 0)> HcalMaxAllowedHFInTimeWindowSev_);
@@ -676,7 +675,8 @@ void PFRecHitProducerHCAL::createRecHits(vector<reco::PFRecHit>& rechits,
 		    //flagLongPulseDPG29 = applyPulseDPG_ && theLongHit29->flagField(HcalCaloFlagLabels::HFDigiTime)==1;
 		  }
 		  //
-		  if ( theShortHit29 != hfHandle->end() ) { 		    
+		  if ( theShortHit29 != hfHandle->end() ) { 
+		    int theShortFlag29 = theShortHit29->flags();
 		    theShortHitEnergy29 = theShortHit29->energy();		  
 		    flagShortDPG29 = applyLongShortDPG_ && ( hcalSevLvlComputer->getSeverityLevel(theShortDetId29, theShortFlag29 & hcalHFLongShortFlagValue_, 0)> HcalMaxAllowedHFLongShortSev_);
 		    flagShortTimeDPG29 = applyTimeDPG_ && ( hcalSevLvlComputer->getSeverityLevel(theShortDetId29, theShortFlag29 & hcalHFInTimeWindowFlagValue_, 0)> HcalMaxAllowedHFInTimeWindowSev_);
