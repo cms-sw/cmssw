@@ -3,9 +3,26 @@
 import os,os.path,sys,math,array,datetime,time,re
 import coral
 
-from RecoLuminosity.LumiDB import argparse,lumiTime,CommonUtil,lumiCalcAPI,lumiCorrections
+from RecoLuminosity.LumiDB import argparse,lumiTime,CommonUtil,lumiCalcAPI,lumiCorrections,sessionManager
 MINFILL=1800
+MAXFILL=9999
 allfillname='allfills.txt'
+
+def listfilldir(indir):
+    fillnamepat=r'^[0-9]{4}$'
+    p=re.compile(fillnamepat)
+    processedfills=[]
+    dirList=os.listdir(indir)
+    for fname in dirList:
+        if p.match(fname) and os.path.isdir(os.path.join(indir,fname)):#found fill dir
+            allfs=os.listdir(os.path.join(indir,fname))
+            for myfile in allfs:
+                sumfilenamepat=r'^[0-9]{4}_bxsum_CMS.txt$'
+                s=re.compile(sumfilenamepat)
+                if s.match(myfile):
+                    #only if fill_summary_CMS.txt file exists
+                    processedfills.append(int(fname))
+    return processedfills
 
 def lastcompleteFill(infile):
     lastfill=None
@@ -28,24 +45,29 @@ if __name__ == '__main__':
     parser.add_argument('-o',dest='outputdir',action='store',required=False,help='output dir',default='.')
     parser.add_argument('-f',dest='fillnum',action='store',required=False,help='specific fill',default=None)
     parser.add_argument('-norm',dest='norm',action='store',required=False,help='norm',default='pp7TeV')
+    parser.add_argument('-minfill',dest='minfill',action='store',required=False,help='minimal fillnumber ',default=MINFILL)
+    parser.add_argument('-maxfill',dest='maxfill',action='store',required=False,help='maximum fillnumber ',default=MAXFILL)
+    parser.add_argument('-amodetag',dest='amodetag',action='store',required=False,help='accelerator mode tag ',default='PROTPHYS')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
-    parser.add_argument('--with-correction',dest='withFineCorrection',action='store_true',required=False,help='with fine correction',default=None)
+    parser.add_argument('--without-stablebeam',dest='withoutStablebeam',action='store_true',required=False,help='without requirement on stable beams')
+    parser.add_argument('--without-correction',dest='withoutFineCorrection',action='store_true',required=False,help='without fine correction')
     options=parser.parse_args()
     
     allfillsFromFile=[]
     fillstoprocess=[]
-    minfillnum=1700
-    maxfillnum=None
-    summaryfilename='_summary_CMS.txt'
+    minfillnum=options.minfill
+    maxfillnum=options.maxfill
+    summaryfilenameTMP='_summary_CMS.txt'
     dbname=options.connect
     authdir=options.authpath
     if options.fillnum is not None: #if process a specific single fill
         fillstoprocess.append(int(options.fillnum))
     else: #if process fills automatically
+        svc=sessionManager.sessionManager(options.connect,authpath=options.authpath,debugON=options.debug)
+        session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
         session.transaction().start(True)
         schema=session.nominalSchema()
-        schema.transaction().start(True)
-        allfillsFromDB=lumiCalcAPI.fillInRange(schema,minfillnum,maxfillnum)
+        allfillsFromDB=lumiCalcAPI.fillInRange(schema,fillmin=minfillnum,fillmax=maxfillnum,amodetag=options.amodetag)
         processedfills=listfilldir(options.outputdir)
         lastcompletedFill=lastcompleteFill(os.path.join(options.inputdir,'runtofill_dqm.txt'))
         print 'last complete fill : ',lastcompletedFill
@@ -63,7 +85,7 @@ if __name__ == '__main__':
                         fillstoprocess.append(fill)
                 else:
                     print 'ongoing fill...',fill
-        schema.transaction().start(True)
+        session.transaction().start(True)
     print 'fills to process : ',fillstoprocess
     if len(fillstoprocess)==0:
         print 'no fill to process, exit '
@@ -72,9 +94,15 @@ if __name__ == '__main__':
     lslength=23.357
     import commands,os,RecoLuminosity.LumiDB.lumiTime,datetime,time
     for fillnum in fillstoprocess:
-        clineElements=['lumiCalc2.py','lumibyls','-b stable','-c',dbname,'-P',authdir,'-f',str(fillnum),'-o','tmp.out']
+        clineElements=['lumiCalc2.py','lumibyls','-c',dbname,'-P',authdir,'-f',str(fillnum),'-o','tmp.out']
+        if not options.withoutStablebeam:
+            clineElements.append('-b stable')
+        if options.withoutFineCorrection:
+            clineElements.append('--without-correction')
         clineElements.append('-norm '+options.norm)
-        (exestat,resultStr)=commands.getstatusoutput(' '.join(clineElements))
+        finalcmmd=' '.join(clineElements)
+        print 'cmmd executed:',finalcmmd
+        (exestat,resultStr)=commands.getstatusoutput(finalcmmd)
         if exestat!=0:
             print 'lumiCalc2.py execution error ',resultStr
             exit(exestat)
@@ -106,8 +134,11 @@ if __name__ == '__main__':
         filloutdir=os.path.join(options.outputdir,str(fillnum))
         if not os.path.exists(filloutdir):
             os.mkdir(filloutdir)
-        summaryfilename=os.path.join(options.outputdir,str(fillnum),str(fillnum)+summaryfilename)
-        print summaryfilename
+        #print 'options.outputdir ',options.outputdir
+        #print 'fillnum ',fillnum
+        #print 'str(fillnum)+summaryfilename ',str(fillnum)+summaryfilenameTMP
+        summaryfilename=os.path.join(options.outputdir,str(fillnum),str(fillnum)+summaryfilenameTMP)
+        print 'summaryfilename ',summaryfilename
         ofile=open(summaryfilename,'w')
         if len(stablefillmap)==0:
             print >>ofile,'%s'%('#no stable beams')
