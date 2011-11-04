@@ -166,11 +166,6 @@ namespace edm {
 
     if(fileIter_ == fileIterEnd_) {
       // No files specified
-      // This should be OK, but in some cases it causes an infinite loop, so we throw for now
-      if(inputType_ == InputType::Primary) {
-        throw Exception(errors::Configuration, "RootInputFileSequence::initFile()\n")
-          << "No file names specified for primary input source.\n";
-      }
       return;
     }
 
