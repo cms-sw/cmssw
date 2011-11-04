@@ -115,18 +115,16 @@ TrackerRecHit::isOnRequestedDet(const std::vector<unsigned int>& whichDet, const
     case 6:
       //Tracker EndCap
       if(seedingAlgo == "PixelLessPairs"){
-	//for the pixelless now we use TEC layers 1-5 
 	isOnDet = theSubDetId==6 && theLayerNumber < 6 && theRingNumber < 3;
       }else if (seedingAlgo == "TobTecLayerPairs"){
-	//for the tob-tec now we use TEC layers 1-7 and rings= 5 
 	//	isOnDet = theSubDetId==6 && theLayerNumber < 8 && theRingNumber < 5;
 	isOnDet = theSubDetId==6 && theLayerNumber < 8 && theRingNumber == 5;
       } else if (seedingAlgo == "MixedTriplets"){ 
-	//for the third step we now use only TEC ring 1
-	isOnDet = theSubDetId==6 && theLayerNumber == 2 && theRingNumber == 1;
+	//	isOnDet = theSubDetId==6 && theLayerNumber == 2 && theRingNumber == 1;
+	isOnDet = theSubDetId==6 && theLayerNumber < 4 && theRingNumber == 1;
       } else {
-	//on second step we use layer  up to 3 but only ring 1
-	isOnDet = theSubDetId==6 && theLayerNumber < 4 && theRingNumber == 1 ;
+	isOnDet = theSubDetId==6;
+	std::cout << "DEBUG - this should never happen" << std::endl;
       }
 
       break;
