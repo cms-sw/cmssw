@@ -447,8 +447,8 @@ ALCALUMIPIXELSOutput
 CalibrationOutput
 DQMOutput
 EcalCalibrationOutput
-ExpressOutput
 ExpressCosmicsOutput                                                                            # only in 'GRun' and 'cosmics', not in 'online'
+ExpressForPPOutput
 HLTDQMOutput
 HLTDQMResultsOutput
 HLTMONOutput

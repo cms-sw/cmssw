@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_4_2/HIon/V13 (CMSSW_4_4_0_HLT11)
+# /dev/CMSSW_4_4_2/HIon/V14 (CMSSW_4_4_0_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V13')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V14')
 )
 
 streams = cms.PSet( 
@@ -15,7 +15,7 @@ streams = cms.PSet(
   DQM = cms.vstring( 'OnlineMonitor',
     'OnlineMonitorHI' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
-  ExpressForHI = cms.vstring( 'HIExpressPhysics' ),
+  Express = cms.vstring( 'HIExpressPhysics' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitor',
     'OnlineHltMonitorHI' ),
   HLTDQMResults = cms.vstring( 'OnlineHltResults' ),
