@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_4_2/HIon/V17 (CMSSW_4_4_0_HLT11)
+# /dev/CMSSW_4_4_2/HIon/V18 (CMSSW_4_4_0_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V17')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V18')
 )
 
 streams = cms.PSet( 
@@ -299,7 +299,9 @@ datasets = cms.PSet(
     'HLT_HIZeroBiasXOR_v1',
     'HLT_HIZeroBias_v1' ),
   OnlineHltResults = cms.vstring( 'HLTriggerFinalPath' ),
-  OnlineMonitorHI = cms.vstring( 'HLT_HIActivityHF_Coincidence3_v1',
+  OnlineMonitorHI = cms.vstring( 'HLT_DTCalibration_v1',
+    'HLT_EcalCalibration_v2',
+    'HLT_HIActivityHF_Coincidence3_v1',
     'HLT_HIActivityHF_Single3_v1',
     'HLT_HIBptxXOR_v1',
     'HLT_HICentral10_v1',
@@ -368,7 +370,9 @@ datasets = cms.PSet(
     'HLT_HIUPCNeuMuPixel_SingleTrack_v1',
     'HLT_HIZeroBiasPixel_SingleTrack_v1',
     'HLT_HIZeroBiasXOR_v1',
-    'HLT_HIZeroBias_v1' ),
+    'HLT_HIZeroBias_v1',
+    'HLT_HcalCalibration_v2',
+    'HLT_LogMonitor_v1' ),
   TestEnablesEcalHcalDT = cms.vstring( 'HLT_DTCalibration_v1',
     'HLT_EcalCalibration_v2',
     'HLT_HcalCalibration_v2' )

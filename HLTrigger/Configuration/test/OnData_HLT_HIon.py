@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_4_2/HIon/V17 (CMSSW_4_4_0_HLT11)
+# /dev/CMSSW_4_4_2/HIon/V18 (CMSSW_4_4_0_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V17')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V18')
 )
 
 process.streams = cms.PSet( 
@@ -300,7 +300,9 @@ process.datasets = cms.PSet(
     'HLT_HIZeroBiasXOR_v1',
     'HLT_HIZeroBias_v1' ),
   OnlineHltResults = cms.vstring( 'HLTriggerFinalPath' ),
-  OnlineMonitorHI = cms.vstring( 'HLT_HIActivityHF_Coincidence3_v1',
+  OnlineMonitorHI = cms.vstring( 'HLT_DTCalibration_v1',
+    'HLT_EcalCalibration_v2',
+    'HLT_HIActivityHF_Coincidence3_v1',
     'HLT_HIActivityHF_Single3_v1',
     'HLT_HIBptxXOR_v1',
     'HLT_HICentral10_v1',
@@ -369,7 +371,9 @@ process.datasets = cms.PSet(
     'HLT_HIUPCNeuMuPixel_SingleTrack_v1',
     'HLT_HIZeroBiasPixel_SingleTrack_v1',
     'HLT_HIZeroBiasXOR_v1',
-    'HLT_HIZeroBias_v1' ),
+    'HLT_HIZeroBias_v1',
+    'HLT_HcalCalibration_v2',
+    'HLT_LogMonitor_v1' ),
   TestEnablesEcalHcalDT = cms.vstring( 'HLT_DTCalibration_v1',
     'HLT_EcalCalibration_v2',
     'HLT_HcalCalibration_v2' )
@@ -6908,7 +6912,9 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
         filterName = cms.untracked.string( "" ),
         dataTier = cms.untracked.string( "RAW" )
     ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_HIActivityHF_Coincidence3_v1',
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_DTCalibration_v1',
+  'HLT_EcalCalibration_v2',
+  'HLT_HIActivityHF_Coincidence3_v1',
   'HLT_HIActivityHF_Single3_v1',
   'HLT_HIBptxXOR_v1',
   'HLT_HICentral10_v1',
@@ -6977,7 +6983,9 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
   'HLT_HIUPCNeuMuPixel_SingleTrack_v1',
   'HLT_HIZeroBiasPixel_SingleTrack_v1',
   'HLT_HIZeroBiasXOR_v1',
-  'HLT_HIZeroBias_v1' ) ),
+  'HLT_HIZeroBias_v1',
+  'HLT_HcalCalibration_v2',
+  'HLT_LogMonitor_v1' ) ),
     outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep *_hltDt4DSegments_*_*',
       'keep *_hltL1GtObjectMap_*_*',

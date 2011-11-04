@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_4_2/HLT/V43 (CMSSW_4_4_0_HLT11)
+# /dev/CMSSW_4_4_2/HLT/V44 (CMSSW_4_4_0_HLT11)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HLT/V43')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HLT/V44')
 )
 
 streams = cms.PSet( 
@@ -2034,7 +2034,9 @@ datasets = cms.PSet(
     'HLT_TripleMu0_TauTo3Mu_v1',
     'HLT_TripleMu5_v13',
     'HLT_ZeroBias_v4') ),
-  OnlineMonitorHI = cms.vstring( 'HLT_HIActivityHF_Coincidence3_v1',
+  OnlineMonitorHI = cms.vstring( 'HLT_DTCalibration_v1',
+    'HLT_EcalCalibration_v2',
+    'HLT_HIActivityHF_Coincidence3_v1',
     'HLT_HIActivityHF_Single3_v1',
     'HLT_HIBptxXOR_v1',
     'HLT_HICaloTower4_MinBias_v1',
@@ -2114,7 +2116,9 @@ datasets = cms.PSet(
     'HLT_HIUpcMu_v1',
     'HLT_HIZeroBiasPixel_SingleTrack_v1',
     'HLT_HIZeroBiasXOR_v1',
-    'HLT_HIZeroBias_v1' ),
+    'HLT_HIZeroBias_v1',
+    'HLT_HcalCalibration_v2',
+    'HLT_LogMonitor_v1' ),
   Photon = cms.vstring( 'HLT_DoubleEle33_CaloIdL_CaloIsoT_v3',
     'HLT_DoubleEle33_CaloIdL_v7',
     'HLT_DoubleEle33_CaloIdT_v3',
