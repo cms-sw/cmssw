@@ -12,6 +12,8 @@
 #include "CondCore/DBCommon/interface/TagInfo.h"
 
 #include "CondCore/IOVService/interface/IOVNames.h"
+#include "CondCore/IOVService/interface/IOVSchemaUtility.h"
+#include "CondCore/IOVService/interface/IOVEditor.h"
 #include "CondCore/Utilities/interface/Utilities.h"
 #include <iterator>
 #include <limits>
@@ -125,6 +127,10 @@ int cond::ExportIOVUtilities::execute(){
     // find tag in destination
     cond::DbScopedTransaction transaction(destdb);
     transaction.start(false);
+
+    cond::IOVSchemaUtility schemaUtil( destdb, std::cout );
+    schemaUtil.createIOVContainerIfNecessary();
+
     destdb.storage().lockContainer( IOVNames::container() );
     int oldSize=0;
     cond::MetaData  metadata( destdb );
@@ -157,7 +163,10 @@ int cond::ExportIOVUtilities::execute(){
 	std::cout<<"dest iov token "<<destiovtoken<<std::endl;
 	std::cout<<"dest iov type "<<sourceiovtype<<std::endl;
       }
+      cond::IOVEditor iovEditor( destdb, destiovtoken );
+      iovEditor.setScope( cond::IOVSequence::Tag );
     }
+    
     
     ::sleep(1);
     

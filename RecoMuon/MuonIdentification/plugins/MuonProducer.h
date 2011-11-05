@@ -8,8 +8,8 @@
  * the entire event has been reconstructed. The collections produced here are meant to be used for the final analysis (or as PAT input).
  * The previous muon collection is meant to be transient.
  *
- *  $Date: 2011/06/20 14:09:09 $
- *  $Revision: 1.11 $
+ *  $Date: 2011/07/19 17:00:19 $
+ *  $Revision: 1.12 $
  *  \author R. Bellan - UCSB <riccardo.bellan@cern.ch>
  */
 
@@ -87,6 +87,9 @@ private:
   std::string theMuToMuMapName;
 
   MuPFIsoHelper *thePFIsoHelper;
+  
+  std::map<std::string,edm::InputTag> theIsoPF03MapNames;
+  std::map<std::string,edm::InputTag> theIsoPF04MapNames;
 
 };
 #endif

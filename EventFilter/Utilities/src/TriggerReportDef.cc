@@ -5,6 +5,8 @@ namespace evf{
   void funcs::reset(TriggerReportStatic *trs){
     trs->lumiSection = 0;
     trs->prescaleIndex = 0;
+    trs->nbExpected=0;
+    trs->nbReporting=0;
     //copy the event summary
     trs->eventSummary.totalEvents = 0;
     trs->eventSummary.totalEventsPassed = 0;
@@ -39,7 +41,9 @@ namespace evf{
     trs->lumiSection = lumisection;
     if(trp->eventSummary.totalEvents!=0) //do not update PS if no events seen
       trs->prescaleIndex = trp->prescaleIndex;
-    
+    // expected and reporting are incremented at each update by the corresponding contrib
+    trs->nbExpected += trp->nbExpected;
+    trs->nbReporting += trp->nbReporting;
     //add to the event summary
     trs->eventSummary.totalEvents += trp->eventSummary.totalEvents;
     trs->eventSummary.totalEventsPassed += trp->eventSummary.totalEventsPassed;

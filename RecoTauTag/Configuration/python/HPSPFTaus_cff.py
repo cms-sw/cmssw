@@ -155,7 +155,7 @@ hpsPFTauDiscriminationByTightIsolationDBSumPtCorr = hpsPFTauDiscriminationByTigh
     applyOccupancyCut = False,
     applySumPtCut = True,
     )
-hpsPFTauDiscriminationByTightIsolationDBSumPtCorr.maximumSumPtCut=hpsPFTauDiscriminationByTightIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minGammaEt 
+hpsPFTauDiscriminationByTightIsolationDBSumPtCorr.maximumSumPtCut=hpsPFTauDiscriminationByTightIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minGammaEt
 
 hpsPFTauDiscriminationByIsolationSeqDBSumPtCorr = cms.Sequence(
     hpsPFTauDiscriminationByVLooseIsolationDBSumPtCorr*
@@ -172,6 +172,7 @@ hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminat
     applyOccupancyCut = False,
     applySumPtCut = True,
     maximumSumPtCut = 3.0,
+    Prediscriminants = requireDecayMode.clone()
     )
 hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minTrackPt = 0.5
 hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minGammaEt = 0.5
@@ -183,6 +184,7 @@ hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminati
     applyOccupancyCut = False,
     applySumPtCut = True,
     maximumSumPtCut = 2.0,
+    Prediscriminants = requireDecayMode.clone()
     )
 hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minTrackPt = 0.5
 hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minGammaEt = 0.5
@@ -194,6 +196,7 @@ hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminat
     applyOccupancyCut = False,
     applySumPtCut = True,
     maximumSumPtCut = 1.0,
+    Prediscriminants = requireDecayMode.clone()
     )
 hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minTrackPt = 0.5
 hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minGammaEt = 0.5
@@ -205,6 +208,7 @@ hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr = hpsPFTauDiscriminati
     applyOccupancyCut = False,
     applySumPtCut = True,
     maximumSumPtCut = 0.8,
+    Prediscriminants = requireDecayMode.clone()
     )
 hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minTrackPt = 0.5
 hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr.qualityCuts.isolationQualityCuts.minGammaEt = 0.5
@@ -214,7 +218,7 @@ hpsPFTauDiscriminationByCombinedIsolationSeqDBSumPtCorr = cms.Sequence(
     hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr*
     hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr*
     hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr
-    )   
+    )
 
 #copying discriminator against electrons and muons
 hpsPFTauDiscriminationByLooseElectronRejection = pfRecoTauDiscriminationAgainstElectron.clone(

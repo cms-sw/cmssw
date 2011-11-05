@@ -174,8 +174,8 @@ VirtualJetProducer::VirtualJetProducer(const edm::ParameterSet& iConfig)
   }
 
   if ( doPUOffsetCorr_ ) {
-     if ( jetTypeE != JetType::CaloJet ) {
-        throw cms::Exception("InvalidInput") << "Can only offset correct jets of type CaloJet";
+    if ( jetTypeE != JetType::CaloJet && jetTypeE != JetType::BasicJet) {
+        throw cms::Exception("InvalidInput") << "Can only offset correct jets of type CaloJet or BasicJet";
      }
      
      if(iConfig.exists("subtractorName")) puSubtractorName_  =  iConfig.getParameter<string> ("subtractorName");
@@ -518,7 +518,7 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
 	}
       */
       clusterSequenceWithArea->get_median_rho_and_sigma(*fjRangeDef_,false,*rho,*sigma,mean_area);
-      if((*rho < 0)|| (isnan(*rho))) {
+      if((*rho < 0)|| (std::isnan(*rho))) {
 	edm::LogError("BadRho") << "rho value is " << *rho << " area:" << mean_area << " and n_empty_jets: " << clusterSequenceWithArea->n_empty_jets(*fjRangeDef_) << " with range " << fjRangeDef_->description()
 				<<". Setting rho to rezo.";
 	*rho = 0;
@@ -570,7 +570,6 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
       jetArea  *= rParam_;
       jetArea  *= rParam_;
     }  
-    jet.setJetArea (jetArea);
     
     // get the constituents from fastjet
     std::vector<fastjet::PseudoJet> fjConstituents =
@@ -589,6 +588,8 @@ void VirtualJetProducer::writeJets( edm::Event & iEvent, edm::EventSetup const& 
                                           fjJet.E()),
                   vertex_, 
                   constituents, iSetup);
+
+    jet.setJetArea (jetArea);
     
     if(doPUOffsetCorr_){
       jet.setPileup(subtractor_->getPileUpEnergy(ijet));

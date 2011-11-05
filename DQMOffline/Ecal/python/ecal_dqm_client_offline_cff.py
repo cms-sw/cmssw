@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 from DQM.EcalBarrelMonitorClient.EcalBarrelMonitorClient_cfi import *
 from DQM.EcalEndcapMonitorClient.EcalEndcapMonitorClient_cfi import *
 
+from DQMOffline.Ecal.EcalZmassClient_cfi import *
+
 dqmQTestEB = cms.EDAnalyzer("QualityTester",
 #    reportThreshold = cms.untracked.string('red'),
     prescaleFactor = cms.untracked.int32(1),
@@ -29,7 +31,9 @@ eb_dqm_client_offline = cms.Sequence(ecalBarrelMonitorClient*dqmQTestEB)
 
 ee_dqm_client_offline = cms.Sequence(ecalEndcapMonitorClient*dqmQTestEE)
 
-ecal_dqm_client_offline = cms.Sequence(eb_dqm_client_offline*ee_dqm_client_offline)
+ecalcalib_dqm_client_offline = cms.Sequence(ecalzmassclient)
+
+ecal_dqm_client_offline = cms.Sequence(eb_dqm_client_offline*ee_dqm_client_offline*ecalcalib_dqm_client_offline)
 
 ecalBarrelMonitorClient.location = 'P5'
 ecalBarrelMonitorClient.verbose = False

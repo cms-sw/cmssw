@@ -4,7 +4,6 @@
 #include "TCanvas.h"
 #include "TFile.h"
 #include "TStyle.h"
-#include "TROOT.h"
 
 #include <iostream>
 
@@ -125,7 +124,6 @@ void drawLike(TProfile * likeHisto1, TProfile * likeHisto2)
 /// Function drawing the histograms
 void Plot_mass(const TString & fileNameBefore = "0", const TString & fileNameAfter = "1", const int rebin = 1) {
 
-  gROOT->SetBatch(true);
   gStyle->SetOptStat ("111111");
   gStyle->SetOptFit (1);
 

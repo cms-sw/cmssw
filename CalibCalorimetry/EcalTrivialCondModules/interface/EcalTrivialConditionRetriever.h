@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialConditionRetriever.h,v 1.29 2011/03/28 20:06:30 depasse Exp $
+// $Id: EcalTrivialConditionRetriever.h,v 1.28 2010/07/07 09:08:48 depasse Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -44,9 +44,6 @@
 
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibErrors.h"
 #include "CondFormats/DataRecord/interface/EcalTimeCalibErrorsRcd.h"
-
-#include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
-#include "CondFormats/DataRecord/interface/EcalTimeOffsetConstantRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
@@ -121,7 +118,6 @@ public:
   virtual std::auto_ptr<EcalIntercalibErrors>  getIntercalibErrorsFromConfiguration ( const EcalIntercalibErrorsRcd& ) ;
   virtual std::auto_ptr<EcalTimeCalibConstants>  getTimeCalibConstantsFromConfiguration ( const EcalTimeCalibConstantsRcd& ) ;
   virtual std::auto_ptr<EcalTimeCalibErrors>  getTimeCalibErrorsFromConfiguration ( const EcalTimeCalibErrorsRcd& ) ;
-  virtual std::auto_ptr<EcalTimeOffsetConstant> produceEcalTimeOffsetConstant( const EcalTimeOffsetConstantRcd& );
 
   virtual std::auto_ptr<EcalLaserAlphas> produceEcalLaserAlphas( const EcalLaserAlphasRcd& );
   virtual std::auto_ptr<EcalLaserAPDPNRatiosRef> produceEcalLaserAPDPNRatiosRef( const EcalLaserAPDPNRatiosRefRcd& );
@@ -180,9 +176,6 @@ private:
   double timeCalibConstantMean_;
   double timeCalibConstantSigma_;
   double timeCalibErrorMean_;
-
-  double timeOffsetEBConstant_;    
-  double timeOffsetEEConstant_;    
 
   // cluster corrections
   std::vector<double> localContCorrParameters_;
@@ -262,7 +255,6 @@ private:
   bool producedEcalIntercalibErrors_;
   bool producedEcalTimeCalibConstants_;
   bool producedEcalTimeCalibErrors_;
-  bool producedEcalTimeOffsetConstant_;
   bool producedEcalGainRatios_;
   bool producedEcalADCToGeVConstant_;
   bool producedEcalLaserCorrection_;

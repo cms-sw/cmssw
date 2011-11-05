@@ -2,8 +2,8 @@
  *
  * See header file for documentation
  *
- *  $Date: 2011/05/01 08:43:49 $
- *  $Revision: 1.15 $
+ *  $Date: 2011/05/01 14:41:36 $
+ *  $Revision: 1.16 $
  *
  *  \author Martin Grunewald
  *
@@ -256,7 +256,8 @@ HLTFiltCand::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    // final filter decision:
    const bool accept ( (nphot>0) && (nelec>0) && (nmuon>0) && (ntaus>0) &&
-		       (njets>0) && (nmets>0) && (nmhts>=0) && (ntrck>0) && (necal>0) );
+		       //   (njets>0) && (nmets>0) && (nmhts>=0) && (ntrck>0) && (necal>0) );
+		       (njets>0) && (nmets>0) && (ntrck>0) && (necal>0) );
 
    // All filters: put filter object into the Event
    iEvent.put(filterobject);

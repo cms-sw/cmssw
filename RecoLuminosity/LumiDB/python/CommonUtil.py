@@ -1,42 +1,6 @@
 '''This module collects some frequently used helper functions
 '''
 import time,ast,re,json,coral,array
-def flatten(obj):
-    '''Given nested lists or tuples, returns a single flattened list'''
-    result = []
-    for piece in obj:
-        if hasattr (piece, '__iter__') and not isinstance (piece, basestring):
-            result.extend( flatten (piece) )
-        else:
-            result.append (piece)
-    return result
-
-def guessUnit(inverseubval):
-    '''
-    input:
-        float value in 1/ub
-    output:
-        printable value (value(float),unit(str)) unit in [1/ub,1/nb,1/pb,1/fb]
-    '''
-    if inverseubval<1.0e3:
-        unitstring='/ub'
-        return (inverseubval,unitstring)
-    if inverseubval>=1.0e3 and inverseubval<1.0e06:
-        denomitor=1.0e3
-        unitstring='/nb'
-        return (float(inverseubval)/float(denomitor),unitstring)
-    if inverseubval>=1.0e6 and inverseubval<1.0e9:
-        denomitor=1.0e6
-        unitstring='/pb'
-        return (float(inverseubval)/float(denomitor),unitstring)
-    if inverseubval>=1.0e9 and inverseubval<1.0e12:
-        denomitor=1.0e9
-        unitstring='/fb'
-        return (float(inverseubval)/float(denomitor),unitstring)
-    if inverseubval>=1.0e12 and inverseubval<1.0e15:
-        denomitor=1.0e12
-        unitstring='/ab'
-        return (float(inverseubval)/float(denomitor),unitstring)
 def pairwise(lst):
     """
     yield item i and item i+1 in lst. e.g.
@@ -176,10 +140,7 @@ def unpackBlobtoArray(iblob,itemtypecode):
     if itemtypecode not in ['c','b','B','u','h','H','i','I','l','L','f','d']:
         raise RuntimeError('unsupported typecode '+itemtypecode)
     result=array.array(itemtypecode)
-    blobstr=iblob.readline()
-    if not blobstr :
-        return None
-    result.fromstring(blobstr)
+    result.fromstring(iblob.readline())
     return result
 
 def packListstrtoCLOB(iListstr,separator=','):
@@ -193,25 +154,8 @@ def unpackCLOBtoListstr(iStr,separator=','):
     unpack a large string to list of string
     '''
     return [i.strip() for i in iStr.strip().split(separator)]
-
-def splitlistToRangeString (inPut):
-    result = []
-    first = inPut[0]
-    last = inPut[0]
-    result.append ([inPut[0]])
-    counter = 0
-    for i in inPut[1:]:
-        if i == last+1:
-            result[counter].append (i)
-        else:
-            counter += 1
-            result.append ([i])
-        last = i
-    return ', '.join (['['+str (min (x))+'-'+str (max (x))+']' for x in result])    
-
+    
 if __name__=='__main__':
-    nested=[[[1,2],[6,6,8]],[[3,4,5],[4,5]]]
-    print 'flattened ',flatten(nested)
     a=[1,2,3,4,5]
     for i,j in pairwise(a):
         if j :

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from CommonTools.ParticleFlow.ParticleSelectors.pfCandsForIsolation_cff  import *
+from CommonTools.ParticleFlow.pfParticleSelection_cff import *
 from CommonTools.ParticleFlow.Isolation.pfPhotonIsolation_cff import *
 from CommonTools.ParticleFlow.Isolation.pfPhotonIsolationFromDeposits_cff import *
 
@@ -12,7 +12,7 @@ pfSelectedPhotons = cms.EDFilter(
 )
 
 pfBasedPhotonIsoSequence = cms.Sequence(
-    pfCandsForIsolationSequence +
+    pfParticleSelectionSequence +
     pfSelectedPhotons +
     pfPhotonIsolationSequence+
     pfPhotonIsolationFromDepositsSequence

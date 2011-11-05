@@ -121,6 +121,17 @@ pushd ${LOCAL_TMP_DIR}
   echo ${testConfig} ------------------------------------------------------------
   cmsRun -p ${LOCAL_TEST_DIR}/${testConfig} || die "cmsRun ${testConfig}" $?
 
+  testConfig=create_one_run_one_lumi_run_only_file_cfg.py
+  rm -f dqm_one_run_one_lumi_run_only.root
+  echo ${testConfig} ------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${testConfig} || die "cmsRun ${testConfig}" $?
+  cp dqm_one_run_one_lumi_run_only.root dqm_one_run_one_lumi_run_only_2.root
+
+  testConfig=merge_one_run_one_lumi_run_only_cfg.py
+  rm -f dqm_merged_one_run_one_lumi_run_only.root
+  echo ${testConfig} ------------------------------------------------------------
+  cmsRun -p ${LOCAL_TEST_DIR}/${testConfig} || die "cmsRun ${testConfig}" $?
+
 
 popd
 

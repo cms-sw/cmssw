@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.192 2011/07/13 20:50:57 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.196 2011/09/07 03:26:04 amraktad Exp $
 //
 
 // system include files
@@ -80,8 +80,6 @@ static const char* const kPlayOpt              = "play";
 static const char* const kPlayCommandOpt       = "play,p";
 static const char* const kLoopOpt              = "loop";
 static const char* const kLoopCommandOpt       = "loop";
-static const char* const kDebugOpt             = "debug";
-static const char* const kDebugCommandOpt      = "debug,d";
 static const char* const kLogLevelCommandOpt   = "log";
 static const char* const kLogLevelOpt          = "log";
 static const char* const kEveOpt               = "eve";
@@ -130,7 +128,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       delete w;
    }
    catch (std::exception& iException) {
-      std::cerr << "Failed creating an OpenGL window: " << iException.what() << "\n"
+      fwLog(fwlog::kError) << "Failed creating an OpenGL window: " << iException.what() << "\n"
          "Things to check:\n"
          "- Is DISPLAY environment variable set?\n"
          "- Are OpenGL libraries installed?\n"
@@ -158,7 +156,6 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       (kLoopCommandOpt,                                   "Loop events in play mode")
       (kPlainRootCommandOpt,                              "Plain ROOT without event display")
       (kRootInteractiveCommandOpt,                        "Enable root interactive prompt")
-      (kDebugCommandOpt,                                  "Start the display from a debugger and produce a crash report")
       (kEnableFPE,                                        "Enable detection of floating-point exceptions")
       (kLogLevelCommandOpt, po::value<unsigned int>(),    "Set log level starting from 0 to 4 : kDebug, kInfo, kWarning, kError")
       (kAdvancedRenderCommandOpt,                         "Use advance options to improve rendering quality       (anti-alias etc)")
@@ -180,9 +177,25 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    po::variables_map vm;
    //po::store(po::parse_command_line(newArgc, newArgv, desc), vm);
    //po::notify(vm);
-   po::store(po::command_line_parser(newArgc, newArgv).
-             options(desc).positional(p).run(), vm);
-   po::notify(vm);
+   try{ 
+      po::store(po::command_line_parser(newArgc, newArgv).
+                options(desc).positional(p).run(), vm);
+
+      po::notify(vm);
+   }
+   catch ( const std::exception& e)
+   {
+      // Return with exit status 0 to avoid generating crash reports
+      if (strcmp(e.what(), "debug") == 0) {   
+         fwLog(fwlog::kError) <<  e.what() << std::endl;    
+         exit(0); 
+      }
+      else 
+      {    
+         fwLog(fwlog::kInfo) <<  "Debug option is no longer supported, because cmsShow crash report will be generated automatically in case of non-zero exit status.\n";     
+      }
+   }
+
    if(vm.count(kHelpOpt)) {
       std::cout << desc <<std::endl;
       exit(0);
@@ -221,7 +234,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
       if (access(configFilename(), R_OK) == -1)
       {
          fwLog(fwlog::kError) << "Specified configuration file does not exist. Quitting.\n";
-         exit(1);
+         exit(0);
       }
    } else {
       if (vm.count(kNoConfigFileOpt)) {
@@ -319,7 +332,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
    }
    if(vm.count(kAutoSaveAllViews)) {
       std::string fmt = vm[kAutoSaveAllViews].as<std::string>();
-      fmt += "%d_%d_%d_%s.png";
+      fmt += "%u_%u_%u_%s.png";
       setAutoSaveAllViewsFormat(fmt);
    }
    if(vm.count(kNoVersionCheck)) {
@@ -627,7 +640,12 @@ CmsShowMain::setupDataHandling()
       draw();
    }
    else if (m_monitor.get() == 0 && (eiManager()->begin() != eiManager()->end()) )
-      openData();
+   {
+      if (m_inputFiles.empty())
+         openDataViaURL();
+      else
+         openData();
+   }
 }
 
 void

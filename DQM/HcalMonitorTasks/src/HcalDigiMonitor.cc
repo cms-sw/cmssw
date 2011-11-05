@@ -398,10 +398,10 @@ void HcalDigiMonitor::setupSubdetHists(DigiHists& hist, std::string subdet)
   for (int ts=0;ts<9;++ts)
     {
       name<<subdet<<" Plus Time Slices "<<ts<<" and "<<ts+1;
-      hist.TS_sum_plus.push_back(dbe_->book1D(name.str().c_str(),name.str().c_str(),50, 0., 50.));
+      hist.TS_sum_plus.push_back(dbe_->book1D(name.str().c_str(),name.str().c_str(),50,-5.5,44.5));
       name.str("");
       name<<subdet<<" Minus Time Slices "<<ts<<" and "<<ts+1;
-      hist.TS_sum_minus.push_back(dbe_->book1D(name.str().c_str(),name.str().c_str(),50, 0., 50.));
+      hist.TS_sum_minus.push_back(dbe_->book1D(name.str().c_str(),name.str().c_str(),50,-5.5,44.5));
       name.str("");
     }
   hist.presample= dbe_->book1D(subdet+" Digi Presamples",subdet+" Digi Presamples",50,-0.5,49.5);
@@ -910,12 +910,12 @@ int HcalDigiMonitor::process_Digi(DIGI& digi, DigiHists& h, int& firstcap)
       // Calculate ADC sum of adjacent samples -- still necessary?
       if (i==digi.size()-1) continue;
       tssum= digi.sample(i).adc()+digi.sample(i+1).adc();
-      if (tssum<50 && tssum>=0)
+      if (tssum<45 && tssum>=-5)
 	{
 	  if (iEta>0)
-	    ++h.tssumplus[tssum][i];
+	    ++h.tssumplus[tssum+5][i];
 	  else
-	    ++h.tssumminus[tssum][i];
+	    ++h.tssumminus[tssum+5][i];
 	}
 
       if (digi.sample(i).adc()<0) ++h.adc[0];

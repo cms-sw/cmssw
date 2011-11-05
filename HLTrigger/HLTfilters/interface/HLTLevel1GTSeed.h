@@ -176,6 +176,9 @@ private:
     edm::InputTag m_l1EtMissMET;
     edm::InputTag m_l1EtMissMHT;
 
+    /// replace string "L1GlobalDecision" with bool to speed up the "if"
+    bool m_l1GlobalDecision;
+
     /// Whether to save these tags
     bool saveTags_;
 
