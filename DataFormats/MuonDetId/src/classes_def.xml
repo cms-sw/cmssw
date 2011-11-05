@@ -9,13 +9,16 @@
    <version ClassVersion="10" checksum="3694998457"/>
   </class>
   <class name="DTWireId" ClassVersion="10">
-   <version ClassVersion="10" checksum="506517840"/>
+    <version ClassVersion="10" checksum="506517840"/>
   </class>
   <class name="CSCDetId" ClassVersion="10">
    <version ClassVersion="10" checksum="56607943"/>
   </class>
   <class name="RPCDetId" ClassVersion="10">
    <version ClassVersion="10" checksum="3608243239"/>
+  </class>
+  <class name="RPCCompDetId" ClassVersion="-1">
+   <version ClassVersion="-1" checksum="2042478999"/>
   </class>
   <class name="DTBtiId" ClassVersion="10">
    <version ClassVersion="10" checksum="3911181252"/>

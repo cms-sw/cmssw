@@ -1,6 +1,6 @@
 <use   name="DataFormats/DetId"/>
 <use   name="DataFormats/MuonDetId"/>
-<bin   name="testMuonDetId" file="testDTDetIds.cc,testCSCDetId.cc,testRPCDetId.cc,testCSCTriggerNumbering.cc,testMuonDetId.cpp">
+<bin   name="testMuonDetId" file="testDTDetIds.cc,testCSCDetId.cc,testRPCDetId.cc,testRPCCompDetId.cc,testCSCTriggerNumbering.cc,testMuonDetId.cpp">
   <use   name="cppunit"/>
 </bin>
 <bin   name="testCSCDetId" file="testCSCDetId.cc,testMuonDetId.cpp">
@@ -12,5 +12,8 @@
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <library   file="CSCDetIdAnalyzer.cc" name="CSCDetIdAnalyzer">
+  <flags   EDM_PLUGIN="1"/>
+</library>
+<library   file="RPCDetIdAnalyzer.cc" name="RPCDetIdAnalyzer">
   <flags   EDM_PLUGIN="1"/>
 </library>
