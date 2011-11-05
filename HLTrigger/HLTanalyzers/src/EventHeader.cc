@@ -48,14 +48,22 @@ void EventHeader::analyze(edm::Event const& iEvent, TTree* HltTree) {
   fLumiBlock    = iEvent.luminosityBlock();
   fBx           = iEvent.bunchCrossing();
   fOrbit        = iEvent.orbitNumber();
-
-  //  const edm::LuminosityBlock& iLumi = iEvent.getLuminosityBlock(); 
-  //  edm::Handle<LumiSummary> lumiSummary; 
-  //  iLumi.getByLabel("lumiProducer", lumiSummary); 
-  //  if(lumiSummary->isValid()) 
-  //    fAvgInstDelLumi = lumiSummary->avgInsDelLumi(); 
-  //  else 
-  //    fAvgInstDelLumi = -999.; 
+  
+ 
+  bool lumiException = false;
+  const edm::LuminosityBlock& iLumi = iEvent.getLuminosityBlock(); 
+  edm::Handle<LumiSummary> lumiSummary; 
+  try{
+    iLumi.getByLabel("lumiProducer", lumiSummary); 
+    lumiSummary->isValid();
+  }
+  catch(cms::Exception&){
+    lumiException = true;
+  }
+  if(!lumiException)
+    fAvgInstDelLumi = lumiSummary->avgInsDelLumi(); 
+  else 
+    fAvgInstDelLumi = -999.; 
   
   
   if (_Debug) {	
