@@ -29,9 +29,6 @@
 
 namespace edm {
 
-  StreamSerializer::Arr::Arr(int sz):ptr_((char*)malloc(sz)) { }
-  StreamSerializer::Arr::~Arr() { free(ptr_); }
-
   /**
    * Creates a translator instance for the specified product registry.
    */

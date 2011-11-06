@@ -15,9 +15,6 @@
 namespace edm
 {
 
-  StreamDQMSerializer::Arr::Arr(int sz):ptr_((char*)malloc(sz)) { }
-  StreamDQMSerializer::Arr::~Arr() { free(ptr_); }
-
   const int init_size = 1024*1024;
 
   /**

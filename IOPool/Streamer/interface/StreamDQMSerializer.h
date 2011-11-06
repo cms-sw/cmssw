@@ -38,16 +38,6 @@ namespace edm
 
   private:
 
-    // helps to keep the data in this class exception safe
-    struct Arr
-    {
-      explicit Arr(int sz); // allocate
-      ~Arr(); // free
-
-      char* ptr_;
-    };
-
-    // Arr data_;
     std::vector<unsigned char> comp_buf_; // space for compressed data
     unsigned int curr_event_size_;
     unsigned int curr_space_used_; // less than curr_event_size_ if compressed

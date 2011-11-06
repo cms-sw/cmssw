@@ -84,17 +84,7 @@ namespace edm
 
   private:
 
-    // helps to keep the data in this class exception safe
-    struct Arr
-    {
-      explicit Arr(int sz); // allocate
-      ~Arr(); // free
-
-      char* ptr_;
-    };
-
     Selections const* selections_;
-    // Arr data_;
     TClass* tc_;
   };
 
