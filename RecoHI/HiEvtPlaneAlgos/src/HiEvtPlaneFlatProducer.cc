@@ -14,11 +14,9 @@
 //
 // Original Author:  Stephen Sanders
 //         Created:  Sat Jun 26 16:04:04 EDT 2010
-// $Id: HiEvtPlaneFlatProducer.cc,v 1.8 2011/10/02 12:25:30 yilmaz Exp $
+// $Id: HiEvtPlaneFlatProducer.cc,v 1.9 2011/10/07 09:41:29 yilmaz Exp $
 //
 //
-
-
 // system include files
 #include <memory>
 
@@ -101,8 +99,7 @@ class HiEvtPlaneFlatProducer : public edm::EDProducer {
   int vs_sell;   // vertex collection size
   float vzr_sell;
   float vzErr_sell;
-
-  Double_t epang[NumEPNames];
+  bool FirstEvent;
   HiEvtPlaneFlatten * flat[NumEPNames];
   RPFlatParams * rpFlat;
   int nRP;
@@ -137,7 +134,7 @@ HiEvtPlaneFlatProducer::HiEvtPlaneFlatProducer(const edm::ParameterSet& iConfig)
   Int_t FlatOrder = 21;
   for(int i = 0; i<NumEPNames; i++) {
     flat[i] = new HiEvtPlaneFlatten();
-    flat[i]->Init(FlatOrder,11,4,EPNames[i],EPOrder[i]);
+    flat[i]->Init(FlatOrder,20,2,EPNames[i],EPOrder[i]);
     Double_t psirange = 4;
     if(EPOrder[i]==2 ) psirange = 2;
     if(EPOrder[i]==3 ) psirange = 1.5;
@@ -171,14 +168,31 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   using namespace reco;
 
   //
+  //Get Flattening Parameters
+  //
+  if(FirstEvent) {
+    edm::ESHandle<RPFlatParams> flatparmsDB_;
+    iSetup.get<HeavyIonRPRcd>().get(flatparmsDB_);
+    int flatTableSize = flatparmsDB_->m_table.size();
+    for(int i = 0; i<flatTableSize; i++) {
+      const RPFlatParams::EP* thisBin = &(flatparmsDB_->m_table[i]);
+      for(int j = 0; j<NumEPNames; j++) {
+	int indx = thisBin->RPNameIndx[j];
+	if(indx>=0) {
+	  flat[indx]->SetXDB(i, thisBin->x[j]);
+	  flat[indx]->SetYDB(i, thisBin->y[j]);
+	}
+      }
+    }
+  }
+  //
   //Get Centrality
   //
-
+  
   edm::Handle<int> ch;
   iEvent.getByLabel(centrality_,ch);
   int bin = *(ch.product());
 
-  //  double centval = 2.5*bin+1.25;
   //
   //Get Vertex
   //
@@ -191,22 +205,6 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     vzErr_sell = vertices3->begin()->zError();
   } else
     vzr_sell = -999.9;
-  //
-  //Get Flattening Parameters
-  //
-  edm::ESHandle<RPFlatParams> flatparmsDB_;
-  iSetup.get<HeavyIonRPRcd>().get(flatparmsDB_);
-  int flatTableSize = flatparmsDB_->m_table.size();
-  for(int i = 0; i<flatTableSize; i++) {
-    const RPFlatParams::EP* thisBin = &(flatparmsDB_->m_table[i]);
-    for(int j = 0; j<NumEPNames; j++) {
-      int indx = thisBin->RPNameIndx[j];
-      if(indx>=0) {
-	flat[indx]->SetXDB(i, thisBin->x[j]);
-	flat[indx]->SetYDB(i, thisBin->y[j]);
-      }
-    }
-  }
   
   //
   //Get Event Planes
@@ -230,12 +228,11 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     ep[i]=0;
   }
   for (EvtPlaneCollection::const_iterator rp = evtPlanes->begin();rp !=evtPlanes->end(); rp++) {
-    if(rp->angle() > -5) {
       string baseName = rp->label();
       for(int i = 0; i< NumEPNames; i++) {
 	if(EPNames[i].compare(baseName)==0) {
-	  double psiFlat = flat[i]->GetFlatPsi(rp->angle(),vzr_sell,bin);
-	  epang[i]=psiFlat;
+	  double psiFlat = rp->angle();
+	  if(psiFlat>-5) psiFlat = flat[i]->GetFlatPsi(rp->angle(),vzr_sell,bin);
 	  if(EPNames[i].compare(rp->label())==0) {	    
 	    psiFull[i] = psiFlat;
 	    if(storeNames_) ep[i]= new EvtPlane(psiFlat, rp->sumSin(), rp->sumCos(),rp->label().data());
@@ -243,11 +240,11 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	  } 
 	}
       }
-    }    
   }
   
   for(int i = 0; i< NumEPNames; i++) {
     if(ep[i]!=0) evtplaneOutput->push_back(*ep[i]);
+    
   }
   iEvent.put(evtplaneOutput);
   storeNames_ = 0;  
