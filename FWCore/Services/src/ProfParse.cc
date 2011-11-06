@@ -311,9 +311,10 @@ void writeProfileData(int fd, const std::string& prefix)
   }
 
   VertexSet::iterator ver_iter(symset.begin()),ver_iter_end(symset.end());
+  float ftotal = (total != 0 ? (float)total : 1.0); // Avoids possible divide by zero.
   while(ver_iter != ver_iter_end) {
-      ver_iter->percent_leaf_ = (float)ver_iter->total_as_leaf_ / (float)total;
-      ver_iter->percent_path_ = (float)ver_iter->in_path_ / (float)total;
+      ver_iter->percent_leaf_ = (float)ver_iter->total_as_leaf_ / ftotal;
+      ver_iter->percent_path_ = (float)ver_iter->in_path_ / ftotal;
       ++ver_iter;
   }
 
