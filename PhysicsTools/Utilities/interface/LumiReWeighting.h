@@ -245,12 +245,6 @@ namespace edm {
 
     double weightOOT( const edm::EventBase &e ) ;
 
-    double weight3D( const edm::EventBase &e );
-
-    void weight3D_init();
-
-    void weight3D_init( std::string WeightFileName );  // initialize from root file
-
     void weightOOT_init(); 
 
   protected:
@@ -269,8 +263,6 @@ namespace edm {
     boost::shared_ptr<TH1>      Data_distr_;
 
     double WeightOOTPU_[25][25];
-
-    double Weight3D_[35][35][35];
 
     int  OldLumiSection_;
     bool Reweight_4_2_2p2_;

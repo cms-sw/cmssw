@@ -22,7 +22,6 @@
 #include "TRandom3.h"
 #include "TStopwatch.h"
 #include "TH1.h"
-#include "TH3.h"
 #include "TFile.h"
 #include <string>
 #include <algorithm>
@@ -149,18 +148,6 @@ double LumiReWeighting::weight3BX( float ave_npv ) {
   return weights_->GetBinContent( bin );
 }
 
-double LumiReWeighting::weight3D( int pv1, int pv2, int pv3 ) {
-
-  using std::min;
-
-  int npm1 = min(pv1,34);
-  int np0 = min(pv2,34);
-  int npp1 = min(pv3,34);
-
-  return Weight3D_[npm1][np0][npp1];
-
-}
-
 
 // This version of weight does all of the work for you, assuming you want to re-weight
 // using the true number of interactions in the in-time beam crossing.
@@ -243,179 +230,6 @@ double LumiReWeighting::weight3BX( const edm::EventBase &e ) {
   return weights_->GetBinContent( bin );
  
 }
-
-double LumiReWeighting::weight3D( const edm::EventBase &e ) {
-
-  using std::min;
-
-  // get pileup summary information
-
-  Handle<std::vector< PileupSummaryInfo > >  PupInfo;
-  e.getByLabel(edm::InputTag("addPileupInfo"), PupInfo);
-
-  std::vector<PileupSummaryInfo>::const_iterator PVI;
-
-  int npm1=-1;
-  int np0=-1;
-  int npp1=-1;
- 
-  for(PVI = PupInfo->begin(); PVI != PupInfo->end(); ++PVI) {
-
-    int BX = PVI->getBunchCrossing();
-
-    if(BX == -1) { 
-      npm1 = PVI->getPU_NumInteractions();
-    }
-    if(BX == 0) { 
-      np0 = PVI->getPU_NumInteractions();
-    }
-    if(BX == 1) { 
-      npp1 = PVI->getPU_NumInteractions();
-    }
-
-  }
-
-  npm1 = min(npm1,34);
-  np0 = min(np0,34);
-  npp1 = min(npp1,34);
-
-  //  std::cout << " vertices " << npm1 << " " << np0 << " " << npp1 << std::endl; 
-
-  return Weight3D_[npm1][np0][npp1];
- 
-}
-
-
-void LumiReWeighting::weight3D_init() { 
-
-  //create histogram to write output weights, save pain of generating them again...
-
-  TH3D* WHist = new TH3D("WHist","3D weights",35,-.5,34.5,35,-.5,34.5,35,-.5,34.5 );
-
-
-  using std::min;
-
-  int Npoints = 100000000;
-
-  if( MC_distr_->GetEntries() == 0 ) {
-    std::cout << " MC and Data distributions are not initialized! You must call the LumiReWeighting constructor. " << std::endl;
-  }
-
-  std::cout << " Generating 100M 3-D Weights.  This will take a while..." << std::endl;
-
-  // arrays for storing number of interactions
-
-  double MC_ints[35][35][35];
-  double Data_ints[35][35][35];
-
-  for (int i=0; i<35; i++) {
-    for(int j=0; j<35; j++) {
-      for(int k=0; k<35; k++) {
-	MC_ints[i][j][k] = 0.;
-	Data_ints[i][j][k] = 0.;
-      }
-    }
-  }
-
-  // initialize random numbers
-
-  TRandom *r1 = new TRandom1();
-
-  double x,y;
-  double xint, yint;
-  int xi;
-
-  // Get entries randomly for Data, MC, fill arrays:
-
-  for (int j=0;j<Npoints;j++) {       
-
-    if(j%1000000==0) std::cout << " ." << std::endl;
-
-    x =  MC_distr_->GetRandom();
-
-    //for Summer 11, we have this int feature that generates the spike at zero int.
-    xi = int(x);
-    xint = r1->Poisson(xi);
-
-    int x0 = min(int(xint),34);
-    xint = r1->Poisson(xi);
-    int x1 = min(int(xint),34);
-    xint = r1->Poisson(xi);
-    int x2 = min(int(xint),34);
-     
-    // cout << x0 << "  " << x1 << " " << x2 << endl;
-
-    MC_ints[x0][x1][x2] =  MC_ints[x0][x1][x2]+1.0;
-
-    y =  Data_distr_->GetRandom();
-
-    yint = r1->Poisson(y);
-
-    int y0 = min(int(yint),34);
-    yint = r1->Poisson(y);
-    int y1 = min(int(yint),34);
-    yint = r1->Poisson(y);
-    int y2 = min(int(yint),34);
-
-    Data_ints[y0][y1][y2] = Data_ints[y0][y1][y2]+1.0;
-  }
-
-  for (int i=0; i<35; i++) {  
-    for(int j=0; j<35; j++) {
-      for(int k=0; k<35; k++) {
-	if( (MC_ints[i][j][k])>0.) {
-	  Weight3D_[i][j][k]  =  Data_ints[i][j][k]/MC_ints[i][j][k];
-	}
-	else {
-	  Weight3D_[i][j][k]  = 0.;
-	}
-	WHist->SetBinContent( i,j,k,Weight3D_[i][j][k] );
-      }
-    }
-  }
-
-  std::cout << " 3D Weight Matrix initialized! " << std::endl;
-  std::cout << " Writing weights to file Weight3D.root for re-use...  " << std::endl;
-
-  TFile * outfile = new TFile("Weight3D.root","RECREATE");
-  WHist->Write();
-  outfile->Write();
-  outfile->Close();
-  outfile->Delete();              
-
-
-  return;
-
-
-}
-
-
-void LumiReWeighting::weight3D_init( std::string WeightFileName ) { 
-
-  TFile *infile = new TFile(WeightFileName.c_str());
-  TH1F *WHist = (TH1F*)infile->Get("WHist");
-
-  // Check if the histogram exists           
-  if (!WHist) {
-    throw cms::Exception("HistogramNotFound") << " Could not find the histogram WHist in the file "
-					      << "in the file " << WeightFileName << "." << std::endl;
-  }
-
-  for (int i=0; i<35; i++) {  
-    for(int j=0; j<35; j++) {
-      for(int k=0; k<35; k++) {
-	Weight3D_[i][j][k] = WHist->GetBinContent(i,j,k);
-      }
-    }
-  }
-
-  std::cout << " 3D Weight Matrix initialized! " << std::endl;
-
-  return;
-
-
-}
-
 
 void LumiReWeighting::weightOOT_init() {
 
