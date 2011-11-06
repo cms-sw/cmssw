@@ -7,12 +7,16 @@
 #include "RecoParticleFlow/PFProducer/interface/PFPhotonAlgo.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
 #include "DataFormats/ParticleFlowReco/interface/PFCluster.h"
+#include "DataFormats/ParticleFlowReco/interface/PFClusterFwd.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecHit.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
+#include "RecoEcal/EgammaCoreTools/interface/Mustache.h"
+#include "DataFormats/CaloRecHit/interface/CaloCluster.h"
+#include "DataFormats/CaloRecHit/interface/CaloClusterFwd.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "DataFormats/Math/interface/deltaR.h"
 #include <TFile.h>
@@ -56,39 +60,11 @@ PFPhotonAlgo::PFPhotonAlgo(std::string mvaweightfile,
     tmvaReader_->BookMVA("BDT",mvaweightfile.c_str());  
     if(useReg_)
       {
-	tmvaLCRegReader_=new TMVA::Reader("!Color:Silent");
-	tmvaLCRegReader_->AddVariable("genZ", &VtxZ_);
-	tmvaLCRegReader_->AddVariable("PFPhoCluseta[0]/abs(PFPhoCluseta[0])", &EB);
-	tmvaLCRegReader_->AddVariable("abs(PFPhoCluseta[0])", &ClusEta_);
-	tmvaLCRegReader_->AddVariable("PFPhoClusphi[0]", &ClusPhi_);
-	tmvaLCRegReader_->AddVariable("log(PFPhoClusE[0])", &logPFClusE_);
-	tmvaLCRegReader_->AddVariable("PFPhoClusE3x3[0]/PFPhoClusE[0]", &ClusR9_);
-	tmvaLCRegReader_->AddVariable("PFPhoClusE5x5[0]/PFPhoClusE[0]", &Clus5x5ratio_);   
-	tmvaLCRegReader_->AddVariable("PFCrysPhiCrack[0]", &PFCrysPhiCrack_);
-	tmvaLCRegReader_->AddVariable("PFCrysEtaCrack[0]", &PFCrysEtaCrack_);
-	tmvaLCRegReader_->AddVariable("PFCrysEta[0]", &CrysEta_);
-	tmvaLCRegReader_->AddVariable("PFCrysPhi[0]", &CrysPhi_);
-	tmvaLCRegReader_->BookMVA("BDTG_LocCorr",mvaWeightFilePFClusCorr.c_str()); 
-	
-	tmvaGCRegReader_=new TMVA::Reader("!Color:Silent");   
-	tmvaGCRegReader_->AddVariable("PFPhoEta", &PFPhoEta_);
-	tmvaGCRegReader_->AddVariable("PFPhoEtCorr", &PFPhoEt_);
-	tmvaGCRegReader_->AddVariable("PFPhoR9", &PFPhoR9_);
-	tmvaGCRegReader_->AddVariable("PFPhoPhi", &PFPhoPhi_);
-	tmvaGCRegReader_->AddVariable("SCEtaWidth", &SCEtaWidth_);
-	tmvaGCRegReader_->AddVariable("SCPhiWidth", &SCPhiWidth_);
-	tmvaGCRegReader_->AddVariable("X0_inner", &x0inner_);
-	tmvaGCRegReader_->AddVariable("X0_middle", &x0middle_);
-	tmvaGCRegReader_->AddVariable("X0_outer", &x0outer_);
-	tmvaGCRegReader_->AddVariable("nPFClus", &nPFClus_);
-	tmvaGCRegReader_->AddVariable("Rconv", &RConv_);
-	tmvaGCRegReader_->AddVariable("PFPhoClusLowE", &LowClusE_);
-	tmvaGCRegReader_->AddVariable("dEtaLow", &dEta_);
-	tmvaGCRegReader_->AddVariable("dPhiLow", &dPhi_);
-	tmvaGCRegReader_->AddVariable("excluded", &excluded_);
-	tmvaGCRegReader_->AddVariable("Mustache_Et_out/(Mustache_Et_in+Mustache_Et_out)", &Mustache_EtRatio_);
-	
-	tmvaGCRegReader_->BookMVA("BDTG_GCorr",mvaWeightFilePFPhoCorr.c_str());
+       
+	TFile *fgbr = new TFile(mvaWeightFilePFPhoCorr.c_str(),"READ");
+	ReaderGC  =(GBRForest*)fgbr->Get("GBRForest");
+	TFile *fgbr2 = new TFile(mvaWeightFilePFClusCorr.c_str(),"READ");
+	ReaderLC  = (GBRForest*)fgbr2->Get("GBRForest");
     //Material Map
 	TFile *XO_File = new TFile(X0_Map.c_str(),"READ");
 	X0_sum=(TH2D*)XO_File->Get("TrackerSum");
@@ -626,8 +602,6 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 	if(clusterRef->layer()==PFLayer::ECAL_BARREL){
 	  float LocCorr=EvaluateLCorrMVA(clusterRef);
 	  EE=LocCorr*clusterRef->energy()+addedCalibEne;
-	  //cout<<"LocCorr "<<LocCorr<<endl;
-	  //cout<<"Clust E "<<clusterRef->energy()<<"Locally Corrected "<<clusterRef->energy()*LocCorr<<endl;
 	}
 	else EE = thePFEnergyCalibration_->energyEm(*clusterRef,ps1Ene,ps2Ene,false)+addedCalibEne; 
       }
@@ -728,9 +702,7 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 		  EE=0;
 		  if(clusterRef->layer()==PFLayer::ECAL_BARREL){
 		    float LocCorr=EvaluateLCorrMVA(clusterRef);
-		    EE=LocCorr*clusterRef->energy();
-		    //cout<<"LocCorr "<<LocCorr<<endl;
-		    //cout<<"Clust E "<<clusterRef->energy()<<"Locally Corrected "<<clusterRef->energy()*LocCorr<<endl;		  
+		    EE=LocCorr*clusterRef->energy();	  
 		  }
 		  else EE=thePFEnergyCalibration_->energyEm(*clusterRef,AddedPS1,AddedPS2,false);
 		}
@@ -848,7 +820,7 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     //Do Global Corrections here:
     if(useReg_){
     float GCorr=EvaluateGCorrMVA(photonCand);
-    cout<<"GCorr "<<GCorr<<endl;
+    //cout<<"GCorr "<<GCorr<<endl;
     math::XYZTLorentzVector photonCorrMomentum(GCorr*photonEnergy_* photonDirection.X(),
 					       GCorr*photonEnergy_* photonDirection.Y(),
 					       GCorr*photonEnergy_* photonDirection.Z(),
@@ -883,103 +855,6 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 
 }
 
-std::vector<int>PFPhotonAlgo::getPFMustacheClus(int nClust, std::vector<float>& ClustEt, std::vector<float>& ClustEta, std::vector<float>& ClustPhi){
-  float etmax = 0;
-  int imax = -1;
-  float phot_eta_maxcl = 0.0;
-  float phot_phi_maxcl = 0.0;
-  std::vector<int> included(0);
-  Float_t fExcluded = 0.0;
- 
-  float deta, dphi;
-  float upper_cut, lower_cut;
-  float b_upper, b_lower;
-  float a_upper, a_lower;
-  float curv_low, curv_up;
-  float midpoint;
- 
- //loop over clusters
- 
-  for(int k=0; k<nClust; k++){
-    
-    //search for highest Et cluster, set phi and eta
-    
-    if(etmax < ClustEt[k]){
-      imax = k;
-      etmax = ClustEt[k];
-      phot_eta_maxcl = ClustEta[k];
-      phot_phi_maxcl= ClustPhi[k];
-    }//end search for highest Et cluster
-    //cout<<"Here"<<endl;
-  }//end loop over clusters
-  
-  for(int k=0; k<nClust; k++){
-    
-    deta = 0.0;
-    dphi = 0.0; 
-    upper_cut = 0.0;
-    lower_cut = 0.0;
-    b_upper = 0.0;
-    b_lower = 0.0;
-    a_upper = 0.0;
-    a_lower = 0.0;
-    curv_low = 0.0;
-    curv_up = 0.0;
-    midpoint = 0.0;  
-    float w00 = -0.00571429;
-    float w01 = -0.002;
-    float w10 = 0.0135714;
-    float w11 = 0.001;
-    float p00 = -0.107537;
-    float p01 = 0.590969;
-    float p02 = -0.076494;
-    float p10 = -0.0268843;
-    float p11 = 0.147742;
-    float p12 = -0.0191235;
-    
-    
-    deta = sin(phot_eta_maxcl)*(ClustEta[k]-phot_eta_maxcl);	
-    dphi = ClustPhi[k]-phot_phi_maxcl;
-   
-    //2 parabolas (upper and lower) 
-    //of the form: y = a*x*x + b      
-    
-    //b comes from a fit to the width
-    //and has a slight dependence on Et on the upper edge
-    
-    b_lower = w00*sin(phot_eta_maxcl)*phot_eta_maxcl + w01 / sqrt(log10(ClustEt[k])+1.1);
-    b_upper = w10*sin(phot_eta_maxcl)*phot_eta_maxcl + w11  / sqrt(log10(ClustEt[k])+1.1);
-    //cout<<"upper_b "<< b_upper<<" lower b "<<b_lower <<endl;
-    //here make an adjustment to the width for the offset from 0.
-    midpoint = b_upper - (b_upper-b_lower)/2.;
-    b_lower = b_lower - midpoint;
-    b_upper = b_upper - midpoint;
-    
-    //the curvature comes from a parabolic 
-    //fit for many slices in eta given a 
-    //slice -0.1 < log10(Et) < 0.1
-    curv_up = p00*pow(phot_eta_maxcl*sin(phot_eta_maxcl),2)+p01*phot_eta_maxcl*sin(phot_eta_maxcl)+p02;
-    curv_low = p10*pow(phot_eta_maxcl*sin(phot_eta_maxcl),2)+p11*phot_eta_maxcl*sin(phot_eta_maxcl)+p12;
-    
-    //solving for the curviness given the width of this particular point
-    a_lower = (1/(4*curv_low))-fabs(b_lower);
-    a_upper = (1/(4*curv_up))-fabs(b_upper);
-    //cout<<"upper_a "<< a_upper<<" lower a "<<a_lower <<endl;
-    upper_cut =(1./(4.*a_upper))*pow(dphi,2)+b_upper;
-    lower_cut =(1./(4.*a_lower))*pow(dphi,2)+b_lower;
-    //cout<<"upper_cut "<< upper_cut<<" lower cut "<<lower_cut<<endl;
-    //remove the Not in the function to make it included clusters
-    if ((deta < upper_cut && deta > lower_cut)){
-      included.push_back(k);
-    }
-    
-    
-  }
-  
- return included;
- 
-}
-
 float PFPhotonAlgo::EvaluateGCorrMVA(reco::PFCandidate photon){
   float BDTG=1;
   PFPhoEta_=photon.eta();
@@ -995,6 +870,8 @@ float PFPhotonAlgo::EvaluateGCorrMVA(reco::PFCandidate photon){
   std::vector<float>Clust_Et(0);
   std::vector<float>Clust_Eta(0);
   std::vector<float>Clust_Phi(0);
+  std::vector<reco::PFClusterRef> PFClusRef(0);
+  CaloClusterPtrVector clusters;
   //Multimap to sort clusters by energy
   std::multimap<float, int>Clust;
   PFCandidate::ElementsInBlocks eleInBlocks = photon.elementsInBlocks();
@@ -1011,6 +888,8 @@ float PFPhotonAlgo::EvaluateGCorrMVA(reco::PFCandidate photon){
       
       if(element.type()==reco::PFBlockElement::ECAL){
 	reco::PFClusterRef ClusterRef = element.clusterRef();
+	//PFClusRef.push_back(ClusterRef);
+	//clusters.push_back(ClusterRef);
 	Clust_E.push_back(ClusterRef->energy());
 	Clust_Et.push_back(ClusterRef->pt());	
 	ClustSumEt=ClustSumEt+ClusterRef->pt();
@@ -1021,25 +900,40 @@ float PFPhotonAlgo::EvaluateGCorrMVA(reco::PFCandidate photon){
       if(element.type()==reco::PFBlockElement::GSF)
 	{
 	  //elements[indexInBlock].GsftrackRef();
-	  // RConv_=sqrt(element.GsftrackRef()->innerPosition().X()*element.GsftrackRef()->innerPosition().X() + element.GsftrackRef()->innerPosition().Y()*element.GsftrackRef()->innerPosition().Y());
+	  //  RConv_=sqrt(element.trackRef()->innerPosition().X()*element.trackRef()->innerPosition().X() + element.trackRef()->innerPosition().Y()*element.trackRef()->innerPosition().Y());
 	}
       
     }
   
   nPFClus_=Clust_Et.size();
-  std::vector<int>included(0);
-  included=getPFMustacheClus(nPFClus_, Clust_Et, Clust_Eta, Clust_Phi);
-  excluded_=nPFClus_-included.size();
+  
+  //std::vector<int>included(0);
+  //included=getPFMustacheClus(nPFClus_, Clust_Et, Clust_Eta, Clust_Phi);
+  //if(included.size()>0)excluded_=nPFClus_-included.size();
+  //else excluded_=0;
+  //cout<<"initial excluded "<<excluded_<<endl;
+  float Mustache_Et_out=0;
+  int PFClus=0;
+  CaloClusterPtrVector Caloclust;
+  reco::CaloCluster_iterator c_it=photon.superClusterRef()->clustersBegin();
+  reco::CaloCluster_iterator c_itend=photon.superClusterRef()->clustersEnd();
+  for(; c_it!=c_itend; ++c_it ){
+    Caloclust.push_back(*c_it);
+  }
+  Mustache Must;
+  Must.MustacheID(Caloclust, PFClus, Mustache_Et_out);
+  excluded_=PFClus;
   //order the clusters by energy
   float Mustache_Et=0;
   float ClusSum=0;
-  for(unsigned int i=0; i<included.size(); ++i)
+  for(unsigned int i=0; i<Clust_E.size(); ++i)
     {
       
       Clust.insert(make_pair(Clust_E[i], i));
-      Mustache_Et=Mustache_Et+Clust_Et[i];
+      //Mustache_Et=Mustache_Et+Clust_Et[i];
       ClusSum=ClusSum+Clust_E[i];
     }
+  Mustache_EtRatio_=(Mustache_Et_out)/ClustSumEt;
   std::multimap<float, int>::reverse_iterator it;
   it=Clust.rbegin();
   int max_c=(*it).second;
@@ -1055,7 +949,6 @@ float PFPhotonAlgo::EvaluateGCorrMVA(reco::PFCandidate photon){
     dEta_=0;
     dPhi_=0;
   }
-  Mustache_EtRatio_=(Mustache_Et-ClustSumEt)/ClustSumEt;
   
   float dRmin=999;
   float SCphi=photon.superClusterRef()->position().phi();
@@ -1084,7 +977,28 @@ float PFPhotonAlgo::EvaluateGCorrMVA(reco::PFCandidate photon){
   x0inner_= X0_inner->GetBinContent(ix,iy);
   x0middle_=X0_middle->GetBinContent(ix,iy);
   x0outer_=X0_outer->GetBinContent(ix,iy);
-  BDTG=tmvaGCRegReader_->EvaluateRegression("BDTG_GCorr")[0];
+  
+  float GC_Var[16];
+  GC_Var[0]=PFPhoEta_;
+  GC_Var[1]=PFPhoEt_;
+  GC_Var[2]=PFPhoR9_;
+  GC_Var[3]=PFPhoPhi_;
+  GC_Var[4]=SCEtaWidth_;
+  GC_Var[5]=SCPhiWidth_;
+  GC_Var[6]=x0inner_;  
+  GC_Var[7]=x0middle_;
+  GC_Var[8]=x0outer_;
+  GC_Var[9]=nPFClus_;
+  GC_Var[10]=RConv_;
+  GC_Var[11]=LowClusE_;
+  GC_Var[12]=dEta_;
+  GC_Var[13]=dPhi_;
+  GC_Var[14]=excluded_;
+  GC_Var[15]= Mustache_EtRatio_;
+  
+  BDTG=ReaderGC->GetResponse(GC_Var);
+  
+  
   //  cout<<"BDTG Parameters X0"<<x0inner_<<", "<<x0middle_<<", "<<x0outer_<<endl;
   // cout<<"Et, Eta, Phi "<<PFPhoEt_<<", "<<PFPhoEta_<<", "<<PFPhoPhi_<<endl;
   // cout<<"PFPhoR9 "<<PFPhoR9_<<endl;
@@ -1113,8 +1027,21 @@ float PFPhotonAlgo::EvaluateLCorrMVA(reco::PFClusterRef clusterRef ){
   cout<<"BDTG Parameters "<<" log E "<<logPFClusE_<<endl;
   cout<<"BDTG Parameters "<<" R9 & 5x5 "<<ClusR9_<<", "<<Clus5x5ratio_<<endl;
   */
-  BDTG=tmvaLCRegReader_->EvaluateRegression("BDTG_LocCorr")[0];
-  return BDTG;
+  
+   float LC_Var[11];
+   LC_Var[0]=VtxZ_;
+   LC_Var[1]=EB;
+   LC_Var[2]=ClusEta_;
+   LC_Var[3]=ClusPhi_;
+   LC_Var[4]=logPFClusE_;
+   LC_Var[5]=ClusR9_;
+   LC_Var[6]=Clus5x5ratio_;
+   LC_Var[7]=PFCrysPhiCrack_;
+   LC_Var[8]=PFCrysEtaCrack_;
+   LC_Var[9]=CrysEta_;
+   LC_Var[10]=CrysPhi_;
+   BDTG=ReaderLC->GetResponse(LC_Var);   
+   return BDTG;
   
 }
 

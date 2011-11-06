@@ -14,6 +14,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElementSuperCluster.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
+#include "RecoEgamma/EgammaTools/interface/GBRForest.h"
 #include "TMVA/Reader.h"
 #include <iostream>
 #include <TH2D.h>
@@ -113,8 +114,8 @@ private:
   bool useReg_;
   reco::Vertex       primaryVertex_;
   TMVA::Reader *tmvaReader_;
-  TMVA::Reader *tmvaLCRegReader_;
-  TMVA::Reader *tmvaGCRegReader_;
+  GBRForest *ReaderLC;
+  GBRForest *ReaderGC;
   boost::shared_ptr<PFEnergyCalibration> thePFEnergyCalibration_;
   double sumPtTrackIsoForPhoton_;
   double sumPtTrackIsoSlopeForPhoton_;
