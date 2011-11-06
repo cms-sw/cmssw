@@ -33,17 +33,11 @@ bool checkRunOrLumiEntry(edm::IndexIntoFile::RunOrLumiEntry const& rl,
   return true;
 }
 
-int main() {
+int main() try {
   edm::ParameterSet dummyPset;
   edm::ParameterSetID psetID;
-  try {
-    dummyPset.registerIt();
-    psetID = dummyPset.id();
-  }
-  catch(cms::Exception const& e) {
-    std::cerr << e.explainSelf() << std::endl;
-    return 1;
-  }
+  dummyPset.registerIt();
+  psetID = dummyPset.id();
 
   edm::ProcessHistory pnl1;
   assert(pnl1 == pnl1);
@@ -329,5 +323,13 @@ int main() {
     assert(checkRunOrLumiEntry(runOrLumiEntries.at(17), 9,  7, 7, 3, 1, 11, -1, -1));
   }
   return 0;
+}
+catch(cms::Exception const& e) {
+  std::cerr << e.explainSelf() << std::endl;
+  return 1;
+}
+catch(std::exception const& e) {
+  std::cerr << e.what() << std::endl;
+  return 1;
 }
 

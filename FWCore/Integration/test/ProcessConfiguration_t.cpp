@@ -7,8 +7,7 @@
 #include <iostream>
 #include <string>
 
-int main() {
-  try {
+int main() try {
     edm::ParameterSet dummyPset;
     dummyPset.registerIt();
     edm::ParameterSetID id = dummyPset.id();
@@ -46,9 +45,12 @@ int main() {
       assert (id4 == id2);
     }
     return 0;
-  }
-  catch(cms::Exception const& e) {
-    std::cerr << e.explainSelf() << std::endl;
-    return 1;
-  }
+}
+catch(cms::Exception const& e) {
+  std::cerr << e.explainSelf() << std::endl;
+  return 1;
+}
+catch(std::exception const& e) {
+  std::cerr << e.what() << std::endl;
+  return 1;
 }

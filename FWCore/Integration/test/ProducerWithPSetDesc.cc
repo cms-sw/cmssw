@@ -1032,7 +1032,7 @@ namespace edmtest {
     // ------------------------------------------
 
     edm::ParameterSetDescription iDesc2;
-    pn = iDesc2.add<int>("p_int", 2);
+    iDesc2.add<int>("p_int", 2);
     descriptions.addDefault(iDesc2);
   }
 }
