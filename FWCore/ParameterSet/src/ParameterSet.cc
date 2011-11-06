@@ -99,7 +99,7 @@ namespace edm {
     id_(other.id_) {
   }
 
-  ParameterSet const& ParameterSet::operator=(ParameterSet const& other) {
+  ParameterSet& ParameterSet::operator=(ParameterSet const& other) {
     ParameterSet temp(other);
     swap(temp);
     return *this;

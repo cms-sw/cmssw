@@ -217,8 +217,8 @@ namespace edm {
       os << "There are no PSet descriptions defined for this plugin.\n";
       os << std::setfill(' ') << std::setw(indentation) << "";
       os << "PSets will not be validated and no cfi files will be generated.\n";
-      if (!brief) os << "\n";
       os << std::setfill(oldFill);
+      if (!brief) os << "\n";
       return;
     }
 
@@ -231,8 +231,8 @@ namespace edm {
       os << "configuration descriptions yet. No descriptions are available.\n";
       os << std::setfill(' ') << std::setw(indentation) << "";
       os << "Its PSets will not be validated, and no cfi files will be generated.\n";
-      if (!brief) os << "\n";
       os << std::setfill(oldFill);
+      if (!brief) os << "\n";
       return;
     }
 

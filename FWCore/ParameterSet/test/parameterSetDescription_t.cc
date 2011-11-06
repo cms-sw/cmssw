@@ -1574,11 +1574,11 @@ int main(int, char**) try {
   edm::ParameterDescriptionBase const& constParRef = *par;
   assert(constParRef.parameterSetDescription() == 0);
 
-  par = nestLevel2.addUntracked<int>("intLevel2b", 1);
-  par = nestLevel2.addOptional<int>("intLevel2c", 1);
-  par = nestLevel2.addOptionalUntracked<int>("intLevel2d", 1);
-  par = nestLevel2.addOptional<int>("intLevel2e", 1);
-  par = nestLevel2.addOptionalUntracked<int>("intLevel2f", 1);
+  nestLevel2.addUntracked<int>("intLevel2b", 1);
+  nestLevel2.addOptional<int>("intLevel2c", 1);
+  nestLevel2.addOptionalUntracked<int>("intLevel2d", 1);
+  nestLevel2.addOptional<int>("intLevel2e", 1);
+  nestLevel2.addOptionalUntracked<int>("intLevel2f", 1);
   nestLevel2.setAllowAnything();
 
   edm::ParameterSetDescription nestLevel1;

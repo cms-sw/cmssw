@@ -54,7 +54,7 @@ namespace edm {
     // instantiate in this library, so these methods don't cause code bloat
     ParameterSet(ParameterSet const& other);
 
-    ParameterSet const& operator=(ParameterSet const& other);
+    ParameterSet& operator=(ParameterSet const& other);
 
     void swap(ParameterSet& other);
 
