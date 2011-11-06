@@ -18,15 +18,13 @@
 #include <stdexcept>
 
 int
-main(int argc, char* argv[]) {
-  try {
-    for(int index = 1; index < argc; ++index) {
-      std::cout << edm::friendlyname::friendlyName(argv[index]) << std::endl;
-    }
-  }
-  catch(std::runtime_error const& e) {
-    std::cerr << e.what() << std::endl;
-    return 1;
+main(int argc, char* argv[]) try {
+  for(int index = 1; index < argc; ++index) {
+    std::cout << edm::friendlyname::friendlyName(argv[index]) << std::endl;
   }
   return 0;
+}
+catch(std::exception const& e) {
+  std::cerr << e.what() << std::endl;
+  return 1;
 }
