@@ -28,8 +28,7 @@ Disclaimer: Most of the code here is randomly written during
 
 #define NO_OF_EVENTS 10
 
-int main()
-{
+int main() try {
   typedef std::vector<uint8> Buffer;
   Buffer buf(1024);
   Buffer buf2(11024);
@@ -86,13 +85,7 @@ int main()
 
   std::cout << "Trying to Write Out The Init message into Streamer File: "
       << initfilename << std::endl;
-  try {
-    stream_writer.write(init);
-  }
-  catch(cms::Exception const& e) {
-    std::cout << e.explainSelf() << std::endl;
-    return 1;
-  }
+  stream_writer.write(init);
 
   // ------- event
 
@@ -121,13 +114,7 @@ int main()
 
     //Lets write this to our streamer file .
     std::cout<<"Writing Event# : "<<eventId<<" To Streamer file"<< std::endl;
-    try {
-      stream_writer.write(emb);
-    }
-    catch(cms::Exception const& e) {
-      std::cout << e.explainSelf() << std::endl;
-      return 1;
-    }
+    stream_writer.write(emb);
   }
 
   //Write the EOF Record Both at the end of Streamer file
@@ -141,5 +128,9 @@ int main()
   stream_writer.writeEOF(dummyStatusCode, hltStats);
 
   return 0;
+} catch(cms::Exception const& e) {
+  std::cerr << e.explainSelf() << std::endl;
+  return 1;
 }
+
 

@@ -23,8 +23,7 @@ Disclaimer: Most of the code here is randomly written during
 #include "IOPool/Streamer/interface/DumpTools.h"
 #include "zlib.h"
 
-int main()
-{ 
+int main() try {
   typedef std::vector<uint8> Buffer;
   Buffer buf(2024);
   Buffer buf2(2024);
@@ -99,11 +98,8 @@ int main()
   if(equal(&buf[0],&buf[0]+view.size(),buf2.begin())==false)
     {
       std::cerr << "Init buffers not the same!\n";
-      try {
-        dumpInit(&buf[0]);
-        dumpInit(&buf2[0]);
-      } catch(cms::Exception const&) {
-      }
+      dumpInit(&buf[0]);
+      dumpInit(&buf2[0]);
       abort();
     }
 
@@ -168,6 +164,7 @@ int main()
       abort();
     }
   return 0;
+} catch(cms::Exception const& e) {
+  std::cerr << e.explainSelf() << std::endl;
+  return 1;
 }
-
-
