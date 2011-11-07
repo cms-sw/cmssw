@@ -76,7 +76,6 @@ private:
   double thePtMin; 
   double theOriginRadius; 
   double theOriginHalfLength; 
-  bool   theVertexZconstrained;
   double theOriginZPos;
 
   double theDeltaEta; 
