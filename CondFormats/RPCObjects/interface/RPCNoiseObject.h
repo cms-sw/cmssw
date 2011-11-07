@@ -7,12 +7,12 @@
 #include<boost/cstdint.hpp>
 
 class RPCNoiseObject {
-
+  
  public:
-
+  
   int version;
   int run;
-
+  
   //structure suitable for cluster size
   struct NoiseObjectItem {
     int dpid;
@@ -26,12 +26,10 @@ class RPCNoiseObject {
   
   RPCNoiseObject(){}
   ~RPCNoiseObject(){}
- 
-  RPCNoiseObject* Fake_RPCNoiseObject();
- 
-  std::vector<NoiseObjectItem>  const & getCls() const {return v_cls;}
+  
+  std::vector<NoiseObjectItem>  const & getCls() const;
   std::vector<NoiseObjectItem>  v_cls; 
-
+  
  private:
 
 };
