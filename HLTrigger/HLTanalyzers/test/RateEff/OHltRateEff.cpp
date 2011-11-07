@@ -128,8 +128,8 @@ int main(int argc, char *argv[])
       //    rprint->printPrescalesCfg(ocfg,omenu);
       rprint->writeHistos(ocfg, omenu);
       char sLumi[10], sEnergy[10];
-      sprintf(sEnergy, "%1.0f", ocfg->cmsEnergy);
-      sprintf(sLumi, "%1.1e", ocfg->iLumi);
+      snprintf(sEnergy, 10, "%1.0f", ocfg->cmsEnergy);
+      snprintf(sLumi,   10, "%1.1e", ocfg->iLumi);
       TString hltTableFileName= TString("hlt_DS_Table_") + sEnergy + "TeV_"
             + sLumi + TString("_") + ocfg->versionTag;
       // 		printf("About to call printHLTDatasets\n"); //RR

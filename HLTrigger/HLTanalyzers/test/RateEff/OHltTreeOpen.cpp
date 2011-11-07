@@ -14637,8 +14637,9 @@ else if (triggerName.CompareTo("OpenHLT_Ele32_WP70_PFMT50_v1")  == 0)
       // No special cuts
       // 2011-03-29 promoted to v2 TODO check
       char pathName_Photon_Photon[100];
-      sprintf(
+      snprintf(
 	      pathName_Photon_Photon,
+              100,
 	      "OpenHLT_Photon%d_Photon%d",
 	      upperEt,
 	      lowerEt);
@@ -14646,8 +14647,9 @@ else if (triggerName.CompareTo("OpenHLT_Ele32_WP70_PFMT50_v1")  == 0)
       // Both legs IsoVL
       // 2011-03-29 promoted to v2 TODO check
       char pathName_Photon_IsoVL_Photon_IsoVL[100];
-      sprintf(
+      snprintf(
 	      pathName_Photon_IsoVL_Photon_IsoVL,
+              100,
 	      "OpenHLT_Photon%d_IsoVL_Photon%d_IsoVL",
 	      upperEt,
 	      lowerEt);
@@ -14655,56 +14657,63 @@ else if (triggerName.CompareTo("OpenHLT_Ele32_WP70_PFMT50_v1")  == 0)
       // One leg IsoVL
       // 2011-03-29 promoted to v2 TODO check
       char pathName_Photon_IsoVL_Photon[100];
-      sprintf(
+      snprintf(
 	      pathName_Photon_IsoVL_Photon,
+              100,
 	      "OpenHLT_Photon%d_IsoVL_Photon%d",
 	      upperEt,
 	      lowerEt);
 		
       // One leg IsoT + Mass>60
       char pathName_Photon_IsoT_Photon_Mass60[100];
-      sprintf(
+      snprintf(
 	      pathName_Photon_IsoT_Photon_Mass60,
+              100,
 	      "OpenHLT_Photon%d_IsoT_Photon%d_Mass60",
 	      upperEt,
 	      lowerEt);
 		
       // Both legs IsoT  + Mass>60
       char pathName_Photon_IsoT_Photon_IsoT_Mass60[100];
-      sprintf(
+      snprintf(
 	      pathName_Photon_IsoT_Photon_IsoT_Mass60,
+              100,
 	      "OpenHLT_Photon%d_IsoT_Photon%d_IsoT_Mass60",
 	      upperEt,
 	      lowerEt);
 		
       // Both legs IsoT
       char pathName_Photon_IsoT_Photon_IsoT[100];
-      sprintf(
+      snprintf(
 	      pathName_Photon_IsoT_Photon_IsoT,
+              100,
 	      "OpenHLT_Photon%d_IsoT_Photon%d_IsoT",
 	      upperEt,
 	      lowerEt);
 		
       // One leg IsoT
       char pathName_Photon_IsoT_Photon[100];
-      sprintf(
+      snprintf(
 	      pathName_Photon_IsoT_Photon,
+              100,
 	      "OpenHLT_Photon%d_IsoT_Photon%d",
 	      upperEt,
 	      lowerEt);
 		
       // One leg IsoL
       char pathName_Photon_IsoL_Photon[100];
-      sprintf(
+      snprintf(
 	      pathName_Photon_IsoL_Photon,
+              100,
 	      "OpenHLT_Photon%d_IsoL_Photon%d",
 	      upperEt,
 	      lowerEt);
 		
       // One leg CaloIdL
       char pathName_Photon_CaloIdL_Photon[100];
-      sprintf(
+      snprintf(
 	      pathName_Photon_CaloIdL_Photon,
+              100,
 	      "OpenHLT_Photon%d_CaloIdL_Photon%d",
 	      upperEt,
 	      lowerEt);
@@ -14712,48 +14721,54 @@ else if (triggerName.CompareTo("OpenHLT_Ele32_WP70_PFMT50_v1")  == 0)
       // Both legs CaloIdL + IsoVL
       // 2011-05-11 promoted to v4 TODO check
       char pathName_Photon_CaloIdL_IsoVL_Photon_CaloIdL_IsoVL[100];
-      sprintf(
+      snprintf(
 	      pathName_Photon_CaloIdL_IsoVL_Photon_CaloIdL_IsoVL,
+              100,
 	      "OpenHLT_Photon%d_CaloIdL_IsoVL_Photon%d_CaloIdL_IsoVL_v4",
 	      upperEt,
 	      lowerEt);
 		
       // One leg CaloIdL + IsoVL
       char pathName_Photon_CaloIdL_IsoVL_Photon[100];
-      sprintf(
+      snprintf(
 	      pathName_Photon_CaloIdL_IsoVL_Photon,
+              100,
 	      "OpenHLT_Photon%d_CaloIdL_IsoVL_Photon%d",
 	      upperEt,
 	      lowerEt);
 		
       // One leg CaloIdL + IsoT + Mass>60
       char pathName_Photon_CaloIdL_IsoT_Photon_Mass60[100];
-      sprintf(
+      snprintf(
 	      pathName_Photon_CaloIdL_IsoT_Photon_Mass60,
+              100,
 	      "OpenHLT_Photon%d_CaloIdL_IsoT_Photon%d_Mass60",
 	      upperEt,
 	      lowerEt);
 		
       // Both legs CaloIdL + IsoT + Mass>60
       char pathName_Photon_CaloIdL_IsoT_Photon_CaloIdL_IsoT_Mass60[100];
-      sprintf(
+      snprintf(
 	      pathName_Photon_CaloIdL_IsoT_Photon_CaloIdL_IsoT_Mass60,
+              100,
 	      "OpenHLT_Photon%d_CaloIdL_IsoT_Photon%d_CaloIdL_IsoT_Mass60",
 	      upperEt,
 	      lowerEt);
 		
       // Both legs CaloIdL + IsoT
       char pathName_Photon_CaloIdL_IsoT_Photon_CaloIdL_IsoT[100];
-      sprintf(
+      snprintf(
 	      pathName_Photon_CaloIdL_IsoT_Photon_CaloIdL_IsoT,
+              100,
 	      "OpenHLT_Photon%d_CaloIdL_IsoT_Photon%d_CaloIdL_IsoT",
 	      upperEt,
 	      lowerEt);
 		
       // One leg CaloIdL + IsoT
       char pathName_Photon_CaloIdL_IsoT_Photon[100];
-      sprintf(
+      snprintf(
 	      pathName_Photon_CaloIdL_IsoT_Photon,
+              100,
 	      "OpenHLT_Photon%d_CaloIdL_IsoT_Photon%d",
 	      upperEt,
 	      lowerEt);
