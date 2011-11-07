@@ -8,7 +8,6 @@
 
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
 #include "TopQuarkAnalysis/TopKinFitter/interface/TtSemiLepKinFitter.h"
-#include "TopQuarkAnalysis/TopKinFitter/interface/CovarianceMatrix.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -182,7 +181,8 @@ void TtSemiLepKinFitter::setupFitter()
 }
 
 template <class LeptonType>
-int TtSemiLepKinFitter::fit(const std::vector<pat::Jet>& jets, const pat::Lepton<LeptonType>& lepton, const pat::MET& neutrino, const double jetEnergyResolutionSmearFactor = 1.)
+int TtSemiLepKinFitter::fit(const std::vector<pat::Jet>& jets, const pat::Lepton<LeptonType>& lepton, const pat::MET& neutrino,
+			    const double jetEnergyResolutionSmearFactor)
 {
   if( jets.size()<4 )
     throw edm::Exception( edm::errors::Configuration, "Cannot run the TtSemiLepKinFitter with less than 4 jets" );
@@ -221,6 +221,32 @@ int TtSemiLepKinFitter::fit(const std::vector<pat::Jet>& jets, const pat::Lepton
   return fit(p4HadP, p4HadQ, p4HadB, p4LepB, p4Lepton, p4Neutrino,
 	     covHadP, covHadQ, covHadB, covLepB, covLepton, covNeutrino,
 	     lepton.charge());
+}
+
+int TtSemiLepKinFitter::fit(const TLorentzVector& p4HadP, const TLorentzVector& p4HadQ, const TLorentzVector& p4HadB, const TLorentzVector& p4LepB,
+			    const TLorentzVector& p4Lepton, const TLorentzVector& p4Neutrino, const int leptonCharge, const CovarianceMatrix::ObjectType leptonType,
+			    const double jetEnergyResolutionSmearFactor)
+{
+  // initialize covariance matrices
+  TMatrixD covHadP = covM_->setupMatrix(p4HadP, CovarianceMatrix::kUdscJet, jetParam_);
+  TMatrixD covHadQ = covM_->setupMatrix(p4HadQ, CovarianceMatrix::kUdscJet, jetParam_);
+  TMatrixD covHadB = covM_->setupMatrix(p4HadB, CovarianceMatrix::kBJet, jetParam_);
+  TMatrixD covLepB = covM_->setupMatrix(p4LepB, CovarianceMatrix::kBJet, jetParam_);
+  TMatrixD covLepton   = covM_->setupMatrix(p4Lepton  , leptonType             , lepParam_);
+  TMatrixD covNeutrino = covM_->setupMatrix(p4Neutrino, CovarianceMatrix::kMet , metParam_);
+
+  // as covM contains resolution^2
+  // the correction of jet energy resolutions
+  // is just *jetEnergyResolutionSmearFactor^2
+  covHadP(0,0) *= jetEnergyResolutionSmearFactor * jetEnergyResolutionSmearFactor; 
+  covHadQ(0,0) *= jetEnergyResolutionSmearFactor * jetEnergyResolutionSmearFactor; 
+  covHadB(0,0) *= jetEnergyResolutionSmearFactor * jetEnergyResolutionSmearFactor; 
+  covLepB(0,0) *= jetEnergyResolutionSmearFactor * jetEnergyResolutionSmearFactor; 
+
+  // now do the part that is fully independent of PAT features
+  return fit(p4HadP, p4HadQ, p4HadB, p4LepB, p4Lepton, p4Neutrino,
+	     covHadP, covHadQ, covHadB, covLepB, covLepton, covNeutrino,
+	     leptonCharge);
 }
 
 int TtSemiLepKinFitter::fit(const TLorentzVector& p4HadP, const TLorentzVector& p4HadQ, const TLorentzVector& p4HadB, const TLorentzVector& p4LepB,

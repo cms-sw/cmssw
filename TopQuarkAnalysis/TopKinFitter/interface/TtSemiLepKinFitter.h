@@ -10,13 +10,13 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtSemiEvtSolution.h"
 
 #include "TopQuarkAnalysis/TopKinFitter/interface/TopKinFitter.h"
+#include "TopQuarkAnalysis/TopKinFitter/interface/CovarianceMatrix.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 class TAbsFitParticle;
 class TFitConstraintM;
 class TFitConstraintEp;
-class CovarianceMatrix;
 
 /*
   \class   TtSemiLepKinFitter TtSemiLepKinFitter.h "TopQuarkAnalysis/TopKinFitter/interface/TtSemiLepKinFitter.h"
@@ -49,8 +49,12 @@ class TtSemiLepKinFitter : public TopKinFitter {
 
   /// kinematic fit interface for PAT objects
   template <class LeptonType> int fit(const std::vector<pat::Jet>& jets, const pat::Lepton<LeptonType>& leps, const pat::MET& met,
-				      const double jetResolutionSmearFactor);
-  /// basic fit interface
+				      const double jetResolutionSmearFactor=1.);
+  /// kinematic fit interface for plain 4-vecs
+  int fit(const TLorentzVector& p4HadP, const TLorentzVector& p4HadQ, const TLorentzVector& p4HadB, const TLorentzVector& p4LepB,
+	  const TLorentzVector& p4Lepton, const TLorentzVector& p4Neutrino, const int leptonCharge, const CovarianceMatrix::ObjectType leptonType,
+	  const double jetEnergyResolutionSmearFactor=1.);
+  /// common core of the fit interface
   int fit(const TLorentzVector& p4HadP, const TLorentzVector& p4HadQ, const TLorentzVector& p4HadB, const TLorentzVector& p4LepB,
 	  const TLorentzVector& p4Lepton, const TLorentzVector& p4Neutrino,
 	  const TMatrixD& covHadP, const TMatrixD& covHadQ, const TMatrixD& covHadB, const TMatrixD& covLepB,
