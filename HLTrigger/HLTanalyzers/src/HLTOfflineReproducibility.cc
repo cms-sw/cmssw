@@ -13,7 +13,7 @@
 //
 // Original Author:  Juliette Marie Alimena,40 3-A02,+41227671577,
 //         Created:  Fri Apr 22 15:46:58 CEST 2011
-// $Id$
+// $Id: HLTOfflineReproducibility.cc,v 1.1 2011/07/12 15:30:05 jalimena Exp $
 //
 //
 
@@ -92,8 +92,6 @@ private:
 
   string processNameON_;
   string processNameOFF_;
-  edm::InputTag triggerResultsTag_;
-  edm::InputTag triggerEventTag_;
   HLTConfigProvider hltConfig_;
 
   int Nfiles_;
@@ -114,7 +112,6 @@ private:
   vector<TH1D*> path_OFFnotON_hist_PD;
   vector<TH2D*> pathmodule_ONnotOFF_hist_PD;
   vector<TH2D*> pathmodule_OFFnotON_hist_PD;
-
 };
 
 //
@@ -128,23 +125,35 @@ private:
 //
 // constructors and destructor
 //
-HLTOfflineReproducibility::HLTOfflineReproducibility(const edm::ParameterSet& iConfig):  
-  processNameON_(iConfig.getParameter<std::string>("processNameON")),
-  processNameOFF_(iConfig.getParameter<std::string>("processNameOFF"))
-
+HLTOfflineReproducibility::HLTOfflineReproducibility(const edm::ParameterSet& iConfig) :
+  triggerLabelON_       (iConfig.getUntrackedParameter<edm::InputTag>("triggerTagON")),
+  triggerLabelOFF_      (iConfig.getUntrackedParameter<edm::InputTag>("triggerTagOFF")), 
+  nPaths_               (0),
+  nDatasets_            (0),
+  triggerNames_         (),
+  moduleLabel_          (),
+  nModules_             (), 
+  nPaths_PD_            (),
+  datasetNames_         (),
+  datasetContent_       (),
+  triggerNames_matched_ (),
+  processNameON_        (iConfig.getParameter<std::string>("processNameON")),
+  processNameOFF_       (iConfig.getParameter<std::string>("processNameOFF")),
+  Nfiles_               (iConfig.getUntrackedParameter<int>("Nfiles",0)),
+  Normalization_        (iConfig.getUntrackedParameter<double>("Norm",40.)),
+  isRealData_           (iConfig.getUntrackedParameter<bool>("isRealData",true)),
+  LumiSecNumber_        (iConfig.getUntrackedParameter<int>("LumiSecNumber",1)),
+  path_ON_hist          (0),
+  path_ONnotOFF_hist    (0),
+  path_OFFnotON_hist    (0),
+  pathmodule_ONnotOFF_hist(0),
+  pathmodule_OFFnotON_hist(0),
+  path_ON_hist_PD       (),
+  path_ONnotOFF_hist_PD (),
+  path_OFFnotON_hist_PD (),
+  pathmodule_ONnotOFF_hist_PD(),
+  pathmodule_OFFnotON_hist_PD()
 {
-  //now do what ever initialization is needed
-  //define parameters
-  nPaths_=0;
-  
-  //get parameters from cfg
-  triggerLabelON_ = iConfig.getUntrackedParameter<edm::InputTag>("triggerTagON");  
-  triggerLabelOFF_ = iConfig.getUntrackedParameter<edm::InputTag>("triggerTagOFF");  
-  Nfiles_ = iConfig.getUntrackedParameter<int>("Nfiles",0);
-  Normalization_ = iConfig.getUntrackedParameter<double>("Norm",40.);
-  isRealData_ = iConfig.getUntrackedParameter<bool>("isRealData",true);
-  LumiSecNumber_ = iConfig.getUntrackedParameter<int>("LumiSecNumber",1);
-  
 }
 
 
@@ -212,9 +221,9 @@ HLTOfflineReproducibility::analyze(const edm::Event& iEvent, const edm::EventSet
       trigger_online_[i]++;
       path_ON_hist->Fill(i);
       for (unsigned int a=0; a<nDatasets_; a++) {
-	for (unsigned int b=0; b<nPaths_PD_[a]; b++) {
-	  if (triggerNames_matched_[i][a][b]) path_ON_hist_PD[a]->Fill(b);
-	}
+        for (unsigned int b=0; b<nPaths_PD_[a]; b++) {
+          if (triggerNames_matched_[i][a][b]) path_ON_hist_PD[a]->Fill(b);
+        }
       }
     }
     if (trOFF_[i].wasrun()==1 && trOFF_[i].accept()==1 && trOFF_[i].error()==0) {
@@ -242,28 +251,28 @@ HLTOfflineReproducibility::analyze(const edm::Event& iEvent, const edm::EventSet
     //check agreement between online and offline
     if (!path_fails_prescaler_){ //ignore paths that fail on a prescale
       if(online_accept_ && !offline_accept_){ //online fires but offline doesn't
-	path_ONnotOFF_hist->Fill(i);
-	pathmodule_ONnotOFF_hist->Fill(i,module_indexOFF_); //module and path for where it fails offline
-	for (unsigned int a=0; a<nDatasets_; a++) {
-	  for (unsigned int b=0; b<nPaths_PD_[a]; b++) {
-	    if (triggerNames_matched_[i][a][b]){
-	      path_ONnotOFF_hist_PD[a]->Fill(b);
-	      pathmodule_ONnotOFF_hist_PD[a]->Fill(b,module_indexOFF_); //module and path for where it fails offline
-	    }
-	  }
-	}
+        path_ONnotOFF_hist->Fill(i);
+        pathmodule_ONnotOFF_hist->Fill(i,module_indexOFF_); //module and path for where it fails offline
+        for (unsigned int a=0; a<nDatasets_; a++) {
+          for (unsigned int b=0; b<nPaths_PD_[a]; b++) {
+            if (triggerNames_matched_[i][a][b]){
+              path_ONnotOFF_hist_PD[a]->Fill(b);
+              pathmodule_ONnotOFF_hist_PD[a]->Fill(b,module_indexOFF_); //module and path for where it fails offline
+            }
+          }
+        }
       }
       if(!online_accept_ && offline_accept_){//offline fires but online doesn't
-	path_OFFnotON_hist->Fill(i);
-	pathmodule_OFFnotON_hist->Fill(i,module_indexON_); //module and path for where it fails online
-	for (unsigned int a=0; a<nDatasets_; a++) {
-	  for (unsigned int b=0; b<nPaths_PD_[a]; b++) {
-	    if (triggerNames_matched_[i][a][b]){
-	      path_OFFnotON_hist_PD[a]->Fill(b);
-	      pathmodule_OFFnotON_hist_PD[a]->Fill(b,module_indexON_); //module and path for where it fails online
-	    }
-	  }
-	}
+        path_OFFnotON_hist->Fill(i);
+        pathmodule_OFFnotON_hist->Fill(i,module_indexON_); //module and path for where it fails online
+        for (unsigned int a=0; a<nDatasets_; a++) {
+          for (unsigned int b=0; b<nPaths_PD_[a]; b++) {
+            if (triggerNames_matched_[i][a][b]){
+              path_OFFnotON_hist_PD[a]->Fill(b);
+              pathmodule_OFFnotON_hist_PD[a]->Fill(b,module_indexON_); //module and path for where it fails online
+            }
+          }
+        }
       }
     }
 
@@ -314,12 +323,12 @@ HLTOfflineReproducibility::beginRun(edm::Run const& iRun, edm::EventSetup const&
       //loop over trigger paths
       nPathsON_ = hltConfig_.size();
       for (unsigned int i=0; i<nPathsON_; i++) {
-	temp_.clear();
-	//const vector<string> & moduleLabelsON(hltConfig_.moduleLabels(i));
-	for (unsigned int j=0; j<hltConfig_.moduleLabels(i).size(); j++) {
-	  temp_.push_back(hltConfig_.moduleLabel(i,j));
-	}
-	moduleLabelON_.push_back(temp_);
+        temp_.clear();
+        //const vector<string> & moduleLabelsON(hltConfig_.moduleLabels(i));
+        for (unsigned int j=0; j<hltConfig_.moduleLabels(i).size(); j++) {
+          temp_.push_back(hltConfig_.moduleLabel(i,j));
+        }
+        moduleLabelON_.push_back(temp_);
       }
 
     }
@@ -344,11 +353,11 @@ HLTOfflineReproducibility::beginRun(edm::Run const& iRun, edm::EventSetup const&
       //loop over trigger paths
       nPathsOFF_ = hltConfig_.size();
       for (unsigned int i=0; i<nPathsOFF_; i++) {
-	temp_.clear();
-	for (unsigned int j=0; j<hltConfig_.moduleLabels(i).size(); j++){
-	  temp_.push_back(hltConfig_.moduleLabel(i,j));
-	}
-	moduleLabelOFF_.push_back(temp_);
+        temp_.clear();
+        for (unsigned int j=0; j<hltConfig_.moduleLabels(i).size(); j++){
+          temp_.push_back(hltConfig_.moduleLabel(i,j));
+        }
+        moduleLabelOFF_.push_back(temp_);
       }
 
     }
@@ -369,25 +378,25 @@ HLTOfflineReproducibility::beginRun(edm::Run const& iRun, edm::EventSetup const&
     nPaths_ = nPathsON_;
     for (unsigned int i=0; i<nPaths_; i++) {
       if (triggerNamesON_[i]!=triggerNamesOFF_[i]){
-	cout<<"Paths online are in a different order than paths offline!!"<<endl;
-	for (unsigned int a=0; a<nPaths_; a++) {
-	  if (triggerNamesON_[i]==triggerNamesOFF_[a]) cout<<"Path "<<triggerNamesON_[i]<<" corresponds to path number "<<i<<" for online and path number "<<a<<" for offline"<<endl;
-	}
+        cout<<"Paths online are in a different order than paths offline!!"<<endl;
+        for (unsigned int a=0; a<nPaths_; a++) {
+          if (triggerNamesON_[i]==triggerNamesOFF_[a]) cout<<"Path "<<triggerNamesON_[i]<<" corresponds to path number "<<i<<" for online and path number "<<a<<" for offline"<<endl;
+        }
       }
       else {
-	if (moduleLabelON_[i].size()!=moduleLabelOFF_[i].size()){
-	  cout<<"For "<<triggerNamesON_[i]<<", different number of modules!! There are "<<moduleLabelON_[i].size()<<" modules online and "<<moduleLabelOFF_[i].size()<<" modules offline!!"<<endl;
-	  TriggerModuleNamesOK_ = false;
-	}
-	else{
-	  if (moduleLabelON_[i].size()>max_nModules_) max_nModules_=moduleLabelON_[i].size();
-	  for (unsigned int j=0; j<moduleLabelON_[i].size(); j++) {
-	    if (moduleLabelON_[i][j]!=moduleLabelOFF_[i][j]){
-	      cout<<"For "<<triggerNamesON_[i]<<", modules online and modules offline have different names!!"<<endl;	      
-	      cout<<"  module "<<j<<" is called "<<moduleLabelON_[i][j]<<" online, and called "<<moduleLabelOFF_[i][j]<<" offline"<<endl;
-	    }
-	  }
-	}
+        if (moduleLabelON_[i].size()!=moduleLabelOFF_[i].size()){
+          cout<<"For "<<triggerNamesON_[i]<<", different number of modules!! There are "<<moduleLabelON_[i].size()<<" modules online and "<<moduleLabelOFF_[i].size()<<" modules offline!!"<<endl;
+          TriggerModuleNamesOK_ = false;
+        }
+        else{
+          if (moduleLabelON_[i].size()>max_nModules_) max_nModules_=moduleLabelON_[i].size();
+          for (unsigned int j=0; j<moduleLabelON_[i].size(); j++) {
+            if (moduleLabelON_[i][j]!=moduleLabelOFF_[i][j]){
+              cout<<"For "<<triggerNamesON_[i]<<", modules online and modules offline have different names!!"<<endl;          
+              cout<<"  module "<<j<<" is called "<<moduleLabelON_[i][j]<<" online, and called "<<moduleLabelOFF_[i][j]<<" offline"<<endl;
+            }
+          }
+        }
       }
     }
   }
@@ -410,8 +419,8 @@ HLTOfflineReproducibility::beginRun(edm::Run const& iRun, edm::EventSetup const&
       nModules_.push_back(moduleLabelON_[i].size());
       cout<<endl<<"For "<<triggerNames_[i]<<" (trigger number "<<i<<"), there are "<<nModules_[i]<<" modules:"<<endl;
       for (unsigned int j=0; j<nModules_[i]; j++) {
-	const string& moduleType_ = hltConfig_.moduleType(moduleLabel_[i][j]);
-	cout<<"  module "<<j<<" is "<<moduleLabel_[i][j]<<" and is of type "<<moduleType_<<endl;
+        const string& moduleType_ = hltConfig_.moduleType(moduleLabel_[i][j]);
+        cout<<"  module "<<j<<" is "<<moduleLabel_[i][j]<<" and is of type "<<moduleType_<<endl;
       }
     }
 
@@ -430,8 +439,8 @@ HLTOfflineReproducibility::beginRun(edm::Run const& iRun, edm::EventSetup const&
       nPaths_PD_.push_back(datasetcontent_.size());
       cout<<endl<<"For dataset "<<datasetNames_[a]<<" (dataset number "<<a<<"), there are "<<nPaths_PD_[a]<<" paths:"<<endl;
       for (unsigned int b=0; b<nPaths_PD_[a]; b++) {
-	cout<<"  path "<<b<<" is "<<datasetcontent_[b]<<endl;
-	temp_.push_back(datasetcontent_[b]);
+        cout<<"  path "<<b<<" is "<<datasetcontent_[b]<<endl;
+        temp_.push_back(datasetcontent_[b]);
       }
       datasetContent_.push_back(temp_);
     }
@@ -443,15 +452,15 @@ HLTOfflineReproducibility::beginRun(edm::Run const& iRun, edm::EventSetup const&
     for (unsigned int i=0; i<nPaths_; i++) {
       temp1_.clear();
       for (unsigned int a=0; a<nDatasets_; a++) {
-	temp2_.clear();
-	for (unsigned int b=0; b<nPaths_PD_[a]; b++) {
-	  if (triggerNames_[i]==datasetContent_[a][b]){
-	    temp2_.push_back(true);	    
-	    //cout<<"Matched trigger name is: "<<datasetContent_[a][b]<<" for dataset "<<a<<" and dataset path "<<b<<endl;
-	  }
-	  else temp2_.push_back(false);
-	}
-	temp1_.push_back(temp2_);
+        temp2_.clear();
+        for (unsigned int b=0; b<nPaths_PD_[a]; b++) {
+          if (triggerNames_[i]==datasetContent_[a][b]){
+            temp2_.push_back(true);         
+            //cout<<"Matched trigger name is: "<<datasetContent_[a][b]<<" for dataset "<<a<<" and dataset path "<<b<<endl;
+          }
+          else temp2_.push_back(false);
+        }
+        temp1_.push_back(temp2_);
       }
       triggerNames_matched_.push_back(temp1_);
     }
@@ -459,9 +468,9 @@ HLTOfflineReproducibility::beginRun(edm::Run const& iRun, edm::EventSetup const&
     //if matched and # of modules is bigger than all previous ones, take that number as new maximum
     for (unsigned int i=0; i<nPaths_; i++) {
       for (unsigned int a=0; a<nDatasets_; a++) {
-	for (unsigned int b=0; b<nPaths_PD_[a]; b++) {
-	  if (triggerNames_matched_[i][a][b] && nModules_[i]>max_nModules_PD_[a]) max_nModules_PD_[a]=nModules_[i];
-	}
+        for (unsigned int b=0; b<nPaths_PD_[a]; b++) {
+          if (triggerNames_matched_[i][a][b] && nModules_[i]>max_nModules_PD_[a]) max_nModules_PD_[a]=nModules_[i];
+        }
       }
     }
 
