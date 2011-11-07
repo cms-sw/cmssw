@@ -27,8 +27,10 @@
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h" 
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionFactory.h" 
 #include "RecoEcal/EgammaCoreTools/plugins/EcalClusterCrackCorrection.h"
+#include "RecoEgamma/EgammaIsolationAlgos/interface/EgammaHadTower.h"
 
 PhotonProducer::PhotonProducer(const edm::ParameterSet& config) : 
+
   conf_(config)
 {
 
@@ -268,15 +270,22 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     // SC energy preselection
     if (scRef->energy()/cosh(scRef->eta()) <= preselCutValues[0] ) continue;
     // calculate HoE
+
     const CaloTowerCollection* hcalTowersColl = hcalTowersHandle.product();
     EgammaTowerIsolation towerIso1(hOverEConeSize_,0.,0.,1,hcalTowersColl) ;  
     EgammaTowerIsolation towerIso2(hOverEConeSize_,0.,0.,2,hcalTowersColl) ;  
     double HoE1=towerIso1.getTowerESum(&(*scRef))/scRef->energy();
     double HoE2=towerIso2.getTowerESum(&(*scRef))/scRef->energy(); 
-    //    std::cout << " PhotonProducer " << HoE1  << "  HoE2 " << HoE2 << std::endl;
-    //std::cout << " PhotonProducer calcualtion of HoE1 " << HoE1  << "  HoE2 " << HoE2 << std::endl;
-
     
+    EgammaHadTower towerIsoBehindClus(es); 
+    towerIsoBehindClus.setTowerCollection(hcalTowersHandle.product());
+    std::vector<CaloTowerDetId> TowersBehindClus =  towerIsoBehindClus.towersOf(*scRef);
+    float hcalDepth1OverEcalBc = towerIsoBehindClus.getDepth1HcalESum(TowersBehindClus)/scRef->energy();
+    float hcalDepth2OverEcalBc = towerIsoBehindClus.getDepth2HcalESum(TowersBehindClus)/scRef->energy();
+    //    std::cout << " PhotonProducer calculation of HoE with towers in a cone " << HoE1  << "  " << HoE2 << std::endl;
+    //std::cout << " PhotonProducer calcualtion of HoE with towers behind the BCs " << hcalDepth1OverEcalBc  << "  " << hcalDepth2OverEcalBc << std::endl;
+
+
     // recalculate position of seed BasicCluster taking shower depth for unconverted photon
     math::XYZPoint unconvPos = posCalculator_.Calculate_Location(scRef->seed()->hitsAndFractions(),hits,subDetGeometry,geometryES);
 
@@ -292,9 +301,15 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     float sigmaIetaIeta = sqrt(locCov[0]);
 
 
-    //    float r9 =e3x3/(scRef->rawEnergy());
+    float r9 =e3x3/(scRef->rawEnergy());
     // compute position of ECAL shower
     math::XYZPoint caloPosition;
+    if (r9>minR9) {
+      caloPosition = unconvPos;
+    } else {
+      caloPosition = scRef->position();
+    }
+
 
     //// energy determination -- Default to create the candidate. Afterwards corrections are applied
     double photonEnergy=1.;
@@ -315,14 +330,12 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     thePhotonEnergyCorrector_->calculate(newCandidate, subdet);
    
     if ( candidateP4type_ == "fromEcalEnergy") {
-      //      p4=newCandidate.p4(reco::Photon::ecal_photons);
       newCandidate.setP4( newCandidate.p4(reco::Photon::ecal_photons) );
     } else if ( candidateP4type_ == "fromRegression") {
-      // p4 =  newCandidate.p4(reco::Photon::regression1);
       newCandidate.setP4( newCandidate.p4(reco::Photon::regression1) );
     }
 
-    //   std::cout << " final p4 " << newCandidate.p4() << " energy " << newCandidate.energy() <<  std::endl;
+    //       std::cout << " final p4 " << newCandidate.p4() << " energy " << newCandidate.energy() <<  std::endl;
 
 
 
@@ -345,7 +358,12 @@ void PhotonProducer::fillPhotonCollection(edm::Event& evt,
     showerShape.sigmaIetaIeta =  sigmaIetaIeta;
     showerShape.hcalDepth1OverEcal = HoE1;
     showerShape.hcalDepth2OverEcal = HoE2;
+    showerShape.hcalDepth1OverEcalBc = hcalDepth1OverEcalBc;
+    showerShape.hcalDepth2OverEcalBc = hcalDepth2OverEcalBc;
     newCandidate.setShowerShapeVariables ( showerShape ); 
+
+    // std::cout << " PhotonProducer from candidate HoE with towers in a cone " << newCandidate.hadronicOverEm()  << "  " <<  newCandidate.hadronicDepth1OverEm()  << " " <<  newCandidate.hadronicDepth2OverEm()  << std::endl;
+    //    std::cout << " PhotonProducer from candidate  of HoE with towers behind the BCs " <<  newCandidate.hadTowOverEm()  << "  " << newCandidate.hadTowDepth1OverEm() << " " << newCandidate.hadTowDepth2OverEm() << std::endl;
 
 
   // fill MIP Vairables for Halo: Block for MIP are filled from PhotonMIPHaloTagger
