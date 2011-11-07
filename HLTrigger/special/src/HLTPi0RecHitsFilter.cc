@@ -328,14 +328,14 @@ HLTPi0RecHitsFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   
   edm::ESHandle<CaloGeometry> geoHandle;
   iSetup.get<CaloGeometryRecord>().get(geoHandle); 
-  const CaloSubdetectorGeometry *geometry_eb = geoHandle->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
-  const CaloSubdetectorGeometry *geometry_ee = geoHandle->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
+  const CaloSubdetectorGeometry *geometry_eb = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalBarrel);
+  const CaloSubdetectorGeometry *geometry_ee = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalEndcap);
   const CaloSubdetectorGeometry *geometry_es = geoHandle->getSubdetectorGeometry(DetId::Ecal, EcalPreshower);
   
   edm::ESHandle<CaloTopology> pTopology;
   iSetup.get<CaloTopologyRecord>().get(pTopology);
-  const CaloSubdetectorTopology *topology_eb = pTopology->getSubdetectorTopology(DetId::Ecal,EcalBarrel);
-  const CaloSubdetectorTopology *topology_ee = pTopology->getSubdetectorTopology(DetId::Ecal,EcalEndcap);
+  const CaloSubdetectorTopology *topology_eb = pTopology->getSubdetectorTopology(DetId::Ecal, EcalBarrel);
+  const CaloSubdetectorTopology *topology_ee = pTopology->getSubdetectorTopology(DetId::Ecal, EcalEndcap);
   
   CaloSubdetectorTopology *topology_es=0;
   if (geometry_es) {
