@@ -1253,13 +1253,14 @@ int main(int argc, char ** argv) {
 
   if (userMaxTime > 0) {
     xmax = userMaxTime ;
-  } else { // Remove the slowest event, compute mean, std. dev. from subset of data 
-    double subMean  = (sumTime-longestEventTime)/double(n_evts-1) ; 
-    double subRmsSq = (sumTimeSq-longestEventTime*longestEventTime)/double(n_evts-1) ; 
+  } else if (n_evts > 1) { 
+    // Remove the slowest event, compute mean, std. dev. from subset of data 
+    double subMean  = (sumTime   - longestEventTime)                    / double(n_evts-1) ; 
+    double subRmsSq = (sumTimeSq - longestEventTime * longestEventTime) / double(n_evts-1) ; 
     double subSigma = sqrt(subRmsSq - subMean*subMean) ; 
     double subReasMaxTime = subMean + 3. * subSigma ; 
 
-    while (pow(10,xscale--) > subReasMaxTime) ;
+    while (pow(10, xscale--) > subReasMaxTime) ;
     xscale += 2 ; xmax = pow(10,xscale+3) ;
         
     if ( (xmax/5.) > (subReasMaxTime * 1000.) ) xmax = xmax / 5. ;
