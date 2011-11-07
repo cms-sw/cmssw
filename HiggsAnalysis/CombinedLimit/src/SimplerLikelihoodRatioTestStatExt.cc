@@ -15,10 +15,15 @@ SimplerLikelihoodRatioTestStatOpt::SimplerLikelihoodRatioTestStatOpt(
     // factorize away constraints
     RooArgList constraints;
     pdfNull_ = factorize ? utils::factorizePdf(obs, *cloneNull, constraints) : cloneNull;
-    pdfAlt_  = factorize ? utils::factorizePdf(obs, *cloneAlt,  constraints) : cloneAlt;
-    if (pdfAlt_ == 0 || pdfNull_ == 0) throw std::invalid_argument("SimplerLikelihoodRatioTestStatOpt:: pdf does not depend on observables");
-    if (pdfNull_ != cloneNull) pdfNullOwned_.reset(pdfNull_); // if new, then take
-    if (pdfAlt_  != cloneAlt)  pdfAltOwned_.reset(pdfAlt_);   // ownership of it
+    if (pdfNull_ == 0) throw std::invalid_argument("SimplerLikelihoodRatioTestStatOpt:: pdf does not depend on observables");
+    if (pdfNull_ != cloneNull) pdfNullOwned_.reset(pdfNull_); // if new, then take ownership of it
+    if (cloneNull == cloneAlt) {
+        pdfAlt_ = pdfNull_;
+    } else {
+        pdfAlt_  = factorize ? utils::factorizePdf(obs, *cloneAlt,  constraints) : cloneAlt;
+        if (pdfAlt_ == 0) throw std::invalid_argument("SimplerLikelihoodRatioTestStatOpt:: pdf does not depend on observables");
+        if (pdfAlt_ != cloneAlt)  pdfAltOwned_.reset(pdfAlt_); // if new, then take ownership of it
+    }
 
     // take snapshot of parameters
     snapNull_.addClone(paramsNull);
