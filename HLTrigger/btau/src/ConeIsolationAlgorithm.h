@@ -24,15 +24,10 @@ public:
    
   ~ConeIsolationAlgorithm() {}
 
-  // void setBeamSpot();
-  void setPrimaryVertex(reco::Vertex * pv) {m_primaryVertex = pv;}
-  
   std::pair<float ,reco::IsolatedTauTagInfo> tag( const reco::JetTracksAssociationRef & jetTracks, const reco::Vertex & pv); 
   
 
  private:
-  reco::Vertex * m_primaryVertex;
-
   // algorithm parameters
   int    m_nthTrack;
   int    m_cutPixelHits;
