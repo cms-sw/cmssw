@@ -2131,6 +2131,77 @@ bool isDoubleMuX_HTXTrigger(TString triggerName, vector<double> &thresholds)
     return false;
 }
 
+bool isDoubleMuX_MassX_HTXTrigger(TString triggerName, vector<double> &thresholds)
+{
+ TString pattern = "(OpenHLT_DoubleMu([0-9]+)_Mass([0-9]+)_HT([0-9]+)){1}$";
+  TPRegexp matchThreshold(pattern);
+
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL      = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdL3Mu    = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdMassCut = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      double thresholdHT      = (((TObjString *)subStrL->At(4))->GetString()).Atof();
+      thresholds.push_back(thresholdL3Mu);
+      thresholds.push_back(thresholdMassCut);
+      thresholds.push_back(thresholdHT);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
+
+bool isDoubleEleX_MassX_HTXTrigger(TString triggerName,  vector<TString>& caloId, vector<TString>& caloIso, vector<TString>& trkId, vector<TString>& trkIso, vector<double> &thresholds)
+{
+ TString pattern = "(OpenHLT_DoubleEle([0-9]+)_?(CaloId[VXLT]+)?_?(CaloIso[VLT]+)?_?(TrkId[VLT]+)?_?(TrkIso[VLT]+)?_Mass([0-9]+)_HT([0-9]+)){1}$";
+  TPRegexp matchThreshold(pattern);
+
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL      = TPRegexp(pattern).MatchS(triggerName);
+      thresholds.push_back((((TObjString *)subStrL->At(2))->GetString()).Atof());//Ele
+      caloId.push_back(((TObjString *)subStrL->At(3))->GetString());
+      caloIso.push_back(((TObjString *)subStrL->At(4))->GetString());
+      trkId.push_back(((TObjString *)subStrL->At(5))->GetString());
+      trkIso.push_back(((TObjString *)subStrL->At(6))->GetString());
+      double thresholdMassCut = (((TObjString *)subStrL->At(7))->GetString()).Atof();
+      double thresholdHT      = (((TObjString *)subStrL->At(8))->GetString()).Atof();
+      thresholds.push_back(thresholdMassCut);
+      thresholds.push_back(thresholdHT);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
+
+bool isMuX_EleX_MassX_HTXTrigger(TString triggerName, vector<TString>& caloId, vector<TString>& caloIso, vector<TString>& trkId, vector<TString>& trkIso,  vector<double> &thresholds)
+{
+ TString pattern = "(OpenHLT_Mu([0-9]+)_Ele([0-9]+)_?(CaloId[VXLT]+)?_?(CaloIso[VLT]+)?_?(TrkId[VLT]+)?_?(TrkIso[VLT]+)?_Mass([0-9]+)_HT([0-9]+))$";
+  TPRegexp matchThreshold(pattern);
+
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL      = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdL3Mu    = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      thresholds.push_back(thresholdL3Mu);
+      thresholds.push_back((((TObjString *)subStrL->At(3))->GetString()).Atof());//Ele
+      caloId.push_back(((TObjString *)subStrL->At(4))->GetString());
+      caloIso.push_back(((TObjString *)subStrL->At(5))->GetString());
+      trkId.push_back(((TObjString *)subStrL->At(6))->GetString());
+      trkIso.push_back(((TObjString *)subStrL->At(7))->GetString());
+      double thresholdMassCut = (((TObjString *)subStrL->At(8))->GetString()).Atof();
+      double thresholdHT      = (((TObjString *)subStrL->At(9))->GetString()).Atof();
+      thresholds.push_back(thresholdMassCut);
+      thresholds.push_back(thresholdHT);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
+
 
 bool isNJetPtTrigger(TString triggerName, vector<double> &thresholds)
 {
@@ -11752,7 +11823,74 @@ else if (triggerName.CompareTo("OpenHLT_Ele32_WP70_PFMT50_v1")  == 0)
 	}
     }
 	
- 
+  else if (isDoubleMuX_MassX_HTXTrigger(triggerName, thresholds))
+     {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+
+	      int nMu = OpenHlt1MuonPassed(0., 0., thresholds[0], 2., 0);
+	      if (nMu >=2
+		  && OpenHltInvMassCutMu(nMu, thresholds[1])
+		  && OpenHltSumCorHTPassed( thresholds[2])>0)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
+	
+  else if (isDoubleEleX_MassX_HTXTrigger(triggerName,  caloId,  caloIso,  trkId,  trkIso, thresholds))
+     {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+
+	      int nEle = OpenHlt1ElectronPassed(thresholds[0], 
+						 map_EGammaCaloId[caloId[0]],
+						 map_EleCaloIso[caloIso[0]],
+						 map_EleTrkId[trkId[0]],
+						 map_EleTrkIso[trkIso[0]]
+						 );
+	      if (nEle >=2
+		  && OpenHltInvMassCutEle(nEle, thresholds[1])
+		  && OpenHltSumCorHTPassed( thresholds[2])>0)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
+	
+
+  else if (isMuX_EleX_MassX_HTXTrigger(triggerName, caloId,  caloIso,  trkId,  trkIso, thresholds))
+    {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+
+	      // int nMu = OpenHlt1MuonPassed(map_muThresholds[thresholds[0]],2.,0);
+	      int nMu = OpenHlt1MuonPassed(0., 0., thresholds[0],2.,0);
+	      int nEle = OpenHlt1ElectronPassed(thresholds[1], 
+				       map_EGammaCaloId[caloId[0]],
+				       map_EleCaloIso[caloIso[0]],
+				       map_EleTrkId[trkId[0]],
+				       map_EleTrkIso[trkIso[0]]
+						);
+	    
+	      if (nMu >= 1 &&  nEle >= 1 && OpenHltInvMassCutEleMu(nEle, nMu, thresholds[2])
+		  && OpenHltSumCorHTPassed(thresholds[3])>0)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+     }
+
+
   //AGB - HT + single electron + MET
 	
   else if (isHTX_EleX_CaloIdVL_TrkIdVL_CaloIsoVL_TrkIsoVL_pfMHTXTrigger(triggerName, thresholds)) {
@@ -22429,4 +22567,80 @@ bool OHltTree::OpenHltNTowCalEtPassed(int N, const double& Et)
         if (recoTowEt[i] >= Et) NpassEt++;
     }
     return NpassEt >= N;
+}
+
+
+bool OHltTree::OpenHltInvMassCutMu(int nMu, const float& invMassCut){
+
+  float invMassMin = 0.;
+
+  for (int i=0; i<nMu; i++)
+    {
+      TLorentzVector mu_i;
+      mu_i.SetPtEtaPhiM(ohMuL3Pt[i], ohMuL3Eta[i], ohMuL3Phi[i], 0.105);
+
+      for (int j = i+1 ; j <nMu ; j++){
+
+	TLorentzVector mu_j;
+	mu_j.SetPtEtaPhiM(ohMuL3Pt[j], ohMuL3Eta[j], ohMuL3Phi[j], 0.105);
+
+	float invMass = (mu_i + mu_j).M();
+	if (invMass > invMassMin){
+	  invMassMin = invMass;
+	}	  
+      }
+    }
+
+  return (invMassMin > invMassCut );
+
+}
+
+bool OHltTree::OpenHltInvMassCutEle(int nEle, const float& invMassCut){
+
+  float invMassMin = 0.;
+
+  for (int i=0; i<nEle; i++)
+    {
+      TLorentzVector ele_i;
+      ele_i.SetPtEtaPhiM(ohEleEt[i], ohEleEta[i], ohElePhi[i], 0.0005);
+
+      for (int j = i+1 ; j <nEle ; j++){
+
+	TLorentzVector ele_j;
+	ele_j.SetPtEtaPhiM(ohEleEt[j], ohEleEta[j], ohElePhi[j], 0.0005);
+
+	float invMass = (ele_i + ele_j).M();
+	if (invMass > invMassMin){
+	  invMassMin = invMass;
+	}	  
+      }
+    }
+
+  return (invMassMin > invMassCut );
+
+}
+
+bool OHltTree::OpenHltInvMassCutEleMu(int nEle, int nMu, const float& invMassCut){
+
+  float invMassMin = 0.;
+
+  for (int i=0; i<nEle; i++)
+    {
+      TLorentzVector ele_i;
+      ele_i.SetPtEtaPhiM(ohEleEt[i], ohEleEta[i], ohElePhi[i], 0.0005);
+
+      for (int j = 0 ; j <nMu ; j++){
+
+	TLorentzVector mu_j;
+	mu_j.SetPtEtaPhiM(ohMuL3Pt[j], ohMuL3Eta[j], ohMuL3Phi[j], 0.105);
+
+	float invMass = (ele_i + mu_j).M();
+	if (invMass > invMassMin){
+	  invMassMin = invMass;
+	}	  
+      }
+    }
+
+  return (invMassMin > invMassCut );
+
 }

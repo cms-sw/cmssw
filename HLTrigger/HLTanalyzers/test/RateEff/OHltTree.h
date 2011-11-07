@@ -15576,7 +15576,13 @@ public:
          double DzMuonPix,
          bool checkChargePix,
          int histIndex);
+
+   bool OpenHltInvMassCutMu(int nMu, const float& invMassCut);   
+
+   bool OpenHltInvMassCutEle(int nEle, const float& invMassCut);   
    
+   bool OpenHltInvMassCutEleMu(int nEle, int nMu, const float& invMassCut);   
+
    int OpenHlt1JetPassed(double pt);
    
    int OpenHlt1JetPassed(double pt, double eta);
