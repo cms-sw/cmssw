@@ -44,8 +44,6 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
   //static SimpleConfigurable<double> bk3(1.75,  "HCalSD:BirkC3");
   // Values from NIM 80 (1970) 239-244: as implemented in Geant3
   //static SimpleConfigurable<bool> on2(true,"HCalSD:UseShowerLibrary");
-  edm::ParameterSet m_HF  = p.getParameter<edm::ParameterSet>("HFShower");
-  applyFidCut      = m_HF.getParameter<bool>("ApplyFiducialCut");
   edm::ParameterSet m_HC = p.getParameter<edm::ParameterSet>("HCalSD");
   useBirk          = m_HC.getParameter<bool>("UseBirkLaw");
   birk1            = m_HC.getParameter<double>("BirkC1")*(g/(MeV*cm2));
@@ -375,7 +373,7 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
                               <<aStep->GetTrack()->GetDefinition()->GetParticleName()<<")";
 #endif
           getFromLibrary(aStep);
-        } else if (isItFibre(lv) || applyFidCut) {
+        } else if (isItFibre(lv)) {
 #ifdef DebugLog
           LogDebug("HcalSim") << "HCalSD: Hit at Fibre in " << nameVolume 
                               << " for Track " 
@@ -408,7 +406,7 @@ bool HCalSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
                           << aStep->GetTrack()->GetTrackID() << " ("
                           << aStep->GetTrack()->GetDefinition()->GetParticleName() << ")";
 #endif
-      if (getStepInfo(aStep) && !applyFidCut) {
+      if (getStepInfo(aStep)) {
 #ifdef DebugLog
         if (edepositEM+edepositHAD > 0)
           plotProfile(aStep, aStep->GetPreStepPoint()->GetPosition(),
@@ -727,11 +725,9 @@ void HCalSD::hitForFibre (G4Step* aStep) { // if not ParamShower
 #endif
   if (hits.size() > 0) {
     G4ThreeVector hitPoint = preStepPoint->GetPosition();
-    int depth = (preStepPoint->GetTouchable()->GetReplicaNumber(0))%10; // Old/Default
-
     for (unsigned int i=0; i<hits.size(); ++i) {
       G4ThreeVector hitPoint = hits[i].position;
-      if (applyFidCut) depth = hits[i].depth;
+      int depth              = hits[i].depth;
       double time            = hits[i].time;
       unsigned int unitID = setDetUnitId(det, hitPoint, depth);
       currentID.setID(unitID, time, primaryID, 0);

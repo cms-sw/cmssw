@@ -112,7 +112,7 @@ std::vector<HFShower::Hit> HFShower::getHits(G4Step * aStep) {
     ok = false; // beyond the fiber in Z
   }
   if (ok && applyFidCut) {
-    npmt = HFFibreFiducial:: PMTNumber(globalPos);
+    npmt = HFFibreFiducial::PMTNumber(globalPos);
     if (npmt <= 0) {
       ok = false;
     } else if (npmt > 24) { // a short fibre
