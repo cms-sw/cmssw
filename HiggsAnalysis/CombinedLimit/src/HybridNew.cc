@@ -234,13 +234,8 @@ bool HybridNew::runSignificance(RooWorkspace *w, RooStats::ModelConfig *mc_s, Ro
         writeToysHere->WriteTObject(new HypoTestResult(*hcResult), name);
         if (verbose) std::cout << "Hybrid result saved as " << name << " in " << writeToysHere->GetFile()->GetName() << " : " << writeToysHere->GetPath() << std::endl;
     }
-    if (testStat_ == "LHC" || testStat_ == "LHCFC"  || testStat_ == "Profile") {
-        // I don't need to flip the P-values for significances, only for limits
-        // hcResult->SetPValueIsRightTail(!hcResult->GetPValueIsRightTail());
-        hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()-EPS); // issue with < vs <= in discrete models
-    } else {
-        hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()+EPS); // issue with < vs <= in discrete models
-    }
+    // I don't need to flip the P-values for significances, only for limits
+    hcResult->SetTestStatisticData(hcResult->GetTestStatisticData()+EPS); // issue with < vs <= in discrete models
     limit = hcResult->Significance();
     double sigHi = RooStats::PValueToSignificance( 1 - (hcResult->CLb() + hcResult->CLbError()) ) - limit;
     double sigLo = RooStats::PValueToSignificance( 1 - (hcResult->CLb() - hcResult->CLbError()) ) - limit;
@@ -634,8 +629,8 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
         RooArgList constraints;
         RooAbsPdf *factorizedPdf_s = utils::factorizePdf(*mc_s->GetObservables(), *mc_s->GetPdf(), constraints);
         RooAbsPdf *factorizedPdf_b = utils::factorizePdf(*mc_b->GetObservables(), *mc_b->GetPdf(), constraints);
-        setup.cleanupList.addOwned(*factorizedPdf_s);
-        setup.cleanupList.addOwned(*factorizedPdf_b);
+        if (factorizedPdf_s != mc_s->GetPdf()) setup.cleanupList.addOwned(*factorizedPdf_s);
+        if (factorizedPdf_b != mc_b->GetPdf()) setup.cleanupList.addOwned(*factorizedPdf_b);
         setup.modelConfig.SetPdf(*factorizedPdf_s);
         setup.modelConfig_bonly.SetPdf(*factorizedPdf_b);
   }
@@ -651,7 +646,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
           if (!mc_s->GetPdf()->canBeExtended()) {
               setup.qvar.reset(new SimplerLikelihoodRatioTestStat(*factorizedPdf_s,*factorizedPdf_s, snapB, snapS));
           } else {
-              setup.qvar.reset(new SimplerLikelihoodRatioTestStatOpt(*mc_s->GetObservables(), *factorizedPdf_s, *factorizedPdf_s, snapB, snapS));
+              setup.qvar.reset(new SimplerLikelihoodRatioTestStatOpt(*mc_s->GetObservables(), *factorizedPdf_s, *factorizedPdf_s, snapB, snapS, withSystematics));
           }
       } else {
           setup.qvar.reset(new SimpleLikelihoodRatioTestStat(*factorizedPdf_b,*factorizedPdf_s));
@@ -685,7 +680,7 @@ std::auto_ptr<RooStats::HybridCalculator> HybridNew::create(RooWorkspace *w, Roo
   RooAbsPdf *nuisancePdf = 0;
   if (withSystematics && (genNuisances_ || (newToyMCSampler_ && genGlobalObs_))) {
     nuisancePdf = utils::makeNuisancePdf(*mc_s);
-    setup.cleanupList.addOwned(*nuisancePdf);
+    if (nuisancePdf) setup.cleanupList.addOwned(*nuisancePdf);
   }
   if (newToyMCSampler_) { 
     setup.toymcsampler.reset(new ToyMCSamplerOpt(*setup.qvar, nToys_, nuisancePdf));
