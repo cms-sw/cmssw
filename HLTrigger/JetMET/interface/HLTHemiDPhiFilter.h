@@ -27,7 +27,6 @@ class HLTHemiDPhiFilter : public HLTFilter {
       double deltaPhi(double, double); //helper function
   
       edm::InputTag inputTag_; // input tag identifying product
-      bool saveTags_;           // whether to save this tag
       double min_dphi_;          // minimum dphi value
       bool accept_NJ_;         // accept or reject events with high NJ
 
