@@ -8,7 +8,7 @@ PhotonEnergyCorrector::PhotonEnergyCorrector( const edm::ParameterSet& config, c
   minR9Endcap_        = config.getParameter<double>("minR9Endcap");
   // get the geometry from the event setup:
   theEventSetup.get<CaloGeometryRecord>().get(theCaloGeom_);
-  candidateP4type_ = config.getParameter<std::string>("candidateP4type") ;
+  //  candidateP4type_ = config.getParameter<std::string>("candidateP4type") ;
 
 
   // function to extract f(eta) correction
@@ -58,13 +58,6 @@ void PhotonEnergyCorrector::calculate(reco::Photon & thePhoton, int subdet) {
   double phoRegr1EnergyError = -9999.;
   const CaloSubdetectorGeometry* subDetGeometry =0 ;
   subDetGeometry =  theCaloGeom_->getSubdetectorGeometry(DetId::Ecal, subdet);
-  bool p4FromEcal=false;
-  bool p4FromRegression=false;
-  if ( candidateP4type_ == "fromEcalEnergy") {
-    p4FromEcal=true;
-  } else if ( candidateP4type_ == "fromRegression" &&   !(w_file_ == "none")  ) {
-    p4FromRegression=true;
-  }
 
   double minR9=0;
   if (subdet==EcalBarrel) {
@@ -73,6 +66,18 @@ void PhotonEnergyCorrector::calculate(reco::Photon & thePhoton, int subdet) {
     minR9=minR9Endcap_;
   }
 
+  ////////////// Here default Ecal corrections based on electrons  ////////////////////////
+  if ( thePhoton.r9() > minR9 ) {
+    // f(eta) correction to e5x5
+    double deltaE = scEnergyFunction_->getValue(*(thePhoton.superCluster()), 1);
+    float e5x5=thePhoton.e5x5();
+    if (subdet==EcalBarrel) e5x5 = e5x5 * (1.0 +  deltaE/thePhoton.superCluster()->rawEnergy() );
+    phoEcalEnergy =  e5x5    +  thePhoton.superCluster()->preshowerEnergy() ;  
+  } else {
+    phoEcalEnergy = thePhoton.superCluster()->energy();
+  }
+  // store the value in the Photon.h
+  thePhoton.setCorrectedEnergy( reco::Photon::ecal_standard, phoEcalEnergy, phoEcalEnergyError,  false);
 
   ////////////// Here Ecal corrections specific for photons ////////////////////////
   // correction for low r9 
@@ -90,8 +95,7 @@ void PhotonEnergyCorrector::calculate(reco::Photon & thePhoton, int subdet) {
   phoEcalEnergy *=  scCrackEnergyFunction_->getValue(*(thePhoton.superCluster()));
   // as for the erros use the error on the SC 
   phoEcalEnergyError =   scEnergyErrorFunction_->getValue(*(thePhoton.superCluster()), 0);  
-  // set the value in the Photon.h
-  //  thePhoton.setCorrectedEnergy( reco::Photon::ecal_photons, phoEcalEnergy, phoEcalEnergyError,  p4FromEcal);
+  // store the value in the Photon.h
   thePhoton.setCorrectedEnergy( reco::Photon::ecal_photons, phoEcalEnergy, phoEcalEnergyError,  false);
 
   //////////  Energy  Regression ////////////////////// 
@@ -99,8 +103,7 @@ void PhotonEnergyCorrector::calculate(reco::Photon & thePhoton, int subdet) {
     std::pair<double,double> cor = regressionCorrector_->CorrectedEnergyWithError(thePhoton);
     phoRegr1Energy = cor.first;
     phoRegr1EnergyError = cor.second;
-    // set the value in the Photon.h
-    // thePhoton.setCorrectedEnergy( reco::Photon::regression1, phoRegr1Energy, phoRegr1EnergyError,  p4FromRegression);
+    // store the value in the Photon.h
     thePhoton.setCorrectedEnergy( reco::Photon::regression1, phoRegr1Energy, phoRegr1EnergyError,  false);
   }
 
