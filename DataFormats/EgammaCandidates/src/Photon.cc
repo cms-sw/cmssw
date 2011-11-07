@@ -1,4 +1,4 @@
-// $Id: Photon.cc,v 1.26 2011/07/21 12:50:33 nancy Exp $
+// $Id: Photon.cc,v 1.27 2011/11/02 17:39:00 nancy Exp $
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
@@ -90,13 +90,13 @@ int Photon::conversionTrackProvenance(const edm::RefToBase<reco::Track>& convTra
 }
 
 
-void Photon::setCorrectedEnergy( P4type type, double newEnergy, double delta_e,  bool setToRecoCandidate ) {
+void Photon::setCorrectedEnergy( P4type type, float newEnergy, float delta_e,  bool setToRecoCandidate ) {
 
   math::XYZTLorentzVectorD newP4 = p4() ;
   newP4 *= newEnergy/newP4.e() ;
   switch(type)
     {
-    case e5x5_or_SC:
+    case ecal_standard:
       eCorrections_.scEcalEnergy = newEnergy;
       eCorrections_.scEcalEnergyError = delta_e;
       break ;
@@ -121,10 +121,10 @@ void Photon::setCorrectedEnergy( P4type type, double newEnergy, double delta_e, 
 
 
 
- double  Photon::getCorrectedEnergy( P4type type) const {
+ float  Photon::getCorrectedEnergy( P4type type) const {
   switch(type)
     {
-    case e5x5_or_SC:
+    case ecal_standard:
       return      eCorrections_.scEcalEnergy;
       break ;
     case ecal_photons:
@@ -141,10 +141,10 @@ void Photon::setCorrectedEnergy( P4type type, double newEnergy, double delta_e, 
  }
 
 
- double  Photon::getCorrectedEnergyError( P4type type) const {
+ float  Photon::getCorrectedEnergyError( P4type type) const {
   switch(type)
     {
-    case e5x5_or_SC:
+    case ecal_standard:
       return      eCorrections_.scEcalEnergyError;
       break ;
     case ecal_photons:
@@ -167,7 +167,7 @@ void Photon::setP4(P4type type, const LorentzVector & p4, float error, bool setT
 
   switch(type)
    {
-    case e5x5_or_SC:
+    case ecal_standard:
       eCorrections_.scEcalP4 = p4 ;
       eCorrections_.scEcalEnergyError = error ;
       break ;
@@ -198,7 +198,7 @@ const Candidate::LorentzVector& Photon::p4( P4type type ) const
  {
   switch(type)
     {
-    case e5x5_or_SC: return eCorrections_.scEcalP4 ;
+    case ecal_standard: return eCorrections_.scEcalP4 ;
     case ecal_photons: return eCorrections_.phoEcalP4 ;
     case regression1: return eCorrections_.regression1P4 ;
     case regression2: return eCorrections_.regression2P4 ;

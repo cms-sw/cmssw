@@ -7,7 +7,7 @@
  * stores isolation, shower shape and additional info
  * needed for identification
  * 
- * \version $Id: Photon.h,v 1.42 2011/07/22 14:37:26 nancy Exp $
+ * \version $Id: Photon.h,v 1.43 2011/11/02 17:36:31 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -145,6 +145,9 @@ namespace reco {
       float maxEnergyXtal ; 
       float hcalDepth1OverEcal ; // hcal over ecal energy using first hcal depth
       float hcalDepth2OverEcal ; // hcal over ecal energy using 2nd hcal depth
+      float hcalDepth1OverEcalBc;
+      float hcalDepth2OverEcalBc;
+      std::vector<CaloTowerDetId> hcalTowersBehindClusters;
       ShowerShape()
 	: sigmaEtaEta(std::numeric_limits<float>::infinity()),
 	   sigmaIetaIeta(std::numeric_limits<float>::infinity()),
@@ -153,8 +156,10 @@ namespace reco {
 	   e3x3(0), 
 	   e5x5(0), 
 	   maxEnergyXtal(0),
-	   hcalDepth1OverEcal(0),
-	   hcalDepth2OverEcal(0)
+	  hcalDepth1OverEcal(0),
+	  hcalDepth2OverEcal(0),
+	  hcalDepth1OverEcalBc(0),
+	  hcalDepth2OverEcalBc(0)
 	   
       {}
     } ;
@@ -165,6 +170,14 @@ namespace reco {
     float hadronicDepth1OverEm() const {return  showerShapeBlock_.hcalDepth1OverEcal  ;}
     /// the  hadronic release in depth2 over electromagnetic fraction
     float hadronicDepth2OverEm() const {return  showerShapeBlock_.hcalDepth2OverEcal  ;}
+
+    /// the ration of hadronic energy in towers behind the BCs in the SC  and the SC energy 
+    float hadTowOverEm() const {return   showerShapeBlock_.hcalDepth1OverEcalBc + showerShapeBlock_.hcalDepth2OverEcalBc  ;}
+    /// the ration of hadronic energy in towers depth1 behind the BCs in the SC  and the SC energy 
+    float hadTowDepth1OverEm() const {return  showerShapeBlock_.hcalDepth1OverEcalBc  ;}
+    /// the ration of hadronic energy in towers depth2 behind the BCs in the SC  and the SC energy 
+    float hadTowDepth2OverEm() const {return  showerShapeBlock_.hcalDepth2OverEcalBc  ;}
+    const std::vector<CaloTowerDetId> & hcalTowersBehindClusters() const { return showerShapeBlock_.hcalTowersBehindClusters ; }
 
     ///  Shower shape variables
     float e1x5()            const {return showerShapeBlock_.e1x5;}
@@ -181,20 +194,20 @@ namespace reco {
     //=======================================================
     // Energy Determinations
     //=======================================================
-    enum P4type { undefined=-1, e5x5_or_SC=0, ecal_photons=1, regression1=2, regression2= 3 } ;
+    enum P4type { undefined=-1, ecal_standard=0, ecal_photons=1, regression1=2, regression2= 3 } ;
 
     struct EnergyCorrections {
-      double scEcalEnergy;
-      double scEcalEnergyError;
+      float scEcalEnergy;
+      float scEcalEnergyError;
       LorentzVector scEcalP4;
-      double phoEcalEnergy;
-      double phoEcalEnergyError;
+      float phoEcalEnergy;
+      float phoEcalEnergyError;
       LorentzVector phoEcalP4;
-      double regression1Energy;
-      double regression1EnergyError;
+      float regression1Energy;
+      float regression1EnergyError;
       LorentzVector regression1P4;
-      double regression2Energy;
-      double regression2EnergyError;
+      float regression2Energy;
+      float regression2EnergyError;
       LorentzVector regression2P4;
       P4type candidateP4type;
       EnergyCorrections() : 
@@ -218,12 +231,12 @@ namespace reco {
     using RecoCandidate::p4 ;
 
     //sets both energy and its uncertainty
-    void setCorrectedEnergy( P4type type, double E, double dE, bool toCand=true );        
+    void setCorrectedEnergy( P4type type, float E, float dE, bool toCand=true );        
     void setP4( P4type type, const LorentzVector & p4, float p4Error, bool setToRecoCandidate ) ;
     void setEnergyCorrections ( const EnergyCorrections& e) { eCorrections_=e;}
 
-    double getCorrectedEnergy( P4type type) const;
-    double getCorrectedEnergyError( P4type type) const ;
+    float getCorrectedEnergy( P4type type) const;
+    float getCorrectedEnergyError( P4type type) const ;
     P4type getCandidateP4type() const {return eCorrections_.candidateP4type;}
     const LorentzVector& p4( P4type type ) const ;
     const EnergyCorrections & energyCorrections() const { return eCorrections_ ; }
