@@ -19,8 +19,8 @@
   <class name="reco::Photon::FiducialFlags" ClassVersion="10">
    <version ClassVersion="10" checksum="2148735796"/>
   </class>
-  <class name="reco::Photon::ShowerShape" ClassVersion="10">
-   <version ClassVersion="10" checksum="530110431"/>
+  <class name="reco::Photon::ShowerShape" ClassVersion="11">
+   <version ClassVersion="11" checksum="2494542444"/>
   </class>
   <class name="reco::Photon::MIPVariables" ClassVersion="10">
    <version ClassVersion="10" checksum="1613378413"/>
@@ -34,8 +34,8 @@
   <class name="reco::Photon::PflowIDVariables"  ClassVersion="0">
    <version ClassVersion="0" checksum="2819734289"/>
   </class>
-  <class name="reco::Photon::EnergyCorrections"  ClassVersion="14">
-   <version ClassVersion="14" checksum="3357038052"/>
+  <class name="reco::Photon::EnergyCorrections"  ClassVersion="15">
+   <version ClassVersion="15" checksum="2042715570"/>
   </class>
 
  
