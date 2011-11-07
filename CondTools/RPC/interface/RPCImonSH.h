@@ -22,7 +22,8 @@ namespace popcon{
     void getNewObjects();
     std::string id() const { return m_name;}
     ~RpcDataI(); 
-    RpcDataI(const edm::ParameterSet& pset); 
+    RpcDataI(const edm::ParameterSet& pset);
+    RpcDataI(int suptype); 
     
     RPCObImon* Idata;
 
@@ -33,8 +34,10 @@ namespace popcon{
     std::string passw;
     
     bool m_first;
+    int m_test_suptype;
     unsigned long long m_since;
     unsigned long long m_range;
+    int n_IOVmax;
   };
 }
 #endif

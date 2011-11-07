@@ -48,8 +48,8 @@ void CondReader::analyze(const edm::Event& evt, const edm::EventSetup& evtSetup)
   std::cout << "Run start: " << since << " - Run stop: " << till << std::endl;
   
   RPCFw time ("", "", "");
-  coral::TimeStamp sTime = time.UTtoT(since);
-  coral::TimeStamp tTime = time.UTtoT(till);
+  coral::TimeStamp sTime = time.UTtoCT(since);
+  coral::TimeStamp tTime = time.UTtoCT(till);
   int ndateS = (sTime.day() * 10000) + (sTime.month() * 100) + (sTime.year()-2000);
   int ntimeS = (sTime.hour() * 10000) + (sTime.minute() * 100) + sTime.second();
   int ndateT = (tTime.day() * 10000) + (tTime.month() * 100) + (tTime.year()-2000);
