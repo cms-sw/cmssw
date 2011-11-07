@@ -39,7 +39,7 @@ double             GlobalMinPt   =   45.00;
 double             GlobalMinIs   =   0.0;
 double             GlobalMinIm   =   3.0;
 double             GlobalMinTOF  =   1.0;
-float              GlobalMaxEta  =  2.5; 
+float              GlobalMaxEta  =  1.5; 
 
 double		   MinCandidateMass = 100;
 

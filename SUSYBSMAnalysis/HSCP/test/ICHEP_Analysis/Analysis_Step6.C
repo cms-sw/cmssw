@@ -386,7 +386,7 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    ThDCRho16HyperKMass[2] = 302; ThDCRho16HyperKXSec[2] = 0.019769637301;  ThDCRho16HyperKLow[2] = ThDCRho16HyperKXSec[2]*0.85;  ThDCRho16HyperKHigh[2] = ThDCRho16HyperKXSec[2]*1.15;
    ThDCRho16HyperKMass[3] = 500; ThDCRho16HyperKXSec[3] = 0.0063302286576;  ThDCRho16HyperKLow[3] = ThDCRho16HyperKXSec[3]*0.85;  ThDCRho16HyperKHigh[3] = ThDCRho16HyperKXSec[3]*1.15;
    ThDCRho16HyperKMass[4] = 700; ThDCRho16HyperKXSec[4] = 0.002536779850;  ThDCRho16HyperKLow[4] = ThDCRho16HyperKXSec[4]*0.85;  ThDCRho16HyperKHigh[4] = ThDCRho16HyperKXSec[4]*1.15;
-   ThDCRho16HyperKMass[5] = 730; ThDCRho16HyperKXSec[5] = 0.002536779850;  ThDCRho16HyperKLow[5] = ThDCRho16HyperKXSec[5]*0.85;  ThDCRho16HyperKHigh[5] = ThDCRho16HyperKXSec[5]*1.15;
+   ThDCRho16HyperKMass[5] = 730; ThDCRho16HyperKXSec[5] = 0.00213454921;  ThDCRho16HyperKLow[5] = ThDCRho16HyperKXSec[5]*0.85;  ThDCRho16HyperKHigh[5] = ThDCRho16HyperKXSec[5]*1.15;
    ThDCRho16HyperKMass[6] = 770; ThDCRho16HyperKXSec[6] = 0.001737551;  ThDCRho16HyperKLow[6] = ThDCRho16HyperKXSec[6]*0.85;  ThDCRho16HyperKHigh[6] = ThDCRho16HyperKXSec[6]*1.15;
    ThDCRho16HyperKMass[7] = 790; ThDCRho16HyperKXSec[7] =0.00161578593 ;  ThDCRho16HyperKLow[7] = ThDCRho16HyperKXSec[7]*0.85;  ThDCRho16HyperKHigh[7] = ThDCRho16HyperKXSec[7]*1.15;
    ThDCRho16HyperKMass[8] = 795; ThDCRho16HyperKXSec[8] = 0.00153513713;  ThDCRho16HyperKLow[8] = ThDCRho16HyperKXSec[8]*0.85;  ThDCRho16HyperKHigh[8] = ThDCRho16HyperKXSec[8]*1.15;
@@ -438,11 +438,11 @@ void Analysis_Step6(string MODE="COMPILE", string InputPattern="", string modelN
    fprintf(pFile,"-----------------------\n0%% TK ONLY       \n-------------------------\n");
 //   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for Gluino2C \n", FindIntersection(Tk_Obs_Gluino2C,  GluinoXSec, 300, 900, 1, 0.00));
 //   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoF0 \n", FindIntersection(Tk_Obs_GluinoF0,  GluinoXSec, 300, 900, 1, 0.00));
-   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoF1 \n", FindIntersection(Tk_Obs_GluinoF1,  GluinoXSec, 300, 1000, 1, 0.00));
+   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoF1 \n", FindIntersection(Tk_Obs_GluinoF1,  GluinoXSec, 300, 1100, 1, 0.00));
 //   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoF1 Z2\n",FindIntersection(Tk_Obs_GluinoZF1, GluinoXSec, 600,800, 1, 0.00));
-   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoF5 \n", FindIntersection(Tk_Obs_GluinoF5,  GluinoXSec, 300, 1000, 1, 0.00));
+   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoF5 \n", FindIntersection(Tk_Obs_GluinoF5,  GluinoXSec, 300, 1100, 1, 0.00));
 //   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoNF0\n", FindIntersection(Tk_Obs_GluinoNF0, GluinoXSec, 300, 900, 1, 0.00));
-   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoNF1\n", FindIntersection(Tk_Obs_GluinoNF1, GluinoXSec, 300, 900, 1, 0.00));
+   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoNF1\n", FindIntersection(Tk_Obs_GluinoNF1, GluinoXSec, 300, 1100, 1, 0.00));
 //   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for GluinoNF5\n", FindIntersection(Tk_Obs_GluinoNF5, GluinoXSec, 300, 900, 1, 0.00));
 //   fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for Stop2C   \n", FindIntersection(Tk_Obs_Stop2C   , StopXSec  , 130, 800, 1, 0.00));
    fprintf(pFile,"MASS EXCLUDED UP TO %8.3fGeV for Stop     \n", FindIntersection(Tk_Obs_Stop     , StopXSec  , 130, 800, 1, 0.00));

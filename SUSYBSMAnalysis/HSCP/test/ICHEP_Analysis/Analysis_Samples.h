@@ -90,8 +90,8 @@
 
 
 int                  RunningPeriods = 2;
-double               IntegratedLuminosity = 3168; //2410;//2125; //2080; //1912; //1947; //1631; //976.204518023; //705.273820; //342.603275; //204.160928; //191.04;
-double               IntegratedLuminosityBeforeTriggerChange = 355.173; //353.494; // Total luminosity taken before RPC L1 trigger change (went into effect on run 165970)
+double               IntegratedLuminosity = 4694; //3168; //2410;//2125; //2080; //1912; //1947; //1631; //976.204518023; //705.273820; //342.603275; //204.160928; //191.04;
+double               IntegratedLuminosityBeforeTriggerChange = 355.227; //353.494; // Total luminosity taken before RPC L1 trigger change (went into effect on run 165970)
 float                Event_Weight = 1;
 int                  MaxEntry = -1;
 
@@ -210,7 +210,7 @@ void GetSignalDefinition(std::vector<stSignal>& signals){
   signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK302" , "DCRho16HyperK302"  , "DICHAMP #tilde{K} 302"  , 302,  1, 1, 0.019769637301) ); //LO       
   signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK500" , "DCRho16HyperK500"  , "DICHAMP #tilde{K} 500"  , 500,  1, 1, 0.0063302286576) ); //LO      
   signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK700" , "DCRho16HyperK700"  , "DICHAMP #tilde{K} 700"  , 700,  1, 1, 0.002536779850) ); //LO       
-  signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK730" , "DCRho16HyperK730"  , "DICHAMP #tilde{K} 730"  , 730,  1, 1, 0.002536779850) ); //LO
+  signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK730" , "DCRho16HyperK730"  , "DICHAMP #tilde{K} 730"  , 730,  1, 1, 0.00213454921) ); //LO
   signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK770" , "DCRho16HyperK770"  , "DICHAMP #tilde{K} 770"  , 770,  1, 1, 0.001737551) ); //LO 
   signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK790" , "DCRho16HyperK790"  , "DICHAMP #tilde{K} 790"  , 790,  1, 1, 0.00161578593) ); //LO
   signals.push_back(stSignal("DCRho16HyperK" , "DCRho16HyperK795" , "DCRho16HyperK795"  , "DICHAMP #tilde{K} 795"  , 795,  1, 1, 0.00153513713) ); //LO
@@ -269,9 +269,9 @@ void GetMCDefinition(std::vector<stMC>& MC){
 void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName, int period=0){
 //  std::string BaseDirectory = "/storage/data/cms/users/quertenmont/HSCP/CMSSW_4_2_3/11_08_03/";
 //   std::string BaseDirectory = "dcache:/pnfs/cms/WAX/11/store/user/jchen/11_09_13_HSCP2011EDM/";
-   std::string BaseDirectory = "/uscmst1b_scratch/lpc1/lpcphys/jchen/HSCPEDM_09_13_11/";
+  std::string BaseDirectory = "/uscmst1b_scratch/lpc1/lpcphys/jchen/HSCPEDM_11_01_11/";
    if(SampleName=="Data"){
-    inputFiles.push_back(BaseDirectory + "Data_RunA_160404_163869.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_160404_163869.root");
      inputFiles.push_back(BaseDirectory + "Data_RunA_165001_166033.root");
      inputFiles.push_back(BaseDirectory + "Data_RunA_166034_166500.root");
      inputFiles.push_back(BaseDirectory + "Data_RunA_166501_166893.root");
@@ -288,7 +288,10 @@ void GetInputFiles(std::vector<std::string>& inputFiles, std::string SampleName,
      inputFiles.push_back(BaseDirectory + "Data_RunA_176100_176309.root");
      inputFiles.push_back(BaseDirectory + "Data_RunA_176467_176800.root");
      inputFiles.push_back(BaseDirectory + "Data_RunA_176801_177053.root");
-     inputFiles.push_back(BaseDirectory + "Data_RunA_177074_177452.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_177074_177783.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_177788_178380.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_178420_179411.root");
+     inputFiles.push_back(BaseDirectory + "Data_RunA_179434_180252.root");
    }else if(SampleName.find("MC_",0)<std::string::npos){
      inputFiles.push_back(BaseDirectory + SampleName + ".root");
    }else{

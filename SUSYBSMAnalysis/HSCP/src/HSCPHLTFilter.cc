@@ -117,6 +117,12 @@ bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 
    // HLT TRIGGER BASED ON 1 MUON!
+   if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu40_eta2p1_v5")) {
+     if(tr.accept(tr.triggerIndex("HLT_Mu40_eta2p1_v5"))){MuonTrigger1 = true;}
+   }else{
+   if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu40_eta2p1_v4")) {
+     if(tr.accept(tr.triggerIndex("HLT_Mu40_eta2p1_v4"))){MuonTrigger1 = true;}
+   }else{
    if(TrIndex_Unknown != tr.triggerIndex("HLT_Mu40_eta2p1_v1")) {
      if(tr.accept(tr.triggerIndex("HLT_Mu40_eta2p1_v1"))){MuonTrigger1 = true;}
    }else{
@@ -158,8 +164,16 @@ bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
        }
      }
    }
+   }
+   }
 
    // HLT TRIGGER BASED ON PF MET!
+   if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v17")){
+     if(tr.accept(tr.triggerIndex("HLT_PFMHT150_v17"))){PFMetTrigger = true;}
+   }else{
+   if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v16")){
+     if(tr.accept(tr.triggerIndex("HLT_PFMHT150_v16"))){PFMetTrigger = true;}
+   }else{
    if(TrIndex_Unknown != tr.triggerIndex("HLT_PFMHT150_v12")){
       if(tr.accept(tr.triggerIndex("HLT_PFMHT150_v12"))){PFMetTrigger = true;}
    }else{
@@ -212,6 +226,8 @@ bool HSCPHLTFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
                }
            }
        }
+   }
+   }
    }
 
    //printf("Bits = %1i %1i %1i X Mask = %+2i %+2i %+2i -->",MuonTrigger,CaloMetTrigger,CaloMetTrigger,MuonTriggerMask,CaloMetTriggerMask,CaloMetTriggerMask);

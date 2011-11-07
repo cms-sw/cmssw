@@ -14,6 +14,7 @@ struct stPlots {
    float        Tree_Pt;
    float        Tree_I;
    float        Tree_TOF;
+  float        Tree_Mass;
 
    TH2F*  Mass;
    TH2F*  MassTOF;
@@ -249,6 +250,7 @@ void stPlots_Init(TFile* HistoFile, stPlots& st, std::string BaseName, unsigned 
    st.Tree->Branch("Pt"      ,&st.Tree_Pt        ,"Pt/F");
    st.Tree->Branch("I"       ,&st.Tree_I         ,"I/F");
    st.Tree->Branch("TOF"     ,&st.Tree_TOF       ,"TOF/F");
+   st.Tree->Branch("Mass"    ,&st.Tree_Mass      ,"Mass/F");
 
    HistoFile->cd();
 }
@@ -382,7 +384,7 @@ void stPlots_Clear(stPlots& st, bool WriteFirst=false)
 }
 
 
-void stPlots_FillTree(stPlots& st, unsigned int Run, unsigned int Event, unsigned int Hscp, double Pt, double I, double TOF, int MaxEntry=20000){
+void stPlots_FillTree(stPlots& st, unsigned int Run, unsigned int Event, unsigned int Hscp, double Pt, double I, double TOF, double Mass, int MaxEntry=20000){
    if(MaxEntry>0 && st.Tree->GetEntries()>=MaxEntry)return;
    st.Tree_Run   = Run;
    st.Tree_Event = Event;
@@ -390,6 +392,7 @@ void stPlots_FillTree(stPlots& st, unsigned int Run, unsigned int Event, unsigne
    st.Tree_Pt    = Pt;
    st.Tree_I     = I;
    st.Tree_TOF   = TOF;
+   st.Tree_Mass  = Mass;
    st.Tree->Fill();
 }
 

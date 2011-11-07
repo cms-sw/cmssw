@@ -15,9 +15,10 @@ process.GlobalTag.globaltag = 'GR_P_V14::All'
 
 process.source = cms.Source("PoolSource",
    fileNames = cms.untracked.vstring(
-        '/store/data/Run2011A/SingleMu/USER/EXOHSCP-05Aug2011-v1/0000/FC150FF5-0FC5-E011-913E-002618943876.root',
-        '/store/data/Run2011A/SingleMu/USER/EXOHSCP-05Aug2011-v1/0000/FA8B74F8-0FC5-E011-9EE5-001A928116B4.root',
-        '/store/data/Run2011A/SingleMu/USER/EXOHSCP-05Aug2011-v1/0000/FA432D78-CEC5-E011-B4F3-00261894394F.root'
+        '/store/data/Run2011B/MET/USER/EXOHSCP-PromptSkim-v1/0000/F6FA7586-9B02-E111-B438-001A92810AEC.root'
+#        '/store/data/Run2011A/SingleMu/USER/EXOHSCP-05Aug2011-v1/0000/FC150FF5-0FC5-E011-913E-002618943876.root',
+#        '/store/data/Run2011A/SingleMu/USER/EXOHSCP-05Aug2011-v1/0000/FA8B74F8-0FC5-E011-9EE5-001A928116B4.root',
+#        '/store/data/Run2011A/SingleMu/USER/EXOHSCP-05Aug2011-v1/0000/FA432D78-CEC5-E011-B4F3-00261894394F.root'
    )
 )
 process.source.inputCommands = cms.untracked.vstring("keep *", "drop *_MEtoEDMConverter_*_*")

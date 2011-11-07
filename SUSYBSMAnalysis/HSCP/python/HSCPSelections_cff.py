@@ -35,7 +35,7 @@ HSCPSelectionEmpty = cms.PSet(
 
 HSCPSelectionDefault = HSCPSelectionEmpty.clone()
 HSCPSelectionDefault.minTrackHits             = cms.int32(3)
-HSCPSelectionDefault.minTrackPt               = cms.double(35.0)
+HSCPSelectionDefault.minTrackPt               = cms.double(45.0)
 HSCPSelectionDefault.minMuonPt                = cms.double(5.0)
 
 HSCPSelectionHighdEdx = HSCPSelectionDefault.clone()

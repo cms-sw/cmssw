@@ -73,7 +73,7 @@ process.Out = cms.OutputModule("PoolOutputModule",
          "keep *_muontiming_*_HSCPAnalysis",
          "keep triggerTriggerEvent_hltTriggerSummaryAOD_*_*",
     ),
-    fileName = cms.untracked.string('/uscmst1b_scratch/lpc1/3DayLifetime/farrell/UpdateTo2p1fb-1/XXX_OUTPUT_XXX.root'),
+    fileName = cms.untracked.string('/uscmst1b_scratch/lpc1/3DayLifetime/farrell/UpdateTo4p3fb/XXX_OUTPUT_XXX.root'),
     SelectEvents = cms.untracked.PSet(
        SelectEvents = cms.vstring('Filter')
     ),

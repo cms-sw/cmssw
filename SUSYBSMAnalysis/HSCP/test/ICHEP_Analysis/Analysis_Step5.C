@@ -108,8 +108,8 @@ void Analysis_Step5()
    MassPrediction(InputDir, CutIndex, "Mass");
 //   CutFlow(InputDir);
 //   SelectionPlot(InputDir, CutIndex, 0);return;
-//   GetSystematicOnPrediction(InputDir);
-//   PredictionAndControlPlot(InputDir, CutIndex);
+   //GetSystematicOnPrediction(InputDir);
+   //PredictionAndControlPlot(InputDir, CutIndex);
 
    //SelectionPlot(InputDir, CutIndex);
    //PredictionAndControlPlot(InputDir, CutIndex);
@@ -117,12 +117,12 @@ void Analysis_Step5()
    return;
 
    InputDir = "Results/dedxASmi/combined/Eta15/PtMin45/Type0/";   CutIndex = 11;/*65;*//*39;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
-   CutIndex=28;
+   CutIndex=65;
    GluinoCutIndex=11;   
    SelectionPlot(InputDir, CutIndex, GluinoCutIndex);   
 
-   InputDir = "Results/dedxASmi/combined/Eta15/PtMin45/Type2/";   CutIndex = 225;/*211;*//*167;95;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
-   GluinoCutIndex=650;
+   InputDir = "Results/dedxASmi/combined/Eta15/PtMin45/Type2/";   CutIndex = 217;/*211;*//*167;95;*/  MassPredictionTight(InputDir, CutIndex, "Mass");
+   GluinoCutIndex=845;
    SelectionPlot(InputDir, CutIndex, GluinoCutIndex);
 //   InputDir = "Results/dedxASmi/combined/Eta25/PtMin45/Type0/";   CutIndex = 64;   Make2DPlot_Core(InputDir,CutIndex);
 
@@ -736,11 +736,11 @@ void SelectionPlot(string InputPattern, unsigned int CutIndex, unsigned int Glui
 //   stPlots_Draw(SignPlots[SID_ST300N], SavePath + "/Selection_" +  signals[SID_ST300N].Name, LegendTitle);
 //   stPlots_Draw(SignPlots[SID_GS126 ], SavePath + "/Selection_" +  signals[SID_GS126 ].Name, LegendTitle);
 
-//   stPlots_DrawComparison(SavePath + "/Selection_Comp_Data" , LegendTitle, CutIndex, &DataPlots);
+   stPlots_DrawComparison(SavePath + "/Selection_Comp_Data" , LegendTitle, CutIndex, &DataPlots, &MCTrPlots);
    stPlots_DrawComparison(SavePath + "/Selection_Comp_Gluino" , LegendTitle, GluinoCutIndex, &DataPlots, &MCTrPlots, &SignPlots[0], &SignPlots[3], &SignPlots[5]);
    stPlots_DrawComparison(SavePath + "/Selection_Comp_DCStau" , LegendTitle, CutIndex, &DataPlots, &SignPlots[SID_D12K182 ], &SignPlots[SID_D12K595 ], &SignPlots[SID_D12K700 ]);
 //   stPlots_DrawComparison(SavePath + "/Selection_Comp_Stop"   , LegendTitle, CutIndex, &DataPlots, &SignPlots[24]);
-//   stPlots_DrawComparison(SavePath + "/Selection_Comp_GMStau" , LegendTitle, CutIndex, &DataPlots, &SignPlots[38], &SignPlots[40], &SignPlots[42]);
+   stPlots_DrawComparison(SavePath + "/Selection_Comp_GMStau" , LegendTitle, CutIndex, &DataPlots, &SignPlots[38], &SignPlots[40], &SignPlots[42]);
    return;
 
    stPlots_DrawComparison(SavePath + "/Selection_Comp_Gluino" , LegendTitle, CutIndex, &DataPlots, &SignPlots[SID_GL300 ], &SignPlots[SID_GL500 ], &SignPlots[SID_GL900 ]);
@@ -1423,8 +1423,11 @@ void MassPrediction(string InputPattern, unsigned int CutIndex, string HistoSuff
    printf("PREDICTED EVENTS = %6.2E+-%6.2E\n",H_P->GetBinContent(CutIndex+1), H_P->GetBinError(CutIndex+1));
 
 
-   MCPred->Scale(H_P->GetBinContent(CutIndex+1)/MC->Integral());
-   MC    ->Scale(H_P->GetBinContent(CutIndex+1)/MC->Integral());
+   //MCPred->Scale(H_P->GetBinContent(CutIndex+1)/MC->Integral());
+   //MC    ->Scale(H_P->GetBinContent(CutIndex+1)/MC->Integral());
+
+   MC    ->Scale(H_P->GetBinContent(CutIndex+1)/MCPred->Integral());
+   MCPred->Scale(H_P->GetBinContent(CutIndex+1)/MCPred->Integral());
 
    for(double M=0;M<=1000;M+=200){
       double D,P,Perr;
