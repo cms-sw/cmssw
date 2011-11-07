@@ -12,7 +12,7 @@
   *  \author Nicolas Chanon, October 2011
   */
 
-#include "DataFormats/EgammaCandidates/interface/Photon.h"
+//#include "DataFormats/EgammaCandidates/interface/Photon.h"
 //#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 
 #include "RecoEcal/EgammaCoreTools/plugins/EcalClusterEnergyCorrectionObjectSpecificBaseClass.h"

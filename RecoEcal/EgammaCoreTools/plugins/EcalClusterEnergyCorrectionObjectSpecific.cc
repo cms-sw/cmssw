@@ -71,76 +71,105 @@ float EcalClusterEnergyCorrectionObjectSpecific::fBremEta(float sigmaPhiSigmaEta
   if (algorithm==0){ //Electrons
 
     
-    xcorr[0]=1.00227;
-    xcorr[1]=1.00252;
-    xcorr[2]=1.00225;
-    xcorr[3]=1.00159;
-    xcorr[4]=0.999475;
-    xcorr[5]=0.997203;
-    xcorr[6]=0.993886;
-    xcorr[7]=0.971262;
-    xcorr[8]=0.975922;
-    xcorr[9]=0.979087;
-    xcorr[10]=0.98495;
-    xcorr[11]=0.98781;
-    xcorr[12]=0.989546;
-    xcorr[13]=0.989638;
+    xcorr[0]=(params_->params())[2] ;
+    xcorr[1]=(params_->params())[3];
+    xcorr[2]=(params_->params())[4];
+    xcorr[3]=(params_->params())[5];
+    xcorr[4]=(params_->params())[6];
+    xcorr[5]=(params_->params())[7];
+    xcorr[6]=(params_->params())[8];
+    xcorr[7]=(params_->params())[9];
+    xcorr[8]=(params_->params())[10];
+    xcorr[9]=(params_->params())[11];
+    xcorr[10]=(params_->params())[12];
+    xcorr[11]=(params_->params())[13];
+    xcorr[12]=(params_->params())[14];
+    xcorr[13]=(params_->params())[15];
 
-    par0[0] = 1.00718;
-    par1[0] = -0.00187886;
-    par2[0] = 0 ;
+    par0[0] = (params_->params())[16];
+    par1[0] = (params_->params())[17];
+    par2[0] = (params_->params())[18];
+    par3[0] = (params_->params())[19]; //should be 0 (not used)
+    par4[0] = (params_->params())[20]; //should be 0 (not used)
 
-    par0[1] = 1.00713;
-    par1[1] = -0.00227574;
-    par2[1] = 0 ;
+    par0[1] = (params_->params())[21];
+    par1[1] = (params_->params())[22];
+    par2[1] = (params_->params())[23];
+    par3[1] = (params_->params())[24];
+    par4[1] = (params_->params())[25];
 
-    par0[2] = 1.00641;
-    par1[2] = -0.00259935;
-    par2[2] = 0 ;
+    par0[2] = (params_->params())[26];
+    par1[2] = (params_->params())[27];
+    par2[2] = (params_->params())[28];
+    par3[2] = (params_->params())[29]; //should be 0 (not used)
+    par4[2] = (params_->params())[30]; //should be 0 (not used)
 
-    par0[3] = 1.00761;
-    par1[3] = -0.00433692;
-    par2[3] = 0 ;
 
-    par0[4] = 1.00682;
-    par1[4] = -0.00551324;
-    par2[4] = 0 ;
+    par0[3] = (params_->params())[31];
+    par1[3] = (params_->params())[32];
+    par2[3] = (params_->params())[33];
+    par2[4] = (params_->params())[34];//should be 0 (not used)
+    par2[5] = (params_->params())[35];//should be 0 (not used)
 
-    par0[5] = 1.0073;
-    par1[5] = -0.00799669;
-    par2[5] = 0 ;
+    par0[4] = (params_->params())[36];
+    par1[4] = (params_->params())[37];
+    par2[4] = (params_->params())[38];
+    par3[4] = (params_->params())[39];//should be 0 (not used)
+    par4[4] = (params_->params())[40];//should be 0 (not used)
 
-    par0[6] = 1.00462;
-    par1[6] = -0.00870057;
-    par2[6] = 0 ;
+    par0[5] = (params_->params())[41];
+    par1[5] = (params_->params())[42];
+    par2[5] = (params_->params())[43];
+    par3[5] = (params_->params())[44];//should be 0 (not used)
+    par4[5] = (params_->params())[45];//should be 0 (not used)
 
-    par0[7] = 0.972798;
-    par1[7] = -0.000771577;
-    par2[7] = -0.00276696;
+    par0[6] = (params_->params())[46];
+    par1[6] = (params_->params())[47];
+    par2[6] = (params_->params())[48];
+    par3[6] = (params_->params())[49];//should be 0 (not used)
+    par4[6] = (params_->params())[50];//should be 0 (not used)
 
-    par0[8] = 0.981672;
-    par1[8] = -0.00202028;
-    par2[8] = -0.00471028;
+    par0[7] = (params_->params())[51];
+    par1[7] = (params_->params())[52];
+    par2[7] = (params_->params())[53];
+    par3[7] = (params_->params())[54];//should be 0 (not used)
+    par4[7] = (params_->params())[55];//should be 0 (not used)
 
-    par0[9] = 0.98251;
-    par1[9] = 0.00441308;
-    par2[9] = -0.00809139;
+    par0[8] = (params_->params())[56];
+    par1[8] = (params_->params())[57];
+    par2[8] = (params_->params())[58];
+    par3[8] = (params_->params())[59];//should be 0 (not used)
+    par4[8] = (params_->params())[60];//should be 0 (not used)
 
-    par0[10] = 0.986123;
-    par1[10] = 0.00832913;
-    par2[10] = -0.00944584;
+    par0[9] = (params_->params())[61];
+    par1[9] = (params_->params())[62];
+    par2[9] = (params_->params())[63];
+    par3[9] = (params_->params())[64];//should be 0 (not used)
+    par4[9] = (params_->params())[65];//should be 0 (not used)
 
-    par0[11] = 0.990124;
-    par1[11] = 0.00742879;
-    par2[11] = -0.00960462;
+    par0[10] = (params_->params())[66];
+    par1[10] = (params_->params())[67];
+    par2[10] = (params_->params())[68];
+    par3[10] = (params_->params())[69];//should be 0 (not used)
+    par4[10] = (params_->params())[70];//should be 0 (not used)
 
-    par0[12] = 0.990187;
-    par1[12] = 0.0094608;
-    par2[12] = -0.010172;
+    par0[11] = (params_->params())[71];
+    par1[11] = (params_->params())[72];
+    par2[11] = (params_->params())[73];
+    par3[11] = (params_->params())[74];//should be 0 (not used)
+    par4[11] = (params_->params())[75];//should be 0 (not used)
 
-    par0[13] = 0.99372;
-    par1[13] = 0.00560406;
-    par2[13] = -0.00943169;
+    par0[12] = (params_->params())[76];
+    par1[12] = (params_->params())[77];
+    par2[12] = (params_->params())[78];
+    par3[12] = (params_->params())[79];//should be 0 (not used)
+    par4[12] = (params_->params())[80];//should be 0 (not used)
+
+    par0[13] = (params_->params())[81];
+    par1[13] = (params_->params())[82];
+    par2[13] = (params_->params())[83];
+    par3[13] = (params_->params())[84];//should be 0 (not used)
+    par4[13] = (params_->params())[85];//should be 0 (not used)
 
     sigmaPhiSigmaEtaFit = 1.2;
 
@@ -149,104 +178,104 @@ float EcalClusterEnergyCorrectionObjectSpecific::fBremEta(float sigmaPhiSigmaEta
   if (algorithm==1){ //Photons
 
 
-    xcorr[0]=1.00506;
-    xcorr[1]=1.00697;
-    xcorr[2]=1.00595;
-    xcorr[3]=1.00595;
-    xcorr[4]=1.00595;
-    xcorr[5]=1.00595;
-    xcorr[6]=1.00595;
-    xcorr[7]=0.966651;
-    xcorr[8]=0.97381;
-    xcorr[9]=0.976516;
-    xcorr[10]=0.983254;
-    xcorr[11]=0.98502;
-    xcorr[12]=0.98502;
-    xcorr[13]=0.978472;
+    xcorr[0]=(params_->params())[86];
+    xcorr[1]=(params_->params())[87];
+    xcorr[2]=(params_->params())[88];
+    xcorr[3]=(params_->params())[89];
+    xcorr[4]=(params_->params())[90];
+    xcorr[5]=(params_->params())[91];
+    xcorr[6]=(params_->params())[92];
+    xcorr[7]=(params_->params())[93];
+    xcorr[8]=(params_->params())[94];
+    xcorr[9]=(params_->params())[95];
+    xcorr[10]=(params_->params())[96];
+    xcorr[11]=(params_->params())[97];
+    xcorr[12]=(params_->params())[98];
+    xcorr[13]=(params_->params())[99];
 
-    par0[0] = 0.00132382 ;
-    par1[0] = 2.17664 ;
-    par2[0] = -0.00467206 ;
-    par3[0] = 0.988994 ;
-    par4[0] = 17.5858 ;
+    par0[0] = (params_->params())[100];
+    par1[0] = (params_->params())[101];
+    par2[0] = (params_->params())[102];
+    par3[0] = (params_->params())[103];
+    par4[0] = (params_->params())[104];
 
-    par0[1] = -0.00590257 ;
-    par1[1] = 1.90733 ;
-    par2[1] = 0.000684327 ;
-    par3[1] = 0.986431 ;
-    par4[1] = 16.6698 ;
+    par0[1] = (params_->params())[105];
+    par1[1] = (params_->params())[106];
+    par2[1] = (params_->params())[107];
+    par3[1] = (params_->params())[108];
+    par4[1] = (params_->params())[109];
 
-    par0[2] = 0.00265109 ;
-    par1[2] = 1.73272 ;
-    par2[2] = -0.00107022 ;
-    par3[2] = 0.989322 ;
-    par4[2] = 15.4911 ;
+    par0[2] = (params_->params())[110];
+    par1[2] = (params_->params())[111];
+    par2[2] = (params_->params())[112];
+    par3[2] = (params_->params())[113];
+    par4[2] = (params_->params())[114];
 
-    par0[3] = 0.00231631 ;
-    par1[3] = 1.3463 ;
-    par2[3] = -0.00369555 ;
-    par3[3] = 0.987133 ;
-    par4[3] = 10.9233 ;
+    par0[3] = (params_->params())[115];
+    par1[3] = (params_->params())[116];
+    par2[3] = (params_->params())[117];
+    par3[3] = (params_->params())[118];
+    par4[3] = (params_->params())[119];
     
-    par0[4] = 0.00984253 ;
-    par1[4] = 1.33889 ;
-    par2[4] = -0.00392593 ;
-    par3[4] = 0.979191 ;
-    par4[4] = 9.35276 ;
+    par0[4] = (params_->params())[120];
+    par1[4] = (params_->params())[121];
+    par2[4] = (params_->params())[122];
+    par3[4] = (params_->params())[123];
+    par4[4] = (params_->params())[124];
 
-    par0[5] = 0.023683 ;
-    par1[5] = 1.31198 ;
-    par2[5] = -0.00947317 ;
-    par3[5] = 0.963352 ;
-    par4[5] = 7.5597 ;
+    par0[5] = (params_->params())[125];
+    par1[5] = (params_->params())[126];
+    par2[5] = (params_->params())[127];
+    par3[5] = (params_->params())[128];
+    par4[5] = (params_->params())[129];
     
-    par0[6] = 0.0851133 ;
-    par1[6] = 1.38097 ;
-    par2[6] = -0.0340201 ;
-    par3[6] = 0.969502 ;
-    par4[6] = 4.17983 ;
+    par0[6] = (params_->params())[130];
+    par1[6] = (params_->params())[131];
+    par2[6] = (params_->params())[132];
+    par3[6] = (params_->params())[133];
+    par4[6] = (params_->params())[134];
 
-    par0[7] = 6.71705 ;
-    par1[7] = 5034.26 ;
-    par2[7] = -2.68669 ;
-    par3[7] = 0.970174 ;
-    par4[7] = 1.00288 ;
+    par0[7] = (params_->params())[135];
+    par1[7] = (params_->params())[136];
+    par2[7] = (params_->params())[137];
+    par3[7] = (params_->params())[138];
+    par4[7] = (params_->params())[139];
 
-    par0[8] = 1306.82 ;
-    par1[8] = 472004 ;
-    par2[8] = -1.86145 ;
-    par3[8] = 0.981714 ;
-    par4[8] = -0.25644 ;
+    par0[8] = (params_->params())[140];
+    par1[8] = (params_->params())[141];
+    par2[8] = (params_->params())[142];
+    par3[8] = (params_->params())[143];
+    par4[8] = (params_->params())[144];
     
-    par0[9] = 0.317121 ;
-    par1[9] = 3.22717 ;
-    par2[9] = -0.126848 ;
-    par3[9] = 0.957792 ;
-    par4[9] = 2.01028 ;
+    par0[9] = (params_->params())[145];
+    par1[9] = (params_->params())[146];
+    par2[9] = (params_->params())[147];
+    par3[9] = (params_->params())[148];
+    par4[9] = (params_->params())[149];
 
-    par0[10] = 0.275225 ;
-    par1[10] = 2.20686 ;
-    par2[10] = -0.11009 ;
-    par3[10] = 0.93922 ;
-    par4[10] = 2.69958 ;
+    par0[10] = (params_->params())[150];
+    par1[10] = (params_->params())[151];
+    par2[10] = (params_->params())[152];
+    par3[10] = (params_->params())[153];
+    par4[10] = (params_->params())[154];
 
-    par0[11] = 0.0639875 ;
-    par1[11] = 1.40045 ;
-    par2[11] = -0.0255853 ;
-    par3[11] = 0.821566 ;
-    par4[11] = 7.3297 ;
+    par0[11] = (params_->params())[155];
+    par1[11] = (params_->params())[156];
+    par2[11] = (params_->params())[157];
+    par3[11] = (params_->params())[158];
+    par4[11] = (params_->params())[159];
 
-    par0[12] = 0.030488 ;
-    par1[12] = 1.37842 ;
-    par2[12] = -0.0121879 ;
-    par3[12] = 0.8173 ;
-    par4[12] = 9.29944 ;
+    par0[12] = (params_->params())[160];
+    par1[12] = (params_->params())[161];
+    par2[12] = (params_->params())[162];
+    par3[12] = (params_->params())[163];
+    par4[12] = (params_->params())[164];
 
-    par0[13] = 0.213906 ;
-    par1[13] = 1.67471 ;
-    par2[13] = -0.0860589 ;
-    par3[13] = 0.893636 ;
-    par4[13] = 3.78218 ;
+    par0[13] = (params_->params())[165];
+    par1[13] = (params_->params())[166];
+    par2[13] = (params_->params())[167];
+    par3[13] = (params_->params())[168];
+    par4[13] = (params_->params())[169];
   
     sigmaPhiSigmaEtaFit = 1.;
 
@@ -301,11 +330,13 @@ float EcalClusterEnergyCorrectionObjectSpecific::fEt(float ET, int algorithm) co
 
   if (algorithm==0){ //Electrons EB
 
-    par0 = 0.97213; 
-    par1 = 0.999528; 
-    par2 = 5.61192e-06; 
-    par3 = 0.0143269; 
-    par4 = -17.1776; 
+    par0 = (params_->params())[170];
+    par1 = (params_->params())[171];
+    par2 = (params_->params())[172];
+    par3 = (params_->params())[173];
+    par4 = (params_->params())[174];
+    par5 = (params_->params())[175];//should be 0 (not used)
+    par6 = (params_->params())[176];//should be 0 (not used)
 
     if (ET > 200) ET =200;   		  
     if (             ET <    5 ) return         1.;  
@@ -317,11 +348,13 @@ float EcalClusterEnergyCorrectionObjectSpecific::fEt(float ET, int algorithm) co
 
   if (algorithm==1){ //Electrons EE
 
-    par0 = 0.930081; 
-    par1 = 0.996683; 
-    par2 = 3.54079e-05; 
-    par3 = 0.0460187; 
-    par4 = -23.2461; 
+    par0 = (params_->params())[177];
+    par1 = (params_->params())[178];
+    par2 = (params_->params())[179];
+    par3 = (params_->params())[180];
+    par4 = (params_->params())[181];
+    par5 = (params_->params())[182];//should be 0 (not used)
+    par6 = (params_->params())[183];//should be 0 (not used)
     
     if (ET > 200) ET =200;   		  
     if (             ET <    5 ) return         1.;  
@@ -334,11 +367,13 @@ float EcalClusterEnergyCorrectionObjectSpecific::fEt(float ET, int algorithm) co
 
   if (algorithm==2){ //Photons EB
 
-    par0 =  1; 
-    par1 =  1.00348; 
-    par2 =  1.001;	   
-    par3 =  -9.17302e-06;	   
-    par4 =  0.999688;     
+    par0 =  (params_->params())[184]; 
+    par1 =  (params_->params())[185]; 
+    par2 =  (params_->params())[186];	   
+    par3 =  (params_->params())[187];	   
+    par4 =  (params_->params())[188];  
+    par5 =  (params_->params())[189];//should be 0 (not used)	   
+    par6 =  (params_->params())[190];//should be 0 (not used)
 
     if (             ET <   5 ) return         1.;  
     if (  5 <= ET && ET <  10 ) return         par0 ;  
@@ -351,13 +386,13 @@ float EcalClusterEnergyCorrectionObjectSpecific::fEt(float ET, int algorithm) co
 
   if (algorithm==3){ //Photons EE
 		  
-    par0 =  1; 
-    par1 =  0.996931; 
-    par2 =  0.999497;	   
-    par3 =  0.992617;	   
-    par4 =  7.52128e-05;     
-    par5 =  -1.2845e-07;     
-    par6 =  1.00231;     
+    par0 =  (params_->params())[191];
+    par1 =  (params_->params())[192]; 
+    par2 =  (params_->params())[193]; 
+    par3 =  (params_->params())[194]; 
+    par4 =  (params_->params())[195]; 
+    par5 =  (params_->params())[196]; 
+    par6 =  (params_->params())[197];
 
     if (             ET <   5 ) return         1.;  
     if (  5 <= ET && ET <  10 ) return          par0 ;  
@@ -389,11 +424,11 @@ float EcalClusterEnergyCorrectionObjectSpecific::fEnergy(float E, int algorithm)
 
   if (algorithm==1){ //Electrons EE
 			 	  
-    par0 = 400;               
-    par1 = 0.982475; 
-    par2 = 4.95413e-05; 
-    par3 = 0.16886; 
-    par4 = -30.1517; 
+    par0 = (params_->params())[198];            
+    par1 = (params_->params())[199];
+    par2 = (params_->params())[200];
+    par3 = (params_->params())[201];
+    par4 = (params_->params())[202];
    				 	  
     if (E > par0) E =par0;   		  
     if (             E <   0 ) return         1.;  
@@ -409,9 +444,11 @@ float EcalClusterEnergyCorrectionObjectSpecific::fEnergy(float E, int algorithm)
 
   if (algorithm==3){ //Photons EE
 			 	  
-    par0 = 850;               
-    par1 = 0.994169 ;	  
-    par2 = 1.28629e-05 ;     
+    par0 = (params_->params())[203];             
+    par1 = (params_->params())[204];
+    par2 = (params_->params())[205];
+    par3 = (params_->params())[206];//should be 0 (not used)
+    par4 = (params_->params())[207];//should be 0 (not used)
   				 	  
     if (E  > par0 ) E = par0 ;   		  
     if (            E <   0     ) return      1.;  
@@ -456,7 +493,7 @@ float EcalClusterEnergyCorrectionObjectSpecific::getValue( const reco::SuperClus
     float et = energy*TMath::Sin(2*TMath::ATan(TMath::Exp(-superCluster.eta())))/corr;
 
     if (subdet==EcalBarrel) corr2 = corr * fEt(et, 0);
-    if (subdet==EcalEndcap) corr2 = corr * fEnergy(et, 1);
+    if (subdet==EcalEndcap) corr2 = corr * fEnergy(energy/corr, 1);
 
     newEnergy = energy/corr2; 
 
@@ -469,7 +506,7 @@ float EcalClusterEnergyCorrectionObjectSpecific::getValue( const reco::SuperClus
     float et = energy*TMath::Sin(2*TMath::ATan(TMath::Exp(-superCluster.eta())))/corr;
 
     if (subdet==EcalBarrel) corr2 = corr * fEt(et, 2);
-    if (subdet==EcalEndcap) corr2 = corr * fEnergy(et, 3);
+    if (subdet==EcalEndcap) corr2 = corr * fEnergy(energy/corr, 3);
 
     newEnergy = energy/corr2; 
 

@@ -15,7 +15,7 @@
 //#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionParameters.h"
+#include "CondFormats/EcalObjects/interface/EcalClusterEnergyCorrectionObjectSpecificParameters.h"
 
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 //#include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -33,7 +33,7 @@ class EcalClusterEnergyCorrectionObjectSpecificBaseClass : public EcalClusterFun
                 virtual ~EcalClusterEnergyCorrectionObjectSpecificBaseClass();
 
                 // get/set explicit methods for parameters
-                const EcalClusterEnergyCorrectionParameters * getParameters() const { return params_; }
+                const EcalClusterEnergyCorrectionObjectSpecificParameters * getParameters() const { return params_; }
                 // check initialization
                 void checkInit() const;
                 
@@ -49,8 +49,8 @@ class EcalClusterEnergyCorrectionObjectSpecificBaseClass : public EcalClusterFun
                 virtual void init( const edm::EventSetup& es );
 
         protected:
-                edm::ESHandle<EcalClusterEnergyCorrectionParameters> esParams_;
-                const EcalClusterEnergyCorrectionParameters * params_;
+                edm::ESHandle<EcalClusterEnergyCorrectionObjectSpecificParameters> esParams_;
+                const EcalClusterEnergyCorrectionObjectSpecificParameters * params_;
 };
 
 #endif
