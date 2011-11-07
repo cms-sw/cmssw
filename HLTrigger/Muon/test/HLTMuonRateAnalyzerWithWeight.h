@@ -30,8 +30,8 @@ public:
 
   virtual void beginJob() ;
   virtual void endJob() ;
-  virtual bool isbc(HepMC::GenEvent evt) ;
-  virtual double parentWeight(HepMC::GenEvent evt) ;
+  virtual bool isbc(HepMC::GenEvent const & evt) ;
+  virtual double parentWeight(HepMC::GenEvent const & evt) ;
 
 private:
   // Input from cfg file

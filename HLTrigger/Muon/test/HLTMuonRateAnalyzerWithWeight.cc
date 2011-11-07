@@ -290,7 +290,7 @@ void HLTMuonRateAnalyzerWithWeight::analyze(const Event & event, const EventSetu
 
 }
 
-bool HLTMuonRateAnalyzerWithWeight::isbc(HepMC::GenEvent Gevt){
+bool HLTMuonRateAnalyzerWithWeight::isbc(HepMC::GenEvent const & Gevt){
   bool mybc=false;
   int npart=0;
   int nb=0;
@@ -320,7 +320,7 @@ bool HLTMuonRateAnalyzerWithWeight::isbc(HepMC::GenEvent Gevt){
   return mybc;
 }
 
-double HLTMuonRateAnalyzerWithWeight::parentWeight(HepMC::GenEvent Gevt){
+double HLTMuonRateAnalyzerWithWeight::parentWeight(HepMC::GenEvent const & Gevt){
   double AdditionalWeight=1.;
   if ( type != 3 ) return AdditionalWeight;
   for ( HepMC::GenEvent::particle_const_iterator
