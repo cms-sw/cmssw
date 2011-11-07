@@ -30,7 +30,6 @@ class HLTDiMuonGlbTrkFilter : public HLTFilter {
   double m_minPtMuon1;
   double m_minPtMuon2;
   double m_minMass;
-  int m_minMatches;
   muon::SelectionType m_trkMuonId;
   bool m_saveTags;
 
