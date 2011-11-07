@@ -381,28 +381,15 @@ bool HLTLevel1GTSeed::filter(edm::Event& iEvent, const edm::EventSetup& evSetup)
 const std::vector<L1GtObject>* HLTLevel1GTSeed::objectTypeVec(const int chipNr,
         const std::string& cndName) {
 
-    bool foundCond = false;
-
     const ConditionMap& conditionMap =
             (m_l1GtMenu->gtConditionMap()).at(chipNr);
 
     CItCond itCond = conditionMap.find(cndName);
-    if (itCond != conditionMap.end()) {
-        foundCond = true;
+    if (itCond != conditionMap.end())
         return (&((itCond->second)->objectType()));
-    }
 
-    if (!foundCond) {
-
-        // it should never be happen, all conditions are in the maps
-        throw cms::Exception("FailModule") << "\nCondition " << cndName
-                << " not found in the condition map" << " for chip number "
-                << chipNr << std::endl;
-    }
-
-    // dummy return - prevent compiler warning
-    return 0;
-
+    // this should never be happen, all conditions are in the maps
+    throw cms::Exception("FailModule") << "\nCondition " << cndName << " not found in the condition map" << " for chip number " << chipNr;
 }
 
 // for a new L1 Trigger menu, update the tokenNumber (holding the bit numbers)
