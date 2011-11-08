@@ -142,6 +142,8 @@ class PFPhotonTranslator : public edm::EDProducer
   std::vector<reco::SuperClusterRef> egSCRef_;
   // the e/g photon associated
   std::vector<reco::PhotonRef> egPhotonRef_;
+  // the PF MVA 
+  std::vector<float> pfPhotonMva_;
 
   //Vector of vector of Conversions Refs
   std::vector<reco::ConversionRefVector > pfConv_;

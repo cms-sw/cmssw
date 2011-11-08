@@ -4,6 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoParticleFlow/PFProducer/plugins/PFElectronTranslator.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFClusterWidthAlgo.h"
+#include "RecoEcal/EgammaCoreTools/interface/Mustache.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateElectronExtra.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
@@ -595,6 +596,11 @@ void PFElectronTranslator::createGsfElectrons(const reco::PFCandidateCollection 
       myMvaInput.deltaEta = pfCandidate.electronExtraRef()->mvaVariable(reco::PFCandidateElectronExtra::MVA_DeltaEtaTrackCluster);
       myMvaInput.sigmaEtaEta = pfCandidate.electronExtraRef()->sigmaEtaEta();
       myMvaInput.hadEnergy = pfCandidate.electronExtraRef()->hadEnergy();
+
+      // Mustache
+      reco::Mustache myMustache;
+      myMustache.MustacheID(*(myElectron. pflowSuperCluster()), myMvaInput.nClusterOutsideMustache, myMvaInput.etOutsideMustache );
+
       myElectron.setMvaInput(myMvaInput);
 
       // MVA output

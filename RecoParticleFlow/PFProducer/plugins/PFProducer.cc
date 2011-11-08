@@ -58,8 +58,10 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   usePFPhotons_
     = iConfig.getParameter<bool>("usePFPhotons");    
 
-  useReg_
-    = iConfig.getParameter<bool>("useReg");
+  usePhotonReg_
+    = (usePFPhotons_) ? iConfig.getParameter<bool>("usePhotonReg") : false ;
+
+
   useEGammaElectrons_
     = iConfig.getParameter<bool>("useEGammaElectrons");    
 
@@ -124,6 +126,7 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   double mvaEleCut
     = iConfig.getParameter<double>("pf_electron_mvaCut");
 
+  
   string mvaWeightFileEleID
     = iConfig.getParameter<string>("pf_electronID_mvaWeightFile");
 
@@ -140,8 +143,8 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
 
   string path_mvaWeightFileConvID;
   string mvaWeightFileConvID;
-  string mvaWeightFileGCorr;
-  string mvaWeightFileLCorr;
+  string path_mvaWeightFileGCorr;
+  string path_mvaWeightFileLCorr;
   string X0_Map;
   double mvaConvCut=-99.;
   double sumPtTrackIsoForPhoton = 99.;
@@ -155,8 +158,10 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
       
       sumPtTrackIsoForPhoton = iConfig.getParameter<double>("sumPtTrackIsoForPhoton");
       sumPtTrackIsoSlopeForPhoton = iConfig.getParameter<double>("sumPtTrackIsoSlopeForPhoton");
-      mvaWeightFileLCorr=iConfig.getParameter<string>("pf_locC_mvaWeightFile");
-      mvaWeightFileGCorr=iConfig.getParameter<string>("pf_GlobC_mvaWeightFile");
+      string mvaWeightFileLCorr=iConfig.getParameter<string>("pf_locC_mvaWeightFile");
+      path_mvaWeightFileLCorr = edm::FileInPath( mvaWeightFileLCorr.c_str() ).fullPath();
+      string mvaWeightFileGCorr=iConfig.getParameter<string>("pf_GlobC_mvaWeightFile");
+      path_mvaWeightFileGCorr = edm::FileInPath( mvaWeightFileGCorr.c_str() ).fullPath();
       X0_Map=iConfig.getParameter<string>("X0_Map");
 
     }
@@ -234,9 +239,9 @@ PFProducer::PFProducer(const edm::ParameterSet& iConfig) {
   pfAlgo_->setPFPhotonParameters(usePFPhotons_,
 				 path_mvaWeightFileConvID,
 				 mvaConvCut,
-				 useReg_,
-				 mvaWeightFileLCorr,
-				 mvaWeightFileGCorr,
+				 usePhotonReg_,
+				 path_mvaWeightFileLCorr,
+				 path_mvaWeightFileGCorr,
 				 X0_Map,
 				 calibration,
 				 sumPtTrackIsoForPhoton,

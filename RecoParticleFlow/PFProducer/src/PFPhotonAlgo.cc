@@ -924,7 +924,7 @@ float PFPhotonAlgo::EvaluateGCorrMVA(reco::PFCandidate photon){
   Must.MustacheID(Caloclust, PFClus, Mustache_Et_out);
   excluded_=PFClus;
   //order the clusters by energy
-  float Mustache_Et=0;
+  //  float Mustache_Et=0;
   float ClusSum=0;
   for(unsigned int i=0; i<Clust_E.size(); ++i)
     {
@@ -1052,8 +1052,8 @@ void PFPhotonAlgo::GetCrysCoordinates(reco::PFClusterRef clusterRef){
   float PFSeedTheta=99;
   double PFSeedE=0;
   unsigned int SeedDetId=-1;
-  float seedPhi=0;
-  float seedEta=0;
+  // float seedPhi=0;
+  //  float seedEta=0;
   DetId idseed;
   const std::vector< reco::PFRecHitFraction >& PFRecHits=
     clusterRef->recHitFractions();
@@ -1080,7 +1080,7 @@ void PFPhotonAlgo::GetCrysCoordinates(reco::PFClusterRef clusterRef){
   //Crystal Coordinates:
   double Pi=3.14159265358979323846;
   float Phi=clusterRef->position().phi(); 
-  float Eta=clusterRef->position().eta();
+  //  float Eta=clusterRef->position().eta();
   double Theta = -(clusterRef->position().theta())+0.5* Pi;
   double PhiCentr = TVector2::Phi_mpi_pi(PFSeedPhi);
   double PhiWidth = (Pi/180.);
@@ -1147,8 +1147,8 @@ void PFPhotonAlgo::fill5x5Map(reco::PFClusterRef clusterRef){
   float PFSeedPhi=99;
   double PFSeedE=0;
   unsigned int SeedDetId=-1;
-  float seedPhi=0;
-  float seedEta=0;
+  //  float seedPhi=0;
+  //float seedEta=0;
   DetId idseed;
   const std::vector< reco::PFRecHitFraction >& PFRecHits=
     clusterRef->recHitFractions();
@@ -1174,7 +1174,7 @@ void PFPhotonAlgo::fill5x5Map(reco::PFClusterRef clusterRef){
     for(int j=0; j<5; ++j)e5x5Map[i][j]=0;
   float E3x3=0;
   float E5x5=0;
-  int count=0;
+  //  int count=0;
   for ( std::vector< reco::PFRecHitFraction >::const_iterator it = PFRecHits.begin();
 	it != PFRecHits.end(); ++it){
     unsigned index=it-PFRecHits.begin();

@@ -115,7 +115,7 @@ class PFElectronTranslator : public edm::EDProducer
   std::vector<std::vector<const reco::PFCluster *> > pfClusters_;
   // the collection of preshower clusters associated to a GSF track
   std::vector<reco::PreshowerClusterCollection> preshowerClusters_;
-  // the super cluster collection (actually only one) associated to a GSF trck
+  // the super cluster collection (actually only one) associated to a GSF track
   std::vector<reco::SuperClusterCollection> superClusters_;
   // the references to the basic clusters associated to a GSF track
   std::vector<reco::CaloClusterPtrVector> basicClusterPtr_;

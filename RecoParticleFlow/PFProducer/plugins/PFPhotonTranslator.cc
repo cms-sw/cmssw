@@ -44,6 +44,7 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/Common/interface/AssociationVector.h"
+#include "RecoEcal/EgammaCoreTools/interface/Mustache.h"
 
 #include <Math/VectorUtil.h>
 #include <vector>
@@ -163,7 +164,7 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
   CandidatePtr_.clear();
   egSCRef_.clear();
   egPhotonRef_.clear();
-
+  pfPhotonMva_.clear();
   pfConv_.clear();
   pfSingleLegConv_.clear();
   pfSingleLegConvMva_.clear();
@@ -235,7 +236,7 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
       }
 
     photPFCandidateIndex_.push_back(i);
-
+    pfPhotonMva_.push_back(cand.mva_nothing_gamma());
     basicClusters_.push_back(reco::BasicClusterCollection());
     pfClusters_.push_back(std::vector<const reco::PFCluster *>());
     preshowerClusters_.push_back(reco::PreshowerClusterCollection());
@@ -918,6 +919,13 @@ void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection,
       myPFIso.neutralHadronIso=(*isolationValues[2])[CandidatePtr_[iphot]];   
       myPhoton.setPflowIsolationVariables(myPFIso);
       
+      reco::Photon::PflowIDVariables myPFVariables;
+
+      reco::Mustache myMustache;
+      myMustache.MustacheID(*(myPhoton.pfSuperCluster()), myPFVariables.nClusterOutsideMustache, myPFVariables.etOutsideMustache );
+      myPFVariables.mva = pfPhotonMva_[iphot];
+      myPhoton.setPflowIDVariables(myPFVariables);
+
       //cout << "chargedHadronIso="<<myPhoton.chargedHadronIso()<<" photonIso="<<myPhoton.photonIso()<<" neutralHadronIso="<<myPhoton.neutralHadronIso()<<endl;
       
       /*
