@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Muriel VANDER DONCKT *:0
 //         Created:  Wed Dec 12 09:55:42 CET 2007
-// $Id: HLTMuonDQMSource.cc,v 1.42 2011/03/20 11:13:49 hdyoo Exp $
+// $Id: HLTMuonDQMSource.cc,v 1.43 2011/03/29 14:19:52 hdyoo Exp $
 // Modification:  Sanghyeon Song (Chonnam National University)
 // contact: sanghyeon.song@cern.ch
 //
@@ -1977,7 +1977,7 @@ void HLTMuonDQMSource::analyze(const edm::Event& event,
     } 
     // l3 muon tracker track
     std::vector<reco::Track>::const_iterator itl3tktrk;
-    if( l3tktrk.failedToGet() && l3tktrk.isValid() ) {
+    if( !l3tktrk.failedToGet() && l3tktrk.isValid() ) {
       hNMu_trk[ntrig][2]->Fill(l3tktrk->size());
       for( itl3tktrk = l3tktrk->begin(); itl3tktrk != l3tktrk->end(); itl3tktrk++ ) {
         hNMu_trk_comp[ntrig][2]->Fill(0);
