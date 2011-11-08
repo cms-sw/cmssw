@@ -7,7 +7,6 @@
 <use   name="PhysicsTools/KinFitter"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="boost"/>
-#
 <use   name="RecoTracker/DebugTools"/>
 <use   name="DataFormats/VertexReco"/>
 <export>
