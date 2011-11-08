@@ -3,7 +3,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # L1 (FastJet PU Subtraction) correction service
-hltL1FastjetCorrectionService = cms.ESSource('L1FastjetCorrectionService',
+hltL1FastjetCorrectionService = cms.ESProducer('L1FastjetCorrectionESProducer',
     appendToDataLabel = cms.string( '' ),
     era       = cms.string( 'Jec10V1' ),
     level     = cms.string( 'L1FastJet' ),

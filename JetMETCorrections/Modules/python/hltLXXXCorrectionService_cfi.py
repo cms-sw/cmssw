@@ -3,7 +3,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # template for L2 (relative eta-conformity) and L3 (absolute) correction services
-hltLXXXCorrectionService = cms.ESSource( 'LXXXCorrectionService',
+hltLXXXCorrectionService = cms.ESProducer( 'LXXXCorrectionESProducer',
     appendToDataLabel = cms.string( '' ),
     era       = cms.string( '' ),
     level     = cms.string( '' ),           # "L2Relative" or "L3Absolute"
