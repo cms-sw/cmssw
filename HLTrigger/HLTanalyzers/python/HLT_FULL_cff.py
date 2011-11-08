@@ -2090,14 +2090,14 @@ datasets = cms.PSet(
   TestEnablesTracker = cms.vstring( 'HLT_TrackerCalibration_v2' )
 )
 
-hltESSAK5CaloL1L2L3 = cms.ESSource( "JetCorrectionServiceChain",
+hltESSAK5CaloL1L2L3 = cms.ESProducer( "JetCorrectionESChain",
   appendToDataLabel = cms.string( "" ),
   correctors = cms.vstring( 'hltESSL1FastJetCorrectionService',
     'hltESSL2RelativeCorrectionService',
     'hltESSL3AbsoluteCorrectionService' ),
   label = cms.string( "hltESSAK5CaloL1L2L3" )
 )
-hltESSAK5CaloL2L3 = cms.ESSource( "JetCorrectionServiceChain",
+hltESSAK5CaloL2L3 = cms.ESProducer( "JetCorrectionESChain",
   appendToDataLabel = cms.string( "" ),
   correctors = cms.vstring( 'hltESSL2RelativeCorrectionService',
     'hltESSL3AbsoluteCorrectionService' ),
@@ -2121,7 +2121,7 @@ hltESSHcalSeverityLevel = cms.ESSource( "EmptyESSource",
   appendToDataLabel = cms.string( "" ),
   firstValid = cms.vuint32( 1 )
 )
-hltESSL1FastJetCorrectionService = cms.ESSource( "L1FastjetCorrectionService",
+hltESSL1FastJetCorrectionService = cms.ESProducer( "L1FastjetCorrectionESProducer",
   era = cms.string( "Jec10V1" ),
   level = cms.string( "L1FastJet" ),
   algorithm = cms.string( "AK5Calo" ),
@@ -2129,7 +2129,7 @@ hltESSL1FastJetCorrectionService = cms.ESSource( "L1FastjetCorrectionService",
   srcRho = cms.InputTag( 'hltKT6CaloJets','rho' ),
   useCondDB = cms.untracked.bool( True )
 )
-hltESSL2RelativeCorrectionService = cms.ESSource( "LXXXCorrectionService",
+hltESSL2RelativeCorrectionService = cms.ESProducer( "LXXXCorrectionESProducer",
   appendToDataLabel = cms.string( "" ),
   level = cms.string( "L2Relative" ),
   algorithm = cms.string( "AK5Calo" ),
@@ -2137,7 +2137,7 @@ hltESSL2RelativeCorrectionService = cms.ESSource( "LXXXCorrectionService",
   era = cms.string( "" ),
   useCondDB = cms.untracked.bool( True )
 )
-hltESSL3AbsoluteCorrectionService = cms.ESSource( "LXXXCorrectionService",
+hltESSL3AbsoluteCorrectionService = cms.ESProducer( "LXXXCorrectionESProducer",
   appendToDataLabel = cms.string( "" ),
   level = cms.string( "L3Absolute" ),
   algorithm = cms.string( "AK5Calo" ),
