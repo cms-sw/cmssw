@@ -1,6 +1,7 @@
-// $Id: DrainingQueues.cc,v 1.12.4.1 2011/03/07 11:33:04 mommsen Exp $
+// $Id: DrainingQueues.cc,v 1.13 2011/03/07 15:31:32 mommsen Exp $
 /// @file: DrainingQueues.cc
 
+#include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/CommandQueue.h"
 #include "EventFilter/StorageManager/interface/DiscardManager.h"
 #include "EventFilter/StorageManager/interface/DiskWriter.h"
@@ -48,7 +49,7 @@ string DrainingQueues::do_stateName() const
 
 void DrainingQueues::do_moveToFailedState( xcept::Exception& exception ) const
 {
-  outermost_context().getSharedResources()->moveToFailedState( exception );
+  outermost_context().getSharedResources()->alarmHandler_->moveToFailedState( exception );
 }
 
 void DrainingQueues::logEndRunRequest( const EndRun& request )

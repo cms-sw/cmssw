@@ -1,4 +1,4 @@
-// $Id: StorageManager.cc,v 1.135 2011/03/07 15:31:32 mommsen Exp $
+// $Id: StorageManager.cc,v 1.136 2011/08/22 14:20:16 mommsen Exp $
 /// @file: StorageManager.cc
 
 #include "EventFilter/StorageManager/interface/DiskWriter.h"
@@ -168,6 +168,7 @@ void StorageManager::initializeSharedResources()
   sharedResources_->dqmEventQueue_.
     reset(new DQMEventQueue(queueParams.dqmEventQueueSize_, queueParams.dqmEventQueueMemoryLimitMB_ * 1024*1024));
 
+  sharedResources_->alarmHandler_.reset( new AlarmHandler(this, sharedResources_) );
   sharedResources_->statisticsReporter_.reset(
     new StatisticsReporter(this, sharedResources_)
   );
@@ -201,7 +202,7 @@ void StorageManager::initializeSharedResources()
       sharedResources_->initMsgCollection_,
       sharedResources_->eventQueueCollection_,
       sharedResources_->dqmEventQueueCollection_,
-      sharedResources_->statisticsReporter_->alarmHandler()
+      sharedResources_->alarmHandler_
     ) );
 
   smWebPageHelper_.reset( new SMWebPageHelper(
@@ -226,20 +227,20 @@ void StorageManager::startWorkerThreads()
   }
   catch(xcept::Exception &e)
   {
-    sharedResources_->moveToFailedState( e );
+    sharedResources_->alarmHandler_->moveToFailedState( e );
   }
   catch(std::exception &e)
   {
     XCEPT_DECLARE(stor::exception::Exception,
       sentinelException, e.what());
-    sharedResources_->moveToFailedState( sentinelException );
+    sharedResources_->alarmHandler_->moveToFailedState( sentinelException );
   }
   catch(...)
   {
     std::string errorMsg = "Unknown exception when starting the workloops";
     XCEPT_DECLARE(stor::exception::Exception,
       sentinelException, errorMsg);
-    sharedResources_->moveToFailedState( sentinelException );
+    sharedResources_->alarmHandler_->moveToFailedState( sentinelException );
   }
 }
 
@@ -637,27 +638,27 @@ xoap::MessageReference StorageManager::handleFSMSoapMessage( xoap::MessageRefere
     errorMsg += e.explainSelf();
     XCEPT_DECLARE(xoap::exception::Exception,
       sentinelException, errorMsg);
-    sharedResources_->moveToFailedState( sentinelException );
+    sharedResources_->alarmHandler_->moveToFailedState( sentinelException );
     throw sentinelException;
   }
   catch (xcept::Exception &e) {
     XCEPT_DECLARE_NESTED(xoap::exception::Exception,
       sentinelException, errorMsg, e);
-    sharedResources_->moveToFailedState( sentinelException );
+    sharedResources_->alarmHandler_->moveToFailedState( sentinelException );
     throw sentinelException;
   }
   catch (std::exception& e) {
     errorMsg += e.what();
     XCEPT_DECLARE(xoap::exception::Exception,
       sentinelException, errorMsg);
-    sharedResources_->moveToFailedState( sentinelException );
+    sharedResources_->alarmHandler_->moveToFailedState( sentinelException );
     throw sentinelException;
   }
   catch (...) {
     errorMsg += "Unknown exception";
     XCEPT_DECLARE(xoap::exception::Exception,
       sentinelException, errorMsg);
-    sharedResources_->moveToFailedState( sentinelException );
+    sharedResources_->alarmHandler_->moveToFailedState( sentinelException );
     throw sentinelException;
   }
 

@@ -27,6 +27,8 @@ class stor::testResourceMonitorCollection : public CppUnit::TestFixture
   CPPUNIT_TEST(notMountedDiskAlarm);
   CPPUNIT_TEST(notMountedDiskSuppressAlarm);
   CPPUNIT_TEST(diskUsage);
+  CPPUNIT_TEST(slowDisk);
+  CPPUNIT_TEST(slowOtherDisk);
   CPPUNIT_TEST(processCount);
   CPPUNIT_TEST(processCountWithArguments);
 
@@ -48,6 +50,8 @@ public:
   void notMountedDiskAlarm();
   void notMountedDiskSuppressAlarm();
   void diskUsage();
+  void slowDisk();
+  void slowOtherDisk();
   void processCount();
   void processCountWithArguments();
 
@@ -81,21 +85,25 @@ void
 testResourceMonitorCollection::diskSize()
 {
   ResourceMonitorCollection::DiskUsagePtr
-    diskUsage( new ResourceMonitorCollection::DiskUsage() );
-  diskUsage->pathName = "/tmp";
-  CPPUNIT_ASSERT_THROW( rmc_->retrieveDiskSize(diskUsage), stor::exception::DiskSpaceAlarm );
+    diskUsage( new ResourceMonitorCollection::DiskUsage("/tmp") );
+  rmc_->retrieveDiskSize(diskUsage);
+  ah_->printActiveAlarms("SentinelException");
+  std::vector<MockAlarmHandler::Alarms> alarms;
+  CPPUNIT_ASSERT( ah_->getActiveAlarms("SentinelException", alarms) );
+  CPPUNIT_ASSERT( alarms.size() == 1 );
+
 #ifdef __APPLE__
   struct statfs buf;
-  CPPUNIT_ASSERT( statfs(diskUsage->pathName.c_str(), &buf) == 0 );
+  CPPUNIT_ASSERT( statfs(diskUsage->pathName_.c_str(), &buf) == 0 );
 #else
   struct statfs64 buf;
-  CPPUNIT_ASSERT( statfs64(diskUsage->pathName.c_str(), &buf) == 0 );
+  CPPUNIT_ASSERT( statfs64(diskUsage->pathName_.c_str(), &buf) == 0 );
 #endif
   CPPUNIT_ASSERT( buf.f_blocks );
   double diskSize = static_cast<double>(buf.f_blocks * buf.f_bsize) / 1024 / 1024 / 1024;
 
-  CPPUNIT_ASSERT( diskUsage->diskSize > 0 );
-  CPPUNIT_ASSERT( diskUsage->diskSize == diskSize );
+  CPPUNIT_ASSERT( diskUsage->diskSize_ > 0 );
+  CPPUNIT_ASSERT( diskUsage->diskSize_ == diskSize );
 }
 
 
@@ -103,12 +111,11 @@ void
 testResourceMonitorCollection::unknownDisk()
 {
   ResourceMonitorCollection::DiskUsagePtr
-    diskUsage( new ResourceMonitorCollection::DiskUsage() );
-  diskUsage->pathName = "/aNonExistingDisk";
+    diskUsage( new ResourceMonitorCollection::DiskUsage("/aNonExistingDisk") );
 
   CPPUNIT_ASSERT( ah_->noAlarmSet() );
   rmc_->retrieveDiskSize(diskUsage);
-  CPPUNIT_ASSERT( diskUsage->diskSize == -1 );
+  CPPUNIT_ASSERT( diskUsage->diskSize_ == -1 );
 }
 
 
@@ -128,10 +135,10 @@ testResourceMonitorCollection::notMountedDisk(bool sendAlarm)
   dwParams.otherDiskPaths_.push_back(dummyDisk);
   rmc_->configureDisks(dwParams);
 
-  ah_->printActiveAlarms("SentinelException");
-
+  ah_->printActiveAlarms(dummyDisk);
+  
   std::vector<MockAlarmHandler::Alarms> alarms;
-  return ah_->getActiveAlarms("SentinelException", alarms);
+  return ah_->getActiveAlarms(dummyDisk, alarms);
 }
 
 
@@ -191,13 +198,60 @@ testResourceMonitorCollection::diskUsage()
 
   rmc_->dwParams_.highWaterMark_ = relDiskUsage > 10 ? (relDiskUsage-10) : 0;
   rmc_->calcDiskUsage();
-  CPPUNIT_ASSERT( diskUsagePtr->alarmState == AlarmHandler::WARNING );
+  CPPUNIT_ASSERT( diskUsagePtr->alarmState_ == AlarmHandler::WARNING );
   CPPUNIT_ASSERT(! ah_->noAlarmSet() );
 
   rmc_->dwParams_.highWaterMark_ = (relDiskUsage+10);
   rmc_->calcDiskUsage();
-  CPPUNIT_ASSERT( diskUsagePtr->alarmState == AlarmHandler::OKAY );
+  CPPUNIT_ASSERT( diskUsagePtr->alarmState_ == AlarmHandler::OKAY );
   CPPUNIT_ASSERT( ah_->noAlarmSet() );
+}
+
+
+void
+testResourceMonitorCollection::slowDisk()
+{
+  const std::string dummyDisk = "/aSlowDiskForUnitTests";
+
+  AlarmParams alarmParams;
+  alarmParams.isProductionSystem_ = true;
+  rmc_->configureAlarms(alarmParams);
+
+  DiskWritingParams dwParams;
+  dwParams.nLogicalDisk_ = 0;
+  dwParams.filePath_ = dummyDisk;
+  dwParams.highWaterMark_ = 100;
+  rmc_->configureDisks(dwParams);
+
+  ah_->printActiveAlarms("SentinelException");
+  
+  std::vector<MockAlarmHandler::Alarms> alarms;
+  CPPUNIT_ASSERT( ah_->getActiveAlarms("SentinelException", alarms) );
+  CPPUNIT_ASSERT( alarms.size() == 1 );
+}
+
+
+void
+testResourceMonitorCollection::slowOtherDisk()
+{
+  const std::string dummyDisk = "/aSlowDiskForUnitTests";
+
+  AlarmParams alarmParams;
+  alarmParams.isProductionSystem_ = true;
+  rmc_->configureAlarms(alarmParams);
+
+  DiskWritingParams dwParams;
+  dwParams.nLogicalDisk_ = 0;
+  dwParams.filePath_ = "/tmp";
+  dwParams.highWaterMark_ = 100;
+  dwParams.otherDiskPaths_.push_back(dummyDisk);
+  rmc_->configureDisks(dwParams);
+
+  ah_->printActiveAlarms(dummyDisk);
+  
+  std::vector<MockAlarmHandler::Alarms> alarms;
+  CPPUNIT_ASSERT( ah_->getActiveAlarms(dummyDisk, alarms) );
+  CPPUNIT_ASSERT( alarms.size() == 1 );
 }
 
 
