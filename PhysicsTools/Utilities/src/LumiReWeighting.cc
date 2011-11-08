@@ -143,6 +143,11 @@ double LumiReWeighting::weight( int npv ) {
   return weights_->GetBinContent( bin );
 }
 
+double LumiReWeighting::weight( float npv ) {
+  int bin = weights_->GetXaxis()->FindBin( npv );
+  return weights_->GetBinContent( bin );
+}
+
 double LumiReWeighting::weight3BX( float ave_npv ) {
   int bin = weights_->GetXaxis()->FindBin( ave_npv );
   return weights_->GetBinContent( bin );

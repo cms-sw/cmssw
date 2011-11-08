@@ -235,9 +235,9 @@ namespace edm {
 
     double weight( int npv ) ;
 
-    double weight3BX( float npv ) ;
+    double weight( float npv ) ;
 
-    double weight3D( int ibx_1, int ibx0, int ibx1);
+    double weight3BX( float npv ) ;
 
     double weight( const edm::EventBase &e ) ;
 
