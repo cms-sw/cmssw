@@ -31,6 +31,7 @@ simMuonCSCDigis = cms.EDProducer("CSCDigiProducer",
         readBadChannels = cms.bool(False),
         readBadChambers = cms.bool(True),
         CSCUseTimingCorrections = cms.bool(False),
+        CSCUseGasGainCorrections = cms.bool(False),
         gain = cms.double(2.0), ## counts per fC
 
         capacativeCrosstalk = cms.double(35.0),
