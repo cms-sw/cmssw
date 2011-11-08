@@ -42,11 +42,15 @@ class CovarianceMatrix {
 
   /// return covariance matrix for a PAT object
   template <class T>
-    TMatrixD setupMatrix(const pat::PATObject<T>& object, const TopKinFitter::Param param, const std::string resolutionProvider = "");
+    TMatrixD setupMatrix(const pat::PATObject<T>& object, const TopKinFitter::Param param, const std::string& resolutionProvider = "");
   /// return covariance matrix for a plain 4-vector
   TMatrixD setupMatrix(const TLorentzVector& object, const ObjectType objType, const TopKinFitter::Param param);
   /// get resolution for a given component of an object
-  double getResolution(const TLorentzVector& object, const ObjectType objType, const std::string whichResolution = "");
+  double getResolution(const TLorentzVector& object, const ObjectType objType, const std::string& whichResolution = "");
+  /// get resolution for a given PAT object
+  template <class T>
+    double getResolution(const pat::PATObject<T>& object, const std::string& whichResolution, const bool isBJet=false) {
+    return getResolution(TLorentzVector(object.px(), object.py(), object.pz(), object.energy()), getObjectType(object, isBJet), whichResolution); }
 
  private:
 
@@ -57,10 +61,14 @@ class CovarianceMatrix {
   std::vector<std::string> funcEtaUdsc_, funcEtaB_, funcEtaLep_, funcEtaMet_;
   std::vector<std::string> funcPhiUdsc_, funcPhiB_, funcPhiLep_, funcPhiMet_;
 
+  /// determine type for a given PAT object
+  template <class T>
+    ObjectType getObjectType(const pat::PATObject<T>& object, const bool isBJet=false);
+
 };
 
 template <class T>
-TMatrixD CovarianceMatrix::setupMatrix(const pat::PATObject<T>& object, TopKinFitter::Param param, std::string resolutionProvider)
+TMatrixD CovarianceMatrix::setupMatrix(const pat::PATObject<T>& object, const TopKinFitter::Param param, const std::string& resolutionProvider)
 {
   // This part is for pat objects with resolutions embedded
   if(object.hasKinResolution()) {
@@ -95,26 +103,36 @@ TMatrixD CovarianceMatrix::setupMatrix(const pat::PATObject<T>& object, TopKinFi
   }
   // This part is for objects without resolutions embedded
   else {
-    ObjectType objType;
-    // jets
-    if( dynamic_cast<const reco::Jet*>(&object) ) {
-      if(resolutionProvider == "bjets")
-	objType = kBJet;
-      else
-	objType = kUdscJet;
-    }
-    // muons
-    else if( dynamic_cast<const reco::Muon*>(&object) )
-      objType = kMuon;
-    // electrons
-    else if( dynamic_cast<const reco::GsfElectron*>(&object) ) 
-      objType = kElectron;
-     // MET
-    else if( dynamic_cast<const reco::MET*>(&object) )
-      objType = kMet;
+    const ObjectType objType = getObjectType(object, (resolutionProvider=="bjets"));
     const TLorentzVector p4(object.px(), object.py(), object.pz(), object.energy());
     return setupMatrix(p4, objType, param);
   }
+}
+
+template <class T>
+CovarianceMatrix::ObjectType CovarianceMatrix::getObjectType(const pat::PATObject<T>& object, const bool isBJet)
+{
+  ObjectType objType;
+  // jets
+  if( dynamic_cast<const reco::Jet*>(&object) ) {
+    if(isBJet)
+      objType = kBJet;
+    else
+      objType = kUdscJet;
+  }
+  // muons
+  else if( dynamic_cast<const reco::Muon*>(&object) )
+    objType = kMuon;
+  // electrons
+  else if( dynamic_cast<const reco::GsfElectron*>(&object) ) 
+    objType = kElectron;
+  // MET
+  else if( dynamic_cast<const reco::MET*>(&object) )
+    objType = kMet;
+  // catch anything else
+  else
+    throw cms::Exception("UnsupportedObject") << "The object given is not supported!\n";
+  return objType;
 }
 
 #endif
