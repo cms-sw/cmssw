@@ -886,7 +886,8 @@ class PerfSuite:
     #then instead of using castordir variable, would use opts['castordir'] etc    
     def runPerfSuite(self,
                      create           = False,
-                     castordir        = "/castor/cern.ch/cms/store/relval/performance/",
+                     #Swtiching from CASTOR to EOS (using xrdcp instead of rfcp and  root://eoscms//eos/ instead of /castor/cern.ch/
+                     castordir        = " root://eoscms//eos/cms/store/relval/performance/",
                      TimeSizeEvents   = 100        ,
                      IgProfEvents     = 5          ,
                      CallgrindEvents  = 1          ,
@@ -1089,11 +1090,14 @@ class PerfSuite:
                     copycmd="cp"
                     #Allow the file to be on CASTOR (taking a full CASTOR path)
                     if '/store/relval/' in PUInputFile:
-                        copycmd="rfcp"
+                       #Switching from CASTOR to EOS, i.e. from rfcp to xrdcp
+                        copycmd="xrdcp"
                         #Accept plain LFNs from DBS for RelVal CASTOR files:
                         #Minor fix to allow the case of user using the full path /castor/cern.ch/cms...
                         if PUInputFile.startswith('/store/relval/'):
-                           PUInputFile="/castor/cern.ch/cms"+PUInputFile
+                           #Switching to EOS from CASTOR:
+                           #PUInputFile="/castor/cern.ch/cms"+PUInputFile
+                           PUInputFile="root://eoscms//eos"+PUInputFile
                     #Copy the file locally
                     self.logh.write("Copying the file %s locally to %s\n"%(PUInputFile,PUInputName))
                     self.logh.flush()
@@ -1620,9 +1624,10 @@ class PerfSuite:
                if checkcastorout.rstrip()==fullcastorpathfile:
                   castorcmdstderr="File %s is already on CASTOR! Will NOT OVERWRITE!!!"%fullcastorpathfile
                else:
-                  castorcmd="rfcp %s %s" % (AbsTarFile,fullcastorpathfile)
-                  castormd5cmd="rfcp %s %s" % (AbsTarFileMD5,fullcastorpathmd5)
-                  castorlogcmd="rfcp %s %s" % (AbsTarFileLOG,fullcastorpathlog)
+                  #Switching from CASTOR TO EOS!
+                  castorcmd="xrdcp %s %s" % (AbsTarFile,fullcastorpathfile)
+                  castormd5cmd="xrdcp %s %s" % (AbsTarFileMD5,fullcastorpathmd5)
+                  castorlogcmd="xrdcp %s %s" % (AbsTarFileLOG,fullcastorpathlog)
                   self.printFlush(castorcmd)
                   self.printFlush(castormd5cmd)
                   self.printFlush(castorlogcmd)
