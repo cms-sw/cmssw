@@ -1102,7 +1102,7 @@ class PerfSuite:
                         if PUInputFile.startswith('/store/relval/'):
                            #Switching to EOS from CASTOR:
                            #PUInputFile="/castor/cern.ch/cms"+PUInputFile
-                           PUInputFile="root://eoscms//eos"+PUInputFile
+                           PUInputFile="root://eoscms//eos/cms"+PUInputFile
                     #Copy the file locally
                     self.logh.write("Copying the file %s locally to %s\n"%(PUInputFile,PUInputName))
                     self.logh.flush()
