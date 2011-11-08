@@ -1,5 +1,5 @@
 //
-// $Id: EcalTrivialObjectAnalyzer.cc,v 1.22 2009/05/27 11:20:56 fabiocos Exp $
+// $Id: EcalTrivialObjectAnalyzer.cc,v 1.21 2009/04/03 09:51:11 ferriff Exp $
 // Created: 2 Mar 2006
 //          Shahram Rahatlou, University of Rome & INFN
 //
@@ -37,9 +37,6 @@
 
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibErrors.h"
 #include "CondFormats/DataRecord/interface/EcalTimeCalibErrorsRcd.h"
-
-#include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
-#include "CondFormats/DataRecord/interface/EcalTimeOffsetConstantRcd.h"
 
 #include "CondFormats/EcalObjects/interface/EcalMGPAGainRatio.h"
 #include "CondFormats/EcalObjects/interface/EcalGainRatios.h"
@@ -224,18 +221,7 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
             }
     }
 
-   // fetch Time Offset
-   //std::cout <<"Fetching TimeOffsetConstant from DB " << std::endl;
 
-   // Time Offset constants
-   edm::ESHandle<EcalTimeOffsetConstant> pTOff;
-   context.get<EcalTimeOffsetConstantRcd>().get(pTOff);
-   const EcalTimeOffsetConstant* TOff = pTOff.product();
-
-   std::cout << "EcalTimeOffsetConstant: "
-	     << " EB " << TOff->getEBValue()
-	     << " EE " << TOff->getEEValue()
-	     << std::endl;
 
    // fetch TB weights
    std::cout <<"Fetching EcalTBWeights from DB " << std::endl;

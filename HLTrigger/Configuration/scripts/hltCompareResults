@@ -10,7 +10,7 @@ function err() {
 
 
 # exract list of triggers
-TRIGGERS=$(cat hlt.py | grep 'cms.Path' | sed -e's/process.\(\w\+\) = cms.Path.*/\1/')
+TRIGGERS=$(cat hlt.py | grep 'cms.Path' | sed -e's/process.\(\w\+\) = cms.Path.*/\1/' | grep -v HLTriggerFinalPath | grep -v HLT_LogMonitor)
 
 # check if thw menu as a whole was run
 if ! [ -f "hlt.done" ]; then

@@ -3,80 +3,52 @@
 #include "TH2F.h"
 #include "TMath.h"
 
+static TMinuit *MuonResiduals6DOFrphiFitter_TMinuit;
+static double MuonResiduals6DOFrphiFitter_sum_of_weights;
+static double MuonResiduals6DOFrphiFitter_number_of_hits;
+static bool MuonResiduals6DOFrphiFitter_weightAlignment;
 
-namespace 
-{
-  TMinuit *minuit;
+const CSCGeometry *MuonResiduals6DOFrphiFitter_cscGeometry;
+static CSCDetId MuonResiduals6DOFrphiFitter_cscDetId;
+static double MuonResiduals6DOFrphiFitter_R;
 
-  double sum_of_weights;
-  double number_of_hits;
-  bool weight_alignment;
+void MuonResiduals6DOFrphiFitter::inform(TMinuit *tMinuit) {
+  MuonResiduals6DOFrphiFitter_TMinuit = tMinuit;
+}
 
-  const CSCGeometry *cscGeometry;
-  static CSCDetId cscDetId;
-  static double csc_R;
+double MuonResiduals6DOFrphiFitter_residual(double delta_x, double delta_y, double delta_z, double delta_phix, double delta_phiy, double delta_phiz, double track_x, double track_y, double track_dxdz, double track_dydz, double R, double alpha, double resslope) {
+  return delta_x - (track_x/R - 3.*pow(track_x/R, 3)) * delta_y - track_dxdz * delta_z - track_y * track_dxdz * delta_phix + track_x * track_dxdz * delta_phiy - track_y * delta_phiz + resslope * alpha;
+}
 
+double MuonResiduals6DOFrphiFitter_resslope(double delta_x, double delta_y, double delta_z, double delta_phix, double delta_phiy, double delta_phiz, double track_x, double track_y, double track_dxdz, double track_dydz, double R) {
+  return -track_dxdz/2./R * delta_y + (track_x/R - track_dxdz * track_dydz) * delta_phix + (1. + track_dxdz * track_dxdz) * delta_phiy - track_dydz * delta_phiz;
+}
 
-  double getResidual(double delta_x, double delta_y, double delta_z, 
-      double delta_phix, double delta_phiy, double delta_phiz, 
-      double track_x, double track_y, double track_dxdz, double track_dydz, 
-      double R, double alpha, double resslope) 
-  {
-    return 
-      delta_x 
-      - (track_x/R - 3.*pow(track_x/R, 3)) * delta_y 
-      - track_dxdz * delta_z 
-      - track_y * track_dxdz * delta_phix 
-      + track_x * track_dxdz * delta_phiy 
-      - track_y * delta_phiz 
-      + resslope * alpha;
-  }
-
-  
-  double getResSlope(double delta_x, double delta_y, double delta_z, 
-      double delta_phix, double delta_phiy, double delta_phiz, 
-      double track_x, double track_y, double track_dxdz, double track_dydz, double R) 
-  {
-    return 
-      -track_dxdz/2./R * delta_y 
-      + (track_x/R - track_dxdz * track_dydz) * delta_phix 
-      + (1. + track_dxdz * track_dxdz) * delta_phiy 
-      - track_dydz * delta_phiz;
-  }
-
-  
-  double effectiveR(double x, double y)
-  {
-//   CSCDetId id = cscDetId;
+double MuonResiduals6DOFrphiFitter_effectiveR(double x, double y) {
+//   CSCDetId id = MuonResiduals6DOFrphiFitter_cscDetId;
 //   CSCDetId layerId(id.endcap(), id.station(), id.ring(), id.chamber(), 3);
 
-//   int strip = cscGeometry->layer(layerId)->geometry()->nearestStrip(LocalPoint(x, y, 0.));
-//   double angle = cscGeometry->layer(layerId)->geometry()->stripAngle(strip) - M_PI/2.;
+//   int strip = MuonResiduals6DOFrphiFitter_cscGeometry->layer(layerId)->geometry()->nearestStrip(LocalPoint(x, y, 0.));
+//   double angle = MuonResiduals6DOFrphiFitter_cscGeometry->layer(layerId)->geometry()->stripAngle(strip) - M_PI/2.;
 
-//   if (fabs(angle) < 1e-10) return csc_R;
+//   if (fabs(angle) < 1e-10) return MuonResiduals6DOFrphiFitter_R;
 //   else return x/tan(angle) - y;
 
-    return csc_R;
-  }
+  return MuonResiduals6DOFrphiFitter_R;
+}
 
-  
-  Double_t residual_trackx_TF1(Double_t *xvec, Double_t *par) { return 10.*getResidual(par[0], par[1], par[2], par[3], par[4], par[5], xvec[0], par[7], par[8], par[9], effectiveR(xvec[0], par[7]), par[10], par[11]); }
-  Double_t residual_tracky_TF1(Double_t *xvec, Double_t *par) { return 10.*getResidual(par[0], par[1], par[2], par[3], par[4], par[5], par[6], xvec[0], par[8], par[9], effectiveR(par[6], xvec[0]), par[10], par[11]); }
-  Double_t residual_trackdxdz_TF1(Double_t *xvec, Double_t *par) { return 10.*getResidual(par[0], par[1], par[2], par[3], par[4], par[5], par[6], par[7], xvec[0], par[9], effectiveR(par[6], par[7]), par[10], par[11]); }
-  Double_t residual_trackdydz_TF1(Double_t *xvec, Double_t *par) { return 10.*getResidual(par[0], par[1], par[2], par[3], par[4], par[5], par[6], par[7], par[8], xvec[0], effectiveR(par[6], par[7]), par[10], par[11]); }
+Double_t MuonResiduals6DOFrphiFitter_residual_trackx_TF1(Double_t *xvec, Double_t *par) { return 10.*MuonResiduals6DOFrphiFitter_residual(par[0], par[1], par[2], par[3], par[4], par[5], xvec[0], par[7], par[8], par[9], MuonResiduals6DOFrphiFitter_effectiveR(xvec[0], par[7]), par[10], par[11]); }
+Double_t MuonResiduals6DOFrphiFitter_residual_tracky_TF1(Double_t *xvec, Double_t *par) { return 10.*MuonResiduals6DOFrphiFitter_residual(par[0], par[1], par[2], par[3], par[4], par[5], par[6], xvec[0], par[8], par[9], MuonResiduals6DOFrphiFitter_effectiveR(par[6], xvec[0]), par[10], par[11]); }
+Double_t MuonResiduals6DOFrphiFitter_residual_trackdxdz_TF1(Double_t *xvec, Double_t *par) { return 10.*MuonResiduals6DOFrphiFitter_residual(par[0], par[1], par[2], par[3], par[4], par[5], par[6], par[7], xvec[0], par[9], MuonResiduals6DOFrphiFitter_effectiveR(par[6], par[7]), par[10], par[11]); }
+Double_t MuonResiduals6DOFrphiFitter_residual_trackdydz_TF1(Double_t *xvec, Double_t *par) { return 10.*MuonResiduals6DOFrphiFitter_residual(par[0], par[1], par[2], par[3], par[4], par[5], par[6], par[7], par[8], xvec[0], MuonResiduals6DOFrphiFitter_effectiveR(par[6], par[7]), par[10], par[11]); }
 
-  
-  Double_t resslope_trackx_TF1(Double_t *xvec, Double_t *par) { return 1000.*getResSlope(par[0], par[1], par[2], par[3], par[4], par[5], xvec[0], par[7], par[8], par[9], effectiveR(xvec[0], par[7])); }
-  Double_t resslope_tracky_TF1(Double_t *xvec, Double_t *par) { return 1000.*getResSlope(par[0], par[1], par[2], par[3], par[4], par[5], par[6], xvec[0], par[8], par[9], effectiveR(par[6], xvec[0])); }
-  Double_t resslope_trackdxdz_TF1(Double_t *xvec, Double_t *par) { return 1000.*getResSlope(par[0], par[1], par[2], par[3], par[4], par[5], par[6], par[7], xvec[0], par[9], effectiveR(par[6], par[7])); }
-  Double_t resslope_trackdydz_TF1(Double_t *xvec, Double_t *par) { return 1000.*getResSlope(par[0], par[1], par[2], par[3], par[4], par[5], par[6], par[7], par[8], xvec[0], effectiveR(par[6], par[7])); }
+Double_t MuonResiduals6DOFrphiFitter_resslope_trackx_TF1(Double_t *xvec, Double_t *par) { return 1000.*MuonResiduals6DOFrphiFitter_resslope(par[0], par[1], par[2], par[3], par[4], par[5], xvec[0], par[7], par[8], par[9], MuonResiduals6DOFrphiFitter_effectiveR(xvec[0], par[7])); }
+Double_t MuonResiduals6DOFrphiFitter_resslope_tracky_TF1(Double_t *xvec, Double_t *par) { return 1000.*MuonResiduals6DOFrphiFitter_resslope(par[0], par[1], par[2], par[3], par[4], par[5], par[6], xvec[0], par[8], par[9], MuonResiduals6DOFrphiFitter_effectiveR(par[6], xvec[0])); }
+Double_t MuonResiduals6DOFrphiFitter_resslope_trackdxdz_TF1(Double_t *xvec, Double_t *par) { return 1000.*MuonResiduals6DOFrphiFitter_resslope(par[0], par[1], par[2], par[3], par[4], par[5], par[6], par[7], xvec[0], par[9], MuonResiduals6DOFrphiFitter_effectiveR(par[6], par[7])); }
+Double_t MuonResiduals6DOFrphiFitter_resslope_trackdydz_TF1(Double_t *xvec, Double_t *par) { return 1000.*MuonResiduals6DOFrphiFitter_resslope(par[0], par[1], par[2], par[3], par[4], par[5], par[6], par[7], par[8], xvec[0], MuonResiduals6DOFrphiFitter_effectiveR(par[6], par[7])); }
 
-} // namespace
-
-
-void MuonResiduals6DOFrphiFitter_FCN(int &npar, double *gin, double &fval, double *par, int iflag) 
-{
-  MuonResidualsFitterFitInfo *fitinfo = (MuonResidualsFitterFitInfo*)(minuit->GetObjectFit());
+void MuonResiduals6DOFrphiFitter_FCN(int &npar, double *gin, double &fval, double *par, int iflag) {
+  MuonResidualsFitterFitInfo *fitinfo = (MuonResidualsFitterFitInfo*)(MuonResiduals6DOFrphiFitter_TMinuit->GetObjectFit());
   MuonResidualsFitter *fitter = fitinfo->fitter();
 
   fval = 0.;
@@ -101,16 +73,13 @@ void MuonResiduals6DOFrphiFitter_FCN(int &npar, double *gin, double &fval, doubl
     const double residgamma = par[MuonResiduals6DOFrphiFitter::kResidGamma];
     const double resslopegamma = par[MuonResiduals6DOFrphiFitter::kResSlopeGamma];
 
-    double effr = effectiveR(positionX, positionY);
-    double residpeak = getResidual(alignx, aligny, alignz, alignphix, alignphiy, alignphiz, 
-                                   positionX, positionY, angleX, angleY, effr, alpha, resslope);
-    double resslopepeak = getResSlope(alignx, aligny, alignz, alignphix, alignphiy, alignphiz, 
-                                      positionX, positionY, angleX, angleY, effr);
-    
-    double weight = (1./redchi2) * number_of_hits / sum_of_weights;
-    if (!weight_alignment) weight = 1.;
+    double residpeak = MuonResiduals6DOFrphiFitter_residual(alignx, aligny, alignz, alignphix, alignphiy, alignphiz, positionX, positionY, angleX, angleY, MuonResiduals6DOFrphiFitter_effectiveR(positionX, positionY), alpha, resslope);
+    double resslopepeak = MuonResiduals6DOFrphiFitter_resslope(alignx, aligny, alignz, alignphix, alignphiy, alignphiz, positionX, positionY, angleX, angleY, MuonResiduals6DOFrphiFitter_effectiveR(positionX, positionY));
 
-    if (!weight_alignment  ||  TMath::Prob(redchi2*6, 6) < 0.99) {  // no spikes allowed
+    double weight = (1./redchi2) * MuonResiduals6DOFrphiFitter_number_of_hits / MuonResiduals6DOFrphiFitter_sum_of_weights;
+    if (!MuonResiduals6DOFrphiFitter_weightAlignment) weight = 1.;
+
+    if (!MuonResiduals6DOFrphiFitter_weightAlignment  ||  TMath::Prob(redchi2*6, 6) < 0.99) {  // no spikes allowed
 
       if (fitter->residualsModel() == MuonResidualsFitter::kPureGaussian) {
 	fval += -weight * MuonResidualsFitter_logPureGaussian(residual, residpeak, residsigma);
@@ -129,45 +98,34 @@ void MuonResiduals6DOFrphiFitter_FCN(int &npar, double *gin, double &fval, doubl
         fval += -weight * MuonResidualsFitter_logGaussPowerTails(resslope, resslopepeak, resslopesigma);
       }
       else { assert(false); }
+
     }
   }
 }
 
-
-void MuonResiduals6DOFrphiFitter::inform(TMinuit *tMinuit)
-{
-  minuit = tMinuit;
-}
-
-
-double MuonResiduals6DOFrphiFitter::sumofweights() 
-{
-  sum_of_weights = 0.;
-  number_of_hits = 0.;
-  weight_alignment = m_weightAlignment;
+double MuonResiduals6DOFrphiFitter::sumofweights() {
+  MuonResiduals6DOFrphiFitter_sum_of_weights = 0.;
+  MuonResiduals6DOFrphiFitter_number_of_hits = 0.;
+  MuonResiduals6DOFrphiFitter_weightAlignment = m_weightAlignment;
   for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) {
     if (m_weightAlignment) {
-       double redchi2 = (*resiter)[kRedChi2];
+       double redchi2 = (*resiter)[MuonResiduals6DOFrphiFitter::kRedChi2];
        if (TMath::Prob(redchi2*6, 6) < 0.99) {  // no spikes allowed
-	  sum_of_weights += 1./redchi2;
-	  number_of_hits += 1.;
+	  MuonResiduals6DOFrphiFitter_sum_of_weights += 1./redchi2;
+	  MuonResiduals6DOFrphiFitter_number_of_hits += 1.;
        }
     }
     else {
-       sum_of_weights += 1.;
-       number_of_hits += 1.;
+       MuonResiduals6DOFrphiFitter_sum_of_weights += 1.;
+       MuonResiduals6DOFrphiFitter_number_of_hits += 1.;
     }
   }
-  return sum_of_weights;
+  return MuonResiduals6DOFrphiFitter_sum_of_weights;
 }
 
-
-bool MuonResiduals6DOFrphiFitter::fit(Alignable *ali) 
-{
+bool MuonResiduals6DOFrphiFitter::fit(Alignable *ali) {
   initialize_table();  // if not already initialized
   sumofweights();
-
-  csc_R = sqrt(pow(ali->globalPosition().x(), 2) + pow(ali->globalPosition().y(), 2));
 
   double resid_mean = 0;
   double resslope_mean = 0;
@@ -207,14 +165,12 @@ bool MuonResiduals6DOFrphiFitter::fit(Alignable *ali)
   return dofit(&MuonResiduals6DOFrphiFitter_FCN, num, name, start, step, low, high);
 }
 
-
-double MuonResiduals6DOFrphiFitter::plot(std::string name, TFileDirectory *dir, Alignable *ali) 
-{
+double MuonResiduals6DOFrphiFitter::plot(std::string name, TFileDirectory *dir, Alignable *ali) {
   sumofweights();
 
-  csc_R = sqrt(pow(ali->globalPosition().x(), 2) + pow(ali->globalPosition().y(), 2));
-  cscGeometry = m_cscGeometry;
-  cscDetId = CSCDetId(ali->geomDetId().rawId());
+  MuonResiduals6DOFrphiFitter_R = sqrt(pow(ali->globalPosition().x(), 2) + pow(ali->globalPosition().y(), 2));
+  MuonResiduals6DOFrphiFitter_cscGeometry = m_cscGeometry;
+  MuonResiduals6DOFrphiFitter_cscDetId = CSCDetId(ali->geomDetId().rawId());
 
   std::stringstream name_residual, name_resslope, name_residual_raw, name_resslope_raw, name_residual_cut, name_alpha;
   std::stringstream name_residual_trackx, name_resslope_trackx;
@@ -251,11 +207,11 @@ double MuonResiduals6DOFrphiFitter::plot(std::string name, TFileDirectory *dir, 
   TH1F *hist_residual_raw = dir->make<TH1F>(name_residual_raw.str().c_str(), "", 100, min_residual, max_residual);
   TH1F *hist_resslope_raw = dir->make<TH1F>(name_resslope_raw.str().c_str(), "", 100, min_resslope, max_resslope);
   TH1F *hist_residual_cut = dir->make<TH1F>(name_residual_cut.str().c_str(), "", 100, min_residual, max_residual);
-  TH2F *hist_alpha = dir->make<TH2F>(name_alpha.str().c_str(),"", 50, min_resslope, max_resslope, 50, -50., 50.);
-  TProfile *hist_residual_trackx = dir->make<TProfile>(name_residual_trackx.str().c_str(), "", 50, min_trackx, max_trackx, min_residual, max_residual);
-  TProfile *hist_resslope_trackx = dir->make<TProfile>(name_resslope_trackx.str().c_str(), "", 50, min_trackx, max_trackx, min_resslope, max_resslope);
-  TProfile *hist_residual_tracky = dir->make<TProfile>(name_residual_tracky.str().c_str(), "", 50, min_tracky, max_tracky, min_residual, max_residual);
-  TProfile *hist_resslope_tracky = dir->make<TProfile>(name_resslope_tracky.str().c_str(), "", 50, min_tracky, max_tracky, min_resslope, max_resslope);
+  TH2F *hist_alpha = dir->make<TH2F>(name_alpha.str().c_str(),"", 40, min_resslope, max_resslope, 40, -20., 20.);
+  TProfile *hist_residual_trackx = dir->make<TProfile>(name_residual_trackx.str().c_str(), "", 100, min_trackx, max_trackx, min_residual, max_residual);
+  TProfile *hist_resslope_trackx = dir->make<TProfile>(name_resslope_trackx.str().c_str(), "", 100, min_trackx, max_trackx, min_resslope, max_resslope);
+  TProfile *hist_residual_tracky = dir->make<TProfile>(name_residual_tracky.str().c_str(), "", 100, min_tracky, max_tracky, min_residual, max_residual);
+  TProfile *hist_resslope_tracky = dir->make<TProfile>(name_resslope_tracky.str().c_str(), "", 100, min_tracky, max_tracky, min_resslope, max_resslope);
   TProfile *hist_residual_trackdxdz = dir->make<TProfile>(name_residual_trackdxdz.str().c_str(), "", 500, min_trackdxdz, max_trackdxdz, min_residual, max_residual);
   TProfile *hist_resslope_trackdxdz = dir->make<TProfile>(name_resslope_trackdxdz.str().c_str(), "", 500, min_trackdxdz, max_trackdxdz, min_resslope, max_resslope);
   TProfile *hist_residual_trackdydz = dir->make<TProfile>(name_residual_trackdydz.str().c_str(), "", 500, min_trackdydz, max_trackdydz, min_residual, max_residual);
@@ -286,27 +242,27 @@ double MuonResiduals6DOFrphiFitter::plot(std::string name, TFileDirectory *dir, 
   TF1 *fit_resslope = NULL;
   if (residualsModel() == kPureGaussian) {
     fit_residual = new TF1(name_residual.str().c_str(), MuonResidualsFitter_pureGaussian_TF1, min_residual, max_residual, 3);
-    fit_residual->SetParameters(sum_of_weights * (max_residual - min_residual)/100., 10.*value(kAlignX), 10.*value(kResidSigma));
+    fit_residual->SetParameters(MuonResiduals6DOFrphiFitter_sum_of_weights * (max_residual - min_residual)/100., 10.*value(kAlignX), 10.*value(kResidSigma));
     fit_resslope = new TF1(name_resslope.str().c_str(), MuonResidualsFitter_pureGaussian_TF1, min_resslope, max_resslope, 3);
-    fit_resslope->SetParameters(sum_of_weights * (max_resslope - min_resslope)/100., 1000.*value(kAlignPhiY), 1000.*value(kResSlopeSigma));
+    fit_resslope->SetParameters(MuonResiduals6DOFrphiFitter_sum_of_weights * (max_resslope - min_resslope)/100., 1000.*value(kAlignPhiY), 1000.*value(kResSlopeSigma));
   }
   else if (residualsModel() == kPowerLawTails) {
     fit_residual = new TF1(name_residual.str().c_str(), MuonResidualsFitter_powerLawTails_TF1, min_residual, max_residual, 4);
-    fit_residual->SetParameters(sum_of_weights * (max_residual - min_residual)/100., 10.*value(kAlignX), 10.*value(kResidSigma), 10.*value(kResidGamma));
+    fit_residual->SetParameters(MuonResiduals6DOFrphiFitter_sum_of_weights * (max_residual - min_residual)/100., 10.*value(kAlignX), 10.*value(kResidSigma), 10.*value(kResidGamma));
     fit_resslope = new TF1(name_resslope.str().c_str(), MuonResidualsFitter_powerLawTails_TF1, min_resslope, max_resslope, 4);
-    fit_resslope->SetParameters(sum_of_weights * (max_resslope - min_resslope)/100., 1000.*value(kAlignPhiY), 1000.*value(kResSlopeSigma), 1000.*value(kResSlopeGamma));
+    fit_resslope->SetParameters(MuonResiduals6DOFrphiFitter_sum_of_weights * (max_resslope - min_resslope)/100., 1000.*value(kAlignPhiY), 1000.*value(kResSlopeSigma), 1000.*value(kResSlopeGamma));
   }
   else if (residualsModel() == kROOTVoigt) {
     fit_residual = new TF1(name_residual.str().c_str(), MuonResidualsFitter_ROOTVoigt_TF1, min_residual, max_residual, 4);
-    fit_residual->SetParameters(sum_of_weights * (max_residual - min_residual)/100., 10.*value(kAlignX), 10.*value(kResidSigma), 10.*value(kResidGamma));
+    fit_residual->SetParameters(MuonResiduals6DOFrphiFitter_sum_of_weights * (max_residual - min_residual)/100., 10.*value(kAlignX), 10.*value(kResidSigma), 10.*value(kResidGamma));
     fit_resslope = new TF1(name_resslope.str().c_str(), MuonResidualsFitter_ROOTVoigt_TF1, min_resslope, max_resslope, 4);
-    fit_resslope->SetParameters(sum_of_weights * (max_resslope - min_resslope)/100., 1000.*value(kAlignPhiY), 1000.*value(kResSlopeSigma), 1000.*value(kResSlopeGamma));
+    fit_resslope->SetParameters(MuonResiduals6DOFrphiFitter_sum_of_weights * (max_resslope - min_resslope)/100., 1000.*value(kAlignPhiY), 1000.*value(kResSlopeSigma), 1000.*value(kResSlopeGamma));
   }
   else if (residualsModel() == kGaussPowerTails) {
     fit_residual = new TF1(name_residual.str().c_str(), MuonResidualsFitter_GaussPowerTails_TF1, min_residual, max_residual, 3);
-    fit_residual->SetParameters(sum_of_weights * (max_residual - min_residual)/100., 10.*value(kAlignX), 10.*value(kResidSigma));
+    fit_residual->SetParameters(MuonResiduals6DOFrphiFitter_sum_of_weights * (max_residual - min_residual)/100., 10.*value(kAlignX), 10.*value(kResidSigma));
     fit_resslope = new TF1(name_resslope.str().c_str(), MuonResidualsFitter_GaussPowerTails_TF1, min_resslope, max_resslope, 3);
-    fit_resslope->SetParameters(sum_of_weights * (max_resslope - min_resslope)/100., 1000.*value(kAlignPhiY), 1000.*value(kResSlopeSigma));
+    fit_resslope->SetParameters(MuonResiduals6DOFrphiFitter_sum_of_weights * (max_resslope - min_resslope)/100., 1000.*value(kAlignPhiY), 1000.*value(kResSlopeSigma));
   }
   else { assert(false); }
 
@@ -347,14 +303,14 @@ double MuonResiduals6DOFrphiFitter::plot(std::string name, TFileDirectory *dir, 
   name_residual_trackdydz << "line";
   name_resslope_trackdydz << "line";
 
-  TF1 *fitline_residual_trackx = new TF1(name_residual_trackx.str().c_str(), residual_trackx_TF1, min_trackx, max_trackx, 12);
-  TF1 *fitline_resslope_trackx = new TF1(name_resslope_trackx.str().c_str(), resslope_trackx_TF1, min_trackx, max_trackx, 12);
-  TF1 *fitline_residual_tracky = new TF1(name_residual_tracky.str().c_str(), residual_tracky_TF1, min_tracky, max_tracky, 12);
-  TF1 *fitline_resslope_tracky = new TF1(name_resslope_tracky.str().c_str(), resslope_tracky_TF1, min_tracky, max_tracky, 12);
-  TF1 *fitline_residual_trackdxdz = new TF1(name_residual_trackdxdz.str().c_str(), residual_trackdxdz_TF1, min_trackdxdz, max_trackdxdz, 12);
-  TF1 *fitline_resslope_trackdxdz = new TF1(name_resslope_trackdxdz.str().c_str(), resslope_trackdxdz_TF1, min_trackdxdz, max_trackdxdz, 12);
-  TF1 *fitline_residual_trackdydz = new TF1(name_residual_trackdydz.str().c_str(), residual_trackdydz_TF1, min_trackdydz, max_trackdydz, 12);
-  TF1 *fitline_resslope_trackdydz = new TF1(name_resslope_trackdydz.str().c_str(), resslope_trackdydz_TF1, min_trackdydz, max_trackdydz, 12);
+  TF1 *fitline_residual_trackx = new TF1(name_residual_trackx.str().c_str(), MuonResiduals6DOFrphiFitter_residual_trackx_TF1, min_trackx, max_trackx, 12);
+  TF1 *fitline_resslope_trackx = new TF1(name_resslope_trackx.str().c_str(), MuonResiduals6DOFrphiFitter_resslope_trackx_TF1, min_trackx, max_trackx, 12);
+  TF1 *fitline_residual_tracky = new TF1(name_residual_tracky.str().c_str(), MuonResiduals6DOFrphiFitter_residual_tracky_TF1, min_tracky, max_tracky, 12);
+  TF1 *fitline_resslope_tracky = new TF1(name_resslope_tracky.str().c_str(), MuonResiduals6DOFrphiFitter_resslope_tracky_TF1, min_tracky, max_tracky, 12);
+  TF1 *fitline_residual_trackdxdz = new TF1(name_residual_trackdxdz.str().c_str(), MuonResiduals6DOFrphiFitter_residual_trackdxdz_TF1, min_trackdxdz, max_trackdxdz, 12);
+  TF1 *fitline_resslope_trackdxdz = new TF1(name_resslope_trackdxdz.str().c_str(), MuonResiduals6DOFrphiFitter_resslope_trackdxdz_TF1, min_trackdxdz, max_trackdxdz, 12);
+  TF1 *fitline_residual_trackdydz = new TF1(name_residual_trackdydz.str().c_str(), MuonResiduals6DOFrphiFitter_residual_trackdydz_TF1, min_trackdydz, max_trackdydz, 12);
+  TF1 *fitline_resslope_trackdydz = new TF1(name_resslope_trackdydz.str().c_str(), MuonResiduals6DOFrphiFitter_resslope_trackdydz_TF1, min_trackdydz, max_trackdydz, 12);
 
   double sum_resslope = 0.;
   double sum_trackx = 0.;
@@ -362,12 +318,12 @@ double MuonResiduals6DOFrphiFitter::plot(std::string name, TFileDirectory *dir, 
   double sum_trackdxdz = 0.;
   double sum_trackdydz = 0.;
   for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) {
-    const double resslope = (*resiter)[kResSlope];
-    const double positionX = (*resiter)[kPositionX];
-    const double positionY = (*resiter)[kPositionY];
-    const double angleX = (*resiter)[kAngleX];
-    const double angleY = (*resiter)[kAngleY];
-    const double redchi2 = (*resiter)[kRedChi2];
+    const double resslope = (*resiter)[MuonResiduals6DOFrphiFitter::kResSlope];
+    const double positionX = (*resiter)[MuonResiduals6DOFrphiFitter::kPositionX];
+    const double positionY = (*resiter)[MuonResiduals6DOFrphiFitter::kPositionY];
+    const double angleX = (*resiter)[MuonResiduals6DOFrphiFitter::kAngleX];
+    const double angleY = (*resiter)[MuonResiduals6DOFrphiFitter::kAngleY];
+    const double redchi2 = (*resiter)[MuonResiduals6DOFrphiFitter::kRedChi2];
     double weight = 1./redchi2;
     if (!m_weightAlignment) weight = 1.;
 
@@ -379,11 +335,11 @@ double MuonResiduals6DOFrphiFitter::plot(std::string name, TFileDirectory *dir, 
       sum_trackdydz += weight * angleY;
     }
   }
-  double mean_resslope = sum_resslope / sum_of_weights;
-  double mean_trackx = sum_trackx / sum_of_weights;
-  double mean_tracky = sum_tracky / sum_of_weights;
-  double mean_trackdxdz = sum_trackdxdz / sum_of_weights;
-  double mean_trackdydz = sum_trackdydz / sum_of_weights;
+  double mean_resslope = sum_resslope / MuonResiduals6DOFrphiFitter_sum_of_weights;
+  double mean_trackx = sum_trackx / MuonResiduals6DOFrphiFitter_sum_of_weights;
+  double mean_tracky = sum_tracky / MuonResiduals6DOFrphiFitter_sum_of_weights;
+  double mean_trackdxdz = sum_trackdxdz / MuonResiduals6DOFrphiFitter_sum_of_weights;
+  double mean_trackdydz = sum_trackdydz / MuonResiduals6DOFrphiFitter_sum_of_weights;
 
   double fitparameters[12];
   fitparameters[0] = value(kAlignX);
@@ -427,20 +383,20 @@ double MuonResiduals6DOFrphiFitter::plot(std::string name, TFileDirectory *dir, 
   fitline_resslope_trackdydz->Write();
 
   for (std::vector<double*>::const_iterator resiter = residuals_begin();  resiter != residuals_end();  ++resiter) {
-    const double resid = (*resiter)[kResid];
-    const double resslope = (*resiter)[kResSlope];
-    const double positionX = (*resiter)[kPositionX];
-    const double positionY = (*resiter)[kPositionY];
-    const double angleX = (*resiter)[kAngleX];
-    const double angleY = (*resiter)[kAngleY];
-    const double redchi2 = (*resiter)[kRedChi2];
+    const double resid = (*resiter)[MuonResiduals6DOFrphiFitter::kResid];
+    const double resslope = (*resiter)[MuonResiduals6DOFrphiFitter::kResSlope];
+    const double positionX = (*resiter)[MuonResiduals6DOFrphiFitter::kPositionX];
+    const double positionY = (*resiter)[MuonResiduals6DOFrphiFitter::kPositionY];
+    const double angleX = (*resiter)[MuonResiduals6DOFrphiFitter::kAngleX];
+    const double angleY = (*resiter)[MuonResiduals6DOFrphiFitter::kAngleY];
+    const double redchi2 = (*resiter)[MuonResiduals6DOFrphiFitter::kRedChi2];
     double weight = 1./redchi2;
     if (!m_weightAlignment) weight = 1.;
 
     if (!m_weightAlignment  ||  TMath::Prob(redchi2*6, 6) < 0.99) {  // no spikes allowed
       hist_alpha->Fill(1000.*resslope, 10.*resid);
 
-      double geom_resid = getResidual(value(kAlignX), value(kAlignY), value(kAlignZ), value(kAlignPhiX), value(kAlignPhiY), value(kAlignPhiZ), positionX, positionY, angleX, angleY, effectiveR(positionX, positionY), value(kAlpha), resslope);
+      double geom_resid = MuonResiduals6DOFrphiFitter_residual(value(kAlignX), value(kAlignY), value(kAlignZ), value(kAlignPhiX), value(kAlignPhiY), value(kAlignPhiZ), positionX, positionY, angleX, angleY, MuonResiduals6DOFrphiFitter_effectiveR(positionX, positionY), value(kAlpha), resslope);
       hist_residual->Fill(10.*(resid - geom_resid + value(kAlignX)), weight);
       hist_residual_trackx->Fill(positionX, 10.*resid, weight);
       hist_residual_tracky->Fill(positionY, 10.*resid, weight);
@@ -451,7 +407,7 @@ double MuonResiduals6DOFrphiFitter::plot(std::string name, TFileDirectory *dir, 
       fit_residual_trackdxdz->Fill(angleX, 10.*geom_resid, weight);
       fit_residual_trackdydz->Fill(angleY, 10.*geom_resid, weight);
 
-      double geom_resslope = getResSlope(value(kAlignX), value(kAlignY), value(kAlignZ), value(kAlignPhiX), value(kAlignPhiY), value(kAlignPhiZ), positionX, positionY, angleX, angleY, effectiveR(positionX, positionY));
+      double geom_resslope = MuonResiduals6DOFrphiFitter_resslope(value(kAlignX), value(kAlignY), value(kAlignZ), value(kAlignPhiX), value(kAlignPhiY), value(kAlignPhiZ), positionX, positionY, angleX, angleY, MuonResiduals6DOFrphiFitter_effectiveR(positionX, positionY));
       hist_resslope->Fill(1000.*(resslope - geom_resslope + value(kAlignPhiY)), weight);
       hist_resslope_trackx->Fill(positionX, 1000.*resslope, weight);
       hist_resslope_tracky->Fill(positionY, 1000.*resslope, weight);

@@ -305,7 +305,7 @@ BxTiming::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   int ttype = FEDHeader(rawdata->FEDData(812).data()).triggerType();
 
   // loop over feds
-  for (int i = 0; i<FEDNumbering::MAXFEDID+1; i++){
+  for (int i = 0; i<FEDNumbering::MAXFEDID; i++){
     const FEDRawData& data = rawdata->FEDData(i);
     size_t size=data.size();
     

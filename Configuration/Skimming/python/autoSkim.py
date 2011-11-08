@@ -6,7 +6,7 @@ autoSkim = {
     'Mu' : 'WMu+ZMu+HighMET+LogError',    
     'EG':'WElectron+ZElectron+HighMET+LogError',
     'Electron':'WElectron+ZElectron+HighMET+LogError',
-    'Photon':'WElectron+ZElectron+HighMET+LogError+DiPhoton+DoublePhoton',
+    'Photon':'WElectron+ZElectron+HighMET+LogError+DiPhoton+EXOHPTE',
     'JetMETTau':'LogError+Tau',
     'JetMET':'HighMET+LogError',
     'BTau':'LogError+Tau',

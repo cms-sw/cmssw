@@ -371,7 +371,7 @@ void SiPixelRecHitsInputDistributionsMaker::fillBarrel(const SiPixelRecHit& recH
   
   LocalPoint lp = recHit.localPosition();
 
-  LocalError lerr = recHit.localPositionError();
+  //  LocalError lerr = recHit.localPositionError();
   
   float sim_x1 = simHit.entryPoint().x();
   float sim_x2 = simHit.exitPoint().x();
@@ -571,7 +571,7 @@ void SiPixelRecHitsInputDistributionsMaker::fillForward(const SiPixelRecHit & re
   
   LocalPoint lp = recHit.localPosition();
   
-  LocalError lerr = recHit.localPositionError();
+  //  LocalError lerr = recHit.localPositionError();
 
   float sim_x1 = simHit.entryPoint().x();
   float sim_x2 = simHit.exitPoint().x();

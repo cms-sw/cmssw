@@ -17,6 +17,7 @@ namespace egHLT {
     int probeEle;
     int fakeEle;
     int trigTPEle;
+    int trigTPPho;
     int stdPho;
 
     void setup(const edm::ParameterSet& conf){
@@ -25,6 +26,7 @@ namespace egHLT {
       probeEle= EgCutCodes::getCode(conf.getParameter<std::string>("probeEle"));
       fakeEle = EgCutCodes::getCode(conf.getParameter<std::string>("fakeEle"));
       trigTPEle = EgCutCodes::getCode(conf.getParameter<std::string>("trigTPEle"));
+      trigTPPho = EgCutCodes::getCode(conf.getParameter<std::string>("trigTPPho"));
       stdPho = EgCutCodes::getCode(conf.getParameter<std::string>("stdPho"));
     }
   };

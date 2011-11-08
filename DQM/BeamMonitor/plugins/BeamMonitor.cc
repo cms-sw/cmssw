@@ -2,8 +2,8 @@
  * \file BeamMonitor.cc
  * \author Geng-yuan Jeng/UC Riverside
  *         Francisco Yumiceva/FNAL
- * $Date: 2011/03/13 20:33:36 $
- * $Revision: 1.71 $
+ * $Date: 2011/10/31 01:46:06 $
+ * $Revision: 1.74 $
  */
 
 
@@ -317,11 +317,11 @@ void BeamMonitor::beginJob() {
   // Histos of PrimaryVertices:
   dbe_->setCurrentFolder(monitorName_+"PrimaryVertex");
 
-  h_nVtx = dbe_->book1D("vtxNbr","Reconstructed Vertices(non-fake) in all Event",20,-0.5,19.5);
+  h_nVtx = dbe_->book1D("vtxNbr","Reconstructed Vertices(non-fake) in all Event",30,-0.5,29.5);
   h_nVtx->setAxisTitle("Num. of reco. vertices",1);
   
   //For one Trigger only
-  h_nVtx_st = dbe_->book1D("vtxNbr_SelectedTriggers","Reconstructed Vertices(non-fake) in Events",20,-0.5,19.5);
+  h_nVtx_st = dbe_->book1D("vtxNbr_SelectedTriggers","Reconstructed Vertices(non-fake) in Events",30,-0.5,29.5);
   //h_nVtx_st->setAxisTitle("Num. of reco. vertices for Un-Prescaled Jet Trigger",1);
 
   // Monitor only the PV with highest sum pt of assoc. trks:
@@ -374,7 +374,7 @@ void BeamMonitor::beginJob() {
   if (reportSummary) dbe_->removeElement(reportSummary->getName());
 
   reportSummary = dbe_->bookFloat("reportSummary");
-  if(reportSummary) reportSummary->Fill(0./0.);
+  if(reportSummary) reportSummary->Fill(std::numeric_limits<double>::quiet_NaN());
 
   char histo[20];
   dbe_->setCurrentFolder(monitorName_+"EventInfo/reportSummaryContents");
@@ -389,7 +389,7 @@ void BeamMonitor::beginJob() {
 
   for (int i = 0; i < nFitElements_; i++) {
     summaryContent_[i] = 0.;
-    reportSummaryContents[i]->Fill(0./0.);
+    reportSummaryContents[i]->Fill(std::numeric_limits<double>::quiet_NaN());
   }
 
   dbe_->setCurrentFolder(monitorName_+"EventInfo");
@@ -647,11 +647,11 @@ void BeamMonitor::analyze(const Event& iEvent,
     }//loop over pvs
 
 
-    if (nPVcount> 0 )h_nVtx->Fill(nPVcount*1.); //no need to change it for average BS
+    h_nVtx->Fill(nPVcount*1.); //no need to change it for average BS
 
     mapNPV[countLumi_].push_back((nPVcount_ST));
 
-    if(!StartAverage_){ if (nPVcount_ST>0 ) h_nVtx_st->Fill(nPVcount_ST*1.);}
+    if(!StartAverage_){ h_nVtx_st->Fill(nPVcount_ST*1.);}
 
   }//if pv collection is availaable
 
@@ -708,13 +708,10 @@ void BeamMonitor::FitAndFill(const LuminosityBlock& lumiSeg,int &lastlumi,int &n
 
       if(StartAverage_)
       {
-      size_t SizeToRemovePV=0;
-      std::map<int, std::size_t>::iterator rmlspv = mapLSPVStoreSize.begin();
-      SizeToRemovePV= rmlspv->second;
-      int changedAfterThisPV=0;
-      for(std::map<int, std::size_t>::iterator rmLSPV = mapLSPVStoreSize.begin(); rmLSPV!=mapLSPVStoreSize.end(); ++rmLSPV, ++changedAfterThisPV){
-         if(changedAfterThisPV > 0 ){ (rmLSPV->second)  =  (rmLSPV->second)-SizeToRemovePV;}
-                               }
+        std::map<int, std::size_t>::iterator rmLSPVi = mapLSPVStoreSize.begin();
+        size_t SizeToRemovePV= rmLSPVi->second;
+        for(std::map<int, std::size_t>::iterator rmLSPVe = mapLSPVStoreSize.end(); ++rmLSPVi != rmLSPVe;)
+          rmLSPVi->second  -= SizeToRemovePV;
 
       theBeamFitter->resizePVvector(SizeToRemovePV);
 

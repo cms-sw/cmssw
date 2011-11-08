@@ -19,6 +19,9 @@
 #include "DataFormats/METReco/interface/CaloMET.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 
+#include "DataFormats/METReco/interface/PFMETCollection.h"  
+#include "DataFormats/METReco/interface/PFMET.h"   
+
 #include "DataFormats/METReco/interface/GenMET.h"
 #include "DataFormats/METReco/interface/GenMETCollection.h"
 #include "DataFormats/METReco/interface/METCollection.h"
@@ -91,6 +94,7 @@ public:
 		 const edm::Handle<reco::PFTauDiscriminator>     & theRecoPFTauDiscrAgainstMuon,
 		 const edm::Handle<reco::PFJetCollection>        & recoPFJets,                
 		 const edm::Handle<CaloTowerCollection>          & caloTowers,	      
+		 const edm::Handle<reco::PFMETCollection>        & pfmets,  
                  double thresholdForSavingTowers,
                  double                minPtCH,
                  double                minPtGamma,
@@ -110,6 +114,8 @@ private:
     float mcalmet,mcalphi,mcalsum;
     float htcalet,htcalphi,htcalsum;
     float mgenmet,mgenphi,mgensum;
+
+    float pfmet,pfsumet,pfmetphi; 
 
     int njetgen,ntowcal;
     int nhjetcal,nhcorjetcal;
@@ -134,14 +140,14 @@ private:
     float pfHT;
     float pfMHT;    
     int nohPFJet;
-    float *pfJetEta, *pfJetPhi, *pfJetPt;
+    float *pfJetEta, *pfJetPhi, *pfJetPt, *pfJetE;
     //Reco PFTau
     int nRecoPFTau;
     float *recopfTauEta,*recopfTauPhi,*recopfTauPt,*recopfTauJetPt,*recopfTauLeadTrackPt,*recopfTauLeadPionPt;
     int   *recopfTauTrkIso, *recopfTauGammaIso;
     float *recopfTauDiscrByTancOnePercent,*recopfTauDiscrByTancHalfPercent, *recopfTauDiscrByTancQuarterPercent, *recopfTauDiscrByTancTenthPercent, *recopfTauDiscrByIso, *recopfTauDiscrAgainstMuon, *recopfTauDiscrAgainstElec;
     //Reco PF jets
-    float *jpfrecopt, *jpfrecophi, *jpfrecoeta, *jpfreconeutralHadronFraction, *jpfreconeutralEMFraction, *jpfrecochargedHadronFraction, *jpfrecochargedEMFraction;
+    float *jpfrecopt, *jpfrecoe,*jpfrecophi, *jpfrecoeta, *jpfreconeutralHadronFraction, *jpfreconeutralEMFraction, *jpfrecochargedHadronFraction, *jpfrecochargedEMFraction;
     int  *jpfreconeutralMultiplicity, *jpfrecochargedMultiplicity;
     int nrpj;
 
@@ -176,7 +182,7 @@ private:
     
     int evtCounter;
     
-    const float etaBarrel() {return 1.4;}
+    static float etaBarrel() { return 1.4; }
     
     //create maps linking histogram pointers to HCAL Channel hits and digis
     TString gjetpfx, rjetpfx,gmetpfx, rmetpfx,calopfx;

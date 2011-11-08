@@ -5,38 +5,22 @@
 //
 /*
 
- Author(s):     Stilianos Kesisoglou - Institute of Nuclear Physics NCSR Demokritos (current author) 
-                Nikolaos Rompotis    - Imperial College London                      (original author) 
-                
- Contact:       Stilianos.Kesisoglou@cern.ch
-
  Description: <one line class summary>
-
- Implementation:
-
-    This is an analyzer that reads pat::CompositeCandidate ZeeCandidates and creates some plots
+    this is an analyzer that reads pat::CompositeCandidate ZeeCandidates and creates some plots
     For more details see also WenuPlots class description
+ Implementation:
+  09Dec09: option to have a different selection for the 2nd leg of the Z added
+  24Feb10: more variables added E/P and TIP
+           option to choose CMSSW defined electron ID, the same or different
+           for each leg
 
- Changes Log:
+ Contact:
+ Stilianos Kesisoglou - Institute of Nuclear Physics
+ NCSR Demokritos
 
- 09 Dec 2009:   Option to have a different selection for the 2nd leg of the Z added
-  
- 24 Feb 2010:   More variables added E/P and TIP
-                Option to choose CMSSW defined electron ID, the same or different for each leg
-
- 28 May 2010    Implementation of Spring10 selections
-
- 25 Jun 2010    Author change (Nikolaos Rompotis -> Stilianos Kesisoglou)
-                Preparation of the code for the ICHEP 2010 presentation of the ElectroWeak results.
-                
- 04 Nov 2010    Changes to all variable types from C/C++ to ROOT ones (int -> Int_t etc..)
-                Code modification to apply common or separate electron criteria.
-                Addition of various print-out statements to follow code processing.
-
- 13 Feb 2011    Modifications to include more variables and transfer of the vertex code here from "Filter"
-                Modification to retrieve the dcot/dist variables from the EGamma code.
-                
 */
+//
+// Original Author:  Nikolaos Rompotis
 
 
 #include "ElectroWeakAnalysis/ZEE/interface/ZeePlots.h"
@@ -46,7 +30,6 @@
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
 
 ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
 {
@@ -59,16 +42,16 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
     zeeCollectionTag_ = iConfig.getUntrackedParameter<edm::InputTag>("zeeCollectionTag");
 
     // code parameters
-    //    
-    vZeeOutputFileNames_    = iConfig.getUntrackedParameter< std::vector<std::string> >("vZeeOutputFileNames");
+    //
+    std::string outputFile_D = "histos.root";
+    outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile", outputFile_D);
 
-    outputFile_                = vZeeOutputFileNames_[0] ;
-    ZEE_VBTFselectionFileName_ = vZeeOutputFileNames_[1] ;
-    ZEE_VBTFpreseleFileName_   = vZeeOutputFileNames_[2] ;
+    ZEE_VBTFselectionFileName_ = iConfig.getUntrackedParameter<std::string>("ZEE_VBTFselectionFileName");
+    ZEE_VBTFpreseleFileName_   = iConfig.getUntrackedParameter<std::string>("ZEE_VBTFpreseleFileName");
 
     DatasetTag_ = iConfig.getUntrackedParameter<Int_t>("DatasetTag");
 
-    useSameSelectionOnBothElectrons_ = iConfig.getUntrackedParameter<Bool_t>("useSameSelectionOnBothElectrons",true);
+    useSameSelectionOnBothElectrons_ = iConfig.getUntrackedParameter<Bool_t>("useSameSelectionOnBothElectrons",false);
 
     //  Here choose if the two legs will be treated individually or not.
     //
@@ -340,11 +323,6 @@ ZeePlots::ZeePlots(const edm::ParameterSet& iConfig)
 
     }
 
-    storeExtraInformation_ = iConfig.getUntrackedParameter<Bool_t>("storeExtraInformation");
-    
-    //  Primary Vertex Collections
-    PrimaryVerticesCollection_   = iConfig.getUntrackedParameter<edm::InputTag>("PrimaryVerticesCollection", edm::InputTag("offlinePrimaryVertices"));
-    PrimaryVerticesCollectionBS_ = iConfig.getUntrackedParameter<edm::InputTag>("PrimaryVerticesCollectionBS",edm::InputTag("offlinePrimaryVerticesWithBS"));
 }
 
 
@@ -405,79 +383,10 @@ void ZeePlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
     eventNumber = (Long64_t)( iEvent.eventAuxiliary().event() );
     lumiSection = (Int_t)iEvent.luminosityBlock();
 
-
-    //  Get the Primary Vertex Information (with/out Beam-Spot)
-    //
-    // Without Beam-Spot
-    edm::Handle< std::vector<reco::Vertex> > pVtx;
-    iEvent.getByLabel(PrimaryVerticesCollection_, pVtx);
-    const std::vector<reco::Vertex> Vtx = *(pVtx.product());
-    
-    if ( Vtx.size() >=1 ) {
-        pv_x1           = (Float_t)( Vtx[0].position().x() );
-        pv_y1           = (Float_t)( Vtx[0].position().y() );
-        pv_z1           = (Float_t)( Vtx[0].position().z() );
-        ele1_tip_pv     = (Float_t)(-1.0) * ( myElec1->gsfTrack()->dxy( Vtx[0].position() ) ) ;
-
-        pv_x2           = (Float_t)( Vtx[0].position().x() );
-        pv_y2           = (Float_t)( Vtx[0].position().y() );
-        pv_z2           = (Float_t)( Vtx[0].position().z() );
-        ele2_tip_pv     = (Float_t)(-1.0) * ( myElec2->gsfTrack()->dxy( Vtx[0].position() ) ) ;
-    } else {
-        pv_x1 = -999999.;
-        pv_y1 = -999999.;
-        pv_z1 = -999999.;
-        ele1_tip_pv = -999999.;
-
-        pv_x2 = -999999.;
-        pv_y2 = -999999.;
-        pv_z2 = -999999.;
-        ele2_tip_pv = -999999.;
-    }
-
-    // With Beam-Spot
-    edm::Handle< std::vector<reco::Vertex> > pVtxBS;
-    iEvent.getByLabel(PrimaryVerticesCollectionBS_, pVtxBS);
-    const std::vector<reco::Vertex> VtxBS = *(pVtxBS.product());
-
-    if ( VtxBS.size() >=1 ) {
-        pvBS_x1         = (Float_t)( VtxBS[0].position().x() );
-        pvBS_y1         = (Float_t)( VtxBS[0].position().y() );
-        pvBS_z1         = (Float_t)( VtxBS[0].position().z() );
-        ele1_tip_pvBS   = (Float_t)(-1.0) * ( myElec1->gsfTrack()->dxy( VtxBS[0].position() ) ) ;
-
-        pvBS_x2         = (Float_t)( VtxBS[0].position().x() );
-        pvBS_y2         = (Float_t)( VtxBS[0].position().y() );
-        pvBS_z2         = (Float_t)( VtxBS[0].position().z() );
-        ele2_tip_pvBS   = (Float_t)(-1.0) * ( myElec2->gsfTrack()->dxy( VtxBS[0].position() ) ) ;
-    } else {
-        pvBS_x1 = -999999.;
-        pvBS_y1 = -999999.;
-        pvBS_z1 = -999999.;
-        ele1_tip_pvBS = -999999.;
-
-        pvBS_x2 = -999999.;
-        pvBS_y2 = -999999.;
-        pvBS_z2 = -999999.;
-        ele2_tip_pvBS = -999999.;
-    }
-
     ele1_sc_eta         = (Float_t)( myElec1->superCluster()->eta() );
     ele1_sc_phi         = (Float_t)( myElec1->superCluster()->phi() );
     ele1_sc_energy      = (Float_t)( myElec1->superCluster()->energy() );
     ele1_sc_gsf_et      = (Float_t)( myElec1->superCluster()->energy() / TMath::CosH(myElec1->gsfTrack()->eta()) );
-    
-    ele1_sc_x           = (Float_t)( myElec1->superCluster()->x() );
-    ele1_sc_y           = (Float_t)( myElec1->superCluster()->y() );
-    ele1_sc_z           = (Float_t)( myElec1->superCluster()->z() );
-
-    ele1_sc_rho         = (Float_t) TMath::Sqrt( ( ele1_sc_x * ele1_sc_x + ele1_sc_y * ele1_sc_y + ele1_sc_z * ele1_sc_z ) );
-
-    ele1_pin            = (Float_t)( myElec1->trackMomentumAtVtx().R() );
-    ele1_pout           = (Float_t)( myElec1->trackMomentumOut().R() );
-
-    ele1_fbrem          = (Float_t)( (ele1_pin != 0.0) ? (ele1_pin - ele1_pout) / ele1_pin : 999999.0 );
-
     ele1_cand_eta       = (Float_t)( myElec1->eta() );
     ele1_cand_phi       = (Float_t)( myElec1->phi() );
     ele1_cand_et        = (Float_t)( myElec1->et() );
@@ -491,48 +400,36 @@ void ZeePlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
     ele1_id_dphi        = (Float_t)( myElec1->deltaPhiSuperClusterTrackAtVtx() );
     ele1_id_hoe         = (Float_t)( myElec1->hadronicOverEm() );
 
-    ele1_trk_ndof       = (Float_t)( myElec1->gsfTrack()->ndof() );
-    ele1_trk_normChi2   = (Float_t)( myElec1->gsfTrack()->normalizedChi2() );
-    ele1_trk_lostHits   = (Int_t)  ( myElec1->gsfTrack()->numberOfLostHits() );
-    ele1_trk_validHits  = (Int_t)  ( myElec1->gsfTrack()->numberOfValidHits() );
-
-    ele1_cr_mhitsouter  = (Int_t)  ( myElec1->gsfTrack()->trackerExpectedHitsOuter().numberOfHits() );
-    ele1_cr_mhitsinner  = (Int_t)  ( myElec1->gsfTrack()->trackerExpectedHitsInner().numberOfHits() );
-    ele1_cr_dcot        = (Float_t)( myElec1->convDcot() );
-    ele1_cr_dist        = (Float_t)( myElec1->convDist() );
+    ele1_cr_mhitsinner  = (Float_t)( myElec1->gsfTrack()->trackerExpectedHitsInner().numberOfHits() );
+    ele1_cr_dcot        = (Float_t)( myElec1->userFloat("Dcot") );
+    ele1_cr_dist        = (Float_t)( myElec1->userFloat("Dist") );
 
     ele1_vx             = (Float_t)( myElec1->vx() );
     ele1_vy             = (Float_t)( myElec1->vy() );
     ele1_vz             = (Float_t)( myElec1->vz() );
+
+    pv_x1               = (Float_t)( myElec1->userFloat("pv_x") );
+    pv_y1               = (Float_t)( myElec1->userFloat("pv_y") );
+    pv_z1               = (Float_t)( myElec1->userFloat("pv_z") );
 
     ele1_gsfCharge      = (Int_t)  ( myElec1->gsfTrack()->charge() );
     ele1_ctfCharge      = (Int_t)  ( myElec1->closestCtfTrackRef().isNonnull() ? ( myElec1->closestCtfTrackRef()->charge() ) : -9999 ) ;
     ele1_scPixCharge    = (Int_t)  ( myElec1->chargeInfo().scPixCharge );
     ele1_eop            = (Float_t)( myElec1->eSuperClusterOverP() );
     ele1_tip_bs         = (Float_t)( (-1.0) * myElec1->dB() );
+    ele1_tip_pv         = (Float_t)( myElec1->userFloat("ele_tip_pv") );
+
 
     ele2_sc_eta         = (Float_t)( myElec2->superCluster()->eta() );
     ele2_sc_phi         = (Float_t)( myElec2->superCluster()->phi() );
     ele2_sc_energy      = (Float_t)( myElec2->superCluster()->energy() );
     ele2_sc_gsf_et      = (Float_t)( myElec2->superCluster()->energy() / TMath::CosH(myElec2->gsfTrack()->eta()) );
-
-    ele2_sc_x           = (Float_t)( myElec2->superCluster()->x() );
-    ele2_sc_y           = (Float_t)( myElec2->superCluster()->y() );
-    ele2_sc_z           = (Float_t)( myElec2->superCluster()->z() );
-
-    ele2_sc_rho         = (Float_t) TMath::Sqrt( ( ele2_sc_x * ele2_sc_x + ele2_sc_y * ele2_sc_y + ele2_sc_z * ele2_sc_z ) );
-
-    ele2_pin            = (Float_t)( myElec2->trackMomentumAtVtx().R() );
-    ele2_pout           = (Float_t)( myElec2->trackMomentumOut().R() );
-
-    ele2_fbrem          = (Float_t)( (ele2_pin != 0.0) ? (ele2_pin - ele2_pout) / ele2_pin : 999999.0 );
-
     ele2_cand_eta       = (Float_t)( myElec2->eta() );
     ele2_cand_phi       = (Float_t)( myElec2->phi() );
     ele2_cand_et        = (Float_t)( myElec2->et() );
 
     ele2_iso_track      = (Float_t)( myElec2->dr03IsolationVariables().tkSumPt / ele2_cand_et );
-    ele2_iso_ecal       = (Float_t)( myElec2->dr03IsolationVariables().ecalRecHitSumEt / ele2_cand_et );
+    ele2_iso_ecal       = (Float_t)( myElec2->dr03IsolationVariables().ecalRecHitSumEt/ele2_cand_et );
     ele2_iso_hcal       = (Float_t)( ( myElec2->dr03IsolationVariables().hcalDepth1TowerSumEt + myElec2->dr03IsolationVariables().hcalDepth2TowerSumEt ) / ele2_cand_et );
 
     ele2_id_sihih       = (Float_t)( myElec2->sigmaIetaIeta() );
@@ -540,25 +437,24 @@ void ZeePlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
     ele2_id_dphi        = (Float_t)( myElec2->deltaPhiSuperClusterTrackAtVtx() );
     ele2_id_hoe         = (Float_t)( myElec2->hadronicOverEm() );
 
-    ele2_trk_ndof       = (Float_t)( myElec2->gsfTrack()->ndof() );
-    ele2_trk_normChi2   = (Float_t)( myElec2->gsfTrack()->normalizedChi2() );
-    ele2_trk_lostHits   = (Int_t)  ( myElec2->gsfTrack()->numberOfLostHits() );
-    ele2_trk_validHits  = (Int_t)  ( myElec2->gsfTrack()->numberOfValidHits() );
-
-    ele2_cr_mhitsouter  = (Int_t)  ( myElec2->gsfTrack()->trackerExpectedHitsOuter().numberOfHits() );
-    ele2_cr_mhitsinner  = (Int_t)  ( myElec2->gsfTrack()->trackerExpectedHitsInner().numberOfHits() );
-    ele2_cr_dcot        = (Float_t)( myElec2->convDcot() );
-    ele2_cr_dist        = (Float_t)( myElec2->convDist() );
+    ele2_cr_mhitsinner  = (Float_t)( myElec2->gsfTrack()->trackerExpectedHitsInner().numberOfHits() );
+    ele2_cr_dcot        = (Float_t)( myElec2->userFloat("Dcot") );
+    ele2_cr_dist        = (Float_t)( myElec2->userFloat("Dist") );
 
     ele2_vx             = (Float_t)( myElec2->vx() );
     ele2_vy             = (Float_t)( myElec2->vy() );
     ele2_vz             = (Float_t)( myElec2->vz() );
+
+    pv_x2               = (Float_t)( myElec2->userFloat("pv_x") );
+    pv_y2               = (Float_t)( myElec2->userFloat("pv_y") );
+    pv_z2               = (Float_t)( myElec2->userFloat("pv_z") );
 
     ele2_gsfCharge      = (Int_t)  ( myElec2->gsfTrack()->charge() );
     ele2_ctfCharge      = (Int_t)  ( myElec2->closestCtfTrackRef().isNonnull() ? ( myElec2->closestCtfTrackRef()->charge() ) : -9999 );
     ele2_scPixCharge    = (Int_t)  ( myElec2->chargeInfo().scPixCharge );
     ele2_eop            = (Float_t)( myElec2->eSuperClusterOverP() );
     ele2_tip_bs         = (Float_t)( (-1.0) * myElec2->dB() );
+    ele2_tip_pv         = (Float_t)( myElec2->userFloat("ele_tip_pv") );
 
     event_caloMET       = (Float_t)( myMet->et() );
     event_pfMET         = (Float_t)( myPfMet->et() );
@@ -567,10 +463,6 @@ void ZeePlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
     event_caloMET_phi   = (Float_t)( myMet->phi() );
     event_pfMET_phi     = (Float_t)( myPfMet->phi() );
     event_tcMET_phi     = (Float_t)( myTcMet->phi() );
-
-    event_caloSumEt     = (Float_t)( myMet->sumEt() );
-    event_pfSumEt       = (Float_t)( myPfMet->sumEt() );
-    event_tcSumEt       = (Float_t)( myTcMet->sumEt() );
 
 
     TLorentzVector p4e1;
@@ -728,43 +620,6 @@ void ZeePlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
 
     }
 
-    //  Some extra information
-    event1_triggerDecision = -1;
-    event2_triggerDecision = -1;
-
-    ele1_hltmatched_dr = -999.0;
-    ele2_hltmatched_dr = -999.0;
-
-    VtxTracksSize.clear();
-    VtxNormalizedChi2.clear();
-
-    VtxTracksSizeBS.clear();
-    VtxNormalizedChi2BS.clear();
-
-    if ( storeExtraInformation_ ) {
-        if (myElec1->hasUserFloat("HLTMatchingDR")) {
-            ele1_hltmatched_dr = myElec1->userFloat("HLTMatchingDR");
-        }
-        if (myElec1->hasUserInt("triggerDecision")) {
-            event1_triggerDecision = myElec1->userInt("triggerDecision");
-        }
-        if (myElec2->hasUserFloat("HLTMatchingDR")) {
-            ele2_hltmatched_dr = myElec2->userFloat("HLTMatchingDR");
-        }
-        if (myElec2->hasUserInt("triggerDecision")) {
-            event2_triggerDecision = myElec2->userInt("triggerDecision");
-        }
-        // extra information related to the primary vtx collection
-        for (Int_t i=0; i < (Int_t) Vtx.size(); ++i) {
-            VtxTracksSize.push_back(Vtx[i].tracksSize());
-            VtxNormalizedChi2.push_back(Vtx[i].normalizedChi2());
-        }
-        for (Int_t i=0; i < (Int_t) VtxBS.size(); ++i) {
-            VtxTracksSizeBS.push_back(VtxBS[i].tracksSize());
-            VtxNormalizedChi2BS.push_back(VtxBS[i].normalizedChi2());
-        }
-    }
-
     // if the electrons pass the selection
     // it is meant to be a precalculated selection here, in order to include
     // conversion rejection too
@@ -895,6 +750,10 @@ void ZeePlots::analyze(const edm::Event& iEvent, const edm::EventSetup& es)
         h_EE_deta->Fill(myElec2->deltaEtaSuperClusterTrackAtVtx());
         h_EE_HoE->Fill(myElec2->hadronicOverEm());
     }
+
+    //Double_tscEta=myElec->superCluster()->eta();
+    //Double_tscPhi=myElec->superCluster()->phi();
+    //Double_tscEt=myElec->superCluster()->energy()/cosh(scEta);
 
 }
 
@@ -1174,6 +1033,17 @@ Double_t ZeePlots::ReturnCandVar(const pat::Electron *ele, Int_t i) {
 
 }
 
+
+//Bool_t ZeePlots::CheckCuts2( const pat::Electron *ele)
+//{
+//  for (Int_t i = 0; i<nBarrelVars_; ++i) {
+//    if ( ! CheckCut2(ele, i)) return false;
+//  }
+//  return true;
+//}
+
+
+
 //
 // special preselection criteria
 Bool_t ZeePlots::PassPreselectionCriteria1(const pat::Electron *ele) {
@@ -1452,127 +1322,73 @@ ZeePlots::beginJob()
     vbtfSele_tree->Branch("eventNumber", &eventNumber, "eventNumber/L");
     vbtfSele_tree->Branch("lumiSection", &lumiSection, "lumiSection/I");
 
-    //  For Electron 1
-    vbtfSele_tree->Branch("pv_x1",&pv_x1,"pv_x1/F");
-    vbtfSele_tree->Branch("pv_y1",&pv_y1,"pv_y1/F");
-    vbtfSele_tree->Branch("pv_z1",&pv_z1,"pv_z1/F");
-    vbtfSele_tree->Branch("ele1_tip_pv",&ele1_tip_pv,"ele1_tip_pv/F");
-
-    vbtfSele_tree->Branch("pvBS_x1",&pvBS_x1,"pvBS_x1/F");
-    vbtfSele_tree->Branch("pvBS_y1",&pvBS_y1,"pvBS_y1/F");
-    vbtfSele_tree->Branch("pvBS_z1",&pvBS_z1,"pvBS_z1/F");
-    vbtfSele_tree->Branch("ele1_tip_pvBS",&ele1_tip_pvBS,"ele1_tip_pvBS/F");
-
-    vbtfSele_tree->Branch("ele1_sc_eta",&ele1_sc_eta,"ele1_sc_eta/F");
-    vbtfSele_tree->Branch("ele1_sc_phi",&ele1_sc_phi,"ele1_sc_phi/F");
-    vbtfSele_tree->Branch("ele1_sc_energy",&ele1_sc_energy,"ele1_sc_energy/F");
-    vbtfSele_tree->Branch("ele1_sc_gsf_et",&ele1_sc_gsf_et,"ele1_sc_gsf_et/F");
-
-    vbtfSele_tree->Branch("ele1_sc_x",&ele1_sc_x,"ele1_sc_x/F");
-    vbtfSele_tree->Branch("ele1_sc_y",&ele1_sc_y,"ele1_sc_y/F");
-    vbtfSele_tree->Branch("ele1_sc_z",&ele1_sc_z,"ele1_sc_z/F");
-    vbtfSele_tree->Branch("ele1_sc_rho",&ele1_sc_rho,"ele1_sc_rho/F");
-
-    vbtfSele_tree->Branch("ele1_pin",&ele1_pin,"ele1_pin/F");
-    vbtfSele_tree->Branch("ele1_pout",&ele1_pout,"ele1_pout/F");
-    vbtfSele_tree->Branch("ele1_fbrem",&ele1_fbrem,"ele1_fbrem/F");
-
-    vbtfSele_tree->Branch("ele1_cand_eta",&ele1_cand_eta,"ele1_cand_eta/F");
+    //  for ele 1
+    vbtfSele_tree->Branch("ele1_sc_gsf_et", &ele1_sc_gsf_et,"ele1_sc_gsf_et/F");
+    vbtfSele_tree->Branch("ele1_sc_energy", &ele1_sc_energy,"ele1_sc_energy/F");
+    vbtfSele_tree->Branch("ele1_sc_eta", &ele1_sc_eta,"ele1_sc_eta/F");
+    vbtfSele_tree->Branch("ele1_sc_phi", &ele1_sc_phi,"ele1_sc_phi/F");
+    vbtfSele_tree->Branch("ele1_cand_et", &ele1_cand_et, "ele1_cand_et/F");
+    vbtfSele_tree->Branch("ele1_cand_eta", &ele1_cand_eta,"ele1_cand_eta/F");
     vbtfSele_tree->Branch("ele1_cand_phi",&ele1_cand_phi,"ele1_cand_phi/F");
-    vbtfSele_tree->Branch("ele1_cand_et",&ele1_cand_et,"ele1_cand_et/F");
-
     vbtfSele_tree->Branch("ele1_iso_track",&ele1_iso_track,"ele1_iso_track/F");
     vbtfSele_tree->Branch("ele1_iso_ecal",&ele1_iso_ecal,"ele1_iso_ecal/F");
     vbtfSele_tree->Branch("ele1_iso_hcal",&ele1_iso_hcal,"ele1_iso_hcal/F");
-
     vbtfSele_tree->Branch("ele1_id_sihih",&ele1_id_sihih,"ele1_id_sihih/F");
     vbtfSele_tree->Branch("ele1_id_deta",&ele1_id_deta,"ele1_id_deta/F");
     vbtfSele_tree->Branch("ele1_id_dphi",&ele1_id_dphi,"ele1_id_dphi/F");
     vbtfSele_tree->Branch("ele1_id_hoe",&ele1_id_hoe,"ele1_id_hoe/F");
-
-    vbtfSele_tree->Branch("ele1_trk_ndof",&ele1_trk_ndof,"ele1_trk_ndof/F");
-    vbtfSele_tree->Branch("ele1_trk_normChi2",&ele1_trk_normChi2,"ele1_trk_normChi2/F");
-    vbtfSele_tree->Branch("ele1_trk_lostHits",&ele1_trk_lostHits,"ele1_trk_lostHits/I");
-    vbtfSele_tree->Branch("ele1_trk_validHits",&ele1_trk_validHits,"ele1_trk_validHits/I");
-
-    vbtfSele_tree->Branch("ele1_cr_mhitsouter",&ele1_cr_mhitsouter,"ele1_cr_mhitsouter/I");
     vbtfSele_tree->Branch("ele1_cr_mhitsinner",&ele1_cr_mhitsinner,"ele1_cr_mhitsinner/I");
     vbtfSele_tree->Branch("ele1_cr_dcot",&ele1_cr_dcot,"ele1_cr_dcot/F");
     vbtfSele_tree->Branch("ele1_cr_dist",&ele1_cr_dist,"ele1_cr_dist/F");
-
     vbtfSele_tree->Branch("ele1_vx",&ele1_vx,"ele1_vx/F");
     vbtfSele_tree->Branch("ele1_vy",&ele1_vy,"ele1_vy/F");
     vbtfSele_tree->Branch("ele1_vz",&ele1_vz,"ele1_vz/F");
-
     vbtfSele_tree->Branch("ele1_gsfCharge",&ele1_gsfCharge,"ele1_gsfCharge/I");
     vbtfSele_tree->Branch("ele1_ctfCharge",&ele1_ctfCharge,"ele1_ctfCharge/I");
     vbtfSele_tree->Branch("ele1_scPixCharge",&ele1_scPixCharge,"ele1_scPixCharge/I");
     vbtfSele_tree->Branch("ele1_eop",&ele1_eop,"ele1_eop/F");
     vbtfSele_tree->Branch("ele1_tip_bs",&ele1_tip_bs,"ele1_tip_bs/F");
+    vbtfSele_tree->Branch("ele1_tip_pv",&ele1_tip_pv,"ele1_tip_pv/F");
 
-    //  For Electron 2
-    vbtfSele_tree->Branch("pv_x2",&pv_x2,"pv_x2/F");
-    vbtfSele_tree->Branch("pv_y2",&pv_y2,"pv_y2/F");
-    vbtfSele_tree->Branch("pv_z2",&pv_z2,"pv_z2/F");
-    vbtfSele_tree->Branch("ele2_tip_pv",&ele2_tip_pv,"ele2_tip_pv/F");
-
-    vbtfSele_tree->Branch("pvBS_x2",&pvBS_x2,"pvBS_x2/F");
-    vbtfSele_tree->Branch("pvBS_y2",&pvBS_y2,"pvBS_y2/F");
-    vbtfSele_tree->Branch("pvBS_z2",&pvBS_z2,"pvBS_z2/F");
-    vbtfSele_tree->Branch("ele2_tip_pvBS",&ele2_tip_pvBS,"ele2_tip_pvBS/F");
-
-    vbtfSele_tree->Branch("ele2_sc_eta",&ele2_sc_eta,"ele2_sc_eta/F");
-    vbtfSele_tree->Branch("ele2_sc_phi",&ele2_sc_phi,"ele2_sc_phi/F");
-    vbtfSele_tree->Branch("ele2_sc_energy",&ele2_sc_energy,"ele2_sc_energy/F");
-    vbtfSele_tree->Branch("ele2_sc_gsf_et",&ele2_sc_gsf_et,"ele2_sc_gsf_et/F");
-
-    vbtfSele_tree->Branch("ele2_sc_x",&ele2_sc_x,"ele2_sc_x/F");
-    vbtfSele_tree->Branch("ele2_sc_y",&ele2_sc_y,"ele2_sc_y/F");
-    vbtfSele_tree->Branch("ele2_sc_z",&ele2_sc_z,"ele2_sc_z/F");
-    vbtfSele_tree->Branch("ele2_sc_rho",&ele2_sc_rho,"ele2_sc_rho/F");
-
-    vbtfSele_tree->Branch("ele2_pin",&ele2_pin,"ele2_pin/F");
-    vbtfSele_tree->Branch("ele2_pout",&ele2_pout,"ele2_pout/F");
-    vbtfSele_tree->Branch("ele2_fbrem",&ele2_fbrem,"ele2_fbrem/F");
-
-    vbtfSele_tree->Branch("ele2_cand_eta",&ele2_cand_eta,"ele2_cand_eta/F");
+    //  for ele 2
+    vbtfSele_tree->Branch("ele2_sc_gsf_et", &ele2_sc_gsf_et,"ele2_sc_gsf_et/F");
+    vbtfSele_tree->Branch("ele2_sc_energy", &ele2_sc_energy,"ele2_sc_energy/F");
+    vbtfSele_tree->Branch("ele2_sc_eta", &ele2_sc_eta,"ele2_sc_eta/F");
+    vbtfSele_tree->Branch("ele2_sc_phi", &ele2_sc_phi,"ele2_sc_phi/F");
+    vbtfSele_tree->Branch("ele2_cand_et", &ele2_cand_et, "ele2_cand_et/F");
+    vbtfSele_tree->Branch("ele2_cand_eta", &ele2_cand_eta,"ele2_cand_eta/F");
     vbtfSele_tree->Branch("ele2_cand_phi",&ele2_cand_phi,"ele2_cand_phi/F");
-    vbtfSele_tree->Branch("ele2_cand_et",&ele2_cand_et,"ele2_cand_et/F");
-
     vbtfSele_tree->Branch("ele2_iso_track",&ele2_iso_track,"ele2_iso_track/F");
     vbtfSele_tree->Branch("ele2_iso_ecal",&ele2_iso_ecal,"ele2_iso_ecal/F");
     vbtfSele_tree->Branch("ele2_iso_hcal",&ele2_iso_hcal,"ele2_iso_hcal/F");
-
     vbtfSele_tree->Branch("ele2_id_sihih",&ele2_id_sihih,"ele2_id_sihih/F");
     vbtfSele_tree->Branch("ele2_id_deta",&ele2_id_deta,"ele2_id_deta/F");
     vbtfSele_tree->Branch("ele2_id_dphi",&ele2_id_dphi,"ele2_id_dphi/F");
     vbtfSele_tree->Branch("ele2_id_hoe",&ele2_id_hoe,"ele2_id_hoe/F");
-
-
-    vbtfSele_tree->Branch("ele2_trk_ndof",&ele2_trk_ndof,"ele2_trk_ndof/F");
-    vbtfSele_tree->Branch("ele2_trk_normChi2",&ele2_trk_normChi2,"ele2_trk_normChi2/F");
-    vbtfSele_tree->Branch("ele2_trk_lostHits",&ele2_trk_lostHits,"ele2_trk_lostHits/I");
-    vbtfSele_tree->Branch("ele2_trk_validHits",&ele2_trk_validHits,"ele2_trk_validHits/I");
-
-    vbtfSele_tree->Branch("ele2_cr_mhitsouter",&ele2_cr_mhitsouter,"ele2_cr_mhitsouter/I");
     vbtfSele_tree->Branch("ele2_cr_mhitsinner",&ele2_cr_mhitsinner,"ele2_cr_mhitsinner/I");
     vbtfSele_tree->Branch("ele2_cr_dcot",&ele2_cr_dcot,"ele2_cr_dcot/F");
     vbtfSele_tree->Branch("ele2_cr_dist",&ele2_cr_dist,"ele2_cr_dist/F");
-
     vbtfSele_tree->Branch("ele2_vx",&ele2_vx,"ele2_vx/F");
     vbtfSele_tree->Branch("ele2_vy",&ele2_vy,"ele2_vy/F");
     vbtfSele_tree->Branch("ele2_vz",&ele2_vz,"ele2_vz/F");
-
     vbtfSele_tree->Branch("ele2_gsfCharge",&ele2_gsfCharge,"ele2_gsfCharge/I");
     vbtfSele_tree->Branch("ele2_ctfCharge",&ele2_ctfCharge,"ele2_ctfCharge/I");
     vbtfSele_tree->Branch("ele2_scPixCharge",&ele2_scPixCharge,"ele2_scPixCharge/I");
     vbtfSele_tree->Branch("ele2_eop",&ele2_eop,"ele2_eop/F");
     vbtfSele_tree->Branch("ele2_tip_bs",&ele2_tip_bs,"ele2_tip_bs/F");
-
+    vbtfSele_tree->Branch("ele2_tip_pv",&ele2_tip_pv,"ele2_tip_pv/F");
+    //
+    vbtfSele_tree->Branch("pv_x1",&pv_x1,"pv_x1/F");
+    vbtfSele_tree->Branch("pv_y1",&pv_y1,"pv_y1/F");
+    vbtfSele_tree->Branch("pv_z1",&pv_z1,"pv_z1/F");
+    //
+    vbtfSele_tree->Branch("pv_x2",&pv_x2,"pv_x2/F");
+    vbtfSele_tree->Branch("pv_y2",&pv_y2,"pv_y2/F");
+    vbtfSele_tree->Branch("pv_z2",&pv_z2,"pv_z2/F");
+    //
     vbtfSele_tree->Branch("event_caloMET",&event_caloMET,"event_caloMET/F");
     vbtfSele_tree->Branch("event_pfMET",&event_pfMET,"event_pfMET/F");
     vbtfSele_tree->Branch("event_tcMET",&event_tcMET,"event_tcMET/F");
-
     vbtfSele_tree->Branch("event_caloMET_phi",&event_caloMET_phi,"event_caloMET_phi/F");
     vbtfSele_tree->Branch("event_pfMET_phi",&event_pfMET_phi,"event_pfMET_phi/F");
     vbtfSele_tree->Branch("event_tcMET_phi",&event_tcMET_phi,"event_tcMET_phi/F");
@@ -1592,21 +1408,6 @@ ZeePlots::beginJob()
 
     }
 
-    //
-    // the extra information:
-    if ( storeExtraInformation_ ) {
-
-        vbtfSele_tree->Branch("ele1_hltmatched_dr",&ele1_hltmatched_dr,"ele1_hltmatched_dr/F");
-        vbtfSele_tree->Branch("ele2_hltmatched_dr",&ele2_hltmatched_dr,"ele2_hltmatched_dr/F");
-        vbtfSele_tree->Branch("event1_triggerDecision",&event1_triggerDecision,"event1_triggerDecision/I");
-        vbtfSele_tree->Branch("event2_triggerDecision",&event2_triggerDecision,"event2_triggerDecision/I");
-        vbtfSele_tree->Branch("VtxTracksSize",&VtxTracksSize);
-        vbtfSele_tree->Branch("VtxNormalizedChi2",&VtxNormalizedChi2);
-        vbtfSele_tree->Branch("VtxTracksSizeBS",&VtxTracksSizeBS);
-        vbtfSele_tree->Branch("VtxNormalizedChi2BS",&VtxNormalizedChi2BS);
-        
-    }
-
     vbtfSele_tree->Branch("event_datasetTag",&event_datasetTag,"event_dataSetTag/I");
 
     // everything after preselection
@@ -1618,126 +1419,73 @@ ZeePlots::beginJob()
     vbtfPresele_tree->Branch("eventNumber", &eventNumber, "eventNumber/L");
     vbtfPresele_tree->Branch("lumiSection", &lumiSection, "lumiSection/I");
 
-    //  For Electron 1
-    vbtfPresele_tree->Branch("pv_x1",&pv_x1,"pv_x1/F");
-    vbtfPresele_tree->Branch("pv_y1",&pv_y1,"pv_y1/F");
-    vbtfPresele_tree->Branch("pv_z1",&pv_z1,"pv_z1/F");
-    vbtfPresele_tree->Branch("ele1_tip_pv",&ele1_tip_pv,"ele1_tip_pv/F");
-
-    vbtfPresele_tree->Branch("pvBS_x1",&pvBS_x1,"pvBS_x1/F");
-    vbtfPresele_tree->Branch("pvBS_y1",&pvBS_y1,"pvBS_y1/F");
-    vbtfPresele_tree->Branch("pvBS_z1",&pvBS_z1,"pvBS_z1/F");
-    vbtfPresele_tree->Branch("ele1_tip_pvBS",&ele1_tip_pvBS,"ele1_tip_pvBS/F");
-
-    vbtfPresele_tree->Branch("ele1_sc_eta",&ele1_sc_eta,"ele1_sc_eta/F");
-    vbtfPresele_tree->Branch("ele1_sc_phi",&ele1_sc_phi,"ele1_sc_phi/F");
-    vbtfPresele_tree->Branch("ele1_sc_energy",&ele1_sc_energy,"ele1_sc_energy/F");
-    vbtfPresele_tree->Branch("ele1_sc_gsf_et",&ele1_sc_gsf_et,"ele1_sc_gsf_et/F");
-
-    vbtfPresele_tree->Branch("ele1_sc_x",&ele1_sc_x,"ele1_sc_x/F");
-    vbtfPresele_tree->Branch("ele1_sc_y",&ele1_sc_y,"ele1_sc_y/F");
-    vbtfPresele_tree->Branch("ele1_sc_z",&ele1_sc_z,"ele1_sc_z/F");
-    vbtfPresele_tree->Branch("ele1_sc_rho",&ele1_sc_rho,"ele1_sc_rho/F");
-
-    vbtfPresele_tree->Branch("ele1_pin",&ele1_pin,"ele1_pin/F");
-    vbtfPresele_tree->Branch("ele1_pout",&ele1_pout,"ele1_pout/F");
-    vbtfPresele_tree->Branch("ele1_fbrem",&ele1_fbrem,"ele1_fbrem/F");
-
-    vbtfPresele_tree->Branch("ele1_cand_eta",&ele1_cand_eta,"ele1_cand_eta/F");
+    //  for ele 1
+    vbtfPresele_tree->Branch("ele1_sc_gsf_et", &ele1_sc_gsf_et,"ele1_sc_gsf_et/F");
+    vbtfPresele_tree->Branch("ele1_sc_energy", &ele1_sc_energy,"ele1_sc_energy/F");
+    vbtfPresele_tree->Branch("ele1_sc_eta", &ele1_sc_eta,"ele1_sc_eta/F");
+    vbtfPresele_tree->Branch("ele1_sc_phi", &ele1_sc_phi,"ele1_sc_phi/F");
+    vbtfPresele_tree->Branch("ele1_cand_et", &ele1_cand_et, "ele1_cand_et/F");
+    vbtfPresele_tree->Branch("ele1_cand_eta", &ele1_cand_eta,"ele1_cand_eta/F");
     vbtfPresele_tree->Branch("ele1_cand_phi",&ele1_cand_phi,"ele1_cand_phi/F");
-    vbtfPresele_tree->Branch("ele1_cand_et",&ele1_cand_et,"ele1_cand_et/F");
-
     vbtfPresele_tree->Branch("ele1_iso_track",&ele1_iso_track,"ele1_iso_track/F");
     vbtfPresele_tree->Branch("ele1_iso_ecal",&ele1_iso_ecal,"ele1_iso_ecal/F");
     vbtfPresele_tree->Branch("ele1_iso_hcal",&ele1_iso_hcal,"ele1_iso_hcal/F");
-
     vbtfPresele_tree->Branch("ele1_id_sihih",&ele1_id_sihih,"ele1_id_sihih/F");
     vbtfPresele_tree->Branch("ele1_id_deta",&ele1_id_deta,"ele1_id_deta/F");
     vbtfPresele_tree->Branch("ele1_id_dphi",&ele1_id_dphi,"ele1_id_dphi/F");
     vbtfPresele_tree->Branch("ele1_id_hoe",&ele1_id_hoe,"ele1_id_hoe/F");
-
-    vbtfPresele_tree->Branch("ele1_trk_ndof",&ele1_trk_ndof,"ele1_trk_ndof/F");
-    vbtfPresele_tree->Branch("ele1_trk_normChi2",&ele1_trk_normChi2,"ele1_trk_normChi2/F");
-    vbtfPresele_tree->Branch("ele1_trk_lostHits",&ele1_trk_lostHits,"ele1_trk_lostHits/I");
-    vbtfPresele_tree->Branch("ele1_trk_validHits",&ele1_trk_validHits,"ele1_trk_validHits/I");
-
-    vbtfPresele_tree->Branch("ele1_cr_mhitsouter",&ele1_cr_mhitsouter,"ele1_cr_mhitsouter/I");
     vbtfPresele_tree->Branch("ele1_cr_mhitsinner",&ele1_cr_mhitsinner,"ele1_cr_mhitsinner/I");
     vbtfPresele_tree->Branch("ele1_cr_dcot",&ele1_cr_dcot,"ele1_cr_dcot/F");
     vbtfPresele_tree->Branch("ele1_cr_dist",&ele1_cr_dist,"ele1_cr_dist/F");
-
     vbtfPresele_tree->Branch("ele1_vx",&ele1_vx,"ele1_vx/F");
     vbtfPresele_tree->Branch("ele1_vy",&ele1_vy,"ele1_vy/F");
     vbtfPresele_tree->Branch("ele1_vz",&ele1_vz,"ele1_vz/F");
-
     vbtfPresele_tree->Branch("ele1_gsfCharge",&ele1_gsfCharge,"ele1_gsfCharge/I");
     vbtfPresele_tree->Branch("ele1_ctfCharge",&ele1_ctfCharge,"ele1_ctfCharge/I");
     vbtfPresele_tree->Branch("ele1_scPixCharge",&ele1_scPixCharge,"ele1_scPixCharge/I");
     vbtfPresele_tree->Branch("ele1_eop",&ele1_eop,"ele1_eop/F");
     vbtfPresele_tree->Branch("ele1_tip_bs",&ele1_tip_bs,"ele1_tip_bs/F");
+    vbtfPresele_tree->Branch("ele1_tip_pv",&ele1_tip_pv,"ele1_tip_pv/F");
 
-    //  For Electron 2
-    vbtfPresele_tree->Branch("pv_x2",&pv_x2,"pv_x2/F");
-    vbtfPresele_tree->Branch("pv_y2",&pv_y2,"pv_y2/F");
-    vbtfPresele_tree->Branch("pv_z2",&pv_z2,"pv_z2/F");
-    vbtfPresele_tree->Branch("ele2_tip_pv",&ele2_tip_pv,"ele2_tip_pv/F");
-
-    vbtfPresele_tree->Branch("pvBS_x2",&pvBS_x2,"pvBS_x2/F");
-    vbtfPresele_tree->Branch("pvBS_y2",&pvBS_y2,"pvBS_y2/F");
-    vbtfPresele_tree->Branch("pvBS_z2",&pvBS_z2,"pvBS_z2/F");
-    vbtfPresele_tree->Branch("ele2_tip_pvBS",&ele2_tip_pvBS,"ele2_tip_pvBS/F");
-
-    vbtfPresele_tree->Branch("ele2_sc_eta",&ele2_sc_eta,"ele2_sc_eta/F");
-    vbtfPresele_tree->Branch("ele2_sc_phi",&ele2_sc_phi,"ele2_sc_phi/F");
-    vbtfPresele_tree->Branch("ele2_sc_energy",&ele2_sc_energy,"ele2_sc_energy/F");
-    vbtfPresele_tree->Branch("ele2_sc_gsf_et",&ele2_sc_gsf_et,"ele2_sc_gsf_et/F");
-
-    vbtfPresele_tree->Branch("ele2_sc_x",&ele2_sc_x,"ele2_sc_x/F");
-    vbtfPresele_tree->Branch("ele2_sc_y",&ele2_sc_y,"ele2_sc_y/F");
-    vbtfPresele_tree->Branch("ele2_sc_z",&ele2_sc_z,"ele2_sc_z/F");
-    vbtfPresele_tree->Branch("ele2_sc_rho",&ele2_sc_rho,"ele2_sc_rho/F");
-
-    vbtfPresele_tree->Branch("ele2_pin",&ele2_pin,"ele2_pin/F");
-    vbtfPresele_tree->Branch("ele2_pout",&ele2_pout,"ele2_pout/F");
-    vbtfPresele_tree->Branch("ele2_fbrem",&ele2_fbrem,"ele2_fbrem/F");
-
-    vbtfPresele_tree->Branch("ele2_cand_eta",&ele2_cand_eta,"ele2_cand_eta/F");
+    //  for ele 2
+    vbtfPresele_tree->Branch("ele2_sc_gsf_et", &ele2_sc_gsf_et,"ele2_sc_gsf_et/F");
+    vbtfPresele_tree->Branch("ele2_sc_energy", &ele2_sc_energy,"ele2_sc_energy/F");
+    vbtfPresele_tree->Branch("ele2_sc_eta", &ele2_sc_eta,"ele2_sc_eta/F");
+    vbtfPresele_tree->Branch("ele2_sc_phi", &ele2_sc_phi,"ele2_sc_phi/F");
+    vbtfPresele_tree->Branch("ele2_cand_et", &ele2_cand_et, "ele2_cand_et/F");
+    vbtfPresele_tree->Branch("ele2_cand_eta", &ele2_cand_eta,"ele2_cand_eta/F");
     vbtfPresele_tree->Branch("ele2_cand_phi",&ele2_cand_phi,"ele2_cand_phi/F");
-    vbtfPresele_tree->Branch("ele2_cand_et",&ele2_cand_et,"ele2_cand_et/F");
-
     vbtfPresele_tree->Branch("ele2_iso_track",&ele2_iso_track,"ele2_iso_track/F");
     vbtfPresele_tree->Branch("ele2_iso_ecal",&ele2_iso_ecal,"ele2_iso_ecal/F");
     vbtfPresele_tree->Branch("ele2_iso_hcal",&ele2_iso_hcal,"ele2_iso_hcal/F");
-
     vbtfPresele_tree->Branch("ele2_id_sihih",&ele2_id_sihih,"ele2_id_sihih/F");
     vbtfPresele_tree->Branch("ele2_id_deta",&ele2_id_deta,"ele2_id_deta/F");
     vbtfPresele_tree->Branch("ele2_id_dphi",&ele2_id_dphi,"ele2_id_dphi/F");
     vbtfPresele_tree->Branch("ele2_id_hoe",&ele2_id_hoe,"ele2_id_hoe/F");
-
-    vbtfPresele_tree->Branch("ele2_trk_ndof",&ele2_trk_ndof,"ele2_trk_ndof/F");
-    vbtfPresele_tree->Branch("ele2_trk_normChi2",&ele2_trk_normChi2,"ele2_trk_normChi2/F");
-    vbtfPresele_tree->Branch("ele2_trk_lostHits",&ele2_trk_lostHits,"ele2_trk_lostHits/I");
-    vbtfPresele_tree->Branch("ele2_trk_validHits",&ele2_trk_validHits,"ele2_trk_validHits/I");
-
-    vbtfPresele_tree->Branch("ele2_cr_mhitsouter",&ele2_cr_mhitsouter,"ele2_cr_mhitsouter/I");
     vbtfPresele_tree->Branch("ele2_cr_mhitsinner",&ele2_cr_mhitsinner,"ele2_cr_mhitsinner/I");
     vbtfPresele_tree->Branch("ele2_cr_dcot",&ele2_cr_dcot,"ele2_cr_dcot/F");
     vbtfPresele_tree->Branch("ele2_cr_dist",&ele2_cr_dist,"ele2_cr_dist/F");
-
     vbtfPresele_tree->Branch("ele2_vx",&ele2_vx,"ele2_vx/F");
     vbtfPresele_tree->Branch("ele2_vy",&ele2_vy,"ele2_vy/F");
     vbtfPresele_tree->Branch("ele2_vz",&ele2_vz,"ele2_vz/F");
-
     vbtfPresele_tree->Branch("ele2_gsfCharge",&ele2_gsfCharge,"ele2_gsfCharge/I");
     vbtfPresele_tree->Branch("ele2_ctfCharge",&ele2_ctfCharge,"ele2_ctfCharge/I");
     vbtfPresele_tree->Branch("ele2_scPixCharge",&ele2_scPixCharge,"ele2_scPixCharge/I");
     vbtfPresele_tree->Branch("ele2_eop",&ele2_eop,"ele2_eop/F");
     vbtfPresele_tree->Branch("ele2_tip_bs",&ele2_tip_bs,"ele2_tip_bs/F");
+    vbtfPresele_tree->Branch("ele2_tip_pv",&ele2_tip_pv,"ele2_tip_pv/F");
+
+    vbtfPresele_tree->Branch("pv_x1",&pv_x1,"pv_x1/F");
+    vbtfPresele_tree->Branch("pv_y1",&pv_y1,"pv_y1/F");
+    vbtfPresele_tree->Branch("pv_z1",&pv_z1,"pv_z1/F");
+
+    vbtfPresele_tree->Branch("pv_x2",&pv_x2,"pv_x2/F");
+    vbtfPresele_tree->Branch("pv_y2",&pv_y2,"pv_y2/F");
+    vbtfPresele_tree->Branch("pv_z2",&pv_z2,"pv_z2/F");
 
     vbtfPresele_tree->Branch("event_caloMET",&event_caloMET,"event_caloMET/F");
     vbtfPresele_tree->Branch("event_pfMET",&event_pfMET,"event_pfMET/F");
     vbtfPresele_tree->Branch("event_tcMET",&event_tcMET,"event_tcMET/F");
-
     vbtfPresele_tree->Branch("event_caloMET_phi",&event_caloMET_phi,"event_caloMET_phi/F");
     vbtfPresele_tree->Branch("event_pfMET_phi",&event_pfMET_phi,"event_pfMET_phi/F");
     vbtfPresele_tree->Branch("event_tcMET_phi",&event_tcMET_phi,"event_tcMET_phi/F");
@@ -1755,21 +1503,6 @@ ZeePlots::beginJob()
         vbtfPresele_tree->Branch("pfjet_eta",pfjet_eta,"pfjet_eta[5]/F");
         vbtfPresele_tree->Branch("pfjet_phi",pfjet_phi,"pfjet_phi[5]/F");
 
-    }
-
-    //
-    // the extra information:
-    if ( storeExtraInformation_ ) {
-
-        vbtfPresele_tree->Branch("ele1_hltmatched_dr",&ele1_hltmatched_dr,"ele1_hltmatched_dr/F");
-        vbtfPresele_tree->Branch("ele2_hltmatched_dr",&ele2_hltmatched_dr,"ele2_hltmatched_dr/F");
-        vbtfPresele_tree->Branch("event1_triggerDecision",&event1_triggerDecision,"event1_triggerDecision/I");
-        vbtfPresele_tree->Branch("event2_triggerDecision",&event2_triggerDecision,"event2_triggerDecision/I");
-        vbtfPresele_tree->Branch("VtxTracksSize",&VtxTracksSize);
-        vbtfPresele_tree->Branch("VtxNormalizedChi2",&VtxNormalizedChi2);
-        vbtfPresele_tree->Branch("VtxTracksSizeBS",&VtxTracksSizeBS);
-        vbtfPresele_tree->Branch("VtxNormalizedChi2BS",&VtxNormalizedChi2BS);
-        
     }
 
     vbtfPresele_tree->Branch("event_datasetTag",&event_datasetTag,"event_dataSetTag/I");

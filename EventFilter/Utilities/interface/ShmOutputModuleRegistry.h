@@ -8,23 +8,25 @@ namespace edm{
   class ParameterSet;
 }
 
-namespace edm{
- class FUShmOutputModule;
-}
+
 
 namespace evf
 {
- 
+  
+  class OutputModule{
+  public: 
+    virtual unsigned int getCounts()=0;
+  };
   class ShmOutputModuleRegistry
     {
     public:
       ShmOutputModuleRegistry(const edm::ParameterSet &);
-      edm::FUShmOutputModule *get(std::string &name);
-      void registerModule(std::string &name, edm::FUShmOutputModule *op);
+      OutputModule *get(std::string &name);
+      void registerModule(std::string &name, OutputModule *op);
       void dumpRegistry();
 
     private:
-      typedef std::map<std::string, edm::FUShmOutputModule*> dct;
+      typedef std::map<std::string, OutputModule*> dct;
       typedef dct::iterator idct;
       void clear();
       dct clm_;

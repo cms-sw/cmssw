@@ -55,14 +55,6 @@
   <use name="RecoLuminosity/LumiProducer"/>	
 </bin>
 
-<bin file="cmmdLoadLumiDB.cpp" name="cmmdLoadLumiDB">
-  <flags NO_TESTRUN="1"/>
-  <use name="boost"/>
-  <use name="boost_program_options"/>
-  <use name="FWCore/PluginManager"/>
-  <use name="RecoLuminosity/LumiProducer"/>	
-</bin>
-
 <library file="TestLumiProducer.cc" name="TestLumiProducer">
   <flags EDM_PLUGIN="1"/>
 </library>

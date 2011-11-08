@@ -1,8 +1,8 @@
 /*
  * \file EBTriggerTowerClient.cc
  *
- * $Date: 2010/03/27 20:07:57 $
- * $Revision: 1.125 $
+ * $Date: 2011/08/30 09:33:51 $
+ * $Revision: 1.127 $
  * \author G. Della Ricca
  * \author F. Cossutti
  *
@@ -16,6 +16,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -110,7 +111,7 @@ void EBTriggerTowerClient::endRun(void) {
 
 void EBTriggerTowerClient::setup(void) {
 
-  char histo[200];
+  std::string name;
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EBTriggerTowerClient" );
 
@@ -119,14 +120,14 @@ void EBTriggerTowerClient::setup(void) {
     int ism = superModules_[i];
 
     if ( me_o01_[ism-1] ) dqmStore_->removeElement( me_o01_[ism-1]->getName() );
-    sprintf(histo, "EBTTT Trigger Primitives Timing %s", Numbers::sEB(ism).c_str());
-    me_o01_[ism-1] = dqmStore_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
+    name = "EBTTT Trigger Primitives Timing " + Numbers::sEB(ism);
+    me_o01_[ism-1] = dqmStore_->book2D(name, name, 17, 0., 17., 4, 0., 4.);
     me_o01_[ism-1]->setAxisTitle("ieta'", 1);
     me_o01_[ism-1]->setAxisTitle("iphi'", 2);
 
     if ( me_o02_[ism-1] ) dqmStore_->removeElement( me_o02_[ism-1]->getName() );
-    sprintf(histo, "EBTTT Non Single Timing %s", Numbers::sEB(ism).c_str());
-    me_o02_[ism-1] = dqmStore_->book2D(histo, histo, 17, 0., 17., 4, 0., 4.);
+    name = "EBTTT Non Single Timing " + Numbers::sEB(ism);
+    me_o02_[ism-1] = dqmStore_->book2D(name, name, 17, 0., 17., 4, 0., 4.);
     me_o02_[ism-1]->setAxisTitle("ieta'", 1);
     me_o02_[ism-1]->setAxisTitle("iphi'", 2);
     me_o02_[ism-1]->setAxisTitle("fraction", 3);
@@ -210,26 +211,21 @@ void EBTriggerTowerClient::analyze(void) {
     if ( debug_ ) std::cout << "EBTriggerTowerClient: ievt/jevt = " << ievt_ << "/" << jevt_ << std::endl;
   }
 
-  char histo[200];
-
   MonitorElement* me;
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    sprintf(histo, (prefixME_ + "/EBTriggerTowerTask/EBTTT EmulError %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
+    me = dqmStore_->get( prefixME_ + "/EBTriggerTowerTask/EBTTT EmulError " + Numbers::sEB(ism) );
     l01_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, l01_[ism-1] );
     mel01_[ism-1] = me;
 
-    sprintf(histo, (prefixME_ + "/EBTriggerTowerTask/EBTTT EmulFineGrainVetoError %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
+    me = dqmStore_->get( prefixME_ + "/EBTriggerTowerTask/EBTTT EmulFineGrainVetoError " + Numbers::sEB(ism) );
     l02_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, l02_[ism-1] );
     mel02_[ism-1] = me;
 
-    sprintf(histo, (prefixME_ + "/EBTriggerTowerTask/EBTTT EmulMatch %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
+    me = dqmStore_->get( prefixME_ + "/EBTriggerTowerTask/EBTTT EmulMatch " + Numbers::sEB(ism) );
     o01_[ism-1] = UtilsClient::getHisto<TH3F*>( me, cloneME_, o01_[ism-1] );
     meo01_[ism-1] = me;
 

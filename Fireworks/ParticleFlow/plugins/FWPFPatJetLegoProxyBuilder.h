@@ -18,8 +18,6 @@
 
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
-#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
-#include "Fireworks/Candidates/plugins/FWLegoCandidate.h"
 #include "Fireworks/ParticleFlow/interface/setTrackTypePF.h"
 
 

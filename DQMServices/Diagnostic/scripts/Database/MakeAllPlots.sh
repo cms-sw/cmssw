@@ -17,7 +17,7 @@ function MakeAllPlots ()
     local RunStart=$4
     local RunEnd=$5
 
-    local Password=YHIX4CVVAJVRUXE6
+    local Password=PASSWORD
 
     local BasePlotOutDir=`pwd`/./HistoricDQMPlots
     mkdir -pv $BasePlotOutDir

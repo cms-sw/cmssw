@@ -8,221 +8,164 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Sun Nov 30 16:15:43 EST 2008
-// $Id: FWItemValueGetter.cc,v 1.5 2010/08/18 10:30:12 amraktad Exp $
+// $Id: FWItemValueGetter.cc,v 1.7 2011/08/18 00:37:10 amraktad Exp $
 //
 
 // system include files
 #include <sstream>
-#include "Reflex/Object.h"
-#include "Reflex/Base.h"
 #include <cstdio>
+#include "TMath.h"
+#include "Reflex/Base.h"
+#include "Reflex/Base.h"
 
 // user include files
 #include "Fireworks/Core/interface/FWItemValueGetter.h"
 
-//
-// constants, enums and typedefs
-//
+#include "Fireworks/Core/interface/FWExpressionEvaluator.h"
+#include "Fireworks/Core/interface/FWExpressionException.h"
+#include "CommonTools/Utils/src/Grammar.h"
+#include "CommonTools/Utils/interface/Exception.h"
 
-//
-// static data member definitions
-//
-static
-ROOT::Reflex::Member
-recursiveFindMember(const std::string& iName,
-                    const ROOT::Reflex::Type& iType)
+#include "Fireworks/Core/src/expressionFormatHelpers.h"
+
+
+//==============================================================================
+//==============================================================================
+//==============================================================================
+
+
+FWItemValueGetter::FWItemValueGetter(const ROOT::Reflex::Type& iType, const std::string& iPurpose):
+   m_type(iType),
+   m_titleWidth(0)
 {
-   using namespace ROOT::Reflex;
-
-   Member temp = iType.MemberByName(iName);
-   if(temp) {return temp;}
-
-   //try all base classes
-   for(Base_Iterator it = iType.Base_Begin(), itEnd = iType.Base_End();
-       it != itEnd;
-       ++it) {
-      temp = recursiveFindMember(iName,it->ToType());
-      if(temp) {break;}
-   }
-   return temp;
-}
-
-namespace {
-   template <class T>
-   const std::string& valueToString(const std::string& iName,
-                                    const std::string& iUnit,
-                                    const Reflex::Object& iObject,
-                                    const Reflex::Member& iMember)
+   if ( iType.Name() == "CaloTower" )
    {
-      static std::string bala(128, 0);
-      T temp;
-      iMember.Invoke(iObject,temp);
-      snprintf(&bala[0], 127, "%s: %.1f %s", iName.c_str(), temp, iUnit.c_str());
-      return bala;
+      if ( iPurpose == "ECal" )
+         addEntry("emEt", 1, "et", "GeV");
+      else if ( iPurpose == "HCal" )
+         addEntry("hadEt", 1, "et", "GeV");
+      else if (iPurpose == "HCal Outer")
+         addEntry("outerEt", 1, "et", "GeV");
+   }
+   else if (strstr(iPurpose.c_str(), "Beam Spot") )
+   {
+      addEntry("x0", 2, "x", "cm");
+      addEntry("y0", 2, "y", "cm");
+      addEntry("z0", 2, "z", "cm");
+   }
+   else if (strstr(iPurpose.c_str(), "Conversion") )
+   {
+      addEntry("pairMomentum().rho()", 1, "pt", "GeV" );
+      addEntry("pairMomentum().eta()", 2, "eta");
+      addEntry("pairMomentum().phi()", 2, "phi");
+   }
+   else if (strstr(iPurpose.c_str(), "Candidate") )
+   {
+      addEntry("pdgId()", 0, "pdg");
+      bool x = addEntry("pt", 1);
+      if (!x) x = addEntry("et", 1);
+      if (!x) addEntry("energy", 1);
+   }
+   else if (iPurpose == "Jets" )
+   {
+      addEntry("et", 1);
+   }
+   else {
+      // by the default  add pt, et, or energy
+      bool x = addEntry("pt", 1);
+      if (!x) x = addEntry("et", 1);
+      if (!x) addEntry("energy", 1);
    }
 
-   typedef const std::string& (*FunctionType)(const std::string&, const std::string&,const Reflex::Object&, const Reflex::Member&);
-   typedef std::map<std::string, FunctionType> TypeToStringMap;
-
-   template<typename T>
-   static void addToStringMap(TypeToStringMap& iMap) {
-      iMap[typeid(T).name()]=valueToString<T>;
-   }
-
-   template <class T>
-   double valueToDouble(const Reflex::Object& iObj, const Reflex::Member& iMember) {
-      T temp;
-      iMember.Invoke(iObj,temp);
-      return temp;
-   }
-
-   typedef double (*DoubleFunctionType)(const Reflex::Object&, const Reflex::Member&);
-   typedef std::map<std::string, DoubleFunctionType> TypeToDoubleMap;
-
-   template<typename T>
-   static void addToDoubleMap(TypeToDoubleMap& iMap) {
-      iMap[typeid(T).name()]=valueToDouble<T>;
-   }
-
+   if (addEntry("eta", 2))
+      addEntry("phi",  2);
 }
 
-static
-const std::string&
-stringValueFor(const ROOT::Reflex::Object& iObj, 
-               const ROOT::Reflex::Member& iMember,
-               const std::string& iUnit)
+
+
+bool FWItemValueGetter::addEntry(std::string iExpression, int iPrec, std::string iTitle, std::string iUnit)
 {
-   static std::string     s_empty_string;
-   static TypeToStringMap s_map;
-   if (s_map.empty())
+   using namespace boost::spirit::classic;
+
+   reco::parser::ExpressionPtr tmpPtr;
+   reco::parser::Grammar grammar(tmpPtr, m_type);
+
+   if(m_type != ROOT::Reflex::Type() && iExpression.size()) 
    {
-      addToStringMap<float>(s_map);
-      addToStringMap<double>(s_map);
-   }
-   Reflex::Type returnType = iMember.TypeOf().ReturnType().FinalType();
+      using namespace fireworks::expression;
 
-   TypeToStringMap::iterator itFound =s_map.find(returnType.TypeInfo().name());
-   if (itFound == s_map.end())
-   {
-      //std::cout <<" could not print because type is "<<iObj.TypeOf().TypeInfo().name()<<std::endl;
-      return s_empty_string;
-   }
+      //Backwards compatibility with old format
+      std::string temp = oldToNewFormat(iExpression);
 
-   return itFound->second(iMember.Name(),iUnit,iObj,iMember);
-}
-
-static
-double
-doubleValueFor(const ROOT::Reflex::Object& iObj, const ROOT::Reflex::Member& iMember) {
-   static TypeToDoubleMap s_map;
-   if(s_map.empty() ) {
-      addToDoubleMap<float>(s_map);
-      addToDoubleMap<double>(s_map);
-   }
-
-   const Reflex::Type returnType = iMember.TypeOf().ReturnType().FinalType();
-
-   //std::cout << val.TypeOf().TypeInfo().name()<<std::endl;
-   TypeToDoubleMap::iterator itFound =s_map.find(returnType.TypeInfo().name());
-   if(itFound == s_map.end()) {
-      //std::cout <<" could not print because type is "<<iObj.TypeOf().TypeInfo().name()<<std::endl;
-      return -999.0;
-   }
-
-   return itFound->second(iObj,iMember);
-}
-
-
-//
-// constructors and destructor
-//
-FWItemValueGetter::FWItemValueGetter(const ROOT::Reflex::Type& iType,
-                                     const std::vector<std::pair<std::string, std::string> >& iFindValueFrom) :
-   m_type(iType)
-{
-   using namespace ROOT::Reflex;
-   for(std::vector<std::pair<std::string,std::string> >::const_iterator it = iFindValueFrom.begin(), itEnd=iFindValueFrom.end();
-       it != itEnd;
-       ++it) {
-      //std::cout <<" trying function "<<*it<<std::endl;
-      Member temp = recursiveFindMember(it->first,iType);
-      if(temp) {
-         if(0==temp.FunctionParameterSize(true)) {
-            //std::cout <<"    FOUND "<<temp.Name()<<std::endl;
-            //std::cout <<"     in type "<<temp.DeclaringType().Name(SCOPED)<<std::endl;
-            m_memberFunction = temp;
-            m_unit = it->second;
-            break;
+      //now setup the parser
+      try 
+      {
+         if(parse(temp.c_str(), grammar.use_parser<1>() >> end_p, space_p).full) 
+         {
+            m_entries.push_back(Entry(tmpPtr, iExpression, iUnit, iTitle.empty() ? iExpression :iTitle , iPrec));
+            m_titleWidth = TMath::Max(m_titleWidth, (int) m_entries.back().m_title.size());
+            return true;
          }
+      } 
+      catch(const reco::parser::BaseException& e)
+      {
+         // std::cout <<"failed to parse "<<iExpression<<" because "<<reco::parser::baseExceptionWhat(e)<<std::endl;
       }
    }
+   return false;
 }
 
-// FWItemValueGetter::FWItemValueGetter(const FWItemValueGetter& rhs)
-// {
-//    // do actual copying here;
-// }
 
-//FWItemValueGetter::~FWItemValueGetter()
-//{
-//}
+//______________________________________________________________________________
 
-//
-// assignment operators
-//
-// const FWItemValueGetter& FWItemValueGetter::operator=(const FWItemValueGetter& rhs)
-// {
-//   //An exception safe implementation is
-//   FWItemValueGetter temp(rhs);
-//   swap(rhs);
-//
-//   return *this;
-// }
-
-//
-// member functions
-//
-
-//
-// const member functions
-//
 double
-FWItemValueGetter::valueFor(const void* iObject) const
+FWItemValueGetter::valueFor(const void* iObject, int idx) const
 {
-   ROOT::Reflex::Object temp(m_type,
-                             const_cast<void*>(iObject));
-   ROOT::Reflex::Object obj= temp.CastObject(m_memberFunction.DeclaringType());
-   return ::doubleValueFor(obj,m_memberFunction);
+   //  std::cout << " value for " << idx << "size " <<  m_entries.size() <<std::endl;
+   ROOT::Reflex::Object o(m_type, const_cast<void *>(iObject));
+   return m_entries[idx].m_expr->value(o);
 }
 
-const std::string&
-FWItemValueGetter::stringValueFor(const void* iObject) const
+UInt_t
+FWItemValueGetter::precision(int idx) const
 {
-   ROOT::Reflex::Object temp(m_type,
-                             const_cast<void*>(iObject));
-   ROOT::Reflex::Object obj= temp.CastObject(m_memberFunction.DeclaringType());
-
-   return ::stringValueFor(obj,m_memberFunction,m_unit);
+   return m_entries[idx].m_precision;
 }
 
-bool
-FWItemValueGetter::isValid() const
+std::vector<std::string> 
+FWItemValueGetter::getTitles() const
 {
-   return bool(m_memberFunction);
+   std::vector<std::string> titles;
+   titles.reserve(m_entries.size());
+
+   for (std::vector<Entry >::const_iterator i  = m_entries.begin() ; i != m_entries.end(); ++i) 
+      titles.push_back((*i).m_title.empty() ? (*i).m_expression : (*i).m_title );
+
+   return titles;
 }
 
-std::string
-FWItemValueGetter::valueName() const
+int 
+FWItemValueGetter::numValues() const
 {
-   return m_memberFunction.Name();
+   return static_cast<int>(m_entries.size());
+}
+//______________________________________________________________________________
+
+const std::string& 
+FWItemValueGetter::getToolTip(const void* iObject) const
+{
+   static std::string buff(128, 0);
+   static std::string fs = "\n %*s = %.*f";
+
+   ROOT::Reflex::Object o(m_type, const_cast<void *>(iObject));
+
+   int off = 0;
+   for ( std::vector<Entry >::const_iterator i = m_entries.begin() ; i != m_entries.end(); ++i) {
+      const Entry& e = *i;
+      off += snprintf(&buff[off], 127, fs.c_str(), m_titleWidth, e.m_title.c_str(),  e.m_precision ? (e.m_precision+1) : 0,  e.m_expr->value(o));
+   }
+
+   // std::cout << buff;
+   return buff;
 }
 
-const std::string&
-FWItemValueGetter::unit() const
-{
-   return m_unit;
-}
-
-//
-// static member functions
-//

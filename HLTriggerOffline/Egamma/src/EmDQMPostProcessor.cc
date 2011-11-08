@@ -21,6 +21,8 @@ EmDQMPostProcessor::EmDQMPostProcessor(const edm::ParameterSet& pset)
 
   dataSet_ = pset.getUntrackedParameter<std::string>("dataSet","unknown");
 
+  noPhiPlots = pset.getUntrackedParameter<bool>("noPhiPlots", true);
+
   normalizeToReco = pset.getUntrackedParameter<bool>("normalizeToReco",false);
 }
 
@@ -99,7 +101,7 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
 
   // find the number of electron and photon paths
   for(std::vector<std::string>::iterator dir = subdirectories.begin() ;dir!= subdirectories.end(); ++dir) {
-    if (dir->find("HLT_Ele") != std::string::npos || dir->find("HLT_DoubleEle") != std::string::npos) ++nEle;
+    if (dir->find("HLT_Ele") != std::string::npos || dir->find("HLT_DoubleEle") != std::string::npos || dir->find("HLT_TripleEle") != std::string::npos) ++nEle;
     else if (dir->find("HLT_Photon") != std::string::npos || dir->find("HLT_DoublePhoton") != std::string::npos) ++nPhoton;
   }
 
@@ -123,7 +125,7 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
     std::string allPhotonHistoLabel = "Efficiency_for_each_validated_photon_path" + *postfix;
     allPhotonPaths.push_back(new TProfile(allPhotonHistoName.c_str(), allPhotonHistoLabel.c_str(), nPhoton, 0., (double)nPhoton, 0., 1.2));
 
-    for(std::vector<std::string>::iterator dir = subdirectories.begin() ;dir!= subdirectories.end(); dir++ ){
+    for(std::vector<std::string>::iterator dir = subdirectories.begin(); dir!= subdirectories.end(); dir++) {
       dqm->cd(*dir);
 
       TH1F* basehist = getHistogram(dqm, dqm->pwd() + "/" + baseName);
@@ -205,9 +207,9 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
       ///////////////////////////////////////////
       //MonitorElement *eff, *num, *denom, *genPlot, *effVsGen, *effL1VsGen;
       std::vector<std::string> varNames; 
-      varNames.push_back("eta"); 
-      varNames.push_back("phi"); 
       varNames.push_back("et");
+      varNames.push_back("eta"); 
+      if (!noPhiPlots) varNames.push_back("phi"); 
 
       std::string filterName;
       std::string filterName2;
@@ -270,7 +272,7 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
       trigName = trigName.replace(trigName.rfind("_DQM"),4,"");
       double totCont = total->GetBinContent(total->GetNbinsX());
       double totErr = total->GetBinError(total->GetNbinsX());
-      if (trigName.find("HLT_Ele") != std::string::npos || trigName.find("HLT_DoubleEle") != std::string::npos) {
+      if (trigName.find("HLT_Ele") != std::string::npos || trigName.find("HLT_DoubleEle") != std::string::npos || trigName.find("HLT_TripleEle") != std::string::npos) {
         allElePaths.back()->SetBinContent(elePos, totCont);
         allElePaths.back()->SetBinEntries(elePos, 1);
         allElePaths.back()->SetBinError(elePos, sqrt(totCont * totCont + totErr * totErr));
@@ -291,6 +293,8 @@ void EmDQMPostProcessor::endRun(edm::Run const& run, edm::EventSetup const& es)
       allPhotonPaths.pop_back();
     } 
     else {
+      allElePaths.back()->GetXaxis()->SetLabelSize(0.03);
+      allPhotonPaths.back()->GetXaxis()->SetLabelSize(0.03);
       dqm->bookProfile(allEleHistoName, allElePaths.back())->getTProfile();
       dqm->bookProfile(allPhotonHistoName, allPhotonPaths.back())->getTProfile();
     }

@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from CommonTools.ParticleFlow.ParticleSelectors.pfCandsForIsolation_cff  import *
+from CommonTools.ParticleFlow.pfParticleSelection_cff import *
 from CommonTools.ParticleFlow.Isolation.pfElectronIsolation_cff import *
 from CommonTools.ParticleFlow.Isolation.pfElectronIsolationFromDeposits_cff import *
 from CommonTools.ParticleFlow.Isolation.pfPhotonIsolation_cff import *
@@ -19,11 +19,11 @@ pfSelectedPhotons = cms.EDFilter(
 )
 
 
-pfPileUp.PFCandidates = cms.InputTag("particleFlowTmp")
-pfNoPileUp.bottomCollection = cms.InputTag("particleFlowTmp") 
+# pfPileUp.PFCandidates = cms.InputTag("particleFlowTmp")
+# pfNoPileUp.bottomCollection = cms.InputTag("particleFlowTmp") 
 
 pfBasedElectronPhotonIsoSequence = cms.Sequence(
-    pfCandsForIsolationSequence +
+    pfParticleSelectionSequence +
     pfSelectedElectrons +
     pfElectronIsolationSequence+
     pfElectronIsolationFromDepositsSequence+
