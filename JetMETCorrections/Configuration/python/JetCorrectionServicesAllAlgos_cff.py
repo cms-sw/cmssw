@@ -110,187 +110,187 @@ ic5PFL6SLB = ak5PFL6SLB.clone(
 #
 
 # L2L3 CORRECTION SERVICES
-ak7CaloL2L3 = cms.ESSource(
-    'JetCorrectionServiceChain',
+ak7CaloL2L3 = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('ak7CaloL2Relative','ak7CaloL3Absolute'),
     useCondDB = cms.untracked.bool(True)
     )
-kt4CaloL2L3 = cms.ESSource(
-    'JetCorrectionServiceChain',
+kt4CaloL2L3 = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('kt4CaloL2Relative','kt4CaloL3Absolute'),
     useCondDB = cms.untracked.bool(True)
     )
-kt6CaloL2L3 = cms.ESSource(
-    'JetCorrectionServiceChain',
+kt6CaloL2L3 = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('kt6CaloL2Relative','kt6CaloL3Absolute'),
     useCondDB = cms.untracked.bool(True)
     )
-ic5CaloL2L3 = cms.ESSource(
-    'JetCorrectionServiceChain',
+ic5CaloL2L3 = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('ic5CaloL2Relative','ic5CaloL3Absolute'),
     useCondDB = cms.untracked.bool(True)
     )
 
-ak7PFL2L3 = cms.ESSource(
-    'JetCorrectionServiceChain',
+ak7PFL2L3 = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('ak7PFL2Relative','ak7PFL3Absolute'),
     useCondDB = cms.untracked.bool(True)
     )
-kt4PFL2L3 = cms.ESSource(
-    'JetCorrectionServiceChain',
+kt4PFL2L3 = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('kt4PFL2Relative','kt4PFL3Absolute'),
     useCondDB = cms.untracked.bool(True)
     )
-kt6PFL2L3 = cms.ESSource(
-    'JetCorrectionServiceChain',
+kt6PFL2L3 = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('kt6PFL2Relative','kt6PFL3Absolute'),
     useCondDB = cms.untracked.bool(True)
     )
-ic5PFL2L3 = cms.ESSource(
-    'JetCorrectionServiceChain',
+ic5PFL2L3 = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('ic5PFL2Relative','ic5PFL3Absolute'),
     useCondDB = cms.untracked.bool(True)
     )
 
 #--- JPT needs the L1JPTOffset to account for the ZSP changes.
 #--- L1JPTOffset is NOT the same as L1Offset !!!!!
-ak7JPTL2L3 = cms.ESSource(
-    'JetCorrectionServiceChain',
+ak7JPTL2L3 = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('ak7L1JPTOffset','ak7JPTL2Relative','ak7JPTL3Absolute'),
     useCondDB = cms.untracked.bool(True)
     )
 
 # L1L2L3 CORRECTION SERVICES
-ak7CaloL1L2L3 = cms.ESSource(
-    'JetCorrectionServiceChain',
+ak7CaloL1L2L3 = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('ak7CaloL1Offset','ak7CaloL2Relative','ak7CaloL3Absolute'),
     useCondDB = cms.untracked.bool(True)
     )
-kt4CaloL1L2L3 = cms.ESSource(
-    'JetCorrectionServiceChain',
+kt4CaloL1L2L3 = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('kt4CaloL1Offset','kt4CaloL2Relative','kt4CaloL3Absolute'),
     useCondDB = cms.untracked.bool(True)
     )
-kt6CaloL1L2L3 = cms.ESSource(
-    'JetCorrectionServiceChain',
+kt6CaloL1L2L3 = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('kt6CaloL1Offset','kt6CaloL2Relative','kt6CaloL3Absolute'),
     useCondDB = cms.untracked.bool(True)
     )
-ic5CaloL1L2L3 = cms.ESSource(
-    'JetCorrectionServiceChain',
+ic5CaloL1L2L3 = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('ic5CaloL1Offset','ic5CaloL2Relative','ic5CaloL3Absolute'),
     useCondDB = cms.untracked.bool(True)
     )
 
-ak7PFL1L2L3 = cms.ESSource(
-    'JetCorrectionServiceChain',
+ak7PFL1L2L3 = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('ak7PFL1Offset','ak7PFL2Relative','ak7PFL3Absolute'),
     useCondDB = cms.untracked.bool(True)
     )
-kt4PFL1L2L3 = cms.ESSource(
-    'JetCorrectionServiceChain',
+kt4PFL1L2L3 = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('kt4PFL1Offset','kt4PFL2Relative','kt4PFL3Absolute'),
     useCondDB = cms.untracked.bool(True)
     )
-kt6PFL1L2L3 = cms.ESSource(
-    'JetCorrectionServiceChain',
+kt6PFL1L2L3 = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('kt6PFL1Offset','kt6PFL2Relative','kt6PFL3Absolute'),
     useCondDB = cms.untracked.bool(True)
     )
-ic5PFL1L2L3 = cms.ESSource(
-    'JetCorrectionServiceChain',
+ic5PFL1L2L3 = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('ic5PFL1Offset','ic5PFL2Relative','ic5PFL3Absolute'),
     useCondDB = cms.untracked.bool(True)
     )
 #--- JPT needs the L1JPTOffset to account for the ZSP changes.
 #--- L1JPTOffset is NOT the same as L1Offset !!!!!
-ak7JPTL1L2L3 = cms.ESSource(
-    'JetCorrectionServiceChain',
+ak7JPTL1L2L3 = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('ak7JPTL1Offset','ak7L1JPTOffset','ak7JPTL2Relative','ak7JPTL3Absolute'),
     useCondDB = cms.untracked.bool(True)
     )
 
 # L2L3Residual CORRECTION SERVICES
-ak7CaloL2L3Residual = cms.ESSource(
-    'JetCorrectionServiceChain',
+ak7CaloL2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('ak7CaloL2Relative','ak7CaloL3Absolute','ak7CaloResidual')
     )
-kt4CaloL2L3Residual = cms.ESSource(
-    'JetCorrectionServiceChain',
+kt4CaloL2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('kt4CaloL2Relative','kt4CaloL3Absolute','kt4CaloResidual')
     )
-kt6CaloL2L3Residual = cms.ESSource(
-    'JetCorrectionServiceChain',
+kt6CaloL2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('kt6CaloL2Relative','kt6CaloL3Absolute','kt6CaloResidual')
     )
-ic5CaloL2L3Residual = cms.ESSource(
-    'JetCorrectionServiceChain',
+ic5CaloL2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('ic5CaloL2Relative','ic5CaloL3Absolute','ic5CaloResidual')
     )
 
-ak7PFL2L3Residual = cms.ESSource(
-    'JetCorrectionServiceChain',
+ak7PFL2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('ak7PFL2Relative','ak7PFL3Absolute','ak7PFResidual')
     )
-kt4PFL2L3Residual = cms.ESSource(
-    'JetCorrectionServiceChain',
+kt4PFL2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('kt4PFL2Relative','kt4PFL3Absolute','kt4PFResidual')
     )
-kt6PFL2L3Residual = cms.ESSource(
-    'JetCorrectionServiceChain',
+kt6PFL2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('kt6PFL2Relative','kt6PFL3Absolute','kt6PFResidual')
     )
-ic5PFL2L3Residual = cms.ESSource(
-    'JetCorrectionServiceChain',
+ic5PFL2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('ic5PFL2Relative','ic5PFL3Absolute','ic5PFResidual')
     )
 
 # L1L2L3Residual CORRECTION SERVICES
-ak7CaloL1L2L3Residual = cms.ESSource(
-    'JetCorrectionServiceChain',
+ak7CaloL1L2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('ak7CaloL1Offset','ak7CaloL2Relative','ak7CaloL3Absolute','ak7CaloResidual'),
     useCondDB = cms.untracked.bool(True)
     )
-kt4CaloL1L2L3Residual = cms.ESSource(
-    'JetCorrectionServiceChain',
+kt4CaloL1L2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('kt4CaloL1Offset','kt4CaloL2Relative','kt4CaloL3Absolute','kt4CaloResidual'),
     useCondDB = cms.untracked.bool(True)
     )
-kt6CaloL1L2L3Residual = cms.ESSource(
-    'JetCorrectionServiceChain',
+kt6CaloL1L2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('kt6CaloL1Offset','kt6CaloL2Relative','kt6CaloL3Absolute','kt6CaloResidual'),
     useCondDB = cms.untracked.bool(True)
     )
-ic5CaloL1L2L3Residual = cms.ESSource(
-    'JetCorrectionServiceChain',
+ic5CaloL1L2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('ic5CaloL1Offset','ic5CaloL2Relative','ic5CaloL3Absolute','ic5CaloResidual'),
     useCondDB = cms.untracked.bool(True)
     )
 
-ak7PFL1L2L3Residual = cms.ESSource(
-    'JetCorrectionServiceChain',
+ak7PFL1L2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('ak7PFL1Offset','ak7PFL2Relative','ak7PFL3Absolute','ak7PFResidual'),
     useCondDB = cms.untracked.bool(True)
     )
-kt4PFL1L2L3Residual = cms.ESSource(
-    'JetCorrectionServiceChain',
+kt4PFL1L2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('kt4PFL1Offset','kt4PFL2Relative','kt4PFL3Absolute','kt4PFResidual'),
     useCondDB = cms.untracked.bool(True)
     )
-kt6PFL1L2L3Residual = cms.ESSource(
-    'JetCorrectionServiceChain',
+kt6PFL1L2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('kt6PFL1Offset','kt6PFL2Relative','kt6PFL3Absolute','kt6PFResidual'),
     useCondDB = cms.untracked.bool(True)
     )
-ic5PFL1L2L3Residual = cms.ESSource(
-    'JetCorrectionServiceChain',
+ic5PFL1L2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('ic5PFL1Offset','ic5PFL2Relative','ic5PFL3Absolute','ic5PFResidual'),
     useCondDB = cms.untracked.bool(True)
     )
 #--- JPT needs the L1JPTOffset to account for the ZSP changes.
 #--- L1JPTOffset is NOT the same as L1Offset !!!!!
-ak7JPTL1L2L3Residual = cms.ESSource(
-    'JetCorrectionServiceChain',
+ak7JPTL1L2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('ak7JPTL1Offset','ak7L1JPTOffset','ak7JPTL2Relative','ak7JPTL3Absolute','ak7JPTResidual'),
     useCondDB = cms.untracked.bool(True)
     )
@@ -318,51 +318,51 @@ ak5TrackL1FastL2L3 = ak5TrackL2L3.clone()
 ak5TrackL1FastL2L3.correctors.insert(0,'ak5CaloL1Fastjet')
 
 # L1FastL2L3Residual CORRECTION SERVICES
-ak7CaloL1FastL2L3Residual = cms.ESSource(
-    'JetCorrectionServiceChain',
+ak7CaloL1FastL2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('ak7CaloL1Fastjet','ak7CaloL2Relative','ak7CaloL3Absolute','ak7CaloResidual'),
     useCondDB = cms.untracked.bool(True)
     )
-kt4CaloL1FastL2L3Residual = cms.ESSource(
-    'JetCorrectionServiceChain',
+kt4CaloL1FastL2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('kt4CaloL1Fastjet','kt4CaloL2Relative','kt4CaloL3Absolute','kt4CaloResidual'),
     useCondDB = cms.untracked.bool(True)
     )
-kt6CaloL1FastL2L3Residual = cms.ESSource(
-    'JetCorrectionServiceChain',
+kt6CaloL1FastL2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('kt6CaloL1Fastjet','kt6CaloL2Relative','kt6CaloL3Absolute','kt6CaloResidual'),
     useCondDB = cms.untracked.bool(True)
     )
-ic5CaloL1FastL2L3Residual = cms.ESSource(
-    'JetCorrectionServiceChain',
+ic5CaloL1FastL2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('ic5CaloL1Fastjet','ic5CaloL2Relative','ic5CaloL3Absolute','ic5CaloResidual'),
     useCondDB = cms.untracked.bool(True)
     )
 
-ak7PFL1FastL2L3Residual = cms.ESSource(
-    'JetCorrectionServiceChain',
+ak7PFL1FastL2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('ak7PFL1Fastjet','ak7PFL2Relative','ak7PFL3Absolute','ak7PFResidual'),
     useCondDB = cms.untracked.bool(True)
     )
-kt4PFL1FastL2L3Residual = cms.ESSource(
-    'JetCorrectionServiceChain',
+kt4PFL1FastL2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('kt4PFL1Fastjet','kt4PFL2Relative','kt4PFL3Absolute','kt4PFResidual'),
     useCondDB = cms.untracked.bool(True)
     )
-kt6PFL1FastL2L3Residual = cms.ESSource(
-    'JetCorrectionServiceChain',
+kt6PFL1FastL2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('kt6PFL1Fastjet','kt6PFL2Relative','kt6PFL3Absolute','kt6PFResidual'),
     useCondDB = cms.untracked.bool(True)
     )
-ic5PFL1FastL2L3Residual = cms.ESSource(
-    'JetCorrectionServiceChain',
+ic5PFL1FastL2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('ic5PFL1Fastjet','ic5PFL2Relative','ic5PFL3Absolute','ic5PFResidual'),
     useCondDB = cms.untracked.bool(True)
     )
 #--- JPT needs the L1JPTOffset to account for the ZSP changes.
 #--- L1JPTOffset is NOT the same as L1Offset !!!!!
-ak7JPTL1FastL2L3Residual = cms.ESSource(
-    'JetCorrectionServiceChain',
+ak7JPTL1FastL2L3Residual = cms.ESProducer(
+    'JetCorrectionESChain',
     correctors = cms.vstring('ak7JPTL1Fastjet','ak7L1JPTOffset','ak7JPTL2Relative','ak7JPTL3Absolute','ak7JPTResidual'),
     useCondDB = cms.untracked.bool(True)
     )

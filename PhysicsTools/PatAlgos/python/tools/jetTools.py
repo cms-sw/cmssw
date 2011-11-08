@@ -427,7 +427,7 @@ class AddJetCollection(ConfigToolBase):
                 setattr(process, jetCorrLabel[0]+'L3Absolute'  , ak5PFL3Absolute.clone( algorithm=jetCorrLabel[0] ) )
                 setattr(process, jetCorrLabel[0]+'L2L3Residual', ak5PFResidual.clone  ( algorithm=jetCorrLabel[0] ) )
                 ## combinded corrections
-                setattr(process, jetCorrLabel[0]+'CombinedCorrector', cms.ESSource( 'JetCorrectionServiceChain'
+                setattr(process, jetCorrLabel[0]+'CombinedCorrector', cms.ESProducer( 'JetCorrectionESChain'
                                                                                   , correctors = cms.vstring() ) )
                 
                 for corrLbl in jetCorrLabel[1]:
@@ -681,7 +681,7 @@ class SwitchJetCollection(ConfigToolBase):
                 setattr(process, jetCorrLabel[0]+'L3Absolute'  , ak5PFL3Absolute.clone( algorithm=jetCorrLabel[0] ) )
                 setattr(process, jetCorrLabel[0]+'L2L3Residual', ak5PFResidual.clone  ( algorithm=jetCorrLabel[0] ) )
                 ## combinded corrections
-                setattr(process, jetCorrLabel[0]+'CombinedCorrector', cms.ESSource( 'JetCorrectionServiceChain'
+                setattr(process, jetCorrLabel[0]+'CombinedCorrector', cms.ESProducer( 'JetCorrectionESChain'
                                                                                   , correctors = cms.vstring() ) )
                 
                 for corrLbl in jetCorrLabel[1]:
