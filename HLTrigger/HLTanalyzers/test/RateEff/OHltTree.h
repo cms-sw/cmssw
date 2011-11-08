@@ -45,6 +45,7 @@ public:
    // Declaration of leaf types
    Int_t NohJetCal;
    Int_t NohJetCorCal;
+   Int_t NohJetCorL1L2L3Cal;
    Int_t NrecoJetCal;
    Int_t NrecoJetCorCal;
    Int_t NrecoJetGen;
@@ -65,6 +66,15 @@ public:
    Float_t ohJetCorCalEMF[43000]; //[NohJetCal]
    Float_t ohJetCorCalN90[43000]; //[NohJetCal]
    Float_t ohJetCorCalN90hits[43000]; //[NohJetCal]
+
+   Float_t ohJetCorL1L2L3CalPt[43000]; //[NohJetCorL1L2L3Cal]
+   Float_t ohJetCorL1L2L3CalPhi[43000]; //[NohJetCorL1L2L3Cal]
+   Float_t ohJetCorL1L2L3CalEta[43000]; //[NohJetCorL1L2L3Cal]
+   Float_t ohJetCorL1L2L3CalE[43000]; //[NohJetCorL1L2L3Cal]
+   Float_t ohJetCorL1L2L3CalEMF[43000]; //[NohJetCal]
+   Float_t ohJetCorL1L2L3CalN90[43000]; //[NohJetCal]
+   Float_t ohJetCorL1L2L3CalN90hits[43000]; //[NohJetCal]
+
  
    Float_t recoJetCalPt[43000]; //[NrecoJetCal]
    Float_t recoJetCalPhi[43000]; //[NrecoJetCal]
@@ -7454,6 +7464,7 @@ public:
    // List of branches
    TBranch *b_NohJetCal; //!
    TBranch *b_NohJetCorCal; //!
+   TBranch *b_NohJetCorL1L2L3Cal; //!
    TBranch *b_NrecoJetCal; //!
    TBranch *b_NrecoJetCorCal; //!
    TBranch *b_NrecoJetGen; //!
@@ -7474,6 +7485,14 @@ public:
    TBranch *b_ohJetCorCalEMF; //!
    TBranch *b_ohJetCorCalN90; // !  
    TBranch *b_ohJetCorCalN90hits; // !  
+
+   TBranch *b_ohJetCorL1L2L3CalPt; //!
+   TBranch *b_ohJetCorL1L2L3CalPhi; //!
+   TBranch *b_ohJetCorL1L2L3CalEta; //!
+   TBranch *b_ohJetCorL1L2L3CalE; //!
+   TBranch *b_ohJetCorL1L2L3CalEMF; //!
+   TBranch *b_ohJetCorL1L2L3CalN90; // !  
+   TBranch *b_ohJetCorL1L2L3CalN90hits; // !  
 
    TBranch *b_recoJetCalPt; //!
    TBranch *b_recoJetCalPhi; //!
@@ -15651,7 +15670,9 @@ public:
    
    int OpenHltSumCorHTPassed(double sumHTthreshold, double jetthreshold = 40., double etathreshold=3.0);
 
-   int OpenHltSumCorPFHTPassed(double sumPFHTthreshold, double jetthreshold = 40., double etathreshold=3.0);
+   int OpenHltSumFJCorHTPassed(double sumHTthreshold, double jetthreshold = 40., double etathreshold=3.0);
+
+   int OpenHltSumPFHTPassed(double sumPFHTthreshold, double jetthreshold = 40., double etathreshold=3.0);
    
    int OpenHltMHT(double MHTthreshold, double jetthreshold = 30.0, double etathreshold=999.0);
    
@@ -16414,6 +16435,7 @@ void OHltTree::Init(TTree *tree)
 
    fChain->SetBranchAddress("NohJetCal", &NohJetCal, &b_NohJetCal);
    fChain->SetBranchAddress("NohJetCorCal", &NohJetCorCal, &b_NohJetCorCal);
+   fChain->SetBranchAddress("NohJetCorL1L2L3Cal", &NohJetCorL1L2L3Cal, &b_NohJetCorL1L2L3Cal);
    fChain->SetBranchAddress("NrecoJetCal", &NrecoJetCal, &b_NrecoJetCal);
    fChain->SetBranchAddress("NrecoJetCorCal", &NrecoJetCorCal, &b_NrecoJetCorCal);
 
@@ -16435,6 +16457,14 @@ void OHltTree::Init(TTree *tree)
    fChain->SetBranchAddress("ohJetCorCalEMF", ohJetCorCalEMF, &b_ohJetCorCalEMF);
    fChain->SetBranchAddress("ohJetCorCalN90", ohJetCorCalN90, &b_ohJetCorCalN90);
    fChain->SetBranchAddress("ohJetCorCalN90hits", ohJetCorCalN90hits, &b_ohJetCorCalN90hits);
+
+   fChain->SetBranchAddress("ohJetCorL1L2L3CalPt", ohJetCorL1L2L3CalPt, &b_ohJetCorL1L2L3CalPt);
+   fChain->SetBranchAddress("ohJetCorL1L2L3CalPhi", ohJetCorL1L2L3CalPhi, &b_ohJetCorL1L2L3CalPhi);
+   fChain->SetBranchAddress("ohJetCorL1L2L3CalEta", ohJetCorL1L2L3CalEta, &b_ohJetCorL1L2L3CalEta);
+   fChain->SetBranchAddress("ohJetCorL1L2L3CalE", ohJetCorL1L2L3CalE, &b_ohJetCorL1L2L3CalE);
+   fChain->SetBranchAddress("ohJetCorL1L2L3CalEMF", ohJetCorL1L2L3CalEMF, &b_ohJetCorL1L2L3CalEMF);
+   fChain->SetBranchAddress("ohJetCorL1L2L3CalN90", ohJetCorL1L2L3CalN90, &b_ohJetCorL1L2L3CalN90);
+   fChain->SetBranchAddress("ohJetCorL1L2L3CalN90hits", ohJetCorL1L2L3CalN90hits, &b_ohJetCorL1L2L3CalN90hits);
 
    fChain->SetBranchAddress("recoJetCalPt", recoJetCalPt, &b_recoJetCalPt);
    fChain->SetBranchAddress("recoJetCalPhi", recoJetCalPhi, &b_recoJetCalPhi);

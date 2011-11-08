@@ -2152,6 +2152,30 @@ bool isDoubleMuX_MassX_HTXTrigger(TString triggerName, vector<double> &threshold
     return false;
 }
 
+
+bool isDoubleMuX_MassX_HTFJX_PFHTXTrigger(TString triggerName, vector<double> &thresholds)
+{
+ TString pattern = "(OpenHLT_DoubleMu([0-9]+)_Mass([0-9]+)_HTFJ([0-9]+)_PFHT([0-9]+)){1}$";
+  TPRegexp matchThreshold(pattern);
+
+  if (matchThreshold.MatchB(triggerName))
+    {
+      TObjArray *subStrL      = TPRegexp(pattern).MatchS(triggerName);
+      double thresholdL3Mu    = (((TObjString *)subStrL->At(2))->GetString()).Atof();
+      double thresholdMassCut = (((TObjString *)subStrL->At(3))->GetString()).Atof();
+      double thresholdHT      = (((TObjString *)subStrL->At(4))->GetString()).Atof();
+      double thresholdPFHT      = (((TObjString *)subStrL->At(5))->GetString()).Atof();
+      thresholds.push_back(thresholdL3Mu);
+      thresholds.push_back(thresholdMassCut);
+      thresholds.push_back(thresholdHT);
+      thresholds.push_back(thresholdPFHT);
+      delete subStrL;
+      return true;
+    }
+  else
+    return false;
+}
+
 bool isDoubleEleX_MassX_HTXTrigger(TString triggerName,  vector<TString>& caloId, vector<TString>& caloIso, vector<TString>& trkId, vector<TString>& trkIso, vector<double> &thresholds)
 {
  TString pattern = "(OpenHLT_DoubleEle([0-9]+)_?(CaloId[VXLT]+)?_?(CaloIso[VLT]+)?_?(TrkId[VLT]+)?_?(TrkIso[VLT]+)?_Mass([0-9]+)_HT([0-9]+)){1}$";
@@ -11840,6 +11864,25 @@ else if (triggerName.CompareTo("OpenHLT_Ele32_WP70_PFMT50_v1")  == 0)
 	    }
 	}
     }
+
+ else if (isDoubleMuX_MassX_HTFJX_PFHTXTrigger(triggerName, thresholds))
+     {
+      if (map_L1BitOfStandardHLTPath.find(triggerName)->second==1)
+	{
+	  if (prescaleResponse(menu, cfg, rcounter, it))
+	    {
+
+	      int nMu = OpenHlt1MuonPassed(0., 0., thresholds[0], 2., 0);
+	      if (nMu >=2
+		  && OpenHltInvMassCutMu(nMu, thresholds[1])
+		  && OpenHltSumFJCorHTPassed( thresholds[2])>0
+		  && OpenHltSumPFHTPassed( thresholds[3])>0)
+		{
+		  triggerBit[it] = true;
+		}
+	    }
+	}
+    }
 	
   else if (isDoubleEleX_MassX_HTXTrigger(triggerName,  caloId,  caloIso,  trkId,  trkIso, thresholds))
      {
@@ -13298,7 +13341,7 @@ else if (triggerName.CompareTo("OpenHLT_Ele32_WP70_PFMT50_v1")  == 0)
 	      if (
 		  (OpenHltMHT(thresholds[1], 30.)==1 && OpenHltSumCorHTPassed(thresholds[0], 40.) == 1)
 		  &&( 
-		     (OpenHltPFMHT(thresholds[1], 30.)==1 && OpenHltSumCorPFHTPassed(thresholds[0], 40.) == 1)
+		     (OpenHltPFMHT(thresholds[1], 30.)==1 && OpenHltSumPFHTPassed(thresholds[0], 40.) == 1)
 		     || 
 		     (OpenHltSumCorHTPassed(thresholds[2], 40.) && OpenHltMHT(thresholds[3], 30.)==1  )
 		     )
@@ -13319,7 +13362,7 @@ else if (triggerName.CompareTo("OpenHLT_Ele32_WP70_PFMT50_v1")  == 0)
 
 	      if (
 		  (OpenHltSumCorHTPassed(thresholds[0], 40.) == 1)
-		  && OpenHltSumCorPFHTPassed(thresholds[0], 40.) == 1)
+		  && OpenHltSumPFHTPassed(thresholds[0], 40.) == 1)
 		   
 		{
 		  triggerBit[it] = true;
@@ -20824,7 +20867,27 @@ int OHltTree::OpenHltSumCorHTPassed(double sumHTthreshold, double jetthreshold, 
   return rc;
 }
 
-int OHltTree::OpenHltSumCorPFHTPassed(double sumPFHTthreshold, double jetthreshold, double etathreshold)
+int OHltTree::OpenHltSumFJCorHTPassed(double sumHTthreshold, double jetthreshold, double etathreshold)
+{
+  int rc = 0;
+  double sumHT = 0.;
+	
+  // Loop over all oh jets, sum up the energy  
+  for (int i=0; i<NohJetCorL1L2L3Cal; ++i)
+    {
+      if (ohJetCorL1L2L3CalPt[i] >= jetthreshold && fabs(ohJetCorL1L2L3CalEta[i]) < etathreshold)
+	{
+	  sumHT+=ohJetCorL1L2L3CalPt[i];
+	}
+    }
+	
+  if (sumHT >= sumHTthreshold)
+    rc = 1;
+	
+  return rc;
+}
+
+int OHltTree::OpenHltSumPFHTPassed(double sumPFHTthreshold, double jetthreshold, double etathreshold)
 {
   int rc = 0;
   double sumPFHT = 0.;
@@ -20834,9 +20897,7 @@ int OHltTree::OpenHltSumCorPFHTPassed(double sumPFHTthreshold, double jetthresho
     {
       if (pfJetPt[i] >= jetthreshold && fabs(pfJetEta[i]) < etathreshold)
 	{
-	  //sumHT+=recoJetCorCorCalPt[i];
 	  sumPFHT+=pfJetPt[i];
-	  //sumHT+=(ohJetCorCalE[i]/cosh(ohJetCorCalEta[i]));
 	}
     }
 	
