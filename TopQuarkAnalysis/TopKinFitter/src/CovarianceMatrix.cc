@@ -64,7 +64,7 @@ CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet> udscReso
   }
 }
 
-double CovarianceMatrix::getResolution(const TLorentzVector& object, const ObjectType objType, const std::string whichResolution)
+double CovarianceMatrix::getResolution(const TLorentzVector& object, const ObjectType objType, const std::string& whichResolution)
 {
   std::vector<std::string> * bins_, * funcEt_, * funcEta_, * funcPhi_;
 
