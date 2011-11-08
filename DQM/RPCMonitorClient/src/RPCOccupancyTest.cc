@@ -74,8 +74,10 @@ void RPCOccupancyTest::clientOperation(edm::EventSetup const& iSetup) {
   edm::LogVerbatim ("rpceventsummary") <<"[RPCOccupancyTest]: Client Operation";
 
    MonitorElement * RPCEvents = dbe_->get(prefixDir_ +"/RPCEvents");  
-   rpcevents_ = RPCEvents ->getBinContent(1);
-
+   if(RPCEvents == 0 ){rpcevents_ = 0;}
+   else{
+     rpcevents_ = RPCEvents ->getBinContent(1);
+   }
      
  //Loop on MEs
   for (unsigned int  i = 0 ; i<myOccupancyMe_.size();i++){
