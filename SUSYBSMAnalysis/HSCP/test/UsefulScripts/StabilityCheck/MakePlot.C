@@ -53,8 +53,7 @@ bool LoadLumiToRun()
 }
 
 
-
-TGraph* ConvertFromRunToIntLumi(TProfile* Object, const char* DrawOption, string YLabel){
+TGraph* ConvertFromRunToIntLumi(TProfile* Object, const char* DrawOption, string YLabel, double YRange_Min=3.1, double YRange_Max=3.7){
    TGraphErrors* graph = new TGraphErrors(Object->GetXaxis()->GetNbins());
    for(unsigned int i=1;i<Object->GetXaxis()->GetNbins()+1;i++){
       int RunNumber;
@@ -71,18 +70,28 @@ TGraph* ConvertFromRunToIntLumi(TProfile* Object, const char* DrawOption, string
    graph->SetMarkerColor(Object->GetMarkerColor());
    graph->SetMarkerStyle(Object->GetMarkerStyle());
    graph->GetXaxis()->SetNdivisions(510);
-   graph->GetYaxis()->SetRangeUser(3.0,3.6);
+   if(YRange_Min!=YRange_Max)graph->GetYaxis()->SetRangeUser(YRange_Min,YRange_Max);
    return graph;
 }
 
 void MakedEdxPlot()
 {
+   setTDRStyle();
+   gStyle->SetPadTopMargin   (0.06);
+   gStyle->SetPadBottomMargin(0.15);
+   gStyle->SetPadRightMargin (0.03);
+   gStyle->SetPadLeftMargin  (0.09);
+   gStyle->SetTitleSize(0.04, "XYZ");
+   gStyle->SetTitleXOffset(1.1);
+   gStyle->SetTitleYOffset(1.35);
+   gStyle->SetPalette(1);
+   gStyle->SetNdivisions(505);
+
    TCanvas* c1;
    TObject** Histos = new TObject*[10];
    std::vector<string> legend;
 
    TFile* InputFile = new TFile("pictures/Histos.root");
-   //TFile* InputFile = new TFile("Histos.root");
 
    TProfile* SingleMu_PtProf           = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMuPtProf");      
    TProfile* SingleMu_dEdxProf         = (TProfile*)GetObjectFromPath(InputFile, "HscpPathSingleMudEdxProf");   
@@ -112,30 +121,78 @@ void MakedEdxPlot()
 */
 
    if(LoadLumiToRun()){
+      TLegend* leg;
+
       c1 = new TCanvas("c1","c1,",1200,600);          legend.clear();
-      TGraph* graph = ConvertFromRunToIntLumi(SingleMu_dEdxMProf  , "A*", "I_{h} (MeV/cm)");
+      TGraph* graph =  ConvertFromRunToIntLumi(SingleMu_dEdxMProf  , "A*", "I_{h} (MeV/cm)");
       TGraph* graphS = ConvertFromRunToIntLumi(SingleMu_dEdxMSProf, "*" , "I_{h} (MeV/cm)");
       TGraph* graphP = ConvertFromRunToIntLumi(SingleMu_dEdxMPProf, "*" , "I_{h} (MeV/cm)");
       graphS->SetMarkerColor(2);    graphS->SetMarkerStyle(26);
       graphP->SetMarkerColor(4);    graphP->SetMarkerStyle(32);
+
+
+      TF1* myfunc = new TF1("Fitgraph" ,"pol1",250,5000);  graph ->Fit(myfunc ,"QN","",250,5000); myfunc ->SetLineWidth(2); myfunc ->SetLineColor(graph ->GetMarkerColor()); myfunc ->Draw("same");
+      TF1* myfuncS= new TF1("FitgraphS","pol1",250,5000);  graphS->Fit(myfuncS,"QN","",250,5000); myfuncS->SetLineWidth(2); myfuncS->SetLineColor(graphS->GetMarkerColor()); myfuncS->Draw("same");
+      TF1* myfuncP= new TF1("FitgraphP","pol1",250,5000);  graphP->Fit(myfuncP,"QN","",250,5000); myfuncP->SetLineWidth(2); myfuncP->SetLineColor(graphP->GetMarkerColor()); myfuncP->Draw("same");
+      printf("%25s --> Chi2/ndf = %6.2f --> a=%6.2E+-%6.2E   b=%6.2E+-%6.2E\n","dE/dx (Strip+Pixel)", myfunc ->GetChisquare()/ myfunc ->GetNDF(), myfunc ->GetParameter(0),myfunc ->GetParError(0),myfunc ->GetParameter(1),myfunc ->GetParError(1));
+      printf("%25s --> Chi2/ndf = %6.2f --> a=%6.2E+-%6.2E   b=%6.2E+-%6.2E\n","dE/dx (Strip)"      , myfuncS->GetChisquare()/ myfuncS->GetNDF(), myfuncS->GetParameter(0),myfuncS->GetParError(0),myfuncS->GetParameter(1),myfuncS->GetParError(1));
+      printf("%25s --> Chi2/ndf = %6.2f --> a=%6.2E+-%6.2E   b=%6.2E+-%6.2E\n","dE/dx (Pixel)"      , myfuncP->GetChisquare()/ myfuncP->GetNDF(), myfuncP->GetParameter(0),myfuncP->GetParError(0),myfuncP->GetParameter(1),myfuncP->GetParError(1));
+      leg = new TLegend(0.79,0.92,0.79-0.20,0.92 - 3*0.05);     leg->SetFillColor(0);     leg->SetBorderSize(0);
+      leg->AddEntry(graph, "dE/dx (Strip+Pixel)" ,"P");
+      leg->AddEntry(graphS, "dE/dx (Strip)" ,"P");
+      leg->AddEntry(graphP, "dE/dx (Pixel)" ,"P");
+      leg->Draw();
       SaveCanvas(c1,"pictures/","GraphdEdx_Profile_dEdxM");
-      delete c1;
+      delete c1;  delete leg;
 
       c1 = new TCanvas("c1","c1,",1200,600);          legend.clear();
       TGraph* graphSC = ConvertFromRunToIntLumi(SingleMu_dEdxMSCProf, "A*", "I_{h} (MeV/cm)");
       TGraph* graphSF = ConvertFromRunToIntLumi(SingleMu_dEdxMSFProf, "*" , "I_{h} (MeV/cm)");
       graphSC->SetMarkerColor(2);    graphSC->SetMarkerStyle(26);
       graphSF->SetMarkerColor(4);    graphSF->SetMarkerStyle(32);
+      TF1* myfuncSC= new TF1("FitgraphSC","pol1",250,5000);  graphSC->Fit(myfuncSC,"QN","",250,5000); myfuncSC->SetLineWidth(2); myfuncSC->SetLineColor(graphSC->GetMarkerColor()); myfuncSC->Draw("same");
+      TF1* myfuncSF= new TF1("FitgraphSF","pol1",250,5000);  graphSF->Fit(myfuncSF,"QN","",250,5000); myfuncSF->SetLineWidth(2); myfuncSF->SetLineColor(graphSF->GetMarkerColor()); myfuncSF->Draw("same");
+      printf("%25s --> Chi2/ndf = %6.2f --> a=%6.2E+-%6.2E   b=%6.2E+-%6.2E\n","dE/dx (Strip) |eta|<0.5", myfuncSC->GetChisquare()/ myfuncSC->GetNDF(), myfuncSC->GetParameter(0),myfuncSC->GetParError(0),myfuncSC->GetParameter(1),myfuncSC->GetParError(1));
+      printf("%25s --> Chi2/ndf = %6.2f --> a=%6.2E+-%6.2E   b=%6.2E+-%6.2E\n","dE/dx (Strip) |eta|>1.5", myfuncSF->GetChisquare()/ myfuncSF->GetNDF(), myfuncSF->GetParameter(0),myfuncSF->GetParError(0),myfuncSF->GetParameter(1),myfuncSF->GetParError(1));
+      leg = new TLegend(0.79,0.92,0.79-0.20,0.92 - 3*0.05);     leg->SetFillColor(0);     leg->SetBorderSize(0);
+      leg->AddEntry(graphSC, "dE/dx (Strip) |#eta|<0.5" ,"P");
+      leg->AddEntry(graphSF, "dE/dx (Strip) |#eta|>1.5"  ,"P");
+      leg->Draw();
       SaveCanvas(c1,"pictures/","GraphdEdx_Profile_dEdxMS");
-      delete c1;
+      delete c1; delete leg;
 
       c1 = new TCanvas("c1","c1,",1200,600);          legend.clear();
       TGraph* graphPC = ConvertFromRunToIntLumi(SingleMu_dEdxMPCProf, "A*", "I_{h} (MeV/cm)");
       TGraph* graphPF = ConvertFromRunToIntLumi(SingleMu_dEdxMPFProf, "*" , "I_{h} (MeV/cm)");
       graphPC->SetMarkerColor(2);    graphPC->SetMarkerStyle(26);
       graphPF->SetMarkerColor(4);    graphPF->SetMarkerStyle(32);
+      TF1* myfuncPC= new TF1("FitgraphPC","pol1",250,5000);  graphPC->Fit(myfuncPC,"QN","",250,5000); myfuncPC->SetLineWidth(2); myfuncPC->SetLineColor(graphPC->GetMarkerColor()); myfuncPC->Draw("same");
+      TF1* myfuncPF= new TF1("FitgraphPF","pol1",250,5000);  graphPF->Fit(myfuncPF,"QN","",250,5000); myfuncPF->SetLineWidth(2); myfuncPF->SetLineColor(graphPF->GetMarkerColor()); myfuncPF->Draw("same");
+      printf("%25s --> Chi2/ndf = %6.2f --> a=%6.2E+-%6.2E   b=%6.2E+-%6.2E\n","dE/dx (Pixel) |eta|<0.5", myfuncPC->GetChisquare()/ myfuncPC->GetNDF(), myfuncPC->GetParameter(0),myfuncPC->GetParError(0),myfuncPC->GetParameter(1),myfuncPC->GetParError(1));
+      printf("%25s --> Chi2/ndf = %6.2f --> a=%6.2E+-%6.2E   b=%6.2E+-%6.2E\n","dE/dx (Pixel) |eta|>1.5", myfuncPF->GetChisquare()/ myfuncPF->GetNDF(), myfuncPF->GetParameter(0),myfuncPF->GetParError(0),myfuncPF->GetParameter(1),myfuncPF->GetParError(1));
+      leg = new TLegend(0.79,0.92,0.79-0.20,0.92 - 3*0.05);     leg->SetFillColor(0);     leg->SetBorderSize(0);
+      leg->AddEntry(graphPC, "dE/dx (Pixel) |#eta|<0.5" ,"P");
+      leg->AddEntry(graphPF, "dE/dx (Pixel) |#eta|>1.5" ,"P");
+      leg->Draw();
       SaveCanvas(c1,"pictures/","GraphdEdx_Profile_dEdxMP");
+      delete c1; delete leg;
+
+
+
+
+      c1 = new TCanvas("c1","c1,",1200,600);          legend.clear();
+      TGraph* graphNV = ConvertFromRunToIntLumi(SingleMu_NVertProf, "A*" , "<#Reco Vertices>",0,0);
+      SaveCanvas(c1,"pictures/","GraphdEdx_Profile_Vert");
       delete c1;
+
+      c1 = new TCanvas("c1","c1,",1200,600);          legend.clear();
+      TGraph* graphpT = ConvertFromRunToIntLumi(SingleMu_PtProf, "A*" , "<p_{T}> (GeV/c)",0,0);
+      SaveCanvas(c1,"pictures/","GraphdEdx_Profile_pT");
+      delete c1;
+
+
+   }else{
+      printf("TEST TEST TEST\n");
    }
 
 
@@ -186,8 +243,6 @@ void MakedEdxPlot()
    DrawPreliminary(IntegratedLuminosity);
    SaveCanvas(c1,"pictures/","dEdx_Profile_dEdxM");
    delete c1;
-
-
 
 /*
    c1 = new TCanvas("c1","c1,",1200,600);          legend.clear();
