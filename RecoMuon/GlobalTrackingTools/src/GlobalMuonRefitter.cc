@@ -4,8 +4,8 @@
  *  Description:
  *
  *
- *  $Date: 2011/10/28 22:10:34 $
- *  $Revision: 1.18 $
+ *  $Date: 2011/11/02 02:22:16 $
+ *  $Revision: 1.19 $
  *
  *  Authors :
  *  P. Traczyk, SINS Warsaw
@@ -295,32 +295,76 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
 
     if ( id.subdetId() == MuonSubdetId::DT ) {
       DTChamberId did(id.rawId());
-      DTLayerId lid(id.rawId());
       chamberId=did;
+      
+      if ((*imrh)->recHits().size()>1) {
+        std::vector <const TrackingRecHit*> hits2d = (*imrh)->recHits();
+        for (std::vector <const TrackingRecHit*>::const_iterator hit2d = hits2d.begin(); hit2d!= hits2d.end(); hit2d++) {
+          if ((*imrh)->recHits().size()>1) {
+            std::vector <const TrackingRecHit*> hits1d = (*hit2d)->recHits();
+            for (std::vector <const TrackingRecHit*>::const_iterator hit1d = hits1d.begin(); hit1d!= hits1d.end(); hit1d++) {
+              DetId id1 = (*hit1d)->geographicalId();
+              DTLayerId lid(id1.rawId());
+              // Get the 1d DT RechHits from this layer
+              DTRecHitCollection::range dRecHits = theDTRecHits->get(lid);
+              int layerHits=0;
+              for (DTRecHitCollection::const_iterator ir = dRecHits.first; ir != dRecHits.second; ir++ ) {
+          	double rhitDistance = fabs(ir->localPosition().x()-(**hit1d).localPosition().x()); 
+        	if ( rhitDistance < coneSize ) layerHits++;
+                LogTrace(theCategory) << "       " << (ir)->localPosition() << "  " << (**hit1d).localPosition()
+                     << " Distance: " << rhitDistance << " recHits: " << layerHits << "  SL: " << lid.superLayer() << endl;
+              }
+              if (layerHits>detRecHits) detRecHits=layerHits;
+            }
+          }
+        }
+      
+      } else {
+        DTLayerId lid(id.rawId());
+    
+        // Get the 1d DT RechHits from this layer
+        DTRecHitCollection::range dRecHits = theDTRecHits->get(lid);
 
-      // Get the 1d DT RechHits from this layer
-      DTRecHitCollection::range dRecHits = theDTRecHits->get(lid);
-
-      for (DTRecHitCollection::const_iterator ir = dRecHits.first; ir != dRecHits.second; ir++ ) {
-	double rhitDistance = fabs(ir->localPosition().x()-(**imrh).localPosition().x());
-	if ( rhitDistance < coneSize ) detRecHits++;
-        LogTrace(theCategory)	<< "       " << (ir)->localPosition() << "  " << (**imrh).localPosition()
+        for (DTRecHitCollection::const_iterator ir = dRecHits.first; ir != dRecHits.second; ir++ ) {
+  	  double rhitDistance = fabs(ir->localPosition().x()-(**imrh).localPosition().x());
+  	  if ( rhitDistance < coneSize ) detRecHits++;
+          LogTrace(theCategory)	<< "       " << (ir)->localPosition() << "  " << (**imrh).localPosition()
                << " Distance: " << rhitDistance << " recHits: " << detRecHits << endl;
+        }
       }
     }// end of if DT
     else if ( id.subdetId() == MuonSubdetId::CSC ) {
-    
       CSCDetId did(id.rawId());
       chamberId=did.chamberId();
 
-      // Get the CSC Rechits from this layer
-      CSCRecHit2DCollection::range dRecHits = theCSCRecHits->get(did);      
+      if ((*imrh)->recHits().size()>1) {
+        std::vector <const TrackingRecHit*> hits2d = (*imrh)->recHits();
+        for (std::vector <const TrackingRecHit*>::const_iterator hit2d = hits2d.begin(); hit2d!= hits2d.end(); hit2d++) {
+          DetId id1 = (*hit2d)->geographicalId();
+          CSCDetId lid(id1.rawId());
+          
+          // Get the CSC Rechits from this layer
+          CSCRecHit2DCollection::range dRecHits = theCSCRecHits->get(lid);      
+          int layerHits=0;
 
-      for (CSCRecHit2DCollection::const_iterator ir = dRecHits.first; ir != dRecHits.second; ir++ ) {
-	double rhitDistance = (ir->localPosition()-(**imrh).localPosition()).mag();
-	if ( rhitDistance < coneSize ) detRecHits++;
-        LogTrace(theCategory)	<< ir->localPosition() << "  " << (**imrh).localPosition()
-	       << " Distance: " << rhitDistance << " recHits: " << detRecHits << endl;
+          for (CSCRecHit2DCollection::const_iterator ir = dRecHits.first; ir != dRecHits.second; ir++ ) {
+    	    double rhitDistance = (ir->localPosition()-(**hit2d).localPosition()).mag();
+  	    if ( rhitDistance < coneSize ) layerHits++;
+            LogTrace(theCategory) << ir->localPosition() << "  " << (**hit2d).localPosition()
+  	           << " Distance: " << rhitDistance << " recHits: " << layerHits << endl;
+          }
+          if (layerHits>detRecHits) detRecHits=layerHits;
+        }
+      } else {
+        // Get the CSC Rechits from this layer
+        CSCRecHit2DCollection::range dRecHits = theCSCRecHits->get(did);      
+
+        for (CSCRecHit2DCollection::const_iterator ir = dRecHits.first; ir != dRecHits.second; ir++ ) {
+  	  double rhitDistance = (ir->localPosition()-(**imrh).localPosition()).mag();
+	  if ( rhitDistance < coneSize ) detRecHits++;
+          LogTrace(theCategory) << ir->localPosition() << "  " << (**imrh).localPosition()
+	         << " Distance: " << rhitDistance << " recHits: " << detRecHits << endl;
+        }
       }
     }
     else {
