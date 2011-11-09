@@ -8,6 +8,7 @@
 <use   name="FWCore/ParameterSet"/>
 <use   name="AnalysisDataFormats/TopObjects"/>
 <use   name="TopQuarkAnalysis/TopTools"/>
+<use   name="PhysicsTools/HepMCCandAlgos"/>
 <use   name="rootcore"/>
 <use   name="root"/>
 <export>

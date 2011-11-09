@@ -46,6 +46,11 @@ options.register ('forceCheckClosestZVertex',
                   "Force the check of the closest z vertex")
 
 
+options.register ('useSusyFilter',
+                  False,
+                  VarParsing.multiplicity.singleton,
+                  VarParsing.varType.int,
+                  "Use the SUSY event filter")
 
 options.parseArguments()
 
@@ -58,20 +63,16 @@ if not options.useData :
             '/store/relval/CMSSW_4_1_5/RelValTTbar/GEN-SIM-RECO/START311_V2-v1/0037/20A7B6E4-8F6C-E011-9E6B-003048678FE4.root',
             ]
     else :
-        process.source.fileNames = [
-            '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/9AF32315-EC97-E011-8B25-0026189438B3.root',
-            '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/18F1D3EA-E597-E011-8452-00304867BFBC.root'
-            ## '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/6C8DAC5B-7E98-E011-828B-0018F34D0D62.root',
-            ## '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/6C4B1EFF-EC97-E011-815F-00261894392C.root',
-            ## '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/6C3EFC8A-0D98-E011-BFC7-001A92971B48.root',
-            ## '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/6AC2BEC4-7A98-E011-B956-001A92971B94.root',
-            ## '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/6A6D2F76-E097-E011-B3F6-003048678C06.root',
-            ## '/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/68DD1400-EF97-E011-B12A-003048D15D04.root'
-#            '/store/mc/Summer11/QCD_Pt-15to3000_TuneZ2_Flat_7TeV_pythia6/AODSIM/PU_S3_START42_V11-v2/0000/90F88CFE-767E-E011-9C38-002618943985.root'
-#            '/store/relval/CMSSW_4_2_2/RelValTTbar/GEN-SIM-RECO/START42_V11-v1/0005/50AC4DBF-746D-E011-8CF9-00248C55CC62.root'
-            ]
-#        process.source.eventsToProcess = cms.untracked.VEventRange('1:9375817')
-    
+	if not options.useSusyFilter :
+		process.source.fileNames = [
+			'/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/9AF32315-EC97-E011-8B25-0026189438B3.root',
+			'/store/mc/Summer11/TTJets_TuneZ2_7TeV-madgraph-tauola/AODSIM/PU_S4_START42_V11-v1/0000/18F1D3EA-E597-E011-8452-00304867BFBC.root'
+			]
+	else :
+		process.source.fileNames = [
+			'/store/mc/Summer11/SMS-T2tt_Mstop-225to1200_mLSP-50to1025_7TeV-Pythia6Z/AODSIM/PU_START42_V11_FastSim-v1/0059/00A9721F-44CB-E011-A65A-002618943869.root',
+			'/store/mc/Summer11/SMS-T2tt_Mstop-225to1200_mLSP-50to1025_7TeV-Pythia6Z/AODSIM/PU_START42_V11_FastSim-v1/0060/0001CFBE-E5CB-E011-B98A-00261894398B.root'
+		]    
 else :
     if options.use41x :
         inputJetCorrLabel = ('AK5PFchs', ['L1FastJet', 'L2Relative', 'L3Absolute', 'L2L3Residual'])
@@ -754,9 +755,24 @@ if options.useData == True :
     process.patseq.remove( process.CATopTagInfosGen )
     process.patseq.remove( process.prunedGenParticles )
 
-process.p0 = cms.Path(
-    process.patseq
-    )
+
+
+if options.useSusyFilter :
+	process.patseq.remove( process.HBHENoiseFilter )
+	process.load( 'PhysicsTools.HepMCCandAlgos.modelfilter_cfi' )
+	process.modelSelector.parameterMins = [500.,    0.] # mstop, mLSP
+	process.modelSelector.parameterMaxs  = [7000., 200.] # mstop, mLSP
+	process.p0 = cms.Path(
+		process.modelSelector *
+		process.patseq
+	)
+
+
+
+else :
+	process.p0 = cms.Path(
+		process.patseq
+	)
 
 process.out.SelectEvents.SelectEvents = cms.vstring('p0')
 
@@ -771,6 +787,7 @@ else :
         process.out.fileName = cms.untracked.string('ttbsm_' + fileTag + '_mc_fat.root')
     else :
         process.out.fileName = cms.untracked.string('ttbsm_' + fileTag + '_mc.root')
+
 
 # reduce verbosity
 process.MessageLogger.cerr.FwkReport.reportEvery = cms.untracked.int32(100)
