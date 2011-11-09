@@ -21,3 +21,7 @@ void PFCandidatePhotonExtra::addSingleLegConvMva(float& mvasingleleg){
 void PFCandidatePhotonExtra::addConversionRef(const reco::ConversionRef& convref){
   assoConversionsRef_.push_back(convref);
 }
+
+void  PFCandidatePhotonExtra::addLCorrClusEnergy(float LCorrE){
+  LocalCorr_.push_back(LCorrE);
+}

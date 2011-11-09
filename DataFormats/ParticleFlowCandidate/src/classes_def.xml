@@ -73,8 +73,8 @@
   <class name="reco::PFCandidateElectronExtraRefProd"/>
   <class name="reco::PFCandidateElectronExtraRefVector"/>
 
-  <class name="reco::PFCandidatePhotonExtra" ClassVersion="10">
-   <version ClassVersion="10" checksum="536762407"/>
+  <class name="reco::PFCandidatePhotonExtra" ClassVersion="11">
+   <version ClassVersion="11" checksum="518358979"/>
 <!-- 
   <field name="assoSingleLegRefTrack_" transient="true"/>
   <field name="assoSingleLegMva_" transient="true"/>

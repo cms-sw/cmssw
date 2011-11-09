@@ -45,6 +45,17 @@ namespace reco {
     /// return Conversions from PF
     reco::ConversionRefVector conversionRef() const {return assoConversionsRef_;} 
 
+    //from Mustache Id:
+    void setMustache_Et(float Must_Et){Mustache_Et_=Must_Et;}
+    void setExcludedClust(int excluded){Excluded_clust_=excluded;}
+    float Mustache_Et()const{ return Mustache_Et_;}
+    int ExcludedClust()const{ return Excluded_clust_;}
+    
+    //MVA Energy Regression:
+    void setMVAGlobalCorrE(float GCorr){GlobalCorr_=GCorr;}
+    float MVAGlobalCorrE()const{return GlobalCorr_;}
+    void addLCorrClusEnergy(float LCorrE);
+    const std::vector<float>& LCorrClusEnergy() const {return LocalCorr_;}
 
  private:
     
@@ -59,6 +70,14 @@ namespace reco {
 
     /// vector of ConversionRef from PF
     reco::ConversionRefVector assoConversionsRef_;
+
+    //for Mustache_Id
+    float Mustache_Et_;
+    int Excluded_clust_;
+    
+    //for MVA Regression Energy
+    std::vector<float> LocalCorr_;
+    float GlobalCorr_;
 
   };
 }
