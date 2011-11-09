@@ -886,7 +886,7 @@ inline double dot(mathSSE::Vec4D a, mathSSE::Vec4D b) {
 }
 
 inline mathSSE::Vec4D cross(mathSSE::Vec4D a, mathSSE::Vec4D b) __attribute__((always_inline)) __attribute__ ((pure));
- 
+
 inline mathSSE::Vec4D cross(mathSSE::Vec4D a, mathSSE::Vec4D b) {
   const __m128d neg = _mm_set_pd ( 0.0 , -0.0 );
   // lh .z * rh .x , lh .z * rh .y
@@ -900,8 +900,7 @@ inline mathSSE::Vec4D cross(mathSSE::Vec4D a, mathSSE::Vec4D b) {
   l1 = _mm_mul_pd (  a.vec[0] , _mm_shuffle_pd (  b.vec[0] ,  b.vec[0] , 1 ) );
   // lh .x * rh .y - lh .y * rh .x
   __m128d m2 = _mm_sub_sd ( l1 , _mm_unpackhi_pd ( l1 , l1 ) );
-
-  return  mathSSE::Vec4D( m1 , m2 );
+  return mathSSE::Vec4D(m1, _mm_mul_pd(m2,_mm_set_pd(0.0, 1.0)));
 }
 
 
