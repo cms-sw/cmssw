@@ -111,9 +111,6 @@ if [ "${decay}" == true ] ; then
 	done
 fi
 
-pwd
-ls -l
-
 #__________________________________________
 # REPLACE process
 # REPLACE will replace el with el/mu/taus by default, if you need something else you need to edit the replace_card1.dat
@@ -136,10 +133,6 @@ if [ ${replace} == true ] ; then
 	fi
 	perl madevent/bin/replace.pl ${file}_in.lhe ${file}.lhe < replace_card1.dat
 fi	
-
-pwd
-ls -l
-
 
 #__________________________________________
 # wjets/zjets
@@ -174,5 +167,8 @@ if [ $minmax_jet == true ] ;then
 fi
 
 mv ${file}_qcut${qcut}_mgPostv2.lhe ${file}.lhe 
+
+ls -l
+echo
 
 exit 0
