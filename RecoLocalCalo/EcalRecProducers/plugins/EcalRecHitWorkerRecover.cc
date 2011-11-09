@@ -19,7 +19,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-//$Id: EcalRecHitWorkerRecover.cc,v 1.30 2011/08/03 21:37:38 argiro Exp $
+//$Id: EcalRecHitWorkerRecover.cc,v 1.31 2011/11/02 13:10:21 theofil Exp $
 
 EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet&ps) :
         EcalRecHitWorkerBaseClass(ps)
@@ -73,7 +73,6 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
                 EcalRecHitCollection & result )
 {
         DetId detId=uncalibRH.id();
-        //uint32_t flags = uncalibRH.recoFlag();
 	uint32_t flags = (0xF & uncalibRH.flags()); 
 
         // get laser coefficient
