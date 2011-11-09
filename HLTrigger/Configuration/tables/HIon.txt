@@ -11,64 +11,64 @@ HLT_HIMinBiasPixel_SingleTrack_v*
 HLT_HIMinBiasZDC_Calo_v*
 HLT_HIMinBiasZDC_Calo_PlusOrMinus_v*
 HLT_HIMinBiasZDCPixel_SingleTrack_v*
-HLT_HIMinBiasZDC_PlusOrMinusPixel_SingleTrack_v* # added for 2011 (sr #124297)
+HLT_HIMinBiasZDC_PlusOrMinusPixel_SingleTrack_v*
 HLT_HIBptxXOR_v*
 HLT_HIL1Algo_BptxXOR_BSC_OR_v*
 HLT_HIL1DoubleMuOpen_v*
-HLT_HIL1DoubleMu0_HighQ_v*                #   added for 2011 (sr #123854)
+HLT_HIL1DoubleMu0_HighQ_v*
 HLT_HIL2Mu3_v*
-HLT_HIL2Mu3_NHitQ_v*                      #   added for 2011 (sr #123854)
-HLT_HIL2Mu7_v*                            #   added for 2011 (sr #123854)
-HLT_HIL2Mu15_v*                           #   added for 2011 (sr #123854)
+HLT_HIL2Mu3_NHitQ_v*
+HLT_HIL2Mu7_v*
+HLT_HIL2Mu15_v*
 HLT_HIL2DoubleMu0_v*
-HLT_HIL2DoubleMu0_NHitQ_v*                #   added for 2011 (sr #123854)
-HLT_HIL2DoubleMu0_L1HighQL2NHitQ_v*       #   added for 2011 (sr #123854)
+HLT_HIL2DoubleMu0_NHitQ_v*
+HLT_HIL2DoubleMu0_L1HighQL2NHitQ_v*
 HLT_HIL2DoubleMu3_v*
-HLT_HIL3Mu3_v*                            #   added for 2011 (sr #123854)
-HLT_HIL3DoubleMuOpen_v*                   #   added for 2011 (sr #123854)
-HLT_HIL3DoubleMuOpen_Mgt2_v*              #   added for 2011 (sr #123854)
-HLT_HIL3DoubleMuOpen_Mgt2_SS_v*           #   added for 2011 (sr #123854)
-HLT_HIL3DoubleMuOpen_Mgt2_OS_v*           #   added for 2011 (sr #123854)
-HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v*  #   added for 2011 (sr #123854)
-HLT_HISinglePhoton15_v*                   #   added for 2011 (sr #123856)
-HLT_HISinglePhoton20_v*                   #   added for 2011 (sr #123856)
-HLT_HISinglePhoton30_v*                   #   added for 2011 (sr #123856)
-HLT_HISinglePhoton40_v*                   #   added for 2011 (sr #123856)
-HLT_HIPhoton10_Photon15_v*                #   added for 2011 (sr #123856)
-HLT_HIPhoton15_Photon20_v*                #   added for 2011 (sr #123856)
-HLT_HIDoublePhoton10_v*                   #   added for 2011 (sr #123856)
-HLT_HIDoublePhoton15_v*                   #   added for 2011 (sr #123856)
-HLT_HIDoublePhoton20_v*                   #   added for 2011 (sr #123856)
-HLT_HIJet55_v*                            #   added for 2011 (sr #123637)
-HLT_HIJet65_v*                            #   added for 2011 (sr #123637)
-HLT_HIJet80_v*                            #   added for 2011 (sr #123637)
-HLT_HIJet95_v*                            #   added for 2011 (sr #123637)
-HLT_HIDiJet55_v*                          #   added for 2011 (sr #123637)
-HLT_HIJet65_Jet55_v*                      #   added for 2011 (sr #123637)
-HLT_HIJetE30_NoBPTX_v*                    #   added for 2011
-HLT_HIJetE50_NoBPTX3BX_NoHalo_v*          #   added for 2011
+HLT_HIL3Mu3_v*
+HLT_HIL3DoubleMuOpen_v*
+HLT_HIL3DoubleMuOpen_Mgt2_v*
+HLT_HIL3DoubleMuOpen_Mgt2_SS_v*
+HLT_HIL3DoubleMuOpen_Mgt2_OS_v*
+HLT_HIL3DoubleMuOpen_Mgt2_OS_NoCowboy_v*
+HLT_HISinglePhoton15_v*
+HLT_HISinglePhoton20_v*
+HLT_HISinglePhoton30_v*
+HLT_HISinglePhoton40_v*
+HLT_HIPhoton10_Photon15_v*
+HLT_HIPhoton15_Photon20_v*
+HLT_HIDoublePhoton10_v*
+HLT_HIDoublePhoton15_v*
+HLT_HIDoublePhoton20_v*
+HLT_HIJet55_v*
+HLT_HIJet65_v*
+HLT_HIJet80_v*
+HLT_HIJet95_v*
+HLT_HIDiJet55_v*
+HLT_HIJet65_Jet55_v*
+HLT_HIJetE30_NoBPTX_v*
+HLT_HIJetE50_NoBPTX3BX_NoHalo_v*
 HLT_HIActivityHF_Coincidence3_v*
 HLT_HIActivityHF_Single3_v*
 HLT_HIClusterVertexCompatibility_v*
 HLT_HICentralityVeto_v*
-HLT_HIFullTrack12_L1Central_v*            #   added for 2011 (sr #123853)
-HLT_HIFullTrack12_L1Peripheral_v*         #   added for 2011 (sr #123853)
-HLT_HIFullTrack14_L1Central_v*            #   added for 2011 (sr #123853)
-HLT_HIFullTrack14_L1Peripheral_v*         #   added for 2011 (sr #123853)
-HLT_HIFullTrack20_L1Central_v*            #   added for 2011 (sr #123853)
-HLT_HIFullTrack20_L1Peripheral_v*         #   added for 2011 (sr #123853)
-HLT_HIFullTrack25_L1Central_v*            #   added for 2011 (sr #123853)
-HLT_HIFullTrack25_L1Peripheral_v*         #   added for 2011 (sr #123853)
+HLT_HIFullTrack12_L1Central_v*
+HLT_HIFullTrack12_L1Peripheral_v*
+HLT_HIFullTrack14_L1Central_v*
+HLT_HIFullTrack14_L1Peripheral_v*
+HLT_HIFullTrack20_L1Central_v*
+HLT_HIFullTrack20_L1Peripheral_v*
+HLT_HIFullTrack25_L1Central_v*
+HLT_HIFullTrack25_L1Peripheral_v*
 HLT_HIRandom_v*
-HLT_HIUCC010_v*                           #   added for 2011 (sr #123637)
-HLT_HIUCC015_v*                           #   added for 2011 (sr #123637)
-HLT_HICentral10_v*                        #   added for 2011 (sr #124298)
-HLT_HIUPCNeuMuPixel_SingleTrack_v*        #   added for 2011 (sr #123637)
-HLT_HIUPCNeuEG2Pixel_SingleTrack_v*       #   added for 2011 (sr #123637)
-HLT_HIUPCNeuEG5Pixel_SingleTrack_v*       #   added for 2011 (sr #123637)
-HLT_HIUPCNeuHcalHfMuPixel_SingleTrack_v*  #   added for 2011 (sr #123637)
-HLT_HIUPCNeuHcalHfEG2Pixel_SingleTrack_v* #   added for 2011 (sr #123637)
-HLT_HIUPCNeuHcalHfEG5Pixel_SingleTrack_v* #   added for 2011 (sr #123637)
+HLT_HIUCC010_v*
+HLT_HIUCC015_v*
+HLT_HICentral10_v*
+HLT_HIUPCNeuMuPixel_SingleTrack_v*
+HLT_HIUPCNeuEG2Pixel_SingleTrack_v*
+HLT_HIUPCNeuEG5Pixel_SingleTrack_v*
+HLT_HIUPCNeuHcalHfMuPixel_SingleTrack_v*
+HLT_HIUPCNeuHcalHfEG2Pixel_SingleTrack_v*
+HLT_HIUPCNeuHcalHfEG5Pixel_SingleTrack_v*
 HLT_HIDTCalibration_v*
 HLT_HIEcalCalibration_v*
 HLT_HIHcalCalibration_v*
