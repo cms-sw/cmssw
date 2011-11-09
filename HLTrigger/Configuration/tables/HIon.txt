@@ -72,13 +72,10 @@ HLT_HIUPCNeuHcalHfEG5Pixel_SingleTrack_v*
 HLT_HIDTCalibration_v*
 HLT_HIEcalCalibration_v*
 HLT_HIHcalCalibration_v*
-HLT_LogMonitor_v*
 HLTriggerFirstPath
 HLTriggerFinalPath
 HLTAnalyzerEndpath
-# AOutput
 AForHIOutput
-# AlCaHIOutput
 ALCAP0Output
 ALCAPHISYMOutput
 ALCALUMIPIXELSOutput
@@ -90,5 +87,4 @@ HLTDQMOutput
 HLTDQMResultsOutput
 HLTMONOutput
 NanoDSTOutput
-# PhysicsDSTOutput
 RPCMONOutput
