@@ -31,8 +31,8 @@
   <class name="reco::Photon::PflowIsolationVariables"  ClassVersion="11">
    <version ClassVersion="11" checksum="3200292660"/>
   </class>
-  <class name="reco::Photon::PflowIDVariables"  ClassVersion="0">
-   <version ClassVersion="0" checksum="2819734289"/>
+  <class name="reco::Photon::PflowIDVariables"  ClassVersion="-1">
+   <version ClassVersion="-1" checksum="2819734289"/>
   </class>
   <class name="reco::Photon::EnergyCorrections"  ClassVersion="15">
    <version ClassVersion="15" checksum="2042715570"/>
