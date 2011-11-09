@@ -34,7 +34,9 @@
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
-#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
+//#include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/CommonTopologies/interface/Topology.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "DataFormats/GeometrySurface/interface/BoundSurface.h"
@@ -173,8 +175,8 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
   double psi_pxb_strx34[16] = { 0 };
   double pxbR_L[16] = { 0.0 };
   double pxbZ_L[16] = { 0.0 };
-  //double pxbpitchx[16] = { 0.0 };
-  //double pxbpitchy[16] = { 0.0 };
+  double pxbpitchx[16] = { 0.0 };
+  double pxbpitchy[16] = { 0.0 };
   unsigned int pxfN = 0;
   unsigned int pxf_D_N = 0;
   unsigned int pxf_1x2N = 0;
@@ -188,8 +190,8 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
   unsigned int pxf_2x3_D[6] = { 0 };
   unsigned int pxf_2x4_D[6] = { 0 };
   unsigned int pxf_2x5_D[6] = { 0 };
-  //double pxfpitchx[6] = { 0 };
-  //double pxfpitchy[6] = { 0 };
+  double pxfpitchx[6] = { 0 };
+  double pxfpitchy[6] = { 0 };
   double psi_pxf_D[6]= { 0 };
   double psi_pxf[16] = { 0 };
   double pxfR_min_D[6] = { 9999.0 , 9999.0 , 9999.0 };
@@ -366,17 +368,19 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
 	unsigned int theModule = module.module();
         thepixROCRowsB[theLayer-1] = modules[i]->pixROCRows(); 
         thepixROCColsB[theLayer-1] = modules[i]->pixROCCols();
-/*        {
+        {
 	  const DetId& detid =modules[i]->geographicalID();
 	  DetId detIdObject( detid );
 	  const GeomDetUnit * genericDet =  pDD->idToDetUnit( detIdObject );
 	  const PixelGeomDetUnit * pixDet = dynamic_cast<const PixelGeomDetUnit*>(genericDet);
-	  const RectangularPixelTopology * theTopol = dynamic_cast<const RectangularPixelTopology*>( & (pixDet->specificTopology()) );
+	  //std::cout << "  "<<__LINE__<<" PixelGeomDetUnit "<<pixDet->surface().position().perp()<<" , "<<pixDet->surface().position().z()<<"\n";
+	  const PixelTopology  * theTopol = &(pixDet->specificTopology()); 
 	  std::pair<float,float> pitchxy = theTopol->pitch();
 	pxbpitchx[theLayer-1] = double(int(0.5+(10000*pitchxy.first )));
 	pxbpitchy[theLayer-1] = double(int(0.5+(10000*pitchxy.second)));
+        //std::cout<<"  "<<" BPix Layer "<< theLayer << " with Pitch = " << pxbpitchx[theLayer-1]<<" , "<<pxbpitchy[theLayer-1]<<"\n";
 	} // Discard some transitional variables.
-*/	if(theLayer > nlayersPXB) nlayersPXB=theLayer;
+	if(theLayer > nlayersPXB) nlayersPXB=theLayer;
         // The following sums will need to be verified...
 	if(name == "PixelBarrelActiveFull" || name == "PixelBarrelActiveFull0" || name == "PixelBarrelActiveFull1" || name == "PixelBarrelActiveFull2" || name == "PixelBarrelActiveFull3" ) pxb_full_L[theLayer-1]++;
 	if(name == "PixelBarrelActiveHalf" || name == "PixelBarrelActiveHalf1" || name == "PixelBarrelActiveHalf2" || name == "PixelBarrelActiveHalf3" ) pxb_half_L[theLayer-1]++;
@@ -439,17 +443,17 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
 	unsigned int theModule = module.module();
         thepixROCRowsD[theDisk-1] = modules[i]->pixROCRows();
         thepixROCColsD[theDisk-1] = modules[i]->pixROCCols();
-/*        {
+        {
           const DetId& detid =modules[i]->geographicalID();
           DetId detIdObject( detid );
           const GeomDetUnit * genericDet =  pDD->idToDetUnit( detIdObject );
           const PixelGeomDetUnit * pixDet = dynamic_cast<const PixelGeomDetUnit*>(genericDet);
-          const RectangularPixelTopology * theTopol = dynamic_cast<const RectangularPixelTopology*>( & (pixDet->specificTopology()) );
+          const PixelTopology  * theTopol = &(pixDet->specificTopology());
           std::pair<float,float> pitchxy = theTopol->pitch();
         pxfpitchx[theDisk-1] = double(int(0.5+(10000*pitchxy.first )));
         pxfpitchy[theDisk-1] = double(int(0.5+(10000*pitchxy.second)));
         } // Discard some transitional variables.
-*/	if(theDisk > ndisksPXF) ndisksPXF=theDisk;
+	if(theDisk > ndisksPXF) ndisksPXF=theDisk;
 	if(name == "PixelForwardSensor" ||
 	   name == "PixelForwardSensor1"|| name == "PixelForwardSensor2"|| name == "PixelForwardSensor3"
 	  )    pxf_D[theDisk-1]++;
@@ -954,7 +958,7 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
     GeometryOutput << "        Active Silicon surface in PXB layer no. " << i+1<< ": "<< activeSurface_pxb_L[i]<< " [cm^2]"<< std::endl;
     GeometryOutput << "        Number of PSI46s in PXB layer no. " << i+1<< ": "<< psi_pxb_L[i]<< std::endl;
     GeometryOutput << "        Number of pixel channels in PXB layer no. " << i+1<< ": "<< (int)psi_pxb_L[i]*chan_per_psiB[i]<< std::endl;
-    //GeometryOutput << "        Pitch X & Y (microns) of PXB layer no. " << i+1<< ": "<< pxbpitchx[i] <<" & "<< pxbpitchy[i] <<std::endl;
+    GeometryOutput << "        Pitch X & Y (microns) of PXB layer no. " << i+1<< ": "<< pxbpitchx[i] <<" & "<< pxbpitchy[i] <<std::endl;
     GeometryOutput << std::endl;
     GeometryXLS <<"PXB"<<i+1<<" "<<pxbR_L[i]/(pxb_full_L[i]+pxb_half_L[i]+pxb_stack[i])<<" "<<0<<" "<<pxbZ_L[i]<<" "<<activeSurface_pxb_L[i]<<" "<<psi_pxb_L[i]<<" "<<(int)psi_pxb_L[i]*chan_per_psiB[i]<<" "<<pxb_full_L[i]+pxb_half_L[i]+pxb_stack[i]<<" "<<pxb_full_L[i]<<" "<<pxb_half_L[i]<<" "<<pxb_stack[i]<<std::endl;
   }
@@ -999,7 +1003,7 @@ ModuleInfo_Phase2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
     GeometryOutput << "        Active Silicon surface in PXF disk no. " << i+1<< ": "<< activeSurface_pxf_D[i]<< " [cm^2]"<< std::endl;
     GeometryOutput << "        Number of PSI46s in PXF disk no. " << i+1<< ": "<< psi_pxf_D[i]<< std::endl;
     GeometryOutput << "        Number of pixel channels in PXF disk no. " << i+1<< ": "<< (int)psi_pxf_D[i]*chan_per_psiD[i]<< std::endl;
-    //GeometryOutput << "        Pitch X & Y (microns) of PXF disk no. " << i+1<< ": "<< pxbpitchx[i] <<" & "<< pxbpitchy[i] <<std::endl;
+    GeometryOutput << "        Pitch X & Y (microns) of PXF disk no. " << i+1<< ": "<< pxfpitchx[i] <<" & "<< pxfpitchy[i] <<std::endl;
     GeometryOutput << std::endl;
     GeometryXLS <<"PXF"<<i+1<<" "<<pxfR_min_D[i]<<" "<<pxfR_max_D[i]<<" "<<pxfZ_D[i]/(pxf_D[i]+pxf_1x2_D[i]+pxf_1x5_D[i]+pxf_2x3_D[i]+pxf_2x4_D[i]+pxf_2x5_D[i])<<" "<<activeSurface_pxf_D[i]<<" "<<psi_pxf_D[i]<<" "<<(int)psi_pxf_D[i]*chan_per_psiD[i]<<" "<<pxf_D[i]+pxf_1x2_D[i]+pxf_1x5_D[i]+pxf_2x3_D[i]+pxf_2x4_D[i]+pxf_2x5_D[i]<<" "<<pxf_D[i]<<" "<<pxf_1x2_D[i]<<" "<<pxf_1x5_D[i]<<" "<<pxf_2x3_D[i]<<" "<<pxf_2x4_D[i]<<" "<<pxf_2x5_D[i]<<std::endl;  
   }
