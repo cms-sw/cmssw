@@ -158,7 +158,7 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
     
     SingleMuonTrigger = cms.PSet(
       andOr         = cms.bool( True ),
-      dbLabel        = cms.string( "MuonDQMTrigger_V00_00_01"),
+      dbLabel        = cms.string( "MuonDQMTrigger"),
       hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
       hltDBKey       = cms.string('SingleMu'),
       hltPaths       = cms.vstring( "HLT_IsoMu30_eta2p1_v7" ),
@@ -167,7 +167,7 @@ muonAnalyzer = cms.EDAnalyzer("MuonAnalyzer",
       ),
     DoubleMuonTrigger = cms.PSet(
       andOr         = cms.bool( True ),
-      dbLabel        = cms.string( "MuonDQMTrigger_V00_00_01"),
+      dbLabel        = cms.string( "MuonDQMTrigger"),
       hltInputTag    = cms.InputTag( "TriggerResults::HLT" ),
       hltDBKey       = cms.string('DoubleMu'),
       hltPaths       = cms.vstring( "HLT_Mu17_Mu8_v11" ),
