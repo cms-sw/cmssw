@@ -6,7 +6,7 @@
 //
 // Original Author:  Alan Tua
 //         Created:  Wed Jul  9 21:40:17 CEST 2008
-// $Id: MuonSegmentMatcher.cc,v 1.10 2011/01/25 22:48:19 ptraczyk Exp $
+// $Id: MuonSegmentMatcher.cc,v 1.11 2011/10/03 11:43:03 ptraczyk Exp $
 //
 //
 
@@ -70,12 +70,15 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track &muo
 
   TrackingRecHitRefVector dtHits;
 
+  bool segments = false;
+
   // Loop and select DT recHits
   for(trackingRecHit_iterator hit = muon.recHitsBegin(); hit != muon.recHitsEnd(); ++hit) {
     if ( !(*hit)->isValid()) continue; 
     if ( (*hit)->geographicalId().det() != DetId::Muon ) continue; 
     if ( (*hit)->geographicalId().subdetId() != MuonSubdetId::DT ) continue; 
     if (!(*hit)->isValid()) continue; 
+    if ((*hit)->recHits().size()>1) segments = true;
     dtHits.push_back(*hit);
   }
   
@@ -87,6 +90,25 @@ vector<const DTRecSegment4D*> MuonSegmentMatcher::matchDT(const reco::Track &muo
   for (DTRecSegment4DCollection::const_iterator rechit = dtRecHits->begin(); rechit!=dtRecHits->end();++rechit) {
   
     if ( !rechit->isValid()) continue; 
+    LocalPoint pointLocal = rechit->localPosition();
+
+    if (segments) {
+      // Loop over muon recHits
+      for(trackingRecHit_iterator hit = dtHits.begin(); hit != dtHits.end(); ++hit) {
+	if ( !(*hit)->isValid()) continue; 
+					
+	// Pick the one in the same DT Chamber as the muon
+	DetId idT = (*hit)->geographicalId();
+	if(!(rechit->geographicalId().rawId()==idT.rawId())) continue; 
+
+        // and compare the local positions
+        LocalPoint segLocal = (*hit)->localPosition();
+        if ((fabs(pointLocal.x()-segLocal.x())<ZCutParameter) && 
+            (fabs(pointLocal.y()-segLocal.y())<ZCutParameter)) 
+          pointerTo4DSegments.push_back(&(*rechit));
+      }
+      continue;
+    }
 
     double nhitsPhi = 0;
     double nhitsZ = 0;
@@ -231,15 +253,30 @@ vector<const CSCSegment*> MuonSegmentMatcher::matchCSC(const reco::Track& muon, 
     countMuonCSCHits = 0;
     CSCDetId myChamber((*segmentCSC).geographicalId().rawId());
 
+    bool segments = false;
+
     for(trackingRecHit_iterator hitC = muon.recHitsBegin(); hitC != muon.recHitsEnd(); ++hitC) {
       if (!(*hitC)->isValid()) continue; 
       if ( (*hitC)->geographicalId().det() != DetId::Muon ) continue; 
       if ( (*hitC)->geographicalId().subdetId() != MuonSubdetId::CSC ) continue;
       if (!(*hitC)->isValid()) continue;
+      if ( (*hitC)->recHits().size()>1) segments = true;
 
       //DETECTOR CONSTRUCTION
       DetId id = (*hitC)->geographicalId();
       CSCDetId cscDetIdHit(id.rawId());
+
+      if (segments) {
+	if(!(myChamber.rawId()==cscDetIdHit.rawId())) continue; 
+
+        // and compare the local positions
+        LocalPoint positionLocalCSC = (*hitC)->localPosition();
+	LocalPoint segLocalCSC = segmentCSC->localPosition();
+	if ((fabs(positionLocalCSC.x()-segLocalCSC.x())<CSCXCut) && 
+	    (fabs(positionLocalCSC.y()-segLocalCSC.y())<CSCYCut)) 
+	  pointerToCSCSegments.push_back(&(*segmentCSC)); 
+        continue;
+      }
 
       if(!(cscDetIdHit.ring()==myChamber.ring())) continue;
       if(!(cscDetIdHit.station()==myChamber.station())) continue;
