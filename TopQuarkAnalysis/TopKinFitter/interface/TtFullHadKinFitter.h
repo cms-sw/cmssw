@@ -39,16 +39,19 @@ class TtFullHadKinFitter : public TopKinFitter {
   std::vector<TtFullHadKinFitter::Constraint> intToConstraint(std::vector<unsigned int> constraints);
   /// constructor initialized with build-in types as custom parameters (only included to keep TtHadEvtSolutionMaker.cc running)
   TtFullHadKinFitter(int jetParam, int maxNrIter, double maxDeltaS, double maxF, std::vector<unsigned int> constraints,
-		     double mW=80.4, double mTop=173.);
+		     double mW=80.4, double mTop=173.,
+		     const std::vector<edm::ParameterSet>* udscResolutions=0, 
+		     const std::vector<edm::ParameterSet>* bResolutions   =0);
   /// constructor initialized with built-in types and class enum's custom parameters
   TtFullHadKinFitter(Param jetParam, int maxNrIter, double maxDeltaS, double maxF, std::vector<Constraint> constraints,
-		     double mW=80.4, double mTop=173.);
+		     double mW=80.4, double mTop=173.,
+		     const std::vector<edm::ParameterSet>* udscResolutions=0, 
+		     const std::vector<edm::ParameterSet>* bResolutions   =0);
   /// default destructor
   ~TtFullHadKinFitter();
 
   /// kinematic fit interface
-  int fit(const std::vector<pat::Jet>& jets);
-  int fit(const std::vector<pat::Jet>& jets, const std::vector<edm::ParameterSet> udscResolutions, const std::vector<edm::ParameterSet> bResolutions, const double energyResolutionSmearFactor);
+  int fit(const std::vector<pat::Jet>& jets, const double energyResolutionSmearFactor=1.);
   /// return fitted b quark candidate
   const pat::Particle fittedB() const { return (fitter_->getStatus()==0 ? fittedB_ : pat::Particle()); };
   /// return fitted b quark candidate
@@ -82,6 +85,9 @@ class TtFullHadKinFitter : public TopKinFitter {
   TAbsFitParticle* lightQBar_;
   TAbsFitParticle* lightP_;
   TAbsFitParticle* lightPBar_;
+  /// resolutions
+  const std::vector<edm::ParameterSet>* udscResolutions_;
+  const std::vector<edm::ParameterSet>* bResolutions_;
   /// supported constraints
   std::map<Constraint, TFitConstraintM*> massConstr_;
   /// output particles
@@ -97,7 +103,7 @@ class TtFullHadKinFitter : public TopKinFitter {
   std::vector<Constraint> constraints_;
 
   /// get object resolutions and put them into a matrix
-  CovarianceMatrix * covM;
+  CovarianceMatrix * covM_;
 
  public:
 
