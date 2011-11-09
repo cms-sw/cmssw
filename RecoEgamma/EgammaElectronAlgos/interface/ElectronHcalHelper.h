@@ -41,7 +41,7 @@ class ElectronHcalHelper
 
     ElectronHcalHelper( const Configuration & ) ;
     void checkSetup( const edm::EventSetup & ) ;
-    void readEvent( edm::Event & ) ;
+    void readEvent( const edm::Event & ) ;
     ~ElectronHcalHelper() ;
 
     double hcalESum( const reco::SuperCluster & , const std::vector<CaloTowerDetId> * excludeTowers = 0) ;

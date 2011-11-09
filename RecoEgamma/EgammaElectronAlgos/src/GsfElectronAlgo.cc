@@ -848,7 +848,7 @@ void GsfElectronAlgo::addPflowInfo()
            { (*el)->setP4(GsfElectron::P4_PFLOW_COMBINATION,pfElectron->p4(GsfElectron::P4_PFLOW_COMBINATION),pfElectron->p4Error(GsfElectron::P4_PFLOW_COMBINATION),false) ; }
           else
            { (*el)->setP4(GsfElectron::P4_PFLOW_COMBINATION,pfElectron->p4(GsfElectron::P4_PFLOW_COMBINATION),pfElectron->p4Error(GsfElectron::P4_PFLOW_COMBINATION),true) ; }
-          double noCutMin = -999999999 ;
+          double noCutMin = -999999999. ;
           if ((*el)->mva()<noCutMin) { throw cms::Exception("GsfElectronAlgo|UnexpectedMvaValue")<<"unexpected MVA value: "<<(*el)->mva() ; }
          }
        }
@@ -1193,12 +1193,13 @@ void GsfElectronAlgo::createElectron()
   theClassifier.classify(*ele);
   ElectronEnergyCorrector theEnCorrector ;
   if (!generalData_->superClusterErrorFunction)
-   { theEnCorrector.setCorrectedEcalEnergyError(*ele) ; }
+   { theEnCorrector.correctEcalEnergyError(*ele) ; }
   else
    { ele->setCorrectedEcalEnergyError(generalData_->superClusterErrorFunction->getValue(*(ele->superCluster()),0)) ; }
   if (ele->core()->ecalDrivenSeed())
    {
-    theEnCorrector.correct(*ele,*eventData_->beamspot,generalData_->strategyCfg.applyEcalEnergyCorrection) ;
+    if (generalData_->strategyCfg.applyEcalEnergyCorrection)
+     { theEnCorrector.correctEcalEnergy(*ele,*eventData_->beamspot) ; }
     ElectronMomentumCorrector theMomCorrector;
     theMomCorrector.correct(*ele,electronData_->vtxTSOS);
    }

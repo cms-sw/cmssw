@@ -35,7 +35,7 @@ void ElectronHcalHelper::checkSetup( const edm::EventSetup & es )
    }
  }
 
-void ElectronHcalHelper::readEvent( edm::Event & evt )
+void ElectronHcalHelper::readEvent( const edm::Event & evt )
  {
   if (cfg_.hOverEConeSize==0)
    { return ; }

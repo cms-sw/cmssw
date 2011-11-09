@@ -9,11 +9,10 @@ class ElectronEnergyCorrector
  {
   public:
 
-    ElectronEnergyCorrector()
-     {}
+    ElectronEnergyCorrector() {}
 
-    void correct( reco::GsfElectron &, const reco::BeamSpot & bs, bool applyEcalEnergyCorrection = true ) ;
-    void setCorrectedEcalEnergyError( reco::GsfElectron & ) ;
+    void correctEcalEnergy( reco::GsfElectron &, const reco::BeamSpot & bs /*, bool applyEcalEnergyCorrection = true*/ ) ;
+    void correctEcalEnergyError( reco::GsfElectron & ) ;
 
   private:
 
@@ -24,9 +23,17 @@ class ElectronEnergyCorrector
     double fEtaEndcapBad( double scEta ) const ;
     double fEtaEndcapGood( double scEta ) const ;
 
-  //  EcalClusterFunctionBaseClass * ff_ ;
-  //  float newEnergy_ ;
-  //  float newEnergyError_ ;
+    // new corrections (N. Chanon et al.)
+    float fEta  (float energy, float eta, int algorithm) const ;
+    //float fBrem (float e,  float eta, int algorithm) const ;
+    //float fEtEta(float et, float eta, int algorithm) const ;
+    float fBremEta(float sigmaPhiSigmaEta, float eta, int algorithm, reco::GsfElectron::Classification cl ) const ;
+    float fEt(float et, int algorithm, reco::GsfElectron::Classification cl ) const ;
+    float fEnergy(float e, int algorithm, reco::GsfElectron::Classification cl ) const ;
+
+   //EcalClusterFunctionBaseClass * ff_ ;
+   //float newEnergy_ ;
+   //float newEnergyError_ ;
 
  } ;
 
