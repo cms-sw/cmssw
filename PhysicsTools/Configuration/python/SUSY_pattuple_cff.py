@@ -16,7 +16,6 @@ def addDefaultSUSYPAT(process,mcInfo=True,HLTMenu='HLT',jetMetCorrections=['L2Re
     loadMCVersion(process,mcVersion,mcInfo)
     loadPAT(process,jetMetCorrections,extMatch)
     addJetMET(process,theJetNames,jetMetCorrections,mcVersion)
-    useDAVertices(process)
     #loadPATTriggers(process,HLTMenu,theJetNames,electronMatches,muonMatches,tauMatches,jetMatches,photonMatches)
 
     #-- Counter for the number of processed events --------------------------------
@@ -25,7 +24,6 @@ def addDefaultSUSYPAT(process,mcInfo=True,HLTMenu='HLT',jetMetCorrections=['L2Re
     # Full path
     process.load('RecoTauTag.Configuration.RecoPFTauTag_cff')
     process.susyPatDefaultSequence = cms.Sequence( process.eventCountProducer
-                                                   * process.daVertices
                                                    * process.PFTau
                                                    * process.patDefaultSequence 
                                                    * process.patPF2PATSequencePF
@@ -38,32 +36,6 @@ def addDefaultSUSYPAT(process,mcInfo=True,HLTMenu='HLT',jetMetCorrections=['L2Re
     if doValidation:
         loadSusyValidation(process)
         process.susyPatDefaultSequence.replace(process.patPF2PATSequencePF, process.patPF2PATSequencePF * process.ak5CaloJetsL2L3 * process.metJESCorAK5CaloJet  * process.RecoSusyValidation * process.PatSusyValidation*process.MEtoEDMConverter)
-
-def useDAVertices(process):
-    #-- Deterministic Annealing Vertices ---------------------------------------------------
-    from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesDA_cfi import offlinePrimaryVerticesDA
-    from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesDAWithBS_cfi import offlinePrimaryVerticesDA as offlinePrimaryVerticesDAWithBS
-    process.offlinePrimaryVertices = offlinePrimaryVerticesDA.clone()
-    process.offlinePrimaryVerticesWithBS = offlinePrimaryVerticesDAWithBS.clone()
-
-    #-- Keep Gap Method Vertices for Comparison --------------------------------------------
-    try:
-        from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesGap_cfi import offlinePrimaryVerticesGap
-        from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesGapWithBS_cfi import offlinePrimaryVerticesGapWithBS
-    except ImportError:
-        from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVertices_cfi import offlinePrimaryVertices as offlinePrimaryVerticesGap
-        from RecoVertex.PrimaryVertexProducer.OfflinePrimaryVerticesWithBS_cfi import offlinePrimaryVerticesWithBS as offlinePrimaryVerticesGapWithBS
-        print "Could not find OfflinePrimaryVerticesGap. (Please ignore this warning if using CMSSW_4_1_X or lower)"
-        
-    process.offlinePrimaryVerticesGap = offlinePrimaryVerticesGap.clone()
-    process.offlinePrimaryVerticesGapWithBS = offlinePrimaryVerticesGapWithBS.clone()
-
-    process.daVertices = cms.Sequence(
-        process.offlinePrimaryVertices
-        + process.offlinePrimaryVerticesWithBS
-        + process.offlinePrimaryVerticesGap
-        + process.offlinePrimaryVerticesGapWithBS
-        )
 
 
 def extensiveMatching(process):
@@ -240,12 +212,13 @@ def loadPF2PAT(process,mcInfo,jetMetCorrections,extMatch,doSusyTopProjection,pos
     # addPFTypeIMet(process)
 
     #Set isolation cone to 0.3
+    # TODO: fix this for muons
     process.isoValElectronWithChargedPF.deposits[0].deltaR = 0.3
     process.isoValElectronWithNeutralPF.deposits[0].deltaR = 0.3
     process.isoValElectronWithPhotonsPF.deposits[0].deltaR = 0.3
-    process.isoValMuonWithChargedPF.deposits[0].deltaR = 0.3
-    process.isoValMuonWithNeutralPF.deposits[0].deltaR = 0.3
-    process.isoValMuonWithPhotonsPF.deposits[0].deltaR = 0.3
+    process.pfIsolatedMuonsPF.isolationValueMapsCharged = cms.VInputTag(cms.InputTag("muPFIsoValueCharged03PF"))
+    process.pfIsolatedMuonsPF.deltaBetaIsolationValueMap = cms.InputTag("muPFIsoValuePU03PF")
+    process.pfIsolatedMuonsPF.isolationValueMapsNeutral = cms.VInputTag(cms.InputTag("muPFIsoValueNeutral03PF"), cms.InputTag("muPFIsoValueGamma03PF"))
 
     #-- Enable pileup sequence -------------------------------------------------------------
     #Vertices
@@ -269,9 +242,9 @@ def loadPF2PAT(process,mcInfo,jetMetCorrections,extMatch,doSusyTopProjection,pos
     process.pfElectronsFromVertexPF.dzCut = 9999.0
     process.pfElectronsFromVertexPF.d0Cut = 9999.0
     process.pfSelectedElectronsPF.cut = ""
-    process.pfRelaxedElectronsPF = process.pfIsolatedElectronsPF.clone(combinedIsolationCut = 3.)
+    process.pfRelaxedElectronsPF = process.pfIsolatedElectronsPF.clone(isolationCut = 3.)
+    process.pfIsolatedElectronsPF.isolationCut = 0.15
     
-    process.pfIsolatedElectronsPF.combinedIsolationCut = 0.15
     process.pfElectronsFromGoodVertex = cms.EDFilter(
         "IPCutPFCandidateSelector",
         src = cms.InputTag("pfIsolatedElectronsPF"),  # PFCandidate source
@@ -302,9 +275,9 @@ def loadPF2PAT(process,mcInfo,jetMetCorrections,extMatch,doSusyTopProjection,pos
     process.pfMuonsFromVertexPF.dzCut = 9999.0
     process.pfMuonsFromVertexPF.d0Cut = 9999.0
     process.pfSelectedMuonsPF.cut = ""
-    process.pfRelaxedMuonsPF = process.pfIsolatedMuonsPF.clone(combinedIsolationCut = 3)
+    process.pfRelaxedMuonsPF = process.pfIsolatedMuonsPF.clone(isolationCut = 3)
+    process.pfIsolatedMuonsPF.isolationCut = 0.15
     
-    process.pfIsolatedMuonsPF.combinedIsolationCut = 0.15
     process.pfMuonsFromGoodVertex = cms.EDFilter(
         "IPCutPFCandidateSelector",
         src = cms.InputTag("pfIsolatedMuonsPF"),  # PFCandidate source
