@@ -7,7 +7,8 @@ enum HcalCalibrationEventType {
   hc_RADDAM   = 2,
   hc_HBHEHPD  = 3,
   hc_HOHPD    = 4,
-  hc_HFPMT    = 5
+  hc_HFPMT    = 5,
+  hc_ZDC      = 6
 };
 
 #endif
