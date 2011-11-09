@@ -58,20 +58,18 @@ PFPhotonAlgo::PFPhotonAlgo(std::string mvaweightfile,
     tmvaReader_->AddVariable("STIP",&STIP);  
     tmvaReader_->AddVariable("nlost", &nlost);  
     tmvaReader_->BookMVA("BDT",mvaweightfile.c_str());  
-    if(useReg_)
-      {
-       
-	TFile *fgbr = new TFile(mvaWeightFilePFPhoCorr.c_str(),"READ");
-	ReaderGC  =(GBRForest*)fgbr->Get("GBRForest");
-	TFile *fgbr2 = new TFile(mvaWeightFilePFClusCorr.c_str(),"READ");
-	ReaderLC  = (GBRForest*)fgbr2->Get("GBRForest");
+    
+    TFile *fgbr = new TFile(mvaWeightFilePFPhoCorr.c_str(),"READ");
+    ReaderGC  =(GBRForest*)fgbr->Get("GBRForest");
+    TFile *fgbr2 = new TFile(mvaWeightFilePFClusCorr.c_str(),"READ");
+    ReaderLC  = (GBRForest*)fgbr2->Get("GBRForest");
     //Material Map
-	TFile *XO_File = new TFile(X0_Map.c_str(),"READ");
-	X0_sum=(TH2D*)XO_File->Get("TrackerSum");
-	X0_inner = (TH2D*)XO_File->Get("Inner");
-	X0_middle = (TH2D*)XO_File->Get("Middle");
-	X0_outer = (TH2D*)XO_File->Get("Outer");
-      }
+    TFile *XO_File = new TFile(X0_Map.c_str(),"READ");
+    X0_sum=(TH2D*)XO_File->Get("TrackerSum");
+    X0_inner = (TH2D*)XO_File->Get("Inner");
+    X0_middle = (TH2D*)XO_File->Get("Middle");
+    X0_outer = (TH2D*)XO_File->Get("Outer");
+    
 }
 
 void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
@@ -138,6 +136,7 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     std::multimap<unsigned int, unsigned int>ClusterAddPS2;
     std::vector<reco::TrackRef>singleLegRef;
     std::vector<float>MVA_values(0);
+    std::vector<float>MVALCorr;
     reco::ConversionRefVector ConversionsRef_;
     isActive = *(actIter);
     //cout << " Found a SuperCluster.  Energy " ;
@@ -603,8 +602,22 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 	  float LocCorr=EvaluateLCorrMVA(clusterRef);
 	  EE=LocCorr*clusterRef->energy()+addedCalibEne;
 	}
-	else EE = thePFEnergyCalibration_->energyEm(*clusterRef,ps1Ene,ps2Ene,false)+addedCalibEne; 
+	else{
+	  EE = thePFEnergyCalibration_->energyEm(*clusterRef,ps1Ene,ps2Ene,false)+addedCalibEne; 
+	  MVALCorr.push_back(thePFEnergyCalibration_->energyEm(*clusterRef,ps1Ene,ps2Ene,false));
+	}	
       }
+      else{
+	if(clusterRef->layer()==PFLayer::ECAL_BARREL){
+	  float LocCorr=EvaluateLCorrMVA(clusterRef);
+	  MVALCorr.push_back(LocCorr*clusterRef->energy());
+	    }
+	else{
+	  
+	  MVALCorr.push_back(thePFEnergyCalibration_->energyEm(*clusterRef,ps1Ene,ps2Ene,false));	  
+	}
+      }
+      
       //cout<<"Original Energy "<<EE<<"Added Energy "<<addedCalibEne<<endl;
       
       photonEnergy_ +=  EE;
@@ -699,13 +712,27 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 		float EE=thePFEnergyCalibration_->
 		  energyEm(*clusterRef,AddedPS1,AddedPS2,false);
 		if(useReg_){
-		  EE=0;
 		  if(clusterRef->layer()==PFLayer::ECAL_BARREL){
 		    float LocCorr=EvaluateLCorrMVA(clusterRef);
 		    EE=LocCorr*clusterRef->energy();	  
+		    MVALCorr.push_back(LocCorr*clusterRef->energy());
 		  }
-		  else EE=thePFEnergyCalibration_->energyEm(*clusterRef,AddedPS1,AddedPS2,false);
+		  else {
+		    EE=thePFEnergyCalibration_->energyEm(*clusterRef,AddedPS1,AddedPS2,false);
+		    MVALCorr.push_back(EE);
+		  }
 		}
+		else{
+		  if(clusterRef->layer()==PFLayer::ECAL_BARREL){
+		    float LocCorr=EvaluateLCorrMVA(clusterRef);
+		    MVALCorr.push_back(LocCorr*clusterRef->energy());
+		  }
+		  else{
+		    
+		    MVALCorr.push_back(thePFEnergyCalibration_->energyEm(*clusterRef, AddedPS1,AddedPS2,false));	  
+		  }
+		}
+		
 		Elec_energy    += EE;
 		ElectronX      +=  EE * clusterRef->position().X();
 		ElectronY      +=  EE * clusterRef->position().Y();
@@ -718,12 +745,12 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     
     //std::cout<<"Added Energy to Photon "<<Elec_energy<<" to "<<photonEnergy_<<std::endl;   
     photonEnergy_ +=  Elec_energy;
-      RawEcalEne    +=  Elec_rawEcal;
-      photonX_      +=  ElectronX;
-      photonY_      +=  ElectronY;
-      photonZ_      +=  ElectronZ;	        
-      ps1TotEne     +=  Elec_totPs1;
-      ps2TotEne     +=  Elec_totPs2;
+    RawEcalEne    +=  Elec_rawEcal;
+    photonX_      +=  ElectronX;
+    photonY_      +=  ElectronY;
+    photonZ_      +=  ElectronZ;	        
+    ps1TotEne     +=  Elec_totPs1;
+    ps2TotEne     +=  Elec_totPs2;
     
     // we've looped over all ECAL clusters, ready to generate PhotonCandidate
     if( ! (photonEnergy_ > 0.) ) continue;    // This SC is not a Photon Candidate
@@ -818,9 +845,8 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 	active[*it] = false;	
       }
     //Do Global Corrections here:
+   float GCorr=EvaluateGCorrMVA(photonCand);
     if(useReg_){
-    float GCorr=EvaluateGCorrMVA(photonCand);
-    //cout<<"GCorr "<<GCorr<<endl;
     math::XYZTLorentzVector photonCorrMomentum(GCorr*photonEnergy_* photonDirection.X(),
 					       GCorr*photonEnergy_* photonDirection.Y(),
 					       GCorr*photonEnergy_* photonDirection.Z(),
@@ -829,6 +855,25 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     }
     // here add the extra information
     PFCandidatePhotonExtra myExtra(sc->superClusterRef());
+    //Mustache ID variables
+    CaloClusterPtrVector Caloclust;
+    reco::CaloCluster_iterator c_it=photonCand.superClusterRef()->clustersBegin();
+    reco::CaloCluster_iterator c_itend=photonCand.superClusterRef()->clustersEnd();
+    for(; c_it!=c_itend; ++c_it ){
+      Caloclust.push_back(*c_it);
+    }
+    int excl=0;
+    float Mustache_et_out=0; 
+    Mustache Must;
+    Must.MustacheID(Caloclust, excl, Mustache_et_out);
+    myExtra.setMustache_Et(Mustache_et_out);
+    myExtra.setExcludedClust(excl);
+    //Store regressed energy
+    myExtra.setMVAGlobalCorrE(GCorr * photonEnergy_);
+    for(unsigned int l=0; l<MVALCorr.size(); ++l)
+      {
+	myExtra.addLCorrClusEnergy(MVALCorr[l]);
+      }
 
     //    Daniele example for mvaValues
     //    do the same for single leg trackRef and convRef

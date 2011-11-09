@@ -143,7 +143,7 @@ private:
   TH2D* X0_outer;
   float x0inner_, x0middle_, x0outer_;
   //for PileUP
-  float excluded_, Mustache_EtRatio_;
+  float excluded_, Mustache_EtRatio_, Mustache_Et_out_;
   
   std::vector<unsigned int> AddFromElectron_;  
   void RunPFPhoton(const reco::PFBlockRef&  blockRef,
