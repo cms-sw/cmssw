@@ -88,9 +88,9 @@ HLT_HIUPCNeuEG5Pixel_SingleTrack_v*       #   added for 2011 (sr #123637)
 HLT_HIUPCNeuHcalHfMuPixel_SingleTrack_v*  #   added for 2011 (sr #123637)
 HLT_HIUPCNeuHcalHfEG2Pixel_SingleTrack_v* #   added for 2011 (sr #123637)
 HLT_HIUPCNeuHcalHfEG5Pixel_SingleTrack_v* #   added for 2011 (sr #123637)
-HLT_DTCalibration_v*
-HLT_EcalCalibration_v*
-HLT_HcalCalibration_v*
+HLT_HIDTCalibration_v*
+HLT_HIEcalCalibration_v*
+HLT_HIHcalCalibration_v*
 # HLT_TrackerCalibration_v*               # removed due to virgin raw
 HLT_LogMonitor_v*
 HLTriggerFirstPath
