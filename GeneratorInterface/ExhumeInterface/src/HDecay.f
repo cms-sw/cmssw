@@ -121,6 +121,8 @@ C =====================================================================
       COMMON/COUP/GAT,GAB,GLT,GLB,GHT,GHB,GZAH,GZAL,
      .            GHHH,GLLL,GHLL,GLHH,GHAA,GLAA,GLVV,GHVV,
      .            GLPM,GHPM,B,A
+ccc   Avoid warning about unused dummy parameter on gcc 4.3.4
+      TGBET=TGBET
       BETA(X)=DSQRT(1.D0-4.D0*X)
       LAMB(X,Y)=DSQRT((1.D0-X-Y)**2-4.D0*X*Y)
       HVV(X,Y)= GF/(4.D0*PI*DSQRT(2.D0))*X**3/2.D0*BETA(Y)
