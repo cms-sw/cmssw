@@ -7,7 +7,7 @@
  * stores isolation, shower shape and additional info
  * needed for identification
  * 
- * \version $Id: Photon.h,v 1.43 2011/11/02 17:36:31 nancy Exp $
+ * \version $Id: Photon.h,v 1.44 2011/11/07 21:16:01 nancy Exp $
  *
  */
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
@@ -400,8 +400,9 @@ namespace reco {
       float mva;
 
       PflowIDVariables():
+
         nClusterOutsideMustache(-1),
-        etOutsideMustache(-999999999),
+        etOutsideMustache(-999999999.),
         mva(-999999999.)
       		   
       {}
