@@ -1,7 +1,7 @@
 /** \file
  *
- * $Date: 2010/11/08 13:34:22 $
- * $Revision: 1.41 $
+ * $Date: 2011/09/21 15:29:59 $
+ * $Revision: 1.42 $
  * \author Stefano Lacaprara - INFN Legnaro <stefano.lacaprara@pd.infn.it>
  * \author Riccardo Bellan - INFN TO <riccardo.bellan@cern.ch>
  * \       A.Meneguzzo - Padova University  <anna.meneguzzo@pd.infn.it>
@@ -743,7 +743,7 @@ void DTSegmentUpdator::Fit4Var(const vector<float>& xfit,
 
     //***********************************
     //     cout << " vdrift_4parfit "<< vdrift_4parfit<<endl;
-    if( nptfit>=5 && vdrift_4parfit) { 
+    if( nptfit>=7 && vdrift_4parfit) { 
       const double det = (a1*a1*(b2*v6 - b6*b6) - a1*(a2*a2*v6 - 2*a2*a6*b6 + a6*a6*b2 + b2*c6*c6 + b3*(b3*v6 - 2*b6*c6))
 			  + a2*a2*c6*c6 + 2*a2*(a3*(b3*v6 - b6*c6) - a6*b3*c6) + a3*a3*(b6*b6 - b2*v6)
 			  + a6*(2*a3*(b2*c6 - b3*b6) + a6*b3*b3)); 
