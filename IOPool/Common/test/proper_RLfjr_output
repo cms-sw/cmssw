@@ -78,6 +78,9 @@
 </Input>
 </Inputs>
 </File>
+<ReadBranches>
+</ReadBranches>
+
 <GeneratorInfo>
 </GeneratorInfo>
 </FrameworkJobReport>

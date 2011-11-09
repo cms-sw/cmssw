@@ -2,6 +2,7 @@
 ----------------------------------------------------------------------*/
 
 #include "RootDelayedReader.h"
+#include "InputFile.h"
 #include "DataFormats/Common/interface/WrapperOwningHolder.h"
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
 
@@ -50,6 +51,9 @@ namespace edm {
     void* p = cp->New();
     br->SetAddress(&p);
     tree_.getEntry(br, entryNumber());
+    if(tree_.branchType() == InEvent) {
+      InputFile::reportReadBranch(std::string(br->GetName()));
+    }
     setRefCoreStreamer(false);
     WrapperOwningHolder edp(p, interface);
     return edp;

@@ -95,4 +95,16 @@ namespace edm {
     LogAbsolute("fileAction") << std::setprecision(0) << TimeOfDay() << msg << fileName;
     FlushMessageLog();
   }
+
+  void
+  InputFile::reportReadBranches() {
+    Service<JobReport> reportSvc;
+    reportSvc->reportReadBranches();
+  }
+
+  void
+  InputFile::reportReadBranch(std::string const& branchName) {
+    Service<JobReport> reportSvc;
+    reportSvc->reportReadBranch(branchName);
+  }
 }

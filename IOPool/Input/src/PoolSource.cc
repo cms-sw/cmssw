@@ -1,6 +1,7 @@
 /*----------------------------------------------------------------------
 ----------------------------------------------------------------------*/
 #include "PoolSource.h"
+#include "InputFile.h"
 #include "InputType.h"
 #include "RootInputFileSequence.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -104,6 +105,7 @@ namespace edm {
   PoolSource::endJob() {
     if(secondaryFileSequence_) secondaryFileSequence_->endJob();
     primaryFileSequence_->endJob();
+    InputFile::reportReadBranches();
   }
 
   boost::shared_ptr<FileBlock>

@@ -12,6 +12,7 @@ Holder for an input TFile.
 #include "boost/scoped_ptr.hpp"
 #include "boost/utility.hpp"
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -34,6 +35,10 @@ namespace edm {
     void reportInputLumiSection(unsigned int run, unsigned int lumi) const;
     static void reportSkippedFile(std::string const& fileName, std::string const& logicalFileName);
     static void reportFallbackAttempt(std::string const& pfn, std::string const& logicalFileName, std::string const& errorMessage);
+    // reportReadBranches is a per job report, rather than per file report.
+    // Nevertheless, it is defined here for convenience.
+    static void reportReadBranches();
+    static void reportReadBranch(std::string const& branchname);
 
     TObject* Get(char const* name) {return file_->Get(name);}
     TFileCacheRead* GetCacheRead() const {return file_->GetCacheRead();}

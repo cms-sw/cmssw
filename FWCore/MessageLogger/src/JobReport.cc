@@ -776,6 +776,29 @@ namespace edm {
   }
 
   void
+  JobReport::reportReadBranches() {
+    if(impl_->ost_) {
+      std::ostream& ost = *(impl_->ost_);
+      ost << "<ReadBranches>\n";
+      typedef std::map<std::string, unsigned int>::const_iterator const_iterator;
+      for(const_iterator it = impl_->readBranches_.begin(), itEnd = impl_->readBranches_.end(); it != itEnd; ++it) {
+        TiXmlElement branch("Branch");
+        branch.SetAttribute("Name", it->first);
+        branch.SetAttribute("ReadCount", it->second);
+        ost << branch << "\n";
+        // ost << "  <Branch Name=" << '"' << it->first << '"'<<  " ReadCount=" << it->second << ">\n";
+      }
+      ost << "</ReadBranches>\n";
+      ost << std::flush;
+    }
+  }
+
+  void
+  JobReport::reportReadBranch(std::string const& branchName) {
+    ++impl_->readBranches_[branchName];
+  }
+
+  void
   JobReport::reportGeneratorInfo(std::string const& name, std::string const& value) {
     impl_->addGeneratorInfo(name, value);
   }

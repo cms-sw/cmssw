@@ -34,6 +34,7 @@ Changes Log 1: 2009/01/14 10:29:00, Natalia Garcia Nebot
 #include <vector>
 
 #include "boost/scoped_ptr.hpp"
+#include "boost/shared_ptr.hpp"
 
 namespace edm {
 
@@ -224,6 +225,7 @@ namespace edm {
         std::vector<InputFile> inputFiles_;
         std::vector<OutputFile> outputFiles_;
         std::map<std::string, std::string> generatorInfo_;
+        std::map<std::string, unsigned int> readBranches_;
         std::ostream* ost_;
       };
 
@@ -258,7 +260,7 @@ namespace edm {
 
       ///
       /// Report the data type of a file after it has been opened
-      /// Needed since the data type isnt known until an event has been
+      /// Needed since the data type isn't known until an event has been
       /// read
       void reportDataType(Token fileToken, std::string const& dataType);
 
@@ -366,6 +368,17 @@ namespace edm {
       /// for inclusion in the job report
       ///
       void reportMessageInfo(std::map<std::string, double> const& messageData);
+
+      ///
+      /// Report read branches
+      /// Invoked by the source that reads ROOT/EDM files at the end of a job
+      /// to report which product branches in the Events tree have been read,
+      /// with a count of the number of events for which the branch was read.
+      ///
+      void reportReadBranches();
+
+      ///  Inform the job report that a branch has been read.
+      void reportReadBranch(std::string const& branchName);
 
       /// Override the list of input files seen by an output file
       /// for use with EdmFastMerge
