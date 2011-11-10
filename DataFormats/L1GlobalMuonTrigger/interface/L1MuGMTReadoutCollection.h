@@ -5,8 +5,8 @@
 //   Description: 
 //
 //
-//   $Date: 2007/03/23 18:52:17 $
-//   $Revision: 1.4 $
+//   $Date: 2007/04/02 15:44:08 $
+//   $Revision: 1.5 $
 //
 //   Author :
 //   Hannes Sakulin                  HEPHY Vienna
@@ -21,6 +21,7 @@
 //---------------
 
 #include <vector>
+#include <map>
 #include <iostream>
 
 //----------------------
@@ -49,16 +50,19 @@ class L1MuGMTReadoutCollection {
   void reset() { for(unsigned int i=0; i<m_Records.size(); i++) m_Records[i].reset(); };
 
   // get record vector
-  std::vector<L1MuGMTReadoutRecord> getRecords() const { return m_Records; };
+  std::vector<L1MuGMTReadoutRecord> const & getRecords() const { return m_Records; };
 
   // get record for a given bx
-  L1MuGMTReadoutRecord const& getRecord(int bx=0) const {
+  L1MuGMTReadoutRecord const & getRecord(int bx=0) const {
     std::vector<L1MuGMTReadoutRecord>::const_iterator iter;
-    for(iter=m_Records.begin(); iter!=m_Records.end(); iter++) {
-      if((*iter).getBxCounter() == bx) return (*iter);
+    for (iter=m_Records.begin(); iter!=m_Records.end(); iter++) {
+      if ((*iter).getBxCounter() == bx) return (*iter);
     }
     // if bx not found return empty readout record
-    return *(new L1MuGMTReadoutRecord(bx));
+    static std::map<int, L1MuGMTReadoutRecord> empty_record_cache;
+    if (empty_record_cache.find(bx) == empty_record_cache.end())
+      empty_record_cache.insert( std::make_pair(bx, L1MuGMTReadoutRecord(bx)) );
+    return empty_record_cache[bx];
   };
 
   // add record
