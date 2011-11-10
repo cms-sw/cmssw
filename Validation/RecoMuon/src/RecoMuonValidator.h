@@ -52,6 +52,7 @@ class RecoMuonValidator : public edm::EDAnalyzer
   
   bool doAbsEta_;
   bool doAssoc_;
+  bool usePFMuon_;
 
   TrackingParticleSelector tpSelector_;
 

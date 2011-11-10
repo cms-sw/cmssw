@@ -6,6 +6,8 @@ recoMuonValidator = cms.EDAnalyzer("RecoMuonValidator",
     MuonServiceProxy,
     tpSelector = muonTPSet,
 
+    usePFMuon = cms.untracked.bool(False),
+
     simLabel = cms.InputTag("mergedtruth","MergedTrackTruth"),
     muonLabel = cms.InputTag("muons"),
 
@@ -53,12 +55,12 @@ recoMuonValidator = cms.EDAnalyzer("RecoMuonValidator",
     nBinErr = cms.untracked.uint32(50),
 
     # |p| resolution     #
-    minErrP = cms.untracked.double(-0.1),
-    maxErrP = cms.untracked.double(0.1),
+    minErrP = cms.untracked.double(-0.3),
+    maxErrP = cms.untracked.double(0.3),
 
     # pT resolution     #
-    minErrPt = cms.untracked.double(-0.1),
-    maxErrPt = cms.untracked.double(0.1),
+    minErrPt = cms.untracked.double(-0.3),
+    maxErrPt = cms.untracked.double(0.3),
 
     # q/pT resolution     #
     minErrQPt = cms.untracked.double(-0.1),
