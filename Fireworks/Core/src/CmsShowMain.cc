@@ -8,7 +8,7 @@
 //
 // Original Author:
 //         Created:  Mon Dec  3 08:38:38 PST 2007
-// $Id: CmsShowMain.cc,v 1.196 2011/09/07 03:26:04 amraktad Exp $
+// $Id: CmsShowMain.cc,v 1.197 2011/10/04 20:20:37 amraktad Exp $
 //
 
 // system include files
@@ -28,6 +28,7 @@
 #include "TEveLine.h"
 #include "TEveManager.h"
 #include "TFile.h"
+#include "TGClient.h"
 
 #include "Fireworks/Core/src/CmsShowMain.h"
 
@@ -61,6 +62,8 @@
 #include "Fireworks/Core/interface/fwLog.h"
 
 #include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+
+#include "TGX11.h" // !!!! AMT has to be at the end to pass build
 
 //
 // constants, enums and typedefs
@@ -119,8 +122,7 @@ CmsShowMain::CmsShowMain(int argc, char *argv[])
      m_live(false),
      m_liveTimer(new SignalTimer()),
      m_liveTimeout(600000),
-     m_lastPointerPositionX(-999),
-     m_lastPointerPositionY(-999),
+     m_lastXEventSerial(0),
      m_noVersionCheck(false)
 {
    try {
@@ -815,26 +817,15 @@ CmsShowMain::checkLiveMode()
 {
    m_liveTimer->TurnOff();
 
-   Window_t rootw, childw;
-   Int_t root_x, root_y, win_x, win_y;
-   UInt_t mask;
-   gVirtualX->QueryPointer(gClient->GetDefaultRoot()->GetId(),
-                           rootw, childw,
-                           root_x, root_y,
-                           win_x, win_y,
-                           mask);
+   TGX11 *x11 = dynamic_cast<TGX11*>(gVirtualX);
+   if (x11) {
+      XAnyEvent *ev = (XAnyEvent*) x11->GetNativeEvent();
+      // printf("serial %d \n",(int)ev->serial );
 
-
-   if ( !isPlaying() &&
-        m_lastPointerPositionX == root_x && 
-        m_lastPointerPositionY == root_y )
-   {
-      guiManager()->playEventsAction()->switchMode();
+      if ( !isPlaying() && m_lastXEventSerial == ev->serial )
+         guiManager()->playEventsAction()->switchMode();
+      m_lastXEventSerial = ev->serial;
    }
-
-   m_lastPointerPositionX = root_x;
-   m_lastPointerPositionY = root_y;
-
 
    m_liveTimer->SetTime((Long_t)(m_liveTimeout));
    m_liveTimer->Reset();
