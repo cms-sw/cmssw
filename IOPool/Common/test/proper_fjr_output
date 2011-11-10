@@ -79,6 +79,8 @@
 </Inputs>
 </File>
 <ReadBranches>
+<Branch Name="edmTriggerResults_TriggerResults__TESTPROD." ReadCount="35" />
+<Branch Name="edmtestThings_Thing__TESTPROD." ReadCount="35" />
 </ReadBranches>
 
 <GeneratorInfo>

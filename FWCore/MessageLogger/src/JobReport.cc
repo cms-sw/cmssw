@@ -511,6 +511,7 @@ namespace edm {
       // service used in a way to make this safe?
       impl_->inputFiles_.push_back(JobReport::InputFile());
       JobReport::InputFile& r = impl_->inputFiles_.back();
+      impl_->fastClonedBranches_ = &r.fastClonedBranches;
 
       r.logicalFileName      = logicalFileName;
       r.physicalFileName     = physicalFileName;
@@ -780,7 +781,7 @@ namespace edm {
     if(impl_->ost_) {
       std::ostream& ost = *(impl_->ost_);
       ost << "<ReadBranches>\n";
-      typedef std::map<std::string, unsigned int>::const_iterator const_iterator;
+      typedef std::map<std::string, long long>::const_iterator const_iterator;
       for(const_iterator it = impl_->readBranches_.begin(), itEnd = impl_->readBranches_.end(); it != itEnd; ++it) {
         TiXmlElement branch("Branch");
         branch.SetAttribute("Name", it->first);
@@ -795,7 +796,20 @@ namespace edm {
 
   void
   JobReport::reportReadBranch(std::string const& branchName) {
-    ++impl_->readBranches_[branchName];
+    // Fast cloned branches have already been reported.
+    if(impl_->fastClonedBranches_->find(branchName) == impl_->fastClonedBranches_->end()) {
+      ++impl_->readBranches_[branchName];
+    }
+  }
+
+  void
+  JobReport::reportFastClonedBranches(std::set<std::string> const& fastClonedBranches, long long nEvents) {
+    for(std::set<std::string>::const_iterator it = fastClonedBranches.begin(), itEnd = fastClonedBranches.end();
+        it != itEnd; ++it) {
+      if(impl_->fastClonedBranches_->insert(*it).second) {
+        impl_->readBranches_[*it] += nEvents;
+      }
+    }
   }
 
   void

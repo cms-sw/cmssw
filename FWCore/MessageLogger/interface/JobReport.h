@@ -91,6 +91,7 @@ namespace edm {
         StringVector    branchNames;
         std::map<RunNumber, RunReport> runReports;
         bool            fileHasBeenClosed;
+        std::set<std::string> fastClonedBranches;
       };
 
       /**\struct OutputFile
@@ -225,7 +226,8 @@ namespace edm {
         std::vector<InputFile> inputFiles_;
         std::vector<OutputFile> outputFiles_;
         std::map<std::string, std::string> generatorInfo_;
-        std::map<std::string, unsigned int> readBranches_;
+        std::map<std::string, long long> readBranches_;
+        std::set<std::string>* fastClonedBranches_;
         std::ostream* ost_;
       };
 
@@ -379,6 +381,9 @@ namespace edm {
 
       ///  Inform the job report that a branch has been read.
       void reportReadBranch(std::string const& branchName);
+
+      ///  Inform the job report that branches have been fast Cloned.
+      void reportFastClonedBranches(std::set<std::string> const& fastClonedBranches, long long nEvents);
 
       /// Override the list of input files seen by an output file
       /// for use with EdmFastMerge
