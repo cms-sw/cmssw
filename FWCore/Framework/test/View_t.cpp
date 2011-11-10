@@ -124,5 +124,7 @@ void testView::cloning()
   CPPUNIT_ASSERT(base);
   edm::View<int>* view = dynamic_cast<edm::View<int>*>(base);
   CPPUNIT_ASSERT(view);
-  CPPUNIT_ASSERT(*view == v1);
+  if(view) {
+    CPPUNIT_ASSERT(*view == v1);
+  }
 }
