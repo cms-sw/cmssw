@@ -49,7 +49,7 @@ DataKey::DataKey(): type_(), name_(), ownMemory_(false)
 //
 // assignment operators
 //
-const DataKey& DataKey::operator=(const DataKey& rhs)
+DataKey& DataKey::operator=(const DataKey& rhs)
 {
    //An exception safe implementation is
    DataKey temp(rhs);
