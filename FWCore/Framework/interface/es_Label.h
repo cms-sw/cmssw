@@ -38,7 +38,6 @@ namespace edm {
          L() : product_() {}
          explicit L(boost::shared_ptr<T> iP) : product_(iP) {}
          explicit L(T* iP) : product_(iP) {}
-         L(const L<T,ILabel>& iOther) : product_(iOther.product_) {}
          
          T& operator*() { return *product_;}
          T* operator->() { return product_.get(); }
