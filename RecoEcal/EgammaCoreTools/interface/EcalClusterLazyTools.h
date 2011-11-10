@@ -16,6 +16,11 @@
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+
+#include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
+#include "CondFormats/EcalObjects/interface/EcalADCToGeVConstant.h"
+#include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
 
 class CaloTopology;
 class CaloGeometry;
@@ -92,6 +97,17 @@ class EcalClusterLazyTools {
                 // the size is specified by ixMin, ixMax, iyMin, iyMax in unit of crystals
                 float matrixEnergy( const reco::BasicCluster &cluster, DetId id, int ixMin, int ixMax, int iyMin, int iyMax );
 
+
+		// get time of basic cluster seed crystal 
+		float BasicClusterSeedTime(const reco::BasicCluster &cluster);
+		// error-weighted average of time from constituents of basic cluster 
+		float BasicClusterTime(const reco::BasicCluster &cluster, const edm::Event &ev);
+		// get BasicClusterSeedTime of the seed basic cluser of the supercluster
+		float SuperClusterSeedTime(const reco::SuperCluster &cluster);
+		// get BasicClusterTime of the seed basic cluser of the supercluster
+		float SuperClusterTime(const reco::SuperCluster &cluster, const edm::Event &ev);
+
+
         private:
                 void getGeometry( const edm::EventSetup &es );
                 void getTopology( const edm::EventSetup &es );
@@ -103,6 +119,17 @@ class EcalClusterLazyTools {
                 const CaloTopology *topology_;
                 const EcalRecHitCollection *ebRecHits_;
                 const EcalRecHitCollection *eeRecHits_;
+		
+		//const EcalIntercalibConstantMap& icalMap;
+		edm::ESHandle<EcalIntercalibConstants> ical;
+		EcalIntercalibConstantMap        icalMap;
+		edm::ESHandle<EcalADCToGeVConstant>    agc;
+		edm::ESHandle<EcalLaserDbService>      laser;
+                void getIntercalibConstants( const edm::EventSetup &es );
+                void getADCToGeV           ( const edm::EventSetup &es );
+                void getLaserDbService     ( const edm::EventSetup &es );
+
+		
 };
 
 #endif
