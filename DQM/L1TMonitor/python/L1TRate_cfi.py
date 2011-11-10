@@ -19,7 +19,7 @@ l1tRate = cms.EDAnalyzer("L1TRate",
   verbose                    = cms.untracked.bool(False),
   dqmStore                   = cms.untracked.bool(True),
   disableROOToutput          = cms.untracked.bool(True),
-  inputTagScalersResults     = cms.InputTag("scalersRawToDigi","","DQM"),
+  inputTagScalersResults     = cms.InputTag("scalersRawToDigi"),
   inputTagL1GtDataDaq        = cms.InputTag("gtDigis"),
   useHFDeadTimeNormalization = cms.untracked.bool(False),
   

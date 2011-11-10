@@ -7,8 +7,8 @@ l1tDttf = cms.EDAnalyzer("L1TDTTF",
     disableROOToutput = cms.untracked.bool(True),
     online = cms.untracked.bool(True),
     l1tInfoFolder = cms.untracked.string('L1T/EventInfo'),
-    dttpgSource = cms.InputTag("dttfDigis","","DQM"),
-    gmtSource = cms.InputTag("gtDigis","","DQM"),
+    dttpgSource = cms.InputTag("dttfDigis"),
+    gmtSource = cms.InputTag("gtDigis"),
     MuonCollection = cms.InputTag("muons")
 )
 

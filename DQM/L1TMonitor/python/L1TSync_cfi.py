@@ -5,16 +5,16 @@ l1tSync = cms.EDAnalyzer("L1TSync",
   dqmStore                = cms.untracked.bool(True),
   disableROOToutput       = cms.untracked.bool(True),
   verbose                 = cms.untracked.bool(False),
-  inputTagScalersResults  = cms.InputTag("scalersRawToDigi","","DQM"),
+  inputTagScalersResults  = cms.InputTag("scalersRawToDigi"),
   inputTagL1GtDataDaq     = cms.InputTag("gtDigis"),
-  inputTagtEvmSource      = cms.InputTag("gtEvmDigis","","DQM"),
+  inputTagtEvmSource      = cms.InputTag("gtEvmDigis"),
 
   # Online
   oracleDB   = cms.string("oracle://CMS_OMDS_LB/CMS_TRG_R"),
   pathCondDB = cms.string("/nfshome0/centraltspro/secure/"),                
 
   # Offline
-  #oracleDB   = cms.string("oracle://cms_orcoff_prod/CMS_COND_31X_L1T"), # For offline
+  #oracleDB   = cms.string("oracle://cms_orcoff_prod/CMS_COND_31X_L1T")
   #pathCondDB = cms.string("/afs/cern.ch/cms/DB/conddb"),                
 
   # Index for the prescale set to be used 
