@@ -92,7 +92,7 @@ namespace edm {
 
     bool
     uncloned(std::string const& branchName) const {
-      return unclonedReadBranchNames_.find(branchName) != unclonedReadBranchNames_.end();
+      return clonedReadBranchNames_.find(branchName) == clonedReadBranchNames_.end();
     }
 
     void close();
@@ -116,7 +116,7 @@ namespace edm {
     std::vector<TBranch*> auxBranches_;
     std::vector<TBranch*> unclonedAuxBranches_;
     std::vector<TBranch*> unclonedReadBranches_;
-    std::set<std::string> unclonedReadBranchNames_;
+    std::set<std::string> clonedReadBranchNames_;
     bool currentlyFastCloning_;
     bool fastCloneAuxBranches_;
   };

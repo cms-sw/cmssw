@@ -4,6 +4,7 @@
 #include "DataFormats/Common/interface/RefCoreStreamer.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/WrapperInterfaceBase.h"
+#include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/Algorithms.h"
@@ -34,7 +35,7 @@ namespace edm {
       readBranches_(),
       auxBranches_(),
       unclonedReadBranches_(),
-      unclonedReadBranchNames_(),
+      clonedReadBranchNames_(),
       currentlyFastCloning_(),
       fastCloneAuxBranches_(false) {
 
@@ -237,18 +238,21 @@ namespace edm {
   void
   RootOutputTree::maybeFastCloneTree(bool canFastClone, bool canFastCloneAux, TTree* tree, std::string const& option) {
     unclonedReadBranches_.clear();
-    unclonedReadBranchNames_.clear();
+    clonedReadBranchNames_.clear();
     currentlyFastCloning_ = canFastClone && !readBranches_.empty();
     if(currentlyFastCloning_) {
       fastCloneAuxBranches_ = canFastCloneAux;
       fastCloneTTree(tree, option);
       for(std::vector<TBranch*>::const_iterator it = readBranches_.begin(), itEnd = readBranches_.end();
           it != itEnd; ++it) {
-        if((*it)->GetEntries() != tree_->GetEntries()) {
+        if((*it)->GetEntries() == tree_->GetEntries()) {
+          clonedReadBranchNames_.insert(std::string((*it)->GetName()));
+        } else {
           unclonedReadBranches_.push_back(*it);
-          unclonedReadBranchNames_.insert(std::string((*it)->GetName()));
         }
       }
+      Service<JobReport> reportSvc;
+      reportSvc->reportFastClonedBranches(clonedReadBranchNames_, tree_->GetEntries());
     }
   }
 

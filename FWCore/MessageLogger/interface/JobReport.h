@@ -34,7 +34,6 @@ Changes Log 1: 2009/01/14 10:29:00, Natalia Garcia Nebot
 #include <vector>
 
 #include "boost/scoped_ptr.hpp"
-#include "boost/shared_ptr.hpp"
 
 namespace edm {
 
