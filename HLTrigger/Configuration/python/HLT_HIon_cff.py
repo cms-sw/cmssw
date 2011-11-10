@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_4_2/HIon/V23 (CMSSW_4_4_0_HLT12)
+# /dev/CMSSW_4_4_2/HIon/V25 (CMSSW_4_4_0_HLT12)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V23')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V25')
 )
 
 streams = cms.PSet( 
@@ -14,7 +14,7 @@ streams = cms.PSet(
   Calibration = cms.vstring( 'TestEnablesEcalHcalDT' ),
   DQM = cms.vstring( 'OnlineMonitorHI' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
-  Express = cms.vstring( 'HIExpressPhysics' ),
+  HIExpress = cms.vstring( 'HIExpressPhysics' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitorHI' ),
   HLTDQMResults = cms.vstring( 'OnlineHltResults' ),
   HLTMON = cms.vstring( 'OfflineMonitorHI' )
@@ -2508,7 +2508,7 @@ hltL1sHIZeroBias = cms.EDFilter( "HLTLevel1GTSeed",
     L1NrBxInEvent = cms.int32( 3 ),
     L1TechTriggerSeeding = cms.bool( False ),
     L1UseAliasesForSeeding = cms.bool( True ),
-    L1SeedsLogicalExpression = cms.string( "L1_BptxPlusANDMinus" ),
+    L1SeedsLogicalExpression = cms.string( "L1_ZeroBias" ),
     L1GtReadoutRecordTag = cms.InputTag( "hltGtDigis" ),
     L1GtObjectMapTag = cms.InputTag( "hltL1GtObjectMap" ),
     L1CollectionsTag = cms.InputTag( "hltL1extraParticles" ),

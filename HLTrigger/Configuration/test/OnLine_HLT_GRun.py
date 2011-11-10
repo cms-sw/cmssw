@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_4_2/GRun/V23 (CMSSW_4_4_0_HLT12)
+# /dev/CMSSW_4_4_2/GRun/V25 (CMSSW_4_4_0_HLT12)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/GRun/V23')
+  tableName = cms.string('/dev/CMSSW_4_4_2/GRun/V25')
 )
 
 process.streams = cms.PSet( 
@@ -39,11 +39,10 @@ process.streams = cms.PSet(
   ALCAP0 = cms.vstring( 'AlCaP0' ),
   ALCAPHISYM = cms.vstring( 'AlCaPhiSym' ),
   Calibration = cms.vstring( 'TestEnablesEcalHcalDT' ),
-  DQM = cms.vstring(  ),
   DQMForPP = cms.vstring( 'OnlineMonitor' ),
   EcalCalibration = cms.vstring( 'EcalLaser' ),
+  Express = cms.vstring( 'ExpressPhysics' ),
   ExpressCosmics = cms.vstring( 'ExpressCosmics' ),
-  ExpressForPP = cms.vstring( 'ExpressPhysics' ),
   HLTDQM = cms.vstring( 'OnlineHltMonitor' ),
   HLTDQMResults = cms.vstring( 'OnlineHltResults' ),
   HLTMON = cms.vstring( 'OfflineMonitor' ),
@@ -35852,8 +35851,8 @@ process.hltOutputExpressCosmics = cms.OutputModule( "PoolOutputModule",
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )
-process.hltOutputExpressForPP = cms.OutputModule( "PoolOutputModule",
-    fileName = cms.untracked.string( "outputExpressForPP.root" ),
+process.hltOutputExpress = cms.OutputModule( "PoolOutputModule",
+    fileName = cms.untracked.string( "outputExpress.root" ),
     fastCloning = cms.untracked.bool( False ),
     dataset = cms.untracked.PSet(
         filterName = cms.untracked.string( "" ),
@@ -37785,7 +37784,7 @@ process.CalibrationOutput = cms.EndPath( process.hltPreCalibrationOutput + proce
 process.DQMForPPOutput = cms.EndPath( process.hltDQML1Scalers + process.hltDQML1SeedLogicScalers + process.hltDQMHLTScalers + process.hltPreDQMForPPOutput + process.hltPreDQMForPPOutputSmart + process.hltOutputDQMForPP )
 process.EcalCalibrationOutput = cms.EndPath( process.hltPreEcalCalibrationOutput + process.hltOutputEcalCalibration )
 process.ExpressCosmicsOutput = cms.EndPath( process.hltPreExpressCosmicsOutput + process.hltPreExpressCosmicsOutputSmart + process.hltOutputExpressCosmics )
-process.ExpressForPPOutput = cms.EndPath( process.hltPreExpressOutput + process.hltPreExpressOutputSmart + process.hltOutputExpressForPP )
+process.ExpressForPPOutput = cms.EndPath( process.hltPreExpressOutput + process.hltPreExpressOutputSmart + process.hltOutputExpress )
 process.HLTDQMOutput = cms.EndPath( process.hltPreHLTDQMOutput + process.hltPreHLTDQMOutputSmart + process.hltOutputHLTDQM )
 process.HLTDQMResultsOutput = cms.EndPath( process.hltPreHLTDQMResultsOutput + process.hltPreHLTDQMResultsOutputSmart + process.hltOutputHLTDQMResults )
 process.HLTMONOutput = cms.EndPath( process.hltPreHLTMONOutput + process.hltPreHLTMONOutputSmart + process.hltOutputHLTMON )
