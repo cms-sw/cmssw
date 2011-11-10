@@ -57,13 +57,13 @@ void VertexHistogramMaker::book(const std::string dirname) {
   m_hntruevtx = currdir->make<TH1F>("ntruevtx","Number of True Vertices",60,-0.5,59.5);
   m_hntruevtx->GetXaxis()->SetTitle("vertices");   m_hntruevtx->GetYaxis()->SetTitle("Events"); 
 
-  m_hntruevtxvslumi = currdir->make<TProfile>("ntruevtxvslumi","Number of True Vertices vs BX lumi",250,-0.,10.);
+  m_hntruevtxvslumi = currdir->make<TProfile>("ntruevtxvslumi","Number of True Vertices vs BX lumi",250,0.,10.);
   m_hntruevtxvslumi->GetXaxis()->SetTitle("BX lumi [*10^30 cm-2s-1]");   m_hntruevtxvslumi->GetYaxis()->SetTitle("Vertices"); 
 
   m_hntruevtxvslumi2D = currdir->make<TH2D>("ntruevtxvslumi2D","Number of True Vertices vs BX lumi",250,0.,10.,100,-0.5,99.5);
   m_hntruevtxvslumi2D->GetXaxis()->SetTitle("BX lumi [*10^30 cm-2s-1]");   m_hntruevtxvslumi2D->GetYaxis()->SetTitle("Vertices"); 
 
-  m_hntracks = currdir->make<TH1F>("ntracks","Number of Tracks",200,-0.5,199.5);
+  m_hntracks = currdir->make<TH1F>("ntracks","Number of Tracks",300,-0.5,299.5);
   m_hntracks->GetXaxis()->SetTitle("tracks");   m_hntracks->GetYaxis()->SetTitle("Vertices"); 
 
   m_hsqsumptsq = currdir->make<TH1F>("sqsumptsq","sqrt(sum pt**2)",1000,0.,1000.);
@@ -78,10 +78,10 @@ void VertexHistogramMaker::book(const std::string dirname) {
   m_hnheavytracks = currdir->make<TH1F>("nheavytracks",htitle,200,-0.5,199.5);
   m_hnheavytracks->GetXaxis()->SetTitle("tracks");   m_hnheavytracks->GetYaxis()->SetTitle("Vertices"); 
 
-  m_hndof = currdir->make<TH1F>("ndof","Number of degree of freedom",200,-0.5,399.5);
+  m_hndof = currdir->make<TH1F>("ndof","Number of degree of freedom",250,-0.5,499.5);
   m_hndof->GetXaxis()->SetTitle("ndof");   m_hndof->GetYaxis()->SetTitle("Vertices"); 
 
-  m_hndofvstracks = currdir->make<TH2F>("ndofvstracks","Ndof vs Ntracks",200,-0.5,199.5,200,-0.5,399.5);
+  m_hndofvstracks = currdir->make<TH2F>("ndofvstracks","Ndof vs Ntracks",300,-0.5,299.5,250,-0.5,499.5);
   m_hndofvstracks->GetXaxis()->SetTitle("tracks");   m_hndofvstracks->GetYaxis()->SetTitle("ndof"); 
 
   m_hndofvsvtxz = currdir->make<TProfile>("ndofvsvtxz","Ndof vs Vertex Z position",200,
