@@ -1,4 +1,4 @@
-// $Id: ResourceMonitorCollection.h,v 1.28 2011/03/07 15:31:32 mommsen Exp $
+// $Id: ResourceMonitorCollection.h,v 1.29 2011/11/08 10:48:40 mommsen Exp $
 /// @file: ResourceMonitorCollection.h 
 
 #ifndef EventFilter_StorageManager_ResourceMonitorCollection_h
@@ -37,8 +37,8 @@ namespace stor {
    * A collection of MonitoredQuantities related to resource usages
    *
    * $Author: mommsen $
-   * $Revision: 1.28 $
-   * $Date: 2011/03/07 15:31:32 $
+   * $Revision: 1.29 $
+   * $Date: 2011/11/08 10:48:40 $
    */
   
   class ResourceMonitorCollection : public MonitorCollection
@@ -103,10 +103,10 @@ namespace stor {
 
     struct DiskUsage
     {
+      const std::string pathName_;
       double absDiskUsage_;
       double relDiskUsage_;
       double diskSize_;
-      std::string pathName_;
       bool retrievingDiskSize_;
       AlarmHandler::ALARM_LEVEL alarmState_;
       #if __APPLE__
