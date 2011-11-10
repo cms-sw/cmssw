@@ -9,10 +9,13 @@
 
 static double MaximumFractionalError = 0.0005; // 0.05% error allowed from this source
 
-ZdcSimpleRecAlgo::ZdcSimpleRecAlgo(bool correctForTimeslew, bool correctForPulse, float phaseNS, int recoMethod) : 
+ZdcSimpleRecAlgo::ZdcSimpleRecAlgo(bool correctForTimeslew, bool correctForPulse, float phaseNS, int recoMethod, int lowGainOffset, double lowGainFrac) : 
   recoMethod_(recoMethod),
   correctForTimeslew_(correctForTimeslew),
-  correctForPulse_(correctForPulse) {
+  correctForPulse_(correctForPulse),
+  lowGainOffset_(lowGainOffset),
+  lowGainFrac_(lowGainFrac)
+  {
 }
 
 ZdcSimpleRecAlgo::ZdcSimpleRecAlgo(int recoMethod) : 
@@ -29,7 +32,7 @@ void ZdcSimpleRecAlgo::initPulseCorr(int toadd) {
 namespace ZdcSimpleRecAlgoImpl {
   template<class Digi, class RecHit>
   inline RecHit reco1(const Digi& digi, const HcalCoder& coder, const HcalCalibrations& calibs, 
-		      const std::vector<unsigned int>& myNoiseTS, const std::vector<unsigned int>& mySignalTS, bool slewCorrect, const HcalPulseContainmentCorrection* corr, HcalTimeSlew::BiasSetting slewFlavor) {
+		      const std::vector<unsigned int>& myNoiseTS, const std::vector<unsigned int>& mySignalTS, int lowGainOffset, double lowGainFrac, bool slewCorrect, const HcalPulseContainmentCorrection* corr, HcalTimeSlew::BiasSetting slewFlavor) {
     CaloSamples tool;
     coder.adc2fC(digi,tool);
     int ifirst = mySignalTS[0];
@@ -37,15 +40,12 @@ namespace ZdcSimpleRecAlgoImpl {
     double ampl=0; int maxI = -1; double maxA = -1e10; double ta=0;
     double fc_ampl=0;
     double lowGEnergy=0; double lowGfc_ampl=0; double TempLGAmp=0;
-// start off hard-coding TS increment for regular energy to lowGainEnergy      
-    int lowGoffset=2;    
+// TS increment for regular energy to lowGainEnergy      
 // Signal in higher TS (effective "low Gain") has a fraction of the whole signal
 // This constant for fC --> GeV is dervied from 2010 PbPb analysis of single neutrons
 // assumed similar fraction for EM and HAD sections
-// start off hard-coding this fraction, will switch to python config file later
-// This is calculated from comparing fC in TS4,5,6(normal energy) to fC in TS 6,7,8
-// if calibs.respcorrgain(capid) is entered correctly in db, both energies will be good (within error)
-    double lowGainFrac = 8;
+// this variable converts from current assumed TestBeam values for fC--> GeV
+// to the lowGain TS region fraction value (based on 1N Had, assume EM same response)
 // regular energy    
     for (int i=ifirst; i<tool.size() && i<n+ifirst; i++) {
       int capid=digi[i].capid();
@@ -60,12 +60,12 @@ namespace ZdcSimpleRecAlgoImpl {
     }
 // calculate low Gain Energy (in 2010 PbPb, signal TS 4,5,6, lowGain TS: 6,7,8) 
     int topLowGain=10;
-    if((n+ifirst+lowGoffset)<=10){
-      topLowGain=n+ifirst+lowGoffset;
+    if((n+ifirst+lowGainOffset)<=10){
+      topLowGain=n+ifirst+lowGainOffset;
     } else {
       topLowGain=10;
     }
-    for (int iLG=(ifirst+lowGoffset); iLG<tool.size() && iLG<topLowGain; iLG++) {
+    for (int iLG=(ifirst+lowGainOffset); iLG<tool.size() && iLG<topLowGain; iLG++) {
       int capid=digi[iLG].capid();
       TempLGAmp = (tool[iLG]-calibs.pedestal(capid)); // pedestal subtraction
       lowGfc_ampl+=TempLGAmp; 
@@ -119,7 +119,7 @@ namespace ZdcSimpleRecAlgoImpl {
 namespace ZdcSimpleRecAlgoImpl {
   template<class Digi, class RecHit>
   inline RecHit reco2(const Digi& digi, const HcalCoder& coder, const HcalCalibrations& calibs, 
-		     const std::vector<unsigned int>& myNoiseTS, const std::vector<unsigned int>& mySignalTS, bool slewCorrect, const HcalPulseContainmentCorrection* corr, HcalTimeSlew::BiasSetting slewFlavor) {
+		     const std::vector<unsigned int>& myNoiseTS, const std::vector<unsigned int>& mySignalTS, int lowGainOffset, double lowGainFrac, bool slewCorrect, const HcalPulseContainmentCorrection* corr, HcalTimeSlew::BiasSetting slewFlavor) {
     CaloSamples tool;
     coder.adc2fC(digi,tool);
     // Reads noiseTS and signalTS from database
@@ -128,15 +128,12 @@ namespace ZdcSimpleRecAlgoImpl {
     double ampl=0; int maxI = -1; double maxA = -1e10; double ta=0;
     double fc_ampl=0;
     double lowGEnergy=0; double lowGfc_ampl=0; double TempLGAmp=0;
-// start off hard-coding TS increment for regular energy to lowGainEnergy      
-    int lowGoffset=2;    
+//  TS increment for regular energy to lowGainEnergy      
 // Signal in higher TS (effective "low Gain") has a fraction of the whole signal
 // This constant for fC --> GeV is dervied from 2010 PbPb analysis of single neutrons
 // assumed similar fraction for EM and HAD sections
-// start off hard-coding this fraction, will switch to python config file later
-// This is calculated from comparing fC in TS4,5,6(normal energy) to fC in TS 6,7,8
-// if calibs.respcorrgain(capid) is entered correctly in db, both energies will be good (within error)
-    double lowGainFrac = 8;
+// this variable converts from current assumed TestBeam values for fC--> GeV
+// to the lowGain TS region fraction value (based on 1N Had, assume EM same response)
     double Allnoise = 0; 
     int noiseslices = 0;
     int CurrentTS = 0;
@@ -174,7 +171,7 @@ namespace ZdcSimpleRecAlgoImpl {
 // calculate low Gain Energy (in 2010 PbPb, signal TS 4,5,6, lowGain TS: 6,7,8)    
     for(unsigned int iLGvs = 0; iLGvs<mySignalTS.size(); ++iLGvs)
     {
-      CurrentTS = mySignalTS[iLGvs]+lowGoffset;
+      CurrentTS = mySignalTS[iLGvs]+lowGainOffset;
       int capid=digi[CurrentTS].capid();
       TempLGAmp = tool[CurrentTS]-noise;
       lowGfc_ampl+=TempLGAmp; 
@@ -221,7 +218,7 @@ namespace ZdcSimpleRecAlgoImpl {
          time = (AvgTSPos*25.0);
       }
       if (corr!=0) {
-      	// Apply phase-based amplitude correction:
+	// Apply phase-based amplitude correction:
 	       ampl *= corr->getCorrection(fc_ampl);     
       }
     }
@@ -229,16 +226,16 @@ namespace ZdcSimpleRecAlgoImpl {
   }
 }
 
-ZDCRecHit ZdcSimpleRecAlgo::reconstruct(const ZDCDataFrame& digi, const std::vector<unsigned int>& myNoiseTS, const std::vector<unsigned int>& mySignalTS,const HcalCoder& coder, const HcalCalibrations& calibs) const {
+ZDCRecHit ZdcSimpleRecAlgo::reconstruct(const ZDCDataFrame& digi, const std::vector<unsigned int>& myNoiseTS, const std::vector<unsigned int>& mySignalTS, const HcalCoder& coder, const HcalCalibrations& calibs) const {
 
   if(recoMethod_ == 1)
    return ZdcSimpleRecAlgoImpl::reco1<ZDCDataFrame,ZDCRecHit>(digi,coder,calibs,
-							      myNoiseTS,mySignalTS,false,
+							      myNoiseTS,mySignalTS,lowGainOffset_,lowGainFrac_,false,
 							      0,
 							      HcalTimeSlew::Fast);
   if(recoMethod_ == 2)
    return ZdcSimpleRecAlgoImpl::reco2<ZDCDataFrame,ZDCRecHit>(digi,coder,calibs,
-							      myNoiseTS,mySignalTS,false,
+							      myNoiseTS,mySignalTS,lowGainOffset_,lowGainFrac_,false,
 							      0,HcalTimeSlew::Fast);
 
      edm::LogError("ZDCSimpleRecAlgoImpl::reconstruct, recoMethod was not declared");
