@@ -60,7 +60,7 @@ l1GtHwValidation = cms.EDAnalyzer("L1GtHwValidation",
     #
     
     # exclude algorithm triggers from comparison data - emulator by algorithm bit number
-    ExcludeAlgoTrigByBit = cms.vint32(41)
+    ExcludeAlgoTrigByBit = cms.vint32()
     #
     
 )
