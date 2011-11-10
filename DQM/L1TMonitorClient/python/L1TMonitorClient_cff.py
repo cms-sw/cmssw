@@ -59,9 +59,11 @@ from DQM.L1TMonitorClient.L1TGMTClient_cfi import *
 
 # L1Extra DQM client module - not available 
 
-# L1 rates DQM client module - not available 
-
-# L1 synchronization DQM client module - not available 
+# L1 rates DQM client module
+# L1 synchronization DQM client module
+# L1 occupancy DQM client module
+from DQM.L1TMonitorClient.L1TOccupancyClient_cff import *
+from DQM.L1TMonitorClient.L1TTestsSummary_cff import *
 
 # L1 event info DQM client 
 from DQM.L1TMonitorClient.L1TEventInfoClient_cfi import *
@@ -87,6 +89,8 @@ l1TriggerClients = cms.Sequence(
                         l1tCsctfClient + 
                         l1tRpctfClient +
                         l1tGmtClient +
+                        l1tOccupancyClient +
+                        l1tTestsSummary +
                         l1tEventInfoClient
                         )
 

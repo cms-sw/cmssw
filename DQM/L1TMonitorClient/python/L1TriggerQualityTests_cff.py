@@ -112,6 +112,9 @@ from DQM.L1TMonitorClient.L1TriggerRateQualityTests_cfi import *
 # L1 trigger synchronization quality test
 from DQM.L1TMonitorClient.L1TriggerSyncQualityTests_cfi import *
 
+# L1 trigger occupancy quality test
+from DQM.L1TMonitorClient.L1TriggerOccupancyQualityTests_cfi import *
+
 # sequence for L1 systems
 l1TriggerSystemQualityTests = cms.Sequence(
                                 seqL1TriggerEcalQualityTests + 
@@ -151,6 +154,7 @@ l1TriggerQualityTests = cms.Sequence(
                                       l1TriggerSystemQualityTests + 
                                       l1TriggerObjectQualityTests + 
                                       l1TriggerRateQualityTests +
-                                      l1TriggerSyncQualityTests
+                                      l1TriggerSyncQualityTests +
+                                      l1TriggerOccupancyQualityTests
                                       )
 
