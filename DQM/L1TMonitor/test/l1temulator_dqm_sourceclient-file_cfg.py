@@ -135,6 +135,13 @@ process.RawToDigi.remove("siStripDigis")
 process.RawToDigi.remove("scalersRawToDigi")
 process.RawToDigi.remove("castorDigis")
 
+# for RCT at P5, read FED vector from OMDS
+if ( l1DqmEnv != 'file' ) : 
+    process.load("L1TriggerConfig.RCTConfigProducers.l1RCTOmdsFedVectorProducer_cfi")
+    process.valRctDigis.getFedsFromOmds = cms.bool(True)
+ 
+
+
 # L1HvVal + emulator monitoring path
 process.l1HwValEmulatorMonitorPath = cms.Path(process.l1HwValEmulatorMonitor)
 
