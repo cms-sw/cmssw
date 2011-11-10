@@ -4,9 +4,9 @@
 /** \class EcalRecHitSimpleAlgo
   *  Simple algoritm to make rechits from uncalibrated rechits
   *
-  *  $Id: EcalRecHitWorkerSimple.h,v 1.6 2011/05/16 14:18:29 franzoni Exp $
-  *  $Date: 2011/05/16 14:18:29 $
-  *  $Revision: 1.6 $
+  *  $Id: EcalRecHitWorkerSimple.h,v 1.7 2011/10/13 12:45:29 vieri Exp $
+  *  $Date: 2011/10/13 12:45:29 $
+  *  $Revision: 1.7 $
   *  \author Shahram Rahatlou, University of Rome & INFN, March 2006
   */
 
@@ -32,7 +32,7 @@ class EcalRecHitWorkerSimple : public EcalRecHitWorkerBaseClass {
                 bool run(const edm::Event& evt, const EcalUncalibratedRecHit& uncalibRH, EcalRecHitCollection & result);
 		double EBLaserMIN_;
 		double EELaserMIN_;
-
+		std::vector<uint32_t> recoflags_;
         protected:
 
                 edm::ESHandle<EcalIntercalibConstants> ical;
