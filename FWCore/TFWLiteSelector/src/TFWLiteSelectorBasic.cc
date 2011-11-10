@@ -93,7 +93,6 @@ namespace edm {
         throw cms::Exception("MissingDictionary")
         << "could not find dictionary for type '" << fullName << "'"
         << "\n Please make sure all the necessary libraries are available.";
-        return WrapperOwningHolder();
       }
 
       //use reflex to create an instance of it
