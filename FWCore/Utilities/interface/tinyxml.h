@@ -20,6 +20,12 @@ must not be misrepresented as being the original software.
 
 3. This notice may not be removed or altered from any source
 distribution.
+
+
+THIS FILE WAS ALTERED BY Bill Tanenbaum, 10 November 2011.
+Coverity complains about assignment operators returning void,
+so fixed them to return a reference to the object.
+
 */
 
 #define TIXML_USE_STL
@@ -397,7 +403,7 @@ protected:
 
 private:
 	TiXmlBase( const TiXmlBase& );				// not implemented.
-	void operator=( const TiXmlBase& base );	// not allowed.
+	TiXmlBase& operator=( const TiXmlBase& base );	// not allowed.
 
 	struct Entity
 	{
@@ -767,7 +773,7 @@ protected:
 
 private:
 	TiXmlNode( const TiXmlNode& );				// not implemented.
-	void operator=( const TiXmlNode& base );	// not allowed.
+	TiXmlNode& operator=( const TiXmlNode& base );	// not allowed.
 };
 
 
@@ -880,7 +886,7 @@ public:
 
 private:
 	TiXmlAttribute( const TiXmlAttribute& );				// not implemented.
-	void operator=( const TiXmlAttribute& base );	// not allowed.
+	TiXmlAttribute& operator=( const TiXmlAttribute& base );	// not allowed.
 
 	TiXmlDocument*	document;	// A pointer back to a document, for error reporting.
 	TIXML_STRING name;
@@ -932,7 +938,7 @@ private:
 	//*ME:	Because of hidden/disabled copy-construktor in TiXmlAttribute (sentinel-element),
 	//*ME:	this class must be also use a hidden/disabled copy-constructor !!!
 	TiXmlAttributeSet( const TiXmlAttributeSet& );	// not allowed
-	void operator=( const TiXmlAttributeSet& );	// not allowed (as TiXmlAttribute)
+	TiXmlAttributeSet& operator=( const TiXmlAttributeSet& );	// not allowed (as TiXmlAttribute)
 
 	TiXmlAttribute sentinel;
 };
@@ -955,7 +961,7 @@ public:
 
 	TiXmlElement( const TiXmlElement& );
 
-	void operator=( const TiXmlElement& base );
+	TiXmlElement& operator=( const TiXmlElement& base );
 
 	virtual ~TiXmlElement();
 
@@ -1162,7 +1168,7 @@ public:
 		SetValue( _value );
 	}
 	TiXmlComment( const TiXmlComment& );
-	void operator=( const TiXmlComment& base );
+	TiXmlComment& operator=( const TiXmlComment& base );
 
 	virtual ~TiXmlComment()	{}
 
@@ -1227,7 +1233,7 @@ public:
 	#endif
 
 	TiXmlText( const TiXmlText& copy ) : TiXmlNode( TiXmlNode::TEXT )	{ copy.CopyTo( this ); }
-	void operator=( const TiXmlText& base )							 	{ base.CopyTo( this ); }
+	TiXmlText& operator=( const TiXmlText& base )	{ base.CopyTo( this ); return *this;}
 
 	// Write this text object to a FILE stream.
 	virtual void Print( FILE* cfile, int depth ) const;
@@ -1294,7 +1300,7 @@ public:
 						const char* _standalone );
 
 	TiXmlDeclaration( const TiXmlDeclaration& copy );
-	void operator=( const TiXmlDeclaration& copy );
+	TiXmlDeclaration& operator=( const TiXmlDeclaration& copy );
 
 	virtual ~TiXmlDeclaration()	{}
 
@@ -1351,7 +1357,7 @@ public:
 	virtual ~TiXmlUnknown() {}
 
 	TiXmlUnknown( const TiXmlUnknown& copy ) : TiXmlNode( TiXmlNode::UNKNOWN )		{ copy.CopyTo( this ); }
-	void operator=( const TiXmlUnknown& copy )										{ copy.CopyTo( this ); }
+	TiXmlUnknown& operator=( const TiXmlUnknown& copy )										{ copy.CopyTo( this ); return *this;}
 
 	/// Creates a copy of this Unknown and returns it.
 	virtual TiXmlNode* Clone() const;
@@ -1397,7 +1403,7 @@ public:
 	#endif
 
 	TiXmlDocument( const TiXmlDocument& copy );
-	void operator=( const TiXmlDocument& copy );
+	TiXmlDocument& operator=( const TiXmlDocument& copy );
 
 	virtual ~TiXmlDocument() {}
 
@@ -1639,7 +1645,7 @@ public:
 	TiXmlHandle( TiXmlNode* _node )					{ this->node = _node; }
 	/// Copy constructor
 	TiXmlHandle( const TiXmlHandle& ref )			{ this->node = ref.node; }
-	TiXmlHandle operator=( const TiXmlHandle& ref ) { this->node = ref.node; return *this; }
+	TiXmlHandle& operator=( const TiXmlHandle& ref ) { this->node = ref.node; return *this; }
 
 	/// Return a handle to the first child node.
 	TiXmlHandle FirstChild() const;

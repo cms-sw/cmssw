@@ -17,7 +17,6 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Thu Nov 10 14:59:35 EST 2005
-// $Id: TypeIDBase.h,v 1.2 2007/06/14 02:00:58 wmtan Exp $
 //
 
 // system include files
@@ -35,10 +34,6 @@ namespace edm {
    
       TypeIDBase() :
          t_(&(typeid(Def))) 
-      { }
-      
-      TypeIDBase(const TypeIDBase& other) :
-         t_(other.t_)
       { }
       
       explicit TypeIDBase(const std::type_info& t) :

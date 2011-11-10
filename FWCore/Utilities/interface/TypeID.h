@@ -21,9 +21,6 @@ namespace edm {
 
     TypeID() : TypeIDBase() {}
 
-    TypeID(TypeID const& other) : TypeIDBase(other) {
-    }
-    
     explicit TypeID(std::type_info const& t) : TypeIDBase(t) {
     }
 
