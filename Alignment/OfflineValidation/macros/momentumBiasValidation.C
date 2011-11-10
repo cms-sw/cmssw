@@ -20,7 +20,7 @@
 #include "TLatex.h"
 #include "TVirtualFitter.h"
 #include "TMatrixD.h"
-#include "../interface/EOPVariables.h"
+#include "../interface/EopVariables.h"
 
 using namespace std;
 
@@ -117,12 +117,12 @@ void momentumBiasValidation(TString variable = "eta", TString path = "/scratch/h
 
   // create trees
   vector<TTree*> tree;
-  EOPVariables* track = new EOPVariables();
+  EopVariables* track = new EopVariables();
 
   for(unsigned int i = 0; i < file.size(); i++){
-    tree.push_back((TTree*)file[i]->Get("energyOverMomentumTree/EOPtree"));
+    tree.push_back((TTree*)file[i]->Get("energyOverMomentumTree/EopTree"));
     tree[i]->SetMakeClass(1);
-    tree[i]->SetBranchAddress("EOPVariables",&track);
+    tree[i]->SetBranchAddress("EopVariables",&track);
     tree[i]->SetBranchAddress("track_outerRadius",&(track->track_outerRadius));
     tree[i]->SetBranchAddress("track_chi2",&track->track_chi2);
     tree[i]->SetBranchAddress("track_normalizedChi2",&track->track_normalizedChi2);
