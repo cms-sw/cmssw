@@ -1,3 +1,10 @@
+2011-11-08 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-05-02
+	* Use a separate thread for calls to statfs. This protects the
+ 	  main thread from possible hangs on statfs.
+	* Reorganize a bit the handling of alarms to improve the unit tests.
+
 2011-09-02 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V08-05-01
@@ -9,6 +16,12 @@
 	* tag V08-05-00
 	* Move FragKey struct from otherwise unused IOPool/Streamer/HLTInfo into
 	  the EventFilter/StorageManager package.
+
+2011-11-08 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-04-03-01
+	* Minimal change wrt V08-04-03 for handling statfs hangs
+	  (c.f. tag V08-05-02)
 
 2011-09-02 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
