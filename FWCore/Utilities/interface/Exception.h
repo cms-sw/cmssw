@@ -85,6 +85,10 @@ namespace cms {
     Exception(Exception const& other); 
     virtual ~Exception() throw();
 
+    void swap(Exception& other);
+
+    Exception& operator=(Exception const& other);
+
     // The signature for what() must be identical to that of std::exception::what().
     virtual char const* what() const throw();
 

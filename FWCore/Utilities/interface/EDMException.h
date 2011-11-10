@@ -81,6 +81,12 @@ namespace edm {
 
     virtual ~Exception() throw();
 
+    void swap(Exception& other) {
+      std::swap(category_, other.category_);
+    }
+
+    Exception& operator=(Exception const& other);
+
     Code categoryCode() const { return category_; }
 
     static std::string codeToString(Code);

@@ -15,6 +15,11 @@ class simple
   ~simple() { --count; }
   bool operator==(simple const& o) const { return i == o.i; }
   bool isSame(simple const& o) const {return &o == this; }
+  simple& operator=(simple const& o) {
+    simple temp(o);
+    std::swap(*this, temp);
+    return *this;
+  }
 };
 
 int simple::count = 0;

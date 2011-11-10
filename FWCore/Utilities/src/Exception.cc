@@ -120,6 +120,23 @@ namespace cms {
 
   Exception::~Exception() throw() {
   }
+
+  void
+  Exception::swap(Exception& other) {
+    ost_ << other.ost_.str();
+    category_.swap(other.category_);
+    what_.swap(other.what_);
+    context_.swap(other.context_);
+    additionalInfo_.swap(other.additionalInfo_);
+    std::swap(alreadyPrinted_, other.alreadyPrinted_);
+  }
+
+  Exception&
+  Exception::operator=(Exception const& other) {
+    Exception temp(other);
+    this->swap(temp);
+    return *this;
+  }
   
   char const* Exception::what() const throw() {
     what_ = explainSelf();

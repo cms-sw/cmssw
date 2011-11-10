@@ -90,6 +90,13 @@ namespace edm {
   Exception::~Exception() throw() {
   }
 
+  Exception&
+  Exception::operator=(Exception const& other) {
+    Exception temp(other);
+    this->swap(temp);
+    return *this;
+  }
+  
   int
   Exception::returnCode_() const {
     return static_cast<int>(category_);
