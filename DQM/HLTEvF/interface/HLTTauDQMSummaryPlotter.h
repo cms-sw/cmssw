@@ -1,54 +1,23 @@
+#ifndef HLTTauDQMSummaryPlotter_h
+#define HLTTauDQMSummaryPlotter_h
 
-#include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EventSetup.h"
-#include "FWCore/Framework/interface/Run.h"
-#include "FWCore/Framework/interface/MakerMacros.h"
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DQM/HLTEvF/interface/HLTTauDQMPlotter.h"
 
-//DQM services
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-
-#include <iostream>
-#include <stdlib.h>
-#include <string>
-#include <memory>
-#include <vector>
-
-class HLTTauDQMSummaryPlotter 
-{
-  
- public:
-
-  HLTTauDQMSummaryPlotter(const edm::ParameterSet&);
-  ~HLTTauDQMSummaryPlotter();
-  void plot();
-
-
-  
- private:
-
-  void bookEfficiencyHisto(std::string,std::string,std::string,DQMStore*);
-  void plotEfficiencyHisto(std::string,std::string,std::string ,std::string ,DQMStore*);
-  void plotIntegratedEffHisto(std::string,std::string,std::string,std::string,int ,DQMStore*);
-  void bookTriggerBitEfficiencyHistos(std::string folder,std::string histo,DQMStore*dbe);
-  void plotTriggerBitEfficiencyHistos(std::string folder,std::string histo,DQMStore*dbe);
-
-  std::vector<double> calcEfficiency(float,float);
-
-  DQMStore *dbe;
-  
-  //Input Folders
-  std::vector<std::string> L1Folder_;
-  std::vector<std::string> caloFolder_;
-  std::vector<std::string> trackFolder_;
-  std::vector<std::string> pathFolder_;
-  std::vector<std::string> litePathFolder_;
-
+class HLTTauDQMSummaryPlotter : public HLTTauDQMPlotter {
+public:
+    HLTTauDQMSummaryPlotter ( const edm::ParameterSet&, std::string );
+    ~HLTTauDQMSummaryPlotter();
+    const std::string name() { return name_; }
+    void plot();
+    
+private:
+    void bookEfficiencyHisto( std::string folder, std::string name, std::string hist1 );
+    void plotEfficiencyHisto( std::string folder, std::string name, std::string hist1, std::string hist2 );
+    void plotIntegratedEffHisto( std::string folder, std::string name, std::string refHisto, std::string evCount, int bin );
+    void bookTriggerBitEfficiencyHistos( std::string folder, std::string histo );
+    void plotTriggerBitEfficiencyHistos( std::string folder, std::string histo );
+    std::pair<double,double> calcEfficiency( float num, float denom );
+    
+    std::string type_;
 };
-
-
+#endif
