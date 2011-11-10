@@ -159,8 +159,8 @@ errorPrint()
 ################################################################################
 
 checkOS
-checkRemoteConnection
 setupEnv
+checkRemoteConnection
 parseOptions $@
 
 if [ "X$softflag" = "Xon" ] ; then
