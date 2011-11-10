@@ -8,7 +8,7 @@ Monitoring source for general quantities related to tracks.
 */
 // Original Author:  Suchandra Dutta, Giorgia Mila
 //         Created:  Thu 28 22:45:30 CEST 2008
-// $Id: TrackAnalyzer.h,v 1.9 2010/12/16 09:30:58 verdier Exp $
+// $Id: TrackAnalyzer.h,v 1.10 2011/07/18 14:32:47 fiori Exp $
 
 #include <memory>
 #include <fstream>
@@ -55,12 +55,15 @@ class TrackAnalyzer
 	bool doGeneralPropertiesPlots_;
 	bool doMeasurementStatePlots_;
 	bool doHitPropertiesPlots_;
-
+	bool doRecHitVsPhiVsEtaPerTrack_;
+	bool doGoodTrackRecHitVsPhiVsEtaPerTrack_;
 
         MonitorElement* NumberOfRecHitsPerTrack;
         MonitorElement* NumberOfRecHitsFoundPerTrack;
         MonitorElement* NumberOfRecHitsLostPerTrack;
         MonitorElement* NumberOfLayersPerTrack;
+        MonitorElement* NumberOfRecHitVsPhiVsEtaPerTrack;
+        MonitorElement* GoodTrackNumberOfRecHitVsPhiVsEtaPerTrack;
         MonitorElement* Chi2;
         MonitorElement* Chi2Prob;
         MonitorElement* Chi2oNDF;

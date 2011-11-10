@@ -33,7 +33,7 @@ import FWCore.ParameterSet.Config as cms
 #
 #  FEVT (RAW+RECO), FEVTSIM (RAWSIM+RECOSIM), FEVTDEBUG (FEVTSIM+ALL_SIM_INFO), FEVTDEBUGHLT (FEVTDEBUG+HLTDEBUG)
 #
-#  $Id: EventContent_cff.py,v 1.37 2011/04/26 08:21:35 dlange Exp $
+#  $Id: EventContent_cff.py,v 1.39 2011/09/08 13:59:20 vlimant Exp $
 #
 #
 #
@@ -359,6 +359,10 @@ HLTDEBUGEventContent.outputCommands.extend(HLTDebugFEVT.outputCommands)
 RAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
 RAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
 
+REPACKRAWEventContent.outputCommands.extend(L1TriggerRAW.outputCommands)
+REPACKRAWEventContent.outputCommands.extend(HLTriggerRAW.outputCommands)
+
+
 RECOEventContent.outputCommands.extend(RecoLocalTrackerRECO.outputCommands)
 RECOEventContent.outputCommands.extend(RecoLocalMuonRECO.outputCommands)
 RECOEventContent.outputCommands.extend(RecoLocalCaloRECO.outputCommands)
@@ -600,3 +604,7 @@ ALCARECOEventContent.outputCommands.extend(OutALCARECOSiStripPCLHistos_noDrop.ou
 
 ALCARECOEventContent.outputCommands.append('drop *_MEtoEDMConverter_*_*')
 
+REPACKRAWSIMEventContent.outputCommands.extend(['drop FEDRawDataCollection_source_*_*',
+                                                'drop FEDRawDataCollection_rawDataCollector_*_*'])
+REPACKRAWEventContent.outputCommands.extend(['drop FEDRawDataCollection_source_*_*',
+                                                'drop FEDRawDataCollection_rawDataCollector_*_*'])

@@ -16,7 +16,7 @@
 //
 // Original Author:  Kyle Story, Freya Blekman (Cornell University)
 //         Created:  Fri Apr 18 11:58:33 CEST 2008
-// $Id: SignAlgoResolutions.h,v 1.3 2010/11/29 10:12:50 akhukhun Exp $
+// $Id: SignAlgoResolutions.h,v 1.4 2011/05/23 11:43:32 akhukhun Exp $
 //
 //
 
@@ -30,7 +30,6 @@
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
 #include "CondFormats/JetMETObjects/interface/JetResolution.h"
-#include "RecoParticleFlow/PFClusterTools/interface/PFEnergyCalibration.h"
 #include "RecoParticleFlow/PFClusterTools/interface/PFEnergyResolution.h"
 
 #include <map>
@@ -79,9 +78,7 @@ namespace metsig {
      
     JetResolution *ptResol_;
     JetResolution *phiResol_;
-    PFEnergyCalibration *pfcalib_;
     PFEnergyResolution *pfresol_;
-
   };
 }
 #endif

@@ -83,12 +83,12 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 10
 
 # the following are necessary for taus:
 
-process.load("Configuration.StandardSequences.GeometryPilot2_cff")
-process.load("Configuration.StandardSequences.MagneticField_cff")
-process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+# process.load("Configuration.StandardSequences.GeometryPilot2_cff")
+# process.load("Configuration.StandardSequences.MagneticField_cff")
+# process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 
 # do not forget to set the global tag according to the
 # release you are using and the sample you are reading (data or MC)
 # global tags can be found here:
 # https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions#Valid_Global_Tags_by_Release
-process.GlobalTag.globaltag = cms.string('GR09_R_34X_V2::All')
+# process.GlobalTag.globaltag = cms.string('GR09_R_34X_V2::All')

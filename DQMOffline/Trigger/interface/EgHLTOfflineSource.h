@@ -75,6 +75,7 @@ class EgHLTOfflineSource : public edm::EDAnalyzer {
   //of object passing the trigger will be monitored, eg ele = offline gsf electrons 
   std::vector<std::string> eleHLTFilterNames_;//names of the filter names to use for offline ele
   std::vector<std::string> phoHLTFilterNames_;//names of the filter names to use for offline pho
+  std::vector<std::string> eleHLTFilterNames2Leg_;//names of the first leg of 2Leg filter names to use for offline ele in form filter1::filter2
   std::vector<std::string> eleTightLooseTrigNames_; // list of 'tightTrig:looseTrig' pairs for ele
   std::vector<std::string> phoTightLooseTrigNames_; // list of 'tightTrig:looseTrig' pairs for pho 
   std::vector<std::string> diEleTightLooseTrigNames_;  // list of 'tightTrig:looseTrig' pairs for di-ele triggers

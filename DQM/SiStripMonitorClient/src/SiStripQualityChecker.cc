@@ -565,7 +565,7 @@ void SiStripQualityChecker::fillDetectorStatusAtLumi(DQMStore* dqm_store){
   std::string rdir = "ReadoutView"; 
   if (!SiStripUtility::goToDir(dqm_store, rdir)) return;
   std::string fullpath = dqm_store->pwd() 
-                          + "/FedMonitoringSummary/"
+                          + "/FedSummary/PerLumiSection/"
                           + "lumiErrorFraction";  
   MonitorElement* me = dqm_store->get(fullpath);
   if (me && me->kind() == MonitorElement::DQM_KIND_TH1F) {

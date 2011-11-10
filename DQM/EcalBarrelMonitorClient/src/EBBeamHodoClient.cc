@@ -1,8 +1,8 @@
 /*
  * \file EBBeamHodoClient.cc
  *
- * $Date: 2010/03/27 20:07:56 $
- * $Revision: 1.72 $
+ * $Date: 2011/08/30 09:33:51 $
+ * $Revision: 1.74 $
  * \author G. Della Ricca
  * \author G. Franzoni
  *
@@ -10,11 +10,13 @@
 
 #include <memory>
 #include <iostream>
-#include <fstream>
+#include <sstream>
+#include <iomanip>
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DQM/EcalCommon/interface/UtilsClient.h"
 #include "DQM/EcalCommon/interface/Numbers.h"
@@ -232,97 +234,80 @@ void EBBeamHodoClient::analyze(void) {
 
   int smId = 1;
 
-  char histo[200];
+  std::stringstream ss;
 
   MonitorElement* me;
 
   for (int i=0; i<4; i++) {
 
-    sprintf(histo, (prefixME_ + "/EBBeamHodoTask/EBBHT occup %s %02d").c_str(), Numbers::sEB(smId).c_str(), i+1);
-    me = dqmStore_->get(histo);
-    ho01_[i] = UtilsClient::getHisto<TH1F*>( me, cloneME_, ho01_[i] );
+    ss.str("");
+    ss << prefixME_ << "/EBBeamHodoTask/EBBHT occup " << Numbers::sEB(smId) << std::setfill('0') << std::setw(2) << i+1;
+    me = dqmStore_->get(ss.str());
+    ho01_[i] = UtilsClient::getHisto( me, cloneME_, ho01_[i] );
 
-    sprintf(histo, (prefixME_ + "/EBBeamHodoTask/EBBHT raw %s %02d").c_str(), Numbers::sEB(smId).c_str(), i+1);
-    me = dqmStore_->get(histo);
-    hr01_[i] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hr01_[i] );
+    ss.str("");
+    ss << prefixME_ << "/EBBeamHodoTask/EBBHT raw " << Numbers::sEB(smId) << std::setfill('0') << std::setw(2) << i+1;
+    me = dqmStore_->get(ss.str());
+    hr01_[i] = UtilsClient::getHisto( me, cloneME_, hr01_[i] );
 
   }
 
-  sprintf(histo, (prefixME_ + "/EBBeamHodoTask/EBBHT PosX rec %s").c_str(), Numbers::sEB(smId).c_str());
-  me = dqmStore_->get(histo);
-  hp01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hp01_[0] );
+  me = dqmStore_->get( prefixME_ + "/EBBeamHodoTask/EBBHT PosX rec " + Numbers::sEB(smId) );
+  hp01_[0] = UtilsClient::getHisto( me, cloneME_, hp01_[0] );
 
-  sprintf(histo, (prefixME_ + "/EBBeamHodoTask/EBBHT PosY rec %s").c_str(), Numbers::sEB(smId).c_str());
-  me = dqmStore_->get(histo);
-  hp01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hp01_[1] );
+  me = dqmStore_->get( prefixME_ + "/EBBeamHodoTask/EBBHT PosY rec " + Numbers::sEB(smId) );
+  hp01_[1] = UtilsClient::getHisto( me, cloneME_, hp01_[1] );
 
-  sprintf(histo, (prefixME_ + "/EBBeamHodoTask/EBBHT PosYX rec %s").c_str(), Numbers::sEB(smId).c_str());
-  me = dqmStore_->get(histo);
-  hp02_ = UtilsClient::getHisto<TH2F*>( me, cloneME_, hp02_ );
+  me = dqmStore_->get( prefixME_ + "/EBBeamHodoTask/EBBHT PosYX rec " + Numbers::sEB(smId) );
+  hp02_ = UtilsClient::getHisto( me, cloneME_, hp02_ );
 
-  sprintf(histo, (prefixME_ + "/EBBeamHodoTask/EBBHT SloX %s").c_str(), Numbers::sEB(smId).c_str());
-  me = dqmStore_->get(histo);
-  hs01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hs01_[0] );
+  me = dqmStore_->get( prefixME_ + "/EBBeamHodoTask/EBBHT SloX " + Numbers::sEB(smId) );
+  hs01_[0] = UtilsClient::getHisto( me, cloneME_, hs01_[0] );
 
-  sprintf(histo, (prefixME_ + "/EBBeamHodoTask/EBBHT SloY %s").c_str(), Numbers::sEB(smId).c_str());
-  me = dqmStore_->get(histo);
-  hs01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hs01_[1] );
+  me = dqmStore_->get( prefixME_ + "/EBBeamHodoTask/EBBHT SloY " + Numbers::sEB(smId) );
+  hs01_[1] = UtilsClient::getHisto( me, cloneME_, hs01_[1] );
 
-  sprintf(histo, (prefixME_ + "/EBBeamHodoTask/EBBHT QualX %s").c_str(), Numbers::sEB(smId).c_str());
-  me = dqmStore_->get(histo);
-  hq01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hq01_[0] );
+  me = dqmStore_->get( prefixME_ + "/EBBeamHodoTask/EBBHT QualX " + Numbers::sEB(smId) );
+  hq01_[0] = UtilsClient::getHisto( me, cloneME_, hq01_[0] );
 
-  sprintf(histo, (prefixME_ + "/EBBeamHodoTask/EBBHT QualY %s").c_str(), Numbers::sEB(smId).c_str());
-  me = dqmStore_->get(histo);
-  hq01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hq01_[1] );
+  me = dqmStore_->get( prefixME_ + "/EBBeamHodoTask/EBBHT QualY " + Numbers::sEB(smId) );
+  hq01_[1] = UtilsClient::getHisto( me, cloneME_, hq01_[1] );
 
-  sprintf(histo, (prefixME_ + "/EBBeamHodoTask/EBBHT TDC rec %s").c_str(), Numbers::sEB(smId).c_str());
-  me = dqmStore_->get(histo);
-  ht01_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, ht01_ );
+  me = dqmStore_->get( prefixME_ + "/EBBeamHodoTask/EBBHT TDC rec " + Numbers::sEB(smId) );
+  ht01_ = UtilsClient::getHisto( me, cloneME_, ht01_ );
 
-  sprintf(histo, (prefixME_ + "/EBBeamHodoTask/EBBHT Hodo-Calo X vs Cry %s").c_str(), Numbers::sEB(smId).c_str());
-  me = dqmStore_->get(histo);
-  hc01_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hc01_[0] );
+  me = dqmStore_->get( prefixME_ + "/EBBeamHodoTask/EBBHT Hodo-Calo X vs Cry " + Numbers::sEB(smId) );
+  hc01_[0] = UtilsClient::getHisto( me, cloneME_, hc01_[0] );
 
-  sprintf(histo, (prefixME_ + "/EBBeamHodoTask/EBBHT Hodo-Calo Y vs Cry %s").c_str(), Numbers::sEB(smId).c_str());
-  me = dqmStore_->get(histo);
-  hc01_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hc01_[1] );
+  me = dqmStore_->get( prefixME_ + "/EBBeamHodoTask/EBBHT Hodo-Calo Y vs Cry " + Numbers::sEB(smId) );
+  hc01_[1] = UtilsClient::getHisto( me, cloneME_, hc01_[1] );
 
-  sprintf(histo, (prefixME_ + "/EBBeamHodoTask/EBBHT TDC-Calo vs Cry %s").c_str(), Numbers::sEB(smId).c_str());
-  me = dqmStore_->get(histo);
-  hc01_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, hc01_[2] );
+  me = dqmStore_->get( prefixME_ + "/EBBeamHodoTask/EBBHT TDC-Calo vs Cry " + Numbers::sEB(smId) );
+  hc01_[2] = UtilsClient::getHisto( me, cloneME_, hc01_[2] );
 
-  sprintf(histo, (prefixME_ + "/EBBeamHodoTask/EBBHT Missing Collections %s").c_str(), Numbers::sEB(smId).c_str());
-  me = dqmStore_->get(histo);
-  hm01_ = UtilsClient::getHisto<TH1F*>( me, cloneME_, hm01_ );
+  me = dqmStore_->get( prefixME_ + "/EBBeamHodoTask/EBBHT Missing Collections " + Numbers::sEB(smId) );
+  hm01_ = UtilsClient::getHisto( me, cloneME_, hm01_ );
 
-  sprintf(histo, (prefixME_ + "/EBBeamHodoTask/EBBHT prof E1 vs X %s").c_str(), Numbers::sEB(smId).c_str());
-  me = dqmStore_->get(histo);
-  he01_[0] = UtilsClient::getHisto<TProfile*>( me, cloneME_, he01_[0] );
+  me = dqmStore_->get( prefixME_ + "/EBBeamHodoTask/EBBHT prof E1 vs X " + Numbers::sEB(smId) );
+  he01_[0] = UtilsClient::getHisto( me, cloneME_, he01_[0] );
 
-  sprintf(histo, (prefixME_ + "/EBBeamHodoTask/EBBHT prof E1 vs Y %s").c_str(), Numbers::sEB(smId).c_str());
-  me = dqmStore_->get(histo);
-  he01_[1] = UtilsClient::getHisto<TProfile*>( me, cloneME_, he01_[1] );
+  me = dqmStore_->get( prefixME_ + "/EBBeamHodoTask/EBBHT prof E1 vs Y " + Numbers::sEB(smId) );
+  he01_[1] = UtilsClient::getHisto( me, cloneME_, he01_[1] );
 
-  sprintf(histo, (prefixME_ + "/EBBeamHodoTask/EBBHT his E1 vs X %s").c_str(), Numbers::sEB(smId).c_str());
-  me = dqmStore_->get(histo);
-  he02_[0] = UtilsClient::getHisto<TH2F*>( me, cloneME_, he02_[0] );
+  me = dqmStore_->get( prefixME_ + "/EBBeamHodoTask/EBBHT his E1 vs X " + Numbers::sEB(smId) );
+  he02_[0] = UtilsClient::getHisto( me, cloneME_, he02_[0] );
 
-  sprintf(histo, (prefixME_ + "/EBBeamHodoTask/EBBHT his E1 vs Y %s").c_str(), Numbers::sEB(smId).c_str());
-  me = dqmStore_->get(histo);
-  he02_[1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, he02_[1] );
+  me = dqmStore_->get( prefixME_ + "/EBBeamHodoTask/EBBHT his E1 vs Y " + Numbers::sEB(smId) );
+  he02_[1] = UtilsClient::getHisto( me, cloneME_, he02_[1] );
 
-  sprintf(histo, (prefixME_ + "/EBBeamHodoTask/EBBHT PosX Hodo-Calo %s").c_str(), Numbers::sEB(smId).c_str());
-  me = dqmStore_->get(histo);
-  he03_[0] = UtilsClient::getHisto<TH1F*>( me, cloneME_, he03_[0] );
+  me = dqmStore_->get( prefixME_ + "/EBBeamHodoTask/EBBHT PosX Hodo-Calo " + Numbers::sEB(smId) );
+  he03_[0] = UtilsClient::getHisto( me, cloneME_, he03_[0] );
 
-  sprintf(histo, (prefixME_ + "/EBBeamHodoTask/EBBHT PosY Hodo-Calo %s").c_str(), Numbers::sEB(smId).c_str());
-  me = dqmStore_->get(histo);
-  he03_[1] = UtilsClient::getHisto<TH1F*>( me, cloneME_, he03_[1] );
+  me = dqmStore_->get( prefixME_ + "/EBBeamHodoTask/EBBHT PosY Hodo-Calo " + Numbers::sEB(smId) );
+  he03_[1] = UtilsClient::getHisto( me, cloneME_, he03_[1] );
 
-  sprintf(histo, (prefixME_ + "/EBBeamHodoTask/EBBHT TimeMax TDC-Calo %s").c_str(), Numbers::sEB(smId).c_str());
-  me = dqmStore_->get(histo);
-  he03_[2] = UtilsClient::getHisto<TH1F*>( me, cloneME_, he03_[2] );
+  me = dqmStore_->get( prefixME_ + "/EBBeamHodoTask/EBBHT TimeMax TDC-Calo " + Numbers::sEB(smId) );
+  he03_[2] = UtilsClient::getHisto( me, cloneME_, he03_[2] );
 
 }
 

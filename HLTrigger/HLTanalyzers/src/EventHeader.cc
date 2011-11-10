@@ -8,11 +8,15 @@
 
 #include "HLTrigger/HLTanalyzers/interface/EventHeader.h"
 
-EventHeader::EventHeader() {
-
-  //set parameter defaults 
-  _Debug=false;
-}
+EventHeader::EventHeader() :
+  fRun( -1 ),
+  fEvent( -1 ),
+  fLumiBlock( -1 ),
+  fBx( -1 ),
+  fOrbit( -1 ),
+  fAvgInstDelLumi( -999. ),
+  _Debug( false )
+{ }
 
 EventHeader::~EventHeader() {
 

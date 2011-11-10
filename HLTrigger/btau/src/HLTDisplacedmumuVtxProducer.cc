@@ -97,40 +97,40 @@ void HLTDisplacedmumuVtxProducer::produce(edm::Event& iEvent, const edm::EventSe
 
 	for (cand1=mucands->begin(); cand1!=mucands->end(); cand1++) {
 	       TrackRef tk1 = cand1->get<TrackRef>();
-	       LogDebug("HLTDisplacedMumuFilter") << " 1st muon in loop: q*pt= " << tk1->charge()*tk1->pt() << ", eta= " << tk1->eta() << ", hits= " << tk1->numberOfValidHits();
+	       LogDebug("HLTDisplacedMumuFilter") << " 1st muon in loop: q*pt= " << cand1->charge()*cand1->pt() << ", eta= " << cand1->eta() << ", hits= " << tk1->numberOfValidHits();
 	     
 	       //first check if this muon passed the previous filter
 	       if( ! checkPreviousCand( tk1, vPrevCands) ) continue;
  	
 	       // cuts
-	       if (fabs(tk1->eta())>maxEta_) continue;
-	       if (tk1->pt() < minPt_) continue;
+	       if (fabs(cand1->eta())>maxEta_) continue;
+	       if (cand1->pt() < minPt_) continue;
 	      
 	       cand2 = cand1; cand2++;
 	       for (; cand2!=mucands->end(); cand2++) {
 		         TrackRef tk2 = cand2->get<TrackRef>();
 		 
 			 // eta cut
-			 LogDebug("HLTMuonDimuonFilter") << " 2nd muon in loop: q*pt= " << tk2->charge()*tk2->pt() << ", eta= " << tk2->eta() << ", hits= " << tk2->numberOfValidHits() << ", d0= " << tk2->d0();
+			 LogDebug("HLTDisplacedmumuVtxProducer") << " 2nd muon in loop: q*pt= " << cand2->charge()*cand2->pt() << ", eta= " << cand2->eta() << ", hits= " << tk2->numberOfValidHits() << ", d0= " << tk2->d0();
 			 //first check if this muon passed the previous filter
 			 if( ! checkPreviousCand( tk2, vPrevCands) ) continue;
 			 
 			 // cuts
-			 if (fabs(tk2->eta())>maxEta_) continue;
-			 if (tk2->pt() < minPt_) continue;
+			 if (fabs(cand2->eta())>maxEta_) continue;
+			 if (cand2->pt() < minPt_) continue;
 			 
 			 // opposite sign or same sign
 			 if (chargeOpt_<0) {
-			   if (tk1->charge()*tk2->charge()>0) continue;
+			   if (cand1->charge()*cand2->charge()>0) continue;
 			 } else if (chargeOpt_>0) {
-			   if (tk1->charge()*tk2->charge()<0) continue;
+			   if (cand1->charge()*cand2->charge()<0) continue;
 			 }
 			 
 			 // Combined dimuon system
-			 e1 = sqrt(tk1->momentum().Mag2()+MuMass2);
-			 e2 = sqrt(tk2->momentum().Mag2()+MuMass2);
-			 p1 = Particle::LorentzVector(tk1->px(),tk1->py(),tk1->pz(),e1);
-			 p2 = Particle::LorentzVector(tk2->px(),tk2->py(),tk2->pz(),e2);
+			 e1 = sqrt(cand1->momentum().Mag2()+MuMass2);
+			 e2 = sqrt(cand2->momentum().Mag2()+MuMass2);
+			 p1 = Particle::LorentzVector(cand1->px(),cand1->py(),cand1->pz(),e1);
+			 p2 = Particle::LorentzVector(cand2->px(),cand2->py(),cand2->pz(),e2);
 			 p = p1+p2;
 			 
 			 

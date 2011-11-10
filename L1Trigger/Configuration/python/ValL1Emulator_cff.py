@@ -27,7 +27,7 @@ valHcalTriggerPrimitiveDigis.inputLabel = cms.VInputTag(cms.InputTag('hcalDigis'
 HcalTPGCoderULUT.LUTGenerationMode = cms.bool(False)
 #
 #
-valHcalTriggerPrimitiveDigis.FrontEndFormatError = cms.untracked.bool(True)
+valHcalTriggerPrimitiveDigis.FrontEndFormatError = cms.bool(True)
 
 
 # HCAL Tech Trig sequence

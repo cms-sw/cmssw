@@ -12,10 +12,10 @@
 class SiLinearChargeCollectionDrifter : public SiChargeCollectionDrifter{
  public:
   SiLinearChargeCollectionDrifter(double,double,double,double);
-  SiChargeCollectionDrifter::collection_type* drift(const SiChargeCollectionDrifter::ionization_type *, 
+  SiChargeCollectionDrifter::collection_type drift(const SiChargeCollectionDrifter::ionization_type, 
                                                    const LocalVector&,double,double);
  private:
-  SignalPoint drift(const EnergyDepositUnit&);
+  SignalPoint drift(const EnergyDepositUnit&, const LocalVector&);
  private:
   double moduleThickness;
   double timeNormalisation;
@@ -23,8 +23,6 @@ class SiLinearChargeCollectionDrifter : public SiChargeCollectionDrifter{
   double chargeDistributionRMS;
   double depletionVoltage;
   double appliedVoltage;
-  double dxOnDz, dyOnDz, dVOndVaV;
-  collection_type m_temp;
 };
 #endif
 

@@ -1,10 +1,6 @@
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonResidualsFitter.h"
 #include <fstream>
 #include "TMath.h"
-#include "TH1.h"
-#include "TF1.h"
-
-// $Id: $
 
 // all global variables begin with "MuonResidualsFitter_" to avoid
 // namespace clashes (that is, they do what would ordinarily be done
@@ -23,8 +19,7 @@ static TMinuit* MuonResidualsFitter_TMinuit;
 // fit function
 double MuonResidualsFitter_logPureGaussian(double residual, double center, double sigma) {
   sigma = fabs(sigma);
-  static const double cgaus = 0.5 * log( 2.*M_PI );
-  return (-pow(residual - center, 2) *0.5 / sigma / sigma) - cgaus - log(sigma);
+  return (-pow(residual - center, 2) / 2. / sigma / sigma) + log(1. / sqrt(2.*M_PI) / sigma);
 }
 
 // TF1 interface version
@@ -143,14 +138,14 @@ void MuonResidualsFitter::initialize_table() {
       for (int tsbin = 0;  tsbin < MuonResidualsFitter_numtsbins;  tsbin++) {
 	int read_gsbin = 0;
 	int read_tsbin = 0;
-	double val = 0.;
+	double value = 0.;
 
-	convolution_table >> read_gsbin >> read_tsbin >> val;
+	convolution_table >> read_gsbin >> read_tsbin >> value;
 	if (read_gsbin != gsbin  ||  read_tsbin != tsbin) {
 	  throw cms::Exception("MuonResidualsFitter") << "convolution_table.txt is out of order.  Throw it away and let the fitter re-create the file." << std::endl;
 	}
 
-	MuonResidualsFitter_lookup_table[gsbin][tsbin] = val;
+	MuonResidualsFitter_lookup_table[gsbin][tsbin] = value;
       }
     }
 
@@ -209,9 +204,7 @@ bool MuonResidualsFitter::dofit(void (*fcn)(int&,double*,double&,double*,int), s
   std::vector<double>::const_iterator istep = step.begin();
   std::vector<double>::const_iterator ilow = low.begin();
   std::vector<double>::const_iterator ihigh = high.begin();
-  
-  //MuonResidualsFitter_TMinuit->SetPrintLevel(-1);
-  
+
   for (; iNum != parNum.end();  ++iNum, ++iName, ++istart, ++istep, ++ilow, ++ihigh) {
     MuonResidualsFitter_TMinuit->DefineParameter(*iNum, iName->c_str(), *istart, *istep, *ilow, *ihigh);
     if (fixed(*iNum)) MuonResidualsFitter_TMinuit->FixParameter(*iNum);
@@ -359,7 +352,6 @@ void MuonResidualsFitter::read(FILE *file, int which) {
   delete [] likeAChecksum2;
 }
 
-
 void MuonResidualsFitter::plotsimple(std::string name, TFileDirectory *dir, int which, double multiplier) {
    double window = 100.;
    if (which == 0) window = 2.*30.;
@@ -389,106 +381,4 @@ void MuonResidualsFitter::plotweighted(std::string name, TFileDirectory *dir, in
 	 hist->Fill(multiplier * (*r)[which], weight);
       }
    }
-}
-
-
-void MuonResidualsFitter::computeHistogramRangeAndBinning(int which, int &nbins, double &a, double &b) 
-{
-  // first, make a numeric array while discarding some crazy outliers
-  double *data = new double[numResiduals()];
-  int n = 0;
-  for (std::vector<double*>::const_iterator r = m_residuals.begin();  r != m_residuals.end();  r++)  
-    if (fabs((*r)[which])<50.) 
-    {
-      data[n] = (*r)[which];
-      n++;
-    }
-  
-  // compute "3 normal sigma" and regular interquantile ranges
-  const int n_quantiles = 7;
-  double probabilities[n_quantiles] = {0.00135, 0.02275, 0.25, 0.5, 0.75, 0.97725, 0.99865}; // "3 normal sigma"
-  //double probabilities[n_quantiles] = {0.02275, 0.25, 0.75, 0.97725}; // "2 normal sigma"
-  double quantiles[n_quantiles];
-  std::sort(data, data + n);
-  TMath::Quantiles(n, n_quantiles, data, quantiles, probabilities, true, NULL, 7);
-  delete [] data;
-  double iqr = quantiles[4] - quantiles[2];
-  
-  // estimate optimal bin size according to Freedman-Diaconis rule
-  double hbin = 2 * iqr / pow( n, 1./3);
-
-  a = quantiles[1];
-  b = quantiles[5];
-  nbins = (int) ( (b - a) / hbin + 3. ); // add extra safety margin of 3
-
-  std::cout<<"   quantiles: ";  for (int i=0;i<n_quantiles;i++) std::cout<<quantiles[i]<<" "; std::cout<<std::endl;
-  //cout<<"n="<<select_count<<" quantiles ["<<quantiles[1]<<", "<<quantiles[2]<<"]  IQR="<<iqr
-  //  <<"  full range=["<<minx<<","<<maxx<<"]"<<"  2 normal sigma quantile range = ["<<quantiles[0]<<", "<<quantiles[3]<<"]"<<endl;
-  std::cout<<"   optimal h="<<hbin<<" nbins="<<nbins<<std::endl;
-}
-
-
-void MuonResidualsFitter::histogramChi2GaussianFit(int which, double &fit_mean, double &fit_sigma)
-{
-  int nbins;
-  double a, b;
-  computeHistogramRangeAndBinning(which, nbins, a, b); 
-  if (a==b || a > b) { fit_mean = a; fit_sigma = 0; return; }
-
-  TH1D *hist = new TH1D("htmp", "", nbins, a, b);
-  for (std::vector<double*>::const_iterator r = m_residuals.begin();  r != m_residuals.end();  ++r)   hist->Fill( (*r)[which] );
-  
-  // do simple chi2 gaussian fit
-  TF1 *f1= new TF1("f1","gaus", a, b);
-  f1->SetParameter(0, hist->GetEntries());
-  f1->SetParameter(1, 0);
-  f1->SetParameter(2, hist->GetRMS());
-  hist->Fit("f1","RQ");
-  
-  fit_mean  = f1->GetParameter(1);
-  fit_sigma = f1->GetParameter(2);
-  std::cout<<" h("<<nbins<<","<<a<<","<<b<<") mu="<<fit_mean<<" sig="<<fit_sigma<<std::endl;
-  
-  delete f1;
-  delete hist;
-}
-
-
-void MuonResidualsFitter::selectPeakResiduals(double nsigma, int nvar, int *vars)
-{
-  // does not make sense for small statistics
-  if (numResiduals()<25) return;
-  
-  int nbefore = numResiduals();
-  
-  //just to be sure (can't see why it might ever be more then 10)
-  assert(nvar<=10);
-  
-  // estimate nvar-D ellipsoid center & axes
-  for (int v = 0; v<nvar; v++)
-  {
-    int which = vars[v];
-    histogramChi2GaussianFit(which, m_center[which], m_radii[which]);
-    m_radii[which] = nsigma * m_radii[which];
-  }
-  
-  // filter out residuals that don't fit into the ellipsoid
-  std::vector<double*>::iterator r = m_residuals.begin();
-  while (r != m_residuals.end())
-  {
-    double ellipsoid_sum = 0;
-    for (int v = 0; v<nvar; v++) 
-    {
-      int which = vars[v];
-      if (m_radii[which] == 0.) continue;
-      ellipsoid_sum += pow( ( (*r)[which] - m_center[which]) / m_radii[which] , 2);
-    }
-    if (ellipsoid_sum <= 1.)  ++r;
-    else 
-    {
-      delete [] (*r);
-      r = m_residuals.erase(r);
-    }   
-  }
-  std::cout<<" N residuals "<<nbefore<<" -> "<<numResiduals()<<std::endl;
 }

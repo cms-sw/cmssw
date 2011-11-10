@@ -191,11 +191,13 @@ mkdir  "$WORKDIR"
 cd     "$WORKDIR"
 
 # find the list of all trigger paths
-TRIGGERS=$(hltListPaths -p "$MENU")
+TRIGGERS=$(hltListPaths -p "$MENU" | grep -v HLTriggerFinalPath)
 
 # print some info
 if [ "$SELECTION" == "complex" ]; then
   log "Will run $(echo $TRIGGERS | wc -w) HLT paths over $(echo $EVENTS | tr ',' '\n' | wc -l) events, with $JOBS jobs in parallel"
+elif [ "$SIZE" == "-1" ]; then
+  log "Will run $(echo $TRIGGERS | wc -w) HLT paths over all events, with $JOBS jobs in parallel"
 else
   log "Will run $(echo $TRIGGERS | wc -w) HLT paths over $SIZE events, with $JOBS jobs in parallel"
 fi
@@ -203,6 +205,21 @@ fi
 # create all dumps
 log "Extracting full menu dump"
 hltGetConfiguration "$MENU" --full --offline $DATA $INPUT --unprescale --process "TEST$(date -u +'%Y%m%d%H%M%S')" $EXTRA > hlt.py
+
+# if missing, add a simplified HLTriggerFinalPath
+if ! grep -q HLTriggerFinalPath hlt.py; then
+  cat >> hlt.py << @EOF
+# add (simplified) HLTriggerFinalPath if missing
+process.hltTriggerSummaryAOD = cms.EDProducer( "TriggerSummaryProducerAOD",
+    processName = cms.string( "@" )
+)
+process.hltTriggerSummaryRAW = cms.EDProducer( "TriggerSummaryProducerRAW",
+    processName = cms.string( "@" )
+)
+process.HLTriggerFinalPath = cms.Path( process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW ) 
+
+@EOF
+fi
 
 # select which events to run on
 if [ "$SELECTION" == "complex" ]; then
@@ -244,7 +261,7 @@ process.hltOutput = cms.OutputModule( "PoolOutputModule",
 
 process.Output = cms.EndPath( process.hltOutput )
 
-process.schedule = cms.Schedule( process.$TRIGGER, process.Output )
+process.schedule = cms.Schedule( process.$TRIGGER, process.HLTriggerFinalPath, process.Output )
 @EOF
 done
 

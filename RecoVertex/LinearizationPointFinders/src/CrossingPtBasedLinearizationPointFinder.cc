@@ -230,108 +230,111 @@ GlobalPoint CrossingPtBasedLinearizationPointFinder::getLinearizationPoint(
     const std::vector<reco::TransientTrack> & tracks ) const
 {
     if ( tracks.size() < 2 )
-        return GlobalPoint(0.,0.,0.);
-    std::vector < PointAndDistance > vgp;
-    if ( theNPairs == -1 )
-    {
-        if ( useMatrix )
+        throw LinPtException
+        ("CrossingPtBasedLinPtFinder: too few tracks given.");
+        std::vector < PointAndDistance > vgp;
+        if ( theNPairs == -1 )
         {
-            return useFullMatrix( tracks );
+            if ( useMatrix )
+            {
+                return useFullMatrix( tracks );
+            }
+            else
+            {
+                return useAllTracks ( tracks );
+            }
         }
-        else
+
+        if ( sum ( tracks.size() - 1 ) < ((unsigned int) (theNPairs)) )
         {
+            /*
+            std::cout << "[CrossingPtBasedLinearizationPointFinder] we exploit all track pairs"
+                 << std::endl;*/
+            // we have fewer track pair options than is foreseen
+            // in the quota.
+            // so we exploit all tracks pairs.
             return useAllTracks ( tracks );
         }
-    }
 
-    if ( sum ( tracks.size() - 1 ) < ((unsigned int) (theNPairs)) )
-    {
+        std::vector <reco::TransientTrack> goodtracks = getBestTracks ( tracks );
+
+        // we sort according to momenta.
+        if ( goodtracks.size() < 2 )
+            throw LinPtException (
+                "CrossingPtBasedLinPtFinder: less than two tracks given");
+        // vgp.reserve ( theNPairs - 1 );
+        unsigned int t_first = 0;
+        unsigned int t_interval = goodtracks.size() / 2;
+        unsigned int lim = goodtracks.size() - 1;
+
         /*
-        cout << "[CrossingPtBasedLinearizationPointFinder] we exploit all track pairs"
-             << endl;*/
-        // we have fewer track pair options than is foreseen
-        // in the quota.
-        // so we exploit all tracks pairs.
-        return useAllTracks ( tracks );
-    }
+        std::cout << "[CrossingPtBasedLinearizationPointFinder] we start: npairs=" << theNPairs
+             << std::endl;
+        std::cout << "[CrossingPtBasedLinearizationPointFinder] t_interval=" << t_interval << std::endl;
+        std::cout << "[CrossingPtBasedLinearizationPointFinder goodtracks.size=" << goodtracks.size()
+             << std::endl;*/
 
-    std::vector <reco::TransientTrack> goodtracks = getBestTracks ( tracks );
+        // the 'direction' false: intervals will expand
+        // true: intervals will shrink
+        bool dir = false;
 
-    // we sort according to momenta.
-    if ( goodtracks.size() < 2 )
-        return GlobalPoint(0.,0.,0.);
-    // vgp.reserve ( theNPairs - 1 );
-    unsigned int t_first = 0;
-    unsigned int t_interval = goodtracks.size() / 2;
-    unsigned int lim = goodtracks.size() - 1;
-
-    /*
-    cout << "[CrossingPtBasedLinearizationPointFinder] we start: npairs=" << theNPairs
-         << endl;
-    cout << "[CrossingPtBasedLinearizationPointFinder] t_interval=" << t_interval << endl;
-    cout << "[CrossingPtBasedLinearizationPointFinder goodtracks.size=" << goodtracks.size()
-         << endl;*/
-
-    // the 'direction' false: intervals will expand
-    // true: intervals will shrink
-    bool dir = false;
-
-    while ( vgp.size() < ((unsigned int) (theNPairs)) )
-    {
-        reco::TransientTrack rt1 = goodtracks [ t_first ];
-        reco::TransientTrack rt2 = goodtracks [ t_first + t_interval ];
-        // cout << "Considering now: " << t_first << ", " << t_first+t_interval << endl;
-        if ( useMatrix )
+        while ( vgp.size() < ((unsigned int) (theNPairs)) )
         {
-            PointAndDistance v ( theMatrix->crossingPoint ( rt1, rt2 ),
-                                 theMatrix->distance ( rt1, rt2 ) );
-            vgp.push_back ( v );
-        }
-        else
-        { // No DistanceMatrix available
-            TwoTrackMinimumDistance ttmd;
-            bool status = ttmd.calculate( rt1.impactPointState(), rt2.impactPointState() );
-            if (status) {
-              pair < GlobalPoint, GlobalPoint > pts = ttmd.points();
-              PointAndDistance v ( ( pts.second + pts.first ) / 2. ,
-                                   ( pts.second - pts.first ).mag() );
-              vgp.push_back( v );
-            }
-        }
-        if ( ( t_first + t_interval ) < lim )
-        {
-            t_first++;
-        }
-        else if ( dir )
-        {
-            t_first=0;
-            t_interval--;
-            if ( t_interval == 0 )
+            reco::TransientTrack rt1 = goodtracks [ t_first ];
+            reco::TransientTrack rt2 = goodtracks [ t_first + t_interval ];
+            // std::cout << "Considering now: " << t_first << ", " << t_first+t_interval << std::endl;
+            if ( useMatrix )
             {
-                /* cout << "[CrossingPtBasedLinearizationPointFinder] t_interval=0. break."
-                     << endl;*/
-                break;
+                PointAndDistance v ( theMatrix->crossingPoint ( rt1, rt2 ),
+                                     theMatrix->distance ( rt1, rt2 ) );
+                vgp.push_back ( v );
             }
-        }
-        else
-        {
-            t_first=0;
-            t_interval++;
-            if ( t_interval == goodtracks.size() )
+            else
+            { // No DistanceMatrix available
+                TwoTrackMinimumDistance ttmd;
+		bool status = ttmd.calculate( rt1.impactPointState(), rt2.impactPointState() );
+		if (status) {
+                  std::pair < GlobalPoint, GlobalPoint > pts = ttmd.points();
+                  PointAndDistance v ( ( pts.second + pts.first ) / 2. ,
+                                       ( pts.second - pts.first ).mag() );
+                  vgp.push_back( v );
+		}
+            }
+            if ( ( t_first + t_interval ) < lim )
             {
-                /* cout << "[CrossingPtBasedLinearizationPointFinder] t_interval="
-                     << goodtracks.size() << "(max). start to decrease intervals"
-                     << endl; */
-                dir=true;
-                t_interval =  goodtracks.size() / 2 - 1;
+                t_first++;
+            }
+            else if ( dir )
+            {
+                t_first=0;
+                t_interval--;
+                if ( t_interval == 0 )
+                {
+                    /* std::cout << "[CrossingPtBasedLinearizationPointFinder] t_interval=0. break."
+                         << std::endl;*/
+                    break;
+                }
+            }
+            else
+            {
+                t_first=0;
+                t_interval++;
+                if ( t_interval == goodtracks.size() )
+                {
+                    /* std::cout << "[CrossingPtBasedLinearizationPointFinder] t_interval="
+                         << goodtracks.size() << "(max). start to decrease intervals"
+                         << std::endl; */
+                    dir=true;
+                    t_interval =  goodtracks.size() / 2 - 1;
+                }
             }
         }
-    }
-    if (! vgp.size() )
-    {
-        // no crossing points? Fallback to a crossingpoint-less lin pt finder!
-        return FallbackLinearizationPointFinder().getLinearizationPoint ( tracks );
-    }
-    return find ( vgp );
-    // return GlobalPoint(0.,0.,0.); // if nothing else, then return 0,0,0
+        if (! vgp.size() )
+        {
+            // no crossing points? Fallback to a crossingpoint-less lin pt finder!
+            return FallbackLinearizationPointFinder().getLinearizationPoint ( tracks );
+        }
+        return find ( vgp );
+    
+    return GlobalPoint(0.,0.,0.); // if nothing else, then return 0,0,0
 }

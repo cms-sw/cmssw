@@ -1,8 +1,8 @@
 /*
  * \file EBTrendTask.cc
  *
- * $Date: 2010/08/11 14:57:34 $
- * $Revision: 1.8 $
+ * $Date: 2011/08/23 00:25:32 $
+ * $Revision: 1.9.4.1 $
  * \author Dongwook Jang, Soon Yung Jun
  *
 */
@@ -166,122 +166,122 @@ void EBTrendTask::setup(void){
 
   init_ = true;
 
-  char histo[200];
+  std::string name;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EBTrendTask");
 
     // minutely
 
-    sprintf(histo, "AverageNumberOfEBDigiVs5Minutes");
-    nEBDigiMinutely_ = dqmStore_->bookProfile(histo, histo, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    name = "AverageNumberOfEBDigiVs5Minutes";
+    nEBDigiMinutely_ = dqmStore_->bookProfile(name, name, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
     nEBDigiMinutely_->setAxisTitle("Minutes", 1);
     nEBDigiMinutely_->setAxisTitle("Average Number of EBDigi / 5 minutes", 2);
 
-    sprintf(histo, "AverageNumberOfEcalPnDiodeDigiVs5Minutes");
-    nEcalPnDiodeDigiMinutely_ = dqmStore_->bookProfile(histo, histo, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    name = "AverageNumberOfEcalPnDiodeDigiVs5Minutes";
+    nEcalPnDiodeDigiMinutely_ = dqmStore_->bookProfile(name, name, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
     nEcalPnDiodeDigiMinutely_->setAxisTitle("Minutes", 1);
     nEcalPnDiodeDigiMinutely_->setAxisTitle("Average Number of EcalPnDiodeDigi / 5 minutes", 2);
 
-    sprintf(histo, "AverageNumberOfEcalRecHitVs5Minutes");
-    nEcalRecHitMinutely_ = dqmStore_->bookProfile(histo, histo, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    name = "AverageNumberOfEcalRecHitVs5Minutes";
+    nEcalRecHitMinutely_ = dqmStore_->bookProfile(name, name, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
     nEcalRecHitMinutely_->setAxisTitle("Minutes", 1);
     nEcalRecHitMinutely_->setAxisTitle("Average Number of EcalRecHit / 5 minutes", 2);
 
-    sprintf(histo, "AverageNumberOfEcalTrigPrimDigiVs5Minutes");
-    nEcalTrigPrimDigiMinutely_ = dqmStore_->bookProfile(histo, histo, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    name = "AverageNumberOfEcalTrigPrimDigiVs5Minutes";
+    nEcalTrigPrimDigiMinutely_ = dqmStore_->bookProfile(name, name, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
     nEcalTrigPrimDigiMinutely_->setAxisTitle("Minutes", 1);
     nEcalTrigPrimDigiMinutely_->setAxisTitle("Average Number of EcalTrigPrimDigi / 5 minutes", 2);
 
-    sprintf(histo, "AverageNumberOfBasicClusterVs5Minutes");
-    nBasicClusterMinutely_ = dqmStore_->bookProfile(histo, histo, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    name = "AverageNumberOfBasicClusterVs5Minutes";
+    nBasicClusterMinutely_ = dqmStore_->bookProfile(name, name, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
     nBasicClusterMinutely_->setAxisTitle("Minutes", 1);
     nBasicClusterMinutely_->setAxisTitle("Average Number of BasicClusters / 5 minutes", 2);
 
-    sprintf(histo, "AverageNumberOfBasicClusterSizeVs5Minutes");
-    nBasicClusterSizeMinutely_ = dqmStore_->bookProfile(histo, histo, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    name = "AverageNumberOfBasicClusterSizeVs5Minutes";
+    nBasicClusterSizeMinutely_ = dqmStore_->bookProfile(name, name, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
     nBasicClusterSizeMinutely_->setAxisTitle("Minutes", 1);
     nBasicClusterSizeMinutely_->setAxisTitle("Average Size of BasicClusters / 5 minutes", 2);
 
-    sprintf(histo, "AverageNumberOfSuperClusterVs5Minutes");
-    nSuperClusterMinutely_ = dqmStore_->bookProfile(histo, histo, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    name = "AverageNumberOfSuperClusterVs5Minutes";
+    nSuperClusterMinutely_ = dqmStore_->bookProfile(name, name, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
     nSuperClusterMinutely_->setAxisTitle("Minutes", 1);
     nSuperClusterMinutely_->setAxisTitle("Average Number of SuperClusters / 5 minutes", 2);
 
-    sprintf(histo, "AverageNumberOfSuperClusterSizeVs5Minutes");
-    nSuperClusterSizeMinutely_ = dqmStore_->bookProfile(histo, histo, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    name = "AverageNumberOfSuperClusterSizeVs5Minutes";
+    nSuperClusterSizeMinutely_ = dqmStore_->bookProfile(name, name, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
     nSuperClusterSizeMinutely_->setAxisTitle("Minutes", 1);
     nSuperClusterSizeMinutely_->setAxisTitle("Average Size of SuperClusters / 5 minutes", 2);
 
-    sprintf(histo, "AverageNumberOfIntegrityErrorVs5Minutes");
-    nIntegrityErrorMinutely_ = dqmStore_->bookProfile(histo, histo, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    name = "AverageNumberOfIntegrityErrorVs5Minutes";
+    nIntegrityErrorMinutely_ = dqmStore_->bookProfile(name, name, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
     nIntegrityErrorMinutely_->setAxisTitle("Minutes", 1);
     nIntegrityErrorMinutely_->setAxisTitle("Average IntegrityErrors / 5 minutes", 2);
 
-    sprintf(histo, "AverageNumberOfFEDEBRawDataVs5Minutes");
-    nFEDEBRawDataMinutely_ = dqmStore_->bookProfile(histo, histo, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    name = "AverageNumberOfFEDEBRawDataVs5Minutes";
+    nFEDEBRawDataMinutely_ = dqmStore_->bookProfile(name, name, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
     nFEDEBRawDataMinutely_->setAxisTitle("Minutes", 1);
     nFEDEBRawDataMinutely_->setAxisTitle("Average Number of FEDRawData in EB / 5 minutes", 2);
 
-    sprintf(histo, "AverageNumberOfEBSRFlagVs5Minutes");
-    nEBSRFlagMinutely_ = dqmStore_->bookProfile(histo, histo, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
+    name = "AverageNumberOfEBSRFlagVs5Minutes";
+    nEBSRFlagMinutely_ = dqmStore_->bookProfile(name, name, 12, 0.0, 60.0, 100, 0.0, 1.0e6, "s");
     nEBSRFlagMinutely_->setAxisTitle("Minutes", 1);
     nEBSRFlagMinutely_->setAxisTitle("Average Number of EBSRFlag / 5 minutes", 2);
 
     // hourly
 
-    sprintf(histo, "AverageNumberOfEBDigiVs1Hour");
-    nEBDigiHourly_ = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+    name = "AverageNumberOfEBDigiVs1Hour";
+    nEBDigiHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
     nEBDigiHourly_->setAxisTitle("Hours", 1);
     nEBDigiHourly_->setAxisTitle("Average Number of EBDigi / hour", 2);
 
-    sprintf(histo, "AverageNumberOfEcalPnDiodeDigiVs1Hour");
-    nEcalPnDiodeDigiHourly_ = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+    name = "AverageNumberOfEcalPnDiodeDigiVs1Hour";
+    nEcalPnDiodeDigiHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
     nEcalPnDiodeDigiHourly_->setAxisTitle("Hours", 1);
     nEcalPnDiodeDigiHourly_->setAxisTitle("Average Number of EcalPnDiodeDigi / hour", 2);
 
-    sprintf(histo, "AverageNumberOfEcalRecHitVs1Hour");
-    nEcalRecHitHourly_ = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+    name = "AverageNumberOfEcalRecHitVs1Hour";
+    nEcalRecHitHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
     nEcalRecHitHourly_->setAxisTitle("Hours", 1);
     nEcalRecHitHourly_->setAxisTitle("Average Number of EcalRecHit / hour", 2);
 
-    sprintf(histo, "AverageNumberOfEcalTrigPrimDigiVs1Hour");
-    nEcalTrigPrimDigiHourly_ = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+    name = "AverageNumberOfEcalTrigPrimDigiVs1Hour";
+    nEcalTrigPrimDigiHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
     nEcalTrigPrimDigiHourly_->setAxisTitle("Hours", 1);
     nEcalTrigPrimDigiHourly_->setAxisTitle("Average Number of EcalTrigPrimDigi / hour", 2);
 
-    sprintf(histo, "AverageNumberOfBasicClusterVs1Hour");
-    nBasicClusterHourly_ = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+    name = "AverageNumberOfBasicClusterVs1Hour";
+    nBasicClusterHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
     nBasicClusterHourly_->setAxisTitle("Hours", 1);
     nBasicClusterHourly_->setAxisTitle("Average Number of BasicClusters / hour", 2);
 
-    sprintf(histo, "AverageNumberOfBasicClusterSizeVs1Hour");
-    nBasicClusterSizeHourly_ = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+    name = "AverageNumberOfBasicClusterSizeVs1Hour";
+    nBasicClusterSizeHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
     nBasicClusterSizeHourly_->setAxisTitle("Hours", 1);
     nBasicClusterSizeHourly_->setAxisTitle("Average Size of BasicClusters / hour", 2);
 
-    sprintf(histo, "AverageNumberOfSuperClusterVs1Hour");
-    nSuperClusterHourly_ = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+    name = "AverageNumberOfSuperClusterVs1Hour";
+    nSuperClusterHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
     nSuperClusterHourly_->setAxisTitle("Hours", 1);
     nSuperClusterHourly_->setAxisTitle("Average Number of SuperClusters / hour", 2);
 
-    sprintf(histo, "AverageNumberOfSuperClusterSizeVs1Hour");
-    nSuperClusterSizeHourly_ = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+    name = "AverageNumberOfSuperClusterSizeVs1Hour";
+    nSuperClusterSizeHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
     nSuperClusterSizeHourly_->setAxisTitle("Hours", 1);
     nSuperClusterSizeHourly_->setAxisTitle("Average Size of SuperClusters / hour", 2);
 
-    sprintf(histo, "AverageNumberOfIntegrityErrorVs1Hour");
-    nIntegrityErrorHourly_ = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+    name = "AverageNumberOfIntegrityErrorVs1Hour";
+    nIntegrityErrorHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
     nIntegrityErrorHourly_->setAxisTitle("Hours", 1);
     nIntegrityErrorHourly_->setAxisTitle("Average IntegrityErrors / hour", 2);
 
-    sprintf(histo, "AverageNumberOfFEDEBRawDataVs1Hour");
-    nFEDEBRawDataHourly_ = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+    name = "AverageNumberOfFEDEBRawDataVs1Hour";
+    nFEDEBRawDataHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
     nFEDEBRawDataHourly_->setAxisTitle("Hours", 1);
     nFEDEBRawDataHourly_->setAxisTitle("Average Number of FEDRawData in EB / hour", 2);
 
-    sprintf(histo, "AverageNumberOfEBSRFlagVs1Hour");
-    nEBSRFlagHourly_ = dqmStore_->bookProfile(histo, histo, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
+    name = "AverageNumberOfEBSRFlagVs1Hour";
+    nEBSRFlagHourly_ = dqmStore_->bookProfile(name, name, 24, 0.0, 24.0, 100, 0.0, 1.0e6, "s");
     nEBSRFlagHourly_->setAxisTitle("Hours", 1);
     nEBSRFlagHourly_->setAxisTitle("Average Number of EBSRFlag / hour", 2);
 

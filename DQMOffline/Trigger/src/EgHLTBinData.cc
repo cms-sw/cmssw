@@ -30,6 +30,7 @@ void egHLT::BinData::setup(const edm::ParameterSet& conf)
   eOverP.setup(conf.getParameter<edm::ParameterSet>("eOverP"));
   invEInvP.setup(conf.getParameter<edm::ParameterSet>("invEInvP")); 
   etaVsPhi.setup(conf.getParameter<edm::ParameterSet>("etaVsPhi"));
+  nVertex.setup(conf.getParameter<edm::ParameterSet>("nVertex"));
   
 }
 

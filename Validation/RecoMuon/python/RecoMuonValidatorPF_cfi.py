@@ -40,7 +40,7 @@ recoMuonValidatorPF = cms.EDAnalyzer("RecoMuonValidatorPF",
     minEta = cms.untracked.double(-2.5),
     maxEta = cms.untracked.double(2.5),
 
-    nBinDxy = cms.untracked.uint32(150),
+    nBinDxy = cms.untracked.uint32(100),
     minDxy = cms.untracked.double(-1.5),
     maxDxy = cms.untracked.double(1.5),
 
@@ -65,8 +65,8 @@ recoMuonValidatorPF = cms.EDAnalyzer("RecoMuonValidatorPF",
     maxErrPt = cms.untracked.double(0.2),
 
     # q/pT resolution     #
-    minErrQPt = cms.untracked.double(-5.0),
-    maxErrQPt = cms.untracked.double(5.0),
+    minErrQPt = cms.untracked.double(-0.2),
+    maxErrQPt = cms.untracked.double(0.2),
 
     # Eta resolution     #
     minErrEta = cms.untracked.double(-0.02),

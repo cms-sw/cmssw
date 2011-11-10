@@ -48,7 +48,7 @@ inline CSCBadChambers *  CSCBadChambersConditions::prefillBadChambers()
 
   int new_chambers;
   std::vector<int> new_badchambers;
-  int old_chamber = -1;
+
   int new_nrlines;
   new_nrlines=0;
  
@@ -61,14 +61,9 @@ inline CSCBadChambers *  CSCBadChambersConditions::prefillBadChambers()
   }
 
   while(!newdata.eof() ) {
-
     newdata >> new_chambers;
-    if (new_chambers!=old_chamber){
     new_badchambers.push_back(new_chambers);
-    std::cout<<new_chambers<<std::endl;  
     ++new_nrlines;
-    }
-    old_chamber = new_chambers;
   }
   newdata.close();
 

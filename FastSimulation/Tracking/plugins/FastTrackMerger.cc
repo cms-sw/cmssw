@@ -103,6 +103,7 @@ FastTrackMerger::produce(edm::Event& e, const edm::EventSetup& es) {
   case 7:  algo = reco::TrackBase::iter3; break;
   case 8:  algo = reco::TrackBase::iter4; break;
   case 9:  algo = reco::TrackBase::iter5; break;
+  case 10: algo = reco::TrackBase::iter6; break;
   default: algo = reco::TrackBase::undefAlgorithm;
   }
 

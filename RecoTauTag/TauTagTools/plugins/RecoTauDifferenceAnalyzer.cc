@@ -6,7 +6,6 @@
 #include "DataFormats/TauReco/interface/PFTau.h"
 #include "DataFormats/TauReco/interface/PFTauFwd.h"
 #include "DataFormats/TauReco/interface/PFTauDiscriminator.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 
 class RecoTauDifferenceAnalyzer : public edm::EDFilter {
   public:
@@ -109,26 +108,9 @@ bool RecoTauDifferenceAnalyzer::filter(
           << std::endl;
       std::cout << *tau1 << std::endl;
       tau1->dump(std::cout);
-      if (tau1->leadPFChargedHadrCand().isNonnull() &&
-          tau1->leadPFChargedHadrCand()->trackRef().isNonnull()) {
-        std::cout << "lead track vz: "
-          << tau1->leadPFChargedHadrCand()->trackRef()->vz()
-          << std::endl;
-      } else
-        std::cout << "lead track ref is null!" << std::endl;
-
       std::cout << "---------       Tau 2                  -------------"
           << std::endl;
       std::cout << *bestMatch << std::endl;
-
-      if (bestMatch->leadPFChargedHadrCand().isNonnull() &&
-          bestMatch->leadPFChargedHadrCand()->trackRef().isNonnull()) {
-        std::cout << "lead track vz: "
-          << bestMatch->leadPFChargedHadrCand()->trackRef()->vz()
-          << std::endl;
-
-      } else
-        std::cout << "lead track ref is null!" << std::endl;
       bestMatch->dump(std::cout);
     }
   }
