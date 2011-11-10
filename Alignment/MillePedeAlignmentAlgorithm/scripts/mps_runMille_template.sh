@@ -53,8 +53,8 @@ else
   . /afs/cern.ch/cms/caf/setup.sh
   MSSCAFDIR=`echo $MSSDIR | perl -pe 's/\/castor\/cern.ch\/cms//gi'`
   
-  echo "cmsStageOut milleBinaryISN.dat.gz $MSSCAFDIR/milleBinaryISN.dat.gz > /dev/null"
-  cmsStageOut milleBinaryISN.dat.gz    $MSSCAFDIR/milleBinaryISN.dat.gz  > /dev/null
-  cmsStageOut treeFile*root         $MSSCAFDIR/treeFileISN.root > /dev/null
-  cmsStageOut millePedeMonitor*root $MSSCAFDIR/millePedeMonitorISN.root > /dev/null
+  echo "cmsStageOut -f milleBinaryISN.dat.gz $MSSCAFDIR/milleBinaryISN.dat.gz > /dev/null"
+  cmsStageOut -f milleBinaryISN.dat.gz    $MSSCAFDIR/milleBinaryISN.dat.gz  > /dev/null
+  cmsStageOut -f treeFile*root         $MSSCAFDIR/treeFileISN.root > /dev/null
+  cmsStageOut -f millePedeMonitor*root $MSSCAFDIR/millePedeMonitorISN.root > /dev/null
 fi
