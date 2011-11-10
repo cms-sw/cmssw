@@ -4,8 +4,6 @@ root outtree 0
 
 //colin	mode 1
 
-//root file display.root
-
 root file ../../Configuration/test/display.root
 
 // Warning: no cleaning of the HF is done in fast sim, due to the absence of timing simulation and to an unreliable transverse shower shape simulation in the HF. 
@@ -414,8 +412,8 @@ particle_flow   useReg		  1
 // Daniele and Rishi: To be changed
 particle_flow   convID_mvaWeightFile    /afs/cern.ch/cms/data/CMSSW/RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionAug0411.txt
 particle_flow mvaWeightFileRegLC	/afs/cern.ch/user/r/rpatel//ConvXml/TMVARegression_BDTG_PFClusterCorr.root
-particle_flow mvaWeightFileRegGC        /afs/cern.ch/user/r/rpatel/ConvXml/TMVARegression_BDTG_PFGlobalCorr.root
-X0Map                                  /afs/cern.ch/user/r/rpatel/public/allX0histos.root
+particle_flow mvaWeightFileRegGC        /afs/cern.ch/user/r/rpatel/ConvXml/TMVARegression_BDTG_PFGlobalCorr.root	
+X0Map                                  /afs/cern.ch/user/r/rpatel/public/allX0histos.root		
 particle_flow sumPtTrackIsoForPhoton   2.0
 particle_flow sumPtTrackIsoSlopeForPhoton   0.001
 
