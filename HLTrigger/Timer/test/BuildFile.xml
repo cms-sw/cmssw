@@ -9,5 +9,6 @@
 
 <bin   name="testTimer" file="timer.cc">
   <lib name="rt"/>
+  <flags CXXFLAGS="-fopenmp"/>
   <flags NO_TESTRUN="1"/>
 </bin>
