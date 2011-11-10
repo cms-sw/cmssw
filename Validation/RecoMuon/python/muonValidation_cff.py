@@ -178,7 +178,6 @@ glbCosmicMuonTrackVMuonAssoc.usemuon = True
 # Configurations for RecoMuonValidators
 from RecoMuon.TrackingTools.MuonServiceProxy_cff import *
 from Validation.RecoMuon.RecoMuonValidator_cfi import *
-from Validation.RecoMuon.RecoMuonValidatorPF_cfi import *
 
 import SimGeneral.MixingModule.mixNoPU_cfi
 muonMix = SimGeneral.MixingModule.mixNoPU_cfi.mix.clone()
