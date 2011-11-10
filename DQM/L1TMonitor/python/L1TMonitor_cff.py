@@ -80,7 +80,7 @@ from DQM.TrigXMonitor.L1TScalersSCAL_cfi import *
 #
 # SM scalers
 from DQM.TrigXMonitor.L1Scalers_cfi import *
-l1s.l1GtData = cms.InputTag("gtDigis","","DQM")
+l1s.l1GtData = cms.InputTag("gtDigis")
 l1s.dqmFolder = cms.untracked.string("L1T/L1Scalers_SM") 
 
 
@@ -100,10 +100,13 @@ l1tGctSeq = cms.Sequence(
                     hltTriggerTypeFilter * 
                     l1tGct
                     )
-# for L1ExtraDQM, one must run also the L1Extra producer
+# for L1ExtraDQM, one must run GGT and GMT/GT unpacker and L1Extra producer 
+# with special configurations
 
 l1ExtraDqmSeq = cms.Sequence(
-                        L1Extra * 
+                        dqmGctDigis *
+                        dqmGtDigis *
+                        dqmL1ExtraParticles * 
                         l1ExtraDQM
                         )
 
