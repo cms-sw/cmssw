@@ -59,6 +59,8 @@ public:
   ErrorObj( const ErrorObj & orig );  // Same serial number and everything!
   virtual ~ErrorObj();
 
+  ErrorObj& operator=( const ErrorObj& other );
+  void swap ( ErrorObj& other );
   // --- accessors:
   //
   int                    serial() const;
@@ -139,8 +141,12 @@ ErrorObj &  operator<<( ErrorObj & e, const char s[] );
 
 void endmsg( ErrorLog & );
 
-}        // end of namespace edm
+inline
+void swap(ErrorObj& a, ErrorObj& b) {
+  a.swap(b);
+}
 
+}        // end of namespace edm
 
 // ----------------------------------------------------------------------
 // .icc

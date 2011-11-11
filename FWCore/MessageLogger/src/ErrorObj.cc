@@ -117,6 +117,26 @@ ErrorObj::~ErrorObj()  {
 
 }  // ~ErrorObj()
 
+ErrorObj& ErrorObj::operator=( const ErrorObj & other ) {
+  ErrorObj temp(other);
+  this->swap(temp);
+  return *this;
+}
+
+void ErrorObj::swap( ErrorObj& other ) {
+  std::swap(mySerial, other.mySerial);
+  std::swap(myXid, other.myXid);
+  myIdOverflow.swap(other.myIdOverflow);
+  std::swap(myTimestamp, other.myTimestamp);
+  myItems.swap(other.myItems);
+  std::swap(myReactedTo, other.myReactedTo);
+  myContext.swap(other.myContext);
+  std::string temp(other.myOs.str());
+  other.myOs.str(myOs.str());
+  myOs.str(temp);
+  emptyString.swap(other.emptyString);
+  std::swap(verbatim, other.verbatim);
+}
 
 // ----------------------------------------------------------------------
 // Accessors:
