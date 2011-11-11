@@ -3,7 +3,7 @@
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
 // Accommodated for Jet Package by: Fedor Ratnikov Jul. 30, 2007
-// $Id: JetTracksAssociatorAtVertex.cc,v 1.5 2009/03/30 15:08:28 bainbrid Exp $
+// $Id: JetTracksAssociatorAtVertex.cc,v 1.6 2010/03/18 09:17:25 srappocc Exp $
 //
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
@@ -19,7 +19,10 @@
 JetTracksAssociatorAtVertex::JetTracksAssociatorAtVertex(const edm::ParameterSet& fConfig)
   : mJets (fConfig.getParameter<edm::InputTag> ("jets")),
     mTracks (fConfig.getParameter<edm::InputTag> ("tracks")),
-    mAssociator (fConfig.getParameter<double> ("coneSize"))
+    mAssociator (fConfig.getParameter<double> ("coneSize")),
+    mAssociatorAssigned (fConfig.getParameter<double> ("coneSize")),
+    useAssigned( fConfig.getParameter<bool> ("useAssigned") ),
+    pvSrc ( fConfig.getParameter<edm::InputTag> ("pvSrc") )
 {
   produces<reco::JetTracksAssociation::Container> ();
 }
@@ -44,7 +47,14 @@ void JetTracksAssociatorAtVertex::produce(edm::Event& fEvent, const edm::EventSe
   for (unsigned i = 0; i < tracks_h->size(); ++i) {
     allTracks.push_back (reco::TrackRef (tracks_h, i));
   }
-  mAssociator.produce (&*jetTracks, allJets, allTracks);
+  if ( !useAssigned ) {
+    mAssociator.produce (&*jetTracks, allJets, allTracks);
+  } else {
+    edm::Handle<reco::VertexCollection> pvHandle;
+    fEvent.getByLabel(pvSrc,pvHandle);
+    const reco::VertexCollection & vertices = *pvHandle.product();     
+    mAssociatorAssigned.produce (&*jetTracks, allJets, allTracks,vertices);
+  }
 
 
   // store output

@@ -3,7 +3,7 @@
 // Original Author:  Andrea Rizzi
 //         Created:  Wed Apr 12 11:12:49 CEST 2006
 // Accommodated for Jet Package by: Fedor Ratnikov Jul. 30, 2007
-// $Id: JetTracksAssociatorAtVertex.h,v 1.2 2008/05/29 17:58:55 fedor Exp $
+// $Id: JetTracksAssociatorAtVertex.h,v 1.3 2010/02/28 20:10:04 wmtan Exp $
 //
 //
 #ifndef JetTracksAssociatorAtVertex_h
@@ -15,6 +15,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDRVertex.h"
+#include "RecoJets/JetAssociationAlgorithms/interface/JetTracksAssociationDRVertexAssigned.h"
 
 class JetTracksAssociatorAtVertex : public edm::EDProducer {
    public:
@@ -28,6 +29,9 @@ class JetTracksAssociatorAtVertex : public edm::EDProducer {
      edm::InputTag mTracks;
      int mTrackQuality;
      JetTracksAssociationDRVertex mAssociator;
+     JetTracksAssociationDRVertexAssigned mAssociatorAssigned;
+     bool useAssigned;   /// if true, use the track/jet association with vertex assignment to tracks
+     edm::InputTag pvSrc; /// if useAssigned, will read this PV collection. 
 };
 
 #endif
