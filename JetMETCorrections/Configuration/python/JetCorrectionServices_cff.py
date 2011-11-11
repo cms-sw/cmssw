@@ -21,11 +21,8 @@ import FWCore.ParameterSet.Config as cms
 # L1 (Offset) Correction Service
 ak5CaloL1Offset = cms.ESProducer(
     'L1OffsetCorrectionESProducer',
-    era = cms.string('Jec10V1'),
     level = cms.string('L1Offset'),
-    section   = cms.string(''),
     algorithm = cms.string('AK5Calo'),
-    useCondDB = cms.untracked.bool(True),
     vertexCollection = cms.string('offlinePrimaryVertices'),
     minVtxNdof = cms.int32(4)
     )
@@ -36,69 +33,51 @@ ak5JPTL1Offset = ak5CaloL1Offset.clone(algorithm = 'AK5JPT')
 # L1 (JPT Offset) Correction Service
 ak5L1JPTOffset = cms.ESProducer(
     'L1JPTOffsetCorrectionESProducer',
-    era = cms.string('Jec10V1'),
     level = cms.string('L1JPTOffset'),
-    section   = cms.string(''),
     algorithm = cms.string('AK5JPT'),
-    offsetService = cms.string('ak5CaloL1Offset'),
-    useCondDB = cms.untracked.bool(True)
+    offsetService = cms.string('ak5CaloL1Offset')
     )
 
 # L1 (Fastjet PU Subtraction) Correction Service
 ak5CaloL1Fastjet = cms.ESProducer(
     'L1FastjetCorrectionESProducer',
-    era         = cms.string('Jec10V1'),
     level       = cms.string('L1FastJet'),
     algorithm   = cms.string('AK5Calo'),
-    section     = cms.string(''),
-    srcRho      = cms.InputTag('kt6CaloJets','rho'),
-    useCondDB = cms.untracked.bool(True)
+    srcRho      = cms.InputTag('kt6CaloJets','rho')
     )
 ak5PFL1Fastjet = cms.ESProducer(
     'L1FastjetCorrectionESProducer',
-    era         = cms.string('Jec10V1'),
     level       = cms.string('L1FastJet'),
     algorithm   = cms.string('AK5PF'),
-    section     = cms.string(''),
-    srcRho      = cms.InputTag('kt6PFJets','rho'),
-    useCondDB = cms.untracked.bool(True)
+    srcRho      = cms.InputTag('kt6PFJets','rho')
     )
 ak5JPTL1Fastjet = ak5CaloL1Fastjet.clone()
 
 # L2 (relative eta-conformity) Correction Services
 ak5CaloL2Relative = cms.ESProducer(
     'LXXXCorrectionESProducer',
-    era = cms.string('Spring10'),
-    section   = cms.string(''),
     level     = cms.string('L2Relative'),
-    algorithm = cms.string('AK5Calo'),
-    useCondDB = cms.untracked.bool(True)
+    algorithm = cms.string('AK5Calo')
     )
 ak5PFL2Relative = ak5CaloL2Relative.clone( algorithm = 'AK5PF' )
-ak5JPTL2Relative = ak5CaloL2Relative.clone( era = 'Summer10', algorithm = 'AK5JPT' )
+ak5JPTL2Relative = ak5CaloL2Relative.clone( algorithm = 'AK5JPT' )
 ak5TrackL2Relative = ak5CaloL2Relative.clone( algorithm = 'AK5TRK' )
 
 # L3 (absolute) Correction Services
 ak5CaloL3Absolute = cms.ESProducer(
     'LXXXCorrectionESProducer',
-    era = cms.string('Spring10'),
-    section   = cms.string(''),
     level     = cms.string('L3Absolute'),
-    algorithm = cms.string('AK5Calo'),
-    useCondDB = cms.untracked.bool(True)
+    algorithm = cms.string('AK5Calo')
     )
 ak5PFL3Absolute     = ak5CaloL3Absolute.clone( algorithm = 'AK5PF' )
-ak5JPTL3Absolute    = ak5CaloL3Absolute.clone( era = 'Summer10', algorithm = 'AK5JPT' )
+ak5JPTL3Absolute    = ak5CaloL3Absolute.clone( algorithm = 'AK5JPT' )
 ak5TrackL3Absolute  = ak5CaloL3Absolute.clone( algorithm = 'AK5TRK' )
 
 # Residual Correction Services
 ak5CaloResidual = cms.ESProducer(
     'LXXXCorrectionESProducer',
-    era = cms.string('Spring10DataV2'),
-    section   = cms.string(''),
     level     = cms.string('L2L3Residual'),
-    algorithm = cms.string('AK5Calo'),
-    useCondDB = cms.untracked.bool(True)
+    algorithm = cms.string('AK5Calo')
     )
 ak5PFResidual  = ak5CaloResidual.clone( algorithm = 'AK5PF' )
 ak5JPTResidual = ak5CaloResidual.clone( algorithm = 'AK5JPT' )
@@ -106,25 +85,19 @@ ak5JPTResidual = ak5CaloResidual.clone( algorithm = 'AK5JPT' )
 # L6 (semileptonically decaying b-jet) Correction Services
 ak5CaloL6SLB = cms.ESProducer(
     'L6SLBCorrectionESProducer',
-    era                 = cms.string(''),
     level               = cms.string('L6SLB'),
-    section             = cms.string(''),
     algorithm           = cms.string(''),
     addMuonToJet        = cms.bool(True),
     srcBTagInfoElectron = cms.InputTag('ak5CaloJetsSoftElectronTagInfos'),
-    srcBTagInfoMuon     = cms.InputTag('ak5CaloJetsSoftMuonTagInfos'),
-    useCondDB = cms.untracked.bool(True)
+    srcBTagInfoMuon     = cms.InputTag('ak5CaloJetsSoftMuonTagInfos')
     )
 ak5PFL6SLB = cms.ESProducer(
     'L6SLBCorrectionESProducer',
-    era                 = cms.string(''),
     level               = cms.string('L6SLB'),
-    section             = cms.string(''),
     algorithm           = cms.string(''),
     addMuonToJet        = cms.bool(False),
     srcBTagInfoElectron = cms.InputTag('ak5PFJetsSoftElectronTagInfos'),
-    srcBTagInfoMuon     = cms.InputTag('ak5PFJetsSoftMuonTagInfos'),
-    useCondDB = cms.untracked.bool(True)
+    srcBTagInfoMuon     = cms.InputTag('ak5PFJetsSoftMuonTagInfos')
     )
 
 
