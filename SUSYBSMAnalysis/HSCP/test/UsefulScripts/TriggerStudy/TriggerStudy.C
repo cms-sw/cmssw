@@ -109,7 +109,7 @@ class stPlot{
 
 void TriggerStudy_Core(string SignalName, FILE* pFile, stPlot* plot);
 double FastestHSCP(const fwlite::ChainEvent& ev);
-bool IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& InputPath, double NewThreshold, int NObjectAboveThreshold, bool averageThreshold=false);
+bool IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& InputPath, double NewThreshold, double etaCut,int NObjectAboveThreshold, bool averageThreshold=false);
 void layout(vector<stPlot*>& plots, vector<string>& sigs, string name);
 int JobIdToIndex(string JobId);
 void SetWeight(const double& IntegratedLuminosityInPb=-1, const double& IntegratedLuminosityInPbBeforeTriggerChange=-1, const double& CrossSection=0, const double& MCEvents=0, int period=0);
@@ -151,7 +151,7 @@ void TriggerStudy()
    JetMetSD_triggers.push_back("HLT_PFMHT150_v2");
 //   JetMetSD_triggers.push_back("HLT_MET100_v1");
 
-   MuSD_triggers.push_back("HLT_Mu30_v1");
+   MuSD_triggers.push_back("HLT_Mu40_eta2p1_v1");
 //   MuSD_triggers.push_back("HLT_DoubleMu7_v1");
 
    All_triggers.clear();
@@ -164,6 +164,7 @@ void TriggerStudy()
    stPlot** plots = new stPlot*[signals.size()];  
    for(unsigned int i=0;i<signals.size();i++){
       plots[i] = new stPlot(signals[i].Name);
+      if(signals[i].Name!="Gluino300" && signals[i].Name!="Gluino500" && signals[i].Name!="Gluino900")continue;
 //      if(signals[i].Name!="Gluino300" && signals[i].Name!="Gluino500" && signals[i].Name!="Gluino900" && signals[i].Name!="GMStau156" && signals[i].Name!="GMStau247" && signals[i].Name!="GMStau308")continue;
       TriggerStudy_Core(signals[i].Name, pFile, plots[i] );
    }
@@ -175,7 +176,7 @@ void TriggerStudy()
    Id = JobIdToIndex("Gluino500");      objs.push_back(plots[Id]);   leg.push_back(signals[Id].Name);
    Id = JobIdToIndex("Gluino900");      objs.push_back(plots[Id]);   leg.push_back(signals[Id].Name);
    layout(objs, leg, "summary_Gluino");
-
+/*
                                         objs.clear();                leg.clear();
    Id = JobIdToIndex("Gluino300N");     objs.push_back(plots[Id]);   leg.push_back(signals[Id].Name);
    Id = JobIdToIndex("Gluino500N");     objs.push_back(plots[Id]);   leg.push_back(signals[Id].Name);
@@ -200,7 +201,7 @@ void TriggerStudy()
    Id = JobIdToIndex("GMStau308");      objs.push_back(plots[Id]);   leg.push_back(signals[Id].Name);
    layout(objs, leg, "summary_GMStau");
 
-/*                                        objs.clear();                leg.clear();
+                                        objs.clear();                leg.clear();
    Id = JobIdToIndex("PPStau156");      objs.push_back(plots[Id]);   leg.push_back(signals[Id].Name);
    Id = JobIdToIndex("PPStau247");      objs.push_back(plots[Id]);   leg.push_back(signals[Id].Name);
    Id = JobIdToIndex("PPStau308");      objs.push_back(plots[Id]);   leg.push_back(signals[Id].Name);
@@ -253,11 +254,15 @@ void TriggerStudy_Core(string SignalName, FILE* pFile, stPlot* plot)
    double TrBoth      = 0;
 
    int MaxPrint = 0;
+//   RunningPeriods=1;
    for (int period=0; period<RunningPeriods; period++) {
 
    vector<string> fileNames;
    GetInputFiles(fileNames,SignalName, period);
+//   fileNames.clear();
+//   fileNames.push_back("/uscmst1b_scratch/lpc1/lpcphys/jchen/2011Runanalysis/aftereps/cls/CMSSW_4_2_8/src/SUSYBSMAnalysis/HSCP/test/UsefulScripts/TriggerStudy/HSCPstau_M_100_7TeV_pythia6_cff_py_DIGI_L1_DIGI2RAW.root");
    fwlite::ChainEvent ev(fileNames);
+
    int JobId = JobIdToIndex(SignalName);
    SetWeight(IntegratedLuminosity,IntegratedLuminosityBeforeTriggerChange,signals[JobId].XSec,(double)ev.size(), period);
 
@@ -268,9 +273,9 @@ void TriggerStudy_Core(string SignalName, FILE* pFile, stPlot* plot)
       if(e%TreeStep==0){printf(".");fflush(stdout);}
       ev.to(e);
 
-      edm::TriggerResultsByName tr = ev.triggerResultsByName("HLT");
-      if(!tr.isValid())continue;
-      //for(unsigned int i=0;i<tr.size();i++){
+//      edm::TriggerResultsByName tr = ev.triggerResultsByName("SIMHITSHIFTER2");
+      edm::TriggerResultsByName tr = ev.triggerResultsByName("HLT");      if(!tr.isValid())continue;
+      //     for(unsigned int i=0;i<tr.size();i++){
       //   printf("Path %3i %50s --> %1i\n",i, tr.triggerName(i).c_str(),tr.accept(i));
       //}fflush(stdout);
 
@@ -312,10 +317,16 @@ void TriggerStudy_Core(string SignalName, FILE* pFile, stPlot* plot)
                    if(e<MaxPrint)printf("HLT_PFMHT150_v1\n");
                    Accept = tr.accept(tr.triggerIndex("HLT_PFMHT150_v1"));
                 }
-		//Accept2 = Accept;
-                Accept2 = IncreasedTreshold(trEv, InputTag("hltPFMHT150Filter","","HLT"),160 , 1, false);
+               Accept2 = Accept;
+               //Accept2 = IncreasedTreshold(trEv, InputTag("hltPFMHT150Filter","","HLT"),160 , 2.4, 1, false);
 
-            }else{
+            }
+           else if(All_triggers[i]=="HLT_Mu40_eta2p1_v1"){
+              
+              Accept = IncreasedTreshold(trEv, InputTag("hltSingleMu30L3Filtered30","","HLT"),40 , 2.1, 1, false);
+              Accept2 = Accept;
+           }
+           else{
                Accept = tr.accept(All_triggers[i].c_str());
 	       Accept2 = Accept;
             }
@@ -485,55 +496,50 @@ double FastestHSCP(const fwlite::ChainEvent& ev){
    return MaxBeta;
 }
 
-
-
-bool IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& InputPath, double NewThreshold, int NObjectAboveThreshold, bool averageThreshold)
+bool IncreasedTreshold(const trigger::TriggerEvent& trEv, const edm::InputTag& InputPath, double NewThreshold, double etaCut, int NObjectAboveThreshold, bool averageThreshold)
 {
    unsigned int filterIndex = trEv.filterIndex(InputPath);
    //if(filterIndex<trEv.sizeFilters())printf("SELECTED INDEX =%i --> %s    XXX   %s\n",filterIndex,trEv.filterTag(filterIndex).label().c_str(), trEv.filterTag(filterIndex).process().c_str());
-         
+
    if (filterIndex<trEv.sizeFilters()){
       const trigger::Vids& VIDS(trEv.filterIds(filterIndex));
       const trigger::Keys& KEYS(trEv.filterKeys(filterIndex));
-      const size_type nI(VIDS.size());
-      const size_type nK(KEYS.size());
+      const int nI(VIDS.size());
+      const int nK(KEYS.size());
       assert(nI==nK);
-      const size_type n(max(nI,nK));
+      const int n(std::max(nI,nK));
       const trigger::TriggerObjectCollection& TOC(trEv.getObjects());
 
 
       if(!averageThreshold){
          int NObjectAboveThresholdObserved = 0;
-         for (size_type i=0; i!=n; ++i) {
-            const TriggerObject& TO(TOC[KEYS[i]]);
-            if(TO.pt()> NewThreshold) NObjectAboveThresholdObserved++;
-   	    //cout << "   " << i << " " << VIDS[i] << "/" << KEYS[i] << ": "<< TO.id() << " " << TO.pt() << " " << TO.eta() << " " << TO.phi() << " " << TO.mass()<< endl;
-         }          
+         for (int i=0; i!=n; ++i) {
+            if(TOC[KEYS[i]].pt()> NewThreshold && fabs(TOC[KEYS[i]].eta())<etaCut) NObjectAboveThresholdObserved++;
+            //cout << "   " << i << " " << VIDS[i] << "/" << KEYS[i] << ": "<< TOC[KEYS[i]].id() << " " << TOC[KEYS[i]].pt() << " " << TOC[KEYS[i]].eta() << " " << TOC[KEYS[i]].phi() << " " << TOC[KEYS[i]].mass()<< endl;
+         }
          if(NObjectAboveThresholdObserved>=NObjectAboveThreshold)return true;
 
       }else{
          std::vector<double> ObjPt;
 
-         for (size_type i=0; i!=n; ++i) {
-            const TriggerObject& TO(TOC[KEYS[i]]);
-            ObjPt.push_back(TO.pt());
-            //cout << "   " << i << " " << VIDS[i] << "/" << KEYS[i] << ": "<< TO.id() << " " << TO.pt() << " " << TO.eta() << " " << TO.phi() << " " << TO.mass()<< endl;
-         }  
+         for (int i=0; i!=n; ++i) {
+            ObjPt.push_back(TOC[KEYS[i]].pt());
+            //cout << "   " << i << " " << VIDS[i] << "/" << KEYS[i] << ": "<< TOC[KEYS[i]].id() << " " << TOC[KEYS[i]].pt() << " " << TOC[KEYS[i]].eta() << " " << TOC[KEYS[i]].phi() << " " << TOC[KEYS[i]].mass()<< endl;
+         }
          if((int)(ObjPt.size())<NObjectAboveThreshold)return false;
          std::sort(ObjPt.begin(), ObjPt.end());
-         
+
          double Average = 0;
          for(int i=0; i<NObjectAboveThreshold;i++){
-            Average+= ObjPt[ObjPt.size()-1-i];            
+            Average+= ObjPt[ObjPt.size()-1-i];
          }Average/=NObjectAboveThreshold;
-	 //cout << "AVERAGE = " << Average << endl;
-         
-         if(Average>NewThreshold)return true;                  
+         //cout << "AVERAGE = " << Average << endl;
+
+         if(Average>NewThreshold)return true;
       }
    }
    return false;
 }
-
 
 int JobIdToIndex(string JobId){
    for(unsigned int s=0;s<signals.size();s++){
