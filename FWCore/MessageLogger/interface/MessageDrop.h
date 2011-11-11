@@ -18,7 +18,6 @@
 //
 // Original Author:  M. Fischler and Jim Kowalkowski
 //         Created:  Tues Feb 14 16:38:19 CST 2006
-// $Id: MessageDrop.h,v 1.15 2010/11/30 23:12:52 fischler Exp $
 //
 
 // Framework include files
@@ -66,6 +65,10 @@
 //
 // 12  fwyzard 7/6/11   Add support for discarding LogError-level messages
 //                      on a per-module basis (needed at HLT)
+//
+// 13  wmtan 11/11/11   Make non-copyable to satisfy Coverity. Would otherwise
+//                      need special copy ctor and copy assignment operator.
+
 
 // user include files
 
@@ -82,6 +85,8 @@ struct MessageDrop {
 private:
   MessageDrop();					// change log 10:
   							// moved to cc file  
+  MessageDrop( MessageDrop const& );
+  MessageDrop& operator=( MessageDrop const& );
 public:
   ~MessageDrop();					// change log 10
   static MessageDrop * instance ();

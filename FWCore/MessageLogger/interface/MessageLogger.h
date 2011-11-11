@@ -157,6 +157,7 @@ public:
 private:
   MessageSender ap; 
   LogWarning( LogWarning const& );				// Change log 9
+  LogWarning& operator=( LogWarning const& );
    
 };  // LogWarning
 
@@ -181,6 +182,7 @@ public:
 private:
   MessageSender ap; 
   LogError( LogError const& );					// Change log 9
+  LogError& operator=( LogError const& );
 
 };  // LogError
 
@@ -205,6 +207,7 @@ public:
 private:
   MessageSender ap; 
   LogSystem( LogSystem const& );				// Change log 9
+  LogSystem& operator=( LogSystem const& );
 
 };  // LogSystem
 
@@ -229,6 +232,7 @@ public:
 private:
   MessageSender ap; 
   LogInfo( LogInfo const& );					// Change log 9
+  LogInfo& operator=( LogInfo const& );
   
 };  // LogInfo
 
@@ -255,6 +259,7 @@ public:
 private:
   MessageSender ap; 
   LogVerbatim( LogVerbatim const& );				// Change log 9
+  LogVerbatim& operator=( LogVerbatim const& );
   
 };  // LogVerbatim
 
@@ -281,6 +286,7 @@ public:
 private:
   MessageSender ap; 
   LogPrint( LogPrint const& );					// Change log 9
+  LogPrint& operator=( LogPrint const& );
   
 };  // LogPrint
 
@@ -307,6 +313,7 @@ public:
 private:
   MessageSender ap; 
   LogProblem( LogProblem const& );				// Change log 9
+  LogProblem& operator=( LogProblem const& );
 
 };  // LogProblem
 
@@ -332,6 +339,7 @@ public:
 private:
   MessageSender ap; 
   LogImportant( LogImportant const& );				// Change log 9
+  LogImportant& operator=( LogImportant const& );
 
 };  // LogImportant
 
@@ -357,6 +365,7 @@ public:
 private:
   MessageSender ap; 
   LogAbsolute( LogAbsolute const& );				// Change log 9
+  LogAbsolute& operator=( LogAbsolute const& );
 
 };  // LogAbsolute
 
@@ -448,6 +457,7 @@ public:
 private:
   MessageSender ap; 
   LogWarningThatSuppressesLikeLogInfo( LogWarningThatSuppressesLikeLogInfo const& );				// Change log 9
+  LogWarningThatSuppressesLikeLogInfo& operator=( LogWarningThatSuppressesLikeLogInfo const& );
    
 };  // LogWarningThatSuppressesLikeLogInfo
 } // end namespace edmmltest
