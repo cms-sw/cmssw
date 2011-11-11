@@ -6,6 +6,12 @@
 #
 # In the very beginning of this script, stager requests for the files will be added.
 
+
+# these defaults will be overwritten by MPS
+RUNDIR=$HOME/scratch0/some/path
+MSSDIR=/castor/cern.ch/user/u/username/another/path
+MSSDIRPOOL=
+
 clean_up () {
 #try to recover log files and root files
     echo try to recover log files and root files ...
@@ -17,10 +23,6 @@ clean_up () {
 #LSF signals according to http://batch.web.cern.ch/batch/lsf-return-codes.html
 trap clean_up HUP INT TERM SEGV USR2 XCPU XFSZ IO
 
-# these defaults will be overwritten by MPS
-RUNDIR=$HOME/scratch0/some/path
-MSSDIR=/castor/cern.ch/user/u/username/another/path
-MSSDIRPOOL=
 
 # The batch job directory (will vanish after job end):
 BATCH_DIR=$(pwd)
