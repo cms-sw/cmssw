@@ -46,7 +46,7 @@ namespace edm {
     explicit Hash(value_type const& v);
 
     Hash(Hash<I> const&);
-    Hash<I> const& operator=(Hash<I> const& iRHS);
+    Hash<I>& operator=(Hash<I> const& iRHS);
 
     void reset();
 
@@ -126,7 +126,7 @@ namespace edm {
 
   template <int I>
   inline
-  Hash<I> const& 
+  Hash<I>& 
   Hash<I>::operator=(Hash<I> const& iRHS) {
     hash_ = iRHS.hash_;
     hash_detail::fixup_(hash_);
