@@ -127,7 +127,9 @@ extern "C" {
 
   double xitla_(int*,double*,double*);
   void bernini_(int*);
-  void hdec_(double*);
+  //fix unused parameter warning
+  //void hdec_(double*);
+  void hdec_();
   void alsini_(double*);
 }
 
