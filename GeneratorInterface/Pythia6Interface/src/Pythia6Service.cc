@@ -206,11 +206,20 @@ void Pythia6Service::setGeneralParams()
 void Pythia6Service::setCSAParams()
 {
       
+   char buf[514];
+   
    txgive_init_();
    
    for(std::vector<std::string>::const_iterator iter = fParamCSA.begin();
 	                                        iter != fParamCSA.end(); ++iter)
    {
+      if ( iter->length() <= 0 ) continue;
+      strcpy( buf, iter->c_str() );
+      if ( buf[iter->length()-1] != '\n' )
+      {
+         buf[iter->length()] = '\n';
+	 buf[iter->length()+1] = 0;
+      }      
       txgive_( iter->c_str(), iter->length() );
    }   
    
