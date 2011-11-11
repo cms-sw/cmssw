@@ -3,10 +3,12 @@
 <use   name="DataFormats/Math"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/Utilities"/>
+<use   name="FWCore/MessageLogger"/>
 <use   name="Geometry/CaloGeometry"/>
 <use   name="Geometry/CaloTopology"/>
 <use   name="RecoLocalCalo/EcalRecAlgos"/>
 <use   name="Geometry/Records"/>
+<use   name="CalibCalorimetry/EcalLaserCorrection"/>
 <use   name="clhep"/>
 <export>
   <lib   name="1"/>
