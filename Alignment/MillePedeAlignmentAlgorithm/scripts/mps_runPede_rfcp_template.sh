@@ -7,6 +7,22 @@
 #temporary fix (?):
 #unset PYTHONHOME
 
+clean_up () {
+#try to recover log files and root files
+    echo try to recover log files and root files ...
+    cp -p pede.dump* $RUNDIR
+    cp -p *.txt.* $RUNDIR
+    cp -p *.log $RUNDIR
+    cp -p *.log.gz $RUNDIR
+    cp -p millePedeMonitor*root $RUNDIR
+    cp -p millepede.res* $RUNDIR
+    cp -p millepede.his*
+    cp -p *.db $RUNDIR
+    exit
+}
+#LSF signals according to http://batch.web.cern.ch/batch/lsf-return-codes.html
+trap clean_up HUP INT TERM SEGV USR2 XCPU XFSZ IO
+
 # these defaults will be overwritten by MPS
 RUNDIR=$HOME/scratch0/some/path
 MSSDIR=/castor/cern.ch/user/u/username/another/path
