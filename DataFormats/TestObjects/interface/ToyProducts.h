@@ -65,7 +65,6 @@ namespace edmtest {
 
   struct Simple {
     Simple() : key(0), value(0.0) {}
-    Simple(Simple const& in) : key(in.key), value(in.value) {}
     virtual ~Simple();
     typedef cms_int32_t key_type;
     key_type    key;
@@ -87,7 +86,6 @@ namespace edmtest {
 
   struct SimpleDerived : public Simple {
     SimpleDerived() : Simple(), dummy(0.0) {}
-    SimpleDerived(SimpleDerived const& in) : Simple(in), dummy(in.dummy) {}
     virtual ~SimpleDerived();
     double dummy;
     virtual SimpleDerived* clone() const;
