@@ -252,6 +252,9 @@ void ELlimitsTable::setTimespan( const ELseverityLevel & sev, int n )  {
 
 ELlimitsTable & ELlimitsTable::operator=( const ELlimitsTable & t )  {
 
+  if(this == &t) {
+    return  *this; // self assignment
+  }
   limits = t.limits;  // The non-trivial operator= for a map!
 
   for ( int lev = 0;  lev < ELseverityLevel::nLevels;  ++lev )  {
