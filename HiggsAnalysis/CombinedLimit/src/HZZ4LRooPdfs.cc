@@ -7,6 +7,7 @@
 #include "TMath.h"
 #include <algorithm>
 
+using namespace TMath;
 
 namespace RooFit{
 	
@@ -1350,7 +1351,7 @@ namespace RooFit{
 
 
 /**********RooqqZZPdf*********/
-/* OLD VERSION OF THIS PDF
+
 ClassImp(RooqqZZPdf)
 
 RooqqZZPdf::RooqqZZPdf(const char *name, const char *title,
@@ -1414,10 +1415,84 @@ Double_t RooqqZZPdf::evaluate() const
 	double totalNLO = total*dynamicKqq;
 	return totalNLO ;
 }
-*/
-ClassImp(RooqqZZPdf)
 
-RooqqZZPdf::RooqqZZPdf(const char *name, const char *title,
+
+/************RooggZZPdf***********/
+
+ClassImp(RooggZZPdf)
+
+RooggZZPdf::RooggZZPdf(const char *name, const char *title,
+					   RooAbsReal& _m4l,
+					   RooAbsReal& _a1,
+					   RooAbsReal& _a2,
+					   RooAbsReal& _a3,
+					   RooAbsReal& _b1,
+					   RooAbsReal& _b2,
+					   RooAbsReal& _b3,
+					   RooAbsReal& _frac) :
+RooAbsPdf(name,title),
+m4l("m4l","m4l",this,_m4l),
+a1("a1","a1",this,_a1),
+a2("a2","a2",this,_a2),
+a3("a3","a3",this,_a3),
+b1("b1","b1",this,_b1),
+b2("b2","b2",this,_b2),
+b3("b3","b3",this,_b3),
+frac("frac","frac",this,_frac)
+{
+}
+
+
+RooggZZPdf::RooggZZPdf(const RooggZZPdf& other, const char* name) :
+RooAbsPdf(other,name),
+m4l("m4l",this,other.m4l),
+a1("a1",this,other.a1),
+a2("a2",this,other.a2),
+a3("a3",this,other.a3),
+b1("b1",this,other.b1),
+b2("b2",this,other.b2),
+b3("b3",this,other.b3),
+frac("frac",this,other.frac)
+{
+}
+
+Double_t RooggZZPdf::evaluate() const
+{
+	
+	//std::cout << "a1 = " << a1 << ", a2 = " << a2 << ", a3 = " << a3 << std::endl;                                                                    
+	//std::cout << "b1 = " << b1 << ", b2 = " << b2 << ", b3 = " << b3 << std::endl;                                                                    
+	
+	// ENTER EXPRESSION IN TERMS OF VARIABLE ARGUMENTS HERE                                                                                             
+	double signa = 0.;
+	if ((m4l-a1) > 0) { signa = 1.; }
+	else if ((m4l-a1) < 0) { signa = -1.; }
+	else { signa = 0.; }
+	
+	double signb = 0.;
+	if ((m4l-b1) > 0) { signb = 1.; }
+	else if ((m4l-b1) < 0) { signb = -1.; }
+	else { signb = 0.; }
+	
+	double bkglo = (0.5 + 0.5*signa * TMath::Erf(TMath::Abs(m4l-a1)/a2)) * exp(-1.*m4l/a3);
+	double bkghi = (0.5 + 0.5*signb * TMath::Erf(TMath::Abs(m4l-b1)/b2)) * exp(-1.*m4l/b3);
+	double total = bkglo*frac + (1-frac)*bkghi;
+	
+	double m_a = 0.17;
+	double m_b = -2.95e-04;
+	double m_c = 1.55e-07;
+	double m_d = 169.2;
+	double m_e = 45.94;	
+	double dynamicKgg = (m_a + m_b*m4l + m_c*m4l*m4l)*(0.5 + 0.5*TMath::Erf( (m4l-m_d)/m_e ) );
+	double totalNLO = total*dynamicKgg;
+	
+	return totalNLO ;
+}
+
+//// ------- v2 below ------
+
+ClassImp(RooqqZZPdf_v2)
+
+RooqqZZPdf_v2::RooqqZZPdf_v2(const char *name, const char *title,
 					   RooAbsReal& _m4l,
 					   RooAbsReal& _a0,
 					   RooAbsReal& _a1,
@@ -1455,7 +1530,7 @@ a13("a13","a13",this,_a13)
 }
 
 
-RooqqZZPdf::RooqqZZPdf(const RooqqZZPdf& other, const char* name) :
+RooqqZZPdf_v2::RooqqZZPdf_v2(const RooqqZZPdf_v2& other, const char* name) :
 RooAbsPdf(other,name),
 m4l("m4l",this,other.m4l),
 a0("a0",this,other.a0),
@@ -1477,7 +1552,7 @@ a13("a13",this,other.a13)
 }
 
 
-Double_t RooqqZZPdf::evaluate() const
+Double_t RooqqZZPdf_v2::evaluate() const
 {
 	
 	double ZZ = (.5+.5*TMath::Erf((m4l-a0)/a1))*(a3/(1+exp((m4l-a0)/a2)))+
@@ -1490,11 +1565,11 @@ Double_t RooqqZZPdf::evaluate() const
 
 
 
-/************RooggZZPdf***********/
+/************RooggZZPdf_v2***********/
 
-ClassImp(RooggZZPdf)
+ClassImp(RooggZZPdf_v2)
 
-RooggZZPdf::RooggZZPdf(const char *name, const char *title,
+RooggZZPdf_v2::RooggZZPdf_v2(const char *name, const char *title,
 					   RooAbsReal& _m4l,
 					   RooAbsReal& _a0,
 					   RooAbsReal& _a1,
@@ -1524,7 +1599,7 @@ a9("a9","a9",this,_a9)
 }
 
 
-RooggZZPdf::RooggZZPdf(const RooggZZPdf& other, const char* name) :
+RooggZZPdf_v2::RooggZZPdf_v2(const RooggZZPdf_v2& other, const char* name) :
 RooAbsPdf(other,name),
 m4l("m4l",this,other.m4l),
 a0("a0",this,other.a0),
@@ -1541,7 +1616,7 @@ a9("a9",this,other.a9)
 }
 
 
-Double_t RooggZZPdf::evaluate() const
+Double_t RooggZZPdf_v2::evaluate() const
 {
 	
 	double ZZ = (.5+.5*TMath::Erf((m4l-a0)/a1))*(a3/(1+exp((m4l-a0)/a2)))+
@@ -1550,6 +1625,641 @@ Double_t RooggZZPdf::evaluate() const
 	
 	return ZZ;
 }
+
+ClassImp(RooBetaFunc_v2) 
+
+RooBetaFunc_v2::RooBetaFunc_v2(){}
+
+RooBetaFunc_v2::RooBetaFunc_v2(const char *name, const char *title, 
+							   RooAbsReal& _mZstar,	     
+							   RooAbsReal& _mZ,
+							   RooAbsReal& _m0,
+							   RooAbsReal& _mZZ,	     
+							   RooAbsReal& _Gamma,
+							   RooAbsReal& _Gamma0,
+							   RooAbsReal& _a0,  // mZZ distribution vars
+							   RooAbsReal& _a1,
+							   RooAbsReal& _a2,
+							   RooAbsReal& _a3,
+							   RooAbsReal& _f,
+							   RooAbsReal& _f0
+							   ) :
+RooAbsPdf(name,title), 
+mZstar("mZstar","mZstar",this,_mZstar),
+mZ("mZ","mZ",this,_mZ),
+m0("m0","m0",this,_m0),
+mZZ("mZZ","mZZ",this,_mZZ),
+Gamma("Gamma","Gamma",this,_Gamma),
+Gamma0("Gamma0","Gamma0",this,_Gamma0),
+a0("a0","a0",this,_a0),
+a1("a1","a1",this,_a1),
+a2("a2","a2",this,_a2),
+a3("a3","a3",this,_a3),
+f("f","f",this,_f),
+f0("f0","f0",this,_f0)
+{ 
+} 
+
+
+RooBetaFunc_v2::RooBetaFunc_v2(const RooBetaFunc_v2& other, const char* name) :  
+RooAbsPdf(other,name), 
+mZstar("mZstar",this,other.mZstar),
+mZ("mZ",this,other.mZ),
+m0("m0",this,other.m0),
+mZZ("mZZ",this,other.mZZ),
+Gamma("Gamma",this,other.Gamma),
+Gamma0("Gamma0",this,other.Gamma0),
+a0("a0",this,other.a0),
+a1("a1",this,other.a1),
+a2("a2",this,other.a2),
+a3("a3",this,other.a3),
+f("f",this,other.f),
+f0("f0",this,other.f0)
+{ 
+} 
+
+
+
+double RooBetaFunc_v2::evaluate() const 
+{ 
+	
+	double mZDistribution, acceptance;
+	
+	//================= mZ Distribution =================
+	double beta= (1-(mZstar-mZ)*(mZstar-mZ)/(mZZ*mZZ))*(1-(mZstar+mZ)*(mZstar+mZ)/(mZZ*mZZ));
+	if(beta<0) return 0.0;
+	else mZDistribution = beta;
+	
+	//================= acceptance (chebychev polynomials) 
+	acceptance = a0+a1*mZstar+a2*(2*mZstar*mZstar-1)+a3*(4*mZstar*mZstar*mZstar-3*mZstar);
+	
+	//================= on-shell Z contamination ========
+	
+	double onShellZ = exp(-(mZstar-mZ)*(mZstar-mZ)/(2*Gamma*Gamma))/sqrt(2*3.1415*Gamma*Gamma);
+	//double errorFunc = TMath::Erf((mZstar - m0)/Gamma);
+	double errorFunc = exp(-(mZstar-m0)*(mZstar-m0)/(2*Gamma0*Gamma0))/sqrt(2*3.1415*Gamma0*Gamma0);
+	
+	//std::cout << mZZDistribution << " : " << mZDistribution << " : " << acceptance << std::endl;
+	double final =  mZDistribution*((1-f)*(f0*acceptance+(1-f0)*errorFunc)+f*onShellZ);
+	if (final <= 0) final = 1e-12;
+	return final;
+}
+
+ClassImp(Roo4lMasses2D_Bkg) 
+
+Roo4lMasses2D_Bkg::Roo4lMasses2D_Bkg(){}
+
+Roo4lMasses2D_Bkg::Roo4lMasses2D_Bkg(const char *name, const char *title, 
+									 RooAbsReal& _mZstar,	     
+									 RooAbsReal& _mZZ,	     
+									 RooAbsReal& _channelVal
+									 ) :
+RooAbsPdf(name,title), 
+mZstar("mZstar","mZstar",this,_mZstar),
+mZZ("mZZ","mZZ",this,_mZZ),
+channelVal("channelVal","channelVal",this,_channelVal)
+{ 
+} 
+
+
+Roo4lMasses2D_Bkg::Roo4lMasses2D_Bkg(const Roo4lMasses2D_Bkg& other, const char* name) :  
+RooAbsPdf(other,name), 
+mZstar("mZstar",this,other.mZstar),
+mZZ("mZZ",this,other.mZZ),
+channelVal("channelVal",this,other.channelVal)
+{ 
+} 
+
+
+double Roo4lMasses2D_Bkg::UnitStep(double arg) const
+{
+	if(arg<0.0){
+		return 0.0;
+	}
+	else{
+		return 1.0;
+	}
+}
+
+
+double Roo4lMasses2D_Bkg::evaluate() const 
+{ 
+	
+	double Gamma=0, mZ=0, a0=0, a1=0, a2=0, a3=0, Gamma0=0, m0=0, f=0, f0=0;
+	double a0_bkgd=0, a1_bkgd=0, a2_bkgd=0, a3_bkgd=0, a4_bkgd=0, a5_bkgd=0, a6_bkgd=0, a7_bkgd=0;
+	double a8_bkgd=0, a9_bkgd=0, a10_bkgd=0, a11_bkgd=0, a12_bkgd=0, a13_bkgd=0;
+	
+	a2 = 0.; a3 = 0.;
+	if (channelVal == 1.){
+		mZ = 91.2;
+		Gamma0 = 24.3063 + -0.169814*mZZ + 0.00274393*(mZZ - 108.86)*(mZZ - 108.86);
+		m0 = -273.264 + 6.81815*mZZ + -0.0520652*TMath::Power(mZZ,2) + 0.000129716*TMath::Power(mZZ,3);
+		a0 = 0.00205023 + 1.49685e-05*mZZ + 2.45743e-07*(mZZ - 110.553)*(mZZ - 110.553);
+		a1 = -34.7502 + 1.15173*mZZ +-0.0152287*TMath::Power(mZZ,2) + 0.000100538*TMath::Power(mZZ,3)+ -3.317e-07*TMath::Power(mZZ,4)+ 4.37829e-10*TMath::Power(mZZ,5);
+		a2 = 0.0710702 + -0.00232026*mZZ + 3.00042e-05*TMath::Power(mZZ,2) + -1.92831e-07*TMath::Power(mZZ,3)+ 6.18009e-10*TMath::Power(mZZ,4)+ -7.92751e-13*TMath::Power(mZZ,5);
+		f = 4.81681e-01*(TMath::Erf( (mZZ-1.47620e+02)/8.12397e-01 ) + 1.);
+		Gamma =  252.406 + -5.11437*mZZ + 0.0345238*TMath::Power(mZZ,2) + -7.44284e-05*TMath::Power(mZZ,3);
+		f0 = 3.68735e-01*(TMath::Erf( (mZZ-1.17687e+02)/2.61381e-01 ) + 1.);
+		/*
+		 Gamma = 1.50320e+01;
+		 Gamma0 = 83.4831 + -0.711931*mZZ + 0.0367013*(mZZ - 104.704)*(mZZ - 104.704);
+		 m0 = 146.261 + -1.12857*mZZ + 0.0401877*(mZZ - 106.72)*(mZZ - 106.72);
+		 a0 = -0.0348702 + 0.000251279*mZZ + 5.63152e-07*(mZZ - 106.548)*(mZZ - 106.548);
+		 a1 = 0.0013887 + -9.69053e-06*mZZ + 1.62389e-11*(mZZ - 105.303)*(mZZ - 105.303)*(mZZ - 105.303)*(mZZ - 105.303);
+		 f = 4.02164e-01*(TMath::Erf( (mZZ-1.55799e+02)/1.36356e+01 ) + 1.);
+		 f0 = 3.68735e-01*(TMath::Erf( (mZZ-1.17687e+02)/2.61381e-01 ) + 1.);	
+		 */
+		
+		a0_bkgd = 116.19;
+		a1_bkgd = 4.52219;
+		a2_bkgd = 105.493;
+		a3_bkgd = 0.0823749;
+		a4_bkgd = 180.89;
+		a5_bkgd = 9.58208;
+		a6_bkgd = 30.445;
+		a7_bkgd = 0.182481;
+		a8_bkgd = 56.1627;
+		a9_bkgd = 0.0957905;
+		a10_bkgd = 119.406;
+		a11_bkgd = -99.674;
+		a12_bkgd = 9995.69;
+		a13_bkgd = 0.110563;
+	}
+	else if (channelVal == 2.){
+		mZ = 91.2;
+		Gamma0 = 64.5791 + -0.465027*mZZ + 0.00680112*(mZZ - 109.083)*(mZZ - 109.083);
+		m0 = -4528.09 + 98.4925*mZZ + -0.70193*TMath::Power(mZZ,2) + 0.00164952*TMath::Power(mZZ,3);
+		a0 = 0.00205023 + 1.49685e-05*mZZ + 2.45743e-07*(mZZ - 110.553)*(mZZ - 110.553);
+		a1 = 0.0549555 + -0.000367875*mZZ + 6.16188e-10*(mZZ - 106.028)*(mZZ - 106.028)*(mZZ - 106.028)*(mZZ - 106.028);
+		a2 = -0.000222052 + 1.51606e-06*mZZ + -9.57278e-08*(mZZ - 144.667)*(mZZ - 144.667);
+		f = 4.82988e-01*(TMath::Erf( (mZZ-1.47620e+02)/8.12397e-01 ) + 1.);
+		Gamma =  252.406 + -5.11437*mZZ + 0.0345238*TMath::Power(mZZ,2) + -7.44284e-05*TMath::Power(mZZ,3);
+		f0 = 3.68735e-01*(TMath::Erf( (mZZ-1.17687e+02)/2.61381e-01 ) + 1.);	
+		
+		/*
+		 Gamma = 1.50320e+01;
+		 Gamma0 = -56.1597 + 0.542356*mZZ + -0.00250288*(mZZ - 107.336)*(mZZ - 107.336);
+		 m0 = -2.14585 + 0.188968*mZZ + 0.0210833*(mZZ - 108.32)*(mZZ - 108.32);
+		 a0 = 0.00205023 + 1.49685e-05*mZZ + 2.45743e-07*(mZZ - 110.553)*(mZZ - 110.553);
+		 a1 = -0.000170976 + 1.83011e-06*mZZ + -1.05582e-11*(mZZ - 105.893)*(mZZ - 105.893)*(mZZ - 105.893)*(mZZ - 105.893);
+		 f = 3.53555e-01*(TMath::Erf( (mZZ-1.53281e+02)/1.75311e+00 ) + 1.);
+		 f0 = 3.68735e-01*(TMath::Erf( (mZZ-1.17687e+02)/2.61381e-01 ) + 1.);
+		 */
+		a0_bkgd = 120.096;
+		a1_bkgd = 15.6766;
+		a2_bkgd = 149.141;
+		a3_bkgd = 0.0361427;
+		a4_bkgd = 181.587;
+		a5_bkgd = 10.4505;
+		a6_bkgd = 9.17084;
+		a7_bkgd = 0.0345372;
+		a8_bkgd = 38.655;
+		a9_bkgd = 0.114464;
+		a10_bkgd = 87.2772;
+		a11_bkgd = -6.94956;
+		a12_bkgd = 3.35268;
+		a13_bkgd = 0.0320278;
+		/*
+		 a0_bkgd = 114.507;
+		 a1_bkgd = 16.8809;
+		 a2_bkgd = 116.481;
+		 a3_bkgd = 0.0386084;
+		 a4_bkgd = 182.841;
+		 a5_bkgd = 15.2248;
+		 a6_bkgd = 27.79;
+		 a7_bkgd = 0.133664;
+		 a8_bkgd = 59.2288;
+		 a9_bkgd = 0.0400656;
+		 a10_bkgd = 93.8226;
+		 a11_bkgd = -2.64585;
+		 a12_bkgd = 5066.99;
+		 a13_bkgd = 0.125328;	
+		 */
+	}
+	else if (channelVal == 3.){
+		mZ = 91.2;
+		Gamma0 = 36.9986 + -0.250136*mZZ + 0.00474031*(mZZ - 108.732)*(mZZ - 108.732);
+		m0 = -3266.9 + 73.5969*mZZ + -0.544448*TMath::Power(mZZ,2) + 0.00133127*TMath::Power(mZZ,3);
+		a0 = 0.00205023 + 1.49685e-05*mZZ + 2.45743e-07*(mZZ - 110.553)*(mZZ - 110.553);
+		a1 = 0.0206819 + -0.000168968*mZZ + 4.26934e-11*(mZZ - 40.4456)*(mZZ - 40.4456)*(mZZ - 40.4456)*(mZZ - 40.4456);
+		a2 = -1.271e-05 + 8.742e-08*mZZ + -6.34276e-08*(mZZ - 144.032)*(mZZ - 144.032);
+		f = 4.82988e-01*(TMath::Erf( (mZZ-1.47620e+02)/8.12397e-01 ) + 1.);
+		Gamma =  252.406 + -5.11437*mZZ + 0.0345238*TMath::Power(mZZ,2) + -7.44284e-05*TMath::Power(mZZ,3);
+		f0 = 3.68735e-01*(TMath::Erf( (mZZ-1.17687e+02)/2.61381e-01 ) + 1.);	
+		/*
+		 Gamma = 1.50320e+01;
+		 mZ = 91.2;
+		 Gamma0 = -78.9298 + 0.744417*mZZ + -0.0105399*(mZZ - 109.541)*(mZZ - 109.541);
+		 m0 = -76.0686 + 0.840304*mZZ + -0.00797722*(mZZ - 105.677)*(mZZ - 105.677);
+		 a0 = 0.378445 + -0.00310967*mZZ + 5.78471e-05*(mZZ - 107.739)*(mZZ - 107.739);
+		 a1 = 0.00109279 + -8.90024e-06*mZZ + 5.21042e-12*(mZZ - 103.517)*(mZZ - 103.517)*(mZZ - 103.517)*(mZZ - 103.517);
+		 f = 4.81681e-01*(TMath::Erf( (mZZ-1.30465e+02)/8.69644e-01 ) + 1.);
+		 f0 = 3.68735e-01*(TMath::Erf( (mZZ-1.17687e+02)/2.61381e-01 ) + 1.);
+		 */
+		a0_bkgd = 114.504;
+		a1_bkgd = 14.3013;
+		a2_bkgd = 101.43;
+		a3_bkgd = 0.0455842;
+		a4_bkgd = 179.976;
+		a5_bkgd = 9.89769;
+		a6_bkgd = 28.5377;
+		a7_bkgd = 0.0692236;
+		a8_bkgd = 51.5593;
+		a9_bkgd = 0.0561965;
+		a10_bkgd = 101.547;
+		a11_bkgd = -1.71367;
+		a12_bkgd = 7513.75;
+		a13_bkgd = 0.543254;
+	}
+	else{
+		std::cout << "Invalid paramters for this PDF!" << std::endl;
+	}
+	
+	
+	//  ZZ shape
+	double ZZshape = (.5+.5*TMath::Erf((mZZ-a0_bkgd)/a1_bkgd))*(a3_bkgd/(1+exp((mZZ-a0_bkgd)/a2_bkgd)))+(.5+.5*TMath::Erf((mZZ-a4_bkgd)/a5_bkgd))*(a7_bkgd/(1+exp((mZZ-a4_bkgd)/a6_bkgd))+a9_bkgd/(1+exp((mZZ-a4_bkgd)/a8_bkgd)))+(.5+.5*TMath::Erf((mZZ-a10_bkgd)/a11_bkgd))*(a13_bkgd/(1+exp((mZZ-a10_bkgd)/a12_bkgd)) );
+	
+	
+	double mZDistribution, acceptance;
+	
+	//================= mZ Distribution =================
+	double beta= (1-(mZstar-mZ)*(mZstar-mZ)/(mZZ*mZZ))*(1-(mZstar+mZ)*(mZstar+mZ)/(mZZ*mZZ));
+	if(beta<0) return 0.0000001;
+	else mZDistribution = beta;
+	
+	//================= acceptance (chebychev polynomials) 
+	acceptance = a0+a1*mZstar+a2*(2*mZstar*mZstar-1)+a3*(4*mZstar*mZstar*mZstar-3*mZstar);
+	
+	//================= on-shell Z contamination ========
+	
+	double onShellZ = exp(-(mZstar-mZ)*(mZstar-mZ)/(2*Gamma*Gamma))/sqrt(2*3.1415*Gamma*Gamma);
+	//double errorFunc = TMath::Erf((mZstar - m0)/Gamma);
+	double errorFunc = exp(-(mZstar-m0)*(mZstar-m0)/(2*Gamma0*Gamma0))/sqrt(2*3.1415*Gamma0*Gamma0);
+	
+	//std::cout << mZZDistribution << " : " << mZDistribution << " : " << acceptance << std::endl;
+	double final =  mZDistribution*((1-f)*(f0*acceptance+(1-f0)*errorFunc)+f*onShellZ);
+	if (final <= 0) final = 1e-12;
+	
+	///*
+	double integral;
+	double E = 2.71828183;
+	
+	// ========================================================
+	// integral
+	///*
+	double mZstarFix=12.;
+	double integralT1Lo=((1 - f)*f0*((a1*Power(mZstarFix,6))/6. + (2*a2*Power(mZstarFix,7))/7. + (a0 - a2)*mZstarFix*Power(Power(mZ,2) - Power(mZZ,2),2) + (a1*Power(mZstarFix,2)*Power(Power(mZ,2) - Power(mZZ,2),2))/2. - (a1*Power(mZstarFix,4)*(Power(mZ,2) + Power(mZZ,2)))/2. + (Power(mZstarFix,5)*(a0 - a2*(1 + 4*Power(mZ,2) + 4*Power(mZZ,2))))/5. + (2*Power(mZstarFix,3)*(-(a0*(Power(mZ,2) + Power(mZZ,2))) + a2*(Power(mZ,4) + Power(mZZ,2) + Power(mZZ,4) + Power(mZ,2)*(1 - 2*Power(mZZ,2)))))/3.))/Power(mZZ,4);
+	mZstarFix=mZZ-mZ;
+	double integralT1Hi=((1 - f)*f0*((a1*Power(mZstarFix,6))/6. + (2*a2*Power(mZstarFix,7))/7. + (a0 - a2)*mZstarFix*Power(Power(mZ,2) - Power(mZZ,2),2) + (a1*Power(mZstarFix,2)*Power(Power(mZ,2) - Power(mZZ,2),2))/2. - (a1*Power(mZstarFix,4)*(Power(mZ,2) + Power(mZZ,2)))/2. + (Power(mZstarFix,5)*(a0 - a2*(1 + 4*Power(mZ,2) + 4*Power(mZZ,2))))/5. + (2*Power(mZstarFix,3)*(-(a0*(Power(mZ,2) + Power(mZZ,2))) + a2*(Power(mZ,4) + Power(mZZ,2) + Power(mZZ,4) + Power(mZ,2)*(1 - 2*Power(mZZ,2)))))/3.))/Power(mZZ,4);
+	
+	//std::cout << "IntegralHI: " << integralT1Hi << ", IntegralLO: " << integralT1Lo << std::endl;
+	
+	mZstarFix=12.;
+	double t2loA = (3*Power(Gamma0,4) + Power(m0,4) + Power(mZ,4) - 2*Power(Gamma0,2)*Power(mZZ,2) + Power(mZZ,4) + Power(m0,2)*(6*Power(Gamma0,2) - 2*Power(mZ,2) - 2*Power(mZZ,2)) - 2*Power(mZ,2)*(Power(Gamma0,2) + Power(mZZ,2)));
+	double integralT2Lo=((-1 + f)*(-1 + f0)*(-1.*((Power(Gamma0,2)*(Power(m0,3) + Power(m0,2)*mZstarFix + mZstarFix*(3*Power(Gamma0,2) - 2*Power(mZ,2) + Power(mZstarFix,2) - 2*Power(mZZ,2)) + m0*(5*Power(Gamma0,2) - 2*Power(mZ,2) + Power(mZstarFix,2) - 2*Power(mZZ,2))))/Power(E,Power(m0 - mZstarFix,2)/(2.*Power(Gamma0,2)))) - Gamma0*t2loA*sqrt(TMath::Pi()/2.)*TMath::Erf((m0 - mZstarFix)/(sqrt(2)*Gamma0))))/Power(mZZ,4);
+	integralT2Lo/=sqrt(2*TMath::Pi()*Gamma0*Gamma0);
+	mZstarFix=mZZ-mZ;
+	double t2hiA = (3*Power(Gamma0,4) + Power(m0,4) + Power(mZ,4) - 2*Power(Gamma0,2)*Power(mZZ,2) + Power(mZZ,4) + Power(m0,2)*(6*Power(Gamma0,2) - 2*Power(mZ,2) - 2*Power(mZZ,2)) - 2*Power(mZ,2)*(Power(Gamma0,2) + Power(mZZ,2)));
+	double integralT2Hi=((-1 + f)*(-1 + f0)*(-1.*((Power(Gamma0,2)*(Power(m0,3) + Power(m0,2)*mZstarFix + mZstarFix*(3*Power(Gamma0,2) - 2*Power(mZ,2) + Power(mZstarFix,2) - 2*Power(mZZ,2)) + m0*(5*Power(Gamma0,2) - 2*Power(mZ,2) + Power(mZstarFix,2) - 2*Power(mZZ,2))))/Power(E,Power(m0 - mZstarFix,2)/(2.*Power(Gamma0,2)))) - Gamma0*t2hiA*sqrt(TMath::Pi()/2.)*TMath::Erf((m0 - mZstarFix)/(sqrt(2)*Gamma0))))/Power(mZZ,4);
+	integralT2Hi/=sqrt(2*TMath::Pi()*Gamma0*Gamma0);
+	
+	mZstarFix=12.;
+	double t3loA = (3*Power(Gamma,4) + 4*Power(Gamma,2)*Power(mZ,2) - 2*(Power(Gamma,2) + 2*Power(mZ,2))*Power(mZZ,2) + Power(mZZ,4));
+	double integralT3Lo=(f*((Power(Gamma,2)*(Power(mZ,3) + Power(mZ,2)*mZstarFix - mZstarFix*(3*Power(Gamma,2) + Power(mZstarFix,2) - 2*Power(mZZ,2)) - mZ*(5*Power(Gamma,2) + Power(mZstarFix,2) - 2*Power(mZZ,2))))/Power(E,Power(mZ - mZstarFix,2)/(2.*Power(Gamma,2))) - Gamma*t3loA*sqrt(TMath::Pi()/2.)*TMath::Erf((mZ - mZstarFix)/(sqrt(2)*Gamma))))/Power(mZZ,4);
+	integralT3Lo/=sqrt(2*TMath::Pi()*Gamma*Gamma);
+	mZstarFix=mZZ-mZ;
+	double t3hiA = (3*Power(Gamma,4) + 4*Power(Gamma,2)*Power(mZ,2) - 2*(Power(Gamma,2) + 2*Power(mZ,2))*Power(mZZ,2) + Power(mZZ,4));
+	double integralT3Hi=(f*((Power(Gamma,2)*(Power(mZ,3) + Power(mZ,2)*mZstarFix - mZstarFix*(3*Power(Gamma,2) + Power(mZstarFix,2) - 2*Power(mZZ,2)) - mZ*(5*Power(Gamma,2) + Power(mZstarFix,2) - 2*Power(mZZ,2))))/Power(E,Power(mZ - mZstarFix,2)/(2.*Power(Gamma,2))) - Gamma*t3hiA*sqrt(TMath::Pi()/2.)*TMath::Erf((mZ - mZstarFix)/(sqrt(2)*Gamma))))/Power(mZZ,4);
+	integralT3Hi/=sqrt(2*TMath::Pi()*Gamma*Gamma);
+	
+	integral = integralT1Hi + integralT2Hi + integralT3Hi - integralT1Lo - integralT2Lo - integralT3Lo;
+	
+	if (integral <= 0.) {
+		std::cout << "integral is less than zero...." << std::endl;
+		//integral = 100000000.;
+	}
+	
+	return (final/integral)*ZZshape;
+	//*/
+	//return final;
+}
+
+
+// 2D ggzz
+
+ClassImp(Roo4lMasses2D_BkgGGZZ) 
+
+Roo4lMasses2D_BkgGGZZ::Roo4lMasses2D_BkgGGZZ(){}
+
+Roo4lMasses2D_BkgGGZZ::Roo4lMasses2D_BkgGGZZ(const char *name, const char *title, 
+									 RooAbsReal& _mZstar,	     
+									 RooAbsReal& _mZZ,	     
+									 RooAbsReal& _channelVal
+									 ) :
+RooAbsPdf(name,title), 
+mZstar("mZstar","mZstar",this,_mZstar),
+mZZ("mZZ","mZZ",this,_mZZ),
+channelVal("channelVal","channelVal",this,_channelVal)
+{ 
+} 
+
+
+Roo4lMasses2D_BkgGGZZ::Roo4lMasses2D_BkgGGZZ(const Roo4lMasses2D_BkgGGZZ& other, const char* name) :  
+RooAbsPdf(other,name), 
+mZstar("mZstar",this,other.mZstar),
+mZZ("mZZ",this,other.mZZ),
+channelVal("channelVal",this,other.channelVal)
+{ 
+} 
+
+
+double Roo4lMasses2D_BkgGGZZ::UnitStep(double arg) const
+{
+	if(arg<0.0){
+		return 0.0;
+	}
+	else{
+		return 1.0;
+	}
+}
+
+
+double Roo4lMasses2D_BkgGGZZ::evaluate() const 
+{ 
+	
+	double Gamma=0, mZ=0, a0=0, a1=0, a2=0, a3=0, Gamma0=0, m0=0, f=0, f0=0;
+	double a0_bkgd=0, a1_bkgd=0, a2_bkgd=0, a3_bkgd=0, a4_bkgd=0, a5_bkgd=0, a6_bkgd=0, a7_bkgd=0;
+	double a8_bkgd=0, a9_bkgd=0, a10_bkgd=0, a11_bkgd=0, a12_bkgd=0, a13_bkgd=0;
+	
+	a2 = 0.; a3 = 0.;
+	if (channelVal == 1.){
+		mZ = 91.2;
+		Gamma0 = 24.3063 + -0.169814*mZZ + 0.00274393*(mZZ - 108.86)*(mZZ - 108.86);
+		m0 = -273.264 + 6.81815*mZZ + -0.0520652*TMath::Power(mZZ,2) + 0.000129716*TMath::Power(mZZ,3);
+		a0 = 0.00205023 + 1.49685e-05*mZZ + 2.45743e-07*(mZZ - 110.553)*(mZZ - 110.553);
+		a1 = -34.7502 + 1.15173*mZZ +-0.0152287*TMath::Power(mZZ,2) + 0.000100538*TMath::Power(mZZ,3)+ -3.317e-07*TMath::Power(mZZ,4)+ 4.37829e-10*TMath::Power(mZZ,5);
+		a2 = 0.0710702 + -0.00232026*mZZ + 3.00042e-05*TMath::Power(mZZ,2) + -1.92831e-07*TMath::Power(mZZ,3)+ 6.18009e-10*TMath::Power(mZZ,4)+ -7.92751e-13*TMath::Power(mZZ,5);
+		f = 4.81681e-01*(TMath::Erf( (mZZ-1.47620e+02)/8.12397e-01 ) + 1.);
+		Gamma =  252.406 + -5.11437*mZZ + 0.0345238*TMath::Power(mZZ,2) + -7.44284e-05*TMath::Power(mZZ,3);
+		f0 = 3.68735e-01*(TMath::Erf( (mZZ-1.17687e+02)/2.61381e-01 ) + 1.);
+
+		a0_bkgd = 138.962;
+		a1_bkgd = 30.6644;
+		a2_bkgd = 102.09;
+		a3_bkgd = 0.0416272;
+		a4_bkgd = 178.464;
+		a5_bkgd = 12.6718;
+		a6_bkgd = 38.1437;
+		a7_bkgd = 0.13019;
+		a8_bkgd = 38.1146;
+		a9_bkgd = 0.0277349;
+	}
+	else if (channelVal == 2.){
+		mZ = 91.2;
+		Gamma0 = 64.5791 + -0.465027*mZZ + 0.00680112*(mZZ - 109.083)*(mZZ - 109.083);
+		m0 = -4528.09 + 98.4925*mZZ + -0.70193*TMath::Power(mZZ,2) + 0.00164952*TMath::Power(mZZ,3);
+		a0 = 0.00205023 + 1.49685e-05*mZZ + 2.45743e-07*(mZZ - 110.553)*(mZZ - 110.553);
+		a1 = 0.0549555 + -0.000367875*mZZ + 6.16188e-10*(mZZ - 106.028)*(mZZ - 106.028)*(mZZ - 106.028)*(mZZ - 106.028);
+		a2 = -0.000222052 + 1.51606e-06*mZZ + -9.57278e-08*(mZZ - 144.667)*(mZZ - 144.667);
+		f = 4.82988e-01*(TMath::Erf( (mZZ-1.47620e+02)/8.12397e-01 ) + 1.);
+		Gamma =  252.406 + -5.11437*mZZ + 0.0345238*TMath::Power(mZZ,2) + -7.44284e-05*TMath::Power(mZZ,3);
+		f0 = 3.68735e-01*(TMath::Erf( (mZZ-1.17687e+02)/2.61381e-01 ) + 1.);	
+		
+		a0_bkgd = 138.962;
+		a1_bkgd = 30.6644;
+		a2_bkgd = 102.09;
+		a3_bkgd = 0.0416272;
+		a4_bkgd = 178.464;
+		a5_bkgd = 12.6718;
+		a6_bkgd = 38.1437;
+		a7_bkgd = 0.13019;
+		a8_bkgd = 38.1146;
+		a9_bkgd = 0.0277349;		
+	}
+	else if (channelVal == 3.){
+		mZ = 91.2;
+		Gamma0 = 36.9986 + -0.250136*mZZ + 0.00474031*(mZZ - 108.732)*(mZZ - 108.732);
+		m0 = -3266.9 + 73.5969*mZZ + -0.544448*TMath::Power(mZZ,2) + 0.00133127*TMath::Power(mZZ,3);
+		a0 = 0.00205023 + 1.49685e-05*mZZ + 2.45743e-07*(mZZ - 110.553)*(mZZ - 110.553);
+		a1 = 0.0206819 + -0.000168968*mZZ + 4.26934e-11*(mZZ - 40.4456)*(mZZ - 40.4456)*(mZZ - 40.4456)*(mZZ - 40.4456);
+		a2 = -1.271e-05 + 8.742e-08*mZZ + -6.34276e-08*(mZZ - 144.032)*(mZZ - 144.032);
+		f = 4.82988e-01*(TMath::Erf( (mZZ-1.47620e+02)/8.12397e-01 ) + 1.);
+		Gamma =  252.406 + -5.11437*mZZ + 0.0345238*TMath::Power(mZZ,2) + -7.44284e-05*TMath::Power(mZZ,3);
+		f0 = 3.68735e-01*(TMath::Erf( (mZZ-1.17687e+02)/2.61381e-01 ) + 1.);	
+
+		a0_bkgd = 138.962;
+		a1_bkgd = 30.6644;
+		a2_bkgd = 102.09;
+		a3_bkgd = 0.0416272;
+		a4_bkgd = 178.464;
+		a5_bkgd = 12.6718;
+		a6_bkgd = 38.1437;
+		a7_bkgd = 0.13019;
+		a8_bkgd = 38.1146;
+		a9_bkgd = 0.0277349;
+	}
+	else{
+		std::cout << "Invalid paramters for this PDF!" << std::endl;
+	}
+	
+	
+	//  ZZ shape
+	double ZZshape = (.5+.5*TMath::Erf((mZZ-a0_bkgd)/a1_bkgd))*(a3_bkgd/(1+exp((mZZ-a0_bkgd)/a2_bkgd)))+(.5+.5*TMath::Erf((mZZ-a4_bkgd)/a5_bkgd))*(a7_bkgd/(1+exp((mZZ-a4_bkgd)/a6_bkgd))+a9_bkgd/(1+exp((mZZ-a4_bkgd)/a8_bkgd)));
+	
+	
+	double mZDistribution, acceptance;
+	
+	//================= mZ Distribution =================
+	double beta= (1-(mZstar-mZ)*(mZstar-mZ)/(mZZ*mZZ))*(1-(mZstar+mZ)*(mZstar+mZ)/(mZZ*mZZ));
+	if(beta<0) return 0.0000001;
+	else mZDistribution = beta;
+	
+	//================= acceptance (chebychev polynomials) 
+	acceptance = a0+a1*mZstar+a2*(2*mZstar*mZstar-1)+a3*(4*mZstar*mZstar*mZstar-3*mZstar);
+	
+	//================= on-shell Z contamination ========
+	
+	double onShellZ = exp(-(mZstar-mZ)*(mZstar-mZ)/(2*Gamma*Gamma))/sqrt(2*3.1415*Gamma*Gamma);
+	//double errorFunc = TMath::Erf((mZstar - m0)/Gamma);
+	double errorFunc = exp(-(mZstar-m0)*(mZstar-m0)/(2*Gamma0*Gamma0))/sqrt(2*3.1415*Gamma0*Gamma0);
+	
+	//std::cout << mZZDistribution << " : " << mZDistribution << " : " << acceptance << std::endl;
+	double final =  mZDistribution*((1-f)*(f0*acceptance+(1-f0)*errorFunc)+f*onShellZ);
+	if (final <= 0) final = 1e-12;
+	
+	///*
+	double integral;
+	double E = 2.71828183;
+	
+	// ========================================================
+	// integral
+	///*
+	double mZstarFix=12.;
+	double integralT1Lo=((1 - f)*f0*((a1*Power(mZstarFix,6))/6. + (2*a2*Power(mZstarFix,7))/7. + (a0 - a2)*mZstarFix*Power(Power(mZ,2) - Power(mZZ,2),2) + (a1*Power(mZstarFix,2)*Power(Power(mZ,2) - Power(mZZ,2),2))/2. - (a1*Power(mZstarFix,4)*(Power(mZ,2) + Power(mZZ,2)))/2. + (Power(mZstarFix,5)*(a0 - a2*(1 + 4*Power(mZ,2) + 4*Power(mZZ,2))))/5. + (2*Power(mZstarFix,3)*(-(a0*(Power(mZ,2) + Power(mZZ,2))) + a2*(Power(mZ,4) + Power(mZZ,2) + Power(mZZ,4) + Power(mZ,2)*(1 - 2*Power(mZZ,2)))))/3.))/Power(mZZ,4);
+	mZstarFix=mZZ-mZ;
+	double integralT1Hi=((1 - f)*f0*((a1*Power(mZstarFix,6))/6. + (2*a2*Power(mZstarFix,7))/7. + (a0 - a2)*mZstarFix*Power(Power(mZ,2) - Power(mZZ,2),2) + (a1*Power(mZstarFix,2)*Power(Power(mZ,2) - Power(mZZ,2),2))/2. - (a1*Power(mZstarFix,4)*(Power(mZ,2) + Power(mZZ,2)))/2. + (Power(mZstarFix,5)*(a0 - a2*(1 + 4*Power(mZ,2) + 4*Power(mZZ,2))))/5. + (2*Power(mZstarFix,3)*(-(a0*(Power(mZ,2) + Power(mZZ,2))) + a2*(Power(mZ,4) + Power(mZZ,2) + Power(mZZ,4) + Power(mZ,2)*(1 - 2*Power(mZZ,2)))))/3.))/Power(mZZ,4);
+	
+	//std::cout << "IntegralHI: " << integralT1Hi << ", IntegralLO: " << integralT1Lo << std::endl;
+	
+	mZstarFix=12.;
+	double t2loA = (3*Power(Gamma0,4) + Power(m0,4) + Power(mZ,4) - 2*Power(Gamma0,2)*Power(mZZ,2) + Power(mZZ,4) + Power(m0,2)*(6*Power(Gamma0,2) - 2*Power(mZ,2) - 2*Power(mZZ,2)) - 2*Power(mZ,2)*(Power(Gamma0,2) + Power(mZZ,2)));
+	double integralT2Lo=((-1 + f)*(-1 + f0)*(-1.*((Power(Gamma0,2)*(Power(m0,3) + Power(m0,2)*mZstarFix + mZstarFix*(3*Power(Gamma0,2) - 2*Power(mZ,2) + Power(mZstarFix,2) - 2*Power(mZZ,2)) + m0*(5*Power(Gamma0,2) - 2*Power(mZ,2) + Power(mZstarFix,2) - 2*Power(mZZ,2))))/Power(E,Power(m0 - mZstarFix,2)/(2.*Power(Gamma0,2)))) - Gamma0*t2loA*sqrt(TMath::Pi()/2.)*TMath::Erf((m0 - mZstarFix)/(sqrt(2)*Gamma0))))/Power(mZZ,4);
+	integralT2Lo/=sqrt(2*TMath::Pi()*Gamma0*Gamma0);
+	mZstarFix=mZZ-mZ;
+	double t2hiA = (3*Power(Gamma0,4) + Power(m0,4) + Power(mZ,4) - 2*Power(Gamma0,2)*Power(mZZ,2) + Power(mZZ,4) + Power(m0,2)*(6*Power(Gamma0,2) - 2*Power(mZ,2) - 2*Power(mZZ,2)) - 2*Power(mZ,2)*(Power(Gamma0,2) + Power(mZZ,2)));
+	double integralT2Hi=((-1 + f)*(-1 + f0)*(-1.*((Power(Gamma0,2)*(Power(m0,3) + Power(m0,2)*mZstarFix + mZstarFix*(3*Power(Gamma0,2) - 2*Power(mZ,2) + Power(mZstarFix,2) - 2*Power(mZZ,2)) + m0*(5*Power(Gamma0,2) - 2*Power(mZ,2) + Power(mZstarFix,2) - 2*Power(mZZ,2))))/Power(E,Power(m0 - mZstarFix,2)/(2.*Power(Gamma0,2)))) - Gamma0*t2hiA*sqrt(TMath::Pi()/2.)*TMath::Erf((m0 - mZstarFix)/(sqrt(2)*Gamma0))))/Power(mZZ,4);
+	integralT2Hi/=sqrt(2*TMath::Pi()*Gamma0*Gamma0);
+	
+	mZstarFix=12.;
+	double t3loA = (3*Power(Gamma,4) + 4*Power(Gamma,2)*Power(mZ,2) - 2*(Power(Gamma,2) + 2*Power(mZ,2))*Power(mZZ,2) + Power(mZZ,4));
+	double integralT3Lo=(f*((Power(Gamma,2)*(Power(mZ,3) + Power(mZ,2)*mZstarFix - mZstarFix*(3*Power(Gamma,2) + Power(mZstarFix,2) - 2*Power(mZZ,2)) - mZ*(5*Power(Gamma,2) + Power(mZstarFix,2) - 2*Power(mZZ,2))))/Power(E,Power(mZ - mZstarFix,2)/(2.*Power(Gamma,2))) - Gamma*t3loA*sqrt(TMath::Pi()/2.)*TMath::Erf((mZ - mZstarFix)/(sqrt(2)*Gamma))))/Power(mZZ,4);
+	integralT3Lo/=sqrt(2*TMath::Pi()*Gamma*Gamma);
+	mZstarFix=mZZ-mZ;
+	double t3hiA = (3*Power(Gamma,4) + 4*Power(Gamma,2)*Power(mZ,2) - 2*(Power(Gamma,2) + 2*Power(mZ,2))*Power(mZZ,2) + Power(mZZ,4));
+	double integralT3Hi=(f*((Power(Gamma,2)*(Power(mZ,3) + Power(mZ,2)*mZstarFix - mZstarFix*(3*Power(Gamma,2) + Power(mZstarFix,2) - 2*Power(mZZ,2)) - mZ*(5*Power(Gamma,2) + Power(mZstarFix,2) - 2*Power(mZZ,2))))/Power(E,Power(mZ - mZstarFix,2)/(2.*Power(Gamma,2))) - Gamma*t3hiA*sqrt(TMath::Pi()/2.)*TMath::Erf((mZ - mZstarFix)/(sqrt(2)*Gamma))))/Power(mZZ,4);
+	integralT3Hi/=sqrt(2*TMath::Pi()*Gamma*Gamma);
+	
+	integral = integralT1Hi + integralT2Hi + integralT3Hi - integralT1Lo - integralT2Lo - integralT3Lo;
+	
+	if (integral <= 0.) {
+		std::cout << "integral is less than zero...." << std::endl;
+		//integral = 100000000.;
+	}
+	
+	return (final/integral)*ZZshape;
+	//*/
+	//return final;
+}
+
+// --------------------------------------------------------------------
+// --------------------------------------------------------------------
+// backgrounds above
+// --------------------------------------------------------------------
+// --------------------------------------------------------------------
+
+// --------------------------------------------------------------------
+// 2D signal
+
+ClassImp(Roo4lMasses2D) 
+
+Roo4lMasses2D::Roo4lMasses2D(){}
+
+Roo4lMasses2D::Roo4lMasses2D(const char *name, const char *title, 
+							 RooAbsReal& _mZstar,
+							 RooAbsReal& _mZ,
+							 RooAbsReal& _mZZ,
+							 RooAbsReal& _Gamma,
+							 RooAbsReal& _p0,
+							 RooAbsReal& _p1,
+							 RooAbsReal& _p2,
+							 RooAbsReal& _CBmean,
+							 RooAbsReal& _CBwidth,
+							 RooAbsReal& _CBalpha,
+							 RooAbsReal& _CBn
+							 
+							 ) :
+RooAbsPdf(name,title), 
+mZstar("mZstar","mZstar",this,_mZstar),
+mZ("mZ","mZ",this,_mZ),
+mZZ("mZZ","mZZ",this,_mZZ),
+Gamma("Gamma","Gamma",this,_Gamma),
+p0("p0","p0",this,_p0),
+p1("p1","p1",this,_p1),
+p2("p2","p2",this,_p2),
+CBmean("CBmean","CBmean",this,_CBmean),
+CBwidth("CBwidth","CBwidth",this,_CBwidth),
+CBalpha("CBalpha","CBalpha",this,_CBalpha),
+CBn("CBn","CBn",this,_CBn)
+
+{ 
+} 
+
+Roo4lMasses2D::Roo4lMasses2D(const Roo4lMasses2D& other, const char* name) :  
+RooAbsPdf(other,name), 
+mZstar("mZstar",this,other.mZstar),
+mZ("mZ",this,other.mZ),
+mZZ("mZZ",this,other.mZZ),
+Gamma("Gamma",this,other.Gamma),
+p0("p0",this,other.p0),
+p1("p1",this,other.p1),
+p2("p2",this,other.p2),
+CBmean("CBmean"  ,this,other.CBmean),
+CBwidth("CBwidth",this,other.CBwidth),
+CBalpha("CBalpha",this,other.CBalpha),
+CBn("CBn",this,other.CBn)
+
+{ 
+} 
+
+double Roo4lMasses2D::evaluate() const 
+{ 
+	double mZstarDistribution;
+	double Numerator,Denominator,beta;
+	beta = (1-(mZstar-mZ)*(mZstar-mZ)/(mZZ*mZZ))*(1-(mZstar+mZ)*(mZstar+mZ)/(mZZ*mZZ));
+	
+	if(beta<0.0) return 1e-12;
+	
+	///*
+	//Numerator = mZstar*mZstar*sqrt(beta)*(2+(mZstar*mZstar-mZZ*mZZ+mZ*mZ)*(mZstar*mZstar-mZZ*mZZ+mZ*mZ)/(4*mZstar*mZstar*mZ*mZ));
+	Numerator = mZstar*mZstar*sqrt(beta)*(2+(mZstar*mZstar-mZZ*mZZ+mZ*mZ)*(mZstar*mZstar-mZZ*mZZ+mZ*mZ)/(4*mZstar*mZstar*mZ*mZ));
+	Denominator = 2*(mZstar*mZstar-mZ*mZ)*(mZstar*mZstar-mZ*mZ)-2*mZ*mZ*Gamma*Gamma;
+	
+	//mZstarDistribution = Numerator/Denominator;
+	mZstarDistribution = Numerator/Denominator;
+	//*/
+	//mZstarDistribution = 1;
+	
+	double acceptance = p0+p1*mZstar+p2*mZstar*mZstar;
+	//double acceptance = 1;
+	
+	
+	double mZZDistribution;
+	/*
+	 Double_t arg= mZZ - CBmean;  
+	 Double_t ret =exp(-0.5*arg*arg/(CBwidth*CBwidth)) ;
+	 //cout << "gauss x = " << x << " mean = " << mean << " sigma = " << sigma << endl ;
+	 mZZDistribution = ret ;
+	 //*/
+	///*
+	//// CB Shape
+	double t = (mZZ-CBmean)/CBwidth;
+	//std:cout << "CBwidth: " << CBwidth << " CBmean: " << CBmean << " mZZ: " << mZZ << std::endl;
+	if (CBalpha < 0) t = -t;
+	
+	double absAlpha = fabs((double)CBalpha);
+	
+	//std::cout << "t = " << t << std::endl;
+	if (t >= -absAlpha) {
+		
+		mZZDistribution = exp(-0.5*t*t);
+		//std::cout << "Gaussian!! " << -.5*t*t << " : " << mZZDistribution << std::endl;
+		
+	}
+	else {
+		double a =  TMath::Power(CBn/absAlpha,CBn)*exp(-0.5*absAlpha*absAlpha);
+		double b = CBn/absAlpha - absAlpha;
+		
+		//std::cout << "power!!! a: " << a << " b: " << b << endl;
+		
+		mZZDistribution = a/TMath::Power(b - t, CBn);
+		
+	}
+	//*/
+	
+	
+	//std::cout << "t: " << t << " absAlpha: " << absAlpha << std::endl;
+	
+	//double final = mZstarDistribution*acceptance;
+	double final = mZstarDistribution*acceptance*mZZDistribution;
+	if (final <= 0) final = 1e-12;
+	
+	return final;
+}
+
+
+
+// --------------------------------------------------------------------
+
 
 /************RooFourMuMassShapePdf2***********/
 

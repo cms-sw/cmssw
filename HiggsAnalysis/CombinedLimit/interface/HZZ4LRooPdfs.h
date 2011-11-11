@@ -36,12 +36,83 @@ namespace RooFit{
 	
 }
 */
-
-
 class RooqqZZPdf : public RooAbsPdf {
 public:
 	RooqqZZPdf() {} ;
 	RooqqZZPdf(const char *name, const char *title,
+			   RooAbsReal& _m4l,
+			   RooAbsReal& _a1,
+			   RooAbsReal& _a2,
+			   RooAbsReal& _a3,
+			   RooAbsReal& _b1,
+			   RooAbsReal& _b2,
+			   RooAbsReal& _b3,
+			   RooAbsReal& _frac);
+	RooqqZZPdf(const RooqqZZPdf& other, const char* name=0) ;
+	virtual TObject* clone(const char* newname) const { return new RooqqZZPdf(*this,newname); }
+	inline virtual ~RooqqZZPdf() { }
+	
+protected:
+	
+	RooRealProxy m4l ;
+	RooRealProxy a1 ;
+	RooRealProxy a2 ;
+	RooRealProxy a3 ;
+	RooRealProxy b1 ;
+	RooRealProxy b2 ;
+	RooRealProxy b3 ;
+	RooRealProxy frac ;
+	
+	Double_t evaluate() const ;
+	
+private:
+	
+	ClassDef(RooqqZZPdf,1) // Your description goes here...                                                                                                   
+};
+
+
+
+class RooggZZPdf : public RooAbsPdf {
+public:
+	RooggZZPdf() {} ;
+	RooggZZPdf(const char *name, const char *title,
+			   RooAbsReal& _m4l,
+			   RooAbsReal& _a1,
+			   RooAbsReal& _a2,
+			   RooAbsReal& _a3,
+			   RooAbsReal& _b1,
+			   RooAbsReal& _b2,
+			   RooAbsReal& _b3,
+			   RooAbsReal& _frac);
+	RooggZZPdf(const RooggZZPdf& other, const char* name=0) ;
+	virtual TObject* clone(const char* newname) const { return new RooggZZPdf(*this,newname); }
+	inline virtual ~RooggZZPdf() { }
+	
+protected:
+	
+	RooRealProxy m4l ;
+	RooRealProxy a1 ;
+	RooRealProxy a2 ;
+	RooRealProxy a3 ;
+	RooRealProxy b1 ;
+	RooRealProxy b2 ;
+	RooRealProxy b3 ;
+	RooRealProxy frac ;
+	
+	Double_t evaluate() const ;
+	
+private:
+	
+	ClassDef(RooggZZPdf,1) // Your description goes here...                                                                                                   
+};
+
+// ------- v2 below -------
+
+
+class RooqqZZPdf_v2 : public RooAbsPdf {
+public:
+	RooqqZZPdf_v2() {} ;
+	RooqqZZPdf_v2(const char *name, const char *title,
 			   RooAbsReal& _m4l,
 			   RooAbsReal& _a0,
 			   RooAbsReal& _a1,
@@ -59,9 +130,9 @@ public:
 			   RooAbsReal& _a13
 			   
 			   );
-	RooqqZZPdf(const RooqqZZPdf& other, const char* name=0) ;
-	virtual TObject* clone(const char* newname) const { return new RooqqZZPdf(*this,newname); }
-	inline virtual ~RooqqZZPdf() { }
+	RooqqZZPdf_v2(const RooqqZZPdf_v2& other, const char* name=0) ;
+	virtual TObject* clone(const char* newname) const { return new RooqqZZPdf_v2(*this,newname); }
+	inline virtual ~RooqqZZPdf_v2() { }
 	
 protected:
 	
@@ -86,15 +157,15 @@ protected:
 	
 private:
 	
-	ClassDef(RooqqZZPdf,1) // Your description goes here...                                                                                                   
+	ClassDef(RooqqZZPdf_v2,1) // Your description goes here...                                                                                                   
 };
 
 
 
-class RooggZZPdf : public RooAbsPdf {
+class RooggZZPdf_v2 : public RooAbsPdf {
 public:
-	RooggZZPdf() {} ;
-	RooggZZPdf(const char *name, const char *title,
+	RooggZZPdf_v2() {} ;
+	RooggZZPdf_v2(const char *name, const char *title,
 			   RooAbsReal& _m4l,
 			   RooAbsReal& _a0,
 			   RooAbsReal& _a1,
@@ -108,9 +179,9 @@ public:
 			   RooAbsReal& _a9
 			   
 			   );
-	RooggZZPdf(const RooggZZPdf& other, const char* name=0) ;
-	virtual TObject* clone(const char* newname) const { return new RooggZZPdf(*this,newname); }
-	inline virtual ~RooggZZPdf() { }
+	RooggZZPdf_v2(const RooggZZPdf_v2& other, const char* name=0) ;
+	virtual TObject* clone(const char* newname) const { return new RooggZZPdf_v2(*this,newname); }
+	inline virtual ~RooggZZPdf_v2() { }
 	
 protected:
 	
@@ -130,11 +201,154 @@ protected:
 	
 private:
 	
-	ClassDef(RooggZZPdf,1) // Your description goes here...                                                                                                   
+	ClassDef(RooggZZPdf_v2,1) // Your description goes here...                                                                                                   
 };
 
+class RooBetaFunc_v2 : public RooAbsPdf {
+public:
+	RooBetaFunc_v2();
+	RooBetaFunc_v2(const char *name, const char *title,
+				   RooAbsReal& _mZstar,	     
+				   RooAbsReal& _mZ,	     
+				   RooAbsReal& _m0,	     
+				   RooAbsReal& _mZZ,	     
+				   RooAbsReal& _Gamma,
+				   RooAbsReal& _Gamma0,
+				   RooAbsReal& _a0,  // mZZ distribution vars
+				   RooAbsReal& _a1, 
+				   RooAbsReal& _a2,
+				   RooAbsReal& _a3,
+				   RooAbsReal& _f,
+				   RooAbsReal& _f0
+				   );
+	RooBetaFunc_v2(const RooBetaFunc_v2& other, const char* name=0) ;
+	virtual TObject* clone(const char* newname) const { return new RooBetaFunc_v2(*this,newname); }
+	inline virtual ~RooBetaFunc_v2() { }
+	
+protected:
+	
+    RooRealProxy mZstar;	     
+    RooRealProxy mZ;     
+	RooRealProxy m0;     
+    RooRealProxy mZZ;     
+    RooRealProxy Gamma;
+	RooRealProxy Gamma0;
+    RooRealProxy a0;  // mZZ distribution vars
+    RooRealProxy a1;  // mZZ distribution vars
+    RooRealProxy a2;
+    RooRealProxy a3;
+    RooRealProxy f;
+	RooRealProxy f0;
+	
+    Double_t evaluate() const ;
+	
+private:
+	
+	ClassDef(RooBetaFunc_v2,1) 
+};
 
+class Roo4lMasses2D_Bkg : public RooAbsPdf {
+public:
+	Roo4lMasses2D_Bkg();
+	Roo4lMasses2D_Bkg(const char *name, const char *title,
+					  RooAbsReal& _mZstar,	       
+					  RooAbsReal& _mZZ,	     
+					  RooAbsReal& _channelVal	     
+					  );
+	Roo4lMasses2D_Bkg(const Roo4lMasses2D_Bkg& other, const char* name=0) ;
+	virtual TObject* clone(const char* newname) const { return new Roo4lMasses2D_Bkg(*this,newname); }
+	inline virtual ~Roo4lMasses2D_Bkg() { }
+	
+protected:
+	
+    RooRealProxy mZstar;	     
+    RooRealProxy mZZ;     
+    RooRealProxy channelVal;     
+	
+    Double_t evaluate() const ;
+    Double_t UnitStep(double arg) const;
+private:
+	
+	ClassDef(Roo4lMasses2D_Bkg,1) 
+};
 
+//------------------------
+
+class Roo4lMasses2D_BkgGGZZ : public RooAbsPdf {
+public:
+	Roo4lMasses2D_BkgGGZZ();
+	Roo4lMasses2D_BkgGGZZ(const char *name, const char *title,
+					  RooAbsReal& _mZstar,	       
+					  RooAbsReal& _mZZ,	     
+					  RooAbsReal& _channelVal	     
+					  );
+	Roo4lMasses2D_BkgGGZZ(const Roo4lMasses2D_BkgGGZZ& other, const char* name=0) ;
+	virtual TObject* clone(const char* newname) const { return new Roo4lMasses2D_BkgGGZZ(*this,newname); }
+	inline virtual ~Roo4lMasses2D_BkgGGZZ() { }
+	
+protected:
+	
+    RooRealProxy mZstar;	     
+    RooRealProxy mZZ;     
+    RooRealProxy channelVal;     
+	
+    Double_t evaluate() const ;
+    Double_t UnitStep(double arg) const;
+private:
+	
+	ClassDef(Roo4lMasses2D_BkgGGZZ,1) 
+};
+
+// --------------------------------------------------------------------
+// --------------------------------------------------------------------
+// backgrounds above
+// --------------------------------------------------------------------
+// --------------------------------------------------------------------
+
+// --------------------------------------
+// 2D signal
+class Roo4lMasses2D : public RooAbsPdf {
+public:
+	Roo4lMasses2D();
+	Roo4lMasses2D(const char *name, const char *title,
+				  RooAbsReal& _mZstar,         
+				  RooAbsReal& _mZ,             
+				  RooAbsReal& _mZZ,            
+				  RooAbsReal& _Gamma,          
+				  RooAbsReal& _p0,             
+				  RooAbsReal& _p1,             
+				  RooAbsReal& _p2,             
+				  RooAbsReal& _CBmean,         
+				  RooAbsReal& _CBwidth,        
+				  RooAbsReal& _CBalpha,        
+				  RooAbsReal& _CBn             
+				  );
+	Roo4lMasses2D(const Roo4lMasses2D& other, const char* name=0) ;
+	virtual TObject* clone(const char* newname) const { return new Roo4lMasses2D(*this,newname); }
+	inline virtual ~Roo4lMasses2D() { }
+	
+protected:
+	
+    RooRealProxy mZstar;             
+    RooRealProxy mZ;     
+    RooRealProxy mZZ;     
+    RooRealProxy Gamma;     
+    RooRealProxy p0;     
+    RooRealProxy p1;     
+    RooRealProxy p2;     
+    RooRealProxy CBmean;    
+    RooRealProxy CBwidth;    
+    RooRealProxy CBalpha;            
+    RooRealProxy CBn;             
+	
+    Double_t evaluate() const ;
+	
+private:
+	
+	ClassDef(Roo4lMasses2D,1) 
+};
+
+// --------------------------------------
 
 class RooFourMuMassShapePdf2 : public RooAbsPdf {
 public:

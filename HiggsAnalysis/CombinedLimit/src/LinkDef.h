@@ -30,6 +30,12 @@
 #pragma link C++ function th1fmorph;
 #pragma link C++ class RooqqZZPdf+;
 #pragma link C++ class RooggZZPdf+;
+#pragma link C++ class RooqqZZPdf_v2+;
+#pragma link C++ class RooggZZPdf_v2+;
+#pragma link C++ class RooBetaFunc_v2+;
+#pragma link C++ class Roo4lMasses2D+;
+#pragma link C++ class Roo4lMasses2D_Bkg+;
+#pragma link C++ class Roo4lMasses2D_BkgGGZZ+;
 #pragma link C++ class RooFourMuMassShapePdf2+;
 #pragma link C++ class RooFourEMassShapePdf2+;
 #pragma link C++ class RooTwoETwoMuMassShapePdf2+;
