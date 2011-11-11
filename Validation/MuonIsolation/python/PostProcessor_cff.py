@@ -20,6 +20,12 @@ postProcessorMuonIsolation = cms.EDAnalyzer(
                                           "muonPhi",
                                           "avgPt",
                                           "weightedEt",
+                                          "PFsumChargedHadronPt",
+                                          "PFsumChargedTotalPt",
+                                          "PFsumEMuPt",
+                                          "PFsumNeutralHadronEt",
+                                          "PFsumPhotonEt",
+                                          "PFsumPUPt",
                                           "sumPt_cd",
                                           "emEt_cd",
                                           "hadEt_cd",
@@ -34,8 +40,14 @@ postProcessorMuonIsolation = cms.EDAnalyzer(
                                           "muonEta_cd",
                                           "muonPhi_cd",
                                           "avgPt_cd",
-                                          "weightedEt_cd"
-                                          ),
+                                          "weightedEt_cd",
+                                          "PFsumChargedHadronPt_cd",
+                                          "PFsumChargedTotalPt_cd",
+                                          "PFsumEMuPt_cd",
+                                          "PFsumNeutralHadronEt_cd",
+                                          "PFsumPhotonEt_cd",
+                                          "PFsumPUPt_cd"
+                                         ),
     cumulativeDists = cms.untracked.vstring("sumPt_cd",
                                             "emEt_cd",
                                             "hadEt_cd",
@@ -48,7 +60,13 @@ postProcessorMuonIsolation = cms.EDAnalyzer(
                                             "hoVetoEt_cd",
                                             "muonPt_cd",
                                             "avgPt_cd",
-                                            "weightedEt_cd"
+                                            "weightedEt_cd",
+                                            "PFsumChargedHadronPt_cd",
+                                            "PFsumChargedTotalPt_cd",
+                                            "PFsumEMuPt_cd",
+                                            "PFsumNeutralHadronEt_cd",
+                                            "PFsumPhotonEt_cd",
+                                            "PFsumPUPt_cd"
                                             ),
     outputFileName = cms.untracked.string("")
 )        

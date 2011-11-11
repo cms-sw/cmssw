@@ -98,7 +98,7 @@ private:
   std::string subDirName;
 
   //Histogram parameters
-  static const int NUM_VARS = 15;
+  static const int NUM_VARS = 21;
   double L_BIN_WIDTH;//large bins
   double S_BIN_WIDTH;//small bins
   int LOG_BINNING_ENABLED;//pseudo log binning for profile plots
@@ -114,7 +114,8 @@ private:
   std::vector<std::string> axis_titles;//[NUM_VARS]
   std::vector<std::string> names;//[NUM_VARS]
   std::vector< std::vector<double> > param;//[NUM_VARS][3]
-  std::vector<int> isContinuous;//[NUM_VARs]
+  std::vector<int> isContinuous;//[NUM_VARS]
+  std::vector<int> cdCompNeeded;//[NUM_VARS]
   
   //---------------Dynamic Variables---------------------
   
@@ -135,7 +136,7 @@ private:
   //Counters
   int nEvents;
   int nIncMuons;
-  int nCombinedMuons;
+  //  int nCombinedMuons;
   
   //enums for monitorElement
   enum {NOAXIS,XAXIS,YAXIS,ZAXIS};

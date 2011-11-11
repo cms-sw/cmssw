@@ -76,7 +76,7 @@ MuIsoValidation::MuIsoValidation(const edm::ParameterSet& iConfig)
   //-------Initialize counters----------------
   nEvents = 0;
   nIncMuons = 0;   
-  nCombinedMuons = 0;
+  //  nCombinedMuons = 0;
   
   InitStatics();
   
@@ -140,6 +140,7 @@ void MuIsoValidation::InitStatics(){
   names.resize(NUM_VARS);
   param.resize(NUM_VARS, vector<double>(3) );
   isContinuous.resize(NUM_VARS);
+  cdCompNeeded.resize(NUM_VARS);
   
   //-----Titles of the plots-----------
   main_titles[0 ] = "Total Tracker Momentum";
@@ -157,6 +158,12 @@ void MuIsoValidation::InitStatics(){
   main_titles[12] = "Muon #phi";
   main_titles[13] = "Average Momentum per Track ";
   main_titles[14] = "Weighted Energy";
+  main_titles[15] = "PF Sum of Charged Hadron Pt";
+  main_titles[16] = "PF Sum of Total Hadron Pt";
+  main_titles[17] = "PF Sum of E,Mu Pt";
+  main_titles[18] = "PF Sum of Neutral Hadron Et";
+  main_titles[19] = "PF Sum of Photon Et";
+  main_titles[20] = "PF Sum of Pt from non-PV";
 
   //------Titles on the X or Y axis------------
   axis_titles[0 ] = "#Sigma p_{T}   (GeV)";
@@ -174,6 +181,12 @@ void MuIsoValidation::InitStatics(){
   axis_titles[12] = "#phi_{#mu}";
   axis_titles[13] = "#Sigma p_{T} / N_{Tracks} (GeV)";
   axis_titles[14] = "(1.5) X #Sigma E_{T}^{EM} + #Sigma E_{T}^{Had}";
+  axis_titles[15] = "#Sigma p_{T}^{PFHadCha}   (GeV)";
+  axis_titles[16] = "#Sigma p_{T}^{PFTotCha}   (GeV)";
+  axis_titles[17] = "#Sigma p_{T}^{PFEMu}   (GeV)";
+  axis_titles[18] = "#Sigma E_{T}^{PFHadNeu}   (GeV)";
+  axis_titles[19] = "#Sigma E_{T}^{PFPhot}   (GeV)";
+  axis_titles[20] = "#Sigma p_{T}^{PFPU}   (GeV)";
 
   //-----------Names given for the root file----------
   names[0 ] = "sumPt";
@@ -191,6 +204,12 @@ void MuIsoValidation::InitStatics(){
   names[12] = "muonPhi";
   names[13] = "avgPt";
   names[14] = "weightedEt";
+  names[15] = "PFsumChargedHadronPt";
+  names[16] = "PFsumChargedTotalPt";
+  names[17] = "PFsumEMuPt";
+  names[18] = "PFsumNeutralHadronEt";
+  names[19] = "PFsumPhotonEt";
+  names[20] = "PFsumPUPt";
 
   //----------Parameters for binning of histograms---------
   //param[var][0] is the number of bins
@@ -215,6 +234,12 @@ void MuIsoValidation::InitStatics(){
   param[12][0]=                       32; param[12][1]= -3.2; param[12][2]=                      3.2;
   param[13][0]= (int)( 15.0/S_BIN_WIDTH); param[13][1]=  0.0; param[13][2]= param[13][0]*S_BIN_WIDTH;
   param[14][0]= (int)( 20.0/S_BIN_WIDTH); param[14][1]=  0.0; param[14][2]= param[14][0]*S_BIN_WIDTH;
+  param[15][0]= (int)( 20.0/S_BIN_WIDTH); param[15][1]=  0.0; param[15][2]= param[15][0]*S_BIN_WIDTH;
+  param[16][0]= (int)( 20.0/S_BIN_WIDTH); param[15][1]=  0.0; param[16][2]= param[16][0]*S_BIN_WIDTH;
+  param[17][0]= (int)( 20.0/S_BIN_WIDTH)+1; param[17][1]= -S_BIN_WIDTH; param[17][2]= param[17][0]*S_BIN_WIDTH;
+  param[18][0]= (int)( 20.0/S_BIN_WIDTH); param[18][1]=  0.0; param[18][2]= param[18][0]*S_BIN_WIDTH;
+  param[19][0]= (int)( 20.0/S_BIN_WIDTH); param[19][1]=  0.0; param[19][2]= param[19][0]*S_BIN_WIDTH;
+  param[20][0]= (int)( 20.0/S_BIN_WIDTH); param[20][1]=  0.0; param[20][2]= param[20][0]*S_BIN_WIDTH;
 
   //--------------Is the variable continuous (i.e. non-integer)?-------------
   //---------(Log binning will only be used for continuous variables)--------
@@ -233,7 +258,35 @@ void MuIsoValidation::InitStatics(){
   isContinuous[12] = 1;
   isContinuous[13] = 1;
   isContinuous[14] = 1;
+  isContinuous[15] = 1;
+  isContinuous[16] = 1;
+  isContinuous[17] = 1;
+  isContinuous[18] = 1;
+  isContinuous[19] = 1;
+  isContinuous[20] = 1;
 
+  //----Should the cumulative distribution be calculated for this variable?-----
+  cdCompNeeded[0 ] = 1;
+  cdCompNeeded[1 ] = 1;
+  cdCompNeeded[2 ] = 1;
+  cdCompNeeded[3 ] = 1;
+  cdCompNeeded[4 ] = 1;
+  cdCompNeeded[5 ] = 1;
+  cdCompNeeded[6 ] = 1;
+  cdCompNeeded[7 ] = 1;
+  cdCompNeeded[8 ] = 1;
+  cdCompNeeded[9 ] = 1;
+  cdCompNeeded[10] = 0;
+  cdCompNeeded[11] = 0;
+  cdCompNeeded[12] = 0;
+  cdCompNeeded[13] = 1;
+  cdCompNeeded[14] = 1;
+  cdCompNeeded[15] = 1;
+  cdCompNeeded[16] = 1;
+  cdCompNeeded[17] = 1;
+  cdCompNeeded[18] = 1;
+  cdCompNeeded[19] = 1;
+  cdCompNeeded[20] = 1;
 }
 
 
@@ -260,7 +313,7 @@ void MuIsoValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     if (requireCombinedMuon) {
       if (muon->combinedMuon().isNull()) continue;
     }
-    ++nCombinedMuons;
+    //    ++nCombinedMuons;
     RecordData(muon);
     FillHistos();
   }
@@ -293,6 +346,22 @@ void MuIsoValidation::RecordData(MuonIterator muon){
   else theData[13] = -99;
 
   theData[14] = 1.5 * theData[1] + theData[2];
+
+  // Now PF isolation 
+  theData[15] = -99.;
+  theData[16] = -99.;
+  theData[17] = -99.;
+  theData[18] = -99.;
+  theData[19] = -99.;
+  theData[20] = -99.;
+  if ( muon->isPFMuon() && muon->isPFIsolationValid() ) {
+    theData[15] = muon->pfIsolationR03().sumChargedHadronPt;
+    theData[16] = muon->pfIsolationR03().sumChargedParticlePt;
+    theData[17] = muon->pfIsolationR03().sumChargedParticlePt-muon->pfIsolationR03().sumChargedHadronPt;
+    theData[18] = muon->pfIsolationR03().sumNeutralHadronEt;
+    theData[19] = muon->pfIsolationR03().sumPhotonEt;
+    theData[20] = muon->pfIsolationR03().sumPUPt;
+  }
 
 }
 
@@ -354,22 +423,22 @@ void MuIsoValidation::InitHistos(){
 			    param[var][1], 
 			    param[var][2]
 			    );
-    cd_plots[var] = dbe->book1D(
-				names[var] + "_cd", 
-				title_sam + title_cd + main_titles[var] + title_cone, 
-				(int)param[var][0], 
-				param[var][1], 
-				param[var][2]
-				);
-    
     h_1D[var]->setAxisTitle(axis_titles[var],XAXIS);
     h_1D[var]->setAxisTitle("Fraction of Muons",YAXIS);
     GetTH1FromMonitorElement(h_1D[var])->Sumw2();
-    
-    cd_plots[var]->setAxisTitle(axis_titles[var],XAXIS);
-    cd_plots[var]->setAxisTitle("Fraction of Muons",YAXIS);
-    GetTH1FromMonitorElement(cd_plots[var])->Sumw2();
-    
+
+    if (cdCompNeeded[var]) {
+      cd_plots[var] = dbe->book1D(
+				  names[var] + "_cd", 
+				  title_sam + title_cd + main_titles[var] + title_cone, 
+				  (int)param[var][0], 
+				  param[var][1], 
+				  param[var][2]
+				  );
+      cd_plots[var]->setAxisTitle(axis_titles[var],XAXIS);
+      cd_plots[var]->setAxisTitle("Fraction of Muons",YAXIS);
+      GetTH1FromMonitorElement(cd_plots[var])->Sumw2();
+    }
   }//Finish 1D
   
   //---Initialize 2D Histograms---
@@ -407,8 +476,7 @@ void MuIsoValidation::InitHistos(){
 	Double_t * bin_edges = new Double_t[NUM_LOG_BINS+1];
 	// nbins+1 because there is one more edge than there are bins
 	MakeLogBinsForProfile(bin_edges, param[var1][1], param[var1][2]);
-	GetTProfileFromMonitorElement(p_2D[var1][var2])->
-	  SetBins(NUM_LOG_BINS, bin_edges);
+	GetTProfileFromMonitorElement(p_2D[var1][var2])->SetBins(NUM_LOG_BINS, bin_edges);
 	delete[] bin_edges;
       }
       /*      h_2D[var1][var2]->setAxisTitle(axis_titles[var1],XAXIS);
@@ -457,19 +525,17 @@ void MuIsoValidation::NormalizeHistos() {
     //underflow -> bin #0.  overflow -> bin #(nbins+1)
     //0th bin doesn't need changed
     
+    //----normalize------
     double entries = GetTH1FromMonitorElement(h_1D[var])->GetEntries();
     if (entries==0)continue;
-    int n_max = int(param[var][0])+1;
-    for(int n=1; n<=n_max; ++n){
-      cd_plots[var]->setBinContent(n, cd_plots[var]->getBinContent(n) + cd_plots[var]->getBinContent(n-1)); //Integrate.
-    }
-    //----normalize------
-    if (requireCombinedMuon) {
-      GetTH1FromMonitorElement(h_1D[var])->Scale(1./entries);
-      GetTH1FromMonitorElement(cd_plots[var])->Scale(1./entries);
-    }
-    else {
-      GetTH1FromMonitorElement(h_1D[var])->Scale(1./entries);
+    GetTH1FromMonitorElement(h_1D[var])->Scale(1./entries);
+
+    if (cdCompNeeded[var]) {
+      int n_max = int(param[var][0])+1;
+      for(int n=1; n<=n_max; ++n){
+	cd_plots[var]->setBinContent(n, cd_plots[var]->getBinContent(n) + cd_plots[var]->getBinContent(n-1)); //Integrate.
+      }
+      //----normalize------
       GetTH1FromMonitorElement(cd_plots[var])->Scale(1./entries);
     }
   }
@@ -483,7 +549,7 @@ void MuIsoValidation::FillHistos() {
   //----------Fill 1D histograms---------------
   for(int var=0; var<NUM_VARS; var++){  
     h_1D[var]->Fill(theData[var]);
-    cd_plots[var]->Fill(theData[var]);//right now, this is a regular PDF (just like h_1D)
+    if (cdCompNeeded[var]) cd_plots[var]->Fill(theData[var]);//right now, this is a regular PDF (just like h_1D)
     if (theData[var] > param[var][2]) {
       // fill the overflow bin
       overFlowBin = (int) param[var][0] + 1;
