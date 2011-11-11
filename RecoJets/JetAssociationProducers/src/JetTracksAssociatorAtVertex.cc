@@ -21,9 +21,14 @@ JetTracksAssociatorAtVertex::JetTracksAssociatorAtVertex(const edm::ParameterSet
     mTracks (fConfig.getParameter<edm::InputTag> ("tracks")),
     mAssociator (fConfig.getParameter<double> ("coneSize")),
     mAssociatorAssigned (fConfig.getParameter<double> ("coneSize")),
-    useAssigned( fConfig.getParameter<bool> ("useAssigned") ),
-    pvSrc ( fConfig.getParameter<edm::InputTag> ("pvSrc") )
+    useAssigned(false), pvSrc()
 {
+
+  if ( fConfig.exists("useAssigned") ) {
+    useAssigned = fConfig.getParameter<bool> ("useAssigned");
+    pvSrc = fConfig.getParameter<edm::InputTag> ("pvSrc");
+  }
+
   produces<reco::JetTracksAssociation::Container> ();
 }
 
