@@ -2,10 +2,9 @@
 VERSION='2.00'
 import os,sys,time
 import coral
-#import optparse
 from RecoLuminosity.LumiDB import sessionManager,lumiTime,inputFilesetParser,csvSelectionParser,selectionParser,csvReporter,argparse,CommonUtil,lumiCalcAPI,lumiReport,lumiCorrections
 
-beamChoices=['PROTPHYS','IONPHYS']
+beamChoices=['PROTPHYS','IONPHYS','PAPHYS']
 
 def parseInputFiles(inputfilename,dbrunlist,optaction):
     '''
@@ -57,7 +56,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(prog=os.path.basename(sys.argv[0]),description = "Lumi Calculation",formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     allowedActions = ['overview', 'delivered', 'recorded', 'lumibyls','lumibylsXing','status']
     beamModeChoices = [ "stable", "quiet", "either"]
-    amodetagChoices = [ "PROTPHYS","IONPHYS" ]
+    amodetagChoices = [ "PROTPHYS","IONPHYS",'PAPHYS' ]
     xingAlgoChoices =[ "OCC1","OCC2","ET"]
     #
     # parse arguments
@@ -106,7 +105,7 @@ if __name__ == '__main__':
     parser.add_argument('-amodetag',dest='amodetag',action='store',
                         choices=amodetagChoices,
                         required=False,
-                        help='specific accelerator mode choices [PROTOPHYS,IONPHYS] (optional)')
+                        help='specific accelerator mode choices [PROTOPHYS,IONPHYS,PAPHYS] (optional)')
     parser.add_argument('-beamenergy',dest='beamenergy',action='store',
                         type=float,
                         default=None,
