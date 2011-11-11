@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_4_2/GRun/V25 (CMSSW_4_4_0_HLT12)
+# /dev/CMSSW_4_4_2/GRun/V26 (CMSSW_4_4_0_HLT12)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/GRun/V25')
+  tableName = cms.string('/dev/CMSSW_4_4_2/GRun/V26')
 )
 
 process.streams = cms.PSet( 
@@ -36472,6 +36472,8 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
       'keep recoRecoEcalCandidatesToValuefloatAssociation_hltL1NonIsolatedPhotonHcalIsol_*_*',
       'keep recoRecoEcalCandidates_hltL1IsoRecoEcalCandidate_*_*',
       'keep recoRecoEcalCandidates_hltL1NonIsoRecoEcalCandidate_*_*',
+      'keep recoTrackExtras_hltHIL3MuonsOIHit_*_*',
+      'keep recoTrackExtras_hltHIL3MuonsOIState_*_*',
       'keep recoTracks_hltHIL3MuonsOIHit_*_*',
       'keep recoTracks_hltHIL3MuonsOIState_*_*',
       'keep recoTracks_hltHIL3Muons_*_*',
@@ -37053,6 +37055,8 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
       'keep recoRecoEcalCandidatesToValuefloatAssociation_hltL1NonIsolatedPhotonHcalIsol_*_*',
       'keep recoRecoEcalCandidates_hltL1IsoRecoEcalCandidate_*_*',
       'keep recoRecoEcalCandidates_hltL1NonIsoRecoEcalCandidate_*_*',
+      'keep recoTrackExtras_hltHIL3MuonsOIHit_*_*',
+      'keep recoTrackExtras_hltHIL3MuonsOIState_*_*',
       'keep recoTracks_hltHIL3MuonsOIHit_*_*',
       'keep recoTracks_hltHIL3MuonsOIState_*_*',
       'keep recoTracks_hltHIL3Muons_*_*',
