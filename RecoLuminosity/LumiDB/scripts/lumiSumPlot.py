@@ -102,9 +102,10 @@ if __name__=='__main__':
     finecorrections=None
     if options.action=='perday' or options.action=='instpeakperday':
         maxDrawnDay=int(lut.StrToDatetime(begtime,customfm='%m/%d/%y %H:%M:%S').date().toordinal())
-        for drawnDay in [ int(t[0]) for t in resultlines]:
-            if drawnDay>maxDrawnDay:
-                maxDrawnDay=drawnDay
+        if resultlines:
+            for drawnDay in [ int(t[0]) for t in resultlines]:
+                if drawnDay>maxDrawnDay:
+                    maxDrawnDay=drawnDay
         #print maxDrawnDay
         midnight=datetime.time()
         begT=datetime.datetime.combine(datetime.date.fromordinal(maxDrawnDay),midnight)
@@ -112,10 +113,14 @@ if __name__=='__main__':
         runsinrange=lumiCalcAPI.runList(schema,runmin=None,runmax=None,startT=begTStr,stopT=endtime,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
         #print 'runs after maxDrawnDay ',runsinrange
     if options.action=='run' or options.action=='time':
-        lastDrawnRun=max([int(t[0]) for t in resultlines])
+        lastDrawnRun=None
+        if resultlines:
+            lastDrawnRun=max([int(t[0]) for t in resultlines])
         runsinrange=lumiCalcAPI.runList(schema,runmin=lastDrawnRun,runmax=None,startT=begtime,stopT=endtime,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
     if options.action=='fill':
-        lastDrawnFill=max([int(t[0]) for t in resultlines])
+        lastDrawnRun=None
+        if resultlines:
+            lastDrawnFill=max([int(t[0]) for t in resultlines])
         #print lastDrawnFill
         startrun=min([int(t[1]) for t in resultlines if int(t[0])==lastDrawnFill])
         runsinrange=lumiCalcAPI.runList(schema,runmin=startrun,runmax=None,startT=begtime,stopT=endtime,l1keyPattern=None,hltkeyPattern=None,amodetag=options.amodetag,nominalEnergy=options.beamenergy,energyFlut=options.beamfluctuation,requiretrg=reqTrg,requirehlt=reqHlt)
