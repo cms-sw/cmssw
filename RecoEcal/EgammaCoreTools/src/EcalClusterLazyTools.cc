@@ -361,6 +361,7 @@ float EcalClusterLazyTools::BasicClusterTime(const reco::BasicCluster &cluster, 
       // the constant used to build timeError is largely over-estimated ; remove in quadrature 0.6 and add 0.15 back.
       // could be prettier if value of constant term was changed at recHit production level
       if (timeError>0.6) timeError = sqrt( timeError*timeError - 0.6*0.6 + 0.15*0.15);
+      else               timeError = sqrt( timeError*timeError           + 0.15*0.15);
 
       // do the error weighting
       weightedTsum += (*oneHit).time() / (timeError*timeError);
