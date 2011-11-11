@@ -26,8 +26,6 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetupFwd.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutSetup.h"
 #include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMapRecord.h"
-#include "L1Trigger/GlobalTrigger/interface/L1GtAlgorithmEvaluation.h"
-
 
 #include "DataFormats/L1GlobalMuonTrigger/interface/L1MuGMTCand.h"
 
@@ -136,10 +134,6 @@ private:
 
     std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlAlgorithmOR;
     std::bitset<L1GlobalTriggerReadoutSetup::NumberPhysTriggers> m_gtlDecisionWord;
-
-  // cache of maps
-  std::vector<L1GtAlgorithmEvaluation::ConditionEvaluationMap> m_conditionResultMaps;
-  
 
 private:
 

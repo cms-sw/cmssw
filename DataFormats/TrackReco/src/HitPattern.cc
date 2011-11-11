@@ -156,8 +156,8 @@ int HitPattern::numberOfHits() const {
   int count = 0;
   for (int i=0; i<(PatternSize * 32) / HitSize; i++) {
     uint32_t pattern = getHitPattern(i);
-    if (pattern == 0) break;
-    ++count;
+    //if (pattern == 0) break; // can't break in 4.2.X
+    if (pattern != 0) ++count;
   }
   return count;
 }

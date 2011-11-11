@@ -1,59 +1,52 @@
-#include "HLTrigger/Timer/interface/TimerService.h"
 #include <iostream>
+#include <sched.h>
 
-edm::CPUTimer * TimerService::cpu_timer = 0;
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "HLTrigger/Timer/interface/TimerService.h"
+#include "HLTrigger/Timer/interface/CPUAffinity.h"
 
 TimerService::TimerService(const edm::ParameterSet& ps, 
-				 edm::ActivityRegistry& iAR)
+                                 edm::ActivityRegistry& iAR) :
+  useCPUtime( ps.getUntrackedParameter<bool>("useCPUtime", true) ),
+  cpu_timer(useCPUtime),
+  is_bound_(false)
 {
-  // whether to use CPU-time (default) or wall-clock time
-  useCPUtime = ps.getUntrackedParameter<bool>("useCPUtime", true);
+  if (useCPUtime) {
+    is_bound_ = CPUAffinity::bindToCurrentCpu();
+    if (is_bound_)
+      // the process is (now) bound to a single CPU, the call to clock_gettime(CLOCK_THREAD_CPUTIME_ID, ...) is safe to use
+      edm::LogInfo("TimerService") << "this process is bound to CPU " << CPUAffinity::currentCpu();
+    else
+      // the process is NOT bound to a single CPU
+      edm::LogError("TimerService") << "this process is NOT bound to a single CPU, the results of the TimerService may be undefined";
+  }
 
   iAR.watchPreModule(this, &TimerService::preModule);
   iAR.watchPostModule(this, &TimerService::postModule);
-  
-  if(!cpu_timer)
-    cpu_timer = new edm::CPUTimer();
-
 }
 
 TimerService::~TimerService()
 {
-  if(cpu_timer){
-    using namespace std;
-
-    string longLine("=========================================================="); 
-    cout << longLine << endl;
-    cout << " TimerService Info:\n";
-    
-    if(useCPUtime)
-      cout << " Used CPU-time ";
-    else
-      cout << " Used wall-clock-time ";
-    cout << "for timing information " << endl;
-    cout << longLine << endl;
-    
-    delete cpu_timer; cpu_timer = 0;
-  }
+  if (useCPUtime and not is_bound_)
+    std::cout << "this process is NOT bound to a single CPU, the results of the TimerService may be undefined";
+  std::cout << "==========================================================\n";
+  std::cout << " TimerService Info:\n";
+  std::cout << " Used " << (useCPUtime ? "CPU" : "wall-clock") << "time for timing information\n";
+  std::cout << "==========================================================\n";
+  std::cout << std::flush;
 }
 
 // fwk calls this method before a module is processed
 void TimerService::preModule(const edm::ModuleDescription& iMod)
 {
-  cpu_timer->reset();
-  cpu_timer->start();  
+  cpu_timer.reset();
+  cpu_timer.start();  
 }
 
 // fwk calls this method after a module has been processed
 void TimerService::postModule(const edm::ModuleDescription& iMod)
 {
-  cpu_timer->stop();
-
-  double time = -999; // in secs
-  if(useCPUtime)
-    time = cpu_timer->cpuTime();
-  else
-    time = cpu_timer->realTime();
-
+  cpu_timer.stop();
+  double time = cpu_timer.delta();  // in secs
   newMeasurementSignal(iMod, time);
 }

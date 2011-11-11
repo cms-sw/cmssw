@@ -69,6 +69,7 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 	muonl3chg = new int[kMaxMuonL3];
 	muonl3pterr = new float[kMaxMuonL3];
 	muonl3iso = new int[kMaxMuonL3];
+	muonl3trk10iso = new int[kMaxMuonL3];
         muonl3nhits = new int[kMaxMuonL3];
 	muonl3normchi2 = new float[kMaxMuonL3];
 	muonl3ntrackerhits = new int[kMaxMuonL3];
@@ -156,6 +157,7 @@ void HLTMuon::setup(const edm::ParameterSet& pSet, TTree* HltTree) {
 	HltTree->Branch("ohMuL3Chg",muonl3chg,"ohMuL3Chg[NohMuL3]/I");
 	HltTree->Branch("ohMuL3PtErr",muonl3pterr,"ohMuL3PtErr[NohMuL3]/F");
 	HltTree->Branch("ohMuL3Iso",muonl3iso,"ohMuL3Iso[NohMuL3]/I");
+	HltTree->Branch("ohMuL3Trk10Iso",muonl3trk10iso,"ohMuL3Trk10Iso[NohMuL3]/I");
 	HltTree->Branch("ohMuL3Dr",muonl3dr,"ohMuL3Dr[NohMuL3]/F");
 	HltTree->Branch("ohMuL3Dz",muonl3dz,"ohMuL3Dz[NohMuL3]/F");
 	HltTree->Branch("ohMuL3VtxZ",muonl3vtxz,"ohMuL3VtxZ[NohMuL3]/F");
@@ -218,6 +220,7 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
 		const edm::Handle<edm::ValueMap<bool> >                 & isoMap2,
 		const edm::Handle<reco::RecoChargedCandidateCollection> & MuCands3,
 		const edm::Handle<edm::ValueMap<bool> >                 & isoMap3,
+ 	        const edm::Handle<edm::ValueMap<bool> >                 & isoTrk10Map3,
 		const edm::Handle<reco::RecoChargedCandidateCollection> & oniaPixelCands,
 		const edm::Handle<reco::RecoChargedCandidateCollection> & oniaTrackCands,
 		const edm::Handle<reco::VertexCollection> & DiMuVtxCands3,
@@ -451,6 +454,14 @@ void HLTMuon::analyze(const edm::Handle<reco::MuonCollection>                 & 
 				muonl3iso[imu3c] = muon1IsIsolated;
 			}
 			else {muonl3iso[imu3c] = -999;}
+
+			if (isoTrk10Map3.isValid()){
+			  // Isolation flag (this is a bool value: true => isolated) 
+			  edm::ValueMap<bool> ::value_type muon1IsTrk10Isolated = (*isoTrk10Map3)[tk];
+			  muonl3trk10iso[imu3c] = muon1IsTrk10Isolated;
+			}
+			else {muonl3trk10iso[imu3c] =-999;}
+
 			//Check DCA for muon combinations
 			int imu3c2nd = imu3c + 1;// This will be the index in the hltTree for the 2nd muon of the dimuon combination
 

@@ -70,13 +70,15 @@ EcalUncalibRecHitWorkerRatio::run( const edm::Event & evt,
         EcalUncalibratedRecHit uncalibRecHit;
 
 	if (detid.subdetId()==EcalEndcap) {
-	  uncalibMaker_endcap_.init(*itdg, pedVec, pedRMSVec, gainRatios);
-          uncalibMaker_endcap_.computeTime(EEtimeFitParameters_, 
-					   EEtimeFitLimits_, 
-					   EEamplitudeFitParameters_ );
-          uncalibMaker_endcap_.computeAmplitude(EEamplitudeFitParameters_);
-          EcalUncalibRecHitRatioMethodAlgo<EEDataFrame>::CalculatedRecHit crh = 
-	                                    uncalibMaker_endcap_.getCalculatedRecHit();
+
+          uncalibRecHit = 
+	    uncalibMaker_endcap_.makeRecHit(*itdg,pedVec,pedRMSVec,
+					    gainRatios,EEtimeFitParameters_,
+					    EEamplitudeFitParameters_,
+					    EEtimeFitLimits_);
+          
+          EcalUncalibRecHitRatioMethodAlgo<EEDataFrame>::CalculatedRecHit crh =
+	                          uncalibMaker_endcap_.getCalculatedRecHit();
           uncalibRecHit.setAmplitude( crh.amplitudeMax );
           uncalibRecHit.setJitter( crh.timeMax - 5 );
           uncalibRecHit.setJitterError( std::sqrt(pow(crh.timeError,2) + 
@@ -84,15 +86,20 @@ EcalUncalibRecHitWorkerRatio::run( const edm::Event & evt,
                                         std::pow(clockToNsConstant,2)) );
 
         } else {
+ 
 
-	  uncalibMaker_barrel_.init(*itdg, pedVec, pedRMSVec, gainRatios);
 	  bool gainSwitch = uncalibMaker_barrel_.fixMGPAslew(*itdg);
-          uncalibMaker_barrel_.computeTime(EBtimeFitParameters_, 
-					   EBtimeFitLimits_, 
-					   EBamplitudeFitParameters_ );
-          uncalibMaker_barrel_.computeAmplitude(EBamplitudeFitParameters_);
-          EcalUncalibRecHitRatioMethodAlgo<EBDataFrame>::CalculatedRecHit crh = 
-	                                    uncalibMaker_barrel_.getCalculatedRecHit();
+
+          uncalibRecHit= 
+	    uncalibMaker_barrel_.makeRecHit(*itdg,pedVec,pedRMSVec,
+					    gainRatios,EBtimeFitParameters_,
+					    EBamplitudeFitParameters_,
+					    EBtimeFitLimits_);
+          
+          
+          EcalUncalibRecHitRatioMethodAlgo<EBDataFrame>::CalculatedRecHit crh= 
+	    uncalibMaker_barrel_.getCalculatedRecHit();
+
           uncalibRecHit.setAmplitude( crh.amplitudeMax );
 	  if(gainSwitch){
 	    // introduce additional 1ns shift

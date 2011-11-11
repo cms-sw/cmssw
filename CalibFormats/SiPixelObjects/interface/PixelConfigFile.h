@@ -880,7 +880,7 @@ namespace pos{
       static bool forceConfigReload = false; 
       return forceConfigReload;
     }
-    
+  
  };
 
 }

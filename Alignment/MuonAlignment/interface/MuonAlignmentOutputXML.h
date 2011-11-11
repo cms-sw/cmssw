@@ -16,7 +16,7 @@
 //
 // Original Author:  Jim Pivarski
 //         Created:  Fri Mar 14 18:02:28 CDT 2008
-// $Id: MuonAlignmentOutputXML.h,v 1.3 2008/05/17 18:10:19 pivarski Exp $
+// $Id: MuonAlignmentOutputXML.h,v 1.2 2008/05/17 17:17:29 pivarski Exp $
 //
 
 // system include files
@@ -50,7 +50,7 @@ class MuonAlignmentOutputXML {
 
       const MuonAlignmentOutputXML& operator=(const MuonAlignmentOutputXML&); // stop default
 
-      void writeComponents(align::Alignables &alignables, align::Alignables &ideals,
+      void writeComponents(std::vector<Alignable*> &alignables, std::vector<Alignable*> &ideals,
 			   std::map<align::ID, CLHEP::HepSymMatrix>& errors, std::ofstream &outputFile, bool DT) const;
 
       // ---------- member data --------------------------------

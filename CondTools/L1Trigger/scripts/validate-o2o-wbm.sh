@@ -20,8 +20,8 @@ shift $(($OPTIND - 1))
 # Environment
 #==============================================================================
 
-release=CMSSW_4_2_3_ONLINE
-version=011
+release=CMSSW_3_11_0_ONLINE
+version=010
 
 #cd ~zrwan/CMSSW_3_11_0/cronjob
 cd /nfshome0/popcondev/L1Job/${release}/validate-o2o-wbm
@@ -111,7 +111,7 @@ echo "" >> ${logFile}
 # O2O
 #==============================================================================
 
-cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/l1o2otestanalyzer_cfg.py runNumber=${run} inputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T inputDBAuth=/nfshome0/popcondev/conddb_taskWriters/L1T printL1TriggerKey=1 printRSKeys=1 >& o2o.log
+cmsRun $CMSSW_BASE/src/CondTools/L1Trigger/test/l1o2otestanalyzer_cfg.py runNumber=${run} inputDBConnect=oracle://cms_orcon_prod/CMS_COND_31X_L1T inputDBAuth=/nfshome0/popcondev/conddb printL1TriggerKey=1 printRSKeys=1 >& o2o.log
 
 o2ocode=$?
 

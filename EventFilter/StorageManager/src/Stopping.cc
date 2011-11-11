@@ -1,6 +1,7 @@
-// $Id: Stopping.cc,v 1.9.6.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: Stopping.cc,v 1.10 2011/03/07 15:31:32 mommsen Exp $
 /// @file: Stopping.cc
 
+#include "EventFilter/StorageManager/interface/AlarmHandler.h"
 #include "EventFilter/StorageManager/interface/CommandQueue.h"
 #include "EventFilter/StorageManager/interface/DiskWriterResources.h"
 #include "EventFilter/StorageManager/interface/DQMEventProcessorResources.h"
@@ -55,7 +56,7 @@ string Stopping::do_stateName() const
 
 void Stopping::do_moveToFailedState( xcept::Exception& exception ) const
 {
-  outermost_context().getSharedResources()->moveToFailedState( exception );
+  outermost_context().getSharedResources()->alarmHandler_->moveToFailedState( exception );
 }
 
 void Stopping::logHaltDoneRequest( const HaltDone& request )

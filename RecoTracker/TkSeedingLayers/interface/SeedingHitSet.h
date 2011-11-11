@@ -8,8 +8,7 @@ public:
 
   typedef TransientTrackingRecHit::ConstRecHitContainer RecHits;
 
-  SeedingHitSet() {}
-  explicit SeedingHitSet(const RecHits & hits) : theRecHits(hits) {}
+  SeedingHitSet(const RecHits & hits=RecHits()) : theRecHits(hits) {}
   virtual ~SeedingHitSet(){}
 
   unsigned int size() const { return theRecHits.size(); }

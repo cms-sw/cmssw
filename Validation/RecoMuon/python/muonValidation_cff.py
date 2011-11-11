@@ -264,10 +264,25 @@ recoMuonVMuAssoc_glbPF.muAssocLabel = 'muonAssociatorByHits_NoSimHits_globalPF'
 recoMuonVMuAssoc_glbPF.trackType = 'global'
 recoMuonVMuAssoc_glbPF.selection = "isGlobalMuon & isPFMuon"
 
+#tight
+muonAssociatorByHitsESProducerNoSimHits_tgt = SimMuon.MCTruth.MuonAssociatorByHitsESProducer_NoSimHits_cfi.muonAssociatorByHitsESProducerNoSimHits.clone()
+muonAssociatorByHitsESProducerNoSimHits_tgt.ComponentName = 'muonAssociatorByHits_NoSimHits_tight'
+muonAssociatorByHitsESProducerNoSimHits_tgt.UseTracker = True
+muonAssociatorByHitsESProducerNoSimHits_tgt.UseMuon  = True
+recoMuonVMuAssoc_tgt = Validation.RecoMuon.RecoMuonValidator_cfi.recoMuonValidator.clone()
+recoMuonVMuAssoc_tgt.subDir = 'Muons/RecoMuonV/RecoMuon_MuonAssoc_Tgt'
+#recoMuonVMuAssoc_tgt.muonLabel = 'muons'
+recoMuonVMuAssoc_tgt.simLabel = 'mergedtruth:MergedTrackTruth'
+recoMuonVMuAssoc_tgt.muAssocLabel = 'muonAssociatorByHits_NoSimHits_tight'
+recoMuonVMuAssoc_tgt.trackType = 'global'
+#(NO)#recoMuonVMuAssoc_tgt.selection = 'isGlobalMuon & globalTrack.normalizedChi2<10 & globalTrack.hitPattern.numberOfValidMuonHits>0 & numberOfMatchedStations>1 & abs(innerTrack.dxy(vertex.position))<0.2 & track.hitPattern.numberOfValidPixelHits>0 & track.hitPattern.numberOfValidTrackerHits>10'
+recoMuonVMuAssoc_tgt.selection = 'isGlobalMuon & globalTrack.normalizedChi2<10 & globalTrack.hitPattern.numberOfValidMuonHits>0 & numberOfMatchedStations>1 & track.hitPattern.numberOfValidPixelHits>0 & track.hitPattern.numberOfValidTrackerHits>10'
+
 # Muon validation sequence
 muonValidation_seq = cms.Sequence(trkMuonTrackVTrackAssoc
                                  +staMuonTrackVMuonAssoc+staUpdMuonTrackVMuonAssoc+glbMuonTrackVMuonAssoc
-                                 +recoMuonVMuAssoc_trk+recoMuonVMuAssoc_sta+recoMuonVMuAssoc_glb+recoMuonVMuAssoc_trkPF+recoMuonVMuAssoc_staPF+recoMuonVMuAssoc_glbPF)
+                                  +recoMuonVMuAssoc_trk+recoMuonVMuAssoc_sta+recoMuonVMuAssoc_glb+recoMuonVMuAssoc_tgt
+                                  +recoMuonVMuAssoc_trkPF+recoMuonVMuAssoc_staPF+recoMuonVMuAssoc_glbPF)
 
 muonValidationTEV_seq = cms.Sequence(tevMuonFirstTrackVMuonAssoc+tevMuonPickyTrackVMuonAssoc+tevMuonDytTrackVMuonAssoc)
 

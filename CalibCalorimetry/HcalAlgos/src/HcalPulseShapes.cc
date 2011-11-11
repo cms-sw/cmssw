@@ -1,5 +1,4 @@
 #include "CalibCalorimetry/HcalAlgos/interface/HcalPulseShapes.h"
-#include "FWCore/Utilities/interface/Exception.h"
 #include <cmath>
 
 HcalPulseShapes::HcalPulseShapes() {
@@ -137,23 +136,41 @@ void HcalPulseShapes::computeHFShape(HcalPulseShapes::Shape& sh) {
   }
 }
 
-const HcalPulseShapes::Shape &
-HcalPulseShapes::shape(const HcalDetId & detId) const
-{
-  HcalSubdetector subdet = detId.subdet();
-  switch(subdet) {
-  case HcalBarrel:
-    return hbShape();
-  case HcalEndcap:
-    return heShape();
-  case HcalForward:
-    return hfShape();
-  case HcalOuter:
-    //FIXME doesn't look for SiPMs
-    return hoShape(false); 
-  default:
-    throw cms::Exception("HcalPulseShapes") << "unknown detId";
-    break;
-  }
+HcalPulseShapes::Shape::Shape() {
+  nbin_=0;
+  tpeak_=0;
 }
 
+void HcalPulseShapes::Shape::setNBin(int n) {
+  nbin_=n;
+  shape_=std::vector<float>(n,0.0f);
+}
+
+void HcalPulseShapes::Shape::setShapeBin(int i, float f) {
+  if (i>=0 && i<nbin_) shape_[i]=f;
+}
+
+float HcalPulseShapes::Shape::operator()(double t) const {
+  // shape is in 1 ns steps
+  return at(t);
+}
+
+float HcalPulseShapes::Shape::at(double t) const {
+  // shape is in 1 ns steps
+  int i=(int)(t+0.5);
+  float rv=0;
+  if (i>=0 && i<nbin_) rv=shape_[i];
+  return rv;
+}
+
+float HcalPulseShapes::Shape::integrate(double t1, double t2) const {
+  static const float int_delta_ns = 0.05f; 
+  double intval = 0.0;
+
+  for (double t = t1; t < t2; t+= int_delta_ns) {
+    float loedge = at(t);
+    float hiedge = at(t+int_delta_ns);
+    intval += (loedge+hiedge)*int_delta_ns/2.0;
+  }
+  return (float)intval;
+}

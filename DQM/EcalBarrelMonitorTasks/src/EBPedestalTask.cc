@@ -1,14 +1,15 @@
 /*
  * \file EBPedestalTask.cc
  *
- * $Date: 2010/07/30 05:40:22 $
- * $Revision: 1.100 $
+ * $Date: 2011/08/23 00:30:59 $
+ * $Revision: 1.101.4.2 $
  * \author G. Della Ricca
  *
 */
 
 #include <iostream>
-#include <fstream>
+#include <sstream>
+#include <iomanip>
 #include <vector>
 #include <algorithm>
 
@@ -133,28 +134,34 @@ void EBPedestalTask::setup(void){
 
   init_ = true;
 
-  char histo[200];
+  std::string name;
+  std::stringstream GainN, GN;
 
   if ( dqmStore_ ) {
     dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalTask");
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 1) != MGPAGains_.end() ) {
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalTask/Gain01");
+      GainN.str("");
+      GainN << "Gain" << std::setw(2) << std::setfill('0') << 1;
+      GN.str("");
+      GN << "G" << std::setw(2) << std::setfill('0') << 1;
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalTask/" + GainN.str());
       for (int i = 0; i < 36; i++) {
-        sprintf(histo, "EBPT pedestal %s G01", Numbers::sEB(i+1).c_str());
-        mePedMapG01_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+        name = "EBPT pedestal " + Numbers::sEB(i+1) + " " + GN.str(); 
+        mePedMapG01_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
         mePedMapG01_[i]->setAxisTitle("ieta", 1);
         mePedMapG01_[i]->setAxisTitle("iphi", 2);
         dqmStore_->tag(mePedMapG01_[i], i+1);
 #ifdef COMMON_NOISE_ANALYSIS
-        sprintf(histo, "EBPT pedestal 3sum %s G01", Numbers::sEB(i+1).c_str());
-        mePed3SumMapG01_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+	name = "EBPT pedestal 3sum " + Numbers::sEB(i+1) + " " + GN.str(); 
+        mePed3SumMapG01_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
         mePed3SumMapG01_[i]->setAxisTitle("ieta", 1);
         mePed3SumMapG01_[i]->setAxisTitle("iphi", 2);
         dqmStore_->tag(mePed3SumMapG01_[i], i+1);
-        sprintf(histo, "EBPT pedestal 5sum %s G01", Numbers::sEB(i+1).c_str());
-        mePed5SumMapG01_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+	name = "EBPT pedestal 5sum " + Numbers::sEB(i+1) + " " + GN.str(); 
+        mePed5SumMapG01_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
         mePed5SumMapG01_[i]->setAxisTitle("ieta", 1);
         mePed5SumMapG01_[i]->setAxisTitle("iphi", 2);
         dqmStore_->tag(mePed5SumMapG01_[i], i+1);
@@ -165,21 +172,26 @@ void EBPedestalTask::setup(void){
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 6) != MGPAGains_.end() ) {
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalTask/Gain06");
+      GainN.str("");
+      GainN << "Gain" << std::setw(2) << std::setfill('0') << 6;
+      GN.str("");
+      GN << "G" << std::setw(2) << std::setfill('0') << 6;
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalTask/" + GainN.str());
       for (int i = 0; i < 36; i++) {
-        sprintf(histo, "EBPT pedestal %s G06", Numbers::sEB(i+1).c_str());
-        mePedMapG06_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+        name = "EBPT pedestal " + Numbers::sEB(i+1) + " " + GN.str(); 
+        mePedMapG06_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
         mePedMapG06_[i]->setAxisTitle("ieta", 1);
         mePedMapG06_[i]->setAxisTitle("iphi", 2);
         dqmStore_->tag(mePedMapG06_[i], i+1);
 #ifdef COMMON_NOISE_ANALYSIS
-        sprintf(histo, "EBPT pedestal 3sum %s G06", Numbers::sEB(i+1).c_str());
-        mePed3SumMapG06_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+	name = "EBPT pedestal 3sum " + Numbers::sEB(i+1) + " " + GN.str(); 
+        mePed3SumMapG06_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
         mePed3SumMapG06_[i]->setAxisTitle("ieta", 1);
         mePed3SumMapG06_[i]->setAxisTitle("iphi", 2);
         dqmStore_->tag(mePed3SumMapG06_[i], i+1);
-        sprintf(histo, "EBPT pedestal 5sum %s G06", Numbers::sEB(i+1).c_str());
-        mePed5SumMapG06_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+	name = "EBPT pedestal 5sum " + Numbers::sEB(i+1) + " " + GN.str(); 
+        mePed5SumMapG06_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
         mePed5SumMapG06_[i]->setAxisTitle("ieta", 1);
         mePed5SumMapG06_[i]->setAxisTitle("iphi", 2);
         dqmStore_->tag(mePed5SumMapG06_[i], i+1);
@@ -190,27 +202,31 @@ void EBPedestalTask::setup(void){
 
     if (find(MGPAGains_.begin(), MGPAGains_.end(), 12) != MGPAGains_.end() ) {
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalTask/Gain12");
+      GainN.str("");
+      GainN << "Gain" << std::setw(2) << std::setfill('0') << 12;
+      GN.str("");
+      GN << "G" << std::setw(2) << std::setfill('0') << 12;
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalTask/" + GainN.str());
       for (int i = 0; i < 36; i++) {
-        sprintf(histo, "EBPT pedestal %s G12", Numbers::sEB(i+1).c_str());
-        mePedMapG12_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+        name = "EBPT pedestal " + Numbers::sEB(i+1) + " " + GN.str(); 
+        mePedMapG12_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
         mePedMapG12_[i]->setAxisTitle("ieta", 1);
         mePedMapG12_[i]->setAxisTitle("iphi", 2);
         dqmStore_->tag(mePedMapG12_[i], i+1);
-        sprintf(histo, "EBPT pedestal 3sum %s G12", Numbers::sEB(i+1).c_str());
-        mePed3SumMapG12_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+#ifdef COMMON_NOISE_ANALYSIS
+	name = "EBPT pedestal 3sum " + Numbers::sEB(i+1) + " " + GN.str(); 
+        mePed3SumMapG12_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
         mePed3SumMapG12_[i]->setAxisTitle("ieta", 1);
         mePed3SumMapG12_[i]->setAxisTitle("iphi", 2);
         dqmStore_->tag(mePed3SumMapG12_[i], i+1);
-#ifdef COMMON_NOISE_ANALYSIS
-        sprintf(histo, "EBPT pedestal 5sum %s G12", Numbers::sEB(i+1).c_str());
-        mePed5SumMapG12_[i] = dqmStore_->bookProfile2D(histo, histo, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
+	name = "EBPT pedestal 5sum " + Numbers::sEB(i+1) + " " + GN.str(); 
+        mePed5SumMapG12_[i] = dqmStore_->bookProfile2D(name, name, 85, 0., 85., 20, 0., 20., 4096, 0., 4096., "s");
         mePed5SumMapG12_[i]->setAxisTitle("ieta", 1);
-        mePed3SumMapG12_[i]->setAxisTitle("iphi", 2);
+        mePed5SumMapG12_[i]->setAxisTitle("iphi", 2);
         dqmStore_->tag(mePed5SumMapG12_[i], i+1);
 #endif
       }
-
     }
 
 
@@ -218,10 +234,15 @@ void EBPedestalTask::setup(void){
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 1) != MGPAGainsPN_.end() ) {
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalTask/PN/Gain01");
+      GainN.str("");
+      GainN << "Gain" << std::setw(2) << std::setfill('0') << 1;
+      GN.str("");
+      GN << "G" << std::setw(2) << std::setfill('0') << 1;
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalTask/PN/" + GainN.str());
       for (int i = 0; i < 36; i++) {
-        sprintf(histo, "EBPDT PNs pedestal %s G01", Numbers::sEB(i+1).c_str());
-        mePnPedMapG01_[i] =  dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+	name = "EBPDT PNs pedestal " + Numbers::sEB(i+1) + " " + GN.str(); 
+        mePnPedMapG01_[i] =  dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
         mePnPedMapG01_[i]->setAxisTitle("channel", 1);
         mePnPedMapG01_[i]->setAxisTitle("pedestal", 2);
         dqmStore_->tag(mePnPedMapG01_[i], i+1);
@@ -231,10 +252,15 @@ void EBPedestalTask::setup(void){
 
     if (find(MGPAGainsPN_.begin(), MGPAGainsPN_.end(), 16) != MGPAGainsPN_.end() ) {
 
-      dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalTask/PN/Gain16");
+      GainN.str("");
+      GainN << "Gain" << std::setw(2) << std::setfill('0') << 16;
+      GN.str("");
+      GN << "G" << std::setw(2) << std::setfill('0') << 16;
+
+      dqmStore_->setCurrentFolder(prefixME_ + "/EBPedestalTask/PN/" + GainN.str());
       for (int i = 0; i < 36; i++) {
-        sprintf(histo, "EBPDT PNs pedestal %s G16", Numbers::sEB(i+1).c_str());
-        mePnPedMapG16_[i] =  dqmStore_->bookProfile(histo, histo, 10, 0., 10., 4096, 0., 4096., "s");
+	name = "EBPDT PNs pedestal " + Numbers::sEB(i+1) + " " + GN.str(); 
+        mePnPedMapG16_[i] =  dqmStore_->bookProfile(name, name, 10, 0., 10., 4096, 0., 4096., "s");
         mePnPedMapG16_[i]->setAxisTitle("channel", 1);
         mePnPedMapG16_[i]->setAxisTitle("pedestal", 2);
         dqmStore_->tag(mePnPedMapG16_[i], i+1);

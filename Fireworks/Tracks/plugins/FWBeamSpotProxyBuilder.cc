@@ -32,19 +32,22 @@ private:
 
 void FWBeamSpotProxyBuilder::localModelChanges(const FWModelId& iId, TEveElement* parent, FWViewType::EType viewType, const FWViewContext* vc)
 {
-   TEveStraightLineSet *ls = dynamic_cast<TEveStraightLineSet*> ( *parent->BeginChildren() );
-   Color_t c = FWProxyBuilderBase::item()->modelInfo( iId.index() ).displayProperties().color();
-   for (TEveProjectable::ProjList_i j = ls->BeginProjecteds(); j != ls->EndProjecteds(); ++j)
-   {
-      TEveStraightLineSet *pls = dynamic_cast<TEveStraightLineSet*> (*j);
-      pls->SetMarkerColor(c);
-      pls->ElementChanged();
-   }
+  if( TEveStraightLineSet *ls = dynamic_cast<TEveStraightLineSet*> ( *parent->BeginChildren() ))
+  { 
+    Color_t c = FWProxyBuilderBase::item()->modelInfo( iId.index() ).displayProperties().color();
+    for (TEveProjectable::ProjList_i j = ls->BeginProjecteds(); j != ls->EndProjecteds(); ++j)
+    {
+      if( TEveStraightLineSet *pls = dynamic_cast<TEveStraightLineSet*> (*j))
+      {
+	pls->SetMarkerColor(c);
+	pls->ElementChanged();
+      }
+    }
 
-   ls->SetMarkerColor(c);
-   ls->ElementChanged();
+    ls->SetMarkerColor(c);
+    ls->ElementChanged();
+  }
 }
-
 
 void
 FWBeamSpotProxyBuilder::build( const reco::BeamSpot& bs, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* )
@@ -81,7 +84,6 @@ FWBeamSpotProxyBuilder::build( const reco::BeamSpot& bs, unsigned int iIndex, TE
 
    ls->RefMainTrans().SetPos(pos);
    setupAddElement(ls, &oItemHolder);
-
 }
 
 REGISTER_FWPROXYBUILDER( FWBeamSpotProxyBuilder, reco::BeamSpot, "Beam Spot",  FWViewType::kAll3DBits | FWViewType::kAllRPZBits );

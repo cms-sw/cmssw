@@ -7,15 +7,6 @@ L2Muons = cms.EDProducer("L2MuonProducer",
     MuonTrackLoaderForSTA,
     MuonServiceProxy,
     InputObjects = cms.InputTag("L2MuonSeeds"),
-    DoSeedRefit = cms.bool(False),
-    SeedTransformerParameters = cms.PSet( 
-        Fitter = cms.string("hltESPKFFittingSmootherForL2Muon"),
-        MuonRecHitBuilder = cms.string("hltESPMuonTransientTrackingRecHitBuilder"),
-        NMinRecHits = cms.uint32(2),
-        UseSubRecHits = cms.bool(False),
-        Propagator = cms.string("hltESPFastSteppingHelixPropagatorAny"),
-        RescaleError = cms.double(100.0)
-    ),
     L2TrajBuilderParameters = cms.PSet(
         DoRefit = cms.bool(False),
         FilterParameters = cms.PSet(
@@ -24,12 +15,10 @@ L2Muons = cms.EDProducer("L2MuonProducer",
             DTRecSegmentLabel = cms.InputTag("dt4DSegments"),
             MaxChi2 = cms.double(1000.0),
             MuonTrajectoryUpdatorParameters = cms.PSet(
-                MaxChi2 = cms.double(25.0),
+                MaxChi2 = cms.double(1000.0),
                 RescaleError = cms.bool(False),
                 RescaleErrorFactor = cms.double(100.0),
-                Granularity = cms.int32(0),
-                ExcludeRPCFromFit = cms.bool(False),
-                UseInvalidHits = cms.bool(True),
+                Granularity = cms.int32(0)
             ),
             EnableRPCMeasurement = cms.bool(True),
             CSCRecSegmentLabel = cms.InputTag("cscSegments"),
@@ -50,15 +39,13 @@ L2Muons = cms.EDProducer("L2MuonProducer",
             BWSeedType = cms.string('fromGenerator'),
             FitDirection = cms.string('outsideIn'),
             DTRecSegmentLabel = cms.InputTag("dt4DSegments"),
-            MaxChi2 = cms.double(100.0),
+            MaxChi2 = cms.double(25.0),
             MuonTrajectoryUpdatorParameters = cms.PSet(
                 MaxChi2 = cms.double(25.0),
                 RescaleError = cms.bool(False),
                 RescaleErrorFactor = cms.double(100.0),
-                Granularity = cms.int32(2),
-                ExcludeRPCFromFit = cms.bool( False ),
-                UseInvalidHits = cms.bool( True ),
-           ),
+                Granularity = cms.int32(2)
+            ),
             EnableRPCMeasurement = cms.bool(True),
             CSCRecSegmentLabel = cms.InputTag("cscSegments"),
             EnableDTMeasurement = cms.bool(True),
@@ -66,6 +53,10 @@ L2Muons = cms.EDProducer("L2MuonProducer",
             Propagator = cms.string('SteppingHelixPropagatorL2Any'),
             EnableCSCMeasurement = cms.bool(True)
         ),
+        RefitterParameters = cms.PSet(
+            FitterName = cms.string('KFFitterSmootherSTA'),
+            Option = cms.int32(1)
+        )
     )
 )
 

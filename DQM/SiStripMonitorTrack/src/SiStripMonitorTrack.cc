@@ -472,11 +472,11 @@ MonitorElement* SiStripMonitorTrack::bookMETrend(const char* ParameterSetLabel, 
       const SiStripRecHit2D* hit2D             = dynamic_cast<const SiStripRecHit2D*>( ttrh->hit() );	
       const SiStripRecHit1D* hit1D             = dynamic_cast<const SiStripRecHit1D*>( ttrh->hit() );	
       
-      RecHitType type=Single;
+      //      RecHitType type=Single;
 
       if(matchedhit){
 	LogTrace("SiStripMonitorTrack")<<"\nMatched recHit found"<< std::endl;
-	type=Matched;
+	//	type=Matched;
 	
 	GluedGeomDet * gdet=(GluedGeomDet *)tkgeom->idToDet(matchedhit->geographicalId());
 	GlobalVector gtrkdirup=gdet->toGlobal(updatedtsos.localMomentum());	    
@@ -491,7 +491,7 @@ MonitorElement* SiStripMonitorTrack::bookMETrend(const char* ParameterSetLabel, 
       }
       else if(phit){
 	LogTrace("SiStripMonitorTrack")<<"\nProjected recHit found"<< std::endl;
-	type=Projected;
+	//	type=Projected;
 	GluedGeomDet * gdet=(GluedGeomDet *)tkgeom->idToDet(phit->geographicalId());
 	
 	GlobalVector gtrkdirup=gdet->toGlobal(updatedtsos.localMomentum());

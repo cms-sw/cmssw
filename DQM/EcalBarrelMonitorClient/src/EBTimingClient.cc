@@ -1,8 +1,8 @@
 /*
  * \file EBTimingClient.cc
  *
- * $Date: 2010/08/30 13:14:07 $
- * $Revision: 1.107 $
+ * $Date: 2011/09/02 13:55:01 $
+ * $Revision: 1.110 $
  * \author G. Della Ricca
  *
 */
@@ -16,6 +16,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 
 #ifdef WITH_ECAL_COND_DB
 #include "OnlineDB/EcalCondDB/interface/MonTimingCrystalDat.h"
@@ -80,9 +81,12 @@ EBTimingClient::EBTimingClient(const edm::ParameterSet& ps) {
 
   }
 
+  meTimeSummaryMapProjEta_ = 0;
+  meTimeSummaryMapProjPhi_ = 0;
+
   expectedMean_ = 0.0;
-  discrepancyMean_ = 12.5;
-  RMSThreshold_ = 62.5;
+  discrepancyMean_ = 2.0;
+  RMSThreshold_ = 6.0;
 
 }
 
@@ -129,7 +133,7 @@ void EBTimingClient::endRun(void) {
 
 void EBTimingClient::setup(void) {
 
-  char histo[200];
+  std::string name;
 
   dqmStore_->setCurrentFolder( prefixME_ + "/EBTimingClient" );
 
@@ -138,28 +142,38 @@ void EBTimingClient::setup(void) {
     int ism = superModules_[i];
 
     if ( meg01_[ism-1] ) dqmStore_->removeElement( meg01_[ism-1]->getName() );
-    sprintf(histo, "EBTMT timing quality %s", Numbers::sEB(ism).c_str());
-    meg01_[ism-1] = dqmStore_->book2D(histo, histo, 85, 0., 85., 20, 0., 20.);
+    name = "EBTMT timing quality " + Numbers::sEB(ism);
+    meg01_[ism-1] = dqmStore_->book2D(name, name, 85, 0., 85., 20, 0., 20.);
     meg01_[ism-1]->setAxisTitle("ieta", 1);
     meg01_[ism-1]->setAxisTitle("iphi", 2);
 
     if ( mea01_[ism-1] ) dqmStore_->removeElement( mea01_[ism-1]->getName() );
-    sprintf(histo, "EBTMT timing %s", Numbers::sEB(ism).c_str());
-    mea01_[ism-1] = dqmStore_->book1D(histo, histo, 1700, 0., 1700.);
+    name = "EBTMT timing " + Numbers::sEB(ism);
+    mea01_[ism-1] = dqmStore_->book1D(name, name, 1700, 0., 1700.);
     mea01_[ism-1]->setAxisTitle("channel", 1);
     mea01_[ism-1]->setAxisTitle("time (ns)", 2);
 
     if ( mep01_[ism-1] ) dqmStore_->removeElement( mep01_[ism-1]->getName() );
-    sprintf(histo, "EBTMT timing mean %s", Numbers::sEB(ism).c_str());
-    mep01_[ism-1] = dqmStore_->book1D(histo, histo, 100, -50.0, 50.0);
+    name = "EBTMT timing mean " + Numbers::sEB(ism);
+    mep01_[ism-1] = dqmStore_->book1D(name, name, 100, -25.0, 25.0);
     mep01_[ism-1]->setAxisTitle("mean (ns)", 1);
 
     if ( mer01_[ism-1] ) dqmStore_->removeElement( mer01_[ism-1]->getName() );
-    sprintf(histo, "EBTMT timing rms %s", Numbers::sEB(ism).c_str());
-    mer01_[ism-1] = dqmStore_->book1D(histo, histo, 100, 0.0, 150.0);
+    name = "EBTMT timing rms " + Numbers::sEB(ism);
+    mer01_[ism-1] = dqmStore_->book1D(name, name, 100, 0.0, 10.0);
     mer01_[ism-1]->setAxisTitle("rms (ns)", 1);
 
   }
+
+  name = "EBTMT timing projection eta";
+  meTimeSummaryMapProjEta_ = dqmStore_->bookProfile(name, name, 34, -85., 85., -20., 20., "");
+  meTimeSummaryMapProjEta_->setAxisTitle("jeta", 1);
+  meTimeSummaryMapProjEta_->setAxisTitle("time (ns)", 2);
+
+  name = "EBTMT timing projection phi";
+  meTimeSummaryMapProjPhi_ = dqmStore_->bookProfile(name, name, 72, 0., 360., -20., 20., "");
+  meTimeSummaryMapProjPhi_->setAxisTitle("jphi", 1);
+  meTimeSummaryMapProjPhi_->setAxisTitle("time (ns)", 2);
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
@@ -180,6 +194,8 @@ void EBTimingClient::setup(void) {
     if ( mer01_[ism-1] ) mer01_[ism-1]->Reset();
 
   }
+
+
 
 }
 
@@ -223,6 +239,9 @@ void EBTimingClient::cleanup(void) {
     mer01_[ism-1] = 0;
 
   }
+
+  if ( meTimeSummaryMapProjEta_ ) dqmStore_->removeElement( meTimeSummaryMapProjEta_->getName() );
+  if ( meTimeSummaryMapProjPhi_ ) dqmStore_->removeElement( meTimeSummaryMapProjPhi_->getName() );
 
 }
 
@@ -322,21 +341,20 @@ void EBTimingClient::analyze(void) {
   uint32_t bits01 = 0;
   bits01 |= 1 << EcalDQMStatusHelper::PHYSICS_BAD_CHANNEL_WARNING;
 
-  char histo[200];
-
   MonitorElement* me;
+
+  if( meTimeSummaryMapProjEta_ ) meTimeSummaryMapProjEta_->Reset();
+  if( meTimeSummaryMapProjPhi_ ) meTimeSummaryMapProjPhi_->Reset();
 
   for ( unsigned int i=0; i<superModules_.size(); i++ ) {
 
     int ism = superModules_[i];
 
-    sprintf(histo, (prefixME_ + "/EBTimingTask/EBTMT timing %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
+    me = dqmStore_->get( prefixME_ + "/EBTimingTask/EBTMT timing " + Numbers::sEB(ism) );
     h01_[ism-1] = UtilsClient::getHisto<TProfile2D*>( me, cloneME_, h01_[ism-1] );
     meh01_[ism-1] = me;
 
-    sprintf(histo, (prefixME_ + "/EBTimingTask/EBTMT timing vs amplitude %s").c_str(), Numbers::sEB(ism).c_str());
-    me = dqmStore_->get(histo);
+    me = dqmStore_->get( prefixME_ + "/EBTimingTask/EBTMT timing vs amplitude " + Numbers::sEB(ism) );
     h02_[ism-1] = UtilsClient::getHisto<TH2F*>( me, cloneME_, h02_[ism-1] );
     meh02_[ism-1] = me;
 
@@ -356,7 +374,7 @@ void EBTimingClient::analyze(void) {
         float mean01;
         float rms01;
 
-        update01 = UtilsClient::getBinStatistics(h01_[ism-1], ie, ip, num01, mean01, rms01);
+        update01 = UtilsClient::getBinStatistics(h01_[ism-1], ie, ip, num01, mean01, rms01, 3.);
         // Task timing map is shifted of +50 ns for graphical reasons. Shift back it.
         mean01 -= 50.;
 
@@ -380,9 +398,24 @@ void EBTimingClient::analyze(void) {
           if ( mep01_[ism-1] ) mep01_[ism-1]->Fill(mean01);
           if ( mer01_[ism-1] ) mer01_[ism-1]->Fill(rms01);
 
+	  float eta, phi;
+
+	  if ( ism <= 18 ) {
+	    eta = -ie+0.5;
+	    phi = ip+20*(ism-1)-0.5;
+	  } else {
+	    eta = ie-0.5;
+	    phi = (20-ip)+20*(ism-19)+0.5;
+	  }
+
+	  if( meTimeSummaryMapProjEta_ ) meTimeSummaryMapProjEta_->Fill(eta, mean01);
+	  if( meTimeSummaryMapProjPhi_ ) meTimeSummaryMapProjPhi_->Fill(phi, mean01);
+
         }
 
         if ( Masks::maskChannel(ism, ie, ip, bits01, EcalBarrel) ) UtilsClient::maskBinContent( meg01_[ism-1], ie, ip );
+
+
 
       }
     }

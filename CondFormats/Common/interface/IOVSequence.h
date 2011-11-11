@@ -26,6 +26,7 @@ namespace cond {
     typedef ora::QueryableVector<Item> Container;
     typedef Container::iterator iterator;
     typedef Container::const_iterator const_iterator;
+    typedef enum { Unknown=-1, Obsolete, Tag, TagInGT, ChildTag, ChildTagInGT } ScopeType;
 
     IOVSequence();
 
@@ -64,6 +65,10 @@ namespace cond {
 
     void updateLastTill(cond::Time_t till) { m_lastTill=till;}
 
+    void updateMetadata( const std::string& metadata, bool append=true );
+
+    void setScope( ScopeType type ) { m_scope = type;}
+
   public:
     Container const & iovs() const;
 
@@ -74,6 +79,8 @@ namespace cond {
 
     std::set<std::string> const& payloadClasses() const { return m_payloadClasses; }
     
+    ScopeType scope() const { return m_scope;}
+ 
     void loadAll() const;
 
   public:
@@ -107,6 +114,8 @@ namespace cond {
     bool m_notOrdered;
     std::string m_metadata; // FIXME not used???
     std::set<std::string> m_payloadClasses;
+    ScopeType m_scope;
+    
     mutable Container * m_sorted;
 
   };
