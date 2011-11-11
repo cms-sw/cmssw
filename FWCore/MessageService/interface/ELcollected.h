@@ -140,6 +140,8 @@ protected:
 
   ELstring buf;
 
+private:
+  ELcollected & operator=( const ELcollected & orig );  // verboten
 
 };  // ELcollected
 

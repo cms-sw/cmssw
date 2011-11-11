@@ -125,7 +125,8 @@ protected:
   //
 private:
   std::string dualLogName(std::string const & s);
-  
+  ELstatistics & operator=( const ELstatistics & orig );  // verboten
+
 };  // ELstatistics
 
 
