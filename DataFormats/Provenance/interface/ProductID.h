@@ -29,9 +29,9 @@ namespace edm {
     ProductID() : processIndex_(0),
 		  productIndex_(0) {}
     explicit
-    ProductID(ProductIndex productIndex) : processIndex_(0), productIndex_(productIndex) {}
-    ProductID(ProcessIndex processIndex, ProductIndex productIndex) :
-      processIndex_(processIndex), productIndex_(productIndex) {}
+    ProductID(ProductIndex prodIndex) : processIndex_(0), productIndex_(prodIndex) {}
+    ProductID(ProcessIndex procIndex, ProductIndex prodIndex) :
+      processIndex_(procIndex), productIndex_(prodIndex) {}
     bool isValid() const {return productIndex_ != 0;}
     ProcessIndex processIndex() const {return processIndex_;}
     ProcessIndex productIndex() const {return productIndex_;}

@@ -40,7 +40,7 @@ namespace edm {
         storeNumber_(invalidStoreNumber) {}
     EventAuxiliary(EventID const& theId, std::string const& theProcessGUID, Timestamp const& theTime,
 		   bool isReal, ExperimentType eType = Undefined,
-		   int bunchXing = invalidBunchXing, int storeNumber = invalidStoreNumber,
+		   int bunchXing = invalidBunchXing, int storeNum = invalidStoreNumber,
                    int orbitNum = invalidBunchXing) :
 	processHistoryID_(),
 	id_(theId),
@@ -51,7 +51,7 @@ namespace edm {
         experimentType_(eType),
 	bunchCrossing_(bunchXing),
 	orbitNumber_(orbitNum),
-	storeNumber_(storeNumber) {}
+	storeNumber_(storeNum) {}
     ~EventAuxiliary() {}
     void write(std::ostream& os) const;
     ProcessHistoryID const& processHistoryID() const {return processHistoryID_;}

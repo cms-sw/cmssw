@@ -17,7 +17,7 @@ namespace edm {
     BranchID() : id_(0) { }
     explicit BranchID(std::string const& branchName) : id_(toID(branchName)) {
     }
-    explicit BranchID(value_type id) : id_(id) {
+    explicit BranchID(value_type theID) : id_(theID) {
     }
     void setID(std::string const& branchName) {id_ = toID(branchName);}
     unsigned int id() const { return id_; }
