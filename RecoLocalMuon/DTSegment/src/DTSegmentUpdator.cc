@@ -743,7 +743,7 @@ void DTSegmentUpdator::Fit4Var(const vector<float>& xfit,
 
     //***********************************
     //     cout << " vdrift_4parfit "<< vdrift_4parfit<<endl;
-    if( nptfit>=7 && vdrift_4parfit) { 
+    if( nptfit>=5 && vdrift_4parfit) { 
       const double det = (a1*a1*(b2*v6 - b6*b6) - a1*(a2*a2*v6 - 2*a2*a6*b6 + a6*a6*b2 + b2*c6*c6 + b3*(b3*v6 - 2*b6*c6))
 			  + a2*a2*c6*c6 + 2*a2*(a3*(b3*v6 - b6*c6) - a6*b3*c6) + a3*a3*(b6*b6 - b2*v6)
 			  + a6*(2*a3*(b2*c6 - b3*b6) + a6*b3*b3)); 
