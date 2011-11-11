@@ -97,6 +97,22 @@ ELtsErrorLog::~ELtsErrorLog()
   #endif
 }
 
+void ELtsErrorLog::swap( ELtsErrorLog& other )
+{
+  std::swap(a, other.a);
+  std::swap(e, other.e);
+  process.swap(other.process);
+  std::swap(msgIsActive, other.msgIsActive);
+  msg.swap(other.msg);
+}
+
+ELtsErrorLog& ELtsErrorLog::operator=( const ELtsErrorLog& other)
+{
+  ELtsErrorLog temp(other);
+  this->swap(temp);
+  return *this;
+}
+
 // ----------------------------------------------------------------------
 // Setup for preamble parts
 // ----------------------------------------------------------------------

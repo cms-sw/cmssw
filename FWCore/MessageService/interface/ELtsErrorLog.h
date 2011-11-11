@@ -15,8 +15,8 @@
 
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
 
-namespace edm {       
-namespace service {       
+namespace edm {
+namespace service {
 
 // ----------------------------------------------------------------------
 // ELtsErrorLog:
@@ -36,6 +36,9 @@ public:
   ELtsErrorLog( const ELstring & pkgName );
   ELtsErrorLog( const ErrorLog & ee );
   ELtsErrorLog( const ELtsErrorLog & ee);
+
+  void swap( ELtsErrorLog& );
+  ELtsErrorLog& operator=( const ELtsErrorLog& );
 protected:
   virtual ~ELtsErrorLog();
 
@@ -115,7 +118,7 @@ inline void ELtsItem ( ELtsErrorLog & e, const T & t );
 
 // ----------------------------------------------------------------------
 // Message Continuation:
-//   streaming for char [] 
+//   streaming for char []
 // ----------------------------------------------------------------------
 
 inline void ELtsItem ( ELtsErrorLog & e, const char s[] );
@@ -131,6 +134,11 @@ inline void ELtsItem ( ELtsErrorLog & e, long n );
 inline void ELtsItem ( ELtsErrorLog & e, unsigned long n );
 inline void ELtsItem ( ELtsErrorLog & e, short n );
 inline void ELtsItem ( ELtsErrorLog & e, unsigned short n );
+
+inline
+void swap(ELtsErrorLog& a, ELtsErrorLog& b) {
+  a.swap(b);
+}
 
 }        // end of namespace service
 }        // end of namespace edm
