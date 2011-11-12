@@ -1,4 +1,4 @@
-# /dev/CMSSW_4_4_2/HIon/V26
+# /dev/CMSSW_4_4_2/HIon/V27
 
 import FWCore.ParameterSet.Config as cms
 
@@ -61,6 +61,7 @@ streamA_datasetHIMinBiasUPC_selector.l1tResults = cms.InputTag('')
 streamA_datasetHIMinBiasUPC_selector.throw      = cms.bool(False)
 streamA_datasetHIMinBiasUPC_selector.triggerConditions = cms.vstring('HLT_HIBptxXOR_v1', 
     'HLT_HICentral10_v1', 
+    'HLT_HICentralityVeto_v1', 
     'HLT_HIL1Algo_BptxXOR_BSC_OR_v1', 
     'HLT_HIMinBiasBSC_OR_v1', 
     'HLT_HIMinBiasBSC_v1', 

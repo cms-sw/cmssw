@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_4_2/HIon/V26 (CMSSW_4_4_0_HLT12)
+# /dev/CMSSW_4_4_2/HIon/V27 (CMSSW_4_4_0_HLT13)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V26')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V27')
 )
 
 streams = cms.PSet( 
@@ -130,6 +130,7 @@ datasets = cms.PSet(
     'HLT_HISinglePhoton40_v1' ),
   HIMinBiasUPC = cms.vstring( 'HLT_HIBptxXOR_v1',
     'HLT_HICentral10_v1',
+    'HLT_HICentralityVeto_v1',
     'HLT_HIL1Algo_BptxXOR_BSC_OR_v1',
     'HLT_HIMinBiasBSC_OR_v1',
     'HLT_HIMinBiasBSC_v1',
