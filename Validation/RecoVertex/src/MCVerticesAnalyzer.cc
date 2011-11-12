@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Thu Dec 16 16:32:56 CEST 2010
-// $Id: MCVerticesAnalyzer.cc,v 1.3 2011/07/22 09:46:20 venturia Exp $
+// $Id: MCVerticesAnalyzer.cc,v 1.4 2011/10/24 19:45:38 venturia Exp $
 //
 //
 
@@ -47,6 +47,7 @@
 
 
 #include "TH1F.h"
+#include "TH2F.h"
 #include "TProfile.h"
 
 //
@@ -76,6 +77,8 @@ private:
   edm::InputTag m_weight;
 
   TH1F* m_hnvtx;
+  TH1F* m_hlumi;
+  TH2F* m_hnvtxvslumi;
   TH1F* m_hnvtxweight;
   TProfile* m_hnvtxweightprof;
   TH1F* m_hmainvtxx;
@@ -111,13 +114,19 @@ MCVerticesAnalyzer::MCVerticesAnalyzer(const edm::ParameterSet& iConfig):
   edm::Service<TFileService> tfserv;
 
   m_hnvtx = tfserv->make<TH1F>("nvtx","Number of pileup vertices",50,-0.5,49.5);
-  m_hnvtx->GetXaxis()->SetTitle("Number of Vertices");
+  m_hnvtx->GetXaxis()->SetTitle("Number of Interactions");
+
+  m_hlumi = tfserv->make<TH1F>("lumi","BX luminosity*xsect",200,0.,50.);
+  m_hlumi->GetXaxis()->SetTitle("Number of Interactions");
+
+  m_hnvtxvslumi = tfserv->make<TH2F>("nvtxvslumi","Npileup vs BX luminosity*xsect",200,0.,50.,50,-0.5,49.5);
+  m_hnvtxvslumi->GetXaxis()->SetTitle("Average Number of Interactions");  m_hnvtxvslumi->GetYaxis()->SetTitle("Number of Interactions");
 
   if(m_useweight) {
     m_hnvtxweight = tfserv->make<TH1F>("nvtxweight","Number of pileup vertices (1-w)",50,-0.5,49.5);
-    m_hnvtxweight->GetXaxis()->SetTitle("Number of Vertices");
-    m_hnvtxweightprof = tfserv->make<TProfile>("nvtxweightprof","Mean (1-w) vs Number of pileup vertices",50,-0.5,49.5);
-    m_hnvtxweightprof->GetXaxis()->SetTitle("Number of Vertices");
+    m_hnvtxweight->GetXaxis()->SetTitle("Number of Interactions");
+    m_hnvtxweightprof = tfserv->make<TProfile>("nvtxweightprof","Mean (1-w) vs Number of pileup interactions",50,-0.5,49.5);
+    m_hnvtxweightprof->GetXaxis()->SetTitle("Number of Interactions");
   }
 
   m_hmainvtxx = tfserv->make<TH1F>("mainvtxx","Main vertex x position",200,-.5,.5);
@@ -183,7 +192,10 @@ MCVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
      }
      else {
 
+       m_hlumi->Fill(pileupinfo->getTrueNumInteractions(),weight);
        m_hnvtx->Fill(pileupinfo->getPU_NumInteractions(),weight);
+       m_hnvtxvslumi->Fill(pileupinfo->getTrueNumInteractions(),pileupinfo->getPU_NumInteractions(),weight);
+
        if(m_useweight) {
 	 m_hnvtxweight->Fill(pileupinfo->getPU_NumInteractions(),1.-weight);
 	 m_hnvtxweightprof->Fill(pileupinfo->getPU_NumInteractions(),1.-weight);
