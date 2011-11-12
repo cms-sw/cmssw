@@ -171,7 +171,9 @@ namespace edm {
   ParentageID const&
   DaqProvenanceHelper::mapParentageID(ParentageID const& parentageID) const {
     ParentageIDMap::const_iterator it = parentageIDMap_.find(parentageID);
-    assert(it != parentageIDMap_.end());
+    if(it == parentageIDMap_.end()) {
+      return parentageID;
+    }
     return it->second;
   }
 
