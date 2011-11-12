@@ -36124,3 +36124,49 @@ HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_Activity_Ecal_SC7_v8, HLT_
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
+# from CMSSW_5_0_0_pre6: ESSource -> ESProducer in JetMETCorrections/Modules
+if cmsswVersion > "CMSSW_5_0":
+    if 'hltESSAK5CaloL2L3' in locals():
+        hltESSAK5CaloL2L3 = cms.ESProducer( "JetCorrectionESChain",
+            appendToDataLabel = cms.string( "" ),
+            correctors = cms.vstring( 'hltESSL2RelativeCorrectionService',
+                'hltESSL3AbsoluteCorrectionService' ),
+            label = cms.string( "hltESSAK5CaloL2L3" )
+        )
+    if 'hltESSAK5CaloL1L2L3' in locals():
+        hltESSAK5CaloL2L3 = cms.ESProducer( "JetCorrectionESChain",
+            appendToDataLabel = cms.string( "" ),
+            correctors = cms.vstring( 'hltESSL1FastJetCorrectionService',
+                'hltESSL2RelativeCorrectionService',
+                'hltESSL3AbsoluteCorrectionService' ),
+            label = cms.string( "hltESSAK5CaloL1L2L3" )
+        )
+    if 'hltESSL1FastJetCorrectionService' in locals():
+        hltESSL1FastJetCorrectionService = cms.ESProducer( "L1FastjetCorrectionESProducer",
+            appendToDataLabel = cms.string( "" ),
+#           era = cms.string( "Jec10V1" ),
+            level = cms.string( "L1FastJet" ),
+            algorithm = cms.string( "AK5Calo" ),
+#           section = cms.string( "" ),
+            srcRho = cms.InputTag( 'hltKT6CaloJets','rho' )#,
+#           useCondDB = cms.untracked.bool( True )
+        )
+    if 'hltESSL2RelativeCorrectionService' in locals():
+        hltESSL2RelativeCorrectionService = cms.ESProducer( "LXXXCorrectionESProducer",
+            appendToDataLabel = cms.string( "" ),
+            level = cms.string( "L2Relative" ),
+            algorithm = cms.string( "AK5Calo" )#,
+#           section = cms.string( "" ),
+#           era = cms.string( "" ),
+#           useCondDB = cms.untracked.bool( True )
+        )
+    if 'hltESSL3AbsoluteCorrectionService' in locals():
+        hltESSL3AbsoluteCorrectionService = cms.ESProducer( "LXXXCorrectionESProducer",
+            appendToDataLabel = cms.string( "" ),
+            level = cms.string( "L3Absolute" ),
+            algorithm = cms.string( "AK5Calo" )#,
+#           section = cms.string( "" )#,
+#           era = cms.string( "" ),
+#           useCondDB = cms.untracked.bool( True )
+        )
+
