@@ -6240,7 +6240,7 @@ if cmsswVersion > "CMSSW_5_0":
             label = cms.string( "hltESSAK5CaloL2L3" )
         )
     if 'hltESSAK5CaloL1L2L3' in locals():
-        hltESSAK5CaloL2L3 = cms.ESProducer( "JetCorrectionESChain",
+        hltESSAK5CaloL1L2L3 = cms.ESProducer( "JetCorrectionESChain",
             appendToDataLabel = cms.string( "" ),
             correctors = cms.vstring( 'hltESSL1FastJetCorrectionService',
                 'hltESSL2RelativeCorrectionService',
