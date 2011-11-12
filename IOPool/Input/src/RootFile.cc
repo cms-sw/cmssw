@@ -515,7 +515,9 @@ namespace edm {
         ParentageID const oldID = parents.id();
         daqProvenanceHelper_->fixMetaData(parents.parents());
         ParentageID newID = parents.id();
-        daqProvenanceHelper_->parentageIDMap_.insert(std::make_pair(oldID, newID));
+        if(newID != oldID) {
+          daqProvenanceHelper_->parentageIDMap_.insert(std::make_pair(oldID, newID));
+        }
       }
       registry.insertMapped(parents);
     }
@@ -551,7 +553,9 @@ namespace edm {
         ParentageID const oldID = parents.id();
         daqProvenanceHelper_->fixMetaData(parents.parents());
         ParentageID newID = parents.id();
-        daqProvenanceHelper_->parentageIDMap_.insert(std::make_pair(oldID, newID));
+        if(newID != oldID) {
+          daqProvenanceHelper_->parentageIDMap_.insert(std::make_pair(oldID, newID));
+        }
       }
       registry.insertMapped(parents);
       parentageIDLookup_.push_back(parents.id());
