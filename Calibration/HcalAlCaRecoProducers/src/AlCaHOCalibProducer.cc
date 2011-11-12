@@ -53,7 +53,7 @@ Ring 0 L0 : Width Tray 6:266.6, 5&4:325.6, 3:330.6, 2:341.6, 1:272.6
 //
 // Original Author:  Gobinda Majumder
 //         Created:  Fri Jul  6 17:17:21 CEST 2007
-// $Id: AlCaHOCalibProducer.cc,v 1.23 2010/02/11 00:10:38 wmtan Exp $
+// $Id: AlCaHOCalibProducer.cc,v 1.24 2010/10/15 22:44:30 wmtan Exp $
 //
 //
 
@@ -726,8 +726,6 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       
       ESHandle<MagneticField> theMagField;
       iSetup.get<IdealMagneticFieldRecord>().get(theMagField );     
-      GlobalVector magfld = theMagField->inInverseGeV(glbpt);
-
 
       SteppingHelixPropagator myHelix(&*theMagField,anyDirection);
       myHelix.setMaterialMode(false);
@@ -741,7 +739,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       int iphisect = -1;
 
-      int ipath = 0;
+      bool ipath = false;
       for (int kl = 0; kl<=2; kl++) {
 
 	int iphisecttmp = (kl<2) ? iphisect_dt + kl : iphisect_dt - 1;
@@ -787,7 +785,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    if (ik ==1) {
 	      if ((std::abs(yy) < 130 && xx >-64.7 && xx <138.2)
 		  ||(std::abs(yy) > 130 && std::abs(yy) <700 && xx >-76.3 && xx <140.5)) {
-		ipath = 1;  //Only look for tracks which as hits in layer 1
+		ipath = true;  //Only look for tracks which as hits in layer 1
 		iphisect = iphisecttmp;
 	      }
 	    }
@@ -1051,7 +1049,7 @@ AlCaHOCalibProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 		if (std::abs(tmpeta) <=15 && deta==0 && dphi ==0) { 
 		  float signal = 0;
-		  int icnt = 0;
+		  size_t icnt = 0;
 		  for (int i =0; i<nchnmx && i< (*j).size(); i++) {
 		    if (i >=sigstr && i<=sigend) continue;
 		    signal += tmpdata[i] - pedestal[tmpeta1][tmpphi-1][(*j).sample(i).capid()];
