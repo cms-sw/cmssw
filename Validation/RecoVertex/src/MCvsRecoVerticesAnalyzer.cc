@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Thu Dec 16 16:32:56 CEST 2010
-// $Id: MCvsRecoVerticesAnalyzer.cc,v 1.1 2011/03/08 17:11:26 venturia Exp $
+// $Id: MCvsRecoVerticesAnalyzer.cc,v 1.2 2011/07/22 09:46:20 venturia Exp $
 //
 //
 
@@ -84,6 +84,9 @@ private:
   TH2F* m_hrecovsmcnvtx2d;
   TProfile* m_hrecovsmcnvtxprof;
   TProfile* m_hrecovsmcnvtxweightedprof;
+  TH2F* m_hrecovsmclumi2d;
+  TProfile* m_hrecovsmclumiprof;
+  TProfile* m_hrecovsmclumiweightedprof;
   TH1F* m_hdeltazfirst;
   TH1F* m_hdeltazclose;
   TH1F* m_hclosestvtx;
@@ -121,14 +124,24 @@ MCvsRecoVerticesAnalyzer::MCvsRecoVerticesAnalyzer(const edm::ParameterSet& iCon
 
   edm::Service<TFileService> tfserv;
 
-  m_hrecovsmcnvtx2d = tfserv->make<TH2F>("recovsmcnvtx2d","Number of reco vertices vs pileup interactions",50,-0.5,49.5,50,-0.5,49.5);
+  m_hrecovsmcnvtx2d = tfserv->make<TH2F>("recovsmcnvtx2d","Number of reco vertices vs pileup interactions",60,-0.5,59.5,60,-0.5,59.5);
   m_hrecovsmcnvtx2d->GetXaxis()->SetTitle("Pileup Interactions");  m_hrecovsmcnvtx2d->GetYaxis()->SetTitle("Reco Vertices");
-  m_hrecovsmcnvtxprof = tfserv->make<TProfile>("recovsmcnvtxprof","Mean number of reco vs pileup vertices",50,-0.5,49.5);
+  m_hrecovsmcnvtxprof = tfserv->make<TProfile>("recovsmcnvtxprof","Mean number of reco vs pileup vertices",60,-0.5,59.5);
   m_hrecovsmcnvtxprof->GetXaxis()->SetTitle("Pileup Interactions");  m_hrecovsmcnvtxprof->GetYaxis()->SetTitle("Reco Vertices");
 
+  m_hrecovsmclumi2d = tfserv->make<TH2F>("recovsmclumi2d","Number of reco vertices vs ave pileup interactions",200,0.,50.,60,-0.5,59.5);
+  m_hrecovsmclumi2d->GetXaxis()->SetTitle("Average Pileup Interactions");  m_hrecovsmclumi2d->GetYaxis()->SetTitle("Reco Vertices");
+  m_hrecovsmclumiprof = tfserv->make<TProfile>("recovsmclumiprof","Mean number of reco vs ave pileup vertices",200,0.,50.);
+  m_hrecovsmclumiprof->GetXaxis()->SetTitle("Average Pileup Interactions");  m_hrecovsmclumiprof->GetYaxis()->SetTitle("Reco Vertices");
+
   if(m_useweight) {
-    m_hrecovsmcnvtxweightedprof = tfserv->make<TProfile>("recovsmcnvtxweightedprof","Mean number of reco vs pileup vertices (1-w) weight",50,-0.5,49.5);
+    m_hrecovsmcnvtxweightedprof = tfserv->make<TProfile>("recovsmcnvtxweightedprof","Mean number of reco vs pileup vertices (1-w) weight",60,-0.5,59.5);
     m_hrecovsmcnvtxweightedprof->GetXaxis()->SetTitle("Pileup Interactions");  m_hrecovsmcnvtxweightedprof->GetYaxis()->SetTitle("Reco Vertices (1-w)");
+
+    m_hrecovsmclumiweightedprof = tfserv->make<TProfile>("recovsmclumiweightedprof","Mean number of reco vs ave pileup vertices (1-w) weight",
+							 200,0.,50.);
+    m_hrecovsmclumiweightedprof->GetXaxis()->SetTitle("Average Pileup Interactions");  
+    m_hrecovsmclumiweightedprof->GetYaxis()->SetTitle("Reco Vertices (1-w)");
   }
 
   m_hdeltazfirst = tfserv->make<TH1F>("deltazfirst","Reco-MC vertex z position (first vertex)",
@@ -228,8 +241,13 @@ MCvsRecoVerticesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
     m_hrecovsmcnvtx2d->Fill(npileup,pvcoll->size(),weight);
     m_hrecovsmcnvtxprof->Fill(npileup,pvcoll->size(),weight);
 
-    if(m_useweight) m_hrecovsmcnvtxweightedprof->Fill(npileup,pvcoll->size(),1.-weight);
-    
+    m_hrecovsmclumi2d->Fill(pileupinfo->getTrueNumInteractions(),pvcoll->size(),weight);
+    m_hrecovsmclumiprof->Fill(pileupinfo->getTrueNumInteractions(),pvcoll->size(),weight);
+
+    if(m_useweight) {
+      m_hrecovsmcnvtxweightedprof->Fill(npileup,pvcoll->size(),1.-weight);
+      m_hrecovsmcnvtxweightedprof->Fill(pileupinfo->getTrueNumInteractions(),pvcoll->size(),1.-weight);
+    }
     //
     
     Handle< HepMCProduct > EvtHandle ;

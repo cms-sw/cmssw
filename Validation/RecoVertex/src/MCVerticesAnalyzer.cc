@@ -13,7 +13,7 @@
 //
 // Original Author:  Andrea Venturi
 //         Created:  Thu Dec 16 16:32:56 CEST 2010
-// $Id: MCVerticesAnalyzer.cc,v 1.4 2011/10/24 19:45:38 venturia Exp $
+// $Id: MCVerticesAnalyzer.cc,v 1.5 2011/11/12 09:41:59 venturia Exp $
 //
 //
 
@@ -113,19 +113,19 @@ MCVerticesAnalyzer::MCVerticesAnalyzer(const edm::ParameterSet& iConfig):
 
   edm::Service<TFileService> tfserv;
 
-  m_hnvtx = tfserv->make<TH1F>("nvtx","Number of pileup vertices",50,-0.5,49.5);
+  m_hnvtx = tfserv->make<TH1F>("nvtx","Number of pileup vertices",60,-0.5,59.5);
   m_hnvtx->GetXaxis()->SetTitle("Number of Interactions");
 
   m_hlumi = tfserv->make<TH1F>("lumi","BX luminosity*xsect",200,0.,50.);
-  m_hlumi->GetXaxis()->SetTitle("Number of Interactions");
+  m_hlumi->GetXaxis()->SetTitle("Average Number of Interactions");
 
-  m_hnvtxvslumi = tfserv->make<TH2F>("nvtxvslumi","Npileup vs BX luminosity*xsect",200,0.,50.,50,-0.5,49.5);
+  m_hnvtxvslumi = tfserv->make<TH2F>("nvtxvslumi","Npileup vs BX luminosity*xsect",200,0.,50.,60,-0.5,59.5);
   m_hnvtxvslumi->GetXaxis()->SetTitle("Average Number of Interactions");  m_hnvtxvslumi->GetYaxis()->SetTitle("Number of Interactions");
 
   if(m_useweight) {
-    m_hnvtxweight = tfserv->make<TH1F>("nvtxweight","Number of pileup vertices (1-w)",50,-0.5,49.5);
+    m_hnvtxweight = tfserv->make<TH1F>("nvtxweight","Number of pileup vertices (1-w)",60,-0.5,59.5);
     m_hnvtxweight->GetXaxis()->SetTitle("Number of Interactions");
-    m_hnvtxweightprof = tfserv->make<TProfile>("nvtxweightprof","Mean (1-w) vs Number of pileup interactions",50,-0.5,49.5);
+    m_hnvtxweightprof = tfserv->make<TProfile>("nvtxweightprof","Mean (1-w) vs Number of pileup interactions",60,-0.5,59.5);
     m_hnvtxweightprof->GetXaxis()->SetTitle("Number of Interactions");
   }
 
