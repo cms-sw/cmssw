@@ -183,7 +183,8 @@ import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 """
 
-    self.data += """
+    if self.config.data:
+      self.data += """
 # from CMSSW_5_0_0_pre6: RawDataLikeMC=False (to keep "source")
 if cmsswVersion > "CMSSW_5_0":
     if 'source' in %(dict)s:
