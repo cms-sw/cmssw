@@ -5,13 +5,16 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
+class EcalClusterFunctionBaseClass ;
+
 class ElectronEnergyCorrector
  {
   public:
 
-    ElectronEnergyCorrector() {}
+    ElectronEnergyCorrector( EcalClusterFunctionBaseClass * crackCorrectionFunction )
+     : crackCorrectionFunction_(crackCorrectionFunction) {}
 
-    void correctEcalEnergy( reco::GsfElectron &, const reco::BeamSpot & bs /*, bool applyEcalEnergyCorrection = true*/ ) ;
+    void correctEcalEnergy( reco::GsfElectron &, const reco::BeamSpot & bs ) ;
     void correctEcalEnergyError( reco::GsfElectron & ) ;
 
   private:
@@ -31,9 +34,7 @@ class ElectronEnergyCorrector
     float fEt(float et, int algorithm, reco::GsfElectron::Classification cl ) const ;
     float fEnergy(float e, int algorithm, reco::GsfElectron::Classification cl ) const ;
 
-   //EcalClusterFunctionBaseClass * ff_ ;
-   //float newEnergy_ ;
-   //float newEnergyError_ ;
+    EcalClusterFunctionBaseClass * crackCorrectionFunction_ ;
 
  } ;
 

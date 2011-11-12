@@ -1,6 +1,7 @@
 
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronEnergyCorrector.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
+#include "RecoEcal/EgammaCoreTools/interface/EcalClusterFunctionBaseClass.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "TMath.h"
 
@@ -13,7 +14,7 @@
  * \author Ivica Puljak - FESB, Split
  * \author Stephanie Baffioni - Laboratoire Leprince-Ringuet - École polytechnique, CNRS/IN2P3
  *
- * \version $Id: ElectronEnergyCorrector.cc,v 1.13 2011/10/19 06:14:30 chamont Exp $
+ * \version $Id: ElectronEnergyCorrector.cc,v 1.14 2011/11/09 10:36:48 chamont Exp $
  *
  ****************************************************************************/
 
@@ -144,6 +145,22 @@ void ElectronEnergyCorrector::correctEcalEnergy
 
   newEnergy = energy/corr2;
 
+  // cracks
+  double crackcor = 1. ;
+  for ( reco::CaloCluster_iterator
+        cIt = electron.superCluster()->clustersBegin() ;
+        cIt != electron.superCluster()->clustersEnd() ;
+        ++cIt )
+   {
+    const reco::CaloClusterPtr cc = *cIt ;
+    crackcor *=
+     ( electron.superCluster()->rawEnergy()
+       + cc->energy()*(crackCorrectionFunction_->getValue(*cc)-1.) )
+     / electron.superCluster()->rawEnergy() ;
+   }
+  newEnergy *= crackcor ;
+
+  // register final value
   electron.setCorrectedEcalEnergy(newEnergy) ;
 
  }

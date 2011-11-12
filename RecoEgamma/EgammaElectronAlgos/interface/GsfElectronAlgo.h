@@ -179,7 +179,8 @@ class GsfElectronAlgo {
       const ElectronHcalHelper::Configuration & hcalCfgPflow,
       const IsolationConfiguration &,
       const SpikeConfiguration &,
-      EcalClusterFunctionBaseClass * superClusterErrorFunction
+      EcalClusterFunctionBaseClass * superClusterErrorFunction,
+      EcalClusterFunctionBaseClass * crackCorrectionFunction
      ) ;
 
     ~GsfElectronAlgo() ;

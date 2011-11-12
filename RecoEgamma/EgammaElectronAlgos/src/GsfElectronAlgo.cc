@@ -67,7 +67,8 @@ struct GsfElectronAlgo::GeneralData
      const ElectronHcalHelper::Configuration & hcalCfgPflow,
      const IsolationConfiguration &,
      const SpikeConfiguration &,
-     EcalClusterFunctionBaseClass * superClusterErrorFunction ) ;
+     EcalClusterFunctionBaseClass * superClusterErrorFunction,
+     EcalClusterFunctionBaseClass * crackCorrectionFunction ) ;
   ~GeneralData() ;
 
   // configurables
@@ -81,6 +82,7 @@ struct GsfElectronAlgo::GeneralData
   // additional configuration and helpers
   ElectronHcalHelper * hcalHelper, * hcalHelperPflow ;
   EcalClusterFunctionBaseClass * superClusterErrorFunction ;
+  EcalClusterFunctionBaseClass * crackCorrectionFunction ;
  } ;
 
  GsfElectronAlgo::GeneralData::GeneralData
@@ -92,7 +94,8 @@ struct GsfElectronAlgo::GeneralData
    const ElectronHcalHelper::Configuration & hcalConfigPflow,
    const IsolationConfiguration & isoConfig,
    const SpikeConfiguration & spikeConfig,
-   EcalClusterFunctionBaseClass * superClusterErrorFunc
+   EcalClusterFunctionBaseClass * superClusterErrorFunc,
+   EcalClusterFunctionBaseClass * crackCorrectionFunc
  )
  : inputCfg(inputConfig),
    strategyCfg(strategyConfig),
@@ -102,7 +105,8 @@ struct GsfElectronAlgo::GeneralData
    spikeCfg(spikeConfig),
    hcalHelper(new ElectronHcalHelper(hcalConfig)),
    hcalHelperPflow(new ElectronHcalHelper(hcalConfigPflow)),
-   superClusterErrorFunction(superClusterErrorFunc)
+   superClusterErrorFunction(superClusterErrorFunc),
+   crackCorrectionFunction(crackCorrectionFunc)
  {}
 
 GsfElectronAlgo::GeneralData::~GeneralData()
@@ -561,9 +565,10 @@ GsfElectronAlgo::GsfElectronAlgo
    const ElectronHcalHelper::Configuration & hcalCfgPflow,
    const IsolationConfiguration & isoCfg,
    const SpikeConfiguration & spikeCfg,
-   EcalClusterFunctionBaseClass * superClusterErrorFunction
+   EcalClusterFunctionBaseClass * superClusterErrorFunction,
+   EcalClusterFunctionBaseClass * crackCorrectionFunction
  )
- : generalData_(new GeneralData(inputCfg,strategyCfg,cutsCfg,cutsCfgPflow,hcalCfg,hcalCfgPflow,isoCfg,spikeCfg,superClusterErrorFunction)),
+ : generalData_(new GeneralData(inputCfg,strategyCfg,cutsCfg,cutsCfgPflow,hcalCfg,hcalCfgPflow,isoCfg,spikeCfg,superClusterErrorFunction,crackCorrectionFunction)),
    eventSetupData_(new EventSetupData),
    eventData_(0), electronData_(0)
  {}
@@ -615,7 +620,8 @@ void GsfElectronAlgo::checkSetup( const edm::EventSetup & es )
 
   if (generalData_->superClusterErrorFunction)
    { generalData_->superClusterErrorFunction->init(es) ; }
-
+  if (generalData_->crackCorrectionFunction)
+   { generalData_->crackCorrectionFunction->init(es) ; }
 
   if(eventSetupData_->cacheChStatus!=es.get<EcalChannelStatusRcd>().cacheIdentifier()){
     eventSetupData_->cacheChStatus=es.get<EcalChannelStatusRcd>().cacheIdentifier();
@@ -1191,7 +1197,7 @@ void GsfElectronAlgo::createElectron()
 
   ElectronClassification theClassifier;
   theClassifier.classify(*ele);
-  ElectronEnergyCorrector theEnCorrector ;
+  ElectronEnergyCorrector theEnCorrector(generalData_->crackCorrectionFunction) ;
   if (!generalData_->superClusterErrorFunction)
    { theEnCorrector.correctEcalEnergyError(*ele) ; }
   else
