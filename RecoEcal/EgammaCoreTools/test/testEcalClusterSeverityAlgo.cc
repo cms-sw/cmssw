@@ -12,7 +12,7 @@ Implementation:
 */
 //
 // Original Author:  "Paolo Meridiani CERN CMG"
-// $Id: testEcalClusterSeverityAlgo.cc,v 1.4 2010/01/04 15:08:33 ferriff Exp $
+// $Id: testEcalClusterSeverityAlgo.cc,v 1.5 2011/01/16 08:39:54 argiro Exp $
 
 
 
@@ -255,7 +255,7 @@ void testEcalClusterSeverityAlgo::analyze(const edm::Event& ev, const edm::Event
 		    HepMC::FourVector pAssSim = genPc->momentum();
 
 
-		    bool okGsfFound = false;
+		    //bool okGsfFound = false;
 		    double ScOkRatio = 999999.;
 		    
 		    
@@ -272,7 +272,7 @@ void testEcalClusterSeverityAlgo::analyze(const edm::Event& ev, const edm::Event
 			if ( fabs(tmpScRatio-1) < fabs(ScOkRatio-1) ) {
 			  ScOkRatio = tmpScRatio;
 			  bestMcMatch=genPc;
-			  okGsfFound = true;
+			  //okGsfFound = true;
 			}
 		      }
 		    

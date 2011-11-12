@@ -1048,7 +1048,7 @@ Cluster2ndMoments EcalClusterTools::cluster2ndMoments( std::vector<const EcalRec
   std::vector<double> yDetId;
   std::vector<double> wiDetId;
  
-  int nCry=0;
+  unsigned int nCry=0;
   double denominator=0.;
   bool isBarrel(1);
 
@@ -1090,19 +1090,19 @@ Cluster2ndMoments EcalClusterTools::cluster2ndMoments( std::vector<const EcalRec
   if(isBarrel){
     // correct phi wrap-around:
     if(max_phi==359.5 && min_phi==0.5){ 
-      for(int i=0; i<nCry; i++){
+      for(unsigned int i=0; i<nCry; i++){
 	if(phiDetId[i] - 179. > 0.) phiDetId[i]-=360.; 
 	mid_phi+=phiDetId[i]*wiDetId[i];
 	mid_eta+=etaDetId[i]*wiDetId[i];
       }
     } else{
-      for(int i=0; i<nCry; i++){
+      for(unsigned int i=0; i<nCry; i++){
 	mid_phi+=phiDetId[i]*wiDetId[i];
 	mid_eta+=etaDetId[i]*wiDetId[i];
       }
     }
   }else{
-    for(int i=0; i<nCry; i++){
+    for(unsigned int i=0; i<nCry; i++){
       mid_eta+=etaDetId[i]*wiDetId[i];      
       mid_x+=xDetId[i]*wiDetId[i];
       mid_y+=yDetId[i]*wiDetId[i];
@@ -1123,7 +1123,7 @@ Cluster2ndMoments EcalClusterTools::cluster2ndMoments( std::vector<const EcalRec
   double Sep=0.;
   double deta(0),dphi(0);
   // compute (phi-corrected) covariance matrix:
-  for(int i=0; i<nCry; i++) {
+  for(unsigned int i=0; i<nCry; i++) {
     if(isBarrel) {
       deta = etaDetId[i]-mid_eta;
       dphi = phiDetId[i]-mid_phi;
