@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Tue May 22 23:54:16 CEST 2007
-// $Id: V0Analyzer.cc,v 1.14 2009/12/18 20:45:10 wmtan Exp $
+// $Id: V0Analyzer.cc,v 1.15 2010/02/20 21:02:03 wmtan Exp $
 //
 //
 
@@ -504,8 +504,7 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
   ESHandle<TrackerGeometry> trackerGeomHandle;
   iSetup.get<TrackerDigiGeometryRecord>().get(trackerGeomHandle);
 
-  const TrackerGeometry* trackerGeom;
-  trackerGeom = trackerGeomHandle.product();
+  //const TrackerGeometry* trackerGeom = trackerGeomHandle.product();
   
   //std::cout << "Getting by label..." << std::endl;
   iEvent.getByLabel(algoLabel, V0CollectionName, theCandHand);
@@ -598,9 +597,9 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
   mySimEtaHisto->Fill(simEta, 1.);
 
   
-  bool hasKshort = false;
-  bool hasLambda = false;
-  bool hasLambdaBar = false;
+  //bool hasKshort = false;
+  //bool hasLambda = false;
+  //bool hasLambdaBar = false;
   //std::cout << theKshorts.size() << std::endl;
 
   if( V0CollectionName == std::string("Kshort") ) {
@@ -648,6 +647,7 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
 			       theKshorts[ksndx].py()), 1.);*/
     myKshortPtHisto->Fill(theKshorts[ksndx].pt(), 1.);
 
+    /*
     if(theKshorts[ksndx].pdgId() == 310) {
       hasKshort = true;
     }
@@ -657,9 +657,10 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
     if(theKshorts[ksndx].pdgId() == -3122) {
       hasLambdaBar = true;
     }
-    //std::cout << "$#@#$: " << hasKshort << " " << hasLambda << " "
-    //<< hasLambdaBar << " size: " << theKshorts.size() << std::endl;
-    //std::cout << "@@@ MASS: " << theKshorts[ksndx].mass() << std::endl;
+    std::cout << "$#@#$: " << hasKshort << " " << hasLambda << " "
+              << hasLambdaBar << " size: " << theKshorts.size() << std::endl;
+    std::cout << "@@@ MASS: " << theKshorts[ksndx].mass() << std::endl;
+    */
 
     kShortEtaHisto->Fill(theKshorts[ksndx].eta(), 1.);
 

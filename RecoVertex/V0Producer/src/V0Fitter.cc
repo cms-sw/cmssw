@@ -13,7 +13,7 @@
 //
 // Original Author:  Brian Drell
 //         Created:  Fri May 18 22:57:40 CEST 2007
-// $Id: V0Fitter.cc,v 1.52 2010/10/26 04:42:37 wmtan Exp $
+// $Id: V0Fitter.cc,v 1.54 2011/03/15 23:04:47 drell Exp $
 //
 //
 
@@ -34,6 +34,7 @@
 #include <Math/SVector.h>
 #include <Math/SMatrix.h>
 #include <typeinfo>
+#include <memory>
 
 // Constants
 
@@ -332,8 +333,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
       // Cuts finished, now we create the candidates and push them back into the collections.
       
-      TrajectoryStateClosestToPoint* trajPlus;
-      TrajectoryStateClosestToPoint* trajMins;
+      std::auto_ptr<TrajectoryStateClosestToPoint> trajPlus;
+      std::auto_ptr<TrajectoryStateClosestToPoint> trajMins;
 
       if( useRefTrax && refittedTrax.size() > 1 ) {
 	// Need an iterator over the refitted tracks for below
@@ -347,28 +348,23 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
         
 	for( ; traxIter != traxEnd; ++traxIter) {
 	  if( traxIter->track().charge() > 0. ) {
-	    thePositiveRefTrack = new TransientTrack(*traxIter);
+	    thePositiveRefTrack = &*traxIter;
 	  }
 	  else if (traxIter->track().charge() < 0.) {
-	    theNegativeRefTrack = new TransientTrack(*traxIter);
+	    theNegativeRefTrack = &*traxIter;
 	  }
 	}
-	trajPlus = new TrajectoryStateClosestToPoint(
-		thePositiveRefTrack->trajectoryStateClosestToPoint(vtxPos));
-	trajMins = new TrajectoryStateClosestToPoint(
-		theNegativeRefTrack->trajectoryStateClosestToPoint(vtxPos));
-	delete thePositiveRefTrack;
-	delete theNegativeRefTrack;
+        if (thePositiveRefTrack == 0 || theNegativeRefTrack == 0) continue;
+	trajPlus.reset(new TrajectoryStateClosestToPoint(thePositiveRefTrack->trajectoryStateClosestToPoint(vtxPos)));
+	trajMins.reset(new TrajectoryStateClosestToPoint(theNegativeRefTrack->trajectoryStateClosestToPoint(vtxPos)));
       }
       else {
-	trajPlus = new TrajectoryStateClosestToPoint(
-			 posTransTkPtr->trajectoryStateClosestToPoint(vtxPos));
-	trajMins = new TrajectoryStateClosestToPoint(
-			 negTransTkPtr->trajectoryStateClosestToPoint(vtxPos));
+	trajPlus.reset(new TrajectoryStateClosestToPoint(posTransTkPtr->trajectoryStateClosestToPoint(vtxPos)));
+	trajMins.reset(new TrajectoryStateClosestToPoint(negTransTkPtr->trajectoryStateClosestToPoint(vtxPos)));
 
       }
 
-      if( !trajPlus->isValid() || !trajMins->isValid() ) continue;
+      if( trajPlus.get() == 0 || trajMins.get() == 0 || !trajPlus->isValid() || !trajMins->isValid() ) continue;
 
       posTransTkPtr = negTransTkPtr = 0;
 
@@ -377,9 +373,8 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       GlobalVector totalP(positiveP + negativeP);
 
       //cleanup stuff we don't need anymore
-      delete trajPlus;
-      delete trajMins;
-      trajPlus = trajMins = 0;
+      trajPlus.reset();
+      trajMins.reset();
 
       // calculate total energy of V0 3 ways:
       //  Assume it's a kShort, a Lambda, or a LambdaBar.

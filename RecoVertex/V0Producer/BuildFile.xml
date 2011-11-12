@@ -20,6 +20,3 @@
 <use   name="RecoVertex/VertexPrimitives"/>
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="TrackingTools/IPTools"/>
-<export>
-  <lib   name="1"/>
-</export>
