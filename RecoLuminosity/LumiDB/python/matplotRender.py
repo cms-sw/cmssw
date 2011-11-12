@@ -49,6 +49,7 @@ def guessLumiUnit(t):
     output: (unitstring,denomitor)
     '''
     unitstring='$\mu$b$^{-1}$'
+    denomitor=1.0
     if t>=1.0e3 and t<1.0e06:
         denomitor=1.0e3
         unitstring='nb$^{-1}$'
