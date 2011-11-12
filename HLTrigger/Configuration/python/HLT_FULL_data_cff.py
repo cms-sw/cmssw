@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_4_2/HLT/V77 (CMSSW_4_4_0_HLT12)
+# /dev/CMSSW_4_4_2/HLT/V78 (CMSSW_4_4_0_HLT13)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HLT/V77')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HLT/V78')
 )
 
 streams = cms.PSet( 
@@ -36122,4 +36122,9 @@ HLTSchedule = cms.Schedule( *(HLTriggerFirstPath, HLT_Activity_Ecal_SC7_v8, HLT_
 # version specific customizations
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
+
+# from CMSSW_5_0_0_pre6: RawDataLikeMC=False (to keep "source")
+if cmsswVersion > "CMSSW_5_0":
+    if 'source' in locals():
+        source.labelRawDataLikeMC = cms.untracked.bool( False )
 

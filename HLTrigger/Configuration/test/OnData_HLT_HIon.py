@@ -8012,3 +8012,8 @@ if 'MessageLogger' in process.__dict__:
 import os
 cmsswVersion = os.environ['CMSSW_VERSION']
 
+# from CMSSW_5_0_0_pre6: RawDataLikeMC=False (to keep "source")
+if cmsswVersion > "CMSSW_5_0":
+    if 'source' in process.__dict__:
+        process.source.labelRawDataLikeMC = cms.untracked.bool( False )
+
