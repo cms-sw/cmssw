@@ -17,23 +17,23 @@ date >> "$logpath/lumiPlotCron.log"
 outfile="$outdir/totallumivstime-hi-2011"
 infile="$outdir/totallumivstime-hi-2011.csv"
 touch $infile
-echo "lumiSumPlot.py -c $dbConnectionString -P $authdir -norm $normStr -b stable -beamenergy 3500 -beamfluctuation 0.2 -amodetag $amodetag -beginTime $begTime -inplot $outfile -outplot $outfile time" >> "$logpath/lumiPlotCron.log"
-echo 0
-lumiSumPlot.py -c $dbConnectionString -P $authdir  -norm $normStr -b stable -beamenergy 3500 -beamfluctuation 0.2 -amodetag $amodetag -beginTime "$begTime" -inplot "$infile" -outplot "$outfile" time >> "$logpath/lumiPlotCron.log"
+echo "lumiSumPlot.py -c $dbConnectionString -P $authdir -norm $normStr -b stable -beamenergy 3500 -beamfluctuation 0.2 -amodetag $amodetag -beginTime $begTime -inplot $outfile -outplot $outfile --without-correction time" >> "$logpath/lumiPlotCron.log"
 
+lumiSumPlot.py -c $dbConnectionString -P $authdir  -norm $normStr -b stable -beamenergy 3500 -beamfluctuation 0.2 -amodetag $amodetag -beginTime "$begTime" -inplot "$infile" -outplot "$outfile"  --without-correction time >> "$logpath/lumiPlotCron.log"
+echo DONE
 outfile="$outdir/lumiperday-hi-2011"
 infile="$outdir/lumiperday-hi-2011.csv"
 touch $infile
 echo "lumiSumPlot.py -c $dbConnectionString -P $authdir -norm $normStr -b stable -beamenergy 3500 -beamfluctuation 0.2 -amodetag $amodetag -beginTime $begTime -inplot $infile -outplot $outfile  perday ">>  "$logpath/lumiPlotCron.log"
 echo 1
-lumiSumPlot.py -c $dbConnectionString -P $authdir -norm $normStr -b stable -beamenergy 3500 -beamfluctuation 0.2 -amodetag $amodetag -beginTime "$begTime" -inplot $infile -outplot $outfile perday >> "$logpath/lumiPlotCron.log"
-echo 2
+lumiSumPlot.py -c $dbConnectionString -P $authdir -norm $normStr -b stable -beamenergy 3500 -beamfluctuation 0.2 -amodetag $amodetag -beginTime "$begTime" -inplot $infile -outplot $outfile  --without-correction perday >> "$logpath/lumiPlotCron.log"
+echo DONE
 outfile="$outdir/lumipeak-hi-2011"
 infile="$outdir/lumipeak-hi-2011.csv"
 touch $infile
 echo "lumiSumPlot.py -c $dbConnectionString -P $authdir -o $outdir -norm $normStr -b stable -beamenergy 3500 -beamfluctuation 0.2 -amodetag $amodetag -beginTime $begTime -inplot $infile -outplot $outfile instpeakperday">> "$logpath/lumiPlotCron.log"
-echo 3
-lumiSumPlot.py -c $dbConnectionString -P $authdir -o $outdir -norm $normStr -b stable -beamenergy 3500 -beamfluctuation 0.2 -amodetag $amodetag -beginTime "$begTime" -inplot $infile -outplot $outfile instpeakperday >> "$logpath/lumiPlotCron.log"
 
+lumiSumPlot.py -c $dbConnectionString -P $authdir -o $outdir -norm $normStr -b stable -beamenergy 3500 -beamfluctuation 0.2 -amodetag $amodetag -beginTime "$begTime" -inplot $infile -outplot $outfile  --without-correction instpeakperday >> "$logpath/lumiPlotCron.log"
+echo DONE
 date >> "$logpath/lumiPlotCron.log"
 cd $currentdir
