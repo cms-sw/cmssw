@@ -376,7 +376,6 @@ Geant4ePropagator::propagate (const FreeTrajectoryState& ftsStart,
     //------------------------------------
     //For cylinder assume outside is backwards, inside is along
     //General use for particles from collisions
-    LocalVector lmom = cDest.toLocal(cmsInitMom);
     LocalPoint lpos = cDest.toLocal(cmsInitPos);
     Surface::Side theSide = cDest.side(lpos,0);
     if(theSide==SurfaceOrientation::positiveSide){  //outside cylinder
