@@ -32,7 +32,7 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     pf_conv_mvaCut=cms.double(0.0),                                 
     pf_locC_mvaWeightFile=cms.string('RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFClusterCorr.root'),
     pf_GlobC_mvaWeightFile=cms.string('RecoParticleFlow/PFProducer/data/TMVARegression_BDTG_PFGlobalCorr.root'),
-    X0_Map=cms.string('/afs/cern.ch/user/r/rpatel/public/allX0histos.root'),
+    X0_Map=cms.string('RecoParticleFlow/PFProducer/data/allX0histos.root'),
     sumPtTrackIsoForPhoton=cms.double(2.0),
     sumPtTrackIsoSlopeForPhoton=cms.double(0.001),
 
