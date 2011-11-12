@@ -665,7 +665,7 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	std::cout << TheSample(ievt) << "SIM HITS IN THE SEED " << seed->nHits() << std::endl;
       }
       
-      const GeomDet* theGeomDet;
+      //      const GeomDet* theGeomDet;
       unsigned int theSubDetId=-99; 
       unsigned int theLayerNumber=-99;
       //      unsigned int theRingNumber=-99;
@@ -674,7 +674,7 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       for( TrajectorySeed::const_iterator ihit = hitRange.first; ihit !=hitRange.second; ihit++){
 	
 	const DetId& theDetId = ihit->geographicalId();
-	theGeomDet = theGeometry->idToDet(theDetId);
+	//	theGeomDet = theGeometry->idToDet(theDetId);
 	theSubDetId = theDetId.subdetId(); 
 	if ( theSubDetId == StripSubdetector::TIB) { 
 	  TIBDetId tibid(theDetId.rawId()); 
