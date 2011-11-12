@@ -1092,11 +1092,12 @@ float PFPhotonAlgo::EvaluateLCorrMVA(reco::PFClusterRef clusterRef ){
 
 
 void PFPhotonAlgo::GetCrysCoordinates(reco::PFClusterRef clusterRef){
-  float PFSeedEta=99;
+  // Commented by Florian. Source of warnings as not used 
+  //  float PFSeedEta=99;
   float PFSeedPhi=99;
   float PFSeedTheta=99;
   double PFSeedE=0;
-  unsigned int SeedDetId=-1;
+  //  unsigned int SeedDetId=-1;
   // float seedPhi=0;
   //  float seedEta=0;
   DetId idseed;
@@ -1109,9 +1110,9 @@ void PFPhotonAlgo::GetCrysCoordinates(reco::PFClusterRef clusterRef){
     float frac=clusterRef->hitsAndFractions()[index].second;
     float E= RefPFRecHit->energy()* frac;
     if(E>PFSeedE){
-      SeedDetId=RefPFRecHit.index();
+      //      SeedDetId=RefPFRecHit.index();
       PFSeedE=E;  
-      PFSeedEta=RefPFRecHit->positionREP().eta(); 
+      //      PFSeedEta=RefPFRecHit->positionREP().eta(); 
       PFSeedPhi=RefPFRecHit->positionREP().phi();
       PFSeedTheta=RefPFRecHit->positionREP().theta();
       RefPFRecHit->positionREP().theta();
@@ -1188,10 +1189,11 @@ void PFPhotonAlgo::GetCrysCoordinates(reco::PFClusterRef clusterRef){
 
 void PFPhotonAlgo::fill5x5Map(reco::PFClusterRef clusterRef){
 
-  float PFSeedEta=99;
-  float PFSeedPhi=99;
+  // commented out by Florian. Not used in the code
+  //  float PFSeedEta=99;
+  //  float PFSeedPhi=99;
   double PFSeedE=0;
-  unsigned int SeedDetId=-1;
+  //  unsigned int SeedDetId=-1;
   //  float seedPhi=0;
   //float seedEta=0;
   DetId idseed;
@@ -1205,10 +1207,10 @@ void PFPhotonAlgo::fill5x5Map(reco::PFClusterRef clusterRef){
     float frac=clusterRef->hitsAndFractions()[index].second;
     float E= RefPFRecHit->energy()* frac;
     if(E>PFSeedE){
-      SeedDetId=RefPFRecHit.index();
+      //      SeedDetId=RefPFRecHit.index();
       PFSeedE=E;  
-      PFSeedEta=RefPFRecHit->positionREP().eta(); 
-      PFSeedPhi=RefPFRecHit->positionREP().phi(); 
+      //      PFSeedEta=RefPFRecHit->positionREP().eta(); 
+      //      PFSeedPhi=RefPFRecHit->positionREP().phi(); 
       idseed = RefPFRecHit->detId();
     }
   }
