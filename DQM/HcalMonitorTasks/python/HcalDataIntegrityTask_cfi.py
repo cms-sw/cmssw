@@ -14,6 +14,6 @@ hcalDataIntegrityMonitor = cms.EDAnalyzer("HcalDataIntegrityTask",
                                           
                                           # task-specific stuff
                                    
-                                          RawDataLabel           = cms.untracked.InputTag("source"),
+                                          RawDataLabel           = cms.untracked.InputTag("rawDataCollector"),
                                           UnpackerReportLabel    = cms.untracked.InputTag("hcalDigis")
                                           )

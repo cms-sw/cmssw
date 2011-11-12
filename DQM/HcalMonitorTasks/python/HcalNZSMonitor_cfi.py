@@ -13,7 +13,7 @@ hcalNZSMonitor=cms.EDAnalyzer("HcalNZSMonitor",
                               NLumiBlocks            = cms.untracked.int32(4000),
 
                               # NZS-specific parameters
-                              RawDataLabel           = cms.untracked.InputTag("source"),
+                              RawDataLabel           = cms.untracked.InputTag("rawDataCollector"),
                             
                               HLTResultsLabel        = cms.untracked.InputTag("TriggerResults","","HLT"),
                               nzsHLTnames            = cms.untracked.vstring('HLT_HcalPhiSym',

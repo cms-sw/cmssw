@@ -17,7 +17,7 @@ hcalDetDiagPedestalMonitor=cms.EDAnalyzer("HcalDetDiagPedestalMonitor",
                                           
                                           # Input collections
                                           digiLabel              = cms.untracked.InputTag("hcalDigis"),
-                                          rawDataLabel           = cms.untracked.InputTag("source"),
+                                          rawDataLabel           = cms.untracked.InputTag("rawDataCollector"),
                                           # reference dataset path + filename
                                           PedestalReferenceData  = cms.untracked.string(""),
                                           # processed dataset name (to create HTML only)

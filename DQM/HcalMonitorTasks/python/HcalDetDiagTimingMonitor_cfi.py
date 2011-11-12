@@ -22,5 +22,5 @@ hcalDetDiagTimingMonitor=cms.EDAnalyzer("HcalDetDiagTimingMonitor",
                                        CosmicsCorr            = cms.untracked.bool(False),
                                        gtLabel                = cms.untracked.InputTag("l1GtUnpack"),
                                        digiLabel              = cms.untracked.InputTag("hcalDigis"),
-                                       FEDRawDataCollection   = cms.untracked.InputTag("source")
+                                       FEDRawDataCollection   = cms.untracked.InputTag("rawDataCollector")
                                        )

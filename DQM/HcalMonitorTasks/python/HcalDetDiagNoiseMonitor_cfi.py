@@ -16,7 +16,7 @@ hcalDetDiagNoiseMonitor=cms.EDAnalyzer("HcalDetDiagNoiseMonitor",
                                        # DetDiag Noise Monitor-specific Info
                                        UseDB                  = cms.untracked.bool(False),
  
-                                       RawDataLabel           = cms.untracked.InputTag("source"),
+                                       RawDataLabel           = cms.untracked.InputTag("rawDataCollector"),
                                        digiLabel              = cms.untracked.InputTag("hcalDigis"),
                         	       gtLabel                = cms.untracked.InputTag("l1GtUnpack"),
                                        Overwrite              = cms.untracked.bool(True),

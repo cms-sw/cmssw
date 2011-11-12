@@ -13,7 +13,7 @@ hcalRawDataMonitor=cms.EDAnalyzer("HcalRawDataMonitor",
                                  NLumiBlocks            = cms.untracked.int32(4000),
 
                                  # Collection to get
-                                 FEDRawDataCollection = cms.untracked.InputTag("source"),
+                                 FEDRawDataCollection = cms.untracked.InputTag("rawDataCollector"),
                                  digiLabel            = cms.untracked.InputTag("hcalDigis"),
                                   
                                  excludeHORing2         = cms.untracked.bool(True),                                  

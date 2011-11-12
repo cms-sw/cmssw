@@ -9,7 +9,7 @@ cscMonitor = cms.EDAnalyzer("CSCOfflineMonitor",
     alctDigiTag = cms.InputTag("muonCSCDigis","MuonCSCALCTDigi"),
     clctDigiTag = cms.InputTag("muonCSCDigis","MuonCSCCLCTDigi"),
     cscSegTag = cms.InputTag("cscSegments"),
-    FEDRawDataCollectionTag = cms.InputTag("source")
+    FEDRawDataCollectionTag = cms.InputTag("rawDataCollector")
 )
 
 

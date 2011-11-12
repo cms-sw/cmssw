@@ -21,7 +21,7 @@ ecalEndcapTrendTask = cms.EDAnalyzer("EETrendTask",
     EcalElectronicsIdCollection4 = cms.InputTag("ecalEBunpacker","EcalIntegrityMemBlockSizeErrors"),
     EcalElectronicsIdCollection5 = cms.InputTag("ecalEBunpacker","EcalIntegrityMemChIdErrors"),
     EcalElectronicsIdCollection6 = cms.InputTag("ecalEBunpacker","EcalIntegrityMemGainErrors"),
-    FEDRawDataCollection = cms.InputTag("source"),
+    FEDRawDataCollection = cms.InputTag("rawDataCollector"),
     EESRFlagCollection = cms.InputTag("ecalEBunpacker")
 )
 

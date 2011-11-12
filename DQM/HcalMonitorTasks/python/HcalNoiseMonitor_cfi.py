@@ -13,7 +13,7 @@ hcalNoiseMonitor=cms.EDAnalyzer("HcalNoiseMonitor",
                                 NLumiBlocks            = cms.untracked.int32(4000),
                                 
                                 # parameters
-                                RawDataLabel           = cms.untracked.InputTag("source"),
+                                RawDataLabel           = cms.untracked.InputTag("rawDataCollector"),
                                 
                                 HLTResultsLabel        = cms.untracked.InputTag("TriggerResults","","HLT"),
                                 hbheDigiLabel        = cms.untracked.InputTag("hcalDigis"),
