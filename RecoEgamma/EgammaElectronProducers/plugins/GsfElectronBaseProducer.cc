@@ -139,6 +139,7 @@ void GsfElectronBaseProducer::fillDescription( edm::ParameterSetDescription & de
 
   // Corrections
   desc.add<std::string>("superClusterErrorFunction","EcalClusterEnergyUncertainty") ;
+  desc.add<std::string>("crackCorrectionFunction","EcalClusterCrackCorrection") ;
  }
 
 GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
@@ -285,7 +286,7 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
     cfg.getParameter<std::vector<std::string> >("recHitFlagsToBeExcluded");
   spikeCfg.recHitFlagsToBeExcluded = StringToEnumValue<EcalRecHit::Flags>(flagnames);
 
-  // function for corrector
+  // functions for corrector
   EcalClusterFunctionBaseClass * superClusterErrorFunction = 0 ;
   std::string superClusterErrorFunctionName
    = cfg.getParameter<std::string>("superClusterErrorFunction") ;
@@ -294,6 +295,14 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
     superClusterErrorFunction
      = EcalClusterFunctionFactory::get()->create(superClusterErrorFunctionName,cfg) ;
    }
+  EcalClusterFunctionBaseClass * crackCorrectionFunction = 0 ;
+  std::string crackCorrectionFunctionName
+   = cfg.getParameter<std::string>("crackCorrectionFunction") ;
+  if (crackCorrectionFunctionName!="")
+   {
+    crackCorrectionFunction
+     = EcalClusterFunctionFactory::get()->create(crackCorrectionFunctionName,cfg) ;
+   }
 
   // create algo
   algo_ = new GsfElectronAlgo
@@ -301,7 +310,8 @@ GsfElectronBaseProducer::GsfElectronBaseProducer( const edm::ParameterSet& cfg )
      cutsCfg_,cutsCfgPflow_,
      hcalCfg_,hcalCfgPflow_,
      isoCfg,spikeCfg,
-     superClusterErrorFunction ) ;
+     superClusterErrorFunction,
+     crackCorrectionFunction ) ;
  }
 
 GsfElectronBaseProducer::~GsfElectronBaseProducer()
