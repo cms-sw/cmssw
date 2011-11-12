@@ -1,8 +1,8 @@
 /*
  * \file DTDigiTask.cc
  * 
- * $Date: 2011/10/21 18:29:19 $
- * $Revision: 1.66 $
+ * $Date: 2011/10/31 17:11:20 $
+ * $Revision: 1.67 $
  * \author M. Zanetti - INFN Padova
  *
  */
@@ -627,7 +627,6 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
       uint32_t indexCh = dtChId.rawId();
       int layer_number=((*dtLayerId_It).first).layer();
       int superlayer_number=dtSLId.superlayer();
-      const  DTLayerId dtLId = (*dtLayerId_It).first;
 
       // Read the ttrig DB or set a rough value from config
       // ttrig and rms are TDC counts
@@ -771,20 +770,20 @@ void DTDigiTask::analyze(const edm::Event& event, const edm::EventSetup& c) {
 string DTDigiTask::triggerSource() {
 
   string l1ASource;
+  if (isLocalRun)
+    return l1ASource;
 
-  if (!isLocalRun) {
-    for (std::vector<LTCDigi>::const_iterator ltc_it = ltcdigis->begin(); ltc_it != ltcdigis->end(); ltc_it++){
-      int otherTriggerSum=0;
-      for (int i = 1; i < 6; i++)
-        otherTriggerSum += int((*ltc_it).HasTriggered(i));
+  for (std::vector<LTCDigi>::const_iterator ltc_it = ltcdigis->begin(); ltc_it != ltcdigis->end(); ltc_it++){
+    size_t otherTriggerSum=0;
+    for (size_t i = 1; i < 6; i++)
+      otherTriggerSum += size_t((*ltc_it).HasTriggered(i));
 
-      if ((*ltc_it).HasTriggered(0) && otherTriggerSum == 0) 
-        l1ASource = "DTonly";
-      else if (!(*ltc_it).HasTriggered(0))
-        l1ASource = "NoDT";
-      else if ((*ltc_it).HasTriggered(0) && otherTriggerSum > 0)
-        l1ASource = "DTalso";
-    }
+    if ((*ltc_it).HasTriggered(0) && otherTriggerSum == 0) 
+      l1ASource = "DTonly";
+    else if (!(*ltc_it).HasTriggered(0))
+      l1ASource = "NoDT";
+    else if ((*ltc_it).HasTriggered(0) && otherTriggerSum > 0)
+      l1ASource = "DTalso";
   }
 
   return l1ASource;

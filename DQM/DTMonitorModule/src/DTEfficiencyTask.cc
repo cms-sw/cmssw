@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/05 10:14:40 $
- *  $Revision: 1.15 $
+ *  $Date: 2011/06/14 08:53:04 $
+ *  $Revision: 1.16 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -269,7 +269,7 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	    layerMap.insert(make_pair((*layer)->id(), false));
 	    const int firstWire = dtGeom->layer((*layer)->id())->specificTopology().firstChannel();
 	    const int lastWire = dtGeom->layer((*layer)->id())->specificTopology().lastChannel();
-	    for(int i=firstWire; i <= lastWire; i++) {
+	    for(int i=firstWire; i - lastWire <= 0; i++) {
 	      DTWireId wireId((*layer)->id(), i);	     
 	      float wireX = (*layer)->specificTopology().wirePosition(wireId.wire());
 	      LocalPoint wirePosInLay(wireX,0,0);

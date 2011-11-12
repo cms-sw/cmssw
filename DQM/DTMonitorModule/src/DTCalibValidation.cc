@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/05/12 10:32:40 $
- *  $Revision: 1.13 $
+ *  $Date: 2010/06/22 19:09:29 $
+ *  $Revision: 1.14 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -84,7 +84,6 @@ void DTCalibValidation::beginRun(const Run& run, const EventSetup& setup) {
   vector<DTChamber*>::const_iterator ch_it = dtGeom->chambers().begin(); 	 
   vector<DTChamber*>::const_iterator ch_end = dtGeom->chambers().end(); 	 
   for (; ch_it != ch_end; ++ch_it) { 	 
-    DTChamberId chId = (*ch_it)->id();
     vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin(); 	 
     vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end(); 	 
     // Loop over the SLs 	 

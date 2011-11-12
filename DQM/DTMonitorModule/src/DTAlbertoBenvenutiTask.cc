@@ -3,8 +3,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/01/05 10:14:40 $
- *  $Revision: 1.9 $
+ *  $Date: 2011/06/14 08:53:04 $
+ *  $Revision: 1.10 $
  *  \author G. Mila - INFN Torino
  */
 
@@ -185,7 +185,7 @@ void DTAlbertoBenvenutiTask::bookHistos(const DTWireId dtWire) {
 	  const int firstWire = muonGeom->layer(layerId)->specificTopology().firstChannel();
 	  const int lastWire = muonGeom->layer(layerId)->specificTopology().lastChannel();
 	  // Loop overt the wires
-	  for(int wr=firstWire; wr <= lastWire; wr++) {
+	  for(int wr=firstWire; wr -lastWire <= 0; wr++) {
 
 	    stringstream wire; wire << wr;
 	    DTWireId wrId(layerId, wr);
@@ -273,13 +273,13 @@ void DTAlbertoBenvenutiTask::analyze(const edm::Event& e, const edm::EventSetup&
       }      
  
       // for clearness..
-      const  DTSuperLayerId dtSLId = ((*dtLayerId_It).first).superlayerId();
+//      const  DTSuperLayerId dtSLId = ((*dtLayerId_It).first).superlayerId();
 //       uint32_t indexSL = dtSLId.rawId();
-      const  DTChamberId dtChId = dtSLId.chamberId(); 
+//      const  DTChamberId dtChId = dtSLId.chamberId(); 
 //       uint32_t indexCh = dtChId.rawId();
 //       int layer_number=((*dtLayerId_It).first).layer();
 //       int superlayer_number=dtSLId.superlayer();
-      const  DTLayerId dtLId = (*dtLayerId_It).first;
+//      const  DTLayerId dtLId = (*dtLayerId_It).first;
 //       uint32_t indexL = dtLId.rawId();
       
       float t0; float t0RMS;

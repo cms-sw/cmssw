@@ -1,8 +1,8 @@
  /*
  * \file DTDigiForNoiseTask.cc
  * 
- * $Date: 2010/01/05 10:14:40 $
- * $Revision: 1.9 $
+ * $Date: 2011/06/14 08:53:04 $
+ * $Revision: 1.10 $
  * \author G. Mila - INFN Torino
  *
  */
@@ -180,7 +180,7 @@ void DTDigiForNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 	    bookHistos(layerId);
 	  
 	  if (digiHistos.find(layerId) != digiHistos.end()){
-	    for (int wire=firstWire; wire<=lastWire; wire++) {
+	    for (int wire=firstWire; wire-lastWire <= 0; wire++) {
 	      DigiPerWirePerEvent[wire]= 0;
 	    }
 
@@ -190,7 +190,7 @@ void DTDigiForNoiseTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 	      DigiPerWirePerEvent[(*digi).wire()]+=1;
 	    }
 
-	    for (int wire=firstWire; wire<=lastWire; wire++) {
+	    for (int wire=firstWire; wire-lastWire<=0; wire++) {
 	      digiHistos.find(layerId)->second->Fill(wire,DigiPerWirePerEvent[wire]);
 	    }
 	  }

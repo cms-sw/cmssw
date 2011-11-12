@@ -1,8 +1,8 @@
 /*
  * \file DTLocalTriggerTask.cc
  * 
- * $Date: 2010/01/05 10:14:40 $
- * $Revision: 1.37 $
+ * $Date: 2010/03/15 09:42:52 $
+ * $Revision: 1.38 $
  * \author M. Zanetti - INFN Padova
  *
 */
@@ -1023,9 +1023,9 @@ void DTLocalTriggerTask::triggerSource(const edm::Event& e) {
     
     for (std::vector<LTCDigi>::const_iterator ltc_it = ltcdigis->begin(); ltc_it != ltcdigis->end(); ltc_it++){
       
-      int otherTriggerSum=0;
-      for (int i = 1; i < 6; i++) {
-	otherTriggerSum += int((*ltc_it).HasTriggered(i));
+      size_t otherTriggerSum=0;
+      for (size_t i = 1; i < 6; i++) {
+	otherTriggerSum += size_t((*ltc_it).HasTriggered(i));
       }
       if ((*ltc_it).HasTriggered(0) && otherTriggerSum == 0) 
 	trigsrc = "_DTonly";

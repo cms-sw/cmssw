@@ -2,8 +2,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2011/06/10 13:23:26 $
- *  $Revision: 1.29 $
+ *  $Date: 2011/06/14 08:53:04 $
+ *  $Revision: 1.30 $
  *  \author G. Cerminara - INFN Torino
  *  revised by G. Mila - INFN Torino
  */
@@ -224,8 +224,6 @@ void DTSegmentAnalysisTask::analyze(const edm::Event& event, const edm::EventSet
      //END FOR NOISY CHANNELS////////////////////////////////
       
      int nHits=0;
-     LocalPoint segment4DLocalPos = (*segment4D).localPosition();
-     LocalVector segment4DLocalDirection = (*segment4D).localDirection();
      if((*segment4D).hasPhi())
        nHits = (((*segment4D).phiSegment())->specificRecHits()).size();
      if((*segment4D).hasZed()) 
