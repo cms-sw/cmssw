@@ -128,7 +128,7 @@ SiStripMonitorDigi = cms.EDAnalyzer("SiStripMonitorDigi",
         subdetswitchon = cms.bool(False)
     ),
 
-    TkHistoMap_On = cms.bool(False),
+    TkHistoMap_On = cms.bool(True),
     TkHistoMapNApvShots_On = cms.bool(False),
     TkHistoMapNStripApvShots_On = cms.bool(False),
     TkHistoMapMedianChargeApvShots_On = cms.bool(False),
