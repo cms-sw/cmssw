@@ -1,6 +1,6 @@
 // F. Cossutti
-// $Date: $
-// $Revision: $//
+// $Date: 2011/10/31 15:52:55 $
+// $Revision: 1.1 $//
 
 // Dump in standard ascii format the LHE file stored as string lumi product
 
@@ -19,7 +19,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/Framework/interface/Run.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -35,7 +35,7 @@ public:
   
 private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+  virtual void endRun(edm::Run const&, edm::EventSetup const&);
   virtual void endJob();
 
   edm::InputTag lheProduct_;
@@ -66,12 +66,10 @@ ExternalLHEAsciiDumper::analyze(const edm::Event&, const edm::EventSetup&)
 // ------------ method called once each job just after ending the event loop  ------------
 
 void
-ExternalLHEAsciiDumper::endLuminosityBlock(edm::LuminosityBlock const& iLumi, edm::EventSetup const&) {
+ExternalLHEAsciiDumper::endRun(edm::Run const& iRun, edm::EventSetup const&) {
 
   edm::Handle< std::string > LHEAscii;
-  iLumi.getByLabel(lheProduct_,LHEAscii);
-
-  edm::LogInfo("LumiDump") << "Dumping lumi section = " << iLumi.id();
+  iRun.getByLabel(lheProduct_,LHEAscii);
 
   const char * theName(lheFileName_.c_str());
   std::ofstream outfile;

@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Brian Paul Bockelman,8 R-018,+41227670861,
 //         Created:  Fri Oct 21 11:37:26 CEST 2011
-// $Id: ExternalLHEProducer.cc,v 1.1 2011/10/31 15:52:55 fabiocos Exp $
+// $Id: ExternalLHEProducer.cc,v 1.2 2011/11/13 18:31:40 fabiocos Exp $
 //
 //
 
@@ -121,7 +121,7 @@ ExternalLHEProducer::ExternalLHEProducer(const edm::ParameterSet& iConfig) :
   outputFile_(iConfig.getParameter<std::string>("outputFile")),
   args_(iConfig.getParameter<std::vector<std::string> >("args"))
 {
-  produces<std::string, edm::InLumi>("LHEScriptOutput"); 
+  produces<std::string, edm::InRun>("LHEScriptOutput"); 
 
   produces<LHEEventProduct>();
   produces<LHERunInfoProduct, edm::InRun>();
@@ -198,8 +198,51 @@ ExternalLHEProducer::endJob() {
 
 // ------------ method called when starting to processes a run  ------------
 void 
-ExternalLHEProducer::beginRun(edm::Run&, edm::EventSetup const&)
+ExternalLHEProducer::beginRun(edm::Run& run, edm::EventSetup const& es)
 {
+
+  // pass luminosity block id as last argument, needed to define the seed of random number generators
+
+  //  std::stringstream ss;
+  //  ss << lumi.id().luminosityBlock();
+  //  std::string iseed = ss.str();
+  args_.push_back("23456");
+
+  executeScript();
+  std::auto_ptr<std::string> localContents = readOutput();
+  outputContents_ = *localContents;
+
+  run.put(localContents, "LHEScriptOutput");
+
+  // LHE C++ classes translation
+
+  unsigned int skip = 0;
+  std::auto_ptr<lhef::LHEReader> thisRead( new lhef::LHEReader(outputContents_, skip ) );
+  reader_ = thisRead;
+
+  nextEvent();
+  if (runInfoLast) {
+    runInfo = runInfoLast;
+  
+    std::auto_ptr<LHERunInfoProduct> product(new LHERunInfoProduct(*runInfo->getHEPRUP()));
+    std::for_each(runInfo->getHeaders().begin(),
+                  runInfo->getHeaders().end(),
+                  boost::bind(&LHERunInfoProduct::addHeader,
+                              product.get(), _1));
+    std::for_each(runInfo->getComments().begin(),
+                  runInfo->getComments().end(),
+                  boost::bind(&LHERunInfoProduct::addComment,
+                              product.get(), _1));
+  
+    // keep a copy around in case of merging
+    runInfoProducts.push_back(new LHERunInfoProduct(*product));
+    wasMerged = false;
+  
+    run.put(product);
+  
+    runInfo.reset();
+  }
+
 }
 
 // ------------ method called when ending the processing of a run  ------------
@@ -370,49 +413,6 @@ std::auto_ptr<std::string> ExternalLHEProducer::readOutput()
 void 
 ExternalLHEProducer::beginLuminosityBlock(edm::LuminosityBlock& lumi, edm::EventSetup const&)
 {
-
-  // pass luminosity block id as last argument, needed to define the seed of random number generators
-
-  std::stringstream ss;
-  ss << lumi.id().luminosityBlock();
-  std::string iseed = ss.str();
-  args_.push_back(iseed);
-
-  executeScript();
-  std::auto_ptr<std::string> localContents = readOutput();
-  outputContents_ = *localContents;
-
-  lumi.put(localContents, "LHEScriptOutput");
-
-  // LHE C++ classes translation
-
-  unsigned int skip = 0;
-  std::auto_ptr<lhef::LHEReader> thisRead( new lhef::LHEReader(outputContents_, skip ) );
-  reader_ = thisRead;
-
-  nextEvent();
-  if (runInfoLast) {
-    runInfo = runInfoLast;
-  
-    std::auto_ptr<LHERunInfoProduct> product(new LHERunInfoProduct(*runInfo->getHEPRUP()));
-    std::for_each(runInfo->getHeaders().begin(),
-                  runInfo->getHeaders().end(),
-                  boost::bind(&LHERunInfoProduct::addHeader,
-                              product.get(), _1));
-    std::for_each(runInfo->getComments().begin(),
-                  runInfo->getComments().end(),
-                  boost::bind(&LHERunInfoProduct::addComment,
-                              product.get(), _1));
-  
-    // keep a copy around in case of merging
-    runInfoProducts.push_back(new LHERunInfoProduct(*product));
-    wasMerged = false;
-  
-    //    run.put(product);
-  
-    runInfo.reset();
-  }
-
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
