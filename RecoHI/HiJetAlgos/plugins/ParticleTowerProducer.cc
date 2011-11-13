@@ -13,7 +13,7 @@
 //
 // Original Author:  Yetkin Yilmaz,32 4-A08,+41227673039,
 //         Created:  Thu Jan 20 19:53:58 CET 2011
-// $Id: ParticleTowerProducer.cc,v 1.5 2011/03/15 13:26:21 mnguyen Exp $
+// $Id: ParticleTowerProducer.cc,v 1.6 2011/03/26 10:55:09 mnguyen Exp $
 //
 //
 
@@ -33,10 +33,8 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-
-
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-#include "DataFormats/Candidate/interface/CandidateFwd.h"
+#include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
@@ -80,7 +78,7 @@ class ParticleTowerProducer : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&);
       virtual void endJob() ;
    void resetTowers(edm::Event& iEvent,const edm::EventSetup& iSetup);
-  DetId getNearestTower(const reco::Candidate & in) const;
+  DetId getNearestTower(const reco::PFCandidate & in) const;
 
       // ----------member data ---------------------------
 
@@ -162,25 +160,21 @@ ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
    resetTowers(iEvent, iSetup);
 
-
- 
-   edm::Handle<edm::View<reco::Candidate> > inputsHandle;
+   edm::Handle<reco::PFCandidateCollection> inputsHandle;
    iEvent.getByLabel(src_, inputsHandle);
+   
+   for(reco::PFCandidateCollection::const_iterator ci  = inputsHandle->begin(); ci!=inputsHandle->end(); ++ci)  {
 
-   for(unsigned int i = 0; i < inputsHandle->size(); ++i){
-      const reco::Candidate & particle = (*inputsHandle)[i];
-
-      // put a cutoff if you want
-      //if(particle.et() < 0.3) continue;      
-
-      double eta  = particle.eta();
-      double phi  = particle.phi();
-
-      HcalDetId hid = getNearestTower(particle);
-
-      towers_[hid] += particle.et();      
+    const reco::PFCandidate& particle = *ci;
+    
+    // put a cutoff if you want
+    //if(particle.et() < 0.3) continue;      
+    
+    HcalDetId hid = getNearestTower(particle);
+    
+    towers_[hid] += particle.et();      
    }
-
+   
    
    std::auto_ptr<CaloTowerCollection> prod(new CaloTowerCollection());
 
@@ -258,7 +252,7 @@ void ParticleTowerProducer::resetTowers(edm::Event& iEvent,const edm::EventSetup
 
 
 
-DetId ParticleTowerProducer::getNearestTower(const reco::Candidate & in) const {
+DetId ParticleTowerProducer::getNearestTower(const reco::PFCandidate & in) const {
 
   double eta = in.eta();
   double phi  = in.phi();
