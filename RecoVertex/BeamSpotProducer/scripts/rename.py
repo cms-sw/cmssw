@@ -56,7 +56,7 @@ def main():
                             error = "This file (" + fileName + ") contains more than 1 run number!"
                             if regExp:
                                 newFileName = regExp.group(1) + regExp.group(2) + "_" + str(runNumber) + "_1.txt" 
-                                with open(finalDir+newFileName,'w') as outFile:
+                                with open(finalDir+newFileName,'a') as outFile:
                                     outFile.writelines(allTxt)
                                 outFile.close()
                                 allTxt = ''
@@ -72,7 +72,7 @@ def main():
             file.close()
             if regExp:
                 newFileName = regExp.group(1) + regExp.group(2) + "_" + str(runNumber) + "_" + regExp.group(3) + ".txt" 
-                with open(finalDir+newFileName,'w') as outFile:
+                with open(finalDir+newFileName,'a') as outFile:
                     outFile.writelines(allTxt)
                 outFile.close()
 
