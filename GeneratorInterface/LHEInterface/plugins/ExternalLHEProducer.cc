@@ -5,37 +5,50 @@
 // 
 /**\class ExternalLHEProducer ExternalLHEProducer.cc Example/ExternalLHEProducer/src/ExternalLHEProducer.cc
 
- Description: [one line class summary]
+Description: [one line class summary]
 
- Implementation:
-     [Notes on implementation]
+Implementation:
+[Notes on implementation]
 */
 //
 // Original Author:  Brian Paul Bockelman,8 R-018,+41227670861,
 //         Created:  Fri Oct 21 11:37:26 CEST 2011
-// $Id$
+// $Id: ExternalLHEProducer.cc,v 1.1 2011/10/31 15:52:55 fabiocos Exp $
 //
 //
 
 
 // system include files
 #include <memory>
+#include <vector>
 #include <string>
 #include <unistd.h>
 #include <dirent.h>
 #include <fcntl.h>
 #include <sys/wait.h>
 
+#include <boost/shared_ptr.hpp>
+#include <boost/ptr_container/ptr_deque.hpp>
+
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+
+#include "SimDataFormats/GeneratorProducts/interface/LesHouches.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
+
+#include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
+#include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
+#include "GeneratorInterface/LHEInterface/interface/LHEReader.h"
 
 //
 // class declaration
@@ -50,10 +63,10 @@ public:
   
 private:
   virtual void beginJob();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) ;
   virtual void endJob();
   
-  virtual void beginRun(edm::Run&, edm::EventSetup const&);
+  virtual void beginRun(edm::Run& run, edm::EventSetup const& es);
   virtual void endRun(edm::Run&, edm::EventSetup const&);
   virtual void beginLuminosityBlock(edm::LuminosityBlock&, edm::EventSetup const&);
   
@@ -62,12 +75,21 @@ private:
   int closeDescriptors(int preserve);
   void executeScript();
   std::auto_ptr<std::string> readOutput();
+
+  virtual void nextEvent();
   
   // ----------member data ---------------------------
   std::string scriptName_;
   std::string outputFile_;
   std::vector<std::string> args_;
   std::string outputContents_;
+
+  std::auto_ptr<lhef::LHEReader>		reader_;
+  boost::shared_ptr<lhef::LHERunInfo>	runInfoLast;
+  boost::shared_ptr<lhef::LHERunInfo>	runInfo;
+  boost::shared_ptr<lhef::LHEEvent>	partonLevel;
+  boost::ptr_deque<LHERunInfoProduct>	runInfoProducts;
+  bool					wasMerged;
   
   class FileCloseSentry : private boost::noncopyable {
   public:
@@ -79,7 +101,7 @@ private:
   private:
     int fd_;
   };
-  
+ 
 };
 
 //
@@ -100,12 +122,14 @@ ExternalLHEProducer::ExternalLHEProducer(const edm::ParameterSet& iConfig) :
   args_(iConfig.getParameter<std::vector<std::string> >("args"))
 {
   produces<std::string, edm::InLumi>("LHEScriptOutput"); 
+
+  produces<LHEEventProduct>();
+  produces<LHERunInfoProduct, edm::InRun>();
 }
 
 
 ExternalLHEProducer::~ExternalLHEProducer()
 {
-  
 }
 
 
@@ -117,6 +141,45 @@ ExternalLHEProducer::~ExternalLHEProducer()
 void
 ExternalLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
+  nextEvent();
+  if (!partonLevel)
+    return;
+
+  std::auto_ptr<LHEEventProduct> product(new LHEEventProduct(*partonLevel->getHEPEUP()));
+  if (partonLevel->getPDF())
+    product->setPDF(*partonLevel->getPDF());
+  std::for_each(partonLevel->getComments().begin(),
+                partonLevel->getComments().end(),
+                boost::bind(&LHEEventProduct::addComment,
+                            product.get(), _1));
+
+  iEvent.put(product);
+
+  if (runInfo) {
+    std::auto_ptr<LHERunInfoProduct> product(new LHERunInfoProduct(*runInfo->getHEPRUP()));
+    std::for_each(runInfo->getHeaders().begin(),
+                  runInfo->getHeaders().end(),
+                  boost::bind(&LHERunInfoProduct::addHeader,
+                              product.get(), _1));
+    std::for_each(runInfo->getComments().begin(),
+                  runInfo->getComments().end(),
+                  boost::bind(&LHERunInfoProduct::addComment,
+                              product.get(), _1));
+  
+    if (!runInfoProducts.empty()) {
+      runInfoProducts.front().mergeProduct(*product);
+      if (!wasMerged) {
+        runInfoProducts.pop_front();
+        runInfoProducts.push_front(product);
+        wasMerged = true;
+      }
+    }
+  
+    runInfo.reset();
+  }
+  
+  partonLevel.reset();
+  return; 
 }
 
 // ------------ method called once each job just before starting event loop  ------------
@@ -128,6 +191,9 @@ ExternalLHEProducer::beginJob()
 // ------------ method called once each job just after ending the event loop  ------------
 void 
 ExternalLHEProducer::endJob() {
+
+  reader_.reset();
+
 }
 
 // ------------ method called when starting to processes a run  ------------
@@ -138,8 +204,14 @@ ExternalLHEProducer::beginRun(edm::Run&, edm::EventSetup const&)
 
 // ------------ method called when ending the processing of a run  ------------
 void 
-ExternalLHEProducer::endRun(edm::Run&, edm::EventSetup const&)
+ExternalLHEProducer::endRun(edm::Run& run, edm::EventSetup const& es)
 {
+
+  if (!runInfoProducts.empty()) {
+    std::auto_ptr<LHERunInfoProduct> product(runInfoProducts.pop_front().release());
+    run.put(product);
+  }
+
 }
 
 // ------------ Close all the open file descriptors ------------
@@ -308,7 +380,39 @@ ExternalLHEProducer::beginLuminosityBlock(edm::LuminosityBlock& lumi, edm::Event
 
   executeScript();
   std::auto_ptr<std::string> localContents = readOutput();
+  outputContents_ = *localContents;
+
   lumi.put(localContents, "LHEScriptOutput");
+
+  // LHE C++ classes translation
+
+  unsigned int skip = 0;
+  std::auto_ptr<lhef::LHEReader> thisRead( new lhef::LHEReader(outputContents_, skip ) );
+  reader_ = thisRead;
+
+  nextEvent();
+  if (runInfoLast) {
+    runInfo = runInfoLast;
+  
+    std::auto_ptr<LHERunInfoProduct> product(new LHERunInfoProduct(*runInfo->getHEPRUP()));
+    std::for_each(runInfo->getHeaders().begin(),
+                  runInfo->getHeaders().end(),
+                  boost::bind(&LHERunInfoProduct::addHeader,
+                              product.get(), _1));
+    std::for_each(runInfo->getComments().begin(),
+                  runInfo->getComments().end(),
+                  boost::bind(&LHERunInfoProduct::addComment,
+                              product.get(), _1));
+  
+    // keep a copy around in case of merging
+    runInfoProducts.push_back(new LHERunInfoProduct(*product));
+    wasMerged = false;
+  
+    //    run.put(product);
+  
+    runInfo.reset();
+  }
+
 }
 
 // ------------ method called when ending the processing of a luminosity block  ------------
@@ -331,6 +435,23 @@ ExternalLHEProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<std::vector<std::string> >("args");
 
   descriptions.addDefault(desc);
+}
+
+void ExternalLHEProducer::nextEvent()
+{
+
+  if (partonLevel)
+    return;
+
+  partonLevel = reader_->next();
+  if (!partonLevel)
+    return;
+
+  boost::shared_ptr<lhef::LHERunInfo> runInfoThis = partonLevel->getRunInfo();
+  if (runInfoThis != runInfoLast) {
+    runInfo = runInfoThis;
+    runInfoLast = runInfoThis;
+  }
 }
 
 //define this as a plug-in

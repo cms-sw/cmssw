@@ -166,7 +166,7 @@ if [ $minmax_jet == true ] ;then
 	${file}_qcut${qcut}_mgPostv2.lhe 
 fi
 
-mv ${file}_qcut${qcut}_mgPostv2.lhe ${file}.lhe 
+mv ${file}_qcut${qcut}_mgPostv2.lhe ${file}_final.lhe 
 
 ls -l
 echo
