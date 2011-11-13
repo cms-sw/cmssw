@@ -1,10 +1,12 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "SimDataFormats/GeneratorProducts/interface/LHERunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 #include <iostream>
@@ -49,6 +51,41 @@ private:
 
 
   }
+
+  void beginRun(edm::Run const& iRun, edm::EventSetup const& es){
+
+
+    Handle<LHERunInfoProduct> run;
+    iRun.getByLabel( src_, run );
+    
+    const lhef::HEPRUP thisHeprup_ = run->heprup();
+
+    std::cout << "HEPRUP \n" << std::endl;
+    std::cout << "IDBMUP " << std::setw(14) << std::fixed << thisHeprup_.IDBMUP.first 
+              << std::setw(14) << std::fixed << thisHeprup_.IDBMUP.second << std::endl; 
+    std::cout << "EBMUP  " << std::setw(14) << std::fixed << thisHeprup_.EBMUP.first 
+              << std::setw(14) << std::fixed << thisHeprup_.EBMUP.second << std::endl; 
+    std::cout << "PDFGUP " << std::setw(14) << std::fixed << thisHeprup_.PDFGUP.first 
+              << std::setw(14) << std::fixed << thisHeprup_.PDFGUP.second << std::endl; 
+    std::cout << "PDFSUP " << std::setw(14) << std::fixed << thisHeprup_.PDFSUP.first 
+              << std::setw(14) << std::fixed << thisHeprup_.PDFSUP.second << std::endl; 
+    std::cout << "IDWTUP " << std::setw(14) << std::fixed << thisHeprup_.IDWTUP << std::endl; 
+    std::cout << "NPRUP  " << std::setw(14) << std::fixed << thisHeprup_.NPRUP << std::endl; 
+    std::cout << "        XSECUP " << std::setw(14) << std::fixed 
+              << "        XERRUP " << std::setw(14) << std::fixed 
+              << "        XMAXUP " << std::setw(14) << std::fixed 
+              << "        LPRUP  " << std::setw(14) << std::fixed << std::endl;
+    for ( unsigned int iSize = 0 ; iSize < thisHeprup_.XSECUP.size() ; iSize++ ) {
+      std::cout  << std::setw(14) << std::fixed << thisHeprup_.XSECUP[iSize]
+                 << std::setw(14) << std::fixed << thisHeprup_.XERRUP[iSize]
+                 << std::setw(14) << std::fixed << thisHeprup_.XMAXUP[iSize]
+                 << std::setw(14) << std::fixed << thisHeprup_.LPRUP[iSize] 
+                 << std::endl;
+    }
+    std::cout << " " << std::endl;
+
+  }
+
   InputTag src_;
 };
 
