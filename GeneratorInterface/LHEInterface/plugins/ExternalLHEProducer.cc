@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Brian Paul Bockelman,8 R-018,+41227670861,
 //         Created:  Fri Oct 21 11:37:26 CEST 2011
-// $Id: ExternalLHEProducer.cc,v 1.3 2011/11/13 22:36:09 fabiocos Exp $
+// $Id: ExternalLHEProducer.cc,v 1.4 2011/11/14 08:55:03 fabiocos Exp $
 //
 //
 
@@ -53,6 +53,8 @@ Implementation:
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 //
 // class declaration
 //
@@ -85,6 +87,7 @@ private:
   std::string scriptName_;
   std::string outputFile_;
   std::vector<std::string> args_;
+  uint32_t nEvents_;
   std::string outputContents_;
 
   std::auto_ptr<lhef::LHEReader>		reader_;
@@ -122,7 +125,8 @@ private:
 ExternalLHEProducer::ExternalLHEProducer(const edm::ParameterSet& iConfig) :
   scriptName_((iConfig.getParameter<edm::FileInPath>("scriptName")).fullPath().c_str()),
   outputFile_(iConfig.getParameter<std::string>("outputFile")),
-  args_(iConfig.getParameter<std::vector<std::string> >("args"))
+  args_(iConfig.getParameter<std::vector<std::string> >("args")),
+  nEvents_(iConfig.getParameter<uint32_t>("nEvents"))
 {
   produces<std::string, edm::InRun>("LHEScriptOutput"); 
 
@@ -204,7 +208,13 @@ void
 ExternalLHEProducer::beginRun(edm::Run& run, edm::EventSetup const& es)
 {
 
-  // pass luminosity block id as last argument, needed to define the seed of random number generators
+  // pass the number of events as previous to last argument
+  
+  std::ostringstream eventStream;
+  eventStream << nEvents_;
+  args_.push_back(eventStream.str());
+
+  // pass the random number generator seed as last argument
 
   edm::Service<edm::RandomNumberGenerator> rng;
 
@@ -214,9 +224,13 @@ ExternalLHEProducer::beginRun(edm::Run& run, edm::EventSetup const& es)
       "which is not present in the configuration file.  You must add the service\n"
       "in the configuration file if you want to run ExternalLHEProducer";
   }
-  std::ostringstream seedStream;
-  seedStream << rng->mySeed(); 
-  args_.push_back(seedStream.str());
+  std::ostringstream randomStream;
+  randomStream << rng->mySeed(); 
+  args_.push_back(randomStream.str());
+
+  for ( unsigned int iArg = 0; iArg < args_.size() ; iArg++ ) {
+    LogDebug("LHEInputArgs") << "arg [" << iArg << "] = " << args_[iArg];
+  }
 
   executeScript();
   std::auto_ptr<std::string> localContents = readOutput();
@@ -443,6 +457,7 @@ ExternalLHEProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<edm::FileInPath>("scriptName", thePath);
   desc.add<std::string>("outputFile", "myoutput");
   desc.add<std::vector<std::string> >("args");
+  desc.add<uint32_t>("nEvents");
 
   descriptions.addDefault(desc);
 }

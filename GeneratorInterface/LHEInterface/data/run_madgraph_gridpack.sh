@@ -12,30 +12,30 @@ echo "%MSG-MG5 repository = $repo"
 name=${2} 
 echo "%MSG-MG5 gridpack = $name"
 
-nevt=${3}
-echo "%MSG-MG5 number of events requested = $nevt"
-
-decay=${4}
+decay=${3}
 echo "%MSG-MG5 run decay = $decay"
 
-replace=${5}
+replace=${4}
 echo "%MSG-MG5 replace = $replace"
 
-process=${6}
+process=${5}
 echo "%MSG-MG5 process = $process"
 
-maxjetflavor=${7}
+maxjetflavor=${6}
 echo "%MSG-MG5 maxjetflavor = $maxjetflavor"
 
-qcut=${8}
+qcut=${7}
 echo "%MSG-MG5 qcut = $qcut"
 
-minmax_jet=${9}
+minmax_jet=${8}
 echo "%MSG-MG5 minmax_jet = $minmax_jet"
 
-min_jets=${10}
-max_jets=${11}
+min_jets=${9}
+max_jets=${10}
 echo "%MSG-MG5 min/max jet multiplicity = $min_jets / $max_jets"
+
+nevt=${11}
+echo "%MSG-MG5 number of events requested = $nevt"
 
 rnum=${12}
 echo "%MSG-MG5 random seed used for the run = $rnum"
