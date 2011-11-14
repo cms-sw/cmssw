@@ -31,16 +31,29 @@ kt6PFJetsCentralChargedPileUp = kt6PFJets.clone(
 kt6PFJetsCentralNeutral = kt6PFJets.clone(
     src = cms.InputTag("pfAllNeutralHadronsAndPhotons"),
     Ghost_EtaMax = cms.double(3.1),
-    Rho_EtaMax = cms.double(2.5)
+    Rho_EtaMax = cms.double(2.5),
+    inputEtMin = cms.double(0.5)
     )
 
 
-recoPFJets   =cms.Sequence(kt4PFJets+kt6PFJets+kt6PFJetsCentralChargedPileUp+kt6PFJetsCentralNeutral+
+
+kt6PFJetsCentralNeutralTight = kt6PFJetsCentralNeutral.clone(
+    inputEtMin = cms.double(1.0)
+    )
+
+
+recoPFJets   =cms.Sequence(kt4PFJets+kt6PFJets+
+                           kt6PFJetsCentralChargedPileUp+
+                           kt6PFJetsCentralNeutral+
+                           kt6PFJetsCentralNeutralTight+
                            iterativeCone5PFJets+
                            ak5PFJets+ak7PFJets)
 
 recoAllPFJets=cms.Sequence(sisCone5PFJets+sisCone7PFJets+
-                           kt4PFJets+kt6PFJets+kt6PFJetsCentralChargedPileUp+kt6PFJetsCentralNeutral+
+                           kt4PFJets+kt6PFJets+
+                           kt6PFJetsCentralChargedPileUp+
+                           kt6PFJetsCentralNeutral+
+                           kt6PFJetsCentralNeutralTight+
                            iterativeCone5PFJets+
                            ak5PFJets+ak7PFJets+
                            gk5PFJets+gk7PFJets+
