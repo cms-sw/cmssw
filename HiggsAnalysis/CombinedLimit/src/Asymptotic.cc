@@ -319,6 +319,7 @@ std::vector<std::pair<float,float> > Asymptotic::runLimitExpected(RooWorkspace *
             rCross = 0.05 * rMax; rErr = rMax; 
             double stride = rCross; bool overstepped = false;
             while (rErr > std::max(rRelAccuracy_*rCross, rAbsAccuracy_)) {
+                if (rCross >= r->getMax()) r->setMax(rCross*1.1);
                 r->setVal(rCross);
                 bool ok = true;
                 { 
