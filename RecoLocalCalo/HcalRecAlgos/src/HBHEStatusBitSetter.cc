@@ -82,10 +82,10 @@ void HBHEStatusBitSetter::SetFlagsFromDigi(HBHERecHit& hbhe,
   CaloSamples tool;
   coder.adc2fC(digi,tool);
 
-  int capid=-1;
+  //  int capid=-1;
   for (unsigned int iSlice=0;iSlice<size;iSlice++) 
     {
-      capid  = digi.sample(iSlice).capid();
+      //      capid  = digi.sample(iSlice).capid();
       //shuichi_charge_total+=tool[iSlice]-calib.pedestal(capid);
       nominal_charge_total+=digi[iSlice].nominal_fC()-nominalPedestal_;
 
