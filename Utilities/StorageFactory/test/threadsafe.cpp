@@ -1,3 +1,4 @@
+#include "FWCore/Utilities/interface/Exception.h"
 #include "Utilities/StorageFactory/test/Test.h"
 #include "Utilities/StorageFactory/interface/Storage.h"
 #include <boost/thread/thread.hpp>
@@ -16,7 +17,7 @@ static void dump()
   delete s;
 }
 
-int main (int, char **)
+int main (int, char **) try
 {
   initTest();
 
@@ -30,4 +31,10 @@ int main (int, char **)
 
   std::cout << StorageAccount::summaryXML () << std::endl;
   return EXIT_SUCCESS;
+} catch(cms::Exception const& e) {
+  std::cerr << e.explainSelf() << std::endl;
+  return EXIT_FAILURE;
+} catch(std::exception const& e) {
+  std::cerr << e.what() << std::endl;
+  return EXIT_FAILURE;
 }

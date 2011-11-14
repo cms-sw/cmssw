@@ -230,7 +230,7 @@ static void readThread (void *param)
   std::cout << "end reading thread" << std::endl;
 }
 
-int main (int argc, char **argv)
+int main (int argc, char **argv) try
 {
   edmplugin::PluginManager::configure(edmplugin::standard::config());
 
@@ -318,4 +318,10 @@ int main (int argc, char **argv)
 
   std::cout << StorageAccount::summaryXML () << std::endl;
   return EXIT_SUCCESS;
+} catch(cms::Exception const& e) {
+  std::cerr << e.explainSelf() << std::endl;
+  return EXIT_FAILURE;
+} catch(std::exception const& e) {
+  std::cerr << e.what() << std::endl;
+  return EXIT_FAILURE;
 }

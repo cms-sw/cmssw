@@ -1,7 +1,8 @@
 #include "Utilities/StorageFactory/test/Test.h"
 #include "Utilities/StorageFactory/interface/Storage.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
-int main (int argc, char **argv)
+int main (int argc, char **argv) try
 {
   initTest();
 
@@ -31,4 +32,10 @@ int main (int argc, char **argv)
 
   std::cerr << StorageAccount::summaryXML () << std::endl;
   return EXIT_SUCCESS;
+} catch(cms::Exception const& e) {
+  std::cerr << e.explainSelf() << std::endl;
+  return EXIT_FAILURE;
+} catch(std::exception const& e) {
+  std::cerr << e.what() << std::endl;
+  return EXIT_FAILURE;
 }

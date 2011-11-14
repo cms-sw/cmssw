@@ -1,3 +1,4 @@
+#include "FWCore/Utilities/interface/Exception.h"
 #include "Utilities/StorageFactory/test/Test.h"
 #include "Utilities/StorageFactory/interface/File.h"
 #include "Utilities/StorageFactory/interface/Storage.h"
@@ -6,12 +7,10 @@
 #include <pwd.h>
 #include <string>
 
-int main (int argc, char *argv[])
+int main (int argc, char *argv[]) try
 {
   initTest();
 
-  try
-  {
     struct passwd *info = getpwuid (getuid());
     std::string user (info && info->pw_name ? info->pw_name : "unknown");
     std::string	path (std::string ("rfio:/castor/cern.ch/user/")
@@ -33,13 +32,13 @@ int main (int argc, char *argv[])
 
     input.close ();
     s->close ();
-  }
-  catch (cms::Exception &e)
-  {
-    std::cerr << e.explainSelf () << std::endl;
-    return EXIT_FAILURE;
-  }
 
   std::cout << StorageAccount::summaryXML() << std::endl;
   return EXIT_SUCCESS;
+} catch(cms::Exception const& e) {
+  std::cerr << e.explainSelf() << std::endl;
+  return EXIT_FAILURE;
+} catch(std::exception const& e) {
+  std::cerr << e.what() << std::endl;
+  return EXIT_FAILURE;
 }
