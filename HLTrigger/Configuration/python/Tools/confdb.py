@@ -616,7 +616,7 @@ if 'hltPreHLTDQMResultsOutputSmart' in %%(dict)s:
     %%(process)shltPreHLTDQMResultsOutputSmart.TriggerResultsTag  = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltPreHLTDQMOutputSmart' in %%(dict)s:
-    %%(process)shltPreDQMOutputSmart.TriggerResultsTag            = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+    %%(process)shltPreHLTDQMOutputSmart.TriggerResultsTag         = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltPreHLTMONOutputSmart' in %%(dict)s:
     %%(process)shltPreHLTMONOutputSmart.TriggerResultsTag         = cms.InputTag( 'TriggerResults', '', '%(name)s' )

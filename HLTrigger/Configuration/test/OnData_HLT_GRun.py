@@ -37829,7 +37829,7 @@ if 'hltPreHLTDQMResultsOutputSmart' in process.__dict__:
     process.hltPreHLTDQMResultsOutputSmart.TriggerResultsTag  = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
 
 if 'hltPreHLTDQMOutputSmart' in process.__dict__:
-    process.hltPreDQMOutputSmart.TriggerResultsTag            = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
+    process.hltPreHLTDQMOutputSmart.TriggerResultsTag         = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
 
 if 'hltPreHLTMONOutputSmart' in process.__dict__:
     process.hltPreHLTMONOutputSmart.TriggerResultsTag         = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
