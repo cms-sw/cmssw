@@ -1,7 +1,7 @@
 #include "SimCalorimetry/HcalSimAlgos/interface/HcalShape.h"
   
 HcalShape::HcalShape()
-: shape_(HcalPulseShapes().hbShape())
+: shape_(HcalPulseShapes().hbShape(false))
 {
 }
 

@@ -6,7 +6,7 @@
 //
 // Project: HPD ion feedback
 // Author: T.Yetkin University of Iowa, Feb. 16, 2010
-// $Id: HPDIonFeedbackSim.cc,v 1.4 2010/10/01 14:51:50 sunanda Exp $
+// $Id: HPDIonFeedbackSim.cc,v 1.5 2011/02/23 19:52:01 rpw Exp $
 // --------------------------------------------------------
 
 #include "SimCalorimetry/HcalSimAlgos/interface/HPDIonFeedbackSim.h"
@@ -60,7 +60,7 @@ void HPDIonFeedbackSim::setRandomEngine(CLHEP::HepRandomEngine & engine)
 double HPDIonFeedbackSim::getIonFeedback(DetId detId, double signal, double pedWidth, bool doThermal, bool isInGeV) 
 {
     
-    HcalDetId id = detId;
+  //    HcalDetId id = detId; 
     
     double GeVperfC = 1.;
     if(isInGeV) GeVperfC = 1./fCtoGeV(detId);

@@ -12,6 +12,7 @@ HcalShapes::HcalShapes()
 : theMCParams(0),
   theShapes(),
   theHcalShape(),
+  theHcalLVShape(),
   theHFShape(),
   theZDCShape(),
   theSiPMShape()
@@ -26,7 +27,7 @@ HcalShapes::HcalShapes()
         401 - regular ZDC shape
   */
   theShapes[HPD] = new CaloCachedShapeIntegrator(&theHcalShape);
-  theShapes[LONG] = theShapes[HPD];
+  theShapes[LONG] = new CaloCachedShapeIntegrator(&theHcalLVShape);
   theShapes[ZECOTEK] = new CaloCachedShapeIntegrator(&theSiPMShape);
   theShapes[HAMAMATSU] = theShapes[ZECOTEK];
   theShapes[HF] = new CaloCachedShapeIntegrator(&theHFShape);
