@@ -148,9 +148,9 @@ LocalFileSystem::initFSInfo(void *arg)
   size_t totlen = infolen + fslen + dirlen + typelen;
   FSInfo *i = (FSInfo *) malloc(totlen);
   char *p = (char *) i;
-  i->fsname = strcpy(p += infolen, m->f_mntfromname);
-  i->type = strcpy(p += fslen, m->f_fstypename);
-  i->dir = strcpy(p += typelen, m->f_mntonname);
+  i->fsname = strncpy(p += infolen, m->f_mntfromname, fslen);
+  i->type = strncpy(p += fslen, m->f_fstypename, typelen);
+  i->dir = strncpy(p += typelen, m->f_mntonname, dirlen);
   i->dev = m->f_fsid.val[0];
   i->fstype = m->f_type;
   i->freespc = 0;
@@ -179,9 +179,9 @@ LocalFileSystem::initFSInfo(void *arg)
   size_t totlen = infolen + fslen + dirlen + typelen;
   FSInfo *i = (FSInfo *) malloc(totlen);
   char *p = (char *) i;
-  i->fsname = strcpy(p += infolen, m->mnt_fsname);
-  i->type = strcpy(p += fslen, m->mnt_type);
-  i->dir = strcpy(p += typelen, m->mnt_dir);
+  i->fsname = strncpy(p += infolen, m->mnt_fsname, fslen);
+  i->type = strncpy(p += fslen, m->mnt_type, typelen);
+  i->dir = strncpy(p += typelen, m->mnt_dir, dirlen);
   i->dev = -1;
   i->fstype = -1;
   i->freespc = 0;
