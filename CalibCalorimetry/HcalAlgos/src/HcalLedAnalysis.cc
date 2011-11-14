@@ -693,7 +693,7 @@ void HcalLedAnalysis::LedHBHEHists(const HcalDetId& detid, const HBHEDataFrame& 
   // Most of this is borrowed from HcalSimpleReconstructor, so thanks Jeremy/Phil
 
 
-  int maxTS = -1;
+  //  int maxTS = -1;
   float max_fC = 0;
   float ta = 0;
   m_coder = cond.getHcalCoder(detid);
@@ -714,7 +714,7 @@ void HcalLedAnalysis::LedHBHEHists(const HcalDetId& detid, const HBHEDataFrame& 
     // keep track of max TS and max amplitude (in fC)
     if (ta > max_fC){
       max_fC = ta;
-      maxTS = TS;
+      //      maxTS = TS;
     }
   }
 
@@ -758,7 +758,7 @@ void HcalLedAnalysis::LedHOHists(const HcalDetId& detid, const HODataFrame& ledD
   // now we have the signal in fC, let's get rid of that darn pedestal
   // Most of this is borrowed from HcalSimpleReconstructor, so thanks Jeremy/Phil
 
-  int maxTS = -1;
+  //  int maxTS = -1;
   float max_fC = 0;
   float ta = 0;
   m_coder = cond.getHcalCoder(detid);
@@ -778,7 +778,7 @@ void HcalLedAnalysis::LedHOHists(const HcalDetId& detid, const HODataFrame& ledD
     // keep track of max TS and max amplitude (in fC)
     if (ta > max_fC){
       max_fC = ta;
-      maxTS = TS;
+      //      maxTS = TS;
     }
   }
 
@@ -822,7 +822,7 @@ void HcalLedAnalysis::LedHFHists(const HcalDetId& detid, const HFDataFrame& ledD
   // now we have the signal in fC, let's get rid of that darn pedestal
   // Most of this is borrowed from HcalSimpleReconstructor, so thanks Jeremy/Phil
 
-  int maxTS = -1;
+  //  int maxTS = -1;
   float max_fC = 0;
   float ta = 0;
   m_coder = cond.getHcalCoder(detid);
@@ -849,7 +849,7 @@ void HcalLedAnalysis::LedHFHists(const HcalDetId& detid, const HFDataFrame& ledD
     // keep track of max TS and max amplitude (in fC)
     if (ta > max_fC){
       max_fC = ta;
-      maxTS = TS;
+      //      maxTS = TS;
     }
   }
 

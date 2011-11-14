@@ -1,6 +1,6 @@
 // F.Ratnikov (UMd), Oct 28, 2005
 // Modified by S. Won 6 May 2008
-// $Id: HcalDbXml.cc,v 1.16 2008/11/08 21:16:20 rofierzy Exp $
+// $Id: HcalDbXml.cc,v 1.17.6.1 2011/11/14 11:15:00 abdullin Exp $
 //
 #include <vector>
 #include <string>
@@ -105,8 +105,9 @@ namespace {
     const std::string TAG_ID = "TAG_ID";
     fOutput << "<ELEMENTS>" << std::endl;
     // set channels affected
-    int i = fChannels.size ();
-    while (--i >= 0) {
+    unsigned int i = fChannels.size ();
+    unsigned int iend = 0;
+    while (--i >= iend) {
       fOutput << "<DATA_SET id=\"" << i << "\">" << std::endl;
       dumpRun (fOutput, fRun);
       fOutput << "<KIND_OF_CONDITION><NAME>" << fKind << "</NAME></KIND_OF_CONDITION>" << std::endl;
@@ -133,7 +134,7 @@ namespace {
     fOutput << "<TAG idref=\"" << TAG_ID << "\">" << std::endl;
     fOutput << "<IOV idref=\"" << IOV_ID << "\">" << std::endl;
     i = fChannels.size ();
-    while (--i >= 0) {
+    while (--i >= iend) {
       fOutput << "<DATA_SET idref=\"" << i << "\"/>" << std::endl;
     }
     fOutput << "</IOV>" << std::endl;

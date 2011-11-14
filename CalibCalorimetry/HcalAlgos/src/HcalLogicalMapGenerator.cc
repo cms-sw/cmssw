@@ -1577,8 +1577,9 @@ void HcalLogicalMapGenerator::ConstructTriggerTower(
 
   int t_nDat=-1;
   int t_side,t_iEta,t_iPhi,t_jPhi,t_iDep,t_topbot;
-  int t_wedge,t_rm,t_pixel,t_qie,t_adc,t_rm_fi,t_fi_ch,t_crate,t_htr;
-  int t_htr_fi,t_spigo,t_slb,t_rctcra,t_rctcar,t_rctcon,t_fedid;
+  int t_wedge,t_crate,t_htr;
+  //  int t_rm,t_pixel,t_qie,t_adc,t_rm_fi,t_fi_ch,t_htr_fi;
+  int t_spigo,t_slb,t_rctcra,t_rctcar,t_rctcon,t_fedid;
 
   //making global variables local for modification
   (fpga=="bot") ? t_topbot = 1 : t_topbot = 0;
@@ -1589,16 +1590,16 @@ void HcalLogicalMapGenerator::ConstructTriggerTower(
   t_iDep   = idepth;
   t_chDet  = det;
   t_wedge  = iwedge;
-  t_rm     = irm;
-  t_pixel  = ipixel;
-  t_qie    = iqie;
-  t_adc    = iadc;
-  t_rm_fi  = irm_fi;
-  t_fi_ch  = ifi_ch;
+  //  t_rm     = irm;
+  //  t_pixel  = ipixel;
+  //  t_qie    = iqie;
+  //  t_adc    = iadc;
+  //  t_rm_fi  = irm_fi;
+  //  t_fi_ch  = ifi_ch;
   t_crate  = icrate;
   t_htr    = ihtr;
   t_fpga   = fpga;
-  t_htr_fi = ihtr_fi;
+  //  t_htr_fi = ihtr_fi;
   t_spigo  = ispigot;
   t_slb    = islb;
   t_slbin  = slbin;
