@@ -225,20 +225,23 @@ namespace fwlite {
             }
 
             //cache the info
-            char* newModule = new char[strlen(iModuleLabel)+1];
-            std::strcpy(newModule,iModuleLabel);
+            size_t moduleLabelLen = strlen(iModuleLabel)+1; 
+            char* newModule = new char[moduleLabelLen];
+            std::strncpy(newModule,iModuleLabel,moduleLabelLen);
             labels_.push_back(newModule);
 
             char* newProduct = const_cast<char*>(key.product());
             if(newProduct[0] != 0) {
-                newProduct = new char[strlen(newProduct)+1];
-                std::strcpy(newProduct,key.product());
+                size_t newProductLen = strlen(newProduct)+1; 
+                newProduct = new char[newProductLen];
+                std::strncpy(newProduct,key.product(),newProductLen);
                 labels_.push_back(newProduct);
             }
             char* newProcess = const_cast<char*>(key.process());
             if(newProcess[0]!=0) {
-                newProcess = new char[strlen(newProcess)+1];
-                std::strcpy(newProcess,key.process());
+                size_t newProcessLen = strlen(newProcess)+1; 
+                newProcess = new char[newProcessLen];
+                std::strncpy(newProcess,key.process(),newProcessLen);
                 labels_.push_back(newProcess);
             }
             internal::DataKey newKey(edm::TypeID(iInfo),newModule,newProduct,newProcess);
