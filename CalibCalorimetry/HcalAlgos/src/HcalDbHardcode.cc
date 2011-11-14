@@ -1,6 +1,6 @@
 //
 // F.Ratnikov (UMd), Dec 14, 2005
-// $Id: HcalDbHardcode.cc,v 1.24 2011/02/15 10:41:15 rofierzy Exp $
+// $Id: HcalDbHardcode.cc,v 1.25 2011/10/26 13:58:20 xiezhen Exp $
 //
 #include <vector>
 #include <string>
@@ -302,7 +302,8 @@ void HcalDbHardcode::makeHardcodeMap(HcalElectronicsMap& emap) {
       {{13,-1,3},{13,-1,4},{13,-1,5}}}} 
   };
   int ic,is,ih,itb,ifb,ifc,ifwtb,iphi_loc;
-  int iside,ieta,iphi,idepth,icrate,ihtr,ihtr_fi,ifi_ch,ispigot,idcc,idcc_sl,ifed;
+  int iside,ieta,iphi,idepth,icrate,ihtr,ihtr_fi,ifi_ch,ispigot,idcc,ifedl;
+  //  int idcc_sl;
   std::string det;
   std::string fpga;
   // printf("      side       eta       phi     depth       det     crate       htr      fpga    htr_fi     fi_ch     spigo       dcc    dcc_sl     fedid\n");
@@ -331,7 +332,7 @@ void HcalDbHardcode::makeHardcodeMap(HcalElectronicsMap& emap) {
 	      iphi=(ieta>20)?(ihbhephis[ic]+(is%2)*4+itb*2-1)%72+1:(ihbhephis[ic]+(is%2)*4+itb*2+(ifb/2+is/2+1)%2-1)%72+1;
 	      ispigot=(is%2)*6+ih*2+itb;
 	      idcc=is<EMAP_NHSETS/2?1:2;
-	      idcc_sl=idcc==1?9:19;
+	      //	      idcc_sl=idcc==1?9:19;
 	      ifed=fedhbhenum[ic][idcc-1];
 	      /// load map
 	      HcalElectronicsId elId(ifi_ch, ihtr_fi, ispigot, ifed-700);
@@ -365,7 +366,7 @@ void HcalDbHardcode::makeHardcodeMap(HcalElectronicsMap& emap) {
 	      iphi=(ieta>39)?(ihfphis[ic]+(is%2)*12+ih*4-3)%72+1:(ihfphis[ic]+(is%2)*12+ih*4+(ifb/4)*2-1)%72+1;
 	      ispigot=(is%2)*6+ih*2+itb;
 	      idcc=is<EMAP_NHSETS/2?1:2;
-	      idcc_sl=idcc==1?9:19;
+	      //	      idcc_sl=idcc==1?9:19;
 	      ifed=fedhfnum[ic][idcc-1];
 	      HcalElectronicsId elId(ifi_ch, ihtr_fi, ispigot, ifed-700);
 	      elId.setHTR(icrate, ihtr, (fpga=="top")?(1):(0));
@@ -398,7 +399,7 @@ void HcalDbHardcode::makeHardcodeMap(HcalElectronicsMap& emap) {
 	      iphi=(ihophis[ic]+is*6+iphi_loc-1)%72+1;
 	      ispigot=ihtr<9?(ihtr-2)*2+itb:(ihtr-13)*2+itb;
 	      idcc=ihtr<9?1:2;
-	      idcc_sl=idcc==1?9:19;
+	      //	      idcc_sl=idcc==1?9:19;
 	      ifed=fedhonum[ic][idcc-1];
 	      HcalElectronicsId elId(ifi_ch, ihtr_fi, ispigot, ifed-700);
 	      elId.setHTR(icrate, ihtr, (fpga=="top")?(1):(0));
