@@ -22,23 +22,25 @@ kt6PFJets.doAreaFastjet = True
 ak5PFJets.doAreaFastjet = True
 ak7PFJets.doAreaFastjet = True
 
-kt6PFJetsForLeptonsLoose = kt6PFJets.clone(
-    src = cms.InputTag("pfNoPileUp"),
+kt6PFJetsCentralChargedPileUp = kt6PFJets.clone(
+    src = cms.InputTag("pfPileUpAllChargedParticles"),
     Ghost_EtaMax = cms.double(3.1),
-    Rho_EtaMax = cms.double(2.5),
-    inputEtMin = cms.double(0.5)
+    Rho_EtaMax = cms.double(2.5)
     )
 
-kt6PFJetsForLeptonsTight = kt6PFJetsForLeptonsLoose.clone(
-    inputEtMin = cms.double(1.0)
+kt6PFJetsCentralNeutral = kt6PFJets.clone(
+    src = cms.InputTag("pfAllNeutralHadronsAndPhotons"),
+    Ghost_EtaMax = cms.double(3.1),
+    Rho_EtaMax = cms.double(2.5)
     )
 
-recoPFJets   =cms.Sequence(kt4PFJets+kt6PFJets+kt6PFJetsForLeptonsLoose+kt6PFJetsForLeptonsTight+
+
+recoPFJets   =cms.Sequence(kt4PFJets+kt6PFJets+kt6PFJetsCentralChargedPileUp+kt6PFJetsCentralNeutral+
                            iterativeCone5PFJets+
                            ak5PFJets+ak7PFJets)
 
 recoAllPFJets=cms.Sequence(sisCone5PFJets+sisCone7PFJets+
-                           kt4PFJets+kt6PFJets+kt6PFJetsForLeptonsLoose+kt6PFJetsForLeptonsTight+
+                           kt4PFJets+kt6PFJets+kt6PFJetsCentralChargedPileUp+kt6PFJetsCentralNeutral+
                            iterativeCone5PFJets+
                            ak5PFJets+ak7PFJets+
                            gk5PFJets+gk7PFJets+

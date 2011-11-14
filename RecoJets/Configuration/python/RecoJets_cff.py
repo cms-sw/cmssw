@@ -45,20 +45,20 @@ ak5CaloJets.doAreaFastjet = True
 ak7CaloJets.doAreaFastjet = True
 
 
-kt6CaloJetsForLeptons = kt6CaloJets.clone(
+kt6CaloJetsCentral = kt6CaloJets.clone(
     Ghost_EtaMax = cms.double(3.1),
     Rho_EtaMax = cms.double(2.5)
     )
 
-kt6CaloJetsForLeptonsPUCorr           =kt6CaloJetsForLeptons.clone           (doPUOffsetCorr = doPileup)
+kt6CaloJetsCentralPUCorr           =kt6CaloJetsCentral.clone           (doPUOffsetCorr = doPileup)
 
 
-recoJets   =cms.Sequence(kt4CaloJets+kt6CaloJets+kt6CaloJetsForLeptons+
+recoJets   =cms.Sequence(kt4CaloJets+kt6CaloJets+kt6CaloJetsCentral+
                          iterativeCone5CaloJets+
                          ak5CaloJets+ak7CaloJets)
 
 recoAllJets=cms.Sequence(sisCone5CaloJets+sisCone7CaloJets+
-                         kt4CaloJets+kt6CaloJets+kt6CaloJetsForLeptons+
+                         kt4CaloJets+kt6CaloJets+kt6CaloJetsCentral+
                          iterativeCone5CaloJets+
                          ak5CaloJets+ak7CaloJets+
                          gk5CaloJets+gk7CaloJets+
@@ -66,7 +66,7 @@ recoAllJets=cms.Sequence(sisCone5CaloJets+sisCone7CaloJets+
 
 
 recoAllJetsPUOffsetCorr=cms.Sequence(sisCone5CaloJetsPUCorr+sisCone7CaloJetsPUCorr+
-                                     kt4CaloJetsPUCorr+kt6CaloJetsPUCorr+kt6CaloJetsForLeptonsPUCorr+
+                                     kt4CaloJetsPUCorr+kt6CaloJetsPUCorr+kt6CaloJetsCentralPUCorr+
                                      iterativeCone5CaloJetsPUCorr+
                                      ak5CaloJetsPUCorr+ak7CaloJetsPUCorr+
                                      gk5CaloJetsPUCorr+gk7CaloJetsPUCorr+
