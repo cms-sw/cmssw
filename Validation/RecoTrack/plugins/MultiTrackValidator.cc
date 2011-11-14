@@ -293,14 +293,15 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
 	// ##############################################
 	// fill RecoAssociated SimTracks' histograms
 	// ##############################################
-	bool isRecoMatched(false);
+	// bool isRecoMatched(false); // UNUSED
 	const reco::Track* matchedTrackPointer=0;
 	std::vector<std::pair<RefToBase<Track>, double> > rt;
 	if(simRecColl.find(tpr) != simRecColl.end()){
 	  rt = (std::vector<std::pair<RefToBase<Track>, double> >) simRecColl[tpr];
 	  if (rt.size()!=0) {
 	    ats++; //This counter counts the number of simTracks that have a recoTrack associated
-	    isRecoMatched = true; matchedTrackPointer = rt.begin()->first.get();
+	    // isRecoMatched = true; // UNUSED
+	    matchedTrackPointer = rt.begin()->first.get();
 	    edm::LogVerbatim("TrackValidator") << "TrackingParticle #" << st 
 					       << " with pt=" << sqrt(momentumTP.perp2()) 
 					       << " associated with quality:" << rt.begin()->second <<"\n";

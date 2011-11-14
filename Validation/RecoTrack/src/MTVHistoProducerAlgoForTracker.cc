@@ -1127,7 +1127,7 @@ void MTVHistoProducerAlgoForTracker::fill_ResoAndPull_recoTrack_histos(int count
     * momentumTP.z()/sqrt(momentumTP.perp2());
 
 	  
-  reco::Track::ParameterVector rParameters = track.parameters();
+  //  reco::Track::ParameterVector rParameters = track.parameters(); // UNUSED
   
   double qoverpRec(0);
   double qoverpErrorRec(0); 
