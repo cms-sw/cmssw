@@ -536,7 +536,7 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
       //      const GeomDet* theGeomDet;
       unsigned int theSubDetId=-99; 
       unsigned int theLayerNumber=-99;
-      unsigned int theRingNumber=-99;
+      // unsigned int theRingNumber=-99;
       int hit=0;
       TrajectorySeed::range hitRange = seed->recHits();
       for( TrajectorySeed::const_iterator ihit = hitRange.first; ihit !=hitRange.second; ihit++){
@@ -553,11 +553,11 @@ testTrackingIterations::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 	} else if ( theSubDetId ==  StripSubdetector::TID) { 
 	  TIDDetId tidid(theDetId.rawId());
 	  theLayerNumber = tidid.wheel();
-	  theRingNumber = tidid.ring();
+	  // theRingNumber = tidid.ring();
 	} else if ( theSubDetId ==  StripSubdetector::TEC ) { 
 	  TECDetId tecid(theDetId.rawId()); 
 	  theLayerNumber = tecid.wheel(); 
-	  theRingNumber = tecid.ring();
+	  // theRingNumber = tecid.ring();
 	} else if ( theSubDetId ==  PixelSubdetector::PixelBarrel ) { 
 	  PXBDetId pxbid(theDetId.rawId()); 
 	  theLayerNumber = pxbid.layer(); 
