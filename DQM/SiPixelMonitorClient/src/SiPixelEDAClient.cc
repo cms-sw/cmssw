@@ -76,6 +76,7 @@ SiPixelEDAClient::SiPixelEDAClient(const edm::ParameterSet& ps) :
   noiseRateDenominator_  = ps.getUntrackedParameter<int>("NEventsForNoiseCalculation",100000); //client
   Tier0Flag_             = ps.getUntrackedParameter<bool>("Tier0Flag",false); //client
   doHitEfficiency_       = ps.getUntrackedParameter<bool>("DoHitEfficiency",true); //client
+  inputSource_           = ps.getUntrackedParameter<string>("inputSource",  "source");
   
   if(!Tier0Flag_){
     string localPath = string("DQM/SiPixelMonitorClient/test/loader.html");
@@ -212,9 +213,9 @@ void SiPixelEDAClient::analyze(const edm::Event& e, const edm::EventSetup& eSetu
     if(nEvents_==1){
       // check if any Pixel FED is in readout:
       edm::Handle<FEDRawDataCollection> rawDataHandle;
-      e.getByLabel("source", rawDataHandle);
+      e.getByLabel(inputSource_, rawDataHandle);
       if(!rawDataHandle.isValid()){
-        edm::LogInfo("SiPixelEDAClient") << "source" << " is empty";
+        edm::LogInfo("SiPixelEDAClient") << inputSource_ << " is empty";
 	return;
       } 
       const FEDRawDataCollection& rawDataCollection = *rawDataHandle;

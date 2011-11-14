@@ -49,6 +49,7 @@ private:
   int NEvents_;
   int nFEDsBarrel_;
   int nFEDsEndcap_;
+  std::string daqSource_;
   int FEDs_[40];
   
 };

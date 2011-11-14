@@ -12,7 +12,8 @@ SiPixelDaqInfo::SiPixelDaqInfo(const edm::ParameterSet& ps) {
  
   FEDRange_.first  = ps.getUntrackedParameter<unsigned int>("MinimumPixelFEDId", 0);
   FEDRange_.second = ps.getUntrackedParameter<unsigned int>("MaximumPixelFEDId", 39);
-  
+  daqSource_       = ps.getUntrackedParameter<string>("daqSource",  "source");
+
   NumberOfFeds_ =FEDRange_.second -  FEDRange_.first +1;
   
   NEvents_ = 0;
@@ -167,9 +168,9 @@ void SiPixelDaqInfo::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if(NEvents_>=1 && NEvents_<=100){
     // check if any Pixel FED is in readout:
     edm::Handle<FEDRawDataCollection> rawDataHandle;
-    iEvent.getByLabel("source", rawDataHandle);
+    iEvent.getByLabel(daqSource_, rawDataHandle);
     if(!rawDataHandle.isValid()){
-      edm::LogInfo("SiPixelDaqInfo") << "source" << " is empty!";
+      edm::LogInfo("SiPixelDaqInfo") << daqSource_ << " is empty!";
       return;
     }
     const FEDRawDataCollection& rawDataCollection = *rawDataHandle;
