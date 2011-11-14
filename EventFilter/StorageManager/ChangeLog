@@ -1,3 +1,8 @@
+2011-11-14 Remi Mommsen <Remigius.Mommsen@cern.ch>
+
+	* tag V08-05-03
+	* Address a couple of gcc 4.6 compiler warnings.
+
 2011-11-08 Remi Mommsen <Remigius.Mommsen@cern.ch>
 
 	* tag V08-05-02
