@@ -67,7 +67,7 @@ void genlkupmap(double smin,
         // current step size is too big for the max allowed fractional error,
         // store current value and issue a warning.
         //
-	edm::LogWarning("HcalPulseContainmentCorrection::genlkupmap") << " fractional error max exceeded";
+	//	edm::LogWarning("HcalPulseContainmentCorrection::genlkupmap") << " fractional error max exceeded";
       }
       else {
         store_prev_pair = true;
@@ -81,7 +81,7 @@ void genlkupmap(double smin,
           // current step size is too big for the max allowed fractional error,
           // store current value and issue a warning.
           //
-	  edm::LogWarning("HcalPulseContainmentCorrection::genlkupmap") << " fractional error max exceeded";
+	  //	  edm::LogWarning("HcalPulseContainmentCorrection::genlkupmap") << " fractional error max exceeded";
         }
       }
     }
