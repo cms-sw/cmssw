@@ -8,7 +8,6 @@
 <use   name="DataFormats/SiStripDetId"/>
 <use   name="DataFormats/TrackerRecHit2D"/>
 <use   name="DataFormats/TrackingRecHit"/>
-<use   name="DataFormats/GeometryCommonDetAlgo"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/ParameterSet"/>
@@ -23,7 +22,6 @@
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="MagneticField/Engine"/>
 <use   name="MagneticField/Records"/>
-<use   name="MagneticField/VolumeBasedEngine"/>
 <use   name="RecoLocalTracker/ClusterParameterEstimator"/>
 <use   name="RecoLocalTracker/SiPixelRecHits"/>
 <use   name="RecoLocalTracker/Records"/>
