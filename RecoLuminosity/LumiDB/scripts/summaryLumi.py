@@ -45,17 +45,17 @@ if __name__ == '__main__':
     parser.add_argument('-o',dest='outputdir',action='store',required=False,help='output dir',default='.')
     parser.add_argument('-f',dest='fillnum',action='store',required=False,help='specific fill',default=None)
     parser.add_argument('-norm',dest='norm',action='store',required=False,help='norm',default='pp7TeV')
-    parser.add_argument('-minfill',dest='minfill',action='store',required=False,help='minimal fillnumber ',default=MINFILL)
+    parser.add_argument('-minfill',dest='minfill',action='store',required=False,help='minimal fillnumber ',default=None)
     parser.add_argument('-maxfill',dest='maxfill',action='store',required=False,help='maximum fillnumber ',default=MAXFILL)
     parser.add_argument('-amodetag',dest='amodetag',action='store',required=False,help='accelerator mode tag ',default='PROTPHYS')
     parser.add_argument('--debug',dest='debug',action='store_true',help='debug')
     parser.add_argument('--without-stablebeam',dest='withoutStablebeam',action='store_true',required=False,help='without requirement on stable beams')
     parser.add_argument('--without-correction',dest='withoutFineCorrection',action='store_true',required=False,help='without fine correction')
     options=parser.parse_args()
-    
+    if options.minfill:
+        MINFILL=int(options.minfill)
     allfillsFromFile=[]
     fillstoprocess=[]
-    minfillnum=options.minfill
     maxfillnum=options.maxfill
     summaryfilenameTMP='_summary_CMS.txt'
     dbname=options.connect
@@ -67,21 +67,17 @@ if __name__ == '__main__':
         session=svc.openSession(isReadOnly=True,cpp2sqltype=[('unsigned int','NUMBER(10)'),('unsigned long long','NUMBER(20)')])
         session.transaction().start(True)
         schema=session.nominalSchema()
-        allfillsFromDB=lumiCalcAPI.fillInRange(schema,fillmin=minfillnum,fillmax=maxfillnum,amodetag=options.amodetag)
+        allfillsFromDB=lumiCalcAPI.fillInRange(schema,fillmin=MINFILL,fillmax=maxfillnum,amodetag=options.amodetag)
         processedfills=listfilldir(options.outputdir)
         lastcompletedFill=lastcompleteFill(os.path.join(options.inputdir,'runtofill_dqm.txt'))
-        print 'last complete fill : ',lastcompletedFill
-        print 'processedfills in '+options.outputdir+' ',processedfills
         for pf in processedfills:
             if pf>lastcompletedFill:
                 print '\tremove unfinished fill from processed list ',pf
                 processedfills.remove(pf)
-        print 'final processed fills : ',sorted(processedfills)
         for fill in allfillsFromDB:
             if fill not in processedfills :
-                if fill<=lastcompletedFill:
-                    #print 'fill less than last complet fill ',fill
-                    if fill>minfillnum:
+                if int(fill)<=lastcompletedFill:
+                    if int(fill)>MINFILL:
                         fillstoprocess.append(fill)
                 else:
                     print 'ongoing fill...',fill
@@ -138,7 +134,7 @@ if __name__ == '__main__':
         #print 'fillnum ',fillnum
         #print 'str(fillnum)+summaryfilename ',str(fillnum)+summaryfilenameTMP
         summaryfilename=os.path.join(options.outputdir,str(fillnum),str(fillnum)+summaryfilenameTMP)
-        print 'summaryfilename ',summaryfilename
+        #print 'summaryfilename ',summaryfilename
         ofile=open(summaryfilename,'w')
         if len(stablefillmap)==0:
             print >>ofile,'%s'%('#no stable beams')
