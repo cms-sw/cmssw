@@ -1,9 +1,12 @@
 #include "HLTrigger/Timer/interface/CPUAffinity.h"
 
 #include <cstdlib>
+
+#ifdef __linux
+
 #include <sched.h>
 
-#if defined __linux__ && ! __GLIBC_PREREQ(2, 6)
+#if ! __GLIBC_PREREQ(2, 6)
 // CPU_COUNT is not defined in glibc 2.5, use a gcc builtin instead
 
 static
@@ -41,17 +44,23 @@ int sched_getcpu(void)
   return (retval == -1) ? retval : cpu;
 }
 
-#endif // __linux__ && ! __GLIBC_PREREQ(2, 6)
+#endif // ! __GLIBC_PREREQ(2, 6)
+#endif // __lixnux
 
 
 int CPUAffinity::currentCpu() {
+  // cpu affinity is currently only supposted on LINUX
+#ifdef __linux
   return sched_getcpu();
+#else
+  return 0;
+#endif
 }
 
 bool CPUAffinity::isCpuBound()
 {
   // cpu affinity is currently only supposted on LINUX
-#if defined __linux__
+#ifdef __linux
 
   // check if this process is bound to a single CPU
   cpu_set_t cpu_set;
@@ -60,7 +69,7 @@ bool CPUAffinity::isCpuBound()
     // the process is bound to a single CPU
     return true;
 
-#endif // __linux__
+#endif // __linux
 
   return false;
 }
@@ -69,7 +78,7 @@ bool CPUAffinity::isCpuBound()
 bool CPUAffinity::bindToCurrentCpu()
 {
   // cpu affinity is currently only supposted on LINUX
-#if defined __linux__
+#ifdef __linux
 
   // check if this process is bound to a single CPU, and try to bind to the current one if it's not
   cpu_set_t cpu_set;
@@ -89,7 +98,7 @@ bool CPUAffinity::bindToCurrentCpu()
     // the process is now bound to a single CPU
     return true;
 
-#endif // __linux__
+#endif // __linux
 
   return false;
 }

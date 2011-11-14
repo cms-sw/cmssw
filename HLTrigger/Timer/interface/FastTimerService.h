@@ -173,7 +173,13 @@ private:
 
   void gettime(struct timespec & stamp)
   {
+#if defined __linux
     clock_gettime(m_timer_id, & stamp);
+#elif defined __APPLE__ && defined __MACH__
+    // implement here an OS X version
+#else
+    // unsupported on any other platform
+#endif
   }
 
   void start(std::pair<struct timespec, struct timespec> & times)
