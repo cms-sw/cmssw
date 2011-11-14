@@ -1,8 +1,8 @@
-// $Id: TransitionRecord.h,v 1.3 2009/07/20 13:06:11 mommsen Exp $
+// $Id: TransitionRecord.h,v 1.4.12.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: TransitionRecord.h 
 
-#ifndef StorageManager_TransitionRecord_h
-#define StorageManager_TransitionRecord_h
+#ifndef EventFilter_StorageManager_TransitionRecord_h
+#define EventFilter_StorageManager_TransitionRecord_h
 
 #include <iosfwd>
 #include <sys/time.h>
@@ -14,8 +14,8 @@ namespace stor {
    * A record of state machine transitions
    *
    * $Author: mommsen $
-   * $Revision: 1.3 $
-   * $Date: 2009/07/20 13:06:11 $
+   * $Revision: 1.4.12.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
   
   class TransitionRecord
@@ -23,21 +23,24 @@ namespace stor {
     
   public:
 
-    TransitionRecord( const std::string& state_name,
-                      bool is_entry );
+    TransitionRecord
+    (
+      const std::string& stateName,
+      bool isEntry
+    );
 
-    const std::string& stateName() const { return _stateName; }
-    bool isEntry() const { return _isEntry; }
-    const struct timeval& timeStamp() const { return _timestamp; }
+    const std::string& stateName() const { return stateName_; }
+    bool isEntry() const { return isEntry_; }
+    const struct timeval& timeStamp() const { return timestamp_; }
 
     friend std::ostream& operator << ( std::ostream&,
                                        const TransitionRecord& );
 
   private:
 
-    std::string _stateName;
-    bool _isEntry;
-    struct timeval _timestamp;
+    std::string stateName_;
+    bool isEntry_;
+    struct timeval timestamp_;
 
   };
   
@@ -45,7 +48,7 @@ namespace stor {
 
 } // namespace stor
 
-#endif // StorageManager_TransitionRecord_h 
+#endif // EventFilter_StorageManager_TransitionRecord_h 
 
 
 /// emacs configuration

@@ -1,8 +1,8 @@
 /*
  *  See header file for a description of this class.
  *
- *  $Date: 2010/11/03 17:02:18 $
- *  $Revision: 1.53 $
+ *  $Date: 2011/04/02 13:52:48 $
+ *  $Revision: 1.54.6.1 $
  *  \author F. Chlebana - Fermilab
  *          K. Hatakeyama - Rockefeller University
  */
@@ -504,6 +504,9 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   _trig_MinBias=0;
   _trig_HighMET=0;
   _trig_LowMET=0;
+  _trig_Ele=0;
+  _trig_Muon=0;
+  _trig_PhysDec=0;
   if(&triggerResults) {   
     
     /////////// Analyzing HLT Trigger Results (TriggerResults) //////////
@@ -544,25 +547,25 @@ void CaloMETAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
     //if (_verbose) std::cout << _hlt_Muon      << " " << triggerNames.triggerIndex(_hlt_Muon)      << std::endl;
     //if (_verbose) std::cout << _hlt_PhysDec   << " " << triggerNames.triggerIndex(_hlt_PhysDec)   << std::endl;
 
-    if ( _HighPtJetEventFlag->on() && ! _HighPtJetEventFlag->accept( iEvent, iSetup ) ) 
+    if ( _HighPtJetEventFlag->on() && _HighPtJetEventFlag->accept( iEvent, iSetup ) ) 
       _trig_HighPtJet=1;
 
-    if ( _LowPtJetEventFlag->on() && ! _LowPtJetEventFlag->accept( iEvent, iSetup ) ) 
+    if ( _LowPtJetEventFlag->on() && _LowPtJetEventFlag->accept( iEvent, iSetup ) ) 
       _trig_LowPtJet=1;
     
-    if ( _MinBiasEventFlag->on() && ! _MinBiasEventFlag->accept( iEvent, iSetup ) ) 
+    if ( _MinBiasEventFlag->on() && _MinBiasEventFlag->accept( iEvent, iSetup ) ) 
       _trig_MinBias=1;
     
-    if ( _HighMETEventFlag->on() && ! _HighMETEventFlag->accept( iEvent, iSetup ) ) 
+    if ( _HighMETEventFlag->on() && _HighMETEventFlag->accept( iEvent, iSetup ) ) 
       _trig_HighMET=1;
     
-    if ( _LowMETEventFlag->on() && ! _LowMETEventFlag->accept( iEvent, iSetup ) ) 
+    if ( _LowMETEventFlag->on() && _LowMETEventFlag->accept( iEvent, iSetup ) ) 
       _trig_LowMET=1;
     
-    if ( _EleEventFlag->on() && ! _EleEventFlag->accept( iEvent, iSetup ) ) 
+    if ( _EleEventFlag->on() && _EleEventFlag->accept( iEvent, iSetup ) ) 
       _trig_Ele=1;
     
-    if ( _MuonEventFlag->on() && ! _MuonEventFlag->accept( iEvent, iSetup ) ) 
+    if ( _MuonEventFlag->on() && _MuonEventFlag->accept( iEvent, iSetup ) ) 
       _trig_Muon=1;
     
     if (triggerNames.triggerIndex(_hlt_PhysDec)   != triggerNames.size() &&

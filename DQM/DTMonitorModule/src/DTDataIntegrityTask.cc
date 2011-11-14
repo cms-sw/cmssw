@@ -1,8 +1,8 @@
 /*
  * \file DTDataIntegrityTask.cc
  * 
- * $Date: 2010/09/11 16:40:09 $
- * $Revision: 1.70 $
+ * $Date: 2011/03/02 11:28:32 $
+ * $Revision: 1.72 $
  * \author M. Zanetti (INFN Padova), S. Bolognesi (INFN Torino), G. Cerminara (INFN Torino)
  *
  */
@@ -51,7 +51,9 @@ DTDataIntegrityTask::DTDataIntegrityTask(const edm::ParameterSet& ps,edm::Activi
   // Plot quantities about SC
   getSCInfo = ps.getUntrackedParameter<bool>("getSCInfo", false);
 
-  string processingMode = ps.getUntrackedParameter<string>("processingMode","Online");
+  fedIntegrityFolder    = ps.getUntrackedParameter<string>("fedIntegrityFolder","DT/FEDIntegrity"); 
+  
+string processingMode = ps.getUntrackedParameter<string>("processingMode","Online");
 
   // processing mode flag to select plots to be produced and basedirs CB vedi se farlo meglio...
   if (processingMode == "Online") {
@@ -1150,10 +1152,10 @@ void DTDataIntegrityTask::fedNonFatal(int dduID) {
 
 std::string DTDataIntegrityTask::topFolder(bool isFEDIntegrity) const {
 
-  string folder = isFEDIntegrity ? "DT/FEDIntegrity" : "DT/00-DataIntegrity";
-  string tag = isFEDIntegrity ? (mode==1) ? "_SM/" : (mode>=2) ? "/" : "_DT/" :
-                                (mode==1) ? "_SM/" : (mode==3) ? "_EvF/" : "/" ;
-  folder += tag;
+  string folder = isFEDIntegrity ? fedIntegrityFolder : "DT/00-DataIntegrity";
+
+  if (!isFEDIntegrity) 
+    folder += (mode==1) ? "_SM/" : (mode==3) ? "_EvF/" : "/";
 
   return folder;
 

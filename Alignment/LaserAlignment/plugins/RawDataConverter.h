@@ -42,12 +42,8 @@ class RawDataConverter : public edm::EDAnalyzer {
   int eventnumber;
   int runnumber;
   int lumiBlock;
-  unsigned int 	unixTime;
-
   LASGlobalData<int> detectorId;
   
-  //std::vector<std::pair<int, int> > index;
-  std::string output_filename;
 };
 
 

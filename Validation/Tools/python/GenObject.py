@@ -342,10 +342,12 @@ class GenObject (object):
                 target.close()
             else:
                 print "%s exists" % filename
-            command = "echo .L %s+ | root.exe -b" % filename
-            os.system (command)
-        print "loading %s" % SO
-        ROOT.gSystem.Load(SO)
+            ## command = "echo .L %s+ | root.exe -b" % filename
+            ## os.system (command)
+            ROOT.gSystem.CompileMacro (filename,"k")
+        else:
+            print "loading %s" % SO
+            ROOT.gSystem.Load(SO)
         return
 
 
@@ -399,6 +401,16 @@ class GenObject (object):
                        (parenMatch.group (2))
             partsList.append(  (part, mode, parens) )
         return partsList
+
+    @staticmethod
+    def _fixLostGreaterThans (handle):
+        offset = handle.count ('<') - handle.count('>')
+        if not offset:
+            return handle
+        if offset < 0:
+            print "Huh?  Too few '<' for each '>' in handle '%'" % handle
+            return handle
+        return handle + ' >' * offset
 
 
     @staticmethod
@@ -494,7 +506,7 @@ class GenObject (object):
                             shortcutFill = \
                                          GenObject.\
                                          parseVariableTofill ( shortcutMatch.\
-                                                                group(1) )
+                                                               group(1) )
                             ntupleDict.setdefault ('_shortcut', {}).\
                                                   setdefault (tofillName,
                                                               shortcutFill)
@@ -502,7 +514,10 @@ class GenObject (object):
                         # type/handle
                         typeMatch = GenObject._typeRE.search (word)
                         if typeMatch:
-                            handle = Handle( typeMatch.group(1) )
+                            handleString = \
+                                         GenObject.\
+                                         _fixLostGreaterThans (typeMatch.group(1))
+                            handle = Handle( handleString )
                             ntupleDict.setdefault ('_handle', {}).\
                                                   setdefault (tofillName,
                                                               handle)
@@ -514,6 +529,9 @@ class GenObject (object):
                                                   setdefault (tofillName,
                                                               aliasMatch.\
                                                               group(1))
+                            continue
+                        # is this a lost '<'
+                        if word == '>':
                             continue
                         # If we're still here, then we didn't have a valid
                         # option.  Complain vociferously

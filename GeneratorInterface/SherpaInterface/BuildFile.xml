@@ -4,13 +4,8 @@
 <use name="SimDataFormats/GeneratorProducts"/>
 <use name="GeneratorInterface/Core"/>
 <use name="GeneratorInterface/ExternalDecays"/>
+<use name="GeneratorInterface/Pythia6Interface"/>
 <use name="boost"/>
 <use name="clhep"/>
-<use name="hepmc"/>
-<use name="lhapdf"/>
-<use name="pythia6"/>
 <use name="sherpa"/>
 <flags EDM_PLUGIN="1"/>
-<export>
-	<lib name="GeneratorInterfaceSherpaInterface"/>
-</export>

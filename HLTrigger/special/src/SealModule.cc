@@ -30,7 +30,7 @@
 
 #include "HLTrigger/special/interface/HLTPixelAsymmetryFilter.h"
 #include "HLTrigger/special/interface/HLTHFAsymmetryFilter.h"
-
+#include "HLTrigger/special/interface/HLTTrackerHaloFilter.h"
 
 DEFINE_FWK_MODULE(HLTPixlMBFilt);
 DEFINE_FWK_MODULE(HLTPixlMBForAlignmentFilter);
@@ -67,3 +67,4 @@ DEFINE_FWK_MODULE(HLTEcalResonanceFilter);
 
 DEFINE_FWK_MODULE(HLTPixelAsymmetryFilter);
 DEFINE_FWK_MODULE(HLTHFAsymmetryFilter);
+DEFINE_FWK_MODULE(HLTTrackerHaloFilter);

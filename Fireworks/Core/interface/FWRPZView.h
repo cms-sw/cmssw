@@ -16,7 +16,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Feb 19 10:33:21 EST 2008
-// $Id: FWRPZView.h,v 1.14 2010/10/18 17:32:25 amraktad Exp $
+// $Id: FWRPZView.h,v 1.19 2011/03/08 11:42:26 amraktad Exp $
 //
 
 // system include files
@@ -52,33 +52,46 @@ public:
    // ---------- member functions ---------------------------
    virtual void setContext(const fireworks::Context&);
    virtual void setFrom(const FWConfiguration&);
+   virtual void voteCaloMaxVal();
+
+   virtual void eventBegin();
 
    //returns the new element created from this import
    void importElements(TEveElement* iProjectableChild, float layer, TEveElement* iProjectedParent=0);
-
+ 
 private:
    FWRPZView(const FWRPZView&);    // stop default
    const FWRPZView& operator=(const FWRPZView&);    // stop default 
 
-   void doDistortion();
+   void doPreScaleDistortion();
+   void doFishEyeDistortion();
    void doCompression(bool);
+   void doShiftOrigin();
    
    void setEtaRng();
 
    void showProjectionAxes( );
 
    // ---------- member data --------------------------------
-  static FWRPZViewGeometry* s_geometryList;
+   static FWRPZViewGeometry* s_geometryList;
+   const  static float s_distortF;
+   const  static float s_distortFInv;
 
    TEveProjectionManager* m_projMgr;
    TEveProjectionAxes*    m_axes;
    TEveCalo2D*            m_calo;
 
+
    // parameters
+   FWBoolParameter    m_shiftOrigin;
+   FWDoubleParameter  m_fishEyeDistortion;
+   FWDoubleParameter  m_fishEyeR;
+
    FWDoubleParameter  m_caloDistortion;
    FWDoubleParameter  m_muonDistortion;
    FWBoolParameter    m_showProjectionAxes;
    FWBoolParameter    m_compressMuon;
+
    FWBoolParameter*   m_showHF;
    FWBoolParameter*   m_showEndcaps;
 

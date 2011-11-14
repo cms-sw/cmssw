@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Tue Dec  2 14:17:03 EST 2008
-// $Id: FWVertexProxyBuilder.cc,v 1.3 2010/05/03 15:47:48 amraktad Exp $
+// $Id: FWVertexProxyBuilder.cc,v 1.4 2010/11/11 20:25:29 amraktad Exp $
 //
 
 // system include files
@@ -50,4 +50,4 @@ FWVertexProxyBuilder::build(const reco::Vertex& iData, unsigned int iIndex, TEve
 //
 // static member functions
 //
-REGISTER_FWPROXYBUILDER(FWVertexProxyBuilder, reco::VertexCollection, "Vertices", FWViewType::k3DBit | FWViewType::kAllRPZBits);
+REGISTER_FWPROXYBUILDER(FWVertexProxyBuilder, reco::Vertex, "Vertices", FWViewType::k3DBit | FWViewType::kAllRPZBits);

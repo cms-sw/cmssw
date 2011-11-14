@@ -1127,11 +1127,14 @@ DQMNet::startLocalServer(int port)
 
   try
   {
-    server_ = new InetServerSocket(InetAddress (port), 10);
-    server_->setopt(lat::SocketConst::OptSockSendBuffer, SOCKET_BUF_SIZE);
-    server_->setopt(lat::SocketConst::OptSockReceiveBuffer, SOCKET_BUF_SIZE);
-    server_->setBlocking(false);
-    sel_.attach(server_, IOAccept, CreateHook(this, &DQMNet::onPeerConnect));
+    InetAddress addr("0.0.0.0", port);
+    InetSocket *s = new InetSocket(SOCK_STREAM, 0, addr.family());
+    s->bind(addr);
+    s->listen(10);
+    s->setopt(SO_SNDBUF, SOCKET_BUF_SIZE);
+    s->setopt(SO_RCVBUF, SOCKET_BUF_SIZE);
+    s->setBlocking(false);
+    sel_.attach(server_ = s, IOAccept, CreateHook(this, &DQMNet::onPeerConnect));
   }
   catch (Error &e)
   {
@@ -1163,8 +1166,8 @@ DQMNet::startLocalServer(const char *path)
   try
   {
     server_ = new LocalServerSocket(path, 10);
-    server_->setopt(lat::SocketConst::OptSockSendBuffer, SOCKET_BUF_SIZE);
-    server_->setopt(lat::SocketConst::OptSockReceiveBuffer, SOCKET_BUF_SIZE);
+    server_->setopt(SO_SNDBUF, SOCKET_BUF_SIZE);
+    server_->setopt(SO_RCVBUF, SOCKET_BUF_SIZE);
     server_->setBlocking(false);
     sel_.attach(server_, IOAccept, CreateHook(this, &DQMNet::onPeerConnect));
   }
@@ -1303,11 +1306,12 @@ DQMNet::run(void)
 	InetSocket *s = 0;
 	try
 	{
-	  s = new InetSocket (SocketConst::TypeStream);
-	  s->setBlocking (false);
-	  s->connect(InetAddress (ap->host.c_str(), ap->port));
-	  s->setopt(lat::SocketConst::OptSockSendBuffer, SOCKET_BUF_SIZE);
-	  s->setopt(lat::SocketConst::OptSockReceiveBuffer, SOCKET_BUF_SIZE);
+          InetAddress addr(ap->host.c_str(), ap->port);
+	  s = new InetSocket (SOCK_STREAM, 0, addr.family());
+	  s->setBlocking(false);
+	  s->connect(addr);
+	  s->setopt(SO_SNDBUF, SOCKET_BUF_SIZE);
+	  s->setopt(SO_RCVBUF, SOCKET_BUF_SIZE);
 	}
 	catch (Error &e)
 	{

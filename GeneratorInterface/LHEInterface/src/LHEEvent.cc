@@ -35,7 +35,7 @@ namespace lhef {
 
 LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
                    std::istream &in) :
-	runInfo(runInfo), counted(false)
+	runInfo(runInfo), counted(false), readAttemptCounter(0)
 {
 	hepeup.NUP = 0;
 	hepeup.XPDWUP.first = hepeup.XPDWUP.second = 0.0;
@@ -111,7 +111,7 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 
 LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
                    const HEPEUP &hepeup) :
-	runInfo(runInfo), hepeup(hepeup), counted(false)
+	runInfo(runInfo), hepeup(hepeup), counted(false), readAttemptCounter(0)
 {
 }
 
@@ -120,7 +120,7 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
                    const LHEEventProduct::PDF *pdf,
                    const std::vector<std::string> &comments) :
 	runInfo(runInfo), hepeup(hepeup), pdf(pdf ? new PDF(*pdf) : 0),
-	comments(comments), counted(false)
+	comments(comments), counted(false), readAttemptCounter(0)
 {
 }
 
@@ -129,7 +129,7 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 	runInfo(runInfo), hepeup(product.hepeup()),
 	pdf(product.pdf() ? new PDF(*product.pdf()) : 0),
 	comments(product.comments_begin(), product.comments_end()),
-	counted(false)
+	counted(false), readAttemptCounter(0)
 {
 }
 

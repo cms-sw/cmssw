@@ -245,9 +245,7 @@ void ConversionTrackCandidateProducer::produce(edm::Event& theEvent, const edm::
  // std::cout << "ConversionTrackCandidateProducer Putting in the event   InOut track - SC association: size  " <<  (*inOutAssoc_p).size() << "\n";  
  theEvent.put( inOutAssoc_p, InOutTrackSuperClusterAssociationCollection_);
 
- theOutInSeedFinder_->clear();
- theInOutSeedFinder_->clear();
- 
+
 
   
 }

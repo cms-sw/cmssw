@@ -1,17 +1,26 @@
 #ifndef Fireworks_TableWidget_FWTextTreeCellRenderer_h
 #define Fireworks_TableWidget_FWTextTreeCellRenderer_h
 
+#include <cassert>
+
 #include "Fireworks/TableWidget/interface/FWTextTableCellRenderer.h"
 #include "Fireworks/TableWidget/interface/GlobalContexts.h"
+#include "Fireworks/TableWidget/src/FWTabularWidget.h"
 
 #include "TGTextEntry.h"
 #include "TGPicture.h"
+#include "TSystem.h"
+#include "TGClient.h"
 
 class FWTextTreeCellRenderer : public FWTextTableCellRenderer
 {
+protected:
+   const static int  s_iconOffset  = 2;
+
 public:
+
    FWTextTreeCellRenderer(const TGGC* iContext = &(getDefaultGC()),
-                          const TGGC* iHighlightContext = &(getHighlightGC()),
+                          const TGGC* iHighlightContext = &(getDefaultHighlightGC()),
                           Justify iJustify = kJustifyLeft)
       : FWTextTableCellRenderer(iContext, iHighlightContext, iJustify),
         m_indentation(0),
@@ -35,15 +44,21 @@ public:
    static
    const TGPicture* closedImage()
    {
-      static const TGPicture* s_picture=gClient->GetPicture(coreIcondir()+"arrow-black-right-whitebg.png");
+      static const TGPicture* s_picture=gClient->GetPicture(coreIcondir()+"arrow-black-right.png");
       return s_picture;
    }
 
    static
    const TGPicture* openedImage()
    {
-      static const TGPicture* s_picture=gClient->GetPicture(coreIcondir()+"arrow-black-down-whitebg.png");
+      static const TGPicture* s_picture=gClient->GetPicture(coreIcondir()+"arrow-black-down.png");
       return s_picture;
+   }
+
+   static
+   int iconWidth()
+   {
+      return  openedImage()->GetWidth() + s_iconOffset;
    }
 
    virtual void setIndentation(int indentation = 0) { m_indentation = indentation; }
@@ -52,42 +67,68 @@ public:
 
    void setIsParent(bool value) {m_isParent = value; }
    void setIsOpen(bool value) {m_isOpen = value; }
-   virtual UInt_t width() const { return FWTextTableCellRenderer::width() + 15 + m_indentation + 
-         (m_isParent ?  closedImage()->GetWidth() + 2: 0  ); }
+
+   virtual UInt_t width() const
+   {
+      int w = FWTextTableCellRenderer::width() + 15 + m_indentation;
+      if (m_isParent)   w += iconWidth();
+      return w;
+   }
 
    virtual void draw(Drawable_t iID, int iX, int iY, unsigned int iWidth, unsigned int iHeight)
-   {
+   {      
       if (m_showEditor && m_editor)
       {
-         m_editor->MoveResize(iX-3, iY-3, iWidth + 6 , iHeight + 6);
-         m_editor->MapWindow();
-         m_editor->SetText(data().c_str());
-         return;
+         //  printf("renderer draw editor %d %d %d %d \n", iX, iY, m_editor->GetWidth(), m_editor->GetHeight());
+
+         // fill to cover buffer offset
+         static TGGC editGC(FWTextTableCellRenderer::getDefaultGC()); 
+         editGC.SetForeground(m_editor->GetBackground());
+         gVirtualX->FillRectangle(iID, editGC(), iX - FWTabularWidget::kTextBuffer, iY - FWTabularWidget::kTextBuffer,
+                                  iWidth + 2*FWTabularWidget::kTextBuffer, iHeight + 2*FWTabularWidget::kTextBuffer);
+
+         if ( iY > -2)
+         {
+            // redraw editor
+            if (!m_editor->IsMapped())
+            {
+               m_editor->MapWindow();
+               m_editor->SetFocus();
+            }
+            m_editor->MoveResize(iX , iY, m_editor->GetWidth(), m_editor->GetHeight());
+            m_editor->SetCursorPosition( data().size());
+            gClient->NeedRedraw(m_editor);
+       
+            return;
+         }
+         else
+         {
+            // hide editor if selected entry scrolled away
+            if (m_editor->IsMapped()) m_editor->UnmapWindow();
+         }
       }
 
       if (selected())
       {
          GContext_t c = highlightContext()->GetGC();
-         gVirtualX->FillRectangle(iID, c, iX, iY, iWidth, iHeight);
-            
-         gVirtualX->DrawLine(iID,graphicsContext()->GetGC(),iX-1,iY-1,iX-1,iY+iHeight);
-         gVirtualX->DrawLine(iID,graphicsContext()->GetGC(),iX+iWidth,iY-1,iX+iWidth,iY+iHeight);
-         gVirtualX->DrawLine(iID,graphicsContext()->GetGC(),iX-1,iY-1,iX+iWidth,iY-1);
-         gVirtualX->DrawLine(iID,graphicsContext()->GetGC(),iX-1,iY+iHeight,iX+iWidth,iY+iHeight);
+         gVirtualX->FillRectangle(iID, c, iX - FWTabularWidget::kTextBuffer, iY - FWTabularWidget::kTextBuffer,
+                                  iWidth + 2*FWTabularWidget::kTextBuffer, iHeight + 2*FWTabularWidget::kTextBuffer);
       } 
       int xOffset = 0;
       if(m_isParent) {
          if(m_isOpen) {
-            openedImage()->Draw(iID,graphicsContext()->GetGC(),m_indentation+iX,iY);
-            xOffset += openedImage()->GetWidth() + 2;
+            openedImage()->Draw(iID,graphicsContext()->GetGC(),m_indentation+iX,iY +2);
+            xOffset += openedImage()->GetWidth() + s_iconOffset;
          } else {
-            closedImage()->Draw(iID,graphicsContext()->GetGC(),m_indentation+iX,iY);
-            xOffset += closedImage()->GetWidth() + 2;
+            closedImage()->Draw(iID,graphicsContext()->GetGC(),m_indentation+iX,iY +2);
+            xOffset += closedImage()->GetWidth() + s_iconOffset;
          }
       }
-        
+
       FontMetrics_t metrics;
       font()->GetFontMetrics(&metrics);
+
+
       gVirtualX->DrawString(iID, graphicsContext()->GetGC(),
                             iX+m_indentation+xOffset, iY+metrics.fAscent, 
                             data().c_str(),data().size());
@@ -98,6 +139,7 @@ private:
    bool           m_showEditor;
    bool           m_isParent;
    bool           m_isOpen;
+   const TGGC*    m_editContext;
 };
 
 #endif

@@ -7,7 +7,7 @@
 #  execution:  mkedprod producername
 # 
 #  output:  producername/
-#                         Buildfile
+#                         BuildFile.xml
 #                         producername_cfg.py
 #                         interface/
 #                         src/producername.cc
@@ -25,7 +25,7 @@
 #  example:
 #  mkedprod MyProducer
 #        --> write  MyProducer/
-#                               Buildfile
+#                               BuildFile.xml
 #                               myproducer_cfg.py
 #                               interface/
 #                               src/MyProducer.cc
@@ -81,7 +81,7 @@ $skel_dir = &find_mkTemplate_dir($commandFullPath);
 $skeletons{"$skel_dir/EDProducer/edproducer.cc"} =
     "$name/src/" . $name . '.cc';
 $skeletons{"$skel_dir/EDProducer/BuildFile.temp"} =
-    "$name/BuildFile";
+    "$name/BuildFile.xml";
 $skeletons{"$skel_dir/EDProducer/ConfFile_cfg.py"} =
     "$name/" . lc($name) . '_cfg.py';
 $skeletons{"$skel_dir/EDProducer/CfiFile_cfi.py"} =
@@ -185,7 +185,7 @@ mkedprod  h:
 mkedprod  h: execution:  mkedprod producername
 mkedprod  h:
 mkedprod  h: output:  producername/
-mkedprod  h:                       BuildFile
+mkedprod  h:                       BuildFile.xml
 mkedprod  h:                       producername_cfg.py
 mkedprod  h:                       interface/
 mkedprod  h:                       src/producername.cc
@@ -204,7 +204,7 @@ mkedprod  h:
 mkedprod  h: example:
 mkedprod  h: mkedprod MyProducer
 mkedprod  h:       --> write  MyProducer/
-mkedprod  h:                              BuildFile
+mkedprod  h:                              BuildFile.xml
 mkedprod  h:                              myproducer_cfg.py
 mkedprod  h:                              interface/
 mkedprod  h:                              src/MyProducer.cc

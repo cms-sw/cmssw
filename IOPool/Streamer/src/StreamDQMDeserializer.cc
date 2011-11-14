@@ -63,11 +63,12 @@ namespace edm
 
     uint32_t adler32_chksum = cms::Adler32((char*)dqmEventView.eventAddress(), dqmEventView.eventLength());
     if((uint32)adler32_chksum != dqmEventView.adler32_chksum()) {
-      std::cerr << "Error from StreamDQMSerializer: checksum of event data blob failed "
-                << " chksum from event = " << adler32_chksum << " from header = "
-                << dqmEventView.adler32_chksum() << " host name = "
-                << dqmEventView.hostName() << std::endl;
-      // skip DQM event (based on option?) or throw exception?
+      throw cms::Exception("StreamTranslation",
+                           "DQM Event chksum error")
+          << "Error from StreamDQMSerializer: checksum of event data blob failed:" << std::endl
+          << "chksum from event = " << adler32_chksum << " from header = "
+          << dqmEventView.adler32_chksum() << " host name = "
+          << dqmEventView.hostName() << std::endl;
     }
 
     if (originalSize != 0)

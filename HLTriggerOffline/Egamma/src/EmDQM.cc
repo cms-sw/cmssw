@@ -63,9 +63,8 @@ EmDQM::EmDQM(const edm::ParameterSet& pset)
   plotPtMin  = pset.getUntrackedParameter<double>("PtMin",0.);
   plotPtMax  = pset.getUntrackedParameter<double>("PtMax",1000.);
   plotEtaMax = pset.getUntrackedParameter<double>("EtaMax", 2.7);
-  plotPhiMax = pset.getUntrackedParameter<double>("PhiMax", 3.15);
+  plotPhiMax = pset.getUntrackedParameter<double>("EtaMax", 3.15);
   plotBins   = pset.getUntrackedParameter<unsigned int>("Nbins",40);
-  plotMinEtForEtaEffPlot = pset.getUntrackedParameter<unsigned int>("minEtForEtaEffPlot", 15);
   useHumanReadableHistTitles = pset.getUntrackedParameter<bool>("useHumanReadableHistTitles", false);
 
   //preselction cuts 
@@ -363,7 +362,7 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
   edm::Handle< edm::View<reco::GenParticle> > genParticles;
   event.getByLabel("genParticles", genParticles);
   if(!genParticles.isValid()) { 
-    edm::LogWarning("EmDQM") << "genParticles invalid.";
+    edm::LogWarning("EmDQM") << "genParticles invalid";
     return;
   }
 
@@ -435,10 +434,8 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
 
   for (unsigned int i = 0 ; i < gencut_ ; i++ ) {
     etgen ->Fill( sortedGen[i].et()  ); //validity has been implicitily checked by the cut on gencut_ above
-    if (sortedGen[i].et() > plotMinEtForEtaEffPlot) {
-      etagen->Fill( sortedGen[i].eta() );
-      phigen->Fill( sortedGen[i].phi() );
-    }
+    etagen->Fill( sortedGen[i].eta() );
+    phigen->Fill( sortedGen[i].phi() );
   } // END of loop over Generated particles
   if (gencut_ >= reqNum) total->Fill(numOfHLTCollectionLabels+1.5); // this isn't really needed anymore keep for backward comp.
   if (gencut_ >= reqNum) totalmatch->Fill(numOfHLTCollectionLabels+1.5); // this isn't really needed anymore keep for backward comp.
@@ -644,10 +641,8 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
     if ( !matchThis ) continue; // only plot matched candidates
     // fill coordinates of mc particle matching trigger object
     ethistmatch[n] ->Fill( sortedGen[i].et()  );
-    if (sortedGen[i].et() > plotMinEtForEtaEffPlot) {
-      etahistmatch[n]->Fill( sortedGen[i].eta() );
-      phihistmatch[n]->Fill( sortedGen[i].phi() );
-    }
+    etahistmatch[n]->Fill( sortedGen[i].eta() );
+    phihistmatch[n]->Fill( sortedGen[i].phi() );
     ////////////////////////////////////////////////////////////
     //  Plot isolation variables (show the not-yet-cut        //
     //  isolation, i.e. associated to next filter)            //
@@ -659,8 +654,7 @@ template <class T> void EmDQM::fillHistos(edm::Handle<trigger::TriggerEventWithR
 	  iEvent.getByLabel(isoNames[n+1].at(j),depMap);
 	  if (depMap.isValid()){ //Map may not exist if only one candidate passes a double filter
 	    typename edm::AssociationMap<edm::OneToValue< T , float > >::const_iterator mapi = depMap->find(recoecalcands[closest]);
-	    if (mapi!=depMap->end()){  // found candidate in isolation map!
-	      // Only make efficiency plot using photons with some min Et
+	    if (mapi!=depMap->end()){  // found candidate in isolation map! 
 	      etahistisomatch[n+1]->Fill(sortedGen[i].eta(),mapi->val);
 	      phihistisomatch[n+1]->Fill(sortedGen[i].phi(),mapi->val);
 	      ethistisomatch[n+1]->Fill(sortedGen[i].et(),mapi->val);

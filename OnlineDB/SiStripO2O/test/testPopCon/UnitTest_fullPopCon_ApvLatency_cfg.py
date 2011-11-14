@@ -23,17 +23,18 @@ process.load("OnlineDB.SiStripConfigDb.SiStripConfigDb_cfi")
 process.SiStripConfigDb.UsingDb = True
 process.SiStripConfigDb.ConfDb = ''
 process.SiStripConfigDb.Partitions = cms.untracked.PSet(
-     PartTIBD= cms.untracked.PSet(
-                PartitionName = cms.untracked.string("TI_27-JAN-2010_2"),
-                ForceCurrentState = cms.untracked.bool(False),
-                ForceVersions = cms.untracked.bool(True), 
-                CablingVersion = cms.untracked.vuint32(74,0),
-                FecVersion = cms.untracked.vuint32(634,0),
-                FedVersion = cms.untracked.vuint32(888,0),
-                DcuDetIdsVersion = cms.untracked.vuint32(9,12),
-                MaskVersion = cms.untracked.vuint32(95,0),
-                DcuPsuMapVersion = cms.untracked.vuint32(273,0)
-                
+    PartTIBD = cms.untracked.PSet(
+        ForceCurrentState = cms.untracked.bool(False),
+        ForceVersions = cms.untracked.bool(True),
+        PartitionName = cms.untracked.string('TI_13-JUN-2009_1'),
+        # RunNumber = cms.untracked.uint32(105505),
+        # RunNumber = cms.untracked.uint32(108838),
+        RunNumber = cms.untracked.uint32(111799),
+        CablingVersion = cms.untracked.vuint32(72, 0),
+        FecVersion = cms.untracked.vuint32(555, 0),
+        FedVersion = cms.untracked.vuint32(723, 0),
+        DcuDetIdsVersion = cms.untracked.vuint32(9, 0),
+        DcuPsuMapVersion = cms.untracked.vuint32(265,1)
         )
     )
 process.SiStripConfigDb.TNS_ADMIN = ''

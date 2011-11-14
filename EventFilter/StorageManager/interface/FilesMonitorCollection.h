@@ -1,8 +1,8 @@
-// $Id: FilesMonitorCollection.h,v 1.14 2010/09/28 16:25:29 mommsen Exp $
+// $Id: FilesMonitorCollection.h,v 1.15.4.1 2011/03/07 11:33:04 mommsen Exp $
 /// @file: FilesMonitorCollection.h 
 
-#ifndef StorageManager_FilesMonitorCollection_h
-#define StorageManager_FilesMonitorCollection_h
+#ifndef EventFilter_StorageManager_FilesMonitorCollection_h
+#define EventFilter_StorageManager_FilesMonitorCollection_h
 
 #include <iomanip>
 #include <sstream>
@@ -24,8 +24,8 @@ namespace stor {
    * A collection of monitoring entities for open and closed files
    *
    * $Author: mommsen $
-   * $Revision: 1.14 $
-   * $Date: 2010/09/28 16:25:29 $
+   * $Revision: 1.15.4.1 $
+   * $Date: 2011/03/07 11:33:04 $
    */
   
   class FilesMonitorCollection : public MonitorCollection
@@ -77,7 +77,7 @@ namespace stor {
     typedef boost::circular_buffer<FileRecordPtr> FileRecordList;
 
 
-    explicit FilesMonitorCollection(const utils::duration_t& updateInterval);
+    explicit FilesMonitorCollection(const utils::Duration_t& updateInterval);
 
     const FileRecordPtr getNewFileRecord();
 
@@ -95,20 +95,20 @@ namespace stor {
     virtual void do_appendInfoSpaceItems(InfoSpaceItems&);
     virtual void do_updateInfoSpaceItems();
 
-    FileRecordList _fileRecords;
-    mutable boost::mutex _fileRecordsMutex;
+    FileRecordList fileRecords_;
+    mutable boost::mutex fileRecordsMutex_;
 
-    const unsigned int _maxFileEntries; // maximum number of files to remember
-    uint32_t _entryCounter;
+    const unsigned int maxFileEntries_; // maximum number of files to remember
+    uint32_t entryCounter_;
 
-    xdata::UnsignedInteger32 _closedFiles;                 // number of closed files
-    xdata::UnsignedInteger32 _openFiles;                   // number of open files
+    xdata::UnsignedInteger32 closedFiles_;                 // number of closed files
+    xdata::UnsignedInteger32 openFiles_;                   // number of open files
 
   };
   
 } // namespace stor
 
-#endif // StorageManager_FilesMonitorCollection_h 
+#endif // EventFilter_StorageManager_FilesMonitorCollection_h 
 
 
 /// emacs configuration

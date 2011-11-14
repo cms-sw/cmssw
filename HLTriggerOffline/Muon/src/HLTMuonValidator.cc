@@ -1,6 +1,6 @@
 /** \file HLTMuonValidator.cc
- *  $Date: 2010/04/21 16:58:00 $
- *  $Revision: 1.22 $
+ *  $Date: 2010/11/04 12:56:22 $
+ *  $Revision: 1.23 $
  */
 
 
@@ -400,14 +400,20 @@ HLTMuonValidator::findMatches(
     double bestDeltaR = cutsDr_[0];
     size_t bestMatch = kNull;
     for (it = indicesL1.begin(); it != indicesL1.end(); it++) {
-      TrajectoryStateOnSurface propagated;
-      float dR = 999., dPhi = 999.;
-      bool isValid = l1Matcher_.match(* cand, * candsL1[*it], 
-                                      dR, dPhi, propagated);
-      if (isValid && dR < bestDeltaR) {
+      double dR = deltaR(cand->eta(), cand->phi(),
+                         candsL1[*it]->eta(), candsL1[*it]->phi());
+      if (dR < bestDeltaR) {
         bestMatch = *it;
         bestDeltaR = dR;
       }
+      // TrajectoryStateOnSurface propagated;
+      // float dR = 999., dPhi = 999.;
+      // bool isValid = l1Matcher_.match(* cand, * candsL1[*it], 
+      //                                 dR, dPhi, propagated);
+      // if (isValid && dR < bestDeltaR) {
+      //   bestMatch = *it;
+      //   bestDeltaR = dR;
+      // }
     }
     if (bestMatch != kNull)
       matches[i].candL1 = & * candsL1[bestMatch];

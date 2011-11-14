@@ -27,8 +27,8 @@
 
     /** \class HcalHitReconstructor
 	
-    $Date: 2011/01/05 18:55:09 $
-    $Revision: 1.10 $
+    $Date: 2010/07/01 18:54:02 $
+    $Revision: 1.9 $
     \author J. Temple & E. Yazgan
     ** Based on HcalSimpleReconstructor.h by J. Mans
     */
@@ -36,7 +36,6 @@
     public:
       explicit HcalHitReconstructor(const edm::ParameterSet& ps);
       virtual ~HcalHitReconstructor();
-      virtual void beginRun(edm::Run&r, edm::EventSetup const & es);
       virtual void produce(edm::Event& e, const edm::EventSetup& c);
     private:      
       HcalSimpleRecAlgo reco_;
@@ -65,10 +64,6 @@
       bool dropZSmarkedPassed_; // turn on/off dropping of zero suppression marked and passed digis
 
       int firstauxTS_;
-
-      std::string confLabel_;
-      int firstSample_;
-      int samplesToAdd_;
     };
 
 #endif

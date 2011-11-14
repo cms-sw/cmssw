@@ -27,8 +27,8 @@
 
 /** \class HcalRawDataMonitor
  *
- * $Date: 2010/03/25 11:00:58 $
- * $Revision: 1.2 $
+ * $Date: 2010/05/12 22:33:27 $
+ * $Revision: 1.3 $
  * \author J. St. John - Boston University
  */
 class HcalRawDataMonitor: public HcalBaseDQMonitor {
@@ -207,6 +207,7 @@ class HcalRawDataMonitor: public HcalBaseDQMonitor {
 
   void HTRPrint(const HcalHTRData& htr,int prtlvl);
 
+  bool excludeHORing2_;
 };
 
 #endif

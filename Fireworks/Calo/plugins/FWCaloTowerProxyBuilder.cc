@@ -8,7 +8,7 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Wed Dec  3 11:28:28 EST 2008
-// $Id: FWCaloTowerProxyBuilder.cc,v 1.23 2010/12/01 21:40:31 amraktad Exp $
+// $Id: FWCaloTowerProxyBuilder.cc,v 1.24 2010/12/16 11:39:38 amraktad Exp $
 //
 
 // system includes
@@ -57,11 +57,14 @@ FWCaloTowerProxyBuilderBase::setCaloData(const fireworks::Context&)
 
 void
 FWCaloTowerProxyBuilderBase::build(const FWEventItem* iItem,
-                                  TEveElementList* el, const FWViewContext* ctx)
+                                   TEveElementList* el, const FWViewContext* ctx)
 {
    m_towers=0;
-   if (iItem) iItem->get(m_towers);
-   FWCaloDataProxyBuilderBase::build(iItem, el, ctx);
+   if (iItem)
+   {
+      iItem->get(m_towers);
+      FWCaloDataProxyBuilderBase::build(iItem, el, ctx);
+   }
 }
 
 void

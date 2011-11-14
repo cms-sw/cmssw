@@ -1,49 +1,50 @@
-// $Id: RegistrationCollection.cc,v 1.9 2010/04/16 14:40:14 mommsen Exp $
+// $Id: RegistrationCollection.cc,v 1.10.4.1 2011/03/07 11:33:05 mommsen Exp $
 /// @file: RegistrationCollection.cc
 
 #include "EventFilter/StorageManager/interface/RegistrationCollection.h"
 
 #include <boost/pointer_cast.hpp>
+#include <algorithm>
 
 using namespace stor;
 
 RegistrationCollection::RegistrationCollection()
 {
-  boost::mutex::scoped_lock sl( _lock );
-  _nextConsumerId = ConsumerID(0);
-  _registrationAllowed = false;
+  boost::mutex::scoped_lock sl( lock_ );
+  nextConsumerId_ = ConsumerID(0);
+  registrationAllowed_ = false;
 }
 
 RegistrationCollection::~RegistrationCollection() {}
 
 ConsumerID RegistrationCollection::getConsumerId()
 {
-  boost::mutex::scoped_lock sl( _lock );
+  boost::mutex::scoped_lock sl( lock_ );
   
-  if( !_registrationAllowed )
+  if( !registrationAllowed_ )
   {
     return ConsumerID(0);
   }
   
-  return ++_nextConsumerId;
+  return ++nextConsumerId_;
 }
 
 bool
 RegistrationCollection::addRegistrationInfo( const RegPtr ri )
 {
-  boost::mutex::scoped_lock sl( _lock );
-  if( _registrationAllowed )
+  boost::mutex::scoped_lock sl( lock_ );
+  if( registrationAllowed_ )
   {
     ConsumerID cid = ri->consumerId();
-    RegistrationMap::iterator pos = _consumers.lower_bound(cid);
+    RegistrationMap::iterator pos = consumers_.lower_bound(cid);
     
-    if ( pos != _consumers.end() && !(_consumers.key_comp()(cid, pos->first)) )
+    if ( pos != consumers_.end() && !(consumers_.key_comp()(cid, pos->first)) )
     {
       // The given ConsumerID already exists.
       return false;
     }
     
-    _consumers.insert( pos, RegistrationMap::value_type(cid, ri) );
+    consumers_.insert( pos, RegistrationMap::value_type(cid, ri) );
     return true;
   }
   else
@@ -55,11 +56,12 @@ RegistrationCollection::addRegistrationInfo( const RegPtr ri )
 
 RegPtr RegistrationCollection::getRegistrationInfo( const ConsumerID cid ) const
 {
-  boost::mutex::scoped_lock sl( _lock );
+  boost::mutex::scoped_lock sl( lock_ );
   RegPtr regInfo;
-  RegistrationMap::const_iterator pos = _consumers.find(cid);
-  if ( pos != _consumers.end() )
+  RegistrationMap::const_iterator pos = consumers_.find(cid);
+  if ( pos != consumers_.end() )
   {
+    pos->second->consumerContact();
     regInfo = pos->second;
   }
   return regInfo;
@@ -68,22 +70,26 @@ RegPtr RegistrationCollection::getRegistrationInfo( const ConsumerID cid ) const
 
 void RegistrationCollection::getEventConsumers( ConsumerRegistrations& crs ) const
 {
-  boost::mutex::scoped_lock sl( _lock );
-  for( RegistrationMap::const_iterator it = _consumers.begin();
-       it != _consumers.end(); ++it )
+  boost::mutex::scoped_lock sl( lock_ );
+  for( RegistrationMap::const_iterator it = consumers_.begin();
+       it != consumers_.end(); ++it )
     {
       EventConsRegPtr eventConsumer =
         boost::dynamic_pointer_cast<EventConsumerRegistrationInfo>( it->second );
       if ( eventConsumer )
         crs.push_back( eventConsumer );
     }
+  // sort the event consumers to have identical consumers sharing a queue
+  // next to each others.
+  utils::ptrComp<EventConsumerRegistrationInfo> comp;
+  std::sort(crs.begin(), crs.end(), comp);
 }
 
 void RegistrationCollection::getDQMEventConsumers( DQMConsumerRegistrations& crs ) const
 {
-  boost::mutex::scoped_lock sl( _lock );
-  for( RegistrationMap::const_iterator it = _consumers.begin();
-       it != _consumers.end(); ++it )
+  boost::mutex::scoped_lock sl( lock_ );
+  for( RegistrationMap::const_iterator it = consumers_.begin();
+       it != consumers_.end(); ++it )
     {
       DQMEventConsRegPtr dqmEventConsumer =
         boost::dynamic_pointer_cast<DQMEventConsumerRegistrationInfo>( it->second );
@@ -94,26 +100,31 @@ void RegistrationCollection::getDQMEventConsumers( DQMConsumerRegistrations& crs
 
 void RegistrationCollection::enableConsumerRegistration()
 {
-  //boost::mutex::scoped_lock sl( _lock );
-  _registrationAllowed = true;
+  //boost::mutex::scoped_lock sl( lock_ );
+  registrationAllowed_ = true;
 }
 
 void RegistrationCollection::disableConsumerRegistration()
 {
-  //boost::mutex::scoped_lock sl( _lock );
-  _registrationAllowed = false;
+  //boost::mutex::scoped_lock sl( lock_ );
+  registrationAllowed_ = false;
 }
 
 void RegistrationCollection::clearRegistrations()
 {
-  boost::mutex::scoped_lock sl( _lock );
-  _consumers.clear();
+  boost::mutex::scoped_lock sl( lock_ );
+  consumers_.clear();
 }
 
-bool RegistrationCollection::registrationIsAllowed() const
+bool RegistrationCollection::registrationIsAllowed( const ConsumerID cid ) const
 {
-  //boost::mutex::scoped_lock sl( _lock );
-  return _registrationAllowed;
+  boost::mutex::scoped_lock sl( lock_ );
+
+  RegistrationMap::const_iterator pos = consumers_.find(cid);
+  if ( pos == consumers_.end() ) return false;
+  pos->second->consumerContact();
+
+  return registrationAllowed_;
 }
 
 
