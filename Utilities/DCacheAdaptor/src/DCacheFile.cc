@@ -74,8 +74,6 @@ DCacheFile::open (const char *name,
                   int flags /* = IOFlags::OpenRead */,
                   int perms /* = 066 */)
 {
-  m_name = name;
-
   // Actual open
   if ((name == 0) || (*name == 0)) {
     edm::Exception ex(edm::errors::FileOpenError);
@@ -133,6 +131,7 @@ DCacheFile::open (const char *name,
     throw ex;
   }
 
+  m_name = name;
   m_fd = newfd;
 
   // Turn off read-ahead, or adjust read-ahead size depending on
