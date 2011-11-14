@@ -14,7 +14,7 @@ import FWCore.ParameterSet.Config as cms
 ## | |_| | (_| | || (_| | | (_) | |    | |  | | |___ 
 ## |____/ \__,_|\__\__,_|  \___/|_|    |_|  |_|\____|
             
-isMC = True
+isMC = False
 
 
 ##   ____             __ _                       _     _           
@@ -26,9 +26,14 @@ isMC = True
 
 NJetsToKeep = 2
 
-inputFile = 'file:/uscms_data/d2/kalanand/dijet-Run2010A-JetMET-Nov4ReReco-9667events.root'
+## inputFile = 'file:/uscms_data/d2/kalanand/dijet-Run2010A-JetMET-Nov4ReReco-9667events.root'
+## if isMC:
+##   inputFile ='/store/mc/Fall10/QCD_Pt_80to120_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/FEF4D100-4CCB-DF11-94CB-00E08178C12F.root'
+
+
+inputFile = '/store/data/Run2011A/SingleMu/AOD/PromptReco-v6/000/173/692/EE90CCE0-E9CF-E011-B4C7-BCAEC54DB5D6.root'
 if isMC:
-  inputFile ='/store/mc/Fall10/QCD_Pt_80to120_TuneZ2_7TeV_pythia6/GEN-SIM-RECO/START38_V12-v1/0000/FEF4D100-4CCB-DF11-94CB-00E08178C12F.root'
+  inputFile ='/store/mc/Spring11/QCD_Pt-15_TuneZ2_7TeV-pythia6/AODSIM/PU_S2_START311_V2-v1/0007/0AD300BD-5659-E011-B47A-002618943836.root'
   
 
 ##   _            _           _           

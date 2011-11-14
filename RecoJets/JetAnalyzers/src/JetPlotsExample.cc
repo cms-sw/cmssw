@@ -43,29 +43,42 @@ void JetPlotsExample<Jet>::beginJob()
   m_HistNames1D[hname] = new TH1F(hname,hname,100,-M_PI,M_PI);
   hname = "NumberOfJets";
   m_HistNames1D[hname] = new TH1F(hname,hname,100,0,100);
+  hname = "EtaEtaMoment";
+  m_HistNames1D[hname] = new TH1F(hname,hname,100,-0.1,0.1);
+  hname = "EtaPhiMoment";
+  m_HistNames1D[hname] = new TH1F(hname,hname,100,-0.1,0.1);
+  hname = "PhiPhiMoment";
+  m_HistNames1D[hname] = new TH1F(hname,hname,100,-0.1,0.1);
 }
 ////////////////////////////////////////////////////////////////////////////////////////
 template<class Jet>
 void JetPlotsExample<Jet>::analyze(edm::Event const& evt, edm::EventSetup const& iSetup) 
 {
   /////////// Get the jet collection //////////////////////
-  Handle<JetCollection> jets;
+  //Handle<JetCollection> jets;
+   edm::Handle<edm::View<reco::Jet> > jets;
   evt.getByLabel(JetAlgorithm,jets);
-  typename JetCollection::const_iterator i_jet;
+  // typename JetCollection::const_iterator i_jet;
   int index = 0;
   TString hname; 
   /////////// Count the jets in the event /////////////////
   hname = "NumberOfJets";
   FillHist1D(hname,jets->size()); 
   /////////// Fill Histograms for the leading NJet jets ///
-  for(i_jet = jets->begin(); i_jet != jets->end() && index < NJets; ++i_jet) 
-    {
+  edm::View<reco::Jet>::const_iterator i_jet, endpjets = jets->end(); 
+   for (i_jet = jets->begin();  i_jet != endpjets && index < NJets;  ++i_jet) {
       hname = "JetPt";
-      FillHist1D(hname,i_jet->pt());   
+      FillHist1D(hname,(*i_jet).pt());   
       hname = "JetEta";
-      FillHist1D(hname,i_jet->eta());
+      FillHist1D(hname,(*i_jet).eta());
       hname = "JetPhi";
-      FillHist1D(hname,i_jet->phi());
+      FillHist1D(hname,(*i_jet).phi());
+      hname = "EtaEtaMoment";
+      FillHist1D(hname,(*i_jet).etaetaMoment());
+      hname = "EtaPhiMoment";
+      FillHist1D(hname,(*i_jet).etaphiMoment());
+      hname = "PhiPhiMoment";
+      FillHist1D(hname,(*i_jet).phiphiMoment());
       index++;
     }
 }
