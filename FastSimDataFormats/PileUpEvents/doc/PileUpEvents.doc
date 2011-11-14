@@ -15,13 +15,14 @@
 \section desc Description
 <!-- Short description of what this package is supposed to provide -->
 
-(THE PACKAGE ADMINISTATOR SHOULD REPLACE THIS SENTENCE WITH HAND-WRITTEN DOCUMENTATION SAYING WHAT THE PACKAGE DOES.)
+Definition of a few DataFormats needed for the specific treatment of the PileUp events in Fast Simulation
+
 
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
 
-- PUEvent
-
+- PUEvent <br>
+Defines the MinimumBias events added as PileUp to the main simulated event in FastSim, and the methods needed to add single particle and/or whole MinBias events to the overall event. Used by FastSimulation/PileUpProducer
 
 \subsection pluginai Plugins
 <!-- List the plugins that are provided for use in other packages (if any) -->

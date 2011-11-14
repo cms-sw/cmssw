@@ -15,16 +15,22 @@
 \section desc Description
 <!-- Short description of what this package is supposed to provide -->
 
-(THE PACKAGE ADMINISTATOR SHOULD REPLACE THIS SENTENCE WITH HAND-WRITTEN DOCUMENTATION SAYING WHAT THE PACKAGE DOES.)
+Definition of a few DataFormates needed for the specific treatment of the Nuclear Interactions and their secondary vertices in Fast Simulation. <br>
+Used by FastSimulation/MaterialEffects.
 
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
 
-- FSimDisplacedVertex
-- FSimDisplacedVertexFwd
-- FSimVertexType
-- FSimVertexTypeFwd
-- NUEvent
+- FSimDisplacedVertex <br>
+- FSimDisplacedVertexFwd <br>
+This data format is designed to combine the informations from FSimVertex and its FSimVertexType. It is not part of general FastSimulation sequence and useful for  private productions and analyses.
+
+- FSimVertexType <br>
+- FSimVertexTypeFwd <br>
+It holds the information about the nature of a SimVertex within the Famos or Generation sequences.
+
+- NUEvent <br>
+It defines the whole set of simulated tracks exiting from a Nuclear Interaction in the Fast Simulation.
 
 
 \subsection pluginai Plugins

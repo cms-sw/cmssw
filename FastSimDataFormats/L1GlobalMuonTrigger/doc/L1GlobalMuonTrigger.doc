@@ -15,7 +15,7 @@
 \section desc Description
 <!-- Short description of what this package is supposed to provide -->
 
-(THE PACKAGE ADMINISTATOR SHOULD REPLACE THIS SENTENCE WITH HAND-WRITTEN DOCUMENTATION SAYING WHAT THE PACKAGE DOES.)
+Defines FastSim specific DataFormat's for the parameterized L1 muon candidates ("SimpleL1MuGMTCand"). It is now obsolete, since the L1 Muon Emulator is used instead to produce L1 muon triggers. It could be dropped...
 
 \subsection interface Public interface
 <!-- List the classes that are provided for use in other packages (if any) -->
