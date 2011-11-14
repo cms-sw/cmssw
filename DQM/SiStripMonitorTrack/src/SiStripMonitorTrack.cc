@@ -620,7 +620,7 @@ bool SiStripMonitorTrack::clusterInfos(SiStripClusterInfo* cluster, const uint32
     uint32_t adet=cluster->detId();
     if(flag==OnTrack){
       tkhisto_NumOnTrack->add(adet,1.);
-      tkhisto_StoNCorrOnTrack->fill(adet,cluster->signalOverNoise()*cosRZ);
+      if(cluster->noiseRescaledByGain() > 0.0) tkhisto_StoNCorrOnTrack->fill(adet,cluster->signalOverNoise()*cosRZ);
     }
     else if(flag==OffTrack){
       tkhisto_NumOffTrack->add(adet,1.);
@@ -652,7 +652,7 @@ void SiStripMonitorTrack::fillModMEs(SiStripClusterInfo* cluster,std::string nam
     uint16_t width    = cluster->width();
     float    position = cluster->baryStrip(); 
 
-    fillME(iModME->second.ClusterStoNCorr ,StoN*cos);
+    if(cluster->noiseRescaledByGain() > 0.0) fillME(iModME->second.ClusterStoNCorr ,StoN*cos);
     fillME(iModME->second.ClusterCharge,charge);
 
     fillME(iModME->second.ClusterChargeCorr,charge*cos);
@@ -691,7 +691,7 @@ void SiStripMonitorTrack::fillMEs(SiStripClusterInfo* cluster,uint32_t detid,flo
   std::map<std::string, LayerMEs>::iterator iLayer  = LayerMEsMap.find(layer_id);
   if (iLayer != LayerMEsMap.end()) {
     if(flag==OnTrack){
-      fillME(iLayer->second.ClusterStoNCorrOnTrack, StoN*cos);
+      if(noise > 0.0) fillME(iLayer->second.ClusterStoNCorrOnTrack, StoN*cos);
       fillME(iLayer->second.ClusterChargeCorrOnTrack, charge*cos);
       fillME(iLayer->second.ClusterChargeOnTrack, charge);
       fillME(iLayer->second.ClusterNoiseOnTrack, noise);
@@ -707,10 +707,10 @@ void SiStripMonitorTrack::fillMEs(SiStripClusterInfo* cluster,uint32_t detid,flo
   std::map<std::string, SubDetMEs>::iterator iSubdet  = SubDetMEsMap.find(sdet_pair.second);
   if(iSubdet != SubDetMEsMap.end() ){
     if(flag==OnTrack){
-      fillME(iSubdet->second.ClusterStoNCorrOnTrack,StoN*cos);
+      if(noise > 0.0) fillME(iSubdet->second.ClusterStoNCorrOnTrack,StoN*cos);
     } else {
       fillME(iSubdet->second.ClusterChargeOffTrack,charge);
-      fillME(iSubdet->second.ClusterStoNOffTrack,StoN);
+      if(noise > 0.0) fillME(iSubdet->second.ClusterStoNOffTrack,StoN);
     }
   }
 }
