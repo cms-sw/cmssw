@@ -46,8 +46,8 @@ wget --no-check-certificate http://cms-project-generators.web.cern.ch/cms-projec
 
 # force the f77 compiler to be the CMS defined one
 
-ln -s `which gfortran` f77
-ln -s `which gfortran` g77
+ln -sf `which gfortran` f77
+ln -sf `which gfortran` g77
 PATH=`pwd`:${PATH}
 
 tar xzf ${name}_gridpack.tar.gz ; rm -f ${name}_gridpack.tar.gz ; cd madevent
