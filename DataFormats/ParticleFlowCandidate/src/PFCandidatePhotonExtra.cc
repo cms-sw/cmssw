@@ -4,10 +4,22 @@
 
 using namespace reco;
 
-PFCandidatePhotonExtra::PFCandidatePhotonExtra(){}
+PFCandidatePhotonExtra::PFCandidatePhotonExtra(){
+  Mustache_Et_=0.;
+  Excluded_clust_ = 0;
+  
+  GlobalCorr_ = 0. ;
+  GlobalCorrEError_ = 0.;
+}
 
 PFCandidatePhotonExtra::PFCandidatePhotonExtra(const reco::SuperClusterRef& scRef) {
   scRef_ = scRef;
+  
+  Mustache_Et_=0.;
+  Excluded_clust_ = 0;
+  
+  GlobalCorr_ = 0. ;
+  GlobalCorrEError_ = 0.;
 }
 
 void PFCandidatePhotonExtra::addSingleLegConvTrackRef(const reco::TrackRef& trackref){

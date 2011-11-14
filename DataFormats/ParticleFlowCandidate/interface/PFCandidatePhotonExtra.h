@@ -54,6 +54,10 @@ namespace reco {
     //MVA Energy Regression:
     void setMVAGlobalCorrE(float GCorr){GlobalCorr_=GCorr;}
     float MVAGlobalCorrE()const{return GlobalCorr_;}
+
+    void setMVAGlobalCorrEError(float GCorr){GlobalCorrEError_=GCorr;}
+    float MVAGlobalCorrEError()const{return GlobalCorrEError_;}
+
     void addLCorrClusEnergy(float LCorrE);
     const std::vector<float>& LCorrClusEnergy() const {return LocalCorr_;}
 
@@ -78,7 +82,7 @@ namespace reco {
     //for MVA Regression Energy
     std::vector<float> LocalCorr_;
     float GlobalCorr_;
-
+    float GlobalCorrEError_;
   };
 }
 #endif

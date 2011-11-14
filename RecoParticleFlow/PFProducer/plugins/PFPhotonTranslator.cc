@@ -165,6 +165,8 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
   egSCRef_.clear();
   egPhotonRef_.clear();
   pfPhotonMva_.clear();
+  energyRegression_.clear();
+  energyRegressionError_.clear();
   pfConv_.clear();
   pfSingleLegConv_.clear();
   pfSingleLegConvMva_.clear();
@@ -237,6 +239,8 @@ void PFPhotonTranslator::produce(edm::Event& iEvent,
 
     photPFCandidateIndex_.push_back(i);
     pfPhotonMva_.push_back(cand.mva_nothing_gamma());
+    energyRegression_.push_back(cand.photonExtraRef()->MVAGlobalCorrE());
+    energyRegressionError_.push_back(cand.photonExtraRef()->MVAGlobalCorrEError());
     basicClusters_.push_back(reco::BasicClusterCollection());
     pfClusters_.push_back(std::vector<const reco::PFCluster *>());
     preshowerClusters_.push_back(reco::PreshowerClusterCollection());
@@ -928,6 +932,10 @@ void PFPhotonTranslator::createPhotons(reco::VertexCollection &vertexCollection,
 
       //cout << "chargedHadronIso="<<myPhoton.chargedHadronIso()<<" photonIso="<<myPhoton.photonIso()<<" neutralHadronIso="<<myPhoton.neutralHadronIso()<<endl;
       
+      // set PF-regression energy
+      myPhoton.setCorrectedEnergy(reco::Photon::regression2,energyRegression_[iphot],energyRegressionError_[iphot],false);
+      
+
       /*
       if (basicClusters_[iphot].size()>0){
       // Cluster shape variables
