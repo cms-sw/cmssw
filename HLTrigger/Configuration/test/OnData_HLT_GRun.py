@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_4_2/GRun/V29 (CMSSW_4_4_0_HLT13)
+# /dev/CMSSW_4_4_2/GRun/V30 (CMSSW_4_4_0_HLT14)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/GRun/V29')
+  tableName = cms.string('/dev/CMSSW_4_4_2/GRun/V30')
 )
 
 process.streams = cms.PSet( 
@@ -5572,11 +5572,15 @@ process.hltPreActivityEcalSC7 = cms.EDFilter( "HLTPrescaler",
 )
 process.hltEcalRawToRecHitFacility = cms.EDProducer( "EcalRawToRecHitFacility",
     sourceTag = cms.InputTag( "source" ),
-    workerName = cms.string( "" )
+    workerName = cms.string( "" ),
+    EBLaserMIN = cms.double( 0.5 ),
+    EELaserMIN = cms.double( 0.5 )
 )
 process.hltESRawToRecHitFacility = cms.EDProducer( "EcalRawToRecHitFacility",
     sourceTag = cms.InputTag( "source" ),
-    workerName = cms.string( "hltESPESUnpackerWorker" )
+    workerName = cms.string( "hltESPESUnpackerWorker" ),
+    EBLaserMIN = cms.double( 0.5 ),
+    EELaserMIN = cms.double( 0.5 )
 )
 process.hltEcalRegionalRestFEDs = cms.EDProducer( "EcalRawToRecHitRoI",
     sourceTag = cms.InputTag( "hltEcalRawToRecHitFacility" ),
@@ -37807,23 +37811,35 @@ process.setName_('HLTGRun')
 
 # adapt HLT modules to the correct process name
 if 'hltTrigReport' in process.__dict__:
-    process.hltTrigReport.HLTriggerResults       = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
+    process.hltTrigReport.HLTriggerResults                    = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
 
-if 'hltPreExpressSmart' in process.__dict__:
-    process.hltPreExpressSmart.TriggerResultsTag = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
+if 'hltPreExpressCosmicsOutputSmart' in process.__dict__:
+    process.hltPreExpressCosmicsOutputSmart.TriggerResultsTag = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
 
-if 'hltPreHLTMONSmart' in process.__dict__:
-    process.hltPreHLTMONSmart.TriggerResultsTag  = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
+if 'hltPreExpressOutputSmart' in process.__dict__:
+    process.hltPreExpressOutputSmart.TriggerResultsTag        = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
 
-if 'hltPreDQMSmart' in process.__dict__:
-    process.hltPreDQMSmart.TriggerResultsTag     = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
+if 'hltPreDQMForHIOutputSmart' in process.__dict__:
+    process.hltPreDQMForHIOutputSmart.TriggerResultsTag       = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
+
+if 'hltPreDQMForPPOutputSmart' in process.__dict__:
+    process.hltPreDQMForPPOutputSmart.TriggerResultsTag       = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
+
+if 'hltPreHLTDQMResultsOutputSmart' in process.__dict__:
+    process.hltPreHLTDQMResultsOutputSmart.TriggerResultsTag  = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
+
+if 'hltPreHLTDQMOutputSmart' in process.__dict__:
+    process.hltPreDQMOutputSmart.TriggerResultsTag            = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
+
+if 'hltPreHLTMONOutputSmart' in process.__dict__:
+    process.hltPreHLTMONOutputSmart.TriggerResultsTag         = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
 
 if 'hltDQMHLTScalers' in process.__dict__:
-    process.hltDQMHLTScalers.triggerResults      = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
-    process.hltDQMHLTScalers.processname         = 'HLTGRun'
+    process.hltDQMHLTScalers.triggerResults                   = cms.InputTag( 'TriggerResults', '', 'HLTGRun' )
+    process.hltDQMHLTScalers.processname                      = 'HLTGRun'
 
 if 'hltDQML1SeedLogicScalers' in process.__dict__:
-    process.hltDQML1SeedLogicScalers.processname = 'HLTGRun'
+    process.hltDQML1SeedLogicScalers.processname              = 'HLTGRun'
 
 # remove the HLT prescales
 if 'PrescaleService' in process.__dict__:

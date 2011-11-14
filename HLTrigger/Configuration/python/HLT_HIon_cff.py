@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_4_2/HIon/V29 (CMSSW_4_4_0_HLT13)
+# /dev/CMSSW_4_4_2/HIon/V30 (CMSSW_4_4_0_HLT14)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V29')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V30')
 )
 
 streams = cms.PSet( 
@@ -4400,7 +4400,9 @@ hltPreHIPhoton15 = cms.EDFilter( "HLTPrescaler",
 )
 hltEcalRawToRecHitFacility = cms.EDProducer( "EcalRawToRecHitFacility",
     sourceTag = cms.InputTag( "rawDataCollector" ),
-    workerName = cms.string( "" )
+    workerName = cms.string( "" ),
+    EBLaserMIN = cms.double( 0.5 ),
+    EELaserMIN = cms.double( 0.5 )
 )
 hltEcalRegionalRestFEDs = cms.EDProducer( "EcalRawToRecHitRoI",
     sourceTag = cms.InputTag( "hltEcalRawToRecHitFacility" ),

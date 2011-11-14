@@ -1,10 +1,10 @@
-# /dev/CMSSW_4_4_2/HLT/V83 (CMSSW_4_4_0_HLT13)
+# /dev/CMSSW_4_4_2/HLT/V84 (CMSSW_4_4_0_HLT14)
 
 import FWCore.ParameterSet.Config as cms
 
 
 HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HLT/V83')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HLT/V84')
 )
 
 streams = cms.PSet( 
@@ -4277,11 +4277,15 @@ hltPreActivityEcalSC7 = cms.EDFilter( "HLTPrescaler",
 )
 hltEcalRawToRecHitFacility = cms.EDProducer( "EcalRawToRecHitFacility",
     sourceTag = cms.InputTag( "rawDataCollector" ),
-    workerName = cms.string( "" )
+    workerName = cms.string( "" ),
+    EBLaserMIN = cms.double( 0.5 ),
+    EELaserMIN = cms.double( 0.5 )
 )
 hltESRawToRecHitFacility = cms.EDProducer( "EcalRawToRecHitFacility",
     sourceTag = cms.InputTag( "rawDataCollector" ),
-    workerName = cms.string( "hltESPESUnpackerWorker" )
+    workerName = cms.string( "hltESPESUnpackerWorker" ),
+    EBLaserMIN = cms.double( 0.5 ),
+    EELaserMIN = cms.double( 0.5 )
 )
 hltEcalRegionalRestFEDs = cms.EDProducer( "EcalRawToRecHitRoI",
     sourceTag = cms.InputTag( "hltEcalRawToRecHitFacility" ),

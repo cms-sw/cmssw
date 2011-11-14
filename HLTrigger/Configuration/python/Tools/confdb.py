@@ -598,23 +598,35 @@ process = HLTrigger.Configuration.customizeHLTforL1Emulator.%(CustomHLT)s( proce
 
 # adapt HLT modules to the correct process name
 if 'hltTrigReport' in %%(dict)s:
-    %%(process)shltTrigReport.HLTriggerResults       = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+    %%(process)shltTrigReport.HLTriggerResults                    = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
-if 'hltPreExpressSmart' in %%(dict)s:
-    %%(process)shltPreExpressSmart.TriggerResultsTag = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+if 'hltPreExpressCosmicsOutputSmart' in %%(dict)s:
+    %%(process)shltPreExpressCosmicsOutputSmart.TriggerResultsTag = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
-if 'hltPreHLTMONSmart' in %%(dict)s:
-    %%(process)shltPreHLTMONSmart.TriggerResultsTag  = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+if 'hltPreExpressOutputSmart' in %%(dict)s:
+    %%(process)shltPreExpressOutputSmart.TriggerResultsTag        = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
-if 'hltPreDQMSmart' in %%(dict)s:
-    %%(process)shltPreDQMSmart.TriggerResultsTag     = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+if 'hltPreDQMForHIOutputSmart' in %%(dict)s:
+    %%(process)shltPreDQMForHIOutputSmart.TriggerResultsTag       = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+
+if 'hltPreDQMForPPOutputSmart' in %%(dict)s:
+    %%(process)shltPreDQMForPPOutputSmart.TriggerResultsTag       = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+
+if 'hltPreHLTDQMResultsOutputSmart' in %%(dict)s:
+    %%(process)shltPreHLTDQMResultsOutputSmart.TriggerResultsTag  = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+
+if 'hltPreHLTDQMOutputSmart' in %%(dict)s:
+    %%(process)shltPreDQMOutputSmart.TriggerResultsTag            = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+
+if 'hltPreHLTMONOutputSmart' in %%(dict)s:
+    %%(process)shltPreHLTMONOutputSmart.TriggerResultsTag         = cms.InputTag( 'TriggerResults', '', '%(name)s' )
 
 if 'hltDQMHLTScalers' in %%(dict)s:
-    %%(process)shltDQMHLTScalers.triggerResults      = cms.InputTag( 'TriggerResults', '', '%(name)s' )
-    %%(process)shltDQMHLTScalers.processname         = '%(name)s'
+    %%(process)shltDQMHLTScalers.triggerResults                   = cms.InputTag( 'TriggerResults', '', '%(name)s' )
+    %%(process)shltDQMHLTScalers.processname                      = '%(name)s'
 
 if 'hltDQML1SeedLogicScalers' in %%(dict)s:
-    %%(process)shltDQML1SeedLogicScalers.processname = '%(name)s'
+    %%(process)shltDQML1SeedLogicScalers.processname              = '%(name)s'
 """ % self.config.__dict__
 
 
