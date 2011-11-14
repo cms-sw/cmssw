@@ -788,7 +788,6 @@ const int L1GtUtils::l1Results(const edm::Event& iEvent,
     int iErrorRecord = 0;
 
     bool validRecord = false;
-    bool gtRecordValid = false;
     bool gtReadoutRecordValid = false;
 
     edm::Handle<L1GlobalTriggerRecord> gtRecord;
@@ -796,7 +795,6 @@ const int L1GtUtils::l1Results(const edm::Event& iEvent,
 
     if (gtRecord.isValid()) {
 
-        gtRecordValid = true;
         validRecord = true;
 
     } else {
@@ -1580,7 +1578,6 @@ const int L1GtUtils::prescaleFactorSetIndex(const edm::Event& iEvent,
     int iErrorRecord = 0;
 
     bool validRecord = false;
-    bool gtRecordValid = false;
     bool gtReadoutRecordValid = false;
 
     edm::Handle<L1GlobalTriggerRecord> gtRecord;
@@ -1588,7 +1585,6 @@ const int L1GtUtils::prescaleFactorSetIndex(const edm::Event& iEvent,
 
     if (gtRecord.isValid()) {
 
-        gtRecordValid = true;
         validRecord = true;
 
     } else {
