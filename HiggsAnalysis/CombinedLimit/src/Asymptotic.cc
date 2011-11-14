@@ -245,7 +245,8 @@ std::vector<std::pair<float,float> > Asymptotic::runLimitExpected(RooWorkspace *
 
     // 3) solve for q_mu
     r->setConstant(false);
-    r->setMin(0);
+    //r->setMin(0);
+    r->setMin(qtilde_ ? 0 : -r->getMax()); // FIXME TEST
     r->setVal(0.01*r->getMax());
     
     std::auto_ptr<RooAbsReal> nll(mc_s->GetPdf()->createNLL(*asimov, RooFit::Constrain(*mc_s->GetNuisanceParameters())));
@@ -265,9 +266,17 @@ std::vector<std::pair<float,float> > Asymptotic::runLimitExpected(RooWorkspace *
     int minosStat = -1;
     if (minosAlgo_ == "minos") {
         CloseCoutSentry sentry2(verbose < 3);
+        double rMax0 = r->getMax();
         for (int tries = 0; tries < 3; ++tries) {
             minosStat = minim.minos(RooArgSet(*r));
-            if (minosStat != -1) break;
+            if (minosStat != -1) {
+                if ((r->getVal() + r->getAsymErrorHi())/r->getMax() > 0.9) {
+                    r->setMax(2*r->getMax());
+                    if (r->getMax()/rMax0 > 100) { minosStat = -1; break; }
+                    continue;
+                }
+                break;
+            }
             minim.setStrategy(2);
             if (tries == 1) { 
                 if (minimizerAlgo_.find("Minuit2") != std::string::npos) {
