@@ -18,7 +18,7 @@ hcalDetDiagLaserMonitor=cms.EDAnalyzer("HcalDetDiagLaserMonitor",
                                    # Input collections
                                    digiLabel              = cms.untracked.InputTag("hcalDigis"),
                                    calibDigiLabel         = cms.untracked.InputTag("hcalDigis"),
-                                   rawDataInputLabel_     = cms.untracked.InputTag("FEDRawDataCollection"),
+                                   RawDataLabel           = cms.untracked.InputTag("source"),
                                    # reference dataset path + filename
                                    LaserReferenceData     = cms.untracked.string(""),
                                    # processed dataset name (to create HTML only)

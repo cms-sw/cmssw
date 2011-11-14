@@ -382,7 +382,7 @@ HcalDetDiagLaserMonitor::HcalDetDiagLaserMonitor(const edm::ParameterSet& iConfi
 
   inputLabelDigi_  = iConfig.getUntrackedParameter<edm::InputTag>("digiLabel",edm::InputTag("hcalDigis"));
   calibDigiLabel_  = iConfig.getUntrackedParameter<edm::InputTag>("calibDigiLabel",edm::InputTag("hcalDigis"));
-  rawDataLabel_   =  iConfig.getUntrackedParameter<edm::InputTag>("rawDataInputLabel_",edm::InputTag("source",""));
+  rawDataLabel_   =  iConfig.getUntrackedParameter<edm::InputTag>("RawDataLabel",edm::InputTag("source"));
 
   ReferenceData    = iConfig.getUntrackedParameter<std::string>("LaserReferenceData" ,"");
   OutputFilePath   = iConfig.getUntrackedParameter<std::string>("OutputFilePath", "");
