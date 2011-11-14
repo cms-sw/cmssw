@@ -11,6 +11,7 @@
 <use   name="FastSimulation/Utilities"/>
 <use   name="Geometry/CommonDetUnit"/>
 <use   name="MagneticField/Engine"/>
+<use   name="RecoTracker/TkDetLayers"/>
 <use   name="TrackingTools/DetLayers"/>
 <use   name="TrackingTools/GeomPropagators"/>
 <use   name="TrackingTools/PatternTools"/>
