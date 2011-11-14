@@ -163,8 +163,6 @@ void GsfElectron::setCorrectedEcalEnergy( float newEnergy )
   showerShape_.hcalDepth1OverEcal *= corrections_.correctedEcalEnergy/newEnergy ;
   showerShape_.hcalDepth2OverEcal *= corrections_.correctedEcalEnergy/newEnergy ;
   trackClusterMatching_.eSuperClusterOverP *= newEnergy/corrections_.correctedEcalEnergy ;
-  trackClusterMatching_.eSeedClusterOverP *= newEnergy/corrections_.correctedEcalEnergy ;
-  trackClusterMatching_.eEleClusterOverPout *= newEnergy/corrections_.correctedEcalEnergy ;
   corrections_.correctedEcalEnergyError *= newEnergy/corrections_.correctedEcalEnergy ;
   corrections_.correctedEcalEnergy = newEnergy ;
   corrections_.isEcalEnergyCorrected = true ;
