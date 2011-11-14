@@ -1,7 +1,7 @@
 
 //
 // F.Ratnikov (UMd), Oct 28, 2005
-// $Id: HcalDbASCIIIO.cc,v 1.62 2011/07/21 16:58:16 temple Exp $
+// $Id: HcalDbASCIIIO.cc,v 1.63 2011/10/26 13:58:20 xiezhen Exp $
 //
 #include <vector>
 #include <string>
@@ -929,10 +929,12 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalQIEData* fObject) {
 	edm::LogWarning("Format Error") << "Bad line: " << buffer << "\n line must contain 33 items: SHAPE  32 x low QIE edges for first 32 bins" << std::endl;
 	continue;
       }
+      /*
       float lowEdges [32];
       int i = 32;
       while (--i >= 0) lowEdges [i] = atof (items [i+1].c_str ());
       //      fObject->setShape (lowEdges);
+      */
     }
     else { // QIE parameters
       if (items.size () < 36) {
