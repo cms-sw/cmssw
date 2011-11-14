@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_4_2/HIon/V27 (CMSSW_4_4_0_HLT13)
+# /dev/CMSSW_4_4_2/HIon/V29 (CMSSW_4_4_0_HLT13)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V27')
+  tableName = cms.string('/dev/CMSSW_4_4_2/HIon/V29')
 )
 
 process.streams = cms.PSet( 
@@ -6803,8 +6803,8 @@ process.hltPreDQMForHIOutput = cms.EDFilter( "HLTPrescaler",
     offset = cms.uint32( 0 )
 )
 process.hltPreDQMForHIOutputSmart = cms.EDFilter( "TriggerResultsFilter",
-    triggerConditions = cms.vstring( 'HLT_HIDTCalibration_v1',
-      'HLT_HIEcalCalibration_v1',
+    triggerConditions = cms.vstring( 'HLT_HIDTCalibration_v1 / 10',
+      'HLT_HIEcalCalibration_v1 / 10',
       'HLT_HIHcalCalibration_v1',
       'HLT_HIZeroBias_v1',
       'HLT_HIZeroBiasXOR_v1',
@@ -7168,7 +7168,10 @@ process.hltOutputCalibration = cms.OutputModule( "PoolOutputModule",
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_HIDTCalibration_v1',
   'HLT_HIEcalCalibration_v1',
   'HLT_HIHcalCalibration_v1' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
+    outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
+      'keep *_hltDTCalibrationRaw_*_*',
+      'keep *_hltEcalCalibrationRaw_*_*',
+      'keep *_hltHcalCalibrationRaw_*_*',
       'keep edmTriggerResults_*_*_*',
       'keep triggerTriggerEvent_*_*_*' )
 )

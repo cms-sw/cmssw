@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_4_2/GRun/V27 (CMSSW_4_4_0_HLT13)
+# /dev/CMSSW_4_4_2/GRun/V29 (CMSSW_4_4_0_HLT13)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/GRun/V27')
+  tableName = cms.string('/dev/CMSSW_4_4_2/GRun/V29')
 )
 
 process.streams = cms.PSet( 
@@ -35371,7 +35371,7 @@ process.hltOutputCalibration = cms.OutputModule( "PoolOutputModule",
     SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_DTCalibration_v1',
   'HLT_EcalCalibration_v2',
   'HLT_HcalCalibration_v2' ) ),
-    outputCommands = cms.untracked.vstring( 'drop *',
+    outputCommands = cms.untracked.vstring( 'drop *_hlt*_*_*',
       'keep *_hltDTCalibrationRaw_*_*',
       'keep *_hltEcalCalibrationRaw_*_*',
       'keep *_hltHcalCalibrationRaw_*_*',
