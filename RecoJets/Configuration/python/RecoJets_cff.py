@@ -14,6 +14,7 @@ gk7CaloJets = gk5CaloJets.clone( rParam = 0.7 )
 kt6CaloJets = kt4CaloJets.clone( rParam = 0.6 )
 ca6CaloJets = ca4CaloJets.clone( rParam = 0.6 )
 
+
 # Restrict SISCone algorithm to 1000 towers input
 sisCone5CaloJets.restrictInputs = cms.bool(True)
 sisCone5CaloJets.maxInputs = cms.uint32(1000)
@@ -43,12 +44,21 @@ kt6CaloJets.doAreaFastjet = True
 ak5CaloJets.doAreaFastjet = True
 ak7CaloJets.doAreaFastjet = True
 
-recoJets   =cms.Sequence(kt4CaloJets+kt6CaloJets+
+
+kt6CaloJetsForLeptons = kt6CaloJets.clone(
+    Ghost_EtaMax = cms.double(3.1),
+    Rho_EtaMax = cms.double(2.5)
+    )
+
+kt6CaloJetsForLeptonsPUCorr           =kt6CaloJetsForLeptons.clone           (doPUOffsetCorr = doPileup)
+
+
+recoJets   =cms.Sequence(kt4CaloJets+kt6CaloJets+kt6CaloJetsForLeptons+
                          iterativeCone5CaloJets+
                          ak5CaloJets+ak7CaloJets)
 
 recoAllJets=cms.Sequence(sisCone5CaloJets+sisCone7CaloJets+
-                         kt4CaloJets+kt6CaloJets+
+                         kt4CaloJets+kt6CaloJets+kt6CaloJetsForLeptons+
                          iterativeCone5CaloJets+
                          ak5CaloJets+ak7CaloJets+
                          gk5CaloJets+gk7CaloJets+
@@ -56,7 +66,7 @@ recoAllJets=cms.Sequence(sisCone5CaloJets+sisCone7CaloJets+
 
 
 recoAllJetsPUOffsetCorr=cms.Sequence(sisCone5CaloJetsPUCorr+sisCone7CaloJetsPUCorr+
-                                     kt4CaloJetsPUCorr+kt6CaloJetsPUCorr+
+                                     kt4CaloJetsPUCorr+kt6CaloJetsPUCorr+kt6CaloJetsForLeptonsPUCorr+
                                      iterativeCone5CaloJetsPUCorr+
                                      ak5CaloJetsPUCorr+ak7CaloJetsPUCorr+
                                      gk5CaloJetsPUCorr+gk7CaloJetsPUCorr+

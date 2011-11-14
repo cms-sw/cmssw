@@ -22,12 +22,23 @@ kt6PFJets.doAreaFastjet = True
 ak5PFJets.doAreaFastjet = True
 ak7PFJets.doAreaFastjet = True
 
-recoPFJets   =cms.Sequence(kt4PFJets+kt6PFJets+
+kt6PFJetsForLeptonsLoose = kt6PFJets.clone(
+    src = cms.InputTag("pfNoPileUp"),
+    Ghost_EtaMax = cms.double(3.1),
+    Rho_EtaMax = cms.double(2.5),
+    inputEtMin = cms.double(0.5)
+    )
+
+kt6PFJetsForLeptonsTight = kt6PFJetsForLeptonsLoose.clone(
+    inputEtMin = cms.double(1.0)
+    )
+
+recoPFJets   =cms.Sequence(kt4PFJets+kt6PFJets+kt6PFJetsForLeptonsLoose+kt6PFJetsForLeptonsTight+
                            iterativeCone5PFJets+
                            ak5PFJets+ak7PFJets)
 
 recoAllPFJets=cms.Sequence(sisCone5PFJets+sisCone7PFJets+
-                           kt4PFJets+kt6PFJets+
+                           kt4PFJets+kt6PFJets+kt6PFJetsForLeptonsLoose+kt6PFJetsForLeptonsTight+
                            iterativeCone5PFJets+
                            ak5PFJets+ak7PFJets+
                            gk5PFJets+gk7PFJets+
