@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("ScriptExample")
 
+process.load("IOMC.RandomEngine.IOMC_cff")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 process.source = cms.Source("EmptySource",

@@ -13,7 +13,7 @@ Implementation:
 //
 // Original Author:  Brian Paul Bockelman,8 R-018,+41227670861,
 //         Created:  Fri Oct 21 11:37:26 CEST 2011
-// $Id: ExternalLHEProducer.cc,v 1.2 2011/11/13 18:31:40 fabiocos Exp $
+// $Id: ExternalLHEProducer.cc,v 1.3 2011/11/13 22:36:09 fabiocos Exp $
 //
 //
 
@@ -49,6 +49,9 @@ Implementation:
 #include "GeneratorInterface/LHEInterface/interface/LHERunInfo.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEEvent.h"
 #include "GeneratorInterface/LHEInterface/interface/LHEReader.h"
+
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 //
 // class declaration
@@ -203,10 +206,17 @@ ExternalLHEProducer::beginRun(edm::Run& run, edm::EventSetup const& es)
 
   // pass luminosity block id as last argument, needed to define the seed of random number generators
 
-  //  std::stringstream ss;
-  //  ss << lumi.id().luminosityBlock();
-  //  std::string iseed = ss.str();
-  args_.push_back("23456");
+  edm::Service<edm::RandomNumberGenerator> rng;
+
+  if ( ! rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "The ExternalLHEProducer module requires the RandomNumberGeneratorService\n"
+      "which is not present in the configuration file.  You must add the service\n"
+      "in the configuration file if you want to run ExternalLHEProducer";
+  }
+  std::ostringstream seedStream;
+  seedStream << rng->mySeed(); 
+  args_.push_back(seedStream.str());
 
   executeScript();
   std::auto_ptr<std::string> localContents = readOutput();
