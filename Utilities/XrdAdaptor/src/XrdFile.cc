@@ -7,24 +7,38 @@
 XrdFile::XrdFile (void)
   : m_client (0),
     m_offset (0),
-    m_close (false)
-{}
+    m_stat(),
+    m_close (false),
+    m_name()
+{
+  memset(&m_stat, 0, sizeof (m_stat));
+}
 
 XrdFile::XrdFile (const char *name,
     	          int flags /* = IOFlags::OpenRead */,
     	          int perms /* = 066 */)
   : m_client (0),
     m_offset (0),
-    m_close (false)
-{ open (name, flags, perms); }
+    m_stat(),
+    m_close (false),
+    m_name()
+{
+  memset(&m_stat, 0, sizeof (m_stat));
+  open (name, flags, perms);
+}
 
 XrdFile::XrdFile (const std::string &name,
     	          int flags /* = IOFlags::OpenRead */,
     	          int perms /* = 066 */)
   : m_client (0),
     m_offset (0),
-    m_close (false)
-{ open (name.c_str (), flags, perms); }
+    m_stat(),
+    m_close (false),
+    m_name()
+{
+  memset(&m_stat, 0, sizeof (m_stat));
+  open (name.c_str (), flags, perms);
+}
 
 XrdFile::~XrdFile (void)
 {
@@ -68,8 +82,6 @@ XrdFile::open (const char *name,
                int flags /* = IOFlags::OpenRead */,
                int perms /* = 066 */)
 {
-  m_name = name;
-
   // Actual open
   if ((name == 0) || (*name == 0)) {
     edm::Exception ex(edm::errors::FileOpenError);
@@ -115,6 +127,7 @@ XrdFile::open (const char *name,
   if ((flags & IOFlags::OpenTruncate) && (flags & IOFlags::OpenWrite))
     openflags |= kXR_delete;
 
+  m_name = name;
   m_client = new XrdClient(name);
   if (! m_client->Open(perms, openflags)
       || m_client->LastServerResp()->status != kXR_ok) {
