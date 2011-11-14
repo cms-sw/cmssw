@@ -70,7 +70,6 @@ void MultipleAlgoIterator::subtractPedestal(vector<fastjet::PseudoJet> & coll)
    LogDebug("PileUpSubtractor")<<"The subtractor subtracting pedestals...\n";
 
    int it = -100;
-   int ip = -100;
 
    vector<fastjet::PseudoJet> newcoll;
 
@@ -81,7 +80,7 @@ void MultipleAlgoIterator::subtractPedestal(vector<fastjet::PseudoJet> & coll)
       reco::CandidatePtr const & itow =  (*inputs_)[ input_object->user_index() ];
     
       it = ieta( itow );
-      ip = iphi( itow );
+      iphi( itow );
     
       double Original_Et = itow->et();
       if(sumRecHits_){
