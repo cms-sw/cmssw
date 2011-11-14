@@ -1,4 +1,4 @@
-// $Id: TriggerSelector.cc,v 1.8.4.1 2011/03/07 11:33:05 mommsen Exp $
+// $Id: TriggerSelector.cc,v 1.9 2011/03/07 15:31:32 mommsen Exp $
 /// @file: TriggerSelector.cc
 
 #include "EventFilter/StorageManager/interface/TriggerSelector.h"
@@ -208,13 +208,24 @@ namespace stor
 	  throw edm::Exception(edm::errors::Configuration) << "Syntax Error (operator is not unary)\n";
 	else {
 	  //count bracket in preceeding part
-	  int brackets_=0;
+	  size_t brackets_=0;
 	  for (size_t k=offset_;k<t_end_;k++) {
-	    if (str_.at(k)=='(') brackets_++;
-	    if (str_.at(k)==')') brackets_--;
-	    if (brackets_<0)
-	      throw edm::Exception(edm::errors::Configuration)
-                << "Syntax Error (brackets)\n";
+	    if (str_.at(k)=='(')
+            {
+              brackets_++;
+            }
+	    else if (str_.at(k)==')') 
+            {
+              if (brackets_ == 0)
+              {
+                throw edm::Exception(edm::errors::Configuration)
+                  << "Syntax Error (brackets)\n";
+              }
+              else
+              {
+                brackets_--;
+              }
+            }
 	  }
 	  if (brackets_==0) {
 	    std::string next = str_.substr(offset_,t_end_-offset_);
@@ -251,11 +262,22 @@ namespace stor
 		  int brcount_ = 0;
 		  for (size_t s=0;s<pos;s++) {
 		    //counting check of brackets from last position to operator
-		    if (temp.at(pos)=='(') brcount_++;
-		    if (temp.at(pos)==')') brcount_--;
-		    if (brcount_<0)
-		      throw edm::Exception(edm::errors::Configuration)
-			<< "Syntax error (brackets)\n";
+		    if (temp.at(pos)=='(')
+                    {
+                      brcount_++;
+                    }
+		    else if (temp.at(pos)==')')
+                    {
+                      if (brcount_ == 0)
+                      {
+                        throw edm::Exception(edm::errors::Configuration)
+                          << "Syntax error (brackets)\n";
+                      }
+                      else
+                      {
+                        brcount_--;
+                      }
+                    }
 		  }
 		  if (brcount_!=0) 
 		    throw edm::Exception(edm::errors::Configuration)

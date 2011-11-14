@@ -206,6 +206,7 @@ void testFragmentStore::testSingleIncompleteEvent()
       CPPUNIT_ASSERT(!frag.complete());
       complete = fragmentStore_->addFragment(frag);
     }
+    CPPUNIT_ASSERT(!complete);
     CPPUNIT_ASSERT(frag.empty());
     
     CPPUNIT_ASSERT(fragmentStore_->getStaleEvent(frag, boost::posix_time::seconds(0)) == true);

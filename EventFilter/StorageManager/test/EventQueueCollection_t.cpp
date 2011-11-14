@@ -388,20 +388,24 @@ testEventQueueCollection::remove_all_queues()
   EventConsRegPtr ecri1(new EventConsumerRegistrationInfo(pset));
   ecri1->setConsumerId(++cid);
   QueueID q1 = coll.createQueue(ecri1);
+  CPPUNIT_ASSERT( q1.isValid() );
 
   pset.addUntrackedParameter<std::string>("queuePolicy", "DiscardOld");
   EventConsRegPtr ecri2(new EventConsumerRegistrationInfo(pset));
   ecri2->setConsumerId(++cid);
   QueueID q2 = coll.createQueue(ecri2);
+  CPPUNIT_ASSERT( q2.isValid() );
 
   EventConsRegPtr ecri3(new EventConsumerRegistrationInfo(pset));
   ecri3->setConsumerId(++cid);
   QueueID q3 = coll.createQueue(ecri3);
+  CPPUNIT_ASSERT( q3.isValid() );
 
   pset.addUntrackedParameter<std::string>("queuePolicy", "DiscardNew");
   EventConsRegPtr ecri4(new EventConsumerRegistrationInfo(pset));
   ecri4->setConsumerId(++cid);
   QueueID q4 = coll.createQueue(ecri4);
+  CPPUNIT_ASSERT( q4.isValid() );
 
   CPPUNIT_ASSERT(coll.size() == 4);
   coll.removeQueues();

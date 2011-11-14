@@ -1,4 +1,4 @@
-// $Id: DataSenderMonitorCollection.cc,v 1.17 2011/03/07 15:31:32 mommsen Exp $
+// $Id: DataSenderMonitorCollection.cc,v 1.18 2011/05/24 10:14:58 mommsen Exp $
 /// @file: DataSenderMonitorCollection.cc
 
 #include <string>
@@ -40,7 +40,7 @@ namespace stor {
     if (i2oChain.fragmentCount() != 1) {return;}
     
     // fetch basic data from the I2OChain
-    //double fragmentSize = static_cast<double>(i2oChain.totalDataSize());
+    double fragmentSize = static_cast<double>(i2oChain.totalDataSize());
     
     // look up the monitoring records that we need
     bool pointersAreValid;
@@ -56,12 +56,12 @@ namespace stor {
     }
     
     // accumulate the data of interest
-    //if (pointersAreValid)
-    //{
-    //topLevelOutModPtr->fragmentSize.addSample(fragmentSize);
-    //rbSpecificOutModPtr->fragmentSize.addSample(fragmentSize);
-    //fuSpecificOutModPtr->fragmentSize.addSample(fragmentSize);
-    //}
+    if (pointersAreValid)
+    {
+      topLevelOutModPtr->fragmentSize.addSample(fragmentSize);
+      rbSpecificOutModPtr->fragmentSize.addSample(fragmentSize);
+      fuSpecificOutModPtr->fragmentSize.addSample(fragmentSize);
+    }
   }
   
   
@@ -843,7 +843,7 @@ namespace stor {
     {
       OutModRecordPtr outModRecordPtr = omMapIter->second;
       
-      //outModRecordPtr->fragmentSize.calculateStatistics();
+      outModRecordPtr->fragmentSize.calculateStatistics();
       outModRecordPtr->eventSize.calculateStatistics();
     }
   }
