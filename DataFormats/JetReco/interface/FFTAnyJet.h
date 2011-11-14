@@ -4,7 +4,7 @@
  *
  * \author Igor Volobouev, TTU
  *
- * \version   $Id: FFTJet.h,v 1.0 2010/11/11 23:09:47 igv Exp $
+ * \version   $Id: FFTAnyJet.h,v 1.1 2010/11/22 23:27:55 igv Exp $
  ************************************************************/
 
 #ifndef DataFormats_JetReco_FFTAnyJet_h
@@ -28,7 +28,8 @@ namespace reco {
         inline virtual FFTAnyJet* clone () const 
             {return new FFTAnyJet(*this);}
             
-        inline const FFTJet<float>& getFFTSpecific() {return fftJetSpecific_;}
+        inline const FFTJet<float>& getFFTSpecific() const
+            {return fftJetSpecific_;}
 
     private:
         FFTJet<float> fftJetSpecific_;
