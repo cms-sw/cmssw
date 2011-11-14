@@ -91,9 +91,8 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
 	  for( int i = 0 ; i < 361 ; i++ ) 
 	    {
 	      if( EcalOverlap[i] )  EcalOverlapping_CSCSegments[i]++;
-	      if( HcalOverlap[i] )
-		if( i < 73 ) 
-		  HcalOverlapping_CSCSegments[i]++;
+	      if( i < 73 && HcalOverlap[i] )
+		HcalOverlapping_CSCSegments[i]++;
 	    }
 	} 
     }
