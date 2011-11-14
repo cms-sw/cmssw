@@ -1,5 +1,5 @@
-#ifndef XRD_ADAPTOR_XRD_FILE_H
-# define XRD_ADAPTOR_XRD_FILE_H
+#ifndef Utilities_XrdAdaptor_XrdFile_h
+#define Utilities_XrdAdaptor_XrdFile_h
 
 # include "Utilities/StorageFactory/interface/Storage.h"
 # include "Utilities/StorageFactory/interface/IOFlags.h"
