@@ -45,6 +45,7 @@
   <use   name="MagneticField/Records"/>
   <use   name="RecoParticleFlow/PFTracking"/>
   <use   name="RecoTracker/Record"/>
+  <use   name="RecoTracker/TkDetLayers"/>
   <use   name="RecoTracker/TkSeedGenerator"/>
   <use   name="RecoTracker/TransientTrackingRecHit"/>
   <use   name="TrackingTools/DetLayers"/>
