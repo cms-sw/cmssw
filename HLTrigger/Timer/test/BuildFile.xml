@@ -7,8 +7,17 @@
   <use   name="root"/>
 </bin>
 
-<bin   name="testTimer" file="timer.cc">
+<architecture name="slc">                                                                                                                                                                                                        
+<bin name="testTimer" file="timer.cc">
   <lib name="rt"/>
   <flags CXXFLAGS="-fopenmp"/>
   <flags NO_TESTRUN="1"/>
 </bin>
+</architecture>                                                                                                                                                                                                                  
+
+<architecture name="osx">                                                                                                                                                                                                        
+<bin name="testTimer" file="timer.cc">
+  <flags CXXFLAGS="-fopenmp"/>
+  <flags NO_TESTRUN="1"/>
+</bin>
+</architecture>                                                                                                                                                                                                                  
