@@ -286,7 +286,9 @@ int32_t CSCDCCExaminer::check(const uint16_t* &buffer, int32_t length){
 	||
 	   ( (buf0[3]&0xF000) == 0x5000 && (buf0[0]&0x000F) == 0x0008 ) )
 	 &&
-	  (buf1[3]&0xFF00) == 0xD900 ) 
+	  // =VB= Why 0xD900 signature word if only 0xD part is constant???
+	  // (buf1[3]&0xFF00) == 0xD900 ) 
+	  (buf1[3]&0xF000) == 0xD000 )
 	{
 	if( fDCC_Header ){
 	  // == Another DCC Header before encountering DCC Trailer!
@@ -1490,3 +1492,4 @@ inline int CSCDCCExaminer::scanbuf(const uint16_t* &buffer, int32_t length, uint
 	}
         return -1;
 }
+
