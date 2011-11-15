@@ -24,13 +24,13 @@ if l1DqmEnv == 'file' :
     #globalTagType = 'R'
     
     if globalTagType == 'HLT' :
-        globalTagValue = 'GR_H_V22'
+        globalTagValue = 'GR_H_V25'
     elif globalTagType == 'P' :
-        globalTagValue = 'GR_P_V24'
+        globalTagValue = 'GR_P_V27'
     elif globalTagType == 'E' :
-        globalTagValue = 'GR_E_V20'
+        globalTagValue = 'GR_E_V22'
     elif globalTagType == 'R' :
-        globalTagValue = 'GR_R_42_V20'
+        globalTagValue = 'GR_R_44_V10'
     else :
         print 'No valid global tag type', globalTagType
         print 'Valid types: HLT, P, E, R'
