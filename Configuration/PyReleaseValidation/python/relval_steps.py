@@ -358,7 +358,6 @@ step2Defaults = { 'cfg'           : 'step2',
                   }
 #for reading back from a file, we have to drop objects whose schema may have changed
 step2DropSchemaNoPU ={'--customise' : 'Configuration/StandardSequences/DigiToRecoNoPU.customise',}
-step2DropSchemaPU ={'--customise' : 'Configuration/StandardSequences/DigiToRecoPU.customise',}
 
 step2 = {}
 
@@ -367,7 +366,7 @@ step2['DIGI']=merge([step2Defaults,step2DropSchemaNoPU])
 #step2['DIGI2']=merge([stCond,step2Defaults,step2DropSchemaNoPU])
 step2['DIGICOS']=merge([{'--scenario':'cosmics','--eventcontent':'FEVTDEBUG','--datatier':'GEN-SIM-DIGI-RAW'},stCond,step2Defaults,step2DropSchemaNoPU])
 
-step2['DIGIPU1']=merge([step2Defaults,PU1,step2DropSchemaPU])
+step2['DIGIPU1']=merge([step2Defaults,PU1])
 
 step2['DIGIHI']=merge([{'--inputCommands':'"keep *","drop *_simEcalPreshowerDigis_*_*"','-n':10},hiDefaults,step2Defaults])
 
