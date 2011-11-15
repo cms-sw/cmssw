@@ -12,6 +12,7 @@
 #include "CondFormats/ESObjects/interface/ESIntercalibConstants.h"
 #include "CondFormats/ESObjects/interface/ESAngleCorrectionFactors.h"
 #include "CondFormats/ESObjects/interface/ESEEIntercalibConstants.h"
+#include "CondFormats/ESObjects/interface/ESMissingEnergyCalibration.h"
 #include "CondFormats/ESObjects/interface/ESChannelStatus.h" 
 #include "CondFormats/ESObjects/interface/ESChannelStatusCode.h"
 #include "CondFormats/ESObjects/interface/ESThresholds.h"
@@ -43,6 +44,8 @@ namespace{
     ESAngleCorrectionFactors anglecorrection;
  
     ESEEIntercalibConstants eseeintercalib;
+
+    ESMissingEnergyCalibration esmissingecalib;
 
     ESRecHitRatioCuts esrechitratiocuts;
 

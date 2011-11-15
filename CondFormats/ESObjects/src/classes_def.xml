@@ -29,6 +29,8 @@
 
 <class name="ESEEIntercalibConstants"/>
 
+<class name="ESMissingEnergyCalibration"/>
+
 <class name="ESRecHitRatioCuts"/>
 
 <class name="ESChannelStatus"/>
