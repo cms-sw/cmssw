@@ -9,7 +9,7 @@ hbheprereco = cms.EDProducer(
     correctForTimeslew = cms.bool(True),
     dropZSmarkedPassed = cms.bool(True),
     firstSample = cms.int32(4),
-    samplesToAdd = cms.int32(4),
+    samplesToAdd = cms.int32(2),
     tsFromDB = cms.bool(True),
     useLeakCorrection = cms.bool(False),
 

@@ -9,7 +9,7 @@ hfreco = cms.EDProducer("HcalHitReconstructor",
                         correctForTimeslew = cms.bool(False),
                         dropZSmarkedPassed = cms.bool(True),
    		        firstSample = cms.int32(2),
-                        samplesToAdd = cms.int32(2),	
+                        samplesToAdd = cms.int32(1),	
                         tsFromDB = cms.bool(True),
                         useLeakCorrection = cms.bool(False),
 	
