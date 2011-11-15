@@ -2,8 +2,11 @@ import FWCore.ParameterSet.Config as cms
 
 ssdigimultinvestigator = cms.EDAnalyzer('MultiplicityInvestigator',
                                         vertexCollection = cms.InputTag(""),
+                                        wantInvestHist = cms.bool(True),
                                         wantVtxCorrHist = cms.bool(False),
+                                        wantLumiCorrHist = cms.bool(False),
                                         digiVtxCorrConfig = cms.PSet(),
+                                        digiLumiCorrConfig = cms.PSet(lumiProducer=cms.InputTag("")),
                               wantedSubDets = cms.untracked.VPSet(    
                                 cms.PSet(detSelection = cms.uint32(0),detLabel = cms.string("TK"),  binMax = cms.int32(9523712)),
                                 cms.PSet(detSelection = cms.uint32(3),detLabel = cms.string("TIB"), binMax = cms.int32(1787904)),

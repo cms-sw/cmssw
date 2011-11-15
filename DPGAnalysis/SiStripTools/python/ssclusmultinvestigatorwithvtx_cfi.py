@@ -2,7 +2,10 @@ import FWCore.ParameterSet.Config as cms
 
 ssclusmultinvestigatorwithvtx = cms.EDAnalyzer('MultiplicityInvestigator',
                                                vertexCollection = cms.InputTag("offlinePrimaryVertices"),
+                                               wantInvestHist = cms.bool(True),
                                                wantVtxCorrHist = cms.bool(True),
+                                               wantLumiCorrHist = cms.bool(False),
+                                               digiLumiCorrConfig = cms.PSet(lumiProducer=cms.InputTag("")),
                                                digiVtxCorrConfig = cms.PSet(
     wantedSubDets = cms.untracked.VPSet(    
     cms.PSet(detSelection = cms.uint32(0),detLabel = cms.string("TK"),  binMax = cms.int32(9523712/64))
