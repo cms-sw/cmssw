@@ -68,7 +68,11 @@ edm::WrapperHolder
 BareRootProductGetter::getIt(edm::ProductID const& iID) const  {
   // std::cout << "getIt called" << std::endl;
   TFile* currentFile = dynamic_cast<TFile*>(gROOT->GetListOfFiles()->Last());
-
+  if(0 == currentFile) {
+     throw cms::Exception("FileNotFound")
+        << "unable to find the TFile '" << gROOT->GetListOfFiles()->Last() << "'\n"
+        << "Please check the list of files.";
+  }
   if(branchMap_.updateFile(currentFile)) {
     idToBuffers_.clear();
   }
@@ -80,7 +84,6 @@ BareRootProductGetter::getIt(edm::ProductID const& iID) const  {
         << "file: '" << branchMap_.getFile()->GetName()
         << "'\n Please check that the file is a standard CMS ROOT format.\n"
         << "If the above is not the file you expect then please open your data file after all other files.";
-     return edm::WrapperHolder();
   }
   Long_t eventEntry = eventTree->GetReadEntry();
   // std::cout << "eventEntry " << eventEntry << std::endl;
@@ -90,7 +93,6 @@ BareRootProductGetter::getIt(edm::ProductID const& iID) const  {
         << "please call GetEntry for the 'Events' TTree for each event in order to make edm::Ref's work."
         << "\n Also be sure to call 'SetAddress' for all Branches after calling the GetEntry."
         ;
-     return edm::WrapperHolder();
   }
 
   Buffer* buffer = 0;
@@ -109,13 +111,11 @@ BareRootProductGetter::getIt(edm::ProductID const& iID) const  {
      throw cms::Exception("NullBuffer")
         << "Found a null buffer which is supposed to hold the data item."
         << "\n Please contact developers since this message should not happen.";
-    return edm::WrapperHolder();
   }
   if(0 == buffer->branch_) {
      throw cms::Exception("NullBranch")
         << "The TBranch which should hold the data item is null."
         << "\n Please contact the developers since this message should not happen.";
-    return edm::WrapperHolder();
   }
   if(buffer->eventEntry_ != eventEntry) {
     //NOTE: Need to reset address because user could have set the address themselves
