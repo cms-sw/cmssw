@@ -13,7 +13,7 @@
 //
 // Original Author:  Juliette Marie Alimena,40 3-A02,+41227671577,
 //         Created:  Tues Oct 11 15:46:58 CEST 2011
-// $Id: HLTOfflineReproducibilityDQM.cc,v 1.2 2011/11/15 11:10:29 jalimena Exp $
+// $Id: HLTOfflineReproducibilityDQM.cc,v 1.3 2011/11/15 11:33:52 jalimena Exp $
 //
 //
 
@@ -574,11 +574,11 @@ HLTOfflineReproducibilityDQM::beginRun(edm::Run const& iRun, edm::EventSetup con
     sprintf(folder_name,"DQMExample/DQMSource_HLTOfflineReproducibility/%s",datasetNames_.at(a).c_str());
     dqms_->setCurrentFolder(folder_name);
 
-    snprintf(path_ORIG_name,             100, "path_ORIG_hist_PD[%i]",              a);
-    snprintf(path_ORIGnotNEW_name,       100, "path_ORIGnotNEW_hist_PD[%i]",        a);
-    snprintf(path_NEWnotORIG_name,       100, "path_NEWnotORIG_hist_PD[%i]",        a);
-    snprintf(pathmodule_ORIGnotNEW_name, 100, "pathmodule_ORIGnotNEW_hist_PD[%i]",  a);
-    snprintf(pathmodule_NEWnotORIG_name, 100, "pathmodule_NEWnotORIG_hist_PD[%i]",  a);
+    snprintf(path_ORIG_name,             100, "path_ORIG_hist_%s",              datasetNames_.at(a).c_str());
+    snprintf(path_ORIGnotNEW_name,       100, "path_ORIGnotNEW_hist_%s",        datasetNames_.at(a).c_str());
+    snprintf(path_NEWnotORIG_name,       100, "path_NEWnotORIG_hist_%s",        datasetNames_.at(a).c_str());
+    snprintf(pathmodule_ORIGnotNEW_name, 100, "pathmodule_ORIGnotNEW_hist_%s",  datasetNames_.at(a).c_str());
+    snprintf(pathmodule_NEWnotORIG_name, 100, "pathmodule_NEWnotORIG_hist_%s",  datasetNames_.at(a).c_str());
 
     TString path_ORIG_title = "Total Times Path Fires ORIG (" + datasetNames_.at(a) + " dataset)";
     TString path_ORIGnotNEW_title = "Path fires in ORIG but not in NEW (" + datasetNames_.at(a) + " dataset)";
