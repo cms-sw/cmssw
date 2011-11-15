@@ -13,7 +13,7 @@
 //
 // Original Author:  Emilia Lubenova Becheva
 //         Created:  Mon Apr 20 13:43:06 CEST 2009
-// $Id: InputAnalyzer.cc,v 1.1 2009/04/24 13:35:34 ebecheva Exp $
+// $Id: InputAnalyzer.cc,v 1.2 2010/02/16 17:10:08 wmtan Exp $
 //
 //
 
@@ -79,7 +79,7 @@ InputAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   if (!dataStep2_){
   // Get the SimTrack collection
   
-   double simPt=0;
+    //double simPt=0;
    int i=0;
    
    // Get the SimTrack collection from the event
@@ -101,7 +101,7 @@ InputAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack){
     i++;
     
-    simPt=(*simTrack).momentum().Pt();
+    //simPt=(*simTrack).momentum().Pt();
     //std::cout << " # i = " << i << " simPt = " << simPt << std::endl;
    
    }
