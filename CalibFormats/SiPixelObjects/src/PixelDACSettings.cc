@@ -25,6 +25,7 @@ using namespace pos;
 
 namespace {
   const bool readTemperatures = false;
+  //const bool readTemperatures = true;
 }
 
 
@@ -631,9 +632,14 @@ void PixelDACSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
     if(readTemperatures) { 
       //     std::cout<<"ROC="<<dacsettings_[i].getROCName()<<" ; VcThr set to "<<dacs[11]
       //       << " ROC control reg to be set to: " <<  dacs[28] <<" LastDAC=Temp"<<std::endl;
+      if( (theROC.mfec()==1) && (theROC.mfecchannel()==1) &&  (theROC.hubaddress()==0) && 
+	  (theROC.portaddress()==0) &&  (theROC.rocid()) ) 
+	std::cout<<"ROC="<<dacsettings_[i].getROCName()<< " ROC control reg to be set to: " 
+		 <<  dacs[28] <<" LastDAC=Temp"<<std::endl;
       //int temperatureReg = dacs[26];  // value from DB
       //const int temperatureReg = 0xF; // hardwire to fixed reference voltage
-      const int temperatureReg = 0x3; // hardwire to the usefull range
+      //const int temperatureReg = 0x3; // hardwire to the usefull range
+      const int temperatureReg = 0x1; // hardwire to the usefull range, change to range 1, Marco's request, 25/10/11
       pixelFEC->progdac(theROC.mfec(),
 			theROC.mfecchannel(),
 			theROC.hubaddress(),
@@ -644,6 +650,10 @@ void PixelDACSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
     } else {
       //      std::cout<<"ROC="<<dacsettings_[i].getROCName()<<" ; VcThr set to "<<dacs[11]
       //	       << " ROC control reg to be set to: " <<  dacs[28] <<" LastDAC=Vcal"<<std::endl;
+      if( (theROC.mfec()==1) && (theROC.mfecchannel()==1) &&  (theROC.hubaddress()==0) && 
+	  (theROC.portaddress()==0) &&  (theROC.rocid()) )
+	std::cout<<"ROC="<<dacsettings_[i].getROCName()
+		 << " ROC control reg to be set to: " <<  dacs[28] <<" LastDAC=Vcal"<<std::endl;
       // VCAL
       pixelFEC->progdac(theROC.mfec(),
 			theROC.mfecchannel(),
@@ -705,7 +715,8 @@ void PixelDACSettings::setVcthrDisable(PixelFECConfigInterface* pixelFEC, PixelN
     if(readTemperatures) {
       //int temperatureReg = dacs[26];  // value from DB
       //const int temperatureReg = 0xF; // hardwire to fixed voltage
-      const int temperatureReg = 0x3; // hardwire to usefull range
+      //const int temperatureReg = 0x3; // hardwire to usefull range
+      const int temperatureReg = 0x1; // hardwire to the usefull range, change to range 1, Marco's request, 25/10/11
       pixelFEC->progdac(theROC.mfec(),
 			theROC.mfecchannel(),
 			theROC.hubaddress(),
@@ -781,7 +792,8 @@ void PixelDACSettings::setVcthrEnable(PixelFECConfigInterface* pixelFEC, PixelNa
       if(readTemperatures) {
 	//int temperatureReg = dacs[26];  // value from DB
 	//const int temperatureReg = 0xF; // hardwire to fixed voltage
-	const int temperatureReg = 0x3; // hardwire to a usefull  range
+	//const int temperatureReg = 0x3; // hardwire to a usefull  range
+	const int temperatureReg = 0x1; // hardwire to the usefull range, change to range 1, Marco's request, 25/10/11
 	pixelFEC->progdac(theROC.mfec(),
 			  theROC.mfecchannel(),
 			  theROC.hubaddress(),
