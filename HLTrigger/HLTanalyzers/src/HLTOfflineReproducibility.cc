@@ -13,7 +13,7 @@
 //
 // Original Author:  Juliette Marie Alimena,40 3-A02,+41227671577,
 //         Created:  Fri Apr 22 15:46:58 CEST 2011
-// $Id: HLTOfflineReproducibility.cc,v 1.4 2011/11/15 11:01:33 jalimena Exp $
+// $Id: HLTOfflineReproducibility.cc,v 1.5 2011/11/15 11:18:38 fwyzard Exp $
 //
 //
 
@@ -92,8 +92,6 @@ private:
 
   string processNameON_;
   string processNameOFF_;
-  edm::InputTag triggerResultsTag_;
-  edm::InputTag triggerEventTag_;
   HLTConfigProvider hltConfig_;
 
   int Nfiles_;
@@ -129,22 +127,34 @@ private:
 // constructors and destructor
 //
 HLTOfflineReproducibility::HLTOfflineReproducibility(const edm::ParameterSet& iConfig):  
+  triggerLabelON_       (iConfig.getUntrackedParameter<edm::InputTag>("triggerTagON")),
+  triggerLabelOFF_      (iConfig.getUntrackedParameter<edm::InputTag>("triggerTagOFF")), 
+  nPaths_               (0),
+  nDatasets_            (0),
+  triggerNames_         (),
+  moduleLabel_          (),
+  nModules_             (), 
+  nPaths_PD_            (),
+  datasetNames_         (),
+  datasetContent_       (),
+  triggerNames_matched_ (),
   processNameON_(iConfig.getParameter<std::string>("processNameON")),
-  processNameOFF_(iConfig.getParameter<std::string>("processNameOFF"))
-
+  processNameOFF_       (iConfig.getParameter<std::string>("processNameOFF")),
+  Nfiles_               (iConfig.getUntrackedParameter<int>("Nfiles",0)),
+  Normalization_        (iConfig.getUntrackedParameter<double>("Norm",40.)),
+  isRealData_           (iConfig.getUntrackedParameter<bool>("isRealData",true)),
+  LumiSecNumber_        (iConfig.getUntrackedParameter<int>("LumiSecNumber",1)),
+  path_ON_hist          (0),
+  path_ONnotOFF_hist    (0),
+  path_OFFnotON_hist    (0),
+  pathmodule_ONnotOFF_hist(0),
+  pathmodule_OFFnotON_hist(0),
+  path_ON_hist_PD       (),
+  path_ONnotOFF_hist_PD (),
+  path_OFFnotON_hist_PD (),
+  pathmodule_ONnotOFF_hist_PD(),
+  pathmodule_OFFnotON_hist_PD()
 {
-  //now do what ever initialization is needed
-  //define parameters
-  nPaths_=0;
-  
-  //get parameters from cfg
-  triggerLabelON_ = iConfig.getUntrackedParameter<edm::InputTag>("triggerTagON");  
-  triggerLabelOFF_ = iConfig.getUntrackedParameter<edm::InputTag>("triggerTagOFF");  
-  Nfiles_ = iConfig.getUntrackedParameter<int>("Nfiles",0);
-  Normalization_ = iConfig.getUntrackedParameter<double>("Norm",40.);
-  isRealData_ = iConfig.getUntrackedParameter<bool>("isRealData",true);
-  LumiSecNumber_ = iConfig.getUntrackedParameter<int>("LumiSecNumber",1);
-  
 }
 
 
