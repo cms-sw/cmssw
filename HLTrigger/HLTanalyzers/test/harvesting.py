@@ -27,7 +27,7 @@ process.options = cms.untracked.PSet(
 
 # Production Info
 process.configurationMetadata = cms.untracked.PSet(
-    version = cms.untracked.string('$Revision: 1.331 $'),
+    version = cms.untracked.string('$Revision: 1.1 $'),
     annotation = cms.untracked.string('test_11_b_1 nevts:1'),
     name = cms.untracked.string('PyReleaseValidation')
     )
@@ -37,7 +37,7 @@ process.configurationMetadata = cms.untracked.PSet(
 # Additional output definition
 
 # Other statements
-process.GlobalTag.globaltag = 'GR_R_43_V3::All'
+process.GlobalTag.globaltag = 'GR_R_44_V7::All'
 
 # Path and EndPath definitions
 process.edmtome_step = cms.Path(process.EDMtoME)

@@ -4,7 +4,7 @@ process = cms.Process("Demo")
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
-process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1) )
+process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 10000
 
@@ -16,7 +16,7 @@ process.source = cms.Source("PoolSource",
 
 process.load("HLTrigger.HLTanalyzers.hltOfflineReproducibility_cfi")
 
-OUTPUTFILE="./output_HLTOfflineReproducibility/HLTOfflineReproducibility_177139HT_0.root"
+OUTPUTFILE="./HLTOfflineReproducibility_177139HT_0.root"
 process.TFileService = cms.Service("TFileService",
                                    fileName = cms.string(OUTPUTFILE)
                                    )
