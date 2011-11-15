@@ -2,7 +2,7 @@
 
 Test program for edm::Ref use in ROOT.
 
-$Id: ref_t.cppunit.cpp,v 1.19 2009/03/02 20:34:34 wmtan Exp $
+$Id: ref_t.cppunit.cpp,v 1.20 2010/04/15 20:16:57 chrjones Exp $
  ----------------------------------------------------------------------*/
 
 #include <iostream>
@@ -224,6 +224,8 @@ void testRefInROOT::testMissingRef()
 {
    TFile file("other_only.root");
    TTree* events = dynamic_cast<TTree*>(file.Get(edm::poolNames::eventTreeName().c_str()));
+   CPPUNIT_ASSERT( events != 0);
+   if(events==0) return; // To silence Coverity
    
    edm::Wrapper<edmtest::OtherThingCollection> *pOthers = 0;
    TBranch* otherBranch = events->GetBranch("edmtestOtherThings_OtherThing_testUserTag_TEST.");
@@ -276,6 +278,7 @@ void testRefInROOT::failDidNotCallGetEntryForEvents()
   TFile file("good.root");
   TTree* events = dynamic_cast<TTree*>(file.Get(edm::poolNames::eventTreeName().c_str()));
   CPPUNIT_ASSERT(events !=0);
+  if(events==0) return; // To silence Coverity
   
   /*
    edmtest::OtherThingCollection* pOthers = 0;

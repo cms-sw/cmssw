@@ -71,6 +71,7 @@ BareRootProductGetter::getIt(edm::ProductID const& iID) const  {
   if(0 == currentFile) {
      throw cms::Exception("FileNotFound")
         << "unable to find the TFile '" << gROOT->GetListOfFiles()->Last() << "'\n"
+        << "retrieved by calling 'gROOT->GetListOfFiles()->Last()'\n"
         << "Please check the list of files.";
   }
   if(branchMap_.updateFile(currentFile)) {
