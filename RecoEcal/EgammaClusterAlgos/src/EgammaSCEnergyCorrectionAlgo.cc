@@ -1,5 +1,5 @@
 //
-// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.45 2011/02/17 22:47:03 argiro Exp $
+// $Id: EgammaSCEnergyCorrectionAlgo.cc,v 1.46 2011/07/18 18:05:40 argiro Exp $
 // Author: David Evans, Bristol
 //
 #include "RecoEcal/EgammaClusterAlgos/interface/EgammaSCEnergyCorrectionAlgo.h"
@@ -21,7 +21,10 @@ EgammaSCEnergyCorrectionAlgo::EgammaSCEnergyCorrectionAlgo(float noise,
 reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::SuperCluster &cl, 
 								 const EcalRecHitCollection &rhc, reco::CaloCluster::AlgoId theAlgo, 
 								 const CaloSubdetectorGeometry* geometry,
-								 EcalClusterFunctionBaseClass* energyCorrectionFunction) {	
+								 EcalClusterFunctionBaseClass* energyCorrectionFunction,
+								 std::string energyCorrectorName_,
+								 const int modeEB_,
+								 const int modeEE_) {	
 
 	
   // A little bit of trivial info to be sure all is well
@@ -84,11 +87,17 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
   tmp.setPhiWidth(phiWidth); 
   tmp.setEtaWidth(etaWidth); 
     
+
   if ( theAlgo == reco::CaloCluster::hybrid || theAlgo == reco::CaloCluster::dynamicHybrid ) {
-    newEnergy = tmp.rawEnergy() + energyCorrectionFunction->getValue(tmp, 3);
+    if (energyCorrectorName_=="EcalClusterEnergyCorrection") newEnergy = tmp.rawEnergy() + energyCorrectionFunction->getValue(tmp, modeEB_);
+    if (energyCorrectorName_=="EcalClusterEnergyCorrectionObjectSpecific") {
+      //std::cout << "newEnergy="<<newEnergy<<std::endl;
+      newEnergy = energyCorrectionFunction->getValue(tmp, modeEB_);
+    }
 
   } else if  ( theAlgo == reco::CaloCluster::multi5x5 ) {     
-    newEnergy = tmp.rawEnergy() + tmp.preshowerEnergy() + energyCorrectionFunction->getValue(tmp, 5);
+    if (energyCorrectorName_=="EcalClusterEnergyCorrection") newEnergy = tmp.rawEnergy() + tmp.preshowerEnergy() + energyCorrectionFunction->getValue(tmp, modeEE_);
+    if (energyCorrectorName_=="EcalClusterEnergyCorrectionObjectSpecific") newEnergy = energyCorrectionFunction->getValue(tmp, modeEE_);
 
   } else {  
     //Apply f(nCry) correction on island algo and fixedMatrix algo 

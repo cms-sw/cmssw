@@ -8,6 +8,9 @@ correctedMulti5x5SuperClustersWithPreshower = cms.EDProducer("EgammaSCCorrection
     etThresh = cms.double(0.0),
     rawSuperClusterProducer = cms.InputTag("multi5x5SuperClustersWithPreshower"),
     applyEnergyCorrection = cms.bool(True),
+    energyCorrectorName = cms.string("EcalClusterEnergyCorrectionObjectSpecific"),
+    modeEB = cms.int32(0),
+    modeEE = cms.int32(0),
     applyCrackCorrection = cms.bool(True),
     # energy correction
     fix_fCorrPset = cms.PSet(

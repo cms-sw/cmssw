@@ -8,8 +8,10 @@ correctedHybridSuperClusters = cms.EDProducer("EgammaSCCorrectionMaker",
     etThresh = cms.double(0.0),
     rawSuperClusterProducer = cms.InputTag("hybridSuperClusters"),
     applyEnergyCorrection = cms.bool(True),
+    energyCorrectorName = cms.string("EcalClusterEnergyCorrectionObjectSpecific"),
+    modeEB = cms.int32(0),
+    modeEE = cms.int32(0),                     
     applyCrackCorrection = cms.bool(True),   
-    VerbosityLevel = cms.string('ERROR'),
     # energy correction
     hyb_fCorrPset = cms.PSet(
 

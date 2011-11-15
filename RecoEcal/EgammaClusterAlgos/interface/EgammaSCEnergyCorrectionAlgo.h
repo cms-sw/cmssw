@@ -31,7 +31,10 @@ public:
 				     const EcalRecHitCollection &rhc, 
 				     reco::CaloCluster::AlgoId theAlgo, 
 				     const CaloSubdetectorGeometry* geometry,
-				     EcalClusterFunctionBaseClass* energyCorrectionFunction);
+				     EcalClusterFunctionBaseClass* energyCorrectionFunction,
+				     std::string energyCorrectorName_,
+				     int modeEB_,
+				     int modeEE_);
   
   // take a SuperCluster and return a crack-corrected SuperCluster
   reco::SuperCluster applyCrackCorrection(const reco::SuperCluster &cl,

@@ -8,7 +8,10 @@ correctedDynamicHybridSuperClusters = cms.EDProducer("EgammaSCCorrectionMaker",
     etThresh = cms.double(0.0),
     rawSuperClusterProducer = cms.InputTag("dynamicHybridSuperClusters"),
     applyEnergyCorrection = cms.bool(True),
-    VerbosityLevel = cms.string('ERROR'),
+    energyCorrectorName = cms.string("EcalClusterEnergyCorrectionObjectSpecific"),
+    modeEB = cms.int32(0),
+    modeEE = cms.int32(0),                                                       
+
     # energy correction
     dyn_fCorrPset = cms.PSet(
         brLinearLowThr = cms.double(0.0),
@@ -19,6 +22,7 @@ correctedDynamicHybridSuperClusters = cms.EDProducer("EgammaSCCorrectionMaker",
             0.0, 1.0, 0.0)
     ),
     recHitProducer = cms.InputTag("ecalRecHit","EcalRecHitsEB")
+                                                     
 )
 
 

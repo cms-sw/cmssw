@@ -55,10 +55,15 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps)
   // set correction algo parameters
   applyEnergyCorrection_ = ps.getParameter<bool>("applyEnergyCorrection");
   applyCrackCorrection_ = ps.getParameter<bool>("applyCrackCorrection");
+  energyCorrectorName_ = ps.getParameter<std::string>("energyCorrectorName");
+  modeEB_ =  ps.getParameter<int>("modeEB");
+  modeEE_ =  ps.getParameter<int>("modeEE");
 
   sigmaElectronicNoise_ =  ps.getParameter<double>("sigmaElectronicNoise");
 
   etThresh_ =  ps.getParameter<double>("etThresh");
+
+
 
   // set the producer parameters
   outputCollection_ = ps.getParameter<std::string>("corectedSuperClusterCollection");
@@ -69,7 +74,8 @@ EgammaSCCorrectionMaker::EgammaSCCorrectionMaker(const edm::ParameterSet& ps)
   
   // energy correction class
   if (applyEnergyCorrection_ )
-    energyCorrectionFunction_ = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyCorrection", ps);
+    energyCorrectionFunction_ = EcalClusterFunctionFactory::get()->create(energyCorrectorName_.c_str(), ps);
+    //energyCorrectionFunction_ = EcalClusterFunctionFactory::get()->create("EcalClusterEnergyCorrection", ps);
   else
     energyCorrectionFunction_=0;
   if (applyCrackCorrection_ )
@@ -153,7 +159,7 @@ EgammaSCCorrectionMaker::produce(edm::Event& evt, const edm::EventSetup& es)
       reco::SuperCluster enecorrClus,crackcorrClus;
 
       if(applyEnergyCorrection_) 
-        enecorrClus = energyCorrector_->applyCorrection(*aClus, *hitCollection, sCAlgo_, geometry_p, energyCorrectionFunction_);
+        enecorrClus = energyCorrector_->applyCorrection(*aClus, *hitCollection, sCAlgo_, geometry_p, energyCorrectionFunction_, energyCorrectorName_, modeEB_, modeEE_);
       else
 	enecorrClus=*aClus;
 
