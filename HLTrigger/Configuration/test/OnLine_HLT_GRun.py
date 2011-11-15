@@ -1,11 +1,11 @@
-# /dev/CMSSW_4_4_2/GRun/V31 (CMSSW_4_4_0_HLT14)
+# /dev/CMSSW_4_4_2/GRun/V32 (CMSSW_4_4_0_HLT16)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLT" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_4_4_2/GRun/V31')
+  tableName = cms.string('/dev/CMSSW_4_4_2/GRun/V32')
 )
 
 process.streams = cms.PSet( 
@@ -5574,15 +5574,11 @@ process.hltPreActivityEcalSC7 = cms.EDFilter( "HLTPrescaler",
 )
 process.hltEcalRawToRecHitFacility = cms.EDProducer( "EcalRawToRecHitFacility",
     sourceTag = cms.InputTag( "rawDataCollector" ),
-    workerName = cms.string( "" ),
-    EBLaserMIN = cms.double( 0.5 ),
-    EELaserMIN = cms.double( 0.5 )
+    workerName = cms.string( "" )
 )
 process.hltESRawToRecHitFacility = cms.EDProducer( "EcalRawToRecHitFacility",
     sourceTag = cms.InputTag( "rawDataCollector" ),
-    workerName = cms.string( "hltESPESUnpackerWorker" ),
-    EBLaserMIN = cms.double( 0.5 ),
-    EELaserMIN = cms.double( 0.5 )
+    workerName = cms.string( "hltESPESUnpackerWorker" )
 )
 process.hltEcalRegionalRestFEDs = cms.EDProducer( "EcalRawToRecHitRoI",
     sourceTag = cms.InputTag( "hltEcalRawToRecHitFacility" ),
@@ -36343,6 +36339,7 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
       'keep *_hltCaloJetCorrectedRegional_*_*',
       'keep *_hltCaloJetCorrected_*_*',
       'keep *_hltCleanedCorrectedIslandBarrelSuperClustersHI_*_*',
+      'keep *_hltCleanedHiCorrectedIslandBarrelSuperClustersHI_*_*',
       'keep *_hltConvPFTausTightIsoTrackFindingIsolation_*_*',
       'keep *_hltConvPFTausTightIsoTrackFinding_*_*',
       'keep *_hltConvPFTausTightIsoTrackPt5Isolation_*_*',
@@ -36375,6 +36372,8 @@ process.hltOutputHLTDQM = cms.OutputModule( "PoolOutputModule",
       'keep *_hltHISiPixelClusters_*_*',
       'keep *_hltHITIPTCorrectorHB_*_*',
       'keep *_hltHITIPTCorrectorHE_*_*',
+      'keep *_hltHiCorrectedIslandEndcapSuperClustersHI_*_*',
+      'keep *_hltHiIslandSuperClustersHI_*_*',
       'keep *_hltIsolPixelTrackProdHB_*_*',
       'keep *_hltIsolPixelTrackProdHE_*_*',
       'keep *_hltIterativeCone5PileupSubtractionCaloJets_*_*',
@@ -36955,6 +36954,7 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
       'keep *_hltCaloJetCorrectedRegional_*_*',
       'keep *_hltCaloJetCorrected_*_*',
       'keep *_hltCleanedCorrectedIslandBarrelSuperClustersHI_*_*',
+      'keep *_hltCleanedHiCorrectedIslandBarrelSuperClustersHI_*_*',
       'keep *_hltConvPFTausTightIsoTrackFindingIsolation_*_*',
       'keep *_hltConvPFTausTightIsoTrackFinding_*_*',
       'keep *_hltConvPFTausTightIsoTrackPt5Isolation_*_*',
@@ -36983,6 +36983,8 @@ process.hltOutputHLTMON = cms.OutputModule( "PoolOutputModule",
       'keep *_hltHIPixel3PrimTracks_*_*',
       'keep *_hltHISelectedVertex_*_*',
       'keep *_hltHISiPixelClusters_*_*',
+      'keep *_hltHiCorrectedIslandEndcapSuperClustersHI_*_*',
+      'keep *_hltHiIslandSuperClustersHI_*_*',
       'keep *_hltIterativeCone5PileupSubtractionCaloJets_*_*',
       'keep *_hltL1HLTSingleIsoPFTau35Trk20Met60JetsMatch_*_*',
       'keep *_hltL1IsoElectronTrackIsol_*_*',
