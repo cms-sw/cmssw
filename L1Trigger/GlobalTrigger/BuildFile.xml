@@ -9,6 +9,3 @@
 <use   name="CondFormats/L1TObjects"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="xerces-c"/>
-<export>
-  <lib   name="1"/>
-</export>

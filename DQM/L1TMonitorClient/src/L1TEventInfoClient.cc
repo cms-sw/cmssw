@@ -247,7 +247,7 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
   }
 
 
-  int GCT_IsoEm_nCh=0,GCT_NonIsoEm_nCh=0,GCT_AllJets_nCh=0,GCT_TauJets_nCh=0,GMT_nCh=0,GT_AlgoBits_nCh=0,GT_TechBits_nCh=0;
+  int GCT_IsoEm_nCh=0,GCT_NonIsoEm_nCh=0,GCT_AllJets_nCh=0,GCT_TauJets_nCh=0,GMT_nCh=0;
   
   if(GCT_IsoEm_nYCh) 
     GCT_IsoEm_nCh = GCT_IsoEm_nXCh*GCT_IsoEm_nYCh;
@@ -259,8 +259,6 @@ void L1TEventInfoClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
     GCT_TauJets_nCh = GCT_TauJets_nXCh*GCT_TauJets_nYCh;
   if(GMT_nYCh) 
     GMT_nCh = GMT_nXCh*GMT_nYCh;
-  if(GT_AlgoBits_QHist) GT_AlgoBits_nCh = GT_AlgoBits_QHist->getNbinsX(); 
-  if(GT_TechBits_QHist) GT_TechBits_nCh = GT_TechBits_QHist->getNbinsX(); 
 
 
 

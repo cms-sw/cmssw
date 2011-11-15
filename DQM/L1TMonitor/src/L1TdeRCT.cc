@@ -950,8 +950,8 @@ void L1TdeRCT::analyze(const Event & e, const EventSetup & c)
   edm::Handle < L1CaloRegionCollection > rgnEmul;
 
   // need to change to getByLabel
-  bool doEm = true;
-  bool doHd = true;
+  // bool doEm = true; FIXME gcc461: variable 'doEm' set but not used
+  // bool doHd = true; FIXME gcc461: variable 'doHd' set but not used
   bool doEcal = true;
   bool doHcal = true;
 
@@ -1049,14 +1049,14 @@ if(verbose_) std::cout << " ECAL data: Energy: " << iEcalTp->compressedEt() << "
     edm::LogInfo("DataNotFound") << "can't find L1CaloRegionCollection with label "
              << rctSourceData_.label() ;
     if (verbose_)std::cout << "Can not find rgnData!" << std::endl ;
-    doHd = false;
+    // doHd = false;
   }
 
 //  if ( doHd ) {
   if (!rgnEmul.isValid()) {
     edm::LogInfo("DataNotFound") << "can't find L1CaloRegionCollection with label "
              << rctSourceEmul_.label() ;
-    doHd = false;
+    // doHd = false;
     if (verbose_)std::cout << "Can not find rgnEmul!" << std::endl ;
   }
 //  }
@@ -1069,7 +1069,7 @@ if(verbose_) std::cout << " ECAL data: Energy: " << iEcalTp->compressedEt() << "
     edm::LogInfo("DataNotFound") << "can't find L1CaloEmCollection with label "
              << rctSourceData_.label() ;
     if (verbose_)std::cout << "Can not find emData!" << std::endl ;
-    doEm = false;
+    // doEm = false;
   }
 
 //  if ( doEm ) {
@@ -1078,7 +1078,8 @@ if(verbose_) std::cout << " ECAL data: Energy: " << iEcalTp->compressedEt() << "
     edm::LogInfo("DataNotFound") << "can't find L1CaloEmCollection with label "
              << rctSourceEmul_.label() ;
     if (verbose_)std::cout << "Can not find emEmul!" << std::endl ;
-    doEm = false; return ;
+    // doEm = false;
+    return ;
   }
 
 //  }

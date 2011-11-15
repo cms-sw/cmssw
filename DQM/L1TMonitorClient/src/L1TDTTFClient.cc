@@ -1,8 +1,8 @@
 /*
  * \file L1TDTTFClient.cc
  *
- * $Date: 2010/11/14 14:02:42 $
- * $Revision: 1.6 $
+ * $Date: 2011/03/28 15:16:52 $
+ * $Revision: 1.7 $
  * \author G. Codispoti
  *
  */
@@ -1120,16 +1120,15 @@ void L1TDTTFClient::buildPhiEtaPlotOFC( MonitorElement * phi_eta_fine_integ,
 
   for ( unsigned int phi = 1; phi < 145 ; ++phi ) {
     float start = 0;
-    float stop = 0;
     int nbins = 0;
     switch ( wh ) {
-    case 0 : start = 0; stop = 18; nbins = 18; break; // N2
-    case 1 : start = 8; stop = 28; nbins = 20; break; // N1
-    case 2 : start = 22; stop = 32; nbins = 10; break; // N0
-    case 3 : start = 22; stop = 42; nbins = 20; break; // P0
-    case 4 : start = 36; stop = 56; nbins = 20; break; // P1
-    case 5 : start = 46; stop = 64; nbins = 18; break; // P2
-    default : start = 0; stop = 0; nbins = 0; break; // BOH
+    case 0 : start = 0;  nbins = 18; break; // N2
+    case 1 : start = 8;  nbins = 20; break; // N1
+    case 2 : start = 22; nbins = 10; break; // N0
+    case 3 : start = 22; nbins = 20; break; // P0
+    case 4 : start = 36; nbins = 20; break; // P1
+    case 5 : start = 46; nbins = 18; break; // P2
+    default : start = 0; nbins = 0; break; // BOH
     }
 
     for ( int eta = 1; eta <= nbins ; ++eta ) {
@@ -1191,16 +1190,15 @@ void L1TDTTFClient::buildPhiEtaPlotO( MonitorElement * phi_eta_integ,
 
     for ( unsigned int phi = 1; phi < 145 ; ++phi ) {
       float start = 0;
-      float stop = 0;
       int nbins = 0;
       switch ( wh ) {
-      case 0 : start = 0; stop = 18; nbins = 18; break; // N2
-      case 1 : start = 8; stop = 28; nbins = 20; break; // N1
-      case 2 : start = 22; stop = 32; nbins = 10; break; // N0
-      case 3 : start = 22; stop = 42; nbins = 20; break; // P0
-      case 4 : start = 36; stop = 56; nbins = 20; break; // P1
-      case 5 : start = 46; stop = 64; nbins = 18; break; // P2
-      default : start = 0; stop = 0; nbins = 0; break; // BOH
+      case 0 : start = 0;  nbins = 18; break; // N2
+      case 1 : start = 8;  nbins = 20; break; // N1
+      case 2 : start = 22; nbins = 10; break; // N0
+      case 3 : start = 22; nbins = 20; break; // P0
+      case 4 : start = 36; nbins = 20; break; // P1
+      case 5 : start = 46; nbins = 18; break; // P2
+      default : start = 0; nbins = 0; break; // BOH
       }
 
       for ( int eta = 1; eta <= nbins ; ++eta ) {

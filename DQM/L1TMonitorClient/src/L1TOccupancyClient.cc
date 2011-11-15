@@ -117,11 +117,12 @@ void L1TOccupancyClient::beginRun(const Run& r, const EventSetup& context){
 	// Creating verbose file directory structure
         // test_name/test_name_Results, 
 	// test_name/test_name_Histos
-        TDirectory *td  = file_->mkdir(testName.c_str()             ,testName.c_str());
-        TDirectory *sub = td   ->mkdir((testName+"_Results").c_str(),string("_Results").c_str());
+        // TDirectory *td  = file_->mkdir(testName.c_str()             ,testName.c_str());
+        //FIXME: sub never used gcc361 warning
+        //TDirectory *sub = td   ->mkdir((testName+"_Results").c_str(),string("_Results").c_str());
 
-        sub = td->mkdir((testName+"_Histos").c_str()      ,(testName+"_Histos").c_str());
-        sub = td->mkdir((testName+"_Histos_AllLS").c_str(),(testName+"_Histos_AllLS").c_str());
+        //sub = td->mkdir((testName+"_Histos").c_str()      ,(testName+"_Histos").c_str());
+        //sub = td->mkdir((testName+"_Histos_AllLS").c_str(),(testName+"_Histos_AllLS").c_str());
       }
       
       // Load histograms in service instance
@@ -416,7 +417,6 @@ double L1TOccupancyClient::xySymmetry(ParameterSet                ps,
   int    pAverageMode       = ps.getUntrackedParameter<int>   ("averageMode",2); // 1=arith. mean, 2=median
   int    nBinsX             = diffHist->GetNbinsX();           // actual number of bins x
   int    nBinsY             = diffHist->GetNbinsY();           // actual number of bins y
-  int    nBins              = 0;
   
   // Axis==1 : Means symmetry axis is vertical
   if(pAxis==1){
@@ -424,7 +424,6 @@ double L1TOccupancyClient::xySymmetry(ParameterSet                ps,
     int maxBinStrip, centralBinStrip; // x-coordinate of strips
     
     maxBinStrip = nBinsX;
-    nBins       = nBinsX;
     
     // If takeCenter=true  determine central bin of the pAxis
     // If takeCenter=false determine the bin to use based user input
@@ -504,7 +503,6 @@ double L1TOccupancyClient::xySymmetry(ParameterSet                ps,
     int maxBinStrip, centralBinStrip; //x-coordinate of strips
     
     maxBinStrip = nBinsY;
-    nBins = nBinsY;
     
     // Determine center of diagram: either with set pAxis or middle of diagram
     if(ps.getUntrackedParameter<bool>("takeCenter",true)){centralBinStrip = nBinsY / 2 + 1;}

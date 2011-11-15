@@ -1,8 +1,8 @@
 /*
  * \file L1TRPCTF.cc
  *
- * $Date: 2009/11/19 14:40:13 $
- * $Revision: 1.31 $
+ * $Date: 2011/06/02 09:32:55 $
+ * $Revision: 1.32 $
  * \author J. Berryhill
  *
  */
@@ -296,7 +296,6 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
 
   std::vector<int> nrpctftrack_b(3,0);
   std::vector<int> nrpctftrack_e(3,0);
-  bool rpcCandsPresentInEvent = false;
 
   vector<L1TRPCTF::BxDelays> all_bxdelays;
 
@@ -329,7 +328,6 @@ void L1TRPCTF::analyze(const Event& e, const EventSetup& c)
         
         if (!ECItr->empty()) {
           
-          rpcCandsPresentInEvent = true;
           
           if (beIndex == 0) ++nrpctftrack_b[bxindex];
           if (beIndex == 1) ++nrpctftrack_e[bxindex];

@@ -368,8 +368,8 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
 
 	// Initialize Arrays
 	////////////////////
-	int nDataMuons = 0; 
-	int nEmulMuons = 0;
+	unsigned int nDataMuons = 0;
+	unsigned int nEmulMuons = 0;
 	int dataMuonArray[8][10], emuMuonArray[8][10];
 	for(int muon=0; muon<8; muon++)
 	{
@@ -470,9 +470,9 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
 	if(nDataMuons==nEmulMuons)
 	{
 		//First, find EXACT address matches in a given sector, endcap
-		for(int mu1=0; mu1<nDataMuons; mu1++)
+		for(unsigned int mu1=0; mu1<nDataMuons; mu1++)
 		{
-			for(int mu2=0; mu2<nEmulMuons; mu2++)
+			for(unsigned int mu2=0; mu2<nEmulMuons; mu2++)
 			if((emuMuonArray[mu2][1]==dataMuonArray[mu1][1])&&(emuMuonArray[mu2][2]==dataMuonArray[mu1][2]))
 			{
 				if(emuMuonArray[mu2][0]==dataMuonArray[mu1][0])
@@ -483,11 +483,11 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
 			}
 		}
 		//Next, try to match unmapped 
-		for(int c2a=0; c2a<nEmulMuons; c2a++)
+		for(unsigned int c2a=0; c2a<nEmulMuons; c2a++)
 		{
 			if(emuMuonArray[c2a][3]==-1)
 			{
-				for(int cor_a=0; cor_a<nDataMuons; cor_a++)
+				for(unsigned int cor_a=0; cor_a<nDataMuons; cor_a++)
 				{
 					if( (dataMuonArray[cor_a][1]==emuMuonArray[c2a][1]) && (dataMuonArray[cor_a][2]==emuMuonArray[c2a][2]))// && (dataMuonArray[cor_a][3]==-1))
 					{
@@ -501,9 +501,9 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
 		bool multiMap = false;
 		if(nEmulMuons!=1)
 		{
-			for(int c1a=0; c1a<(nEmulMuons-1); c1a++) 
+			for(unsigned int c1a=0; c1a<(nEmulMuons-1); c1a++)
 			{
-				for(int c1b=(c1a+1); c1b<nEmulMuons; c1b++)
+				for(unsigned int c1b=(c1a+1); c1b<nEmulMuons; c1b++)
 				{
 					if(emuMuonArray[c1a][3]==emuMuonArray[c1b][3])
 					{
@@ -514,7 +514,7 @@ void L1TdeCSCTF::analyze(Event const& e, EventSetup const& es){
 			}
 		}
 		//Fill histograms based on matched Tracks
-		for(int mu3=0; mu3<nEmulMuons; mu3++) 
+		for(unsigned int mu3=0; mu3<nEmulMuons; mu3++)
 		{
 			int mapping = emuMuonArray[mu3][3];
 			if((mapping!=-1)&&(multiMap==false))

@@ -548,8 +548,6 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
     bool receiveHfBitCounts = false;
     bool receiveHfRingEtSums = false;
 
-    bool receiveCastor = false;
-    bool receiveBptx = false;
     bool receiveExternal = false;
 
     bool receiveTechTr = false;
@@ -639,12 +637,12 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
 
                                         break;
                                     case CastorQ: {
-                                            receiveCastor = true;
+                                            // obsolete
                                         }
 
                                         break;
                                     case BptxQ: {
-                                            receiveBptx = true;
+                                            // obsolete
                                         }
 
                                         break;
@@ -1008,6 +1006,11 @@ void L1GlobalTrigger::produce(edm::Event& iEvent, const edm::EventSetup& evSetup
                     m_technicalTriggersInputTags, iBxInEvent, receiveTechTr,
                     m_numberTechnicalTriggers);
         }
+
+        if (receiveExternal) {
+            // FIXME read the external conditions
+        }
+
 
         if (m_produceL1GtDaqRecord && m_writePsbL1GtDaqRecord) {
             m_gtPSB->fillPsbBlock(
