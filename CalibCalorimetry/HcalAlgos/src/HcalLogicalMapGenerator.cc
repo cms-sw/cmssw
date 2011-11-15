@@ -1527,6 +1527,10 @@ void HcalLogicalMapGenerator::buildZDCMap(std::vector <ZDCLogicalMapEntry>& ZDCE
       }
       if (itb==0) {
         ihtr_fi = irm_fi;
+        if(mapIOV_==4) {
+          if(icab == 4) { iadc = 5; ifi_ch = 2; }
+          if(icab == 6) { iadc = 3; ifi_ch = 0; }
+        }
       }
       else {
 	if (mapIOV_<4) ihtr_fi = irm_fi + 3;
