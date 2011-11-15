@@ -33,9 +33,9 @@ TrajectoryStateOnSurface
   // Extract information from muchambers
 
   int charge;
-  int imin0;
-  unsigned imax0;
-  double ptmax,ptmin,pt,phi,theta,theta0,z,pl;
+
+  int imin0, imax0;
+  double ptmax,ptmin,pt,phi,theta,z,pl;
   double dfcalc,phnext,bound;
   float ptboun=theFmpConst->ptboun;
   float step=theFmpConst->step;
@@ -43,14 +43,14 @@ TrajectoryStateOnSurface
   GlobalVector moment=fts.parameters().momentum();
   GlobalPoint posit=fts.parameters().position();
   pt=moment.perp();
-  theta0=moment.theta();
+
 // Correct theta
           double zfts=fts.parameters().position().z()-theFmpConst->zvert;
           double rfts=fts.parameters().position().perp();
   theta = atan2(rfts,zfts);
 
 #ifdef PROPAGATOR_DB
-  cout<<"FastMuPropagator::propagate::Start propagation in barrel::theta old, new "<<theta0<<" "<<theta<<endl;
+  cout<<"FastMuPropagator::propagate::Start propagation in barrel::theta old, new "<<moment.theta()<<" "<<theta<<endl;
 #endif
 
   phi=posit.phi();
@@ -59,7 +59,7 @@ TrajectoryStateOnSurface
   bound=boundcyl.radius();
   charge=fts.parameters().charge();
 
-  imax0=(unsigned)((ptmax-ptboun)/step)+1;
+  imax0=(int)((ptmax-ptboun)/step)+1;
   imin0=(int)((ptmin-ptboun)/step)+1;
 #ifdef PROPAGATOR_DB     
   cout<<"FastMuPropagator::Look ptboun,step,imin0,imax0="<<ptboun<<" "<<step<<
@@ -183,9 +183,8 @@ TrajectoryStateOnSurface
    
   // Extract information from muchambers
 
-  int imin0;
-  unsigned imax0;
-  double ptmax,ptmin,pt,phi,theta,theta0,z,r,pl,plmin,plmax;
+  int imin0, imax0;
+  double ptmax,ptmin,pt,phi,theta,z,r,pl,plmin,plmax;
   double dfcalc,phnext;
   TrackCharge charge;
   float ptboun=theFmpConst->ptboun;
@@ -195,14 +194,14 @@ TrajectoryStateOnSurface
   GlobalVector moment=fts.parameters().momentum();
   GlobalPoint posit=fts.parameters().position();
   pt=moment.perp();
-  theta0=moment.theta();
+
 // Correct theta
           double zfts=fts.parameters().position().z()-theFmpConst->zvert;
           double rfts=fts.parameters().position().perp();
   theta = atan2(rfts,zfts);
 
 #ifdef PROPAGATOR_DB
-  cout<<"FastMuPropagator::propagate::Start propagation in forward::theta old, new "<<theta0<<" "<<theta<<endl;
+  cout<<"FastMuPropagator::propagate::Start propagation in forward::theta old, new "<<moment.theta()<<" "<<theta<<endl;
 #endif
 
   phi=posit.phi();
@@ -211,7 +210,7 @@ TrajectoryStateOnSurface
   pl=pt/tan(theta);
   plmin=ptmin/tan(theta);
   plmax=ptmax/tan(theta);
-  imax0=(unsigned)((ptmax-ptboun)/step)+1;
+  imax0=(int)((ptmax-ptboun)/step)+1;
   imin0=(int)((ptmin-ptboun)/step)+1;
 #ifdef PROPAGATOR_DB     
   cout<<"FastMuPropagator::Look ptboun,step,imin0,imax0="<<ptboun<<" "<<step<<
